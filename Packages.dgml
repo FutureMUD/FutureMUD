@@ -1,0 +1,41 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<DirectedGraph GraphDirection="LeftToRight" xmlns="http://schemas.microsoft.com/vs/2009/dgml">
+  <Nodes>
+    <Node Id="Futuremud Configuration Tool" Label="Futuremud Configuration Tool" Category="Project" />
+    <Node Id="EntityFramework 6.1.1" Label="EntityFramework 6.1.1" Category="Package" />
+    <Node Id="iTextSharp 5.4.5" Label="iTextSharp 5.4.5" Category="Package" />
+    <Node Id="MudSharpDatabaseModel" Label="MudSharpDatabaseModel" Category="Project" />
+    <Node Id="EntityFramework 6.1.1" Label="EntityFramework 6.1.1" Category="Package" />
+    <Node Id="MudSharp" Label="MudSharp" Category="Project" />
+    <Node Id="Dapper 1.38" Label="Dapper 1.38" Category="Package" />
+    <Node Id="Dapper.Microsoft.Sql 0.0.5" Label="Dapper.Microsoft.Sql 0.0.5" Category="Package" />
+    <Node Id="Dapper.Tvp 1.0.0" Label="Dapper.Tvp 1.0.0" Category="Package" />
+    <Node Id="EntityFramework 6.1.1" Label="EntityFramework 6.1.1" Category="Package" />
+    <Node Id="Newtonsoft.Json 4.5.11" Label="Newtonsoft.Json 4.5.11" Category="Package" />
+  </Nodes>
+  <Links>
+    <Link Source="Futuremud Configuration Tool" Target="EntityFramework 6.1.1" Category="Installed Package" />
+    <Link Source="Futuremud Configuration Tool" Target="iTextSharp 5.4.5" Category="Installed Package" />
+    <Link Source="MudSharpDatabaseModel" Target="EntityFramework 6.1.1" Category="Installed Package" />
+    <Link Source="Dapper.Microsoft.Sql 0.0.5" Target="Dapper 1.38" Category="Package Dependency" />
+    <Link Source="Dapper.Tvp 1.0.0" Target="Dapper 1.38" Category="Package Dependency" />
+    <Link Source="MudSharp" Target="Dapper.Microsoft.Sql 0.0.5" Category="Installed Package" />
+    <Link Source="MudSharp" Target="Dapper.Tvp 1.0.0" Category="Installed Package" />
+    <Link Source="MudSharp" Target="EntityFramework 6.1.1" Category="Installed Package" />
+    <Link Source="MudSharp" Target="Newtonsoft.Json 4.5.11" Category="Installed Package" />
+  </Links>
+  <Categories>
+    <Category Id="Project" />
+    <Category Id="Package" />
+  </Categories>
+  <Styles>
+    <Style TargetType="Node" GroupLabel="Project" ValueLabel="True">
+      <Condition Expression="HasCategory('Project')" />
+      <Setter Property="Background" Value="Blue" />
+    </Style>
+    <Style TargetType="Link" GroupLabel="Package Dependency" ValueLabel="True">
+      <Condition Expression="HasCategory('Package Dependency')" />
+      <Setter Property="Background" Value="Yellow" />
+    </Style>
+  </Styles>
+</DirectedGraph>

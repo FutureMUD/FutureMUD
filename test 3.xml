@@ -1,0 +1,188 @@
+<calendar>
+  <alias>gregorian</alias>
+  <shortname>Gregorian Calendar (EN-UK)</shortname>
+  <fullname>The Gregorian Calendar, in English with British Date Display, circa 2012</fullname>
+  <description><![CDATA[The calendar created by pope Gregory to replace the Julian calendar. English edition.]]></description>
+  <shortstring>$dd/$mo/$yy</shortstring>
+  <longstring>$nz$ww the $dt of $mf, $yy A.D</longstring>
+  <wordystring>$NZ$ww on this $DT day of the month of $mf, in the $YO year of our Lord</wordystring>
+  <plane>earth</plane>
+  <feedclock>0</feedclock>
+  <epochyear>2010</epochyear>
+  <weekdayatepoch>4</weekdayatepoch>
+  <ancienterashortstring>BC</ancienterashortstring>
+  <ancienteralongstring>before Christ</ancienteralongstring>
+  <modernerashortstring>AD</modernerashortstring>
+  <moderneralongstring>year of our Lord</moderneralongstring>
+  <weekdays>
+    <weekday>Monday</weekday>
+    <weekday>Tuesday</weekday>
+    <weekday>Wednesday</weekday>
+    <weekday>Thursday</weekday>
+    <weekday>Friday</weekday>
+    <weekday>Saturday</weekday>
+    <weekday>Sunday</weekday>
+  </weekdays>
+  <months>
+    <month>
+      <alias>january</alias>
+      <shortname>jan</shortname>
+      <fullname>January</fullname>
+      <nominalorder>1</nominalorder>
+      <normaldays>31</normaldays>
+      <intercalarydays />
+      <specialdays>
+        <specialday day="26" short="Australia Day" long="Australia Day" />
+      </specialdays>
+      <nonweekdays />
+    </month>
+    <month>
+      <alias>february</alias>
+      <shortname>feb</shortname>
+      <fullname>February</fullname>
+      <nominalorder>2</nominalorder>
+      <normaldays>28</normaldays>
+      <intercalarydays>
+        <intercalaryday>
+          <insertdays>1</insertdays>
+          <nonweekdays />
+          <removenonweekdays />
+          <specialdays>
+            <specialday day="29" short="Backwards Day" long="Backwards Day" />
+          </specialdays>
+          <removespecialdays />
+          <intercalaryrule>
+            <offset>0</offset>
+            <divisor>4</divisor>
+            <exceptions>
+              <intercalaryrule>
+                <offset>0</offset>
+                <divisor>100</divisor>
+                <exceptions>
+                  <intercalaryrule>
+                    <offset>0</offset>
+                    <divisor>400</divisor>
+                    <exceptions />
+                    <ands />
+                    <ors />
+                  </intercalaryrule>
+                </exceptions>
+                <ands />
+                <ors />
+              </intercalaryrule>
+            </exceptions>
+            <ands />
+            <ors />
+          </intercalaryrule>
+        </intercalaryday>
+      </intercalarydays>
+      <specialdays />
+      <nonweekdays />
+    </month>
+    <month>
+      <alias>march</alias>
+      <shortname>mar</shortname>
+      <fullname>March</fullname>
+      <nominalorder>3</nominalorder>
+      <normaldays>31</normaldays>
+      <intercalarydays />
+      <specialdays />
+      <nonweekdays />
+    </month>
+    <month>
+      <alias>april</alias>
+      <shortname>apr</shortname>
+      <fullname>April</fullname>
+      <nominalorder>4</nominalorder>
+      <normaldays>30</normaldays>
+      <intercalarydays />
+      <specialdays />
+      <nonweekdays />
+    </month>
+    <month>
+      <alias>may</alias>
+      <shortname>may</shortname>
+      <fullname>May</fullname>
+      <nominalorder>5</nominalorder>
+      <normaldays>31</normaldays>
+      <intercalarydays />
+      <specialdays />
+      <nonweekdays />
+    </month>
+    <month>
+      <alias>june</alias>
+      <shortname>jun</shortname>
+      <fullname>June</fullname>
+      <nominalorder>6</nominalorder>
+      <normaldays>30</normaldays>
+      <intercalarydays />
+      <specialdays />
+      <nonweekdays />
+    </month>
+    <month>
+      <alias>july</alias>
+      <shortname>jul</shortname>
+      <fullname>July</fullname>
+      <nominalorder>7</nominalorder>
+      <normaldays>31</normaldays>
+      <intercalarydays />
+      <specialdays />
+      <nonweekdays />
+    </month>
+    <month>
+      <alias>august</alias>
+      <shortname>aug</shortname>
+      <fullname>August</fullname>
+      <nominalorder>8</nominalorder>
+      <normaldays>31</normaldays>
+      <intercalarydays />
+      <specialdays />
+      <nonweekdays />
+    </month>
+    <month>
+      <alias>september</alias>
+      <shortname>sep</shortname>
+      <fullname>September</fullname>
+      <nominalorder>9</nominalorder>
+      <normaldays>30</normaldays>
+      <intercalarydays />
+      <specialdays />
+      <nonweekdays />
+    </month>
+    <month>
+      <alias>october</alias>
+      <shortname>oct</shortname>
+      <fullname>October</fullname>
+      <nominalorder>10</nominalorder>
+      <normaldays>31</normaldays>
+      <intercalarydays />
+      <specialdays />
+      <nonweekdays />
+    </month>
+    <month>
+      <alias>november</alias>
+      <shortname>nov</shortname>
+      <fullname>November</fullname>
+      <nominalorder>11</nominalorder>
+      <normaldays>30</normaldays>
+      <intercalarydays />
+      <specialdays />
+      <nonweekdays />
+    </month>
+    <month>
+      <alias>december</alias>
+      <shortname>dec</shortname>
+      <fullname>December</fullname>
+      <nominalorder>12</nominalorder>
+      <normaldays>31</normaldays>
+      <intercalarydays />
+      <specialdays>
+        <specialday day="25" short="Christmas" long="Christmas Day" />
+        <specialday day="26" short="Boxing Day" long="Boxing Day" />
+        <specialday day="31" short="New Years Eve" long="New Years Eve" />
+      </specialdays>
+      <nonweekdays />
+    </month>
+  </months>
+  <intercalarymonths />
+</calendar>

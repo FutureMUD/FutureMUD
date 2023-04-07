@@ -1,0 +1,383 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{26B7ACBD-03D8-4D17-8E4F-6FBB712856D0}</ProjectGuid>
+    <OutputType>WinExe</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Futuremud_Configuration_Tool</RootNamespace>
+    <AssemblyName>FutureMUD Configuration Tool</AssemblyName>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <ProjectTypeGuids>{60dc8134-eba5-43b8-bcc9-bb4bc16c2548};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+    <WarningLevel>4</WarningLevel>
+    <TargetFrameworkProfile />
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>Images\FM Logo.ico</ApplicationIcon>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug %28LabMUD%29|AnyCPU'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\Debug %28LabMUD%29\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <Prefer32Bit>true</Prefer32Bit>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <HintPath>..\packages\EntityFramework.6.2.0\lib\net45\EntityFramework.dll</HintPath>
+    </Reference>
+    <Reference Include="EntityFramework.SqlServer, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <HintPath>..\packages\EntityFramework.6.2.0\lib\net45\EntityFramework.SqlServer.dll</HintPath>
+    </Reference>
+    <Reference Include="itextsharp, Version=5.5.12.0, Culture=neutral, PublicKeyToken=8354ae6d2174ddca, processorArchitecture=MSIL">
+      <HintPath>..\packages\iTextSharp.5.5.12\lib\itextsharp.dll</HintPath>
+    </Reference>
+    <Reference Include="MySql.Data.Entity.EF6, Version=0.0.0.0, Culture=neutral, PublicKeyToken=c5687fc88969c44d, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.Xaml">
+      <RequiredTargetFramework>4.0</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="WindowsBase" />
+    <Reference Include="PresentationCore" />
+    <Reference Include="PresentationFramework" />
+  </ItemGroup>
+  <ItemGroup>
+    <ApplicationDefinition Include="App.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </ApplicationDefinition>
+    <Compile Include="Initialisation\InitialisationContext.cs" />
+    <Compile Include="Converters\ANSIColourToFlowDocument.cs" />
+    <Compile Include="Model\ExceptionViewer.xaml.cs">
+      <DependentUpon>ExceptionViewer.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Model\DisplayControl.xaml.cs">
+      <DependentUpon>DisplayControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Model\FuturemudBaseControl.cs" />
+    <Compile Include="Model\LoadingSplash.xaml.cs">
+      <DependentUpon>LoadingSplash.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Model\MainWindow.xaml.cs">
+      <DependentUpon>MainWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Subcontrols\ColourViewer.xaml.cs">
+      <DependentUpon>ColourViewer.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Subcontrols\StaticStringViewer.xaml.cs">
+      <DependentUpon>StaticStringViewer.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Subcontrols\WearProfileViewer.xaml.cs">
+      <DependentUpon>WearProfileViewer.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UI\AboutWindow.xaml.cs">
+      <DependentUpon>AboutWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UI\AccentViewer.xaml.cs">
+      <DependentUpon>AccentViewer.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Converters\BasicColourToStringConverter.cs" />
+    <Compile Include="Converters\BytesToMegaBytesConverter.cs" />
+    <Compile Include="UI\CharacteristicDefinitionViewer.xaml.cs">
+      <DependentUpon>CharacteristicDefinitionViewer.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UI\CharacteristicProfileStandard.cs" />
+    <Compile Include="Converters\CharacteristicTypeToStringConverter.cs" />
+    <Compile Include="UI\CharacteristicColourValueViewer.xaml.cs">
+      <DependentUpon>CharacteristicColourValueViewer.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UI\CharacteristicValueViewer.xaml.cs">
+      <DependentUpon>CharacteristicValueViewer.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Converters\ChargenDisplayTypeToStringConverter.cs" />
+    <Compile Include="Converters\ColourIdToStringConverter.cs" />
+    <Compile Include="UI\ColourViewer.xaml.cs">
+      <DependentUpon>ColourViewer.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UI\CurrencyDescriptionPatternElementViewer.xaml.cs">
+      <DependentUpon>CurrencyDescriptionPatternElementViewer.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Converters\CurrencyDescriptionPatternTypeToStringConverter.cs" />
+    <Compile Include="UI\CurrencyDescriptionPatternViewer.xaml.cs">
+      <DependentUpon>CurrencyDescriptionPatternViewer.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UI\CurrencyDivisionViewer.xaml.cs">
+      <DependentUpon>CurrencyDivisionViewer.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UI\CurrencyViewer.xaml.cs">
+      <DependentUpon>CurrencyViewer.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Converters\DifficultyToStringConverter.cs" />
+    <Compile Include="Converters\DisplayProperSaveLowerStringConverter.cs" />
+    <Compile Include="Converters\FutureProgNullableConverter.cs" />
+    <Compile Include="Converters\FutureProgVariableTypeToStringConverter.cs" />
+    <Compile Include="UI\FutureProgViewer.xaml.cs">
+      <DependentUpon>FutureProgViewer.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UI\LanguageViewer.xaml.cs">
+      <DependentUpon>LanguageViewer.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Converters\NullableCharacteristicDefinitionConverter.cs" />
+    <Compile Include="Converters\NullableStringConverter.cs" />
+    <Compile Include="UI\RegexValidator.cs" />
+    <Compile Include="UI\AttributeViewer.xaml.cs">
+      <DependentUpon>AttributeViewer.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Converters\RoundingTypeToStringConverter.cs" />
+    <Compile Include="UI\SkillViewer.xaml.cs">
+      <DependentUpon>SkillViewer.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UI\StandardCharacteristicProfileViewer.xaml.cs">
+      <DependentUpon>StandardCharacteristicProfileViewer.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UI\StaticConfigurationViewer.xaml.cs">
+      <DependentUpon>StaticConfigurationViewer.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UI\StaticStringViewer.xaml.cs">
+      <DependentUpon>StaticStringViewer.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Converters\TraitDecoratorToIDConverter.cs" />
+    <Compile Include="Converters\TraitDerivedTypeToStringConverter.cs" />
+    <Compile Include="UI\TraitExpressionViewer.xaml.cs">
+      <DependentUpon>TraitExpressionViewer.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Converters\TraitImproverToIDConverter.cs" />
+    <Compile Include="Converters\TraitToIdConverter.cs" />
+    <Compile Include="Converters\TraitTypeMultiConverter.cs" />
+    <Compile Include="Converters\TraitTypeToStringConverter.cs" />
+    <Compile Include="UI\WearProfileViewer.xaml.cs">
+      <DependentUpon>WearProfileViewer.xaml</DependentUpon>
+    </Compile>
+    <Page Include="Model\DisplayControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Model\ExceptionViewer.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Model\LoadingSplash.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Model\MainWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Subcontrols\ColourViewer.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Subcontrols\StaticStringViewer.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Subcontrols\WearProfileViewer.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UI\AboutWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UI\AccentViewer.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UI\CharacteristicDefinitionViewer.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UI\CharacteristicColourValueViewer.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="UI\CharacteristicValueViewer.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UI\ColourViewer.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UI\Common.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UI\CurrencyDescriptionPatternElementViewer.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UI\CurrencyDescriptionPatternViewer.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UI\CurrencyDivisionViewer.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UI\CurrencyViewer.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UI\FutureProgViewer.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UI\HelpScreen.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UI\LanguageViewer.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UI\MainWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Compile Include="App.xaml.cs">
+      <DependentUpon>App.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="UI\Message.cs" />
+    <Compile Include="UI\HelpScreen.xaml.cs">
+      <DependentUpon>HelpScreen.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="UI\MainWindow.xaml.cs">
+      <DependentUpon>MainWindow.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Page Include="UI\AttributeViewer.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UI\SkillViewer.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UI\StandardCharacteristicProfileViewer.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UI\StaticConfigurationViewer.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="UI\StaticStringViewer.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UI\TraitExpressionViewer.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UI\WearProfileViewer.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Properties\AssemblyInfo.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Settings.settings</DependentUpon>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+    </Compile>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <None Include="packages.config" />
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+    <AppDesigner Include="Properties\" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\Cross_Icon.png" />
+    <Resource Include="Images\Tick_Icon.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\FM Logo.png" />
+    <Resource Include="Images\FM Logo.ico">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\FutureMUDCommonLibrary\FutureMUDCommonLibrary.csproj">
+      <Project>{61d6b0f6-59cb-4aa9-adde-8596f90f57c2}</Project>
+      <Name>FutureMUDCommonLibrary</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\MudSharpDatabase\MudSharpDatabaseModel.csproj">
+      <Project>{48b8c8ef-d3f0-498d-b9f9-f6b7f98a26e9}</Project>
+      <Name>MudSharpDatabaseModel</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\MudSharp\MudSharp.csproj">
+      <Project>{9b658591-aaf4-468d-84e6-ec2137757243}</Project>
+      <Name>MudSharp</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <ProjectExtensions>
+    <VisualStudio>
+      <UserProperties BuildVersion_StartDate="2000/1/1" />
+    </VisualStudio>
+  </ProjectExtensions>
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

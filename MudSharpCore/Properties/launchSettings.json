@@ -1,0 +1,59 @@
+{
+  "profiles": {
+    "MudSharpCore": {
+      "commandName": "Project"
+    },
+    "Reckoning": {
+      "commandName": "Project",
+      "commandLineArgs": "\"MySql.Data.MySqlClient\" \"server=localhost;port=3306;database=reckoning_mud;uid=futuremud;password=rpiengine2020;Default Command Timeout=300000;\""
+    },
+    "Test DBO": {
+      "commandName": "Project",
+      "commandLineArgs": "\"MySql.Data.MySqlClient\" \"server=localhost;port=3306;database=test_dbo;uid=futuremud;password=rpiengine2020;Default Command Timeout=300000;\""
+    },
+    "LabMUD": {
+      "commandName": "Project",
+      "commandLineArgs": "\"MySql.Data.MySqlClient\" \"server=localhost;port=3306;database=labmud_dbo;uid=futuremud;password=rpiengine2020;Default Command Timeout=300000;\""
+    },
+    "Nez DBO": {
+      "commandName": "Project",
+      "commandLineArgs": "\"MySql.Data.MySqlClient\" \"server=localhost;port=3306;database=nez_dbo;uid=futuremud;password=rpiengine2020;Default Command Timeout=300000;\""
+    },
+    "Jenna DBO": {
+      "commandName": "Project",
+      "commandLineArgs": "\"MySql.Data.MySqlClient\" \"server=localhost;port=3306;database=jenna_dbo;uid=futuremud;password=rpiengine2020;Default Command Timeout=300000;\""
+    },
+    "Orbit": {
+      "commandName": "Project",
+      "commandLineArgs": "\"MySql.Data.MySqlClient\" \"server=localhost;port=3306;database=orbit_dbo;uid=futuremud;password=rpiengine2020;Default Command Timeout=300000;\""
+    },
+    "NewTest DBO": {
+      "commandName": "Project",
+      "commandLineArgs": "\"MySql.Data.MySqlClient\" \"server=localhost;port=3306;database=newtest_dbo;uid=futuremud;password=rpiengine2020;Default Command Timeout=300000;\""
+    },
+    "Demo": {
+      "commandName": "Project",
+      "commandLineArgs": "\"MySql.Data.MySqlClient\" \"server=localhost;port=3306;database=demo_dbo;uid=futuremud;password=rpiengine2020;Default Command Timeout=300000;\""
+    },
+    "Uriel": {
+      "commandName": "Project",
+      "commandLineArgs": "\"MySql.Data.MySqlClient\" \"server=localhost;port=3306;database=uriel_dbo;uid=futuremud;password=rpiengine2020;Default Command Timeout=300000;\""
+    },
+    "Delerak": {
+      "commandName": "Project",
+      "commandLineArgs": "\"MySql.Data.MySqlClient\" \"server=localhost;port=3306;database=shadowrun;uid=futuremud;password=rpiengine2020;Default Command Timeout=300000;\""
+    },
+    "4th Age": {
+      "commandName": "Project",
+      "commandLineArgs": "\"MySql.Data.MySqlClient\" \"server=localhost;port=3306;database=fourthage;uid=futuremud;password=rpiengine2020;Default Command Timeout=300000;\""
+    },
+    "Arda": {
+      "commandName": "Project",
+      "commandLineArgs": "\"MySql.Data.MySqlClient\" \"server=localhost;port=3306;database=ardamarred;uid=futuremud;password=rpiengine2020;Default Command Timeout=300000;\""
+    },
+    "Doner": {
+      "commandName": "Project",
+      "commandLineArgs": "\"MySql.Data.MySqlClient\" \"server=localhost;port=3306;database=yourmuddb;uid=futuremud;password=rpiengine2020;Default Command Timeout=300000;\""
+    }
+  }
+}

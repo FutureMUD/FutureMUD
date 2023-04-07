@@ -1,0 +1,286 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:ui="clr-namespace:Futuremud_Configuration_Tool.UI"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <ControlTemplate x:Key="TextBoxErrorTemplate" TargetType="Control">
+        <Grid ClipToBounds="False" ToolTip="{Binding ElementName=adornedElement, 
+                         Path=AdornedElement.(Validation.Errors), 
+                         Converter={ui:ValidationErrorsToStringConverter}}" >
+            <Border BorderBrush="Red" BorderThickness="1" Margin="-1">
+                <AdornedElementPlaceholder Name="adornedElement" />
+            </Border>
+        </Grid>
+    </ControlTemplate>
+
+    <!-- DARK BACKGROUND -->
+    <LinearGradientBrush x:Key="DarkBackground" StartPoint="0,0" EndPoint="1,1">
+        <GradientStop Offset="0" Color="#FF333344" />
+        <GradientStop Offset="1" Color="#FF666677" />
+    </LinearGradientBrush>
+    <!-- LIGHT BACKGROUND -->
+    <LinearGradientBrush x:Key="LightBackground" StartPoint="0,0" EndPoint="1,1">
+        <GradientStop Offset="0" Color="#FF9999AA" />
+        <GradientStop Offset="1" Color="#FFDDDDFF" />
+    </LinearGradientBrush>
+    <!-- CONTROL BACKGROUND -->
+    <SolidColorBrush x:Key="BaseColor" Color="#99000000" />
+
+    <!-- GLASS EFFECT -->
+    <LinearGradientBrush x:Key="GlassFX" StartPoint=".5,0" EndPoint=".5,.5">
+        <GradientStop Offset="1" Color="#33DDDDDD" />
+        <GradientStop Offset="1" Color="#33000000" />
+    </LinearGradientBrush>
+    <LinearGradientBrush x:Key="GlassFXDisabled" StartPoint=".5,0" EndPoint=".5,.5">
+        <GradientStop Offset="1" Color="#33BBBBBB" />
+        <GradientStop Offset="1" Color="#11000000" />
+    </LinearGradientBrush>
+
+    <!-- GLOW EFFECT -->
+    <RadialGradientBrush x:Key="GlowFX" GradientOrigin=".5,1" Center=".5,1">
+        <GradientStop Offset="0" Color="#990000FF" />
+        <GradientStop Offset=".5" Color="#660000DD" />
+        <GradientStop Offset="1" Color="#33000000" />
+    </RadialGradientBrush>
+    <RadialGradientBrush x:Key="GlowFXPressed" GradientOrigin=".5,1" Center=".5,1">
+        <GradientStop Offset="0" Color="#660000CC" />
+        <GradientStop Offset="1.2" Color="#33FFFFFF" />
+    </RadialGradientBrush>
+    <LinearGradientBrush x:Key="GlowFXRowPressed">
+        <GradientStop Offset="0" Color="#660000FF" />
+        <GradientStop Offset=".7" Color="#660000AA" />
+        <GradientStop Offset="1" Color="#66000000" />
+    </LinearGradientBrush>
+    <LinearGradientBrush x:Key="GlowFXProgress">
+        <GradientStop Offset="0" Color="#660099FF" />
+        <GradientStop Offset=".99" Color="#660022AA" />
+        <GradientStop Offset="1" Color="#00000000" />
+    </LinearGradientBrush>
+    <LinearGradientBrush x:Key="GlowFXProgressAnimated" MappingMode="RelativeToBoundingBox">
+        <GradientStop Offset="0" Color="#00000000" />
+        <GradientStop Offset=".50" Color="#660099FF" />
+        <GradientStop Offset="1" Color="#00000000" />
+    </LinearGradientBrush>
+    <LinearGradientBrush x:Key="GlowFXTabSelected" StartPoint=".5,1" EndPoint=".5,0">
+        <GradientStop Offset="0" Color="#33DDDDDD" />
+        <GradientStop Offset="1" Color="#332222FF" />
+    </LinearGradientBrush>
+
+    <!-- GLOW ANIMATION -->
+    <Storyboard x:Key="GlowOut">
+        <DoubleAnimation x:Name="AnimGlowOut" BeginTime="00:00:00" Storyboard.TargetName="GlowRectangle" Duration="00:00:00.250" From="1" To="0" Storyboard.TargetProperty="Opacity" />
+    </Storyboard>
+    <Storyboard x:Key="GlowIn">
+        <DoubleAnimation x:Name="AnimGlow" BeginTime="00:00:00" Storyboard.TargetName="GlowRectangle" Duration="00:00:00.250" From="0" To="1" Storyboard.TargetProperty="Opacity" />
+    </Storyboard>
+
+    <!-- PROGRESSBAR -->
+    <Style TargetType="{x:Type ProgressBar}">
+        <Setter Property="OverridesDefaultStyle" Value="True" />
+        <Setter Property="SnapsToDevicePixels" Value="True" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type ProgressBar}">
+                    <Grid MinHeight="14" MinWidth="20">
+                        <Border x:Name="BaseRectangle" Background="{StaticResource BaseColor}" CornerRadius="10,10,10,10" />
+                        <Border x:Name="animation" CornerRadius="10,10,10,10" Opacity=".7" Background="{StaticResource GlowFXProgress}" HorizontalAlignment="Left" />
+                        <Border x:Name="PART_Indicator" CornerRadius="10,10,10,10" Background="{StaticResource GlowFXProgress}" HorizontalAlignment="Left" />
+                        <Border x:Name="PART_Track" BorderThickness="1" CornerRadius="10,10,10,10" BorderBrush="Black" />
+                        <Border x:Name="BordeCabeceraSombra" BorderThickness="2" CornerRadius="10,10,10,10" BorderBrush="DarkGray" Opacity=".2" Margin="1,1,1,0" />
+                        <Label x:Name="Progress" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" FontWeight="Bold" Foreground="White" Opacity=".7" ContentStringFormat="N2">
+                            <TextBlock>
+                                <Run Text="{Binding Path=Value, RelativeSource={RelativeSource TemplatedParent}, StringFormat=N2}"/>
+                                <Run Text="%"/>
+                            </TextBlock>
+                        </Label>
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter Property="Opacity" Value=".5" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    
+    <!-- Listbox stuff -->
+    <!--Control colors.-->
+    <Color x:Key="WindowColor">#FFE8EDF9</Color>
+    <Color x:Key="ContentAreaColorLight">#FFC5CBF9</Color>
+    <Color x:Key="ContentAreaColorDark">#FF7381F9</Color>
+
+    <Color x:Key="DisabledControlLightColor">#FFE8EDF9</Color>
+    <Color x:Key="DisabledControlDarkColor">#FFC5CBF9</Color>
+    <Color x:Key="DisabledForegroundColor">#FF888888</Color>
+
+    <Color x:Key="SelectedBackgroundColor">#FFC5CBF9</Color>
+    <Color x:Key="SelectedUnfocusedColor">#FFDDDDDD</Color>
+
+    <Color x:Key="ControlLightColor">White</Color>
+    <Color x:Key="ControlMediumColor">#FF7381F9</Color>
+    <Color x:Key="ControlDarkColor">#FF211AA9</Color>
+
+    <Color x:Key="ControlMouseOverColor">#FF3843C4</Color>
+    <Color x:Key="ControlPressedColor">#FF211AA9</Color>
+
+
+    <Color x:Key="GlyphColor">#FF444444</Color>
+    <Color x:Key="GlyphMouseOver">sc#1, 0.004391443, 0.002428215, 0.242281124</Color>
+
+    <!--Border colors-->
+    <Color x:Key="BorderLightColor">#FFCCCCCC</Color>
+    <Color x:Key="BorderMediumColor">#FF888888</Color>
+    <Color x:Key="BorderDarkColor">#FF444444</Color>
+
+    <Color x:Key="PressedBorderLightColor">#FF888888</Color>
+    <Color x:Key="PressedBorderDarkColor">#FF444444</Color>
+
+    <Color x:Key="DisabledBorderLightColor">#FFAAAAAA</Color>
+    <Color x:Key="DisabledBorderDarkColor">#FF888888</Color>
+
+    <Color x:Key="DefaultBorderBrushDarkColor">Black</Color>
+
+    <!--Control-specific resources.-->
+    <Color x:Key="HeaderTopColor">#FFC5CBF9</Color>
+    <Color x:Key="DatagridCurrentCellBorderColor">Black</Color>
+    <Color x:Key="SliderTrackDarkColor">#FFC5CBF9</Color>
+
+    <Color x:Key="NavButtonFrameColor">#FF3843C4</Color>
+
+    <LinearGradientBrush x:Key="MenuPopupBrush"
+                     EndPoint="0.5,1"
+                     StartPoint="0.5,0">
+        <GradientStop Color="{DynamicResource ControlLightColor}"
+                Offset="0" />
+        <GradientStop Color="{DynamicResource ControlMediumColor}"
+                Offset="0.5" />
+        <GradientStop Color="{DynamicResource ControlLightColor}"
+                Offset="1" />
+    </LinearGradientBrush>
+
+    <LinearGradientBrush x:Key="ProgressBarIndicatorAnimatedFill"
+                     StartPoint="0,0"
+                     EndPoint="1,0">
+        <LinearGradientBrush.GradientStops>
+            <GradientStopCollection>
+                <GradientStop Color="#000000FF"
+                    Offset="0" />
+                <GradientStop Color="#600000FF"
+                    Offset="0.4" />
+                <GradientStop Color="#600000FF"
+                    Offset="0.6" />
+                <GradientStop Color="#000000FF"
+                    Offset="1" />
+            </GradientStopCollection>
+        </LinearGradientBrush.GradientStops>
+    </LinearGradientBrush>
+
+    <Style x:Key="{x:Type ListBox}"
+       TargetType="ListBox">
+        <Setter Property="SnapsToDevicePixels"
+          Value="true" />
+        <Setter Property="OverridesDefaultStyle"
+          Value="true" />
+        <Setter Property="ScrollViewer.HorizontalScrollBarVisibility"
+          Value="Auto" />
+        <Setter Property="ScrollViewer.VerticalScrollBarVisibility"
+          Value="Auto" />
+        <Setter Property="ScrollViewer.CanContentScroll"
+          Value="true" />
+        <Setter Property="MinWidth"
+          Value="120" />
+        <Setter Property="MinHeight"
+          Value="95" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ListBox">
+                    <Border Name="Border"
+                BorderThickness="1"
+                CornerRadius="2">
+                        <Border.Background>
+                            <SolidColorBrush Color="{StaticResource ControlLightColor}" />
+                        </Border.Background>
+                        <Border.BorderBrush>
+                            <SolidColorBrush Color="{StaticResource BorderMediumColor}" />
+                        </Border.BorderBrush>
+                        <ScrollViewer Margin="0"
+                        Focusable="false">
+                            <StackPanel Margin="2"
+                        IsItemsHost="True" />
+                        </ScrollViewer>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsEnabled"
+                   Value="false">
+                            <Setter TargetName="Border"
+                    Property="Background">
+                                <Setter.Value>
+                                    <SolidColorBrush Color="{StaticResource DisabledControlLightColor}" />
+                                </Setter.Value>
+                            </Setter>
+                            <Setter TargetName="Border"
+                    Property="BorderBrush">
+                                <Setter.Value>
+                                    <SolidColorBrush Color="{DynamicResource DisabledBorderLightColor}" />
+                                </Setter.Value>
+
+                            </Setter>
+                        </Trigger>
+                        <Trigger Property="IsGrouping"
+                   Value="true">
+                            <Setter Property="ScrollViewer.CanContentScroll"
+                    Value="false" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="{x:Type ListBoxItem}"
+       TargetType="ListBoxItem">
+        <Setter Property="SnapsToDevicePixels"
+          Value="true" />
+        <Setter Property="OverridesDefaultStyle"
+          Value="true" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ListBoxItem">
+                    <Border x:Name="Border"
+                Padding="2"
+                SnapsToDevicePixels="true">
+                        <Border.Background>
+                            <SolidColorBrush Color="Transparent" />
+                        </Border.Background>
+                        <VisualStateManager.VisualStateGroups>
+                            <VisualStateGroup x:Name="SelectionStates">
+                                <VisualState x:Name="Unselected" />
+                                <VisualState x:Name="Selected">
+                                    <Storyboard>
+                                        <ColorAnimationUsingKeyFrames Storyboard.TargetName="Border"
+                                                Storyboard.TargetProperty="(Panel.Background).
+                    (SolidColorBrush.Color)">
+                                            <EasingColorKeyFrame KeyTime="0"
+                                         Value="{StaticResource SelectedBackgroundColor}" />
+                                        </ColorAnimationUsingKeyFrames>
+                                    </Storyboard>
+                                </VisualState>
+                                <VisualState x:Name="SelectedUnfocused">
+                                    <Storyboard>
+                                        <ColorAnimationUsingKeyFrames Storyboard.TargetName="Border"
+                                                Storyboard.TargetProperty="(Panel.Background).
+                    (SolidColorBrush.Color)">
+                                            <EasingColorKeyFrame KeyTime="0"
+                                         Value="{StaticResource SelectedUnfocusedColor}" />
+                                        </ColorAnimationUsingKeyFrames>
+                                    </Storyboard>
+                                </VisualState>
+                            </VisualStateGroup>
+                        </VisualStateManager.VisualStateGroups>
+                        <ContentPresenter />
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+</ResourceDictionary>

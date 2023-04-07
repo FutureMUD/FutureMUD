@@ -1,0 +1,23 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<VSTemplate Version="3.0.0" Type="Item" xmlns="http://schemas.microsoft.com/developer/vstemplate/2005">
+  <TemplateData>
+    <Name>Game Item Component Type</Name>
+    <Description>Initialises a new GameItemComponent and GameItemComponentProto. Use this only in the MudSharp.GameItems directory.</Description>
+    <Icon Package="{FAE04EC1-301F-11d3-BF4B-00C04F79EFBC}" ID="4515" />
+    <ProjectType>CSharp</ProjectType>
+    <SortOrder>2</SortOrder>
+    <NumberOfParentCategoriesToRollUp>1</NumberOfParentCategoriesToRollUp>
+    <DefaultName>ItemType</DefaultName>
+    <AppIdFilter>blend</AppIdFilter>
+  </TemplateData>
+  <TemplateContent>
+    <References>
+      <Reference>
+        <Assembly>System</Assembly>
+      </Reference>
+    </References>
+
+    <ProjectItem ReplaceParameters="true" TargetFileName="Components\$fileinputname$GameItemComponent.cs">GameItem.cs</ProjectItem>
+	<ProjectItem ReplaceParameters="true" TargetFileName="Prototypes\$fileinputname$GameItemComponentProto.cs">GameItemProto.cs</ProjectItem>
+  </TemplateContent>
+</VSTemplate>

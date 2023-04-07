@@ -1,0 +1,40 @@
+﻿using System;
+
+namespace MudSharp.Community {
+    [Flags]
+    public enum ClanPrivilegeType : long {
+        None = 0,
+        All = long.MaxValue,
+        CanPromote = 1 << 0,
+        CanPromoteToOwnRank = 1 << 1,
+        CanDemote = 1 << 2,
+        CanInduct = 1 << 3,
+        CanCastout = 1 << 4,
+        CanIncreasePaygrade = 1 << 5,
+        CanDecreasePaygrade = 1 << 6,
+        CanCreateRanks = 1 << 7,
+        CanCreateAppointments = 1 << 8,
+        CanAppoint = 1 << 9,
+        CanSubmitClan = 1 << 10,
+        CanDisbandClan = 1 << 11,
+        CanCreateBudgets = 1 << 12,
+        CanViewClanStructure = 1 << 13,
+        CanViewClanOfficeHolders = 1 << 14,
+        CanChangeRankPath = 1 << 15,
+        CanDemoteOwnRank = 1 << 16,
+        CanDismiss = 1 << 17,
+        CanCreatePaygrades = 1 << 18,
+        CanCreateAppointmentsUnderOwn = 1 << 19,
+        CanEditClanDetails = 1 << 20,
+        CanGiveBackpay = 1 << 21,
+        CanViewTreasury = 1 << 22,
+        CanViewMembers = 1 << 23,
+        CanViewClanStructureEqualRankOrLower = 1 << 24,
+        CanManageEconomicZones = 1 << 25,
+        CanAccessLeasedProperties = 1 << 26,
+        CanManageClanProperty = 1 << 27,
+        CanManageBankAccounts = 1 << 28,
+        CanReportDead = 1 << 29,
+        CanManageClanJobs = 1 << 30,
+    }
+}

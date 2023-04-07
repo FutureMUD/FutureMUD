@@ -1,0 +1,30 @@
+ALTER TABLE `dbo`.`Races` 
+ADD COLUMN `CanClimb` BIT NOT NULL DEFAULT b'0' AFTER `HoldBreathLengthExpression`,
+ADD COLUMN `CanSwim` BIT NOT NULL DEFAULT b'1' AFTER `CanClimb`,
+ADD COLUMN `MinimumSleepingPosition` INT NOT NULL DEFAULT 4 AFTER `CanSwim`,
+ADD COLUMN `ChildAge` INT NOT NULL DEFAULT 3 AFTER `MinimumSleepingPosition`,
+ADD COLUMN `YouthAge` INT NOT NULL DEFAULT 10 AFTER `ChildAge`,
+ADD COLUMN `YoungAdultAge` INT NOT NULL DEFAULT 16 AFTER `YouthAge`,
+ADD COLUMN `AdultAge` INT NOT NULL DEFAULT 21 AFTER `YoungAdultAge`,
+ADD COLUMN `ElderAge` INT NOT NULL DEFAULT 55 AFTER `AdultAge`,
+ADD COLUMN `VenerableAge` INT NOT NULL DEFAULT 75 AFTER `ElderAge`;
+
+CREATE TABLE `dbo`.`GroupAITemplates` (
+  `Id` BIGINT NOT NULL AUTO_INCREMENT,
+  `Name` VARCHAR(200) NOT NULL,
+  `Definition` MEDIUMTEXT NOT NULL,
+  PRIMARY KEY (`Id`));
+
+  CREATE TABLE `dbo`.`GroupAIs` (
+  `Id` BIGINT NOT NULL AUTO_INCREMENT,
+  `Name` VARCHAR(200) NOT NULL,
+  `GroupAITemplateId` BIGINT NOT NULL,
+  `Data` MEDIUMTEXT NOT NULL,
+  `Definition` MEDIUMTEXT NOT NULL,
+  PRIMARY KEY (`Id`),
+  INDEX `FK_GroupAIs_GroupAITemplates_idx` (`GroupAITemplateId` ASC),
+  CONSTRAINT `FK_GroupAIs_GroupAITemplates`
+    FOREIGN KEY (`GroupAITemplateId`)
+    REFERENCES `dbo`.`GroupAITemplates` (`Id`)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE);

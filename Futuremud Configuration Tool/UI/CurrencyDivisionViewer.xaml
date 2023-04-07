@@ -1,0 +1,45 @@
+﻿<UserControl x:Class="Futuremud_Configuration_Tool.UI.CurrencyDivisionViewer"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             mc:Ignorable="d" 
+             d:DesignHeight="300" d:DesignWidth="300">
+    <Grid Grid.IsSharedSizeScope="True">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto" SharedSizeGroup="Labels"/>
+            <ColumnDefinition Width="1*"/>
+            <ColumnDefinition Width="Auto" SharedSizeGroup="Labels"/>
+            <ColumnDefinition Width="1*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="1*"/>
+        </Grid.RowDefinitions>
+        <Label Grid.Row="0" Grid.Column="0" Content="Id" Margin="2"/>
+        <Label Grid.Row="0" Grid.Column="2" Content="Name" Margin="2"/>
+        <Label Grid.Row="1" Grid.Column="0" Content="Conversion Rate" Margin="2"/>
+        <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding Id, Mode=OneWay}" IsReadOnly="True" Margin="2"/>
+        <TextBox Grid.Row="0" Grid.Column="3" Text="{Binding Name}" Margin="2"/>
+        <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding BaseUnitConversionRate}" Margin="2"/>
+        
+        <StackPanel Grid.Row="2" Grid.ColumnSpan="4">
+            <Label Content="Patterns:" Margin="2"/>
+            <ListBox Name="PatternListBox" ItemsSource="{Binding CurrencyDivisionAbbreviations}" Margin="2">
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <Grid>
+                            <TextBox Text="{Binding Pattern}"/>
+                        </Grid>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+            <StackPanel Orientation="Horizontal" FlowDirection="RightToLeft">
+                <Button Name="PatternDeleteButton" Content="Delete" Margin="2" Click="Button_Click_Delete"/>
+                <Button Content="Add" Margin="2" Width="{Binding ElementName=PatternDeleteButton, Path=ActualWidth}" Click="Button_Click_Add"/>
+            </StackPanel>
+        </StackPanel>
+    </Grid>
+</UserControl>

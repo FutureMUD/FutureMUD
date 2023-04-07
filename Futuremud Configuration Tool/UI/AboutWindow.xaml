@@ -1,0 +1,32 @@
+﻿<Window x:Class="Futuremud_Configuration_Tool.UI.AboutWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="About" Height="500" Width="750">
+    <Window.Resources>
+        <ResourceDictionary Source="Common.xaml" />
+    </Window.Resources>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="1*" />
+        </Grid.RowDefinitions>
+        <DockPanel Grid.Row="0">
+            <Image Source="../Images/JHGCRN.png" HorizontalAlignment="Left" VerticalAlignment="Top" MaxHeight="90" Margin="3" />
+            <StackPanel Orientation="Vertical" HorizontalAlignment="Stretch" VerticalAlignment="Top" Margin="3">
+                <Label Content="{Binding ProgramName}" DockPanel.Dock="Left" HorizontalContentAlignment="Left" HorizontalAlignment="Center"  VerticalAlignment="Top" FontSize="16" FontWeight="Bold" />
+                <Label DockPanel.Dock="Left" HorizontalContentAlignment="Left" HorizontalAlignment="Center" VerticalAlignment="Top" FontSize="12" FontWeight="Bold" FontStyle="Italic" FontStretch="Normal">
+                    <TextBlock><Run>Created by Luke Cunningham (</Run><Run Text="{Binding CreationDate, Mode=OneWay}" /><Run>)</Run></TextBlock>
+                </Label>
+                <Label DockPanel.Dock="Left" HorizontalContentAlignment="Left" HorizontalAlignment="Center" VerticalAlignment="Top" FontSize="12" FontWeight="Bold" FontStyle="Italic" FontStretch="Normal">
+                    <TextBlock><Run>Last Updated (</Run><Run Text="{Binding LastUpdatedDate, Mode=OneWay}" /><Run>)</Run></TextBlock>
+                </Label>
+                <Label Content="Luke.Cunningham@jhg.com.au" DockPanel.Dock="Left" HorizontalContentAlignment="Left" HorizontalAlignment="Center" VerticalAlignment="Top" FontSize="12" FontStyle="Normal" Foreground="#FF2121D8" FontWeight="Bold" />
+            </StackPanel>
+        </DockPanel>
+        <DockPanel Grid.Row="1">
+            <Rectangle Height="2" HorizontalAlignment="Stretch" Margin="3,10,3,3" Fill="Black" DockPanel.Dock="Top" />
+            <Label Content="Version History" FontSize="16" FontWeight="Bold" DockPanel.Dock="Top" HorizontalAlignment="Center" />
+            <TextBox Margin="3" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Text="{Binding VersionHistoryText, Mode=OneWay}" IsReadOnly="True" ScrollViewer.VerticalScrollBarVisibility="Auto" ScrollViewer.HorizontalScrollBarVisibility="Disabled" TextWrapping="Wrap" FontFamily="Courier New" FontSize="12" />
+        </DockPanel>
+    </Grid>
+</Window>

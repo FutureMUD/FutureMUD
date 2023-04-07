@@ -1,0 +1,923 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{48B8C8EF-D3F0-498D-B9F9-F6B7F98A26E9}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>MudSharpDatabase</RootNamespace>
+    <AssemblyName>MudSharpDatabase</AssemblyName>
+    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <PublishUrl>publish\</PublishUrl>
+    <Install>true</Install>
+    <InstallFrom>Disk</InstallFrom>
+    <UpdateEnabled>false</UpdateEnabled>
+    <UpdateMode>Foreground</UpdateMode>
+    <UpdateInterval>7</UpdateInterval>
+    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
+    <UpdatePeriodically>false</UpdatePeriodically>
+    <UpdateRequired>false</UpdateRequired>
+    <MapFileExtensions>true</MapFileExtensions>
+    <ApplicationRevision>0</ApplicationRevision>
+    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
+    <UseApplicationTrust>false</UseApplicationTrust>
+    <BootstrapperEnabled>true</BootstrapperEnabled>
+    <RunPostBuildEvent>OnOutputUpdated</RunPostBuildEvent>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>FM Logo.ico</ApplicationIcon>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug %28LabMUD%29|AnyCPU'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\Debug %28LabMUD%29\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <HintPath>..\packages\EntityFramework.6.2.0\lib\net45\EntityFramework.dll</HintPath>
+    </Reference>
+    <Reference Include="EntityFramework.SqlServer, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <HintPath>..\packages\EntityFramework.6.2.0\lib\net45\EntityFramework.SqlServer.dll</HintPath>
+    </Reference>
+    <Reference Include="MySql.Data, Version=8.0.15.0, Culture=neutral, PublicKeyToken=c5687fc88969c44d, processorArchitecture=MSIL" />
+    <Reference Include="MySql.Data.EntityFramework, Version=8.0.15.0, Culture=neutral, PublicKeyToken=c5687fc88969c44d, processorArchitecture=MSIL" />
+    <Reference Include="System" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.Core" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Model\Accent.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\Account.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\AccountNote.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\Accounts_ChargenResources.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\ActiveProject.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\ActiveProjectLabour.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\ActiveProjectMaterial.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\Ally.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\AmmunitionType.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\Appointment.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\Appointments_Abbreviations.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\Appointments_Titles.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\Area.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\ArmourType.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\ArtificialIntelligence.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\AuthorityGroup.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\AutobuilderAreaTemplate.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\AutobuilderRoomTemplate.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\Ban.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\BloodModel.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\Bloodtype.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\BloodtypeAntigen.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\Board.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\BoardPost.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\Bodies_DrugDoses.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\Bodies_GameItems.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\Body.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\BodypartGroupDescriber.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\BodypartGroupDescribers_BodypartProtos.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\BodypartGroupDescribers_ShapeCount.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\BodypartInternalInfo.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\BodypartProto.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\BodypartProto_AlignmentHits.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\BodypartProto_OrientationHits.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\BodypartShape.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\BodyProto.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\BodyProtos_AdditionalBodyparts.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\BoneOrganCoverage.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\ButcheryProduct.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\ButcheryProductItem.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\Calendar.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\Celestial.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\Cell.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\CellOverlay.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\CellOverlayPackage.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\Cells_ForagableYields.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\Cells_MagicResources.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\Channel.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\ChannelCommandWord.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\Character.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\CharacterCombatSetting.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\CharacterIntroTemplate.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\Characteristic.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\CharacteristicDefinition.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\CharacteristicProfile.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\CharacteristicValue.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\CharacterKnowledge.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\CharacterLog.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\Characters_Accents.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\Characters_MagicResources.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\Chargen.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\ChargenAdvice.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\ChargenResource.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\ChargenRole.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\ChargenRoles_ClanMemberships.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\ChargenRoles_ClanMemberships_Appointments.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\ChargenRoles_Costs.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\ChargenRoles_Currencies.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\ChargenRoles_Traits.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\Check.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\CheckTemplate.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\CheckTemplateDifficulty.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\Clan.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\ClanMembership.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\ClanMemberships_Backpay.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\ClimateModel.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\Clock.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\Coin.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\Colour.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\CombatMessage.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\CorpseModel.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\Craft.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\CraftInput.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\CraftPhas.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\CraftProduct.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\CraftTool.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\Culture.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\CultureInfo.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\Cultures_ChargenResources.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\Currency.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\CurrencyDescriptionPattern.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\CurrencyDescriptionPatternElement.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\CurrencyDescriptionPatternElementSpecialValue.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\CurrencyDivision.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\CurrencyDivisionAbbreviation.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\DefaultHook.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\DisfigurementTemplate.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\Door.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\Dream.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\Dream_Phases.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\Drug.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\DrugsIntensity.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\Dub.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\EconomicZone.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\EconomicZoneRevenue.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\EconomicZoneShopTax.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\EditableItem.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\EmailTemplate.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\EntityDescription.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\EntityDescriptionPattern.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\Ethnicities_Characteristics.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\Ethnicities_ChargenResources.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\Ethnicity.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\Exit.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\ExternalClanControl.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\ExternalClanControls_Appointments.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\FinancialPeriod.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\Foragable.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\ForagableProfile.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\ForagableProfiles_Foragables.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\ForagableProfiles_HourlyYieldGains.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\ForagableProfiles_MaximumYields.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\FuturemudDatabaseContext.cs" />
+    <Compile Include="Model\FuturemudDatabaseModel.Context.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>FuturemudDatabaseModel.Context.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\FuturemudDatabaseModel.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\FuturemudDatabaseModel.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>FuturemudDatabaseModel.edmx</DependentUpon>
+    </Compile>
+    <Compile Include="Model\FutureProg.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\FutureProgs_Parameters.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\GameItem.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\GameItemComponent.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\GameItemComponentProto.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\gameitemeditingview.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\GameItemProto.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\GameItemProtos_DefaultVariables.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\GameItems_MagicResources.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\Gas.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\Grid.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\GroupAI.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\GroupAITemplate.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\Guest.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\HealthStrategy.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\HearingProfile.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\HeightWeightModel.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\Helpfile.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\Helpfiles_ExtraTexts.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\Hook.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\Hooks_Perceivables.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\Improver.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\Infection.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\ItemGroup.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\ItemGroupForm.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\Knowledge.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\Language.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\LanguageDifficultyModel.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\Limb.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\Liquid.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\Lock.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\LoginIP.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\MagicCapability.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\MagicGenerator.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\MagicPower.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\MagicResource.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\MagicSchool.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\Material.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\Merchandise.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\Merit.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\Merits_ChargenResources.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\MoveSpeed.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\MutualIntelligability.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\NameCulture.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\NonCardinalExitTemplate.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\NPC.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\NPCTemplate.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\Paygrade.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\PerceiverMerit.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\PopulationBloodModel.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\PopulationBloodModels_Bloodtypes.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\ProgSchedule.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\Project.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\ProjectAction.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\ProjectLabourImpact.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\ProjectLabourRequirement.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\ProjectMaterialRequirement.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\ProjectPhas.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\Race.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\RaceButcheryProfile.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\RaceButcheryProfiles_BreakdownChecks.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\RaceButcheryProfiles_BreakdownEmotes.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\RaceButcheryProfiles_SkinningEmotes.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\RaceEdibleForagableYield.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\Races_AdditionalBodyparts.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\Races_AdditionalCharacteristics.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\Races_Attributes.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\Races_BreathableGases.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\Races_BreathableLiquids.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\Races_ChargenResources.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\Races_EdibleMaterials.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\Races_WeaponAttacks.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\RandomNameProfile.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\RandomNameProfiles_DiceExpressions.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\RandomNameProfiles_Elements.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\RangedCover.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\RangedWeaponType.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\Rank.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\Ranks_Abbreviations.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\Ranks_Paygrades.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\Ranks_Titles.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\RegionalClimate.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\RegionalClimates_Seasons.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\Room.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\Script.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\Season.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\Shard.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\Shards_Calendars.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\Shards_Celestials.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\Shards_Clocks.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\ShieldType.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\Shop.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\ShopFinancialPeriodResult.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\ShopTransactionRecord.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\SkyDescriptionTemplate.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\SkyDescriptionTemplates_Values.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\Social.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\StackDecorator.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\StaticConfiguration.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\StaticString.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\SurgicalProcedure.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\SurgicalProcedurePhas.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\Tag.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\Terrain.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\Timezone.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\TimeZoneInfo.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\Trait.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\TraitDecorator.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\TraitDefinition.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\TraitDefinitions_ChargenResources.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\TraitExpression.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\TraitExpressionParameter.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\UnitOfMeasure.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\VariableDefault.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\VariableDefinition.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\VariableValue.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\WeaponAttack.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\WeaponType.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\WearableSize.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\WearableSizeParameterRule.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\WearProfile.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\WeatherController.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\WeatherEvent.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\Wound.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\Writing.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\Zone.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\Zones_Timezones.cs">
+      <DependentUpon>FuturemudDatabaseModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config">
+      <SubType>Designer</SubType>
+    </None>
+    <EntityDeploy Include="Model\FuturemudDatabaseModel.edmx">
+      <CustomToolNamespace>FME</CustomToolNamespace>
+      <Generator>EntityModelCodeGenerator</Generator>
+      <LastGenOutput>FuturemudDatabaseModel.Designer.cs</LastGenOutput>
+    </EntityDeploy>
+    <None Include="Model\FuturemudDatabaseModel.Context.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>FuturemudDatabaseModel.Context.cs</LastGenOutput>
+      <DependentUpon>FuturemudDatabaseModel.edmx</DependentUpon>
+      <CustomToolNamespace>FME</CustomToolNamespace>
+    </None>
+    <None Include="Model\FuturemudDatabaseModel.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>FuturemudDatabaseModel.cs</LastGenOutput>
+      <DependentUpon>FuturemudDatabaseModel.edmx</DependentUpon>
+      <CustomToolNamespace>FME</CustomToolNamespace>
+    </None>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <BootstrapperPackage Include=".NETFramework,Version=v4.0">
+      <Visible>False</Visible>
+      <ProductName>Microsoft .NET Framework 4 %28x86 and x64%29</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1 Client Profile</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Sql.Server.Express.10.0">
+      <Visible>False</Visible>
+      <ProductName>SQL Server 2008 Express</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Windows.Installer.3.1">
+      <Visible>False</Visible>
+      <ProductName>Windows Installer 3.1</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Windows.Installer.4.5">
+      <Visible>False</Visible>
+      <ProductName>Windows Installer 4.5</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
+  </ItemGroup>
+  <ItemGroup>
+    <WCFMetadata Include="Service References\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="FM Logo.ico" />
+    <Content Include="FutureMUD.sql" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+  <PropertyGroup>
+    <PostBuildEvent>
+    </PostBuildEvent>
+  </PropertyGroup>
+  <ProjectExtensions>
+    <VisualStudio>
+      <UserProperties BuildVersion_StartDate="2000/1/1" />
+    </VisualStudio>
+  </ProjectExtensions>
+</Project>

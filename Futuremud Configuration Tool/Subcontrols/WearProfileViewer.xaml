@@ -1,0 +1,63 @@
+﻿<local:FuturemudBaseControl 
+    xmlns:local="clr-namespace:Futuremud_Configuration_Tool.Model"
+    x:Class="Futuremud_Configuration_Tool.Subcontrols.WearProfileViewer"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:converters="clr-namespace:Futuremud_Configuration_Tool.Converters"
+             mc:Ignorable="d" 
+             d:DesignHeight="300" d:DesignWidth="500">
+    <Grid Grid.IsSharedSizeScope="True">
+        <Grid.Resources>
+            <converters:NullableCharacteristicDefinitionConverter x:Key="NullableCharacteristicDefinitionConverter"/>
+        </Grid.Resources>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="1*"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto" SharedSizeGroup="Labels"/>
+            <ColumnDefinition Width="1*"/>
+            <ColumnDefinition Width="Auto" SharedSizeGroup="RightLabels"/>
+            <ColumnDefinition Width="1*"/>
+        </Grid.ColumnDefinitions>
+        <Label Grid.Row="0" Grid.Column="0" Content="Id" Margin="2"/>
+        <Label Grid.Row="1" Grid.Column="0" Content="Name" Margin="2"/>
+        <Label Grid.Row="1" Grid.Column="2" Content="WearAffix" Margin="2"/>
+        <Label Grid.Row="4" Grid.Column="0" Content="Description" Margin="2"/>
+        <Label Grid.Row="3" Grid.Column="0" Content="WearStringInventory" Margin="2"/>
+        <Label Grid.Row="0" Grid.Column="2" Content="Type" Margin="2"/>
+        <Label Grid.Row="2" Grid.Column="0" Content="WearAction1st" Margin="2"/>
+        <Label Grid.Row="2" Grid.Column="2" Content="WearAction3rd" Margin="2"/>
+
+        <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding ID, Mode=OneWay}" IsReadOnly="True" Margin="2"/>
+        <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding Name}" Margin="2"/>
+        <TextBox Grid.Row="1" Grid.Column="3" Text="{Binding WearAffix}" Margin="2"/>
+        <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding WearAction1st}" Margin="2"/>
+        <TextBox Grid.Row="2" Grid.Column="3" Text="{Binding WearAction3rd}" Margin="2"/>
+        <TextBox Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="3" Text="{Binding WearStringInventory}" Margin="2"/>
+        <TextBox Grid.Row="4" Grid.Column="1" Grid.ColumnSpan="3" Text="{Binding Description}" Margin="2"/>
+        <DockPanel Grid.Row="5" Grid.Column="1" Grid.ColumnSpan="3">
+            <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" FlowDirection="RightToLeft" VerticalAlignment="Bottom" >
+                <Button Content="Add" Margin="3"/>
+                <Button Content="Remove" Margin="3"/>
+            </StackPanel>
+            <ListBox DockPanel.Dock="Bottom" VerticalAlignment="Stretch">
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <StackPanel>
+                            <ComboBox ItemsSource="{Binding Bodyparts}"/>
+                        </StackPanel>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+        </DockPanel>
+    </Grid>
+</local:FuturemudBaseControl>

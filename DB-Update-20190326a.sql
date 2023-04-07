@@ -1,0 +1,6 @@
+CREATE TABLE `dbo`.`MagicGenerators` (
+  `Id` BIGINT NOT NULL AUTO_INCREMENT,
+  `Name` VARCHAR(200) NOT NULL,
+  `Type` VARCHAR(45) NOT NULL,
+  `Definition` TEXT NOT NULL,
+  PRIMARY KEY (`Id`));

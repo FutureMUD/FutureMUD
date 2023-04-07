@@ -1,0 +1,81 @@
+﻿<UserControl x:Class="Futuremud_Configuration_Tool.UI.CurrencyDescriptionPatternElementViewer"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:ui="clr-namespace:Futuremud_Configuration_Tool.UI"
+             xmlns:converters="clr-namespace:Futuremud_Configuration_Tool.Converters"
+             mc:Ignorable="d" 
+             d:DesignHeight="300" d:DesignWidth="450" DataContextChanged="UserControl_DataContextChanged" Loaded="UserControl_Loaded">
+    <Grid Grid.IsSharedSizeScope="True">
+        <Grid.Resources>
+            <converters:RoundingTypeToStringConverter x:Key="RoundingTypeToStringConverter"/>
+            <converters:NullableStringConverter x:Key="NullableStringConverter"/>
+        </Grid.Resources>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto" SharedSizeGroup="Labels"/>
+            <ColumnDefinition Width="1*"/>
+            <ColumnDefinition Width="Auto" SharedSizeGroup="Labels"/>
+            <ColumnDefinition Width="1*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="1*"/>
+        </Grid.RowDefinitions>
+
+        <Label Grid.Row="0" Grid.Column="0" Content="Id" Margin="2"/>
+        <Label Grid.Row="1" Grid.Column="0" Content="Pattern" Margin="2"/>
+        <Label Grid.Row="2" Grid.Column="0" Content="Order" Margin="2"/>
+        <Label Grid.Row="3" Grid.Column="0" Content="Plural Word" Margin="2"/>
+
+        <Label Grid.Row="0" Grid.Column="2" Content="Currency Division" Margin="2"/>
+        <Label Grid.Row="1" Grid.Column="2" Content="Alternate Pattern" Margin="2"/>
+        <Label Grid.Row="2" Grid.Column="2" Content="Rounding Mode" Margin="2"/>
+        <Label Grid.Row="3" Grid.Column="2" Content="Show If Zero?" Margin="2"/>
+        <Label Grid.Row="4" Grid.Column="2" Content="Override Specials?" Margin="2"/>
+        
+        <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding Id, Mode=OneWay}" IsReadOnly="True" Margin="2"/>
+        <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding Pattern}" Margin="2"/>
+        <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding Order}" Margin="2"/>
+        <TextBox Grid.Row="3" Grid.Column="1" Text="{Binding PluraliseWord}" Margin="2"/>
+        <TextBox Grid.Row="1" Grid.Column="3" Text="{Binding AlternatePattern, Converter={StaticResource NullableStringConverter}}" Margin="2"/>
+        
+        <CheckBox Grid.Row="3" Grid.Column="3" IsChecked="{Binding ShowIfZero}" VerticalAlignment="Center"/>
+        <CheckBox Grid.Row="4" Grid.Column="3" IsChecked="{Binding SpecialValuesOverrideFormat}" VerticalAlignment="Center"/>
+        
+        <ComboBox Name="CurrencyDivisionComboBox" Grid.Row="0" Grid.Column="3" Margin="2" SelectedItem="{Binding CurrencyDivision}">
+            <ComboBox.ItemTemplate>
+                <DataTemplate>
+                    <TextBlock Text="{Binding Name}"/>
+                </DataTemplate>
+            </ComboBox.ItemTemplate>
+        </ComboBox>
+        
+        <ComboBox Name="RoundingModeComboBox" Grid.Row="2" Grid.Column="3" Margin="2" SelectedItem="{Binding RoundingMode, Converter={StaticResource RoundingTypeToStringConverter}}"/>
+
+        <GroupBox Header="Special Values" Grid.Row="5" Grid.ColumnSpan="4" Margin="5">
+            <StackPanel Grid.Row="5" Grid.ColumnSpan="4" Margin="2">
+                <ListBox Name="SpecialValueListBox" ItemsSource="{Binding CurrencyDescriptionPatternElementSpecialValues}">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock MinWidth="30" Margin="0,0,5,0">Number Value:</TextBlock>
+                                <TextBox Text="{Binding Value}" Margin="0,0,5,0"/>
+                                <TextBlock MinWidth="30" Margin="0,0,5,0">Special Text:</TextBlock>
+                                <TextBox Text="{Binding Text}" Margin="0,0,5,0"/>
+                            </StackPanel>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+                <StackPanel Orientation="Horizontal" FlowDirection="RightToLeft">
+                    <Button MinWidth="50" Margin="2" Content="Add" Click="Button_Click_Add"/>
+                    <Button MinWidth="50" Margin="2" Content="Delete" Click="Button_Click_Delete"/>
+                </StackPanel>
+            </StackPanel>
+        </GroupBox>        
+    </Grid>
+</UserControl>

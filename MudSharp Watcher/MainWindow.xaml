@@ -1,0 +1,34 @@
+﻿<Window x:Class="MudSharp_Watcher.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:MudSharp_Watcher" d:DataContext="{d:DesignInstance Type=local:ViewModel}"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="450" Width="800">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"></RowDefinition>
+            <RowDefinition Height="Auto"></RowDefinition>
+            <RowDefinition Height="*"></RowDefinition>
+            <RowDefinition Height="Auto"></RowDefinition>
+        </Grid.RowDefinitions>
+        <StackPanel>
+            <Image Source="Images/FM Logo.png" MaxHeight="50"></Image>
+            <TextBlock HorizontalAlignment="Center" FontStyle="Oblique">FutureMUD Launcher</TextBlock>
+        </StackPanel>
+        
+        <TextBox Grid.Row="1" Name="DatabaseStringTextbox" Text ="{Binding DatabaseString}"></TextBox>
+        <StackPanel Grid.Row="2">
+            <StackPanel Orientation="Horizontal" Margin="5">
+                <TextBlock Margin="5">Game Status: </TextBlock>
+                <local:CrossTickBoundControl MaxHeight="30" Status="{Binding GameLaunched}"></local:CrossTickBoundControl>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" Margin="5">
+                <TextBlock Margin="5">Updates Available: </TextBlock>
+                <local:CrossTickBoundControl MaxHeight="30" Status="{Binding UpdateAvailable}"></local:CrossTickBoundControl>
+            </StackPanel>
+        </StackPanel>
+        <Button Name="LaunchMUDButton" Click="LaunchMUDButton_OnClick" Grid.Row="3" IsEnabled="{Binding LaunchButtonEnabled}">Launch</Button>
+    </Grid>
+</Window>

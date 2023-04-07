@@ -1,0 +1,256 @@
+﻿@page "/"
+@using Microsoft.EntityFrameworkCore
+@using MudSharp.Database
+@using MudSharp.Framework
+@using MudSharp.Models
+@using TerrainEditorBlazor.Data
+@using System.Text.RegularExpressions
+@inject IDbContextFactory<FuturemudDatabaseContext> _contextFactory
+@inject IJSRuntime _jsRuntime;
+
+<h3>Terrain Painter</h3>
+<p>Use this tool to create areas for the autobuilder area templates, and then copy the results into your building command to generate larger areas in one go.</p>
+@{
+    if (_loaded)
+    {
+    <div style="margin: 10px">
+        <p>Grid Width: <input width="30" class="text-body" @bind="@_gridWidth"></p>
+        <p>Grid Height: <input width="30" class="text-body" @bind="@_gridHeight"></p>
+        <button class="btn btn-danger" @onclick="@(RedoGrid)">Regenerate Grid</button>
+        <button class="btn btn-danger" @onclick="@(ClearGrid)">Clear Grid</button>
+    </div>
+
+        <div style="margin: 10px">
+            <h4>Terrain Palette</h4>
+            <div style="margin: 5px">
+                @{
+                    if (_terrainBrush != null)
+                    {
+                        <div>Current Brush: <div style="background-color: @(GetWebColorFromARGB(_terrainBrush.TerrainEditorColour ?? "#FF808080"))">@(_terrainBrush.Name)</div></div>
+                    }
+                    else
+                    {
+                        <div>Current Brush: None</div>
+                    }
+                }
+            </div>
+            <div style="display: flex; flex-direction: row">
+                <button @onclick="SetPaintMode" class="btn @(!_fillMode ? "btn-primary" : "btn-secondary")" style="margin: 5px;">Paint Mode</button>
+                <button @onclick="SetFillMode" class="btn @(_fillMode ? "btn-primary" : "btn-secondary")" style="margin: 5px;">Fill Mode</button>
+                <button @onclick="ExportMapToClipboard" class="btn btn-info" style="margin: 5px;">Export for MUD</button>
+                <button @onclick="ImportFromClipboard" class="btn btn-info" style="margin: 5px;">Import from Clipboard</button>
+            </div>
+            <div class="terrain-board flex-wrap" style="max-width: 1650px">
+                @{
+                    var rows = (int)Math.Ceiling((_terrains.Count + 1) / 22.0);
+                    for (var i = 0; i < rows; i++)
+                    {
+                        <div class="flex-row">
+                            @{
+                                var allTerrains = _terrains.OrderBy(x => x.Name).ToList();
+                                List<Terrain> terrains;
+                                if (i == 0)
+                                {
+                                    <div class="flex-column">
+                                        <div style="line-height: 75px; font-size: 0.5em; width: 75px; height: 75px;" @onclick="@(() => SetTerrainBrush(null))" class="terrain-cell">Blank</div>
+                                    </div>
+
+                                    terrains = allTerrains.Take(21).ToList();
+                                }
+                                else
+                                {
+                                    terrains = allTerrains.Skip(22 * i - 1).Take(22).ToList();
+                                }
+
+                                foreach (var terrain in terrains)
+                                {
+                                    var terrainColor = GetWebColorFromARGB(terrain.TerrainEditorColour ?? "#FF808080");
+                                    <div class="flex-column">
+                                        <div class="terrain-cell" @onclick="@(() => SetTerrainBrush(terrain))" style="line-height: 75px; background-color: @terrainColor; text-align: center; width: 75px; height: 75px; font-size: 0.5em;">@terrain.Name</div>
+                                    </div>
+                                }
+
+                                var shortfall = Math.Max(0, 22 - terrains.Count - (i == 0 ? 1 : 0));
+                                for (var j = 0; j < shortfall; j++)
+                                {
+                                    <div class="flex-column">
+                                        <div class="terrain-cell" style="line-height: 75px; text-align: center; width: 75px; height: 75px; font-size: 0.5em;"></div>
+                                    </div>
+                                }
+                            }
+                        </div>
+                    }
+                }
+            </div>
+        </div>
+
+        <h4>Terrain Grid</h4>
+
+        <div name="terrain_grid" class="terrain-board flex-wrap">
+            @{
+                for (var y = 0; y < _mapGrid.Height; y++)
+
+                {
+                    <div class="flex-row">
+                        @{
+                            for (var x = 0; x < _mapGrid.Width; x++)
+                            {
+
+                                var xCoord = x;
+                                var yCoord = y;
+                                var terrain = _mapGrid.CellAtCoordinate(x, y).Terrain;
+                                var terrainColor = GetWebColorFromARGB(terrain?.TerrainEditorColour ?? "#FF808080");
+                                <div class="flex-column">
+                                    <div class="terrain-cell" style="background-color: @(terrainColor); font-size: 0.5em;" @onmousedown="@(() => { _drawingWithMouse = true; InteractWithMapCell(xCoord, yCoord);})" @onmouseover="@(() => InteractWithMapCell(xCoord, yCoord))" @onmouseup="@(() => _drawingWithMouse = false)">
+                                        @(terrain?.TerrainEditorText ?? "")
+                                    </div>
+                                </div>
+                            }
+                        }
+                    </div>
+
+
+                }
+            }
+        </div>
+    }
+
+    else
+    {
+        <p>Loading terrain information...</p>
+    }
+}
+
+@code {
+    private bool _loaded = false;
+    private int _gridWidth = 5;
+    private int _gridHeight = 5;
+    private MapGrid _mapGrid = new MapGrid();
+    private bool _drawingWithMouse;
+    private bool _fillMode;
+    private Regex argbRegex = new Regex("#(?<alpha>[0-9a-f]{2,2})(?<red>[0-9a-f]{2,2})(?<green>[0-9a-f]{2,2})(?<blue>[0-9a-f]{2,2})", RegexOptions.IgnoreCase);
+
+    private string GetWebColorFromARGB(string argb)
+    {
+        var match = argbRegex.Match(argb);
+        return $"#{match.Groups["red"].Value}{match.Groups["green"].Value}{match.Groups["blue"].Value}";
+    }
+
+    private Terrain _terrainBrush;
+
+    private List<MudSharp.Models.Terrain> _terrains;
+
+    private void SetTerrainBrush(Terrain terrain)
+    {
+        _terrainBrush = terrain;
+        this.StateHasChanged();
+    }
+
+    private void RedoGrid()
+    {
+        _mapGrid.Width = _gridWidth;
+        _mapGrid.Height = _gridHeight;
+        _mapGrid.RedoGrid(true);
+        this.StateHasChanged();
+    }
+
+    private void ClearGrid()
+    {
+        _mapGrid.Width = _gridWidth;
+        _mapGrid.Height = _gridHeight;
+        _mapGrid.RedoGrid(false);
+        this.StateHasChanged();
+    }
+
+    private async Task ExportMapToClipboard()
+    {
+        var text = _mapGrid.MapCells.OrderBy(item => item.Y).ThenBy(item => item.X).Select(x => (x.Terrain?.Id ?? 0).ToString("F0")).ListToCommaSeparatedValues();
+        await _jsRuntime.InvokeVoidAsync("clipboardCopy.copyText", text);
+        await _jsRuntime.InvokeVoidAsync("alert", "Copied the terrain mask to the clipboard. Use this when generating an autoarea in the MUD.");
+    }
+
+    private void InteractWithMapCell(int x, int y)
+    {
+        if (!_drawingWithMouse)
+        {
+            return;
+        }
+
+        var cell = _mapGrid.CellAtCoordinate(x, y);
+        if (_fillMode)
+        {
+            var consideredCells = new HashSet<MapCell>();
+            var cellQueue = new Queue<MapCell>();
+            cellQueue.Enqueue(cell);
+            var target = cell.Terrain;
+            while (true)
+            {
+                var thisCell = cellQueue.Dequeue();
+                if (consideredCells.Contains(thisCell))
+                {
+                    if (!cellQueue.Any())
+                    {
+                        break;
+                    }
+
+                    continue;
+                }
+
+                thisCell.Terrain = _terrainBrush;
+                consideredCells.Add(thisCell);
+                foreach (var other in thisCell.Neighbors)
+                {
+                    if (other.Terrain == target)
+                    {
+                        cellQueue.Enqueue(other);
+                    }
+                }
+
+                if (!cellQueue.Any())
+                {
+                    break;
+                }
+            }
+
+            this.StateHasChanged();
+            return;
+        }
+
+        cell.Terrain = _terrainBrush;
+        this.StateHasChanged();
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+        await using (var context = _contextFactory.CreateDbContext())
+        {
+            _terrains = await context.Terrains.ToListAsync();
+            RedoGrid();
+            _loaded = true;
+        }
+    }
+
+    private void SetPaintMode(MouseEventArgs obj)
+    {
+        _fillMode = false;
+    }
+
+    private void SetFillMode(MouseEventArgs obj)
+    {
+        _fillMode = true;
+    }
+
+    private async Task ImportFromClipboard()
+    {
+        var text = await _jsRuntime.InvokeAsync<string>("clipboardCopy.getText");
+        if (!_mapGrid.ImportCells(text, _terrains))
+        {
+            await _jsRuntime.InvokeVoidAsync("alert", "There was an error importing your previous setup from the clipboard.");
+            return;
+        }
+
+        this.StateHasChanged();
+    }
+
+}

@@ -1,0 +1,82 @@
+﻿<Window x:Class="Futuremud_Configuration_Tool.UI.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:ui="clr-namespace:Futuremud_Configuration_Tool.UI"
+        Title="{Binding ProgramName, Mode=OneWay}" Height="768" Width="1366" Loaded="Window_Loaded_1">
+    <Window.Resources>
+        <ResourceDictionary Source="Common.xaml" />
+    </Window.Resources>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="1*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <DockPanel Grid.Row="0">
+            <Image Source="../Images/FM Logo.png" HorizontalAlignment="Center" VerticalAlignment="Top" MaxHeight="82" Margin="3" />
+            <StackPanel Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="3">
+                <Label Content="{Binding ProgramName}" DockPanel.Dock="Left" HorizontalContentAlignment="Center" HorizontalAlignment="Center"  VerticalAlignment="Top" FontSize="16" FontWeight="Bold" />
+                <Label DockPanel.Dock="Left" HorizontalContentAlignment="Center" HorizontalAlignment="Center" VerticalAlignment="Top" FontSize="12" FontWeight="Bold" FontStyle="Italic" FontStretch="Normal">
+                    <TextBlock><Run>Created by Luke Cunningham (</Run><Run Text="{Binding CreationDate, Mode=OneWay}" /><Run>)</Run></TextBlock>
+                </Label>
+                <Label Content="www.futuremud.org" DockPanel.Dock="Left" HorizontalContentAlignment="Center" HorizontalAlignment="Center" VerticalAlignment="Top" FontSize="12" FontStyle="Normal" Foreground="#FF2121D8" FontWeight="Bold" />
+            </StackPanel>
+            
+            <StackPanel Orientation="Horizontal" DockPanel.Dock="Right" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="2">
+                <Label Content="Program Not Ready" Name="ProgramReadyLabel" Margin="2" />
+                <Image Source="../Images/Cross_Icon.png"   Name="ProgramReadyImage" MaxHeight="25" Margin="2" />
+            </StackPanel>
+            <Button DockPanel.Dock="Right" Margin="3,4,3,2" Padding="5" FontWeight="Bold" Content="Help" HorizontalAlignment="Right"  VerticalAlignment="Top" MinWidth="50"/>
+            <Button DockPanel.Dock="Right" Margin="3,4,3,2" Padding="5" FontWeight="Bold" Content="About" HorizontalAlignment="Right" VerticalAlignment="Top" MinWidth="50"/>
+        </DockPanel>
+
+        <DockPanel Grid.Row="2" />
+
+        <DockPanel Grid.Row="3">
+            <TabControl SelectionChanged="TabControl_SelectionChanged">
+                <TabItem Header="Attributes">
+                    <ui:AttributeViewer/>
+                </TabItem>
+                <TabItem Header="Skills">
+                    <ui:SkillViewer/>
+                </TabItem>
+                <TabItem Header="Languages">
+                    <ui:LanguageViewer/>
+                </TabItem>
+                <TabItem Header="Accents">
+                    <ui:AccentViewer/>
+                </TabItem>
+                <TabItem Header="FutureProgs">
+                    <ui:FutureProgViewer/>
+                </TabItem>
+                <TabItem Header="Colours">
+                    <ui:ColourViewer/>
+                </TabItem>
+                <TabItem Header="Characteristic Definitions">
+                    <ui:CharacteristicDefinitionViewer/>
+                </TabItem>
+                <TabItem Header="Characteristic Values">
+                    <ui:CharacteristicValueViewer/>
+                </TabItem>
+                <TabItem Header="Colour Characteristic Values">
+                    <ui:CharacteristicColourValueViewer/>
+                </TabItem>
+                <TabItem Header="Currencies">
+                    <ui:CurrencyViewer/>
+                </TabItem>
+                <TabItem Header="Characteristic Profiles">
+                    <ui:StandardCharacteristicProfileViewer/>
+                </TabItem>
+                <TabItem Header="Static Strings">
+                    <ui:StaticStringViewer/>
+                </TabItem>
+                <TabItem Header="Static Configurations">
+                    <ui:StaticConfigurationViewer/>
+                </TabItem>
+            </TabControl>
+        </DockPanel>
+    </Grid>
+</Window>

@@ -1,0 +1,27 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net7.0-windows</TargetFramework>
+    <RootNamespace>MudSharp_Watcher</RootNamespace>
+    <Nullable>enable</Nullable>
+    <UseWPF>true</UseWPF>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="Images\Cross_Icon.png" />
+    <None Remove="Images\FM Logo.png" />
+    <None Remove="Images\Tick_Icon.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="JetBrains.Annotations" Version="2022.3.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Images\Cross_Icon.png" />
+    <Resource Include="Images\FM Logo.png" />
+    <Resource Include="Images\Tick_Icon.png" />
+  </ItemGroup>
+
+</Project>

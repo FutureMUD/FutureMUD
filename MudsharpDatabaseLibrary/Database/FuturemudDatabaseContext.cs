@@ -1,0 +1,394 @@
+﻿using System;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata;
+using MudSharp.Models;
+
+namespace MudSharp.Database
+{
+    public partial class FuturemudDatabaseContext : DbContext
+    {
+	    public FuturemudDatabaseContext() : base()
+	    {
+	    }
+
+        public FuturemudDatabaseContext(DbContextOptions<FuturemudDatabaseContext> options)
+            : base(options)
+        {
+        }
+
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            if (!optionsBuilder.IsConfigured)
+            {
+                optionsBuilder.UseLazyLoadingProxies();
+                optionsBuilder.UseMySql(ConnectionString, ServerVersion.AutoDetect(ConnectionString));
+                optionsBuilder.LogTo(Console.WriteLine, new[] {DbLoggerCategory.Migrations.Name});
+            }
+        }
+
+        public string ConnectionString { get; set; } = "server=localhost;port=3306;database=dbo;uid=futuremud;password=rpiengine2020";
+
+        public virtual DbSet<Accent> Accents { get; set; }
+        public virtual DbSet<AccountNote> AccountNotes { get; set; }
+        public virtual DbSet<Models.Account> Accounts { get; set; }
+        public virtual DbSet<AccountsChargenResources> AccountsChargenResources { get; set; }
+        public virtual DbSet<ActiveJob> ActiveJobs { get; set; }
+        public virtual DbSet<ActiveProjectLabour> ActiveProjectLabours { get; set; }
+        public virtual DbSet<ActiveProjectMaterial> ActiveProjectMaterials { get; set; }
+        public virtual DbSet<ActiveProject> ActiveProjects { get; set; }
+        public virtual DbSet<Ally> Allies { get; set; }
+        public virtual DbSet<AmmunitionTypes> AmmunitionTypes { get; set; }
+        public virtual DbSet<Appointment> Appointments { get; set; }
+        public virtual DbSet<AppointmentsAbbreviations> AppointmentsAbbreviations { get; set; }
+        public virtual DbSet<AppointmentsTitles> AppointmentsTitles { get; set; }
+        public virtual DbSet<Areas> Areas { get; set; }
+        public virtual DbSet<AreasRooms> AreasRooms { get; set; }
+        public virtual DbSet<ArmourType> ArmourTypes { get; set; }
+        public virtual DbSet<ArtificialIntelligence> ArtificialIntelligences { get; set; }
+        public virtual DbSet<AuctionHouse> AuctionHouses { get; set; }
+        public virtual DbSet<AuthorityGroup> AuthorityGroups { get; set; }
+        public virtual DbSet<AutobuilderAreaTemplate> AutobuilderAreaTemplates { get; set; }
+        public virtual DbSet<AutobuilderRoomTemplate> AutobuilderRoomTemplates { get; set; }
+        public virtual DbSet<Ban> Bans { get; set; }
+        public virtual DbSet<Bank> Banks { get; set; }
+        public virtual DbSet<BankAccountType> BankAccountTypes {get; set; }
+        public virtual DbSet<BankAccount> BankAccounts { get; set; }
+        public virtual DbSet<BankBranch> BankBranches { get; set; }
+        public virtual DbSet<BankCurrencyReserve> BankCurrencyReserves { get; set; }
+        public virtual DbSet<BankExchangeRate> BankExchangeRates {get; set; }
+        public virtual DbSet<BankAccountTransaction> BankAccountTransactions { get; set; }
+        public virtual DbSet<BankManager> BankManagers { get; set; }
+        public virtual DbSet<BankManagerAuditLog> BankManagerAuditLogs { get; set; }
+        public virtual DbSet<BloodModel> BloodModels { get; set; }
+        public virtual DbSet<BloodModelsBloodtypes> BloodModelsBloodtypes { get; set; }
+        public virtual DbSet<BloodtypeAntigen> BloodtypeAntigens { get; set; }
+        public virtual DbSet<Bloodtype> Bloodtypes { get; set; }
+        public virtual DbSet<BloodtypesBloodtypeAntigens> BloodtypesBloodtypeAntigens { get; set; }
+        public virtual DbSet<BoardPost> BoardPosts { get; set; }
+        public virtual DbSet<Board> Boards { get; set; }
+        public virtual DbSet<Models.Body> Bodies { get; set; }
+        public virtual DbSet<BodyDrugDose> BodiesDrugDoses { get; set; }
+        public virtual DbSet<BodiesGameItems> BodiesGameItems { get; set; }
+        public virtual DbSet<BodiesImplants> BodiesImplants { get; set; }
+        public virtual DbSet<BodiesProsthetics> BodiesProsthetics { get; set; }
+        public virtual DbSet<BodiesSeveredParts> BodiesSeveredParts { get; set; }
+        public virtual DbSet<BodyProto> BodyProtos { get; set; }
+        public virtual DbSet<BodyProtosPositions> BodyProtosPositions {get;set;}
+        public virtual DbSet<BodyProtosAdditionalBodyparts> BodyProtosAdditionalBodyparts { get; set; }
+        public virtual DbSet<BodypartGroupDescriber> BodypartGroupDescribers { get; set; }
+        public virtual DbSet<BodypartGroupDescribersBodyProtos> BodypartGroupDescribersBodyProtos { get; set; }
+        public virtual DbSet<BodypartGroupDescribersBodypartProtos> BodypartGroupDescribersBodypartProtos { get; set; }
+        public virtual DbSet<BodypartGroupDescribersShapeCount> BodypartGroupDescribersShapeCount { get; set; }
+        public virtual DbSet<BodypartInternalInfos> BodypartInternalInfos { get; set; }
+        public virtual DbSet<BodypartProto> BodypartProtos { get; set; }
+        public virtual DbSet<BodypartProtoAlignmentHits> BodypartProtoAlignmentHits { get; set; }
+        public virtual DbSet<BodypartProtoBodypartProtoUpstream> BodypartProtoBodypartProtoUpstream { get; set; }
+        public virtual DbSet<BodypartProtoOrientationHits> BodypartProtoOrientationHits { get; set; }
+        public virtual DbSet<BodypartShape> BodypartShapes { get; set; }
+        public virtual DbSet<Bodypartshapecountview> Bodypartshapecountview { get; set; }
+        public virtual DbSet<BoneOrganCoverage> BoneOrganCoverages { get; set; }
+        public virtual DbSet<ButcheryProductItems> ButcheryProductItems { get; set; }
+        public virtual DbSet<ButcheryProducts> ButcheryProducts { get; set; }
+        public virtual DbSet<ButcheryProductsBodypartProtos> ButcheryProductsBodypartProtos { get; set; }
+        public virtual DbSet<Calendar> Calendars { get; set; }
+        public virtual DbSet<Models.Celestial> Celestials { get; set; }
+        public virtual DbSet<CellOverlayPackage> CellOverlayPackages { get; set; }
+        public virtual DbSet<CellOverlay> CellOverlays { get; set; }
+        public virtual DbSet<CellOverlayExit> CellOverlaysExits { get; set; }
+        public virtual DbSet<Cell> Cells { get; set; }
+        public virtual DbSet<CellsForagableYield> CellsForagableYields { get; set; }
+        public virtual DbSet<CellsGameItems> CellsGameItems { get; set; }
+        public virtual DbSet<CellMagicResource> CellsMagicResources { get; set; }
+        public virtual DbSet<CellsRangedCovers> CellsRangedCovers { get; set; }
+        public virtual DbSet<CellsTags> CellsTags { get; set; }
+        public virtual DbSet<ChannelCommandWord> ChannelCommandWords { get; set; }
+        public virtual DbSet<ChannelIgnorer> ChannelIgnorers { get; set; }
+        public virtual DbSet<Channel> Channels { get; set; }
+        public virtual DbSet<CharacterCombatSetting> CharacterCombatSettings { get; set; }
+        public virtual DbSet<CharacterIntroTemplate> CharacterIntroTemplates { get; set; }
+        public virtual DbSet<CharacterKnowledge> CharacterKnowledges { get; set; }
+        public virtual DbSet<CharacterLog> CharacterLogs { get; set; }
+        public virtual DbSet<CharacteristicDefinition> CharacteristicDefinitions { get; set; }
+        public virtual DbSet<CharacteristicProfile> CharacteristicProfiles { get; set; }
+        public virtual DbSet<CharacteristicValue> CharacteristicValues { get; set; }
+        public virtual DbSet<Characteristic> Characteristics { get; set; }
+        public virtual DbSet<Models.Character> Characters { get; set; }
+        public virtual DbSet<CharacterAccent> CharactersAccents { get; set; }
+        public virtual DbSet<CharactersChargenRoles> CharactersChargenRoles { get; set; }
+        public virtual DbSet<CharactersLanguages> CharactersLanguages { get; set; }
+        public virtual DbSet<CharactersMagicResources> CharactersMagicResources { get; set; }
+        public virtual DbSet<CharactersScripts> CharactersScripts { get; set; }
+        public virtual DbSet<ChargenAdvice> ChargenAdvices { get; set; }
+        public virtual DbSet<ChargenAdvicesChargenRoles> ChargenAdvicesChargenRoles { get; set; }
+        public virtual DbSet<ChargenAdvicesCultures> ChargenAdvicesCultures { get; set; }
+        public virtual DbSet<ChargenAdvicesEthnicities> ChargenAdvicesEthnicities { get; set; }
+        public virtual DbSet<ChargenAdvicesRaces> ChargenAdvicesRaces { get; set; }
+        public virtual DbSet<ChargenResource> ChargenResources { get; set; }
+        public virtual DbSet<ChargenRole> ChargenRoles { get; set; }
+        public virtual DbSet<ChargenRolesApprovers> ChargenRolesApprovers { get; set; }
+        public virtual DbSet<ChargenRolesClanMemberships> ChargenRolesClanMemberships { get; set; }
+        public virtual DbSet<ChargenRolesClanMembershipsAppointments> ChargenRolesClanMembershipsAppointments { get; set; }
+        public virtual DbSet<ChargenRolesCost> ChargenRolesCosts { get; set; }
+        public virtual DbSet<ChargenRolesCurrency> ChargenRolesCurrencies { get; set; }
+        public virtual DbSet<ChargenRolesMerit> ChargenRolesMerits { get; set; }
+        public virtual DbSet<ChargenRolesTrait> ChargenRolesTraits { get; set; }
+        public virtual DbSet<Chargen> Chargens { get; set; }
+        public virtual DbSet<ChargenScreenStoryboard> ChargenScreenStoryboards { get; set; }
+        public virtual DbSet<ChargenScreenStoryboardDependentStage> ChargenScreenStoryboardDependentStages { get; set; }
+        public virtual DbSet<CheckTemplateDifficulty> CheckTemplateDifficulties { get; set; }
+        public virtual DbSet<CheckTemplate> CheckTemplates { get; set; }
+        public virtual DbSet<Check> Checks { get; set; }
+        public virtual DbSet<ClanMembership> ClanMemberships { get; set; }
+        public virtual DbSet<ClanMembershipsAppointments> ClanMembershipsAppointments { get; set; }
+        public virtual DbSet<ClanMembershipBackpay> ClanMembershipsBackpay { get; set; }
+        public virtual DbSet<Clan> Clans { get; set; }
+        public virtual DbSet<ClanAdministrationCell> ClansAdministrationCells { get; set; }
+        public virtual DbSet<ClanTreasuryCell> ClansTreasuryCells { get; set; }
+        public virtual DbSet<ClimateModel> ClimateModels { get; set; }
+        public virtual DbSet<Clock> Clocks { get; set; }
+        public virtual DbSet<Coin> Coins { get; set; }
+        public virtual DbSet<Colour> Colours { get; set; }
+        public virtual DbSet<CombatMessage> CombatMessages { get; set; }
+        public virtual DbSet<CombatMessagesWeaponAttacks> CombatMessagesWeaponAttacks { get; set; }
+        public virtual DbSet<CorpseModel> CorpseModels { get; set; }
+        public virtual DbSet<CraftInput> CraftInputs { get; set; }
+        public virtual DbSet<CraftPhase> CraftPhases { get; set; }
+        public virtual DbSet<CraftProduct> CraftProducts { get; set; }
+        public virtual DbSet<CraftTool> CraftTools { get; set; }
+        public virtual DbSet<Models.Craft> Crafts { get; set; }
+        public virtual DbSet<Crime> Crimes { get; set; }
+        public virtual DbSet<CultureInfo> CultureInfos { get; set; }
+        public virtual DbSet<Culture> Cultures { get; set; }
+        public virtual DbSet<CulturesChargenResources> CulturesChargenResources { get; set; }
+        public virtual DbSet<CulturesNameCultures> CulturesNameCultures { get; set; }
+        public virtual DbSet<Currency> Currencies { get; set; }
+        public virtual DbSet<CurrencyDescriptionPatternElementSpecialValues> CurrencyDescriptionPatternElementSpecialValues { get; set; }
+        public virtual DbSet<CurrencyDescriptionPatternElement> CurrencyDescriptionPatternElements { get; set; }
+        public virtual DbSet<CurrencyDescriptionPattern> CurrencyDescriptionPatterns { get; set; }
+        public virtual DbSet<CurrencyDivisionAbbreviation> CurrencyDivisionAbbreviations { get; set; }
+        public virtual DbSet<CurrencyDivision> CurrencyDivisions { get; set; }
+        public virtual DbSet<DamagePatterns> DamagePatterns { get; set; }
+        public virtual DbSet<DefaultHook> DefaultHooks { get; set; }
+        public virtual DbSet<DisfigurementTemplate> DisfigurementTemplates { get; set; }
+        public virtual DbSet<Door> Doors { get; set; }
+        public virtual DbSet<Drawing> Drawings { get; set; }
+        public virtual DbSet<DreamPhase> DreamPhases { get; set; }
+        public virtual DbSet<Dream> Dreams { get; set; }
+        public virtual DbSet<DreamsAlreadyDreamt> DreamsAlreadyDreamt { get; set; }
+        public virtual DbSet<DreamsCharacters> DreamsCharacters { get; set; }
+        public virtual DbSet<Drug> Drugs { get; set; }
+        public virtual DbSet<DrugIntensity> DrugsIntensities { get; set; }
+        public virtual DbSet<Dub> Dubs { get; set; }
+        public virtual DbSet<EconomicZoneRevenue> EconomicZoneRevenues { get; set; }
+        public virtual DbSet<EconomicZoneShopTax> EconomicZoneShopTaxes { get; set; }
+        public virtual DbSet<EconomicZone> EconomicZones { get; set; }
+        public virtual DbSet<ConveyancingLocation> ConveyancingLocations { get; set; }
+        public virtual DbSet<JobFindingLocation> JobFindingLocations { get; set; }
+        public virtual DbSet<EconomicZoneTax> EconomicZoneTaxes { get; set; }
+        public virtual DbSet<EditableItem> EditableItems { get; set; }
+        public virtual DbSet<Election> Elections { get; set; }
+        public virtual DbSet<ElectionNominee> ElectionNominees { get; set; }
+        public virtual DbSet<ElectionVote> ElectionVotes { get; set; }
+        public virtual DbSet<EmailTemplate> EmailTemplates { get; set; }
+        public virtual DbSet<EnforcementAuthority> EnforcementAuthorities { get; set; }
+        public virtual DbSet<EnforcementAuthoritiesAccusableClasses> EnforcementAuthoritiesAccusableClasses { get; set; }
+        public virtual DbSet<EnforcementAuthoritiesArrestableLegalClasses> EnforcementAuthoritiesArrestableClasses { get; set; }
+        public virtual DbSet<EnforcementAuthorityParentAuthority> EnforcementAuthoritiesParentAuthorities { get; set; }
+        public virtual DbSet<EntityDescriptionPattern> EntityDescriptionPatterns { get; set; }
+        public virtual DbSet<EntityDescriptionPatternsEntityDescriptions> EntityDescriptionPatternsEntityDescriptions { get; set; }
+        public virtual DbSet<EntityDescriptions> EntityDescriptions { get; set; }
+        public virtual DbSet<Ethnicity> Ethnicities { get; set; }
+        public virtual DbSet<EthnicitiesCharacteristics> EthnicitiesCharacteristics { get; set; }
+        public virtual DbSet<EthnicitiesChargenResources> EthnicitiesChargenResources { get; set; }
+        public virtual DbSet<Exit> Exits { get; set; }
+        public virtual DbSet<ExternalClanControl> ExternalClanControls { get; set; }
+        public virtual DbSet<ExternalClanControlsAppointment> ExternalClanControlsAppointments { get; set; }
+        public virtual DbSet<FinancialPeriod> FinancialPeriods { get; set; }
+        public virtual DbSet<ForagableProfile> ForagableProfiles { get; set; }
+        public virtual DbSet<ForagableProfilesForagables> ForagableProfilesForagables { get; set; }
+        public virtual DbSet<ForagableProfilesHourlyYieldGains> ForagableProfilesHourlyYieldGains { get; set; }
+        public virtual DbSet<ForagableProfilesMaximumYields> ForagableProfilesMaximumYields { get; set; }
+        public virtual DbSet<Foragable> Foragables { get; set; }
+        public virtual DbSet<Models.FutureProg> FutureProgs { get; set; }
+        public virtual DbSet<FutureProgsParameter> FutureProgsParameters { get; set; }
+        public virtual DbSet<GameItemComponentProto> GameItemComponentProtos { get; set; }
+        public virtual DbSet<GameItemComponent> GameItemComponents { get; set; }
+        public virtual DbSet<GameItemProto> GameItemProtos { get; set; }
+        public virtual DbSet<GameItemProtosDefaultVariable> GameItemProtosDefaultVariables { get; set; }
+        public virtual DbSet<GameItemProtosGameItemComponentProtos> GameItemProtosGameItemComponentProtos { get; set; }
+        public virtual DbSet<GameItemProtosOnLoadProgs> GameItemProtosOnLoadProgs { get; set; }
+        public virtual DbSet<GameItemProtosTags> GameItemProtosTags { get; set; }
+        public virtual DbSet<GameItemProtoExtraDescription> GameItemProtoExtraDescriptions {get;set;}
+        public virtual DbSet<Models.GameItem> GameItems { get; set; }
+        public virtual DbSet<Models.GameItemSkin> GameItemSkins { get; set; }
+        public virtual DbSet<GameItemMagicResource> GameItemsMagicResources { get; set; }
+        public virtual DbSet<Gameitemeditingview> Gameitemeditingview { get; set; }
+        public virtual DbSet<Gas> Gases { get; set; }
+        public virtual DbSet<GasesTags> GasesTags { get; set; }
+        public virtual DbSet<Grid> Grids { get; set; }
+        public virtual DbSet<GroupAi> GroupAis { get; set; }
+        public virtual DbSet<GroupAiTemplate> GroupAiTemplates { get; set; }
+        public virtual DbSet<Guest> Guests { get; set; }
+        public virtual DbSet<HealthStrategy> HealthStrategies { get; set; }
+        public virtual DbSet<HearingProfile> HearingProfiles { get; set; }
+        public virtual DbSet<HeightWeightModel> HeightWeightModels { get; set; }
+        public virtual DbSet<Helpfile> Helpfiles { get; set; }
+        public virtual DbSet<HelpfilesExtraText> HelpfilesExtraTexts { get; set; }
+        public virtual DbSet<Hooks> Hooks { get; set; }
+        public virtual DbSet<HooksPerceivable> HooksPerceivables { get; set; }
+        public virtual DbSet<Improver> Improvers { get; set; }
+        public virtual DbSet<Infection> Infections { get; set; }
+        public virtual DbSet<ItemGroupForm> ItemGroupForms { get; set; }
+        public virtual DbSet<ItemGroup> ItemGroups { get; set; }
+        public virtual DbSet<JobListing> JobListings { get; set; }
+        public virtual DbSet<Knowledge> Knowledges { get; set; }
+        public virtual DbSet<KnowledgesCosts> KnowledgesCosts { get; set; }
+        public virtual DbSet<LanguageDifficultyModels> LanguageDifficultyModels { get; set; }
+        public virtual DbSet<Language> Languages { get; set; }
+        public virtual DbSet<Law> Laws { get; set; }
+        public virtual DbSet<LawsOffenderClasses> LawsOffenderClasses { get; set; }
+        public virtual DbSet<LawsVictimClasses> LawsVictimClasses { get; set; }
+        public virtual DbSet<LegalAuthority> LegalAuthorities { get; set; }
+        public virtual DbSet<LegalAuthorityCells> LegalAuthoritiyCells { get; set; }
+        public virtual DbSet<LegalAuthorityJailCell> LegalAuthorityJailCells { get; set; }
+        public virtual DbSet<LegalAuthorityFine> LegalAuthorityFines { get; set; }
+        public virtual DbSet<LegalAuthoritiesZones> LegalAuthoritiesZones { get; set; }
+        public virtual DbSet<LegalClass> LegalClasses { get; set; }
+        public virtual DbSet<Limb> Limbs { get; set; }
+        public virtual DbSet<LimbBodypartProto> LimbsBodypartProto { get; set; }
+        public virtual DbSet<LimbsSpinalPart> LimbsSpinalParts { get; set; }
+        public virtual DbSet<LineOfCreditAccount> LineOfCreditAccounts { get; set; }
+        public virtual DbSet<LineOfCreditAccountUser> LineOfCreditAccountUsers { get; set; }
+        public virtual DbSet<Liquid> Liquids { get; set; }
+        public virtual DbSet<LiquidsTags> LiquidsTags { get; set; }
+        public virtual DbSet<Lock> Locks { get; set; }
+        public virtual DbSet<LoginIp> LoginIps { get; set; }
+        public virtual DbSet<MagicCapability> MagicCapabilities { get; set; }
+        public virtual DbSet<MagicGenerator> MagicGenerators { get; set; }
+        public virtual DbSet<MagicPower> MagicPowers { get; set; }
+        public virtual DbSet<MagicResource> MagicResources { get; set; }
+        public virtual DbSet<MagicSchool> MagicSchools { get; set; }
+        public virtual DbSet<MagicSpell> MagicSpells { get; set; }
+        public virtual DbSet<Material> Materials { get; set; }
+        public virtual DbSet<MaterialsTags> MaterialsTags { get; set; }
+        public virtual DbSet<Merchandise> Merchandises { get; set; }
+        public virtual DbSet<Merit> Merits { get; set; }
+        public virtual DbSet<MeritsChargenResources> MeritsChargenResources { get; set; }
+        public virtual DbSet<MoveSpeed> MoveSpeeds { get; set; }
+        public virtual DbSet<MutualIntelligability> MutualIntelligabilities { get; set; }
+        public virtual DbSet<NameCulture> NameCultures { get; set; }
+        public virtual DbSet<NonCardinalExitTemplate> NonCardinalExitTemplates { get; set; }
+        public virtual DbSet<Npc> Npcs { get; set; }
+        public virtual DbSet<NpcsArtificialIntelligences> NpcsArtificialIntelligences { get; set; }
+        public virtual DbSet<NPCSpawner> NpcSpawners { get; set; }
+        public virtual DbSet<NPCSpawnerCell> NpcSpawnerCells { get; set; }
+        public virtual DbSet<NPCSpawnerZone> NpcSpawnerZones { get; set; }
+        public virtual DbSet<NpcTemplate> NpcTemplates { get; set; }
+        public virtual DbSet<NpcTemplatesArtificalIntelligences> NpctemplatesArtificalIntelligences { get; set; }
+        public virtual DbSet<Patrol> Patrols { get; set; }
+        public virtual DbSet<PatrolRoute> PatrolRoutes { get; set; }
+        public virtual DbSet<PatrolRouteNode> PatrolRoutesNodes { get; set; }
+        public virtual DbSet<PatrolRouteNumbers> PatrolRoutesNumbers { get; set; }
+        public virtual DbSet<PatrolRouteTimeOfDay> PatrolRoutesTimesOfDay { get; set; }
+        public virtual DbSet<Paygrade> Paygrades { get; set; }
+        public virtual DbSet<PerceiverMerit> PerceiverMerits { get; set; }
+        public virtual DbSet<PlayerActivitySnapshot> PlayerActivitySnapshots { get; set; }
+        public virtual DbSet<PopulationBloodModel> PopulationBloodModels { get; set; }
+        public virtual DbSet<PopulationBloodModelsBloodtype> PopulationBloodModelsBloodtypes { get; set; }
+        public virtual DbSet<ProgSchedule> ProgSchedules { get; set; }
+        public virtual DbSet<ProjectAction> ProjectActions { get; set; }
+        public virtual DbSet<ProjectLabourImpact> ProjectLabourImpacts { get; set; }
+        public virtual DbSet<ProjectLabourRequirement> ProjectLabourRequirements { get; set; }
+        public virtual DbSet<ProjectMaterialRequirement> ProjectMaterialRequirements { get; set; }
+        public virtual DbSet<ProjectPhase> ProjectPhases { get; set; }
+        public virtual DbSet<Models.Project> Projects { get; set; }
+        public virtual DbSet<Property> Properties { get; set; }
+        public virtual DbSet<PropertyKey> PropertyKeys { get; set; }
+        public virtual DbSet<PropertyLease> PropertyLeases {get; set;}
+        public virtual DbSet<PropertyLeaseOrder> PropertyLeaseOrders { get; set; }
+        public virtual DbSet<PropertySaleOrder> PropertySaleOrders { get; set; }
+        public virtual DbSet<PropertyOwner> PropertyOwners { get; set; }
+        public virtual DbSet<PropertyLocation> PropertyLocations { get; set; }
+        public virtual DbSet<RaceButcheryProfile> RaceButcheryProfiles { get; set; }
+        public virtual DbSet<RaceButcheryProfilesBreakdownChecks> RaceButcheryProfilesBreakdownChecks { get; set; }
+        public virtual DbSet<RaceButcheryProfilesBreakdownEmotes> RaceButcheryProfilesBreakdownEmotes { get; set; }
+        public virtual DbSet<RaceButcheryProfilesButcheryProducts> RaceButcheryProfilesButcheryProducts { get; set; }
+        public virtual DbSet<RaceButcheryProfilesSkinningEmotes> RaceButcheryProfilesSkinningEmotes { get; set; }
+        public virtual DbSet<RaceEdibleForagableYields> RaceEdibleForagableYields { get; set; }
+        public virtual DbSet<Race> Races { get; set; }
+        public virtual DbSet<RacesAdditionalBodyparts> RacesAdditionalBodyparts { get; set; }
+        public virtual DbSet<RacesAdditionalCharacteristics> RacesAdditionalCharacteristics { get; set; }
+        public virtual DbSet<RacesAttributes> RacesAttributes { get; set; }
+        public virtual DbSet<RacesBreathableGases> RacesBreathableGases { get; set; }
+        public virtual DbSet<RacesBreathableLiquids> RacesBreathableLiquids { get; set; }
+        public virtual DbSet<RacesChargenResources> RacesChargenResources { get; set; }
+        public virtual DbSet<RacesEdibleMaterials> RacesEdibleMaterials { get; set; }
+        public virtual DbSet<RacesWeaponAttacks> RacesWeaponAttacks { get; set; }
+        public virtual DbSet<RandomNameProfile> RandomNameProfiles { get; set; }
+        public virtual DbSet<RandomNameProfilesDiceExpressions> RandomNameProfilesDiceExpressions { get; set; }
+        public virtual DbSet<RandomNameProfilesElements> RandomNameProfilesElements { get; set; }
+        public virtual DbSet<RangedCover> RangedCovers { get; set; }
+        public virtual DbSet<RangedWeaponTypes> RangedWeaponTypes { get; set; }
+        public virtual DbSet<Rank> Ranks { get; set; }
+        public virtual DbSet<RanksAbbreviations> RanksAbbreviations { get; set; }
+        public virtual DbSet<RanksPaygrade> RanksPaygrades { get; set; }
+        public virtual DbSet<RanksTitle> RanksTitles { get; set; }
+        public virtual DbSet<RegionalClimate> RegionalClimates { get; set; }
+        public virtual DbSet<RegionalClimatesSeason> RegionalClimatesSeasons { get; set; }
+        public virtual DbSet<Room> Rooms { get; set; }
+        public virtual DbSet<Script> Scripts { get; set; }
+        public virtual DbSet<ScriptsDesignedLanguage> ScriptsDesignedLanguages { get; set; }
+        public virtual DbSet<Season> Seasons { get; set; }
+        public virtual DbSet<Shard> Shards { get; set; }
+        public virtual DbSet<ShardsCalendars> ShardsCalendars { get; set; }
+        public virtual DbSet<ShardsCelestials> ShardsCelestials { get; set; }
+        public virtual DbSet<ShardsClocks> ShardsClocks { get; set; }
+        public virtual DbSet<ShieldType> ShieldTypes { get; set; }
+        public virtual DbSet<ShopFinancialPeriodResult> ShopFinancialPeriodResults { get; set; }
+        public virtual DbSet<ShopTransactionRecord> ShopTransactionRecords { get; set; }
+        public virtual DbSet<Shop> Shops { get; set; }
+        public virtual DbSet<ShopsStoreroomCell> ShopsStoreroomCells { get; set; }
+        public virtual DbSet<ShopsTill> ShopsTills { get; set; }
+        public virtual DbSet<SkyDescriptionTemplate> SkyDescriptionTemplates { get; set; }
+        public virtual DbSet<SkyDescriptionTemplatesValue> SkyDescriptionTemplatesValues { get; set; }
+        public virtual DbSet<Social> Socials { get; set; }
+        public virtual DbSet<StackDecorator> StackDecorators { get; set; }
+        public virtual DbSet<StaticConfiguration> StaticConfigurations { get; set; }
+        public virtual DbSet<StaticString> StaticStrings { get; set; }
+        public virtual DbSet<SurgicalProcedurePhase> SurgicalProcedurePhases { get; set; }
+        public virtual DbSet<SurgicalProcedure> SurgicalProcedures { get; set; }
+        public virtual DbSet<Tag> Tags { get; set; }
+        public virtual DbSet<Terrain> Terrains { get; set; }
+        public virtual DbSet<TerrainsRangedCovers> TerrainsRangedCovers { get; set; }
+        public virtual DbSet<Models.TimeZoneInfo> TimeZoneInfos { get; set; }
+        public virtual DbSet<Timezone> Timezones { get; set; }
+        public virtual DbSet<TraitDecorator> TraitDecorators { get; set; }
+        public virtual DbSet<TraitDefinition> TraitDefinitions { get; set; }
+        public virtual DbSet<TraitDefinitionsChargenResources> TraitDefinitionsChargenResources { get; set; }
+        public virtual DbSet<TraitExpression> TraitExpressions { get; set; }
+        public virtual DbSet<TraitExpressionParameters> TraitExpressionParameters { get; set; }
+        public virtual DbSet<Trait> Traits { get; set; }
+        public virtual DbSet<UnitOfMeasure> UnitsOfMeasure { get; set; }
+        public virtual DbSet<VariableDefault> VariableDefaults { get; set; }
+        public virtual DbSet<VariableDefinition> VariableDefinitions { get; set; }
+        public virtual DbSet<VariableValue> VariableValues { get; set; }
+        public virtual DbSet<WeaponAttack> WeaponAttacks { get; set; }
+        public virtual DbSet<WeaponType> WeaponTypes { get; set; }
+        public virtual DbSet<WearProfile> WearProfiles { get; set; }
+        public virtual DbSet<WearableSizeParameterRule> WearableSizeParameterRule { get; set; }
+        public virtual DbSet<WearableSize> WearableSizes { get; set; }
+        public virtual DbSet<WeatherController> WeatherControllers { get; set; }
+        public virtual DbSet<WeatherEvent> WeatherEvents { get; set; }
+        public virtual DbSet<WeeklyStatistic> WeeklyStatistics { get; set; }
+        public virtual DbSet<WitnessProfile> WitnessProfiles { get; set; }
+        public virtual DbSet<WitnessProfilesCooperatingAuthorities> WitnessProfilesCooperatingAuthorities { get; set; }
+        public virtual DbSet<WitnessProfilesIgnoredCriminalClasses> WitnessProfilesIgnoredCriminalClasses { get; set; }
+        public virtual DbSet<WitnessProfilesIgnoredVictimClasses> WitnessProfilesIgnoredVictimClasses { get; set; }
+        public virtual DbSet<Wound> Wounds { get; set; }
+        public virtual DbSet<Writing> Writings { get; set; }
+        public virtual DbSet<Zone> Zones { get; set; }
+        public virtual DbSet<ZonesTimezones> ZonesTimezones { get; set; }
+
+        partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
+    }
+}

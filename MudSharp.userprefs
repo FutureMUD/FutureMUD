@@ -1,0 +1,18 @@
+﻿<Properties StartupItem="MudSharp\MudSharp.csproj">
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug (MySQL)|Win32" />
+  <MonoDevelop.Ide.Workbench ActiveDocument="MudSharp\FutureProg\Functions\DateTime\DateTimeAdditionFunction.cs">
+    <Files>
+      <File FileName="MudSharp\Construction\Zone.cs" Line="272" Column="91" />
+      <File FileName="MudSharp\FutureProg\Functions\DateTime\DateTimeAdditionFunction.cs" Line="58" Column="91" />
+      <File FileName="MudSharp\FutureProg\Functions\DateTime\DateTimeDifferenceFunction.cs" Line="59" Column="34" />
+      <File FileName="MudSharp\FutureProg\Functions\DateTime\DateTimeSubtractionFunction.cs" Line="54" Column="51" />
+      <File FileName="MudSharp\FutureProg\Functions\DateTime\ToDateFunction.cs" Line="1" Column="1" />
+      <File FileName="MudSharp\FutureProg\Functions\DateTime\DateToTextFunction.cs" Line="80" Column="80" />
+      <File FileName="MudSharp\TimeAndDate\MudDateTime.cs" Line="270" Column="40" />
+    </Files>
+  </MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.DebuggingService.Breakpoints>
+    <BreakpointStore />
+  </MonoDevelop.Ide.DebuggingService.Breakpoints>
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+</Properties>

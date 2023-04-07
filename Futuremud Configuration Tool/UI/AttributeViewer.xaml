@@ -1,0 +1,107 @@
+﻿<UserControl x:Class="Futuremud_Configuration_Tool.UI.AttributeViewer"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:ui="clr-namespace:Futuremud_Configuration_Tool.UI"
+             xmlns:converters="clr-namespace:Futuremud_Configuration_Tool.Converters"
+             mc:Ignorable="d" 
+             d:DesignHeight="350" d:DesignWidth="800">
+    <Grid Grid.IsSharedSizeScope="True">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="1*"/>
+        </Grid.ColumnDefinitions>
+        <DockPanel Grid.Column="0">
+            <Button MinWidth="50" Content="Add" DockPanel.Dock="Bottom" Margin="3" VerticalAlignment="Bottom" Click="Button_Click_Add"/>
+            <Button MinWidth="50" Content="Delete" DockPanel.Dock="Bottom" Margin="3" VerticalAlignment="Bottom" Click="Button_Click_Delete"/>
+            <ListBox DockPanel.Dock="Bottom" Margin="3" Name="AttributeListBox" SelectionChanged="AttributeListBox_SelectionChanged">
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <Grid>
+                            <TextBlock>
+                                <Run Text="ID: "/>
+                                <Run Text="{Binding Id}"/>
+                                <Run Text=" - "/>
+                                <Run Text="{Binding Name}"/>
+                            </TextBlock>
+                        </Grid>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+        </DockPanel>
+        
+        <Grid Grid.Column="1" Name="AttributeViewGrid">
+            <Grid.Resources>
+                <converters:TraitDecoratorToIDConverter x:Key="TraitToIDConverter"/>
+                <converters:TraitImproverToIDConverter x:Key="ImproverToIDConverter"/>
+            </Grid.Resources>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="1*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" SharedSizeGroup="Labels"/>
+                <ColumnDefinition Width="1*"/>
+                <ColumnDefinition Width="Auto" SharedSizeGroup="RightLabels"/>
+                <ColumnDefinition Width="1*"/>
+            </Grid.ColumnDefinitions>
+            <Label Grid.Row="0" Grid.Column="0" Content="Id" Margin="2"/>
+            <Label Grid.Row="1" Grid.Column="0" Content="Name" Margin="2"/>
+            <Label Grid.Row="2" Grid.Column="0" Content="Group" Margin="2"/>
+            <Label Grid.Row="4" Grid.Column="0" Content="Blurb" Margin="2"/>
+            
+            <Label Grid.Row="0" Grid.Column="2" Content="Alias" Margin="2"/>
+            <Label Grid.Row="1" Grid.Column="2" Content="Decorator" Margin="2"/>
+            <Label Grid.Row="2" Grid.Column="2" Content="Improver" Margin="2"/>
+            <Label Grid.Row="3" Grid.Column="0" Content="Hidden?" Margin="2"/>
+
+            <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding Id, Mode=OneWay}" IsReadOnly="True" Margin="2"/>
+            <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding Name}" Margin="2"/>
+            <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding TraitGroup}" Margin="2"/>
+            <TextBox Grid.Row="0" Grid.Column="3" Text="{Binding Alias}" Margin="2"/>
+            <TextBox Grid.Row="4" Grid.Column="1" Grid.ColumnSpan="3" Text="{Binding ChargenBlurb}" Margin="2"/>
+
+            <ComboBox Grid.Row="1" Grid.Column="3" Name="AttributeViewerDecoratorComboBox" SelectedItem="{Binding DecoratorId, Mode=TwoWay, Converter={StaticResource ResourceKey=TraitToIDConverter}}">
+                <ComboBox.ItemTemplate>
+                    <DataTemplate>
+                        <Grid>
+                            <TextBlock>
+                                <Run Text="ID: "/>
+                                <Run Text="{Binding Id}"/>
+                                <Run Text=" - "/>
+                                <Run Text="{Binding Name}"/>
+                            </TextBlock>
+                        </Grid>
+                    </DataTemplate>
+                </ComboBox.ItemTemplate>
+            </ComboBox>
+
+            <ComboBox Grid.Row="2" Grid.Column="3" Name="AttributeViewerImproverComboBox" SelectedItem="{Binding ImproverId, Mode=TwoWay, Converter={StaticResource ResourceKey=ImproverToIDConverter}}">
+                <ComboBox.ItemTemplate>
+                    <DataTemplate>
+                        <Grid>
+                            <TextBlock>
+                                <Run Text="ID: "/>
+                                <Run Text="{Binding Id}"/>
+                                <Run Text=" - "/>
+                                <Run Text="{Binding Name}"/>
+                            </TextBlock>
+                        </Grid>
+                    </DataTemplate>
+                </ComboBox.ItemTemplate>
+            </ComboBox>
+
+            <CheckBox Grid.Row="3" Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Left" IsChecked="{Binding Hidden}"/>
+            <StackPanel Orientation="Horizontal" FlowDirection="RightToLeft" Grid.Row="5" Grid.ColumnSpan="4">
+                <Button MinWidth="50" Content="Save All" Margin="2" Click="Button_Click_SaveAll"/>
+                <Button MinWidth="50" Content="Cancel All" Margin="2" Click="Button_Click_CancelAll"/>
+                <Button MinWidth="50" Content="Load All" Margin="2" Click="Button_Click_LoadAll"/>
+            </StackPanel>
+        </Grid>
+    </Grid>
+</UserControl>

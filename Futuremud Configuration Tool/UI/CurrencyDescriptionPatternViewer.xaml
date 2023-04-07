@@ -1,0 +1,86 @@
+﻿<UserControl x:Class="Futuremud_Configuration_Tool.UI.CurrencyDescriptionPatternViewer"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:converters="clr-namespace:Futuremud_Configuration_Tool.Converters"
+             xmlns:ui="clr-namespace:Futuremud_Configuration_Tool.UI"
+             mc:Ignorable="d" 
+             d:DesignHeight="300" d:DesignWidth="500" DataContextChanged="UserControl_DataContextChanged" Loaded="UserControl_Loaded">
+    <Grid Grid.IsSharedSizeScope="True">
+        <Grid.Resources>
+            <converters:FutureProgNullableConverter x:Key="FutureProgNullableConverter"/>
+            <converters:CurrencyDescriptionPatternTypeToStringConverter x:Key="CurrencyDescriptionPatternTypeToStringConverter"/>
+        </Grid.Resources>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto" SharedSizeGroup="Labels"/>
+            <ColumnDefinition Width="1*"/>
+            <ColumnDefinition Width="Auto" SharedSizeGroup="Labels"/>
+            <ColumnDefinition Width="1*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="1*"/>
+        </Grid.RowDefinitions>
+        <Label Grid.Row="0" Grid.Column="0" Content="Id"/>
+        <Label Grid.Row="1" Grid.Column="0" Content="Display Order"/>
+        <Label Grid.Row="2" Grid.Column="0" Content="Negative Prefix"/>
+        <Label Grid.Row="0" Grid.Column="2" Content="Type"/>
+        <Label Grid.Row="1" Grid.Column="2" Content="FutureProg"/>
+        
+        <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding Id}"/>
+        <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding Order}"/>
+        <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding NegativePrefix}"/>
+
+        <ComboBox Name="TypeComboBox" Grid.Row="0" Grid.Column="3" Margin="2" SelectedItem="{Binding Type}">
+            <ComboBox.ItemTemplate>
+                <DataTemplate>
+                    <TextBlock Text="{Binding Converter={StaticResource CurrencyDescriptionPatternTypeToStringConverter}}" />
+                </DataTemplate>
+            </ComboBox.ItemTemplate>
+        </ComboBox>
+        <ComboBox Name="FutureProgComboBox" Grid.Row="1" Grid.Column="3" Margin="2" SelectedItem="{Binding FutureProg, Converter={StaticResource FutureProgNullableConverter}}">
+            <ComboBox.ItemTemplate>
+                <DataTemplate>
+                    <TextBlock>
+                        <Run Text="ID: "/>
+                        <Run Text="{Binding Id}"/>
+                        <Run Text=" - "/>
+                        <Run Text="{Binding FunctionName}"/>
+                    </TextBlock>
+                </DataTemplate>
+            </ComboBox.ItemTemplate>
+        </ComboBox>
+
+        <GroupBox Header="Elements" Grid.Row="3" Grid.ColumnSpan="4" Margin="5">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="1*"/>
+                </Grid.ColumnDefinitions>
+                <DockPanel Grid.Column="0">
+                    <Button MinWidth="50" Content="Add" DockPanel.Dock="Bottom" Margin="3" VerticalAlignment="Bottom" Click="Button_Click_Add"/>
+                    <Button MinWidth="50" Content="Delete" DockPanel.Dock="Bottom" Margin="3" VerticalAlignment="Bottom" Click="Button_Click_Delete"/>
+                    <ListBox DockPanel.Dock="Bottom" Margin="3" Name="ElementListBox">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <Grid>
+                                    <TextBlock>
+                                            <Run Text="{Binding Order}"/>
+                                            <Run Text=" - "/>
+                                            <Run Text="{Binding CurrencyDivision.Name}"/>
+                                    </TextBlock>
+                                </Grid>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                </DockPanel>
+                <Grid Grid.Column="1">
+                    <ui:CurrencyDescriptionPatternElementViewer DataContext="{Binding ElementName=ElementListBox, Path=SelectedItem}"/>
+                </Grid>
+            </Grid>
+        </GroupBox>
+    </Grid>
+</UserControl>

@@ -18,9 +18,7 @@ public class CommandHook : HookBase
 	{
 		LoadFromXml(XElement.Parse(hook.Definition));
 	}
-
-	public override string FrameworkItemType => "CommandHook";
-
+	
 	#region IHook Members
 
 	public override Func<EventType, object[], bool> Function

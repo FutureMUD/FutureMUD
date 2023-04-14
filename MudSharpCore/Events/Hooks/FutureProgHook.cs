@@ -41,9 +41,6 @@ public class FutureProgHook : HookBase, IHookWithProgs
 		Gameworld.Add(this);
 	}
 
-
-	public override string FrameworkItemType => "FutureProgHook";
-
 	public override Func<EventType, object[], bool> Function
 	{
 		get

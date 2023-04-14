@@ -225,6 +225,8 @@ namespace MudSharp.Database
         public virtual DbSet<Gameitemeditingview> Gameitemeditingview { get; set; }
         public virtual DbSet<Gas> Gases { get; set; }
         public virtual DbSet<GasesTags> GasesTags { get; set; }
+        public virtual DbSet<GPTThread> GPTThreads { get; set; }
+        public virtual DbSet<GPTMessage> GPTMessages { get; set; }
         public virtual DbSet<Grid> Grids { get; set; }
         public virtual DbSet<GroupAi> GroupAis { get; set; }
         public virtual DbSet<GroupAiTemplate> GroupAiTemplates { get; set; }

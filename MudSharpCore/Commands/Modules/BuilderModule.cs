@@ -3478,6 +3478,8 @@ The syntax to use this command is as follows:
 		switch (ss.Pop().ToLowerInvariant())
 		{
 			case "add":
+			case "new":
+			case "create":
 				TagAdd(actor, ss);
 				return;
 			case "remove":

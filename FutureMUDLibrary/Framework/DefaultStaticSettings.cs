@@ -513,6 +513,7 @@ namespace MudSharp.Framework
             { "PrecipitationAmountPerItemSizeEnormousTorrentialRain", "5.0"},
             { "PrecipitationAmountPerItemSizeGiganticTorrentialRain", "10.0"},
             { "PrecipitationAmountPerItemSizeTitanicTorrentialRain", "20.0"},
+            { "GPT_Secret_Key", ""}
 		};
 
         public static readonly IReadOnlyDictionary<string, string> DefaultStaticStrings = new Dictionary<string, string>

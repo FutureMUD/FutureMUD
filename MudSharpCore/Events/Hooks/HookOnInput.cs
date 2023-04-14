@@ -47,8 +47,6 @@ public class HookOnInput : HookBase, IHookWithProgs
 
 	#region Overrides of Item
 
-	public override string FrameworkItemType { get; } = "HookOnInput";
-
 	#endregion
 
 	#region Overrides of HookBase

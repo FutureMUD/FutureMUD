@@ -7,16 +7,16 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace MudSharp.FutureProg;
-
+#nullable enable
 internal class FutureProgLookupFromBuilderInput
 {
-	public IFuturemud Gameworld { get; private set; }
-	public ICharacter Character { get; private set; }
-	public string BuilderInput { get; private set; }
-	public FutureProgVariableTypes TargetReturnType { get; private set; }
+	public IFuturemud Gameworld { get; }
+	public ICharacter? Character { get; }
+	public string BuilderInput { get; }
+	public FutureProgVariableTypes TargetReturnType { get; }
 	private readonly List<IEnumerable<FutureProgVariableTypes>> _parameters = new();
 
-	public FutureProgLookupFromBuilderInput(IFuturemud gameworld, ICharacter character, string builderInput,
+	public FutureProgLookupFromBuilderInput(IFuturemud gameworld, ICharacter? character, string builderInput,
 		FutureProgVariableTypes targetReturnType, IEnumerable<IEnumerable<FutureProgVariableTypes>> parameters)
 	{
 		Gameworld = gameworld;
@@ -41,19 +41,19 @@ internal class FutureProgLookupFromBuilderInput
 		var prog = Gameworld.FutureProgs.GetByIdOrName(BuilderInput);
 		if (prog is null)
 		{
-			Character.OutputHandler.Send($"There is no such prog identified by {BuilderInput.ColourCommand()}.");
+			Character?.OutputHandler.Send($"There is no such prog identified by {BuilderInput.ColourCommand()}.");
 			return null;
 		}
 
-		if (!Character.IsAdministrator() && !prog.Public)
+		if (!Character?.IsAdministrator() == false && !prog.Public)
 		{
-			Character.OutputHandler.Send($"There is no such prog identified by {BuilderInput.ColourCommand()}.");
+			Character?.OutputHandler.Send($"There is no such prog identified by {BuilderInput.ColourCommand()}.");
 			return null;
 		}
 
 		if (!prog.ReturnType.CompatibleWith(TargetReturnType))
 		{
-			Character.OutputHandler.Send(
+			Character?.OutputHandler.Send(
 				$"You must specify a prog that returns a {TargetReturnType.Describe().ColourName()} value, whereas {prog.MXPClickableFunctionName()} returns {prog.ReturnType.Describe().ColourName()}.");
 			return null;
 		}
@@ -62,12 +62,12 @@ internal class FutureProgLookupFromBuilderInput
 		{
 			if (_parameters.Count == 1)
 			{
-				Character.OutputHandler.Send(
+				Character?.OutputHandler.Send(
 					$@"You must specify a prog with parameters matching {_parameters.Single().Select(x => x.Describe().ColourName()).ListToString()}, whereas {prog.MXPClickableFunctionName()}'s parameters are {prog.Parameters.Select(x => x.Describe().ColourName()).ListToString()}.");
 			}
 			else
 			{
-				Character.OutputHandler.Send(
+				Character?.OutputHandler.Send(
 					$@"The prog {prog.MXPClickableFunctionName()} does not have the correct paramaters.
 The parameters of {prog.MXPClickableFunctionName()} are {prog.Parameters.Select(x => x.Describe().ColourName()).ListToString()}.
 You can select progs with the following combinations of parameters:{_parameters.Select(x => $"\t{x.Select(y => y.Describe().ColourName()).ListToString()}").ListToLines()}");

@@ -17,8 +17,6 @@ public class CommandHookFutureProg : CommandHook, IHookWithProgs
 	{
 	}
 
-	public override string FrameworkItemType => "CommandHookFutureProg";
-
 	public new static void RegisterLoader()
 	{
 		HookLoaders.Add("CommandHookFutureProg", (hook, gameworld) => new CommandHookFutureProg(hook, gameworld));

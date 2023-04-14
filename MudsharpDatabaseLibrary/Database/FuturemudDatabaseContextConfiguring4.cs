@@ -12,6 +12,59 @@ namespace MudSharp.Database
 	{
         protected static void OnModelCreatingFour(ModelBuilder modelBuilder)
         {
+	        modelBuilder.Entity<GPTMessage>(entity =>
+	        {
+		        entity.ToTable("GPTMessages");
+		        entity.Property(e => e.Id).HasColumnType("bigint(20)");
+		        entity.Property(e => e.GPTThreadId).HasColumnType("bigint(20)");
+		        entity.Property(e => e.CharacterId).HasColumnType("bigint(20)").IsRequired(false);
+		        entity.Property(e => e.Message)
+		              .IsRequired()
+		              .HasColumnType("text")
+		              .HasCharSet("utf8")
+		              .UseCollation("utf8_general_ci");
+		        entity.Property(e => e.Response)
+		              .IsRequired(false)
+		              .HasColumnType("text")
+		              .HasCharSet("utf8")
+		              .UseCollation("utf8_general_ci");
+
+		        entity.HasOne(e => e.GPTThread)
+		              .WithMany(d => d.Messages)
+		              .HasForeignKey(e => e.GPTThreadId)
+		              .OnDelete(DeleteBehavior.Cascade)
+		              .HasConstraintName("FK_GPTMessages_GPTThreads")
+			        ;
+		        entity.HasOne(e => e.Character)
+		              .WithMany(d => d.GPTMessages)
+		              .HasForeignKey(e => e.CharacterId)
+		              .OnDelete(DeleteBehavior.Cascade)
+		              .HasConstraintName("FK_GPTMessages_Characters")
+			        ;
+	        });
+
+	        modelBuilder.Entity<GPTThread>(entity =>
+		        {
+			        entity.ToTable("GPTThreads");
+			        entity.Property(e => e.Id).HasColumnType("bigint(20)");
+			        entity.Property(e => e.Temperature).HasColumnType("double");
+			        entity.Property(e => e.Name)
+			              .IsRequired()
+			              .HasColumnType("varchar(200)")
+			              .HasCharSet("utf8")
+			              .UseCollation("utf8_general_ci");
+			        entity.Property(e => e.Model)
+			              .IsRequired()
+			              .HasColumnType("varchar(200)")
+			              .HasCharSet("utf8")
+			              .UseCollation("utf8_general_ci");
+					entity.Property(e => e.Prompt)
+			              .IsRequired()
+			              .HasColumnType("text")
+			              .HasCharSet("utf8")
+			              .UseCollation("utf8_general_ci");
+				});
+
             modelBuilder.Entity<ActiveJob>(entity =>
             {
                 entity.ToTable("ActiveJobs");

@@ -11,6 +11,8 @@ namespace MudSharp.Events.Hooks;
 
 public abstract class HookBase : SaveableItem, IHook
 {
+	public sealed override string FrameworkItemType => "Hook";
+
 	protected static Dictionary<string, Func<Models.Hooks, IFuturemud, IHook>> HookLoaders =
 		new();
 

@@ -16,6 +16,7 @@ using MudSharp.Construction;
 using MudSharp.Construction.Boundary;
 using MudSharp.Database;
 using MudSharp.Economy.Currency;
+using MudSharp.Editor;
 using MudSharp.Effects.Interfaces;
 using MudSharp.Effects.Concrete;
 using MudSharp.Email;
@@ -25,6 +26,7 @@ using MudSharp.Framework;
 using MudSharp.Framework.Scheduling;
 using MudSharp.FutureProg;
 using MudSharp.FutureProg.Functions;
+using MudSharp.FutureProg.Functions.OpenAI;
 using MudSharp.GameItems;
 using MudSharp.GameItems.Interfaces;
 using MudSharp.Logging;
@@ -35,6 +37,8 @@ using MudSharp.TimeAndDate;
 using MudSharp.TimeAndDate.Date;
 using MudSharp.TimeAndDate.Time;
 using MudSharp.FutureProg.Variables;
+using MudSharp.Models;
+using MudSharp.OpenAI;
 
 namespace MudSharp.Commands.Modules;
 
@@ -183,6 +187,52 @@ internal class ImplementorModule : Module<ICharacter>
 		sb.AppendLine("Image!  " +
 		              MXP.TagMXP("image batman-thumbs-up-o.gif URL=\"http://stream1.gifsoup.com/view3/3414762/\""));
 		actor.OutputHandler.Send(sb.ToString());
+	}
+
+	[PlayerCommand("TestGPT", "testgpt")]
+	[CommandPermission(PermissionLevel.Founder)]
+	protected static void TestGPT(ICharacter actor, string input)
+	{
+		var ss = new StringStack(input.RemoveFirstWord());
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send("Which GPT Thread shall we test?");
+			return;
+		}
+
+		using (new FMDB())
+		{
+			Models.GPTThread thread;
+			var cmd = ss.PopSpeech();
+			if (long.TryParse(cmd, out var id))
+			{
+				thread = FMDB.Context.GPTThreads.Find(id);
+			}
+			else
+			{
+				thread = FMDB.Context.GPTThreads.Include(x => x.Messages).FirstOrDefault(x => x.Name == cmd);
+			}
+
+			if (thread is null)
+			{
+				actor.OutputHandler.Send("There is no such GPT Thread.");
+				return;
+			}
+
+			if (ss.IsFinished)
+			{
+				actor.OutputHandler.Send("What is your prompt for GPT?");
+				return;
+			}
+
+			var threadName = thread.Name;
+			actor.OutputHandler.Send(
+				$"You send the following request to the {thread.Name.ColourName()} GPT thread:\n\n{ss.RemainingArgument}");
+			OpenAI.OpenAIHandler.MakeGPTRequest(thread, ss.RemainingArgument, actor, text =>
+			{
+				actor.OutputHandler.Send($"#B[GPT Response for {threadName}]#0\n\n{text.Wrap(actor.InnerLineFormatLength)}".SubstituteANSIColour());
+			});
+		}
 	}
 
 	[PlayerCommand("TestUnicode", "testunicode")]
@@ -1581,5 +1631,390 @@ div.function-generalhelp {
 			"cleanup",
 			"items"
 		)), TimeSpan.FromSeconds(120));
+	}
+
+	private const string GPTHelp =
+		@"This command is used to create GPTThreads which can be used in progs, AI and autobuilding.
+
+The syntax is as follows:
+
+	#3GPT list#0 - lists all GPT Threads
+	#3GPT show <which>#0 - shows a GPT Thread
+	#3GPT create <name> <temp> <model>#0 - drops you into a model to create a new GPT Thread
+	#3GPT delete <which>#0 - deletes a GPT Thread
+	#3GPT set <which> name <name>#0 - renames a GPT Thread
+	#3GPT set <which> temperature <temp>#0 - sets the thread temperature
+	#3GPT set <which> model <name>#0 - changes the GPT Model
+	#3GPT set <which> prompt#0 - drops into an editor to write the prompt";
+
+	[PlayerCommand("GPT", "gpt")]
+	[CommandPermission(PermissionLevel.Founder)]
+	[HelpInfo("GPT", GPTHelp, AutoHelp.HelpArgOrNoArg)]
+	protected static void GPT(ICharacter actor, string command)
+	{
+		var ss = new StringStack(command.RemoveFirstWord());
+		switch (ss.PopSpeech().ToLowerInvariant().CollapseString())
+		{
+			case "list":
+				GPTList(actor, ss);
+				return;
+			case "add":
+			case "create":
+			case "new":
+				GPTCreate(actor, ss);
+				return;
+			case "delete":
+				GPTDelete(actor, ss);
+				return;
+			case "show":
+			case "view":
+				GPTShow(actor, ss);
+				return;
+			case "set":
+				GPTSet(actor, ss);
+				return;
+			default:
+				actor.OutputHandler.Send(GPTHelp.SubstituteANSIColour());
+				return;
+		}
+	}
+
+	private static void GPTSet(ICharacter actor, StringStack ss)
+	{
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send("Which GPT Thread would you like to set the properties of?");
+			return;
+		}
+
+		using (new FMDB())
+		{
+			Models.GPTThread thread;
+			if (long.TryParse(ss.PopSpeech(), out var id))
+			{
+				thread = FMDB.Context.GPTThreads.Find(id);
+			}
+			else
+			{
+				thread = FMDB.Context.GPTThreads.Include(x => x.Messages).FirstOrDefault(x => x.Name == ss.Last);
+			}
+
+			if (thread is null)
+			{
+				actor.OutputHandler.Send("There is no such GPT Thread.");
+				return;
+			}
+
+			switch (ss.PopSpeech().ToLowerInvariant().CollapseString())
+			{
+				case "model":
+					GPTSetModel(actor, thread, ss);
+					return;
+				case "temp":
+				case "temperature":
+					GPTSetTemperature(actor, thread, ss);
+					return;
+				case "prompt":
+					GPTSetPrompt(actor, thread, ss);
+					return;
+				case "name":
+					GPTSetName(actor, thread, ss);
+					return;
+				default:
+					actor.OutputHandler.Send(
+						"You must either use #3model#0, #3name#0, #3prompt#0 or #3temperature#0 as your argument."
+							.SubstituteANSIColour());
+					return;
+			}
+		}
+	}
+
+	private static void GPTSetName(ICharacter actor, GPTThread thread, StringStack ss)
+	{
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send("What name do you want to give to this GPTThread?");
+			return;
+		}
+
+		var name = ss.SafeRemainingArgument.Trim();
+		if (FMDB.Context.GPTThreads.Any(x => x.Name == name))
+		{
+			actor.OutputHandler.Send(
+				$"There is already a GPTThread called {name.ColourName()}. Names must be unique.");
+			return;
+		}
+
+		var oldName = thread.Name;
+		thread.Name = name;
+		FMDB.Context.SaveChanges();
+		actor.OutputHandler.Send($"You rename the GPTThread {oldName.ColourName()} to {name.ColourName()}.");
+	}
+
+	private static void GPTSetPrompt(ICharacter actor, GPTThread thread, StringStack ss)
+	{
+		actor.OutputHandler.Send($"Replacing the following prompt:\n\n{thread.Prompt.Wrap(actor.InnerLineFormatLength, "\t")}\n\nEnter your new prompt below.");
+		actor.EditorMode(PostAction, CancelAction, 1.0, thread.Prompt, EditorOptions.None, new object[] { thread.Id, thread.Name});
+	}
+
+	private static void CancelAction(IOutputHandler handler, object[] args)
+	{
+		handler.Send($"You decide not to alter the prompt for GPTThread {args[1].ToString().ColourName()}.");
+	}
+
+	private static void PostAction(string text, IOutputHandler handler, object[] args)
+	{
+		using (new FMDB())
+		{
+			var thread = FMDB.Context.GPTThreads.Find((long)args[0]);
+			if (thread is null)
+			{
+				handler.Send("The thread had been deleted by the time the post action was made.");
+				return;
+			}
+
+			thread.Prompt = text;
+			FMDB.Context.SaveChanges();
+			handler.Send($"You update the prompt for the {args[1].ToString().ColourName()} GPTThread.");
+		}
+	}
+
+	private static void GPTSetTemperature(ICharacter actor, GPTThread thread, StringStack ss)
+	{
+		if (ss.IsFinished || !double.TryParse(ss.SafeRemainingArgument, out var value) || value < 0)
+		{
+			actor.OutputHandler.Send("You must enter a valid number to be the mode temperature.");
+			return;
+		}
+
+		thread.Temperature = value;
+		FMDB.Context.SaveChanges();
+		actor.OutputHandler.Send($"The {thread.Name.ColourName()} GPTThread will now have a temperature of {value.ToString("N3", actor).ColourValue()}.");
+	}
+
+	private static void GPTSetModel(ICharacter actor, GPTThread thread, StringStack ss)
+	{
+		var models = OpenAIHandler.GPTModels().Result;
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send($"Which model should this GPTThread use?\nThe valid models are {models.Select(x => x.ColourName()).ListToString()}.");
+			return;
+		}
+
+		var modelText = ss.SafeRemainingArgument;
+		var model = models.FirstOrDefault(x => x.EqualTo(modelText)) ??
+		            models.FirstOrDefault(x => x.StartsWith(modelText, StringComparison.InvariantCultureIgnoreCase));
+		if (model is null)
+		{
+			actor.OutputHandler.Send($"There is no such model.\nThe valid models are {models.Select(x => x.ColourName()).ListToString()}.");
+			return;
+		}
+
+		thread.Model = model;
+		FMDB.Context.SaveChanges();
+		actor.OutputHandler.Send($"The {thread.Name.ColourName()} GPTThread will now use the {model.ColourName()} model.");
+	}
+
+	private static void GPTShow(ICharacter actor, StringStack ss)
+	{
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send("Which GPT Thread would you like to view?");
+			return;
+		}
+
+		using (new FMDB())
+		{
+			Models.GPTThread thread;
+			if (long.TryParse(ss.PopSpeech(), out var id))
+			{
+				thread = FMDB.Context.GPTThreads.Find(id);
+			}
+			else
+			{
+				thread = FMDB.Context.GPTThreads.Include(x => x.Messages).FirstOrDefault(x => x.Name == ss.Last);
+			}
+
+			if (thread is null)
+			{
+				actor.OutputHandler.Send("There is no such GPT Thread.");
+				return;
+			}
+
+			var sb = new StringBuilder();
+			sb.AppendLine($"GPT Thread #{thread.Id.ToString("N0", actor)} - {thread.Name.ColourName()}");
+			sb.AppendLine($"Model: {thread.Model.ColourValue()}");
+			sb.AppendLine($"Temperature: {thread.Temperature.ToString("N2", actor).ColourValue()}");
+			sb.AppendLine($"Messages: {thread.Messages.Count.ToString("N0", actor).ColourValue()}");
+			sb.AppendLine($"Prompt:");
+			sb.AppendLine();
+			sb.AppendLine(thread.Prompt.Wrap(actor.InnerLineFormatLength, "\t").ColourCommand());
+			actor.OutputHandler.Send(sb.ToString());
+		}
+	}
+
+	private static void GPTDelete(ICharacter actor, StringStack ss)
+	{
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send("Which GPTThread are you trying to delete?");
+			return;
+		}
+
+		using (new FMDB())
+		{
+			Models.GPTThread thread;
+			if (long.TryParse(ss.PopSpeech(), out var id))
+			{
+				thread = FMDB.Context.GPTThreads.Find(id);
+			}
+			else
+			{
+				thread = FMDB.Context.GPTThreads.Include(x => x.Messages).FirstOrDefault(x => x.Name == ss.Last);
+			}
+
+			if (thread is null)
+			{
+				actor.OutputHandler.Send("There is no such GPT Thread.");
+				return;
+			}
+
+			actor.OutputHandler.Send(
+				$"Are you sure you want to delete the {thread.Name.ColourName()} GPTThread? This cannot be undone.\n{Accept.StandardAcceptPhrasing}");
+			actor.AddEffect(new Accept(actor, new GenericProposal
+			{
+				DescriptionString = "Deleting a GPTThread",
+				AcceptAction = text =>
+				{
+					actor.OutputHandler.Send($"You delete the {thread.Name.ColourName()} GPTThread.");
+					using (new FMDB())
+					{
+						var dbitem = FMDB.Context.GPTThreads.Find(thread.Id);
+						if (dbitem == null)
+						{
+							return;
+						}
+
+						FMDB.Context.GPTThreads.Remove(dbitem);
+						FMDB.Context.SaveChanges();
+					}
+				},
+				RejectAction = text =>
+				{
+					actor.OutputHandler.Send($"You decide not to delete the {thread.Name.ColourName()} GPTThread.");
+				},
+				ExpireAction = () =>
+				{
+					actor.OutputHandler.Send($"You decide not to delete the {thread.Name.ColourName()} GPTThread.");
+				}
+			}), TimeSpan.FromSeconds(120));
+		}
+	}
+
+	private static void GPTCreate(ICharacter actor, StringStack ss)
+	{
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send("What name do you want to give to your new model?");
+			return;
+		}
+
+		var name = ss.PopSpeech();
+		using (new FMDB())
+		{
+			if (FMDB.Context.GPTThreads.Any(x => x.Name == name))
+			{
+				actor.OutputHandler.Send(
+					$"There is already a GPTThread called {name.ColourName()}. Names must be unique.");
+				return;
+			}
+		}
+
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send(
+				"What should be the temperature of this model? Numbers between 0.3 and 2.0 are common, with higher numbers meaning more randomness.");
+			return;
+		}
+
+		if (!double.TryParse(ss.PopSpeech(), out var temperature) || temperature < 0)
+		{
+			actor.OutputHandler.Send("That is not a valid temperature.");
+			return;
+		}
+
+		var models = OpenAIHandler.GPTModels().Result;
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send($"Which GPT Model should your thread use? Valid choices are {models.Select(x => x.ColourName()).ListToString()}.");
+			return;
+		}
+
+		var modelText = ss.SafeRemainingArgument;
+		var model = models.FirstOrDefault(x => x.EqualTo(modelText)) ??
+		            models.FirstOrDefault(x => x.StartsWith(modelText, StringComparison.InvariantCultureIgnoreCase));
+		if (model is null)
+		{
+			actor.OutputHandler.Send($"There is no such model.\nThe valid models are {models.Select(x => x.ColourName()).ListToString()}.");
+			return;
+		}
+
+		actor.OutputHandler.Send("Enter a prompt for GPT below:");
+		actor.EditorMode(PostActionCreate, CancelActionCreate, 1.0, null, EditorOptions.None, new object[]
+		{
+			name,
+			temperature,
+			model,
+			actor
+		});
+	}
+
+	private static void CancelActionCreate(IOutputHandler handler, object[] args)
+	{
+		handler.Send("You decide not to create a new GPTThread.");
+	}
+
+	private static void PostActionCreate(string text, IOutputHandler handler, object[] args)
+	{
+		using (new FMDB())
+		{
+			var dbitem = new GPTThread
+			{
+				Name = (string)args[0],
+				Temperature = (double)args[1],
+				Model = (string)args[2],
+				Prompt = text
+			};
+			FMDB.Context.GPTThreads.Add(dbitem);
+			FMDB.Context.SaveChanges();
+			handler.Send($"You create GPTThread #{dbitem.Id.ToString("N0", (ICharacter)args[3])} {dbitem.Name.ColourName()}.");
+		}
+	}
+
+	private static void GPTList(ICharacter actor, StringStack ss)
+	{
+		using (new FMDB())
+		{
+			actor.OutputHandler.Send(StringUtilities.GetTextTable(
+				FMDB.Context.GPTThreads.Include(x => x.Messages).Select(x => new []
+				{
+					x.Id.ToString("N0", actor),
+					x.Name,
+					x.Model,
+					x.Temperature.ToString("N2", actor),
+					x.Messages.Count.ToString("N0", actor)
+				}),
+				new List<string>
+				{
+					"Id",
+					"Name",
+					"Model",
+					"Temperature",
+					"Messages"
+				},
+				actor,
+				colour: Telnet.BoldOrange
+			));
+		}
 	}
 }

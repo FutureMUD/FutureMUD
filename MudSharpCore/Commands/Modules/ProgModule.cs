@@ -640,7 +640,6 @@ A function (See PROG HELP FUNCTIONS) can also function as a statement on a line.
 		for (var i =0; i < prog.NamedParameters.Count; i++)
 		{
 			var (arg, paramName) = prog.NamedParameters[i];
-			i++;
 			cmd = ss.PopParentheses();
 			if (string.IsNullOrEmpty(cmd))
 			{

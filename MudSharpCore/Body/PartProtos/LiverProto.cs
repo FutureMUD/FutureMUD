@@ -22,6 +22,4 @@ public class LiverProto : InternalOrganProto
 	public override BodypartTypeEnum BodypartType => BodypartTypeEnum.Liver;
 
 	public new double PainFactor => 0.0;
-
-	public override string FrameworkItemType => "LiverProto";
 }

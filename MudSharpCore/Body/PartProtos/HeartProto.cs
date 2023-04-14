@@ -22,8 +22,6 @@ public class HeartProto : InternalOrganProto
 
 	public override BodypartTypeEnum BodypartType => BodypartTypeEnum.Heart;
 
-	public override string FrameworkItemType => "HeartProto";
-
 	#region Overrides of InternalOrganProto
 
 	protected override bool AffectedByBloodBuildup => true;

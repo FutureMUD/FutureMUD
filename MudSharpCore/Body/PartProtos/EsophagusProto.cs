@@ -23,8 +23,6 @@ public class EsophagusProto : InternalOrganProto
 
 	public new double PainFactor => 0.0;
 
-	public override string FrameworkItemType => "EsophagusProto";
-
 	#region Overrides of InternalOrganProto
 
 	protected override bool AffectedByBloodBuildup => true;

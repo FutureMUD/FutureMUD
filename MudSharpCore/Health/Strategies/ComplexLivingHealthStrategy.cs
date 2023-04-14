@@ -175,39 +175,21 @@ public class ComplexLivingHealthStrategy : BaseHealthStrategy
 			lodgedItem = damage.LodgableItem;
 		}
 
-		if (bodypart is IBone)
+		if (bodypart is IBone bone && bone.ShouldBeBoneBreak(damage))
 		{
-			switch (damage.DamageType)
+			if (RandomUtilities.Random(0, 2) == 0)
 			{
-				case DamageType.Slashing:
-				case DamageType.Chopping:
-				case DamageType.Crushing:
-				case DamageType.Piercing:
-				case DamageType.Ballistic:
-				case DamageType.Shockwave:
-				case DamageType.Bite:
-				case DamageType.Claw:
-				case DamageType.Shearing:
-				case DamageType.ArmourPiercing:
-				case DamageType.Wrenching:
-				case DamageType.Shrapnel:
-				case DamageType.Falling:
-				case DamageType.Eldritch:
-				case DamageType.Arcane:
-					if (RandomUtilities.Random(0, 2) == 0)
-					{
-						var existing =
-							owner.Wounds.Where(x => x.Bodypart == bodypart).OfType<BoneFracture>().GetRandomElement();
-						if (existing != null)
-						{
-							existing.SufferAdditionalDamage(damage);
-							return existing;
-						}
-					}
-
-					return new BoneFracture(owner.Gameworld, owner, damage.DamageAmount, damage.PainAmount,
-						damage.StunAmount, damage.DamageType, damage.Bodypart, damage.ToolOrigin, damage.ActorOrigin);
+				var existing =
+					owner.Wounds.Where(x => x.Bodypart == bodypart).OfType<BoneFracture>().GetRandomElement();
+				if (existing != null)
+				{
+					existing.SufferAdditionalDamage(damage);
+					return existing;
+				}
 			}
+
+			return new BoneFracture(owner.Gameworld, owner, damage.DamageAmount, damage.PainAmount,
+				damage.StunAmount, damage.DamageType, damage.Bodypart, damage.ToolOrigin, damage.ActorOrigin);
 		}
 
 		return new SimpleOrganicWound(owner.Gameworld, owner, damage.DamageAmount, damage.PainAmount,

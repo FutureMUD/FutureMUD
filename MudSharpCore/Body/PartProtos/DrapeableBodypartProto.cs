@@ -79,9 +79,6 @@ public class DrapeableBodypartProto : ExternalBodypartProto, IWear
 		return sb.ToString();
 	}
 
-	public override string FrameworkItemType => "DrapeableBodypartProto";
-
-
 	public WearableItemCoverStatus HowCovered(IGameItem item, IBody body)
 	{
 		return CoverInformation(item, body).Item1;

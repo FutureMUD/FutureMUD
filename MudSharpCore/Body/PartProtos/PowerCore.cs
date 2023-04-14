@@ -25,8 +25,6 @@ public class PowerCore : InternalOrganProto
 		return new PowerCore(this, newName);
 	}
 
-	public override string FrameworkItemType => "PowerCore";
-
 	public override void HandleChangedOrganFunction(IBody body, double oldFunctionFactor, double newFunctionFactor)
 	{
 		if (newFunctionFactor == oldFunctionFactor)

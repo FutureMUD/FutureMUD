@@ -22,8 +22,6 @@ public class EarProto : InternalOrganProto
 
 	public override BodypartTypeEnum BodypartType => BodypartTypeEnum.Ear;
 
-	public override string FrameworkItemType => "EarProto";
-
 	#region Overrides of BodypartPrototype
 
 	public override void HandleChangedOrganFunction(IBody body, double oldFunctionFactor, double newFunctionFactor)

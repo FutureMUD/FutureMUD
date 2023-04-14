@@ -22,6 +22,9 @@ namespace MudSharp.Body.PartProtos;
 
 public abstract partial class BodypartPrototype : LateKeywordedInitialisingItem, IBodypart
 {
+
+	public sealed override string FrameworkItemType => "Bodypart";
+
 	#region Constructors
 
 	protected BodypartPrototype(BodypartProto proto, IFuturemud game)
@@ -947,6 +950,8 @@ public abstract partial class BodypartPrototype : LateKeywordedInitialisingItem,
 				return new GillProto(proto, gameworld);
 			case BodypartTypeEnum.Blowhole:
 				return new BlowholeProto(proto, gameworld);
+			case BodypartTypeEnum.BonyDrapeable:
+				return new BonyDrapeableBodypartProto(proto, gameworld);
 			default:
 				throw new NotImplementedException();
 		}

@@ -24,8 +24,6 @@ public class TracheaProto : InternalOrganProto
 
 	public new double PainFactor => 0.0;
 
-	public override string FrameworkItemType => "TracheaProto";
-
 	#region Overrides of BodypartPrototype
 
 	public override bool PartDamageEffects(IBody owner, CanUseBodypartResult why)

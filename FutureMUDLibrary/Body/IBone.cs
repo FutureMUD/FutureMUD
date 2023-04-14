@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MudSharp.Health;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -12,5 +13,6 @@ namespace MudSharp.Body
         bool CanBeImmobilised { get; }
         double BoneHealingModifier { get; }
         IEnumerable<(IOrganProto Organ, BodypartInternalInfo Info)> CoveredOrgans { get; }
+        bool ShouldBeBoneBreak(IDamage damage);
     }
 }

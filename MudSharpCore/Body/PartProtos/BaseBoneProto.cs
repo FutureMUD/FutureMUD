@@ -7,6 +7,7 @@ using MudSharp.Models;
 using MudSharp.Character;
 using MudSharp.Database;
 using MudSharp.Framework;
+using MudSharp.Health;
 
 namespace MudSharp.Body.PartProtos;
 
@@ -26,6 +27,31 @@ public abstract class BaseBoneProto : BodypartPrototype, IBone
 
 	private readonly List<(IOrganProto Organ, BodypartInternalInfo Info)> _coveredOrgans = new();
 	public IEnumerable<(IOrganProto Organ, BodypartInternalInfo Info)> CoveredOrgans => _coveredOrgans;
+
+	public bool ShouldBeBoneBreak(IDamage damage)
+	{
+		switch (damage.DamageType)
+		{
+			case DamageType.Slashing:
+			case DamageType.Chopping:
+			case DamageType.Crushing:
+			case DamageType.Piercing:
+			case DamageType.Ballistic:
+			case DamageType.Shockwave:
+			case DamageType.Bite:
+			case DamageType.Claw:
+			case DamageType.Shearing:
+			case DamageType.ArmourPiercing:
+			case DamageType.Wrenching:
+			case DamageType.Shrapnel:
+			case DamageType.Falling:
+			case DamageType.Eldritch:
+			case DamageType.Arcane:
+				return true;
+		}
+
+		return false;
+	}
 
 	public override void PostLoadProcessing(IBodyPrototype body, BodypartProto proto)
 	{

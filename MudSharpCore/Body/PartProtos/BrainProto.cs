@@ -21,8 +21,6 @@ public class BrainProto : InternalOrganProto
 
 	public override BodypartTypeEnum BodypartType => BodypartTypeEnum.Brain;
 
-	public override string FrameworkItemType => "BrainProto";
-
 	#region Overrides of InternalOrganProto
 
 	protected override bool AffectedByBloodBuildup => true;

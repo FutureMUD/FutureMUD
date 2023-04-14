@@ -22,6 +22,4 @@ public class SpleenProto : InternalOrganProto
 	public override BodypartTypeEnum BodypartType => BodypartTypeEnum.Spleen;
 
 	public new double PainFactor => 0.0;
-
-	public override string FrameworkItemType => "SpleenProto";
 }

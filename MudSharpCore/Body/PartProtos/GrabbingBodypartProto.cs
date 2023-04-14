@@ -115,8 +115,6 @@ public class GrabbingBodypartProto : ExternalBodypartProto, IGrab
 		throw new NotImplementedException();
 	}
 
-	public override string FrameworkItemType => "GrabbingBodypartProto";
-
 	public bool ItemsVisible()
 	{
 		return Unary;

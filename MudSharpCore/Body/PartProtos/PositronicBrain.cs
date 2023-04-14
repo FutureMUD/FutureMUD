@@ -24,10 +24,6 @@ public class PositronicBrain : InternalOrganProto
 	{
 		return new PositronicBrain(this, newName);
 	}
-
-	public override string FrameworkItemType => "PositronicBrain";
-
-
 	public override void HandleChangedOrganFunction(IBody body, double oldFunctionFactor, double newFunctionFactor)
 	{
 		if (newFunctionFactor == oldFunctionFactor)

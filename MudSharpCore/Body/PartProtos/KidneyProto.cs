@@ -22,6 +22,4 @@ public class KidneyProto : InternalOrganProto
 	public override BodypartTypeEnum BodypartType => BodypartTypeEnum.Kidney;
 
 	public new double PainFactor => 0.0;
-
-	public override string FrameworkItemType => "KidneyProto";
 }

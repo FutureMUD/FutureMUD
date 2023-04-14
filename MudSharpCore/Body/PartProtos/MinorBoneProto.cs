@@ -25,12 +25,6 @@ public class MinorBoneProto : BaseBoneProto
 
 	public override BodypartTypeEnum BodypartType => BodypartTypeEnum.MinorBone;
 
-	#region Overrides of Item
-
-	public override string FrameworkItemType => "Bone";
-
-	#endregion
-
 	public override bool CanBeImmobilised => true;
 	public override bool CriticalBone => false;
 

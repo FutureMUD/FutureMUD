@@ -22,6 +22,4 @@ public class IntestinesProto : InternalOrganProto
 	public override BodypartTypeEnum BodypartType => BodypartTypeEnum.Intestines;
 
 	public new double PainFactor => 0.0;
-
-	public override string FrameworkItemType => "IntestinesProto";
 }

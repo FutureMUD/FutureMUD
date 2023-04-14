@@ -22,6 +22,4 @@ public class StomachProto : InternalOrganProto
 	public override BodypartTypeEnum BodypartType => BodypartTypeEnum.Stomach;
 
 	public new double PainFactor => 0.0;
-
-	public override string FrameworkItemType => "StomachProto";
 }

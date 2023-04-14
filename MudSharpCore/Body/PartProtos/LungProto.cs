@@ -25,8 +25,6 @@ public class LungProto : InternalOrganProto
 
 	public override bool RequiresSpinalConnection => true;
 
-	public override string FrameworkItemType => "LungProto";
-
 	#region Overrides of InternalOrganProto
 
 	protected override bool AffectedByBloodBuildup => true;

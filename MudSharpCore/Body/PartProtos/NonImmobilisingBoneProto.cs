@@ -25,12 +25,6 @@ public class NonImmobilisingBoneProto : BaseBoneProto
 
 	public override BodypartTypeEnum BodypartType => BodypartTypeEnum.NonImmobilisingBone;
 
-	#region Overrides of Item
-
-	public override string FrameworkItemType => "Bone";
-
-	#endregion
-
 	public override bool CanBeImmobilised => false;
 	public override bool CriticalBone => true;
 	public override double BoneHealingModifier => 1.0;

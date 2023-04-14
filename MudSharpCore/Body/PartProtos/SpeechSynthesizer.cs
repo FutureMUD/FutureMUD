@@ -24,6 +24,4 @@ public class SpeechSynthesizer : InternalOrganProto
 	{
 		return new SpeechSynthesizer(this, newName);
 	}
-
-	public override string FrameworkItemType => "SpeechSynthesizer";
 }

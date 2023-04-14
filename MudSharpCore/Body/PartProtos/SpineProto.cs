@@ -19,6 +19,4 @@ public class SpineProto : InternalOrganProto, ISpineProto
 	}
 
 	public override BodypartTypeEnum BodypartType => BodypartTypeEnum.Spine;
-
-	public override string FrameworkItemType => "SpineProto";
 }

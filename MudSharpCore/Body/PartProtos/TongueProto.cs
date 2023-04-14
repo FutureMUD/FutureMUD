@@ -22,8 +22,6 @@ public class TongueProto : ExternalBodypartProto
 
 	public override BodypartTypeEnum BodypartType => BodypartTypeEnum.Tongue;
 
-	public override string FrameworkItemType => "TongueProto";
-
 	#region Overrides of BodypartPrototype
 
 	public override bool PartDamageEffects(IBody owner, CanUseBodypartResult why)

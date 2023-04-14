@@ -40,8 +40,6 @@ public class WieldingBodypartProto : ExternalBodypartProto, IWield
 		dbitem.MaxSingleSize = (int)MaxSingleSize;
 	}
 
-	public override string FrameworkItemType => "WieldingBodypartProto";
-
 	public SizeCategory MaxSingleSize { get; protected set; }
 
 	public override string ShowToBuilder(ICharacter builder)

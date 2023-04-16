@@ -14,6 +14,9 @@ namespace MudSharp.Construction.Grids;
 public abstract class GridBase : LateInitialisingItem, IGrid
 {
 	public sealed override string FrameworkItemType => "Grid";
+	public override InitialisationPhase InitialisationPhase => InitialisationPhase.First;
+	
+
 	private readonly List<long> _locationIds = new();
 	private readonly List<ICell> _locations = new();
 	public IEnumerable<ICell> Locations => _locations;

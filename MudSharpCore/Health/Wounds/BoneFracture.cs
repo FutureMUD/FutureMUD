@@ -152,7 +152,8 @@ public class BoneFracture : PerceivedItem, IImmobilisableWound
 			{
 				var worn = cParent.Body.WornItemsProfilesFor(
 					cParent.Body.Bodyparts.FirstOrDefault(
-						x => x.BoneInfo.Any(y => y.Key == Bone && y.Value.IsPrimaryInternalLocation)));
+						x => x.BoneInfo.Any(y => y.Key == Bone && y.Value.IsPrimaryInternalLocation)) ??
+					Bone);
 				var range = OutputRange.Local;
 				if (worn.Any(x => !x.Item2.HidesSeveredBodyparts && !x.Item2.Transparent))
 				{

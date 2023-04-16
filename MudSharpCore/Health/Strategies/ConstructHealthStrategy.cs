@@ -11,6 +11,7 @@ using MudSharp.Framework;
 using MudSharp.GameItems;
 using MudSharp.Health.Wounds;
 using TraitExpression = MudSharp.Body.Traits.TraitExpression;
+using System.Collections.Generic;
 
 namespace MudSharp.Health.Strategies;
 
@@ -67,11 +68,11 @@ public class ConstructHealthStrategy : BaseHealthStrategy
 		// Do nothing
 	}
 
-	public override IWound SufferDamage(IHaveWounds owner, IDamage damage, IBodypart bodypart)
+	public override IEnumerable<IWound> SufferDamage(IHaveWounds owner, IDamage damage, IBodypart bodypart)
 	{
 		if (damage.DamageType == DamageType.Hypoxia || damage.DamageType == DamageType.Cellular)
 		{
-			return null;
+			return Enumerable.Empty<IWound>();
 		}
 
 		IGameItem lodgedItem = null;
@@ -82,8 +83,11 @@ public class ConstructHealthStrategy : BaseHealthStrategy
 			lodgedItem = damage.LodgableItem;
 		}
 
-		return new SimpleWound(owner.Gameworld, owner, damage.DamageAmount, damage.DamageType, damage.Bodypart,
-			lodgedItem, damage.ToolOrigin, damage.ActorOrigin);
+		return new[]
+		{
+			new SimpleWound(owner.Gameworld, owner, damage.DamageAmount, damage.DamageType, damage.Bodypart,
+				lodgedItem, damage.ToolOrigin, damage.ActorOrigin)
+		};
 	}
 
 	public override HealthTickResult PerformHealthTick(IHaveWounds thing)

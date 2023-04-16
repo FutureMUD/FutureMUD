@@ -44,7 +44,9 @@ namespace MudSharp.Body {
         Fin = 29,
         Gill = 30,
         Blowhole = 31,
-        BonyDrapeable = 32
+        BonyDrapeable = 32,
+        BonyGrabbingWielding = 33,
+        NonImmobilisingBonyDrapeable = 34,
     }
     
     public interface IBodypart : IKeywordedItem, IDescribable, IHaveFuturemud, ISaveable, ILateInitialisingItem {

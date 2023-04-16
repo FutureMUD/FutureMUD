@@ -42,8 +42,6 @@ public class GrabbingWieldingBodypartProto : GrabbingBodypartProto, IWield, IWea
 		dbitem.MaxSingleSize = (int)MaxSingleSize;
 	}
 
-	public override string FrameworkItemType => "GrabbingWieldingBodypartProto";
-
 	public override string ShowToBuilder(ICharacter builder)
 	{
 		var sb = new StringBuilder(ShowToBuilderSkipThis(builder));

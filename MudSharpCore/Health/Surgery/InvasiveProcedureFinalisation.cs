@@ -152,41 +152,43 @@ public class InvasiveProcedureFinalisation : BodypartSpecificSurgicalProcedure
 			PenetrationOutcome = Outcome.MajorFail
 		};
 
-		var recoveryWound = patient.Body.HealthStrategy.SufferDamage(patient, recoveryDamage, bodypart);
-
-		//If we got here via fail or minorfail, then the wound is not fully closed off
-		recoveryWound.BleedStatus = result == Outcome.Fail ? BleedStatus.Bleeding :
-			result == Outcome.MinorFail ? BleedStatus.TraumaControlled : BleedStatus.Closed;
-
-		//Reset the damage and pain to the original amounts to negate the effect of BodyPart pain/damage modifiers.
-		recoveryWound.OriginalDamage = damageAmount;
-		recoveryWound.CurrentDamage = damageAmount;
-		recoveryWound.CurrentPain = damageAmount * 2;
-
-		foreach (var merit in merits)
+		var recoveryWounds = patient.Body.HealthStrategy.SufferDamage(patient, recoveryDamage, bodypart).ToArray();
+		foreach (var recoveryWound in recoveryWounds)
 		{
-			if (merit.BonusDegrees > 0)
-			{
-				//If we have TidySurgeon or the equivalent, make the wound Automatically antiseptic treated.
-				//Otherwise, people will need to clean the wound themselves.
-				recoveryWound.BleedStatus = BleedStatus.Closed;
-				recoveryWound.Treat(surgeon, TreatmentType.Antiseptic, null, Outcome.MajorPass, true);
-			}
+			//If we got here via fail or minorfail, then the wound is not fully closed off
+			recoveryWound.BleedStatus = result == Outcome.Fail ? BleedStatus.Bleeding :
+				result == Outcome.MinorFail ? BleedStatus.TraumaControlled : BleedStatus.Closed;
 
-			if (merit.BonusDegrees < 0)
-				//Sloppy Surgeons make a mess
+			//Reset the damage and pain to the original amounts to negate the effect of BodyPart pain/damage modifiers.
+			recoveryWound.OriginalDamage = damageAmount;
+			recoveryWound.CurrentDamage = damageAmount;
+			recoveryWound.CurrentPain = damageAmount * 2;
+
+			foreach (var merit in merits)
 			{
-				if (patient.Body.PartInfections.All(x => x.Bodypart != bodypart))
+				if (merit.BonusDegrees > 0)
 				{
-					var terrain = patient.Location.Terrain(patient);
-					patient.Body.AddInfection(Infection.LoadNewInfection(terrain.PrimaryInfection,
-						terrain.InfectionVirulence.StageDown(merit.BonusDegrees), 0.0001, patient.Body, null, bodypart,
-						terrain.InfectionMultiplier));
+					//If we have TidySurgeon or the equivalent, make the wound Automatically antiseptic treated.
+					//Otherwise, people will need to clean the wound themselves.
+					recoveryWound.BleedStatus = BleedStatus.Closed;
+					recoveryWound.Treat(surgeon, TreatmentType.Antiseptic, null, Outcome.MajorPass, true);
+				}
+
+				if (merit.BonusDegrees < 0)
+					//Sloppy Surgeons make a mess
+				{
+					if (patient.Body.PartInfections.All(x => x.Bodypart != bodypart))
+					{
+						var terrain = patient.Location.Terrain(patient);
+						patient.Body.AddInfection(Infection.LoadNewInfection(terrain.PrimaryInfection,
+							terrain.InfectionVirulence.StageDown(merit.BonusDegrees), 0.0001, patient.Body, null, bodypart,
+							terrain.InfectionMultiplier));
+					}
 				}
 			}
 		}
-
-		patient.Body.AddWound(recoveryWound);
+		
+		patient.Body.AddWounds(recoveryWounds);
 	}
 
 	public override Difficulty GetProcedureDifficulty(ICharacter surgeon, ICharacter patient,

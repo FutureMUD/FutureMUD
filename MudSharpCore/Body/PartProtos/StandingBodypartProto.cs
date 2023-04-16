@@ -23,9 +23,7 @@ public class StandingBodypartProto : DrapeableBodypartProto
 	}
 
 	public override BodypartTypeEnum BodypartType => BodypartTypeEnum.Standing;
-
-	public override string FrameworkItemType => "StandingBodypartProto";
-
+	
 	public override bool PartDamageEffects(IBody owner, CanUseBodypartResult why)
 	{
 		var result = base.PartDamageEffects(owner, why);

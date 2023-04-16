@@ -442,7 +442,23 @@ public partial class Body
 			throw new ArgumentNullException(nameof(wound));
 		}
 
-		_wounds.Add(wound);
+		if (!_wounds.Contains(wound))
+		{
+			_wounds.Add(wound);
+			Changed = true;
+		}
+	}
+
+	public void AddWounds(IEnumerable<IWound> wounds)
+	{
+		foreach (var wound in wounds)
+		{
+			if (!_wounds.Contains(wound))
+			{
+				_wounds.Add(wound);
+			}
+		}
+
 		Changed = true;
 	}
 
@@ -856,7 +872,7 @@ public partial class Body
 				Wounds.FirstOrDefault(x => x.Bodypart == damage.Bodypart && damage.DamageType == x.DamageType);
 			if (existingWound == null)
 			{
-				existingWound = HealthStrategy.SufferDamage(Actor, damage, damage.Bodypart);
+				existingWound = HealthStrategy.SufferDamage(Actor, damage, damage.Bodypart).FirstOrDefault();
 				if (existingWound == null)
 				{
 					return Enumerable.Empty<IWound>();
@@ -988,24 +1004,28 @@ public partial class Body
 				}
 			}
 
-			var newWound = HealthStrategy.SufferDamage(Actor, damage, damage.Bodypart);
+			var newWounds = HealthStrategy.SufferDamage(Actor, damage, damage.Bodypart).ToArray();
+			var newWound = newWounds.FirstOrDefault(x => x is not BoneFracture);
 			if (newWound != null)
 			{
 				newWound.SeveredBodypart = severedPart;
 			}
 
-			if (newWound == null)
+			if (!newWounds.Any())
 			{
 				return wounds;
 			}
 
-			if (!_wounds.Contains(newWound))
+			foreach (var wound in newWounds)
 			{
-				_wounds.Add(newWound);
-				Changed = true;
+				if (!_wounds.Contains(wound))
+				{
+					_wounds.Add(wound);
+					Changed = true;
+				}
 			}
-
-			wounds.Add(newWound);
+			
+			wounds.AddRange(newWounds);
 			return wounds;
 #if DEBUG
 		}
@@ -1191,7 +1211,7 @@ public partial class Body
 				Wounds.FirstOrDefault(x => x.Bodypart == damage.Bodypart && damage.DamageType == x.DamageType);
 			if (existingWound == null)
 			{
-				existingWound = HealthStrategy.SufferDamage(Actor, damage, damage.Bodypart);
+				existingWound = HealthStrategy.SufferDamage(Actor, damage, damage.Bodypart).FirstOrDefault();
 				if (existingWound == null)
 				{
 					return Enumerable.Empty<IWound>();
@@ -1305,21 +1325,18 @@ public partial class Body
 			}
 		}
 
-		var newWound = HealthStrategy.SufferDamage(Actor, damage, damage.Bodypart);
-		if (newWound == null)
+		var newWounds = HealthStrategy.SufferDamage(Actor, damage, damage.Bodypart).ToArray();
+		foreach (var newWound in newWounds)
 		{
-			StartHealthTick();
-			return wounds;
+			if (!_wounds.Contains(newWound))
+			{
+				_wounds.Add(newWound);
+				OnWounded?.Invoke(this, newWound);
+				newWound.OnWoundSuffered();
+				wounds.Add(newWound);
+			}
 		}
-
-		if (!_wounds.Contains(newWound))
-		{
-			_wounds.Add(newWound);
-		}
-
-		OnWounded?.Invoke(this, newWound);
-		newWound.OnWoundSuffered();
-		wounds.Add(newWound);
+		
 		// Note - you specifically don't want to EvaluateWounds in here otherwise people may die before combat messages
 		StartHealthTick();
 		return wounds;

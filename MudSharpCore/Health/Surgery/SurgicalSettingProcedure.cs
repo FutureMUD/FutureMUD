@@ -117,7 +117,7 @@ public class SurgicalSettingProcedure : BoneViaBodypartProcedure
 		var bodypart = (IBodypart)additionalArguments[0];
 		var bone = (IBone)additionalArguments[1];
 		var wounds = patient.Wounds.Where(x => x.Bodypart == bone).OfType<BoneFracture>().ToList();
-		var wound = wounds.OrderBy(x => x.CanBeTreated(TreatmentType.SurgicalSet)).FirstOrDefault();
+		var wound = wounds.MinBy(x => x.CanBeTreated(TreatmentType.SurgicalSet));
 		CompletionProg?.Execute(surgeon, patient, result.Outcome, bodypart.Name, bone.Name);
 		if (wound == null)
 		{
@@ -157,8 +157,7 @@ public class SurgicalSettingProcedure : BoneViaBodypartProcedure
 
 		var bodypart = (IBodypart)args[0];
 		var bone = (IBone)args[1];
-		var wound = patient.Wounds.Where(x => x.Bodypart == bone).OfType<BoneFracture>()
-		                   .OrderBy(x => x.CanBeTreated(TreatmentType.SurgicalSet)).FirstOrDefault();
+		var wound = patient.Wounds.Where(x => x.Bodypart == bone).OfType<BoneFracture>().MinBy(x => x.CanBeTreated(TreatmentType.SurgicalSet));
 		if (wound == null)
 		{
 			return false;
@@ -185,8 +184,7 @@ public class SurgicalSettingProcedure : BoneViaBodypartProcedure
 
 		var bodypart = (IBodypart)args[0];
 		var bone = (IBone)args[1];
-		var wound = patient.Wounds.Where(x => x.Bodypart == bone).OfType<BoneFracture>()
-		                   .OrderBy(x => x.CanBeTreated(TreatmentType.SurgicalSet)).FirstOrDefault();
+		var wound = patient.Wounds.Where(x => x.Bodypart == bone).OfType<BoneFracture>().MinBy(x => x.CanBeTreated(TreatmentType.SurgicalSet));
 		if (wound == null)
 		{
 			return

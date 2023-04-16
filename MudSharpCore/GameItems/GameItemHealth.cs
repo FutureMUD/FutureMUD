@@ -84,6 +84,25 @@ public partial class GameItem : IHaveWounds
 		}
 	}
 
+	public void AddWounds(IEnumerable<IWound> wounds)
+	{
+		if (_overridingWoundBehaviourComponent != null)
+		{
+			_overridingWoundBehaviourComponent.AddWounds(wounds);
+			return;
+		}
+
+		foreach (var wound in wounds)
+		{
+			if (_wounds.Contains(wound))
+			{
+				_wounds.Add(wound);
+			}
+		}
+
+		Changed = true;
+	}
+
 	public IEnumerable<IWound> PassiveSufferDamage(IDamage damage)
 	{
 		if (damage == null)
@@ -110,25 +129,18 @@ public partial class GameItem : IHaveWounds
 		}
 
 		damage = destroyable?.GetActualDamage(damage) ?? damage;
-		var newWound = HealthStrategy.SufferDamage(this, damage, null);
-		if (newWound != null)
+		var wounds = new List<IWound>();
+		var newWounds = HealthStrategy.SufferDamage(this, damage, null).ToList();
+		foreach (var newWound in newWounds.ToArray())
 		{
-			var wounds = new List<IWound>();
 			wounds.Add(newWound);
-			if (!_wounds.Contains(newWound))
-			{
-				_wounds.Add(newWound);
-			}
-
 			if (pile != null)
 			{
 				wounds.AddRange(pile.Contents.GetRandomElement().SufferDamage(damage));
 			}
-
-			return wounds;
 		}
 
-		return Enumerable.Empty<IWound>();
+		return wounds;
 	}
 
 	public IEnumerable<IWound> PassiveSufferDamage(IExplosiveDamage damage, Proximity proximity, Facing facing)
@@ -375,20 +387,20 @@ public partial class GameItem : IHaveWounds
 		}
 
 		damage = destroyable.GetActualDamage(damage);
-		var newWound = HealthStrategy.SufferDamage(this, damage, null);
-		if (newWound != null)
+		var wounds = new List<IWound>();
+		var newWounds = HealthStrategy.SufferDamage(this, damage, null).ToArray();
+		foreach (var newWound in newWounds)
 		{
 			if (!_wounds.Contains(newWound))
 			{
 				_wounds.Add(newWound);
+				wounds.Add(newWound);
+				OnWounded?.Invoke(this, newWound);
+				StartHealthTick();
 			}
-
-			OnWounded?.Invoke(this, newWound);
-			StartHealthTick();
-			return new List<IWound> { newWound };
 		}
 
-		return Enumerable.Empty<IWound>();
+		return wounds;
 	}
 
 	public WoundSeverity GetSeverityFor(IWound wound)

@@ -149,16 +149,16 @@ public class BrainHitpointsStrategy : BaseHealthStrategy
 		}
 	}
 
-	public override IWound SufferDamage(IHaveWounds owner, IDamage damage, IBodypart bodypart)
+	public override IEnumerable<IWound> SufferDamage(IHaveWounds owner, IDamage damage, IBodypart bodypart)
 	{
 		if (!UseHypoxiaDamage && damage.DamageType == DamageType.Hypoxia)
 		{
-			return null;
+			return Enumerable.Empty<IWound>();
 		}
 
 		if (!CheckHeart && damage.DamageType == DamageType.Cellular)
 		{
-			return null;
+			return Enumerable.Empty<IWound>();
 		}
 
 		IGameItem lodgedItem = null;
@@ -169,8 +169,11 @@ public class BrainHitpointsStrategy : BaseHealthStrategy
 			lodgedItem = damage.LodgableItem;
 		}
 
-		return new HealingSimpleWound(owner.Gameworld, owner, damage.DamageAmount, damage.DamageType, damage.Bodypart,
-			lodgedItem, damage.ToolOrigin, damage.ActorOrigin);
+		return new[]
+		{
+			new HealingSimpleWound(owner.Gameworld, owner, damage.DamageAmount, damage.DamageType, damage.Bodypart,
+				lodgedItem, damage.ToolOrigin, damage.ActorOrigin)
+		};
 	}
 
 	public override HealthTickResult PerformHealthTick(IHaveWounds thing)

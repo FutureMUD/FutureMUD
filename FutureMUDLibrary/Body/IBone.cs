@@ -12,7 +12,8 @@ namespace MudSharp.Body
         bool CriticalBone { get; }
         bool CanBeImmobilised { get; }
         double BoneHealingModifier { get; }
+        double BoneEffectiveHealthModifier { get; }
         IEnumerable<(IOrganProto Organ, BodypartInternalInfo Info)> CoveredOrgans { get; }
-        bool ShouldBeBoneBreak(IDamage damage);
+        (double OrdinaryDamage, double BoneDamage) ShouldBeBoneBreak(IDamage damage);
     }
 }

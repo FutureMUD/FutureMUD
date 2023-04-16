@@ -3,6 +3,7 @@ using MudSharp.Form.Material;
 using MudSharp.Framework;
 using MudSharp.RPG.Checks;
 using System;
+using System.Collections.Generic;
 
 namespace MudSharp.Health {
     public enum HealthTickResult {
@@ -59,7 +60,7 @@ namespace MudSharp.Health {
         HealthStrategyOwnerType OwnerType { get; }
         bool KidneyFunctionActive { get; }
         bool RequiresSpinalCord { get; }
-        IWound SufferDamage(IHaveWounds owner, IDamage damage, IBodypart bodypart);
+        IEnumerable<IWound> SufferDamage(IHaveWounds owner, IDamage damage, IBodypart bodypart);
         WoundSeverity GetSeverityFor(IWound wound, IHaveWounds owner);
         WoundSeverity GetSeverity(double damage);
         double GetSeverityFloor(WoundSeverity severity, bool usePercentageModel = false);

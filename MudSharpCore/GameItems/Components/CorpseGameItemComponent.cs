@@ -539,5 +539,10 @@ public class CorpseGameItemComponent : GameItemComponent, ICorpse, ILazyLoadDuri
 		OriginalCharacter.AddWound(wound);
 	}
 
+	public void AddWounds(IEnumerable<IWound> wounds)
+	{
+		OriginalCharacter.AddWounds(wounds);
+	}
+
 	#endregion
 }

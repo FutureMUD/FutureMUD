@@ -22,8 +22,6 @@ public class EyeProto : DrapeableBodypartProto
 
 	public override BodypartTypeEnum BodypartType => BodypartTypeEnum.Eye;
 
-	public override string FrameworkItemType => "EyeProto";
-
 	#region Overrides of BodypartPrototype
 
 	public override bool PartDamageEffects(IBody owner, CanUseBodypartResult why)

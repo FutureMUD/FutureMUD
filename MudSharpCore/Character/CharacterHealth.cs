@@ -6,7 +6,6 @@ using MudSharp.Body;
 using MudSharp.Body.Needs;
 using MudSharp.Body.Position.PositionStates;
 using MudSharp.Character.Name;
-using MudSharp.CharacterCreation;
 using MudSharp.Construction;
 using MudSharp.Database;
 using MudSharp.Email;
@@ -18,12 +17,14 @@ using MudSharp.GameItems.Prototypes;
 using MudSharp.Health;
 using MudSharp.Health.Breathing;
 using MudSharp.Menus;
+using MudSharp.Models;
 using MudSharp.PerceptionEngine;
 using MudSharp.PerceptionEngine.Handlers;
 using MudSharp.PerceptionEngine.Outputs;
 using MudSharp.PerceptionEngine.Parsers;
 using MudSharp.TimeAndDate.Date;
 using MudSharp.TimeAndDate.Time;
+using Chargen = MudSharp.CharacterCreation.Chargen;
 
 namespace MudSharp.Character;
 
@@ -251,6 +252,11 @@ public partial class Character
 	public void AddWound(IWound wound)
 	{
 		Body.AddWound(wound);
+	}
+
+	public void AddWounds(IEnumerable<IWound> wounds)
+	{
+		Body.AddWounds(wounds);
 	}
 
 	public IEnumerable<IWound> PassiveSufferDamage(IDamage damage)

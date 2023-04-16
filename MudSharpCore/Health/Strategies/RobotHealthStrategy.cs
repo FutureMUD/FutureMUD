@@ -103,11 +103,11 @@ public class RobotHealthStrategy : BaseHealthStrategy
 		return -1 * penalty;
 	}
 
-	public override IWound SufferDamage(IHaveWounds owner, IDamage damage, IBodypart bodypart)
+	public override IEnumerable<IWound> SufferDamage(IHaveWounds owner, IDamage damage, IBodypart bodypart)
 	{
 		if (bodypart == null)
 		{
-			return null;
+			return Enumerable.Empty<IWound>();
 		}
 
 #if DEBUG
@@ -127,8 +127,11 @@ public class RobotHealthStrategy : BaseHealthStrategy
 			lodgedItem = damage.LodgableItem;
 		}
 
-		return new RobotWound(owner.Gameworld, owner, damage.DamageAmount, damage.StunAmount, damage.DamageType,
-			damage.Bodypart, lodgedItem, damage.ToolOrigin, damage.ActorOrigin);
+		return new[]
+		{
+			new RobotWound(owner.Gameworld, owner, damage.DamageAmount, damage.StunAmount, damage.DamageType,
+				damage.Bodypart, lodgedItem, damage.ToolOrigin, damage.ActorOrigin)
+		};
 	}
 
 	public override void InjectedLiquid(IHaveWounds owner, LiquidMixture mixture)

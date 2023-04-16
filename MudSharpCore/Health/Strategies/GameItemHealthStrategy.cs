@@ -7,6 +7,7 @@ using MudSharp.Framework;
 using MudSharp.GameItems;
 using MudSharp.GameItems.Interfaces;
 using MudSharp.Health.Wounds;
+using System.Collections.Generic;
 
 namespace MudSharp.Health.Strategies;
 
@@ -26,11 +27,11 @@ public class GameItemHealthStrategy : BaseHealthStrategy
 
 	public override string HealthStrategyType => "GameItem";
 
-	public override IWound SufferDamage(IHaveWounds owner, IDamage damage, IBodypart bodypart)
+	public override IEnumerable<IWound> SufferDamage(IHaveWounds owner, IDamage damage, IBodypart bodypart)
 	{
 		if (damage.DamageType == DamageType.Hypoxia || damage.DamageType == DamageType.Cellular)
 		{
-			return null;
+			return Enumerable.Empty<IWound>();
 		}
 
 		IGameItem lodgedItem = null;
@@ -43,19 +44,25 @@ public class GameItemHealthStrategy : BaseHealthStrategy
 
 		if (lodgedItem != null)
 		{
-			return new SimpleWound(owner.Gameworld, owner, damage.DamageAmount, damage.DamageType, null, lodgedItem,
-				damage.ToolOrigin, damage.ActorOrigin);
+			return new[]
+			{
+				new SimpleWound(owner.Gameworld, owner, damage.DamageAmount, damage.DamageType, null, lodgedItem,
+					damage.ToolOrigin, damage.ActorOrigin)
+			};
 		}
 
 		var existing = owner.Wounds.FirstOrDefault(x => x.DamageType == damage.DamageType);
 		if (existing != null)
 		{
 			existing.SufferAdditionalDamage(damage);
-			return existing;
+			return new[] { existing };
 		}
 
-		return new SimpleWound(owner.Gameworld, owner, damage.DamageAmount, damage.DamageType, null, null,
-			damage.ToolOrigin, damage.ActorOrigin);
+		return new[]
+		{
+			new SimpleWound(owner.Gameworld, owner, damage.DamageAmount, damage.DamageType, null, null,
+				damage.ToolOrigin, damage.ActorOrigin)
+		};
 	}
 
 	public override HealthTickResult PerformHealthTick(IHaveWounds thing)

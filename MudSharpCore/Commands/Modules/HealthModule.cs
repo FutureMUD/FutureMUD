@@ -2177,6 +2177,12 @@ The syntax is as follows:
 
 	[PlayerCommand("Wound", "wound")]
 	[CommandPermission(PermissionLevel.JuniorAdmin)]
+	[HelpInfo("wound", @"This command is used by storytellers to manually wound characters. This could be useful if you need to have an NPC wounded for story purposes, or want to simulate a damage source from something that isn't coded.
+
+The syntax is either of the following:
+
+	#3wound <target> <bodypart/random/all/*limb/none> <damagetype> <damage> [<pain>] [<stun>] [<lodged item>]#0
+	#3wound <target> with <weapon> <bodypart/random/all/*limb/none> [<attack>] [<success>]#0", AutoHelp.HelpArgOrNoArg)]
 	protected static void Wound(ICharacter actor, string command)
 	{
 		if (!actor.IsAdministrator())
@@ -2186,14 +2192,6 @@ The syntax is as follows:
 		}
 
 		var ss = new StringStack(command.RemoveFirstWord());
-		if (ss.IsFinished)
-		{
-			actor.Send("Who do you want to wound?");
-			actor.Send(
-				"Syntax is: wound <target> <bodypart/random/all/*limb/none> \"<dam>\" \"<pain>\" \"<stun>\" \"<shock>\" \"damagetype\" [<lodgeditem>]"
-					.Colour(Telnet.Yellow));
-			return;
-		}
 
 		var target = actor.Target(ss.Pop());
 		if (target == null)
@@ -2210,8 +2208,7 @@ The syntax is as follows:
 
 		if (ss.IsFinished)
 		{
-			actor.Send(
-				"What body part do you want to wound? Use RANDOM for a random part or NONE if you're targeting an item.");
+			actor.OutputHandler.Send("What body part do you want to wound?\nYour options are to name the specific bodypart, #3random#0 for a random part, #3all#0 to hit all their external bodyparts, #3*limb#0 to hit all bodyparts on a particular limb, or #3none#0 if you're targeting an item.".SubstituteANSIColour().Wrap(actor.InnerLineFormatLength));
 			return;
 		}
 
@@ -2328,6 +2325,18 @@ The syntax is as follows:
 		{
 			if (ss.IsFinished)
 			{
+				actor.Send("What damage type do you want to do?");
+				return;
+			}
+
+			if (!WoundExtensions.TryGetDamageType(ss.Pop(), out var damageType))
+			{
+				actor.Send("That is not a valid damage type.");
+				return;
+			}
+
+			if (ss.IsFinished)
+			{
 				actor.Send("How much damage do you want to do? You can use a dice expression or a number.");
 				return;
 			}
@@ -2339,55 +2348,26 @@ The syntax is as follows:
 				return;
 			}
 
-			if (ss.IsFinished)
+			var pain = damage;
+			if (!ss.IsFinished)
 			{
-				actor.Send("How much pain do you want to do? You can use a dice expression or a number.");
-				return;
+				pain = ss.PopSpeech();
+				if (!Dice.IsDiceExpression(pain))
+				{
+					actor.Send("How much pain do you want to do? You can use a dice expression or a number.");
+					return;
+				}
 			}
 
-			var pain = ss.PopSpeech();
-			if (!Dice.IsDiceExpression(pain))
+			var stun = damage;
+			if (!ss.IsFinished)
 			{
-				actor.Send("How much pain do you want to do? You can use a dice expression or a number.");
-				return;
-			}
-
-			if (ss.IsFinished)
-			{
-				actor.Send("How much stun do you want to do? You can use a dice expression or a number.");
-				return;
-			}
-
-			var stun = ss.PopSpeech();
-			if (!Dice.IsDiceExpression(stun))
-			{
-				actor.Send("How much stun do you want to do? You can use a dice expression or a number.");
-				return;
-			}
-
-			if (ss.IsFinished)
-			{
-				actor.Send("How much shock do you want to do? You can use a dice expression or a number.");
-				return;
-			}
-
-			var shock = ss.PopSpeech();
-			if (!Dice.IsDiceExpression(shock))
-			{
-				actor.Send("How much shock do you want to do? You can use a dice expression or a number.");
-				return;
-			}
-
-			if (ss.IsFinished)
-			{
-				actor.Send("What damage type do you want to do?");
-				return;
-			}
-
-			if (!WoundExtensions.TryGetDamageType(ss.Pop(), out var damageType))
-			{
-				actor.Send("That is not a valid damage type.");
-				return;
+				stun = ss.PopSpeech();
+				if (!Dice.IsDiceExpression(stun))
+				{
+					actor.Send("How much stun do you want to do? You can use a dice expression or a number.");
+					return;
+				}
 			}
 
 			IGameItem lodged = null;
@@ -2419,7 +2399,7 @@ The syntax is as follows:
 					Bodypart = bodypart,
 					DamageAmount = Dice.Roll(damage),
 					PainAmount = Dice.Roll(pain),
-					ShockAmount = Dice.Roll(shock),
+					ShockAmount = 0,
 					StunAmount = Dice.Roll(stun),
 					AngleOfIncidentRadians = Math.PI / 2
 				};
@@ -2427,19 +2407,28 @@ The syntax is as follows:
 				wounds.AddRange(woundable.SufferDamage(finalDamage));
 			}
 
+			var sb = new StringBuilder();
+			sb.Append($"@ wound|wounds $0 for {damage.Colour(Telnet.Red)}d|{stun.Colour(Telnet.BoldCyan)}s|{pain.Colour(Telnet.Magenta)}p {damageType.Describe().ColourValue()}");
+			if (!wounds.Any())
+			{
+				sb.Append(", but don't|doesn't cause any wounds.");
+			}
+			else
+			{
+				sb.AppendLine(", causing the following wounds:");
+				foreach (var wound in wounds)
+				{
+					if (wound.Bodypart is null)
+					{
+						sb.AppendLine($"\t{wound.Describe(WoundExaminationType.Omniscient, Outcome.MajorPass).Colour(Telnet.Red)} on {wound.Parent.HowSeen(actor)}");
+						continue;
+					}
+					sb.AppendLine($"\t{wound.Describe(WoundExaminationType.Omniscient, Outcome.MajorPass).Colour(Telnet.Red)} on {wound.Bodypart.FullDescription().ColourCommand()}");
+				}
+			}
 			actor.OutputHandler.Handle(
 				new EmoteOutput(
-					new Emote(
-						string.Format(actor,
-							"@ wound|wounds $0 for {0} dam {1} stun {2} shock {3} pain type {4}, causing {5}.",
-							damage,
-							stun,
-							shock,
-							pain,
-							damageType.Describe(),
-							wounds.Select(x => x.Describe(WoundExaminationType.Look, Outcome.MajorPass))
-							      .ListToString()
-						), actor, target), flags: OutputFlags.WizOnly));
+					new Emote(sb.ToString(), actor, target), flags: OutputFlags.WizOnly));
 			woundable.CheckHealthStatus();
 			if (lodged != null && wounds.Any(x => x.Lodged == lodged))
 			{
@@ -2516,9 +2505,18 @@ The syntax is as follows:
 			}
 
 			woundable.CheckHealthStatus();
-			//actor.OutputHandler.Handle(new EmoteOutput(new Emote(attack.GetEmote(outcome), actor, actor, target, targetItem)));
-			actor.Send(
-				$"You cause the following wounds: {wounds.Select(x => x.Describe(WoundExaminationType.Omniscient, Outcome.MajorPass)).ListToString()}");
+			var sb = new StringBuilder();
+			sb.AppendLine("You cause the following wounds:");
+			foreach (var wound in wounds)
+			{
+				if (wound.Bodypart is null)
+				{
+					sb.AppendLine($"\t{wound.Describe(WoundExaminationType.Omniscient, Outcome.MajorPass).Colour(Telnet.Red)} on {wound.Parent.HowSeen(actor)}");
+					continue;
+				}
+				sb.AppendLine($"\t{wound.Describe(WoundExaminationType.Omniscient, Outcome.MajorPass).Colour(Telnet.Red)} on {wound.Bodypart.FullDescription().ColourCommand()}");
+			}
+			actor.OutputHandler.Send(sb.ToString());
 		}
 	}
 
@@ -2615,7 +2613,7 @@ The syntax is as follows:
 			if (wound is BoneFracture bf)
 			{
 				sb.AppendLine(
-					$"{$"{wound.Severity.Describe()} Fracture".Colour(Telnet.Yellow)} on {wound.Bodypart.FullDescription().Colour(Telnet.Cyan)} - {bf.Stage} {bf.FractureStagePercentage():P2}{(bf.HasBeenSurgicallyReinforced ? " [s]" : "")}");
+					$"{$"{wound.Severity.Describe()} Fracture".Colour(Telnet.Yellow)} on {wound.Bodypart.FullDescription().Colour(Telnet.Cyan)} - Hp: {wound.CurrentDamage.ToString("N1", actor).Colour(Telnet.Red)} - {bf.Stage} {bf.FractureStagePercentage():P2}{(bf.HasBeenSurgicallyReinforced ? " [s]" : "")}");
 				continue;
 			}
 

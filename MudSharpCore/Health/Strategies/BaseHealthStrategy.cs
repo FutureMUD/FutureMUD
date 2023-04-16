@@ -10,6 +10,7 @@ using MudSharp.Form.Material;
 using MudSharp.Framework;
 using MudSharp.RPG.Checks;
 using ExpressionEngine;
+using MudSharp.Health.Wounds;
 
 namespace MudSharp.Health.Strategies;
 
@@ -99,7 +100,7 @@ public abstract class BaseHealthStrategy : FrameworkItem, IHealthStrategy
 		return BodyTemperatureStatus.NormalTemperature;
 	}
 
-	public abstract IWound SufferDamage(IHaveWounds owner, IDamage damage, IBodypart bodypart);
+	public abstract IEnumerable<IWound> SufferDamage(IHaveWounds owner, IDamage damage, IBodypart bodypart);
 
 	public abstract void InjectedLiquid(IHaveWounds owner, LiquidMixture mixture);
 
@@ -121,6 +122,11 @@ public abstract class BaseHealthStrategy : FrameworkItem, IHealthStrategy
 		if (life == 0.0)
 		{
 			life = 1.0;
+		}
+
+		if (wound is BoneFracture && wound.Bodypart is IBone bone)
+		{
+			life *= bone.BoneEffectiveHealthModifier;
 		}
 
 		if (wound.UseDamagePercentageSeverities)

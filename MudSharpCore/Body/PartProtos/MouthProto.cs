@@ -20,6 +20,4 @@ public class MouthProto : DrapeableBodypartProto
 	}
 
 	public override BodypartTypeEnum BodypartType => BodypartTypeEnum.Mouth;
-
-	public override string FrameworkItemType => "MouthProto";
 }

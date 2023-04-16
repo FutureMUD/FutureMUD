@@ -149,11 +149,11 @@ public class SimpleLivingHealthStrategy : BaseHealthStrategy
 		HealingTickPainExpression = gameworld.TraitExpressions.Get(value);
 	}
 
-	public override IWound SufferDamage(IHaveWounds owner, IDamage damage, IBodypart bodypart)
+	public override IEnumerable<IWound> SufferDamage(IHaveWounds owner, IDamage damage, IBodypart bodypart)
 	{
 		if (bodypart == null)
 		{
-			return null;
+			return Enumerable.Empty<IWound>();
 		}
 
 		IGameItem lodgedItem = null;
@@ -164,8 +164,12 @@ public class SimpleLivingHealthStrategy : BaseHealthStrategy
 			lodgedItem = damage.LodgableItem;
 		}
 
-		return new SimpleOrganicWound(owner.Gameworld, owner, damage.DamageAmount, damage.PainAmount,
-			damage.StunAmount, damage.DamageType, damage.Bodypart, lodgedItem, damage.ToolOrigin, damage.ActorOrigin);
+		return new[]
+		{
+			new SimpleOrganicWound(owner.Gameworld, owner, damage.DamageAmount, damage.PainAmount,
+				damage.StunAmount, damage.DamageType, damage.Bodypart, lodgedItem, damage.ToolOrigin,
+				damage.ActorOrigin)
+		};
 	}
 
 	private string WoundCountDesc(int count)

@@ -37,33 +37,16 @@ namespace MudSharp.Body.PartProtos
 		}
 
 		public bool CriticalBone => true;
-		public bool CanBeImmobilised { get; protected set; }
-		public double BoneHealingModifier { get; protected set; }
+		public virtual bool CanBeImmobilised => true;
+		public double BoneHealingModifier => 1.0;
+		public double BoneEffectiveHealthModifier => Gameworld.GetStaticDouble("BonyPartEffectiveHitpointForBonebreakModifier");
 		public IEnumerable<(IOrganProto Organ, BodypartInternalInfo Info)> CoveredOrgans => Enumerable.Empty<(IOrganProto Organ, BodypartInternalInfo Info)>();
-		public bool ShouldBeBoneBreak(IDamage damage)
+		public (double OrdinaryDamage, double BoneDamage) ShouldBeBoneBreak(IDamage damage)
 		{
-			// TODO - how do we decide regular damage vs bone breaking damage?
-			switch (damage.DamageType)
-			{
-				case DamageType.Slashing:
-				case DamageType.Chopping:
-				case DamageType.Crushing:
-				case DamageType.Piercing:
-				case DamageType.Ballistic:
-				case DamageType.Shockwave:
-				case DamageType.Bite:
-				case DamageType.Claw:
-				case DamageType.Shearing:
-				case DamageType.ArmourPiercing:
-				case DamageType.Wrenching:
-				case DamageType.Shrapnel:
-				case DamageType.Falling:
-				case DamageType.Eldritch:
-				case DamageType.Arcane:
-					return true;
-			}
-
-			return false;
+			var boneDamage = Math.Max(0.0, (damage.DamageAmount -
+			                                Gameworld.GetStaticDouble($"BonyPartBoneBreakLeeway{damage.DamageType.DescribeEnum()}")) *
+			                               Gameworld.GetStaticDouble($"BonyPartBoneBreakDamage{damage.DamageType.DescribeEnum()}"));
+			return (Gameworld.GetStaticDouble($"BonyPartBoneBreakDamage{damage.DamageType.DescribeEnum()}") * damage.DamageAmount, boneDamage);
 		}
 	}
 }

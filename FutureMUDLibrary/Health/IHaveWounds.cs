@@ -30,6 +30,8 @@ namespace MudSharp.Health {
         /// </summary>
         /// <param name="wound">IWound to add to the IHaveWounds class</param>
         void AddWound(IWound wound);
+
+        void AddWounds(IEnumerable<IWound> wounds);
     }
 
     public interface IMortalPerceiver : IPerceiver, IHaveWounds {

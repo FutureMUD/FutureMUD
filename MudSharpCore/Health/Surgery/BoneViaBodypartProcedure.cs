@@ -131,6 +131,10 @@ public abstract class BoneViaBodypartProcedure : SurgicalProcedure
 	{
 		var bodypart = (IBodypart)additionalArguments[0];
 		var organ = (IBone)additionalArguments[1];
+		if (bodypart == organ)
+		{
+			return $"{ProcedureGerund} $1's {organ.FullDescription()}";
+		}
 		return $"{ProcedureGerund} $1's {organ.FullDescription()} via &1's {bodypart.FullDescription()}";
 	}
 
@@ -177,6 +181,11 @@ public abstract class BoneViaBodypartProcedure : SurgicalProcedure
 				{
 					var bp = (IBodypart)parameters[0];
 					var bone = (IBone)parameters[1];
+					if (bp == bone)
+					{
+						return
+							$"$1 $1|do|does not have {bone.FullDescription().A_An()}";
+					}
 					return
 						$"$1 $1|do|does not have {bone.FullDescription().A_An()} in &1's {bp.FullDescription()}";
 				},

@@ -151,11 +151,11 @@ public class ComplexLivingHealthStrategy : BaseHealthStrategy
 		HealingTickPainExpression = gameworld.TraitExpressions.Get(value);
 	}
 
-	public override IWound SufferDamage(IHaveWounds owner, IDamage damage, IBodypart bodypart)
+	public override IEnumerable<IWound> SufferDamage(IHaveWounds owner, IDamage damage, IBodypart bodypart)
 	{
 		if (bodypart == null)
 		{
-			return null;
+			return Enumerable.Empty<IWound>();
 		}
 
 #if DEBUG
@@ -174,26 +174,48 @@ public class ComplexLivingHealthStrategy : BaseHealthStrategy
 		{
 			lodgedItem = damage.LodgableItem;
 		}
-
-		if (bodypart is IBone bone && bone.ShouldBeBoneBreak(damage))
+		
+		if (bodypart is IBone bone)
 		{
-			if (RandomUtilities.Random(0, 2) == 0)
+			var wounds = new List<IWound>();
+			var (ordinaryDamageAmount, boneDamageAmount) = bone.ShouldBeBoneBreak(damage);
+			if (boneDamageAmount > 0.0)
 			{
-				var existing =
-					owner.Wounds.Where(x => x.Bodypart == bodypart).OfType<BoneFracture>().GetRandomElement();
-				if (existing != null)
+				var boneDamage = new Damage(damage) { DamageAmount = boneDamageAmount };
+				if (RandomUtilities.Random(0, 2) == 0)
 				{
-					existing.SufferAdditionalDamage(damage);
-					return existing;
+					var existing =
+						owner.Wounds.Where(x => x.Bodypart == bodypart).OfType<BoneFracture>().GetRandomElement();
+					if (existing != null)
+					{
+						existing.SufferAdditionalDamage(boneDamage);
+						wounds.Add(existing);
+					}
+				}
+				else
+				{
+					wounds.Add(new BoneFracture(owner.Gameworld, owner, boneDamageAmount, boneDamageAmount,
+						0, DamageType.Crushing, damage.Bodypart, damage.ToolOrigin, damage.ActorOrigin));
 				}
 			}
+			
+			if (ordinaryDamageAmount > 0)
+			{
+				damage = new Damage(damage) { DamageAmount = ordinaryDamageAmount };
+				wounds.Add(new SimpleOrganicWound(owner.Gameworld, owner, damage.DamageAmount, damage.PainAmount,
+					damage.StunAmount, damage.DamageType, damage.Bodypart, lodgedItem, damage.ToolOrigin,
+					damage.ActorOrigin));
+			}
 
-			return new BoneFracture(owner.Gameworld, owner, damage.DamageAmount, damage.PainAmount,
-				damage.StunAmount, damage.DamageType, damage.Bodypart, damage.ToolOrigin, damage.ActorOrigin);
+			return wounds;
 		}
 
-		return new SimpleOrganicWound(owner.Gameworld, owner, damage.DamageAmount, damage.PainAmount,
-			damage.StunAmount, damage.DamageType, damage.Bodypart, lodgedItem, damage.ToolOrigin, damage.ActorOrigin);
+		return new[]
+		{
+			new SimpleOrganicWound(owner.Gameworld, owner, damage.DamageAmount, damage.PainAmount,
+				damage.StunAmount, damage.DamageType, damage.Bodypart, lodgedItem, damage.ToolOrigin,
+				damage.ActorOrigin)
+		};
 	}
 
 	private string WoundCountDesc(int count)

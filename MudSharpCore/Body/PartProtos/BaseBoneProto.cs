@@ -24,11 +24,12 @@ public abstract class BaseBoneProto : BodypartPrototype, IBone
 	public abstract bool CriticalBone { get; }
 	public abstract bool CanBeImmobilised { get; }
 	public abstract double BoneHealingModifier { get; }
+	public double BoneEffectiveHealthModifier => 1.0;
 
 	private readonly List<(IOrganProto Organ, BodypartInternalInfo Info)> _coveredOrgans = new();
 	public IEnumerable<(IOrganProto Organ, BodypartInternalInfo Info)> CoveredOrgans => _coveredOrgans;
 
-	public bool ShouldBeBoneBreak(IDamage damage)
+	public (double OrdinaryDamage, double BoneDamage) ShouldBeBoneBreak(IDamage damage)
 	{
 		switch (damage.DamageType)
 		{
@@ -47,10 +48,10 @@ public abstract class BaseBoneProto : BodypartPrototype, IBone
 			case DamageType.Falling:
 			case DamageType.Eldritch:
 			case DamageType.Arcane:
-				return true;
+				return (0.0, damage.DamageAmount);
 		}
 
-		return false;
+		return (damage.DamageAmount, 0.0);
 	}
 
 	public override void PostLoadProcessing(IBodyPrototype body, BodypartProto proto)

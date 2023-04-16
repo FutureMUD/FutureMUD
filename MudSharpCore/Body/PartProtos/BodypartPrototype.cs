@@ -952,6 +952,10 @@ public abstract partial class BodypartPrototype : LateKeywordedInitialisingItem,
 				return new BlowholeProto(proto, gameworld);
 			case BodypartTypeEnum.BonyDrapeable:
 				return new BonyDrapeableBodypartProto(proto, gameworld);
+			case BodypartTypeEnum.BonyGrabbingWielding:
+				return new BonyGrabbingWieldingBodypartProto(proto, gameworld);
+			case BodypartTypeEnum.NonImmobilisingBonyDrapeable:
+				return new NonImmobilisingBonyDrapeableBodypartProto(proto, gameworld);
 			default:
 				throw new NotImplementedException();
 		}

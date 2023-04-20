@@ -876,5 +876,19 @@ namespace MudSharp.Framework {
             }
             return sb.ToString();
         }
+
+        public static Regex RegexCleanupRegex => new(@"\((?<option1>[a-z0-9]+)\|(?<option2>[a-z0-9]+)+\|*(?<option3>[a-z0-9]*)+\)", RegexOptions.IgnoreCase);
+
+        public static string TransformRegexIntoPattern(this Regex regex)
+        {
+	        var text = regex
+	               .ToString()
+	               .Replace("^", "")
+	               .Replace("$", "")
+	               .Replace("?", "")
+		        ;
+
+	        return RegexCleanupRegex.Replace(text, m => m.Groups["option1"].Value);
+        }
     }
 }

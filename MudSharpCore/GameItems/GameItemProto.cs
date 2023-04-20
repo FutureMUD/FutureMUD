@@ -6,6 +6,8 @@ using MudSharp.Models;
 using MudSharp.Accounts;
 using MudSharp.Character;
 using MudSharp.Database;
+using MudSharp.Effects.Concrete;
+using MudSharp.Form.Characteristics;
 using MudSharp.Form.Material;
 using MudSharp.Form.Shape;
 using MudSharp.Framework;
@@ -16,6 +18,7 @@ using MudSharp.FutureProg;
 using MudSharp.GameItems.Interfaces;
 using MudSharp.GameItems.Prototypes;
 using MudSharp.Health;
+using MudSharp.OpenAI;
 using MudSharp.PerceptionEngine;
 using EditableItem = MudSharp.Framework.Revision.EditableItem;
 using Material = MudSharp.Form.Material.Material;
@@ -860,6 +863,8 @@ public class GameItemProto : EditableItem, IGameItemProto
 			case "description":
 			case "desc":
 				return BuildingCommandDesc(actor, command);
+			case "suggestdesc":
+				return BuildingCommandSuggestDesc(actor, command);
 			case "keywords":
 			case "keys":
 				return BuildingCommandKeywords(actor, command);
@@ -905,6 +910,7 @@ public class GameItemProto : EditableItem, IGameItemProto
 	ldesc <ldesc> - sets an overrided long description (in room) for this item
 	ldesc none - clears an overrided long description
 	desc - drops you into an editor to enter the full description (when looked at)
+	suggestdesc [<optional extra context>] - asks your GPT model to suggest a description
 	add <id|name> - adds the specified component to this item
 	remove <id|name> - removes the specified component from this item
 	size <size> - sets the item size
@@ -941,6 +947,118 @@ public class GameItemProto : EditableItem, IGameItemProto
 				actor.OutputHandler.Send("That is not a valid building command. See ITEM SET HELP for more info.");
 				return false;
 		}
+	}
+
+	private bool BuildingCommandSuggestDesc(ICharacter actor, StringStack command)
+	{
+		var descModel = Futuremud.Games.First().GetStaticConfiguration("GPT_DescSuggestion_Model");
+		var sb = new StringBuilder();
+		sb.AppendLine(Futuremud.Games.First().GetStaticString("GPT_ItemSuggestionPrompt"));
+		sb.AppendLine();
+		sb.AppendLine($"The item that you are describing has a brief description of \"{ShortDescription}\". It is made mostly out of {Material?.Name ?? "an unknown material"}. Its quality is {BaseItemQuality.DescribeEnum(true)}, and it weighs {Gameworld.UnitManager.Describe(Weight, UnitType.Mass, "metric")} (but don't refer to the specific number in the description, though you can describe the weight in other non-numeric terms). It's {Size.DescribeEnum(true)} relative to a person.");
+		sb.AppendLine();
+		if (Tags.Any())
+		{
+			sb.AppendLine($"It has been tagged with the following prompts:");
+			foreach (var tag in Tags)
+			{
+				sb.AppendLine($"\t{tag.FullName}");
+			}
+		}
+
+		//sb.AppendLine();
+		//sb.AppendLine(
+		//	"It also has the following functional components. These components add functionality to the item in the game engine. You shouldn't describe these functional components in the description as the user will get information about this from other sources, but do use these to inform yourself about any functionality of the item:");
+		//foreach (var component in _components)
+		//{
+		//	sb.AppendLine($"\tComponent Type: {component.TypeDescription} | Name: {component.Name} | Description: {Gameworld.GameItemComponentManager.TypeHelpInfo.FirstOrDefault(x => x.Name.EqualTo(component.TypeDescription)).Blurb}");
+		//}
+
+		var vp = _components.OfType<VariableGameItemComponentProto>().FirstOrDefault();
+		if (vp is not null)
+		{
+			sb.AppendLine();
+			sb.AppendLine($"When the engine uses this item it will substitute values for a few variables. In the description that you write, you should use only the pattern of the variable rather than any of its actual values. For example, if there is a variable called $colour then you should use that variable to refer to the colour of the item rather than writing in an actual colour. If there are multiple similar variables you can decide what part of each item each of the variables refer to. Each variation has a plain, basic and fancy variety - they refer to the same underlying variable but present the text in a different format. The following variables (and some examples of what the engine may render them as, so you can match your grammar to their usage) are available:");
+			foreach (var variable in vp.CharacteristicDefinitions)
+			{
+				var profile = vp.ProfileFor(variable);
+				var random = new List<ICharacteristicValue>
+				{
+					profile.GetRandomCharacteristic(),
+					profile.GetRandomCharacteristic(),
+					profile.GetRandomCharacteristic(),
+					profile.GetRandomCharacteristic(),
+					profile.GetRandomCharacteristic(),
+					profile.GetRandomCharacteristic(),
+					profile.GetRandomCharacteristic(),
+					profile.GetRandomCharacteristic(),
+					profile.GetRandomCharacteristic(),
+					profile.GetRandomCharacteristic(),
+					profile.GetRandomCharacteristic(),
+					profile.GetRandomCharacteristic(),
+				};
+				sb.AppendLine($"\t${variable.Pattern.TransformRegexIntoPattern()} - Examples: {random.Select(x => x.GetValue).ListToString()}");
+			}
+
+			sb.AppendLine("You should use each variable at least once in the description.");
+		}
+
+		if (command.IsFinished)
+		{
+			sb.AppendLine();
+			sb.AppendLine(command.SafeRemainingArgument);
+		}
+
+		if (!OpenAIHandler.MakeGPTRequest(sb.ToString(), Gameworld.GetStaticString("GPT_ItemSuggestionFinalWord"), text =>
+		    {
+			    var descriptions = text.Split('#', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+			    var sb = new StringBuilder();
+			    sb.AppendLine($"Your GPT Model has made the following suggestions for descriptions for item {ShortDescription.ColourObject()}:");
+			    var i = 1;
+			    foreach (var desc in descriptions)
+			    {
+				    sb.AppendLine();
+				    sb.AppendLine($"Suggestion {i++.ToString("N0", actor)}".GetLineWithTitle(actor, Telnet.Cyan, Telnet.BoldWhite));
+				    sb.AppendLine();
+				    sb.AppendLine(desc.Wrap(actor.InnerLineFormatLength, "\t"));
+			    }
+
+			    sb.AppendLine();
+			    sb.AppendLine($"You can apply one of these by using the syntax {"accept desc <n>".Colour(Telnet.Cyan)}, such as {"accept desc 1".Colour(Telnet.Cyan)}.");
+			    actor.OutputHandler.Send(sb.ToString());
+				actor.AddEffect(new Accept(actor, new GenericProposal
+				{
+					DescriptionString = "Applying a GPT Description suggestion",
+					AcceptAction = text =>
+					{
+						if (!int.TryParse(text, out var value) || value < 1 || value > descriptions.Length)
+						{
+							actor.OutputHandler.Send(
+								"You did not specify a valid description. If you still want to use the descriptions, you'll have to copy them in manually.");
+							return;
+						}
+						FullDescription = descriptions[value-1];
+						Changed = true;
+						actor.OutputHandler.Send($"You set the description of this item based on the {value.ToOrdinal()} suggestion.");
+					},
+					RejectAction = text =>
+					{
+						actor.OutputHandler.Send("You decide not to use any of the suggestions.");
+					},
+					ExpireAction = () =>
+					{
+						actor.OutputHandler.Send("You decide not to use any of the suggestions.");
+					},
+					Keywords = new List<string> {"description", "suggestion"}
+				}), TimeSpan.FromSeconds(120));
+		    }, descModel))
+		{
+			actor.OutputHandler.Send("Your GPT Model is not set up correctly, so you cannot get any suggestions.");
+			return false;
+		}
+
+		actor.OutputHandler.Send("You send your request off to the GPT Model.");
+		return true;
 	}
 
 	private bool BuildingCommandExtra(ICharacter actor, StringStack command)

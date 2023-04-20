@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using MudSharp.Character;
 using MudSharp.Character.Name;
@@ -28,6 +29,33 @@ namespace MudSharp.OpenAI
 			var api = new OpenAIAPI(new APIAuthentication(apiKey));
 			var models = await api.Models.GetModelsAsync();
 			return models.Select(x => x.ModelID).ToArray();
+		}
+
+		public static bool MakeGPTRequest(string context, string requestText, Action<string> callback, string model, double temperature = 0.7)
+		{
+			var apiKey = Futuremud.Games.First().GetStaticConfiguration("GPT_Secret_Key");
+			if (string.IsNullOrEmpty(apiKey))
+			{
+				return false;
+			}
+
+			var api = new OpenAIAPI(new APIAuthentication(apiKey));
+			var chat = api.Chat.CreateConversation(new ChatRequest
+			{
+				Model = model,
+				Temperature = temperature,
+			});
+			chat.AppendSystemMessage(context);
+			chat.AppendUserInput(requestText);
+			#if DEBUG
+			Futuremud.Games.First().SystemMessage($"GPT Request:\n\n{context}\n\n{requestText}", true);
+			#endif
+			var task = Task.Run(async () =>
+			{
+				var result = await chat.GetResponseFromChatbotAsync();
+				callback(result);
+			});
+			return true;
 		}
 
 		public static bool MakeGPTRequest(Models.GPTThread thread, string messageText, ICharacter character,

@@ -742,6 +742,11 @@ public sealed partial class Futuremud : IDisposable
 			Console.WriteLine(
 				$"Warning: Had to use default value of static string '{whichString}'. Consider setting a value for this yourself.");
 			_staticStrings[whichString] = returnValue;
+			using (new FMDB())
+			{
+				FMDB.Context.StaticStrings.Add(new Models.StaticString(){ Id = whichString, Text = returnValue});
+				FMDB.Context.SaveChanges();
+			}
 			return returnValue;
 		}
 

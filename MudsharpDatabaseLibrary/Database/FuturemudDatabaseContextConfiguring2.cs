@@ -1125,7 +1125,8 @@ namespace MudSharp.Database
             modelBuilder.Entity<Currency>(entity =>
             {
                 entity.Property(e => e.Id).HasColumnType("bigint(20)");
-
+                entity.Property(e => e.BaseCurrencyToGlobalBaseCurrencyConversion).HasColumnType("decimal(58,29)").HasDefaultValue(1.0M);
+                
                 entity.Property(e => e.Name)
                     .IsRequired()
                     .HasColumnType("varchar(4000)")
@@ -2842,6 +2843,10 @@ namespace MudSharp.Database
                 entity.Property(e => e.PermitPlayerSkins)
                     .HasColumnType("bit(1)")
                     .HasDefaultValueSql("b'0'");
+
+                entity.Property(e => e.CostInBaseCurrency)
+                      .HasColumnType("decimal(58,29)")
+                      .HasDefaultValueSql("'0'");
 
                 entity.Property(e => e.HealthStrategyId).HasColumnType("bigint(20)");
 

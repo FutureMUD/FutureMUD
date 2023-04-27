@@ -22,6 +22,7 @@ namespace MudSharp.Models
 
         public long Id { get; set; }
         public string Name { get; set; }
+        public decimal BaseCurrencyToGlobalBaseCurrencyConversion { get; set; }
 
         public virtual ICollection<Character> Characters { get; set; }
         public virtual ICollection<ChargenRolesCurrency> ChargenRolesCurrencies { get; set; }

@@ -6,6 +6,7 @@ using MudSharp.Models;
 using MudSharp.Accounts;
 using MudSharp.Character;
 using MudSharp.Database;
+using MudSharp.Economy.Currency;
 using MudSharp.Effects.Concrete;
 using MudSharp.Form.Characteristics;
 using MudSharp.Form.Material;
@@ -91,6 +92,7 @@ public class GameItemProto : EditableItem, IGameItemProto
 	public static IHealthStrategy DefaultItemHealthStrategy { get; set; }
 	public string ShortDescription { get; private set; }
 	public string FullDescription { get; private set; }
+	public decimal CostInBaseCurrency { get; private set; }
 
 	private readonly
 		List<(IFutureProg Prog, string? ShortDescription, string? FullDescription, string? FullDescriptionAddendum)>
@@ -119,19 +121,23 @@ public class GameItemProto : EditableItem, IGameItemProto
 	public override string Show(ICharacter actor)
 	{
 		var sb = new StringBuilder();
-		sb.AppendLine(
-			$"{string.Format($"Item Prototype #{Id} - Revision {RevisionNumber}", Id, RevisionNumber)}{string.Format($" - Status: {Status.Describe()}", Status.Describe())}");
+		var maxRevision = Gameworld.ItemProtos.GetAll(Id).Max(x => x.RevisionNumber);
+		sb.AppendLine($"Item Prototype #{Id.ToString("N0", actor)} - Revision {RevisionNumber.ToString("N0", actor)} / {maxRevision.ToString("N0", actor)}".GetLineWithTitle(actor, Telnet.Cyan, Telnet.BoldWhite));
+		sb.AppendLine($"Status: {Status.DescribeColour()}");
 		sb.AppendLine(
 			$"Noun: {Name.Proper().ColourValue()}");
 		sb.AppendLine($"Short Description: {ShortDescription.ColourObject()}");
-		sb.AppendLine($"Keywords: {Keywords.ListToString(separator: " ", conjunction: "").ColourValue()}");
 		if (OverridesLongDescription)
 		{
 			sb.AppendLineFormat(actor, "Long Description: {0}", LongDescription.Proper().ColourObject());
 		}
+		else
+		{
+			sb.AppendLine($"Long Description: {"Default".ColourCommand()}");
+		}
 
 		sb.AppendLine(
-			$"Item Group: {(ItemGroup is null ? "Default".ColourValue() : $"{ItemGroup.Name.ColourValue()} ({ItemGroup.Id.ToString("N0", actor)})".ColourValue())}");
+			$"Item Group: {(ItemGroup is null ? "Default".ColourCommand() : $"{ItemGroup.Name.ColourValue()} ({ItemGroup.Id.ToString("N0", actor)})".ColourValue())}");
 		if (_onDestroyedGameItemProto != 0)
 		{
 			sb.AppendLineFormat(actor, "Destroyed Item: {0}",
@@ -140,7 +146,7 @@ public class GameItemProto : EditableItem, IGameItemProto
 
 		if (_healthStrategy == null)
 		{
-			sb.AppendLine($"Health Strategy: {"Default".ColourValue()}");
+			sb.AppendLine($"Health Strategy: {"Default".ColourCommand()}");
 		}
 		else
 		{
@@ -158,9 +164,10 @@ public class GameItemProto : EditableItem, IGameItemProto
 		sb.AppendLine(
 			$"Weight: {Gameworld.UnitManager.DescribeMostSignificantExact(Weight, UnitType.Mass, actor).ColourValue()}");
 		sb.AppendLine(
-			$"Material: {(Material != null ? Material.Name.Colour(Material.ResidueColour) : "None".Colour(Telnet.Red))}");
+			$"Material: {(Material != null ? Material.Name.ColourValue() : "None".Colour(Telnet.Red))}");
 
 		sb.AppendLine($"Base Quality: {BaseItemQuality.Describe().Colour(Telnet.Green)}");
+		sb.AppendLine($"Base Cost: {actor.Currency?.Describe(CostInBaseCurrency / actor.Currency.BaseCurrencyToGlobalBaseCurrencyConversion, CurrencyDescriptionPatternType.ShortDecimal).ColourValue() ?? CostInBaseCurrency.ToString("N", actor).ColourValue()}");
 		sb.AppendLine("Full Description:");
 		sb.AppendLine();
 		sb.AppendLine(FullDescription.Wrap(actor.InnerLineFormatLength, "  "));
@@ -508,6 +515,7 @@ public class GameItemProto : EditableItem, IGameItemProto
 		ItemGroup = gameworld.ItemGroups.Get(proto.ItemGroupId ?? 0);
 		HighPriority = proto.HighPriority;
 		CustomColour = Telnet.GetColour(proto.CustomColour ?? string.Empty);
+		CostInBaseCurrency = proto.CostInBaseCurrency;
 		_onDestroyedGameItemProto = proto.OnDestroyedGameItemProtoId ?? 0;
 		_healthStrategy = Gameworld.HealthStrategies.Get(proto.HealthStrategyId ?? 0) ??
 		                  Gameworld.HealthStrategies.FirstOrDefault(
@@ -570,6 +578,7 @@ public class GameItemProto : EditableItem, IGameItemProto
 			dbproto.BaseItemQuality = (int)BaseItemQuality;
 			dbproto.HighPriority = HighPriority;
 			dbproto.CustomColour = CustomColour?.Name.ToLowerInvariant() ?? "";
+			dbproto.CostInBaseCurrency = CostInBaseCurrency;
 			dbproto.OnDestroyedGameItemProtoId = _onDestroyedGameItemProto != 0
 				? _onDestroyedGameItemProto
 				: default;
@@ -848,6 +857,8 @@ public class GameItemProto : EditableItem, IGameItemProto
 		{
 			case "priority":
 				return BuildingCommandPriority(actor, command);
+			case "cost":
+				return BuildingCommandCost(actor, command);
 			case "colour":
 			case "color":
 				return BuildingCommandColour(actor, command);
@@ -917,6 +928,7 @@ public class GameItemProto : EditableItem, IGameItemProto
 	weight <weight> - sets the item weight
 	material <material> - sets the item material
 	quality <quality> - sets the base item quality
+	cost <cost> - sets the base item cost
 	tag <tag> - adds the specified tag to this item
 	untag <tag> - removes the specified tag from this item
 	priority - toggles this item being high priority, which means appearing at the top of the item list in the room
@@ -947,6 +959,33 @@ public class GameItemProto : EditableItem, IGameItemProto
 				actor.OutputHandler.Send("That is not a valid building command. See ITEM SET HELP for more info.");
 				return false;
 		}
+	}
+
+	private bool BuildingCommandCost(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("What should be the base cost of this item?");
+			return false;
+		}
+
+		if (actor.Currency is null)
+		{
+			actor.OutputHandler.Send(
+				"You must set a currency with the CURRENCY SET command before using this building command.");
+			return false;
+		}
+
+		if (!actor.Currency.TryGetBaseCurrency(command.SafeRemainingArgument, out var amount) || amount < 0.0M)
+		{
+			actor.OutputHandler.Send($"That is not a valid amount of {actor.Currency.Name.ColourValue()}.");
+			return false;
+		}
+
+		CostInBaseCurrency = amount * actor.Currency.BaseCurrencyToGlobalBaseCurrencyConversion;
+		Changed = true;
+		actor.OutputHandler.Send($"This item will now have a base cost of {actor.Currency.Describe(amount, CurrencyDescriptionPatternType.ShortDecimal).ColourValue()}.");
+		return true;
 	}
 
 	private bool BuildingCommandSuggestDesc(ICharacter actor, StringStack command)

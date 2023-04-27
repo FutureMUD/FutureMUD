@@ -48,7 +48,7 @@ public class ValueAddedTax : SalesTaxBase
 
 	public override decimal TaxValue(IMerchandise merchandise, ICharacter purchaser)
 	{
-		return merchandise.BasePrice * Rate;
+		return merchandise.EffectivePrice * Rate;
 	}
 
 	public override void Save()

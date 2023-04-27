@@ -1646,7 +1646,7 @@ Additionally, you can use the following shop admin subcommands:
 			let cash = shop.TillItems.RecursiveGetItems<ICurrencyPile>(false).Where(x => x.Currency == shop.Currency)
 			               .Sum(x => x.Coins.Sum(y => y.Item2 * y.Item1.Value))
 			let merchandise = shop.StocktakeAllMerchandise()
-			                      .Sum(x => x.Key.BasePrice * (x.Value.InStockroomCount + x.Value.OnFloorCount))
+			                      .Sum(x => x.Key.EffectivePrice * (x.Value.InStockroomCount + x.Value.OnFloorCount))
 			select new[]
 			{
 				shop.Id.ToString("N0", actor),
@@ -2442,7 +2442,7 @@ Additionally, you can use the following shop admin subcommands:
 	#3shop merch edit <record>#0 - opens a merchandise record for editing
 	#3shop merch edit#0 - equivalent to SHOW <edited record>
 	#3shop merch show <record>#0 - shows information about the specified merchandise record
-	#3shop merch new <name> <id>|<target> <price> [<custom description>]#0 - creates a new record with the specified item and price, and optional custom LIST description
+	#3shop merch new <name> <id>|<target> <price>|default [<custom description>]#0 - creates a new record with the specified item and price, and optional custom LIST description
 	#3shop merch clone <new name>#0 - clones the currently edited record to an identical new record
 	#3shop merch delete#0 - deletes the current merchandise record
 	#3shop merch set name <name>#0 - sets the name of a merchandise
@@ -2462,7 +2462,7 @@ Additionally, you can use the following shop admin subcommands:
 	#3shop merch edit <record>#0 - opens a merchandise record for editing
 	#3shop merch edit#0 - equivalent to SHOW <edited record>
 	#3shop merch show <record>#0 - shows information about the specified merchandise record
-	#3shop merch new <name> <id>|<target> <price> [<custom description>]#0 - creates a new record with the specified item and price, and optional custom LIST description
+	#3shop merch new <name> <id>|<target> <price>|default [<custom description>]#0 - creates a new record with the specified item and price, and optional custom LIST description
 	#3shop merch clone <new name>#0 - clones the currently edited record to an identical new record
 	#3shop merch delete#0 - deletes the current merchandise record
 	#3shop merch set name <name>#0 - sets the name of a merchandise
@@ -2553,7 +2553,7 @@ Additionally, you can use the following shop admin subcommands:
 
 		var name = ss.PopSpeech();
 
-		var newMerch = new Merchandise(editing.EditingItem, name);
+		var newMerch = new Merchandise((Merchandise)editing.EditingItem, name);
 		editing.EditingItem.Shop.AddMerchandise(newMerch);
 		actor.OutputHandler.Send(
 			$"You clone merchandise record for {editing.EditingItem.ListDescription.ColourObject()} into a new record called {name.TitleCase().Colour(Telnet.Cyan)}, which you are now editing.");
@@ -2581,12 +2581,12 @@ Additionally, you can use the following shop admin subcommands:
 			if (actor.IsAdministrator())
 			{
 				actor.OutputHandler.Send(
-					"The syntax for this command is SHOP MERCHANDISE NEW <name> <id>|<target> <price> [<custom description>]");
+					"The syntax for this command is SHOP MERCHANDISE NEW <name> <id>|<target> <price>|default [<custom description>]");
 				return;
 			}
 
 			actor.OutputHandler.Send(
-				"The syntax for this command is SHOP MERCHANDISE NEW <name> <target> <price> [<custom description>]");
+				"The syntax for this command is SHOP MERCHANDISE NEW <name> <target> <price>|default [<custom description>]");
 		}
 
 		if (ss.IsFinished)
@@ -2632,13 +2632,22 @@ Additionally, you can use the following shop admin subcommands:
 			return;
 		}
 
-		var price = shop.Currency.GetBaseCurrency(ss.PopSpeech(), out var success);
-		if (!success)
+		decimal price;
+		if (ss.PeekSpeech().EqualTo("default"))
 		{
-			actor.OutputHandler.Send("That is not a valid price.");
-			return;
+			price = -1.0M;
+			ss.PopSpeech();
 		}
-
+		else
+		{
+			price = shop.Currency.GetBaseCurrency(ss.PopSpeech(), out var success);
+			if (!success)
+			{
+				actor.OutputHandler.Send("That is not a valid price.");
+				return;
+			}
+		}
+		
 		var newMerch = new Merchandise(shop, name, proto, price, shop.Merchandises.All(x => x.Item.Id != proto.Id),
 			null, ss.SafeRemainingArgument);
 		shop.AddMerchandise(newMerch);
@@ -2755,7 +2764,7 @@ Additionally, you can use the following shop admin subcommands:
 			{
 				merch.Name,
 				merch.ListDescription,
-				shop.Currency.Describe(merch.BasePrice, CurrencyDescriptionPatternType.Short),
+				shop.Currency.Describe(merch.EffectivePrice, CurrencyDescriptionPatternType.Short),
 				stockTake[merch].OnFloorCount.ToString("N0", actor),
 				stockTake[merch].InStockroomCount.ToString("N0", actor)
 			},

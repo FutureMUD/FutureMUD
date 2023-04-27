@@ -27,6 +27,7 @@ public class Currency : FrameworkItem, ICurrency
 		Gameworld = gameworld;
 		_id = currency.Id;
 		_name = currency.Name;
+		BaseCurrencyToGlobalBaseCurrencyConversion = currency.BaseCurrencyToGlobalBaseCurrencyConversion;
 		foreach (var item in currency.CurrencyDivisions)
 		{
 			_currencyDivisions.Add(new CurrencyDivision(item));
@@ -75,6 +76,8 @@ public class Currency : FrameworkItem, ICurrency
 
 	private readonly List<ICurrencyDivision> _currencyDivisions = new();
 	public IEnumerable<ICurrencyDivision> CurrencyDivisions => _currencyDivisions;
+
+	public decimal BaseCurrencyToGlobalBaseCurrencyConversion { get; private set; }
 
 	public string Describe(decimal value, CurrencyDescriptionPatternType type)
 	{

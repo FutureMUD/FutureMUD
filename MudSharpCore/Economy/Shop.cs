@@ -457,7 +457,7 @@ public class Shop : SaveableItem, IShop
 			$"You add {item.HowSeen(actor)} to the for-sale inventory of {Name.TitleCase().Colour(Telnet.Cyan)}.");
 		AddTransaction(new TransactionRecord(ShopTransactionType.Stock, Currency, this,
 			actor?.Location.DateTime() ?? ShopfrontCells.First().DateTime(), actor,
-			merch.BasePrice * item.Quantity * -1, 0.0M));
+			merch.EffectivePrice * item.Quantity * -1, 0.0M));
 		_stockedMerchandise.Add(merch, item.Id);
 		_stockedMerchandiseCounts.Add(merch, item.Quantity);
 	}
@@ -470,7 +470,7 @@ public class Shop : SaveableItem, IShop
 		var merch = _merchandises.FirstOrDefault(x => x.IsMerchandiseFor(item));
 		AddTransaction(new TransactionRecord(ShopTransactionType.StockLoss, Currency, this,
 			actor?.Location.DateTime() ?? ShopfrontCells.First().DateTime(), actor,
-			merch?.BasePrice ?? 0.0M * item.Quantity, 0.0M));
+			merch?.EffectivePrice ?? 0.0M * item.Quantity, 0.0M));
 		if (merch != null)
 		{
 			_stockedMerchandise.Remove(merch, item.Id);
@@ -781,7 +781,7 @@ public class Shop : SaveableItem, IShop
 		}
 
 		AddTransaction(new TransactionRecord(ShopTransactionType.Restock, Currency, this,
-			ShopfrontCells.First().DateTime(), null, merchandise.AutoReorderPrice * originalQuantity, 0.0M));
+			ShopfrontCells.First().DateTime(), null, merchandise.EffectiveAutoReorderPrice * originalQuantity, 0.0M));
 		return newItems;
 	}
 
@@ -793,7 +793,7 @@ public class Shop : SaveableItem, IShop
 			// Some items were missing
 		{
 			_transactionRecords.Add(new TransactionRecord(ShopTransactionType.StockLoss, Currency, this,
-				ShopfrontCells.First().DateTime(), null, merchandise.AutoReorderPrice * (difference - expectedChange),
+				ShopfrontCells.First().DateTime(), null, merchandise.EffectiveAutoReorderPrice * (difference - expectedChange),
 				0.0M));
 		}
 		else if (difference < expectedChange)
@@ -801,7 +801,7 @@ public class Shop : SaveableItem, IShop
 		{
 			_transactionRecords.Add(new TransactionRecord(ShopTransactionType.Stock, Currency, this,
 				ShopfrontCells.First().DateTime(), null,
-				merchandise.AutoReorderPrice * (expectedChange - difference) * -1, 0.0M));
+				merchandise.EffectiveAutoReorderPrice * (expectedChange - difference) * -1, 0.0M));
 		}
 
 		_stockedMerchandiseCounts[merchandise] = stocked.Sum(x => x.Quantity);
@@ -861,7 +861,7 @@ public class Shop : SaveableItem, IShop
 		// TODO - volume deals
 		var tax = EconomicZone.SalesTaxes.Where(x => x.Applies(merchandise, actor))
 		                      .Sum(x => x.TaxValue(merchandise, actor));
-		return (merchandise.BasePrice + tax) * quantity;
+		return (merchandise.EffectivePrice + tax) * quantity;
 	}
 
 	public (decimal Price, decimal Tax) PriceAndTaxForMerchandise(ICharacter actor, IMerchandise merchandise,
@@ -871,7 +871,7 @@ public class Shop : SaveableItem, IShop
 		var tax = Math.Round(
 			EconomicZone.SalesTaxes.Where(x => x.Applies(merchandise, actor)).Sum(x => x.TaxValue(merchandise, actor)),
 			0, MidpointRounding.AwayFromZero);
-		return ((merchandise.BasePrice + tax) * quantity, tax * quantity);
+		return ((merchandise.EffectivePrice + tax) * quantity, tax * quantity);
 	}
 
 	public (decimal TotalPrice, decimal IncludedTax, bool VolumeDealsExist) GetDetailedPriceInfo(ICharacter actor,
@@ -880,7 +880,7 @@ public class Shop : SaveableItem, IShop
 		var tax = Math.Round(
 			EconomicZone.SalesTaxes.Where(x => x.Applies(merchandise, actor)).Sum(x => x.TaxValue(merchandise, actor)),
 			0, MidpointRounding.AwayFromZero);
-		return (merchandise.BasePrice + tax, tax, false);
+		return (merchandise.EffectivePrice + tax, tax, false);
 		// TODO volume deals
 	}
 
@@ -892,7 +892,7 @@ public class Shop : SaveableItem, IShop
 
 		var quantity = stock.Sum(x => x.Quantity);
 		AddTransaction(new TransactionRecord(ShopTransactionType.PriceAdjustment, Currency, this,
-			actor.Location.DateTime(), actor, quantity * (merchandise.BasePrice - oldValue), 0.0M));
+			actor.Location.DateTime(), actor, quantity * (merchandise.EffectivePrice - oldValue), 0.0M));
 	}
 
 	public IEnumerable<IMerchandise> StockedMerchandise =>

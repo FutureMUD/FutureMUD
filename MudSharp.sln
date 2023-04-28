@@ -128,6 +128,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MudSharp Watcher", "MudShar
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MudSharp Benchmarks", "MudSharp Benchmarks\MudSharp Benchmarks.csproj", "{AB721AA2-38AA-4324-8A3C-30C1AE887726}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RPI Engine Worldfile Converter", "RPI Engine Worldfile Converter\RPI Engine Worldfile Converter.csproj", "{F7117A5B-9FB7-4A69-995A-D268AC2CB935}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug (LabMUD)|Any CPU = Debug (LabMUD)|Any CPU
@@ -628,6 +630,38 @@ Global
 		{AB721AA2-38AA-4324-8A3C-30C1AE887726}.Release|Win32.Build.0 = Release|Any CPU
 		{AB721AA2-38AA-4324-8A3C-30C1AE887726}.Release|x86.ActiveCfg = Release|Any CPU
 		{AB721AA2-38AA-4324-8A3C-30C1AE887726}.Release|x86.Build.0 = Release|Any CPU
+		{F7117A5B-9FB7-4A69-995A-D268AC2CB935}.Debug (LabMUD)|Any CPU.ActiveCfg = Debug|Any CPU
+		{F7117A5B-9FB7-4A69-995A-D268AC2CB935}.Debug (LabMUD)|Any CPU.Build.0 = Debug|Any CPU
+		{F7117A5B-9FB7-4A69-995A-D268AC2CB935}.Debug (LabMUD)|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{F7117A5B-9FB7-4A69-995A-D268AC2CB935}.Debug (LabMUD)|Mixed Platforms.Build.0 = Debug|Any CPU
+		{F7117A5B-9FB7-4A69-995A-D268AC2CB935}.Debug (LabMUD)|Win32.ActiveCfg = Debug|Any CPU
+		{F7117A5B-9FB7-4A69-995A-D268AC2CB935}.Debug (LabMUD)|Win32.Build.0 = Debug|Any CPU
+		{F7117A5B-9FB7-4A69-995A-D268AC2CB935}.Debug (LabMUD)|x86.ActiveCfg = Debug|Any CPU
+		{F7117A5B-9FB7-4A69-995A-D268AC2CB935}.Debug (LabMUD)|x86.Build.0 = Debug|Any CPU
+		{F7117A5B-9FB7-4A69-995A-D268AC2CB935}.Debug (MySQL)|Any CPU.ActiveCfg = Debug|Any CPU
+		{F7117A5B-9FB7-4A69-995A-D268AC2CB935}.Debug (MySQL)|Any CPU.Build.0 = Debug|Any CPU
+		{F7117A5B-9FB7-4A69-995A-D268AC2CB935}.Debug (MySQL)|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{F7117A5B-9FB7-4A69-995A-D268AC2CB935}.Debug (MySQL)|Mixed Platforms.Build.0 = Debug|Any CPU
+		{F7117A5B-9FB7-4A69-995A-D268AC2CB935}.Debug (MySQL)|Win32.ActiveCfg = Debug|Any CPU
+		{F7117A5B-9FB7-4A69-995A-D268AC2CB935}.Debug (MySQL)|Win32.Build.0 = Debug|Any CPU
+		{F7117A5B-9FB7-4A69-995A-D268AC2CB935}.Debug (MySQL)|x86.ActiveCfg = Debug|Any CPU
+		{F7117A5B-9FB7-4A69-995A-D268AC2CB935}.Debug (MySQL)|x86.Build.0 = Debug|Any CPU
+		{F7117A5B-9FB7-4A69-995A-D268AC2CB935}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F7117A5B-9FB7-4A69-995A-D268AC2CB935}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F7117A5B-9FB7-4A69-995A-D268AC2CB935}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{F7117A5B-9FB7-4A69-995A-D268AC2CB935}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{F7117A5B-9FB7-4A69-995A-D268AC2CB935}.Debug|Win32.ActiveCfg = Debug|Any CPU
+		{F7117A5B-9FB7-4A69-995A-D268AC2CB935}.Debug|Win32.Build.0 = Debug|Any CPU
+		{F7117A5B-9FB7-4A69-995A-D268AC2CB935}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{F7117A5B-9FB7-4A69-995A-D268AC2CB935}.Debug|x86.Build.0 = Debug|Any CPU
+		{F7117A5B-9FB7-4A69-995A-D268AC2CB935}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F7117A5B-9FB7-4A69-995A-D268AC2CB935}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F7117A5B-9FB7-4A69-995A-D268AC2CB935}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{F7117A5B-9FB7-4A69-995A-D268AC2CB935}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{F7117A5B-9FB7-4A69-995A-D268AC2CB935}.Release|Win32.ActiveCfg = Release|Any CPU
+		{F7117A5B-9FB7-4A69-995A-D268AC2CB935}.Release|Win32.Build.0 = Release|Any CPU
+		{F7117A5B-9FB7-4A69-995A-D268AC2CB935}.Release|x86.ActiveCfg = Release|Any CPU
+		{F7117A5B-9FB7-4A69-995A-D268AC2CB935}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -637,8 +671,8 @@ Global
 		{6CC81E07-F4B8-405A-854C-D460A89B18D5} = {EC75D277-E25F-4978-B153-195DDB185097}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {44978E47-2FA8-4EBE-B4A5-74B49FDA01E5}
 		BuildVersion_StartDate = 2000/1/1
+		SolutionGuid = {44978E47-2FA8-4EBE-B4A5-74B49FDA01E5}
 	EndGlobalSection
 	GlobalSection(TestCaseManagementSettings) = postSolution
 		CategoryFile = MudSharp.vsmdi

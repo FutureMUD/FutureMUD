@@ -152,7 +152,10 @@ Please choose either #6simple#0 or #6complex#0: ", (context, answers) => true,
 				@"The $0 skill covers your ability to endure punishment and bounce back, especially things that could stun or disorient you."),
 			new SkillDetails("Carrying", "Armour Use", "Athletic", "min(99,3*str + 2*con)", "General", "General", true,
 				1.0,
-				@"The $0 skill covers your ability to move around while carrying heavy loads, such as a full set of armour, gear, or similar. The higher this skill, the less stamina you will use when moving while encumbered and the higher your encumbrance limits.")
+				@"The $0 skill covers your ability to move around while carrying heavy loads, such as a full set of armour, gear, or similar. The higher this skill, the less stamina you will use when moving while encumbered and the higher your encumbrance limits."),
+			new SkillDetails("Riding", "Ride", "Athletic", "min(99,3*agi + 2*con)", "General", "General", true,
+				1.0,
+				@"The $0 skill covers your ability to handle and ride animal mounts.")
 		};
 
 	private IEnumerable<SkillDetails> BroadAthleticSkills =>
@@ -230,7 +233,10 @@ Please choose either #6simple#0 or #6complex#0: ", (context, answers) => true,
 				1.0,
 				@"The $0 skill is used to subtly manipulate your inventory, such as taking something out of a container, putting it into a container, dropping it or the like."),
 			new SkillDetails("Lockpicking", "Pick Locks", "Stealth", "min(99,3*dex + 1*int + 1*per)", "General",
-				"General", true, 1.0, @"The $0 skill is used to unlock, lock and otherwise manipulate locks.")
+				"General", true, 1.0, @"The $0 skill is used to unlock, lock and otherwise manipulate locks."),
+			new SkillDetails("Stealing", "Steal", "Stealth", "min(99,3*dex + 1*int + 1*per)", "General", "General", true,
+				1.0,
+				@"The $0 skill is used to pick people's pockets, plant items on other people and other illegal activities."),
 		};
 
 	private IEnumerable<SkillDetails> SimpleStealthSkills =>
@@ -287,6 +293,10 @@ Please choose either #6simple#0 or #6complex#0: ", (context, answers) => true,
 			new SkillDetails("Milling", "Miller", "Crafting", "min(99,3*int + 2*wil)", "Crafting", "General", true,
 				1.0),
 			new SkillDetails("Baking", "Baker", "Crafting", "min(99,3*int + 2*wil)", "Crafting", "General", true, 1.0),
+			new SkillDetails("Dyeing", "Dyer", "Crafting", "min(99,3*int + 2*wil)", "Crafting", "General", true, 1.0),
+			new SkillDetails("Glassworking", "Glazier", "Crafting", "min(99,3*int + 2*wil)", "Crafting", "General", true, 1.0),
+			new SkillDetails("Gemcraft", "Jeweller", "Crafting", "min(99,3*int + 2*wil)", "Crafting", "General", true, 1.0),
+			new SkillDetails("Perfumery", "Perfumer", "Crafting", "min(99,3*int + 2*wil)", "Crafting", "General", true, 1.0),
 			new SkillDetails("Brewing", "Brewer", "Crafting", "min(99,3*int + 2*wil)", "Crafting", "General", true,
 				1.0),
 			new SkillDetails("Distilling", "Distiller", "Crafting", "min(99,3*int + 2*wil)", "Crafting", "General",

@@ -2441,6 +2441,9 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
 				skill = CreateSkill("Heavy-Pierce");
 				skills["Spear"] = skill;
 				parrySkills["Spear"] = parrySkill ?? skill;
+				skill = CreateSkill("Staff");
+				skill = CreateSkill("Polearm");
+				skill = CreateSkill("Dual-Wielding");
 				break;
 			case "broad":
 				skill = CreateSkill("Bludgeoning Weapons");

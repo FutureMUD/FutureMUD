@@ -5527,6 +5527,10 @@ public partial class HumanSeeder
 			"A pair of earrings inserted into an ear piercing", false, false,
 			("ear", 2, Mandatory: true, NoArmour: false, Transparent: true, PreventsRemoval: true,
 				HidesSevered: false));
+		AddWearProfileShape("Ring", "worn on", "put", "puts", "on", "Worn on a finger", false,
+			false,
+			("finger", 1, Mandatory: true, NoArmour: false, Transparent: true, PreventsRemoval: true,
+				HidesSevered: false));
 		AddWearProfileShape("Nose Ring", "worn in", "put", "puts", "on", "Inserted into a nose piercing", false,
 			false,
 			("nose", 1, Mandatory: true, NoArmour: false, Transparent: true, PreventsRemoval: true,

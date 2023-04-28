@@ -118,6 +118,11 @@ namespace MudSharp.Framework {
             return input.Length > 1 ? input.Substring(1).TrimStart() : "";
         }
 
+        public static string RemoveLastCharacter(this string input)
+        {
+	        return input.Length > 1 ? input.Substring(0, input.Length - 1) : "";
+        }
+
         public static string RemoveFirstWord(this string input) {
             var firstSpace = input.IndexOf(' ');
             return firstSpace != -1 ? input.Remove(0, firstSpace + 1).TrimStart() : "";

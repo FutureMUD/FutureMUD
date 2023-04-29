@@ -168,6 +168,7 @@ public class GameItemProto : EditableItem, IGameItemProto
 
 		sb.AppendLine($"Base Quality: {BaseItemQuality.Describe().Colour(Telnet.Green)}");
 		sb.AppendLine($"Base Cost: {actor.Currency?.Describe(CostInBaseCurrency / actor.Currency.BaseCurrencyToGlobalBaseCurrencyConversion, CurrencyDescriptionPatternType.ShortDecimal).ColourValue() ?? CostInBaseCurrency.ToString("N", actor).ColourValue()}");
+		sb.AppendLine();
 		sb.AppendLine("Full Description:");
 		sb.AppendLine();
 		sb.AppendLine(FullDescription.Wrap(actor.InnerLineFormatLength, "  "));
@@ -1747,7 +1748,7 @@ public class GameItemProto : EditableItem, IGameItemProto
 			return false;
 		}
 
-		var material = long.TryParse(command.PopSpeech(), out var value)
+		var material = long.TryParse(command.SafeRemainingArgument, out var value)
 			? Gameworld.Materials.Get(value)
 			: Gameworld.Materials.FirstOrDefault(
 				x => x.Name.Equals(command.Last, StringComparison.InvariantCultureIgnoreCase));

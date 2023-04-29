@@ -170,7 +170,7 @@ public class LanternGameItemComponentProto : GameItemComponentProto
 			return false;
 		}
 
-		var liquid = long.TryParse(command.PopSpeech(), out var value)
+		var liquid = long.TryParse(command.SafeRemainingArgument, out var value)
 			? Gameworld.Liquids.Get(value)
 			: Gameworld.Liquids.GetByName(command.Last);
 		if (liquid == null)

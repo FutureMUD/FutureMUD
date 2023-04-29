@@ -68,6 +68,20 @@ public class TorchGameItemComponent : GameItemComponent, ILightable, IProduceLig
 		}
 	}
 
+	#region Overrides of GameItemComponent
+
+	/// <inheritdoc />
+	public override void Login()
+	{
+		base.Login();
+		if (Lit)
+		{
+			Gameworld.HeartbeatManager.SecondHeartbeat += HeartbeatManager_SecondHeartbeat;
+		}
+	}
+
+	#endregion
+
 	public override IGameItemComponentProto Prototype => _prototype;
 
 	public override IGameItemComponent Copy(IGameItem newParent, bool temporary = false)
@@ -151,7 +165,7 @@ public class TorchGameItemComponent : GameItemComponent, ILightable, IProduceLig
 	{
 		_prototype = rhs._prototype;
 		RemainingFuel = rhs.RemainingFuel;
-		Lit = rhs.Lit;
+		_lit = rhs.Lit;
 	}
 
 	public TorchGameItemComponent(TorchGameItemComponentProto proto, IGameItem parent, bool temporary = false)
@@ -180,7 +194,7 @@ public class TorchGameItemComponent : GameItemComponent, ILightable, IProduceLig
 	protected void LoadFromXml(XElement root)
 	{
 		RemainingFuel = int.Parse(root.Element("RemainingFuel").Value);
-		Lit = bool.Parse(root.Element("Lit").Value);
+		_lit = bool.Parse(root.Element("Lit").Value);
 	}
 
 	#endregion

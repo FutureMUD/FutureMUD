@@ -61,7 +61,8 @@ public class FuelGeneratorGameItemComponentProto : GameItemComponentProto
 	protected override string SaveToXml()
 	{
 		return
-			new XElement("Definition", new XElement("SwitchOnEmote", new XCData(SwitchOnEmote)),
+			new XElement("Definition", 
+				new XElement("SwitchOnEmote", new XCData(SwitchOnEmote)),
 				new XElement("SwitchOffEmote", new XCData(SwitchOffEmote)),
 				new XElement("FuelExpendedEmote", new XCData(FuelExpendedEmote)),
 				new XElement("FuelPerSecond", FuelPerSecond),
@@ -419,7 +420,16 @@ public class FuelGeneratorGameItemComponentProto : GameItemComponentProto
 	public override string ComponentDescriptionOLC(ICharacter actor)
 	{
 		return
-			$"{"Fuel Generator Item Component".Colour(Telnet.Cyan)} (#{Id:N0}r{RevisionNumber:N0}, {Name})\n\nThis is a generator that consumes liquid fuel. It has a capacity of {Gameworld.UnitManager.DescribeExact(FuelCapacity, UnitType.FluidVolume, actor).Colour(Telnet.Green)} of {LiquidFuel?.Name.Colour(LiquidFuel.DisplayColour) ?? "Not Set".Colour(Telnet.Red)}, which it consumes at a rate of {Gameworld.UnitManager.DescribeExact(FuelPerSecond * 3600, UnitType.FluidVolume, actor).Colour(Telnet.Green)} per hour. It produces {WattageProvided:N2} watts of power.\n\nSwitch On Emote: {SwitchOnEmote}\nSwitch Off Emote: {SwitchOffEmote}\nFuel Out Emote: {FuelExpendedEmote}\nSwitch On Prog: {(SwitchOnProg != null ? SwitchOnProg.FunctionName.Colour(Telnet.Cyan).FluentTagMXP("send", $"href='show futureprog {SwitchOnProg.Id}'") : "None".Colour(Telnet.Red))}\nSwitch Off Prog: {(SwitchOffProg != null ? SwitchOffProg.FunctionName.Colour(Telnet.Cyan).FluentTagMXP("send", $"href='show futureprog {SwitchOffProg.Id}'") : "None".Colour(Telnet.Red))}\nFuel Out Prog: {(FuelOutProg != null ? FuelOutProg.FunctionName.Colour(Telnet.Cyan).FluentTagMXP("send", $"href='show futureprog {FuelOutProg.Id}'") : "None".Colour(Telnet.Red))}";
+			$@"{"Fuel Generator Item Component".Colour(Telnet.Cyan)} (#{Id:N0}r{RevisionNumber:N0}, {Name})
+
+This is a generator that consumes liquid fuel. It has a capacity of {Gameworld.UnitManager.DescribeExact(FuelCapacity, UnitType.FluidVolume, actor).Colour(Telnet.Green)} of {LiquidFuel?.Name.Colour(LiquidFuel.DisplayColour) ?? "Not Set".Colour(Telnet.Red)}, which it consumes at a rate of {Gameworld.UnitManager.DescribeExact(FuelPerSecond * 3600, UnitType.FluidVolume, actor).Colour(Telnet.Green)} per hour. It produces {WattageProvided:N2} watts of power.
+
+Switch On Emote: {SwitchOnEmote}
+Switch Off Emote: {SwitchOffEmote}
+Fuel Out Emote: {FuelExpendedEmote}
+Switch On Prog: {(SwitchOnProg != null ? SwitchOnProg.FunctionName.Colour(Telnet.Cyan).FluentTagMXP("send", $"href='show futureprog {SwitchOnProg.Id}'") : "None".Colour(Telnet.Red))}
+Switch Off Prog: {(SwitchOffProg != null ? SwitchOffProg.FunctionName.Colour(Telnet.Cyan).FluentTagMXP("send", $"href='show futureprog {SwitchOffProg.Id}'") : "None".Colour(Telnet.Red))}
+Fuel Out Prog: {(FuelOutProg != null ? FuelOutProg.FunctionName.Colour(Telnet.Cyan).FluentTagMXP("send", $"href='show futureprog {FuelOutProg.Id}'") : "None".Colour(Telnet.Red))}";
 	}
 
 	public static void RegisterComponentInitialiser(GameItemComponentManager manager)

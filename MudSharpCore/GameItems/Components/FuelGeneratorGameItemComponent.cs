@@ -193,6 +193,15 @@ public class FuelGeneratorGameItemComponent : GameItemComponent, IProducePower, 
 		}
 	}
 
+	public override void Login()
+	{
+		base.Login();
+		foreach (var item in Locks)
+		{
+			item.Login();
+		}
+	}
+
 	public override IGameItemComponent Copy(IGameItem newParent, bool temporary = false)
 	{
 		return new FuelGeneratorGameItemComponent(this, newParent, temporary);
@@ -502,7 +511,9 @@ public class FuelGeneratorGameItemComponent : GameItemComponent, IProducePower, 
 		bool temporary = false) : base(rhs, newParent, temporary)
 	{
 		_prototype = rhs._prototype;
+		LiquidMixture = rhs.LiquidMixture?.Clone();
 		SwitchedOn = rhs.SwitchedOn;
+		IsOpen = rhs.IsOpen;
 	}
 
 	public FuelGeneratorGameItemComponent(FuelGeneratorGameItemComponentProto proto, IGameItem parent,

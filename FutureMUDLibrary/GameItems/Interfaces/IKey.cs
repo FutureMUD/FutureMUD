@@ -7,4 +7,9 @@ namespace MudSharp.GameItems.Interfaces {
         bool Unlocks(string type, int pattern);
         string Inspect(ICharacter actor, string description);
     }
+
+    public interface IKeyring : IKey
+    {
+
+    }
 }

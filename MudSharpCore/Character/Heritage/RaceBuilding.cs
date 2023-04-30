@@ -36,6 +36,8 @@ public partial class Race
 	#3parent <race>#0 - sets a parent race for this race
 	#3parent none#0 - clears a parent race from this race
 	#3body <template>#0 - changes the body template of the race
+	#3parthealth <%>#0 - sets a multiplier for bodypart HPs
+	#3partsize <##>#0 - sets a number of steps bigger/smaller for bodyparts
 
 	#6Chargen Properties#0
 
@@ -118,6 +120,20 @@ public partial class Race
 				return BuildingCommandChargenAvailabilityProg(actor, command);
 			case "body":
 				return BuildingCommandBody(actor, command);
+			case "parthealth":
+			case "bodyparthealth":
+			case "healthmultiplier":
+			case "healthmod":
+			case "damagemod":
+			case "damagemodifier":
+			case "partdamage":
+			case "partdam":
+			case "bodypartdamage":
+			case "bodypartdam":
+				return BuildingCommandBodypartHealth(actor, command);
+			case "bodypartsize":
+				case "partsize":
+				return BuildingCommandBodypartSize(actor, command);
 			case "corpse":
 			case "corpsemodel":
 				return BuildingCommandCorpseModel(actor, command);
@@ -235,6 +251,48 @@ public partial class Race
 				actor.OutputHandler.Send(HelpText.SubstituteANSIColour());
 				return false;
 		}
+	}
+
+	private bool BuildingCommandBodypartSize(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("How many sizes bigger (+ve) or smaller (-ve) should this race's bodyparts be?");
+			return false;
+		}
+
+		if (!int.TryParse(command.SafeRemainingArgument, out var value))
+		{
+			actor.OutputHandler.Send("You must enter a valid integer number.");
+			return false;
+		}
+
+		_bodypartSizeModifier = value;
+		Changed = true;
+		actor.OutputHandler.Send(
+			$"This race's bodyparts will now be {Math.Abs(value).ToString("N0", actor).ColourValue()} {"step".Pluralise(Math.Abs(value) != 1)} {(value < 0 ? "smaller" : "larger")} than the base body.");
+		return true;
+	}
+
+	private bool BuildingCommandBodypartHealth(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("What percentage modifier to bodypart hitpoints should this race have?");
+			return false;
+		}
+
+		if (!command.SafeRemainingArgument.TryParsePercentage(actor.Account.Culture, out var value) || value <= 0.0)
+		{
+			actor.OutputHandler.Send("That is not a valid percentage.");
+			return false;
+		}
+
+		_bodypartDamageMultiplier = value;
+		Changed = true;
+		actor.OutputHandler.Send(
+			$"This race will now have {value.ToString("P2", actor).ColourValue()} hitpoints for its bodyparts.");
+		return true;
 	}
 
 	private bool BuildingCommandDescription(ICharacter actor, StringStack command)
@@ -371,6 +429,8 @@ public partial class Race
 		if (Gameworld.ForagableProfiles.All(x => !x.MaximumYieldPoints.ContainsKey(yield)))
 		{
 		}
+
+		return false;
 
 		throw new NotImplementedException();
 	}
@@ -1898,6 +1958,12 @@ public partial class Race
 			$"Corpse: {CorpseModel.Name.ColourValue()}",
 			$"Health Model: {DefaultHealthStrategy.Name.ColourValue()}"
 		);
+
+		sb.AppendLineColumns((uint)actor.LineFormatLength, 3,
+			$"Bodypart Size Mod: {BodypartSizeModifier.ToString("N0", actor).ColourValue()}",
+			$"Bodypart Health Multiplier: {BodypartDamageMultiplier.ToString("P2", actor).ColourValue()}",
+			"");
+
 		sb.AppendLineColumns((uint)actor.LineFormatLength, 3,
 			$"Illumination Multiplier: {IlluminationPerceptionMultiplier.ToString("P2", actor).ColourValue()}",
 			$"Handedness: {HandednessOptions.Select(x => x.Describe().Colour(Telnet.Cyan)).ListToString()}",

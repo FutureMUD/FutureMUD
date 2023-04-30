@@ -99,6 +99,16 @@ public class PerceivableGroup : TemporaryPerceivable
 
 	public override ICell Location => Members.First().Location;
 
+	/// <inheritdoc />
+	public override IEnumerable<(IPerceivable Thing, Proximity Proximity)> LocalThingsAndProximities()
+	{
+		var things = Members.SelectMany(x => x.LocalThingsAndProximities()).ToLookup(x => x.Thing);
+		foreach (var thing in things)
+		{
+			yield return (thing.Key, thing.Min(x => x.Proximity));
+		}
+	}
+
 	#region Overrides of TemporaryPerceivable
 
 	/// <summary>True if this perceivable is a single entity as opposed to a group of entities</summary>

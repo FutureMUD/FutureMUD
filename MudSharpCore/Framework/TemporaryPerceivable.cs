@@ -231,6 +231,11 @@ public abstract class TemporaryPerceivable : FrameworkItem, IPerceivable
 		return false;
 	}
 
+	public virtual IEnumerable<(IPerceivable Thing, Proximity Proximity)> LocalThingsAndProximities()
+	{
+		return Enumerable.Empty<(IPerceivable Thing, Proximity Proximity)>();
+	}
+
 	public void SetPosition(IPositionState state, PositionModifier modifier, IPerceivable target, IEmote emote)
 	{
 		// Do nothing

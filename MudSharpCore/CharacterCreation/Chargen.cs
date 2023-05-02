@@ -744,7 +744,7 @@ public partial class Chargen : FrameworkItem, IChargen
 		RecalculateCurrentCosts();
 		ReleaseApplication();
 		Gameworld.DiscordConnection?.NotifyCharacterApproval(Account.Name.Proper(),
-			SelectedName.GetName(NameStyle.FullWithNickname), approverAccount.Name.Proper());
+			SelectedName.GetName(NameStyle.FullWithNickname), approverAccount?.Name.Proper() ?? "the system");
 		var timestamp = DateTime.UtcNow;
 		using (new FMDB())
 		{
@@ -761,10 +761,16 @@ public partial class Chargen : FrameworkItem, IChargen
 					$"You|{approver.Account.Name} have|has approved {Account.Name}'s character \"{SelectedName.GetName(NameStyle.FullName)}\" (ID {id})",
 					approver, permitSpeech: PermitLanguageOptions.IgnoreLanguage)), true);
 			}
-			else
+			else if (approverAccount is not null)
 			{
 				Gameworld.SystemMessage(
 					$"{approverAccount.Name} has approved {Account.Name}'s character \"{SelectedName.GetName(NameStyle.FullName)}\" (ID {id})",
+					true);
+			}
+			else
+			{
+				Gameworld.SystemMessage(
+					$"The system has automatically approved {Account.Name}'s character \"{SelectedName.GetName(NameStyle.FullName)}\" (ID {id})",
 					true);
 			}
 
@@ -782,11 +788,11 @@ public partial class Chargen : FrameworkItem, IChargen
 
 			EmailHelper.Instance.SendEmail(EmailTemplateTypes.CharacterApplicationApproved, Account.EmailAddress,
 				Account.Name.Proper(), SelectedName.GetName(NameStyle.FullWithNickname).TitleCase(),
-				approverAccount.Name.Proper(), comment.Wrap(80));
+				approverAccount?.Name.Proper() ?? "the system", comment.Wrap(80));
 			FMDB.Context.SaveChanges();
 
 			dbitem.ApprovalTime = timestamp;
-			dbitem.ApprovedById = approverAccount.Id;
+			dbitem.ApprovedById = approverAccount?.Id;
 			ApprovedBy = approverAccount;
 			dbitem.Status = (int)ChargenState.Approved;
 
@@ -806,7 +812,7 @@ public partial class Chargen : FrameworkItem, IChargen
 			var approvalNote = new Models.AccountNote
 			{
 				AccountId = Account.Id,
-				AuthorId = approverAccount.Id,
+				AuthorId = approverAccount?.Id,
 				Subject = SelectedName.GetName(NameStyle.FullName) + " - Approval Note",
 				Text = comment,
 				TimeStamp = timestamp
@@ -1093,6 +1099,18 @@ public partial class Chargen : FrameworkItem, IChargen
 			State = ChargenState.Submitted;
 			PerformPostCreationProcessing();
 			Save();
+			if (((SubmitScreenStoryboard)Gameworld.ChargenStoryboard.StageScreenMap[ChargenStage.Submit])
+			    .AutomaticallyApproveAllApplicationsBelow >= MinimumApprovalAuthority)
+			{
+				Gameworld.SystemMessage(
+					$"Account {Account.Name.Proper().Colour(Telnet.Green)} has submitted an application for character {SelectedName.GetName(NameStyle.FullWithNickname).Colour(Telnet.Green)}, which has been automatically approved by the system.",
+					true);
+				Gameworld.DiscordConnection.NotifyCharacterSubmission(Account.Name.Proper(),
+					SelectedName.GetName(NameStyle.FullWithNickname), Id);
+				Gameworld.GameStatistics.UpdateApplicationSubmitted();
+				ApproveApplication(null, null, "Automatically approved by the system", null);
+				return;
+			}
 			Gameworld.SystemMessage(
 				$"Account {Account.Name.Proper().Colour(Telnet.Green)} has submitted an application for character {SelectedName.GetName(NameStyle.FullWithNickname).Colour(Telnet.Green)}, requiring the {MinimumApprovalAuthority.Describe().Colour(Telnet.Green)} level of approval.",
 				true);

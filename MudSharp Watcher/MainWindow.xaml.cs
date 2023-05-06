@@ -21,7 +21,8 @@ namespace MudSharp_Watcher
 	/// </summary>
 	public partial class MainWindow : Window
 	{
-		private ProcessWatcher _watcher = new ProcessWatcher();
+		private ProcessWatcher _watcher = new();
+		private UpdateChecker _checker = new();
 		
 		public MainWindow()
 		{
@@ -38,6 +39,16 @@ namespace MudSharp_Watcher
 			using var fs = new FileStream("LauncherBootInfo.data", FileMode.OpenOrCreate);
 			using var reader = new StreamReader(fs);
 			((ViewModel)DataContext).DatabaseString = reader.ReadLine() ?? "server=localhost;port=3306;database=yourdbo;uid=account;password=password;Default Command Timeout=300000";
+			_checker.StartWatchingForUpdates();
+			_checker.UpdateAvailable += CheckerUpdateAvailable;
+		}
+
+		private void CheckerUpdateAvailable(object? sender, EventArgs e)
+		{
+			this.Dispatcher.Invoke(() =>
+			{
+				((ViewModel)DataContext).UpdateAvailable = true;
+			});
 		}
 
 		#endregion
@@ -80,6 +91,11 @@ namespace MudSharp_Watcher
 			{
 				return;
 			}
+
+			this.Dispatcher.Invoke(() =>
+			{
+				((ViewModel)DataContext).AppendScrollback(e.Data);
+			});
 		}
 	}
 }

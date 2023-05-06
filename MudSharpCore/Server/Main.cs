@@ -33,6 +33,15 @@ internal class MudSharp
 		{
 		}
 
+		using (var fs = File.Create("Engine-Version.info"))
+		{
+			using (var writer = new StreamWriter(fs, Encoding.ASCII))
+			{
+				writer.WriteLine(Assembly.GetCallingAssembly().GetName().Version!.ToString());
+				writer.Flush();
+			}
+		}
+
 		if (File.Exists("Connection.config"))
 		{
 			try

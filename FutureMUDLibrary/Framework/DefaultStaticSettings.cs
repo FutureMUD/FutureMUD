@@ -611,6 +611,8 @@ public static class DefaultStaticSettings
 			{ "BonyPartBoneBreakLeewayArcane", "20" },
 			{ "BonyPartEffectiveHitpointForBonebreakModifier", "2.0"},
 			{ "GPT_DescSuggestion_Model", "gpt-3.5-turbo"},
+			{ "AppraiseCommandRequiresSkill", "false"},
+			{ "AppraiseCommandSkill", "0"},
 
 		};
 

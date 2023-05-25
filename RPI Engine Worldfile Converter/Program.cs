@@ -73,6 +73,38 @@ internal class Program
 				wearExamples.Add(item);
 			}
 		}
+
+		using (var fs = new FileStream("ItemTypes.csv", FileMode.Create))
+		{
+			using (var writer = new StreamWriter(fs))
+			{
+				foreach (var combo in sorted)
+				{
+					writer.WriteLine($"{combo.Key.DescribeEnum()},\"{combo.Value.Select(x => x.ShortDescription).ListToCommaSeparatedValues(" | ")}\"");
+				}
+
+				writer.Flush();
+			}
+		}
+
+		var combos = new CollectionDictionary<RPIWearBits, string>();
+		foreach (var bit in wearExamples.Select(x => x.WearBits).Distinct())
+		{
+			combos[bit].AddRange(wearExamples.Where(x => x.WearBits == bit).Select(x => x.ShortDescription));
+		}
+
+		using (var fs = new FileStream("RpiWearCombos.csv", FileMode.Create))
+		{
+			using (var writer = new StreamWriter(fs))
+			{
+				foreach (var combo in combos)
+				{
+					writer.WriteLine($"{combo.Key.GetAllFlags().Select(x => x.DescribeEnum()).ListToCommaSeparatedValues(" | ")},\"{combo.Value.ListToCommaSeparatedValues(" | ")}\"");
+				}
+
+				writer.Flush();
+			}
+		}
 		
 		Console.WriteLine("Hello, World!");
 		Console.ReadLine();

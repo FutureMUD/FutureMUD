@@ -2417,6 +2417,7 @@ public partial class HumanSeeder
 			false, false,
 			("scalp", 1, Mandatory: true, NoArmour: false, Transparent: false, PreventsRemoval: true,
 				HidesSevered: false));
+
 		AddWearProfileDirect("Glasses", "worn over", "put", "puts", "on",
 			"Worn as transparent glasses (e.g. eye glasses, goggles)", false, false,
 			("reyesocket", 1, Mandatory: true, NoArmour: false, Transparent: true, PreventsRemoval: true,
@@ -5332,7 +5333,7 @@ public partial class HumanSeeder
 			("lnipple", 1, Mandatory: false, NoArmour: false, Transparent: false, PreventsRemoval: true,
 				HidesSevered: false)
 		);
-		AddWearProfileDirect("Spaulder", "worn on", "put", "puts", "on", "Armour for the shoulders", false, true,
+		AddWearProfileDirect("Spaulders", "worn on", "put", "puts", "on", "Armour for the shoulders", false, true,
 			("rshoulder", 1, Mandatory: true, NoArmour: false, Transparent: false, PreventsRemoval: true,
 				HidesSevered: true),
 			("lshoulder", 1, Mandatory: true, NoArmour: false, Transparent: false, PreventsRemoval: true,
@@ -5342,7 +5343,7 @@ public partial class HumanSeeder
 			("lshoulderblade", 1, Mandatory: true, NoArmour: false, Transparent: false, PreventsRemoval: true,
 				HidesSevered: false)
 		);
-		AddWearProfileDirect("Pauldron", "worn on", "put", "puts", "on",
+		AddWearProfileDirect("Pauldrons", "worn on", "put", "puts", "on",
 			"Armour for the shoulders that also covers the upper arm", false, true,
 			("rshoulder", 1, Mandatory: true, NoArmour: false, Transparent: false, PreventsRemoval: true,
 				HidesSevered: true),
@@ -5357,26 +5358,26 @@ public partial class HumanSeeder
 			("lupperarm", 1, Mandatory: false, NoArmour: false, Transparent: false, PreventsRemoval: true,
 				HidesSevered: false)
 		);
-		AddWearProfileDirect("Brassart", "worn on", "put", "puts", "on", "Armour for the upper arm", false, true,
+		AddWearProfileDirect("Brassarts", "worn on", "put", "puts", "on", "Armour for the upper arm", false, true,
 			("rupperarm", 1, Mandatory: true, NoArmour: false, Transparent: false, PreventsRemoval: true,
 				HidesSevered: false),
 			("lupperarm", 1, Mandatory: true, NoArmour: false, Transparent: false, PreventsRemoval: true,
 				HidesSevered: false)
 		);
-		AddWearProfileDirect("Vambrace", "worn on", "put", "puts", "on", "Armour for the forearm, also known as Bracer",
+		AddWearProfileDirect("Vambraces", "worn on", "put", "puts", "on", "Armour for the forearm, also known as Bracer",
 			false, true,
 			("rforearm", 1, Mandatory: true, NoArmour: false, Transparent: false, PreventsRemoval: true,
 				HidesSevered: false),
 			("lforearm", 1, Mandatory: true, NoArmour: false, Transparent: false, PreventsRemoval: true,
 				HidesSevered: false)
 		);
-		AddWearProfileDirect("Couter", "worn on", "put", "puts", "on", "Armour for the elbows", false, true,
+		AddWearProfileDirect("Couters", "worn on", "put", "puts", "on", "Armour for the elbows", false, true,
 			("relbow", 1, Mandatory: true, NoArmour: false, Transparent: false, PreventsRemoval: true,
 				HidesSevered: false),
 			("lelbow", 1, Mandatory: true, NoArmour: false, Transparent: false, PreventsRemoval: true,
 				HidesSevered: false)
 		);
-		AddWearProfileDirect("Gauntlet", "worn on", "put", "puts", "on", "Armour for the hands and wrists", false,
+		AddWearProfileDirect("Gauntlets", "worn on", "put", "puts", "on", "Armour for the hands and wrists", false,
 			true,
 			("rhand", 1, Mandatory: true, NoArmour: false, Transparent: false, PreventsRemoval: true,
 				HidesSevered: false),
@@ -5449,7 +5450,7 @@ public partial class HumanSeeder
 			("lshin", 1, Mandatory: false, NoArmour: false, Transparent: false, PreventsRemoval: true,
 				HidesSevered: false)
 		);
-		AddWearProfileDirect("Cuisse", "worn on", "slip", "slips", "on", "Worn as a cuisse, upper leg armour", false,
+		AddWearProfileDirect("Cuisses", "worn on", "slip", "slips", "on", "Worn as a cuisse, upper leg armour", false,
 			true,
 			("rthigh", 1, Mandatory: true, NoArmour: false, Transparent: false, PreventsRemoval: true,
 				HidesSevered: false),
@@ -5460,7 +5461,7 @@ public partial class HumanSeeder
 			("lthighback", 1, Mandatory: false, NoArmour: false, Transparent: false, PreventsRemoval: true,
 				HidesSevered: false)
 		);
-		AddWearProfileDirect("Poleyn", "worn on", "slip", "slips", "on", "Armour for the knees", false, true,
+		AddWearProfileDirect("Poleyns", "worn on", "slip", "slips", "on", "Armour for the knees", false, true,
 			("rknee", 1, Mandatory: true, NoArmour: false, Transparent: false, PreventsRemoval: true,
 				HidesSevered: false),
 			("lknee", 1, Mandatory: true, NoArmour: false, Transparent: false, PreventsRemoval: true,
@@ -5568,6 +5569,12 @@ public partial class HumanSeeder
 				HidesSevered: false));
 		AddWearProfileShape("Bracelet", "worn on", "put", "puts", "on", "A single bracelet", false, false,
 			("wrist", 1, Mandatory: true, NoArmour: false, Transparent: true, PreventsRemoval: true,
+				HidesSevered: false));
+		AddWearProfileShape("Bracer", "worn on", "put", "puts", "on", "A single bracer", false, false,
+			("wrist", 1, Mandatory: true, NoArmour: false, Transparent: true, PreventsRemoval: true,
+				HidesSevered: false));
+		AddWearProfileShape("Bracers", "worn on", "put", "puts", "on", "A pair of bracers", false, false,
+			("wrist", 2, Mandatory: true, NoArmour: false, Transparent: true, PreventsRemoval: true,
 				HidesSevered: false));
 		AddWearProfileShape("Anklets", "worn on", "put", "puts", "on", "A pair of anklets", false, false,
 			("ankle", 2, Mandatory: true, NoArmour: false, Transparent: true, PreventsRemoval: true,

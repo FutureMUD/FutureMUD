@@ -479,54 +479,238 @@ internal class FutureMUDItemTransformer
 					});
 					break;
 				case RPIWearBits.Body:
+					if (item.DescKeys.Contains("dress", StringComparison.OrdinalIgnoreCase))
+					{
+						dbitem.GameItemProtosGameItemComponentProtos.Add(new GameItemProtosGameItemComponentProtos
+						{
+							GameItemProto = dbitem,
+							GameItemComponent = ComponentProtoLookup["Wear_Dress"]
+						});
+						break;
+					}
+					if (item.DescKeys.Contains("coat", StringComparison.OrdinalIgnoreCase) || 
+					    item.DescKeys.Contains("jacket", StringComparison.OrdinalIgnoreCase))
+					{
+						dbitem.GameItemProtosGameItemComponentProtos.Add(new GameItemProtosGameItemComponentProtos
+						{
+							GameItemProto = dbitem,
+							GameItemComponent = ComponentProtoLookup["Wear_Jacket"]
+						});
+						break;
+					}
+					if (item.DescKeys.Contains("vest", StringComparison.OrdinalIgnoreCase))
+					{
+						dbitem.GameItemProtosGameItemComponentProtos.Add(new GameItemProtosGameItemComponentProtos
+						{
+							GameItemProto = dbitem,
+							GameItemComponent = ComponentProtoLookup["Wear_Vest"]
+						});
+						break;
+					}
+					if (item.DescKeys.Contains("robe", StringComparison.OrdinalIgnoreCase) || 
+					    item.DescKeys.Contains("gown", StringComparison.OrdinalIgnoreCase) || 
+					    item.DescKeys.Contains("kaftan", StringComparison.OrdinalIgnoreCase))
+					{
+						dbitem.GameItemProtosGameItemComponentProtos.Add(new GameItemProtosGameItemComponentProtos
+						{
+							GameItemProto = dbitem,
+							GameItemComponent = ComponentProtoLookup["Wear_Gown"]
+						});
+						break;
+					}
+					if (item.DescKeys.Contains("tunic", StringComparison.OrdinalIgnoreCase))
+					{
+						dbitem.GameItemProtosGameItemComponentProtos.Add(new GameItemProtosGameItemComponentProtos
+						{
+							GameItemProto = dbitem,
+							GameItemComponent = ComponentProtoLookup["Wear_Tunic"]
+						});
+						break;
+					}
+					dbitem.GameItemProtosGameItemComponentProtos.Add(new GameItemProtosGameItemComponentProtos
+					{
+						GameItemProto = dbitem,
+						GameItemComponent = ComponentProtoLookup["Wear_Shirt"]
+					});
 					break;
 				case RPIWearBits.Head:
+					dbitem.GameItemProtosGameItemComponentProtos.Add(new GameItemProtosGameItemComponentProtos
+					{
+						GameItemProto = dbitem,
+						GameItemComponent = ComponentProtoLookup["Wear_Half_Helmet"]
+					});
 					break;
 				case RPIWearBits.Legs:
+					
+					if (item.DescKeys.Contains("skirt", StringComparison.OrdinalIgnoreCase) ||
+					    item.DescKeys.Contains("loincloth", StringComparison.OrdinalIgnoreCase))
+					{
+						dbitem.GameItemProtosGameItemComponentProtos.Add(new GameItemProtosGameItemComponentProtos
+						{
+							GameItemProto = dbitem,
+							GameItemComponent = ComponentProtoLookup["Wear_Skirt"]
+						});
+						break;
+					}
+					if (item.DescKeys.Contains("thong", StringComparison.OrdinalIgnoreCase))
+					{
+						dbitem.GameItemProtosGameItemComponentProtos.Add(new GameItemProtosGameItemComponentProtos
+						{
+							GameItemProto = dbitem,
+							GameItemComponent = ComponentProtoLookup["Wear_Thong"]
+						});
+						break;
+					}
+					dbitem.GameItemProtosGameItemComponentProtos.Add(new GameItemProtosGameItemComponentProtos
+					{
+						GameItemProto = dbitem,
+						GameItemComponent = ComponentProtoLookup["Wear_Trousers"]
+					});
 					break;
 				case RPIWearBits.Feet:
+					dbitem.GameItemProtosGameItemComponentProtos.Add(new GameItemProtosGameItemComponentProtos
+					{
+						GameItemProto = dbitem,
+						GameItemComponent = ComponentProtoLookup["Wear_Shoes"]
+					});
 					break;
 				case RPIWearBits.Hands:
+					dbitem.GameItemProtosGameItemComponentProtos.Add(new GameItemProtosGameItemComponentProtos
+					{
+						GameItemProto = dbitem,
+						GameItemComponent = ComponentProtoLookup["Wear_Gloves"]
+					});
 					break;
 				case RPIWearBits.Arms:
+					dbitem.GameItemProtosGameItemComponentProtos.Add(new GameItemProtosGameItemComponentProtos
+					{
+						GameItemProto = dbitem,
+						GameItemComponent = ComponentProtoLookup["Wear_Bracers"]
+					});
 					break;
 				case RPIWearBits.Wshield:
 					break;
 				case RPIWearBits.About:
+					if (!item.WearBits.HasFlag(RPIWearBits.Body))
+					{
+						continue;
+					}
+					dbitem.GameItemProtosGameItemComponentProtos.Add(new GameItemProtosGameItemComponentProtos
+					{
+						GameItemProto = dbitem,
+						GameItemComponent = ComponentProtoLookup["Wear_Mantle"]
+					});
 					break;
 				case RPIWearBits.Waist:
+					dbitem.GameItemProtosGameItemComponentProtos.Add(new GameItemProtosGameItemComponentProtos
+					{
+						GameItemProto = dbitem,
+						GameItemComponent = ComponentProtoLookup["Wear_Waist"]
+					});
+					dbitem.GameItemProtosGameItemComponentProtos.Add(new GameItemProtosGameItemComponentProtos
+					{
+						GameItemProto = dbitem,
+						GameItemComponent = ComponentProtoLookup["Belt_2"]
+					});
 					break;
 				case RPIWearBits.Wrist:
+					dbitem.GameItemProtosGameItemComponentProtos.Add(new GameItemProtosGameItemComponentProtos
+					{
+						GameItemProto = dbitem,
+						GameItemComponent = ComponentProtoLookup["Wear_Bracelet"]
+					});
 					break;
 				case RPIWearBits.Wield:
-					break;
 				case RPIWearBits.Unused1:
-					break;
 				case RPIWearBits.Unused2:
-					break;
 				case RPIWearBits.Unused3:
-					break;
+					continue;
 				case RPIWearBits.Sheath:
+					dbitem.GameItemProtosGameItemComponentProtos.Add(new GameItemProtosGameItemComponentProtos
+					{
+						GameItemProto = dbitem,
+						GameItemComponent = ComponentProtoLookup["Wear_Bracelets"]
+					});
 					break;
 				case RPIWearBits.Belt:
+					dbitem.GameItemProtosGameItemComponentProtos.Add(new GameItemProtosGameItemComponentProtos
+					{
+						GameItemProto = dbitem,
+						GameItemComponent = ComponentProtoLookup["Beltable"]
+					});
 					break;
 				case RPIWearBits.Back:
+					dbitem.GameItemProtosGameItemComponentProtos.Add(new GameItemProtosGameItemComponentProtos
+					{
+						GameItemProto = dbitem,
+						GameItemComponent = ComponentProtoLookup["Wear_Cloak (Open)"]
+					});
 					break;
 				case RPIWearBits.Blindfold:
+					dbitem.GameItemProtosGameItemComponentProtos.Add(new GameItemProtosGameItemComponentProtos
+					{
+						GameItemProto = dbitem,
+						GameItemComponent = ComponentProtoLookup["Wear_Sunglasses"]
+					});
+					dbitem.GameItemProtosGameItemComponentProtos.Add(new GameItemProtosGameItemComponentProtos
+					{
+						GameItemProto = dbitem,
+						GameItemComponent = ComponentProtoLookup["Blindfold"]
+					});
 					break;
 				case RPIWearBits.Throat:
+					dbitem.GameItemProtosGameItemComponentProtos.Add(new GameItemProtosGameItemComponentProtos
+					{
+						GameItemProto = dbitem,
+						GameItemComponent = ComponentProtoLookup["Wear_Necklace"]
+					});
 					break;
 				case RPIWearBits.Ears:
+					dbitem.GameItemProtosGameItemComponentProtos.Add(new GameItemProtosGameItemComponentProtos
+					{
+						GameItemProto = dbitem,
+						GameItemComponent = ComponentProtoLookup["Wear_Earrings"]
+					});
 					break;
 				case RPIWearBits.Shoulder:
+					dbitem.GameItemProtosGameItemComponentProtos.Add(new GameItemProtosGameItemComponentProtos
+					{
+						GameItemProto = dbitem,
+						GameItemComponent = ComponentProtoLookup["Wear_Shoulder"]
+					});
 					break;
 				case RPIWearBits.Ankle:
+					dbitem.GameItemProtosGameItemComponentProtos.Add(new GameItemProtosGameItemComponentProtos
+					{
+						GameItemProto = dbitem,
+						GameItemComponent = ComponentProtoLookup["Wear_Anklet"]
+					});
 					break;
 				case RPIWearBits.Hair:
+					dbitem.GameItemProtosGameItemComponentProtos.Add(new GameItemProtosGameItemComponentProtos
+					{
+						GameItemProto = dbitem,
+						GameItemComponent = ComponentProtoLookup["Wear_Wig"]
+					});
 					break;
 				case RPIWearBits.Face:
+					dbitem.GameItemProtosGameItemComponentProtos.Add(new GameItemProtosGameItemComponentProtos
+					{
+						GameItemProto = dbitem,
+						GameItemComponent = ComponentProtoLookup["Wear_Mask"]
+					});
+					dbitem.GameItemProtosGameItemComponentProtos.Add(new GameItemProtosGameItemComponentProtos
+					{
+						GameItemProto = dbitem,
+						GameItemComponent = ComponentProtoLookup["EyesFreeObscurer"]
+					});
 					break;
 				case RPIWearBits.Armband:
+					dbitem.GameItemProtosGameItemComponentProtos.Add(new GameItemProtosGameItemComponentProtos
+					{
+						GameItemProto = dbitem,
+						GameItemComponent = ComponentProtoLookup["Epaulette"]
+					});
 					break;
 				default:
 					throw new ArgumentOutOfRangeException();

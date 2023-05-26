@@ -173,7 +173,7 @@ namespace MudSharp.Framework
                 sb.AppendLine(line);
             }
 
-            sb.AppendLine(bottomseparator);
+            sb.AppendLine(bottomseparator.NoWrap());
             return sb.ToString();
         }
 

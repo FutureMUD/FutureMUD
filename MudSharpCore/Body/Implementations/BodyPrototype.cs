@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using MudSharp.Models;
 using MudSharp.Body.PartProtos;
 using MudSharp.Body.Position;
 using MudSharp.Body.Position.PositionStates;
+using MudSharp.Character;
 using MudSharp.Character.Heritage;
 using MudSharp.Form.Shape;
 using MudSharp.Framework;
@@ -121,7 +123,7 @@ public class BodyPrototype : SaveableItem, IBodyPrototype
 		_defaultDoorSmashingPartID = proto.DefaultSmashingBodypartId ?? 0;
 	}
 
-	public void FinaliseBodyparts()
+	public void FinaliseBodyparts(Models.BodyProto proto)
 	{
 		var allParts = Gameworld.BodypartPrototypes.Where(x => x.Body == this).ToList();
 		var partsOnly = allParts.OfType<IExternalBodypart>().ToList();
@@ -130,6 +132,8 @@ public class BodyPrototype : SaveableItem, IBodyPrototype
 		_allBodyparts.AddRange(allParts);
 		_organs.AddRange(allParts.OfType<IOrganProto>());
 		_bones.AddRange(allParts.OfType<IBone>());
+		_maleOnlyAdditions.AddRange(allParts.Where(x => proto.BodyProtosAdditionalBodyparts.Any(y => y.BodypartId == x.Id && y.Usage == "male")));
+		_femaleOnlyAdditions.AddRange(allParts.Where(x => proto.BodyProtosAdditionalBodyparts.Any(y => y.BodypartId == x.Id && y.Usage == "female")));
 	}
 
 	public void UpdateBodypartRole(IBodypart bodypart, BodypartRole role)
@@ -198,6 +202,8 @@ public class BodyPrototype : SaveableItem, IBodyPrototype
 	#endregion
 
 	private long? _countsAsId;
+
+	public IBodyPrototype Parent => Gameworld.BodyPrototypes.Get(_countsAsId ?? 0L);
 
 	public IWearableSizeRules WearRulesParameter { get; protected set; }
 
@@ -437,6 +443,189 @@ public class BodyPrototype : SaveableItem, IBodyPrototype
 
 	protected readonly All<IMoveSpeed> _speeds = new();
 	public IUneditableAll<IMoveSpeed> Speeds => _speeds;
+
+	public string Show(ICharacter actor)
+	{
+		var sb = new StringBuilder();
+		sb.AppendLine($"Body Prototype #{Id.ToString("N0", actor)} - {Name.ColourName()}");
+		sb.AppendLine();
+		sb.AppendLine("Core Properties".GetLineWithTitle(actor, Telnet.Red, Telnet.BoldWhite));
+		sb.AppendLine();
+		sb.AppendLine($"Parent: {Parent?.Name.ColourName() ?? "None".ColourError()}");
+		sb.AppendLine($"Minimum Legs to Stand: {MinimumLegsToStand.ToString("N0", actor).ColourValue()}");
+		sb.AppendLine($"Minimum Wings to Fly: {MinimumWingsToFly.ToString("N0", actor).ColourValue()}");
+		sb.AppendLine($"Stamina Prog: {StaminaRecoveryProg?.MXPClickableFunctionName() ?? "None".ColourError()}");
+		sb.AppendLine($"Grasping Parts: {WielderDescriptionSingular.ColourValue()} / {WielderDescriptionPlural.ColourValue()}");
+		sb.AppendLine($"Standing Limbs: {LegDescriptionSingular.ColourValue()} / {LegDescriptionPlural.ColourValue()}");
+		sb.AppendLine($"Default Smashing Part: {DefaultDoorSmashingPart?.Name.ColourValue() ?? "None".ColourError()}");
+		sb.AppendLine();
+		sb.AppendLine("Positions".GetLineWithTitle(actor, Telnet.Red, Telnet.BoldWhite));
+		sb.AppendLine();
+		sb.AppendLine(CommonStringUtilities.ArrangeStringsOntoLines(ValidPositions.Select(x => x.Name.ColourName()),
+			(uint)actor.LineFormatLength / 40, (uint)actor.LineFormatLength));
+		sb.AppendLine();
+		sb.AppendLine("Speeds".GetLineWithTitle(actor, Telnet.Red, Telnet.BoldWhite));
+		sb.AppendLine();
+		sb.AppendLine(StringUtilities.GetTextTable(
+			from speed in Speeds.OrderBy(x => x.Position.Id).ThenByDescending(x => x.Multiplier)
+			select new List<string>
+			{
+				speed.Name,
+				speed.Position.Name,
+				speed.Multiplier.ToString("P2", actor),
+				speed.StaminaMultiplier.ToString("P2", actor),
+				speed.FirstPersonVerb,
+				speed.ThirdPersonVerb,
+				speed.PresentParticiple
+			},
+			new List<string>
+			{
+				"Name",
+				"Position",
+				"Rate",
+				"Stamina",
+				"Verb 1st",
+				"Verb 3rd",
+				"Participle"
+			},
+			actor,
+			Telnet.Red
+		));
+		sb.AppendLine();
+		sb.AppendLine("External Bodyparts".GetLineWithTitle(actor, Telnet.Red, Telnet.BoldWhite));
+		sb.AppendLine();
+		var parts = new List<(IBodypart Part, Gender Gender, bool FromParent)>();
+		var neutralParts = BodypartsFor(null, Gender.Indeterminate).ToList();
+		var maleParts = BodypartsFor(null, Gender.Male).Where(x => !neutralParts.Contains(x)).ToList();
+		var femaleParts = BodypartsFor(null, Gender.Female).Where(x => !neutralParts.Contains(x)).ToList();
+		foreach (var part in neutralParts)
+		{
+			parts.Add((part, Gender.Neuter, !_allBodyparts.Contains(part)));
+		}
+		foreach (var part in maleParts)
+		{
+			parts.Add((part, Gender.Male, !_allBodyparts.Contains(part)));
+		}
+		foreach (var part in femaleParts)
+		{
+			parts.Add((part, Gender.Female, !_allBodyparts.Contains(part)));
+		}
+		sb.AppendLine(StringUtilities.GetTextTable(
+			from part in parts.Where(x => x.Part is IExternalBodypart)
+			let limb = Limbs.FirstOrDefault(x => x.Parts.Contains(part.Part))
+			select new List<string>
+			{
+				part.Part.Id.ToString("N0", actor),
+				part.Part.Name,
+				part.Part.FullDescription(),
+				part.Gender == Gender.Neuter ? "All" : part.Gender.DescribeEnum(),
+				part.Part.Shape.Name,
+				limb?.Name ?? "",
+				part.Part.MaxLife.ToString("N0", actor),
+				part.Part.CanSever ? part.Part.SeveredThreshold.ToString("N0", actor) : "--",
+				part.Part.Alignment.Describe(),
+				part.Part.Orientation.Describe(),
+				part.Part.IsVital.ToString(),
+				part.Part.Significant.ToString(),
+				part.Part.ImplantSpace.ToString("N2", actor),
+				part.FromParent.ToString()
+			},
+			new List<string>
+			{
+				"Id",
+				"Alias",
+				"Name",
+				"Gender",
+				"Shape",
+				"Limb",
+				"HP",
+				"Sever",
+				"Align",
+				"Orient",
+				"Vital?",
+				"Sig?",
+				"Space",
+				"Parent?"
+			},
+			actor,
+			Telnet.Yellow
+		));
+		sb.AppendLine();
+		sb.AppendLine("Organs".GetLineWithTitle(actor, Telnet.Red, Telnet.BoldWhite));
+		sb.AppendLine();
+		sb.AppendLine(StringUtilities.GetTextTable(
+				from part in parts.Where(x => x.Part is IOrganProto)
+				let organ = part.Part as IOrganProto
+				let contain = AllExternalBodyparts.FirstOrDefault(x => x.OrganInfo.Any(y => y.Key == organ && y.Value.IsPrimaryInternalLocation))
+				select new List<string>
+			{
+				part.Part.Id.ToString("N0", actor),
+				part.Part.Name,
+				part.Part.FullDescription(),
+				part.Gender == Gender.Neuter ? "All" : part.Gender.DescribeEnum(),
+				part.Part.MaxLife.ToString("N0", actor),
+				contain?.Name ?? "",
+				organ.ImplantSpaceOccupied.ToString("N2", actor),
+				organ.RequiresSpinalConnection.ToString(),
+				organ.RelativeInfectability.ToString("P2", actor),
+				organ.HypoxiaDamagePerTick.ToString("N2", actor),
+				part.FromParent.ToString()
+			},
+			new List<string>
+			{
+				"Id",
+				"Alias",
+				"Name",
+				"Gender",
+				"HP",
+				"Inside",
+				"Space Cost",
+				"Req. Spine?",
+				"Infect?",
+				"Hypoxia/Tick",
+				"From Parent?"
+			},
+			actor,
+			Telnet.Yellow
+		));
+		sb.AppendLine();
+		sb.AppendLine("Bones".GetLineWithTitle(actor, Telnet.Red, Telnet.BoldWhite));
+		sb.AppendLine();
+		sb.AppendLine(StringUtilities.GetTextTable(
+			from part in parts.Where(x => x.Part is IBone and not IExternalBodypart)
+			let bone = part.Part as IBone
+			let contain = AllExternalBodyparts.FirstOrDefault(x => x.BoneInfo.Any(y => y.Key == bone && y.Value.IsPrimaryInternalLocation))
+			select new List<string>
+			{
+				part.Part.Id.ToString("N0", actor),
+				part.Part.Name,
+				part.Part.FullDescription(),
+				part.Gender == Gender.Neuter ? "All" : part.Gender.DescribeEnum(),
+				part.Part.MaxLife.ToString("N0", actor),
+				contain?.Name ?? "",
+				bone.CriticalBone.ToString(),
+				bone.BoneHealingModifier.ToString("P2", actor),
+				bone.CanBeImmobilised.ToString(),
+				part.FromParent.ToString()
+			},
+			new List<string>
+			{
+				"Id",
+				"Alias",
+				"Name",
+				"Gender",
+				"HP",
+				"Inside",
+				"Critical?",
+				"Healing",
+				"Immobilise?",
+				"From Parent?"
+			},
+			actor,
+			Telnet.Yellow
+		));
+		return sb.ToString();
+	}
 
 	#endregion
 }

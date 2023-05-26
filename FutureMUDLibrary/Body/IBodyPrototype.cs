@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using MudSharp.Body.Position;
+using MudSharp.Character;
 using MudSharp.Character.Heritage;
 using MudSharp.Form.Shape;
 using MudSharp.Framework;
@@ -18,6 +19,7 @@ namespace MudSharp.Body {
     }
 
     public interface IBodyPrototype : IFrameworkItem, IHaveFuturemud {
+        IBodyPrototype Parent { get; }
         IBodyCommunicationStrategy Communications { get; }
 
         /// <summary>
@@ -80,6 +82,7 @@ namespace MudSharp.Body {
         bool CountsAs(IBodyPrototype bodyPrototype);
         void InvalidateCachedBodyparts();
         IEnumerable<IBodypartGroupDescriber> BodypartGroupDescribers { get; }
-        void FinaliseBodyparts();
+        void FinaliseBodyparts(Models.BodyProto proto);
+        string Show(ICharacter actor);
     }
 }

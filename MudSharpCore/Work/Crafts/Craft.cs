@@ -1308,7 +1308,7 @@ public class Craft : Framework.Revision.EditableItem, ICraft
 			foreach (var tool in Tools)
 			{
 				sb.AppendLine(
-					$"\t{tool.HowSeen(character).ColourIncludingReset(Telnet.Yellow)} [{tool.DesiredState.Describe()}]");
+					$"\t{tool.HowSeen(character).ColourIncludingReset(Telnet.Yellow)} [{tool.DesiredState.Describe().ColourValue()}]{(tool.UseToolDuration ? " [Use]".Colour(Telnet.Red) : "")}");
 			}
 		}
 
@@ -2505,7 +2505,7 @@ public class Craft : Framework.Revision.EditableItem, ICraft
 		for (var i = 0; i < _orderedTools.Count; i++)
 		{
 			sb.AppendLine(
-				$"\t$t{i + 1}: {_orderedTools[i].HowSeen(actor).ColourIncludingReset(Telnet.Yellow)} {_orderedTools[i].DesiredState.Describe()}");
+				$"\t$t{i + 1}: {_orderedTools[i].HowSeen(actor).ColourIncludingReset(Telnet.Yellow)} {_orderedTools[i].DesiredState.Describe().SquareBrackets().ColourValue()}{(_orderedTools[i].UseToolDuration ? " [UseTool]".Colour(Telnet.Red) : "")}");
 		}
 
 		sb.AppendLine();

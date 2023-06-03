@@ -75,7 +75,7 @@ public class SimpleItemInput : BaseInput, ICraftInputConsumesGameItemGroup
 	}
 
 	protected override string BuildingHelpString =>
-		"You can use the following options with this input type:\n\titem <id> - sets the item required\n\tquantity <amount> - sets the amount required";
+		"You can use the following options with this input type:\n\t#3item <id>#0 - sets the item required\n\t#3quantity <amount>#0 - sets the amount required";
 
 	public override bool BuildingCommand(ICharacter actor, StringStack command)
 	{

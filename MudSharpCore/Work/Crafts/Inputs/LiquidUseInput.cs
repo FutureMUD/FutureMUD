@@ -197,7 +197,7 @@ public class LiquidUseInput : BaseInput, ICraftInputConsumeLiquid
 	}
 
 	protected override string BuildingHelpString =>
-		"You can use the following options:\n\tliquid <liquid> - sets the liquid to consume\n\tamount <amount> - sets the amount to consume";
+		"You can use the following options:\n\t#3liquid <liquid>#0 - sets the liquid to consume\n\t#3amount <amount>#0 - sets the amount to consume";
 
 	public override bool BuildingCommand(ICharacter actor, StringStack command)
 	{

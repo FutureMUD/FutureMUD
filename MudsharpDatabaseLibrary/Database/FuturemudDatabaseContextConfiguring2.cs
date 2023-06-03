@@ -713,6 +713,8 @@ namespace MudSharp.Database
 
                 entity.Property(e => e.CraftRevisionNumber).HasColumnType("int(11)");
 
+                entity.Property(e => e.UseToolDuration).HasColumnType("bit(1)").HasDefaultValue(true);
+
                 entity.Property(e => e.Definition)
                     .IsRequired()
                     .HasColumnType("text")

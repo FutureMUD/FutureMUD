@@ -39,7 +39,7 @@ public class SimpleTool : BaseTool
 	}
 
 	public override string BuilderHelpString =>
-		$"{base.BuilderHelpString}\n\titem <id|name> - the item to target for this tool";
+		$"{base.BuilderHelpString}\n\t#3item <id|name>#0 - the item to target for this tool";
 
 	public override bool BuildingCommand(ICharacter actor, StringStack command)
 	{

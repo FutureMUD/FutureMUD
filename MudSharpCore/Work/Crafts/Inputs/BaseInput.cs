@@ -79,7 +79,7 @@ public abstract class BaseInput : LateInitialisingItem, ICraftInput
 			case "qualityweight":
 				return BuildingCommandQualityWeight(actor, command);
 			default:
-				actor.OutputHandler.Send(BuildingHelpString);
+				actor.OutputHandler.Send(BuildingHelpString.SubstituteANSIColour());
 				return false;
 		}
 	}

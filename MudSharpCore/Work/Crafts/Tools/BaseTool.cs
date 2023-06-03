@@ -4,6 +4,7 @@ using MudSharp.Database;
 using MudSharp.Framework;
 using MudSharp.Framework.Save;
 using MudSharp.GameItems;
+using MudSharp.GameItems.Interfaces;
 using MudSharp.GameItems.Inventory.Plans;
 using MudSharp.Models;
 
@@ -24,6 +25,7 @@ public abstract class BaseTool : LateInitialisingItem, ICraftTool
 		ToolQualityWeight = tool.ToolQualityWeight;
 		DesiredState = (DesiredItemState)tool.DesiredState;
 		OriginalAdditionTime = tool.OriginalAdditionTime;
+		UseToolDuration = tool.UseToolDuration;
 	}
 
 	protected BaseTool(ICraft craft, IFuturemud gameworld)
@@ -33,6 +35,7 @@ public abstract class BaseTool : LateInitialisingItem, ICraftTool
 		ToolQualityWeight = 1.0;
 		DesiredState = DesiredItemState.Held;
 		OriginalAdditionTime = DateTime.UtcNow;
+		UseToolDuration = true;
 		Gameworld.SaveManager.AddInitialisation(this);
 	}
 
@@ -43,6 +46,8 @@ public abstract class BaseTool : LateInitialisingItem, ICraftTool
 	#region Implementation of ICraftTool
 
 	public DesiredItemState DesiredState { get; set; }
+
+	public bool UseToolDuration { get; set; }
 
 	public abstract string HowSeen(IPerceiver voyeur);
 
@@ -55,7 +60,11 @@ public abstract class BaseTool : LateInitialisingItem, ICraftTool
 
 	public virtual void UseTool(IGameItem item, TimeSpan phaseLength, bool hasFailed)
 	{
-		// NOOP
+		if (!UseToolDuration)
+		{
+			return;
+		}
+		item.GetItemType<IToolItem>()?.UseTool(null, phaseLength);
 	}
 
 	public virtual double PhaseLengthMultiplier(IGameItem item)
@@ -88,6 +97,7 @@ public abstract class BaseTool : LateInitialisingItem, ICraftTool
 		dbitem.Definition = SaveDefinition();
 		dbitem.DesiredState = (int)DesiredState;
 		dbitem.ToolQualityWeight = ToolQualityWeight;
+		dbitem.UseToolDuration = UseToolDuration;
 		Changed = false;
 	}
 
@@ -99,6 +109,7 @@ public abstract class BaseTool : LateInitialisingItem, ICraftTool
 		dbitem.DesiredState = (int)DesiredState;
 		dbitem.ToolQualityWeight = ToolQualityWeight;
 		dbitem.ToolType = ToolType;
+		dbitem.UseToolDuration = UseToolDuration;
 		dbitem.OriginalAdditionTime = OriginalAdditionTime;
 		dbitem.CraftId = _craft.Id;
 		dbitem.CraftRevisionNumber = _craft.RevisionNumber;
@@ -115,7 +126,11 @@ public abstract class BaseTool : LateInitialisingItem, ICraftTool
 	protected abstract string SaveDefinition();
 
 	public virtual string BuilderHelpString =>
-		"The following options are available for this tool type:\n\t<held|worn|wield|room> - the necessary state for this tool to be used\n\tquality <number> - the relative weight of this tool's quality in the overall quality of the output";
+		@"The following options are available for this tool type:
+
+	#3<held|worn|wield|room>#0 - the necessary state for this tool to be used
+	#3quality <number>#0 - the relative weight of this tool's quality in the overall quality of the output
+	#3usetool#0 - toggles whether to use up tool duration if the target item is a hand/power tool";
 
 	public virtual bool BuildingCommand(ICharacter actor, StringStack command)
 	{
@@ -139,10 +154,21 @@ public abstract class BaseTool : LateInitialisingItem, ICraftTool
 			case "quality":
 			case "qualityweight":
 				return BuildingCommandQualityWeight(actor, command);
+			case "usetool":
+				return BuildingCommandUseTool(actor, command);
 			default:
-				actor.OutputHandler.Send(BuilderHelpString);
+				actor.OutputHandler.Send(BuilderHelpString.SubstituteANSIColour());
 				return false;
 		}
+	}
+
+	private bool BuildingCommandUseTool(ICharacter actor, StringStack command)
+	{
+		UseToolDuration = !UseToolDuration;
+		Changed = true;
+		actor.OutputHandler.Send(
+			$"This tool will {(UseToolDuration ? "now" : "no longer")} use up duration on hand/power tool components.");
+		return true;
 	}
 
 	private bool BuildingCommandQualityWeight(ICharacter actor, StringStack command)

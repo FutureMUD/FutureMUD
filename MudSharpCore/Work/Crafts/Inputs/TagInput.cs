@@ -41,7 +41,7 @@ public class TagInput : BaseInput, ICraftInputConsumesGameItemGroup
 	}
 
 	protected override string BuildingHelpString =>
-		"You can use the following options with this input type:\n\ttag <id|name> - sets the tag required\n\tquantity <amount> - sets the amount required";
+		"You can use the following options with this input type:\n\t#3tag <id|name>#0 - sets the tag required\n\t#3quantity <amount>#0 - sets the amount required";
 
 	public override bool BuildingCommand(ICharacter actor, StringStack command)
 	{

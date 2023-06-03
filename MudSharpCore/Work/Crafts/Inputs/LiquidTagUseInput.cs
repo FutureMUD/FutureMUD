@@ -118,7 +118,7 @@ public class LiquidTagUseInput : BaseInput, ICraftInputConsumeLiquid
 	}
 
 	protected override string BuildingHelpString =>
-		"You can use the following options:\n\ttag <tag> - sets the target tag a liquid must have\n\tamount <amount> - sets the amount to consume";
+		"You can use the following options:\n\t#3tag <tag>#0 - sets the target tag a liquid must have\n\t#3amount <amount>#0 - sets the amount to consume";
 
 	public override bool BuildingCommand(ICharacter actor, StringStack command)
 	{

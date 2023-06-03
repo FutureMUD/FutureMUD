@@ -80,7 +80,10 @@ public class SimpleMaterialInput : BaseInput, ICraftInputConsumesGameItemGroup
 	}
 
 	protected override string BuildingHelpString =>
-		"You can use the following options with this input type:\n\tmaterial <material> - sets the material required\n\ttag <tag> - sets the materila tag required\n\tquantity <amount> - sets the amount required";
+		@"You can use the following options with this input type:
+	#3material <material>#0 - sets the material required
+	#3tag <tag>#0 - sets the materila tag required
+	#3quantity <amount>#0 - sets the amount required";
 
 	public override bool BuildingCommand(ICharacter actor, StringStack command)
 	{

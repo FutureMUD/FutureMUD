@@ -209,5 +209,12 @@ Home Location: {HomeLocation?.GetFriendlyReference(voyeur).ColourName() ?? "None
 		throw new NotImplementedException();
 	}
 
+	/// <inheritdoc />
+	protected override void HandleFindFood(IGroupAI group, PredatorGroupData data)
+	{
+		throw new NotImplementedException();
+	}
+	
+
 	#endregion
 }

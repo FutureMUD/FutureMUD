@@ -80,7 +80,7 @@ public abstract class PredatorGroupBase : GroupAIType
 	protected abstract bool HandleTenSecondAction(IGroupAI group, PredatorGroupData data,
 		GroupAction groupCurrentAction);
 
-	private void HandleSleep(IGroupAI group, PredatorGroupData data)
+	protected virtual void HandleSleep(IGroupAI group, PredatorGroupData data)
 	{
 		var leader = group.GroupRoles.First(x => x.Value == GroupRole.Leader);
 		foreach (var ch in group.GroupMembers)
@@ -120,7 +120,7 @@ public abstract class PredatorGroupBase : GroupAIType
 		}
 	}
 
-	private void HandleRest(IGroupAI group, PredatorGroupData data)
+	protected virtual void HandleRest(IGroupAI group, PredatorGroupData data)
 	{
 		var leader = group.GroupRoles.First(x => x.Value == GroupRole.Leader);
 		foreach (var ch in group.GroupMembers)
@@ -158,7 +158,7 @@ public abstract class PredatorGroupBase : GroupAIType
 		}
 	}
 
-	private void HandleFindWater(IGroupAI group, PredatorGroupData data)
+	protected virtual void HandleFindWater(IGroupAI group, PredatorGroupData data)
 	{
 		var leader = group.GroupRoles.First(x => x.Value == GroupRole.Leader).Key;
 		var main = group.GroupMembers.Where(x => x.ColocatedWith(leader)).ToList();
@@ -220,12 +220,9 @@ public abstract class PredatorGroupBase : GroupAIType
 		}
 	}
 
-	private void HandleFindFood(IGroupAI group, PredatorGroupData data)
-	{
-		throw new NotImplementedException();
-	}
+	protected abstract void HandleFindFood(IGroupAI group, PredatorGroupData data);
 
-	private void HandleGraze(IGroupAI group, PredatorGroupData data)
+	protected virtual void HandleGraze(IGroupAI group, PredatorGroupData data)
 	{
 		var races = group.GroupMembers.Select(x => x.Race).Distinct();
 		var locations = group.GroupMembers.Select(x => (Location: x.Location, Layer: x.RoomLayer)).Distinct();

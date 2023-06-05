@@ -121,7 +121,7 @@ public abstract class GameItemComponentProto : EditableItem, IGameItemComponentP
 	public virtual string ShowBuildingHelp => "This component does not yet have specific help.";
 
 	public abstract string TypeDescription { get; }
-	public virtual bool ReadOnly => false;
+	public override bool ReadOnly => false;
 	public virtual bool PreventManualLoad => false;
 
 	public abstract string ComponentDescriptionOLC(ICharacter actor);

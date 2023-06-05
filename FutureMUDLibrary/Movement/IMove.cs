@@ -8,6 +8,7 @@ using MudSharp.Framework;
 using MudSharp.PerceptionEngine;
 
 namespace MudSharp.Movement {
+    #nullable enable
     public class MoveEventArgs : EventArgs {
         public MoveEventArgs(IMove mover, IMovement movement) {
             Mover = mover;
@@ -17,6 +18,7 @@ namespace MudSharp.Movement {
         public IMove Mover { get; set; }
         public IMovement Movement { get; set; }
     }
+    #nullable disable
 
     public interface IMove : IPerceiver {
         Dictionary<IPositionState, IMoveSpeed> CurrentSpeeds { get; }

@@ -498,6 +498,8 @@ public partial class GameItem : IHaveWounds
 		foreach (var wound in Wounds)
 		{
 			wound.Delete();
+			OnHeal?.Invoke(this, wound);
+			OnRemoveWound?.Invoke(this, wound);
 		}
 
 		_wounds.Clear();

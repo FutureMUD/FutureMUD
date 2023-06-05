@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 using System.Xml.Linq;
 
 namespace MudSharp.Effects.Concrete;
-
+#nullable enable
 public class InCustodyOfEnforcer : Effect, IEffect
 {
 	private long _enforcerId;
@@ -62,7 +62,7 @@ public class InCustodyOfEnforcer : Effect, IEffect
 		CharacterOwner.RemoveEffect(this, true);
 	}
 
-	private void Owner_OnMovedConsensually(object sender, Movement.MoveEventArgs e)
+	private void Owner_OnMovedConsensually(object? sender, Movement.MoveEventArgs e)
 	{
 		if (!e.Movement.CharacterMovers.Contains(Enforcer))
 		{
@@ -80,7 +80,7 @@ public class InCustodyOfEnforcer : Effect, IEffect
 		}
 	}
 
-	private void Owner_OnStartMove(object sender, Movement.MoveEventArgs e)
+	private void Owner_OnStartMove(object? sender, Movement.MoveEventArgs e)
 	{
 		if (e.Movement.IsConsensualMover(CharacterOwner))
 		{

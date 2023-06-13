@@ -26,7 +26,7 @@ public class UsefulSeeder : IDatabaseSeeder
 			Func<string, FuturemudDatabaseContext, (bool Success, string error)> Validator)>
 		{
 			("ai", "Do you want to install some basic AIs?\n\nPlease answer #3yes#f or #3no#f: ",
-				(context, questions) => true,
+				(context, questions) => context.ArtificialIntelligences.All(x => x.Name != "CommandableOwner"),
 				(answer, context) =>
 				{
 					if (answer.EqualToAny("yes", "y", "no", "n")) return (true, string.Empty);
@@ -34,7 +34,7 @@ public class UsefulSeeder : IDatabaseSeeder
 				}),
 			("terrain",
 				"Do you want to install a collection of terrestrial terrain types?\n\nPlease answer #3yes#f or #3no#f: ",
-				(context, questions) => true,
+				(context, questions) => context.Terrains.Count() <= 1,
 				(answer, context) =>
 				{
 					if (answer.EqualToAny("yes", "y", "no", "n")) return (true, string.Empty);
@@ -42,7 +42,7 @@ public class UsefulSeeder : IDatabaseSeeder
 				}),
 			("items",
 				"#DItem Package 1#F\n\nItem Package 1 includes some commonly used item component types, including a wide selection of containers, liquid containers, doors, locks, keys and basic writing implements.\n\nShall we install this package? Please answer #3yes#f or #3no#f: ",
-				(context, questions) => true,
+				(context, questions) => context.GameItemComponentProtos.All(x => x.Name != "Container_Table"),
 				(answer, context) =>
 				{
 					if (answer.EqualToAny("yes", "y", "no", "n")) return (true, string.Empty);
@@ -50,7 +50,7 @@ public class UsefulSeeder : IDatabaseSeeder
 				}),
 			("itemsp2",
 				"#DItem Package 2#f\n\nItem Package 2 includes some further items such as insulation for clothing, components that let worn clothing hide or change characteristics (wigs, coloured contacts, etc), components that correct for myopia flaws, as well as identity obscurers (hoods, full helmets, niqabs, cloaks, etc.)\n\nShall we install this package? Please answer #3yes#f or #3no#f: ",
-				(context, questions) => true,
+				(context, questions) => context.GameItemComponentProtos.All(x => x.Name != "Insulation_Minor"),
 				(answer, context) =>
 				{
 					if (answer.EqualToAny("yes", "y", "no", "n")) return (true, string.Empty);
@@ -58,7 +58,7 @@ public class UsefulSeeder : IDatabaseSeeder
 				}),
 			("itemsp3",
 				"#DItem Package 3#f\n\nItem Package 3 includes some further useful items, such as destroyables, colour variables, further writing implements, tables and chairs, ranged covers, medical items, prosthetic limbs, and dice.\n\nShall we install this package? Please answer #3yes#f or #3no#f: ",
-				(context, questions) => true,
+				(context, questions) => context.GameItemComponentProtos.All(x => x.Name != "Destroyable_Misc"),
 				(answer, context) =>
 				{
 					if (answer.EqualToAny("yes", "y", "no", "n")) return (true, string.Empty);
@@ -74,7 +74,7 @@ public class UsefulSeeder : IDatabaseSeeder
 				}),
 			("tags",
 				"Do you want to install pre-made tags for use with items, crafts and projects? The main reason not to do this is if you are planning on an implementation that substantially differs from the one that comes with this seeder.\n\nPlease answer #3yes#f or #3no#f: ",
-				(context, questions) => true,
+				(context, questions) => context.Tags.All(x => x.Name != "Functions"),
 				(answer, context) =>
 				{
 					if (answer.EqualToAny("yes", "y", "no", "n")) return (true, string.Empty);
@@ -99,7 +99,7 @@ Please answer here: ",
 		var errors = new List<string>();
 		if (questionAnswers["ai"].EqualToAny("yes", "y")) SeedAI(context, errors);
 
-		if (questionAnswers["items"].EqualToAny("yes", "y")) SeedItems(context, questionAnswers, errors);
+		if (questionAnswers["items"].EqualToAny("yes", "y")) SeedItemsPart1(context, questionAnswers, errors);
 
 		if (questionAnswers["itemsp2"].EqualToAny("yes", "y")) SeedItemsPart2(context, questionAnswers, errors);
 
@@ -579,7 +579,7 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
 		// Not yet implemented
 	}
 
-	private void SeedItems(FuturemudDatabaseContext context, IReadOnlyDictionary<string, string> questionAnswers,
+	private void SeedItemsPart1(FuturemudDatabaseContext context, IReadOnlyDictionary<string, string> questionAnswers,
 		ICollection<string> errors)
 	{
 		if (context.GameItemComponentProtos.Any(x => x.Name == "Container_Table"))
@@ -7992,7 +7992,7 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
  </Definition>"
 		};
 		context.GameItemComponentProtos.Add(component);
-
+		// Below is TODO
 		component = new GameItemComponentProto
 		{
 			Id = nextId++,
@@ -8010,7 +8010,7 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
 			},
 			Type = "Lantern",
 			Name = "Lantern",
-			Description = "Turns an item into a signal fire that burns for 3 hours.",
+			Description = "Turns an item into a lantern that burns fuel.",
 			Definition = @"<Definition>
    <IlluminationProvided>500</IlluminationProvided>
    <SecondsOfFuel>10800</SecondsOfFuel>
@@ -9023,5 +9023,7 @@ end if",
 		AddTag(context, "Sectioning Clips", "Grooming");
 		AddTag(context, "Edge Brush", "Grooming");
 		AddTag(context, "Diffuser", "Grooming");
+
+		context.SaveChanges();
 	}
 }

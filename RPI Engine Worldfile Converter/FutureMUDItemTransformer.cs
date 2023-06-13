@@ -438,6 +438,12 @@ internal class FutureMUDItemTransformer
 	public Dictionary<string, MudSharp.Models.GameItemComponentProto> ComponentProtoLookup { get; } =
 		new(StringComparer.OrdinalIgnoreCase);
 
+	private MudSharp.Models.GameItemComponentProto GetOrCreateLanternProto(double capacity)
+	{
+		var name = $"Lantern_";
+		throw new NotImplementedException();
+	}
+
 	//public Dictionary<>
 
 	public MudSharp.Models.GameItemProto ConvertItem(RPIItem item)
@@ -727,52 +733,11 @@ internal class FutureMUDItemTransformer
 				{
 				}
 				break;
-			case RPIItemType.Scroll:
-			case RPIItemType.Wand:
-			case RPIItemType.Staff:
-			case RPIItemType.Treasure:
-			case RPIItemType.Other:
-			case RPIItemType.Trash:
-			case RPIItemType.Ore:
-			case RPIItemType.Grain:
-			case RPIItemType.Perfume:
-			case RPIItemType.Pottery:
-			case RPIItemType.Salt:
-			case RPIItemType.Zone:
-			case RPIItemType.Plant:
-			case RPIItemType.Component:
-			case RPIItemType.Herb:
-			case RPIItemType.Salve:
-			case RPIItemType.Wind_inst:
-			case RPIItemType.Percu_inst:
-			case RPIItemType.String_inst:
-			case RPIItemType.Fur:
-			case RPIItemType.Woodcraft:
-			case RPIItemType.Skull:
-			case RPIItemType.Cloth:
-			case RPIItemType.Ingot:
-			case RPIItemType.Timber:
-			case RPIItemType.Remedy:
-			case RPIItemType.NPC_Object:
-			case RPIItemType.Bridle:
-			case RPIItemType.Ticket:
-			case RPIItemType.Unused:
-			case RPIItemType.DO_NOT_USE:
-			case RPIItemType.MerchTicket:
-			case RPIItemType.RoomRental:
-			case RPIItemType.Trap:
-			case RPIItemType.Spice:
-			case RPIItemType.Usury_note:
-				// These all are probably just prop objects in FutureMUD
-				break;
 			case RPIItemType.Weapon:
 				break;
 			case RPIItemType.Shield:
 				break;
 			case RPIItemType.Missile:
-			
-				break;
-			
 				break;
 			case RPIItemType.Armor:
 				break;
@@ -829,6 +794,44 @@ internal class FutureMUDItemTransformer
 			case RPIItemType.Repair:
 				break;
 			case RPIItemType.Tossable:
+				break;
+			case RPIItemType.Scroll:
+			case RPIItemType.Wand:
+			case RPIItemType.Staff:
+			case RPIItemType.Treasure:
+			case RPIItemType.Other:
+			case RPIItemType.Trash:
+			case RPIItemType.Ore:
+			case RPIItemType.Grain:
+			case RPIItemType.Perfume:
+			case RPIItemType.Pottery:
+			case RPIItemType.Salt:
+			case RPIItemType.Zone:
+			case RPIItemType.Plant:
+			case RPIItemType.Component:
+			case RPIItemType.Herb:
+			case RPIItemType.Salve:
+			case RPIItemType.Wind_inst:
+			case RPIItemType.Percu_inst:
+			case RPIItemType.String_inst:
+			case RPIItemType.Fur:
+			case RPIItemType.Woodcraft:
+			case RPIItemType.Skull:
+			case RPIItemType.Cloth:
+			case RPIItemType.Ingot:
+			case RPIItemType.Timber:
+			case RPIItemType.Remedy:
+			case RPIItemType.NPC_Object:
+			case RPIItemType.Bridle:
+			case RPIItemType.Ticket:
+			case RPIItemType.Unused:
+			case RPIItemType.DO_NOT_USE:
+			case RPIItemType.MerchTicket:
+			case RPIItemType.RoomRental:
+			case RPIItemType.Trap:
+			case RPIItemType.Spice:
+			case RPIItemType.Usury_note:
+				// These all are probably just prop objects in FutureMUD
 				break;
 			default:
 				throw new ArgumentOutOfRangeException();

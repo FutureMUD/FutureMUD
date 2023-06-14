@@ -2,7 +2,7 @@
 <VSTemplate Version="3.0.0" Type="Item" xmlns="http://schemas.microsoft.com/developer/vstemplate/2005">
   <TemplateData>
     <Name>Spell Effect Type</Name>
-    <Description>Initialises a new Spell Effect and associated Effect.</Description>
+    <Description>Initialises a new Spell Effect and associated Effect. Use from MUDSHARPCORE base folder.</Description>
     <Icon Package="{FAE04EC1-301F-11d3-BF4B-00C04F79EFBC}" ID="4515" />
     <ProjectType>CSharp</ProjectType>
     <SortOrder>2</SortOrder>
@@ -17,7 +17,7 @@
       </Reference>
     </References>
 
-    <ProjectItem ReplaceParameters="true" TargetFileName="Magic\SpellEffects\$fileinputname$SpellEffect.cs">SpellEffect.cs</ProjectItem>
-    <ProjectItem ReplaceParameters="true" TargetFileName="Effects\Concrete\SpellEffects\$fileinputname$Effect.cs">Effect.cs</ProjectItem>
+    <ProjectItem ReplaceParameters="true" TargetFileName="Magic\SpellEffects\$fileinputname$Effect.cs">SpellEffect.cs</ProjectItem>
+    <ProjectItem ReplaceParameters="true" TargetFileName="Effects\Concrete\SpellEffects\Spell$fileinputname$Effect.cs">Effect.cs</ProjectItem>
   </TemplateContent>
 </VSTemplate>

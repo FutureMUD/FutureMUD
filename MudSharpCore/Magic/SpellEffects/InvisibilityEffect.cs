@@ -123,7 +123,7 @@ public class InvisibilityEffect : IMagicSpellEffectTemplate
 	public bool IsInstantaneous => false;
 	public bool RequiresTarget => true;
 
-	public IMagicSpellEffect GetOrApplyEffect(ICharacter caster, IPerceivable target, OpposedOutcomeDegree outcome,
+	public IMagicSpellEffect? GetOrApplyEffect(ICharacter caster, IPerceivable? target, OpposedOutcomeDegree outcome,
 		SpellPower power, IMagicSpellEffectParent parent)
 	{
 		if (target is not IGameItem && target is not ICharacter && target is not PerceivableGroup)

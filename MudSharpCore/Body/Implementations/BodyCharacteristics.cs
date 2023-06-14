@@ -11,6 +11,7 @@ using MudSharp.Framework;
 using MudSharp.GameItems.Interfaces;
 using MudSharp.RPG.Merits;
 using CharacteristicValue = MudSharp.Form.Characteristics.CharacteristicValue;
+using MudSharp.Effects.Interfaces;
 
 namespace MudSharp.Body.Implementations;
 
@@ -174,7 +175,13 @@ public partial class Body
 		var changer =
 			WornItems.SelectNotNull(x => x.GetItemType<IChangeCharacteristics>())
 			         .LastOrDefault(x => x.ChangesCharacteristic(type));
-		return changer?.GetCharacteristic(type, voyeur) ?? DefaultCharacteristicValues[type];
+		if (changer is not null)
+		{
+			return changer.GetCharacteristic(type, voyeur);
+		}
+
+		var effect = CombinedEffectsOfType<IChangeCharacteristicEffect>().FirstOrDefault(x => x.Applies(Actor) && x.ChangesCharacteristic(type));
+		return effect?.GetChangedCharacteristic(type) ?? DefaultCharacteristicValues[type];
 	}
 
 	public string DescribeCharacteristic(string type, IPerceiver voyeur)

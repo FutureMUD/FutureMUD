@@ -8,78 +8,86 @@ using MudSharp.Character;
 using MudSharp.Effects.Concrete.SpellEffects;
 using MudSharp.Effects.Interfaces;
 using MudSharp.Framework;
+using MudSharp.RPG.Checks;
 
-namespace MudSharp.Magic.SpellEffects
+namespace MudSharp.Magic.SpellEffects;
+
+public class $safeitemrootname$ : IMagicSpellEffectTemplate
 {
-    public class $safeitemrootname$ : IMagicSpellEffectTemplate
-    {
-		public IFuturemud Gameworld => Spell.Gameworld;
-		public static void RegisterFactory()
+	public IFuturemud Gameworld => Spell.Gameworld;
+	public static void RegisterFactory()
+	{
+		SpellEffectFactory.RegisterLoadTimeFactory("$safeitemrootname$".ToLowerInvariant(), (root, spell) => new $safeitemrootname$(root, spell));
+		SpellEffectFactory.RegisterBuilderFactory("$safeitemrootname$".ToLowerInvariant(), BuilderFactory);
+	}
+	
+	private static (IMagicSpellEffectTemplate Trigger, string Error) BuilderFactory(StringStack commands,
+		IMagicSpell spell)
+	{
+		return (new GlowEffect(new XElement("Effect",
+			new XAttribute("type", "$safeitemrootname$".ToLowerInvariant())
+			), spell), string.Empty);
+	}
+
+	public IMagicSpell Spell { get; }
+	public bool IsInstantaneous => false;
+	public bool RequiresTarget => true;
+
+#region Constructors and Saving
+
+	public $safeitemrootname$(XElement root, IMagicSpell spell)
+	{
+		Spell = spell;
+		// Load all the different properties
+	}
+
+	public XElement SaveToXml()
+	{
+		return new XElement("Effect",
+			new XAttribute("type", "$safeitemrootname$")
+			// Further xattributes
+		);
+	}
+
+	public IMagicSpellEffectTemplate Clone()
+	{
+		return new $safeitemrootname$(SaveToXml(), Spell);
+	}
+#endregion
+
+	public IMagicSpellEffect GetOrApplyEffect(ICharacter caster, IPerceivable target, OpposedOutcomeDegree outcome,
+			SpellPower power, IMagicSpellEffectParent parent)
+	{
+		// Return null if no spell effect
+
+		// Remove or change if target is not character
+		if (target is not ICharacter)
 		{
-			SpellEffectFactory.RegisterLoadTimeFactory("$fileinputname$", (root, spell) => new $fileinputname$Effect(root, spell));
-			SpellEffectFactory.RegisterBuilderFactory("$fileinputname$", BuilderFactory);
+			return null;
 		}
 
-		public IMagicSpell Spell { get; }
-		public bool IsInstantaneous => false;
-		public bool RequiresTarget => true;
+		return new $safeitemrootname$(target, parent, null);
+	}
 
-	#region Constructors and Saving
+#region Building Commands
+	public string Show(ICharacter actor)
+	{
+		// A one-line description of the spell effect
+		return $"$safeitemrootname$";
+	}
 
-		public TraitBoostEffect(XElement root, IMagicSpell spell)
-		{
-			Spell = spell;
-			// Load all the different properties
-		}
-
-		public XElement SaveToXml()
-		{
-			return new XElement("Effect",
-				new XAttribute("type", "$fileinputname$"),
-				// Further xattributes
-			);
-		}
-
-		public IMagicSpellEffectTemplate Clone()
-		{
-			return new $safeitemrootname$(SaveToXml(), Spell);
-		}
-	#endregion
-
-		public IMagicSpellEffect GetOrApplyEffect(ICharacter caster, IPerceivable target, OpposedOutcomeDegree outcome,
-				SpellPower power, IMagicSpellEffectParent parent)
-		{
-			// Return null if no spell effect
-
-			// Remove or change if target is not character
-			if (target is not ICharacter)
-			{
-				return null;
-			}
-
-			return new $fileinputname$SpellEffect(target, parent, null);
-		}
-
-	#region Building Commands
-		public string Show(ICharacter actor)
-		{
-			// A one-line description of the spell effect
-			return $"$fileinputname$";
-		}
-
-		public const string HelpText = @"You can use the following options with this spell effect:
+	public const string HelpText = @"You can use the following options with this spell effect:
 
 	#3command info#0 - explanation";
 
-		public bool BuildingCommand(ICharacter actor, StringStack command)
+	public bool BuildingCommand(ICharacter actor, StringStack command)
+	{
+		switch (command.PopSpeech().ToLowerInvariant().CollapseString())
 		{
-			switch (command.PopSpeech().ToLowerInvariant().CollapseString())
-			{
-				default:
-					actor.OutputHandler.Send(HelpText.SubstituteANSIColour());
-					return false;
-			}
+			default:
+				actor.OutputHandler.Send(HelpText.SubstituteANSIColour());
+				return false;
 		}
-	#endregion
-}
+	}
+#endregion
 }

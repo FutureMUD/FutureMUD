@@ -13,7 +13,7 @@ namespace MudSharp.Body {
         Torso,
         Genitals
     }
-
+    
     public interface ILimb : IFrameworkItem {
         IBodyPrototype Prototype { get; }
         IEnumerable<IBodypart> Parts { get; }
@@ -27,6 +27,27 @@ namespace MudSharp.Body {
     }
 
     public static class LimbExtensions {
+	    public static int LimbOrder(this LimbType type)
+	    {
+		    switch (type) {
+			    case LimbType.Arm:
+				    return 4;
+			    case LimbType.Leg:
+				    return 6;
+			    case LimbType.Appendage:
+				    return 3;
+			    case LimbType.Head:
+				    return 0;
+			    case LimbType.Wing:
+				    return 2;
+			    case LimbType.Torso:
+				    return 1;
+			    case LimbType.Genitals:
+				    return 5;
+		    }
+
+		    throw new ApplicationException("Unknown LimbType in LimbExtensions.Describe");
+	    }
         public static string Describe(this LimbType type) {
             switch (type) {
                 case LimbType.Arm:

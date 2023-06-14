@@ -8,6 +8,7 @@ using MoreLinq.Extensions;
 using MudSharp.Accounts;
 using MudSharp.Body.Position;
 using MudSharp.Body.Position.PositionStates;
+using MudSharp.Body.Traits;
 using MudSharp.Character;
 using MudSharp.Character.Name;
 using MudSharp.Commands.Helpers;
@@ -34,6 +35,7 @@ using MudSharp.Framework.Revision;
 using MudSharp.GameItems.Prototypes;
 using MudSharp.Migrations;
 using MudSharp.PerceptionEngine.Lists;
+using MudSharp.RPG.Checks;
 using MudSharp.TimeAndDate;
 using MudSharp.TimeAndDate.Date;
 using MudSharp.TimeAndDate.Time;
@@ -128,6 +130,208 @@ internal class EconomyModule : Module<ICharacter>
 		}
 
 		character.OutputHandler.Send(sb.ToString());
+	}
+
+	[PlayerCommand("Appraise", "appraise")]
+	[RequiredCharacterState(CharacterState.Conscious)]
+	[NoCombatCommand]
+	[HelpInfo("appraise",
+		@"The appraise command is used to quickly judge the value of an item, or a container full of items. There are a few different ways that you can use this command:
+
+	#3appraise#0 - appraises the value of all items you are carrying and that are present in the room
+	#3appraise <thing>#0 - appraises the value of a thing and its contents (if a container)",
+		AutoHelp.HelpArg)]
+	protected static void Appraise(ICharacter actor, string command)
+	{
+		if (actor.Currency is null)
+		{
+			actor.OutputHandler.Send("You must first set a currency to use before you can use this command.");
+			return;
+		}
+
+		var ss = new StringStack(command.RemoveFirstWord());
+		var td = actor.Gameworld.Traits.Get(actor.Gameworld.GetStaticLong("AppraiseCommandSkill"));
+		if (!actor.IsAdministrator() && 
+		    actor.Gameworld.GetStaticBool("AppraiseCommandRequiresSkill") &&
+			td is not null &&
+		    actor.TraitValue(td) <= 0.0)
+		{
+			actor.OutputHandler.Send(
+				$"Without the {td.Name.ColourName()} skill, you have no idea how much things are worth.");
+			return;
+		}
+
+		IGameItem target = null;
+		if (!ss.IsFinished)
+		{
+			target = actor.TargetItem(ss.SafeRemainingArgument);
+			if (target is null)
+			{
+				actor.OutputHandler.Send("There is nothing like that here for you to appraise.");
+				return;
+			}
+		}
+
+		var fuzzinessFloor = 1.0M;
+		var fuzzinessCeiling = 1.0M;
+		if (td is not null && !actor.IsAdministrator())
+		{
+			var check = actor.Gameworld.GetCheck(CheckType.AppraiseItemCheck);
+			var difficulty = target is null
+				? Difficulty.VeryHard
+				: (target.IsItemType<IContainer>() ? Difficulty.Normal : Difficulty.Easy);
+			var result = check.Check(actor, difficulty, td, target);
+			var skew = 0.0M;
+			switch (result.Outcome)
+			{
+				case Outcome.MajorFail:
+					skew = (decimal)RandomUtilities.DoubleRandom(-0.5, 0.5);
+					fuzzinessCeiling = 1.5M + skew;
+					fuzzinessFloor = 0.5M + skew;
+					break;
+				case Outcome.Fail:
+					skew = (decimal)RandomUtilities.DoubleRandom(-0.3, 0.3);
+					fuzzinessCeiling = 1.3M + skew;
+					fuzzinessFloor = 0.7M + skew;
+					break;
+				case Outcome.MinorFail:
+					skew = (decimal)RandomUtilities.DoubleRandom(-0.2, 0.2);
+					fuzzinessCeiling = 1.2M + skew;
+					fuzzinessFloor = 0.8M + skew;
+					break;
+				case Outcome.MinorPass:
+					skew = (decimal)RandomUtilities.DoubleRandom(-0.1, 0.1);
+					fuzzinessCeiling = 1.1M + skew;
+					fuzzinessFloor = 0.9M + skew;
+					break;
+				case Outcome.Pass:
+					skew = (decimal)RandomUtilities.DoubleRandom(-0.05, 0.05);
+					fuzzinessCeiling = 1.05M + skew;
+					fuzzinessFloor = 0.95M + skew;
+					break;
+				case Outcome.MajorPass:
+					break;
+			}
+		}
+
+		(decimal minimum, decimal maximum) CalculateMinimumMaximum(IGameItem item)
+		{
+			if (item.GetItemType<ICurrencyPile>() is { } cp)
+			{
+				return (
+					cp.TotalValue * cp.Currency.BaseCurrencyToGlobalBaseCurrencyConversion * fuzzinessFloor / actor.Currency.BaseCurrencyToGlobalBaseCurrencyConversion,
+					cp.TotalValue * cp.Currency.BaseCurrencyToGlobalBaseCurrencyConversion * fuzzinessCeiling / actor.Currency.BaseCurrencyToGlobalBaseCurrencyConversion);
+			}
+			return (item.Prototype.CostInBaseCurrency * fuzzinessFloor / actor.Currency.BaseCurrencyToGlobalBaseCurrencyConversion,
+					item.Prototype.CostInBaseCurrency * fuzzinessCeiling / actor.Currency.BaseCurrencyToGlobalBaseCurrencyConversion);
+		}
+
+		string DescribeCurrencyRange(decimal minimum, decimal maximum)
+		{
+			if (minimum == maximum)
+			{
+				return actor.Currency.Describe(minimum, CurrencyDescriptionPatternType.ShortDecimal).ColourValue();
+			}
+
+			return $"{actor.Currency.Describe(minimum, CurrencyDescriptionPatternType.ShortDecimal).ColourValue()} to {actor.Currency.Describe(maximum, CurrencyDescriptionPatternType.ShortDecimal).ColourValue()}";
+		}
+
+		void EvaluateItem(IGameItem item, List<(string ItemDescription, string ValueDescription, int Levels)> list,
+			ref decimal minTotal, ref decimal maxTotal, int level, bool includeContents)
+		{
+			var (min, max) = CalculateMinimumMaximum(item);
+			minTotal += min;
+			maxTotal += max;
+			list.Add((item.HowSeen(actor), DescribeCurrencyRange(min,max), level));
+			if (includeContents &&
+				item.GetItemType<IContainer>() is { } container &&
+				(actor.IsAdministrator() ||
+				 container.Transparent ||
+				 (container is IOpenable op && op.IsOpen)
+				 )
+			    )
+			{
+				foreach (var content in container.Contents)
+				{
+					EvaluateItem(content, list, ref minTotal, ref maxTotal, level + 1, true);
+				}
+			}
+		}
+
+		var sb = new StringBuilder();
+		if (target is null)
+		{
+			var results = new List<(string ItemDescription, string ValueDescription, int Levels)>();
+			var minTotal = 0.0M;
+			var maxTotal = 0.0M;
+			foreach (var item in actor.Location.LayerGameItems(actor.RoomLayer))
+			{
+				if (!actor.CanSee(item))
+				{
+					continue;
+				}
+
+				EvaluateItem(item, results, ref minTotal, ref maxTotal, 0, true);
+			}
+			sb.AppendLine($"You appraise the value of the contents of the room:");
+			sb.AppendLine();
+			sb.AppendLine(StringUtilities.GetTextTable(from result in results select new List<string>
+			{
+				new string('*', result.Levels),
+				result.ItemDescription,
+				result.ValueDescription
+			}, new List<string>
+			{
+				"Level",
+				"Item",
+				"Value"
+			}, actor));
+			sb.AppendLine($"Total Value: {DescribeCurrencyRange(minTotal, maxTotal)}");
+		}
+		else if (target.GetItemType<IContainer>() is { } targetContainer && (targetContainer.Transparent || (targetContainer is IOpenable op && op.IsOpen) || actor.IsAdministrator()))
+		{
+			var results = new List<(string ItemDescription, string ValueDescription, int Levels)>();
+			var minTotal = 0.0M;
+			var maxTotal = 0.0M;
+			sb.AppendLine($"You appraise the value of {target.HowSeen(actor)}:");
+			sb.AppendLine();
+			EvaluateItem(target, results, ref minTotal, ref maxTotal, 0, true);
+			sb.AppendLine(StringUtilities.GetTextTable(from result in results select new List<string>
+			{
+				new string('*', result.Levels),
+				result.ItemDescription,
+				result.ValueDescription
+			}, new List<string>
+			{
+				"Level",
+				"Item",
+				"Value"
+			}, actor));
+			sb.AppendLine($"Total Value: {DescribeCurrencyRange(minTotal, maxTotal)}");
+			var topminTotal = 0.0M;
+			var topmaxTotal = 0.0M;
+			EvaluateItem(target, results, ref topminTotal, ref topmaxTotal, 0, false);
+			sb.AppendLine($"Contents Value: {DescribeCurrencyRange(minTotal - topminTotal, maxTotal - topmaxTotal)}");
+		}
+		else
+		{
+			var (min, max) = CalculateMinimumMaximum(target);
+			sb.AppendLine($"You appraise the value of {target.HowSeen(actor)}:");
+			sb.AppendLine();
+			sb.AppendLine(StringUtilities.GetTextTable(new[] { new List<string>
+			{
+				"",
+				target.HowSeen(actor),
+				DescribeCurrencyRange(min,max)
+			} }, new List<string>
+			{
+				"Level",
+				"Item",
+				"Value"
+			}, actor));
+		}
+
+		actor.OutputHandler.Send(sb.ToString());
 	}
 
 	private static void CurrencySet(ICharacter character, StringStack command)
@@ -1646,7 +1850,7 @@ Additionally, you can use the following shop admin subcommands:
 			let cash = shop.TillItems.RecursiveGetItems<ICurrencyPile>(false).Where(x => x.Currency == shop.Currency)
 			               .Sum(x => x.Coins.Sum(y => y.Item2 * y.Item1.Value))
 			let merchandise = shop.StocktakeAllMerchandise()
-			                      .Sum(x => x.Key.BasePrice * (x.Value.InStockroomCount + x.Value.OnFloorCount))
+			                      .Sum(x => x.Key.EffectivePrice * (x.Value.InStockroomCount + x.Value.OnFloorCount))
 			select new[]
 			{
 				shop.Id.ToString("N0", actor),
@@ -2442,7 +2646,7 @@ Additionally, you can use the following shop admin subcommands:
 	#3shop merch edit <record>#0 - opens a merchandise record for editing
 	#3shop merch edit#0 - equivalent to SHOW <edited record>
 	#3shop merch show <record>#0 - shows information about the specified merchandise record
-	#3shop merch new <name> <id>|<target> <price> [<custom description>]#0 - creates a new record with the specified item and price, and optional custom LIST description
+	#3shop merch new <name> <id>|<target> <price>|default [<custom description>]#0 - creates a new record with the specified item and price, and optional custom LIST description
 	#3shop merch clone <new name>#0 - clones the currently edited record to an identical new record
 	#3shop merch delete#0 - deletes the current merchandise record
 	#3shop merch set name <name>#0 - sets the name of a merchandise
@@ -2462,7 +2666,7 @@ Additionally, you can use the following shop admin subcommands:
 	#3shop merch edit <record>#0 - opens a merchandise record for editing
 	#3shop merch edit#0 - equivalent to SHOW <edited record>
 	#3shop merch show <record>#0 - shows information about the specified merchandise record
-	#3shop merch new <name> <id>|<target> <price> [<custom description>]#0 - creates a new record with the specified item and price, and optional custom LIST description
+	#3shop merch new <name> <id>|<target> <price>|default [<custom description>]#0 - creates a new record with the specified item and price, and optional custom LIST description
 	#3shop merch clone <new name>#0 - clones the currently edited record to an identical new record
 	#3shop merch delete#0 - deletes the current merchandise record
 	#3shop merch set name <name>#0 - sets the name of a merchandise
@@ -2553,7 +2757,7 @@ Additionally, you can use the following shop admin subcommands:
 
 		var name = ss.PopSpeech();
 
-		var newMerch = new Merchandise(editing.EditingItem, name);
+		var newMerch = new Merchandise((Merchandise)editing.EditingItem, name);
 		editing.EditingItem.Shop.AddMerchandise(newMerch);
 		actor.OutputHandler.Send(
 			$"You clone merchandise record for {editing.EditingItem.ListDescription.ColourObject()} into a new record called {name.TitleCase().Colour(Telnet.Cyan)}, which you are now editing.");
@@ -2581,12 +2785,12 @@ Additionally, you can use the following shop admin subcommands:
 			if (actor.IsAdministrator())
 			{
 				actor.OutputHandler.Send(
-					"The syntax for this command is SHOP MERCHANDISE NEW <name> <id>|<target> <price> [<custom description>]");
+					"The syntax for this command is SHOP MERCHANDISE NEW <name> <id>|<target> <price>|default [<custom description>]");
 				return;
 			}
 
 			actor.OutputHandler.Send(
-				"The syntax for this command is SHOP MERCHANDISE NEW <name> <target> <price> [<custom description>]");
+				"The syntax for this command is SHOP MERCHANDISE NEW <name> <target> <price>|default [<custom description>]");
 		}
 
 		if (ss.IsFinished)
@@ -2632,13 +2836,22 @@ Additionally, you can use the following shop admin subcommands:
 			return;
 		}
 
-		var price = shop.Currency.GetBaseCurrency(ss.PopSpeech(), out var success);
-		if (!success)
+		decimal price;
+		if (ss.PeekSpeech().EqualTo("default"))
 		{
-			actor.OutputHandler.Send("That is not a valid price.");
-			return;
+			price = -1.0M;
+			ss.PopSpeech();
 		}
-
+		else
+		{
+			price = shop.Currency.GetBaseCurrency(ss.PopSpeech(), out var success);
+			if (!success)
+			{
+				actor.OutputHandler.Send("That is not a valid price.");
+				return;
+			}
+		}
+		
 		var newMerch = new Merchandise(shop, name, proto, price, shop.Merchandises.All(x => x.Item.Id != proto.Id),
 			null, ss.SafeRemainingArgument);
 		shop.AddMerchandise(newMerch);
@@ -2755,7 +2968,7 @@ Additionally, you can use the following shop admin subcommands:
 			{
 				merch.Name,
 				merch.ListDescription,
-				shop.Currency.Describe(merch.BasePrice, CurrencyDescriptionPatternType.Short),
+				shop.Currency.Describe(merch.EffectivePrice, CurrencyDescriptionPatternType.Short),
 				stockTake[merch].OnFloorCount.ToString("N0", actor),
 				stockTake[merch].InStockroomCount.ToString("N0", actor)
 			},

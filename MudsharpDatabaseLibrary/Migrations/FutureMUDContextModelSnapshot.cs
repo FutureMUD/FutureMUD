@@ -5049,6 +5049,11 @@ namespace MudSharp.Migrations
 
                     MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("ToolType"), "utf8");
 
+                    b.Property<ulong>("UseToolDuration")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit(1)")
+                        .HasDefaultValue(1ul);
+
                     b.HasKey("Id");
 
                     b.HasIndex("CraftId", "CraftRevisionNumber")
@@ -5323,6 +5328,11 @@ namespace MudSharp.Migrations
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bigint(20)");
+
+                    b.Property<decimal>("BaseCurrencyToGlobalBaseCurrencyConversion")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("decimal(58,29)")
+                        .HasDefaultValue(1.0m);
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -7220,6 +7230,11 @@ namespace MudSharp.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int(11)")
                         .HasDefaultValueSql("'5'");
+
+                    b.Property<decimal>("CostInBaseCurrency")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("decimal(58,29)")
+                        .HasDefaultValueSql("'0'");
 
                     b.Property<string>("CustomColour")
                         .HasColumnType("varchar(45)")

@@ -2897,6 +2897,7 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 #if DEBUG
 		sw.Restart();
 #endif
+		var bodyStaging = new Dictionary<IBodyPrototype, Models.BodyProto>();
 		var bodies = (from body in FMDB.Context.BodyProtos
 		                               .Include(x => x.BodyProtosAdditionalBodyparts)
 		                               .Include(x => x.BodypartGroupDescribersBodyProtos)
@@ -2906,9 +2907,11 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 		              select body)
 		             .AsNoTracking()
 		             .ToList();
-		foreach (var body in bodies)
+		foreach (var dbbody in bodies)
 		{
-			_bodyPrototypes.Add(new BodyPrototype(body, this));
+			var body = new BodyPrototype(dbbody, this);
+			_bodyPrototypes.Add(body);
+			bodyStaging[body] = dbbody;
 		}
 
 #if DEBUG
@@ -2925,7 +2928,7 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 		Console.WriteLine("\nFinalising Bodyparts...");
 		foreach (var body in BodyPrototypes)
 		{
-			body.FinaliseBodyparts();
+			body.FinaliseBodyparts(bodyStaging[body]);
 		}
 #if DEBUG
 		sw.Stop();

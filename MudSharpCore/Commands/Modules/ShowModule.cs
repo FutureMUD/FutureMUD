@@ -108,6 +108,8 @@ public class ShowModule : Module<ICharacter>
 	#3autoarea <id|name>#0 - shows a specific autobuilder area template
 	#3autorooms#0 - shows all autobuilder room templates
 	#3autoroom <id|name>#0 - shows a specific autobuilder room template
+	#3bodies#0 - lists all of the body prototypes
+	#3body <which>#0 - shows a particular body prototype
 	#3bodypartshapes#0 - shows all bodypart shapes
 	#3calendars#0 - shows all calendars
 	#3calendar <which> [<year>]#0 - shows details about a calendar
@@ -181,6 +183,12 @@ public class ShowModule : Module<ICharacter>
 		var ss = new StringStack(command.RemoveFirstWord());
 		switch (ss.PopSpeech().ToLowerInvariant().CollapseString())
 		{
+			case "bodies":
+				Show_Bodies(actor);
+				return;
+			case "body":
+				Show_Body(actor, ss);
+				return;
 			case "accounts":
 				Show_Accounts(actor, ss);
 				return;
@@ -469,6 +477,57 @@ public class ShowModule : Module<ICharacter>
 
 				return;
 		}
+	}
+
+	private static void Show_Bodies(ICharacter actor)
+	{
+		actor.OutputHandler.Send(StringUtilities.GetTextTable(
+			from body in actor.Gameworld.BodyPrototypes
+			select new List<string>
+			{
+				body.Id.ToString("N0", actor),
+				body.Name,
+				body.MinimumLegsToStand.ToString("N0", actor),
+				body.MinimumWingsToFly.ToString("N0", actor),
+				body.StaminaRecoveryProg.MXPClickableFunctionName(),
+				body.Communications?.Name ?? "",
+				$"{body.WielderDescriptionSingular} / {body.WielderDescriptionPlural}",
+				$"{body.LegDescriptionSingular} / {body.LegDescriptionPlural}",
+				body.Parent?.Name ?? ""
+			},
+			new List<string>
+			{
+				"Id",
+				"Name",
+				"Stand Legs #",
+				"Fly Wings #",
+				"Stamina Prog",
+				"Communicate",
+				"Wielder",
+				"Legs",
+				"Parent"
+			},
+			actor,
+			Telnet.Red
+		));
+	}
+
+	private static void Show_Body(ICharacter actor, StringStack ss)
+	{
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send("Which body prototype would you like to show?");
+			return;
+		}
+
+		var body = actor.Gameworld.BodyPrototypes.GetByIdOrName(ss.SafeRemainingArgument);
+		if (body is null)
+		{
+			actor.OutputHandler.Send("There is no such body prototype.");
+			return;
+		}
+
+		actor.OutputHandler.Send(body.Show(actor));
 	}
 
 	private static void Show_Skies(ICharacter actor, StringStack ss)

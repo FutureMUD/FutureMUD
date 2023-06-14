@@ -15,11 +15,11 @@ namespace MudSharp.Economy
     {
         IShop Shop { get; }
         bool AutoReordering { get; }
-        decimal AutoReorderPrice { get; }
+        decimal EffectiveAutoReorderPrice { get; }
         bool PreserveVariablesOnReorder { get; }
         int MinimumStockLevels { get; }
         double MinimumStockLevelsByWeight { get; }
-        decimal BasePrice { get; }
+        decimal EffectivePrice { get; }
         IGameItem PreferredDisplayContainer { get; }
         string ListDescription { get; }
         IGameItemProto Item { get; }

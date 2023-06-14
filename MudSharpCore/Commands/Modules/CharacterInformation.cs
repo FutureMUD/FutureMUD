@@ -2044,7 +2044,7 @@ You can use the following options with this command:
 			if (ss.SafeRemainingArgument.EqualTo("limbs"))
 			{
 				sb.AppendLine($"Your body has the following limbs:\n");
-				foreach (var thelimb in actor.Body.Limbs)
+				foreach (var thelimb in actor.Body.Limbs.OrderBy(x => x.LimbType.LimbOrder()))
 				{
 					sb.AppendLine($"\t{thelimb.Name.ColourName()}");
 				}
@@ -2106,49 +2106,55 @@ You can use the following options with this command:
 		}
 
 		DescribeLevel(root, 0);
-		if (actor.IsAdministrator() ||
-		    actor.Knowledges.Any(x => actor.Gameworld.SurgicalProcedures.Any(y => y.KnowledgeRequired == x)))
+		var bones = (limb is null
+			? target.Body.Bones
+			: target.Body.Bones.Where(x =>
+				limb.Parts.Any(y => y.BoneInfo.Any(z => z.Key == x && z.Value.IsPrimaryInternalLocation)))).ToArray();
+		if ((actor.IsAdministrator() ||
+		    actor.Knowledges.Any(x => actor.Gameworld.SurgicalProcedures.Any(y => y.KnowledgeRequired == x))))
 		{
-			sb.AppendLine();
-			if (target == actor)
+			if (bones.Any())
 			{
-				sb.AppendLine(
-					$"{(limb is null ? "You" : $"Your {limb.Name.ToLowerInvariant()}")} also {(limb is null ? "have" : "has")} these bones:\n");
-			}
-			else
-			{
-				sb.AppendLine($"{target.ApparentGender(actor).Subjective(true)} also has these bones:\n");
+				sb.AppendLine();
+				if (target == actor)
+				{
+					sb.AppendLine(
+						$"{(limb is null ? "You" : $"Your {limb.Name.ToLowerInvariant()}")} also {(limb is null ? "have" : "has")} these bones:\n");
+				}
+				else
+				{
+					sb.AppendLine($"{target.ApparentGender(actor).Subjective(true)} also has these bones:\n");
+				}
+
+
+
+				foreach (var bone in bones)
+				{
+					sb.AppendLine($"\t{bone.FullDescription().ColourValue()} [{bone.Name.ColourName()}]");
+				}
 			}
 
-			var bones = limb is null
-				? target.Body.Bones
-				: target.Body.Bones.Where(x =>
-					limb.Parts.Any(y => y.BoneInfo.Any(z => z.Key == x && z.Value.IsPrimaryInternalLocation)));
-
-			foreach (var bone in bones)
-			{
-				sb.AppendLine($"\t{bone.FullDescription().ColourValue()} [{bone.Name.ColourName()}]");
-			}
-
-			sb.AppendLine();
-			if (target == actor)
-			{
-				sb.AppendLine(
-					$"{(limb is null ? "You" : $"Your {limb.Name.ToLowerInvariant()}")} also {(limb is null ? "have" : "has")} these organs:\n");
-			}
-			else
-			{
-				sb.AppendLine($"{target.ApparentGender(actor).Subjective(true)} also has these organs:\n");
-			}
-
-			var organs = limb is null
+			var organs = (limb is null
 				? target.Body.Organs
 				: target.Body.Organs.Where(x =>
-					limb.Parts.Any(y => y.OrganInfo.Any(z => z.Key == x && z.Value.IsPrimaryInternalLocation)));
-
-			foreach (var organ in organs)
+					limb.Parts.Any(y => y.OrganInfo.Any(z => z.Key == x && z.Value.IsPrimaryInternalLocation)))).ToArray();
+			if (organs.Any())
 			{
-				sb.AppendLine($"\t{organ.FullDescription().ColourValue()} [{organ.Name.ColourName()}]");
+				sb.AppendLine();
+				if (target == actor)
+				{
+					sb.AppendLine(
+						$"{(limb is null ? "You" : $"Your {limb.Name.ToLowerInvariant()}")} also {(limb is null ? "have" : "has")} these organs:\n");
+				}
+				else
+				{
+					sb.AppendLine($"{target.ApparentGender(actor).Subjective(true)} also has these organs:\n");
+				}
+
+				foreach (var organ in organs)
+				{
+					sb.AppendLine($"\t{organ.FullDescription().ColourValue()} [{organ.Name.ColourName()}]");
+				}
 			}
 		}
 

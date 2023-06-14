@@ -198,7 +198,7 @@ public class CommodityInput : BaseInput, ICraftInputConsumesGameItem
 	}
 
 	protected override string BuildingHelpString =>
-		"You can use the following options with this input type:\n\tmaterial <material> - sets the target material\n\tweight <weight> - sets the required weight of material";
+		"You can use the following options with this input type:\n\t#3material <material>#0 - sets the target material\n\t#3weight <weight>#0 - sets the required weight of material";
 
 	public override bool BuildingCommand(ICharacter actor, StringStack command)
 	{

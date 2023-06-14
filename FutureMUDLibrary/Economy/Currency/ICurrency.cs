@@ -53,5 +53,7 @@ namespace MudSharp.Economy.Currency {
         /// <returns></returns>
         Dictionary<ICurrencyPile, Dictionary<ICoin, int>> FindCurrency(IEnumerable<ICurrencyPile> targetPiles,
             decimal amount);
+
+        decimal BaseCurrencyToGlobalBaseCurrencyConversion { get; }
     }
 }

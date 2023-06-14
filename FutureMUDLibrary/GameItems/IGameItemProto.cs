@@ -33,6 +33,7 @@ namespace MudSharp.GameItems {
         bool Morphs { get; }
         TimeSpan MorphTimeSpan { get; }
         string MorphEmote { get; }
+        decimal CostInBaseCurrency { get; }
         IGameItem LoadDestroyedItem(IGameItem originalItem);
         IGameItem LoadMorphedItem(IGameItem originalItem);
         bool IsItemType<T>() where T : IGameItemComponentProto;
@@ -40,7 +41,6 @@ namespace MudSharp.GameItems {
         IGameItem CreateNew(ICharacter loader = null);
 
         bool CheckForComponentPrototypeUpdates();
-
         IGameItemProto Clone(ICharacter builder);
     }
 }

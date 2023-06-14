@@ -79,8 +79,8 @@ public class TorchGameItemComponentProto : GameItemComponentProto
 		}
 		else
 		{
-			actor.Send("This torch will now have enough fuel to burn for {0:N0} seconds ({1}).", SecondsOfFuel,
-				TimeSpan.FromSeconds(SecondsOfFuel).Describe());
+			actor.Send($"This torch will now have enough fuel to burn for {0:N0} seconds ({1}).", SecondsOfFuel,
+				TimeSpan.FromSeconds(SecondsOfFuel).Describe().ColourValue());
 		}
 
 		return true;
@@ -139,7 +139,7 @@ public class TorchGameItemComponentProto : GameItemComponentProto
 			return false;
 		}
 
-		actor.Send("The emote for lighting this torch is now \"{0}\"", command.RemainingArgument);
+		actor.Send("The emote for lighting this torch is now \"{0}\"", command.RemainingArgument.ColourCommand());
 		LightEmote = command.RemainingArgument;
 		Changed = true;
 		return true;
@@ -162,7 +162,7 @@ public class TorchGameItemComponentProto : GameItemComponentProto
 			return false;
 		}
 
-		actor.Send("The emote for extinguishing this torch is now \"{0}\"", command.RemainingArgument);
+		actor.Send("The emote for extinguishing this torch is now \"{0}\"", command.RemainingArgument.ColourCommand());
 		ExtinguishEmote = command.RemainingArgument;
 		Changed = true;
 		return true;
@@ -185,7 +185,7 @@ public class TorchGameItemComponentProto : GameItemComponentProto
 			return false;
 		}
 
-		actor.Send("The emote for ten percent fuel for this torch is now \"{0}\"", command.RemainingArgument);
+		actor.Send("The emote for ten percent fuel for this torch is now \"{0}\"", command.RemainingArgument.ColourCommand());
 		TenPercentFuelEcho = command.RemainingArgument;
 		Changed = true;
 		return true;
@@ -207,7 +207,7 @@ public class TorchGameItemComponentProto : GameItemComponentProto
 			return false;
 		}
 
-		actor.Send("The emote for fuel exhaustion for this torch is now \"{0}\"", command.RemainingArgument);
+		actor.Send("The emote for fuel exhaustion for this torch is now \"{0}\"", command.RemainingArgument.ColourCommand());
 		FuelExpendedEcho = command.RemainingArgument;
 		Changed = true;
 		return true;
@@ -243,21 +243,38 @@ public class TorchGameItemComponentProto : GameItemComponentProto
 	}
 
 	private const string BuildingHelpText =
-		"You can use the following options with this component:\n\tname <name> - sets the name of the component\n\tdesc <desc> - sets the description of the component\n\tfuel <seconds> - how many seconds of fuel this torch has once lit\n\tillumination <lux> - the illumination in lux provided by the torch\n\tignition - toggles whether this requires an ignition source to light\n\tlit <emote> - the emote when this torch is lit. Use $0 for the lightee, $1 for the torch, and $2 for the ignition source (if applicable)\n\textinguished <emote> - sets an emote for when the torch is extinguished. $0 for the lightee, $1 for the torch\n\tten <emote> - sets an emote when the torch reaches 10% fuel. Use $0 for the torch item.\n\tzero <emote> - sets an emote when the torch expires. Use $0 for the torch item.";
+		@"You can use the following options with this component:
+
+	name <name> - sets the name of the component
+	desc <desc> - sets the description of the component
+	fuel <seconds> - how many seconds of fuel this torch has once lit
+	illumination <lux> - the illumination in lux provided by the torch
+	ignition - toggles whether this requires an ignition source to light
+	lit <emote> - the emote when this torch is lit. Use $0 for the lightee, $1 for the torch, and $2 for the ignition source (if applicable)
+	extinguished <emote> - sets an emote for when the torch is extinguished. $0 for the lightee, $1 for the torch
+	ten <emote> - sets an emote when the torch reaches 10% fuel. Use $0 for the torch item.
+	zero <emote> - sets an emote when the torch expires. Use $0 for the torch item.";
 
 	public override string ShowBuildingHelp => BuildingHelpText;
 
 	public override string ComponentDescriptionOLC(ICharacter actor)
 	{
 		return string.Format(actor,
-			"{7} (#{8:N0}r{9:N0}, {10})\n\nThis is a torch that provides {0:N2} lux of illumination when lit. It has {1:N0} seconds of fuel, and {2} require an ignition source.\n\nWhen lit, it echoes: {3}\nWhen extinguished it echoes: {4}\nAt 10 percent fuel it echoes: {5}\nAt 0 percent fuel it echoes: {6}",
+			@"{7} (#{8:N0}r{9:N0}, {10})
+
+This is a torch that provides {0:N2} lux of illumination when lit. It has {1:N0} seconds of fuel, and {2} require an ignition source.
+
+When lit, it echoes: {3}
+When extinguished it echoes: {4}
+At 10 percent fuel it echoes: {5}
+At 0 percent fuel it echoes: {6}",
 			IlluminationProvided,
 			SecondsOfFuel,
 			RequiresIgnitionSource ? "does" : "does not",
-			LightEmote,
-			ExtinguishEmote,
-			TenPercentFuelEcho,
-			FuelExpendedEcho,
+			LightEmote.ColourCommand(),
+			ExtinguishEmote.ColourCommand(),
+			TenPercentFuelEcho.ColourCommand(),
+			FuelExpendedEcho.ColourCommand(),
 			"Torch Item Component".Colour(Telnet.Cyan),
 			Id,
 			RevisionNumber,

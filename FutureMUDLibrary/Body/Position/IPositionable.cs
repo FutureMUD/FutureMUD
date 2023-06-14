@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using MudSharp.Construction;
 using MudSharp.Framework;
 using MudSharp.PerceptionEngine;
 
@@ -22,7 +23,7 @@ namespace MudSharp.Body.Position {
         string DescribePosition(IPerceiver voyeur);
 
         bool InVicinity(IPerceivable target);
-
+        IEnumerable<(IPerceivable Thing, Proximity Proximity)> LocalThingsAndProximities();
         void SetPosition(IPositionState state, PositionModifier modifier, IPerceivable target, IEmote emote);
         void SetState(IPositionState state);
         void SetTarget(IPerceivable target);

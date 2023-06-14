@@ -13,6 +13,7 @@ namespace MudSharp.Work.Crafts
         Func<IGameItem, bool> EvaluateToolFunction(ICraft craft, int phase);
         bool IsTool(IGameItem item);
         void UseTool(IGameItem item, TimeSpan phaseLength, bool hasFailed);
+        bool UseToolDuration { get; }
         double ToolFitness(IGameItem item);
         double ToolQualityWeight { get; }
         double PhaseLengthMultiplier(IGameItem item);

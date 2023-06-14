@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using MudSharp.Framework;
 using System.Diagnostics;
+using System.Text.RegularExpressions;
 
 namespace MudSharp_Unit_Tests {
     /// <summary>
@@ -249,6 +250,14 @@ Item 6
             Assert.AreEqual("two \"three four five\" six", ssTestRemainingArg.RemainingArgument, $"TestRemainingArg StringStack expected value \"two \"three four five\" six\" but instead got \"{ssTestRemainingArg.Last}\".");
             Assert.AreEqual("two three four five six", ssTestRemainingArg.SafeRemainingArgument, $"TestRemainingArg StringStack expected value \"two three four five six\" but instead got \"{ssTestRemainingArg.Last}\".");
 
+        }
+
+        [TestMethod]
+        public void TestRegexTransform()
+        {
+            Assert.IsTrue(new Regex("colou?r1").TransformRegexIntoPattern().EqualTo("colour1"));
+            Assert.IsTrue(new Regex("^colou?r1").TransformRegexIntoPattern().EqualTo("colour1"));
+            Assert.IsTrue(new Regex("skin(colou?r|tone)").TransformRegexIntoPattern().EqualTo("skincolour"));
         }
     }
 }

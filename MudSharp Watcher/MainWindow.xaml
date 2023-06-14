@@ -10,6 +10,7 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"></RowDefinition>
             <RowDefinition Height="Auto"></RowDefinition>
+            <RowDefinition Height="Auto"></RowDefinition>
             <RowDefinition Height="*"></RowDefinition>
             <RowDefinition Height="Auto"></RowDefinition>
         </Grid.RowDefinitions>
@@ -20,15 +21,26 @@
         
         <TextBox Grid.Row="1" Name="DatabaseStringTextbox" Text ="{Binding DatabaseString}"></TextBox>
         <StackPanel Grid.Row="2">
-            <StackPanel Orientation="Horizontal" Margin="5">
-                <TextBlock Margin="5">Game Status: </TextBlock>
-                <local:CrossTickBoundControl MaxHeight="30" Status="{Binding GameLaunched}"></local:CrossTickBoundControl>
-            </StackPanel>
-            <StackPanel Orientation="Horizontal" Margin="5">
-                <TextBlock Margin="5">Updates Available: </TextBlock>
-                <local:CrossTickBoundControl MaxHeight="30" Status="{Binding UpdateAvailable}"></local:CrossTickBoundControl>
-            </StackPanel>
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"></RowDefinition>
+                    <RowDefinition Height="Auto"></RowDefinition>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"></ColumnDefinition>
+                    <ColumnDefinition Width="Auto"></ColumnDefinition>
+                    <ColumnDefinition Width="*"></ColumnDefinition>
+                </Grid.ColumnDefinitions>
+                <TextBlock Grid.Row="0" Grid.Column="0" Margin="5">Game Status: </TextBlock>
+                <local:CrossTickBoundControl Grid.Row="0" Grid.Column="1" MaxHeight="30" Status="{Binding GameLaunched}"></local:CrossTickBoundControl>
+                <TextBlock Grid.Row="1" Grid.Column="0" Margin="5">Updates Available: </TextBlock>
+                <local:CrossTickBoundControl Grid.Row="1" Grid.Column="1"  MaxHeight="30" Status="{Binding UpdateAvailable}"></local:CrossTickBoundControl>
+            </Grid>
         </StackPanel>
-        <Button Name="LaunchMUDButton" Click="LaunchMUDButton_OnClick" Grid.Row="3" IsEnabled="{Binding LaunchButtonEnabled}">Launch</Button>
+        <ScrollViewer Grid.Row="3" CanContentScroll="True">
+            <TextBlock  Text="{Binding Scrollback}"></TextBlock>
+        </ScrollViewer>
+        
+        <Button Name="LaunchMUDButton" Click="LaunchMUDButton_OnClick" Grid.Row="4" IsEnabled="{Binding LaunchButtonEnabled}">Launch</Button>
     </Grid>
 </Window>

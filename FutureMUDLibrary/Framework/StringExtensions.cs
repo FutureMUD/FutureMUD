@@ -118,6 +118,11 @@ namespace MudSharp.Framework {
             return input.Length > 1 ? input.Substring(1).TrimStart() : "";
         }
 
+        public static string RemoveLastCharacter(this string input)
+        {
+	        return input.Length > 1 ? input.Substring(0, input.Length - 1) : "";
+        }
+
         public static string RemoveFirstWord(this string input) {
             var firstSpace = input.IndexOf(' ');
             return firstSpace != -1 ? input.Remove(0, firstSpace + 1).TrimStart() : "";
@@ -875,6 +880,20 @@ namespace MudSharp.Framework {
                 sb.Append(sbLine);
             }
             return sb.ToString();
+        }
+
+        public static Regex RegexCleanupRegex => new(@"\((?<option1>[a-z0-9]+)\|(?<option2>[a-z0-9]+)+\|*(?<option3>[a-z0-9]*)+\)", RegexOptions.IgnoreCase);
+
+        public static string TransformRegexIntoPattern(this Regex regex)
+        {
+	        var text = regex
+	               .ToString()
+	               .Replace("^", "")
+	               .Replace("$", "")
+	               .Replace("?", "")
+		        ;
+
+	        return RegexCleanupRegex.Replace(text, m => m.Groups["option1"].Value);
         }
     }
 }

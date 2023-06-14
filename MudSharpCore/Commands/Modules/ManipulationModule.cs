@@ -4510,7 +4510,7 @@ The syntax is as follows:
 	{
 		var ss = new StringStack(command.RemoveFirstWord());
 
-		if (!actor.IsAdministrator() && !actor.Body.HeldItems.Any(x => x.IsItemType<ILocksmithingTool>()))
+		if (!actor.IsAdministrator() && !actor.Body.HeldOrWieldedItems.Any(x => x.IsItemType<ILocksmithingTool>()))
 		{
 			actor.Send("You must be holding a set of locksmithing tools to do any locksmithing action.");
 			return;
@@ -5258,7 +5258,7 @@ The syntax is as follows:
 			return;
 		}
 
-		if (!targetKeyItem.IsItemType<IKey>())
+		if (!targetKeyItem.IsItemType<IKey>() || targetKeyItem.IsItemType<IKeyring>())
 		{
 			actor.Send("{0} is not a key.", targetKeyItem.HowSeen(actor, true));
 			return;
@@ -5718,6 +5718,12 @@ The syntax is as follows:
 		if (target == null)
 		{
 			actor.Send("You do not see anything like that here.");
+			return;
+		}
+
+		if (target.IsItemType<IKeyring>())
+		{
+			actor.OutputHandler.Send($"You cannot use this command with keyrings.");
 			return;
 		}
 

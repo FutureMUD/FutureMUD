@@ -5682,10 +5682,12 @@ return IsAdmin(@ch)",
 		}
 
 		AddTag("Materials", null);
+		AddTag("Simplified", "Materials");
 		AddTag("Animal Product", "Materials");
 		AddTag("Natural Materials", "Materials");
 		AddTag("Manufactured Materials", "Materials");
 		AddTag("Stone", "Natural Materials");
+		AddTag("Vegetation", "Natural Materials");
 		AddTag("Economically Useful Stone", "Stone");
 		AddTag("Feldspar", "Economically Useful Stone");
 		AddTag("Calcite", "Economically Useful Stone");
@@ -5743,6 +5745,7 @@ return IsAdmin(@ch)",
 		AddTag("Economic Stone", "Stone");
 		AddTag("Elemental Metal", "Natural Materials");
 		AddTag("Manufactured Metal", "Manufactured Materials");
+		AddTag("Glass", "Manufactured Materials");
 		AddTag("Bronze Age", "Manufactured Metal");
 		AddTag("Iron Age", "Manufactured Metal");
 		AddTag("Medieval Age", "Manufactured Metal");
@@ -5825,6 +5828,18 @@ return IsAdmin(@ch)",
 				material.MaterialsTags.Add(new MaterialsTags { Material = material, Tag = tags[tag] });
 			context.SaveChanges();
 		}
+
+		#region Simplified
+		AddMaterial("textile", MaterialBehaviourType.Fabric, 1.0, true, 10000, 10000, 0.3, 10.0, 0.0001, 500, null, "Simplified", "Fabric");
+		AddMaterial("wood", MaterialBehaviourType.Wood, 0.5, true, 10000, 10000, 0.01, 0.15, 0.0001, 500, null, "Simplified", "Wood");
+		AddMaterial("metal", MaterialBehaviourType.Metal, 7.0, false, 40000, 10000, 0.0, 18.0, 14500000, 500, null, "Simplified", "Manufactured Metal");
+		AddMaterial("stone", MaterialBehaviourType.Stone, 2.8, false, 10000, 200000, 0.0, 0.14, 0.0001, 500, null, "Simplified", "Stone");
+		AddMaterial("glass", MaterialBehaviourType.Ceramic, 1.0, false, 10000, 10000, 0.0, 10.0, 14500000, 500, null, "Simplified", "Glass");
+		AddMaterial("vegetation", MaterialBehaviourType.Plant, 1.0, true, 1000, 1000, 0.01, 10.0, 0.0001, 500, null, "Simplified", "Vegetation");
+		AddMaterial("ceramic", MaterialBehaviourType.Ceramic, 1.0, false, 10000, 10000, 0.0, 10.0, 14500000, 500, null, "Simplified", "Ceramic");
+		AddMaterial("meat", MaterialBehaviourType.Meat, 1.3, true, 10000, 10000, 0.1, 0.14, 0.0001, 500, null, "Simplified", "Meat");
+		AddMaterial("other", MaterialBehaviourType.Mana, 1.0, false, 10000, 10000, 0.3, 0.14, 0.0001, 500, null, "Simplified");
+		#endregion
 
 		#region Metals
 
@@ -6683,7 +6698,7 @@ return IsAdmin(@ch)",
 			null, "Animal Skin");
 
 		AddMaterial("leather", MaterialBehaviourType.Leather, 1.4, true, 25000, 10000, 0.2, 0.14, 0.0001, 500, null,
-			"Leather");
+			"Leather", "Simplified");
 		AddMaterial("cow leather", MaterialBehaviourType.Leather, 1.4, true, 32000, 10000, 0.2, 0.14, 0.0001, 500, null,
 			"Leather");
 		AddMaterial("deer leather", MaterialBehaviourType.Leather, 1.4, true, 25000, 10000, 0.2, 0.14, 0.0001, 500,
@@ -6794,7 +6809,13 @@ return IsAdmin(@ch)",
 			null, "Ceramic");
 		AddMaterial("fired clay", MaterialBehaviourType.Ceramic, 0.7, false, 40000, 100000, 0.0, 0.002, 0.0001, 500,
 			null, "Ceramic");
-		AddMaterial("glass", MaterialBehaviourType.Ceramic, 2.1, false, 40000, 100000, 0.0, 0.002, 0.0001, 500, null,
+		AddMaterial("silicate glass", MaterialBehaviourType.Ceramic, 2.1, false, 40000, 100000, 0.0, 0.002, 0.0001, 500, null,
+			"Ceramic");
+		AddMaterial("soda-lime glass", MaterialBehaviourType.Ceramic, 2.1, false, 40000, 100000, 0.0, 0.002, 0.0001, 500, null,
+			"Ceramic");
+		AddMaterial("borosilicate glass", MaterialBehaviourType.Ceramic, 2.1, false, 40000, 100000, 0.0, 0.002, 0.0001, 500, null,
+			"Ceramic");
+		AddMaterial("lead glass", MaterialBehaviourType.Ceramic, 2.1, false, 40000, 100000, 0.0, 0.002, 0.0001, 500, null,
 			"Ceramic");
 		AddMaterial("reinforced concrete", MaterialBehaviourType.Ceramic, 2.9, false, 80000, 350000, 0.0, 0.002, 0.0001,
 			500, null, "Ceramic");
@@ -7063,6 +7084,12 @@ return IsAdmin(@ch)",
 			"It has no real smell", 100, 1, 0, 5.0, 200, 0.9, 9.0, 1.0, 1.009, false, "blue", "It is damp", "It is wet",
 			"It is soaking wet", "(damp)", "(wet)", "(soaked)", 1.0, null, 0.009, LiquidInjectionConsequence.Hydrating,
 			("water", ItemQuality.Good));
+		AddLiquid("detergent", "a clear, soapy liquid", "a clear, soapy liquid",
+			"It has a strong soapy taste", "It has a strong soapy taste", "It smells strongly of soap",
+			"It smells of soap", 1000, 100, 0, 0, 0, -0.5, -6.0, 1.0, 1.029, false, "bold blue", "It is damp",
+			"It is wet", "It is soaking wet", "(soap-damp)", "(soap-wet)", "(soap-soaked)", 1.0, null, 0.029,
+			LiquidInjectionConsequence.Harmful,
+			("water", ItemQuality.Legendary));
 		AddLiquid("soapy water", "a clear liquid with soap suds", "a clear, translucent liquid with soap suds",
 			"It has a strong soapy taste", "It has a strong soapy taste", "It smells strongly of soap",
 			"It smells of soap", 1000, 100, 0, 0, 0, -0.5, -6.0, 1.0, 1.029, false, "bold blue", "It is damp",
@@ -7438,6 +7465,18 @@ return IsAdmin(@ch)",
 			null, "It smells of oil", null, 200, 100, 0, 5.4, 390, 0.5, 0, 2.0, 1.0, true, "yellow",
 			"It is damp with oil", "It is covered with oil", "It is soaking with oil", "(oil-damp)", "(oily)",
 			"(oil-soaked)", 5.0, null, 0.05, LiquidInjectionConsequence.Harmful, null, solvent: "soapy water");
+		AddLiquid("whale oil", "a transparent dark yellow oil", "a transparent dark yellow oil", "It tastes like whale oil", null,
+			"It smells of oil", null, 200, 100, 0, 5.4, 390, 0.5, 0, 2.0, 1.0, true, "yellow", "It is damp with oil",
+			"It is covered with oil", "It is soaking with oil", "(oil-damp)", "(oily)", "(oil-soaked)", 5.0, null, 0.05,
+			LiquidInjectionConsequence.Harmful, null, solvent: "soapy water");
+		AddLiquid("sperm oil", "a transparent dark yellow oil", "a transparent dark yellow oil", "It tastes like sperm oil", null,
+			"It smells of oil", null, 200, 100, 0, 5.4, 390, 0.5, 0, 2.0, 1.0, true, "yellow", "It is damp with oil",
+			"It is covered with oil", "It is soaking with oil", "(oil-damp)", "(oily)", "(oil-soaked)", 5.0, null, 0.05,
+			LiquidInjectionConsequence.Harmful, null, solvent: "soapy water");
+		AddLiquid("train oil", "a transparent dark yellow oil", "a transparent dark yellow oil", "It tastes like train oil", null,
+			"It smells of oil", null, 200, 100, 0, 5.4, 390, 0.5, 0, 2.0, 1.0, true, "yellow", "It is damp with oil",
+			"It is covered with oil", "It is soaking with oil", "(oil-damp)", "(oily)", "(oil-soaked)", 5.0, null, 0.05,
+			LiquidInjectionConsequence.Harmful, null, solvent: "soapy water");
 
 		AddLiquid("milk", "a creamy white liquid", "a translucent white liquid",
 			"It tastes creamy and sweet, with a full bodied flavour", null, "It smells like milk", null, 200, 100, 0,
@@ -7481,6 +7520,109 @@ return IsAdmin(@ch)",
 			"It is wet with coffee", "It is soaking wet with tea", "(damp)", "(wet)", "(coffee-soaked)", 5.0, null,
 			0.05, LiquidInjectionConsequence.Harmful, null, solvent: "water");
 
+		#endregion
+
+		#region Fuels
+
+		AddLiquid(name: "ethanol", description: "a clear liquid", longDescription: "a clear, translucent liquid",
+			taste: "It has little taste beyond that of the very strong alcohol",
+			vagueTaste: "It has little taste beyond that of the very strong alcohol",
+			smell: "It smells strongly of pure alcohol",
+			vagueSmell: "It smells strongly of alcohol", tasteIntensity: 1000, smellIntensity: 100, alcohol: 1.0,
+			food: 5.4, calories: 390, water: -0.5, satiated: -6.0, viscosity: 1.0, density: 1.029, organic: true,
+			displayColour: "yellow", dampDesc: "It is damp with alcohol",
+			wetDesc: "It is soaking wet with alcohol", drenchedDesc: "It is drenched with alcohol", dampSdesc: "(damp)",
+			wetSdesc: "(liquor-soaked)", drenchedSdesc: "(liquor-drenched)", solventVolumeRatio: 1.0, dried: null,
+			residueVolumePercentage: 0.029,
+			injectionConsequence: LiquidInjectionConsequence.Harmful, countsAs: null);
+		AddLiquid(name: "methanol", description: "a clear liquid", longDescription: "a clear, translucent liquid",
+			taste: "It has little taste beyond that of the very strong alcohol",
+			vagueTaste: "It has little taste beyond that of the very strong alcohol",
+			smell: "It smells strongly of pure alcohol",
+			vagueSmell: "It smells strongly of alcohol", tasteIntensity: 1000, smellIntensity: 100, alcohol: 1.0,
+			food: 5.4, calories: 390, water: -0.5, satiated: -6.0, viscosity: 1.0, density: 1.029, organic: true,
+			displayColour: "yellow", dampDesc: "It is damp with alcohol",
+			wetDesc: "It is soaking wet with alcohol", drenchedDesc: "It is drenched with alcohol", dampSdesc: "(damp)",
+			wetSdesc: "(liquor-soaked)", drenchedSdesc: "(liquor-drenched)", solventVolumeRatio: 1.0, dried: null,
+			residueVolumePercentage: 0.029,
+			injectionConsequence: LiquidInjectionConsequence.Deadly, countsAs: null);
+		AddLiquid(name: "kerosene", description: "a clear liquid",
+			longDescription: "a transparent fluid",
+			taste: "It has a sulfurous, sweet, slimy taste", vagueTaste: "It has the taste of kerosene fuel; YUCK!",
+			smell: "It smells like kerosene",
+			vagueSmell: "It smells like kerosene", tasteIntensity: 1000, smellIntensity: 100, alcohol: 0.0, food: 0.0,
+			calories: 0.0, water: -0.5, satiated: -6.0, viscosity: 0.85, density: 0.9, organic: false,
+			displayColour: "magenta", dampDesc: "It is damp with kerosene",
+			wetDesc: "It is soaked with kerosene", drenchedDesc: "It is drenched with kerosene",
+			dampSdesc: "(kerosene-damp)", wetSdesc: "(kerosene-soaked)", drenchedSdesc: "(kerosene-drenched)",
+			solventVolumeRatio: 5.0, dried: null, residueVolumePercentage: 0.029, solvent: "detergent",
+			injectionConsequence: LiquidInjectionConsequence.Deadly, countsAs: null);
+		AddLiquid(name: "gasoline", description: "a clear liquid",
+			longDescription: "a transparent, orangey-amber fluid",
+			taste: "It has a sulfurous, sweet, slimy taste", vagueTaste: "It has the taste of gasoline fuel; YUCK!",
+			smell: "It smells like gasoline",
+			vagueSmell: "It smells like gasoline", tasteIntensity: 1000, smellIntensity: 100, alcohol: 0.0, food: 0.0,
+			calories: 0.0, water: -0.5, satiated: -6.0, viscosity: 0.85, density: 0.9, organic: false,
+			displayColour: "magenta", dampDesc: "It is damp with gasoline",
+			wetDesc: "It is soaked with gasoline", drenchedDesc: "It is drenched with gasoline",
+			dampSdesc: "(gasoline-damp)", wetSdesc: "(gasoline-soaked)", drenchedSdesc: "(gasoline-drenched)",
+			solventVolumeRatio: 5.0, dried: null, residueVolumePercentage: 0.029, solvent: "detergent",
+			injectionConsequence: LiquidInjectionConsequence.Deadly, countsAs: null);
+		AddLiquid(name: "diesel", description: "a clear liquid",
+			longDescription: "a transparent, yellowy-amber fluid",
+			taste: "It has a sulfurous, sweet, slimy taste", vagueTaste: "It has the taste of diesel fuel; YUCK!",
+			smell: "It smells like diesel",
+			vagueSmell: "It smells like diesel", tasteIntensity: 1000, smellIntensity: 100, alcohol: 0.0, food: 0.0,
+			calories: 0.0, water: -0.5, satiated: -6.0, viscosity: 0.85, density: 0.9, organic: false,
+			displayColour: "magenta", dampDesc: "It is damp with diesel",
+			wetDesc: "It is soaked with diesel", drenchedDesc: "It is drenched with diesel",
+			dampSdesc: "(diesel-damp)", wetSdesc: "(diesel-soaked)", drenchedSdesc: "(diesel-drenched)",
+			solventVolumeRatio: 5.0, dried: null, residueVolumePercentage: 0.029, solvent: "detergent",
+			injectionConsequence: LiquidInjectionConsequence.Deadly, countsAs: null);
+		AddLiquid(name: "crude oil", description: "a thick, black liquid",
+			longDescription: "a thick yellow-black liquid",
+			taste: "It has a sulfurous, sweet, slimy taste", vagueTaste: "It has an unimaginably bad taste, you feel in great danger from drinking this; YUCK!",
+			smell: "It smells like sulfur",
+			vagueSmell: "It smells like sulfur", tasteIntensity: 1000, smellIntensity: 100, alcohol: 0.0, food: 0.0,
+			calories: 0.0, water: -0.5, satiated: -6.0, viscosity: 10, density: 0.9, organic: false,
+			displayColour: "bold magenta", dampDesc: "It is damp with crude oil",
+			wetDesc: "It is soaked with crude oil", drenchedDesc: "It is drenched with crude oil",
+			dampSdesc: "(petroleum-damp)", wetSdesc: "(petroleum-soaked)", drenchedSdesc: "(petroleum-drenched)",
+			solventVolumeRatio: 25.0, dried: null, residueVolumePercentage: 0.029, solvent: "detergent",
+			injectionConsequence: LiquidInjectionConsequence.Deadly, countsAs: null);
+		AddLiquid(name: "heavy crude oil", description: "a very thick, black liquid",
+			longDescription: "a thick yellow-black liquid",
+			taste: "It has a sulfurous, sweet, slimy taste", vagueTaste: "It has an unimaginably bad taste, you feel in great danger from drinking this; YUCK!",
+			smell: "It smells like sulfur",
+			vagueSmell: "It smells like sulfur", tasteIntensity: 1000, smellIntensity: 100, alcohol: 0.0, food: 0.0,
+			calories: 0.0, water: -0.5, satiated: -6.0, viscosity: 4, density: 0.8, organic: false,
+			displayColour: "bold magenta", dampDesc: "It is damp with crude oil",
+			wetDesc: "It is soaked with crude oil", drenchedDesc: "It is drenched with crude oil",
+			dampSdesc: "(petroleum-damp)", wetSdesc: "(petroleum-soaked)", drenchedSdesc: "(petroleum-drenched)",
+			solventVolumeRatio: 25.0, dried: null, residueVolumePercentage: 0.029, solvent: "detergent",
+			injectionConsequence: LiquidInjectionConsequence.Deadly, countsAs: null);
+		AddLiquid(name: "light crude oil", description: "a sticky, black liquid",
+			longDescription: "a sticky yellow-black liquid",
+			taste: "It has a sulfurous, sweet, slimy taste", vagueTaste: "It has an unimaginably bad taste, you feel in great danger from drinking this; YUCK!",
+			smell: "It smells like sulfur",
+			vagueSmell: "It smells like sulfur", tasteIntensity: 1000, smellIntensity: 100, alcohol: 0.0, food: 0.0,
+			calories: 0.0, water: -0.5, satiated: -6.0, viscosity: 30, density: 0.9, organic: false,
+			displayColour: "bold magenta", dampDesc: "It is damp with crude oil",
+			wetDesc: "It is soaked with crude oil", drenchedDesc: "It is drenched with crude oil",
+			dampSdesc: "(petroleum-damp)", wetSdesc: "(petroleum-soaked)", drenchedSdesc: "(petroleum-drenched)",
+			solventVolumeRatio: 25.0, dried: null, residueVolumePercentage: 0.029, solvent: "detergent",
+			injectionConsequence: LiquidInjectionConsequence.Deadly, countsAs: null);
+		AddLiquid(name: "heavy fuel oil", description: "a viscous, black liquid",
+			longDescription: "a thick black liquid",
+			taste: "It has a sulfurous, sweet, slimy taste", vagueTaste: "It has an unimaginably bad taste, you feel in great danger from drinking this; YUCK!",
+			smell: "It smells like sulfur",
+			vagueSmell: "It smells like sulfur", tasteIntensity: 1000, smellIntensity: 100, alcohol: 0.0, food: 0.0,
+			calories: 0.0, water: -0.5, satiated: -6.0, viscosity: 4, density: 0.8, organic: false,
+			displayColour: "bold magenta", dampDesc: "It is damp with fuel oil",
+			wetDesc: "It is soaked with fuel oil", drenchedDesc: "It is drenched with fuel oil",
+			dampSdesc: "(oil-damp)", wetSdesc: "(oil-soaked)", drenchedSdesc: "(oil-drenched)",
+			solventVolumeRatio: 25.0, dried: null, residueVolumePercentage: 0.029, solvent: "detergent",
+			injectionConsequence: LiquidInjectionConsequence.Deadly, countsAs: null);
 		#endregion
 
 		context.SaveChanges();

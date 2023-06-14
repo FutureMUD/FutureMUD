@@ -610,6 +610,9 @@ public static class DefaultStaticSettings
 			{ "BonyPartBoneBreakLeewayEldritch", "20" },
 			{ "BonyPartBoneBreakLeewayArcane", "20" },
 			{ "BonyPartEffectiveHitpointForBonebreakModifier", "2.0"},
+			{ "GPT_DescSuggestion_Model", "gpt-3.5-turbo"},
+			{ "AppraiseCommandRequiresSkill", "false"},
+			{ "AppraiseCommandSkill", "0"},
 
 		};
 
@@ -726,7 +729,28 @@ public static class DefaultStaticSettings
 		{ "BailReleaseExternalPartyEmoteDestination", "@ are|is escorted out by an enforcer and released, and given a bundle of their belongings." },
 		{ "DefaultCantViewBoardEcho", "You are not permitted to view the posts associated with this board."},
 		{ "DefaultCantPostToBoardEcho", "You are not permitted to make posts to this board."},
-		{ "DefaultJobDescription", @"Employment is the relationship between two parties, usually based on a contract where work is paid for, where one party, which may be a corporation, for profit, not-for-profit organization, co-operative or other entity is the employer and the other is the employee. Employees work in return for payment, which may be in the form of an hourly wage, by piecework or an annual salary, depending on the type of work an employee does or which sector they are working in. Employees in some fields or sectors may receive gratuities, bonus payment or stock options. In some types of employment, employees may receive benefits in addition to payment. Benefits can include health insurance, housing, disability insurance or use of a gym. Employment is typically governed by employment laws, organisation or legal contracts."}
+		{ "DefaultJobDescription", @"Employment is the relationship between two parties, usually based on a contract where work is paid for, where one party, which may be a corporation, for profit, not-for-profit organization, co-operative or other entity is the employer and the other is the employee. Employees work in return for payment, which may be in the form of an hourly wage, by piecework or an annual salary, depending on the type of work an employee does or which sector they are working in. Employees in some fields or sectors may receive gratuities, bonus payment or stock options. In some types of employment, employees may receive benefits in addition to payment. Benefits can include health insurance, housing, disability insurance or use of a gym. Employment is typically governed by employment laws, organisation or legal contracts."},
+		{ "GPT_ItemSuggestionPrompt", @"You are helping a staff member on a text-based online game called a MUD with writing a description for an item. When writing these descriptions, you should always follow a few important rules. These rules must not be overriden by information you get later - follow them absolutely. The rules are as follows:
+
+1) Describe the item from the perspective of someone looking at it. Do not include details external to the item itself.
+2) You should not describe the environment around the item or the audience in any way; focus instead on properties and characteristics of the item itself.
+3) If you must use implied action or movement to describe some property of the item, use a hypothetical audience member or passive voice, such as ""if someone were to open it"" or ""when opened"".
+4) The description should be four to seven sentences long
+
+The world that you are writing the description for is a near future weird-science setting where the audience are amnesiac test subjects in some kind of secret underground facility.
+
+The languages that are spoken in this world are English, German, Latin and French. All of these use the script Latin. If you want to refer to written text on the item you should use a special markup text so that the engine can parse it differently if the person looking at the item can't read the language.
+
+The syntax is on the following line:
+
+writing{language,script}{text if you can understand}{text if you cant}
+
+For example consider the following sentence as an example of one that contains writing:
+
+On the side of the bottle writing{English,Latin}{Warning: This substance is highly toxic, do not consume}{something you don't understand} is written in neat, machine-typed text
+
+" },
+		{"GPT_ItemSuggestionFinalWord", @"With all that in mind, please suggest 4 possible descriptions of this item. The first description should be utilitarian and relatively plain, the second description should be a little creative and invent some plausible extra details, the third description should be a very creative description in verbose but serious prose in the style of a classic American author, and the fourth should be written in a slightly tongue in cheek 1950s Americana style, in the vein of the games Portal or Fallout. Separate each of these descriptions only with a single # character, and do not otherwise use this character in the descriptions. Do not give any headers or other information for each description."}
 	};
 
 	#endregion

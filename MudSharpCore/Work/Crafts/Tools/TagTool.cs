@@ -48,6 +48,10 @@ public class TagTool : BaseTool
 
 	public override void UseTool(IGameItem item, TimeSpan phaseLength, bool hasFailed)
 	{
+		if (!UseToolDuration)
+		{
+			return;
+		}
 		item.GetItemType<IToolItem>()?.UseTool(TargetItemTag, phaseLength);
 	}
 
@@ -105,7 +109,7 @@ public class TagTool : BaseTool
 	}
 
 	public override string BuilderHelpString =>
-		$"{base.BuilderHelpString}\n\ttag <id|name> - sets the target tag required for this tool";
+		$"{base.BuilderHelpString}\n\t#3tag <id|name>#0 - sets the target tag required for this tool";
 
 	public override bool BuildingCommand(ICharacter actor, StringStack command)
 	{

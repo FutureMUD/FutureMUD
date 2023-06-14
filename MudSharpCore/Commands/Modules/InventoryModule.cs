@@ -1786,7 +1786,18 @@ internal class InventoryModule : Module<ICharacter>
 	[RequiredCharacterState(CharacterState.Able)]
 	[NoMeleeCombatCommand]
 	[HelpInfo("strip",
-		"This command can be used to quickly remove items of clothing on yourself or others. When used on yourself or someone else with no argument, it will attempt to remove all items of clothing. If you specify an additional argument, you can either specify a bodypart you want to fully expose (and it will only remove items necessary to expose that bodypart), or you can add COVERING <item> to remove all articles covering the specified item (though this syntax is generally only useful when using strip on yourself, because you probably won't be able to see the covered items you want on your target).",
+		@"This command can be used to quickly remove items of clothing on yourself or others. 
+
+When used on yourself or someone else with no argument, it will attempt to remove all items of clothing. If you specify an additional argument, you can either specify a bodypart you want to fully expose (and it will only remove items necessary to expose that bodypart), or you can add COVERING <item> to remove all articles covering the specified item (though this syntax is generally only useful when using strip on yourself, because you probably won't be able to see the covered items you want on your target).
+
+The possible syntaxes for this command are:
+
+	#3strip#0 - strips all worn items off yourself
+	#3strip <target>#0 - strips all worn items off a target
+	#3strip me|<target> <part>#0 - strips items to expose the skin of a bodypart
+	#3strip me covering <item>#0 - strips all items covering the specified item
+	#3strip me|<target> into <container>#0 - strips all items into a container for storage
+	#3strip me|<target> <part> <container>#0 - strips all items into a container to expose the skin of a bodypart",
 		AutoHelp.HelpArg)]
 	protected static void Strip(ICharacter actor, string command)
 	{
@@ -1967,6 +1978,29 @@ internal class InventoryModule : Module<ICharacter>
 					actor.Send(emote.ErrorMessage);
 					return;
 				}
+			}
+		}
+		else if (ss.Peek().EqualTo("into"))
+		{
+			ss.Pop();
+			var targetContainerItem = actor.TargetLocalOrHeldItem(ss.PopSpeech());
+			if (targetContainerItem == null)
+			{
+				actor.Send("You do not see anything like that to put your stripped gear into.");
+				return;
+			}
+
+			container = targetContainerItem.GetItemType<IContainer>();
+			if (container == null)
+			{
+				actor.Send($"{targetContainerItem.HowSeen(actor, true)} is not a container.");
+				return;
+			}
+
+			if (targetContainerItem.GetItemType<IOpenable>()?.IsOpen == false)
+			{
+				actor.Send($"{targetContainerItem.HowSeen(actor, true)} is not open.");
+				return;
 			}
 		}
 		else
@@ -2168,7 +2202,30 @@ internal class InventoryModule : Module<ICharacter>
 		}
 
 		IBodypart targetPart;
-		if (!ss.IsFinished)
+		if (!ss.IsFinished && ss.Peek().EqualTo("into"))
+		{
+			ss.Pop();
+			var targetContainerItem = actor.TargetLocalOrHeldItem(ss.PopSpeech());
+			if (targetContainerItem == null)
+			{
+				actor.Send("You do not see anything like that to put your stripped gear into.");
+				return;
+			}
+
+			container = targetContainerItem.GetItemType<IContainer>();
+			if (container == null)
+			{
+				actor.Send($"{targetContainerItem.HowSeen(actor, true)} is not a container.");
+				return;
+			}
+
+			if (targetContainerItem.GetItemType<IOpenable>()?.IsOpen == false)
+			{
+				actor.Send($"{targetContainerItem.HowSeen(actor, true)} is not open.");
+				return;
+			}
+		}
+		else if (!ss.IsFinished)
 		{
 			targetPart = target.Body.GetTargetBodypart(ss.Pop());
 			if (targetPart == null)

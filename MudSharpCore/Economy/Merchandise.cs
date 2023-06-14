@@ -22,7 +22,7 @@ public class Merchandise : LateInitialisingItem, IMerchandise
 {
 	public override string FrameworkItemType => "Merchandise";
 
-	public Merchandise(IMerchandise rhs, string newName)
+	public Merchandise(Merchandise rhs, string newName)
 	{
 		Gameworld = rhs.Gameworld;
 		Gameworld.SaveManager.AddInitialisation(this);
@@ -32,7 +32,7 @@ public class Merchandise : LateInitialisingItem, IMerchandise
 		BasePrice = rhs.BasePrice;
 		DefaultMerchandiseForItem = false;
 		PreferredDisplayContainer = rhs.PreferredDisplayContainer;
-		_listDescription = (rhs as Merchandise)?._listDescription;
+		_listDescription = rhs._listDescription;
 		AutoReorderPrice = rhs.AutoReorderPrice;
 		AutoReordering = rhs.AutoReordering;
 		PreserveVariablesOnReorder = rhs.PreserveVariablesOnReorder;
@@ -131,12 +131,13 @@ public class Merchandise : LateInitialisingItem, IMerchandise
 	#3shop merch set skin clear#0 - clears a skin from this merchandise
 	#3shop merch set default#0 - toggles whether this is the default for items of its prototype
 	#3shop merch set price <price>#0 - sets the pre-tax price
+	#3shop merch set price default#0 - sets the merchandise price to the item default
 	#3shop merch set desc clear#0 - clears a custom list description
 	#3shop merch set desc <description>#0 - sets a custom list description
 	#3shop merch set container clear#0 - clears a preferred display container
 	#3shop merch set container <target>#0 - sets a preferred display container
 	#3shop merch set reorder off#0 - turns auto-reordering off
-	#3shop merch set reorder <price> <quantity> [<weight>]#0 - enables auto-reordering with the specified price, quantity and optional minimum weight
+	#3shop merch set reorder <price>|<percentage> <quantity> [<weight>]#0 - enables auto-reordering with the specified price, quantity and optional minimum weight
 	#3shop merch set preserve#0 - toggles preservation of item variables when reordering".SubstituteANSIColour());
 			}
 			else
@@ -329,6 +330,14 @@ public class Merchandise : LateInitialisingItem, IMerchandise
 			return false;
 		}
 
+		if (command.SafeRemainingArgument.EqualTo("default"))
+		{
+			BasePrice = -1.0M;
+			Changed = true;
+			actor.OutputHandler.Send($"This merchandise will now use the default price of its base item (currently {Shop.Currency.Describe(Item.CostInBaseCurrency / Shop.Currency.BaseCurrencyToGlobalBaseCurrencyConversion, CurrencyDescriptionPatternType.ShortDecimal).ColourValue()})");
+			return true;
+		}
+
 		var amount = Shop.Currency.GetBaseCurrency(command.SafeRemainingArgument, out var success);
 		if (!success)
 		{
@@ -354,7 +363,7 @@ public class Merchandise : LateInitialisingItem, IMerchandise
 			return false;
 		}
 
-		if (command.Peek().EqualToAny("clear", "reset", "delete"))
+		if (command.Peek().EqualToAny("clear", "reset", "delete", "default"))
 		{
 			_listDescription = string.Empty;
 			actor.OutputHandler.Send(
@@ -420,7 +429,7 @@ public class Merchandise : LateInitialisingItem, IMerchandise
 		if (command.IsFinished)
 		{
 			actor.OutputHandler.Send(
-				$"You must either use REORDER OFF to switch reordering functionality off or REORDER <price> <minquantity> [<minweight>].");
+				$"You must either use REORDER OFF to switch reordering functionality off or REORDER <price>|<percentage> <minquantity> [<minweight>].");
 			return false;
 		}
 
@@ -432,13 +441,21 @@ public class Merchandise : LateInitialisingItem, IMerchandise
 			return true;
 		}
 
-		var price = Shop.Currency.GetBaseCurrency(command.PopSpeech(), out var success);
-		if (!success)
+		decimal price;
+		if (command.PeekSpeech().TryParsePercentageDecimal(actor.Account.Culture, out var percentage))
 		{
-			actor.OutputHandler.Send("That is not a valid price.");
-			return false;
+			price = -1.0M * percentage;
 		}
-
+		else
+		{
+			price = Shop.Currency.GetBaseCurrency(command.PopSpeech(), out var success);
+			if (!success)
+			{
+				actor.OutputHandler.Send("That is not a valid price.");
+				return false;
+			}
+		}
+		
 		if (command.IsFinished)
 		{
 			actor.OutputHandler.Send(
@@ -456,7 +473,7 @@ public class Merchandise : LateInitialisingItem, IMerchandise
 		if (!command.IsFinished)
 		{
 			weight = Gameworld.UnitManager.GetBaseUnits(command.PopSpeech(), Framework.Units.UnitType.Mass,
-				out success);
+				out var success);
 			if (!success)
 			{
 				actor.OutputHandler.Send("That is not a valid weight.");
@@ -469,8 +486,14 @@ public class Merchandise : LateInitialisingItem, IMerchandise
 		MinimumStockLevels = value;
 		MinimumStockLevelsByWeight = weight;
 		Changed = true;
-		actor.OutputHandler.Send(
-			$"This merchandise is now auto-reordering at {Shop.Currency.Describe(AutoReorderPrice, CurrencyDescriptionPatternType.ShortDecimal).ColourValue()} with minimum quantity {MinimumStockLevels.ToString("N0", actor).ColourValue()}{(MinimumStockLevelsByWeight > 0.0 ? $" and minimum weight {Gameworld.UnitManager.DescribeExact(MinimumStockLevelsByWeight, Framework.Units.UnitType.Mass, actor).ColourValue()}" : "")}.");
+		if (AutoReorderPrice < 0)
+		{
+			actor.OutputHandler.Send($"This merchandise is now auto-reordering at {AutoReorderPrice.Abs().ToString("P2", actor).ColourValue()} of the sell price with minimum quantity {MinimumStockLevels.ToString("N0", actor).ColourValue()}{(MinimumStockLevelsByWeight > 0.0 ? $" and minimum weight {Gameworld.UnitManager.DescribeExact(MinimumStockLevelsByWeight, Framework.Units.UnitType.Mass, actor).ColourValue()}" : "")}.");
+		}
+		else
+		{
+			actor.OutputHandler.Send($"This merchandise is now auto-reordering at {Shop.Currency.Describe(AutoReorderPrice, CurrencyDescriptionPatternType.ShortDecimal).ColourValue()} with minimum quantity {MinimumStockLevels.ToString("N0", actor).ColourValue()}{(MinimumStockLevelsByWeight > 0.0 ? $" and minimum weight {Gameworld.UnitManager.DescribeExact(MinimumStockLevelsByWeight, Framework.Units.UnitType.Mass, actor).ColourValue()}" : "")}.");
+		}
 		return true;
 	}
 
@@ -480,27 +503,27 @@ public class Merchandise : LateInitialisingItem, IMerchandise
 	{
 		var sb = new StringBuilder();
 		sb.AppendLine($"Merchandise Record #{Id.ToString("N0", actor)}: {Name}");
-		if (Item != null)
+		if (actor.IsAdministrator())
 		{
-			if (actor.IsAdministrator())
-			{
-				sb.AppendLine(
-					$"Item Proto: {Item.ShortDescription.ColourObject()}{(DefaultMerchandiseForItem ? " [default for item]".Colour(Telnet.BoldWhite) : "")} ({Item.Id.ToString("N0", actor)}r{Item.RevisionNumber.ToString("N0", actor)})");
-			}
-			else
-			{
-				sb.AppendLine(
-					$"Item Proto: {Item.ShortDescription.ColourObject()}{(DefaultMerchandiseForItem ? " [default for item]".Colour(Telnet.BoldWhite) : "")}");
-			}
+			sb.AppendLine(
+				$"Item Proto: {Item.ShortDescription.ColourObject()}{(DefaultMerchandiseForItem ? " [default for item]".Colour(Telnet.BoldWhite) : "")} ({Item.Id.ToString("N0", actor)}r{Item.RevisionNumber.ToString("N0", actor)})");
 		}
 		else
 		{
-			sb.AppendLine($"Item Proto: {"Any".Colour(Telnet.BoldCyan)}");
+			sb.AppendLine(
+				$"Item Proto: {Item.ShortDescription.ColourObject()}{(DefaultMerchandiseForItem ? " [default for item]".Colour(Telnet.BoldWhite) : "")}");
 		}
 
 		sb.AppendLine($"List Description: {ListDescription}");
-		sb.AppendLine(
-			$"Pre-Tax Price: {Shop.Currency.Describe(BasePrice, CurrencyDescriptionPatternType.ShortDecimal).ColourValue()}");
+		if (BasePrice == -1.0M)
+		{
+			sb.AppendLine($"Pre-Tax Price: {"Based on Item Cost".ColourCommand()} (currently: {Shop.Currency.Describe(Item.CostInBaseCurrency / Shop.Currency.BaseCurrencyToGlobalBaseCurrencyConversion, CurrencyDescriptionPatternType.ShortDecimal).ColourValue()})");
+		}
+		else
+		{
+			sb.AppendLine($"Pre-Tax Price: {Shop.Currency.Describe(BasePrice, CurrencyDescriptionPatternType.ShortDecimal).ColourValue()}");
+		}
+		
 		sb.AppendLine(
 			$"Preferred Display Container: {PreferredDisplayContainer?.HowSeen(actor, flags: PerceiveIgnoreFlags.IgnoreCanSee) ?? "None".Colour(Telnet.Red)}");
 
@@ -512,8 +535,16 @@ public class Merchandise : LateInitialisingItem, IMerchandise
 			sb.AppendLine($"Auto Reordering: {AutoReordering.ToString(actor).ColourValue()}");
 			if (AutoReordering)
 			{
-				sb.AppendLine(
-					$"Auto Reorder Price: {Shop.Currency.Describe(AutoReorderPrice, CurrencyDescriptionPatternType.ShortDecimal).ColourValue()}");
+				if (AutoReorderPrice < 0.0M)
+				{
+					sb.AppendLine(
+						$"Auto Reorder Price: {(-1.0M * AutoReorderPrice).ToString("P2", actor).ColourValue()} of Cost = {Shop.Currency.Describe(EffectivePrice * (-1.0M * AutoReorderPrice), CurrencyDescriptionPatternType.ShortDecimal).ColourValue()}");
+				}
+				else
+				{
+					sb.AppendLine(
+						$"Auto Reorder Price: {Shop.Currency.Describe(AutoReorderPrice, CurrencyDescriptionPatternType.ShortDecimal).ColourValue()}");
+				}
 				sb.AppendLine(
 					$"Minimum Stock Levels: {MinimumStockLevels.ToString("N0", actor).ColourValue()}{(MinimumStockLevelsByWeight > 0.0 ? $" by quantity or {Gameworld.UnitManager.DescribeExact(MinimumStockLevelsByWeight, Framework.Units.UnitType.Mass, actor).ColourValue()} by weight" : "")}");
 				sb.AppendLine($"Preserve Variables: {PreserveVariablesOnReorder.ToString(actor).ColourValue()}");
@@ -526,6 +557,8 @@ public class Merchandise : LateInitialisingItem, IMerchandise
 	public IShop Shop { get; private set; }
 	public bool AutoReordering { get; private set; }
 	public decimal AutoReorderPrice { get; private set; }
+	public decimal EffectiveAutoReorderPrice => AutoReorderPrice < 0.0M ? EffectivePrice * (-1.0M * AutoReorderPrice) : AutoReorderPrice;
+
 	public bool PreserveVariablesOnReorder { get; private set; }
 	public int MinimumStockLevels { get; private set; }
 	public double MinimumStockLevelsByWeight { get; private set; }
@@ -535,6 +568,10 @@ public class Merchandise : LateInitialisingItem, IMerchandise
 	private long? _skinId;
 	public IGameItemSkin Skin => Gameworld.ItemSkins.Get(_skinId ?? 0);
 	public decimal BasePrice { get; private set; }
+
+	public decimal EffectivePrice => BasePrice == -1
+		? Item.CostInBaseCurrency / Shop.Currency.BaseCurrencyToGlobalBaseCurrencyConversion
+		: BasePrice;
 
 	public IGameItem PreferredDisplayContainer
 	{
@@ -594,7 +631,7 @@ public class Merchandise : LateInitialisingItem, IMerchandise
 			case "id":
 				return new NumberVariable(Id);
 			case "price":
-				return new NumberVariable(BasePrice);
+				return new NumberVariable(EffectivePrice);
 			case "description":
 				return new TextVariable(ListDescription);
 			case "shop":
@@ -620,11 +657,11 @@ public class Merchandise : LateInitialisingItem, IMerchandise
 	{
 		return new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase)
 		{
-			{ "name", "" },
-			{ "id", "" },
-			{ "price", "" },
-			{ "description", "" },
-			{ "shop", "" }
+			{ "name", "The name of the merchandise record" },
+			{ "id", "The ID of the merchandise record" },
+			{ "price", "The price that the merchandise is selling for" },
+			{ "description", "The description of the merchandise on the LIST command" },
+			{ "shop", "The shop the merchandise is being sold in" }
 		};
 	}
 

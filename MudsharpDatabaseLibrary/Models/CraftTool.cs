@@ -13,6 +13,7 @@ namespace MudSharp.Models
         public double ToolQualityWeight { get; set; }
         public int DesiredState { get; set; }
         public string Definition { get; set; }
+        public bool UseToolDuration { get; set; }
 
         public virtual Craft Craft { get; set; }
     }

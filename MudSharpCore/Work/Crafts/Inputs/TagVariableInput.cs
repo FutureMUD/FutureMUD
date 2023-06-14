@@ -26,7 +26,7 @@ public class TagVariableInput : TagInput, IVariableInput
 	}
 
 	protected override string BuildingHelpString =>
-		$"{base.BuildingHelpString}\n\tvariable <definition> - this input will require and supply this variable definition for the craft";
+		$"{base.BuildingHelpString}\n\t#3variable <definition>#0 - this input will require and supply this variable definition for the craft";
 
 	public override bool BuildingCommand(ICharacter actor, StringStack command)
 	{

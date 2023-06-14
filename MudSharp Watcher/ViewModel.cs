@@ -70,5 +70,24 @@ namespace MudSharp_Watcher
 				OnPropertyChanged(nameof(DatabaseString));
 			}
 		}
+
+		private StringBuilder _scrollback = new StringBuilder();
+
+		public string Scrollback
+		{
+			get => _scrollback.ToString();
+			set
+			{
+				_scrollback.Clear();
+				_scrollback.Append(value);
+				OnPropertyChanged(nameof(Scrollback));
+			}
+		}
+
+		public void AppendScrollback(string text)
+		{
+			_scrollback.AppendLine(text);
+			OnPropertyChanged(nameof(Scrollback));
+		}
 	}
 }

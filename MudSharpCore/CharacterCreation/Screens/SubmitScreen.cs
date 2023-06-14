@@ -19,20 +19,28 @@ public class SubmitScreenStoryboard : ChargenScreenStoryboard
 	public SubmitScreenStoryboard(IFuturemud gameworld, Models.ChargenScreenStoryboard dbitem)
 		: base(dbitem, gameworld)
 	{
+		var definition = XElement.Parse(dbitem.StageDefinition);
+		AutomaticallyApproveAllApplicationsBelow =
+			(PermissionLevel)int.Parse(definition.Element("AutomaticallyApproveAllApplicationsBelow")?.Value ?? "-1");
 	}
 
 	protected override string StoryboardName => "Submit";
 
 	public override ChargenStage Stage => ChargenStage.Submit;
 
-	public override string HelpText => $@"The submit screen storyboard should not be edited";
+	public PermissionLevel AutomaticallyApproveAllApplicationsBelow { get; private set; }
+
+	public override string HelpText => $@"{BaseHelpText}
+	#3approve <level>#0 - automatically approve all apps of this level of below";
 
 	#region Overrides of ChargenScreenStoryboard
 
 	/// <inheritdoc />
 	protected override string SaveDefinition()
 	{
-		return new XElement("Definition").ToString();
+		return new XElement("Definition",
+				new XElement("AutomaticallyApproveAllApplicationsBelow", (int)AutomaticallyApproveAllApplicationsBelow)
+			).ToString();
 	}
 
 	#endregion
@@ -58,10 +66,54 @@ public class SubmitScreenStoryboard : ChargenScreenStoryboard
 		sb.Append(ShowHeader(voyeur));
 		sb.AppendLine();
 		sb.AppendLine(
-			"This is a hard-coded screen that allows a person to submit their character. There is no customisation possible."
+			"This is a hard-coded screen that allows a person to submit their character."
 				.Wrap(voyeur.InnerLineFormatLength).ColourCommand());
+		sb.AppendLine();
+		sb.AppendLine($"Automatically Approve All Apps Below: {AutomaticallyApproveAllApplicationsBelow.Describe().ColourValue()}");
 		return sb.ToString();
 	}
+
+	#region Overrides of ChargenScreenStoryboard
+
+	/// <inheritdoc />
+	public override bool BuildingCommand(ICharacter actor, StringStack command)
+	{
+		switch (command.PopSpeech().ToLowerInvariant().CollapseString())
+		{
+			case "approve":
+				return BuildingCommandApprove(actor, command);
+		}
+
+		return BuildingCommandFallback(actor, command.GetUndo());
+	}
+
+	private bool BuildingCommandApprove(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send($"What level of approval authority should applications at or below be automatically approved? The valid selections are {Enum.GetValues<PermissionLevel>().Select(x => x.Describe().ColourName()).ListToString()}.");
+			return false;
+		}
+
+		if (!command.SafeRemainingArgument.TryParseEnum<PermissionLevel>(out var value))
+		{
+			actor.OutputHandler.Send($"That is not a valid value. The valid selections are {Enum.GetValues<PermissionLevel>().Select(x => x.Describe().ColourName()).ListToString()}.");
+			return false;
+		}
+
+		if (value > actor.Account.Authority.Level)
+		{
+			actor.OutputHandler.Send("You can't set the minimum approval level higher than your own permission level.");
+			return false;
+		}
+
+		AutomaticallyApproveAllApplicationsBelow = value;
+		Changed = true;
+		actor.OutputHandler.Send($"All applications with a minimum approval level of {value.Describe().ColourValue()} or less will now be automatically approved.");
+		return true;
+	}
+
+	#endregion
 
 	internal class SubmitScreen : ChargenScreen
 	{

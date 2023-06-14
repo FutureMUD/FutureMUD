@@ -9528,6 +9528,8 @@ Additionally, there are numerous properties that can be set:
 	#3race set parent <race>#0 - sets a parent race for this race
 	#3race set parent none#0 - clears a parent race from this race
 	#3race set body <template>#0 - changes the body template of the race
+	#3race set parthealth <%>#0 - sets a multiplier for bodypart HPs
+	#3race set partsize <##>#0 - sets a number of steps bigger/smaller for bodyparts
 
 	#6Chargen Properties#0
 

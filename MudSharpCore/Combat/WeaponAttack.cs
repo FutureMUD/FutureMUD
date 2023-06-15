@@ -20,7 +20,7 @@ using Newtonsoft.Json;
 
 namespace MudSharp.Combat;
 
-public class WeaponAttack : SaveableItem, IWeaponAttack
+public class WeaponAttack : CombatAction, IWeaponAttack
 {
 	protected WeaponAttack(MudSharp.Models.WeaponAttack attack, IFuturemud gameworld)
 	{
@@ -100,7 +100,7 @@ public class WeaponAttack : SaveableItem, IWeaponAttack
 	public override string FrameworkItemType { get; } = "WeaponAttack";
 
 	#endregion
-
+	public override string ActionTypeName => "weapon attack";
 	public virtual bool UsableAttack(IPerceiver attacker, IGameItem weapon, IPerceiver target,
 		AttackHandednessOptions handedness,
 		bool ignorePosition,
@@ -118,22 +118,11 @@ public class WeaponAttack : SaveableItem, IWeaponAttack
 	}
 
 	public MeleeWeaponVerb Verb { get; set; }
-	public BuiltInCombatMoveType MoveType { get; set; }
-	public CombatMoveIntentions Intentions { get; set; }
-	public Difficulty RecoveryDifficultyFailure { get; set; }
-	public Difficulty RecoveryDifficultySuccess { get; set; }
-	public ExertionLevel ExertionLevel { get; set; }
-	public double StaminaCost { get; set; }
-	public double BaseDelay { get; set; }
-	public double Weighting { get; set; }
 	public IBodypartShape BodypartShape { get; set; }
 	public IDamageProfile Profile { get; set; }
-	public IFutureProg UsabilityProg { get; set; }
 	public Orientation Orientation { get; set; }
 	public Alignment Alignment { get; set; }
 	public AttackHandednessOptions HandednessOptions { get; set; }
-	private readonly List<IPositionState> _requiredPositionStates = new();
-	public IEnumerable<IPositionState> RequiredPositionStates => _requiredPositionStates;
 
 	public T GetAttackType<T>() where T : class, IWeaponAttack
 	{
@@ -201,7 +190,7 @@ public class WeaponAttack : SaveableItem, IWeaponAttack
 
 	#region Implementation of IKeyworded
 
-	public IEnumerable<string> Keywords => new[] { Name, Verb.Describe() };
+	public override IEnumerable<string> Keywords => new[] { Name, Verb.Describe() };
 
 	#endregion
 
@@ -246,7 +235,7 @@ public class WeaponAttack : SaveableItem, IWeaponAttack
 	{
 	}
 
-	public virtual string HelpText => @"The following options are available for this building command:
+	public override string HelpText => @"The following options are available for this building command:
 
 	#3name#0 - the name of the attack
 	#3weapon <type|none>#0 - set or clear the weapon type this attack belongs to
@@ -274,19 +263,12 @@ public class WeaponAttack : SaveableItem, IWeaponAttack
 	#3pain <name|id>#0 - sets a nominated expression as the pain expression
 	#3position <name>#0 - toggles a particular position (standing, swimming, etc) required to use this attack";
 
-	public virtual bool BuildingCommand(ICharacter actor, StringStack command)
+	public override bool BuildingCommand(ICharacter actor, StringStack command)
 	{
 		switch (command.PopSpeech().ToLowerInvariant())
 		{
-			case "name":
-				return BuildingCommandName(actor, command);
-			case "position":
-			case "pos":
-				return BuildingCommandPosition(actor, command);
 			case "weapon":
 				return BuildingCommandWeapon(actor, command);
-			case "weight":
-				return BuildingCommandWeight(actor, command);
 			case "alignment":
 				return BuildingCommandAlignment(actor, command);
 			case "orientation":
@@ -299,100 +281,26 @@ public class WeaponAttack : SaveableItem, IWeaponAttack
 				return BuildingCommandBlock(actor, command);
 			case "parry":
 				return BuildingCommandParry(actor, command);
-			case "exertion":
-				return BuildingCommandExertion(actor, command);
-			case "recover":
-				return BuildingCommandRecover(actor, command);
-			case "stamina":
-				return BuildingCommandStamina(actor, command);
 			case "damagetype":
 				return BuildingCommandDamagetype(actor, command);
 			case "verb":
 				return BuildingCommandVerb(actor, command);
 			case "angle":
 				return BuildingCommandAngle(actor, command);
-			case "prog":
-			case "futureprog":
-			case "usability":
-			case "usabilityprog":
-			case "usability prog":
-			case "usability futureprog":
-				return BuildingCommandProg(actor, command);
 			case "handedness":
 			case "hand":
 				return BuildingCommandHandedness(actor, command);
 			case "bodypart":
 				return BuildingCommandBodypart(actor, command);
-			case "intention":
-				return BuildingCommandIntention(actor, command);
 			case "damage":
 				return BuildingCommandDamage(actor, command);
 			case "pain":
 				return BuildingCommandPain(actor, command);
 			case "stun":
 				return BuildingCommandStun(actor, command);
-			case "delay":
-			case "speed":
-				return BuildingCommandDelay(actor, command);
 			default:
-				actor.OutputHandler.Send(HelpText.SubstituteANSIColour());
-				return false;
+				return base.BuildingCommand(actor, command.GetUndo());
 		}
-	}
-
-	private bool BuildingCommandPosition(ICharacter actor, StringStack command)
-	{
-		if (command.IsFinished)
-		{
-			actor.OutputHandler.Send(
-				$"You must enter a position state to toggle. The valid position states are: {PositionState.States.OrderBy(x => x.DescribeLocationMovementParticiple).Select(x => x.DescribeLocationMovementParticiple.TitleCase().ColourValue()).ListToString()}.");
-			return false;
-		}
-
-		var state = PositionState.GetState(command.SafeRemainingArgument);
-		if (state == null)
-		{
-			actor.OutputHandler.Send(
-				$"There is no such position state. The valid position states are: {PositionState.States.OrderBy(x => x.DescribeLocationMovementParticiple).Select(x => x.DescribeLocationMovementParticiple.TitleCase().ColourValue()).ListToString()}.");
-			return false;
-		}
-
-		if (_requiredPositionStates.Contains(state))
-		{
-			_requiredPositionStates.Remove(state);
-			actor.OutputHandler.Send(
-				$"The {state.DescribeLocationMovementParticiple.TitleCase().ColourValue()} position is no longer a valid position for this attack.{(_requiredPositionStates.Count == 0 ? "Warning: There are no valid position states for this attack.".Colour(Telnet.Red) : "")}");
-		}
-		else
-		{
-			_requiredPositionStates.Add(state);
-			actor.OutputHandler.Send(
-				$"The {state.DescribeLocationMovementParticiple.TitleCase().ColourValue()} position is now a valid position for this attack.");
-		}
-
-		Changed = true;
-		return true;
-	}
-
-	private bool BuildingCommandDelay(ICharacter actor, StringStack command)
-	{
-		if (command.IsFinished)
-		{
-			actor.OutputHandler.Send("How many seconds of delay should this attack have as a base?");
-			return false;
-		}
-
-		if (!double.TryParse(command.SafeRemainingArgument, out var delay))
-		{
-			actor.OutputHandler.Send("You must enter a number of seconds delay for this attack.");
-			return false;
-		}
-
-		BaseDelay = delay;
-		Changed = true;
-		actor.OutputHandler.Send(
-			$"This attack will now be delayed by {delay.ToString("N2", actor).Colour(Telnet.Green)} seconds as a base.");
-		return true;
 	}
 
 	private bool BuildingCommandStun(ICharacter actor, StringStack command)
@@ -464,40 +372,6 @@ public class WeaponAttack : SaveableItem, IWeaponAttack
 		Changed = true;
 		actor.OutputHandler.Send(
 			$"This attack now uses trait expression #{expression.Id.ToString("N0", actor)} for damage:  {expression.ToString()}");
-		return true;
-	}
-
-	private bool BuildingCommandIntention(ICharacter actor, StringStack command)
-	{
-		if (command.IsFinished)
-		{
-			actor.OutputHandler.Send("You must specify an intention or list or intentions to toggle.");
-			return false;
-		}
-
-		var intentions = Intentions;
-		while (!command.IsFinished)
-		{
-			if (!CombatExtensions.TryParseCombatMoveIntention(command.PopSpeech(), out var value))
-			{
-				actor.OutputHandler.Send($"There is no such combat intention as {command.Last}.");
-				return false;
-			}
-
-			if (intentions.HasFlag(value))
-			{
-				intentions &= ~value;
-			}
-			else
-			{
-				intentions |= value;
-			}
-		}
-
-		Intentions = intentions;
-		Changed = true;
-		actor.OutputHandler.Send(
-			$"This attack now has the following intention flags: {Intentions.GetFlags().OfType<CombatMoveIntentions>().Select(x => x.Describe().Colour(Telnet.Green)).ListToString()}.");
 		return true;
 	}
 
@@ -577,55 +451,6 @@ public class WeaponAttack : SaveableItem, IWeaponAttack
 		return true;
 	}
 
-	private bool BuildingCommandProg(ICharacter actor, StringStack command)
-	{
-		if (command.IsFinished)
-		{
-			actor.OutputHandler.Send(
-				"You can either specify a prog to control usability of this attack, or NONE to clear an existing one.");
-			return false;
-		}
-
-		if (command.Peek().EqualTo("none"))
-		{
-			UsabilityProg = null;
-			actor.OutputHandler.Send(
-				"This weapon attack will no longer use any prog to control its usability (it will always be valid).");
-			Changed = true;
-			return true;
-		}
-
-		var prog = long.TryParse(command.PopSpeech(), out var value)
-			? Gameworld.FutureProgs.Get(value)
-			: Gameworld.FutureProgs.GetByName(command.Last);
-		if (prog == null)
-		{
-			actor.OutputHandler.Send("There is no such prog.");
-			return false;
-		}
-
-		if (prog.ReturnType != FutureProgVariableTypes.Boolean)
-		{
-			actor.OutputHandler.Send(
-				$"You must specify a prog that returns a boolean (truth) value. The selected prog ({prog.FunctionName}) returns {prog.ReturnType.Describe().Colour(Telnet.Cyan)}.");
-			return false;
-		}
-
-		if (!prog.MatchesParameters(new[]
-			    { FutureProgVariableTypes.Character, FutureProgVariableTypes.Item, FutureProgVariableTypes.Character }))
-		{
-			actor.OutputHandler.Send(
-				$"You must specify a prog that accepts parameters character (attacker), item (weapon), character (target).");
-			return false;
-		}
-
-		UsabilityProg = prog;
-		Changed = true;
-		actor.OutputHandler.Send(
-			$"This weapon attack will now use the prog {UsabilityProg.FunctionName.Colour(Telnet.Cyan)} to control whether it is a valid attack or not.");
-		return true;
-	}
-
 	private bool BuildingCommandAngle(ICharacter actor, StringStack command)
 	{
 		if (command.IsFinished)
@@ -696,86 +521,6 @@ public class WeaponAttack : SaveableItem, IWeaponAttack
 		Changed = true;
 		actor.OutputHandler.Send(
 			$"This attack now does damage of type {Profile.DamageType.Describe().Colour(Telnet.Green)}.");
-		return true;
-	}
-
-	private bool BuildingCommandStamina(ICharacter actor, StringStack command)
-	{
-		if (command.IsFinished)
-		{
-			actor.OutputHandler.Send("How much base stamina cost should this attack incur?");
-			return false;
-		}
-
-		if (!double.TryParse(command.PopSpeech(), out var value) || value < 0.0)
-		{
-			actor.OutputHandler.Send("That is not a valid amount of stamina to use.");
-			return false;
-		}
-
-		StaminaCost = value;
-		Changed = true;
-		actor.OutputHandler.Send($"This attack will now use {StaminaCost.ToString("N2", actor)} stamina.");
-		return true;
-	}
-
-	private bool BuildingCommandRecover(ICharacter actor, StringStack command)
-	{
-		if (command.IsFinished)
-		{
-			actor.OutputHandler.Send(
-				"You must specify a difficulty for recovery for a successful and unsuccessful attack. See SHOW DIFFICULTIES for a list.");
-			return false;
-		}
-
-		if (!CheckExtensions.GetDifficulty(command.SafeRemainingArgument, out var success))
-		{
-			actor.OutputHandler.Send(
-				"You must enter a valid difficulty for success. See SHOW DIFFICULTIES for a list.");
-			return false;
-		}
-
-		if (command.IsFinished)
-		{
-			actor.OutputHandler.Send(
-				"You must specify a difficulty for recovery for a successful and unsuccessful attack. See SHOW DIFFICULTIES for a list.");
-			return false;
-		}
-
-		if (!CheckExtensions.GetDifficulty(command.SafeRemainingArgument, out var failure))
-		{
-			actor.OutputHandler.Send(
-				"You must enter a valid difficulty for failure. See SHOW DIFFICULTIES for a list.");
-			return false;
-		}
-
-		RecoveryDifficultySuccess = success;
-		RecoveryDifficultyFailure = failure;
-		Changed = true;
-		actor.OutputHandler.Send(
-			$"This attack is now rated at {success.Describe().Colour(Telnet.Green)} difficulty to recover from when successful, and {failure.Describe().Colour(Telnet.Green)} when unsuccessful.");
-		return true;
-	}
-
-	private bool BuildingCommandExertion(ICharacter actor, StringStack command)
-	{
-		if (command.IsFinished)
-		{
-			actor.OutputHandler.Send(
-				"What minimum exertion level should be set on the attacker after using this attack?");
-			return false;
-		}
-
-		if (!Enum.TryParse<ExertionLevel>(command.PopSpeech(), true, out var result))
-		{
-			actor.OutputHandler.Send(
-				$"That is not a valid exertion level. The valid values are {Enum.GetNames(typeof(ExertionLevel)).Select(x => x.Colour(Telnet.Green)).ListToString()}.");
-		}
-
-		ExertionLevel = result;
-		Changed = true;
-		actor.OutputHandler.Send(
-			$"This attack will now set its attacker to a minimum of {ExertionLevel.Describe().Colour(Telnet.Green)} exertion");
 		return true;
 	}
 
@@ -924,29 +669,6 @@ public class WeaponAttack : SaveableItem, IWeaponAttack
 		return true;
 	}
 
-	private bool BuildingCommandWeight(ICharacter actor, StringStack command)
-	{
-		if (command.IsFinished)
-		{
-			actor.OutputHandler.Send(
-				"What should the relative weight of using this attack be? A good practice is to use 100 for things that are the baseline liklihood.");
-			return false;
-		}
-
-		if (!double.TryParse(command.PopSpeech(), out var value) || value <= 0.0)
-		{
-			actor.OutputHandler.Send(
-				"You must enter a valid number for the relative likelihood of using this attack.");
-			return false;
-		}
-
-		Weighting = value;
-		Changed = true;
-		actor.OutputHandler.Send(
-			$"The relative likelihood of using this attack is now {Weighting.ToString("N2", actor)}.");
-		return true;
-	}
-
 	private bool BuildingCommandWeapon(ICharacter actor, StringStack command)
 	{
 		if (command.IsFinished)
@@ -992,20 +714,6 @@ public class WeaponAttack : SaveableItem, IWeaponAttack
 		Changed = true;
 		actor.OutputHandler.Send(
 			$"This attack is now assigned to the {weapontype.Name.Colour(Telnet.Cyan)} weapon type.");
-		return true;
-	}
-
-	private bool BuildingCommandName(ICharacter actor, StringStack command)
-	{
-		if (command.IsFinished)
-		{
-			actor.OutputHandler.Send("What name do you want to give to this attack?");
-			return false;
-		}
-
-		_name = command.SafeRemainingArgument.TitleCase();
-		Changed = true;
-		actor.OutputHandler.Send($"This attack is now called {Name.Colour(Telnet.Cyan)}");
 		return true;
 	}
 

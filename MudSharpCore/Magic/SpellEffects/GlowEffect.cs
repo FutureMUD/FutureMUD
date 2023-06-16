@@ -184,7 +184,7 @@ Note: You can use {0} in the sdesc/desc addenda to have a light-level descriptio
 	public bool IsInstantaneous => false;
 	public bool RequiresTarget => true;
 
-	public IMagicSpellEffect GetOrApplyEffect(ICharacter caster, IPerceivable target, OpposedOutcomeDegree outcome,
+	public IMagicSpellEffect? GetOrApplyEffect(ICharacter caster, IPerceivable? target, OpposedOutcomeDegree outcome,
 		SpellPower power, IMagicSpellEffectParent parent)
 	{
 		if (target is not IGameItem && target is not ICharacter)

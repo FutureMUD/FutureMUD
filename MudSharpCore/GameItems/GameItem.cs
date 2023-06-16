@@ -38,6 +38,7 @@ using MudSharp.Body.Position.PositionStates;
 using MudSharp.Economy.Currency;
 using ExpressionEngine;
 using MudSharp.Climate;
+using System.Numerics;
 
 namespace MudSharp.GameItems;
 
@@ -2224,7 +2225,8 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable
 
 	public ICharacteristicValue GetCharacteristic(ICharacteristicDefinition type, IPerceiver voyeur)
 	{
-		return GetItemType<IVariable>()?.GetCharacteristic(type);
+		var effect = EffectsOfType<IChangeCharacteristicEffect>().FirstOrDefault(x => x.Applies(this) && x.ChangesCharacteristic(type));
+		return effect?.GetChangedCharacteristic(type) ?? GetItemType<IVariable>()?.GetCharacteristic(type);
 	}
 
 	public void SetCharacteristic(ICharacteristicDefinition type, ICharacteristicValue value)

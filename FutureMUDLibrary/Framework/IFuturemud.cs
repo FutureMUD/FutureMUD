@@ -478,6 +478,7 @@ namespace MudSharp.Framework
         void Destroy(IClimateModel model);
         void Destroy(ITraitExpression expression);
         void Destroy(IWeaponAttack attack);
+        void Destroy(ICombatMessage message);
         void Destroy(IChargenAdvice advice);
         void Destroy(ICharacterIntroTemplate template);
         void Destroy(ICraft craft);

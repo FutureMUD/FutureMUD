@@ -360,6 +360,42 @@ public class RaceButcheryProfile : SaveableItem, IRaceButcheryProfile
 
 	#endregion
 
+	private const string BuildingHelpText = @"You can use the following options with this command:
+
+	#3name <name>#0 - renames this profile
+	#3verb butcher|salvage#0 - changes the verb used for interacting with these corpses
+	#3tool <tag>#0 - sets the tag of tools required to interact with this
+	#3skindiff <difficulty>#0 - sets the difficulty of the skinning check
+	#3can <prog>#0 - sets a prog to control whether someone can butcher this
+	#3why <prog>#0 - sets a prog for a custom error message on can butcher failure
+	#3product <which>#0 - toggles a butchery product being included in this profile
+
+For all of the below phase emote echoes, you can use #6$0#0 for the actor, #6$1#0 for the corpse, and #6$2#0 for the tool item.
+
+#FSkin Phases#0
+
+	#3skinemote add <seconds> <emotetext>#0 - adds a new skinning phase with specified length and emote
+	#3skinemote remove <##>#0 - removes the specified skin phase
+	#3skinemote swap <##1> <##2>#0 - swaps the order of two skin phases
+	#3skinemote edit <##> <new text>#0 - changes the echo for a skin emote
+	#3skinemote delay <##> <seconds>#0 - changes the delay for a skin emote phase
+
+#FButcher Phases#0
+
+	#3emote add <seconds> <emotetext>#0 - adds a new phase with specified length and emote
+	#3emote remove <##>#0 - removes the specified phase
+	#3emote swap <##1> <##2>#0 - swaps the order of two phases
+	#3emote edit <##> <new text>#0 - changes the echo for an emote
+	#3emote delay <##> <seconds>#0 - changes the delay for an emote phase
+
+#FSub-Component Butcher Phases#0
+
+	#3subemote <which> add <seconds> <emotetext>#0 - adds a new phase with specified length and emote
+	#3subemote <which> remove <##>#0 - removes the specified phase
+	#3subemote <which> swap <##1> <##2>#0 - swaps the order of two phases
+	#3subemote <which> edit <##> <new text>#0 - changes the echo for an emote
+	#3subemote <which> delay <##> <seconds>#0 - changes the delay for an emote phase";
+
 
 	public bool BuildingCommand(ICharacter actor, StringStack command)
 	{
@@ -371,6 +407,7 @@ public class RaceButcheryProfile : SaveableItem, IRaceButcheryProfile
 				return BuildingCommandVerb(actor, command);
 			case "tool":
 				return BuildingCommandTool(actor, command);
+			case "skindiff":
 			case "skindifficulty":
 			case "skin_difficulty":
 			case "skin difficulty":
@@ -413,7 +450,7 @@ public class RaceButcheryProfile : SaveableItem, IRaceButcheryProfile
 			case "prod":
 				return BuildingCommandProduct(actor, command);
 			default:
-				actor.OutputHandler.Send("Some help text.");
+				actor.OutputHandler.Send(BuildingHelpText.SubstituteANSIColour());
 				return false;
 		}
 	}
@@ -1237,7 +1274,7 @@ public class RaceButcheryProfile : SaveableItem, IRaceButcheryProfile
 			: Gameworld.ButcheryProducts.GetByName(command.Last);
 		if (product == null)
 		{
-			actor.OutputHandler.Send("There is no such butchery profile.");
+			actor.OutputHandler.Send("There is no such butchery product.");
 			return false;
 		}
 
@@ -1290,10 +1327,29 @@ public class RaceButcheryProfile : SaveableItem, IRaceButcheryProfile
 
 			sb.AppendLine();
 			sb.AppendLine("Skin Products:");
-			foreach (var product in _products.Where(x => x.IsPelt))
-			{
-				sb.AppendLine($"\t#{product.Id.ToString("N0", voyeur)} {product.Name.ColourName()}");
-			}
+			sb.AppendLine();
+			sb.AppendLine(StringUtilities.GetTextTable(
+				from item in _products.Where(x => x.IsPelt)
+				select new List<string>
+				{
+					item.Id.ToString("N0", voyeur),
+					item.Name,
+					item.CanProduceProg.MXPClickableFunctionName(),
+					item.TargetBody.Name,
+					item.RequiredBodyparts.Select(x => x.Name).ListToCommaSeparatedValues(", "),
+					item.ProductItems.Select(x => $"{x.NormalQuantity.ToString("N0", voyeur)}x {x.NormalProto.EditHeader()}".ColourObject()).ListToCommaSeparatedValues(", ")
+				},
+				new List<string>
+				{
+					"Id",
+					"Name",
+					"Can Prog",
+					"Body",
+					"Bodyparts",
+					"Produced"
+				},
+				voyeur
+			));
 		}
 
 		sb.AppendLine();
@@ -1311,10 +1367,30 @@ public class RaceButcheryProfile : SaveableItem, IRaceButcheryProfile
 
 		sb.AppendLine();
 		sb.AppendLine("Products:");
-		foreach (var product in _products.Where(x => !x.IsPelt))
-		{
-			sb.AppendLine($"\t#{product.Id.ToString("N0", voyeur)} {product.Name.ColourName()}");
-		}
+		sb.AppendLine(StringUtilities.GetTextTable(
+			from item in _products.Where(x => !x.IsPelt)
+			select new List<string>
+			{
+				item.Id.ToString("N0", voyeur),
+				item.Name,
+				item.CanProduceProg.MXPClickableFunctionName(),
+				item.TargetBody.Name,
+				item.Subcategory,
+				item.RequiredBodyparts.Select(x => x.Name).ListToCommaSeparatedValues(", "),
+				item.ProductItems.Select(x => $"{x.NormalQuantity.ToString("N0", voyeur)}x {x.NormalProto.EditHeader()}".ColourObject()).ListToCommaSeparatedValues(", ")
+			},
+			new List<string>
+			{
+				"Id",
+				"Name",
+				"Can Prog",
+				"Body",
+				"Subcategory",
+				"Bodyparts",
+				"Produced"
+			},
+			voyeur
+		));
 
 		foreach (var category in _breakdownChecks.Keys)
 		{
@@ -1340,10 +1416,28 @@ public class RaceButcheryProfile : SaveableItem, IRaceButcheryProfile
 
 			sb.AppendLine();
 			sb.AppendLine("Products:");
-			foreach (var product in _products.Where(x => !x.IsPelt && x.Subcategory.EqualTo(category)))
-			{
-				sb.AppendLine($"\t#{product.Id.ToString("N0", voyeur)} {product.Name.ColourName()}");
-			}
+			sb.AppendLine(StringUtilities.GetTextTable(
+				from item in _products.Where(x => !x.IsPelt && x.Subcategory.EqualTo(category))
+				select new List<string>
+				{
+					item.Id.ToString("N0", voyeur),
+					item.Name,
+					item.CanProduceProg.MXPClickableFunctionName(),
+					item.TargetBody.Name,
+					item.RequiredBodyparts.Select(x => x.Name).ListToCommaSeparatedValues(", "),
+					item.ProductItems.Select(x => $"{x.NormalQuantity.ToString("N0", voyeur)}x {x.NormalProto.EditHeader()}".ColourObject()).ListToCommaSeparatedValues(", ")
+				},
+				new List<string>
+				{
+					"Id",
+					"Name",
+					"Can Prog",
+					"Body",
+					"Bodyparts",
+					"Produced"
+				},
+				voyeur
+			));
 		}
 
 		return sb.ToString();

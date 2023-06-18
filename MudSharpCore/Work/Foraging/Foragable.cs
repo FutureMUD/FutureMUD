@@ -212,17 +212,17 @@ public class Foragable : EditableItem, IForagable
 
 	private const string BuildingCommandHelp = @"You can use the following options with this command:
 
-    name <name> - renames this foragable
-    proto <which> - sets the proto for this foragable to load
-    chance <#> - the relative weight of this option being found
-    quanity <# or dice> - a number or dice expression for the quantity found
-    difficulty <difficulty> - the difficulty that the result is evaluated against for this item
-    outcome <min> <max> - the minimum and maximum check outcome that this item can appear on
-    types <type1> [<type2>] ... [<typen>] - sets the yield types that this foragable appears against
-    canforage <prog> - sets a prog that controls whether this foragable can be found
-    canforage clear - clears the can-forage prog
-    onforage <prog> - sets a prog that will run when this item is foraged
-    onforage clear - clears the on-forage prog";
+    #3name <name>#0 - renames this foragable
+    #3proto <which>#0 - sets the proto for this foragable to load
+    #3chance <#>#0 - the relative weight of this option being found
+    #3quanity <# or dice>#0 - a number or dice expression for the quantity found
+    #3difficulty <difficulty>#0 - the difficulty that the result is evaluated against for this item
+    #3outcome <min> <max>#0 - the minimum and maximum check outcome that this item can appear on
+    #3types <type1> [<type2>] ... [<typen>]#0 - sets the yield types that this foragable appears against
+    #3canforage <prog>#0 - sets a prog that controls whether this foragable can be found
+    #3canforage clear#0 - clears the can-forage prog
+    #3onforage <prog>#0 - sets a prog that will run when this item is foraged
+    #3onforage clear#0 - clears the on-forage prog";
 
 	public override bool BuildingCommand(ICharacter actor, StringStack command)
 	{
@@ -247,7 +247,7 @@ public class Foragable : EditableItem, IForagable
 			case "quantity":
 				return BuildingCommandQuantity(actor, command);
 			default:
-				actor.OutputHandler.Send(BuildingCommandHelp);
+				actor.OutputHandler.Send(BuildingCommandHelp.SubstituteANSIColour());
 				return false;
 		}
 	}

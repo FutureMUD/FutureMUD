@@ -1662,6 +1662,18 @@ Syntax:
 	}
 
 	[PlayerCommand("Peace", "peace")]
+	[HelpInfo("Peace", @"The peace command is used to end combats in your current location or to place a room effect that prevents fights from starting.
+
+There are a few different ways that you can use this command:
+
+	#3peace#0 - this ends all combats that have any combatants in this location
+	#3peace permanent#0 - places an effect that blocks all combat here
+	#3peace permanent <prog>#0 - same as above, but with an optional prog for exceptions
+	#3peace off#0 - removes a permanent peace effect
+
+Note: The prog used with #3peace permanent#0 takes the following parameters and returns #6boolean#0:
+
+#6location#0 room, #6perceiver#0 attacker, #6perceiver#0 target", AutoHelp.HelpArg)]
 	[CommandPermission(PermissionLevel.JuniorAdmin)]
 	protected static void Peace(ICharacter actor, string command)
 	{

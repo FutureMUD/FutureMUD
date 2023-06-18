@@ -47,5 +47,7 @@ namespace MudSharp.Work.Butchering
         /// The actual items produced when this product is invoked
         /// </summary>
         IEnumerable<IButcheryProductItem> ProductItems { get; }
+
+        IButcheryProduct Clone(string newName);
     }
 }

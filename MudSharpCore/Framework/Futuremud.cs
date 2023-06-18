@@ -1495,6 +1495,11 @@ public sealed partial class Futuremud : IFuturemud, IDisposable
 		_weaponAttacks.Remove(attack);
 	}
 
+	public void Destroy(ICombatMessage message)
+	{
+		CombatMessageManager.RemoveCombatMessage(message);
+	}
+
 	public void Destroy(IChargenAdvice advice)
 	{
 		_chargenAdvices.Remove(advice);

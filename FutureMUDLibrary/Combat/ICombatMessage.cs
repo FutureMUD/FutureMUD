@@ -28,5 +28,6 @@ namespace MudSharp.Combat
         bool CouldApply(IWeaponAttack attack);
         string ShowBuilder(ICharacter actor);
         bool BuildingCommand(ICharacter actor, StringStack command);
+        void Delete();
     }
 }

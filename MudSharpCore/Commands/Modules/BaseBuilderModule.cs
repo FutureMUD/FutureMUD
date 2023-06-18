@@ -477,6 +477,15 @@ If you do not wish to approve or decline, you may type {"abort edit".Colour(Teln
 
 		helper.GetEditableItemFunc(character).BuildingCommand(character, input);
 	}
+	
+	protected const string GenericReviewableSearchList = @"The full list of search filters is as follows:
+
+	#6all#0 - includes obsolete and non-current revisions
+	#6mine#0 - only shows things you personally created
+	#6by <account>#0 - only shows things the nominated account created
+	#6reviewed <account>#0 - only shows things the nominated account has approved
+	#6+<keyword>#0 - only shows things with the nominated keyword
+	#6-<keyword>#0 - excludes things with the nominated keyword";
 
 	public static void GenericRevisableList(ICharacter character, StringStack input, EditableRevisableItemHelper helper)
 	{

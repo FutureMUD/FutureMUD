@@ -503,10 +503,41 @@ The syntax for this command is as follows:
 
 	#region Combat Messages
 
+	private const string CombatMessageHelp =
+		@"This command can be used to create, view and edit combat messages. Combat messages are used by weapon attacks, defenses and other combat moves.
+
+The syntax for this command is as follows:
+
+	#3cm list [<filters>]#0 - shows all combat messages. See below for filters.
+	#3cm show <which>#0 - shows information about a combat message
+	#3cm edit <which>#0 - begins editing a combat message
+	#3cm edit#0 - an alias for #3cm show#0 on your currently edited message
+	#3cm close#0 - closes the currently edited combat message
+	#3cm new#0 - creates a new combat message
+	#3cm clone <which>#0 - clones a combat message
+	#3cm delete#0 - deletes the combat message you're currently editing
+	#3cm set chance <%>#0 - the chance between 0 and 1 of this message being chosen
+	#3cm set priority <number>#0 - the higher the number, the earlier the message will be evaluated to see if it applies
+	#3cm set verb <verb>#0 - the verb this attack applies to, or NONE for all
+	#3cm set outcome <outcome>#0 - the outcome this attack applies to, or NONE for all
+	#3cm set type <type>#0 - the BuiltInCombatType this combat message is for
+	#3cm set prog <prog id|name>#0 - the prog that controls whether this attack applies or NONE to clear.
+	#3cm set message <message>#0 - the message for this attack
+	#3cm set fail <message>#0 - the fail message for this attack
+	#3cm set attack <id>#0 - toggles a specific weapon attack on or off for this message
+
+You can also use the following options to filter searches:
+
+	#6<verb>#0 - show all combat messages for the specified attack verb
+	#6+<key>#0 - include messages with the specified text
+	#6-<key>#0 - exclude messages with the specified text
+	#6*<attack>#0 - include combat messages only that apply to specified weapon attack
+	#6&<type>#0 - filters messages for a particular type";
+
 	[PlayerCommand("CombatMessage", "combatmessage", "cm")]
 	[CommandPermission(PermissionLevel.Admin)]
 	[HelpInfo("combatmessage",
-		"This command can be used to edit a combat message. The valid subcommands are list, show, new, edit, close, set, clone and delete.",
+		CombatMessageHelp,
 		AutoHelp.HelpArgOrNoArg)]
 	protected static void CombatMessage(ICharacter actor, string command)
 	{
@@ -576,7 +607,13 @@ The syntax for this command is as follows:
 		if (ss.Peek().EqualToAny("help", "?"))
 		{
 			actor.OutputHandler.Send(
-				"You can use the following options to help refine your search:\n\t<verb> - show all combat messages for the specified attack verb\n\t+<key> - include messages with the specified text\n\t-<key> - exclude messages with the specified text\n\t*<attack> - include combat messages only that apply to specified weapon attack\n\t&<type> - filters messages for a particular type");
+				@"You can use the following options to help refine your search:
+
+	#6<verb>#0 - show all combat messages for the specified attack verb
+	#6+<key>#0 - include messages with the specified text
+	#6-<key>#0 - exclude messages with the specified text
+	#6*<attack>#0 - include combat messages only that apply to specified weapon attack
+	#6&<type>#0 - filters messages for a particular type");
 			return;
 		}
 
@@ -696,7 +733,27 @@ The syntax for this command is as follows:
 			return;
 		}
 
-		actor.OutputHandler.Send("TODO");
+		var cm = actor.EffectsOfType<BuilderEditingEffect<ICombatMessage>>().First().EditingItem;
+
+		actor.OutputHandler.Send($"Are you sure that you want to permanently delete the following combat message (this cannot be undone).\n{cm.Message.ColourCommand()}\n{Accept.StandardAcceptPhrasing}");
+		actor.AddEffect(new Accept(actor, new GenericProposal
+		{
+			DescriptionString = $"Deleting combat message {cm.Message.ColourCommand()}",
+			AcceptAction = text =>
+			{
+				actor.OutputHandler.Send($"You delete the combat message {cm.Message.ColourCommand()} (#{cm.Id.ToString("N0", actor)}).");
+				cm.Delete();
+				actor.Gameworld.Destroy(cm);
+			},
+			RejectAction = text =>
+			{
+				actor.OutputHandler.Send("You decide not to delete the combat message.");
+			},
+			ExpireAction = () =>
+			{
+				actor.OutputHandler.Send("You decide not to delete the combat message.");
+			}
+		}), TimeSpan.FromSeconds(120));
 	}
 
 	private static void CombatMessageSet(ICharacter actor, StringStack ss)

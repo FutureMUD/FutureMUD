@@ -157,6 +157,24 @@ public class CombatMessage : SaveableItem, ICombatMessage
 		return true;
 	}
 
+	public void Delete()
+	{
+		Gameworld.SaveManager.Abort(this);
+		if (_id != 0)
+		{
+			using (new FMDB())
+			{
+				Gameworld.SaveManager.Flush();
+				var dbitem = FMDB.Context.CombatMessages.Find(Id);
+				if (dbitem != null)
+				{
+					FMDB.Context.CombatMessages.Remove(dbitem);
+					FMDB.Context.SaveChanges();
+				}
+			}
+		}
+	}
+
 	public override void Save()
 	{
 		var dbitem = FMDB.Context.CombatMessages.Find(Id);
@@ -245,15 +263,25 @@ public class CombatMessage : SaveableItem, ICombatMessage
 		}
 
 		actor.OutputHandler.Send(
-			"You can use the following options with this command:\n\tchance <0...1> - the chance between 0 and 1 of this message being chosen\n\tpriority <number> - the higher the number, the earlier the message will be evaluated to see if it applies\n\tverb <verb> - the verb this attack applies to, or NONE for all\n\toutcome <outcome> - the outcome this attack applies to, or NONE for all\n\ttype <type> - the BuiltInCombatType this combat message is for\n\tprog <prog id|name> - the prog that controls whether this attack applies or NONE to clear.\n\tmessage <message> - the message for this attack\n\tfail <message> - the fail message for this attack\n\tattack <id> - toggles a specific weapon attack on or off for this message");
+			@"You can use the following options with this command:
+
+	#3chance <%>#0 - the chance between 0 and 1 of this message being chosen
+	#3priority <number>#0 - the higher the number, the earlier the message will be evaluated to see if it applies
+	#3verb <verb>#0 - the verb this attack applies to, or NONE for all
+	#3outcome <outcome>#0 - the outcome this attack applies to, or NONE for all
+	#3type <type>#0 - the BuiltInCombatType this combat message is for
+	#3prog <prog id|name>#0 - the prog that controls whether this attack applies or NONE to clear.
+	#3message <message>#0 - the message for this attack
+	#3fail <message>#0 - the fail message for this attack
+	#3attack <id>#0 - toggles a specific weapon attack on or off for this message".SubstituteANSIColour());
 		return false;
 	}
 
 	private bool BuildingCommandChance(ICharacter actor, StringStack command)
 	{
-		if (command.IsFinished || !double.TryParse(command.PopSpeech(), out var value) || value < 0 || value > 1)
+		if (command.IsFinished || !command.SafeRemainingArgument.TryParsePercentage(actor.Account.Culture, out var value) || value < 0 || value > 1)
 		{
-			actor.OutputHandler.Send("You must enter a chance between 0 (no chance) and 1 (guaranteed).");
+			actor.OutputHandler.Send("You must enter a chance between 0% (no chance) and 100% (guaranteed).");
 			return false;
 		}
 
@@ -345,7 +373,14 @@ public class CombatMessage : SaveableItem, ICombatMessage
 			case BuiltInCombatMoveType.UnbalancingBlow:
 			case BuiltInCombatMoveType.DownedAttack:
 				return
-					"Valid tokens for this message: \n\t$0 - the attacker\n\t$1 - the defender\n\t$2 - the attack weapon\n\t$3 - the defense weapon, if any. This can be null, so use $?3 to check for null.\n\t$4 - the ward weapon, if any. This can be null, so use $?4 to check for null.\n\t{1} - the bodypart the attack targets";
+					@"Valid tokens for this message: 
+
+	$0 - the attacker
+	$1 - the defender
+	$2 - the attack weapon
+	$3 - the defense weapon, if any. This can be null, so use $?3 to check for null.
+	$4 - the ward weapon, if any. This can be null, so use $?4 to check for null.
+	{1} - the bodypart the attack targets";
 			case BuiltInCombatMoveType.NaturalWeaponAttack:
 			case BuiltInCombatMoveType.ClinchUnarmedAttack:
 			case BuiltInCombatMoveType.StaggeringBlowUnarmed:
@@ -357,17 +392,41 @@ public class CombatMessage : SaveableItem, ICombatMessage
 			case BuiltInCombatMoveType.UnbalancingBlowClinch:
 			case BuiltInCombatMoveType.DownedAttackUnarmed:
 				return
-					"Valid tokens for this message: \n\t$0 - the attacker\n\t$1 - the defender\n\t$3 - the defense weapon, if any. This can be null, so use $?3 to check for null.\n\t$4 - the ward weapon, if any. This can be null, so use $?4 to check for null.\n\t\n\t{0} - the bodypart the attacker is using to make the attack\n\t{1} - the bodypart the attack targets\n\t@hand - left|right|front|back depending on which side the bodypart is on";
+					@"Valid tokens for this message: 
+
+	$0 - the attacker
+	$1 - the defender
+	$3 - the defense weapon, if any. This can be null, so use $?3 to check for null.
+	$4 - the ward weapon, if any. This can be null, so use $?4 to check for null.
+	
+	{0} - the bodypart the attacker is using to make the attack
+	{1} - the bodypart the attack targets
+	@hand - left|right|front|back depending on which side the bodypart is on";
 			case BuiltInCombatMoveType.Dodge:
 			case BuiltInCombatMoveType.DesperateDodge:
 				return
-					"Valid tokens for this message: \n\t$0 - the attacker\n\t$1 - the defender\n\t$4 - the ward weapon, if any. This can be null, so use $?4 to check for null.\n\t\n\t{0} - the bodypart the attacker is using to make the attack\n\t{1} - the bodypart the attack targets";
+					@"Valid tokens for this message: 
+
+	$0 - the attacker
+	$1 - the defender
+	$4 - the ward weapon, if any. This can be null, so use $?4 to check for null.
+	
+	{0} - the bodypart the attacker is using to make the attack
+	{1} - the bodypart the attack targets";
 			case BuiltInCombatMoveType.Parry:
 			case BuiltInCombatMoveType.Block:
 			case BuiltInCombatMoveType.DesperateParry:
 			case BuiltInCombatMoveType.DesperateBlock:
 				return
-					"Valid tokens for this message: \n\t$0 - the attacker\n\t$1 - the defender\n\t$3 - the defense weapon, if any. This can be null, so use $?3 to check for null.\n\t$4 - the ward weapon, if any. This can be null, so use $?4 to check for null.\n\t\n\t{0} - the bodypart the attacker is using to make the attack\n\t{1} - the bodypart the attack targets";
+					@"Valid tokens for this message: 
+
+	$0 - the attacker
+	$1 - the defender
+	$3 - the defense weapon, if any. This can be null, so use $?3 to check for null.
+	$4 - the ward weapon, if any. This can be null, so use $?4 to check for null.
+	
+	{0} - the bodypart the attacker is using to make the attack
+	{1} - the bodypart the attack targets";
 			case BuiltInCombatMoveType.Disarm:
 				break;
 			case BuiltInCombatMoveType.Flee:
@@ -380,7 +439,11 @@ public class CombatMessage : SaveableItem, ICombatMessage
 				break;
 			case BuiltInCombatMoveType.AdvanceAndFire:
 				return
-					"Valid tokens for this message: \n\t$0 - the attacker\n\t$1 - the defender\n\t$2 - the attack weapon";
+					@"Valid tokens for this message: 
+
+	$0 - the attacker
+	$1 - the defender
+	$2 - the attack weapon";
 			case BuiltInCombatMoveType.ReceiveCharge:
 				break;
 			case BuiltInCombatMoveType.WardDefense:

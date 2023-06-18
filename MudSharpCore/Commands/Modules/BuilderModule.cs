@@ -3730,7 +3730,7 @@ The syntax for this command is as follows:
 	#region Tattoos
 
 	protected const string TattooHelp =
-		@"The tattoo command is used to view, create and inscribe tattoos. Players are able to create and submit their own tattoos but only admins can approve them.
+		@$"The tattoo command is used to view, create and inscribe tattoos. Players are able to create and submit their own tattoos but only admins can approve them.
 
 The following options are used to view, edit and create tattoo designs:
 
@@ -3743,13 +3743,15 @@ The following options are used to view, edit and create tattoo designs:
 	#3tattoo set <subcommand>#0 - changes something about the tattoo. See its help for more info.
 	#3tattoo edit submit#0 - submits a tattoo for review
 
+{GenericReviewableSearchList}
+
 The following commands are used to put tattoos on people:
 
 	tattoo inscribe <target> <tattoo id|name> <bodypart> - begins inscribing a tattoo on someone
 	tattoo continue <target> <tattoo keyword> - continues inscribing an unfinished tattoo on someone";
 
 	protected const string TattooAdminHelp =
-		@"The tattoo command is used to view, create and inscribe tattoos. Players are able to create and submit their own tattoos but only admins can approve them.
+		@$"The tattoo command is used to view, create and inscribe tattoos. Players are able to create and submit their own tattoos but only admins can approve them.
 
 The following options are used to view, edit and create tattoo designs:
 
@@ -3763,6 +3765,8 @@ The following options are used to view, edit and create tattoo designs:
 	#3tattoo edit submit#0 - submits a tattoo for review
 	#3tattoo review all|mine|<id|name>#0 - reviews a submitted tattoo
 	#3tattoo review list#0 - shows all tattoos submitted for review
+
+{GenericReviewableSearchList}
 
 The following commands are used to put tattoos on people:
 
@@ -5379,7 +5383,7 @@ The syntax for this command is as follows:
 	#region Skins
 
 	public const string ItemSkinHelp =
-		@"This command is used to make item skins, which can be applied to items to change their appearance. They can be manually added to items by admins, set to load that way through shops and created via crafts. Players with the correct permissions are allowed to create item skins of their own.
+		@$"This command is used to make item skins, which can be applied to items to change their appearance. They can be manually added to items by admins, set to load that way through shops and created via crafts. Players with the correct permissions are allowed to create item skins of their own.
 
 When players are editing item skins they will only be able to edit skins that they originally created.
 
@@ -5394,7 +5398,9 @@ The syntax to use this command is as follows:
 	#3itemskin show <which>#0 - views information about an item skin
 	#3itemskin show#0 - views information about your currently editing item skin
 	#3itemskin set ...#0 - edits properties of an item skin
-	#3item review all|mine|<builder name>|<id>#0 - opens the specified item skins for review and approval";
+	#3item review all|mine|<builder name>|<id>#0 - opens the specified item skins for review and approval
+
+{GenericReviewableSearchList}";
 
 	[PlayerCommand("ItemSkin", "itemskin", "is")]
 	[HelpInfo("itemskin", ItemSkinHelp, AutoHelp.HelpArgOrNoArg)]
@@ -5437,7 +5443,7 @@ The syntax to use this command is as follows:
 	#region NPC Spawners
 
 	public const string NPCSpawnerHelp =
-		@"The NPCSpawner command is used to view, create and edit NPC Spawners. NPC Spawners monitor zones for populations of NPCs and when they dip below target levels they load more in.
+		$@"The NPCSpawner command is used to view, create and edit NPC Spawners. NPC Spawners monitor zones for populations of NPCs and when they dip below target levels they load more in.
 
 The following options are available:
 
@@ -5450,7 +5456,9 @@ The following options are available:
 	#3npcspawner set <subcommand>#0 - changes something about the NPC Spawner. See its help for more info.
 	#3npcspawner edit submit#0 - submits a NPC Spawner for review
 	#3npcspawner review all|mine|<id|name>#0 - reviews a submitted NPC Spawner
-	#3npcspawner review list#0 - shows all NPC Spawner submitted for review";
+	#3npcspawner review list#0 - shows all NPC Spawner submitted for review
+
+{GenericReviewableSearchList}";
 
 	[PlayerCommand("NPCSpawner", "npcspawner", "spawner")]
 	[CommandPermission(PermissionLevel.Admin)]

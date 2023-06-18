@@ -197,7 +197,7 @@ public class EditableItemHelper
 			return protos;
 		},
 		GetEditHeader = item => $"Race #{item.Id:N0} ({item.Name})",
-		DefaultCommandHelp = BuilderModule.RaceHelp
+		DefaultCommandHelp = HeritageBuilderModule.RaceHelp
 	};
 
 	public static EditableItemHelper BodypartShapeHelper { get; } = new()
@@ -424,7 +424,7 @@ public class EditableItemHelper
 
 		CustomSearch = (protos, keyword, gameworld) => protos,
 		GetEditHeader = item => $"Weapon Type #{item.Id:N0} ({item.Name})",
-		DefaultCommandHelp = BuilderModule.WeaponTypeHelp
+		DefaultCommandHelp = CombatBuilderModule.WeaponTypeHelp
 	};
 
 	public static EditableItemHelper AmmunitionTypeHelper { get; } = new()
@@ -598,7 +598,7 @@ public class EditableItemHelper
 
 		CustomSearch = (protos, keyword, gameworld) => protos,
 		GetEditHeader = item => $"Ammunition Type #{item.Id:N0} ({item.Name})",
-		DefaultCommandHelp = BuilderModule.AmmunitionHelp
+		DefaultCommandHelp = CombatBuilderModule.AmmunitionHelp
 	};
 
 	public static EditableItemHelper NPCSpawnerHelper { get; } = new()

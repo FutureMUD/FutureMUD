@@ -360,5 +360,10 @@ namespace MudSharp.Framework {
             reader.MoveToContent();
             return reader.ReadInnerXml();
         }
+
+        public static string NowNoLonger(this bool item)
+        {
+	        return item ? "now" : "no longer";
+        }
     }
 }

@@ -243,10 +243,10 @@ public class ForagableProfile : EditableItem, IForagableProfile
 
 	private const string BuildingHelpText = @"You can use the following options with this command:
 
-    name <name> - renames this foragable profile
-    yield <which> <max> <hourly regain> - sets up a yield for this profile
-    yield <which> 0 - removes a yield from this profile
-    foragable <which> - toggles a foragable belonging to this profile";
+    #3name <name>#0 - renames this foragable profile
+    #3yield <which> <max> <hourly regain>#0 - sets up a yield for this profile
+    #3yield <which> 0#0 - removes a yield from this profile
+    #3foragable <which>#0 - toggles a foragable belonging to this profile";
 
 	public override bool BuildingCommand(ICharacter actor, StringStack command)
 	{
@@ -257,10 +257,13 @@ public class ForagableProfile : EditableItem, IForagableProfile
 			case "yield":
 			case "yields":
 				return BuildingCommandYield(actor, command);
+			case "forage":
+			case "forageable":
+			case "foraged":
 			case "foragable":
 				return BuildingCommandForagable(actor, command);
 			default:
-				actor.Send("That is not a valid building command for foragables.");
+				actor.Send(BuildingHelpText.SubstituteANSIColour());
 				return false;
 		}
 	}

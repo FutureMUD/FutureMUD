@@ -61,7 +61,15 @@ public class CombatMessage : SaveableItem, ICombatMessage
 			foreach (var item in rhs.WeaponAttackIds)
 			{
 				dbitem.CombatMessagesWeaponAttacks.Add(new CombatMessagesWeaponAttacks
-					{ CombatMessage = dbitem, WeaponAttackId = item });
+				{ CombatMessage = dbitem, WeaponAttackId = item });
+			}
+			foreach (var item in rhs.CombatActionIds)
+			{
+				dbitem.CombatMessagesCombatActions.Add(new CombatMessagesCombatActions
+				{
+					CombatMessage = dbitem,
+					CombatActionId = item
+				});
 			}
 
 			FMDB.Context.CombatMessages.Add(dbitem);
@@ -86,6 +94,11 @@ public class CombatMessage : SaveableItem, ICombatMessage
 		{
 			WeaponAttackIds.Add(attack);
 		}
+
+		foreach (var move in message.CombatMessagesCombatActions.Select(x => x.CombatActionId).ToList())
+		{
+			CombatActionIds.Add(move);
+		}
 	}
 
 	public double Chance { get; set; }
@@ -97,6 +110,7 @@ public class CombatMessage : SaveableItem, ICombatMessage
 	public int Priority { get; set; }
 	public MeleeWeaponVerb? Verb { get; set; }
 	public HashSet<long> WeaponAttackIds { get; } = new();
+	public HashSet<long> CombatActionIds { get; } = new();
 
 	public bool Applies(ICharacter character, IPerceiver target, IGameItem weapon,
 		IWeaponAttack attack, BuiltInCombatMoveType type, Outcome outcome,
@@ -157,6 +171,24 @@ public class CombatMessage : SaveableItem, ICombatMessage
 		return true;
 	}
 
+	public bool CouldApply(IAuxillaryCombatAction action)
+	{
+		if (CombatActionIds.Any())
+		{
+			if (!CombatActionIds.Contains(action?.Id ?? 0))
+			{
+				return false;
+			}
+		}
+
+		if (Type != action?.MoveType)
+		{
+			return false;
+		}
+
+		return true;
+	}
+
 	public void Delete()
 	{
 		Gameworld.SaveManager.Abort(this);
@@ -192,6 +224,14 @@ public class CombatMessage : SaveableItem, ICombatMessage
 			dbitem.CombatMessagesWeaponAttacks.Add(new CombatMessagesWeaponAttacks
 				{ CombatMessage = dbitem, WeaponAttackId = item });
 		}
+		foreach (var item in CombatActionIds)
+		{
+			dbitem.CombatMessagesCombatActions.Add(new CombatMessagesCombatActions
+			{
+				CombatMessage = dbitem,
+				CombatActionId = item
+			});
+		}
 
 		Changed = false;
 	}
@@ -220,6 +260,15 @@ public class CombatMessage : SaveableItem, ICombatMessage
 			{
 				var weapon = Gameworld.WeaponTypes.FirstOrDefault(x => x.Attacks.Contains(attack));
 				sb.AppendLine($"\t{attack.Name} (#{attack.Id}){(weapon != null ? $" [{weapon.Name}]" : "")}");
+			}
+		}
+		if (CombatActionIds.Any())
+		{
+			sb.AppendLine();
+			sb.AppendLine("Combat Actions:");
+			foreach (var action in CombatActionIds.Select(x => Gameworld.AuxillaryCombatActions.Get(x)))
+			{
+				sb.AppendLine(action.DescribeForCombatMessageShow(actor));
 			}
 		}
 
@@ -260,6 +309,8 @@ public class CombatMessage : SaveableItem, ICombatMessage
 				return BuildingCommandVerb(actor, command);
 			case "attack":
 				return BuildingCommandAttack(actor, command);
+			case "move":
+				return BuildingCommandMove(actor, command);
 		}
 
 		actor.OutputHandler.Send(
@@ -908,6 +959,44 @@ public class CombatMessage : SaveableItem, ICombatMessage
 			WeaponAttackIds.Add(value);
 			actor.OutputHandler.Send(
 				$"This combat message will now specifically apply to weapon attack #{value.ToString("N0", actor)} ({attack.Name.Colour(Telnet.Cyan)})");
+		}
+
+		Changed = true;
+		return true;
+	}
+
+	private bool BuildingCommandMove(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("Which combat move ID do you want to add or remove from this combat message?");
+			return false;
+		}
+
+		if (!long.TryParse(command.PopSpeech(), out var value))
+		{
+			actor.OutputHandler.Send("You must enter a valid ID.");
+			return false;
+		}
+
+		var move = actor.Gameworld.AuxillaryCombatActions.Get(value);
+		if (move == null)
+		{
+			actor.OutputHandler.Send("That is not a valid combat move.");
+			return false;
+		}
+
+		if (CombatActionIds.Contains(value))
+		{
+			CombatActionIds.Remove(value);
+			actor.OutputHandler.Send(
+				$"This combat message will no longer specifically apply to combat move #{value.ToString("N0", actor)} ({move.Name.Colour(Telnet.Cyan)})");
+		}
+		else
+		{
+			CombatActionIds.Add(value);
+			actor.OutputHandler.Send(
+				$"This combat message will now specifically apply to combat move #{value.ToString("N0", actor)} ({move.Name.Colour(Telnet.Cyan)})");
 		}
 
 		Changed = true;

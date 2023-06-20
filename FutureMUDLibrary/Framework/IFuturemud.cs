@@ -233,7 +233,8 @@ namespace MudSharp.Framework
         IUneditableAll<IWearableSize> WearableSizes { get; }
         IUneditableAll<IWriting> Writings { get; }
         IUneditableAll<IWeaponAttack> WeaponAttacks { get; }
-        IUneditableAll<IShop> Shops { get; }
+		IUneditableAll<IAuxillaryCombatAction> AuxillaryCombatActions { get; }
+		IUneditableAll<IShop> Shops { get; }
         IUneditableAll<IEconomicZone> EconomicZones { get; }
         IUneditableAll<IGroupAITemplate> GroupAITemplates { get; }
         IUneditableAll<IGroupAI> GroupAIs { get; }

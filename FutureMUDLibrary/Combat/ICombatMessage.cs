@@ -26,6 +26,7 @@ namespace MudSharp.Combat
             IBodypart bodypart);
 
         bool CouldApply(IWeaponAttack attack);
+        bool CouldApply(IAuxillaryCombatAction action);
         string ShowBuilder(ICharacter actor);
         bool BuildingCommand(ICharacter actor, StringStack command);
         void Delete();

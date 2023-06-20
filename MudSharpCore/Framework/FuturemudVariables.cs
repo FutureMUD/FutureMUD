@@ -224,6 +224,7 @@ public sealed partial class Futuremud : IDisposable
 	private readonly All<IWriting> _writings = new();
 	private readonly All<IDrawing> _drawings = new();
 	private readonly All<IWeaponAttack> _weaponAttacks = new();
+	private readonly All<IAuxillaryCombatAction> _auxillaryCombatActions = new();
 
 	private readonly All<IShop> _shops = new();
 	private readonly All<IEconomicZone> _economicZones = new();
@@ -496,6 +497,7 @@ public sealed partial class Futuremud : IDisposable
 	public IUneditableAll<IWriting> Writings => _writings;
 
 	public IUneditableAll<IWeaponAttack> WeaponAttacks => _weaponAttacks;
+	public IUneditableAll<IAuxillaryCombatAction> AuxillaryCombatActions => _auxillaryCombatActions;
 
 	public IUneditableAll<IShop> Shops => _shops;
 

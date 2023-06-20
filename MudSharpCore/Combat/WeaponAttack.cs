@@ -28,26 +28,26 @@ public class WeaponAttack : CombatAction, IWeaponAttack
 		LoadFromDatabase(attack);
 	}
 
-	protected virtual void LoadFromDatabase(MudSharp.Models.WeaponAttack attack)
+	protected virtual void LoadFromDatabase(MudSharp.Models.WeaponAttack dbitem)
 	{
-		Id = attack.Id;
-		_name = attack.Name;
-		Verb = (MeleeWeaponVerb)attack.Verb;
-		UsabilityProg = Gameworld.FutureProgs.Get(attack.FutureProgId ?? 0);
-		Profile = new SimpleDamageProfile(attack, Gameworld);
-		MoveType = (BuiltInCombatMoveType)attack.MoveType;
-		Intentions = (CombatMoveIntentions)attack.Intentions;
-		RecoveryDifficultySuccess = (Difficulty)attack.RecoveryDifficultySuccess;
-		RecoveryDifficultyFailure = (Difficulty)attack.RecoveryDifficultyFailure;
-		StaminaCost = attack.StaminaCost;
-		BaseDelay = attack.BaseDelay;
-		Weighting = attack.Weighting;
-		BodypartShape = Gameworld.BodypartShapes.Get(attack.BodypartShapeId ?? 0);
-		ExertionLevel = (ExertionLevel)attack.ExertionLevel;
-		Orientation = (Orientation)attack.Orientation;
-		Alignment = (Alignment)attack.Alignment;
-		HandednessOptions = (AttackHandednessOptions)attack.HandednessOptions;
-		_requiredPositionStates.AddRange(attack.RequiredPositionStateIds.Split(' ').Select(x => long.Parse(x))
+		Id = dbitem.Id;
+		_name = dbitem.Name;
+		Verb = (MeleeWeaponVerb)dbitem.Verb;
+		UsabilityProg = Gameworld.FutureProgs.Get(dbitem.FutureProgId ?? 0);
+		Profile = new SimpleDamageProfile(dbitem, Gameworld);
+		MoveType = (BuiltInCombatMoveType)dbitem.MoveType;
+		Intentions = (CombatMoveIntentions)dbitem.Intentions;
+		RecoveryDifficultySuccess = (Difficulty)dbitem.RecoveryDifficultySuccess;
+		RecoveryDifficultyFailure = (Difficulty)dbitem.RecoveryDifficultyFailure;
+		StaminaCost = dbitem.StaminaCost;
+		BaseDelay = dbitem.BaseDelay;
+		Weighting = dbitem.Weighting;
+		BodypartShape = Gameworld.BodypartShapes.Get(dbitem.BodypartShapeId ?? 0);
+		ExertionLevel = (ExertionLevel)dbitem.ExertionLevel;
+		Orientation = (Orientation)dbitem.Orientation;
+		Alignment = (Alignment)dbitem.Alignment;
+		HandednessOptions = (AttackHandednessOptions)dbitem.HandednessOptions;
+		_requiredPositionStates.AddRange(dbitem.RequiredPositionStateIds.Split(' ').Select(x => long.Parse(x))
 		                                       .Select(x => PositionState.GetState(x)));
 	}
 
@@ -778,12 +778,12 @@ public class WeaponAttack : CombatAction, IWeaponAttack
 	public string ShowBuilder(ICharacter actor)
 	{
 		var sb = new StringBuilder();
-		sb.AppendLine($"Weapon Attack {Id} - {Name}");
-		sb.AppendLine(
-			$"Weapon Type: {Gameworld.WeaponTypes.FirstOrDefault(x => x.Attacks.Contains(this))?.Name.Colour(Telnet.Green) ?? "None".Colour(Telnet.Red)}");
+		sb.AppendLine($"Weapon Attack {Id.ToString("N0", actor)} - {Name}");
+		sb.AppendLine($"Weapon Type: {Gameworld.WeaponTypes.FirstOrDefault(x => x.Attacks.Contains(this))?.Name.Colour(Telnet.Green) ?? "None".Colour(Telnet.Red)}");
+		sb.AppendLine($"Move Type: {MoveType.Describe().Colour(Telnet.Green)}");
 		sb.AppendLine(
 			$"Position States: {RequiredPositionStates.Select(x => x.DescribeLocationMovementParticiple.TitleCase().ColourValue()).ListToCommaSeparatedValues(", ")}");
-		sb.AppendLine($"Move Type: {MoveType.Describe().Colour(Telnet.Green)}");
+		
 		sb.AppendLineColumns((uint)actor.LineFormatLength, 3,
 			$"Base Delay: {BaseDelay.ToString("N2", actor)}s".ColourValue(),
 			$"Alignment: {Alignment.Describe().Colour(Telnet.Green)}",

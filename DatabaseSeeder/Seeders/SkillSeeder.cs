@@ -261,7 +261,6 @@ Again, the choices you make here can be fixed later so don't stress it too great
 				case CheckType.MeleeWeaponPenetrateCheck:
 				case CheckType.RangedWeaponPenetrateCheck:
 				case CheckType.PenetrationDefenseCheck:
-				case CheckType.CombatMoveCheck:
 				case CheckType.CombatRecoveryCheck:
 				case CheckType.MedicalExaminationCheck:
 				case CheckType.LocksmithingCheck:
@@ -367,6 +366,7 @@ Again, the choices you make here can be fixed later so don't stress it too great
 				case CheckType.MindAuditPower:
 				case CheckType.MindBarrierPowerCheck:
 				case CheckType.MindExpelPower:
+				case CheckType.CombatMoveCheck:
 					// Variable skills
 					AddCheck(check,
 						new TraitExpression { Name = $"{check.DescribeEnum(true)}", Expression = "variable" }, 1,

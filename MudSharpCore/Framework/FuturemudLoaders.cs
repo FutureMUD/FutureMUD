@@ -1439,6 +1439,24 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 		var count = attacks.Count;
 		Console.WriteLine("Loaded {0:N0} {1}.", count, count == 1 ? "Weapon Attack" : "Weapon Attacks");
 
+		Console.WriteLine("\nLoading Auxillary Combat Action Types...");
+		var actions = (from action in FMDB.Context.CombatActions.AsNoTracking() select action).ToList();
+		foreach (var action in actions)
+		{
+			_auxillaryCombatActions.Add(new AuxillaryCombatAction(action, this));
+		}
+#if DEBUG
+		sw.Stop();
+		Console.WriteLine($"Duration: {sw.ElapsedMilliseconds}ms");
+#endif
+
+		count = attacks.Count;
+		Console.WriteLine("Loaded {0:N0} {1}.", count, count == 1 ? "Auxillary Combat Action" : "Auxillary Combat Actions");
+
+#if DEBUG
+		sw.Restart();
+#endif
+
 		Console.WriteLine("\nLoading Melee Weapon Types...");
 #if DEBUG
 		sw.Restart();

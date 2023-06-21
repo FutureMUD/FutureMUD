@@ -2826,9 +2826,9 @@ This is the syntax for editing skills:
 		sb.AppendLine($"Status: {ch.Status.Describe().Colour(Telnet.Cyan)}");
 		sb.AppendLine($"Breathing: {ch.BreathingStrategy.GetType().Name.Colour(Telnet.Cyan)}");
 		sb.AppendLine(
-			$"Burden: Offense[{ch.CombatBurdenOffense.ToString("N0", actor).Colour(Telnet.Green)}]\tDefense[{ch.CombatBurdenDefense.ToString("N0", actor).Colour(Telnet.Green)}]");
+			$"Burden: Offense[{ch.CombatBurdenOffense.ToString("N2", actor).Colour(Telnet.Green)}]\tDefense[{ch.CombatBurdenDefense.ToString("N2", actor).Colour(Telnet.Green)}]");
 		sb.AppendLine(
-			$"Advantage: Offense[{ch.OffensiveAdvantage.ToString("N0", actor).Colour(Telnet.Green)}]\tDefense[{ch.DefensiveAdvantage.ToString("N0", actor).Colour(Telnet.Green)}]");
+			$"Advantage: Offense[{ch.OffensiveAdvantage.ToString("N2", actor).Colour(Telnet.Green)}]\tDefense[{ch.DefensiveAdvantage.ToString("N2", actor).Colour(Telnet.Green)}]");
 		var fluid = ch.Location.Terrain(ch).WaterFluid ?? actor.Gameworld.Liquids.First();
 		sb.AppendLine(
 			$"Inventory Buoyancy: {ch.Body.AllItems.Sum(x => x.Buoyancy(fluid.Density)).ToString("N0", actor).ColourValue()}");

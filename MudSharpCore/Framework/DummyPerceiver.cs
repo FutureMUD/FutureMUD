@@ -243,8 +243,8 @@ public class DummyPerceiver : DummyPerceivable, IPerceiver
 		}
 	}
 
-	public virtual int DefensiveAdvantage { get; set; }
-	public virtual int OffensiveAdvantage { get; set; }
+	public virtual double DefensiveAdvantage { get; set; }
+	public virtual double OffensiveAdvantage { get; set; }
 
 	public double GetBonusForDefendersFromTargeting()
 	{

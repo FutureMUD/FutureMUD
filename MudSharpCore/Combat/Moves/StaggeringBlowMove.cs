@@ -75,14 +75,14 @@ public class StaggeringBlowMove : MeleeWeaponAttack
 					Target)));
 				Gameworld.Scheduler.DelayScheduleType(Target, ScheduleType.Combat,
 					TimeSpan.FromMilliseconds(Gameworld.GetStaticDouble("StaggeringBlowReelTimeMinorFailure")));
-				Target.DefensiveAdvantage -= Gameworld.GetStaticInt("StaggeringBlowDefensiveAdvantageMinorFailure");
+				Target.DefensiveAdvantage -= Gameworld.GetStaticDouble("StaggeringBlowDefensiveAdvantageMinorFailure");
 				break;
 			case Outcome.Fail:
 				Target.OutputHandler.Handle(new EmoteOutput(new Emote("@ are|is sent reeling by the force of the blow!",
 					Target)));
 				Gameworld.Scheduler.DelayScheduleType(Target, ScheduleType.Combat,
 					TimeSpan.FromMilliseconds(Gameworld.GetStaticDouble("StaggeringBlowReelTimeFailure")));
-				Target.DefensiveAdvantage -= Gameworld.GetStaticInt("StaggeringBlowDefensiveAdvantageFailure");
+				Target.DefensiveAdvantage -= Gameworld.GetStaticDouble("StaggeringBlowDefensiveAdvantageFailure");
 				break;
 			case Outcome.MajorFail:
 				if (Target.PositionState.Upright)
@@ -102,7 +102,7 @@ public class StaggeringBlowMove : MeleeWeaponAttack
 
 				Gameworld.Scheduler.DelayScheduleType(Target, ScheduleType.Combat,
 					TimeSpan.FromMilliseconds(Gameworld.GetStaticDouble("StaggeringBlowReelTimeMajorFailure")));
-				Target.DefensiveAdvantage -= Gameworld.GetStaticInt("StaggeringBlowDefensiveAdvantageMajorFailure");
+				Target.DefensiveAdvantage -= Gameworld.GetStaticDouble("StaggeringBlowDefensiveAdvantageMajorFailure");
 				break;
 		}
 

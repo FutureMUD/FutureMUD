@@ -9,5 +9,6 @@ namespace MudSharp.Combat
 	{
 		XElement Save();
 		void ApplyEffect(ICharacter attacker, IPerceiver target, CheckOutcome outcome);
+		string DescribeForShow(ICharacter actor);
 	}
 }

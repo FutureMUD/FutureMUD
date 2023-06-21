@@ -83,7 +83,7 @@ public class UnbalancingBlowMove : MeleeWeaponAttack
 						TimeSpan.FromMilliseconds(Gameworld.GetStaticDouble("StaggeringBlowStaggerEffectLength")));
 				}
 
-				Target.DefensiveAdvantage -= Gameworld.GetStaticInt("UnbalancingBlowDefensiveAdvantageMinorFailure");
+				Target.DefensiveAdvantage -= Gameworld.GetStaticDouble("UnbalancingBlowDefensiveAdvantageMinorFailure");
 				break;
 			case Outcome.Fail:
 				if (Target.PositionState.Upright)
@@ -97,7 +97,7 @@ public class UnbalancingBlowMove : MeleeWeaponAttack
 						TimeSpan.FromMilliseconds(Gameworld.GetStaticDouble("StaggeringBlowStaggerEffectLength")));
 				}
 
-				Target.DefensiveAdvantage -= Gameworld.GetStaticInt("UnbalancingBlowDefensiveAdvantageFailure");
+				Target.DefensiveAdvantage -= Gameworld.GetStaticDouble("UnbalancingBlowDefensiveAdvantageFailure");
 				break;
 			case Outcome.MajorFail:
 				if (Target.PositionState.Upright)
@@ -111,7 +111,7 @@ public class UnbalancingBlowMove : MeleeWeaponAttack
 						TimeSpan.FromMilliseconds(Gameworld.GetStaticDouble("StaggeringBlowStaggerEffectLength")));
 				}
 
-				Target.DefensiveAdvantage -= Gameworld.GetStaticInt("UnbalancingBlowDefensiveAdvantageMajorFailure");
+				Target.DefensiveAdvantage -= Gameworld.GetStaticDouble("UnbalancingBlowDefensiveAdvantageMajorFailure");
 				break;
 		}
 

@@ -12,7 +12,7 @@ using System.Xml.Linq;
 
 namespace MudSharp.Combat.AuxillaryEffects;
 #nullable enable
-internal class AttackerAdvantage : IAuxillaryEffect
+internal class DefenderAdvantage : IAuxillaryEffect
 {
 	public required IFuturemud Gameworld { get; set; }
 	public required double DefenseBonusPerDegree { get; set; }
@@ -23,7 +23,7 @@ internal class AttackerAdvantage : IAuxillaryEffect
 	public required bool AllowPositives { get; set; }
 
 	[SetsRequiredMembers]
-	public AttackerAdvantage(XElement root, IFuturemud gameworld)
+	public DefenderAdvantage(XElement root, IFuturemud gameworld)
 	{
 		Gameworld = gameworld;
 		DefenseBonusPerDegree = double.Parse(root.Attribute("defensebonusperdegree")!.Value);
@@ -37,7 +37,7 @@ internal class AttackerAdvantage : IAuxillaryEffect
 	public XElement Save()
 	{
 		return new XElement("Effect",
-			new XAttribute("type", "attackeradvantage"),
+			new XAttribute("type", "defenderadvantage"),
 			new XAttribute("defensebonusperdegree", DefenseBonusPerDegree),
 			new XAttribute("offensebonusperdegree", OffenseBonusPerDegree),
 			new XAttribute("defensetrait", DefenseTrait.Id),
@@ -46,10 +46,9 @@ internal class AttackerAdvantage : IAuxillaryEffect
 			new XAttribute("allowpositives", AllowPositives)
 		);
 	}
-
 	public string DescribeForShow(ICharacter actor)
 	{
-		return $"Attacker Advantage | vs {DefenseTrait.Name.ColourValue()}@{DefenseDifficulty.DescribeColoured()} | Off: [{(AllowNegatives ? OffenseBonusPerDegree.InvertSign() : 0.0).ToBonusString(actor)}/{(AllowPositives ? OffenseBonusPerDegree : 0.0).ToBonusString(actor)}] Def: [{(AllowNegatives ? DefenseBonusPerDegree.InvertSign() : 0.0).ToBonusString(actor)}/{(AllowPositives ? DefenseBonusPerDegree : 0.0).ToBonusString(actor)}]";
+		return $"Defender Advantage | vs {DefenseTrait.Name.ColourValue()}@{DefenseDifficulty.DescribeColoured()} | Off: [{(AllowNegatives ? OffenseBonusPerDegree.InvertSign() : 0.0).ToBonusString(actor)}/{(AllowPositives ? OffenseBonusPerDegree : 0.0).ToBonusString(actor)}] Def: [{(AllowNegatives ? DefenseBonusPerDegree.InvertSign() : 0.0).ToBonusString(actor)}/{(AllowPositives ? DefenseBonusPerDegree : 0.0).ToBonusString(actor)}]";
 	}
 
 	public void ApplyEffect(ICharacter attacker, IPerceiver? target, CheckOutcome outcome)
@@ -69,16 +68,16 @@ internal class AttackerAdvantage : IAuxillaryEffect
 				{
 					return;
 				}
-				attacker.OffensiveAdvantage += OffenseBonusPerDegree * (int)opposed.Degree;
-				attacker.DefensiveAdvantage += DefenseBonusPerDegree * (int)opposed.Degree;
+				tch.OffensiveAdvantage += OffenseBonusPerDegree * (int)opposed.Degree;
+				tch.DefensiveAdvantage += DefenseBonusPerDegree * (int)opposed.Degree;
 				break;
 			case OpposedOutcomeDirection.Opponent:
 				if (!AllowNegatives)
 				{
 					return;
 				}
-				attacker.OffensiveAdvantage += OffenseBonusPerDegree * -1.0 * (int)opposed.Degree;
-				attacker.DefensiveAdvantage += DefenseBonusPerDegree * -1.0 * (int)opposed.Degree;
+				tch.OffensiveAdvantage += OffenseBonusPerDegree * -1.0 * (int)opposed.Degree;
+				tch.DefensiveAdvantage += DefenseBonusPerDegree * -1.0 * (int)opposed.Degree;
 				break;
 			case OpposedOutcomeDirection.Stalemate:
 				return;

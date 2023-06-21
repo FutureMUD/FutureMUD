@@ -129,7 +129,7 @@ public class TakedownMove : WeaponAttackMove
 			TimeSpan.FromMilliseconds(Gameworld.GetStaticDouble("TakedownReelTime")));
 		CharacterTarget.AddEffect(new Staggered(CharacterTarget),
 			TimeSpan.FromMilliseconds(Gameworld.GetStaticDouble("StaggeringBlowStaggerEffectLength")));
-		CharacterTarget.DefensiveAdvantage -= Gameworld.GetStaticInt("TakedownDefensiveAdvantage");
+		CharacterTarget.DefensiveAdvantage -= Gameworld.GetStaticDouble("TakedownDefensiveAdvantage");
 
 		var wounds = CharacterTarget.PassiveSufferDamage(new Damage
 		{

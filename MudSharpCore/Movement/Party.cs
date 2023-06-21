@@ -151,7 +151,7 @@ public class Party : PerceiverItem, IParty
 
 	public override int InnerLineFormatLength => int.MaxValue;
 
-	public override int DefensiveAdvantage
+	public override double DefensiveAdvantage
 	{
 		get => 0;
 		set
@@ -160,7 +160,7 @@ public class Party : PerceiverItem, IParty
 		}
 	}
 
-	public override int OffensiveAdvantage
+	public override double OffensiveAdvantage
 	{
 		get => 0;
 		set

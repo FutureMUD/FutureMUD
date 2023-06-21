@@ -1,6 +1,7 @@
 ﻿using MudSharp.Body;
 using MudSharp.Body.Position;
 using MudSharp.Character;
+using MudSharp.Combat.AuxillaryEffects;
 using MudSharp.Database;
 using MudSharp.Framework;
 using MudSharp.Framework.Save;
@@ -84,6 +85,19 @@ namespace MudSharp.Combat
 			Changed = false;
 		}
 
+		protected static IAuxillaryEffect LoadEffect(XElement definition, IFuturemud gameworld, AuxillaryCombatAction action)
+		{
+			switch (definition.Attribute("type").Value)
+			{
+				case "attackeradvantage":
+					return new AttackerAdvantage(definition, gameworld);
+				case "defenderadvantage":
+					return new DefenderAdvantage(definition, gameworld);
+				default:
+					throw new NotImplementedException();
+			}
+		}
+
 		protected virtual void SaveMoveSpecificData(Models.CombatAction dbitem)
 		{
 			var root = new XElement("Root");
@@ -119,7 +133,12 @@ namespace MudSharp.Combat
 			);
 			sb.AppendLine($"Intentions: {Intentions.Describe()}");
 			sb.AppendLine();
-			sb.AppendLine(ShowBuilderInternal(actor));
+			sb.AppendLine("Effects:");
+			sb.AppendLine();
+			foreach (var effect in _auxillaryEffects)
+			{
+				sb.AppendLine(effect.DescribeForShow(actor));
+			}
 			sb.AppendLine();
 			sb.AppendLine("Combat Message Hierarchy:");
 			var messages = Gameworld.CombatMessageManager.CombatMessages.Where(x => x.CouldApply(this))
@@ -133,10 +152,6 @@ namespace MudSharp.Combat
 			}
 
 			return sb.ToString();
-		}
-
-		protected virtual string ShowBuilderInternal(ICharacter actor) {
-			return string.Empty;
 		}
 
 		public override bool BuildingCommand(ICharacter actor, StringStack command)

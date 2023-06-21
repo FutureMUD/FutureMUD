@@ -495,13 +495,13 @@ public partial class Body : PerceiverItem, IBody
 
 	public override int InnerLineFormatLength => Actor.InnerLineFormatLength;
 
-	public override int DefensiveAdvantage
+	public override double DefensiveAdvantage
 	{
 		get => Actor.DefensiveAdvantage;
 		set => Actor.DefensiveAdvantage = value;
 	}
 
-	public override int OffensiveAdvantage
+	public override double OffensiveAdvantage
 	{
 		get => Actor.OffensiveAdvantage;
 		set => Actor.OffensiveAdvantage = value;

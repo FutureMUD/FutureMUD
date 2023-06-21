@@ -496,7 +496,7 @@ public class MeleeWeaponAttack : WeaponAttackMove
 						                                              defenderMove.CheckDifficulty,
 						                                              parry.Weapon.WeaponType.AttackTrait,
 						                                              Assailant,
-						                                              parry.Weapon.WeaponType.ParryBonus).Outcome - 1;
+						                                              parry.Weapon.WeaponType.ParryBonus).Outcome - 1.0;
 					defenderMove.Assailant.OutputHandler.Handle(
 						new EmoteOutput(
 							new Emote(
@@ -612,7 +612,7 @@ public class MeleeWeaponAttack : WeaponAttackMove
 					ImproveCombatPosition(defenderMove.Assailant, Assailant);
 					var newFacing = defenderMove.Assailant.GetFacingFor(Assailant);
 
-					defenderMove.Assailant.OffensiveAdvantage += Gameworld.GetStaticInt("PerfectDodgeAdvantage");
+					defenderMove.Assailant.OffensiveAdvantage += Gameworld.GetStaticDouble("PerfectDodgeAdvantage");
 
 					if (previousFacing != newFacing)
 					{

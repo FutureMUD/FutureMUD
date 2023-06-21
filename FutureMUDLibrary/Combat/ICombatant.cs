@@ -16,15 +16,15 @@ namespace MudSharp.Combat {
         /// </summary>
         IPerceiver CombatTarget { get; set; }
 
-        /// <summary>
-        ///     The advantage this combatant has gained with regards to defense
-        /// </summary>
-        int DefensiveAdvantage { get; set; }
+		/// <summary>
+		///     The advantage this combatant has gained with regards to defense
+		/// </summary>
+		double DefensiveAdvantage { get; set; }
 
         /// <summary>
         ///     The advantage this combatant has gained with regards to offense
         /// </summary>
-        int OffensiveAdvantage { get; set; }
+        double OffensiveAdvantage { get; set; }
 
         /// <summary>
         ///     The defense type preferred to defend against incoming attacks

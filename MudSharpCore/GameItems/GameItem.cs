@@ -2127,7 +2127,7 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable
 
 	#region ICombatant Overrides
 
-	public override int DefensiveAdvantage
+	public override double DefensiveAdvantage
 	{
 		get => 0;
 		set
@@ -2136,7 +2136,7 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable
 		}
 	}
 
-	public override int OffensiveAdvantage
+	public override double OffensiveAdvantage
 	{
 		get => 0;
 		set

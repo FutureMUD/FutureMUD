@@ -70,14 +70,14 @@ public class UnarmedDownedMeleeAttack : NaturalAttackMove
 					Target)));
 				Gameworld.Scheduler.DelayScheduleType(Target, ScheduleType.Combat,
 					TimeSpan.FromMilliseconds(Gameworld.GetStaticDouble("DownedMeleeReelTimeMinorFailure")));
-				Target.DefensiveAdvantage -= Gameworld.GetStaticInt("DownedMeleeDefensiveAdvantageMinorFailure");
+				Target.DefensiveAdvantage -= Gameworld.GetStaticDouble("DownedMeleeDefensiveAdvantageMinorFailure");
 				break;
 			case Outcome.Fail:
 				Target.OutputHandler.Handle(new EmoteOutput(new Emote("@ are|is sent reeling by the force of the blow!",
 					Target)));
 				Gameworld.Scheduler.DelayScheduleType(Target, ScheduleType.Combat,
 					TimeSpan.FromMilliseconds(Gameworld.GetStaticDouble("DownedMeleeReelTimeFailure")));
-				Target.DefensiveAdvantage -= Gameworld.GetStaticInt("DownedMeleeDefensiveAdvantageFailure");
+				Target.DefensiveAdvantage -= Gameworld.GetStaticDouble("DownedMeleeDefensiveAdvantageFailure");
 				break;
 			case Outcome.MajorFail:
 				Target.OutputHandler.Handle(new EmoteOutput(new Emote("@ are|is sent reeling by the force of the blow!",
@@ -87,7 +87,7 @@ public class UnarmedDownedMeleeAttack : NaturalAttackMove
 
 				Gameworld.Scheduler.DelayScheduleType(Target, ScheduleType.Combat,
 					TimeSpan.FromMilliseconds(Gameworld.GetStaticDouble("DownedMeleeReelTimeMajorFailure")));
-				Target.DefensiveAdvantage -= Gameworld.GetStaticInt("DownedMeleeDefensiveAdvantageMajorFailure");
+				Target.DefensiveAdvantage -= Gameworld.GetStaticDouble("DownedMeleeDefensiveAdvantageMajorFailure");
 				break;
 		}
 

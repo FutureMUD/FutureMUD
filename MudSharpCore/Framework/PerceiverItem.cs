@@ -173,8 +173,8 @@ public abstract class PerceiverItem : PerceivedItem, IPerceiver
 		}
 	}
 
-	public virtual int DefensiveAdvantage { get; set; }
-	public virtual int OffensiveAdvantage { get; set; }
+	public virtual double DefensiveAdvantage { get; set; }
+	public virtual double OffensiveAdvantage { get; set; }
 
 	private IAimInformation _aim;
 	protected RoomLayer _roomLayer;

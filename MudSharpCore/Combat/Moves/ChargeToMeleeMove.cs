@@ -128,7 +128,7 @@ public class ChargeToMeleeMove : CombatMoveBase
 						target), style: OutputStyle.CombatMessage, flags: OutputFlags.InnerWrap));
 			Assailant.MeleeRange = true;
 			target.MeleeRange = true;
-			Assailant.OffensiveAdvantage += Gameworld.GetStaticInt("OffensiveAdvantageFromCharge");
+			Assailant.OffensiveAdvantage += Gameworld.GetStaticDouble("OffensiveAdvantageFromCharge");
 			_delay = 0;
 			return new CombatMoveResult
 			{
@@ -182,7 +182,7 @@ public class ChargeToMeleeMove : CombatMoveBase
 				target.MeleeRange = true;
 			}
 
-			Assailant.OffensiveAdvantage += Gameworld.GetStaticInt("OffensiveAdvantageFromCharge");
+			Assailant.OffensiveAdvantage += Gameworld.GetStaticDouble("OffensiveAdvantageFromCharge");
 			_delay = 0;
 			return new CombatMoveResult
 			{

@@ -98,7 +98,8 @@ namespace MudSharp.Combat {
         SwoopAttack,
         SwoopAttackUnarmed,
         EnvenomingAttack,
-        EnvenomingAttackClinch
+        EnvenomingAttackClinch,
+        AuxiliaryMove
     }
 
     public enum WeaponClassification {

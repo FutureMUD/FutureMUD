@@ -2795,45 +2795,46 @@ The syntax to use this command is as follows:");
 	private static void CombatConfigHelp(ICharacter actor)
 	{
 		actor.Send($@"You can edit the following settings:
-    name <name>         - Change the name of the combat setting
-    desc <description>  - Change the description
-    global              - Toggle the Global flag (admin only)
-    availprog <progID>  - Configure the Availability Prog (admin only)
-    classifications <classifications> - Designated weapon classifications legal for this Combat Config
-    character <id>      - Reassign a Combat Config to a character
-    aim <percentage>    - The percentage of aim before you auto-shoot
-    stamina <amount>    - The amount of stamina below which you will stop attacking
-    melee <strategy>    - Designate overall melee strategy
-    range <strategy>    - Designate overall ranged strategy
-    grapple <response>  - Set the response to someone grappling you
-    setup <setup>       - Preferred overall gear setup for the auto-inventory
-    weapon <percentage> - configures the percentage chance of you using a weapon attack move
-    natural <percentage> - configures the percentage chance of you using a natural attack move
-    auxillary <percentage> - configures the percentage chance of you using an auxilliary move
-    magic <percentage> - configures the percentage chance of you using a magic attack move
-    prefer_armed <true/false> - configures whether you prefer to fight armed and will seek to wield a weapon
-    prefer_favourite <true/false> - configures whether you prefer to retrieve the weapon you're wielding rather than drawing a new one if you lose it
-    prefer_shield <true/false> - configures whether you prefer to fight with a shield
-    prefer_stagger <true/false> - configures whether you prefer using staggering blows over footwork to end clinches
-    fallback <true/false> - configures whether you will fallback to unarmed attacks if you cannot acquire a weapon
-    attack_helpless <true/false> - configures whether you will attack a helpless opponent
-    attack_critical <true/false> - configures whether you will attack a critically injured opponent
-    pursue <true/false> - configures whether you will pursue targets to other locations if they flee
-    auto_inventory <auto|manual|no_discard|retrieve_only> - changes the degree of automation of your inventory management
-    auto_ranged <auto|manual|continue_only> - changes the degree of automation of your ranged combat
-    auto_move <auto|manual|cover_only|keep_range> - changes the degree of automation of your combat movement
-    auto_position - Toggle whether position will be managed automatically
-    auto_melee - Toggle whether you will automatically move to melee if you are unable to engage in ranged combat
-    movetotarget - Toggle whether you will try to close to the same room as a distant target
-    skirmish - Toggle whether you will disengage to other rooms when skirmishing
-    swap <type1> <type2> - swaps the order in which you will execute different attack types
+
+    #3name <name>#0         - Change the name of the combat setting
+    #3desc <description>#0  - Change the description
+    #3global#0              - Toggle the Global flag (admin only)
+    #3availprog <progID>#0  - Configure the Availability Prog (admin only)
+    #3classifications <classifications>#0 - Designated weapon classifications legal for this Combat Config
+    #3character <id>#0      - Reassign a Combat Config to a character
+    #3aim <percentage>#0    - The percentage of aim before you auto-shoot
+    #3stamina <amount>#0    - The amount of stamina below which you will stop attacking
+    #3melee <strategy>#0    - Designate overall melee strategy
+    #3range <strategy>#0    - Designate overall ranged strategy
+    #3grapple <response>#0  - Set the response to someone grappling you
+    #3setup <setup>#0       - Preferred overall gear setup for the auto-inventory
+    #3weapon <percentage>#0 - configures the percentage chance of you using a weapon attack move
+    #3natural <percentage>#0 - configures the percentage chance of you using a natural attack move
+    #3auxiliary <percentage>#0 - configures the percentage chance of you using an auxiliary move
+    #3magic <percentage>#0 - configures the percentage chance of you using a magic attack move
+    #3prefer_armed <true/false>#0 - configures whether you prefer to fight armed and will seek to wield a weapon
+    #3prefer_favourite <true/false>#0 - configures whether you prefer to retrieve the weapon you're wielding rather than drawing a new one if you lose it
+    #3prefer_shield <true/false>#0 - configures whether you prefer to fight with a shield
+    #3prefer_stagger <true/false>#0 - configures whether you prefer using staggering blows over footwork to end clinches
+    #3fallback <true/false>#0 - configures whether you will fallback to unarmed attacks if you cannot acquire a weapon
+    #3attack_helpless <true/false>#0 - configures whether you will attack a helpless opponent
+    #3attack_critical <true/false>#0 - configures whether you will attack a critically injured opponent
+    #3pursue <true/false>#0 - configures whether you will pursue targets to other locations if they flee
+    #3auto_inventory <auto|manual|no_discard|retrieve_only>#0 - changes the degree of automation of your inventory management
+    #3auto_ranged <auto|manual|continue_only>#0 - changes the degree of automation of your ranged combat
+    #3auto_move <auto|manual|cover_only|keep_range>#0 - changes the degree of automation of your combat movement
+    #3auto_position#0 - Toggle whether position will be managed automatically
+    #3auto_melee#0 - Toggle whether you will automatically move to melee if you are unable to engage in ranged combat
+    #3movetotarget#0 - Toggle whether you will try to close to the same room as a distant target
+    #3skirmish#0 - Toggle whether you will disengage to other rooms when skirmishing
+    #3swap <type1> <type2>#0 - swaps the order in which you will execute different attack types
 
 The following options refer to flags listed in the SHOW COMBATFLAGS list:
 
-    require <flag> - toggles a flag that is REQUIRED for all combat moves you use. Moves without the flag will not be used.
-    prefer <flag> - toggles a flag that is PREFERRED for all combat moves you use. Moves with the flag are significantly more likely to be used.
-    forbid <flag> - toggles a flag that is FORBIDDEN for all combat moves you use. Moves with the flag will not be used.
-");
+    #3require <flag>#0 - toggles a flag that is REQUIRED for all combat moves you use. Moves without the flag will not be used.
+    #3prefer <flag>#0 - toggles a flag that is PREFERRED for all combat moves you use. Moves with the flag are significantly more likely to be used.
+    #3forbid <flag>#0 - toggles a flag that is FORBIDDEN for all combat moves you use. Moves with the flag will not be used.
+".SubstituteANSIColour());
 	}
 
 	private static void CombatConfigStamina(ICharacter actor, StringStack command)
@@ -3151,13 +3152,13 @@ The following options refer to flags listed in the SHOW COMBATFLAGS list:
 
 	private static void RebalanceCombatPercentages(ICharacter actor, bool fixedWeapon = false,
 		bool fixedNatural = false,
-		bool fixedAuxillary = false, bool fixedMagic = false, bool fixedPsychic = false)
+		bool fixedAuxiliary = false, bool fixedMagic = false, bool fixedPsychic = false)
 	{
 		double total()
 		{
 			return actor.CombatSettings.MagicUsePercentage + actor.CombatSettings.PsychicUsePercentage +
 			       actor.CombatSettings.NaturalWeaponPercentage + actor.CombatSettings.WeaponUsePercentage +
-			       actor.CombatSettings.AuxillaryPercentage;
+			       actor.CombatSettings.AuxiliaryPercentage;
 		}
 
 		while (1.0 - total() > 0.00005)
@@ -3176,10 +3177,10 @@ The following options refer to flags listed in the SHOW COMBATFLAGS list:
 				continue;
 			}
 
-			if (!fixedAuxillary && actor.CombatSettings.AuxillaryPercentage > 0)
+			if (!fixedAuxiliary && actor.CombatSettings.AuxiliaryPercentage > 0)
 			{
-				actor.CombatSettings.AuxillaryPercentage = Math.Max(0,
-					actor.CombatSettings.AuxillaryPercentage - total() + 1.0);
+				actor.CombatSettings.AuxiliaryPercentage = Math.Max(0,
+					actor.CombatSettings.AuxiliaryPercentage - total() + 1.0);
 				continue;
 			}
 
@@ -3207,7 +3208,7 @@ The following options refer to flags listed in the SHOW COMBATFLAGS list:
 	{
 		var sb = new StringBuilder();
 		sb.Append(
-			$"Your current move balance stands at: Weapon [{actor.CombatSettings.WeaponUsePercentage.ToString("P0", actor).Colour(Telnet.Green)}] Natural [{actor.CombatSettings.NaturalWeaponPercentage.ToString("P0", actor).Colour(Telnet.Green)}] Auxillary [{actor.CombatSettings.AuxillaryPercentage.ToString("P0", actor).Colour(Telnet.Green)}] Magic [{actor.CombatSettings.MagicUsePercentage.ToString("P0", actor).Colour(Telnet.Green)}]");
+			$"Your current move balance stands at: Weapon [{actor.CombatSettings.WeaponUsePercentage.ToString("P0", actor).Colour(Telnet.Green)}] Natural [{actor.CombatSettings.NaturalWeaponPercentage.ToString("P0", actor).Colour(Telnet.Green)}] Auxiliary [{actor.CombatSettings.AuxiliaryPercentage.ToString("P0", actor).Colour(Telnet.Green)}] Magic [{actor.CombatSettings.MagicUsePercentage.ToString("P0", actor).Colour(Telnet.Green)}]");
 		actor.Send(sb.ToString());
 	}
 
@@ -3215,7 +3216,7 @@ The following options refer to flags listed in the SHOW COMBATFLAGS list:
 	{
 		if (command.IsFinished)
 		{
-			actor.Send("Syntax: combat config natural <number>");
+			actor.Send("Syntax: #3combat config natural <number>#0".SubstituteANSIColour());
 			return;
 		}
 
@@ -3237,32 +3238,30 @@ The following options refer to flags listed in the SHOW COMBATFLAGS list:
 		ShowCurrentBalances(actor);
 	}
 
-	private static void CombatConfigAuxillary(ICharacter actor, StringStack command)
+	private static void CombatConfigAuxiliary(ICharacter actor, StringStack command)
 	{
-		actor.Send("Auxillary moves are presently disabled.");
-		return;
-		/*
-		if (command.IsFinished) {
-		    actor.Send("What percentage chance do you want to have to use auxillary moves?");
-		    return;
+		if (command.IsFinished)
+		{
+			actor.Send("Syntax: #3combat config auxiliary <number>#0".SubstituteANSIColour());
+			return;
 		}
 
-		double value;
-		if (!NumberUtilities.TryParsePercentage(command.PopSpeech(), actor.Account.Culture, out value)) {
-		    actor.Send("You must enter a percentage value for your auxillary percentage.");
-		    return;
+		if (!command.PopSpeech().TryParsePercentage(actor.Account.Culture, out var value))
+		{
+			actor.Send("You must enter a percentage value for your auxiliary moves percentage.");
+			return;
 		}
 
-		if ((value < 0.0) || (value > 1.0)) {
-		    actor.Send($"You must enter a percentage between {0:P0} and {1:P0}.");
-		    return;
+		if (value < 0.0 || value > 1.0)
+		{
+			actor.Send($"You must enter a percentage between {0:P0} and {1:P0}.");
+			return;
 		}
 
-		actor.CombatSettings.AuxillaryPercentage = value;
+		actor.CombatSettings.AuxiliaryPercentage = value;
 		actor.CombatSettings.Changed = true;
-		RebalanceCombatPercentages(actor, fixedAuxillary: true);
+		RebalanceCombatPercentages(actor, fixedAuxiliary: true);
 		ShowCurrentBalances(actor);
-		*/
 	}
 
 	private static bool? GetTruthValue(ICharacter actor, StringStack command, bool defaultTruthValue)
@@ -3929,7 +3928,8 @@ The following options refer to flags listed in the SHOW COMBATFLAGS list:
 				CombatConfigNatural(actor, command);
 				break;
 			case "auxillary":
-				CombatConfigAuxillary(actor, command);
+			case "auxiliary":
+				CombatConfigAuxiliary(actor, command);
 				break;
 			case "prefer_defense":
 			case "defense":

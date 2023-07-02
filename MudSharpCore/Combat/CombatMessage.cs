@@ -171,7 +171,7 @@ public class CombatMessage : SaveableItem, ICombatMessage
 		return true;
 	}
 
-	public bool CouldApply(IAuxillaryCombatAction action)
+	public bool CouldApply(IAuxiliaryCombatAction action)
 	{
 		if (CombatActionIds.Any())
 		{
@@ -256,17 +256,17 @@ public class CombatMessage : SaveableItem, ICombatMessage
 		{
 			sb.AppendLine();
 			sb.AppendLine("Weapon Attacks:");
-			foreach (var attack in WeaponAttackIds.Select(x => Gameworld.WeaponAttacks.Get(x)))
+			foreach (var attack in WeaponAttackIds.SelectNotNull(x => Gameworld.WeaponAttacks.Get(x)))
 			{
 				var weapon = Gameworld.WeaponTypes.FirstOrDefault(x => x.Attacks.Contains(attack));
-				sb.AppendLine($"\t{attack.Name} (#{attack.Id}){(weapon != null ? $" [{weapon.Name}]" : "")}");
+				sb.AppendLine($"\t{attack.Name.ColourName()} (#{attack.Id.ToString("N0", actor)}){(weapon != null ? $" [{weapon.Name.ColourValue()}]" : "")}");
 			}
 		}
 		if (CombatActionIds.Any())
 		{
 			sb.AppendLine();
 			sb.AppendLine("Combat Actions:");
-			foreach (var action in CombatActionIds.Select(x => Gameworld.AuxillaryCombatActions.Get(x)))
+			foreach (var action in CombatActionIds.SelectNotNull(x => Gameworld.AuxiliaryCombatActions.Get(x)))
 			{
 				sb.AppendLine(action.DescribeForCombatMessageShow(actor));
 			}
@@ -979,7 +979,7 @@ public class CombatMessage : SaveableItem, ICombatMessage
 			return false;
 		}
 
-		var move = actor.Gameworld.AuxillaryCombatActions.Get(value);
+		var move = actor.Gameworld.AuxiliaryCombatActions.Get(value);
 		if (move == null)
 		{
 			actor.OutputHandler.Send("That is not a valid combat move.");

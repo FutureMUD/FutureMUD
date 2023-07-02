@@ -233,7 +233,7 @@ namespace MudSharp.Framework
         IUneditableAll<IWearableSize> WearableSizes { get; }
         IUneditableAll<IWriting> Writings { get; }
         IUneditableAll<IWeaponAttack> WeaponAttacks { get; }
-		IUneditableAll<IAuxillaryCombatAction> AuxillaryCombatActions { get; }
+		IUneditableAll<IAuxiliaryCombatAction> AuxiliaryCombatActions { get; }
 		IUneditableAll<IShop> Shops { get; }
         IUneditableAll<IEconomicZone> EconomicZones { get; }
         IUneditableAll<IGroupAITemplate> GroupAITemplates { get; }
@@ -326,6 +326,7 @@ namespace MudSharp.Framework
         void SystemMessage(IOutput message, bool adminonly = false);
 
         void AddGuest(ICharacter character);
+        void Add(IAuxiliaryCombatAction action);
         void Add(IBoard board);
         void Add(IBodypartShape shape);
         void Add(INPCSpawner spawner);

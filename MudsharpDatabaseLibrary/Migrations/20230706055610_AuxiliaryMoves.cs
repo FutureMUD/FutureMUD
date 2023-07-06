@@ -36,7 +36,9 @@ namespace MudSharp.Migrations
                     AdditionalInfo = table.Column<string>(type: "longtext", nullable: true)
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     RequiredPositionStateIds = table.Column<string>(type: "longtext", nullable: true)
-                        .Annotation("MySql:CharSet", "utf8mb4")
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    MoveDifficulty = table.Column<int>(type: "int", nullable: false),
+                    TraitDefinitionId = table.Column<long>(type: "bigint(20)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -46,6 +48,12 @@ namespace MudSharp.Migrations
                         column: x => x.UsabilityProgId,
                         principalTable: "FutureProgs",
                         principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_CombatActions_TraitDefinitions_TraitDefinitionId",
+                        column: x => x.TraitDefinitionId,
+                        principalTable: "TraitDefinitions",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 })
                 .Annotation("MySql:CharSet", "utf8mb4");
 
@@ -73,6 +81,11 @@ namespace MudSharp.Migrations
                         onDelete: ReferentialAction.Cascade);
                 })
                 .Annotation("MySql:CharSet", "utf8mb4");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_CombatActions_TraitDefinitionId",
+                table: "CombatActions",
+                column: "TraitDefinitionId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_CombatActions_UsabilityProgId",

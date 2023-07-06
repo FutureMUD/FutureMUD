@@ -11,7 +11,7 @@ using MudSharp.Database;
 namespace MudSharp.Migrations
 {
     [DbContext(typeof(FuturemudDatabaseContext))]
-    [Migration("20230622062536_AuxiliaryMoves")]
+    [Migration("20230706055610_AuxiliaryMoves")]
     partial class AuxiliaryMoves
     {
         /// <inheritdoc />
@@ -4667,6 +4667,9 @@ namespace MudSharp.Migrations
                     b.Property<long>("Intentions")
                         .HasColumnType("bigint");
 
+                    b.Property<int>("MoveDifficulty")
+                        .HasColumnType("int");
+
                     b.Property<int>("MoveType")
                         .HasColumnType("int");
 
@@ -4685,6 +4688,9 @@ namespace MudSharp.Migrations
                     b.Property<double>("StaminaCost")
                         .HasColumnType("double");
 
+                    b.Property<long>("TraitDefinitionId")
+                        .HasColumnType("bigint(20)");
+
                     b.Property<long?>("UsabilityProgId")
                         .HasColumnType("bigint(20)");
 
@@ -4692,6 +4698,8 @@ namespace MudSharp.Migrations
                         .HasColumnType("double");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("TraitDefinitionId");
 
                     b.HasIndex("UsabilityProgId");
 
@@ -16867,9 +16875,17 @@ namespace MudSharp.Migrations
 
             modelBuilder.Entity("MudSharp.Models.CombatAction", b =>
                 {
+                    b.HasOne("MudSharp.Models.TraitDefinition", "TraitDefinition")
+                        .WithMany()
+                        .HasForeignKey("TraitDefinitionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("MudSharp.Models.FutureProg", "UsabilityProg")
                         .WithMany()
                         .HasForeignKey("UsabilityProgId");
+
+                    b.Navigation("TraitDefinition");
 
                     b.Navigation("UsabilityProg");
                 });

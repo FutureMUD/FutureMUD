@@ -29,4 +29,5 @@ public interface IAuxiliaryCombatAction : IKeywordedItem
 	IAuxiliaryCombatAction Clone();
 	string DescribeForCombatMessageShow(ICharacter actor);
 	IEnumerable<IAuxiliaryEffect> AuxiliaryEffects { get; }
+	Difficulty MoveDifficulty { get; }
 }

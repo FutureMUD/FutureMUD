@@ -12,13 +12,12 @@ namespace MudSharp.Combat.Moves;
 
 internal class AuxiliaryMove: CombatMoveBase
 {
-	private readonly ICharacter _assailant;
 	private readonly ICharacter _target;
 	private readonly IAuxiliaryCombatAction _action;
 
 	public AuxiliaryMove(ICharacter assailant, ICharacter target, IAuxiliaryCombatAction action)
 	{
-		_assailant = assailant;
+		Assailant = assailant;
 		_target = target;
 		_action = action;
 	}
@@ -52,7 +51,17 @@ internal class AuxiliaryMove: CombatMoveBase
 	/// <inheritdoc />
 	public override CombatMoveResult ResolveMove(ICombatMove defenderMove)
 	{
-		
+		if (defenderMove == null)
+		{
+			defenderMove = new HelplessDefenseMove { Assailant = _target };
+		}
+
+		WorsenCombatPosition(defenderMove.Assailant, Assailant);
+		var attackRoll = Gameworld.GetCheck(Check)
+		                          .Check(Assailant, CheckDifficulty, null, // TODO
+			                          defenderMove.Assailant,
+			                          Assailant.OffensiveAdvantage);
+		Assailant.OffensiveAdvantage = 0;
 		throw new NotImplementedException();
 	}
 
@@ -72,7 +81,12 @@ internal class AuxiliaryMove: CombatMoveBase
 
 	/// <inheritdoc />
 	public override IPerceiver PrimaryTarget => _target;
-	
+
+	/// <inheritdoc />
+	public override CheckType Check => CheckType.AuxiliaryMoveCheck;
+
+	/// <inheritdoc />
+	public override Difficulty CheckDifficulty => _action.MoveDifficulty;
 
 	#endregion
 }

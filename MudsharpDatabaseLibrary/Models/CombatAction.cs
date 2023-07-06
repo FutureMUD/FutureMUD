@@ -26,7 +26,10 @@ public class CombatAction
 	public double BaseDelay { get; set; }
 	public string AdditionalInfo { get; set; }
 	public string RequiredPositionStateIds { get; set; }
+	public int MoveDifficulty { get; set; }
+	public long TraitDefinitionId { get; set; }
 
 	public virtual FutureProg UsabilityProg { get; set; }
+	public virtual TraitDefinition TraitDefinition { get; set; }
 	public virtual ICollection<CombatMessagesCombatActions> CombatMessagesCombatActions { get; set; }
 }

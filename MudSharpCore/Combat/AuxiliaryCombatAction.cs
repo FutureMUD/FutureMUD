@@ -52,6 +52,7 @@ internal class AuxiliaryCombatAction : CombatAction, IAuxiliaryCombatAction
 			dbitem.RecoveryDifficultySuccess = (int)rhs.RecoveryDifficultySuccess;
 			dbitem.StaminaCost = rhs.StaminaCost;
 			dbitem.Weighting = rhs.Weighting;
+			dbitem.MoveDifficulty = (int)rhs.MoveDifficulty;
 			dbitem.RequiredPositionStateIds =
 				rhs._requiredPositionStates.Select(x => x.Id.ToString("F0")).ListToCommaSeparatedValues(" ");
 			SaveMoveSpecificData(dbitem);
@@ -83,6 +84,7 @@ internal class AuxiliaryCombatAction : CombatAction, IAuxiliaryCombatAction
 			dbitem.RecoveryDifficultySuccess = (int)Difficulty.Easy;
 			dbitem.StaminaCost = 1.0;
 			dbitem.Weighting = 100;
+			dbitem.MoveDifficulty = (int)Difficulty.Normal;
 			dbitem.RequiredPositionStateIds =
 				$"{PositionStanding.Instance.Id} {PositionFlying.Instance.Id} {PositionFloatingInWater.Instance.Id} {PositionSwimming.Instance.Id}";
 			SaveMoveSpecificData(dbitem);
@@ -104,6 +106,7 @@ internal class AuxiliaryCombatAction : CombatAction, IAuxiliaryCombatAction
 		StaminaCost = dbitem.StaminaCost;
 		BaseDelay = dbitem.BaseDelay;
 		Weighting = dbitem.Weighting;
+		MoveDifficulty = (Difficulty)dbitem.MoveDifficulty;
 		ExertionLevel = (ExertionLevel)dbitem.ExertionLevel;
 		_requiredPositionStates.AddRange(dbitem.RequiredPositionStateIds.Split(' ').Select(x => long.Parse(x))
 		                                       .Select(x => PositionState.GetState(x)));
@@ -128,6 +131,7 @@ internal class AuxiliaryCombatAction : CombatAction, IAuxiliaryCombatAction
 		dbitem.RecoveryDifficultySuccess = (int)RecoveryDifficultySuccess;
 		dbitem.StaminaCost = StaminaCost;
 		dbitem.Weighting = Weighting;
+		dbitem.MoveDifficulty = (int)MoveDifficulty;
 		dbitem.RequiredPositionStateIds =
 			_requiredPositionStates.Select(x => x.Id.ToString("F0")).ListToCommaSeparatedValues(" ");
 		SaveMoveSpecificData(dbitem);
@@ -209,7 +213,7 @@ internal class AuxiliaryCombatAction : CombatAction, IAuxiliaryCombatAction
 		);
 		sb.AppendLineColumns((uint)actor.LineFormatLength, 3,
 			$"Usability Prog: {(UsabilityProg != null ? $"{UsabilityProg.FunctionName}".FluentTagMXP("send", $"href='show futureprog {UsabilityProg.Id}'") : "None".Colour(Telnet.Red))}",
-			"",
+			$"Difficulty: {MoveDifficulty.DescribeColoured()}",
 			""
 		);
 		sb.AppendLine($"Intentions: {Intentions.Describe()}");
@@ -240,6 +244,9 @@ internal class AuxiliaryCombatAction : CombatAction, IAuxiliaryCombatAction
 	{
 		switch (command.PopSpeech().ToLowerInvariant())
 		{
+			case "difficulty":
+				case "diff":
+				return BuildingCommandDifficulty(actor, command);
 			case "add":
 			case "addeffect":
 			case "effectadd":
@@ -268,6 +275,28 @@ internal class AuxiliaryCombatAction : CombatAction, IAuxiliaryCombatAction
 			default:
 				return base.BuildingCommand(actor, command.GetUndo());
 		}
+	}
+
+	private bool BuildingCommandDifficulty(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send(
+				$"What difficulty should the check for this move be? Valid difficulties are {Enum.GetValues<Difficulty>().Select(x => x.DescribeColoured()).ListToString()}.");
+			return false;
+		}
+
+		if (!command.SafeRemainingArgument.TryParseEnum<Difficulty>(out var difficulty))
+		{
+			actor.OutputHandler.Send(
+				$"That is not a valid difficulty. Valid difficulties are {Enum.GetValues<Difficulty>().Select(x => x.DescribeColoured()).ListToString()}.");
+			return false;
+		}
+
+		MoveDifficulty = difficulty;
+		Changed = true;
+		actor.OutputHandler.Send($"This move will now be {MoveDifficulty.DescribeColoured()} for the attacker.");
+		return true;
 	}
 
 	private bool BuildingCommandSet(ICharacter actor, StringStack command)
@@ -449,4 +478,6 @@ The following options pertain to auxiliary effects:
 
 	private readonly List<IAuxiliaryEffect> _auxiliaryEffects = new();
 	public IEnumerable<IAuxiliaryEffect> AuxiliaryEffects => _auxiliaryEffects;
+
+	public Difficulty MoveDifficulty { get; private set; }
 }

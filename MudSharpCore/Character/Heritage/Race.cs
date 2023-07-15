@@ -144,7 +144,7 @@ public partial class Race : SaveableItem, IRace
 				new TraitExpression(ParentRace.MaximumDragWeightExpression.Formula.OriginalExpression, Gameworld);
 			_maximumLiftWeightExpression =
 				new TraitExpression(ParentRace.MaximumLiftWeightExpression.Formula.OriginalExpression, Gameworld);
-
+			
 			RaceUsesStamina = ParentRace.RaceUsesStamina;
 			_optInMaterialEdibility = ParentRace.OptInMaterialEdibility;
 			EatCorpseEmoteText = ParentRace.EatCorpseEmoteText;
@@ -232,7 +232,6 @@ public partial class Race : SaveableItem, IRace
 				new TraitExpression(Gameworld.GetStaticConfiguration("DefaultDragWeightExpression"), Gameworld);
 			_maximumLiftWeightExpression =
 				new TraitExpression(Gameworld.GetStaticConfiguration("DefaultLiftWeightExpression"), Gameworld);
-
 			RaceUsesStamina = true;
 			_optInMaterialEdibility = false;
 			EatCorpseEmoteText = "@ eat|eats {0}$1";
@@ -425,6 +424,11 @@ public partial class Race : SaveableItem, IRace
 				Bodypart = Gameworld.BodypartPrototypes.Get(item.BodypartId),
 				Quality = (ItemQuality)item.Quality
 			});
+		}
+
+		foreach (var item in race.RacesCombatActions)
+		{
+			_auxiliaryCombatActions.Add(new AuxiliaryCombatAction(item.CombatAction, Gameworld));
 		}
 
 		CombatSettings = new RacialCombatSettings
@@ -659,6 +663,7 @@ public partial class Race : SaveableItem, IRace
 		_bodypartRemovals.AddRange(rhs._bodypartRemovals);
 		_allowedGenders.AddRange(rhs._allowedGenders);
 		_naturalWeaponAttacks.AddRange(rhs._naturalWeaponAttacks);
+		_auxiliaryCombatActions.AddRange(rhs._auxiliaryCombatActions);
 		_breathableFluids.AddRange(rhs._breathableFluids);
 		_edibleForagableYields.AddRange(rhs._edibleForagableYields);
 		_costs.AddRange(rhs._costs);
@@ -866,6 +871,15 @@ public partial class Race : SaveableItem, IRace
 				dbattack.Quality = (int)attack.Quality;
 				dbattack.Race = dbitem;
 				dbattack.WeaponAttackId = attack.Attack.Id;
+			}
+
+			foreach (var action in _auxiliaryCombatActions)
+			{
+				FMDB.Context.RacesCombatActions.Add(new RacesCombatActions
+				{
+					CombatActionId = action.Id,
+					Race = dbitem
+				});
 			}
 
 			foreach (var item in _edibleForagableYields)
@@ -1266,6 +1280,17 @@ public partial class Race : SaveableItem, IRace
 			dbattack.WeaponAttackId = attack.Attack.Id;
 		}
 
+		FMDB.Context.RacesCombatActions.RemoveRange(dbitem.RacesCombatActions);
+		foreach (var action in _auxiliaryCombatActions)
+		{
+			var dbaction = new RacesCombatActions
+			{
+				CombatActionId = action.Id,
+				RaceId = Id
+			};
+			FMDB.Context.RacesCombatActions.Add(dbaction);
+		}
+
 		FMDB.Context.RaceEdibleForagableYields.RemoveRange(dbitem.RaceEdibleForagableYields);
 		foreach (var item in _edibleForagableYields)
 		{
@@ -1490,6 +1515,39 @@ public partial class Race : SaveableItem, IRace
 		params BuiltInCombatMoveType[] type)
 	{
 		return NaturalWeaponAttacks.Where(x => x.UsableAttack(character, target, ignorePosition, type)).ToList();
+	}
+
+	private readonly List<IAuxiliaryCombatAction> _auxiliaryCombatActions = new();
+
+	public IEnumerable<IAuxiliaryCombatAction> UsableAuxiliaryMoves(ICharacter character, IPerceiver target,
+		bool ignorePosition)
+	{
+		return AuxiliaryActions.Where(x => x.UsableMove(character, target, ignorePosition)).ToList();
+	}
+	public IEnumerable<IAuxiliaryCombatAction> AuxiliaryActions => ParentRace?.AuxiliaryActions.Concat(_auxiliaryCombatActions) ?? _auxiliaryCombatActions;
+
+	public bool AddAuxiliaryAction(IAuxiliaryCombatAction action)
+	{
+		if (!_auxiliaryCombatActions.Contains(action))
+		{
+			_auxiliaryCombatActions.Add(action);
+			Changed = true;
+			return true;
+		}
+
+		return false;
+	}
+
+	public bool RemoveAuxiliaryAction(IAuxiliaryCombatAction action)
+	{
+		if (_auxiliaryCombatActions.Contains(action))
+		{
+			_auxiliaryCombatActions.Remove(action);
+			Changed = true;
+			return true;
+		}
+
+		return false;
 	}
 
 	public IArmourType NaturalArmourType { get; set; }

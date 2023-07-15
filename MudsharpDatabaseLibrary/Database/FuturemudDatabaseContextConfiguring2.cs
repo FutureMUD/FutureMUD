@@ -543,6 +543,7 @@ namespace MudSharp.Database
                 entity.Property(e => e.Priority).HasColumnType("int(11)");
 
                 entity.Property(e => e.ProgId).HasColumnType("bigint(20)");
+                entity.Property(e => e.AuxiliaryProgId).HasColumnType("bigint(20)");
 
                 entity.Property(e => e.Type).HasColumnType("int(11)");
 
@@ -553,6 +554,11 @@ namespace MudSharp.Database
                     .HasForeignKey(d => d.ProgId)
                     .OnDelete(DeleteBehavior.SetNull)
                     .HasConstraintName("FK_CombatMessages_FutureProgs");
+                entity.HasOne(d => d.AuxiliaryProg)
+                      .WithMany()
+                      .HasForeignKey(d => d.AuxiliaryProgId)
+                      .OnDelete(DeleteBehavior.SetNull)
+                      .HasConstraintName("FK_CombatMessages_FutureProgs_Auxiliary");
             });
 
             modelBuilder.Entity<CombatMessagesCombatActions>(entity =>

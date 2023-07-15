@@ -514,10 +514,13 @@ The syntax for this command is as follows:
 	#3auxiliary close#0 - closes the open auxiliary move
 	#3auxiliary new <name>#0 - creates a new auxiliary move with the specified name
 	#3auxiliary clone <which> <name>#0 - creates a carbon copy of the specified auxiliary move
+	#3auxiliary natural <race> <attack>#0 - adds an auxiliary move to a race
+	#3auxiliary natural <race> <attack> remove#0 - removes an auxiliary move from a race
 	#3auxiliary set ...#0 - edits the properties of a auxiliary move. See that command for more help.";
 
 	#region Auxiliary Moves
 	[PlayerCommand("Auxiliary", "auxiliary")]
+	[HelpInfo("Auxiliary", AuxiliaryHelpText, AutoHelp.HelpArgOrNoArg)]
 	protected static void Auxiliary(ICharacter actor, string text)
 	{
 		var ss = new StringStack(text.RemoveFirstWord());
@@ -547,7 +550,63 @@ The syntax for this command is as follows:
 			case "set":
 				AuxiliarySet(actor, ss);
 				return;
+			case "natural":
+				AuxiliaryNatural(actor, ss);
+				return;
 		}
+	}
+
+	private static void AuxiliaryNatural(ICharacter actor, StringStack ss)
+	{
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send("Which race's natural auxiliary moves do you want to edit?");
+			return;
+		}
+
+		var race = long.TryParse(ss.PopSpeech(), out var value)
+			? actor.Gameworld.Races.Get(value)
+			: actor.Gameworld.Races.GetByName(ss.Last);
+		if (race == null)
+		{
+			actor.OutputHandler.Send("There is no such race.");
+			return;
+		}
+
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send("Which auxiliary move do you want to change for this race?");
+			return;
+		}
+
+		var attack = long.TryParse(ss.PopSpeech(), out value)
+			? actor.Gameworld.AuxiliaryCombatActions.Get(value)
+			: actor.Gameworld.AuxiliaryCombatActions.GetByName(ss.Last);
+		if (attack == null)
+		{
+			actor.OutputHandler.Send("There is no such auxiliary move.");
+			return;
+		}
+
+		if (ss.Peek().EqualToAny("remove", "rem", "delete", "del"))
+		{
+			if (race.RemoveAuxiliaryAction(attack))
+			{
+				actor.OutputHandler.Send($"You remove the auxiliary action {attack.Name.Colour(Telnet.Cyan)} from the {race.Name.Colour(Telnet.Green)} race.");
+				return;
+			}
+
+			actor.OutputHandler.Send($"The {attack.Name.ColourName()} auxiliary move is provided by a parent race of {race.Name.ColourValue()}, and so must be removed from that race instead.");
+			return;
+		}
+
+		if (race.AddAuxiliaryAction(attack))
+		{
+			actor.OutputHandler.Send($"The {race.Name.Colour(Telnet.Green)} race now has the {attack.Name.Colour(Telnet.Green)} auxiliary move.");
+			return;
+		}
+
+		actor.OutputHandler.Send($"The {race.Name.ColourName()} race already has that auxiliary move.");
 	}
 
 	private static void AuxiliaryClose(ICharacter actor, StringStack ss)
@@ -914,9 +973,9 @@ You can also use the following options to filter searches:
 				message.Chance.ToString("P3", actor),
 				message.Verb?.Describe() ?? "Any",
 				message.Outcome?.DescribeColour() ?? "Any",
-				message.Prog != null
-					? $"{message.Prog.FunctionName} (#{message.Prog.Id})".FluentTagMXP(
-						"send", $"href='show futureprog {message.Prog.Id}'")
+				message.WeaponAttackProg != null
+					? $"{message.WeaponAttackProg.FunctionName} (#{message.WeaponAttackProg.Id})".FluentTagMXP(
+						"send", $"href='show futureprog {message.WeaponAttackProg.Id}'")
 					: "None",
 				message.Message
 			},

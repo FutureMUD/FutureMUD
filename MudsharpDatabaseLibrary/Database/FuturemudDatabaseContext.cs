@@ -327,6 +327,7 @@ namespace MudSharp.Database
         public virtual DbSet<RacesBreathableLiquids> RacesBreathableLiquids { get; set; }
         public virtual DbSet<RacesChargenResources> RacesChargenResources { get; set; }
         public virtual DbSet<RacesEdibleMaterials> RacesEdibleMaterials { get; set; }
+        public virtual DbSet<RacesCombatActions> RacesCombatActions { get; set; }
         public virtual DbSet<RacesWeaponAttacks> RacesWeaponAttacks { get; set; }
         public virtual DbSet<RandomNameProfile> RandomNameProfiles { get; set; }
         public virtual DbSet<RandomNameProfilesDiceExpressions> RandomNameProfilesDiceExpressions { get; set; }

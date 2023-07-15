@@ -15,8 +15,11 @@ using System.Threading.Tasks;
 using System.Xml.Linq;
 using MudSharp.Combat.AuxiliaryEffects;
 using MudSharp.Body.Position.PositionStates;
+using MudSharp.Body.Traits.Subtypes;
 using MudSharp.Effects.Concrete;
 using MudSharp.GameItems;
+using MudSharp.Body.Traits;
+using MailKit;
 
 namespace MudSharp.Combat;
 
@@ -53,6 +56,7 @@ internal class AuxiliaryCombatAction : CombatAction, IAuxiliaryCombatAction
 			dbitem.StaminaCost = rhs.StaminaCost;
 			dbitem.Weighting = rhs.Weighting;
 			dbitem.MoveDifficulty = (int)rhs.MoveDifficulty;
+			dbitem.TraitDefinitionId = rhs.CheckTrait.Id;
 			dbitem.RequiredPositionStateIds =
 				rhs._requiredPositionStates.Select(x => x.Id.ToString("F0")).ListToCommaSeparatedValues(" ");
 			SaveMoveSpecificData(dbitem);
@@ -87,6 +91,8 @@ internal class AuxiliaryCombatAction : CombatAction, IAuxiliaryCombatAction
 			dbitem.MoveDifficulty = (int)Difficulty.Normal;
 			dbitem.RequiredPositionStateIds =
 				$"{PositionStanding.Instance.Id} {PositionFlying.Instance.Id} {PositionFloatingInWater.Instance.Id} {PositionSwimming.Instance.Id}";
+			dbitem.TraitDefinitionId = (Gameworld.Traits.Get(Gameworld.GetStaticLong("DefaultAuxiliaryMoveTraitId")) ??
+			                            Gameworld.Traits.First(x => x is ISkillDefinition)).Id;
 			SaveMoveSpecificData(dbitem);
 			FMDB.Context.CombatActions.Add(dbitem);
 			FMDB.Context.SaveChanges();
@@ -110,7 +116,9 @@ internal class AuxiliaryCombatAction : CombatAction, IAuxiliaryCombatAction
 		ExertionLevel = (ExertionLevel)dbitem.ExertionLevel;
 		_requiredPositionStates.AddRange(dbitem.RequiredPositionStateIds.Split(' ').Select(x => long.Parse(x))
 		                                       .Select(x => PositionState.GetState(x)));
-
+		CheckTrait = Gameworld.Traits.Get(dbitem.TraitDefinitionId) ??
+		             Gameworld.Traits.Get(Gameworld.GetStaticLong("DefaultAuxiliaryMoveTraitId")) ??
+		             Gameworld.Traits.First(x => x is ISkillDefinition);
 		var root = XElement.Parse(dbitem.AdditionalInfo);
 		foreach (var effect in root.Elements("Effect"))
 		{
@@ -134,6 +142,7 @@ internal class AuxiliaryCombatAction : CombatAction, IAuxiliaryCombatAction
 		dbitem.MoveDifficulty = (int)MoveDifficulty;
 		dbitem.RequiredPositionStateIds =
 			_requiredPositionStates.Select(x => x.Id.ToString("F0")).ListToCommaSeparatedValues(" ");
+		dbitem.TraitDefinitionId = CheckTrait.Id;
 		SaveMoveSpecificData(dbitem);
 		Changed = false;
 	}
@@ -194,7 +203,15 @@ internal class AuxiliaryCombatAction : CombatAction, IAuxiliaryCombatAction
 	}
 
 	public override string FrameworkItemType => "AuxiliaryCombatAction";
-		
+
+	public bool UsableMove(ICharacter attacker, IPerceiver target, bool ignorePosition)
+	{
+		return Intentions.HasFlag(attacker.CombatSettings.RequiredIntentions) &&
+		       (Intentions & attacker.CombatSettings.ForbiddenIntentions) == 0 &&
+		       (ignorePosition || RequiredPositionStates.Contains(attacker.PositionState)) &&
+		       ((bool?)UsabilityProg?.Execute(attacker, null, target) ?? true);
+	}
+
 	public string ShowBuilder(ICharacter actor)
 	{
 		var sb = new StringBuilder();
@@ -213,8 +230,8 @@ internal class AuxiliaryCombatAction : CombatAction, IAuxiliaryCombatAction
 		);
 		sb.AppendLineColumns((uint)actor.LineFormatLength, 3,
 			$"Usability Prog: {(UsabilityProg != null ? $"{UsabilityProg.FunctionName}".FluentTagMXP("send", $"href='show futureprog {UsabilityProg.Id}'") : "None".Colour(Telnet.Red))}",
-			$"Difficulty: {MoveDifficulty.DescribeColoured()}",
-			""
+			$"Check Trait: {CheckTrait.Name.ColourValue()}",
+			$"Difficulty: {MoveDifficulty.DescribeColoured()}"
 		);
 		sb.AppendLine($"Intentions: {Intentions.Describe()}");
 		sb.AppendLine();
@@ -229,12 +246,12 @@ internal class AuxiliaryCombatAction : CombatAction, IAuxiliaryCombatAction
 		sb.AppendLine("Combat Message Hierarchy:");
 		var messages = Gameworld.CombatMessageManager.CombatMessages.Where(x => x.CouldApply(this))
 		                        .OrderByDescending(x => x.Priority).ThenByDescending(x => x.Outcome ?? Outcome.None)
-		                        .ThenBy(x => x.Prog != null).ToList();
+		                        .ThenBy(x => x.WeaponAttackProg != null).ToList();
 		i = 1;
 		foreach (var message in messages)
 		{
 			sb.AppendLine(
-				$"{i++.ToOrdinal()})\t[#{message.Id.ToString("N0", actor)}] {message.Message.ColourCommand()} [{message.Chance.ToString("P3", actor).Colour(Telnet.Green)}]{(message.Outcome.HasValue ? $" [{message.Outcome.Value.DescribeColour()}]" : "")}{(message.Prog != null ? $" [{message.Prog.FunctionName} (#{message.Prog.Id})]".FluentTagMXP("send", $"href='show futureprog {message.Prog.Id}'") : "")}");
+				$"{i++.ToOrdinal()})\t[#{message.Id.ToString("N0", actor)}] {message.Message.ColourCommand()} [{message.Chance.ToString("P3", actor).Colour(Telnet.Green)}]{(message.Outcome.HasValue ? $" [{message.Outcome.Value.DescribeColour()}]" : "")}{(message.WeaponAttackProg != null ? $" [{message.WeaponAttackProg.FunctionName} (#{message.WeaponAttackProg.Id})]".FluentTagMXP("send", $"href='show futureprog {message.WeaponAttackProg.Id}'") : "")}");
 		}
 
 		return sb.ToString();
@@ -244,8 +261,14 @@ internal class AuxiliaryCombatAction : CombatAction, IAuxiliaryCombatAction
 	{
 		switch (command.PopSpeech().ToLowerInvariant())
 		{
+			case "trait":
+				case "skill":
+					case "check":
+						case "checktrait":
+							case "checkskill":
+								return BuildingCommandCheckTrait(actor, command);
 			case "difficulty":
-				case "diff":
+			case "diff":
 				return BuildingCommandDifficulty(actor, command);
 			case "add":
 			case "addeffect":
@@ -275,6 +298,27 @@ internal class AuxiliaryCombatAction : CombatAction, IAuxiliaryCombatAction
 			default:
 				return base.BuildingCommand(actor, command.GetUndo());
 		}
+	}
+
+	private bool BuildingCommandCheckTrait(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("Which trait did you want the attacker to check against?");
+			return false;
+		}
+
+		var trait = Gameworld.Traits.GetByIdOrName(command.SafeRemainingArgument);
+		if (trait is null)
+		{
+			actor.OutputHandler.Send("There is no such trait.");
+			return false;
+		}
+
+		CheckTrait = trait;
+		Changed = true;
+		actor.OutputHandler.Send($"This move will now check against the attacker's {CheckTrait.Name.ColourValue()} trait.");
+		return true;
 	}
 
 	private bool BuildingCommandDifficulty(ICharacter actor, StringStack command)
@@ -314,7 +358,7 @@ internal class AuxiliaryCombatAction : CombatAction, IAuxiliaryCombatAction
 			return false;
 		}
 
-		if (!int.TryParse(command.SafeRemainingArgument, out var value) || value < 1 ||
+		if (!int.TryParse(command.PopSpeech(), out var value) || value < 1 ||
 		    value > _auxiliaryEffects.Count)
 		{
 			actor.OutputHandler.Send($"You must enter a number between {1.ToString("N0", actor).ColourValue()} and {_auxiliaryEffects.Count.ToString("N0", actor).ColourValue()}");
@@ -459,6 +503,7 @@ internal class AuxiliaryCombatAction : CombatAction, IAuxiliaryCombatAction
 	#3name#0 - the name of the attack
 	#3delay <number>#0 - the number of seconds delay after using this attack
 	#3weight <number>#0 - the relative weighting of the engine selecting this attack
+	#3trait <which>#0 - sets the trait which this move checks against
 	#3difficulty <difficulty>#0 - the difficulty of the attack roll
 	#3exertion <exertion>#0 - the minimum exertion level to set (if not already higher) when the attack is used
 	#3recover <difficulty pass> <difficulty fail>#0 - the difficulty of a check made after pass/fail that slightly alters the delay of the attack
@@ -475,6 +520,8 @@ The following options pertain to auxiliary effects:
 	#3delete <##>#0 - deletes a particular effect
 	#3show <##>#0 - shows detailed information about an effect
 	#3edit <##> <...>#0 - changes the properties of an effect";
+
+	public ITraitDefinition CheckTrait { get; set; }
 
 	private readonly List<IAuxiliaryEffect> _auxiliaryEffects = new();
 	public IEnumerable<IAuxiliaryEffect> AuxiliaryEffects => _auxiliaryEffects;

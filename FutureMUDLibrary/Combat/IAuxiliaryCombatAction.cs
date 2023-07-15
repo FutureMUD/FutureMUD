@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using MudSharp.Body.Traits;
 
 namespace MudSharp.Combat;
 
@@ -30,4 +31,6 @@ public interface IAuxiliaryCombatAction : IKeywordedItem
 	string DescribeForCombatMessageShow(ICharacter actor);
 	IEnumerable<IAuxiliaryEffect> AuxiliaryEffects { get; }
 	Difficulty MoveDifficulty { get; }
+	ITraitDefinition CheckTrait { get; }
+	bool UsableMove(ICharacter character, IPerceiver target, bool ignorePosition);
 }

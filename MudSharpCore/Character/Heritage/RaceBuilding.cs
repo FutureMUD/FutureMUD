@@ -2227,6 +2227,34 @@ public partial class Race
 			sb.AppendLine("\tNone");
 		}
 
+		sb.AppendLine();
+		sb.AppendLine("Auxiliary Actions".GetLineWithTitle(actor, Telnet.Blue, Telnet.BoldWhite));
+		sb.AppendLine();
+		if (AuxiliaryActions.Any())
+		{
+			sb.AppendLine(StringUtilities.GetTextTable(
+				from attack in AuxiliaryActions
+				select new List<string>
+				{
+					attack.Id.ToString("N0", actor),
+					attack.Name,
+					(!_auxiliaryCombatActions.Contains(attack)).ToColouredString()
+				},
+				new List<string>
+				{
+					"Id",
+					"Name",
+					"From Parent?"
+				},
+				actor,
+				Telnet.Blue
+			));
+		}
+		else
+		{
+			sb.AppendLine("\tNone");
+		}
+
 		return sb.ToString();
 	}
 

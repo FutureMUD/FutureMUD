@@ -16,7 +16,7 @@ namespace MudSharp.Combat
         Outcome? Outcome { get; set; }
         string Message { get; set; }
         string FailMessage { get; set; }
-        IFutureProg Prog { get; set; }
+        IFutureProg WeaponAttackProg { get; set; }
         int Priority { get; set; }
         MeleeWeaponVerb? Verb { get; set; }
         HashSet<long> WeaponAttackIds { get; }
@@ -24,6 +24,8 @@ namespace MudSharp.Combat
         bool Applies(ICharacter character, IPerceiver target, IGameItem weapon,
             IWeaponAttack attack, BuiltInCombatMoveType type, Outcome outcome,
             IBodypart bodypart);
+
+        bool Applies(ICharacter character, IPerceiver target, IAuxiliaryCombatAction action, Outcome outcome);
 
         bool CouldApply(IWeaponAttack attack);
         bool CouldApply(IAuxiliaryCombatAction action);

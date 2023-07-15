@@ -41,6 +41,14 @@ public class CombatMessageManager : ICombatMessageManager
 			               .FirstOrDefault(x => Constants.Random.NextDouble() <= x.Chance);
 	}
 
+	private ICombatMessage GetCombatMessageFor(ICharacter character, IPerceiver target, IAuxiliaryCombatAction action,
+		Outcome outcome)
+	{
+		return _combatMessages.Where(x => x.Applies(character, target, action, outcome))
+		               .OrderByDescending(x => x.Priority)
+		               .FirstOrDefault(x => Constants.Random.NextDouble() <= x.Chance);
+	}
+
 	public string GetMessageFor(ICharacter character, IPerceiver target, IGameItem weapon, IWeaponAttack attack,
 		BuiltInCombatMoveType type, Outcome outcome, IBodypart bodypart)
 	{
@@ -53,6 +61,17 @@ public class CombatMessageManager : ICombatMessageManager
 	{
 		return GetCombatMessageFor(character, target, weapon, attack, type, outcome, bodypart)?.FailMessage ??
 		       "Error - missing combat message";
+	}
+
+	public string GetMessageFor(ICharacter character, IPerceiver target, IAuxiliaryCombatAction action, Outcome outcome)
+	{
+		return GetCombatMessageFor(character, target, action, outcome)?.Message ?? "Error - missing combat message";
+	}
+
+	public string GetFailMessageFor(ICharacter character, IPerceiver target, IAuxiliaryCombatAction action,
+		Outcome outcome)
+	{
+		return GetCombatMessageFor(character, target, action, outcome)?.FailMessage ?? "Error - missing combat message";
 	}
 
 	private void LoadCombatMessages(IFuturemud gameworld)
@@ -77,7 +96,7 @@ public class CombatMessageManager : ICombatMessageManager
 		{
 			if (_combatMessages.Any(x =>
 				    x.Type == typeValue && (!x.Outcome.HasValue || x.Outcome == Outcome.None) &&
-				    (bool?)x.Prog?.Execute(null, null, null, 0, "") != false))
+				    (bool?)x.WeaponAttackProg?.Execute(null, null, null, 0, "") != false))
 			{
 				continue;
 			}
@@ -95,7 +114,7 @@ public class CombatMessageManager : ICombatMessageManager
 						                         x.Type == typeValue &&
 						                         (!x.Outcome.HasValue || x.Outcome == outcomeValue ||
 						                          x.Outcome == Outcome.None) &&
-						                         (bool?)x.Prog?.Execute(null, null, null, 0, "") != false)
+						                         (bool?)x.WeaponAttackProg?.Execute(null, null, null, 0, "") != false)
 			                         select Tuple.Create(typeValue, outcomeValue));
 		}
 

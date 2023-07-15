@@ -3443,6 +3443,7 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 		                              .Include(x => x.RacesBreathableLiquids)
 		                              .Include(x => x.RacesEdibleMaterials)
 		                              .Include(x => x.RaceEdibleForagableYields)
+		                              .Include(x => x.RacesCombatActions)
 		             select race).ToList();
 		var staging = new List<Tuple<Race, MudSharp.Models.Race>>();
 

@@ -20,6 +20,7 @@ namespace MudSharp.Models
             RacesChargenResources = new HashSet<RacesChargenResources>();
             RacesEdibleMaterials = new HashSet<RacesEdibleMaterials>();
             RacesWeaponAttacks = new HashSet<RacesWeaponAttacks>();
+            RacesCombatActions = new HashSet<RacesCombatActions>();
         }
 
         public long Id { get; set; }
@@ -111,5 +112,6 @@ namespace MudSharp.Models
         public virtual ICollection<RacesChargenResources> RacesChargenResources { get; set; }
         public virtual ICollection<RacesEdibleMaterials> RacesEdibleMaterials { get; set; }
         public virtual ICollection<RacesWeaponAttacks> RacesWeaponAttacks { get; set; }
+        public virtual ICollection<RacesCombatActions> RacesCombatActions { get; set; }
     }
 }

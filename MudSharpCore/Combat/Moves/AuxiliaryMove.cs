@@ -6,6 +6,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using MudSharp.Body;
+using MudSharp.PerceptionEngine;
+using MudSharp.PerceptionEngine.Outputs;
+using MudSharp.PerceptionEngine.Parsers;
 using MudSharp.RPG.Checks;
 
 namespace MudSharp.Combat.Moves;
@@ -58,11 +61,20 @@ internal class AuxiliaryMove: CombatMoveBase
 
 		WorsenCombatPosition(defenderMove.Assailant, Assailant);
 		var attackRoll = Gameworld.GetCheck(Check)
-		                          .Check(Assailant, CheckDifficulty, null, // TODO
+		                          .Check(Assailant, CheckDifficulty, _action.CheckTrait, 
 			                          defenderMove.Assailant,
 			                          Assailant.OffensiveAdvantage);
 		Assailant.OffensiveAdvantage = 0;
-		throw new NotImplementedException();
+		var emote = attackRoll.IsPass() ? 
+			Gameworld.CombatMessageManager.GetMessageFor(Assailant, defenderMove.Assailant, _action, attackRoll.Outcome) :
+			Gameworld.CombatMessageManager.GetFailMessageFor(Assailant, defenderMove.Assailant, _action, attackRoll.Outcome);
+		Assailant.OutputHandler.Handle(new EmoteOutput(new Emote(emote, Assailant, Assailant, _target)));
+		foreach (var effect in _action.AuxiliaryEffects)
+		{
+			effect.ApplyEffect(Assailant, _target, attackRoll);
+		}
+
+		return CombatMoveResult.Irrelevant;
 	}
 
 	#region Overrides of CombatMoveBase

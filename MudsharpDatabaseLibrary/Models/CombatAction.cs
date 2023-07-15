@@ -11,6 +11,7 @@ public class CombatAction
 	public CombatAction()
 	{
 		CombatMessagesCombatActions = new HashSet<CombatMessagesCombatActions>();
+		RacesCombatActions = new HashSet<RacesCombatActions>();
 	}
 
 	public long Id { get; set; }
@@ -32,4 +33,5 @@ public class CombatAction
 	public virtual FutureProg UsabilityProg { get; set; }
 	public virtual TraitDefinition TraitDefinition { get; set; }
 	public virtual ICollection<CombatMessagesCombatActions> CombatMessagesCombatActions { get; set; }
+	public virtual ICollection<RacesCombatActions> RacesCombatActions { get; set; }
 }

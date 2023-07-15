@@ -2080,6 +2080,26 @@ namespace MudSharp.Database
                     .HasConstraintName("FK_Races_EdibleMaterials_Races");
             });
 
+            modelBuilder.Entity<RacesCombatActions>(entity =>
+            {
+	            entity.HasKey(e => new { e.RaceId, e.CombatActionId })
+	                  .HasName("PRIMARY");
+
+	            entity.ToTable("Races_CombatActions");
+	            entity.Property(e => e.RaceId).HasColumnType("bigint(20)");
+	            entity.Property(e => e.CombatActionId).HasColumnType("bigint(20)");
+	            entity.HasOne(d => d.Race)
+	                  .WithMany(p => p.RacesCombatActions)
+	                  .HasForeignKey(d => d.RaceId)
+	                  .HasConstraintName("FK_Races_CombatActions_Races")
+	                  .OnDelete(DeleteBehavior.Cascade);
+	            entity.HasOne(d => d.CombatAction)
+	                  .WithMany(p => p.RacesCombatActions)
+	                  .HasForeignKey(d => d.CombatActionId)
+	                  .HasConstraintName("FK_Races_CombatActions_CombatActions")
+	                  .OnDelete(DeleteBehavior.Cascade);
+            });
+
             modelBuilder.Entity<RacesWeaponAttacks>(entity =>
             {
                 entity.HasKey(e => new { e.RaceId, e.WeaponAttackId, e.BodypartId })

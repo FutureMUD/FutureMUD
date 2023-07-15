@@ -981,21 +981,21 @@ public static class CombatExtensions
 			case BuiltInCombatMoveType.BeamAttack:
 				return "Beam Attack";
 			case BuiltInCombatMoveType.DodgeRange:
-				break;
+				return "Dodge Range";
 			case BuiltInCombatMoveType.BlockRange:
-				break;
+				return "Block Range";
 			case BuiltInCombatMoveType.StandAndFire:
-				break;
+				return "Stand and Fire";
 			case BuiltInCombatMoveType.SkirmishAndFire:
-				break;
+				return "Skirmish and Fire";
 			case BuiltInCombatMoveType.RangedWeaponAttack:
-				break;
+				return "Ranged Weapon Attack";
 			case BuiltInCombatMoveType.AimRangedWeapon:
-				break;
+				return "Aim Ranged Weapon";
 			case BuiltInCombatMoveType.CoupDeGrace:
 				return "Coup de Grace";
 			case BuiltInCombatMoveType.Rescue:
-				break;
+				return "Rescue";
 			case BuiltInCombatMoveType.MeleeWeaponSmashItem:
 				return "Smash Item";
 			case BuiltInCombatMoveType.UnarmedSmashItem:
@@ -1013,7 +1013,7 @@ public static class CombatExtensions
 			case BuiltInCombatMoveType.UnbalancingBlowClinch:
 				return "Clinch Unbalancing Blow";
 			case BuiltInCombatMoveType.DodgeExtendGrapple:
-				break;
+				return "Dodge Extend Grapple";
 			case BuiltInCombatMoveType.OverpowerGrapple:
 				return "Overpowering Grapple";
 			case BuiltInCombatMoveType.StrangleAttackExtendGrapple:
@@ -1042,6 +1042,8 @@ public static class CombatExtensions
 				return "Envenoming Attack";
 			case BuiltInCombatMoveType.EnvenomingAttackClinch:
 				return "Envenoming Clinch Attack";
+			case BuiltInCombatMoveType.AuxiliaryMove:
+				return "Auxiliary Move";
 			default:
 				throw new ArgumentOutOfRangeException(nameof(type), type, null);
 		}

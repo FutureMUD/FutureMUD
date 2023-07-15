@@ -83,6 +83,16 @@ namespace MudSharp.Character.Heritage {
         void AddNaturalAttack(INaturalAttack attack);
         void RemoveNaturalAttack(INaturalAttack attack);
         void RemoveNaturalAttacksAssociatedWith(IWeaponAttack attack);
+        
+        IEnumerable<INaturalAttack> UsableNaturalWeaponAttacks(ICharacter character, IPerceiver target,
+	        bool ignorePosition,
+	        params BuiltInCombatMoveType[] type);
+
+        IEnumerable<IAuxiliaryCombatAction> UsableAuxiliaryMoves(ICharacter character, IPerceiver target,
+	        bool ignorePosition);
+        IEnumerable<IAuxiliaryCombatAction> AuxiliaryActions { get; }
+        bool AddAuxiliaryAction(IAuxiliaryCombatAction action);
+        bool RemoveAuxiliaryAction(IAuxiliaryCombatAction action);
 
         IArmourType NaturalArmourType { get; }
 
@@ -126,10 +136,6 @@ namespace MudSharp.Character.Heritage {
         int ResourceRequirement(IChargenResource resource);
 
         bool ChargenAvailable(ICharacterTemplate template);
-
-        IEnumerable<INaturalAttack> UsableNaturalWeaponAttacks(ICharacter character, IPerceiver target,
-	        bool ignorePosition,
-	        params BuiltInCombatMoveType[] type);
 
         IBodyCommunicationStrategy CommunicationStrategy { get; }
         

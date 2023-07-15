@@ -144,10 +144,11 @@ internal class TimeModule : Module<ICharacter>
 	{
 		var sb = new StringBuilder();
 		sb.AppendLine("You know the following things about time:");
-		sb.AppendLine($"It is currently {actor.Location.CurrentTimeOfDay.DescribeColour()}.");
+		sb.AppendLine();
+		sb.AppendLine($"\tIt is currently {actor.Location.CurrentTimeOfDay.DescribeColour()}.");
 		if (actor.Location.Zone.Weather?.CurrentSeason != null)
 		{
-			sb.AppendLine($"It is currently {actor.Location.Zone.Weather.CurrentSeason.Name.Colour(Telnet.Green)}.");
+			sb.AppendLine($"\tIt is currently {actor.Location.Zone.Weather.CurrentSeason.Name.Colour(Telnet.Green)}.");
 		}
 
 		var celestialList = new List<string>();
@@ -156,18 +157,15 @@ internal class TimeModule : Module<ICharacter>
 		{
 			if (actor.Body.CanSee(info.Origin))
 			{
-				var description = info.Origin.Describe(info).Fullstop();
+				var description = info.Origin.Describe(info).Fullstop().Wrap(actor.InnerLineFormatLength, "\t");
 				if (actor.IsAdministrator())
 				{
-					description += " (Asc: " + info.LastAscensionAngle.RadiansToDegrees().ToString("N3") + "° Azi: " +
-					               info.LastAzimuthAngle.RadiansToDegrees().ToString("N3") + "°)";
+					description += $" (Asc: {$"{info.LastAscensionAngle.RadiansToDegrees().ToString("N3", actor)}°".ColourValue()} Azi: {$"{info.LastAzimuthAngle.RadiansToDegrees().ToString("N3", actor)}°".ColourValue()} DN: {info.Origin.CurrentCelestialDay.ToString("N2", actor).ColourValue()})";
 				}
 
-				celestialList.Add(description);
+				sb.AppendLine(description);
 			}
 		}
-
-		sb.AppendLine("\n\t" + celestialList.ListToString());
 
 		var calendars = actor.Body.Location.Calendars;
 		if (actor.Gameworld.GetCheck(CheckType.ExactTimeCheck).Check(actor, Difficulty.Automatic).IsPass())
@@ -176,8 +174,7 @@ internal class TimeModule : Module<ICharacter>
 			{
 				var date = actor.Location.Date(calendar);
 				var time = actor.Location.Time(calendar.FeedClock);
-				sb.AppendLine("\tIt is " + calendar.FeedClock.DisplayTime(time, TimeDisplayTypes.Long) + " on " +
-				              calendar.DisplayDate(date, CalendarDisplayMode.Wordy).Fullstop());
+				sb.AppendLine($"It is {calendar.FeedClock.DisplayTime(time, TimeDisplayTypes.Long).ColourValue()} on {calendar.DisplayDate(date, CalendarDisplayMode.Long).ColourValue().Fullstop()}".Wrap(actor.InnerLineFormatLength, "\t"));
 			}
 		}
 		else if (actor.Gameworld.GetCheck(CheckType.VagueTimeCheck).Check(actor, Difficulty.Automatic).IsPass())
@@ -186,8 +183,7 @@ internal class TimeModule : Module<ICharacter>
 			{
 				var date = actor.Location.Date(calendar);
 				var time = actor.Location.Time(calendar.FeedClock);
-				sb.AppendLine("\tIt is about " + calendar.FeedClock.DisplayTime(time, TimeDisplayTypes.Vague) +
-				              " on " + calendar.DisplayDate(date, CalendarDisplayMode.Long).Fullstop());
+				sb.AppendLine($"It is about {calendar.FeedClock.DisplayTime(time, TimeDisplayTypes.Vague).ColourValue()} on {calendar.DisplayDate(date, CalendarDisplayMode.Long).ColourValue().Fullstop()}".Wrap(actor.InnerLineFormatLength, "\t"));
 			}
 		}
 		else
@@ -196,8 +192,7 @@ internal class TimeModule : Module<ICharacter>
 			{
 				var date = actor.Location.Date(calendar);
 				var time = actor.Location.Time(calendar.FeedClock);
-				sb.AppendLine("\tIt is " + calendar.FeedClock.DisplayTime(time, TimeDisplayTypes.Crude) + " on " +
-				              calendar.DisplayDate(date, CalendarDisplayMode.Long).Fullstop());
+				sb.AppendLine($"It is {calendar.FeedClock.DisplayTime(time, TimeDisplayTypes.Crude).ColourValue()} on {calendar.DisplayDate(date, CalendarDisplayMode.Long).ColourValue().Fullstop()}".Wrap(actor.InnerLineFormatLength, "\t"));
 			}
 		}
 
@@ -207,7 +202,7 @@ internal class TimeModule : Module<ICharacter>
 		foreach (var item in visibleTimepieces)
 		{
 			sb.AppendLine(
-				$"\t{item.Parent.HowSeen(actor, true)} shows the time as {item.Clock.DisplayTime(item.CurrentTime, item.TimeDisplayString)}.");
+				$"\t{item.Parent.HowSeen(actor, true)} shows the time as {item.Clock.DisplayTime(item.CurrentTime, item.TimeDisplayString).ColourValue()}.".Wrap(actor.InnerLineFormatLength, "\t"));
 		}
 
 		actor.OutputHandler.Send(sb.ToString());

@@ -2756,6 +2756,7 @@ This is the syntax for editing skills:
 	{
 		var sb = new StringBuilder();
 		sb.AppendLine($"Sniffing Item {gi.Id.ToString("N0", actor)}...");
+		sb.AppendLine();
 		sb.AppendLine($"Desc: {gi.HowSeen(actor)}");
 		sb.AppendLine(
 			$"Proto: {$"{gi.Prototype.Id.ToString("N0", actor)}r{gi.Prototype.RevisionNumber.ToString("N0", actor)}".ColourValue()}");
@@ -2763,7 +2764,7 @@ This is the syntax for editing skills:
 		sb.AppendLine($"Size: {gi.Size.Describe().ColourValue()}");
 		sb.AppendLine($"Material: {gi.Material.Name.ColourValue()}");
 		sb.AppendLine(
-			$"Weight: {actor.Gameworld.UnitManager.DescribeMostSignificantExact(gi.Weight, Framework.Units.UnitType.Mass, actor)}");
+			$"Weight: {actor.Gameworld.UnitManager.DescribeMostSignificantExact(gi.Weight, Framework.Units.UnitType.Mass, actor).ColourValue()}");
 		sb.AppendLine($"Quantity: {gi.Quantity.ToString("N0", actor).ColourValue()}");
 		sb.AppendLine($"Condition: {gi.Condition.ToString("P2", actor).ColourValue()}");
 		sb.AppendLine($"Position: {gi.PositionState.GetType().Name.ColourValue()}");
@@ -2783,9 +2784,10 @@ This is the syntax for editing skills:
 		foreach (var component in gi.Components)
 		{
 			sb.AppendLine(
-				$"\t#{component.Id.ToString("N0", actor)} (proto {component.Prototype.Id.ToString("N0", actor)}r{component.Prototype.RevisionNumber.ToString("N0", actor)}) - {component.Prototype.Name}");
+				$"\t##{component.Id.ToString("N0", actor)} (proto #2{component.Prototype.Id.ToString("N0", actor)}r{component.Prototype.RevisionNumber.ToString("N0", actor)}#0) - #5{component.Prototype.Name}#0".SubstituteANSIColour());
 		}
 
+		sb.AppendLine();
 		sb.AppendLine($"Attached Items:");
 		foreach (var item in gi.AttachedAndConnectedItems)
 		{

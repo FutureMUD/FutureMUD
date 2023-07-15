@@ -332,6 +332,7 @@ public class CorpseGameItemComponent : GameItemComponent, ICorpse, ILazyLoadDuri
 				newItem.GetItemType<IStackable>().Quantity = quantity;
 				butcher.Location.Insert(newItem);
 				newItem.HandleEvent(EventType.ItemFinishedLoading, newItem);
+				newItem.Login();
 				productSB.AppendLine($"\t${count++} has been produced.");
 				products.Add(newItem);
 				return;
@@ -344,6 +345,7 @@ public class CorpseGameItemComponent : GameItemComponent, ICorpse, ILazyLoadDuri
 				Gameworld.Add(newItem);
 				butcher.Location.Insert(newItem);
 				newItem.HandleEvent(EventType.ItemFinishedLoading, newItem);
+				newItem.Login();
 				productSB.AppendLine($"\t${count++} has been produced.");
 				products.Add(newItem);
 			}
@@ -419,6 +421,7 @@ public class CorpseGameItemComponent : GameItemComponent, ICorpse, ILazyLoadDuri
 				newItem.GetItemType<IStackable>().Quantity = quantity;
 				skinner.Location.Insert(newItem);
 				newItem.HandleEvent(EventType.ItemFinishedLoading, newItem);
+				newItem.Login();
 				return;
 			}
 
@@ -429,6 +432,7 @@ public class CorpseGameItemComponent : GameItemComponent, ICorpse, ILazyLoadDuri
 				Gameworld.Add(newItem);
 				skinner.Location.Insert(newItem);
 				newItem.HandleEvent(EventType.ItemFinishedLoading, newItem);
+				newItem.Login();
 			}
 		}
 

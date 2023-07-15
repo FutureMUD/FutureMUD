@@ -3682,18 +3682,13 @@ The syntax for this command is as follows:
 		var materials = actor.Gameworld.Materials.AsEnumerable();
 		while (!command.IsFinished)
 		{
-			switch (command.PopSpeech().ToLowerInvariant())
+			if (!command.PopSpeech().TryParseEnum<MaterialBehaviourType>(out var materialType))
 			{
-				default:
-					if (!command.PopSpeech().TryParseEnum<MaterialBehaviourType>(out var materialType))
-					{
-						actor.Send("There is no such material general type to filter by.");
-						return;
-					}
-
-					materials = materials.Where(x => x.BehaviourType == materialType);
-					continue;
+				actor.Send("There is no such material general type to filter by.");
+				return;
 			}
+
+			materials = materials.Where(x => x.BehaviourType == materialType);
 		}
 
 		actor.Send(

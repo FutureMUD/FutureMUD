@@ -1034,6 +1034,7 @@ If you do not wish to approve or decline, you may type {"abort edit".Colour(Teln
 				}
 
 				item.HandleEvent(EventType.ItemFinishedLoading, item);
+				item.Login();
 				actor.OutputHandler.Handle(
 					new EmoteOutput(new Emote("@ load|loads $0.", actor, item),
 						flags: OutputFlags.SuppressObscured));
@@ -1067,6 +1068,7 @@ If you do not wish to approve or decline, you may type {"abort edit".Colour(Teln
 					}
 
 					item.HandleEvent(EventType.ItemFinishedLoading, item);
+					item.Login();
 				}
 
 				actor.OutputHandler.Handle(
@@ -1100,6 +1102,7 @@ If you do not wish to approve or decline, you may type {"abort edit".Colour(Teln
 			}
 
 			item.HandleEvent(EventType.ItemFinishedLoading, item);
+			item.Login();
 			actor.OutputHandler.Handle(
 				new EmoteOutput(new Emote("@ load|loads $0.", actor, item),
 					flags: OutputFlags.SuppressObscured));

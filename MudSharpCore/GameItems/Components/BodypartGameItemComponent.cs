@@ -650,6 +650,7 @@ public class BodypartGameItemComponent : GameItemComponent, ISeveredBodypart, IL
 				newItem.GetItemType<IStackable>().Quantity = quantity;
 				butcher.Location.Insert(newItem);
 				newItem.HandleEvent(EventType.ItemFinishedLoading, newItem);
+				newItem.Login();
 				productSB.AppendLine($"\t${count++} has been produced.");
 				products.Add(newItem);
 				return;
@@ -662,6 +663,7 @@ public class BodypartGameItemComponent : GameItemComponent, ISeveredBodypart, IL
 				Gameworld.Add(newItem);
 				butcher.Location.Insert(newItem);
 				newItem.HandleEvent(EventType.ItemFinishedLoading, newItem);
+				newItem.Login();
 				productSB.AppendLine($"\t${count++} has been produced.");
 				products.Add(newItem);
 			}

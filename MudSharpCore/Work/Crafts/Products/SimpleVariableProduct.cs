@@ -157,7 +157,7 @@ public class SimpleVariableProduct : SimpleProduct
 		ItemQuality referenceQuality)
 	{
 		var proto = Gameworld.ItemProtos.Get(ProductProducedId);
-		if (proto != null)
+		if (proto is null)
 		{
 			throw new ApplicationException("Couldn't find a valid proto for craft product to load.");
 		}

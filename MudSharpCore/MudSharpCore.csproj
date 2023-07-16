@@ -12,7 +12,7 @@
     <AssemblyName>MudSharp</AssemblyName>
     <Version>1.21.0</Version>
     <AssemblyVersion>1.21.0</AssemblyVersion>
-    <FileVersion>1.20.1</FileVersion>
+    <FileVersion>1.21.0</FileVersion>
   </PropertyGroup>
 
   <ItemGroup>

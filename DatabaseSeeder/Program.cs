@@ -339,6 +339,9 @@ The exception details were as follows:
 						case ShouldSeedResult.ReadyToInstall:
 							Console.ForegroundColor = ConsoleColor.Green;
 							break;
+						case ShouldSeedResult.ExtraPackagesAvailable:
+							Console.ForegroundColor = ConsoleColor.Cyan;
+							break;
 					}
 
 					Console.WriteLine($"{i++}) [{seeder.Name:20}] {seeder.Tagline}");

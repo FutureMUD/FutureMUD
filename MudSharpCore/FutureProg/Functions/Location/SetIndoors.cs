@@ -28,7 +28,20 @@ internal class SetIndoors : BuiltInFunction
 			new FunctionCompilerInformation(
 				"SetIndoors".ToLowerInvariant(),
 				new[] { FutureProgVariableTypes.Location, FutureProgVariableTypes.OverlayPackage },
-				(pars, gameworld) => new SetIndoors(pars, gameworld, CellOutdoorsType.Indoors)
+				(pars, gameworld) => new SetIndoors(pars, gameworld, CellOutdoorsType.Indoors),
+				new List<string>
+				{
+					"room",
+					"package",
+				},
+				new List<string>
+				{
+					"The room you want to edit",
+					"The package that the edit belongs to"
+				},
+				"Sets the indoors-type of the room to 'Indoors', as if you had done CELL SET TYPE INDOORS.",
+				"Rooms",
+				FutureProgVariableTypes.Boolean
 			)
 		);
 
@@ -36,7 +49,20 @@ internal class SetIndoors : BuiltInFunction
 			new FunctionCompilerInformation(
 				"SetIndoorsWithWindows".ToLowerInvariant(),
 				new[] { FutureProgVariableTypes.Location, FutureProgVariableTypes.OverlayPackage },
-				(pars, gameworld) => new SetIndoors(pars, gameworld, CellOutdoorsType.IndoorsWithWindows)
+				(pars, gameworld) => new SetIndoors(pars, gameworld, CellOutdoorsType.IndoorsWithWindows),
+				new List<string>
+				{
+					"room",
+					"package",
+				},
+				new List<string>
+				{
+					"The room you want to edit",
+					"The package that the edit belongs to"
+				},
+				"Sets the indoors-type of the room to 'Indoors With Windows', as if you had done CELL SET TYPE WINDOWS.",
+				"Rooms",
+				FutureProgVariableTypes.Boolean
 			)
 		);
 
@@ -44,7 +70,20 @@ internal class SetIndoors : BuiltInFunction
 			new FunctionCompilerInformation(
 				"SetIndoorsNoLight".ToLowerInvariant(),
 				new[] { FutureProgVariableTypes.Location, FutureProgVariableTypes.OverlayPackage },
-				(pars, gameworld) => new SetIndoors(pars, gameworld, CellOutdoorsType.IndoorsNoLight)
+				(pars, gameworld) => new SetIndoors(pars, gameworld, CellOutdoorsType.IndoorsNoLight),
+				new List<string>
+				{
+					"room",
+					"package",
+				},
+				new List<string>
+				{
+					"The room you want to edit",
+					"The package that the edit belongs to"
+				},
+				"Sets the indoors-type of the room to 'Indoors With No Light', as if you had done CELL SET TYPE CAVE.",
+				"Rooms",
+				FutureProgVariableTypes.Boolean
 			)
 		);
 
@@ -52,7 +91,20 @@ internal class SetIndoors : BuiltInFunction
 			new FunctionCompilerInformation(
 				"SetIndoorsClimateExposed".ToLowerInvariant(),
 				new[] { FutureProgVariableTypes.Location, FutureProgVariableTypes.OverlayPackage },
-				(pars, gameworld) => new SetIndoors(pars, gameworld, CellOutdoorsType.IndoorsClimateExposed)
+				(pars, gameworld) => new SetIndoors(pars, gameworld, CellOutdoorsType.IndoorsClimateExposed),
+				new List<string>
+				{
+					"room",
+					"package",
+				},
+				new List<string>
+				{
+					"The room you want to edit",
+					"The package that the edit belongs to"
+				},
+				"Sets the indoors-type of the room to 'Indoors But Climate Exposed', as if you had done CELL SET TYPE EXPOSED.",
+				"Rooms",
+				FutureProgVariableTypes.Boolean
 			)
 		);
 
@@ -60,7 +112,20 @@ internal class SetIndoors : BuiltInFunction
 			new FunctionCompilerInformation(
 				"SetOutdoors".ToLowerInvariant(),
 				new[] { FutureProgVariableTypes.Location, FutureProgVariableTypes.OverlayPackage },
-				(pars, gameworld) => new SetIndoors(pars, gameworld, CellOutdoorsType.Outdoors)
+				(pars, gameworld) => new SetIndoors(pars, gameworld, CellOutdoorsType.Outdoors),
+				new List<string>
+				{
+					"room",
+					"package",
+				},
+				new List<string>
+				{
+					"The room you want to edit",
+					"The package that the edit belongs to"
+				},
+				"Sets the indoors-type of the room to 'Outdoors', as if you had done CELL SET TYPE OUTDOORS.",
+				"Rooms",
+				FutureProgVariableTypes.Boolean
 			)
 		);
 	}

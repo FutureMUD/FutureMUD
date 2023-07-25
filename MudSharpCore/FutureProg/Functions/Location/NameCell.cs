@@ -32,7 +32,49 @@ internal class NameCell : BuiltInFunction
 					FutureProgVariableTypes.Location, FutureProgVariableTypes.OverlayPackage,
 					FutureProgVariableTypes.Text
 				},
-				(pars, gameworld) => new NameCell(pars, gameworld)
+				(pars, gameworld) => new NameCell(pars, gameworld),
+				new List<string>
+				{
+					"room",
+					"package",
+					"name",
+				},
+				new List<string>
+				{
+					"The room you want to name",
+					"The package that the name change belongs to",
+					"The name that you are setting for that room",
+				},
+				"Sets the name of a room as if you had done CELL SET NAME.",
+				"Rooms",
+				FutureProgVariableTypes.Boolean
+			)
+		);
+
+		FutureProg.RegisterBuiltInFunctionCompiler(
+			new FunctionCompilerInformation(
+				"NameRoom".ToLowerInvariant(),
+				new[]
+				{
+					FutureProgVariableTypes.Location, FutureProgVariableTypes.OverlayPackage,
+					FutureProgVariableTypes.Text
+				},
+				(pars, gameworld) => new NameCell(pars, gameworld),
+				new List<string>
+				{
+					"room",
+					"package",
+					"name",
+				},
+				new List<string>
+				{
+					"The room you want to name",
+					"The package that the name change belongs to",
+					"The name that you are setting for that room",
+				},
+				"Sets the name of a room as if you had done CELL SET NAME. Alias for NameCell.",
+				"Rooms",
+				FutureProgVariableTypes.Boolean
 			)
 		);
 	}

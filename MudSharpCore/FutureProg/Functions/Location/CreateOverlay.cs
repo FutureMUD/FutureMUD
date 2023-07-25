@@ -27,7 +27,20 @@ internal class CreateOverlay : BuiltInFunction
 			new FunctionCompilerInformation(
 				"CreateOverlay".ToLowerInvariant(),
 				new[] { FutureProgVariableTypes.Character, FutureProgVariableTypes.Text },
-				(pars, gameworld) => new CreateOverlay(pars, gameworld)
+				(pars, gameworld) => new CreateOverlay(pars, gameworld),
+				new List<string>
+				{
+					"builder",
+					"name"
+				},
+				new List<string>
+				{
+					"The builder who is creating the package",
+					"The name of the package you want to create. Must be unique."
+				},
+				"Creates a new cell overlay package with the specified name and builder, as if you had done CELL PACKAGE NEW. Can return null if the name is already taken so be sure to check for that.",
+				"Rooms",
+				FutureProgVariableTypes.OverlayPackage
 			)
 		);
 	}

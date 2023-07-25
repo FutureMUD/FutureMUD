@@ -33,7 +33,22 @@ internal class SetHearingProfile : BuiltInFunction
 					FutureProgVariableTypes.Location, FutureProgVariableTypes.OverlayPackage,
 					FutureProgVariableTypes.Number
 				},
-				(pars, gameworld) => new SetHearingProfile(pars, gameworld)
+				(pars, gameworld) => new SetHearingProfile(pars, gameworld),
+				new List<string>
+				{
+					"room",
+					"package",
+					"profile",
+				},
+				new List<string>
+				{
+					"The room you want to edit",
+					"The package that the edit belongs to",
+					"The Id number of the hearing profile to use",
+				},
+				"Sets the hearing profile of the room as if you had done CELL SET HEARING.",
+				"Rooms",
+				FutureProgVariableTypes.Boolean
 			)
 		);
 
@@ -45,7 +60,22 @@ internal class SetHearingProfile : BuiltInFunction
 					FutureProgVariableTypes.Location, FutureProgVariableTypes.OverlayPackage,
 					FutureProgVariableTypes.Text
 				},
-				(pars, gameworld) => new SetHearingProfile(pars, gameworld)
+				(pars, gameworld) => new SetHearingProfile(pars, gameworld),
+				new List<string>
+				{
+					"room",
+					"package",
+					"profile",
+				},
+				new List<string>
+				{
+					"The room you want to edit",
+					"The package that the edit belongs to",
+					"The name of the hearing profile to use",
+				},
+				"Sets the hearing profile of the room as if you had done CELL SET HEARING.",
+				"Rooms",
+				FutureProgVariableTypes.Boolean
 			)
 		);
 	}

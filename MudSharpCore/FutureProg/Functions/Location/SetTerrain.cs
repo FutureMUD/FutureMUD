@@ -32,7 +32,22 @@ internal class SetTerrain : BuiltInFunction
 					FutureProgVariableTypes.Location, FutureProgVariableTypes.OverlayPackage,
 					FutureProgVariableTypes.Terrain
 				},
-				(pars, gameworld) => new SetTerrain(pars, gameworld)
+				(pars, gameworld) => new SetTerrain(pars, gameworld),
+				new List<string>
+				{
+					"room",
+					"package",
+					"terrain",
+				},
+				new List<string>
+				{
+					"The room you want to edit",
+					"The package that the edit belongs to",
+					"The terrain to set",
+				},
+				"Sets the terrain type of a room as if you had done CELL SET TERRAIN.",
+				"Rooms",
+				FutureProgVariableTypes.Boolean
 			)
 		);
 	}

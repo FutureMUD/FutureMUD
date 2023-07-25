@@ -28,7 +28,20 @@ internal class ReviseOverlay : BuiltInFunction
 			new FunctionCompilerInformation(
 				"ReviseOverlay".ToLowerInvariant(),
 				new[] { FutureProgVariableTypes.OverlayPackage, FutureProgVariableTypes.Character },
-				(pars, gameworld) => new ReviseOverlay(pars, gameworld)
+				(pars, gameworld) => new ReviseOverlay(pars, gameworld),
+				new List<string>
+				{
+					"package",
+					"builder",
+				},
+				new List<string>
+				{
+					"The package that you want to revise",
+					"The builder who is doing the revision",
+				},
+				"Creates a new revision for an overlay package.",
+				"Rooms",
+				FutureProgVariableTypes.OverlayPackage
 			)
 		);
 	}

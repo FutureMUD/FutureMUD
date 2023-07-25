@@ -32,7 +32,49 @@ internal class DescribeCell : BuiltInFunction
 					FutureProgVariableTypes.Location, FutureProgVariableTypes.OverlayPackage,
 					FutureProgVariableTypes.Text
 				},
-				(pars, gameworld) => new DescribeCell(pars, gameworld)
+				(pars, gameworld) => new DescribeCell(pars, gameworld),
+				new List<string>
+				{
+					"room",
+					"package",
+					"description",
+				},
+				new List<string>
+				{
+					"The room you want to describe",
+					"The package that the description change belongs to",
+					"The description that you are setting for that room",
+				},
+				"Sets the description of a room as if you had done CELL SET DESCRIPTION.",
+				"Rooms",
+				FutureProgVariableTypes.Boolean
+			)
+		);
+
+		FutureProg.RegisterBuiltInFunctionCompiler(
+			new FunctionCompilerInformation(
+				"DescribeRoom".ToLowerInvariant(),
+				new[]
+				{
+					FutureProgVariableTypes.Location, FutureProgVariableTypes.OverlayPackage,
+					FutureProgVariableTypes.Text
+				},
+				(pars, gameworld) => new DescribeCell(pars, gameworld),
+				new List<string>
+				{
+					"room",
+					"package",
+					"description",
+				},
+				new List<string>
+				{
+					"The room you want to describe",
+					"The package that the description change belongs to",
+					"The description that you are setting for that room",
+				},
+				"Sets the description of a room as if you had done CELL SET DESCRIPTION. Alias for DescribeCell.",
+				"Rooms",
+				FutureProgVariableTypes.Boolean
 			)
 		);
 	}

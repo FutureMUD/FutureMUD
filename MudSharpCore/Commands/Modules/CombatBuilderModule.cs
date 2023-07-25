@@ -11,6 +11,7 @@ using MudSharp.Effects.Concrete;
 using MudSharp.Framework;
 using MudSharp.GameItems;
 using MudSharp.RPG.Checks;
+using static System.Collections.Specialized.BitVector32;
 
 namespace MudSharp.Commands.Modules;
 
@@ -22,7 +23,7 @@ internal class CombatBuilderModule : BaseBuilderModule
 		IsNecessary = true;
 	}
 
-	public new static CombatBuilderModule Instance { get; } = new();
+	public static CombatBuilderModule Instance { get; } = new();
 
 	#region Ammunition
 
@@ -159,8 +160,7 @@ The syntax for this command is as follows:
 				return;
 		}
 
-		actor.OutputHandler.Send(
-			"The valid choices are list, show, new, edit, close, set, clone, natural and delete.");
+		actor.OutputHandler.Send(WeaponAttackHelp.SubstituteANSIColour());
 	}
 
 	private static void WeaponAttackView(ICharacter actor, StringStack ss)
@@ -501,6 +501,291 @@ The syntax for this command is as follows:
 
 	#endregion
 
+	public const string AuxiliaryHelpText = @"This command is used to create and edit auxiliary moves, which are customisable, special moves that supplement weapon attacks. 
+
+Unlike weapon attacks, auxiliaries have a number of addable effects that can be changed after creation. You can create quite complex auxiliary moves.
+
+The syntax for this command is as follows:
+
+	#3auxiliary list#0 - lists all auxiliary moves
+	#3auxiliary edit <id|name>#0 - opens an auxiliary move for editing
+	#3auxiliary edit#0 - an alias for AUXILIARY SHOW when you have something open
+	#3auxiliary show <id|name>#0 - shows details about a particular auxiliary move
+	#3auxiliary close#0 - closes the open auxiliary move
+	#3auxiliary new <name>#0 - creates a new auxiliary move with the specified name
+	#3auxiliary clone <which> <name>#0 - creates a carbon copy of the specified auxiliary move
+	#3auxiliary natural <race> <attack>#0 - adds an auxiliary move to a race
+	#3auxiliary natural <race> <attack> remove#0 - removes an auxiliary move from a race
+	#3auxiliary set ...#0 - edits the properties of a auxiliary move. See that command for more help.";
+
+	#region Auxiliary Moves
+	[PlayerCommand("Auxiliary", "auxiliary")]
+	[HelpInfo("Auxiliary", AuxiliaryHelpText, AutoHelp.HelpArgOrNoArg)]
+	protected static void Auxiliary(ICharacter actor, string text)
+	{
+		var ss = new StringStack(text.RemoveFirstWord());
+		switch (ss.PopSpeech().ToLowerInvariant().CollapseString())
+		{
+			case "add":
+			case "create":
+			case "new":
+				AuxiliaryNew(actor, ss);
+				return;
+			case "clone":
+				AuxiliaryClone(actor, ss);
+				return;
+			case "list":
+				AuxiliaryList(actor, ss);
+				return;
+			case "edit":
+				AuxiliaryEdit(actor, ss);
+				return;
+			case "close":
+				AuxiliaryClose(actor, ss);
+				return;
+			case "show":
+			case "view":
+				AuxiliaryShow(actor, ss);
+				return;
+			case "set":
+				AuxiliarySet(actor, ss);
+				return;
+			case "natural":
+				AuxiliaryNatural(actor, ss);
+				return;
+		}
+	}
+
+	private static void AuxiliaryNatural(ICharacter actor, StringStack ss)
+	{
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send("Which race's natural auxiliary moves do you want to edit?");
+			return;
+		}
+
+		var race = long.TryParse(ss.PopSpeech(), out var value)
+			? actor.Gameworld.Races.Get(value)
+			: actor.Gameworld.Races.GetByName(ss.Last);
+		if (race == null)
+		{
+			actor.OutputHandler.Send("There is no such race.");
+			return;
+		}
+
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send("Which auxiliary move do you want to change for this race?");
+			return;
+		}
+
+		var attack = long.TryParse(ss.PopSpeech(), out value)
+			? actor.Gameworld.AuxiliaryCombatActions.Get(value)
+			: actor.Gameworld.AuxiliaryCombatActions.GetByName(ss.Last);
+		if (attack == null)
+		{
+			actor.OutputHandler.Send("There is no such auxiliary move.");
+			return;
+		}
+
+		if (ss.Peek().EqualToAny("remove", "rem", "delete", "del"))
+		{
+			if (race.RemoveAuxiliaryAction(attack))
+			{
+				actor.OutputHandler.Send($"You remove the auxiliary action {attack.Name.Colour(Telnet.Cyan)} from the {race.Name.Colour(Telnet.Green)} race.");
+				return;
+			}
+
+			actor.OutputHandler.Send($"The {attack.Name.ColourName()} auxiliary move is provided by a parent race of {race.Name.ColourValue()}, and so must be removed from that race instead.");
+			return;
+		}
+
+		if (race.AddAuxiliaryAction(attack))
+		{
+			actor.OutputHandler.Send($"The {race.Name.Colour(Telnet.Green)} race now has the {attack.Name.Colour(Telnet.Green)} auxiliary move.");
+			return;
+		}
+
+		actor.OutputHandler.Send($"The {race.Name.ColourName()} race already has that auxiliary move.");
+	}
+
+	private static void AuxiliaryClose(ICharacter actor, StringStack ss)
+	{
+		if (!actor.EffectsOfType<BuilderEditingEffect<IAuxiliaryCombatAction>>().Any())
+		{
+			actor.OutputHandler.Send("You aren't editing any auxiliary moves.");
+			return;
+		}
+
+		actor.OutputHandler.Send($"You are no longer editing any auxiliary moves.");
+		actor.RemoveAllEffects(x => x.IsEffectType<BuilderEditingEffect<IAuxiliaryCombatAction>>());
+	}
+
+	private static void AuxiliaryClone(ICharacter actor, StringStack ss)
+	{
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send("Which auxiliary move would you like to clone?");
+			return;
+		}
+
+		var action = long.TryParse(ss.PopSpeech(), out var value)
+			? actor.Gameworld.AuxiliaryCombatActions.Get(value)
+			: actor.Gameworld.AuxiliaryCombatActions.GetByName(ss.Last);
+		if (action == null)
+		{
+			actor.OutputHandler.Send("There is no such auxiliary move.");
+			return;
+		}
+		var newAction = action.Clone();
+		actor.Gameworld.Add(newAction);
+		actor.RemoveAllEffects(x => x.IsEffectType<BuilderEditingEffect<IAuxiliaryCombatAction>>());
+		actor.AddEffect(new BuilderEditingEffect<IAuxiliaryCombatAction>(actor) { EditingItem = newAction });
+		actor.OutputHandler.Send($"You clone auxiliary move {action.Name.ColourName()} into a new action with Id #{newAction.Id.ToString("N0", actor)}, which you are now editing.");
+	}
+
+	private static void AuxiliarySet(ICharacter actor, StringStack ss)
+	{
+		if (!actor.EffectsOfType<BuilderEditingEffect<IAuxiliaryCombatAction>>().Any())
+		{
+			actor.OutputHandler.Send("You aren't editing any auxiliary moves.");
+			return;
+		}
+
+		actor.EffectsOfType<BuilderEditingEffect<IAuxiliaryCombatAction>>().First().EditingItem.BuildingCommand(actor, ss);
+	}
+
+	private static void AuxiliaryShow(ICharacter actor, StringStack ss)
+	{
+		if (ss.IsFinished && !actor.EffectsOfType<BuilderEditingEffect<IAuxiliaryCombatAction>>().Any())
+		{
+			actor.OutputHandler.Send("You must specify an auxiliary move to show if you are not editing one.");
+			return;
+		}
+
+		IAuxiliaryCombatAction action;
+		if (ss.IsFinished)
+		{
+			action = actor.EffectsOfType<BuilderEditingEffect<IAuxiliaryCombatAction>>().First().EditingItem;
+		}
+		else
+		{
+			action = long.TryParse(ss.PopSpeech(), out var value)
+				? actor.Gameworld.AuxiliaryCombatActions.Get(value)
+				: actor.Gameworld.AuxiliaryCombatActions.GetByName(ss.Last);
+			if (action == null)
+			{
+				actor.OutputHandler.Send("There is no such auxiliary move to show you.");
+				return;
+			}
+		}
+
+		actor.OutputHandler.Send(action.ShowBuilder(actor));
+	}
+
+	private static void AuxiliaryEdit(ICharacter actor, StringStack ss)
+	{
+		if (ss.IsFinished)
+		{
+			if (actor.EffectsOfType<BuilderEditingEffect<IAuxiliaryCombatAction>>().Any())
+			{
+				AuxiliaryShow(actor, ss);
+				return;
+			}
+
+			actor.OutputHandler.Send("Which auxiliary move would you like to edit?");
+			return;
+		}
+
+		var action = long.TryParse(ss.PopSpeech(), out var value)
+			? actor.Gameworld.AuxiliaryCombatActions.Get(value)
+			: actor.Gameworld.AuxiliaryCombatActions.GetByName(ss.Last);
+		if (action == null)
+		{
+			actor.OutputHandler.Send("There is no such auxiliary move.");
+			return;
+		}
+
+		actor.OutputHandler.Send(
+			$"You are now editing auxiliary move #{action.Id.ToString("N0", actor)} ({action.Name}).");
+		actor.RemoveAllEffects(x => x.IsEffectType<BuilderEditingEffect<IAuxiliaryCombatAction>>());
+		actor.AddEffect(new BuilderEditingEffect<IAuxiliaryCombatAction>(actor) { EditingItem = action });
+	}
+
+	private static void AuxiliaryList(ICharacter actor, StringStack ss)
+	{
+		if (ss.Peek().EqualToAny("help", "?"))
+		{
+			actor.OutputHandler.Send(@"You can use the following arguments to help refine your search:
+
+	#3+key#0 - shows only attacks whose names have the keyword
+	#3-key#0 - excludes weapon types whose names have the keyword".SubstituteANSIColour());
+			return;
+		}
+
+		var actions = actor.Gameworld.AuxiliaryCombatActions.AsEnumerable();
+		while (!ss.IsFinished)
+		{
+			var arg = ss.PopSpeech();
+			if (arg[0] == '+' && arg.Length > 1)
+			{
+				arg = arg.Substring(1);
+				actions = actions.Where(x => x.Name.Contains(arg));
+				continue;
+			}
+
+			if (arg[0] == '-' && arg.Length > 1)
+			{
+				arg = arg.Substring(1);
+				actions = actions.Where(x => !x.Name.Contains(arg));
+				continue;
+			}
+		}
+
+		actor.OutputHandler.Send(StringUtilities.GetTextTable(
+			from action in actions
+			select new[]
+			{
+				action.Id.ToString("N0", actor),
+				action.Name,
+				action.UsabilityProg?.MXPClickableFunctionName() ?? "",
+				$"{action.BaseDelay.ToString("N2", actor)}s",
+				action.StaminaCost.ToString("N2", actor),
+				action.Weighting.ToString("N2", actor)
+
+			},
+			new[]
+			{
+				"ID",
+				"Name",
+				"Prog",
+				"Delay",
+				"Stamina",
+				"Weighting"
+			},
+			actor.LineFormatLength, colour: Telnet.Green,
+			unicodeTable: actor.Account.UseUnicode
+		));
+	}
+
+	private static void AuxiliaryNew(ICharacter actor, StringStack ss)
+	{
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send("What name do you want to give to your new auxiliary move?");
+			return;
+		}
+
+		var name = ss.SafeRemainingArgument.TitleCase();
+		var newAction = new AuxiliaryCombatAction(name, actor.Gameworld);
+		actor.Gameworld.Add(newAction);
+		actor.RemoveAllEffects(x => x.IsEffectType<BuilderEditingEffect<IAuxiliaryCombatAction>>());
+		actor.AddEffect(new BuilderEditingEffect<IAuxiliaryCombatAction>(actor) { EditingItem = newAction });
+		actor.OutputHandler.Send($"You create a new auxiliary move called {name.ColourName()} with Id #{newAction.Id.ToString("N0", actor)}, which you are now editing.");
+	}
+
+	#endregion
+
 	#region Combat Messages
 
 	private const string CombatMessageHelp =
@@ -688,9 +973,9 @@ You can also use the following options to filter searches:
 				message.Chance.ToString("P3", actor),
 				message.Verb?.Describe() ?? "Any",
 				message.Outcome?.DescribeColour() ?? "Any",
-				message.Prog != null
-					? $"{message.Prog.FunctionName} (#{message.Prog.Id})".FluentTagMXP(
-						"send", $"href='show futureprog {message.Prog.Id}'")
+				message.WeaponAttackProg != null
+					? $"{message.WeaponAttackProg.FunctionName} (#{message.WeaponAttackProg.Id})".FluentTagMXP(
+						"send", $"href='show futureprog {message.WeaponAttackProg.Id}'")
 					: "None",
 				message.Message
 			},

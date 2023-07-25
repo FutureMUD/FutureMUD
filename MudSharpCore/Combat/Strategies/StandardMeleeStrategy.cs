@@ -977,8 +977,32 @@ public class StandardMeleeStrategy : StrategyBase
 
 	protected virtual ICombatMove AttemptUseAuxilliaryAction(ICharacter combatant)
 	{
-		// TODO
-		return null;
+		if (combatant.CombatTarget is not ICharacter tch)
+		{
+			return null;
+		}
+
+		var moves = combatant.Race.UsableAuxiliaryMoves(combatant, tch, false).ToList();
+		var usableMoves = moves.Where(x => combatant.CanSpendStamina(x.StaminaCost)).ToList();
+		if (!usableMoves.Any())
+		{
+			return moves.Any() ? new TooExhaustedMove { Assailant = combatant } : null;
+		}
+
+		var preferredMoves = usableMoves.Where(x => x.Intentions.HasFlag(combatant.CombatSettings.PreferredIntentions))
+		                                .ToList();
+		if (preferredMoves.Any() && Dice.Roll(1, 2) == 1)
+		{
+			usableMoves = preferredMoves;
+		}
+
+		var move = usableMoves.GetWeightedRandom(x => x.Weighting);
+		if (move is null)
+		{
+			return null;
+		}
+
+		return new AuxiliaryMove(combatant, tch, move);
 	}
 
 	protected virtual ICombatMove HandleWeaponAttackRolled(ICharacter combatant)

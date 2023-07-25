@@ -15,7 +15,7 @@ namespace MudSharp.Models
         public double MagicUsePercentage { get; set; }
         public double PsychicUsePercentage { get; set; }
         public double NaturalWeaponPercentage { get; set; }
-        public double AuxillaryPercentage { get; set; }
+        public double AuxiliaryPercentage { get; set; }
         public bool PreferToFightArmed { get; set; }
         public bool PreferFavouriteWeapon { get; set; }
         public bool PreferShieldUse { get; set; }

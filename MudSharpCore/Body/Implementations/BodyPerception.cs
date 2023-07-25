@@ -492,7 +492,7 @@ public partial class Body
 		}
 
 		var items = Location.LayerGameItems(RoomLayer).Where(x => CanSee(x)).ToList();
-		if (items.GroupBy(x => x.ItemGroup).Sum(x => x.Key != null ? 1 : x.Count()) > 25 &&
+		if (items.GroupBy(x => x.ItemGroup?.Forms.Any() == true ? x.ItemGroup : null).Sum(x => x.Key != null ? 1 : x.Count()) > 25 &&
 		    GameItemProto.TooManyItemsGroup != null)
 		{
 			sb.AppendLine(GameItemProto.TooManyItemsGroup.Describe(Actor, items, Actor.Location).Fullstop()
@@ -500,12 +500,12 @@ public partial class Body
 		}
 		else
 		{
-			foreach (var group in items.GroupBy(x => x.ItemGroup).OrderBy(x => x.Key == null))
+			foreach (var group in items.GroupBy(x => x.ItemGroup?.Forms.Any() == true ? x.ItemGroup : null).OrderBy(x => x.Key == null))
 			{
 				if (group.Key != null)
 				{
-					sb.AppendLine(
-						group.Key.Describe(Actor, group.AsEnumerable(), Location).Fullstop().Wrap(InnerLineFormatLength)
+					sb.Append(
+						group.Key.Describe(Actor, group.AsEnumerable(), Location).Wrap(InnerLineFormatLength)
 						     .Colour(Telnet.Cyan));
 				}
 				else

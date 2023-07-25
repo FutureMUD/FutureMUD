@@ -11,6 +11,7 @@ public class CombatAction
 	public CombatAction()
 	{
 		CombatMessagesCombatActions = new HashSet<CombatMessagesCombatActions>();
+		RacesCombatActions = new HashSet<RacesCombatActions>();
 	}
 
 	public long Id { get; set; }
@@ -26,7 +27,11 @@ public class CombatAction
 	public double BaseDelay { get; set; }
 	public string AdditionalInfo { get; set; }
 	public string RequiredPositionStateIds { get; set; }
+	public int MoveDifficulty { get; set; }
+	public long TraitDefinitionId { get; set; }
 
 	public virtual FutureProg UsabilityProg { get; set; }
+	public virtual TraitDefinition TraitDefinition { get; set; }
 	public virtual ICollection<CombatMessagesCombatActions> CombatMessagesCombatActions { get; set; }
+	public virtual ICollection<RacesCombatActions> RacesCombatActions { get; set; }
 }

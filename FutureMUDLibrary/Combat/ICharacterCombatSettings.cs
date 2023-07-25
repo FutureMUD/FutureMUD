@@ -99,7 +99,7 @@ namespace MudSharp.Combat
         /// <summary>
         ///     Percentage chance to choose an auxillary over other types of moves
         /// </summary>
-        double AuxillaryPercentage { get; set; }
+        double AuxiliaryPercentage { get; set; }
 
         /// <summary>
         ///     If true, this combatant prefers to fight armed (and so will draw/retrieve weapons)

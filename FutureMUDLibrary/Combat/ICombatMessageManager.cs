@@ -18,5 +18,8 @@ namespace MudSharp.Combat
 
         string GetFailMessageFor(ICharacter character, IPerceiver target, IGameItem weapon, IWeaponAttack attack,
             BuiltInCombatMoveType type, Outcome outcome, IBodypart bodypart);
+
+        string GetMessageFor(ICharacter character, IPerceiver target, IAuxiliaryCombatAction action, Outcome outcome);
+        string GetFailMessageFor(ICharacter character, IPerceiver target, IAuxiliaryCombatAction action, Outcome outcome);
     }
 }

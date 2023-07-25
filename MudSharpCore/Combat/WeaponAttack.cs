@@ -827,12 +827,12 @@ public class WeaponAttack : CombatAction, IWeaponAttack
 		sb.AppendLine("Combat Message Hierarchy:");
 		var messages = Gameworld.CombatMessageManager.CombatMessages.Where(x => x.CouldApply(this))
 		                        .OrderByDescending(x => x.Priority).ThenByDescending(x => x.Outcome ?? Outcome.None)
-		                        .ThenBy(x => x.Prog != null).ToList();
+		                        .ThenBy(x => x.WeaponAttackProg != null).ToList();
 		var i = 1;
 		foreach (var message in messages)
 		{
 			sb.AppendLine(
-				$"{i++.ToOrdinal()}) [#{message.Id.ToString("N0", actor)}] {message.Message.ColourCommand()} [{message.Chance.ToString("P3", actor).Colour(Telnet.Green)}]{(message.Outcome.HasValue ? $" [{message.Outcome.Value.DescribeColour()}]" : "")}{(message.Prog != null ? $" [{message.Prog.FunctionName} (#{message.Prog.Id})]".FluentTagMXP("send", $"href='show futureprog {message.Prog.Id}'") : "")}");
+				$"{i++.ToOrdinal()}) [#{message.Id.ToString("N0", actor)}] {message.Message.ColourCommand()} [{message.Chance.ToString("P3", actor).Colour(Telnet.Green)}]{(message.Outcome.HasValue ? $" [{message.Outcome.Value.DescribeColour()}]" : "")}{(message.WeaponAttackProg != null ? $" [{message.WeaponAttackProg.FunctionName} (#{message.WeaponAttackProg.Id})]".FluentTagMXP("send", $"href='show futureprog {message.WeaponAttackProg.Id}'") : "")}");
 		}
 
 		return sb.ToString();

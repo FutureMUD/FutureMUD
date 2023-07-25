@@ -1748,10 +1748,7 @@ public class GameItemProto : EditableItem, IGameItemProto
 			return false;
 		}
 
-		var material = long.TryParse(command.SafeRemainingArgument, out var value)
-			? Gameworld.Materials.Get(value)
-			: Gameworld.Materials.FirstOrDefault(
-				x => x.Name.Equals(command.Last, StringComparison.InvariantCultureIgnoreCase));
+		var material = Gameworld.Materials.GetByIdOrName(command.SafeRemainingArgument);
 		if (material == null)
 		{
 			actor.Send("There is no such material.");

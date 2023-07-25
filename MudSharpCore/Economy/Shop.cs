@@ -776,6 +776,7 @@ public class Shop : SaveableItem, IShop
 			item.AddEffect(new ItemOnDisplayInShop(item, this, merchandise));
 			targetCell.Insert(item);
 			item.HandleEvent(EventType.ItemFinishedLoading, item);
+			item.Login();
 			_stockedMerchandise.Add(merchandise, item.Id);
 			_stockedMerchandiseCounts[merchandise] += item.Quantity;
 		}

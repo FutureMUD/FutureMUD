@@ -76,7 +76,7 @@ public class CharacterCombatSettings : SaveableItem, ICharacterCombatSettings
 				NaturalWeaponPercentage = settingToCopy.NaturalWeaponPercentage,
 				MagicUsePercentage = settingToCopy.MagicUsePercentage,
 				PsychicUsePercentage = settingToCopy.PsychicUsePercentage,
-				AuxillaryPercentage = settingToCopy.AuxillaryPercentage,
+				AuxiliaryPercentage = settingToCopy.AuxiliaryPercentage,
 				PreferToFightArmed = settingToCopy.PreferToFightArmed,
 				PreferShieldUse = settingToCopy.PreferShieldUse,
 				PreferFavouriteWeapon = settingToCopy.PreferFavouriteWeapon,
@@ -171,7 +171,7 @@ public class CharacterCombatSettings : SaveableItem, ICharacterCombatSettings
 	/// <summary>
 	///     Percentage chance to choose an auxillary over other types of moves
 	/// </summary>
-	public double AuxillaryPercentage { get; set; }
+	public double AuxiliaryPercentage { get; set; }
 
 	/// <summary>
 	///     If true, this combatant prefers to fight armed (and so will draw/retrieve weapons)
@@ -271,7 +271,7 @@ public class CharacterCombatSettings : SaveableItem, ICharacterCombatSettings
 		WeaponUsePercentage = setting.WeaponUsePercentage;
 		MagicUsePercentage = setting.MagicUsePercentage;
 		PsychicUsePercentage = setting.PsychicUsePercentage;
-		AuxillaryPercentage = setting.AuxillaryPercentage;
+		AuxiliaryPercentage = setting.AuxiliaryPercentage;
 		NaturalWeaponPercentage = setting.NaturalWeaponPercentage;
 		PreferFavouriteWeapon = setting.PreferFavouriteWeapon;
 		PreferShieldUse = setting.PreferShieldUse;
@@ -337,7 +337,7 @@ public class CharacterCombatSettings : SaveableItem, ICharacterCombatSettings
 			dbitem.WeaponUsePercentage = WeaponUsePercentage;
 			dbitem.MagicUsePercentage = MagicUsePercentage;
 			dbitem.PsychicUsePercentage = PsychicUsePercentage;
-			dbitem.AuxillaryPercentage = AuxillaryPercentage;
+			dbitem.AuxiliaryPercentage = AuxiliaryPercentage;
 			dbitem.NaturalWeaponPercentage = NaturalWeaponPercentage;
 			dbitem.PreferFavouriteWeapon = PreferFavouriteWeapon;
 			dbitem.PreferShieldUse = PreferShieldUse;
@@ -463,7 +463,7 @@ public class CharacterCombatSettings : SaveableItem, ICharacterCombatSettings
 		sb.AppendLine(
 			$"Balance: Weapon {$"{WeaponUsePercentage:P0}".Colour(Telnet.Green)} / Unarmed " +
 			$"{NaturalWeaponPercentage:P0}".Colour(Telnet.Green) +
-			$"{(AuxillaryPercentage > 0 ? $"Auxillary {AuxillaryPercentage:P0}" : "")}" +
+			$"{(AuxiliaryPercentage > 0 ? $"Auxiliary {AuxiliaryPercentage:P0}" : "")}" +
 			$"{(MagicUsePercentage > 0 ? $" Magic {MagicUsePercentage:P0}" : "")}" +
 			$"{(PsychicUsePercentage > 0 ? $" Psychic {PsychicUsePercentage:P0}" : "")}");
 		sb.AppendLine(

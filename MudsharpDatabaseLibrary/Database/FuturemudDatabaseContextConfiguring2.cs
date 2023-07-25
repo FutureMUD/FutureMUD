@@ -543,6 +543,7 @@ namespace MudSharp.Database
                 entity.Property(e => e.Priority).HasColumnType("int(11)");
 
                 entity.Property(e => e.ProgId).HasColumnType("bigint(20)");
+                entity.Property(e => e.AuxiliaryProgId).HasColumnType("bigint(20)");
 
                 entity.Property(e => e.Type).HasColumnType("int(11)");
 
@@ -553,6 +554,36 @@ namespace MudSharp.Database
                     .HasForeignKey(d => d.ProgId)
                     .OnDelete(DeleteBehavior.SetNull)
                     .HasConstraintName("FK_CombatMessages_FutureProgs");
+                entity.HasOne(d => d.AuxiliaryProg)
+                      .WithMany()
+                      .HasForeignKey(d => d.AuxiliaryProgId)
+                      .OnDelete(DeleteBehavior.SetNull)
+                      .HasConstraintName("FK_CombatMessages_FutureProgs_Auxiliary");
+            });
+
+            modelBuilder.Entity<CombatMessagesCombatActions>(entity =>
+            {
+	            entity.HasKey(e => new { e.CombatMessageId, e.CombatActionId })
+	                  .HasName("PRIMARY");
+
+	            entity.ToTable("CombatMessages_CombatActions");
+
+	            entity.HasIndex(e => e.CombatActionId)
+	                  .HasDatabaseName("FK_CombatMessages_CombatActions_WeaponAttacks_idx");
+
+	            entity.Property(e => e.CombatMessageId).HasColumnType("bigint(20)");
+
+	            entity.Property(e => e.CombatActionId).HasColumnType("bigint(20)");
+
+	            entity.HasOne(d => d.CombatMessage)
+	                  .WithMany(p => p.CombatMessagesCombatActions)
+	                  .HasForeignKey(d => d.CombatMessageId)
+	                  .HasConstraintName("FK_CombatMessages_CombatActions_CombatMessages");
+
+	            entity.HasOne(d => d.CombatAction)
+	                  .WithMany(p => p.CombatMessagesCombatActions)
+	                  .HasForeignKey(d => d.CombatActionId)
+	                  .HasConstraintName("FK_CombatMessages_CombatActions_WeaponAttacks");
             });
 
             modelBuilder.Entity<CombatMessagesWeaponAttacks>(entity =>

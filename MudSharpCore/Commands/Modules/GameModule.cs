@@ -1092,6 +1092,7 @@ You can also type 'forage' on its own to see what kinds of yields you can search
 					}
 
 					item.HandleEvent(EventType.ItemFinishedLoading, item);
+					item.Login();
 				}
 
 				if (anyInLocation)

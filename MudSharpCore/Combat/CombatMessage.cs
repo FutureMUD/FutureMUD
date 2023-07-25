@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using MailKit;
 using MudSharp.Body;
 using MudSharp.Character;
+using MudSharp.Climate;
 using MudSharp.Database;
 using MudSharp.Framework;
 using MudSharp.Framework.Save;
@@ -56,14 +58,15 @@ public class CombatMessage : SaveableItem, ICombatMessage
 				Outcome = (int?)rhs.Outcome,
 				Verb = (int?)rhs.Verb,
 				Chance = rhs.Chance,
-				ProgId = rhs.Prog?.Id
+				ProgId = rhs.WeaponAttackProg?.Id,
+				AuxiliaryProgId = rhs.AuxiliaryProg?.Id
 			};
 			foreach (var item in rhs.WeaponAttackIds)
 			{
 				dbitem.CombatMessagesWeaponAttacks.Add(new CombatMessagesWeaponAttacks
 				{ CombatMessage = dbitem, WeaponAttackId = item });
 			}
-			foreach (var item in rhs.CombatActionIds)
+			foreach (var item in rhs.AuxiliaryActionIds)
 			{
 				dbitem.CombatMessagesCombatActions.Add(new CombatMessagesCombatActions
 				{
@@ -86,7 +89,8 @@ public class CombatMessage : SaveableItem, ICombatMessage
 		Outcome = message.Outcome.HasValue ? (Outcome)message.Outcome : default(Outcome?);
 		Message = message.Message;
 		FailMessage = message.FailureMessage;
-		Prog = Gameworld.FutureProgs.Get(message.ProgId ?? 0);
+		WeaponAttackProg = Gameworld.FutureProgs.Get(message.ProgId ?? 0);
+		AuxiliaryProg = Gameworld.FutureProgs.Get(message.AuxiliaryProgId ?? 0);
 		Priority = message.Priority;
 		Verb = message.Verb.HasValue ? (MeleeWeaponVerb)message.Verb : default(MeleeWeaponVerb?);
 		Chance = message.Chance;
@@ -97,7 +101,7 @@ public class CombatMessage : SaveableItem, ICombatMessage
 
 		foreach (var move in message.CombatMessagesCombatActions.Select(x => x.CombatActionId).ToList())
 		{
-			CombatActionIds.Add(move);
+			AuxiliaryActionIds.Add(move);
 		}
 	}
 
@@ -106,11 +110,40 @@ public class CombatMessage : SaveableItem, ICombatMessage
 	public Outcome? Outcome { get; set; }
 	public string Message { get; set; }
 	public string FailMessage { get; set; }
-	public IFutureProg Prog { get; set; }
+	public IFutureProg WeaponAttackProg { get; set; }
+	public IFutureProg AuxiliaryProg { get; set; }
 	public int Priority { get; set; }
 	public MeleeWeaponVerb? Verb { get; set; }
 	public HashSet<long> WeaponAttackIds { get; } = new();
-	public HashSet<long> CombatActionIds { get; } = new();
+	public HashSet<long> AuxiliaryActionIds { get; } = new();
+
+	public bool Applies(ICharacter character, IPerceiver target, IAuxiliaryCombatAction action, Outcome outcome)
+	{
+		if (Type != BuiltInCombatMoveType.AuxiliaryMove)
+		{
+			return false;
+		}
+
+		if (Outcome.HasValue && outcome != Outcome && Outcome != RPG.Checks.Outcome.None)
+		{
+			return false;
+		}
+
+		if (AuxiliaryActionIds.Any())
+		{
+			if (!AuxiliaryActionIds.Contains(action.Id))
+			{
+				return false;
+			}
+		}
+
+		if ((bool?)AuxiliaryProg?.Execute(character, target) == false)
+		{
+			return false;
+		}
+		
+		return true;
+	}
 
 	public bool Applies(ICharacter character, IPerceiver target, IGameItem weapon,
 		IWeaponAttack attack, BuiltInCombatMoveType type, Outcome outcome,
@@ -139,7 +172,7 @@ public class CombatMessage : SaveableItem, ICombatMessage
 			return false;
 		}
 
-		if ((bool?)Prog?.Execute(character, target, weapon, attack?.Id ?? 0, attack?.Verb.Describe(),
+		if ((bool?)WeaponAttackProg?.Execute(character, target, weapon, attack?.Id ?? 0, attack?.Verb.Describe(),
 			    bodypart?.Shape.Name ?? "") == false)
 		{
 			return false;
@@ -171,19 +204,19 @@ public class CombatMessage : SaveableItem, ICombatMessage
 		return true;
 	}
 
-	public bool CouldApply(IAuxillaryCombatAction action)
+	public bool CouldApply(IAuxiliaryCombatAction action)
 	{
-		if (CombatActionIds.Any())
+		if (Type != BuiltInCombatMoveType.AuxiliaryMove)
 		{
-			if (!CombatActionIds.Contains(action?.Id ?? 0))
+			return false;
+		}
+
+		if (AuxiliaryActionIds.Any())
+		{
+			if (!AuxiliaryActionIds.Contains(action?.Id ?? 0))
 			{
 				return false;
 			}
-		}
-
-		if (Type != action?.MoveType)
-		{
-			return false;
 		}
 
 		return true;
@@ -217,14 +250,15 @@ public class CombatMessage : SaveableItem, ICombatMessage
 		dbitem.Outcome = (int?)Outcome;
 		dbitem.Verb = (int?)Verb;
 		dbitem.Chance = Chance;
-		dbitem.ProgId = Prog?.Id;
+		dbitem.ProgId = WeaponAttackProg?.Id;
+		dbitem.AuxiliaryProgId = AuxiliaryProg?.Id;
 		FMDB.Context.CombatMessagesWeaponAttacks.RemoveRange(dbitem.CombatMessagesWeaponAttacks);
 		foreach (var item in WeaponAttackIds)
 		{
 			dbitem.CombatMessagesWeaponAttacks.Add(new CombatMessagesWeaponAttacks
 				{ CombatMessage = dbitem, WeaponAttackId = item });
 		}
-		foreach (var item in CombatActionIds)
+		foreach (var item in AuxiliaryActionIds)
 		{
 			dbitem.CombatMessagesCombatActions.Add(new CombatMessagesCombatActions
 			{
@@ -247,8 +281,8 @@ public class CombatMessage : SaveableItem, ICombatMessage
 		sb.AppendLine($"Outcome: {Outcome?.DescribeColour() ?? "Any".Colour(Telnet.BoldWhite)}");
 		sb.AppendLine($"Priority: {Priority.ToString("N0", actor).Colour(Telnet.Green)}");
 		sb.AppendLine($"Chance: {Chance.ToString("P3", actor).Colour(Telnet.Green)}");
-		sb.AppendLine(
-			$"Prog: {(Prog != null ? $"{Prog.FunctionName} (#{Prog.Id})".FluentTagMXP("send", $"href='show futureprog {Prog.Id}'") : "None".Colour(Telnet.Red))}");
+		sb.AppendLine($"Weapon Attack Prog: {WeaponAttackProg?.MXPClickableFunctionName() ?? "None".ColourError()}");
+		sb.AppendLine($"Auxiliary Prog: {AuxiliaryProg?.MXPClickableFunctionName() ?? "None".ColourError()}");
 		sb.AppendLine();
 		sb.AppendLine($"Message: {Message.Colour(Telnet.Yellow)}");
 		sb.AppendLine($"Fail Message: {FailMessage.Colour(Telnet.Yellow)}");
@@ -256,17 +290,17 @@ public class CombatMessage : SaveableItem, ICombatMessage
 		{
 			sb.AppendLine();
 			sb.AppendLine("Weapon Attacks:");
-			foreach (var attack in WeaponAttackIds.Select(x => Gameworld.WeaponAttacks.Get(x)))
+			foreach (var attack in WeaponAttackIds.SelectNotNull(x => Gameworld.WeaponAttacks.Get(x)))
 			{
 				var weapon = Gameworld.WeaponTypes.FirstOrDefault(x => x.Attacks.Contains(attack));
-				sb.AppendLine($"\t{attack.Name} (#{attack.Id}){(weapon != null ? $" [{weapon.Name}]" : "")}");
+				sb.AppendLine($"\t{attack.Name.ColourName()} (#{attack.Id.ToString("N0", actor)}){(weapon != null ? $" [{weapon.Name.ColourValue()}]" : "")}");
 			}
 		}
-		if (CombatActionIds.Any())
+		if (AuxiliaryActionIds.Any())
 		{
 			sb.AppendLine();
 			sb.AppendLine("Combat Actions:");
-			foreach (var action in CombatActionIds.Select(x => Gameworld.AuxillaryCombatActions.Get(x)))
+			foreach (var action in AuxiliaryActionIds.SelectNotNull(x => Gameworld.AuxiliaryCombatActions.Get(x)))
 			{
 				sb.AppendLine(action.DescribeForCombatMessageShow(actor));
 			}
@@ -302,7 +336,11 @@ public class CombatMessage : SaveableItem, ICombatMessage
 				return BuildingCommandFail(actor, command);
 			case "prog":
 			case "futureprog":
+			case "weaponprog":
 				return BuildingCommandProg(actor, command);
+			case "auxiliaryprog":
+			case "auxprog":
+				return BuildingCommandAuxiliaryProg(actor, command);
 			case "priority":
 				return BuildingCommandPriority(actor, command);
 			case "verb":
@@ -321,10 +359,37 @@ public class CombatMessage : SaveableItem, ICombatMessage
 	#3verb <verb>#0 - the verb this attack applies to, or NONE for all
 	#3outcome <outcome>#0 - the outcome this attack applies to, or NONE for all
 	#3type <type>#0 - the BuiltInCombatType this combat message is for
-	#3prog <prog id|name>#0 - the prog that controls whether this attack applies or NONE to clear.
+	#3prog <prog id|name>#0 - the prog that controls whether this weapon attack applies or NONE to clear.
+	#3auxiliaryprog <prog id|name>#0 - the prog that controls whether this applies to an auxiliary move
 	#3message <message>#0 - the message for this attack
 	#3fail <message>#0 - the fail message for this attack
 	#3attack <id>#0 - toggles a specific weapon attack on or off for this message".SubstituteANSIColour());
+		return false;
+	}
+
+	private bool BuildingCommandAuxiliaryProg(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("Which prog should this combat message use to determine whether it applies to an auxiliary move?");
+			return false;
+		}
+
+		var prog = new FutureProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument,
+			FutureProgVariableTypes.Boolean, new[]
+			{
+				FutureProgVariableTypes.Character,
+				FutureProgVariableTypes.Perceivable
+			}).LookupProg();
+		if (prog is null)
+		{
+			return false;
+		}
+
+		AuxiliaryProg = prog;
+		Changed = true;
+		actor.OutputHandler.Send(
+			$"This combat message will now use the {prog.MXPClickableFunctionName()} prog to determine if it applies to auxiliary attacks.");
 		return false;
 	}
 
@@ -851,7 +916,7 @@ public class CombatMessage : SaveableItem, ICombatMessage
 			return false;
 		}
 
-		Prog = prog;
+		WeaponAttackProg = prog;
 		Changed = true;
 		actor.OutputHandler.Send(
 			$"This combat message will now use the {prog.MXPClickableFunctionNameWithId()} prog to filter potential use.");
@@ -979,22 +1044,22 @@ public class CombatMessage : SaveableItem, ICombatMessage
 			return false;
 		}
 
-		var move = actor.Gameworld.AuxillaryCombatActions.Get(value);
+		var move = actor.Gameworld.AuxiliaryCombatActions.Get(value);
 		if (move == null)
 		{
 			actor.OutputHandler.Send("That is not a valid combat move.");
 			return false;
 		}
 
-		if (CombatActionIds.Contains(value))
+		if (AuxiliaryActionIds.Contains(value))
 		{
-			CombatActionIds.Remove(value);
+			AuxiliaryActionIds.Remove(value);
 			actor.OutputHandler.Send(
 				$"This combat message will no longer specifically apply to combat move #{value.ToString("N0", actor)} ({move.Name.Colour(Telnet.Cyan)})");
 		}
 		else
 		{
-			CombatActionIds.Add(value);
+			AuxiliaryActionIds.Add(value);
 			actor.OutputHandler.Send(
 				$"This combat message will now specifically apply to combat move #{value.ToString("N0", actor)} ({move.Name.Colour(Telnet.Cyan)})");
 		}

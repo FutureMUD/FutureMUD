@@ -745,20 +745,23 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable
 		LoadHooks(item.HooksPerceivables, "GameItem");
 		LoadWounds(item.WoundsGameItem);
 		LoadMagic(item);
-		if (item.MorphTimeRemaining.HasValue)
+		if (Prototype.Morphs)
 		{
-			if (item.MorphTimeRemaining < 0)
+			if (item.MorphTimeRemaining.HasValue)
 			{
-				CachedMorphTime = TimeSpan.FromSeconds(60);
+				if (item.MorphTimeRemaining < 0)
+				{
+					CachedMorphTime = TimeSpan.FromSeconds(60);
+				}
+				else
+				{
+					CachedMorphTime = TimeSpan.FromSeconds(item.MorphTimeRemaining.Value);
+				}
 			}
 			else
 			{
-				CachedMorphTime = TimeSpan.FromSeconds(item.MorphTimeRemaining.Value);
+				MorphTime = DateTime.MinValue;
 			}
-		}
-		else
-		{
-			MorphTime = DateTime.MinValue;
 		}
 
 		_overridingWoundBehaviourComponent = _components.OfType<IOverrideItemWoundBehaviour>().FirstOrDefault();
@@ -862,7 +865,11 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable
 			component.FinaliseLoad();
 		}
 
-		CachedMorphTime = rhs.MorphTime - DateTime.UtcNow;
+		if (Prototype.Morphs)
+		{
+			CachedMorphTime = rhs.MorphTime - DateTime.UtcNow;
+		}
+
 		if (!temporary)
 		{
 			foreach (var effect in rhs.Effects)
@@ -2326,6 +2333,12 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable
 
 	public void StartMorphTimer()
 	{
+		if (CachedMorphTime is not null)
+		{
+			MorphTime = DateTime.UtcNow + CachedMorphTime.Value;
+			CachedMorphTime = null;
+		}
+
 		if (MorphTime != DateTime.MinValue)
 		{
 			Gameworld.Scheduler.AddSchedule(new RepeatingSchedule<IGameItem>(this, Gameworld,

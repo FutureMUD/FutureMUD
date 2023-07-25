@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using MudSharp.Database;
 
@@ -10,13 +11,15 @@ using MudSharp.Database;
 namespace MudSharp.Migrations
 {
     [DbContext(typeof(FuturemudDatabaseContext))]
-    partial class FutureMUDContextModelSnapshot : ModelSnapshot
+    [Migration("20230706055610_AuxiliaryMoves")]
+    partial class AuxiliaryMoves
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "7.0.8")
+                .HasAnnotation("ProductVersion", "7.0.5")
                 .HasAnnotation("Proxies:ChangeTracking", false)
                 .HasAnnotation("Proxies:CheckEquality", false)
                 .HasAnnotation("Proxies:LazyLoading", true)
@@ -4709,9 +4712,6 @@ namespace MudSharp.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bigint(20)");
 
-                    b.Property<long?>("AuxiliaryProgId")
-                        .HasColumnType("bigint(20)");
-
                     b.Property<double>("Chance")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("double")
@@ -4747,8 +4747,6 @@ namespace MudSharp.Migrations
                         .HasColumnType("int(11)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("AuxiliaryProgId");
 
                     b.HasIndex("ProgId")
                         .HasDatabaseName("FK_CombatMessages_FutureProgs_idx");
@@ -12007,22 +12005,6 @@ namespace MudSharp.Migrations
                     b.ToTable("Races_ChargenResources", (string)null);
                 });
 
-            modelBuilder.Entity("MudSharp.Models.RacesCombatActions", b =>
-                {
-                    b.Property<long>("RaceId")
-                        .HasColumnType("bigint(20)");
-
-                    b.Property<long>("CombatActionId")
-                        .HasColumnType("bigint(20)");
-
-                    b.HasKey("RaceId", "CombatActionId")
-                        .HasName("PRIMARY");
-
-                    b.HasIndex("CombatActionId");
-
-                    b.ToTable("Races_CombatActions", (string)null);
-                });
-
             modelBuilder.Entity("MudSharp.Models.RacesEdibleMaterials", b =>
                 {
                     b.Property<long>("RaceId")
@@ -16910,19 +16892,11 @@ namespace MudSharp.Migrations
 
             modelBuilder.Entity("MudSharp.Models.CombatMessage", b =>
                 {
-                    b.HasOne("MudSharp.Models.FutureProg", "AuxiliaryProg")
-                        .WithMany()
-                        .HasForeignKey("AuxiliaryProgId")
-                        .OnDelete(DeleteBehavior.SetNull)
-                        .HasConstraintName("FK_CombatMessages_FutureProgs_Auxiliary");
-
                     b.HasOne("MudSharp.Models.FutureProg", "Prog")
                         .WithMany("CombatMessages")
                         .HasForeignKey("ProgId")
                         .OnDelete(DeleteBehavior.SetNull)
                         .HasConstraintName("FK_CombatMessages_FutureProgs");
-
-                    b.Navigation("AuxiliaryProg");
 
                     b.Navigation("Prog");
                 });
@@ -20089,27 +20063,6 @@ namespace MudSharp.Migrations
                     b.Navigation("Race");
                 });
 
-            modelBuilder.Entity("MudSharp.Models.RacesCombatActions", b =>
-                {
-                    b.HasOne("MudSharp.Models.CombatAction", "CombatAction")
-                        .WithMany("RacesCombatActions")
-                        .HasForeignKey("CombatActionId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("FK_Races_CombatActions_CombatActions");
-
-                    b.HasOne("MudSharp.Models.Race", "Race")
-                        .WithMany("RacesCombatActions")
-                        .HasForeignKey("RaceId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("FK_Races_CombatActions_Races");
-
-                    b.Navigation("CombatAction");
-
-                    b.Navigation("Race");
-                });
-
             modelBuilder.Entity("MudSharp.Models.RacesEdibleMaterials", b =>
                 {
                     b.HasOne("MudSharp.Models.Material", "Material")
@@ -21718,8 +21671,6 @@ namespace MudSharp.Migrations
             modelBuilder.Entity("MudSharp.Models.CombatAction", b =>
                 {
                     b.Navigation("CombatMessagesCombatActions");
-
-                    b.Navigation("RacesCombatActions");
                 });
 
             modelBuilder.Entity("MudSharp.Models.CombatMessage", b =>
@@ -22445,8 +22396,6 @@ namespace MudSharp.Migrations
                     b.Navigation("RacesBreathableLiquids");
 
                     b.Navigation("RacesChargenResources");
-
-                    b.Navigation("RacesCombatActions");
 
                     b.Navigation("RacesEdibleMaterials");
 

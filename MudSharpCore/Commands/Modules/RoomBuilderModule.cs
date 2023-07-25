@@ -189,11 +189,77 @@ There is also a universal optional argument which must come first in the form of
 			case "nlink":
 				CellEditNlink(actor, ss);
 				break;
+			case "delete":
+				CellDelete(actor, ss);
+				break;
 			default:
 				actor.OutputHandler.Send(
 					$"That is not a valid option to use with the {"cell".Colour(Telnet.Yellow)} command. See {"CELL HELP".FluentTagMXP("send", "href='cell help' hint='display cell help'")} for more info.");
 				return;
 		}
+	}
+
+	private static void CellDelete(ICharacter actor, StringStack ss)
+	{
+		if (!actor.IsAdministrator(PermissionLevel.HighAdmin))
+		{
+			actor.OutputHandler.Send("This command has some serious potential side-effects and should only be done by the highest admin authorities.");
+			return;
+		}
+
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send($@"Are you sure that you want to delete the cell that you're currently in? This action is irreversible and can have major unanticipated effects, including:
+
+	1) All items and characters in the room (including those not logged in) will be moved to another room.
+	2) There are potentially parts of the code that reference this room indirectly that may not be updated
+
+{Accept.StandardAcceptPhrasing}");
+
+			var location = actor.Location;
+
+			actor.AddEffect(new Accept(actor, new GenericProposal {	
+				AcceptAction = text => {
+					var result = location.ProposeDelete();
+					if (!result.Truth)
+					{
+						var sb = new StringBuilder();
+						sb.AppendLine($"Couldn't delete {location.GetFriendlyReference(actor)} because of the following issues:");
+						sb.AppendLine();
+						var count = 1;
+						foreach (var issue in result.Errors)
+						{
+							sb.AppendLine($"\t{count++.ToString("N0", actor)}) {issue}");
+						}
+						actor.OutputHandler.Send(sb.ToString());
+						return;
+					}
+
+					var fallback = location.Zone.Rooms.FirstOrDefault(x => x != location)?.Cells.First() ??
+					location.Shard.Rooms.FirstOrDefault(x => x != location)?.Cells.First() ??
+					actor.Gameworld.Rooms.FirstOrDefault(x => x != location)?.Cells.First();
+					if (fallback is null)
+					{
+						actor.OutputHandler.Send("You can't delete that location because there would be no fallback. There must always be a fallback room.");
+						return;
+					}
+
+					actor.OutputHandler.Send($"You delete {location.GetFriendlyReference(actor)}.");
+					location.Destroy(fallback);
+				},
+				RejectAction = text => {
+					actor.OutputHandler.Send("You decide not to delete the room.");
+				},
+				ExpireAction = () => {
+					actor.OutputHandler.Send("You decide not to delete the room.");
+				},
+				DescriptionString = "Deleting a room",
+				Keywords = new List<string> { "delete", "room", "cell", "location" }
+			}), TimeSpan.FromSeconds(120));
+		}
+
+		// TODO
+		actor.OutputHandler.Send("Mass deletion will come later.");
 	}
 
 	#region CellNew

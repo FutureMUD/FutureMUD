@@ -27,6 +27,7 @@ public class AuctionHouse : SaveableItem, IAuctionHouse
 		EconomicZone = zone;
 		_name = name;
 		AuctionHouseCell = cell;
+		cell.CellProposedForDeletion += Cell_CellProposedForDeletion;
 		ProfitsBankAccount = account;
 		AuctionListingFeeFlat = Gameworld.GetStaticDecimal("DefaultAuctionHouseListingFeeFlat");
 		AuctionListingFeeRate = Gameworld.GetStaticDecimal("DefaultAuctionHouseListingFeeRate");
@@ -60,6 +61,11 @@ public class AuctionHouse : SaveableItem, IAuctionHouse
 		}
 
 		Gameworld.HeartbeatManager.FuzzyFiveSecondHeartbeat += AuctionTick;
+	}
+
+	private void Cell_CellProposedForDeletion(ICell cell, ProposalRejectionResponse response)
+	{
+		response.RejectWithReason($"That room is the auction house location for auction house #{Id:N0} ({Name.ColourName()})");
 	}
 
 	private void AuctionTick()
@@ -580,7 +586,10 @@ public class AuctionHouse : SaveableItem, IAuctionHouse
 			return false;
 		}
 
+		AuctionHouseCell.CellProposedForDeletion -= Cell_CellProposedForDeletion;
 		AuctionHouseCell = actor.Location;
+		AuctionHouseCell.CellProposedForDeletion -= Cell_CellProposedForDeletion;
+		AuctionHouseCell.CellProposedForDeletion += Cell_CellProposedForDeletion;
 		Changed = true;
 		actor.OutputHandler.Send("This auction house is now based in your current location.");
 		return true;

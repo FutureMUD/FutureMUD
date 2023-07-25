@@ -36,6 +36,8 @@ public class Property : SaveableItem, IProperty
 		_applyCriminalCodeInProperty = true;
 		_lastChangeOfOwnership = zone.FinancialPeriodReferenceCalendar.CurrentDateTime;
 		_propertyLocations.Add(location);
+		location.CellProposedForDeletion += Location_CellProposedForDeletion;
+		location.CellRequestsDeletion += Location_CellRequestsDeletion;
 		using (new FMDB())
 		{
 			var dbitem = new Models.Property();
@@ -52,6 +54,24 @@ public class Property : SaveableItem, IProperty
 		}
 
 		_propertyOwners.Add(new PropertyOwner(owner, 1.0M, account, this));
+	}
+
+	private void Location_CellRequestsDeletion(object sender, EventArgs e)
+	{
+		var cell = (ICell)sender;
+		_propertyLocations.Remove(cell);
+		Changed = true;
+		cell.CellProposedForDeletion -= Location_CellProposedForDeletion;
+		cell.CellRequestsDeletion -= Location_CellRequestsDeletion;
+	}
+
+	private void Location_CellProposedForDeletion(ICell cell, ProposalRejectionResponse response)
+	{
+		if (_propertyLocations.Count <= 1)
+		{
+			response.RejectWithReason($"That room is the last property cell for property #{Id:N0} ({Name.ColourName()}).");
+			return;
+		}
 	}
 
 	public Property(Models.Property property, IFuturemud gameworld)
@@ -103,7 +123,12 @@ public class Property : SaveableItem, IProperty
 
 		foreach (var location in property.PropertyLocations)
 		{
-			_propertyLocations.AddNotNull(Gameworld.Cells.Get(location.CellId));
+			var cell = Gameworld.Cells.Get(location.CellId);
+			_propertyLocations.AddNotNull(cell);
+			cell.CellProposedForDeletion -= Location_CellProposedForDeletion;
+			cell.CellProposedForDeletion += Location_CellProposedForDeletion;
+			cell.CellRequestsDeletion -= Location_CellRequestsDeletion;
+			cell.CellRequestsDeletion += Location_CellRequestsDeletion;
 		}
 
 		foreach (var key in property.PropertyKeys)
@@ -321,6 +346,8 @@ public class Property : SaveableItem, IProperty
 			}
 
 			_propertyLocations.Remove(actor.Location);
+			actor.Location.CellProposedForDeletion -= Location_CellProposedForDeletion;
+			actor.Location.CellRequestsDeletion -= Location_CellRequestsDeletion;
 			Changed = true;
 			actor.OutputHandler.Send(
 				$"Your current location is no longer a part of the {Name.ColourName()} property.");
@@ -336,6 +363,10 @@ public class Property : SaveableItem, IProperty
 		}
 
 		_propertyLocations.Add(actor.Location);
+		actor.Location.CellProposedForDeletion -= Location_CellProposedForDeletion;
+		actor.Location.CellProposedForDeletion += Location_CellProposedForDeletion;
+		actor.Location.CellRequestsDeletion -= Location_CellRequestsDeletion;
+		actor.Location.CellRequestsDeletion += Location_CellRequestsDeletion;
 		Changed = true;
 		actor.OutputHandler.Send($"Your current location is now a part of the {Name.ColourName()} property.");
 		return true;

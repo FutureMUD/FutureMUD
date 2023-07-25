@@ -22,6 +22,7 @@ using Castle.Components.DictionaryAdapter;
 using MoreLinq.Extensions;
 using MudSharp.Effects.Concrete;
 using MudSharp.Economy.Tax;
+using System.Numerics;
 
 namespace MudSharp.Economy;
 
@@ -254,6 +255,8 @@ public class EconomicZone : SaveableItem, IEconomicZone
 			}
 #endif
 			_conveyancingCells.Add(cell);
+			cell.CellRequestsDeletion -= ConveyancingCellRequestsDeletion;
+			cell.CellRequestsDeletion += ConveyancingCellRequestsDeletion;
 		}
 
 		foreach (var location in zone.JobFindingLocations)
@@ -265,7 +268,9 @@ public class EconomicZone : SaveableItem, IEconomicZone
 				throw new ApplicationException("Cell shouldn't be null in EconomicZone constructor");
 			}
 #endif
-			_jobFindingCells.Add(cell);
+			_jobFindingCells.Add(cell); 
+			cell.CellRequestsDeletion -= JobCellRequestsDeletion;
+			cell.CellRequestsDeletion += JobCellRequestsDeletion;
 		}
 	}
 
@@ -1162,16 +1167,29 @@ public class EconomicZone : SaveableItem, IEconomicZone
 			actor.OutputHandler.Send(
 				"Your current location is no longer a location for conveyancing property in this economic zone.");
 			_conveyancingCells.Remove(actor.Location);
+			actor.Location.CellRequestsDeletion -= ConveyancingCellRequestsDeletion;
 		}
 		else
 		{
 			actor.OutputHandler.Send(
 				"Your current location is now a location for conveyancing property in this economic zone.");
 			_conveyancingCells.Add(actor.Location);
+			actor.Location.CellRequestsDeletion -= ConveyancingCellRequestsDeletion;
+			actor.Location.CellRequestsDeletion += ConveyancingCellRequestsDeletion;
 		}
 
 		Changed = true;
 		return true;
+	}
+
+	private void ConveyancingCellRequestsDeletion(object sender, EventArgs e)
+	{
+		_conveyancingCells.Remove((ICell)sender);
+	}
+
+	private void JobCellRequestsDeletion(object sender, EventArgs e)
+	{
+		_jobFindingCells.Remove((ICell)sender);
 	}
 
 	private bool BuildingCommandJobs(ICharacter actor, StringStack command)
@@ -1181,12 +1199,15 @@ public class EconomicZone : SaveableItem, IEconomicZone
 			actor.OutputHandler.Send(
 				"Your current location is no longer a location for listing and finding jobs in this economic zone.");
 			_jobFindingCells.Remove(actor.Location);
+			actor.Location.CellRequestsDeletion -= JobCellRequestsDeletion;
 		}
 		else
 		{
 			actor.OutputHandler.Send(
 				"Your current location is now a location for listing and finding jobs in this economic zone.");
 			_jobFindingCells.Add(actor.Location);
+			actor.Location.CellRequestsDeletion -= JobCellRequestsDeletion;
+			actor.Location.CellRequestsDeletion += JobCellRequestsDeletion;
 		}
 
 		Changed = true;

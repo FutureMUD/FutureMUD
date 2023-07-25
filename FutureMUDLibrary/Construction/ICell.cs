@@ -19,7 +19,11 @@ using MudSharp.RPG.Checks;
 using MudSharp.Work.Foraging;
 using MudSharp.Work.Projects;
 
-namespace MudSharp.Construction {
+namespace MudSharp.Construction
+{
+
+    public delegate void CellProposedForDeletionDelegate(ICell cell, ProposalRejectionResponse response);
+
     public interface ICell : ILocation, IFutureProgVariable, IHaveMagicResource, IHaveTags
     {
         /// <summary>
@@ -113,5 +117,8 @@ namespace MudSharp.Construction {
         bool IsSwimmingLayer(RoomLayer referenceLayer = RoomLayer.GroundLevel);
 
         bool IsUnderwaterLayer(RoomLayer referenceLayer);
-    }
+        (bool Truth, IEnumerable<string> Errors) ProposeDelete();
+        event CellProposedForDeletionDelegate CellProposedForDeletion;
+		event EventHandler CellRequestsDeletion;
+	}
 }

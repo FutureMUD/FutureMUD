@@ -33,7 +33,22 @@ internal class SetAtmosphere : BuiltInFunction
 					FutureProgVariableTypes.Location, FutureProgVariableTypes.OverlayPackage,
 					FutureProgVariableTypes.Number
 				},
-				(pars, gameworld) => new SetAtmosphere(pars, gameworld, true)
+				(pars, gameworld) => new SetAtmosphere(pars, gameworld, true),
+				new List<string>
+				{
+					"room",
+					"package",
+					"gas",
+				},
+				new List<string>
+				{
+					"The room you want to edit",
+					"The package that the edit belongs to",
+					"The Id number of the gas you want to set as the atmosphere here",
+				},
+				"Sets the atmosphere of a room as if you had done CELL SET ATMOSPHERE.",
+				"Rooms",
+				FutureProgVariableTypes.Boolean
 			)
 		);
 
@@ -45,7 +60,22 @@ internal class SetAtmosphere : BuiltInFunction
 					FutureProgVariableTypes.Location, FutureProgVariableTypes.OverlayPackage,
 					FutureProgVariableTypes.Text
 				},
-				(pars, gameworld) => new SetAtmosphere(pars, gameworld, true)
+				(pars, gameworld) => new SetAtmosphere(pars, gameworld, true),
+				new List<string>
+				{
+					"room",
+					"package",
+					"gas",
+				},
+				new List<string>
+				{
+					"The room you want to edit",
+					"The package that the edit belongs to",
+					"The name of the gas you want to set as the atmosphere here",
+				},
+				"Sets the atmosphere of a room as if you had done CELL SET ATMOSPHERE.",
+				"Rooms",
+				FutureProgVariableTypes.Boolean
 			)
 		);
 
@@ -57,7 +87,22 @@ internal class SetAtmosphere : BuiltInFunction
 					FutureProgVariableTypes.Location, FutureProgVariableTypes.OverlayPackage,
 					FutureProgVariableTypes.Number
 				},
-				(pars, gameworld) => new SetAtmosphere(pars, gameworld, false)
+				(pars, gameworld) => new SetAtmosphere(pars, gameworld, false),
+				new List<string>
+				{
+					"room",
+					"package",
+					"liquid",
+				},
+				new List<string>
+				{
+					"The room you want to edit",
+					"The package that the edit belongs to",
+					"The Id number of the liquid you want to set as the atmosphere here",
+				},
+				"Sets the atmosphere of a room as if you had done CELL SET ATMOSPHERE.",
+				"Rooms",
+				FutureProgVariableTypes.Boolean
 			)
 		);
 
@@ -69,7 +114,22 @@ internal class SetAtmosphere : BuiltInFunction
 					FutureProgVariableTypes.Location, FutureProgVariableTypes.OverlayPackage,
 					FutureProgVariableTypes.Text
 				},
-				(pars, gameworld) => new SetAtmosphere(pars, gameworld, false)
+				(pars, gameworld) => new SetAtmosphere(pars, gameworld, false),
+				new List<string>
+				{
+					"room",
+					"package",
+					"liquid",
+				},
+				new List<string>
+				{
+					"The room you want to edit",
+					"The package that the edit belongs to",
+					"The name of the liquid you want to set as the atmosphere here",
+				},
+				"Sets the atmosphere of a room as if you had done CELL SET ATMOSPHERE.",
+				"Rooms",
+				FutureProgVariableTypes.Boolean
 			)
 		);
 	}

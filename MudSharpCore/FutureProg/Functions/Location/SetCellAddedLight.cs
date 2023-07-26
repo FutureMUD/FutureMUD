@@ -32,7 +32,22 @@ internal class SetCellAddedLight : BuiltInFunction
 					FutureProgVariableTypes.Location, FutureProgVariableTypes.OverlayPackage,
 					FutureProgVariableTypes.Number
 				},
-				(pars, gameworld) => new SetCellAddedLight(pars, gameworld)
+				(pars, gameworld) => new SetCellAddedLight(pars, gameworld),
+				new List<string>
+				{
+					"room",
+					"package",
+					"light",
+				},
+				new List<string>
+				{
+					"The room you want to edit",
+					"The package that the edit belongs to",
+					"The added light in lux",
+				},
+				"Sets the added light level of a room as if you had done CELL SET LIGHTLEVEL.",
+				"Rooms",
+				FutureProgVariableTypes.Boolean
 			)
 		);
 	}
@@ -75,8 +90,7 @@ internal class SetCellAddedLight : BuiltInFunction
 			return StatementResult.Normal;
 		}
 
-		var multiplier = Convert.ToDouble(ParameterFunctions[2].Result?.GetObject ?? 0.0);
-
+		var addition = Convert.ToDouble(ParameterFunctions[2].Result?.GetObject ?? 0.0);
 		if (package.Status != RevisionStatus.UnderDesign && package.Status != RevisionStatus.PendingRevision)
 		{
 			Result = new BooleanVariable(false);
@@ -84,7 +98,7 @@ internal class SetCellAddedLight : BuiltInFunction
 		}
 
 		var overlay = cell.GetOrCreateOverlay(package);
-		overlay.AddedLight = multiplier;
+		overlay.AddedLight = addition;
 
 		Result = new BooleanVariable(true);
 		return StatementResult.Normal;

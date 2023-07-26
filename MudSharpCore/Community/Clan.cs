@@ -56,15 +56,33 @@ public class Clan : SaveableItem, IClan
 			payTime.Timezone);
 		foreach (var cell in clan.ClansTreasuryCells)
 		{
-			TreasuryCells.Add(gameworld.Cells.Get(cell.CellId));
+			var gameCell = gameworld.Cells.Get(cell.CellId);
+			gameCell.CellRequestsDeletion -= TreasuryCellRequestsDeletion;
+			gameCell.CellRequestsDeletion += TreasuryCellRequestsDeletion;
+			_treasuryCells.Add(gameCell);
 		}
 
 		foreach (var cell in clan.ClansAdministrationCells)
 		{
-			AdministrationCells.Add(Gameworld.Cells.Get(cell.CellId));
+			var gameCell = gameworld.Cells.Get(cell.CellId);
+			gameCell.CellRequestsDeletion -= AdminCellRequestsDeletion;
+			gameCell.CellRequestsDeletion += AdminCellRequestsDeletion;
+			_administrationCells.Add(gameCell);
 		}
 
 		DiscordChannelId = clan.DiscordChannelId;
+	}
+
+	private void AdminCellRequestsDeletion(object sender, EventArgs e)
+	{
+		_administrationCells.Remove((ICell)sender);
+		Changed = true;
+	}
+
+	private void TreasuryCellRequestsDeletion(object sender, EventArgs e)
+	{
+		_treasuryCells.Remove((ICell)sender);
+		Changed = true;
 	}
 
 	public override void Save()
@@ -243,9 +261,33 @@ public class Clan : SaveableItem, IClan
 
 	public string Description { get; set; }
 
-	public List<ICell> TreasuryCells { get; } = new();
+	private readonly List<ICell> _treasuryCells = new();
+	public IEnumerable<ICell> TreasuryCells => _treasuryCells;
 
-	public List<ICell> AdministrationCells { get; } = new();
+	private readonly List<ICell> _administrationCells = new();
+	public IEnumerable<ICell> AdministrationCells => _administrationCells;
+
+	public void AddTreasuryCell(ICell cell)
+	{
+		_treasuryCells.Add(cell);
+		Changed = true;
+	}
+	public void RemoveTreasuryCell(ICell cell)
+	{
+		_treasuryCells.Remove(cell);
+		Changed = true;
+	}
+	public void AddAdministrationCell(ICell cell)
+	{
+		_administrationCells.Add(cell);
+		Changed = true;
+	}
+	public void RemoveAdministrationCell(ICell cell)
+	{
+		_administrationCells.Remove(cell);
+		Changed = true;
+	}
+
 	private long? _clanBankAccountId;
 	private IBankAccount _clanBankAccount;
 

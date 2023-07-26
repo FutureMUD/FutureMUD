@@ -28,7 +28,20 @@ internal class ApproveOverlay : BuiltInFunction
 			new FunctionCompilerInformation(
 				"ApproveOverlay".ToLowerInvariant(),
 				new[] { FutureProgVariableTypes.OverlayPackage, FutureProgVariableTypes.Character },
-				(pars, gameworld) => new ApproveOverlay(pars, gameworld)
+				(pars, gameworld) => new ApproveOverlay(pars, gameworld),
+				new List<string>
+				{
+					"package",
+					"builder",
+				},
+				new List<string>
+				{ 
+					"The package that you want to approve",
+					"The builder who is approving the package, or null for 'system'",
+				},
+				"Approves the specified overlay package as ready for use. Returns true if successful",
+				"Rooms",
+				FutureProgVariableTypes.Boolean
 			)
 		);
 
@@ -40,7 +53,22 @@ internal class ApproveOverlay : BuiltInFunction
 					FutureProgVariableTypes.OverlayPackage, FutureProgVariableTypes.Character,
 					FutureProgVariableTypes.Text
 				},
-				(pars, gameworld) => new ApproveOverlay(pars, gameworld)
+				(pars, gameworld) => new ApproveOverlay(pars, gameworld),
+				new List<string>
+				{
+					"package",
+					"builder",
+					"comment"
+				},
+				new List<string>
+				{
+					"The package that you want to approve",
+					"The builder who is approving the package, or null for 'system'",
+					"A comment for the builder approval log"
+				},
+				"Approves the specified overlay package as ready for use. Returns true if successful",
+				"Rooms",
+				FutureProgVariableTypes.Boolean
 			)
 		);
 	}

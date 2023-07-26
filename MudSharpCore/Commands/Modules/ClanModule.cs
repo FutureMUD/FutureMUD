@@ -7723,14 +7723,14 @@ Your next payday is {3}.
 
 		if (clan.TreasuryCells.Contains(actor.Location))
 		{
-			clan.TreasuryCells.Remove(actor.Location);
+			clan.RemoveTreasuryCell(actor.Location);
 			clan.Changed = true;
 			actor.Send(
 				$"Your current location is no longer a treasury cell for the {clan.FullName.Colour(Telnet.Green)} clan.");
 			return;
 		}
 
-		clan.TreasuryCells.Add(actor.Location);
+		clan.AddTreasuryCell(actor.Location);
 		clan.Changed = true;
 		actor.Send($"Your current location is now a treasury cell for the {clan.FullName.Colour(Telnet.Green)} clan.");
 	}
@@ -7752,14 +7752,14 @@ Your next payday is {3}.
 
 		if (clan.AdministrationCells.Contains(actor.Location))
 		{
-			clan.AdministrationCells.Remove(actor.Location);
+			clan.RemoveAdministrationCell(actor.Location);
 			clan.Changed = true;
 			actor.Send(
 				$"Your current location is no longer an administration cell for the {clan.FullName.Colour(Telnet.Green)} clan.");
 			return;
 		}
 
-		clan.AdministrationCells.Add(actor.Location);
+		clan.AddAdministrationCell(actor.Location);
 		clan.Changed = true;
 		actor.Send(
 			$"Your current location is now a administration cell for the {clan.FullName.Colour(Telnet.Green)} clan.");

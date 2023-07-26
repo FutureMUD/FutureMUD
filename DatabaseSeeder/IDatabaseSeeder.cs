@@ -8,6 +8,7 @@ public enum ShouldSeedResult
 {
 	PrerequisitesNotMet,
 	MayAlreadyBeInstalled,
+	ExtraPackagesAvailable,
 	ReadyToInstall
 }
 

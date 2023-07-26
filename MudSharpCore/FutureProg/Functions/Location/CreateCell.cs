@@ -28,7 +28,20 @@ internal class CreateCell : BuiltInFunction
 			new FunctionCompilerInformation(
 				"CreateCell".ToLowerInvariant(),
 				new[] { FutureProgVariableTypes.OverlayPackage, FutureProgVariableTypes.Zone },
-				(pars, gameworld) => new CreateCell(pars, gameworld)
+				(pars, gameworld) => new CreateCell(pars, gameworld),
+				new List<string>
+				{
+					"package",
+					"zone",
+				},
+				new List<string>
+				{
+					"The package that you want to approve",
+					"The zone to create the room in",
+				},
+				"Creates a new blank room in the specified package and zone",
+				"Rooms",
+				FutureProgVariableTypes.Location
 			)
 		);
 
@@ -40,7 +53,70 @@ internal class CreateCell : BuiltInFunction
 					FutureProgVariableTypes.OverlayPackage, FutureProgVariableTypes.Zone,
 					FutureProgVariableTypes.Location
 				},
-				(pars, gameworld) => new CreateCell(pars, gameworld)
+				(pars, gameworld) => new CreateCell(pars, gameworld),
+				new List<string>
+				{
+					"package",
+					"zone",
+					"template"
+				},
+				new List<string>
+				{
+					"The package that you want to approve",
+					"The zone to create the room in",
+					"A room to copy as the basic template of the new room"
+				},
+				"Creates a new room based on the template room in the specified package and zone",
+				"Rooms",
+				FutureProgVariableTypes.Location
+			)
+		);
+
+		FutureProg.RegisterBuiltInFunctionCompiler(
+			new FunctionCompilerInformation(
+				"CreateRoom".ToLowerInvariant(),
+				new[] { FutureProgVariableTypes.OverlayPackage, FutureProgVariableTypes.Zone },
+				(pars, gameworld) => new CreateCell(pars, gameworld),
+				new List<string>
+				{
+					"package",
+					"zone",
+				},
+				new List<string>
+				{
+					"The package that you want to approve",
+					"The zone to create the room in",
+				},
+				"Creates a new blank room in the specified package and zone. Alias for CreateCell.",
+				"Rooms",
+				FutureProgVariableTypes.Location
+			)
+		);
+
+		FutureProg.RegisterBuiltInFunctionCompiler(
+			new FunctionCompilerInformation(
+				"CreateRoom".ToLowerInvariant(),
+				new[]
+				{
+					FutureProgVariableTypes.OverlayPackage, FutureProgVariableTypes.Zone,
+					FutureProgVariableTypes.Location
+				},
+				(pars, gameworld) => new CreateCell(pars, gameworld),
+				new List<string>
+				{
+					"package",
+					"zone",
+					"template"
+				},
+				new List<string>
+				{
+					"The package that you want to approve",
+					"The zone to create the room in",
+					"A room to copy as the basic template of the new room"
+				},
+				"Creates a new room based on the template room in the specified package and zone. Alias for CreateCell.",
+				"Rooms",
+				FutureProgVariableTypes.Location
 			)
 		);
 	}

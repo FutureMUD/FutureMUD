@@ -250,6 +250,7 @@ public class Bank : SaveableItem, IBank, ILazyLoadDuringIdleTime
 		{
 			_branchLocations.Remove(actor.Location);
 			_branchIds.Remove(actor.Location.Id);
+			actor.Location.CellRequestsDeletion -= Branch_CellRequestsDeletion;
 			Changed = true;
 			actor.OutputHandler.Send($"Your current location is no longer a branch for {Name.ColourName()}.");
 			return true;
@@ -257,6 +258,8 @@ public class Bank : SaveableItem, IBank, ILazyLoadDuringIdleTime
 
 		_branchLocations.Add(actor.Location);
 		_branchIds.Add(actor.Location.Id);
+		actor.Location.CellRequestsDeletion -= Branch_CellRequestsDeletion;
+		actor.Location.CellRequestsDeletion += Branch_CellRequestsDeletion;
 		Changed = true;
 		actor.OutputHandler.Send($"Your current location is now a branch for {Name.ColourName()}.");
 		return true;
@@ -1203,11 +1206,24 @@ public class Bank : SaveableItem, IBank, ILazyLoadDuringIdleTime
 		{
 			if (_branchLocations == null)
 			{
-				_branchLocations = _branchIds.Select(x => Gameworld.Cells.Get(x)).ToList();
+				_branchLocations = _branchIds.SelectNotNull(x => Gameworld.Cells.Get(x)).ToList();
+				foreach (var branch in _branchLocations)
+				{
+					branch.CellRequestsDeletion -= Branch_CellRequestsDeletion;
+					branch.CellRequestsDeletion += Branch_CellRequestsDeletion;
+				}
 			}
 
 			return _branchLocations;
 		}
+	}
+
+	private void Branch_CellRequestsDeletion(object sender, EventArgs e)
+	{
+		var cell = (ICell)sender;
+		_branchLocations.Remove(cell);
+		_branchIds.Remove(cell.Id);
+		Changed = true;
 	}
 
 	private readonly List<long> _bankManagerIds = new();

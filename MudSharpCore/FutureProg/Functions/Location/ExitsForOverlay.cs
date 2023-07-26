@@ -28,7 +28,20 @@ internal class ExitsForOverlay : BuiltInFunction
 			new FunctionCompilerInformation(
 				"ExitsForOverlay".ToLowerInvariant(),
 				new[] { FutureProgVariableTypes.Location, FutureProgVariableTypes.OverlayPackage },
-				(pars, gameworld) => new ExitsForOverlay(pars, gameworld)
+				(pars, gameworld) => new ExitsForOverlay(pars, gameworld),
+				new List<string>
+				{
+					"room",
+					"package"
+				},
+				new List<string>
+				{
+					"The room you want to get exits for",
+					"The package that you want exits for. If null, uses currently approved package."
+				},
+				"Returns a collection of the exits for a room, in the specified package.",
+				"Rooms",
+				FutureProgVariableTypes.Collection | FutureProgVariableTypes.Exit
 			)
 		);
 	}
@@ -58,17 +71,21 @@ internal class ExitsForOverlay : BuiltInFunction
 		}
 
 		var cell = (ICell)ParameterFunctions[0].Result?.GetObject;
-		if (cell == null)
+		if (cell is null)
 		{
 			Result = new CollectionVariable(new List<ICellExit>(), FutureProgVariableTypes.Exit);
 			return StatementResult.Normal;
 		}
 
 		var package = (ICellOverlayPackage)ParameterFunctions[1].Result?.GetObject;
-		if (package == null)
+		if (package is null)
 		{
-			Result = new CollectionVariable(new List<ICellExit>(), FutureProgVariableTypes.Exit);
-			return StatementResult.Normal;
+			package = cell.CurrentOverlay.Package;
+			if (package is null)
+			{
+				Result = new CollectionVariable(new List<ICellExit>(), FutureProgVariableTypes.Exit);
+				return StatementResult.Normal;
+			}
 		}
 
 		Result = new CollectionVariable(Gameworld.ExitManager.GetExitsFor(cell, package).ToList(),

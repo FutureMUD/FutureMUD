@@ -32,7 +32,22 @@ internal class SetCellLightMultiplier : BuiltInFunction
 					FutureProgVariableTypes.Location, FutureProgVariableTypes.OverlayPackage,
 					FutureProgVariableTypes.Number
 				},
-				(pars, gameworld) => new SetCellLightMultiplier(pars, gameworld)
+				(pars, gameworld) => new SetCellLightMultiplier(pars, gameworld),
+				new List<string>
+				{
+					"room",
+					"package",
+					"multiplier",
+				},
+				new List<string>
+				{
+					"The room you want to edit",
+					"The package that the edit belongs to",
+					"A multiplier for natural light levels - 1.0 = full natural light, 0.0 = no natural light",
+				},
+				"Sets the light level multiplier of a room as if you had done CELL SET LIGHTMULTIPLIER.",
+				"Rooms",
+				FutureProgVariableTypes.Boolean
 			)
 		);
 	}

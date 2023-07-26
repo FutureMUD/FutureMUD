@@ -126,7 +126,25 @@ Please answer here: ",
 	{
 		if (!context.Accounts.Any()) return ShouldSeedResult.PrerequisitesNotMet;
 
-		if (context.Terrains.Count() > 1) return ShouldSeedResult.MayAlreadyBeInstalled;
+		if (!context.ArtificialIntelligences.All(x => x.Name != "CommandableOwner") &&
+			context.Terrains.Count() > 1 &&
+			!context.GameItemComponentProtos.All(x => x.Name != "Container_Table") &&
+			!context.GameItemComponentProtos.All(x => x.Name != "Insulation_Minor") &&
+			!context.GameItemComponentProtos.All(x => x.Name != "Destroyable_Misc") &&
+			!context.Tags.All(x => x.Name != "Functions"))
+		{
+			return ShouldSeedResult.MayAlreadyBeInstalled;
+		}
+
+		if (context.ArtificialIntelligences.All(x => x.Name != "CommandableOwner") ||
+			context.Terrains.Count() <= 1 ||
+			context.GameItemComponentProtos.All(x => x.Name != "Container_Table") ||
+			context.GameItemComponentProtos.All(x => x.Name != "Insulation_Minor") ||
+			context.GameItemComponentProtos.All(x => x.Name != "Destroyable_Misc") ||
+			context.Tags.All(x => x.Name != "Functions"))
+		{
+			return ShouldSeedResult.ExtraPackagesAvailable;
+		}
 
 		return ShouldSeedResult.ReadyToInstall;
 	}

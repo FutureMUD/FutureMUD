@@ -264,6 +264,36 @@ public class Shop : SaveableItem, IShop
 		}
 	}
 
+	private void AddCellToStore(ICell cell)
+	{
+		cell.Shop = this;
+		cell.CellRequestsDeletion -= Cell_CellRequestsDeletion;
+		cell.CellRequestsDeletion += Cell_CellRequestsDeletion;
+		cell.CellProposedForDeletion -= Cell_CellProposedForDeletion;
+		cell.CellProposedForDeletion += Cell_CellProposedForDeletion;
+	}
+
+	private void Cell_CellProposedForDeletion(ICell cell, ProposalRejectionResponse response)
+	{
+		if (cell == WorkshopCell)
+		{
+			response.RejectWithReason($"That room is a workshop room for shop #{Id:N0} ({Name.ColourName()})");
+			return;
+		}
+
+		if (cell == StockroomCell)
+		{
+			response.RejectWithReason($"That room is a stockroom for shop #{Id:N0} ({Name.ColourName()})");
+			return;
+		}
+	}
+
+	private void Cell_CellRequestsDeletion(object sender, EventArgs e)
+	{
+		var cell = (ICell)sender;
+		RemoveShopfrontCell(cell);
+	}
+
 	public void AddShopfrontCell(ICell cell)
 	{
 		if (!_shopfrontCells.Contains(cell))

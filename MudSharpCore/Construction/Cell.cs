@@ -1454,6 +1454,16 @@ public partial class Cell : Location, IDisposable, ICell
 
 	#region ICell Members
 
+	public (bool Truth, IEnumerable<string> Errors) ProposeDelete()
+	{
+		var response = new ProposalRejectionResponse();
+		CellProposedForDeletion?.Invoke(this, response);
+		return (!response.IsRejected, response.Reasons);
+	}
+
+	public event CellProposedForDeletionDelegate CellProposedForDeletion;
+	public event EventHandler CellRequestsDeletion;
+
 	public void Destroy(ICell fallbackCell)
 	{
 		var action = DestroyWithDatabaseAction(fallbackCell);
@@ -1467,6 +1477,7 @@ public partial class Cell : Location, IDisposable, ICell
 	public Action DestroyWithDatabaseAction(ICell fallbackCell)
 	{
 		_noSave = true;
+		CellRequestsDeletion?.Invoke(this, EventArgs.Empty);
 		foreach (var item in _gameItems.ToList())
 		{
 			Extract(item);

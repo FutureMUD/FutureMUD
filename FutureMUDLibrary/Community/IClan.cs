@@ -23,9 +23,14 @@ namespace MudSharp.Community {
         bool ShowFamousMembersInNotables { get; set; }
         ulong? DiscordChannelId { get; set; }
 
-        List<ICell> TreasuryCells { get; }
-        List<ICell> AdministrationCells { get; }
-        IBankAccount ClanBankAccount { get; set; }
+		IEnumerable<ICell> TreasuryCells { get; }
+		IEnumerable<ICell> AdministrationCells { get; }
+        void AddTreasuryCell(ICell cell);
+		void RemoveTreasuryCell(ICell cell);
+		void AddAdministrationCell(ICell cell);
+		void RemoveAdministrationCell(ICell cell);
+
+		IBankAccount ClanBankAccount { get; set; }
 
         List<IRank> Ranks { get; }
         List<IAppointment> Appointments { get; }

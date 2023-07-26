@@ -56,7 +56,8 @@ internal class WeatherModule : Module<ICharacter>
 		{
 			var newWeather = actor.Location.WeatherController.RegionalClimate.ClimateModel.PermittedTransitions(
 				actor.Location.WeatherController.CurrentWeatherEvent, actor.Location.WeatherController.CurrentSeason,
-				actor.Location.CurrentTimeOfDay);
+				actor.Location.CurrentTimeOfDay)
+			                      .ToList();
 			if (!newWeather.Any())
 			{
 				actor.OutputHandler.Send("There are no valid transitions for the current weather event.");
@@ -97,9 +98,14 @@ internal class WeatherModule : Module<ICharacter>
 	{
 		var weather = actor.Location.CurrentWeather(actor);
 		var temperature = actor.Location.CurrentTemperature(actor);
+		var season = actor.Location.CurrentSeason(actor);
 		var (floor, ceiling) = actor.Body.TolerableTemperatures(true);
 		var (floorNatural, ceilingNatural) = actor.Body.TolerableTemperatures(false);
 		var sb = new StringBuilder();
+		if (season is not null)
+		{
+			sb.AppendLine($"The current season is {season.DisplayName.ColourValue()}{season.SeasonGroup?.ColourName().ParenthesesSpace() ?? ""}.");
+		}
 		sb.AppendLine(weather?.WeatherDescription ?? "There doesn't appear to be any weather here.");
 		sb.AppendLine(
 			$"The current temperature here is {TemperatureExtensions.SubjectiveTemperature(temperature, floorNatural, ceilingNatural).DescribeColour()}{(actor.IsAdministrator() ? $" ({actor.Gameworld.UnitManager.Describe(temperature, UnitType.Temperature, actor)})" : "")}.");

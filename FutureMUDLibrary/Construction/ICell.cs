@@ -70,6 +70,7 @@ namespace MudSharp.Construction {
         [CanBeNull]IWeatherEvent CurrentWeather(IPerceiver voyeur);
         [CanBeNull]IWeatherController WeatherController { get; }
         double CurrentTemperature(IPerceiver voyeur);
+        ISeason CurrentSeason(IPerceiver voyeur);
 
         bool IsExitVisible(IPerceiver voyeur, ICellExit exit, PerceptionTypes type, 
             PerceiveIgnoreFlags flags = PerceiveIgnoreFlags.None);

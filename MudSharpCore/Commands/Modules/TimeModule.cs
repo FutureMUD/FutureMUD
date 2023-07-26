@@ -146,12 +146,12 @@ internal class TimeModule : Module<ICharacter>
 		sb.AppendLine("You know the following things about time:");
 		sb.AppendLine();
 		sb.AppendLine($"\tIt is currently {actor.Location.CurrentTimeOfDay.DescribeColour()}.");
-		if (actor.Location.Zone.Weather?.CurrentSeason != null)
+		var season = actor.Location.CurrentSeason(actor);
+		if (season is not null)
 		{
-			sb.AppendLine($"\tIt is currently {actor.Location.Zone.Weather.CurrentSeason.Name.Colour(Telnet.Green)}.");
+			sb.AppendLine($"\tIt is currently {season.DisplayName.ColourValue()}.");
 		}
-
-		var celestialList = new List<string>();
+		
 		var celestials = actor.Location.Celestials;
 		foreach (var info in celestials.Select(x => actor.Location.GetInfo(x)))
 		{

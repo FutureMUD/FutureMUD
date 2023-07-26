@@ -400,6 +400,18 @@ public partial class Cell : Location, IDisposable, ICell
 		       Zone.Weather?.CurrentWeatherEvent;
 	}
 
+	public ISeason CurrentSeason(IPerceiver voyeur)
+	{
+		var overlay = GetOverlayFor(voyeur);
+		if (overlay.Terrain.OverrideWeatherController != null)
+		{
+			return overlay.Terrain.OverrideWeatherController.CurrentSeason;
+		}
+
+		return Areas.FirstOrDefault(x => x.Weather != null)?.Weather.CurrentSeason ??
+		       Zone.Weather?.CurrentSeason;
+	}
+
 	public double CurrentTemperature(IPerceiver voyeur)
 	{
 		var baseTemperature = 0.0;

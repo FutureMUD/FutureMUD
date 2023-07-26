@@ -15,7 +15,8 @@ public class Season : FrameworkItem, ISeason
 	{
 		_id = season.Id;
 		_name = season.Name;
-		Description = season.Description;
+		DisplayName = season.DisplayName;
+		SeasonGroup = season.SeasonGroup;
 		CelestialDayOnset = season.CelestialDayOnset;
 		Celestial = gameworld.CelestialObjects.Get(season.CelestialId);
 	}
@@ -26,7 +27,8 @@ public class Season : FrameworkItem, ISeason
 
 	#endregion
 
-	public string Description { get; protected set; }
+	public string DisplayName { get; protected set; }
+	public string SeasonGroup { get; protected set; }
 
 	public int CelestialDayOnset { get; protected set; }
 	public ICelestialObject Celestial { get; protected set; }

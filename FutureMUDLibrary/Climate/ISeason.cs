@@ -10,7 +10,8 @@ namespace MudSharp.Climate
 {
     public interface ISeason : IFrameworkItem
     {
-        string Description { get; }
+        string DisplayName { get; }
+        string SeasonGroup { get; }
         int CelestialDayOnset { get; }
         ICelestialObject Celestial { get; }
     }

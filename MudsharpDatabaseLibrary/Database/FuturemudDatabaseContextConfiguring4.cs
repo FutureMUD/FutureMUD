@@ -362,9 +362,15 @@ namespace MudSharp.Database
 
                 entity.Property(e => e.CelestialId).HasColumnType("bigint(20)");
 
-                entity.Property(e => e.Description)
+                entity.Property(e => e.SeasonGroup)
+                      .IsRequired()
+                      .HasColumnType("varchar(200)")
+                      .HasCharSet("utf8")
+                      .UseCollation("utf8_general_ci");
+
+                entity.Property(e => e.DisplayName)
                     .IsRequired()
-                    .HasColumnType("text")
+                    .HasColumnType("varchar(200)")
                     .HasCharSet("utf8")
                     .UseCollation("utf8_general_ci");
 

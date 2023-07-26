@@ -13,7 +13,8 @@ namespace MudSharp.Models
 
         public long Id { get; set; }
         public string Name { get; set; }
-        public string Description { get; set; }
+        public string DisplayName { get; set; }
+        public string SeasonGroup { get; set; }
         public int CelestialDayOnset { get; set; }
         public long CelestialId { get; set; }
 

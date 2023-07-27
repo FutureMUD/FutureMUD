@@ -237,6 +237,20 @@ public partial class Body : PerceiverItem, IBody
 	public (string ShortDescription, string FullDescription) GetRawDescriptions =>
 		(_shortDescription, _fullDescription);
 
+	public void SetFullDescription(string description)
+	{
+		_fullDescription = description;
+		_fullDescriptionPattern = null;
+		Changed = true;
+	}
+
+	public void SetShortDescription(string description)
+	{
+		_shortDescription = description;
+		_shortDescriptionPattern = null;
+		Changed = true;
+	}
+
 	public override ICell Location
 	{
 		get => Actor.Location;

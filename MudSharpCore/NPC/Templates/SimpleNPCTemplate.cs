@@ -1460,7 +1460,7 @@ public class SimpleNPCTemplate : NPCTemplateBase
 	{
 		if (SelectedFullDesc.Length > 0)
 		{
-			actor.OutputHandler.Send("Replacing:\n" + SelectedFullDesc.Wrap(80, "\t"));
+			actor.OutputHandler.Send("Replacing:\n\n" + SelectedFullDesc.Wrap(actor.InnerLineFormatLength, "\t"));
 		}
 
 		actor.OutputHandler.Send("\nEnter the description in the editor below.");

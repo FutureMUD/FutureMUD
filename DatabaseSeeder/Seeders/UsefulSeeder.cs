@@ -168,6 +168,8 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
 			return;
 		}
 
+		context.Terrains.Find(1)!.DefaultTerrain = false;
+
 		void AddTerrain(string name, string behaviour, double movementRate, double staminaCost,
 			Difficulty hideDifficulty, Difficulty spotDifficulty, string? atmosphere, CellOutdoorsType outdoorsType,
 			Color editorColour, string editorText = null, bool isdefault = false)

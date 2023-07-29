@@ -926,7 +926,8 @@ public class CoreDataSeeder : IDatabaseSeeder
 			InfectionMultiplier = 0,
 			StaminaCost = 0,
 			TerrainEditorColour = "#FFFFFFFF",
-			TerrainBehaviourMode = "outdoors"
+			TerrainBehaviourMode = "outdoors",
+			DefaultTerrain = true,
 		};
 		context.Terrains.Add(terrain);
 

@@ -2040,8 +2040,8 @@ public partial class HumanSeeder
 		AddLimb("Torso", LimbType.Torso, "abdomen", 1.0, 1.0);
 		AddLimb("Head", LimbType.Head, "neck", 1.0, 1.0);
 		AddLimb("Genitals", LimbType.Genitals, "groin", 0.5, 0.5);
-		AddLimb("Right Arm", LimbType.Arm, "rshoulder", 0.5, 0.5);
-		AddLimb("Left Arm", LimbType.Arm, "lshoulder", 0.5, 0.5);
+		AddLimb("Right Arm", LimbType.Arm, "rupperarm", 0.5, 0.5);
+		AddLimb("Left Arm", LimbType.Arm, "lupperarm", 0.5, 0.5);
 		AddLimb("Right Leg", LimbType.Leg, "rhip", 0.5, 0.5);
 		AddLimb("Left Leg", LimbType.Leg, "lhip", 0.5, 0.5);
 		_context.SaveChanges();
@@ -2156,6 +2156,8 @@ public partial class HumanSeeder
 			("calf", 0, 2),
 			("ankle", 0, 2),
 			("foot", 0, 2),
+			("shin", 0, 2),
+			("heel", 0, 2),
 			("toe", 0, 10),
 			("knee", 0, 2),
 			("knee back", 0, 2),

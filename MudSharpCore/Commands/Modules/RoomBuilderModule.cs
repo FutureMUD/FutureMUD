@@ -637,16 +637,16 @@ Possible filter options include:
 
 You can use the following subcommands:
 
-	zone new <name> <shard> <timezones...> - creates a new zone (note: must be editing a CELL PACKAGE)
-	zone show <which> - shows detailed information about a zone
-	zone set <which> name <new name> - renames a zone
-	zone set <which> latitude <degrees> - sets the latitude of a zone
-	zone set <which> longitude <degrees> - sets the longitude of a zone
-	zone set <which> elevation <amount> - sets the elevation of the zone above mean sea level
-	zone set <which> light <#> - sets the ambient light in lux from the zone at all times
-	zone set <which> timezone <clock> <tz> - sets a timezone for a particular clock
-	zone set <which> fp <which> - sets the foragable profile for the zone
-	zone set <which> fp clear - clears the foragable profile for the zone
+	#3zone new <name> <shard> <timezones...>#0 - creates a new zone (note: must be editing a CELL PACKAGE)
+	#3zone show <which>#0 - shows detailed information about a zone
+	#3zone set <which> name <new name>#0 - renames a zone
+	#3zone set <which> latitude <degrees>#0 - sets the latitude of a zone
+	#3zone set <which> longitude <degrees>#0 - sets the longitude of a zone
+	#3zone set <which> elevation <amount>#0 - sets the elevation of the zone above mean sea level
+	#3zone set <which> light <##>#0 - sets the ambient light in lux from the zone at all times
+	#3zone set <which> timezone <clock> <tz>#0 - sets a timezone for a particular clock
+	#3zone set <which> fp <which>#0 - sets the foragable profile for the zone
+	#3zone set <which> fp clear#0 - clears the foragable profile for the zone
 
 See also the ZONES command to see a list of commands, and the ROOMS <zone> command to see a list of rooms within a zone.
 See the CELL command for more information about CELL PACKAGES.";
@@ -673,7 +673,7 @@ See the CELL command for more information about CELL PACKAGES.";
 				ZoneShow(actor, ss);
 				break;
 			default:
-				actor.OutputHandler.Send(ZoneHelpText);
+				actor.OutputHandler.Send(ZoneHelpText.SubstituteANSIColour());
 				return;
 		}
 	}
@@ -1153,6 +1153,11 @@ See the CELL command for more information about CELL PACKAGES.";
 
 	[PlayerCommand("Timezone", "timezone")]
 	[CommandPermission(PermissionLevel.SeniorAdmin)]
+	[HelpInfo("timezone", @"This command is used to create in-game timezones for a particular clock. Timezones are relative to a standard default timezone for that clock - a real world example would be UTC.
+
+The syntax for this command is as follows:
+
+	#3timezone create <clock> <alias> ""<name>"" <hoursoffset> [<minutesoffset>]#0", AutoHelp.HelpArgOrNoArg)]
 	protected static void Timezone(ICharacter actor, string input)
 	{
 		var ss = new StringStack(input.RemoveFirstWord());
@@ -1177,14 +1182,8 @@ See the CELL command for more information about CELL PACKAGES.";
 			return;
 		}
 
-		if (!long.TryParse(ss.Pop(), out var clockid))
-		{
-			actor.Send("You must enter the id of the clock.");
-			return;
-		}
-
-		var clock = actor.Gameworld.Clocks.Get(clockid);
-		if (clock == null)
+		var clock = actor.Gameworld.Clocks.GetByIdOrName(ss.PopSpeech());
+		if (clock is null)
 		{
 			actor.Send("There is no such clock.");
 			return;
@@ -1192,11 +1191,11 @@ See the CELL command for more information about CELL PACKAGES.";
 
 		if (ss.IsFinished)
 		{
-			actor.Send("What alias do you want to give to your timezone (e.g. GMT)?");
+			actor.Send("What alias do you want to give to your timezone (e.g. #6GMT#0)?".SubstituteANSIColour());
 			return;
 		}
 
-		var alias = ss.Pop();
+		var alias = ss.PopSpeech();
 		if (clock.Timezones.Any(x => x.Alias.Equals(alias, StringComparison.InvariantCultureIgnoreCase)))
 		{
 			actor.Send("There is already a timezone with that alias for that clock. The alias must be unique.");
@@ -1205,7 +1204,7 @@ See the CELL command for more information about CELL PACKAGES.";
 
 		if (ss.IsFinished)
 		{
-			actor.Send("What name do you want to give to your timezone (e.g. \"Pacific Standard Time\")?");
+			actor.Send("What name do you want to give to your timezone (e.g. #6\"Pacific Standard Time\"#0)?".SubstituteANSIColour());
 			return;
 		}
 

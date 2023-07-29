@@ -88,6 +88,7 @@ The valid sub-commands and their syntaxes are as follows:
 		#6+<keyword>#0 - only shows items with the nominated keyword
 		#6-<keyword>#0 - excludes items with the nominated keyword
 		#6<type>#0 - shows only items that have a component of the specified type
+		#6*<tag>#0 - shows only items that 'are' the specified tag
 
 	#3item load [<quantity>] <id> [<extra args>]#0 - loads an item into the game. See below for extra args:
         #6variable=value|id#0 - sets a specific variable

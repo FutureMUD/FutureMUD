@@ -467,5 +467,19 @@ The exception details were as follows:
 		$"Applying the data from the #2{seeder.Name}#F seeder...".WriteLineConsole();
 		var result = seeder.SeedData(context, answers);
 		Console.WriteLine(result);
+		var version = (Assembly.GetCallingAssembly().GetName().Version ?? new Version(1, 0, 0)).ToString();
+		var now = DateTime.UtcNow;
+		foreach (var item in answers)
+		{
+			context.SeederChoices.Add(new MudSharp.Models.SeederChoice
+			{
+				Version = version,
+				Seeder = seeder.Name,
+				Choice = item.Key,
+				Answer = item.Value,
+				DateTime = now
+			});
+		}
+		context.SaveChanges();
 	}
 }

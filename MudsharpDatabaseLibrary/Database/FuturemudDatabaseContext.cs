@@ -344,6 +344,7 @@ namespace MudSharp.Database
         public virtual DbSet<Script> Scripts { get; set; }
         public virtual DbSet<ScriptsDesignedLanguage> ScriptsDesignedLanguages { get; set; }
         public virtual DbSet<Season> Seasons { get; set; }
+        public virtual DbSet<SeederChoice> SeederChoices { get; set; }
         public virtual DbSet<Shard> Shards { get; set; }
         public virtual DbSet<ShardsCalendars> ShardsCalendars { get; set; }
         public virtual DbSet<ShardsCelestials> ShardsCelestials { get; set; }

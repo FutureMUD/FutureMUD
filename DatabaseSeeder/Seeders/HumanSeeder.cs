@@ -87,23 +87,24 @@ Please answer #Bhands#F or #Binventory#F: ", (context, answers) => true,
 					return (false, "Please answer yes or no.");
 				}
 			),
-			("bones", @"Do you want to include bones in the list of bodyparts? 
+			("bones", @"You have several options for how to handle bones. The three options are as follows:
 
-#1Note: If you do not include bones broken bone damage is effectively disabled (but bodies should otherwise continue to function just fine).#F
+#Bfull#F - create separate, breakable bones in the model
+#Bimplied#0 - don't create separate bone bodyparts, but change the base bodytypes to be ""bony"" and able to be broken
+#Bnone#F - don't include bones, disable bone breaking mechanics
 
-Please answer #3yes#F or #3no#F: ", (context, answers) => true,
+Please choose your answer: ", (context, answers) => true,
 				(text, context) =>
 				{
 					switch (text.ToLowerInvariant())
 					{
-						case "yes":
-						case "y":
-						case "no":
-						case "n":
+						case "full":
+						case "implied":
+						case "none":
 							return (true, string.Empty);
 					}
 
-					return (false, "Please answer yes or no.");
+					return (false, "Please answer full, implied or none.");
 				}
 			),
 			("distinctive", @"Do you want to include the 'distinctive feature' characteristic for your humans? 

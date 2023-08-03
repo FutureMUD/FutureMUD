@@ -102,6 +102,7 @@ public partial class Chargen : FrameworkItem, IChargen
 	public static IFutureProg NeedsModelProg { get; set; }
 
 	public bool IsSpecialApplication { get; set; }
+	public ApplicationType ApplicationType { get; set; }
 
 
 	public static void HandleDiscordRequest(DiscordRequestType requestType, IFuturemud gameworld, long requestedChargen,
@@ -384,7 +385,7 @@ public partial class Chargen : FrameworkItem, IChargen
 	{
 		RecalculateCurrentCosts();
 		var sb = new StringBuilder();
-		sb.Append(IsSpecialApplication ? "__Special " : "__Character ");
+		sb.Append(ApplicationType == ApplicationType.Special ? "__Special " : "__Character ");
 		if (permission >= PermissionLevel.Guide)
 		{
 			sb.AppendLine($"Application #{Id.ToString("N0", character)}__");
@@ -491,7 +492,7 @@ public partial class Chargen : FrameworkItem, IChargen
 	{
 		RecalculateCurrentCosts();
 		var sb = new StringBuilder();
-		sb.Append(IsSpecialApplication ? "Special " : "Character ");
+		sb.Append(ApplicationType == ApplicationType.Special ? "Special " : "Character ");
 		if (permission >= PermissionLevel.Guide)
 		{
 			sb.AppendLine(("Application #" + Id.ToString("N0", character)).Colour(Telnet.Cyan));
@@ -1025,7 +1026,7 @@ public partial class Chargen : FrameworkItem, IChargen
 				Handedness = Alignment.Irrelevant;
 				break;
 			case ChargenStage.SpecialApplication:
-				IsSpecialApplication = false;
+				ApplicationType = ApplicationType.Normal;
 				break;
 			case ChargenStage.SelectDisfigurements:
 				MissingBodyparts.Clear();
@@ -1314,6 +1315,16 @@ public partial class Chargen : FrameworkItem, IChargen
 				IsSpecialApplication = bool.Parse(element.Value);
 			}
 
+			element = root.Element("ApplicationType");
+			if (element is not null)
+			{
+				ApplicationType = (ApplicationType)int.Parse(element.Value);
+			}
+			else
+			{
+				ApplicationType = IsSpecialApplication ? ApplicationType.Special : ApplicationType.Normal;
+			}
+
 			element = root.Element("SelectedBoosts");
 			if (element != null)
 			{
@@ -1461,6 +1472,7 @@ public partial class Chargen : FrameworkItem, IChargen
 				from role in SelectedRoles select new XElement("Role", role.Id)
 			), new XElement("SelectedStartingLocation", StartingLocation?.Role.Id ?? 0),
 			new XElement("SpecialApplication", IsSpecialApplication),
+			new XElement("ApplicationType", (int)ApplicationType),
 			new XElement("SelectedMerits",
 				from merit in SelectedMerits select new XElement("Merit", merit.Id)),
 			new XElement("MissingBodyparts",

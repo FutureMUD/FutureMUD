@@ -33,9 +33,16 @@ namespace MudSharp.CharacterCreation
         Reject
     }
 
+    public enum ApplicationType
+    {
+        Normal,
+        Simple,
+        Special
+    }
+
     public interface IChargen : IFrameworkItem, IHaveFuturemud, ICharacterTemplate, IHaveMerits, IHaveAccount
     {
-        bool IsSpecialApplication { get; set; }
+        ApplicationType ApplicationType { get; set; }
         bool CanSubmit { get; }
         IEnumerable<Tuple<string, string>> PriorRejections { get; }
         IEnumerable<ChargenStage> CompletedStages { get; }

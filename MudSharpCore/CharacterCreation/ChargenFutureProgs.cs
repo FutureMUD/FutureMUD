@@ -135,7 +135,10 @@ public partial class Chargen
 					FutureProgVariableTypes.Role);
 				break;
 			case "special":
-				returnVar = new BooleanVariable(IsSpecialApplication);
+				returnVar = new BooleanVariable(ApplicationType == ApplicationType.Special);
+				break;
+			case "simple":
+				returnVar = new BooleanVariable(ApplicationType == ApplicationType.Simple);
 				break;
 		}
 
@@ -169,7 +172,8 @@ public partial class Chargen
 			{ "merits", FutureProgVariableTypes.Merit | FutureProgVariableTypes.Collection },
 			{ "applicablemerits", FutureProgVariableTypes.Merit | FutureProgVariableTypes.Collection },
 			{ "roles", FutureProgVariableTypes.Role | FutureProgVariableTypes.Collection },
-			{ "special", FutureProgVariableTypes.Boolean }
+			{ "special", FutureProgVariableTypes.Boolean },
+			{ "simple", FutureProgVariableTypes.Boolean }
 		};
 	}
 
@@ -200,7 +204,8 @@ public partial class Chargen
 			{ "merits", "" },
 			{ "applicablemerits", "" },
 			{ "roles", "" },
-			{ "special", "" }
+			{ "special", "" },
+			{ "simple", "" }
 		};
 	}
 
@@ -231,7 +236,8 @@ public partial class Chargen
 			{ "merits", FutureProgVariableTypes.Merit | FutureProgVariableTypes.Collection },
 			{ "applicablemerits", FutureProgVariableTypes.Merit | FutureProgVariableTypes.Collection },
 			{ "roles", FutureProgVariableTypes.Role | FutureProgVariableTypes.Collection },
-			{ "special", FutureProgVariableTypes.Boolean }
+			{ "special", FutureProgVariableTypes.Boolean },
+			{ "simple", FutureProgVariableTypes.Boolean }
 		};
 	}
 
@@ -262,7 +268,8 @@ public partial class Chargen
 			{ "merits", "" },
 			{ "applicablemerits", "" },
 			{ "roles", "" },
-			{ "special", "" }
+			{ "special", "" },
+			{ "simple", "" }
 		};
 	}
 

@@ -24,11 +24,14 @@ public class SpecialApplicationScreenStoryboard : ChargenScreenStoryboard
 	{
 		var definition = XElement.Parse(dbitem.StageDefinition);
 		Blurb = definition.Element("Blurb").Value.SubstituteANSIColour();
+		AutomaticallyDoShortApplicationForAccountFirst = bool.Parse(definition.Element("AutomaticallyDoShortApplicationForAccountFirst")?.Value ?? "true");
 	}
 
 	protected override string StoryboardName => "SpecialApplication";
 
 	public string Blurb { get; protected set; }
+
+	public bool AutomaticallyDoShortApplicationForAccountFirst { get; protected set; }
 
 	#region Overrides of ChargenScreenStoryboard
 
@@ -36,7 +39,8 @@ public class SpecialApplicationScreenStoryboard : ChargenScreenStoryboard
 	protected override string SaveDefinition()
 	{
 		return new XElement("Definition",
-			new XElement("Blurb", new XCData(Blurb))
+			new XElement("Blurb", new XCData(Blurb)),
+			new XElement("AutomaticallyDoShortApplicationForAccountFirst", AutomaticallyDoShortApplicationForAccountFirst)
 		).ToString();
 	}
 
@@ -59,7 +63,7 @@ public class SpecialApplicationScreenStoryboard : ChargenScreenStoryboard
 		sb.Append(ShowHeader(voyeur));
 		sb.AppendLine();
 		sb.AppendLine(
-			"This screen allows people to select whether they are making a regular application (rules apply) or a special application (rules relaxed). You can set up other decisions in chargen to check the IsSpecialApplication property of the chargen to otherwise ignore restrictions - the seeder sets things up like this to begin with."
+			"This screen allows people to select whether they are making a regular application (rules apply), a short application (skip some complex decisions) or a special application (rules relaxed). You can set up other decisions in chargen to check the IsSpecialApplication property of the chargen to otherwise ignore restrictions - the seeder sets things up like this to begin with."
 				.Wrap(voyeur.InnerLineFormatLength).ColourCommand());
 		sb.AppendLine();
 		var resource = Gameworld.ChargenResources.Get(Gameworld.GetStaticLong("SpecialApplicationResource"));
@@ -73,7 +77,7 @@ public class SpecialApplicationScreenStoryboard : ChargenScreenStoryboard
 				$"Special Application Cost: #2{Gameworld.GetStaticInt("SpecialApplicationCost").ToString("N0")} {resource.Alias}#0"
 					.SubstituteANSIColour());
 		}
-
+		sb.AppendLine($"Account First Gets Short Mode: {AutomaticallyDoShortApplicationForAccountFirst.ToColouredString()}");
 		sb.AppendLine();
 		sb.AppendLine("Blurb".GetLineWithTitle(voyeur, Telnet.Cyan, Telnet.BoldWhite));
 		sb.AppendLine();
@@ -93,11 +97,18 @@ public class SpecialApplicationScreenStoryboard : ChargenScreenStoryboard
 			{
 				if (FMDB.Context.Characters.Count(x => x.AccountId == chargen.Account.Id) == 0)
 				{
-					Chargen.IsSpecialApplication = false;
+					if (storyboard.AutomaticallyDoShortApplicationForAccountFirst)
+					{
+						Chargen.ApplicationType = ApplicationType.Simple;
+					}
+					else
+					{
+						Chargen.ApplicationType = ApplicationType.Special;
+					}
 					State = ChargenScreenState.Complete;
 				}
 			}
-			// TODO - automatically complete if account is banned
+			// TODO - automatically complete if account is banned from submitting special applications
 		}
 
 		#region Overrides of ChargenScreen
@@ -107,7 +118,11 @@ public class SpecialApplicationScreenStoryboard : ChargenScreenStoryboard
 		public override string Display()
 		{
 			return
-				$"{"Normal or Special Application".Colour(Telnet.Cyan)}\n\n{Storyboard.Blurb.Wrap(Account.InnerLineFormatLength)}\n\nDo you want to make this a special application? Type {"yes".ColourCommand()} or {"no".ColourCommand()}.";
+				$@"{"Application Type".Colour(Telnet.Cyan)}
+
+{Storyboard.Blurb.Wrap(Account.InnerLineFormatLength)}
+
+Please enter your choice. Type {"simple".ColourCommand()}, {"normal".ColourCommand()} or {"special".ColourCommand()}.";
 		}
 
 		public override string HandleCommand(string command)
@@ -119,14 +134,25 @@ public class SpecialApplicationScreenStoryboard : ChargenScreenStoryboard
 
 			State = ChargenScreenState.Complete;
 
-			if (command.EqualToAny("yes", "y", "ye", "true", "ok", "si", "hai", "da", "sure", "oui", "ja"))
+			if ("short".StartsWith(command, StringComparison.InvariantCultureIgnoreCase))
 			{
-				Chargen.IsSpecialApplication = true;
-				return "This application is now a special application.";
+				Chargen.ApplicationType = ApplicationType.Simple;
+				return "\n\nThis application is now a simple application.";
 			}
 
-			Chargen.IsSpecialApplication = false;
-			return "This application will be a normal application";
+			if ("normal".StartsWith(command, StringComparison.InvariantCultureIgnoreCase))
+			{
+				Chargen.ApplicationType = ApplicationType.Normal;
+				return "\n\nThis application is now a normal application.";
+			}
+
+			if ("special".StartsWith(command, StringComparison.InvariantCultureIgnoreCase))
+			{
+				Chargen.ApplicationType = ApplicationType.Special;
+				return "\n\nThis application is now a special application.";
+			}
+
+			return $"The valid choices are {"simple".ColourCommand()}, {"normal".ColourCommand()} or {"special".ColourCommand()}.";
 		}
 
 		#endregion
@@ -135,7 +161,8 @@ public class SpecialApplicationScreenStoryboard : ChargenScreenStoryboard
 	#region Building Commands
 
 	public override string HelpText => $@"{BaseHelpText}
-	#3blurb#0 - drops you into an editor to change the blurb";
+	#3blurb#0 - drops you into an editor to change the blurb
+	#3autofirst#0 - toggles automatic short mode for first applications";
 
 	/// <inheritdoc />
 	public override bool BuildingCommand(ICharacter actor, StringStack command)
@@ -144,9 +171,21 @@ public class SpecialApplicationScreenStoryboard : ChargenScreenStoryboard
 		{
 			case "blurb":
 				return BuildingCommandBlurb(actor, command);
+			case "autofirst":
+			case "auto":
+			case "first":
+				return BuildingCommandAutoFirst(actor);
 		}
 
 		return BuildingCommandFallback(actor, command.GetUndo());
+	}
+
+	private bool BuildingCommandAutoFirst(ICharacter actor)
+	{
+		AutomaticallyDoShortApplicationForAccountFirst = !AutomaticallyDoShortApplicationForAccountFirst;
+		Changed = true;
+		actor.OutputHandler.Send($"First time applications on new accounts will {AutomaticallyDoShortApplicationForAccountFirst.NowNoLonger()} be forced to use short mode.");
+		return true;
 	}
 
 	private bool BuildingCommandBlurb(ICharacter actor, StringStack command)
@@ -178,7 +217,7 @@ public class SpecialApplicationScreenStoryboard : ChargenScreenStoryboard
 
 	public override IEnumerable<(IChargenResource Resource, int Cost)> ChargenCosts(IChargen chargen)
 	{
-		if (!chargen.IsSpecialApplication)
+		if (chargen.ApplicationType != ApplicationType.Special)
 		{
 			return Enumerable.Empty<(IChargenResource, int )>();
 		}

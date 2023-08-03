@@ -199,6 +199,8 @@ public class SimpleCharacterTemplate : ICharacterTemplate
 			case "special":
 				returnVar = new BooleanVariable(false);
 				break;
+			case "simple":
+				return new BooleanVariable(false);
 		}
 
 		return returnVar;

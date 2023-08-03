@@ -487,14 +487,14 @@ Description: {type.Description.ColourValue()}
 
 			if (cmd.EqualTo("special"))
 			{
-				chargens = chargens.Where(x => x.IsSpecialApplication).ToList();
+				chargens = chargens.Where(x => x.ApplicationType == ApplicationType.Special).ToList();
 				filters.Add($"is a special application");
 				continue;
 			}
 
 			if (cmd.EqualTo("!special"))
 			{
-				chargens = chargens.Where(x => !x.IsSpecialApplication).ToList();
+				chargens = chargens.Where(x => x.ApplicationType != ApplicationType.Special).ToList();
 				filters.Add($"is not a special application");
 				continue;
 			}
@@ -588,7 +588,7 @@ Description: {type.Description.ColourValue()}
 					chargen.ApplicationCosts.Where(x => x.Value > 0)
 					       .Select(x => $"{x.Value.ToString("N0", actor)} {x.Key.Alias}".ColourValue())
 					       .ListToCommaSeparatedValues(", "),
-					chargen.IsSpecialApplication.ToColouredString(),
+					chargen.ApplicationType.DescribeEnum(),
 					chargen.State.DescribeEnum()
 				},
 				new List<string>
@@ -600,7 +600,7 @@ Description: {type.Description.ColourValue()}
 					"Culture",
 					"Ethnicity",
 					"Costs",
-					"Special?",
+					"Type",
 					"State"
 				},
 				actor,

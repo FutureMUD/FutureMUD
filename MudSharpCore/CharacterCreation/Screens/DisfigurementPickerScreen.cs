@@ -30,6 +30,9 @@ public class DisfigurementPickerScreenStoryboard : ChargenScreenStoryboard
 		dbitem, gameworld)
 	{
 		var definition = XElement.Parse(dbitem.StageDefinition);
+
+		SkipIfSimpleApplication = bool.Parse(definition.Element("SkipIfSimpleApplication")?.Value ?? "true");
+
 		ScarBlurb = definition.Element("ScarBlurb")?.Value;
 		AllowPickingScars = bool.Parse(definition.Element("AllowPickingScars")?.Value ?? "false");
 		if (AllowPickingScars && string.IsNullOrWhiteSpace(ScarBlurb))
@@ -154,12 +157,15 @@ public class DisfigurementPickerScreenStoryboard : ChargenScreenStoryboard
 	public bool AllowPickingScars { get; private set; }
 	public bool AllowPickingMissingBodyparts { get; private set; }
 
+	public bool SkipIfSimpleApplication { get; private set; }
+
 	internal List<ChargenProsthesisSelection> PickableProstheses { get; }
 
 	public override string HelpText => $@"{BaseHelpText}
 	#3allowtattoos#0 - toggles tattoos being selectable
 	#3allowscars#0 - toggles scars being selectable
 	#3allowmissing#0 - toggles missing bodyparts and prosthetics being selectable
+	#3skipsimple#0 - skips this screen if ""simple"" mode is selected
 	#3tattooblurb#0 - drops into an editor to edit the tattoo blurb
 	#3scarblurb#0 - drops into an editor to edit the scar blurb
 	#3missingblurb#0 - drops into an editor to edit the missing bodyparts blurb
@@ -193,9 +199,19 @@ public class DisfigurementPickerScreenStoryboard : ChargenScreenStoryboard
 				return BuildingCommandProstheticBlurb(actor);
 			case "prosthetic":
 				return BuildingCommandProsthetic(actor, command);
+			case "skipsimple":
+				return BuildingCommandSkipSimple(actor);
 		}
 
 		return BuildingCommandFallback(actor, command.GetUndo());
+	}
+
+	private bool BuildingCommandSkipSimple(ICharacter actor)
+	{
+		SkipIfSimpleApplication = !SkipIfSimpleApplication;
+		Changed = true;
+		actor.OutputHandler.Send($"This screen will {SkipIfSimpleApplication.NowNoLonger()} be skipped if this is a simple application.");
+		return true;
 	}
 
 	private bool BuildingCommandProsthetic(ICharacter actor, StringStack command)
@@ -626,6 +642,7 @@ public class DisfigurementPickerScreenStoryboard : ChargenScreenStoryboard
 		sb.AppendLine("This screen allows people to select tattoos, scars, missing bodyparts and prosthetics."
 		              .Wrap(voyeur.InnerLineFormatLength).ColourCommand());
 		sb.AppendLine();
+		sb.AppendLine($"Skip if Simple Application: {SkipIfSimpleApplication.ToColouredString()}");
 		sb.AppendLine($"Allow Picking Tattoos: {AllowPickingTattoos.ToColouredString()}");
 		sb.AppendLine($"Allow Picking Scars: {AllowPickingScars.ToColouredString()}");
 		sb.AppendLine($"Allow Picking Severs/Prosthetics: {AllowPickingMissingBodyparts.ToColouredString()}");
@@ -716,6 +733,11 @@ public class DisfigurementPickerScreenStoryboard : ChargenScreenStoryboard
 			chargen.MissingBodyparts = new List<IBodypart>();
 			PickerStage = DisfigurementPickerStage.MissingBodyparts;
 			CheckCurrentStage();
+
+			if (Storyboard.SkipIfSimpleApplication && chargen.ApplicationType == ApplicationType.Simple)
+			{
+				State = ChargenScreenState.Complete;
+			}
 		}
 
 		public DisfigurementPickerScreenStoryboard Storyboard { get; }

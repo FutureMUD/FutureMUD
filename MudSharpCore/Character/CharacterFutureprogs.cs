@@ -208,6 +208,8 @@ public partial class Character
 				return new TextVariable(RoomLayer.DescribeEnum());
 			case "special":
 				return new BooleanVariable(false);
+			case "simple":
+				return new BooleanVariable(false);
 			default:
 				return base.GetProperty(property);
 		}

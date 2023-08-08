@@ -71,6 +71,37 @@ public class VariableNPCTemplate : NPCTemplateBase
 		}
 	}
 
+	public INPCTemplate Clone(ICharacter builder)
+	{
+		using (new FMDB())
+		{
+			var dbnew = new NpcTemplate
+			{
+				Id = Gameworld.NpcTemplates.NextID(),
+				RevisionNumber = 0,
+				Name = Name,
+				Type = "Variable",
+				Definition = SaveDefinition()
+			};
+			foreach (var item in ArtificialIntelligences)
+			{
+				dbnew.NpctemplatesArtificalIntelligences.Add(new NpcTemplatesArtificalIntelligences
+				{ Npctemplate = dbnew, AiId = item.Id });
+			}
+
+			dbnew.EditableItem = new Models.EditableItem();
+			FMDB.Context.EditableItems.Add(dbnew.EditableItem);
+			dbnew.EditableItem.BuilderDate = DateTime.UtcNow;
+			dbnew.EditableItem.RevisionNumber = dbnew.RevisionNumber;
+			dbnew.EditableItem.BuilderAccountId = builder.Account.Id;
+			dbnew.EditableItem.RevisionStatus = (int)RevisionStatus.UnderDesign;
+			FMDB.Context.NpcTemplates.Add(dbnew);
+			FMDB.Context.SaveChanges();
+
+			return new VariableNPCTemplate(dbnew, Gameworld);
+		}
+	}
+
 	public override string NPCTemplateType => "Variable";
 
 	public override string FrameworkItemType => "VariableNPCTemplate";

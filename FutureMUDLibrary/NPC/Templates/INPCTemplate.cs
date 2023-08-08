@@ -13,5 +13,6 @@ namespace MudSharp.NPC.Templates {
         List<IArtificialIntelligence> ArtificialIntelligences { get; }
         ICharacterTemplate GetCharacterTemplate(ICell cell = null);
         ICharacter CreateNewCharacter(ICell location);
+        INPCTemplate Clone(ICharacter builder);
     }
 }

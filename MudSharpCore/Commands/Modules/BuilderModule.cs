@@ -1913,6 +1913,28 @@ The syntax for this command is as follows:
 		newCharacter.HandleEvent(EventType.NPCOnGameLoadFinished, newCharacter);
 	}
 
+	private static void NPCClone(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("Which NPC Template would you like to clone?");
+			return;
+		}
+
+		var template = actor.Gameworld.NpcTemplates.GetByIdOrName(command.SafeRemainingArgument);
+		if (template is null)
+		{
+			actor.OutputHandler.Send("There is no such NPC Template.");
+			return;
+		}
+
+		var newTemplate = template.Clone(actor);
+		actor.Gameworld.Add(newTemplate);
+		actor.RemoveAllEffects<BuilderEditingEffect<INPCTemplate>>();
+		actor.AddEffect(new BuilderEditingEffect<INPCTemplate>(actor) { EditingItem = newTemplate });
+		actor.OutputHandler.Send($"You clone {template.EditHeader().ColourName()} into {newTemplate.EditHeader().ColourName()}, which you are now editing.");
+	}
+
 	private static void NPCMake(ICharacter character, StringStack command)
 	{
 		if (command.IsFinished)
@@ -1940,6 +1962,8 @@ The syntax for this command is as follows:
 			var template = new SimpleNPCTemplate(character.Gameworld, character.Account,
 				target.GetCharacterTemplate(), command.PopSpeech());
 			character.Gameworld.Add(template);
+			character.RemoveAllEffects<BuilderEditingEffect<INPCTemplate>>();
+			character.AddEffect(new BuilderEditingEffect<INPCTemplate>(character) { EditingItem = template });
 			character.OutputHandler.Send(
 				$"You create a new NPC Template called {template.Name.Colour(Telnet.Cyan)} (#{template.Id}) from character {target.PersonalName.GetName(NameStyle.FullWithNickname).Colour(Telnet.Green)}.");
 			return;
@@ -1961,6 +1985,8 @@ The syntax for this command is as follows:
 		var ctemplate = new SimpleNPCTemplate(character.Gameworld, character.Account, tch.GetCharacterTemplate(),
 			command.PopSpeech());
 		character.Gameworld.Add(ctemplate);
+		character.RemoveAllEffects<BuilderEditingEffect<INPCTemplate>>();
+		character.AddEffect(new BuilderEditingEffect<INPCTemplate>(character) { EditingItem = ctemplate });
 		character.OutputHandler.Send(
 			$"You create a new NPC Template called {ctemplate.Name.Colour(Telnet.Cyan)} (#{ctemplate.Id}) from character {tch.PersonalName.GetName(NameStyle.FullWithNickname).Colour(Telnet.Green)}.");
 	}
@@ -2018,6 +2044,9 @@ The core syntax to use this command is as follows:
 				break;
 			case "load":
 				NPCLoad(character, ss);
+				break;
+			case "clone":
+				NPCClone(character, ss);
 				break;
 			default:
 				character.OutputHandler.Send(NPCHelp.SubstituteANSIColour());

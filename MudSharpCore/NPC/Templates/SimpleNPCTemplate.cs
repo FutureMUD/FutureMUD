@@ -96,6 +96,11 @@ public class SimpleNPCTemplate : NPCTemplateBase
 		Status = RevisionStatus.Current;
 	}
 
+	public INPCTemplate Clone(ICharacter builder)
+	{
+		return new SimpleNPCTemplate(Gameworld, builder.Account, GetCharacterTemplate(null), Name);
+	}
+
 	public override string FrameworkItemType => "SimpleNPCTemplate";
 
 	public override string NPCTemplateType => "Simple";

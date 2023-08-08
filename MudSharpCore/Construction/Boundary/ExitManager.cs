@@ -8,10 +8,10 @@ namespace MudSharp.Construction.Boundary;
 
 public class ExitManager : IExitManager, IHaveFuturemud
 {
-	protected readonly Dictionary<Tuple<ICell, ICellOverlay>, List<IExit>> CellExitDictionary =
+	protected readonly CollectionDictionary<(ICell Cell, ICellOverlay Overlay), IExit> CellExitDictionary =
 		new();
 
-	protected readonly Dictionary<long, IExit> MasterExitList = new();
+	protected readonly DictionaryWithDefault<long, IExit> MasterExitList = new();
 
 	public ExitManager(IFuturemud gameworld)
 	{
@@ -38,7 +38,7 @@ public class ExitManager : IExitManager, IHaveFuturemud
 			return;
 		}
 
-		if (CellExitDictionary.ContainsKey(Tuple.Create(cell, overlay)))
+		if (CellExitDictionary.ContainsKey((cell, overlay)))
 		{
 			return;
 		}
@@ -67,7 +67,7 @@ public class ExitManager : IExitManager, IHaveFuturemud
 				exitList.Add(newExit);
 			}
 
-			CellExitDictionary.Add(Tuple.Create(cell, overlay), exitList);
+			CellExitDictionary.AddRange((cell, overlay), exitList);
 		}
 
 		cell.OnExitsInitialised();
@@ -86,7 +86,7 @@ public class ExitManager : IExitManager, IHaveFuturemud
 		InitialiseCell(cell, overlay);
 
 		var exit =
-			CellExitDictionary[Tuple.Create(cell, overlay)].Where(x => overlay.ExitIDs.Contains(x.Id))
+			CellExitDictionary[(cell, overlay)].Where(x => overlay.ExitIDs.Contains(x.Id))
 			                                               .FirstOrDefault(x =>
 				                                               x.CellExitFor(cell).OutboundDirection == direction);
 		var cellExit = exit?.CellExitFor(cell);
@@ -106,13 +106,13 @@ public class ExitManager : IExitManager, IHaveFuturemud
 			overlay = cell.CurrentOverlay;
 		}
 
-		if (!CellExitDictionary.ContainsKey(Tuple.Create(cell, overlay)))
+		if (!CellExitDictionary.ContainsKey((cell, overlay)))
 		{
 			InitialiseCell(cell, overlay);
 		}
 
 		var exits =
-			CellExitDictionary[Tuple.Create(cell, overlay)]
+			CellExitDictionary[(cell, overlay)]
 				.Where(x => overlay.ExitIDs.Contains(x.Id) && x.IsExit(cell, verb) && voyeur.CanSee(x))
 				.OrderBy(x => x.CellExitFor(cell).OutboundDirection.ExitCommandPriority())
 				.ToList();
@@ -141,13 +141,13 @@ public class ExitManager : IExitManager, IHaveFuturemud
 			overlay = cell.CurrentOverlay;
 		}
 
-		if (!CellExitDictionary.ContainsKey(Tuple.Create(cell, overlay)))
+		if (!CellExitDictionary.ContainsKey((cell, overlay)))
 		{
 			InitialiseCell(cell, overlay);
 		}
 
 		var exits =
-			CellExitDictionary[Tuple.Create(cell, overlay)]
+			CellExitDictionary[(cell, overlay)]
 				.Where(x => overlay.ExitIDs.Contains(x.Id) && x.IsExitKeyword(cell, keyword) && voyeur.CanSee(x))
 				.OrderBy(x => x.CellExitFor(cell).OutboundDirection.ExitCommandPriority())
 				.ToList();
@@ -171,7 +171,7 @@ public class ExitManager : IExitManager, IHaveFuturemud
 		InitialiseCell(cell, overlay);
 
 		return
-			CellExitDictionary[Tuple.Create(cell, overlay)]
+			CellExitDictionary[(cell, overlay)]
 				.Where(x => overlay.ExitIDs.Contains(x.Id))
 				.Select(x => x.CellExitFor(cell))
 				.Where(x => layer == null || x.WhichLayersExitAppears().Contains(layer.Value))
@@ -195,7 +195,7 @@ public class ExitManager : IExitManager, IHaveFuturemud
 		InitialiseCell(cell, overlay);
 
 		return
-			CellExitDictionary[Tuple.Create(cell, overlay)].Where(x => overlay.ExitIDs.Contains(x.Id))
+			CellExitDictionary[(cell, overlay)].Where(x => overlay.ExitIDs.Contains(x.Id))
 			                                               .Select(x => x.CellExitFor(cell))
 			                                               .Where(x => layer == null || x.WhichLayersExitAppears()
 				                                               .Contains(layer.Value))
@@ -237,10 +237,44 @@ public class ExitManager : IExitManager, IHaveFuturemud
 	public void UpdateCellOverlayExits(ICell cell, ICellOverlay overlay)
 	{
 		// It is only necessary to update if it is a Cell / Cell Overlay combo that we have already loaded. Otherwise it can be caught later.
-		if (CellExitDictionary.ContainsKey(Tuple.Create(cell, overlay)))
+		if (CellExitDictionary.ContainsKey((cell, overlay)))
 		{
-			CellExitDictionary.Remove(Tuple.Create(cell, overlay));
+			CellExitDictionary.Remove((cell, overlay));
 			InitialiseCell(cell, overlay);
+		}
+	}
+
+	public void DeleteCell(ICell cell)
+	{
+		// Initialise the cell so all exits are in memory
+		InitialiseCell(cell, null);
+
+		// Get a list of all the exits that we're deleting
+		var exitsToDelete = new HashSet<IExit>();
+		foreach (var overlay in cell.Overlays)
+		{
+			foreach (var exit in overlay.ExitIDs)
+			{
+				exitsToDelete.Add(MasterExitList[exit]);
+			}
+
+			// Also remove the cell/overlay combo from the master list
+			CellExitDictionary.Remove((cell, overlay));
+		}
+
+		// Remove the other end exit as well
+		var otherCells = exitsToDelete.SelectMany(x => x.Cells).Distinct().Except(cell).ToList();
+		foreach (var other in otherCells)
+		{
+			InitialiseCell(other, null);
+			foreach (var overlay in other.Overlays) {
+				//CellExitDictionary
+			}
+		}
+
+		foreach (var exit in exitsToDelete)
+		{
+			MasterExitList.Remove(exit.Id);
 		}
 	}
 

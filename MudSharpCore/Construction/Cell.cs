@@ -1486,6 +1486,7 @@ public partial class Cell : Location, IDisposable, ICell
 
 		foreach (var ch in _characters.ToList())
 		{
+			ch.Combat?.EndCombat(true);
 			ch.Movement?.Cancel();
 			ch.Movement = null;
 			Leave(ch);
@@ -1495,6 +1496,9 @@ public partial class Cell : Location, IDisposable, ICell
 		Gameworld.SaveManager.Abort(this);
 		Gameworld.Destroy(this);
 		Gameworld.EffectScheduler.Destroy(this);
+
+
+		Gameworld.ExitManager.DeleteCell(this);
 		return () =>
 		{
 			EffectHandler.RemoveAllEffects();

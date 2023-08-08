@@ -298,6 +298,7 @@ public class Shop : SaveableItem, IShop
 	{
 		if (!_shopfrontCells.Contains(cell))
 		{
+			AddCellToStore(cell);
 			_shopfrontCells.Add(cell);
 			Changed = true;
 		}

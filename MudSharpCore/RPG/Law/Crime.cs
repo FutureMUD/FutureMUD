@@ -108,10 +108,11 @@ public class Crime : LateInitialisingItem, ICrime
 		dbitem.ConvictionRecorded = HasBeenConvicted;
 		dbitem.BailHasBeenPosted = _bailPosted;
 		dbitem.HasBeenEnforced = _hasBeenEnforced;
+		dbitem.LocationId = CrimeLocation?.Id;
 		dbitem.CriminalShortDescription = CriminalShortDescription;
 		dbitem.CriminalFullDescription = CriminalDescription;
 		dbitem.CriminalCharacteristics = _criminalCharacteristics.Select(x => $"{x.Key.Id} {x.Value.Id}")
-		                                                         .ListToCommaSeparatedValues("\n");
+																 .ListToCommaSeparatedValues("\n");
 		dbitem.WitnessIds = WitnessIds.Select(x => x.ToString()).ListToCommaSeparatedValues(" ");
 		dbitem.CalculatedBail = CalculatedBail;
 		dbitem.FineRecorded = FineRecorded;
@@ -143,7 +144,7 @@ public class Crime : LateInitialisingItem, ICrime
 			CriminalShortDescription = CriminalShortDescription,
 			CriminalFullDescription = CriminalDescription,
 			CriminalCharacteristics = _criminalCharacteristics.Select(x => $"{x.Key.Id} {x.Value.Id}")
-			                                                  .ListToCommaSeparatedValues("\n"),
+															  .ListToCommaSeparatedValues("\n"),
 			WitnessIds = WitnessIds.Select(x => x.ToString()).ListToCommaSeparatedValues(" "),
 			CalculatedBail = CalculatedBail,
 			FineRecorded = FineRecorded,
@@ -256,6 +257,7 @@ public class Crime : LateInitialisingItem, ICrime
 	private decimal _calculatedBail;
 	private decimal _fineRecorded;
 	private TimeSpan _custodialSentenceLength;
+	private ICell? _crimeLocation;
 
 	public IEnumerable<long> WitnessIds => _witnessIds;
 
@@ -317,7 +319,31 @@ public class Crime : LateInitialisingItem, ICrime
 		}
 	}
 
-	public ICell? CrimeLocation { get; set; }
+	public ICell? CrimeLocation
+	{
+		get => _crimeLocation; set
+		{
+			if (_crimeLocation is not null)
+			{
+				_crimeLocation.CellRequestsDeletion -= CrimeLocation_CellRequestsDeletion;
+			}
+			_crimeLocation = value;
+			if (_crimeLocation is not null)
+			{
+				_crimeLocation.CellRequestsDeletion -= CrimeLocation_CellRequestsDeletion;
+				_crimeLocation.CellRequestsDeletion += CrimeLocation_CellRequestsDeletion;
+			}
+		}
+	}
+
+	private void CrimeLocation_CellRequestsDeletion(object? sender, EventArgs e)
+	{
+		var cell = (ICell)sender;
+		_crimeLocation = null;
+		Changed = true;
+		cell.CellRequestsDeletion -= CrimeLocation_CellRequestsDeletion;
+	}
+
 	public string? CriminalShortDescription { get; set; }
 	public string? CriminalDescription { get; set; }
 	private readonly Dictionary<ICharacteristicDefinition, ICharacteristicValue> _criminalCharacteristics = new();
@@ -343,11 +369,11 @@ public class Crime : LateInitialisingItem, ICrime
 	public string DescribeCrime(IPerceiver voyeur)
 	{
 		var victimDesc = Victim?.HowSeen(voyeur, flags: PerceiveIgnoreFlags.IgnoreCanSee) ??
-		                 "unnamed victims".ColourCharacter();
+						 "unnamed victims".ColourCharacter();
 		var locationAddendum = CrimeLocation != null ? $" at {CrimeLocation.HowSeen(voyeur)}" : "";
 		var thirdPartyDesc = ThirdPartyId.HasValue
 			? Gameworld.GetPerceivable(ThirdPartyFrameworkItemType, ThirdPartyId.Value)
-			           .HowSeen(voyeur, flags: PerceiveIgnoreFlags.IgnoreCanSee)
+					   .HowSeen(voyeur, flags: PerceiveIgnoreFlags.IgnoreCanSee)
 			: "an unidentified thing".ColourObject();
 		switch (Law.CrimeType)
 		{

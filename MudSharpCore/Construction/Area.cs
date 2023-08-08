@@ -33,6 +33,19 @@ public class Area : Location, IEditableArea
 		IdInitialised = true;
 		Gameworld.Add(this);
 		firstRoom.AddArea(this);
+		foreach (var cell in firstRoom.Cells)
+		{
+			cell.CellRequestsDeletion -= Cell_CellRequestsDeletion;
+			cell.CellRequestsDeletion += Cell_CellRequestsDeletion;
+		}
+	}
+
+	private void Cell_CellRequestsDeletion(object sender, EventArgs e)
+	{
+		var cell = (ICell)sender;
+		_rooms.RemoveAll(x => x.Cells.Contains(cell));
+		cell.CellRequestsDeletion -= Cell_CellRequestsDeletion;
+		Changed = true;
 	}
 
 	public Area(Areas area, IFuturemud gameworld) : base(gameworld)
@@ -47,6 +60,11 @@ public class Area : Location, IEditableArea
 			var room = Gameworld.Rooms.Get(dbroom.RoomId);
 			_rooms.Add(room);
 			room.AddArea(this);
+			foreach (var cell in room.Cells)
+			{
+				cell.CellRequestsDeletion -= Cell_CellRequestsDeletion;
+				cell.CellRequestsDeletion += Cell_CellRequestsDeletion;
+			}
 		}
 	}
 
@@ -57,6 +75,11 @@ public class Area : Location, IEditableArea
 			_rooms.Add(room);
 			Changed = true;
 			room.AddArea(this);
+			foreach (var cell in room.Cells)
+			{
+				cell.CellRequestsDeletion -= Cell_CellRequestsDeletion;
+				cell.CellRequestsDeletion += Cell_CellRequestsDeletion;
+			}
 		}
 	}
 
@@ -66,12 +89,24 @@ public class Area : Location, IEditableArea
 		{
 			Changed = true;
 			room.RemoveArea(this);
+			foreach (var cell in room.Cells)
+			{
+				cell.CellRequestsDeletion -= Cell_CellRequestsDeletion;
+			}
 		}
 	}
 
 	public override void Save()
 	{
-		// TODO - actually save
+		var dbitem = FMDB.Context.Areas.Find(Id);
+		dbitem.Name = Name;
+		dbitem.WeatherControllerId = Weather?.Id;
+		FMDB.Context.AreasRooms.RemoveRange(dbitem.AreasRooms);
+		foreach (var room in _rooms)
+		{
+			dbitem.AreasRooms.Add(new AreasRooms { Area = dbitem, RoomId = room.Id });
+		}
+		
 		Changed = false;
 	}
 

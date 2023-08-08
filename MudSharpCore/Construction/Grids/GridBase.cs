@@ -40,6 +40,8 @@ public abstract class GridBase : LateInitialisingItem, IGrid
 		if (initialLocation != null)
 		{
 			_locations.Add(initialLocation);
+			initialLocation.CellRequestsDeletion -= Location_CellRequestsDeletion;
+			initialLocation.CellRequestsDeletion += Location_CellRequestsDeletion;
 		}
 	}
 
@@ -48,17 +50,25 @@ public abstract class GridBase : LateInitialisingItem, IGrid
 		Gameworld = rhs.Gameworld;
 		Gameworld.SaveManager.AddInitialisation(this);
 		_locations.AddRange(rhs.Locations);
+		foreach (var location in _locations)
+		{
+			location.CellRequestsDeletion -= Location_CellRequestsDeletion;
+			location.CellRequestsDeletion += Location_CellRequestsDeletion;
+		}
 	}
 
 	public void ExtendTo(ICell cell)
 	{
 		_locations.Add(cell);
+		cell.CellRequestsDeletion -= Location_CellRequestsDeletion;
+		cell.CellRequestsDeletion += Location_CellRequestsDeletion;
 		Changed = true;
 	}
 
 	public virtual void WithdrawFrom(ICell cell)
 	{
 		_locations.Remove(cell);
+		cell.CellRequestsDeletion -= Location_CellRequestsDeletion;
 		Changed = true;
 	}
 
@@ -66,6 +76,19 @@ public abstract class GridBase : LateInitialisingItem, IGrid
 	{
 		_locations.AddRange(_locationIds.Select(x => Gameworld.Cells.Get(x)));
 		_locationIds.Clear();
+		foreach (var location in _locations)
+		{
+			location.CellRequestsDeletion -= Location_CellRequestsDeletion;
+			location.CellRequestsDeletion += Location_CellRequestsDeletion;
+		}
+	}
+
+	private void Location_CellRequestsDeletion(object sender, EventArgs e)
+	{
+		var cell = (ICell)sender;
+		_locations.Remove(cell);
+		Changed = true;
+		cell.CellRequestsDeletion -= Location_CellRequestsDeletion;
 	}
 
 	public void Delete()

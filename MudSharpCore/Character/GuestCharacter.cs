@@ -43,6 +43,11 @@ public class GuestCharacter : Character
 				{
 					_guestLoungeCell =
 						gameworld.Cells.Get(gameworld.GetStaticLong("GuestLoungeCell"));
+					if (_guestLoungeCell is not null)
+					{
+						_guestLoungeCell.CellProposedForDeletion -= GuestLoungeCell_CellProposedForDeletion;
+						_guestLoungeCell.CellProposedForDeletion += GuestLoungeCell_CellProposedForDeletion;
+					}
 				}
 				catch (Exception)
 				{
@@ -52,6 +57,11 @@ public class GuestCharacter : Character
 
 			return _guestLoungeCell;
 		}
+	}
+
+	private static void GuestLoungeCell_CellProposedForDeletion(ICell cell, ProposalRejectionResponse response)
+	{
+		response.RejectWithReason("That room is the guest lounge cell");
 	}
 
 	public static ICharacter GetRandomGuestCharacter(IFuturemud gameworld)

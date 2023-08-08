@@ -68,6 +68,11 @@ public class PatrolRoute : SaveableItem, IPatrolRoute, IEditableItem
 		StartPatrolProg = Gameworld.FutureProgs.Get(route.StartPatrolProgId ?? 0);
 		_patrolNodes.AddRange(route.PatrolRouteNodes.OrderBy(x => x.Order)
 		                           .SelectNotNull(x => Gameworld.Cells.Get(x.CellId)));
+		foreach (var node in _patrolNodes)
+		{
+			node.CellProposedForDeletion -= Node_CellProposedForDeletion;
+			node.CellProposedForDeletion += Node_CellProposedForDeletion;
+		}
 		IsReady = route.IsReady;
 		foreach (var number in route.PatrolRouteNumbers)
 		{
@@ -75,6 +80,11 @@ public class PatrolRoute : SaveableItem, IPatrolRoute, IEditableItem
 					LegalAuthority.EnforcementAuthorities.FirstOrDefault(x => x.Id == number.EnforcementAuthorityId)] =
 				number.NumberRequired;
 		}
+	}
+
+	private void Node_CellProposedForDeletion(ICell cell, ProposalRejectionResponse response)
+	{
+		response.RejectWithReason($"That room is a patrol node for patrol route #{Id:N0} ({Name.ColourName()})");
 	}
 
 	public override string FrameworkItemType => "PatrolRoute";
@@ -115,6 +125,10 @@ public class PatrolRoute : SaveableItem, IPatrolRoute, IEditableItem
 
 	public void Delete()
 	{
+		foreach (var node in _patrolNodes)
+		{
+			node.CellProposedForDeletion -= Node_CellProposedForDeletion;
+		}
 		Gameworld.SaveManager.Abort(this);
 		using (new FMDB())
 		{
@@ -157,19 +171,19 @@ public class PatrolRoute : SaveableItem, IPatrolRoute, IEditableItem
 
 	public string HelpInfo => @"You can use the following options with this command:
 
-    name <name> - renames the patrol route
-    time <list of time of days> - sets the valid times of day
-    linger <major> <minor> - sets the linger time on major and minor patrol nodes
-    strategy <which> - sets the strategy for the patrol
-    priority <number> - sets the priority of resourcing this patrol
-    numbers <enforcement> <number> - sets the numbers of a particular enforcer type required
-    prog <prog> - sets the prog that controls whether the patrol can start
-    prog clear - clears the start prog
-    node - adds the current location as a node to the end of the list
-    node delete <#> - deletes a node
-    node swap <#1> <#2> - swaps the position of two nodes
-    node insert <#> - inserts the current location as a node at position #
-    ready - toggles whether this patrol is ready to be used";
+    #3name <name>#0 - renames the patrol route
+    #3time <list of time of days>#0 - sets the valid times of day
+    #3linger <major> <minor>#0 - sets the linger time on major and minor patrol nodes
+    #3strategy <which>#0 - sets the strategy for the patrol
+    #3priority <number>#0 - sets the priority of resourcing this patrol
+    #3numbers <enforcement> <number>#0 - sets the numbers of a particular enforcer type required
+    #3prog <prog>#0 - sets the prog that controls whether the patrol can start
+    #3prog clear#0 - clears the start prog
+    #3node#0 - adds the current location as a node to the end of the list
+    #3node delete <##>#0 - deletes a node
+    #3node swap <##1> <##2>#0 - swaps the position of two nodes
+    #3node insert <##>#0 - inserts the current location as a node at position #
+    #3ready#0 - toggles whether this patrol is ready to be used";
 
 	public bool BuildingCommand(ICharacter actor, StringStack command)
 	{
@@ -198,7 +212,7 @@ public class PatrolRoute : SaveableItem, IPatrolRoute, IEditableItem
 				actor.OutputHandler.Send(Show(actor));
 				return true;
 			default:
-				actor.OutputHandler.Send(HelpInfo);
+				actor.OutputHandler.Send(HelpInfo.SubstituteANSIColour());
 				return false;
 		}
 	}
@@ -266,6 +280,8 @@ public class PatrolRoute : SaveableItem, IPatrolRoute, IEditableItem
 			}
 
 			_patrolNodes.Add(actor.Location);
+			actor.Location.CellProposedForDeletion -= Node_CellProposedForDeletion;
+			actor.Location.CellProposedForDeletion += Node_CellProposedForDeletion;
 			actor.OutputHandler.Send(
 				$"You add your current location ({actor.Location.HowSeen(actor)}) as a major node for the {Name.ColourName()} patrol.");
 			if (_patrolNodes.Count >= 2)
@@ -352,6 +368,8 @@ public class PatrolRoute : SaveableItem, IPatrolRoute, IEditableItem
 		if (command.IsFinished && _patrolNodes.Contains(actor.Location))
 		{
 			_patrolNodes.Remove(actor.Location);
+			actor.Location.CellProposedForDeletion -= Node_CellProposedForDeletion;
+			actor.Location.CellProposedForDeletion += Node_CellProposedForDeletion;
 			Changed = true;
 			actor.OutputHandler.Send(
 				$"You remove your current location ({actor.Location.HowSeen(actor)}) from the list of patrol nodes.");
@@ -372,6 +390,8 @@ public class PatrolRoute : SaveableItem, IPatrolRoute, IEditableItem
 		}
 
 		_patrolNodes.Remove(location);
+		actor.Location.CellProposedForDeletion -= Node_CellProposedForDeletion;
+		actor.Location.CellProposedForDeletion += Node_CellProposedForDeletion;
 		Changed = true;
 		actor.OutputHandler.Send(
 			$"You remove the location {actor.Location.HowSeen(actor)} from the list of patrol nodes.");

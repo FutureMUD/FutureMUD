@@ -247,7 +247,7 @@ public partial class LegalAuthority : SaveableItem, ILegalAuthority
 		if (result.CustodialSentence > MudTimeSpan.Zero)
 		{
 			var servingEffect = criminal.EffectsOfType<ServingCustodialSentence>(x => x.LegalAuthority == this)
-			                            .FirstOrDefault();
+										.FirstOrDefault();
 			if (servingEffect == null)
 			{
 				servingEffect = new ServingCustodialSentence(criminal, this, result.CustodialSentence,
@@ -286,10 +286,10 @@ public partial class LegalAuthority : SaveableItem, ILegalAuthority
 		if (AutomaticallyConvict)
 		{
 			foreach (var criminal in KnownCrimes.Where(x => x.EligableForAutomaticConviction()).Select(x => x.Criminal)
-			                                    .Distinct())
+												.Distinct())
 			{
 				var awaitingEffect = criminal.EffectsOfType<AwaitingSentencing>(x => x.LegalAuthority == this)
-				                             .FirstOrDefault();
+											 .FirstOrDefault();
 				if (awaitingEffect is null)
 				{
 					continue;
@@ -330,7 +330,7 @@ public partial class LegalAuthority : SaveableItem, ILegalAuthority
 				if (result.CustodialSentence > MudTimeSpan.Zero)
 				{
 					var servingEffect = criminal.EffectsOfType<ServingCustodialSentence>(x => x.LegalAuthority == this)
-					                            .FirstOrDefault();
+												.FirstOrDefault();
 					if (servingEffect == null)
 					{
 						servingEffect = new ServingCustodialSentence(criminal, this, result.CustodialSentence,
@@ -347,7 +347,7 @@ public partial class LegalAuthority : SaveableItem, ILegalAuthority
 				if (result.GoodBehaviourBondLength > MudTimeSpan.Zero)
 				{
 					var bondEffect = criminal.EffectsOfType<GoodBehaviourBond>(x => x.Authority == this)
-					                         .FirstOrDefault();
+											 .FirstOrDefault();
 					if (bondEffect is null)
 					{
 						bondEffect = new GoodBehaviourBond(criminal, this, result.GoodBehaviourBondLength);
@@ -666,7 +666,7 @@ public partial class LegalAuthority : SaveableItem, ILegalAuthority
 		foreach (var cell in JailLocations)
 		{
 			dbitem.LegalAuthorityJailCells.Add(new LegalAuthorityJailCell
-				{ LegalAuthority = dbitem, CellId = cell.Id });
+			{ LegalAuthority = dbitem, CellId = cell.Id });
 		}
 
 		FMDB.Context.LegalAuthoritiesZones.RemoveRange(dbitem.LegalAuthoritiesZones);
@@ -700,19 +700,19 @@ public partial class LegalAuthority : SaveableItem, ILegalAuthority
 			}
 
 			if (law.DoNotAutomaticallyApplyRepeats && _unknownCrimesLookup[criminal.Id]
-			                                          .Concat(_knownCrimesLookup[criminal.Id]).Any(x =>
-				                                          x.Victim == victim &&
-				                                          (x.ThirdPartyId == item?.Id ||
-				                                           x.ThirdPartyFrameworkItemType != "item") &&
-				                                          x.CrimeLocation == criminal.Location &&
-				                                          DateTime.UtcNow - x.RealTimeOfCrime < TimeSpan.FromMinutes(10)
-			                                          ))
+													  .Concat(_knownCrimesLookup[criminal.Id]).Any(x =>
+														  x.Victim == victim &&
+														  (x.ThirdPartyId == item?.Id ||
+														   x.ThirdPartyFrameworkItemType != "item") &&
+														  x.CrimeLocation == criminal.Location &&
+														  DateTime.UtcNow - x.RealTimeOfCrime < TimeSpan.FromMinutes(10)
+													  ))
 			{
 				continue;
 			}
 
 			var witnesses = criminal.Location.LayerCharacters(criminal.RoomLayer).Except(criminal)
-			                        .Where(x => x.CanSee(criminal)).ToList();
+									.Where(x => x.CanSee(criminal)).ToList();
 			var newCrime = new Crime(criminal, victim, witnesses, law);
 			_unknownCrimes.Add(newCrime);
 			_unknownCrimesLookup.Add(criminal.Id, newCrime);
@@ -764,7 +764,7 @@ public partial class LegalAuthority : SaveableItem, ILegalAuthority
 	public IEnforcementAuthority GetEnforcementAuthority(ICharacter character)
 	{
 		return _enforcementAuthorities.OrderByDescending(x => x.Priority)
-		                              .FirstOrDefault(x => x.HasAuthority(character));
+									  .FirstOrDefault(x => x.HasAuthority(character));
 	}
 
 	public void AccuseCrime(ICrime crime)
@@ -812,13 +812,13 @@ public partial class LegalAuthority : SaveableItem, ILegalAuthority
 			var failures = RandomUtilities.ConsecutiveRoll(1.0, 1.0 - reliability,
 				crime.Criminal.CharacteristicDefinitions.Count());
 			var flubbedDetails = RandomUtilities.Shuffle(crime.Criminal.CharacteristicDefinitions).Take(failures)
-			                                    .ToList();
+												.ToList();
 			var actualDetails =
 				crime.Criminal.CharacteristicDefinitions.Select(x => crime.Criminal.GetCharacteristic(x, witness));
 			foreach (var detail in actualDetails)
 			{
 				if (!crime.CriminalCharacteristics.ContainsKey(detail.Definition) ||
-				    crime.CriminalCharacteristics[detail.Definition] != detail)
+					crime.CriminalCharacteristics[detail.Definition] != detail)
 				{
 					if (!crime.CriminalCharacteristics.ContainsKey(detail.Definition))
 					{
@@ -826,7 +826,7 @@ public partial class LegalAuthority : SaveableItem, ILegalAuthority
 						{
 							crime.SetCharacteristicValue(detail.Definition,
 								Gameworld.CharacteristicValues.Where(x => x.Definition == detail.Definition)
-								         .GetRandomElement());
+										 .GetRandomElement());
 							continue;
 						}
 
@@ -847,7 +847,7 @@ public partial class LegalAuthority : SaveableItem, ILegalAuthority
 		Changed = true;
 
 		if (_knownCrimes.Contains(crime))
-			// Only solidify identity and/or correct reliability
+		// Only solidify identity and/or correct reliability
 		{
 			return;
 		}
@@ -856,7 +856,7 @@ public partial class LegalAuthority : SaveableItem, ILegalAuthority
 		_unknownCrimes.Remove(crime);
 		_staleCrimes.Remove(crime);
 		crime.TimeOfReport = crime.CrimeLocation?.DateTime() ??
-		                     witness.Location?.DateTime() ?? EnforcementZones.First().DateTime();
+							 witness.Location?.DateTime() ?? EnforcementZones.First().DateTime();
 		if (crime.AccuserId == null)
 		{
 			crime.AccuserId = witness?.Id;
@@ -887,14 +887,227 @@ public partial class LegalAuthority : SaveableItem, ILegalAuthority
 	public IBankAccount BankAccount { get; set; }
 	public bool AutomaticallyConvict { get; set; }
 	public TimeSpan AutomaticConvictionTime { get; set; }
-	public ICell PreparingLocation { get; set; }
-	public ICell MarshallingLocation { get; set; }
-	public ICell EnforcerStowingLocation { get; set; }
-	public ICell PrisonLocation { get; set; }
-	public ICell PrisonReleaseLocation { get; set; }
-	public ICell PrisonerBelongingsStorageLocation { get; set; }
-	public ICell JailLocation { get; set; }
-	public ICell CourtLocation { get; set; }
+	public ICell PreparingLocation
+	{
+		get
+		{
+			return _preparingLocation;
+		}
+
+		set
+		{
+			if (_preparingLocation is not null)
+			{
+				_preparingLocation.CellProposedForDeletion -= PreparingLocation_CellProposedForDeletion;
+			}
+			_preparingLocation = value;
+			if (_preparingLocation is not null)
+			{
+				_preparingLocation.CellProposedForDeletion -= PreparingLocation_CellProposedForDeletion;
+				_preparingLocation.CellProposedForDeletion += PreparingLocation_CellProposedForDeletion;
+			}
+		}
+	}
+
+	private void PreparingLocation_CellProposedForDeletion(ICell cell, ProposalRejectionResponse response)
+	{
+		response.RejectWithReason($"That cell is a preparing location for patrols in Legal Authority #{Id:N0} ({Name.ColourName()})");
+	}
+
+	public ICell MarshallingLocation
+	{
+		get
+		{
+			return _marshallingLocation;
+		}
+
+		set
+		{
+			if (_marshallingLocation is not null)
+			{
+				_marshallingLocation.CellProposedForDeletion -= MarshallingLocation_CellProposedForDeletion;
+			}
+			_marshallingLocation = value;
+			if (value is not null)
+			{
+				value.CellProposedForDeletion -= MarshallingLocation_CellProposedForDeletion;
+				value.CellProposedForDeletion += MarshallingLocation_CellProposedForDeletion;
+			}
+		}
+	}
+
+
+	private void MarshallingLocation_CellProposedForDeletion(ICell cell, ProposalRejectionResponse response)
+	{
+		response.RejectWithReason($"That cell is a marshalling location for patrols in Legal Authority #{Id:N0} ({Name.ColourName()})");
+	}
+
+	public ICell EnforcerStowingLocation
+	{
+		get
+		{
+			return _enforcerStowingLocation;
+		}
+
+		set
+		{
+			if (_enforcerStowingLocation is not null)
+			{
+				_enforcerStowingLocation.CellProposedForDeletion -= EnforcerStowingLocation_CellProposedForDeletion;
+			}
+			_enforcerStowingLocation = value;
+			if (value is not null)
+			{
+				value.CellProposedForDeletion -= EnforcerStowingLocation_CellProposedForDeletion;
+				value.CellProposedForDeletion += EnforcerStowingLocation_CellProposedForDeletion;
+			}
+		}
+	}
+
+
+	private void EnforcerStowingLocation_CellProposedForDeletion(ICell cell, ProposalRejectionResponse response)
+	{
+		response.RejectWithReason($"That cell is an enforcer stowing location for patrols in Legal Authority #{Id:N0} ({Name.ColourName()})");
+	}
+
+	public ICell PrisonLocation
+	{
+		get
+		{
+			return _prisonLocation;
+		}
+
+		set
+		{
+			if (_prisonLocation is not null)
+			{
+				_prisonLocation.CellProposedForDeletion -= PrisonLocation_CellProposedForDeletion;
+			}
+			_prisonLocation = value;
+			if (value is not null)
+			{
+				value.CellProposedForDeletion -= PrisonLocation_CellProposedForDeletion;
+				value.CellProposedForDeletion += PrisonLocation_CellProposedForDeletion;
+			}
+		}
+	}
+
+
+	private void PrisonLocation_CellProposedForDeletion(ICell cell, ProposalRejectionResponse response)
+	{
+		response.RejectWithReason($"That cell is a prison location for patrols in Legal Authority #{Id:N0} ({Name.ColourName()})");
+	}
+
+	public ICell PrisonReleaseLocation
+	{
+		get
+		{
+			return _prisonReleaseLocation;
+		}
+
+		set
+		{
+			if (_prisonReleaseLocation is not null)
+			{
+				_prisonReleaseLocation.CellProposedForDeletion -= PrisonReleaseLocation_CellProposedForDeletion;
+			}
+			_prisonReleaseLocation = value;
+			if (value is not null)
+			{
+				value.CellProposedForDeletion -= PrisonReleaseLocation_CellProposedForDeletion;
+				value.CellProposedForDeletion += PrisonReleaseLocation_CellProposedForDeletion;
+			}
+		}
+	}
+
+
+	private void PrisonReleaseLocation_CellProposedForDeletion(ICell cell, ProposalRejectionResponse response)
+	{
+		response.RejectWithReason($"That cell is a prison release location for patrols in Legal Authority #{Id:N0} ({Name.ColourName()})");
+	}
+
+	public ICell PrisonerBelongingsStorageLocation
+	{
+		get
+		{
+			return _prisonerBelongingsStorageLocation;
+		}
+
+		set
+		{
+			if (_prisonerBelongingsStorageLocation is not null)
+			{
+				_prisonerBelongingsStorageLocation.CellProposedForDeletion -= PrisonerBelongingsLocation_CellProposedForDeletion;
+			}
+			_prisonerBelongingsStorageLocation = value;
+			if (value is not null)
+			{
+				value.CellProposedForDeletion -= PrisonerBelongingsLocation_CellProposedForDeletion;
+				value.CellProposedForDeletion += PrisonerBelongingsLocation_CellProposedForDeletion;
+			}
+		}
+	}
+
+
+	private void PrisonerBelongingsLocation_CellProposedForDeletion(ICell cell, ProposalRejectionResponse response)
+	{
+		response.RejectWithReason($"That cell is a prison belongings location for patrols in Legal Authority #{Id:N0} ({Name.ColourName()})");
+	}
+
+	public ICell JailLocation
+	{
+		get
+		{
+			return _jailLocation;
+		}
+
+		set
+		{
+			if (_jailLocation is not null)
+			{
+				_jailLocation.CellProposedForDeletion -= JailLocation_CellProposedForDeletion;
+			}
+			_jailLocation = value;
+			if (value is not null)
+			{
+				value.CellProposedForDeletion -= JailLocation_CellProposedForDeletion;
+				value.CellProposedForDeletion += JailLocation_CellProposedForDeletion;
+			}
+		}
+	}
+
+
+	private void JailLocation_CellProposedForDeletion(ICell cell, ProposalRejectionResponse response)
+	{
+		response.RejectWithReason($"That cell is a jail location for patrols in Legal Authority #{Id:N0} ({Name.ColourName()})");
+	}
+
+	public ICell CourtLocation
+	{
+		get
+		{
+			return _courtLocation;
+		}
+
+		set
+		{
+			if (_courtLocation is not null)
+			{
+				_courtLocation.CellProposedForDeletion -= CourtLocation_CellProposedForDeletion;
+			}
+			_courtLocation = value;
+			if (value is not null)
+			{
+				value.CellProposedForDeletion -= CourtLocation_CellProposedForDeletion;
+				value.CellProposedForDeletion += CourtLocation_CellProposedForDeletion;
+			}
+		}
+	}
+
+	private void CourtLocation_CellProposedForDeletion(ICell cell, ProposalRejectionResponse response)
+	{
+		response.RejectWithReason($"That cell is a court location for patrols in Legal Authority #{Id:N0} ({Name.ColourName()})");
+	}
 
 	public IFutureProg OnPrisonerHeld { get; set; }
 	public IFutureProg OnPrisonerImprisoned { get; set; }
@@ -910,6 +1123,15 @@ public partial class LegalAuthority : SaveableItem, ILegalAuthority
 	public IPatrolController PatrolController { get; }
 
 	private readonly List<IPatrol> _patrols = new();
+	private ICell _preparingLocation;
+	private ICell _marshallingLocation;
+	private ICell _enforcerStowingLocation;
+	private ICell _prisonLocation;
+	private ICell _prisonReleaseLocation;
+	private ICell _prisonerBelongingsStorageLocation;
+	private ICell _jailLocation;
+	private ICell _courtLocation;
+
 	public IEnumerable<IPatrol> Patrols => _patrols;
 
 	public void AddPatrol(IPatrol patrol)

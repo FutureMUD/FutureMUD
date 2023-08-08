@@ -92,6 +92,8 @@ namespace MudSharp.Form.Characteristics {
         /// <returns></returns>
         bool IsDefaultValue(ICharacteristicValue value);
 
+        ICharacteristicValue GetRandomValue();
+
         /// <summary>
         ///     Sets the default parameter
         /// </summary>

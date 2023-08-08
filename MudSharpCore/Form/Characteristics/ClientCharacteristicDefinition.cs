@@ -31,11 +31,6 @@ public class ClientCharacteristicDefinition : CharacteristicDefinition
 
 	public override ICharacteristicDefinition Parent => _parent;
 
-	public override bool IsValue(ICharacteristicValue value)
-	{
-		return value != null && (value.Definition == this || (Parent?.IsValue(value) ?? false));
-	}
-
 	public override string HelpText => $@"{base.HelpText}
 	parent <other> - sets the parent of this definition";
 

@@ -140,7 +140,7 @@ public class MoneyProduct : BaseProduct
 
 		if (Currency == null)
 		{
-			actor.OutputHandler.Send("You shoudl set a currency first, before you set an amount.");
+			actor.OutputHandler.Send("You should set a currency first, before you set an amount.");
 			return false;
 		}
 

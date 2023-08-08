@@ -19,25 +19,26 @@ namespace MudSharp.PerceptionEngine.Lists;
 /// <summary>
 /// A group of perceivables that are somehow related and should be grouped together in an emote. Warning, do not use this class outside the context of emotes.
 /// </summary>
-public class PerceivableGroup : TemporaryPerceivable
+public class PerceivableGroup : TemporaryPerceivable, IPerceivableGroup
 {
-	public List<IPerceivable> Members { get; } = new();
+	private readonly List<IPerceivable> _members = new();
+	public IEnumerable<IPerceivable> Members => _members;
 
 	public PerceivableGroup(IEnumerable<IPerceivable> members)
 	{
-		Members.AddRange(members);
+		_members.AddRange(members);
 	}
 
 	public override bool IsSelf(IPerceivable other)
 	{
-		return Members.Any(x => x.IsSelf(other));
+		return _members.Any(x => x.IsSelf(other));
 	}
 
-	public override bool Sentient => Members.Any(x => x.Sentient);
+	public override bool Sentient => _members.Any(x => x.Sentient);
 
-	public override double IlluminationProvided => Members.Sum(x => x.IlluminationProvided);
+	public override double IlluminationProvided => _members.Sum(x => x.IlluminationProvided);
 
-        public SizeCategory Size => Members.Max(x => x.Size).Stage(1);
+        public SizeCategory Size => _members.Max(x => x.Size).Stage(1);
 
         public override string HowSeen(IPerceiver voyeur, bool proper = false, DescriptionType type = DescriptionType.Short, bool colour = true, PerceiveIgnoreFlags flags = PerceiveIgnoreFlags.None)
         {
@@ -50,7 +51,7 @@ public class PerceivableGroup : TemporaryPerceivable
                     throw new ApplicationException("PerceivableGroups should not be used for any types of descriptions other than Short or Possessive.");
             }
 
-		var seenMembers = Members.Where(x => voyeur.CanSee(x, flags)).ToList();
+		var seenMembers = _members.Where(x => voyeur.CanSee(x, flags)).ToList();
 		if (!seenMembers.Any())
 		{
 			return "something";
@@ -61,7 +62,7 @@ public class PerceivableGroup : TemporaryPerceivable
 
 	public override IEnumerable<string> GetKeywordsFor(IPerceiver voyeur)
 	{
-		return Members.SelectMany(x => x.GetKeywordsFor(voyeur)).Distinct();
+		return _members.SelectMany(x => x.GetKeywordsFor(voyeur)).Distinct();
 	}
 
 	public override bool HasKeyword(string targetKeyword, IPerceiver voyeur, bool abbreviated = false)
@@ -83,26 +84,26 @@ public class PerceivableGroup : TemporaryPerceivable
 	public override bool HiddenFromPerception(IPerceiver voyeur, PerceptionTypes type,
 		PerceiveIgnoreFlags flags = PerceiveIgnoreFlags.None)
 	{
-		return Members.All(x => x.HiddenFromPerception(voyeur, type, flags));
+		return _members.All(x => x.HiddenFromPerception(voyeur, type, flags));
 	}
 
 	public override PerceptionTypes GetPerception(PerceptionTypes type)
 	{
-		return Members.Select(x => x.GetPerception(type)).Aggregate((x, y) => x | y);
+		return _members.Select(x => x.GetPerception(type)).Aggregate((x, y) => x | y);
 	}
 
 	public override bool HiddenFromPerception(PerceptionTypes type,
 		PerceiveIgnoreFlags flags = PerceiveIgnoreFlags.None)
 	{
-		return Members.All(x => x.HiddenFromPerception(type, flags));
+		return _members.All(x => x.HiddenFromPerception(type, flags));
 	}
 
-	public override ICell Location => Members.First().Location;
+	public override ICell Location => _members.First().Location;
 
 	/// <inheritdoc />
 	public override IEnumerable<(IPerceivable Thing, Proximity Proximity)> LocalThingsAndProximities()
 	{
-		var things = Members.SelectMany(x => x.LocalThingsAndProximities()).ToLookup(x => x.Thing);
+		var things = _members.SelectMany(x => x.LocalThingsAndProximities()).ToLookup(x => x.Thing);
 		foreach (var thing in things)
 		{
 			yield return (thing.Key, thing.Min(x => x.Proximity));

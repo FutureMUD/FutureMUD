@@ -80,8 +80,10 @@ namespace MudSharp.FutureProg {
         double ExecuteDouble(double defaultIfNull, params object[] variables);
         int ExecuteInt(params object[] variables);
         int ExecuteInt(int defaultIfNull, params object[] variables);
+		long ExecuteLong(params object[] variables);
+		long ExecuteLong(long defaultIfNull, params object[] variables);
 
-        bool Compile();
+		bool Compile();
 
         string MXPClickableFunctionName();
         string MXPClickableFunctionNameWithId();

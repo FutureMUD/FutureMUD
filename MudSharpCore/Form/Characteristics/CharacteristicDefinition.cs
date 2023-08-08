@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Xml.Linq;
@@ -100,11 +101,22 @@ public class CharacteristicDefinition : FrameworkItem, ICharacteristicDefinition
 		DefaultValue = theDefault;
 	}
 
+	public ICharacteristicValue GetRandomValue()
+	{
+		return Gameworld.CharacteristicValues.Where(x => IsValue(x)).GetRandomElement();
+	}
+
 	public Regex Pattern { get; protected set; }
 
-	public virtual bool IsValue(ICharacteristicValue value)
+	public bool IsValue(ICharacteristicValue value)
 	{
-		return value != null && value.Definition == this;
+		return 
+			value != null && 
+			(
+				value.Definition == this ||
+				Parent?.IsValue(value) == true
+			)
+			;
 	}
 
 	public virtual ICharacteristicDefinition Parent => null;

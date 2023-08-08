@@ -62,11 +62,6 @@ public class BodypartSpecificClientCharacteristicDefinition : CharacteristicDefi
 		base.Save();
 	}
 
-	public override bool IsValue(ICharacteristicValue value)
-	{
-		return value != null && (value.Definition == this || (Parent?.IsValue(value) ?? false));
-	}
-
 	public override string HelpText => $@"{base.HelpText}
 	shape <shape> - sets the bodypart shape to tie to
 	count <#> - sets the expected number of bodyparts for normal circumstances";

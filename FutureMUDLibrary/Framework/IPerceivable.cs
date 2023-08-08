@@ -15,8 +15,9 @@ using MudSharp.Body.Position;
 using MudSharp.Character;
 using MudSharp.GameItems;
 
-namespace MudSharp.Framework {
-    public delegate void PerceivableEvent(IPerceivable owner);
+namespace MudSharp.Framework
+{
+	public delegate void PerceivableEvent(IPerceivable owner);
 
     public class PerceivableRejectionResponse {
         public bool Rejected { get; set; }

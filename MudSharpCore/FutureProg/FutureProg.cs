@@ -331,6 +331,26 @@ public class FutureProg : SaveableItem, IFutureProg
 		return (int?)(decimal?)Execute(variables) ?? defaultIfNull;
 	}
 
+	public long ExecuteLong(params object[] variables)
+	{
+		if (ReturnType != FutureProgVariableTypes.Number)
+		{
+			return 0L;
+		}
+
+		return (long?)(decimal?)Execute(variables) ?? 0L;
+	}
+
+	public long ExecuteLong(long defaultIfNull, params object[] variables)
+	{
+		if (ReturnType != FutureProgVariableTypes.Number)
+		{
+			return defaultIfNull;
+		}
+
+		return (long?)(decimal?)Execute(variables) ?? defaultIfNull;
+	}
+
 	private object _staticReturnValue;
 	private bool _staticValueSet;
 

@@ -80,10 +80,7 @@ public class SimpleVariableProduct : SimpleProduct
 			return false;
 		}
 
-		var definition = long.TryParse(command.SafeRemainingArgument, out var value)
-			? Gameworld.Characteristics.Get(value)
-			: Gameworld.Characteristics.GetByName(command.SafeRemainingArgument);
-
+		var definition = Gameworld.Characteristics.GetByIdOrName(command.PopSpeech());
 		if (definition == null)
 		{
 			actor.OutputHandler.Send("There is no such characteristic definition.");

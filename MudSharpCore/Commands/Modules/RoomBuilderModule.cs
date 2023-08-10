@@ -209,12 +209,12 @@ There is also a universal optional argument which must come first in the form of
 
 		if (ss.IsFinished)
 		{
-			actor.OutputHandler.Send($@"Are you sure that you want to delete the cell that you're currently in? This action is irreversible and can have major unanticipated effects, including:
+			actor.OutputHandler.Send($@"Are you sure that you want to delete the cell that you're currently in? #1This action is irreversible and can have major unanticipated effects#0, including:
 
 	1) All items and characters in the room (including those not logged in) will be moved to another room.
 	2) There are potentially parts of the code that reference this room indirectly that may not be updated
 
-{Accept.StandardAcceptPhrasing}");
+{Accept.StandardAcceptPhrasing}".SubstituteANSIColour());
 
 			var location = actor.Location;
 
@@ -235,9 +235,9 @@ There is also a universal optional argument which must come first in the form of
 						return;
 					}
 
-					var fallback = location.Zone.Rooms.FirstOrDefault(x => x != location)?.Cells.First() ??
-					location.Shard.Rooms.FirstOrDefault(x => x != location)?.Cells.First() ??
-					actor.Gameworld.Rooms.FirstOrDefault(x => x != location)?.Cells.First();
+					var fallback = location.Zone.Rooms.FirstOrDefault(x => x != location.Room)?.Cells.First() ??
+					location.Shard.Rooms.FirstOrDefault(x => x != location.Room)?.Cells.First() ??
+					actor.Gameworld.Rooms.FirstOrDefault(x => x != location.Room)?.Cells.First();
 					if (fallback is null)
 					{
 						actor.OutputHandler.Send("You can't delete that location because there would be no fallback. There must always be a fallback room.");
@@ -256,6 +256,7 @@ There is also a universal optional argument which must come first in the form of
 				DescriptionString = "Deleting a room",
 				Keywords = new List<string> { "delete", "room", "cell", "location" }
 			}), TimeSpan.FromSeconds(120));
+			return;
 		}
 
 		// TODO

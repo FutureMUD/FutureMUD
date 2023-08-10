@@ -268,13 +268,15 @@ public class ExitManager : IExitManager, IHaveFuturemud
 		{
 			InitialiseCell(other, null);
 			foreach (var overlay in other.Overlays) {
-				//CellExitDictionary
+				CellExitDictionary.RemoveAll((other, overlay), x => x.Cells.Contains(cell));
 			}
 		}
 
+		// Delete the exits
 		foreach (var exit in exitsToDelete)
 		{
 			MasterExitList.Remove(exit.Id);
+			exit.Delete();
 		}
 	}
 

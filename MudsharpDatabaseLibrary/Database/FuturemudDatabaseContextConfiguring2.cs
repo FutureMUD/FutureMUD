@@ -1885,13 +1885,13 @@ namespace MudSharp.Database
                 entity.HasOne(e => e.EconomicZone)
                     .WithMany(e => e.ConveyancingLocations)
                     .HasForeignKey(e => e.EconomicZoneId)
-                    .OnDelete(DeleteBehavior.ClientCascade)
+                    .OnDelete(DeleteBehavior.Cascade)
                     .HasConstraintName("FK_ConveyancingLocations_EconomicZones");
 
                 entity.HasOne(e => e.Cell)
                     .WithMany()
                     .HasForeignKey(e => e.CellId)
-                    .OnDelete(DeleteBehavior.ClientCascade)
+                    .OnDelete(DeleteBehavior.Cascade)
                     .HasConstraintName("FK_ConveyancingLocations_Cells");
             });
 
@@ -1905,13 +1905,13 @@ namespace MudSharp.Database
                 entity.HasOne(e => e.EconomicZone)
                     .WithMany(e => e.JobFindingLocations)
                     .HasForeignKey(e => e.EconomicZoneId)
-                    .OnDelete(DeleteBehavior.ClientCascade)
+                    .OnDelete(DeleteBehavior.Cascade)
                     .HasConstraintName("FK_JobFindingLocations_EconomicZones");
 
                 entity.HasOne(e => e.Cell)
                     .WithMany()
                     .HasForeignKey(e => e.CellId)
-                    .OnDelete(DeleteBehavior.ClientCascade)
+                    .OnDelete(DeleteBehavior.Cascade)
                     .HasConstraintName("FK_JobFindingLocations_Cells");
             });
 

@@ -1167,13 +1167,13 @@ namespace MudSharp.Database
                 entity.HasOne(e => e.Property)
                     .WithMany(e => e.PropertyKeys)
                     .HasForeignKey(e => e.PropertyId)
-                    .OnDelete(DeleteBehavior.ClientCascade)
+                    .OnDelete(DeleteBehavior.Cascade)
                     .HasConstraintName("FK_PropertyKeys_Property");
 
                 entity.HasOne(e => e.GameItem)
                     .WithMany()
                     .HasForeignKey(e => e.GameItemId)
-                    .OnDelete(DeleteBehavior.ClientCascade)
+                    .OnDelete(DeleteBehavior.Cascade)
                     .HasConstraintName("FK_PropertyKeys_GameItems");
 
             });

@@ -349,6 +349,29 @@ public class Exit : PerceivedItem, IExit
 		return new Exit(this);
 	}
 
+	public void Delete()
+	{
+		Gameworld.SaveManager.Abort(this);
+		if (_id != 0)
+		{
+			using (new FMDB())
+			{
+				if (Door is not null)
+				{
+					Door.Parent.Delete();
+				}
+
+				Gameworld.SaveManager.Flush();
+				var dbitem = FMDB.Context.Exits.Find(Id);
+				if (dbitem != null)
+				{
+					FMDB.Context.Exits.Remove(dbitem);
+					FMDB.Context.SaveChanges();
+				}
+			}
+		}
+	}
+
 	public override void Save()
 	{
 		using (new FMDB())

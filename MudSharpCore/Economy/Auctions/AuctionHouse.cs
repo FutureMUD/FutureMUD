@@ -137,6 +137,7 @@ public class AuctionHouse : SaveableItem, IAuctionHouse
 		_id = dbitem.Id;
 		_name = dbitem.Name;
 		AuctionHouseCell = Gameworld.Cells.Get(dbitem.AuctionHouseCellId);
+		AuctionHouseCell.CellProposedForDeletion += Cell_CellProposedForDeletion;
 		ProfitsBankAccount = Gameworld.BankAccounts.Get(dbitem.ProfitsBankAccountId);
 		AuctionListingFeeFlat = dbitem.AuctionListingFeeFlat;
 		AuctionListingFeeRate = dbitem.AuctionListingFeeRate;
@@ -405,7 +406,7 @@ public class AuctionHouse : SaveableItem, IAuctionHouse
 
 		actor.OutputHandler.Send(@"You can use the following options for this command:
 
-#3auction set name <name>#0 - renames the auction house
+  #3auction set name <name>#0 - renames the auction house
   #3auction set economiczone <which>#0 - changes the economic zone
   #3auction set fee <amount>#0 - sets the flat fee for listing an item
   #3auction set rate <%>#0 - sets the percentage fee for listing an item

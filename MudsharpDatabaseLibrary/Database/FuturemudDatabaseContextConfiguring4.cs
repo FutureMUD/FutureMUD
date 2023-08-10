@@ -98,13 +98,13 @@ namespace MudSharp.Database
                 entity.HasOne(e => e.JobListing)
                     .WithMany(e => e.ActiveJobs)
                     .HasForeignKey(e => e.JobListingId)
-                    .OnDelete(DeleteBehavior.ClientCascade)
+                    .OnDelete(DeleteBehavior.Cascade)
                     .HasConstraintName("FK_ActiveJobs_JobListings");
 
                 entity.HasOne(e => e.Character)
                     .WithMany(e => e.ActiveJobs)
                     .HasForeignKey(e => e.CharacterId)
-                    .OnDelete(DeleteBehavior.ClientCascade)
+                    .OnDelete(DeleteBehavior.Cascade)
                     .HasConstraintName("FK_ActiveJobs_Characters");
 
                 entity.HasOne(e => e.ActiveProject)
@@ -188,7 +188,7 @@ namespace MudSharp.Database
                 entity.HasOne(e => e.EconomicZone)
                     .WithMany(e => e.JobListings)
                     .HasForeignKey(e => e.EconomicZoneId)
-                    .OnDelete(DeleteBehavior.ClientCascade)
+                    .OnDelete(DeleteBehavior.Cascade)
                     .HasConstraintName("FK_JobListings_EconomicZones");
                 entity.HasOne(e => e.Rank)
                     .WithMany()
@@ -2359,42 +2359,42 @@ namespace MudSharp.Database
                     .WithMany(e => e.BankAccounts)
                     .HasForeignKey(e => e.BankId)
                     .HasConstraintName("FK_BankAccounts_Banks")
-                    .OnDelete(DeleteBehavior.ClientCascade);
+                    .OnDelete(DeleteBehavior.Cascade);
 
                 entity
                     .HasOne(e => e.BankAccountType)
                     .WithMany()
                     .HasForeignKey(e => e.BankAccountTypeId)
                     .HasConstraintName("FK_BankAccounts_BankAccountTypes")
-                    .OnDelete(DeleteBehavior.ClientCascade);
+                    .OnDelete(DeleteBehavior.Cascade);
 
                 entity
                     .HasOne(e => e.AccountOwnerCharacter)
                     .WithMany()
                     .HasForeignKey(e => e.AccountOwnerCharacterId)
                     .HasConstraintName("FK_BankAccounts_Characters")
-                    .OnDelete(DeleteBehavior.ClientCascade);
+                    .OnDelete(DeleteBehavior.Cascade);
 
                 entity
                     .HasOne(e => e.AccountOwnerClan)
                     .WithMany()
                     .HasForeignKey(e => e.AccountOwnerClanId)
                     .HasConstraintName("FK_BankAccounts_Clans")
-                    .OnDelete(DeleteBehavior.ClientCascade);
+                    .OnDelete(DeleteBehavior.Cascade);
 
                 entity
                     .HasOne(e => e.AccountOwnerShop)
                     .WithMany()
                     .HasForeignKey(e => e.AccountOwnerShopId)
                     .HasConstraintName("FK_BankAccounts_Shops")
-                    .OnDelete(DeleteBehavior.ClientCascade);
+                    .OnDelete(DeleteBehavior.Cascade);
 
                 entity
                     .HasOne(e => e.NominatedBenefactorAccount)
                     .WithMany()
                     .HasForeignKey(e => e.NominatedBenefactorAccountId)
                     .HasConstraintName("FK_BankAccounts_BankAccounts")
-                    .OnDelete(DeleteBehavior.ClientCascade);
+                    .OnDelete(DeleteBehavior.Cascade);
             });
 
             modelBuilder.Entity<BankAccountType>(entity =>
@@ -2441,31 +2441,31 @@ namespace MudSharp.Database
                     .WithMany(e => e.BankAccountTypes)
                     .HasForeignKey(e => e.BankId)
                     .HasConstraintName("FK_BankAccountTypes_Banks")
-                    .OnDelete(DeleteBehavior.ClientCascade); ;
+                    .OnDelete(DeleteBehavior.Cascade); ;
                 entity
                     .HasOne(e => e.CanOpenAccountProgCharacter)
                     .WithMany()
                     .HasForeignKey(e => e.CanOpenAccountProgCharacterId)
                     .HasConstraintName("FK_BankAccountTypes_CharacterProgs")
-                    .OnDelete(DeleteBehavior.ClientCascade); ;
+                    .OnDelete(DeleteBehavior.Cascade); ;
                 entity
                     .HasOne(e => e.CanOpenAccountProgClan)
                     .WithMany()
                     .HasForeignKey(e => e.CanOpenAccountProgClanId)
                     .HasConstraintName("FK_BankAccountTypes_ClanProgs")
-                    .OnDelete(DeleteBehavior.ClientCascade); ;
+                    .OnDelete(DeleteBehavior.Cascade); ;
                 entity
                     .HasOne(e => e.CanOpenAccountProgShop)
                     .WithMany()
                     .HasForeignKey(e => e.CanOpenAccountProgShopId)
                     .HasConstraintName("FK_BankAccountTypes_ShopProgs")
-                    .OnDelete(DeleteBehavior.ClientCascade); ;
+                    .OnDelete(DeleteBehavior.Cascade); ;
                 entity
                     .HasOne(e => e.CanCloseAccountProg)
                     .WithMany()
                     .HasForeignKey(e => e.CanCloseAccountProgId)
                     .HasConstraintName("FK_BankAccountTypes_CanCloseProg")
-                    .OnDelete(DeleteBehavior.ClientCascade); ;
+                    .OnDelete(DeleteBehavior.Cascade); ;
             });
 
             modelBuilder.Entity<BankAccountTransaction>(entity =>
@@ -2493,7 +2493,7 @@ namespace MudSharp.Database
                     .WithMany(e => e.BankAccountTransactions)
                     .HasForeignKey(e => e.BankAccountId)
                     .HasConstraintName("FK_BankAccountTransactions_BankAccounts")
-                    .OnDelete(DeleteBehavior.ClientCascade); ;
+                    .OnDelete(DeleteBehavior.Cascade); ;
             });
 
             modelBuilder.Entity<BankExchangeRate>(entity =>
@@ -2513,19 +2513,19 @@ namespace MudSharp.Database
                     .WithMany(e => e.BankExchangeRates)
                     .HasForeignKey(e => e.BankId)
                     .HasConstraintName("FK_BankExchangeRates_Banks")
-                    .OnDelete(DeleteBehavior.ClientCascade); ;
+                    .OnDelete(DeleteBehavior.Cascade); ;
                 entity
                     .HasOne(e => e.FromCurrency)
                     .WithMany()
                     .HasForeignKey(e => e.FromCurrencyId)
                     .HasConstraintName("FK_BankExchangeRates_Currencies_From")
-                    .OnDelete(DeleteBehavior.ClientCascade); ;
+                    .OnDelete(DeleteBehavior.Cascade); ;
                 entity
                     .HasOne(e => e.ToCurrency)
                     .WithMany()
                     .HasForeignKey(e => e.ToCurrencyId)
                     .HasConstraintName("FK_BankExchangeRates_Currencies_To")
-                    .OnDelete(DeleteBehavior.ClientCascade); ;
+                    .OnDelete(DeleteBehavior.Cascade); ;
             });
 
             modelBuilder.Entity<BankBranch>(entity =>
@@ -2543,13 +2543,13 @@ namespace MudSharp.Database
                     .WithMany(e => e.BankBranches)
                     .HasForeignKey(e => e.BankId)
                     .HasConstraintName("FK_BankBranches_Banks")
-                    .OnDelete(DeleteBehavior.ClientCascade); ;
+                    .OnDelete(DeleteBehavior.Cascade); ;
                 entity
                     .HasOne(e => e.Cell)
                     .WithMany()
                     .HasForeignKey(e => e.CellId)
                     .HasConstraintName("FK_BankBranches_Cells")
-                    .OnDelete(DeleteBehavior.ClientCascade); ;
+                    .OnDelete(DeleteBehavior.Cascade); ;
             });
 
             modelBuilder.Entity<BankCurrencyReserve>(entity =>
@@ -2568,13 +2568,13 @@ namespace MudSharp.Database
                     .WithMany(e => e.BankCurrencyReserves)
                     .HasForeignKey(e => e.BankId)
                     .HasConstraintName("FK_BankCurrencyReserves_Banks")
-                    .OnDelete(DeleteBehavior.ClientCascade); ;
+                    .OnDelete(DeleteBehavior.Cascade); ;
                 entity
                     .HasOne(e => e.Currency)
                     .WithMany()
                     .HasForeignKey(e => e.CurrencyId)
                     .HasConstraintName("FK_BankCurrencyReserves_Currencies")
-                    .OnDelete(DeleteBehavior.ClientCascade); ;
+                    .OnDelete(DeleteBehavior.Cascade); ;
             });
 
             modelBuilder.Entity<BankManager>(entity => {
@@ -2589,14 +2589,14 @@ namespace MudSharp.Database
                     .WithMany(e => e.BankManagers)
                     .HasForeignKey(e => e.BankId)
                     .HasConstraintName("FK_BankManagers_Banks")
-                    .OnDelete(DeleteBehavior.ClientCascade); ;
+                    .OnDelete(DeleteBehavior.Cascade);
 
                 entity
                     .HasOne(e => e.Character)
                     .WithMany()
                     .HasForeignKey(e => e.CharacterId)
                     .HasConstraintName("FK_BankManagers_Characters")
-                    .OnDelete(DeleteBehavior.ClientCascade);
+                    .OnDelete(DeleteBehavior.Cascade);
             });
 
             modelBuilder.Entity<BankManagerAuditLog>(entity => {
@@ -2622,7 +2622,7 @@ namespace MudSharp.Database
                     .WithMany(e => e.BankManagerAuditLogs)
                     .HasForeignKey(e => e.BankId)
                     .HasConstraintName("FK_BankManagerAuditLogs_Banks")
-                    .OnDelete(DeleteBehavior.ClientCascade); ;
+                    .OnDelete(DeleteBehavior.Cascade); ;
 
                 entity
                     .HasOne(e => e.Character)

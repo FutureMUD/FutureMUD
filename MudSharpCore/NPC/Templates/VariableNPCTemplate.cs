@@ -71,7 +71,7 @@ public class VariableNPCTemplate : NPCTemplateBase
 		}
 	}
 
-	public INPCTemplate Clone(ICharacter builder)
+	public override INPCTemplate Clone(ICharacter builder)
 	{
 		using (new FMDB())
 		{

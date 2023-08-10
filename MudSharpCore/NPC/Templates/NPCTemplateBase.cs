@@ -267,5 +267,7 @@ public abstract class NPCTemplateBase : EditableItem, INPCTemplate
 
 	public IFutureProg OnLoadProg { get; set; }
 
+	public abstract INPCTemplate Clone(ICharacter builder);
+
 	#endregion
 }

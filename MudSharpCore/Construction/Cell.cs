@@ -1468,9 +1468,21 @@ public partial class Cell : Location, IDisposable, ICell
 	{
 		var action = DestroyWithDatabaseAction(fallbackCell);
 		Gameworld.SaveManager.Flush();
+		Gameworld.LogManager.FlushLog();
 		using (new FMDB())
 		{
 			action?.Invoke();
+			Gameworld.SaveManager.Abort(this);
+			if (_id != 0)
+			{
+				Gameworld.SaveManager.Flush();
+				var dbitem = FMDB.Context.Cells.Find(Id);
+				if (dbitem != null)
+				{
+					FMDB.Context.Cells.Remove(dbitem);
+					FMDB.Context.SaveChanges();
+				}
+			}
 		}
 	}
 
@@ -1496,8 +1508,6 @@ public partial class Cell : Location, IDisposable, ICell
 		Gameworld.SaveManager.Abort(this);
 		Gameworld.Destroy(this);
 		Gameworld.EffectScheduler.Destroy(this);
-
-
 		Gameworld.ExitManager.DeleteCell(this);
 		return () =>
 		{

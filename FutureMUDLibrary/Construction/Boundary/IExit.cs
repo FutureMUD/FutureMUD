@@ -30,5 +30,6 @@ namespace MudSharp.Construction.Boundary {
         IEnumerable<RoomLayer> BlockedLayers { get; }
         void AddBlockedLayer(RoomLayer layer);
         void RemoveBlockedLayer(RoomLayer layer);
+        void Delete();
     }
 }

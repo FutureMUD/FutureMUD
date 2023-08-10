@@ -761,17 +761,17 @@ namespace MudSharp.Database
                 entity.HasOne(d => d.EconomicZone)
                     .WithMany()
                     .HasForeignKey(d => d.EconomicZoneId)
-                    .OnDelete(DeleteBehavior.ClientCascade)
+                    .OnDelete(DeleteBehavior.Cascade)
                     .HasConstraintName("FK_AuctionHouses_EconomicZones");
                 entity.HasOne(d => d.AuctionHouseCell)
                     .WithMany()
                     .HasForeignKey(d => d.AuctionHouseCellId)
-                    .OnDelete(DeleteBehavior.ClientCascade)
+                    .OnDelete(DeleteBehavior.Cascade)
                     .HasConstraintName("FK_AuctionHouses_Cells");
                 entity.HasOne(d => d.ProfitsBankAccount)
                     .WithMany()
                     .HasForeignKey(d => d.ProfitsBankAccountId)
-                    .OnDelete(DeleteBehavior.ClientCascade)
+                    .OnDelete(DeleteBehavior.Cascade)
                     .HasConstraintName("FK_AuctionHouses_BankAccounts");
             });
 
@@ -2045,7 +2045,7 @@ namespace MudSharp.Database
                 entity.HasOne(d => d.Cell)
                     .WithMany(p => p.CellOverlays)
                     .HasForeignKey(d => d.CellId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .OnDelete(DeleteBehavior.Cascade)
                     .HasConstraintName("FK_CellOverlays_Cells");
 
                 entity.HasOne(d => d.HearingProfile)
@@ -2057,13 +2057,13 @@ namespace MudSharp.Database
                 entity.HasOne(d => d.Terrain)
                     .WithMany(p => p.CellOverlays)
                     .HasForeignKey(d => d.TerrainId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .OnDelete(DeleteBehavior.Restrict)
                     .HasConstraintName("FK_CellOverlays_Terrains");
 
                 entity.HasOne(d => d.CellOverlayPackage)
                     .WithMany(p => p.CellOverlays)
                     .HasForeignKey(d => new { d.CellOverlayPackageId, d.CellOverlayPackageRevisionNumber })
-                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .OnDelete(DeleteBehavior.Cascade)
                     .HasConstraintName("FK_CellOverlays_CellOverlayPackages");
             });
 
@@ -2084,13 +2084,13 @@ namespace MudSharp.Database
                 entity.HasOne(d => d.CellOverlay)
                     .WithMany(p => p.CellOverlaysExits)
                     .HasForeignKey(d => d.CellOverlayId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .OnDelete(DeleteBehavior.Cascade)
                     .HasConstraintName("FK_CellOverlays_Exits_CellOverlays");
 
                 entity.HasOne(d => d.Exit)
                     .WithMany(p => p.CellOverlaysExits)
                     .HasForeignKey(d => d.ExitId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .OnDelete(DeleteBehavior.Cascade)
                     .HasConstraintName("FK_CellOverlays_Exits_Exits");
             });
 
@@ -2129,7 +2129,7 @@ namespace MudSharp.Database
                 entity.HasOne(d => d.Room)
                     .WithMany(p => p.Cells)
                     .HasForeignKey(d => d.RoomId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .OnDelete(DeleteBehavior.Cascade)
                     .HasConstraintName("FK_Cells_Rooms");
             });
 
@@ -2150,6 +2150,7 @@ namespace MudSharp.Database
                 entity.HasOne(d => d.Cell)
                     .WithMany(p => p.CellsForagableYields)
                     .HasForeignKey(d => d.CellId)
+                    .OnDelete(DeleteBehavior.Cascade)
                     .HasConstraintName("FK_Cells_ForagableYields_Cells");
             });
 
@@ -2170,11 +2171,13 @@ namespace MudSharp.Database
                 entity.HasOne(d => d.Cell)
                     .WithMany(p => p.CellsGameItems)
                     .HasForeignKey(d => d.CellId)
+                    .OnDelete(DeleteBehavior.Cascade)
                     .HasConstraintName("FK_Cells_GameItems_Cells");
 
                 entity.HasOne(d => d.GameItem)
                     .WithMany(p => p.CellsGameItems)
                     .HasForeignKey(d => d.GameItemId)
+                    .OnDelete(DeleteBehavior.Cascade)
                     .HasConstraintName("FK_Cells_GameItems_GameItems");
             });
 
@@ -2195,11 +2198,13 @@ namespace MudSharp.Database
                 entity.HasOne(d => d.Cell)
                     .WithMany(p => p.CellsMagicResources)
                     .HasForeignKey(d => d.CellId)
+                    .OnDelete(DeleteBehavior.Cascade)
                     .HasConstraintName("FK_Cells_MagicResources_Cells");
 
                 entity.HasOne(d => d.MagicResource)
                     .WithMany(p => p.CellsMagicResources)
                     .HasForeignKey(d => d.MagicResourceId)
+                    .OnDelete(DeleteBehavior.Cascade)
                     .HasConstraintName("FK_Cells_MagicResources_MagicResources");
             });
 
@@ -2220,11 +2225,13 @@ namespace MudSharp.Database
                 entity.HasOne(d => d.Cell)
                     .WithMany(p => p.CellsRangedCovers)
                     .HasForeignKey(d => d.CellId)
+                    .OnDelete(DeleteBehavior.Cascade)
                     .HasConstraintName("FK_Cells_RangedCovers_Cells");
 
                 entity.HasOne(d => d.RangedCover)
                     .WithMany(p => p.CellsRangedCovers)
                     .HasForeignKey(d => d.RangedCoverId)
+                    .OnDelete(DeleteBehavior.Cascade)
                     .HasConstraintName("FK_Cells_RangedCovers_RangedCovers");
             });
 
@@ -2245,12 +2252,13 @@ namespace MudSharp.Database
                 entity.HasOne(d => d.Cell)
                     .WithMany(p => p.CellsTags)
                     .HasForeignKey(d => d.CellId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .OnDelete(DeleteBehavior.Cascade)
                     .HasConstraintName("FK_Cells_Tags_Cells");
 
                 entity.HasOne(d => d.Tag)
                     .WithMany(p => p.CellsTags)
                     .HasForeignKey(d => d.TagId)
+                    .OnDelete(DeleteBehavior.Cascade)
                     .HasConstraintName("FK_Cells_Tags_Tags");
             });
 
@@ -2589,11 +2597,13 @@ namespace MudSharp.Database
                 entity.HasOne(d => d.Cell)
                     .WithMany(p => p.CharacterLog)
                     .HasForeignKey(d => d.CellId)
+                    .OnDelete(DeleteBehavior.Cascade)
                     .HasConstraintName("FK_CharacterLog_Cells");
 
                 entity.HasOne(d => d.Character)
                     .WithMany(p => p.CharacterLog)
                     .HasForeignKey(d => d.CharacterId)
+                    .OnDelete(DeleteBehavior.Cascade)
                     .HasConstraintName("FK_CharacterLog_Characters");
             });
 

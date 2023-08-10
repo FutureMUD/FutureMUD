@@ -36,6 +36,8 @@ namespace DatabaseSeeder.Seeders
 
 Once you have installed this seeder you will need to add the WeatherControllers it installs onto your zones yourself.";
 
+		public bool Enabled => false;
+
 		public FuturemudDatabaseContext _context;
 		public IReadOnlyDictionary<string, string> _questionAnswers;
 

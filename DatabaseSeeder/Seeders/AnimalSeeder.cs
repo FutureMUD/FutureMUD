@@ -1608,19 +1608,19 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
 			_attacks["clawswipe"] = AddAttack("Claw Swipe", BuiltInCombatMoveType.NaturalWeaponAttack,
 				MeleeWeaponVerb.Swipe, Difficulty.Normal, Difficulty.Easy, Difficulty.Easy, Difficulty.Easy,
 				Alignment.FrontRight, Orientation.High, 4.0, 1.3, clawShape, clawDamage,
-				$"@ rear|rears up and swipe|swipes &0's {{1}}at $1{attackAddendum}", DamageType.Claw);
+				$"@ rear|rears up and swipe|swipes &0's {{0}} at $1{attackAddendum}", DamageType.Claw);
 			_attacks["clawsmashswipe"] = AddAttack("Claw Swipe Smash", BuiltInCombatMoveType.UnarmedSmashItem,
 				MeleeWeaponVerb.Swipe, Difficulty.Normal, Difficulty.Easy, Difficulty.Easy, Difficulty.Easy,
 				Alignment.FrontRight, Orientation.High, 4.0, 1.3, clawShape, clawDamage,
-				$"@ rear|rears up and swipe|swipes &0's {{1}}at $1{attackAddendum}", DamageType.Claw);
+				$"@ rear|rears up and swipe|swipes &0's {{0}} at $1{attackAddendum}", DamageType.Claw);
 			_attacks["clawhighswipe"] = AddAttack("Claw High Swipe", BuiltInCombatMoveType.NaturalWeaponAttack,
 				MeleeWeaponVerb.Swipe, Difficulty.Normal, Difficulty.Easy, Difficulty.Easy, Difficulty.Easy,
 				Alignment.FrontRight, Orientation.Centre, 4.0, 1.3, clawShape, clawDamage,
-				$"@ rear|rears up and swipe|swipes &0's {{1}}at $1{attackAddendum}", DamageType.Claw);
+				$"@ rear|rears up and swipe|swipes &0's {{0}} at $1{attackAddendum}", DamageType.Claw);
 			_attacks["clawlowswipe"] = AddAttack("Claw Low Swipe", BuiltInCombatMoveType.NaturalWeaponAttack,
 				MeleeWeaponVerb.Swipe, Difficulty.Normal, Difficulty.VeryEasy, Difficulty.Easy, Difficulty.Easy,
 				Alignment.FrontRight, Orientation.Highest, 4.0, 1.3, clawShape, clawDamage,
-				$"@ rear|rears up and swipe|swipes &0's {{1}}at $1{attackAddendum}", DamageType.Claw);
+				$"@ rear|rears up and swipe|swipes &0's {{0}} at $1{attackAddendum}", DamageType.Claw);
 
 			_attacks["hoofstomp"] = AddAttack("Hoof Stomp", BuiltInCombatMoveType.DownedAttackUnarmed,
 				MeleeWeaponVerb.Kick, Difficulty.Normal, Difficulty.Easy, Difficulty.Easy, Difficulty.Easy,
@@ -1690,7 +1690,7 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
 			_attacks["crabpinch"] = AddAttack("Crab Pinch", BuiltInCombatMoveType.NaturalWeaponAttack,
 				MeleeWeaponVerb.Swipe, Difficulty.Normal, Difficulty.Easy, Difficulty.Easy, Difficulty.Easy,
 				Alignment.FrontRight, Orientation.Low, 4.0, 1.3, clawShape, clawDamage,
-				$"@ lash|lashes out and try|tries to pinch $1 with &0's {{1}}{attackAddendum}", DamageType.Shearing);
+				$"@ lash|lashes out and try|tries to pinch $1 with &0's {{0}}{attackAddendum}", DamageType.Shearing);
 		}
 	}
 
@@ -3144,6 +3144,7 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
 					});
 				break;
 			case "Dog":
+			case "Wolf":
 				(bloodModel, populationModel) = SetupBloodModel("Canine", new List<string> { "DEA 1.1" },
 					new List<(string Name, IEnumerable<string> Antigens, double weight)>
 					{

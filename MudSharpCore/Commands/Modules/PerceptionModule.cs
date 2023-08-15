@@ -117,11 +117,12 @@ internal class PerceptionModule : Module<ICharacter>
 			sb.AppendLineFormat(actor, "This room is in zone {0} (#{1:N0})",
 				actor.Location.Room.Zone.Name.Colour(Telnet.Green),
 				actor.Location.Room.Zone.Id);
-			sb.AppendLine(
-				$"Lat: {actor.Location.Zone.Geography.Latitude.RadiansToDegrees().ToString("N6", actor).ColourValue()} Long: {actor.Location.Zone.Geography.Longitude.RadiansToDegrees().ToString("N6", actor).ColourValue()} Elev: {$"{actor.Location.Zone.Geography.Elevation}m".ColourValue()}");
+			sb.AppendLine($"Latitude: {actor.Location.Zone.Geography.Latitude.RadiansToDegrees().ToString("N6", actor).ColourValue()}");
+			sb.AppendLine($"Longitude: {actor.Location.Zone.Geography.Longitude.RadiansToDegrees().ToString("N6", actor).ColourValue()}");
+			sb.AppendLine($"Elevation: {actor.Gameworld.UnitManager.DescribeMostSignificant(actor.Location.Zone.Geography.Elevation / actor.Gameworld.UnitManager.BaseHeightToMetres, Framework.Units.UnitType.Mass, actor).ColourValue()}");
 		}
 
-		sb.AppendLine($"This location is {actor.Location.OutdoorsType(actor).Describe().Colour(Telnet.Green)}.");
+		sb.AppendLine($"This location type is {actor.Location.OutdoorsType(actor).Describe().Colour(Telnet.Green)}.");
 
 		var legals = actor.Gameworld.LegalAuthorities
 		                  .Where(x => x.PlayersKnowTheirCrimes && x.EnforcementZones.Contains(actor.Location.Zone))
@@ -162,8 +163,7 @@ internal class PerceptionModule : Module<ICharacter>
 		sb.AppendLine(string.Format("Light levels are {0}{2}, and the minimum sight difficulty is {1}.",
 			actor.Gameworld.LightModel.GetIlluminationDescription(illumination).Colour(Telnet.Green),
 			actor.Gameworld.LightModel.GetSightDifficulty(illumination * actor.Race.IlluminationPerceptionMultiplier)
-			     .Describe()
-			     .Colour(Telnet.Green),
+			     .DescribeColoured(),
 			actor.IsAdministrator() ? $" ({illumination.ToString("N3", actor).ColourValue()} lux)" : ""
 		));
 		sb.AppendLine(actor.Location.HearingProfile(actor) != null

@@ -956,7 +956,10 @@ public class Shop : SaveableItem, IShop
 		{
 			var stockTake = StocktakeAllMerchandise();
 			var index = 1;
-			sb.AppendLine(StringUtilities.GetTextTable(
+
+			if (Gameworld.GetStaticBool("DisplayTaxInShopList"))
+			{
+				sb.AppendLine(StringUtilities.GetTextTable(
 				from merch in stockTake
 				let priceInfo = GetDetailedPriceInfo(purchaser, merch.Key)
 				where merch.Value.InStockroomCount + merch.Value.OnFloorCount > 0
@@ -988,6 +991,42 @@ public class Shop : SaveableItem, IShop
 				colour: Telnet.Yellow,
 				unicodeTable: actor.Account.UseUnicode
 			));
+			}
+			else
+			{
+				sb.AppendLine(StringUtilities.GetTextTable(
+				from merch in stockTake
+				let priceInfo = GetDetailedPriceInfo(purchaser, merch.Key)
+				where merch.Value.InStockroomCount + merch.Value.OnFloorCount > 0
+				orderby merch.Key.Name
+				select new[]
+				{
+					index++.ToString("N0", actor),
+					merch.Key.Name,
+					merch.Key.ListDescription.ColourObject(),
+					Currency.Describe(priceInfo.TotalPrice, CurrencyDescriptionPatternType.Short),
+					priceInfo.VolumeDealsExist.ToString(actor),
+					merch.Key.Item.IsItemType<VariableGameItemComponentProto>().ToString(actor),
+					(merch.Value.InStockroomCount + merch.Value.OnFloorCount).ToString("N0", actor)
+				},
+				new[]
+				{
+					"#",
+					"Name",
+					"Description",
+					"Price",
+					"Deals?",
+					"Variants?",
+					"Stock"
+				},
+				actor.LineFormatLength,
+				truncatableColumnIndex: 1,
+				colour: Telnet.Yellow,
+				unicodeTable: actor.Account.UseUnicode
+			));
+			}
+
+			
 			if (actor != purchaser)
 			{
 				sb.AppendLine(

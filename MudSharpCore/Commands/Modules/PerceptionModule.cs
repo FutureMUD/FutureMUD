@@ -35,6 +35,7 @@ internal class PerceptionModule : Module<ICharacter>
 
 	[PlayerCommand("Exits", "exits")]
 	[RequiredCharacterState(CharacterState.Conscious)]
+	[HelpInfo("Exits", @"This command allows you to see what exits are present at the location you're in. The syntax is #3exits#0.", AutoHelp.HelpArg)]
 	protected static void Exits(ICharacter actor, string input)
 	{
 		var exits = actor
@@ -59,7 +60,22 @@ internal class PerceptionModule : Module<ICharacter>
 		actor.OutputHandler.Send(sb.ToString());
 	}
 
-	protected static void SurveyCover(ICharacter actor, StringStack input)
+	[PlayerCommand("SurveyCover", "surveycover")]
+	[RequiredCharacterState(CharacterState.Conscious)]
+	[HelpInfo("SurveyCover", @"The surveycover command is used to determine what kinds of ranged cover are in the location so that you can take cover from ranged attacks. 
+
+Cover can be classified as either hard or soft. Soft cover makes you harder to hit but ultimately doesn't provide any protection if beaten, whereas hardcover may be struck instead of you. Some kinds of cover can also allow you to move around within the room and stay in cover. Additionally, cover has a maximum position that you can be in when you use it. For example, you may need to be prone behind cover to benefit from it.
+
+The syntax is simply #3surveycover#0.
+
+See the #6cover#0 command for how to take cover. Your combat settings may also automatically move you into cover in a fight.", AutoHelp.HelpArg)]
+
+	protected static void SurveyCover(ICharacter actor, string input)
+	{
+		InternalSurveyCover(actor, new StringStack(input.RemoveFirstWord()));
+	}
+
+	protected static void InternalSurveyCover(ICharacter actor, StringStack input)
 	{
 		var covers = actor.Location.GetCoverFor(actor);
 		var coverItems =
@@ -75,30 +91,67 @@ internal class PerceptionModule : Module<ICharacter>
 
 		var sb = new StringBuilder();
 		sb.AppendLine("There is the following cover available in this location:");
-		foreach (var cover in covers)
-		{
-			sb.AppendLine(
-				$"\t{cover.Name} - {cover.CoverExtent.Describe()} {cover.CoverType.Describe()}{(cover.CoverStaysWhileMoving ? " - Movement Permitted" : "")}, maximum position: {cover.HighestPositionState.Name}");
-		}
-
-		foreach (var ci in coverItems)
-		{
-			var cover = ci.Cover;
-			sb.AppendLine(
-				$"\t{cover.Name} @ {ci.Parent.HowSeen(actor)} - {cover.CoverExtent.Describe()} {cover.CoverType.Describe()}{(cover.CoverStaysWhileMoving ? " - Movement Permitted" : "")}, maximum position: {cover.HighestPositionState.Name}");
-		}
+		sb.AppendLine();
+		sb.AppendLine("From Terrain".ColourName());
+		sb.AppendLine(StringUtilities.GetTextTable(
+			from cover in covers select new List<string>
+			{
+				cover.Name,
+				cover.CoverExtent.Describe(),
+				cover.CoverType.Describe(),
+				cover.HighestPositionState.Name,
+				cover.CoverStaysWhileMoving.ToColouredString()
+			},
+			new List<string>
+			{
+				"Name",
+				"Extent",
+				"Type",
+				"Highest Position",
+				"Allow Move?"
+			},
+			actor
+		));
+		sb.AppendLine();
+		sb.AppendLine("From Items".ColourName());
+		sb.AppendLine(StringUtilities.GetTextTable(
+			from ci in coverItems 
+			let cover = ci.Cover
+			select new List<string>
+			{
+				ci.Parent.HowSeen(actor),
+				cover.Name,
+				cover.CoverExtent.Describe(),
+				cover.CoverType.Describe(),
+				cover.HighestPositionState.Name,
+				cover.CoverStaysWhileMoving.ToColouredString()
+			},
+			new List<string>
+			{
+				"Item",
+				"Name",
+				"Extent",
+				"Type",
+				"Highest Position",
+				"Allow Move?"
+			},
+			actor
+		));
 
 		actor.Send(sb.ToString());
 	}
 
 	[PlayerCommand("Survey", "survey")]
 	[RequiredCharacterState(CharacterState.Conscious)]
+	[HelpInfo("Survey", @"The survey command is used to get detailed information about your surroundings, for example, what the terrain type is or how noisy it is.
+
+The syntax is simply #3survey#0.", AutoHelp.HelpArg)]
 	protected static void Survey(ICharacter actor, string input)
 	{
 		var ss = new StringStack(input.RemoveFirstWord());
 		if (ss.Peek().Equals("cover", StringComparison.InvariantCultureIgnoreCase))
 		{
-			SurveyCover(actor, ss);
+			InternalSurveyCover(actor, ss);
 			return;
 		}
 
@@ -240,16 +293,34 @@ internal class PerceptionModule : Module<ICharacter>
 
 	[PlayerCommand("Vicinity", "vicinity")]
 	[RequiredCharacterState(CharacterState.Conscious)]
+	[HelpInfo("Vicinity", @"The vicinity command is used to get an idea of which items and characters are in your immediate vicinity or the immediate vicinity of a target. This is helpful because it might affect certain outcomes like who can hear you when you whisper, or who is in close proximity when area damage is taken.
+
+The syntax is either:
+
+	#3vicinity#0 - shows all of the things in your own vicinity
+	#3vicinity <target>#0 - shows the vicinity information for the target", AutoHelp.HelpArg)]
 	protected static void Vicinity(ICharacter actor, string input)
 	{
+		var ss = new StringStack(input.RemoveFirstWord());
+		IPerceiver target = actor;
+		if (!ss.IsFinished)
+		{
+			target = actor.TargetLocal(ss.SafeRemainingArgument) as IPerceiver;
+			if (target is null)
+			{
+				actor.OutputHandler.Send("You don't see anything like that here.");
+				return;
+			}
+		}
 		var sb = new StringBuilder();
-		sb.AppendLine("The following things are in your vicinity:");
-		foreach (var thing in actor.Location.LayerCharacters(actor.RoomLayer).Where(x => x.InVicinity(actor)))
+		sb.AppendLine($"The following things are in {(target == actor ? "your" : target.HowSeen(actor, type: DescriptionType.Possessive))} vicinity:");
+		sb.AppendLine();
+		foreach (var thing in target.Location.LayerCharacters(target.RoomLayer).Where(x => x.InVicinity(target) && actor.CanSee(x)))
 		{
 			sb.AppendLine(thing.HowSeen(actor));
 		}
 
-		foreach (var thing in actor.Location.LayerGameItems(actor.RoomLayer).Where(x => x.InVicinity(actor)))
+		foreach (var thing in target.Location.LayerGameItems(target.RoomLayer).Where(x => x.InVicinity(target) && actor.CanSee(x)))
 		{
 			sb.AppendLine(thing.HowSeen(actor));
 		}
@@ -259,7 +330,7 @@ internal class PerceptionModule : Module<ICharacter>
 			actor.Location.LayerGameItems(actor.RoomLayer).SelectNotNull(x => x.GetItemType<ITable>())
 			     .SelectMany(x => x.Chairs)
 			     .Select(x => x.Parent)
-			     .Where(x => x.InVicinity(actor)))
+			     .Where(x => x.InVicinity(actor) && actor.CanSee(x)))
 		{
 			sb.AppendLine(thing.HowSeen(actor));
 		}
@@ -270,7 +341,19 @@ internal class PerceptionModule : Module<ICharacter>
 	[PlayerCommand("Look", "look", "l", "lo", "loo")]
 	[RequiredCharacterState(CharacterState.Conscious)]
 	[HelpInfo("look",
-		"The look command is used to show you specific information about your character's surrounds, and has a few simple variants:\n\nTo view you general surroundings: #3look#0\nTo look at something in particular: #3look <thing>#0\nTo look inside something: #3look in <thing>#0\nTo look at something someone else has: #3look <person> <thing>#0\nTo look at a door installed in an exit: #3look <direction> <doorkeywords>#0\nTo look at a person's tattoos: #3look <person> tattoos [<bodypart>]#0\nTo look at a person's scars: #3look <person> scars [<bodypart>]\n\nThe use of the look command is affected by various factors such as the ambient light level, the relative skill and attribute levels of you and the things you could potentially see, magical effects, and damage to your eyes.\n\nSee also: HELP EVALUATE, HELP SEARCH, HELP SCAN",
+		@"The look command is used to show you specific information about your character's surrounds, and has a few simple variants:
+
+To view you general surroundings: #3look#0
+To look at something in particular: #3look <thing>#0
+To look inside something: #3look in <thing>#0
+To look at something someone else has: #3look <person> <thing>#0
+To look at a door installed in an exit: #3look <direction> <doorkeywords>#0
+To look at a person's tattoos: #3look <person> tattoos [<bodypart>]#0
+To look at a person's scars: #3look <person> scars [<bodypart>]
+
+The use of the look command is affected by various factors such as the ambient light level, the relative skill and attribute levels of you and the things you could potentially see, magical effects, and damage to your eyes.
+
+See also: HELP EVALUATE, HELP SEARCH, HELP SCAN",
 		AutoHelp.HelpArg)]
 	protected static void Look(ICharacter actor, string input)
 	{

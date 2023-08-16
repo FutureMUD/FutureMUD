@@ -2212,17 +2212,14 @@ You can use the following options with this command:
 
 	[PlayerCommand("Evaluate", "evaluate")]
 	[RequiredCharacterState(CharacterState.Conscious)]
+	[HelpInfo("Evaluate", @"This command is used to get detailed information about an item's functionality, beyond what you see in other perception commands like LOOK. Evaluate is used when you really want to understand the details of how something works.
+
+The syntax for this command is simply #3evaluate <target>#0.", AutoHelp.HelpArgOrNoArg)]
 	protected static void Evaluate(ICharacter actor, string command)
 	{
 		var ss = new StringStack(command.RemoveFirstWord());
-		if (ss.IsFinished || ss.Peek().EqualToAny("help", "?"))
-		{
-			actor.Send(
-				$"This command is used to get some information about items in your vicinity. The syntax is evaluate <item>.");
-			return;
-		}
 
-		var item = actor.TargetItem(ss.Pop());
+		var item = actor.TargetItem(ss.SafeRemainingArgument);
 		if (item == null)
 		{
 			actor.Send("You don't see anything like that.");

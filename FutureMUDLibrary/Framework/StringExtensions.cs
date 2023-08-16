@@ -97,6 +97,11 @@ namespace MudSharp.Framework {
             return "(" + input + ") ";
         }
 
+        public static string ParenthesesSpacePrior(this string input)
+        {
+            return $" ({input})";
+        }
+
         public static string FluentAppend(this string input, string appendText, bool truth)
         {
             return truth ? $"{input}{appendText}" : input;

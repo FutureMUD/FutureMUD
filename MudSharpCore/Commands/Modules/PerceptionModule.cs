@@ -108,10 +108,10 @@ internal class PerceptionModule : Module<ICharacter>
 		sb.AppendLine(":");
 		sb.AppendLine();
 		sb.AppendLine(actor.Location.SafeQuit
-			? "It is permitted to quit in this location."
-			: "It is not permitted to quit in this location.");
+			? "It is permitted to quit in this location.".Colour(Telnet.Green)
+			: "It is not permitted to quit in this location.".Colour(Telnet.Red));
 		var terrain = actor.Location.Terrain(actor);
-		sb.AppendLine($"The terrain here is {terrain.Name.TitleCase().Colour(Telnet.Green)}.");
+		sb.AppendLine($"The terrain here is {terrain.Name.TitleCase().ColourForegroundCustom(terrain.TerrainANSIColour)}.");
 		if (actor.IsAdministrator())
 		{
 			sb.AppendLineFormat(actor, "This room is in zone {0} (#{1:N0})",
@@ -119,7 +119,7 @@ internal class PerceptionModule : Module<ICharacter>
 				actor.Location.Room.Zone.Id);
 			sb.AppendLine($"Latitude: {actor.Location.Zone.Geography.Latitude.RadiansToDegrees().ToString("N6", actor).ColourValue()}");
 			sb.AppendLine($"Longitude: {actor.Location.Zone.Geography.Longitude.RadiansToDegrees().ToString("N6", actor).ColourValue()}");
-			sb.AppendLine($"Elevation: {actor.Gameworld.UnitManager.DescribeMostSignificant(actor.Location.Zone.Geography.Elevation / actor.Gameworld.UnitManager.BaseHeightToMetres, Framework.Units.UnitType.Mass, actor).ColourValue()}");
+			sb.AppendLine($"Elevation: {actor.Gameworld.UnitManager.DescribeMostSignificant(actor.Location.Zone.Geography.Elevation / actor.Gameworld.UnitManager.BaseHeightToMetres, Framework.Units.UnitType.Length, actor).ColourValue()}");
 		}
 
 		sb.AppendLine($"This location type is {actor.Location.OutdoorsType(actor).Describe().Colour(Telnet.Green)}.");
@@ -156,19 +156,14 @@ internal class PerceptionModule : Module<ICharacter>
 		{
 			sb.AppendLine($"This location can be used to manage property in the {ez.Name.ColourName()} economic zone.");
 		}
-
-		sb.AppendLine(
-			$"The terrain makes it {terrain.HideDifficulty.Describe().Colour(Telnet.Green)} to hide, and {terrain.SpotDifficulty.Describe().Colour(Telnet.Green)} to spot things.");
 		var illumination = actor.Location.CurrentIllumination(actor);
-		sb.AppendLine(string.Format("Light levels are {0}{2}, and the minimum sight difficulty is {1}.",
-			actor.Gameworld.LightModel.GetIlluminationDescription(illumination).Colour(Telnet.Green),
-			actor.Gameworld.LightModel.GetSightDifficulty(illumination * actor.Race.IlluminationPerceptionMultiplier)
-			     .DescribeColoured(),
-			actor.IsAdministrator() ? $" ({illumination.ToString("N3", actor).ColourValue()} lux)" : ""
-		));
+		sb.AppendLine($"Light levels are {actor.Gameworld.LightModel.GetIlluminationDescription(illumination).Colour(Telnet.Green)}{(actor.IsAdministrator() ? $"{illumination.ToString("N3", actor)} lux".ColourValue().ParenthesesSpacePrior() : "")}.");
+		sb.AppendLine($"The base difficulty is {terrain.HideDifficulty.DescribeColoured()} to hide here.");
+		var spotDifficulty = terrain.SpotDifficulty.Lowest(actor.Gameworld.LightModel.GetSightDifficulty(illumination * actor.Race.IlluminationPerceptionMultiplier));
+		sb.AppendLine($"The base difficulty is {spotDifficulty.DescribeColoured()} to spot hidden things here.");
 		sb.AppendLine(actor.Location.HearingProfile(actor) != null
 			? actor.Location.HearingProfile(actor).SurveyDescription
-			: "There is nothing remarkable about the noise levels here.");
+			: "There is nothing remarkable about the noise levels here.".Colour(Telnet.Yellow));
 		if (actor.Location.OutdoorsType(actor) == CellOutdoorsType.Outdoors)
 		{
 			sb.AppendLine();
@@ -184,7 +179,6 @@ internal class PerceptionModule : Module<ICharacter>
 
 		if (actor.IsAdministrator())
 		{
-			sb.AppendLine();
 			if (actor.Location.ForagableProfile == null)
 			{
 				sb.AppendLine("There is no foragable profile here.");
@@ -201,15 +195,16 @@ internal class PerceptionModule : Module<ICharacter>
 						sb.AppendLineFormat(actor, "\tYield [{0}] = {1:N2}", type.Colour(Telnet.Green), yield);
 					}
 				}
+				sb.AppendLine();
 			}
 
-			sb.AppendLine();
 			sb.AppendLine(actor.Location.Atmosphere != null
-				? $"The atmosphere here consists of {actor.Location.Atmosphere.Name}."
+				? $"The atmosphere here consists of {actor.Location.Atmosphere.Name.Colour(actor.Location.Atmosphere.DisplayColour)}."
 				: $"There is no atmosphere here!");
 
 			sb.AppendLine(
-				$"Infections caught here will be of type {terrain.PrimaryInfection.Describe().ColourValue()}, difficulty {terrain.InfectionVirulence.Describe().ColourValue()} with virulence multiplier x{terrain.InfectionMultiplier.ToString("N3", actor).ColourValue()}.");
+				$"Infections caught here will be of type {terrain.PrimaryInfection.Describe().ColourValue()}, difficulty {terrain.InfectionVirulence.DescribeColoured()} with virulence {terrain.InfectionMultiplier.ToString("P3", actor).ColourValue()}.");
+			sb.AppendLine();
 			var territoryOwners = actor.Gameworld.NPCs.Where(x =>
 				x.CombinedEffectsOfType<Territory>().Any(y => y.Cells.Contains(actor.Location))).ToList();
 			sb.AppendLine("Territory Claimed By:");

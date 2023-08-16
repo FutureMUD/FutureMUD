@@ -502,7 +502,7 @@ All of the following commands must happen with an edited clan selected:
 		}
 		else
 		{
-			var (account, error) = Economy.Banking.Bank.FindBankAccount(ss.SafeRemainingArgument, null);
+			var (account, error) = Economy.Banking.Bank.FindBankAccount(ss.SafeRemainingArgument, null, actor);
 			if (account == null)
 			{
 				actor.OutputHandler.Send(error);
@@ -641,7 +641,7 @@ All of the following commands must happen with an edited clan selected:
 		}
 		else
 		{
-			var (account, error) = Economy.Banking.Bank.FindBankAccount(ss.SafeRemainingArgument, null);
+			var (account, error) = Economy.Banking.Bank.FindBankAccount(ss.SafeRemainingArgument, null, actor);
 			if (account == null)
 			{
 				actor.OutputHandler.Send(error);
@@ -4442,7 +4442,7 @@ Your next payday is {3}.
 			return;
 		}
 
-		var (account, error) = Economy.Banking.Bank.FindBankAccount(command.SafeRemainingArgument, null);
+		var (account, error) = Economy.Banking.Bank.FindBankAccount(command.SafeRemainingArgument, null, actor);
 		if (account is null)
 		{
 			actor.OutputHandler.Send(error);

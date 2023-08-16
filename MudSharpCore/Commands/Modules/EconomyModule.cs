@@ -885,7 +885,7 @@ BUY [<quantity>] <thing> WITH <item> - buys the thing with a payment item such a
 			return;
 		}
 
-		var (account, error) = Economy.Banking.Bank.FindBankAccount(ss.SafeRemainingArgument, null);
+		var (account, error) = Economy.Banking.Bank.FindBankAccount(ss.SafeRemainingArgument, null, actor);
 		if (account is null)
 		{
 			actor.OutputHandler.Send(error);
@@ -2994,6 +2994,7 @@ The syntax for using banks is as follows:
 	#3bank openclan <type> <clan>#0 - opens a new bank account on behalf of a clan
 	#3bank openshop <type> <shop>#0 - opens a new bank account on behalf of a shop
 	#3bank types#0 - shows what types of bank accounts this bank offers
+	#3bank alias <account#>#0 - sets the alias of a bank account
 	#3bank preview <type>#0 - previews the fees/interest of a bank account type
 	#3bank close <account#>#0 - permanently closes a bank account
 	#3bank show <account#>#0 - shows information about an account
@@ -3041,6 +3042,7 @@ Syntax Option 1:
 	#3bank openclan <type> <clan>#0 - opens a new bank account on behalf of a clan
 	#3bank openshop <type> <shop>#0 - opens a new bank account on behalf of a shop
 	#3bank types#0 - shows what types of bank accounts this bank offers
+	#3bank alias <account#>#0 - sets the alias of a bank account
 	#3bank closeaccount <account#>#0 - permanently closes a bank account
 	#3bank showaccount <account#>#0 - shows information about an account
 	#3bank transactions <account#>#0 - shows transaction history for a bank account
@@ -3058,6 +3060,7 @@ Syntax Option 2:
 	#3bank account clanopen <type> <clan>#0 - opens a new bank account on behalf of a clan
 	#3bank account shopopen <type> <shop>#0 - opens a new bank account on behalf of a shop
 	#3bank account types#0 - shows what types of bank accounts this bank offers
+	#3bank account alias <account#>#0 - sets the alias of a bank account
 	#3bank account close <account#>#0 - permanently closes a bank account
 	#3bank account show <account#>#0 - shows information about an account
 	#3bank account transactions <account#>#0 - shows transaction history for a bank account
@@ -3143,6 +3146,10 @@ Additionally, if you are the manager of a bank, you can use the following additi
 				BuildingCommandBankAccount(actor,
 					new StringStack("transfer" + ss.RemainingArgument.LeadingSpaceIfNotEmpty()));
 				return;
+			case "alias":
+				BuildingCommandBankAccount(actor,
+					new StringStack("alias" + ss.RemainingArgument.LeadingSpaceIfNotEmpty()));
+				return;
 			case "closeaccount":
 				BuildingCommandBankAccount(actor,
 					new StringStack("close" + ss.RemainingArgument.LeadingSpaceIfNotEmpty()));
@@ -3226,11 +3233,35 @@ Additionally, if you are the manager of a bank, you can use the following additi
 		var sb = new StringBuilder();
 		sb.AppendLine($"You have access to the following bank accounts with {bank.Name.ColourName()}:");
 		sb.AppendLine();
-		foreach (var account in accounts)
-		{
-			sb.AppendLine(
-				$"\t{account.Bank.Code.ToUpperInvariant()}:{account.AccountNumber.ToString("N0", actor)} [{account.AccountStatus.DescribeEnum().ColourValue()}] - {account.Name.ColourName()}, Balance: {bank.EconomicZone.Currency.Describe(account.CurrentBalance, CurrencyDescriptionPatternType.ShortDecimal).ColourValue()}");
-		}
+		sb.AppendLine(StringUtilities.GetTextTable(
+			from account in accounts
+			select new List<string>
+			{
+				$"{account.Bank.Code}:{account.AccountNumber.ToString("F0",actor)}",
+				account.BankAccountType.Name,
+				account.Name,
+				account.AccountStatus.DescribeEnum(),
+				bank.EconomicZone.Currency.Describe(account.CurrentBalance, CurrencyDescriptionPatternType.ShortDecimal).ColourValue(),
+				account.IsAccountOwner(actor) ? "You" : account.AccountOwner switch
+				{
+					ICharacter ch => ch.PersonalName.GetName(NameStyle.FullName),
+					IClan clan => clan.FullName,
+					IShop shop => shop.Name,
+					_ => "Unknown"
+				}
+			},
+			new List<string>
+			{
+				"Account",
+				"Account Type",
+				"Alias",
+				"Status",
+				"Balance",
+				"Owner"
+			},
+			actor,
+			Telnet.Yellow
+		));
 
 		actor.OutputHandler.Send(sb.ToString());
 	}
@@ -3285,6 +3316,7 @@ Additionally, if you are the manager of a bank, you can use the following additi
 			case "transactions":
 			case "requestitem":
 			case "cancelitems":
+			case "alias":
 				break;
 			default:
 				actor.OutputHandler.Send(@"The valid options for this sub-command are as follows:
@@ -3293,6 +3325,7 @@ Additionally, if you are the manager of a bank, you can use the following additi
 	#3bank account clanopen <type> <clan>#0 - opens a new bank account on behalf of a clan
 	#3bank account shopopen <type> <shop>#0 - opens a new bank account on behalf of a shop
 	#3bank account types#0 - shows what types of bank accounts this bank offers
+	#3bank account alias <account#>#0 - sets the alias of a bank account
 	#3bank account close <account#>#0 - permanently closes a bank account
 	#3bank account show <account#>#0 - shows information about an account
 	#3bank account transactions <account#>#0 - shows transaction history for an account
@@ -3313,17 +3346,13 @@ Additionally, if you are the manager of a bank, you can use the following additi
 			return;
 		}
 
-		if (!int.TryParse(ss.PopSpeech(), out var accn) || accn <= 0)
-		{
-			actor.OutputHandler.Send("The account number you specify must be a number greater than zero.");
-			return;
-		}
+		_ = int.TryParse(ss.PopSpeech(), out var accn);
 
 		var account =
-			bank.BankAccounts.FirstOrDefault(x => x.AccountNumber == accn && x.IsAuthorisedAccountUser(actor));
+			bank.BankAccounts.FirstOrDefault(x => ((accn > 0 && x.AccountNumber == accn) || x.Name.StartsWith(ss.Last, StringComparison.InvariantCultureIgnoreCase)) && x.IsAuthorisedAccountUser(actor));
 		if (account == null)
 		{
-			actor.OutputHandler.Send("You don't have access to any bank account with that account number.");
+			actor.OutputHandler.Send("You don't have access to any bank account with that account number or alias.");
 			return;
 		}
 
@@ -3370,7 +3399,22 @@ Additionally, if you are the manager of a bank, you can use the following additi
 			case "cancelitems":
 				BankAccountCancelItems(actor, ss, account, bank);
 				return;
+			case "alias":
+				BankAccountAlias(actor, ss, account, bank);
+				return;
 		}
+	}
+
+	private static void BankAccountAlias(ICharacter actor, StringStack ss, IBankAccount account, IBank bank)
+	{
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send("What alias do you want to give to that account?");
+			return;
+		}
+
+		account.SetName(ss.SafeRemainingArgument);
+		actor.OutputHandler.Send($"Bank account {account.AccountReference.ColourName()} now has the alias {account.Name.ColourCommand()} for use with bank commands.");
 	}
 
 	private static void BankAccountPreview(ICharacter actor, StringStack ss, IBank bank)
@@ -3630,7 +3674,7 @@ Additionally, if you are the manager of a bank, you can use the following additi
 		var moneyDescription = bank.PrimaryCurrency.Describe(amount, CurrencyDescriptionPatternType.Short)
 		                           .ColourValue();
 		actor.OutputHandler.Send(
-			$"You deposit {moneyDescription} into account {account.AccountNumber.ToString("F0", actor).ColourName()}.");
+			$"You deposit {moneyDescription} into account {account.NameWithAlias}.");
 		actor.OutputHandler.Handle(new EmoteOutput(
 			new Emote($"@ deposits {moneyDescription} into a bank account.", actor, actor),
 			flags: OutputFlags.SuppressSource));
@@ -3683,7 +3727,7 @@ Additionally, if you are the manager of a bank, you can use the following additi
 			return;
 		}
 
-		var (target, accountError) = Economy.Banking.Bank.FindBankAccount(accTarget, bank);
+		var (target, accountError) = Economy.Banking.Bank.FindBankAccount(accTarget, bank, actor);
 		if (target == null)
 		{
 			actor.OutputHandler.Send(accountError);
@@ -3779,7 +3823,7 @@ Additionally, if you are the manager of a bank, you can use the following additi
 		var moneyDescription = bank.PrimaryCurrency.Describe(amount, CurrencyDescriptionPatternType.Short)
 		                           .ColourValue();
 		actor.OutputHandler.Send(
-			$"You withdraw {moneyDescription} from account {account.AccountNumber.ToString("F0", actor).ColourName()}.");
+			$"You withdraw {moneyDescription} from account {account.NameWithAlias}.");
 		actor.OutputHandler.Handle(new EmoteOutput(
 			new Emote($"@ withdraws {moneyDescription} from a bank account.", actor, actor),
 			flags: OutputFlags.SuppressSource));
@@ -5028,7 +5072,7 @@ Note: There may be additional properties that can be edited depending on the typ
 				return;
 			}
 
-			var (account, error) = Economy.Banking.Bank.FindBankAccount(ss.SafeRemainingArgument, null);
+			var (account, error) = Economy.Banking.Bank.FindBankAccount(ss.SafeRemainingArgument, null, actor);
 			if (account is null)
 			{
 				actor.OutputHandler.Send(error);

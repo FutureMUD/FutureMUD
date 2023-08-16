@@ -61,7 +61,7 @@ public class BankAccount : SaveableItem, IBankAccount, ILazyLoadDuringIdleTime
 	public override void Save()
 	{
 		var dbitem = FMDB.Context.BankAccounts.Find(Id);
-		_name = dbitem.Name;
+		dbitem.Name = _name;
 		dbitem.AccountCreationDate = AccountCreationDate.GetDateTimeString();
 		dbitem.AccountNumber = AccountNumber;
 		dbitem.AccountStatus = (int)AccountStatus;
@@ -82,6 +82,7 @@ public class BankAccount : SaveableItem, IBankAccount, ILazyLoadDuringIdleTime
 	public int AccountNumber { get; set; }
 
 	public string AccountReference => $"{Bank.Code.ToUpperInvariant()}:{AccountNumber:F0}";
+	public string NameWithAlias => $"{AccountReference.ColourName()}{(!string.IsNullOrWhiteSpace(Name) ? $" [{Name}]".ColourCommand() : "")}";
 	public IBankAccountType BankAccountType { get; set; }
 	public ICurrency Currency => Bank.PrimaryCurrency;
 	public decimal CurrentBalance { get; set; }
@@ -158,6 +159,11 @@ public class BankAccount : SaveableItem, IBankAccount, ILazyLoadDuringIdleTime
 		Changed = true;
 	}
 
+	public void SetName(string name)
+	{
+		_name = name;
+		Changed = true;
+	}
 #nullable enable
 	public IGameItem? CreateNewPaymentItem()
 	{
@@ -496,6 +502,7 @@ public class BankAccount : SaveableItem, IBankAccount, ILazyLoadDuringIdleTime
 
 		sb.AppendLine($"Type: {BankAccountType.Name.ColourName()}");
 		sb.AppendLine($"Account Number: {AccountNumber.ToString("N0", actor).ColourValue()}");
+		sb.AppendLine($"Alias: {(!string.IsNullOrWhiteSpace(Name) ? Name.ColourValue() : "None".ColourError())}");
 		sb.AppendLine($"Bank Code: {Bank.Code.ToUpperInvariant().ColourName()}");
 		sb.AppendLine($"Created: {AccountCreationDate.Date.Display(CalendarDisplayMode.Short).ColourValue()}");
 		if (AccountStatus != BankAccountStatus.Active)

@@ -890,7 +890,7 @@ public class EditableItemHelper
 			}
 
 			var bankString = input.PopSpeech();
-			var (accountTarget, error) = Bank.FindBankAccount(bankString, null);
+			var (accountTarget, error) = Bank.FindBankAccount(bankString, null, actor);
 			if (accountTarget == null)
 			{
 				actor.OutputHandler.Send(error);
@@ -990,7 +990,7 @@ public class EditableItemHelper
 			}
 
 			var bankString = input.PopSpeech();
-			var (accountTarget, error) = Bank.FindBankAccount(bankString, null);
+			var (accountTarget, error) = Bank.FindBankAccount(bankString, null, actor);
 			if (accountTarget == null)
 			{
 				actor.OutputHandler.Send(error);

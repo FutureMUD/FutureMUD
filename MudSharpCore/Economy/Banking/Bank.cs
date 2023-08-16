@@ -27,7 +27,7 @@ namespace MudSharp.Economy.Banking;
 public class Bank : SaveableItem, IBank, ILazyLoadDuringIdleTime
 {
 #nullable enable
-	public static (IBankAccount? Account, string Error) FindBankAccount(string accTarget, IBank? homeBank)
+	public static (IBankAccount? Account, string Error) FindBankAccount(string accTarget, IBank? homeBank, ICharacter character)
 	{
 		if (accTarget.Split(':').Length == 2)
 		{
@@ -58,23 +58,21 @@ public class Bank : SaveableItem, IBank, ILazyLoadDuringIdleTime
 
 		if (homeBank != null)
 		{
-			if (!int.TryParse(accTarget, out var accn) || accn <= 0)
-			{
-				return (null, "The account number to transfer money into must be a number greater than zero.");
-			}
+			_ = int.TryParse(accTarget, out var accn);
 
 			var accountTarget = homeBank.BankAccounts.FirstOrDefault(x =>
-				x.AccountNumber == accn && x.AccountStatus == BankAccountStatus.Active);
+				(x.AccountNumber == accn || (x.Name.StartsWith(accTarget, StringComparison.InvariantCultureIgnoreCase) && x.IsAuthorisedAccountUser(character)))
+				&& x.AccountStatus == BankAccountStatus.Active);
 			if (accountTarget == null)
 			{
 				return (null,
-					$"The supplied account number is not a valid account number for {homeBank.Name.ColourName()}.");
+					$"The supplied account number or alias is not a valid account number for {homeBank.Name.ColourName()}.");
 			}
 
 			return (accountTarget, string.Empty);
 		}
 
-		return (null, $"You must specify a bank account in the form {"bankcode:account#".Colour(Telnet.BoldCyan)}.");
+		return (null, $"You must specify a bank account in the form {"bankcode:account#".Colour(Telnet.BoldCyan)} or the alias of a bank account you control.");
 	}
 #nullable restore
 

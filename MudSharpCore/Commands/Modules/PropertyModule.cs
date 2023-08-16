@@ -754,7 +754,7 @@ The following commands are specific to those who own a property (or who are mana
 		}
 		else
 		{
-			var (account, error) = Bank.FindBankAccount(ss.SafeRemainingArgument, null);
+			var (account, error) = Bank.FindBankAccount(ss.SafeRemainingArgument, null, actor);
 			if (account == null)
 			{
 				actor.OutputHandler.Send(error);
@@ -1597,7 +1597,7 @@ The following commands are specific to those who own a property (or who are mana
 			return;
 		}
 
-		var (accountTarget, error) = Bank.FindBankAccount(ss.SafeRemainingArgument, null);
+		var (accountTarget, error) = Bank.FindBankAccount(ss.SafeRemainingArgument, null, actor);
 		if (accountTarget == null)
 		{
 			actor.OutputHandler.Send(error);
@@ -1693,7 +1693,7 @@ The following commands are specific to those who own a property (or who are mana
 		}
 		else
 		{
-			var (account, error) = Bank.FindBankAccount(ss.SafeRemainingArgument, null);
+			var (account, error) = Bank.FindBankAccount(ss.SafeRemainingArgument, null, actor);
 			if (account == null)
 			{
 				actor.OutputHandler.Send(error);
@@ -1900,7 +1900,7 @@ The following commands are specific to those who own a property (or who are mana
 		}
 		else
 		{
-			var (account, error) = Bank.FindBankAccount(ss.SafeRemainingArgument, null);
+			var (account, error) = Bank.FindBankAccount(ss.SafeRemainingArgument, null, actor);
 			if (account == null)
 			{
 				actor.OutputHandler.Send(error);

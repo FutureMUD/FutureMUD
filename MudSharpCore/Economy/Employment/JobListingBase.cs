@@ -718,7 +718,7 @@ public abstract class JobListingBase : SaveableItem, IJobListing
 			return true;
 		}
 
-		var (account, error) = Bank.FindBankAccount(command.SafeRemainingArgument, null);
+		var (account, error) = Bank.FindBankAccount(command.SafeRemainingArgument, null, actor);
 		if (account is null)
 		{
 			actor.OutputHandler.Send(error);

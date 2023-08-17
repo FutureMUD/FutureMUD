@@ -262,20 +262,16 @@ public class WearableGameItemComponent : GameItemComponent, IWearable
 
 				return sb.ToString();
 			case DescriptionType.Evaluate:
-				sb.AppendLine($"This item is something that is able to be worn.");
-				sb.AppendLine(
-					$"It can be worn by those with a body type of {Profiles.Select(x => x.DesignedBody.Name.ColourValue()).ListToString(conjunction: "or ")}.");
+				sb.AppendLine($"This is something that can be worn by those with a body type of {Profiles.Select(x => x.DesignedBody.Name.ColourValue()).ListToString(conjunction: "or ")}.");
 				if (Bulky)
 				{
 					sb.AppendLine($"It is considered bulky, and cannot be worn over other bulky items.");
 				}
 
-				sb.AppendLine(
-					$"It consumes {LayerWeightConsumption.ToString("P2", voyeur).ColourValue()} of a layer for maximum layering purposes.");
+				sb.AppendLine($"It consumes {LayerWeightConsumption.ToString("P2", voyeur).ColourValue()} of a layer for maximum layering purposes.");
 				if (_prototype.Waterproof)
 				{
-					sb.AppendLine(
-						$"It is waterproof when less than {(1.0 - _prototype.WaterproofDamageRatio).ToString("P2", voyeur).ColourValue()} damaged.");
+					sb.AppendLine($"It is waterproof when less than {(1.0 - _prototype.WaterproofDamageRatio).ToString("P2", voyeur).ColourValue()} damaged.");
 					sb.AppendLine($"It {(Waterproof ? "is" : "is not")} currently waterproof.");
 				}
 				else
@@ -290,8 +286,7 @@ public class WearableGameItemComponent : GameItemComponent, IWearable
 				}
 
 				sb.AppendLine();
-				sb.AppendLine(
-					$"It will be worn in the {DefaultProfile.Name.ColourValue()} profile by default if not specified.");
+				sb.AppendLine($"It will be worn in the {DefaultProfile.Name.ColourValue()} profile by default.");
 				sb.AppendLine();
 				sb.AppendLine("It has the following profiles:");
 				foreach (var profile in Profiles.OrderByDescending(x => x == DefaultProfile).ThenBy(x => x.Name))

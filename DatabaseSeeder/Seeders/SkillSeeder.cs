@@ -149,243 +149,248 @@ Again, the choices you make here can be fixed later so don't stress it too great
 		var checks = Enum.GetValues(typeof(CheckType)).OfType<CheckType>().ToList();
 		var uniquechecks = Enum.GetValues(typeof(CheckType)).OfType<CheckType>().Distinct().ToList();
 		foreach (var check in Enum.GetValues(typeof(CheckType)).OfType<CheckType>().Distinct().ToList())
-			switch (check)
-			{
-				case CheckType.None:
-					// Default Fall Back
-					AddCheck(check, new TraitExpression { Name = "Default Fallback Check", Expression = "variable" }, 3,
-						Difficulty.Automatic);
-					continue;
-				case CheckType.ProjectLabourCheck:
-					// Special Project Check
-					AddCheck(check,
-						new TraitExpression { Name = $"{check.DescribeEnum(true)}", Expression = "variable" }, 9,
-						Difficulty.Automatic);
-					break;
-				case CheckType.HealingCheck:
-				case CheckType.StunRecoveryCheck:
-				case CheckType.ShockRecoveryCheck:
-				case CheckType.PainRecoveryCheck:
-				case CheckType.WoundCloseCheck:
-					// Health Checks
-					AddCheck(check,
-						new TraitExpression { Name = $"{check.DescribeEnum(true)}", Expression = "max(5.0, 0.0)" }, 11,
-						Difficulty.Automatic);
-					break;
+            switch (check)
+            {
+                case CheckType.None:
+                    // Default Fall Back
+                    AddCheck(check, new TraitExpression { Name = "Default Fallback Check", Expression = "variable" }, 3,
+                        Difficulty.Automatic);
+                    continue;
+                case CheckType.ProjectLabourCheck:
+                    // Special Project Check
+                    AddCheck(check,
+                        new TraitExpression { Name = $"{check.DescribeEnum(true)}", Expression = "variable" }, 9,
+                        Difficulty.Automatic);
+                    break;
+                case CheckType.HealingCheck:
+                case CheckType.StunRecoveryCheck:
+                case CheckType.ShockRecoveryCheck:
+                case CheckType.PainRecoveryCheck:
+                case CheckType.WoundCloseCheck:
+                    // Health Checks
+                    AddCheck(check,
+                        new TraitExpression { Name = $"{check.DescribeEnum(true)}", Expression = "max(5.0, 0.0)" }, 11,
+                        Difficulty.Automatic);
+                    break;
 
-				case CheckType.DreamCheck:
-				case CheckType.GoToSleepCheck:
-					// Special Dream-Related checks
-					AddCheck(check, new TraitExpression { Name = $"{check.DescribeEnum(true)}", Expression = "100" }, 8,
-						Difficulty.Automatic);
-					break;
-				case CheckType.ExactTimeCheck:
-				case CheckType.VagueTimeCheck:
-				case CheckType.StyleCharacteristicCapabilityCheck:
-				case CheckType.ImplantRecognitionCheck:
-				case CheckType.TreatmentItemRecognitionCheck:
-					// Capability Checks
-					AddCheck(check, new TraitExpression { Name = $"{check.DescribeEnum(true)}", Expression = "0" }, 8,
-						Difficulty.Automatic);
-					continue;
-				case CheckType.GenericAttributeCheck:
-					AddCheck(check,
-						new TraitExpression { Name = $"{check.DescribeEnum(true)}", Expression = "variable*5" }, 3,
-						Difficulty.Automatic);
-					continue;
-				case CheckType.GenericSkillCheck:
-					AddCheck(check,
-						new TraitExpression { Name = $"{check.DescribeEnum(true)}", Expression = "variable" }, 3,
-						Difficulty.Automatic);
-					continue;
-				case CheckType.GenericListenCheck:
-				case CheckType.LanguageListenCheck:
-				case CheckType.GenericSpotCheck:
-				case CheckType.NoticeCheck:
-				case CheckType.SpotSneakCheck:
-				case CheckType.ScanPerceptionCheck:
-				case CheckType.QuickscanPerceptionCheck:
-				case CheckType.LongscanPerceptionCheck:
-				case CheckType.WatchLocation:
-				case CheckType.PassiveStealthCheck:
-				case CheckType.ActiveSearchCheck:
-					// Perception Checks
-					AddCheck(check, new TraitExpression { Name = $"{check.DescribeEnum(true)}", Expression = "50" }, 5,
-						Difficulty.Impossible);
-					break;
-				case CheckType.SpokenLanguageSpeakCheck:
-				case CheckType.SpokenLanguageHearCheck:
-					// Language Checks
-					AddCheck(check,
-						new TraitExpression { Name = $"{check.DescribeEnum(true)}", Expression = "variable" }, 4,
-						Difficulty.Impossible);
-					break;
-				case CheckType.AccentAcquireCheck:
-				case CheckType.AccentImproveCheck:
-					// Static Checks
-					AddCheck(check, new TraitExpression { Name = $"{check.DescribeEnum(true)}", Expression = "2.0" },
-						12, Difficulty.Automatic);
-					break;
-				case CheckType.TraitBranchCheck:
-					// Trait Branch Only
-					AddCheck(check, new TraitExpression { Name = $"{check.DescribeEnum(true)}", Expression = "0.1" }, 6,
-						Difficulty.Automatic);
-					break;
-				case CheckType.ProjectSkillUseAction:
-					// Bonus-Absent Checks
-					AddCheck(check,
-						new TraitExpression { Name = $"{check.DescribeEnum(true)}", Expression = "variable" }, 10,
-						Difficulty.Automatic);
-					break;
-				case CheckType.SpotStealthCheck:
-					AddCheck(check, new TraitExpression { Name = $"{check.DescribeEnum(true)}", Expression = "50" }, 7,
-						Difficulty.Impossible);
-					break;
-				case CheckType.HideCheck:
-				case CheckType.SneakCheck:
-				case CheckType.PalmCheck:
-				case CheckType.HideItemCheck:
-				case CheckType.UninstallDoorCheck:
-				case CheckType.SkillTeachCheck:
-				case CheckType.SkillLearnCheck:
-				case CheckType.KnowledgeTeachCheck:
-				case CheckType.KnowledgeLearnCheck:
-				case CheckType.ForageCheck:
-				case CheckType.ForageSpecificCheck:
-				case CheckType.ForageTimeCheck:
-				case CheckType.BindWoundCheck:
-				case CheckType.SutureWoundCheck:
-				case CheckType.CleanWoundCheck:
-				case CheckType.RemoveLodgedObjectCheck:
-				case CheckType.MendCheck:
-				case CheckType.MeleeWeaponPenetrateCheck:
-				case CheckType.RangedWeaponPenetrateCheck:
-				case CheckType.PenetrationDefenseCheck:
-				case CheckType.CombatRecoveryCheck:
-				case CheckType.MedicalExaminationCheck:
-				case CheckType.LocksmithingCheck:
-				case CheckType.NaturalWeaponAttack:
-				case CheckType.DodgeCheck:
-				case CheckType.ParryCheck:
-				case CheckType.BlockCheck:
-				case CheckType.FleeMeleeCheck:
-				case CheckType.OpposeFleeMeleeCheck:
-				case CheckType.Ward:
-				case CheckType.WardDefense:
-				case CheckType.WardIgnore:
-				case CheckType.StartClinch:
-				case CheckType.ResistClinch:
-				case CheckType.BreakClinch:
-				case CheckType.ResistBreakClinch:
-				case CheckType.ExploratorySurgeryCheck:
-				case CheckType.TriageCheck:
-				case CheckType.AmputationCheck:
-				case CheckType.ReplantationCheck:
-				case CheckType.InvasiveProcedureFinalisation:
-				case CheckType.TraumaControlSurgery:
-				case CheckType.RescueCheck:
-				case CheckType.OpposeRescueCheck:
-				case CheckType.Defibrillate:
-				case CheckType.PerformCPR:
-				case CheckType.ArmourUseCheck:
-				case CheckType.ReadTextImprovementCheck:
-				case CheckType.HandwritingImprovementCheck:
-				case CheckType.StaggeringBlowDefense:
-				case CheckType.StruggleFreeFromDrag:
-				case CheckType.OpposeStruggleFreeFromDrag:
-				case CheckType.CounterGrappleCheck:
-				case CheckType.StruggleFreeFromGrapple:
-				case CheckType.OpposeStruggleFreeFromGrapple:
-				case CheckType.ExtendGrappleCheck:
-				case CheckType.InitiateGrapple:
-				case CheckType.ScreechAttack:
-				case CheckType.CrutchWalking:
-				case CheckType.OrganExtractionCheck:
-				case CheckType.OrganTransplantCheck:
-				case CheckType.CannulationProcedure:
-				case CheckType.DecannulationProcedure:
-				case CheckType.StrangleCheck:
-				case CheckType.WrenchAttackCheck:
-				case CheckType.OrganStabilisationCheck:
-				case CheckType.CraftOutcomeCheck:
-				case CheckType.CraftQualityCheck:
-				case CheckType.TendWoundCheck:
-				case CheckType.RelocateBoneCheck:
-				case CheckType.SurgicalSetCheck:
-				case CheckType.RepairItemCheck:
-				case CheckType.InstallImplantSurgery:
-				case CheckType.RemoveImplantSurgery:
-				case CheckType.ConfigureImplantPowerSurgery:
-				case CheckType.ButcheryCheck:
-				case CheckType.SkinningCheck:
-				case CheckType.TossItemCheck:
-				case CheckType.ClimbCheck:
-				case CheckType.ConfigureImplantInterfaceSurgery:
-				case CheckType.InkTattooCheck:
-				case CheckType.FallingImpactCheck:
-				case CheckType.ResistMagicChokePower:
-				case CheckType.ResistMagicAnesthesiaPower:
-				case CheckType.SwimmingCheck:
-				case CheckType.AvoidFallDueToWind:
-				case CheckType.SwimStayAfloatCheck:
-				case CheckType.FlyCheck:
-				case CheckType.CheatAtDiceCheck:
-				case CheckType.EvaluateDiceFairnessCheck:
-				case CheckType.SpillLiquidOnPerson:
-				case CheckType.DodgeSpillLiquidOnPerson:
-				case CheckType.DrawingImprovementCheck:
-				case CheckType.TakedownCheck:
-				case CheckType.BreakoutCheck:
-				case CheckType.OpposeBreakoutCheck:
-					// Non-variable skills
-					AddCheck(check, new TraitExpression { Name = $"{check.DescribeEnum(true)}", Expression = "50" }, 1,
-						Difficulty.Impossible);
-					break;
+                case CheckType.DreamCheck:
+                case CheckType.GoToSleepCheck:
+                    // Special Dream-Related checks
+                    AddCheck(check, new TraitExpression { Name = $"{check.DescribeEnum(true)}", Expression = "100" }, 8,
+                        Difficulty.Automatic);
+                    break;
+                case CheckType.ExactTimeCheck:
+                case CheckType.VagueTimeCheck:
+                case CheckType.StyleCharacteristicCapabilityCheck:
+                case CheckType.ImplantRecognitionCheck:
+                case CheckType.TreatmentItemRecognitionCheck:
+                    // Capability Checks
+                    AddCheck(check, new TraitExpression { Name = $"{check.DescribeEnum(true)}", Expression = "0" }, 8,
+                        Difficulty.Automatic);
+                    continue;
+                case CheckType.GenericAttributeCheck:
+                    AddCheck(check,
+                        new TraitExpression { Name = $"{check.DescribeEnum(true)}", Expression = "variable*5" }, 3,
+                        Difficulty.Automatic);
+                    continue;
+                case CheckType.GenericSkillCheck:
+                    AddCheck(check,
+                        new TraitExpression { Name = $"{check.DescribeEnum(true)}", Expression = "variable" }, 3,
+                        Difficulty.Automatic);
+                    continue;
+                case CheckType.GenericListenCheck:
+                case CheckType.LanguageListenCheck:
+                case CheckType.GenericSpotCheck:
+                case CheckType.NoticeCheck:
+                case CheckType.SpotSneakCheck:
+                case CheckType.ScanPerceptionCheck:
+                case CheckType.QuickscanPerceptionCheck:
+                case CheckType.LongscanPerceptionCheck:
+                case CheckType.WatchLocation:
+                case CheckType.PassiveStealthCheck:
+                case CheckType.ActiveSearchCheck:
+                    // Perception Checks
+                    AddCheck(check, new TraitExpression { Name = $"{check.DescribeEnum(true)}", Expression = "50" }, 5,
+                        Difficulty.Impossible);
+                    break;
+                case CheckType.SpokenLanguageSpeakCheck:
+                case CheckType.SpokenLanguageHearCheck:
+                    // Language Checks
+                    AddCheck(check,
+                        new TraitExpression { Name = $"{check.DescribeEnum(true)}", Expression = "variable" }, 4,
+                        Difficulty.Impossible);
+                    break;
+                case CheckType.AccentAcquireCheck:
+                case CheckType.AccentImproveCheck:
+                    // Static Checks
+                    AddCheck(check, new TraitExpression { Name = $"{check.DescribeEnum(true)}", Expression = "2.0" },
+                        12, Difficulty.Automatic);
+                    break;
+                case CheckType.TraitBranchCheck:
+                    // Trait Branch Only
+                    AddCheck(check, new TraitExpression { Name = $"{check.DescribeEnum(true)}", Expression = "0.1" }, 6,
+                        Difficulty.Automatic);
+                    break;
+                case CheckType.ProjectSkillUseAction:
+                    // Bonus-Absent Checks
+                    AddCheck(check,
+                        new TraitExpression { Name = $"{check.DescribeEnum(true)}", Expression = "variable" }, 10,
+                        Difficulty.Automatic);
+                    break;
+                case CheckType.SpotStealthCheck:
+                    AddCheck(check, new TraitExpression { Name = $"{check.DescribeEnum(true)}", Expression = "50" }, 7,
+                        Difficulty.Impossible);
+                    break;
+                case CheckType.HideCheck:
+                case CheckType.SneakCheck:
+                case CheckType.PalmCheck:
+                case CheckType.HideItemCheck:
+                case CheckType.UninstallDoorCheck:
+                case CheckType.SkillTeachCheck:
+                case CheckType.SkillLearnCheck:
+                case CheckType.KnowledgeTeachCheck:
+                case CheckType.KnowledgeLearnCheck:
+                case CheckType.ForageCheck:
+                case CheckType.ForageSpecificCheck:
+                case CheckType.ForageTimeCheck:
+                case CheckType.BindWoundCheck:
+                case CheckType.SutureWoundCheck:
+                case CheckType.CleanWoundCheck:
+                case CheckType.RemoveLodgedObjectCheck:
+                case CheckType.MendCheck:
+                case CheckType.MeleeWeaponPenetrateCheck:
+                case CheckType.RangedWeaponPenetrateCheck:
+                case CheckType.PenetrationDefenseCheck:
+                case CheckType.CombatRecoveryCheck:
+                case CheckType.MedicalExaminationCheck:
+                case CheckType.LocksmithingCheck:
+                case CheckType.NaturalWeaponAttack:
+                case CheckType.DodgeCheck:
+                case CheckType.ParryCheck:
+                case CheckType.BlockCheck:
+                case CheckType.FleeMeleeCheck:
+                case CheckType.OpposeFleeMeleeCheck:
+                case CheckType.Ward:
+                case CheckType.WardDefense:
+                case CheckType.WardIgnore:
+                case CheckType.StartClinch:
+                case CheckType.ResistClinch:
+                case CheckType.BreakClinch:
+                case CheckType.ResistBreakClinch:
+                case CheckType.ExploratorySurgeryCheck:
+                case CheckType.TriageCheck:
+                case CheckType.AmputationCheck:
+                case CheckType.ReplantationCheck:
+                case CheckType.InvasiveProcedureFinalisation:
+                case CheckType.TraumaControlSurgery:
+                case CheckType.RescueCheck:
+                case CheckType.OpposeRescueCheck:
+                case CheckType.Defibrillate:
+                case CheckType.PerformCPR:
+                case CheckType.ArmourUseCheck:
+                case CheckType.ReadTextImprovementCheck:
+                case CheckType.HandwritingImprovementCheck:
+                case CheckType.StaggeringBlowDefense:
+                case CheckType.StruggleFreeFromDrag:
+                case CheckType.OpposeStruggleFreeFromDrag:
+                case CheckType.CounterGrappleCheck:
+                case CheckType.StruggleFreeFromGrapple:
+                case CheckType.OpposeStruggleFreeFromGrapple:
+                case CheckType.ExtendGrappleCheck:
+                case CheckType.InitiateGrapple:
+                case CheckType.ScreechAttack:
+                case CheckType.CrutchWalking:
+                case CheckType.OrganExtractionCheck:
+                case CheckType.OrganTransplantCheck:
+                case CheckType.CannulationProcedure:
+                case CheckType.DecannulationProcedure:
+                case CheckType.StrangleCheck:
+                case CheckType.WrenchAttackCheck:
+                case CheckType.OrganStabilisationCheck:
+                case CheckType.CraftOutcomeCheck:
+                case CheckType.CraftQualityCheck:
+                case CheckType.TendWoundCheck:
+                case CheckType.RelocateBoneCheck:
+                case CheckType.SurgicalSetCheck:
+                case CheckType.RepairItemCheck:
+                case CheckType.InstallImplantSurgery:
+                case CheckType.RemoveImplantSurgery:
+                case CheckType.ConfigureImplantPowerSurgery:
+                case CheckType.ButcheryCheck:
+                case CheckType.SkinningCheck:
+                case CheckType.TossItemCheck:
+                case CheckType.ClimbCheck:
+                case CheckType.ConfigureImplantInterfaceSurgery:
+                case CheckType.InkTattooCheck:
+                case CheckType.FallingImpactCheck:
+                case CheckType.ResistMagicChokePower:
+                case CheckType.ResistMagicAnesthesiaPower:
+                case CheckType.SwimmingCheck:
+                case CheckType.AvoidFallDueToWind:
+                case CheckType.SwimStayAfloatCheck:
+                case CheckType.FlyCheck:
+                case CheckType.CheatAtDiceCheck:
+                case CheckType.EvaluateDiceFairnessCheck:
+                case CheckType.SpillLiquidOnPerson:
+                case CheckType.DodgeSpillLiquidOnPerson:
+                case CheckType.DrawingImprovementCheck:
+                case CheckType.TakedownCheck:
+                case CheckType.BreakoutCheck:
+                case CheckType.OpposeBreakoutCheck:
+                case CheckType.StyleCharacteristicCheck:
+                case CheckType.AppraiseItemCheck:
+                    // Non-variable skills
+                    AddCheck(check, new TraitExpression { Name = $"{check.DescribeEnum(true)}", Expression = "50" }, 1,
+                        Difficulty.Impossible);
+                    break;
 
-				case CheckType.MeleeWeaponCheck:
-				case CheckType.ThrownWeaponCheck:
-				case CheckType.AimRangedWeapon:
-				case CheckType.FireBow:
-				case CheckType.FireCrossbow:
-				case CheckType.FireFirearm:
-				case CheckType.FireSling:
-				case CheckType.KeepAimTargetMoved:
-				case CheckType.ProgSkillUseCheck:
-				case CheckType.MagicConcentrationOnWounded:
-				case CheckType.ConnectMindPower:
-				case CheckType.PsychicLanguageHearCheck:
-				case CheckType.MindSayPower:
-				case CheckType.MindBroadcastPower:
-				case CheckType.MagicTelepathyCheck:
-				case CheckType.MindLookPower:
-				case CheckType.InvisibilityPower:
-				case CheckType.MagicArmourPower:
-				case CheckType.MagicAnesthesiaPower:
-				case CheckType.MagicSensePower:
-				case CheckType.MagicChokePower:
-				case CheckType.MindAuditPower:
-				case CheckType.MindBarrierPowerCheck:
-				case CheckType.MindExpelPower:
-				case CheckType.CombatMoveCheck:
-					// Variable skills
-					AddCheck(check,
-						new TraitExpression { Name = $"{check.DescribeEnum(true)}", Expression = "variable" }, 1,
-						Difficulty.Impossible);
-					break;
+                case CheckType.MeleeWeaponCheck:
+                case CheckType.ThrownWeaponCheck:
+                case CheckType.AimRangedWeapon:
+                case CheckType.FireBow:
+                case CheckType.FireCrossbow:
+                case CheckType.FireFirearm:
+                case CheckType.FireSling:
+                case CheckType.KeepAimTargetMoved:
+                case CheckType.ProgSkillUseCheck:
+                case CheckType.MagicConcentrationOnWounded:
+                case CheckType.ConnectMindPower:
+                case CheckType.PsychicLanguageHearCheck:
+                case CheckType.MindSayPower:
+                case CheckType.MindBroadcastPower:
+                case CheckType.MagicTelepathyCheck:
+                case CheckType.MindLookPower:
+                case CheckType.InvisibilityPower:
+                case CheckType.MagicArmourPower:
+                case CheckType.MagicAnesthesiaPower:
+                case CheckType.MagicSensePower:
+                case CheckType.MagicChokePower:
+                case CheckType.MindAuditPower:
+                case CheckType.MindBarrierPowerCheck:
+                case CheckType.MindExpelPower:
+                case CheckType.CombatMoveCheck:
+                case CheckType.CastSpellCheck:
+                case CheckType.AuxiliaryMoveCheck:
+                case CheckType.ResistMagicSpellCheck:
+                    // Variable skills
+                    AddCheck(check,
+                        new TraitExpression { Name = $"{check.DescribeEnum(true)}", Expression = "variable" }, 1,
+                        Difficulty.Impossible);
+                    break;
 
-				case CheckType.InfectionHeartbeat:
-				case CheckType.InfectionSpread:
-				case CheckType.ReplantedBodypartRejectionCheck:
-					// Non-Improving Skill Checks
-					AddCheck(check, new TraitExpression { Name = $"{check.DescribeEnum(true)}", Expression = "50" }, 3,
-						Difficulty.Automatic);
-					break;
-			}
+                case CheckType.InfectionHeartbeat:
+                case CheckType.InfectionSpread:
+                case CheckType.ReplantedBodypartRejectionCheck:
+                    // Non-Improving Skill Checks
+                    AddCheck(check, new TraitExpression { Name = $"{check.DescribeEnum(true)}", Expression = "50" }, 3,
+                        Difficulty.Automatic);
+                    break;
+            }
 
-		context.SaveChanges();
-	}
+        context.SaveChanges();
+    }
 
-	private void SeedSkills(FuturemudDatabaseContext context, IReadOnlyDictionary<string, string> questionAnswers)
+    private void SeedSkills(FuturemudDatabaseContext context, IReadOnlyDictionary<string, string> questionAnswers)
 	{
 		var skillGainModel = questionAnswers["skillgainmodel"].ToLowerInvariant();
 

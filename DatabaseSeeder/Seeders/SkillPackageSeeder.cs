@@ -507,528 +507,533 @@ Please choose either #6simple#0 or #6complex#0: ", (context, answers) => true,
 		var armourUseTrait = skills["Armour Use"];
 
 		foreach (var check in Enum.GetValues(typeof(CheckType)).OfType<CheckType>().Distinct().ToList())
-			switch (check)
-			{
-				case CheckType.None:
-					// Default Fall Back
-					AddCheck(check, new TraitExpression { Expression = "variable" },
-						templates["Skill Check No Improvement"].Id, Difficulty.Automatic);
-					continue;
-				case CheckType.ProjectLabourCheck:
-					// Special Project Check
-					AddCheck(check, new TraitExpression { Expression = "variable" }, templates["Project Check"].Id,
-						Difficulty.Automatic);
-					continue;
-				case CheckType.HealingCheck:
-					AddCheck(check,
-						new TraitExpression { Expression = $"max(5.0, {conAttribute.Alias}:{conAttribute.Id}/2)" },
-						templates["Health Check"].Id, Difficulty.Automatic);
-					continue;
-				case CheckType.StunRecoveryCheck:
-					AddCheck(check,
-						new TraitExpression
-						{
-							Expression =
-								$"max(10.0, {conAttribute.Alias}:{conAttribute.Id} + {wilAttribute.Alias}:{wilAttribute.Id})"
-						}, templates["Health Check"].Id, Difficulty.Automatic);
-					continue;
-				case CheckType.ShockRecoveryCheck:
-					AddCheck(check,
-						new TraitExpression
-						{
-							Expression =
-								$"max(10.0, {conAttribute.Alias}:{conAttribute.Id} + {wilAttribute.Alias}:{wilAttribute.Id})"
-						}, templates["Health Check"].Id, Difficulty.Automatic);
-					continue;
-				case CheckType.PainRecoveryCheck:
-					AddCheck(check,
-						new TraitExpression { Expression = $"max(10.0, {wilAttribute.Alias}:{wilAttribute.Id}*2)" },
-						templates["Health Check"].Id, Difficulty.Automatic);
-					continue;
-				case CheckType.WoundCloseCheck:
-					AddCheck(check, new TraitExpression { Expression = $"{conAttribute.Alias}:{conAttribute.Id}/10" },
-						templates["Health Check"].Id, Difficulty.Automatic);
-					continue;
-				case CheckType.DreamCheck:
-					AddCheck(check, new TraitExpression { Expression = "10" }, templates["Capability Check"].Id,
-						Difficulty.Automatic);
-					continue;
-				case CheckType.GoToSleepCheck:
-					AddCheck(check, new TraitExpression { Expression = "10" }, templates["Capability Check"].Id,
-						Difficulty.Automatic);
-					break;
-				case CheckType.ExactTimeCheck:
-					AddCheck(check, new TraitExpression { Expression = "0" }, templates["Capability Check"].Id,
-						Difficulty.Automatic);
-					continue;
-				case CheckType.VagueTimeCheck:
-					AddCheck(check, new TraitExpression { Expression = "0" }, templates["Capability Check"].Id,
-						Difficulty.Automatic);
-					continue;
-				case CheckType.StyleCharacteristicCapabilityCheck:
-					AddCheck(check, new TraitExpression { Expression = $"groom:{skills["Groom"].Id}+50" },
-						templates["Capability Check"].Id, Difficulty.Automatic);
-					continue;
-				case CheckType.ImplantRecognitionCheck:
-					AddCheck(check, new TraitExpression { Expression = $"60+surgery:{surgeryTrait.Id}" },
-						templates["Capability Check"].Id, Difficulty.Automatic);
-					continue;
-				case CheckType.TreatmentItemRecognitionCheck:
-					// Capability Checks
-					AddCheck(check,
-						new TraitExpression
-							{ Expression = $"(care:{patientCareTrait.Id}+firstaid:{firstAidTrait.Id})*10" },
-						templates["Capability Check"].Id, Difficulty.Automatic);
-					continue;
-				case CheckType.GenericAttributeCheck:
-					AddCheck(check, new TraitExpression { Expression = "variable*5" },
-						templates["Skill Check No Improvement"].Id, Difficulty.Automatic);
-					continue;
-				case CheckType.GenericSkillCheck:
-					AddCheck(check, new TraitExpression { Expression = "variable" },
-						templates["Skill Check No Improvement"].Id, Difficulty.Automatic);
-					continue;
-				case CheckType.GenericListenCheck:
-					AddCheck(check, new TraitExpression { Expression = $"listen:{listenTrait.Id}+10" },
-						templates["Perception Check"].Id, Difficulty.Impossible);
-					continue;
-				case CheckType.LanguageListenCheck:
-					AddCheck(check, new TraitExpression { Expression = $"listen:{listenTrait.Id}+50" },
-						templates["Perception Check"].Id, Difficulty.Impossible);
-					continue;
-				case CheckType.GenericSpotCheck:
-					AddCheck(check, new TraitExpression { Expression = $"spot:{spotTrait.Id}+10" },
-						templates["Perception Check"].Id, Difficulty.Impossible);
-					continue;
-				case CheckType.NoticeCheck:
-					AddCheck(check, new TraitExpression { Expression = $"spot:{spotTrait.Id}+30" },
-						templates["Perception Check"].Id, Difficulty.Impossible);
-					continue;
-				case CheckType.SpotSneakCheck:
-					AddCheck(check,
-						new TraitExpression
-							{ Expression = $"(spot:{spotTrait.Id}*0.8)+(listen:{listenTrait.Id}*0.4)+10" },
-						templates["Perception Check"].Id, Difficulty.Impossible);
-					continue;
-				case CheckType.ScanPerceptionCheck:
-					AddCheck(check, new TraitExpression { Expression = $"spot:{spotTrait.Id}+10" },
-						templates["Perception Check"].Id, Difficulty.Impossible);
-					continue;
-				case CheckType.QuickscanPerceptionCheck:
-					AddCheck(check, new TraitExpression { Expression = $"spot:{spotTrait.Id}-10" },
-						templates["Perception Check"].Id, Difficulty.Impossible);
-					continue;
-				case CheckType.LongscanPerceptionCheck:
-					AddCheck(check, new TraitExpression { Expression = $"spot:{spotTrait.Id}+30" },
-						templates["Perception Check"].Id, Difficulty.Impossible);
-					continue;
-				case CheckType.WatchLocation:
-					AddCheck(check,
-						new TraitExpression
-							{ Expression = $"(spot:{spotTrait.Id}*0.8)+(listen:{listenTrait.Id}*0.4)+10" },
-						templates["Perception Check"].Id, Difficulty.Impossible);
-					continue;
-				case CheckType.PassiveStealthCheck:
-					AddCheck(check, new TraitExpression { Expression = $"search:{searchTrait.Id}-10" },
-						templates["Perception Check"].Id, Difficulty.Impossible);
-					continue;
-				case CheckType.ActiveSearchCheck:
-					AddCheck(check, new TraitExpression { Expression = $"search:{searchTrait.Id}+10" },
-						templates["Perception Check"].Id, Difficulty.Impossible);
-					continue;
-				case CheckType.SpokenLanguageSpeakCheck:
-				case CheckType.SpokenLanguageHearCheck:
-					// Language Checks
-					AddCheck(check, new TraitExpression { Expression = "variable" }, templates["Language Check"].Id,
-						Difficulty.Impossible);
-					break;
-				case CheckType.AccentAcquireCheck:
-				case CheckType.AccentImproveCheck:
-					// Static Checks
-					AddCheck(check, new TraitExpression { Expression = "2.0" }, templates["Static Check"].Id,
-						Difficulty.Automatic);
-					break;
-				case CheckType.TraitBranchCheck:
-					// Trait Branch Only
-					AddCheck(check, new TraitExpression { Expression = "0.1" }, templates["Branch Check"].Id,
-						Difficulty.Automatic);
-					break;
-				case CheckType.ProjectSkillUseAction:
-					// Bonus-Absent Checks
-					AddCheck(check, new TraitExpression { Expression = "variable" }, templates["Bonus Absent Check"].Id,
-						Difficulty.Automatic);
-					break;
-				case CheckType.SpotStealthCheck:
-					AddCheck(check,
-						new TraitExpression
-							{ Expression = $"(spot:{spotTrait.Id}*0.8)+(listen:{listenTrait.Id}*0.4)+10" },
-						templates["Passive Perception Check"].Id, Difficulty.Impossible);
-					break;
-				case CheckType.HideCheck:
-					AddCheck(check, new TraitExpression { Expression = $"hide:{hideTrait.Id}" },
-						templates["Skill Check"].Id, Difficulty.Impossible);
-					continue;
-				case CheckType.SneakCheck:
-					AddCheck(check, new TraitExpression { Expression = $"sneak:{sneakTrait.Id}" },
-						templates["Skill Check"].Id, Difficulty.Impossible);
-					continue;
-				case CheckType.PalmCheck:
-					AddCheck(check, new TraitExpression { Expression = $"palm:{palmTrait.Id}" },
-						templates["Skill Check"].Id, Difficulty.Impossible);
-					continue;
-				case CheckType.HideItemCheck:
-					AddCheck(check, new TraitExpression { Expression = $"hide:{hideTrait.Id}" },
-						templates["Skill Check"].Id, Difficulty.Impossible);
-					continue;
-				case CheckType.UninstallDoorCheck:
-					AddCheck(check, new TraitExpression { Expression = "variable" }, templates["Skill Check"].Id,
-						Difficulty.Impossible);
-					continue;
-				case CheckType.SkillTeachCheck:
-					AddCheck(check, new TraitExpression { Expression = $"int:{intAttribute.Id}*5" },
-						templates["Skill Check"].Id, Difficulty.Impossible);
-					continue;
-				case CheckType.SkillLearnCheck:
-					AddCheck(check, new TraitExpression { Expression = $"int:{intAttribute.Id}*5" },
-						templates["Skill Check"].Id, Difficulty.Impossible);
-					continue;
-				case CheckType.KnowledgeTeachCheck:
-					AddCheck(check, new TraitExpression { Expression = $"int:{intAttribute.Id}*5" },
-						templates["Skill Check"].Id, Difficulty.Impossible);
-					continue;
-				case CheckType.KnowledgeLearnCheck:
-					AddCheck(check, new TraitExpression { Expression = $"int:{intAttribute.Id}*5" },
-						templates["Skill Check"].Id, Difficulty.Impossible);
-					continue;
-				case CheckType.ForageCheck:
-					AddCheck(check, new TraitExpression { Expression = $"forage:{forageTrait.Id}" },
-						templates["Skill Check"].Id, Difficulty.Impossible);
-					continue;
-				case CheckType.ForageSpecificCheck:
-					AddCheck(check, new TraitExpression { Expression = $"forage:{forageTrait.Id}-20" },
-						templates["Skill Check"].Id, Difficulty.Impossible);
-					continue;
-				case CheckType.ForageTimeCheck:
-					AddCheck(check, new TraitExpression { Expression = $"forage:{forageTrait.Id}+20" },
-						templates["Skill Check"].Id, Difficulty.Impossible);
-					continue;
-				case CheckType.BindWoundCheck:
-					AddCheck(check, new TraitExpression { Expression = $"firstaid:{firstAidTrait.Id}+30" },
-						templates["Skill Check"].Id, Difficulty.Impossible);
-					continue;
-				case CheckType.SutureWoundCheck:
-					AddCheck(check, new TraitExpression { Expression = $"firstaid:{firstAidTrait.Id}" },
-						templates["Skill Check"].Id, Difficulty.Impossible);
-					continue;
-				case CheckType.CleanWoundCheck:
-					AddCheck(check, new TraitExpression { Expression = $"firstaid:{firstAidTrait.Id}+50" },
-						templates["Skill Check"].Id, Difficulty.Impossible);
-					continue;
-				case CheckType.RemoveLodgedObjectCheck:
-					AddCheck(check, new TraitExpression { Expression = $"firstaid:{firstAidTrait.Id}+10" },
-						templates["Skill Check"].Id, Difficulty.Impossible);
-					continue;
-				case CheckType.MendCheck:
-					AddCheck(check, new TraitExpression { Expression = $"con:{conAttribute.Id}*2" },
-						templates["Skill Check"].Id, Difficulty.Impossible);
-					continue;
-				case CheckType.MeleeWeaponPenetrateCheck:
-					AddCheck(check, new TraitExpression { Expression = "variable*0.2" }, templates["Skill Check"].Id,
-						Difficulty.Impossible);
-					continue;
-				case CheckType.RangedWeaponPenetrateCheck:
-					AddCheck(check, new TraitExpression { Expression = "variable*0.2" }, templates["Skill Check"].Id,
-						Difficulty.Impossible);
-					continue;
-				case CheckType.PenetrationDefenseCheck:
-					AddCheck(check, new TraitExpression { Expression = $"armour:{armourUseTrait.Id}" },
-						templates["Skill Check"].Id, Difficulty.Impossible);
-					continue;
-				case CheckType.CombatMoveCheck:
-					AddCheck(check, new TraitExpression { Expression = "variable" }, templates["Skill Check"].Id,
-						Difficulty.Impossible);
-					continue;
-				case CheckType.CombatRecoveryCheck:
-					AddCheck(check,
-						new TraitExpression { Expression = $"agi:{agiAttribute.Id}*4+str:{strAttribute.Id}" },
-						templates["Skill Check"].Id, Difficulty.Impossible);
-					continue;
-				case CheckType.MedicalExaminationCheck:
-					AddCheck(check, new TraitExpression { Expression = $"diag:{diagnoseTrait.Id}" },
-						templates["Skill Check"].Id, Difficulty.Impossible);
-					continue;
-				case CheckType.LocksmithingCheck:
-					AddCheck(check, new TraitExpression { Expression = $"pick:{lockpickTrait.Id}" },
-						templates["Skill Check"].Id, Difficulty.Impossible);
-					continue;
-				case CheckType.NaturalWeaponAttack:
-				case CheckType.DodgeCheck:
-				case CheckType.ParryCheck:
-				case CheckType.BlockCheck:
-				case CheckType.FleeMeleeCheck:
-				case CheckType.OpposeFleeMeleeCheck:
-				case CheckType.Ward:
-				case CheckType.WardDefense:
-				case CheckType.WardIgnore:
-				case CheckType.StartClinch:
-				case CheckType.ResistClinch:
-				case CheckType.BreakClinch:
-				case CheckType.ResistBreakClinch:
-				case CheckType.RescueCheck:
-				case CheckType.OpposeRescueCheck:
-				case CheckType.StaggeringBlowDefense:
-				case CheckType.StruggleFreeFromDrag:
-				case CheckType.OpposeStruggleFreeFromDrag:
-				case CheckType.CounterGrappleCheck:
-				case CheckType.StruggleFreeFromGrapple:
-				case CheckType.OpposeStruggleFreeFromGrapple:
-				case CheckType.ExtendGrappleCheck:
-				case CheckType.InitiateGrapple:
-				case CheckType.ScreechAttack:
-				case CheckType.StrangleCheck:
-				case CheckType.WrenchAttackCheck:
-				case CheckType.TakedownCheck:
-				case CheckType.BreakoutCheck:
-				case CheckType.OpposeBreakoutCheck:
-				case CheckType.TossItemCheck:
-					// All of these checks are setup later in the combat seeder
-					AddCheck(check, new TraitExpression { Expression = "50" }, templates["Skill Check"].Id,
-						Difficulty.Impossible);
-					continue;
+            switch (check)
+            {
+                case CheckType.None:
+                    // Default Fall Back
+                    AddCheck(check, new TraitExpression { Expression = "variable" },
+                        templates["Skill Check No Improvement"].Id, Difficulty.Automatic);
+                    continue;
+                case CheckType.ProjectLabourCheck:
+                    // Special Project Check
+                    AddCheck(check, new TraitExpression { Expression = "variable" }, templates["Project Check"].Id,
+                        Difficulty.Automatic);
+                    continue;
+                case CheckType.HealingCheck:
+                    AddCheck(check,
+                        new TraitExpression { Expression = $"max(5.0, {conAttribute.Alias}:{conAttribute.Id}/2)" },
+                        templates["Health Check"].Id, Difficulty.Automatic);
+                    continue;
+                case CheckType.StunRecoveryCheck:
+                    AddCheck(check,
+                        new TraitExpression
+                        {
+                            Expression =
+                                $"max(10.0, {conAttribute.Alias}:{conAttribute.Id} + {wilAttribute.Alias}:{wilAttribute.Id})"
+                        }, templates["Health Check"].Id, Difficulty.Automatic);
+                    continue;
+                case CheckType.ShockRecoveryCheck:
+                    AddCheck(check,
+                        new TraitExpression
+                        {
+                            Expression =
+                                $"max(10.0, {conAttribute.Alias}:{conAttribute.Id} + {wilAttribute.Alias}:{wilAttribute.Id})"
+                        }, templates["Health Check"].Id, Difficulty.Automatic);
+                    continue;
+                case CheckType.PainRecoveryCheck:
+                    AddCheck(check,
+                        new TraitExpression { Expression = $"max(10.0, {wilAttribute.Alias}:{wilAttribute.Id}*2)" },
+                        templates["Health Check"].Id, Difficulty.Automatic);
+                    continue;
+                case CheckType.WoundCloseCheck:
+                    AddCheck(check, new TraitExpression { Expression = $"{conAttribute.Alias}:{conAttribute.Id}/10" },
+                        templates["Health Check"].Id, Difficulty.Automatic);
+                    continue;
+                case CheckType.DreamCheck:
+                    AddCheck(check, new TraitExpression { Expression = "10" }, templates["Capability Check"].Id,
+                        Difficulty.Automatic);
+                    continue;
+                case CheckType.GoToSleepCheck:
+                    AddCheck(check, new TraitExpression { Expression = "10" }, templates["Capability Check"].Id,
+                        Difficulty.Automatic);
+                    break;
+                case CheckType.ExactTimeCheck:
+                    AddCheck(check, new TraitExpression { Expression = "0" }, templates["Capability Check"].Id,
+                        Difficulty.Automatic);
+                    continue;
+                case CheckType.VagueTimeCheck:
+                    AddCheck(check, new TraitExpression { Expression = "0" }, templates["Capability Check"].Id,
+                        Difficulty.Automatic);
+                    continue;
+                case CheckType.StyleCharacteristicCapabilityCheck:
+                    AddCheck(check, new TraitExpression { Expression = $"groom:{skills["Groom"].Id}+50" },
+                        templates["Capability Check"].Id, Difficulty.Automatic);
+                    continue;
+                case CheckType.ImplantRecognitionCheck:
+                    AddCheck(check, new TraitExpression { Expression = $"60+surgery:{surgeryTrait.Id}" },
+                        templates["Capability Check"].Id, Difficulty.Automatic);
+                    continue;
+                case CheckType.TreatmentItemRecognitionCheck:
+                    // Capability Checks
+                    AddCheck(check,
+                        new TraitExpression
+                        { Expression = $"(care:{patientCareTrait.Id}+firstaid:{firstAidTrait.Id})*10" },
+                        templates["Capability Check"].Id, Difficulty.Automatic);
+                    continue;
+                case CheckType.GenericAttributeCheck:
+                    AddCheck(check, new TraitExpression { Expression = "variable*5" },
+                        templates["Skill Check No Improvement"].Id, Difficulty.Automatic);
+                    continue;
+                case CheckType.GenericSkillCheck:
+                    AddCheck(check, new TraitExpression { Expression = "variable" },
+                        templates["Skill Check No Improvement"].Id, Difficulty.Automatic);
+                    continue;
+                case CheckType.GenericListenCheck:
+                    AddCheck(check, new TraitExpression { Expression = $"listen:{listenTrait.Id}+10" },
+                        templates["Perception Check"].Id, Difficulty.Impossible);
+                    continue;
+                case CheckType.LanguageListenCheck:
+                    AddCheck(check, new TraitExpression { Expression = $"listen:{listenTrait.Id}+50" },
+                        templates["Perception Check"].Id, Difficulty.Impossible);
+                    continue;
+                case CheckType.GenericSpotCheck:
+                    AddCheck(check, new TraitExpression { Expression = $"spot:{spotTrait.Id}+10" },
+                        templates["Perception Check"].Id, Difficulty.Impossible);
+                    continue;
+                case CheckType.NoticeCheck:
+                    AddCheck(check, new TraitExpression { Expression = $"spot:{spotTrait.Id}+30" },
+                        templates["Perception Check"].Id, Difficulty.Impossible);
+                    continue;
+                case CheckType.SpotSneakCheck:
+                    AddCheck(check,
+                        new TraitExpression
+                        { Expression = $"(spot:{spotTrait.Id}*0.8)+(listen:{listenTrait.Id}*0.4)+10" },
+                        templates["Perception Check"].Id, Difficulty.Impossible);
+                    continue;
+                case CheckType.ScanPerceptionCheck:
+                    AddCheck(check, new TraitExpression { Expression = $"spot:{spotTrait.Id}+10" },
+                        templates["Perception Check"].Id, Difficulty.Impossible);
+                    continue;
+                case CheckType.QuickscanPerceptionCheck:
+                    AddCheck(check, new TraitExpression { Expression = $"spot:{spotTrait.Id}-10" },
+                        templates["Perception Check"].Id, Difficulty.Impossible);
+                    continue;
+                case CheckType.LongscanPerceptionCheck:
+                    AddCheck(check, new TraitExpression { Expression = $"spot:{spotTrait.Id}+30" },
+                        templates["Perception Check"].Id, Difficulty.Impossible);
+                    continue;
+                case CheckType.WatchLocation:
+                    AddCheck(check,
+                        new TraitExpression
+                        { Expression = $"(spot:{spotTrait.Id}*0.8)+(listen:{listenTrait.Id}*0.4)+10" },
+                        templates["Perception Check"].Id, Difficulty.Impossible);
+                    continue;
+                case CheckType.PassiveStealthCheck:
+                    AddCheck(check, new TraitExpression { Expression = $"search:{searchTrait.Id}-10" },
+                        templates["Perception Check"].Id, Difficulty.Impossible);
+                    continue;
+                case CheckType.ActiveSearchCheck:
+                    AddCheck(check, new TraitExpression { Expression = $"search:{searchTrait.Id}+10" },
+                        templates["Perception Check"].Id, Difficulty.Impossible);
+                    continue;
+                case CheckType.SpokenLanguageSpeakCheck:
+                case CheckType.SpokenLanguageHearCheck:
+                    // Language Checks
+                    AddCheck(check, new TraitExpression { Expression = "variable" }, templates["Language Check"].Id,
+                        Difficulty.Impossible);
+                    break;
+                case CheckType.AccentAcquireCheck:
+                case CheckType.AccentImproveCheck:
+                    // Static Checks
+                    AddCheck(check, new TraitExpression { Expression = "2.0" }, templates["Static Check"].Id,
+                        Difficulty.Automatic);
+                    break;
+                case CheckType.TraitBranchCheck:
+                    // Trait Branch Only
+                    AddCheck(check, new TraitExpression { Expression = "0.1" }, templates["Branch Check"].Id,
+                        Difficulty.Automatic);
+                    break;
+                case CheckType.ProjectSkillUseAction:
+                    // Bonus-Absent Checks
+                    AddCheck(check, new TraitExpression { Expression = "variable" }, templates["Bonus Absent Check"].Id,
+                        Difficulty.Automatic);
+                    break;
+                case CheckType.SpotStealthCheck:
+                    AddCheck(check,
+                        new TraitExpression
+                        { Expression = $"(spot:{spotTrait.Id}*0.8)+(listen:{listenTrait.Id}*0.4)+10" },
+                        templates["Passive Perception Check"].Id, Difficulty.Impossible);
+                    break;
+                case CheckType.HideCheck:
+                    AddCheck(check, new TraitExpression { Expression = $"hide:{hideTrait.Id}" },
+                        templates["Skill Check"].Id, Difficulty.Impossible);
+                    continue;
+                case CheckType.SneakCheck:
+                    AddCheck(check, new TraitExpression { Expression = $"sneak:{sneakTrait.Id}" },
+                        templates["Skill Check"].Id, Difficulty.Impossible);
+                    continue;
+                case CheckType.PalmCheck:
+                    AddCheck(check, new TraitExpression { Expression = $"palm:{palmTrait.Id}" },
+                        templates["Skill Check"].Id, Difficulty.Impossible);
+                    continue;
+                case CheckType.HideItemCheck:
+                    AddCheck(check, new TraitExpression { Expression = $"hide:{hideTrait.Id}" },
+                        templates["Skill Check"].Id, Difficulty.Impossible);
+                    continue;
+                case CheckType.UninstallDoorCheck:
+                    AddCheck(check, new TraitExpression { Expression = "variable" }, templates["Skill Check"].Id,
+                        Difficulty.Impossible);
+                    continue;
+                case CheckType.SkillTeachCheck:
+                    AddCheck(check, new TraitExpression { Expression = $"int:{intAttribute.Id}*5" },
+                        templates["Skill Check"].Id, Difficulty.Impossible);
+                    continue;
+                case CheckType.SkillLearnCheck:
+                    AddCheck(check, new TraitExpression { Expression = $"int:{intAttribute.Id}*5" },
+                        templates["Skill Check"].Id, Difficulty.Impossible);
+                    continue;
+                case CheckType.KnowledgeTeachCheck:
+                    AddCheck(check, new TraitExpression { Expression = $"int:{intAttribute.Id}*5" },
+                        templates["Skill Check"].Id, Difficulty.Impossible);
+                    continue;
+                case CheckType.KnowledgeLearnCheck:
+                    AddCheck(check, new TraitExpression { Expression = $"int:{intAttribute.Id}*5" },
+                        templates["Skill Check"].Id, Difficulty.Impossible);
+                    continue;
+                case CheckType.ForageCheck:
+                    AddCheck(check, new TraitExpression { Expression = $"forage:{forageTrait.Id}" },
+                        templates["Skill Check"].Id, Difficulty.Impossible);
+                    continue;
+                case CheckType.ForageSpecificCheck:
+                    AddCheck(check, new TraitExpression { Expression = $"forage:{forageTrait.Id}-20" },
+                        templates["Skill Check"].Id, Difficulty.Impossible);
+                    continue;
+                case CheckType.ForageTimeCheck:
+                    AddCheck(check, new TraitExpression { Expression = $"forage:{forageTrait.Id}+20" },
+                        templates["Skill Check"].Id, Difficulty.Impossible);
+                    continue;
+                case CheckType.BindWoundCheck:
+                    AddCheck(check, new TraitExpression { Expression = $"firstaid:{firstAidTrait.Id}+30" },
+                        templates["Skill Check"].Id, Difficulty.Impossible);
+                    continue;
+                case CheckType.SutureWoundCheck:
+                    AddCheck(check, new TraitExpression { Expression = $"firstaid:{firstAidTrait.Id}" },
+                        templates["Skill Check"].Id, Difficulty.Impossible);
+                    continue;
+                case CheckType.CleanWoundCheck:
+                    AddCheck(check, new TraitExpression { Expression = $"firstaid:{firstAidTrait.Id}+50" },
+                        templates["Skill Check"].Id, Difficulty.Impossible);
+                    continue;
+                case CheckType.RemoveLodgedObjectCheck:
+                    AddCheck(check, new TraitExpression { Expression = $"firstaid:{firstAidTrait.Id}+10" },
+                        templates["Skill Check"].Id, Difficulty.Impossible);
+                    continue;
+                case CheckType.MendCheck:
+                    AddCheck(check, new TraitExpression { Expression = $"con:{conAttribute.Id}*2" },
+                        templates["Skill Check"].Id, Difficulty.Impossible);
+                    continue;
+                case CheckType.MeleeWeaponPenetrateCheck:
+                    AddCheck(check, new TraitExpression { Expression = "variable*0.2" }, templates["Skill Check"].Id,
+                        Difficulty.Impossible);
+                    continue;
+                case CheckType.RangedWeaponPenetrateCheck:
+                    AddCheck(check, new TraitExpression { Expression = "variable*0.2" }, templates["Skill Check"].Id,
+                        Difficulty.Impossible);
+                    continue;
+                case CheckType.PenetrationDefenseCheck:
+                    AddCheck(check, new TraitExpression { Expression = $"armour:{armourUseTrait.Id}" },
+                        templates["Skill Check"].Id, Difficulty.Impossible);
+                    continue;
+                case CheckType.CombatMoveCheck:
+                    AddCheck(check, new TraitExpression { Expression = "variable" }, templates["Skill Check"].Id,
+                        Difficulty.Impossible);
+                    continue;
+                case CheckType.CombatRecoveryCheck:
+                    AddCheck(check,
+                        new TraitExpression { Expression = $"agi:{agiAttribute.Id}*4+str:{strAttribute.Id}" },
+                        templates["Skill Check"].Id, Difficulty.Impossible);
+                    continue;
+                case CheckType.MedicalExaminationCheck:
+                    AddCheck(check, new TraitExpression { Expression = $"diag:{diagnoseTrait.Id}" },
+                        templates["Skill Check"].Id, Difficulty.Impossible);
+                    continue;
+                case CheckType.LocksmithingCheck:
+                    AddCheck(check, new TraitExpression { Expression = $"pick:{lockpickTrait.Id}" },
+                        templates["Skill Check"].Id, Difficulty.Impossible);
+                    continue;
+                case CheckType.NaturalWeaponAttack:
+                case CheckType.DodgeCheck:
+                case CheckType.ParryCheck:
+                case CheckType.BlockCheck:
+                case CheckType.FleeMeleeCheck:
+                case CheckType.OpposeFleeMeleeCheck:
+                case CheckType.Ward:
+                case CheckType.WardDefense:
+                case CheckType.WardIgnore:
+                case CheckType.StartClinch:
+                case CheckType.ResistClinch:
+                case CheckType.BreakClinch:
+                case CheckType.ResistBreakClinch:
+                case CheckType.RescueCheck:
+                case CheckType.OpposeRescueCheck:
+                case CheckType.StaggeringBlowDefense:
+                case CheckType.StruggleFreeFromDrag:
+                case CheckType.OpposeStruggleFreeFromDrag:
+                case CheckType.CounterGrappleCheck:
+                case CheckType.StruggleFreeFromGrapple:
+                case CheckType.OpposeStruggleFreeFromGrapple:
+                case CheckType.ExtendGrappleCheck:
+                case CheckType.InitiateGrapple:
+                case CheckType.ScreechAttack:
+                case CheckType.StrangleCheck:
+                case CheckType.WrenchAttackCheck:
+                case CheckType.TakedownCheck:
+                case CheckType.BreakoutCheck:
+                case CheckType.OpposeBreakoutCheck:
+                case CheckType.TossItemCheck:
+                    // All of these checks are setup later in the combat seeder
+                    AddCheck(check, new TraitExpression { Expression = "50" }, templates["Skill Check"].Id,
+                        Difficulty.Impossible);
+                    continue;
 
-				case CheckType.ExploratorySurgeryCheck:
-					AddCheck(check, new TraitExpression { Expression = $"surgery:{surgeryTrait.Id}" },
-						templates["Skill Check"].Id, Difficulty.Impossible);
-					continue;
-				case CheckType.TriageCheck:
-					AddCheck(check, new TraitExpression { Expression = $"diagnose:{diagnoseTrait.Id}" },
-						templates["Skill Check"].Id, Difficulty.Impossible);
-					continue;
-				case CheckType.AmputationCheck:
-					AddCheck(check, new TraitExpression { Expression = $"surgery:{surgeryTrait.Id}" },
-						templates["Skill Check"].Id, Difficulty.Impossible);
-					continue;
-				case CheckType.ReplantationCheck:
-					AddCheck(check, new TraitExpression { Expression = $"surgery:{surgeryTrait.Id}" },
-						templates["Skill Check"].Id, Difficulty.Impossible);
-					continue;
-				case CheckType.InvasiveProcedureFinalisation:
-					AddCheck(check, new TraitExpression { Expression = $"surgery:{surgeryTrait.Id}" },
-						templates["Skill Check"].Id, Difficulty.Impossible);
-					continue;
-				case CheckType.TraumaControlSurgery:
-					AddCheck(check, new TraitExpression { Expression = $"surgery:{surgeryTrait.Id}" },
-						templates["Skill Check"].Id, Difficulty.Impossible);
-					continue;
-				case CheckType.Defibrillate:
-					AddCheck(check, new TraitExpression { Expression = $"firstaid:{firstAidTrait.Id}" },
-						templates["Skill Check"].Id, Difficulty.Impossible);
-					continue;
-				case CheckType.PerformCPR:
-					AddCheck(check, new TraitExpression { Expression = $"firstaid:{firstAidTrait.Id}" },
-						templates["Skill Check"].Id, Difficulty.Impossible);
-					continue;
-				case CheckType.ArmourUseCheck:
-					AddCheck(check, new TraitExpression { Expression = $"armouruse:{armourUseTrait.Id}+5" },
-						templates["Skill Check"].Id, Difficulty.Impossible);
-					continue;
-				case CheckType.ReadTextImprovementCheck:
-					AddCheck(check, new TraitExpression { Expression = $"literacy:{skills["Literacy"].Id}" },
-						templates["Skill Check"].Id, Difficulty.Impossible);
-					continue;
-				case CheckType.HandwritingImprovementCheck:
-					AddCheck(check, new TraitExpression { Expression = $"literacy:{skills["Handwriting"].Id}" },
-						templates["Skill Check"].Id, Difficulty.Impossible);
-					continue;
-				case CheckType.CrutchWalking:
-					AddCheck(check, new TraitExpression { Expression = $"literacy:{crutchUseTrait.Id}+10" },
-						templates["Skill Check"].Id, Difficulty.Impossible);
-					continue;
-				case CheckType.OrganExtractionCheck:
-					AddCheck(check, new TraitExpression { Expression = $"surgery:{surgeryTrait.Id}" },
-						templates["Skill Check"].Id, Difficulty.Impossible);
-					continue;
-				case CheckType.OrganTransplantCheck:
-					AddCheck(check, new TraitExpression { Expression = $"surgery:{surgeryTrait.Id}" },
-						templates["Skill Check"].Id, Difficulty.Impossible);
-					continue;
-				case CheckType.CannulationProcedure:
-					AddCheck(check,
-						new TraitExpression
-							{ Expression = $"max(surgery:{surgeryTrait.Id}, care:{patientCareTrait.Id})" },
-						templates["Skill Check"].Id, Difficulty.Impossible);
-					continue;
-				case CheckType.DecannulationProcedure:
-					AddCheck(check,
-						new TraitExpression
-							{ Expression = $"max(surgery:{surgeryTrait.Id}, care:{patientCareTrait.Id})" },
-						templates["Skill Check"].Id, Difficulty.Impossible);
-					continue;
-				case CheckType.OrganStabilisationCheck:
-					AddCheck(check, new TraitExpression { Expression = $"surgery:{surgeryTrait.Id}" },
-						templates["Skill Check"].Id, Difficulty.Impossible);
-					continue;
-				case CheckType.CraftOutcomeCheck:
-					AddCheck(check, new TraitExpression { Expression = "variable" }, templates["Skill Check"].Id,
-						Difficulty.Impossible);
-					continue;
-				case CheckType.CraftQualityCheck:
-					AddCheck(check, new TraitExpression { Expression = "variable" }, templates["Skill Check"].Id,
-						Difficulty.Impossible);
-					continue;
-				case CheckType.TendWoundCheck:
-					AddCheck(check, new TraitExpression { Expression = $"care:{patientCareTrait.Id}" },
-						templates["Skill Check"].Id, Difficulty.Impossible);
-					continue;
-				case CheckType.RelocateBoneCheck:
-					AddCheck(check, new TraitExpression { Expression = $"care:{patientCareTrait.Id}" },
-						templates["Skill Check"].Id, Difficulty.Impossible);
-					continue;
-				case CheckType.SurgicalSetCheck:
-					AddCheck(check, new TraitExpression { Expression = $"surgery:{surgeryTrait.Id}" },
-						templates["Skill Check"].Id, Difficulty.Impossible);
-					continue;
-				case CheckType.RepairItemCheck:
-					AddCheck(check, new TraitExpression { Expression = "variable" }, templates["Skill Check"].Id,
-						Difficulty.Impossible);
-					continue;
-				case CheckType.InstallImplantSurgery:
-					AddCheck(check, new TraitExpression { Expression = $"surgery:{surgeryTrait.Id}" },
-						templates["Skill Check"].Id, Difficulty.Impossible);
-					continue;
-				case CheckType.RemoveImplantSurgery:
-					AddCheck(check, new TraitExpression { Expression = $"surgery:{surgeryTrait.Id}" },
-						templates["Skill Check"].Id, Difficulty.Impossible);
-					continue;
-				case CheckType.ConfigureImplantPowerSurgery:
-					AddCheck(check, new TraitExpression { Expression = $"surgery:{surgeryTrait.Id}" },
-						templates["Skill Check"].Id, Difficulty.Impossible);
-					continue;
-				case CheckType.ButcheryCheck:
-					AddCheck(check, new TraitExpression { Expression = "variable" }, templates["Skill Check"].Id,
-						Difficulty.Impossible);
-					continue;
-				case CheckType.SkinningCheck:
-					AddCheck(check, new TraitExpression { Expression = "variable" }, templates["Skill Check"].Id,
-						Difficulty.Impossible);
-					continue;
-				case CheckType.ClimbCheck:
-					AddCheck(check, new TraitExpression { Expression = $"climb:{climbTrait.Id}" },
-						templates["Skill Check"].Id, Difficulty.Impossible);
-					continue;
-				case CheckType.ConfigureImplantInterfaceSurgery:
-					AddCheck(check, new TraitExpression { Expression = $"surgery:{surgeryTrait.Id}" },
-						templates["Skill Check"].Id, Difficulty.Impossible);
-					continue;
-				case CheckType.InkTattooCheck:
-					AddCheck(check, new TraitExpression { Expression = $"tattoo:{skills["Tattoo"].Id}" },
-						templates["Skill Check"].Id, Difficulty.Impossible);
-					continue;
-				case CheckType.FallingImpactCheck:
-					AddCheck(check, new TraitExpression { Expression = $"fall:{fallTrait.Id}" },
-						templates["Skill Check"].Id, Difficulty.Impossible);
-					continue;
-				case CheckType.ResistMagicChokePower:
-					AddCheck(check, new TraitExpression { Expression = $"wil:{wilAttribute.Id}*5" },
-						templates["Skill Check"].Id, Difficulty.Impossible);
-					continue;
-				case CheckType.ResistMagicAnesthesiaPower:
-					AddCheck(check, new TraitExpression { Expression = $"wil:{wilAttribute.Id}*5" },
-						templates["Skill Check"].Id, Difficulty.Impossible);
-					continue;
-				case CheckType.SwimmingCheck:
-					AddCheck(check, new TraitExpression { Expression = $"swim:{swimTrait.Id}" },
-						templates["Skill Check"].Id, Difficulty.Impossible);
-					continue;
-				case CheckType.AvoidFallDueToWind:
-					AddCheck(check, new TraitExpression { Expression = $"climb:{climbTrait.Id}+5" },
-						templates["Skill Check"].Id, Difficulty.Impossible);
-					continue;
-				case CheckType.SwimStayAfloatCheck:
-					AddCheck(check, new TraitExpression { Expression = $"swim:{swimTrait.Id}+5" },
-						templates["Skill Check"].Id, Difficulty.Impossible);
-					continue;
-				case CheckType.FlyCheck:
-					AddCheck(check, new TraitExpression { Expression = $"fly:{flyTrait.Id}" },
-						templates["Skill Check"].Id, Difficulty.Impossible);
-					continue;
-				case CheckType.CheatAtDiceCheck:
-					AddCheck(check, new TraitExpression { Expression = $"palm:{palmTrait.Id}" },
-						templates["Skill Check"].Id, Difficulty.Impossible);
-					continue;
-				case CheckType.EvaluateDiceFairnessCheck:
-					AddCheck(check, new TraitExpression { Expression = $"palm:{palmTrait.Id}" },
-						templates["Skill Check"].Id, Difficulty.Impossible);
-					continue;
-				case CheckType.SpillLiquidOnPerson:
-					AddCheck(check, new TraitExpression { Expression = $"dex:{dexAttribute.Id}*5" },
-						templates["Skill Check"].Id, Difficulty.Impossible);
-					continue;
-				case CheckType.DodgeSpillLiquidOnPerson:
-					AddCheck(check, new TraitExpression { Expression = $"agi:{agiAttribute.Id}*5" },
-						templates["Skill Check"].Id, Difficulty.Impossible);
-					continue;
-				case CheckType.DrawingImprovementCheck:
-					AddCheck(check, new TraitExpression { Expression = "variable" }, templates["Skill Check"].Id,
-						Difficulty.Impossible);
-					continue;
+                case CheckType.ExploratorySurgeryCheck:
+                    AddCheck(check, new TraitExpression { Expression = $"surgery:{surgeryTrait.Id}" },
+                        templates["Skill Check"].Id, Difficulty.Impossible);
+                    continue;
+                case CheckType.TriageCheck:
+                    AddCheck(check, new TraitExpression { Expression = $"diagnose:{diagnoseTrait.Id}" },
+                        templates["Skill Check"].Id, Difficulty.Impossible);
+                    continue;
+                case CheckType.AmputationCheck:
+                    AddCheck(check, new TraitExpression { Expression = $"surgery:{surgeryTrait.Id}" },
+                        templates["Skill Check"].Id, Difficulty.Impossible);
+                    continue;
+                case CheckType.ReplantationCheck:
+                    AddCheck(check, new TraitExpression { Expression = $"surgery:{surgeryTrait.Id}" },
+                        templates["Skill Check"].Id, Difficulty.Impossible);
+                    continue;
+                case CheckType.InvasiveProcedureFinalisation:
+                    AddCheck(check, new TraitExpression { Expression = $"surgery:{surgeryTrait.Id}" },
+                        templates["Skill Check"].Id, Difficulty.Impossible);
+                    continue;
+                case CheckType.TraumaControlSurgery:
+                    AddCheck(check, new TraitExpression { Expression = $"surgery:{surgeryTrait.Id}" },
+                        templates["Skill Check"].Id, Difficulty.Impossible);
+                    continue;
+                case CheckType.Defibrillate:
+                    AddCheck(check, new TraitExpression { Expression = $"firstaid:{firstAidTrait.Id}" },
+                        templates["Skill Check"].Id, Difficulty.Impossible);
+                    continue;
+                case CheckType.PerformCPR:
+                    AddCheck(check, new TraitExpression { Expression = $"firstaid:{firstAidTrait.Id}" },
+                        templates["Skill Check"].Id, Difficulty.Impossible);
+                    continue;
+                case CheckType.ArmourUseCheck:
+                    AddCheck(check, new TraitExpression { Expression = $"armouruse:{armourUseTrait.Id}+5" },
+                        templates["Skill Check"].Id, Difficulty.Impossible);
+                    continue;
+                case CheckType.ReadTextImprovementCheck:
+                    AddCheck(check, new TraitExpression { Expression = $"literacy:{skills["Literacy"].Id}" },
+                        templates["Skill Check"].Id, Difficulty.Impossible);
+                    continue;
+                case CheckType.HandwritingImprovementCheck:
+                    AddCheck(check, new TraitExpression { Expression = $"literacy:{skills["Handwriting"].Id}" },
+                        templates["Skill Check"].Id, Difficulty.Impossible);
+                    continue;
+                case CheckType.CrutchWalking:
+                    AddCheck(check, new TraitExpression { Expression = $"literacy:{crutchUseTrait.Id}+10" },
+                        templates["Skill Check"].Id, Difficulty.Impossible);
+                    continue;
+                case CheckType.OrganExtractionCheck:
+                    AddCheck(check, new TraitExpression { Expression = $"surgery:{surgeryTrait.Id}" },
+                        templates["Skill Check"].Id, Difficulty.Impossible);
+                    continue;
+                case CheckType.OrganTransplantCheck:
+                    AddCheck(check, new TraitExpression { Expression = $"surgery:{surgeryTrait.Id}" },
+                        templates["Skill Check"].Id, Difficulty.Impossible);
+                    continue;
+                case CheckType.CannulationProcedure:
+                    AddCheck(check,
+                        new TraitExpression
+                        { Expression = $"max(surgery:{surgeryTrait.Id}, care:{patientCareTrait.Id})" },
+                        templates["Skill Check"].Id, Difficulty.Impossible);
+                    continue;
+                case CheckType.DecannulationProcedure:
+                    AddCheck(check,
+                        new TraitExpression
+                        { Expression = $"max(surgery:{surgeryTrait.Id}, care:{patientCareTrait.Id})" },
+                        templates["Skill Check"].Id, Difficulty.Impossible);
+                    continue;
+                case CheckType.OrganStabilisationCheck:
+                    AddCheck(check, new TraitExpression { Expression = $"surgery:{surgeryTrait.Id}" },
+                        templates["Skill Check"].Id, Difficulty.Impossible);
+                    continue;
+                case CheckType.CraftOutcomeCheck:
+                    AddCheck(check, new TraitExpression { Expression = "variable" }, templates["Skill Check"].Id,
+                        Difficulty.Impossible);
+                    continue;
+                case CheckType.CraftQualityCheck:
+                    AddCheck(check, new TraitExpression { Expression = "variable" }, templates["Skill Check"].Id,
+                        Difficulty.Impossible);
+                    continue;
+                case CheckType.TendWoundCheck:
+                    AddCheck(check, new TraitExpression { Expression = $"care:{patientCareTrait.Id}" },
+                        templates["Skill Check"].Id, Difficulty.Impossible);
+                    continue;
+                case CheckType.RelocateBoneCheck:
+                    AddCheck(check, new TraitExpression { Expression = $"care:{patientCareTrait.Id}" },
+                        templates["Skill Check"].Id, Difficulty.Impossible);
+                    continue;
+                case CheckType.SurgicalSetCheck:
+                    AddCheck(check, new TraitExpression { Expression = $"surgery:{surgeryTrait.Id}" },
+                        templates["Skill Check"].Id, Difficulty.Impossible);
+                    continue;
+                case CheckType.RepairItemCheck:
+                    AddCheck(check, new TraitExpression { Expression = "variable" }, templates["Skill Check"].Id,
+                        Difficulty.Impossible);
+                    continue;
+                case CheckType.InstallImplantSurgery:
+                    AddCheck(check, new TraitExpression { Expression = $"surgery:{surgeryTrait.Id}" },
+                        templates["Skill Check"].Id, Difficulty.Impossible);
+                    continue;
+                case CheckType.RemoveImplantSurgery:
+                    AddCheck(check, new TraitExpression { Expression = $"surgery:{surgeryTrait.Id}" },
+                        templates["Skill Check"].Id, Difficulty.Impossible);
+                    continue;
+                case CheckType.ConfigureImplantPowerSurgery:
+                    AddCheck(check, new TraitExpression { Expression = $"surgery:{surgeryTrait.Id}" },
+                        templates["Skill Check"].Id, Difficulty.Impossible);
+                    continue;
+                case CheckType.ButcheryCheck:
+                    AddCheck(check, new TraitExpression { Expression = "variable" }, templates["Skill Check"].Id,
+                        Difficulty.Impossible);
+                    continue;
+                case CheckType.SkinningCheck:
+                    AddCheck(check, new TraitExpression { Expression = "variable" }, templates["Skill Check"].Id,
+                        Difficulty.Impossible);
+                    continue;
+                case CheckType.ClimbCheck:
+                    AddCheck(check, new TraitExpression { Expression = $"climb:{climbTrait.Id}" },
+                        templates["Skill Check"].Id, Difficulty.Impossible);
+                    continue;
+                case CheckType.ConfigureImplantInterfaceSurgery:
+                    AddCheck(check, new TraitExpression { Expression = $"surgery:{surgeryTrait.Id}" },
+                        templates["Skill Check"].Id, Difficulty.Impossible);
+                    continue;
+                case CheckType.InkTattooCheck:
+                    AddCheck(check, new TraitExpression { Expression = $"tattoo:{skills["Tattoo"].Id}" },
+                        templates["Skill Check"].Id, Difficulty.Impossible);
+                    continue;
+                case CheckType.FallingImpactCheck:
+                    AddCheck(check, new TraitExpression { Expression = $"fall:{fallTrait.Id}" },
+                        templates["Skill Check"].Id, Difficulty.Impossible);
+                    continue;
+                case CheckType.ResistMagicChokePower:
+                    AddCheck(check, new TraitExpression { Expression = $"wil:{wilAttribute.Id}*5" },
+                        templates["Skill Check"].Id, Difficulty.Impossible);
+                    continue;
+                case CheckType.ResistMagicAnesthesiaPower:
+                    AddCheck(check, new TraitExpression { Expression = $"wil:{wilAttribute.Id}*5" },
+                        templates["Skill Check"].Id, Difficulty.Impossible);
+                    continue;
+                case CheckType.SwimmingCheck:
+                    AddCheck(check, new TraitExpression { Expression = $"swim:{swimTrait.Id}" },
+                        templates["Skill Check"].Id, Difficulty.Impossible);
+                    continue;
+                case CheckType.AvoidFallDueToWind:
+                    AddCheck(check, new TraitExpression { Expression = $"climb:{climbTrait.Id}+5" },
+                        templates["Skill Check"].Id, Difficulty.Impossible);
+                    continue;
+                case CheckType.SwimStayAfloatCheck:
+                    AddCheck(check, new TraitExpression { Expression = $"swim:{swimTrait.Id}+5" },
+                        templates["Skill Check"].Id, Difficulty.Impossible);
+                    continue;
+                case CheckType.FlyCheck:
+                    AddCheck(check, new TraitExpression { Expression = $"fly:{flyTrait.Id}" },
+                        templates["Skill Check"].Id, Difficulty.Impossible);
+                    continue;
+                case CheckType.CheatAtDiceCheck:
+                    AddCheck(check, new TraitExpression { Expression = $"palm:{palmTrait.Id}" },
+                        templates["Skill Check"].Id, Difficulty.Impossible);
+                    continue;
+                case CheckType.EvaluateDiceFairnessCheck:
+                    AddCheck(check, new TraitExpression { Expression = $"palm:{palmTrait.Id}" },
+                        templates["Skill Check"].Id, Difficulty.Impossible);
+                    continue;
+                case CheckType.SpillLiquidOnPerson:
+                    AddCheck(check, new TraitExpression { Expression = $"dex:{dexAttribute.Id}*5" },
+                        templates["Skill Check"].Id, Difficulty.Impossible);
+                    continue;
+                case CheckType.DodgeSpillLiquidOnPerson:
+                    AddCheck(check, new TraitExpression { Expression = $"agi:{agiAttribute.Id}*5" },
+                        templates["Skill Check"].Id, Difficulty.Impossible);
+                    continue;
+                case CheckType.DrawingImprovementCheck:
+                    AddCheck(check, new TraitExpression { Expression = "variable" }, templates["Skill Check"].Id,
+                        Difficulty.Impossible);
+                    continue;
 
 
-				case CheckType.MeleeWeaponCheck:
-				case CheckType.ThrownWeaponCheck:
-				case CheckType.AimRangedWeapon:
-				case CheckType.FireBow:
-				case CheckType.FireCrossbow:
-				case CheckType.FireFirearm:
-				case CheckType.FireSling:
-				case CheckType.KeepAimTargetMoved:
-				case CheckType.ProgSkillUseCheck:
-				case CheckType.MagicConcentrationOnWounded:
-				case CheckType.ConnectMindPower:
-				case CheckType.PsychicLanguageHearCheck:
-				case CheckType.MindSayPower:
-				case CheckType.MindBroadcastPower:
-				case CheckType.MagicTelepathyCheck:
-				case CheckType.MindLookPower:
-				case CheckType.InvisibilityPower:
-				case CheckType.MagicArmourPower:
-				case CheckType.MagicAnesthesiaPower:
-				case CheckType.MagicSensePower:
-				case CheckType.MagicChokePower:
-				case CheckType.MindAuditPower:
-				case CheckType.MindBarrierPowerCheck:
-				case CheckType.MindExpelPower:
-				case CheckType.CastSpellCheck:
-				case CheckType.ResistMagicSpellCheck:
-					// Variable skills
-					AddCheck(check, new TraitExpression { Expression = "variable" }, templates["Skill Check"].Id,
-						Difficulty.Impossible);
-					break;
+                case CheckType.MeleeWeaponCheck:
+                case CheckType.ThrownWeaponCheck:
+                case CheckType.AimRangedWeapon:
+                case CheckType.FireBow:
+                case CheckType.FireCrossbow:
+                case CheckType.FireFirearm:
+                case CheckType.FireSling:
+                case CheckType.KeepAimTargetMoved:
+                case CheckType.ProgSkillUseCheck:
+                case CheckType.MagicConcentrationOnWounded:
+                case CheckType.ConnectMindPower:
+                case CheckType.PsychicLanguageHearCheck:
+                case CheckType.MindSayPower:
+                case CheckType.MindBroadcastPower:
+                case CheckType.MagicTelepathyCheck:
+                case CheckType.MindLookPower:
+                case CheckType.InvisibilityPower:
+                case CheckType.MagicArmourPower:
+                case CheckType.MagicAnesthesiaPower:
+                case CheckType.MagicSensePower:
+                case CheckType.MagicChokePower:
+                case CheckType.MindAuditPower:
+                case CheckType.MindBarrierPowerCheck:
+                case CheckType.MindExpelPower:
+                case CheckType.CastSpellCheck:
+                case CheckType.ResistMagicSpellCheck:
+                case CheckType.AuxiliaryMoveCheck:
+                    // Variable skills
+                    AddCheck(check, new TraitExpression { Expression = "variable" }, templates["Skill Check"].Id,
+                        Difficulty.Impossible);
+                    break;
 
-				case CheckType.InfectionHeartbeat:
-					AddCheck(check, new TraitExpression { Expression = $"con:{conAttribute.Id}*5" },
-						templates["Skill Check No Improvement"].Id, Difficulty.Automatic);
-					continue;
-				case CheckType.InfectionSpread:
-					AddCheck(check, new TraitExpression { Expression = $"con:{conAttribute.Id}*5" },
-						templates["Skill Check No Improvement"].Id, Difficulty.Automatic);
-					continue;
-				case CheckType.ReplantedBodypartRejectionCheck:
-					AddCheck(check, new TraitExpression { Expression = $"con:{conAttribute.Id}*5" },
-						templates["Skill Check No Improvement"].Id, Difficulty.Automatic);
-					continue;
-				case CheckType.StyleCharacteristicCheck:
-					AddCheck(check, new TraitExpression { Expression = $"groom:{skills["Groom"].Id}" },
-						templates["Skill Check"].Id, Difficulty.Impossible);
-					continue;
-				default:
-					throw new ArgumentOutOfRangeException();
-			}
+                case CheckType.InfectionHeartbeat:
+                    AddCheck(check, new TraitExpression { Expression = $"con:{conAttribute.Id}*5" },
+                        templates["Skill Check No Improvement"].Id, Difficulty.Automatic);
+                    continue;
+                case CheckType.InfectionSpread:
+                    AddCheck(check, new TraitExpression { Expression = $"con:{conAttribute.Id}*5" },
+                        templates["Skill Check No Improvement"].Id, Difficulty.Automatic);
+                    continue;
+                case CheckType.ReplantedBodypartRejectionCheck:
+                    AddCheck(check, new TraitExpression { Expression = $"con:{conAttribute.Id}*5" },
+                        templates["Skill Check No Improvement"].Id, Difficulty.Automatic);
+                    continue;
+                case CheckType.StyleCharacteristicCheck:
+                    AddCheck(check, new TraitExpression { Expression = $"groom:{skills["Groom"].Id}" },
+                        templates["Skill Check"].Id, Difficulty.Impossible);
+                    continue;
+                case CheckType.AppraiseItemCheck:
+                    AddCheck(check, new TraitExpression { Expression = $"int:{intAttribute.Id}*5" },
+                        templates["Skill Check"].Id, Difficulty.Impossible);
+                    continue;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
 
-		context.SaveChanges();
-	}
+        context.SaveChanges();
+    }
 
-	private void SeedAdminLanguage(FuturemudDatabaseContext context,
+    private void SeedAdminLanguage(FuturemudDatabaseContext context,
 		IReadOnlyDictionary<string, string> questionAnswers, IReadOnlyDictionary<string, TraitDecorator> decorators,
 		Improver languageImprover)
 	{
@@ -1325,5 +1330,5 @@ This includes the following items:
 #1Warning: Don't run both this and the Skill Example Seeder.#0
 ";
 
-	#endregion
+    #endregion
 }

@@ -6773,8 +6773,6 @@ return IsAdmin(@ch)",
 			"Natural Fiber Fabric");
 		AddMaterial("felt", MaterialBehaviourType.Fabric, 1.5, true, 10000, 25000, 2.0, 0.14, 0.0001, 500, null,
 			"Animal Fiber Fabric");
-		AddMaterial("fur", MaterialBehaviourType.Fabric, 1.5, true, 10000, 25000, 2.0, 0.14, 0.0001, 500, null,
-			"Animal Fiber Fabric");
 		AddMaterial("hemp", MaterialBehaviourType.Fabric, 1.5, true, 10000, 25000, 2.0, 0.14, 0.0001, 500, null,
 			"Natural Fiber Fabric");
 		AddMaterial("hessian", MaterialBehaviourType.Fabric, 1.5, true, 10000, 25000, 2.0, 0.14, 0.0001, 500, null,

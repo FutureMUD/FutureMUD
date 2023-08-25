@@ -23,6 +23,7 @@ namespace MudSharp.Models
 		public long? CountsAsProgId { get; set; }
 		public long? IsActiveProgId { get; set; }
 		public int SpawnStrategy { get; set; }
+		public string Definition { get; set; }
 		public virtual FutureProg OnSpawnProg { get; set; }
 		public virtual FutureProg CountsAsProg { get; set; }
 		public virtual FutureProg IsActiveProg { get; set; }

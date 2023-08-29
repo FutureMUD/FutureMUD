@@ -2822,7 +2822,7 @@ public class ShowModule : Module<ICharacter>
 		);
 	}
 
-	private static void Show_Skills(ICharacter actor, StringStack input)
+	public static void Show_Skills(ICharacter actor, StringStack input)
 	{
 		if (!actor.IsAdministrator())
 		{

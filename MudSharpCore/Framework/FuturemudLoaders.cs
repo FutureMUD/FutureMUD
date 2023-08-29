@@ -652,7 +652,7 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 		                .ToList();
 		foreach (var shop in shops)
 		{
-			_shops.Add(new Economy.Shop(shop, this));
+			_shops.Add(Economy.Shop.LoadShop(shop, this));
 		}
 #if DEBUG
 		sw.Stop();

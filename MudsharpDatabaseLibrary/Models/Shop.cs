@@ -28,6 +28,7 @@ namespace MudSharp.Models
         public string EmployeeRecords { get; set; } 
         public decimal CashBalance { get; set; }
         public long? BankAccountId { get; set; }
+        public string ShopType { get; set; }
 
         public virtual FutureProg CanShopProg { get; set; }
         public virtual Currency Currency { get; set; }

@@ -695,7 +695,7 @@ public partial class Cell : Location, IDisposable, ICell
 
 	public override IEnumerable<IClock> Clocks => Room.Clocks;
 
-	public IShop Shop { get; set; }
+	public IPermanentShop Shop { get; set; }
 
 	public override IMudTimeZone TimeZone(IClock whichClock)
 	{

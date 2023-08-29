@@ -20,10 +20,9 @@ namespace MudSharp.GameItems.Components;
 
 public class ContainerGameItemComponent : GameItemComponent, IContainer, IOpenable, ILockable
 {
-	protected readonly List<IGameItem> _contents = new();
+	
 	protected ContainerGameItemComponentProto _prototype;
 	public override IGameItemComponentProto Prototype => _prototype;
-	public IEnumerable<IGameItem> Contents => _contents;
 
 	public override void Delete()
 	{
@@ -71,11 +70,9 @@ public class ContainerGameItemComponent : GameItemComponent, IContainer, IOpenab
 		return new ContainerGameItemComponent(this, newParent, temporary);
 	}
 
-	public string ContentsPreposition => _prototype.ContentsPreposition;
-
 	public override bool DescriptionDecorator(DescriptionType type)
 	{
-		return (IsOpen && (type == DescriptionType.Contents || type == DescriptionType.Evaluate)) ||
+		return ((IsOpen || Transparent) && (type == DescriptionType.Contents || type == DescriptionType.Evaluate)) ||
 		       type == DescriptionType.Full;
 	}
 
@@ -304,7 +301,7 @@ public class ContainerGameItemComponent : GameItemComponent, IContainer, IOpenab
 	/// <returns>True if this component objects to the merger</returns>
 	public override bool PreventsMerging(IGameItemComponent component)
 	{
-		return Contents.Any() || (_prototype.OnceOnly && IsOpen);
+		return Contents.Any() || Locks.Any() || (_prototype.OnceOnly && IsOpen);
 	}
 
 	public override void Login()
@@ -331,7 +328,10 @@ public class ContainerGameItemComponent : GameItemComponent, IContainer, IOpenab
 	}
 
 	#region IContainer Members
+	protected readonly List<IGameItem> _contents = new();
+	public IEnumerable<IGameItem> Contents => _contents;
 
+	public string ContentsPreposition => _prototype.ContentsPreposition;
 	public bool CanPut(IGameItem item)
 	{
 		return

@@ -278,25 +278,26 @@ public class LockingDoorGameItemComponentProto : GameItemComponentProto, IHaveSi
 	#region Building Commands
 
 	private const string BuildingHelpText = @"You can use the following options with this component:
-	name <name> - sets the name of the component
-	desc <desc> - sets the description of the component
-	type <type> - sets the lock type that is used to match keys.
-	pick <difficulty> - sets the difficulty to pick the lock on this door.
-	force <difficulty> - sets the difficulty to forcibly open the lock on this door
-	lock <emote> - sets the emote when locked. $0 is locker, $1 is door, $2 is key.
-	unlock <emote> - sets the emote when unlocked. $0 is locker, $1 is door, $2 is key.
-	olock <emote> - sets the emote for the other side of a door when locked. $0 is locker, $1 is door, $2 is key.
-	ounlock <emote> - sets the emote for the other side of a door when unlocked. $0 is locker, $1 is door, $2 is key.
-	locknoactor <emote> - sets the emote when locked by prog. $0 is the door.
-	unlocknoactor <emote> - sets the emote when unlocked by prog. $0 is the door.
-    uninstallable <hinge side difficulty> <other side difficulty> <uninstall trait> - sets the door as uninstallable
-	uninstallable - sets the door as not uninstallable by players
-	smashable <difficulty> - sets the door as smashable by players
-	smashable - sets the door as not smashable
-	installed <keyword> - sets the keyword for this door as viewed in exits (e.g. iron door)
-	transparent - sets the door as transparent
-	opaque - sets the door as opaque
-	fire - toggles whether the door can be fired through (e.g. gate)";
+
+	#3name <name>#0 - sets the name of the component
+	#3desc <desc>#0 - sets the description of the component
+	#3type <type>#0 - sets the lock type that is used to match keys.
+	#3pick <difficulty>#0 - sets the difficulty to pick the lock on this door.
+	#3force <difficulty>#0 - sets the difficulty to forcibly open the lock on this door
+	#3lock <emote>#0 - sets the emote when locked. $0 is locker, $1 is door, $2 is key.
+	#3unlock <emote>#0 - sets the emote when unlocked. $0 is locker, $1 is door, $2 is key.
+	#3olock <emote>#0 - sets the emote for the other side of a door when locked. $0 is locker, $1 is door, $2 is key.
+	#3ounlock <emote>#0 - sets the emote for the other side of a door when unlocked. $0 is locker, $1 is door, $2 is key.
+	#3locknoactor <emote>#0 - sets the emote when locked by prog. $0 is the door.
+	#3unlocknoactor <emote>#0 - sets the emote when unlocked by prog. $0 is the door.
+	#3uninstallable <hinge side difficulty> <other side difficulty> <uninstall trait>#0 - sets the door as uninstallable
+	#3uninstallable#0 - sets the door as not uninstallable by players
+	#3smashable <difficulty>#0 - sets the door as smashable by players
+	#3smashable#0 - sets the door as not smashable
+	#3installed <keyword>#0 - sets the keyword for this door as viewed in exits (e.g. iron door)
+	#3transparent#0 - sets the door as transparent
+	#3opaque#0 - sets the door as opaque
+	#3fire#0 - toggles whether the door can be fired through (e.g. gate)";
 
 	public override string ShowBuildingHelp => BuildingHelpText;
 
@@ -363,9 +364,9 @@ public class LockingDoorGameItemComponentProto : GameItemComponentProto, IHaveSi
 	private bool BuildingCommandLocktype(ICharacter actor, StringStack command)
 	{
 		var types = Gameworld.ItemProtos.SelectNotNull(x => x.GetItemType<IHaveSimpleLockType>())
-		                     .Select(x => x.LockType)
-		                     .Distinct()
-		                     .ToList();
+							 .Select(x => x.LockType)
+							 .Distinct()
+							 .ToList();
 
 		if (command.IsFinished)
 		{
@@ -730,10 +731,22 @@ public class LockingDoorGameItemComponentProto : GameItemComponentProto, IHaveSi
 	public override string ComponentDescriptionOLC(ICharacter actor)
 	{
 		return string.Format(actor,
-			"{0} (#{1:N0}r{2:N0}, {3})\r\n\r\nThis item is {4} door, and when installed in an exit will show as {5}. {6}. {7}. {8}.\nIt also contains a built-in lock and is difficulty {9} to pick or {10} to force open. It takes keys of type {17}.\n\nIt uses the following emotes:\nLock: {11}\nUnlock: {12}\nLock (other side): {13}\nUnlock (other side): {14}\nLock (No Actor): {15}\nUnlock (No Actor): {16}",
+			@"{0} (#{1}r{2}, {3})
+
+This item is {4} door, and when installed in an exit will show as {5}. {6}. {7}. {8}.
+It also contains a built-in lock and is difficulty {9} to pick or {10} to force open. It takes keys of type {17}.
+
+It uses the following emotes:
+
+Lock: {11}
+Unlock: {12}
+Lock (other side): {13}
+Unlock (other side): {14}
+Lock (No Actor): {15}
+Unlock (No Actor): {16}",
 			"LockingDoor Game Item Component".Colour(Telnet.Cyan),
-			Id,
-			RevisionNumber,
+			Id.ToString("N0", actor),
+			RevisionNumber.ToString("N0", actor),
 			Name,
 			SeeThrough ? "a transparent" : "an opaque",
 			InstalledExitDescription.Colour(Telnet.Yellow),
@@ -753,6 +766,6 @@ public class LockingDoorGameItemComponentProto : GameItemComponentProto, IHaveSi
 			LockEmoteNoActor.Colour(Telnet.Yellow),
 			UnlockEmoteNoActor.Colour(Telnet.Yellow),
 			LockType != null ? LockType.Colour(Telnet.Green) : "None".Colour(Telnet.Red)
-		);
+		) ;
 	}
 }

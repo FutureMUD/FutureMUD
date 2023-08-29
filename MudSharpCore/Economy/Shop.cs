@@ -20,19 +20,30 @@ using MudSharp.PerceptionEngine.Outputs;
 using MudSharp.PerceptionEngine.Parsers;
 using MudSharp.PerceptionEngine.Lists;
 using MudSharp.FutureProg.Variables;
-using MudSharp.GameItems.Components;
 using MudSharp.GameItems.Interfaces;
 using MudSharp.Events;
 using MudSharp.Models;
 
 namespace MudSharp.Economy;
 
-public class Shop : SaveableItem, IShop
+public abstract class Shop : SaveableItem, IShop
 {
-	public Shop(IEconomicZone zone, ICell originalShopFront, string name)
+	public static IShop LoadShop(Models.Shop shop, IFuturemud gameworld)
+	{
+		switch (shop.ShopType)
+		{
+			case "Permanent":
+				return new PermanentShop(shop, gameworld);
+			case "Transient":
+				return new TransientShop(shop, gameworld);
+			default:
+				throw new ApplicationException($"Invalid shop type {shop.ShopType} for shop {shop.Id} ({shop.Name})");
+		}
+	}
+
+	protected Shop(IEconomicZone zone, ICell originalShopFront, string name, string type)
 	{
 		Gameworld = zone.Gameworld;
-		_shopfrontCells.Add(originalShopFront);
 		Currency = zone.Currency;
 		_name = name;
 		EconomicZone = zone;
@@ -45,16 +56,17 @@ public class Shop : SaveableItem, IShop
 			dbitem.CurrencyId = Currency.Id;
 			dbitem.EconomicZoneId = zone.Id;
 			dbitem.IsTrading = true;
+			dbitem.ShopType = type;
 			dbitem.EmployeeRecords = "<Employees/>";
-			dbitem.ShopsStoreroomCells.Add(new ShopsStoreroomCell { Shop = dbitem, CellId = originalShopFront.Id });
+			if (originalShopFront is not null) { 
+				dbitem.ShopsStoreroomCells.Add(new ShopsStoreroomCell { Shop = dbitem, CellId = originalShopFront.Id });
+			}
 			FMDB.Context.SaveChanges();
 			_id = dbitem.Id;
 		}
-
-		InitialiseShop();
 	}
 
-	public Shop(MudSharp.Models.Shop shop, IFuturemud gameworld)
+    protected Shop(MudSharp.Models.Shop shop, IFuturemud gameworld)
 	{
 		Gameworld = gameworld;
 		_id = shop.Id;
@@ -63,11 +75,10 @@ public class Shop : SaveableItem, IShop
 		_cashBalance = shop.CashBalance;
 		IsTrading = shop.IsTrading;
 		Currency = gameworld.Currencies.Get(shop.CurrencyId);
-		_shopfrontCells.AddRange(shop.ShopsStoreroomCells.Select(x => gameworld.Cells.Get(x.CellId)));
+		
 		_canShopProg = gameworld.FutureProgs.Get(shop.CanShopProgId ?? 0);
 		_whyCannotShopProg = gameworld.FutureProgs.Get(shop.WhyCannotShopProgId ?? 0);
-		_stockroomCell = gameworld.Cells.Get(shop.StockroomCellId ?? 0);
-		_workshopCell = gameworld.Cells.Get(shop.WorkshopCellId ?? 0);
+        
 		_bankAccountId = shop.BankAccountId;
 		foreach (var item in shop.Merchandises)
 		{
@@ -85,51 +96,31 @@ public class Shop : SaveableItem, IShop
 			_employeeRecords.Add(new EmployeeRecord(item, gameworld));
 		}
 
-		foreach (var item in shop.ShopsTills)
-		{
-			_tillItemIds.Add(item.GameItemId);
-		}
-
 		foreach (var item in shop.LineOfCreditAccounts)
 		{
 			_lineOfCreditAccounts.Add(new LineOfCreditAccount(item, this, Gameworld));
 		}
-
-		InitialiseShop();
 	}
 
-	private void InitialiseShop()
+	protected virtual void InitialiseShop()
 	{
-		foreach (var cell in AllShopCells)
-		{
-			cell.Shop = this;
-		}
 	}
 
-	public void PostLoadInitialisation()
+	public virtual void PostLoadInitialisation()
 	{
-		foreach (var merchandise in Merchandises)
-		{
-			var stocked = StockedItems(merchandise).ToList();
-			_stockedMerchandiseCounts[merchandise] = stocked.Sum(x => x.Quantity);
-			foreach (var item in stocked)
-			{
-				_stockedMerchandise.Add(merchandise, item.Id);
-			}
-		}
 	}
 
 	private IEconomicZone _economicZone;
 	private ICurrency _currency;
-	private ICell _workshopCell;
-	private ICell _stockroomCell;
 	private IFutureProg _canShopProg;
 	private IFutureProg _whyCannotShopProg;
 	private long? _bankAccountId;
 	private IBankAccount _bankAccount;
 	private decimal _cashBalance;
 
-	public override void Save()
+	protected abstract void Save(Models.Shop dbitem);
+
+	public sealed override void Save()
 	{
 		var dbitem = FMDB.Context.Shops.Find(Id);
 		dbitem.Name = _name;
@@ -140,29 +131,12 @@ public class Shop : SaveableItem, IShop
 		dbitem.IsTrading = IsTrading;
 		dbitem.CanShopProgId = CanShopProg?.Id;
 		dbitem.WhyCannotShopProgId = WhyCannotShopProg?.Id;
-		dbitem.StockroomCellId = StockroomCell?.Id;
-		dbitem.WorkshopCellId = WorkshopCell?.Id;
 		dbitem.EmployeeRecords = new XElement("Employees",
 			from employee in EmployeeRecords
 			select employee.SaveToXml()
 		).ToString();
-		FMDB.Context.ShopsTills.RemoveRange(dbitem.ShopsTills);
-		foreach (var item in _tillItemIds)
-		{
-			var dbtill = FMDB.Context.GameItems.Find(item);
-			if (dbtill != null)
-			{
-				dbitem.ShopsTills.Add(new ShopsTill { Shop = dbitem, GameItemId = item });
-			}
-		}
-
-		FMDB.Context.ShopsStoreroomCells.RemoveRange(dbitem.ShopsStoreroomCells);
-		foreach (var cell in ShopfrontCells)
-		{
-			dbitem.ShopsStoreroomCells.Add(new ShopsStoreroomCell { Shop = dbitem, CellId = cell.Id });
-		}
-
-		Changed = false;
+		Save(dbitem);
+        Changed = false;
 	}
 
 	public override string FrameworkItemType => "Shop";
@@ -189,38 +163,7 @@ public class Shop : SaveableItem, IShop
 
 	private readonly List<ITransactionRecord> _transactionRecords = new();
 	public IEnumerable<ITransactionRecord> TransactionRecords => _transactionRecords;
-	private readonly List<ICell> _shopfrontCells = new();
-	public IEnumerable<ICell> ShopfrontCells => _shopfrontCells;
-
-	public ICell WorkshopCell
-	{
-		get => _workshopCell;
-		set
-		{
-			if (_workshopCell != null && value != _workshopCell)
-			{
-				RemoveCellFromStore(_workshopCell);
-			}
-
-			_workshopCell = value;
-			Changed = true;
-		}
-	}
-
-	public ICell StockroomCell
-	{
-		get => _stockroomCell;
-		set
-		{
-			if (_stockroomCell != null && value != _stockroomCell)
-			{
-				RemoveCellFromStore(_stockroomCell);
-			}
-
-			_stockroomCell = value;
-			Changed = true;
-		}
-	}
+	
 
 	public decimal CashBalance
 	{
@@ -250,82 +193,22 @@ public class Shop : SaveableItem, IShop
 			Changed = true;
 		}
 	}
+    
 
-	private void RemoveCellFromStore(ICell cell)
+    protected readonly CollectionDictionary<IMerchandise, long> _stockedMerchandise = new();
+	protected readonly Counter<IMerchandise> _stockedMerchandiseCounts = new();
+
+	public bool IsTrading { get; protected set; }
+	public void ToggleIsTrading()
 	{
-		cell.Shop = null;
-		var time = cell.DateTime();
-		foreach (var item in cell.GameItems.SelectMany(x => x.DeepItems))
-		{
-			if (item.AffectedBy<ItemOnDisplayInShop>())
-			{
-				DisposeFromStock(null, item);
-			}
-		}
-	}
-
-	private void AddCellToStore(ICell cell)
-	{
-		cell.Shop = this;
-		cell.CellRequestsDeletion -= Cell_CellRequestsDeletion;
-		cell.CellRequestsDeletion += Cell_CellRequestsDeletion;
-		cell.CellProposedForDeletion -= Cell_CellProposedForDeletion;
-		cell.CellProposedForDeletion += Cell_CellProposedForDeletion;
-	}
-
-	private void Cell_CellProposedForDeletion(ICell cell, ProposalRejectionResponse response)
-	{
-		if (cell == WorkshopCell)
-		{
-			response.RejectWithReason($"That room is a workshop room for shop #{Id:N0} ({Name.ColourName()})");
-			return;
-		}
-
-		if (cell == StockroomCell)
-		{
-			response.RejectWithReason($"That room is a stockroom for shop #{Id:N0} ({Name.ColourName()})");
-			return;
-		}
-	}
-
-	private void Cell_CellRequestsDeletion(object sender, EventArgs e)
-	{
-		var cell = (ICell)sender;
-		RemoveShopfrontCell(cell);
-	}
-
-	public void AddShopfrontCell(ICell cell)
-	{
-		if (!_shopfrontCells.Contains(cell))
-		{
-			AddCellToStore(cell);
-			_shopfrontCells.Add(cell);
-			Changed = true;
-		}
-	}
-
-	public void RemoveShopfrontCell(ICell cell)
-	{
-		_shopfrontCells.Remove(cell);
-		RemoveCellFromStore(cell);
+		IsTrading = !IsTrading;
 		Changed = true;
 	}
 
-	public IEnumerable<ICell> AllShopCells => ShopfrontCells.Concat(new[]
-	{
-		WorkshopCell,
-		StockroomCell
-	}.WhereNotNull(x => x));
-
-	private readonly CollectionDictionary<IMerchandise, long> _stockedMerchandise = new();
-	private readonly Counter<IMerchandise> _stockedMerchandiseCounts = new();
-
-	public bool IsTrading { get; protected set; }
-
 	private readonly List<IEmployeeRecord> _employeeRecords = new();
 	public IEnumerable<IEmployeeRecord> EmployeeRecords => _employeeRecords;
-
-	public bool IsEmployee(ICharacter actor)
+	public abstract IEnumerable<ICell> CurrentLocations { get; }
+    public bool IsEmployee(ICharacter actor)
 	{
 		return _employeeRecords.Any(x => x.EmployeeCharacterId == actor.Id);
 	}
@@ -364,20 +247,10 @@ public class Shop : SaveableItem, IShop
 	}
 
 	public IEnumerable<ICharacter> EmployeesOnDuty =>
-		AllShopCells.SelectMany(x => x.Characters).Where(x => IsClockedIn(x));
+		Gameworld.Actors.Where(x => IsClockedIn(x));
 
-	private readonly List<IMerchandise> _merchandises = new();
+	protected readonly List<IMerchandise> _merchandises = new();
 	public IEnumerable<IMerchandise> Merchandises => _merchandises;
-
-	private readonly HashSet<long> _tillItemIds = new();
-
-	public IEnumerable<IGameItem> TillItems =>
-		AllShopCells.SelectMany(x => x.GameItems).Where(x => _tillItemIds.Contains(x.Id));
-
-	private readonly HashSet<long> _displayContainerIds = new();
-
-	public IEnumerable<IGameItem> DisplayContainers => AllShopCells.SelectMany(x => x.GameItems)
-	                                                               .Where(x => _displayContainerIds.Contains(x.Id));
 
 	public IFutureProg CanShopProg
 	{
@@ -437,30 +310,6 @@ public class Shop : SaveableItem, IShop
 		Changed = true;
 	}
 
-	public void AddTillItem(IGameItem till)
-	{
-		_tillItemIds.Add(till.Id);
-		Changed = true;
-	}
-
-	public void RemoveTillItem(IGameItem till)
-	{
-		_tillItemIds.Remove(till.Id);
-		Changed = true;
-	}
-
-	public void AddDisplayContainer(IGameItem item)
-	{
-		_displayContainerIds.Add(item.Id);
-		Changed = true;
-	}
-
-	public void RemoveDisplayContainer(IGameItem item)
-	{
-		_displayContainerIds.Remove(item.Id);
-		Changed = true;
-	}
-
 	public void AddMerchandise(IMerchandise merchandise)
 	{
 		_merchandises.Add(merchandise);
@@ -487,7 +336,7 @@ public class Shop : SaveableItem, IShop
 		actor?.OutputHandler.Send(
 			$"You add {item.HowSeen(actor)} to the for-sale inventory of {Name.TitleCase().Colour(Telnet.Cyan)}.");
 		AddTransaction(new TransactionRecord(ShopTransactionType.Stock, Currency, this,
-			actor?.Location.DateTime() ?? ShopfrontCells.First().DateTime(), actor,
+			EconomicZone.ZoneForTimePurposes.DateTime(), actor,
 			merch.EffectivePrice * item.Quantity * -1, 0.0M));
 		_stockedMerchandise.Add(merch, item.Id);
 		_stockedMerchandiseCounts.Add(merch, item.Quantity);
@@ -500,7 +349,7 @@ public class Shop : SaveableItem, IShop
 			$"You dispose of {item.HowSeen(actor)} from the for-sale inventory of {Name.TitleCase().Colour(Telnet.Cyan)}.");
 		var merch = _merchandises.FirstOrDefault(x => x.IsMerchandiseFor(item));
 		AddTransaction(new TransactionRecord(ShopTransactionType.StockLoss, Currency, this,
-			actor?.Location.DateTime() ?? ShopfrontCells.First().DateTime(), actor,
+			EconomicZone.ZoneForTimePurposes.DateTime(), actor,
 			merch?.EffectivePrice ?? 0.0M * item.Quantity, 0.0M));
 		if (merch != null)
 		{
@@ -524,7 +373,11 @@ public class Shop : SaveableItem, IShop
 		Changed = true;
 	}
 
-	public (bool Truth, string Reason) CanBuy(ICharacter actor, IMerchandise merchandise, int quantity,
+	protected abstract (bool Truth, string Reason) CanBuyInternal(ICharacter actor, IMerchandise merchandise, int quantity,
+        IPaymentMethod method, string extraArguments = null);
+
+
+    public (bool Truth, string Reason) CanBuy(ICharacter actor, IMerchandise merchandise, int quantity,
 		IPaymentMethod method, string extraArguments = null)
 	{
 		if (!IsTrading && !actor.IsAdministrator())
@@ -577,11 +430,6 @@ public class Shop : SaveableItem, IShop
 			case null:
 				break;
 			case ShopCashPayment cash:
-				if (!TillItems.Any())
-				{
-					return (false, "the store is currently missing its till, and so cannot do cash transactions.");
-				}
-
 				price = PriceForMerchandise(actor, merchandise, quantity);
 				var cashonhand = cash.AccessibleMoneyForPayment();
 				if (cashonhand < price)
@@ -636,6 +484,12 @@ public class Shop : SaveableItem, IShop
 				}
 
 				break;
+		}
+
+		var baseReason = CanBuyInternal(actor, merchandise, quantity, method, extraArguments);
+		if (!baseReason.Truth)
+		{
+			return baseReason;
 		}
 
 		return (true, string.Empty);
@@ -703,7 +557,7 @@ public class Shop : SaveableItem, IShop
 
 		method.TakePayment(price);
 		AddTransaction(new TransactionRecord(ShopTransactionType.Sale, Currency, this,
-			ShopfrontCells.First().DateTime(), actor, price - tax, tax));
+			actor.Location.DateTime(), actor, price - tax, tax));
 		EconomicZone.ReportSalesTaxCollected(this, tax);
 
 		var couldnothold = false;
@@ -752,72 +606,10 @@ public class Shop : SaveableItem, IShop
 		return boughtItems;
 	}
 
-	public IEnumerable<IGameItem> DoAutostockForMerchandise(IMerchandise merchandise,
-		List<(IGameItem Item, IGameItem Container)> purchasedItems = null)
-	{
-		var quantityToRestock = merchandise.MinimumStockLevels - _stockedMerchandiseCounts[merchandise];
-		var originalQuantity = quantityToRestock;
-		var newItems = new List<IGameItem>();
-		if (merchandise.PreserveVariablesOnReorder && purchasedItems != null)
-		{
-			foreach (var item in purchasedItems)
-			{
-				var newItem = item.Item.DeepCopy(true);
-				newItem.Skin = merchandise.Skin;
-				newItems.Add(newItem);
-				quantityToRestock -= newItem.Quantity;
-			}
-		}
+	public abstract IEnumerable<IGameItem> DoAutostockForMerchandise(IMerchandise merchandise,
+		List<(IGameItem Item, IGameItem Container)> purchasedItems = null);
 
-		if (quantityToRestock > 0)
-		{
-			if (merchandise.Item.Components.Any(x => x is StackableGameItemComponentProto))
-			{
-				var newItem = merchandise.Item.CreateNew(null);
-				newItem.Skin = merchandise.Skin;
-				newItem.GetItemType<StackableGameItemComponent>().Quantity = quantityToRestock;
-				newItems.Add(newItem);
-				Gameworld.Add(newItem);
-			}
-			else
-			{
-				for (var i = 0; i < quantityToRestock; i++)
-				{
-					var newItem = merchandise.Item.CreateNew(null);
-					newItem.Skin = merchandise.Skin;
-					newItems.Add(newItem);
-					Gameworld.Add(newItem);
-				}
-			}
-		}
-
-		if (!newItems.Any())
-		{
-			return newItems;
-		}
-
-		var targetCell = StockroomCell;
-		if (targetCell == null)
-		{
-			targetCell = ShopfrontCells.First();
-		}
-
-		foreach (var item in newItems)
-		{
-			item.AddEffect(new ItemOnDisplayInShop(item, this, merchandise));
-			targetCell.Insert(item);
-			item.HandleEvent(EventType.ItemFinishedLoading, item);
-			item.Login();
-			_stockedMerchandise.Add(merchandise, item.Id);
-			_stockedMerchandiseCounts[merchandise] += item.Quantity;
-		}
-
-		AddTransaction(new TransactionRecord(ShopTransactionType.Restock, Currency, this,
-			ShopfrontCells.First().DateTime(), null, merchandise.EffectiveAutoReorderPrice * originalQuantity, 0.0M));
-		return newItems;
-	}
-
-	private void RecalculateStockedItems(IMerchandise merchandise, int expectedChange)
+	protected void RecalculateStockedItems(IMerchandise merchandise, int expectedChange)
 	{
 		var stocked = StockedItems(merchandise).ToList();
 		var difference = _stockedMerchandiseCounts.Count(merchandise) - stocked.Sum(x => x.Quantity);
@@ -825,14 +617,14 @@ public class Shop : SaveableItem, IShop
 			// Some items were missing
 		{
 			_transactionRecords.Add(new TransactionRecord(ShopTransactionType.StockLoss, Currency, this,
-				ShopfrontCells.First().DateTime(), null, merchandise.EffectiveAutoReorderPrice * (difference - expectedChange),
+				EconomicZone.ZoneForTimePurposes.DateTime(), null, merchandise.EffectiveAutoReorderPrice * (difference - expectedChange),
 				0.0M));
 		}
 		else if (difference < expectedChange)
 			// Extras were located
 		{
 			_transactionRecords.Add(new TransactionRecord(ShopTransactionType.Stock, Currency, this,
-				ShopfrontCells.First().DateTime(), null,
+                EconomicZone.ZoneForTimePurposes.DateTime(), null,
 				merchandise.EffectiveAutoReorderPrice * (expectedChange - difference) * -1, 0.0M));
 		}
 
@@ -930,18 +722,7 @@ public class Shop : SaveableItem, IShop
 	public IEnumerable<IMerchandise> StockedMerchandise =>
 		_stockedMerchandise.Where(x => x.Value.Any()).Select(x => x.Key).OrderBy(x => x.Name);
 
-	public IEnumerable<IGameItem> StockedItems(IMerchandise merchandise)
-	{
-		return
-			ShopfrontCells.SelectMany(x => x.Characters).SelectMany(x => x.Body.HeldItems)
-			              .Concat(
-				              ShopfrontCells
-					              .ConcatIfNotNull(StockroomCell)
-					              .SelectMany(x => x.GameItems)
-					              .SelectMany(x => x.ShallowItems)
-			              )
-			              .Where(x => x.AffectedBy<ItemOnDisplayInShop>(merchandise));
-	}
+	public abstract IEnumerable<IGameItem> StockedItems(IMerchandise merchandise);
 
 	public void ShowDeals(ICharacter actor, ICharacter purchaser, IMerchandise merchandise = null)
 	{
@@ -1051,6 +832,8 @@ public class Shop : SaveableItem, IShop
 		actor.OutputHandler.Send(sb.ToString(), false);
 	}
 
+	protected abstract void ShowInfo(ICharacter actor, StringBuilder sb);
+
 	public void ShowInfo(ICharacter actor)
 	{
 		var sb = new StringBuilder();
@@ -1106,29 +889,6 @@ public class Shop : SaveableItem, IShop
 				sb.AppendLine(
 					$"This shop uses the bank account {BankAccount.AccountReference.ColourValue()} for transactions.");
 			}
-
-			if (actor.Location == WorkshopCell)
-			{
-				sb.AppendLine("The location you are currently in is the workshop for this store.");
-			}
-			else if (actor.Location == StockroomCell)
-			{
-				sb.AppendLine("The location you are currently in is the stockroom for this store.");
-			}
-			else
-			{
-				sb.AppendLine("The location you are currently in is the shopfront for this store.");
-			}
-
-			foreach (var item in TillItems)
-			{
-				sb.AppendLine($"{item.HowSeen(actor, true)} is a till for this store.");
-			}
-
-			foreach (var item in DisplayContainers)
-			{
-				sb.AppendLine($"{item.HowSeen(actor, true)} is a display container for this store.");
-			}
 		}
 
 		if (IsProprietor(actor) || actor.IsAdministrator())
@@ -1139,29 +899,11 @@ public class Shop : SaveableItem, IShop
 				$"The WhyCannotShopProg is set to {(WhyCannotShopProg != null ? $"#{WhyCannotShopProg.Id.ToString("N0", actor)} {WhyCannotShopProg.FunctionName}".FluentTagMXP("send", $"href='show prog {CanShopProg.Id}'") : "None".Colour(Telnet.Red))}.");
 		}
 
-
+		ShowInfo(actor, sb);
 		actor.OutputHandler.Send(sb.ToString());
 	}
 
-	public (int OnFloorCount, int InStockroomCount) StocktakeMerchandise(IMerchandise whichMerchandise)
-	{
-		if (!_merchandises.Contains(whichMerchandise))
-		{
-			return (0, 0);
-		}
-
-		RecalculateStockedItems(whichMerchandise, 0);
-		var floorStock =
-			ShopfrontCells.SelectMany(x => x.Characters).SelectMany(x => x.Body.HeldItems)
-			              .Concat(
-				              ShopfrontCells
-					              .SelectMany(x => x.GameItems)
-					              .SelectMany(x => x.ShallowItems)
-			              )
-			              .Where(x => x.AffectedBy<ItemOnDisplayInShop>(whichMerchandise))
-			              .Sum(x => x.Quantity);
-		return (floorStock, _stockedMerchandiseCounts[whichMerchandise] - floorStock);
-	}
+	public abstract (int OnFloorCount, int InStockroomCount) StocktakeMerchandise(IMerchandise whichMerchandise);
 
 	public Dictionary<IMerchandise, (int OnFloorCount, int InStockroomCount)> StocktakeAllMerchandise()
 	{
@@ -1175,30 +917,7 @@ public class Shop : SaveableItem, IShop
 		return dictionary;
 	}
 
-	public void CheckFloat()
-	{
-		var cashInRegister = TillItems
-		                     .RecursiveGetItems<ICurrencyPile>(false)
-		                     .Where(x => x.Currency == Currency)
-		                     .Sum(x => x.Coins.Sum(y => y.Item2 * y.Item1.Value));
-		if (cashInRegister > CashBalance)
-		{
-			AddTransaction(new TransactionRecord(ShopTransactionType.Float, Currency, this,
-				AllShopCells.First().DateTime(), null, cashInRegister - CashBalance, 0.0M));
-			CashBalance = cashInRegister;
-			Changed = true;
-			return;
-		}
-
-		if (cashInRegister < CashBalance)
-		{
-			AddTransaction(new TransactionRecord(ShopTransactionType.Withdrawal, Currency, this,
-				AllShopCells.First().DateTime(), null, CashBalance - cashInRegister, 0.0M));
-			CashBalance = cashInRegister;
-			Changed = true;
-			return;
-		}
-	}
+	public abstract void CheckFloat();
 
 	public bool IsWelcomeCustomer(ICharacter customer)
 	{
@@ -1355,7 +1074,7 @@ public class Shop : SaveableItem, IShop
 	public FutureProgVariableTypes Type => FutureProgVariableTypes.Shop;
 	public object GetObject => this;
 
-	public IFutureProgVariable GetProperty(string property)
+	public virtual IFutureProgVariable GetProperty(string property)
 	{
 		switch (property.ToLowerInvariant())
 		{
@@ -1366,13 +1085,13 @@ public class Shop : SaveableItem, IShop
 			case "merchandise":
 				return new CollectionVariable(Merchandises.ToList(), FutureProgVariableTypes.Merchandise);
 			case "shopfront":
-				return new CollectionVariable(ShopfrontCells.ToList(), FutureProgVariableTypes.Location);
+				return new CollectionVariable(new List<ICell>(), FutureProgVariableTypes.Location);
 			case "storeroom":
-				return StockroomCell;
+				return new NullVariable(FutureProgVariableTypes.Location);
 			case "workshop":
-				return WorkshopCell;
+				return new NullVariable(FutureProgVariableTypes.Location);
 			case "tills":
-				return new CollectionVariable(TillItems.ToList(), FutureProgVariableTypes.Item);
+				return new CollectionVariable(new List<IGameItem>(), FutureProgVariableTypes.Item);
 			case "employees":
 				return new CollectionVariable(_employeeRecords.Select(x => x.EmployeeCharacterId).ToList(),
 					FutureProgVariableTypes.Number);

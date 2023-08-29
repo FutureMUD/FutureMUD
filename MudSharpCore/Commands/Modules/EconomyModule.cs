@@ -42,6 +42,7 @@ using MudSharp.TimeAndDate.Time;
 using MudSharp.Work.Butchering;
 using Org.BouncyCastle.Asn1.Cms;
 using AuctionBid = MudSharp.Economy.AuctionBid;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 namespace MudSharp.Commands.Modules;
 
@@ -110,10 +111,10 @@ internal class EconomyModule : Module<ICharacter>
 		else
 		{
 			sb.AppendLine("This comes to a total of " +
-			              results.Select(
-				              x =>
-					              x.Key.Describe(x.Value, CurrencyDescriptionPatternType.ShortDecimal)
-					               .Colour(Telnet.Green)).ListToString());
+						  results.Select(
+							  x =>
+								  x.Key.Describe(x.Value, CurrencyDescriptionPatternType.ShortDecimal)
+								   .Colour(Telnet.Green)).ListToString());
 		}
 
 		var bankAccounts = character.Gameworld.BankAccounts.Where(x => x.IsAccountOwner(character)).ToList();
@@ -152,9 +153,9 @@ internal class EconomyModule : Module<ICharacter>
 		var ss = new StringStack(command.RemoveFirstWord());
 		var td = actor.Gameworld.Traits.Get(actor.Gameworld.GetStaticLong("AppraiseCommandSkill"));
 		if (!actor.IsAdministrator() && 
-		    actor.Gameworld.GetStaticBool("AppraiseCommandRequiresSkill") &&
+			actor.Gameworld.GetStaticBool("AppraiseCommandRequiresSkill") &&
 			td is not null &&
-		    actor.TraitValue(td) <= 0.0)
+			actor.TraitValue(td) <= 0.0)
 		{
 			actor.OutputHandler.Send(
 				$"Without the {td.Name.ColourName()} skill, you have no idea how much things are worth.");
@@ -249,7 +250,7 @@ internal class EconomyModule : Module<ICharacter>
 				 container.Transparent ||
 				 (container is IOpenable op && op.IsOpen)
 				 )
-			    )
+				)
 			{
 				foreach (var content in container.Contents)
 				{
@@ -387,8 +388,8 @@ If you are in a shop, you can view the list output as a specific line of credit 
 	{
 		var ss = new StringStack(command.RemoveFirstWord());
 		var listables = actor.Location.LayerGameItems(actor.RoomLayer).SelectNotNull(x => x.GetItemType<IListable>())
-		                     .Where(x => actor.IsAdministrator() || x.Parent.GetItemType<IOnOff>()?.SwitchedOn != false)
-		                     .ToList();
+							 .Where(x => actor.IsAdministrator() || x.Parent.GetItemType<IOnOff>()?.SwitchedOn != false)
+							 .ToList();
 		IListable listable;
 		if (ss.IsFinished)
 		{
@@ -551,10 +552,10 @@ If you are in a shop, you can view the list output as a specific line of credit 
 		var items = new List<IGameItem>();
 		var count = 0;
 		foreach (var item in actor.Location.GameItems
-		                          .SelectMany(x => x.ShallowItems)
-		                          .Concat(shop.ShopfrontCells.Except(actor.Location)
-		                                      .SelectMany(x => x.GameItems.SelectMany(y => y.ShallowItems)))
-		                          .Where(x => x.Prototype.Id == merch.Item.Id && x.AffectedBy<ItemOnDisplayInShop>()))
+								  .SelectMany(x => x.ShallowItems)
+								  .Concat(shop.ShopfrontCells.Except(actor.Location)
+											  .SelectMany(x => x.GameItems.SelectMany(y => y.ShallowItems)))
+								  .Where(x => x.Prototype.Id == merch.Item.Id && x.AffectedBy<ItemOnDisplayInShop>()))
 		{
 			if (count + item.Quantity <= quantity)
 			{
@@ -825,14 +826,26 @@ BUY [<quantity>] <thing> WITH <item> - buys the thing with a payment item such a
 			case "autostock":
 				ShopAutostock(actor, ss);
 				return;
+			case "open":
+				ShopOpen(actor, ss);
+				return;
+			case "close":
+				ShopClose(actor, ss);
+				return;
 		}
 
 		if (actor.IsAdministrator())
 		{
 			switch (ss.Last.ToLowerInvariant())
 			{
+				case "setupstall":
+					ShopSetupStall(actor, ss);
+					return;
 				case "create":
 					ShopCreate(actor, ss);
+					return;
+				case "createstall":
+					ShopCreateStall(actor, ss);
 					return;
 				case "list":
 					ShopList(actor, ss);
@@ -853,6 +866,253 @@ BUY [<quantity>] <thing> WITH <item> - buys the thing with a payment item such a
 		}
 
 		actor.OutputHandler.Send("That is not a valid option. See SHOP HELP for more information.");
+	}
+
+	#region Shop Subcommands
+
+	private const string ShopHelpPlayers = @"You can use the following options with the shop command:
+
+	#3shop payaccount <account> <amount>#0 - pays off a line of credit account
+	#3shop paytax <amount>|all#0 - pays owing taxes out of the till
+	#3shop accountstatus <account>#0 - inquires about the status of a line of credit account
+	#3shop account ...#0 - allows store managers to configure line of credit accounts. See #3SHOP ACCOUNT HELP#0.
+	#3shop clockin#0 - clocks in as an on-duty employee
+	#3shop clockout#0 - clocks out as an off-duty employee	
+	#3shop employ <target>#0 - employs someone with the store
+	#3shop quit#0 - quits employment with this store
+	#3shop fire <target>|<name>#0 - fires an employee from this store
+	#3shop manager <target>|<name>#0 - toggles an employee's status as a manager
+	#3shop proprietor <target>|<name>#0 - toggles and employee's status as a proprietor
+	#3till <target>#0 - toggles an item being used as a till for the store
+	#3shop display <target>#0 - toggles an item being used as a display cabinet for the store
+	#3shop info#0 - shows detailed information about the shop
+	#3shop stock <target>#0 - adds an item as shop inventory
+	#3shop dispose <target>#0 - disposes of an item from shop inventory
+	#3shop ledger [<period#>]#0 - views the financial ledger for the shop
+	#3shop bank <account>#0 - sets the bank account for the shop
+	#3shop bank none#0 - sets this shop to no longer use a bank account
+	#3shop merchandise <other args>#0 - edits merchandise. See #3SHOP MERCHANDISE HELP#0.
+	#3shop open <shop>#0 - opens a shop for trading
+	#3shop close <shop>#0 - closes a shop to trading";
+
+	private const string ShopHelpAdmins = @"You can use the following options with the shop command:
+
+	#3shop payaccount <account> <amount>#0 - pays off a line of credit account
+	#3shop paytax <amount>|all#0 - pays owing taxes out of the till
+	#3shop accountstatus <account>#0 - inquires about the status of a line of credit account
+	#3shop account ...#0 - allows store managers to configure line of credit accounts. See #3SHOP ACCOUNT HELP#0.
+	#3shop clockin#0 - clocks in as an on-duty employee
+	#3shop clockout#0 - clocks out as an off-duty employee	
+	#3shop employ <target>#0 - employs someone with the store
+	#3shop quit#0 - quits employment with this store
+	#3shop fire <target>|<name>#0 - fires an employee from this store
+	#3shop manager <target>|<name>#0 - toggles an employee's status as a manager
+	#3shop proprietor <target>|<name>#0 - toggles and employee's status as a proprietor
+	#3shop till <target>#0 - toggles an item being used as a till for the store
+	#3shop display <target>#0 - toggles an item being used as a display cabinet for the store
+	#3shop info#0 - shows detailed information about the shop
+	#3shop stock <target>#0 - adds an item as shop inventory
+	#3shop dispose <target>#0 - disposes of an item from shop inventory
+	#3shop ledger [<period#>]#0 - views the financial ledger for the shop
+	#3shop bank <account>#0 - sets the bank account for the shop
+	#3shop bank none#0 - sets this shop to no longer use a bank account
+	#3shop merchandise <other args>#0 - edits merchandise. See #3SHOP MERCHANDISE HELP#0.
+	#3shop open <shop>#0 - opens a shop for trading
+	#3shop close <shop>#0 - closes a shop to trading
+
+Additionally, you can use the following shop admin subcommands:
+
+	#3shop list#0 - lists all shops
+	#3shop economy#0 - a modified list that shows some economic info
+	#3shop create <name> <econzone>#0 - creates a new store with the specified name
+	#3shop delete#0 - deletes the shop you're currently in. Warning: Irreversible.
+	#3shop extend <direction> [stockroom|workshop]#0 - extends the shop in the specified direction, optionally as the stockroom or workshop
+	#3shop remove#0 - removes the current location from its shop.
+	#3shop autostock#0 - automatically loads and stocks items up to the minimum reorder levels for all merchandise
+	#3shop setupstall <stall> <shop>#0 - sets up a stall item as belonging to a shop";
+	private static void ShopClose(ICharacter actor, StringStack ss)
+	{
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send("Which shop do you want to close for trading?");
+			return;
+		}
+
+		var shop = actor.Gameworld.Shops.GetByIdOrName(ss.SafeRemainingArgument);
+		if (shop is null)
+		{
+			actor.OutputHandler.Send("There is no shop like that.");
+			return;
+		}
+
+		if (!actor.IsAdministrator() && !shop.IsEmployee(actor))
+		{
+			actor.OutputHandler.Send($"You are not an employee of {shop.Name.TitleCase().ColourName()}.");
+			return;
+		}
+
+		var tShop = shop as ITransientShop;
+		if (tShop is not null)
+		{
+			var stall = actor.Location.LayerGameItems(actor.RoomLayer).SelectNotNull(x => x.GetItemType<IShopStall>()).FirstOrDefault(x => x.Shop == shop);
+			if (stall is null)
+			{
+				actor.OutputHandler.Send($"There is no stall for {shop.Name.TitleCase().ColourName()} in this location.");
+				return;
+			}
+
+			if (!stall.IsTrading)
+			{
+				actor.OutputHandler.Send($"{stall.Parent.HowSeen(actor, true)} is not trading.");
+				return;
+			}
+
+			stall.IsTrading = false;
+			tShop.CurrentStall = null;
+			actor.OutputHandler.Handle(new EmoteOutput(new Emote($"@ close|closes $1 from business", actor, actor, stall.Parent)));
+			return;
+		}
+
+		if (!shop.IsTrading)
+		{
+			actor.OutputHandler.Send($"{shop.Name.TitleCase().ColourName()} is not trading.");
+			return;
+		}
+
+		shop.ToggleIsTrading();
+		actor.OutputHandler.Handle(new EmoteOutput(new Emote("@ close|closes the shop for business.", actor, actor)));
+	}
+
+	private static void ShopOpen(ICharacter actor, StringStack ss)
+	{
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send("Which shop do you want to open for trading?");
+			return;
+		}
+
+		var shop = actor.Gameworld.Shops.GetByIdOrName(ss.SafeRemainingArgument);
+		if (shop is null)
+		{
+			actor.OutputHandler.Send("There is no shop like that.");
+			return;
+		}
+
+		if (!actor.IsAdministrator() && !shop.IsEmployee(actor))
+		{
+			actor.OutputHandler.Send($"You are not an employee of {shop.Name.TitleCase().ColourName()}.");
+			return;
+		}
+
+		var tShop = shop as ITransientShop;
+		if (tShop is not null)
+		{
+			var stall = actor.Location.LayerGameItems(actor.RoomLayer).SelectNotNull(x => x.GetItemType<IShopStall>()).FirstOrDefault(x => x.Shop == shop);
+			if (stall is null)
+			{
+				actor.OutputHandler.Send($"There is no stall for {shop.Name.TitleCase().ColourName()} in this location.");
+				return;
+			}
+
+			if (stall.IsTrading)
+			{
+				actor.OutputHandler.Send($"{stall.Parent.HowSeen(actor, true)} is already trading.");
+				return;
+			}
+
+			stall.IsTrading = true;
+			actor.OutputHandler.Handle(new EmoteOutput(new Emote($"@ open|opens $1 for business, trading as {shop.Name.TitleCase().ColourName()}.", actor, actor, stall.Parent)));
+			return;
+		}
+
+		if (shop.IsTrading)
+		{
+			actor.OutputHandler.Send($"{shop.Name.TitleCase().ColourName()} is already trading.");
+			return;
+		}
+
+		shop.ToggleIsTrading();
+		actor.OutputHandler.Handle(new EmoteOutput(new Emote("@ open|opens the shop for business.", actor, actor)));
+	}
+
+	private static void ShopSetupStall(ICharacter actor, StringStack ss)
+	{
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send("Which shop stall item did you want to set up?");
+			return;
+		}
+
+		var item = actor.TargetItem(ss.PopSpeech());
+		if (item == null)
+		{
+			actor.OutputHandler.Send("You don't see anything like that.");
+			return;
+		}
+
+		var itemAsStall = item.GetItemType<IShopStall>();
+		if (itemAsStall is null)
+		{
+			actor.OutputHandler.Send($"{item.HowSeen(actor, true)} is not a shop stall.");
+			return;
+		}
+
+		if (itemAsStall.IsTrading)
+		{
+			actor.OutputHandler.Send("You can't change the shop associated with a trading stall. Close the stall first.");
+			return;
+		}
+
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send("What shop do you want to set this stall to be associated with?");
+			return;
+		}
+
+		if (ss.SafeRemainingArgument.Equals("none"))
+		{
+			if (itemAsStall.Shop is not null)
+			{
+				var oldShop = itemAsStall.Shop;
+				itemAsStall.Shop = null;
+				oldShop.CurrentStall = null;
+				oldShop.StocktakeAllMerchandise();
+			}
+			
+			actor.OutputHandler.Send($"{item.HowSeen(actor, true)} is no longer affiliated with any shop.");
+			return;
+		}
+
+		var shop = actor.Gameworld.Shops.GetByIdOrName(ss.SafeRemainingArgument);
+		if (shop is null)
+		{
+			actor.OutputHandler.Send("There is no such shop.");
+			return;
+		}
+
+		var tShop = shop as ITransientShop;
+		if (tShop is null)
+		{
+			actor.OutputHandler.Send($"{shop.Name.TitleCase().ColourName()} is not a transient shop and so cannot be used with a stall.");
+			return;
+		}
+
+		if (tShop.CurrentStall is not null)
+		{
+			if (tShop.CurrentStall == itemAsStall)
+			{
+				actor.OutputHandler.Send($"{item.HowSeen(actor, true)} is already the stall for that shop.");
+				return;
+			}
+
+			tShop.CurrentStall.Shop = null;
+			tShop.CurrentStall.IsTrading = false;	
+		}
+
+		itemAsStall.Shop = tShop;
+		tShop.CurrentStall = itemAsStall;
+		tShop.StocktakeAllMerchandise();
+		actor.OutputHandler.Send($"{item.HowSeen(actor, true)} is now affiliated with the {shop.Name.TitleCase().ColourName()} shop.");
 	}
 
 	private static void ShopBank(ICharacter actor, StringStack ss)
@@ -953,17 +1213,17 @@ BUY [<quantity>] <thing> WITH <item> - buys the thing with a payment item such a
 
 		var change = value - amount;
 		foreach (var item in targetCoins.Where(item =>
-			         !item.Key.RemoveCoins(item.Value.Select(x => Tuple.Create(x.Key, x.Value)))))
+					 !item.Key.RemoveCoins(item.Value.Select(x => Tuple.Create(x.Key, x.Value)))))
 		{
 			item.Key.Parent.Delete();
 		}
 
 		var counter = new Counter<ICoin>();
 		foreach (var item in targetCoins)
-		foreach (var coin in item.Value)
-		{
-			counter[coin.Key] += coin.Value;
-		}
+			foreach (var coin in item.Value)
+			{
+				counter[coin.Key] += coin.Value;
+			}
 
 		if (change > 0.0M)
 		{
@@ -976,65 +1236,6 @@ BUY [<quantity>] <thing> WITH <item> - buys the thing with a payment item such a
 		actor.OutputHandler.Send(
 			$"You pay {shop.Currency.Describe(amount, CurrencyDescriptionPatternType.ShortDecimal).ColourValue()} in taxes for {shop.Name.TitleCase().ColourName()}. The shop now owes {shop.Currency.Describe(shop.EconomicZone.OutstandingTaxesForShop(shop), CurrencyDescriptionPatternType.ShortDecimal).ColourValue()} in taxes.");
 	}
-
-	#region Shop Subcommands
-
-	private const string ShopHelpPlayers = @"You can use the following options with the shop command:
-
-	#3shop payaccount <account> <amount>#0 - pays off a line of credit account
-	#3shop paytax <amount>|all#0 - pays owing taxes out of the till
-	#3shop accountstatus <account>#0 - inquires about the status of a line of credit account
-	#3shop account ...#0 - allows store managers to configure line of credit accounts. See #3SHOP ACCOUNT HELP#0.
-	#3shop clockin#0 - clocks in as an on-duty employee
-	#3shop clockout#0 - clocks out as an off-duty employee	
-	#3shop employ <target>#0 - employs someone with the store
-	#3shop quit#0 - quits employment with this store
-	#3shop fire <target>|<name>#0 - fires an employee from this store
-	#3shop manager <target>|<name>#0 - toggles an employee's status as a manager
-	#3shop proprietor <target>|<name>#0 - toggles and employee's status as a proprietor
-	#3till <target>#0 - toggles an item being used as a till for the store
-	#3shop display <target>#0 - toggles an item being used as a display cabinet for the store
-	#3shop info#0 - shows detailed information about the shop
-	#3shop stock <target>#0 - adds an item as shop inventory
-	#3shop dispose <target>#0 - disposes of an item from shop inventory
-	#3shop ledger [<period#>]#0 - views the financial ledger for the shop
-	#3shop bank <account>#0 - sets the bank account for the shop
-	#3shop bank none#0 - sets this shop to no longer use a bank account
-	#3shop merchandise <other args>#0 - edits merchandise. See #3SHOP MERCHANDISE HELP#0.";
-
-	private const string ShopHelpAdmins = @"You can use the following options with the shop command:
-
-	#3shop payaccount <account> <amount>#0 - pays off a line of credit account
-	#3shop paytax <amount>|all#0 - pays owing taxes out of the till
-	#3shop accountstatus <account>#0 - inquires about the status of a line of credit account
-	#3shop account ...#0 - allows store managers to configure line of credit accounts. See #3SHOP ACCOUNT HELP#0.
-	#3shop clockin#0 - clocks in as an on-duty employee
-	#3shop clockout#0 - clocks out as an off-duty employee	
-	#3shop employ <target>#0 - employs someone with the store
-	#3shop quit#0 - quits employment with this store
-	#3shop fire <target>|<name>#0 - fires an employee from this store
-	#3shop manager <target>|<name>#0 - toggles an employee's status as a manager
-	#3shop proprietor <target>|<name>#0 - toggles and employee's status as a proprietor
-	#3shop till <target>#0 - toggles an item being used as a till for the store
-	#3shop display <target>#0 - toggles an item being used as a display cabinet for the store
-	#3shop info#0 - shows detailed information about the shop
-	#3shop stock <target>#0 - adds an item as shop inventory
-	#3shop dispose <target>#0 - disposes of an item from shop inventory
-	#3shop ledger [<period#>]#0 - views the financial ledger for the shop
-	#3shop bank <account>#0 - sets the bank account for the shop
-	#3shop bank none#0 - sets this shop to no longer use a bank account
-	#3shop merchandise <other args>#0 - edits merchandise. See #3SHOP MERCHANDISE HELP#0.
-
-Additionally, you can use the following shop admin subcommands:
-
-	#3shop list#0 - lists all shops
-	#3shop economy#0 - a modified list that shows some economic info
-	#3shop create <name> <econzone>#0 - creates a new store with the specified name
-	#3shop delete#0 - deletes the shop you're currently in. Warning: Irreversible.
-	#3shop extend <direction> [stockroom|workshop]#0 - extends the shop in the specified direction, optionally as the stockroom or workshop
-	#3shop remove#0 - removes the current location from its shop.
-	#3shop autostock#0 - automatically loads and stocks items up to the minimum reorder levels for all merchandise";
-
 	private static void ShopAccountStatus(ICharacter actor, StringStack command)
 	{
 		if (actor.Location.Shop == null)
@@ -1726,7 +1927,20 @@ Additionally, you can use the following shop admin subcommands:
 		var shop = actor.Location.Shop;
 		if (shop == null)
 		{
-			actor.OutputHandler.Send("You are not currently in a shop.");
+			var rShop = actor.Gameworld.Shops.GetByIdOrName(command.PopSpeech());
+			if (rShop is null)
+			{
+				actor.OutputHandler.Send("You are not currently in a shop.");
+				return;
+			}
+
+			if (!rShop.IsProprietor(actor) && !actor.IsAdministrator())
+			{
+				actor.OutputHandler.Send("Only proprietors can edit shop properties.");
+				return;
+			}
+
+			rShop.BuildingCommand(actor, command);
 			return;
 		}
 
@@ -1796,7 +2010,7 @@ Additionally, you can use the following shop admin subcommands:
 			return;
 		}
 
-		var name = command.PopSpeech();
+		var name = command.PopSpeech().TitleCase();
 
 		if (command.IsFinished)
 		{
@@ -1813,10 +2027,41 @@ Additionally, you can use the following shop admin subcommands:
 			return;
 		}
 
-		var newShop = new Shop(zone, actor.Location, name);
+		var newShop = new PermanentShop(zone, actor.Location, name);
 		actor.Gameworld.Add(newShop);
 		actor.OutputHandler.Send(
-			$"You create a new shop in the {zone.Name.TitleCase().Colour(Telnet.Cyan)} economic zone called {newShop.Name.TitleCase().Colour(Telnet.Cyan)}.");
+			$"You create a new shop at your current location, in the {zone.Name.TitleCase().Colour(Telnet.Cyan)} economic zone called {newShop.Name.TitleCase().Colour(Telnet.Cyan)}.");
+	}
+
+	private static void ShopCreateStall(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("What name do you want to give to this shop?");
+			return;
+		}
+
+		var name = command.PopSpeech().TitleCase();
+
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("What economic zone should this shop belong to?");
+			return;
+		}
+
+		var zone = long.TryParse(command.PopSpeech(), out var value)
+			? actor.Gameworld.EconomicZones.Get(value)
+			: actor.Gameworld.EconomicZones.GetByName(command.Last);
+		if (zone == null)
+		{
+			actor.OutputHandler.Send("There is no such economic zone.");
+			return;
+		}
+
+		var newShop = new TransientShop(zone, name);
+		actor.Gameworld.Add(newShop);
+		actor.OutputHandler.Send(
+			$"You create a new transient shop in the {zone.Name.TitleCase().Colour(Telnet.Cyan)} economic zone called {newShop.Name.TitleCase().Colour(Telnet.Cyan)}.");
 	}
 
 	private static void ShopEconomy(ICharacter actor, StringStack command)
@@ -1845,12 +2090,13 @@ Additionally, you can use the following shop admin subcommands:
 		actor.OutputHandler.Send(StringUtilities.GetTextTable(
 			from shop in shops
 			let transactions = shop.TransactionRecords
-			                       .Where(x => x.RealDateTime >=
-			                                   shop.EconomicZone.CurrentFinancialPeriod.FinancialPeriodStart).ToList()
-			let cash = shop.TillItems.RecursiveGetItems<ICurrencyPile>(false).Where(x => x.Currency == shop.Currency)
-			               .Sum(x => x.Coins.Sum(y => y.Item2 * y.Item1.Value))
+								   .Where(x => x.RealDateTime >=
+											   shop.EconomicZone.CurrentFinancialPeriod.FinancialPeriodStart).ToList()
+			let pshop = shop as IPermanentShop
+			let cash = pshop?.TillItems.RecursiveGetItems<ICurrencyPile>(false).Where(x => x.Currency == shop.Currency)
+						   .Sum(x => x.Coins.Sum(y => y.Item2 * y.Item1.Value)) ?? 0.0M
 			let merchandise = shop.StocktakeAllMerchandise()
-			                      .Sum(x => x.Key.EffectivePrice * (x.Value.InStockroomCount + x.Value.OnFloorCount))
+								  .Sum(x => x.Key.EffectivePrice * (x.Value.InStockroomCount + x.Value.OnFloorCount))
 			select new[]
 			{
 				shop.Id.ToString("N0", actor),
@@ -1906,6 +2152,7 @@ Additionally, you can use the following shop admin subcommands:
 			$"List of shops{(zone != null ? $" for economic zone {zone.Name.TitleCase().Colour(Telnet.Cyan)}" : "")}:");
 		actor.OutputHandler.Send(StringUtilities.GetTextTable(
 			from shop in shops
+			let pshop = shop as IPermanentShop
 			select new[]
 			{
 				shop.Id.ToString("N0", actor),
@@ -1913,9 +2160,10 @@ Additionally, you can use the following shop admin subcommands:
 				shop.IsTrading.ToString(actor),
 				shop.EmployeeRecords.Count().ToString("N0", actor),
 				shop.EmployeesOnDuty.Count().ToString("N0", actor),
-				shop.ShopfrontCells.Select(x =>
+				pshop?.ShopfrontCells.Select(x =>
 					$"#{x.Id.ToString("N0", actor)} - {x.HowSeen(actor, colour: false)}".FluentTagMXP("send",
-						$"href='goto {x.Id}'")).First()
+						$"href='goto {x.Id}'")).First() ?? "",
+				(shop is ITransientShop).ToColouredString()
 			},
 			new[]
 			{
@@ -1924,7 +2172,8 @@ Additionally, you can use the following shop admin subcommands:
 				"Open?",
 				"Employs",
 				"Working",
-				"Storefront"
+				"Storefront",
+				"Transient?"
 			},
 			colour: Telnet.Green,
 			maxwidth: actor.LineFormatLength,
@@ -1973,7 +2222,7 @@ Additionally, you can use the following shop admin subcommands:
 
 	private static void ShopInfo(ICharacter actor, StringStack command)
 	{
-		var shop = actor.Location.Shop;
+		var shop = (IShop)actor.Location.Shop;
 		if (!command.IsFinished && actor.IsAdministrator())
 		{
 			shop = long.TryParse(command.PopSpeech(), out var value)
@@ -2022,7 +2271,7 @@ Additionally, you can use the following shop admin subcommands:
 
 			value *= -1;
 			period = shop.EconomicZone.FinancialPeriods.OrderByDescending(x => x.FinancialPeriodStart)
-			             .ElementAtOrDefault(value);
+						 .ElementAtOrDefault(value);
 			if (period == null)
 			{
 				actor.OutputHandler.Send("There is no such financial period for that shop.");
@@ -2039,7 +2288,7 @@ Additionally, you can use the following shop admin subcommands:
 			$"Transaction record for {shop.Name.ColourName()} for financial period {period.FinancialPeriodStartMUD.Date.Display(CalendarDisplayMode.Short)} to {period.FinancialPeriodEndMUD.Date.Display(CalendarDisplayMode.Short)}:");
 		sb.AppendLine();
 		var records = shop.TransactionRecords.Where(x => period.InPeriod(x.RealDateTime))
-		                  .OrderByDescending(x => x.RealDateTime).ToList();
+						  .OrderByDescending(x => x.RealDateTime).ToList();
 		sb.AppendLine(
 			$"Total Net for Period: {shop.Currency.Describe(records.Sum(x => x.NetValue), CurrencyDescriptionPatternType.ShortDecimal)}");
 		sb.AppendLine(
@@ -2254,7 +2503,7 @@ Additionally, you can use the following shop admin subcommands:
 				actor.OutputHandler.Send(
 					$"You fire {record.Name.GetName(NameStyle.FullName).Colour(Telnet.Cyan)} from {shop.Name.TitleCase().Colour(Telnet.Cyan)}.");
 				target = shop.AllShopCells.SelectMany(x => x.Characters)
-				             .FirstOrDefault(x => x.Id == record.EmployeeCharacterId);
+							 .FirstOrDefault(x => x.Id == record.EmployeeCharacterId);
 				if (target != null)
 				{
 					target.OutputHandler.Send($"You have been fired from {shop.Name.TitleCase().Colour(Telnet.Cyan)}.");
@@ -2419,7 +2668,7 @@ Additionally, you can use the following shop admin subcommands:
 		actor.OutputHandler.Send(
 			$"You {(record.IsManager ? "promote" : "demote")} {record.Name.GetName(NameStyle.FullName).Colour(Telnet.Cyan)} {(record.IsManager ? "to the position of manager" : "to merely an employee")}.");
 		target = actor.Location.Shop.AllShopCells.SelectMany(x => x.Characters)
-		              .FirstOrDefault(x => x.Id == record.EmployeeCharacterId);
+					  .FirstOrDefault(x => x.Id == record.EmployeeCharacterId);
 		if (target != null)
 		{
 			target.OutputHandler.Send(
@@ -2477,7 +2726,7 @@ Additionally, you can use the following shop admin subcommands:
 				actor.OutputHandler.Send(
 					$"You promote {record.Name.GetName(NameStyle.FullName).Colour(Telnet.Cyan)} to proprietor of {shop.Name.TitleCase().Colour(Telnet.Cyan)}.");
 				target = shop.AllShopCells.SelectMany(x => x.Characters)
-				             .FirstOrDefault(x => x.Id == record.EmployeeCharacterId);
+							 .FirstOrDefault(x => x.Id == record.EmployeeCharacterId);
 				if (target != null)
 				{
 					target.OutputHandler.Send(
@@ -2532,8 +2781,8 @@ Additionally, you can use the following shop admin subcommands:
 		if (!ss.IsFinished)
 		{
 			merch = shop.Merchandises
-			            .Where(x => x.IsMerchandiseFor(item))
-			            .GetFromItemListByKeyword(ss.PopSpeech(), actor);
+						.Where(x => x.IsMerchandiseFor(item))
+						.GetFromItemListByKeyword(ss.PopSpeech(), actor);
 			if (merch == null)
 			{
 				actor.OutputHandler.Send(
@@ -2693,7 +2942,7 @@ Additionally, you can use the following shop admin subcommands:
 	private static void ShopMerchandiseSet(ICharacter actor, StringStack ss)
 	{
 		var editing = actor.EffectsOfType<BuilderEditingEffect<IMerchandise>>()
-		                   .FirstOrDefault(x => x.EditingItem.Shop == actor.Location.Shop);
+						   .FirstOrDefault(x => x.EditingItem.Shop == actor.Location.Shop);
 		if (editing == null)
 		{
 			actor.OutputHandler.Send("You are not currently editing any merchandise entries.");
@@ -2706,7 +2955,7 @@ Additionally, you can use the following shop admin subcommands:
 	private static void ShopMerchandiseDelete(ICharacter actor, StringStack ss)
 	{
 		var editing = actor.EffectsOfType<BuilderEditingEffect<IMerchandise>>()
-		                   .FirstOrDefault(x => x.EditingItem.Shop == actor.Location.Shop);
+						   .FirstOrDefault(x => x.EditingItem.Shop == actor.Location.Shop);
 		if (editing == null)
 		{
 			actor.OutputHandler.Send("You are not currently editing any merchandise entries.");
@@ -2742,7 +2991,7 @@ Additionally, you can use the following shop admin subcommands:
 	private static void ShopMerchandiseClone(ICharacter actor, StringStack ss)
 	{
 		var editing = actor.EffectsOfType<BuilderEditingEffect<IMerchandise>>()
-		                   .FirstOrDefault(x => x.EditingItem.Shop == actor.Location.Shop);
+						   .FirstOrDefault(x => x.EditingItem.Shop == actor.Location.Shop);
 		if (editing == null)
 		{
 			actor.OutputHandler.Send("You are not currently editing any merchandise entries.");
@@ -2880,7 +3129,7 @@ Additionally, you can use the following shop admin subcommands:
 		if (ss.IsFinished)
 		{
 			var editing = actor.EffectsOfType<BuilderEditingEffect<IMerchandise>>()
-			                   .FirstOrDefault(x => x.EditingItem.Shop == shop);
+							   .FirstOrDefault(x => x.EditingItem.Shop == shop);
 			if (editing == null)
 			{
 				actor.OutputHandler.Send("Which merchandise record would you like to edit?");
@@ -2923,7 +3172,7 @@ Additionally, you can use the following shop admin subcommands:
 		if (ss.IsFinished)
 		{
 			var editing = actor.EffectsOfType<BuilderEditingEffect<IMerchandise>>()
-			                   .FirstOrDefault(x => x.EditingItem.Shop == shop);
+							   .FirstOrDefault(x => x.EditingItem.Shop == shop);
 			if (editing == null)
 			{
 				actor.OutputHandler.Send("Which merchandise record would you like to view?");
@@ -3428,8 +3677,8 @@ Additionally, if you are the manager of a bank, you can use the following additi
 
 		var typeText = ss.SafeRemainingArgument;
 		var type = bank.BankAccountTypes.FirstOrDefault(x => x.Name.EqualTo(typeText)) ??
-		           bank.BankAccountTypes.FirstOrDefault(x =>
-			           x.Name.StartsWith(typeText, StringComparison.InvariantCultureIgnoreCase));
+				   bank.BankAccountTypes.FirstOrDefault(x =>
+					   x.Name.StartsWith(typeText, StringComparison.InvariantCultureIgnoreCase));
 		if (type == null)
 		{
 			actor.OutputHandler.Send(
@@ -3451,8 +3700,8 @@ Additionally, if you are the manager of a bank, you can use the following additi
 
 		var typeText = ss.PopSpeech();
 		var type = bank.BankAccountTypes.FirstOrDefault(x => x.Name.EqualTo(typeText)) ??
-		           bank.BankAccountTypes.FirstOrDefault(x =>
-			           x.Name.StartsWith(typeText, StringComparison.InvariantCultureIgnoreCase));
+				   bank.BankAccountTypes.FirstOrDefault(x =>
+					   x.Name.StartsWith(typeText, StringComparison.InvariantCultureIgnoreCase));
 		if (type == null)
 		{
 			actor.OutputHandler.Send(
@@ -3468,7 +3717,7 @@ Additionally, if you are the manager of a bank, you can use the following additi
 
 		var shopText = ss.SafeRemainingArgument;
 		var shop = actor.Gameworld.Shops
-		                .FirstOrDefault(x => x.Name.StartsWith(shopText, StringComparison.InvariantCultureIgnoreCase));
+						.FirstOrDefault(x => x.Name.StartsWith(shopText, StringComparison.InvariantCultureIgnoreCase));
 		if (shop == null)
 		{
 			actor.OutputHandler.Send("There is no shop by that name.");
@@ -3505,8 +3754,8 @@ Additionally, if you are the manager of a bank, you can use the following additi
 
 		var typeText = ss.PopSpeech();
 		var type = bank.BankAccountTypes.FirstOrDefault(x => x.Name.EqualTo(typeText)) ??
-		           bank.BankAccountTypes.FirstOrDefault(x =>
-			           x.Name.StartsWith(typeText, StringComparison.InvariantCultureIgnoreCase));
+				   bank.BankAccountTypes.FirstOrDefault(x =>
+					   x.Name.StartsWith(typeText, StringComparison.InvariantCultureIgnoreCase));
 		if (type == null)
 		{
 			actor.OutputHandler.Send(
@@ -3530,7 +3779,7 @@ Additionally, if you are the manager of a bank, you can use the following additi
 
 		var membership = actor.ClanMemberships.FirstOrDefault(x => x.Clan == clan);
 		if (!actor.IsAdministrator() && (membership == null ||
-		                                 !membership.NetPrivileges.HasFlag(ClanPrivilegeType.CanCreateBudgets)))
+										 !membership.NetPrivileges.HasFlag(ClanPrivilegeType.CanCreateBudgets)))
 		{
 			actor.OutputHandler.Send($"You are not authorised to act on behalf of {clan.Name.ColourName()}.");
 			return;
@@ -3552,8 +3801,8 @@ Additionally, if you are the manager of a bank, you can use the following additi
 	private static void BankAccountRequestItem(ICharacter actor, StringStack ss, IBankAccount account, IBank bank)
 	{
 		if (account.BankAccountType.NumberOfPermittedPaymentItems == 0 ||
-		    actor.Gameworld.ItemProtos.Get(account.BankAccountType.PaymentItemPrototype ?? 0)?.Status !=
-		    RevisionStatus.Current)
+			actor.Gameworld.ItemProtos.Get(account.BankAccountType.PaymentItemPrototype ?? 0)?.Status !=
+			RevisionStatus.Current)
 		{
 			actor.OutputHandler.Send($"Your bank account does not permit the issue of payment items.");
 			return;
@@ -3672,7 +3921,7 @@ Additionally, if you are the manager of a bank, you can use the following additi
 		bank.CurrencyReserves[bank.PrimaryCurrency] += amount;
 		bank.Changed = true;
 		var moneyDescription = bank.PrimaryCurrency.Describe(amount, CurrencyDescriptionPatternType.Short)
-		                           .ColourValue();
+								   .ColourValue();
 		actor.OutputHandler.Send(
 			$"You deposit {moneyDescription} into account {account.NameWithAlias}.");
 		actor.OutputHandler.Handle(new EmoteOutput(
@@ -3774,7 +4023,7 @@ Additionally, if you are the manager of a bank, you can use the following additi
 		}
 
 		var moneyDescription = bank.PrimaryCurrency.Describe(amount, CurrencyDescriptionPatternType.Short)
-		                           .ColourValue();
+								   .ColourValue();
 		actor.OutputHandler.Send(
 			$"You transfer {moneyDescription} from account {account.AccountNumber.ToString("F0", actor).ColourName()} into account {accountTarget.AccountNumber.ToString("F0", actor).ColourName()}{(bank != bankTarget ? $" of {bank.Name.ColourName()}" : "")}{(ss.SafeRemainingArgument.Length > 0 ? $", with reference {ss.SafeRemainingArgument.ColourCommand()}." : "")}.");
 		actor.OutputHandler.Handle(new EmoteOutput(
@@ -3821,7 +4070,7 @@ Additionally, if you are the manager of a bank, you can use the following additi
 		bank.CurrencyReserves[bank.PrimaryCurrency] -= amount;
 		bank.Changed = true;
 		var moneyDescription = bank.PrimaryCurrency.Describe(amount, CurrencyDescriptionPatternType.Short)
-		                           .ColourValue();
+								   .ColourValue();
 		actor.OutputHandler.Send(
 			$"You withdraw {moneyDescription} from account {account.NameWithAlias}.");
 		actor.OutputHandler.Handle(new EmoteOutput(
@@ -3885,8 +4134,8 @@ Additionally, if you are the manager of a bank, you can use the following additi
 	{
 		var sb = new StringBuilder();
 		var accounts = bank.BankAccountTypes
-		                   .Where(x => x.CanOpenAccount(actor).Truth)
-		                   .ToList();
+						   .Where(x => x.CanOpenAccount(actor).Truth)
+						   .ToList();
 		if (!accounts.Any())
 		{
 			actor.OutputHandler.Send("There are no account types that you are eligible to open right now.");
@@ -3919,8 +4168,8 @@ Additionally, if you are the manager of a bank, you can use the following additi
 		}
 
 		var type = bank.BankAccountTypes.FirstOrDefault(x => x.Name.EqualTo(ss.SafeRemainingArgument)) ??
-		           bank.BankAccountTypes.FirstOrDefault(x =>
-			           x.Name.StartsWith(ss.SafeRemainingArgument, StringComparison.InvariantCultureIgnoreCase));
+				   bank.BankAccountTypes.FirstOrDefault(x =>
+					   x.Name.StartsWith(ss.SafeRemainingArgument, StringComparison.InvariantCultureIgnoreCase));
 		if (type == null)
 		{
 			actor.OutputHandler.Send(
@@ -4101,9 +4350,9 @@ Note: Admins can use the #3auction cancel#0 subcommand on other people's items";
 	private static void AuctionClaim(ICharacter actor, IAuctionHouse auctionHouse, StringStack ss)
 	{
 		var unclaimed = auctionHouse.UnclaimedItems.Where(x =>
-			                            x.WinningBid?.Bidder == actor || (x.WinningBid == null &&
-			                                                              x.AuctionItem.ListingCharacterId == actor.Id))
-		                            .ToList();
+										x.WinningBid?.Bidder == actor || (x.WinningBid == null &&
+																		  x.AuctionItem.ListingCharacterId == actor.Id))
+									.ToList();
 		if (!unclaimed.Any())
 		{
 			actor.OutputHandler.Send("You do not have any unclaimed auction items.");
@@ -4200,8 +4449,8 @@ Note: Admins can use the #3auction cancel#0 subcommand on other people's items";
 		}
 
 		var bankTarget = actor.Gameworld.Banks.GetByName(split[0]) ??
-		                 actor.Gameworld.Banks.FirstOrDefault(x =>
-			                 x.Code.StartsWith(split[0], StringComparison.InvariantCultureIgnoreCase));
+						 actor.Gameworld.Banks.FirstOrDefault(x =>
+							 x.Code.StartsWith(split[0], StringComparison.InvariantCultureIgnoreCase));
 		if (bankTarget == null)
 		{
 			actor.OutputHandler.Send("There is no bank with that name or bank code.");
@@ -4351,7 +4600,7 @@ Note: Admins can use the #3auction cancel#0 subcommand on other people's items";
 			BidDateTime = auctionHouse.EconomicZone.FinancialPeriodReferenceCalendar.CurrentDateTime
 		});
 		var moneyDescription = currency.Describe(amount, CurrencyDescriptionPatternType.Short)
-		                               .ColourValue();
+									   .ColourValue();
 		actor.OutputHandler.Handle(new EmoteOutput(new Emote(
 			$"@ pay|pays out the buyout price of $2 on $1 at {auctionHouse.Name.ColourName()}.", actor, actor,
 			item.Item, new DummyPerceivable(moneyDescription))));
@@ -4391,7 +4640,7 @@ Note: Admins can use the #3auction cancel#0 subcommand on other people's items";
 		}
 
 		var moneyDescription = auctionHouse.EconomicZone.Currency.Describe(owed, CurrencyDescriptionPatternType.Short)
-		                                   .ColourValue();
+										   .ColourValue();
 		actor.OutputHandler.Handle(new EmoteOutput(new Emote(
 			$"@ claim|claims a $1 refund from {auctionHouse.Name.ColourName()}.", actor, actor,
 			new DummyPerceivable(moneyDescription))));
@@ -4441,7 +4690,7 @@ Note: Admins can use the #3auction cancel#0 subcommand on other people's items";
 		}
 
 		var currentPrice = auctionHouse.AuctionBids[item].Select(x => x.Bid).DefaultIfEmpty(item.MinimumPrice)
-		                               .Max();
+									   .Max();
 		var nextBidMinimum = !auctionHouse.AuctionBids[item].Any() ? item.MinimumPrice : currentPrice * 1.05M;
 		if (amount <= nextBidMinimum)
 		{
@@ -4489,7 +4738,7 @@ Note: Admins can use the #3auction cancel#0 subcommand on other people's items";
 		});
 
 		var moneyDescription = currency.Describe(amount, CurrencyDescriptionPatternType.Short)
-		                               .ColourValue();
+									   .ColourValue();
 		actor.OutputHandler.Handle(new EmoteOutput(new Emote(
 			$"@ bid|bids $2 on $1 at {auctionHouse.Name.ColourName()}.", actor, actor, item.Item,
 			new DummyPerceivable(moneyDescription))));
@@ -4587,10 +4836,10 @@ Note: Admins can use the #3auction cancel#0 subcommand on other people's items";
 		}
 
 		var unclaimed = auctionHouse.UnclaimedItems.Where(x =>
-			                            (x.AuctionItem.ListingCharacterId == actor.Id && x.WinningBid == null) ||
-			                            x.WinningBid?.BidderId == actor.Id
-		                            )
-		                            .ToList();
+										(x.AuctionItem.ListingCharacterId == actor.Id && x.WinningBid == null) ||
+										x.WinningBid?.BidderId == actor.Id
+									)
+									.ToList();
 		if (unclaimed.Any())
 		{
 			psb.AppendLine(
@@ -4657,9 +4906,9 @@ Note: Admins can use the #3auction cancel#0 subcommand on other people's items";
 	[NoHideCommand]
 	[HelpInfo("jobs", @"The jobs command allows you to see three bits of information:
 
-    1) Which jobs you currently hold (or that you no longer hold but still owe you money)
-    2) Which jobs you or your clans have listed
-    3) Which jobs are hiring
+	1) Which jobs you currently hold (or that you no longer hold but still owe you money)
+	2) Which jobs you or your clans have listed
+	3) Which jobs are hiring
 
 Of these 3, only the 1st one can be done from anywhere. The other 2 items need to be done from a location flagged as a 'job market' location.
 
@@ -4723,7 +4972,7 @@ You should also see the JOB command for ways to interact with these jobs.", Auto
 		}
 
 		var ownJobs = actor.Gameworld.JobListings.Where(x => x.EconomicZone == ez && x.IsAuthorisedToEdit(actor))
-		                   .ToList();
+						   .ToList();
 		if (ownJobs.Any())
 		{
 			sb.AppendLine($"You have the following job listings in the {ez.Name.ColourName()} economic zone:");
@@ -4759,11 +5008,11 @@ You should also see the JOB command for ways to interact with these jobs.", Auto
 
 		// TODO - filters
 		var jobs = actor.Gameworld.JobListings
-		                .Where(x => !x.IsArchived && x.IsReadyToBePosted && x.EconomicZone == ez)
-		                .OrderByDescending(x => x.IsEligibleForJob(actor).Truth)
-		                .ThenByDescending(x => x.Employer.FrameworkItemType.EqualTo("clan"))
-		                .ThenBy(x => x.Name)
-		                .ToList();
+						.Where(x => !x.IsArchived && x.IsReadyToBePosted && x.EconomicZone == ez)
+						.OrderByDescending(x => x.IsEligibleForJob(actor).Truth)
+						.ThenByDescending(x => x.Employer.FrameworkItemType.EqualTo("clan"))
+						.ThenBy(x => x.Name)
+						.ToList();
 		if (jobs.Any())
 		{
 			sb.AppendLine($"There are the following job listings locally:");
@@ -4949,7 +5198,7 @@ Note: There may be additional properties that can be edited depending on the typ
 
 		var membership = actor.ClanMemberships.FirstOrDefault(x => !x.IsArchivedMembership && x.Clan == clan);
 		if (!actor.IsAdministrator() && (membership is null ||
-		                                 !membership.NetPrivileges.HasFlag(ClanPrivilegeType.CanManageClanJobs)))
+										 !membership.NetPrivileges.HasFlag(ClanPrivilegeType.CanManageClanJobs)))
 		{
 			actor.OutputHandler.Send(
 				$"You do not have permission to manage job listings in the {clan.FullName.ColourName()} clan.");
@@ -5302,7 +5551,7 @@ Note: There may be additional properties that can be edited depending on the typ
 		}
 
 		var employees = effect.EditingItem.ActiveJobs.Where(x => !x.IsJobComplete).Select(x => x.Character)
-		                      .ToList();
+							  .ToList();
 		var employee = employees.GetFromItemListByKeywordIncludingNames(ss.SafeRemainingArgument, actor);
 		if (employee is null)
 		{
@@ -5366,10 +5615,10 @@ Note: There may be additional properties that can be edited depending on the typ
 				item.JobDueToEnd?.Date.Display(CalendarDisplayMode.Short) ?? "",
 				item.IsJobComplete.ToString(),
 				item.BackpayOwed
-				    .Where(x => x.Value >= 0.0M)
-				    .Select(x => x.Key.Describe(x.Value, CurrencyDescriptionPatternType.ShortDecimal).ColourValue())
-				    .DefaultIfEmpty("None")
-				    .ListToString()
+					.Where(x => x.Value >= 0.0M)
+					.Select(x => x.Key.Describe(x.Value, CurrencyDescriptionPatternType.ShortDecimal).ColourValue())
+					.DefaultIfEmpty("None")
+					.ListToString()
 			},
 			new List<string>
 			{
@@ -5435,11 +5684,11 @@ Note: There may be additional properties that can be edited depending on the typ
 	{
 		var ez = actor.Gameworld.EconomicZones.FirstOrDefault(x => x.JobFindingCells.Contains(actor.Location));
 		var jobs = actor.Gameworld.JobListings
-		                .Where(x => !x.IsArchived && x.IsReadyToBePosted && x.EconomicZone == ez)
-		                .OrderByDescending(x => x.IsEligibleForJob(actor).Truth)
-		                .ThenByDescending(x => x.Employer.FrameworkItemType.EqualTo("clan"))
-		                .ThenBy(x => x.Name)
-		                .ToList();
+						.Where(x => !x.IsArchived && x.IsReadyToBePosted && x.EconomicZone == ez)
+						.OrderByDescending(x => x.IsEligibleForJob(actor).Truth)
+						.ThenByDescending(x => x.Employer.FrameworkItemType.EqualTo("clan"))
+						.ThenBy(x => x.Name)
+						.ToList();
 		if (ss.IsFinished)
 		{
 			actor.OutputHandler.Send(
@@ -5465,7 +5714,7 @@ Note: There may be additional properties that can be edited depending on the typ
 		var sb = new StringBuilder();
 		sb.AppendLine($"Are you sure that you want to apply for the {job.Name.ColourName()} job?");
 		var effort = job.FullTimeEquivalentRatio +
-		             actor.ActiveJobs.Where(x => !x.IsJobComplete).Sum(x => x.FullTimeEquivalentRatio);
+					 actor.ActiveJobs.Where(x => !x.IsJobComplete).Sum(x => x.FullTimeEquivalentRatio);
 		if (effort > 1.0)
 		{
 			sb.AppendLine(
@@ -5519,16 +5768,16 @@ Note: There may be additional properties that can be edited depending on the typ
 		var jobs =
 				ez is not null
 					? actor.Gameworld.JobListings
-					       .Where(x => !x.IsArchived && x.IsReadyToBePosted && x.EconomicZone == ez)
-					       .OrderByDescending(x => x.IsEligibleForJob(actor).Truth)
-					       .ThenByDescending(x => x.Employer.FrameworkItemType.EqualTo("clan"))
-					       .ThenBy(x => x.Name)
-					       .ToList()
+						   .Where(x => !x.IsArchived && x.IsReadyToBePosted && x.EconomicZone == ez)
+						   .OrderByDescending(x => x.IsEligibleForJob(actor).Truth)
+						   .ThenByDescending(x => x.Employer.FrameworkItemType.EqualTo("clan"))
+						   .ThenBy(x => x.Name)
+						   .ToList()
 					: actor.ActiveJobs.Select(x => x.Listing)
-					       .OrderByDescending(x => x.IsEligibleForJob(actor).Truth)
-					       .ThenByDescending(x => x.Employer.FrameworkItemType.EqualTo("clan"))
-					       .ThenBy(x => x.Name)
-					       .ToList()
+						   .OrderByDescending(x => x.IsEligibleForJob(actor).Truth)
+						   .ThenByDescending(x => x.Employer.FrameworkItemType.EqualTo("clan"))
+						   .ThenBy(x => x.Name)
+						   .ToList()
 			;
 
 		if (ss.IsFinished)
@@ -5589,7 +5838,7 @@ Note: There may be additional properties that can be edited depending on the typ
 
 		var ez = actor.Gameworld.EconomicZones.First(x => x.JobFindingCells.Contains(actor.Location));
 		var jobs = actor.Gameworld.JobListings.Where(x => x.EconomicZone == ez && x.IsAuthorisedToEdit(actor))
-		                .ToList();
+						.ToList();
 		var job = jobs.GetByIdOrName(ss.SafeRemainingArgument);
 		if (job is null)
 		{
@@ -5623,7 +5872,7 @@ Note: There may be additional properties that can be edited depending on the typ
 
 		var ez = actor.Gameworld.EconomicZones.First(x => x.JobFindingCells.Contains(actor.Location));
 		var jobs = actor.Gameworld.JobListings.Where(x => x.EconomicZone == ez && x.IsAuthorisedToEdit(actor))
-		                .ToList();
+						.ToList();
 		var job = jobs.GetByIdOrName(ss.SafeRemainingArgument);
 		if (job is null)
 		{

@@ -16,29 +16,29 @@ public class ContainerGameItemComponentProto : GameItemComponentProto
 	/// <summary>
 	///     The total allowable weight that can be contained by this container
 	/// </summary>
-	public double WeightLimit { get; protected set; }
+	public double WeightLimit { get; protected set; } = 1000;
 
 	/// <summary>
 	///     The maximum SizeCategory of item that may be contained by this container
 	/// </summary>
-	public SizeCategory MaximumContentsSize { get; protected set; }
+	public SizeCategory MaximumContentsSize { get; protected set; } = SizeCategory.Small;
 
 	/// <summary>
 	///     Usually either "in" or "on"
 	/// </summary>
-	public string ContentsPreposition { get; protected set; }
+	public string ContentsPreposition { get; protected set; } = "in";
 
 	/// <summary>
 	///     Whether or not this container can be opened and closed
 	/// </summary>
-	public bool Closable { get; protected set; }
+	public bool Closable { get; protected set; } = true;
 
-	public bool Transparent { get; protected set; }
+	public bool Transparent { get; protected set; } = false;
 
 	/// <summary>
 	///     A container that is OnceOnly can only be opened once - once opened, it can never be closed again
 	/// </summary>
-	public bool OnceOnly { get; protected set; }
+	public bool OnceOnly { get; protected set; } = false;
 
 	public override bool WarnBeforePurge => true;
 
@@ -124,19 +124,10 @@ public class ContainerGameItemComponentProto : GameItemComponentProto
 
 	public override string ComponentDescriptionOLC(ICharacter actor)
 	{
-		return string.Format(actor,
-			"{0} (#{5:N0}r{6:N0}, {7})\n\nThis item can contain {1} and up to {2} size objects. It {3} transparent and {4}",
-			"Container Item Component".Colour(Telnet.Cyan),
-			Gameworld.UnitManager.Describe(WeightLimit, UnitType.Mass, actor),
-			MaximumContentsSize.ToString().Colour(Telnet.Cyan),
-			Transparent ? "is" : "is not",
-			Closable
-				? OnceOnly ? "can only be opened a single time" : "can be opened and closed"
-				: "cannot be opened and closed",
-			Id,
-			RevisionNumber,
-			Name
-		);
+		return $@"{"Container Item Component".Colour(Telnet.Cyan)} (#{Id.ToString("N0", actor)}r{RevisionNumber.ToString("N0", actor)}, {Name})
+
+This item can contain {Gameworld.UnitManager.Describe(WeightLimit, UnitType.Mass, actor)} and up to {MaximumContentsSize.ToString().Colour(Telnet.Cyan)} size objects. 
+It {(Transparent ? "is" : "is not")} transparent and {(Closable ? OnceOnly ? "can only be opened a single time" : "can be opened and closed" : "cannot be opened and closed")}";
 	}
 
 	private bool BuildingCommand_Transparent(ICharacter actor, StringStack command)
@@ -150,7 +141,7 @@ public class ContainerGameItemComponentProto : GameItemComponentProto
 	private bool BuildingCommand_Closable(ICharacter actor, StringStack command)
 	{
 		Closable = !Closable;
-		actor.OutputHandler.Send("This container is " + (Closable ? "now" : "no longer") + " closable.");
+		actor.OutputHandler.Send("This container is " + (Closable ? "now" : "no longer") + " able to be closed.");
 		Changed = true;
 		return true;
 	}
@@ -159,7 +150,7 @@ public class ContainerGameItemComponentProto : GameItemComponentProto
 	{
 		OnceOnly = !OnceOnly;
 		actor.OutputHandler.Send("This container is " + (OnceOnly ? "now" : "no longer") +
-		                         " openable only a single time.");
+								 " openable only a single time.");
 		Changed = true;
 		return true;
 	}
@@ -205,7 +196,7 @@ public class ContainerGameItemComponentProto : GameItemComponentProto
 		MaximumContentsSize = target;
 		Changed = true;
 		actor.OutputHandler.Send("This container will now only take items of up to size \"" + target.Describe() +
-		                         "\".");
+								 "\".");
 		return true;
 	}
 
@@ -221,12 +212,21 @@ public class ContainerGameItemComponentProto : GameItemComponentProto
 		ContentsPreposition = preposition;
 		Changed = true;
 		actor.OutputHandler.Send("The contents of this container will now be described as \"" + ContentsPreposition +
-		                         "\" it.");
+								 "\" it.");
 		return true;
 	}
 
 	private const string BuildingHelpText =
-		"You can use the following options with this component:\n\n\tname <name> - sets the name of the component\n\tdesc <desc> - sets the description of the component\n\tclose - toggles whether this container opens and closes\n\tsize <max size> - sets the maximum size of the objects that can be put in this container\n\tweight - sets the maximum weight of items this container can hold\n\ttransparent - toggles whether you can see the contents when closed\n\tonce - toggles whether this container only opens once\n\tpreposition <on|in|etc> - sets the preposition used to display contents. Usually on or in.";
+		@"You can use the following options with this component:
+
+	#3name <name>#0 - sets the name of the component
+	#3desc <desc>#0 - sets the description of the component
+	#3close#0 - toggles whether this container opens and closes
+	#3size <max size>#0 - sets the maximum size of the objects that can be put in this container
+	#3weight#0 - sets the maximum weight of items this container can hold
+	#3transparent#0 - toggles whether you can see the contents when closed
+	#3once#0 - toggles whether this container only opens once
+	#3preposition <on|in|etc>#0 - sets the preposition used to display contents. Usually on or in.";
 
 	public override string ShowBuildingHelp => BuildingHelpText;
 
@@ -271,10 +271,6 @@ public class ContainerGameItemComponentProto : GameItemComponentProto
 	protected ContainerGameItemComponentProto(IFuturemud gameworld, IAccount originator)
 		: base(gameworld, originator, "Container")
 	{
-		ContentsPreposition = "in";
-		MaximumContentsSize = SizeCategory.Small;
-		WeightLimit = 1.0 / gameworld.UnitManager.BaseWeightToKilograms;
-		Changed = true;
 	}
 
 	#endregion

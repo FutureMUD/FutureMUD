@@ -72,10 +72,10 @@ public class ShopkeeperAI : PathingAIBase
 				return HandleWitnessCharacterEnterCell((ICharacter)arguments[0], (ICell)arguments[1],
 					(ICellExit)arguments[2], (ICharacter)arguments[3]);
 			case EventType.WitnessBuyItemInShop:
-				return HandleWitnessBuyItem((ICharacter)arguments[0], (ICharacter)arguments[1], (IShop)arguments[2],
+				return HandleWitnessBuyItem((ICharacter)arguments[0], (ICharacter)arguments[1], (IPermanentShop)arguments[2],
 					(IMerchandise)arguments[3], (IEnumerable<IGameItem>)arguments[4]);
 			case EventType.ItemRequiresRestocking:
-				return HandleItemRequiresRestocking((ICharacter)arguments[0], (IShop)arguments[1],
+				return HandleItemRequiresRestocking((ICharacter)arguments[0], (IPermanentShop)arguments[1],
 					(IMerchandise)arguments[2], (int)arguments[3]);
 			case EventType.MinuteTick:
 				return HandleMinuteTick((ICharacter)arguments[0]) || base.HandleEvent(type, arguments);
@@ -141,7 +141,7 @@ public class ShopkeeperAI : PathingAIBase
 		return false;
 	}
 
-	private bool HandleItemRequiresRestocking(ICharacter employee, IShop shop, IMerchandise merchandise, int quantity)
+	private bool HandleItemRequiresRestocking(ICharacter employee, IPermanentShop shop, IMerchandise merchandise, int quantity)
 	{
 		if (employee.AffectedBy<RestockingMerchandise>())
 		{
@@ -168,7 +168,7 @@ public class ShopkeeperAI : PathingAIBase
 		return true;
 	}
 
-	private bool HandleWitnessBuyItem(ICharacter customer, ICharacter employee, IShop shop, IMerchandise merchandise,
+	private bool HandleWitnessBuyItem(ICharacter customer, ICharacter employee, IPermanentShop shop, IMerchandise merchandise,
 		IEnumerable<IGameItem> items)
 	{
 		_onSomeoneBuysProg?.Execute(employee, customer, shop, merchandise, items);
@@ -208,6 +208,8 @@ public class ShopkeeperAI : PathingAIBase
 			return false;
 		}
 
+		var shop = effect.TargetMerchandise.Shop as IPermanentShop;
+
 		if (effect.CurrentGameItems.Any())
 		{
 			if (employee.AffectedBy<FollowingPath>())
@@ -226,7 +228,7 @@ public class ShopkeeperAI : PathingAIBase
 					continue;
 				}
 
-				if (effect.TargetMerchandise.Shop.DisplayContainers.FirstOrDefault(
+				if (shop.DisplayContainers.FirstOrDefault(
 					    x => x.Location == employee.Location && employee.Body.CanPut(item, x, null, 0, false)) is
 				    IGameItem container)
 				{
@@ -249,7 +251,7 @@ public class ShopkeeperAI : PathingAIBase
 			return true;
 		}
 
-		if (cell != effect.TargetMerchandise.Shop.StockroomCell)
+		if (cell != shop.StockroomCell)
 		{
 			return false;
 		}
@@ -324,8 +326,13 @@ public class ShopkeeperAI : PathingAIBase
 	protected override IEnumerable<ICellExit> GetPath(ICharacter ch)
 	{
 		var effect = ch.EffectsOfType<RestockingMerchandise>().First();
-		var shop = effect.TargetMerchandise.Shop;
-		if (effect.CurrentGameItems.Any())
+		var shop = effect.TargetMerchandise.Shop as IPermanentShop;
+        if (shop is null)
+        {
+            return Enumerable.Empty<ICellExit>();
+        }
+
+        if (effect.CurrentGameItems.Any())
 		{
 			if (effect.TargetMerchandise.PreferredDisplayContainer != null)
 			{

@@ -2,8 +2,9 @@
 using MudSharp.PerceptionEngine;
 using System.Collections.Generic;
 
-namespace MudSharp.GameItems.Interfaces {
-    public enum WhyCannotPutReason {
+namespace MudSharp.GameItems.Interfaces
+{
+	public enum WhyCannotPutReason {
         /// <summary>
         ///     This is not an IContainer and thus cannot accept any item contents
         /// </summary>

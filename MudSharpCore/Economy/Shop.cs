@@ -917,6 +917,9 @@ public abstract class Shop : SaveableItem, IShop
 		return dictionary;
 	}
 
+	public abstract IReadOnlyDictionary<ICurrencyPile, Dictionary<ICoin, int>> GetCurrencyForShop(decimal amount);
+	public abstract void AddCurrencyToShop(IGameItem currencyPile);
+
 	public abstract void CheckFloat();
 
 	public bool IsWelcomeCustomer(ICharacter customer)

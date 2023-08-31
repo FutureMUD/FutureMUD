@@ -932,18 +932,11 @@ Additionally, you can use the following shop admin subcommands:
 	#3shop setupstall <stall> <shop>#0 - sets up a stall item as belonging to a shop";
 	private static void ShopClose(ICharacter actor, StringStack ss)
 	{
-		if (ss.IsFinished)
+		if (!DoShopCommandFindShop(actor, out var shop))
 		{
-			actor.OutputHandler.Send("Which shop do you want to close for trading?");
 			return;
 		}
 
-		var shop = actor.Gameworld.Shops.GetByIdOrName(ss.SafeRemainingArgument);
-		if (shop is null)
-		{
-			actor.OutputHandler.Send("There is no shop like that.");
-			return;
-		}
 
 		if (!actor.IsAdministrator() && !shop.IsEmployee(actor))
 		{
@@ -968,7 +961,10 @@ Additionally, you can use the following shop admin subcommands:
 			}
 
 			stall.IsTrading = false;
-			tShop.CurrentStall = null;
+			if (shop.IsTrading)
+			{
+				shop.ToggleIsTrading();
+			}
 			actor.OutputHandler.Handle(new EmoteOutput(new Emote($"@ close|closes $1 from business", actor, actor, stall.Parent)));
 			return;
 		}
@@ -985,16 +981,8 @@ Additionally, you can use the following shop admin subcommands:
 
 	private static void ShopOpen(ICharacter actor, StringStack ss)
 	{
-		if (ss.IsFinished)
+		if (!DoShopCommandFindShop(actor, out var shop))
 		{
-			actor.OutputHandler.Send("Which shop do you want to open for trading?");
-			return;
-		}
-
-		var shop = actor.Gameworld.Shops.GetByIdOrName(ss.SafeRemainingArgument);
-		if (shop is null)
-		{
-			actor.OutputHandler.Send("There is no shop like that.");
 			return;
 		}
 
@@ -1021,6 +1009,10 @@ Additionally, you can use the following shop admin subcommands:
 			}
 
 			stall.IsTrading = true;
+			if (!shop.IsTrading)
+			{
+				shop.ToggleIsTrading();
+			}
 			actor.OutputHandler.Handle(new EmoteOutput(new Emote($"@ open|opens $1 for business, trading as {shop.Name.TitleCase().ColourName()}.", actor, actor, stall.Parent)));
 			return;
 		}
@@ -1115,15 +1107,36 @@ Additionally, you can use the following shop admin subcommands:
 		actor.OutputHandler.Send($"{item.HowSeen(actor, true)} is now affiliated with the {shop.Name.TitleCase().ColourName()} shop.");
 	}
 
-	private static void ShopBank(ICharacter actor, StringStack ss)
+	private static bool DoShopCommandFindShop(ICharacter actor, out IShop shop)
 	{
-		if (actor.Location.Shop == null)
+		if (actor.Location.Shop is not null)
 		{
-			actor.OutputHandler.Send("You are not currently at a shop.");
-			return;
+			shop = actor.Location.Shop;
+			return true;
 		}
 
-		var shop = actor.Location.Shop;
+		var stall = actor.Location.
+			LayerGameItems(actor.RoomLayer).
+			SelectNotNull(x => x.GetItemType<IShopStall>()).
+			FirstOrDefault(x => x.Shop is not null);
+		if (stall is null)
+		{
+			actor.OutputHandler.Send("You are not currently at a shop or in the presence of a market stall.");
+			shop = null;
+			return false;
+		}
+
+		shop = stall.Shop;
+		return true;
+	}
+
+	private static void ShopBank(ICharacter actor, StringStack ss)
+	{
+		if (!DoShopCommandFindShop(actor, out var shop))
+		{
+			return;
+		}
+		
 		if (!shop.IsProprietor(actor) && !actor.IsAdministrator())
 		{
 			actor.OutputHandler.Send(
@@ -1165,13 +1178,11 @@ Additionally, you can use the following shop admin subcommands:
 
 	private static void ShopPayTax(ICharacter actor, StringStack ss)
 	{
-		if (actor.Location.Shop == null)
+		if (!DoShopCommandFindShop(actor, out var shop))
 		{
-			actor.OutputHandler.Send("You are not currently at a shop.");
 			return;
 		}
 
-		var shop = actor.Location.Shop;
 		if (!shop.IsManager(actor) && !actor.IsAdministrator())
 		{
 			actor.OutputHandler.Send("You are not a manager of this establishment and so cannot pay its taxes.");
@@ -1227,8 +1238,7 @@ Additionally, you can use the following shop admin subcommands:
 
 		if (change > 0.0M)
 		{
-			shop.TillItems.First().GetItemType<IContainer>().Put(null,
-				CurrencyGameItemComponentProto.CreateNewCurrencyPile(shop.Currency,
+			shop.AddCurrencyToShop(CurrencyGameItemComponentProto.CreateNewCurrencyPile(shop.Currency,
 					shop.Currency.FindCoinsForAmount(change, out _)));
 		}
 
@@ -1238,13 +1248,11 @@ Additionally, you can use the following shop admin subcommands:
 	}
 	private static void ShopAccountStatus(ICharacter actor, StringStack command)
 	{
-		if (actor.Location.Shop == null)
+		if (!DoShopCommandFindShop(actor, out var shop))
 		{
-			actor.OutputHandler.Send("You are not currently at a shop.");
 			return;
 		}
 
-		var shop = actor.Location.Shop;
 		if (!shop.IsTrading)
 		{
 			actor.OutputHandler.Send("This shop is not currently trading.");
@@ -1291,13 +1299,11 @@ Additionally, you can use the following shop admin subcommands:
 
 	private static void ShopPayAccount(ICharacter actor, StringStack command)
 	{
-		if (actor.Location.Shop == null)
+		if (!DoShopCommandFindShop(actor, out var shop))
 		{
-			actor.OutputHandler.Send("You are not currently at a shop.");
 			return;
 		}
 
-		var shop = actor.Location.Shop;
 		if (!shop.TillItems.Any())
 		{
 			actor.OutputHandler.Send("This shop has not been properly set up to do business.");
@@ -1365,13 +1371,11 @@ Additionally, you can use the following shop admin subcommands:
 			return;
 		}
 
-		if (actor.Location.Shop == null)
+		if (!DoShopCommandFindShop(actor, out var shop))
 		{
-			actor.OutputHandler.Send("You are not currently at a shop.");
 			return;
 		}
 
-		var shop = actor.Location.Shop;
 		if (!actor.Location.Shop.IsManager(actor) && !actor.IsAdministrator())
 		{
 			actor.OutputHandler.Send($"You are not a manager of {shop.Name.TitleCase().Colour(Telnet.Cyan)}.");
@@ -1755,12 +1759,11 @@ Additionally, you can use the following shop admin subcommands:
 
 	private static void ShopAutostock(ICharacter actor, StringStack command)
 	{
-		var shop = actor.Location.Shop;
-		if (shop == null)
+		if (!DoShopCommandFindShop(actor, out var shop))
 		{
-			actor.OutputHandler.Send("You are not currently in a shop.");
 			return;
 		}
+
 
 		if (!actor.IsAdministrator() && !shop.IsEmployee(actor))
 		{
@@ -1924,23 +1927,8 @@ Additionally, you can use the following shop admin subcommands:
 
 	private static void ShopSet(ICharacter actor, StringStack command)
 	{
-		var shop = actor.Location.Shop;
-		if (shop == null)
+		if (!DoShopCommandFindShop(actor, out var shop))
 		{
-			var rShop = actor.Gameworld.Shops.GetByIdOrName(command.PopSpeech());
-			if (rShop is null)
-			{
-				actor.OutputHandler.Send("You are not currently in a shop.");
-				return;
-			}
-
-			if (!rShop.IsProprietor(actor) && !actor.IsAdministrator())
-			{
-				actor.OutputHandler.Send("Only proprietors can edit shop properties.");
-				return;
-			}
-
-			rShop.BuildingCommand(actor, command);
 			return;
 		}
 
@@ -1955,10 +1943,8 @@ Additionally, you can use the following shop admin subcommands:
 
 	private static void ShopQuit(ICharacter actor, StringStack command)
 	{
-		var shop = actor.Location.Shop;
-		if (shop == null)
+		if (!DoShopCommandFindShop(actor, out var shop))
 		{
-			actor.OutputHandler.Send("You are not currently in a shop.");
 			return;
 		}
 
@@ -1968,7 +1954,7 @@ Additionally, you can use the following shop admin subcommands:
 			return;
 		}
 
-		actor.OutputHandler.Send("Are you sure you wish to quit {}, and end your employment with them?");
+		actor.OutputHandler.Send($"Are you sure you wish to quit {shop.Name.TitleCase().ColourName()}, and end your employment with them?");
 		actor.AddEffect(new Accept(actor, new GenericProposal
 		{
 			AcceptAction = text =>
@@ -1997,6 +1983,7 @@ Additionally, you can use the following shop admin subcommands:
 
 	private static void ShopCreate(ICharacter actor, StringStack command)
 	{
+		// TODO - prevent if a stall is here too
 		if (actor.Location.Shop != null)
 		{
 			actor.OutputHandler.Send(
@@ -2246,10 +2233,8 @@ Additionally, you can use the following shop admin subcommands:
 
 	private static void ShopLedger(ICharacter actor, StringStack command)
 	{
-		var shop = actor.Location.Shop;
-		if (shop == null)
+		if (!DoShopCommandFindShop(actor, out var shop))
 		{
-			actor.OutputHandler.Send("You are not currently in a shop.");
 			return;
 		}
 
@@ -2323,13 +2308,11 @@ Additionally, you can use the following shop admin subcommands:
 
 	private static void ShopClockIn(ICharacter actor)
 	{
-		if (actor.Location.Shop == null)
+		if (!DoShopCommandFindShop(actor, out var shop))
 		{
-			actor.OutputHandler.Send("You are not currently at a shop, and so cannot clock-in.");
 			return;
 		}
 
-		var shop = actor.Location.Shop;
 		if (!actor.Location.Shop.IsEmployee(actor))
 		{
 			actor.OutputHandler.Send($"You are not an employee of {shop.Name.TitleCase().Colour(Telnet.Cyan)}.");
@@ -2347,13 +2330,11 @@ Additionally, you can use the following shop admin subcommands:
 
 	private static void ShopClockOut(ICharacter actor)
 	{
-		if (actor.Location.Shop == null)
+		if (!DoShopCommandFindShop(actor, out var shop))
 		{
-			actor.OutputHandler.Send("You are not currently at a shop, and so cannot clock-out.");
 			return;
 		}
 
-		var shop = actor.Location.Shop;
 		if (!actor.Location.Shop.IsEmployee(actor))
 		{
 			actor.OutputHandler.Send($"You are not an employee of {shop.Name.TitleCase().Colour(Telnet.Cyan)}.");
@@ -2371,13 +2352,11 @@ Additionally, you can use the following shop admin subcommands:
 
 	private static void ShopEmploy(ICharacter actor, StringStack ss)
 	{
-		if (actor.Location.Shop == null)
+		if (!DoShopCommandFindShop(actor, out var shop))
 		{
-			actor.OutputHandler.Send("You are not currently at a shop, and so cannot clock-out.");
 			return;
 		}
 
-		var shop = actor.Location.Shop;
 		if (!shop.IsManager(actor) && !actor.IsAdministrator())
 		{
 			actor.OutputHandler.Send($"You are not a manager of {shop.Name.TitleCase().Colour(Telnet.Cyan)}.");
@@ -2444,13 +2423,11 @@ Additionally, you can use the following shop admin subcommands:
 
 	private static void ShopFire(ICharacter actor, StringStack ss)
 	{
-		if (actor.Location.Shop == null)
+		if (!DoShopCommandFindShop(actor, out var shop))
 		{
-			actor.OutputHandler.Send("You are not currently at a shop.");
 			return;
 		}
 
-		var shop = actor.Location.Shop;
 		if (!shop.IsManager(actor) && !actor.IsAdministrator())
 		{
 			actor.OutputHandler.Send("You are not a manager of this shop.");
@@ -2528,7 +2505,7 @@ Additionally, you can use the following shop admin subcommands:
 	{
 		if (actor.Location.Shop == null)
 		{
-			actor.OutputHandler.Send("You are not currently at a shop.");
+			actor.OutputHandler.Send("You are not currently at a permanent shop.");
 			return;
 		}
 
@@ -2579,7 +2556,7 @@ Additionally, you can use the following shop admin subcommands:
 	{
 		if (actor.Location.Shop == null)
 		{
-			actor.OutputHandler.Send("You are not currently at a shop.");
+			actor.OutputHandler.Send("You are not currently at a permanent shop.");
 			return;
 		}
 
@@ -2629,13 +2606,13 @@ Additionally, you can use the following shop admin subcommands:
 
 	private static void ShopManager(ICharacter actor, StringStack ss)
 	{
-		if (actor.Location.Shop == null)
+		if (!DoShopCommandFindShop(actor, out var shop))
 		{
-			actor.OutputHandler.Send("You are not currently at a shop.");
 			return;
 		}
 
-		if (!actor.Location.Shop.IsProprietor(actor) && !actor.IsAdministrator())
+
+		if (!shop.IsProprietor(actor) && !actor.IsAdministrator())
 		{
 			actor.OutputHandler.Send("You are not the proprietor of this shop.");
 			return;
@@ -2645,10 +2622,10 @@ Additionally, you can use the following shop admin subcommands:
 		IEmployeeRecord record = null;
 		if (target != null)
 		{
-			record = actor.Location.Shop.EmployeeRecords.FirstOrDefault(x => x.EmployeeCharacterId == target.Id);
+			record = shop.EmployeeRecords.FirstOrDefault(x => x.EmployeeCharacterId == target.Id);
 		}
 
-		record ??= actor.Location.Shop.EmployeeRecords.FirstOrDefault(x =>
+		record ??= shop.EmployeeRecords.FirstOrDefault(x =>
 			x.Name.GetName(NameStyle.FullName).EqualTo(ss.Last));
 
 		if (record == null)
@@ -2664,10 +2641,10 @@ Additionally, you can use the following shop admin subcommands:
 		}
 
 		record.IsManager = !record.IsManager;
-		actor.Location.Shop.Changed = true;
+		shop.Changed = true;
 		actor.OutputHandler.Send(
 			$"You {(record.IsManager ? "promote" : "demote")} {record.Name.GetName(NameStyle.FullName).Colour(Telnet.Cyan)} {(record.IsManager ? "to the position of manager" : "to merely an employee")}.");
-		target = actor.Location.Shop.AllShopCells.SelectMany(x => x.Characters)
+		target = shop.AllShopCells.SelectMany(x => x.Characters)
 					  .FirstOrDefault(x => x.Id == record.EmployeeCharacterId);
 		if (target != null)
 		{
@@ -2678,13 +2655,10 @@ Additionally, you can use the following shop admin subcommands:
 
 	private static void ShopProprietor(ICharacter actor, StringStack ss)
 	{
-		if (actor.Location.Shop == null)
+		if (!DoShopCommandFindShop(actor, out var shop))
 		{
-			actor.OutputHandler.Send("You are not currently at a shop.");
 			return;
 		}
-
-		var shop = actor.Location.Shop;
 
 		if (!shop.IsProprietor(actor) && !actor.IsAdministrator())
 		{
@@ -2750,13 +2724,10 @@ Additionally, you can use the following shop admin subcommands:
 
 	private static void ShopStock(ICharacter actor, StringStack ss)
 	{
-		if (actor.Location.Shop == null)
+		if (!DoShopCommandFindShop(actor, out var shop))
 		{
-			actor.OutputHandler.Send("You are not currently at a shop.");
 			return;
 		}
-
-		var shop = actor.Location.Shop;
 
 		if (!shop.IsEmployee(actor) && !actor.IsAdministrator())
 		{
@@ -2813,13 +2784,11 @@ Additionally, you can use the following shop admin subcommands:
 
 	private static void ShopDispose(ICharacter actor, StringStack ss)
 	{
-		if (actor.Location.Shop == null)
+		if (!DoShopCommandFindShop(actor, out var shop))
 		{
-			actor.OutputHandler.Send("You are not currently at a shop.");
 			return;
 		}
 
-		var shop = actor.Location.Shop;
 		if (!shop.IsEmployee(actor) && !actor.IsAdministrator())
 		{
 			actor.OutputHandler.Send("You are not an employee of this shop.");
@@ -3016,12 +2985,11 @@ Additionally, you can use the following shop admin subcommands:
 
 	private static void ShopMerchandiseNew(ICharacter actor, StringStack ss)
 	{
-		var shop = actor.Location.Shop;
-		if (shop == null)
+		if (!DoShopCommandFindShop(actor, out var shop))
 		{
-			actor.OutputHandler.Send("You are not currently in a shop.");
 			return;
 		}
+
 
 		if (!shop.IsManager(actor) && !actor.IsAdministrator())
 		{
@@ -3113,12 +3081,11 @@ Additionally, you can use the following shop admin subcommands:
 
 	private static void ShopMerchandiseEdit(ICharacter actor, StringStack ss)
 	{
-		var shop = actor.Location.Shop;
-		if (shop == null)
+		if (!DoShopCommandFindShop(actor, out var shop))
 		{
-			actor.OutputHandler.Send("You are not currently in a shop.");
 			return;
 		}
+
 
 		if (!shop.IsManager(actor) && !actor.IsAdministrator())
 		{
@@ -3156,10 +3123,8 @@ Additionally, you can use the following shop admin subcommands:
 
 	private static void ShopMerchandiseShow(ICharacter actor, StringStack ss)
 	{
-		var shop = actor.Location.Shop;
-		if (shop == null)
+		if (!DoShopCommandFindShop(actor, out var shop))
 		{
-			actor.OutputHandler.Send("You are not currently in a shop.");
 			return;
 		}
 
@@ -3196,10 +3161,8 @@ Additionally, you can use the following shop admin subcommands:
 
 	private static void ShopMerchandiseList(ICharacter actor, StringStack ss)
 	{
-		var shop = actor.Location.Shop;
-		if (shop == null)
+		if (!DoShopCommandFindShop(actor, out var shop))
 		{
-			actor.OutputHandler.Send("You are not currently in a shop.");
 			return;
 		}
 

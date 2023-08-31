@@ -37,6 +37,9 @@ public interface IShop : IFrameworkItem, ISaveable, IFutureProgVariable
     bool IsTrading { get; }
     void ToggleIsTrading();
 
+    IReadOnlyDictionary<ICurrencyPile, Dictionary<ICoin, int>> GetCurrencyForShop(decimal amount);
+	void AddCurrencyToShop(IGameItem currencyPile);
+
     #region AI Related Properties
     /// <summary>
     /// Prog Returns True, takes Character, Number, Tags as a parameter

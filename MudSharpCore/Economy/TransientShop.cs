@@ -166,4 +166,19 @@ public class TransientShop : Shop, ITransientShop
 	}
 
     public IShopStall CurrentStall { get; set; }
+
+	public override IReadOnlyDictionary<ICurrencyPile, Dictionary<ICoin, int>> GetCurrencyForShop(decimal amount)
+	{
+		return Currency.FindCurrency(CurrentStall?.Contents.SelectMany(x => x.RecursiveGetItems<ICurrencyPile>()).ToList() ?? Enumerable.Empty<ICurrencyPile>(), amount);
+	}
+
+	public override void AddCurrencyToShop(IGameItem currencyPile)
+	{
+		if (CurrentStall is null)
+		{
+			return;
+		}
+
+		CurrentStall.Put(null, currencyPile, true);
+	}
 }

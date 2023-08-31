@@ -16,6 +16,7 @@ using MudSharp.FutureProg.Variables;
 using MudSharp.GameItems.Components;
 using MudSharp.Events;
 using MudSharp.Models;
+using MudSharp.Accounts;
 
 namespace MudSharp.Economy;
 
@@ -299,7 +300,7 @@ public class PermanentShop : Shop, IPermanentShop
         if (cashInRegister > CashBalance)
         {
             AddTransaction(new TransactionRecord(ShopTransactionType.Float, Currency, this,
-                AllShopCells.First().DateTime(), null, cashInRegister - CashBalance, 0.0M));
+                EconomicZone.ZoneForTimePurposes.DateTime(), null, cashInRegister - CashBalance, 0.0M));
             CashBalance = cashInRegister;
             Changed = true;
             return;
@@ -308,7 +309,7 @@ public class PermanentShop : Shop, IPermanentShop
         if (cashInRegister < CashBalance)
         {
             AddTransaction(new TransactionRecord(ShopTransactionType.Withdrawal, Currency, this,
-                AllShopCells.First().DateTime(), null, CashBalance - cashInRegister, 0.0M));
+                EconomicZone.ZoneForTimePurposes.DateTime(), null, CashBalance - cashInRegister, 0.0M));
             CashBalance = cashInRegister;
             Changed = true;
             return;
@@ -394,4 +395,24 @@ public class PermanentShop : Shop, IPermanentShop
     }
 
     public override IEnumerable<ICell> CurrentLocations => ShopfrontCells;
+
+	public override IReadOnlyDictionary<ICurrencyPile, Dictionary<ICoin, int>> GetCurrencyForShop(decimal amount)
+	{
+        if (TillItems.Any())
+        {
+			return Currency.FindCurrency(TillItems.SelectMany(x => x.RecursiveGetItems<ICurrencyPile>()).ToList(), amount);
+		}
+
+        if (StockroomCell is not null)
+        {
+			return Currency.FindCurrency(StockroomCell.GameItems.SelectMany(x => x.RecursiveGetItems<ICurrencyPile>()).ToList(), amount);
+		}
+
+        return new Dictionary<ICurrencyPile, Dictionary<ICoin, int>>();
+	}
+
+	public override void AddCurrencyToShop(IGameItem currencyPile)
+	{
+		throw new NotImplementedException();
+	}
 }

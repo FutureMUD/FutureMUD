@@ -195,7 +195,7 @@ public class ForagableProfile : EditableItem, IForagableProfile
 		_name = profile.Name;
 		foreach (var item in profile.ForagableProfilesForagables)
 		{
-			_foragables.Add(Gameworld.Foragables.Get(item.ForagableId));
+			_foragableIds.Add(item.ForagableId);
 		}
 
 		_maximumYieldPoints = profile.ForagableProfilesMaximumYields.ToDictionary(item => item.ForageType,
@@ -288,7 +288,7 @@ public class ForagableProfile : EditableItem, IForagableProfile
 
 		if (Foragables.Any(x => x.Id == foragable.Id))
 		{
-			_foragables.RemoveAll(x => x.Id == foragable.Id);
+			_foragableIds.RemoveAll(x => x == foragable.Id);
 			Changed = true;
 			actor.Send("You remove foragable {0} {1:N0} from the foragable profile.", foragable.Name, foragable.Id);
 			return true;
@@ -302,7 +302,7 @@ public class ForagableProfile : EditableItem, IForagableProfile
 			return false;
 		}
 
-		_foragables.Add(foragable);
+		_foragableIds.Add(foragable.Id);
 		Changed = true;
 		actor.Send("You add foragable {0} {1:N0} from the foragable profile.", foragable.Name, foragable.Id);
 		return true;
@@ -392,8 +392,8 @@ public class ForagableProfile : EditableItem, IForagableProfile
 
 	public IReadOnlyDictionary<string, double> HourlyYieldPoints => _hourlyYieldPoints;
 
-	private readonly List<IForagable> _foragables = new();
-	public IEnumerable<IForagable> Foragables => _foragables;
+	private readonly List<long> _foragableIds = new();
+	public IEnumerable<IForagable> Foragables => _foragableIds.SelectNotNull(x => Gameworld.Foragables.Get(x));
 
 	public IForagable GetForageResult(ICharacter character, IReadOnlyDictionary<Difficulty, CheckOutcome> forageOutcome,
 		string foragableType)

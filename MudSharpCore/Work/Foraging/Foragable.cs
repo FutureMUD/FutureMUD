@@ -75,6 +75,7 @@ public class Foragable : EditableItem, IForagable
 				ForageDifficulty = (int)ForageDifficulty,
 				ItemProtoId = ItemProto?.Id ?? 0,
 				MinimumOutcome = (int)MinimumOutcome,
+				MaximumOutcome = (int)MaximumOutcome,
 				QuantityDiceExpression = QuantityDiceExpression,
 				RelativeChance = RelativeChance,
 				EditableItem = new Models.EditableItem()
@@ -132,6 +133,7 @@ public class Foragable : EditableItem, IForagable
 			dbitem.ForageDifficulty = (int)ForageDifficulty;
 			dbitem.ItemProtoId = ItemProto?.Id ?? 0;
 			dbitem.MinimumOutcome = (int)MinimumOutcome;
+			dbitem.MaximumOutcome = (int)MaximumOutcome;
 			dbitem.QuantityDiceExpression = QuantityDiceExpression ?? "1";
 			dbitem.RelativeChance = RelativeChance;
 			FMDB.Context.SaveChanges();
@@ -169,6 +171,7 @@ public class Foragable : EditableItem, IForagable
 			_quantityDiceExpression = "1";
 
 			dbitem.Name = _name;
+			dbitem.RelativeChance = RelativeChance;
 			dbitem.ForageDifficulty = (int)ForageDifficulty;
 			dbitem.MinimumOutcome = (int)MinimumOutcome;
 			dbitem.MaximumOutcome = (int)MaximumOutcome;

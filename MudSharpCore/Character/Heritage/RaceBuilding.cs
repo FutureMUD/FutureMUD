@@ -100,7 +100,14 @@ public partial class Race
 	#3material alcohol|thirst|hunger|water|calories <amount>#0 - sets the per-kg nutrition for this material
 	#3optinediblematerial#0 - toggles whether the race can only eat materials from the pre-defined list
 	#3emotecorpse <emote>#0 - sets the emote for eating corpses. $0 is eater, $1 is corpse.
-	#3yield#0 - tba";
+	#3yield add <type> <hunger> <thirst> <emote>#0 - adds an edible foragable yield profile
+	#3yield remove <type>#0 - removes an edible foragable yield profile
+	#3yield <type> calories <amount>#0 - edits the calories of a profile
+	#3yield <type> water <amount>#0 - edits the water of a profile
+	#3yield <type> thirst <amount>#0 - edits the thirst hours of a profile
+	#3yield <type> hunger <amount>#0 - edits the hunger hours of a profile
+	#3yield <type> bites <amount>#0 - edits the yield per bite of a profile
+	#3yield <type> emote <emote>#0 - edits the emote of a profile";
 
 	/// <inheritdoc />
 	public bool BuildingCommand(ICharacter actor, StringStack command)
@@ -424,15 +431,285 @@ public partial class Race
 			return false;
 		}
 
-		// TODO
+		var yield = command.PopSpeech().ToLowerInvariant();
+		switch (yield)
+		{
+			case "add":
+				return BuildingCommandYieldAdd(actor, command);
+			case "remove":
+				return BuildingCommandYieldRemove(actor, command);
+		}
+
+		if (!EdibleForagableYields.Any(x => x.YieldType.EqualTo(yield)))
+		{
+			actor.OutputHandler.Send($"There are no existing yield profiles for the yield type {yield.ColourValue()}.");
+			return false;
+		}
+
+		switch (command.PopSpeech().ToLowerInvariant().CollapseString())
+		{
+			case "calories":
+				return BuildingCommandEdibleYieldCalories(actor, command, yield);
+			case "hunger":
+				return BuildingCommandEdibleYieldHunger(actor, command, yield);
+			case "water":
+				return BuildingCommandEdibleYieldWater(actor, command, yield);
+			case "thirst":
+				return BuildingCommandEdibleYieldThirst(actor, command, yield);
+			case "alcohol":
+				return BuildingCommandEdibleYieldAlcohol(actor, command, yield);
+			case "emote":
+				return BuildingCommandEdibleYieldEmote(actor, command, yield);
+			case "bite":
+				return BuildingCommandEdibleYieldBite(actor, command, yield);
+			default:
+				actor.OutputHandler.Send(@"Your valid options are as follows:
+
+	#3calories <amount>#0
+	#3hunger <hours>#0
+	#3water <amount>#0
+	#3thirst <hours>#0
+	#3alcohol <grams>#0
+	#3emote <emote>#0
+	#3bite <yield per bite>#0".SubstituteANSIColour());
+				return false;
+		}
+	}
+
+	private bool BuildingCommandYieldAdd(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("What yield type would you like to add?");
+			return false;
+		}
+
 		var yield = command.PopSpeech().ToLowerInvariant();
 		if (Gameworld.ForagableProfiles.All(x => !x.MaximumYieldPoints.ContainsKey(yield)))
 		{
+			actor.OutputHandler.Send("None of the foragable profiles contain any yield with that name. You must first make sure at least one foragable profile contains such a yield.");
+			return false;
 		}
 
-		return false;
+		if (EdibleForagableYields.Any(x => x.YieldType.EqualTo(yield)))
+		{
+			actor.OutputHandler.Send("This race already has a profile for that yield type.");
+			return false;
+		}
 
-		throw new NotImplementedException();
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("How many hours of hunger should this yield fulfil?");
+			return false;
+		}
+
+		if (!double.TryParse(command.PopSpeech(), out var hunger))
+		{
+			actor.OutputHandler.Send("That is not a valid number of hours.");
+			return false;
+		}
+
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("How many hours of thirst should this yield fulfil?");
+			return false;
+		}
+
+		if (!double.TryParse(command.PopSpeech(), out var thirst))
+		{
+			actor.OutputHandler.Send("That is not a valid number of hours.");
+			return false;
+		}
+
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("What should be the emote for a character eating this yield? Use $0 to refer to the character.");
+			return false;
+		}
+
+		var emoteText = command.SafeRemainingArgument;
+		var emote = new Emote(emoteText, new DummyPerceiver(), new DummyPerceivable());
+		if (!emote.Valid)
+		{
+			actor.OutputHandler.Send(emote.ErrorMessage);
+			return false;
+		}
+
+		_edibleForagableYields.Add(new EdibleForagableYield { 
+			YieldType = yield,
+			YieldPerBite = 1.0,
+			HungerPerYield = hunger,
+			ThirstPerYield = thirst,
+			CaloriesPerYield = hunger * 100,
+			WaterPerYield = 0.1 * thirst,
+			AlcoholPerYield = 0.0,
+			EmoteText = emoteText
+		});
+		Changed = true;
+		actor.OutputHandler.Send($"You add an edible foragable type for {yield.ColourValue()} to this race with {hunger.ToString("N2", actor).ColourValue()} hours hunger and {thirst.ToString("N2", actor).ColourValue()} hours thirst and an emote of {emoteText.ColourCommand()}.");
+		return true;
+	}
+
+	private bool BuildingCommandYieldRemove(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("What yield type would you like to remove?");
+			return false;
+		}
+
+		var yield = command.PopSpeech().ToLowerInvariant();		
+		if (!EdibleForagableYields.Any(x => x.YieldType.EqualTo(yield)))
+		{
+			actor.OutputHandler.Send("This race has no profile for such a yield type.");
+			return false;
+		}
+
+		_edibleForagableYields.RemoveAll(x => x.YieldType.EqualTo(yield));
+		Changed = true;
+		actor.OutputHandler.Send($"You remove the edible foragable type for the {yield.ColourValue()} yield type.");
+		return true;
+	}
+
+	private bool BuildingCommandEdibleYieldCalories(ICharacter actor, StringStack command, string yield)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("How many calories do you want one point of yield to give?");
+			return false;
+		}
+
+		if (!double.TryParse(command.SafeRemainingArgument, out var value))
+		{
+			actor.OutputHandler.Send("That is not a valid number.");
+			return false;
+		}
+
+		EdibleForagableYields.First(x => x.YieldType.EqualTo(yield)).CaloriesPerYield = value;
+		Changed = true;
+		actor.OutputHandler.Send($"Eating one unit of the {yield.ColourValue()} yield will now give {value.ToString("N3", actor).ColourValue()} calories.");
+		return true;
+	}
+
+	private bool BuildingCommandEdibleYieldHunger(ICharacter actor, StringStack command, string yield)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("How many hours of hunger satisfaction do you want one point of yield to give?");
+			return false;
+		}
+
+		if (!double.TryParse(command.SafeRemainingArgument, out var value))
+		{
+			actor.OutputHandler.Send("That is not a valid number.");
+			return false;
+		}
+
+		EdibleForagableYields.First(x => x.YieldType.EqualTo(yield)).HungerPerYield = value;
+		Changed = true;
+		actor.OutputHandler.Send($"Eating one unit of the {yield.ColourValue()} yield will now give {value.ToString("N3", actor).ColourValue()} hours of hunger satisfaction.");
+		return true;
+	}
+
+	private bool BuildingCommandEdibleYieldWater(ICharacter actor, StringStack command, string yield)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("How much water do you want one point of yield to give?");
+			return false;
+		}
+
+		if (!Gameworld.UnitManager.TryGetBaseUnits(command.SafeRemainingArgument, UnitType.FluidVolume, out var value))
+		{
+			actor.OutputHandler.Send("That is not a valid quantity.");
+			return false;
+		}
+
+		EdibleForagableYields.First(x => x.YieldType.EqualTo(yield)).WaterPerYield = value * Gameworld.UnitManager.BaseFluidToLitres;
+		Changed = true;
+		actor.OutputHandler.Send($"Eating one unit of the {yield.ColourValue()} yield will now give {Gameworld.UnitManager.DescribeMostSignificantExact(value, UnitType.FluidVolume, actor).ColourValue()} of water.");
+		return true;
+	}
+
+	private bool BuildingCommandEdibleYieldThirst(ICharacter actor, StringStack command, string yield)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("How many hours of thirst satisfaction do you want one point of yield to give?");
+			return false;
+		}
+
+		if (!double.TryParse(command.SafeRemainingArgument, out var value))
+		{
+			actor.OutputHandler.Send("That is not a valid number.");
+			return false;
+		}
+
+		EdibleForagableYields.First(x => x.YieldType.EqualTo(yield)).ThirstPerYield = value;
+		Changed = true;
+		actor.OutputHandler.Send($"Eating one unit of the {yield.ColourValue()} yield will now give {value.ToString("N3", actor).ColourValue()} hours of thirst satisfaction.");
+		return true;
+	}
+
+	private bool BuildingCommandEdibleYieldAlcohol(ICharacter actor, StringStack command, string yield)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("How much alcohol do you want one point of yield to give?");
+			return false;
+		}
+
+		if (!Gameworld.UnitManager.TryGetBaseUnits(command.SafeRemainingArgument, UnitType.Mass, out var value))
+		{
+			actor.OutputHandler.Send("That is not a valid quantity.");
+			return false;
+		}
+
+		EdibleForagableYields.First(x => x.YieldType.EqualTo(yield)).AlcoholPerYield = value * Gameworld.UnitManager.BaseWeightToKilograms;
+		Changed = true;
+		actor.OutputHandler.Send($"Eating one unit of the {yield.ColourValue()} yield will now give {Gameworld.UnitManager.DescribeMostSignificantExact(value, UnitType.Mass, actor).ColourValue()} of alcohol.");
+		return true;
+	}
+
+	private bool BuildingCommandEdibleYieldEmote(ICharacter actor, StringStack command, string yield)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("What should the emote be when someone of this race eats this yield? Use $0 for the character.");
+			return false;
+		}
+
+		var emote = new Emote(command.SafeRemainingArgument, new DummyPerceiver(), new DummyPerceivable());
+		if (!emote.Valid)
+		{
+			actor.OutputHandler.Send(emote.ErrorMessage);
+			return false;
+		}
+
+		EdibleForagableYields.First(x => x.YieldType.EqualTo(yield)).EmoteText = command.SafeRemainingArgument;
+		Changed = true;
+		actor.OutputHandler.Send($"The emote when eating {yield.ColourValue()} yield will now be {command.SafeRemainingArgument.ColourCommand()}.");
+		return true;
+	}
+
+	private bool BuildingCommandEdibleYieldBite(ICharacter actor, StringStack command, string yield)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("How much yield should be consumed per \"bite\" of food eaten?");
+			return false;
+		}
+
+		if (!double.TryParse(command.SafeRemainingArgument, out var value) || value <= 0.0)
+		{
+			actor.OutputHandler.Send("That is not a valid number.");
+			return false;
+		}
+
+		EdibleForagableYields.First(x => x.YieldType.EqualTo(yield)).YieldPerBite = value;
+		Changed = true;
+		actor.OutputHandler.Send($"Each bite of {yield.ColourValue()} yield will now consume {value.ToString("N3", actor).ColourValue()} units of yield.");
+		return true;
 	}
 
 	private bool BuildingCommandEatCorpseEmote(ICharacter actor, StringStack command)

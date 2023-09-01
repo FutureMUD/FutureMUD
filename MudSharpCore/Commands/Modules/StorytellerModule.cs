@@ -1741,6 +1741,9 @@ This is the syntax for editing skills:
 
 		switch (actionText)
 		{
+			case "list":
+				ShowModule.Show_Skills(actor, ss);
+				return;
 			case "edit":
 				SkillEdit(actor, ss);
 				return;

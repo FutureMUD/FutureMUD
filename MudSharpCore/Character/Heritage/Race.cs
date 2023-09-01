@@ -1678,7 +1678,7 @@ public partial class Race : SaveableItem, IRace
 	private readonly List<EdibleForagableYield> _edibleForagableYields = new();
 
 	public IEnumerable<EdibleForagableYield> EdibleForagableYields =>
-		ParentRace?.EdibleForagableYields ?? _edibleForagableYields;
+		ParentRace?.EdibleForagableYields.Concat(_edibleForagableYields) ?? _edibleForagableYields;
 
 	public bool CanEatCorpses { get; protected set; }
 

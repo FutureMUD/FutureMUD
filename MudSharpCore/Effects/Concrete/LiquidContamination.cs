@@ -28,6 +28,8 @@ public class LiquidContamination : Effect, ILiquidContaminationEffect, IDescript
 		return BaseEffectDuration * mixture.RelativeEnthalpy;
 	}
 
+	public static bool ShouldDripsEcho => Futuremud.Games.First().GetStaticBool("ShouldLiquidOverflowEchoToRoom");
+
 	public LiquidContamination(IPerceivable owner, LiquidMixture liquid, IFutureProg applicabilityProg = null) : base(
 		owner, applicabilityProg)
 	{
@@ -110,7 +112,7 @@ public class LiquidContamination : Effect, ILiquidContaminationEffect, IDescript
 			if (location != null && ownerItem.ContainedIn == null &&
 			    !ownerItem.Location.IsSwimmingLayer(ownerItem.RoomLayer))
 			{
-				if (DateTime.UtcNow - _lastDripEcho > TimeSpan.FromSeconds(120))
+				if (DateTime.UtcNow - _lastDripEcho > TimeSpan.FromSeconds(120) && ShouldDripsEcho)
 				{
 					_lastDripEcho = DateTime.UtcNow;
 					string amount, verb;

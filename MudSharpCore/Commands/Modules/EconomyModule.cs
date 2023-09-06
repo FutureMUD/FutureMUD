@@ -387,15 +387,23 @@ If you are in a shop, you can view the list output as a specific line of credit 
 	protected static void List(ICharacter actor, string command)
 	{
 		var ss = new StringStack(command.RemoveFirstWord());
-		var listables = actor.Location.LayerGameItems(actor.RoomLayer).SelectNotNull(x => x.GetItemType<IListable>())
-							 .Where(x => actor.IsAdministrator() || x.Parent.GetItemType<IOnOff>()?.SwitchedOn != false)
-							 .ToList();
+		var listables = actor.Location
+			.LayerGameItems(actor.RoomLayer)
+			.SelectNotNull(x => x.GetItemType<IListable>())
+			.Where(x => actor.IsAdministrator() || x.Parent.GetItemType<IOnOff>()?.SwitchedOn != false)
+			.ToList();
+
 		IListable listable;
+		if (!DoShopCommandFindShop(actor, out var shop))
+		{
+			return;
+		}
+
 		if (ss.IsFinished)
 		{
-			if (actor.Location.Shop?.ShopfrontCells.Contains(actor.Location) == true)
+			if (shop is not null)
 			{
-				actor.Location.Shop.ShowList(actor, actor);
+				shop.ShowList(actor, actor);
 				return;
 			}
 
@@ -408,9 +416,8 @@ If you are in a shop, you can view the list output as a specific line of credit 
 		}
 		else
 		{
-			if (actor.Location.Shop?.ShopfrontCells.Contains(actor.Location) == true && ss.Peek()[0] != '*')
+			if (shop is not null && ss.Peek()[0] != '*')
 			{
-				var shop = actor.Location.Shop;
 				ILineOfCreditAccount account = null;
 				var arg = ss.PopSpeech();
 
@@ -510,9 +517,8 @@ If you are in a shop, you can view the list output as a specific line of credit 
 	protected static void Preview(ICharacter actor, string command)
 	{
 		var ss = new StringStack(command.RemoveFirstWord());
-		if (actor.Location.Shop?.ShopfrontCells.Contains(actor.Location) != true)
+		if (!DoShopCommandFindShop(actor, out var shop))
 		{
-			actor.OutputHandler.Send("You are not currently in a shop, so there is no stock to preview.");
 			return;
 		}
 
@@ -531,7 +537,6 @@ If you are in a shop, you can view the list output as a specific line of credit 
 			target = ss.PopSpeech();
 		}
 
-		var shop = actor.Location.Shop;
 		var merch = shop.StockedMerchandise.GetFromItemListByKeywordIncludingNames(target, actor);
 		if (merch == null)
 		{
@@ -605,9 +610,8 @@ BUY [<quantity>] <thing> WITH <item> - buys the thing with a payment item such a
 	protected static void Buy(ICharacter actor, string command)
 	{
 		var ss = new StringStack(command.RemoveFirstWord());
-		if (actor.Location.Shop?.ShopfrontCells.Contains(actor.Location) != true)
+		if (!DoShopCommandFindShop(actor, out var shop))
 		{
-			actor.OutputHandler.Send("You are not currently in a shop, so there is no stock to buy.");
 			return;
 		}
 
@@ -626,7 +630,6 @@ BUY [<quantity>] <thing> WITH <item> - buys the thing with a payment item such a
 			target = ss.PopSpeech();
 		}
 
-		var shop = actor.Location.Shop;
 		IMerchandise merch;
 		if (int.TryParse(target, out var value))
 		{
@@ -1211,7 +1214,7 @@ Additionally, you can use the following shop admin subcommands:
 			return;
 		}
 
-		var currencyPiles = shop.TillItems.SelectMany(x => x.RecursiveGetItems<ICurrencyPile>()).ToList();
+		var currencyPiles = shop.GetCurrencyPilesForShop().ToList();
 		var targetCoins = shop.Currency.FindCurrency(currencyPiles, amount);
 		var value = targetCoins.Sum(x => x.Value.Sum(y => y.Value * y.Key.Value));
 
@@ -1304,7 +1307,7 @@ Additionally, you can use the following shop admin subcommands:
 			return;
 		}
 
-		if (!shop.TillItems.Any())
+		if (!shop.IsReadyToDoBusiness)
 		{
 			actor.OutputHandler.Send("This shop has not been properly set up to do business.");
 			return;
@@ -1776,27 +1779,11 @@ Additionally, you can use the following shop admin subcommands:
 		{
 			foreach (var merchandise in shop.Merchandises)
 			{
-				stocked.AddRange(shop.DoAutostockForMerchandise(merchandise));
+				stocked.AddRange(shop.DoAutoRestockForMerchandise(merchandise));
 			}
 		}
 
-
-		foreach (var item in shop.AllShopCells.SelectMany(x => x.GameItems).SelectMany(x => x.DeepItems).ToList())
-		{
-			if (item.AffectedBy<ItemOnDisplayInShop>(shop))
-			{
-				continue;
-			}
-
-			var merch = shop.Merchandises.FirstOrDefault(x => x.IsMerchandiseFor(item));
-			if (merch == null)
-			{
-				continue;
-			}
-
-			shop.AddToStock(null, item, merch);
-			stocked.Add(item);
-		}
+		stocked.AddRange(shop.DoAutostockAllMerchandise());
 
 		var sb = new StringBuilder();
 		sb.AppendLine("You add the following items to stock:");
@@ -2479,8 +2466,7 @@ Additionally, you can use the following shop admin subcommands:
 				shop.RemoveEmployee(record);
 				actor.OutputHandler.Send(
 					$"You fire {record.Name.GetName(NameStyle.FullName).Colour(Telnet.Cyan)} from {shop.Name.TitleCase().Colour(Telnet.Cyan)}.");
-				target = shop.AllShopCells.SelectMany(x => x.Characters)
-							 .FirstOrDefault(x => x.Id == record.EmployeeCharacterId);
+				target = actor.Gameworld.Actors.Get(record.EmployeeCharacterId);
 				if (target != null)
 				{
 					target.OutputHandler.Send($"You have been fired from {shop.Name.TitleCase().Colour(Telnet.Cyan)}.");
@@ -2644,8 +2630,7 @@ Additionally, you can use the following shop admin subcommands:
 		shop.Changed = true;
 		actor.OutputHandler.Send(
 			$"You {(record.IsManager ? "promote" : "demote")} {record.Name.GetName(NameStyle.FullName).Colour(Telnet.Cyan)} {(record.IsManager ? "to the position of manager" : "to merely an employee")}.");
-		target = shop.AllShopCells.SelectMany(x => x.Characters)
-					  .FirstOrDefault(x => x.Id == record.EmployeeCharacterId);
+		target = actor.Gameworld.Actors.Get(record.EmployeeCharacterId);
 		if (target != null)
 		{
 			target.OutputHandler.Send(
@@ -2699,8 +2684,7 @@ Additionally, you can use the following shop admin subcommands:
 				shop.Changed = true;
 				actor.OutputHandler.Send(
 					$"You promote {record.Name.GetName(NameStyle.FullName).Colour(Telnet.Cyan)} to proprietor of {shop.Name.TitleCase().Colour(Telnet.Cyan)}.");
-				target = shop.AllShopCells.SelectMany(x => x.Characters)
-							 .FirstOrDefault(x => x.Id == record.EmployeeCharacterId);
+				target = actor.Gameworld.Actors.Get(record.EmployeeCharacterId);
 				if (target != null)
 				{
 					target.OutputHandler.Send(

@@ -38,7 +38,9 @@ public interface IShop : IFrameworkItem, ISaveable, IFutureProgVariable
     void ToggleIsTrading();
 
     IReadOnlyDictionary<ICurrencyPile, Dictionary<ICoin, int>> GetCurrencyForShop(decimal amount);
+    IEnumerable<ICurrencyPile> GetCurrencyPilesForShop();
 	void AddCurrencyToShop(IGameItem currencyPile);
+    bool IsReadyToDoBusiness { get; }
 
     #region AI Related Properties
     /// <summary>
@@ -76,8 +78,10 @@ public interface IShop : IFrameworkItem, ISaveable, IFutureProgVariable
     (decimal TotalPrice, decimal IncludedTax, bool VolumeDealsExist) GetDetailedPriceInfo(ICharacter actor, IMerchandise merchandise);
 
     void PriceAdjustmentForMerchandise(IMerchandise merchandise, decimal oldValue, ICharacter actor);
-    IEnumerable<IGameItem> DoAutostockForMerchandise(IMerchandise merchandise, List<(IGameItem Item, IGameItem Container)> purchasedItems = null);
-    bool IsWelcomeCustomer(ICharacter customer);
+    IEnumerable<IGameItem> DoAutoRestockForMerchandise(IMerchandise merchandise, List<(IGameItem Item, IGameItem Container)> purchasedItems = null);
+    IEnumerable<IGameItem> DoAutostockForMerchandise(IMerchandise merchandise);
+	IEnumerable<IGameItem> DoAutostockAllMerchandise();
+	bool IsWelcomeCustomer(ICharacter customer);
 
     void ShowDeals(ICharacter actor, ICharacter purchaser, IMerchandise merchandise = null);
     void ShowList(ICharacter actor, ICharacter purchaser, IMerchandise merchandise = null);

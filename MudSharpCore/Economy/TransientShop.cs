@@ -30,7 +30,7 @@ public class TransientShop : Shop, ITransientShop
 
     protected override void Save(Models.Shop dbitem)
     {
-        throw new NotImplementedException();
+        // Do nothing
     }
 
     public override IEnumerable<ICell> CurrentLocations
@@ -51,7 +51,7 @@ public class TransientShop : Shop, ITransientShop
 		return (true, string.Empty);
     }
 
-    public override IEnumerable<IGameItem> DoAutostockForMerchandise(IMerchandise merchandise, List<(IGameItem Item, IGameItem Container)> purchasedItems = null)
+    public override IEnumerable<IGameItem> DoAutoRestockForMerchandise(IMerchandise merchandise, List<(IGameItem Item, IGameItem Container)> purchasedItems = null)
     {
 		if (CurrentStall is null)
 		{
@@ -114,7 +114,35 @@ public class TransientShop : Shop, ITransientShop
 		return newItems;
 	}
 
-    public override IEnumerable<IGameItem> StockedItems(IMerchandise merchandise)
+	public override IEnumerable<IGameItem> DoAutostockForMerchandise(IMerchandise merchandise)
+	{
+		var stocked = new List<IGameItem>();
+		if (CurrentStall is null)
+		{
+			return stocked;
+		}
+
+		foreach (var item in CurrentStall.Contents.SelectMany(x => x.DeepItems).ToList())
+		{
+			if (item.AffectedBy<ItemOnDisplayInShop>(this))
+			{
+				continue;
+			}
+
+			var merch = Merchandises.FirstOrDefault(x => x.IsMerchandiseFor(item));
+			if (merch == null)
+			{
+				continue;
+			}
+
+			AddToStock(null, item, merch);
+			stocked.Add(item);
+		}
+
+		return stocked;
+	}
+
+	public override IEnumerable<IGameItem> StockedItems(IMerchandise merchandise)
     {
 		if (CurrentStall is null)
 		{
@@ -140,8 +168,15 @@ public class TransientShop : Shop, ITransientShop
 		return (0, _stockedMerchandiseCounts[whichMerchandise]);
 	}
 
-    public override void CheckFloat()
+	public override bool IsReadyToDoBusiness => CurrentStall is not null;
+
+	public override void CheckFloat()
     {
+		if (CurrentStall is null)
+		{
+			return;
+		}
+
 		var cashInRegister = CurrentStall.Contents
 			.RecursiveGetItems<ICurrencyPile>(false)
 			.Where(x => x.Currency == Currency)
@@ -170,6 +205,18 @@ public class TransientShop : Shop, ITransientShop
 	public override IReadOnlyDictionary<ICurrencyPile, Dictionary<ICoin, int>> GetCurrencyForShop(decimal amount)
 	{
 		return Currency.FindCurrency(CurrentStall?.Contents.SelectMany(x => x.RecursiveGetItems<ICurrencyPile>()).ToList() ?? Enumerable.Empty<ICurrencyPile>(), amount);
+	}
+
+
+
+	public override IEnumerable<ICurrencyPile> GetCurrencyPilesForShop()
+	{
+		var piles = new List<ICurrencyPile>();
+		if (CurrentStall is not null)
+		{
+			piles.AddRange(CurrentStall.Contents.SelectMany(x => x.RecursiveGetItems<ICurrencyPile>()));
+		}
+		return piles;
 	}
 
 	public override void AddCurrencyToShop(IGameItem currencyPile)

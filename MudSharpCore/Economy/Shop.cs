@@ -205,6 +205,8 @@ public abstract class Shop : SaveableItem, IShop
 		Changed = true;
 	}
 
+	public abstract bool IsReadyToDoBusiness { get; }
+
 	private readonly List<IEmployeeRecord> _employeeRecords = new();
 	public IEnumerable<IEmployeeRecord> EmployeeRecords => _employeeRecords;
 	public abstract IEnumerable<ICell> CurrentLocations { get; }
@@ -592,7 +594,7 @@ public abstract class Shop : SaveableItem, IShop
 
 		if (merchandise.AutoReordering && _stockedMerchandiseCounts[merchandise] < merchandise.MinimumStockLevels)
 		{
-			DoAutostockForMerchandise(merchandise, restockInfo);
+			DoAutoRestockForMerchandise(merchandise, restockInfo);
 		}
 
 		foreach (var employee in EmployeesOnDuty)
@@ -606,8 +608,21 @@ public abstract class Shop : SaveableItem, IShop
 		return boughtItems;
 	}
 
-	public abstract IEnumerable<IGameItem> DoAutostockForMerchandise(IMerchandise merchandise,
+	public abstract IEnumerable<IGameItem> DoAutoRestockForMerchandise(IMerchandise merchandise,
 		List<(IGameItem Item, IGameItem Container)> purchasedItems = null);
+
+	public abstract IEnumerable<IGameItem> DoAutostockForMerchandise(IMerchandise merchandise);
+
+	public IEnumerable<IGameItem> DoAutostockAllMerchandise()
+	{
+		var items = new List<IGameItem>();
+		foreach (var merchandise in Merchandises)
+		{
+			items.AddRange(DoAutostockForMerchandise(merchandise));
+		}
+
+		return items;
+	}
 
 	protected void RecalculateStockedItems(IMerchandise merchandise, int expectedChange)
 	{
@@ -919,7 +934,7 @@ public abstract class Shop : SaveableItem, IShop
 
 	public abstract IReadOnlyDictionary<ICurrencyPile, Dictionary<ICoin, int>> GetCurrencyForShop(decimal amount);
 	public abstract void AddCurrencyToShop(IGameItem currencyPile);
-
+	public abstract IEnumerable<ICurrencyPile> GetCurrencyPilesForShop();
 	public abstract void CheckFloat();
 
 	public bool IsWelcomeCustomer(ICharacter customer)

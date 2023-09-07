@@ -38,6 +38,7 @@ public partial class Character
 		WritingsTrueAuthor = new HashSet<Writing>();
 		Patrols = new HashSet<Patrol>();
 		GPTMessages = new HashSet<GPTMessage>();
+		ScriptedEvents = new HashSet<ScriptedEvent>();
 	}
 
 	public string Name { get; set; }
@@ -138,4 +139,5 @@ public partial class Character
 	public virtual ICollection<Patrol> Patrols { get; set; }
 	public virtual ICollection<LegalAuthorityFine> Fines { get; set; }
 	public virtual ICollection<GPTMessage> GPTMessages { get; set; }
+	public virtual ICollection<ScriptedEvent> ScriptedEvents { get; set; }
 }

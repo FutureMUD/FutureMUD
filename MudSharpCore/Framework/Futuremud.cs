@@ -67,6 +67,7 @@ using MudSharp.Work.Butchering;
 using MudSharp.Work.Crafts;
 using MudSharp.Work.Foraging;
 using MudSharp.Work.Projects;
+using MudSharp.RPG.ScriptedEvents;
 
 namespace MudSharp.Framework;
 
@@ -1166,6 +1167,11 @@ public sealed partial class Futuremud : IFuturemud, IDisposable
 		_armourTypes.Add(type);
 	}
 
+	public void Add(IScriptedEvent item)
+	{
+		_scriptedEvents.Add(item);
+	}
+
 	#endregion Special Add Methods
 
 	#region Special Find
@@ -1910,6 +1916,11 @@ public sealed partial class Futuremud : IFuturemud, IDisposable
 	public void Destroy(IScript script)
 	{
 		_scripts.Remove(script);
+	}
+
+	public void Destroy(IScriptedEvent item)
+	{
+		_scriptedEvents.Remove(item);
 	}
 
 	#endregion Destruction

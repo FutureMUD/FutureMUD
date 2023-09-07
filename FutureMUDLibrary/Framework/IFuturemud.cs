@@ -62,6 +62,7 @@ using MudSharp.RPG.Dreams;
 using MudSharp.RPG.Knowledge;
 using MudSharp.RPG.Law;
 using MudSharp.RPG.Merits;
+using MudSharp.RPG.ScriptedEvents;
 using MudSharp.TimeAndDate.Date;
 using MudSharp.TimeAndDate.Listeners;
 using MudSharp.TimeAndDate.Time;
@@ -215,6 +216,7 @@ namespace MudSharp.Framework
         IUneditableAll<IRangedWeaponType> RangedWeaponTypes { get; }
         IUneditableAll<IRoom> Rooms { get; }
         IUneditableAll<IScript> Scripts { get; }
+        IUneditableAll<IScriptedEvent> ScriptedEvents { get; }
         IUneditableAll<IShard> Shards { get; }
         IUneditableAll<IShieldType> ShieldTypes { get; }
         IUneditableAll<ISkyDescriptionTemplate> SkyDescriptionTemplates { get; }
@@ -443,8 +445,9 @@ namespace MudSharp.Framework
         void Add(IFutureProg prog);
         void Add(IClan clan);
         void Add(IArmourType type);
-        
-        ICheck GetCheck(CheckType type);
+        void Add(IScriptedEvent item);
+
+		ICheck GetCheck(CheckType type);
 
         /// <summary>
         ///     Returns a character if they exist, but if they do not, loads them but does not add them to the game world
@@ -559,7 +562,8 @@ namespace MudSharp.Framework
         void Destroy(IClan clan);
         void Destroy(IWriting writing);
         void Destroy(IScript script);
-        void Dispose();
+		void Destroy(IScriptedEvent item);
+		void Dispose();
         void ForceOutgoingMessages();
         string ToString();
         void Broadcast(string text);

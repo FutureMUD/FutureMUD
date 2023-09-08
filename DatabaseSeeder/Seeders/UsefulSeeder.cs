@@ -9609,8 +9609,23 @@ end if",
         AddTag(context, "Cement Mixer", "Construction Tools");
         AddTag(context, "Wheelbarrow", "Construction Tools");
 
-        // Surgical Tools
-        AddTag(context, "Surgical Tools", "Tools");
+		// Medical Tools
+		AddTag(context, "Medical Tools", "Tools");
+		AddTag(context, "Stethoscope", "Medical Tools");
+		AddTag(context, "Blood Pressure Monitor", "Medical Tools");
+		AddTag(context, "Ophthalmoscope", "Medical Tools");
+		AddTag(context, "Otascope", "Medical Tools");
+		AddTag(context, "Dermatoscope", "Medical Tools");
+		AddTag(context, "Electrocardiogram", "Medical Tools");
+		AddTag(context, "Electroencephalogram", "Medical Tools");
+		AddTag(context, "Glucometer", "Medical Tools");
+		AddTag(context, "Spirometer", "Medical Tools");
+		AddTag(context, "Mechanical Scale", "Medical Tools");
+		AddTag(context, "Height Measuring Scale", "Medical Tools");
+		AddTag(context, "Tendon Hammer", "Medical Tools");
+
+		// Surgical Tools
+		AddTag(context, "Surgical Tools", "Tools");
         AddTag(context, "Scalpel", "Surgical Tools");
         AddTag(context, "Bonesaw", "Surgical Tools");
         AddTag(context, "Forceps", "Surgical Tools");

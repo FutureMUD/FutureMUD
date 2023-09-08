@@ -8,6 +8,7 @@ using MudSharp.GameItems;
 using MudSharp.GameItems.Components;
 using MudSharp.GameItems.Interfaces;
 using MudSharp.GameItems.Prototypes;
+using MudSharp.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,41 +19,41 @@ namespace MudSharp.Economy;
 
 public class TransientShop : Shop, ITransientShop
 {
-    public TransientShop(IEconomicZone zone, string name) : base(zone, null, name, "Transient")
-    {
-        InitialiseShop();
-    }
+	public TransientShop(IEconomicZone zone, string name) : base(zone, null, name, "Transient")
+	{
+		InitialiseShop();
+	}
 
-    public TransientShop(Models.Shop shop, IFuturemud gameworld) : base(shop, gameworld)
-    {
-        InitialiseShop();
-    }
+	public TransientShop(Models.Shop shop, IFuturemud gameworld) : base(shop, gameworld)
+	{
+		InitialiseShop();
+	}
 
-    protected override void Save(Models.Shop dbitem)
-    {
-        // Do nothing
-    }
+	protected override void Save(Models.Shop dbitem)
+	{
+		// Do nothing
+	}
 
-    public override IEnumerable<ICell> CurrentLocations
-    {
-        get
-        {
-            if (CurrentStall is null)
-            {
-                return Enumerable.Empty<ICell>();
-            }
+	public override IEnumerable<ICell> CurrentLocations
+	{
+		get
+		{
+			if (CurrentStall is null)
+			{
+				return Enumerable.Empty<ICell>();
+			}
 
-            return new List<ICell> { CurrentStall.Parent.TrueLocations.First() };
-        }
-    }
+			return new List<ICell> { CurrentStall.Parent.TrueLocations.First() };
+		}
+	}
 
-    protected override (bool Truth, string Reason) CanBuyInternal(ICharacter actor, IMerchandise merchandise, int quantity, IPaymentMethod method, string extraArguments = null)
-    {
+	protected override (bool Truth, string Reason) CanBuyInternal(ICharacter actor, IMerchandise merchandise, int quantity, IPaymentMethod method, string extraArguments = null)
+	{
 		return (true, string.Empty);
-    }
+	}
 
-    public override IEnumerable<IGameItem> DoAutoRestockForMerchandise(IMerchandise merchandise, List<(IGameItem Item, IGameItem Container)> purchasedItems = null)
-    {
+	public override IEnumerable<IGameItem> DoAutoRestockForMerchandise(IMerchandise merchandise, List<(IGameItem Item, IGameItem Container)> purchasedItems = null)
+	{
 		if (CurrentStall is null)
 		{
 			return Enumerable.Empty<IGameItem>();
@@ -143,22 +144,36 @@ public class TransientShop : Shop, ITransientShop
 	}
 
 	public override IEnumerable<IGameItem> StockedItems(IMerchandise merchandise)
-    {
+	{
 		if (CurrentStall is null)
 		{
 			return Enumerable.Empty<IGameItem>();
 		}
 
 		return CurrentStall.Contents.Where(x => x.AffectedBy<ItemOnDisplayInShop>(merchandise));
-    }
+	}
 
-    protected override void ShowInfo(ICharacter actor, StringBuilder sb)
-    {
-        // Do nothing
-    }
+	public override IEnumerable<IGameItem> AllStockedItems
+	{
+		get
+		{
+			if (CurrentStall is null)
+			{
+				return Enumerable.Empty<IGameItem>();
+			}
 
-    public override (int OnFloorCount, int InStockroomCount) StocktakeMerchandise(IMerchandise whichMerchandise)
-    {
+			return CurrentStall.Contents.Where(x => x.AffectedBy<ItemOnDisplayInShop>());
+		}
+	}
+
+
+	protected override void ShowInfo(ICharacter actor, StringBuilder sb)
+	{
+		// Do nothing
+	}
+
+	public override (int OnFloorCount, int InStockroomCount) StocktakeMerchandise(IMerchandise whichMerchandise)
+	{
 		if (!_merchandises.Contains(whichMerchandise))
 		{
 			return (0, 0);
@@ -171,7 +186,7 @@ public class TransientShop : Shop, ITransientShop
 	public override bool IsReadyToDoBusiness => CurrentStall is not null;
 
 	public override void CheckFloat()
-    {
+	{
 		if (CurrentStall is null)
 		{
 			return;
@@ -200,7 +215,7 @@ public class TransientShop : Shop, ITransientShop
 		}
 	}
 
-    public IShopStall CurrentStall { get; set; }
+	public IShopStall CurrentStall { get; set; }
 
 	public override IReadOnlyDictionary<ICurrencyPile, Dictionary<ICoin, int>> GetCurrencyForShop(decimal amount)
 	{

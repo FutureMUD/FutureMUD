@@ -316,6 +316,19 @@ public class PermanentShop : Shop, IPermanentShop
 						  )
 						  .Where(x => x.AffectedBy<ItemOnDisplayInShop>(merchandise));
 	}
+
+	public override IEnumerable<IGameItem> AllStockedItems =>
+		ShopfrontCells
+		.SelectMany(x => x.Characters)
+		.SelectMany(x => x.Body.HeldItems)
+		.Concat(
+			ShopfrontCells
+			.ConcatIfNotNull(StockroomCell)
+			.SelectMany(x => x.GameItems)
+			.SelectMany(x => x.ShallowItems)
+			)
+		.Where(x => x.AffectedBy<ItemOnDisplayInShop>());
+
 	public override void CheckFloat()
 	{
 		var cashInRegister = TillItems

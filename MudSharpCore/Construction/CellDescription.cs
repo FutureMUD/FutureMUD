@@ -1,15 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using MudSharp.Celestial;
 using MudSharp.Character;
 using MudSharp.Climate;
+using MudSharp.Economy;
 using MudSharp.Effects.Interfaces;
 using MudSharp.Form.Shape;
 using MudSharp.Framework;
+using MudSharp.GameItems.Interfaces;
 
 namespace MudSharp.Construction;
 
@@ -453,7 +456,20 @@ public partial class Cell
 			}
 		}
 
-		if (Shop != null && Gameworld.GetStaticBool("ShowShopInRoomDescription"))
+		IShop shop = null;
+		if (Shop is not null)
+		{
+			shop = Shop;
+		}
+		else
+		{
+			var stall = 
+			GameItems.
+			SelectNotNull(x => x.GetItemType<IShopStall>()).
+			FirstOrDefault(x => x.Shop is not null);
+			shop = stall?.Shop;
+		}
+		if (shop != null && Gameworld.GetStaticBool("ShowShopInRoomDescription"))
 		{
 			if (!addedAdditionalLines)
 			{

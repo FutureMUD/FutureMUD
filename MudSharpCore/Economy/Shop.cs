@@ -737,6 +737,8 @@ public abstract class Shop : SaveableItem, IShop
 	public IEnumerable<IMerchandise> StockedMerchandise =>
 		_stockedMerchandise.Where(x => x.Value.Any()).Select(x => x.Key).OrderBy(x => x.Name);
 
+	public abstract IEnumerable<IGameItem> AllStockedItems { get; }
+
 	public abstract IEnumerable<IGameItem> StockedItems(IMerchandise merchandise);
 
 	public void ShowDeals(ICharacter actor, ICharacter purchaser, IMerchandise merchandise = null)

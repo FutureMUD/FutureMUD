@@ -394,9 +394,18 @@ If you are in a shop, you can view the list output as a specific line of credit 
 			.ToList();
 
 		IListable listable;
-		if (!DoShopCommandFindShop(actor, out var shop))
+		IShop shop = null;
+		if (actor.Location.Shop is not null)
 		{
-			return;
+			shop = actor.Location.Shop;
+		}
+		else
+		{
+			var stall = actor.Location.
+			LayerGameItems(actor.RoomLayer).
+			SelectNotNull(x => x.GetItemType<IShopStall>()).
+			FirstOrDefault(x => x.Shop is not null);
+			shop = stall?.Shop;
 		}
 
 		if (ss.IsFinished)
@@ -556,11 +565,8 @@ If you are in a shop, you can view the list output as a specific line of credit 
 		var price = shop.PriceForMerchandise(actor, merch, quantity);
 		var items = new List<IGameItem>();
 		var count = 0;
-		foreach (var item in actor.Location.GameItems
-								  .SelectMany(x => x.ShallowItems)
-								  .Concat(shop.ShopfrontCells.Except(actor.Location)
-											  .SelectMany(x => x.GameItems.SelectMany(y => y.ShallowItems)))
-								  .Where(x => x.Prototype.Id == merch.Item.Id && x.AffectedBy<ItemOnDisplayInShop>()))
+		
+		foreach (var item in shop.AllStockedItems)
 		{
 			if (count + item.Quantity <= quantity)
 			{

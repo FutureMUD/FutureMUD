@@ -117,6 +117,17 @@ namespace MudSharp.GameItems.Components
 			{
 				_pattern = int.Parse(element.Value);
 			}
+
+			element = root.Element("Shop");
+			if (element != null)
+			{
+				Shop = Gameworld.Shops.Get(long.Parse(element.Value)) as ITransientShop;
+				if (Shop is not null)
+				{
+					Shop.CurrentStall = this;
+				}
+			}
+
 		}
 
 		public override IGameItemComponent Copy(IGameItem newParent, bool temporary = false)
@@ -130,6 +141,7 @@ namespace MudSharp.GameItems.Components
 		{
 			return new XElement("Definition",
 				   new XAttribute("Open", IsOpen.ToString().ToLowerInvariant()),
+						new XElement("Shop", Shop?.Id ?? 0L),
 						new XElement("Pattern", Pattern),
 						new XElement("IsLocked", IsLocked),
 						new XElement("Locks", from thelock in Locks select new XElement("Lock", thelock.Parent.Id)),

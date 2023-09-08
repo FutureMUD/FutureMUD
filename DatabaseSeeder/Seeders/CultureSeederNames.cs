@@ -113,7 +113,7 @@ public partial class CultureSeeder
 		<Element Usage=""8"" MinimumCount=""0"" MaximumCount=""1"" Name=""Mother-Name""><![CDATA[The Mother-Name, also known as the 'Amilessë', is another given name that is given to an elf by their mother. It is usually given some years after birth as the mother begins to get a sense of her child's personality, but on some ocassions it can be given at the hour of birth, usually because the mother has had a prophetic dream.]]></Element>
 		<Element Usage=""2"" MinimumCount=""0"" MaximumCount=""1"" Name=""After-Name""><![CDATA[The After-Name, also known as the 'Epessë', is akin to a nickname or honorific. Not all elves have earned an After-Name, but most do in their long lives.]]></Element>  
 	</Elements>  
-	<NameEntryRegex><![CDATA[^(?:(?<patronym>[w'-]+) )(?<matronym>(?<= )[w '-]+)*?(?<= )(?<nickname>[^ ""]+)$]]></NameEntryRegex>
+	<NameEntryRegex><![CDATA[^(?:(?<patronym>[\w'-]+) )(?<matronym>(?<= )[\w '-]+)*?(?<= )(?<nickname>[^ ""]+)$]]></NameEntryRegex>
 </NameCulture>");
 		var eriador = AddNameCulture("Eriadoran", @"<NameCulture>  
 	<Counts>
@@ -136,13 +136,13 @@ Tolkien based Eriadoran names on early modern English, so names like 'Bill', 'Ja
 		
 Tolken used surnames comprised on compound words for Eriadoran family names. Examples include Appledore, Butterbur, Ferny, Goatleaf, Heathertoes, Rushlight, and Thistlewool]]></Element>
 	</Elements>  
-	<NameEntryRegex><![CDATA[^(?:(?<birthname>[w'-]+) )(?<surname>(?<= )[w '-]+)$]]></NameEntryRegex>
+	<NameEntryRegex><![CDATA[^(?:(?<birthname>[\w'-]+) )(?<surname>(?<= )[\w '-]+)$]]></NameEntryRegex>
 </NameCulture>
 ");
 		var gondor = AddNameCulture("Mannish Sindarin", @"<NameCulture>  
 	<Counts>
 		<Count Usage=""0"" Min=""1"" Max=""1""/>
-		<Count Usage=""7"" Min=""1"" Max=""1""/>
+		<Count Usage=""7"" Min=""0"" Max=""1""/>
 	</Counts>  
 	<Patterns>
 		<Pattern Style=""0"" Text=""{0}"" Params=""0""/>
@@ -156,11 +156,11 @@ Tolken used surnames comprised on compound words for Eriadoran family names. Exa
 		<Element Usage=""0"" MinimumCount=""1"" MaximumCount=""1"" Name=""Given Name""><![CDATA[Your given name is the name given to your by your parents, usually at your birth. It is the most common way of addressing you, although in more formal contexts you might also include your family name.
 		
 Dunedain given names tend to be based on Sindarin names. For example, Aragorn (m), Denethor (m), Emeldir (f), Hirwen (f).]]></Element>
-		<Element Usage=""7"" MinimumCount=""1"" MaximumCount=""1"" Name=""Patronym""><![CDATA[Your patronym is the given name of your father. This is the same whether you are a son or a daughter. In some cases it may be the same as your own name, although it is more common for the given name to be a variation of the father's name.
-
-Your patronym should be in the form 'son of x' or 'daughter of x'.]]></Element>
+		<Element Usage=""7"" MinimumCount=""1"" MaximumCount=""1"" Name=""Patronym""><![CDATA[Your patronym is the given name of your father. This is the same whether you are a son or a daughter. In some cases it may be the same as your own name, although it is more common for the given name to be a variation of the father's name. Alternatively, some people are instead known by a professional name or characteristic like the Butcher, the Baker, the Fat, etc.
+	
+Your patronym should be in the form 'son of x', 'daughter of x' or 'the x'.]]></Element>
 	</Elements>  
-	<NameEntryRegex><![CDATA[^(?:(?<birthname>[a-z'-]+)) (?<patronym>(?<= )(?:(?:son|daughter) of )*[a-z '-]+)$]]></NameEntryRegex>
+	<NameEntryRegex><![CDATA[^(?:(?<birthname>[\w'-]+)),*\s*(?<patronym>(?<= )(?:son of|daughter of|the) [\w '-]+)*$]]></NameEntryRegex>
 </NameCulture>");
 		var rohirrim = AddNameCulture("Rohirrim", @"<NameCulture>  
 	<Counts>
@@ -183,7 +183,7 @@ Tolkien based Rohirric names on Old English, so these should be used freely.]]><
 		
 You should not include any 'of' or similar element of your name, as it will be added automatically.]]></Element>
 	</Elements>  
-	<NameEntryRegex><![CDATA[^(?:(?<birthname>[w'-]+)) of (?<toponym>(?<= )[w '-]+)$]]></NameEntryRegex>
+	<NameEntryRegex><![CDATA[^(?:(?<birthname>[\w'-]+)) of (?<toponym>(?<= )[\w '-]+)$]]></NameEntryRegex>
 </NameCulture>");
 		var dunlending = AddNameCulture("Dunlending", @"<NameCulture>  
 	<Counts>
@@ -204,7 +204,7 @@ You should not include any 'of' or similar element of your name, as it will be a
 Male Dunlending names commonly end in -oc or -doc, for example 'Madoc', 'Meriadoc', 'Caradoc', but also 'Gorsad' and 'Cadarn'. Female names include 'Heled', 'Dera', 'Sarf', 'Sath'.]]></Element>
 		<Element Usage=""2"" MinimumCount=""1"" MaximumCount=""1"" Name=""Nickname""><![CDATA[Dunlendings earn a nickname when they come of age which sets them apart from other similarly named Dunlendings. Your nickname is most likely to have been imposed upon you by others rather than chosen by you so could be unflattering.]]></Element>
 	</Elements>  
-	<NameEntryRegex><![CDATA[^(?:(?<birthname>[w'-]+) )(?<nickname>(?<= )[w '-]+)$]]></NameEntryRegex>
+	<NameEntryRegex><![CDATA[^(?:(?<birthname>[\w'-]+) )(?<nickname>(?<= )[\w '-]+)$]]></NameEntryRegex>
 </NameCulture>");
 		var dalish = AddNameCulture("Dalish", @"<NameCulture>  
 	<Counts>
@@ -227,7 +227,7 @@ Tolkien based Dalish names on Old Norse, so these should be used freely.]]></Ele
 
 For example, if you are the son of Thorald, your Parental Name will be Thoraldson. If you are the daughter of Ingrid, it will be Ingridsdottr.]]></Element>
 	</Elements>  
-	<NameEntryRegex><![CDATA[^(?:(?<birthname>[w'-]+)) (?<patronym>[w'-]+)$]]></NameEntryRegex>
+	<NameEntryRegex><![CDATA[^(?:(?<birthname>[\w'-]+)) (?<patronym>[\w'-]+)$]]></NameEntryRegex>
 </NameCulture>");
 		var easterling = AddNameCulture("Easterling", @"<NameCulture>  
 	<Counts>
@@ -248,7 +248,7 @@ For example, if you are the son of Thorald, your Parental Name will be Thoraldso
 Tolkien based Easterling names on Turkish, so names like 'Yiltig', 'Kustig', 'Kargi', 'Edgu' (male), or 'Ana', 'Mareke', 'Yileke' (female) and similar are all quite appropriate.]]></Element>
 		<Element Usage=""6"" MinimumCount=""1"" MaximumCount=""1"" Name=""Family Name""><![CDATA[Your family name is inherited from your father, but if you are a woman it customarily changes to your husband's family name when you get married. Your family name is usually only used in combination with your first name in formal contexts, but very ocassionally you might be known informally by only your family name to acquaintances.]]></Element>
 	</Elements>  
-	<NameEntryRegex><![CDATA[^(?:(?<birthname>[w'-]+) )(?<surname>(?<= )[w '-]+)$]]></NameEntryRegex>
+	<NameEntryRegex><![CDATA[^(?:(?<birthname>[\w'-]+) )(?<surname>(?<= )[\w '-]+)$]]></NameEntryRegex>
 </NameCulture>");
 		var variag = AddNameCulture("Variag", @"<NameCulture>  
 		<Counts>    
@@ -271,7 +271,7 @@ Tolkien based Easterling names on Turkish, so names like 'Yiltig', 'Kustig', 'Ka
 			<Element Usage=""6"" MinimumCount=""1"" MaximumCount=""1"" Name=""Family Name""><![CDATA[A surname is a name added to a given name and is part of a personal name. In many cases, a surname is a family name and many dictionaries define ""surname"" as a synonym of ""family name"".]]></Element>    
 			<Element Usage=""1"" MinimumCount=""0"" MaximumCount=""1"" Name=""Dimunitive""><![CDATA[Many people of this naming culture have a dimunitive, usually a shortened or altered version of their given name that is used by close family and friends in informal contexts. You may choose such a dimunitive if you wish.]]></Element>  
 		</Elements>  
-		<NameEntryRegex><![CDATA[^(?:(?<birthname>[w'-]+))s+(?<patronym>[w'-]+)s+(?<surname>[^ ""]+)s*(?:""(?<dimunitive>[w '-]+)""){0,1}$]]></NameEntryRegex>
+		<NameEntryRegex><![CDATA[^(?:(?<birthname>[\w'-]+))s+(?<patronym>[\w'-]+)s+(?<surname>[^ ""]+)s*(?:""(?<dimunitive>[\w '-]+)""){0,1}$]]></NameEntryRegex>
 	</NameCulture>");
 		var haradrim = AddNameCulture("Haradrim", @"<NameCulture>  
 	<Counts>
@@ -292,7 +292,7 @@ Tolkien based Easterling names on Turkish, so names like 'Yiltig', 'Kustig', 'Ka
 Tolkien based Haradrim names on Arabic, so names like 'Umayr', 'Bakr', 'Nizar' (male), or 'Mawiyah', 'Sawda', 'Yusraa' (female) and similar are all quite appropriate.]]></Element>
 		<Element Usage=""6"" MinimumCount=""1"" MaximumCount=""1"" Name=""Family Name""><![CDATA[Your family name is inherited from your father, but if you are a woman it customarily changes to your husband's family name when you get married. Your family name is usually only used in combination with your first name in formal contexts, but very ocassionally you might be known informally by only your family name to acquaintances.]]></Element>
 	</Elements>  
-	<NameEntryRegex><![CDATA[^(?:(?<birthname>[w'-]+) )(?<surname>(?<= )[w '-]+)$]]></NameEntryRegex>
+	<NameEntryRegex><![CDATA[^(?:(?<birthname>[\w'-]+) )(?<surname>(?<= )[\w '-]+)$]]></NameEntryRegex>
 </NameCulture>");
 		var corsair = AddNameCulture("Corsair", @"<NameCulture>  
 	<Counts>
@@ -313,9 +313,9 @@ Tolkien based Haradrim names on Arabic, so names like 'Umayr', 'Bakr', 'Nizar' (
 Because of their Black Numenorean influence, Corsair given names tend to be based on Adunaic words. Some examples include Abrazan (m), Gimilnitir (m), Sakalthor (m), Inzilbeth (f), Zimraphel (f).]]></Element>
 		<Element Usage=""7"" MinimumCount=""1"" MaximumCount=""1"" Name=""Patronym""><![CDATA[Your patronym is the given name of your father. This is the same whether you are a son or a daughter. In some cases it may be the same as your own name, although it is more common for the given name to be a variation of the father's name.
 
-Your patronym should be in the form 'son of x' or 'daughter of x'.]]></Element>
+Your patronym should be in the form 'son of x', 'daughter of x' or 'the x'.]]></Element>
 	</Elements>  
-	<NameEntryRegex><![CDATA[^(?:(?<birthname>[w'-]+) )(?<patronym>(?<= )(?:son|daughter) of [w '-]+)$]]></NameEntryRegex>
+	<NameEntryRegex><![CDATA[^(?:(?<birthname>[\w'-]+)),*\s*(?<patronym>(?<= )(?:son of|daughter of|the) [\w '-]+)*$]]></NameEntryRegex>
 </NameCulture>");
 		var dwarf = AddNameCulture("Dwarven", @"<NameCulture>  
 	<Counts>
@@ -338,7 +338,7 @@ Dwarven names are identical to the names of the dwarves in the Norse sagas. Use 
 
 Your patronym should be in the form 'son of x' or 'daughter of x'.]]></Element>
 	</Elements>  
-	<NameEntryRegex><![CDATA[^(?:(?<birthname>[w'-]+) )(?<patronym>(?<= )(?:son|daughter) of [w '-]+)$]]></NameEntryRegex>
+	<NameEntryRegex><![CDATA[^(?:(?<birthname>[\w'-]+) )(?<patronym>(?<= )(?:son|daughter) of [\w '-]+)$]]></NameEntryRegex>
 </NameCulture>");
 		var hobbit = AddNameCulture("Hobbit", @"<NameCulture>  
 	<Counts>
@@ -359,7 +359,7 @@ Your patronym should be in the form 'son of x' or 'daughter of x'.]]></Element>
 		
 Tolken used surnames comprised on compound words and rural concepts for Hobbit family names. Examples include Brownlock, Sandheaver, Underhill, Whitfoot, Cotton, Farmer.]]></Element>
 	</Elements>  
-	<NameEntryRegex><![CDATA[^(?:(?<birthname>[w'-]+) )(?<surname>(?<= )[w '-]+)$]]></NameEntryRegex>
+	<NameEntryRegex><![CDATA[^(?:(?<birthname>[\w'-]+) )(?<surname>(?<= )[\w '-]+)$]]></NameEntryRegex>
 </NameCulture>
 ");
 		var orc = AddNameCulture("Orc", @"<NameCulture>  
@@ -377,7 +377,7 @@ Tolken used surnames comprised on compound words and rural concepts for Hobbit f
 	<Elements>
 		<Element Usage=""0"" MinimumCount=""1"" MaximumCount=""1"" Name=""Given Name""><![CDATA[Your given name is the name given to your by your parents, usually at your birth. It is the most common way of addressing you, although in more formal contexts you might also include your family name.]]></Element>
 	</Elements>  
-	<NameEntryRegex><![CDATA[^(?:(?<birthname>[w'-]+) )(?<surname>(?<= )[w '-]+)$]]></NameEntryRegex>
+	<NameEntryRegex><![CDATA[^(?<birthname>[\w'-]+)$]]></NameEntryRegex>
 </NameCulture>
 ");
 

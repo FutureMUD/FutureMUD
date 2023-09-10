@@ -252,7 +252,8 @@ public class InventoryPlanActionWield : InventoryPlanAction
 					(PrimaryItemSelector?.Invoke(x) ?? true) &&
 					x.IsItemType<IWieldable>() &&
 					CanWield(executor, x) &&
-					x.IsItemType<IHoldable>());
+					x.IsItemType<IHoldable>() &&
+					x.GetItemType<IHoldable>().IsHoldable);
 		foreach (var item in items)
 		{
 			var fitness = GetItemFitness(executor, item);

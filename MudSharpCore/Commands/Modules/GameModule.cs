@@ -1024,7 +1024,7 @@ You can also type 'forage' on its own to see what kinds of yields you can search
 				    (targetContainer.ContainedIn != null ||
 				     (targetContainer.IsItemType<IOpenable>() && !targetContainer.GetItemType<IOpenable>().IsOpen) ||
 				     !targetContainer.TrueLocations.Contains(actor.Location) ||
-				     newItems.Any(x => !x.IsItemType<IHoldable>())
+				     newItems.Any(x => !x.IsItemType<IHoldable>() || x.GetItemType<IHoldable>()?.IsHoldable == false)
 				    ))
 				{
 					targetContainer = null;

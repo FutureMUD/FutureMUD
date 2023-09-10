@@ -36,9 +36,11 @@ public class SimpleMaterialInput : BaseInput, ICraftInputConsumesGameItemGroup
 		var foundItems = new List<IGameItem>();
 		var returnItems = new List<IPerceivable>();
 		foreach (var item in character.DeepContextualItems.Except(character.Body.WornItems)
-		                              .Where(x => x.IsItemType<IHoldable>() &&
-		                                          (TargetMaterial == null || x.Material == TargetMaterial) &&
-		                                          (TargetMaterialTag == null || x.Material.IsA(TargetMaterialTag))))
+		                              .Where(x => 
+									  x.IsItemType<IHoldable>() &&
+									  x.GetItemType<IHoldable>().IsHoldable &&
+									  (TargetMaterial == null || x.Material == TargetMaterial) &&
+									  (TargetMaterialTag == null || x.Material.IsA(TargetMaterialTag))))
 		{
 			foundItems.Add(item);
 			if ((foundQuantity += item.Quantity) >= Quantity)
@@ -54,7 +56,7 @@ public class SimpleMaterialInput : BaseInput, ICraftInputConsumesGameItemGroup
 
 	public override bool IsInput(IPerceivable item)
 	{
-		return item is IGameItem gi && gi.IsItemType<IHoldable>() && gi.Quantity >= Quantity &&
+		return item is IGameItem gi && gi.IsItemType<IHoldable>() && gi.GetItemType<IHoldable>().IsHoldable && gi.Quantity >= Quantity &&
 		       (TargetMaterial == null || gi.Material == TargetMaterial) &&
 		       (TargetMaterialTag == null || gi.Material.IsA(TargetMaterialTag));
 	}

@@ -3336,7 +3336,7 @@ public partial class Body
 			return true;
 		}
 
-		if (existingItem.IsItemType<IHoldable>() && newItem.IsItemType<IHoldable>() &&
+		if (existingItem.IsItemType<IHoldable>() && newItem.IsItemType<IHoldable>() && newItem.GetItemType<IHoldable>().IsHoldable &&
 		    _heldItems.Any(x => x.Item1 == existingItem))
 		{
 			foreach (var loc in _heldItems.Where(x => x.Item1 == existingItem).ToList())

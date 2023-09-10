@@ -1941,7 +1941,7 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable
 
 	public ItemGetResponse CanGet(ItemCanGetIgnore ignoreFlags = ItemCanGetIgnore.None)
 	{
-		if (!IsItemType<IHoldable>())
+		if (!IsItemType<IHoldable>() || !GetItemType<IHoldable>().IsHoldable)
 		{
 			return ItemGetResponse.NotIHoldable;
 		}

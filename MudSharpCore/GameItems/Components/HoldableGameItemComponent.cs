@@ -47,7 +47,7 @@ public class HoldableGameItemComponent : GameItemComponent, IHoldable
 			return false;
 		}
 
-		var newItemHoldable = newItem?.GetItemType<HoldableGameItemComponent>();
+		var newItemHoldable = newItem?.GetItemType<IHoldable>();
 		if (newItemHoldable != null)
 		{
 			newItem.Get(HeldBy);
@@ -86,6 +86,8 @@ public class HoldableGameItemComponent : GameItemComponent, IHoldable
 	public string CurrentInventoryDescription { get; set; }
 
 	public IBody HeldBy { get; set; }
+
+	public bool IsHoldable => true;
 
 	#endregion
 }

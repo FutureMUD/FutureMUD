@@ -1241,7 +1241,7 @@ public partial class Cell : Location, IDisposable, ICell
 			foreach (var item in items[layer])
 			{
 				item.ExposeToLiquid(mixture, null, LiquidExposureDirection.Irrelevant);
-				if (!item.IsItemType<IHoldable>())
+				if (!item.IsItemType<IHoldable>() || !item.GetItemType<IHoldable>().IsHoldable)
 				{
 					continue;
 				}
@@ -1310,7 +1310,7 @@ public partial class Cell : Location, IDisposable, ICell
 		var items = GameItems.Select(x => (x.RoomLayer, x)).ToCollectionDictionary();
 		foreach (var item in items[RoomLayer.HighInTrees])
 		{
-			if (!item.IsItemType<IHoldable>())
+			if (!item.IsItemType<IHoldable>() || !item.GetItemType<IHoldable>().IsHoldable)
 			{
 				continue;
 			}
@@ -1325,7 +1325,7 @@ public partial class Cell : Location, IDisposable, ICell
 
 		foreach (var item in items[RoomLayer.InTrees])
 		{
-			if (!item.IsItemType<IHoldable>())
+			if (!item.IsItemType<IHoldable>() || !item.GetItemType<IHoldable>().IsHoldable)
 			{
 				continue;
 			}
@@ -1340,7 +1340,7 @@ public partial class Cell : Location, IDisposable, ICell
 
 		foreach (var item in items[RoomLayer.OnRooftops])
 		{
-			if (!item.IsItemType<IHoldable>())
+			if (!item.IsItemType<IHoldable>() || !item.GetItemType<IHoldable>().IsHoldable)
 			{
 				continue;
 			}

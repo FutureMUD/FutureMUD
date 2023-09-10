@@ -5,6 +5,7 @@ using MudSharp.Character;
 using MudSharp.Construction;
 using MudSharp.Construction.Boundary;
 using MudSharp.Economy;
+using MudSharp.Effects.Concrete;
 using MudSharp.Effects.Interfaces;
 using MudSharp.Events;
 using MudSharp.Form.Shape;
@@ -15,6 +16,7 @@ using MudSharp.PerceptionEngine;
 using MudSharp.PerceptionEngine.Outputs;
 using MudSharp.PerceptionEngine.Parsers;
 using MudSharp.RPG.Checks;
+using MudSharp.RPG.Law;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -169,6 +171,11 @@ namespace MudSharp.GameItems.Components
 			{
 				item.Login();
 			}
+
+			if (Shop is not null)
+			{
+				Shop.CurrentStall = this;
+			}
 		}
 
 		public override void Delete()
@@ -185,6 +192,11 @@ namespace MudSharp.GameItems.Components
 				_locks.Remove(item);
 				item.Parent.Delete();
 			}
+
+			if (Shop is not null)
+			{
+				Shop.CurrentStall = null;
+			}
 		}
 
 		public override void Quit()
@@ -197,6 +209,11 @@ namespace MudSharp.GameItems.Components
 			foreach (var item in Locks)
 			{
 				item.Quit();
+			}
+
+			if (Shop is not null)
+			{
+				Shop.CurrentStall = null;
 			}
 		}
 
@@ -265,6 +282,15 @@ namespace MudSharp.GameItems.Components
 							sb.AppendLineFormat("\t{0}", thelock.Parent.HowSeen(voyeur));
 						}
 					}
+					if (Shop is null)
+					{
+						sb.AppendLine("It has not been configured to serve any shop yet.");
+					}
+					else
+					{
+						sb.AppendLine($"It is serving the {Shop.Name.ColourName()} shop.");
+						sb.AppendLine($"It is {(IsTrading ? "currently" : "not currently")} trading.");
+					}
 					return sb.ToString();
 			}
 			return description;
@@ -305,6 +331,12 @@ namespace MudSharp.GameItems.Components
 
 		public override bool Die(IGameItem newItem, ICell location)
 		{
+			if (Shop is not null)
+			{
+				Shop.CurrentStall = null;
+				Shop = null;
+			}
+
 			var newItemLockable = newItem?.GetItemType<ILockable>();
 			if (newItemLockable != null)
 			{
@@ -491,7 +523,17 @@ namespace MudSharp.GameItems.Components
 			{
 				_contents.Remove(item);
 				item.ContainedIn = null;
-				return item;
+				if (!IsAllowedToInteract(taker))
+				{
+					CrimeExtensions.CheckPossibleCrimeAllAuthorities(taker, CrimeTypes.Theft, null, item, "shoplifting");
+				}
+				var newItem = item.Get(null, quantity);
+				if (!IsAllowedToInteract(taker))
+				{
+					CrimeExtensions.CheckPossibleCrimeAllAuthorities(taker, CrimeTypes.Theft, null, newItem, "shoplifting");
+				}
+
+				return newItem;
 			}
 
 			return item.Get(null, quantity);
@@ -502,6 +544,11 @@ namespace MudSharp.GameItems.Components
 			if (!IsOpen)
 			{
 				return WhyCannotGetContainerReason.ContainerClosed;
+			}
+
+			if (taker?.Account.ActLawfully == true && !IsAllowedToInteract(taker))
+			{
+				return WhyCannotGetContainerReason.UnlawfulAction;
 			}
 
 			return !_contents.Contains(item)
@@ -532,8 +579,14 @@ namespace MudSharp.GameItems.Components
 				}
 			}
 
+			var crime = !IsAllowedToInteract(emptier);
 			foreach (var item in contents)
 			{
+				if (crime)
+				{
+					CrimeExtensions.CheckPossibleCrimeAllAuthorities(emptier, CrimeTypes.Theft, null, item,
+						"shoplifting");
+				}
 				item.ContainedIn = null;
 				if (intoContainer != null)
 				{
@@ -570,6 +623,15 @@ namespace MudSharp.GameItems.Components
 			}
 
 			Changed = true;
+		}
+
+		private bool IsAllowedToInteract(ICharacter character)
+		{
+			if (Shop is null)
+			{
+				return true;
+			}
+			return Shop?.IsEmployee(character) != false;
 		}
 
 		#endregion
@@ -848,10 +910,20 @@ namespace MudSharp.GameItems.Components
 		private bool _isTrading = false;
 		public bool IsTrading
 		{
-			get => _isTrading; set
+			get => _isTrading; 
+			set
 			{
 				_isTrading = value;
 				Changed = true;
+				if (value)
+				{
+					Parent.RemoveAllEffects<ShopStallNoGetEffect>();
+					Parent.AddEffect(new ShopStallNoGetEffect(Parent));
+				}
+				else
+				{
+					Parent.RemoveAllEffects<ShopStallNoGetEffect>();
+				}
 			}
 		}
 #nullable restore

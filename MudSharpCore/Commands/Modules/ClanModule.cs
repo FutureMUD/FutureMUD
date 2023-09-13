@@ -154,11 +154,6 @@ All of the following commands must happen with an edited clan selected:
 	protected static void Clan(ICharacter actor, string command)
 	{
 		var ss = new StringStack(command.RemoveFirstWord());
-		if (string.IsNullOrEmpty(ss.Pop()))
-		{
-			Clans(actor, string.Empty);
-			return;
-		}
 
 		switch (ss.Last.ToLowerInvariant())
 		{
@@ -7243,6 +7238,27 @@ Your next payday is {3}.
 
 	private static void ClanRelease(ICharacter actor, StringStack command)
 	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("Which clan do you wish to submit to external control?");
+			return;
+		}
+
+		var clanText = command.PopSpeech();
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("Which appointment in that clan do you wish to submit to external control?");
+			return;
+		}
+
+		var appointmentText = command.PopSpeech();
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("Which other clan do you wish to submit control of that appointment to?");
+			return;
+		}
+
+		var otherClanText = command.PopSpeech();
 	}
 
 	private static void ClanMembers(ICharacter actor, StringStack command)

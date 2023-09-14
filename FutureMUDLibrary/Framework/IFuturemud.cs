@@ -297,13 +297,14 @@ namespace MudSharp.Framework
         IAccount TryAccount(Models.Account account);
         IAccount TryAccount(long accountid);
 		void PreloadAccounts();
+        void PreloadCharacterNames();
 
-        /// <summary>
-        ///     Send a text message to every player character in game who meets the criteria specified in the filter function
-        /// </summary>
-        /// <param name="message">The message to be sent</param>
-        /// <param name="filterFunc">The filter function to be applied to characters</param>
-        void SystemMessage(string message, Func<ICharacter, bool> filterFunc);
+		/// <summary>
+		///     Send a text message to every player character in game who meets the criteria specified in the filter function
+		/// </summary>
+		/// <param name="message">The message to be sent</param>
+		/// <param name="filterFunc">The filter function to be applied to characters</param>
+		void SystemMessage(string message, Func<ICharacter, bool> filterFunc);
 
         /// <summary>
         ///     Send a text message to every player character in game, with a filter for admin-only messages
@@ -457,7 +458,15 @@ namespace MudSharp.Framework
         /// <returns></returns>
         ICharacter TryGetCharacter(long id, bool useCachedValues = false);
 
-        IGameItem TryGetItem(Models.GameItem dbitem, bool addToGameworld);
+        /// <summary>
+        /// Tries to find a player character by personal name, and loads them if not found
+        /// </summary>
+        /// <param name="name"></param>
+        /// <returns></returns>
+        ICharacter TryPlayerCharacterByName(string name);
+
+
+		IGameItem TryGetItem(Models.GameItem dbitem, bool addToGameworld);
         IGameItem TryGetItem(long id, bool addToGameworld = false);
         void Destroy(ICrime crime);
         void Destroy(INPCSpawner spawner);

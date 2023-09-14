@@ -611,7 +611,7 @@ public class ShowModule : Module<ICharacter>
 			return;
 		}
 
-		actor.Gameworld.PreloadAccounts();
+		//actor.Gameworld.PreloadAccounts();
 		var accounts = actor.Gameworld.Accounts.ToList();
 		while (!ss.IsFinished)
 		{

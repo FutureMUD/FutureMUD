@@ -1,8 +1,12 @@
-﻿using MudSharp.Character;
+﻿using MudSharp.Accounts;
+using MudSharp.Character;
 using MudSharp.Database;
+using MudSharp.Effects.Concrete;
 using MudSharp.Framework;
 using MudSharp.Framework.Save;
 using MudSharp.FutureProg;
+using MudSharp.PerceptionEngine;
+using MudSharp.PerceptionEngine.Handlers;
 using Org.BouncyCastle.Asn1.Pkcs;
 using System;
 using System.Collections.Generic;
@@ -11,10 +15,57 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace MudSharp.RPG.ScriptedEvents;
-
+#nullable enable
 internal class ScriptedEvent : SaveableItem, IScriptedEvent
 {
 	public override string FrameworkItemType => "ScriptedEvent";
+
+	private Models.ScriptedEvent CloneEventForAutoAssign(ICharacter? character)
+	{
+		using (new FMDB())
+		{
+			var dbitem = new Models.ScriptedEvent
+			{
+				Name = Name,
+				CharacterId = _characterId,
+				IsTemplate = false,
+				IsReady = true,
+				IsFinished = false,
+				EarliestDate = EarliestDate,
+				CharacterFilterProgId = null
+			};
+			FMDB.Context.ScriptedEvents.Add(dbitem);
+
+			foreach (var question in MultipleChoiceQuestions)
+			{
+				var dbquestion = new Models.ScriptedEventMultipleChoiceQuestion
+				{
+					ScriptedEvent = dbitem,
+					Question = question.Question,
+				};
+				dbitem.MultipleChoiceQuestions.Add(dbquestion);
+
+				foreach (var answer in question.Answers)
+				{
+					dbquestion.Answers.Add(new Models.ScriptedEventMultipleChoiceQuestionAnswer
+					{
+						ScriptedEventMultipleChoiceQuestion = dbquestion,
+						DescriptionAfterChoice = answer.DescriptionAfterChoice,
+						DescriptionBeforeChoice = answer.DescriptionBeforeChoice,
+						AnswerFilterProgId = answer.AnswerFilterProg?.Id,
+						AfterChoiceProgId = answer.AfterChoiceProg?.Id
+					});
+				}
+			}
+
+			foreach (var question in FreeTextQuestions)
+			{
+				dbitem.FreeTextQuestions.Add(new Models.ScriptedEventFreeTextQuestion { ScriptedEvent = dbitem, Question = question.Question });
+			}
+
+			return dbitem;
+		}
+		}
 
 	protected ScriptedEvent(ScriptedEvent rhs, ICharacter? character)
 	{
@@ -73,7 +124,7 @@ internal class ScriptedEvent : SaveableItem, IScriptedEvent
 			_id = dbitem.Id;
 			foreach (var dbquestion in dbitem.MultipleChoiceQuestions)
 			{
-				// _multipleChoiceQuestions.Add
+				_multipleChoiceQuestions.Add(new ScriptedEventMultipleChoiceQuestion(dbquestion, Gameworld));
 			}
 			foreach (var dbquestion in dbitem.FreeTextQuestions)
 			{
@@ -101,7 +152,7 @@ internal class ScriptedEvent : SaveableItem, IScriptedEvent
 
 		foreach (var question in dbitem.MultipleChoiceQuestions)
 		{
-			// Add
+			_multipleChoiceQuestions.Add(new ScriptedEventMultipleChoiceQuestion(question, Gameworld));
 		}
 	}
 
@@ -179,14 +230,546 @@ internal class ScriptedEvent : SaveableItem, IScriptedEvent
 		return item;
 	}
 
+	public void Delete()
+	{
+		Gameworld.SaveManager.Abort(this);
+		if (_id != 0)
+		{
+			using (new FMDB())
+			{
+				Gameworld.SaveManager.Flush();
+				var dbitem = FMDB.Context.ScriptedEvents.Find(Id);
+				if (dbitem != null)
+				{
+					FMDB.Context.ScriptedEvents.Remove(dbitem);
+					FMDB.Context.SaveChanges();
+				}
+			}
+		}
+	}
+
+	public const string BuildingHelpText = @"You can use the following options with this command:
+
+	#3name <name>#0 - gives a name to this event
+	#3earliest <date>#0 - sets the earliest time this event can fire
+	#3character <name|id>#0 - sets this event as assigned to a character
+	#3ready#0 - toggles this event being ready to be fire
+	#3template#0 - toggles this event being a template for other events
+	#3filter <prog>#0 - sets a prog as a filter for auto assigning
+	#3autoassign#0 - automatically assigned clones of this event to all matching PCs
+	#3addfree#0 - drops you into an editor to enter the text of a new free text question
+	#3addmulti#0 - drops you into an editor to enter the text of a new multiple choice question
+	#3remfree <##>#0 - removes a free text question
+	#3remmulti <##>#0 - removes a multiple choice question
+	#3free <##>#0 - shows detailed information about a free text question
+	#3free <##> question#0 - edits the question text
+	#3multi <##>#0 - shows detailed information about a multi choice question
+	#3multi <##> question#0 - edits the question text
+	#3multi <##> question <##> question#0 - edit the question text
+	#3multi <##> question <##> addanswer#0 - adds a new answer
+	#3multi <##> question <##> removeanswer <##>#0 - removes an answer
+	#3multi <##> question <##> answer <##>#0 - shows detailed information about an answer
+	#3multi <##> question <##> answer <##> before#0 - edits the before text of an answer
+	#3multi <##> question <##> answer <##> after#0 - edits the after text of an answer
+	#3multi <##> question <##> answer <##> filter <prog>#0 - edits the filter prog of an answer
+	#3multi <##> question <##> answer <##> choice <prog>#0 - edits the on choice prog of an answer";
+
 	public bool BuildingCommand(ICharacter actor, StringStack command)
 	{
 		switch (command.PopSpeech().ToLowerInvariant().CollapseString())
 		{
-
+			case "name":
+				return BuildingCommandName(actor, command);
+			case "template":
+				return BuildingCommandTemplate(actor);
+			case "earliest":
+			case "early":
+			case "date":
+			case "earliestdate":
+			case "eventdate":
+				return BuildingCommandEarliestDate(actor, command);
+			case "ready":
+			case "isready":
+				return BuildingCommandIsReady(actor);
+			case "prog":
+			case "filter":
+			case "filterprog":
+			case "progfilter":
+				return BuildingCommandFilterProg(actor, command);
+			case "character":
+			case "char":
+			case "person":
+			case "who":
+				return BuildingCommandCharacter(actor, command);
+			case "assign":
+			case "autoassign":
+				return BuildingCommandAutoAssign(actor);
+			case "question":
+				return BuildingCommandQuestion(actor, command);
+			default:
+				actor.OutputHandler.Send(BuildingHelpText.SubstituteANSIColour());
+				break;
 		}
 
 		return false;
+	}
+
+	private bool BuildingCommandQuestion(ICharacter actor, StringStack command)
+	{
+		if (IsReady)
+		{
+			actor.OutputHandler.Send("Ready scripted events cannot have their questions edited.");
+			return false;
+		}
+
+		switch (command.PopSpeech().ToLowerInvariant().CollapseString())
+		{
+			case "addfree":
+				return BuildingCommandAddFreeQuestion(actor, command);
+			case "addmulti":
+				return BuildingCommandAddMultiQuestion(actor, command);
+			case "remfree":
+			case "delfree":
+			case "deletefree":
+			case "removefree":
+				return BuildingCommandRemoveFreeTextQuestion(actor, command);
+			case "remmulti":
+			case "delmulti":
+			case "removemulti":
+			case "deletemulti":
+				return BuildingCommandRemoveMultiQuestion(actor, command);
+		}
+
+		switch (command.Last.ToLowerInvariant().CollapseString())
+		{
+			case "text":
+				if (command.IsFinished)
+				{
+					actor.OutputHandler.Send("Which text question do you want to edit?");
+					return false;
+				}
+
+				if (!int.TryParse(command.PopSpeech(), out var index) || index < 1 || index > _freeTextQuestions.Count)
+				{
+					actor.OutputHandler.Send($"You must enter a valid free text question number between {1.ToString("N0", actor).ColourValue()} and {_freeTextQuestions.Count.ToString("N0", actor).ColourValue()}.");
+					return false;
+				}
+
+				if (command.IsFinished)
+				{
+					_freeTextQuestions.ElementAt(index - 1).Show(actor);
+					return true;
+				}
+				_freeTextQuestions.ElementAt(index - 1).BuildingCommand(actor, command);
+				return true;
+			case "multi":
+				if (command.IsFinished)
+				{
+					actor.OutputHandler.Send("Which multiple choice question do you want to edit?");
+					return false;
+				}
+
+				if (!int.TryParse(command.PopSpeech(), out index) || index < 1 || index > _multipleChoiceQuestions.Count)
+				{
+					actor.OutputHandler.Send($"You must enter a valid multiple choice text question number between {1.ToString("N0", actor).ColourValue()} and {_multipleChoiceQuestions.Count.ToString("N0", actor).ColourValue()}.");
+					return false;
+				}
+
+				if (command.IsFinished)
+				{
+					_multipleChoiceQuestions.ElementAt(index - 1).Show(actor);
+					return true;
+				}
+				_multipleChoiceQuestions.ElementAt(index - 1).BuildingCommand(actor, command);
+				return true;
+		}
+
+		actor.OutputHandler.Send(BuildingHelpText.SubstituteANSIColour());
+		return false;
+	}
+
+	private bool BuildingCommandRemoveMultiQuestion(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("Which multiple choice question do you want to remove?");
+			return false;
+		}
+
+		if (!int.TryParse(command.PopSpeech(), out var index) || index < 1 || index > _freeTextQuestions.Count)
+		{
+			actor.OutputHandler.Send($"You must enter a valid multiple choice text question number between {1.ToString("N0", actor).ColourValue()} and {_freeTextQuestions.Count.ToString("N0", actor).ColourValue()}.");
+			return false;
+		}
+
+		var question = _multipleChoiceQuestions.ElementAt(index - 1);
+		_multipleChoiceQuestions.Remove(question);
+		question.Delete();
+		actor.OutputHandler.Send($"You delete the {index.ToOrdinal().ColourValue()} multiple choice question.");
+		return true;
+	}
+
+	private bool BuildingCommandAddFreeQuestion(ICharacter actor, StringStack command)
+	{
+		actor.OutputHandler.Send("Enter the text that will be shown to the player in the editor below.");
+		actor.EditorMode(AddFreeQuestionPost, AddFreeQuestionCancel, 1.0, suppliedArguments: new object[] { actor });
+		return true;
+	}
+
+	private void AddFreeQuestionCancel(IOutputHandler handler, object[] args)
+	{
+		handler.Send("You decide not to create a new question.");
+	}
+
+	private void AddFreeQuestionPost(string text, IOutputHandler handler, object[] args)
+	{
+		var newQuestion = new ScriptedEventFreeTextQuestion(this, text);
+		_freeTextQuestions.Add(newQuestion);
+		handler.Send($"You add a new free text question at position {_freeTextQuestions.Count.ToString("N0", ((ICharacter)args[0])).ColourValue()}.");
+	}
+
+	private bool BuildingCommandAddMultiQuestion(ICharacter actor, StringStack command)
+	{
+		actor.OutputHandler.Send("Enter the text that will be shown to the player in the editor below.");
+		actor.EditorMode(AddMultiQuestionPost, AddMultiQuestionCancel, 1.0);
+		return true;
+	}
+
+	private void AddMultiQuestionCancel(IOutputHandler handler, object[] args)
+	{
+		handler.Send("You decide not to create a new question.");
+	}
+
+	private void AddMultiQuestionPost(string text, IOutputHandler handler, object[] args)
+	{
+		var newQuestion = new ScriptedEventMultipleChoiceQuestion(this, text);
+		_multipleChoiceQuestions.Add(newQuestion);
+		handler.Send($"You add a new multiple choice question at position {_multipleChoiceQuestions.Count.ToString("N0", ((ICharacter)args[0])).ColourValue()}.");
+	}
+
+	private bool BuildingCommandRemoveFreeTextQuestion(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("Which free text question do you want to remove?");
+			return false;
+		}
+
+		if (!int.TryParse(command.PopSpeech(), out var index) || index < 1 || index > _freeTextQuestions.Count)
+		{
+			actor.OutputHandler.Send($"You must enter a valid free text text question number between {1.ToString("N0", actor).ColourValue()} and {_freeTextQuestions.Count.ToString("N0", actor).ColourValue()}.");
+			return false;
+		}
+
+		var question = _freeTextQuestions.ElementAt(index - 1);
+		_freeTextQuestions.Remove(question);
+		question.Delete();
+		actor.OutputHandler.Send($"You delete the {index.ToOrdinal().ColourValue()} free text question.");
+		return true;
+	}
+
+	private bool BuildingCommandAutoAssign(ICharacter actor)
+	{
+		if (!IsTemplate)
+		{
+			actor.OutputHandler.Send("Only templates can be auto assigned.");
+			return false;
+		}
+
+		if (CharacterFilterProg is null)
+		{
+			actor.OutputHandler.Send("You must set a valid filter prog before auto assigning this scripted event template.");
+			return false;
+		}
+
+		if (!FreeTextQuestions.Any() && !MultipleChoiceQuestions.Any())
+		{
+			actor.OutputHandler.Send("You must have at least one free text or multiple choice question before auto assigning this template.");
+			return false;
+		}
+
+		// Make sure all the offline characters are loaded
+		var loadedPCs = new List<ICharacter>();
+		var onlinePCIDs = actor.Gameworld.Characters.Select(x => x.Id).ToHashSet();
+		using (new FMDB())
+		{
+			var PCsToLoad =
+				FMDB.Context.Characters.Where(
+						x => !x.NpcsCharacter.Any() && x.Guest == null && !onlinePCIDs.Contains(x.Id) &&
+							 (x.Status == (int)CharacterStatus.Active ||
+							  x.Status == (int)CharacterStatus.Retired))
+					.OrderBy(x => x.Id);
+			var i = 0;
+			while (true)
+			{
+				var any = false;
+				foreach (var pc in PCsToLoad.Skip(i++ * 10).Take(10).ToList())
+				{
+					any = true;
+					var character = actor.Gameworld.TryGetCharacter(pc.Id, true);
+					character.Register(new NonPlayerOutputHandler());
+					loadedPCs.Add(character);
+					actor.Gameworld.Add(character, false);
+				}
+
+				if (!any)
+				{
+					break;
+				}
+			}
+		}
+
+		var targets = actor.Gameworld.Characters.Where(x => CharacterFilterProg.Execute<bool?>(x) == true).ToList();
+		if (!targets.Any())
+		{
+			actor.OutputHandler.Send("The character filter prog did not return any valid targets.");
+			return false;
+		}
+
+		var sb = new StringBuilder();
+		sb.AppendLine($"The following characters will have this scripted event assigned:");
+		sb.AppendLine();
+		sb.AppendLine(StringUtilities.GetTextTable(
+			from ch in targets select new List<string>
+			{
+				ch.Id.ToString("N0", actor),
+				ch.PersonalName.GetName(MudSharp.Character.Name.NameStyle.FullWithNickname),
+				ch.HowSeen(actor, flags: PerceiveIgnoreFlags.IgnoreCanSee | PerceiveIgnoreFlags.IgnoreSelf | PerceiveIgnoreFlags.IgnoreLoadThings)
+			},
+			new List<string>
+			{
+				"Id",
+				"Name",
+				"Description"
+			},
+			actor,
+			Telnet.Green
+		));
+		sb.AppendLine($"Are you sure you want to proceed?");
+		sb.AppendLine(Accept.StandardAcceptPhrasing);
+
+		actor.OutputHandler.Send(sb.ToString());
+		actor.AddEffect(new Accept(actor, new GenericProposal 
+		{ 
+			AcceptAction = text => {
+				using (new FMDB())
+				{
+					var events = new List<Models.ScriptedEvent>();
+					foreach (var ch in targets)
+					{
+						events.Add(CloneEventForAutoAssign(ch));
+					}
+					FMDB.Context.SaveChanges();
+					foreach (var newEvent in events)
+					{
+						Gameworld.Add(new ScriptedEvent(newEvent, Gameworld));
+					}
+				}
+
+				actor.OutputHandler.Send($"Successfully assigned the scripted event to {targets.Count.ToString("N0", actor).ColourValue()} {"character".Pluralise(targets.Count != 1)}.");
+			},
+			RejectAction = text => {
+				actor.OutputHandler.Send("You decide not to apply the scripted event to any characters.");
+			},
+			ExpireAction = () => {
+				actor.OutputHandler.Send("You decide not to apply the scripted event to any characters.");
+			},
+			DescriptionString = "Applying a scripted event to characters"
+		}), TimeSpan.FromSeconds(120));
+		return true;
+	}
+
+	private bool BuildingCommandCharacter(ICharacter actor, StringStack command)
+	{
+		if (IsTemplate)
+		{
+			actor.OutputHandler.Send("Templates cannot be assigned to characters. Clone the scripted event and assign that to someone instead.");
+			return false;
+		}
+
+		if (IsFinished)
+		{
+			actor.OutputHandler.Send("You can't reassign finished scripted events.");
+			return false;
+		}
+
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("Which character do you want to assign this scripted event to?");
+			return false;
+		}
+
+		ICharacter? target;
+		if (long.TryParse(command.SafeRemainingArgument, out var id))
+		{
+			target = Gameworld.TryGetCharacter(id, true);
+			if (target is null)
+			{
+				actor.OutputHandler.Send("There is no such character with that id.");
+				return false;
+			}
+		}
+		else
+		{
+			target = Gameworld.TryPlayerCharacterByName(command.SafeRemainingArgument);
+			if (target is null)
+			{
+				actor.OutputHandler.Send("There is no such character by that name.");
+				return false;
+			}
+		}
+
+		if (target.Status.In(Accounts.CharacterStatus.Suspended, Accounts.CharacterStatus.Deceased))
+		{
+			actor.OutputHandler.Send("You can't assign scripted events to suspended or deceased characters.");
+			return false;
+		}
+
+		_character = target;
+		_characterId = target.Id;
+		Changed = true;
+		actor.OutputHandler.Send($"This scripted event is now assigned to {target.PersonalName.GetName(MudSharp.Character.Name.NameStyle.FullWithNickname).ColourName()} ({target.HowSeen(actor, flags: PerceiveIgnoreFlags.IgnoreCanSee | PerceiveIgnoreFlags.IgnoreSelf)}).");
+		return true;
+	}
+
+	private bool BuildingCommandFilterProg(ICharacter actor, StringStack command)
+	{
+		if (!IsTemplate)
+		{
+			actor.OutputHandler.Send("Only template scripted events may have a filter prog assigned.");
+			return false;
+		}
+
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("Which prog should be used to automatically assign this scripted event to characters?");
+			return false;
+		}
+
+		var prog = new FutureProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument, FutureProgVariableTypes.Boolean, new List<FutureProgVariableTypes> { FutureProgVariableTypes.Character }).LookupProg();
+		if (prog is null)
+		{
+			return false;
+		}
+
+		CharacterFilterProg = prog;
+		Changed = true;
+		actor.OutputHandler.Send($"This scripted event template will now use the {prog.MXPClickableFunctionName()} prog to assign to characters.");
+		return true;
+	}
+
+	private bool BuildingCommandIsReady(ICharacter actor)
+	{
+		if (IsReady)
+		{
+			if (IsFinished && !IsTemplate)
+			{
+				actor.OutputHandler.Send("You cannot unready a finished non-template scripted event.");
+				return false;
+			}
+
+			IsReady = false;
+			Changed = true;
+			actor.OutputHandler.Send("This scripted event is no longer ready.");
+			return true;
+		}
+
+		if (IsTemplate)
+		{
+			actor.OutputHandler.Send("You cannot make templates ready. Clone a scripted event and assign it to a character.");
+			return false;
+		}
+
+		if (Character is null)
+		{
+			actor.OutputHandler.Send("You must first assign the scripted event to a character.");
+			return false;
+		}
+
+		if (!FreeTextQuestions.Any() && !MultipleChoiceQuestions.Any())
+		{
+			actor.OutputHandler.Send("You must have at least one question per scripted event.");
+			return false;
+		}
+
+		if (MultipleChoiceQuestions.Any(x => !x.Answers.Any()))
+		{
+			actor.OutputHandler.Send("All multiple choice questions need to have at least one answer.");
+			return false;
+		}
+
+		IsReady = true;
+		Changed = true;
+		actor.OutputHandler.Send("This scripted event is now ready and will be triggered when appropriate.");
+		return true;
+	}
+
+	private bool BuildingCommandEarliestDate(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("What date should this scripted event wait for before executing?");
+			return false;
+		}
+
+		if (!DateTime.TryParse(command.SafeRemainingArgument, out var dt))
+		{
+			actor.OutputHandler.Send("That is not a valid date.");
+			return false;
+		}
+
+		var now = DateTime.UtcNow;
+		dt = dt.ToUniversalTime();
+		if (dt < now)
+		{
+			dt = now;
+		}
+
+		EarliestDate = dt;
+		Changed = true;
+		actor.OutputHandler.Send($"This scripted event will no fire no earlier than {(dt == now ? "right now".ColourValue() : dt.GetLocalDateString(actor, true).ColourValue())}.");
+		return true;
+	}
+
+	private bool BuildingCommandTemplate(ICharacter actor)
+	{
+		if (IsTemplate)
+		{
+			IsTemplate = false;
+			Changed = true;
+			actor.OutputHandler.Send($"This scripted event is no longer a template.");
+			return true;
+		}
+
+		if (Character is not null)
+		{
+			var newTemplate = new ScriptedEvent(this, null);
+			newTemplate.IsTemplate = true;
+			Gameworld.Add(newTemplate);
+			actor.RemoveAllEffects<BuilderEditingEffect<IScriptedEvent>>();
+			actor.AddEffect(new BuilderEditingEffect<IScriptedEvent>(actor) { EditingItem = newTemplate });
+			actor.OutputHandler.Send($"You create a new scripted event template from the scripted event you were editing, with new ID #{newTemplate.Id.ToString("N0", actor)}. You are now editing the new scripted event.");
+			return true;
+		}
+
+		IsTemplate = true;
+		Changed = true;
+		actor.OutputHandler.Send($"This scripted event is now a template.");
+		return true;
+	}
+
+	private bool BuildingCommandName(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("What name do you want to give to this scripted event?");
+			return false;
+		}
+
+		_name = command.SafeRemainingArgument.TitleCase();
+		Changed = true;
+		actor.OutputHandler.Send($"You rename this scripted event to {Name.ColourName()}.");
+		return true;
 	}
 
 	public string Show(ICharacter actor)
@@ -288,6 +871,10 @@ internal class ScriptedEvent : SaveableItem, IScriptedEvent
 	public override void Save()
 	{
 		var dbitem = FMDB.Context.ScriptedEvents.Find(Id);
+		if (dbitem is null)
+		{
+			throw new ApplicationException($"ScriptedEvent {Id:N0} Named \"{Name}\" could not find itself in the database during save.");
+		}
 		dbitem.Name = Name;
 		dbitem.IsReady = IsReady;
 		dbitem.IsFinished = IsFinished;

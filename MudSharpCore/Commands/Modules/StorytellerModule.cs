@@ -3509,7 +3509,44 @@ The following syntax is used with this command:
 	#3scriptedevent set ready#0 - declares an event ready
 	#3scriptedevent set earliest <date>#0 - declares that the event can't start until the date
 	#3scriptedevent set template#0 - changes an event into an event template
-	#3scriptedevent set filter <prog>#0 - sets ";
+	#3scriptedevent set name <name>#0 - gives a name to this event
+	#3scriptedevent set earliest <date>#0 - sets the earliest time this event can fire
+	#3scriptedevent set character <name|id>#0 - sets this event as assigned to a character
+	#3scriptedevent set ready#0 - toggles this event being ready to be fire
+	#3scriptedevent set template#0 - toggles this event being a template for other events
+	#3scriptedevent set filter <prog>#0 - sets a prog as a filter for auto assigning
+	#3scriptedevent set autoassign#0 - automatically assigned clones of this event to all matching PCs
+	#3scriptedevent set addfree#0 - drops you into an editor to enter the text of a new free text question
+	#3scriptedevent set addmulti#0 - drops you into an editor to enter the text of a new multiple choice question
+	#3scriptedevent set remfree <##>#0 - removes a free text question
+	#3scriptedevent set remmulti <##>#0 - removes a multiple choice question
+	#3scriptedevent set free <##>#0 - shows detailed information about a free text question
+	#3scriptedevent set free <##> question#0 - edits the question text
+	#3scriptedevent set multi <##>#0 - shows detailed information about a multi choice question
+	#3scriptedevent set multi <##> question#0 - edits the question text
+	#3scriptedevent set multi <##> question <##> question#0 - edit the question text
+	#3scriptedevent set multi <##> question <##> addanswer#0 - adds a new answer
+	#3scriptedevent set multi <##> question <##> removeanswer <##>#0 - removes an answer
+	#3scriptedevent set multi <##> question <##> answer <##>#0 - shows detailed information about an answer
+	#3scriptedevent set multi <##> question <##> answer <##> before#0 - edits the before text of an answer
+	#3scriptedevent set multi <##> question <##> answer <##> after#0 - edits the after text of an answer
+	#3scriptedevent set multi <##> question <##> answer <##> filter <prog>#0 - edits the filter prog of an answer
+	#3scriptedevent set multi <##> question <##> answer <##> choice <prog>#0 - edits the on choice prog of an answer
+
+Filters for list:
+
+	#Bfinished#0 - only show finished events
+	#B!finished#0 - don't show finished events
+	#Bready#0 - only show ready events
+	#B!ready#0 - don't show ready events
+	#Btemplate#0 - only show template events
+	#B!template#0 - don't show template events
+	#Bassigned#0 - only show assigned events
+	#B!assigned#0 - don't show assigned events
+	#B+<keyword>#0 - events with name containing the keyword
+	#B-<keyword>#0 - events with name NOT containing the keyword
+	#B*<id>#0 - events assigned to character with specified id
+	#B*<name>#0 - events assigned to character with specified name";
 
 	[PlayerCommand("ScriptedEvent", "scriptedevent", "sevent")]
 	[CommandPermission(PermissionLevel.JuniorAdmin)]
@@ -3767,7 +3804,7 @@ The following syntax is used with this command:
 				continue;
 			}
 
-			if (ss.Last.StartsWith("+") && ss.Last.Length > 1)
+			if (ss.Last.StartsWith("*") && ss.Last.Length > 1)
 			{
 				if (long.TryParse(substrText, out var id))
 				{

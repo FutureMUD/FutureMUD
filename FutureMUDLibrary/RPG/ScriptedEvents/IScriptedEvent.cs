@@ -13,6 +13,7 @@ namespace MudSharp.RPG.ScriptedEvents;
 #nullable enable
 public interface IScriptedEvent : IFrameworkItem, ISaveable, IEditableItem
 {
+	void Delete();
 	ICharacter? Character { get; }
 	IFutureProg? CharacterFilterProg { get; }
 	bool IsReady { get; }
@@ -29,12 +30,14 @@ public interface IScriptedEvent : IFrameworkItem, ISaveable, IEditableItem
 
 public interface IScriptedEventFreeTextQuestion : IFrameworkItem, ISaveable, IEditableItem
 {
+	void Delete();
 	string Question { get; }
 	string Answer { get; }
 }
 
 public interface IScriptedEventMultipleChoiceQuestion : IFrameworkItem, ISaveable, IEditableItem
 {
+	void Delete();
 	string Question { get; }
 	IScriptedEventMultipleChoiceQuestionAnswer? ChosenAnswer { get; }
 	IEnumerable<IScriptedEventMultipleChoiceQuestionAnswer> Answers { get; }
@@ -42,6 +45,7 @@ public interface IScriptedEventMultipleChoiceQuestion : IFrameworkItem, ISaveabl
 
 public interface IScriptedEventMultipleChoiceQuestionAnswer : IFrameworkItem, ISaveable, IEditableItem
 {
+	void Delete();
 	string DescriptionBeforeChoice { get; }
 	string DescriptionAfterChoice { get; }
 	IFutureProg? AnswerFilterProg { get; }

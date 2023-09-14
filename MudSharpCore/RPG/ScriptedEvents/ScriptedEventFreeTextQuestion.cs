@@ -3,6 +3,7 @@ using MudSharp.Database;
 using MudSharp.Framework;
 using MudSharp.Framework.Save;
 using MudSharp.Migrations;
+using MudSharp.PerceptionEngine;
 using System;
 using System.Text;
 
@@ -39,6 +40,24 @@ internal class ScriptedEventFreeTextQuestion : SaveableItem, IScriptedEventFreeT
 		}
 	}
 
+	public void Delete()
+	{
+		Gameworld.SaveManager.Abort(this);
+		if (_id != 0)
+		{
+			using (new FMDB())
+			{
+				Gameworld.SaveManager.Flush();
+				var dbitem = FMDB.Context.ScriptedEventFreeTextQuestions.Find(Id);
+				if (dbitem != null)
+				{
+					FMDB.Context.ScriptedEventFreeTextQuestions.Remove(dbitem);
+					FMDB.Context.SaveChanges();
+				}
+			}
+		}
+	}
+
 	public override void Save()
 	{
 		var dbitem = FMDB.Context.ScriptedEventFreeTextQuestions.Find(Id);
@@ -53,7 +72,33 @@ internal class ScriptedEventFreeTextQuestion : SaveableItem, IScriptedEventFreeT
 
 	public bool BuildingCommand(ICharacter actor, StringStack command)
 	{
-		throw new NotImplementedException();
+		switch(command.PopSpeech().ToLowerInvariant().CollapseString())
+		{
+			case "question":
+				return BuildingCommandQuestion(actor);
+		}
+
+		actor.OutputHandler.Send("The only valid option to use when editing free text questions is #3question#0.".SubstituteANSIColour());
+		return false;
+	}
+
+	private bool BuildingCommandQuestion(ICharacter actor)
+	{
+		actor.OutputHandler.Send($"Replacing:\n\n{Question.SubstituteANSIColour().Wrap(actor.InnerLineFormatLength)}\n\nEnter the question in the editor below:");
+		actor.EditorMode(QuestionPost, QuestionCancel, 1.0);
+		return true;
+	}
+
+	private void QuestionCancel(IOutputHandler handler, object[] arg2)
+	{
+		handler.Send("You decide not to change the question.");
+	}
+
+	private void QuestionPost(string text, IOutputHandler handler, object[] arg3)
+	{
+		Question = text;
+		Changed = true;
+		handler.Send("You change the question text.");
 	}
 
 	public string Show(ICharacter actor)

@@ -565,6 +565,8 @@ public sealed partial class Futuremud : IDisposable
 		}
 	}
 
+	private readonly List<CharacterPersonalNameLookup> _cachedPersonalNames = new();
+
 	#endregion
 
 	#region Game-level InventoryPlans

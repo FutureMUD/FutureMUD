@@ -367,7 +367,8 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 				var method = type.GetMethod("SetupCombat", BindingFlags.Static | BindingFlags.Public);
 				method?.Invoke(null, new object[] { this });
 			}
-
+			PreloadAccounts();
+			PreloadCharacterNames();
 #if DEBUG
 			sqlwriter.Close();
 #endif

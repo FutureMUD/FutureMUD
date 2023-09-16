@@ -41,6 +41,19 @@ public abstract class CharacterLoginMenu : Menu
 			startingLocation?.OnCommenceProg?.Execute(Character);
 		}
 
+		if (InvalidCharacteristicsMenu.IsRequired(Character))
+		{
+			_nextContext = new InvalidCharacteristicsMenu(Character, firstTime);
+			return;
+		}
+
+		var scriptedEvents = Gameworld.ScriptedEvents.Where(x => x.IsReady && !x.IsFinished && x.Character == Character).ToList();
+		if (scriptedEvents.Any())
+		{
+			_nextContext = new ScriptedEventMenu(Character, scriptedEvents.First(), firstTime);
+			return;
+		}
+
 		if (Character.Location != null)
 		{
 			Character.Location.Login(Character);
@@ -48,12 +61,6 @@ public abstract class CharacterLoginMenu : Menu
 		else
 		{
 			Gameworld.Cells.First().Login(Character);
-		}
-
-		if (InvalidCharacteristicsMenu.IsRequired(Character))
-		{
-			_nextContext = new InvalidCharacteristicsMenu(Character, firstTime);
-			return;
 		}
 
 		_nextContext = Character;

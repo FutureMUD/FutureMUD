@@ -1,9 +1,11 @@
 ﻿using System;
+using System.Collections;
 using MudSharp.Framework;
 using MudSharp.PerceptionEngine;
 
-namespace MudSharp.Editor {
-    public class EditorController : IControllable {
+namespace MudSharp.Editor;
+
+public class EditorController : IControllable {
         private readonly IEditor _editor;
         private readonly IControllable _originalController;
 
@@ -51,7 +53,7 @@ namespace MudSharp.Editor {
 
         public bool ExecuteCommand(string command) {
             _editor.HandleCommand(command);
-            if ((_editor.Status == EditorStatus.Cancelled) || (_editor.Status == EditorStatus.Submitted)) {
+            if ((_editor.Status == EditorStatus.Cancelled || _editor.Status == EditorStatus.Submitted) && NextContext is null) {
                 NextContext = _originalController;
             }
 
@@ -75,4 +77,3 @@ namespace MudSharp.Editor {
 
         #endregion
     }
-}

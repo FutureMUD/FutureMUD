@@ -70,6 +70,12 @@ internal class ScriptedEventFreeTextQuestion : SaveableItem, IScriptedEventFreeT
 	public string Question { get; private set; }
 	public string Answer { get; private set; }
 
+	public void SetAnswer(string answer)
+	{
+		Answer = answer;
+		Changed = true;
+	}
+
 	public bool BuildingCommand(ICharacter actor, StringStack command)
 	{
 		switch(command.PopSpeech().ToLowerInvariant().CollapseString())

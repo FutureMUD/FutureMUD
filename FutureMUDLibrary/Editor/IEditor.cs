@@ -10,5 +10,6 @@ namespace MudSharp.Editor {
 
     public interface IEditor : IHandleCommands, IHandleOutput {
         EditorStatus Status { get; }
+        string FinalText { get; }
     }
 }

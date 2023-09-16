@@ -27,7 +27,7 @@ internal class ScriptedEvent : SaveableItem, IScriptedEvent
 			var dbitem = new Models.ScriptedEvent
 			{
 				Name = Name,
-				CharacterId = _characterId,
+				CharacterId = character?.Id,
 				IsTemplate = false,
 				IsReady = true,
 				IsFinished = false,
@@ -223,6 +223,59 @@ internal class ScriptedEvent : SaveableItem, IScriptedEvent
 		return item;
 	}
 
+	public void SetFinished()
+	{
+		IsFinished = true;
+		using (new FMDB())
+		{
+			var sb = new StringBuilder();
+			sb.AppendLine($"{Character!.PersonalName.GetName(MudSharp.Character.Name.NameStyle.FullName).ColourName()} had the {Name.ColourValue()} offline event.");
+			var i = 1;
+			foreach (var multi in _multipleChoiceQuestions)
+			{
+				sb.AppendLine();
+				sb.AppendLine($"Question #{i++.ToString("N0", Character)}".GetLineWithTitle(Character.InnerLineFormatLength, Character.Account.UseUnicode, Telnet.Cyan, Telnet.BoldWhite));
+				sb.AppendLine();
+				sb.AppendLine(multi.Question.SubstituteANSIColour().Wrap(Character.InnerLineFormatLength));
+				sb.AppendLine();
+				sb.AppendLine($"Answered".GetLineWithTitle(Character.InnerLineFormatLength, Character.Account.UseUnicode, Telnet.BoldCyan, Telnet.BoldWhite));
+				sb.AppendLine();
+				sb.AppendLine(multi.ChosenAnswer!.DescriptionBeforeChoice.SubstituteANSIColour().Wrap(Character.InnerLineFormatLength));
+				sb.AppendLine();
+				sb.AppendLine($"Result".GetLineWithTitle(Character.InnerLineFormatLength, Character.Account.UseUnicode, Telnet.BoldCyan, Telnet.BoldWhite));
+				sb.AppendLine();
+				sb.AppendLine(multi.ChosenAnswer!.DescriptionAfterChoice.SubstituteANSIColour().Wrap(Character.InnerLineFormatLength));
+			}
+
+			foreach (var text in _freeTextQuestions)
+			{
+				sb.AppendLine();
+				sb.AppendLine($"Question #{i++.ToString("N0", Character)}".GetLineWithTitle(Character.InnerLineFormatLength, Character.Account.UseUnicode, Telnet.Cyan, Telnet.BoldWhite));
+				sb.AppendLine();
+				sb.AppendLine(text.Question.SubstituteANSIColour().Wrap(Character.InnerLineFormatLength));
+				sb.AppendLine();
+				sb.AppendLine($"Answered".GetLineWithTitle(Character.InnerLineFormatLength, Character.Account.UseUnicode, Telnet.BoldCyan, Telnet.BoldWhite));
+				sb.AppendLine();
+				sb.AppendLine(text.Answer.SubstituteANSIColour().Wrap(Character.InnerLineFormatLength));
+			}
+
+			var dbnote = new Models.AccountNote
+			{
+				AccountId = Character!.Account.Id,
+				CharacterId = Character.Id,
+				AuthorId = Character.Account.Id,
+				IsJournalEntry = true,
+				TimeStamp = DateTime.UtcNow,
+				Subject = $"[Event] {Name}",
+				InGameTimeStamp = (Character.Location?.DateTime() ?? Gameworld.Cells.First().DateTime()).GetDateTimeString(),
+				Text = sb.ToString()
+			};
+			FMDB.Context.AccountNotes.Add(dbnote);
+			FMDB.Context.SaveChanges();
+		}
+		Changed = true;
+	}
+
 	public IScriptedEvent Clone()
 	{
 		var item = new ScriptedEvent(this, null);
@@ -265,14 +318,14 @@ internal class ScriptedEvent : SaveableItem, IScriptedEvent
 	#3free <##> question#0 - edits the question text
 	#3multi <##>#0 - shows detailed information about a multi choice question
 	#3multi <##> question#0 - edits the question text
-	#3multi <##> question <##> question#0 - edit the question text
-	#3multi <##> question <##> addanswer#0 - adds a new answer
-	#3multi <##> question <##> removeanswer <##>#0 - removes an answer
-	#3multi <##> question <##> answer <##>#0 - shows detailed information about an answer
-	#3multi <##> question <##> answer <##> before#0 - edits the before text of an answer
-	#3multi <##> question <##> answer <##> after#0 - edits the after text of an answer
-	#3multi <##> question <##> answer <##> filter <prog>#0 - edits the filter prog of an answer
-	#3multi <##> question <##> answer <##> choice <prog>#0 - edits the on choice prog of an answer";
+	#3multi <##> question#0 - edit the question text
+	#3multi <##> addanswer#0 - adds a new answer
+	#3multi <##> removeanswer <##>#0 - removes an answer
+	#3multi <##> answer <##>#0 - shows detailed information about an answer
+	#3multi <##> answer <##> before#0 - edits the before text of an answer
+	#3multi <##> answer <##> after#0 - edits the after text of an answer
+	#3multi <##> answer <##> filter <prog>#0 - edits the filter prog of an answer
+	#3multi <##> answer <##> choice <prog>#0 - edits the on choice prog of an answer";
 
 	public bool BuildingCommand(ICharacter actor, StringStack command)
 	{
@@ -304,26 +357,6 @@ internal class ScriptedEvent : SaveableItem, IScriptedEvent
 			case "assign":
 			case "autoassign":
 				return BuildingCommandAutoAssign(actor);
-			case "question":
-				return BuildingCommandQuestion(actor, command);
-			default:
-				actor.OutputHandler.Send(BuildingHelpText.SubstituteANSIColour());
-				break;
-		}
-
-		return false;
-	}
-
-	private bool BuildingCommandQuestion(ICharacter actor, StringStack command)
-	{
-		if (IsReady)
-		{
-			actor.OutputHandler.Send("Ready scripted events cannot have their questions edited.");
-			return false;
-		}
-
-		switch (command.PopSpeech().ToLowerInvariant().CollapseString())
-		{
 			case "addfree":
 				return BuildingCommandAddFreeQuestion(actor, command);
 			case "addmulti":
@@ -338,67 +371,94 @@ internal class ScriptedEvent : SaveableItem, IScriptedEvent
 			case "removemulti":
 			case "deletemulti":
 				return BuildingCommandRemoveMultiQuestion(actor, command);
-		}
-
-		switch (command.Last.ToLowerInvariant().CollapseString())
-		{
 			case "text":
-				if (command.IsFinished)
-				{
-					actor.OutputHandler.Send("Which text question do you want to edit?");
-					return false;
-				}
-
-				if (!int.TryParse(command.PopSpeech(), out var index) || index < 1 || index > _freeTextQuestions.Count)
-				{
-					actor.OutputHandler.Send($"You must enter a valid free text question number between {1.ToString("N0", actor).ColourValue()} and {_freeTextQuestions.Count.ToString("N0", actor).ColourValue()}.");
-					return false;
-				}
-
-				if (command.IsFinished)
-				{
-					_freeTextQuestions.ElementAt(index - 1).Show(actor);
-					return true;
-				}
-				_freeTextQuestions.ElementAt(index - 1).BuildingCommand(actor, command);
-				return true;
+				return BuildingCommandText(actor, command);
 			case "multi":
-				if (command.IsFinished)
-				{
-					actor.OutputHandler.Send("Which multiple choice question do you want to edit?");
-					return false;
-				}
-
-				if (!int.TryParse(command.PopSpeech(), out index) || index < 1 || index > _multipleChoiceQuestions.Count)
-				{
-					actor.OutputHandler.Send($"You must enter a valid multiple choice text question number between {1.ToString("N0", actor).ColourValue()} and {_multipleChoiceQuestions.Count.ToString("N0", actor).ColourValue()}.");
-					return false;
-				}
-
-				if (command.IsFinished)
-				{
-					_multipleChoiceQuestions.ElementAt(index - 1).Show(actor);
-					return true;
-				}
-				_multipleChoiceQuestions.ElementAt(index - 1).BuildingCommand(actor, command);
-				return true;
+				return BuildingCommandMulti(actor, command);
+			default:
+				actor.OutputHandler.Send(BuildingHelpText.SubstituteANSIColour());
+				break;
 		}
 
-		actor.OutputHandler.Send(BuildingHelpText.SubstituteANSIColour());
 		return false;
+	}
+
+	private bool BuildingCommandMulti(ICharacter actor, StringStack command)
+	{
+		if (IsReady)
+		{
+			actor.OutputHandler.Send("Ready scripted events cannot have their questions edited.");
+			return false;
+		}
+
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("Which multiple choice question do you want to edit?");
+			return false;
+		}
+
+		if (!int.TryParse(command.PopSpeech(), out var index) || index < 1 || index > _multipleChoiceQuestions.Count)
+		{
+			actor.OutputHandler.Send($"You must enter a valid multiple choice text question number between {1.ToString("N0", actor).ColourValue()} and {_multipleChoiceQuestions.Count.ToString("N0", actor).ColourValue()}.");
+			return false;
+		}
+
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send(_multipleChoiceQuestions.ElementAt(index - 1).Show(actor));
+			return true;
+		}
+
+		_multipleChoiceQuestions.ElementAt(index - 1).BuildingCommand(actor, command);
+		return true;
+	}
+
+	private bool BuildingCommandText(ICharacter actor, StringStack command)
+	{
+		if (IsReady)
+		{
+			actor.OutputHandler.Send("Ready scripted events cannot have their questions edited.");
+			return false;
+		}
+
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("Which text question do you want to edit?");
+			return false;
+		}
+
+		if (!int.TryParse(command.PopSpeech(), out var index) || index < 1 || index > _freeTextQuestions.Count)
+		{
+			actor.OutputHandler.Send($"You must enter a valid free text question number between {1.ToString("N0", actor).ColourValue()} and {_freeTextQuestions.Count.ToString("N0", actor).ColourValue()}.");
+			return false;
+		}
+
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send(_freeTextQuestions.ElementAt(index - 1).Show(actor));
+			return true;
+		}
+		_freeTextQuestions.ElementAt(index - 1).BuildingCommand(actor, command);
+		return true;
 	}
 
 	private bool BuildingCommandRemoveMultiQuestion(ICharacter actor, StringStack command)
 	{
+		if (IsReady)
+		{
+			actor.OutputHandler.Send("Ready scripted events cannot have their questions edited.");
+			return false;
+		}
+
 		if (command.IsFinished)
 		{
 			actor.OutputHandler.Send("Which multiple choice question do you want to remove?");
 			return false;
 		}
 
-		if (!int.TryParse(command.PopSpeech(), out var index) || index < 1 || index > _freeTextQuestions.Count)
+		if (!int.TryParse(command.PopSpeech(), out var index) || index < 1 || index > _multipleChoiceQuestions.Count)
 		{
-			actor.OutputHandler.Send($"You must enter a valid multiple choice text question number between {1.ToString("N0", actor).ColourValue()} and {_freeTextQuestions.Count.ToString("N0", actor).ColourValue()}.");
+			actor.OutputHandler.Send($"You must enter a valid multiple choice text question number between {1.ToString("N0", actor).ColourValue()} and {_multipleChoiceQuestions.Count.ToString("N0", actor).ColourValue()}.");
 			return false;
 		}
 
@@ -411,6 +471,12 @@ internal class ScriptedEvent : SaveableItem, IScriptedEvent
 
 	private bool BuildingCommandAddFreeQuestion(ICharacter actor, StringStack command)
 	{
+		if (IsReady)
+		{
+			actor.OutputHandler.Send("Ready scripted events cannot have their questions edited.");
+			return false;
+		}
+
 		actor.OutputHandler.Send("Enter the text that will be shown to the player in the editor below.");
 		actor.EditorMode(AddFreeQuestionPost, AddFreeQuestionCancel, 1.0, suppliedArguments: new object[] { actor });
 		return true;
@@ -430,8 +496,14 @@ internal class ScriptedEvent : SaveableItem, IScriptedEvent
 
 	private bool BuildingCommandAddMultiQuestion(ICharacter actor, StringStack command)
 	{
+		if (IsReady)
+		{
+			actor.OutputHandler.Send("Ready scripted events cannot have their questions edited.");
+			return false;
+		}
+
 		actor.OutputHandler.Send("Enter the text that will be shown to the player in the editor below.");
-		actor.EditorMode(AddMultiQuestionPost, AddMultiQuestionCancel, 1.0);
+		actor.EditorMode(AddMultiQuestionPost, AddMultiQuestionCancel, 1.0, suppliedArguments: new object[] { actor });
 		return true;
 	}
 
@@ -449,6 +521,12 @@ internal class ScriptedEvent : SaveableItem, IScriptedEvent
 
 	private bool BuildingCommandRemoveFreeTextQuestion(ICharacter actor, StringStack command)
 	{
+		if (IsReady)
+		{
+			actor.OutputHandler.Send("Ready scripted events cannot have their questions edited.");
+			return false;
+		}
+
 		if (command.IsFinished)
 		{
 			actor.OutputHandler.Send("Which free text question do you want to remove?");
@@ -798,10 +876,11 @@ internal class ScriptedEvent : SaveableItem, IScriptedEvent
 		
 		if (MultipleChoiceQuestions.Any())
 		{
+			var i = 1;
 			foreach (var question in MultipleChoiceQuestions)
 			{
 				sb.AppendLine();
-				sb.AppendLine($"Question #{question.Id.ToString("N0", actor)}");
+				sb.AppendLine($"Question #{i++.ToString("N0", actor)}".GetLineWithTitle(actor, Telnet.BoldCyan, Telnet.BoldWhite));
 				sb.AppendLine();
 				sb.AppendLine($"{question.Question.SubstituteANSIColour().Wrap(actor.InnerLineFormatLength)}");
 				sb.AppendLine();
@@ -839,10 +918,11 @@ internal class ScriptedEvent : SaveableItem, IScriptedEvent
 		sb.AppendLine();
 		if (FreeTextQuestions.Any())
 		{
+			var i = 1;
 			foreach (var question in FreeTextQuestions)
 			{
 				sb.AppendLine();
-				sb.AppendLine($"Question #{question.Id.ToString("N0", actor)}");
+				sb.AppendLine($"Question #{i++.ToString("N0", actor)}".GetLineWithTitle(actor, Telnet.BoldCyan, Telnet.BoldWhite));
 				sb.AppendLine();
 				sb.AppendLine($"{question.Question.SubstituteANSIColour().Wrap(actor.InnerLineFormatLength)}");
 				if (!IsTemplate)

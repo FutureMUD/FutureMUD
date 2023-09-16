@@ -72,6 +72,12 @@ namespace MudSharp.RPG.ScriptedEvents
 		private readonly List<IScriptedEventMultipleChoiceQuestionAnswer> _answers = new();
 		public IEnumerable<IScriptedEventMultipleChoiceQuestionAnswer> Answers => _answers;
 
+		public void ChooseAnswer(IScriptedEventMultipleChoiceQuestionAnswer answer)
+		{
+			ChosenAnswer = answer;
+			Changed = true;
+		}
+
 		public bool BuildingCommand(ICharacter actor, StringStack command)
 		{
 			switch (command.PopSpeech().ToLowerInvariant().CollapseString())
@@ -148,25 +154,22 @@ namespace MudSharp.RPG.ScriptedEvents
 
 		private bool BuildingCommandAddAnswer(ICharacter actor, StringStack command)
 		{
-			actor.OutputHandler.Send("Enter the text shown to the character before they have made their choice below:");
-			actor.EditorMode(AddAnswerPost, AddAnswerCancel, 1.0, suppliedArguments: new[] { actor } );
+			actor.EditorModeMulti(AddAnswerPost, AddAnswerCancel, new List<string>
+			{
+				$"Enter the text shown to the character before they have made their choice below:\n{"You are now entering an editor, use @ on a blank line to exit and *help to see help.".Colour(Telnet.Yellow)}\n{CommonStringUtilities.GetWidthRuler(actor.Account.LineFormatLength).Colour(Telnet.Yellow)}",
+				$"Enter the text shown to the character after they have locked in their choice below:\n{"You are now entering an editor, use @ on a blank line to exit and *help to see help.".Colour(Telnet.Yellow)}\n{CommonStringUtilities.GetWidthRuler(actor.Account.LineFormatLength).Colour(Telnet.Yellow)}",
+			}, suppliedArguments: new[] { actor } );
 			return true;
 		}
 
-		private void AddAnswerPost(string text, IOutputHandler handler, object[] args)
+		private void AddAnswerPost(IEnumerable<string> text, IOutputHandler handler, object[] args)
 		{
 			var actor = (ICharacter)args[0];
-			actor.OutputHandler.Send("Enter the text shown to the character after they have locked in their choice below:");
-			actor.EditorMode(AddAnswerPostSecond, AddAnswerCancel, 1.0, suppliedArguments: new object[] { actor, text });
-		}
-
-		private void AddAnswerPostSecond(string text, IOutputHandler handler, object[] args)
-		{
-			var actor = (ICharacter)args[0];
-			var before = (string)args[1];
-			var newAnswer = new ScriptedEventMultipleChoiceQuestionAnswer(before, text, this);
+			var before = text.First();
+			var after = text.Last();
+			var newAnswer = new ScriptedEventMultipleChoiceQuestionAnswer(before, after, this);
 			_answers.Add(newAnswer);
-			actor.OutputHandler.Send($"You create a new answer at position {_answers.Count.ToString("N0", actor).ColourValue()}.");
+			handler.Send($"You create a new answer at position {_answers.Count.ToString("N0", actor).ColourValue()}.");
 		}
 
 		private void AddAnswerCancel(IOutputHandler handler, object[] arg2)

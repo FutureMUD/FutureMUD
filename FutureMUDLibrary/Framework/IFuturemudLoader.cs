@@ -55,6 +55,7 @@
         void LoadCelestials();
         void LoadHelpFiles();
         void LoadFutureProgs();
+        void LoadScriptedEvents();
         void LoadRoles();
         void LoadChargen();
         void LoadNPCs();

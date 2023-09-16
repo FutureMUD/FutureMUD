@@ -209,6 +209,7 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 			VariableRegister = new VariableRegister(this); // must come before LoadFutureProgs
 
 			game.LoadFutureProgs(); // Needs to come after VariableRegister is initialised
+			game.LoadScriptedEvents();
 			game.LoadTraitExpressions();
 			game.LoadTags();
 			game.LoadChargenAdvices(); // Needs to come after LoadFutureProgs
@@ -2440,6 +2441,32 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 					prog.FunctionName);
 			}
 		}
+	}
+
+	void IFuturemudLoader.LoadScriptedEvents()
+	{
+		Console.WriteLine("\nLoading Scripted Events...");
+#if DEBUG
+		var sw = new Stopwatch();
+		sw.Start();
+#endif
+		var scripteds = (from scripted in FMDB.Context.ScriptedEvents
+									  .Include(x => x.FreeTextQuestions)
+									  .Include(x => x.MultipleChoiceQuestions)
+									  .ThenInclude(x => x.Answers)
+									  .AsNoTracking()
+					 select scripted).ToList();
+
+		foreach (var scripted in scripteds)
+		{
+			_scriptedEvents.Add(new RPG.ScriptedEvents.ScriptedEvent(scripted, this));
+		}
+#if DEBUG
+		sw.Stop();
+		Console.WriteLine($"Duration: {sw.ElapsedMilliseconds}ms");
+#endif
+		var count = scripteds.Count;
+		Console.WriteLine("Loaded {0} Scripted Event{1}.", count, count == 1 ? "" : "s");
 	}
 
 	void IFuturemudLoader.LoadCharacteristics()

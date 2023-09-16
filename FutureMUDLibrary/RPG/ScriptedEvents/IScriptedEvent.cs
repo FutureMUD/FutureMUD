@@ -26,6 +26,7 @@ public interface IScriptedEvent : IFrameworkItem, ISaveable, IEditableItem
 
 	IScriptedEvent Assign(ICharacter actor);
 	IScriptedEvent Clone();
+	void SetFinished();
 }
 
 public interface IScriptedEventFreeTextQuestion : IFrameworkItem, ISaveable, IEditableItem
@@ -33,6 +34,7 @@ public interface IScriptedEventFreeTextQuestion : IFrameworkItem, ISaveable, IEd
 	void Delete();
 	string Question { get; }
 	string Answer { get; }
+	void SetAnswer(string answer);
 }
 
 public interface IScriptedEventMultipleChoiceQuestion : IFrameworkItem, ISaveable, IEditableItem
@@ -41,6 +43,7 @@ public interface IScriptedEventMultipleChoiceQuestion : IFrameworkItem, ISaveabl
 	string Question { get; }
 	IScriptedEventMultipleChoiceQuestionAnswer? ChosenAnswer { get; }
 	IEnumerable<IScriptedEventMultipleChoiceQuestionAnswer> Answers { get; }
+	void ChooseAnswer(IScriptedEventMultipleChoiceQuestionAnswer answer);
 }
 
 public interface IScriptedEventMultipleChoiceQuestionAnswer : IFrameworkItem, ISaveable, IEditableItem

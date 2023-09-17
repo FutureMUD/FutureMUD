@@ -243,7 +243,7 @@ public class Ethnicity : SaveableItem, IEthnicity
 
 	public string ChargenBlurb { get; protected set; }
 
-	public IDictionary<ICharacteristicDefinition, ICharacteristicProfile> CharacteristicChoices { get; protected set; }
+	public IDictionary<ICharacteristicDefinition, ICharacteristicProfile> CharacteristicChoices { get; protected set; } = new Dictionary<ICharacteristicDefinition, ICharacteristicProfile>();
 
 	public IFutureProg AvailabilityProg { get; protected set; }
 

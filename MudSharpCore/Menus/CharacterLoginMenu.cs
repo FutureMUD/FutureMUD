@@ -64,6 +64,7 @@ public abstract class CharacterLoginMenu : Menu
 		}
 
 		_nextContext = Character;
+		Character.Body.Look(false);
 	}
 
 	public override int Timeout => 3600000;

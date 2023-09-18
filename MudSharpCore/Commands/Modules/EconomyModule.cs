@@ -531,6 +531,12 @@ If you are in a shop, you can view the list output as a specific line of credit 
 			return;
 		}
 
+		if (!shop.IsTrading || (shop as ITransientShop)?.CurrentStall?.IsTrading == false)
+		{
+			actor.OutputHandler.Send("This shop is not currently trading.");
+			return;
+		}
+
 		var firstArg = ss.PopSpeech();
 		var target = firstArg;
 		var quantity = 1;
@@ -618,6 +624,12 @@ BUY [<quantity>] <thing> WITH <item> - buys the thing with a payment item such a
 		var ss = new StringStack(command.RemoveFirstWord());
 		if (!DoShopCommandFindShop(actor, out var shop))
 		{
+			return;
+		}
+
+		if (!shop.IsTrading || (shop as ITransientShop)?.CurrentStall?.IsTrading == false)
+		{
+			actor.OutputHandler.Send("This shop is not currently trading.");
 			return;
 		}
 

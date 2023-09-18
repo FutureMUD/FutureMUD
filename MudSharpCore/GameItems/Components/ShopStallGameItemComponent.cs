@@ -114,6 +114,12 @@ namespace MudSharp.GameItems.Components
 				IsLocked = bool.Parse(element.Value);
 			}
 
+			element = root.Element("IsTrading");
+			if (element != null)
+			{
+				_isTrading = bool.Parse(element.Value);
+			}
+
 			element = root.Element("Pattern");
 			if (element != null)
 			{
@@ -146,6 +152,7 @@ namespace MudSharp.GameItems.Components
 						new XElement("Shop", Shop?.Id ?? 0L),
 						new XElement("Pattern", Pattern),
 						new XElement("IsLocked", IsLocked),
+						new XElement("IsTrading", IsTrading),
 						new XElement("Locks", from thelock in Locks select new XElement("Lock", thelock.Parent.Id)),
 						from content in Contents select new XElement("Contained", content.Id)
 					).ToString();

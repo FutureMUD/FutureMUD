@@ -81,4 +81,19 @@ public class ExternalClanControl : SaveableItem, IExternalClanControl
 
 		Changed = false;
 	}
+
+	public void Delete()
+	{
+		Gameworld.SaveManager.Abort(this);
+		using (new FMDB())
+		{
+			Gameworld.SaveManager.Flush();
+			var dbitem = FMDB.Context.ExternalClanControls.Find(VassalClan.Id, LiegeClan.Id, ControlledAppointment.Id);
+			if (dbitem != null)
+			{
+				FMDB.Context.ExternalClanControls.Remove(dbitem);
+				FMDB.Context.SaveChanges();
+			}
+		}
+	}
 }

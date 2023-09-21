@@ -41,7 +41,38 @@ internal class CharacterInformationModule : Module<ICharacter>
 
 	public static CharacterInformationModule Instance { get; } = new();
 
+	private const string SetCommandHelp = @"The SET command is used to control various character and account settings. Using the syntax #3set#0 on its own will show you your current settings.
+
+Note that this command does not cover combat settings, and you should see the #3combat set#0 command for more information on those.
+
+The syntax for editing the settings is as follows:
+
+	#3set wrap <normal> <text>#0 - sets the wrap width of ordinary text and text blocks. Usually the second argument should be smaller than the first
+	#3set page <length>#0 - sets the number of lines before one requires the use of the #3more#0 command
+	#3set unicode#0 - toggles unicode mode on or off
+	#3set msp#0 - toggles msp support on or off
+	#3set mccp#0 - toggles mccp support on or off
+	#3set culture <culture>#0 - changes your out of character culture - e.g. #6en-us#0 or #6fr-fr#0
+	#3set timezone <timezone>#0 - changes your out of character timezone. Use #3set timezone ?#0 to show a list
+	#3set units <unit system>#0 - changes your unit preferences - e.g. imperial or metric
+	#3set currency <currency>#0 - changes the currency you use in economic transactions
+	#3set combatbrief#0 - toggles the hiding of combat messages not applying to you
+	#3set writing <styles>#0 - sets what style of writing you use. See #3show writingstyles#0
+	#3set brief#0 - toggles whether to show room descriptions or not
+	#3set prompt full|classic|brief|fullbrief|speaking|stealth|position|magic#0 - sets which prompt you prefer to see
+	#3set roomtabs#0 - toggles tabs at the beginning of room descriptions
+	#3set roomadditions#0 - toggles coded room description additions (weather, light, temp etc) being on new lines
+	#3set newlines#0 - toggles newlines between multiple echoes between prompts
+	#3set names none|brackets|replace#0 - sets name replacement overlay options
+	#3set mercy#0 - toggles showing no mercy (accepting or not accepting surrender in combat)
+	#3set lawful#0 - toggles acting lawfully and preventing actions that would criminalise you
+
+Additionally, admins can use the following options:
+
+	#3set telepathy#0 - toggles admin telepathy (seeing player thoughts and feelings)";
+
 	[PlayerCommand("Set", "set")]
+	[HelpInfo("set", SetCommandHelp, AutoHelp.HelpArg)]
 	protected static void Set(ICharacter actor, string input)
 	{
 		var ss = new StringStack(input.RemoveFirstWord());
@@ -94,35 +125,6 @@ internal class CharacterInformationModule : Module<ICharacter>
 
 		switch (ss.Pop().ToLowerInvariant())
 		{
-			case "?":
-			case "help":
-				actor.Send("Options for the {0} command:\n{1}{2}", "set".Colour(Telnet.Yellow), new[]
-					{
-						"set wrap <normal> <text> - sets the wrap width of ordinary text and text blocks. Usually the second argument should be smaller than the first.",
-						"set page <length> - sets the number of lines before one requires the use of the more command.",
-						"set unicode - toggles unicode mode on or off.",
-						"set msp - toggles msp support on or off.",
-						"set mccp - toggles mccp support on or off.",
-						"set culture <culture> - changes your out of character culture - e.g. en-us or fr-fr.",
-						"set timezone <timezone> - changes your out of character timezone. Use set timezone ? to show a list.",
-						"set units <unit system> - changes your unit preferences - e.g. imperial or metric.",
-						"set currency <currency> - changes the currency you use in economic transactions.",
-						"set combatbrief - toggles the hiding of combat messages not applying to you.",
-						"set writing <styles> - sets what style of writing you use. See SHOW WRITINGSTYLES",
-						"set brief - toggles whether to show room descriptions or not.",
-						"set prompt full|classic|brief|fullbrief|speaking|stealth|position|magic - sets which prompt you prefer to see.",
-						"set roomtabs - toggles tabs at the beginning of room descriptions",
-						"set roomadditions - toggles coded room description additions (weather, light, temp etc) being on new lines.",
-						"set newlines - toggles newlines between multiple echoes between prompts",
-						"set names none|brackets|replace - sets name replacement overlay options",
-						"set mercy - toggles showing no mercy (accepting or not accepting surrenders)",
-						"set lawful - toggles acting lawfully and preventing actions that would criminalise you"
-					}.ListToString(separator: "\n", twoItemJoiner: "\n", conjunction: "", article: "\t"),
-					actor.IsAdministrator()
-						? "\n\tset telepathy - toggles admin telepathy (seeing player thoughts and feelings)"
-						: ""
-				);
-				return;
 			case "roomtabs":
 				actor.Account.TabRoomDescriptions = !actor.Account.TabRoomDescriptions;
 				actor.Send(
@@ -343,6 +345,9 @@ internal class CharacterInformationModule : Module<ICharacter>
 				actor.Send("You are now tuned into player thoughts.");
 				return;
 			case "wrap":
+			case "line":
+			case "linewidth":
+			case "width":
 				if (ss.IsFinished)
 				{
 					actor.Send("What width do you want text to wrap at?");
@@ -375,8 +380,7 @@ internal class CharacterInformationModule : Module<ICharacter>
 
 				actor.Account.LineFormatLength = outerWrap;
 				actor.Account.InnerLineFormatLength = innerWrap;
-				actor.Send("You set your wrap width to {0} for ordinary text and {1} for text blocks.", outerWrap,
-					innerWrap);
+				actor.Send($"You set your wrap width to {outerWrap.ToString("N0", actor).ColourValue()} for ordinary text and {innerWrap.ToString("N0", actor).ColourValue()} for text blocks.");
 				return;
 			case "page":
 				if (ss.IsFinished)
@@ -398,7 +402,7 @@ internal class CharacterInformationModule : Module<ICharacter>
 				}
 
 				actor.Account.PageLength = pageLength;
-				actor.Send("You set your page length to {0}.", pageLength);
+				actor.OutputHandler.Send($"You set your page length to {pageLength.ToString("N0", actor).ColourValue()}.");
 				return;
 			case "unicode":
 				actor.Send(actor.Account.UseUnicode
@@ -414,7 +418,7 @@ internal class CharacterInformationModule : Module<ICharacter>
 				}
 
 				var cultures = CultureInfo.GetCultures(CultureTypes.AllCultures);
-				var culturePick = ss.Pop();
+				var culturePick = ss.PopSpeech();
 				if (!cultures.Any(x => x.Name.Equals(culturePick, StringComparison.InvariantCultureIgnoreCase)))
 				{
 					actor.Send("That is not a valid culture for you to select.");
@@ -552,22 +556,18 @@ internal class CharacterInformationModule : Module<ICharacter>
 				actor.Changed = true;
 				return;
 			default:
-				actor.Send("That is not a valid option for the set command.");
+				actor.OutputHandler.Send(SetCommandHelp.SubstituteANSIColour());
 				return;
 		}
 	}
 
 	[PlayerCommand("Consider", "consider", "con")]
 	[RequiredCharacterState(CharacterState.Conscious)]
+	[HelpInfo("consider", @"The consider command is used to get key information about another character that might not be readily apparent from their description alone. This includes things like estimates of height, weight, ethnicity and key features. The syntax is simply #3consider <target>#0.", AutoHelp.HelpArgOrNoArg)]
 	protected static void Consider(ICharacter actor, string input)
 	{
 		var ss = new StringStack(input.RemoveFirstWord());
-		var arg = ss.Pop();
-		if (string.IsNullOrEmpty(arg))
-		{
-			actor.OutputHandler.Send("Who do you wish to consider?");
-			return;
-		}
+		var arg = ss.PopSpeech();
 
 		var target = actor.TargetActor(arg);
 		if (target == null)
@@ -578,7 +578,7 @@ internal class CharacterInformationModule : Module<ICharacter>
 
 		var gender = target.ApparentGender(actor);
 		var sb = new StringBuilder();
-		sb.AppendLine("You consider " + target.HowSeen(actor, flags: PerceiveIgnoreFlags.IgnoreSelf) + ":");
+		sb.AppendLine($"You consider {target.HowSeen(actor, flags: PerceiveIgnoreFlags.IgnoreSelf)}:");
 		sb.AppendLine();
 		if (target.Race == actor.Race || actor.IsAdministrator())
 		{
@@ -591,7 +591,7 @@ internal class CharacterInformationModule : Module<ICharacter>
 			$"{gender.Subjective(true)} {gender.Is()} about {actor.Gameworld.UnitManager.Describe(target.Height, UnitType.Length, actor).ColourValue()} tall and {target.DescribeCharacteristic("Height", actor.Body).IfEmpty("of similar height").ColourValue()} relative to you.");
 		sb.AppendLine(
 			$"{gender.Subjective(true)} {(gender.UseThirdPersonVerbForms ? "weighs" : "weigh")} about {actor.Gameworld.UnitManager.DescribeMostSignificant(target.Weight, UnitType.Mass, actor).ColourValue()}.");
-		if (actor.Race == target.Race || actor.IsAdministrator())
+		if (actor.Race.SameRace(target.Race) || target.Race.SameRace(actor.Race) || actor.IsAdministrator())
 		{
 			sb.AppendLine($"You'd guess their ethnicity to be {target.Ethnicity.Name.ColourValue()}.");
 		}
@@ -805,6 +805,19 @@ internal class CharacterInformationModule : Module<ICharacter>
 	}
 
 	[PlayerCommand("Knowledges", "knowledges")]
+	[HelpInfo("knowledges", @"The knowledges command is used to view what knowledges your character has.
+
+There are a few different ways to interact with this command:
+
+	#3knowledges#0 - this shows all of your knowledges
+	#3knowledges <category>#0 - this shows only knowledges you know from that category
+	#3knowledges <category> <subcategory>#0 - this shows only knowledges you know from that category and subcategory
+
+Additionally, admins can use these forms:
+
+	#3knowledges *<who>#0 - this shows all of your target's knowledges
+	#3knowledges *<who> <category>#0 - this shows only knowledges your target knows from that category
+	#3knowledges *<who> <category> <subcategory>#0 - this shows only knowledges  your target knows from that category and subcategory", AutoHelp.HelpArg)]
 	protected static void Knowledges(ICharacter actor, string input)
 	{
 		var ss = new StringStack(input.RemoveFirstWord());
@@ -818,7 +831,7 @@ internal class CharacterInformationModule : Module<ICharacter>
 
 			if (target == null)
 			{
-				actor.Send("There is no such character to view knowledges of.");
+				actor.OutputHandler.Send("There is no such character to view knowledges of.");
 				return;
 			}
 		}
@@ -845,8 +858,9 @@ internal class CharacterInformationModule : Module<ICharacter>
 							StringComparison.InvariantCultureIgnoreCase));
 		}
 
-		actor.OutputHandler.Send($"{target.HowSeen(actor, true)} know the following knowledges:\n\n" +
-		                         StringUtilities.GetTextTable(
+		actor.OutputHandler.Send($@"{target.HowSeen(actor, true)} {(actor == target ? "know" : "knows")} the following knowledges:
+
+{StringUtilities.GetTextTable(
 			                         from knowledge in knowledges
 			                         select new[]
 			                         {
@@ -864,12 +878,19 @@ internal class CharacterInformationModule : Module<ICharacter>
 			                         colour: Telnet.Green,
 			                         truncatableColumnIndex: 1,
 			                         unicodeTable: actor.Account.UseUnicode
-		                         ) + "\n\nSee " +
-		                         "help knowledges".Colour(Telnet.Yellow) +
-		                         " for more information.");
+		                         )}
+
+See {"help knowledges".Colour(Telnet.Yellow)} for more information.");
 	}
 
 	[PlayerCommand("Quirks", "merits", "flaws", "quirks")]
+	[HelpInfo("quirks", @"The quirks command allows you to view your own quirks (merits and flaws). It will also show you the status of those quirks and whether they currently apply or not, if they are conditional. The syntax is simply #3quirks#0.", AutoHelp.HelpArg, 
+		@"The quirks command allows you to view yours or another's quirks (merits and flaws). It will also show you the status of those quirks and whether they currently apply or not, if they are conditional. 
+
+The syntax is as follows:
+
+	#3quirks#0 - see your own quirks
+	#3quirks <target>#0 - see the quirks of a target")]
 	protected static void Merits(ICharacter actor, string input)
 	{
 		var ss = new StringStack(input.RemoveFirstWord());
@@ -885,13 +906,15 @@ internal class CharacterInformationModule : Module<ICharacter>
 			}
 		}
 
-		actor.Send("Quirks for {0}:\n\n{1}", target.HowSeen(actor, flags: PerceiveIgnoreFlags.IgnoreSelf),
-			target.Merits
-			      .OfType<ICharacterMerit>()
-			      .Where(x => x.DisplayInCharacterMeritsCommand(actor))
-			      .Select(x =>
-				      $"{x.Name.TitleCase()} ({(x.Applies(target) ? "In Effect".Colour(Telnet.Green) : "Inactive".Colour(Telnet.Red))})")
-			      .ListToString(separator: "\n", conjunction: "", twoItemJoiner: "\n"));
+		actor.Send($@"Quirks for {target.HowSeen(actor, flags: PerceiveIgnoreFlags.IgnoreSelf)}:
+
+{target.Merits
+				  .OfType<ICharacterMerit>()
+				  .Where(x => x.DisplayInCharacterMeritsCommand(actor))
+				  .Select(x =>
+					  $"{x.Name.TitleCase()} ({(x.Applies(target) ? "In Effect".Colour(Telnet.Green) : "Inactive".Colour(Telnet.Red))})")
+				  .ListToString(separator: "\n", conjunction: "", twoItemJoiner: "\n")}"
+			);
 	}
 
 	[PlayerCommand("Score", "score", "sc", "sco", "scor")]

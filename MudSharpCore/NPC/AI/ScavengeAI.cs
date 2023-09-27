@@ -31,6 +31,15 @@ public class ScavengeAI : ArtificialIntelligenceBase
 
 	public string ScavengeDelayDiceExpression { get; set; }
 
+	protected override string SaveToXml()
+	{
+		return new XElement("Definition",
+			new XElement("WillScavengeItemProg", WillScavengeItemProg?.Id ?? 0L),
+			new XElement("ScavengeDelayDiceExpression", new XCData(ScavengeDelayDiceExpression)),
+			new XElement("OnScavengeItemProg", OnScavengeItemProg?.Id ?? 0L)
+		).ToString();
+	}
+
 	public static void RegisterLoader()
 	{
 		RegisterAIType("Scavenge", (ai, gameworld) => new ScavengeAI(ai, gameworld));

@@ -9,6 +9,7 @@ using MudSharp.Effects.Concrete;
 using MudSharp.Events;
 using MudSharp.Framework;
 using MudSharp.FutureProg;
+using MudSharp.FutureProg.Statements.Manipulation;
 
 namespace MudSharp.NPC.AI;
 
@@ -130,6 +131,24 @@ public class DoorguardAI : ArtificialIntelligenceBase
 		}
 	}
 
+	protected override string SaveToXml()
+	{
+		return new XElement("Definition",
+			new XElement("BaseDelayProg", BaseDelayProg?.Id ?? 0L),
+			new XElement("CantOpenDoorActionProg", CantOpenDoorActionProg?.Id ?? 0L),
+			new XElement("CloseDoorActionProg", CloseDoorActionProg?.Id ?? 0L),
+			new XElement("OnWitnessDoorStopProg", OnWitnessDoorStopProg?.Id ?? 0L),
+			new XElement("OpenCloseDelayProg", OpenCloseDelayProg?.Id ?? 0L),
+			new XElement("OpenDoorActionProg", OpenDoorActionProg?.Id ?? 0L),
+			new XElement("RequiredSocialTrigger", new XCData(RequiredSocialTrigger)),
+			new XElement("OwnSideOnly", OwnSideOnly),
+			new XElement("RespectGameRulesForOpeningDoors", RespectGameRulesForOpeningDoors),
+			new XElement("RespondToSocialDirection", RespondToSocialDirection),
+			new XElement("SocialTargettedOnly", SocialTargettedOnly),
+			new XElement("WillOpenDoorForProg", WillOpenDoorForProg?.Id ?? 0L),
+			new XElement("WontOpenDoorForActionProg", WontOpenDoorForActionProg?.Id ?? 0L)
+		).ToString();
+	}
 	public static void RegisterLoader()
 	{
 		RegisterAIType("Doorguard", (ai, gameworld) => new DoorguardAI(ai, gameworld));

@@ -39,6 +39,15 @@ public class AggressorAI : ArtificialIntelligenceBase
 		EngageEmote = root.Element("EngageEmote")?.Value;
 	}
 
+	protected override string SaveToXml()
+	{
+		return new XElement("Definition",
+			new XElement("WillAttackProg", WillAttackProg.Id),
+			new XElement("EngageDelayDiceExpression", new XCData(EngageDelayDiceExpression)),
+			new XElement("EngageEmote", new XCData(EngageEmote))
+		).ToString();
+	}
+
 	private bool CheckAllTargetsForAttack(ICharacter ch)
 	{
 		if (ch.State.HasFlag(CharacterState.Dead) || ch.State.HasFlag(CharacterState.Stasis))

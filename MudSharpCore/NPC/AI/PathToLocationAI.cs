@@ -26,6 +26,23 @@ public class PathToLocationAI : PathingAIWithProgTargetsBase
 	{
 	}
 
+	protected override string SaveToXml()
+	{
+		return new XElement("Definition",
+			new XElement("PathingEnabledProg", PathingEnabledProg?.Id ?? 0L),
+			new XElement("OnStartToPathProg", OnStartToPathProg?.Id ?? 0L),
+			new XElement("TargetLocationProg", TargetLocationProg?.Id ?? 0L),
+			new XElement("FallbackLocationProg", FallbackLocationProg?.Id ?? 0L),
+			new XElement("WayPointsProg", WayPointsProg.Id),
+			new XElement("OpenDoors", OpenDoors),
+			new XElement("UseKeys", UseKeys),
+			new XElement("SmashLockedDoors", SmashLockedDoors),
+			new XElement("CloseDoorsBehind", CloseDoorsBehind),
+			new XElement("UseDoorguards", UseDoorguards),
+			new XElement("MoveEvenIfObstructionInWay", MoveEvenIfObstructionInWay)
+		).ToString();
+	}
+
 	public static void RegisterLoader()
 	{
 		RegisterAIType("PathToLocation", (ai, gameworld) => new PathToLocationAI(ai, gameworld));

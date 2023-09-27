@@ -191,5 +191,12 @@ namespace MudSharp.RPG.Checks {
         public OpposedOutcomeDegree Degree { get; protected set; }
         public Difficulty ProponentDifficulty { get; protected set; }
         public Difficulty OpponentDifficulty { get; protected set; }
+
+        public bool IsEquivalent(OpposedOutcome other)
+        {
+            return 
+                Outcome == other.Outcome &&
+                Degree == other.Degree;
+        }
     }
 }

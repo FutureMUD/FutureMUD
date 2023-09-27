@@ -918,12 +918,21 @@ The syntax is as follows:
 	}
 
 	[PlayerCommand("Score", "score", "sc", "sco", "scor")]
+	[HelpInfo("score", 
+		@"The score command is a catch-all command used to show key information about your character and their status, like their hunger and thirst levels, languages, attributes, current name, currency etc.
+
+The syntax is simply #3score#0.", 
+		AutoHelp.HelpArg,
+		@"The score command is a catch-all command used to show key information about your character and their status, like their hunger and thirst levels, languages, attributes, current name, currency etc.
+
+For admins, the syntax is simply #3score#0 to see your own score or #3score <target>#0 to see someone else's score."
+		)]
 	protected static void Score(ICharacter actor, string input)
 	{
 		var ss = new StringStack(input.RemoveFirstWord());
 		if (actor.IsAdministrator() && !ss.IsFinished)
 		{
-			var targetActor = actor.TargetActor(ss.Pop());
+			var targetActor = actor.TargetActor(ss.SafeRemainingArgument);
 			if (targetActor == null)
 			{
 				actor.Send("You don't see anybody like that to view the score of.");
@@ -938,6 +947,14 @@ The syntax is as follows:
 	}
 
 	[PlayerCommand("Attributes", "attributes", "attr")]
+	[HelpInfo("attributes", 
+		@"The attributes command is used to view your characters attributes. See the skills command for separate information on your character's skills.
+
+The syntax is simply #3attributes#0.", 
+		AutoHelp.HelpArg,
+		@"The attributes command is used to view your characters attributes. See the skills command for separate information on your character's skills.
+
+The syntax is simply #3attributes#0 or #3attributes <target>#0 to see someone else's attributes.")]
 	protected static void Attributes(ICharacter actor, string input)
 	{
 		var who = actor;
@@ -1187,18 +1204,36 @@ The syntax is as follows:
 		#endregion
 	}
 
-	[PlayerCommand("Test", "test")]
-	[HelpInfo("test", "Test skill/attribute against a difficulty, optionally against another character.\nSyntax:\n\t" +
-	                  "test <attribute/skill/height/weight> [<difficulty>] [echo]\n\ttest <attribute/skill/height/weight> vs <target> <attribute/skill> [<difficulty>]",
+	[PlayerCommand("Test", "test", "silenttest")]
+	[HelpInfo("test", @"The test command is used to roll a test against a skill, attribute, or other factors like height or weight. This can be private (only you see that you have tested it and the outcomes) or public (everyone sees it).
+
+This command is used to supplement roleplay by having a way to introduce a little risk. Success or failure has no mechanical effect.
+
+You can use this command in one of two following ways:
+
+	#3test <attribute>|<skill>|height|weight [<difficulty>]#0 - tests something against the supplied difficulty
+	#3test <attribute>|<skill>|height|weight#0 - tests something against a difficulty of #2normal#0.
+	#3silenttest <attribute>|<skill>|height|weight [<difficulty>]#0 - tests something against the supplied difficulty but does not echo
+	#3silenttest <attribute>|<skill>|height|weight#0 - tests something against a difficulty of #2normal#0 but does not echo.
+
+See #6show difficulties#0 for a list of valid difficulties.
+
+You can also use this command to test against someone else. This always echoes.
+
+	#3test <attribute>|<skill>|height|weight vs <target> <attribute>|<skill>|height|weight [<difficulty>]#0 - tests something against someone else at the supplied difficulty
+	#3test <attribute>|<skill>|height|weight#0 - tests something against someone else at a difficulty of #2normal#0.",
 		AutoHelp.HelpArgOrNoArg)]
 	protected static void Test(ICharacter actor, string input)
 	{
-		var ss = new StringStack(input.RemoveFirstWord());
+		var ss = new StringStack(input);
+		var topLevelCommand = ss.Pop();
+		var echo = "silentcommand".StartsWith(topLevelCommand, StringComparison.InvariantCultureIgnoreCase);
+
 		var experimental = false;
-		if (ss.Peek().EqualTo("experimental"))
+		if (ss.PeekSpeech().EqualTo("experimental"))
 		{
 			experimental = true;
-			ss.Pop();
+			ss.PopSpeech();
 		}
 
 		var cmd = ss.PopSpeech();
@@ -1219,8 +1254,7 @@ The syntax is as follows:
 					x.Name.ToLowerInvariant().StartsWith(cmd.ToLowerInvariant(), StringComparison.Ordinal));
 			if (trait == null)
 			{
-				actor.OutputHandler.Send(StringUtilities.HMark +
-				                         "There is no such attribute or skill to test against.");
+				actor.OutputHandler.Send("There is no such attribute or skill to test against.");
 				return;
 			}
 
@@ -1235,33 +1269,28 @@ The syntax is as follows:
 		}
 
 		Difficulty diff;
-		var echo = false;
-
 		cmd = ss.PopSpeech();
-		if (cmd.ToLowerInvariant() == "vs")
+		if (cmd.EqualToAny("vs", "versus", "against"))
 		{
 			echo = true;
 			cmd = ss.PopSpeech();
 			if (cmd.Length == 0)
 			{
-				actor.OutputHandler.Send(StringUtilities.HMark + "Who do you wish to test your traits against?");
+				actor.OutputHandler.Send("Who do you wish to test your traits against?");
 				return;
 			}
 
 			var target = actor.TargetActor(cmd);
 			if (target == null)
 			{
-				actor.OutputHandler.Send(StringUtilities.HMark +
-				                         "You do not see anyone such as that to test your traits against.");
+				actor.OutputHandler.Send("You do not see anyone like that to test your traits against.");
 				return;
 			}
 
-			cmd = ss.Pop();
+			cmd = ss.PopSpeech();
 			if (cmd.Length == 0)
 			{
-				actor.OutputHandler.Send(StringUtilities.HMark + "What trait of " +
-				                         target.HowSeen(actor, type: DescriptionType.Possessive) +
-				                         " do you want to test against?");
+				actor.OutputHandler.Send($"What trait of {target.HowSeen(actor, type: DescriptionType.Possessive)} do you want to test against?");
 				return;
 			}
 
@@ -1281,8 +1310,7 @@ The syntax is as follows:
 						x.Name.ToLowerInvariant().StartsWith(cmd.ToLowerInvariant(), StringComparison.Ordinal));
 				if (trait == null)
 				{
-					actor.OutputHandler.Send(StringUtilities.HMark +
-					                         "There is no such attribute or skill to test against.");
+					actor.OutputHandler.Send("There is no such attribute or skill to test against.");
 					return;
 				}
 
@@ -1296,15 +1324,12 @@ The syntax is as follows:
 				}
 			}
 
-			cmd = ss.Pop();
+			cmd = ss.PopSpeech();
 			if (cmd.Length > 0)
 			{
 				if (!CheckExtensions.GetDifficulty(cmd, out diff))
 				{
-					actor.OutputHandler.Send(StringUtilities.HMark +
-					                         "That is not a valid difficulty. Valid difficulties are " +
-					                         (from differ in Enum.GetNames(typeof(Difficulty))
-					                          select differ.Colour(Telnet.Cyan)).ListToString() + ".");
+					actor.OutputHandler.Send($"That is not a valid difficulty.\nThe valid difficulties are {(Enum.GetValues<Difficulty>().Select(x => x.DescribeColoured())).ListToString()}.");
 					return;
 				}
 			}
@@ -1313,39 +1338,23 @@ The syntax is as follows:
 				diff = Difficulty.Normal;
 			}
 
-			cmd = ss.Pop();
-			if (cmd.ToLowerInvariant() == "echo")
-			{
-				actor.Send(StringUtilities.HMark + "Versus tests are always echoed, to prevent abuse.");
-				return;
-			}
-
 			var vsOutput =
-				$"$0 test|tests &0's {playerTest.DescribeTest()}  against $1's {targetTest.DescribeTest()} at {diff.Describe().ToLowerInvariant().Colour(Telnet.Yellow)} difficulty.";
+				$"$0 test|tests &0's {playerTest.DescribeTest()} against $1's {targetTest.DescribeTest()} at {diff.Describe().ToLowerInvariant().Colour(Telnet.Yellow)} difficulty.";
 			ICharacter vsWinner = null;
 			CheckOutcome playerOutcome, targetOutcome;
 			IReadOnlyDictionary<Difficulty, CheckOutcome> playerOutcomes = new Dictionary<Difficulty, CheckOutcome>();
 			IReadOnlyDictionary<Difficulty, CheckOutcome> targetOutcomes = new Dictionary<Difficulty, CheckOutcome>();
 			OpposedOutcome outcome;
-			if (!experimental)
-			{
-				playerOutcome = playerTest.TestAgainst(actor, diff);
-				targetOutcome = targetTest.TestAgainst(target, diff);
-				outcome = new OpposedOutcome(playerOutcome, targetOutcome);
-			}
-			else
-			{
-				playerOutcomes = playerTest.TestAgainstAllDifficulties(actor, diff);
-				targetOutcomes = targetTest.TestAgainstAllDifficulties(target, diff);
-				outcome = new OpposedOutcome(playerOutcomes, targetOutcomes, diff, diff);
-				playerOutcome = playerOutcomes[outcome.ProponentDifficulty];
-				targetOutcome = targetOutcomes[outcome.OpponentDifficulty];
-			}
+			playerOutcomes = playerTest.TestAgainstAllDifficulties(actor, diff);
+			targetOutcomes = targetTest.TestAgainstAllDifficulties(target, diff);
+			outcome = new OpposedOutcome(playerOutcomes, targetOutcomes, diff, diff);
+			playerOutcome = playerOutcomes[outcome.ProponentDifficulty];
+			targetOutcome = targetOutcomes[outcome.OpponentDifficulty];
+			var nonExperimentalOutcome = new OpposedOutcome(playerOutcomes[diff], targetOutcomes[diff]);
 
-			if (experimental)
+			if (!outcome.IsEquivalent(nonExperimentalOutcome))
 			{
-				vsOutput = vsOutput.Append("\n\tThe ties-forbidden result is a " +
-				                           outcome.Degree.DescribeColour().ToLowerInvariant() + " success to $2.");
+				vsOutput = vsOutput.Append($"\n\tThe initial result was a tie, but with tie-breaking rules the result is a {outcome.Degree.DescribeColour().ToLowerInvariant()} success to $2.");
 				switch (outcome.Outcome)
 				{
 					case OpposedOutcomeDirection.Proponent:
@@ -1355,42 +1364,18 @@ The syntax is as follows:
 						vsWinner = target;
 						break;
 				}
-
-				var nonExperimentalOutcome = new OpposedOutcome(playerOutcomes[diff], targetOutcomes[diff]);
+			}
+			else
+			{
 				switch (nonExperimentalOutcome.Outcome)
 				{
-					case OpposedOutcomeDirection.Stalemate:
-						vsOutput = vsOutput.Append($"\n\tThe regular result is a {"stalemate".Colour(Telnet.Yellow)}");
-						break;
 					case OpposedOutcomeDirection.Proponent:
 						vsOutput = vsOutput.Append(
-							$"\n\tThe regular result is a {nonExperimentalOutcome.Degree.DescribeColour().ToLowerInvariant()} success to $0.");
+							$"\n\tThe result is a {nonExperimentalOutcome.Degree.DescribeColour().ToLowerInvariant()} success to $0.");
 						break;
 					case OpposedOutcomeDirection.Opponent:
 						vsOutput = vsOutput.Append(
-							$"\n\tThe regular result is a {nonExperimentalOutcome.Degree.DescribeColour().ToLowerInvariant()} success to $1.");
-						break;
-				}
-			}
-			else
-			{
-				switch (outcome.Outcome)
-				{
-					case OpposedOutcomeDirection.Stalemate:
-						vsOutput = vsOutput.Append("\n\tThe result is a " + "stalemate".Colour(Telnet.Yellow) +
-						                           ".");
-						break;
-					case OpposedOutcomeDirection.Proponent:
-						vsOutput = vsOutput.Append("\n\tThe result is a " +
-						                           outcome.Degree.DescribeColour().ToLowerInvariant() +
-						                           " success to $2.");
-						vsWinner = actor;
-						break;
-					case OpposedOutcomeDirection.Opponent:
-						vsOutput = vsOutput.Append("\n\tThe result is a " +
-						                           outcome.Degree.DescribeColour().ToLowerInvariant() +
-						                           " success to $2.");
-						vsWinner = target;
+							$"\n\tThe result is a {nonExperimentalOutcome.Degree.DescribeColour().ToLowerInvariant()} success to $1.");
 						break;
 				}
 			}
@@ -1408,68 +1393,38 @@ The syntax is as follows:
 			//Generate admin output
 			var vsAdminOutput = new StringBuilder();
 			vsAdminOutput.Append(vsOutput);
-			vsAdminOutput.Append("\n\n Data for $3:");
-			vsAdminOutput.Append("\n\tFinal Outcome: " + playerOutcome.Outcome.DescribeColour() + " at " +
-			                     playerOutcome.FinalDifficulty.Describe().Colour(Telnet.Green) + "[" +
-			                     Math.Round(playerOutcome.FinalDifficultyModifier, 2).ToString()
-			                         .Colour(Telnet.BoldYellow) + "]");
-			vsAdminOutput.Append("\n\tRolls vs " +
-			                     Math.Round(playerOutcome.TargetNumber, 2).ToString().Colour(Telnet.BoldYellow) +
-			                     ": " +
-			                     playerOutcome.Rolls.Select(x => Math.Round(x, 2).ToString()
-			                                                         .Colour(x <= playerOutcome.TargetNumber
-				                                                         ? Telnet.BoldGreen
-				                                                         : Telnet.BoldRed))
-			                                  .ListToString());
+			vsAdminOutput.Append($@"
+
+ Data for $3:
+	Final Outcome: {playerOutcome.Outcome.DescribeColour()} at {playerOutcome.FinalDifficulty.DescribeColoured()}[{playerOutcome.FinalDifficultyModifier.ToBonusString(actor)}]
+	Rolls vs {Math.Round(playerOutcome.TargetNumber, 2).ToString().Colour(Telnet.BoldYellow)}: {playerOutcome.Rolls.Select(x => Math.Round(x, 2).ToString()
+																	 .Colour(x <= playerOutcome.TargetNumber
+																		 ? Telnet.BoldGreen
+																		 : Telnet.BoldRed))
+											  .ListToString()}");
+			
 			if (playerOutcome.ActiveBonuses?.Count() > 0)
 			{
-				vsAdminOutput.Append("\n\tActive Bonuses: " +
-				                     playerOutcome.ActiveBonuses.Select(x => x.Item1 + "(" +
-				                                                             Math.Round(x.Item2, 2).ToString()
-					                                                             .Colour(x.Item2 > 0
-						                                                             ? Telnet.BoldGreen
-						                                                             : Telnet.BoldRed) + ")")
-				                                  .ListToString() +
-				                     "\n\tTotal Bonuses: " + Math.Round(playerOutcome.FinalBonus, 2).ToString()
-				                                                 .Colour(playerOutcome.FinalBonus > 0
-					                                                 ?
-					                                                 Telnet.BoldGreen
-					                                                 :
-					                                                 playerOutcome.FinalBonus < 0
-						                                                 ? Telnet.BoldRed
-						                                                 : Telnet.BoldYellow));
+				vsAdminOutput.Append($"\n\tActive Bonuses: {playerOutcome.ActiveBonuses.Select(x => $"{x.Item1}({x.Item2.ToBonusString(actor)})")
+				                                  .ListToString()}\n\tTotal Bonuses: {playerOutcome.FinalBonus.ToBonusString(actor)}");
 			}
 
-			vsAdminOutput.Append("\n\n Data for $4:");
-			vsAdminOutput.Append("\n\tFinal Outcome: " + targetOutcome.Outcome.DescribeColour() + " at " +
-			                     targetOutcome.FinalDifficulty.Describe().Colour(Telnet.Green) + "[" +
-			                     Math.Round(playerOutcome.FinalDifficultyModifier, 2).ToString()
-			                         .Colour(Telnet.BoldYellow) + "]");
-			vsAdminOutput.Append("\n\tRolls vs " +
-			                     Math.Round(targetOutcome.TargetNumber, 2).ToString().Colour(Telnet.BoldYellow) +
-			                     ": " +
-			                     targetOutcome.Rolls.Select(x => Math.Round(x, 2).ToString()
+			vsAdminOutput.Append(@$"
+
+ Data for $4:
+
+	Final Outcome: {targetOutcome.Outcome.DescribeColour()} at {targetOutcome.FinalDifficulty.DescribeColoured()}[{playerOutcome.FinalDifficultyModifier.ToBonusString(actor)}]
+
+	Rolls vs {Math.Round(targetOutcome.TargetNumber, 2).ToString().Colour(Telnet.BoldYellow)}: {targetOutcome.Rolls.Select(x => Math.Round(x, 2).ToString()
 			                                                         .Colour(x <= targetOutcome.TargetNumber
 				                                                         ? Telnet.BoldGreen
-				                                                         : Telnet.BoldRed))
-			                                  .ListToString());
+																		 : Telnet.BoldRed))
+			                                  .ListToString()}");
+
 			if (targetOutcome.ActiveBonuses?.Count() > 0)
 			{
-				vsAdminOutput.Append("\n\tActive Bonuses: " +
-				                     targetOutcome.ActiveBonuses.Select(x => x.Item1 + "(" +
-				                                                             Math.Round(x.Item2, 2).ToString()
-					                                                             .Colour(x.Item2 > 0
-						                                                             ? Telnet.BoldGreen
-						                                                             : Telnet.BoldRed) + ")")
-				                                  .ListToString() +
-				                     "\n\tTotal Bonuses: " + Math.Round(targetOutcome.FinalBonus, 2).ToString()
-				                                                 .Colour(targetOutcome.FinalBonus > 0
-					                                                 ?
-					                                                 Telnet.BoldGreen
-					                                                 :
-					                                                 targetOutcome.FinalBonus < 0
-						                                                 ? Telnet.BoldRed
-						                                                 : Telnet.BoldYellow));
+				vsAdminOutput.Append($"\n\tActive Bonuses: {targetOutcome.ActiveBonuses.Select(x => $"{x.Item1}({x.Item2.ToBonusString(actor)})")
+				                                  .ListToString()}\n\tTotal Bonuses: {targetOutcome.FinalBonus.ToBonusString(actor)}");
 			}
 
 			//Now send it to any observing admin
@@ -1489,10 +1444,7 @@ The syntax is as follows:
 			{
 				if (!CheckExtensions.GetDifficulty(cmd, out diff))
 				{
-					actor.OutputHandler.Send(StringUtilities.HMark +
-					                         "That is not a valid difficulty. Valid difficulties are " +
-					                         (from differ in Enum.GetNames(typeof(Difficulty))
-					                          select differ.Colour(Telnet.Cyan)).ListToString() + ".");
+					actor.OutputHandler.Send($"That is not a valid difficulty.\nThe valid difficulties are {(Enum.GetValues<Difficulty>().Select(x => x.DescribeColoured())).ListToString()}.");
 					return;
 				}
 			}
@@ -1502,11 +1454,6 @@ The syntax is as follows:
 			}
 
 			cmd = ss.PopSpeech();
-			if (cmd.ToLowerInvariant() == "echo")
-			{
-				echo = true;
-				cmd = ss.Pop();
-			}
 
 			CheckOutcome outcome;
 			IReadOnlyDictionary<Difficulty, CheckOutcome> allOutcomes = new Dictionary<Difficulty, CheckOutcome>();
@@ -1521,9 +1468,8 @@ The syntax is as follows:
 			}
 
 			var outputStr =
-				$"@ test|tests against &0's {playerTest.DescribeTest()} at {diff.Describe().ToLowerInvariant().Colour(Telnet.Yellow)} difficulty.";
-			outputStr = outputStr.Append("\n\tThe result is a " + outcome.Outcome.DescribeColour().ToLowerInvariant() +
-			                             ".");
+				$"@ test|tests against &0's {playerTest.DescribeTest()} at {diff.DescribeColoured()} difficulty.";
+			outputStr = outputStr.Append($"\n\tThe result is a {outcome.Outcome.DescribeColour().ToLowerInvariant()}.");
 
 			//Private echo or echo everyone in the room, admin see either way
 			if (!echo && !actor.IsAdministrator())
@@ -1544,68 +1490,33 @@ The syntax is as follows:
 				}
 			}
 
-			if (experimental)
-			{
-				var sb = new StringBuilder();
-				foreach (var result in allOutcomes)
-				{
-					sb.AppendLine(
-						$"\t\tAt {result.Key.Describe().Colour(Telnet.Yellow)} the result was {result.Value.Outcome.DescribeColour()}.");
-				}
-
-				actor.OutputHandler.Send(sb.ToString());
-			}
-
 			//Generate admin output
 			var bonusPerDifficulty = Futuremud.Games.First().GetStaticInt("CheckBonusPerDifficultyLevel");
 			var bonusAdjustment = (int)(outcome.FinalBonus / bonusPerDifficulty);
 			var adminOutput = new StringBuilder();
 			adminOutput.Append(
-				$"@ test|tests against &0's {playerTest.DescribeTest()} at {diff.Describe().ToLowerInvariant().Colour(Telnet.Yellow)}[" +
-				outcome.OriginalDifficultyModifier.ToString()
-				       .Colour(outcome.OriginalDifficultyModifier > 0 ? Telnet.BoldGreen :
-					       outcome.OriginalDifficultyModifier < 0 ? Telnet.BoldRed : Telnet.BoldYellow) +
-				"] difficulty");
+				$"@ test|tests against &0's {playerTest.DescribeTest()} at {diff.DescribeColoured()} [{outcome.OriginalDifficultyModifier.ToBonusString(actor)}] difficulty");
 			if (outcome.FinalDifficulty != outcome.OriginalDifficulty)
 			{
-				adminOutput.Append(" which got adjusted to " +
-				                   outcome.FinalDifficulty.Describe().Colour(Telnet.Green) + "[" +
-				                   outcome.FinalDifficultyModifier.ToString()
-				                          .Colour(outcome.FinalDifficultyModifier > 0 ? Telnet.BoldGreen :
-					                          outcome.FinalDifficultyModifier < 0 ? Telnet.BoldRed :
-					                          Telnet.BoldYellow) +
-				                   "]");
+				adminOutput.Append($" which got adjusted to {outcome.FinalDifficulty.DescribeColoured()} [{outcome.FinalDifficultyModifier.ToBonusString(actor)}]");
 			}
 
 			if (echo)
 			{
-				adminOutput.Append(" (ECHOED)");
+				adminOutput.Append(" #C(ECHOED)#0".SubstituteANSIColour());
 			}
 
-			adminOutput.AppendLine("\n\tThe result is a " + outcome.Outcome.DescribeColour().ToLowerInvariant() + ".");
+			adminOutput.AppendLine($"\n\tThe result is a {outcome.Outcome.DescribeColour().ToLowerInvariant()}.");
 
-			adminOutput.Append("\tRolls vs " +
-			                   Math.Round(outcome.TargetNumber, 2).ToString().Colour(Telnet.BoldYellow) +
-			                   ": " +
-			                   outcome.Rolls.Select(x => Math.Round(x, 2).ToString()
+			adminOutput.Append($"\tRolls vs {Math.Round(outcome.TargetNumber, 2).ToString().Colour(Telnet.BoldYellow)}: {outcome.Rolls.Select(x => Math.Round(x, 2).ToString()
 			                                                 .Colour(x <= outcome.TargetNumber
 				                                                 ? Telnet.BoldGreen
 				                                                 : Telnet.BoldRed))
-			                          .ListToString());
+			                          .ListToString()}");
 
 			if (outcome.ActiveBonuses?.Count() > 0)
 			{
-				adminOutput.Append("\n\tActive Bonuses: " +
-				                   outcome.ActiveBonuses.Select(x => x.Item1 +
-				                                                     "(" +
-				                                                     Math.Round(x.Item2, 2).ToString()
-				                                                         .Colour(x.Item2 > 0
-					                                                         ? Telnet.BoldGreen
-					                                                         : Telnet.BoldRed) + ")").ListToString() +
-				                   "\n\tTotal Bonuses: " + Math.Round(outcome.FinalBonus, 2).ToString()
-				                                               .Colour(outcome.FinalBonus > 0 ? Telnet.BoldGreen :
-					                                               outcome.FinalBonus < 0 ? Telnet.BoldRed :
-					                                               Telnet.BoldYellow));
+				adminOutput.Append($"\n\tActive Bonuses: {outcome.ActiveBonuses.Select(x => $"{x.Item1}({x.Item2.ToBonusString(actor)})").ListToString()}\n\tTotal Bonuses: {outcome.FinalBonus.ToBonusString(actor)}");
 			}
 
 			foreach (var admin in actor.Location?.LayerCharacters(actor.RoomLayer).Where(x => x.IsAdministrator()) ??

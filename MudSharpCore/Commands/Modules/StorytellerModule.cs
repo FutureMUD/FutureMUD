@@ -2495,6 +2495,9 @@ This is the syntax for editing skills:
 
 	[PlayerCommand("RoleSearch", "rolesearch")]
 	[CommandPermission(PermissionLevel.Admin)]
+	[HelpInfo("rolesearch", @"The Rolesearch command is used to search for online character with particular roles. The syntax is #3rolesearch <role1> <role2> ...#0. 
+
+If you specify multiple roles, it will search for only those characters who have ALL of them.", AutoHelp.HelpArgOrNoArg)]
 	protected static void RoleSearch(ICharacter actor, string input)
 	{
 		var ss = new StringStack(input.RemoveFirstWord());

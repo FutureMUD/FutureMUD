@@ -5,12 +5,13 @@ using MudSharp.Character;
 using MudSharp.CharacterCreation.Resources;
 using MudSharp.Economy.Currency;
 using MudSharp.Framework;
+using MudSharp.Framework.Revision;
 using MudSharp.Framework.Save;
 using MudSharp.FutureProg;
 using MudSharp.RPG.Merits;
 
 namespace MudSharp.CharacterCreation.Roles {
-    public interface IChargenRole : IFrameworkItem, ISaveable, IFutureProgVariable {
+    public interface IChargenRole : IFrameworkItem, ISaveable, IFutureProgVariable, IEditableItem {
         /// <summary>
         ///     An enumerable representing the type of role in question
         /// </summary>
@@ -73,8 +74,6 @@ namespace MudSharp.CharacterCreation.Roles {
         PermissionLevel MinimumPermissionToView { get; set; }
 
         int ResourceCost(IChargenResource resource);
-
-        string Show(ICharacter actor);
 
         void SetName(string name);
         IEnumerable<IChargenAdvice> ChargenAdvices { get; }

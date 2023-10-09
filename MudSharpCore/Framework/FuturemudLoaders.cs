@@ -311,7 +311,7 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 			LightModel = PerceptionEngine.Light.LightModel.LoadLightModel(this);
 
 			game.LoadRoles();
-			// Needs to come after LoadFutureprogs, LoadClans, LoadCurrencies and LoadGameItemProtos
+			// Needs to come after LoadFutureprogs, LoadClans, LoadCurrencies, LoadMerits and LoadGameItemProtos
 			game.LoadCrafts(); // Needs to come after LoadFutureProgs and before LoadWorldItems
 			game.LoadEconomy(); // Should come before LoadWorldItems as late as possible
 			game.LoadLegal(); // Should come after LoadWorld, LoadEconomy and after LoadFutureProgs

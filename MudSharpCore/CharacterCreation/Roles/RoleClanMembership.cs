@@ -23,6 +23,13 @@ public class RoleClanMembership : IRoleClanMembership
 			    .ToList();
 	}
 
+	public RoleClanMembership(IClan clan, IRank rank, IPaygrade? paygrade = null)
+	{
+		Clan = clan;
+		Rank = rank;
+		Paygrade = paygrade;
+	}
+
 	public IClan Clan { get; set; }
 	public IRank Rank { get; set; }
 	public IPaygrade Paygrade { get; set; }

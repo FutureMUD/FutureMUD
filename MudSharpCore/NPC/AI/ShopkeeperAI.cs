@@ -32,6 +32,24 @@ public class ShopkeeperAI : PathingAIBase
 	private IFutureProg _onArriveBackFromRestockProg;
 	private TimeSpan _restockStartDelay;
 
+	protected override string SaveToXml()
+	{
+		return new XElement("Definition",
+			new XElement("OnSomeoneEntersProg", _onSomeoneEntersProg?.Id ?? 0L),
+			new XElement("EngageEmote", _restockStartDelay.TotalMilliseconds),
+			new XElement("OnSomeoneUnwelcomeEntersProg", _onSomeoneUnwelcomeEntersProg?.Id ?? 0L),
+			new XElement("OnSomeoneBuysProg", _onSomeoneBuysProg?.Id ?? 0L),
+			new XElement("OnLeaveForRestockProg", _onLeaveForRestockProg?.Id ?? 0L),
+			new XElement("OnArriveBackFromRestockProg", _onArriveBackFromRestockProg?.Id ?? 0L),
+			new XElement("OpenDoors", OpenDoors),
+			new XElement("UseKeys", UseKeys),
+			new XElement("SmashLockedDoors", SmashLockedDoors),
+			new XElement("CloseDoorsBehind", CloseDoorsBehind),
+			new XElement("UseDoorguards", UseDoorguards),
+			new XElement("MoveEvenIfObstructionInWay", MoveEvenIfObstructionInWay)
+		).ToString();
+	}
+
 	protected ShopkeeperAI(Models.ArtificialIntelligence ai, IFuturemud gameworld) : base(ai, gameworld)
 	{
 		UseKeys = true;

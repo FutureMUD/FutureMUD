@@ -2680,7 +2680,7 @@ The syntax for this command is as follows:
 		));
 	}
 
-	private const string ScheduleHelp = @"The schedule command is used to create schedules that execute progs at a recurring interval.
+	private const string ScheduleHelp = @"The schedule command is used to create schedules that execute progs at a recurring interval of in-character time.
 
 The syntax to use this command is as follows:
 

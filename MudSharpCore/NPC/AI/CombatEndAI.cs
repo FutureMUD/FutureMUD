@@ -34,6 +34,17 @@ public class CombatEndAI : ArtificialIntelligenceBase
 		OnNoNaturalTargets = Gameworld.FutureProgs.Get(long.Parse(definition.Element("OnNoNaturalTargets").Value));
 	}
 
+	protected override string SaveToXml()
+	{
+		return new XElement("Definition",
+			new XElement("WillAcceptTruce", WillAcceptTruce?.Id ?? 0L),
+			new XElement("WillAcceptTargetIncapacitated", WillAcceptTargetIncapacitated?.Id ?? 0L),
+			new XElement("OnOfferedTruce", OnOfferedTruce?.Id ?? 0L),
+			new XElement("OnTargetIncapacitated", OnTargetIncapacitated?.Id ?? 0L),
+			new XElement("OnNoNaturalTargets", OnNoNaturalTargets?.Id ?? 0L)
+		).ToString();
+	}
+
 	public static void RegisterLoader()
 	{
 		RegisterAIType("CombatEnd", (ai, gameworld) => new CombatEndAI(ai, gameworld));

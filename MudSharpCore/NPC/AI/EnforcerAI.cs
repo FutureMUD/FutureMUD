@@ -16,6 +16,7 @@ using MudSharp.Framework;
 using MudSharp.FutureProg;
 using MudSharp.Movement;
 using MudSharp.RPG.Law;
+using MudSharp.FutureProg.Statements.Manipulation;
 
 namespace MudSharp.NPC.AI;
 
@@ -44,6 +45,17 @@ public class EnforcerAI : ArtificialIntelligenceBase
 		ThrowInPrisonEchoProg = long.TryParse(root.Element("ThrowInPrisonEchoProg")?.Value ?? "0", out value)
 			? Gameworld.FutureProgs.Get(value)
 			: Gameworld.FutureProgs.GetByName(root.Element("ThrowInPrisonEchoProg")!.Value);
+	}
+
+	protected override string SaveToXml()
+	{
+		return new XElement("Definition",
+			new XElement("IdentityProg", IdentityIsKnownProg?.Id ?? 0L),
+			new XElement("WarnEchoProg", WarnEchoProg?.Id ?? 0L),
+			new XElement("WarnStartMoveEchoProg", WarnStartMoveEchoProg?.Id ?? 0L),
+			new XElement("FailToComplyEchoProg", FailToComplyEchoProg?.Id ?? 0L),
+			new XElement("ThrowInPrisonEchoProg", ThrowInPrisonEchoProg?.Id ?? 0L)
+		).ToString();
 	}
 
 	public IFutureProg IdentityIsKnownProg { get; protected set; }

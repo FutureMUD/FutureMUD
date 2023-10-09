@@ -41,7 +41,38 @@ internal class CharacterInformationModule : Module<ICharacter>
 
 	public static CharacterInformationModule Instance { get; } = new();
 
+	private const string SetCommandHelp = @"The SET command is used to control various character and account settings. Using the syntax #3set#0 on its own will show you your current settings.
+
+Note that this command does not cover combat settings, and you should see the #3combat set#0 command for more information on those.
+
+The syntax for editing the settings is as follows:
+
+	#3set wrap <normal> <text>#0 - sets the wrap width of ordinary text and text blocks. Usually the second argument should be smaller than the first
+	#3set page <length>#0 - sets the number of lines before one requires the use of the #3more#0 command
+	#3set unicode#0 - toggles unicode mode on or off
+	#3set msp#0 - toggles msp support on or off
+	#3set mccp#0 - toggles mccp support on or off
+	#3set culture <culture>#0 - changes your out of character culture - e.g. #6en-us#0 or #6fr-fr#0
+	#3set timezone <timezone>#0 - changes your out of character timezone. Use #3set timezone ?#0 to show a list
+	#3set units <unit system>#0 - changes your unit preferences - e.g. imperial or metric
+	#3set currency <currency>#0 - changes the currency you use in economic transactions
+	#3set combatbrief#0 - toggles the hiding of combat messages not applying to you
+	#3set writing <styles>#0 - sets what style of writing you use. See #3show writingstyles#0
+	#3set brief#0 - toggles whether to show room descriptions or not
+	#3set prompt full|classic|brief|fullbrief|speaking|stealth|position|magic#0 - sets which prompt you prefer to see
+	#3set roomtabs#0 - toggles tabs at the beginning of room descriptions
+	#3set roomadditions#0 - toggles coded room description additions (weather, light, temp etc) being on new lines
+	#3set newlines#0 - toggles newlines between multiple echoes between prompts
+	#3set names none|brackets|replace#0 - sets name replacement overlay options
+	#3set mercy#0 - toggles showing no mercy (accepting or not accepting surrender in combat)
+	#3set lawful#0 - toggles acting lawfully and preventing actions that would criminalise you
+
+Additionally, admins can use the following options:
+
+	#3set telepathy#0 - toggles admin telepathy (seeing player thoughts and feelings)";
+
 	[PlayerCommand("Set", "set")]
+	[HelpInfo("set", SetCommandHelp, AutoHelp.HelpArg)]
 	protected static void Set(ICharacter actor, string input)
 	{
 		var ss = new StringStack(input.RemoveFirstWord());
@@ -94,35 +125,6 @@ internal class CharacterInformationModule : Module<ICharacter>
 
 		switch (ss.Pop().ToLowerInvariant())
 		{
-			case "?":
-			case "help":
-				actor.Send("Options for the {0} command:\n{1}{2}", "set".Colour(Telnet.Yellow), new[]
-					{
-						"set wrap <normal> <text> - sets the wrap width of ordinary text and text blocks. Usually the second argument should be smaller than the first.",
-						"set page <length> - sets the number of lines before one requires the use of the more command.",
-						"set unicode - toggles unicode mode on or off.",
-						"set msp - toggles msp support on or off.",
-						"set mccp - toggles mccp support on or off.",
-						"set culture <culture> - changes your out of character culture - e.g. en-us or fr-fr.",
-						"set timezone <timezone> - changes your out of character timezone. Use set timezone ? to show a list.",
-						"set units <unit system> - changes your unit preferences - e.g. imperial or metric.",
-						"set currency <currency> - changes the currency you use in economic transactions.",
-						"set combatbrief - toggles the hiding of combat messages not applying to you.",
-						"set writing <styles> - sets what style of writing you use. See SHOW WRITINGSTYLES",
-						"set brief - toggles whether to show room descriptions or not.",
-						"set prompt full|classic|brief|fullbrief|speaking|stealth|position|magic - sets which prompt you prefer to see.",
-						"set roomtabs - toggles tabs at the beginning of room descriptions",
-						"set roomadditions - toggles coded room description additions (weather, light, temp etc) being on new lines.",
-						"set newlines - toggles newlines between multiple echoes between prompts",
-						"set names none|brackets|replace - sets name replacement overlay options",
-						"set mercy - toggles showing no mercy (accepting or not accepting surrenders)",
-						"set lawful - toggles acting lawfully and preventing actions that would criminalise you"
-					}.ListToString(separator: "\n", twoItemJoiner: "\n", conjunction: "", article: "\t"),
-					actor.IsAdministrator()
-						? "\n\tset telepathy - toggles admin telepathy (seeing player thoughts and feelings)"
-						: ""
-				);
-				return;
 			case "roomtabs":
 				actor.Account.TabRoomDescriptions = !actor.Account.TabRoomDescriptions;
 				actor.Send(
@@ -343,6 +345,9 @@ internal class CharacterInformationModule : Module<ICharacter>
 				actor.Send("You are now tuned into player thoughts.");
 				return;
 			case "wrap":
+			case "line":
+			case "linewidth":
+			case "width":
 				if (ss.IsFinished)
 				{
 					actor.Send("What width do you want text to wrap at?");
@@ -375,8 +380,7 @@ internal class CharacterInformationModule : Module<ICharacter>
 
 				actor.Account.LineFormatLength = outerWrap;
 				actor.Account.InnerLineFormatLength = innerWrap;
-				actor.Send("You set your wrap width to {0} for ordinary text and {1} for text blocks.", outerWrap,
-					innerWrap);
+				actor.Send($"You set your wrap width to {outerWrap.ToString("N0", actor).ColourValue()} for ordinary text and {innerWrap.ToString("N0", actor).ColourValue()} for text blocks.");
 				return;
 			case "page":
 				if (ss.IsFinished)
@@ -398,7 +402,7 @@ internal class CharacterInformationModule : Module<ICharacter>
 				}
 
 				actor.Account.PageLength = pageLength;
-				actor.Send("You set your page length to {0}.", pageLength);
+				actor.OutputHandler.Send($"You set your page length to {pageLength.ToString("N0", actor).ColourValue()}.");
 				return;
 			case "unicode":
 				actor.Send(actor.Account.UseUnicode
@@ -414,7 +418,7 @@ internal class CharacterInformationModule : Module<ICharacter>
 				}
 
 				var cultures = CultureInfo.GetCultures(CultureTypes.AllCultures);
-				var culturePick = ss.Pop();
+				var culturePick = ss.PopSpeech();
 				if (!cultures.Any(x => x.Name.Equals(culturePick, StringComparison.InvariantCultureIgnoreCase)))
 				{
 					actor.Send("That is not a valid culture for you to select.");
@@ -552,22 +556,18 @@ internal class CharacterInformationModule : Module<ICharacter>
 				actor.Changed = true;
 				return;
 			default:
-				actor.Send("That is not a valid option for the set command.");
+				actor.OutputHandler.Send(SetCommandHelp.SubstituteANSIColour());
 				return;
 		}
 	}
 
 	[PlayerCommand("Consider", "consider", "con")]
 	[RequiredCharacterState(CharacterState.Conscious)]
+	[HelpInfo("consider", @"The consider command is used to get key information about another character that might not be readily apparent from their description alone. This includes things like estimates of height, weight, ethnicity and key features. The syntax is simply #3consider <target>#0.", AutoHelp.HelpArgOrNoArg)]
 	protected static void Consider(ICharacter actor, string input)
 	{
 		var ss = new StringStack(input.RemoveFirstWord());
-		var arg = ss.Pop();
-		if (string.IsNullOrEmpty(arg))
-		{
-			actor.OutputHandler.Send("Who do you wish to consider?");
-			return;
-		}
+		var arg = ss.PopSpeech();
 
 		var target = actor.TargetActor(arg);
 		if (target == null)
@@ -578,7 +578,7 @@ internal class CharacterInformationModule : Module<ICharacter>
 
 		var gender = target.ApparentGender(actor);
 		var sb = new StringBuilder();
-		sb.AppendLine("You consider " + target.HowSeen(actor, flags: PerceiveIgnoreFlags.IgnoreSelf) + ":");
+		sb.AppendLine($"You consider {target.HowSeen(actor, flags: PerceiveIgnoreFlags.IgnoreSelf)}:");
 		sb.AppendLine();
 		if (target.Race == actor.Race || actor.IsAdministrator())
 		{
@@ -591,7 +591,7 @@ internal class CharacterInformationModule : Module<ICharacter>
 			$"{gender.Subjective(true)} {gender.Is()} about {actor.Gameworld.UnitManager.Describe(target.Height, UnitType.Length, actor).ColourValue()} tall and {target.DescribeCharacteristic("Height", actor.Body).IfEmpty("of similar height").ColourValue()} relative to you.");
 		sb.AppendLine(
 			$"{gender.Subjective(true)} {(gender.UseThirdPersonVerbForms ? "weighs" : "weigh")} about {actor.Gameworld.UnitManager.DescribeMostSignificant(target.Weight, UnitType.Mass, actor).ColourValue()}.");
-		if (actor.Race == target.Race || actor.IsAdministrator())
+		if (actor.Race.SameRace(target.Race) || target.Race.SameRace(actor.Race) || actor.IsAdministrator())
 		{
 			sb.AppendLine($"You'd guess their ethnicity to be {target.Ethnicity.Name.ColourValue()}.");
 		}
@@ -805,6 +805,19 @@ internal class CharacterInformationModule : Module<ICharacter>
 	}
 
 	[PlayerCommand("Knowledges", "knowledges")]
+	[HelpInfo("knowledges", @"The knowledges command is used to view what knowledges your character has.
+
+There are a few different ways to interact with this command:
+
+	#3knowledges#0 - this shows all of your knowledges
+	#3knowledges <category>#0 - this shows only knowledges you know from that category
+	#3knowledges <category> <subcategory>#0 - this shows only knowledges you know from that category and subcategory
+
+Additionally, admins can use these forms:
+
+	#3knowledges *<who>#0 - this shows all of your target's knowledges
+	#3knowledges *<who> <category>#0 - this shows only knowledges your target knows from that category
+	#3knowledges *<who> <category> <subcategory>#0 - this shows only knowledges  your target knows from that category and subcategory", AutoHelp.HelpArg)]
 	protected static void Knowledges(ICharacter actor, string input)
 	{
 		var ss = new StringStack(input.RemoveFirstWord());
@@ -818,7 +831,7 @@ internal class CharacterInformationModule : Module<ICharacter>
 
 			if (target == null)
 			{
-				actor.Send("There is no such character to view knowledges of.");
+				actor.OutputHandler.Send("There is no such character to view knowledges of.");
 				return;
 			}
 		}
@@ -845,8 +858,9 @@ internal class CharacterInformationModule : Module<ICharacter>
 							StringComparison.InvariantCultureIgnoreCase));
 		}
 
-		actor.OutputHandler.Send($"{target.HowSeen(actor, true)} know the following knowledges:\n\n" +
-		                         StringUtilities.GetTextTable(
+		actor.OutputHandler.Send($@"{target.HowSeen(actor, true)} {(actor == target ? "know" : "knows")} the following knowledges:
+
+{StringUtilities.GetTextTable(
 			                         from knowledge in knowledges
 			                         select new[]
 			                         {
@@ -864,12 +878,19 @@ internal class CharacterInformationModule : Module<ICharacter>
 			                         colour: Telnet.Green,
 			                         truncatableColumnIndex: 1,
 			                         unicodeTable: actor.Account.UseUnicode
-		                         ) + "\n\nSee " +
-		                         "help knowledges".Colour(Telnet.Yellow) +
-		                         " for more information.");
+		                         )}
+
+See {"help knowledges".Colour(Telnet.Yellow)} for more information.");
 	}
 
 	[PlayerCommand("Quirks", "merits", "flaws", "quirks")]
+	[HelpInfo("quirks", @"The quirks command allows you to view your own quirks (merits and flaws). It will also show you the status of those quirks and whether they currently apply or not, if they are conditional. The syntax is simply #3quirks#0.", AutoHelp.HelpArg, 
+		@"The quirks command allows you to view yours or another's quirks (merits and flaws). It will also show you the status of those quirks and whether they currently apply or not, if they are conditional. 
+
+The syntax is as follows:
+
+	#3quirks#0 - see your own quirks
+	#3quirks <target>#0 - see the quirks of a target")]
 	protected static void Merits(ICharacter actor, string input)
 	{
 		var ss = new StringStack(input.RemoveFirstWord());
@@ -885,22 +906,33 @@ internal class CharacterInformationModule : Module<ICharacter>
 			}
 		}
 
-		actor.Send("Quirks for {0}:\n\n{1}", target.HowSeen(actor, flags: PerceiveIgnoreFlags.IgnoreSelf),
-			target.Merits
-			      .OfType<ICharacterMerit>()
-			      .Where(x => x.DisplayInCharacterMeritsCommand(actor))
-			      .Select(x =>
-				      $"{x.Name.TitleCase()} ({(x.Applies(target) ? "In Effect".Colour(Telnet.Green) : "Inactive".Colour(Telnet.Red))})")
-			      .ListToString(separator: "\n", conjunction: "", twoItemJoiner: "\n"));
+		actor.Send($@"Quirks for {target.HowSeen(actor, flags: PerceiveIgnoreFlags.IgnoreSelf)}:
+
+{target.Merits
+				  .OfType<ICharacterMerit>()
+				  .Where(x => x.DisplayInCharacterMeritsCommand(actor))
+				  .Select(x =>
+					  $"{x.Name.TitleCase()} ({(x.Applies(target) ? "In Effect".Colour(Telnet.Green) : "Inactive".Colour(Telnet.Red))})")
+				  .ListToString(separator: "\n", conjunction: "", twoItemJoiner: "\n")}"
+			);
 	}
 
 	[PlayerCommand("Score", "score", "sc", "sco", "scor")]
+	[HelpInfo("score", 
+		@"The score command is a catch-all command used to show key information about your character and their status, like their hunger and thirst levels, languages, attributes, current name, currency etc.
+
+The syntax is simply #3score#0.", 
+		AutoHelp.HelpArg,
+		@"The score command is a catch-all command used to show key information about your character and their status, like their hunger and thirst levels, languages, attributes, current name, currency etc.
+
+For admins, the syntax is simply #3score#0 to see your own score or #3score <target>#0 to see someone else's score."
+		)]
 	protected static void Score(ICharacter actor, string input)
 	{
 		var ss = new StringStack(input.RemoveFirstWord());
 		if (actor.IsAdministrator() && !ss.IsFinished)
 		{
-			var targetActor = actor.TargetActor(ss.Pop());
+			var targetActor = actor.TargetActor(ss.SafeRemainingArgument);
 			if (targetActor == null)
 			{
 				actor.Send("You don't see anybody like that to view the score of.");
@@ -915,6 +947,14 @@ internal class CharacterInformationModule : Module<ICharacter>
 	}
 
 	[PlayerCommand("Attributes", "attributes", "attr")]
+	[HelpInfo("attributes", 
+		@"The attributes command is used to view your characters attributes. See the skills command for separate information on your character's skills.
+
+The syntax is simply #3attributes#0.", 
+		AutoHelp.HelpArg,
+		@"The attributes command is used to view your characters attributes. See the skills command for separate information on your character's skills.
+
+The syntax is simply #3attributes#0 or #3attributes <target>#0 to see someone else's attributes.")]
 	protected static void Attributes(ICharacter actor, string input)
 	{
 		var who = actor;
@@ -1164,18 +1204,36 @@ internal class CharacterInformationModule : Module<ICharacter>
 		#endregion
 	}
 
-	[PlayerCommand("Test", "test")]
-	[HelpInfo("test", "Test skill/attribute against a difficulty, optionally against another character.\nSyntax:\n\t" +
-	                  "test <attribute/skill/height/weight> [<difficulty>] [echo]\n\ttest <attribute/skill/height/weight> vs <target> <attribute/skill> [<difficulty>]",
+	[PlayerCommand("Test", "test", "silenttest")]
+	[HelpInfo("test", @"The test command is used to roll a test against a skill, attribute, or other factors like height or weight. This can be private (only you see that you have tested it and the outcomes) or public (everyone sees it).
+
+This command is used to supplement roleplay by having a way to introduce a little risk. Success or failure has no mechanical effect.
+
+You can use this command in one of two following ways:
+
+	#3test <attribute>|<skill>|height|weight [<difficulty>]#0 - tests something against the supplied difficulty
+	#3test <attribute>|<skill>|height|weight#0 - tests something against a difficulty of #2normal#0.
+	#3silenttest <attribute>|<skill>|height|weight [<difficulty>]#0 - tests something against the supplied difficulty but does not echo
+	#3silenttest <attribute>|<skill>|height|weight#0 - tests something against a difficulty of #2normal#0 but does not echo.
+
+See #6show difficulties#0 for a list of valid difficulties.
+
+You can also use this command to test against someone else. This always echoes.
+
+	#3test <attribute>|<skill>|height|weight vs <target> <attribute>|<skill>|height|weight [<difficulty>]#0 - tests something against someone else at the supplied difficulty
+	#3test <attribute>|<skill>|height|weight#0 - tests something against someone else at a difficulty of #2normal#0.",
 		AutoHelp.HelpArgOrNoArg)]
 	protected static void Test(ICharacter actor, string input)
 	{
-		var ss = new StringStack(input.RemoveFirstWord());
+		var ss = new StringStack(input);
+		var topLevelCommand = ss.Pop();
+		var echo = "silentcommand".StartsWith(topLevelCommand, StringComparison.InvariantCultureIgnoreCase);
+
 		var experimental = false;
-		if (ss.Peek().EqualTo("experimental"))
+		if (ss.PeekSpeech().EqualTo("experimental"))
 		{
 			experimental = true;
-			ss.Pop();
+			ss.PopSpeech();
 		}
 
 		var cmd = ss.PopSpeech();
@@ -1196,8 +1254,7 @@ internal class CharacterInformationModule : Module<ICharacter>
 					x.Name.ToLowerInvariant().StartsWith(cmd.ToLowerInvariant(), StringComparison.Ordinal));
 			if (trait == null)
 			{
-				actor.OutputHandler.Send(StringUtilities.HMark +
-				                         "There is no such attribute or skill to test against.");
+				actor.OutputHandler.Send("There is no such attribute or skill to test against.");
 				return;
 			}
 
@@ -1212,33 +1269,28 @@ internal class CharacterInformationModule : Module<ICharacter>
 		}
 
 		Difficulty diff;
-		var echo = false;
-
 		cmd = ss.PopSpeech();
-		if (cmd.ToLowerInvariant() == "vs")
+		if (cmd.EqualToAny("vs", "versus", "against"))
 		{
 			echo = true;
 			cmd = ss.PopSpeech();
 			if (cmd.Length == 0)
 			{
-				actor.OutputHandler.Send(StringUtilities.HMark + "Who do you wish to test your traits against?");
+				actor.OutputHandler.Send("Who do you wish to test your traits against?");
 				return;
 			}
 
 			var target = actor.TargetActor(cmd);
 			if (target == null)
 			{
-				actor.OutputHandler.Send(StringUtilities.HMark +
-				                         "You do not see anyone such as that to test your traits against.");
+				actor.OutputHandler.Send("You do not see anyone like that to test your traits against.");
 				return;
 			}
 
-			cmd = ss.Pop();
+			cmd = ss.PopSpeech();
 			if (cmd.Length == 0)
 			{
-				actor.OutputHandler.Send(StringUtilities.HMark + "What trait of " +
-				                         target.HowSeen(actor, type: DescriptionType.Possessive) +
-				                         " do you want to test against?");
+				actor.OutputHandler.Send($"What trait of {target.HowSeen(actor, type: DescriptionType.Possessive)} do you want to test against?");
 				return;
 			}
 
@@ -1258,8 +1310,7 @@ internal class CharacterInformationModule : Module<ICharacter>
 						x.Name.ToLowerInvariant().StartsWith(cmd.ToLowerInvariant(), StringComparison.Ordinal));
 				if (trait == null)
 				{
-					actor.OutputHandler.Send(StringUtilities.HMark +
-					                         "There is no such attribute or skill to test against.");
+					actor.OutputHandler.Send("There is no such attribute or skill to test against.");
 					return;
 				}
 
@@ -1273,15 +1324,12 @@ internal class CharacterInformationModule : Module<ICharacter>
 				}
 			}
 
-			cmd = ss.Pop();
+			cmd = ss.PopSpeech();
 			if (cmd.Length > 0)
 			{
 				if (!CheckExtensions.GetDifficulty(cmd, out diff))
 				{
-					actor.OutputHandler.Send(StringUtilities.HMark +
-					                         "That is not a valid difficulty. Valid difficulties are " +
-					                         (from differ in Enum.GetNames(typeof(Difficulty))
-					                          select differ.Colour(Telnet.Cyan)).ListToString() + ".");
+					actor.OutputHandler.Send($"That is not a valid difficulty.\nThe valid difficulties are {(Enum.GetValues<Difficulty>().Select(x => x.DescribeColoured())).ListToString()}.");
 					return;
 				}
 			}
@@ -1290,39 +1338,23 @@ internal class CharacterInformationModule : Module<ICharacter>
 				diff = Difficulty.Normal;
 			}
 
-			cmd = ss.Pop();
-			if (cmd.ToLowerInvariant() == "echo")
-			{
-				actor.Send(StringUtilities.HMark + "Versus tests are always echoed, to prevent abuse.");
-				return;
-			}
-
 			var vsOutput =
-				$"$0 test|tests &0's {playerTest.DescribeTest()}  against $1's {targetTest.DescribeTest()} at {diff.Describe().ToLowerInvariant().Colour(Telnet.Yellow)} difficulty.";
+				$"$0 test|tests &0's {playerTest.DescribeTest()} against $1's {targetTest.DescribeTest()} at {diff.Describe().ToLowerInvariant().Colour(Telnet.Yellow)} difficulty.";
 			ICharacter vsWinner = null;
 			CheckOutcome playerOutcome, targetOutcome;
 			IReadOnlyDictionary<Difficulty, CheckOutcome> playerOutcomes = new Dictionary<Difficulty, CheckOutcome>();
 			IReadOnlyDictionary<Difficulty, CheckOutcome> targetOutcomes = new Dictionary<Difficulty, CheckOutcome>();
 			OpposedOutcome outcome;
-			if (!experimental)
-			{
-				playerOutcome = playerTest.TestAgainst(actor, diff);
-				targetOutcome = targetTest.TestAgainst(target, diff);
-				outcome = new OpposedOutcome(playerOutcome, targetOutcome);
-			}
-			else
-			{
-				playerOutcomes = playerTest.TestAgainstAllDifficulties(actor, diff);
-				targetOutcomes = targetTest.TestAgainstAllDifficulties(target, diff);
-				outcome = new OpposedOutcome(playerOutcomes, targetOutcomes, diff, diff);
-				playerOutcome = playerOutcomes[outcome.ProponentDifficulty];
-				targetOutcome = targetOutcomes[outcome.OpponentDifficulty];
-			}
+			playerOutcomes = playerTest.TestAgainstAllDifficulties(actor, diff);
+			targetOutcomes = targetTest.TestAgainstAllDifficulties(target, diff);
+			outcome = new OpposedOutcome(playerOutcomes, targetOutcomes, diff, diff);
+			playerOutcome = playerOutcomes[outcome.ProponentDifficulty];
+			targetOutcome = targetOutcomes[outcome.OpponentDifficulty];
+			var nonExperimentalOutcome = new OpposedOutcome(playerOutcomes[diff], targetOutcomes[diff]);
 
-			if (experimental)
+			if (!outcome.IsEquivalent(nonExperimentalOutcome))
 			{
-				vsOutput = vsOutput.Append("\n\tThe ties-forbidden result is a " +
-				                           outcome.Degree.DescribeColour().ToLowerInvariant() + " success to $2.");
+				vsOutput = vsOutput.Append($"\n\tThe initial result was a tie, but with tie-breaking rules the result is a {outcome.Degree.DescribeColour().ToLowerInvariant()} success to $2.");
 				switch (outcome.Outcome)
 				{
 					case OpposedOutcomeDirection.Proponent:
@@ -1332,42 +1364,18 @@ internal class CharacterInformationModule : Module<ICharacter>
 						vsWinner = target;
 						break;
 				}
-
-				var nonExperimentalOutcome = new OpposedOutcome(playerOutcomes[diff], targetOutcomes[diff]);
+			}
+			else
+			{
 				switch (nonExperimentalOutcome.Outcome)
 				{
-					case OpposedOutcomeDirection.Stalemate:
-						vsOutput = vsOutput.Append($"\n\tThe regular result is a {"stalemate".Colour(Telnet.Yellow)}");
-						break;
 					case OpposedOutcomeDirection.Proponent:
 						vsOutput = vsOutput.Append(
-							$"\n\tThe regular result is a {nonExperimentalOutcome.Degree.DescribeColour().ToLowerInvariant()} success to $0.");
+							$"\n\tThe result is a {nonExperimentalOutcome.Degree.DescribeColour().ToLowerInvariant()} success to $0.");
 						break;
 					case OpposedOutcomeDirection.Opponent:
 						vsOutput = vsOutput.Append(
-							$"\n\tThe regular result is a {nonExperimentalOutcome.Degree.DescribeColour().ToLowerInvariant()} success to $1.");
-						break;
-				}
-			}
-			else
-			{
-				switch (outcome.Outcome)
-				{
-					case OpposedOutcomeDirection.Stalemate:
-						vsOutput = vsOutput.Append("\n\tThe result is a " + "stalemate".Colour(Telnet.Yellow) +
-						                           ".");
-						break;
-					case OpposedOutcomeDirection.Proponent:
-						vsOutput = vsOutput.Append("\n\tThe result is a " +
-						                           outcome.Degree.DescribeColour().ToLowerInvariant() +
-						                           " success to $2.");
-						vsWinner = actor;
-						break;
-					case OpposedOutcomeDirection.Opponent:
-						vsOutput = vsOutput.Append("\n\tThe result is a " +
-						                           outcome.Degree.DescribeColour().ToLowerInvariant() +
-						                           " success to $2.");
-						vsWinner = target;
+							$"\n\tThe result is a {nonExperimentalOutcome.Degree.DescribeColour().ToLowerInvariant()} success to $1.");
 						break;
 				}
 			}
@@ -1385,68 +1393,38 @@ internal class CharacterInformationModule : Module<ICharacter>
 			//Generate admin output
 			var vsAdminOutput = new StringBuilder();
 			vsAdminOutput.Append(vsOutput);
-			vsAdminOutput.Append("\n\n Data for $3:");
-			vsAdminOutput.Append("\n\tFinal Outcome: " + playerOutcome.Outcome.DescribeColour() + " at " +
-			                     playerOutcome.FinalDifficulty.Describe().Colour(Telnet.Green) + "[" +
-			                     Math.Round(playerOutcome.FinalDifficultyModifier, 2).ToString()
-			                         .Colour(Telnet.BoldYellow) + "]");
-			vsAdminOutput.Append("\n\tRolls vs " +
-			                     Math.Round(playerOutcome.TargetNumber, 2).ToString().Colour(Telnet.BoldYellow) +
-			                     ": " +
-			                     playerOutcome.Rolls.Select(x => Math.Round(x, 2).ToString()
-			                                                         .Colour(x <= playerOutcome.TargetNumber
-				                                                         ? Telnet.BoldGreen
-				                                                         : Telnet.BoldRed))
-			                                  .ListToString());
+			vsAdminOutput.Append($@"
+
+ Data for $3:
+	Final Outcome: {playerOutcome.Outcome.DescribeColour()} at {playerOutcome.FinalDifficulty.DescribeColoured()}[{playerOutcome.FinalDifficultyModifier.ToBonusString(actor)}]
+	Rolls vs {Math.Round(playerOutcome.TargetNumber, 2).ToString().Colour(Telnet.BoldYellow)}: {playerOutcome.Rolls.Select(x => Math.Round(x, 2).ToString()
+																	 .Colour(x <= playerOutcome.TargetNumber
+																		 ? Telnet.BoldGreen
+																		 : Telnet.BoldRed))
+											  .ListToString()}");
+			
 			if (playerOutcome.ActiveBonuses?.Count() > 0)
 			{
-				vsAdminOutput.Append("\n\tActive Bonuses: " +
-				                     playerOutcome.ActiveBonuses.Select(x => x.Item1 + "(" +
-				                                                             Math.Round(x.Item2, 2).ToString()
-					                                                             .Colour(x.Item2 > 0
-						                                                             ? Telnet.BoldGreen
-						                                                             : Telnet.BoldRed) + ")")
-				                                  .ListToString() +
-				                     "\n\tTotal Bonuses: " + Math.Round(playerOutcome.FinalBonus, 2).ToString()
-				                                                 .Colour(playerOutcome.FinalBonus > 0
-					                                                 ?
-					                                                 Telnet.BoldGreen
-					                                                 :
-					                                                 playerOutcome.FinalBonus < 0
-						                                                 ? Telnet.BoldRed
-						                                                 : Telnet.BoldYellow));
+				vsAdminOutput.Append($"\n\tActive Bonuses: {playerOutcome.ActiveBonuses.Select(x => $"{x.Item1}({x.Item2.ToBonusString(actor)})")
+				                                  .ListToString()}\n\tTotal Bonuses: {playerOutcome.FinalBonus.ToBonusString(actor)}");
 			}
 
-			vsAdminOutput.Append("\n\n Data for $4:");
-			vsAdminOutput.Append("\n\tFinal Outcome: " + targetOutcome.Outcome.DescribeColour() + " at " +
-			                     targetOutcome.FinalDifficulty.Describe().Colour(Telnet.Green) + "[" +
-			                     Math.Round(playerOutcome.FinalDifficultyModifier, 2).ToString()
-			                         .Colour(Telnet.BoldYellow) + "]");
-			vsAdminOutput.Append("\n\tRolls vs " +
-			                     Math.Round(targetOutcome.TargetNumber, 2).ToString().Colour(Telnet.BoldYellow) +
-			                     ": " +
-			                     targetOutcome.Rolls.Select(x => Math.Round(x, 2).ToString()
+			vsAdminOutput.Append(@$"
+
+ Data for $4:
+
+	Final Outcome: {targetOutcome.Outcome.DescribeColour()} at {targetOutcome.FinalDifficulty.DescribeColoured()}[{playerOutcome.FinalDifficultyModifier.ToBonusString(actor)}]
+
+	Rolls vs {Math.Round(targetOutcome.TargetNumber, 2).ToString().Colour(Telnet.BoldYellow)}: {targetOutcome.Rolls.Select(x => Math.Round(x, 2).ToString()
 			                                                         .Colour(x <= targetOutcome.TargetNumber
 				                                                         ? Telnet.BoldGreen
-				                                                         : Telnet.BoldRed))
-			                                  .ListToString());
+																		 : Telnet.BoldRed))
+			                                  .ListToString()}");
+
 			if (targetOutcome.ActiveBonuses?.Count() > 0)
 			{
-				vsAdminOutput.Append("\n\tActive Bonuses: " +
-				                     targetOutcome.ActiveBonuses.Select(x => x.Item1 + "(" +
-				                                                             Math.Round(x.Item2, 2).ToString()
-					                                                             .Colour(x.Item2 > 0
-						                                                             ? Telnet.BoldGreen
-						                                                             : Telnet.BoldRed) + ")")
-				                                  .ListToString() +
-				                     "\n\tTotal Bonuses: " + Math.Round(targetOutcome.FinalBonus, 2).ToString()
-				                                                 .Colour(targetOutcome.FinalBonus > 0
-					                                                 ?
-					                                                 Telnet.BoldGreen
-					                                                 :
-					                                                 targetOutcome.FinalBonus < 0
-						                                                 ? Telnet.BoldRed
-						                                                 : Telnet.BoldYellow));
+				vsAdminOutput.Append($"\n\tActive Bonuses: {targetOutcome.ActiveBonuses.Select(x => $"{x.Item1}({x.Item2.ToBonusString(actor)})")
+				                                  .ListToString()}\n\tTotal Bonuses: {targetOutcome.FinalBonus.ToBonusString(actor)}");
 			}
 
 			//Now send it to any observing admin
@@ -1466,10 +1444,7 @@ internal class CharacterInformationModule : Module<ICharacter>
 			{
 				if (!CheckExtensions.GetDifficulty(cmd, out diff))
 				{
-					actor.OutputHandler.Send(StringUtilities.HMark +
-					                         "That is not a valid difficulty. Valid difficulties are " +
-					                         (from differ in Enum.GetNames(typeof(Difficulty))
-					                          select differ.Colour(Telnet.Cyan)).ListToString() + ".");
+					actor.OutputHandler.Send($"That is not a valid difficulty.\nThe valid difficulties are {(Enum.GetValues<Difficulty>().Select(x => x.DescribeColoured())).ListToString()}.");
 					return;
 				}
 			}
@@ -1479,11 +1454,6 @@ internal class CharacterInformationModule : Module<ICharacter>
 			}
 
 			cmd = ss.PopSpeech();
-			if (cmd.ToLowerInvariant() == "echo")
-			{
-				echo = true;
-				cmd = ss.Pop();
-			}
 
 			CheckOutcome outcome;
 			IReadOnlyDictionary<Difficulty, CheckOutcome> allOutcomes = new Dictionary<Difficulty, CheckOutcome>();
@@ -1498,9 +1468,8 @@ internal class CharacterInformationModule : Module<ICharacter>
 			}
 
 			var outputStr =
-				$"@ test|tests against &0's {playerTest.DescribeTest()} at {diff.Describe().ToLowerInvariant().Colour(Telnet.Yellow)} difficulty.";
-			outputStr = outputStr.Append("\n\tThe result is a " + outcome.Outcome.DescribeColour().ToLowerInvariant() +
-			                             ".");
+				$"@ test|tests against &0's {playerTest.DescribeTest()} at {diff.DescribeColoured()} difficulty.";
+			outputStr = outputStr.Append($"\n\tThe result is a {outcome.Outcome.DescribeColour().ToLowerInvariant()}.");
 
 			//Private echo or echo everyone in the room, admin see either way
 			if (!echo && !actor.IsAdministrator())
@@ -1521,68 +1490,33 @@ internal class CharacterInformationModule : Module<ICharacter>
 				}
 			}
 
-			if (experimental)
-			{
-				var sb = new StringBuilder();
-				foreach (var result in allOutcomes)
-				{
-					sb.AppendLine(
-						$"\t\tAt {result.Key.Describe().Colour(Telnet.Yellow)} the result was {result.Value.Outcome.DescribeColour()}.");
-				}
-
-				actor.OutputHandler.Send(sb.ToString());
-			}
-
 			//Generate admin output
 			var bonusPerDifficulty = Futuremud.Games.First().GetStaticInt("CheckBonusPerDifficultyLevel");
 			var bonusAdjustment = (int)(outcome.FinalBonus / bonusPerDifficulty);
 			var adminOutput = new StringBuilder();
 			adminOutput.Append(
-				$"@ test|tests against &0's {playerTest.DescribeTest()} at {diff.Describe().ToLowerInvariant().Colour(Telnet.Yellow)}[" +
-				outcome.OriginalDifficultyModifier.ToString()
-				       .Colour(outcome.OriginalDifficultyModifier > 0 ? Telnet.BoldGreen :
-					       outcome.OriginalDifficultyModifier < 0 ? Telnet.BoldRed : Telnet.BoldYellow) +
-				"] difficulty");
+				$"@ test|tests against &0's {playerTest.DescribeTest()} at {diff.DescribeColoured()} [{outcome.OriginalDifficultyModifier.ToBonusString(actor)}] difficulty");
 			if (outcome.FinalDifficulty != outcome.OriginalDifficulty)
 			{
-				adminOutput.Append(" which got adjusted to " +
-				                   outcome.FinalDifficulty.Describe().Colour(Telnet.Green) + "[" +
-				                   outcome.FinalDifficultyModifier.ToString()
-				                          .Colour(outcome.FinalDifficultyModifier > 0 ? Telnet.BoldGreen :
-					                          outcome.FinalDifficultyModifier < 0 ? Telnet.BoldRed :
-					                          Telnet.BoldYellow) +
-				                   "]");
+				adminOutput.Append($" which got adjusted to {outcome.FinalDifficulty.DescribeColoured()} [{outcome.FinalDifficultyModifier.ToBonusString(actor)}]");
 			}
 
 			if (echo)
 			{
-				adminOutput.Append(" (ECHOED)");
+				adminOutput.Append(" #C(ECHOED)#0".SubstituteANSIColour());
 			}
 
-			adminOutput.AppendLine("\n\tThe result is a " + outcome.Outcome.DescribeColour().ToLowerInvariant() + ".");
+			adminOutput.AppendLine($"\n\tThe result is a {outcome.Outcome.DescribeColour().ToLowerInvariant()}.");
 
-			adminOutput.Append("\tRolls vs " +
-			                   Math.Round(outcome.TargetNumber, 2).ToString().Colour(Telnet.BoldYellow) +
-			                   ": " +
-			                   outcome.Rolls.Select(x => Math.Round(x, 2).ToString()
+			adminOutput.Append($"\tRolls vs {Math.Round(outcome.TargetNumber, 2).ToString().Colour(Telnet.BoldYellow)}: {outcome.Rolls.Select(x => Math.Round(x, 2).ToString()
 			                                                 .Colour(x <= outcome.TargetNumber
 				                                                 ? Telnet.BoldGreen
 				                                                 : Telnet.BoldRed))
-			                          .ListToString());
+			                          .ListToString()}");
 
 			if (outcome.ActiveBonuses?.Count() > 0)
 			{
-				adminOutput.Append("\n\tActive Bonuses: " +
-				                   outcome.ActiveBonuses.Select(x => x.Item1 +
-				                                                     "(" +
-				                                                     Math.Round(x.Item2, 2).ToString()
-				                                                         .Colour(x.Item2 > 0
-					                                                         ? Telnet.BoldGreen
-					                                                         : Telnet.BoldRed) + ")").ListToString() +
-				                   "\n\tTotal Bonuses: " + Math.Round(outcome.FinalBonus, 2).ToString()
-				                                               .Colour(outcome.FinalBonus > 0 ? Telnet.BoldGreen :
-					                                               outcome.FinalBonus < 0 ? Telnet.BoldRed :
-					                                               Telnet.BoldYellow));
+				adminOutput.Append($"\n\tActive Bonuses: {outcome.ActiveBonuses.Select(x => $"{x.Item1}({x.Item2.ToBonusString(actor)})").ListToString()}\n\tTotal Bonuses: {outcome.FinalBonus.ToBonusString(actor)}");
 			}
 
 			foreach (var admin in actor.Location?.LayerCharacters(actor.RoomLayer).Where(x => x.IsAdministrator()) ??

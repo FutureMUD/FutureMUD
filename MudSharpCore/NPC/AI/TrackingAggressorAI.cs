@@ -43,6 +43,27 @@ public class TrackingAggressorAI : PathingAIWithProgTargetsBase
 		MaximumRange = uint.Parse(root.Element("MaximumRange").Value);
 	}
 
+	protected override string SaveToXml()
+	{
+		return new XElement("Definition",
+			new XElement("WillAttackProg", WillAttackProg?.Id ?? 0L),
+			new XElement("EngageDelayDiceExpression", new XCData(EngageDelayDiceExpression)),
+			new XElement("EngageEmote", new XCData(EngageEmote)),
+			new XElement("PathingEnabledProg", PathingEnabledProg?.Id ?? 0L),
+			new XElement("OnStartToPathProg", OnStartToPathProg?.Id ?? 0L),
+			new XElement("TargetLocationProg", TargetLocationProg?.Id ?? 0L),
+			new XElement("FallbackLocationProg", FallbackLocationProg?.Id ?? 0L),
+			new XElement("WayPointsProg", WayPointsProg?.Id ?? 0L),
+			new XElement("OpenDoors", OpenDoors),
+			new XElement("UseKeys", UseKeys),
+			new XElement("SmashLockedDoors", SmashLockedDoors),
+			new XElement("CloseDoorsBehind", CloseDoorsBehind),
+			new XElement("UseDoorguards", UseDoorguards),
+			new XElement("MoveEvenIfObstructionInWay", MoveEvenIfObstructionInWay),
+			new XElement("MaximumRange", MaximumRange)
+		).ToString();
+	}
+
 	private bool CheckAllTargetsForAttack(ICharacter ch)
 	{
 		if (ch.State.HasFlag(CharacterState.Dead) || ch.State.HasFlag(CharacterState.Stasis))

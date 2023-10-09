@@ -36,6 +36,17 @@ public class CommandableAI : ArtificialIntelligenceBase
 		_commandIssuedEmoteText = root.Element("CommandIssuedEmote")?.Value;
 	}
 
+	protected override string SaveToXml()
+	{
+		return new XElement("Definition",
+			new XElement("CanCommandProg", _canCommandProg?.Id ?? 0L),
+			new XElement("WhyCannotCommandProg", _whyCannotCommandProg?.Id ?? 0L),
+			new XElement("CommandIssuedEmote", new XCData(_commandIssuedEmoteText)),
+			new XElement("BannedCommands", from cmd in _bannedCommands select new XElement("Command", new XCData(cmd))),
+			new XElement("IncludedCommands", from cmd in _includedCommands select new XElement("Command", new XCData(cmd)))
+		).ToString();
+	}
+
 	public override bool HandleEvent(EventType type, params dynamic[] arguments)
 	{
 		if (type != EventType.CommandIssuedToCharacter)

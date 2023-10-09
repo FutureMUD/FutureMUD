@@ -393,6 +393,36 @@ public class SemiAggressiveAI : PathingAIWithProgTargetsBase
 		}
 	}
 
+	protected override string SaveToXml()
+	{
+		return new XElement("Definition",
+			new XElement("WillAttackProg", WillAttackProg?.Id ?? 0L),
+			new XElement("WillPostureProg", WillPostureProg?.Id ?? 0L),
+			new XElement("WillFleeProg", WillFleeProg?.Id ?? 0L),
+			new XElement("WillAttackPostureEscalationProg", WillAttackPostureEscalationProg?.Id ?? 0L),
+			new XElement("PostureEmoteProg", PostureEmoteProg?.Id ?? 0L),
+			new XElement("AttackEmoteProg", AttackEmoteProg?.Id ?? 0L),
+			new XElement("FleeEmoteProg", FleeEmoteProg?.Id ?? 0L),
+			new XElement("PostureTimeSpanDiceExpression", new XCData(PostureTimeSpanDiceExpression)),
+			new XElement("ThreatPerEscalationTick", ThreatPerEscalationTick),
+			new XElement("ThreatPerInventoryChange", ThreatPerInventoryChange),
+			new XElement("ThreatPerHostilePreCombatAction", ThreatPerHostilePreCombatAction),
+			new XElement("ThreatEscalationPerAdditionalTarget", ThreatEscalationPerAdditionalTarget),
+			new XElement("FleeLocationsProg", FleeLocationsProg?.Id ?? 0L),
+			new XElement("PathingEnabledProg", PathingEnabledProg?.Id ?? 0L),
+			new XElement("OnStartToPathProg", OnStartToPathProg?.Id ?? 0L),
+			new XElement("TargetLocationProg", TargetLocationProg?.Id ?? 0L),
+			new XElement("FallbackLocationProg", FallbackLocationProg?.Id ?? 0L),
+			new XElement("WayPointsProg", WayPointsProg?.Id ?? 0L),
+			new XElement("OpenDoors", OpenDoors),
+			new XElement("UseKeys", UseKeys),
+			new XElement("SmashLockedDoors", SmashLockedDoors),
+			new XElement("CloseDoorsBehind", CloseDoorsBehind),
+			new XElement("UseDoorguards", UseDoorguards),
+			new XElement("MoveEvenIfObstructionInWay", MoveEvenIfObstructionInWay)
+		).ToString();
+	}
+
 	public override bool HandleEvent(EventType type, params dynamic[] arguments)
 	{
 		switch (type)

@@ -21,6 +21,13 @@ public class RescuerAI : ArtificialIntelligenceBase
 		LoadFromXml(XElement.Parse(ai.Definition));
 	}
 
+	protected override string SaveToXml()
+	{
+		return new XElement("Definition",
+			new XElement("IsFriendProg", IsFriendProg?.Id ?? 0L)
+		).ToString();
+	}
+
 	public IFutureProg IsFriendProg { get; set; }
 
 	public static void RegisterLoader()

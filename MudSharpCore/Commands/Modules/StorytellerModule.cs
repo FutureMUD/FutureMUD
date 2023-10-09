@@ -2449,15 +2449,14 @@ This is the syntax for editing skills:
 
 	[PlayerCommand("MeritSearch", "meritsearch")]
 	[CommandPermission(PermissionLevel.Admin)]
+	[HelpInfo("meritsearch", @"The MeritSearch command is used to search for online character with particular merits or flaws. 
+
+The syntax is #3meritsearch <merit1> <merit2> ...#0. 
+
+If you specify multiple merits and flaws, it will search for only those characters who have ALL of them.", AutoHelp.HelpArgOrNoArg)]
 	protected static void MeritSearch(ICharacter actor, string input)
 	{
 		var ss = new StringStack(input.RemoveFirstWord());
-		if (ss.IsFinished || ss.Peek().EqualToAny("help", "?"))
-		{
-			actor.Send(
-				$"The MeritSearch command is used to search for online character with particular merits or flaws. The syntax is {"meritsearch <merit1> <merit2> ...".ColourCommand()}. If you specify multiple merits and flaws, it will search for only those characters who have ALL of them.");
-			return;
-		}
 
 		var merits = new List<IMerit>();
 		while (!ss.IsFinished)
@@ -2544,14 +2543,18 @@ If you specify multiple roles, it will search for only those characters who have
 
 	[PlayerCommand("LoadPC", "loadpc")]
 	[CommandPermission(PermissionLevel.SeniorAdmin)]
+	[HelpInfo("loadpc", @"This command is used to load a player character who is not online into the world. This can be useful to for example give them something for next time they log on.
+
+Keep in mind that this actually loads them into the world for all intents and purposes; their health model will start, they will gain hunger and thirst, they will be able to be targeted by spells and other consequences. Once you are done, you can #3force#0 them to #3quit#0 to remove them from the world.
+
+The syntax is as follows:
+
+	#3loadpc <id>#0 - loads the PC with the specified ID
+
+#1Note: to find a character's ID consider using the #3show account <account>#0 #1command.#0", AutoHelp.HelpArgOrNoArg)]
 	protected static void LoadPC(ICharacter actor, string input)
 	{
 		var ss = new StringStack(input.RemoveFirstWord());
-		if (ss.IsFinished)
-		{
-			actor.OutputHandler.Send("Which PC do you want to load?");
-			return;
-		}
 
 		if (!long.TryParse(ss.PopSpeech(), out var value))
 		{
@@ -2799,7 +2802,7 @@ If you specify multiple roles, it will search for only those characters who have
 	[PlayerCommand("Resdesc", "resdesc")]
 	[CommandPermission(PermissionLevel.JuniorAdmin)]
 	[HelpInfo("resdesc",
-		"This command allows you to edit the short description of a character. Simply use RESDESC <Target>.",
+		"This command allows you to edit the short description of a character. Simply use #3redesc <target>#0.",
 		AutoHelp.HelpArgOrNoArg)]
 	protected static void Resdesc(ICharacter actor, string input)
 	{
@@ -2883,7 +2886,11 @@ If you specify multiple roles, it will search for only those characters who have
 	[PlayerCommand("Sniff", "sniff")]
 	[CommandPermission(PermissionLevel.Admin)]
 	[HelpInfo("sniff",
-		"This command allows you to see various debug info about characters, items, rooms, and directions.\nSyntax: sniff here|*dirn|<item>|<ch> [<subitem>]",
+		@"This command allows you to see various debug info about characters, items, rooms, and directions.
+
+The syntax is as follows: 
+
+	#3sniff here|*dirn|<item>|<ch> [<subitem>]#0",
 		AutoHelp.HelpArgOrNoArg)]
 	protected static void Sniff(ICharacter actor, string input)
 	{

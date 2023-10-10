@@ -73,6 +73,11 @@ public class MagicSpell : SaveableItem, IMagicSpell
 			_spellEffects.Add(SpellEffectFactory.LoadEffect(effect, this));
 		}
 
+		foreach (var effect in definition.Element("CasterEffects").Elements())
+		{
+			_casterSpellEffects.Add(SpellEffectFactory.LoadEffect(effect, this));
+		}
+
 		InventoryPlanTemplate = new InventoryPlanTemplate(definition.Element("Plan"), gameworld);
 	}
 
@@ -140,6 +145,11 @@ public class MagicSpell : SaveableItem, IMagicSpell
 			_spellEffects.Add(effect.Clone());
 		}
 
+		foreach (var effect in rhs.CasterSpellEffects)
+		{
+			_casterSpellEffects.Add(effect.Clone());
+		}
+
 		CastingEmote = rhs.CastingEmote;
 		FailCastingEmote = rhs.FailCastingEmote;
 		TargetEmote = rhs.TargetEmote;
@@ -188,6 +198,10 @@ public class MagicSpell : SaveableItem, IMagicSpell
 			),
 			new XElement("Effects",
 				from effect in _spellEffects
+				select effect.SaveToXml()
+			),
+			new XElement("CasterEffects",
+				from effect in _casterSpellEffects
 				select effect.SaveToXml()
 			),
 			InventoryPlanTemplate.SaveToXml()
@@ -246,6 +260,9 @@ public class MagicSpell : SaveableItem, IMagicSpell
     #3effect add <type> [...]#0 - adds a new effect to the spell
     #3effect remove <##>#0 - removes an effect from the spell
     #3effect <##> ...#0 - changes the properties of a spell effect
+	#3castereffect add <type> [...]#0 - adds a new caster-only effect to the spell
+    #3castereffect remove <##>#0 - removes a caster-only effect from the spell
+    #3castereffect <##> ...#0 - changes the properties of a caster-only spell effect
     #3material add held|wielded|inroom|consumed|consumedliquid ...#0 - adds a new material requirement to this spell
     #3material delete <#>#0 - deletes a material requirement
     #3cost <resource> <trait expression>#0 - sets the trait expression for casting cost for a resource
@@ -292,6 +309,8 @@ public class MagicSpell : SaveableItem, IMagicSpell
 				return BuildingCommandTrigger(actor, command);
 			case "effect":
 				return BuildingCommandEffect(actor, command);
+			case "castereffect":
+				return BuildingCommandCasterEffect(actor, command);
 			case "plan":
 			case "material":
 				return BuildingCommandPlan(actor, command);
@@ -321,6 +340,100 @@ public class MagicSpell : SaveableItem, IMagicSpell
 				actor.OutputHandler.Send(BuildingCommandHelp);
 				return false;
 		}
+	}
+
+	private bool BuildingCommandCasterEffect(ICharacter actor, StringStack command)
+	{
+		switch (command.PopSpeech().ToLowerInvariant())
+		{
+			case "add":
+			case "new":
+			case "create":
+				return BuildingCommandCasterEffectAdd(actor, command);
+			case "remove":
+			case "rem":
+			case "delete":
+			case "del":
+				return BuildingCommandCasterEffectDelete(actor, command);
+		}
+
+		if (string.IsNullOrEmpty(command.Last) || !int.TryParse(command.Last, out var value))
+		{
+			actor.OutputHandler.Send(
+				"You must specify ADD, REMOVE, or the # of a spell effect that you want to edit.");
+			return false;
+		}
+
+		if (_casterSpellEffects.Count == 0)
+		{
+			actor.OutputHandler.Send(
+				"There are not currently any caster spell effects on this spell for you to edit. You must add one first.");
+			return false;
+		}
+
+		if (value < 1 || value > _casterSpellEffects.Count)
+		{
+			actor.OutputHandler.Send(
+				$"You must enter a number between {1.ToString("N0", actor).ColourValue()} and {_casterSpellEffects.Count.ToString("N0", actor).ColourValue()}.");
+			return false;
+		}
+
+		var effect = _casterSpellEffects[value - 1];
+		return effect.BuildingCommand(actor, command);
+	}
+
+	private bool BuildingCommandCasterEffectDelete(ICharacter actor, StringStack command)
+	{
+		if (_casterSpellEffects.Count == 0)
+		{
+			actor.OutputHandler.Send(
+				"There are not currently any caster spell effects on this spell for you to remove.");
+			return false;
+		}
+
+		if (command.IsFinished || !int.TryParse(command.SafeRemainingArgument, out var value))
+		{
+			actor.OutputHandler.Send(
+				"You must specify the number of a caster spell effect that you wish to remove.");
+			return false;
+		}
+
+		if (value < 1 || value > _casterSpellEffects.Count)
+		{
+			actor.OutputHandler.Send(
+				$"You must enter a number between {1.ToString("N0", actor).ColourValue()} and {_casterSpellEffects.Count.ToString("N0", actor).ColourValue()}.");
+			return false;
+		}
+
+		var effect = _casterSpellEffects[value - 1];
+		_casterSpellEffects.RemoveAt(value - 1);
+		Changed = true;
+		actor.OutputHandler.Send(
+			$"You remove the {value.ToOrdinal().ColourValue()} caster spell effect: {effect.Show(actor)}");
+		return true;
+	}
+
+	private bool BuildingCommandCasterEffectAdd(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send(
+				$"Which effect type do you want to set up for this spell?\nThe valid options are: {SpellEffectFactory.MagicEffectTypes.Select(x => x.ColourValue()).ListToString()}.");
+			return false;
+		}
+
+		var (effect, error) = SpellEffectFactory.LoadEffectFromBuilderInput(command.PopSpeech(), command, this);
+		if (effect == null)
+		{
+			actor.OutputHandler.Send(error);
+			return false;
+		}
+
+		_casterSpellEffects.Add(effect);
+		Changed = true;
+		actor.OutputHandler.Send(
+			$"The {Name.Colour(School.PowerListColour)} spell now has the following caster-only effect (#{_casterSpellEffects.Count.ToString("N0", actor)}):\n{effect.Show(actor)}");
+		return true;
 	}
 
 	private bool BuildingCommandExclusiveEffect(ICharacter actor)
@@ -1075,6 +1188,14 @@ public class MagicSpell : SaveableItem, IMagicSpell
 		}
 
 		sb.AppendLine();
+		sb.AppendLine("Caster Effects:");
+		i = 0;
+		foreach (var effect in CasterSpellEffects)
+		{
+			sb.AppendLine($"\t{(++i).ToString("N0", actor)}) {effect.Show(actor)}");
+		}
+
+		sb.AppendLine();
 		sb.AppendLine("Casting Costs:");
 		foreach (var (resource, formula) in _castingCosts)
 		{
@@ -1122,6 +1243,9 @@ public class MagicSpell : SaveableItem, IMagicSpell
 
 	private readonly List<IMagicSpellEffectTemplate> _spellEffects = new();
 	public IEnumerable<IMagicSpellEffectTemplate> SpellEffects => _spellEffects;
+
+	private readonly List<IMagicSpellEffectTemplate> _casterSpellEffects = new();
+	public IEnumerable<IMagicSpellEffectTemplate> CasterSpellEffects => _casterSpellEffects;
 
 	private readonly Dictionary<IMagicResource, ITraitExpression> _castingCosts = new();
 
@@ -1215,10 +1339,10 @@ public class MagicSpell : SaveableItem, IMagicSpell
 				EffectDurationExpression.Evaluate(magician, CastingTrait, TraitBonusContext.SpellDuration));
 		var outcome = new OpposedOutcome(result[CastingDifficulty], Outcome.NotTested);
 
-		void ApplySpellEffect(IPerceivable effectTarget)
+		void ApplySpellEffect(IPerceivable effectTarget, IEnumerable<IMagicSpellEffectTemplate> effects)
 		{
 			var head = new MagicSpellParent(effectTarget, this, magician);
-			foreach (var effect in _spellEffects)
+			foreach (var effect in effects)
 			{
 				var child = effect.GetOrApplyEffect(magician, effectTarget, outcome.Degree, power, head);
 				if (child == null)
@@ -1271,7 +1395,7 @@ public class MagicSpell : SaveableItem, IMagicSpell
 						new Emote(TargetEmote, magician, magician, individual), flags: TargetEmoteFlags));
 				}
 
-				ApplySpellEffect(individual);
+				ApplySpellEffect(individual, _spellEffects);
 			}
 		}
 		else if (target is ICharacter tch && tch != magician)
@@ -1300,7 +1424,7 @@ public class MagicSpell : SaveableItem, IMagicSpell
 					flags: TargetEmoteFlags));
 			}
 
-			ApplySpellEffect(target);
+			ApplySpellEffect(target, _spellEffects);
 		}
 		else
 		{
@@ -1310,7 +1434,12 @@ public class MagicSpell : SaveableItem, IMagicSpell
 					flags: TargetEmoteFlags));
 			}
 
-			ApplySpellEffect(target);
+			ApplySpellEffect(target, _spellEffects);
+		}
+
+		if (_casterSpellEffects.Any())
+		{
+			ApplySpellEffect(magician, _casterSpellEffects);
 		}
 	}
 

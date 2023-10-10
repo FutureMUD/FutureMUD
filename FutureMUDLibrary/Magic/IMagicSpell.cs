@@ -25,7 +25,9 @@ namespace MudSharp.Magic
         TimeSpan NonExclusiveDelay { get; }
         IMagicTrigger Trigger { get; }
         IEnumerable<IMagicSpellEffectTemplate> SpellEffects { get; }
-        string Blurb { get; }
+		IEnumerable<IMagicSpellEffectTemplate> CasterSpellEffects { get; }
+
+		string Blurb { get; }
         string Description { get; }
         void CastSpell(ICharacter magician, IPerceivable target, SpellPower power, params SpellAdditionalParameter[] additionalParameters);
         bool ReadyForGame { get; }

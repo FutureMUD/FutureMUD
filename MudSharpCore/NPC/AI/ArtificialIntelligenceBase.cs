@@ -111,7 +111,7 @@ public abstract class ArtificialIntelligenceBase : SaveableItem, IArtificialInte
 	#endregion
 
 	#region Implementation of IEditableItem
-	protected abstract string TypeHelpText { get; }
+	protected virtual string TypeHelpText => "There is no type help for this type";
 	public string HelpText => $@"You can use the following options to edit this AI:
 
 	#3name <name>#0 - renames this AI

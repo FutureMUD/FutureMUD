@@ -4,11 +4,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using MudSharp.Framework;
+using MudSharp.Framework.Revision;
 using MudSharp.FutureProg;
 
 namespace MudSharp.Magic
 {
-    public interface IMagicSchool : IFrameworkItem, IFutureProgVariable, IHaveFuturemud
+    public interface IMagicSchool : IFrameworkItem, IFutureProgVariable, IHaveFuturemud, IEditableItem
     {
         IMagicSchool ParentSchool { get; }
 
@@ -23,5 +24,6 @@ namespace MudSharp.Magic
         string SchoolAdjective { get; }
 
         ANSIColour PowerListColour { get; }
+        IMagicSchool Clone(string name);
     }
 }

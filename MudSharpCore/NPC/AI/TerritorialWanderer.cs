@@ -29,7 +29,25 @@ public class TerritorialWanderer : PathingAIBase
 	public bool WillShareTerritory { get; protected set; }
 	public bool WillShareTerritoryWithOtherRaces { get; protected set; }
 
-	public static void RegisterLoader()
+    protected override string SaveToXml()
+    {
+		return new XElement("Definition",
+			new XElement("SuitableTerritoryProg", SuitableTerritoryProg?.Id ?? 0),
+			new XElement("DesiredTerritorySizeProg", DesiredTerritorySizeProg?.Id ?? 0),
+			new XElement("WanderChancePerMinute", WanderChancePerMinute),
+			new XElement("WanderEmote", new XCData(WanderEmote)),
+            new XElement("OpenDoors", OpenDoors),
+            new XElement("UseKeys", UseKeys),
+            new XElement("SmashLockedDoors", SmashLockedDoors),
+            new XElement("CloseDoorsBehind", CloseDoorsBehind),
+            new XElement("UseDoorguards", UseDoorguards),
+            new XElement("MoveEvenIfObstructionInWay", MoveEvenIfObstructionInWay),
+            new XElement("WillShareTerritory", WillShareTerritory),
+            new XElement("WillShareTerritoryWithOtherRaces", WillShareTerritoryWithOtherRaces)
+        ).ToString();
+    }
+
+    public static void RegisterLoader()
 	{
 		RegisterAIType("TerritorialWanderer", (ai, gameworld) => new TerritorialWanderer(ai, gameworld));
 	}

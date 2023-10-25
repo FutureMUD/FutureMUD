@@ -340,7 +340,8 @@ namespace MudSharp.Character {
 
         void TransferTo(ICell target, RoomLayer layer);
 
-        void EditorMode(Action<string, IOutputHandler, object[]> postAction, Action<IOutputHandler, object[]> cancelAction, double characterLengthMultiplier, string recallText = null, EditorOptions options = EditorOptions.None, object[] suppliedArguments = null);
+        void EditorMode(Action<string, IOutputHandler, object[]> postAction, Action<IOutputHandler, object[]> cancelAction, double characterLengthMultiplier = 1.0, string recallText = null, EditorOptions options = EditorOptions.None, object[] suppliedArguments = null);
+        void EditorModeMulti(Action<IEnumerable<string>, IOutputHandler, object[]> postAction, Action<IOutputHandler, object[]> cancelAction, IEnumerable<string> editorTexts, double characterLengthMultiplier = 1.0, string recallText = null, EditorOptions options = EditorOptions.None, object[] suppliedArguments = null);
 
         string GetConsiderString(IPerceiver voyeur);
         

@@ -819,7 +819,7 @@ public class BankAccountType : SaveableItem, IBankAccountType
 			var newAccount = new Models.BankAccount
 			{
 				BankId = Bank.Id,
-				Name = Name,
+				Name = Name.CollapseString(),
 				BankAccountTypeId = Id,
 				AccountCreationDate = Bank.EconomicZone.ZoneForTimePurposes
 				                          .DateTime(Bank.EconomicZone.FinancialPeriodReferenceCalendar)
@@ -844,7 +844,7 @@ public class BankAccountType : SaveableItem, IBankAccountType
 			var newAccount = new Models.BankAccount
 			{
 				BankId = Bank.Id,
-				Name = Name,
+				Name = Name.CollapseString(),
 				BankAccountTypeId = Id,
 				AccountCreationDate = Bank.EconomicZone.ZoneForTimePurposes
 				                          .DateTime(Bank.EconomicZone.FinancialPeriodReferenceCalendar)
@@ -869,7 +869,7 @@ public class BankAccountType : SaveableItem, IBankAccountType
 			var newAccount = new Models.BankAccount
 			{
 				BankId = Bank.Id,
-				Name = Name,
+				Name = Name.CollapseString(),
 				BankAccountTypeId = Id,
 				AccountCreationDate = Bank.EconomicZone.ZoneForTimePurposes
 				                          .DateTime(Bank.EconomicZone.FinancialPeriodReferenceCalendar)

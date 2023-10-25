@@ -1987,6 +1987,16 @@ public partial class Character : PerceiverItem, ICharacter
 		return CommandTree.Commands.Execute(this, command, State, PermissionLevel, OutputHandler);
 	}
 
+	public void EditorModeMulti(Action<IEnumerable<string>, IOutputHandler, object[]> postAction, Action<IOutputHandler, object[]> cancelAction, IEnumerable<string> editorTexts, double characterLengthMultiplier = 1.0, string recallText = null, EditorOptions options = EditorOptions.None, object[] suppliedArguments = null)
+	{
+		_nextContext = new MultiEditorController(this, suppliedArguments, postAction, cancelAction, options, editorTexts,
+			characterLengthMultiplier, recallText ?? EffectsOfType<StoredEditorText>().FirstOrDefault()?.Text);
+		_noControllerTags = " (editing)".Colour(Telnet.Red);
+		var newHandler = new NonPlayerOutputHandler();
+		OutputHandler.Register(null);
+		Register(newHandler);
+	}
+
 	public void EditorMode(Action<string, IOutputHandler, object[]> postAction,
 		Action<IOutputHandler, object[]> cancelAction, double characterLengthMultiplier, string recallText = null,
 		EditorOptions options = EditorOptions.None, object[] suppliedArguments = null)
@@ -1995,6 +2005,7 @@ public partial class Character : PerceiverItem, ICharacter
 			"You are now entering an editor, use @ on a blank line to exit and *help to see help.".Colour(
 				Telnet.Yellow));
 		OutputHandler.Send(CommonStringUtilities.GetWidthRuler(Account.LineFormatLength).Colour(Telnet.Yellow));
+		
 		_nextContext = new EditorController(this, suppliedArguments, postAction, cancelAction, options,
 			characterLengthMultiplier, recallText ?? EffectsOfType<StoredEditorText>().FirstOrDefault()?.Text);
 		_noControllerTags = " (editing)".Colour(Telnet.Red);

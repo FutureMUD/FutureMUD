@@ -1623,7 +1623,14 @@ div.function-generalhelp {
 					actor.Gameworld.SaveManager.Flush();
 					DoCleanupCorpses();
 					actor.Gameworld.SystemMessage("The long-running maintenance task has now completed.");
-				}, ScheduleType.System, TimeSpan.FromSeconds(30), "Cleaning up corpses"));
+				}, ScheduleType.System,
+#if DEBUG
+				TimeSpan.FromSeconds(1)
+#else
+				TimeSpan.FromSeconds(30)
+#endif
+
+				, "Cleaning up corpses"));
 			},
 			text => { actor.Send("You decide against cleaning up corpses."); },
 			() => { actor.Send("You decide against cleaning up corpses."); },
@@ -1638,14 +1645,14 @@ div.function-generalhelp {
 
 The syntax is as follows:
 
-	#3GPT list#0 - lists all GPT Threads
-	#3GPT show <which>#0 - shows a GPT Thread
-	#3GPT create <name> <temp> <model>#0 - drops you into a model to create a new GPT Thread
-	#3GPT delete <which>#0 - deletes a GPT Thread
-	#3GPT set <which> name <name>#0 - renames a GPT Thread
-	#3GPT set <which> temperature <temp>#0 - sets the thread temperature
-	#3GPT set <which> model <name>#0 - changes the GPT Model
-	#3GPT set <which> prompt#0 - drops into an editor to write the prompt";
+#3GPT list#0 - lists all GPT Threads
+#3GPT show <which>#0 - shows a GPT Thread
+#3GPT create <name> <temp> <model>#0 - drops you into a model to create a new GPT Thread
+#3GPT delete <which>#0 - deletes a GPT Thread
+#3GPT set <which> name <name>#0 - renames a GPT Thread
+#3GPT set <which> temperature <temp>#0 - sets the thread temperature
+#3GPT set <which> model <name>#0 - changes the GPT Model
+#3GPT set <which> prompt#0 - drops into an editor to write the prompt";
 
 	[PlayerCommand("GPT", "gpt")]
 	[CommandPermission(PermissionLevel.Founder)]

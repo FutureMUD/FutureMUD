@@ -233,6 +233,8 @@ public class LockingDoorGameItemComponent : GameItemComponent, IDoor, ILock
 		base(rhs, newParent, temporary)
 	{
 		_prototype = rhs._prototype;
+		_isLocked = rhs._isLocked;
+		_pattern = rhs._pattern;
 	}
 
 	protected void LoadFromXml(XElement root)
@@ -477,7 +479,7 @@ public class LockingDoorGameItemComponent : GameItemComponent, IDoor, ILock
 				return false;
 		}
 
-		if (Locks.Any(x => x.IsLocked) ||
+		if (IsLocked || Locks.Any(x => x.IsLocked) ||
 		    Parent.EffectsOfType<IOverrideLockEffect>().Any(x => x.Applies(body?.Actor)))
 		{
 			return false;

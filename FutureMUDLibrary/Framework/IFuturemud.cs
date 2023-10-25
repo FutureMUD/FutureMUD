@@ -62,6 +62,7 @@ using MudSharp.RPG.Dreams;
 using MudSharp.RPG.Knowledge;
 using MudSharp.RPG.Law;
 using MudSharp.RPG.Merits;
+using MudSharp.RPG.ScriptedEvents;
 using MudSharp.TimeAndDate.Date;
 using MudSharp.TimeAndDate.Listeners;
 using MudSharp.TimeAndDate.Time;
@@ -215,6 +216,7 @@ namespace MudSharp.Framework
         IUneditableAll<IRangedWeaponType> RangedWeaponTypes { get; }
         IUneditableAll<IRoom> Rooms { get; }
         IUneditableAll<IScript> Scripts { get; }
+        IUneditableAll<IScriptedEvent> ScriptedEvents { get; }
         IUneditableAll<IShard> Shards { get; }
         IUneditableAll<IShieldType> ShieldTypes { get; }
         IUneditableAll<ISkyDescriptionTemplate> SkyDescriptionTemplates { get; }
@@ -295,13 +297,14 @@ namespace MudSharp.Framework
         IAccount TryAccount(Models.Account account);
         IAccount TryAccount(long accountid);
 		void PreloadAccounts();
+        void PreloadCharacterNames();
 
-        /// <summary>
-        ///     Send a text message to every player character in game who meets the criteria specified in the filter function
-        /// </summary>
-        /// <param name="message">The message to be sent</param>
-        /// <param name="filterFunc">The filter function to be applied to characters</param>
-        void SystemMessage(string message, Func<ICharacter, bool> filterFunc);
+		/// <summary>
+		///     Send a text message to every player character in game who meets the criteria specified in the filter function
+		/// </summary>
+		/// <param name="message">The message to be sent</param>
+		/// <param name="filterFunc">The filter function to be applied to characters</param>
+		void SystemMessage(string message, Func<ICharacter, bool> filterFunc);
 
         /// <summary>
         ///     Send a text message to every player character in game, with a filter for admin-only messages
@@ -443,8 +446,9 @@ namespace MudSharp.Framework
         void Add(IFutureProg prog);
         void Add(IClan clan);
         void Add(IArmourType type);
-        
-        ICheck GetCheck(CheckType type);
+        void Add(IScriptedEvent item);
+
+		ICheck GetCheck(CheckType type);
 
         /// <summary>
         ///     Returns a character if they exist, but if they do not, loads them but does not add them to the game world
@@ -454,7 +458,15 @@ namespace MudSharp.Framework
         /// <returns></returns>
         ICharacter TryGetCharacter(long id, bool useCachedValues = false);
 
-        IGameItem TryGetItem(Models.GameItem dbitem, bool addToGameworld);
+        /// <summary>
+        /// Tries to find a player character by personal name, and loads them if not found
+        /// </summary>
+        /// <param name="name"></param>
+        /// <returns></returns>
+        ICharacter TryPlayerCharacterByName(string name);
+
+
+		IGameItem TryGetItem(Models.GameItem dbitem, bool addToGameworld);
         IGameItem TryGetItem(long id, bool addToGameworld = false);
         void Destroy(ICrime crime);
         void Destroy(INPCSpawner spawner);
@@ -559,7 +571,8 @@ namespace MudSharp.Framework
         void Destroy(IClan clan);
         void Destroy(IWriting writing);
         void Destroy(IScript script);
-        void Dispose();
+		void Destroy(IScriptedEvent item);
+		void Dispose();
         void ForceOutgoingMessages();
         string ToString();
         void Broadcast(string text);

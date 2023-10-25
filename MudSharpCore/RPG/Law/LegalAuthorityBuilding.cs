@@ -266,7 +266,7 @@ public partial class LegalAuthority
 			return false;
 		}
 
-		var (account, error) = Economy.Banking.Bank.FindBankAccount(command.SafeRemainingArgument, null);
+		var (account, error) = Economy.Banking.Bank.FindBankAccount(command.SafeRemainingArgument, null, actor);
 		if (account == null)
 		{
 			actor.OutputHandler.Send(error);

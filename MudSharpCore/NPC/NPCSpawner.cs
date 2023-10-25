@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using MudSharp.Body.Position.PositionStates;
@@ -69,7 +70,8 @@ public class NPCSpawner : SaveableItem, INPCSpawner
 				OnSpawnProgId = OnSpawnProg?.Id,
 				IsActiveProgId = IsActiveProg?.Id,
 				CountsAsProgId = CountAsNPCProg?.Id,
-				TargetTemplateId = _targetTemplateId
+				TargetTemplateId = _targetTemplateId,
+				Definition = SaveDefinition()
 			};
 			FMDB.Context.NpcSpawners.Add(dbitem);
 			foreach (var cell in _spawnLocations)
@@ -101,6 +103,14 @@ public class NPCSpawner : SaveableItem, INPCSpawner
 		SpawnStrategy = (SpawnStrategy)dbitem.SpawnStrategy;
 		_monitoredZones.AddRange(dbitem.Zones.Select(x => x.ZoneId));
 		_spawnLocations.AddRange(dbitem.Cells.Select(x => x.CellId));
+		switch (SpawnStrategy)
+		{
+			case SpawnStrategy.Multi:
+				_targetTemplates.AddRange(
+					XElement.Parse(dbitem.Definition)!.Element("Templates")!.Elements("Template").Select(x => (long.Parse(x.Attribute("id")!.Value), double.Parse(x.Attribute("weight")!.Value)))
+				);
+				break;
+		}
 	}
 
 	#region Overrides of FrameworkItem
@@ -124,6 +134,7 @@ public class NPCSpawner : SaveableItem, INPCSpawner
 		dbitem.TargetTemplateId = _targetTemplateId;
 		dbitem.TargetCount = _targetCount;
 		dbitem.MinimumCount = _minimumCount;
+		dbitem.Definition = SaveDefinition();
 		FMDB.Context.NpcSpawnerCells.RemoveRange(dbitem.Cells);
 		foreach (var cell in _spawnLocations)
 		{
@@ -137,6 +148,20 @@ public class NPCSpawner : SaveableItem, INPCSpawner
 		}
 
 		Changed = false;
+	}
+
+	public string SaveDefinition()
+	{
+		switch (SpawnStrategy) {
+			case SpawnStrategy.Multi:
+				return new XElement("Definition", 
+					new XElement("Templates",
+						from template in _targetTemplates
+						select new XElement("Template", new XAttribute("id", template.TemplateId), new XAttribute("weight", template.Weighting))
+					)
+				).ToString();
+		}
+		return new XElement("Definition").ToString();
 	}
 
 	#endregion
@@ -157,7 +182,12 @@ public class NPCSpawner : SaveableItem, INPCSpawner
 	#3counts <prog>#0 - sets a prog that determines which NPCs count for this spawner
 	#3counts none#0 - clears having a prog determine NPC counting
 	#3zone <id>#0 - toggles a zone being monitored by this spawner
-	#3cell <id>#0 - toggles a cell being a spawn location for this spawner";
+	#3cell <id>#0 - toggles a cell being a spawn location for this spawner
+
+Note that the #6Multi#0 strategy has additional building commands:
+
+	#3npc <template> remove#0 - removes an NPC from the multi criteria
+	#3npc <template> <weighting>#0 - adds an NPC to the multi criteria with a specified relative weighting for load chance";
 
 	/// <inheritdoc />
 	public bool BuildingCommand(ICharacter actor, StringStack command)
@@ -181,6 +211,10 @@ public class NPCSpawner : SaveableItem, INPCSpawner
 			case "npc":
 			case "template":
 			case "which":
+				if (SpawnStrategy == SpawnStrategy.Multi)
+				{
+					return BuildingCommandTemplateMulti(actor, command);
+				}
 				return BuildingCommandTemplate(actor, command);
 			case "minimum":
 			case "min":
@@ -387,6 +421,60 @@ public class NPCSpawner : SaveableItem, INPCSpawner
 		return true;
 	}
 
+	private bool BuildingCommandTemplateMulti(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send($"You must either specify an NPC Template.");
+			return false;
+		}
+
+        var template = Gameworld.NpcTemplates.GetByIdOrName(command.SafeRemainingArgument);
+        if (template is null)
+        {
+            actor.OutputHandler.Send("There is no NPC Template like that.");
+            return false;
+        }
+
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send($"You must either specify a weighting for that template, or use the {"remove".ColourCommand()} keyword to remove it.");
+			return false;
+		}
+
+		if (command.SafeRemainingArgument.EqualTo("remove"))
+		{
+			if (_targetTemplates.RemoveAll(x => x.TemplateId == template.Id) == 0)
+			{
+				actor.OutputHandler.Send("That template is not currently being used by this NPC Spawner.");
+				return false;
+			}
+
+			Changed = true;
+			actor.OutputHandler.Send($"You remove the {template.EditHeader().ColourName()} NPC Template from this spawner.");
+			return true;
+		}
+
+		if (!double.TryParse(command.SafeRemainingArgument, out var weighting) || weighting <= 0.0)
+		{
+			actor.OutputHandler.Send($"You must specify a weighting that is a number greater than zero.");
+			return false;
+		}
+
+		if (_targetTemplates.Any(x => x.TemplateId == template.Id))
+		{
+			_targetTemplates[_targetTemplates.FindIndex(x => x.TemplateId == template.Id)] = (template.Id, weighting);
+			actor.OutputHandler.Send($"You change the weighting of {template.EditHeader().ColourName()} Template to {weighting.ToString("N2", actor).ColourValue()} ({(weighting/_targetTemplates.Sum(x => x.Weighting)).ToString("P1", actor).ColourValue()} chance to spawn).");
+            Changed = true;
+            return true;
+		}
+
+		_targetTemplates.Add((template.Id, weighting));
+        Changed = true;
+        actor.OutputHandler.Send($"You add {template.EditHeader().ColourName()} Template at weighting {weighting.ToString("N2", actor).ColourValue()} ({(weighting / _targetTemplates.Sum(x => x.Weighting)).ToString("P1", actor).ColourValue()} chance to spawn).");
+		return true;
+    }
+
 	private bool BuildingCommandTemplate(ICharacter actor, StringStack command)
 	{
 		if (command.IsFinished)
@@ -478,18 +566,29 @@ public class NPCSpawner : SaveableItem, INPCSpawner
 		var sb = new StringBuilder();
 		sb.AppendLine($"NPC Spawner #{Id.ToString("N0", actor)} - {Name}".ColourName());
 		sb.AppendLine($"Strategy: {SpawnStrategy.DescribeEnum().ColourName()}");
-		sb.AppendLine($"NPC Template: {TargetTemplate?.EditHeader() ?? "None".ColourError()}");
+		switch (SpawnStrategy)
+		{
+			case SpawnStrategy.Multi:
+				var templates = _targetTemplates.Select(x => (Template: Gameworld.NpcTemplates.Get(x.TemplateId), x.Weighting)).Where(x => x.Template is not null).ToList();
+				var totalWeight = templates.Sum(x => x.Weighting);
+                sb.AppendLine($"NPC Templates:");
+				foreach (var (template, weighting) in templates)
+				{
+					sb.AppendLine($"\t{template.EditHeader()} x{weighting.ToString("N3", actor)} ({(weighting/totalWeight).ToString("P1", actor).ColourValue()})");
+				}
+                break;
+            default:
+                sb.AppendLine($"NPC Template: {TargetTemplate?.EditHeader() ?? "None".ColourError()}");
+                break;
+		}
+		
 		sb.AppendLine($"Is Active Prog: {IsActiveProg?.MXPClickableFunctionName() ?? "None".ColourError()}");
 		sb.AppendLine($"On Spawn Prog: {OnSpawnProg?.MXPClickableFunctionName() ?? "None".ColourError()}");
 		sb.AppendLine($"Counts As Prog: {CountAsNPCProg?.MXPClickableFunctionName() ?? "None".ColourError()}");
 		sb.AppendLine($"Minimum Count For Spawn: {_minimumCount.ToString("N0", actor).ColourValue()}");
 		sb.AppendLine($"Target Count After Spawn: {_targetCount.ToString("N0", actor).ColourValue()}");
-		if (TargetTemplate is not null)
-		{
-			sb.AppendLine($"Current Count: {CountCurrentNPCs(TargetTemplate).ToString("N0", actor).ColourValue()}");
-		}
-
-		sb.AppendLine();
+        sb.AppendLine($"Current Count: {CountCurrentNPCs().ToString("N0", actor).ColourValue()}");
+        sb.AppendLine();
 		sb.AppendLine($"Monitored Zones:");
 		foreach (var zone in MonitoredZones)
 		{
@@ -511,6 +610,9 @@ public class NPCSpawner : SaveableItem, INPCSpawner
 	public IFutureProg? IsActiveProg { get; private set; }
 	private long? _targetTemplateId;
 	public INPCTemplate? TargetTemplate => Gameworld.NpcTemplates.Get(_targetTemplateId ?? 0);
+
+	private readonly List<(long TemplateId, double Weighting)> _targetTemplates = new();
+
 	private int _minimumCount;
 	private int _targetCount;
 	private readonly List<long> _monitoredZones = new();
@@ -552,14 +654,15 @@ public class NPCSpawner : SaveableItem, INPCSpawner
 		switch (SpawnStrategy)
 		{
 			case SpawnStrategy.Simple:
-				if (!_spawnLocations.Any())
+            case SpawnStrategy.Multi:
+                if (!_spawnLocations.Any())
 				{
 					return false;
 				}
 
 				DoSpawnNPC(npcTemplate, chTemplate, SpawnLocations.GetRandomElement());
 				return true;
-			case SpawnStrategy.OpenTerritory:
+            case SpawnStrategy.OpenTerritory:
 				var territorialAI = npcTemplate.ArtificialIntelligences
 				                               .OfType<TerritorialWanderer>()
 				                               .FirstOrDefault();
@@ -581,6 +684,22 @@ public class NPCSpawner : SaveableItem, INPCSpawner
 		return false;
 	}
 
+	public int CountCurrentNPCs()
+	{
+		switch (SpawnStrategy)
+		{
+			case SpawnStrategy.Multi:
+				return _targetTemplates.SelectNotNull(x => Gameworld.NpcTemplates.Get(x.TemplateId)).Sum(x => CountCurrentNPCs(x));
+		}
+
+		if (TargetTemplate is null)
+		{
+			return 0;
+		}
+
+		return CountCurrentNPCs(TargetTemplate);
+	}
+
 	public int CountCurrentNPCs(INPCTemplate npcTemplate)
 	{
 		return MonitoredZones
@@ -590,9 +709,55 @@ public class NPCSpawner : SaveableItem, INPCSpawner
 		       .Count(x => CountAsNPCProg?.Execute<bool?>(x) ?? true);
 	}
 
+	private void CheckSpawnMulti()
+	{
+        if (!IsActive)
+        {
+            return;
+        }
+
+        if (!_monitoredZones.Any())
+        {
+            return;
+        }
+
+		var npcs = _targetTemplates.Select(x => (Template: Gameworld.NpcTemplates.Get(x.TemplateId), x.Weighting)).ToList();
+		if (!npcs.Any())
+		{
+			return;
+		}
+
+        var count = CountCurrentNPCs();
+        if (count >= _minimumCount)
+        {
+            return;
+        }
+
+        
+        var numberToSpawn = _targetCount - count;
+        while (numberToSpawn > 0)
+        {
+			var npcTemplate = npcs.GetWeightedRandom();
+			var chTemplate = npcTemplate.GetCharacterTemplate();
+            if (TrySpawn(npcTemplate, chTemplate))
+            {
+                numberToSpawn--;
+                continue;
+            }
+
+            break;
+        }
+    }
+
 	/// <inheritdoc />
 	public void CheckSpawn()
 	{
+		if (SpawnStrategy == SpawnStrategy.Multi)
+		{
+			CheckSpawnMulti();
+			return;
+		}
+
 		var npcTemplate = TargetTemplate;
 		if (npcTemplate is null)
 		{

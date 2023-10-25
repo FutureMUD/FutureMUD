@@ -2473,24 +2473,25 @@ namespace MudSharp.Database
                 entity.HasOne(d => d.ControlledAppointment)
                     .WithMany(p => p.ExternalClanControlsControlledAppointment)
                     .HasForeignKey(d => d.ControlledAppointmentId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .OnDelete(DeleteBehavior.Cascade)
                     .HasConstraintName("FK_ECC_Appointments_Controlled");
 
                 entity.HasOne(d => d.ControllingAppointment)
                     .WithMany(p => p.ExternalClanControlsControllingAppointment)
                     .HasForeignKey(d => d.ControllingAppointmentId)
-                    .HasConstraintName("FK_ECC_Appointments_Controlling");
+					.OnDelete(DeleteBehavior.Cascade)
+					.HasConstraintName("FK_ECC_Appointments_Controlling");
 
                 entity.HasOne(d => d.LiegeClan)
                     .WithMany(p => p.ExternalClanControlsLiegeClan)
                     .HasForeignKey(d => d.LiegeClanId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .OnDelete(DeleteBehavior.Cascade)
                     .HasConstraintName("FK_ECC_Clans_Liege");
 
                 entity.HasOne(d => d.VassalClan)
                     .WithMany(p => p.ExternalClanControlsVassalClan)
                     .HasForeignKey(d => d.VassalClanId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .OnDelete(DeleteBehavior.Cascade)
                     .HasConstraintName("FK_ECC_Clans_Vassal");
             });
 
@@ -2524,7 +2525,7 @@ namespace MudSharp.Database
                 entity.HasOne(d => d.ExternalClanControls)
                     .WithMany(p => p.ExternalClanControlsAppointments)
                     .HasForeignKey(d => new { d.VassalClanId, d.LiegeClanId, d.ControlledAppointmentId })
-                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .OnDelete(DeleteBehavior.Cascade)
                     .HasConstraintName("FK_ECC_Appointments_ExternalClanControls");
             });
 

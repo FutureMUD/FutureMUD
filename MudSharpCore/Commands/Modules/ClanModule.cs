@@ -98,8 +98,8 @@ The following clan sub-commands are used to interact with clans:
 	#3clan vassal appoint <who> <clan> <position>#0 - appoints a person to a clan appointment in a vassal clan
 	#3clan vassal dismiss <who> <clan> <position>#0 - dismisses a person from a clan appointment in a vassal clan
 	#3clan submit <clan> <position> <new liege>#0 - submits a clan appointment to the control of an external clan
-	#3clan release <clan> <vassal clan> <position>#0 - releases a vassal clan from your clan's control
-	#3clan transfer <clan> <vassal clan> <position> <new liege>#0 - transfers a vassal clan relationship to a new clan
+	#3clan release <vassal clan> <position> [<liege clan>]#0 - releases a vassal clan from your clan's control
+	#3clan transfer <vassal clan> <position> <new liege> [<old liege>]#0 - transfers a vassal clan relationship to a new clan
 	#3clan disband <clan>#0 - permanently disbands and deletes a clan - warning, cannot be undone
 	#3clan economiczone list#0 - lists all economic zones which your clans control
 	#3clan economiczone <which> <...>#0 - interacts with an economic zone your clan has control over
@@ -154,13 +154,8 @@ All of the following commands must happen with an edited clan selected:
 	protected static void Clan(ICharacter actor, string command)
 	{
 		var ss = new StringStack(command.RemoveFirstWord());
-		if (string.IsNullOrEmpty(ss.Pop()))
-		{
-			Clans(actor, string.Empty);
-			return;
-		}
 
-		switch (ss.Last.ToLowerInvariant())
+		switch (ss.PopSpeech().ToLowerInvariant())
 		{
 			case "pay":
 				ClanPay(actor, ss);
@@ -198,6 +193,9 @@ All of the following commands must happen with an edited clan selected:
 				return;
 			case "submit":
 				ClanSubmit(actor, ss);
+				return;
+			case "release":
+				ClanRelease(actor, ss);
 				return;
 			case "disband":
 				ClanDisband(actor, ss);
@@ -502,7 +500,7 @@ All of the following commands must happen with an edited clan selected:
 		}
 		else
 		{
-			var (account, error) = Economy.Banking.Bank.FindBankAccount(ss.SafeRemainingArgument, null);
+			var (account, error) = Economy.Banking.Bank.FindBankAccount(ss.SafeRemainingArgument, null, actor);
 			if (account == null)
 			{
 				actor.OutputHandler.Send(error);
@@ -641,7 +639,7 @@ All of the following commands must happen with an edited clan selected:
 		}
 		else
 		{
-			var (account, error) = Economy.Banking.Bank.FindBankAccount(ss.SafeRemainingArgument, null);
+			var (account, error) = Economy.Banking.Bank.FindBankAccount(ss.SafeRemainingArgument, null, actor);
 			if (account == null)
 			{
 				actor.OutputHandler.Send(error);
@@ -4442,7 +4440,7 @@ Your next payday is {3}.
 			return;
 		}
 
-		var (account, error) = Economy.Banking.Bank.FindBankAccount(command.SafeRemainingArgument, null);
+		var (account, error) = Economy.Banking.Bank.FindBankAccount(command.SafeRemainingArgument, null, actor);
 		if (account is null)
 		{
 			actor.OutputHandler.Send(error);
@@ -6736,7 +6734,7 @@ Your next payday is {3}.
 
 		var otherClanText = command.PopSpeech();
 
-		var maximumNumber = 0;
+		var maximumNumber = 1;
 		if (!command.IsFinished && (!int.TryParse(command.Pop(), out maximumNumber) || maximumNumber < 0))
 		{
 			actor.OutputHandler.Send(
@@ -6828,8 +6826,6 @@ Your next payday is {3}.
 					dbitem.NumberOfAppointments = maximumNumber;
 					FMDB.Context.SaveChanges();
 					var newExternal = new Community.ExternalClanControl(dbitem, actor.Gameworld);
-					clan.ExternalControls.Add(newExternal);
-					targetClan.ExternalControls.Add(newExternal);
 					actor.OutputHandler.Send(string.Format("You submit control of {3}appointment {0} in {1} to {2}.",
 						appointment.Name.TitleCase().ColourName(),
 						clan.FullName.TitleCase().ColourName(),
@@ -7239,10 +7235,315 @@ Your next payday is {3}.
 
 	private static void ClanTransfer(ICharacter actor, StringStack command)
 	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("Which clan do you wish to release from external control?");
+			return;
+		}
+
+		var clanText = command.PopSpeech();
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("Which appointment in that clan do you wish to release from external control?");
+			return;
+		}
+
+		var appointmentText = command.PopSpeech();
+
+		IEnumerable<IClan> clans;
+		if (actor.IsAdministrator(PermissionLevel.Admin))
+		{
+			clans = actor.Gameworld.Clans;
+		}
+		else
+		{
+			clans =
+				actor.ClanMemberships.Select(x => x.Clan)
+					 .Concat(
+						 actor.ClanMemberships.SelectMany(
+							 x => x.Clan.ExternalControls.Where(y => y.LiegeClan == x.Clan).Select(y => y.VassalClan)));
+		}
+
+		var clan =
+			clans.FirstOrDefault(x => x.FullName.Equals(clanText, StringComparison.InvariantCultureIgnoreCase)) ??
+			clans.FirstOrDefault(x => x.Alias.Equals(clanText, StringComparison.InvariantCultureIgnoreCase)) ??
+			clans.FirstOrDefault(x => x.Alias.StartsWith(clanText, StringComparison.InvariantCultureIgnoreCase)) ??
+			clans.FirstOrDefault(x => x.FullName.StartsWith(clanText, StringComparison.InvariantCultureIgnoreCase));
+		if (clan == null)
+		{
+			actor.OutputHandler.Send(actor.IsAdministrator(PermissionLevel.Admin)
+				? "There is no such clan."
+				: "You are not a member (or member of a liege) of any such clan.");
+			return;
+		}
+
+		var appointment =
+			clan.ExternalControls.Where(x => x.VassalClan == clan)
+				.FirstOrDefault(
+					x =>
+						x.ControlledAppointment.Name.Equals(appointmentText,
+							StringComparison.InvariantCultureIgnoreCase));
+		if (appointment == null)
+		{
+			actor.OutputHandler.Send("There are no such appointments available in that clan.");
+			return;
+		}
+
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("Which other clan do you wish to transfer control of that appointment to?");
+			return;
+		}
+
+		var otherClanText = command.PopSpeech();
+		var targetClan =
+			actor.Gameworld.Clans.FirstOrDefault(
+				x => x.FullName.Equals(otherClanText, StringComparison.InvariantCultureIgnoreCase)) ??
+			actor.Gameworld.Clans.FirstOrDefault(
+				x => x.Alias.Equals(otherClanText, StringComparison.InvariantCultureIgnoreCase)) ??
+			actor.Gameworld.Clans.FirstOrDefault(x =>
+				x.Alias.StartsWith(otherClanText, StringComparison.InvariantCultureIgnoreCase)) ??
+			actor.Gameworld.Clans.FirstOrDefault(x =>
+				x.FullName.StartsWith(otherClanText, StringComparison.InvariantCultureIgnoreCase));
+		if (targetClan == null)
+		{
+			actor.OutputHandler.Send("There is no such other clan for you to transfer an appointment to.");
+			return;
+		}
+
+		if (targetClan == clan)
+		{
+			actor.OutputHandler.Send("You cannot transfer one of a clan's own appointments to itself.");
+			return;
+		}
+
+		var liegeClanText = command.PopSpeech();
+		var liegeClans =
+			clans.Where(
+				x =>
+					x.ExternalControls.Any(
+						y =>
+							y.VassalClan == clan &&
+							y.ControlledAppointment == appointment.ControlledAppointment && y.LiegeClan == x)).ToList();
+		IClan liegeClan;
+		if (liegeClans.Count > 1)
+		{
+			liegeClans = liegeClans.Where(x => actor.ClanMemberships.Any(y => y.Clan == x)).ToList();
+
+			if (liegeClans.Count > 1)
+			{
+				if (string.IsNullOrEmpty(liegeClanText))
+				{
+					actor.OutputHandler.Send(
+						"The requested appointment is ambiguous, you must supply the name of the liege clan you wish to use.");
+					return;
+				}
+
+				liegeClan =
+					liegeClans.FirstOrDefault(
+						x => x.FullName.Equals(liegeClanText, StringComparison.InvariantCultureIgnoreCase)) ??
+					liegeClans.FirstOrDefault(
+						x => x.Alias.Equals(liegeClanText, StringComparison.InvariantCultureIgnoreCase));
+			}
+			else
+			{
+				liegeClan = liegeClans.FirstOrDefault();
+			}
+		}
+		else
+		{
+			liegeClan = liegeClans.FirstOrDefault();
+		}
+
+		if (liegeClan == null)
+		{
+			actor.OutputHandler.Send("There is no such clan, or it is not a valid liege of the vassal clan.");
+			return;
+		}
+
+		if (liegeClan == targetClan)
+		{
+			actor.OutputHandler.Send("You cannot transfer vassalage of one clan within the same clan.");
+			return;
+		}
+
+		var actorMembership = liegeClan.Memberships.FirstOrDefault(x => x.MemberId == actor.Id);
+		if (!actor.IsAdministrator(PermissionLevel.Admin) && actorMembership != null &&
+			!actorMembership.NetPrivileges.HasFlag(ClanPrivilegeType.CanManageClanVassals) &&
+			!actorMembership.Appointments.Contains(appointment.ControllingAppointment))
+		{
+			actor.OutputHandler.Send("You are not allowed to manage vassal positions in that clan.");
+			return;
+		}
+
+		actor.OutputHandler.Send(
+			$"Are you sure you wish to transfer the control of appointments of the {appointment.Name.TitleCase().ColourName()} position in {clan.FullName.TitleCase().ColourName()} to the {targetClan.FullName.TitleCase().ColourName()} clan? This is irreversible unless they decide to relinquish control. They can also transfer the control to others.\n{Accept.StandardAcceptPhrasing}");
+		actor.AddEffect(new Accept(actor, new GenericProposal
+		{
+			DescriptionString = "Transferring a position in a clan to the control of another",
+			Keywords = new List<string> { "transfer", "clan", "external" },
+			ExpireAction = () =>
+			{
+				actor.OutputHandler.Send(
+					$"You decide not to transfer the control of appointments of the {appointment.Name.TitleCase().ColourName()} position in {clan.FullName.TitleCase().ColourName()} to the {targetClan.FullName.TitleCase().ColourName()} clan.");
+			},
+			RejectAction = text =>
+			{
+				actor.OutputHandler.Send(
+					$"You decide not to transfer the control of appointments of the {appointment.Name.TitleCase().ColourName()} position in {clan.FullName.TitleCase().ColourName()} to the {targetClan.FullName.TitleCase().ColourName()} clan.");
+			},
+			AcceptAction = text =>
+			{
+				using (new FMDB())
+				{
+					var dbitem = new Models.ExternalClanControl();
+					FMDB.Context.ExternalClanControls.Add(dbitem);
+					dbitem.ControlledAppointmentId = appointment.Id;
+					dbitem.VassalClanId = clan.Id;
+					dbitem.LiegeClanId = targetClan.Id;
+					dbitem.NumberOfAppointments = appointment.NumberOfAppointments;
+					foreach (var character in appointment.Appointees)
+					{
+						dbitem.ExternalClanControlsAppointments.Add(new ExternalClanControlsAppointment
+						{
+							VassalClanId = clan.Id,
+							LiegeClanId = targetClan.Id,
+							ControlledAppointmentId = appointment.ControlledAppointment.Id,
+							CharacterId = character.MemberCharacter.Id
+						});
+					}
+					FMDB.Context.SaveChanges();
+					var newExternal = new Community.ExternalClanControl(dbitem, actor.Gameworld);
+					actor.OutputHandler.Send(string.Format("You transfer control of {3}appointment {0} in {1} to {2}.",
+						appointment.Name.TitleCase().ColourName(),
+						clan.FullName.TitleCase().ColourName(),
+						targetClan.FullName.TitleCase().ColourName(),
+						appointment.NumberOfAppointments > 0 ? string.Format(actor, "{0:N0} appointees of ", appointment.NumberOfAppointments) : ""
+					));
+				}
+
+				clan.ExternalControls.Remove(appointment);
+				liegeClan.ExternalControls.Remove(appointment);
+				appointment.Delete();
+			}
+		}), TimeSpan.FromSeconds(120));		
 	}
 
 	private static void ClanRelease(ICharacter actor, StringStack command)
 	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("Which clan do you wish to release from external control?");
+			return;
+		}
+
+		var clanText = command.PopSpeech();
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("Which appointment in that clan do you wish to release from external control?");
+			return;
+		}
+
+		var appointmentText = command.PopSpeech();
+
+		IEnumerable<IClan> clans;
+		if (actor.IsAdministrator(PermissionLevel.Admin))
+		{
+			clans = actor.Gameworld.Clans;
+		}
+		else
+		{
+			clans =
+				actor.ClanMemberships.Select(x => x.Clan)
+					 .Concat(
+						 actor.ClanMemberships.SelectMany(
+							 x => x.Clan.ExternalControls.Where(y => y.LiegeClan == x.Clan).Select(y => y.VassalClan)));
+		}
+
+		var clan =
+			clans.FirstOrDefault(x => x.FullName.Equals(clanText, StringComparison.InvariantCultureIgnoreCase)) ??
+			clans.FirstOrDefault(x => x.Alias.Equals(clanText, StringComparison.InvariantCultureIgnoreCase)) ??
+			clans.FirstOrDefault(x => x.Alias.StartsWith(clanText, StringComparison.InvariantCultureIgnoreCase)) ??
+			clans.FirstOrDefault(x => x.FullName.StartsWith(clanText, StringComparison.InvariantCultureIgnoreCase));
+		if (clan == null)
+		{
+			actor.OutputHandler.Send(actor.IsAdministrator(PermissionLevel.Admin)
+				? "There is no such clan."
+				: "You are not a member (or member of a liege) of any such clan.");
+			return;
+		}
+
+		var appointment =
+			clan.ExternalControls.Where(x => x.VassalClan == clan)
+				.FirstOrDefault(
+					x =>
+						x.ControlledAppointment.Name.Equals(appointmentText,
+							StringComparison.InvariantCultureIgnoreCase));
+		if (appointment == null)
+		{
+			actor.OutputHandler.Send("There are no such appointments available in that clan.");
+			return;
+		}
+
+		var liegeClanText = command.PopSpeech();
+		var liegeClans =
+			clans.Where(
+				x =>
+					x.ExternalControls.Any(
+						y =>
+							y.VassalClan == clan &&
+							y.ControlledAppointment == appointment.ControlledAppointment && y.LiegeClan == x)).ToList();
+		IClan liegeClan;
+		if (liegeClans.Count > 1)
+		{
+			liegeClans = liegeClans.Where(x => actor.ClanMemberships.Any(y => y.Clan == x)).ToList();
+
+			if (liegeClans.Count > 1)
+			{
+				if (string.IsNullOrEmpty(liegeClanText))
+				{
+					actor.OutputHandler.Send(
+						"The requested appointment is ambiguous, you must supply the name of the liege clan you wish to use.");
+					return;
+				}
+
+				liegeClan =
+					liegeClans.FirstOrDefault(
+						x => x.FullName.Equals(liegeClanText, StringComparison.InvariantCultureIgnoreCase)) ??
+					liegeClans.FirstOrDefault(
+						x => x.Alias.Equals(liegeClanText, StringComparison.InvariantCultureIgnoreCase));
+			}
+			else
+			{
+				liegeClan = liegeClans.FirstOrDefault();
+			}
+		}
+		else
+		{
+			liegeClan = liegeClans.FirstOrDefault();
+		}
+
+		if (liegeClan == null)
+		{
+			actor.OutputHandler.Send("There is no such clan, or it is not a valid liege of the vassal clan.");
+			return;
+		}
+
+		var actorMembership = liegeClan.Memberships.FirstOrDefault(x => x.MemberId == actor.Id);
+		if (!actor.IsAdministrator(PermissionLevel.Admin) && actorMembership != null &&
+			!actorMembership.NetPrivileges.HasFlag(ClanPrivilegeType.CanManageClanVassals) && 
+			!actorMembership.Appointments.Contains(appointment.ControllingAppointment))
+		{
+			actor.OutputHandler.Send("You are not allowed to manage vassal positions in that clan.");
+			return;
+		}
+
+		clan.ExternalControls.Remove(appointment);
+		appointment.Delete();
+		actor.OutputHandler.Send(string.Format("You release control of appointment {0} in {1} by {2}.",
+						appointment.Name.TitleCase().ColourName(),
+						clan.FullName.TitleCase().ColourName(),
+						liegeClan.FullName.TitleCase().ColourName()));
 	}
 
 	private static void ClanMembers(ICharacter actor, StringStack command)
@@ -7371,11 +7672,11 @@ Your next payday is {3}.
 							y.VassalClan == clan &&
 							y.ControlledAppointment == appointment.ControlledAppointment && y.LiegeClan == x)).ToList();
 		IClan liegeClan;
-		if (liegeClans.Count() > 1)
+		if (liegeClans.Count > 1)
 		{
 			liegeClans = liegeClans.Where(x => actor.ClanMemberships.Any(y => y.Clan == x)).ToList();
 
-			if (liegeClans.Count() > 1)
+			if (liegeClans.Count > 1)
 			{
 				if (string.IsNullOrEmpty(liegeClanText))
 				{
@@ -7415,11 +7716,23 @@ Your next payday is {3}.
 			return;
 		}
 
-		if (!actor.IsAdministrator(PermissionLevel.Admin) && appointment.ControllingAppointment != null &&
-		    actorMembership != null && !actorMembership.Appointments.Contains(appointment.ControllingAppointment))
+		if (!actor.IsAdministrator(PermissionLevel.Admin) && 
+			appointment.ControllingAppointment != null &&
+		    actorMembership != null && 
+			!actorMembership.Appointments.Contains(appointment.ControllingAppointment) &&
+			!actorMembership.NetPrivileges.HasFlag(ClanPrivilegeType.CanManageClanVassals)
+			)
 		{
-			actor.Send("Only someone who holds the {0} position can appoint anyone to that vassal position.",
+			if (appointment.ControllingAppointment is not null)
+			{
+				actor.Send("Only someone who holds the {0} position can appoint anyone to that vassal position.",
 				appointment.ControllingAppointment.Name.TitleCase().Colour(Telnet.Green));
+			}
+			else
+			{
+				actor.Send("You are not authorised to appoint anyone to that vassal position.");
+			}
+			
 			return;
 		}
 
@@ -7431,7 +7744,7 @@ Your next payday is {3}.
 			return;
 		}
 
-		if (appointment.NumberOfAppointments <= appointment.Appointees.Count)
+		if (appointment.NumberOfAppointments > 0 && appointment.NumberOfAppointments <= appointment.Appointees.Count)
 		{
 			actor.OutputHandler.Send(
 				"The maximum number of appointments to that position through that relationship has been reached. You must first dismiss existing appointees.");
@@ -7640,10 +7953,18 @@ Your next payday is {3}.
 		}
 
 		if (!actor.IsAdministrator(PermissionLevel.Admin) && appointment.ControllingAppointment != null &&
-		    actorMembership != null && !actorMembership.Appointments.Contains(appointment.ControllingAppointment))
+		    actorMembership != null && !actorMembership.Appointments.Contains(appointment.ControllingAppointment) &&
+			!actorMembership.NetPrivileges.HasFlag(ClanPrivilegeType.CanManageClanVassals))
 		{
-			actor.Send("Only someone who holds the {0} position can dismiss anyone from that vassal position.",
+			if (appointment.ControllingAppointment is not null)
+			{
+				actor.Send("Only someone who holds the {0} position can dismiss anyone from that vassal position.",
 				appointment.ControllingAppointment.Name.TitleCase().Colour(Telnet.Green));
+			}
+			else
+			{
+				actor.Send("You are not authorised to dismiss anyone from that vassal position.");
+			}
 			return;
 		}
 

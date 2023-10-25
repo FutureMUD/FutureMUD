@@ -613,8 +613,9 @@ public static class DefaultStaticSettings
 			{ "GPT_DescSuggestion_Model", "gpt-3.5-turbo"},
 			{ "AppraiseCommandRequiresSkill", "false"},
 			{ "AppraiseCommandSkill", "0"},
-			{ "DefaultAuxiliaryMoveTraitId", "0"}
-
+			{ "DefaultAuxiliaryMoveTraitId", "0"},
+			{ "DisplayTaxInShopList", "true" },
+			{ "ShouldLiquidOverflowEchoToRoom", "false" }
 		};
 
 	public static readonly IReadOnlyDictionary<string, string> DefaultStaticStrings = new Dictionary<string, string>

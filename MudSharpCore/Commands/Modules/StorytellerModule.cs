@@ -41,6 +41,8 @@ using TraitExpression = MudSharp.Body.Traits.TraitExpression;
 using System.Xml.Linq;
 using MudSharp.Form.Characteristics;
 using MudSharp.Framework.Units;
+using MudSharp.RPG.ScriptedEvents;
+using MudSharp.Communication.Language;
 
 namespace MudSharp.Commands.Modules;
 
@@ -1741,6 +1743,9 @@ This is the syntax for editing skills:
 
 		switch (actionText)
 		{
+			case "list":
+				ShowModule.Show_Skills(actor, ss);
+				return;
 			case "edit":
 				SkillEdit(actor, ss);
 				return;
@@ -2444,15 +2449,14 @@ This is the syntax for editing skills:
 
 	[PlayerCommand("MeritSearch", "meritsearch")]
 	[CommandPermission(PermissionLevel.Admin)]
+	[HelpInfo("meritsearch", @"The MeritSearch command is used to search for online character with particular merits or flaws. 
+
+The syntax is #3meritsearch <merit1> <merit2> ...#0. 
+
+If you specify multiple merits and flaws, it will search for only those characters who have ALL of them.", AutoHelp.HelpArgOrNoArg)]
 	protected static void MeritSearch(ICharacter actor, string input)
 	{
 		var ss = new StringStack(input.RemoveFirstWord());
-		if (ss.IsFinished || ss.Peek().EqualToAny("help", "?"))
-		{
-			actor.Send(
-				$"The MeritSearch command is used to search for online character with particular merits or flaws. The syntax is {"meritsearch <merit1> <merit2> ...".ColourCommand()}. If you specify multiple merits and flaws, it will search for only those characters who have ALL of them.");
-			return;
-		}
 
 		var merits = new List<IMerit>();
 		while (!ss.IsFinished)
@@ -2490,6 +2494,9 @@ This is the syntax for editing skills:
 
 	[PlayerCommand("RoleSearch", "rolesearch")]
 	[CommandPermission(PermissionLevel.Admin)]
+	[HelpInfo("rolesearch", @"The Rolesearch command is used to search for online character with particular roles. The syntax is #3rolesearch <role1> <role2> ...#0. 
+
+If you specify multiple roles, it will search for only those characters who have ALL of them.", AutoHelp.HelpArgOrNoArg)]
 	protected static void RoleSearch(ICharacter actor, string input)
 	{
 		var ss = new StringStack(input.RemoveFirstWord());
@@ -2536,14 +2543,18 @@ This is the syntax for editing skills:
 
 	[PlayerCommand("LoadPC", "loadpc")]
 	[CommandPermission(PermissionLevel.SeniorAdmin)]
+	[HelpInfo("loadpc", @"This command is used to load a player character who is not online into the world. This can be useful to for example give them something for next time they log on.
+
+Keep in mind that this actually loads them into the world for all intents and purposes; their health model will start, they will gain hunger and thirst, they will be able to be targeted by spells and other consequences. Once you are done, you can #3force#0 them to #3quit#0 to remove them from the world.
+
+The syntax is as follows:
+
+	#3loadpc <id>#0 - loads the PC with the specified ID
+
+#1Note: to find a character's ID consider using the #3show account <account>#0 #1command.#0", AutoHelp.HelpArgOrNoArg)]
 	protected static void LoadPC(ICharacter actor, string input)
 	{
 		var ss = new StringStack(input.RemoveFirstWord());
-		if (ss.IsFinished)
-		{
-			actor.OutputHandler.Send("Which PC do you want to load?");
-			return;
-		}
 
 		if (!long.TryParse(ss.PopSpeech(), out var value))
 		{
@@ -2791,7 +2802,7 @@ This is the syntax for editing skills:
 	[PlayerCommand("Resdesc", "resdesc")]
 	[CommandPermission(PermissionLevel.JuniorAdmin)]
 	[HelpInfo("resdesc",
-		"This command allows you to edit the short description of a character. Simply use RESDESC <Target>.",
+		"This command allows you to edit the short description of a character. Simply use #3redesc <target>#0.",
 		AutoHelp.HelpArgOrNoArg)]
 	protected static void Resdesc(ICharacter actor, string input)
 	{
@@ -2875,7 +2886,11 @@ This is the syntax for editing skills:
 	[PlayerCommand("Sniff", "sniff")]
 	[CommandPermission(PermissionLevel.Admin)]
 	[HelpInfo("sniff",
-		"This command allows you to see various debug info about characters, items, rooms, and directions.\nSyntax: sniff here|*dirn|<item>|<ch> [<subitem>]",
+		@"This command allows you to see various debug info about characters, items, rooms, and directions.
+
+The syntax is as follows: 
+
+	#3sniff here|*dirn|<item>|<ch> [<subitem>]#0",
 		AutoHelp.HelpArgOrNoArg)]
 	protected static void Sniff(ICharacter actor, string input)
 	{
@@ -3481,4 +3496,362 @@ This is the syntax for editing skills:
 		sb.AppendLine(writing.ParseFor(actor));
 		actor.OutputHandler.Send(sb.ToString());
 	}
+
+	#region Scripted Events
+	public const string ScriptedEventHelpText = @"Scripted events are things that you as a storyteller can program to happen to a character when they next log in. 
+
+Essentially, when they try to log in next time they will instead go into a menu that presents them with a speil that you specify and then optionally poses them a series of questions.
+
+The results of their choices are recorded and also saved to their character journal. You can also have progs execute based on their choices.
+
+The following syntax is used with this command:
+
+	#3scriptedevent list#0 - lists all scripted events. See below for filters.
+	#3scriptedevent show <which>#0 - shows all information about a scripted event
+	#3scriptedevent edit <which>#0 - begins editing a scripted event
+	#3scriptedevent edit#0 - an alias for #scriptedevent show <id>#0 on whichever event you're currently editing
+	#3scriptedevent close#0 - closes the scripted event you're editing
+	#3scriptedevent new <name>#0 - creates a new scripted event
+	#3scriptedevent clone <which>#0 - clones a scripted event to a new one
+	#3scriptedevent applyall <which> <date>#0 - takes a template and creates a scripted event for all eligible characters
+	#3scriptedevent assign <character>#0 - assigns the scripted event you're currently editing to a player
+	#3scriptedevent set name <name>#0 - renames a scripted event
+	#3scriptedevent set ready#0 - declares an event ready
+	#3scriptedevent set earliest <date>#0 - declares that the event can't start until the date
+	#3scriptedevent set template#0 - changes an event into an event template
+	#3scriptedevent set name <name>#0 - gives a name to this event
+	#3scriptedevent set earliest <date>#0 - sets the earliest time this event can fire
+	#3scriptedevent set character <name|id>#0 - sets this event as assigned to a character
+	#3scriptedevent set ready#0 - toggles this event being ready to be fire
+	#3scriptedevent set template#0 - toggles this event being a template for other events
+	#3scriptedevent set filter <prog>#0 - sets a prog as a filter for auto assigning
+	#3scriptedevent set autoassign#0 - automatically assigned clones of this event to all matching PCs
+	#3scriptedevent set addfree#0 - drops you into an editor to enter the text of a new free text question
+	#3scriptedevent set addmulti#0 - drops you into an editor to enter the text of a new multiple choice question
+	#3scriptedevent set remfree <##>#0 - removes a free text question
+	#3scriptedevent set remmulti <##>#0 - removes a multiple choice question
+	#3scriptedevent set free <##>#0 - shows detailed information about a free text question
+	#3scriptedevent set free <##> question#0 - edits the question text
+	#3scriptedevent set multi <##>#0 - shows detailed information about a multi choice question
+	#3scriptedevent set multi <##> question#0 - edits the question text
+	#3scriptedevent set multi <##> question <##> question#0 - edit the question text
+	#3scriptedevent set multi <##> question <##> addanswer#0 - adds a new answer
+	#3scriptedevent set multi <##> question <##> removeanswer <##>#0 - removes an answer
+	#3scriptedevent set multi <##> question <##> answer <##>#0 - shows detailed information about an answer
+	#3scriptedevent set multi <##> question <##> answer <##> before#0 - edits the before text of an answer
+	#3scriptedevent set multi <##> question <##> answer <##> after#0 - edits the after text of an answer
+	#3scriptedevent set multi <##> question <##> answer <##> filter <prog>#0 - edits the filter prog of an answer
+	#3scriptedevent set multi <##> question <##> answer <##> choice <prog>#0 - edits the on choice prog of an answer
+
+Filters for list:
+
+	#Bfinished#0 - only show finished events
+	#B!finished#0 - don't show finished events
+	#Bready#0 - only show ready events
+	#B!ready#0 - don't show ready events
+	#Btemplate#0 - only show template events
+	#B!template#0 - don't show template events
+	#Bassigned#0 - only show assigned events
+	#B!assigned#0 - don't show assigned events
+	#B+<keyword>#0 - events with name containing the keyword
+	#B-<keyword>#0 - events with name NOT containing the keyword
+	#B*<id>#0 - events assigned to character with specified id
+	#B*<name>#0 - events assigned to character with specified name";
+
+	[PlayerCommand("ScriptedEvent", "scriptedevent", "sevent")]
+	[CommandPermission(PermissionLevel.JuniorAdmin)]
+	[HelpInfo("ScriptedEvent", ScriptedEventHelpText, AutoHelp.HelpArgOrNoArg)]
+	protected static void ScriptedEvent(ICharacter actor, string command)
+	{
+		var ss = new StringStack(command.RemoveFirstWord());
+		switch (ss.PopSpeech().ToLowerInvariant())
+		{
+			case "list":
+				ScriptedEventList(actor, ss);
+				return;
+			case "edit":
+				ScriptedEventEdit(actor, ss);
+				return;
+			case "show":
+			case "view":
+				ScriptedEventShow(actor, ss);
+				return;
+			case "close":
+				ScriptedEventClose(actor, ss);
+				return;
+			case "new":
+				ScriptedEventNew(actor, ss);
+				return;
+			case "assign":
+				ScriptedEventAssign(actor, ss);
+				return;
+			case "clone":
+				ScriptedEventClone(actor, ss);
+				return;
+			case "set":
+				ScriptedEventSet(actor, ss);
+				return;
+			default:
+				actor.OutputHandler.Send(ScriptedEventHelpText.SubstituteANSIColour());
+				return;
+		}
+	}
+
+	private static void ScriptedEventSet(ICharacter actor, StringStack ss)
+	{
+		var editing = actor.CombinedEffectsOfType<BuilderEditingEffect<IScriptedEvent>>().FirstOrDefault();
+		if (editing is null)
+		{
+			actor.OutputHandler.Send("You are not editing any scripted events.");
+			return;
+		}
+
+		editing.EditingItem.BuildingCommand(actor, ss);
+	}
+
+	private static void ScriptedEventClone(ICharacter actor, StringStack ss)
+	{
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send("Which scripted event do you want to clone?");
+			return;
+		}
+
+		var item = actor.Gameworld.ScriptedEvents.GetByIdOrName(ss.SafeRemainingArgument);
+		if (item is null)
+		{
+			actor.OutputHandler.Send("There is no such scripted event.");
+			return;
+		}
+
+		var clone = item.Clone();
+		actor.RemoveAllEffects<BuilderEditingEffect<IScriptedEvent>>();
+		actor.AddEffect(new BuilderEditingEffect<IScriptedEvent>(actor) { EditingItem = clone });
+		actor.OutputHandler.Send($"You clone scripted event #{item.Id.ToString("N0", actor)} ({item.Name.ColourName()}) to a new item with id #{clone.Id.ToString("N0", actor)}, which you are now editing.");
+	}
+
+	private static void ScriptedEventAssign(ICharacter actor, StringStack ss)
+	{
+		var editing = actor.CombinedEffectsOfType<BuilderEditingEffect<IScriptedEvent>>().FirstOrDefault();
+		if (editing is null)
+		{
+			actor.OutputHandler.Send("You are not editing any scripted events.");
+			return;
+		}
+
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send("Which character do you want to assign that scripted event to?");
+			return;
+		}
+
+		if (!long.TryParse(ss.SafeRemainingArgument, out var id))
+		{
+			actor.OutputHandler.Send("That is not a valid character id.");
+			return;
+		}
+
+		var character = actor.Gameworld.TryGetCharacter(id, true);
+		if (character is null)
+		{
+			actor.OutputHandler.Send("There is no such character to assign a scripted event to.");
+			return;
+		}
+
+		if (character is INPC)
+		{
+			actor.OutputHandler.Send("You cannot assign scripted events to NPCs.");
+			return;
+		}
+
+		if (character.IsGuest)
+		{
+			actor.OutputHandler.Send("You cannot assigned scripted events to guests.");
+			return;
+		}
+
+		var se = editing.EditingItem.Assign(character);
+		if (se != editing.EditingItem)
+		{
+			actor.OutputHandler.Send($"You assign a new scripted event with id #{se.Id.ToString("N0", actor)} from template #{editing.EditingItem.Id.ToString("N0", actor)} ({editing.EditingItem.Name.ColourValue()}) to {character.PersonalName.GetName(NameStyle.FullName).ColourName()}.");
+			return;
+		}
+
+		actor.OutputHandler.Send($"You assign scripted event #{editing.EditingItem.Id.ToString("N0", actor)} ({editing.EditingItem.Name.ColourValue()}) to {character.PersonalName.GetName(NameStyle.FullName).ColourName()}.");
+	}
+
+	private static void ScriptedEventNew(ICharacter actor, StringStack ss)
+	{
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send("What name do you want to give to the scripted event?");
+			return;
+		}
+
+		var item = new RPG.ScriptedEvents.ScriptedEvent(ss.SafeRemainingArgument, actor.Gameworld);
+		actor.Gameworld.Add(item);
+		actor.RemoveAllEffects<BuilderEditingEffect<IScriptedEvent>>();
+		actor.AddEffect(new BuilderEditingEffect<IScriptedEvent>(actor) { EditingItem = item });
+		actor.OutputHandler.Send($"You are now editing newly created scripted event #{item.Id.ToString("N0", actor)} ({item.Name.ColourName()}).");
+	}
+
+	private static void ScriptedEventClose(ICharacter actor, StringStack ss)
+	{
+		var editing = actor.CombinedEffectsOfType<BuilderEditingEffect<IScriptedEvent>>().FirstOrDefault();
+		if (editing is null)
+		{
+			actor.OutputHandler.Send("You are not editing any scripted events.");
+			return;
+		}
+
+		actor.RemoveAllEffects<BuilderEditingEffect<IScriptedEvent>>();
+		actor.OutputHandler.Send($"You are no longer editing any scripted events.");
+	}
+
+	private static void ScriptedEventShow(ICharacter actor, StringStack ss)
+	{
+		var editing = actor.CombinedEffectsOfType<BuilderEditingEffect<IScriptedEvent>>().FirstOrDefault();
+		if (ss.IsFinished)
+		{
+			if (editing is not null)
+			{
+				actor.OutputHandler.Send(editing.EditingItem.Show(actor));
+				return;
+			}
+
+			actor.OutputHandler.Send("Which scripted event would you like to view?");
+			return;
+		}
+
+		var item = actor.Gameworld.ScriptedEvents.GetByIdOrName(ss.SafeRemainingArgument);
+		if (item is null)
+		{
+			actor.OutputHandler.Send("There is no such scripted event.");
+			return;
+		}
+
+		actor.OutputHandler.Send(item.Show(actor));
+	}
+
+	private static void ScriptedEventEdit(ICharacter actor, StringStack ss)
+	{
+		var editing = actor.CombinedEffectsOfType<BuilderEditingEffect<IScriptedEvent>>().FirstOrDefault();
+		if (ss.IsFinished)
+		{
+			if (editing is not null)
+			{
+				actor.OutputHandler.Send(editing.EditingItem.Show(actor));
+				return;
+			}
+
+			actor.OutputHandler.Send("Which scripted event would you like to edit?");
+			return;
+		}
+
+		var item = actor.Gameworld.ScriptedEvents.GetByIdOrName(ss.SafeRemainingArgument);
+		if (item is null)
+		{
+			actor.OutputHandler.Send("There is no such scripted event.");
+			return;
+		}
+
+		actor.RemoveAllEffects<BuilderEditingEffect<IScriptedEvent>>();
+		actor.AddEffect(new BuilderEditingEffect<IScriptedEvent>(actor) { EditingItem = item });
+		actor.OutputHandler.Send($"You are now editing scripted event #{item.Id.ToString("N0", actor)} ({item.Name.ColourName()}).");
+	}
+
+	private static void ScriptedEventList(ICharacter actor, StringStack ss)
+	{
+		var list = actor.Gameworld.ScriptedEvents.AsEnumerable();
+		while (!ss.IsFinished)
+		{
+			switch (ss.PopSpeech().ToLowerInvariant().CollapseString())
+			{
+				case "finished":
+					list = list.Where(x => x.IsFinished);
+					continue;
+				case "!finished":
+				case "notfinished":
+				case "open":
+					list = list.Where(x => !x.IsFinished);
+					continue;
+				case "ready":
+					list = list.Where(x => x.IsReady);
+					continue;
+				case "!ready":
+				case "notready":
+				case "unready":
+					list = list.Where(x => !x.IsReady);
+					continue;
+				case "template":
+					list = list.Where(x => x.IsTemplate);
+					continue;
+				case "!template":
+				case "nottemplate":
+					list = list.Where(x => !x.IsTemplate);
+					continue;
+				case "assigned":
+					list = list.Where(x => x.Character is not null);
+					continue;
+				case "!assigned":
+				case "notassigned":
+				case "unassigned":
+					list = list.Where(x => x.Character is null);
+					continue;
+			}
+
+			var substrText = ss.Last.Substring(1);
+
+			if (ss.Last.StartsWith("+") && ss.Last.Length > 1)
+			{
+				list = list.Where(x => x.Name.Contains(substrText, StringComparison.InvariantCultureIgnoreCase));
+				continue;
+			}
+
+			if (ss.Last.StartsWith("-") && ss.Last.Length > 1)
+			{
+				list = list.Where(x => !x.Name.Contains(substrText, StringComparison.InvariantCultureIgnoreCase));
+				continue;
+			}
+
+			if (ss.Last.StartsWith("*") && ss.Last.Length > 1)
+			{
+				if (long.TryParse(substrText, out var id))
+				{
+					list = list.Where(x => x.Character?.Id == id);
+					continue;
+				}
+
+				list = list.Where(x => x.Character is not null && x.Character.PersonalName.GetName(NameStyle.FullWithNickname).Contains(substrText, StringComparison.InvariantCultureIgnoreCase));
+				continue;
+			}
+
+			actor.OutputHandler.Send($"The text {ss.Last.ColourCommand()} is not a valid filter.");
+			return;
+		}
+
+		actor.OutputHandler.Send(StringUtilities.GetTextTable(
+			from item in list select new List<string>
+			{
+				item.Id.ToString("N0", actor),
+				item.Name,
+				item.IsTemplate.ToColouredString(),
+				item.IsReady.ToColouredString(),
+				item.IsFinished.ToColouredString(),
+				item.Character?.PersonalName.GetName(NameStyle.FullWithNickname) ?? ""
+			},
+		new List<string>
+		{
+			"Id",
+			"Name",
+			"Template",
+			"Ready",
+			"Finished",
+			"Character"
+		},
+		actor,
+		Telnet.Green
+		));
+	}
+	#endregion
 }

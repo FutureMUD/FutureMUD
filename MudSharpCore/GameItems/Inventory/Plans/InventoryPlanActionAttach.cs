@@ -133,7 +133,9 @@ public class InventoryPlanActionAttach : InventoryPlanAction
 		item =
 			executor.Location.LayerGameItems(executor.RoomLayer).FirstOrDefault(
 				x =>
-					x.IsA(DesiredTag) && (PrimaryItemSelector?.Invoke(x) ?? true) && x.IsItemType<IHoldable>() &&
+					x.IsA(DesiredTag) && (PrimaryItemSelector?.Invoke(x) ?? true) && 
+					x.IsItemType<IHoldable>() &&
+					x.GetItemType<IHoldable>().IsHoldable &&
 					x.IsItemType<IBeltable>() &&
 					belts.Any(
 						y => y.CanAttachBeltable(x.GetItemType<IBeltable>()) == IBeltCanAttachBeltableResult.Success));

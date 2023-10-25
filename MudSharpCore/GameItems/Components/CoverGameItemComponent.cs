@@ -31,6 +31,7 @@ public class CoverGameItemComponent : GameItemComponent, IProvideCover
 		: base(parent, proto, temporary)
 	{
 		_prototype = proto;
+		_isProvidingCover = proto.ProvideCoverByDefault;
 	}
 
 	public CoverGameItemComponent(MudSharp.Models.GameItemComponent component, CoverGameItemComponentProto proto,

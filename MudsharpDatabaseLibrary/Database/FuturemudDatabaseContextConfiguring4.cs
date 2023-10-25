@@ -621,6 +621,13 @@ namespace MudSharp.Database
                     .HasCharSet("utf8")
                     .UseCollation("utf8_general_ci");
 
+                entity.Property(e => e.ShopType)
+                    .IsRequired()
+                    .HasColumnType("varchar(200)")
+                    .HasCharSet("utf8")
+                    .UseCollation("utf8_general_ci")
+                    .HasDefaultValue("Permanent");
+
                 entity.Property(e => e.StockroomCellId).HasColumnType("bigint(20)");
 
                 entity.Property(e => e.WhyCannotShopProgId).HasColumnType("bigint(20)");

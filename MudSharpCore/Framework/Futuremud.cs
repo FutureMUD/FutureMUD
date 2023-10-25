@@ -67,6 +67,8 @@ using MudSharp.Work.Butchering;
 using MudSharp.Work.Crafts;
 using MudSharp.Work.Foraging;
 using MudSharp.Work.Projects;
+using MudSharp.RPG.ScriptedEvents;
+using System.Xml.Linq;
 
 namespace MudSharp.Framework;
 
@@ -150,7 +152,7 @@ public sealed partial class Futuremud : IFuturemud, IDisposable
 		}
 	}
 
-	public static IEnumerable<Futuremud> Games => _allgames;
+	public static IEnumerable<IFuturemud> Games => _allgames;
 
 	public void InitialiseTypes()
 	{
@@ -440,8 +442,21 @@ public sealed partial class Futuremud : IFuturemud, IDisposable
 		return newAccount;
 	}
 
+	public ICharacter TryPlayerCharacterByName(string name)
+	{
+		var result = 
+			_cachedPersonalNames.GetByPersonalName(name);
+		if (result is null)
+		{
+			return null;
+		}
+
+		return TryGetCharacter(result.Id, true);
+	}
+
 	public void PreloadAccounts()
 	{
+		Console.WriteLine("\nPreloading Accounts...");
 		using (new FMDB())
 		{
 			foreach (var dbaccount in FMDB.Context.Accounts.ToList())
@@ -456,9 +471,37 @@ public sealed partial class Futuremud : IFuturemud, IDisposable
 				_accounts.Add(newAccount);
 			}
 		}
+		Console.WriteLine($"Preloaded {_accounts.Count:N0} Accounts...");
 	}
 
-	protected void AddConnection(IPlayerConnection connection)
+	private record CharacterPersonalNameLookup : IHavePersonalName
+	{
+		public IPersonalName PersonalName { get; init; }
+		public long Id { get; init; }
+	}
+
+	public void PreloadCharacterNames()
+	{
+		Console.WriteLine("\nPreloading Character Name Lookups...");
+		using (new FMDB())
+		{
+			foreach (var dbcharacter in FMDB.Context.Characters
+				.Where(x => x.AccountId.HasValue)
+				.OrderByDescending(x => x.Status == (int)CharacterStatus.Active)
+				.ThenBy(x => x.TotalMinutesPlayed)
+				.ToList())
+			{
+				_cachedPersonalNames.Add(new CharacterPersonalNameLookup { 
+				PersonalName = new PersonalName(XElement.Parse(dbcharacter.NameInfo).Element("PersonalName").Element("Name"), this),
+				Id = dbcharacter.Id
+				});
+			}
+		}
+
+		Console.WriteLine($"Preloaded {_cachedPersonalNames.Count:N0} Character Names...");
+	}
+
+	private void AddConnection(IPlayerConnection connection)
 	{
 		connection.Bind(new FuturemudControlContext(connection, this));
 		if (connection.State == ConnectionState.Closed)
@@ -1090,6 +1133,8 @@ public sealed partial class Futuremud : IFuturemud, IDisposable
 			if (!_characters.Has(actor))
 			{
 				_characters.Add(actor);
+				_cachedPersonalNames.RemoveAll(x => x.Id == actor.Id);
+				_cachedPersonalNames.Add(new CharacterPersonalNameLookup { PersonalName = actor.PersonalName, Id = actor.Id });
 			}
 
 			GameStatistics.UpdateOnlinePlayers();
@@ -1164,6 +1209,11 @@ public sealed partial class Futuremud : IFuturemud, IDisposable
 	public void Add(IArmourType type)
 	{
 		_armourTypes.Add(type);
+	}
+
+	public void Add(IScriptedEvent item)
+	{
+		_scriptedEvents.Add(item);
 	}
 
 	#endregion Special Add Methods
@@ -1912,6 +1962,11 @@ public sealed partial class Futuremud : IFuturemud, IDisposable
 		_scripts.Remove(script);
 	}
 
+	public void Destroy(IScriptedEvent item)
+	{
+		_scriptedEvents.Remove(item);
+	}
+
 	#endregion Destruction
 
 	#region IDisposable Members
@@ -1924,7 +1979,7 @@ public sealed partial class Futuremud : IFuturemud, IDisposable
 
 	#endregion IDisposable Members
 
-	protected void ProcessPendingCommands()
+	private void ProcessPendingCommands()
 	{
 		lock (_connections)
 		{
@@ -1956,7 +2011,7 @@ public sealed partial class Futuremud : IFuturemud, IDisposable
 		}
 	}
 
-	protected void WarnIdlers()
+	private void WarnIdlers()
 	{
 		lock (_connections)
 		{
@@ -1967,7 +2022,7 @@ public sealed partial class Futuremud : IFuturemud, IDisposable
 		}
 	}
 
-	protected void ClearDeadConnections()
+	private void ClearDeadConnections()
 	{
 		lock (_connections)
 		{
@@ -1980,7 +2035,7 @@ public sealed partial class Futuremud : IFuturemud, IDisposable
 		return Name.Proper();
 	}
 
-	protected void Dispose(bool disposed)
+	private void Dispose(bool disposed)
 	{
 		_allgames.Remove(this);
 		lock (_connections)

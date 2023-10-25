@@ -848,12 +848,19 @@ public class SimpleNPCTemplate : NPCTemplateBase
 		}
 
 		var template = GetCharacterTemplate();
+		var ethnicity = SelectedEthnicity ??
+			Gameworld.Ethnicities.Where(x => SelectedRace.SameRace(x.ParentRace))
+			.GetRandomElement();
+		if (ethnicity is null)
+		{
+			return;
+		}
 
 		SelectedCharacteristics =
 			SelectedRace.Characteristics(SelectedGender)
 			            .Select(x =>
 				            Tuple.Create(x,
-					            SelectedEthnicity.CharacteristicChoices[x].GetRandomCharacteristic(template)))
+								ethnicity.CharacteristicChoices[x].GetRandomCharacteristic(template)))
 			            .ToList();
 	}
 

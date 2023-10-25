@@ -455,7 +455,7 @@ public class AuctionHouse : SaveableItem, IAuctionHouse
 		}
 
 		var bankString = command.SafeRemainingArgument;
-		var (bankAccount, error) = Bank.FindBankAccount(bankString, null);
+		var (bankAccount, error) = Bank.FindBankAccount(bankString, null, actor);
 		if (bankAccount is null)
 		{
 			actor.OutputHandler.Send(error);

@@ -59,6 +59,7 @@ using MudSharp.RPG.Dreams;
 using MudSharp.RPG.Knowledge;
 using MudSharp.RPG.Law;
 using MudSharp.RPG.Merits;
+using MudSharp.RPG.ScriptedEvents;
 using MudSharp.TimeAndDate.Date;
 using MudSharp.TimeAndDate.Listeners;
 using MudSharp.TimeAndDate.Time;
@@ -203,6 +204,7 @@ public sealed partial class Futuremud : IDisposable
 	private readonly All<IRangedWeaponType> _rangedWeaponTypes = new();
 	private readonly All<IRoom> _rooms = new();
 	private readonly All<IScript> _scripts = new();
+	private readonly All<IScriptedEvent> _scriptedEvents = new();
 	private readonly All<IShard> _shards = new();
 	private readonly All<IShieldType> _shieldTypes = new();
 	private readonly All<ISkyDescriptionTemplate> _skyDescriptionTemplates = new();
@@ -462,6 +464,8 @@ public sealed partial class Futuremud : IDisposable
 
 	public IUneditableAll<IScript> Scripts => _scripts;
 
+	public IUneditableAll<IScriptedEvent> ScriptedEvents => _scriptedEvents;
+
 	public IUneditableAll<IShard> Shards => _shards;
 
 	public IUneditableAll<IShieldType> ShieldTypes => _shieldTypes;
@@ -560,6 +564,8 @@ public sealed partial class Futuremud : IDisposable
 			return _alwaysFalseProg;
 		}
 	}
+
+	private readonly List<CharacterPersonalNameLookup> _cachedPersonalNames = new();
 
 	#endregion
 

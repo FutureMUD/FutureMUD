@@ -12,6 +12,7 @@ using MudSharp.FutureProg;
 using MudSharp.PerceptionEngine;
 using MudSharp.PerceptionEngine.Outputs;
 using MudSharp.PerceptionEngine.Parsers;
+using MudSharp.FutureProg.Statements.Manipulation;
 
 namespace MudSharp.NPC.AI;
 
@@ -27,6 +28,16 @@ public class SparPartnerAI : ArtificialIntelligenceBase
 	public string EngageDelayDiceExpression { get; set; }
 	public string EngageEmote { get; set; }
 	public string RefuseEmote { get; set; }
+
+	protected override string SaveToXml()
+	{
+		return new XElement("Definition",
+			new XElement("WillSparProg", WillSparProg?.Id ?? 0L),
+			new XElement("EngageDelayDiceExpression", new XCData(EngageDelayDiceExpression)),
+			new XElement("EngageEmote", new XCData(EngageEmote)),
+			new XElement("RefuseEmote", new XCData(RefuseEmote))
+		).ToString();
+	}
 
 	public static void RegisterLoader()
 	{

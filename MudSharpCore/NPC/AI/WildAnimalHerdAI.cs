@@ -61,11 +61,23 @@ public abstract class WildAnimalHerdAIReaction
 {
 	public abstract void DoReaction(ICharacter character, List<(INPC Animal, WildAnimalHerdRole Role)> herd,
 		List<ICharacter> stressors, ICharacter mostRecentStressor);
+	public abstract XElement SaveReaction(WildAnimalHerdState state);
 }
 
 public class WildAnimalHerdEmoteReaction : WildAnimalHerdAIReaction
 {
-	public WildAnimalHerdEmoteReaction(XElement root)
+    public override XElement SaveReaction(WildAnimalHerdState state)
+    {
+		return new XElement("Reaction", 
+			new XElement("state", (int)state),
+			new XElement("Role", (int)_targetEmoterRole),
+			new XElement("Delay", _delayDiceExpression),
+			from emote in _emoteTexts
+			select new XElement("Emote", new XCData(emote))
+		);
+    }
+
+    public WildAnimalHerdEmoteReaction(XElement root)
 	{
 		_targetEmoterRole =
 			(WildAnimalHerdRole)int.Parse(root.Element("Role")?.Value ??
@@ -107,7 +119,20 @@ public class WildAnimalHerdEmoteReaction : WildAnimalHerdAIReaction
 
 public class WildAnimalHerdFleeReaction : WildAnimalHerdAIReaction
 {
-	public WildAnimalHerdFleeReaction(XElement root, IFuturemud gameworld)
+
+	public override XElement SaveReaction(WildAnimalHerdState state)
+	{
+		return new XElement("Reaction",
+			new XElement("state", (int)state),
+			new XElement("Role", (int)_targetEmoterRole),
+			new XElement("Delay", _delayDiceExpression),
+            new XElement("ExitProg", _directionEvaluationProg?.Id ?? 0),
+            from emote in _emoteTexts
+			select new XElement("Emote", new XCData(emote))
+		);
+	}
+
+    public WildAnimalHerdFleeReaction(XElement root, IFuturemud gameworld)
 	{
 		_targetEmoterRole =
 			(WildAnimalHerdRole)int.Parse(root.Element("Role")?.Value ??
@@ -173,7 +198,17 @@ public class WildAnimalHerdFleeReaction : WildAnimalHerdAIReaction
 
 public class WildAnimalAttackReaction : WildAnimalHerdAIReaction
 {
-	public WildAnimalAttackReaction(XElement root)
+    public override XElement SaveReaction(WildAnimalHerdState state)
+    {
+        return new XElement("Reaction",
+            new XElement("state", (int)state),
+            new XElement("Delay", _delayDiceExpression),
+            from emote in _emoteTexts
+            select new XElement("Emote", new XCData(emote))
+        );
+    }
+
+    public WildAnimalAttackReaction(XElement root)
 	{
 		_delayDiceExpression = root.Element("Delay")?.Value ?? throw new ApplicationException("Missing Delay element");
 		if (!Dice.IsDiceExpression(_delayDiceExpression))
@@ -253,7 +288,50 @@ public class WildAnimalHerdAI : PathingAIBase
 		RegisterAIType("WildAnimalHerd", (ai, gameworld) => new WildAnimalHerdAI(ai, gameworld));
 	}
 
-	protected WildAnimalHerdAI(ArtificialIntelligence ai, IFuturemud gameworld) : base(ai, gameworld)
+    protected override string SaveToXml()
+    {
+		return new XElement("Definition",
+			new XElement("Reactions",
+				from sr in _stateReactionDictionary
+				select sr.Value.SaveReaction(sr.Key)
+			),
+			new XElement("RandomEmotes",
+				from reg in _randomEmoteDictionary
+                select 
+					from re in reg.Value
+					select new XElement("Emote", new XAttribute("role", (int)reg.Key.Role), new XAttribute("state", (int)reg.Key.State), new XCData(re))
+            ),
+            new XElement("AttackWhenAttackedEmotes",
+                from awae in _attackWhenAttackedEmotes
+                select new XElement("Emote", new XAttribute("role", (int)awae.Key), new XCData(awae.Value))
+            ),
+            new XElement("MinimumRoleCounts",
+                from mrc in _minimumCountsForEachRole
+                select new XElement("Count", new XAttribute("role", (int)mrc.Key), mrc.Value)
+            ),
+            new XElement("ActiveTimes",
+                from at in _activeTimes
+                select new XElement("ActiveTime", (int)at)
+            ),
+			new XElement("RandomEchoChancePerMinute", _randomEchoChancePerMinute),
+            new XElement("SentryScanChancePerMinute", _sentryScanChancePerMinute),
+			new XElement("FleersWillEngageInCombatIfCornered", _fleersWillEngageInCombatIfCornered),
+            new XElement("ThreatAwarenessDistance", _threatAwarenessDistance),
+            new XElement("MinimumDistanceForOutsiders", _minimumDistanceForOutsiders),
+            new XElement("MaximumDistanceForOutsiders", _maximumDistanceForOutsiders),
+			new XElement("MaximumHerdDispersement", _maximumHerdDispersement),
+			new XElement("PositionStateWhenResting", _positionStateWhenResting.Id),
+			new XElement("WillMoveIntoRoomProg", _willMoveIntoRoomProg?.Id ?? 0),
+            new XElement("EscalateThreatProg", _escalateThreatProg?.Id ?? 0),
+            new XElement("ConsidersThreatProg", _considersThreatProg?.Id ?? 0),
+			new XElement("HerdRoleProg", _herdRoleProg?.Id ?? 0),
+            new XElement("FightOrFlightProg", _fightOrFlightProg?.Id ?? 0), 
+			new XElement("WillMoveCalmProg", _willMoveCalmProg?.Id ?? 0),
+			new XElement("WillMoveAgitatedProg", _willMoveAgitatedProg?.Id ?? 0)
+        ).ToString();
+    }
+
+    protected WildAnimalHerdAI(ArtificialIntelligence ai, IFuturemud gameworld) : base(ai, gameworld)
 	{
 		var root = XElement.Parse(ai.Definition);
 		var element = root.Element("Reactions");

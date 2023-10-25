@@ -13,7 +13,8 @@ namespace MudSharp.NPC
 	public enum SpawnStrategy
 	{
 		Simple,
-		OpenTerritory
+		OpenTerritory,
+		Multi
 	}
 
 	public interface INPCSpawner : ISaveable, IEditableItem

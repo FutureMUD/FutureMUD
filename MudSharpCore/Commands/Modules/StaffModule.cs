@@ -2929,7 +2929,7 @@ The syntax is as follows:
 			}
 
 			sb.AppendLine(
-				$"{shop.Currency.Describe(shop.PriceForMerchandise(actor, merchandise, 1), CurrencyDescriptionPatternType.ShortDecimal).ColourValue()} @ {shop.Name.ColourName()} in {shop.ShopfrontCells.Select(x => x.GetFriendlyReference(actor).ColourName()).ListToString()}");
+				$"{shop.Currency.Describe(shop.PriceForMerchandise(actor, merchandise, 1), CurrencyDescriptionPatternType.ShortDecimal).ColourValue()} @ {shop.Name.ColourName()} in {shop.CurrentLocations.Select(x => x.GetFriendlyReference(actor).ColourName()).DefaultIfEmpty("Nowhere".ColourError()).ListToString()}");
 			found = true;
 		}
 

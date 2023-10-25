@@ -209,6 +209,7 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 			VariableRegister = new VariableRegister(this); // must come before LoadFutureProgs
 
 			game.LoadFutureProgs(); // Needs to come after VariableRegister is initialised
+			game.LoadScriptedEvents();
 			game.LoadTraitExpressions();
 			game.LoadTags();
 			game.LoadChargenAdvices(); // Needs to come after LoadFutureProgs
@@ -310,7 +311,7 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 			LightModel = PerceptionEngine.Light.LightModel.LoadLightModel(this);
 
 			game.LoadRoles();
-			// Needs to come after LoadFutureprogs, LoadClans, LoadCurrencies and LoadGameItemProtos
+			// Needs to come after LoadFutureprogs, LoadClans, LoadCurrencies, LoadMerits and LoadGameItemProtos
 			game.LoadCrafts(); // Needs to come after LoadFutureProgs and before LoadWorldItems
 			game.LoadEconomy(); // Should come before LoadWorldItems as late as possible
 			game.LoadLegal(); // Should come after LoadWorld, LoadEconomy and after LoadFutureProgs
@@ -367,7 +368,8 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 				var method = type.GetMethod("SetupCombat", BindingFlags.Static | BindingFlags.Public);
 				method?.Invoke(null, new object[] { this });
 			}
-
+			PreloadAccounts();
+			PreloadCharacterNames();
 #if DEBUG
 			sqlwriter.Close();
 #endif
@@ -652,7 +654,7 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 		                .ToList();
 		foreach (var shop in shops)
 		{
-			_shops.Add(new Economy.Shop(shop, this));
+			_shops.Add(Economy.Shop.LoadShop(shop, this));
 		}
 #if DEBUG
 		sw.Stop();
@@ -2439,6 +2441,32 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 					prog.FunctionName);
 			}
 		}
+	}
+
+	void IFuturemudLoader.LoadScriptedEvents()
+	{
+		Console.WriteLine("\nLoading Scripted Events...");
+#if DEBUG
+		var sw = new Stopwatch();
+		sw.Start();
+#endif
+		var scripteds = (from scripted in FMDB.Context.ScriptedEvents
+									  .Include(x => x.FreeTextQuestions)
+									  .Include(x => x.MultipleChoiceQuestions)
+									  .ThenInclude(x => x.Answers)
+									  .AsNoTracking()
+					 select scripted).ToList();
+
+		foreach (var scripted in scripteds)
+		{
+			_scriptedEvents.Add(new RPG.ScriptedEvents.ScriptedEvent(scripted, this));
+		}
+#if DEBUG
+		sw.Stop();
+		Console.WriteLine($"Duration: {sw.ElapsedMilliseconds}ms");
+#endif
+		var count = scripteds.Count;
+		Console.WriteLine("Loaded {0} Scripted Event{1}.", count, count == 1 ? "" : "s");
 	}
 
 	void IFuturemudLoader.LoadCharacteristics()

@@ -99,7 +99,7 @@ namespace MudSharp.Construction
         void AreaAdded(IArea area);
         void AreaRemoved(IArea area);
 
-        IShop Shop { get; set; }
+        IPermanentShop Shop { get; set; }
 
         double EstimatedDirectDistanceTo(ICell otherCell);
 

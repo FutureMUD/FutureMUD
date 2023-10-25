@@ -35,5 +35,7 @@ namespace MudSharp.Community
         ///     The current appointees subject to the will of the liege clan
         /// </summary>
         List<IClanMembership> Appointees { get; set; }
+
+        void Delete();
     }
 }

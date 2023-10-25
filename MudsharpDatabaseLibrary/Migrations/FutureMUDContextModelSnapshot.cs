@@ -10096,6 +10096,9 @@ namespace MudSharp.Migrations
                     b.Property<long?>("CountsAsProgId")
                         .HasColumnType("bigint(20)");
 
+                    b.Property<string>("Definition")
+                        .HasColumnType("longtext");
+
                     b.Property<long?>("IsActiveProgId")
                         .HasColumnType("bigint(20)");
 
@@ -12556,6 +12559,138 @@ namespace MudSharp.Migrations
                     b.ToTable("Scripts");
                 });
 
+            modelBuilder.Entity("MudSharp.Models.ScriptedEvent", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<long?>("CharacterFilterProgId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<long?>("CharacterId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<DateTime>("EarliestDate")
+                        .HasColumnType("datetime");
+
+                    b.Property<ulong>("IsFinished")
+                        .HasColumnType("bit(1)");
+
+                    b.Property<ulong>("IsReady")
+                        .HasColumnType("bit(1)");
+
+                    b.Property<ulong>("IsTemplate")
+                        .HasColumnType("bit(1)");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("mediumtext")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("Name"), "utf8");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CharacterFilterProgId");
+
+                    b.HasIndex("CharacterId");
+
+                    b.ToTable("ScriptedEvents");
+                });
+
+            modelBuilder.Entity("MudSharp.Models.ScriptedEventFreeTextQuestion", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<string>("Answer")
+                        .HasColumnType("mediumtext")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("Answer"), "utf8");
+
+                    b.Property<string>("Question")
+                        .HasColumnType("mediumtext")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("Question"), "utf8");
+
+                    b.Property<long>("ScriptedEventId")
+                        .HasColumnType("bigint(20)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ScriptedEventId");
+
+                    b.ToTable("ScriptedEventFreeTextQuestions");
+                });
+
+            modelBuilder.Entity("MudSharp.Models.ScriptedEventMultipleChoiceQuestion", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<long?>("ChosenAnswerId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<string>("Question")
+                        .HasColumnType("mediumtext")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("Question"), "utf8");
+
+                    b.Property<long>("ScriptedEventId")
+                        .HasColumnType("bigint(20)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ChosenAnswerId");
+
+                    b.HasIndex("ScriptedEventId");
+
+                    b.ToTable("ScriptedEventMultipleChoiceQuestions");
+                });
+
+            modelBuilder.Entity("MudSharp.Models.ScriptedEventMultipleChoiceQuestionAnswer", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<long?>("AfterChoiceProgId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<long?>("AnswerFilterProgId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<string>("DescriptionAfterChoice")
+                        .HasColumnType("mediumtext")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("DescriptionAfterChoice"), "utf8");
+
+                    b.Property<string>("DescriptionBeforeChoice")
+                        .HasColumnType("mediumtext")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("DescriptionBeforeChoice"), "utf8");
+
+                    b.Property<long>("ScriptedEventMultipleChoiceQuestionId")
+                        .HasColumnType("bigint(20)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AfterChoiceProgId");
+
+                    b.HasIndex("AnswerFilterProgId");
+
+                    b.HasIndex("ScriptedEventMultipleChoiceQuestionId");
+
+                    b.ToTable("ScriptedEventMultipleChoiceQuestionAnswers");
+                });
+
             modelBuilder.Entity("MudSharp.Models.ScriptsDesignedLanguage", b =>
                 {
                     b.Property<long>("ScriptId")
@@ -12787,6 +12922,15 @@ namespace MudSharp.Migrations
                         .UseCollation("utf8_general_ci");
 
                     MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("Name"), "utf8");
+
+                    b.Property<string>("ShopType")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("varchar(200)")
+                        .HasDefaultValue("Permanent")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("ShopType"), "utf8");
 
                     b.Property<long?>("StockroomCellId")
                         .HasColumnType("bigint(20)");
@@ -17852,23 +17996,27 @@ namespace MudSharp.Migrations
                     b.HasOne("MudSharp.Models.Appointment", "ControlledAppointment")
                         .WithMany("ExternalClanControlsControlledAppointment")
                         .HasForeignKey("ControlledAppointmentId")
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("FK_ECC_Appointments_Controlled");
 
                     b.HasOne("MudSharp.Models.Appointment", "ControllingAppointment")
                         .WithMany("ExternalClanControlsControllingAppointment")
                         .HasForeignKey("ControllingAppointmentId")
+                        .OnDelete(DeleteBehavior.Cascade)
                         .HasConstraintName("FK_ECC_Appointments_Controlling");
 
                     b.HasOne("MudSharp.Models.Clan", "LiegeClan")
                         .WithMany("ExternalClanControlsLiegeClan")
                         .HasForeignKey("LiegeClanId")
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("FK_ECC_Clans_Liege");
 
                     b.HasOne("MudSharp.Models.Clan", "VassalClan")
                         .WithMany("ExternalClanControlsVassalClan")
                         .HasForeignKey("VassalClanId")
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("FK_ECC_Clans_Vassal");
 
@@ -17892,6 +18040,7 @@ namespace MudSharp.Migrations
                     b.HasOne("MudSharp.Models.ExternalClanControl", "ExternalClanControls")
                         .WithMany("ExternalClanControlsAppointments")
                         .HasForeignKey("VassalClanId", "LiegeClanId", "ControlledAppointmentId")
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("FK_ECC_Appointments_ExternalClanControls");
 
@@ -20384,6 +20533,80 @@ namespace MudSharp.Migrations
                     b.Navigation("Knowledge");
                 });
 
+            modelBuilder.Entity("MudSharp.Models.ScriptedEvent", b =>
+                {
+                    b.HasOne("MudSharp.Models.FutureProg", "CharacterFilterProg")
+                        .WithMany()
+                        .HasForeignKey("CharacterFilterProgId")
+                        .HasConstraintName("FK_ScriptedEvents_FutureProgs");
+
+                    b.HasOne("MudSharp.Models.Character", "Character")
+                        .WithMany("ScriptedEvents")
+                        .HasForeignKey("CharacterId")
+                        .HasConstraintName("FK_ScriptedEvents_Characters");
+
+                    b.Navigation("Character");
+
+                    b.Navigation("CharacterFilterProg");
+                });
+
+            modelBuilder.Entity("MudSharp.Models.ScriptedEventFreeTextQuestion", b =>
+                {
+                    b.HasOne("MudSharp.Models.ScriptedEvent", "ScriptedEvent")
+                        .WithMany("FreeTextQuestions")
+                        .HasForeignKey("ScriptedEventId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_ScriptedEventFreeTextQuestions_ScriptedEvents");
+
+                    b.Navigation("ScriptedEvent");
+                });
+
+            modelBuilder.Entity("MudSharp.Models.ScriptedEventMultipleChoiceQuestion", b =>
+                {
+                    b.HasOne("MudSharp.Models.ScriptedEventMultipleChoiceQuestionAnswer", "ChosenAnswer")
+                        .WithMany()
+                        .HasForeignKey("ChosenAnswerId")
+                        .HasConstraintName("FK_ScriptedEventMultipleChoiceQuestions_ScriptedEventMultipleChoiceQuestionAnswers");
+
+                    b.HasOne("MudSharp.Models.ScriptedEvent", "ScriptedEvent")
+                        .WithMany("MultipleChoiceQuestions")
+                        .HasForeignKey("ScriptedEventId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_ScriptedEventMultipleChoiceQuestions_ScriptedEvents");
+
+                    b.Navigation("ChosenAnswer");
+
+                    b.Navigation("ScriptedEvent");
+                });
+
+            modelBuilder.Entity("MudSharp.Models.ScriptedEventMultipleChoiceQuestionAnswer", b =>
+                {
+                    b.HasOne("MudSharp.Models.FutureProg", "AfterChoiceProg")
+                        .WithMany()
+                        .HasForeignKey("AfterChoiceProgId")
+                        .HasConstraintName("FK_ScriptedEventMultipleChoiceQuestionAnswers_FutureProgs_After");
+
+                    b.HasOne("MudSharp.Models.FutureProg", "AnswerFilterProg")
+                        .WithMany()
+                        .HasForeignKey("AnswerFilterProgId")
+                        .HasConstraintName("FK_ScriptedEventMultipleChoiceQuestionAnswers_FutureProgs_Filter");
+
+                    b.HasOne("MudSharp.Models.ScriptedEventMultipleChoiceQuestion", "ScriptedEventMultipleChoiceQuestion")
+                        .WithMany("Answers")
+                        .HasForeignKey("ScriptedEventMultipleChoiceQuestionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_ScriptedEventMultipleChoiceQuestionAnswers_ScriptedEventMultipleChoiceQuestions");
+
+                    b.Navigation("AfterChoiceProg");
+
+                    b.Navigation("AnswerFilterProg");
+
+                    b.Navigation("ScriptedEventMultipleChoiceQuestion");
+                });
+
             modelBuilder.Entity("MudSharp.Models.ScriptsDesignedLanguage", b =>
                 {
                     b.HasOne("MudSharp.Models.Language", "Language")
@@ -21611,6 +21834,8 @@ namespace MudSharp.Migrations
 
                     b.Navigation("PerceiverMerits");
 
+                    b.Navigation("ScriptedEvents");
+
                     b.Navigation("Wounds");
 
                     b.Navigation("WritingsAuthor");
@@ -22556,6 +22781,18 @@ namespace MudSharp.Migrations
                     b.Navigation("ScriptsDesignedLanguages");
 
                     b.Navigation("Writings");
+                });
+
+            modelBuilder.Entity("MudSharp.Models.ScriptedEvent", b =>
+                {
+                    b.Navigation("FreeTextQuestions");
+
+                    b.Navigation("MultipleChoiceQuestions");
+                });
+
+            modelBuilder.Entity("MudSharp.Models.ScriptedEventMultipleChoiceQuestion", b =>
+                {
+                    b.Navigation("Answers");
                 });
 
             modelBuilder.Entity("MudSharp.Models.Season", b =>

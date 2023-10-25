@@ -48,7 +48,19 @@ public class WandererAI : ArtificialIntelligenceBase
 		OpenDoors = element != null && bool.Parse(element.Value);
 	}
 
-	private void CreateEvaluateAffect(ICharacter character, int seconds = 10)
+    protected override string SaveToXml()
+    {
+        return new XElement("Definition",
+            new XElement("FutureProg", WillWanderIntoCellProg?.Id ?? 0),
+            new XElement("WanderTimeDiceExpression", new XCData(WanderTimeDiceExpression)),
+            new XElement("TargetBody", TargetBodyPrototype?.Id ?? 0),
+            new XElement("TargetSpeed", TargetMoveSpeed?.Id ?? 0),
+            new XElement("OpenDoors", OpenDoors),
+            new XElement("EmoteText", new XCData(EmoteText))
+        ).ToString();
+    }
+
+    private void CreateEvaluateAffect(ICharacter character, int seconds = 10)
 	{
 		if (character.State.HasFlag(CharacterState.Dead))
 		{

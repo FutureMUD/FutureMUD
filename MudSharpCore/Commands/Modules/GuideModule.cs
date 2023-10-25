@@ -28,26 +28,67 @@ internal class GuideModule : Module<ICharacter>
 
 	public static GuideModule Instance { get; } = new();
 
+	private const string RoleHelp = @"The role command is used to edit chargen roles, which are selected by player characters during character creation. They can also be added to NPCs.
+
+Roles are used to control class and subclass (if you use them), starting locations, and plot-specific backgrounds. They are separated into role types, and each character may have zero or one of each role type. For example, a character may have only one #2family#0 role but may choose none, if your settings permit them to do so. That setting is controlled by the chargen storyboards.
+
+The syntax to edit roles is as follows:
+
+	#3role list#0 - lists all of the roles 
+	#3role show <which>#0 - shows information about a role
+	#3role edit <which>#0 - opens a role for editing
+	#3role edit#0 - an alias for #3role show#0 on your currently edited role
+	#3role close#0 - no longer edit the role that you are editing
+	#3role new <type> <name>#0 - creates a new role
+	#3role set name <name>#0 - renames this role
+	#3role set type <type>#0 - changes the type of this role
+	#3role set blurb#0 - drops you into an editor to enter the blurb in chargen
+	#3role set cost <resource> <amount>#0 - sets this role to cost a certain amount of resource
+	#3role set cost <resource> 0#0 - removes a cost from this role
+	#3role set prog <which>#0 - sets the prog that controls whether this appears as an option in chargen
+	#3role set prog clear#0 - removes a prog; role will always be available
+	#3role set alive <##>#0 - sets the maximum number of living characters who can have this role
+	#3role set alive 0#0 - removes any maximum number of living characters restriction
+	#3role set total <##>#0 - sets the maximum number of total characters who may ever take this role
+	#3role set total 0#0 - removes any maximum number of total characters restriction
+	#3role set approvers <account1> [<account2>] ...#0 - sets mandatory approvers for this role
+	#3role set approvers clear#0 - removes mandatory approvers from this role
+	#3role set permission <level>#0 - sets a permission level required to approve this role
+	#3role set view <level>#0 - sets a permission level required to view this role as a builder
+	#3role set expired#0 - toggles this role being expired and no longer available
+	#3role set clan <clan> rank <rank>#0 - sets a rank in a clan that is given (also adds a clan)
+	#3role set clan <clan> remove#0 - removes a clan membership given by this role
+	#3role set clan <clan> paygrade <paygrade>#0 - sets a paygrade in a clan membership given by this role
+	#3role set clan <clan> appointment <which>#0 - toggles an appointment in a clan membership given by this role
+	#3role set currency <which> <amount>#0 - sets currency to be given to the character at commencement
+	#3role set currency <which> 0#0 - removes currency given by this role
+	#3role set trait <which> <boost>#0 - sets a boost or penalty to an attribute or trait at commencement
+	#3role set trait <which> 0#0 - removes a boost or penalty  to an attribute or trait at commencement
+	#3role set trait <which> <boost> boost#0 - gives the boost only if the attribute or skill is already possessed
+	#3role set merit <which>#0 - toggles this role giving a merit or flaw";
+
 	[PlayerCommand("Role", "role")]
-	[CommandPermission(PermissionLevel.Guide)]
+	[CommandPermission(PermissionLevel.JuniorAdmin)]
+	[HelpInfo("role", RoleHelp, AutoHelp.HelpArgOrNoArg)]
 	protected static void Role(ICharacter actor, string input)
 	{
 		var ss = new StringStack(input.RemoveFirstWord());
-		if (ss.IsFinished)
-		{
-			actor.Send("What is it that you want to do with the role command?");
-			return;
-		}
 
-		switch (ss.Pop().ToLowerInvariant())
+		switch (ss.PopSpeech().ToLowerInvariant())
 		{
 			case "list":
 				RoleList(actor, ss);
 				break;
 			case "show":
+			case "view":
 				RoleShow(actor, ss);
 				break;
 			case "edit":
+				RoleEdit(actor, ss);
+				break;
+			case "close":
+				RoleClose(actor, ss);
+				break;
 			case "set":
 				RoleSet(actor, ss);
 				break;
@@ -87,10 +128,10 @@ internal class GuideModule : Module<ICharacter>
 			? actor.Gameworld.Characters
 			: actor.Gameworld.Characters.Where(x => x.AffectedBy<INewPlayerEffect>());
 		var target = (actor.PermissionLevel > PermissionLevel.Guide ? characters.GetByPersonalName(starget) : null) ??
-		             characters.FirstOrDefault(
-			             x => x.Account.Name.Equals(starget, StringComparison.InvariantCultureIgnoreCase)) ??
-		             characters.FirstOrDefault(
-			             x => x.Account.Name.StartsWith(starget, StringComparison.InvariantCultureIgnoreCase));
+					 characters.FirstOrDefault(
+						 x => x.Account.Name.Equals(starget, StringComparison.InvariantCultureIgnoreCase)) ??
+					 characters.FirstOrDefault(
+						 x => x.Account.Name.StartsWith(starget, StringComparison.InvariantCultureIgnoreCase));
 		if (target == null)
 		{
 			actor.OutputHandler.Send("You do not see them to send to.");
@@ -223,11 +264,11 @@ internal class GuideModule : Module<ICharacter>
 			}
 
 			if (!character.IsAdministrator(PermissionLevel.HighAdmin) &&
-			    loadedChargen.SelectedRoles.Any(
-				    x =>
-					    x.RequiredApprovers.Any() &&
-					    x.RequiredApprovers.All(
-						    y => !y.Equals(character.Account.Name, StringComparison.InvariantCultureIgnoreCase))))
+				loadedChargen.SelectedRoles.Any(
+					x =>
+						x.RequiredApprovers.Any() &&
+						x.RequiredApprovers.All(
+							y => !y.Equals(character.Account.Name, StringComparison.InvariantCultureIgnoreCase))))
 			{
 				var blockingRole =
 					loadedChargen.SelectedRoles.First(
@@ -247,9 +288,9 @@ internal class GuideModule : Module<ICharacter>
 				character.Send("Account {0} no longer has sufficient {1} to pay for that application.",
 					loadedChargen.Account.Name.Proper(),
 					loadedChargen.ApplicationCosts.Where(
-						             x => loadedChargen.Account.AccountResources.ValueOrDefault(x.Key, 0) < x.Value)
-					             .Select(x => x.Key.PluralName)
-					             .ListToString()
+									 x => loadedChargen.Account.AccountResources.ValueOrDefault(x.Key, 0) < x.Value)
+								 .Select(x => x.Key.PluralName)
+								 .ListToString()
 				);
 				return;
 			}
@@ -270,12 +311,9 @@ internal class GuideModule : Module<ICharacter>
 		var roles = actor.Gameworld.Roles.Where(x => actor.PermissionLevel >= x.MinimumPermissionToView);
 		while (!ss.IsFinished)
 		{
-			var text = ss.Pop();
-			if (
-				Enum.GetNames(typeof(ChargenRoleType))
-				    .Any(x => x.Equals(text, StringComparison.InvariantCultureIgnoreCase)))
+			var text = ss.PopSpeech();
+			if (text.TryParseEnum<ChargenRoleType>(out var type))
 			{
-				var type = (ChargenRoleType)Enum.Parse(typeof(ChargenRoleType), text, true);
 				roles = roles.Where(x => x.RoleType == type);
 				continue;
 			}
@@ -283,9 +321,9 @@ internal class GuideModule : Module<ICharacter>
 			if (text[0] == '!')
 			{
 				text = text.Substring(1);
-				if (!Enum.TryParse(text, true, out ChargenRoleType type))
+				if (!Enum.TryParse(text, true, out type))
 				{
-					actor.Send("There is no such type as {0}.", type);
+					actor.OutputHandler.Send($"There is no such type as {text.ColourCommand()}.");
 					return;
 				}
 
@@ -301,7 +339,7 @@ internal class GuideModule : Module<ICharacter>
 					return;
 				}
 
-				text = ss.Pop();
+				text = ss.PopSpeech();
 				roles = roles.Where(x => x.Poster.Equals(text, StringComparison.InvariantCultureIgnoreCase));
 				continue;
 			}
@@ -326,20 +364,17 @@ internal class GuideModule : Module<ICharacter>
 			}
 		}
 
-		actor.Send(StringUtilities.GetTextTable(
+		actor.OutputHandler.Send(StringUtilities.GetTextTable(
 			from role in roles
 			select new[]
 			{
 				role.Id.ToString("N0", actor),
 				role.Name.TitleCase(),
-				role.RoleType.ToString(),
+				role.RoleType.DescribeEnum(),
 				role.Poster.Proper(),
-				role.AvailabilityProg != null
-					? $"{role.AvailabilityProg.FunctionName} (#{role.AvailabilityProg.Id:N0})".FluentTagMXP("send",
-						$"href='show futureprog {role.AvailabilityProg.Id}'")
-					: "None",
+				role.AvailabilityProg?.MXPClickableFunctionName() ?? "None",
 				role.Costs.Select(x => string.Format(actor, "{0:N0} {1}", x.Value, x.Key.Alias))
-				    .ListToString(separator: " ", conjunction: ""),
+					.ListToString(separator: " ", conjunction: ""),
 				role.Expired ? "No" : "Yes"
 			},
 			new[] { "ID#", "Name", "Type", "Poster", "Availability", "Cost", "Current" },
@@ -366,450 +401,87 @@ internal class GuideModule : Module<ICharacter>
 			return;
 		}
 
-		actor.Send(role.Show(actor));
+		actor.OutputHandler.Send(role.Show(actor));
 	}
 
-	#region Role Set Subcommands
-
-	private static void RoleSetName(ICharacter actor, StringStack ss, IChargenRole role)
+	private static void RoleEdit(ICharacter actor, StringStack ss)
 	{
 		if (ss.IsFinished)
 		{
-			actor.Send("What name do you want to give to this role?");
-			return;
-		}
-
-		actor.Send("The {0} role #{1} is now known as {2}.", role.RoleType.ToString(),
-			role.Id.ToString("N0", actor).Colour(Telnet.Green),
-			ss.SafeRemainingArgument.TitleCase().Colour(Telnet.Green));
-		role.SetName(ss.SafeRemainingArgument);
-		role.Changed = true;
-	}
-
-	private static void RoleSetDescriptionPost(string message, IOutputHandler handler, object[] parameters)
-	{
-		var role = (IChargenRole)parameters[0];
-		var actor = (ICharacter)parameters[1];
-		role.ChargenBlurb = message;
-		role.Changed = true;
-		handler.Send(
-			$"You change the description of the {role.RoleType} role {role.Name.TitleCase().Colour(Telnet.Green)} (#{role.Id.ToString("N0", actor).Colour(Telnet.Green)}) to:\n\n{message.SubstituteANSIColour().Wrap(80, "\t")}");
-	}
-
-	private static void RoleSetDescriptionCancel(IOutputHandler handler, object[] parameters)
-	{
-		handler.Send("You decline to edit the description of the role.");
-	}
-
-	private static void RoleSetDescription(ICharacter actor, StringStack ss, IChargenRole role)
-	{
-		if (!string.IsNullOrEmpty(role.ChargenBlurb))
-		{
-			actor.OutputHandler.Send("Replacing:\n" + role.ChargenBlurb.Wrap(80, "\t"));
-		}
-
-		actor.OutputHandler.Send("Enter the description in the editor below.");
-		actor.EditorMode(RoleSetDescriptionPost, RoleSetDescriptionCancel, 1.0, null, EditorOptions.None,
-			new object[] { role, actor });
-	}
-
-	private static void RoleSetCost(ICharacter actor, StringStack ss, IChargenRole role)
-	{
-		if (ss.IsFinished)
-		{
-			actor.Send(
-				"How much and which resources should this role cost?\nn.b.: You can remove an existing cost by setting it to 0.");
-			return;
-		}
-
-		if (!int.TryParse(ss.Pop(), out var value) || value < 0)
-		{
-			actor.Send("You must enter a valid amount for this resource to cost.");
-			return;
-		}
-
-		if (ss.IsFinished)
-		{
-			actor.Send("Which resource would you like to set the costs of this role for?");
-			return;
-		}
-
-		var resourceText = ss.PopSpeech();
-		var resource =
-			actor.Gameworld.ChargenResources.FirstOrDefault(
-				x => x.Name.Equals(resourceText, StringComparison.InvariantCultureIgnoreCase)) ??
-			actor.Gameworld.ChargenResources.FirstOrDefault(
-				x => x.PluralName.Equals(resourceText, StringComparison.InvariantCultureIgnoreCase)) ??
-			actor.Gameworld.ChargenResources.FirstOrDefault(
-				x => x.Alias.Equals(resourceText, StringComparison.InvariantCultureIgnoreCase));
-
-		if (resource == null)
-		{
-			actor.Send("There is no such resource.");
-			return;
-		}
-
-		if (value == 0)
-		{
-			if (!role.Costs.ContainsKey(resource) || role.Costs[resource] == 0)
+			var editing = actor.CombinedEffectsOfType<BuilderEditingEffect<IChargenRole>>().FirstOrDefault();
+			if (editing is null)
 			{
-				actor.Send("That role does not currently cost any {0}.", resource.PluralName);
+				actor.OutputHandler.Send("Which role do you want to edit?");
 				return;
 			}
 
-			role.Costs.Remove(resource);
-			role.Changed = true;
-			actor.Send("The {0} role will no longer cost any {1}.",
-				role.Name.TitleCase().Colour(Telnet.Green),
-				resource.PluralName.TitleCase().Colour(Telnet.Green)
-			);
+			actor.OutputHandler.Send(editing.EditingItem.Show(actor));
 			return;
 		}
 
-		role.Costs[resource] = value;
-		role.Changed = true;
-		actor.Send("The {0} role will now cost {1} {2}.",
-			role.Name.TitleCase().Colour(Telnet.Green),
-			value.ToString("N0", actor).Colour(Telnet.Green),
-			(value == 1 ? resource.Name : resource.PluralName).TitleCase().Colour(Telnet.Green)
-		);
+		var role = actor.Gameworld.Roles.GetByIdOrName(ss.SafeRemainingArgument);
+		if (role is null)
+		{
+			actor.OutputHandler.Send("There is no such role.");
+			return;
+		}
+
+		actor.RemoveAllEffects<BuilderEditingEffect<IChargenRole>>();
+		actor.AddEffect(new BuilderEditingEffect<IChargenRole>(actor) { EditingItem = role });
+		actor.OutputHandler.Send($"You are now editing the role {role.Name.TitleCase().ColourName()}.");
 	}
 
-	private static void RoleSetProg(ICharacter actor, StringStack ss, IChargenRole role)
+	private static void RoleClose(ICharacter actor, StringStack ss)
 	{
-		if (ss.IsFinished)
+		if (!actor.CombinedEffectsOfType<BuilderEditingEffect<IChargenRole>>().Any())
 		{
-			actor.Send("Do you want to this role to have a particular eligability prog, or clear the existing one?");
+			actor.OutputHandler.Send("You are not editing any roles.");
 			return;
 		}
 
-		var argText = ss.Pop();
-		if (argText.Equals("clear", StringComparison.InvariantCultureIgnoreCase))
-		{
-			if (role.AvailabilityProg == null)
-			{
-				actor.Send("That role does not have an availability prog to clear.");
-				return;
-			}
-
-			role.AvailabilityProg = null;
-			role.Changed = true;
-			actor.Send(
-				"You clear the availability prog from the {0} role. It will now always be available for selection.",
-				role.Name.TitleCase().Colour(Telnet.Green));
-			return;
-		}
-
-		var prog = long.TryParse(argText, out var value)
-			? actor.Gameworld.FutureProgs.Get(value)
-			: actor.Gameworld.FutureProgs.FirstOrDefault(
-				x => x.FunctionName.Equals(argText, StringComparison.InvariantCultureIgnoreCase));
-		if (prog == null)
-		{
-			actor.Send("There is no such prog.");
-			return;
-		}
-
-		if (prog.ReturnType != FutureProgVariableTypes.Boolean ||
-		    !prog.MatchesParameters(new[] { FutureProgVariableTypes.Chargen }))
-		{
-			actor.Send(
-				"The prog must return a boolean and accept a single chargen parameter, whereas {1} (#{2:N0}) does not.",
-				prog.FunctionName,
-				prog.Id
-			);
-			return;
-		}
-
-		role.AvailabilityProg = prog;
-		role.Changed = true;
-		actor.Send("The {0} role will now use the {1} prog to determine availability in chargen.",
-			role.Name.TitleCase().Colour(Telnet.Green),
-			prog.FunctionName.Colour(Telnet.Green)
-		);
+		actor.RemoveAllEffects<BuilderEditingEffect<IChargenRole>>();
+		actor.OutputHandler.Send("You are no longer editing any roles.");
 	}
-
-	private static void RoleSetAlive(ICharacter actor, StringStack ss, IChargenRole role)
-	{
-		if (ss.IsFinished)
-		{
-			actor.Send("How many simultaneous alive characters may take this role?");
-			return;
-		}
-
-		if (!int.TryParse(ss.Pop(), out var value))
-		{
-			actor.Send("You must enter a number.");
-			return;
-		}
-
-		if (value < 1)
-		{
-			role.MaximumNumberAlive = 0;
-			role.Changed = true;
-			actor.Send(
-				"The {0} role no longer has any restrictions on how many living characters can hold it at one time.",
-				role.Name.TitleCase().Colour(Telnet.Green)
-			);
-			return;
-		}
-
-		role.MaximumNumberAlive = value;
-		role.Changed = true;
-		actor.Send(
-			"The {0} role will now become ineligable for selection when there are {1:N0} living characters with the role.",
-			role.Name.TitleCase().Colour(Telnet.Green),
-			value
-		);
-	}
-
-	private static void RoleSetTotal(ICharacter actor, StringStack ss, IChargenRole role)
-	{
-		if (ss.IsFinished)
-		{
-			actor.Send("How many total characters may take this role?");
-			return;
-		}
-
-		if (!int.TryParse(ss.Pop(), out var value))
-		{
-			actor.Send("You must enter a number.");
-			return;
-		}
-
-		if (value < 1)
-		{
-			role.MaximumNumberTotal = 0;
-			role.Changed = true;
-			actor.Send("The {0} role no longer has any restrictions on how many characters can hold it in total.",
-				role.Name.TitleCase().Colour(Telnet.Green)
-			);
-			return;
-		}
-
-		role.MaximumNumberTotal = value;
-		role.Changed = true;
-		actor.Send(
-			"The {0} role will now become ineligable for selection when there are {1:N0} total characters with the role.",
-			role.Name.TitleCase().Colour(Telnet.Green),
-			value
-		);
-	}
-
-	private static void RoleSetApprovers(ICharacter actor, StringStack ss, IChargenRole role)
-	{
-		if (ss.IsFinished)
-		{
-			actor.Send(
-				"You must either specify approvers for this role, or use clear to clear all current approvers.");
-			return;
-		}
-
-		if (ss.SafeRemainingArgument.Equals("clear", StringComparison.InvariantCultureIgnoreCase))
-		{
-			if (!role.RequiredApprovers.Any())
-			{
-				actor.Send("The {0} role does not require any specific approvers.",
-					role.Name.TitleCase().Colour(Telnet.Green));
-				return;
-			}
-
-			role.RequiredApprovers.Clear();
-			role.Changed = true;
-			actor.Send("The {0} role no longer requires any specific approver.",
-				role.Name.TitleCase().Colour(Telnet.Green));
-			return;
-		}
-
-		var names = ss.SafeRemainingArgument.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries).ToList();
-		using (new FMDB())
-		{
-			if (
-				names.Any(
-					x =>
-						!FMDB.Context.Accounts.AsNoTracking()
-						     .Any(y => y.Name == x)))
-			{
-				actor.Send("You must enter valid account names.");
-				return;
-			}
-		}
-
-		role.RequiredApprovers.Clear();
-		role.RequiredApprovers.AddRange(names);
-		role.Changed = true;
-		actor.Send("Applications selecting the {0} role will now be required to be approved by {1}.",
-			role.Name.TitleCase().Colour(Telnet.Green),
-			names.Select(x => x.Proper()).ListToString(conjunction: "or ")
-		);
-	}
-
-	private static void RoleSetApprovePermission(ICharacter actor, StringStack ss, IChargenRole role)
-	{
-		if (ss.IsFinished)
-		{
-			actor.Send(
-				"What permission level do you want to set for the approval of this role?\nn.b.: use \"any\" for no permissions required.");
-			return;
-		}
-
-		if (!Enum.TryParse(ss.Pop(), out PermissionLevel level))
-		{
-			actor.Send("That is not a valid permission level. See {0}.",
-				"show permissions".Colour(Telnet.Yellow).FluentTagMXP("send", "href='show permissions'"));
-			return;
-		}
-
-		role.MinimumPermissionToApprove = level;
-		role.Changed = true;
-		actor.Send("The {0} role will now require a permission level of {1} to approve.",
-			role.Name.TitleCase().Colour(Telnet.Green), level.Describe().Colour(Telnet.Green));
-	}
-
-	private static void RoleSetViewPermission(ICharacter actor, StringStack ss, IChargenRole role)
-	{
-		if (ss.IsFinished)
-		{
-			actor.Send(
-				"What permission level do you want to set for the viewing of this role?\nn.b.: use \"any\" for no permissions required.");
-			return;
-		}
-
-		if (!Enum.TryParse(ss.Pop(), out PermissionLevel level))
-		{
-			actor.Send("That is not a valid permission level. See {0}.",
-				"show permissions".Colour(Telnet.Yellow).FluentTagMXP("send", "href='show permissions'"));
-			return;
-		}
-
-		if (level > actor.PermissionLevel)
-		{
-			actor.Send("You cannot make a role with view permissions higher than your own.");
-			return;
-		}
-
-		role.MinimumPermissionToView = level;
-		role.Changed = true;
-		actor.Send("The {0} role will now require a permission level of {1} to view.",
-			role.Name.TitleCase().Colour(Telnet.Green), level.Describe().Colour(Telnet.Green));
-	}
-
-	private static void RoleSetExpired(ICharacter actor, StringStack ss, IChargenRole role)
-	{
-		actor.Send(
-			role.Expired
-				? "You change the {0} role to be active once again."
-				: "You change the {0} role to be expired, and it will no longer appear in character creation.",
-			role.Name.TitleCase().Colour(Telnet.Green));
-
-		role.Expired = !role.Expired;
-		role.Changed = true;
-	}
-
-	private static void RoleSetClans(ICharacter actor, StringStack ss, IChargenRole role)
-	{
-		actor.Send("Coming soon.");
-	}
-
-	private static void RoleSetTraits(ICharacter actor, StringStack ss, IChargenRole role)
-	{
-		actor.Send("Coming soon.");
-	}
-
-	private static void RoleSetCurrency(ICharacter actor, StringStack ss, IChargenRole role)
-	{
-		actor.Send("Coming soon.");
-	}
-
-	#endregion
 
 	private static void RoleSet(ICharacter actor, StringStack ss)
 	{
-		if (ss.IsFinished)
+		var editing = actor.CombinedEffectsOfType<BuilderEditingEffect<IChargenRole>>().FirstOrDefault();
+		if (editing is null)
 		{
-			actor.Send("Which role do you wish to set the properties of?");
+			actor.OutputHandler.Send("Which role do you want to set the properties of?");
 			return;
 		}
 
-		var roles = actor.Gameworld.Roles.Where(x => x.MinimumPermissionToView <= actor.PermissionLevel);
-		var role = long.TryParse(ss.PopSpeech(), out var value)
-			? roles.FirstOrDefault(x => x.Id == value)
-			: roles.FirstOrDefault(x => x.Name.Equals(ss.Last, StringComparison.InvariantCultureIgnoreCase));
-		if (role == null)
-		{
-			actor.Send("There is no such role to set.");
-			return;
-		}
-
-		if (ss.IsFinished)
-		{
-			actor.Send("What do you want to set for that role?");
-			return;
-		}
-
-		switch (ss.PopSpeech().ToLowerInvariant())
-		{
-			case "name":
-				RoleSetName(actor, ss, role);
-				break;
-			case "description":
-			case "desc":
-			case "blurb":
-				RoleSetDescription(actor, ss, role);
-				break;
-			case "cost":
-			case "costs":
-				RoleSetCost(actor, ss, role);
-				break;
-			case "prog":
-				RoleSetProg(actor, ss, role);
-				break;
-			case "alive":
-			case "maxalive":
-			case "max alive":
-			case "maximum alive":
-				RoleSetAlive(actor, ss, role);
-				break;
-			case "total":
-			case "maxtotal":
-			case "max total":
-			case "maximum total":
-				RoleSetTotal(actor, ss, role);
-				break;
-			case "approver":
-			case "approvers":
-				RoleSetApprovers(actor, ss, role);
-				break;
-			case "approval permission":
-			case "approve permission":
-			case "permission":
-				RoleSetApprovePermission(actor, ss, role);
-				break;
-			case "view permission":
-			case "view":
-				RoleSetViewPermission(actor, ss, role);
-				break;
-			case "expired":
-				RoleSetExpired(actor, ss, role);
-				break;
-			case "clans":
-			case "clan":
-				RoleSetClans(actor, ss, role);
-				break;
-			case "currency":
-				RoleSetCurrency(actor, ss, role);
-				break;
-			case "traits":
-				RoleSetTraits(actor, ss, role);
-				break;
-			default:
-				actor.Send("That is not a valid option for the role set command.");
-				return;
-		}
+		var role = editing.EditingItem;
+		role.BuildingCommand(actor, ss);
 	}
 
 	private static void RoleCreate(ICharacter actor, StringStack ss)
 	{
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send($"Which type of role do you want to create? The valid types are {Enum.GetValues<ChargenRoleType>().Select(x => x.DescribeEnum().ColourName()).ListToString()}.");
+			return;
+		}
+
+		if (!ss.PopSpeech().TryParseEnum<ChargenRoleType>(out var type))
+		{
+			actor.OutputHandler.Send($"That is not a valid role type. The valid types are {Enum.GetValues<ChargenRoleType>().Select(x => x.DescribeEnum().ColourName()).ListToString()}.");
+			return;
+		}
+
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send("What do you want to name the role?");
+			return;
+		}
+
+		var name = ss.SafeRemainingArgument.TitleCase();
+		var role = new ChargenRole(actor.Account, name, type, actor.Gameworld);
+		actor.Gameworld.Add(role);
+		actor.RemoveAllEffects<BuilderEditingEffect<IChargenRole>>();
+		actor.AddEffect(new BuilderEditingEffect<IChargenRole>(actor) { EditingItem = role });
+		actor.OutputHandler.Send($"You create a new {type.DescribeEnum().ColourName()} role called {name.ColourName()}, which are now editing.");
 	}
 
 	#endregion Role SubCommands

@@ -17,23 +17,26 @@ public class CoverGameItemComponentProto : GameItemComponentProto
 
 	public IRangedCover Cover { get; set; }
 
+	public bool ProvideCoverByDefault {get; set; }
+
 	#region Saving
 
 	protected override string SaveToXml()
 	{
-		return new XElement("Definition", new XElement("Cover", Cover?.Id ?? 0)).ToString();
+		return new XElement("Definition", new XElement("Cover", Cover?.Id ?? 0), new XElement("ProvidesCoverByDefault", ProvideCoverByDefault)).ToString();
 	}
 
 	#endregion
 
 	public override string ComponentDescriptionOLC(ICharacter actor)
 	{
-		return string.Format(actor, "{0} (#{1:N0}r{2:N0}, {3})\n\nThis item provides the following cover: {4}.",
+		return string.Format(actor, "{0} (#{1:N0}r{2:N0}, {3})\n\nThis item provides the following cover {5}: {4}.",
 			"Cover Game Item Component".Colour(Telnet.Cyan),
 			Id,
 			RevisionNumber,
 			Name,
-			Cover?.Name ?? "None".Colour(Telnet.Red)
+			Cover?.Name ?? "None".Colour(Telnet.Red),
+			ProvideCoverByDefault ? "by default" : "when activated"
 		);
 	}
 
@@ -42,6 +45,7 @@ public class CoverGameItemComponentProto : GameItemComponentProto
 	protected CoverGameItemComponentProto(IFuturemud gameworld, IAccount originator)
 		: base(gameworld, originator, "Cover")
 	{
+		ProvideCoverByDefault = true;
 	}
 
 	protected CoverGameItemComponentProto(MudSharp.Models.GameItemComponentProto proto, IFuturemud gameworld)
@@ -52,6 +56,7 @@ public class CoverGameItemComponentProto : GameItemComponentProto
 	protected override void LoadFromXml(XElement root)
 	{
 		Cover = Gameworld.RangedCovers.Get(long.Parse(root.Element("Cover")?.Value ?? "0"));
+		ProvideCoverByDefault = bool.Parse(root.Element("ProvidesCoverByDefault")?.Value ?? "true");
 	}
 
 	#endregion
@@ -80,7 +85,12 @@ public class CoverGameItemComponentProto : GameItemComponentProto
 		manager.AddTypeHelpInfo(
 			"Cover",
 			$"Makes an item provide {"[ranged cover]".Colour(Telnet.Cyan)} when in the room",
-			$"You can use the following options:\n\tname <name> - sets the name of the component\n\tdesc <desc> - sets the description of the component\n\tcover <type> - sets the cover type this object provides. See {"show covers".FluentTagMXP("send", "href='show covers'")} for a list."
+			$@"You can use the following options:
+
+	#3name <name>#0 - sets the name of the component
+	#3desc <desc>#0 - sets the description of the component
+	#3default#0 - toggles whether it is on by default
+	#3cover <type>#0 - sets the cover type this object provides. See {"show covers".FluentTagMXP("send", "href='show covers'")} for a list."
 		);
 	}
 
@@ -94,7 +104,12 @@ public class CoverGameItemComponentProto : GameItemComponentProto
 	#region Building Commands
 
 	public override string ShowBuildingHelp =>
-		$"You can use the following options:\n\tname <name> - sets the name of the component\n\tdesc <desc> - sets the description of the component\n\tcover <type> - sets the cover type this object provides. See {"show covers".FluentTagMXP("send", "href='show covers'")} for a list.";
+		$@"You can use the following options:
+
+	#3name <name>#0 - sets the name of the component
+	#3desc <desc>#0 - sets the description of the component
+	#3default#0 - toggles whether it is on by default
+	#3cover <type>#0 - sets the cover type this object provides. See {"show covers".FluentTagMXP("send", "href='show covers'")} for a list.";
 
 	public override bool BuildingCommand(ICharacter actor, StringStack command)
 	{
@@ -103,9 +118,19 @@ public class CoverGameItemComponentProto : GameItemComponentProto
 			case "cover":
 			case "type":
 				return BuildingCommandCover(actor, command);
+			case "default":
+				return BuildingCommandDefault(actor);
 			default:
 				return base.BuildingCommand(actor, command);
 		}
+	}
+
+	private bool BuildingCommandDefault(ICharacter actor)
+	{
+		ProvideCoverByDefault = !ProvideCoverByDefault;
+		Changed = true;
+		actor.OutputHandler.Send($"This item will {ProvideCoverByDefault.NowNoLonger()} provide cover by default when first loaded.");
+		return true;
 	}
 
 	protected bool BuildingCommandCover(ICharacter actor, StringStack command)

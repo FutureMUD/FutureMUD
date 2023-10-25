@@ -7,5 +7,6 @@ namespace MudSharp.GameItems.Interfaces {
     public interface IHoldable : IGameItemComponent {
         string CurrentInventoryDescription { get; set; }
         IBody HeldBy { get; set; }
+        bool IsHoldable { get; }
     }
 }

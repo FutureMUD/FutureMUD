@@ -648,7 +648,6 @@ internal class LoggedInMenu : Menu
 				}
 				else
 				{
-					Gameworld.Add(loginCharacter, false);
 					loginCharacter.Register(OutputHandler);
 				}
 
@@ -662,6 +661,13 @@ internal class LoggedInMenu : Menu
 				return;
 			}
 
+			var scripted = Gameworld.ScriptedEvents.FirstOrDefault(x => x.IsReady && !x.IsFinished && x.Character == loginCharacter && x.EarliestDate <= DateTime.UtcNow);
+			if (scripted is not null)
+			{
+				_nextContext = new ScriptedEventMenu(loginCharacter, scripted, false);
+				return;
+			}
+
 			if (loginCharacter.Location != null)
 			{
 				loginCharacter.Location.Login(loginCharacter);
@@ -670,12 +676,20 @@ internal class LoggedInMenu : Menu
 			{
 				Gameworld.Cells.First().Login(loginCharacter);
 			}
+			Gameworld.Add(loginCharacter, false);
 		}
 		else
 		{
 			if (InvalidCharacteristicsMenu.IsRequired(loginCharacter))
 			{
 				_nextContext = new InvalidCharacteristicsMenu(loginCharacter, false);
+				return;
+			}
+
+			var scripted = Gameworld.ScriptedEvents.FirstOrDefault(x => x.IsReady && !x.IsFinished && x.Character == loginCharacter && x.EarliestDate <= DateTime.UtcNow);
+			if (scripted is not null)
+			{
+				_nextContext = new ScriptedEventMenu(loginCharacter, scripted, false);
 				return;
 			}
 

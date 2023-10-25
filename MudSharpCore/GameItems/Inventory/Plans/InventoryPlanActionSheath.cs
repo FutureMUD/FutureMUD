@@ -145,7 +145,9 @@ public class InventoryPlanActionSheath : InventoryPlanAction
 			executor.Location.LayerGameItems(executor.RoomLayer).FirstOrDefault(
 				x =>
 					x.IsA(DesiredTag) && (PrimaryItemSelector?.Invoke(x) ?? true) && x.IsItemType<IWieldable>() &&
-					x.IsItemType<IHoldable>() && sheaths.Any(y => y.MaximumSize >= x.Size));
+					x.IsItemType<IHoldable>() &&
+					x.GetItemType<IHoldable>().IsHoldable && 
+					sheaths.Any(y => y.MaximumSize >= x.Size));
 		if (item != null)
 		{
 			return item;

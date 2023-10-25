@@ -20,6 +20,11 @@ public interface IBankAccount : IFrameworkItem, ISaveable, IFutureProgVariable
 	/// Returns a friendly roundtripaple reference to the bank account in the form BANKCODE:ACCOUNTNUMBER
 	/// </summary>
 	string AccountReference { get; }
+
+	/// <summary>
+	/// Returns an account name with optional alias afterwards
+	/// </summary>
+	string NameWithAlias {get; }
 	IBankAccountType BankAccountType { get; }
 	ICurrency Currency { get; }
 	decimal CurrentBalance { get; }
@@ -31,6 +36,7 @@ public interface IBankAccount : IFrameworkItem, ISaveable, IFutureProgVariable
 	bool IsAccountOwner(IShop shop);
 	bool IsAuthorisedAccountUser(ICharacter character);
 	IFrameworkItem AccountOwner { get; }
+	void SetName(string name);
 
 	bool IsAuthorisedPaymentItem(IBankPaymentItem item);
 	void CancelPaymentItems();

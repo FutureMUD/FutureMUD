@@ -11,6 +11,7 @@ using MudSharp.Health;
 using MudSharp.PerceptionEngine;
 using MudSharp.PerceptionEngine.Outputs;
 using MudSharp.PerceptionEngine.Parsers;
+using MudSharp.FutureProg.Statements.Manipulation;
 
 namespace MudSharp.NPC.AI;
 
@@ -38,6 +39,15 @@ public class SelfCareAI : ArtificialIntelligenceBase
 		BindingDelayDiceExpression = root.Element("BindingDelayDiceExpression").Value;
 		BleedingEmoteDelayDiceExpression = root.Element("BleedingEmoteDelayDiceExpression").Value;
 		BleedingEmotes = root.Elements("BleedingEmote").Select(x => x.Value).ToList();
+	}
+
+	protected override string SaveToXml()
+	{
+		return new XElement("Definition",
+			new XElement("BindingDelayDiceExpression", new XCData(BindingDelayDiceExpression)),
+			new XElement("BleedingEmoteDelayDiceExpression", new XCData(BleedingEmoteDelayDiceExpression)),
+			from emote in BleedingEmotes select new XElement("BleedingEmote", new XCData(emote))
+		).ToString();
 	}
 
 	public override bool HandleEvent(EventType type, params dynamic[] arguments)

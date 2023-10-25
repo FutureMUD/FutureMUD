@@ -538,6 +538,12 @@ internal class ManipulationModule : Module<ICharacter>
 				return;
 			}
 
+			if (!targetItem.GetItemType<IHoldable>().IsHoldable)
+			{
+				actor.Send($"{target.HowSeen(actor, true)} is not currently able to be moved about.");
+				return;
+			}
+
 			actor.AddEffect(new Dragging(actor, aid, target));
 			actor.OutputHandler.Handle(new EmoteOutput(new Emote("@ begin|begins to drag $1$?2| by $2||$", actor, actor,
 				target, aid?.Parent)));

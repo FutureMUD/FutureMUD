@@ -26,98 +26,77 @@ public class ShopCashPayment : CashPayment
 
 	public override void TakePayment(decimal price)
 	{
-		var tillItems = Shop.TillItems.ToList();
 		var currency = Actor.Body.ExternalItems.RecursiveGetItems<ICurrencyPile>(true);
 		var targetCoins = Currency.FindCurrency(currency, price);
 		var value = targetCoins.Sum(x => x.Value.Sum(y => y.Value * y.Key.Value));
 		var containers = targetCoins.SelectNotNull(x => x.Key.Parent.ContainedIn).Distinct();
 		var change = value - price;
 		foreach (var item in targetCoins.Where(item =>
-			         !item.Key.RemoveCoins(item.Value.Select(x => Tuple.Create(x.Key, x.Value)))))
+					 !item.Key.RemoveCoins(item.Value.Select(x => Tuple.Create(x.Key, x.Value)))))
 		{
 			item.Key.Parent.Delete();
 		}
 
 		var counter = new Counter<ICoin>();
 		foreach (var item in targetCoins)
-		foreach (var coin in item.Value)
-		{
-			counter[coin.Key] += coin.Value;
-		}
+			foreach (var coin in item.Value)
+			{
+				counter[coin.Key] += coin.Value;
+			}
 
 		var newPile = CurrencyGameItemComponentProto.CreateNewCurrencyPile(Currency, counter);
-		foreach (var item in tillItems.OrderByDescending(x => x.Location == Actor.Location))
-		{
-			var container = item.GetItemType<IContainer>();
-			if (container.CanPut(newPile))
-			{
-				container.Put(null, newPile);
-				break;
-			}
-		}
-
-		// Fallback if none of the tills could take the item
-		if (!newPile.Deleted && newPile.ContainedIn == null)
-		{
-			(tillItems.FirstOrDefault(x => x.Location == Actor.Location) ?? tillItems.First()).GetItemType<IContainer>()
-				.Put(null, newPile);
-		}
+		Shop.AddCurrencyToShop(newPile);
 
 		if (change <= 0.0M)
 		{
 			return;
 		}
 
+
 		// Now figure out any change
-		foreach (var till in tillItems.OrderByDescending(x => x.Location == Actor.Location))
+		var piles = Shop.GetCurrencyPilesForShop();
+		var changeCoins = Currency.FindCurrency(piles, change);
+		var changeCoinsValue = changeCoins.Sum(x => x.Value.Sum(y => y.Value * y.Key.Value));
+		if (changeCoinsValue < change)
 		{
-			var piles = till.RecursiveGetItems<ICurrencyPile>(false);
-			var changeCoins = Currency.FindCurrency(piles, change);
-			var changeCoinsValue = changeCoins.Sum(x => x.Value.Sum(y => y.Value * y.Key.Value));
-			if (changeCoinsValue < change)
-			{
-				continue;
-			}
+			return;
+		}
 
-			foreach (var item in changeCoins.Where(item =>
-				         !item.Key.RemoveCoins(item.Value.Select(x => Tuple.Create(x.Key, x.Value)))))
-			{
-				item.Key.Parent.Delete();
-			}
+		foreach (var item in changeCoins.Where(item =>
+					 !item.Key.RemoveCoins(item.Value.Select(x => Tuple.Create(x.Key, x.Value)))))
+		{
+			item.Key.Parent.Delete();
+		}
 
-			var changePile =
-				CurrencyGameItemComponentProto.CreateNewCurrencyPile(Currency,
-					Currency.FindCoinsForAmount(change, out _));
-			foreach (var item in containers)
+		var changePile =
+			CurrencyGameItemComponentProto.CreateNewCurrencyPile(Currency,
+				Currency.FindCoinsForAmount(change, out _));
+		foreach (var item in containers)
+		{
+			var container = item.GetItemType<IContainer>();
+			if (container.CanPut(changePile))
 			{
-				var container = item.GetItemType<IContainer>();
-				if (container.CanPut(changePile))
-				{
-					container.Put(null, changePile);
-					break;
-				}
+				container.Put(null, changePile);
+				break;
 			}
+		}
 
-			if (!changePile.Deleted && changePile.ContainedIn == null)
+		if (!changePile.Deleted && changePile.ContainedIn == null)
+		{
+			if (Actor.Body.CanGet(changePile, 0))
 			{
-				if (Actor.Body.CanGet(changePile, 0))
-				{
-					Actor.Body.Get(changePile);
-				}
-				else
-				{
-					Actor.Location.Insert(changePile);
-				}
+				Actor.Body.Get(changePile);
 			}
-
-			if (changeCoinsValue > change)
+			else
 			{
-				till.GetItemType<IContainer>().Put(null,
-					CurrencyGameItemComponentProto.CreateNewCurrencyPile(Currency,
-						Currency.FindCoinsForAmount(changeCoinsValue - change, out _)));
+				Actor.Location.Insert(changePile);
 			}
+		}
 
-			break;
+		if (changeCoinsValue > change)
+		{
+			Shop.AddCurrencyToShop(CurrencyGameItemComponentProto.CreateNewCurrencyPile(Currency,
+					Currency.FindCoinsForAmount(changeCoinsValue - change, out _)));
 		}
 	}
 }

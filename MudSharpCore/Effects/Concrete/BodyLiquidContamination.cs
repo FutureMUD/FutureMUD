@@ -46,6 +46,8 @@ public class BodyLiquidContamination : Effect, ILiquidContaminationEffect, IDesc
 	{
 		return BaseEffectDuration * mixture.RelativeEnthalpy;
 	}
+	
+	public static bool ShouldDripsEcho => Futuremud.Games.First().GetStaticBool("ShouldLiquidOverflowEchoToRoom");
 
 	public List<IExternalBodypart> Bodyparts { get; set; }
 	public string BodypartGroupDescription { get; set; }
@@ -341,7 +343,7 @@ public class BodyLiquidContamination : Effect, ILiquidContaminationEffect, IDesc
 			var location = BodyOwner.Location;
 			if (location != null && !location.IsSwimmingLayer(BodyOwner.RoomLayer))
 			{
-				if (DateTime.UtcNow - _lastDripEcho > TimeSpan.FromSeconds(120))
+				if (DateTime.UtcNow - _lastDripEcho > TimeSpan.FromSeconds(120) && ShouldDripsEcho)
 				{
 					_lastDripEcho = DateTime.UtcNow;
 					string amount, verb;

@@ -343,7 +343,11 @@ namespace MudSharp.Database
         public virtual DbSet<Room> Rooms { get; set; }
         public virtual DbSet<Script> Scripts { get; set; }
         public virtual DbSet<ScriptsDesignedLanguage> ScriptsDesignedLanguages { get; set; }
-        public virtual DbSet<Season> Seasons { get; set; }
+        public virtual DbSet<ScriptedEvent> ScriptedEvents { get; set; }
+		public virtual DbSet<ScriptedEventFreeTextQuestion> ScriptedEventFreeTextQuestions { get; set; }
+		public virtual DbSet<ScriptedEventMultipleChoiceQuestion> ScriptedEventMultipleChoiceQuestions { get; set; }
+		public virtual DbSet<ScriptedEventMultipleChoiceQuestionAnswer> ScriptedEventMultipleChoiceQuestionAnswers { get; set; }
+		public virtual DbSet<Season> Seasons { get; set; }
         public virtual DbSet<SeederChoice> SeederChoices { get; set; }
         public virtual DbSet<Shard> Shards { get; set; }
         public virtual DbSet<ShardsCalendars> ShardsCalendars { get; set; }

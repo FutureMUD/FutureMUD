@@ -844,7 +844,7 @@ internal class CrimeModule : Module<ICharacter>
 			{
 				if (!ss.IsFinished)
 				{
-					var (account, error) = Bank.FindBankAccount(ss.SafeRemainingArgument, null);
+					var (account, error) = Bank.FindBankAccount(ss.SafeRemainingArgument, null, actor);
 					if (account is null)
 					{
 						actor.OutputHandler.Send(error);
@@ -989,7 +989,7 @@ internal class CrimeModule : Module<ICharacter>
 		string bailActionText;
 		if (ss.IsFinished)
 		{
-			var (account, error) = Bank.FindBankAccount(ss.SafeRemainingArgument, null);
+			var (account, error) = Bank.FindBankAccount(ss.SafeRemainingArgument, null, actor);
 			if (account is null)
 			{
 				actor.OutputHandler.Send(error);

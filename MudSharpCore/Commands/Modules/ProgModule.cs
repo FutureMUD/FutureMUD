@@ -1170,7 +1170,7 @@ A function (See PROG HELP FUNCTIONS) can also function as a statement on a line.
 
 				return (accountType, true);
 			case FutureProgVariableTypes.BankAccount:
-				var (account, error) = Economy.Banking.Bank.FindBankAccount(parText, null);
+				var (account, error) = Economy.Banking.Bank.FindBankAccount(parText, null, actor);
 				if (account is null)
 				{
 					actor.OutputHandler.Send($"{error}{parameterArgument}");
@@ -2680,7 +2680,7 @@ The syntax for this command is as follows:
 		));
 	}
 
-	private const string ScheduleHelp = @"The schedule command is used to create schedules that execute progs at a recurring interval.
+	private const string ScheduleHelp = @"The schedule command is used to create schedules that execute progs at a recurring interval of in-character time.
 
 The syntax to use this command is as follows:
 

@@ -88,50 +88,51 @@ internal class ChargenRole : SaveableItem, IChargenRole
 			foreach (var item in Costs)
 			{
 				var newItem = new ChargenRolesCost();
-				FMDB.Context.ChargenRolesCosts.Add(newItem);
 				newItem.ChargenRole = dbitem;
 				newItem.ChargenResourceId = item.Key.Id;
 				newItem.Amount = item.Value;
-			}
+                FMDB.Context.ChargenRolesCosts.Add(newItem);
+            }
 
 			FMDB.Context.ChargenRolesCurrencies.RemoveRange(dbitem.ChargenRolesCurrencies);
 			foreach (var item in StartingCurrency)
 			{
 				var newItem = new ChargenRolesCurrency();
-				FMDB.Context.ChargenRolesCurrencies.Add(newItem);
 				newItem.ChargenRole = dbitem;
 				newItem.CurrencyId = item.Key.Id;
 				newItem.Amount = item.Value;
-			}
+                FMDB.Context.ChargenRolesCurrencies.Add(newItem);
+            }
 
 			FMDB.Context.ChargenRolesTraits.RemoveRange(dbitem.ChargenRolesTraits);
 			foreach (var item in TraitAdjustments)
 			{
 				var newItem = new ChargenRolesTrait();
-				FMDB.Context.ChargenRolesTraits.Add(newItem);
 				newItem.ChargenRole = dbitem;
 				newItem.TraitId = item.Key.Id;
 				newItem.Amount = item.Value.amount;
 				newItem.GiveIfDoesntHave = item.Value.giveIfMissing;
-			}
+                FMDB.Context.ChargenRolesTraits.Add(newItem);
+            }
 
 			FMDB.Context.ChargenRolesClanMemberships.RemoveRange(dbitem.ChargenRolesClanMemberships);
 			foreach (var item in ClanMemberships)
 			{
 				var newItem = new ChargenRolesClanMemberships();
-				FMDB.Context.ChargenRolesClanMemberships.Add(newItem);
 				newItem.ChargenRole = dbitem;
 				newItem.ClanId = item.Clan.Id;
 				newItem.RankId = item.Rank.Id;
 				newItem.PaygradeId = item.Paygrade?.Id;
-				foreach (var appointment in item.Appointments)
+                FMDB.Context.ChargenRolesClanMemberships.Add(newItem);
+                foreach (var appointment in item.Appointments)
 				{
 					var newAppointment = new ChargenRolesClanMembershipsAppointments();
-					FMDB.Context.ChargenRolesClanMembershipsAppointments.Add(newAppointment);
 					newAppointment.ChargenRolesClanMembership = newItem;
 					newAppointment.AppointmentId = appointment.Id;
-				}
-			}
+                    FMDB.Context.ChargenRolesClanMembershipsAppointments.Add(newAppointment);
+                }
+
+            }
 
 			FMDB.Context.SaveChanges();
 		}

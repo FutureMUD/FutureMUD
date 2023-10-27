@@ -685,7 +685,7 @@ public class Solid : Material, ISolid
 		if (command.IsFinished)
 		{
 			actor.OutputHandler.Send(
-				$"What colour should residues of this material be? The valid colours are {Telnet.GetColourOptions.ListToString()}.");
+				$"What colour should residues of this material be? The options are as follows:\n\n{Telnet.GetColourOptions.Select(x => x.Colour(Telnet.GetColour(x))).ListToLines(true)}");
 			return false;
 		}
 
@@ -693,7 +693,7 @@ public class Solid : Material, ISolid
 		if (colour == null)
 		{
 			actor.OutputHandler.Send(
-				$"That is not a valid colour. The valid colours are {Telnet.GetColourOptions.ListToString()}.");
+				$"That is not a valid colour. The options are as follows:\n\n{Telnet.GetColourOptions.Select(x => x.Colour(Telnet.GetColour(x))).ListToLines(true)}");
 			return false;
 		}
 

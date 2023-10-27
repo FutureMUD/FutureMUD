@@ -1302,9 +1302,166 @@ The core syntax is as follows:
 		GetEditHeader = item => $"Magic Spell #{item.Id:N0} ({item.Name})"
 	};
 
-	public static EditableItemHelper MagicSchoolHelper { get; }
+	public static EditableItemHelper MagicSchoolHelper { get; } = new()
+	{
+		ItemName = "Magic School",
+		ItemNamePlural = "Magic School",
+		SetEditableItemAction = (actor, item) =>
+		{
+			actor.RemoveAllEffects<BuilderEditingEffect<IMagicSchool>>();
+			if (item == null)
+			{
+				return;
+			}
+
+			actor.AddEffect(new BuilderEditingEffect<IMagicSchool>(actor) { EditingItem = (IMagicSchool)item });
+		},
+		GetEditableItemFunc = actor =>
+			actor.CombinedEffectsOfType<BuilderEditingEffect<IMagicSchool>>().FirstOrDefault()?.EditingItem,
+		GetAllEditableItems = actor => actor.Gameworld.MagicSchools.ToList(),
+		GetEditableItemByIdFunc = (actor, id) => actor.Gameworld.MagicSchools.Get(id),
+		GetEditableItemByIdOrNameFunc = (actor, input) => actor.Gameworld.MagicSchools.GetByIdOrName(input),
+		AddItemToGameWorldAction = item => item.Gameworld.Add((IMagicSchool)item),
+		CastToType = typeof(IMagicSchool),
+		EditableNewAction = (actor, input) =>
+		{
+			if (input.IsFinished)
+			{
+				actor.OutputHandler.Send("You must specify a name for your new magic school.");
+				return;
+			}
+
+			var name = input.PopSpeech().TitleCase();
+
+			if (actor.Gameworld.MagicSchools.Any(x => x.Name.EqualTo(name)))
+			{
+				actor.OutputHandler.Send($"There is already a magic school called {name.ColourName()}. Names must be unique.");
+				return;
+			}
+
+			if (input.IsFinished)
+			{
+				actor.OutputHandler.Send("You must specify a verb used as a command to interact with that magic school.");
+				return;
+			}
+			var verb = input.PopSpeech().ToLowerInvariant().CollapseString();
+
+			if (input.IsFinished)
+			{
+				actor.OutputHandler.Send("You must specify an adjective to describe effects from that magic school.");
+				return;
+			}
+			var adjective = input.PopSpeech().ToLowerInvariant();
+
+			ANSIColour colour = Telnet.Magenta;
+			if (!input.IsFinished)
+			{
+				colour = Telnet.GetColour(input.SafeRemainingArgument);
+				if (colour is null)
+				{
+					actor.OutputHandler.Send($"That is not a valid colour option. The options are as follows:\n\n{Telnet.GetColourOptions.Select(x => x.Colour(Telnet.GetColour(x))).ListToLines(true)}");
+					return;
+				}
+			}
+
+			var school = new MagicSchool(actor.Gameworld, name, verb, adjective, colour);
+			actor.Gameworld.Add(school);
+			actor.RemoveAllEffects<BuilderEditingEffect<IMagicSchool>>();
+			actor.AddEffect(new BuilderEditingEffect<IMagicSchool>(actor) { EditingItem = school });
+			actor.OutputHandler.Send(
+				$"You create a new school of magic called {school.Name.Colour(school.PowerListColour)}, which you are now editing.");
+		},
+		EditableCloneAction = (actor, input) =>
+		{
+			if (input.IsFinished)
+			{
+				actor.OutputHandler.Send("Which magic school do you want to clone?");
+				return;
+			}
+
+			var school = actor.Gameworld.MagicSchools.GetByIdOrName(input.PopSpeech());
+			if (school == null)
+			{
+				actor.OutputHandler.Send("There is no such magic school.");
+				return;
+			}
+
+			if (input.IsFinished)
+			{
+				actor.OutputHandler.Send("You must specify a name for your new cloned school.");
+				return;
+			}
+
+			var name = input.SafeRemainingArgument.TitleCase();
+			if (actor.Gameworld.MagicSchools.Any(x => x.Name.EqualTo(name)))
+			{
+				actor.OutputHandler.Send(
+					$"There is already a magic school with that name. Names must be unique.");
+				return;
+			}
+
+			var clone = school.Clone(name);
+			actor.Gameworld.Add(clone);
+			actor.RemoveAllEffects<BuilderEditingEffect<IMagicSchool>>();
+			actor.AddEffect(new BuilderEditingEffect<IMagicSchool>(actor) { EditingItem = clone });
+			actor.OutputHandler.Send(
+				$"You clone the magic school {school.Name.Colour(school.PowerListColour)} as {clone.Name.Colour(clone.PowerListColour)}, which you are now editing.");
+		},
+
+		GetListTableHeaderFunc = character => new List<string>
+		{
+			"Id",
+			"Name",
+			"Verb",
+			"Adjective",
+			"Parent",
+			"Colour",
+			"Spells",
+			"Powers",
+			"Capabilities"
+		},
+
+		GetListTableContentsFunc = (character, protos) => from proto in protos.OfType<IMagicSchool>()
+														  select new List<string>
+														  {
+															  proto.Id.ToString("N0", character),
+															  proto.Name,
+															  proto.SchoolVerb,
+															  proto.SchoolAdjective,
+															  proto.ParentSchool?.Name ?? "",
+															  proto.PowerListColour.Name.Colour(proto.PowerListColour),
+															  proto.Gameworld.MagicSpells.Count(x => x.School == proto).ToString("N0", character),
+															  proto.Gameworld.MagicPowers.Count(x => x.School == proto).ToString("N0", character),
+															  proto.Gameworld.MagicCapabilities.Count(x => x.School == proto).ToString("N0", character),
+														  },
+
+		CustomSearch = (protos, keyword, gameworld) => protos,
+
+		DefaultCommandHelp = @"This command is used to work with and edit magic schools.
+
+The core syntax is as follows:
+
+    #3magic school list - shows all magic schools
+    #3magic school edit new <name> <school>#0 - creates a new magic school
+    #3magic school clone <old> <new>#0 - clones an existing magic school
+    #3magic school edit <which>#0 - begins editing a magic school
+    #3magic school close#0 - closes an editing magic school
+    #3magic school show <which>#0 - shows builder information about a school
+    #3magic school show#0 - shows builder information about the currently edited school
+    #3magic school edit#0 - an alias for magic school show (with no args)
+    #3magic school set name <name>#0 - renames this school
+	#3magic school set parent <which>#0 - sets a parent school
+	#3magic school set parent none#0 - clears a parent school
+	#3magic school set adjective <which>#0 - sets the adjective used to refer to powers in this school
+	#3magic school set verb <which>#0 - sets the verb (command) used for this school
+	#3magic school set colour <which>#0 - sets the ANSI colour for display with this school",
+
+		GetEditHeader = item => $"Magic School #{item.Id:N0} ({item.Name})"
+	};
 	public static EditableItemHelper MagicCapabilityHelper { get; }
 	public static EditableItemHelper MagicResourceHelper { get; }
+	public static EditableItemHelper MagicRegeneratorHelper { get; }
+	public static EditableItemHelper MagicPowerHelper { get; }
 
 	public static EditableItemHelper AreaBuilder { get; } = new()
 	{

@@ -240,30 +240,43 @@ public class MagicModule : Module<ICharacter>
 				MagicSpell(actor, ss);
 				return;
 			default:
-				actor.OutputHandler.Send(
-					$"You must specify MAGIC SCHOOL, MAGIC CAPABILITY, MAGIC REGENERATOR, MAGIC RESOURCE, MAGIC POWER or MAGIC SPELL.");
+				actor.OutputHandler.Send(@"You can use the following sub commands to edit different components of the magic system. See individual commands for help on them:
+
+	#3magic school#0 - magic schools are types of magic
+	#3magic capability#0 - magic capabilities control who can use magic
+	#3magic resource#0 - magic resources are power for spells and abilities
+	#3magic regenerator#0 - magic regenerators produce magic resources based on rules
+	#3magic power#0 - magic powers are customisable hard-coded powers for a magic school
+	#3magic spell#0 - magic spells are completely flexible and editable templates for magical effects
+
+#ENote - It's relatively easy to add new spell effect types. Reach out to Japheth on the FutureMUD discord if you want something added.#0".SubstituteANSIColour());
 				return;
 		}
 	}
 
 	public static void MagicSchool(ICharacter actor, StringStack command)
 	{
+		BuilderModule.GenericBuildingCommand(actor, command, EditableItemHelper.MagicSchoolHelper);
 	}
 
 	public static void MagicCapability(ICharacter actor, StringStack command)
 	{
+		BuilderModule.GenericBuildingCommand(actor, command, EditableItemHelper.MagicCapabilityHelper);
 	}
 
 	public static void MagicRegenerator(ICharacter actor, StringStack command)
 	{
+		BuilderModule.GenericBuildingCommand(actor, command, EditableItemHelper.MagicRegeneratorHelper);
 	}
 
 	public static void MagicPower(ICharacter actor, StringStack command)
 	{
+		BuilderModule.GenericBuildingCommand(actor, command, EditableItemHelper.MagicPowerHelper);
 	}
 
 	public static void MagicResource(ICharacter actor, StringStack command)
 	{
+		BuilderModule.GenericBuildingCommand(actor, command, EditableItemHelper.MagicResourceHelper);
 	}
 
 	#region Magic Spells

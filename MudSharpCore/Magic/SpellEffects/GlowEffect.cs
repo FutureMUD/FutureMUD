@@ -103,7 +103,7 @@ Note: You can use {0} in the sdesc/desc addenda to have a light-level descriptio
 		if (command.IsFinished)
 		{
 			actor.OutputHandler.Send(
-				$"What colour do you want to set for the echoes? The valid colours are {Telnet.GetColourOptions.ListToString()}.");
+				$"What colour do you want to set for the echoes? The options are as follows:\n\n{Telnet.GetColourOptions.Select(x => x.Colour(Telnet.GetColour(x))).ListToLines(true)}");
 			return false;
 		}
 
@@ -111,7 +111,7 @@ Note: You can use {0} in the sdesc/desc addenda to have a light-level descriptio
 		if (colour == null)
 		{
 			actor.OutputHandler.Send(
-				$"That is not a valid colour. The valid colours are {Telnet.GetColourOptions.ListToString()}.");
+				$"That is not a valid colour. The options are as follows:\n\n{Telnet.GetColourOptions.Select(x => x.Colour(Telnet.GetColour(x))).ListToLines(true)}");
 			return false;
 		}
 

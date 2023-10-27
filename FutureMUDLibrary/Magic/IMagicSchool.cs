@@ -13,6 +13,8 @@ namespace MudSharp.Magic
     {
         IMagicSchool ParentSchool { get; }
 
+        bool IsChildSchool(IMagicSchool other);
+
         /// <summary>
         /// The "Verb" used for the command to invoke this school, e.g. "psy", "magic", "invoke", etc
         /// </summary>

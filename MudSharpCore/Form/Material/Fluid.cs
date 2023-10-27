@@ -225,7 +225,7 @@ public abstract class Fluid : Material, IFluid
 		if (command.IsFinished)
 		{
 			actor.OutputHandler.Send(
-				$"What colour should this {MaterialNoun} be? The valid colours are {Telnet.GetColourOptions.ListToString()}.");
+				$"What colour should this {MaterialNoun} be? The options are as follows:\n\n{Telnet.GetColourOptions.Select(x => x.Colour(Telnet.GetColour(x))).ListToLines(true)}");
 			return false;
 		}
 
@@ -233,7 +233,7 @@ public abstract class Fluid : Material, IFluid
 		if (colour == null)
 		{
 			actor.OutputHandler.Send(
-				$"That is not a valid colour. The valid colours are {Telnet.GetColourOptions.ListToString()}.");
+				$"That is not a valid colour. The options are as follows:\n\n{Telnet.GetColourOptions.Select(x => x.Colour(Telnet.GetColour(x))).ListToLines(true)}");
 			return false;
 		}
 

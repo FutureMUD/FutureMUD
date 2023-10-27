@@ -879,6 +879,12 @@ If you do not wish to approve or decline, you may type {"abort edit".Colour(Teln
 
 	public static void GenericBuildingCommand(ICharacter actor, StringStack input, EditableItemHelper helper)
 	{
+		if (helper is null)
+		{
+			actor.OutputHandler.Send("This editable type does not have a building command module set up.");
+			return;
+		}
+
 		switch (input.PopSpeech().ToLowerInvariant())
 		{
 			case "edit":

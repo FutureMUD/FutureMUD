@@ -16,6 +16,28 @@ namespace MudSharp.Magic;
 
 public class MagicSchool : SaveableItem, IMagicSchool
 {
+	public MagicSchool(IFuturemud gameworld, string name, string verb, string adjective, ANSIColour colour)
+	{
+		Gameworld = gameworld;
+		_name = name;
+		SchoolVerb = verb;
+		SchoolAdjective = adjective;
+		PowerListColour = colour;
+		using (new FMDB())
+		{
+			var dbitem = new Models.MagicSchool
+			{
+				Name = name,
+				SchoolVerb = verb,
+				SchoolAdjective = adjective,
+				PowerListColour = colour.Name
+			};
+			FMDB.Context.MagicSchools.Add(dbitem);
+			FMDB.Context.SaveChanges();
+			_id = dbitem.Id;
+		}
+	}
+
 	public MagicSchool(MudSharp.Models.MagicSchool school, IFuturemud gameworld)
 	{
 		_id = school.Id;
@@ -79,6 +101,11 @@ public class MagicSchool : SaveableItem, IMagicSchool
 
 			return _parentSchool;
 		}
+	}
+
+	public bool IsChildSchool(IMagicSchool other)
+	{
+		return ParentSchool == other || (ParentSchool?.IsChildSchool(other) ?? false);
 	}
 
 	/// <summary>
@@ -175,7 +202,14 @@ public class MagicSchool : SaveableItem, IMagicSchool
 	#endregion
 
 	#region Implementation of IEditableItem
-	public const string HelpText = @"";
+	public const string HelpText = @"You can use the following options with this command:
+
+	#3name <name>#0 - renames this school
+	#3parent <which>#0 - sets a parent school
+	#3parent none#0 - clears a parent school
+	#3adjective <which>#0 - sets the adjective used to refer to powers in this school
+	#3verb <which>#0 - sets the verb (command) used for this school
+	#3colour <which>#0 - sets the ANSI colour for display with this school";
 
 	/// <summary>
 	/// Executes a building command based on player input
@@ -265,13 +299,31 @@ public class MagicSchool : SaveableItem, IMagicSchool
 
 		if (command.SafeRemainingArgument.EqualTo("none"))
 		{
-			//ParentSchool = null;
+			_parentSchool = null;
+			_parentSchoolId = null;
 			Changed = true;
-			actor.OutputHandler.Send($"");
+			actor.OutputHandler.Send($"This magic school will no longer have any parent school.");
 			return true;
 		}
 
-		throw new NotImplementedException();
+		var school = Gameworld.MagicSchools.GetByIdOrName(command.SafeRemainingArgument);
+		if (school is null)
+		{
+			actor.OutputHandler.Send("There is no such magic school.");
+			return false;
+		}
+
+		if (school.IsChildSchool(school))
+		{
+			actor.OutputHandler.Send($"Setting this school's parent to {school.Name.ColourName()} would create a loop relationship, which is not allowed.");
+			return false;
+		}
+
+		_parentSchool = school;
+		_parentSchoolId = school.Id;
+		Changed = true;
+		actor.OutputHandler.Send($"This magic school's parent is now {school.Name.ColourName()}.");
+		return true;
 	}
 
 	private bool BuildingCommandName(ICharacter actor, StringStack command)
@@ -303,13 +355,23 @@ public class MagicSchool : SaveableItem, IMagicSchool
 	public string Show(ICharacter actor)
 	{
 		var sb = new StringBuilder();
-
+		sb.AppendLine($"Magic School #{Id.ToString("N0", actor)} - {Name}".GetLineWithTitle(actor, PowerListColour, Telnet.BoldWhite));
+		sb.AppendLine($"Parent: {ParentSchool?.Name.Colour(ParentSchool.PowerListColour) ?? "None".Colour(Telnet.Red)}");
+		sb.AppendLine($"Verb: {SchoolVerb.ColourCommand()}");
+		sb.AppendLine($"Adjective: {SchoolAdjective.ColourValue()}");
+		sb.AppendLine($"Colour: {PowerListColour.Name.Colour(PowerListColour)}");
 		return sb.ToString();
 	}
 
 	public override void Save()
 	{
-		throw new NotImplementedException();
+		var dbitem = FMDB.Context.MagicSchools.Find(Id);
+		dbitem.Name = Name;
+		dbitem.ParentSchoolId = _parentSchoolId;
+		dbitem.SchoolVerb = SchoolVerb;
+		dbitem.SchoolAdjective = SchoolAdjective;
+		dbitem.PowerListColour = PowerListColour.Name;
+		Changed = true;
 	}
 	#endregion
 }

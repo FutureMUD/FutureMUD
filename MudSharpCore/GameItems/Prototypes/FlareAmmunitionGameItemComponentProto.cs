@@ -205,7 +205,7 @@ public class FlareAmmunitionGameItemComponentProto : AmmunitionGameItemComponent
 		if (command.IsFinished)
 		{
 			actor.OutputHandler.Send(
-				$"What colour do you want the zone description when this flare is in the air to be?\nValid options are: {Telnet.GetColourOptions.ListToString()}.");
+				$"What colour do you want the zone description when this flare is in the air to be?\nThe options are as follows:\n\n{Telnet.GetColourOptions.Select(x => x.Colour(Telnet.GetColour(x))).ListToLines(true)}");
 			return false;
 		}
 
@@ -213,7 +213,7 @@ public class FlareAmmunitionGameItemComponentProto : AmmunitionGameItemComponent
 		if (colour == null)
 		{
 			actor.OutputHandler.Send(
-				$"There is no such colour by that name.\nValid options are: {Telnet.GetColourOptions.ListToString()}.");
+				$"There is no such colour by that name.\nThe options are as follows:\n\n{Telnet.GetColourOptions.Select(x => x.Colour(Telnet.GetColour(x))).ListToLines(true)}");
 			return false;
 		}
 

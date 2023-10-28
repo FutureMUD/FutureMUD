@@ -260,7 +260,7 @@ public partial class Race : SaveableItem, IRace
 				Name = _name,
 				Description = Description,
 				BaseBodyId = BaseBody.Id,
-				AllowedGenders = _allowedGenders.Select(x => ((int)x).ToString("F")).ListToCommaSeparatedValues(" "),
+				AllowedGenders = _allowedGenders.Select(x => ((int)x).ToString("F0")).ListToCommaSeparatedValues(" "),
 				ParentRaceId = ParentRace?.Id,
 				AttributeBonusProgId = AttributeBonusProg.Id,
 				AttributeTotalCap = AttributeTotalCap,
@@ -286,7 +286,7 @@ public partial class Race : SaveableItem, IRace
 				SizeSitting = (int)SizeSitting,
 				CommunicationStrategyType = CommunicationStrategy.Name,
 				DefaultHandedness = (int)DefaultHandedness,
-				HandednessOptions = HandednessOptions.Select(x => ((int)x).ToString("F"))
+				HandednessOptions = HandednessOptions.Select(x => ((int)x).ToString("F0"))
 				                                     .ListToCommaSeparatedValues(" "),
 				MaximumDragWeightExpression = MaximumDragWeightExpression.Formula.OriginalExpression,
 				MaximumLiftWeightExpression = MaximumLiftWeightExpression.Formula.OriginalExpression,

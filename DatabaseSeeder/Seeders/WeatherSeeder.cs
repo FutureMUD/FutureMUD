@@ -19,7 +19,6 @@ namespace DatabaseSeeder.Seeders
 		=> new List<(string Id, string Question, Func<FuturemudDatabaseContext, IReadOnlyDictionary<string, string>, bool>
 			Filter, Func<string, FuturemudDatabaseContext, (bool Success, string error)> Validator)>
 		{
-
 		};
 
 		/// <inheritdoc />
@@ -47,10 +46,10 @@ Once you have installed this seeder you will need to add the WeatherControllers 
 			_context = context;
 			_questionAnswers = questionAnswers;
 
-			var celestial = _context.Celestials.Find(long.Parse(questionAnswers["celestial"]));
+			var celestial = _context.Celestials.FirstOrDefault();
 			if (celestial is null)
 			{
-				return "Could not proceed because the specified celestial object was not valid. No data was seeded.";
+				return "Could not proceed because there was not a celestial object. No data was seeded.";
 			}
 
 			#region Seasons
@@ -122,17 +121,249 @@ Once you have installed this seeder you will need to add the WeatherControllers 
 				_context.WeatherEvents.Add(weatherEvent);
 			}
 
-			AddEvent("SunnyStill", "The air is still and calm, and warm sunshine washes down from the sky overhead.", "#BThe air is still and calm, and warm sunshine washes down from the sky overhead.#0", 0.0, 0.0, 0.0, PrecipitationLevel.Dry, WindLevel.Still, false, false, false, true, true, true, null, "The day is clear, still and sunny.");
-			AddEvent("SunnyStillWarmer", "The air is still and calm, and warm sunshine washes down from the sky overhead.", "#BThe air is still and calm, and warm sunshine washes down from the sky overhead.#0", 1.0, 0.0, 0.0, PrecipitationLevel.Dry, WindLevel.Still, false, false, false, true, true, true, "SunnyStill", "The day is clear, still and sunny.");
-			AddEvent("SunnyStillWarm", "The air is still and calm, and warm sunshine washes down from the sky overhead.", "#BThe air is still and calm, and warm sunshine washes down from the sky overhead.#0", 2.0, 0.0, 0.0, PrecipitationLevel.Dry, WindLevel.Still, false, false, false, true, true, true, "SunnyStill", "The day is clear, still and sunny.");
-			AddEvent("SunnyStillHot", "The air is still and calm, and warm sunshine washes down from the sky overhead.", "#BThe air is still and calm, and warm sunshine washes down from the sky overhead.#0", 3.0, 0.0, 0.0, PrecipitationLevel.Dry, WindLevel.Still, false, false, false, true, true, true, "SunnyStill", "The day is clear, still and sunny.");
-			AddEvent("SunnyStillVeryHot", "The air is still and calm, and warm sunshine washes down from the sky overhead.", "#BThe air is still and calm, and warm sunshine washes down from the sky overhead.#0", 4.0, 0.0, 0.0, PrecipitationLevel.Dry, WindLevel.Still, false, false, false, true, true, true, "SunnyStill", "The day is clear, still and sunny.");
-			AddEvent("SunnyStillSweltering", "The air is still and calm, and warm sunshine washes down from the sky overhead.", "#BThe air is still and calm, and warm sunshine washes down from the sky overhead.#0", 5.0, 0.0, 0.0, PrecipitationLevel.Dry, WindLevel.Still, false, false, false, true, true, true, "SunnyStill", "The day is clear, still and sunny.");
-			AddEvent("SunnyStillCooler", "The air is still and calm, and warm sunshine washes down from the sky overhead.", "#BThe air is still and calm, and warm sunshine washes down from the sky overhead.#0", -1.0, 0.0, 0.0, PrecipitationLevel.Dry, WindLevel.Still, false, false, false, true, true, true, "SunnyStill", "The day is clear, still and sunny.");
-			AddEvent("SunnyStillCool", "The air is still and calm, and warm sunshine washes down from the sky overhead.", "#BThe air is still and calm, and warm sunshine washes down from the sky overhead.#0", -2.0, 0.0, 0.0, PrecipitationLevel.Dry, WindLevel.Still, false, false, false, true, true, true, "SunnyStill", "The day is clear, still and sunny.");
-			AddEvent("SunnyStillCold", "The air is still and calm, and warm sunshine washes down from the sky overhead.", "#BThe air is still and calm, and warm sunshine washes down from the sky overhead.#0", -3.0, 0.0, 0.0, PrecipitationLevel.Dry, WindLevel.Still, false, false, false, true, true, true, "SunnyStill", "The day is clear, still and sunny.");
-			AddEvent("SunnyStillVeryCold", "The air is still and calm, and warm sunshine washes down from the sky overhead.", "#BThe air is still and calm, and warm sunshine washes down from the sky overhead.#0", -4.0, 0.0, 0.0, PrecipitationLevel.Dry, WindLevel.Still, false, false, false, true, true, true, "SunnyStill", "The day is clear, still and sunny.");
-			AddEvent("SunnyStillFreezing", "The air is still and calm, and warm sunshine washes down from the sky overhead.", "#BThe air is still and calm, and warm sunshine washes down from the sky overhead.#0", -5.0, 0.0, 0.0, PrecipitationLevel.Dry, WindLevel.Still, false, false, false, true, true, true, "SunnyStill", "The day is clear, still and sunny.");
+			void AddEventWithTempVariations(string name, string description, string roomAddendum, double temp, double precipTemp, double windTemp, double tempPerVariation, double precipTempPerVariation, double windTempPerVariation, PrecipitationLevel precipitation, WindLevel wind, bool obscureSky, bool night, bool dawn, bool morning, bool afternoon, bool dusk, string defaultTransition)
+			{
+				AddEvent(name, description, roomAddendum, temp, precipTemp, windTemp, precipitation, wind, obscureSky, night, dawn, morning, afternoon, dusk, null, defaultTransition);
+				AddEvent($"{name}Warmer", description, roomAddendum, temp + (1 * tempPerVariation), precipTemp + (1 * precipTempPerVariation), windTemp + (1 * windTempPerVariation), precipitation, wind, obscureSky, night, dawn, morning, afternoon, dusk, name, defaultTransition);
+				AddEvent($"{name}Warm", description, roomAddendum, temp + (2 * tempPerVariation), precipTemp + (2 * precipTempPerVariation), windTemp + (2 * windTempPerVariation), precipitation, wind, obscureSky, night, dawn, morning, afternoon, dusk, name, defaultTransition);
+				AddEvent($"{name}Hot", description, roomAddendum, temp + (3 * tempPerVariation), precipTemp + (3 * precipTempPerVariation), windTemp + (3 * windTempPerVariation), precipitation, wind, obscureSky, night, dawn, morning, afternoon, dusk, name, defaultTransition);
+				AddEvent($"{name}VeryHot", description, roomAddendum, temp + (4 * tempPerVariation), precipTemp + (4 * precipTempPerVariation), windTemp + (4 * windTempPerVariation), precipitation, wind, obscureSky, night, dawn, morning, afternoon, dusk, name, defaultTransition);
+				AddEvent($"{name}Sweltering", description, roomAddendum, temp + (5 * tempPerVariation), precipTemp + (5 * precipTempPerVariation), windTemp + (5 * windTempPerVariation), precipitation, wind, obscureSky, night, dawn, morning, afternoon, dusk, name, defaultTransition);
+				AddEvent($"{name}Cooler", description, roomAddendum, temp - (1 * tempPerVariation), precipTemp - (1 * precipTempPerVariation), windTemp - (1 * windTempPerVariation), precipitation, wind, obscureSky, night, dawn, morning, afternoon, dusk, name, defaultTransition);
+				AddEvent($"{name}Cool", description, roomAddendum, temp - (2 * tempPerVariation), precipTemp - (2 * precipTempPerVariation), windTemp - (2 * windTempPerVariation), precipitation, wind, obscureSky, night, dawn, morning, afternoon, dusk, name, defaultTransition);
+				AddEvent($"{name}Cold", description, roomAddendum, temp - (3 * tempPerVariation), precipTemp - (3 * precipTempPerVariation), windTemp - (3 * windTempPerVariation), precipitation, wind, obscureSky, night, dawn, morning, afternoon, dusk, name, defaultTransition);
+				AddEvent($"{name}VeryCold", description, roomAddendum, temp - (4 * tempPerVariation), precipTemp - (4 * precipTempPerVariation), windTemp - (4 * windTempPerVariation), precipitation, wind, obscureSky, night, dawn, morning, afternoon, dusk, name, defaultTransition);
+				AddEvent($"{name}Freezing", description, roomAddendum, temp - (5 * tempPerVariation), precipTemp - (5 * precipTempPerVariation), windTemp - (5 * windTempPerVariation), precipitation, wind, obscureSky, night, dawn, morning, afternoon, dusk, name, defaultTransition);
+			}
+
+			AddEventWithTempVariations(name: "SunnyStill",
+							  description: "The air is still and calm, and warm sunshine washes down from the sky overhead.",
+							  roomAddendum: "#BThe air is still and calm, and warm sunshine washes down from the sky overhead.#0",
+							  temp: 0.0,
+							  precipTemp: 0.0,
+							  windTemp: 0.0,
+							  tempPerVariation: 1.0,
+							  precipTempPerVariation: 0.0,
+							  windTempPerVariation: 0.0,
+							  precipitation: PrecipitationLevel.Dry,
+							  wind: WindLevel.Still,
+							  obscureSky: false,
+							  night: false,
+							  dawn: false,
+							  morning: true,
+							  afternoon: true,
+							  dusk: false,
+							  defaultTransition: "The day is clear, still and sunny.");
+
+			AddEventWithTempVariations(name: "NightStill",
+							  description: "The air is still and calm, and the night sky is completely clear.",
+							  roomAddendum: "#5The air is still and calm, and the night sky is completely clear.#0",
+							  temp: 0.0,
+							  precipTemp: 0.0,
+							  windTemp: 0.0,
+							  tempPerVariation: 0.5,
+							  precipTempPerVariation: 0.0,
+							  windTempPerVariation: 0.0,
+							  precipitation: PrecipitationLevel.Dry,
+							  wind: WindLevel.Still,
+							  obscureSky: false,
+							  night: true,
+							  dawn: false,
+							  morning: false,
+							  afternoon: false,
+							  dusk: false,
+							  defaultTransition: "The night sky is still and clear.");
+
+			AddEventWithTempVariations(name: "DawnStill",
+							  description: "The air is still and calm, and the early morning sky is completely clear.",
+							  roomAddendum: "#GThe air is still and calm, and the early morning sky is completely clear.#0",
+							  temp: 0.0,
+							  precipTemp: 0.0,
+							  windTemp: 0.0,
+							  tempPerVariation: 0.66,
+							  precipTempPerVariation: 0.0,
+							  windTempPerVariation: 0.0,
+							  precipitation: PrecipitationLevel.Dry,
+							  wind: WindLevel.Still,
+							  obscureSky: false,
+							  night: false,
+							  dawn: true,
+							  morning: false,
+							  afternoon: false,
+							  dusk: false,
+							  defaultTransition: "The early morning sky is still and clear.");
+
+			AddEventWithTempVariations(name: "DuskStill",
+							  description: "The air is still and calm, and the late afternoon sky is completely clear.",
+							  roomAddendum: "#GThe air is still and calm, and the late afternoon sky is completely clear.#0",
+							  temp: 0.0,
+							  precipTemp: 0.0,
+							  windTemp: 0.0,
+							  tempPerVariation: 0.66,
+							  precipTempPerVariation: 0.0,
+							  windTempPerVariation: 0.0,
+							  precipitation: PrecipitationLevel.Dry,
+							  wind: WindLevel.Still,
+							  obscureSky: false,
+							  night: false,
+							  dawn: false,
+							  morning: false,
+							  afternoon: false,
+							  dusk: true,
+							  defaultTransition: "The late afternoon sky is still and clear.");
+
+			AddEventWithTempVariations(name: "HumidStill",
+							  description: "The air is humid and still, and warm sunshine washes down from the sky overhead.",
+							  roomAddendum: "#BThe air is humid and still, and warm sunshine washes down from the sky overhead.#0",
+							  temp: 0.0,
+							  precipTemp: 1.0,
+							  windTemp: 0.0,
+							  tempPerVariation: 1.0,
+							  precipTempPerVariation: 1.0,
+							  windTempPerVariation: 0.0,
+							  precipitation: PrecipitationLevel.Humid,
+							  wind: WindLevel.Still,
+							  obscureSky: false,
+							  night: false,
+							  dawn: false,
+							  morning: true,
+							  afternoon: true,
+							  dusk: false,
+							  defaultTransition: "The day is clear, humid and still.");
+
+			AddEventWithTempVariations(name: "NightHumidStill",
+							  description: "The air is humid and still, and the night sky is completely clear.",
+							  roomAddendum: "#5The air is humid and still, and the night sky is completely clear.#0",
+							  temp: 0.0,
+							  precipTemp: 0.5,
+							  windTemp: 0.0,
+							  tempPerVariation: 0.5,
+							  precipTempPerVariation: 0.8,
+							  windTempPerVariation: 0.0,
+							  precipitation: PrecipitationLevel.Dry,
+							  wind: WindLevel.Still,
+							  obscureSky: false,
+							  night: true,
+							  dawn: false,
+							  morning: false,
+							  afternoon: false,
+							  dusk: false,
+							  defaultTransition: "The night sky is humid and still.");
+
+			AddEventWithTempVariations(name: "DawnHumidStill",
+							  description: "The air is humid and still, and the early morning sky is completely clear.",
+							  roomAddendum: "#GThe air is humid and still, and the early morning sky is completely clear.#0",
+							  temp: 0.0,
+							  precipTemp: 0.5,
+							  windTemp: 0.0,
+							  tempPerVariation: 0.66,
+							  precipTempPerVariation: 0.9,
+							  windTempPerVariation: 0.0,
+							  precipitation: PrecipitationLevel.Dry,
+							  wind: WindLevel.Still,
+							  obscureSky: false,
+							  night: false,
+							  dawn: true,
+							  morning: false,
+							  afternoon: false,
+							  dusk: false,
+							  defaultTransition: "The early morning sky is humid and still.");
+
+			AddEventWithTempVariations(name: "DuskHumidStill",
+							  description: "The air is humid and still, and the late afternoon sky is completely clear.",
+							  roomAddendum: "#GThe air is humid and still, and the late afternoon sky is completely clear.#0",
+							  temp: 0.0,
+							  precipTemp: 1.0,
+							  windTemp: 0.0,
+							  tempPerVariation: 0.66,
+							  precipTempPerVariation: 0.9,
+							  windTempPerVariation: 0.0,
+							  precipitation: PrecipitationLevel.Dry,
+							  wind: WindLevel.Still,
+							  obscureSky: false,
+							  night: false,
+							  dawn: false,
+							  morning: false,
+							  afternoon: false,
+							  dusk: true,
+							  defaultTransition: "The late afternoon sky is humid and still.");
+
+			AddEventWithTempVariations(name: "SunnyBreezy",
+							  description: "There is a slight breeze about, and warm sunshine washes down from the sky overhead.",
+							  roomAddendum: "#BThere is a slight breeze about, and warm sunshine washes down from the sky overhead.#0",
+							  temp: 0.0,
+							  precipTemp: 0.0,
+							  windTemp: -1.0,
+							  tempPerVariation: 1.0,
+							  precipTempPerVariation: 0.0,
+							  windTempPerVariation: 0.0,
+							  precipitation: PrecipitationLevel.Dry,
+							  wind: WindLevel.OccasionalBreeze,
+							  obscureSky: false,
+							  night: false,
+							  dawn: false,
+							  morning: true,
+							  afternoon: true,
+							  dusk: false,
+							  defaultTransition: "The day is clear, breezy and sunny.");
+
+			AddEventWithTempVariations(name: "NightBreezy",
+							  description: "There is a slight breeze about, and the night sky is completely clear.",
+							  roomAddendum: "#5There is a slight breeze about, and the night sky is completely clear.#0",
+							  temp: 0.0,
+							  precipTemp: 0.0,
+							  windTemp: -1.0,
+							  tempPerVariation: 0.5,
+							  precipTempPerVariation: 0.0,
+							  windTempPerVariation: 0.0,
+							  precipitation: PrecipitationLevel.Dry,
+							  wind: WindLevel.OccasionalBreeze,
+							  obscureSky: false,
+							  night: true,
+							  dawn: false,
+							  morning: false,
+							  afternoon: false,
+							  dusk: false,
+							  defaultTransition: "The night sky is breezy and clear.");
+
+			AddEventWithTempVariations(name: "DawnBreezy",
+							  description: "There is a slight breeze about, and the early morning sky is completely clear.",
+							  roomAddendum: "#GThere is a slight breeze about, and the early morning sky is completely clear.#0",
+							  temp: 0.0,
+							  precipTemp: 0.0,
+							  windTemp: -1.0,
+							  tempPerVariation: 0.66,
+							  precipTempPerVariation: 0.0,
+							  windTempPerVariation: 0.0,
+							  precipitation: PrecipitationLevel.Dry,
+							  wind: WindLevel.OccasionalBreeze,
+							  obscureSky: false,
+							  night: false,
+							  dawn: true,
+							  morning: false,
+							  afternoon: false,
+							  dusk: false,
+							  defaultTransition: "The early morning sky is still and clear.");
+
+			AddEventWithTempVariations(name: "DuskBreezy",
+							  description: "There is a slight breeze about, and the late afternoon sky is completely clear.",
+							  roomAddendum: "#GThere is a slight breeze about, and the late afternoon sky is completely clear.#0",
+							  temp: 0.0,
+							  precipTemp: 0.0,
+							  windTemp: -1.0,
+							  tempPerVariation: 0.66,
+							  precipTempPerVariation: 0.0,
+							  windTempPerVariation: 0.0,
+							  precipitation: PrecipitationLevel.Dry,
+							  wind: WindLevel.OccasionalBreeze,
+							  obscureSky: false,
+							  night: false,
+							  dawn: false,
+							  morning: false,
+							  afternoon: false,
+							  dusk: true,
+							  defaultTransition: "The late afternoon sky is breezy and clear.");
+
 			_context.SaveChanges();
 			#endregion
 

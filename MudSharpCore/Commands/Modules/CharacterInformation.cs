@@ -160,7 +160,11 @@ Additionally, admins can use the following options:
 				if (ss.IsFinished)
 				{
 					actor.OutputHandler.Send(
-						"Which setting do you want for displaying names with short descriptions? The valid options are:\n\tnone - do not display names with short descriptions\n\tbrackets - display the name in brackets after the short description\n\treplace - replace the short description with the name");
+						@"Which setting do you want for displaying names with short descriptions? The valid options are:
+
+	#3none#0 - do not display names with short descriptions
+	#3brackets#0 - display the name in brackets after the short description
+	#3replace#0 - replace the short description with the name".SubstituteANSIColour());
 					return;
 				}
 
@@ -290,40 +294,44 @@ Additionally, admins can use the following options:
 							var promptb = new StringBuilder();
 							if (actor.Account.PromptType == 0 || actor.Account.PromptType.HasFlag(PromptType.Full))
 							{
-								promptb.Append(" - Your prompt mode is: Full\n");
+								promptb.Append("Your prompt mode is: #6Full#0\n");
 							}
 							else if (actor.Account.PromptType.HasFlag(PromptType.FullBrief))
 							{
-								promptb.Append(" - Your prompt mode is: Brief\n");
+								promptb.Append("Your prompt mode is: #6Brief#0\n");
 							}
 							else if (actor.Account.PromptType.HasFlag(PromptType.Classic))
 							{
-								promptb.Append(" - Your prompt mode is: Classic\n");
+								promptb.Append("Your prompt mode is: #6Classic#0\n");
 							}
 
 							promptb.AppendLine(actor.Account.PromptType.HasFlag(PromptType.SpeakInfo)
-								? " - Speaking Field: Enabled"
-								: " - Speaking Field: Disabled");
+								? "Speaking Field: #2Enabled#0"
+								: "Speaking Field: #1Disabled#0");
 							if (actor.Account.PromptType.HasFlag(PromptType.PositionInfo) &&
 							    (actor.Account.PromptType.HasFlag(PromptType.Full) ||
 							     actor.Account.PromptType.HasFlag(PromptType.FullBrief)))
 							{
-								promptb.AppendLine(" - Position Field: Enabled");
+								promptb.AppendLine("Position Field: #2Enabled#0");
 							}
 							else
 							{
-								promptb.AppendLine(" - Position Field: Disabled");
+								promptb.AppendLine("Position Field: #1Disabled#0");
 							}
 
 							promptb.AppendLine(actor.Account.PromptType.HasFlag(PromptType.StealthInfo)
-								? " - Stealth Field: Enabled"
-								: " - Stealth Field: Disabled");
-							actor.Send(promptb.ToString());
+								? "Stealth Field: #2Enabled#0"
+								: "Stealth Field: #1Disabled#0");
+							actor.Send(promptb.ToString().SubstituteANSIColour());
 						}
 						else
 						{
-							actor.Send(
-								"That is not a valid type of prompt preference to set. Select 'full', 'brief', 'fullbrief' or 'classic', or toggle 'language', 'stealth', or 'position'.");
+							var options = new List<string> { "full", "brief", "fullbrief", "classic", "language", "stealth", "position" };
+							if (actor.Capabilities.Any())
+							{
+								options.Add("magic");
+							}
+							actor.OutputHandler.Send($"That is not a valid type of prompt preference to set. Select {options.Select(x => x.ColourName()).ListToString(conjunction: "or ")}.");
 						}
 
 						return;

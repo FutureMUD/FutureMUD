@@ -2645,7 +2645,7 @@ public partial class Character : PerceiverItem, ICharacter
 							current = 1.0;
 						}
 
-						classic.Append($" / {resource.Key.ClassicPromptString(current)}");
+						classic = classic.Append($" / {resource.Key.ShortName}: {resource.Key.ClassicPromptString(current)}");
 					}
 				}
 

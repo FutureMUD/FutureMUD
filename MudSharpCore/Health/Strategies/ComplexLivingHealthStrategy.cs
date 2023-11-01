@@ -685,7 +685,7 @@ public class ComplexLivingHealthStrategy : BaseHealthStrategy
 		{
 			if (charOwner.NeedsToBreathe && !charOwner.CanBreathe)
 			{
-				if (breathRatio > 0.0)
+				if (breathRatio > 0.0 && breathRatio < 1.0)
 				{
 					sb.AppendLine("*** YOU ARE HOLDING YOUR BREATH! ***".Colour(Telnet.BoldBlue));
 				}
@@ -765,41 +765,34 @@ public class ComplexLivingHealthStrategy : BaseHealthStrategy
 			sb.Append(" and have ");
 		}
 
-		if (bloodlossRatio >= 0.98)
+		switch (bloodlossRatio)
 		{
-			//sb.Append($" and have {"no blood loss".Colour(Telnet.Green)}");
-		}
-		else if (bloodlossRatio >= 0.94)
-		{
-			sb.Append($"{"very minor blood loss".Colour(Telnet.Yellow)}");
-		}
-		else if (bloodlossRatio >= 0.90)
-		{
-			sb.Append($"{"minor blood loss".Colour(Telnet.Yellow)}");
-		}
-		else if (bloodlossRatio >= 0.825)
-		{
-			sb.Append($"{"moderate blood loss".Colour(Telnet.Red)}");
-		}
-		else if (bloodlossRatio >= 0.75)
-		{
-			sb.Append($"{"major blood loss".Colour(Telnet.Red)}");
-		}
-		else if (bloodlossRatio >= 0.675)
-		{
-			sb.Append($"{"severe blood loss".Colour(Telnet.Red)}");
-		}
-		else if (bloodlossRatio >= 0.6)
-		{
-			sb.Append($"{"very severe blood loss".Colour(Telnet.Red)}");
-		}
-		else if (bloodlossRatio >= 0.5)
-		{
-			sb.Append($"{"critical blood loss".Colour(Telnet.Red)}");
-		}
-		else
-		{
-			sb.Append($"{"life-threatening blood loss".Colour(Telnet.Red)}");
+			case > 0.98:
+				break;
+			case >= 0.94:
+				sb.Append($"{"very minor blood loss".Colour(Telnet.Yellow)}");
+				break;
+			case >= 0.90:
+				sb.Append($"{"minor blood loss".Colour(Telnet.Yellow)}");
+				break;
+			case >= 0.825:
+				sb.Append($"{"moderate blood loss".Colour(Telnet.Red)}");
+				break;
+			case >= 0.75:
+				sb.Append($"{"major blood loss".Colour(Telnet.Red)}");
+				break;
+			case >= 0.675:
+				sb.Append($"{"severe blood loss".Colour(Telnet.Red)}");
+				break;
+			case >= 0.6:
+				sb.Append($"{"very severe blood loss".Colour(Telnet.Red)}");
+				break;
+			case >= 0.5:
+				sb.Append($"{"critical blood loss".Colour(Telnet.Red)}");
+				break;
+			default:
+				sb.Append($"{"life-threatening blood loss".Colour(Telnet.Red)}");
+				break;
 		}
 
 		return sb.ToString();
@@ -810,156 +803,137 @@ public class ComplexLivingHealthStrategy : BaseHealthStrategy
 	{
 		var sb = new StringBuilder();
 		sb.Append("Pain: ");
-		if (painRatio <= 0.0)
+		switch (painRatio)
 		{
-			sb.Append($"{Telnet.Red.Colour}**{Telnet.Yellow.Colour}**{Telnet.Green.Colour}**{Telnet.RESET}");
-		}
-		else if (painRatio <= 0.1667)
-		{
-			sb.Append($"{Telnet.Red.Colour}**{Telnet.Yellow.Colour}**{Telnet.Green.Colour}* {Telnet.RESET}");
-		}
-		else if (painRatio <= 0.3333)
-		{
-			sb.Append($"{Telnet.Red.Colour}**{Telnet.Yellow.Colour}**  {Telnet.RESET}");
-		}
-		else if (painRatio <= 0.5)
-		{
-			sb.Append($"{Telnet.Red.Colour}**{Telnet.Yellow.Colour}*   {Telnet.RESET}");
-		}
-		else if (painRatio <= 0.6667)
-		{
-			sb.Append($"{Telnet.Red.Colour}**    {Telnet.RESET}");
-		}
-		else if (painRatio <= 0.8335)
-		{
-			sb.Append($"{Telnet.Red.Colour}*     {Telnet.RESET}");
-		}
-		else if (painRatio >= 1.0)
-		{
-			sb.Append($"      ");
+			case <= 0.0:
+				sb.Append($"{Telnet.Red.Colour}**{Telnet.Yellow.Colour}**{Telnet.Green.Colour}**{Telnet.RESET}");
+				break;
+			case <= 0.1667:
+				sb.Append($"{Telnet.Red.Colour}**{Telnet.Yellow.Colour}**{Telnet.Green.Colour}* {Telnet.RESET}");
+				break;
+			case <= 0.3333:
+				sb.Append($"{Telnet.Red.Colour}**{Telnet.Yellow.Colour}**  {Telnet.RESET}");
+				break;
+			case <= 0.5:
+				sb.Append($"{Telnet.Red.Colour}**{Telnet.Yellow.Colour}*   {Telnet.RESET}");
+				break;
+			case <= 0.6667:
+				sb.Append($"{Telnet.Red.Colour}**    {Telnet.RESET}");
+				break;
+			case <= 0.8335:
+				sb.Append($"{Telnet.Red.Colour}*     {Telnet.RESET}");
+				break;
+			case >= 1.0:
+				sb.Append($"      ");
+				break;
 		}
 
 		sb.Append(" / Stun: ");
-		if (stunRatio <= 0.0)
+		switch (stunRatio)
 		{
-			sb.Append($"{Telnet.Blue.Colour}**{Telnet.Cyan.Colour}**{Telnet.BoldCyan.Colour}**{Telnet.RESETALL}");
-		}
-		else if (stunRatio <= 0.1667)
-		{
-			sb.Append($"{Telnet.Blue.Colour}**{Telnet.Cyan.Colour}**{Telnet.BoldCyan.Colour}* {Telnet.RESETALL}");
-		}
-		else if (stunRatio <= 0.3333)
-		{
-			sb.Append($"{Telnet.Blue.Colour}**{Telnet.Cyan.Colour}**  {Telnet.RESET}");
-		}
-		else if (stunRatio <= 0.5)
-		{
-			sb.Append($"{Telnet.Blue.Colour}**{Telnet.Cyan.Colour}*   {Telnet.RESET}");
-		}
-		else if (stunRatio <= 0.6667)
-		{
-			sb.Append($"{Telnet.Blue.Colour}**    {Telnet.RESET}");
-		}
-		else if (stunRatio <= 0.8335)
-		{
-			sb.Append($"{Telnet.Blue.Colour}*     {Telnet.RESET}");
-		}
-		else if (stunRatio >= 1.0)
-		{
-			sb.Append($"      ");
+			case <= 0.0:
+				sb.Append($"{Telnet.Blue.Colour}**{Telnet.Cyan.Colour}**{Telnet.BoldCyan.Colour}**{Telnet.RESETALL}");
+				break;
+			case <= 0.1667:
+				sb.Append($"{Telnet.Blue.Colour}**{Telnet.Cyan.Colour}**{Telnet.BoldCyan.Colour}* {Telnet.RESETALL}");
+				break;
+			case <= 0.3333:
+				sb.Append($"{Telnet.Blue.Colour}**{Telnet.Cyan.Colour}**  {Telnet.RESET}");
+				break;
+			case <= 0.5:
+				sb.Append($"{Telnet.Blue.Colour}**{Telnet.Cyan.Colour}*   {Telnet.RESET}");
+				break;
+			case <= 0.6667:
+				sb.Append($"{Telnet.Blue.Colour}**    {Telnet.RESET}");
+				break;
+			case <= 0.8335:
+				sb.Append($"{Telnet.Blue.Colour}*     {Telnet.RESET}");
+				break;
+			case >= 1.0:
+				sb.Append($"      ");
+				break;
 		}
 
 		var stamRatio = 1.0 - charOwner.CurrentStamina / charOwner.MaximumStamina;
 		sb.Append(" / Stam: ");
-		if (stamRatio <= 0.0)
+		switch (stamRatio)
 		{
-			sb.Append($"{Telnet.Red.Colour}||{Telnet.Yellow.Colour}||{Telnet.Green.Colour}||{Telnet.RESET}");
-		}
-		else if (stamRatio <= 0.1667)
-		{
-			sb.Append($"{Telnet.Red.Colour}||{Telnet.Yellow.Colour}||{Telnet.Green.Colour}| {Telnet.RESET}");
-		}
-		else if (stamRatio <= 0.3333)
-		{
-			sb.Append($"{Telnet.Red.Colour}||{Telnet.Yellow.Colour}||  {Telnet.RESET}");
-		}
-		else if (stamRatio <= 0.5)
-		{
-			sb.Append($"{Telnet.Red.Colour}||{Telnet.Yellow.Colour}|   {Telnet.RESET}");
-		}
-		else if (stamRatio <= 0.6667)
-		{
-			sb.Append($"{Telnet.Red.Colour}||    {Telnet.RESET}");
-		}
-		else if (stamRatio <= 0.8335)
-		{
-			sb.Append($"{Telnet.Red.Colour}|     {Telnet.RESET}");
-		}
-		else if (stamRatio >= 1.0)
-		{
-			sb.Append($"      ");
+			case <= 0.0:
+				sb.Append($"{Telnet.Red.Colour}||{Telnet.Yellow.Colour}||{Telnet.Green.Colour}||{Telnet.RESET}");
+				break;
+			case <= 0.1667:
+				sb.Append($"{Telnet.Red.Colour}||{Telnet.Yellow.Colour}||{Telnet.Green.Colour}| {Telnet.RESET}");
+				break;
+			case <= 0.3333:
+				sb.Append($"{Telnet.Red.Colour}||{Telnet.Yellow.Colour}||  {Telnet.RESET}");
+				break;
+			case <= 0.5:
+				sb.Append($"{Telnet.Red.Colour}||{Telnet.Yellow.Colour}|   {Telnet.RESET}");
+				break;
+			case <= 0.6667:
+				sb.Append($"{Telnet.Red.Colour}||    {Telnet.RESET}");
+				break;
+			case <= 0.8335:
+				sb.Append($"{Telnet.Red.Colour}|     {Telnet.RESET}");
+				break;
+			case >= 1.0:
+				sb.Append($"      ");
+				break;
 		}
 
 		sb.Append(" / Blood: ");
-		if (bloodlossRatio >= 0.94)
+		switch (bloodlossRatio)
 		{
-			sb.Append($"{Telnet.Red.Colour}**{Telnet.Red.Bold}**{Telnet.White.Bold}**{Telnet.RESETALL}");
-		}
-		else if (bloodlossRatio >= 0.9)
-		{
-			sb.Append($"{Telnet.Red.Colour}**{Telnet.Red.Colour}**{Telnet.White.Colour}* {Telnet.RESETALL}");
-		}
-		else if (bloodlossRatio >= 0.825)
-		{
-			sb.Append($"{Telnet.Red.Colour}**{Telnet.Red.Colour}**  {Telnet.RESETALL}");
-		}
-		else if (bloodlossRatio >= 0.75)
-		{
-			sb.Append($"{Telnet.Red.Colour}**{Telnet.Red.Colour}*   {Telnet.RESETALL}");
-		}
-		else if (bloodlossRatio >= 0.675)
-		{
-			sb.Append($"{Telnet.Red.Colour}**    {Telnet.RESET}");
-		}
-		else if (bloodlossRatio >= 0.6)
-		{
-			sb.Append($"{Telnet.Red.Colour}*     {Telnet.RESET}");
-		}
-		else
-		{
-			sb.Append($"      ");
+			case >= 0.94:
+				sb.Append($"{Telnet.Red.Colour}**{Telnet.Red.Bold}**{Telnet.White.Bold}**{Telnet.RESETALL}");
+				break;
+			case >= 0.9:
+				sb.Append($"{Telnet.Red.Colour}**{Telnet.Red.Colour}**{Telnet.White.Colour}* {Telnet.RESETALL}");
+				break;
+			case >= 0.825:
+				sb.Append($"{Telnet.Red.Colour}**{Telnet.Red.Colour}**  {Telnet.RESETALL}");
+				break;
+			case >= 0.75:
+				sb.Append($"{Telnet.Red.Colour}**{Telnet.Red.Colour}*   {Telnet.RESETALL}");
+				break;
+			case >= 0.675:
+				sb.Append($"{Telnet.Red.Colour}**    {Telnet.RESET}");
+				break;
+			case >= 0.6:
+				sb.Append($"{Telnet.Red.Colour}*     {Telnet.RESET}");
+				break;
+			default:
+				sb.Append($"      ");
+				break;
 		}
 
-		if (breathRatio < 1.0)
+		if (breathRatio > 1.0)
 		{
+			var breathRatioReversed = 1.0 - breathRatio;
 			sb.Append(" / Breath: ");
-			if (breathRatio <= 0.0)
+			switch (breathRatioReversed)
 			{
-				sb.Append($"      ");
-			}
-			else if (breathRatio <= 0.1667)
-			{
-				sb.Append($"{Telnet.Blue.Colour}|     {Telnet.RESET}");
-			}
-			else if (breathRatio <= 0.3333)
-			{
-				sb.Append($"{Telnet.Blue.Colour}||    {Telnet.RESET}");
-			}
-			else if (breathRatio <= 0.5)
-			{
-				sb.Append($"{Telnet.Blue.Colour}||{Telnet.Cyan.Colour}|   {Telnet.RESET}");
-			}
-			else if (breathRatio <= 0.6667)
-			{
-				sb.Append($"{Telnet.Blue.Colour}||{Telnet.Cyan.Colour}||  {Telnet.RESET}");
-			}
-			else if (breathRatio <= 0.8335)
-			{
-				sb.Append($"{Telnet.Blue.Colour}||{Telnet.Cyan.Colour}||{Telnet.BoldCyan.Colour}| {Telnet.RESET}");
-			}
-			else
-			{
-				sb.Append($"{Telnet.Blue.Colour}||{Telnet.Cyan.Colour}||{Telnet.BoldCyan.Colour}||{Telnet.RESET}");
+				case <= 0.0:
+					sb.Append($"      ");
+					break;
+				case <= 0.1667:
+					sb.Append($"{Telnet.Blue.Colour}|     {Telnet.RESET}");
+					break;
+				case <= 0.3333:
+					sb.Append($"{Telnet.Blue.Colour}||    {Telnet.RESET}");
+					break;
+				case <= 0.5:
+					sb.Append($"{Telnet.Blue.Colour}||{Telnet.Cyan.Colour}|   {Telnet.RESET}");
+					break;
+				case <= 0.6667:
+					sb.Append($"{Telnet.Blue.Colour}||{Telnet.Cyan.Colour}||  {Telnet.RESET}");
+					break;
+				case <= 0.8335:
+					sb.Append($"{Telnet.Blue.Colour}||{Telnet.Cyan.Colour}||{Telnet.BoldCyan.Colour}| {Telnet.RESET}");
+					break;
+				default:
+					sb.Append($"{Telnet.Blue.Colour}||{Telnet.Cyan.Colour}||{Telnet.BoldCyan.Colour}||{Telnet.RESET}");
+					break;
 			}
 		}
 

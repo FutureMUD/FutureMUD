@@ -509,41 +509,35 @@ public class SimpleLivingHealthStrategy : BaseHealthStrategy
 		var maxPain = MaximumPainExpression.Evaluate(charOwner);
 		var bloodlossRatio = charOwner.Body.CurrentBloodVolumeLitres / charOwner.Body.TotalBloodVolumeLitres;
 		string extraStatusDescription;
-		if (bloodlossRatio >= 1.0)
+		switch (bloodlossRatio)
 		{
-			extraStatusDescription = "no blood loss".Colour(Telnet.Green);
-		}
-		else if (bloodlossRatio >= 0.95)
-		{
-			extraStatusDescription = "very minor blood loss".Colour(Telnet.Yellow);
-		}
-		else if (bloodlossRatio >= 0.90)
-		{
-			extraStatusDescription = "minor blood loss".Colour(Telnet.Yellow);
-		}
-		else if (bloodlossRatio >= 0.825)
-		{
-			extraStatusDescription = "moderate blood loss".Colour(Telnet.Red);
-		}
-		else if (bloodlossRatio >= 0.75)
-		{
-			extraStatusDescription = "major blood loss".Colour(Telnet.Red);
-		}
-		else if (bloodlossRatio >= 0.675)
-		{
-			extraStatusDescription = "severe blood loss".Colour(Telnet.Red);
-		}
-		else if (bloodlossRatio >= 0.6)
-		{
-			extraStatusDescription = "very severe blood loss".Colour(Telnet.Red);
-		}
-		else if (bloodlossRatio >= 0.5)
-		{
-			extraStatusDescription = "critical blood loss".Colour(Telnet.Red);
-		}
-		else
-		{
-			extraStatusDescription = "life-threatening blood loss".Colour(Telnet.Red);
+			case >= 1.0:
+				extraStatusDescription = "no blood loss".Colour(Telnet.Green);
+				break;
+			case >= 0.95:
+				extraStatusDescription = "very minor blood loss".Colour(Telnet.Yellow);
+				break;
+			case >= 0.90:
+				extraStatusDescription = "minor blood loss".Colour(Telnet.Yellow);
+				break;
+			case >= 0.825:
+				extraStatusDescription = "moderate blood loss".Colour(Telnet.Red);
+				break;
+			case >= 0.75:
+				extraStatusDescription = "major blood loss".Colour(Telnet.Red);
+				break;
+			case >= 0.675:
+				extraStatusDescription = "severe blood loss".Colour(Telnet.Red);
+				break;
+			case >= 0.6:
+				extraStatusDescription = "very severe blood loss".Colour(Telnet.Red);
+				break;
+			case >= 0.5:
+				extraStatusDescription = "critical blood loss".Colour(Telnet.Red);
+				break;
+			default:
+				extraStatusDescription = "life-threatening blood loss".Colour(Telnet.Red);
+				break;
 		}
 
 		var heartFactor =

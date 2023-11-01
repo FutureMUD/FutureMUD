@@ -20,6 +20,7 @@ using MudSharp.Framework;
 using MudSharp.Framework.Revision;
 using MudSharp.Health;
 using MudSharp.Magic;
+using MudSharp.Magic.Resources;
 using MudSharp.NPC;
 using MudSharp.RPG.Dreams;
 using AuctionHouse = MudSharp.Economy.Auctions.AuctionHouse;
@@ -1459,7 +1460,128 @@ The core syntax is as follows:
 		GetEditHeader = item => $"Magic School #{item.Id:N0} ({item.Name})"
 	};
 	public static EditableItemHelper MagicCapabilityHelper { get; }
-	public static EditableItemHelper MagicResourceHelper { get; }
+	public static EditableItemHelper MagicResourceHelper { get; } = new()
+	{
+		ItemName = "Magic Resource",
+		ItemNamePlural = "Magic Resources",
+		SetEditableItemAction = (actor, item) =>
+		{
+			actor.RemoveAllEffects<BuilderEditingEffect<IMagicResource>>();
+			if (item == null)
+			{
+				return;
+			}
+
+			actor.AddEffect(new BuilderEditingEffect<IMagicResource>(actor) { EditingItem = (IMagicResource)item });
+		},
+		GetEditableItemFunc = actor =>
+			actor.CombinedEffectsOfType<BuilderEditingEffect<IMagicResource>>().FirstOrDefault()?.EditingItem,
+		GetAllEditableItems = actor => actor.Gameworld.MagicResources.ToList(),
+		GetEditableItemByIdFunc = (actor, id) => actor.Gameworld.MagicResources.Get(id),
+		GetEditableItemByIdOrNameFunc = (actor, input) => actor.Gameworld.MagicResources.GetByIdOrName(input),
+		AddItemToGameWorldAction = item => item.Gameworld.Add((IMagicResource)item),
+		CastToType = typeof(IMagicResource),
+		EditableNewAction = (actor, input) =>
+		{
+			var resource = BaseMagicResource.CreateResourceFromBuilderInput(actor, input);
+			if (resource is null)
+			{
+				return;
+			}
+
+			actor.Gameworld.Add(resource);
+			actor.RemoveAllEffects<BuilderEditingEffect<IMagicResource>>();
+			actor.AddEffect(new BuilderEditingEffect<IMagicResource>(actor) { EditingItem = resource });
+			actor.OutputHandler.Send($"You create a new magic resource called {resource.Name.Colour(Telnet.BoldPink)}, which you are now editing.");
+		},
+		EditableCloneAction = (actor, input) =>
+		{
+			if (input.IsFinished)
+			{
+				actor.OutputHandler.Send("Which magic resource do you want to clone?");
+				return;
+			}
+
+			var resource = actor.Gameworld.MagicResources.GetByIdOrName(input.PopSpeech());
+			if (resource == null)
+			{
+				actor.OutputHandler.Send("There is no such magic resource.");
+				return;
+			}
+
+			if (input.IsFinished)
+			{
+				actor.OutputHandler.Send("You must specify a name for your new cloned magic resource.");
+				return;
+			}
+
+			var name = input.SafeRemainingArgument.TitleCase();
+			if (actor.Gameworld.MagicResources.Any(x => x.Name.EqualTo(name)))
+			{
+				actor.OutputHandler.Send(
+					$"There is already a magic resource with that name. Names must be unique.");
+				return;
+			}
+
+			if (input.IsFinished)
+			{
+				actor.OutputHandler.Send("You must specify a short name for your new cloned magic resource.");
+				return;
+			}
+
+			var shortName = input.SafeRemainingArgument.TitleCase();
+			if (actor.Gameworld.MagicResources.Any(x => x.ShortName.EqualTo(shortName)))
+			{
+				actor.OutputHandler.Send(
+					$"There is already a magic resource with that short name. Names must be unique.");
+				return;
+			}
+
+			var clone = resource.Clone(name, shortName);
+			actor.Gameworld.Add(clone);
+			actor.RemoveAllEffects<BuilderEditingEffect<IMagicResource>>();
+			actor.AddEffect(new BuilderEditingEffect<IMagicResource>(actor) { EditingItem = clone });
+			actor.OutputHandler.Send(
+				$"You clone the magic resource {resource.Name.Colour(Telnet.BoldPink)} as {clone.Name.Colour(Telnet.BoldPink)} ({clone.ShortName.Colour(Telnet.BoldPink)}), which you are now editing.");
+		},
+
+		GetListTableHeaderFunc = character => new List<string>
+		{
+			"Id",
+			"Name",
+			"Short",
+			"Type",
+			"Prompt",
+		},
+
+		GetListTableContentsFunc = (character, protos) => from proto in protos.OfType<IMagicResource>()
+														  select new List<string>
+														  {
+															  proto.Id.ToString("N0", character),
+															  proto.Name,
+															  proto.ShortName,
+															  proto.ResourceType.DescribeEnum(),
+															  proto.ClassicPromptString(1.0)
+														  },
+
+		CustomSearch = (protos, keyword, gameworld) => protos,
+
+		DefaultCommandHelp = @"This command is used to work with and edit magic resources.
+
+The core syntax is as follows:
+
+    #3magic resource list - shows all magic resources
+    #3magic resource edit new <type> <name> <shortname>#0 - creates a new magic resource
+    #3magic resource clone <old> <new>#0 - clones an existing magic resource
+    #3magic resource edit <which>#0 - begins editing a magic resource
+    #3magic resource close#0 - closes an editing magic resource
+    #3magic resource show <which>#0 - shows builder information about a resource
+    #3magic resource show#0 - shows builder information about the currently edited resource
+    #3magic resource edit#0 - an alias for magic resource show (with no args)
+    #3magic resource set ...#0 - edits the properties of a magic resource. See #3magic resource set ?#0 for more info.",
+
+		GetEditHeader = item => $"Magic Resource #{item.Id:N0} ({item.Name})"
+	};
 	public static EditableItemHelper MagicRegeneratorHelper { get; }
 	public static EditableItemHelper MagicPowerHelper { get; }
 

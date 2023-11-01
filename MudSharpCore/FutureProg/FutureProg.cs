@@ -351,6 +351,25 @@ public class FutureProg : SaveableItem, IFutureProg
 		return (long?)(decimal?)Execute(variables) ?? defaultIfNull;
 	}
 
+	public bool ExecuteBool(params object[] variables)
+	{
+		if (ReturnType != FutureProgVariableTypes.Boolean)
+		{
+			return false;
+		}
+
+		return (bool?)Execute(variables) ?? false;
+	}
+	public bool ExecuteBool(bool defaultIfNull, params object[] variables)
+	{
+		if (ReturnType != FutureProgVariableTypes.Boolean)
+		{
+			return defaultIfNull;
+		}
+
+		return (bool?)Execute(variables) ?? defaultIfNull;
+	}
+
 	private object _staticReturnValue;
 	private bool _staticValueSet;
 

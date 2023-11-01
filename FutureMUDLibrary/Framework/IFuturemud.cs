@@ -260,6 +260,8 @@ namespace MudSharp.Framework
         string Name { get; }
         IFutureProg AlwaysTrueProg { get; }
         IFutureProg AlwaysFalseProg { get; }
+		IFutureProg AlwaysZeroProg { get; }
+		IFutureProg AlwaysOneProg { get; }
 
 		/// <summary>
 		///     Determines whether or not players can log into the game

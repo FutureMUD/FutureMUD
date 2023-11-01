@@ -82,6 +82,8 @@ namespace MudSharp.FutureProg {
         int ExecuteInt(int defaultIfNull, params object[] variables);
 		long ExecuteLong(params object[] variables);
 		long ExecuteLong(long defaultIfNull, params object[] variables);
+		bool ExecuteBool(params object[] variables);
+		bool ExecuteBool(bool defaultIfNull, params object[] variables);
 
 		bool Compile();
 

@@ -565,6 +565,80 @@ public sealed partial class Futuremud : IDisposable
 		}
 	}
 
+	private IFutureProg _alwaysZeroProg;
+	public IFutureProg AlwaysZeroProg
+	{
+		get
+		{
+			if (_alwaysZeroProg is null)
+			{
+				_alwaysZeroProg = FutureProgs.FirstOrDefault(x => x.FunctionName.EqualTo("AlwaysZero"));
+				if (_alwaysZeroProg is null)
+				{
+					using (new FMDB())
+					{
+						var dbitem = new Models.FutureProg
+						{
+							FunctionName = "AlwaysZero",
+							AcceptsAnyParameters = true,
+							ReturnType = 2,
+							Category = "Core",
+							Subcategory = "Universal",
+							Public = true,
+							FunctionComment = "Accepts any parameters, and always returns zero.",
+							FunctionText = "return 0",
+							StaticType = 2
+						};
+						FMDB.Context.FutureProgs.Add(dbitem);
+						FMDB.Context.SaveChanges();
+						var prog = new FutureProg.FutureProg(dbitem, this);
+						_futureProgs.Add(prog);
+						_alwaysZeroProg = prog;
+					}
+				}
+			}
+
+			return _alwaysZeroProg;
+		}
+	}
+
+	private IFutureProg _alwaysOneProg;
+	public IFutureProg AlwaysOneProg
+	{
+		get
+		{
+			if (_alwaysOneProg is null)
+			{
+				_alwaysOneProg = FutureProgs.FirstOrDefault(x => x.FunctionName.EqualTo("AlwaysOne"));
+				if (_alwaysOneProg is null)
+				{
+					using (new FMDB())
+					{
+						var dbitem = new Models.FutureProg
+						{
+							FunctionName = "AlwaysOne",
+							AcceptsAnyParameters = true,
+							ReturnType = 2,
+							Category = "Core",
+							Subcategory = "Universal",
+							Public = true,
+							FunctionComment = "Accepts any parameters, and always returns one.",
+							FunctionText = "return 1",
+							StaticType = 2
+						};
+						FMDB.Context.FutureProgs.Add(dbitem);
+						FMDB.Context.SaveChanges();
+						var prog = new FutureProg.FutureProg(dbitem, this);
+						_futureProgs.Add(prog);
+						_alwaysZeroProg = prog;
+					}
+				}
+			}
+
+			return _alwaysOneProg;
+		}
+	}
+
 	private readonly List<CharacterPersonalNameLookup> _cachedPersonalNames = new();
 
 	#endregion

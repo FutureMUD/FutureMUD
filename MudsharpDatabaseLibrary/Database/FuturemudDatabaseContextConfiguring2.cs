@@ -4856,12 +4856,38 @@ namespace MudSharp.Database
                     .HasCharSet("utf8")
                     .UseCollation("utf8_general_ci");
 
-                entity.Property(e => e.Type)
+				entity.Property(e => e.ShortName)
+					.HasColumnType("varchar(200)")
+					.HasCharSet("utf8")
+					.UseCollation("utf8_general_ci");
+
+				entity.Property(e => e.Type)
                     .IsRequired()
                     .HasColumnType("varchar(45)")
                     .HasCharSet("utf8")
                     .UseCollation("utf8_general_ci");
-            });
+
+				entity.Property(e => e.BottomColour)
+					.HasColumnType("varchar(100)")
+					.HasCharSet("utf8")
+					.UseCollation("utf8_general_ci")
+                    .HasDefaultValue("\x1B[35m")
+                    ;
+
+				entity.Property(e => e.MidColour)
+					.HasColumnType("varchar(100)")
+					.HasCharSet("utf8")
+					.UseCollation("utf8_general_ci")
+					.HasDefaultValue("\x1B[1;35m")
+					;
+
+				entity.Property(e => e.TopColour)
+					.HasColumnType("varchar(100)")
+					.HasCharSet("utf8")
+					.UseCollation("utf8_general_ci")
+					.HasDefaultValue("\x1B[0m\x1B[38;5;171m")
+					;
+			});
 
             modelBuilder.Entity<MagicSchool>(entity =>
             {

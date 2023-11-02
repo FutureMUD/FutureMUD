@@ -5498,7 +5498,7 @@ The following options are available:
 
 	public const string NewPlayerHintHelp = @"This command is used to create and edit new player hints.
 
-New player hints are echoes that are shown to players who have their #2(New Player)#0 tag still on - the first 48 hours of playtime. They can give information about the engine, your world, or promote your game's discord or forums for example.
+New player hints are echoes that are shown to players based on some conditions that you set. They can give information about the engine, your world, or promote your game's discord or forums for example.
 
 The syntax for this command is as follows:
 

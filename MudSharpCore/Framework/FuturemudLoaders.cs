@@ -418,6 +418,9 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 		Chargen.SetupChargen(this);
 		HeartbeatManager.StartHeartbeatTick();
 		EffectScheduler.SetupEffectSaver();
+		Scheduler.AddSchedule(new RepeatingSchedule<IFuturemud>(this, this, fm => {
+			CheckNewPlayerHints();
+		}, ScheduleType.System, TimeSpan.FromMinutes(1), "Check New Player Hints"));
 		sw.Stop();
 		Console.WriteLine("Total Boot Time: " + TimeSpan.FromMilliseconds(sw.ElapsedMilliseconds).ToString());
 		foreach (var npc in NPCs)

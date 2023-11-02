@@ -170,7 +170,7 @@ namespace MudSharp.RPG.Hints
 			sb.AppendLine();
 			sb.AppendLine("Text:");
 			sb.AppendLine();
-			sb.AppendLine(Text.Wrap(actor.InnerLineFormatLength, "  "));
+			sb.AppendLine($"#G[Hint]#0 {Text}".SubstituteANSIColour().Wrap(actor.InnerLineFormatLength));
 			return sb.ToString();
 		}
 

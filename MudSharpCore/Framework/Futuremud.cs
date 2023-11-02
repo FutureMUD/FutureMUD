@@ -70,6 +70,7 @@ using MudSharp.Work.Projects;
 using MudSharp.RPG.ScriptedEvents;
 using System.Xml.Linq;
 using MudSharp.RPG.Hints;
+using MudSharp.Effects.Concrete;
 
 namespace MudSharp.Framework;
 
@@ -360,15 +361,6 @@ public sealed partial class Futuremud : IFuturemud, IDisposable
 					}
 				}
 
-				sw.Restart();
-				CheckNewPlayerHints();
-				if (sw.ElapsedMilliseconds > 250)
-				{
-					Console.ForegroundColor = ConsoleColor.Red;
-					Console.WriteLine($"[PERF] - CheckNewPlayerHints took {sw.ElapsedMilliseconds}ms");
-					Console.ResetColor();
-				}
-
 				if (saveStopWatch.ElapsedMilliseconds > 10000)
 				{
 					sw.Restart();
@@ -467,7 +459,52 @@ public sealed partial class Futuremud : IFuturemud, IDisposable
 
 	private void CheckNewPlayerHints()
 	{
-		// TODO
+		foreach (var character in Characters)
+		{
+			if (character.OutputHandler.QuietMode)
+			{
+				continue;
+			}
+
+			if (!character.Account.HintsEnabled)
+			{
+				continue;
+			}
+
+			var effect = character.CombinedEffectsOfType<NewPlayerHintsShown>().FirstOrDefault();
+			if (effect is null)
+			{
+				effect = new NewPlayerHintsShown(character);
+				effect.LastHintShown = DateTime.UtcNow;
+				character.AddEffect(effect);
+			}
+
+			if ((DateTime.UtcNow - effect.LastHintShown) < TimeSpan.FromMinutes(15))
+			{
+				continue;
+			}
+
+			var hint = NewPlayerHints
+				.Where(x => !effect.ShownHintIds.Contains(x.Id))
+				.Where(x => x.FilterProg.ExecuteBool(character))
+				.OrderByDescending(x => x.Priority)
+				.WhereMax(x => x.Priority)
+				.GetRandomElement();
+			if (hint is null)
+			{
+				continue;
+			}
+
+			character.OutputHandler.Send($"#G[Hint]#0 {hint.Text}".SubstituteANSIColour().Wrap(character.InnerLineFormatLength));
+			if (!hint.CanRepeat)
+			{
+				effect.ShownHintIds.Add(hint.Id);
+			}
+			
+			effect.LastHintShown = DateTime.UtcNow;
+			character.EffectsChanged = true;
+			continue;
+		}
 	}
 
 	public void PreloadAccounts()

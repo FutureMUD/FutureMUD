@@ -6,6 +6,7 @@ using MudSharp.Body.Traits;
 using MudSharp.Character.Name;
 using MudSharp.CharacterCreation.Roles;
 using MudSharp.Combat;
+using MudSharp.Effects.Concrete;
 using MudSharp.Framework;
 using MudSharp.FutureProg;
 using MudSharp.FutureProg.Variables;
@@ -148,6 +149,8 @@ public partial class Character
 				return new BooleanVariable(IsGuest);
 			case "pc":
 				return new BooleanVariable(IsPlayerCharacter);
+			case "isnewplayer":
+				return new BooleanVariable(Effects.Any(x => x is NewPlayer));
 			case "linewidth":
 				return new NumberVariable(LineFormatLength);
 			case "innerlinewidth":
@@ -281,7 +284,8 @@ public partial class Character
 			{ "latentdrugs", FutureProgVariableTypes.Drug | FutureProgVariableTypes.Collection },
 			{ "latentdrugamounts", FutureProgVariableTypes.Number | FutureProgVariableTypes.Collection },
 			{ "outfits", FutureProgVariableTypes.Outfit | FutureProgVariableTypes.Collection },
-			{ "layer", FutureProgVariableTypes.Text }
+			{ "layer", FutureProgVariableTypes.Text },
+			{ "isnewplayer", FutureProgVariableTypes.Boolean }
 		};
 	}
 
@@ -289,63 +293,65 @@ public partial class Character
 	{
 		return new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase)
 		{
-			{ "id", "" },
-			{ "effects", "" },
-			{ "simplefullname", "" },
-			{ "fullname", "" },
-			{ "surname", "" },
-			{ "csimplefullname", "" },
-			{ "cfullname", "" },
-			{ "csurname", "" },
-			{ "cname", "" },
-			{ "gender", "" },
-			{ "height", "" },
-			{ "weight", "" },
-			{ "location", "" },
-			{ "age", "" },
-			{ "agecategory", "" },
-			{ "race", "" },
-			{ "culture", "" },
-			{ "currency", "" },
-			{ "ethnicity", "" },
-			{ "zone", "" },
-			{ "shard", "" },
-			{ "inventory", "" },
-			{ "helditems", "" },
-			{ "wieldeditems", "" },
-			{ "wornitems", "" },
-			{ "visiblewornitems", "" },
-			{ "clans", "" },
-			{ "skills", "" },
-			{ "class", "" },
-			{ "subclass", "" },
-			{ "ingroup", "" },
-			{ "groupmembers", "" },
-			{ "npc", "" },
-			{ "pc", "" },
-			{ "accents", "" },
-			{ "languages", "" },
-			{ "guest", "" },
-			{ "linewidth", "" },
-			{ "innerlinewidth", "" },
-			{ "language", "" },
-			{ "accent", "" },
-			{ "merits", "" },
-			{ "applicablemerits", "" },
-			{ "roles", "" },
-			{ "playtime", "" },
-			{ "incombat", "" },
-			{ "combattarget", "" },
-			{ "combattargetchar", "" },
-			{ "preferredintentions", "" },
-			{ "requiredintentions", "" },
-			{ "forbiddenintentions", "" },
-			{ "drugs", "" },
-			{ "drugamounts", "" },
-			{ "latentdrugs", "" },
-			{ "latentdrugamounts", "" },
-			{ "outfits", "" },
-			{ "layer", "" }
+			{ "id", "The id of the character" },
+			{ "effects", "A collection of all effects on the character" },
+			{ "name", "Their real first name" },
+			{ "simplefullname", "The simple version of their real full name" },
+			{ "fullname", "Their real full name" },
+			{ "surname", "Their real surname" },
+			{ "csimplefullname", "The simple version of their current alias' full name" },
+			{ "cfullname", "Their current alias' full name" },
+			{ "csurname", "Their current alias' surname" },
+			{ "cname", "Their current alias' first name" },
+			{ "gender", "Their real gender" },
+			{ "height", "Their height in base units (cm)" },
+			{ "weight", "Their weight in base units (grams)" },
+			{ "location", "The room that they are in" },
+			{ "age", "Their age in years" },
+			{ "agecategory", "Their age category as text" },
+			{ "race", "Their race" },
+			{ "culture", "Their culture" },
+			{ "currency", "The currency they are using in transactions" },
+			{ "ethnicity", "Their ethnicity" },
+			{ "zone", "The zone that they are in" },
+			{ "shard", "The shard that they are in" },
+			{ "inventory", "A collection of all items in their inventory" },
+			{ "helditems", "A collection of all items they're holding" },
+			{ "wieldeditems", "A collection of all items they're wielding" },
+			{ "wornitems", "A collection of all items they're wearing" },
+			{ "visiblewornitems", "A collection of all uncovered or partially exposed worn items" },
+			{ "clans", "A collection of all the clans they're a member of" },
+			{ "skills", "A collection of skills that they have a value in" },
+			{ "class", "Their class role, if any (can be null)" },
+			{ "subclass", "Their subclass role, if any (can be null)" },
+			{ "ingroup", "True if they are currently in a group" },
+			{ "groupmembers", "A collection of all the member of their group" },
+			{ "npc", "True if they are an NPC" },
+			{ "pc", "True if they are a PC" },
+			{ "accents", "A collection of all of the assets that they have familiarity with" },
+			{ "languages", "A collection of all the languages that they know" },
+			{ "guest", "True if they are a guest" },
+			{ "linewidth", "Their account's line width setting, in characters" },
+			{ "innerlinewidth", "Their account's inner line width setting, in characters" },
+			{ "language", "The language they are currently speaking (can be null)" },
+			{ "accent", "The accent they are currently speaking (can be null)" },
+			{ "merits", "A collection of all of their merits and flaws" },
+			{ "applicablemerits", "A collection of all of their merits and flaws currently active" },
+			{ "roles", "A collection of all of their roles" },
+			{ "playtime", "Their total playtime in minutes" },
+			{ "incombat", "True if they are currently in combat" },
+			{ "combattarget", "Who or what they are currently targeting in combat (can be null)" },
+			{ "combattargetchar", "Who they are currently targeting in combat (can be null)" },
+			{ "preferredintentions", "A collection of text representing the intentions they prefer in selecting combat moves" },
+			{ "requiredintentions", "A collection of text representing the intentions they require in selecting combat moves" },
+			{ "forbiddenintentions", "A collection of text representing the intentions they forbid in selecting combat moves" },
+			{ "drugs", "A collection of drugs currently affecting them" },
+			{ "drugamounts", "A collection of the grams of each drug. Items match order of drugs property" },
+			{ "latentdrugs", "A collection of drugs not yet affecting them but in their system" },
+			{ "latentdrugamounts", "A collection of the grams of each latent drug. Items match order of latentdrugs property" },
+			{ "outfits", "A collection of outfits associated with this character" },
+			{ "layer", "A text representation of the current layer this character is in" },
+			{ "isnewplayer", "True if character has the (New Player) tag" }
 		};
 	}
 

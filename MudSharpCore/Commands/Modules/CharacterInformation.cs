@@ -50,6 +50,7 @@ The syntax for editing the settings is as follows:
 	#3set wrap <normal> <text>#0 - sets the wrap width of ordinary text and text blocks. Usually the second argument should be smaller than the first
 	#3set page <length>#0 - sets the number of lines before one requires the use of the #3more#0 command
 	#3set unicode#0 - toggles unicode mode on or off
+	#3set hints#0 - toggles showing hint echoes
 	#3set msp#0 - toggles msp support on or off
 	#3set mccp#0 - toggles mccp support on or off
 	#3set culture <culture>#0 - changes your out of character culture - e.g. #6en-us#0 or #6fr-fr#0
@@ -92,6 +93,7 @@ Additionally, admins can use the following options:
 			sb.AppendLine($"Timezone: {actor.Account.TimeZone.ToString().Colour(Telnet.Green)}");
 			sb.AppendLine($"Unit Preference: {actor.Account.UnitPreference.Colour(Telnet.Green)}");
 			sb.AppendLine($"Prompt Type: {actor.Account.PromptType.Describe().Colour(Telnet.Green)}");
+			sb.AppendLine($"Show Hints: {actor.Account.HintsEnabled.ToColouredString()}");
 			sb.AppendLine($"Tabs in Room Descs: {actor.Account.TabRoomDescriptions.ToString().Colour(Telnet.Green)}");
 			sb.AppendLine(
 				$"Room Desc Additions on New Line: {actor.Account.CodedRoomDescriptionAdditionsOnNewLine.ToColouredString()}");
@@ -287,6 +289,10 @@ Additionally, admins can use the following options:
 							actor.OutputHandler.Send("You will now see magic resources in the prompt.");
 						}
 
+						return;
+					case "hints":
+						actor.Account.HintsEnabled = !actor.Account.HintsEnabled;
+						actor.OutputHandler.Send($"You will {actor.Account.HintsEnabled.NowNoLonger()} see hint echoes.");
 						return;
 					default:
 						if (ss.IsFinished)

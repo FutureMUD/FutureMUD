@@ -152,7 +152,11 @@ namespace MudSharp.Database
                     .HasColumnType("bit(1)")
                     .HasDefaultValueSql("b'0'");
 
-                entity.Property(e => e.CreationDate).HasColumnType("datetime");
+				entity.Property(e => e.HintsEnabled)
+					.HasColumnType("bit(1)")
+					.HasDefaultValueSql("b'1'");
+
+				entity.Property(e => e.CreationDate).HasColumnType("datetime");
 
                 entity.Property(e => e.CultureName)
                     .IsRequired()

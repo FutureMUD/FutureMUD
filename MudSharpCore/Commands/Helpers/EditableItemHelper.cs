@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 using MudSharp.Character;
 using MudSharp.Character.Heritage;
 using MudSharp.CharacterCreation;
@@ -22,7 +23,9 @@ using MudSharp.Health;
 using MudSharp.Magic;
 using MudSharp.Magic.Resources;
 using MudSharp.NPC;
+using MudSharp.PerceptionEngine;
 using MudSharp.RPG.Dreams;
+using MudSharp.RPG.Hints;
 using AuctionHouse = MudSharp.Economy.Auctions.AuctionHouse;
 using Bank = MudSharp.Economy.Banking.Bank;
 using ChargenAdvice = MudSharp.CharacterCreation.ChargenAdvice;
@@ -426,6 +429,70 @@ public class EditableItemHelper
 		CustomSearch = (protos, keyword, gameworld) => protos,
 		GetEditHeader = item => $"Weapon Type #{item.Id:N0} ({item.Name})",
 		DefaultCommandHelp = CombatBuilderModule.WeaponTypeHelp
+	};
+
+	public static EditableItemHelper NewPlayerHintHelper { get; } = new() {
+		ItemName = "New Player Hint",
+		ItemNamePlural = "New Player Hints",
+		SetEditableItemAction = (actor, item) =>
+		{
+			actor.RemoveAllEffects<BuilderEditingEffect<INewPlayerHint>>();
+			if (item == null)
+			{
+				return;
+			}
+
+			actor.AddEffect(new BuilderEditingEffect<INewPlayerHint>(actor) { EditingItem = (INewPlayerHint)item });
+		},
+		GetEditableItemFunc = actor =>
+			actor.CombinedEffectsOfType<BuilderEditingEffect<INewPlayerHint>>().FirstOrDefault()?.EditingItem,
+		GetAllEditableItems = actor => actor.Gameworld.NewPlayerHints.ToList(),
+		GetEditableItemByIdFunc = (actor, id) => actor.Gameworld.NewPlayerHints.Get(id),
+		GetEditableItemByIdOrNameFunc = (actor, input) => actor.Gameworld.NewPlayerHints.GetByIdOrName(input),
+		AddItemToGameWorldAction = item => item.Gameworld.Add((INewPlayerHint)item),
+		CastToType = typeof(INewPlayerHint),
+		EditableNewAction = (actor, input) =>
+		{
+			void NewItemPost(string text, IOutputHandler handler, object[] args)
+			{
+				var hint = new RPG.Hints.NewPlayerHint(actor.Gameworld, text);
+				actor.Gameworld.Add(hint);
+				actor.RemoveAllEffects<BuilderEditingEffect<INewPlayerHint>>();
+				actor.AddEffect(new BuilderEditingEffect<INewPlayerHint>(actor) { EditingItem = hint });
+				actor.OutputHandler.Send($"You create new player hint #{hint.Id.ToString("N0", actor)}, which you are now editing.");
+			}
+
+			void NewItemCancel(IOutputHandler handler, object[] args)
+			{
+				handler.Send("You decide not to create a new player hint.");
+			}
+
+			actor.OutputHandler.Send("Please enter the text that will be shown for this hint.");
+			actor.EditorMode(NewItemPost, NewItemCancel, 1.0, null);
+		},
+		EditableCloneAction = null,
+		GetListTableHeaderFunc = character => new List<string>
+		{
+			"Id",
+			"Repeatable?",
+			"Filter",
+			"Priority"
+		},
+
+		GetListTableContentsFunc = (character, protos) => 
+			from proto in protos.OfType<INewPlayerHint>()
+			orderby proto.Priority descending
+			select new List<string>
+			{
+				proto.Id.ToString("N0", character),
+				proto.CanRepeat.ToColouredString(),
+				proto.FilterProg?.MXPClickableFunctionName() ?? "",
+				proto.Priority.ToString("N0", character)
+			},
+
+		CustomSearch = (protos, keyword, gameworld) => protos,
+		GetEditHeader = item => $"New Player Hint #{item.Id:N0}",
+		DefaultCommandHelp = BuilderModule.NewPlayerHintHelp
 	};
 
 	public static EditableItemHelper AmmunitionTypeHelper { get; } = new()

@@ -74,6 +74,8 @@ public sealed class DummyAccount : FrameworkItem, IAccount
 
 	public IAuthority Authority { get; set; }
 
+	public bool HintsEnabled { get => false; set { } }
+
 	public int ActiveCharactersAllowed
 	{
 		get => 0;

@@ -69,6 +69,7 @@ using MudSharp.Work.Foraging;
 using MudSharp.Work.Projects;
 using MudSharp.RPG.ScriptedEvents;
 using System.Xml.Linq;
+using MudSharp.RPG.Hints;
 
 namespace MudSharp.Framework;
 
@@ -267,6 +268,7 @@ public sealed partial class Futuremud : IFuturemud, IDisposable
 		}
 
 		EmailHelper.Instance.StartEmailThread();
+		Thread.Sleep(50);
 		try
 		{
 			Console.ForegroundColor = ConsoleColor.Green;
@@ -356,6 +358,15 @@ public sealed partial class Futuremud : IFuturemud, IDisposable
 							$"[PERF] - DiscordConnection.HandleMessages() took {sw.ElapsedMilliseconds}ms");
 						Console.ResetColor();
 					}
+				}
+
+				sw.Restart();
+				CheckNewPlayerHints();
+				if (sw.ElapsedMilliseconds > 250)
+				{
+					Console.ForegroundColor = ConsoleColor.Red;
+					Console.WriteLine($"[PERF] - CheckNewPlayerHints took {sw.ElapsedMilliseconds}ms");
+					Console.ResetColor();
 				}
 
 				if (saveStopWatch.ElapsedMilliseconds > 10000)
@@ -452,6 +463,11 @@ public sealed partial class Futuremud : IFuturemud, IDisposable
 		}
 
 		return TryGetCharacter(result.Id, true);
+	}
+
+	private void CheckNewPlayerHints()
+	{
+		// TODO
 	}
 
 	public void PreloadAccounts()
@@ -1216,6 +1232,11 @@ public sealed partial class Futuremud : IFuturemud, IDisposable
 		_scriptedEvents.Add(item);
 	}
 
+	public void Add(INewPlayerHint hint)
+	{
+		_newPlayerHints.Add(hint);
+	}
+
 	#endregion Special Add Methods
 
 	#region Special Find
@@ -1965,6 +1986,11 @@ public sealed partial class Futuremud : IFuturemud, IDisposable
 	public void Destroy(IScriptedEvent item)
 	{
 		_scriptedEvents.Remove(item);
+	}
+
+	public void Destroy(INewPlayerHint hint)
+	{
+		_newPlayerHints.Remove(hint);
 	}
 
 	#endregion Destruction

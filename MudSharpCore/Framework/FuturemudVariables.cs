@@ -56,6 +56,7 @@ using MudSharp.NPC.Templates;
 using MudSharp.PerceptionEngine.Light;
 using MudSharp.RPG.Checks;
 using MudSharp.RPG.Dreams;
+using MudSharp.RPG.Hints;
 using MudSharp.RPG.Knowledge;
 using MudSharp.RPG.Law;
 using MudSharp.RPG.Merits;
@@ -193,6 +194,7 @@ public sealed partial class Futuremud : IDisposable
 
 	private readonly All<IMerit> _merits = new();
 	private readonly All<INameCulture> _nameCultures = new();
+	private readonly All<INewPlayerHint> _newPlayerHints = new();
 	private readonly All<INPCSpawner> _npcSpawners = new();
 	private readonly All<IRandomNameProfile> _randomNameProfiles = new();
 	private readonly All<IProperty> _properties = new();
@@ -435,6 +437,7 @@ public sealed partial class Futuremud : IDisposable
 	public IUneditableAll<IMerit> Merits => _merits;
 
 	public IUneditableAll<INameCulture> NameCultures => _nameCultures;
+	public IUneditableAll<INewPlayerHint> NewPlayerHints => _newPlayerHints;
 
 	public IUneditableAll<IRandomNameProfile> RandomNameProfiles => _randomNameProfiles;
 

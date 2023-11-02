@@ -156,5 +156,6 @@ namespace MudSharp.Accounts {
         bool SafeMoveMode { get; set; }
         CharacterNameOverlaySetting CharacterNameOverlaySetting { get; set; }
         bool ActLawfully { get; set; }
+        bool HintsEnabled { get; set; }
     }
 }

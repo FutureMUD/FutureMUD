@@ -291,6 +291,23 @@ namespace MudSharp.Database
                     .UseCollation("utf8_general_ci");
             });
 
+            modelBuilder.Entity<NewPlayerHint>(entity => {
+				entity.ToTable("NewPlayerHints");
+				entity.Property(e => e.Id).HasColumnType("bigint(20)");
+				entity.Property(e => e.Priority).HasColumnType("int(11)");
+				entity.Property(e => e.CanRepeat).HasColumnType("bit(1)");
+				entity.Property(e => e.Text)
+					.IsRequired()
+					.HasColumnType("text")
+					.HasCharSet("utf8")
+					.UseCollation("utf8_general_ci");
+
+                entity.HasOne(e => e.FilterProg)
+                .WithMany()
+                .HasForeignKey(e => e.FilterProgId)
+                .HasConstraintName("FK_NewPlayerHints_FutureProgs");
+			});
+
             modelBuilder.Entity<NonCardinalExitTemplate>(entity =>
             {
                 entity.Property(e => e.Id).HasColumnType("bigint(20)");

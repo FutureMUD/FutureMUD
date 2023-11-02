@@ -59,6 +59,7 @@ using MudSharp.PerceptionEngine;
 using MudSharp.PerceptionEngine.Light;
 using MudSharp.RPG.Checks;
 using MudSharp.RPG.Dreams;
+using MudSharp.RPG.Hints;
 using MudSharp.RPG.Knowledge;
 using MudSharp.RPG.Law;
 using MudSharp.RPG.Merits;
@@ -197,7 +198,9 @@ namespace MudSharp.Framework
         IUneditableAll<ISolid> Materials { get; }
         IUneditableAll<IMerit> Merits { get; }
         IUneditableAll<INameCulture> NameCultures { get; }
-        IUneditableAll<IRandomNameProfile> RandomNameProfiles { get; }
+        IUneditableAll<INewPlayerHint> NewPlayerHints { get; }
+
+		IUneditableAll<IRandomNameProfile> RandomNameProfiles { get; }
         IUneditableAll<INonCardinalExitTemplate> NonCardinalExitTemplates { get; }
 
         /// <summary>
@@ -449,6 +452,7 @@ namespace MudSharp.Framework
         void Add(IClan clan);
         void Add(IArmourType type);
         void Add(IScriptedEvent item);
+        void Add(INewPlayerHint hint);
 
 		ICheck GetCheck(CheckType type);
 
@@ -574,6 +578,7 @@ namespace MudSharp.Framework
         void Destroy(IWriting writing);
         void Destroy(IScript script);
 		void Destroy(IScriptedEvent item);
+        void Destroy(INewPlayerHint hint);
 		void Dispose();
         void ForceOutgoingMessages();
         string ToString();

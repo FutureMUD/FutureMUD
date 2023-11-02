@@ -124,6 +124,7 @@ using GameItem = MudSharp.Models.GameItem;
 using Helpfile = MudSharp.Help.Helpfile;
 using RaceButcheryProfile = MudSharp.Work.Butchering.RaceButcheryProfile;
 using TraitExpression = MudSharp.Body.Traits.TraitExpression;
+using MudSharp.RPG.Hints;
 
 namespace MudSharp.Framework;
 
@@ -324,6 +325,7 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 			game.LoadSocials();
 			game.LoadAutobuilderTemplates();
 			game.LoadCharacterIntroTemplates(); // Needs to come after LoadFutureProgs
+			game.LoadNewPlayerHints(); // Needs to come after LoadFutureProgs
 			game.LoadChargen(); // Needs to come after LoadFutureProgs and LoadRoles
 
 			game.LoadTemporalListeners(); // Should come after everything else is loaded
@@ -436,6 +438,31 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 		}
 
 		Console.WriteLine("\nAttempting to create listening server thread...");
+	}
+
+	void IFuturemudLoader.LoadNewPlayerHints()
+	{
+		Console.WriteLine("\nLoading New Player Hints...");
+#if DEBUG
+		var sw = new Stopwatch();
+		sw.Start();
+#endif
+
+		var hints = FMDB.Context.NewPlayerHints
+			.AsNoTracking()
+			.ToList();
+		foreach (var hint in hints)
+		{
+			_newPlayerHints.Add(new RPG.Hints.NewPlayerHint(hint, this));
+		}
+
+#if DEBUG
+		sw.Stop();
+		Console.WriteLine($"Duration: {sw.ElapsedMilliseconds}ms");
+#endif
+		var count = _newPlayerHints.Count;
+		Console.WriteLine("Loaded {0:N0} {1}.", count, count == 1 ? "Hint" : "Hints");
+
 	}
 
 	void IFuturemudLoader.LoadLegal()

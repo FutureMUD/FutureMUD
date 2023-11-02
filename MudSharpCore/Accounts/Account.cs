@@ -36,6 +36,7 @@ public sealed class Account : SaveableItem, IAccount
 	private bool _useMsp;
 
 	private bool _useUnicode;
+	private bool _hintsEnabled;
 
 	private bool _appendNewlinesBetweenMultipleEchoesPerPrompt = true; // TODO save
 
@@ -72,6 +73,7 @@ public sealed class Account : SaveableItem, IAccount
 		CodedRoomDescriptionAdditionsOnNewLine = account.CodedRoomDescriptionAdditionsOnNewLine;
 		AppendNewlinesBetweenMultipleEchoesPerPrompt = account.AppendNewlinesBetweenMultipleEchoesPerPrompt;
 		CharacterNameOverlaySetting = (CharacterNameOverlaySetting)account.CharacterNameOverlaySetting;
+		HintsEnabled = account.HintsEnabled;
 
 		foreach (var resource in Gameworld.ChargenResources)
 		{
@@ -97,7 +99,7 @@ public sealed class Account : SaveableItem, IAccount
 
 	public Dictionary<IChargenResource, int> AccountResources { get; }
 	public Dictionary<IChargenResource, DateTime?> AccountResourcesLastAwarded { get; }
-
+	public bool HintsEnabled { get => _hintsEnabled; set { _hintsEnabled = value; Changed = true; } }
 	public IAccountController ControllingContext { get; private set; }
 
 	public IOutputHandler OutputHandler => ControllingContext?.OutputHandler;
@@ -366,6 +368,7 @@ public sealed class Account : SaveableItem, IAccount
 			dbitem.CharacterNameOverlaySetting = (int)CharacterNameOverlaySetting;
 			dbitem.AppendNewlinesBetweenMultipleEchoesPerPrompt = AppendNewlinesBetweenMultipleEchoesPerPrompt;
 			dbitem.ActLawfully = ActLawfully;
+			dbitem.HintsEnabled = HintsEnabled;
 			FMDB.Context.SaveChanges();
 		}
 

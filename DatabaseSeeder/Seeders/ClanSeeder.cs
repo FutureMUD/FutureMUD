@@ -18,25 +18,6 @@ public class ClanSeeder : IDatabaseSeeder
 		new List<(string Id, string Question, Func<FuturemudDatabaseContext, IReadOnlyDictionary<string, string>, bool>
 			Filter, Func<string, FuturemudDatabaseContext, (bool Success, string error)> Validator)>
 		{
-			("modern",
-				"Would you like to set up a clan template that are only suitable for modern or futuristic worlds?\n\nPlease answer #3yes#f or #3no#f. ",
-				(context, answers) => true,
-				(answer, context) =>
-				{
-					if (!answer.EqualToAny("yes", "y", "no", "n")) return (false, "Please choose yes or no.");
-
-					return (true, string.Empty);
-				}
-			),
-			("roman", "Would you like to set up a roman-specific clan templates?\n\nPlease answer #3yes#f or #3no#f. ",
-				(context, answers) => true,
-				(answer, context) =>
-				{
-					if (!answer.EqualToAny("yes", "y", "no", "n")) return (false, "Please choose yes or no.");
-
-					return (true, string.Empty);
-				}
-			)
 		};
 
 	public string SeedData(FuturemudDatabaseContext context, IReadOnlyDictionary<string, string> questionAnswers)
@@ -89,26 +70,20 @@ public class ClanSeeder : IDatabaseSeeder
 			context.SaveChanges();
 		}
 
-		if (questionAnswers["roman"].EqualToAny("yes", "y"))
-		{
-			SetupRomanCity(context, questionAnswers);
-			SetupRomanMilitary(context, questionAnswers);
-		}
-
-		if (questionAnswers["modern"].EqualToAny("yes", "y"))
-		{
-			SetupMilitaryClan(context, questionAnswers);
-			SetupUKPoliceOrganisation(context, questionAnswers);
-		}
-
+		var count = context.Clans.Count();
+		SetupRomanCity(context, questionAnswers);
+		SetupRomanMilitary(context, questionAnswers);
+		SetupMilitaryClan(context, questionAnswers);
+		SetupUKPoliceOrganisation(context, questionAnswers);
 		SetupGangClan(context, questionAnswers);
 		SetupCouncilClan(context, questionAnswers);
 		SetupKnightlyOrder(context, questionAnswers);
 		SetupMonasticOrder(context, questionAnswers);
 		SetupPeerage(context, questionAnswers);
-
+		SetupFeudalism(context, questionAnswers);
+		var difference = context.Clans.Count() - count;
 		context.Database.CommitTransaction();
-		return "The operation successfully completed.";
+		return $"Created {difference} new clans.";
 	}
 
 	public ShouldSeedResult ShouldSeedData(FuturemudDatabaseContext context)
@@ -116,7 +91,25 @@ public class ClanSeeder : IDatabaseSeeder
 		if (!context.Accounts.Any() || !context.Clocks.Any() || !context.Currencies.Any())
 			return ShouldSeedResult.PrerequisitesNotMet;
 
-		if (context.Clans.Any()) return ShouldSeedResult.MayAlreadyBeInstalled;
+		if (context.Clans.Any())
+		{
+			if (
+				context.Clans.All(x => x.Name != "Feudalism Template") ||
+				context.Clans.All(x => x.Name != "Peerage Template") || 
+				context.Clans.All(x => x.Name != "Monastic Order Template") ||
+				context.Clans.All(x => x.Name != "Chivalric Order Template") ||
+				context.Clans.All(x => x.Name != "Roman Legion Template") ||
+				context.Clans.All(x => x.Name != "Council Template") ||
+				context.Clans.All(x => x.Name != "Gang Template") ||
+				context.Clans.All(x => x.Name != "UK Police Template") ||
+				context.Clans.All(x => x.Name != "Army Template") ||
+				context.Clans.All(x => x.Name != "Roman City Template")
+			)
+			{
+				return ShouldSeedResult.ExtraPackagesAvailable;
+			}
+			return ShouldSeedResult.MayAlreadyBeInstalled;
+		}
 
 		return ShouldSeedResult.ReadyToInstall;
 	}
@@ -126,11 +119,593 @@ public class ClanSeeder : IDatabaseSeeder
 	public string Tagline => "Set up a few common clan templates";
 
 	public string FullDescription =>
-		"This seeder will run you through selecting a few clan templates that you might like to use either directly or as inspiration for how to set up your own clans.\n\nEven if you don't choose to use these clans directly as templates, they can be useful in showing you what is possible and how you can potentially set up your own clans; you can always disable players from choosing them as templates or delete them later.\n\nThe core seeder, time seeder and currency seeder are all prerequisites for this package.";
+		@"This seeder will run you through selecting a few clan templates that you might like to use either directly or as inspiration for how to set up your own clans.
+
+Even if you don't choose to use these clans directly as templates, they can be useful in showing you what is possible and how you can potentially set up your own clans; you can always disable players from choosing them as templates or delete them later.
+
+The core seeder, time seeder and currency seeder are all prerequisites for this package.
+
+This package can be run multiple times as I add more options.";
+
+	private void SetupFeudalism(FuturemudDatabaseContext context,
+		IReadOnlyDictionary<string, string> questionAnswers)
+	{
+		if (context.Clans.Any(x => x.Name == "Feudalism Template"))
+		{
+			return;
+		}
+
+		var clan = new Clan
+		{
+			Name = "Feudalism Template",
+			Alias = "fuedalism",
+			FullName = "Feudalism Template",
+			Description = "This is a template for a hierarchy of nobility based on a feudal society",
+			PayIntervalType = (int)IntervalType.Monthly,
+			PayIntervalModifier = 1,
+			PayIntervalOther = 0,
+			CalendarId = context.Calendars.First().Id,
+			PayIntervalReferenceDate = context.Calendars.First().Date,
+			PayIntervalReferenceTime = $"{context.Timezones.First(x => x.Clock.PrimaryTimezoneId == x.Id).Name} 0:0:0",
+			IsTemplate = true,
+			ShowClanMembersInWho = false
+		};
+		context.Clans.Add(clan);
+		context.SaveChanges();
+		var isFemaleProg = context.FutureProgs.First(x => x.FunctionName == "IsFemale");
+		var rankNumber = 0;
+		var memberPrivs = (long)(ClanPrivilegeType.CanViewClanStructure |
+								 ClanPrivilegeType.CanViewClanOfficeHolders | ClanPrivilegeType.CanViewMembers);
+		var retainerPrivs = (long)(ClanPrivilegeType.CanViewClanStructure |
+								   ClanPrivilegeType.CanViewClanOfficeHolders | ClanPrivilegeType.CanViewMembers |
+								   ClanPrivilegeType.CanAccessLeasedProperties | ClanPrivilegeType.CanReportDead
+			);
+
+		var rank = new Rank
+		{
+			Clan = clan,
+			Name = "Slave",
+			RankNumber = rankNumber++,
+			Privileges = memberPrivs,
+			RankPath = "Commoner"
+		};
+		rank.RanksAbbreviations.Add(new RanksAbbreviations { Rank = rank, Order = 1, Abbreviation = "Slave" });
+		rank.RanksTitles.Add(new RanksTitle { Rank = rank, Order = 1, Title = "Slave" });
+		context.Ranks.Add(rank);
+		context.SaveChanges();
+
+		rank = new Rank
+		{
+			Clan = clan,
+			Name = "Serf",
+			RankNumber = rankNumber++,
+			Privileges = memberPrivs,
+			RankPath = "Commoner"
+		};
+		rank.RanksAbbreviations.Add(new RanksAbbreviations { Rank = rank, Order = 1, Abbreviation = "Serf" });
+		rank.RanksTitles.Add(new RanksTitle { Rank = rank, Order = 1, Title = "Serf" });
+		context.Ranks.Add(rank);
+		context.SaveChanges();
+
+		rank = new Rank
+		{
+			Clan = clan,
+			Name = "Free Peasant",
+			RankNumber = rankNumber++,
+			Privileges = memberPrivs,
+			RankPath = "Commoner"
+		};
+		rank.RanksAbbreviations.Add(new RanksAbbreviations { Rank = rank, Order = 0, Abbreviation = "Freewoman", FutureProg = isFemaleProg });
+		rank.RanksAbbreviations.Add(new RanksAbbreviations { Rank = rank, Order = 1, Abbreviation = "Freeman" });
+		rank.RanksTitles.Add(new RanksTitle { Rank = rank, Order = 0, Title = "Freewoman", FutureProg = isFemaleProg });
+		rank.RanksTitles.Add(new RanksTitle { Rank = rank, Order = 1, Title = "Freeman" });
+		context.Ranks.Add(rank);
+		context.SaveChanges();
+
+		rank = new Rank
+		{
+			Clan = clan,
+			Name = "Noble",
+			RankNumber = rankNumber++,
+			Privileges = retainerPrivs,
+			RankPath = "Nobility"
+		};
+		rank.RanksAbbreviations.Add(new RanksAbbreviations { Rank = rank, Order = 1, Abbreviation = "No" });
+		rank.RanksTitles.Add(new RanksTitle { Rank = rank, Order = 1, Title = "Noble" });
+		context.Ranks.Add(rank);
+		context.SaveChanges();
+
+		var nobleRank = rank;
+
+		rank = new Rank
+		{
+			Clan = clan,
+			Name = "Page",
+			RankNumber = rankNumber++,
+			Privileges = retainerPrivs,
+			RankPath = "Knightly"
+		};
+		rank.RanksAbbreviations.Add(new RanksAbbreviations { Rank = rank, Order = 0, Abbreviation = "Page" });
+		rank.RanksTitles.Add(new RanksTitle { Rank = rank, Order = 0, Title = "Page" });
+		context.Ranks.Add(rank);
+		context.SaveChanges();
+
+		rank = new Rank
+		{
+			Clan = clan,
+			Name = "Squire",
+			RankNumber = rankNumber++,
+			Privileges = retainerPrivs,
+			RankPath = "Knightly"
+		};
+		rank.RanksAbbreviations.Add(new RanksAbbreviations { Rank = rank, Order = 0, Abbreviation = "Hmd", FutureProg = isFemaleProg });
+		rank.RanksAbbreviations.Add(new RanksAbbreviations { Rank = rank, Order = 1, Abbreviation = "Sq" });
+		rank.RanksTitles.Add(new RanksTitle { Rank = rank, Order = 0, Title = "Handmaiden", FutureProg = isFemaleProg });
+		rank.RanksTitles.Add(new RanksTitle { Rank = rank, Order = 0, Title = "Squire" });
+		context.Ranks.Add(rank);
+		context.SaveChanges();
+
+		rank = new Rank
+		{
+			Clan = clan,
+			Name = "Esquire",
+			RankNumber = rankNumber++,
+			Privileges = retainerPrivs,
+			RankPath = "Knightly"
+		};
+		rank.RanksAbbreviations.Add(new RanksAbbreviations { Rank = rank, Order = 0, Abbreviation = "Dms", FutureProg = isFemaleProg });
+		rank.RanksAbbreviations.Add(new RanksAbbreviations { Rank = rank, Order = 1, Abbreviation = "Esq" });
+		rank.RanksTitles.Add(new RanksTitle { Rank = rank, Order = 0, Title = "Damsel", FutureProg = isFemaleProg });
+		rank.RanksTitles.Add(new RanksTitle { Rank = rank, Order = 0, Title = "Esquire" });
+		context.Ranks.Add(rank);
+		context.SaveChanges();
+
+		var esquireRank = rank;
+
+		var knightPrivs = (long)(ClanPrivilegeType.CanViewClanStructure |
+								 ClanPrivilegeType.CanViewClanOfficeHolders | ClanPrivilegeType.CanViewMembers |
+								 ClanPrivilegeType.CanAccessLeasedProperties |
+								 ClanPrivilegeType.CanInduct | ClanPrivilegeType.CanChangeRankPath |
+								 ClanPrivilegeType.CanPromote | ClanPrivilegeType.CanReportDead | 
+								 ClanPrivilegeType.CanPromoteToOwnRank
+								 );
+
+		rank = new Rank
+		{
+			Clan = clan,
+			Name = "Knight",
+			RankNumber = rankNumber++,
+			Privileges = knightPrivs,
+			RankPath = "Knightly"
+		};
+		rank.RanksAbbreviations.Add(new RanksAbbreviations { Rank = rank, Order = 0, Abbreviation = "Dm", FutureProg = isFemaleProg });
+		rank.RanksAbbreviations.Add(new RanksAbbreviations { Rank = rank, Order = 1, Abbreviation = "Kn" });
+		rank.RanksTitles.Add(new RanksTitle { Rank = rank, Order = 0, Title = "Dame", FutureProg = isFemaleProg });
+		rank.RanksTitles.Add(new RanksTitle { Rank = rank, Order = 1, Title = "Knight" });
+		context.Ranks.Add(rank);
+		context.SaveChanges();
+
+		var higherknightPrivs = (long)(ClanPrivilegeType.CanViewClanStructure |
+								 ClanPrivilegeType.CanViewClanOfficeHolders | ClanPrivilegeType.CanViewMembers |
+								 ClanPrivilegeType.CanAccessLeasedProperties |
+								 ClanPrivilegeType.CanInduct | ClanPrivilegeType.CanChangeRankPath |
+								 ClanPrivilegeType.CanPromote | ClanPrivilegeType.CanReportDead
+								 );
+
+		rank = new Rank
+		{
+			Clan = clan,
+			Name = "Vassal Knight",
+			RankNumber = rankNumber++,
+			Privileges = higherknightPrivs,
+			RankPath = "Knightly"
+		};
+		rank.RanksAbbreviations.Add(new RanksAbbreviations{ Rank = rank, Order = 0, Abbreviation = "VDm", FutureProg = isFemaleProg });
+		rank.RanksAbbreviations.Add(new RanksAbbreviations { Rank = rank, Order = 1, Abbreviation = "VKn" });
+		rank.RanksTitles.Add(new RanksTitle { Rank = rank, Order = 0, Title = "Vassal Dame", FutureProg = isFemaleProg });
+		rank.RanksTitles.Add(new RanksTitle { Rank = rank, Order = 1, Title = "Vassal Knight" });
+		context.Ranks.Add(rank);
+		context.SaveChanges();
+
+		rank = new Rank
+		{
+			Clan = clan,
+			Name = "Knight Banneret",
+			RankNumber = rankNumber++,
+			Privileges = higherknightPrivs,
+			RankPath = "Knightly"
+		};
+		rank.RanksAbbreviations.Add(new RanksAbbreviations { Rank = rank, Order = 0, Abbreviation = "Dm B", FutureProg = isFemaleProg });
+		rank.RanksAbbreviations.Add(new RanksAbbreviations { Rank = rank, Order = 1, Abbreviation = "Kn B" });
+		rank.RanksTitles.Add(new RanksTitle { Rank = rank, Order = 0, Title = "Dame Banneret", FutureProg = isFemaleProg });
+		rank.RanksTitles.Add(new RanksTitle { Rank = rank, Order = 1, Title = "Knight Banneret" });
+		context.Ranks.Add(rank);
+		context.SaveChanges();
+
+		var nobilityPrivs = (long)(ClanPrivilegeType.CanViewClanStructure |
+								 ClanPrivilegeType.CanViewClanOfficeHolders | ClanPrivilegeType.CanViewMembers |
+								 ClanPrivilegeType.CanAccessLeasedProperties |
+								 ClanPrivilegeType.CanInduct | ClanPrivilegeType.CanChangeRankPath |
+								 ClanPrivilegeType.CanPromote | ClanPrivilegeType.CanReportDead |
+								 ClanPrivilegeType.CanCreateAppointmentsUnderOwn | ClanPrivilegeType.CanDismiss |
+								 ClanPrivilegeType.CanAppoint | ClanPrivilegeType.CanDemote
+								 );
+
+		rank = new Rank
+		{
+			Clan = clan,
+			Name = "Baron",
+			RankNumber = rankNumber++,
+			Privileges = nobilityPrivs,
+			RankPath = "Nobility"
+		};
+		rank.RanksAbbreviations.Add(new RanksAbbreviations { Rank = rank, Order = 0, Abbreviation = "Bnss", FutureProg = isFemaleProg });
+		rank.RanksAbbreviations.Add(new RanksAbbreviations { Rank = rank, Order = 1, Abbreviation = "Bn" });
+		rank.RanksTitles.Add(new RanksTitle { Rank = rank, Order = 0, Title = "Baroness", FutureProg = isFemaleProg });
+		rank.RanksTitles.Add(new RanksTitle { Rank = rank, Order = 1, Title = "Baron" });
+		context.Ranks.Add(rank);
+		context.SaveChanges();
+
+		var baronRank = rank;
+
+		rank = new Rank
+		{
+			Clan = clan,
+			Name = "Duke",
+			RankNumber = rankNumber++,
+			Privileges = nobilityPrivs,
+			RankPath = "Nobility"
+		};
+		rank.RanksAbbreviations.Add(new RanksAbbreviations
+		{ Rank = rank, Order = 0, Abbreviation = "Duxss", FutureProg = isFemaleProg });
+		rank.RanksAbbreviations.Add(new RanksAbbreviations { Rank = rank, Order = 1, Abbreviation = "Dux" });
+		rank.RanksTitles.Add(new RanksTitle { Rank = rank, Order = 0, Title = "Duchess", FutureProg = isFemaleProg });
+		rank.RanksTitles.Add(new RanksTitle { Rank = rank, Order = 1, Title = "Duke" });
+		context.Ranks.Add(rank);
+		context.SaveChanges();
+
+		rank = new Rank
+		{
+			Clan = clan,
+			Name = "Sovereign",
+			RankNumber = rankNumber++,
+			Privileges = (long)ClanPrivilegeType.All,
+			RankPath = "Sovereign",
+			FameType = (int)ClanFameType.NameOnly
+		};
+		rank.RanksAbbreviations.Add(new RanksAbbreviations
+		{ Rank = rank, Order = 0, Abbreviation = "Qu", FutureProg = isFemaleProg });
+		rank.RanksAbbreviations.Add(new RanksAbbreviations { Rank = rank, Order = 1, Abbreviation = "Ki" });
+		rank.RanksTitles.Add(new RanksTitle { Rank = rank, Order = 0, Title = "Queen", FutureProg = isFemaleProg });
+		rank.RanksTitles.Add(new RanksTitle { Rank = rank, Order = 1, Title = "King" });
+		context.Ranks.Add(rank);
+		context.SaveChanges();
+
+		var sovereignRank = rank;
+
+		var appointment = new Appointment
+		{
+			Clan = clan,
+			Name = "Consort",
+			MaximumSimultaneousHolders = 1,
+			MinimumRank = nobleRank,
+			MinimumRankToAppoint = sovereignRank,
+			IsAppointedByElection = false,
+			FameType = (int)ClanFameType.NameOnly
+		};
+		appointment.AppointmentsAbbreviations.Add(new AppointmentsAbbreviations
+		{ Appointment = appointment, Order = 0, Abbreviation = "Qu C", FutureProg = isFemaleProg });
+		appointment.AppointmentsAbbreviations.Add(new AppointmentsAbbreviations
+		{ Appointment = appointment, Order = 1, Abbreviation = "Ki C" });
+		appointment.AppointmentsTitles.Add(new AppointmentsTitles
+		{ Appointment = appointment, Order = 0, Title = "Queen Consort", FutureProg = isFemaleProg });
+		appointment.AppointmentsTitles.Add(new AppointmentsTitles
+		{ Appointment = appointment, Order = 1, Title = "Prince Consort" });
+		context.Appointments.Add(appointment);
+		context.SaveChanges();
+
+		appointment = new Appointment
+		{
+			Clan = clan,
+			Name = "Prince",
+			MaximumSimultaneousHolders = 0,
+			MinimumRank = nobleRank,
+			MinimumRankToAppoint = sovereignRank,
+			IsAppointedByElection = false,
+			FameType = (int)ClanFameType.NameOnly
+		};
+		appointment.AppointmentsAbbreviations.Add(new AppointmentsAbbreviations
+		{ Appointment = appointment, Order = 0, Abbreviation = "Prss", FutureProg = isFemaleProg });
+		appointment.AppointmentsAbbreviations.Add(new AppointmentsAbbreviations
+		{ Appointment = appointment, Order = 1, Abbreviation = "Pr" });
+		appointment.AppointmentsTitles.Add(new AppointmentsTitles
+		{ Appointment = appointment, Order = 0, Title = "Princess", FutureProg = isFemaleProg });
+		appointment.AppointmentsTitles.Add(new AppointmentsTitles
+		{ Appointment = appointment, Order = 1, Title = "Prince" });
+		context.Appointments.Add(appointment);
+		context.SaveChanges();
+
+		appointment = new Appointment
+		{
+			Clan = clan,
+			Name = "Admiral",
+			MaximumSimultaneousHolders = 1,
+			MinimumRank = esquireRank,
+			MinimumRankToAppoint = sovereignRank,
+			IsAppointedByElection = false,
+			FameType = (int)ClanFameType.NameOnly
+		};
+		appointment.AppointmentsAbbreviations.Add(new AppointmentsAbbreviations
+		{ Appointment = appointment, Order = 1, Abbreviation = "Adm" });
+		appointment.AppointmentsTitles.Add(new AppointmentsTitles
+		{ Appointment = appointment, Order = 1, Title = "Admiral" });
+		context.Appointments.Add(appointment);
+		context.SaveChanges();
+
+		appointment = new Appointment
+		{
+			Clan = clan,
+			Name = "Chancellor",
+			MaximumSimultaneousHolders = 1,
+			MinimumRank = esquireRank,
+			MinimumRankToAppoint = sovereignRank,
+			IsAppointedByElection = false,
+			FameType = (int)ClanFameType.NameOnly
+		};
+		appointment.AppointmentsAbbreviations.Add(new AppointmentsAbbreviations
+		{ Appointment = appointment, Order = 1, Abbreviation = "Chn" });
+		appointment.AppointmentsTitles.Add(new AppointmentsTitles
+		{ Appointment = appointment, Order = 1, Title = "Chancellor" });
+		context.Appointments.Add(appointment);
+		context.SaveChanges();
+
+		appointment = new Appointment
+		{
+			Clan = clan,
+			Name = "Sheriff",
+			MaximumSimultaneousHolders = 0,
+			MinimumRank = esquireRank,
+			MinimumRankToAppoint = sovereignRank,
+			IsAppointedByElection = false,
+			FameType = (int)ClanFameType.NameOnly
+		};
+		appointment.AppointmentsAbbreviations.Add(new AppointmentsAbbreviations
+		{ Appointment = appointment, Order = 1, Abbreviation = "Shf" });
+		appointment.AppointmentsTitles.Add(new AppointmentsTitles
+		{ Appointment = appointment, Order = 1, Title = "Sheriff" });
+		context.Appointments.Add(appointment);
+		context.SaveChanges();
+
+		appointment = new Appointment
+		{
+			Clan = clan,
+			Name = "Castellan",
+			MaximumSimultaneousHolders = 0,
+			MinimumRank = esquireRank,
+			MinimumRankToAppoint = baronRank,
+			IsAppointedByElection = false,
+			FameType = (int)ClanFameType.NameOnly
+		};
+		appointment.AppointmentsAbbreviations.Add(new AppointmentsAbbreviations
+		{ Appointment = appointment, Order = 1, Abbreviation = "Cst" });
+		appointment.AppointmentsTitles.Add(new AppointmentsTitles
+		{ Appointment = appointment, Order = 1, Title = "Castellan" });
+		context.Appointments.Add(appointment);
+		context.SaveChanges();
+
+		appointment = new Appointment
+		{
+			Clan = clan,
+			Name = "Chamberlain",
+			MaximumSimultaneousHolders = 0,
+			MinimumRank = esquireRank,
+			MinimumRankToAppoint = baronRank,
+			IsAppointedByElection = false,
+			FameType = (int)ClanFameType.NameOnly
+		};
+		appointment.AppointmentsAbbreviations.Add(new AppointmentsAbbreviations
+		{ Appointment = appointment, Order = 1, Abbreviation = "Chm" });
+		appointment.AppointmentsTitles.Add(new AppointmentsTitles
+		{ Appointment = appointment, Order = 1, Title = "Chamberlain" });
+		context.Appointments.Add(appointment);
+		context.SaveChanges();
+
+		appointment = new Appointment
+		{
+			Clan = clan,
+			Name = "Forester",
+			MaximumSimultaneousHolders = 0,
+			MinimumRank = esquireRank,
+			MinimumRankToAppoint = baronRank,
+			IsAppointedByElection = false,
+			FameType = (int)ClanFameType.NameOnly
+		};
+		appointment.AppointmentsAbbreviations.Add(new AppointmentsAbbreviations
+		{ Appointment = appointment, Order = 1, Abbreviation = "Frst" });
+		appointment.AppointmentsTitles.Add(new AppointmentsTitles
+		{ Appointment = appointment, Order = 1, Title = "Forester" });
+		context.Appointments.Add(appointment);
+		context.SaveChanges();
+
+		appointment = new Appointment
+		{
+			Clan = clan,
+			Name = "Butler",
+			MaximumSimultaneousHolders = 0,
+			MinimumRank = esquireRank,
+			MinimumRankToAppoint = baronRank,
+			IsAppointedByElection = false,
+			FameType = (int)ClanFameType.NameOnly
+		};
+		appointment.AppointmentsAbbreviations.Add(new AppointmentsAbbreviations
+		{ Appointment = appointment, Order = 1, Abbreviation = "Btl" });
+		appointment.AppointmentsTitles.Add(new AppointmentsTitles
+		{ Appointment = appointment, Order = 1, Title = "Butler" });
+		context.Appointments.Add(appointment);
+		context.SaveChanges();
+
+		appointment = new Appointment
+		{
+			Clan = clan,
+			Name = "Justiciar",
+			MaximumSimultaneousHolders = 0,
+			MinimumRank = esquireRank,
+			MinimumRankToAppoint = sovereignRank,
+			IsAppointedByElection = false,
+			FameType = (int)ClanFameType.NameOnly
+		};
+		appointment.AppointmentsAbbreviations.Add(new AppointmentsAbbreviations
+		{ Appointment = appointment, Order = 1, Abbreviation = "Jst" });
+		appointment.AppointmentsTitles.Add(new AppointmentsTitles
+		{ Appointment = appointment, Order = 1, Title = "Justiciar" });
+		context.Appointments.Add(appointment);
+		context.SaveChanges();
+
+		appointment = new Appointment
+		{
+			Clan = clan,
+			Name = "Marshall",
+			MaximumSimultaneousHolders = 0,
+			MinimumRank = esquireRank,
+			MinimumRankToAppoint = baronRank,
+			IsAppointedByElection = false,
+			FameType = (int)ClanFameType.NameOnly
+		};
+		appointment.AppointmentsAbbreviations.Add(new AppointmentsAbbreviations
+		{ Appointment = appointment, Order = 1, Abbreviation = "Mrsh" });
+		appointment.AppointmentsTitles.Add(new AppointmentsTitles
+		{ Appointment = appointment, Order = 1, Title = "Marshall" });
+		context.Appointments.Add(appointment);
+		context.SaveChanges();
+
+		appointment = new Appointment
+		{
+			Clan = clan,
+			Name = "Seneschal",
+			MaximumSimultaneousHolders = 0,
+			MinimumRank = esquireRank,
+			MinimumRankToAppoint = baronRank,
+			IsAppointedByElection = false,
+			FameType = (int)ClanFameType.NameOnly
+		};
+		appointment.AppointmentsAbbreviations.Add(new AppointmentsAbbreviations
+		{ Appointment = appointment, Order = 1, Abbreviation = "Sen" });
+		appointment.AppointmentsTitles.Add(new AppointmentsTitles
+		{ Appointment = appointment, Order = 1, Title = "Seneschal" });
+		context.Appointments.Add(appointment);
+		context.SaveChanges();
+
+		appointment = new Appointment
+		{
+			Clan = clan,
+			Name = "Royal Castellan",
+			MaximumSimultaneousHolders = 1,
+			MinimumRank = esquireRank,
+			MinimumRankToAppoint = sovereignRank,
+			IsAppointedByElection = false,
+			FameType = (int)ClanFameType.NameOnly
+		};
+		appointment.AppointmentsAbbreviations.Add(new AppointmentsAbbreviations
+		{ Appointment = appointment, Order = 1, Abbreviation = "RCst" });
+		appointment.AppointmentsTitles.Add(new AppointmentsTitles
+		{ Appointment = appointment, Order = 1, Title = "Royal Castellan" });
+		context.Appointments.Add(appointment);
+		context.SaveChanges();
+
+		appointment = new Appointment
+		{
+			Clan = clan,
+			Name = "Royal Chamberlain",
+			MaximumSimultaneousHolders = 1,
+			MinimumRank = esquireRank,
+			MinimumRankToAppoint = sovereignRank,
+			IsAppointedByElection = false,
+			FameType = (int)ClanFameType.NameOnly
+		};
+		appointment.AppointmentsAbbreviations.Add(new AppointmentsAbbreviations
+		{ Appointment = appointment, Order = 1, Abbreviation = "RChm" });
+		appointment.AppointmentsTitles.Add(new AppointmentsTitles
+		{ Appointment = appointment, Order = 1, Title = "Royal Chamberlain" });
+		context.Appointments.Add(appointment);
+		context.SaveChanges();
+
+		appointment = new Appointment
+		{
+			Clan = clan,
+			Name = "Royal Forester",
+			MaximumSimultaneousHolders = 1,
+			MinimumRank = esquireRank,
+			MinimumRankToAppoint = sovereignRank,
+			IsAppointedByElection = false,
+			FameType = (int)ClanFameType.NameOnly
+		};
+		appointment.AppointmentsAbbreviations.Add(new AppointmentsAbbreviations
+		{ Appointment = appointment, Order = 1, Abbreviation = "RFrst" });
+		appointment.AppointmentsTitles.Add(new AppointmentsTitles
+		{ Appointment = appointment, Order = 1, Title = "Royal Forester" });
+		context.Appointments.Add(appointment);
+		context.SaveChanges();
+
+		appointment = new Appointment
+		{
+			Clan = clan,
+			Name = "Royal Butler",
+			MaximumSimultaneousHolders = 0,
+			MinimumRank = esquireRank,
+			MinimumRankToAppoint = sovereignRank,
+			IsAppointedByElection = false,
+			FameType = (int)ClanFameType.NameOnly
+		};
+		appointment.AppointmentsAbbreviations.Add(new AppointmentsAbbreviations
+		{ Appointment = appointment, Order = 1, Abbreviation = "RBut" });
+		appointment.AppointmentsTitles.Add(new AppointmentsTitles
+		{ Appointment = appointment, Order = 1, Title = "Royal Butler" });
+		context.Appointments.Add(appointment);
+		context.SaveChanges();
+
+		appointment = new Appointment
+		{
+			Clan = clan,
+			Name = "Royal Marshall",
+			MaximumSimultaneousHolders = 1,
+			MinimumRank = esquireRank,
+			MinimumRankToAppoint = sovereignRank,
+			IsAppointedByElection = false,
+			FameType = (int)ClanFameType.NameOnly
+		};
+		appointment.AppointmentsAbbreviations.Add(new AppointmentsAbbreviations
+		{ Appointment = appointment, Order = 1, Abbreviation = "RMrsh" });
+		appointment.AppointmentsTitles.Add(new AppointmentsTitles
+		{ Appointment = appointment, Order = 1, Title = "Royal Marshall" });
+		context.Appointments.Add(appointment);
+		context.SaveChanges();
+
+		appointment = new Appointment
+		{
+			Clan = clan,
+			Name = "Royal Seneschal",
+			MaximumSimultaneousHolders = 1,
+			MinimumRank = esquireRank,
+			MinimumRankToAppoint = sovereignRank,
+			IsAppointedByElection = false,
+			FameType = (int)ClanFameType.NameOnly
+		};
+		appointment.AppointmentsAbbreviations.Add(new AppointmentsAbbreviations
+		{ Appointment = appointment, Order = 1, Abbreviation = "RSen" });
+		appointment.AppointmentsTitles.Add(new AppointmentsTitles
+		{ Appointment = appointment, Order = 1, Title = "Royal Seneschal" });
+		context.Appointments.Add(appointment);
+		context.SaveChanges();
+	}
 
 	private void SetupPeerage(FuturemudDatabaseContext context,
 		IReadOnlyDictionary<string, string> questionAnswers)
 	{
+
+		if (context.Clans.Any(x => x.Name == "Peerage Template"))
+		{
+			return;
+		}
 		var clan = new Clan
 		{
 			Name = "Peerage Template",
@@ -360,6 +935,11 @@ public class ClanSeeder : IDatabaseSeeder
 	private void SetupMonasticOrder(FuturemudDatabaseContext context,
 		IReadOnlyDictionary<string, string> questionAnswers)
 	{
+
+		if (context.Clans.Any(x => x.Name == "Monastic Order Template"))
+		{
+			return;
+		}
 		var clan = new Clan
 		{
 			Name = "Monastic Order Template",
@@ -800,6 +1380,11 @@ public class ClanSeeder : IDatabaseSeeder
 	private void SetupKnightlyOrder(FuturemudDatabaseContext context,
 		IReadOnlyDictionary<string, string> questionAnswers)
 	{
+
+		if (context.Clans.Any(x => x.Name == "Chivalric Order Template"))
+		{
+			return;
+		}
 		var clan = new Clan
 		{
 			Name = "Chivalric Order Template",
@@ -1022,6 +1607,12 @@ public class ClanSeeder : IDatabaseSeeder
 	private void SetupRomanMilitary(FuturemudDatabaseContext context,
 		IReadOnlyDictionary<string, string> questionAnswers)
 	{
+
+		if (context.Clans.Any(x => x.Name == "Roman Legion Template"))
+		{
+			return;
+		}
+
 		var clan = new Clan
 		{
 			Name = "Roman Legion Template",
@@ -1915,6 +2506,12 @@ public class ClanSeeder : IDatabaseSeeder
 
 	private void SetupCouncilClan(FuturemudDatabaseContext context, IReadOnlyDictionary<string, string> questionAnswers)
 	{
+
+		if (context.Clans.Any(x => x.Name == "Council Template"))
+		{
+			return;
+		}
+
 		var clan = new Clan
 		{
 			Name = "Council Template",
@@ -1975,6 +2572,12 @@ public class ClanSeeder : IDatabaseSeeder
 
 	private void SetupGangClan(FuturemudDatabaseContext context, IReadOnlyDictionary<string, string> questionAnswers)
 	{
+
+		if (context.Clans.Any(x => x.Name == "Gang Template"))
+		{
+			return;
+		}
+
 		var clan = new Clan
 		{
 			Name = "Gang Template",
@@ -2049,6 +2652,12 @@ public class ClanSeeder : IDatabaseSeeder
 	private void SetupUKPoliceOrganisation(FuturemudDatabaseContext context,
 		IReadOnlyDictionary<string, string> questionAnswers)
 	{
+
+		if (context.Clans.Any(x => x.Name == "UK Police Template"))
+		{
+			return;
+		}
+
 		var clan = new Clan
 		{
 			Name = "UK Police Template",
@@ -2328,6 +2937,12 @@ public class ClanSeeder : IDatabaseSeeder
 	private void SetupMilitaryClan(FuturemudDatabaseContext context,
 		IReadOnlyDictionary<string, string> questionAnswers)
 	{
+
+		if (context.Clans.Any(x => x.Name == "Army Template"))
+		{
+			return;
+		}
+
 		var clan = new Clan
 		{
 			Name = "Army Template",
@@ -2668,6 +3283,12 @@ public class ClanSeeder : IDatabaseSeeder
 
 	private void SetupRomanCity(FuturemudDatabaseContext context, IReadOnlyDictionary<string, string> questionAnswers)
 	{
+
+		if (context.Clans.Any(x => x.Name == "Roman City Template"))
+		{
+			return;
+		}
+
 		var isMaleProg = context.FutureProgs.First(x => x.FunctionName == "IsMale");
 		var isFemaleProg = context.FutureProgs.First(x => x.FunctionName == "IsFemale");
 

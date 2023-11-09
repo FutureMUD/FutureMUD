@@ -56,6 +56,7 @@ using MudSharp.NPC.Templates;
 using MudSharp.PerceptionEngine.Light;
 using MudSharp.RPG.Checks;
 using MudSharp.RPG.Dreams;
+using MudSharp.RPG.Hints;
 using MudSharp.RPG.Knowledge;
 using MudSharp.RPG.Law;
 using MudSharp.RPG.Merits;
@@ -193,6 +194,7 @@ public sealed partial class Futuremud : IDisposable
 
 	private readonly All<IMerit> _merits = new();
 	private readonly All<INameCulture> _nameCultures = new();
+	private readonly All<INewPlayerHint> _newPlayerHints = new();
 	private readonly All<INPCSpawner> _npcSpawners = new();
 	private readonly All<IRandomNameProfile> _randomNameProfiles = new();
 	private readonly All<IProperty> _properties = new();
@@ -435,6 +437,7 @@ public sealed partial class Futuremud : IDisposable
 	public IUneditableAll<IMerit> Merits => _merits;
 
 	public IUneditableAll<INameCulture> NameCultures => _nameCultures;
+	public IUneditableAll<INewPlayerHint> NewPlayerHints => _newPlayerHints;
 
 	public IUneditableAll<IRandomNameProfile> RandomNameProfiles => _randomNameProfiles;
 
@@ -562,6 +565,80 @@ public sealed partial class Futuremud : IDisposable
 			}
 
 			return _alwaysFalseProg;
+		}
+	}
+
+	private IFutureProg _alwaysZeroProg;
+	public IFutureProg AlwaysZeroProg
+	{
+		get
+		{
+			if (_alwaysZeroProg is null)
+			{
+				_alwaysZeroProg = FutureProgs.FirstOrDefault(x => x.FunctionName.EqualTo("AlwaysZero"));
+				if (_alwaysZeroProg is null)
+				{
+					using (new FMDB())
+					{
+						var dbitem = new Models.FutureProg
+						{
+							FunctionName = "AlwaysZero",
+							AcceptsAnyParameters = true,
+							ReturnType = 2,
+							Category = "Core",
+							Subcategory = "Universal",
+							Public = true,
+							FunctionComment = "Accepts any parameters, and always returns zero.",
+							FunctionText = "return 0",
+							StaticType = 2
+						};
+						FMDB.Context.FutureProgs.Add(dbitem);
+						FMDB.Context.SaveChanges();
+						var prog = new FutureProg.FutureProg(dbitem, this);
+						_futureProgs.Add(prog);
+						_alwaysZeroProg = prog;
+					}
+				}
+			}
+
+			return _alwaysZeroProg;
+		}
+	}
+
+	private IFutureProg _alwaysOneProg;
+	public IFutureProg AlwaysOneProg
+	{
+		get
+		{
+			if (_alwaysOneProg is null)
+			{
+				_alwaysOneProg = FutureProgs.FirstOrDefault(x => x.FunctionName.EqualTo("AlwaysOne"));
+				if (_alwaysOneProg is null)
+				{
+					using (new FMDB())
+					{
+						var dbitem = new Models.FutureProg
+						{
+							FunctionName = "AlwaysOne",
+							AcceptsAnyParameters = true,
+							ReturnType = 2,
+							Category = "Core",
+							Subcategory = "Universal",
+							Public = true,
+							FunctionComment = "Accepts any parameters, and always returns one.",
+							FunctionText = "return 1",
+							StaticType = 2
+						};
+						FMDB.Context.FutureProgs.Add(dbitem);
+						FMDB.Context.SaveChanges();
+						var prog = new FutureProg.FutureProg(dbitem, this);
+						_futureProgs.Add(prog);
+						_alwaysZeroProg = prog;
+					}
+				}
+			}
+
+			return _alwaysOneProg;
 		}
 	}
 

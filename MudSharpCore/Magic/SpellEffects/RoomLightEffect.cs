@@ -97,7 +97,7 @@ Note: You can use {0} in the desc addenda to have a light-level description (dim
 		if (command.IsFinished)
 		{
 			actor.OutputHandler.Send(
-				$"What colour do you want to set for the addendum? The valid colours are {Telnet.GetColourOptions.ListToString()}.");
+				$"What colour do you want to set for the addendum? The options are as follows:\n\n{Telnet.GetColourOptions.Select(x => x.Colour(Telnet.GetColour(x))).ListToLines(true)}");
 			return false;
 		}
 
@@ -105,7 +105,7 @@ Note: You can use {0} in the desc addenda to have a light-level description (dim
 		if (colour == null)
 		{
 			actor.OutputHandler.Send(
-				$"That is not a valid colour. The valid colours are {Telnet.GetColourOptions.ListToString()}.");
+				$"That is not a valid colour. The options are as follows:\n\n{Telnet.GetColourOptions.Select(x => x.Colour(Telnet.GetColour(x))).ListToLines(true)}");
 			return false;
 		}
 

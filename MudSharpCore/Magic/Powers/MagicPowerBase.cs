@@ -7,13 +7,13 @@ using System.Xml.Linq;
 using MudSharp.Character;
 using MudSharp.Effects.Concrete;
 using MudSharp.Framework;
+using MudSharp.Framework.Save;
 using MudSharp.FutureProg;
 
 namespace MudSharp.Magic.Powers;
 
-public abstract class MagicPowerBase : FrameworkItem, IMagicPower
+public abstract class MagicPowerBase : SaveableItem, IMagicPower
 {
-	public IFuturemud Gameworld { get; protected set; }
 
 	protected MagicPowerBase(Models.MagicPower power, IFuturemud gameworld)
 	{
@@ -199,6 +199,9 @@ public abstract class MagicPowerBase : FrameworkItem, IMagicPower
 	#region Implementation of IMagicPower
 
 	public IMagicSchool School { get; protected set; }
+
+	public abstract string PowerType { get; }
+
 	protected string _showHelpText;
 
 	public virtual string ShowHelp(ICharacter voyeur)
@@ -293,5 +296,20 @@ public abstract class MagicPowerBase : FrameworkItem, IMagicPower
 
 	public CollectionDictionary<string, (IMagicResource Resource, double Cost)> InvocationCosts { get; } = new();
 
+	public bool BuildingCommand(ICharacter actor, StringStack command)
+	{
+		throw new NotImplementedException();
+	}
+
+	public string Show(ICharacter actor)
+	{
+		throw new NotImplementedException();
+	}
+
+	public override void Save()
+	{
+		Changed = false;
+		throw new NotImplementedException();
+	}
 	#endregion
 }

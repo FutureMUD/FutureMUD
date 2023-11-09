@@ -4,13 +4,16 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using MudSharp.Framework;
+using MudSharp.Framework.Revision;
 using MudSharp.FutureProg;
 
 namespace MudSharp.Magic
 {
-    public interface IMagicSchool : IFrameworkItem, IFutureProgVariable, IHaveFuturemud
+    public interface IMagicSchool : IFrameworkItem, IFutureProgVariable, IHaveFuturemud, IEditableItem
     {
         IMagicSchool ParentSchool { get; }
+
+        bool IsChildSchool(IMagicSchool other);
 
         /// <summary>
         /// The "Verb" used for the command to invoke this school, e.g. "psy", "magic", "invoke", etc
@@ -23,5 +26,6 @@ namespace MudSharp.Magic
         string SchoolAdjective { get; }
 
         ANSIColour PowerListColour { get; }
+        IMagicSchool Clone(string name);
     }
 }

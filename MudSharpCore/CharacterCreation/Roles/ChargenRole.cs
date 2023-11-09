@@ -91,8 +91,8 @@ internal class ChargenRole : SaveableItem, IChargenRole
 				newItem.ChargenRole = dbitem;
 				newItem.ChargenResourceId = item.Key.Id;
 				newItem.Amount = item.Value;
-                FMDB.Context.ChargenRolesCosts.Add(newItem);
-            }
+				FMDB.Context.ChargenRolesCosts.Add(newItem);
+			}
 
 			FMDB.Context.ChargenRolesCurrencies.RemoveRange(dbitem.ChargenRolesCurrencies);
 			foreach (var item in StartingCurrency)
@@ -101,8 +101,8 @@ internal class ChargenRole : SaveableItem, IChargenRole
 				newItem.ChargenRole = dbitem;
 				newItem.CurrencyId = item.Key.Id;
 				newItem.Amount = item.Value;
-                FMDB.Context.ChargenRolesCurrencies.Add(newItem);
-            }
+				FMDB.Context.ChargenRolesCurrencies.Add(newItem);
+			}
 
 			FMDB.Context.ChargenRolesTraits.RemoveRange(dbitem.ChargenRolesTraits);
 			foreach (var item in TraitAdjustments)
@@ -112,8 +112,8 @@ internal class ChargenRole : SaveableItem, IChargenRole
 				newItem.TraitId = item.Key.Id;
 				newItem.Amount = item.Value.amount;
 				newItem.GiveIfDoesntHave = item.Value.giveIfMissing;
-                FMDB.Context.ChargenRolesTraits.Add(newItem);
-            }
+				FMDB.Context.ChargenRolesTraits.Add(newItem);
+			}
 
 			FMDB.Context.ChargenRolesClanMemberships.RemoveRange(dbitem.ChargenRolesClanMemberships);
 			foreach (var item in ClanMemberships)
@@ -123,16 +123,16 @@ internal class ChargenRole : SaveableItem, IChargenRole
 				newItem.ClanId = item.Clan.Id;
 				newItem.RankId = item.Rank.Id;
 				newItem.PaygradeId = item.Paygrade?.Id;
-                FMDB.Context.ChargenRolesClanMemberships.Add(newItem);
-                foreach (var appointment in item.Appointments)
+				FMDB.Context.ChargenRolesClanMemberships.Add(newItem);
+				foreach (var appointment in item.Appointments)
 				{
 					var newAppointment = new ChargenRolesClanMembershipsAppointments();
 					newAppointment.ChargenRolesClanMembership = newItem;
 					newAppointment.AppointmentId = appointment.Id;
-                    FMDB.Context.ChargenRolesClanMembershipsAppointments.Add(newAppointment);
-                }
+					FMDB.Context.ChargenRolesClanMembershipsAppointments.Add(newAppointment);
+				}
 
-            }
+			}
 
 			FMDB.Context.SaveChanges();
 		}
@@ -342,15 +342,15 @@ internal class ChargenRole : SaveableItem, IChargenRole
 			case "quirks":
 			case "flaw":
 			case "flaws":
-                return BuildingCommandMerit(actor, command);
+				return BuildingCommandMerit(actor, command);
 			default:
 				actor.OutputHandler.Send(BuildingHelpText.SubstituteANSIColour());
 				return false;
 		}
 	}
 
-    #region Building Subcommands
-    private bool BuildingCommandName(ICharacter actor, StringStack ss)
+	#region Building Subcommands
+	private bool BuildingCommandName(ICharacter actor, StringStack ss)
 	{
 		if (ss.IsFinished)
 		{
@@ -366,27 +366,27 @@ internal class ChargenRole : SaveableItem, IChargenRole
 		return true;
 	}
 
-    private bool BuildingCommandType(ICharacter actor, StringStack ss)
-    {
+	private bool BuildingCommandType(ICharacter actor, StringStack ss)
+	{
 		if (ss.IsFinished)
 		{
-            actor.OutputHandler.Send($"Which type of role do you set this one too? The valid types are {Enum.GetValues<ChargenRoleType>().Select(x => x.DescribeEnum().ColourName()).ListToString()}.");
-            return false;
-        }
+			actor.OutputHandler.Send($"Which type of role do you set this one too? The valid types are {Enum.GetValues<ChargenRoleType>().Select(x => x.DescribeEnum().ColourName()).ListToString()}.");
+			return false;
+		}
 
-        if (!ss.SafeRemainingArgument.TryParseEnum<ChargenRoleType>(out var type))
-        {
-            actor.OutputHandler.Send($"That is not a valid role type. The valid types are {Enum.GetValues<ChargenRoleType>().Select(x => x.DescribeEnum().ColourName()).ListToString()}.");
-            return false;
-        }
+		if (!ss.SafeRemainingArgument.TryParseEnum<ChargenRoleType>(out var type))
+		{
+			actor.OutputHandler.Send($"That is not a valid role type. The valid types are {Enum.GetValues<ChargenRoleType>().Select(x => x.DescribeEnum().ColourName()).ListToString()}.");
+			return false;
+		}
 
 		RoleType = type;
 		Changed = true;
 		actor.OutputHandler.Send($"This role is now a {type.DescribeEnum().ColourName()} role.");
 		return true;
-    }
+	}
 
-    private void BuildingCommandDescriptionPost(string message, IOutputHandler handler, object[] parameters)
+	private void BuildingCommandDescriptionPost(string message, IOutputHandler handler, object[] parameters)
 	{
 		var actor = (ICharacter)parameters[0];
 		ChargenBlurb = message;
@@ -816,7 +816,7 @@ internal class ChargenRole : SaveableItem, IChargenRole
 			return false;
 		}
 
-        var membership = ClanMemberships.FirstOrDefault(x => x.Clan == clan);
+		var membership = ClanMemberships.FirstOrDefault(x => x.Clan == clan);
 		if (membership is null)
 		{
 			membership = new RoleClanMembership(clan, appointment.MinimumRankToHold ?? clan.Ranks.MinBy(x => x.RankNumber));
@@ -838,33 +838,33 @@ internal class ChargenRole : SaveableItem, IChargenRole
 			membership.Paygrade = null;
 		}
 		Changed = true;
-        actor.OutputHandler.Send($"This role will now grants an appointment to the {appointment.Name.ColourName()} position in the {clan.FullName.ColourName()} clan.");
-        return true;
+		actor.OutputHandler.Send($"This role will now grants an appointment to the {appointment.Name.ColourName()} position in the {clan.FullName.ColourName()} clan.");
+		return true;
 	}
 
 	private bool BuildingCommandClanRank(ICharacter actor, StringStack ss, IClan clan)
 	{
-        var text = ss.SafeRemainingArgument;
-        var rank = long.TryParse(text, out var id) ?
-            clan.Ranks.FirstOrDefault(x => x.Id == id)
-            :
-            clan.Ranks.FirstOrDefault(x => x.Name.Equals(text, StringComparison.InvariantCultureIgnoreCase)) ??
-            clan.Ranks.FirstOrDefault(x => x.Abbreviations.Any(y => y.Equals(text, StringComparison.InvariantCultureIgnoreCase))) ??
-            clan.Ranks.FirstOrDefault(x => x.Name.StartsWith(text, StringComparison.InvariantCultureIgnoreCase)) ??
-            clan.Ranks.FirstOrDefault(x => x.Abbreviations.Any(y => y.StartsWith(text, StringComparison.InvariantCultureIgnoreCase)))
-            ;
-        if (rank is null)
-        {
-            actor.OutputHandler.Send($"The {clan.FullName.ColourName()} clan does not have any such rank.");
-            return false;
-        }
+		var text = ss.SafeRemainingArgument;
+		var rank = long.TryParse(text, out var id) ?
+			clan.Ranks.FirstOrDefault(x => x.Id == id)
+			:
+			clan.Ranks.FirstOrDefault(x => x.Name.Equals(text, StringComparison.InvariantCultureIgnoreCase)) ??
+			clan.Ranks.FirstOrDefault(x => x.Abbreviations.Any(y => y.Equals(text, StringComparison.InvariantCultureIgnoreCase))) ??
+			clan.Ranks.FirstOrDefault(x => x.Name.StartsWith(text, StringComparison.InvariantCultureIgnoreCase)) ??
+			clan.Ranks.FirstOrDefault(x => x.Abbreviations.Any(y => y.StartsWith(text, StringComparison.InvariantCultureIgnoreCase)))
+			;
+		if (rank is null)
+		{
+			actor.OutputHandler.Send($"The {clan.FullName.ColourName()} clan does not have any such rank.");
+			return false;
+		}
 
-        var membership = ClanMemberships.FirstOrDefault(x => x.Clan == clan);
-        if (membership is null)
-        {
-            membership = new RoleClanMembership(clan, rank);
-            ClanMemberships.Add(membership);
-        }
+		var membership = ClanMemberships.FirstOrDefault(x => x.Clan == clan);
+		if (membership is null)
+		{
+			membership = new RoleClanMembership(clan, rank);
+			ClanMemberships.Add(membership);
+		}
 
 		var minimumRank = membership.Appointments.Select(x => x.MinimumRankToHold).DefaultIfEmpty(clan.Ranks.MinBy(x => x.RankNumber)).MaxBy(x => x.RankNumber);
 		if (minimumRank.RankNumber > rank.RankNumber)
@@ -976,8 +976,8 @@ internal class ChargenRole : SaveableItem, IChargenRole
 		return true;
 	}
 
-    private bool BuildingCommandMerit(ICharacter actor, StringStack command)
-    {
+	private bool BuildingCommandMerit(ICharacter actor, StringStack command)
+	{
 		if (command.IsFinished)
 		{
 			actor.OutputHandler.Send("Which merit or flaw would you like to toggle being given by this role?");
@@ -999,14 +999,14 @@ internal class ChargenRole : SaveableItem, IChargenRole
 		else
 		{
 			_additionalMerits.Add(merit);
-            actor.OutputHandler.Send($"This role will now give the {merit.Name.ColourName()} merit.");
-        }
+			actor.OutputHandler.Send($"This role will now give the {merit.Name.ColourName()} merit.");
+		}
 		Changed = true;
 		return true;
-    }
-    #endregion
+	}
+	#endregion
 
-    public string Show(ICharacter actor)
+	public string Show(ICharacter actor)
 	{
 		var sb = new StringBuilder();
 		sb.AppendLine(string.Format(actor, "Role #{0:N0}".Colour(Telnet.Cyan), Id));

@@ -17,6 +17,7 @@ namespace MudSharp.Magic.Powers;
 
 public class MindLookPower : MagicPowerBase
 {
+	public override string PowerType => "Mind Look";
 	public static void RegisterLoader()
 	{
 		MagicPowerFactory.RegisterLoader("mindlook", (power, gameworld) => new MindLookPower(power, gameworld));

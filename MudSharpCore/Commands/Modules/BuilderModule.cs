@@ -5494,4 +5494,29 @@ The following options are available:
 
 	#endregion
 
+	#region New Player Hints
+
+	public const string NewPlayerHintHelp = @"This command is used to create and edit new player hints.
+
+New player hints are echoes that are shown to players based on some conditions that you set. They can give information about the engine, your world, or promote your game's discord or forums for example.
+
+The syntax for this command is as follows:
+
+	#3nph list#0 - lists all of the new player hints
+	#3nph edit <which>#0 - begins editing a new player hint
+	#3nph edit new#0 - creates a new new player hint (drops into an editor)
+	#3nph close#0 - stops editing a new player hint
+	#3nph show <which>#0 - views information about a new player hint
+	#3nph show#0 - views information about your currently editing new player hint
+	#3nph set repeat#0 - toggles whether this hint can be repeated or only fires once
+	#3nph set priority <##>#0 - sets a priority for order shown. Higher priorities are shown first
+	#3nph set filter <prog>#0 - sets a prog to filter whether this hint will be shown
+	#3nph set text#0 - drops you into an editor to change the hint text";
+
+	[PlayerCommand("NewPlayerHint", "newplayerhint", "nph")]
+	protected static void NewPlayerHint(ICharacter actor, string input)
+	{
+		GenericBuildingCommand(actor, new StringStack(input.RemoveFirstWord()), EditableItemHelper.NewPlayerHintHelper);
+	}
+	#endregion
 }

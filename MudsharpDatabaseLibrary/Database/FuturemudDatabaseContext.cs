@@ -281,6 +281,7 @@ namespace MudSharp.Database
         public virtual DbSet<MoveSpeed> MoveSpeeds { get; set; }
         public virtual DbSet<MutualIntelligability> MutualIntelligabilities { get; set; }
         public virtual DbSet<NameCulture> NameCultures { get; set; }
+        public virtual DbSet<NewPlayerHint> NewPlayerHints { get; set; }
         public virtual DbSet<NonCardinalExitTemplate> NonCardinalExitTemplates { get; set; }
         public virtual DbSet<Npc> Npcs { get; set; }
         public virtual DbSet<NpcsArtificialIntelligences> NpcsArtificialIntelligences { get; set; }

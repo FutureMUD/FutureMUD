@@ -4,8 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
+using Microsoft.EntityFrameworkCore.ValueGeneration.Internal;
 using MudSharp.Character;
 using MudSharp.Construction;
+using MudSharp.Database;
 using MudSharp.Framework;
 using MudSharp.FutureProg;
 using MudSharp.GameItems;
@@ -14,195 +16,78 @@ namespace MudSharp.Magic.Resources;
 
 public class SimpleMagicResource : BaseMagicResource
 {
+	public override IMagicResource Clone(string newName, string newShortName)
+	{
+		return new SimpleMagicResource(this, newName, newShortName);
+	}
+
+	public SimpleMagicResource(SimpleMagicResource rhs, string newName, string newShortName) : base(rhs, newName, newShortName)
+	{
+		ShouldStartWithResourceCharacterProg = rhs.ShouldStartWithResourceCharacterProg;
+		ShouldStartWithResourceItemProg = rhs.ShouldStartWithResourceItemProg;
+		ShouldStartWithResourceLocationProg = rhs.ShouldStartWithResourceLocationProg;
+		StartingResourceAmountCharacterProg = rhs.StartingResourceAmountCharacterProg;
+		StartingResourceAmountItemProg = rhs.StartingResourceAmountItemProg;
+		StartingResourceAmountLocationProg = rhs.StartingResourceAmountLocationProg;
+		ResourceCapProg = rhs.ResourceCapProg;
+
+		using (new FMDB())
+		{
+			var dbitem = new Models.MagicResource
+			{
+				Name = newName,
+				ShortName = newShortName,
+				BottomColour = BottomColour,
+				MidColour = MidColour,
+				TopColour = TopColour,
+				MagicResourceType = (int)ResourceType,
+				Type = "simple",
+				Definition = SaveDefinition()
+			};
+			FMDB.Context.MagicResources.Add(dbitem);
+			FMDB.Context.SaveChanges();
+			_id = dbitem.Id;
+		}
+	}
+
 	public SimpleMagicResource(Models.MagicResource resource, IFuturemud gameworld) : base(resource, gameworld)
 	{
 		var root = XElement.Parse(resource.Definition);
-		var element = root.Element("ShouldStartWithResourceCharacterProg");
-		if (element != null)
+		ShouldStartWithResourceCharacterProg = Gameworld.FutureProgs.GetByIdOrName(root.Element("ShouldStartWithResourceCharacterProg")?.Value ?? "0");
+		ShouldStartWithResourceItemProg = Gameworld.FutureProgs.GetByIdOrName(root.Element("ShouldStartWithResourceItemProg")?.Value ?? "0");
+		ShouldStartWithResourceLocationProg = Gameworld.FutureProgs.GetByIdOrName(root.Element("ShouldStartWithResourceLocationProg")?.Value ?? "0");
+		StartingResourceAmountCharacterProg = Gameworld.FutureProgs.GetByIdOrName(root.Element("StartingResourceAmountCharacterProg")?.Value ?? "0");
+		StartingResourceAmountItemProg = Gameworld.FutureProgs.GetByIdOrName(root.Element("StartingResourceAmountItemProg")?.Value ?? "0");
+		StartingResourceAmountLocationProg = Gameworld.FutureProgs.GetByIdOrName(root.Element("StartingResourceAmountLocationProg")?.Value ?? "0");
+		ResourceCapProg = Gameworld.FutureProgs.GetByIdOrName(root.Element("ResourceCapProg")?.Value ?? "0");
+	}
+
+	public SimpleMagicResource(IFuturemud gameworld, string name, string shortName) : base(gameworld, name, shortName)
+	{
+		ShouldStartWithResourceCharacterProg = Gameworld.AlwaysFalseProg;
+		ShouldStartWithResourceItemProg = Gameworld.AlwaysFalseProg;
+		ShouldStartWithResourceLocationProg = Gameworld.AlwaysFalseProg;
+		StartingResourceAmountCharacterProg = Gameworld.AlwaysZeroProg;
+		StartingResourceAmountItemProg = Gameworld.AlwaysZeroProg;
+		StartingResourceAmountLocationProg = Gameworld.AlwaysZeroProg;
+		ResourceCapProg = Gameworld.AlwaysZeroProg;
+
+		using (new FMDB())
 		{
-			ShouldStartWithResourceCharacterProg = long.TryParse(element.Value, out var value)
-				? Gameworld.FutureProgs.Get(value)
-				: Gameworld.FutureProgs.GetByName(element.Value);
-
-			if (ShouldStartWithResourceCharacterProg == null)
+			var dbitem = new Models.MagicResource
 			{
-				throw new ApplicationException(
-					$"SimpleMagicResource ID #{Id} ({Name}) had an invalid ShouldStartWithResourceCharacterProg.");
-			}
-
-			if (!ShouldStartWithResourceCharacterProg.ReturnType.CompatibleWith(FutureProgVariableTypes.Boolean))
-			{
-				throw new ApplicationException(
-					$"SimpleMagicResource ID #{Id} ({Name}) must have a ShouldStartWithResourceCharacterProg that returns a boolean.");
-			}
-
-			if (!ShouldStartWithResourceCharacterProg.MatchesParameters(new[] { FutureProgVariableTypes.Character })
-			   )
-			{
-				throw new ApplicationException(
-					$"SimpleMagicResource ID #{Id} ({Name}) must have a ShouldStartWithResourceCharacterProg that accepts a single character parameter.");
-			}
-		}
-
-		element = root.Element("StartingResourceAmountCharacterProg");
-		if (element != null)
-		{
-			StartingResourceAmountCharacterProg = long.TryParse(element.Value, out var value)
-				? Gameworld.FutureProgs.Get(value)
-				: Gameworld.FutureProgs.GetByName(element.Value);
-
-			if (StartingResourceAmountCharacterProg == null)
-			{
-				throw new ApplicationException(
-					$"SimpleMagicResource ID #{Id} ({Name}) had an invalid StartingResourceAmountCharacterProg.");
-			}
-
-			if (!StartingResourceAmountCharacterProg.ReturnType.CompatibleWith(FutureProgVariableTypes.Number))
-			{
-				throw new ApplicationException(
-					$"SimpleMagicResource ID #{Id} ({Name}) must have a StartingResourceAmountCharacterProg that returns a number.");
-			}
-
-			if (!StartingResourceAmountCharacterProg.MatchesParameters(new[] { FutureProgVariableTypes.Character })
-			   )
-			{
-				throw new ApplicationException(
-					$"SimpleMagicResource ID #{Id} ({Name}) must have a StartingResourceAmountCharacterProg that accepts a single character parameter.");
-			}
-		}
-
-		element = root.Element("ShouldStartWithResourceItemProg");
-		if (element != null)
-		{
-			ShouldStartWithResourceItemProg = long.TryParse(element.Value, out var value)
-				? Gameworld.FutureProgs.Get(value)
-				: Gameworld.FutureProgs.GetByName(element.Value);
-
-			if (ShouldStartWithResourceItemProg == null)
-			{
-				throw new ApplicationException(
-					$"SimpleMagicResource ID #{Id} ({Name}) had an invalid ShouldStartWithResourceItemProg.");
-			}
-
-			if (!ShouldStartWithResourceItemProg.ReturnType.CompatibleWith(FutureProgVariableTypes.Boolean))
-			{
-				throw new ApplicationException(
-					$"SimpleMagicResource ID #{Id} ({Name}) must have a ShouldStartWithResourceItemProg that returns a boolean.");
-			}
-
-			if (!ShouldStartWithResourceItemProg.MatchesParameters(new[] { FutureProgVariableTypes.Item })
-			   )
-			{
-				throw new ApplicationException(
-					$"SimpleMagicResource ID #{Id} ({Name}) must have a ShouldStartWithResourceItemProg that accepts a single item parameter.");
-			}
-		}
-
-		element = root.Element("StartingResourceAmountItemProg");
-		if (element != null)
-		{
-			StartingResourceAmountItemProg = long.TryParse(element.Value, out var value)
-				? Gameworld.FutureProgs.Get(value)
-				: Gameworld.FutureProgs.GetByName(element.Value);
-
-			if (StartingResourceAmountItemProg == null)
-			{
-				throw new ApplicationException(
-					$"SimpleMagicResource ID #{Id} ({Name}) had an invalid StartingResourceAmountItemProg.");
-			}
-
-			if (!StartingResourceAmountItemProg.ReturnType.CompatibleWith(FutureProgVariableTypes.Number))
-			{
-				throw new ApplicationException(
-					$"SimpleMagicResource ID #{Id} ({Name}) must have a StartingResourceAmountItemProg that returns a number.");
-			}
-
-			if (!StartingResourceAmountItemProg.MatchesParameters(new[] { FutureProgVariableTypes.Item })
-			   )
-			{
-				throw new ApplicationException(
-					$"SimpleMagicResource ID #{Id} ({Name}) must have a StartingResourceAmountItemProg that accepts a single item parameter.");
-			}
-		}
-
-		element = root.Element("ShouldStartWithResourceLocationProg");
-		if (element != null)
-		{
-			ShouldStartWithResourceLocationProg = long.TryParse(element.Value, out var value)
-				? Gameworld.FutureProgs.Get(value)
-				: Gameworld.FutureProgs.GetByName(element.Value);
-
-			if (ShouldStartWithResourceLocationProg == null)
-			{
-				throw new ApplicationException(
-					$"SimpleMagicResource ID #{Id} ({Name}) had an invalid ShouldStartWithResourceLocationProg.");
-			}
-
-			if (!ShouldStartWithResourceLocationProg.ReturnType.CompatibleWith(FutureProgVariableTypes.Boolean))
-			{
-				throw new ApplicationException(
-					$"SimpleMagicResource ID #{Id} ({Name}) must have a ShouldStartWithResourceLocationProg that returns a boolean.");
-			}
-
-			if (!ShouldStartWithResourceLocationProg.MatchesParameters(new[] { FutureProgVariableTypes.Location })
-			   )
-			{
-				throw new ApplicationException(
-					$"SimpleMagicResource ID #{Id} ({Name}) must have a ShouldStartWithResourceLocationProg that accepts a single location parameter.");
-			}
-		}
-
-		element = root.Element("StartingResourceAmountLocationProg");
-		if (element != null)
-		{
-			StartingResourceAmountLocationProg = long.TryParse(element.Value, out var value)
-				? Gameworld.FutureProgs.Get(value)
-				: Gameworld.FutureProgs.GetByName(element.Value);
-
-			if (StartingResourceAmountLocationProg == null)
-			{
-				throw new ApplicationException(
-					$"SimpleMagicResource ID #{Id} ({Name}) had an invalid StartingResourceAmountLocationProg.");
-			}
-
-			if (!StartingResourceAmountLocationProg.ReturnType.CompatibleWith(FutureProgVariableTypes.Number))
-			{
-				throw new ApplicationException(
-					$"SimpleMagicResource ID #{Id} ({Name}) must have a StartingResourceAmountLocationProg that returns a number.");
-			}
-
-			if (!StartingResourceAmountLocationProg.MatchesParameters(new[] { FutureProgVariableTypes.Location })
-			   )
-			{
-				throw new ApplicationException(
-					$"SimpleMagicResource ID #{Id} ({Name}) must have a StartingResourceAmountLocationProg that accepts a single location parameter.");
-			}
-		}
-
-		element = root.Element("ResourceCapProg");
-		if (element != null)
-		{
-			ResourceCapProg = long.TryParse(element.Value, out var value)
-				? Gameworld.FutureProgs.Get(value)
-				: Gameworld.FutureProgs.GetByName(element.Value);
-		}
-
-		if (ResourceCapProg == null)
-		{
-			throw new ApplicationException($"SimpleMagicResource ID #{Id} ({Name}) had an invalid ResourceCapProg.");
-		}
-
-		if (!ResourceCapProg.ReturnType.CompatibleWith(FutureProgVariableTypes.Number))
-		{
-			throw new ApplicationException(
-				$"SimpleMagicResource ID #{Id} ({Name}) must have a ResourceCapProg that returns a number.");
-		}
-
-		if (!ResourceCapProg.MatchesParameters(new[] { FutureProgVariableTypes.MagicResourceHaver })
-		   )
-		{
-			throw new ApplicationException(
-				$"SimpleMagicResource ID #{Id} ({Name}) must have a ResourceCapProg that accepts a single MagicResourceHaver parameter.");
+				Name = Name,
+				ShortName = shortName,
+				TopColour = TopColour,
+				MidColour = MidColour,
+				BottomColour = BottomColour,
+				Type = "simple",
+				MagicResourceType = (int)ResourceType,
+				Definition = SaveDefinition()
+			};
+			FMDB.Context.MagicResources.Add(dbitem);
+			FMDB.Context.SaveChanges();
+			_id = dbitem.Id;
 		}
 	}
 
@@ -221,11 +106,11 @@ public class SimpleMagicResource : BaseMagicResource
 		switch (thing)
 		{
 			case ICharacter ch:
-				return (bool?)ShouldStartWithResourceCharacterProg?.Execute(ch) ?? false;
+				return ShouldStartWithResourceCharacterProg?.ExecuteBool(ch) ?? false;
 			case ICell cell:
-				return (bool?)ShouldStartWithResourceLocationProg?.Execute(cell) ?? false;
+				return ShouldStartWithResourceLocationProg?.ExecuteBool(cell) ?? false;
 			case IGameItem gi:
-				return (bool?)ShouldStartWithResourceItemProg?.Execute(gi) ?? false;
+				return ShouldStartWithResourceItemProg?.ExecuteBool(gi) ?? false;
 		}
 
 		return false;
@@ -236,11 +121,11 @@ public class SimpleMagicResource : BaseMagicResource
 		switch (thing)
 		{
 			case ICharacter ch:
-				return (double)((decimal?)StartingResourceAmountCharacterProg?.Execute(ch) ?? 0.0M);
+				return StartingResourceAmountCharacterProg?.ExecuteDouble(ch) ?? 0.0;
 			case ICell cell:
-				return (double)((decimal?)StartingResourceAmountLocationProg?.Execute(cell) ?? 0.0M);
+				return StartingResourceAmountLocationProg?.ExecuteDouble(cell) ?? 0.0;
 			case IGameItem gi:
-				return (double)((decimal?)StartingResourceAmountItemProg?.Execute(gi) ?? 0.0M);
+				return StartingResourceAmountItemProg?.ExecuteDouble(gi) ?? 0.0;
 		}
 
 		return 0.0;
@@ -248,7 +133,248 @@ public class SimpleMagicResource : BaseMagicResource
 
 	public override double ResourceCap(IHaveMagicResource thing)
 	{
-		return ResourceCapProg.ExecuteDouble(0.0, thing);
+		return ResourceCapProg?.ExecuteDouble(0.0, thing) ?? 0.0;
+	}
+
+	public override string Show(ICharacter actor)
+	{
+		var sb = new StringBuilder();
+		sb.AppendLine($"Simple Magic Resource #{Id.ToString("N0", actor)} - {Name}".GetLineWithTitle(actor, Telnet.BoldPink, Telnet.BoldWhite));
+		sb.AppendLine($"Short Name: {ShortName.ColourValue()}");
+		sb.AppendLine($"Resource Type: {ResourceType.GetSingleFlags().Select(x => x.DescribeEnum().ColourName()).ListToCommaSeparatedValues(", ")}");
+		sb.AppendLine($"Classic Prompt: {BottomColour}||{MidColour}||{TopColour}||{Telnet.RESET}");
+		sb.AppendLine();
+		sb.AppendLine("Prog Information".GetLineWithTitle(actor, Telnet.BoldPink, Telnet.BoldWhite));
+		sb.AppendLine();
+		sb.AppendLine($"Should Characters Have: {ShouldStartWithResourceCharacterProg?.MXPClickableFunctionName() ?? "None".ColourError()}");
+		sb.AppendLine($"Should Items Have: {ShouldStartWithResourceItemProg?.MXPClickableFunctionName() ?? "None".ColourError()}");
+		sb.AppendLine($"Should Rooms Have: {ShouldStartWithResourceLocationProg?.MXPClickableFunctionName() ?? "None".ColourError()}");
+		sb.AppendLine($"Characters Starting Amount: {StartingResourceAmountCharacterProg?.MXPClickableFunctionName() ?? "None".ColourError()}");
+		sb.AppendLine($"Items Starting Amount: {StartingResourceAmountItemProg?.MXPClickableFunctionName() ?? "None".ColourError()}");
+		sb.AppendLine($"Rooms Starting Amount: {StartingResourceAmountLocationProg?.MXPClickableFunctionName() ?? "None".ColourError()}");
+		sb.AppendLine($"Resource Cap: {ResourceCapProg?.MXPClickableFunctionName() ?? "None".ColourError()}");
+		return sb.ToString();
+	}
+
+	protected override string SaveDefinition()
+	{
+		return new XElement("Definition",
+			new XElement("StartingResourceAmountLocationProg", StartingResourceAmountLocationProg?.Id ?? 0),
+			new XElement("StartingResourceAmountItemProg", StartingResourceAmountItemProg?.Id ?? 0),
+			new XElement("StartingResourceAmountCharacterProg", StartingResourceAmountCharacterProg?.Id ?? 0),
+			new XElement("ShouldStartWithResourceCharacterProg", ShouldStartWithResourceCharacterProg?.Id ?? 0),
+			new XElement("ShouldStartWithResourceLocationProg", ShouldStartWithResourceLocationProg?.Id ?? 0),
+			new XElement("ShouldStartWithResourceItemProg", ShouldStartWithResourceItemProg?.Id ?? 0),
+			new XElement("ResourceCapProg", ResourceCapProg?.Id ?? 0)
+		).ToString();
+	}
+
+	protected override string SubtypeHelpText => @"	#3cap <prog>#0 - sets the prog for resource caps
+	#3characterstart <prog>#0 - sets the prog for character starting amounts
+	#3itemstart <prog>#0 - sets the prog for item starting amounts
+	#3roomstart <prog>#0 - sets the prog for room starting amounts
+	#3characterhas <prog>#0 - sets the prog for if characters have this resource at all
+	#3itemhas <prog>#0 - sets the prog for if items have this resource at all
+	#3roomhas <prog>#0 - sets the prog for if rooms have this resource at all";
+
+	public override bool BuildingCommand(ICharacter actor, StringStack command)
+	{
+		switch (command.PopSpeech().ToLowerInvariant().CollapseString())
+		{
+			case "cap":
+			case "resourcecap":
+			case "resourcecapprog":
+			case "capprog":
+			case "resourceprog":
+				return BuildingCommandResourceCapProg(actor, command);
+			case "characterstart":
+			case "startcharacter":
+			case "characterstartprog":
+			case "startcharacterprog":
+				return BuildingCommandCharacterStartProg(actor, command);
+			case "itemstart":
+			case "startitem":
+			case "itemstartprog":
+			case "startitemprog":
+				return BuildingCommandItemStartProg(actor, command);
+			case "roomstart":
+			case "startroom":
+			case "roomstartprog":
+			case "startroomprog":
+			case "locationstart":
+			case "startlocation":
+			case "locationstartprog":
+			case "startlocationprog":
+			case "cellstart":
+			case "startcell":
+			case "cellstartprog":
+			case "startcellprog":
+				return BuildingCommandRoomStartProg(actor, command);
+			case "characterhas":
+			case "hascharacter":
+			case "characterhasprog":
+			case "hascharacterprog":
+				return BuildingCommandCharacterHasProg(actor, command);
+			case "itemhas":
+			case "hasitem":
+			case "itemhasprog":
+			case "hasitemprog":
+				return BuildingCommandItemHasProg(actor, command);
+			case "roomhas":
+			case "hasroom":
+			case "roomhasprog":
+			case "hasroomprog":
+			case "locationhas":
+			case "haslocation":
+			case "locationhasprog":
+			case "haslocationprog":
+			case "cellhas":
+			case "hascell":
+			case "cellhasprog":
+			case "hascellprog":
+				return BuildingCommandRoomHasProg(actor, command);
+		}
+		return base.BuildingCommand(actor, command.GetUndo());
+	}
+
+	private bool BuildingCommandRoomHasProg(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("Which prog should be used to control whether rooms have this resource?");
+			return false;
+		}
+
+		var prog = new FutureProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument, FutureProgVariableTypes.Boolean, new[] { FutureProgVariableTypes.Location }).LookupProg();
+		if (prog is null)
+		{
+			return false;
+		}
+
+		ShouldStartWithResourceLocationProg = prog;
+		Changed = true;
+		actor.OutputHandler.Send($"This resource will now use the prog {prog.MXPClickableFunctionName()} to control whether rooms have this resource.");
+		return true;
+	}
+
+	private bool BuildingCommandItemHasProg(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("Which prog should be used to control whether items have this resource?");
+			return false;
+		}
+
+		var prog = new FutureProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument, FutureProgVariableTypes.Boolean, new[] { FutureProgVariableTypes.Item }).LookupProg();
+		if (prog is null)
+		{
+			return false;
+		}
+
+		ShouldStartWithResourceItemProg = prog;
+		Changed = true;
+		actor.OutputHandler.Send($"This resource will now use the prog {prog.MXPClickableFunctionName()} to control whether items have this resource.");
+		return true;
+	}
+
+	private bool BuildingCommandCharacterHasProg(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("Which prog should be used to control whether characters have this resource?");
+			return false;
+		}
+
+		var prog = new FutureProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument, FutureProgVariableTypes.Boolean, new[] { FutureProgVariableTypes.Character }).LookupProg();
+		if (prog is null)
+		{
+			return false;
+		}
+
+		ShouldStartWithResourceCharacterProg = prog;
+		Changed = true;
+		actor.OutputHandler.Send($"This resource will now use the prog {prog.MXPClickableFunctionName()} to control whether characters have this resource.");
+		return true;
+	}
+
+	private bool BuildingCommandRoomStartProg(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("Which prog should be used to set the starting amount of this resource for rooms?");
+			return false;
+		}
+
+		var prog = new FutureProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument, FutureProgVariableTypes.Number, new[] { FutureProgVariableTypes.Location }).LookupProg();
+		if (prog is null)
+		{
+			return false;
+		}
+
+		StartingResourceAmountLocationProg = prog;
+		Changed = true;
+		actor.OutputHandler.Send($"This resource will now use the prog {prog.MXPClickableFunctionName()} to control room starting resource amounts.");
+		return true;
+	}
+
+	private bool BuildingCommandItemStartProg(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("Which prog should be used to set the starting amount of this resource for items?");
+			return false;
+		}
+
+		var prog = new FutureProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument, FutureProgVariableTypes.Number, new[] { FutureProgVariableTypes.Item }).LookupProg();
+		if (prog is null)
+		{
+			return false;
+		}
+
+		StartingResourceAmountItemProg = prog;
+		Changed = true;
+		actor.OutputHandler.Send($"This resource will now use the prog {prog.MXPClickableFunctionName()} to control item starting resource amounts.");
+		return true;
+	}
+
+	private bool BuildingCommandCharacterStartProg(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("Which prog should be used to set the starting amount of this resource for characters?");
+			return false;
+		}
+
+		var prog = new FutureProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument, FutureProgVariableTypes.Number, new[] { FutureProgVariableTypes.Character }).LookupProg();
+		if (prog is null)
+		{
+			return false;
+		}
+
+		StartingResourceAmountCharacterProg = prog;
+		Changed = true;
+		actor.OutputHandler.Send($"This resource will now use the prog {prog.MXPClickableFunctionName()} to control character starting resource amounts.");
+		return true;
+	}
+
+	private bool BuildingCommandResourceCapProg(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("Which prog should be used to set the maximum amount of this resource?");
+			return false;
+		}
+
+		var prog = new FutureProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument, FutureProgVariableTypes.Number, new[] { FutureProgVariableTypes.MagicResourceHaver }).LookupProg();
+		if (prog is null)
+		{
+			return false;
+		}
+
+		ResourceCapProg = prog;
+		Changed = true;
+		actor.OutputHandler.Send($"This resource will now use the prog {prog.MXPClickableFunctionName()} to control maximum resource amounts.");
+		return true;
 	}
 
 	#endregion

@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using MudSharp.Database;
 
@@ -10,9 +11,11 @@ using MudSharp.Database;
 namespace MudSharp.Migrations
 {
     [DbContext(typeof(FuturemudDatabaseContext))]
-    partial class FutureMUDContextModelSnapshot : ModelSnapshot
+    [Migration("20231031085439_MagicResourceColours")]
+    partial class MagicResourceColours
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -141,11 +144,6 @@ namespace MudSharp.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bit(1)")
                         .HasDefaultValueSql("b'0'");
-
-                    b.Property<ulong>("HintsEnabled")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bit(1)")
-                        .HasDefaultValueSql("b'1'");
 
                     b.Property<int>("InnerFormatLength")
                         .ValueGeneratedOnAdd()
@@ -10227,35 +10225,6 @@ namespace MudSharp.Migrations
                     b.ToTable("NameCulture", (string)null);
                 });
 
-            modelBuilder.Entity("MudSharp.Models.NewPlayerHint", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint(20)");
-
-                    b.Property<ulong>("CanRepeat")
-                        .HasColumnType("bit(1)");
-
-                    b.Property<long?>("FilterProgId")
-                        .HasColumnType("bigint(20)");
-
-                    b.Property<int>("Priority")
-                        .HasColumnType("int(11)");
-
-                    b.Property<string>("Text")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .UseCollation("utf8_general_ci");
-
-                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("Text"), "utf8");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("FilterProgId");
-
-                    b.ToTable("NewPlayerHints", (string)null);
-                });
-
             modelBuilder.Entity("MudSharp.Models.NonCardinalExitTemplate", b =>
                 {
                     b.Property<long>("Id")
@@ -19460,16 +19429,6 @@ namespace MudSharp.Migrations
                     b.Navigation("NPCSpawner");
 
                     b.Navigation("Zone");
-                });
-
-            modelBuilder.Entity("MudSharp.Models.NewPlayerHint", b =>
-                {
-                    b.HasOne("MudSharp.Models.FutureProg", "FilterProg")
-                        .WithMany()
-                        .HasForeignKey("FilterProgId")
-                        .HasConstraintName("FK_NewPlayerHints_FutureProgs");
-
-                    b.Navigation("FilterProg");
                 });
 
             modelBuilder.Entity("MudSharp.Models.Npc", b =>

@@ -79,14 +79,14 @@ public class Culture : SaveableItem, ICulture
 			var dbitem = new Models.Culture
 			{
 				Name = name,
-				AvailabilityProgId = Gameworld.FutureProgs.FirstOrDefault(x => x.FunctionName == "AlwaysTrue")?.Id,
+				AvailabilityProgId = Gameworld.AlwaysFalseProg.Id,
 				Description = "An undescribed culture",
 				PersonWordMale = "person",
 				PersonWordFemale = "person",
 				PersonWordIndeterminate = "person",
 				PersonWordNeuter = "person",
 				PrimaryCalendarId = Gameworld.Calendars.First().Id,
-				SkillStartingValueProgId = Gameworld.FutureProgs.First(x => x.FunctionName == "AlwaysOne").Id,
+				SkillStartingValueProgId = Gameworld.AlwaysOneProg.Id,
 				TolerableTemperatureCeilingEffect = 0.0,
 				TolerableTemperatureFloorEffect = 0.0
 			};
@@ -131,6 +131,11 @@ public class Culture : SaveableItem, ICulture
 			_personWord[Gender.Neuter] = "person";
 			_personWord[Gender.NonBinary] = "person";
 			_personWord[Gender.Indeterminate] = "person";
+			_genderNameCultures[Gender.Male] = Gameworld.NameCultures.First();
+			_genderNameCultures[Gender.Female] = Gameworld.NameCultures.First();
+			_genderNameCultures[Gender.Neuter] = Gameworld.NameCultures.First();
+			_genderNameCultures[Gender.NonBinary] = Gameworld.NameCultures.First();
+			_genderNameCultures[Gender.Indeterminate] = Gameworld.NameCultures.First();
 			PrimaryCalendar = Gameworld.Calendars.Get(dbitem.PrimaryCalendarId);
 			TolerableTemperatureCeilingEffect = 0.0;
 			TolerableTemperatureFloorEffect = 0.0;

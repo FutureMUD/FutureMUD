@@ -338,6 +338,8 @@ public class ChokePower : SustainedMagicPower
 		actor.RemoveAllEffects<MagicChoking>(x => x.Power == this && x.CharacterTarget == target, true);
 	}
 
+	public override string PowerType => "Choke";
+
 	public MagicPowerDistance PowerDistance { get; protected set; }
 	public string EmoteText { get; protected set; }
 	public string FailEmoteText { get; protected set; }

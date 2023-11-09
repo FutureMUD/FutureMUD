@@ -1,4 +1,5 @@
 ﻿using MudSharp.Framework;
+using MudSharp.Framework.Revision;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,7 +17,7 @@ namespace MudSharp.Magic
         LocationResource = 4
     }
 
-    public interface IMagicResource : IFrameworkItem
+    public interface IMagicResource : IFrameworkItem, IEditableItem
     {
         MagicResourceType ResourceType { get; }
         bool ShouldStartWithResource(IHaveMagicResource thing);
@@ -24,5 +25,6 @@ namespace MudSharp.Magic
         double ResourceCap(IHaveMagicResource thing);
         string ShortName { get; }
         string ClassicPromptString(double percentage);
+        IMagicResource Clone(string newName, string newShortName);
     }
 }

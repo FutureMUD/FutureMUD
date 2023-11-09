@@ -18,6 +18,7 @@ namespace MudSharp.Magic.Powers;
 
 public partial class TelepathyPower : SustainedMagicPower
 {
+	public override string PowerType => "Telepathy";
 	public static void RegisterLoader()
 	{
 		MagicPowerFactory.RegisterLoader("telepathy", (power, gameworld) => new TelepathyPower(power, gameworld));

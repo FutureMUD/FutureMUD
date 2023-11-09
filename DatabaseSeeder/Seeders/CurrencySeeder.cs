@@ -86,7 +86,7 @@ Please make your choice: ",
 		// Only requires the core data seeder
 		if (!context.Accounts.Any()) return ShouldSeedResult.PrerequisitesNotMet;
 
-		if (context.Currencies.Any()) return ShouldSeedResult.MayAlreadyBeInstalled;
+		if (context.Currencies.Any()) return ShouldSeedResult.ExtraPackagesAvailable;
 
 		return ShouldSeedResult.ReadyToInstall;
 	}

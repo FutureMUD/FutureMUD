@@ -11,10 +11,11 @@ using MudSharp.RPG.Checks;
 using ExpressionEngine;
 using MudSharp.FutureProg;
 using MudSharp.FutureProg.Variables;
+using MudSharp.Framework.Save;
 
 namespace MudSharp.Magic.Capabilities;
 
-public class SkillLevelBasedMagicCapability : FrameworkItem, IMagicCapability
+public class SkillLevelBasedMagicCapability : SaveableItem, IMagicCapability
 {
 	protected SkillLevelBasedMagicCapability(Models.MagicCapability capability, IFuturemud gameworld)
 	{
@@ -81,6 +82,8 @@ public class SkillLevelBasedMagicCapability : FrameworkItem, IMagicCapability
 		return powers;
 	}
 
+	public IEnumerable<IMagicPower> AllPowers => _skillPowerMap.Select(x => x.Power);
+
 	public double ConcentrationAbility(ICharacter actor)
 	{
 		return ConcentrationCapabilityExpression.Evaluate(actor, ConcentrationTrait);
@@ -98,6 +101,23 @@ public class SkillLevelBasedMagicCapability : FrameworkItem, IMagicCapability
 	public IEnumerable<IMagicResourceRegenerator> Regenerators { get; }
 
 	#endregion
+
+
+
+	public bool BuildingCommand(ICharacter actor, StringStack command)
+	{
+		throw new NotImplementedException();
+	}
+
+	public string Show(ICharacter actor)
+	{
+		throw new NotImplementedException();
+	}
+
+	public override void Save()
+	{
+		throw new NotImplementedException();
+	}
 
 	#region Implementation of IFutureProgVariable
 

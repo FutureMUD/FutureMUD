@@ -19,6 +19,7 @@ namespace MudSharp.Magic.Powers;
 
 public class ConnectMindPower : SustainedMagicPower
 {
+	public override string PowerType => "Connect Mind";
 	public static void RegisterLoader()
 	{
 		MagicPowerFactory.RegisterLoader("connectmind",

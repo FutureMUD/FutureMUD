@@ -4,6 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
+using MudSharp.Character;
+using MudSharp.Database;
 using MudSharp.Framework;
 using MudSharp.Framework.Scheduling;
 using MudSharp.FutureProg;
@@ -15,7 +17,46 @@ public class StateGenerator : BaseMagicResourceGenerator
 	private List<(IFutureProg StateProg, IEnumerable<(IMagicResource Resource, double Amount)> Resources)> _states =
 		new();
 
-	public StateGenerator(Models.MagicGenerator generator, IFuturemud gameworld) : base(generator)
+    public StateGenerator(IFuturemud gameworld, string name, IMagicResource resource) : base(gameworld, name)
+    {
+		_states.Add((Gameworld.AlwaysTrueProg, new List<(IMagicResource, double)> { (resource, 1.0) }));
+
+		using (new FMDB())
+		{
+			var dbitem = new Models.MagicGenerator
+			{
+				Name = name,
+				Type = "state",
+				Definition = SaveDefinition().ToString()
+			};
+			FMDB.Context.MagicGenerators.Add(dbitem);
+			FMDB.Context.SaveChanges();
+			_id = dbitem.Id;
+		}
+	}
+
+	protected StateGenerator(StateGenerator rhs, string newName) : base(rhs.Gameworld, newName)
+	{
+		foreach (var state in rhs._states)
+		{
+			_states.Add((state.StateProg, state.Resources.ToList()));
+		}
+
+		using (new FMDB())
+		{
+			var dbitem = new Models.MagicGenerator
+			{
+				Name = newName,
+				Type = "state",
+				Definition = SaveDefinition().ToString()
+			};
+			FMDB.Context.MagicGenerators.Add(dbitem);
+			FMDB.Context.SaveChanges();
+			_id = dbitem.Id;
+		}
+	}
+
+    public StateGenerator(Models.MagicGenerator generator, IFuturemud gameworld) : base(generator, gameworld)
 	{
 		var root = XElement.Parse(generator.Definition);
 
@@ -101,10 +142,50 @@ public class StateGenerator : BaseMagicResourceGenerator
 	}
 
 	#region Overrides of BaseMagicResourceGenerator
-
+	public override string RegeneratorTypeName => "State-Dependent";
 	/// <inheritdoc />
 	public override IEnumerable<IMagicResource> GeneratedResources =>
 		_states.SelectMany(x => x.Resources.Select(y => y.Resource)).Distinct();
+
+	public override IMagicResourceRegenerator Clone(string name)
+	{
+		return new StateGenerator(this, name);
+	}
+
+	protected override XElement SaveDefinition()
+	{
+		return new XElement("Definition",
+			new XElement("States",
+				from state in _states
+				select new XElement("State",
+					new XElement("StateProg", state.StateProg.Id),
+					from resource in state.Resources
+					select new XElement("Resource", new XAttribute("resource", resource.Resource.Id), new XAttribute("amountperminute", resource.Amount))
+				)
+			)
+		);
+	}
+
+	protected override string SubtypeHelpText => @"";
+
+	public override string Show(ICharacter actor)
+	{
+		var sb = new StringBuilder();
+		sb.AppendLine($"Magic Regenerator #{Id.ToString("N0", actor)} - {Name}".GetLineWithTitle(actor, Telnet.BoldMagenta, Telnet.BoldWhite));
+		sb.AppendLine();
+		sb.AppendLine("Type: #2State Dependent Generator#0".SubstituteANSIColour());
+		sb.AppendLine();
+		sb.AppendLine("States".GetLineWithTitle(actor, Telnet.BoldMagenta, Telnet.BoldWhite));
+		var i = 1;
+		foreach (var state in _states)
+		{
+			sb.AppendLine();
+			sb.AppendLine($"State #{i++} - {state.StateProg.MXPClickableFunctionName()}");
+			sb.AppendLine($"Resources Per Minute: {state.Resources.Select(x => $"{x.Amount.ToBonusString(actor)} {x.Resource.Name.ColourName()}").ListToString()}");
+		}
+
+		return sb.ToString();
+	}
 
 	#endregion
 }

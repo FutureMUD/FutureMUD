@@ -1622,7 +1622,11 @@ namespace MudSharp.Database
 
                 entity.Property(e => e.BodypartSizeModifier).HasColumnType("int(11)");
 
-                entity.Property(e => e.BreathingVolumeExpression)
+				entity.Property(e => e.HungerRate).HasColumnType("double").HasDefaultValue(1.0);
+
+				entity.Property(e => e.ThirstRate).HasColumnType("double").HasDefaultValue(1.0);
+
+				entity.Property(e => e.BreathingVolumeExpression)
                     .IsRequired()
                     .HasColumnType("varchar(500)")
                     .HasDefaultValueSql("'7'")

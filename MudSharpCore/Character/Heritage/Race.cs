@@ -114,6 +114,8 @@ public partial class Race : SaveableItem, IRace
 			HandednessOptions = ParentRace.HandednessOptions.ToList();
 			ButcheryProfile = ParentRace.ButcheryProfile;
 			CorpseModel = ParentRace.CorpseModel;
+			HungerRate = ParentRace.HungerRate;
+			ThirstRate = ParentRace.ThirstRate;
 			CombatSettings = new RacialCombatSettings
 			{
 				CanAttack = ParentRace.CombatSettings.CanAttack,
@@ -207,6 +209,8 @@ public partial class Race : SaveableItem, IRace
 			DefaultHandedness = Alignment.Right;
 			HandednessOptions = new List<Alignment> { Alignment.Right, Alignment.Left };
 			CorpseModel = Gameworld.CorpseModels.First();
+			HungerRate = 1.0;
+			ThirstRate = 1.0;
 			CombatSettings = new RacialCombatSettings
 			{
 				CanAttack = true,
@@ -284,6 +288,8 @@ public partial class Race : SaveableItem, IRace
 				SizeStanding = (int)SizeStanding,
 				SizeProne = (int)SizeProne,
 				SizeSitting = (int)SizeSitting,
+				HungerRate = HungerRate,
+				ThirstRate = ThirstRate,
 				CommunicationStrategyType = CommunicationStrategy.Name,
 				DefaultHandedness = (int)DefaultHandedness,
 				HandednessOptions = HandednessOptions.Select(x => ((int)x).ToString("F0"))
@@ -342,6 +348,8 @@ public partial class Race : SaveableItem, IRace
 		DefaultHandedness = (Alignment)race.DefaultHandedness;
 		HandednessOptions = race.HandednessOptions.Split(' ').Select(x => (Alignment)int.Parse((string)x)).ToList();
 		ButcheryProfile = gameworld.RaceButcheryProfiles.Get(race.RaceButcheryProfileId ?? 0L);
+		HungerRate = race.HungerRate;
+		ThirstRate = race.ThirstRate;
 
 		foreach (var item in race.ChargenAdvicesRaces)
 		{
@@ -575,6 +583,8 @@ public partial class Race : SaveableItem, IRace
 		HandednessOptions = rhs.HandednessOptions.ToList();
 		ButcheryProfile = rhs.ButcheryProfile;
 		CorpseModel = rhs.CorpseModel;
+		HungerRate = rhs.HungerRate;
+		ThirstRate = rhs.ThirstRate;
 		CombatSettings = new RacialCombatSettings
 		{
 			CanAttack = rhs.CombatSettings.CanAttack,
@@ -702,6 +712,8 @@ public partial class Race : SaveableItem, IRace
 				SizeStanding = (int)SizeStanding,
 				SizeProne = (int)SizeProne,
 				SizeSitting = (int)SizeSitting,
+				HungerRate = HungerRate,
+				ThirstRate = ThirstRate,
 				CommunicationStrategyType = CommunicationStrategy.Name,
 				DefaultHandedness = (int)DefaultHandedness,
 				HandednessOptions = HandednessOptions.Select(x => ((int)x).ToString("F0"))
@@ -1094,6 +1106,8 @@ public partial class Race : SaveableItem, IRace
 		dbitem.NaturalArmourTypeId = NaturalArmourType?.Id;
 		dbitem.NaturalArmourQuality = (int)NaturalArmourQuality;
 		dbitem.NaturalArmourMaterialId = NaturalArmourMaterial?.Id;
+		dbitem.HungerRate = HungerRate;
+		dbitem.ThirstRate = ThirstRate;
 		dbitem.BloodLiquidId = BloodLiquid?.Id;
 		dbitem.NeedsToBreathe = NeedsToBreathe;
 		dbitem.BreathingModel = BreathingStrategy.Name;
@@ -1662,6 +1676,9 @@ public partial class Race : SaveableItem, IRace
 	public SizeCategory SizeStanding { get; set; } = SizeCategory.Normal;
 	public SizeCategory SizeProne { get; set; } = SizeCategory.Normal;
 	public SizeCategory SizeSitting { get; set; } = SizeCategory.Small;
+
+	public double HungerRate { get; set; }
+	public double ThirstRate { get; set; }
 
 	public SizeCategory CurrentContextualSize(SizeContext context)
 	{

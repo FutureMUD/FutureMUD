@@ -93,6 +93,8 @@ public partial class Race
 
 	#6Eating Properties#0
 
+	#3hunger <%>#0 - sets a percentage multiplier to base rate at which they will get hungry
+	#3thirst <%>#0 - sets a percentage multiplier to base rate at which they will get thirsty
 	#3caneatcorpses#0 - toggles the race being able to eat corpses directly (without butchering)
 	#3biteweight <weight>#0 - sets the amount of corpse weight eaten per bite
 	#3material add <material>#0 - adds a material definition for corpse-eating
@@ -141,6 +143,12 @@ public partial class Race
 			case "bodypartsize":
 				case "partsize":
 				return BuildingCommandBodypartSize(actor, command);
+			case "hungry":
+			case "hunger":
+				return BuildingCommandHunger(actor, command);
+			case "thirst":
+			case "thirsty":
+				return BuildingCommandThirst(actor, command);
 			case "corpse":
 			case "corpsemodel":
 				return BuildingCommandCorpseModel(actor, command);
@@ -258,6 +266,34 @@ public partial class Race
 				actor.OutputHandler.Send(HelpText.SubstituteANSIColour());
 				return false;
 		}
+	}
+
+	private bool BuildingCommandThirst(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished || !command.SafeRemainingArgument.TryParsePercentage(actor.Account.Culture, out var value))
+		{
+			actor.OutputHandler.Send("You must enter a valid percentage.");
+			return false;
+		}
+
+		ThirstRate = value;
+		Changed = true;
+		actor.OutputHandler.Send($"This race will now get thirsty at a {value.ToString("P2").ColourValue()} rate compared to baseline.");
+		return true;
+	}
+
+	private bool BuildingCommandHunger(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished || !command.SafeRemainingArgument.TryParsePercentage(actor.Account.Culture, out var value))
+		{
+			actor.OutputHandler.Send("You must enter a valid percentage.");
+			return false;
+		}
+
+		HungerRate = value;
+		Changed = true;
+		actor.OutputHandler.Send($"This race will now get hungry at a {value.ToString("P2").ColourValue()} rate compared to baseline.");
+		return true;
 	}
 
 	private bool BuildingCommandBodypartSize(ICharacter actor, StringStack command)
@@ -2365,6 +2401,11 @@ public partial class Race
 		sb.AppendLine();
 		sb.AppendLine("Nourishment".GetLineWithTitle(actor, Telnet.Blue, Telnet.BoldWhite));
 		sb.AppendLine();
+		sb.AppendLineColumns((uint)actor.LineFormatLength, 3,
+			$"Hunger Rate: {HungerRate.ToString("P2", actor).ColourValue()}",
+			$"Thirst Rate: {ThirstRate.ToString("P2", actor).ColourValue()}",
+			""
+		);
 		sb.AppendLineColumns((uint)actor.LineFormatLength, 3,
 			$"Eat Corpses: {CanEatCorpses.ToColouredString()}",
 			$"Eat Yields: {EdibleForagableYields.Any().ToColouredString()}",

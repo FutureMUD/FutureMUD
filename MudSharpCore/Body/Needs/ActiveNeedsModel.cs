@@ -34,8 +34,8 @@ public class ActiveNeedsModel : ChangingNeedsModelBase
 		var ownerMerits = Owner.Merits.OfType<INeedRateChangingMerit>().Where(x => x.Applies(Owner)).ToList();
 		var oldStatus = Status;
 		var hoursPassed = 1 / 60.0 * RealSecondsToInGameSeconds;
-		DrinkSatiatedHours -= hoursPassed * ownerMerits.Aggregate(1.0, (x, y) => x * y.ThirstMultiplier);
-		FoodSatiatedHours -= hoursPassed * ownerMerits.Aggregate(1.0, (x, y) => x * y.HungerMultiplier);
+		DrinkSatiatedHours -= hoursPassed * Owner.Race.ThirstRate * ownerMerits.Aggregate(1.0, (x, y) => x * y.ThirstMultiplier);
+		FoodSatiatedHours -= hoursPassed * Owner.Race.HungerRate * ownerMerits.Aggregate(1.0, (x, y) => x * y.HungerMultiplier);
 		AlcoholLitres -= hoursPassed * Owner.Body.LiverAlcoholRemovalKilogramsPerHour *
 		                 ownerMerits.Aggregate(1.0, (x, y) => x * y.DrunkennessMultiplier);
 		// 1 Litre of Alcohol ~= 1 KG of Alcohol

@@ -68,6 +68,7 @@ internal class RoomBuilderModule : Module<ICharacter>
 This command is used primarily to build cells (also known as ""rooms"", or ""locations""). Almost all uses of this command require you to be editing a #2cell overlay package#0. If you are not familiar with these, you should read the section on them below before proceeding with this command.
 
 #5Cell Overlay Packages#0
+
 A cell overlay package is used to allow building to take place on the ""live"" game server, and also permit review, roll-back and multiple versions of room building to exist. All cell-based building begins with a cell overlay package. 
 
 While you have a package open, any changes you make to the location are made to an ""overlay"" of the cell that's stored in the package. It's not until you're done building, the package has been submitted, reviewed and swapped in as the ""current"" package that any of the building appears to anyone but you.
@@ -80,60 +81,62 @@ Where possible you should prefer to revise existing cell overlay packages instea
 
 The following commands do not require you to have adopted an overlay package:
 
-#3cell show#0 - shows builder-specific info about the location you are in
-#3cell overlay <id> [<revnum>]#0 - temporarily adopt a specific package so you can view the world as if it were live
-#3cell overlay clear#0 - clears your current override for seeing cell packages
-#3cell exit list#0 - lists all exits for the current cell (including in other overlays)
-#3cell exit hide <exit> <prog>#0 - hides a cell exit with a specified prog controlling who can see it
-#3cell exit unhide <exit>#0 - unhides a cell exit
-#3cell set register <varname> <value>#0 - sets the specified prog variable for the current cell to the specified value
-#3cell set register delete <varname>#0 - resets the specified prog variable to its default value for the current cell
+	#3cell show#0 - shows builder-specific info about the location you are in
+	#3cell overlay <id> [<revnum>]#0 - temporarily adopt a specific package so you can view the world as if it were live
+	#3cell overlay clear#0 - clears your current override for seeing cell packages
+	#3cell exit list#0 - lists all exits for the current cell (including in other overlays)
+	#3cell exit hide <exit> <prog>#0 - hides a cell exit with a specified prog controlling who can see it
+	#3cell exit unhide <exit>#0 - unhides a cell exit
+	#3cell set register <varname> <value>#0 - sets the specified prog variable for the current cell to the specified value
+	#3cell set register delete <varname>#0 - resets the specified prog variable to its default value for the current cell
 
 These are the commands used to work with overlay packages:
 
-#3cell package list [all|by <who> | mine]#0 - lists all cell packages (optionally filtered)
-#3cell package new ""name of your package""#0 - creates a new package with the specified name
-#3cell package open <id>|""name of your package"">#0 - opens an existing unapproved package for further editing
-#3cell package rename <name>#0 - renames your open cell package to something else
-#3cell package revise <id>|""name of your package"">#0 - creates a new revision of an existing package
-#3cell package close#0 - closes the package you are currently editing
-#3cell package show <id>|""name"">#0 - views an existing package
-#3cell package submit#0 - submits the package for review by an appropriate reviewer
-#3cell package review list#0 - shows all packages ready for review
-#3cell package review all#0 - reviews all submitted packages at once
-#3cell package review <id>#0 - reviews a specific package
-#3cell package history <id>#0 - shows the building/review history of a particular cell package
-#3cell package swap <id|""name of your package"">#0 - swaps the package into the affected rooms and makes it live
+	#3cell package list [all|by <who> | mine]#0 - lists all cell packages (optionally filtered)
+	#3cell package new ""name of your package""#0 - creates a new package with the specified name
+	#3cell package open <id>|""name of your package"">#0 - opens an existing unapproved package for further editing
+	#3cell package rename <name>#0 - renames your open cell package to something else
+	#3cell package revise <id>|""name of your package"">#0 - creates a new revision of an existing package
+	#3cell package close#0 - closes the package you are currently editing
+	#3cell package show <id>|""name"">#0 - views an existing package
+	#3cell package submit#0 - submits the package for review by an appropriate reviewer
+	#3cell package review list#0 - shows all packages ready for review
+	#3cell package review all#0 - reviews all submitted packages at once
+	#3cell package review <id>#0 - reviews a specific package
+	#3cell package history <id>#0 - shows the building/review history of a particular cell package
+	#3cell package swap <id|""name of your package"">#0 - swaps the package into the affected rooms and makes it live
 
 These commands all require you to have an open overlay package:
 
-#3cell new#0 - creates a new cell and transports you to it
-#3cell exit add <id>#0 - adds an existing exit from another overlay for this cell to this overlay
-#3cell exit remove <id>#0 - removes an exit from this overlay
-#3cell exit size <id|direction> <size>#0 - sets the maximum size of creatures that can use the exit
-#3cell exit upright <id|direction> <size>#0 - sets the maximum size of creatures that can use the exit in a standing position
-#3cell exit reset <id|direction>#0 - turns a climb/fall exit into a regular exit
-#3cell exit fall <id|direction>#0 - turns an up/down exit into a fall exit or toggles it off
-#3cell exit climb <id|direction> <difficulty>#0 - turns an exit into a climb exit with a specified difficulty
-#3cell exit climb <id|direction>#0 - toggles a climb exit off
-#3cell exit block <id|direction> <layer>#0 - blocks an exit from appearing in a specified layer
-#3cell exit unblock <id|direction> <layer>#0 - removes a block on an exit from appearing in a specified layer
-#3cell link <direction> <cellid**>#0 - creates a new exit in the specified direction to the specified cell
-#3cell nlink <template> <cellid**> <outboundkeyword> <inboundkeyword> ""<outboundname>"" ""<inboundname>""#0 - creates a non-cardinal exit using a template to a cell
-#3cell set name <name>#0 - sets the name of the cell
-#3cell set desc#0 - drops you into an editor to edit the cell description
-#3cell set terrain <id|name>#0 - sets the terrain of this cell
-#3cell set hearing <id|name>#0 - sets the hearing/noise profile for this cell
-#3cell set lightmultiplier <multiplier>#0 - sets the multiplier for natural light (e.g. from shade etc)
-#3cell set lightlevel <lux>#0 - sets the added light for the location to the specified lux level
-#3cell set type outdoors|indoors|cave|windows|exposed#0 - sets the cell exposure type
-#3cell set door <exit id|direction> clear#0 - clears the exit from accepting doors
-#3cell set door <exit id|direction> <size>#0 - sets the exit to accept doors of the specified size
-#3cell set forage clear#0 - clears an existing forage profile
-#3cell set forage <id|name>#0 - sets the forage profile to the specified profile
-#3cell set atmosphere liquid|gas <id|name>#0 - sets the atmosphere to the specified
-#3cell set atmosphere none#0 - sets the location to have no atmosphere
-#3cell set safequit#0 - toggles whether the current room is a safe quit room
+	#3cell new#0 - creates a new cell and transports you to it
+	#3cell dig <direction#0 - creates a new cell and a two-way exit in the specified direction, and transports you to it
+	#3cell ndig <template> <outboundkeyword> <inboundkeyword> ""<outboundname>"" ""<inboundname>""#0 - creates a new cell with a non cardinal exit, and transports you to it
+	#3cell exit add <id>#0 - adds an existing exit from another overlay for this cell to this overlay
+	#3cell exit remove <id>#0 - removes an exit from this overlay
+	#3cell exit size <id|direction> <size>#0 - sets the maximum size of creatures that can use the exit
+	#3cell exit upright <id|direction> <size>#0 - sets the maximum size of creatures that can use the exit in a standing position
+	#3cell exit reset <id|direction>#0 - turns a climb/fall exit into a regular exit
+	#3cell exit fall <id|direction>#0 - turns an up/down exit into a fall exit or toggles it off
+	#3cell exit climb <id|direction> <difficulty>#0 - turns an exit into a climb exit with a specified difficulty
+	#3cell exit climb <id|direction>#0 - toggles a climb exit off
+	#3cell exit block <id|direction> <layer>#0 - blocks an exit from appearing in a specified layer
+	#3cell exit unblock <id|direction> <layer>#0 - removes a block on an exit from appearing in a specified layer
+	#3cell link <direction> <cellid**>#0 - creates a new exit in the specified direction to the specified cell
+	#3cell nlink <template> <cellid**> <outboundkeyword> <inboundkeyword> ""<outboundname>"" ""<inboundname>""#0 - creates a non-cardinal exit using a template to a cell
+	#3cell set name <name>#0 - sets the name of the cell
+	#3cell set desc#0 - drops you into an editor to edit the cell description
+	#3cell set terrain <id|name>#0 - sets the terrain of this cell
+	#3cell set hearing <id|name>#0 - sets the hearing/noise profile for this cell
+	#3cell set lightmultiplier <multiplier>#0 - sets the multiplier for natural light (e.g. from shade etc)
+	#3cell set lightlevel <lux>#0 - sets the added light for the location to the specified lux level
+	#3cell set type outdoors|indoors|cave|windows|exposed#0 - sets the cell exposure type
+	#3cell set door <exit id|direction> clear#0 - clears the exit from accepting doors
+	#3cell set door <exit id|direction> <size>#0 - sets the exit to accept doors of the specified size
+	#3cell set forage clear#0 - clears an existing forage profile
+	#3cell set forage <id|name>#0 - sets the forage profile to the specified profile
+	#3cell set atmosphere liquid|gas <id|name>#0 - sets the atmosphere to the specified
+	#3cell set atmosphere none#0 - sets the location to have no atmosphere
+	#3cell set safequit#0 - toggles whether the current room is a safe quit room
 
 #6** Note: You can use the alternate syntax @n instead of the room ID for this.
 
@@ -149,7 +152,7 @@ To see a list of all autobuilder templates, you simply use the #3SHOW AUTOAREAS#
 
 In order to use an autobuilder template, you must first be editing a cell overlay package, and then use the following command:
 
-#3cell new <template id|name> ...#0
+	#3cell new <template id|name> ...#0
 
 Each template has its own required arguments, which you will see if you simply type the command above with no further text.
 
@@ -166,6 +169,12 @@ There is also a universal optional argument which must come first in the form of
 			case "new":
 			case "create":
 				CellNew(actor, ss);
+				break;
+			case "dig":
+				CellDig(actor, ss);
+				break;
+			case "ndig":
+				CellNDig(actor, ss);
 				break;
 			case "show":
 				CellShow(actor, ss);
@@ -290,6 +299,106 @@ There is also a universal optional argument which must come first in the form of
 		actor.Send("You create a new cell with ID #{0}.", newRoom.Cells.First().Id);
 		actor.TransferTo(newRoom.Cells.First(), RoomLayer.GroundLevel);
 		BuiltCells.Add(newRoom.Cells.First());
+	}
+
+	private static void CellDig(ICharacter actor, StringStack input)
+	{
+		if (actor.CurrentOverlayPackage == null)
+		{
+			actor.OutputHandler.Send("You have not adopted a cell overlay package.");
+			return;
+		}
+
+		if (actor.CurrentOverlayPackage.Status != RevisionStatus.UnderDesign)
+		{
+			actor.OutputHandler.Send(
+				"Only a Cell Overlay Package that is in the Under Design status can be used to create new Cells.");
+			return;
+		}
+
+		if (input.IsFinished)
+		{
+			actor.OutputHandler.Send("Towards which direction do you want to make a new cell?");
+			return;
+		}
+
+		if (!Constants.CardinalDirectionStringToDirection.TryGetValue(input.PopSpeech(), out var direction))
+		{
+			actor.OutputHandler.Send("That is not a valid direction.");
+			return;
+		}
+
+		var overlay = actor.Location.GetOrCreateOverlay(actor.CurrentOverlayPackage);
+		if (
+			actor.Gameworld.ExitManager.GetExitsFor(actor.Location, overlay)
+				 .Any(x => x.OutboundDirection == direction))
+		{
+			actor.OutputHandler.Send("This Cell Overlay already contains an exit in that direction.");
+			return;
+		}
+
+		var newRoom = new Construction.Room(actor, actor.CurrentOverlayPackage);
+		var cell = newRoom.Cells.First();
+		BuiltCells.Add(cell);
+		var otherOverlay = cell.GetOrCreateOverlay(actor.CurrentOverlayPackage);
+		var oppositeDirection = direction.Opposite();
+		var newExit =
+			new Construction.Boundary.Exit(actor.Gameworld, actor.Location, cell, direction, oppositeDirection, 1.0);
+		overlay.AddExit(newExit);
+		otherOverlay.AddExit(newExit);
+		actor.Gameworld.ExitManager.UpdateCellOverlayExits(actor.Location, overlay);
+		actor.Gameworld.ExitManager.UpdateCellOverlayExits(cell, otherOverlay);
+
+		actor.Send($"You create a new cell to the {direction.Describe().ColourValue()} with ID #{cell.Id.ToString("N0", actor)}.", cell.Id);
+		actor.TransferTo(cell, RoomLayer.GroundLevel);
+	}
+
+	private static void CellNDig(ICharacter actor, StringStack input)
+	{
+		if (actor.CurrentOverlayPackage == null)
+		{
+			actor.OutputHandler.Send("You have not adopted a cell overlay package.");
+			return;
+		}
+
+		if (actor.CurrentOverlayPackage.Status != RevisionStatus.UnderDesign)
+		{
+			actor.OutputHandler.Send(
+				"Only a Cell Overlay Package that is in the Under Design status can be used to create new Cells.");
+			return;
+		}
+
+		var match = CellEditNDigRegex.Match(input.RemainingArgument);
+		if (!match.Success)
+		{
+			actor.OutputHandler.Send("You must supply an argument in this form: " +
+									 "cell ndig <template> <outbound keyword> <inbound keyword> \"<outbound name>\" \"<inbound name>\""
+										 .Colour(Telnet.Yellow));
+			return;
+		}
+
+		var template = actor.Gameworld.NonCardinalExitTemplates.GetByIdOrName(match.Groups["template"].Value);
+		if (template == null)
+		{
+			actor.OutputHandler.Send("That is not a valid Non Cardinal Exit Template.");
+			return;
+		}
+
+		var overlay = actor.Location.GetOrCreateOverlay(actor.CurrentOverlayPackage);
+		var newRoom = new Construction.Room(actor, actor.CurrentOverlayPackage);
+		var cell = newRoom.Cells.First();
+		BuiltCells.Add(cell);
+		var otherOverlay = cell.GetOrCreateOverlay(actor.CurrentOverlayPackage);
+		var newExit = new Construction.Boundary.Exit(actor.Gameworld, actor.Location, cell, 1.0, template,
+			match.Groups["outboundkey"].Value,
+			match.Groups["inboundkey"].Value, match.Groups["outboundname"].Value, match.Groups["inboundname"].Value);
+		overlay.AddExit(newExit);
+		otherOverlay.AddExit(newExit);
+		actor.Gameworld.ExitManager.UpdateCellOverlayExits(actor.Location, overlay);
+		actor.Gameworld.ExitManager.UpdateCellOverlayExits(cell, otherOverlay);
+
+		actor.Send($"You create a new cell from the non-cardinal template {template.Name.Proper().Colour(Telnet.Cyan)} with ID #{cell.Id.ToString("N0", actor)}.", cell.Id);
+		actor.TransferTo(cell, RoomLayer.GroundLevel);
 	}
 
 	private static Regex CellNewTemplateOptionsRegex { get; } = new(@"(?<option>[a-zA-Z]+)=(?<value>\w+)\b");
@@ -2492,6 +2601,9 @@ You can use the following subcommands:
 
 	private static readonly Regex CellEditNLinkRegex =
 		new("((?:\\d+)|(?:\\w+)) (\\S+) (\\w+) (\\w+) \"([^\"]+)\" \"([^\"]+)\"", RegexOptions.IgnoreCase);
+
+	private static readonly Regex CellEditNDigRegex =
+		new("(?<template>(?:\\d+)|(?:\\w+)) (?<outboundkey>\\w+) (?<inboundkey>\\w+) \"(?<outboundname>[^\"]+)\" \"(?<inboundname>[^\"]+)\"", RegexOptions.IgnoreCase);
 
 	private static void CellEditNlink(ICharacter actor, StringStack input)
 	{

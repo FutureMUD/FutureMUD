@@ -242,21 +242,48 @@ public partial class Body
 
 	public string ProcessDescriptionAdditions(string description, IPerceiver voyeur, bool colour)
 	{
-		if (voyeur is ICharacter vch &&
-		    vch.Account.CharacterNameOverlaySetting != Accounts.CharacterNameOverlaySetting.None)
+		if (voyeur is ICharacter vch && vch.Account.CharacterNameOverlaySetting != Accounts.CharacterNameOverlaySetting.None)
 		{
 			var dub = vch.Dubs.FirstOrDefault(x => x.TargetId == Actor.Id && x.TargetType == Actor.FrameworkItemType);
-			if (dub != null && !string.IsNullOrEmpty(dub.IntroducedName))
+			if (dub is not null)
+			{
+				if (!string.IsNullOrEmpty(dub.IntroducedName))
+				{
+					switch (vch.Account.CharacterNameOverlaySetting)
+					{
+						case Accounts.CharacterNameOverlaySetting.AppendWithBrackets:
+							description = $"{description} {dub.IntroducedName.Parentheses().Colour(Telnet.BoldWhite)}";
+							break;
+						case Accounts.CharacterNameOverlaySetting.Replace:
+							description = dub.IntroducedName;
+							break;
+					}
+				}
+				else
+				{
+					switch (vch.Account.CharacterNameOverlaySetting)
+					{
+						case Accounts.CharacterNameOverlaySetting.AppendWithBrackets:
+							description = $"{description} {dub.Name.TitleCase().Parentheses().Colour(Telnet.BoldWhite)}";
+							break;
+						case Accounts.CharacterNameOverlaySetting.Replace:
+							description = dub.Name.TitleCase();
+							break;
+					}
+				}
+			}
+			else if (vch.IsAdministrator())
 			{
 				switch (vch.Account.CharacterNameOverlaySetting)
 				{
 					case Accounts.CharacterNameOverlaySetting.AppendWithBrackets:
-						description = $"{description} {dub.IntroducedName.Parentheses().Colour(Telnet.White)}";
+						description = $"{description} {Actor.PersonalName.GetName(Character.Name.NameStyle.GivenOnly).Parentheses().Colour(Telnet.BoldWhite)}";
 						break;
 					case Accounts.CharacterNameOverlaySetting.Replace:
-						description = dub.IntroducedName;
+						description = Actor.PersonalName.GetName(Character.Name.NameStyle.FullName);
 						break;
 				}
+				
 			}
 		}
 

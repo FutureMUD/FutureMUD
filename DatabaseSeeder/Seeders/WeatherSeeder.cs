@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 using MudSharp.Climate;
 using MudSharp.Database;
 using MudSharp.Framework;
@@ -39,6 +40,153 @@ Once you have installed this seeder you will need to add the WeatherControllers 
 
 		public FuturemudDatabaseContext _context;
 		public IReadOnlyDictionary<string, string> _questionAnswers;
+
+		private void CreateWeatherEvent(FuturemudDatabaseContext context, PrecipitationLevel precipitation, WindLevel wind, Dictionary<WeatherEvent, string> defaultTransitions, Dictionary<string, WeatherEvent> events)
+		{
+			void AddEvent(string name, string description, string roomAddendum, double temp, double precipTemp, double windTemp, PrecipitationLevel precipitation, WindLevel wind, bool obscureSky, bool night, bool dawn, bool morning, bool afternoon, bool dusk, string? countsAs, string defaultTransition)
+			{
+				var weatherEvent = new WeatherEvent
+				{
+					Name = name,
+					WeatherDescription = description,
+					WeatherRoomAddendum = roomAddendum,
+					TemperatureEffect = temp,
+					PrecipitationTemperatureEffect = precipTemp,
+					WindTemperatureEffect = windTemp,
+					Precipitation = (int)precipitation,
+					Wind = (int)wind,
+					ObscuresViewOfSky = obscureSky,
+					PermittedAtNight = night,
+					PermittedAtDawn = dawn,
+					PermittedAtMorning = morning,
+					PermittedAtAfternoon = afternoon,
+					PermittedAtDusk = dusk,
+				};
+				if (countsAs is not null)
+				{
+					weatherEvent.CountsAs = events[countsAs];
+				}
+
+				defaultTransitions[weatherEvent] = defaultTransition;
+				events.Add(name, weatherEvent);
+				_context.WeatherEvents.Add(weatherEvent);
+			}
+
+			void AddEventWithTempVariations(string name, string description, string roomAddendum, double temp, double precipTemp, double windTemp, double tempPerVariation, double precipTempPerVariation, double windTempPerVariation, PrecipitationLevel precipitation, WindLevel wind, bool obscureSky, bool night, bool dawn, bool morning, bool afternoon, bool dusk, string defaultTransition)
+			{
+				AddEvent(name, description, roomAddendum, temp, precipTemp, windTemp, precipitation, wind, obscureSky, night, dawn, morning, afternoon, dusk, null, defaultTransition);
+				AddEvent($"{name}Warmer", description, roomAddendum, temp + (1 * tempPerVariation), precipTemp + (1 * precipTempPerVariation), windTemp + (1 * windTempPerVariation), precipitation, wind, obscureSky, night, dawn, morning, afternoon, dusk, name, defaultTransition);
+				AddEvent($"{name}Warm", description, roomAddendum, temp + (2 * tempPerVariation), precipTemp + (2 * precipTempPerVariation), windTemp + (2 * windTempPerVariation), precipitation, wind, obscureSky, night, dawn, morning, afternoon, dusk, name, defaultTransition);
+				AddEvent($"{name}Hot", description, roomAddendum, temp + (3 * tempPerVariation), precipTemp + (3 * precipTempPerVariation), windTemp + (3 * windTempPerVariation), precipitation, wind, obscureSky, night, dawn, morning, afternoon, dusk, name, defaultTransition);
+				AddEvent($"{name}VeryHot", description, roomAddendum, temp + (4 * tempPerVariation), precipTemp + (4 * precipTempPerVariation), windTemp + (4 * windTempPerVariation), precipitation, wind, obscureSky, night, dawn, morning, afternoon, dusk, name, defaultTransition);
+				AddEvent($"{name}Sweltering", description, roomAddendum, temp + (5 * tempPerVariation), precipTemp + (5 * precipTempPerVariation), windTemp + (5 * windTempPerVariation), precipitation, wind, obscureSky, night, dawn, morning, afternoon, dusk, name, defaultTransition);
+				AddEvent($"{name}Cooler", description, roomAddendum, temp - (1 * tempPerVariation), precipTemp - (1 * precipTempPerVariation), windTemp - (1 * windTempPerVariation), precipitation, wind, obscureSky, night, dawn, morning, afternoon, dusk, name, defaultTransition);
+				AddEvent($"{name}Cool", description, roomAddendum, temp - (2 * tempPerVariation), precipTemp - (2 * precipTempPerVariation), windTemp - (2 * windTempPerVariation), precipitation, wind, obscureSky, night, dawn, morning, afternoon, dusk, name, defaultTransition);
+				AddEvent($"{name}Cold", description, roomAddendum, temp - (3 * tempPerVariation), precipTemp - (3 * precipTempPerVariation), windTemp - (3 * windTempPerVariation), precipitation, wind, obscureSky, night, dawn, morning, afternoon, dusk, name, defaultTransition);
+				AddEvent($"{name}VeryCold", description, roomAddendum, temp - (4 * tempPerVariation), precipTemp - (4 * precipTempPerVariation), windTemp - (4 * windTempPerVariation), precipitation, wind, obscureSky, night, dawn, morning, afternoon, dusk, name, defaultTransition);
+				AddEvent($"{name}Freezing", description, roomAddendum, temp - (5 * tempPerVariation), precipTemp - (5 * precipTempPerVariation), windTemp - (5 * windTempPerVariation), precipitation, wind, obscureSky, night, dawn, morning, afternoon, dusk, name, defaultTransition);
+			}
+
+			var precipitationTempDeltaPerVariation = 0.0;
+			var precipitationTempDelta = 0.0;
+			var precipitationDescription = "";
+			switch (precipitation)
+			{
+				case PrecipitationLevel.Parched:
+					precipitationDescription = "The air is extremely dry";
+					break;
+				case PrecipitationLevel.Dry:
+					precipitationDescription = "The air is dry";
+					precipitationTempDelta = 0.1;
+					precipitationTempDeltaPerVariation = 0.1;
+					break;
+				case PrecipitationLevel.Humid:
+					precipitationDescription = "The air is humid";
+					precipitationTempDelta = 0.5;
+					precipitationTempDeltaPerVariation = 0.2;
+					break;
+				case PrecipitationLevel.LightRain:
+					precipitationDescription = "A drizzle of rain falls from the sky";
+					precipitationTempDelta = -2.0;
+					break;
+				case PrecipitationLevel.Rain:
+					precipitationDescription = "Rain falls in steady sheets from the sky";
+					precipitationTempDelta = -3.0;
+					break;
+				case PrecipitationLevel.HeavyRain:
+					precipitationDescription = "Rain is bucketing down from the sky";
+					precipitationTempDelta = -4.0;
+					break;
+				case PrecipitationLevel.TorrentialRain:
+					precipitationDescription = "A torrent of rain falls from the sky";
+					precipitationTempDelta = -5.0;
+					break;
+				case PrecipitationLevel.LightSnow:
+					precipitationDescription = "Snowflakes drift down from the clouds overhead in a light snow flurry";
+					precipitationTempDelta = -4.0;
+					break;
+				case PrecipitationLevel.Snow:
+					precipitationDescription = "Snow falls with steady regularity from the clouds overhead";
+					precipitationTempDelta = -6.0;
+					break;
+				case PrecipitationLevel.HeavySnow:
+					precipitationDescription = "A heavy amount of snow falls from the dark clouds overhead, blanketing the area in snow";
+					precipitationTempDelta = -8.0;
+					break;
+				case PrecipitationLevel.Blizzard:
+					precipitationDescription = "A blizzard of snow blankets the area in white, restricting visibility of much of anything";
+					precipitationTempDelta = -10.0;
+					break;
+				case PrecipitationLevel.Sleet:
+					precipitationDescription = "Icy rain sleets down here, forming slushy puddles on the ground";
+					precipitationTempDelta = -6.0;
+					break;
+			}
+
+			var windTempDeltaHot = 0.0;
+			var windTempDeltaCold = 0.0;
+			var windTempDelta = 0.0;
+			var windDescription = "";
+
+			switch (wind)
+			{
+				case WindLevel.None:
+					windDescription = " and the air is still, with not even a hint of wind";
+					break;
+				case WindLevel.Still:
+					windDescription = " and the air is still";
+					windTempDelta = -0.2;
+					windTempDeltaHot = 0.0;
+					windTempDeltaCold = -0.4;
+					break;
+				case WindLevel.OccasionalBreeze:
+					windDescription = " with only an occasional {0}breeze";
+					windTempDelta = -0.8;
+					windTempDeltaHot = 0.5;
+					windTempDeltaCold = -2.0;
+					break;
+				case WindLevel.Breeze:
+					windDescription = " with a steady {0}breeze blowing through";
+					windTempDelta = -1.8;
+					windTempDeltaHot = 1.2;
+					windTempDeltaCold = -3.5;
+					break;
+				case WindLevel.Wind:
+					windDescription = " with a consistent {0}wind";
+					windTempDelta = -2.5;
+					windTempDeltaHot = 2.0;
+					windTempDeltaCold = -5.0;
+					break;
+				case WindLevel.StrongWind:
+					break;
+				case WindLevel.GaleWind:
+					break;
+				case WindLevel.HurricaneWind:
+					break;
+				case WindLevel.MaelstromWind:
+					break;
+			}
+		}
 
 		/// <inheritdoc />
 		public string SeedData(FuturemudDatabaseContext context, IReadOnlyDictionary<string, string> questionAnswers)

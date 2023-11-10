@@ -78,6 +78,17 @@ public class ClanModule : Module<ICharacter>
 	public const string ClanHelpText =
 		@"This clan is used to both interact with and create or edit clans.  Clans can represent organisations, companies, hierarchies, fellowships and many other types of communities.
 
+To see what clans you are a part of (or for admins to see all clans), use the following commands:
+
+	#3clans#0 - shows all clans that you are a member of
+	#3clans templates#0 - shows all template clans
+	#3clan list#0 - a tabular view of all your clans (or all clans for admins)
+
+The #3clan list#0 command can accept the following filter arguments:
+
+	#6+<keyword>#0 - show only clans with this text in their name
+	#6-<keyword>#0 - show only clans without this text in their name
+
 The following clan sub-commands are used to interact with clans:
 
 	#3clan invite <person> <clan> [<rank path>]#0 - invites a person to a clan
@@ -282,10 +293,115 @@ All of the following commands must happen with an edited clan selected:
 			case "templates":
 				ClanTemplates(actor, ss);
 				return;
+			case "list":
+				ClanList(actor, ss);
+				return;
 			default:
 				actor.OutputHandler.Send(ClanHelpText.SubstituteANSIColour(), nopage: true);
 				return;
 		}
+	}
+
+	private static void ClanList(ICharacter actor, StringStack ss)
+	{
+		IEnumerable<IClan> clans;
+		if (actor.IsAdministrator())
+		{
+			clans = actor.Gameworld.Clans;
+		}
+		else
+		{
+			clans = actor.ClanMemberships.Select(x => x.Clan).Distinct();
+		}
+
+		while (!ss.IsFinished)
+		{
+			var text = ss.PopSpeech().ToLowerInvariant();
+			if (text.StartsWith('+') && text.Length > 1)
+			{
+				text = text.Substring(1);
+				clans = clans.Where(x => x.Name.Contains(text, StringComparison.InvariantCultureIgnoreCase) || x.FullName.Contains(text, StringComparison.InvariantCultureIgnoreCase));
+				continue;
+			}
+			if (text.StartsWith('-') && text.Length > 1)
+			{
+				text = text.Substring(1);
+				clans = clans.Where(x => !x.Name.Contains(text, StringComparison.InvariantCultureIgnoreCase) && !x.FullName.Contains(text, StringComparison.InvariantCultureIgnoreCase));
+				continue;
+			}
+
+			actor.OutputHandler.Send($"The text {text.ColourCommand()} is not a valid filter option.");
+			return;
+		}
+
+		var sb = new StringBuilder();
+		sb.AppendLine($"Clans:");
+		sb.AppendLine();
+		if (actor.IsAdministrator())
+		{
+			var ts = TimeSpan.FromDays(30);
+			sb.AppendLine(StringUtilities.GetTextTable(
+			from clan in clans
+			let membership = actor.ClanMemberships.FirstOrDefault(x => x.MemberCharacter == actor)
+			select new List<string>
+			{
+				clan.Id.ToString("N0", actor),
+				clan.FullName,
+				clan.Alias,
+				clan.Memberships.Count().ToString("N0", actor),
+				clan.Memberships.Count(x => x.MemberCharacter.State.IsAlive()).ToString("N0", actor),
+				clan.Memberships.Count(x => (DateTime.UtcNow - x.MemberCharacter.LastLogoutDateTime) < ts).ToString("N0", actor),
+				clan.ShowClanMembersInWho.ToColouredString(),
+				clan.ShowFamousMembersInNotables.ToColouredString(),
+				clan.Sphere ?? ""
+			},
+			new List<string>
+			{
+				"Id",
+				"Name",
+				"Alias",
+				"Members",
+				"Alive",
+				"Active",
+				"Who?",
+				"Notables?",
+				"Sphere"
+			},
+			actor,
+			Telnet.Green
+		));
+		}
+		else
+		{
+			sb.AppendLine(StringUtilities.GetTextTable(
+			from clan in clans
+			let membership = actor.ClanMemberships.FirstOrDefault(x => x.MemberCharacter == actor)
+			select new List<string>
+			{
+				clan.Id.ToString("N0", actor),
+				clan.FullName,
+				clan.Alias,
+				membership?.Rank.Title(actor) ?? "",
+				membership?.Paygrade.Name ?? "",
+				membership?.Appointments.Select(x => x.Title(actor)).ListToCommaSeparatedValues(", ") ?? "",
+				membership?.PersonalName.GetName(NameStyle.FullName) ?? ""
+			},
+			new List<string>
+			{
+				"Id",
+				"Name",
+				"Alias",
+				"My Rank",
+				"My Paygrade",
+				"My Appointments",
+				"Knows Me As"
+			},
+			actor,
+			Telnet.Green
+		));
+		}
+		
+		actor.OutputHandler.Send(sb.ToString());
 	}
 
 	private static void ClanTemplates(ICharacter actor, StringStack ss)

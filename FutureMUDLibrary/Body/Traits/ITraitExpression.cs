@@ -19,5 +19,6 @@ namespace MudSharp.Body.Traits
         bool BuildingCommand(ICharacter actor, StringStack command);
         bool HasErrors();
         string Error { get; }
+        string OriginalFormulaText { get; }
     }
 }

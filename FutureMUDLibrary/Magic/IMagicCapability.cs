@@ -17,9 +17,11 @@ namespace MudSharp.Magic
         int PowerLevel { get; }
         IEnumerable<IMagicPower> InherentPowers(ICharacter actor);
         double ConcentrationAbility(ICharacter actor);
-        Difficulty GetConcentrationDifficulty(double concentrationPercentageOfCapability, double individualPowerConcentrationPercentage);
+        Difficulty GetConcentrationDifficulty(ICharacter actor, double concentrationPercentageOfCapability, double individualPowerConcentrationPercentage);
         IEnumerable<IMagicResourceRegenerator> Regenerators { get; }
         bool ShowMagicResourcesInPrompt { get; }
         IEnumerable<IMagicPower> AllPowers { get; }
+
+        IMagicCapability Clone(string newName);
     }
 }

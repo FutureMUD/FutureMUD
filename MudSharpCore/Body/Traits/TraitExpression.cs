@@ -42,6 +42,7 @@ public partial class TraitExpression : SaveableItem, ITraitExpression
 	{
 		_id = expression.Id;
 		_name = expression.Name;
+		OriginalFormulaText = expression.Expression;
 		foreach (var param in expression.TraitExpressionParameters)
 		{
 			_parameterIndexes[param.Parameter] = param.TraitDefinitionId;
@@ -129,6 +130,7 @@ public partial class TraitExpression : SaveableItem, ITraitExpression
 		Gameworld = gameworld;
 		_name = name;
 		Formula = new Expression("0");
+		OriginalFormulaText = "0";
 		using (new FMDB())
 		{
 			var dbitem = new Models.TraitExpression();
@@ -145,6 +147,7 @@ public partial class TraitExpression : SaveableItem, ITraitExpression
 	{
 		_name = "Unnamed Trait Expression";
 		Formula = expression;
+		OriginalFormulaText = expression.OriginalExpression;
 		Parameters = parameters.ToDictionary(x => x.Key, x => new TraitExpressionParameter
 		{
 			Trait = x.Value,
@@ -163,6 +166,7 @@ public partial class TraitExpression : SaveableItem, ITraitExpression
 	{
 		Gameworld = game;
 		_name = "Unnamed Trait Expression";
+		OriginalFormulaText = expression;
 		foreach (Match match in TraitFormulaRegex.Matches(expression))
 		{
 			_parameterIndexes[match.Groups["name"].Value] = long.Parse(match.Groups["reference"].Value);
@@ -628,6 +632,7 @@ public partial class TraitExpression : SaveableItem, ITraitExpression
 		}
 
 		Formula = newFormula;
+		OriginalFormulaText = command.SafeRemainingArgument;
 		Changed = true;
 		actor.OutputHandler.Send($"You set the formula for this trait expression to: {expression.ColourCommand()}");
 		return true;
@@ -740,4 +745,6 @@ public partial class TraitExpression : SaveableItem, ITraitExpression
 	}
 
 	public string Error => Formula.Error;
+
+	public string OriginalFormulaText { get; private set; }
 }

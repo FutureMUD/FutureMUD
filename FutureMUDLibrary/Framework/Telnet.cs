@@ -56,12 +56,12 @@ namespace MudSharp.Framework {
         private const string BOLDORANGE = "\x1B[38;5;202m";
         private const string PINK = "\x1B[38;5;183m";
         private const string BOLDPINK = "\x1B[38;5;171m";
-        private const string KEYWORDBLUE = "\x1b[38;2;86;156;214m";
-        private const string KEYWORDPINK = "\x1b[38;2;238;130;238m";
-        private const string FUNCTIONYELLOW = "\x1b[38;2;220;220;170m";
-        private const string VARIABLECYAN = "\x1b[38;2;156;220;254m";
-        private const string TEXTRED = "\x1b[38;2;214;157;133m";
-        private const string VARIABLEGREEN = "\x1b[38;2;184;215;163m";
+        private const string KEYWORDBLUE = "\x1B[38;2;86;156;214m";
+        private const string KEYWORDPINK = "\x1B[38;2;238;130;238m";
+        private const string FUNCTIONYELLOW = "\x1B[38;2;220;220;170m";
+        private const string VARIABLECYAN = "\x1B[38;2;156;220;254m";
+        private const string TEXTRED = "\x1B[38;2;214;157;133m";
+        private const string VARIABLEGREEN = "\x1B[38;2;184;215;163m";
 
 		private const string BLACKBACKGROUND = "\x1B[40m";
         private const string REDBACKGROUND = "\x1B[41m";
@@ -83,12 +83,12 @@ namespace MudSharp.Framework {
         private const string BOLDBLACKBACKGROUND = "\x1B[1;40m";
         private const string PINKBACKGROUND = "\x1B[48;5;183m";
         private const string BOLDPINKBACKGROUND = "\x1B[48;5;171m";
-        private const string KEYWORDBLUEBACKGROUND = "\x1b[48;2;86;156;214m";
-        private const string KEYWORDPINKBACKGROUND = "\x1b[48;2;238;130;238m";
-        private const string FUNCTIONYELLOWBACKGROUND = "\x1b[48;2;220;220;170m";
-        private const string VARIABLECYANBACKGROUND = "\x1b[48;2;156;220;254m";
-        private const string TEXTREDBACKGROUND = "\x1b[48;2;214;157;133m";
-        private const string VARIABLEGREENBACKGROUND = "\x1b[48;2;184;215;163m";
+        private const string KEYWORDBLUEBACKGROUND = "\x1B[48;2;86;156;214m";
+        private const string KEYWORDPINKBACKGROUND = "\x1B[48;2;238;130;238m";
+        private const string FUNCTIONYELLOWBACKGROUND = "\x1B[48;2;220;220;170m";
+        private const string VARIABLECYANBACKGROUND = "\x1B[48;2;156;220;254m";
+        private const string TEXTREDBACKGROUND = "\x1B[48;2;214;157;133m";
+        private const string VARIABLEGREENBACKGROUND = "\x1B[48;2;184;215;163m";
 
 		/// <summary>
 		///     Interpret as command

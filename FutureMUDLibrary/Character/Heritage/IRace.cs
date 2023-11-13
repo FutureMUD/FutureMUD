@@ -215,6 +215,8 @@ namespace MudSharp.Character.Heritage {
         double BodypartDamageMultiplier { get; }
         bool OptInMaterialEdibility { get; }
         IRace Clone(string newName);
+        double HungerRate { get; }
+        double ThirstRate { get; }
     }
 
     public enum SizeContext {

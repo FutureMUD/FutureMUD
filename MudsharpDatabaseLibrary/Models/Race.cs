@@ -83,6 +83,9 @@ namespace MudSharp.Models
         public long? DefaultHeightWeightModelNeuterId;
         public long? DefaultHeightWeightModelNonBinaryId;
 
+        public double HungerRate { get; set; }
+        public double ThirstRate { get; set; }
+
         public virtual HeightWeightModel DefaultHeightWeightModelMale { get; set; }
         public virtual HeightWeightModel DefaultHeightWeightModelFemale { get; set; }
         public virtual HeightWeightModel DefaultHeightWeightModelNeuter { get; set; }

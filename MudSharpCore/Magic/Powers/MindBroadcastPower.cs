@@ -18,6 +18,7 @@ namespace MudSharp.Magic.Powers;
 
 public class MindBroadcastPower : MagicPowerBase
 {
+	public override string PowerType => "Mind Broadcast";
 	public static void RegisterLoader()
 	{
 		MagicPowerFactory.RegisterLoader("mindbroadcast",

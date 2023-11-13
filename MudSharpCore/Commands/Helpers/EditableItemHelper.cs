@@ -21,6 +21,7 @@ using MudSharp.Framework;
 using MudSharp.Framework.Revision;
 using MudSharp.Health;
 using MudSharp.Magic;
+using MudSharp.Magic.Generators;
 using MudSharp.Magic.Resources;
 using MudSharp.NPC;
 using MudSharp.PerceptionEngine;
@@ -1526,7 +1527,105 @@ The core syntax is as follows:
 
 		GetEditHeader = item => $"Magic School #{item.Id:N0} ({item.Name})"
 	};
-	public static EditableItemHelper MagicCapabilityHelper { get; }
+	public static EditableItemHelper MagicCapabilityHelper { get; } = new()
+	{
+		ItemName = "Magic Capability",
+		ItemNamePlural = "Magic Capabilities",
+		SetEditableItemAction = (actor, item) =>
+		{
+			actor.RemoveAllEffects<BuilderEditingEffect<IMagicCapability>>();
+			if (item == null)
+			{
+				return;
+			}
+
+			actor.AddEffect(new BuilderEditingEffect<IMagicCapability>(actor) { EditingItem = (IMagicCapability)item });
+		},
+		GetEditableItemFunc = actor =>
+			actor.CombinedEffectsOfType<BuilderEditingEffect<IMagicCapability>>().FirstOrDefault()?.EditingItem,
+		GetAllEditableItems = actor => actor.Gameworld.MagicCapabilities.ToList(),
+		GetEditableItemByIdFunc = (actor, id) => actor.Gameworld.MagicCapabilities.Get(id),
+		GetEditableItemByIdOrNameFunc = (actor, input) => actor.Gameworld.MagicCapabilities.GetByIdOrName(input),
+		AddItemToGameWorldAction = item => item.Gameworld.Add((IMagicCapability)item),
+		CastToType = typeof(IMagicCapability),
+		EditableNewAction = (actor, input) =>
+		{
+			actor.OutputHandler.Send("Not yet implemented.");
+		},
+		EditableCloneAction = (actor, input) =>
+		{
+			if (input.IsFinished)
+			{
+				actor.OutputHandler.Send("Which magic capability do you want to clone?");
+				return;
+			}
+
+			var resource = actor.Gameworld.MagicCapabilities.GetByIdOrName(input.PopSpeech());
+			if (resource == null)
+			{
+				actor.OutputHandler.Send("There is no such magic capability.");
+				return;
+			}
+
+			if (input.IsFinished)
+			{
+				actor.OutputHandler.Send("You must specify a name for your new cloned magic capability.");
+				return;
+			}
+
+			var name = input.SafeRemainingArgument.TitleCase();
+			if (actor.Gameworld.MagicCapabilities.Any(x => x.Name.EqualTo(name)))
+			{
+				actor.OutputHandler.Send(
+					$"There is already a magic capability with that name. Names must be unique.");
+				return;
+			}
+
+			actor.OutputHandler.Send("Not yet implemented.");
+		},
+
+		GetListTableHeaderFunc = character => new List<string>
+		{
+			"Id",
+			"Name",
+			"School",
+			"Power",
+			"# Powers",
+			"# Regens",
+			"Resources"
+		},
+
+		GetListTableContentsFunc = (character, protos) => from proto in protos.OfType<IMagicCapability>()
+														  select new List<string>
+														  {
+															  proto.Id.ToString("N0", character),
+															  proto.Name,
+															  proto.School.Name,
+															  proto.PowerLevel.ToString("N0", character),
+															  proto.AllPowers.Count().ToString("N0", character),
+															  proto.Regenerators.Count().ToString("N0", character),
+															  proto.Regenerators.SelectMany(x => x.GeneratedResources).Distinct().Select(x => x.Name.ColourValue()).ListToCommaSeparatedValues(", ")
+														  },
+
+		CustomSearch = (protos, keyword, gameworld) => protos,
+
+		DefaultCommandHelp = @"This command is used to work with and edit magic resources.
+
+The core syntax is as follows:
+
+    #3magic resource list - shows all magic resources
+    #3magic resource edit new <type> <name> <shortname>#0 - creates a new magic resource
+    #3magic resource clone <old> <new>#0 - clones an existing magic resource
+    #3magic resource edit <which>#0 - begins editing a magic resource
+    #3magic resource close#0 - closes an editing magic resource
+    #3magic resource show <which>#0 - shows builder information about a resource
+    #3magic resource show#0 - shows builder information about the currently edited resource
+    #3magic resource edit#0 - an alias for magic resource show (with no args)
+    #3magic resource set ...#0 - edits the properties of a magic resource. See #3magic resource set ?#0 for more info.",
+
+		GetEditHeader = item => $"Magic Capability #{item.Id:N0} ({item.Name})"
+	};
+
 	public static EditableItemHelper MagicResourceHelper { get; } = new()
 	{
 		ItemName = "Magic Resource",
@@ -1649,8 +1748,180 @@ The core syntax is as follows:
 
 		GetEditHeader = item => $"Magic Resource #{item.Id:N0} ({item.Name})"
 	};
-	public static EditableItemHelper MagicRegeneratorHelper { get; }
-	public static EditableItemHelper MagicPowerHelper { get; }
+	public static EditableItemHelper MagicRegeneratorHelper { get; } = new()
+	{
+		ItemName = "Magic Regenerator",
+		ItemNamePlural = "Magic Regenerators",
+		SetEditableItemAction = (actor, item) =>
+		{
+			actor.RemoveAllEffects<BuilderEditingEffect<IMagicResourceRegenerator>>();
+			if (item == null)
+			{
+				return;
+			}
+
+			actor.AddEffect(new BuilderEditingEffect<IMagicResourceRegenerator>(actor) { EditingItem = (IMagicResourceRegenerator)item });
+		},
+		GetEditableItemFunc = actor =>
+			actor.CombinedEffectsOfType<BuilderEditingEffect<IMagicResourceRegenerator>>().FirstOrDefault()?.EditingItem,
+		GetAllEditableItems = actor => actor.Gameworld.MagicResourceRegenerators.ToList(),
+		GetEditableItemByIdFunc = (actor, id) => actor.Gameworld.MagicResourceRegenerators.Get(id),
+		GetEditableItemByIdOrNameFunc = (actor, input) => actor.Gameworld.MagicResourceRegenerators.GetByIdOrName(input),
+		AddItemToGameWorldAction = item => item.Gameworld.Add((IMagicResourceRegenerator)item),
+		CastToType = typeof(IMagicResourceRegenerator),
+		EditableNewAction = (actor, input) =>
+		{
+			var regenerator = BaseMagicResourceGenerator.LoadFromBuilderInput(actor, input);
+			if (regenerator is null)
+			{
+				return;
+			}
+
+			actor.Gameworld.Add(regenerator);
+			actor.RemoveAllEffects<BuilderEditingEffect<IMagicResourceRegenerator>>();
+			actor.AddEffect(new BuilderEditingEffect<IMagicResourceRegenerator>(actor) { EditingItem = regenerator });
+			actor.OutputHandler.Send($"You create a new magic regenerator called {regenerator.Name.Colour(Telnet.Cyan)}, which you are now editing.");
+		},
+		EditableCloneAction = (actor, input) =>
+		{
+			if (input.IsFinished)
+			{
+				actor.OutputHandler.Send("Which magic regenerator do you want to clone?");
+				return;
+			}
+
+			var regenerator = actor.Gameworld.MagicResourceRegenerators.GetByIdOrName(input.PopSpeech());
+			if (regenerator == null)
+			{
+				actor.OutputHandler.Send("There is no such magic regenerator.");
+				return;
+			}
+
+			if (input.IsFinished)
+			{
+				actor.OutputHandler.Send("You must specify a name for your new cloned magic regenerator.");
+				return;
+			}
+
+			var name = input.SafeRemainingArgument.TitleCase();
+			if (actor.Gameworld.MagicResourceRegenerators.Any(x => x.Name.EqualTo(name)))
+			{
+				actor.OutputHandler.Send(
+					$"There is already a magic regenerator with that name. Names must be unique.");
+				return;
+			}
+
+			var clone = regenerator.Clone(name);
+			actor.Gameworld.Add(clone);
+			actor.RemoveAllEffects<BuilderEditingEffect<IMagicResourceRegenerator>>();
+			actor.AddEffect(new BuilderEditingEffect<IMagicResourceRegenerator>(actor) { EditingItem = clone });
+			actor.OutputHandler.Send(
+				$"You clone the magic regenerator {regenerator.Name.Colour(Telnet.Cyan)} as {clone.Name.Colour(Telnet.Cyan)}, which you are now editing.");
+		},
+
+		GetListTableHeaderFunc = character => new List<string>
+		{
+			"Id",
+			"Name",
+			"Type",
+			"Resources",
+			"# Times Used"
+		},
+
+		GetListTableContentsFunc = (character, protos) => from proto in protos.OfType<IMagicResourceRegenerator>()
+														  select new List<string>
+														  {
+															  proto.Id.ToString("N0", character),
+															  proto.Name,
+															  proto.RegeneratorTypeName,
+															  proto.GeneratedResources.Select(x => x.Name.Colour(Telnet.BoldPink)).ListToCommaSeparatedValues(", "),
+															  proto.Gameworld.MagicCapabilities.Count(x => x.Regenerators.Contains(proto)).ToString("N0", character)
+														  },
+
+		CustomSearch = (protos, keyword, gameworld) => protos,
+
+		DefaultCommandHelp = @"This command is used to work with and edit magic regenerators.
+
+The core syntax is as follows:
+
+    #3magic regenerator list - shows all magic regenerators
+    #3magic regenerator edit new <type> <name> <resource>#0 - creates a new magic regenerator
+    #3magic regenerator clone <old> <new>#0 - clones an existing magic regenerator
+    #3magic regenerator edit <which>#0 - begins editing a magic regenerator
+    #3magic regenerator close#0 - closes an editing magic regenerator
+    #3magic regenerator show <which>#0 - shows builder information about a regenerator
+    #3magic regenerator show#0 - shows builder information about the currently edited regenerator
+    #3magic regenerator edit#0 - an alias for magic regenerator show (with no args)
+    #3magic regenerator set ...#0 - edits the properties of a magic regenerator. See #3magic regenerator set ?#0 for more info.",
+
+		GetEditHeader = item => $"Magic Regenerator #{item.Id:N0} ({item.Name})"
+	};
+
+	public static EditableItemHelper MagicPowerHelper { get; } = new()
+	{
+		ItemName = "Magic Power",
+		ItemNamePlural = "Magic Powers",
+		SetEditableItemAction = (actor, item) =>
+		{
+			actor.RemoveAllEffects<BuilderEditingEffect<IMagicPower>>();
+			if (item == null)
+			{
+				return;
+			}
+
+			actor.AddEffect(new BuilderEditingEffect<IMagicPower>(actor) { EditingItem = (IMagicPower)item });
+		},
+		GetEditableItemFunc = actor =>
+			actor.CombinedEffectsOfType<BuilderEditingEffect<IMagicPower>>().FirstOrDefault()?.EditingItem,
+		GetAllEditableItems = actor => actor.Gameworld.MagicPowers.ToList(),
+		GetEditableItemByIdFunc = (actor, id) => actor.Gameworld.MagicPowers.Get(id),
+		GetEditableItemByIdOrNameFunc = (actor, input) => actor.Gameworld.MagicPowers.GetByIdOrName(input),
+		AddItemToGameWorldAction = item => item.Gameworld.Add((IMagicPower)item),
+		CastToType = typeof(IMagicPower),
+		EditableNewAction = (actor, input) =>
+		{
+			actor.OutputHandler.Send("Not yet implemented.");
+		},
+		EditableCloneAction = (actor, input) =>
+		{
+			actor.OutputHandler.Send("Not yet implemented.");
+		},
+
+		GetListTableHeaderFunc = character => new List<string>
+		{
+			"Id",
+			"Name",
+			"School",
+			"Type"
+		},
+
+		GetListTableContentsFunc = (character, protos) => from proto in protos.OfType<IMagicPower>()
+														  select new List<string>
+														  {
+															  proto.Id.ToString("N0", character),
+															  proto.Name,
+															  proto.School.Name,
+															  proto.PowerType
+														  },
+
+		CustomSearch = (protos, keyword, gameworld) => protos,
+
+		DefaultCommandHelp = @"This command is used to work with and edit magic regenerators.
+
+The core syntax is as follows:
+
+    #3magic regenerator list - shows all magic regenerators
+    #3magic regenerator edit new <type> <name> <resource>#0 - creates a new magic regenerator
+    #3magic regenerator clone <old> <new>#0 - clones an existing magic regenerator
+    #3magic regenerator edit <which>#0 - begins editing a magic regenerator
+    #3magic regenerator close#0 - closes an editing magic regenerator
+    #3magic regenerator show <which>#0 - shows builder information about a regenerator
+    #3magic regenerator show#0 - shows builder information about the currently edited regenerator
+    #3magic regenerator edit#0 - an alias for magic regenerator show (with no args)
+    #3magic regenerator set ...#0 - edits the properties of a magic regenerator. See #3magic regenerator set ?#0 for more info.",
+
+		GetEditHeader = item => $"Magic Power #{item.Id:N0} ({item.Name})"
+	};
 
 	public static EditableItemHelper AreaBuilder { get; } = new()
 	{

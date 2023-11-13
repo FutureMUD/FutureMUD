@@ -566,7 +566,7 @@ Additionally, admins can use the following options:
 			case "brief":
 				actor.BriefRoomDescs = !actor.BriefRoomDescs;
 				actor.Send(
-					$"You will {(actor.BriefRoomDescs ? "now" : "no longer")} see full room descriptions as you move about.");
+					$"You will {(actor.BriefRoomDescs ? "no longer" : "now")} see full room descriptions as you move about.");
 				actor.Changed = true;
 				return;
 			default:

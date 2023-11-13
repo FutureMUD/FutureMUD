@@ -17,6 +17,8 @@ namespace MudSharp.Magic.Powers;
 
 public class MagicAttackPower : MagicPowerBase, IMagicAttackPower
 {
+	public override string PowerType => "Magic Attack";
+
 	public static void RegisterLoader()
 	{
 		MagicPowerFactory.RegisterLoader("magicattack", (power, gameworld) => new MagicAttackPower(power, gameworld));

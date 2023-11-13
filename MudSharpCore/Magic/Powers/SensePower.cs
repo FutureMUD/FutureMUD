@@ -19,6 +19,7 @@ namespace MudSharp.Magic.Powers;
 
 public class SensePower : MagicPowerBase
 {
+	public override string PowerType => "Sense";
 	public static void RegisterLoader()
 	{
 		MagicPowerFactory.RegisterLoader("sense", (power, gameworld) => new SensePower(power, gameworld));

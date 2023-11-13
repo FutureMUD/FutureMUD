@@ -25,6 +25,8 @@ public class Dub : SaveableItem, IDub
 		// TODO - save/load identity concealed
 	}
 
+	public override string Name => Keywords.First();
+
 	public ICharacter Owner { get; set; }
 	public long TargetId { get; set; }
 	public string TargetType { get; set; }

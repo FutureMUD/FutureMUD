@@ -87,7 +87,7 @@ public abstract class ConcentrationConsumingEffect : Effect, IConcentrationConsu
 		var totalConcentration = CharacterOwner.Effects.OfType<IConcentrationConsumingEffect>()
 		                                       .Sum(x => x.ConcentrationPointsConsumed);
 		var difficulty = capability
-		                 .GetConcentrationDifficulty(totalConcentration / concentrationCapability,
+		                 .GetConcentrationDifficulty(CharacterOwner, totalConcentration / concentrationCapability,
 			                 ConcentrationPointsConsumed)
 		                 .Highest(wound.ConcentrationDifficulty);
 		var check = Gameworld.GetCheck(CheckType.MagicConcentrationOnWounded);

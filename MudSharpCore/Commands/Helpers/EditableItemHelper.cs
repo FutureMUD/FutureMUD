@@ -21,6 +21,7 @@ using MudSharp.Framework;
 using MudSharp.Framework.Revision;
 using MudSharp.Health;
 using MudSharp.Magic;
+using MudSharp.Magic.Capabilities;
 using MudSharp.Magic.Generators;
 using MudSharp.Magic.Resources;
 using MudSharp.NPC;
@@ -1550,7 +1551,16 @@ The core syntax is as follows:
 		CastToType = typeof(IMagicCapability),
 		EditableNewAction = (actor, input) =>
 		{
-			actor.OutputHandler.Send("Not yet implemented.");
+			var capability = MagicCapabilityFactory.LoaderFromBuilderInput(actor.Gameworld, actor, input);
+			if (capability is null)
+			{
+				return;
+			}
+
+			actor.Gameworld.Add(capability);
+			actor.RemoveAllEffects<BuilderEditingEffect<IMagicCapability>>();
+			actor.AddEffect(new BuilderEditingEffect<IMagicCapability>(actor) { EditingItem = capability });
+			actor.OutputHandler.Send($"You create a new magic capability called {capability.Name.ColourName()}, which you are now editing.");
 		},
 		EditableCloneAction = (actor, input) =>
 		{
@@ -1560,8 +1570,8 @@ The core syntax is as follows:
 				return;
 			}
 
-			var resource = actor.Gameworld.MagicCapabilities.GetByIdOrName(input.PopSpeech());
-			if (resource == null)
+			var capability = actor.Gameworld.MagicCapabilities.GetByIdOrName(input.PopSpeech());
+			if (capability == null)
 			{
 				actor.OutputHandler.Send("There is no such magic capability.");
 				return;
@@ -1581,7 +1591,12 @@ The core syntax is as follows:
 				return;
 			}
 
-			actor.OutputHandler.Send("Not yet implemented.");
+			var newCapability = capability.Clone(name);
+
+			actor.Gameworld.Add(newCapability);
+			actor.RemoveAllEffects<BuilderEditingEffect<IMagicCapability>>();
+			actor.AddEffect(new BuilderEditingEffect<IMagicCapability>(actor) { EditingItem = newCapability });
+			actor.OutputHandler.Send($"You create a new magic capability called {newCapability.Name.ColourName()} as a clone of {capability.Name.ColourName()}, which you are now editing.");
 		},
 
 		GetListTableHeaderFunc = character => new List<string>
@@ -2158,7 +2173,6 @@ The core syntax is as follows:
 
 		GetEditHeader = item => $"Autobuilder Room Template #{item.Id:N0} ({item.Name})"
 	};
-	//public static EditableItemHelper MagicPowerHelper { get; }
 
 	public static EditableItemHelper DreamHelper { get; } = new()
 	{

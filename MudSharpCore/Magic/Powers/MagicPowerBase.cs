@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 using MudSharp.Character;
+using MudSharp.Database;
 using MudSharp.Effects.Concrete;
 using MudSharp.Framework;
 using MudSharp.Framework.Save;
@@ -298,18 +299,48 @@ public abstract class MagicPowerBase : SaveableItem, IMagicPower
 
 	public bool BuildingCommand(ICharacter actor, StringStack command)
 	{
-		throw new NotImplementedException();
+		actor.OutputHandler.Send("Building commands are not yet implemented for Magic Powers.");
+		return false;
+	}
+
+	protected virtual void ShowSubtype(ICharacter actor, StringBuilder sb)
+	{
+		// Do nothing while todo
 	}
 
 	public string Show(ICharacter actor)
 	{
-		throw new NotImplementedException();
+		var sb = new StringBuilder();
+		sb.AppendLine($"Magic Power #{Id.ToString("N0", actor)} - {Name}".GetLineWithTitle(actor, School.PowerListColour, Telnet.BoldWhite));
+		sb.AppendLine($"Type: {PowerType.ColourValue()}");
+		sb.AppendLine($"School: {School.Name.Colour(School.PowerListColour)}");
+		sb.AppendLine($"Blurb: {Blurb.ColourCommand()}");
+		sb.AppendLine($"Can Invoke Prog: {CanInvokePowerProg?.MXPClickableFunctionName() ?? "None".ColourError()}");
+		sb.AppendLine($"Why Can't Invoke Prog: {WhyCantInvokePowerProg?.MXPClickableFunctionName() ?? "None".ColourError()}");
+		ShowSubtype(actor, sb);
+		sb.AppendLine();
+		sb.AppendLine("Costs:");
+		sb.AppendLine();
+		foreach (var item in InvocationCosts)
+		{
+			sb.AppendLine($"\t{item.Key.ColourCommand()}: {item.Value.Select(x => $"{x.Cost.ToString("N2", actor)} {x.Resource.ShortName}".ColourValue()).ListToString()}");
+		}
+		sb.AppendLine();
+		sb.AppendLine("Help Text:");
+		sb.AppendLine();
+		sb.AppendLine(_showHelpText.SubstituteANSIColour().Wrap(actor.InnerLineFormatLength, "\t"));
+		return sb.ToString();
 	}
 
 	public override void Save()
 	{
+		var dbitem = FMDB.Context.MagicPowers.Find(Id);
+		dbitem.Name = Name;
+		dbitem.MagicSchoolId = School.Id;
+		dbitem.ShowHelp = _showHelpText;
+		dbitem.Blurb = Blurb;
+		// TODO - save defintion
 		Changed = false;
-		throw new NotImplementedException();
 	}
 	#endregion
 }

@@ -3,6 +3,7 @@ using MudSharp.Character;
 
 namespace MudSharp.Framework.Save;
 
+#nullable enable
 public abstract class SaveableItem : FrameworkItem, ISaveable
 {
 	public override long Id
@@ -75,7 +76,7 @@ public abstract class SavableKeywordedItem : KeywordedItem, ISaveable
 
 	#region IHaveFuturemud Members
 
-	public IFuturemud Gameworld { get; protected set; }
+	public IFuturemud Gameworld { get; set; }
 
 	#endregion
 

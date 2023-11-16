@@ -68,6 +68,7 @@ public class GameItemSkin : EditableItem, IGameItemSkin
 
 	protected GameItemSkin(GameItemSkin rhs, IAccount originator) : base(originator)
 	{
+		Gameworld = rhs.Gameworld;
 		_name = rhs.Name;
 		_id = rhs.Id;
 		RevisionNumber = Gameworld.ItemSkins.GetAll(_id).Max(x => x.RevisionNumber) + 1;
@@ -108,6 +109,7 @@ public class GameItemSkin : EditableItem, IGameItemSkin
 
 	protected GameItemSkin(GameItemSkin rhs, IAccount originator, string name) : base(originator)
 	{
+		Gameworld = rhs.Gameworld;
 		_name = name;
 		_itemProtoId = rhs._itemProtoId;
 		ItemName = rhs.ItemName;

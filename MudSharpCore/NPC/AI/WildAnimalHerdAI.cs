@@ -1992,9 +1992,9 @@ public class WildAnimalHerdAI : PathingAIBase
 		});
 	}
 
-	protected override IEnumerable<ICellExit> GetPath(ICharacter ch)
+	protected override (ICell Target, IEnumerable<ICellExit>) GetPath(ICharacter ch)
 	{
 		// This AI always supplies its own paths through other means
-		return Enumerable.Empty<ICellExit>();
+		return (null, Enumerable.Empty<ICellExit>());
 	}
 }

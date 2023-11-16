@@ -18,6 +18,7 @@ using MudSharp.NPC.AI.Strategies;
 using MudSharp.PerceptionEngine;
 using MudSharp.PerceptionEngine.Outputs;
 using MudSharp.PerceptionEngine.Parsers;
+using MudSharp.Construction;
 
 namespace MudSharp.NPC.AI;
 
@@ -261,14 +262,14 @@ public class TrackingAggressorAI : PathingAIWithProgTargetsBase
 		RegisterAIType("TrackingAggressor", (ai, gameworld) => new TrackingAggressorAI(ai, gameworld));
 	}
 
-	protected override IEnumerable<ICellExit> GetPath(ICharacter ch)
+	protected override (ICell Target, IEnumerable<ICellExit>) GetPath(ICharacter ch)
 	{
 		var target = ch.AcquireTargetAndPath(GetTargetFunction(ch), MaximumRange, GetSuitabilityFunction(ch));
 		if (target.Item1 == null || !target.Item2.Any())
 		{
-			return Enumerable.Empty<ICellExit>();
+			return (null, Enumerable.Empty<ICellExit>());
 		}
 
-		return target.Item2;
+		return (target.Item1.Location, target.Item2);
 	}
 }

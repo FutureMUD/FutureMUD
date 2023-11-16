@@ -364,7 +364,7 @@ public static class PerceivedItemExtensions
 			{
 				if (exit.Destination == target.Location)
 				{
-					return next.SelfAndAncestors.Values().Select(x => x.Destination).Reverse();
+					return next.SelfAndAncestors.Values().Select(x => x.Destination).Reverse().ToList();
 				}
 
 				if (locationsConsidered.Contains(exit.Destination))
@@ -423,7 +423,7 @@ public static class PerceivedItemExtensions
 
 				if (exit.Value.Destination == target.Location)
 				{
-					return exit.SelfAndAncestors.Values().Reverse();
+					return exit.SelfAndAncestors.Values().Reverse().ToList();
 				}
 
 				locationsConsidered.Add(exit.Value.Destination);
@@ -490,7 +490,7 @@ public static class PerceivedItemExtensions
 				{
 					var newNode = new Node<ICellExit>(exit);
 					next.Add(newNode);
-					return newNode.SelfAndAncestors.Values().Reverse();
+					return newNode.SelfAndAncestors.Values().Reverse().ToList();
 				}
 
 				if (locationsConsidered.Contains(exit.Destination))
@@ -937,7 +937,7 @@ public static class PerceivedItemExtensions
 
 				if (exit.Value.Destination == target.Location)
 				{
-					return exit.SelfAndAncestors.Values().Reverse();
+					return exit.SelfAndAncestors.Values().Reverse().ToList();
 				}
 
 				locationsConsidered.Add(exit.Value.Destination);
@@ -992,7 +992,7 @@ public static class PerceivedItemExtensions
 			var next = queue.DequeueValue();
 			if (next.Value.Destination == target.Location)
 			{
-				return next.SelfAndAncestors.Values().Reverse();
+				return next.SelfAndAncestors.Values().Reverse().ToList();
 			}
 
 			if (next.Ancestors.Count() >= maximumDistance)
@@ -1011,7 +1011,7 @@ public static class PerceivedItemExtensions
 				{
 					var newNode = new Node<ICellExit>(exit);
 					next.Add(newNode);
-					return newNode.SelfAndAncestors.Values().Reverse();
+					return newNode.SelfAndAncestors.Values().Reverse().ToList();
 				}
 
 				if (locationsConsidered.Contains(exit.Destination))
@@ -1071,7 +1071,7 @@ public static class PerceivedItemExtensions
 			var next = queue.DequeueValue();
 			if (next.Value.Destination == target.Location)
 			{
-				return next.SelfAndAncestors.Values().Reverse();
+				return next.SelfAndAncestors.Values().Reverse().ToList();
 			}
 
 			if (next.Ancestors.Count() >= maximumDistance)
@@ -1090,7 +1090,7 @@ public static class PerceivedItemExtensions
 				{
 					var newNode = new Node<ICellExit>(exit);
 					next.Add(newNode);
-					return newNode.SelfAndAncestors.Values().Reverse();
+					return newNode.SelfAndAncestors.Values().Reverse().ToList();
 				}
 
 				if (locationsConsidered.ContainsKey(exit.Destination))
@@ -1151,7 +1151,7 @@ public static class PerceivedItemExtensions
 			var next = queue.DequeueValue();
 			if (suitabilityFunction(next.Value) && targets.Any(x => x.Location == next.Value.Destination))
 			{
-				return next.SelfAndAncestors.Values().Reverse();
+				return next.SelfAndAncestors.Values().Reverse().ToList();
 			}
 
 			if (next.Ancestors.Count() >= maximumDistance)
@@ -1170,7 +1170,7 @@ public static class PerceivedItemExtensions
 				{
 					var newNode = new Node<ICellExit>(exit);
 					next.Add(newNode);
-					return newNode.SelfAndAncestors.Values().Reverse();
+					return newNode.SelfAndAncestors.Values().Reverse().ToList();
 				}
 
 				if (locationsConsidered.Contains(exit.Destination))

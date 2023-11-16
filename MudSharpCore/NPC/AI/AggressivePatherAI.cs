@@ -257,30 +257,30 @@ public class AggressivePatherAI : PathingAIWithProgTargetsBase
 		RegisterAIType("AggressivePather", (ai, gameworld) => new AggressivePatherAI(ai, gameworld));
 	}
 
-	protected override IEnumerable<ICellExit> GetPath(ICharacter ch)
+	protected override (ICell Target, IEnumerable<ICellExit>) GetPath(ICharacter ch)
 	{
 		if (ch.Effects.Any(x => x.IsBlockingEffect("movement")))
 		{
-			return Enumerable.Empty<ICellExit>();
+			return (null, Enumerable.Empty<ICellExit>());
 		}
 
 		var target = ch.AcquireTargetAndPath(GetTargetFunction(ch), 5, GetSuitabilityFunction(ch));
 		if (target.Item1 != null && target.Item2.Any())
 		{
-			return target.Item2;
+			return (target.Item1.Location, target.Item2);
 		}
 
 		var location = (ICell)TargetLocationProg.Execute(ch);
 		if (location == null || Equals(location, ch.Location))
 		{
-			return Enumerable.Empty<ICellExit>();
+			return (null, Enumerable.Empty<ICellExit>());
 		}
 
 		// First try to find a path to the primary target
 		var path = ch.PathBetween(location, 12, GetSuitabilityFunction(ch));
 		if (path.Any())
 		{
-			return path;
+			return (location, path);
 		}
 
 		if (MoveEvenIfObstructionInWay)
@@ -288,7 +288,7 @@ public class AggressivePatherAI : PathingAIWithProgTargetsBase
 			path = ch.PathBetween(location, 12, GetSuitabilityFunction(ch, false));
 			if (path.Any())
 			{
-				return path;
+				return (location, path);
 			}
 		}
 
@@ -296,13 +296,13 @@ public class AggressivePatherAI : PathingAIWithProgTargetsBase
 		location = (ICell)FallbackLocationProg.Execute(ch);
 		if (location == null || location == ch.Location)
 		{
-			return Enumerable.Empty<ICellExit>();
+			return (null, Enumerable.Empty<ICellExit>());
 		}
 
 		path = ch.PathBetween(location, 12, GetSuitabilityFunction(ch));
 		if (path.Any())
 		{
-			return path;
+			return (location, path);
 		}
 
 		if (MoveEvenIfObstructionInWay)
@@ -310,7 +310,7 @@ public class AggressivePatherAI : PathingAIWithProgTargetsBase
 			path = ch.PathBetween(location, 12, GetSuitabilityFunction(ch, false));
 			if (path.Any())
 			{
-				return path;
+				return (location, path);
 			}
 		}
 
@@ -319,9 +319,9 @@ public class AggressivePatherAI : PathingAIWithProgTargetsBase
 			GetSuitabilityFunction(ch));
 		if (path.Any())
 		{
-			return path;
+			return (location, path);
 		}
 
-		return Enumerable.Empty<ICellExit>();
+		return (null, Enumerable.Empty<ICellExit>());
 	}
 }

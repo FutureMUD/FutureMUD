@@ -48,19 +48,19 @@ public class PathToLocationAI : PathingAIWithProgTargetsBase
 		RegisterAIType("PathToLocation", (ai, gameworld) => new PathToLocationAI(ai, gameworld));
 	}
 
-	protected override IEnumerable<ICellExit> GetPath(ICharacter ch)
+	protected override (ICell Target, IEnumerable<ICellExit>) GetPath(ICharacter ch)
 	{
 		var location = (ICell)TargetLocationProg.Execute(ch);
 		if (location == null || Equals(location, ch.Location))
 		{
-			return Enumerable.Empty<ICellExit>();
+			return (null, Enumerable.Empty<ICellExit>());
 		}
 
 		// First try to find a path to the primary target
 		var path = ch.PathBetween(location, 12, GetSuitabilityFunction(ch));
 		if (path.Any())
 		{
-			return path;
+			return (location, path);
 		}
 
 		if (MoveEvenIfObstructionInWay)
@@ -68,7 +68,7 @@ public class PathToLocationAI : PathingAIWithProgTargetsBase
 			path = ch.PathBetween(location, 12, GetSuitabilityFunction(ch, false));
 			if (path.Any())
 			{
-				return path;
+				return (location, path);
 			}
 		}
 
@@ -76,13 +76,13 @@ public class PathToLocationAI : PathingAIWithProgTargetsBase
 		location = (ICell)FallbackLocationProg.Execute(ch);
 		if (location == null || location == ch.Location)
 		{
-			return Enumerable.Empty<ICellExit>();
+			return (null, Enumerable.Empty<ICellExit>());
 		}
 
 		path = ch.PathBetween(location, 12, GetSuitabilityFunction(ch));
 		if (path.Any())
 		{
-			return path;
+			return (location, path);
 		}
 
 		if (MoveEvenIfObstructionInWay)
@@ -90,7 +90,7 @@ public class PathToLocationAI : PathingAIWithProgTargetsBase
 			path = ch.PathBetween(location, 12, GetSuitabilityFunction(ch, false));
 			if (path.Any())
 			{
-				return path;
+				return (location, path);
 			}
 		}
 
@@ -99,9 +99,9 @@ public class PathToLocationAI : PathingAIWithProgTargetsBase
 			GetSuitabilityFunction(ch));
 		if (path.Any())
 		{
-			return path;
+			return (location, path);
 		}
 
-		return Enumerable.Empty<ICellExit>();
+		return (null, Enumerable.Empty<ICellExit>());
 	}
 }

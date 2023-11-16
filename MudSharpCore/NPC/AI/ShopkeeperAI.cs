@@ -341,13 +341,13 @@ public class ShopkeeperAI : PathingAIBase
 
 	#endregion
 
-	protected override IEnumerable<ICellExit> GetPath(ICharacter ch)
+	protected override (ICell Target, IEnumerable<ICellExit>) GetPath(ICharacter ch)
 	{
 		var effect = ch.EffectsOfType<RestockingMerchandise>().First();
 		var shop = effect.TargetMerchandise.Shop as IPermanentShop;
         if (shop is null)
         {
-            return Enumerable.Empty<ICellExit>();
+            return (null, Enumerable.Empty<ICellExit>());
         }
 
         if (effect.CurrentGameItems.Any())
@@ -359,21 +359,20 @@ public class ShopkeeperAI : PathingAIBase
 					GetSuitabilityFunction(ch)).ToList();
 				if (path.Any())
 				{
-					return path;
+					return (effect.TargetMerchandise.PreferredDisplayContainer.LocationLevelPerceivable.Location, path);
 				}
 			}
 
-			return ch.PathBetween(
-				shop.ShopfrontCells.WhereMin(x => x.Characters.Count(y => shop.IsClockedIn(y))).GetRandomElement(),
-				10, GetSuitabilityFunction(ch));
+			var target = shop.ShopfrontCells.WhereMin(x => x.Characters.Count(y => shop.IsClockedIn(y))).GetRandomElement();
+			return (target, ch.PathBetween(target, 10, GetSuitabilityFunction(ch)));
 		}
 
 		if (shop?.StockroomCell == null || ch.Location == shop.StockroomCell)
 		{
-			return Enumerable.Empty<ICellExit>();
+			return (null, Enumerable.Empty<ICellExit>());
 		}
 
-		return ch.PathBetween(shop.StockroomCell, 10, GetSuitabilityFunction(ch))
-		         .ToList();
+		return (shop.StockroomCell, ch.PathBetween(shop.StockroomCell, 10, GetSuitabilityFunction(ch))
+		         .ToList());
 	}
 }

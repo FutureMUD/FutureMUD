@@ -508,7 +508,7 @@ public class SemiAggressiveAI : PathingAIWithProgTargetsBase
 		return (bool?)WillFleeProg.Execute(character, cell, targets, ExistingThreatLevel(character)) ?? false;
 	}
 
-	protected virtual IEnumerable<ICellExit> FleeRouteForCharacter(ICharacter character)
+	protected virtual (ICell Target, IEnumerable<ICellExit>) FleeRouteForCharacter(ICharacter character)
 	{
 		var locations = ((IList)((CollectionVariable)FleeLocationsProg.Execute(character)).GetObject).OfType<ICell>();
 
@@ -517,11 +517,11 @@ public class SemiAggressiveAI : PathingAIWithProgTargetsBase
 			var path = character.PathBetween(loc, 12, OpenDoors).ToList();
 			if (path.Any() == true)
 			{
-				return path;
+				return (loc, path);
 			}
 		}
 
-		return Enumerable.Empty<ICellExit>();
+		return (null, Enumerable.Empty<ICellExit>());
 	}
 
 	private void BeginAttack(ICharacter attacker, ICharacter target)
@@ -569,7 +569,7 @@ public class SemiAggressiveAI : PathingAIWithProgTargetsBase
 		var fleeEffect = new AIRecentlyFledPosturing(character, effect.ThreatLevel);
 		character.AddEffect(fleeEffect, TimeSpan.FromSeconds(60));
 		character.RemoveEffect(effect);
-		var route = FleeRouteForCharacter(character);
+		var (target, route) = FleeRouteForCharacter(character);
 		if (route.Any())
 		{
 			var pathEffect = new FollowingPath(character, route);
@@ -788,11 +788,11 @@ public class SemiAggressiveAI : PathingAIWithProgTargetsBase
 		return false;
 	}
 
-	protected override IEnumerable<ICellExit> GetPath(ICharacter ch)
+	protected override (ICell Target, IEnumerable<ICellExit>) GetPath(ICharacter ch)
 	{
 		if (!ch.AffectedBy<AIFleeing>())
 		{
-			return Enumerable.Empty<ICellExit>();
+			return (null, Enumerable.Empty<ICellExit>());
 		}
 
 		return FleeRouteForCharacter(ch);

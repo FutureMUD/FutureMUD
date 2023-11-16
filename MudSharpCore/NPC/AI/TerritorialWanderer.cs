@@ -375,7 +375,7 @@ public class TerritorialWanderer : PathingAIBase
 	}
 
 	/// <inheritdoc />
-	protected override IEnumerable<ICellExit> GetPath(ICharacter ch)
+	protected override (ICell Target, IEnumerable<ICellExit>) GetPath(ICharacter ch)
 	{
 		var territoryEffect = ch.CombinedEffectsOfType<Territory>().FirstOrDefault();
 		if (territoryEffect is null)
@@ -384,7 +384,7 @@ public class TerritorialWanderer : PathingAIBase
 			ch.AddEffect(territoryEffect);
 		}
 
-		var path = ch.PathBetween(territoryEffect.Cells, 20, GetSuitabilityFunction(ch, true));
-		return path;
+		var path = ch.PathBetween(territoryEffect.Cells, 20, GetSuitabilityFunction(ch, true)).ToList();
+		return (path.Last().Destination, path);
 	}
 }

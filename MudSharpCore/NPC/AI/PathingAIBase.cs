@@ -35,6 +35,12 @@ public abstract class PathingAIBase : ArtificialIntelligenceBase
 
 	protected virtual void LoadFromXML(XElement root)
 	{
+		OpenDoors = bool.Parse(root.Element("OpenDoors")?.Value ?? "false");
+		UseKeys = bool.Parse(root.Element("UseKeys")?.Value ?? "false");
+		SmashLockedDoors = bool.Parse(root.Element("SmashLockedDoors")?.Value ?? "false");
+		CloseDoorsBehind = bool.Parse(root.Element("CloseDoorsBehind")?.Value ?? "false");
+		UseDoorguards = bool.Parse(root.Element("UseDoorguards")?.Value ?? "false");
+		MoveEvenIfObstructionInWay = bool.Parse(root.Element("MoveEvenIfObstructionInWay")?.Value ?? "false");
 	}
 
 	#endregion
@@ -50,6 +56,83 @@ public abstract class PathingAIBase : ArtificialIntelligenceBase
 	public bool CloseDoorsBehind { get; protected set; }
 
 	public bool UseDoorguards { get; protected set; }
+
+	protected override string TypeHelpText => @"	#3opendoors#0 - toggles AI using doors
+	#3usekeys#0 - toggles AI using keys
+	#3useguards#0 - toggles AI using doorguards
+	#3closedoors#0 - toggles the AI closing doors behind them
+	#3smashdoors#0 - toggles the AI smashing doors it can't get through
+	#3forcemove#0 - toggles the AI moving even if it can't get through";
+
+	public override bool BuildingCommand(ICharacter actor, StringStack command)
+	{
+		switch (command.PopSpeech().ToLowerInvariant().CollapseString()) {
+			case "opendoors":
+				return BuildingCommandOpenDoors(actor);
+			case "usekeys":
+				return BuildingCommandUseKeys(actor);
+			case "smashdoors":
+				return BuildingCommandSmashDoors(actor);
+			case "closedoors":
+				return BuildingCommandCloseDoors(actor);
+			case "usedoorguards":
+			case "useguards":
+			case "doorguards":
+				return BuildingCommandUseDoorguards(actor);
+			case "forcemove":
+				return BuildingCommandForceMove(actor);
+		}
+		return base.BuildingCommand(actor, command.GetUndo());
+	}
+
+	private bool BuildingCommandForceMove(ICharacter actor)
+	{
+		MoveEvenIfObstructionInWay = !MoveEvenIfObstructionInWay;
+		Changed = true;
+		actor.OutputHandler.Send($"This AI will {MoveEvenIfObstructionInWay.NowNoLonger()} move if an obstruction is in the way that it can't easily get passed, like a closed door or someone guarding an exit.");
+		return true;
+	}
+
+	private bool BuildingCommandUseDoorguards(ICharacter actor)
+	{
+
+		UseDoorguards = !UseDoorguards;
+		Changed = true;
+		actor.OutputHandler.Send($"This AI will {UseDoorguards.NowNoLonger()} interact with doorguards to open locked doors.");
+		return true;
+	}
+
+	private bool BuildingCommandCloseDoors(ICharacter actor)
+	{
+		CloseDoorsBehind = !CloseDoorsBehind;
+		Changed = true;
+		actor.OutputHandler.Send($"This AI will {CloseDoorsBehind.NowNoLonger()} close doors after it goes through them.");
+		return true;
+	}
+
+	private bool BuildingCommandSmashDoors(ICharacter actor)
+	{
+		SmashLockedDoors = !SmashLockedDoors;
+		Changed = true;
+		actor.OutputHandler.Send($"This AI will {SmashLockedDoors.NowNoLonger()} try to smash through locked doors if it can't open them.");
+		return true;
+	}
+
+	private bool BuildingCommandUseKeys(ICharacter actor)
+	{
+		UseKeys = !UseKeys;
+		Changed = true;
+		actor.OutputHandler.Send($"This AI will {UseKeys.NowNoLonger()} try to use keys to open doors if it has them available.");
+		return true;
+	}
+
+	private bool BuildingCommandOpenDoors(ICharacter actor)
+	{
+		OpenDoors = !OpenDoors;
+		Changed = true;
+		actor.OutputHandler.Send($"This AI will {OpenDoors.NowNoLonger()} try to open closed doors in its path.");
+		return true;
+	}
 
 	protected virtual bool IsPathingEnabled(ICharacter character)
 	{
@@ -453,6 +536,11 @@ public abstract class PathingAIBase : ArtificialIntelligenceBase
 		};
 	}
 
+	protected virtual void OnBeginPathing(ICharacter ch, ICell target, IEnumerable<ICellExit> exits)
+	{
+		// Do nothing unless overridden
+	}
+
 	protected void CreatePathingEffect(ICharacter ch)
 	{
 		if (ch.State.HasFlag(CharacterState.Dead) || ch.Corpse != null)
@@ -460,7 +548,8 @@ public abstract class PathingAIBase : ArtificialIntelligenceBase
 			return;
 		}
 
-		var path = GetPath(ch).ToList();
+		var (target, pathEnumerables) = GetPath(ch);
+		var path = pathEnumerables.ToList();
 		if (!path.Any())
 		{
 			return;
@@ -468,6 +557,7 @@ public abstract class PathingAIBase : ArtificialIntelligenceBase
 
 		var effect = new FollowingPath(ch, path);
 		ch.AddEffect(effect);
+		OnBeginPathing(ch, target, path);
 		FollowPathAction(ch, effect);
 	}
 
@@ -480,7 +570,7 @@ public abstract class PathingAIBase : ArtificialIntelligenceBase
 		path.FollowPathAction();
 	}
 
-	protected abstract IEnumerable<ICellExit> GetPath(ICharacter ch);
+	protected abstract (ICell Target, IEnumerable<ICellExit>) GetPath(ICharacter ch);
 
 	protected virtual bool WouldMove(ICharacter ch)
 	{

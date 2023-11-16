@@ -276,6 +276,14 @@ public class ExitManager : IExitManager, IHaveFuturemud
 		foreach (var exit in exitsToDelete)
 		{
 			MasterExitList.Remove(exit.Id);
+			foreach (IEditableCellOverlay overlay in exit.Cells.First().Overlays)
+			{
+				overlay.RemoveExit(exit);
+			}
+			foreach (IEditableCellOverlay overlay in exit.Cells.Last().Overlays)
+			{
+				overlay.RemoveExit(exit);
+			}
 			exit.Delete();
 		}
 	}

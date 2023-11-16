@@ -23,6 +23,7 @@ public class GameItemSkin : EditableItem, IGameItemSkin
 	{
 		Gameworld = gameworld;
 		_id = item.Id;
+		RevisionNumber = item.RevisionNumber;
 		_name = item.Name;
 		_itemProtoId = item.ItemProtoId;
 		CanUseSkinProg = Gameworld.FutureProgs.Get(item.CanUseSkinProgId ?? 0) ??

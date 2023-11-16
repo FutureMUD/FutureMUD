@@ -167,7 +167,7 @@ public class CellExit : ICellExit
 	public virtual bool HasKeyword(string targetKeyword, IPerceiver voyeur, bool abbreviated = true)
 	{
 		return abbreviated
-			? _keywords.Value.Any(x => x.StartsWith(targetKeyword, StringComparison.Ordinal))
+			? _keywords.Value.Any(x => x.StartsWith(targetKeyword, StringComparison.InvariantCultureIgnoreCase))
 			: _keywords.Value.Contains(targetKeyword);
 	}
 

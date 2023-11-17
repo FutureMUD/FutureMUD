@@ -13,6 +13,8 @@ using System.Text;
 using System.Threading.Tasks;
 using MudSharp.PerceptionEngine;
 using MudSharp.GameItems.Groups;
+using MudSharp.Framework.Scheduling;
+using Microsoft.EntityFrameworkCore;
 
 namespace MudSharp.Commands.Modules
 {
@@ -309,7 +311,13 @@ Note: The following two subcommands take a long time and can sometimes cause iss
 						actor.Gameworld.SystemMessage($"Updated {count} of {items.Count} total items.", true);
 						actor.Gameworld.SystemMessage(
 							"The long-running maintenance task has now completed.");
-					}, ScheduleType.System, TimeSpan.FromSeconds(30), "Component Update"));
+					}, ScheduleType.System,
+#if DEBUG
+					TimeSpan.FromSeconds(1),
+#else
+					TimeSpan.FromSeconds(30), 
+#endif
+					"Component Update"));
 				},
 				text => { actor.Send("You decide against updating the components."); },
 				() => { actor.Send("You decide against updating the components."); },
@@ -1036,7 +1044,7 @@ Help:
 			actor.OutputHandler.Send(proto.Show(actor));
 		}
 
-		#endregion
+#endregion
 
 		#region Item Groups
 
@@ -1051,24 +1059,24 @@ Item groups also have something called #6forms#0. Forms cause all the same item 
 
 The syntax for this command is as follows:
 
-	#3itemgroup add <name>#0 - adds a new item group
-	#3itemgroup delete <which>#0 - permanently deletes an item group
-	#3itemgroup show <which>#0 - shows info about an item group
-	#3itemgroup list#0 - lists all item groups **
-	#3itemgroup <which> name <name>#0 - renames a group
-	#3itemgroup <which> keywords <space separated list>#0 - sets the item group keywords
-	#3itemgroup <which> form add <type>#0 - adds a new description form for a group
-	#3itemgroup <which> form delete <id>#0 - deletes the specified form from a group
-	#3itemgroup <which> form <id> room <id>#0 - toggles a room as using the form
-	#3itemgroup <which> form <id> ldesc <ldesc>#0 - sets the long description of the form
-	#3itemgroup <which> form <id> name <item name>#0 - sets the name of items in the form
-	#3itemgroup <which> form <id> desc#0 - sets the look description for the form
+#3itemgroup add <name>#0 - adds a new item group
+#3itemgroup delete <which>#0 - permanently deletes an item group
+#3itemgroup show <which>#0 - shows info about an item group
+#3itemgroup list#0 - lists all item groups **
+#3itemgroup <which> name <name>#0 - renames a group
+#3itemgroup <which> keywords <space separated list>#0 - sets the item group keywords
+#3itemgroup <which> form add <type>#0 - adds a new description form for a group
+#3itemgroup <which> form delete <id>#0 - deletes the specified form from a group
+#3itemgroup <which> form <id> room <id>#0 - toggles a room as using the form
+#3itemgroup <which> form <id> ldesc <ldesc>#0 - sets the long description of the form
+#3itemgroup <which> form <id> name <item name>#0 - sets the name of items in the form
+#3itemgroup <which> form <id> desc#0 - sets the look description for the form
 
 ** - The following options are available to filter the list:
 
-	#6+<keyword>#0 - searches for a keyword in the item group or one of its forms
-	#6-<keyword>#0 - excludes a keyword in the item group or one of its forms
-	#6*<room id>#0 - searches for groups with forms that explicitly contain the specified room",
+#6+<keyword>#0 - searches for a keyword in the item group or one of its forms
+#6-<keyword>#0 - excludes a keyword in the item group or one of its forms
+#6*<room id>#0 - searches for groups with forms that explicitly contain the specified room",
 			AutoHelp.HelpArgOrNoArg)]
 		protected static void ItemGroup(ICharacter actor, string command)
 		{
@@ -1274,16 +1282,16 @@ When players are editing item skins they will only be able to edit skins that th
 
 The syntax to use this command is as follows:
 
-	#3itemskin list#0 - lists all of the item skins
-	#3itemskin protos#0 - lists all the items that players can create skins for
-	#3itemskin edit <which>#0 - begins editing an item skin
-	#3itemskin edit new <proto> <name>#0 - creates a new item skin
-	#3itemskin clone <old> <new name>#0 - clones an existing item skin to a new one
-	#3itemskin close#0 - stops editing an item skin
-	#3itemskin show <which>#0 - views information about an item skin
-	#3itemskin show#0 - views information about your currently editing item skin
-	#3itemskin set ...#0 - edits properties of an item skin
-	#3itemskin review all|mine|<builder name>|<id>#0 - opens the specified item skins for review and approval
+#3itemskin list#0 - lists all of the item skins
+#3itemskin protos#0 - lists all the items that players can create skins for
+#3itemskin edit <which>#0 - begins editing an item skin
+#3itemskin edit new <proto> <name>#0 - creates a new item skin
+#3itemskin clone <old> <new name>#0 - clones an existing item skin to a new one
+#3itemskin close#0 - stops editing an item skin
+#3itemskin show <which>#0 - views information about an item skin
+#3itemskin show#0 - views information about your currently editing item skin
+#3itemskin set ...#0 - edits properties of an item skin
+#3itemskin review all|mine|<builder name>|<id>#0 - opens the specified item skins for review and approval
 
 {GenericReviewableSearchList}";
 

@@ -740,7 +740,13 @@ internal class ImplementorModule : Module<ICharacter>
 					actor.Gameworld.SaveManager.Flush();
 					DoCleanupOrphanedItems();
 					actor.Gameworld.SystemMessage("The long-running maintenance task has now completed.");
-				}, ScheduleType.System, TimeSpan.FromSeconds(30), "Cleaning Orphaned Items"));
+				}, ScheduleType.System,
+#if DEBUG
+					TimeSpan.FromSeconds(1),
+#else
+					TimeSpan.FromSeconds(30), 
+#endif
+					 "Cleaning Orphaned Items"));
 			},
 			text => { actor.Send("You decide against cleaning up orphaned items."); },
 			() => { actor.Send("You decide against cleaning up orphaned items."); },

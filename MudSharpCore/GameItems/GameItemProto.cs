@@ -917,44 +917,44 @@ public class GameItemProto : EditableItem, IGameItemProto
 			case "?":
 				actor.OutputHandler.Send(@"You can use the following options with the ITEM SET command:
 
-	noun <noun> - sets the primary noun for this item. Single word only.
-	sdesc <sdesc> - sets the short description (e.g. a solid iron sword)
-	ldesc <ldesc> - sets an overrided long description (in room) for this item
-	ldesc none - clears an overrided long description
-	desc - drops you into an editor to enter the full description (when looked at)
-	suggestdesc [<optional extra context>] - asks your GPT model to suggest a description
-	add <id|name> - adds the specified component to this item
-	remove <id|name> - removes the specified component from this item
-	size <size> - sets the item size
-	weight <weight> - sets the item weight
-	material <material> - sets the item material
-	quality <quality> - sets the base item quality
-	cost <cost> - sets the base item cost
-	tag <tag> - adds the specified tag to this item
-	untag <tag> - removes the specified tag from this item
-	priority - toggles this item being high priority, which means appearing at the top of the item list in the room
-	colour <ansi colour> - overrides the default green colour for this item
-	colour none - resets the item colour to the default
-	onload <prog> - toggles a particular prog to run when the item is loaded
-	register <variable name> <default value> - sets a default value for a register variable for this item
-	register delete <variable name> - deletes a default value for a register variable
-	morph <item#|none> <seconds> [<emote>] - sets item morph information. The 'none' value makes the item disappear.
-	morph clear - clears any morph info for this item
-	group <id|name> - sets this item's item group (for in-room grouping)
-	group none - clears this item's item group
-	destroyed <id> - sets an item to load up in-place of this item when it is destroyed
-	destroyed none - clears a destroyed item setting
-	strategy <id|name> - sets a custom health strategy for this item
-	strategy none - sets the item to use the default item health strategy
-    extra add <prog> - adds a new extra description slot with a specified prog
-    extra remove <which#> - removes the specified numbered extra description
-    extra swap <first#> <second#> - swaps the evaluation order of two extra descriptions
-    extra <which#> sdesc <sdesc> - sets the short description for the extra description
-    extra <which#> clear sdesc - clears the short description for the extra description
-    extra <which#> desc <desc> - sets the full description for the extra description
-    extra <which#> clear desc - clears the full description for the extra description
-    extra <which#> addendum <text> - sets an addendum text for the full description
-    extra <which#> clear addenudm - clears the addendum text for the full description");
+	#3add <id|name>#0 - adds the specified component to this item
+	#3remove <id|name>#0 - removes the specified component from this item
+	#3noun <noun>#0 - sets the primary noun for this item. Single word only.
+	#3sdesc <sdesc>#0 - sets the short description (e.g. a solid iron sword)
+	#3ldesc <ldesc>#0 - sets an overrided long description (in room) for this item
+	#3ldesc none#0 - clears an overrided long description
+	#3desc#0 - drops you into an editor to enter the full description (when looked at)
+	#3suggestdesc [<optional extra context>]#0 - asks your GPT model to suggest a description
+	#3size <size>#0 - sets the item size
+	#3weight <weight>#0 - sets the item weight
+	#3material <material>#0 - sets the item material
+	#3quality <quality>#0 - sets the base item quality
+	#3cost <cost>#0 - sets the base item cost
+	#3tag <tag>#0 - adds the specified tag to this item
+	#3untag <tag>#0 - removes the specified tag from this item
+	#3priority#0 - toggles this item being high priority, which means appearing at the top of the item list in the room
+	#3colour <ansi colour>#0 - overrides the default green colour for this item
+	#3colour none#0 - resets the item colour to the default
+	#3onload <prog>#0 - toggles a particular prog to run when the item is loaded
+	#3register <variable name> <default value>#0 - sets a default value for a register variable for this item
+	#3register delete <variable name>#0 - deletes a default value for a register variable
+	#3morph <item##|none> <seconds> [<emote>]#0 - sets item morph information. The 'none' value makes the item disappear.
+	#3morph clear#0 - clears any morph info for this item
+	#3group <id|name>#0 - sets this item's item group (for in-room grouping)
+	#3group none#0 - clears this item's item group
+	#3destroyed <id>#0 - sets an item to load up in-place of this item when it is destroyed
+	#3destroyed none#0 - clears a destroyed item setting
+	#3strategy <id|name>#0 - sets a custom health strategy for this item
+	#3strategy none#0 - sets the item to use the default item health strategy
+    #3extra add <prog>#0 - adds a new extra description slot with a specified prog
+    #3extra remove <which##>#0 - removes the specified numbered extra description
+    #3extra swap <first##> <second##>#0 - swaps the evaluation order of two extra descriptions
+    #3extra <which##> sdesc <sdesc>#0 - sets the short description for the extra description
+    #3extra <which##> clear sdesc#0 - clears the short description for the extra description
+    #3extra <which##> desc <desc>#0 - sets the full description for the extra description
+    #3extra <which##> clear desc#0 - clears the full description for the extra description
+    #3extra <which##> addendum <text>#0 - sets an addendum text for the full description
+    #3extra <which##> clear addendum#0 - clears the addendum text for the full description".SubstituteANSIColour());
 				return true;
 			default:
 				actor.OutputHandler.Send("That is not a valid building command. See ITEM SET HELP for more info.");

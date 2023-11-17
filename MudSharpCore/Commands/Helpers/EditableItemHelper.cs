@@ -25,6 +25,7 @@ using MudSharp.Magic.Capabilities;
 using MudSharp.Magic.Generators;
 using MudSharp.Magic.Resources;
 using MudSharp.NPC;
+using MudSharp.NPC.AI;
 using MudSharp.PerceptionEngine;
 using MudSharp.RPG.Dreams;
 using MudSharp.RPG.Hints;
@@ -769,7 +770,7 @@ public class EditableItemHelper
 
 		CustomSearch = (protos, keyword, gameworld) => protos,
 		GetEditHeader = item => $"NPC Spawner #{item.Id:N0} ({item.Name})",
-		DefaultCommandHelp = BuilderModule.NPCSpawnerHelp
+		DefaultCommandHelp = NPCBuilderModule.NPCSpawnerHelp
 	};
 
 	public static EditableItemHelper ChargenAdviceHelper { get; } = new()
@@ -1628,15 +1629,15 @@ The core syntax is as follows:
 
 The core syntax is as follows:
 
-    #3magic resource list - shows all magic resources
-    #3magic resource edit new <type> <name> <shortname>#0 - creates a new magic resource
-    #3magic resource clone <old> <new>#0 - clones an existing magic resource
-    #3magic resource edit <which>#0 - begins editing a magic resource
-    #3magic resource close#0 - closes an editing magic resource
-    #3magic resource show <which>#0 - shows builder information about a resource
-    #3magic resource show#0 - shows builder information about the currently edited resource
-    #3magic resource edit#0 - an alias for magic resource show (with no args)
-    #3magic resource set ...#0 - edits the properties of a magic resource. See #3magic resource set ?#0 for more info.",
+    #3magic capability list - shows all magic capabilities
+    #3magic capability edit new <type> <name>`#0 - creates a new magic capability
+    #3magic capability clone <old> <new>#0 - clones an existing magic capability
+    #3magic capability edit <which>#0 - begins editing a magic capability
+    #3magic capability close#0 - closes an editing magic capability
+    #3magic capability show <which>#0 - shows builder information about a capability
+    #3magic capability show#0 - shows builder information about the currently edited capability
+    #3magic capability edit#0 - an alias for magic capability show (with no args)
+    #3magic capability set ...#0 - edits the properties of a magic capability. See #3magic capability set ?#0 for more info.",
 
 		GetEditHeader = item => $"Magic Capability #{item.Id:N0} ({item.Name})"
 	};
@@ -2283,6 +2284,129 @@ The core syntax is as follows:
 		DefaultCommandHelp = BuilderModule.DreamHelpText,
 
 		GetEditHeader = item => $"Dream #{item.Id:N0} ({item.Name})"
+	};
+
+	public static EditableItemHelper AIHelper { get; } = new()
+	{
+		ItemName = "AI",
+		ItemNamePlural = "AIs",
+		SetEditableItemAction = (actor, item) =>
+		{
+			actor.RemoveAllEffects<BuilderEditingEffect<IArtificialIntelligence>>();
+			if (item == null)
+			{
+				return;
+			}
+
+			actor.AddEffect(new BuilderEditingEffect<IArtificialIntelligence>(actor) { EditingItem = (IArtificialIntelligence)item });
+		},
+		GetEditableItemFunc = actor =>
+			actor.CombinedEffectsOfType<BuilderEditingEffect<IArtificialIntelligence>>().FirstOrDefault()?.EditingItem,
+		GetAllEditableItems = actor => actor.Gameworld.AIs.ToList(),
+		GetEditableItemByIdFunc = (actor, id) => actor.Gameworld.AIs.Get(id),
+		GetEditableItemByIdOrNameFunc = (actor, input) => actor.Gameworld.AIs.GetByIdOrName(input),
+		AddItemToGameWorldAction = item => item.Gameworld.Add((IArtificialIntelligence)item),
+		CastToType = typeof(IArtificialIntelligence),
+		EditableNewAction = (actor, input) =>
+		{
+			actor.OutputHandler.Send("Creating new artificial intelligences is not currently supported.");
+			//var capability = MagicCapabilityFactory.LoaderFromBuilderInput(actor.Gameworld, actor, input);
+			//if (capability is null)
+			//{
+			//	return;
+			//}
+
+			//actor.Gameworld.Add(capability);
+			//actor.RemoveAllEffects<BuilderEditingEffect<IMagicCapability>>();
+			//actor.AddEffect(new BuilderEditingEffect<IMagicCapability>(actor) { EditingItem = capability });
+			//actor.OutputHandler.Send($"You create a new magic capability called {capability.Name.ColourName()}, which you are now editing.");
+		},
+		EditableCloneAction = (actor, input) =>
+		{
+			actor.OutputHandler.Send("Cloning artificial intelligences is not currently supported.");
+			return;
+
+			//if (input.IsFinished)
+			//{
+			//	actor.OutputHandler.Send("Which magic capability do you want to clone?");
+			//	return;
+			//}
+
+			//var capability = actor.Gameworld.MagicCapabilities.GetByIdOrName(input.PopSpeech());
+			//if (capability == null)
+			//{
+			//	actor.OutputHandler.Send("There is no such magic capability.");
+			//	return;
+			//}
+
+			//if (input.IsFinished)
+			//{
+			//	actor.OutputHandler.Send("You must specify a name for your new cloned magic capability.");
+			//	return;
+			//}
+
+			//var name = input.SafeRemainingArgument.TitleCase();
+			//if (actor.Gameworld.MagicCapabilities.Any(x => x.Name.EqualTo(name)))
+			//{
+			//	actor.OutputHandler.Send(
+			//		$"There is already a magic capability with that name. Names must be unique.");
+			//	return;
+			//}
+
+			//var newCapability = capability.Clone(name);
+
+			//actor.Gameworld.Add(newCapability);
+			//actor.RemoveAllEffects<BuilderEditingEffect<IMagicCapability>>();
+			//actor.AddEffect(new BuilderEditingEffect<IMagicCapability>(actor) { EditingItem = newCapability });
+			//actor.OutputHandler.Send($"You create a new magic capability called {newCapability.Name.ColourName()} as a clone of {capability.Name.ColourName()}, which you are now editing.");
+		},
+
+		GetListTableHeaderFunc = character => new List<string>
+		{
+			"Id",
+			"Name",
+			"Type",
+			"Templates",
+			"Instances"
+		},
+
+		GetListTableContentsFunc = (character, protos) => from proto in protos.OfType<IArtificialIntelligence>()
+														  let templates = proto.Gameworld.NpcTemplates.GetAllApprovedOrMostRecent().Count(x => x.ArtificialIntelligences.Contains(proto))
+														  let instances = proto.Gameworld.NPCs.OfType<INPC>().Count(x => x.AIs.Contains(proto))
+														  select new List<string>
+														  {
+															  proto.Id.ToString("N0", character),
+															  proto.Name,
+															  proto.AIType,
+															  templates.ToString("N0", character).MXPSend($"npc list *{proto.Id}", "View the specific NPC Templates"),
+															  instances.ToString("N0", character).MXPSend($"ai npclist {proto.Id}", "View the specific instances")
+														  },
+
+		CustomSearch = (protos, keyword, gameworld) => protos,
+
+		DefaultCommandHelp = @"This command is used to work with and edit artificial intelligences.
+
+The core syntax is as follows:
+
+    #3ai list - shows all AIs
+    #3ai edit new <type> <name> <shortname>#0 - creates a new AI
+    #3ai clone <old> <new>#0 - clones an existing AI
+    #3ai edit <which>#0 - begins editing a AI
+    #3ai close#0 - closes an editing AI
+    #3ai show <which>#0 - shows builder information about a resource
+    #3ai show#0 - shows builder information about the currently edited resource
+    #3ai edit#0 - an alias for AI show (with no args)
+    #3ai set ...#0 - edits the properties of a AI. See #3AI set ?#0 for more info.
+	#3ai add <npc>#0 - adds an AI routine to an NPC in the gameworld
+	#3ai remove <npc>#0 - removes an AI routine from an NPC in the gameworld
+	#3ai instances <which>#0 - shows all NPCs who have the AI in question running
+
+The following options are available as filters with the #3list#0 subcommand:
+
+	#6+<keyword>#0 - only show AIs with the keyword in the name
+	#6-<keyword>#0 - only show AIs without the keyword in the name",
+
+		GetEditHeader = item => $"Artificial Intelligence #{item.Id:N0} ({item.Name})"
 	};
 
 	public string ItemName { get; private set; }

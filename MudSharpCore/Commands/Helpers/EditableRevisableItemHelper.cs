@@ -125,7 +125,7 @@ internal class EditableRevisableItemHelper
 					                                                 item.Status.Describe(),
 					                                                 character.Gameworld.NPCs.OfType<NPC.NPC>()
 					                                                          .Count(x => x.Template == item)
-					                                                          .ToString(character)
+					                                                          .ToString(character).MXPSend($"npc instances {item.Id}", "View the instances")
 				                                                 },
 			GetListTableHeaderFunc = character => new[] { "ID#", "Rev#", "Name", "Type", "Status", "Instances" },
 			GetReviewProposalEffectFunc =
@@ -133,8 +133,24 @@ internal class EditableRevisableItemHelper
 					new Accept(character,
 						new EditableItemReviewProposal<INPCTemplate>(character, protos.Cast<INPCTemplate>().ToList())),
 			CastToType = typeof(INPCTemplate),
-			CustomSearch = (protos, keyword, gameworld) => protos,
-			DefaultCommandHelp = BuilderModule.NPCHelp
+			CustomSearch = (protos, keyword, gameworld) =>
+			{
+				if (keyword[0] == '*')
+				{
+					keyword = keyword.Substring(1);
+					var ai = gameworld.AIs.GetByIdOrName(keyword);
+					if (ai is null)
+					{
+						return protos;
+					}
+					return protos.OfType<INPCTemplate>()
+								 .Where(x => x.ArtificialIntelligences.Contains(ai))
+								 .ToList<IEditableRevisableItem>();
+				}
+
+				return protos;
+			},
+			DefaultCommandHelp = NPCBuilderModule.NPCHelp
 		};
 
 		#endregion
@@ -737,7 +753,16 @@ internal class EditableRevisableItemHelper
 			{
 				using (new FMDB())
 				{
-					// TODO
+					foreach (var gitem in item.Gameworld.Items)
+					{
+						if (gitem.Skin == item)
+						{
+							gitem.Skin = null;
+							gitem.Changed = true;
+						}
+					}
+					item.Gameworld.SaveManager.Flush();
+
 					var dbproto = FMDB.Context.GameItemSkins.Find(item.Id, item.RevisionNumber);
 					if (dbproto != null)
 					{

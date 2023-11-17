@@ -9,6 +9,7 @@ using MudSharp.Framework;
 using MudSharp.Framework.Revision;
 using MudSharp.Framework.Save;
 using MudSharp.FutureProg;
+using OpenAI_API.Moderation;
 
 namespace MudSharp.Character.Name;
 
@@ -176,6 +177,12 @@ public class RandomNameProfile : SaveableItem, IEditableItem, IRandomNameProfile
 		foreach (var element in _nameUsageDiceExpressionsDictionary)
 		{
 			resultsDictionary.Add(element.Key, new List<string>());
+			if (!_randomNamesDictionary[element.Key].Any())
+			{
+				resultsDictionary[element.Key].Add("Unnamed");
+				allResults.Add("Unnamed");
+			}
+						
 			var number = Dice.Roll(element.Value);
 			for (var i = 0; i < number; i++)
 			{

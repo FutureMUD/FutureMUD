@@ -21,5 +21,7 @@ internal class GuideCommandTree : PlayerCommandTree
 		Commands.AddFrom(BuilderModule.Instance.Commands);
 		Commands.AddFrom(CombatBuilderModule.Instance.Commands);
 		Commands.AddFrom(ActivityBuilderModule.Instance.Commands);
+		Commands.AddFrom(NPCBuilderModule.Instance.Commands);
+		Commands.AddFrom(ItemBuilderModule.Instance.Commands);
 	}
 }

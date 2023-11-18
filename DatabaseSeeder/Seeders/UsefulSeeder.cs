@@ -32,7 +32,14 @@ public class UsefulSeeder : IDatabaseSeeder
                     if (answer.EqualToAny("yes", "y", "no", "n")) return (true, string.Empty);
                     return (false, "Invalid answer");
                 }),
-            ("terrain",
+			("ai2", "Do you want to install some further examples of AIs?\n\nPlease answer #3yes#f or #3no#f: ",
+				(context, questions) => context.ArtificialIntelligences.All(x => x.Name != "Rescuer"),
+				(answer, context) =>
+				{
+					if (answer.EqualToAny("yes", "y", "no", "n")) return (true, string.Empty);
+					return (false, "Invalid answer");
+				}),
+			("terrain",
                 "Do you want to install a collection of terrestrial terrain types?\n\nPlease answer #3yes#f or #3no#f: ",
                 (context, questions) => context.Terrains.Count() <= 1,
                 (answer, context) =>
@@ -64,7 +71,15 @@ public class UsefulSeeder : IDatabaseSeeder
                     if (answer.EqualToAny("yes", "y", "no", "n")) return (true, string.Empty);
                     return (false, "Invalid answer");
                 }),
-            ("modernitems",
+			("itemsp4",
+				"#DItem Package 4#f\n\nItem Package 4 includes some further useful items, such as torches and lanterns, repair kits, water sources and smokeable tobacco.\n\nShall we install this package? Please answer #3yes#f or #3no#f: ",
+				(context, questions) => context.GameItemComponentProtos.All(x => x.Name != "Torch_Infinite"),
+				(answer, context) =>
+				{
+					if (answer.EqualToAny("yes", "y", "no", "n")) return (true, string.Empty);
+					return (false, "Invalid answer");
+				}),
+			("modernitems",
                 "[Not Yet Implemented] Do you want to install some common modern setting item component types like batteries and power plugs?\n\nPlease answer #3yes#f or #3no#f: ",
                 (context, questions) => false,
                 (answer, context) =>
@@ -105,15 +120,19 @@ Please answer here: ",
     {
         context.Database.BeginTransaction();
         var errors = new List<string>();
-        if (questionAnswers["ai"].EqualToAny("yes", "y")) SeedAI(context, errors);
+        if (questionAnswers["ai"].EqualToAny("yes", "y")) SeedAIPart1(context, errors);
 
-        if (questionAnswers["items"].EqualToAny("yes", "y")) SeedItemsPart1(context, questionAnswers, errors);
+		if (questionAnswers["ai2"].EqualToAny("yes", "y")) SeedAIPart2(context, errors);
+
+		if (questionAnswers["items"].EqualToAny("yes", "y")) SeedItemsPart1(context, questionAnswers, errors);
 
         if (questionAnswers["itemsp2"].EqualToAny("yes", "y")) SeedItemsPart2(context, questionAnswers, errors);
 
         if (questionAnswers["itemsp3"].EqualToAny("yes", "y")) SeedItemsPart3(context, questionAnswers, errors);
 
-        if (questionAnswers["modernitems"].EqualToAny("yes", "y")) SeedModernItems(context, errors);
+		if (questionAnswers["itemsp4"].EqualToAny("yes", "y")) SeedItemsPart4(context, questionAnswers, errors);
+
+		if (questionAnswers["modernitems"].EqualToAny("yes", "y")) SeedModernItems(context, errors);
 
         if (questionAnswers["terrain"].EqualToAny("yes", "y")) SeedTerrain(context, errors);
 
@@ -140,21 +159,25 @@ Please answer here: ",
         if (!context.Accounts.Any()) return ShouldSeedResult.PrerequisitesNotMet;
 
         if (!context.ArtificialIntelligences.All(x => x.Name != "CommandableOwner") &&
-            context.Terrains.Count() > 1 &&
+			!context.ArtificialIntelligences.All(x => x.Name != "Rescuer") &&
+			context.Terrains.Count() > 1 &&
             !context.GameItemComponentProtos.All(x => x.Name != "Container_Table") &&
             !context.GameItemComponentProtos.All(x => x.Name != "Insulation_Minor") &&
             !context.GameItemComponentProtos.All(x => x.Name != "Destroyable_Misc") &&
-            !context.Tags.All(x => x.Name != "Functions"))
+			!context.GameItemComponentProtos.All(x => x.Name != "Torch_Infinite") &&
+			!context.Tags.All(x => x.Name != "Functions"))
         {
             return ShouldSeedResult.MayAlreadyBeInstalled;
         }
 
-        if (context.ArtificialIntelligences.All(x => x.Name != "CommandableOwner") ||
-            context.Terrains.Count() <= 1 ||
+		if (context.ArtificialIntelligences.All(x => x.Name != "CommandableOwner") ||
+			context.ArtificialIntelligences.All(x => x.Name != "Rescuer") ||
+			context.Terrains.Count() <= 1 ||
             context.GameItemComponentProtos.All(x => x.Name != "Container_Table") ||
             context.GameItemComponentProtos.All(x => x.Name != "Insulation_Minor") ||
             context.GameItemComponentProtos.All(x => x.Name != "Destroyable_Misc") ||
-            context.Tags.All(x => x.Name != "Functions"))
+			context.GameItemComponentProtos.All(x => x.Name != "Torch_Infinite") ||
+			context.Tags.All(x => x.Name != "Functions"))
         {
             return ShouldSeedResult.ExtraPackagesAvailable;
         }
@@ -8693,10 +8716,138 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
 </Definition>"
         };
         context.GameItemComponentProtos.Add(component);
-        #endregion
 
-        #region Smokeables
-        var smokeProg = new FutureProg
+		component = new GameItemComponentProto
+		{
+			Id = nextId++,
+			RevisionNumber = 0,
+			EditableItem = new EditableItem
+			{
+				RevisionNumber = 0,
+				RevisionStatus = 4,
+				BuilderAccountId = dbaccount.Id,
+				BuilderDate = now,
+				BuilderComment = "Auto-generated by the system",
+				ReviewerAccountId = dbaccount.Id,
+				ReviewerComment = "Auto-generated by the system",
+				ReviewerDate = now
+			},
+			Type = "RepairKit",
+			Name = "Repair_Metal",
+			Description = "Turns an item into a repair kit that can repair minor damage to metal items",
+			Definition = @$"<Definition>
+  <MaximumSeverity>7</MaximumSeverity>
+  <RepairPoints>500</RepairPoints>
+  <CheckTrait>{skills[questionAnswers["repairskillmetal"]].Id}</CheckTrait>
+  <CheckBonus>0</CheckBonus>
+  <Echoes>
+    <Echo><![CDATA[$0 take|takes up $2, rifling through it for the necessary tools to fix $1]]></Echo>
+    <Echo><![CDATA[$0 begin|begins repairing $1 with $2]]></Echo>
+    <Echo><![CDATA[$0 continue|continues repairing $1 with $2]]></Echo>
+    <Echo><![CDATA[$0 place|places the tools back within $2 and pack|packs it away.]]></Echo>
+  </Echoes>
+  <Materials>
+    <Material>{materials["metal"]}</Material>
+    <Material>{materials["aluminium"]}</Material>
+    <Material>{materials["antimony"]}</Material>
+    <Material>{materials["arsenic"]}</Material>
+    <Material>{materials["arsenical bronze"]}</Material>
+    <Material>{materials["bell bronze"]}</Material>
+    <Material>{materials["beryllium"]}</Material>
+    <Material>{materials["bismuth bronze"]}</Material>
+    <Material>{materials["bismuth"]}</Material>
+    <Material>{materials["boron"]}</Material>
+    <Material>{materials["brass"]}</Material>
+    <Material>{materials["bromine"]}</Material>
+    <Material>{materials["bronze"]}</Material>
+    <Material>{materials["cadmium"]}</Material>
+    <Material>{materials["carbon steel"]}</Material>
+    <Material>{materials["cast iron"]}</Material>
+    <Material>{materials["cesium"]}</Material>
+    <Material>{materials["chromium"]}</Material>
+    <Material>{materials["cobalt"]}</Material>
+    <Material>{materials["copper"]}</Material>
+    <Material>{materials["crucible steel"]}</Material>
+    <Material>{materials["electrum"]}</Material>
+    <Material>{materials["gallium"]}</Material>
+    <Material>{materials["galvanized steel"]}</Material>
+    <Material>{materials["germanium"]}</Material>
+    <Material>{materials["gold"]}</Material>
+    <Material>{materials["hafnium"]}</Material>
+    <Material>{materials["high tensile steel"]}</Material>
+    <Material>{materials["indium"]}</Material>
+    <Material>{materials["lead"]}</Material>
+    <Material>{materials["magnesium"]}</Material>
+    <Material>{materials["manganese steel"]}</Material>
+    <Material>{materials["manganese"]}</Material>
+    <Material>{materials["mild bronze"]}</Material>
+    <Material>{materials["mild steel"]}</Material>
+    <Material>{materials["molybdenum"]}</Material>
+    <Material>{materials["neodymium"]}</Material>
+    <Material>{materials["nickel brass"]}</Material>
+    <Material>{materials["nickel"]}</Material>
+    <Material>{materials["niobium"]}</Material>
+    <Material>{materials["open hearth steel"]}</Material>
+    <Material>{materials["orichalcum"]}</Material>
+    <Material>{materials["osmium"]}</Material>
+    <Material>{materials["palladium"]}</Material>
+    <Material>{materials["pewter"]}</Material>
+    <Material>{materials["phosphorus"]}</Material>
+    <Material>{materials["pig iron"]}</Material>
+    <Material>{materials["platinum"]}</Material>
+    <Material>{materials["potassium"]}</Material>
+    <Material>{materials["powder-coated steel"]}</Material>
+    <Material>{materials["rare earth metal"]}</Material>
+    <Material>{materials["rhenium"]}</Material>
+    <Material>{materials["rhodium"]}</Material>
+    <Material>{materials["rubidium"]}</Material>
+    <Material>{materials["ruthenium"]}</Material>
+    <Material>{materials["selenium"]}</Material>
+    <Material>{materials["silicon"]}</Material>
+    <Material>{materials["silver"]}</Material>
+    <Material>{materials["sodium"]}</Material>
+    <Material>{materials["spelter"]}</Material>
+    <Material>{materials["sponge iron"]}</Material>
+    <Material>{materials["stainless steel"]}</Material>
+    <Material>{materials["sterling silver"]}</Material>
+    <Material>{materials["strontium"]}</Material>
+    <Material>{materials["sulfur"]}</Material>
+    <Material>{materials["tantalum"]}</Material>
+    <Material>{materials["tellurium"]}</Material>
+    <Material>{materials["thallium"]}</Material>
+    <Material>{materials["thorium"]}</Material>
+    <Material>{materials["tin"]}</Material>
+    <Material>{materials["titanium"]}</Material>
+    <Material>{materials["tungsten"]}</Material>
+    <Material>{materials["uranium"]}</Material>
+    <Material>{materials["vanadium"]}</Material>
+    <Material>{materials["wootz steel"]}</Material>
+    <Material>{materials["wrought iron"]}</Material>
+    <Material>{materials["zinc"]}</Material>
+    <Material>{materials["zirconium"]}</Material>
+  </Materials>
+  <DamageTypes>
+    <DamageType>0</DamageType>
+    <DamageType>1</DamageType>
+    <DamageType>2</DamageType>
+    <DamageType>3</DamageType>
+	<DamageType>4</DamageType>
+    <DamageType>8</DamageType>
+    <DamageType>9</DamageType>
+    <DamageType>10</DamageType>
+    <DamageType>15</DamageType>
+    <DamageType>16</DamageType>
+    <DamageType>18</DamageType>
+    <DamageType>20</DamageType>
+  </DamageTypes>
+  <Tags />
+</Definition>"
+		};
+		context.GameItemComponentProtos.Add(component);
+		#endregion
+
+		#region Smokeables
+		var smokeProg = new FutureProg
         {
             FunctionName = "OnSmokeCigarette",
             AcceptsAnyParameters = false,
@@ -8783,11 +8934,11 @@ SetRegister @ch ""NicotineUntil"" (@NicotineUntil + 5m)",
 
     }
 
-    private void SeedAI(FuturemudDatabaseContext context, ICollection<string> errors)
+    private void SeedAIPart1(FuturemudDatabaseContext context, ICollection<string> errors)
     {
         if (context.ArtificialIntelligences.Any(x => x.Name == "CommandableOwner"))
         {
-            errors.Add("Detected that AIs were already installed. Did not seed any AIs.");
+            errors.Add("Detected that Part1 AIs were already installed. Did not seed any AIs.");
             return;
         }
 
@@ -9346,7 +9497,7 @@ end if",
             Type = "Aggressor",
             Definition = @$"<Definition>
    <WillAttackProg>{aggressorWillAttack.Id}</WillAttackProg>
-   <EngageDelayDiceExpression>1d3+3</EngageDelayDiceExpression>
+   <EngageDelayDiceExpression>1d200+200</EngageDelayDiceExpression>
    <EngageEmote><![CDATA[@ move|moves aggressively towards $1]]></EngageEmote>
  </Definition>"
         };
@@ -9354,7 +9505,162 @@ end if",
         context.SaveChanges();
     }
 
-    private Dictionary<string, MudSharp.Models.Tag> _tags = new(StringComparer.OrdinalIgnoreCase);
+    private void SeedAIPart2(FuturemudDatabaseContext context, ICollection<string> errors)
+    {
+		if (context.ArtificialIntelligences.Any(x => x.Name == "Rescuer"))
+		{
+			errors.Add("Detected that Part2 AIs were already installed. Did not seed any AIs.");
+			return;
+		}
+
+		var rescuerWillRescue = new FutureProg
+		{
+			FunctionText = @"return isclanbrother(@rescuer, @target)",
+			FunctionName = "RescuerWillRescue",
+			Category = "AI",
+			Subcategory = "Combat",
+			FunctionComment =
+				"Determines whether a rescuer will rescue someone who is being attacked",
+			ReturnType = (long)FutureProgVariableTypes.Boolean,
+			AcceptsAnyParameters = false,
+			Public = true,
+			StaticType = 0
+		};
+		rescuerWillRescue.FutureProgsParameters.Add(new FutureProgsParameter
+		{
+			FutureProg = rescuerWillRescue,
+			ParameterIndex = 0,
+			ParameterName = "rescuer",
+			ParameterType = (long)FutureProgVariableTypes.Character
+		});
+		rescuerWillRescue.FutureProgsParameters.Add(new FutureProgsParameter
+		{
+			FutureProg = rescuerWillRescue,
+			ParameterIndex = 1,
+			ParameterName = "target",
+			ParameterType = (long)FutureProgVariableTypes.Character
+		});
+		context.FutureProgs.Add(rescuerWillRescue);
+		context.SaveChanges();
+
+		var ai = new ArtificialIntelligence
+		{
+			Name = "RescueClanBrothers",
+			Type = "Rescuer",
+			Definition = @$"<AI><IsFriendProg>{rescuerWillRescue.Id}</IsFriendProg></AI>"
+		};
+		context.ArtificialIntelligences.Add(ai);
+		context.SaveChanges();
+
+		var verminWillScavenge = new FutureProg
+		{
+			FunctionText = @"return @item.isholdable and (@item.isfood or @item.iscorpse)",
+			FunctionName = "VerminWillScavenge",
+			Category = "AI",
+			Subcategory = "Vermin",
+			FunctionComment =
+				"Determines whether a vermin AI will scavenge an item",
+			ReturnType = (long)FutureProgVariableTypes.Boolean,
+			AcceptsAnyParameters = false,
+			Public = true,
+			StaticType = 0
+		};
+		verminWillScavenge.FutureProgsParameters.Add(new FutureProgsParameter
+		{
+			FutureProg = verminWillScavenge,
+			ParameterIndex = 0,
+			ParameterName = "ch",
+			ParameterType = (long)FutureProgVariableTypes.Character
+		});
+		verminWillScavenge.FutureProgsParameters.Add(new FutureProgsParameter
+		{
+			FutureProg = verminWillScavenge,
+			ParameterIndex = 1,
+			ParameterName = "item",
+			ParameterType = (long)FutureProgVariableTypes.Item
+		});
+		context.FutureProgs.Add(verminWillScavenge);
+
+		var verminOnScavenge = new FutureProg
+		{
+			FunctionText = @"force @ch (""eat "" + BestKeyword(@ch, @item))",
+			FunctionName = "VerminOnScavenge",
+			Category = "AI",
+			Subcategory = "Vermin",
+			FunctionComment =
+				"Fires when a scavenger AI decides to scavenge an item",
+			ReturnType = (long)FutureProgVariableTypes.Void,
+			AcceptsAnyParameters = false,
+			Public = true,
+			StaticType = 0
+		};
+		verminOnScavenge.FutureProgsParameters.Add(new FutureProgsParameter
+		{
+			FutureProg = verminOnScavenge,
+			ParameterIndex = 0,
+			ParameterName = "ch",
+			ParameterType = (long)FutureProgVariableTypes.Character
+		});
+		verminOnScavenge.FutureProgsParameters.Add(new FutureProgsParameter
+		{
+			FutureProg = verminOnScavenge,
+			ParameterIndex = 1,
+			ParameterName = "item",
+			ParameterType = (long)FutureProgVariableTypes.Item
+		});
+		context.FutureProgs.Add(verminOnScavenge);
+		context.SaveChanges();
+
+		ai = new ArtificialIntelligence
+		{
+			Name = "VerminScavenge",
+			Type = "Scavenge",
+			Definition = @$"<Definition>
+  <WillScavengeItemProg>{verminWillScavenge.Id}</WillScavengeItemProg>
+  <OnScavengeItemProg>{verminOnScavenge.Id}</OnScavengeItemProg>
+  <ScavengeDelayDiceExpression>1d30+30</ScavengeDelayDiceExpression>
+</Definition>"
+		};
+		context.ArtificialIntelligences.Add(ai);
+		context.SaveChanges();
+
+		ai = new ArtificialIntelligence
+		{
+			Name = "TrackingAggressiveToAllOtherSpecies",
+			Type = "TrackingAggressor",
+			Definition = @$"<Definition>
+   <WillAttackProg>{context.FutureProgs.First(x => x.FunctionName == "TargetIsOtherRace").Id}</WillAttackProg>
+   <EngageDelayDiceExpression>1d200+200</EngageDelayDiceExpression>
+   <EngageEmote><![CDATA[@ move|moves aggressively towards $1]]></EngageEmote>
+   <MaximumRange>2</MaximumRange>
+   <PathingEnabledProg>{context.FutureProgs.First(x => x.FunctionName == "AlwaysTrue").Id}</PathingEnabledProg>
+   <OpenDoors>false</OpenDoors>
+   <UseKeys>false</UseKeys>
+   <SmashLockedDoors>false</SmashLockedDoors>
+   <CloseDoorsBehind>false</CloseDoorsBehind>
+   <UseDoorguards>false</UseDoorguards>
+   <MoveEvenIfObstructionInWay>false</MoveEvenIfObstructionInWay>
+ </Definition>"
+		};
+		context.ArtificialIntelligences.Add(ai);
+		context.SaveChanges();
+
+		ai = new ArtificialIntelligence
+		{
+			Name = "BasicSelfCare",
+			Type = "SelfCare",
+			Definition = @$"<definition>
+    <BindingDelayDiceExpression>3000+1d2000</BindingDelayDiceExpression>
+    <BleedingEmoteDelayDiceExpression>3000+1d2000</BleedingEmoteDelayDiceExpression>
+    <BleedingEmote><![CDATA[@ shout|shouts out, ""I'm bleeding!""]]></BleedingEmote>
+</definition>"
+		};
+		context.ArtificialIntelligences.Add(ai);
+		context.SaveChanges();
+	}
+
+
+	private Dictionary<string, MudSharp.Models.Tag> _tags = new(StringComparer.OrdinalIgnoreCase);
 
     private void AddTag(FuturemudDatabaseContext context, string name, string parent)
     {
@@ -9609,8 +9915,23 @@ end if",
         AddTag(context, "Cement Mixer", "Construction Tools");
         AddTag(context, "Wheelbarrow", "Construction Tools");
 
-        // Surgical Tools
-        AddTag(context, "Surgical Tools", "Tools");
+		// Medical Tools
+		AddTag(context, "Medical Tools", "Tools");
+		AddTag(context, "Stethoscope", "Medical Tools");
+		AddTag(context, "Blood Pressure Monitor", "Medical Tools");
+		AddTag(context, "Ophthalmoscope", "Medical Tools");
+		AddTag(context, "Otascope", "Medical Tools");
+		AddTag(context, "Dermatoscope", "Medical Tools");
+		AddTag(context, "Electrocardiogram", "Medical Tools");
+		AddTag(context, "Electroencephalogram", "Medical Tools");
+		AddTag(context, "Glucometer", "Medical Tools");
+		AddTag(context, "Spirometer", "Medical Tools");
+		AddTag(context, "Mechanical Scale", "Medical Tools");
+		AddTag(context, "Height Measuring Scale", "Medical Tools");
+		AddTag(context, "Tendon Hammer", "Medical Tools");
+
+		// Surgical Tools
+		AddTag(context, "Surgical Tools", "Tools");
         AddTag(context, "Scalpel", "Surgical Tools");
         AddTag(context, "Bonesaw", "Surgical Tools");
         AddTag(context, "Forceps", "Surgical Tools");

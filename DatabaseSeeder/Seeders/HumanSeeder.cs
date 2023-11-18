@@ -150,23 +150,6 @@ Please answer #3yes#F or #3no#F: ", (context, answers) => true,
 					return (false, "Please answer yes or no.");
 				}
 			),
-			("avatar", @"Do you want to generate an admin avatar for your admin account using the human template? 
-
-Please answer #3yes#F or #3no#F: ", (context, answers) => true,
-				(text, context) =>
-				{
-					switch (text.ToLowerInvariant())
-					{
-						case "yes":
-						case "y":
-						case "no":
-						case "n":
-							return (true, string.Empty);
-					}
-
-					return (false, "Please answer yes or no.");
-				}
-			),
 			("includeextraperson",
 				@"One element of the descriptions that will be generated is the 'person word'. This is usually something like 'man', 'woman', 'maiden', or the like.
 
@@ -535,123 +518,123 @@ $?hairstyle[&he has &?a_an[$haircolour $hairstyle]][&he is completely bald].$?fa
 		SetupDescriptions();
 		SetupHeightWeightModels();
 
-		if (questionAnswers["avatar"].EqualToAny("yes", "y"))
+		#region Avatar Creation
+		var race = _context.Races.First(x => x.Name == "Human");
+		var ethnicity = new Ethnicity
 		{
-			var race = _context.Races.First(x => x.Name == "Human");
-			var ethnicity = new Ethnicity
+			Name = "Admin",
+			ChargenBlurb = "This is an ethnicity for admin avatars and should not be selected by others.",
+			AvailabilityProg = _context.FutureProgs.First(x => x.FunctionName == "AlwaysTrue"),
+			ParentRace = race,
+			EthnicGroup = "Admin",
+			PopulationBloodModel = _context.PopulationBloodModels.First(),
+			TolerableTemperatureFloorEffect = 0,
+			TolerableTemperatureCeilingEffect = 0
+		};
+		_context.Ethnicities.Add(ethnicity);
+
+		var nameCulture = SetupNameCultures();
+
+		var culture = new Culture
+		{
+			Name = "Admin",
+			Description = "This is a culture for admin avatars and should not be selected by others.",
+			PersonWordMale = "Admin",
+			PersonWordFemale = "Admin",
+			PersonWordIndeterminate = "Admin",
+			PersonWordNeuter = "Admin",
+			SkillStartingValueProg = _context.FutureProgs.First(x => x.FunctionName == "AlwaysOneHundred"),
+			AvailabilityProg = _context.FutureProgs.First(x => x.FunctionName == "AlwaysTrue"),
+			TolerableTemperatureCeilingEffect = 0,
+			TolerableTemperatureFloorEffect = 0,
+			PrimaryCalendarId = _context.Calendars.First().Id
+		};
+		culture.CulturesNameCultures.Add(new CulturesNameCultures
+		{ Culture = culture, NameCulture = nameCulture, Gender = (short)Gender.Male });
+		culture.CulturesNameCultures.Add(new CulturesNameCultures
+		{ Culture = culture, NameCulture = nameCulture, Gender = (short)Gender.Female });
+		culture.CulturesNameCultures.Add(new CulturesNameCultures
+		{ Culture = culture, NameCulture = nameCulture, Gender = (short)Gender.Neuter });
+		culture.CulturesNameCultures.Add(new CulturesNameCultures
+		{ Culture = culture, NameCulture = nameCulture, Gender = (short)Gender.NonBinary });
+		culture.CulturesNameCultures.Add(new CulturesNameCultures
+		{ Culture = culture, NameCulture = nameCulture, Gender = (short)Gender.Indeterminate });
+		_context.Cultures.Add(culture);
+
+		var account = _context.Accounts.First(x => x.AuthorityGroup.AuthorityLevel == (int)PermissionLevel.Founder);
+
+		var sdescPattern = _context.EntityDescriptionPatterns
+			.Where(x => x.Type == 0 && x.ApplicabilityProg.FunctionName == "IsHumanoidNonFemale")
+			.GetRandomElement();
+		var fdescPattern = _context.EntityDescriptionPatterns
+			.Where(x => x.Type == 1 && x.ApplicabilityProg.FunctionName == "IsHumanoidNonFemale")
+			.GetRandomElement();
+
+		var body = new Body
+		{
+			BodyPrototypeId = organicBody.Id,
+			Height = 180,
+			Weight = 90000,
+			Position = 1,
+			CurrentSpeed = 1,
+			Race = race,
+			CurrentStamina = 100,
+			CurrentBloodVolume = 100,
+			Ethnicity = ethnicity,
+			Bloodtype = race.BloodModel.BloodModelsBloodtypes.First().Bloodtype,
+			Gender = (short)Gender.Male,
+			ShortDescription = sdescPattern.Pattern,
+			ShortDescriptionPattern = sdescPattern,
+			FullDescription = fdescPattern.Pattern,
+			FullDescriptionPattern = fdescPattern,
+			HeldBreathLength = 0,
+			EffectData = "<Effects/>"
+		};
+		_context.Bodies.Add(body);
+		_context.SaveChanges();
+
+		foreach (var definition in race.RacesAdditionalCharacteristics.Concat(race.ParentRace
+					 .RacesAdditionalCharacteristics))
+		{
+			var cdef = definition.CharacteristicDefinition;
+			var value = cdef.CharacteristicValues.GetRandomElement();
+			while (value == null)
 			{
-				Name = "Admin",
-				ChargenBlurb = "This is an ethnicity for admin avatars and should not be selected by others.",
-				AvailabilityProg = _context.FutureProgs.First(x => x.FunctionName == "AlwaysTrue"),
-				ParentRace = race,
-				EthnicGroup = "Admin",
-				PopulationBloodModel = _context.PopulationBloodModels.First(),
-				TolerableTemperatureFloorEffect = 0,
-				TolerableTemperatureCeilingEffect = 0
-			};
-			_context.Ethnicities.Add(ethnicity);
+				if (cdef.Parent == null) throw new ApplicationException("Couldn't find a characteristic value.");
 
-			var nameCulture = SetupNameCultures();
-
-			var culture = new Culture
-			{
-				Name = "Admin",
-				Description = "This is a culture for admin avatars and should not be selected by others.",
-				PersonWordMale = "Admin",
-				PersonWordFemale = "Admin",
-				PersonWordIndeterminate = "Admin",
-				PersonWordNeuter = "Admin",
-				SkillStartingValueProg = _context.FutureProgs.First(x => x.FunctionName == "AlwaysOneHundred"),
-				AvailabilityProg = _context.FutureProgs.First(x => x.FunctionName == "AlwaysTrue"),
-				TolerableTemperatureCeilingEffect = 0,
-				TolerableTemperatureFloorEffect = 0,
-				PrimaryCalendarId = _context.Calendars.First().Id
-			};
-			culture.CulturesNameCultures.Add(new CulturesNameCultures
-				{ Culture = culture, NameCulture = nameCulture, Gender = (short)Gender.Male });
-			culture.CulturesNameCultures.Add(new CulturesNameCultures
-				{ Culture = culture, NameCulture = nameCulture, Gender = (short)Gender.Female });
-			culture.CulturesNameCultures.Add(new CulturesNameCultures
-				{ Culture = culture, NameCulture = nameCulture, Gender = (short)Gender.Neuter });
-			culture.CulturesNameCultures.Add(new CulturesNameCultures
-				{ Culture = culture, NameCulture = nameCulture, Gender = (short)Gender.NonBinary });
-			culture.CulturesNameCultures.Add(new CulturesNameCultures
-				{ Culture = culture, NameCulture = nameCulture, Gender = (short)Gender.Indeterminate });
-			_context.Cultures.Add(culture);
-
-			var account = _context.Accounts.First(x => x.AuthorityGroup.AuthorityLevel == (int)PermissionLevel.Founder);
-
-			var sdescPattern = _context.EntityDescriptionPatterns
-				.Where(x => x.Type == 0 && x.ApplicabilityProg.FunctionName == "IsHumanoidNonFemale")
-				.GetRandomElement();
-			var fdescPattern = _context.EntityDescriptionPatterns
-				.Where(x => x.Type == 1 && x.ApplicabilityProg.FunctionName == "IsHumanoidNonFemale")
-				.GetRandomElement();
-
-			var body = new Body
-			{
-				BodyPrototypeId = organicBody.Id,
-				Height = 180,
-				Weight = 90000,
-				Position = 1,
-				CurrentSpeed = 1,
-				Race = race,
-				CurrentStamina = 100,
-				CurrentBloodVolume = 100,
-				Ethnicity = ethnicity,
-				Bloodtype = race.BloodModel.BloodModelsBloodtypes.First().Bloodtype,
-				Gender = (short)Gender.Male,
-				ShortDescription = sdescPattern.Pattern,
-				ShortDescriptionPattern = sdescPattern,
-				FullDescription = fdescPattern.Pattern,
-				FullDescriptionPattern = fdescPattern,
-				HeldBreathLength = 0,
-				EffectData = "<Effects/>"
-			};
-			_context.Bodies.Add(body);
-			_context.SaveChanges();
-
-			foreach (var definition in race.RacesAdditionalCharacteristics.Concat(race.ParentRace
-				         .RacesAdditionalCharacteristics))
-			{
-				var cdef = definition.CharacteristicDefinition;
-				var value = cdef.CharacteristicValues.GetRandomElement();
-				while (value == null)
-				{
-					if (cdef.Parent == null) throw new ApplicationException("Couldn't find a characteristic value.");
-
-					cdef = cdef.Parent;
-					value = cdef.CharacteristicValues.GetRandomElement();
-				}
-
-				body.Characteristics.Add(new Characteristic
-					{ Body = body, Type = (int)definition.CharacteristicDefinitionId, CharacteristicValue = value });
-				ethnicity.EthnicitiesCharacteristics.Add(new EthnicitiesCharacteristics
-				{
-					Ethnicity = ethnicity, CharacteristicDefinition = definition.CharacteristicDefinition,
-					CharacteristicProfile = _context.CharacteristicProfiles.First(x =>
-						x.TargetDefinition == definition.CharacteristicDefinition && x.Type == "All")
-				});
+				cdef = cdef.Parent;
+				value = cdef.CharacteristicValues.GetRandomElement();
 			}
 
-			foreach (var attribute in race.RacesAttributes.Concat(race.ParentRace.RacesAttributes))
-				body.Traits.Add(new Trait
-					{ Body = body, TraitDefinition = attribute.Attribute, Value = 25, AdditionalValue = 0 });
-
-			var dateRegex = new Regex(@"(?<prelude>\d+/\w+/)(?<year>\d+)", RegexOptions.IgnoreCase);
-
-			var character = new Character
+			body.Characteristics.Add(new Characteristic
+			{ Body = body, Type = (int)definition.CharacteristicDefinitionId, CharacteristicValue = value });
+			ethnicity.EthnicitiesCharacteristics.Add(new EthnicitiesCharacteristics
 			{
-				Body = body,
-				Account = account,
-				Name = account.Name,
-				CreationTime = DateTime.UtcNow,
-				Status = 2,
-				State = 1,
-				Gender = (short)Gender.Male,
-				Location = _context.Cells.First().Id,
-				Culture = culture,
-				EffectData = @"<Effects>
+				Ethnicity = ethnicity,
+				CharacteristicDefinition = definition.CharacteristicDefinition,
+				CharacteristicProfile = _context.CharacteristicProfiles.First(x =>
+					x.TargetDefinition == definition.CharacteristicDefinition && x.Type == "All")
+			});
+		}
+
+		foreach (var attribute in race.RacesAttributes.Concat(race.ParentRace.RacesAttributes))
+			body.Traits.Add(new Trait
+			{ Body = body, TraitDefinition = attribute.Attribute, Value = 25, AdditionalValue = 0 });
+
+		var dateRegex = new Regex(@"(?<prelude>\d+/\w+/)(?<year>\d+)", RegexOptions.IgnoreCase);
+
+		var character = new Character
+		{
+			Body = body,
+			Account = account,
+			Name = account.Name,
+			CreationTime = DateTime.UtcNow,
+			Status = 2,
+			State = 1,
+			Gender = (short)Gender.Male,
+			Location = _context.Cells.First().Id,
+			Culture = culture,
+			EffectData = @"<Effects>
   <Effect>
     <ApplicabilityProg>0</ApplicabilityProg>
     <Type>Immwalk</Type>
@@ -674,18 +657,18 @@ $?hairstyle[&he has &?a_an[$haircolour $hairstyle]][&he is completely bald].$?fa
     <Blank />
   </Effect>
 </Effects>",
-				BirthdayCalendarId = _context.Calendars.First().Id,
-				BirthdayDate = dateRegex.Replace(_context.Calendars.First().Date,
-					m => $"{m.Groups["prelude"].Value}{int.Parse(m.Groups["year"].Value) - 70}"),
-				IsAdminAvatar = true,
-				TotalMinutesPlayed = 0,
-				NeedsModel = "NoNeeds",
-				ShownIntroductionMessage = true,
-				PositionId = 1,
-				PositionModifier = 5,
-				WritingStyle = 8256,
-				DominantHandAlignment = 3,
-				NameInfo = @$"<Names>
+			BirthdayCalendarId = _context.Calendars.First().Id,
+			BirthdayDate = dateRegex.Replace(_context.Calendars.First().Date,
+				m => $"{m.Groups["prelude"].Value}{int.Parse(m.Groups["year"].Value) - 70}"),
+			IsAdminAvatar = true,
+			TotalMinutesPlayed = 0,
+			NeedsModel = "NoNeeds",
+			ShownIntroductionMessage = true,
+			PositionId = 1,
+			PositionModifier = 5,
+			WritingStyle = 8256,
+			DominantHandAlignment = 3,
+			NameInfo = @$"<Names>
    <PersonalName>
      <Name culture=""{culture.Id}"">
        <Element usage=""BirthName""><![CDATA[{account.Name}]]></Element>
@@ -695,32 +678,35 @@ $?hairstyle[&he has &?a_an[$haircolour $hairstyle]][&he is completely bald].$?fa
    </Aliases>
    <CurrentName>0</CurrentName>
  </Names>"
-			};
-			_context.Characters.Add(character);
-			_context.SaveChanges();
+		};
+		_context.Characters.Add(character);
+		_context.SaveChanges();
 
-			var language = _context.Languages.FirstOrDefault();
-			if (language != null)
+		var language = _context.Languages.FirstOrDefault();
+		if (language != null)
+		{
+			character.Body.Traits.Add(new Trait
 			{
-				character.Body.Traits.Add(new Trait
-				{
-					Body = character.Body,
-					TraitDefinition = language.LinkedTrait,
-					Value = 200,
-					AdditionalValue = 0
-				});
+				Body = character.Body,
+				TraitDefinition = language.LinkedTrait,
+				Value = 200,
+				AdditionalValue = 0
+			});
 
-				character.CharactersLanguages.Add(
-					new CharactersLanguages { Character = character, Language = language });
-				character.CharactersAccents.Add(new CharacterAccent
-				{
-					Character = character, Accent = language.DefaultLearnerAccent, Familiarity = 0, IsPreferred = true
-				});
-				character.CurrentLanguage = language;
-				character.CurrentAccent = language.DefaultLearnerAccent;
-				_context.SaveChanges();
-			}
+			character.CharactersLanguages.Add(
+				new CharactersLanguages { Character = character, Language = language });
+			character.CharactersAccents.Add(new CharacterAccent
+			{
+				Character = character,
+				Accent = language.DefaultLearnerAccent,
+				Familiarity = 0,
+				IsPreferred = true
+			});
+			character.CurrentLanguage = language;
+			character.CurrentAccent = language.DefaultLearnerAccent;
+			_context.SaveChanges();
 		}
+		#endregion
 
 		_context.SaveChanges();
 

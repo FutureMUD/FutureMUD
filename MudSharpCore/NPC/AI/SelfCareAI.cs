@@ -96,7 +96,10 @@ public class SelfCareAI : ArtificialIntelligenceBase
 			         .Any(x => x.PeekBleed(1.0, character.LongtermExertion) > 0.0))
 		{
 			// TODO - make sure the emote doesn't fire every bleed tick
-			if (BleedingEmotes.Any())
+			if (BleedingEmotes.Any() && 
+				!character.EffectsOfType<DelayedAction>().Any(x => x.ActionDescription == "self care tick") &&
+				Dice.Roll("1d6") == 1
+				)
 			{
 				character.AddEffect(
 					new DelayedAction(character,

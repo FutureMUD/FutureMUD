@@ -85,11 +85,24 @@ public class RescuerAI : ArtificialIntelligenceBase
 			return false;
 		}
 
-		var friendlyCombatant = character.Location
-		                                 .LayerCharacters(character.RoomLayer)
-		                                 .Where(x => x != character && x.Combat != null &&
-		                                             IsFriendProg.Execute<bool?>(x) == true)
-		                                 .GetWeightedRandom(x => x.MeleeRange ? 100.0 : 1.0);
+		ICharacter friendlyCombatant;
+		if (IsFriendProg.MatchesParameters(new[] { FutureProgVariableTypes.Character, FutureProgVariableTypes.Character }))
+		{
+			friendlyCombatant = character.Location
+										 .LayerCharacters(character.RoomLayer)
+										 .Where(x => x != character && x.Combat != null &&
+													 IsFriendProg.Execute<bool?>(character, x) == true)
+										 .GetWeightedRandom(x => x.MeleeRange ? 100.0 : 1.0);
+		}
+		else
+		{
+			friendlyCombatant = character.Location
+										 .LayerCharacters(character.RoomLayer)
+										 .Where(x => x != character && x.Combat != null &&
+													 IsFriendProg.Execute<bool?>(x) == true)
+										 .GetWeightedRandom(x => x.MeleeRange ? 100.0 : 1.0);
+		}
+
 		if (friendlyCombatant == null)
 		{
 			return false;

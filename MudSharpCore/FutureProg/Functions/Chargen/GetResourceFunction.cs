@@ -60,8 +60,13 @@ internal class GetResourceFunction : BuiltInFunction, IHaveFuturemud
 			new FunctionCompilerInformation(
 				"getresource",
 				new[] { FutureProgVariableTypes.Toon, FutureProgVariableTypes.Text },
-				(pars, gameworld) => new GetResourceFunction(pars, gameworld)
-			)
+				(pars, gameworld) => new GetResourceFunction(pars, gameworld),
+				new List<string> { "character", "resource" },
+				new List<string> { "The character whose account you want to look up", "The name of the resource you want to look up" },
+				"Returns the amount of the specified chargen resources (karma, RPP, BP, etc) that an account has",
+				"Chargen",
+				FutureProgVariableTypes.Number
+				)
 		);
 	}
 }

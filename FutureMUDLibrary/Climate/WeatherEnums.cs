@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MudSharp.Climate
-{
-    public enum PrecipitationLevel
+namespace MudSharp.Climate;
+
+public enum PrecipitationLevel
     {
         Parched = 0,
         Dry = 1,
@@ -34,4 +34,4 @@ namespace MudSharp.Climate
         HurricaneWind = 7,
         MaelstromWind = 8
     }
-}
+

@@ -8498,8 +8498,8 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
 
         #region Repair Kits
 
-        var materials = context.Materials.ToDictionary(x => x.Name, StringComparer.OrdinalIgnoreCase);
-        var skills = context.TraitDefinitions.ToDictionary(x => x.Name, StringComparer.OrdinalIgnoreCase);
+        var materials = context.Materials.AsEnumerable().DistinctBy(x => x.Name).ToDictionary(x => x.Name, StringComparer.OrdinalIgnoreCase);
+        var skills = context.TraitDefinitions.AsEnumerable().DistinctBy(x => x.Name).ToDictionary(x => x.Name, StringComparer.OrdinalIgnoreCase);
         component = new GameItemComponentProto
         {
             Id = nextId++,
@@ -8521,7 +8521,7 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
             Definition = @$"<Definition>
   <MaximumSeverity>7</MaximumSeverity>
   <RepairPoints>500</RepairPoints>
-  <CheckTrait>{skills[questionAnswers["repairskillcloth"]].Id}</CheckTrait>
+  <CheckTrait>{(skills["Tailoring"] ?? skills["Tailor"] ?? skills.Values.First()).Id}</CheckTrait>
   <CheckBonus>0</CheckBonus>
   <Echoes>
     <Echo><![CDATA[$0 take|takes up $2, rifling through it for the necessary tools to fix $1]]></Echo>
@@ -8588,7 +8588,7 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
             Definition = @$"<Definition>
   <MaximumSeverity>4</MaximumSeverity>
   <RepairPoints>100</RepairPoints>
-  <CheckTrait>{skills[questionAnswers["repairskillcloth"]].Id}</CheckTrait>
+  <CheckTrait>{(skills["Tailoring"] ?? skills["Tailor"] ?? skills.Values.First()).Id}</CheckTrait>
   <CheckBonus>2</CheckBonus>
   <Echoes>
     <Echo><![CDATA[$0 take|takes up $2, rifling through it for the necessary tools to fix $1]]></Echo>
@@ -8655,7 +8655,7 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
             Definition = @$"<Definition>
   <MaximumSeverity>7</MaximumSeverity>
   <RepairPoints>500</RepairPoints>
-  <CheckTrait>{skills[questionAnswers["repairskillleather"]].Id}</CheckTrait>
+  <CheckTrait>{(skills["Tailoring"] ?? skills["Tailor"] ?? skills.Values.First()).Id}</CheckTrait>
   <CheckBonus>0</CheckBonus>
   <Echoes>
     <Echo><![CDATA[$0 take|takes up $2, rifling through it for the necessary tools to fix $1]]></Echo>
@@ -8738,7 +8738,7 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
 			Definition = @$"<Definition>
   <MaximumSeverity>7</MaximumSeverity>
   <RepairPoints>500</RepairPoints>
-  <CheckTrait>{skills[questionAnswers["repairskillmetal"]].Id}</CheckTrait>
+  <CheckTrait>{(skills["Blacksmithing"] ?? skills["Blacksmith"] ?? skills.Values.First()).Id}</CheckTrait>
   <CheckBonus>0</CheckBonus>
   <Echoes>
     <Echo><![CDATA[$0 take|takes up $2, rifling through it for the necessary tools to fix $1]]></Echo>

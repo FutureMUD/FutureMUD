@@ -156,117 +156,44 @@ namespace MudSharp.Framework {
             }
         }
 
-        public static T Stage<T>(this T value, int steps = 1) where T : Enum
-        {
-	        var eType = Enum.GetUnderlyingType(typeof(T));
-	        var converted = Convert.ChangeType(value, eType);
-	        T newValue;
-	        try
-	        {
-		        newValue = (T)
-		        (
-			        converted switch
-			        {
-				        int cValue => Convert.ChangeType(checked(cValue + steps), typeof(T)),
-				        uint cValue => Convert.ChangeType(checked(cValue + steps), typeof(T)),
-				        long cValue => Convert.ChangeType(checked(cValue + steps), typeof(T)),
-				        ulong cValue => steps < 0 ?
-					        Convert.ChangeType(checked(cValue - (uint)Math.Abs(steps)), typeof(T))
-							: Convert.ChangeType(checked(cValue + (uint)steps), typeof(T)),
-				        short cValue => Convert.ChangeType(checked(cValue + steps), typeof(T)),
-				        ushort cValue => Convert.ChangeType(checked(cValue + steps), typeof(T)),
-				        byte cValue => Convert.ChangeType(checked(cValue + steps), typeof(T)),
-				        sbyte cValue => Convert.ChangeType(checked(cValue + steps), typeof(T)),
-				        _ => throw new ArgumentOutOfRangeException()
-			        }
-		        );
-	        }
-	        catch
-	        {
-		        return value;
-	        }
+		public static T Stage<T>(this T enumValue, int steps) where T : Enum
+		{
+			var enumValues = Enum.GetValues(enumValue.GetType()).Cast<T>().ToArray();
+			int currentIndex = Array.IndexOf(enumValues, enumValue);
+			int newIndex = currentIndex + steps;
 
+			// Clamp newIndex to be within the range of enum values
+			newIndex = Math.Max(0, Math.Min(newIndex, enumValues.Length - 1));
 
-	        if (!Enum.IsDefined(typeof(T), newValue))
-	        {
-		        return value;
-	        }
+			return enumValues[newIndex];
+		}
 
-	        return newValue;
-        }
+		public static T StageUp<T>(this T enumValue, uint steps = 1) where T : Enum
+		{
+			var enumValues = Enum.GetValues(enumValue.GetType()).Cast<T>().ToArray();
+			int currentIndex = Array.IndexOf(enumValues, enumValue);
+			int nextIndex = currentIndex + (int)steps;
 
-		public static T StageUp<T>(this T value, uint steps = 1) where T : Enum
-        {
-	        var eType = Enum.GetUnderlyingType(typeof(T));
-	        var converted = Convert.ChangeType(value, eType);
-	        T newValue;
-	        try
-	        {
-		        newValue = (T)
-		        (
-			        converted switch
-			        {
-				        int cValue => Convert.ChangeType(checked(cValue + steps), typeof(T)),
-				        uint cValue => Convert.ChangeType(checked(cValue + steps), typeof(T)),
-				        long cValue => Convert.ChangeType(checked(cValue + steps), typeof(T)),
-				        ulong cValue => Convert.ChangeType(checked(cValue + steps), typeof(T)),
-				        short cValue => Convert.ChangeType(checked(cValue + steps), typeof(T)),
-				        ushort cValue => Convert.ChangeType(checked(cValue + steps), typeof(T)),
-				        byte cValue => Convert.ChangeType(checked(cValue + steps), typeof(T)),
-				        sbyte cValue => Convert.ChangeType(checked(cValue + steps), typeof(T)),
-				        _ => throw new ArgumentOutOfRangeException()
-			        }
-		        );
-			}
-	        catch
-	        {
-		        return value;
-	        }
-            
+			// If nextIndex exceeds the range, return the last enum value
+			return nextIndex < enumValues.Length ? enumValues[nextIndex] : enumValues.Last();
+		}
 
-            if (!Enum.IsDefined(typeof(T), newValue))
-            {
-	            return value;
-            }
+		public static T StageDown<T>(this T enumValue, uint steps = 1) where T : Enum
+		{
+			var enumValues = Enum.GetValues(enumValue.GetType()).Cast<T>().ToArray();
+			int currentIndex = Array.IndexOf(enumValues, enumValue);
+			int nextIndex = currentIndex - (int)steps;
 
-            return newValue;
-        }
+			// If nextIndex is below 0, return the first enum value
+			return nextIndex >= 0 ? enumValues[nextIndex] : enumValues.First();
+		}
 
-        public static T StageDown<T>(this T value, uint steps = 1) where T : Enum
+		public static int StepsFrom<T>(this T value, T other) where T : Enum
         {
 			var eType = Enum.GetUnderlyingType(typeof(T));
-			var converted = Convert.ChangeType(value, eType);
-			T newValue;
-			try
-			{
-				newValue = (T)
-				(
-					converted switch
-					{
-						int cValue => Convert.ChangeType(checked(cValue - steps), typeof(T)),
-						uint cValue => Convert.ChangeType(checked(cValue - steps), typeof(T)),
-						long cValue => Convert.ChangeType(checked(cValue - steps), typeof(T)),
-						ulong cValue => Convert.ChangeType(checked(cValue - steps), typeof(T)),
-						short cValue => Convert.ChangeType(checked(cValue - steps), typeof(T)),
-						ushort cValue => Convert.ChangeType(checked(cValue - steps), typeof(T)),
-						byte cValue => Convert.ChangeType(checked(cValue - steps), typeof(T)),
-						sbyte cValue => Convert.ChangeType(checked(cValue - steps), typeof(T)),
-						_ => throw new ArgumentOutOfRangeException()
-					}
-				);
-			}
-			catch
-			{
-				return value;
-			}
-
-
-			if (!Enum.IsDefined(typeof(T), newValue))
-			{
-				return value;
-			}
-
-			return newValue;
+			var valueConverted = Convert.ChangeType(value, eType);
+			var otherConverted = Convert.ChangeType(other, eType);
+            return Convert.ToInt32(valueConverted) - Convert.ToInt32(otherConverted);
 		}
 
 		public static IEnumerable<T> GetSingleFlags<T>(this T flags) where T : Enum

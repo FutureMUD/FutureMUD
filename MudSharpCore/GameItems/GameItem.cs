@@ -1063,7 +1063,7 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable
 
 			// Drip onto ground if we have any left and are outerwear
 			if (
-				
+				Gameworld.GetStaticBool("PuddlesEnabled") &&
 				mixture.TotalVolume > 0 && 
 				ContainedIn is null && 
 				direction != LiquidExposureDirection.FromOnTop && 

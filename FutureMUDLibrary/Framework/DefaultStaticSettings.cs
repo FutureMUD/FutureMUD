@@ -615,7 +615,8 @@ public static class DefaultStaticSettings
 			{ "AppraiseCommandSkill", "0"},
 			{ "DefaultAuxiliaryMoveTraitId", "0"},
 			{ "DisplayTaxInShopList", "true" },
-			{ "ShouldLiquidOverflowEchoToRoom", "false" }
+			{ "ShouldLiquidOverflowEchoToRoom", "false" },
+			{ "PuddlesEnabled", "true" }
 		};
 
 	public static readonly IReadOnlyDictionary<string, string> DefaultStaticStrings = new Dictionary<string, string>

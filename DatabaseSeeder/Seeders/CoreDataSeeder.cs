@@ -1084,7 +1084,20 @@ public class CoreDataSeeder : IDatabaseSeeder
 		{
 			Name = "Item Default",
 			Type = "GameItem",
-			Definition = @"<Definition>   <LodgeDamageExpression>(damage - 10) / 2</LodgeDamageExpression>   <SeverityRanges>     <Severity value=""0"" lower=""-1"" upper=""0""/>     <Severity value=""1"" lower=""0"" upper=""2""/>     <Severity value=""2"" lower=""2"" upper=""4""/>     <Severity value=""3"" lower=""4"" upper=""7""/>     <Severity value=""4"" lower=""7"" upper=""12""/>     <Severity value=""5"" lower=""12"" upper=""18""/>     <Severity value=""6"" lower=""18"" upper=""27""/>     <Severity value=""7"" lower=""27"" upper=""40""/>     <Severity value=""8"" lower=""40"" upper=""100""/>   </SeverityRanges> </Definition>"
+			Definition = @"<Definition>
+   <LodgeDamageExpression>(damage - 10) / 2</LodgeDamageExpression>
+   <SeverityRanges>
+     <Severity value=""0"" lower=""-1"" upper=""0""/>
+     <Severity value=""1"" lower=""0"" upper=""2""/>
+     <Severity value=""2"" lower=""2"" upper=""4""/>
+     <Severity value=""3"" lower=""4"" upper=""7""/>
+     <Severity value=""4"" lower=""7"" upper=""12""/>
+     <Severity value=""5"" lower=""12"" upper=""18""/>
+     <Severity value=""6"" lower=""18"" upper=""27""/>
+     <Severity value=""7"" lower=""27"" upper=""40""/>
+     <Severity value=""8"" lower=""40"" upper=""100""/>
+   </SeverityRanges>
+ </Definition>"
 		};
 		context.HealthStrategies.Add(itemHS);
 		context.SaveChanges();
@@ -6191,8 +6204,6 @@ return IsAdmin(@ch)",
 			dustResidue, "Zeolite");
 		AddMaterial("mordenite", MaterialBehaviourType.Stone, 2.8, false, 10000, 200000, 0.0, 0.14, 0.0001, 500,
 			dustResidue, "Zeolite");
-		AddMaterial("perlite", MaterialBehaviourType.Stone, 2.8, false, 10000, 200000, 0.0, 0.14, 0.0001, 500,
-			dustResidue, "Economically Useful Stone");
 		AddMaterial("wollastonite", MaterialBehaviourType.Stone, 2.8, false, 10000, 200000, 0.0, 0.14, 0.0001, 500,
 			dustResidue, "Economically Useful Stone");
 		AddMaterial("vermiculite", MaterialBehaviourType.Stone, 2.8, false, 10000, 200000, 0.0, 0.14, 0.0001, 500,

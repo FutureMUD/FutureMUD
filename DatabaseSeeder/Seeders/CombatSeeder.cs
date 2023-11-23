@@ -1055,7 +1055,26 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
 			}
 		);
 
-		AddSpecialArmourType("Hearing Protection", 0, 0, 0, @"<ArmourType>  <DissipateExpressions>    <Expression damagetype=""14"">damage-quality</Expression>  </DissipateExpressions>  <DissipateExpressionsPain>    <Expression damagetype=""14"">pain-quality</Expression>  </DissipateExpressionsPain>  <DissipateExpressionsStun>    <Expression damagetype=""14"">stun-quality</Expression>  </DissipateExpressionsStun>  <AbsorbExpressions>    <Expression damagetype=""14"">damage*(1 - quality*0.1)</Expression>  </AbsorbExpressions>  <AbsorbExpressionsPain>    <Expression damagetype=""14"">pain*(1 - quality*0.1)</Expression>  </AbsorbExpressionsPain>  <AbsorbExpressionsStun>    <Expression damagetype=""14"">stun*(1 - quality*0.1)</Expression>  </AbsorbExpressionsStun> </ArmourType>");
+		AddSpecialArmourType("Hearing Protection", 0, 0, 0, @"<ArmourType>
+  <DissipateExpressions>
+    <Expression damagetype=""14"">damage-quality</Expression>
+  </DissipateExpressions>
+  <DissipateExpressionsPain>
+    <Expression damagetype=""14"">pain-quality</Expression>
+  </DissipateExpressionsPain>
+  <DissipateExpressionsStun>
+    <Expression damagetype=""14"">stun-quality</Expression>
+  </DissipateExpressionsStun>
+  <AbsorbExpressions>
+    <Expression damagetype=""14"">damage*(1 - quality*0.1)</Expression>
+  </AbsorbExpressions>
+  <AbsorbExpressionsPain>
+    <Expression damagetype=""14"">pain*(1 - quality*0.1)</Expression>
+  </AbsorbExpressionsPain>
+  <AbsorbExpressionsStun>
+    <Expression damagetype=""14"">stun*(1 - quality*0.1)</Expression>
+  </AbsorbExpressionsStun>
+ </ArmourType>");
 	}
 
 	private void SeedDataGuns(FuturemudDatabaseContext context, IReadOnlyDictionary<string, string> questionAnswers)
@@ -5834,31 +5853,6 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
 			attributes.GetValueOrDefault("Agility") ??
 			attributes.GetValueOrDefault("Speed") ??
 			attributes["Body"];
-
-		var brawlingexpression = new TraitExpression
-		{
-			Name = "Brawling Skill Cap",
-			Expression = $"min(99,2*{strength.Alias}:{strength.Id}+3*{dex.Alias}:{dex.Id})"
-		};
-		var brawling = new TraitDefinition
-		{
-			Name = "Brawling",
-			Type = (int)TraitType.Skill,
-			Expression = brawlingexpression,
-			TraitGroup = "Combat",
-			AvailabilityProg = context.FutureProgs.First(x => x.FunctionName == "AlwaysTrue"),
-			TeachableProg = context.FutureProgs.First(x => x.FunctionName == "AlwaysFalse"),
-			LearnableProg = context.FutureProgs.First(x => x.FunctionName == "AlwaysTrue"),
-			TeachDifficulty = 7,
-			LearnDifficulty = 7,
-			Hidden = false,
-			ImproverId = context.Improvers.First(x => x.Name == "Skill Improver").Id,
-			DecoratorId = context.TraitDecorators.First(x => x.Name == "General Skill").Id,
-			DerivedType = 0,
-			ChargenBlurb = string.Empty,
-			BranchMultiplier = 1.0
-		};
-		context.TraitDefinitions.Add(brawling);
 		context.SaveChanges();
 
 		context.StaticConfigurations.Add(new StaticConfiguration

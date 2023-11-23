@@ -29,7 +29,82 @@ namespace MudSharp_Unit_Tests
             SevenAndEight = Seventh | Eighth
         }
 
-        [TestMethod]
+        private enum TestStagingEnum : int
+        {
+            Zero,
+            One,
+            Two,
+            Three,
+            Four,
+            Five,
+            Six,
+            Seven,
+            Eight,
+            Nine,
+            Ten,
+            Eleven,
+            Twelve,
+            Thirteen,
+            Fourteen,
+            Fifteen,
+            Sixteen,
+            Seventeen,
+            Eighteen,
+            Nineteen,
+            Twenty
+        }
+
+        private enum SecondStagingEnum : short
+        {
+			Zero,
+			One,
+			Two,
+			Three,
+			Four,
+			Five,
+			Six,
+			Seven,
+			Eight,
+			Nine,
+			Ten,
+			Eleven,
+			Twelve,
+			Thirteen,
+			Fourteen,
+			Fifteen,
+			Sixteen,
+			Seventeen,
+			Eighteen,
+			Nineteen,
+			Twenty
+		}
+
+		private enum ThirdStagingEnum : ulong
+		{
+			Zero,
+			One,
+			Two,
+			Three,
+			Four,
+			Five,
+			Six,
+			Seven,
+			Eight,
+			Nine,
+			Ten,
+			Eleven,
+			Twelve,
+			Thirteen,
+			Fourteen,
+			Fifteen,
+			Sixteen,
+			Seventeen,
+			Eighteen,
+			Nineteen,
+			Twenty
+		}
+
+		[TestMethod]
         public void TestEnums() {
             var value1 = TestEnum.Third | TestEnum.Fourth | TestEnum.Seventh;
             var value2 = TestEnum.Second;
@@ -65,6 +140,25 @@ namespace MudSharp_Unit_Tests
             Assert.AreEqual(true, TestEnum.SevenAndEight.GetAllFlags().Count() == 4, $"SevenAndEight.GetAllFlags had {TestEnum.SevenAndEight.GetAllFlags().Count()} flags.");
             Assert.AreEqual(true, TestEnum.SevenAndEight.GetSingleFlags().Count() == 2, $"SevenAndEight.GetSingleFlags had {TestEnum.SevenAndEight.GetSingleFlags().Count()} flags.");
         }
+
+        [TestMethod]
+        public void TestEnumStaging()
+        {
+            Assert.AreEqual(true, TestStagingEnum.Five.StageUp(3) == TestStagingEnum.Eight, $"Five.StageUp(3) did not equal Eight but {TestStagingEnum.Five.StageUp(3)}");
+			Assert.AreEqual(true, TestStagingEnum.Five.StageUp(15) == TestStagingEnum.Twenty, $"Five.StageUp(15) did not equal Twenty but {TestStagingEnum.Five.StageUp(15)}");
+			Assert.AreEqual(true, TestStagingEnum.Five.StageUp(30) == TestStagingEnum.Twenty, $"Five.StageUp(30) did not equal Twenty but {TestStagingEnum.Five.StageUp(30)}");
+			Assert.AreEqual(true, TestStagingEnum.Five.StageDown(3) == TestStagingEnum.Two, $"Five.StageDown(3) did not equal Two but {TestStagingEnum.Five.StageDown(3)}");
+			Assert.AreEqual(true, TestStagingEnum.Five.StageDown(5) == TestStagingEnum.Zero, $"Five.StageDown(5) did not equal Zero but {TestStagingEnum.Five.StageDown(5)}");
+			Assert.AreEqual(true, TestStagingEnum.Five.StageDown(8) == TestStagingEnum.Zero, $"Five.StageDown(8) did not equal Zero but {TestStagingEnum.Five.StageDown(8)}");
+			Assert.AreEqual(true, TestStagingEnum.Seven.Stage(2) == TestStagingEnum.Nine, $"Seven.Stage(2) did not equal Nine but {TestStagingEnum.Seven.Stage(2)}");
+			Assert.AreEqual(true, TestStagingEnum.Seven.Stage(-2) == TestStagingEnum.Five, $"Seven.Stage(-2) did not equal Five but {TestStagingEnum.Seven.Stage(-2)}");
+			Assert.AreEqual(true, SecondStagingEnum.Seven.Stage(2) == SecondStagingEnum.Nine, $"short Seven.Stage(2) did not equal Nine but {SecondStagingEnum.Seven.Stage(2)}");
+			Assert.AreEqual(true, SecondStagingEnum.Seven.Stage(-2) == SecondStagingEnum.Five, $"short Seven.Stage(-2) did not equal Five but {SecondStagingEnum.Seven.Stage(-2)}");
+			Assert.AreEqual(true, ThirdStagingEnum.Seven.Stage(2) == ThirdStagingEnum.Nine, $"ulong Seven.Stage(2) did not equal Nine but {ThirdStagingEnum.Seven.Stage(2)}");
+			Assert.AreEqual(true, ThirdStagingEnum.Seven.Stage(-2) == ThirdStagingEnum.Five, $"ulong Seven.Stage(-2) did not equal Five but {ThirdStagingEnum.Seven.Stage(-2)}");
+			Assert.AreEqual(3, TestStagingEnum.Ten.StepsFrom(TestStagingEnum.Seven), $"Ten.StepsFrom(Seven) did not equal 3 but {TestStagingEnum.Ten.StepsFrom(TestStagingEnum.Seven)}");
+			Assert.AreEqual(-3, TestStagingEnum.Ten.StepsFrom(TestStagingEnum.Thirteen), $"Ten.StepsFrom(Thirteen) did not equal -3 but {TestStagingEnum.Ten.StepsFrom(TestStagingEnum.Thirteen)}");
+		}
 
         [TestMethod]
         public void TestTryParseEnum()

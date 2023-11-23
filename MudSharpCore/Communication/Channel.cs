@@ -8,6 +8,7 @@ using MudSharp.Database;
 using MudSharp.Framework;
 using MudSharp.Framework.Save;
 using MudSharp.FutureProg;
+using MudSharp.FutureProg.Statements;
 using MudSharp.Models;
 using MudSharp.PerceptionEngine;
 
@@ -16,7 +17,9 @@ namespace MudSharp.Communication;
 public enum ChannelSpeakerNameMode
 {
 	AccountName = 0,
-	CharacterName
+	CharacterName,
+	CharacterFullName,
+	AnonymousToPlayers
 }
 
 public class Channel : SaveableItem, IChannel
@@ -26,10 +29,51 @@ public class Channel : SaveableItem, IChannel
 	protected bool _announceMissedListeners;
 	protected string _channelColour;
 	protected IFutureProg _channelListenerProg;
+	private bool _addToPlayerCommandTree;
+	private bool _addToGuideCommandTree;
 
 	protected string _channelName;
 	protected IFutureProg _channelSpeakerProg;
 	protected ChannelSpeakerNameMode _mode;
+
+	public Channel(IFuturemud gameworld, string name)
+	{
+		Gameworld = gameworld;
+		_name = name;
+		_channelName = name;
+		_channelColour = Telnet.Red.Name;
+		_announceChannelJoiners = false;
+		_announceMissedListeners = false;
+		_addToGuideCommandTree = false;
+		_addToPlayerCommandTree = false;
+		_channelListenerProg = Gameworld.AlwaysFalseProg;
+		_channelSpeakerProg = Gameworld.AlwaysFalseProg;
+		_mode = ChannelSpeakerNameMode.AccountName;
+		_commandWords.Add(name.ToLowerInvariant().CollapseString());
+		using (new FMDB())
+		{
+			var dbitem = new Models.Channel
+			{
+				ChannelName = _channelName,
+				ChannelListenerProgId = _channelListenerProg.Id,
+				ChannelSpeakerProgId = _channelSpeakerProg.Id,
+				AnnounceChannelJoiners = _announceChannelJoiners,
+				AnnounceMissedListeners = _announceMissedListeners,
+				AddToGuideCommandTree = _addToGuideCommandTree,
+				AddToPlayerCommandTree = _addToPlayerCommandTree,
+				ChannelColour = Telnet.GetColour(_channelColour).Name,
+				Mode = (int)_mode
+			};
+			FMDB.Context.Channels.Add(dbitem);
+			dbitem.ChannelCommandWords.Add(new ChannelCommandWord
+			{
+				Channel = dbitem,
+				Word = name.ToLowerInvariant().CollapseString()
+			});
+			FMDB.Context.SaveChanges();
+			_id = dbitem.Id;
+		}
+	}
 
 	public Channel(MudSharp.Models.Channel channel, IFuturemud gameworld)
 	{
@@ -43,12 +87,14 @@ public class Channel : SaveableItem, IChannel
 		_announceMissedListeners = channel.AnnounceMissedListeners;
 		_mode = (ChannelSpeakerNameMode)channel.Mode;
 		_channelColour = channel.ChannelColour.SubstituteANSIColour().Trim();
-		CommandWords = channel.ChannelCommandWords.Select(x => x.Word).ToList();
+		_commandWords.AddRange(channel.ChannelCommandWords.Select(x => x.Word));
+		_addToGuideCommandTree = channel.AddToGuideCommandTree;
+		_addToPlayerCommandTree = channel.AddToPlayerCommandTree;
 	}
 
 	public override string FrameworkItemType => "Channel";
 
-	private string GetSpeakerName(ICharacter source)
+	private string GetSpeakerName(ICharacter source, ICharacter viewer)
 	{
 		if (source == null)
 		{
@@ -61,10 +107,25 @@ public class Channel : SaveableItem, IChannel
 				return source.Account.Name;
 			case ChannelSpeakerNameMode.CharacterName:
 				return source.PersonalName.GetName(NameStyle.GivenOnly);
+			case ChannelSpeakerNameMode.CharacterFullName:
+				return source.PersonalName.GetName(NameStyle.SimpleFull);
+			case ChannelSpeakerNameMode.AnonymousToPlayers:
+				return viewer is null || viewer.IsAdministrator() ? source.PersonalName.GetName(NameStyle.SimpleFull) : "Anonymous";
 			default:
 				throw new NotSupportedException();
 		}
 	}
+
+	private const string CommandHelp = @"You can use the following options with the channel command:
+
+	#3channel list#0 - lists all of the channels
+	#3channel show <which>#0 - shows detailed information about a channel
+	#3channel show#0 - an alias for showing your currently edited channel
+	#3channel edit <which>#0 - begins editing a particular channel
+	#3channel edit#0 - an alias for showing your currently edited channel
+	#3channel close#0 - stops editing a channel
+	#3channel new <name>#0 - creates a new channel
+	";
 
 	public static void ChannelCommandDelegate(ICharacter character, string command)
 	{
@@ -73,8 +134,31 @@ public class Channel : SaveableItem, IChannel
 
 		if (original.Equals("channel", StringComparison.InvariantCultureIgnoreCase))
 		{
-			character.OutputHandler.Send("Channel command still to do.");
-			return;
+			switch (ss.PopSpeech().ToLowerInvariant().CollapseString())
+			{
+				case "list":
+					ChannelCommandList(character, ss);
+					return;
+				case "show":
+				case "view":
+					ChannelCommandShow(character, ss);
+					return;
+				case "edit":
+					ChannelCommandEdit(character, ss);
+					return;
+				case "close":
+					ChannelCommandClose(character);
+					return;
+				case "new":
+					ChannelCommandNew(character, ss);
+					return;
+				case "set":
+					ChannelCommandSet(character, ss);
+					return;
+				default:
+					character.OutputHandler.Send(CommandHelp.SubstituteANSIColour());
+					return;
+			}
 		}
 		else
 		{
@@ -118,30 +202,68 @@ public class Channel : SaveableItem, IChannel
 		}
 	}
 
+	private static void ChannelCommandSet(ICharacter character, StringStack ss)
+	{
+		throw new NotImplementedException();
+	}
+
+	private static void ChannelCommandNew(ICharacter character, StringStack ss)
+	{
+		throw new NotImplementedException();
+	}
+
+	private static void ChannelCommandClose(ICharacter character)
+	{
+		throw new NotImplementedException();
+	}
+
+	private static void ChannelCommandEdit(ICharacter character, StringStack ss)
+	{
+		throw new NotImplementedException();
+	}
+
+	private static void ChannelCommandShow(ICharacter character, StringStack ss)
+	{
+		throw new NotImplementedException();
+	}
+
+	private static void ChannelCommandList(ICharacter character, StringStack ss)
+	{
+		throw new NotImplementedException();
+	}
+
 	public override void Save()
 	{
-		using (new FMDB())
+		var dbitem = FMDB.Context.Channels.Find(Id);
+		dbitem.ChannelName = _channelName;
+		dbitem.ChannelListenerProgId = _channelListenerProg.Id;
+		dbitem.ChannelSpeakerProgId = _channelSpeakerProg.Id;
+		dbitem.AnnounceChannelJoiners = _announceChannelJoiners;
+		dbitem.AnnounceMissedListeners = _announceMissedListeners;
+		dbitem.AddToGuideCommandTree = _addToGuideCommandTree;
+		dbitem.AddToPlayerCommandTree = _addToPlayerCommandTree;
+		dbitem.ChannelColour = Telnet.GetColour(_channelColour).Name;
+		dbitem.Mode = (int)_mode;
+		FMDB.Context.ChannelIgnorers.RemoveRange(dbitem.ChannelIgnorers);
+		foreach (var item in _ignoringAccountIDs)
 		{
-			var dbitem = FMDB.Context.Channels.Find(Id);
-			FMDB.Context.ChannelIgnorers.RemoveRange(dbitem.ChannelIgnorers);
-			foreach (var item in _ignoringAccountIDs)
-			{
-				dbitem.ChannelIgnorers.Add(new ChannelIgnorer { AccountId = item, Channel = dbitem });
-			}
-
-			FMDB.Context.SaveChanges();
+			dbitem.ChannelIgnorers.Add(new ChannelIgnorer { AccountId = item, Channel = dbitem });
 		}
-
+		FMDB.Context.ChannelCommandWords.RemoveRange(dbitem.ChannelCommandWords);
+		foreach (var command in CommandWords)
+		{
+			dbitem.ChannelCommandWords.Add(new ChannelCommandWord { Channel = dbitem, Word = command });
+		}
 		Changed = false;
 	}
 
 	#region IChannel Members
 
-	public IEnumerable<string> CommandWords { get; protected set; }
+	private readonly List<string> _commandWords = new();
+	public IEnumerable<string> CommandWords => _commandWords;
 
 	public void Send(ICharacter source, string message)
 	{
-		string output;
 		if (source != null)
 		{
 			if (!((bool?)_channelSpeakerProg.Execute(source) ?? true))
@@ -161,35 +283,27 @@ public class Channel : SaveableItem, IChannel
 				source.OutputHandler.Send("What message would you like to send?");
 				return;
 			}
-
-			output =
-				$"{$"[{_channelName}: {GetSpeakerName(source)}]".Colour(_channelColour, Telnet.Black.ToString())} {message.Fullstop().ProperSentences()}";
-		}
-		else
-		{
-			output =
-				$"{$"[{_channelName}: System]".Colour(_channelColour, Telnet.Black.ToString())} {message.Fullstop().ProperSentences()}";
 		}
 
 		var sb = new StringBuilder();
-		foreach (var character in Gameworld.Characters.Where(x => (bool?)_channelListenerProg.Execute(x) ?? true))
+		foreach (var character in Gameworld.Characters.Where(x => (bool?)_channelListenerProg.Execute(x, source) ?? true))
 		{
 			if (_announceMissedListeners)
 			{
 				if (_ignoringAccountIDs.Contains(character.Account.Id))
 				{
-					sb.AppendLine($"{GetSpeakerName(character).Proper()} is not listening to the channel.");
+					sb.AppendLine($"{GetSpeakerName(character, character).Proper()} is not listening to the channel.");
 					continue;
 				}
 
 				if (character.OutputHandler.QuietMode && source != null)
 				{
-					sb.AppendLine($"{GetSpeakerName(character).Proper()} is editing.");
+					sb.AppendLine($"{GetSpeakerName(character, character).Proper()} is editing.");
 					continue;
 				}
 			}
 
-			character.OutputHandler.Send(output);
+			character.OutputHandler.Send($"{$"[{_channelName}: {GetSpeakerName(source, character)}]".Colour(_channelColour, Telnet.Black.ToString())} {message.Fullstop().ProperSentences()}");
 		}
 
 		if (sb.Length > 0)
@@ -210,11 +324,11 @@ public class Channel : SaveableItem, IChannel
 		if (_announceChannelJoiners)
 		{
 			var output =
-				$"{"[System Message]".Colour(Telnet.Green)} {GetSpeakerName(character)} has left the {_channelName.ToLowerInvariant()} channel.";
+				$"{"[System Message]".Colour(Telnet.Green)} {GetSpeakerName(character, null)} has left the {_channelName.ToLowerInvariant()} channel.";
 			Gameworld.SystemMessage(output,
 				x =>
 					!_ignoringAccountIDs.Contains(x.Account.Id) &&
-					((bool?)_channelListenerProg.Execute(x) ?? true));
+					((bool?)_channelListenerProg.Execute(x, null) ?? true));
 		}
 
 		Changed = true;
@@ -233,15 +347,244 @@ public class Channel : SaveableItem, IChannel
 		if (_announceChannelJoiners)
 		{
 			var output =
-				$"{"[System Message]".Colour(Telnet.Green)} {GetSpeakerName(character)} has joined the {_channelName.ToLowerInvariant()} channel.";
+				$"{"[System Message]".Colour(Telnet.Green)} {GetSpeakerName(character, null)} has joined the {_channelName.ToLowerInvariant()} channel.";
 			Gameworld.SystemMessage(output,
 				x =>
 					!_ignoringAccountIDs.Contains(x.Account.Id) &&
-					((bool?)_channelListenerProg.Execute(x) ?? true));
+					((bool?)_channelListenerProg.Execute(x, null) ?? true));
 		}
 
 		Changed = true;
 		return true;
+	}
+
+	public const string HelpText = "";
+
+	public bool BuildingCommand(ICharacter actor, StringStack command)
+	{
+		switch (command.PopSpeech().ToLowerInvariant().CollapseString())
+		{
+			case "name":
+				return BuildingCommandName(actor, command);
+			case "colour":
+			case "color":
+				return BuildingCommandColour(actor, command);
+			case "player":
+				return BuildingCommandPlayer(actor);
+			case "guide":
+				return BuildingCommandGuide(actor);
+			case "listenprog":
+			case "listenerprog":
+				return BuildingCommandListenerProg(actor, command);
+			case "speakerprog":
+			case "speakprog":
+				return BuildingCommandSpeakerProg(actor, command);
+			case "joiners":
+				return BuildingCommandJoiners(actor);
+			case "missed":
+				return BuildingCommandMissed(actor);
+			case "mode":
+				return BuildingCommandMode(actor, command);
+			case "commands":
+				return BuildingCommandCommands(actor, command);
+			default:
+				actor.OutputHandler.Send(HelpText.SubstituteANSIColour());
+				return false;
+		}
+	}
+
+	private bool BuildingCommandCommands(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("Which command keywords do you want to use for this channel?");
+			return false;
+		}
+
+		_commandWords.Clear();
+		while (!command.IsFinished)
+		{
+			_commandWords.Add(command.PopSpeech().ToLowerInvariant());
+		}
+		Changed = true;
+		actor.OutputHandler.Send($"The command words for this channel are now: {CommandWords.Select(x => x.ColourValue()).ListToString()}\nNote: You must restart the MUD before these command words will work.");
+		return true;
+	}
+
+	private bool BuildingCommandMode(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send($"Which mode should the display for this channel be? The options are {Enum.GetValues<ChannelSpeakerNameMode>().Select(x => x.DescribeEnum().ColourName()).ListToString()}.");
+			return false;
+		}
+
+		if (!command.SafeRemainingArgument.TryParseEnum<ChannelSpeakerNameMode>(out var value))
+		{
+			actor.OutputHandler.Send($"That is not a valid display mode. The options are {Enum.GetValues<ChannelSpeakerNameMode>().Select(x => x.DescribeEnum().ColourName()).ListToString()}.");
+			return false;
+		}
+
+		_mode = value;
+		Changed = true;
+		actor.OutputHandler.Send($@"The display mode for this channel is now {value.DescribeEnum().ColourName()}.
+For you, this would look like the following:
+
+{$"[{_channelName}: {GetSpeakerName(actor, actor)}]".Colour(_channelColour, Telnet.Black.ToString())} Test message.");
+		return true;
+	}
+
+	private bool BuildingCommandMissed(ICharacter actor)
+	{
+		_announceMissedListeners = !_announceMissedListeners;
+		Changed = true;
+		actor.OutputHandler.Send($"This channel will {_announceMissedListeners.NowNoLonger()} announce that people were ignoring the channel or editing after each message.");
+		return true;
+	}
+
+	private bool BuildingCommandJoiners(ICharacter actor)
+	{
+		_announceChannelJoiners = !_announceChannelJoiners;
+		Changed = true;
+		actor.OutputHandler.Send($"This channel will {_announceChannelJoiners.NowNoLonger()} announce when people join or leave the channel.");
+		return true;
+	}
+
+	private bool BuildingCommandSpeakerProg(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("Which prog do you want to use who can speak on this channel?");
+			return false;
+		}
+
+		var prog = new FutureProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument, FutureProgVariableTypes.Boolean, new[] { FutureProgVariableTypes.Character }).LookupProg();
+		if (prog is null)
+		{
+			return false;
+		}
+
+		_channelSpeakerProg = prog;
+		Changed = true;
+		actor.OutputHandler.Send($"This channel will now use the {prog.MXPClickableFunctionName()} prog to control who can speak on this channel.");
+		return true;
+	}
+
+	private bool BuildingCommandListenerProg(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("Which prog do you want to use who can listen to this channel?");
+			return false;
+		}
+
+		var prog = new FutureProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument, FutureProgVariableTypes.Boolean, 
+			new[]{
+				new[] {
+					FutureProgVariableTypes.Character
+				},
+				new[] {
+					FutureProgVariableTypes.Character,
+					FutureProgVariableTypes.Character
+				}
+			}).LookupProg();
+		if (prog is null)
+		{
+			return false;
+		}
+
+		_channelListenerProg = prog;
+		Changed = true;
+		actor.OutputHandler.Send($"This channel will now use the {prog.MXPClickableFunctionName()} prog to control who can listen to this channel.");
+		return true;
+	}
+
+	private bool BuildingCommandGuide(ICharacter actor)
+	{
+		_addToGuideCommandTree = !_addToGuideCommandTree;
+		Changed = true;
+		actor.OutputHandler.Send($"This channel will {_addToGuideCommandTree.NowNoLonger()} be added to guide command trees.\nNote: You must restart the MUD before this will apply.");
+		return true;
+	}
+
+	private bool BuildingCommandPlayer(ICharacter actor)
+	{
+		_addToPlayerCommandTree = !_addToPlayerCommandTree;
+		Changed = true;
+		actor.OutputHandler.Send($"This channel will {_addToGuideCommandTree.NowNoLonger()} be added to guide command trees.\nNote: You must restart the MUD before this will apply.");
+		return true;
+	}
+
+	private bool BuildingCommandColour(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send(
+				$"What colour should this channel be? The options are as follows:\n\n{Telnet.GetColourOptions.Select(x => x.Colour(Telnet.GetColour(x))).ListToLines(true)}");
+			return false;
+		}
+
+		var colour = Telnet.GetColour(command.SafeRemainingArgument);
+		if (colour == null)
+		{
+			actor.OutputHandler.Send(
+				$"That is not a valid colour. The options are as follows:\n\n{Telnet.GetColourOptions.Select(x => x.Colour(Telnet.GetColour(x))).ListToLines(true)}");
+			return false;
+		}
+
+		_channelColour = colour.Name;
+		Changed = true;
+		actor.OutputHandler.Send($@"This channel is now coloured {colour.Name.Colour(colour)}.
+
+For you, this would look like the following:
+
+{$"[{_channelName}: {GetSpeakerName(actor, actor)}]".Colour(_channelColour, Telnet.Black.ToString())} Test message.");
+		return true;
+	}
+
+	private bool BuildingCommandName(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished) {
+			actor.OutputHandler.Send("What name do you want to give to this channel?");
+			return false;
+		}
+
+		var name = command.SafeRemainingArgument.TitleCase();
+        if (Gameworld.Channels.Any(x => x.Name.EqualTo(name)))
+		{
+			actor.OutputHandler.Send("There is already a channel with that name. Names must be unique.");
+			return false;
+		}
+
+		_name = name;
+		_channelName = name;
+		Changed = true;
+		actor.OutputHandler.Send($"This channel is now named {name.Colour(Telnet.GetColour(_channelColour))}.");
+		return true;
+	}
+
+	public string Show(ICharacter actor)
+	{
+		var sb = new StringBuilder();
+		sb.AppendLine($"Channel #{Id.ToString("N0", actor)} - {Name}".GetLineWithTitle(actor, Telnet.Orange, Telnet.BoldWhite));
+		sb.AppendLine();
+		sb.AppendLine($"Speaker Prog: {_channelSpeakerProg.MXPClickableFunctionName()}");
+		sb.AppendLine($"Listener Prog: {_channelListenerProg.MXPClickableFunctionName()}");
+		sb.AppendLine($"Name Mode: {_mode.DescribeEnum(true, Telnet.Cyan)}");
+		sb.AppendLine($"Announce Joiners: {_announceChannelJoiners.ToColouredString()}");
+		sb.AppendLine($"Announce Missed Speakers: {_announceMissedListeners.ToColouredString()}");
+		sb.AppendLine($"Channel Colour: {Telnet.GetColour(_channelColour).Name.Colour(Telnet.GetColour(_channelColour))}");
+		sb.AppendLine($"Command Words: {CommandWords.Select(x => x.ColourValue()).ListToCommaSeparatedValues(", ")}");
+		sb.AppendLine($"Add To Player Commands: {_addToPlayerCommandTree.ToColouredString()}");
+		sb.AppendLine($"Add To Guide Commands: {_addToGuideCommandTree.ToColouredString()}");
+		sb.AppendLine();
+		sb.AppendLine("Online Listeners:");
+		sb.AppendLine();
+		foreach (var ch in Gameworld.Characters)
+		{
+			sb.AppendLine($"\t{ch.HowSeen(actor, flags: PerceiveIgnoreFlags.IgnoreCanSee | PerceiveIgnoreFlags.IgnoreSelf)} - {ch.PersonalName.GetName(NameStyle.SimpleFull).ColourName()} - {ch.Account.Name.ColourValue()}");
+		}
+		return sb.ToString();
 	}
 
 	#endregion

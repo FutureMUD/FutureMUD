@@ -310,9 +310,52 @@ namespace MudSharp.Framework {
                     return BoldBlack;
                 case "boldpink":
                     return BoldPink;
-                default:
-                    return null;
             }
+
+            if (name.Length == 2 && name[0] == '#')
+            {
+                switch (name[1].ToString().ToLowerInvariant())
+                {
+					case "1":
+						return Red;
+					case "2":
+						return Green;
+					case "3":
+						return Yellow;
+					case "4":
+						return Blue;
+					case "5":
+						return Magenta;
+					case "6":
+						return Cyan;
+					case "7":
+						return BoldBlack;
+					case "8":
+						return Orange;
+					case "9":
+						return BoldRed;
+					case "a":
+						return BoldGreen;
+					case "b":
+						return BoldYellow;
+					case "c":
+						return BoldBlue;
+					case "d":
+						return BoldMagenta;
+					case "e":
+						return BoldCyan;
+					case "f":
+						return BoldWhite;
+					case "g":
+						return BoldOrange;
+					case "h":
+						return BoldPink;
+					case "i":
+						return Pink;
+				}
+            }
+
+            return null;
         }
     }
 }

@@ -64,7 +64,9 @@ public partial class GameItem
 			{ "isgridconnectable", FutureProgVariableTypes.Boolean },
 			{ "iselectricgridconnectable", FutureProgVariableTypes.Boolean },
 			{ "grid", FutureProgVariableTypes.Number },
-			{ "layer", FutureProgVariableTypes.Text }
+			{ "layer", FutureProgVariableTypes.Text },
+			{ "isfood", FutureProgVariableTypes.Boolean },
+			{ "isliquidcontainer", FutureProgVariableTypes.Boolean },
 		};
 	}
 
@@ -72,50 +74,52 @@ public partial class GameItem
 	{
 		return new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase)
 		{
-			{ "proto", "" },
-			{ "quantity", "" },
-			{ "holder", "" },
-			{ "wearer", "" },
-			{ "weight", "" },
-			{ "contents", "" },
-			{ "container", "" },
-			{ "iscontainer", "" },
-			{ "isopenable", "" },
-			{ "iscurrency", "" },
-			{ "islock", "" },
-			{ "islockable", "" },
-			{ "iskey", "" },
-			{ "istable", "" },
-			{ "ischair", "" },
-			{ "isdoor", "" },
-			{ "isbelt", "" },
-			{ "isbeltable", "" },
-			{ "iswearable", "" },
-			{ "iswieldable", "" },
-			{ "isholdable", "" },
-			{ "issheath", "" },
-			{ "islightable", "" },
-			{ "ispowered", "" },
-			{ "ison", "" },
-			{ "iscover", "" },
-			{ "iscorpse", "" },
-			{ "isweapon", "" },
-			{ "ismeleeweapon", "" },
-			{ "israngedweapon", "" },
-			{ "providingcover", "" },
-			{ "lit", "" },
-			{ "open", "" },
-			{ "locked", "" },
-			{ "locks", "" },
-			{ "corpsecharacter", "" },
-			{ "location", "" },
-			{ "tags", "" },
-			{ "iscommodity", "" },
-			{ "material", "" },
-			{ "isgridconnectable", "" },
-			{ "iselectricgridconnectable", "" },
-			{ "grid", "" },
-			{ "layer", "" }
+			{ "proto", "The ID number of the proto this item was loaded from" },
+			{ "quantity", "The quantity of this item in the stack. 1 if not stacked" },
+			{ "holder", "The character who is holding this item, if any" },
+			{ "wearer", "The character who is wearing this item, if any" },
+			{ "weight", "The weight of this item in base units" },
+			{ "contents", "A collection of the item contents of this item" },
+			{ "container", "The item that this item is contained in, if any" },
+			{ "iscontainer", "True if the item is a container" },
+			{ "isopenable", "True is the item can be opened and closed" },
+			{ "iscurrency", "True if the item is a currency pile" },
+			{ "islock", "True if the item is a lock" },
+			{ "islockable", "True if the item can be locked and unlocked" },
+			{ "iskey", "True if the item is a key" },
+			{ "istable", "True if the item is a table" },
+			{ "ischair", "True if the item is a chair" },
+			{ "isdoor", "True if the item is a door" },
+			{ "isbelt", "True if the item is a belt" },
+			{ "isbeltable", "True if the item can be attached to a belt" },
+			{ "iswearable", "True if the item can be worn" },
+			{ "iswieldable", "True if the item can be wielded" },
+			{ "isholdable", "True if the item can be held" },
+			{ "issheath", "True if the item is a weapon sheath" },
+			{ "islightable", "True if the item can be lit with the light command" },
+			{ "ispowered", "True if the item is electrically powered" },
+			{ "ison", "True if the item is on" },
+			{ "iscover", "True if the item can be used as ranged cover" },
+			{ "iscorpse", "True if the item is a corpse" },
+			{ "isweapon", "True if the item is a weapon of any kind" },
+			{ "ismeleeweapon", "True if the item is a melee weapon" },
+			{ "israngedweapon", "True if the item is a ranged weapon" },
+			{ "providingcover", "True if the item is currently providing cover" },
+			{ "lit", "True if the item is currently lit (e.g. by the light command)" },
+			{ "open", "True if the item is currently open" },
+			{ "locked", "True if the item is currently locked" },
+			{ "locks", "A collection of the locks on this item" },
+			{ "corpsecharacter", "If the item is a corpse, this is the original character" },
+			{ "location", "The room that the item is in" },
+			{ "tags", "A collection of the tags that this item has" },
+			{ "iscommodity", "True if the item is a commodity pile" },
+			{ "material", "The primary material that this item is made from" },
+			{ "isgridconnectable", "True if this item can be connected to a grid" },
+			{ "iselectricgridconnectable", "True if this item can be connected to an electrical grid" },
+			{ "grid", "The grid that this item is connected to, if any" },
+			{ "layer", "A text description of the layer this item is currently in" },
+			{ "isfood", "True if the item is food" },
+			{ "isliquidcontainer", "True if the item is a liquid container" },
 		};
 	}
 
@@ -131,7 +135,7 @@ public partial class GameItem
 	{
 		return new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase)
 		{
-			{ "tags", "" }
+			{ "tags", "A collection of the tags that this thing has" }
 		};
 	}
 
@@ -279,6 +283,10 @@ public partial class GameItem
 				return new NumberVariable(GetItemType<ICanConnectToGrid>()?.Grid?.Id ?? 0);
 			case "layer":
 				return new TextVariable(RoomLayer.DescribeEnum());
+			case "isfood":
+				return new BooleanVariable(IsItemType<IEdible>());
+			case "isliquidcontainer":
+				return new BooleanVariable(IsItemType<ILiquidContainer>());
 			default:
 				return base.GetProperty(property);
 		}

@@ -8847,6 +8847,19 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
 		#endregion
 
 		#region Smokeables
+		context.VariableDefinitions.Add(new VariableDefinition
+		{
+			ContainedType = (long)FutureProgVariableTypes.DateTime,
+			OwnerType = 8,
+			Property = "nicotineuntil"
+		});
+		context.VariableDefaults.Add(new VariableDefault
+		{
+			OwnerType = 8,
+			Property = "nicotineuntil",
+			DefaultValue = "<var>01/01/0001 00:00:00</var>"
+		});
+		context.SaveChanges();
 		var smokeProg = new FutureProg
         {
             FunctionName = "OnSmokeCigarette",
@@ -8870,28 +8883,6 @@ SetRegister @ch ""NicotineUntil"" (@NicotineUntil + 5m)",
         { FutureProg = smokeProg, ParameterIndex = 1, ParameterName = "item", ParameterType = (long)FutureProgVariableTypes.Item });
         context.FutureProgs.Add(smokeProg);
 
-        var prog = new FutureProg
-        {
-            FunctionName = "OnSmokeCigarette",
-            AcceptsAnyParameters = false,
-            ReturnType = 0,
-            Category = "Character",
-            Subcategory = "Smoking",
-            Public = false,
-            FunctionComment = "This prog gives the character a 5 minute nicotene hit.",
-            FunctionText = @"var NicotineUntil as datetime
-NicotineUntil = ifnull(GetRegister(@ch, ""NicotineUntil""), now())
-if (@nicotineuntil < now())
-  NicotineUntil = now()
-end if
-SetRegister @ch ""NicotineUntil"" (@NicotineUntil + 5m)",
-            StaticType = 0
-        };
-        prog.FutureProgsParameters.Add(new FutureProgsParameter
-        { FutureProg = prog, ParameterIndex = 0, ParameterName = "ch", ParameterType = (long)FutureProgVariableTypes.Character });
-        prog.FutureProgsParameters.Add(new FutureProgsParameter
-        { FutureProg = prog, ParameterIndex = 1, ParameterName = "item", ParameterType = (long)FutureProgVariableTypes.Item });
-        context.FutureProgs.Add(prog);
         context.SaveChanges();
 
         component = new GameItemComponentProto
@@ -8916,7 +8907,7 @@ SetRegister @ch ""NicotineUntil"" (@NicotineUntil + 5m)",
    <SecondsOfFuel>600</SecondsOfFuel>
    <SecondsPerDrag>10</SecondsPerDrag>
    <SecondsOfEffectPerSecondOfFuel>5</SecondsOfEffectPerSecondOfFuel>
-   <OnDragProg>109</OnDragProg>
+   <OnDragProg>{smokeProg.Id}</OnDragProg>
    <PlayerDescriptionEffectString>The lingering, acrid smell of tobacco clings to this individual.</PlayerDescriptionEffectString>
    <RoomDescriptionEffectString>The lingering, acrid smell of tobacco hangs in the air here.</RoomDescriptionEffectString>
    <Drug>0</Drug>

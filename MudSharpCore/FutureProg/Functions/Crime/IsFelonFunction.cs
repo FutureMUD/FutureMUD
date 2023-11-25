@@ -41,6 +41,25 @@ internal class IsFelonFunction : BuiltInFunction
 				FutureProgVariableTypes.Boolean // the return type of the function
 			)
 		);
+
+		FutureProg.RegisterBuiltInFunctionCompiler(
+			new FunctionCompilerInformation(
+				"IsFelon".ToLowerInvariant(),
+				new[]
+				{
+					FutureProgVariableTypes.Character,
+				}, // the parameters the function takes
+				(pars, gameworld) => new IsFelonFunction(pars, gameworld),
+				new List<string> { "character", }, // parameter names
+				new List<string>
+				{
+					"The character to check"
+				}, // parameter help text
+				"This function checks to see if the character has ever had a serious crime (one that incurred jail time or capital punishment) recorded against them", // help text for the function,
+				"Crime", // the category to which this function belongs,
+				FutureProgVariableTypes.Boolean // the return type of the function
+			)
+		);
 	}
 
 	#endregion
@@ -73,7 +92,10 @@ internal class IsFelonFunction : BuiltInFunction
 			return StatementResult.Normal;
 		}
 
-		var authorityArg = ParameterFunctions[1].Result?.GetObject as ILegalAuthority;
+		var authorityArg =
+			ParameterFunctions.Count == 2 ?
+			ParameterFunctions[1].Result?.GetObject as ILegalAuthority :
+			null;
 		var authorities = new List<ILegalAuthority>();
 		if (authorityArg is not null)
 		{

@@ -405,12 +405,6 @@ namespace MudSharp.Database
             {
                 entity.Property(e => e.Id).HasColumnType("bigint(20)");
 
-                entity.Property(e => e.Definition)
-                    .IsRequired()
-                    .HasColumnType("mediumtext")
-                    .HasCharSet("utf8")
-                    .UseCollation("utf8_general_ci");
-
                 entity.Property(e => e.MinimumMinutesBetweenFlavourEchoes).HasColumnType("int(11)");
 
                 entity.Property(e => e.MinuteProcessingInterval).HasColumnType("int(11)");
@@ -427,6 +421,56 @@ namespace MudSharp.Database
                     .HasCharSet("utf8")
                     .UseCollation("utf8_general_ci");
             });
+
+            modelBuilder.Entity<ClimateModelSeason>(entity => {
+				entity.HasKey(e => new { e.ClimateModelId, e.SeasonId })
+					.HasName("PRIMARY");
+
+				entity.Property(e => e.ClimateModelId).HasColumnType("bigint(20)");
+				entity.Property(e => e.SeasonId).HasColumnType("bigint(20)");
+				entity.Property(e => e.IncrementalAdditionalChangeChanceFromStableWeather).HasColumnType("double");
+				entity.Property(e => e.MaximumAdditionalChangeChanceFromStableWeather).HasColumnType("double");
+
+                entity.HasOne(e => e.ClimateModel)
+                .WithMany(x => x.ClimateModelSeasons)
+                .HasForeignKey(e => e.ClimateModelId)
+                .HasConstraintName("FK_ClimateModelSeasons_ClimateModels");
+
+				entity.HasOne(e => e.Season)
+				.WithMany(x => x.ClimateModelSeasons)
+				.HasForeignKey(e => e.SeasonId)
+				.HasConstraintName("FK_ClimateModelSeasons_Seasons");
+			});
+
+            modelBuilder.Entity<ClimateModelSeasonEvent>(entity => {
+				entity.HasKey(e => new { e.ClimateModelId, e.SeasonId, e.WeatherEventId })
+					.HasName("PRIMARY");
+				entity.Property(e => e.ClimateModelId).HasColumnType("bigint(20)");
+				entity.Property(e => e.SeasonId).HasColumnType("bigint(20)");
+				entity.Property(e => e.WeatherEventId).HasColumnType("bigint(20)");
+				entity.Property(e => e.ChangeChance).HasColumnType("double");
+
+				entity.HasOne(e => e.ClimateModel)
+				.WithMany()
+				.HasForeignKey(e => e.ClimateModelId)
+				.HasConstraintName("FK_ClimateModelSeasonEvents_ClimateModels");
+
+				entity.HasOne(e => e.Season)
+				.WithMany()
+				.HasForeignKey(e => e.SeasonId)
+				.HasConstraintName("FK_ClimateModelSeasonEvents_Seasons");
+
+				entity.HasOne(e => e.WeatherEvent)
+				.WithMany()
+				.HasForeignKey(e => e.WeatherEventId)
+				.HasConstraintName("FK_ClimateModelSeasonEvents_WeatherEvents");
+
+				entity.Property(e => e.Transitions)
+				   .IsRequired()
+				   .HasColumnType("mediumtext")
+				   .HasCharSet("utf8")
+				   .UseCollation("utf8_general_ci");
+			});
 
             modelBuilder.Entity<Clock>(entity =>
             {

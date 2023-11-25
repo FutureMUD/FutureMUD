@@ -21,5 +21,6 @@ namespace MudSharp.Models
         public virtual Celestial Celestial { get; set; }
         public virtual ICollection<RegionalClimatesSeason> RegionalClimatesSeasons { get; set; }
         public virtual ICollection<WeatherController> WeatherControllers { get; set; }
+        public virtual ICollection<ClimateModelSeason> ClimateModelSeasons { get; set; }
     }
 }

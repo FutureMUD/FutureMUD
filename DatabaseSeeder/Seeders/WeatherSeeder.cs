@@ -158,66 +158,66 @@ At the present time, this seeder only installs a temperate oceanic climate (e.g.
 		switch (precipitation)
 		{
 			case PrecipitationLevel.Parched:
-				precipitationDescription = "The air is extremely dry";
+				precipitationDescription = "The air is extremely dry.";
 				obscureSky = false;
 				textColour = Telnet.Orange;
 				break;
 			case PrecipitationLevel.Dry:
-				precipitationDescription = "The air is dry";
-				precipitationDescriptionCloudy = "Light, whispy clouds are dotted about the sky";
+				precipitationDescription = "The air is dry.";
+				precipitationDescriptionCloudy = "Light, whispy clouds are dotted about the sky.";
 				precipitationTempDelta = 0.1;
 				precipitationTempDeltaPerVariation = 0.1;
 				obscureSky = false;
 				break;
 			case PrecipitationLevel.Humid:
-				precipitationDescription = "The air is humid";
-				precipitationDescriptionCloudy = "A uniform blanket of cloud covers the sky";
+				precipitationDescription = "The air is humid.";
+				precipitationDescriptionCloudy = "A uniform blanket of cloud covers the sky.";
 				precipitationTempDelta = 0.5;
 				precipitationTempDeltaPerVariation = 0.2;
 				obscureSky = false;
 				break;
 			case PrecipitationLevel.LightRain:
-				precipitationDescription = "A drizzle of rain falls from the sky";
+				precipitationDescription = "A drizzle of rain falls from the sky.";
 				precipitationTempDelta = -2.0;
 				textColour = Telnet.Cyan;
 				break;
 			case PrecipitationLevel.Rain:
-				precipitationDescription = "Rain falls in steady sheets from the sky";
+				precipitationDescription = "Rain falls in steady sheets from the sky.";
 				precipitationTempDelta = -3.0;
 				textColour = Telnet.Cyan;
 				break;
 			case PrecipitationLevel.HeavyRain:
-				precipitationDescription = "Rain is bucketing down from the sky";
+				precipitationDescription = "Rain is bucketing down from the sky.";
 				precipitationTempDelta = -4.0;
 				textColour = Telnet.Cyan;
 				break;
 			case PrecipitationLevel.TorrentialRain:
-				precipitationDescription = "A torrent of rain falls from the sky";
+				precipitationDescription = "A torrent of rain falls from the sky.";
 				precipitationTempDelta = -5.0;
 				textColour = Telnet.Cyan;
 				break;
 			case PrecipitationLevel.LightSnow:
-				precipitationDescription = "Snowflakes drift down from the clouds overhead in a light snow flurry";
+				precipitationDescription = "Snowflakes drift down from the clouds overhead in a light snow flurry.";
 				precipitationTempDelta = -4.0;
 				textColour = Telnet.BoldCyan;
 				break;
 			case PrecipitationLevel.Snow:
-				precipitationDescription = "Snow falls with steady regularity from the clouds overhead";
+				precipitationDescription = "Snow falls with steady regularity from the clouds overhead.";
 				precipitationTempDelta = -6.0;
 				textColour = Telnet.BoldCyan;
 				break;
 			case PrecipitationLevel.HeavySnow:
-				precipitationDescription = "A heavy amount of snow falls from the dark clouds overhead, blanketing the area in snow";
+				precipitationDescription = "A heavy amount of snow falls from the dark clouds overhead, blanketing the area in snow.";
 				precipitationTempDelta = -8.0;
 				textColour = Telnet.BoldCyan;
 				break;
 			case PrecipitationLevel.Blizzard:
-				precipitationDescription = "A blizzard of snow blankets the area in white, restricting visibility of much of anything";
+				precipitationDescription = "A blizzard of snow blankets the area in white, restricting visibility of much of anything.";
 				precipitationTempDelta = -10.0;
 				textColour = Telnet.BoldWhite;
 				break;
 			case PrecipitationLevel.Sleet:
-				precipitationDescription = "Icy rain sleets down here, forming slushy puddles on the ground";
+				precipitationDescription = "Icy rain sleets down here, forming slushy puddles on the ground.";
 				precipitationTempDelta = -6.0;
 				textColour = Telnet.BoldCyan;
 				break;
@@ -231,52 +231,52 @@ At the present time, this seeder only installs a temperate oceanic climate (e.g.
 		switch (wind)
 		{
 			case WindLevel.None:
-				windDescription = " and the air is still, with not even a hint of wind";
+				windDescription = " There air is completely still, with almost no movement of air";
 				break;
 			case WindLevel.Still:
-				windDescription = " and the air is still";
+				windDescription = " There isn't any wind to speak of";
 				windTempDelta = -0.2;
 				windTempDeltaHot = 0.0;
 				windTempDeltaCold = -0.4;
 				break;
 			case WindLevel.OccasionalBreeze:
-				windDescription = " with only an occasional {0}breeze";
+				windDescription = " There is only an occasional {0}breeze";
 				windTempDelta = -0.8;
 				windTempDeltaHot = 0.5;
 				windTempDeltaCold = -2.0;
 				break;
 			case WindLevel.Breeze:
-				windDescription = " with a steady {0}breeze blowing through";
+				windDescription = " There is a steady {0}breeze blowing through";
 				windTempDelta = -1.8;
 				windTempDeltaHot = 1.2;
 				windTempDeltaCold = -3.5;
 				break;
 			case WindLevel.Wind:
-				windDescription = " with a consistent {0}wind";
+				windDescription = " There is a consistent {0}wind blowing";
 				windTempDelta = -2.5;
 				windTempDeltaHot = 2.0;
 				windTempDeltaCold = -5.0;
 				break;
 			case WindLevel.StrongWind:
-				windDescription = " with a strong {0}wind";
+				windDescription = " There is a strong {0}wind blowing";
 				windTempDelta = -3.5;
 				windTempDeltaHot = 3.0;
 				windTempDeltaCold = -7.0;
 				break;
 			case WindLevel.GaleWind:
-				windDescription = " with a {0}gale-force wind";
+				windDescription = " There is a {0}gale-force wind blowing";
 				windTempDelta = -5.0;
 				windTempDeltaHot = 4.0;
 				windTempDeltaCold = -10.0;
 				break;
 			case WindLevel.HurricaneWind:
-				windDescription = " with a {0}hurricane-force wind";
+				windDescription = " There is a {0}hurricane-force wind blowing";
 				windTempDelta = -7.0;
 				windTempDeltaHot = 5.0;
 				windTempDeltaCold = -13.0;
 				break;
 			case WindLevel.MaelstromWind:
-				windDescription = " with a {0}maelstrom of wind";
+				windDescription = " There is a {0}maelstrom of wind blowing";
 				windTempDelta = -8.0;
 				windTempDeltaHot = 6.0;
 				windTempDeltaCold = -16.0;
@@ -1036,7 +1036,7 @@ At the present time, this seeder only installs a temperate oceanic climate (e.g.
 						}}Polar{wind.DescribeEnum()}{variation switch
 						{
 							WeatherEventVariation.Normal => "",
-							_ => variation.StageDown().DescribeEnum()
+							_ => variation.DescribeEnum()
 						}}"];
 						eventsAndTransitionsBySeason["Winter"].Add(we.Value, (to, 5.0));
 						eventsAndTransitionsBySeason["Autumn"].Add(we.Value, (to, 10.0));
@@ -1051,7 +1051,7 @@ At the present time, this seeder only installs a temperate oceanic climate (e.g.
 						}}Equatorial{wind.DescribeEnum()}{variation switch
 						{
 							WeatherEventVariation.Normal => "",
-							_ => variation.StageDown().DescribeEnum()
+							_ => variation.DescribeEnum()
 						}}"];
 						eventsAndTransitionsBySeason["Winter"].Add(we.Value, (to, 5.0));
 						eventsAndTransitionsBySeason["Autumn"].Add(we.Value, (to, 10.0));
@@ -1067,7 +1067,7 @@ At the present time, this seeder only installs a temperate oceanic climate (e.g.
 						}}{wind.DescribeEnum()}{variation switch
 						{
 							WeatherEventVariation.Normal => "",
-							_ => variation.StageDown().DescribeEnum()
+							_ => variation.DescribeEnum()
 						}}"];
 						eventsAndTransitionsBySeason["Winter"].Add(we.Value, (to, 5.0));
 						eventsAndTransitionsBySeason["Autumn"].Add(we.Value, (to, 10.0));
@@ -1082,7 +1082,7 @@ At the present time, this seeder only installs a temperate oceanic climate (e.g.
 						}}Equatorial{wind.DescribeEnum()}{variation switch
 						{
 							WeatherEventVariation.Normal => "",
-							_ => variation.StageDown().DescribeEnum()
+							_ => variation.DescribeEnum()
 						}}"];
 						eventsAndTransitionsBySeason["Winter"].Add(we.Value, (to, 5.0));
 						eventsAndTransitionsBySeason["Autumn"].Add(we.Value, (to, 10.0));
@@ -1098,7 +1098,7 @@ At the present time, this seeder only installs a temperate oceanic climate (e.g.
 						}}Polar{wind.DescribeEnum()}{variation switch
 						{
 							WeatherEventVariation.Normal => "",
-							_ => variation.StageDown().DescribeEnum()
+							_ => variation.DescribeEnum()
 						}}"];
 						eventsAndTransitionsBySeason["Winter"].Add(we.Value, (to, 5.0));
 						eventsAndTransitionsBySeason["Autumn"].Add(we.Value, (to, 10.0));
@@ -1113,7 +1113,7 @@ At the present time, this seeder only installs a temperate oceanic climate (e.g.
 						}}{wind.DescribeEnum()}{variation switch
 						{
 							WeatherEventVariation.Normal => "",
-							_ => variation.StageDown().DescribeEnum()
+							_ => variation.DescribeEnum()
 						}}"];
 						eventsAndTransitionsBySeason["Winter"].Add(we.Value, (to, 5.0));
 						eventsAndTransitionsBySeason["Autumn"].Add(we.Value, (to, 10.0));
@@ -1207,42 +1207,48 @@ At the present time, this seeder only installs a temperate oceanic climate (e.g.
 		var temperateModel = new ClimateModel
 		{
 			Name = "Temperate",
-			MinuteProcessingInterval = 15,
-			MinimumMinutesBetweenFlavourEchoes = 30,
-			MinuteFlavourEchoChance = 0.05,
-			Definition =
-				new XElement("Model",
-					new XElement("Seasons",
-						from season in seasons
-						select new XElement("Season",
-							new XElement("MaximumAdditionalChangeChanceFromStableWeather", season.SeasonGroup switch
-							{
-								"Autumn" => 0.15,
-								"Spring" => 0.10,
-								_ => 0.05
-							}),
-							new XElement("IncrementalAdditionalChangeChanceFromStableWeather", 0.005),
-							new XElement("Events",
-								from we in eventsAndTransitionsBySeason[season.SeasonGroup]
-								select new XElement("Event",
-									new XAttribute("id", we.Key.Id),
-									new XAttribute("changechance", 0.0),
-									new XElement("Transitions",
+			MinuteProcessingInterval = 60,
+			MinimumMinutesBetweenFlavourEchoes = 60,
+			MinuteFlavourEchoChance = 0.01,
+			Type = "terrestrial"
+		};
+		foreach (var season in seasons)
+		{
+			var cms = new ClimateModelSeason
+			{
+				ClimateModel = temperateModel,
+				Season = season,
+				IncrementalAdditionalChangeChanceFromStableWeather = 0.0005,
+				MaximumAdditionalChangeChanceFromStableWeather = season.SeasonGroup switch
+				{
+					"Autumn" => 0.15,
+					"Spring" => 0.10,
+					_ => 0.05
+				}
+			};
+			temperateModel.ClimateModelSeasons.Add(cms);
+
+			foreach (var we in eventsAndTransitionsBySeason[season.SeasonGroup])
+			{
+				cms.SeasonEvents.Add(new ClimateModelSeasonEvent
+				{
+					ClimateModel = temperateModel,
+					Season = season,
+					WeatherEvent = we.Key,
+					ChangeChance = 0.01,
+					Transitions =
+					new XElement("Transitions",
 										from trans in we.Value
 										select new XElement("Transition",
 											new XAttribute("id", trans.To.Id),
 											new XAttribute("chance", trans.Chance)
 										)
-									)
-								)
-							)
-						)
-					)
-				).ToString()
-		};
+									).ToString()
+				});
+			}
+		}
 		context.ClimateModels.Add(temperateModel);
 		context.SaveChanges();
-
 
 		#endregion
 		return temperateModel;
@@ -1409,7 +1415,7 @@ At the present time, this seeder only installs a temperate oceanic climate (e.g.
 
 		if (!context.Celestials.Any()) return ShouldSeedResult.PrerequisitesNotMet;
 
-		if (context.WeatherControllers.Any()) return ShouldSeedResult.MayAlreadyBeInstalled;
+		if (context.ClimateModels.Any()) return ShouldSeedResult.MayAlreadyBeInstalled;
 
 		return ShouldSeedResult.ReadyToInstall;
 	}

@@ -711,7 +711,7 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 		sw.Stop();
 		Console.WriteLine($"Duration: {sw.ElapsedMilliseconds}ms");
 #endif
-		var count = seasons.Count;
+		var count = _seasons.Count;
 		Console.WriteLine("Loaded {0:N0} {1}.", count, count == 1 ? "Season" : "Seasons");
 
 		Console.WriteLine("\nLoading Weather Events...");
@@ -728,7 +728,7 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 		sw.Stop();
 		Console.WriteLine($"Duration: {sw.ElapsedMilliseconds}ms");
 #endif
-		count = seasons.Count;
+		count = _weatherEvents.Count;
 		Console.WriteLine("Loaded {0:N0} {1}.", count, count == 1 ? "Weather Event" : "Weather Events");
 
 		Console.WriteLine("\nLoading Climate Models...");
@@ -736,7 +736,12 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 		sw = new Stopwatch();
 		sw.Start();
 #endif
-		var models = FMDB.Context.ClimateModels.AsNoTracking().ToList();
+		var models = FMDB.Context.ClimateModels
+			.Include(x => x.ClimateModelSeasons)
+			.ThenInclude(x => x.SeasonEvents)
+			.AsSplitQuery()
+			.AsNoTracking()
+			.ToList();
 		foreach (var model in models)
 		{
 			_climateModels.Add(Climate.ClimateModelFactory.LoadClimateModel(model, this));
@@ -745,7 +750,7 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 		sw.Stop();
 		Console.WriteLine($"Duration: {sw.ElapsedMilliseconds}ms");
 #endif
-		count = models.Count;
+		count = _climateModels.Count;
 		Console.WriteLine("Loaded {0:N0} {1}.", count, count == 1 ? "Climate Model" : "Climate Models");
 
 		Console.WriteLine("\nLoading Regional Climates...");

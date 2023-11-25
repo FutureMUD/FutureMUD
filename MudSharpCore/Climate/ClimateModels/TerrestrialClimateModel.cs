@@ -62,26 +62,23 @@ public class TerrestrialClimateModel : ClimateModelBase
 		MinuteProcessingInterval = model.MinuteProcessingInterval;
 		MinimumMinutesBetweenFlavourEchoes = model.MinimumMinutesBetweenFlavourEchoes;
 		MinuteFlavourEchoChance = model.MinuteFlavourEchoChance;
-		var definition = XElement.Parse(model.Definition);
-		foreach (var element in definition.Element("Seasons").Elements())
+		foreach (var dbseason in model.ClimateModelSeasons)
 		{
-			var season = gameworld.Seasons.Get(long.Parse(element.Attribute("id").Value));
-			_maximumAdditionalChangeChanceFromStableWeather.Add(season,
-				double.Parse(element.Element("MaximumAdditionalChangeChanceFromStableWeather").Value));
-			_incrementalAdditionalChangeChanceFromStableWeather.Add(season,
-				double.Parse(element.Element("IncrementalAdditionalChangeChanceFromStableWeather").Value));
-			foreach (var subelement in element.Element("Events").Elements())
+			var season = gameworld.Seasons.Get(dbseason.SeasonId);
+			_maximumAdditionalChangeChanceFromStableWeather[season] = dbseason.MaximumAdditionalChangeChanceFromStableWeather;
+			_incrementalAdditionalChangeChanceFromStableWeather[season] = dbseason.IncrementalAdditionalChangeChanceFromStableWeather;
+			foreach (var dbevent in dbseason.SeasonEvents)
 			{
-				var weather = gameworld.WeatherEvents.Get(long.Parse(subelement.Attribute("id").Value));
-				_weatherEventChangeChance[(season, weather)] = double.Parse(subelement.Attribute("changechance").Value);
+				var we = gameworld.WeatherEvents.Get(dbevent.WeatherEventId);
+				_weatherEventChangeChance[(season, we)] = dbevent.ChangeChance;
 				var transitions = new List<(IWeatherEvent, double)>();
-				foreach (var transition in subelement.Element("Transitions").Elements())
+				foreach (var transition in XElement.Parse(dbevent.Transitions).Elements())
 				{
 					var other = gameworld.WeatherEvents.Get(long.Parse(transition.Attribute("id").Value));
 					transitions.Add((other, double.Parse(transition.Attribute("chance").Value)));
 				}
 
-				_newWeatherEventChances[(season, weather)] = transitions;
+				_newWeatherEventChances[(season, we)] = transitions;
 			}
 		}
 	}

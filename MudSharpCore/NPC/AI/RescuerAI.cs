@@ -55,10 +55,11 @@ public class RescuerAI : ArtificialIntelligenceBase
 				$"The RescuerAI with ID {Id} specified an IsFriendProg that did not return boolean.");
 		}
 
-		if (!IsFriendProg.MatchesParameters(new[] { FutureProgVariableTypes.Character }))
+		if (!IsFriendProg.MatchesParameters(new[] { FutureProgVariableTypes.Character }) &&
+			!IsFriendProg.MatchesParameters(new[] { FutureProgVariableTypes.Character, FutureProgVariableTypes.Character }))
 		{
 			throw new ApplicationException(
-				$"The RescuerAI with ID {Id} specified an IsFriendProg that did not accept a character parameter.");
+				$"The RescuerAI with ID {Id} specified an IsFriendProg that did not accept the right parameters.");
 		}
 	}
 

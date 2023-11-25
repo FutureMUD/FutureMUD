@@ -8498,8 +8498,8 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
 
         #region Repair Kits
 
-        var materials = context.Materials.AsEnumerable().DistinctBy(x => x.Name).ToDictionary(x => x.Name, StringComparer.OrdinalIgnoreCase);
-        var skills = context.TraitDefinitions.AsEnumerable().DistinctBy(x => x.Name).ToDictionary(x => x.Name, StringComparer.OrdinalIgnoreCase);
+        var materials = context.Materials.AsEnumerable().DistinctBy(x => x.Name).ToDictionaryWithDefault(x => x.Name, StringComparer.OrdinalIgnoreCase);
+        var skills = context.TraitDefinitions.AsEnumerable().DistinctBy(x => x.Name).ToDictionaryWithDefault(x => x.Name, StringComparer.OrdinalIgnoreCase);
         component = new GameItemComponentProto
         {
             Id = nextId++,
@@ -8530,22 +8530,22 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
     <Echo><![CDATA[$0 place|places the tools back within $2 and pack|packs it away.]]></Echo>
   </Echoes>
   <Materials>
-    <Material>{materials["broadcloth"]}</Material>
-	<Material>{materials["burlap"]}</Material>
-	<Material>{materials["canvas"]}</Material>
-	<Material>{materials["cotton"]}</Material>
-	<Material>{materials["denim"]}</Material>
-	<Material>{materials["felt"]}</Material>
-	<Material>{materials["fur"]}</Material>
-	<Material>{materials["hemp"]}</Material>
-	<Material>{materials["hessian"]}</Material>
-	<Material>{materials["jute"]}</Material>
-	<Material>{materials["linen"]}</Material>
-	<Material>{materials["silk"]}</Material>
-	<Material>{materials["tweed"]}</Material>
-	<Material>{materials["wool"]}</Material>
-	<Material>{materials["cashmere"]}</Material>
-	<Material>{materials["mohair"]}</Material>
+    <Material>{materials["broadcloth"]?.Id ?? 0}</Material>
+	<Material>{materials["burlap"]?.Id ?? 0}</Material>
+	<Material>{materials["canvas"]?.Id ?? 0}</Material>
+	<Material>{materials["cotton"]?.Id ?? 0}</Material>
+	<Material>{materials["denim"]?.Id ?? 0}</Material>
+	<Material>{materials["felt"]?.Id ?? 0}</Material>
+	<Material>{materials["fur"]?.Id ?? 0}</Material>
+	<Material>{materials["hemp"]?.Id ?? 0}</Material>
+	<Material>{materials["hessian"]?.Id ?? 0}</Material>
+	<Material>{materials["jute"]?.Id ?? 0}</Material>
+	<Material>{materials["linen"]?.Id ?? 0}</Material>
+	<Material>{materials["silk"]?.Id ?? 0}</Material>
+	<Material>{materials["tweed"]?.Id ?? 0}</Material>
+	<Material>{materials["wool"]?.Id ?? 0}</Material>
+	<Material>{materials["cashmere"]?.Id ?? 0}</Material>
+	<Material>{materials["mohair"]?.Id ?? 0}</Material>
   </Materials>
   <DamageTypes>
     <DamageType>2</DamageType>
@@ -8597,22 +8597,22 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
     <Echo><![CDATA[$0 place|places the tools back within $2 and pack|packs it away.]]></Echo>
   </Echoes>
   <Materials>
-    <Material>{materials["broadcloth"]}</Material>
-	<Material>{materials["burlap"]}</Material>
-	<Material>{materials["canvas"]}</Material>
-	<Material>{materials["cotton"]}</Material>
-	<Material>{materials["denim"]}</Material>
-	<Material>{materials["felt"]}</Material>
-	<Material>{materials["fur"]}</Material>
-	<Material>{materials["hemp"]}</Material>
-	<Material>{materials["hessian"]}</Material>
-	<Material>{materials["jute"]}</Material>
-	<Material>{materials["linen"]}</Material>
-	<Material>{materials["silk"]}</Material>
-	<Material>{materials["tweed"]}</Material>
-	<Material>{materials["wool"]}</Material>
-	<Material>{materials["cashmere"]}</Material>
-	<Material>{materials["mohair"]}</Material>
+    <Material>{materials["broadcloth"]?.Id ?? 0}</Material>
+	<Material>{materials["burlap"]?.Id ?? 0}</Material>
+	<Material>{materials["canvas"]?.Id ?? 0}</Material>
+	<Material>{materials["cotton"]?.Id ?? 0}</Material>
+	<Material>{materials["denim"]?.Id ?? 0}</Material>
+	<Material>{materials["felt"]?.Id ?? 0}</Material>
+	<Material>{materials["fur"]?.Id ?? 0}</Material>
+	<Material>{materials["hemp"]?.Id ?? 0}</Material>
+	<Material>{materials["hessian"]?.Id ?? 0}</Material>
+	<Material>{materials["jute"]?.Id ?? 0}</Material>
+	<Material>{materials["linen"]?.Id ?? 0}</Material>
+	<Material>{materials["silk"]?.Id ?? 0}</Material>
+	<Material>{materials["tweed"]?.Id ?? 0}</Material>
+	<Material>{materials["wool"]?.Id ?? 0}</Material>
+	<Material>{materials["cashmere"]?.Id ?? 0}</Material>
+	<Material>{materials["mohair"]?.Id ?? 0}</Material>
   </Materials>
   <DamageTypes>
     <DamageType>2</DamageType>
@@ -8664,38 +8664,38 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
     <Echo><![CDATA[$0 place|places the tools back within $2 and pack|packs it away.]]></Echo>
   </Echoes>
   <Materials>
-    <Material>{materials["animal skin"]}</Material>
-	<Material>{materials["cow hide"]}</Material>
-	<Material>{materials["deer hide"]}</Material>
-	<Material>{materials["bear hide"]}</Material>
-	<Material>{materials["dog hide"]}</Material>
-	<Material>{materials["cat hide"]}</Material>
-	<Material>{materials["fox hide"]}</Material>
-	<Material>{materials["pig hide"]}</Material>
-	<Material>{materials["wolf hide"]}</Material>
-	<Material>{materials["snake hide"]}</Material>
-	<Material>{materials["alligator hide"]}</Material>
-	<Material>{materials["crocodile hide"]}</Material>
-	<Material>{materials["lion hide"]}</Material>
-	<Material>{materials["tiger hide"]}</Material>
-	<Material>{materials["rabbit hide"]}</Material>
-	<Material>{materials["small mammal hide"]}</Material>
-	<Material>{materials["leather"]}</Material>
-	<Material>{materials["cow leather"]}</Material>
-	<Material>{materials["deer leather"]}</Material>
-	<Material>{materials["bear leather"]}</Material>
-	<Material>{materials["dog leather"]}</Material>
-	<Material>{materials["cat leather"]}</Material>
-	<Material>{materials["fox leather"]}</Material>
-	<Material>{materials["pig leather"]}</Material>
-	<Material>{materials["wolf leather"]}</Material>
-	<Material>{materials["snake leather"]}</Material>
-	<Material>{materials["alligator leather"]}</Material>
-	<Material>{materials["crocodile leather"]}</Material>
-	<Material>{materials["lion leather"]}</Material>
-	<Material>{materials["tiger leather"]}</Material>
-	<Material>{materials["rabbit leather"]}</Material>
-	<Material>{materials["small mammal leather"]}</Material>
+    <Material>{materials["animal skin"]?.Id ?? 0}</Material>
+	<Material>{materials["cow hide"]?.Id ?? 0}</Material>
+	<Material>{materials["deer hide"]?.Id ?? 0}</Material>
+	<Material>{materials["bear hide"]?.Id ?? 0}</Material>
+	<Material>{materials["dog hide"]?.Id ?? 0}</Material>
+	<Material>{materials["cat hide"]?.Id ?? 0}</Material>
+	<Material>{materials["fox hide"]?.Id ?? 0}</Material>
+	<Material>{materials["pig hide"]?.Id ?? 0}</Material>
+	<Material>{materials["wolf hide"]?.Id ?? 0}</Material>
+	<Material>{materials["snake hide"]?.Id ?? 0}</Material>
+	<Material>{materials["alligator hide"]?.Id ?? 0}</Material>
+	<Material>{materials["crocodile hide"]?.Id ?? 0}</Material>
+	<Material>{materials["lion hide"]?.Id ?? 0}</Material>
+	<Material>{materials["tiger hide"]?.Id ?? 0}</Material>
+	<Material>{materials["rabbit hide"]?.Id ?? 0}</Material>
+	<Material>{materials["small mammal hide"]?.Id ?? 0}</Material>
+	<Material>{materials["leather"]?.Id ?? 0}</Material>
+	<Material>{materials["cow leather"]?.Id ?? 0}</Material>
+	<Material>{materials["deer leather"]?.Id ?? 0}</Material>
+	<Material>{materials["bear leather"]?.Id ?? 0}</Material>
+	<Material>{materials["dog leather"]?.Id ?? 0}</Material>
+	<Material>{materials["cat leather"]?.Id ?? 0}</Material>
+	<Material>{materials["fox leather"]?.Id ?? 0}</Material>
+	<Material>{materials["pig leather"]?.Id ?? 0}</Material>
+	<Material>{materials["wolf leather"]?.Id ?? 0}</Material>
+	<Material>{materials["snake leather"]?.Id ?? 0}</Material>
+	<Material>{materials["alligator leather"]?.Id ?? 0}</Material>
+	<Material>{materials["crocodile leather"]?.Id ?? 0}</Material>
+	<Material>{materials["lion leather"]?.Id ?? 0}</Material>
+	<Material>{materials["tiger leather"]?.Id ?? 0}</Material>
+	<Material>{materials["rabbit leather"]?.Id ?? 0}</Material>
+	<Material>{materials["small mammal leather"]?.Id ?? 0}</Material>
   </Materials>
   <DamageTypes>
     <DamageType>2</DamageType>
@@ -8747,84 +8747,84 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
     <Echo><![CDATA[$0 place|places the tools back within $2 and pack|packs it away.]]></Echo>
   </Echoes>
   <Materials>
-    <Material>{materials["metal"]}</Material>
-    <Material>{materials["aluminium"]}</Material>
-    <Material>{materials["antimony"]}</Material>
-    <Material>{materials["arsenic"]}</Material>
-    <Material>{materials["arsenical bronze"]}</Material>
-    <Material>{materials["bell bronze"]}</Material>
-    <Material>{materials["beryllium"]}</Material>
-    <Material>{materials["bismuth bronze"]}</Material>
-    <Material>{materials["bismuth"]}</Material>
-    <Material>{materials["boron"]}</Material>
-    <Material>{materials["brass"]}</Material>
-    <Material>{materials["bromine"]}</Material>
-    <Material>{materials["bronze"]}</Material>
-    <Material>{materials["cadmium"]}</Material>
-    <Material>{materials["carbon steel"]}</Material>
-    <Material>{materials["cast iron"]}</Material>
-    <Material>{materials["cesium"]}</Material>
-    <Material>{materials["chromium"]}</Material>
-    <Material>{materials["cobalt"]}</Material>
-    <Material>{materials["copper"]}</Material>
-    <Material>{materials["crucible steel"]}</Material>
-    <Material>{materials["electrum"]}</Material>
-    <Material>{materials["gallium"]}</Material>
-    <Material>{materials["galvanized steel"]}</Material>
-    <Material>{materials["germanium"]}</Material>
-    <Material>{materials["gold"]}</Material>
-    <Material>{materials["hafnium"]}</Material>
-    <Material>{materials["high tensile steel"]}</Material>
-    <Material>{materials["indium"]}</Material>
-    <Material>{materials["lead"]}</Material>
-    <Material>{materials["magnesium"]}</Material>
-    <Material>{materials["manganese steel"]}</Material>
-    <Material>{materials["manganese"]}</Material>
-    <Material>{materials["mild bronze"]}</Material>
-    <Material>{materials["mild steel"]}</Material>
-    <Material>{materials["molybdenum"]}</Material>
-    <Material>{materials["neodymium"]}</Material>
-    <Material>{materials["nickel brass"]}</Material>
-    <Material>{materials["nickel"]}</Material>
-    <Material>{materials["niobium"]}</Material>
-    <Material>{materials["open hearth steel"]}</Material>
-    <Material>{materials["orichalcum"]}</Material>
-    <Material>{materials["osmium"]}</Material>
-    <Material>{materials["palladium"]}</Material>
-    <Material>{materials["pewter"]}</Material>
-    <Material>{materials["phosphorus"]}</Material>
-    <Material>{materials["pig iron"]}</Material>
-    <Material>{materials["platinum"]}</Material>
-    <Material>{materials["potassium"]}</Material>
-    <Material>{materials["powder-coated steel"]}</Material>
-    <Material>{materials["rare earth metal"]}</Material>
-    <Material>{materials["rhenium"]}</Material>
-    <Material>{materials["rhodium"]}</Material>
-    <Material>{materials["rubidium"]}</Material>
-    <Material>{materials["ruthenium"]}</Material>
-    <Material>{materials["selenium"]}</Material>
-    <Material>{materials["silicon"]}</Material>
-    <Material>{materials["silver"]}</Material>
-    <Material>{materials["sodium"]}</Material>
-    <Material>{materials["spelter"]}</Material>
-    <Material>{materials["sponge iron"]}</Material>
-    <Material>{materials["stainless steel"]}</Material>
-    <Material>{materials["sterling silver"]}</Material>
-    <Material>{materials["strontium"]}</Material>
-    <Material>{materials["sulfur"]}</Material>
-    <Material>{materials["tantalum"]}</Material>
-    <Material>{materials["tellurium"]}</Material>
-    <Material>{materials["thallium"]}</Material>
-    <Material>{materials["thorium"]}</Material>
-    <Material>{materials["tin"]}</Material>
-    <Material>{materials["titanium"]}</Material>
-    <Material>{materials["tungsten"]}</Material>
-    <Material>{materials["uranium"]}</Material>
-    <Material>{materials["vanadium"]}</Material>
-    <Material>{materials["wootz steel"]}</Material>
-    <Material>{materials["wrought iron"]}</Material>
-    <Material>{materials["zinc"]}</Material>
-    <Material>{materials["zirconium"]}</Material>
+    <Material>{materials["metal"]?.Id ?? 0}</Material>
+    <Material>{materials["aluminium"]?.Id ?? 0}</Material>
+    <Material>{materials["antimony"]?.Id ?? 0}</Material>
+    <Material>{materials["arsenic"]?.Id ?? 0}</Material>
+    <Material>{materials["arsenical bronze"]?.Id ?? 0}</Material>
+    <Material>{materials["bell bronze"]?.Id ?? 0}</Material>
+    <Material>{materials["beryllium"]?.Id ?? 0}</Material>
+    <Material>{materials["bismuth bronze"]?.Id ?? 0}</Material>
+    <Material>{materials["bismuth"]?.Id ?? 0}</Material>
+    <Material>{materials["boron"]?.Id ?? 0}</Material>
+    <Material>{materials["brass"]?.Id ?? 0}</Material>
+    <Material>{materials["bromine"]?.Id ?? 0}</Material>
+    <Material>{materials["bronze"]?.Id ?? 0}</Material>
+    <Material>{materials["cadmium"]?.Id ?? 0}</Material>
+    <Material>{materials["carbon steel"]?.Id ?? 0}</Material>
+    <Material>{materials["cast iron"]?.Id ?? 0}</Material>
+    <Material>{materials["cesium"]?.Id ?? 0}</Material>
+    <Material>{materials["chromium"]?.Id ?? 0}</Material>
+    <Material>{materials["cobalt"]?.Id ?? 0}</Material>
+    <Material>{materials["copper"]?.Id ?? 0}</Material>
+    <Material>{materials["crucible steel"]?.Id ?? 0}</Material>
+    <Material>{materials["electrum"]?.Id ?? 0}</Material>
+    <Material>{materials["gallium"]?.Id ?? 0}</Material>
+    <Material>{materials["galvanized steel"]?.Id ?? 0}</Material>
+    <Material>{materials["germanium"]?.Id ?? 0}</Material>
+    <Material>{materials["gold"]?.Id ?? 0}</Material>
+    <Material>{materials["hafnium"]?.Id ?? 0}</Material>
+    <Material>{materials["high tensile steel"]?.Id ?? 0}</Material>
+    <Material>{materials["indium"]?.Id ?? 0}</Material>
+    <Material>{materials["lead"]?.Id ?? 0}</Material>
+    <Material>{materials["magnesium"]?.Id ?? 0}</Material>
+    <Material>{materials["manganese steel"]?.Id ?? 0}</Material>
+    <Material>{materials["manganese"]?.Id ?? 0}</Material>
+    <Material>{materials["mild bronze"]?.Id ?? 0}</Material>
+    <Material>{materials["mild steel"]?.Id ?? 0}</Material>
+    <Material>{materials["molybdenum"]?.Id ?? 0}</Material>
+    <Material>{materials["neodymium"]?.Id ?? 0}</Material>
+    <Material>{materials["nickel brass"]?.Id ?? 0}</Material>
+    <Material>{materials["nickel"]?.Id ?? 0}</Material>
+    <Material>{materials["niobium"]?.Id ?? 0}</Material>
+    <Material>{materials["open hearth steel"]?.Id ?? 0}</Material>
+    <Material>{materials["orichalcum"]?.Id ?? 0}</Material>
+    <Material>{materials["osmium"]?.Id ?? 0}</Material>
+    <Material>{materials["palladium"]?.Id ?? 0}</Material>
+    <Material>{materials["pewter"]?.Id ?? 0}</Material>
+    <Material>{materials["phosphorus"]?.Id ?? 0}</Material>
+    <Material>{materials["pig iron"]?.Id ?? 0}</Material>
+    <Material>{materials["platinum"]?.Id ?? 0}</Material>
+    <Material>{materials["potassium"]?.Id ?? 0}</Material>
+    <Material>{materials["powder-coated steel"]?.Id ?? 0}</Material>
+    <Material>{materials["rare earth metal"]?.Id ?? 0}</Material>
+    <Material>{materials["rhenium"]?.Id ?? 0}</Material>
+    <Material>{materials["rhodium"]?.Id ?? 0}</Material>
+    <Material>{materials["rubidium"]?.Id ?? 0}</Material>
+    <Material>{materials["ruthenium"]?.Id ?? 0}</Material>
+    <Material>{materials["selenium"]?.Id ?? 0}</Material>
+    <Material>{materials["silicon"]?.Id ?? 0}</Material>
+    <Material>{materials["silver"]?.Id ?? 0}</Material>
+    <Material>{materials["sodium"]?.Id ?? 0}</Material>
+    <Material>{materials["spelter"]?.Id ?? 0}</Material>
+    <Material>{materials["sponge iron"]?.Id ?? 0}</Material>
+    <Material>{materials["stainless steel"]?.Id ?? 0}</Material>
+    <Material>{materials["sterling silver"]?.Id ?? 0}</Material>
+    <Material>{materials["strontium"]?.Id ?? 0}</Material>
+    <Material>{materials["sulfur"]?.Id ?? 0}</Material>
+    <Material>{materials["tantalum"]?.Id ?? 0}</Material>
+    <Material>{materials["tellurium"]?.Id ?? 0}</Material>
+    <Material>{materials["thallium"]?.Id ?? 0}</Material>
+    <Material>{materials["thorium"]?.Id ?? 0}</Material>
+    <Material>{materials["tin"]?.Id ?? 0}</Material>
+    <Material>{materials["titanium"]?.Id ?? 0}</Material>
+    <Material>{materials["tungsten"]?.Id ?? 0}</Material>
+    <Material>{materials["uranium"]?.Id ?? 0}</Material>
+    <Material>{materials["vanadium"]?.Id ?? 0}</Material>
+    <Material>{materials["wootz steel"]?.Id ?? 0}</Material>
+    <Material>{materials["wrought iron"]?.Id ?? 0}</Material>
+    <Material>{materials["zinc"]?.Id ?? 0}</Material>
+    <Material>{materials["zirconium"]?.Id ?? 0}</Material>
   </Materials>
   <DamageTypes>
     <DamageType>0</DamageType>

@@ -76,8 +76,7 @@ public class RepairKitGameItemComponentProto : GameItemComponentProto
 		CheckTrait = Gameworld.Traits.Get(long.Parse(root.Element("CheckTrait").Value));
 		CheckBonus = double.Parse(root.Element("CheckBonus").Value);
 		_echoes.AddRange(root.Element("Echoes").Elements().Select(x => x.Value));
-		_permittedMaterials.AddRange(root.Element("Materials").Elements()
-		                                 .Select(x => Gameworld.Materials.Get(long.Parse(x.Value))));
+		_permittedMaterials.AddRange(root.Element("Materials").Elements().SelectNotNull(x => Gameworld.Materials.Get(long.Parse(x.Value))));
 		_damageTypes.AddRange(root.Element("DamageTypes").Elements().Select(x => (DamageType)int.Parse(x.Value)));
 		_tags.AddRange(root.Element("Tags").Elements().Select(x => Gameworld.Tags.Get(long.Parse(x.Value))));
 	}

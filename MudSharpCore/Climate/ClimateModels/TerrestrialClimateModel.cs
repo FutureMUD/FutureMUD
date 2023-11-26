@@ -25,6 +25,14 @@ public class TerrestrialClimateModel : ClimateModelBase
 	public override IWeatherEvent HandleWeatherTick(IWeatherEvent currentWeather, ISeason currentSeason,
 		TimeOfDay currentTime, int consecutiveUnchangedPeriods)
 	{
+		if (!_weatherEventChangeChance.ContainsKey((currentSeason, currentWeather))){
+			return currentWeather;
+		}
+
+		if (!_newWeatherEventChances.ContainsKey((currentSeason, currentWeather))) {  
+			return currentWeather; 
+		}
+
 		if (!currentWeather.PermittedTimesOfDay.Contains(currentTime) || RandomUtilities.Roll(1.0,
 			    _weatherEventChangeChance[(currentSeason, currentWeather)] + Math.Min(
 				    _maximumAdditionalChangeChanceFromStableWeather[currentSeason],
@@ -47,6 +55,11 @@ public class TerrestrialClimateModel : ClimateModelBase
 	public override IEnumerable<IWeatherEvent> PermittedTransitions(IWeatherEvent currentEvent, ISeason currentSeason,
 		TimeOfDay timeOfDay)
 	{
+		if (!_newWeatherEventChances.ContainsKey((currentSeason, currentEvent)))
+		{
+			return Enumerable.Empty<IWeatherEvent>();
+		}
+
 		return _newWeatherEventChances[(currentSeason, currentEvent)]
 		       .Where(x => x.NewEvent.PermittedTimesOfDay.Contains(timeOfDay))
 		       .Select(x => x.NewEvent)

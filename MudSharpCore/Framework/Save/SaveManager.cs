@@ -249,7 +249,13 @@ public class SaveManager : ISaveManager
 #if DEBUG
 				if (_saveStack.Count > 200)
 				{
-					Console.WriteLine("SaveStack has over 200 items in it: " + _saveStack.Count);
+					var sb = new StringBuilder();
+					sb.AppendLine($"[PERF] SaveStack has over 200 items in it: {_saveStack.Count}".Colour(Telnet.Orange));
+					foreach (var group in _saveStack.OfType<IFrameworkItem>().GroupBy(x => x.FrameworkItemType))
+					{
+						sb.AppendLine($"\t{group.Key}: {group.Count()}".Colour(Telnet.FunctionYellow));
+					}
+					Console.WriteLine(sb.ToString());
 				}
 #endif
 				var tempStack = _saveStack.Take(200).ToList();

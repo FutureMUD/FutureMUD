@@ -76,7 +76,7 @@ Please answer #3primitive#F, #3pre-modern#0, or #3modern#F: ", (context, answers
 			return ShouldSeedResult.ReadyToInstall;
 		}
 
-		public int SortOrder => 300;
+		public int SortOrder => 250;
 		public string Name => "Health Seeder";
 		public string Tagline => "Sets up Surgeries, Drugs, Medical Equipment";
 

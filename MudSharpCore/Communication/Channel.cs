@@ -5,6 +5,8 @@ using System.Text;
 using MudSharp.Character;
 using MudSharp.Character.Name;
 using MudSharp.Database;
+using MudSharp.Economy;
+using MudSharp.Effects.Concrete;
 using MudSharp.Framework;
 using MudSharp.Framework.Save;
 using MudSharp.FutureProg;
@@ -14,13 +16,6 @@ using MudSharp.PerceptionEngine;
 
 namespace MudSharp.Communication;
 
-public enum ChannelSpeakerNameMode
-{
-	AccountName = 0,
-	CharacterName,
-	CharacterFullName,
-	AnonymousToPlayers
-}
 
 public class Channel : SaveableItem, IChannel
 {
@@ -35,6 +30,16 @@ public class Channel : SaveableItem, IChannel
 	protected string _channelName;
 	protected IFutureProg _channelSpeakerProg;
 	protected ChannelSpeakerNameMode _mode;
+
+	public bool AnnounceChannelJoiners => _announceChannelJoiners;
+	public bool AnnounceMissedListeners => _announceMissedListeners;
+	public bool AddToPlayerCommandTree => _addToPlayerCommandTree;
+	public bool AddToGuideCommandTree => _addToGuideCommandTree;
+	public ChannelSpeakerNameMode Mode => _mode;
+	public IFutureProg ChannelListenerProg => _channelListenerProg;
+	public IFutureProg ChannelSpeakerProg => _channelSpeakerProg;
+	public string ChannelColour => _channelColour;
+	public ANSIColour ChannelAnsiColour => Telnet.GetColour(ChannelColour);
 
 	public Channel(IFuturemud gameworld, string name)
 	{
@@ -86,7 +91,7 @@ public class Channel : SaveableItem, IChannel
 		_announceChannelJoiners = channel.AnnounceChannelJoiners;
 		_announceMissedListeners = channel.AnnounceMissedListeners;
 		_mode = (ChannelSpeakerNameMode)channel.Mode;
-		_channelColour = channel.ChannelColour.SubstituteANSIColour().Trim();
+		_channelColour = channel.ChannelColour;
 		_commandWords.AddRange(channel.ChannelCommandWords.Select(x => x.Word));
 		_addToGuideCommandTree = channel.AddToGuideCommandTree;
 		_addToPlayerCommandTree = channel.AddToPlayerCommandTree;
@@ -125,7 +130,16 @@ public class Channel : SaveableItem, IChannel
 	#3channel edit#0 - an alias for showing your currently edited channel
 	#3channel close#0 - stops editing a channel
 	#3channel new <name>#0 - creates a new channel
-	";
+	#3channel set name <name>#0 - renames the channel
+	#3channel set colour <colour>#0 - changes the colour of the channel
+	#3channel set player#0 - toggles this being added to player command trees
+	#3channel set guide#0 - toggles this being added to guide command trees
+	#3channel set listenprog <prog>#0 - sets the prog for listeners
+	#3channel set speakerprog <prog>#0 - sets the prog for speakers
+	#3channel set joiners#0 - toggles channel join/leave being announced
+	#3channel set missed#0 - toggles notifying when people miss your messages
+	#3channel set commands <list of command words separated by spaces>#0 - sets the channel commands
+	#3channel set mode <accountname|charactername|characterfullname|anonymoustoplayers>#0 - change the mode";
 
 	public static void ChannelCommandDelegate(ICharacter character, string command)
 	{
@@ -163,10 +177,10 @@ public class Channel : SaveableItem, IChannel
 		else
 		{
 			var channel = character.Gameworld.Channels.FirstOrDefault(x =>
-				x.CommandWords.Any(y => y.StartsWith(original, StringComparison.Ordinal)));
+				x.CommandWords.Any(y => y.StartsWith(original, StringComparison.InvariantCultureIgnoreCase)));
 			if (channel == null)
 			{
-				character.OutputHandler.Send("No such channel.");
+				character.OutputHandler.Send("There is no such channel.");
 				return;
 			}
 
@@ -194,7 +208,7 @@ public class Channel : SaveableItem, IChannel
 
 			if (ss.IsFinished)
 			{
-				character.Send("What do you want to send to the {0} channel?", channel.Name);
+				character.OutputHandler.Send($"What do you want to send to the {channel.Name.ColourName()} channel?");
 				return;
 			}
 
@@ -202,34 +216,124 @@ public class Channel : SaveableItem, IChannel
 		}
 	}
 
-	private static void ChannelCommandSet(ICharacter character, StringStack ss)
+	private static void ChannelCommandSet(ICharacter actor, StringStack ss)
 	{
-		throw new NotImplementedException();
+		var effect = actor.CombinedEffectsOfType<BuilderEditingEffect<IChannel>>().FirstOrDefault();
+        if (effect is null)
+        {
+			actor.OutputHandler.Send("You are not editing any channels.");
+			return;
+        }
+
+		effect.EditingItem.BuildingCommand(actor, ss);
 	}
 
-	private static void ChannelCommandNew(ICharacter character, StringStack ss)
+	private static void ChannelCommandNew(ICharacter actor, StringStack ss)
 	{
-		throw new NotImplementedException();
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send("What name do you want to give to your new channel?");
+			return;
+		}
+
+		var name = ss.SafeRemainingArgument.TitleCase();
+		if (actor.Gameworld.Channels.Any(x => x.Name.EqualTo(name)))
+		{
+			actor.OutputHandler.Send("There is already a channel with that name. Names must be unique.");
+			return;
+		}
+
+		var channel = new Channel(actor.Gameworld, name);
+		actor.Gameworld.Add(channel);
+		actor.RemoveAllEffects<BuilderEditingEffect<IChannel>>();
+		actor.AddEffect(new BuilderEditingEffect<IChannel>(actor) { EditingItem = channel });
+		actor.OutputHandler.Send($"You create a new channel called {channel.Name.ColourName()}, which you are now editing.");
 	}
 
-	private static void ChannelCommandClose(ICharacter character)
+	private static void ChannelCommandClose(ICharacter actor)
 	{
-		throw new NotImplementedException();
+		actor.RemoveAllEffects<BuilderEditingEffect<IChannel>>();
+		actor.OutputHandler.Send("You are no longer editing any channels.");
 	}
 
-	private static void ChannelCommandEdit(ICharacter character, StringStack ss)
+	private static void ChannelCommandEdit(ICharacter actor, StringStack ss)
 	{
-		throw new NotImplementedException();
+		var effect = actor.CombinedEffectsOfType<BuilderEditingEffect<IChannel>>().FirstOrDefault();
+		if (ss.IsFinished && effect is not null)
+		{
+			actor.OutputHandler.Send(effect.EditingItem.Show(actor));
+			return;
+		}
+
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send("Which channel would you like to edit?");
+			return;
+		}
+
+		var channel = actor.Gameworld.Channels.GetByIdOrName(ss.SafeRemainingArgument);
+		if (channel is null)
+		{
+			actor.OutputHandler.Send("There is no such channel.");
+			return;
+		}
+
+		actor.RemoveAllEffects<BuilderEditingEffect<IChannel>>();
+		actor.AddEffect(new BuilderEditingEffect<IChannel>(actor) { EditingItem = channel });
+		actor.OutputHandler.Send($"You are now editing the {channel.Name.ColourName()} channel.");
 	}
 
-	private static void ChannelCommandShow(ICharacter character, StringStack ss)
+	private static void ChannelCommandShow(ICharacter actor, StringStack ss)
 	{
-		throw new NotImplementedException();
+		var effect = actor.CombinedEffectsOfType<BuilderEditingEffect<IChannel>>().FirstOrDefault();
+		if (ss.IsFinished && effect is not null)
+		{
+			actor.OutputHandler.Send(effect.EditingItem.Show(actor));
+			return;
+		}
+
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send("Which channel would you like to view?");
+			return;
+		}
+
+		var channel = actor.Gameworld.Channels.GetByIdOrName(ss.SafeRemainingArgument);
+		if (channel is null)
+		{
+			actor.OutputHandler.Send("There is no such channel.");
+			return;
+		}
+
+		actor.OutputHandler.Send(channel.Show(actor));
 	}
 
-	private static void ChannelCommandList(ICharacter character, StringStack ss)
+	private static void ChannelCommandList(ICharacter actor, StringStack ss)
 	{
-		throw new NotImplementedException();
+		var channels = actor.Gameworld.Channels.ToList();
+		actor.OutputHandler.Send(StringUtilities.GetTextTable(
+			from channel in channels
+			select new List<string>
+			{
+				channel.Id.ToString("N0", actor),
+				channel.Name,
+				channel.Mode.DescribeEnum(),
+				channel.ChannelColour,
+				channel.ChannelListenerProg.MXPClickableFunctionName(),
+				channel.ChannelSpeakerProg.MXPClickableFunctionName()
+			},
+			new List<string>
+			{
+				"Id",
+				"Name",
+				"Mode",
+				"Colour",
+				"Listener Prog",
+				"Speaker Prog"
+			},
+			actor,
+			Telnet.Red
+		));
 	}
 
 	public override void Save()
@@ -303,7 +407,7 @@ public class Channel : SaveableItem, IChannel
 				}
 			}
 
-			character.OutputHandler.Send($"{$"[{_channelName}: {GetSpeakerName(source, character)}]".Colour(_channelColour, Telnet.Black.ToString())} {message.Fullstop().ProperSentences()}");
+			character.OutputHandler.Send($"{$"[{_channelName}: {GetSpeakerName(source, character)}]".Colour(ChannelAnsiColour)} {message.Fullstop().ProperSentences()}");
 		}
 
 		if (sb.Length > 0)
@@ -358,7 +462,18 @@ public class Channel : SaveableItem, IChannel
 		return true;
 	}
 
-	public const string HelpText = "";
+	public const string HelpText = @"You can use the following options with this command:
+
+	#3name <name>#0 - renames the channel
+	#3colour <colour>#0 - changes the colour of the channel
+	#3player#0 - toggles this being added to player command trees
+	#3guide#0 - toggles this being added to guide command trees
+	#3listenprog <prog>#0 - sets the prog for listeners
+	#3speakerprog <prog>#0 - sets the prog for speakers
+	#3joiners#0 - toggles channel join/leave being announced
+	#3missed#0 - toggles notifying when people miss your messages
+	#3commands <list of command words separated by spaces>#0 - sets the channel commands
+	#3mode <accountname|charactername|characterfullname|anonymoustoplayers>#0 - change the mode";
 
 	public bool BuildingCommand(ICharacter actor, StringStack command)
 	{

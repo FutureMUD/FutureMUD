@@ -334,6 +334,7 @@ namespace MudSharp.Framework
         void SystemMessage(IOutput message, bool adminonly = false);
 
         void AddGuest(ICharacter character);
+        void Add(IChannel channel);
         void Add(IAuxiliaryCombatAction action);
         void Add(IBoard board);
         void Add(IBodypartShape shape);

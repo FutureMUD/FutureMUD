@@ -652,6 +652,11 @@ public sealed partial class Futuremud : IFuturemud, IDisposable
 		_guests.Add(character);
 	}
 
+	public void Add(IChannel channel)
+	{
+		_channels.Add(channel);
+	}
+
 	public void Add(IAuxiliaryCombatAction action)
 	{
 		_auxiliaryCombatActions.Add(action);

@@ -321,7 +321,20 @@ public partial class TraitExpression : SaveableItem, ITraitExpression
 			Formula.Parameters[option.Key] = option.Value.Evaluate(owner);
 		}
 
+#if DEBUG
+#else
+	try {
+#endif
 		return Convert.ToDouble(Formula.Evaluate());
+#if DEBUG
+#else
+	}
+	catch (Exception e)
+	{
+		Console.WriteLine($"Exception in TraitExpression #{Id.ToString("N0")} ({Formula.OriginalExpression}):\n\n{e.Message}");
+		return 0.0;
+	}
+#endif
 	}
 
 	public double EvaluateWith(IHaveTraits owner, ITraitDefinition variable = null,
@@ -352,7 +365,21 @@ public partial class TraitExpression : SaveableItem, ITraitExpression
 			Formula.Parameters[option.Key] = option.Value.Evaluate(owner);
 		}
 
+#if DEBUG
+#else
+	try {
+#endif
 		return Formula.EvaluateDouble();
+#if DEBUG
+#else
+	}
+	catch (Exception e)
+	{
+		Console.WriteLine($"Exception in TraitExpression #{Id.ToString("N0")} ({Formula.OriginalExpression}):\n\n{e.Message}");
+		return 0.0;
+	}
+#endif
+
 	}
 
 	public double EvaluateMax(IHaveTraits owner)
@@ -369,13 +396,33 @@ public partial class TraitExpression : SaveableItem, ITraitExpression
 			Formula.Parameters[option.Key] = option.Value.Evaluate(owner);
 		}
 
+#if DEBUG
+#else
+	try {
+#endif
+
 		return Convert.ToDouble(Formula.Evaluate());
+#if DEBUG
+#else
+	}
+	catch (Exception e)
+	{
+		Console.WriteLine($"Exception in TraitExpression #{Id.ToString("N0")} ({Formula.OriginalExpression}):\n\n{e.Message}");
+		return 0.0;
+	}
+#endif
 	}
 
 	public override void Save()
 	{
 		ProcessLazyLoading();
 		var dbitem = FMDB.Context.TraitExpressions.Find(Id);
+		if (dbitem is null)
+		{
+			Changed = false;
+			return;
+		}
+
 		dbitem.Name = Name;
 		dbitem.Expression = Formula.OriginalExpression;
 		FMDB.Context.TraitExpressionParameters.RemoveRange(dbitem.TraitExpressionParameters);

@@ -303,11 +303,14 @@ public class PlayerConnection : IPlayerConnection
 				DiscardConnection();
 			}
 		}
+#if DEBUG
+#else
 		catch (Exception e)
 		{
 			Console.WriteLine("Warning: Exception in PlayerConnection.PrepareOutgoing - " + e);
 			DiscardConnection();
 		}
+#endif
 	}
 
 	private void EnqueueCommand(Encoding encoding, List<byte> bytes)

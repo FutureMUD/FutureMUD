@@ -159,6 +159,8 @@ Please press enter to begin.".WriteLineConsole();
 			{
 				Directory.CreateDirectory(Path.GetDirectoryName(
 					Assembly.GetEntryAssembly()!.Location) + "\\Binaries");
+
+				#region Start-MUD.bat
 				var fs = new FileStream("Start-MUD.bat", FileMode.OpenOrCreate, FileAccess.ReadWrite);
 				using var reader = new StreamReader(fs);
 				if (reader.ReadToEnd().Length == 0)
@@ -192,15 +194,66 @@ goto :exitloop
 echo Mud was shut down and requested boot loop to end.
 :exitloop");
 				}
+				#endregion
+
+				#region Backup-MUD.bat
+				Directory.CreateDirectory(Path.GetDirectoryName(
+					Assembly.GetEntryAssembly()!.Location) + "\\Backups");
+				var regex = new Regex(@"(?<option>[^;=]+)=(?<value>[^;=]+)");
+				string password = "", user = "", database = "";
+				foreach (Match match in regex.Matches(ConnectionString))
+				{
+					switch (match.Groups["option"].Value.ToLowerInvariant())
+					{
+						case "database":
+							database = match.Groups["value"].Value;
+							break;
+						case "uid":
+							user = match.Groups["value"].Value;
+							break;
+						case "password":
+							password = match.Groups["value"].Value;
+							break;
+					}
+				}
+
+				if (!string.IsNullOrEmpty(password) && !string.IsNullOrEmpty(user) && !string.IsNullOrEmpty(database))
+				{
+					var bfs = new FileStream("Backup-MUD.bat", FileMode.OpenOrCreate, FileAccess.ReadWrite);
+					using var breader = new StreamReader(bfs);
+					if (breader.ReadToEnd().Length == 0)
+					{
+						using var shortcut = new StreamWriter(bfs);
+
+						shortcut.Write(@$"@echo off
+set CUR_YYYY=%date:~10,4%
+set CUR_MM=%date:~4,2%
+set CUR_DD=%date:~7,2%
+set CUR_HH=%time:~0,2%
+if %CUR_HH% lss 10 (set CUR_HH=0%time:~1,1%)
+
+set CUR_NN=%time:~3,2%
+set CUR_SS=%time:~6,2%
+set CUR_MS=%time:~9,2%
+
+SET backupdir={Path.GetDirectoryName(Assembly.GetEntryAssembly()!.Location) + "\\Backups"}
+SET mysqluername={user}
+SET mysqlpassword={password}
+SET database={database}
+
+""C:\Program Files\MySQL\MySQL Workbench 8.0\mysqldump.exe"" -u%mysqluername% -p%mysqlpassword% %database% > %backupdir%\%database%_%CUR_YYYY%%CUR_MM%%CUR_DD%-%CUR_HH%%CUR_NN%%CUR_SS%.sql");
+					}
+					#endregion
+				}
 			}
 			else
 			{
-				var fs = new FileStream("Start-MUD.sh", FileMode.OpenOrCreate, FileAccess.ReadWrite);
-				using var reader = new StreamReader(fs);
-				if (reader.ReadToEnd().Length == 0)
+				var sfs = new FileStream("Start-MUD.sh", FileMode.OpenOrCreate, FileAccess.ReadWrite);
+				using var sreader = new StreamReader(sfs);
+				if (sreader.ReadToEnd().Length == 0)
 				{
 					using var shortcut =
-						new StreamWriter(fs);
+						new StreamWriter(sfs);
 					shortcut.Write(
 						$@"#!/bin/sh
 
@@ -392,9 +445,9 @@ The exception details were as follows:
 			case ShouldSeedResult.MayAlreadyBeInstalled:
 				if (seeder.SafeToRunMoreThanOnce) break;
 
-				Console.ForegroundColor = ConsoleColor.Yellow;
+				Console.ForegroundColor = ConsoleColor.Red;
 				Console.WriteLine(
-					"Note: Package is reporting it may already be installed. It is not advised to run this seeder.");
+					"Warning: Package is reporting it may already be installed. It is not advised to run this seeder.");
 				Console.ForegroundColor = ConsoleColor.White;
 				break;
 		}

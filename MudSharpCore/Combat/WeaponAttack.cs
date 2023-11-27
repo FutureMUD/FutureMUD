@@ -817,11 +817,11 @@ public class WeaponAttack : CombatAction, IWeaponAttack
 		sb.AppendLine($"Intentions: {Intentions.Describe()}");
 		sb.AppendLine();
 		sb.AppendLine(
-			$"Damage Formula: [ID #{Profile.DamageExpression.Id}] {Profile.DamageExpression.Formula.OriginalExpression.Colour(Telnet.Yellow)}");
+			$"Damage Formula: [ID #{Profile.DamageExpression.Id}] {Profile.DamageExpression.OriginalFormulaText.Colour(Telnet.Yellow)}");
 		sb.AppendLine(
-			$"Pain Formula: [ID #{Profile.PainExpression.Id}] {Profile.PainExpression.Formula.OriginalExpression.Colour(Telnet.Yellow)}");
+			$"Pain Formula: [ID #{Profile.PainExpression.Id}] {Profile.PainExpression.OriginalFormulaText.Colour(Telnet.Yellow)}");
 		sb.AppendLine(
-			$"Stun Formula: [ID #{Profile.StunExpression.Id}] {Profile.StunExpression.Formula.OriginalExpression.Colour(Telnet.Yellow)}");
+			$"Stun Formula: [ID #{Profile.StunExpression.Id}] {Profile.StunExpression.OriginalFormulaText.Colour(Telnet.Yellow)}");
 		sb.AppendLine(ShowBuilderInternal(actor));
 		sb.AppendLine();
 		sb.AppendLine("Combat Message Hierarchy:");

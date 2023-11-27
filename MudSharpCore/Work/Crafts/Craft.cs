@@ -91,7 +91,7 @@ public class Craft : Framework.Revision.EditableItem, ICraft
 			dbnew.FailThreshold = (int)FailThreshold;
 			dbnew.CheckDifficulty = (int)CheckDifficulty;
 			dbnew.CheckTraitId = CheckTrait?.Id;
-			dbnew.QualityFormula = QualityFormula.Formula.OriginalExpression;
+			dbnew.QualityFormula = QualityFormula.OriginalFormulaText;
 			dbnew.AppearInCraftsListProgId = AppearInCraftsListProg?.Id;
 			dbnew.CanUseProgId = CanUseProg?.Id;
 			dbnew.WhyCannotUseProgId = WhyCannotUseProg?.Id;
@@ -297,7 +297,7 @@ public class Craft : Framework.Revision.EditableItem, ICraft
 			dbnew.FailThreshold = (int)FailThreshold;
 			dbnew.CheckDifficulty = (int)CheckDifficulty;
 			dbnew.CheckTraitId = CheckTrait?.Id;
-			dbnew.QualityFormula = QualityFormula.Formula.OriginalExpression;
+			dbnew.QualityFormula = QualityFormula.OriginalFormulaText;
 			dbnew.AppearInCraftsListProgId = AppearInCraftsListProg?.Id;
 			dbnew.CanUseProgId = CanUseProg?.Id;
 			dbnew.WhyCannotUseProgId = WhyCannotUseProg?.Id;
@@ -367,7 +367,7 @@ public class Craft : Framework.Revision.EditableItem, ICraft
 			dbcraft.FailThreshold = (int)FailThreshold;
 			dbcraft.CheckDifficulty = (int)CheckDifficulty;
 			dbcraft.CheckTraitId = CheckTrait?.Id;
-			dbcraft.QualityFormula = QualityFormula.Formula.OriginalExpression;
+			dbcraft.QualityFormula = QualityFormula.OriginalFormulaText;
 			dbcraft.AppearInCraftsListProgId = AppearInCraftsListProg?.Id;
 			dbcraft.CanUseProgId = CanUseProg?.Id;
 			dbcraft.WhyCannotUseProgId = WhyCannotUseProg?.Id;
@@ -2604,7 +2604,7 @@ public class Craft : Framework.Revision.EditableItem, ICraft
 			dbnew.FailThreshold = (int)FailThreshold;
 			dbnew.CheckDifficulty = (int)CheckDifficulty;
 			dbnew.CheckTraitId = CheckTrait?.Id;
-			dbnew.QualityFormula = QualityFormula.Formula.OriginalExpression;
+			dbnew.QualityFormula = QualityFormula.OriginalFormulaText;
 			dbnew.AppearInCraftsListProgId = AppearInCraftsListProg?.Id;
 			dbnew.CanUseProgId = CanUseProg?.Id;
 			dbnew.WhyCannotUseProgId = WhyCannotUseProg?.Id;

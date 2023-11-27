@@ -626,7 +626,7 @@ public class MagicSpell : SaveableItem, IMagicSpell
 
 		EffectDurationExpression = expression;
 		actor.OutputHandler.Send(
-			$"This spell will now use expression #{expression.Id} {expression.Name.ColourName()} ({expression.Formula.OriginalExpression.ColourCommand()}) to determine duration.");
+			$"This spell will now use expression #{expression.Id} {expression.Name.ColourName()} ({expression.OriginalFormulaText.ColourCommand()}) to determine duration.");
 		Changed = true;
 		return true;
 	}
@@ -764,7 +764,7 @@ public class MagicSpell : SaveableItem, IMagicSpell
 		_castingCosts[resource] = expression;
 		Changed = true;
 		actor.OutputHandler.Send(
-			$"This spell will now cost {resource.Name.ColourValue()}, determined by the expression {expression.Name.ColourName()} ({expression.Formula.OriginalExpression.ColourCommand()})");
+			$"This spell will now cost {resource.Name.ColourValue()}, determined by the expression {expression.Name.ColourName()} ({expression.OriginalFormulaText.ColourCommand()})");
 		return true;
 	}
 
@@ -1162,7 +1162,7 @@ public class MagicSpell : SaveableItem, IMagicSpell
 		sb.AppendLine($"Non-Exclusive Delay: {NonExclusiveDelay.Describe().ColourValue()}");
 		sb.AppendLine($"Known Prog: {SpellKnownProg?.MXPClickableFunctionNameWithId() ?? "None".Colour(Telnet.Red)}");
 		sb.AppendLine(
-			$"Effect Duration Expression: {(EffectDurationExpression is not null ? $"#{EffectDurationExpression.Id.ToString("N0", actor)} {EffectDurationExpression.Name.ColourName()} ({EffectDurationExpression.Formula.OriginalExpression.ColourCommand()})" : "None".Colour(Telnet.Red))}");
+			$"Effect Duration Expression: {(EffectDurationExpression is not null ? $"#{EffectDurationExpression.Id.ToString("N0", actor)} {EffectDurationExpression.Name.ColourName()} ({EffectDurationExpression.OriginalFormulaText.ColourCommand()})" : "None".Colour(Telnet.Red))}");
 		sb.AppendLine($"Casting Trait: {CastingTrait?.Name.ColourValue() ?? "None".Colour(Telnet.Red)}");
 		sb.AppendLine($"Casting Difficulty: {CastingDifficulty.Describe().ColourValue()}");
 		sb.AppendLine($"Casting Threshold: {MinimumSuccessThreshold.DescribeColour()}");
@@ -1199,7 +1199,7 @@ public class MagicSpell : SaveableItem, IMagicSpell
 		sb.AppendLine("Casting Costs:");
 		foreach (var (resource, formula) in _castingCosts)
 		{
-			sb.AppendLine($"\t{resource.Name.ColourValue()}: {formula.Formula.OriginalExpression.ColourCommand()}");
+			sb.AppendLine($"\t{resource.Name.ColourValue()}: {formula.OriginalFormulaText.ColourCommand()}");
 		}
 
 		sb.AppendLine();

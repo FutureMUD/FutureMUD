@@ -1942,7 +1942,7 @@ This is the syntax for editing skills:
 			var expression = new Models.TraitExpression
 			{
 				Name = $"{name} Cap",
-				Expression = skill.Cap.Formula.OriginalExpression
+				Expression = skill.Cap.OriginalFormulaText
 			};
 			foreach (var parameter in skill.Cap.Parameters)
 			{

@@ -1834,7 +1834,7 @@ public class ShowModule : Module<ICharacter>
 				weapon.OperateTrait?.Name.TitleCase() ?? "None",
 				weapon.FireableInMelee.ToString(actor),
 				weapon.DefaultRangeInRooms.ToString("N0", actor),
-				weapon.AccuracyBonusExpression.Formula.OriginalExpression
+				weapon.AccuracyBonusExpression.OriginalFormulaText
 			},
 			new[]
 			{
@@ -3266,7 +3266,7 @@ public class ShowModule : Module<ICharacter>
 				item.Name,
 				item.SpecificType,
 				item.RangedWeaponTypes.Select(x => x.DescribeEnum().ColourValue()).ListToCommaSeparatedValues(", "),
-				item.DamageProfile.DamageExpression.Formula.OriginalExpression
+				item.DamageProfile.DamageExpression.OriginalFormulaText
 			},
 			new List<string>
 			{

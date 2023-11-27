@@ -69,7 +69,7 @@ public class SkillDefinition : TraitDefinition, ISkillDefinition
 
 	public override TraitType TraitType => TraitType.Skill;
 
-	public override string MaxValueString => Cap.Formula.OriginalExpression;
+	public override string MaxValueString => Cap.OriginalFormulaText;
 
 	public override void Initialise(MudSharp.Models.TraitDefinition definition)
 	{
@@ -115,7 +115,7 @@ public class SkillDefinition : TraitDefinition, ISkillDefinition
 		sb.AppendLine($"Skill Definition #{Id.ToString("N0", voyeur)} - {Name.ColourName()}");
 		sb.AppendLine($"Group: {Group.TitleCase().ColourValue()}");
 		sb.AppendLine(
-			$"Cap Expression: #{Cap.Id.ToString("N0", voyeur)} ({Cap.Name}): {Cap.Formula.OriginalExpression.ColourCommand()}");
+			$"Cap Expression: #{Cap.Id.ToString("N0", voyeur)} ({Cap.Name}): {Cap.OriginalFormulaText.ColourCommand()}");
 		sb.AppendLine($"Improver: {Improver.Name.ColourValue()}");
 		sb.AppendLine($"Decorator: {Decorator.Name.ColourValue()}");
 		sb.AppendLine($"Branch Multiplier: {BranchMultiplier.ToString("P2", voyeur).ColourValue()}");

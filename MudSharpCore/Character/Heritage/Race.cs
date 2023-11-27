@@ -131,9 +131,9 @@ public partial class Race : SaveableItem, IRace
 			_breathingStrategy = ParentRace.BreathingStrategy;
 
 			BreathingVolumeExpression =
-				new TraitExpression(ParentRace.BreathingVolumeExpression.Formula.OriginalExpression, Gameworld);
+				new TraitExpression(ParentRace.BreathingVolumeExpression.OriginalFormulaText, Gameworld);
 			HoldBreathLengthExpression =
-				new TraitExpression(ParentRace.HoldBreathLengthExpression.Formula.OriginalExpression, Gameworld);
+				new TraitExpression(ParentRace.HoldBreathLengthExpression.OriginalFormulaText, Gameworld);
 
 			SweatRateInLitresPerMinute = ParentRace.SweatRateInLitresPerMinute;
 			_sweatLiquidId = ParentRace.SweatLiquid?.Id ?? 0;
@@ -143,9 +143,9 @@ public partial class Race : SaveableItem, IRace
 			SizeSitting = ParentRace.SizeSitting;
 			CommunicationStrategy = ParentRace.CommunicationStrategy;
 			_maximumDragWeightExpression =
-				new TraitExpression(ParentRace.MaximumDragWeightExpression.Formula.OriginalExpression, Gameworld);
+				new TraitExpression(ParentRace.MaximumDragWeightExpression.OriginalFormulaText, Gameworld);
 			_maximumLiftWeightExpression =
-				new TraitExpression(ParentRace.MaximumLiftWeightExpression.Formula.OriginalExpression, Gameworld);
+				new TraitExpression(ParentRace.MaximumLiftWeightExpression.OriginalFormulaText, Gameworld);
 			
 			RaceUsesStamina = ParentRace.RaceUsesStamina;
 			_optInMaterialEdibility = ParentRace.OptInMaterialEdibility;
@@ -294,8 +294,8 @@ public partial class Race : SaveableItem, IRace
 				DefaultHandedness = (int)DefaultHandedness,
 				HandednessOptions = HandednessOptions.Select(x => ((int)x).ToString("F0"))
 				                                     .ListToCommaSeparatedValues(" "),
-				MaximumDragWeightExpression = MaximumDragWeightExpression.Formula.OriginalExpression,
-				MaximumLiftWeightExpression = MaximumLiftWeightExpression.Formula.OriginalExpression,
+				MaximumDragWeightExpression = MaximumDragWeightExpression.OriginalFormulaText,
+				MaximumLiftWeightExpression = MaximumLiftWeightExpression.OriginalFormulaText,
 				RaceButcheryProfileId = ButcheryProfile?.Id,
 				BloodModelId = BloodModel?.Id,
 				RaceUsesStamina = RaceUsesStamina,
@@ -307,8 +307,8 @@ public partial class Race : SaveableItem, IRace
 				TemperatureRangeCeiling = TemperatureRangeCeiling,
 				BodypartSizeModifier = BodypartSizeModifier,
 				BodypartHealthMultiplier = BodypartDamageMultiplier,
-				BreathingVolumeExpression = BreathingVolumeExpression.Formula.OriginalExpression,
-				HoldBreathLengthExpression = HoldBreathLengthExpression.Formula.OriginalExpression,
+				BreathingVolumeExpression = BreathingVolumeExpression.OriginalFormulaText,
+				HoldBreathLengthExpression = HoldBreathLengthExpression.OriginalFormulaText,
 				CanClimb = CanClimb,
 				CanSwim = CanSwim,
 				MinimumSleepingPosition = (int)MinimumSleepingPosition.Id,
@@ -600,9 +600,9 @@ public partial class Race : SaveableItem, IRace
 		_breathingStrategy = rhs.BreathingStrategy;
 
 		BreathingVolumeExpression =
-			new TraitExpression(rhs.BreathingVolumeExpression.Formula.OriginalExpression, Gameworld);
+			new TraitExpression(rhs.BreathingVolumeExpression.OriginalFormulaText, Gameworld);
 		HoldBreathLengthExpression =
-			new TraitExpression(rhs.HoldBreathLengthExpression.Formula.OriginalExpression, Gameworld);
+			new TraitExpression(rhs.HoldBreathLengthExpression.OriginalFormulaText, Gameworld);
 
 		SweatRateInLitresPerMinute = rhs.SweatRateInLitresPerMinute;
 		_sweatLiquidId = rhs.SweatLiquid?.Id ?? 0;
@@ -612,9 +612,9 @@ public partial class Race : SaveableItem, IRace
 		SizeSitting = rhs.SizeSitting;
 		CommunicationStrategy = rhs.CommunicationStrategy;
 		_maximumDragWeightExpression =
-			new TraitExpression(rhs.MaximumDragWeightExpression.Formula.OriginalExpression, Gameworld);
+			new TraitExpression(rhs.MaximumDragWeightExpression.OriginalFormulaText, Gameworld);
 		_maximumLiftWeightExpression =
-			new TraitExpression(rhs.MaximumLiftWeightExpression.Formula.OriginalExpression, Gameworld);
+			new TraitExpression(rhs.MaximumLiftWeightExpression.OriginalFormulaText, Gameworld);
 
 		RaceUsesStamina = rhs.RaceUsesStamina;
 		_optInMaterialEdibility = rhs.OptInMaterialEdibility;
@@ -718,8 +718,8 @@ public partial class Race : SaveableItem, IRace
 				DefaultHandedness = (int)DefaultHandedness,
 				HandednessOptions = HandednessOptions.Select(x => ((int)x).ToString("F0"))
 				                                     .ListToCommaSeparatedValues(" "),
-				MaximumDragWeightExpression = MaximumDragWeightExpression.Formula.OriginalExpression,
-				MaximumLiftWeightExpression = MaximumLiftWeightExpression.Formula.OriginalExpression,
+				MaximumDragWeightExpression = MaximumDragWeightExpression.OriginalFormulaText,
+				MaximumLiftWeightExpression = MaximumLiftWeightExpression.OriginalFormulaText,
 				RaceButcheryProfileId = ButcheryProfile?.Id,
 				BloodModelId = BloodModel?.Id,
 				RaceUsesStamina = RaceUsesStamina,
@@ -731,8 +731,8 @@ public partial class Race : SaveableItem, IRace
 				TemperatureRangeCeiling = TemperatureRangeCeiling,
 				BodypartSizeModifier = BodypartSizeModifier,
 				BodypartHealthMultiplier = BodypartDamageMultiplier,
-				BreathingVolumeExpression = BreathingVolumeExpression.Formula.OriginalExpression,
-				HoldBreathLengthExpression = HoldBreathLengthExpression.Formula.OriginalExpression,
+				BreathingVolumeExpression = BreathingVolumeExpression.OriginalFormulaText,
+				HoldBreathLengthExpression = HoldBreathLengthExpression.OriginalFormulaText,
 				CanClimb = CanClimb,
 				CanSwim = CanSwim,
 				MinimumSleepingPosition = (int)MinimumSleepingPosition.Id,
@@ -1120,8 +1120,8 @@ public partial class Race : SaveableItem, IRace
 		dbitem.DefaultHandedness = (int)DefaultHandedness;
 		dbitem.HandednessOptions =
 			HandednessOptions.Select(x => ((int)x).ToString("F0")).ListToCommaSeparatedValues(" ");
-		dbitem.MaximumDragWeightExpression = MaximumDragWeightExpression.Formula.OriginalExpression;
-		dbitem.MaximumLiftWeightExpression = MaximumLiftWeightExpression.Formula.OriginalExpression;
+		dbitem.MaximumDragWeightExpression = MaximumDragWeightExpression.OriginalFormulaText;
+		dbitem.MaximumLiftWeightExpression = MaximumLiftWeightExpression.OriginalFormulaText;
 		dbitem.RaceButcheryProfileId = ButcheryProfile?.Id;
 		dbitem.BloodModelId = BloodModel?.Id;
 		dbitem.RaceUsesStamina = RaceUsesStamina;
@@ -1133,8 +1133,8 @@ public partial class Race : SaveableItem, IRace
 		dbitem.TemperatureRangeCeiling = TemperatureRangeCeiling;
 		dbitem.BodypartSizeModifier = BodypartSizeModifier;
 		dbitem.BodypartHealthMultiplier = BodypartDamageMultiplier;
-		dbitem.BreathingVolumeExpression = BreathingVolumeExpression.Formula.OriginalExpression;
-		dbitem.HoldBreathLengthExpression = HoldBreathLengthExpression.Formula.OriginalExpression;
+		dbitem.BreathingVolumeExpression = BreathingVolumeExpression.OriginalFormulaText;
+		dbitem.HoldBreathLengthExpression = HoldBreathLengthExpression.OriginalFormulaText;
 		dbitem.CanClimb = CanClimb;
 		dbitem.CanSwim = CanSwim;
 		dbitem.MinimumSleepingPosition = (int)MinimumSleepingPosition.Id;

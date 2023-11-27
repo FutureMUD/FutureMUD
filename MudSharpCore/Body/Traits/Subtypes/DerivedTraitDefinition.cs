@@ -11,7 +11,7 @@ public abstract class DerivedTraitDefinition : TraitDefinition
 	{
 	}
 
-	public override string MaxValueString => Expression.Formula.OriginalExpression;
+	public override string MaxValueString => Expression.OriginalFormulaText;
 
 	public ITraitExpression Expression { get; protected set; }
 

@@ -137,8 +137,8 @@ public class RangedWeaponTypeDefinition : FrameworkItem, IRangedWeaponType
 			$"Ready Delay: {ReadyCombatDelay.ToString("N3", character)}",
 			$"Fire Delay: {FireCombatDelay.ToString("N3", character)}");
 
-		sb.AppendLine($"Accuracy Bonus: {AccuracyBonusExpression.Formula.OriginalExpression.Colour(Telnet.Cyan)}");
-		sb.AppendLine($"Damage Bonus: {AccuracyBonusExpression.Formula.OriginalExpression.Colour(Telnet.Cyan)}");
+		sb.AppendLine($"Accuracy Bonus: {AccuracyBonusExpression.OriginalFormulaText.Colour(Telnet.Cyan)}");
+		sb.AppendLine($"Damage Bonus: {AccuracyBonusExpression.OriginalFormulaText.Colour(Telnet.Cyan)}");
 
 		return sb.ToString();
 	}

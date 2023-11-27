@@ -1763,7 +1763,7 @@ public partial class Race
 		HoldBreathLengthExpression = expression;
 		Changed = true;
 		actor.OutputHandler.Send(
-			$"This race's holding breathe length in seconds is now {expression.Formula.OriginalExpression.ColourCommand()}.");
+			$"This race's holding breathe length in seconds is now {expression.OriginalFormulaText.ColourCommand()}.");
 		return true;
 	}
 
@@ -1785,7 +1785,7 @@ public partial class Race
 		BreathingVolumeExpression = expression;
 		Changed = true;
 		actor.OutputHandler.Send(
-			$"This race's breathing rate in L/minute is now {expression.Formula.OriginalExpression.ColourCommand()}.");
+			$"This race's breathing rate in L/minute is now {expression.OriginalFormulaText.ColourCommand()}.");
 		return true;
 	}
 
@@ -2289,8 +2289,8 @@ public partial class Race
 		);
 		sb.AppendLineColumns((uint)actor.LineFormatLength, 3,
 			$"Breathing: {BreathingStrategy.Name.ColourValue()}",
-			$"Breathing Rate: {BreathingVolumeExpression.Formula.OriginalExpression.ColourCommand()}",
-			$"Hold Breathe: {HoldBreathLengthExpression.Formula.OriginalExpression.ColourCommand()}"
+			$"Breathing Rate: {BreathingVolumeExpression.OriginalFormulaText.ColourCommand()}",
+			$"Hold Breathe: {HoldBreathLengthExpression.OriginalFormulaText.ColourCommand()}"
 		);
 		sb.AppendLineColumns((uint)actor.LineFormatLength, 3,
 			$"Sweat Liquid: {SweatLiquid?.Name.Colour(SweatLiquid.DisplayColour) ?? "None".ColourError()}",

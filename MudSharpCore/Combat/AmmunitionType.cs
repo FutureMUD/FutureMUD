@@ -173,9 +173,9 @@ public class AmmunitionType : SaveableItem, IAmmunitionType
 				BreakChanceOnMiss = BreakChanceOnMiss,
 				BaseBlockDifficulty = (int)DamageProfile.BaseBlockDifficulty,
 				BaseDodgeDifficulty = (int)DamageProfile.BaseDodgeDifficulty,
-				DamageExpression = DamageProfile.DamageExpression.Formula.OriginalExpression,
-				StunExpression = DamageProfile.StunExpression.Formula.OriginalExpression,
-				PainExpression = DamageProfile.PainExpression.Formula.OriginalExpression,
+				DamageExpression = DamageProfile.DamageExpression.OriginalFormulaText,
+				StunExpression = DamageProfile.StunExpression.OriginalFormulaText,
+				PainExpression = DamageProfile.PainExpression.OriginalFormulaText,
 				DamageType = (int)DamageProfile.DamageType
 			};
 			FMDB.Context.AmmunitionTypes.Add(dbitem);
@@ -210,9 +210,9 @@ public class AmmunitionType : SaveableItem, IAmmunitionType
 				BreakChanceOnMiss = BreakChanceOnMiss,
 				BaseBlockDifficulty = (int)DamageProfile.BaseBlockDifficulty,
 				BaseDodgeDifficulty = (int)DamageProfile.BaseDodgeDifficulty,
-				DamageExpression = DamageProfile.DamageExpression.Formula.OriginalExpression,
-				StunExpression = DamageProfile.StunExpression.Formula.OriginalExpression,
-				PainExpression = DamageProfile.PainExpression.Formula.OriginalExpression,
+				DamageExpression = DamageProfile.DamageExpression.OriginalFormulaText,
+				StunExpression = DamageProfile.StunExpression.OriginalFormulaText,
+				PainExpression = DamageProfile.PainExpression.OriginalFormulaText,
 				DamageType = (int)DamageProfile.DamageType
 			};
 			FMDB.Context.AmmunitionTypes.Add(dbitem);
@@ -653,9 +653,9 @@ Note, with the damage/pain/stun expressions, you can use the following variables
 		sb.AppendLine($"Block: {DamageProfile.BaseBlockDifficulty.DescribeColoured()}");
 		sb.AppendLine($"Dodge: {DamageProfile.BaseDodgeDifficulty.DescribeColoured()}");
 		sb.AppendLine($"Damage Type: {DamageProfile.DamageType.DescribeEnum().ColourValue()}");
-		sb.AppendLine($"Damage: {DamageProfile.DamageExpression.Formula.OriginalExpression.ColourCommand()}");
-		sb.AppendLine($"Stun: {DamageProfile.StunExpression.Formula.OriginalExpression.ColourCommand()}");
-		sb.AppendLine($"Pain: {DamageProfile.PainExpression.Formula.OriginalExpression.ColourCommand()}");
+		sb.AppendLine($"Damage: {DamageProfile.DamageExpression.OriginalFormulaText.ColourCommand()}");
+		sb.AppendLine($"Stun: {DamageProfile.StunExpression.OriginalFormulaText.ColourCommand()}");
+		sb.AppendLine($"Pain: {DamageProfile.PainExpression.OriginalFormulaText.ColourCommand()}");
 		sb.AppendLine(
 			$"Break Chance (hit/miss): {BreakChanceOnHit.ToString("P2", actor).ColourValue()}/{BreakChanceOnMiss.ToString("P2", actor).ColourValue()}");
 		sb.AppendLine($"Base Accuracy: {BaseAccuracy.ToString("N2", actor).ColourValue()}");
@@ -678,9 +678,9 @@ Note, with the damage/pain/stun expressions, you can use the following variables
 		dbitem.DamageType = (int)DamageProfile.DamageType;
 		dbitem.BreakChanceOnHit = BreakChanceOnHit;
 		dbitem.BreakChanceOnMiss = BreakChanceOnMiss;
-		dbitem.DamageExpression = DamageProfile.DamageExpression.Formula.OriginalExpression;
-		dbitem.StunExpression = DamageProfile.StunExpression.Formula.OriginalExpression;
-		dbitem.PainExpression = DamageProfile.PainExpression.Formula.OriginalExpression;
+		dbitem.DamageExpression = DamageProfile.DamageExpression.OriginalFormulaText;
+		dbitem.StunExpression = DamageProfile.StunExpression.OriginalFormulaText;
+		dbitem.PainExpression = DamageProfile.PainExpression.OriginalFormulaText;
 		dbitem.BaseAccuracy = BaseAccuracy;
 		Changed = false;
 	}

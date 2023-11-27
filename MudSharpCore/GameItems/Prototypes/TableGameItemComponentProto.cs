@@ -56,7 +56,7 @@ public class TableGameItemComponentProto : GameItemComponentProto
 			Name,
 			CoverWhenFlipped == null && CoverWhenNotFlipped == null
 				? "It does not provide any cover when flipped or unflipped."
-				: $"It provides the {CoverWhenFlipped?.Name.Colour(Telnet.Green) ?? "None"} cover when flipped and the {CoverWhenNotFlipped?.Name.Colour(Telnet.Green) ?? "None"} cover when not flipped, and requires that the expression {TraitsToFlipExpression.Formula.OriginalExpression.Colour(Telnet.Cyan)} is 0 or more to flip. If it cannot be flipped, it uses the error message: {CannotFlipTraitMessage.Colour(Telnet.Cyan)}"
+				: $"It provides the {CoverWhenFlipped?.Name.Colour(Telnet.Green) ?? "None"} cover when flipped and the {CoverWhenNotFlipped?.Name.Colour(Telnet.Green) ?? "None"} cover when not flipped, and requires that the expression {TraitsToFlipExpression.OriginalFormulaText.Colour(Telnet.Cyan)} is 0 or more to flip. If it cannot be flipped, it uses the error message: {CannotFlipTraitMessage.Colour(Telnet.Cyan)}"
 					.Fullstop()
 		);
 	}
@@ -119,7 +119,7 @@ public class TableGameItemComponentProto : GameItemComponentProto
 			new XElement("Cover",
 				new XElement("Flipped", CoverWhenFlipped?.Id ?? 0),
 				new XElement("NotFlipped", CoverWhenNotFlipped?.Id ?? 0),
-				new XElement("Expression", new XCData(TraitsToFlipExpression.Formula.OriginalExpression)),
+				new XElement("Expression", new XCData(TraitsToFlipExpression.OriginalFormulaText)),
 				new XElement("Message", new XCData(CannotFlipTraitMessage))
 			)
 		).ToString();
@@ -236,7 +236,7 @@ public class TableGameItemComponentProto : GameItemComponentProto
 	{
 		TraitsToFlipExpression = expression;
 		actor.Send(
-			$"This table will now check that the expression {expression.Formula.OriginalExpression.Colour(Telnet.Cyan)} is 0 or more to determine if a character can flip it.");
+			$"This table will now check that the expression {expression.OriginalFormulaText.Colour(Telnet.Cyan)} is 0 or more to determine if a character can flip it.");
 		Changed = true;
 	}
 

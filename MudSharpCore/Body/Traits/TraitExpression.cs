@@ -250,7 +250,7 @@ public partial class TraitExpression : SaveableItem, ITraitExpression
 			var dbitem = new Models.TraitExpression
 			{
 				Name = rhs.Name,
-				Expression = rhs.Formula.OriginalExpression
+				Expression = rhs.OriginalFormulaText
 			};
 			foreach (var parameter in rhs.Parameters)
 			{

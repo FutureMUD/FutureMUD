@@ -1437,7 +1437,7 @@ The syntax to use this command is as follows:
 			{
 				item.Id.ToString("N0", actor),
 				item.Name,
-				item.Formula.OriginalExpression
+				item.OriginalFormulaText
 			},
 			new[] { "ID", "Name", "Formula" },
 			actor.LineFormatLength, truncatableColumnIndex: 2, colour: Telnet.Green,

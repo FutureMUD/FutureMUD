@@ -753,7 +753,31 @@ For example consider the following sentence as an example of one that contains w
 On the side of the bottle writing{English,Latin}{Warning: This substance is highly toxic, do not consume}{something you don't understand} is written in neat, machine-typed text
 
 " },
-		{"GPT_ItemSuggestionFinalWord", @"With all that in mind, please suggest 4 possible descriptions of this item. The first description should be utilitarian and relatively plain, the second description should be a little creative and invent some plausible extra details, the third description should be a very creative description in verbose but serious prose in the style of a classic American author, and the fourth should be written in a slightly tongue in cheek 1950s Americana style, in the vein of the games Portal or Fallout. Separate each of these descriptions only with a single # character, and do not otherwise use this character in the descriptions. Do not give any headers or other information for each description."}
+		{"GPT_ItemSuggestionFinalWord", @"With all that in mind, please suggest 4 possible descriptions of this item. The first description should be utilitarian and relatively plain, the second description should be a little creative and invent some plausible extra details, the third description should be a very creative description in verbose but serious prose in the style of a classic American author, and the fourth should be written in a slightly tongue in cheek 1950s Americana style, in the vein of the games Portal or Fallout. Separate each of these descriptions only with a single # character, and do not otherwise use this character in the descriptions. Do not give any headers or other information for each description."},
+		{ "PasswordRecoveryMenuText", @"Account Recovery
+
+If you have lost the password to your account, you can have your password reset. After entering your account name or email, you will be sent a confirmation code, which you must then enter here.
+
+Your options are:
+	1) Send a Password Recovery Code to my email
+	2) Enter Password Recovery Code
+
+Please select an option, or 0 to return to main menu: " },
+		{ "PasswordRecoveryEnterCodeText", @"Account Recovery Code
+
+If you have received an email with the code for your Account Recovery, please enter it here: " },
+		{ "PasswordRecoverySendEmailText", @"Account Recovery Email
+
+Please enter the name of your account, your account email, or 0 to return to the main menu: " },
+		{ "AccountCreationDisabledMessage", "\nAccount creation is presently disabled. Please check back at a later time." },
+		{ "AccountCreationMessage", @"Welcome to {0}!
+
+Participating in this game requires that you create an account. This is separate to any characters you might create on the game, and helps us keep track of your history, which is important in an RPI MUD. You will now be guided through a series of questions that will help us create your account for you. You must complete all steps to successfully create an account. If at any time you make a mistake or want to go back, you can type ""quit"" to be returned to the front menu.
+" },
+		{"PasswordSelectionMessage", @"
+#3Password Selection#0
+
+Your password will be used to access your account, and will be stored securely on the FutureMUD servers as an encrypted, salted hash. Passwords must be at least 8 characters long and can use any combination of letters, numbers and symbols. Please enter a password for your new account:" },
 	};
 
 	#endregion

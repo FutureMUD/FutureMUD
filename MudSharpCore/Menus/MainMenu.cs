@@ -19,17 +19,11 @@ namespace MudSharp.Menus;
 
 public class MainMenu : Menu, IController
 {
-	private static readonly string _passwordRecoveryString =
-		"Account Recovery\n\nIf you have lost the password to your account, you can have your password reset. After entering your account name or email, you will be sent a confirmation code, which you must then enter here.\n\nYour options are:\n\t1) Send a Password Recovery Code to my email\n\t2) Enter Password Recovery Code\n\nPlease select an option, or 0 to return to main menu: "
-			.Wrap(80);
+	private static string _passwordRecoveryString => Futuremud.Games.First().GetStaticString("PasswordRecoveryMenuText").SubstituteANSIColour().Wrap(80);
 
-	private static readonly string _passwordRecoveryEnterCodeString =
-		"Account Recovery Code\n\nIf you have received an email with the code for your Account Recovery, please enter it here: "
-			.Wrap(80);
+	private static string _passwordRecoveryEnterCodeString => Futuremud.Games.First().GetStaticString("PasswordRecoveryEnterCodeText").SubstituteANSIColour().Wrap(80);
 
-	private static readonly string _passwordRecoverySendEmailString =
-		"Account Recovery Email\n\nPlease enter the name of your account, your account email, or 0 to return to the main menu: "
-			.Wrap(80);
+	private static string _passwordRecoverySendEmailString => Futuremud.Games.First().GetStaticString("PasswordRecoverySendEmailText").SubstituteANSIColour().Wrap(80);
 
 	private readonly Dictionary<MainMenuState, IExecutable> _commands = new();
 
@@ -343,14 +337,14 @@ public class MainMenu : Menu, IController
 	{
 		if (Gameworld.MaintenanceMode.HasFlag(MaintenanceModeSetting.NoAccountLogin))
 		{
-			OutputHandler.Send("\nAccount creation is presently disabled. Please check back at a later time.");
+			OutputHandler.Send(Futuremud.Games.First().GetStaticString("AccountCreationDisabledMessage").SubstituteANSIColour());
 			_state = MainMenuState.FrontMenu;
 			OutputHandler.Send(_menuText);
 			return;
 		}
 
 		OutputHandler.Send(
-			$"Welcome to {Gameworld.Name}!\n\nParticipating in this game requires that you create an account. This is separate to any characters you might create on the game, and helps us keep track of your history, which is important in an RPI MUD. You will now be guided through a series of questions that will help us create your account for you. You must complete all steps to successfully create an account. If at any time you make a mistake or want to go back, you can type \"quit\" to be returned to the front menu.\n"
+			string.Format(Futuremud.Games.First().GetStaticString("AccountCreationMessage")).SubstituteANSIColour()
 				.Wrap(80));
 
 		if (CheckAlreadyRegisteredIP())
@@ -407,7 +401,7 @@ public class MainMenu : Menu, IController
 		}
 
 		OutputHandler.Send(
-			"\n#3Password Selection#0\n\nYour password will be used to access your account, and will be stored securely on the FutureMUD servers as an encrypted, salted hash. Passwords must be at least 8 characters long and can use any combination of letters, numbers and symbols. Please enter a password for your new account:"
+			Futuremud.Games.First().GetStaticString("PasswordSelectionMessage")
 				.SubstituteANSIColour().Wrap(80), false);
 		_state = MainMenuState.CreateAccountPassword;
 	}
@@ -432,7 +426,7 @@ public class MainMenu : Menu, IController
 		{
 			OutputHandler.Send("\nThe passwords do not match - please try again.");
 			OutputHandler.Send(
-				"\n#3Password Selection#0\n\nYour password will be used to access your account, and will be stored securely on the FutureMUD servers as an encrypted, salted hash. Passwords must be at least 8 characters long and can use any combination of letters, numbers and symbols. Please enter a password for your new account:"
+				Futuremud.Games.First().GetStaticString("PasswordSelectionMessage")
 					.SubstituteANSIColour().Wrap(80), false);
 			_accountPassword = null;
 			_state = MainMenuState.CreateAccountPassword;

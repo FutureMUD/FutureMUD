@@ -2,8 +2,9 @@
 using MudSharp.Framework.Save;
 using MudSharp.RPG.Checks;
 
-namespace MudSharp.Body.Traits {
-    public enum TraitUseType {
+namespace MudSharp.Body.Traits
+{
+	public enum TraitUseType {
         Theoretical,
         Practical
     }

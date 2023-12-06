@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using MudSharp.Accounts;
 using MudSharp.Body;
 using MudSharp.Body.Disfigurements;
@@ -19,7 +20,7 @@ using MudSharp.RPG.Merits;
 using MudSharp.TimeAndDate.Date;
 
 namespace MudSharp.CharacterCreation {
-    public interface ICharacterTemplate : IFutureProgVariable, IHaveFuturemud {
+    public interface ICharacterTemplate : IFutureProgVariable, IHaveFuturemud, IHaveTraits {
         List<IAccent> SelectedAccents { get; }
         List<ITrait> SelectedAttributes { get; }
         MudDate SelectedBirthday { get; }
@@ -46,5 +47,5 @@ namespace MudSharp.CharacterCreation {
         List<IBodypart> MissingBodyparts { get; }
         List<(IDisfigurementTemplate Disfigurement, IBodypart Bodypart)> SelectedDisfigurements { get; }
         List<IGameItemProto> SelectedProstheses { get; }
-    }
+	}
 }

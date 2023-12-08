@@ -10,6 +10,7 @@ using MudSharp.Models;
 using MudSharp.RPG.Checks;
 using MudSharp.RPG.Merits.Interfaces;
 using ExpressionEngine;
+using MudSharp.Effects;
 
 namespace MudSharp.Body.Traits.Improvement;
 
@@ -68,7 +69,7 @@ public class TheoreticalImprovementModel : ImprovementModel
 	public override bool CanImprove(IHaveTraits person, ITrait trait, Difficulty difficulty, TraitUseType useType,
 		bool ignoreTemporaryBlockers)
 	{
-		if (!ignoreTemporaryBlockers && person.AffectedBy<INoTraitGainEffect>(trait.Definition))
+		if (!ignoreTemporaryBlockers && person is IHaveEffects ihe && ihe.AffectedBy<INoTraitGainEffect>(trait.Definition))
 		{
 			return false;
 		}
@@ -109,7 +110,7 @@ public class TheoreticalImprovementModel : ImprovementModel
 	public override double GetImprovement(IHaveTraits person, ITrait trait, Difficulty difficulty, Outcome outcome,
 		TraitUseType usetype)
 	{
-		if (person.AffectedBy<INoTraitGainEffect>(trait.Definition))
+		if (person is IHaveEffects ihe && ihe.AffectedBy<INoTraitGainEffect>(trait.Definition))
 		{
 			trait.Gameworld.LogManager.CustomLogEntry(Logging.LogEntryType.SkillImprovement,
 				"-- NoGain [NoTraitGain Effect]");
@@ -202,9 +203,9 @@ public class TheoreticalImprovementModel : ImprovementModel
 		}
 
 		var noGainTimespan = TimeSpan.FromSeconds(Dice.Roll(NoGainSecondsDiceExpression));
-		if (noGainTimespan.TotalSeconds > 0)
+		if (person is IHaveEffects phe && noGainTimespan.TotalSeconds > 0)
 		{
-			person.AddEffect(new NoTraitGain((IPerceivable)person, trait.Definition), noGainTimespan);
+			phe.AddEffect(new NoTraitGain((IPerceivable)person, trait.Definition), noGainTimespan);
 		}
 
 		switch (usetype)

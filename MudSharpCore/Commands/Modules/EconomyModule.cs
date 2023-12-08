@@ -2153,8 +2153,8 @@ Additionally, you can use the following shop admin subcommands:
 				shop.EmployeeRecords.Count().ToString("N0", actor),
 				shop.EmployeesOnDuty.Count().ToString("N0", actor),
 				pshop?.ShopfrontCells.Select(x =>
-					$"#{x.Id.ToString("N0", actor)} - {x.HowSeen(actor, colour: false)}".FluentTagMXP("send",
-						$"href='goto {x.Id}'")).First() ?? "",
+					x.GetFriendlyReference(actor).FluentTagMXP("send",
+						$"href='goto {x.Id}'")).FirstOrDefault() ?? "",
 				(shop is ITransientShop).ToColouredString()
 			},
 			new[]

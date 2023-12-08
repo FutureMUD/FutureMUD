@@ -9,6 +9,7 @@ using System;
 using MudSharp.Character;
 using MudSharp.Effects.Interfaces;
 using MudSharp.Magic;
+using MudSharp.RPG.Merits.Interfaces;
 
 namespace MudSharp.Body.Implementations;
 
@@ -149,6 +150,7 @@ public partial class Body
 		var neutralisingEffects = new DoubleCounter<DrugType>();
 		var effectIntensities = new DoubleCounter<DrugType>();
 
+		// Apply nauseu from drunkenness
 		var bac = 10.0 * NeedsModel.AlcoholLitres / CurrentBloodVolumeLitres;
 		if (bac > 0.0)
 		{
@@ -158,6 +160,7 @@ public partial class Body
 		var healingRateIntensity = 0.0;
 		var healingDifficultyIntensity = 0.0;
 
+		// Apply drug-neutralising drugs
 		var drugIntensities = new DoubleCounter<IDrug>();
 		foreach (var drug in ActiveDrugDosages)
 		{
@@ -176,21 +179,26 @@ public partial class Body
 			}
 		}
 
+		// Sum impacts from effects
 		foreach (var effect in CombinedEffectsOfType<ICauseDrugEffect>())
 		foreach (var drugType in effect.AffectedDrugTypes)
 		{
 			effectIntensities[drugType] += effect.AddedIntensity(Actor, drugType);
 		}
 
+		// Sum impacts from drugs
 		var magicCapabilities = new DoubleCounter<IMagicCapability>();
 		var damagedOrgans = new DoubleCounter<BodypartTypeEnum>();
-
+		var specificMerits = Actor.Merits.OfType<ISpecificDrugResistanceMerit>().Where(x => x.Applies(Actor)).ToList();
 		foreach (var (drug, grams) in drugIntensities)
 		{
 			if (grams <= 0.0)
 			{
 				continue;
 			}
+
+			// Apply effects from merits that target specific drugs
+			var adjustedgrams = specificMerits.Aggregate(1.0, (sum, x) => sum * x.MultiplierForDrug(drug)) * grams;
 
 			foreach (var drugEffect in drug.DrugTypes)
 			{
@@ -199,7 +207,7 @@ public partial class Body
 					foreach (var neutralDrug in drug.ExtraInfoFor(DrugType.NeutraliseDrugEffect).Split(' ')
 					                                .Select(x => (DrugType)int.Parse(x)))
 					{
-						neutralisingEffects[neutralDrug] += drug.IntensityForType(drugEffect) * grams;
+						neutralisingEffects[neutralDrug] += drug.IntensityForType(drugEffect) * adjustedgrams;
 					}
 
 					continue;
@@ -213,15 +221,15 @@ public partial class Body
 					                                   .ToList();
 					foreach (var capability in capabilities)
 					{
-						magicCapabilities[capability] += drug.IntensityForType(DrugType.MagicAbility) * grams;
+						magicCapabilities[capability] += drug.IntensityForType(DrugType.MagicAbility) * adjustedgrams;
 					}
 				}
 
 				if (drugEffect == DrugType.HealingRate)
 				{
 					var split = drug.ExtraInfoFor(DrugType.HealingRate).Split(' ');
-					healingRateIntensity += double.Parse(split[0]) * (drug.IntensityForType(drugEffect) * grams);
-					healingDifficultyIntensity += double.Parse(split[1]) * (drug.IntensityForType(drugEffect) * grams);
+					healingRateIntensity += double.Parse(split[0]) * (drug.IntensityForType(drugEffect) * adjustedgrams);
+					healingDifficultyIntensity += double.Parse(split[1]) * (drug.IntensityForType(drugEffect) * adjustedgrams);
 				}
 
 				if (drugEffect == DrugType.BodypartDamage)
@@ -229,14 +237,22 @@ public partial class Body
 					foreach (var organ in drug.ExtraInfoFor(DrugType.BodypartDamage).Split(' ')
 					                          .Select(x => (BodypartTypeEnum)int.Parse(x)))
 					{
-						damagedOrgans[organ] += drug.IntensityForType(drugEffect) * grams;
+						damagedOrgans[organ] += drug.IntensityForType(drugEffect) * adjustedgrams;
 					}
 				}
 
-				effectIntensities[drugEffect] += drug.IntensityForType(drugEffect) * grams;
+				effectIntensities[drugEffect] += drug.IntensityForType(drugEffect) * adjustedgrams;
 			}
 		}
 
+		// Apply resistance merits
+		var resistanceMerits = Actor.Merits.OfType<IDrugEffectResistanceMerit>().Where(x => x.Applies(Actor)).ToList();
+		foreach (var effect in effectIntensities.ToArray())
+		{
+			effectIntensities[effect.Key] = effect.Value * resistanceMerits.Aggregate(1.0, (sum, x) => sum * x.ModifierForDrugType(effect.Key));
+		}
+
+		// Apply individual effects
 		var applicableCapabilities = magicCapabilities.Where(x => x.Value > 1.0);
 		foreach (var effect in effectIntensities)
 		{
@@ -398,6 +414,7 @@ public partial class Body
 			}
 		}
 
+		// Tidy up Effects that have worn off
 		if (effectIntensities.ValueOrDefault(DrugType.Analgesic) -
 		    neutralisingEffects.ValueOrDefault(DrugType.Analgesic) <=
 		    0.0)
@@ -456,6 +473,7 @@ public partial class Body
 			EffectHandler.RemoveAllEffects<DrugInducedMagicCapability>(fireRemovalAction: true);
 		}
 
+		// Kick off the health tick if necessary
 		if (effectIntensities.Any() || bac > 0.0)
 		{
 			StartHealthTick();

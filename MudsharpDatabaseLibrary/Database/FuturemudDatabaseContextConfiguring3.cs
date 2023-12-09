@@ -2047,7 +2047,7 @@ namespace MudSharp.Database
 
             modelBuilder.Entity<RacesChargenResources>(entity =>
             {
-                entity.HasKey(e => new { e.RaceId, e.ChargenResourceId, e.RequirementOnly })
+                entity.HasKey(e => new { e.RaceId, e.ChargenResourceId })
                     .HasName("PRIMARY");
 
                 entity.ToTable("Races_ChargenResources");
@@ -2065,15 +2065,15 @@ namespace MudSharp.Database
 
                 entity.Property(e => e.Amount).HasColumnType("int(11)");
 
-                entity.HasOne(d => d.ChargenResource)
-                    .WithMany(p => p.RacesChargenResources)
-                    .HasForeignKey(d => d.ChargenResourceId)
-                    .HasConstraintName("FK_Races_ChargenResources_ChargenResources");
+                //entity.HasOne(d => d.ChargenResource)
+                //    .WithMany(p => p.RacesChargenResources)
+                //    .HasForeignKey(d => d.ChargenResourceId)
+                //    .HasConstraintName("FK_Races_ChargenResources_ChargenResources");
 
-                entity.HasOne(d => d.Race)
-                    .WithMany(p => p.RacesChargenResources)
-                    .HasForeignKey(d => d.RaceId)
-                    .HasConstraintName("FK_Races_ChargenResources_Races");
+                //entity.HasOne(d => d.Race)
+                //    .WithMany(p => p.RacesChargenResources)
+                //    .HasForeignKey(d => d.RaceId)
+                //    .HasConstraintName("FK_Races_ChargenResources_Races");
             });
 
             modelBuilder.Entity<RacesEdibleMaterials>(entity =>

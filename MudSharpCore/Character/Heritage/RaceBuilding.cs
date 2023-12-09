@@ -413,6 +413,7 @@ public partial class Race
 			return false;
 		}
 
+		_costs.RemoveAll(x => x.Resource == which);
 		_costs.Add(new ChargenResourceCost
 		{
 			Resource = which,

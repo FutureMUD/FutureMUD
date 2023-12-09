@@ -483,6 +483,7 @@ public class Culture : SaveableItem, ICulture
 			return false;
 		}
 
+		_costs.RemoveAll(x => x.Resource == which);
 		_costs.Add(new ChargenResourceCost
 		{
 			Resource = which,

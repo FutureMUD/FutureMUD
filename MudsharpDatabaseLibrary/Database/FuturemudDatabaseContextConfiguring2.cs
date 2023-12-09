@@ -1170,13 +1170,10 @@ namespace MudSharp.Database
 
             modelBuilder.Entity<CulturesChargenResources>(entity =>
             {
-                entity.HasKey(e => new { e.CultureId, e.ChargenResourceId, e.RequirementOnly })
+                entity.HasKey(e => new { e.CultureId, e.ChargenResourceId })
                     .HasName("PRIMARY");
 
                 entity.ToTable("Cultures_ChargenResources");
-
-                entity.HasIndex(e => e.ChargenResourceId)
-                    .HasDatabaseName("FK_Cultures_ChargenResources_ChargenResources");
 
                 entity.Property(e => e.CultureId).HasColumnType("bigint(20)");
 
@@ -1188,15 +1185,15 @@ namespace MudSharp.Database
 
                 entity.Property(e => e.Amount).HasColumnType("int(11)");
 
-                entity.HasOne(d => d.ChargenResource)
-                    .WithMany(p => p.CulturesChargenResources)
-                    .HasForeignKey(d => d.ChargenResourceId)
-                    .HasConstraintName("FK_Cultures_ChargenResources_ChargenResources");
+                //entity.HasOne(d => d.ChargenResource)
+                //    .WithMany(p => p.CulturesChargenResources)
+                //    .HasForeignKey(d => d.ChargenResourceId)
+                //    .HasConstraintName("FK_Cultures_ChargenResources_ChargenResources");
 
-                entity.HasOne(d => d.Culture)
-                    .WithMany(p => p.CulturesChargenResources)
-                    .HasForeignKey(d => d.CultureId)
-                    .HasConstraintName("FK_Cultures_ChargenResources_Races");
+                //entity.HasOne(d => d.Culture)
+                //    .WithMany(p => p.CulturesChargenResources)
+                //    .HasForeignKey(d => d.CultureId)
+                //    .HasConstraintName("FK_Cultures_ChargenResources_Races");
             });
 
             modelBuilder.Entity<Currency>(entity =>
@@ -2347,13 +2344,10 @@ namespace MudSharp.Database
 
             modelBuilder.Entity<EthnicitiesChargenResources>(entity =>
             {
-                entity.HasKey(e => new { e.EthnicityId, e.ChargenResourceId, e.RequirementOnly })
+                entity.HasKey(e => new { e.EthnicityId, e.ChargenResourceId })
                     .HasName("PRIMARY");
 
                 entity.ToTable("Ethnicities_ChargenResources");
-
-                entity.HasIndex(e => e.ChargenResourceId)
-                    .HasDatabaseName("FK_Ethnicities_ChargenResources_ChargenResources");
 
                 entity.Property(e => e.EthnicityId).HasColumnType("bigint(20)");
 
@@ -2365,15 +2359,15 @@ namespace MudSharp.Database
 
                 entity.Property(e => e.Amount).HasColumnType("int(11)");
 
-                entity.HasOne(d => d.ChargenResource)
-                    .WithMany(p => p.EthnicitiesChargenResources)
-                    .HasForeignKey(d => d.ChargenResourceId)
-                    .HasConstraintName("FK_Ethnicities_ChargenResources_ChargenResources");
+                //entity.HasOne(d => d.ChargenResource)
+                //    .WithMany(p => p.EthnicitiesChargenResources)
+                //    .HasForeignKey(d => d.ChargenResourceId)
+                //    .HasConstraintName("FK_Ethnicities_ChargenResources_ChargenResources");
 
-                entity.HasOne(d => d.Ethnicity)
-                    .WithMany(p => p.EthnicitiesChargenResources)
-                    .HasForeignKey(d => d.EthnicityId)
-                    .HasConstraintName("FK_Ethnicities_ChargenResources_Ethnicities");
+                //entity.HasOne(d => d.Ethnicity)
+                //    .WithMany(p => p.EthnicitiesChargenResources)
+                //    .HasForeignKey(d => d.EthnicityId)
+                //    .HasConstraintName("FK_Ethnicities_ChargenResources_Ethnicities");
             });
 
             modelBuilder.Entity<Exit>(entity =>

@@ -914,7 +914,10 @@ BUY [<quantity>] <thing> WITH <item> - buys the thing with a payment item such a
 	#3shop bank none#0 - sets this shop to no longer use a bank account
 	#3shop merchandise <other args>#0 - edits merchandise. See #3SHOP MERCHANDISE HELP#0.
 	#3shop open <shop>#0 - opens a shop for trading
-	#3shop close <shop>#0 - closes a shop to trading";
+	#3shop close <shop>#0 - closes a shop to trading
+	#3shop set name <name>#0 - renames a shop
+	#3shop set can <prog> <whyprog>#0 - sets a prog to control who can shop here (and associated error message)
+	#3shop set trading#0 - toggles whether this shop is trading";
 
 	private const string ShopHelpAdmins = @"You can use the following options with the shop command:
 
@@ -940,14 +943,19 @@ BUY [<quantity>] <thing> WITH <item> - buys the thing with a payment item such a
 	#3shop merchandise <other args>#0 - edits merchandise. See #3SHOP MERCHANDISE HELP#0.
 	#3shop open <shop>#0 - opens a shop for trading
 	#3shop close <shop>#0 - closes a shop to trading
+	#3shop set name <name>#0 - renames a shop
+	#3shop set can <prog> <whyprog>#0 - sets a prog to control who can shop here (and associated error message)
+	#3shop set trading#0 - toggles whether this shop is trading
 
 Additionally, you can use the following shop admin subcommands:
 
 	#3shop list#0 - lists all shops
+	#3shop info <which>#0 - shows a shop you're not in
 	#3shop economy#0 - a modified list that shows some economic info
 	#3shop create <name> <econzone>#0 - creates a new store with the specified name
 	#3shop delete#0 - deletes the shop you're currently in. Warning: Irreversible.
 	#3shop extend <direction> [stockroom|workshop]#0 - extends the shop in the specified direction, optionally as the stockroom or workshop
+	#3shop extend <shop> <direction> [stockroom|workshop]#0 - extends the specified shop in the specified direction, optionally as the stockroom or workshop
 	#3shop remove#0 - removes the current location from its shop.
 	#3shop autostock#0 - automatically loads and stocks items up to the minimum reorder levels for all merchandise
 	#3shop setupstall <stall> <shop>#0 - sets up a stall item as belonging to a shop";
@@ -1873,8 +1881,32 @@ Additionally, you can use the following shop admin subcommands:
 		var shop = actor.Location.Shop;
 		if (shop == null)
 		{
-			actor.OutputHandler.Send("You are not currently in a shop.");
-			return;
+			if (!command.IsFinished)
+			{
+				var shopText = command.PopSpeech();
+				var gshop = actor.Gameworld.Shops.GetByIdOrName(shopText);
+				if (gshop is not null && !command.IsFinished)
+				{
+					if (gshop is not IPermanentShop ps)
+					{
+						actor.OutputHandler.Send(
+							"This command can only be used with a permanent (brick and mortar) shop.");
+						return;
+					}
+
+					shop = ps;
+				}
+				else
+				{
+					actor.OutputHandler.Send("You are not currently in a shop.");
+					return;
+				}
+			}
+			else
+			{
+				actor.OutputHandler.Send("You are not currently in a shop.");
+				return;
+			}
 		}
 
 		if (command.IsFinished)

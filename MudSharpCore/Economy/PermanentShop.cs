@@ -18,6 +18,7 @@ using MudSharp.Events;
 using MudSharp.Models;
 using MudSharp.Accounts;
 using System.Numerics;
+using MailKit.Net.Smtp;
 using MudSharp.GameItems.Interfaces;
 
 namespace MudSharp.Economy;
@@ -26,19 +27,36 @@ public class PermanentShop : Shop, IPermanentShop
 {
 	public PermanentShop(Models.Shop shop, IFuturemud gameworld) : base(shop, gameworld)
 	{
-		_shopfrontCells.AddRange(shop.ShopsStoreroomCells.Select(x => gameworld.Cells.Get(x.CellId)));
+		foreach (var cell in shop.ShopsStoreroomCells.SelectNotNull(x => gameworld.Cells.Get(x.CellId)))
+		{
+			AddShopfrontCell(cell);
+		}
+
 		_stockroomCell = gameworld.Cells.Get(shop.StockroomCellId ?? 0);
+		if (_stockroomCell is not null)
+		{
+			AddCellToStore(_stockroomCell);
+		}
+
 		_workshopCell = gameworld.Cells.Get(shop.WorkshopCellId ?? 0);
+		if (_workshopCell is not null)
+		{
+			AddCellToStore(_workshopCell);
+		}
+
 		foreach (var item in shop.ShopsTills)
 		{
 			_tillItemIds.Add(item.GameItemId);
 		}
+
+		Changed = false;
 
 		InitialiseShop();
 	}
 
 	public PermanentShop(IEconomicZone zone, ICell originalShopFront, string name) : base(zone, originalShopFront, name, "Permanent")
 	{
+		AddShopfrontCell(originalShopFront);
 		InitialiseShop();
 	}
 
@@ -182,6 +200,8 @@ public class PermanentShop : Shop, IPermanentShop
 				RemoveCellFromStore(_workshopCell);
 			}
 
+			RemoveCellFromStore(value);
+			AddCellToStore(value);
 			_workshopCell = value;
 			Changed = true;
 		}
@@ -197,6 +217,8 @@ public class PermanentShop : Shop, IPermanentShop
 				RemoveCellFromStore(_stockroomCell);
 			}
 
+			RemoveCellFromStore(value);
+			AddCellToStore(value);
 			_stockroomCell = value;
 			Changed = true;
 		}
@@ -355,21 +377,10 @@ public class PermanentShop : Shop, IPermanentShop
 	}
 	protected override void ShowInfo(ICharacter actor, StringBuilder sb)
 	{
+		sb.AppendLine();
 		if (IsEmployee(actor) || actor.IsAdministrator())
 		{
-			if (actor.Location == WorkshopCell)
-			{
-				sb.AppendLine("The location you are currently in is the workshop for this store.");
-			}
-			else if (actor.Location == StockroomCell)
-			{
-				sb.AppendLine("The location you are currently in is the stockroom for this store.");
-			}
-			else if (ShopfrontCells.Contains(actor.Location))
-			{
-				sb.AppendLine("The location you are currently in is the shopfront for this store.");
-			}
-			else
+			if (actor.IsAdministrator())
 			{
 				sb.AppendLine($"These are the locations for this store:");
 				sb.AppendLine($"\tWorkshop: {WorkshopCell?.GetFriendlyReference(actor) ?? "None".ColourError()}");
@@ -377,6 +388,22 @@ public class PermanentShop : Shop, IPermanentShop
 				foreach (var cell in ShopfrontCells)
 				{
 					sb.AppendLine($"\tShopfront: {cell.GetFriendlyReference(actor)}");
+				}
+			}
+
+			else
+			{
+				if (actor.Location == WorkshopCell)
+				{
+					sb.AppendLine("The location you are currently in is the workshop for this store.".ColourCommand());
+				}
+				else if (actor.Location == StockroomCell)
+				{
+					sb.AppendLine("The location you are currently in is the stockroom for this store.".ColourCommand());
+				}
+				else if (ShopfrontCells.Contains(actor.Location))
+				{
+					sb.AppendLine("The location you are currently in is the shopfront for this store.".ColourCommand());
 				}
 			}
 

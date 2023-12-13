@@ -29,9 +29,12 @@ using MudSharp.Body.Position.PositionStates;
 using MudSharp.Character.Name;
 using MudSharp.Economy.Currency;
 using MudSharp.Economy.Payment;
+using MudSharp.TimeAndDate;
+using MudSharp.TimeAndDate.Intervals;
 using Org.BouncyCastle.Crypto.Parameters;
 using TimeSpanParserUtil;
 using ClanMembership = MudSharp.Community.ClanMembership;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace MudSharp.Commands.Modules;
 
@@ -102,6 +105,8 @@ The following clan sub-commands are used to interact with clans:
 	#3clan reportdead <clan> <person>#0 - reports a person as dead or long-term missing
 	#3clan pay <person> <clan> <how much>#0 - manually adds backpay owing to a person
 	#3clan maxpay <clan> <max multiple backpay>#0 - sets the maximum backpay permissable for a clan
+	#3clan payinterval <every x days|weeks|months|years>#0 - sets the pay interval
+	#3clan payinterval <every x days|weeks|months|years> <date time>#0 - sets the pay interval and the reference date time
 	#3clan view <clan>#0 - views information about a clan
 	#3clan members <clan>#0 - views the member list for a clan
 	#3clan treasury <clan>#0 - sets your current location as a treasury cell for a clan (ADMIN ONLY)
@@ -188,6 +193,9 @@ All of the following commands must happen with an edited clan selected:
 				return;
 			case "paygrade":
 				ClanPaygrade(actor, ss);
+				return;
+			case "payinterval":
+				ClanPayInterval(actor, ss);
 				return;
 			case "view":
 			case "show":
@@ -302,6 +310,60 @@ All of the following commands must happen with an edited clan selected:
 		}
 	}
 
+	private static void ClanPayInterval(ICharacter actor, StringStack ss)
+	{
+		var clan = GetTargetClan(actor, ss.PopSpeech());
+		if (clan is null)
+		{
+			actor.OutputHandler.Send(actor.IsAdministrator(PermissionLevel.Admin)
+				? "There is no such clan."
+				: "You are not a member of any such clan.");
+			return;
+		}
+
+		var actorMembership = actor.ClanMemberships.FirstOrDefault(x => x.Clan == clan);
+
+		if (!actor.IsAdministrator(PermissionLevel.Admin) && actorMembership != null &&
+		    !actorMembership.NetPrivileges.HasFlag(ClanPrivilegeType.CanCreatePaygrades))
+		{
+			actor.OutputHandler.Send("You are not allowed to manage the payment affairs of that clan.");
+			return;
+		}
+
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send($"What should the pay interval be for this clan?\n{"Use the following form: every <x> hours|days|weekdays|weeks|months|years <offset>".ColourCommand()}");
+			return;
+		}
+
+		if (!RecurringInterval.TryParse(ss.PopSpeech(), out var interval))
+		{
+			actor.OutputHandler.Send(
+				$"That is not a valid interval.\n{"Use the following form: every <x> hours|days|weekdays|weeks|months|years <offset>".ColourCommand()}");
+			return;
+		}
+
+		if (ss.IsFinished)
+		{
+			clan.PayInterval = interval;
+			actor.OutputHandler.Send($"The {clan.FullName.ColourName()} will now pay on a cycle of {interval.Describe(clan.Calendar).ColourValue()}.");
+			return;
+		}
+
+		if (!MudDateTime.TryParse(ss.SafeRemainingArgument, clan.Calendar, clan.Calendar.FeedClock, out var dt))
+		{
+			var date = clan.Calendar.CurrentDateTime.Date;
+			var time = clan.Calendar.CurrentDateTime.Time;
+			var tz = clan.Calendar.CurrentDateTime.TimeZone;
+			actor.OutputHandler.Send($"That is not a valid date and time for the {clan.Calendar.FullName.ColourName()} calendar and {clan.Calendar.FeedClock.Name.ColourName()} clock.\nValid input is in this format: {"<day>/<month name>/<year> <timezone> <hours>:<minutes>:<seconds>".ColourCommand()}\nFor example, this is how you would enter the current date and time: {$"{date.Day.ToString("N0", actor)}/{date.Month.Alias}/{date.Year} {tz.Name} {time.Hours.ToString("N0", actor)}:{time.Minutes.ToString("N0", actor)}:{time.Seconds.ToString("N0", actor)}".ColourCommand()}");
+			return;
+		}
+
+		var next = interval.GetNextDateTime(dt);
+		clan.PayInterval = interval;
+		clan.NextPay = next;
+		actor.OutputHandler.Send($"The {clan.FullName.ColourName()} will now pay on a cycle of {interval.Describe(clan.Calendar).ColourValue()} with the next pay happening at {next.ToString(CalendarDisplayMode.Long, TimeDisplayTypes.Short).ColourValue()}.");
+	}
 	private static void ClanList(ICharacter actor, StringStack ss)
 	{
 		IEnumerable<IClan> clans;
@@ -313,7 +375,6 @@ All of the following commands must happen with an edited clan selected:
 		{
 			clans = actor.ClanMemberships.Select(x => x.Clan).Distinct();
 		}
-
 		while (!ss.IsFinished)
 		{
 			var text = ss.PopSpeech().ToLowerInvariant();
@@ -329,7 +390,6 @@ All of the following commands must happen with an edited clan selected:
 				clans = clans.Where(x => !x.Name.Contains(text, StringComparison.InvariantCultureIgnoreCase) && !x.FullName.Contains(text, StringComparison.InvariantCultureIgnoreCase));
 				continue;
 			}
-
 			actor.OutputHandler.Send($"The text {text.ColourCommand()} is not a valid filter option.");
 			return;
 		}
@@ -3044,7 +3104,7 @@ Your next payday is {3}.
 		if (actor.IsAdministrator())
 		{
 			sb.Append(
-				$"Discord Channel: {clan.DiscordChannelId?.ToString("N", actor).ColourValue() ?? "None".ColourError()}");
+				$"Discord Channel: {clan.DiscordChannelId?.ToString("F0", actor).ColourValue() ?? "None".ColourError()}");
 			sb.AppendLine();
 			sb.AppendLine(
 				$"Treasury Cells:\n{clan.TreasuryCells.Select(x => x.GetFriendlyReference(actor)).DefaultIfEmpty("None").ListToLines(true)}");
@@ -3399,8 +3459,8 @@ Your next payday is {3}.
 				$"Total Commitment Salary Per Payday: {clan.Paygrades.Select(x => x.PayCurrency).Distinct().Select(x => x.Describe(clan.Paygrades.Where(y => y.PayCurrency == x).Sum(y => y.PayAmount * (clan.Memberships.Count(z => !z.IsArchivedMembership && z.Paygrade == y) + clan.Memberships.Sum(z => z.Appointments.Count(v => !z.IsArchivedMembership && v.Paygrade == y)))), CurrencyDescriptionPatternType.Short)).Select(x => x.Colour(Telnet.Green)).ListToString()}");
 		}
 
-		sb.AppendLine(
-			$"Next Payday: {clan.Calendar.DisplayDate(clan.NextPay.Date, CalendarDisplayMode.Long).Colour(Telnet.Green)} at {clan.Calendar.FeedClock.DisplayTime(clan.NextPay.Time, TimeDisplayTypes.Immortal).Colour(Telnet.Green)}");
+		sb.AppendLine($"Payday Interval: {clan.PayInterval.Describe(clan.Calendar).ColourValue()}");
+		sb.AppendLine($"Next Payday: {clan.Calendar.DisplayDate(clan.NextPay.Date, CalendarDisplayMode.Short).Colour(Telnet.Green)} at {clan.Calendar.FeedClock.DisplayTime(clan.NextPay.Time, TimeDisplayTypes.Immortal).Colour(Telnet.Green)}");
 		actor.OutputHandler.Send(sb.ToString());
 	}
 

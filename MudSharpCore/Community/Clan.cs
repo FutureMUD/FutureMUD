@@ -18,6 +18,7 @@ using MudSharp.PerceptionEngine.Parsers;
 using MudSharp.TimeAndDate;
 using MudSharp.TimeAndDate.Date;
 using MudSharp.TimeAndDate.Intervals;
+using MudSharp.TimeAndDate.Listeners;
 
 namespace MudSharp.Community;
 
@@ -44,14 +45,14 @@ public class Clan : SaveableItem, IClan
 		MaximumPeriodsOfUncollectedBackPay = clan.MaximumPeriodsOfUncollectedBackPay;
 		_clanBankAccountId = clan.BankAccountId;
 		OnPayProg = Gameworld.FutureProgs.Get(clan.OnPayProgId ?? 0);
-		PayInterval = new RecurringInterval
+		_payInterval = new RecurringInterval
 		{
 			Type = (IntervalType)clan.PayIntervalType,
 			IntervalAmount = clan.PayIntervalModifier,
 			Modifier = clan.PayIntervalOther
 		};
 		var payTime = Calendar.FeedClock.GetTime(clan.PayIntervalReferenceTime);
-		NextPay = new MudDateTime(
+		_nextPay = new MudDateTime(
 			PayInterval.GetNextDate(Calendar, Calendar.GetDate(clan.PayIntervalReferenceDate)), payTime,
 			payTime.Timezone);
 		foreach (var cell in clan.ClansTreasuryCells)
@@ -222,9 +223,9 @@ public class Clan : SaveableItem, IClan
 			}
 		}
 
-		NextPay = new MudDateTime(PayInterval.GetNextDateExclusive(Calendar, NextPay.Date), NextPay.Time,
+		_nextPay = new MudDateTime(PayInterval.GetNextDateExclusive(Calendar, NextPay.Date), NextPay.Time,
 			NextPay.TimeZone);
-		PayInterval.CreateListenerFromInterval(Calendar, NextPay.Date, NextPay.Time, ProcessPays, new object[] { });
+		_paydayListener = CreatePaydayListener();
 		Changed = true;
 	}
 
@@ -314,9 +315,33 @@ public class Clan : SaveableItem, IClan
 
 	public virtual List<IExternalClanControl> ExternalControls { get; } = new();
 
-	public RecurringInterval PayInterval { get; set; }
+	private RecurringInterval _payInterval;
 
-	public MudDateTime NextPay { get; set; }
+	public RecurringInterval PayInterval
+	{
+		get => _payInterval;
+		set
+		{
+			_payInterval = value;
+			_paydayListener.CancelListener();
+			_paydayListener = CreatePaydayListener();
+			Changed = true;
+		}
+	}
+
+	private MudDateTime _nextPay;
+
+	public MudDateTime NextPay
+	{
+		get => _nextPay;
+		set
+		{
+			_nextPay = value;
+			_paydayListener.CancelListener();
+			_paydayListener = CreatePaydayListener();
+			Changed = true;
+		}
+	}
 
 	private long? _paymasterId;
 	private ICharacter _paymaster;
@@ -443,7 +468,12 @@ public class Clan : SaveableItem, IClan
 #if DEBUG
 		Console.WriteLine($"...Clan {FullName}...Setting up listener [{sw.ElapsedMilliseconds}ms]");
 #endif
-		PayInterval.CreateListenerFromInterval(Calendar, NextPay.Date, NextPay.Time, ProcessPays, new object[] { });
+		_paydayListener = CreatePaydayListener();
+	}
+
+	private ITemporalListener CreatePaydayListener()
+	{
+		return PayInterval.CreateListenerFromInterval(Calendar, NextPay.Date, NextPay.Time, ProcessPays, new object[] { });
 	}
 
 	public void Disband(ICharacter disbander)
@@ -475,6 +505,8 @@ public class Clan : SaveableItem, IClan
 
 		Gameworld.Destroy(this);
 	}
+
+	private ITemporalListener _paydayListener;
 
 	#endregion
 

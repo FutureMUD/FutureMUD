@@ -616,7 +616,11 @@ public static class DefaultStaticSettings
 			{ "DefaultAuxiliaryMoveTraitId", "0"},
 			{ "DisplayTaxInShopList", "true" },
 			{ "ShouldLiquidOverflowEchoToRoom", "false" },
-			{ "PuddlesEnabled", "true" }
+			{ "PuddlesEnabled", "true" },
+			{ "MaximumShortTermPlanLength", "300" },
+			{ "MaximumLongTermPlanLength", "300" },
+			{ "MaximumSayLength", "350"},
+			{ "MaximumEmoteLength", "350"},
 		};
 
 	public static readonly IReadOnlyDictionary<string, string> DefaultStaticStrings = new Dictionary<string, string>

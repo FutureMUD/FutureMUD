@@ -178,6 +178,12 @@ public class MindBroadcastPower : MagicPowerBase
 		}
 
 		var text = command.RemainingArgument;
+		if (text.Length > Gameworld.GetStaticInt("MaximumSayLength"))
+		{
+			actor.OutputHandler.Send($"You can't send so much text at once. Keep it under {Gameworld.GetStaticInt("MaximumSayLength").ToString("N0", actor).ColourValue()} characters.");
+			return;
+		}
+
 		if (UseLanguage)
 		{
 			var langInfo = new PsychicLanguageInfo(actor.CurrentLanguage, UseAccent ? actor.CurrentAccent : null,

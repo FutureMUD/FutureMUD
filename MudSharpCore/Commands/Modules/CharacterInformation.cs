@@ -1569,14 +1569,14 @@ You can also use this command to test against someone else. This always echoes.
 					return;
 				}
 
-				if (ss.RemainingArgument.Length > 300)
+				if (ss.RemainingArgument.Length > actor.Gameworld.GetStaticInt("MaximumShortTermPlanLength"))
 				{
-					actor.Send("Your short term plan may be a maximum of 300 characters in length.");
+					actor.Send($"Your short term plan may be a maximum of {actor.Gameworld.GetStaticInt("MaximumShortTermPlanLength").ToString("N0", actor).ColourValue()} characters in length.");
 					return;
 				}
 
 				actor.ShortTermPlan = ss.RemainingArgument.Trim().ProperSentences();
-				actor.Send("You set your short term plan to: {0}", actor.ShortTermPlan.Colour(Telnet.Green));
+				actor.Send("You set your short term plan to:\n\n{0}", actor.ShortTermPlan.Wrap(actor.InnerLineFormatLength, "\t").Colour(Telnet.Green));
 				actor.RemoveAllEffects<RecentlyUpdatedPlan>();
 				actor.AddEffect(new RecentlyUpdatedPlan(actor), TimeSpan.FromDays(14));
 				return;
@@ -1590,14 +1590,14 @@ You can also use this command to test against someone else. This always echoes.
 					return;
 				}
 
-				if (ss.RemainingArgument.Length > 300)
+				if (ss.RemainingArgument.Length > actor.Gameworld.GetStaticInt("MaximumLongTermPlanLength"))
 				{
-					actor.Send("Your long term plan may be a maximum of 300 characters in length.");
+					actor.Send($"Your long term plan may be a maximum of {actor.Gameworld.GetStaticInt("MaximumLongTermPlanLength").ToString("N0", actor).ColourValue()} characters in length.");
 					return;
 				}
 
 				actor.LongTermPlan = ss.RemainingArgument.Trim().ProperSentences();
-				actor.Send("You set your long term plan to: {0}", actor.LongTermPlan.Colour(Telnet.Green));
+				actor.Send("You set your long term plan to:\n\n{0}", actor.LongTermPlan.Wrap(actor.InnerLineFormatLength, "\t").Colour(Telnet.Green));
 				actor.RemoveAllEffects<RecentlyUpdatedPlan>();
 				actor.AddEffect(new RecentlyUpdatedPlan(actor), TimeSpan.FromDays(14));
 				return;

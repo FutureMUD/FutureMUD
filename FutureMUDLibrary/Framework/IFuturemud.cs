@@ -126,6 +126,7 @@ namespace MudSharp.Framework
         IUneditableAll<ICharacteristicDefinition> Characteristics { get; }
         IUneditableAll<ICharacteristicValue> CharacteristicValues { get; }
         IUneditableAll<IChargenAdvice> ChargenAdvices { get; }
+        IUneditableAll<ICombatArena> CombatArenas { get; }
         IUneditableRevisableAll<ICraft> Crafts { get; }
         IUneditableAll<IDrug> Drugs { get; }
         IUneditableAll<ICharacter> Guests { get; }
@@ -334,6 +335,7 @@ namespace MudSharp.Framework
         void SystemMessage(IOutput message, bool adminonly = false);
 
         void AddGuest(ICharacter character);
+        void Add(ICombatArena arena);
         void Add(IChannel channel);
         void Add(IAuxiliaryCombatAction action);
         void Add(IBoard board);
@@ -475,6 +477,7 @@ namespace MudSharp.Framework
 
 		IGameItem TryGetItem(Models.GameItem dbitem, bool addToGameworld);
         IGameItem TryGetItem(long id, bool addToGameworld = false);
+        void Destroy(ICombatArena arena);
         void Destroy(ICrime crime);
         void Destroy(INPCSpawner spawner);
         void Destroy(IJobListing listing);

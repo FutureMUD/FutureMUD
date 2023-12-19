@@ -10,6 +10,7 @@ using System.Text;
 using MudSharp.Framework;
 using System.Threading.Tasks;
 using System.Xml.Linq;
+using MudSharp.Character.Name;
 using MudSharp.Database;
 using MudSharp.Economy.Currency;
 using MudSharp.Effects.Concrete;
@@ -23,6 +24,8 @@ using MudSharp.FutureProg.Variables;
 using MudSharp.GameItems.Interfaces;
 using MudSharp.Events;
 using MudSharp.Models;
+using MudSharp.TimeAndDate.Date;
+using MudSharp.TimeAndDate.Time;
 
 namespace MudSharp.Economy;
 
@@ -871,6 +874,56 @@ public abstract class Shop : SaveableItem, IShop
 			sb.AppendLine("You are an employee of this store.");
 		}
 
+		if (IsEmployee(actor) || actor.IsAdministrator())
+		{
+			if (BankAccount is null)
+			{
+				sb.AppendLine("This shop does not have a bank account.");
+			}
+			else
+			{
+				sb.AppendLine(
+					$"This shop uses the bank account {BankAccount.AccountReference.ColourValue()} for transactions.");
+			}
+		}
+
+		if (IsProprietor(actor) || actor.IsAdministrator())
+		{
+			sb.AppendLine(
+				$"The CanShopProg is set to {(CanShopProg != null ? $"#{CanShopProg.Id.ToString("N0", actor)} {CanShopProg.FunctionName}".FluentTagMXP("send", $"href='show prog {CanShopProg.Id}'") : "None".Colour(Telnet.Red))}.");
+			sb.AppendLine(
+				$"The WhyCannotShopProg is set to {(WhyCannotShopProg != null ? $"#{WhyCannotShopProg.Id.ToString("N0", actor)} {WhyCannotShopProg.FunctionName}".FluentTagMXP("send", $"href='show prog {CanShopProg.Id}'") : "None".Colour(Telnet.Red))}.");
+		}
+
+
+
+		if (actor.IsAdministrator())
+		{
+			sb.AppendLine();
+			sb.AppendLine("Employees:");
+			sb.AppendLine(StringUtilities.GetTextTable(
+				from ch in EmployeeRecords.OrderBy(x => x.IsProprietor ? 0 : (x.IsManager ? 1 : 2))
+				select new List<string>
+				{
+					ch.EmployeeCharacterId.ToString("N0", actor),
+					ch.Name.GetName(NameStyle.FullName),
+					ch.IsManager.ToColouredString(),
+					ch.IsProprietor.ToColouredString(),
+					ch.EmployeeSince.ToString(CalendarDisplayMode.Short, TimeDisplayTypes.Short),
+				},
+				new List<string>
+				{
+					"Id",
+					"Name",
+					"Manager?",
+					"Owner?",
+					"Start Date"
+				},
+				actor,
+				Telnet.Yellow
+			));
+		}
+
 		foreach (var ch in EmployeesOnDuty)
 		{
 			if (IsEmployee(actor) || actor.IsAdministrator())
@@ -893,27 +946,6 @@ public abstract class Shop : SaveableItem, IShop
 				sb.AppendLine(
 					$"{ch.HowSeen(actor, true, flags: PerceiveIgnoreFlags.IgnoreSelf)} is currently on duty.");
 			}
-		}
-
-		if (IsEmployee(actor) || actor.IsAdministrator())
-		{
-			if (BankAccount is null)
-			{
-				sb.AppendLine("This shop does not have a bank account.");
-			}
-			else
-			{
-				sb.AppendLine(
-					$"This shop uses the bank account {BankAccount.AccountReference.ColourValue()} for transactions.");
-			}
-		}
-
-		if (IsProprietor(actor) || actor.IsAdministrator())
-		{
-			sb.AppendLine(
-				$"The CanShopProg is set to {(CanShopProg != null ? $"#{CanShopProg.Id.ToString("N0", actor)} {CanShopProg.FunctionName}".FluentTagMXP("send", $"href='show prog {CanShopProg.Id}'") : "None".Colour(Telnet.Red))}.");
-			sb.AppendLine(
-				$"The WhyCannotShopProg is set to {(WhyCannotShopProg != null ? $"#{WhyCannotShopProg.Id.ToString("N0", actor)} {WhyCannotShopProg.FunctionName}".FluentTagMXP("send", $"href='show prog {CanShopProg.Id}'") : "None".Colour(Telnet.Red))}.");
 		}
 
 		ShowInfo(actor, sb);

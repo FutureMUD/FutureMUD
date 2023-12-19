@@ -51,7 +51,7 @@ internal class CommunicationsModule : Module<ICharacter>
 			return;
 		}
 
-		if (ss.RemainingArgument.Length > 350)
+		if (ss.RemainingArgument.Length > actor.Gameworld.GetStaticInt("MaximumSayLength"))
 		{
 			actor.Send("You could not possibly think so much at once.");
 			return;
@@ -96,7 +96,7 @@ internal class CommunicationsModule : Module<ICharacter>
 			return;
 		}
 
-		if (ss.RemainingArgument.Length > 350)
+		if (ss.RemainingArgument.Length > actor.Gameworld.GetStaticInt("MaximumSayLength"))
 		{
 			actor.Send("You could not possibly feel so much at once.");
 			return;
@@ -289,26 +289,40 @@ internal class CommunicationsModule : Module<ICharacter>
 	[PlayerCommand("Hemote", "hemote")]
 	protected static void Hemote(ICharacter actor, string input)
 	{
-		if (string.IsNullOrWhiteSpace(input.RemoveFirstWord()))
+		var message = input.RemoveFirstWord();
+		if (string.IsNullOrWhiteSpace(message))
 		{
 			actor.OutputHandler.Send("What do you want to hidden emote?");
 			return;
 		}
 
-		actor.Body.Emote(input.RemoveFirstWord(), CharacterState.Conscious.HasFlag(actor.State),
+		if (message.Length > actor.Gameworld.GetStaticInt("MaximumEmoteLength"))
+		{
+			actor.Send($"That is far too much to emote at any one time. Keep it under {actor.Gameworld.GetStaticInt("MaximumEmoteLength").ToString("N0", actor).ColourValue()} characters.");
+			return;
+		}
+
+		actor.Body.Emote(message, CharacterState.Conscious.HasFlag(actor.State),
 			OutputFlags.NoticeCheckRequired);
 	}
 
 	[PlayerCommand("Emote", "emote", "em", "emo", "emot", ",")]
 	protected static void Emote(ICharacter actor, string input)
 	{
-		if (string.IsNullOrWhiteSpace(input.RemoveFirstWord()))
+		var message = input.RemoveFirstWord();
+		if (string.IsNullOrWhiteSpace(message))
 		{
 			actor.OutputHandler.Send("What do you want to emote?");
 			return;
 		}
 
-		actor.Body.Emote(input.RemoveFirstWord(), CharacterState.Conscious.HasFlag(actor.State));
+		if (message.Length > actor.Gameworld.GetStaticInt("MaximumEmoteLength"))
+		{
+			actor.Send($"That is far too much to emote at any one time. Keep it under {actor.Gameworld.GetStaticInt("MaximumEmoteLength").ToString("N0", actor).ColourValue()} characters.");
+			return;
+		}
+
+		actor.Body.Emote(message, CharacterState.Conscious.HasFlag(actor.State));
 	}
 
 	[PlayerCommand("Say", "say", ".")]
@@ -332,9 +346,9 @@ internal class CommunicationsModule : Module<ICharacter>
 		}
 
 		var message = ss.RemainingArgument;
-		if (message.Length > 350)
+		if (message.Length > actor.Gameworld.GetStaticInt("MaximumSayLength"))
 		{
-			actor.Send("That is far too much to say at any one time. Keep it under 350 characters.");
+			actor.Send($"That is far too much to say at any one time. Keep it under {actor.Gameworld.GetStaticInt("MaximumSayLength").ToString("N0", actor).ColourValue()} characters.");
 			return;
 		}
 
@@ -362,9 +376,9 @@ internal class CommunicationsModule : Module<ICharacter>
 		}
 
 		var message = ss.RemainingArgument;
-		if (message.Length > 350)
+		if (message.Length > actor.Gameworld.GetStaticInt("MaximumSayLength"))
 		{
-			actor.Send("That is far too much to sing at any one time. Keep it under 350 characters.");
+			actor.Send($"That is far too much to sing at any one time. Keep it under {actor.Gameworld.GetStaticInt("MaximumSayLength").ToString("N0", actor).ColourValue()} characters.");
 			return;
 		}
 
@@ -413,9 +427,9 @@ internal class CommunicationsModule : Module<ICharacter>
 		}
 
 		var message = ss.RemainingArgument;
-		if (message.Length > 350)
+		if (message.Length > actor.Gameworld.GetStaticInt("MaximumSayLength"))
 		{
-			actor.Send("That is far too much to sing at any one time. Keep it under 350 characters.");
+			actor.Send($"That is far too much to sing at any one time. Keep it under {actor.Gameworld.GetStaticInt("MaximumSayLength").ToString("N0", actor).ColourValue()} characters.");
 			return;
 		}
 
@@ -475,9 +489,9 @@ internal class CommunicationsModule : Module<ICharacter>
 		}
 
 		var message = ss.RemainingArgument;
-		if (message.Length > 350)
+		if (message.Length > actor.Gameworld.GetStaticInt("MaximumSayLength"))
 		{
-			actor.Send("That is far too much to say at any one time. Keep it under 350 characters.");
+			actor.Send($"That is far too much to say at any one time. Keep it under {actor.Gameworld.GetStaticInt("MaximumSayLength").ToString("N0", actor).ColourValue()} characters.");
 			return;
 		}
 
@@ -537,9 +551,9 @@ internal class CommunicationsModule : Module<ICharacter>
 		}
 
 		var message = ss.RemainingArgument;
-		if (message.Length > 350)
+		if (message.Length > actor.Gameworld.GetStaticInt("MaximumSayLength"))
 		{
-			actor.Send("That is far too much to say at any one time. Keep it under 350 characters.");
+			actor.Send($"That is far too much to say at any one time. Keep it under {actor.Gameworld.GetStaticInt("MaximumSayLength").ToString("N0", actor).ColourValue()} characters.");
 			return;
 		}
 
@@ -569,9 +583,9 @@ internal class CommunicationsModule : Module<ICharacter>
 		}
 
 		var message = ss.RemainingArgument;
-		if (message.Length > 350)
+		if (message.Length > actor.Gameworld.GetStaticInt("MaximumSayLength"))
 		{
-			actor.Send("That is far too much to say at any one time. Keep it under 350 characters.");
+			actor.Send($"That is far too much to say at any one time. Keep it under {actor.Gameworld.GetStaticInt("MaximumSayLength").ToString("N0", actor).ColourValue()} characters.");
 			return;
 		}
 
@@ -625,9 +639,9 @@ internal class CommunicationsModule : Module<ICharacter>
 		}
 
 		var message = ss.RemainingArgument;
-		if (message.Length > 350)
+		if (message.Length > actor.Gameworld.GetStaticInt("MaximumSayLength"))
 		{
-			actor.Send("That is far too much to say at any one time. Keep it under 350 characters.");
+			actor.Send($"That is far too much to say at any one time. Keep it under {actor.Gameworld.GetStaticInt("MaximumSayLength").ToString("N0", actor).ColourValue()} characters.");
 			return;
 		}
 
@@ -674,9 +688,9 @@ internal class CommunicationsModule : Module<ICharacter>
 		}
 
 		var message = ss.RemainingArgument;
-		if (message.Length > 350)
+		if (message.Length > actor.Gameworld.GetStaticInt("MaximumSayLength"))
 		{
-			actor.Send("That is far too much to say at any one time. Keep it under 350 characters.");
+			actor.Send($"That is far too much to say at any one time. Keep it under {actor.Gameworld.GetStaticInt("MaximumSayLength").ToString("N0", actor).ColourValue()} characters.");
 			return;
 		}
 
@@ -723,9 +737,9 @@ internal class CommunicationsModule : Module<ICharacter>
 		}
 
 		var message = ss.RemainingArgument;
-		if (message.Length > 350)
+		if (message.Length > actor.Gameworld.GetStaticInt("MaximumSayLength"))
 		{
-			actor.Send("That is far too much to say at any one time. Keep it under 350 characters.");
+			actor.Send($"That is far too much to say at any one time. Keep it under {actor.Gameworld.GetStaticInt("MaximumSayLength").ToString("N0", actor).ColourValue()} characters.");
 			return;
 		}
 
@@ -772,9 +786,9 @@ internal class CommunicationsModule : Module<ICharacter>
 		}
 
 		var message = ss.RemainingArgument;
-		if (message.Length > 350)
+		if (message.Length > actor.Gameworld.GetStaticInt("MaximumSayLength"))
 		{
-			actor.Send("That is far too much to say at any one time. Keep it under 350 characters.");
+			actor.Send($"That is far too much to say at any one time. Keep it under {actor.Gameworld.GetStaticInt("MaximumSayLength").ToString("N0", actor).ColourValue()} characters.");
 			return;
 		}
 

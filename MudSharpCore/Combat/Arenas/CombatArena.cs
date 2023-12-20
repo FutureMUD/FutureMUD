@@ -7,140 +7,231 @@ using MudSharp.Economy.Banking;
 using MudSharp.Economy.Currency;
 using MudSharp.Framework;
 using MudSharp.Framework.Save;
+using MudSharp.TimeAndDate;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+#nullable enable
+namespace MudSharp.Combat.Arenas;
 
-namespace MudSharp.Combat.Arenas
+internal class ArenaMatch : SaveableItem, IArenaMatch
 {
-	internal class CombatArena : SaveableItem, ICombatArena
+	public override void Save()
 	{
-		public override void Save()
-		{
-			// TODO on DB stuff
+		// TODO on DB stuff
 
-			Changed = false;
+		Changed = false;
+	}
+
+	public ArenaMatch(ICombatArena arena, IArenaMatchType type)
+	{
+		Gameworld = arena.Gameworld;
+		Arena = arena;
+		MatchType = type;
+		Stage = ArenaMatchStage.OpenForRegistration;
+		MatchStart = DateTime.UtcNow;
+		MatchStartMDT = Arena.EconomicZone.FinancialPeriodReferenceCalendar.CurrentDateTime;
+		CurrentIntervalEndTime = MatchStart + type.SignUpTime;
+		Gameworld.HeartbeatManager.FuzzyFiveSecondHeartbeat += HeartbeatManager_FuzzyFiveSecondHeartbeat;
+	}
+
+	private void HeartbeatManager_FuzzyFiveSecondHeartbeat()
+	{
+		throw new NotImplementedException();
+	}
+
+	public override string FrameworkItemType => "ArenaMatch";
+	public ICombatArena Arena { get; private set; }
+	public IArenaMatchType MatchType { get; private set; }
+	public ArenaMatchStage Stage { get; private set; }
+	public DateTime MatchStart { get; private set; }
+	public MudDateTime MatchStartMDT { get; private set; }
+	private readonly CollectionDictionary<int, IArenaCombatantProfile> _combatants = new();
+	public IEnumerable<IArenaCombatantProfile> CombatantsTeam1 => _combatants[1];
+	public IEnumerable<IArenaCombatantProfile> CombatantsTeam2 => _combatants[2];
+	public IEnumerable<IArenaCombatantProfile> CombatantsTeam3 => _combatants[3];
+	public IEnumerable<IArenaCombatantProfile> CombatantsTeam4 => _combatants[4];
+
+	private readonly List<IArenaMatchBet> _bets = new();
+	public IEnumerable<IArenaMatchBet> Bets => _bets;
+	public int CurrentRound { get; private set; }
+	public DateTime? CurrentRoundEndTime { get; private set; }
+	public DateTime? CurrentIntervalEndTime { get; private set; }
+}
+
+internal class CombatArena : SaveableItem, ICombatArena
+{
+	public override void Save()
+	{
+		// TODO on DB stuff
+
+		Changed = false;
+	}
+
+	public override string FrameworkItemType => "CombatArena";
+
+	private readonly List<ICell> _arenaCells = new();
+	public IEnumerable<ICell> ArenaCells => _arenaCells;
+
+	private readonly List<ICell> _stagingCells = new();
+	public IEnumerable<ICell> StagingCells => _stagingCells;
+
+	private readonly List<ICell> _stableCells = new();
+	public IEnumerable<ICell> StableCells => _stableCells;
+
+	private readonly List<ICell> _spectatorCells = new();
+	public IEnumerable<ICell> SpectatorCells => _spectatorCells;
+
+	private readonly List<IArenaCombatantType> _arenaCombatantTypes = new();
+	public IEnumerable<IArenaCombatantType> ArenaCombatantTypes => _arenaCombatantTypes;
+
+	private readonly List<IArenaMatchType> _arenaMatchTypes = new();
+	public IEnumerable<IArenaMatchType> ArenaMatchTypes => _arenaMatchTypes;
+
+	private readonly List<IArenaCombatantProfile> _arenaCombatantProfiles = new();
+	public IEnumerable<IArenaCombatantProfile> ArenaCombatantProfiles => _arenaCombatantProfiles;
+
+	private readonly List<IArenaMatchBet> _arenaMatchBets = new();
+	
+	public IEnumerable<IArenaMatchBet> ArenaMatchBets => _arenaMatchBets;
+
+	private readonly List<IArenaMatch> _arenaMatches = new();
+	public IEnumerable<IArenaMatch> ArenaMatches => _arenaMatches;
+
+	private IArenaMatch? _activeMatch;
+	public IArenaMatch? ActiveMatch => _activeMatch;
+	public IEconomicZone EconomicZone { get; private set; }
+	public ICurrency Currency => EconomicZone.Currency;
+	public decimal CashBalance { get; private set; }
+	public IBankAccount? BankAccount { get; private set; }
+	public DateTime? LastArenaMatch { get; private set; }
+	public TimeSpan TimeBetweenMatches { get; private set; }
+
+	private readonly HashSet<long> _managerIDs = new();
+	public bool IsManager(ICharacter actor)
+	{
+		return _managerIDs.Contains(actor.Id);
+	}
+
+	public void FiveSecondTick()
+	{
+		// Is a match in progress?
+		if (_activeMatch is not null)
+		{
+			FiveSecondTickActiveMatch();
+			return;
 		}
 
-		public override string FrameworkItemType => "CombatArena";
-
-		private readonly List<ICell> _arenaCells = new();
-		public IEnumerable<ICell> ArenaCells => _arenaCells;
-
-		private readonly List<ICell> _stagingCells = new();
-		public IEnumerable<ICell> StagingCells => _stagingCells;
-
-		private readonly List<ICell> _stableCells = new();
-		public IEnumerable<ICell> StableCells => _stableCells;
-
-		private readonly List<ICell> _spectatorCells = new();
-		public IEnumerable<ICell> SpectatorCells => _spectatorCells;
-
-		private readonly List<IArenaCombatantType> _arenaCombatantTypes = new();
-		public IEnumerable<IArenaCombatantType> ArenaCombatantTypes => _arenaCombatantTypes;
-
-		private readonly List<IArenaMatchType> _arenaMatchTypes = new();
-		public IEnumerable<IArenaMatchType> ArenaMatchTypes => _arenaMatchTypes;
-
-		private readonly List<IArenaCombatantProfile> _arenaCombatantProfiles = new();
-		public IEnumerable<IArenaCombatantProfile> ArenaCombatantProfiles => _arenaCombatantProfiles;
-
-		private readonly List<IArenaMatchBet> _arenaMatchBets = new();
-
-		private readonly List<IArenaMatch> _arenaMatches = new();
-
-		private IArenaMatch? _activeMatch;
-
-		public ICurrency? Currency { get; private set; }
-		public decimal CashBalance { get; private set; }
-		public IBankAccount? BankAccount { get; private set; }
-
-		private readonly HashSet<long> _managerIDs = new();
-		public bool IsManager(ICharacter actor)
+		// Should we start a match?
+		if (
+				LastArenaMatch is null ||
+				(DateTime.UtcNow - LastArenaMatch.Value) >= TimeBetweenMatches
+			)
 		{
-			return _managerIDs.Contains(actor.Id);
+			CheckForMatchStart();
+			return;
+		}
+	}
+
+	private void CheckForMatchStart()
+	{
+		var eligibleTypes = ArenaMatchTypes.Where(x => x.MatchCanBeginProg.ExecuteBool()).ToList();
+		if (!eligibleTypes.Any())
+		{
+			return;
 		}
 
-
-
-		#region Building
-		public const string BuildingHelp = @"";
-
-		public bool BuildingCommand(ICharacter actor, StringStack command)
+		var matchType = eligibleTypes.GetWeightedRandom(x => x.RelativePriorityForMatchType);
+		if (matchType is null)
 		{
-			switch (command.PopSpeech().ToLowerInvariant().CollapseString()) {
-				case "name":
-					return BuildingCommandName(actor, command);
-				case "bank":
-				case "bankaccount":
-				case "account":
-					return BuildingCommandBankAccount(actor, command);
-			}
+			return;
+		}
 
-			actor.OutputHandler.Send(BuildingHelp.SubstituteANSIColour());
+		// Create new match
+	}
+
+	private void FiveSecondTickActiveMatch()
+	{
+		throw new NotImplementedException();
+	}
+
+	#region Building
+	public const string BuildingHelp = @"";
+
+	public bool BuildingCommand(ICharacter actor, StringStack command)
+	{
+		switch (command.PopSpeech().ToLowerInvariant().CollapseString()) {
+			case "name":
+				return BuildingCommandName(actor, command);
+			case "bank":
+			case "bankaccount":
+			case "account":
+				return BuildingCommandBankAccount(actor, command);
+		}
+
+		actor.OutputHandler.Send(BuildingHelp.SubstituteANSIColour());
+		return false;
+	}
+
+	private bool BuildingCommandBankAccount(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send(
+				$"You must either specify a bank account or use {"none".ColourCommand()} to remove a bank account.");
 			return false;
 		}
 
-		private bool BuildingCommandBankAccount(ICharacter actor, StringStack command)
+		if (command.PeekSpeech().EqualToAny("none", "remove", "delete", "clear"))
 		{
-			if (command.IsFinished)
-			{
-				actor.OutputHandler.Send(
-					$"You must either specify a bank account or use {"none".ColourCommand()} to remove a bank account.");
-				return false;
-			}
-
-			if (command.PeekSpeech().EqualToAny("none", "remove", "delete", "clear"))
-			{
-				BankAccount = null;
-				Changed = true;
-				actor.OutputHandler.Send("This combat arena will no longer use any bank account to back its transactions.");
-				return true;
-			}
-
-			var (account, error) = Bank.FindBankAccount(command.SafeRemainingArgument, null, actor);
-			if (account is null)
-			{
-				actor.OutputHandler.Send(error);
-				return false;
-			}
-
-			BankAccount = account;
+			BankAccount = null;
 			Changed = true;
-			actor.OutputHandler.Send(
-				$"This combat arena will now use the bank account {account.AccountReference.ColourName()} to back its financial transactions.");
+			actor.OutputHandler.Send("This combat arena will no longer use any bank account to back its transactions.");
 			return true;
 		}
 
-		private bool BuildingCommandName(ICharacter actor, StringStack command)
+		var (account, error) = Bank.FindBankAccount(command.SafeRemainingArgument, null, actor);
+		if (account is null)
 		{
-			if (command.IsFinished)
-			{
-				actor.OutputHandler.Send("What do you want to rename this arena to?");
-				return false;
-			}
-
-			var name = command.SafeRemainingArgument.TitleCase();
-			if (Gameworld.CombatArenas.Any(x => x.Name.EqualTo(name)))
-			{
-				actor.OutputHandler.Send("There is already a combat arena with that name. Names must be unique.");
-				return false;
-			}
-
-			actor.OutputHandler.Send($"You rename the combat arena {Name.ColourName()} to {name.ColourName()}.");
-			_name = name;
-			Changed = true;
-			return true;
+			actor.OutputHandler.Send(error);
+			return false;
 		}
 
-		public string Show(ICharacter actor)
-		{
-			var sb = new StringBuilder();
-			sb.AppendLine($"Combat Arena #{Id.ToString("N0", actor)} - {Name}".GetLineWithTitle(actor, Telnet.BoldRed, Telnet.BoldWhite));
-			return sb.ToString();
-		}
-		#endregion
+		BankAccount = account;
+		Changed = true;
+		actor.OutputHandler.Send(
+			$"This combat arena will now use the bank account {account.AccountReference.ColourName()} to back its financial transactions.");
+		return true;
 	}
+
+	private bool BuildingCommandName(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("What do you want to rename this arena to?");
+			return false;
+		}
+
+		var name = command.SafeRemainingArgument.TitleCase();
+		if (Gameworld.CombatArenas.Any(x => x.Name.EqualTo(name)))
+		{
+			actor.OutputHandler.Send("There is already a combat arena with that name. Names must be unique.");
+			return false;
+		}
+
+		actor.OutputHandler.Send($"You rename the combat arena {Name.ColourName()} to {name.ColourName()}.");
+		_name = name;
+		Changed = true;
+		return true;
+	}
+
+	public string Show(ICharacter actor)
+	{
+		var sb = new StringBuilder();
+		sb.AppendLine($"Combat Arena #{Id.ToString("N0", actor)} - {Name}".GetLineWithTitle(actor, Telnet.BoldRed, Telnet.BoldWhite));
+		return sb.ToString();
+	}
+	#endregion
 }

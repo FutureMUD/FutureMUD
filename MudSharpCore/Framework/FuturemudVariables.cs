@@ -130,6 +130,7 @@ public sealed partial class Futuremud : IDisposable
 	private readonly All<IWeatherEvent> _weatherEvents = new();
 	private readonly All<IClock> _clocks = new();
 	private readonly All<IColour> _colours = new();
+	private readonly All<ICombatArena> _combatArenas = new();
 	private readonly All<ICharacterCombatSettings> _characterCombatSettings = new();
 	private readonly All<ICorpseModel> _corpseModels = new();
 	private readonly RevisableAll<ICraft> _crafts = new();
@@ -334,7 +335,7 @@ public sealed partial class Futuremud : IDisposable
 	public IUneditableAll<IClan> Clans => _clans;
 
 	public IUneditableAll<IClimateModel> ClimateModels => _climateModels;
-
+	public IUneditableAll<ICombatArena> CombatArenas => _combatArenas;
 	public IUneditableRevisableAll<IDisfigurementTemplate> DisfigurementTemplates => _disfigurementTemplates;
 
 	public IUneditableAll<IElection> Elections => _elections;

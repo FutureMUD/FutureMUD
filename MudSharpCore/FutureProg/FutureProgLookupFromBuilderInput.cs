@@ -36,6 +36,10 @@ internal class FutureProgLookupFromBuilderInput
 		Character = character;
 	}
 
+	/// <summary>
+	/// This function will search for the prog based on the supplied criteria and echo to the admin any reason for failure.
+	/// </summary>
+	/// <returns>A matching prog, or null if none is found</returns>
 	public IFutureProg? LookupProg()
 	{
 		var prog = Gameworld.FutureProgs.GetByIdOrName(BuilderInput);

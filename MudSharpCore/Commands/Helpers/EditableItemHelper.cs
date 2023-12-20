@@ -2310,55 +2310,52 @@ The core syntax is as follows:
 		EditableNewAction = (actor, input) =>
 		{
 			actor.OutputHandler.Send("Creating new artificial intelligences is not currently supported.");
-			//var capability = MagicCapabilityFactory.LoaderFromBuilderInput(actor.Gameworld, actor, input);
-			//if (capability is null)
-			//{
-			//	return;
-			//}
+			var newItem = ArtificialIntelligenceBase.LoadFromBuilderInput(actor, input);
+			if (newItem is null)
+			{
+				return;
+			}
 
-			//actor.Gameworld.Add(capability);
-			//actor.RemoveAllEffects<BuilderEditingEffect<IMagicCapability>>();
-			//actor.AddEffect(new BuilderEditingEffect<IMagicCapability>(actor) { EditingItem = capability });
-			//actor.OutputHandler.Send($"You create a new magic capability called {capability.Name.ColourName()}, which you are now editing.");
+			actor.Gameworld.Add(newItem);
+			actor.RemoveAllEffects<BuilderEditingEffect<IArtificialIntelligence>>();
+			actor.AddEffect(new BuilderEditingEffect<IArtificialIntelligence>(actor) { EditingItem = newItem });
+			actor.OutputHandler.Send($"You create a new artificial intelligence of type {newItem.AIType.ColourCommand()} called {newItem.Name.ColourName()} with ID #{newItem.Id.ToString("N0", actor).ColourValue()}, which you are now editing.");
 		},
 		EditableCloneAction = (actor, input) =>
 		{
-			actor.OutputHandler.Send("Cloning artificial intelligences is not currently supported.");
-			return;
+			if (input.IsFinished)
+			{
+				actor.OutputHandler.Send("Which AI do you want to clone?");
+				return;
+			}
 
-			//if (input.IsFinished)
-			//{
-			//	actor.OutputHandler.Send("Which magic capability do you want to clone?");
-			//	return;
-			//}
+			var ai = actor.Gameworld.AIs.GetByIdOrName(input.PopSpeech());
+			if (ai == null)
+			{
+				actor.OutputHandler.Send("There is no such AI.");
+				return;
+			}
 
-			//var capability = actor.Gameworld.MagicCapabilities.GetByIdOrName(input.PopSpeech());
-			//if (capability == null)
-			//{
-			//	actor.OutputHandler.Send("There is no such magic capability.");
-			//	return;
-			//}
+			if (input.IsFinished)
+			{
+				actor.OutputHandler.Send("You must specify a name for your new cloned AI.");
+				return;
+			}
 
-			//if (input.IsFinished)
-			//{
-			//	actor.OutputHandler.Send("You must specify a name for your new cloned magic capability.");
-			//	return;
-			//}
+			var name = input.SafeRemainingArgument.TitleCase();
+			if (actor.Gameworld.AIs.Any(x => x.Name.EqualTo(name)))
+			{
+				actor.OutputHandler.Send(
+					$"There is already an AI with that name. Names must be unique.");
+				return;
+			}
 
-			//var name = input.SafeRemainingArgument.TitleCase();
-			//if (actor.Gameworld.MagicCapabilities.Any(x => x.Name.EqualTo(name)))
-			//{
-			//	actor.OutputHandler.Send(
-			//		$"There is already a magic capability with that name. Names must be unique.");
-			//	return;
-			//}
-
-			//var newCapability = capability.Clone(name);
-
-			//actor.Gameworld.Add(newCapability);
-			//actor.RemoveAllEffects<BuilderEditingEffect<IMagicCapability>>();
-			//actor.AddEffect(new BuilderEditingEffect<IMagicCapability>(actor) { EditingItem = newCapability });
-			//actor.OutputHandler.Send($"You create a new magic capability called {newCapability.Name.ColourName()} as a clone of {capability.Name.ColourName()}, which you are now editing.");
+			var newAI = ai.Clone(name);
+			actor.Gameworld.Add(newAI);
+			actor.RemoveAllEffects<BuilderEditingEffect<IArtificialIntelligence>>();
+			actor.AddEffect(new BuilderEditingEffect<IArtificialIntelligence>(actor) { EditingItem = newAI });
+			actor.OutputHandler.Send(
+				$"You clone the AI {ai.Name.ColourName()} into a new AI called {newAI.Name.ColourName()} with ID #{newAI.Id.ToString("N0", actor).ColourValue()}, which you are now editing.");
 		},
 
 		GetListTableHeaderFunc = character => new List<string>
@@ -2384,27 +2381,7 @@ The core syntax is as follows:
 
 		CustomSearch = (protos, keyword, gameworld) => protos,
 
-		DefaultCommandHelp = @"This command is used to work with and edit artificial intelligences.
-
-The core syntax is as follows:
-
-    #3ai list - shows all AIs
-    #3ai edit new <type> <name> <shortname>#0 - creates a new AI
-    #3ai clone <old> <new>#0 - clones an existing AI
-    #3ai edit <which>#0 - begins editing a AI
-    #3ai close#0 - closes an editing AI
-    #3ai show <which>#0 - shows builder information about a resource
-    #3ai show#0 - shows builder information about the currently edited resource
-    #3ai edit#0 - an alias for AI show (with no args)
-    #3ai set ...#0 - edits the properties of a AI. See #3AI set ?#0 for more info.
-	#3ai add <npc>#0 - adds an AI routine to an NPC in the gameworld
-	#3ai remove <npc>#0 - removes an AI routine from an NPC in the gameworld
-	#3ai instances <which>#0 - shows all NPCs who have the AI in question running
-
-The following options are available as filters with the #3list#0 subcommand:
-
-	#6+<keyword>#0 - only show AIs with the keyword in the name
-	#6-<keyword>#0 - only show AIs without the keyword in the name",
+		DefaultCommandHelp = NPCBuilderModule.AIHelp,
 
 		GetEditHeader = item => $"Artificial Intelligence #{item.Id:N0} ({item.Name})"
 	};

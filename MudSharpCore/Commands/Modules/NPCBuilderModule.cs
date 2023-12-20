@@ -868,8 +868,32 @@ The following options are available:
 		#endregion
 
 		#region AI
+
+		public const string AIHelp = @"This command is used to work with and edit artificial intelligences.
+
+The core syntax is as follows:
+
+    #3ai list#0 - shows all AIs
+    #3ai edit new <type> <name>#0 - creates a new AI
+    #3ai clone <old> <new>#0 - clones an existing AI
+    #3ai edit <which>#0 - begins editing a AI
+    #3ai close#0 - closes an editing AI
+    #3ai show <which>#0 - shows builder information about a resource
+    #3ai show#0 - shows builder information about the currently edited resource
+    #3ai edit#0 - an alias for AI show (with no args)
+    #3ai set ...#0 - edits the properties of a AI. See #3AI set ?#0 for more info.
+	#3ai add <ai> <npc>#0 - adds an AI routine to an NPC in the gameworld
+	#3ai remove <ai> <npc>#0 - removes an AI routine from an NPC in the gameworld
+	#3ai npclist <which>#0 - shows all NPCs who have the AI in question running
+
+The following options are available as filters with the #3list#0 subcommand:
+
+	#6+<keyword>#0 - only show AIs with the keyword in the name
+	#6-<keyword>#0 - only show AIs without the keyword in the name";
+
 		[PlayerCommand("AI", "ai")]
 		[CommandPermission(PermissionLevel.Admin)]
+		[HelpInfo("ai", AIHelp, AutoHelp.HelpArgOrNoArg)]
 		protected static void AI(ICharacter actor, string input)
 		{
 			var ss = new StringStack(input.RemoveFirstWord());
@@ -886,6 +910,7 @@ The following options are available:
 					AIRemove(actor, ss);
 					return;
 				case "npclist":
+				case "instances":
 					AINPCList(actor, ss);
 					return;
 			}
@@ -938,12 +963,96 @@ The following options are available:
 
 		private static void AIRemove(ICharacter actor, StringStack ss)
 		{
-			throw new NotImplementedException();
+			if (ss.IsFinished)
+			{
+				actor.OutputHandler.Send("Which AI did you want to remove from an NPC?");
+				return;
+			}
+
+			var ai = actor.Gameworld.AIs.GetByIdOrName(ss.PopSpeech());
+			if (ai is null)
+			{
+				actor.OutputHandler.Send("There is no such AI.");
+				return;
+			}
+
+			if (ss.IsFinished)
+			{
+				actor.OutputHandler.Send($"Which local NPC do you want to remove the {ai.Name.ColourName()} from?");
+				return;
+			}
+
+			var target = actor.TargetActor(ss.SafeRemainingArgument);
+			if (target is null)
+			{
+				actor.OutputHandler.Send("There is nobody like that here.");
+				return;
+			}
+
+			if (target is not INPC npc)
+			{
+				actor.OutputHandler.Send($"Unfortunately {target.HowSeen(actor)} is not an NPC, and only NPCs may have AI routines.");
+				return;
+			}
+
+			if (!npc.AIs.Contains(ai))
+			{
+				actor.OutputHandler.Send($"The NPC {target.HowSeen(actor)} does not have the {ai.Name.ColourName()} AI routine.");
+				return;
+			}
+
+			npc.RemoveAI(ai);
+			actor.OutputHandler.Send($"You remove the {ai.Name.ColourName()} AI from NPC {target.HowSeen(actor)}.");
 		}
 
 		private static void AIAdd(ICharacter actor, StringStack ss)
 		{
-			throw new NotImplementedException();
+			if (ss.IsFinished)
+			{
+				actor.OutputHandler.Send("Which AI did you want to add to an NPC?");
+				return;
+			}
+
+			var ai = actor.Gameworld.AIs.GetByIdOrName(ss.PopSpeech());
+			if (ai is null)
+			{
+				actor.OutputHandler.Send("There is no such AI.");
+				return;
+			}
+
+			if (!ai.IsReadyToBeUsed)
+			{
+				actor.OutputHandler.Send("That AI has building issues and is not ready to be used.");
+				return;
+			}
+
+			if (ss.IsFinished)
+			{
+				actor.OutputHandler.Send($"Which local NPC do you want to add the {ai.Name.ColourName()} to?");
+				return;
+			}
+
+			var target = actor.TargetActor(ss.SafeRemainingArgument);
+			if (target is null)
+			{
+				actor.OutputHandler.Send("There is nobody like that here.");
+				return;
+			}
+
+			if (target is not INPC npc)
+			{
+				actor.OutputHandler.Send($"Unfortunately {target.HowSeen(actor)} is not an NPC, and only NPCs may have AI routines.");
+				return;
+			}
+
+			if (npc.AIs.Contains(ai))
+			{
+				actor.OutputHandler.Send($"The NPC {target.HowSeen(actor)} already has the {ai.Name.ColourName()} AI routine.");
+				return;
+			}
+
+			npc.AddAI(ai);
+			actor.OutputHandler.Send($"You add the {ai.Name.ColourName()} AI to NPC {target.HowSeen(actor)}.");
 		}
 		#endregion
 	}

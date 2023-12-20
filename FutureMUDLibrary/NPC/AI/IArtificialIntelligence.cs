@@ -8,5 +8,8 @@ namespace MudSharp.NPC.AI {
 		string AIType { get; }
 		bool CountsAsAggressive { get; }
 		string RawXmlDefinition { get; }
+		IArtificialIntelligence Clone(string newName);
+
+		bool IsReadyToBeUsed { get; }
 	}
 }

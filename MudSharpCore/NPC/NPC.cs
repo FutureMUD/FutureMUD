@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.EntityFrameworkCore;
 using MudSharp.Accounts;
 using MudSharp.Character;
 using MudSharp.CharacterCreation;
@@ -9,6 +10,7 @@ using MudSharp.Effects.Interfaces;
 using MudSharp.Events;
 using MudSharp.Framework;
 using MudSharp.GameItems;
+using MudSharp.Models;
 using MudSharp.NPC.AI;
 using MudSharp.NPC.Templates;
 using MudSharp.PerceptionEngine.Handlers;
@@ -19,6 +21,21 @@ public class NPC : Character.Character, INPC
 {
 	private readonly List<IArtificialIntelligence> _AIs = new();
 	public IEnumerable<IArtificialIntelligence> AIs => _AIs;
+	private bool _aiChanged = false;
+
+	public bool AIChanged
+	{
+		get => _aiChanged;
+		set
+		{
+			_aiChanged = value;
+			if (value)
+			{
+				Changed = true;
+			}
+		}
+	}
+
 	private long _npcID;
 	private long? _bodyguardingCharacterId;
 
@@ -199,6 +216,19 @@ public class NPC : Character.Character, INPC
 		if (dbnpc != null)
 		{
 			dbnpc.BodyguardCharacterId = _bodyguardingCharacterId;
+			if (AIChanged)
+			{
+				FMDB.Context.NpcsArtificialIntelligences.RemoveRange(dbnpc.NpcsArtificialIntelligences);
+				foreach (var ai in _AIs)
+				{
+					dbnpc.NpcsArtificialIntelligences.Add(new NpcsArtificialIntelligences
+					{
+						Npc = dbnpc,
+						ArtificialIntelligenceId = ai.Id
+					});
+				}
+				_aiChanged = false;
+			}
 		}
 
 		base.Save();
@@ -214,5 +244,17 @@ public class NPC : Character.Character, INPC
 			_bodyguardingCharacterId = value;
 			Changed = true;
 		}
+	}
+
+	public void AddAI(IArtificialIntelligence ai)
+	{
+		_AIs.Add(ai);
+		AIChanged = true;
+	}
+
+	public void RemoveAI(IArtificialIntelligence ai)
+	{
+		_AIs.Remove(ai);
+		AIChanged = true;
 	}
 }

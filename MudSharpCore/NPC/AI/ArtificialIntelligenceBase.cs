@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using JetBrains.Annotations;
 using MudSharp.Models;
 using MudSharp.Character;
 using MudSharp.Events;
@@ -18,6 +19,14 @@ public abstract class ArtificialIntelligenceBase : SaveableItem, IArtificialInte
 	private static readonly Dictionary<string, Func<ArtificialIntelligence, IFuturemud, IArtificialIntelligence>>
 		_AITypeLoaders = new();
 
+	private static readonly Dictionary<string, Func<IFuturemud, string, IArtificialIntelligence>> _aiBuilderLoaders =
+		new(StringComparer.InvariantCultureIgnoreCase);
+
+	private static readonly Dictionary<string, string> _aiBuilderTypeHelps =
+		new(StringComparer.InvariantCultureIgnoreCase);
+
+	public virtual bool IsReadyToBeUsed => true;
+
 	protected ArtificialIntelligenceBase(ArtificialIntelligence ai, IFuturemud gameworld)
 	{
 		Gameworld = gameworld;
@@ -25,6 +34,30 @@ public abstract class ArtificialIntelligenceBase : SaveableItem, IArtificialInte
 		_name = ai.Name;
 		AIType = ai.Type;
 		RawXmlDefinition = ai.Definition;
+	}
+
+	protected ArtificialIntelligenceBase(IFuturemud gameworld, string name, string type)
+	{
+		Gameworld = gameworld;
+		_name = name;
+		AIType = type;
+	}
+
+	public IArtificialIntelligence Clone(string newName)
+	{
+		using (new FMDB())
+		{
+			var dbnew = new ArtificialIntelligence
+			{
+				Name = newName,
+				Type = AIType,
+				Definition = SaveToXml()
+			};
+			FMDB.Context.ArtificialIntelligences.Add(dbnew);
+			FMDB.Context.SaveChanges();
+
+			return LoadIntelligence(dbnew, Gameworld);
+		}
 	}
 
 	public string RawXmlDefinition { get; protected set; }
@@ -45,11 +78,49 @@ public abstract class ArtificialIntelligenceBase : SaveableItem, IArtificialInte
 		_AITypeLoaders.Add(type, func);
 	}
 
+	protected static void RegisterAIBuilderInformation(string type,
+		Func<IFuturemud, string, IArtificialIntelligence> loader, string help)
+	{
+		_aiBuilderLoaders.Add(type, loader);
+		_aiBuilderTypeHelps.Add(type, help);
+	}
+
 	public static IArtificialIntelligence LoadIntelligence(ArtificialIntelligence ai, IFuturemud gameworld)
 	{
 		return _AITypeLoaders[ai.Type](ai, gameworld);
 	}
+#nullable enable
+	public static IArtificialIntelligence? LoadFromBuilderInput(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send($"Which type of AI did you want to create? The valid types are:\n\n{_aiBuilderLoaders.Keys.Select(x => x.ColourName()).ListToLines(true)}");
+			return null;
+		}
 
+		var type = command.PopSpeech();
+		if (!_aiBuilderLoaders.ContainsKey(type))
+		{
+			actor.OutputHandler.Send($"That is not a valid AI type. The valid types are:\n\n{_aiBuilderLoaders.Keys.Select(x => x.ColourName()).ListToLines(true)}");
+			return null;
+		}
+
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("What name do you want to give to the new AI?");
+			return null;
+		}
+
+		var name = command.PopSpeech().TitleCase();
+		if (actor.Gameworld.AIs.Any(x => x.Name.EqualTo(name)))
+		{
+			actor.OutputHandler.Send($"There is already an AI with the name {name.ColourName()}. Names must be unique.");
+			return null;
+		}
+
+		return _aiBuilderLoaders[type](actor.Gameworld, name);
+	}
+#nullable restore
 	public static void SetupAI()
 	{
 		foreach (

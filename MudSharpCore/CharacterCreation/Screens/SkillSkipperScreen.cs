@@ -149,8 +149,7 @@ public class SkillSkipperScreenStoryboard : ChargenScreenStoryboard
 			Chargen.SelectedSkills.Clear();
 			Chargen.SelectedSkillBoostCosts.Clear();
 			Chargen.SelectedSkillBoosts.Clear();
-			var freeSkills =
-				((IList<IFutureProgVariable>)storyboard.FreeSkillsProg.Execute(chargen)).Cast<ITraitDefinition>();
+			var freeSkills = storyboard.FreeSkillsProg?.ExecuteCollection<ITraitDefinition>(chargen) ?? new List<ITraitDefinition>();
 			Chargen.SelectedSkills.AddRange(freeSkills);
 			State = ChargenScreenState.Complete;
 		}

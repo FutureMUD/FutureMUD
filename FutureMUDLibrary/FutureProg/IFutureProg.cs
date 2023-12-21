@@ -84,6 +84,9 @@ namespace MudSharp.FutureProg {
 		long ExecuteLong(long defaultIfNull, params object[] variables);
 		bool ExecuteBool(params object[] variables);
 		bool ExecuteBool(bool defaultIfNull, params object[] variables);
+		IEnumerable<T> ExecuteCollection<T>(params object[] variables);
+		IReadOnlyDictionary<string, T> ExecuteDictionary<T>(params object[] variables);
+		IReadOnlyCollectionDictionary<string, T> ExecuteCollectionDictionary<T>(params object[] variables);
 
 		bool Compile();
 

@@ -49,7 +49,7 @@ internal class FutureProgLookupFromBuilderInput
 			return null;
 		}
 
-		if (!Character?.IsAdministrator() == false && !prog.Public)
+		if (Character?.IsAdministrator() == false && !prog.Public)
 		{
 			Character?.OutputHandler.Send($"There is no such prog identified by {BuilderInput.ColourCommand()}.");
 			return null;

@@ -182,8 +182,7 @@ internal class SkillBoostSkipperScreenStoryboard : ChargenScreenStoryboard
 			Chargen.SelectedSkills.Clear();
 			Chargen.SelectedSkillBoostCosts.Clear();
 			Chargen.SelectedSkillBoosts.Clear();
-			var freeSkills =
-				((IList<IFutureProgVariable>)storyboard.FreeSkillsProg.Execute(chargen)).Cast<ITraitDefinition>();
+			var freeSkills = storyboard.FreeSkillsProg?.ExecuteCollection<ITraitDefinition>(chargen) ?? new List<ITraitDefinition>();
 			Chargen.SelectedSkills.AddRange(freeSkills);
 			SelectedBoosts = new Dictionary<ITraitDefinition, int>();
 			SelectedBoostCosts = new Dictionary<ITraitDefinition, int>();

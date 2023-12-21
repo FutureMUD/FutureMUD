@@ -150,8 +150,7 @@ public class SkillPickerScreenStoryboard : ChargenScreenStoryboard
 		{
 			Storyboard = storyboard;
 			Chargen.SelectedSkills.Clear();
-			FreeSkills =
-				((IList<IFutureProgVariable>)Storyboard.FreeSkillsProg.Execute(chargen)).Cast<ITraitDefinition>();
+			FreeSkills = storyboard.FreeSkillsProg?.ExecuteCollection<ITraitDefinition>(chargen) ?? new List<ITraitDefinition>();
 			Chargen.SelectedSkills.AddRange(FreeSkills);
 			SetCurrentSelectables();
 			LastCurrentSelectables = CurrentSelectables;

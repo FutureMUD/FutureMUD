@@ -291,6 +291,91 @@ public class FutureProg : SaveableItem, IFutureProg
 		return (T)Execute(variables);
 	}
 
+	public IReadOnlyCollectionDictionary<string, T> ExecuteCollectionDictionary<T>(params object[] variables)
+	{
+		if (ReturnType.HasFlag(FutureProgVariableTypes.CollectionDictionary))
+		{
+			var result = Execute(variables) as CollectionDictionary<string, IFutureProgVariable>;
+			if (result is null)
+			{
+				return new CollectionDictionary<string, T>().AsReadOnlyCollectionDictionary();
+			}
+
+			var dictionary = new CollectionDictionary<string, T>();
+			foreach (var (key, value) in result)
+			{
+				dictionary.AddRange(value.OfType<T>().Select(x => (key, x)));
+			}
+			return dictionary.AsReadOnlyCollectionDictionary();
+		}
+
+		return new CollectionDictionary<string, T>().AsReadOnlyCollectionDictionary();
+	}
+
+	public IReadOnlyDictionary<string, T> ExecuteDictionary<T>(params object[] variables)
+	{
+		if (ReturnType.HasFlag(FutureProgVariableTypes.Dictionary))
+		{
+			var result = Execute(variables) as Dictionary<string, IFutureProgVariable>;
+			if (result is null)
+			{
+				return new Dictionary<string, T>();
+			}
+
+			var dictionary = new Dictionary<string, T>();
+			foreach (var (key, value) in result)
+			{
+				if (value is not T tvalue)
+				{
+					continue;
+				}
+
+				dictionary[key] = tvalue;
+			}
+			return dictionary;
+		}
+
+		return new Dictionary<string, T>();
+	}
+
+	public IEnumerable<T> ExecuteCollection<T>(params object[] variables)
+	{
+		if (ReturnType.HasFlag(FutureProgVariableTypes.Collection))
+		{
+			var result = Execute(variables) as IList;
+			if (result is null)
+			{
+				return Enumerable.Empty<T>();
+			}
+
+			return result.OfType<T>();
+		}
+
+		if (ReturnType.HasFlag(FutureProgVariableTypes.CollectionDictionary))
+		{
+			var result = Execute(variables) as CollectionDictionary<string, IFutureProgVariable>;
+			if (result is null)
+			{
+				return Enumerable.Empty<T>();
+			}
+
+			return result.SelectMany(x => x.Value).OfType<T>();
+		}
+
+		if (ReturnType.HasFlag(FutureProgVariableTypes.Dictionary))
+		{
+			var result = Execute(variables) as Dictionary<string, IFutureProgVariable>;
+			if (result is null)
+			{
+				return Enumerable.Empty<T>();
+			}
+
+			return result.Values.OfType<T>();
+		}
+
+		return Enumerable.Empty<T>();
+	}
+
 	public double ExecuteDouble(params object[] variables)
 	{
 		if (ReturnType != FutureProgVariableTypes.Number)

@@ -203,8 +203,7 @@ public class SkillCostPickerScreenStoryboard : ChargenScreenStoryboard
 
 	public override IEnumerable<(IChargenResource Resource, int Cost)> ChargenCosts(IChargen chargen)
 	{
-		var freeSkills = ((IList<IFutureProgVariable>)FreeSkillsProg.Execute(chargen)).Cast<ITraitDefinition>()
-			.ToList();
+		var freeSkills = FreeSkillsProg?.ExecuteCollection<ITraitDefinition>(chargen) ?? new List<ITraitDefinition>();
 		var nonFreeSkills = chargen.SelectedSkills.Except(freeSkills).ToList();
 		foreach (var resource in Gameworld.ChargenResources)
 		{

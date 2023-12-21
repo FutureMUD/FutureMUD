@@ -78,9 +78,11 @@ public class FutureProg : SaveableItem, IFutureProg
 
 	private string _functionText;
 
-	public FutureProg(string functionName, FutureProgVariableTypes returnType,
+	public FutureProg(IFuturemud gameworld, string functionName, FutureProgVariableTypes returnType,
 		IEnumerable<Tuple<FutureProgVariableTypes, string>> parameters, string text)
 	{
+		Gameworld = gameworld;
+		_noSave = true;
 		FunctionName = functionName;
 		_name = functionName;
 		ReturnType = returnType;

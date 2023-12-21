@@ -135,4 +135,13 @@ namespace MudSharp_Unit_Tests {
             return mock.Object;
         }
     }
+
+    public class GameworldStub
+    {
+	    public IFuturemud ToMock()
+	    {
+		    var mock = new Mock<IFuturemud>();
+            return mock.Object;
+	    }
+    }
 }

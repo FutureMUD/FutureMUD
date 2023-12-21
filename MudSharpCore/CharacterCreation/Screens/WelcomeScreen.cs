@@ -171,7 +171,7 @@ internal class WelcomeScreenStoryboard : ChargenScreenStoryboard
 	{
 		if (command.IsFinished)
 		{
-			actor.OutputHandler.Send("You must either #3add#0, #3edit#0, #3reorder#0 or #3remove#0 a blurb.");
+			actor.OutputHandler.Send("You must either #3add#0, #3edit#0, #3reorder#0 or #3remove#0 a blurb.".SubstituteANSIColour());
 			return false;
 		}
 
@@ -193,7 +193,7 @@ internal class WelcomeScreenStoryboard : ChargenScreenStoryboard
 			case "del":
 				return BuildingCommandBlurbRemove(actor, command);
 			default:
-				actor.OutputHandler.Send("You must either #3add#0, #3edit#0, #3reorder#0 or #3remove#0 a blurb.");
+				actor.OutputHandler.Send("You must either #3add#0, #3edit#0, #3reorder#0 or #3remove#0 a blurb.".SubstituteANSIColour());
 				return false;
 		}
 	}

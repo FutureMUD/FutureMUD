@@ -278,7 +278,7 @@ internal class WelcomeScreenStoryboard : ChargenScreenStoryboard
 	private void PostEditBlurb(string text, IOutputHandler handler, object[] args)
 	{
 		var index = (int)args[1];
-		if (_blurbs.Count >= index)
+		if (_blurbs.Count <= index)
 		{
 			var ch = (ICharacter)args[2];
 			ch.AddEffect(new StoredEditorText(ch, text));

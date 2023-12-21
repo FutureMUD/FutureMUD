@@ -61,7 +61,7 @@ public class ClothingInsulationGameItemComponent : GameItemComponent, IInsulatin
 
 	protected override string SaveToXml()
 	{
-		return "</Definition>";
+		return "<Definition/>";
 	}
 
 	#endregion

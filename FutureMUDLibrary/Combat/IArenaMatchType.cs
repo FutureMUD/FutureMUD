@@ -16,11 +16,14 @@ public interface IArenaMatchType : IFrameworkItem, ISaveable, IEditableItem
 	IFutureProg? OddsProg { get; }
 	IFutureProg? OnMatchBeginsProg { get; }
 	IFutureProg? OnMatchEndsProg { get; }
+	IFutureProg MatchCanBeginProg { get; }
 	bool CombatantsCanSurrender { get; }
 	bool NPCsJoinBeforeRegistrationClosed { get; }
 	bool FillWithNPCsIfEmpty { get; }
 	int NumberOfRounds { get; }
 	TimeSpan RoundTime { get; }
-	TimeSpan IntervalTime { get; }
+	TimeSpan SignUpTime { get; }
+	TimeSpan PrepareTime { get; }
 	ArenaMatchWinType WinType { get; }
+	double RelativePriorityForMatchType { get; }
 }

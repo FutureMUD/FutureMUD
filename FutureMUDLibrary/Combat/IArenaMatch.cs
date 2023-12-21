@@ -12,12 +12,12 @@ public interface IArenaMatch : IFrameworkItem, ISaveable
 	ArenaMatchStage Stage { get; }
 	DateTime MatchStart { get; }
 	MudDateTime MatchStartMDT { get; }
-	IEnumerable<IArenaCombatantProfile> CombatantsTeam1 { get; }
-	IEnumerable<IArenaCombatantProfile> CombatantsTeam2 { get; }
-	IEnumerable<IArenaCombatantProfile> CombatantsTeam3 { get; }
-	IEnumerable<IArenaCombatantProfile> CombatantsTeam4 { get; }
+	IReadOnlyCollectionDictionary<int, IArenaCombatantProfile> CombatantsByTeam { get; }
 	IEnumerable<IArenaMatchBet> Bets { get; }
 	int CurrentRound { get; }
 	DateTime? CurrentRoundEndTime { get; }
 	DateTime? CurrentIntervalEndTime { get; }
+
+	void AddCombatant(IArenaCombatantProfile combatant, int team);
+	void WithdrawCombatant(IArenaCombatantProfile combatant);
 }

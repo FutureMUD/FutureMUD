@@ -24,6 +24,9 @@ internal class IfBlock : Statement
 
 	protected IEnumerable<IStatement> TrueBlock;
 
+	public override bool IsReturnOrContainsReturnOnAllBranches() => (TrueBlock.LastOrDefault()?.IsReturnOrContainsReturnOnAllBranches() ?? false) &&
+		(FalseBlock.LastOrDefault()?.IsReturnOrContainsReturnOnAllBranches() ?? false);
+
 	public IfBlock(IEnumerable<IStatement> trueBlock, IEnumerable<IStatement> falseBlock, IFunction logicFunction)
 	{
 		TrueBlock = trueBlock;

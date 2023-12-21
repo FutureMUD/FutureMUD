@@ -19,6 +19,8 @@ internal class WhileLoop : Statement
 	protected IEnumerable<IStatement> ContainedBlock;
 	protected IFunction WhileFunction;
 
+	public override bool IsReturnOrContainsReturnOnAllBranches() => ContainedBlock.LastOrDefault()?.IsReturnOrContainsReturnOnAllBranches() ?? false;
+
 	public WhileLoop(IFunction whileFunction, IEnumerable<IStatement> containedBlock)
 	{
 		WhileFunction = whileFunction;

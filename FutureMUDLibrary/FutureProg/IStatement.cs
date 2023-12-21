@@ -43,5 +43,7 @@
         /// <param name="variables">The variable space at the time of execution of the statement</param>
         /// <returns>A StatementResult indicating the result of the statement</returns>
         StatementResult Execute(IVariableSpace variables);
+
+        bool IsReturnOrContainsReturnOnAllBranches();
     }
 }

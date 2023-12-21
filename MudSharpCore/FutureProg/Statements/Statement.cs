@@ -7,4 +7,5 @@ internal abstract class Statement : IStatement
 	public abstract StatementResult Execute(IVariableSpace variables);
 
 	public virtual StatementResult ExpectedResult => StatementResult.Normal;
+	public virtual bool IsReturnOrContainsReturnOnAllBranches() => false;
 }

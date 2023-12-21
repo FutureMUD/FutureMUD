@@ -8,6 +8,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Xml.Linq;
+using MoreLinq.Extensions;
 using MudSharp.Accounts;
 using MudSharp.Character;
 using MudSharp.Character.Name;
@@ -264,6 +265,20 @@ public class FutureProg : SaveableItem, IFutureProg
 
 				compileResult = CompileNextStatement(compileResult.RemainingLines, compileResult.VariableSpace,
 					compileResult.EndingLineNumber + 1, Gameworld);
+			}
+
+			// Check for a final return statement if there is one
+			if (ReturnType != FutureProgVariableTypes.Void)
+			{
+				if (!_statements.Any() ||
+					!_statements.Last().IsReturnOrContainsReturnOnAllBranches()
+				)
+				{
+
+					CompileError = "The prog did not end with a return statement, despite having a return type";
+					_statements.Clear();
+					return false;
+				}
 			}
 
 			sw.Stop();

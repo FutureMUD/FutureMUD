@@ -22,6 +22,8 @@ internal class ForLoop : Statement
 	
 	protected IFunction RepetitionsFunction;
 
+	public override bool IsReturnOrContainsReturnOnAllBranches() => ContainedBlock.LastOrDefault()?.IsReturnOrContainsReturnOnAllBranches() ?? false;
+
 	public ForLoop(IFunction repetitions, string loopvarname, IEnumerable<IStatement> containedBlock)
 	{
 		RepetitionsFunction = repetitions;

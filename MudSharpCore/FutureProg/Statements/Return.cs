@@ -25,6 +25,8 @@ internal class Return : Statement
 
 	public override StatementResult ExpectedResult => StatementResult.Return;
 
+	public override bool IsReturnOrContainsReturnOnAllBranches() => true;
+
 	private static ICompileInfo ReturnCompile(IEnumerable<string> lines,
 		IDictionary<string, FutureProgVariableTypes> variableSpace, int lineNumber, IFuturemud gameworld)
 	{

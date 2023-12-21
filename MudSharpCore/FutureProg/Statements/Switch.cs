@@ -26,6 +26,9 @@ internal class Switch : Statement
 	protected IEnumerable<IStatement> DefaultCase;
 	protected IFunction SwitchFunction;
 
+	public override bool IsReturnOrContainsReturnOnAllBranches() => Cases.All(x => x.Item2.LastOrDefault()?.IsReturnOrContainsReturnOnAllBranches() ?? false) &&
+	                                                                (DefaultCase.LastOrDefault()?.IsReturnOrContainsReturnOnAllBranches() ?? false);
+
 	public Switch(IFunction switchFunction, IEnumerable<IStatement> defaultCase,
 		List<Tuple<IFunction, IEnumerable<IStatement>>> cases)
 	{

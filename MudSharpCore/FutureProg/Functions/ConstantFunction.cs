@@ -21,4 +21,6 @@ internal class ConstantFunction : IFunction
 	{
 		return StatementResult.Normal;
 	}
+
+	public virtual bool IsReturnOrContainsReturnOnAllBranches() => false;
 }

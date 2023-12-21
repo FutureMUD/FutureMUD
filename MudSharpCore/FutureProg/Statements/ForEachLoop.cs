@@ -18,6 +18,8 @@ internal class ForEachLoop : Statement
 	protected IEnumerable<IStatement> ContainedBlock;
 	protected string VarName;
 
+	public override bool IsReturnOrContainsReturnOnAllBranches() => ContainedBlock.LastOrDefault()?.IsReturnOrContainsReturnOnAllBranches() ?? false;
+
 	public ForEachLoop(string varName, IFunction collectionFunction, IEnumerable<IStatement> containedStatements)
 	{
 		VarName = varName;

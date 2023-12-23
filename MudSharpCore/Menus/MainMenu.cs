@@ -344,7 +344,7 @@ public class MainMenu : Menu, IController
 		}
 
 		OutputHandler.Send(
-			string.Format(Futuremud.Games.First().GetStaticString("AccountCreationMessage")).SubstituteANSIColour()
+			string.Format(Futuremud.Games.First().GetStaticString("AccountCreationMessage"), Futuremud.Games.First().Name).SubstituteANSIColour()
 				.Wrap(80));
 
 		if (CheckAlreadyRegisteredIP())

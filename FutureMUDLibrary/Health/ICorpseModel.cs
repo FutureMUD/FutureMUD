@@ -7,7 +7,9 @@ using MudSharp.GameItems.Interfaces;
 
 namespace MudSharp.Health {
     public interface ICorpseModel : IFrameworkItem {
-        string Description { get; }
+	    bool CreateCorpse { get; }
+        bool RetainItems { get; }
+	    string Description { get; }
         string Describe(DescriptionType type, DecayState state, ICharacter originalCharacter, IPerceiver voyeur, double eatenPercentage);
 
         string DescribeSevered(DescriptionType type, DecayState state, ICharacter originalCharacter, IPerceiver voyeur,

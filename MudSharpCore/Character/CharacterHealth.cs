@@ -109,11 +109,17 @@ public partial class Character
 		combatTarget?.CheckCombatStatus();
 
 		// Set HealthModel to Dead
-		var corpse = CorpseGameItemComponentProto.CreateNewCorpse(this);
-		Corpse = corpse.GetItemType<ICorpse>();
-		Gameworld.Add(corpse);
-		corpse.RoomLayer = RoomLayer;
-		Location.Insert(corpse);
+		IGameItem corpse = null;
+		var corpseModel = Race.CorpseModel; // TODO - overriding this
+		if (corpseModel?.CreateCorpse == true)
+		{
+			corpse = CorpseGameItemComponentProto.CreateNewCorpse(this);
+			Corpse = corpse.GetItemType<ICorpse>();
+			Gameworld.Add(corpse);
+			corpse.RoomLayer = RoomLayer;
+			Location.Insert(corpse);
+		}
+
 		Location.Leave(this);
 
 		if (Controller != null)
@@ -139,8 +145,6 @@ public partial class Character
 			dbchar.NeedsModel = "NoNeeds";
 			NeedsModel = new NoNeedsModel();
 			FMDB.Context.SaveChanges();
-
-			// TODO - update statistics
 		}
 
 		Gameworld.Destroy(this);

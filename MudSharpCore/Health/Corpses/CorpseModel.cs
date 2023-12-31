@@ -29,6 +29,9 @@ public abstract class CorpseModel : FrameworkItem, ICorpseModel
 
 	public double EdiblePercentage { get; set; }
 
+	public virtual bool CreateCorpse => true;
+	public virtual bool RetainItems => true;
+
 	public string EatenShortDescription(double percentage)
 	{
 		if (percentage <= 0.005)

@@ -141,6 +141,12 @@ public abstract class TraitDefinition : SaveableItem, ITraitDefinition
 			case "group":
 				returnVar = FutureProgVariableTypes.Text;
 				break;
+			case "isskill":
+				returnVar = FutureProgVariableTypes.Boolean;
+				break;
+			case "isattribute":
+				returnVar = FutureProgVariableTypes.Boolean;
+				break;
 		}
 
 		return returnVar;
@@ -152,7 +158,9 @@ public abstract class TraitDefinition : SaveableItem, ITraitDefinition
 		{
 			{ "id", FutureProgVariableTypes.Number },
 			{ "name", FutureProgVariableTypes.Text },
-			{ "group", FutureProgVariableTypes.Text }
+			{ "group", FutureProgVariableTypes.Text },
+			{ "isskill", FutureProgVariableTypes.Boolean},
+			{ "isattribute", FutureProgVariableTypes.Boolean},
 		};
 	}
 
@@ -160,9 +168,11 @@ public abstract class TraitDefinition : SaveableItem, ITraitDefinition
 	{
 		return new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase)
 		{
-			{ "id", "" },
-			{ "name", "" },
-			{ "group", "" }
+			{ "id", "The ID of the trait" },
+			{ "name", "The name of the trait" },
+			{ "group", "The group the trait belongs to" },
+			{ "isskill", "True if this trait is for a skill"},
+			{ "isattribute", "True if this trait is for an attribute"},
 		};
 	}
 
@@ -185,6 +195,12 @@ public abstract class TraitDefinition : SaveableItem, ITraitDefinition
 				break;
 			case "group":
 				returnVar = new TextVariable(Group);
+				break;
+			case "isskill":
+				returnVar = new BooleanVariable(this is ISkillDefinition);
+				break;
+			case "isattribute":
+				returnVar = new BooleanVariable(this is IAttributeDefinition);
 				break;
 		}
 

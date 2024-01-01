@@ -165,6 +165,7 @@ public class GameItemProto : EditableItem, IGameItemProto
 			$"Weight: {Gameworld.UnitManager.DescribeMostSignificantExact(Weight, UnitType.Mass, actor).ColourValue()}");
 		sb.AppendLine(
 			$"Material: {(Material != null ? Material.Name.ColourValue() : "None".Colour(Telnet.Red))}");
+		sb.AppendLine($"Permit Player Skins: {PermitPlayerSkins.ToColouredString()}");
 
 		sb.AppendLine($"Base Quality: {BaseItemQuality.Describe().Colour(Telnet.Green)}");
 		sb.AppendLine($"Base Cost: {actor.Currency?.Describe(CostInBaseCurrency / actor.Currency.BaseCurrencyToGlobalBaseCurrencyConversion, CurrencyDescriptionPatternType.ShortDecimal).ColourValue() ?? CostInBaseCurrency.ToString("N", actor).ColourValue()}");
@@ -856,6 +857,10 @@ public class GameItemProto : EditableItem, IGameItemProto
 		var subCommand = command.Pop().ToLowerInvariant();
 		switch (subCommand)
 		{
+			case "skinnable":
+			case "canskin":
+			case "skin":
+				return BuildingCommandSkinnable(actor);
 			case "priority":
 				return BuildingCommandPriority(actor, command);
 			case "cost":
@@ -936,6 +941,7 @@ public class GameItemProto : EditableItem, IGameItemProto
 	#3colour <ansi colour>#0 - overrides the default green colour for this item
 	#3colour none#0 - resets the item colour to the default
 	#3onload <prog>#0 - toggles a particular prog to run when the item is loaded
+	#3canskin#0 - toggles whether players can make skins for this item
 	#3register <variable name> <default value>#0 - sets a default value for a register variable for this item
 	#3register delete <variable name>#0 - deletes a default value for a register variable
 	#3morph <item##|none> <seconds> [<emote>]#0 - sets item morph information. The 'none' value makes the item disappear.
@@ -960,6 +966,15 @@ public class GameItemProto : EditableItem, IGameItemProto
 				actor.OutputHandler.Send("That is not a valid building command. See ITEM SET HELP for more info.");
 				return false;
 		}
+	}
+
+	private bool BuildingCommandSkinnable(ICharacter actor)
+	{
+		PermitPlayerSkins = !PermitPlayerSkins;
+		Changed = true;
+		actor.OutputHandler.Send(
+			$"This item will {PermitPlayerSkins.NowNoLonger()} permit players to create skins for it.");
+		return true;
 	}
 
 	private bool BuildingCommandCost(ICharacter actor, StringStack command)

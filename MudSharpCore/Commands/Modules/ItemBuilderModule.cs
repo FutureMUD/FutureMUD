@@ -85,6 +85,7 @@ The valid sub-commands and their syntaxes are as follows:
 	#3item set colour <ansi colour>#0 - overrides the default green colour for this item
 	#3item set colour none#0 - resets the item colour to the default
 	#3item set onload <prog>#0 - toggles a particular prog to run when the item is loaded
+	#3item set canskin#0 - toggles whether players can make skins for this item
 	#3item set register <variable name> <default value>#0 - sets a default value for a register variable for this item
 	#3item set register delete <variable name>#0 - deletes a default value for a register variable
 	#3item set morph <item##|none> <seconds> [<emote>]#0 - sets item morph information. The 'none' value makes the item disappear.

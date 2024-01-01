@@ -36,6 +36,7 @@ using ExpressionEngine;
 using System.Xml.Linq;
 using MudSharp.Models;
 using Microsoft.EntityFrameworkCore;
+using MoreLinq.Extensions;
 using MudSharp.Body.Position.PositionStates;
 using MudSharp.Character.Name;
 using MudSharp.Framework.Revision;
@@ -362,7 +363,9 @@ public partial class Cell : Location, IDisposable, ICell
 
 	public ITerrain Terrain(IPerceiver voyeur)
 	{
-		return GetOverlayFor(voyeur).Terrain;
+		return 
+			EffectsOfType<IOverrideTerrain>().FirstOrDefault(x => x.Applies())?.Terrain ?? 
+			GetOverlayFor(voyeur).Terrain;
 	}
 
 	public CellOutdoorsType OutdoorsType(IPerceiver voyeur)
@@ -1129,7 +1132,7 @@ public partial class Cell : Location, IDisposable, ICell
 	private bool _treeFallActive;
 	private bool _sinkUnderwaterActive;
 
-	private void CheckFallExitStatus()
+	public void CheckFallExitStatus()
 	{
 		if (_roomFallActive)
 		{
@@ -1172,6 +1175,18 @@ public partial class Cell : Location, IDisposable, ICell
 		{
 			Gameworld.HeartbeatManager.FuzzyThirtySecondHeartbeat += SinkUnderwaterTick;
 			_sinkUnderwaterActive = true;
+		}
+
+		var layers = Terrain(null).TerrainLayers.ToList();
+		foreach (var item in GameItems)
+		{
+			if (layers.Contains(item.RoomLayer))
+			{
+				continue;
+			}
+
+			item.RoomLayer = layers.All(x => x.IsHigherThan(item.RoomLayer)) ? layers.LowestLayer() : layers.Where(x => x.IsLowerThan(item.RoomLayer)).LowestLayer();
+			item.Changed = true;
 		}
 	}
 

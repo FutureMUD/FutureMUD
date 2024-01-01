@@ -3183,6 +3183,8 @@ You can use the following options with this command:
 	#3terrain show#0 - shows the terrain you are currently editing
 	#3terrain show <terrain>#0 - shows a particular terrain
 	#3terrain close#0 - closes the terrain you're editing
+	#3terrain override <terrain> [<prog>]#0 - overrides the normal building of the terrain you're in
+	#3terrain reset#0 - resets the terrain type to the building overlay for the location you're in
 	#3terrain planner#0 - gets the terrain output for the terrain planner tool
 
 You can also edit the following specific properties:
@@ -3204,9 +3206,9 @@ You can also edit the following specific properties:
 	#3terrain set infection <type> <difficulty> <virulence>#0 - sets the infection for this terrain
 	#3terrain set outdoors|indoors|exposed|cave|windows#0 - sets the default behaviour type
 	#3terrain set model <model>#0 - sets the layer model. See TERRAIN SET MODEL for a list of valid values.
-    #3terrain set mapcolour <0-255>#0 - sets the ANSI colour for the MAP command
-    #3terrain set editorcolour <#00000000>#0 - sets the hexadecimal colour for the terrain planner
-    #3terrain set editortext <1 or 2 letter code>#0 - sets a code to appear on the terrain planner tile";
+	#3terrain set mapcolour <0-255>#0 - sets the ANSI colour for the MAP command
+	#3terrain set editorcolour <#00000000>#0 - sets the hexadecimal colour for the terrain planner
+	#3terrain set editortext <1 or 2 letter code>#0 - sets a code to appear on the terrain planner tile";
 
 	[PlayerCommand("Terrain", "terrain")]
 	[CommandPermission(PermissionLevel.SeniorAdmin)]
@@ -3241,10 +3243,68 @@ You can also edit the following specific properties:
 			case "planner":
 				TerrainPlanner(actor);
 				return;
+			case "override":
+				TerrainOverride(actor, ss);
+				return;
+			case "reset":
+				TerrainReset(actor, ss);
+				return;
 			default:
 				actor.OutputHandler.Send(TerrainHelpText.SubstituteANSIColour());
 				return;
 		}
+	}
+
+	private static void TerrainReset(ICharacter actor, StringStack ss)
+	{
+		var effect = actor.Location.EffectsOfType<OverrideTerrain>().FirstOrDefault();
+		if (effect is null)
+		{
+			actor.OutputHandler.Send("The terrain at this location is not being overriden currently.");
+			return;
+		}
+
+		actor.Location.RemoveEffect(effect, true);
+		actor.OutputHandler.Send("You reset the terrain at your current location to its default based on overlays.");
+		actor.Location.CheckFallExitStatus();
+	}
+
+	private static void TerrainOverride(ICharacter actor, StringStack ss)
+	{
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send("What terrain do you want to override this location with?");
+			return;
+		}
+
+		var terrain = actor.Gameworld.Terrains.GetByIdOrName(ss.PopSpeech());
+		if (terrain is null)
+		{
+			actor.OutputHandler.Send("There is no such terrain type.");
+			return;
+		}
+
+		IFutureProg prog = null;
+		if (!ss.IsFinished)
+		{
+			prog = new FutureProgLookupFromBuilderInput(actor.Gameworld, actor, ss.SafeRemainingArgument,
+				FutureProgVariableTypes.Boolean, 
+				new List<IEnumerable<FutureProgVariableTypes>>
+				{
+					new FutureProgVariableTypes[] { },
+					new FutureProgVariableTypes[] { FutureProgVariableTypes.Location }
+				}
+				).LookupProg();
+			if (prog is null)
+			{
+				return;
+			}
+		}
+
+		actor.Location.RemoveAllEffects<OverrideTerrain>(x => true, true);
+		actor.Location.AddEffect(new OverrideTerrain(actor.Location, terrain, prog));
+		actor.OutputHandler.Send($"This location has had its terrain override to {terrain.Name.ColourForegroundCustom(terrain.TerrainANSIColour)}{(prog is not null ? $" only when {prog.MXPClickableFunctionName()} is true" : "")}.");
+		actor.Location.CheckFallExitStatus();
 	}
 
 	private static void TerrainPlanner(ICharacter actor)

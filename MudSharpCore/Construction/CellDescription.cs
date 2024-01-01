@@ -564,8 +564,10 @@ public partial class Cell
 	private string AdminInfoStrings(IPerceiver perceiver)
 	{
 		var overlay = GetOverlayFor(perceiver);
+		var terrain = Terrain(perceiver);
+		var terrainString = overlay.Terrain == terrain ? $"{overlay.Terrain.Name.TitleCase().Colour(Telnet.Green)}" : $"{terrain.Name.TitleCase().Colour(Telnet.Magenta)}";
 		return
-			$" ID[{Id.ToString("N0", perceiver).Colour(Telnet.Green)}] - {overlay.Terrain.Name.TitleCase().Colour(Telnet.Green)} - {(overlay.SafeQuit ? "[SafeQuit]".Colour(Telnet.Green) : "[NoQuit]".Colour(Telnet.Yellow))}{(EffectsOfType<IPeacefulEffect>().Any() ? " (Peaceful)".Colour(Telnet.BoldCyan) : "")} - {X} {Y} {Z} - Overlay[{overlay.Package.Name.TitleCase().Colour(overlay == CurrentOverlay ? Telnet.Green : Telnet.Red)} (#{overlay.Package.Id.ToString("N0", perceiver)}r{overlay.Package.RevisionNumber.ToString("N0", perceiver)})]";
+			$" ID[{Id.ToString("N0", perceiver).Colour(Telnet.Green)}] - {terrainString} - {(overlay.SafeQuit ? "[SafeQuit]".Colour(Telnet.Green) : "[NoQuit]".Colour(Telnet.Yellow))}{(EffectsOfType<IPeacefulEffect>().Any() ? " (Peaceful)".Colour(Telnet.BoldCyan) : "")} - {X},{Y},{Z}\nOverlay[{overlay.Package.Name.TitleCase().Colour(overlay == CurrentOverlay ? Telnet.Green : Telnet.Red)} (#{overlay.Package.Id.ToString("N0", perceiver)}r{overlay.Package.RevisionNumber.ToString("N0", perceiver)})]";
 	}
 
 	public string ExitStrings(IPerceiver voyeur, ICellOverlay overlay, bool colour = true)

@@ -121,5 +121,6 @@ namespace MudSharp.Construction
         (bool Truth, IEnumerable<string> Errors) ProposeDelete();
         event CellProposedForDeletionDelegate CellProposedForDeletion;
 		event EventHandler CellRequestsDeletion;
-	}
+		void CheckFallExitStatus();
+    }
 }

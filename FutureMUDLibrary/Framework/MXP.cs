@@ -109,6 +109,16 @@ namespace MudSharp.Framework {
             return BeginMXP + tag + EndMXP;
         }
 
+        public static string ReplaceWebCharacters(this string input)
+        {
+	        return input
+	               .Replace("&", "&amp;")
+	               .Replace("\"", "&quot;")
+	               .Replace("\'", "&apos;")
+	               .Replace("<", "&lt;")
+	               .Replace(">", "&gt;");
+        }
+
         public static string SanitiseMXP(this string input, MXPSupport support) {
             if (support?.UseMXP == false) {
                 return _mxpTagRegex.Replace(input, "");
@@ -117,7 +127,8 @@ namespace MudSharp.Framework {
             input = input
                 .Replace("&", "&amp;")
                 .Replace("\"", "&quot;")
-                .Replace("<", "&lt;")
+                //.Replace("\'", "&apos;")
+				.Replace("<", "&lt;")
                 .Replace(">", "&gt;")
                 .Replace(AmpersandMXP, "&")
                 .Replace(QuoteMXP, "\"");

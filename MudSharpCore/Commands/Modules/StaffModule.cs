@@ -7,6 +7,8 @@ using System.Net.Sockets;
 using System.Text;
 using System.Text.Json;
 using Dapper;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ValueGeneration.Internal;
 using MudSharp.Accounts;
 using MudSharp.Body;
 using MudSharp.Body.Disfigurements;
@@ -49,6 +51,8 @@ using Account = MudSharp.Accounts.Account;
 using Exit = MudSharp.Construction.Boundary.Exit;
 using TimeZoneInfo = System.TimeZoneInfo;
 using MudSharp.NPC;
+using NewPlayer = MudSharp.Effects.Concrete.NewPlayer;
+using OpenAI_API.Moderation;
 
 namespace MudSharp.Commands.Modules;
 
@@ -2985,5 +2989,197 @@ The syntax for this command is simply #3summonitem <id>#0.", AutoHelp.HelpArgOrN
 		}
 
 		actor.OutputHandler.Send(sb.ToString());
+	}
+
+	[PlayerCommand("Logs", "logs")]
+	[CommandPermission(PermissionLevel.JuniorAdmin)]
+	[HelpInfo("logs", @"You can use this command to search the command logs. This will show you commands that characters have entered in your game. Depending on your MUD's settings, this may only go back so far and it also may exclude NPC commands.
+
+The syntax for this command is #3logs [filters]#0. You can use multiple filters. See below for filter descriptions.
+
+Filters:
+
+	#6here#0 - show only logs entries in your current room
+	#6*<id>#0 - show only log entries from the specified account (by ID)
+	#6*<name>#0 - show only log entries from the specified account (by name)
+	#6~<id>#0 - show only log entries from the specified character (by ID)
+	#6~<keyword>#0 - show only log entries from the specified character that you can see
+	#6>datetime#0 - show only log entries after the specified time
+	#6<datetime#0 - show only log entries before the specified time
+	#6#<id>#0 - show a specific log entry by ID
+	#6^<keyword>#0 - show only log entries starting with the specified text
+	#6+<keyword>#0 - show only log entries containing the specified text
+	#6-<keyword>#0 - exclude log entries containing the specified text
+
+For example:
+
+	#3logs here ~344 ^emote ""+Mary Jane""#0 would search for all logs at your current location, by character 344, starting with the text emote and containing the text ""Mary Jane"".
+
+#BHint: This can lag the game if your logs are particularly large, and filters on the text are particularly slow. Best practice would be to order your filters so that you filter by any non-text parameters first - e.g. room, character, time, etc before you filter for keywords.#0", AutoHelp.HelpArgOrNoArg)]
+	protected static void Logs(ICharacter actor, string input)
+	{
+		var ss = new StringStack(input.RemoveFirstWord());
+		var filterTexts = new List<string>();
+		using (new FMDB())
+		{
+			var logs = FMDB.Context.CharacterLogs
+			               .Include(x => x.Account)
+			               .AsQueryable();
+
+			while (!ss.IsFinished)
+			{
+				var cmd = ss.PopSpeech().ToLowerInvariant();
+				if (cmd.EqualTo("here"))
+				{
+					logs = logs.Where(log => log.CellId == actor.Location.Id);
+					filterTexts.Add($"in room {actor.Location.GetFriendlyReference(actor)}");
+					continue;
+				}
+
+				if (cmd.Length > 1)
+				{
+					var cmd1 = cmd[1..];
+					switch (cmd[0])
+					{
+						case '+':
+							logs = logs.Where(log => log.Command.Contains(cmd1));
+							filterTexts.Add($"with keyword {cmd1.ColourValue()}");
+							continue;
+						case '-':
+							logs = logs.Where(log => !log.Command.Contains(cmd1));
+							filterTexts.Add($"without keyword {cmd1.ColourValue()}");
+							continue;
+						case '*':
+							if (long.TryParse(cmd1, out var id))
+							{
+								var result = id;
+								logs = logs.Where(log => log.AccountId == result);
+								filterTexts.Add($"from account {$"#{result.ToString("N0", actor)}".ColourValue()}");
+								continue;
+							}
+
+							logs = logs.Where(log => log.Account.Name == cmd1);
+							filterTexts.Add($"from account {cmd1.ColourValue()}");
+							continue;
+						case '~':
+							if (long.TryParse(cmd1, out id))
+							{
+								var result = id;
+								logs = logs.Where(log => log.CharacterId == result);
+								filterTexts.Add($"from character {$"#{result.ToString("N0", actor)}".ColourValue()}");
+								continue;
+							}
+
+							var target = actor.TargetActor(cmd1);
+							if (target is not null)
+							{
+								var targetId = target.Id;
+								logs = logs.Where(log => log.CharacterId == targetId);
+								filterTexts.Add($"from character {target.HowSeen(actor)}");
+								continue;
+							}
+							actor.OutputHandler.Send(
+								$"You don't see anyone you can target by {cmd1.ColourCommand()}.");
+							return;
+							
+						case '>':
+							if (DateTime.TryParse(cmd1, actor, out var dt))
+							{
+								var udt = dt.ToUniversalTime();
+								filterTexts.Add($"after {udt.GetLocalDateString(actor, true).ColourValue()}");
+								logs = logs.Where(log => log.Time > udt);
+								continue;
+							}
+							actor.OutputHandler.Send($"The text {cmd1.ColourCommand()} is not a valid datetime.");
+							continue;
+						case '<':
+							if (DateTime.TryParse(cmd1, actor, out dt))
+							{
+								var udt = dt.ToUniversalTime();
+								filterTexts.Add($"before {udt.GetLocalDateString(actor, true).ColourValue()}");
+								logs = logs.Where(log => log.Time < udt);
+								continue;
+							}
+							actor.OutputHandler.Send($"The text {cmd1.ColourCommand()} is not a valid datetime.");
+							continue;
+
+						case '^':
+							logs = logs.Where(log => log.Command.StartsWith(cmd1));
+							filterTexts.Add($"starting with {cmd1.ColourValue()}");
+							continue;
+						case '#':
+							if (long.TryParse(cmd1, out id))
+							{
+								var result = id;
+								logs = logs.Where(log => log.Id == result);
+								filterTexts.Add($"with id {result.ToString("N0", actor).ColourValue()}");
+								continue;
+							}
+							actor.OutputHandler.Send($"The text {cmd1.ColourCommand()} is not a valid ID.");
+							continue;
+
+					}
+				}
+
+				actor.OutputHandler.Send($"The text {cmd.ColourCommand()} is not a valid log filter.");
+				return;
+			}
+
+			var filteredLogs = logs.ToList();
+			var sb = new StringBuilder();
+			sb.AppendLine($"Showing Logs...");
+			foreach (var filter in filterTexts)
+			{
+				sb.AppendLine($"..{filter}");
+			}
+
+			sb.AppendLine();
+			if (filteredLogs.Count == 1)
+			{
+				var log = filteredLogs[0];
+				sb.AppendLine($"Log Entry #{log.Id.ToString("N0", actor)}".GetLineWithTitle(actor, Telnet.Yellow, Telnet.White));
+				var ch = actor.Gameworld.TryGetCharacter(log.CharacterId, true);
+				sb.AppendLine($"Character: {ch.PersonalName.GetName(NameStyle.FullName).ColourName()} (#{ch.Id.ToString("N0", actor)})");
+				sb.AppendLine($"Account: {actor.Gameworld.Accounts.Get(log.AccountId ?? 0)?.Name.ColourName() ?? "None".ColourError()}");
+				sb.AppendLine($"Location: {actor.Gameworld.Cells.Get(log.CellId)!.GetFriendlyReference(actor)}");
+				sb.AppendLine($"Time: {log.Time.GetLocalDateString(actor, true).ColourValue()}");
+				sb.AppendLine();
+				sb.AppendLine(log.Command);
+			}
+			else
+			{
+				sb.AppendLine(StringUtilities.GetTextTable(
+					from log in filteredLogs
+					let cell = actor.Gameworld.Cells.Get(log.CellId)
+					let account = actor.Gameworld.Accounts.Get(log.AccountId ?? 0)
+					let ch = actor.Gameworld.TryGetCharacter(log.CharacterId, true)
+					select new List<string>
+					{
+						log.Id.ToString("N0", actor),
+						log.Command,
+						log.Time.GetLocalDateString(actor, true),
+						ch.Id.ToString("N0", actor),
+						ch.PersonalName.GetName(NameStyle.FullName),
+						account?.Name ?? "",
+						cell.GetFriendlyReference(actor)
+					},
+					new List<string>
+					{
+						"Log #",
+						"Command",
+						"Time",
+						"Who ID",
+						"Who",
+						"Account",
+						"Room"
+					},
+					actor,
+					Telnet.Yellow,
+					1
+				));
+			}
+			
+			actor.OutputHandler.Send(sb.ToString());
+		}
 	}
 }

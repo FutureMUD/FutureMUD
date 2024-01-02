@@ -3006,6 +3006,7 @@ Filters:
 	#6~<keyword>#0 - show only log entries from the specified character that you can see
 	#6>datetime#0 - show only log entries after the specified time
 	#6<datetime#0 - show only log entries before the specified time
+	#6$<minutes>#0 - show only log entries within the specified minutes from the present
 	#6#<id>#0 - show a specific log entry by ID
 	#6^<keyword>#0 - show only log entries starting with the specified text
 	#6+<keyword>#0 - show only log entries containing the specified text
@@ -3116,6 +3117,17 @@ For example:
 								continue;
 							}
 							actor.OutputHandler.Send($"The text {cmd1.ColourCommand()} is not a valid ID.");
+							continue;
+						case '$':
+							if (int.TryParse(cmd1, out var minutes))
+							{
+								var result = minutes;
+								var now = DateTime.UtcNow;
+								logs = logs.Where(log => (now - log.Time).Minutes <= result);
+								filterTexts.Add($"within the last {result.ToString("N0", actor).ColourValue()} {"minute".Pluralise(result != 1)}");
+								continue;
+							}
+							actor.OutputHandler.Send($"The text {cmd1.ColourCommand()} is not a valid amount of minutes.");
 							continue;
 
 					}

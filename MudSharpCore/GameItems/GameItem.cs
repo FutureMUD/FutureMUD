@@ -420,6 +420,7 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable
 	private string LongDescription(IPerceiver voyeur, bool proper, bool colour)
 	{
 		var ldesc = HowSeen(voyeur, true, DescriptionType.Short, colour);
+		var alteredldesc = false;
 		var name = Name;
 		if (Skin is { } skin)
 		{
@@ -427,19 +428,23 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable
 			if (skin.LongDescription is not null)
 			{
 				ldesc = skin.LongDescription;
+				alteredldesc = true;
 			}
 		}
-		else if (Prototype.OverridesLongDescription && PositionTarget == null && PositionEmote == null)
+
+		else if(Prototype.OverridesLongDescription)
 		{
-			return DressLongDescription(voyeur, (this as IHaveCharacteristics).ParseCharacteristics(
-				       Prototype.LongDescription, voyeur).Fullstop())
-			       .FluentProper(proper).Colour(Prototype.CustomColour ?? Telnet.Green);
+			ldesc = Prototype.LongDescription;
+			alteredldesc = true;
+		}
+
+		if (alteredldesc && PositionTarget == null && PositionEmote == null)
+		{
+			return DressLongDescription(voyeur, (this as IHaveCharacteristics).ParseCharacteristics(ldesc, voyeur).Fullstop()).FluentProper(proper).ColourIncludingReset(Prototype.CustomColour ?? Telnet.Green);
 		}
 
 		var description = DressLongDescription(voyeur, ldesc);
-
-		return
-			$"{description}{(description.Contains(name.Pluralise(), StringComparison.InvariantCultureIgnoreCase) ? " are " : " is ")}{DescribePosition(voyeur).Fullstop()}";
+		return $"{description}{(description.Contains(name.Pluralise(), StringComparison.InvariantCultureIgnoreCase) ? " are " : " is ")}{DescribePosition(voyeur).Fullstop()}";
 	}
 
 	private string ShortDescription(IPerceiver voyeur, bool proper, bool colour,

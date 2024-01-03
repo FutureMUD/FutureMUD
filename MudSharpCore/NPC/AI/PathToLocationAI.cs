@@ -26,6 +26,17 @@ public class PathToLocationAI : PathingAIWithProgTargetsBase
 	{
 	}
 
+	private PathToLocationAI()
+	{
+
+	}
+
+	private PathToLocationAI(IFuturemud gameworld, string name) : base(gameworld, name, "PathToLocation")
+	{
+		PathingEnabledProg = Gameworld.AlwaysFalseProg;
+		DatabaseInitialise();
+	}
+
 	protected override string SaveToXml()
 	{
 		return new XElement("Definition",
@@ -46,11 +57,12 @@ public class PathToLocationAI : PathingAIWithProgTargetsBase
 	public static void RegisterLoader()
 	{
 		RegisterAIType("PathToLocation", (ai, gameworld) => new PathToLocationAI(ai, gameworld));
+		RegisterAIBuilderInformation("pathtolocation", (gameworld, name) => new PathToLocationAI(gameworld, name), new PathToLocationAI().HelpText);
 	}
 
 	protected override (ICell Target, IEnumerable<ICellExit>) GetPath(ICharacter ch)
 	{
-		var location = (ICell)TargetLocationProg.Execute(ch);
+		var location = TargetLocationProg?.Execute<ICell>(ch);
 		if (location == null || Equals(location, ch.Location))
 		{
 			return (null, Enumerable.Empty<ICellExit>());
@@ -73,7 +85,7 @@ public class PathToLocationAI : PathingAIWithProgTargetsBase
 		}
 
 		// If we can't find a path to the primary target, check if there is a fallback target
-		location = (ICell)FallbackLocationProg.Execute(ch);
+		FallbackLocationProg?.Execute<ICell>(ch);
 		if (location == null || location == ch.Location)
 		{
 			return (null, Enumerable.Empty<ICellExit>());
@@ -95,11 +107,14 @@ public class PathToLocationAI : PathingAIWithProgTargetsBase
 		}
 
 		// If the fallback target can't  be reached, see if we can reach of any of the way points
-		path = ch.PathBetween(((IList)WayPointsProg.Execute(ch)).OfType<ICell>().ToList(), 12,
-			GetSuitabilityFunction(ch));
-		if (path.Any())
+		if (WayPointsProg is not null)
 		{
-			return (location, path);
+			path = ch.PathBetween((WayPointsProg.ExecuteCollection<ICell>(ch)).ToList(), 12,
+				GetSuitabilityFunction(ch));
+			if (path.Any())
+			{
+				return (location, path);
+			}
 		}
 
 		return (null, Enumerable.Empty<ICellExit>());

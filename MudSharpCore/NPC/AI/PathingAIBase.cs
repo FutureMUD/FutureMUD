@@ -33,6 +33,15 @@ public abstract class PathingAIBase : ArtificialIntelligenceBase
 		LoadFromXML(XElement.Parse(ai.Definition));
 	}
 
+	protected PathingAIBase(IFuturemud gameworld, string name, string type) : base(gameworld, name, type)
+	{
+	}
+	
+	protected PathingAIBase()
+	{
+
+	}
+
 	protected virtual void LoadFromXML(XElement root)
 	{
 		OpenDoors = bool.Parse(root.Element("OpenDoors")?.Value ?? "false");
@@ -56,6 +65,20 @@ public abstract class PathingAIBase : ArtificialIntelligenceBase
 	public bool CloseDoorsBehind { get; protected set; }
 
 	public bool UseDoorguards { get; protected set; }
+
+	public override string Show(ICharacter actor)
+	{
+		var sb = new StringBuilder();
+		sb.AppendLine($"Artificial Intelligence #{Id.ToString("N0", actor)} - {Name.ColourName()}");
+		sb.AppendLine($"Type: {AIType.ColourValue()}");
+		sb.AppendLine($"Open Doors: {OpenDoors.ToColouredString()}");
+		sb.AppendLine($"Use Keys: {UseKeys.ToColouredString()}");
+		sb.AppendLine($"Smash Doors: {SmashLockedDoors.ToColouredString()}");
+		sb.AppendLine($"Close Doors: {CloseDoorsBehind.ToColouredString()}");
+		sb.AppendLine($"Use Doorguards: {UseDoorguards.ToColouredString()}");
+		sb.AppendLine($"Move Even If Blocked: {MoveEvenIfObstructionInWay.ToColouredString()}");
+		return sb.ToString();
+	}
 
 	protected override string TypeHelpText => @"	#3opendoors#0 - toggles AI using doors
 	#3usekeys#0 - toggles AI using keys

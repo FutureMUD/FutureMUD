@@ -10,6 +10,7 @@ using MudSharp.Character;
 using MudSharp.Combat;
 using MudSharp.Construction;
 using MudSharp.Construction.Boundary;
+using MudSharp.Database;
 using MudSharp.Effects.Concrete;
 using MudSharp.Events;
 using MudSharp.Framework;
@@ -29,6 +30,19 @@ public class AggressivePatherAI : PathingAIWithProgTargetsBase
 	public override bool CountsAsAggressive => true;
 
 	protected AggressivePatherAI(ArtificialIntelligence ai, IFuturemud gameworld) : base(ai, gameworld)
+	{
+	}
+
+	private AggressivePatherAI(IFuturemud gameworld, string name) : base(gameworld, name, "AggressivePather")
+	{
+		WillAttackProg = Gameworld.AlwaysFalseProg;
+		EngageDelayDiceExpression = "1000+1d1000";
+		EngageEmote = string.Empty;
+		PathingEnabledProg = Gameworld.AlwaysFalseProg;
+		DatabaseInitialise();
+	}
+
+	private AggressivePatherAI()
 	{
 	}
 
@@ -255,6 +269,7 @@ public class AggressivePatherAI : PathingAIWithProgTargetsBase
 	public static void RegisterLoader()
 	{
 		RegisterAIType("AggressivePather", (ai, gameworld) => new AggressivePatherAI(ai, gameworld));
+		RegisterAIBuilderInformation("aggressivepather", (gameworld,name) => new AggressivePatherAI(gameworld, name), new AggressivePatherAI().HelpText);
 	}
 
 	protected override (ICell Target, IEnumerable<ICellExit>) GetPath(ICharacter ch)
@@ -270,7 +285,7 @@ public class AggressivePatherAI : PathingAIWithProgTargetsBase
 			return (target.Item1.Location, target.Item2);
 		}
 
-		var location = (ICell)TargetLocationProg.Execute(ch);
+		var location = TargetLocationProg?.Execute<ICell>(ch);
 		if (location == null || Equals(location, ch.Location))
 		{
 			return (null, Enumerable.Empty<ICellExit>());
@@ -293,7 +308,7 @@ public class AggressivePatherAI : PathingAIWithProgTargetsBase
 		}
 
 		// If we can't find a path to the primary target, check if there is a fallback target
-		location = (ICell)FallbackLocationProg.Execute(ch);
+		location = FallbackLocationProg?.Execute<ICell>(ch);
 		if (location == null || location == ch.Location)
 		{
 			return (null, Enumerable.Empty<ICellExit>());
@@ -314,14 +329,135 @@ public class AggressivePatherAI : PathingAIWithProgTargetsBase
 			}
 		}
 
-		// If the fallback target can't  be reached, see if we can reach of any of the way points
-		path = ch.PathBetween(((IList)WayPointsProg.Execute(ch)).OfType<ICell>().ToList(), 12,
-			GetSuitabilityFunction(ch));
-		if (path.Any())
+		// If the fallback target can't be reached, see if we can reach of any of the way points
+		if (WayPointsProg is not null)
 		{
-			return (location, path);
+			path = ch.PathBetween((WayPointsProg.ExecuteCollection<ICell>(ch)).ToList(), 12,
+				GetSuitabilityFunction(ch));
+			if (path.Any())
+			{
+				return (location, path);
+			}
 		}
+		
 
 		return (null, Enumerable.Empty<ICellExit>());
 	}
+
+	/// <inheritdoc />
+	public override string Show(ICharacter actor)
+	{
+		var sb = new StringBuilder(base.Show(actor));
+		sb.AppendLine($"Will Attack Prog: {WillAttackProg?.MXPClickableFunctionName() ?? "None".ColourError()}");
+		sb.AppendLine($"Engage Delay: {EngageDelayDiceExpression.ColourValue()} milliseconds");
+		sb.AppendLine($"Engage Emote: {EngageEmote?.ColourCommand() ?? ""}");
+		return sb.ToString();
+	}
+
+	/// <inheritdoc />
+	protected override string TypeHelpText => @$"{base.TypeHelpText}
+	#3attackprog <prog>#0 - sets the prog that controls target selection
+	#3emote <emote>#0 - sets the engage emote ($0 = npc, $1 = target)
+	#3emote clear#0 - clears the emote (won't do an emote when engaging)
+	#3delay <dice expression>#0 - sets the delay (in ms) before attacking when spotting a target";
+
+	#region Overrides of PathingAIWithProgTargetsBase
+
+	/// <inheritdoc />
+	public override bool BuildingCommand(ICharacter actor, StringStack command)
+	{
+		switch (command.PopSpeech().ToLowerInvariant().CollapseString())
+		{
+			case "attackprog":
+				return BuildingCommandAttackProg(actor, command);
+			case "emote":
+			case "engageemote":
+			case "attackemote":
+				return BuildingCommandEngageEmote(actor, command);
+			case "delay":
+			case "engagedelay":
+			case "attackdelay":
+				return BuildingCommandEngageDelay(actor, command);
+		}
+		return base.BuildingCommand(actor, command.GetUndo());
+	}
+
+	private bool BuildingCommandEngageDelay(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("You must supply a dice expression for a number of milliseconds.");
+			return false;
+		}
+
+		if (!Dice.IsDiceExpression(command.SafeRemainingArgument))
+		{
+			actor.OutputHandler.Send(
+				$"The text {command.SafeRemainingArgument.ColourCommand()} is not a valid dice expression.");
+			return false;
+		}
+
+		EngageDelayDiceExpression = command.SafeRemainingArgument;
+		Changed = true;
+		actor.OutputHandler.Send($"The NPC will now wait {EngageDelayDiceExpression.ColourValue()} milliseconds before attacking.");
+		return true;
+	}
+
+	private bool BuildingCommandEngageEmote(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send(
+				$"You must either supply an emote or use {"clear".ColourCommand()} to remove the emote.");
+			return false;
+		}
+
+		var text = command.SafeRemainingArgument;
+		if (text.EqualToAny("remove", "clear", "delete"))
+		{
+			EngageEmote = string.Empty;
+			Changed = true;
+			actor.OutputHandler.Send("This NPC will no longer do any emote when engaging targets.");
+			return true;
+		}
+
+		var emote = new Emote(text, new DummyPerceiver(), new DummyPerceivable(), new DummyPerceivable());
+		if (!emote.Valid)
+		{
+			actor.OutputHandler.Send(emote.ErrorMessage);
+			return false;
+		}
+
+		EngageEmote = text;
+		Changed = true;
+		actor.OutputHandler.Send($"The NPC will now do the following emote when engaging:\n{text.ColourCommand()}");
+		return true;
+	}
+
+	private bool BuildingCommandAttackProg(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("Which prog should be used to control whether this NPC will attack a target?");
+			return false;
+		}
+
+		var prog = new FutureProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument,
+			FutureProgVariableTypes.Boolean, new List<FutureProgVariableTypes>
+			{
+				FutureProgVariableTypes.Character,
+				FutureProgVariableTypes.Character
+			}).LookupProg();
+		if (prog is null)
+		{
+			return false;
+		}
+
+		WillAttackProg = prog;
+		Changed = true;
+		actor.OutputHandler.Send($"This NPC will now use the {prog.MXPClickableFunctionName()} prog to determine whether to attack a target.");
+		return true;
+	}
+
+	#endregion
 }

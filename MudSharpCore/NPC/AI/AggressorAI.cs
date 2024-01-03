@@ -11,6 +11,9 @@ using MudSharp.GameItems.Interfaces;
 using MudSharp.PerceptionEngine;
 using MudSharp.PerceptionEngine.Outputs;
 using MudSharp.PerceptionEngine.Parsers;
+using MudSharp.Database;
+using System.Collections.Generic;
+using System.Text;
 
 namespace MudSharp.NPC.AI;
 
@@ -22,6 +25,19 @@ public class AggressorAI : ArtificialIntelligenceBase
 		LoadFromXml(XElement.Parse(ai.Definition));
 	}
 
+	private AggressorAI(IFuturemud gameworld, string name) : base(gameworld, name, "Aggressor")
+	{
+		WillAttackProg = Gameworld.AlwaysFalseProg;
+		EngageDelayDiceExpression = "1000+1d1000";
+		EngageEmote = string.Empty;
+		DatabaseInitialise();
+	}
+
+	private AggressorAI()
+	{
+
+	}
+
 	public IFutureProg WillAttackProg { get; set; }
 	public string EngageDelayDiceExpression { get; set; }
 	public string EngageEmote { get; set; }
@@ -30,6 +46,7 @@ public class AggressorAI : ArtificialIntelligenceBase
 	public static void RegisterLoader()
 	{
 		RegisterAIType("Aggressor", (ai, gameworld) => new AggressorAI(ai, gameworld));
+		RegisterAIBuilderInformation("aggressor", (gameworld, name) => new AggressorAI(gameworld, name), new AggressorAI().HelpText);
 	}
 
 	private void LoadFromXml(XElement root)
@@ -214,6 +231,118 @@ public class AggressorAI : ArtificialIntelligenceBase
 			return false;
 		}
 
+		return true;
+	}
+
+	/// <inheritdoc />
+	public override string Show(ICharacter actor)
+	{
+		var sb = new StringBuilder();
+		sb.AppendLine($"Artificial Intelligence #{Id.ToString("N0", actor)} - {Name.ColourName()}");
+		sb.AppendLine($"Type: {AIType.ColourValue()}");
+		sb.AppendLine($"Will Attack Prog: {WillAttackProg?.MXPClickableFunctionName() ?? "None".ColourError()}");
+		sb.AppendLine($"Engage Delay: {EngageDelayDiceExpression.ColourValue()} milliseconds");
+		sb.AppendLine($"Engage Emote: {EngageEmote?.ColourCommand() ?? ""}");
+		return sb.ToString();
+	}
+
+	protected override string TypeHelpText => @"	#3attackprog <prog>#0 - sets the prog that controls target selection
+	#3emote <emote>#0 - sets the engage emote ($0 = npc, $1 = target)
+	#3emote clear#0 - clears the emote (won't do an emote when engaging)
+	#3delay <dice expression>#0 - sets the delay (in ms) before attacking when spotting a target";
+
+	public override bool BuildingCommand(ICharacter actor, StringStack command)
+	{
+		switch (command.PopSpeech().ToLowerInvariant().CollapseString())
+		{
+			case "attackprog":
+				return BuildingCommandAttackProg(actor, command);
+			case "emote":
+			case "engageemote":
+			case "attackemote":
+				return BuildingCommandEngageEmote(actor, command);
+			case "delay":
+			case "engagedelay":
+			case "attackdelay":
+				return BuildingCommandEngageDelay(actor, command);
+		}
+		return base.BuildingCommand(actor, command.GetUndo());
+	}
+
+	private bool BuildingCommandEngageDelay(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("You must supply a dice expression for a number of milliseconds.");
+			return false;
+		}
+
+		if (!Dice.IsDiceExpression(command.SafeRemainingArgument))
+		{
+			actor.OutputHandler.Send(
+				$"The text {command.SafeRemainingArgument.ColourCommand()} is not a valid dice expression.");
+			return false;
+		}
+
+		EngageDelayDiceExpression = command.SafeRemainingArgument;
+		Changed = true;
+		actor.OutputHandler.Send($"The NPC will now wait {EngageDelayDiceExpression.ColourValue()} milliseconds before attacking.");
+		return true;
+	}
+
+	private bool BuildingCommandEngageEmote(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send(
+				$"You must either supply an emote or use {"clear".ColourCommand()} to remove the emote.");
+			return false;
+		}
+
+		var text = command.SafeRemainingArgument;
+		if (text.EqualToAny("remove", "clear", "delete"))
+		{
+			EngageEmote = string.Empty;
+			Changed = true;
+			actor.OutputHandler.Send("This NPC will no longer do any emote when engaging targets.");
+			return true;
+		}
+
+		var emote = new Emote(text, new DummyPerceiver(), new DummyPerceivable(), new DummyPerceivable());
+		if (!emote.Valid)
+		{
+			actor.OutputHandler.Send(emote.ErrorMessage);
+			return false;
+		}
+
+		EngageEmote = text;
+		Changed = true;
+		actor.OutputHandler.Send($"The NPC will now do the following emote when engaging:\n{text.ColourCommand()}");
+		return true;
+	}
+
+	private bool BuildingCommandAttackProg(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("Which prog should be used to control whether this NPC will attack a target?");
+			return false;
+		}
+
+		var prog = new FutureProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument,
+			FutureProgVariableTypes.Boolean, new List<FutureProgVariableTypes>
+			{
+				FutureProgVariableTypes.Character,
+				FutureProgVariableTypes.Character
+			}).LookupProg();
+		if (prog is null)
+		{
+			return false;
+		}
+
+		WillAttackProg = prog;
+		Changed = true;
+		actor.OutputHandler.Send($"This NPC will now use the {prog.MXPClickableFunctionName()} prog to determine whether to attack a target.");
 		return true;
 	}
 }

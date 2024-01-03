@@ -11,6 +11,7 @@ using MudSharp.Events.Hooks;
 using MudSharp.Framework;
 using MudSharp.Framework.Save;
 using MudSharp.Database;
+using System.Xml.Linq;
 
 namespace MudSharp.NPC.AI;
 
@@ -41,6 +42,31 @@ public abstract class ArtificialIntelligenceBase : SaveableItem, IArtificialInte
 		Gameworld = gameworld;
 		_name = name;
 		AIType = type;
+	}
+
+	/// <summary>
+	/// This constructor is only to be used to make a disposable dummy instance for reading type help
+	/// </summary>
+	protected ArtificialIntelligenceBase()
+	{
+
+	}
+
+	protected void DatabaseInitialise()
+	{
+		RawXmlDefinition = SaveToXml();
+		using (new FMDB())
+		{
+			var dbitem = new Models.ArtificialIntelligence
+			{
+				Name = _name,
+				Type = AIType,
+				Definition = SaveToXml(),
+			};
+			FMDB.Context.ArtificialIntelligences.Add(dbitem);
+			FMDB.Context.SaveChanges();
+			_id = dbitem.Id;
+		}
 	}
 
 	public IArtificialIntelligence Clone(string newName)

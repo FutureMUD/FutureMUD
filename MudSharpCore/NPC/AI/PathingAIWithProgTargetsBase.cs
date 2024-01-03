@@ -6,6 +6,7 @@ using MudSharp.FutureProg;
 using MudSharp.Models;
 using System;
 using System.Collections.Generic;
+using System.Text;
 using System.Xml.Linq;
 
 namespace MudSharp.NPC.AI;
@@ -21,6 +22,18 @@ public abstract class PathingAIWithProgTargetsBase : PathingAIBase
 	public IFutureProg FallbackLocationProg { get; set; }
 
 	public IFutureProg WayPointsProg { get; set; }
+
+	/// <inheritdoc />
+	public override string Show(ICharacter actor)
+	{
+		var sb = new StringBuilder(base.Show(actor));
+		sb.AppendLine($"Pathing Enabled: {PathingEnabledProg?.MXPClickableFunctionName() ?? "None".ColourError()}");
+		sb.AppendLine($"On Start To Path: {OnStartToPathProg?.MXPClickableFunctionName() ?? "None".ColourError()}");
+		sb.AppendLine($"Primary Room Target: {TargetLocationProg?.MXPClickableFunctionName() ?? "None".ColourError()}");
+		sb.AppendLine($"Fallback Room Target: {FallbackLocationProg?.MXPClickableFunctionName() ?? "None".ColourError()}");
+		sb.AppendLine($"Fallback Waypoints: {WayPointsProg?.MXPClickableFunctionName() ?? "None".ColourError()}");
+		return sb.ToString();
+	}
 
 	protected override string TypeHelpText => @$"{base.TypeHelpText}
 	#3pathingenabled <prog>#0 - sets a prog to control pathfinding on or off
@@ -161,20 +174,23 @@ public abstract class PathingAIWithProgTargetsBase : PathingAIBase
 		return true;
 	}
 
-	#region Overrides of PathingAIBase
-
-	protected override bool IsPathingEnabled(ICharacter ch)
-	{
-		return (bool?)PathingEnabledProg.Execute(ch) ?? false;
-	}
-
-	#endregion
 
 	protected PathingAIWithProgTargetsBase(ArtificialIntelligence ai, IFuturemud gameworld) : base(ai, gameworld)
 	{
 	}
 
-	#region Overrides of PathingAIBase
+	protected PathingAIWithProgTargetsBase(IFuturemud gameworld, string name, string type) : base(gameworld, name, type)
+	{
+	}
+
+	protected PathingAIWithProgTargetsBase()
+	{
+	}
+
+	protected override bool IsPathingEnabled(ICharacter ch)
+	{
+		return (bool?)PathingEnabledProg.Execute(ch) ?? false;
+	}
 
 	protected override void LoadFromXML(XElement root)
 	{
@@ -190,5 +206,4 @@ public abstract class PathingAIWithProgTargetsBase : PathingAIBase
 	{
 		OnStartToPathProg?.Execute(ch, target, exits);
 	}
-	#endregion
 }

@@ -45,14 +45,21 @@ public class WandererAI : ArtificialIntelligenceBase
 		WanderTimeDiceExpression = "1d40+100";
 		WillWanderIntoCellProg = Gameworld.AlwaysTrueProg;
 		TargetBodyPrototype = Gameworld.BodyPrototypes.First();
+		IsWanderingProg = Gameworld.AlwaysTrueProg;
 		TargetMoveSpeed = TargetBodyPrototype.Speeds
 		                                     .FirstOrDefault(x => x.Position == PositionStanding.Instance);
 		RawXmlDefinition = SaveToXml();
 	}
 
+	private WandererAI() : base()
+	{
+
+	}
+
 	public static void RegisterLoader()
 	{
 		RegisterAIType("Wanderer", (ai, gameworld) => new WandererAI(ai, gameworld));
+		RegisterAIBuilderInformation("wanderer", (gameworld,name) => new WandererAI(gameworld, name), new WandererAI().HelpText);
 	}
 
 	private void LoadFromXml(XElement root)
@@ -249,6 +256,21 @@ public class WandererAI : ArtificialIntelligenceBase
 	}
 
 	#region Overrides of ArtificialIntelligenceBase
+	/// <inheritdoc />
+	public override string Show(ICharacter actor)
+	{
+		var sb = new StringBuilder();
+		sb.AppendLine($"Artificial Intelligence #{Id.ToString("N0", actor)} - {Name.ColourName()}");
+		sb.AppendLine($"Type: {AIType.ColourValue()}");
+		sb.AppendLine($"Target Body: {TargetBodyPrototype?.Name.ColourValue() ?? "None".ColourError()}");
+		sb.AppendLine($"Target Move Speed: {TargetMoveSpeed?.Name.ColourValue() ?? "None".ColourError()}");
+		sb.AppendLine($"Is Enabled: {IsWanderingProg.MXPClickableFunctionName()}");
+		sb.AppendLine($"Will Wander Room: {WillWanderIntoCellProg.MXPClickableFunctionName()}");
+		sb.AppendLine($"Wander Time Dice: {WanderTimeDiceExpression.ColourValue()} seconds");
+		sb.AppendLine($"Open Doors: {OpenDoors.ToColouredString()}");
+		sb.AppendLine($"Travel String: {EmoteText?.ColourCommand() ?? ""}");
+		return sb.ToString();
+	}
 
 	/// <inheritdoc />
 	protected override string TypeHelpText => @"	#3doors#0 - toggles this AI opening doors
@@ -474,6 +496,7 @@ public class WandererAI : ArtificialIntelligenceBase
 		}
 
 		WanderTimeDiceExpression = expr;
+
 		Changed = true;
 		actor.OutputHandler.Send($"This AI will now check for wandering every {expr.ColourCommand()} seconds.");
 		return true;

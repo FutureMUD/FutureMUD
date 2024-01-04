@@ -634,12 +634,123 @@ public sealed partial class Futuremud : IDisposable
 						FMDB.Context.SaveChanges();
 						var prog = new FutureProg.FutureProg(dbitem, this);
 						_futureProgs.Add(prog);
-						_alwaysZeroProg = prog;
+						_alwaysOneProg = prog;
 					}
 				}
 			}
 
 			return _alwaysOneProg;
+		}
+	}
+
+	private IFutureProg _alwaysOneHundredProg;
+	public IFutureProg AlwaysOneHundredProg
+	{
+		get
+		{
+			if (_alwaysOneHundredProg is null)
+			{
+				_alwaysOneHundredProg = FutureProgs.FirstOrDefault(x => x.FunctionName.EqualTo("AlwaysOneHundred"));
+				if (_alwaysOneHundredProg is null)
+				{
+					using (new FMDB())
+					{
+						var dbitem = new Models.FutureProg
+						{
+							FunctionName = "AlwaysOneHundred",
+							AcceptsAnyParameters = true,
+							ReturnType = 2,
+							Category = "Core",
+							Subcategory = "Universal",
+							Public = true,
+							FunctionComment = "Accepts any parameters, and always returns 100.",
+							FunctionText = "return 100",
+							StaticType = 2
+						};
+						FMDB.Context.FutureProgs.Add(dbitem);
+						FMDB.Context.SaveChanges();
+						var prog = new FutureProg.FutureProg(dbitem, this);
+						_futureProgs.Add(prog);
+						_alwaysOneHundredProg = prog;
+					}
+				}
+			}
+
+			return _alwaysOneHundredProg;
+		}
+	}
+
+	private IFutureProg _alwaysOneThousandProg;
+	public IFutureProg AlwaysOneThousandProg
+	{
+		get
+		{
+			if (_alwaysOneThousandProg is null)
+			{
+				_alwaysOneThousandProg = FutureProgs.FirstOrDefault(x => x.FunctionName.EqualTo("AlwaysOneThousand"));
+				if (_alwaysOneThousandProg is null)
+				{
+					using (new FMDB())
+					{
+						var dbitem = new Models.FutureProg
+						{
+							FunctionName = "AlwaysOneThousand",
+							AcceptsAnyParameters = true,
+							ReturnType = 2,
+							Category = "Core",
+							Subcategory = "Universal",
+							Public = true,
+							FunctionComment = "Accepts any parameters, and always returns 1000.",
+							FunctionText = "return 1000",
+							StaticType = 2
+						};
+						FMDB.Context.FutureProgs.Add(dbitem);
+						FMDB.Context.SaveChanges();
+						var prog = new FutureProg.FutureProg(dbitem, this);
+						_futureProgs.Add(prog);
+						_alwaysOneThousandProg = prog;
+					}
+				}
+			}
+
+			return _alwaysOneThousandProg;
+		}
+	}
+
+	private IFutureProg _alwaysTenThousandProg;
+	public IFutureProg AlwaysTenThousandProg
+	{
+		get
+		{
+			if (_alwaysTenThousandProg is null)
+			{
+				_alwaysTenThousandProg = FutureProgs.FirstOrDefault(x => x.FunctionName.EqualTo("AlwaysTenThousand"));
+				if (_alwaysTenThousandProg is null)
+				{
+					using (new FMDB())
+					{
+						var dbitem = new Models.FutureProg
+						{
+							FunctionName = "AlwaysTenThousand",
+							AcceptsAnyParameters = true,
+							ReturnType = 2,
+							Category = "Core",
+							Subcategory = "Universal",
+							Public = true,
+							FunctionComment = "Accepts any parameters, and always returns 10000.",
+							FunctionText = "return 10000",
+							StaticType = 2
+						};
+						FMDB.Context.FutureProgs.Add(dbitem);
+						FMDB.Context.SaveChanges();
+						var prog = new FutureProg.FutureProg(dbitem, this);
+						_futureProgs.Add(prog);
+						_alwaysTenThousandProg = prog;
+					}
+				}
+			}
+
+			return _alwaysTenThousandProg;
 		}
 	}
 

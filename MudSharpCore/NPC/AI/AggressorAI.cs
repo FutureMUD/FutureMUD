@@ -238,8 +238,9 @@ public class AggressorAI : ArtificialIntelligenceBase
 	public override string Show(ICharacter actor)
 	{
 		var sb = new StringBuilder();
-		sb.AppendLine($"Artificial Intelligence #{Id.ToString("N0", actor)} - {Name.ColourName()}");
+		sb.AppendLine($"Artificial Intelligence #{Id.ToString("N0", actor)} - {Name}".GetLineWithTitle(actor, Telnet.Cyan, Telnet.BoldWhite));
 		sb.AppendLine($"Type: {AIType.ColourValue()}");
+		sb.AppendLine();
 		sb.AppendLine($"Will Attack Prog: {WillAttackProg?.MXPClickableFunctionName() ?? "None".ColourError()}");
 		sb.AppendLine($"Engage Delay: {EngageDelayDiceExpression.ColourValue()} milliseconds");
 		sb.AppendLine($"Engage Emote: {EngageEmote?.ColourCommand() ?? ""}");

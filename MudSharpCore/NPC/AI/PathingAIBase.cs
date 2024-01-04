@@ -69,8 +69,9 @@ public abstract class PathingAIBase : ArtificialIntelligenceBase
 	public override string Show(ICharacter actor)
 	{
 		var sb = new StringBuilder();
-		sb.AppendLine($"Artificial Intelligence #{Id.ToString("N0", actor)} - {Name.ColourName()}");
+		sb.AppendLine($"Artificial Intelligence #{Id.ToString("N0", actor)} - {Name}".GetLineWithTitle(actor, Telnet.Cyan, Telnet.BoldWhite));
 		sb.AppendLine($"Type: {AIType.ColourValue()}");
+		sb.AppendLine();
 		sb.AppendLine($"Open Doors: {OpenDoors.ToColouredString()}");
 		sb.AppendLine($"Use Keys: {UseKeys.ToColouredString()}");
 		sb.AppendLine($"Smash Doors: {SmashLockedDoors.ToColouredString()}");

@@ -260,8 +260,9 @@ public class WandererAI : ArtificialIntelligenceBase
 	public override string Show(ICharacter actor)
 	{
 		var sb = new StringBuilder();
-		sb.AppendLine($"Artificial Intelligence #{Id.ToString("N0", actor)} - {Name.ColourName()}");
+		sb.AppendLine($"Artificial Intelligence #{Id.ToString("N0", actor)} - {Name}".GetLineWithTitle(actor, Telnet.Cyan, Telnet.BoldWhite));
 		sb.AppendLine($"Type: {AIType.ColourValue()}");
+		sb.AppendLine();
 		sb.AppendLine($"Target Body: {TargetBodyPrototype?.Name.ColourValue() ?? "None".ColourError()}");
 		sb.AppendLine($"Target Move Speed: {TargetMoveSpeed?.Name.ColourValue() ?? "None".ColourError()}");
 		sb.AppendLine($"Is Enabled: {IsWanderingProg.MXPClickableFunctionName()}");

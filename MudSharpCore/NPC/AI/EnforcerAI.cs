@@ -25,6 +25,7 @@ public class EnforcerAI : ArtificialIntelligenceBase
 	public static void RegisterLoader()
 	{
 		RegisterAIType("Enforcer", (ai, gameworld) => new EnforcerAI(ai, gameworld));
+		RegisterAIBuilderInformation("enforcer", (gameworld, name) => new EnforcerAI(gameworld, name), new EnforcerAI().HelpText);
 	}
 
 	protected EnforcerAI(ArtificialIntelligence ai, IFuturemud gameworld) : base(ai, gameworld)
@@ -47,6 +48,16 @@ public class EnforcerAI : ArtificialIntelligenceBase
 			: Gameworld.FutureProgs.GetByName(root.Element("ThrowInPrisonEchoProg")!.Value);
 	}
 
+	private EnforcerAI()
+	{
+
+	}
+
+	private EnforcerAI(IFuturemud gameworld, string name) : base(gameworld, name, "Enforcer")
+	{
+		DatabaseInitialise();
+	}
+
 	protected override string SaveToXml()
 	{
 		return new XElement("Definition",
@@ -63,6 +74,269 @@ public class EnforcerAI : ArtificialIntelligenceBase
 	public IFutureProg WarnStartMoveEchoProg { get; protected set; }
 	public IFutureProg FailToComplyEchoProg { get; protected set; }
 	public IFutureProg ThrowInPrisonEchoProg { get; protected set; }
+
+	/// <inheritdoc />
+	public override string Show(ICharacter actor)
+	{
+		var sb = new StringBuilder();
+		sb.AppendLine($"Artificial Intelligence #{Id.ToString("N0", actor)} - {Name}".GetLineWithTitle(actor, Telnet.Cyan, Telnet.BoldWhite));
+		sb.AppendLine($"Type: {AIType.ColourValue()}");
+		sb.AppendLine();
+		sb.AppendLine($"Identity Known Prog: {IdentityIsKnownProg?.MXPClickableFunctionName() ?? "None".ColourError()}");
+		sb.AppendLine($"Warn Echo Prog: {WarnEchoProg?.MXPClickableFunctionName() ?? "None".ColourError()}");
+		sb.AppendLine($"Warn Start Move Prog: {WarnStartMoveEchoProg?.MXPClickableFunctionName() ?? "None".ColourError()}");
+		sb.AppendLine($"Warn Fail Comply Prog: {FailToComplyEchoProg?.MXPClickableFunctionName() ?? "None".ColourError()}");
+		sb.AppendLine($"Thrown In Prison Prog: {ThrowInPrisonEchoProg?.MXPClickableFunctionName() ?? "None".ColourError()}");
+		return sb.ToString();
+	}
+
+	/// <inheritdoc />
+	protected override string TypeHelpText => @"	#3identity <prog>#0 - sets a prog that controls if an individual's identity is known to the enforcer
+	#3warn <prog>#0 - sets the prog executed when a wanted criminal is spotted
+	#3warn clear#0 - clears the warn prog
+	#3warnmove <prog>#0 - sets the prog executed when a previously warned criminal begins to move
+	#3warnmove clear#0 - clears the warn move prog
+	#3warncomply <prog>#0 - sets the prog executed when a warned criminal doesn't comply after a time
+	#3warncomply clear#0 - clears the warn comply prog
+	#3prison <prog>#0 - sets the prog executed when the enforcer throws someone in a jail cell
+	#3prison clear#0 - clears the prison prog
+
+#BNote - all the progs with this AI return commands to be executed. Enter multiple commands separated by newlines in the text the prog returns. You can do additional things in the prog too - you can just return an empty text if you want the NPCs not to execute any commands but instead handle the logic in the prog some other way.#0";
+
+	/// <inheritdoc />
+	public override bool BuildingCommand(ICharacter actor, StringStack command)
+	{
+		switch (command.PopSpeech().ToLowerInvariant().CollapseString())
+		{
+			case "identity":
+			case "identityprog":
+				return BuildingCommandIdentityProg(actor, command);
+			case "warn":
+			case "warnprog":
+				return BuildingCommandWarnProg(actor, command);
+			case "warnmove":
+			case "warnmoveprog":
+				return BuildingCommandWarnMoveProg(actor, command);
+			case "warnfailcomply":
+			case "warncomply":
+			case "warnfailcomplyprog":
+			case "warncomplyprog":
+				return BuildingCommandWarnFailComplyProg(actor, command);
+			case "prison":
+			case "prisonprog":
+				return BuildingCommandPrisonProg(actor, command);
+		}
+		return base.BuildingCommand(actor, command.GetUndo());
+	}
+
+	private bool BuildingCommandPrisonProg(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("You must specify a prog or use #3clear#0 to clear.".SubstituteANSIColour());
+			return false;
+		}
+
+		if (command.SafeRemainingArgument.EqualToAny("clear", "delete", "remove", "none"))
+		{
+			ThrowInPrisonEchoProg = null;
+			Changed = true;
+			actor.OutputHandler.Send("This AI will no longer execute any actions when it throws someone in a cell.");
+			return true;
+		}
+
+		var prog = new FutureProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument,
+			FutureProgVariableTypes.Text,
+			new[]
+			{
+				new List<FutureProgVariableTypes>
+				{
+					FutureProgVariableTypes.Character,
+					FutureProgVariableTypes.Character
+				},
+				new List<FutureProgVariableTypes>
+				{
+					FutureProgVariableTypes.Character,
+					FutureProgVariableTypes.Character,
+					FutureProgVariableTypes.Crime
+				}
+			}
+		).LookupProg();
+		if (prog is null)
+		{
+			return false;
+		}
+
+		ThrowInPrisonEchoProg = prog;
+		Changed = true;
+		actor.OutputHandler.Send($"This AI will now use the prog {prog.MXPClickableFunctionName()} to return commands to execute when it throws someone in a cell.");
+		return true;
+	}
+
+	private bool BuildingCommandWarnFailComplyProg(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("You must specify a prog or use #3clear#0 to clear.".SubstituteANSIColour());
+			return false;
+		}
+
+		if (command.SafeRemainingArgument.EqualToAny("clear", "delete", "remove", "none"))
+		{
+			FailToComplyEchoProg = null;
+			Changed = true;
+			actor.OutputHandler.Send("This AI will no longer execute any actions when the criminal fails to comply.");
+			return true;
+		}
+
+		var prog = new FutureProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument,
+			FutureProgVariableTypes.Text,
+			new []
+			{
+				new List<FutureProgVariableTypes>
+				{
+					FutureProgVariableTypes.Character,
+					FutureProgVariableTypes.Character
+				},
+				new List<FutureProgVariableTypes>
+				{
+					FutureProgVariableTypes.Character,
+					FutureProgVariableTypes.Character,
+					FutureProgVariableTypes.Crime
+				}
+			}
+			).LookupProg();
+		if (prog is null)
+		{
+			return false;
+		}
+
+		FailToComplyEchoProg = prog;
+		Changed = true;
+		actor.OutputHandler.Send($"This AI will now use the prog {prog.MXPClickableFunctionName()} to return commands to execute when a criminal fails to comply.");
+		return true;
+	}
+
+	private bool BuildingCommandWarnMoveProg(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("You must specify a prog or use #3clear#0 to clear.".SubstituteANSIColour());
+			return false;
+		}
+
+		if (command.SafeRemainingArgument.EqualToAny("clear", "delete", "remove", "none"))
+		{
+			WarnStartMoveEchoProg = null;
+			Changed = true;
+			actor.OutputHandler.Send("This AI will no longer execute any actions when the criminal starts to move.");
+			return true;
+		}
+
+		var prog = new FutureProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument,
+			FutureProgVariableTypes.Text,
+			new[]
+			{
+				new List<FutureProgVariableTypes>
+				{
+					FutureProgVariableTypes.Character,
+					FutureProgVariableTypes.Character
+				},
+				new List<FutureProgVariableTypes>
+				{
+					FutureProgVariableTypes.Character,
+					FutureProgVariableTypes.Character,
+					FutureProgVariableTypes.Crime
+				}
+			}
+		).LookupProg();
+		if (prog is null)
+		{
+			return false;
+		}
+
+		WarnStartMoveEchoProg = prog;
+		Changed = true;
+		actor.OutputHandler.Send($"This AI will now use the prog {prog.MXPClickableFunctionName()} to return commands to execute when a criminal begins moving.");
+		return true;
+	}
+
+	private bool BuildingCommandWarnProg(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("You must specify a prog or use #3clear#0 to clear.".SubstituteANSIColour());
+			return false;
+		}
+
+		if (command.SafeRemainingArgument.EqualToAny("clear", "delete", "remove", "none"))
+		{
+			WarnEchoProg = null;
+			Changed = true;
+			actor.OutputHandler.Send("This AI will no longer execute any actions when it identifies a wanted criminal.");
+			return true;
+		}
+
+		var prog = new FutureProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument,
+			FutureProgVariableTypes.Text,
+			new[]
+			{
+				new List<FutureProgVariableTypes>
+				{
+					FutureProgVariableTypes.Character,
+					FutureProgVariableTypes.Character
+				},
+				new List<FutureProgVariableTypes>
+				{
+					FutureProgVariableTypes.Character,
+					FutureProgVariableTypes.Character,
+					FutureProgVariableTypes.Crime
+				}
+			}
+		).LookupProg();
+		if (prog is null)
+		{
+			return false;
+		}
+
+		WarnEchoProg = prog;
+		Changed = true;
+		actor.OutputHandler.Send($"This AI will now use the prog {prog.MXPClickableFunctionName()} to return commands to execute when it identifies a wanted criminal.");
+		return true;
+	}
+
+	private bool BuildingCommandIdentityProg(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("You must specify a prog or use #3clear#0 to clear.".SubstituteANSIColour());
+			return false;
+		}
+
+		if (command.SafeRemainingArgument.EqualToAny("clear", "delete", "remove", "none"))
+		{
+			IdentityIsKnownProg = null;
+			Changed = true;
+			actor.OutputHandler.Send("You clear the prog used to determine if a criminal's identity is known.");
+			return true;
+		}
+
+		var prog = new FutureProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument,
+			FutureProgVariableTypes.Boolean, new List<FutureProgVariableTypes>
+			{
+				FutureProgVariableTypes.Character,
+				FutureProgVariableTypes.Character
+			}).LookupProg();
+		if (prog is null)
+		{
+			return false;
+		}
+
+		IdentityIsKnownProg = prog;
+		Changed = true;
+		actor.OutputHandler.Send($"This AI will now use the prog {prog.MXPClickableFunctionName()} to control whether it knows the identity of individuals.");
+		return true;
+	}
 
 	public override bool HandleEvent(EventType type, params dynamic[] arguments)
 	{

@@ -8,6 +8,7 @@ using MudSharp.Effects.Concrete;
 using MudSharp.Events;
 using MudSharp.Framework;
 using MudSharp.FutureProg;
+using System.Text;
 
 namespace MudSharp.NPC.AI;
 
@@ -17,6 +18,17 @@ public class ScavengeAI : ArtificialIntelligenceBase
 		: base(ai, gameworld)
 	{
 		LoadFromXml(XElement.Parse(ai.Definition));
+	}
+
+	private ScavengeAI()
+	{
+	}
+
+	private ScavengeAI(IFuturemud gameworld, string name) : base(gameworld, name, "Scavenge")
+	{
+		WillScavengeItemProg = Gameworld.AlwaysFalseProg;
+		ScavengeDelayDiceExpression = "30+1d30";
+		DatabaseInitialise();
 	}
 
 	/// <summary>
@@ -43,6 +55,115 @@ public class ScavengeAI : ArtificialIntelligenceBase
 	public static void RegisterLoader()
 	{
 		RegisterAIType("Scavenge", (ai, gameworld) => new ScavengeAI(ai, gameworld));
+		RegisterAIBuilderInformation("scavenge", (gameworld, name) => new ScavengeAI(gameworld, name), new ScavengeAI().HelpText);
+	}
+
+	/// <inheritdoc />
+	public override string Show(ICharacter actor)
+	{
+		var sb = new StringBuilder();
+		sb.AppendLine($"Artificial Intelligence #{Id.ToString("N0", actor)} - {Name}".GetLineWithTitle(actor, Telnet.Cyan, Telnet.BoldWhite));
+		sb.AppendLine($"Type: {AIType.ColourValue()}");
+		sb.AppendLine();
+		sb.AppendLine($"Will Scavenge Prog: {WillScavengeItemProg?.MXPClickableFunctionName() ?? "None".ColourError()}");
+		sb.AppendLine($"On Scavenge Prog: {WillScavengeItemProg?.MXPClickableFunctionName() ?? "None".ColourError()}");
+		sb.AppendLine($"Delay Seconds Prog: {ScavengeDelayDiceExpression.ColourCommand()}");
+		return sb.ToString();
+	}
+
+	/// <inheritdoc />
+	protected override string TypeHelpText => @"	#3will <prog>#0 - sets a prog to evaluate items for scavenging purposes
+	#3scavenge <prog>#0 - sets the prog that is executed when an item is chosen for scavenging
+	#3delay <expression#0 - sets a dice expression for seconds between scavenge attempts";
+
+	/// <inheritdoc />
+	public override bool BuildingCommand(ICharacter actor, StringStack command)
+	{
+		switch (command.PopSpeech().ToLowerInvariant().CollapseString())
+		{
+			case "will":
+			case "willprog":
+				return BuildingCommandWillProg(actor, command);
+			case "onscavenge":
+			case "scavenge":
+			case "onscavengeprog":
+			case "scavengeprog":
+				return BuildingCommandOnScavengeProg(actor, command);
+			case "delay":
+				return BuildingCommandDelay(actor, command);
+
+		}
+		return base.BuildingCommand(actor, command.GetUndo());
+	}
+
+	private bool BuildingCommandDelay(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("You must enter a valid dice expression for seconds between scavenge attempts.");
+			return false;
+		}
+
+		if (!Dice.IsDiceExpression(command.SafeRemainingArgument))
+		{
+			actor.OutputHandler.Send($"The text {command.SafeRemainingArgument.ColourCommand()} is not a valid dice expression.");
+			return false;
+		}
+
+		ScavengeDelayDiceExpression = command.SafeRemainingArgument;
+		Changed = true;
+		actor.OutputHandler.Send($"This AI will now check for scavenging items every {ScavengeDelayDiceExpression.ColourValue()} seconds.");
+		return true;
+	}
+
+	private bool BuildingCommandOnScavengeProg(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("You must specify a prog.");
+			return false;
+		}
+
+		var prog = new FutureProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument,
+			FutureProgVariableTypes.Void, new List<FutureProgVariableTypes>
+			{
+				FutureProgVariableTypes.Character,
+				FutureProgVariableTypes.Item
+			}).LookupProg();
+		if (prog is null)
+		{
+			return false;
+		}
+
+		OnScavengeItemProg = prog;
+		Changed = true;
+		actor.OutputHandler.Send($"This NPC will now execute the {prog.MXPClickableFunctionName()} prog when it picks a target for scavenging.");
+		return true;
+	}
+
+	private bool BuildingCommandWillProg(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("You must specify a prog.");
+			return false;
+		}
+
+		var prog = new FutureProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument,
+			FutureProgVariableTypes.Boolean, new List<FutureProgVariableTypes>
+			{
+				FutureProgVariableTypes.Character,
+				FutureProgVariableTypes.Item
+			}).LookupProg();
+		if (prog is null)
+		{
+			return false;
+		}
+
+		WillScavengeItemProg = prog;
+		Changed = true;
+		actor.OutputHandler.Send($"This NPC will now use the {prog.MXPClickableFunctionName()} prog to determine whether it will scavenge an item.");
+		return true;
 	}
 
 	private void LoadFromXml(XElement root)
@@ -169,6 +290,11 @@ public class ScavengeAI : ArtificialIntelligenceBase
 
 	private void CheckScavengeEvent(ICharacter character)
 	{
+		if (OnScavengeItemProg is null)
+		{
+			return;
+		}
+
 		if (character.State.HasFlag(CharacterState.Dead))
 		{
 			return;

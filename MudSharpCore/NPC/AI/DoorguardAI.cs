@@ -195,7 +195,25 @@ public class DoorguardAI : ArtificialIntelligenceBase
 
 	/// <inheritdoc />
 	protected override string TypeHelpText => 
-		@"	#3#0";
+		@"	#3basedelay <prog>#0 - a prog that controls the millisecond delay on command responses
+	#3closedelay <prog>#0 - a prog that controls the millisecond delay before closing opened doors
+	#3will <prog>#0 - sets the prog that controls whether the guard will open the door for someone
+	#3wont <prog>#0 - sets a prog executed when the guard won't open the door for someone
+	#3wont clear#0 - clears the won't open door prog
+	#3cant <prog>#0 - sets a prog executed when the guard can't open the door for someone
+	#3cant clear#0 - clears the can't open door prog
+	#3open <prog>#0 - sets a prog executed when the guard wants to open the door
+	#3open clear#0 - clears the open door prog
+	#3close <prog>#0 - sets a prog executed when this guard wants to close the door
+	#3close clear#0 - clears the close door prog
+	#3stop <prog>#0 - sets a prog executed when this guard sees someone run in to the door
+	#3stop clear#0 - clears the stop prog
+	#3social <which>#0 - sets the social required to trigger the doorguard
+	#3social clear#0 - clears the social required to trigger the doorguard
+	#3socialonly#0 - toggles only responding to the social (ignoring movement)
+	#3ownside#0 - toggles ignoring requests from the other side of the door (e.g. knocks)
+	#3respectrules#0 - toggles using in-game engine logic to open doors (as opposed to leaving it to the progs)
+	#3socialdirection#0 - toggles using directional queues from socials to cover which door they'll open";
 
 	/// <inheritdoc />
 	public override bool BuildingCommand(ICharacter actor, StringStack command)
@@ -236,6 +254,8 @@ public class DoorguardAI : ArtificialIntelligenceBase
 			case "closeactionprog":
 			case "closeprog":
 				return BuildingCommandCloseActionProg(actor, command);
+			case "stop":
+			case "stopprog":
 			case "witnessstop":
 			case "onstop":
 			case "onwitnessstop":

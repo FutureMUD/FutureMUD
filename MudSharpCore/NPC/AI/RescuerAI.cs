@@ -21,6 +21,17 @@ public class RescuerAI : ArtificialIntelligenceBase
 		LoadFromXml(XElement.Parse(ai.Definition));
 	}
 
+	private RescuerAI()
+	{
+
+	}
+
+	private RescuerAI(IFuturemud gameworld, string name) : base(gameworld, name, "Rescuer")
+	{
+		IsFriendProg = Gameworld.AlwaysFalseProg;
+		DatabaseInitialise();
+	}
+
 	protected override string SaveToXml()
 	{
 		return new XElement("Definition",
@@ -33,6 +44,7 @@ public class RescuerAI : ArtificialIntelligenceBase
 	public static void RegisterLoader()
 	{
 		RegisterAIType("Rescuer", (ai, gameworld) => new RescuerAI(ai, gameworld));
+		RegisterAIBuilderInformation("rescuer", (gameworld, name) => new RescuerAI(gameworld, name), new RescuerAI().HelpText);
 	}
 
 	private void LoadFromXml(XElement root)
@@ -44,23 +56,6 @@ public class RescuerAI : ArtificialIntelligenceBase
 				out var value)
 				? Gameworld.FutureProgs.Get(value)
 				: Gameworld.FutureProgs.GetByName(root.Element("IsFriendProg").Value);
-		if (IsFriendProg == null)
-		{
-			throw new ApplicationException($"The RescuerAI with ID {Id} specified an invalid IsFriendProg.");
-		}
-
-		if (!IsFriendProg.ReturnType.CompatibleWith(FutureProgVariableTypes.Boolean))
-		{
-			throw new ApplicationException(
-				$"The RescuerAI with ID {Id} specified an IsFriendProg that did not return boolean.");
-		}
-
-		if (!IsFriendProg.MatchesParameters(new[] { FutureProgVariableTypes.Character }) &&
-			!IsFriendProg.MatchesParameters(new[] { FutureProgVariableTypes.Character, FutureProgVariableTypes.Character }))
-		{
-			throw new ApplicationException(
-				$"The RescuerAI with ID {Id} specified an IsFriendProg that did not accept the right parameters.");
-		}
 	}
 
 	public override bool HandleEvent(EventType type, params dynamic[] arguments)
@@ -82,6 +77,11 @@ public class RescuerAI : ArtificialIntelligenceBase
 		}
 
 		if (character.AffectedBy<IRescueEffect>())
+		{
+			return false;
+		}
+
+		if (IsFriendProg is null)
 		{
 			return false;
 		}
@@ -137,5 +137,62 @@ public class RescuerAI : ArtificialIntelligenceBase
 		}
 
 		return false;
+	}
+
+	/// <inheritdoc />
+	public override string Show(ICharacter actor)
+	{
+		var sb = new StringBuilder();
+		sb.AppendLine($"Artificial Intelligence #{Id.ToString("N0", actor)} - {Name}".GetLineWithTitle(actor, Telnet.Cyan, Telnet.BoldWhite));
+		sb.AppendLine($"Type: {AIType.ColourValue()}");
+		sb.AppendLine();
+		sb.AppendLine($"Is Friend Prog: {IsFriendProg?.MXPClickableFunctionName() ?? "None".ColourError()}");
+		return sb.ToString();
+	}
+
+	/// <inheritdoc />
+	protected override string TypeHelpText => @"	#3friend <prog>#0 - sets the prog that determines whether someone is a friend and will be rescued";
+
+	/// <inheritdoc />
+	public override bool BuildingCommand(ICharacter actor, StringStack command)
+	{
+		switch (command.PopSpeech().ToLowerInvariant().CollapseString())
+		{
+			case "friend":
+			case "isfriend":
+			case "friendly":
+			case "isfriendly":
+			case "friendprog":
+			case "isfriendprog":
+			case "friendlyprog":
+			case "isfriendlyprog":
+				return BuildingCommandIsFriendlyProg(actor, command);
+		}
+		return base.BuildingCommand(actor, command.GetUndo());
+	}
+
+	private bool BuildingCommandIsFriendlyProg(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("Which prog should be used to control whether this NPC will rescue a target?");
+			return false;
+		}
+
+		var prog = new FutureProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument,
+			FutureProgVariableTypes.Boolean, new List<FutureProgVariableTypes>
+			{
+				FutureProgVariableTypes.Character,
+				FutureProgVariableTypes.Character
+			}).LookupProg();
+		if (prog is null)
+		{
+			return false;
+		}
+
+		IsFriendProg = prog;
+		Changed = true;
+		actor.OutputHandler.Send($"This NPC will now use the {prog.MXPClickableFunctionName()} prog to determine whether to rescue a target.");
+		return true;
 	}
 }

@@ -116,7 +116,7 @@ public class LinearTimeBasedGenerator : BaseMagicResourceGenerator
 
 	public override bool BuildingCommand(ICharacter actor, StringStack command)
 	{
-		switch (command.PopSpeech().ToLowerInvariant().CollapseString())
+		switch (command.PopForSwitch())
 		{
 			case "resource":
 				return BuildingCommandResource(actor, command);

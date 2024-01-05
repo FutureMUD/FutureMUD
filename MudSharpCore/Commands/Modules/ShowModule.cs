@@ -181,7 +181,7 @@ public class ShowModule : Module<ICharacter>
 	protected static void Show(ICharacter actor, string command)
 	{
 		var ss = new StringStack(command.RemoveFirstWord());
-		switch (ss.PopSpeech().ToLowerInvariant().CollapseString())
+		switch (ss.PopForSwitch())
 		{
 			case "bodies":
 				Show_Bodies(actor);

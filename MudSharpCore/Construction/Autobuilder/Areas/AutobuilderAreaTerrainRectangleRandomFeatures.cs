@@ -259,7 +259,7 @@ public class AutobuilderAreaTerrainRectangleRandomFeatures : AutobuilderAreaTerr
 
 	public override bool BuildingCommand(ICharacter actor, StringStack command)
 	{
-		switch (command.PopSpeech().ToLowerInvariant().CollapseString())
+		switch (command.PopForSwitch())
 		{
 			case "group":
 				return BuildingCommandGroup(actor, command);
@@ -270,7 +270,7 @@ public class AutobuilderAreaTerrainRectangleRandomFeatures : AutobuilderAreaTerr
 
 	private bool BuildingCommandGroup(ICharacter actor, StringStack command)
 	{
-		switch (command.PopSpeech().ToLowerInvariant().CollapseString())
+		switch (command.PopForSwitch())
 		{
 			case "add":
 			case "new":

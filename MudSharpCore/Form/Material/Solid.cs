@@ -375,7 +375,7 @@ public class Solid : Material, ISolid
 	/// <inheritdoc />
 	public override bool BuildingCommand(ICharacter actor, StringStack command)
 	{
-		switch (command.PopSpeech().ToLowerInvariant().CollapseString())
+		switch (command.PopForSwitch())
 		{
 			case "impactyield":
 				return BuildingCommandImpactYield(actor, command);

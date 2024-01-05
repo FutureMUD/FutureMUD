@@ -128,7 +128,7 @@ public class LanternGameItemComponentProto : GameItemComponentProto
 
 	public override bool BuildingCommand(ICharacter actor, StringStack command)
 	{
-		switch (command.PopSpeech().ToLowerInvariant().CollapseString())
+		switch (command.PopForSwitch())
 		{
 			case "lux":
 			case "illumination":

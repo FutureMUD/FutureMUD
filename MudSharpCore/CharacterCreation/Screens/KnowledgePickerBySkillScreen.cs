@@ -379,7 +379,7 @@ Enter the name or number of the knowledge you would like to select, and #3done#0
 	/// <inheritdoc />
 	public override bool BuildingCommand(ICharacter actor, StringStack command)
 	{
-		switch (command.PopSpeech().ToLowerInvariant().CollapseString())
+		switch (command.PopForSwitch())
 		{
 			case "blurb":
 				return BuildingCommandBlurb(actor, command);

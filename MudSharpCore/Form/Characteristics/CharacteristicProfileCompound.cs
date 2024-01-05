@@ -66,7 +66,7 @@ public class CharacteristicProfileCompound : CharacteristicProfile
 
 	public override void BuildingCommand(ICharacter actor, StringStack command)
 	{
-		switch (command.PopSpeech().ToLowerInvariant().CollapseString())
+		switch (command.PopForSwitch())
 		{
 			case "value":
 				actor.OutputHandler.Send("Profiles of type 'Compound' can't manually add or remove values.");

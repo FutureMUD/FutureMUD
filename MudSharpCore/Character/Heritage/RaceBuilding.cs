@@ -114,7 +114,7 @@ public partial class Race
 	/// <inheritdoc />
 	public bool BuildingCommand(ICharacter actor, StringStack command)
 	{
-		switch (command.PopSpeech().ToLowerInvariant().CollapseString())
+		switch (command.PopForSwitch())
 		{
 			case "name":
 				return BuildingCommandName(actor, command);
@@ -483,7 +483,7 @@ public partial class Race
 			return false;
 		}
 
-		switch (command.PopSpeech().ToLowerInvariant().CollapseString())
+		switch (command.PopForSwitch())
 		{
 			case "calories":
 				return BuildingCommandEdibleYieldCalories(actor, command, yield);
@@ -812,7 +812,7 @@ public partial class Race
 			return false;
 		}
 
-		switch (command.PopSpeech().ToLowerInvariant().CollapseString())
+		switch (command.PopForSwitch())
 		{
 			case "add":
 			case "new":
@@ -1225,7 +1225,7 @@ public partial class Race
 
 	private bool BuildingCommandCharacteristic(ICharacter actor, StringStack command)
 	{
-		switch (command.PopSpeech().ToLowerInvariant().CollapseString())
+		switch (command.PopForSwitch())
 		{
 			case "all":
 				return BuildingCommandCharacteristicAddOrSet(actor, command, Gender.Indeterminate);

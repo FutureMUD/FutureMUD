@@ -174,7 +174,7 @@ public class CharacteristicProfile : FrameworkItem, ICharacteristicProfile
 
 	public virtual void BuildingCommand(ICharacter actor, StringStack command)
 	{
-		switch (command.PopSpeech().ToLowerInvariant().CollapseString())
+		switch (command.PopForSwitch())
 		{
 			case "name":
 				BuildingCommandName(actor, command);

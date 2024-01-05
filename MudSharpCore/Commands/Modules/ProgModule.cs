@@ -2194,7 +2194,7 @@ The syntax for this command is as follows:
 	protected static void Hook(ICharacter actor, string input)
 	{
 		var ss = new StringStack(input.RemoveFirstWord());
-		var cmd = ss.PopSpeech().ToLowerInvariant().CollapseString();
+		var cmd = ss.PopForSwitch();
 
 		switch (cmd.ToLowerInvariant())
 		{

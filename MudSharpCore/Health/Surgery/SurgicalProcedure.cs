@@ -777,7 +777,7 @@ There are the following special phase actions available for this surgical proced
 
 	public virtual bool BuildingCommand(ICharacter actor, StringStack command)
 	{
-		switch (command.PopSpeech().ToLowerInvariant().CollapseString())
+		switch (command.PopForSwitch())
 		{
 			case "name":
 				return BuildingCommandName(actor, command);
@@ -831,7 +831,7 @@ There are the following special phase actions available for this surgical proced
 
 	private bool BuildingCommandPhase(ICharacter actor, StringStack command)
 	{
-		var cmd = command.PopSpeech().ToLowerInvariant().CollapseString();
+		var cmd = command.PopForSwitch();
 		switch (cmd)
 		{
 			case "add":
@@ -869,7 +869,7 @@ There are the following special phase actions available for this surgical proced
 			return false;
 		}
 
-		switch (command.PopSpeech().ToLowerInvariant().CollapseString())
+		switch (command.PopForSwitch())
 		{
 			case "emote":
 				return BuildingCommandPhaseEmote(actor, command, phase);

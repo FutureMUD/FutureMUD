@@ -48,7 +48,7 @@ public class WandererAI : ArtificialIntelligenceBase
 		IsWanderingProg = Gameworld.AlwaysTrueProg;
 		TargetMoveSpeed = TargetBodyPrototype.Speeds
 		                                     .FirstOrDefault(x => x.Position == PositionStanding.Instance);
-		RawXmlDefinition = SaveToXml();
+		DatabaseInitialise();
 	}
 
 	private WandererAI() : base()
@@ -286,7 +286,7 @@ public class WandererAI : ArtificialIntelligenceBase
 	/// <inheritdoc />
 	public override bool BuildingCommand(ICharacter actor, StringStack command)
 	{
-		switch (command.PopSpeech().ToLowerInvariant().CollapseString())
+		switch (command.PopForSwitch())
 		{
 			case "emote":
 				return BuildingCommandEmote(actor, command);

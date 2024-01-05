@@ -242,7 +242,7 @@ public abstract class ChargenScreenStoryboard : SaveableItem, IChargenScreenStor
 
 	protected bool BuildingCommandFallback(ICharacter actor, StringStack command)
 	{
-		switch (command.PopSpeech().ToLowerInvariant().CollapseString())
+		switch (command.PopForSwitch())
 		{
 			case "dep":
 			case "dependency":

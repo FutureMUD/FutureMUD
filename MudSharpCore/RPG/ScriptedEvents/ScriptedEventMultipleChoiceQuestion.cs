@@ -80,7 +80,7 @@ namespace MudSharp.RPG.ScriptedEvents
 
 		public bool BuildingCommand(ICharacter actor, StringStack command)
 		{
-			switch (command.PopSpeech().ToLowerInvariant().CollapseString())
+			switch (command.PopForSwitch())
 			{
 				case "question":
 					return BuildingCommandQuestion(actor);

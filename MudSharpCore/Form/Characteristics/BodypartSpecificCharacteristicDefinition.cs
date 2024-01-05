@@ -62,7 +62,7 @@ public class BodypartSpecificCharacteristicDefinition : CharacteristicDefinition
 
 	public override void BuildingCommand(ICharacter actor, StringStack command)
 	{
-		switch (command.PopSpeech().ToLowerInvariant().CollapseString())
+		switch (command.PopForSwitch())
 		{
 			case "shape":
 			case "part":

@@ -68,7 +68,7 @@ public class BodypartSpecificClientCharacteristicDefinition : CharacteristicDefi
 
 	public override void BuildingCommand(ICharacter actor, StringStack command)
 	{
-		switch (command.PopSpeech().ToLowerInvariant().CollapseString())
+		switch (command.PopForSwitch())
 		{
 			case "parent":
 				if (command.IsFinished)

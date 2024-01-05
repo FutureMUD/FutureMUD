@@ -217,7 +217,7 @@ public class Dream : SaveableItem, IDream
 
 	public bool BuildingCommand(ICharacter actor, StringStack command)
 	{
-		switch (command.PopSpeech().ToLowerInvariant().CollapseString())
+		switch (command.PopForSwitch())
 		{
 			case "name":
 				return BuildingCommandName(actor, command);
@@ -254,7 +254,7 @@ public class Dream : SaveableItem, IDream
 
 	private bool BuildingCommandStage(ICharacter actor, StringStack command)
 	{
-		var arg = command.PopSpeech().ToLowerInvariant().CollapseString();
+		var arg = command.PopForSwitch();
 		switch (arg)
 		{
 			case "add":

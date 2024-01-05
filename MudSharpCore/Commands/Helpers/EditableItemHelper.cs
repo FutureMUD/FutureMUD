@@ -1415,7 +1415,7 @@ The core syntax is as follows:
 				actor.OutputHandler.Send("You must specify a verb used as a command to interact with that magic school.");
 				return;
 			}
-			var verb = input.PopSpeech().ToLowerInvariant().CollapseString();
+			var verb = input.PopForSwitch();
 
 			if (input.IsFinished)
 			{

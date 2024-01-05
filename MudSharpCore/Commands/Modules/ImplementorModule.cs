@@ -1666,7 +1666,7 @@ The syntax is as follows:
 	protected static void GPT(ICharacter actor, string command)
 	{
 		var ss = new StringStack(command.RemoveFirstWord());
-		switch (ss.PopSpeech().ToLowerInvariant().CollapseString())
+		switch (ss.PopForSwitch())
 		{
 			case "list":
 				GPTList(actor, ss);
@@ -1718,7 +1718,7 @@ The syntax is as follows:
 				return;
 			}
 
-			switch (ss.PopSpeech().ToLowerInvariant().CollapseString())
+			switch (ss.PopForSwitch())
 			{
 				case "model":
 					GPTSetModel(actor, thread, ss);

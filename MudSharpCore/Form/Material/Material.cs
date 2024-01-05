@@ -307,7 +307,7 @@ public abstract class Material : SaveableItem, IMaterial
 	/// <inheritdoc />
 	public virtual bool BuildingCommand(ICharacter actor, StringStack command)
 	{
-		switch (command.PopSpeech().ToLowerInvariant().CollapseString())
+		switch (command.PopForSwitch())
 		{
 			case "organic":
 				return BuildingCommandOrganic(actor);

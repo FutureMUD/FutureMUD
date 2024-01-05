@@ -90,7 +90,7 @@ public abstract class PathingAIBase : ArtificialIntelligenceBase
 
 	public override bool BuildingCommand(ICharacter actor, StringStack command)
 	{
-		switch (command.PopSpeech().ToLowerInvariant().CollapseString()) {
+		switch (command.PopForSwitch()) {
 			case "opendoors":
 				return BuildingCommandOpenDoors(actor);
 			case "usekeys":

@@ -134,6 +134,15 @@ namespace MudSharp.Framework {
             return Pop();
         }
 
+        /// <summary>
+        /// Equivalent to PopSpeech().ToLowerInvariant().CollapseString(). Used commonly with switch statements for building commands.
+        /// </summary>
+        /// <returns></returns>
+        public string PopForSwitch()
+        {
+	        return PopSpeech().ToLowerInvariant().CollapseString();
+        }
+
         public string PeekSpeech() {
             return (RemainingArgument.Length > 0) && !IsFinished && RemainingArgument.StartsWith("\"", StringComparison.Ordinal)
                 ? RemainingArgument.Split(_speechSeparator, 3)[1]

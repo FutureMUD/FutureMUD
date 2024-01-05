@@ -46,7 +46,7 @@ public abstract class CastingTriggerBase : ICastMagicTrigger
 
 	public virtual bool BuildingCommand(ICharacter actor, StringStack command)
 	{
-		switch (command.PopSpeech().ToLowerInvariant().CollapseString())
+		switch (command.PopForSwitch())
 		{
 			case "minpower":
 			case "minimumpower":

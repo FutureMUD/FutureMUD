@@ -209,7 +209,7 @@ public class GameItemSkin : EditableItem, IGameItemSkin
 
 	public override bool BuildingCommand(ICharacter actor, StringStack command)
 	{
-		switch (command.PopSpeech().ToLowerInvariant().CollapseString())
+		switch (command.PopForSwitch())
 		{
 			case "name":
 				return BuildingCommandName(actor, command);

@@ -110,7 +110,7 @@ public class ChargenAdvice : SaveableItem, IChargenAdvice
 
 	public bool BuildingCommand(ICharacter actor, StringStack command)
 	{
-		switch (command.PopSpeech().ToLowerInvariant().CollapseString())
+		switch (command.PopForSwitch())
 		{
 			case "title":
 				return BuildingCommandTitle(actor, command);

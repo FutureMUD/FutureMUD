@@ -85,7 +85,7 @@ characteristic profile ... - work with characteristic profiles";
 
 	private static void Characteristic_Definition(ICharacter actor, StringStack command)
 	{
-		switch (command.PopSpeech().ToLowerInvariant().CollapseString())
+		switch (command.PopForSwitch())
 		{
 			case "add":
 			case "new":
@@ -257,7 +257,7 @@ characteristic profile ... - work with characteristic profiles";
 		}
 
 		CharacteristicType ctype;
-		var type = command.PopSpeech().ToLowerInvariant().CollapseString();
+		var type = command.PopForSwitch();
 		switch (type)
 		{
 			case "relativeheight":
@@ -627,7 +627,7 @@ characteristic profile ... - work with characteristic profiles";
 
 	private static void Characteristic_Profile(ICharacter actor, StringStack command)
 	{
-		switch (command.PopSpeech().ToLowerInvariant().CollapseString())
+		switch (command.PopForSwitch())
 		{
 			case "add":
 			case "new":
@@ -802,7 +802,7 @@ characteristic profile ... - work with characteristic profiles";
 			return;
 		}
 
-		var typeText = command.PopSpeech().ToLowerInvariant().CollapseString();
+		var typeText = command.PopForSwitch();
 
 		switch (typeText)
 		{

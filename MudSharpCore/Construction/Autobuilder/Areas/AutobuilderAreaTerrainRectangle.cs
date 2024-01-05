@@ -248,7 +248,7 @@ public class AutobuilderAreaTerrainRectangle : AutobuilderAreaBase
 
 	public override bool BuildingCommand(ICharacter actor, StringStack command)
 	{
-		switch (command.PopSpeech().ToLowerInvariant().CollapseString())
+		switch (command.PopForSwitch())
 		{
 			case "diagonal":
 			case "diagonals":

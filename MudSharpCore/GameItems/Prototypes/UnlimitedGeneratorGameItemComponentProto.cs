@@ -123,7 +123,7 @@ public class UnlimitedGeneratorGameItemComponentProto : GameItemComponentProto
 
 	public override bool BuildingCommand(ICharacter actor, StringStack command)
 	{
-		switch (command.PopSpeech().ToLowerInvariant().CollapseString())
+		switch (command.PopForSwitch())
 		{
 			case "onemote":
 				return BuildingCommand_OnEmote(actor, command);

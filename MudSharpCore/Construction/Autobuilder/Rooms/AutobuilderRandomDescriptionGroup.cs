@@ -74,7 +74,7 @@ public class AutobuilderRandomDescriptionGroup : IAutobuilderRandomDescriptionEl
 
 	public bool BuildingCommand(ICharacter actor, StringStack command)
 	{
-		switch (command.PopSpeech().ToLowerInvariant().CollapseString())
+		switch (command.PopForSwitch())
 		{
 			case "weight":
 				return BuildingCommandWeight(actor, command);

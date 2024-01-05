@@ -77,7 +77,7 @@ public class SelfCareAI : ArtificialIntelligenceBase
 	/// <inheritdoc />
 	public override bool BuildingCommand(ICharacter actor, StringStack command)
 	{
-		switch (command.PopSpeech().ToLowerInvariant().CollapseString())
+		switch (command.PopForSwitch())
 		{
 			case "binddelay":
 				return BuildingCommandBindDelay(actor, command);

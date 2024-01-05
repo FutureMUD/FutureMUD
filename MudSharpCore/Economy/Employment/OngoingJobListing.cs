@@ -318,7 +318,7 @@ You will be paid {PayDescriptionForJobListing()}.{(PersonalProject is not null ?
 
 	public override bool BuildingCommand(ICharacter actor, StringStack command)
 	{
-		switch (command.PopSpeech().ToLowerInvariant().CollapseString())
+		switch (command.PopForSwitch())
 		{
 			case "currency":
 				return BuildingCommandCurrency(actor, command);

@@ -997,7 +997,7 @@ See the CELL command for more information about CELL PACKAGES.";
 			return;
 		}
 
-		switch (command.PopSpeech().ToLowerInvariant().CollapseString())
+		switch (command.PopForSwitch())
 		{
 			case "name":
 				ZoneEditName(actor, zone, command);
@@ -2332,7 +2332,7 @@ You can use the following subcommands:
 			return;
 		}
 
-		if (!exit.IsClimbExit && !exit.IsFallExit)
+		if (!exit.IsClimbExit && !exit.IsFallExit && !exit.Opposite.IsFallExit)
 		{
 			actor.OutputHandler.Send("That exit is already neither a fall exit nor a climb exit.");
 			return;

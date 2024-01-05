@@ -3339,7 +3339,7 @@ Additionally, if you are the manager of a bank, you can use the following additi
 	protected static void Bank(ICharacter actor, string command)
 	{
 		var ss = new StringStack(command.RemoveFirstWord());
-		switch (ss.PopSpeech().ToLowerInvariant().CollapseString())
+		switch (ss.PopForSwitch())
 		{
 			case "edit":
 			case "set":
@@ -3521,7 +3521,7 @@ Additionally, if you are the manager of a bank, you can use the following additi
 			return;
 		}
 
-		var text = ss.PopSpeech().ToLowerInvariant().CollapseString();
+		var text = ss.PopForSwitch();
 		if (text.EqualToAny("open", "new", "create"))
 		{
 			BankAccountCreate(actor, ss, bank);
@@ -4244,7 +4244,7 @@ Note: Admins can use the #3auction cancel#0 subcommand on other people's items";
 	protected static void Auction(ICharacter actor, string command)
 	{
 		var ss = new StringStack(command.RemoveFirstWord());
-		switch (ss.PopSpeech().ToLowerInvariant().CollapseString())
+		switch (ss.PopForSwitch())
 		{
 			case "edit":
 			case "close":

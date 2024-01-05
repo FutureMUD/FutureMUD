@@ -3765,7 +3765,7 @@ Filters for list:
 		var list = actor.Gameworld.ScriptedEvents.AsEnumerable();
 		while (!ss.IsFinished)
 		{
-			switch (ss.PopSpeech().ToLowerInvariant().CollapseString())
+			switch (ss.PopForSwitch())
 			{
 				case "finished":
 					list = list.Where(x => x.IsFinished);

@@ -93,7 +93,7 @@ public class FuelGeneratorGameItemComponentProto : GameItemComponentProto
 
 	public override bool BuildingCommand(ICharacter actor, StringStack command)
 	{
-		switch (command.PopSpeech().ToLowerInvariant().CollapseString())
+		switch (command.PopForSwitch())
 		{
 			case "liquid":
 				return BuildingCommand_Liquid(actor, command);

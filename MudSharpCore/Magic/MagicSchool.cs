@@ -219,7 +219,7 @@ public class MagicSchool : SaveableItem, IMagicSchool
 	/// <returns>Returns true if the command was valid and anything was changed. If nothing was changed or the command was invalid, it returns false</returns>
 	public bool BuildingCommand(ICharacter actor, StringStack command)
 	{
-		switch (command.PopSpeech().ToLowerInvariant().CollapseString())
+		switch (command.PopForSwitch())
 		{
 			case "name":
 				return BuildingCommandName(actor, command);

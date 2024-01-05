@@ -214,7 +214,7 @@ public class AgePickerScreenStoryboard : ChargenScreenStoryboard
 	/// <inheritdoc />
 	public override bool BuildingCommand(ICharacter actor, StringStack command)
 	{
-		switch (command.PopSpeech().ToLowerInvariant().CollapseString())
+		switch (command.PopForSwitch())
 		{
 			case "ageblurb":
 			case "age":

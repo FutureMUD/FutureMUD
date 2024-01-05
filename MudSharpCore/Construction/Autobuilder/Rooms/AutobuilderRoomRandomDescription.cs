@@ -372,7 +372,7 @@ Commands pertaining to random description elements that get added to the base de
 
 	public override bool BuildingCommand(ICharacter actor, StringStack command)
 	{
-		switch (command.PopSpeech().ToLowerInvariant().CollapseString())
+		switch (command.PopForSwitch())
 		{
 			case "roomname":
 			case "cellname":
@@ -593,7 +593,7 @@ Commands pertaining to random description elements that get added to the base de
 			}
 		}
 
-		switch (command.PopSpeech().ToLowerInvariant().CollapseString())
+		switch (command.PopForSwitch())
 		{
 			case "roomname":
 			case "cellname":

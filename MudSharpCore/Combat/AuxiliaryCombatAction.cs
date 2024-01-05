@@ -182,7 +182,7 @@ internal class AuxiliaryCombatAction : CombatAction, IAuxiliaryCombatAction
 
 	protected static IAuxiliaryEffect? CreateEffectFromBuilderInput(AuxiliaryCombatAction action, ICharacter actor, StringStack ss)
 	{
-		var parser = _builderParsers[ss.PopSpeech().ToLowerInvariant().CollapseString()];
+		var parser = _builderParsers[ss.PopForSwitch()];
 		if (parser is null)
 		{
 			actor.OutputHandler.Send($"There is no such auxiliary effect type. The valid types are {_builderTypeNames.Select(x => x.ColourValue()).ListToString()}.");

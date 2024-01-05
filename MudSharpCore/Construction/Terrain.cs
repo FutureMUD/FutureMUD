@@ -794,7 +794,7 @@ public class Terrain : SaveableItem, ITerrain
 
 	private bool BuildingCommandModel(ICharacter actor, StringStack command)
 	{
-		var model = command.PopSpeech().ToLowerInvariant().CollapseString();
+		var model = command.PopForSwitch();
 		ILiquid liquid = null;
 		switch (model)
 		{

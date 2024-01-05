@@ -29,7 +29,162 @@ public class TerritorialWanderer : PathingAIBase
 	public bool WillShareTerritory { get; protected set; }
 	public bool WillShareTerritoryWithOtherRaces { get; protected set; }
 
-    protected override string SaveToXml()
+	/// <inheritdoc />
+	public override string Show(ICharacter actor)
+	{
+		var sb = new StringBuilder(base.Show(actor));
+		sb.AppendLine($"Suitable Territory Prog: {SuitableTerritoryProg?.MXPClickableFunctionName() ?? "None".ColourError()}");
+		sb.AppendLine($"Territory Size Prog: {DesiredTerritorySizeProg?.MXPClickableFunctionName() ?? "None".ColourError()}");
+		sb.AppendLine($"Wander Emote: {WanderEmote?.ColourCommand() ?? ""}");
+		sb.AppendLine($"Wander Chance Per Minute: {WanderChancePerMinute.ToString("P2", actor).ColourValue()}");
+		sb.AppendLine($"Will Share Territory: {WillShareTerritory.ToColouredString()}");
+		sb.AppendLine($"Will Share Territory (Other Races): {WillShareTerritoryWithOtherRaces.ToColouredString()}");
+		return sb.ToString();
+	}
+
+	/// <inheritdoc />
+	protected override string TypeHelpText => $@"{base.TypeHelpText}
+	#3territory <prog>#0 - sets the prog that controls if a room is suitable for territory
+	#3size <prog>#0 - sets the prog that controls how much territory each individual wants
+	#3wander <emote>#0 - sets the travel emote
+	#3wander clear#0 - clears the travel emote
+	#3chance <%>#0 - sets the percentage chance per minute of wandering
+	#3share#0 - toggles sharing territory with others of its species
+	#3shareother#0 - toggles sharing territory with other races";
+
+	/// <inheritdoc />
+	public override bool BuildingCommand(ICharacter actor, StringStack command)
+	{
+		switch (command.PopForSwitch())
+		{
+			case "territory":
+			case "territoryprog":
+				return BuildingCommandTerritoryProg(actor, command);
+			case "size":
+			case "sizeprog":
+				return BuildingCommandSizeProg(actor, command);
+			case "wander":
+				return BuildingCommandWander(actor, command);
+			case "chance":
+				return BuildingCommandChance(actor, command);
+			case "share":
+				return BuildingCommandShare(actor);
+			case "shareother":
+			case "shareothers":
+				return BuildingCommandShareOthers(actor);
+		}
+		return base.BuildingCommand(actor, command.GetUndo());
+	}
+
+	private bool BuildingCommandShareOthers(ICharacter actor)
+	{
+		WillShareTerritoryWithOtherRaces = !WillShareTerritoryWithOtherRaces;
+		Changed = true;
+		actor.OutputHandler.Send(
+			$"This AI will {WillShareTerritoryWithOtherRaces.NowNoLonger()} share territory with other races.");
+		return true;
+	}
+
+	private bool BuildingCommandShare(ICharacter actor)
+	{
+		WillShareTerritory = !WillShareTerritory;
+		Changed = true;
+		actor.OutputHandler.Send(
+			$"This AI will {WillShareTerritory.NowNoLonger()} share territory with others of its species.");
+		return true;
+	}
+
+	private bool BuildingCommandChance(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished || command.SafeRemainingArgument.TryParsePercentage(out var value) || value < 0.0 || value > 1.0)
+		{
+			actor.OutputHandler.Send(
+				$"You must supply a valid percentage between {0.0.ToString("P0", actor).ColourValue()} and {1.0.ToString("P0", actor).ColourValue()}");
+			return false;
+		}
+
+		WanderChancePerMinute = value;
+		Changed = true;
+		actor.OutputHandler.Send(
+			$"This AI will now have a {value.ToString("P2", actor).ColourValue()} chance of wandering every minute.");
+		return true;
+	}
+
+	private bool BuildingCommandWander(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("You must either specify a travel emote or use #3clear#0 to clear it."
+				.SubstituteANSIColour());
+			return false;
+		}
+
+		if (command.SafeRemainingArgument.EqualToAny("clear", "none", "delete", "remove"))
+		{
+			WanderEmote = string.Empty;
+			Changed = true;
+			actor.OutputHandler.Send("This AI will no longer have any travel emote.");
+			return true;
+		}
+
+		WanderEmote = command.SafeRemainingArgument;
+		Changed = true;
+		actor.OutputHandler.Send(
+			$"This AI will now do the following travel string when wandering: {WanderEmote.ColourCommand()}");
+		return true;
+	}
+
+	private bool BuildingCommandSizeProg(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("You must specify a prog.");
+			return false;
+		}
+
+		var prog = new FutureProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument, 
+			FutureProgVariableTypes.Number, 
+			new[] { FutureProgVariableTypes.Character }
+			).LookupProg();
+		if (prog is null)
+		{
+			return false;
+		}
+
+		DesiredTerritorySizeProg = prog;
+		Changed = true;
+		actor.OutputHandler.Send($"This AI will now use the {prog.MXPClickableFunctionName()} prog to determine how many rooms it should have in its territory.");
+		return true;
+	}
+
+	private bool BuildingCommandTerritoryProg(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("You must specify a prog.");
+			return false;
+		}
+
+		var prog = new FutureProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument,
+			FutureProgVariableTypes.Boolean,
+			new []
+			{
+				new[] { FutureProgVariableTypes.Location },
+				new[] { FutureProgVariableTypes.Location, FutureProgVariableTypes.Character },
+			}
+		).LookupProg();
+		if (prog is null)
+		{
+			return false;
+		}
+
+		SuitableTerritoryProg = prog;
+		Changed = true;
+		actor.OutputHandler.Send($"This AI will now use the {prog.MXPClickableFunctionName()} prog to determine whether a room is suitable for its territory.");
+		return true;
+	}
+
+	protected override string SaveToXml()
     {
 		return new XElement("Definition",
 			new XElement("SuitableTerritoryProg", SuitableTerritoryProg?.Id ?? 0),
@@ -50,11 +205,28 @@ public class TerritorialWanderer : PathingAIBase
     public static void RegisterLoader()
 	{
 		RegisterAIType("TerritorialWanderer", (ai, gameworld) => new TerritorialWanderer(ai, gameworld));
+		RegisterAIBuilderInformation("territorialwanderer", (game, name) => new TerritorialWanderer(game, name), new TerritorialWanderer().HelpText);
 	}
 
 	/// <inheritdoc />
 	protected TerritorialWanderer(ArtificialIntelligence ai, IFuturemud gameworld) : base(ai, gameworld)
 	{
+	}
+
+	private TerritorialWanderer()
+	{
+
+	}
+
+	private TerritorialWanderer(IFuturemud gameworld, string name) : base(gameworld, name, "TerritorialWanderer")
+	{
+		SuitableTerritoryProg = Gameworld.AlwaysTrueProg;
+		DesiredTerritorySizeProg = Gameworld.AlwaysOneProg;
+		WanderEmote = string.Empty;
+		WanderChancePerMinute = 0.33;
+		WillShareTerritory = false;
+		WillShareTerritoryWithOtherRaces = true;
+		DatabaseInitialise();
 	}
 
 	#region Overrides of PathingAIBase

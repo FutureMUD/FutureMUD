@@ -139,7 +139,7 @@ public class ChangeCharacteristicEffect : IMagicSpellEffectTemplate
 
 	public bool BuildingCommand(ICharacter actor, StringStack command)
 	{
-		switch (command.PopSpeech().ToLowerInvariant().CollapseString())
+		switch (command.PopForSwitch())
 		{
 			case "definition":
 				return BuildingCommandDefinition(actor, command);

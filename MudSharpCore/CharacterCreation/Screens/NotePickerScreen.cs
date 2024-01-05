@@ -56,10 +56,10 @@ public class NotePickerScreenStoryboard : ChargenScreenStoryboard
 	/// <inheritdoc />
 	public override bool BuildingCommand(ICharacter actor, StringStack command)
 	{
-		switch (command.PopSpeech().ToLowerInvariant().CollapseString())
+		switch (command.PopForSwitch())
 		{
 			case "note":
-				switch (command.PopSpeech().ToLowerInvariant().CollapseString())
+				switch (command.PopForSwitch())
 				{
 					case "add":
 						return BuildingCommandNoteAdd(actor, command);

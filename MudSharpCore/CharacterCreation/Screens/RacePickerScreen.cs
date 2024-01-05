@@ -225,7 +225,7 @@ public class RacePickerScreenStoryboard : ChargenScreenStoryboard
 	/// <inheritdoc />
 	public override bool BuildingCommand(ICharacter actor, StringStack command)
 	{
-		switch (command.PopSpeech().ToLowerInvariant().CollapseString())
+		switch (command.PopForSwitch())
 		{
 			case "blurb":
 				return BuildingCommandBlurb(actor, command);

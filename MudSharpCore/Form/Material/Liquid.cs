@@ -508,7 +508,7 @@ public class Liquid : Fluid, ILiquid
 	/// <inheritdoc />
 	public override bool BuildingCommand(ICharacter actor, StringStack command)
 	{
-		switch (command.PopSpeech().ToLowerInvariant().CollapseString())
+		switch (command.PopForSwitch())
 		{
 			case "taste":
 				return BuildingCommandTaste(actor, command);

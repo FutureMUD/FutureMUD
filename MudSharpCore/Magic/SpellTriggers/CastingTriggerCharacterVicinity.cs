@@ -71,7 +71,7 @@ public class CastingTriggerCharacterVicinity: CastingTriggerBase
 
 	public override bool BuildingCommand(ICharacter actor, StringStack command)
 	{
-		switch (command.PopSpeech().ToLowerInvariant().CollapseString())
+		switch (command.PopForSwitch())
 		{
 			case "filter":
 			case "filterprog":

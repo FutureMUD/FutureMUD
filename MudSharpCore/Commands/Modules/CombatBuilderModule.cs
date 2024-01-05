@@ -524,7 +524,7 @@ The syntax for this command is as follows:
 	protected static void Auxiliary(ICharacter actor, string text)
 	{
 		var ss = new StringStack(text.RemoveFirstWord());
-		switch (ss.PopSpeech().ToLowerInvariant().CollapseString())
+		switch (ss.PopForSwitch())
 		{
 			case "add":
 			case "create":

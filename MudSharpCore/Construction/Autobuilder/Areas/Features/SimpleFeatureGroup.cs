@@ -185,7 +185,7 @@ public class SimpleFeatureGroup : TerrainFeatureGroup
 	public override bool BuildingCommand(ICharacter actor, AutobuilderAreaTerrainRectangleRandomFeatures parent,
 		StringStack command)
 	{
-		switch (command.PopSpeech().ToLowerInvariant().CollapseString())
+		switch (command.PopForSwitch())
 		{
 			case "name":
 				return BuildingCommandName(actor, parent, command);

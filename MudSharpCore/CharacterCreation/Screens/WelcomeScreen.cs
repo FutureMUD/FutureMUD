@@ -158,7 +158,7 @@ internal class WelcomeScreenStoryboard : ChargenScreenStoryboard
 	/// <inheritdoc />
 	public override bool BuildingCommand(ICharacter actor, StringStack command)
 	{
-		switch (command.PopSpeech().ToLowerInvariant().CollapseString())
+		switch (command.PopForSwitch())
 		{
 			case "blurb":
 				return BuildingCommandBlurb(actor, command);
@@ -175,7 +175,7 @@ internal class WelcomeScreenStoryboard : ChargenScreenStoryboard
 			return false;
 		}
 
-		switch (command.PopSpeech().ToLowerInvariant().CollapseString())
+		switch (command.PopForSwitch())
 		{
 			case "add":
 			case "new":

@@ -78,7 +78,7 @@ internal class ScriptedEventFreeTextQuestion : SaveableItem, IScriptedEventFreeT
 
 	public bool BuildingCommand(ICharacter actor, StringStack command)
 	{
-		switch(command.PopSpeech().ToLowerInvariant().CollapseString())
+		switch(command.PopForSwitch())
 		{
 			case "question":
 				return BuildingCommandQuestion(actor);

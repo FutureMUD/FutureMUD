@@ -897,7 +897,7 @@ The following options are available as filters with the #3list#0 subcommand:
 		protected static void AI(ICharacter actor, string input)
 		{
 			var ss = new StringStack(input.RemoveFirstWord());
-			switch (ss.PopSpeech().ToLowerInvariant().CollapseString())
+			switch (ss.PopForSwitch())
 			{
 				case "add":
 				case "attach":

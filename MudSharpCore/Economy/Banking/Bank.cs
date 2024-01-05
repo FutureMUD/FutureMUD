@@ -218,7 +218,7 @@ public class Bank : SaveableItem, IBank, ILazyLoadDuringIdleTime
 
 	public bool BuildingCommand(ICharacter actor, StringStack command)
 	{
-		switch (command.PopSpeech().ToLowerInvariant().CollapseString())
+		switch (command.PopForSwitch())
 		{
 			case "name":
 				return BuildingCommandName(actor, command);
@@ -304,7 +304,7 @@ public class Bank : SaveableItem, IBank, ILazyLoadDuringIdleTime
 
 	private bool BuildingCommandAccountType(ICharacter actor, StringStack command)
 	{
-		switch (command.PopSpeech().ToLowerInvariant().CollapseString())
+		switch (command.PopForSwitch())
 		{
 			case "add":
 			case "new":
@@ -469,7 +469,7 @@ public class Bank : SaveableItem, IBank, ILazyLoadDuringIdleTime
 
 	public void ManagerCommand(ICharacter actor, StringStack command)
 	{
-		switch (command.PopSpeech().ToLowerInvariant().CollapseString())
+		switch (command.PopForSwitch())
 		{
 			case "account":
 				ManagerCommandAccount(actor, command);

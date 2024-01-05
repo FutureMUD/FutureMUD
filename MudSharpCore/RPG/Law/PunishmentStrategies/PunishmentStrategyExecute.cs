@@ -28,7 +28,7 @@ internal class PunishmentStrategyExecute : PunishmentStrategyBase
 
 	public override bool BuildingCommand(ICharacter actor, ILegalAuthority authority, StringStack command)
 	{
-		switch (command.PopSpeech().ToLowerInvariant().CollapseString())
+		switch (command.PopForSwitch())
 		{
 			default:
 				return base.BuildingCommand(actor, authority, command.GetUndo());

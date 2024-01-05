@@ -148,7 +148,7 @@ public class Channel : SaveableItem, IChannel
 
 		if (original.Equals("channel", StringComparison.InvariantCultureIgnoreCase))
 		{
-			switch (ss.PopSpeech().ToLowerInvariant().CollapseString())
+			switch (ss.PopForSwitch())
 			{
 				case "list":
 					ChannelCommandList(character, ss);
@@ -477,7 +477,7 @@ public class Channel : SaveableItem, IChannel
 
 	public bool BuildingCommand(ICharacter actor, StringStack command)
 	{
-		switch (command.PopSpeech().ToLowerInvariant().CollapseString())
+		switch (command.PopForSwitch())
 		{
 			case "name":
 				return BuildingCommandName(actor, command);

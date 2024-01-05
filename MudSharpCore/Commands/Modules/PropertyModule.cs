@@ -161,7 +161,7 @@ The following commands are specific to those who own a property (or who are mana
 	protected static void Property(ICharacter actor, string command)
 	{
 		var ss = new StringStack(command.RemoveFirstWord());
-		switch (ss.PopSpeech().ToLowerInvariant().CollapseString())
+		switch (ss.PopForSwitch())
 		{
 			case "edit":
 			case "close":

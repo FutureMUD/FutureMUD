@@ -37,7 +37,7 @@ public class PunishmentStrategyHierarchy : PunishmentStrategyBase
 
 	public override bool BuildingCommand(ICharacter actor, ILegalAuthority authority, StringStack command)
 	{
-		switch (command.PopSpeech().ToLowerInvariant().CollapseString())
+		switch (command.PopForSwitch())
 		{
 			case "add":
 			case "new":

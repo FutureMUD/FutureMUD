@@ -680,7 +680,7 @@ Note, the boost cost expression can use the following parameters:
 	/// <inheritdoc />
 	public override bool BuildingCommand(ICharacter actor, StringStack command)
 	{
-		switch (command.PopSpeech().ToLowerInvariant().CollapseString())
+		switch (command.PopForSwitch())
 		{
 			case "picks":
 				return BuildingCommandPicks(actor, command);

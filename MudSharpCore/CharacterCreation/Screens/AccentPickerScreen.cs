@@ -387,7 +387,7 @@ Type {"continue".Colour(Telnet.Yellow)} to begin, or {"reset".Colour(Telnet.Yell
 	/// <inheritdoc />
 	public override bool BuildingCommand(ICharacter actor, StringStack command)
 	{
-		switch (command.PopSpeech().ToLowerInvariant().CollapseString())
+		switch (command.PopForSwitch())
 		{
 			case "blurb":
 				return BuildingCommandBlurb(actor, command);

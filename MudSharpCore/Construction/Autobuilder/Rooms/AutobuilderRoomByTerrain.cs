@@ -158,7 +158,7 @@ public class AutobuilderRoomByTerrain : AutobuilderRoomBase
 
 	public override bool BuildingCommand(ICharacter actor, StringStack command)
 	{
-		switch (command.PopSpeech().ToLowerInvariant().CollapseString())
+		switch (command.PopForSwitch())
 		{
 			case "roomname":
 			case "cellname":
@@ -274,7 +274,7 @@ public class AutobuilderRoomByTerrain : AutobuilderRoomBase
 			}
 		}
 
-		switch (command.PopSpeech().ToLowerInvariant().CollapseString())
+		switch (command.PopForSwitch())
 		{
 			case "roomname":
 			case "cellname":

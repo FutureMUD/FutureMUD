@@ -59,6 +59,7 @@ public enum WildAnimalHerdPriority
 
 public abstract class WildAnimalHerdAIReaction
 {
+	public abstract string Name { get; }
 	public abstract void DoReaction(ICharacter character, List<(INPC Animal, WildAnimalHerdRole Role)> herd,
 		List<ICharacter> stressors, ICharacter mostRecentStressor);
 	public abstract XElement SaveReaction(WildAnimalHerdState state);
@@ -66,7 +67,10 @@ public abstract class WildAnimalHerdAIReaction
 
 public class WildAnimalHerdEmoteReaction : WildAnimalHerdAIReaction
 {
-    public override XElement SaveReaction(WildAnimalHerdState state)
+	/// <inheritdoc />
+	public override string Name => "Emote";
+
+	public override XElement SaveReaction(WildAnimalHerdState state)
     {
 		return new XElement("Reaction", 
 			new XElement("state", (int)state),
@@ -119,6 +123,8 @@ public class WildAnimalHerdEmoteReaction : WildAnimalHerdAIReaction
 
 public class WildAnimalHerdFleeReaction : WildAnimalHerdAIReaction
 {
+	/// <inheritdoc />
+	public override string Name => "Flee";
 
 	public override XElement SaveReaction(WildAnimalHerdState state)
 	{
@@ -198,7 +204,10 @@ public class WildAnimalHerdFleeReaction : WildAnimalHerdAIReaction
 
 public class WildAnimalAttackReaction : WildAnimalHerdAIReaction
 {
-    public override XElement SaveReaction(WildAnimalHerdState state)
+	/// <inheritdoc />
+	public override string Name => "Attack";
+
+	public override XElement SaveReaction(WildAnimalHerdState state)
     {
         return new XElement("Reaction",
             new XElement("state", (int)state),
@@ -282,6 +291,62 @@ public class WildAnimalHerdAI : PathingAIBase
 
 	private readonly CollectionDictionary<(WildAnimalHerdState State, WildAnimalHerdRole Role), string>
 		_randomEmoteDictionary = new();
+
+	/// <inheritdoc />
+	public override string Show(ICharacter actor)
+	{
+		var sb = new StringBuilder(base.Show(actor));
+		sb.AppendLine($"Escalate Threat Prog: {_escalateThreatProg?.MXPClickableFunctionName() ?? "None".ColourError()}");
+		sb.AppendLine($"Considers Threat Prog: {_considersThreatProg?.MXPClickableFunctionName() ?? "None".ColourError()}");
+		sb.AppendLine($"Herd Role Prog: {_herdRoleProg?.MXPClickableFunctionName() ?? "None".ColourError()}");
+		sb.AppendLine($"Fight Or Flight Prog: {_fightOrFlightProg?.MXPClickableFunctionName() ?? "None".ColourError()}");
+		sb.AppendLine($"Will Move Calm Prog: {_willMoveCalmProg?.MXPClickableFunctionName() ?? "None".ColourError()}");
+		sb.AppendLine($"Will Move Agitated Prog: {_willMoveAgitatedProg?.MXPClickableFunctionName() ?? "None".ColourError()}");
+		sb.AppendLine($"Will Move Into Room Prog: {_willMoveIntoRoomProg?.MXPClickableFunctionName() ?? "None".ColourError()}");
+		sb.AppendLine($"Outsider Min Separation: {_minimumDistanceForOutsiders.ToString("N0", actor).ColourValue()}");
+		sb.AppendLine($"Outsider Max Separation: {_maximumDistanceForOutsiders.ToString("N0", actor).ColourValue()}");
+		sb.AppendLine($"Maximum Herd Dispersement: {_maximumHerdDispersement.ToString("N0", actor).ColourValue()}");
+		sb.AppendLine($"Threat Awareness Distance: {_threatAwarenessDistance.ToString("N0", actor).ColourValue()}");
+		sb.AppendLine($"Random Echo Chance Per Minute: {_randomEchoChancePerMinute.ToString("P2", actor).ColourValue()}");
+		sb.AppendLine($"Scan Chance Per Minuten: {_sentryScanChancePerMinute.ToString("P2", actor).ColourValue()}");
+		sb.AppendLine($"Fleers Engage If Cornered: {_fleersWillEngageInCombatIfCornered.ToColouredString()}");
+		sb.AppendLine($"Resting Position: {_positionStateWhenResting.Name.ColourValue()}");
+		sb.AppendLine($"Active Times: {_activeTimes.Select(x => x.DescribeColour()).ListToString()}");
+		sb.AppendLine();
+		sb.AppendLine("Role Counts:\n");
+		foreach (var role in _minimumCountsForEachRole)
+		{
+			sb.AppendLine($"\t{role.Key.DescribeEnum().ColourName()}: {role.Value.ToString("N0", actor).ColourValue()}");
+		}
+
+		sb.AppendLine();
+		sb.AppendLine("Attack When Attacked Emotes:");
+		sb.AppendLine();
+		foreach (var (role, emote) in _attackWhenAttackedEmotes)
+		{
+			sb.AppendLine($"\t{role.DescribeEnum().ColourName()}: {emote.ColourCommand()}");
+		}
+
+		sb.AppendLine();
+		sb.AppendLine($"State Reactions:");
+		sb.AppendLine();
+		foreach (var (state, reaction) in _stateReactionDictionary)
+		{
+			sb.AppendLine($"\t{state.DescribeEnum().ColourName()}: {reaction.Name.ColourValue()}"); // TODO - more than just name
+		}
+
+		sb.AppendLine();
+		sb.AppendLine("Random Emotes:");
+		sb.AppendLine();
+		foreach (var (key,emotes) in _randomEmoteDictionary)
+		{
+			foreach (var emote in emotes)
+			{
+				sb.AppendLine($"\t[{key.State.DescribeEnum().ColourName()},{key.Role.DescribeEnum().ColourName()}]: {emote.ColourCommand()}");
+			}
+		}
+		return sb.ToString();
+	}
 
 	public static void RegisterLoader()
 	{
@@ -892,6 +957,16 @@ public class WildAnimalHerdAI : PathingAIBase
 			throw new ApplicationException(
 				$"WillMoveAgitatedProg was not compatible in WildAnimalHerdAI {ai.Id} \"{ai.Name}\". It must return Boolean and accept Character, Exit as parameters.");
 		}
+	}
+
+	private WildAnimalHerdAI()
+	{
+
+	}
+
+	private WildAnimalHerdAI(IFuturemud gameworld, string name) : base(gameworld, name, "WildAnimalHerd")
+	{
+		DatabaseInitialise();
 	}
 
 	private List<ICharacter> GetStressors(ICharacter character, List<INPC> herd)

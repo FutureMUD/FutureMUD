@@ -113,7 +113,7 @@ internal class WeightedCharacteristicProfile : CharacteristicProfile
 
 	public override void BuildingCommand(ICharacter actor, StringStack command)
 	{
-		switch (command.PopSpeech().ToLowerInvariant().CollapseString())
+		switch (command.PopForSwitch())
 		{
 			case "value":
 				BuildingCommandValue(actor, command);

@@ -111,7 +111,7 @@ public class CharacteristicValue : FrameworkItem, ISaveable, ICharacteristicValu
 
 	public virtual void BuildingCommand(ICharacter actor, StringStack command)
 	{
-		switch (command.PopSpeech().ToLowerInvariant().CollapseString())
+		switch (command.PopForSwitch())
 		{
 			case "name":
 			case "value":

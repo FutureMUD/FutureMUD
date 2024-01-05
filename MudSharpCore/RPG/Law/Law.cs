@@ -191,7 +191,7 @@ public class Law : SaveableItem, ILaw
 
 	public bool BuildingCommand(ICharacter actor, StringStack command)
 	{
-		switch (command.PopSpeech().ToLowerInvariant().CollapseString())
+		switch (command.PopForSwitch())
 		{
 			case "show":
 			case "view":
@@ -264,7 +264,7 @@ public class Law : SaveableItem, ILaw
 			return true;
 		}
 
-		switch (command.PopSpeech().ToLowerInvariant().CollapseString())
+		switch (command.PopForSwitch())
 		{
 			case "type":
 				return BuildingCommandPunishmentStrategyType(actor, command);

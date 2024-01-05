@@ -100,7 +100,7 @@ public class AdjacentFeature : Feature
 
 	public override bool BuildingCommand(ICharacter actor, TerrainFeatureGroup parent, StringStack command)
 	{
-		switch (command.PopSpeech().ToLowerInvariant().CollapseString())
+		switch (command.PopForSwitch())
 		{
 			case "ignoreexits":
 				return BuildingCommandIgnoreExits(actor, command);

@@ -301,7 +301,7 @@ public abstract class BoneViaBodypartProcedure : SurgicalProcedure
 	/// <inheritdoc />
 	public override bool BuildingCommand(ICharacter actor, StringStack command)
 	{
-		switch (command.PopSpeech().ToLowerInvariant().CollapseString())
+		switch (command.PopForSwitch())
 		{
 			case "fixedpart":
 				return BuildingCommandFixedPart(actor, command);

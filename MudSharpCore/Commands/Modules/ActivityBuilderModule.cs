@@ -324,7 +324,7 @@ You can use the following options with this command:
 	protected static void ButcheryProduct(ICharacter actor, string input)
 	{
 		var ss = new StringStack(input.RemoveFirstWord());
-		switch (ss.PopSpeech().ToLowerInvariant().CollapseString())
+		switch (ss.PopForSwitch())
 		{
 			case "list":
 				ButcheryProductList(actor, ss);

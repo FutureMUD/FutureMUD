@@ -185,7 +185,7 @@ public class ButcheryProduct : SaveableItem, IButcheryProduct
 	#3item <##> nodamaged#0 - clears the damaged proto";
 	public bool BuildingCommand(ICharacter actor, StringStack command)
 	{
-		switch (command.PopSpeech().ToLowerInvariant().CollapseString())
+		switch (command.PopForSwitch())
 		{
 			case "name":
 				return BuildingCommandName(actor, command);
@@ -216,7 +216,7 @@ public class ButcheryProduct : SaveableItem, IButcheryProduct
 
 	private bool BuildingCommandItem(ICharacter actor, StringStack command)
 	{
-		switch (command.PopSpeech().ToLowerInvariant().CollapseString())
+		switch (command.PopForSwitch())
 		{
 			case "add":
 			case "new":
@@ -242,7 +242,7 @@ public class ButcheryProduct : SaveableItem, IButcheryProduct
 			return false;
 		}
 		
-		switch (command.PopSpeech().ToLowerInvariant().CollapseString())
+		switch (command.PopForSwitch())
 		{
 			case "quantity":
 			case "number":

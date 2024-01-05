@@ -254,7 +254,7 @@ public class AggressorAI : ArtificialIntelligenceBase
 
 	public override bool BuildingCommand(ICharacter actor, StringStack command)
 	{
-		switch (command.PopSpeech().ToLowerInvariant().CollapseString())
+		switch (command.PopForSwitch())
 		{
 			case "attackprog":
 				return BuildingCommandAttackProg(actor, command);

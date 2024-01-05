@@ -411,7 +411,7 @@ The valid types are:
 	/// <inheritdoc />
 	public override bool BuildingCommand(ICharacter actor, StringStack command)
 	{
-		switch (command.PopSpeech().ToLowerInvariant().CollapseString())
+		switch (command.PopForSwitch())
 		{
 			case "blurb":
 				return BuildingCommandBlurb(actor, command);
@@ -427,7 +427,7 @@ The valid types are:
 
 	private bool BuildingCommandRoleType(ICharacter actor, StringStack command, ChargenRoleType roleType)
 	{
-		switch (command.PopSpeech().ToLowerInvariant().CollapseString())
+		switch (command.PopForSwitch())
 		{
 			case "canskip":
 			case "skip":

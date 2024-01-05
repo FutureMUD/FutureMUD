@@ -60,7 +60,7 @@ public class CharacterProfileAll : CharacteristicProfile
 
 	public override void BuildingCommand(ICharacter actor, StringStack command)
 	{
-		switch (command.PopSpeech().ToLowerInvariant().CollapseString())
+		switch (command.PopForSwitch())
 		{
 			case "value":
 				actor.OutputHandler.Send("Profiles of type 'All' can't manually add or remove values.");

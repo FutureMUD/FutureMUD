@@ -82,7 +82,7 @@ public class Feature
 
 	public virtual bool BuildingCommand(ICharacter actor, TerrainFeatureGroup parent, StringStack command)
 	{
-		switch (command.PopSpeech().ToLowerInvariant().CollapseString())
+		switch (command.PopForSwitch())
 		{
 			case "name":
 			case "tag":

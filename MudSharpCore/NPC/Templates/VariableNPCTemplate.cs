@@ -1224,7 +1224,7 @@ public class VariableNPCTemplate : NPCTemplateBase
 
 	public override bool BuildingCommand(ICharacter actor, StringStack command)
 	{
-		switch (command.PopSpeech().ToLowerInvariant().CollapseString())
+		switch (command.PopForSwitch())
 		{
 			case "gender":
 				return BuildingCommandGender(actor, command);

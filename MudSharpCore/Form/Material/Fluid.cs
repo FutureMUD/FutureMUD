@@ -91,7 +91,7 @@ public abstract class Fluid : Material, IFluid
 	/// <inheritdoc />
 	public override bool BuildingCommand(ICharacter actor, StringStack command)
 	{
-		switch (command.PopSpeech().ToLowerInvariant().CollapseString())
+		switch (command.PopForSwitch())
 		{
 			case "colour":
 			case "color":

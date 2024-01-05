@@ -106,7 +106,7 @@ public class EnforcerAI : ArtificialIntelligenceBase
 	/// <inheritdoc />
 	public override bool BuildingCommand(ICharacter actor, StringStack command)
 	{
-		switch (command.PopSpeech().ToLowerInvariant().CollapseString())
+		switch (command.PopForSwitch())
 		{
 			case "identity":
 			case "identityprog":

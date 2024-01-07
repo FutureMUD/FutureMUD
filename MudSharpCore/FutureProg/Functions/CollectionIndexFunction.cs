@@ -35,7 +35,7 @@ internal class CollectionIndexFunction : Function
 			return StatementResult.Error;
 		}
 
-		var index = Convert.ToInt32(IndexFunction.Result);
+		var index = Convert.ToInt32(IndexFunction.Result?.GetObject ?? 0);
 		Result = collection.OfType<IFutureProgVariable>().ElementAtOrDefault(index);
 		return StatementResult.Normal;
 	}

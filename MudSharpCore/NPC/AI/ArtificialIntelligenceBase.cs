@@ -26,6 +26,18 @@ public abstract class ArtificialIntelligenceBase : SaveableItem, IArtificialInte
 	private static readonly Dictionary<string, string> _aiBuilderTypeHelps =
 		new(StringComparer.InvariantCultureIgnoreCase);
 
+	public static (bool Found, string Text) GetTypeHelp(string type)
+	{
+		if (_aiBuilderTypeHelps.ContainsKey(type))
+		{
+			return (true, _aiBuilderTypeHelps[type]);
+		}
+
+		return (false, string.Empty);
+	}
+
+	public static IEnumerable<string> AITypes => _aiBuilderLoaders.Keys.ToList();
+
 	public virtual bool IsReadyToBeUsed => true;
 
 	protected ArtificialIntelligenceBase(ArtificialIntelligence ai, IFuturemud gameworld)

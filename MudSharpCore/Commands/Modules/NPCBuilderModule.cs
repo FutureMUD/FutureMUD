@@ -16,6 +16,7 @@ using System.Text;
 using System.Threading.Tasks;
 using MudSharp.NPC.AI.Groups;
 using MudSharp.NPC;
+using MudSharp.NPC.AI;
 using MudSharp.PerceptionEngine;
 
 namespace MudSharp.Commands.Modules
@@ -885,6 +886,8 @@ The core syntax is as follows:
 	#3ai add <ai> <npc>#0 - adds an AI routine to an NPC in the gameworld
 	#3ai remove <ai> <npc>#0 - removes an AI routine from an NPC in the gameworld
 	#3ai npclist <which>#0 - shows all NPCs who have the AI in question running
+	#3ai types#0 - shows a list of AI types
+	#3ai typehelp <type>#0 - shows type help for a specific AI type
 
 The following options are available as filters with the #3list#0 subcommand:
 
@@ -913,9 +916,50 @@ The following options are available as filters with the #3list#0 subcommand:
 				case "instances":
 					AINPCList(actor, ss);
 					return;
+				case "types":
+					AITypes(actor);
+					return;
+				case "typehelp":
+					AITypeHelp(actor, ss);
+					return;
 			}
 
 			GenericBuildingCommand(actor, ss.GetUndo(), EditableItemHelper.AIHelper);
+		}
+
+		private static void AITypeHelp(ICharacter actor, StringStack ss)
+		{
+			if (ss.IsFinished)
+			{
+				actor.OutputHandler.Send("Which AI Type are you trying to see the help file for?");
+				return;
+			}
+
+			var type = ss.SafeRemainingArgument.ToLowerInvariant();
+			var (success, text) = ArtificialIntelligenceBase.GetTypeHelp(type);
+			if (!success)
+			{
+				actor.OutputHandler.Send("There is no AI type like that.");
+				return;
+			}
+
+			var sb = new StringBuilder();
+			sb.AppendLine($"Type Help for Type \"{type}\"".GetLineWithTitle(actor, Telnet.Magenta, Telnet.BoldWhite));
+			sb.AppendLine();
+			sb.AppendLine(text.SubstituteANSIColour());
+			actor.OutputHandler.Send(sb.ToString());
+		}
+
+		private static void AITypes(ICharacter actor)
+		{
+			var sb = new StringBuilder();
+			sb.AppendLine("There are the following AI Types:\n");
+			foreach (var type in ArtificialIntelligenceBase.AITypes)
+			{
+				sb.AppendLine($"\t{type.ColourName()}");
+			}
+
+			actor.OutputHandler.Send(sb.ToString());
 		}
 
 		private static void AINPCList(ICharacter actor, StringStack ss)

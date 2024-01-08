@@ -74,9 +74,6 @@ public partial class Chargen : FrameworkItem, IChargen
 		}
 
 		CurrentScreen = Gameworld.ChargenStoryboard.StageScreenMap[Stage].GetScreen(this);
-		MinimumApprovalAuthority = chargen.MinimumApprovalAuthority.HasValue
-			? (PermissionLevel)chargen.MinimumApprovalAuthority
-			: PermissionLevel.Any;
 	}
 
 	private Chargen(ChargenState status, IChargenMenu menu, IFuturemud gameworld, IAccount account)
@@ -253,7 +250,16 @@ public partial class Chargen : FrameworkItem, IChargen
 		}
 	}
 
-	public PermissionLevel MinimumApprovalAuthority { get; protected set; }
+	public PermissionLevel MinimumApprovalAuthority {
+		get
+		{
+			if (SelectedRoles.Any())
+			{
+				return SelectedRoles.Max(x => x.MinimumPermissionToApprove);
+			}
+			return PermissionLevel.Guest;
+		}
+	}
 
 	public IReadOnlyDictionary<IChargenResource, int> CurrentCosts => ApplicationCosts;
 

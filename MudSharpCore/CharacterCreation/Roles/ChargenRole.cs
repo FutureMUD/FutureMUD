@@ -65,6 +65,8 @@ internal class ChargenRole : SaveableItem, IChargenRole
 			dbitem.AvailabilityProgId = AvailabilityProg?.Id;
 			dbitem.MaximumNumberAlive = MaximumNumberAlive;
 			dbitem.MaximumNumberTotal = MaximumNumberTotal;
+			dbitem.MinimumAuthorityToApprove = (int)MinimumPermissionToApprove;
+			dbitem.MinimumAuthorityToView = (int)MinimumPermissionToView;
 
 			FMDB.Context.ChargenAdvicesChargenRoles.RemoveRange(dbitem.ChargenAdvicesChargenRoles);
 			foreach (var item in _chargenAdvices)
@@ -152,6 +154,8 @@ internal class ChargenRole : SaveableItem, IChargenRole
 		RequiredApprovers = role.ChargenRolesApprovers.Select(x => x.Approver.Name).ToList();
 		MaximumNumberAlive = role.MaximumNumberAlive;
 		MaximumNumberTotal = role.MaximumNumberTotal;
+		MinimumPermissionToApprove = (PermissionLevel)role.MinimumAuthorityToApprove;
+		MinimumPermissionToView = (PermissionLevel)role.MinimumAuthorityToView;
 		AvailabilityProg = Gameworld.FutureProgs.Get(role.AvailabilityProgId ?? 0);
 		_costs.AddRange(role.ChargenRolesCosts.Select(x =>
 			new ChargenResourceCost(

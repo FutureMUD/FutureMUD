@@ -12,6 +12,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
+using MudSharp.Database;
+using MudSharp.Editor;
 
 namespace MudSharp.FutureProg.Functions.Chargen
 {
@@ -88,8 +90,34 @@ namespace MudSharp.FutureProg.Functions.Chargen
 			var amount = (int)((decimal?)ParameterFunctions[2].Result?.GetObject ?? 0.0M);
 			var current = chargen.Account.AccountResources.GetValueOrDefault(resource);
 			chargen.Account.AccountResources[resource] = Math.Max(0, current + amount);
-			chargen.Account.AccountResourcesLastAwarded[resource] = System.DateTime.UtcNow;
-			chargen.Account.Changed = true;
+			var now = System.DateTime.UtcNow;
+			chargen.Account.AccountResourcesLastAwarded[resource] = now;
+
+			using (new FMDB())
+			{
+				var dbaccount = FMDB.Context.Accounts.Find(chargen.Account.Id);
+				if (dbaccount == null)
+				{
+					ErrorMessage = $"Account was null";
+					return StatementResult.Error;
+				}
+
+				var dbaccountresource = dbaccount.AccountsChargenResources.FirstOrDefault(x => x.ChargenResourceId == resource.Id);
+				if (dbaccountresource == null)
+				{
+					dbaccountresource = new Models.AccountsChargenResources
+					{
+						Account = dbaccount,
+						ChargenResourceId = resource.Id, Amount = 0, LastAwardDate = System.DateTime.MinValue
+					};
+					FMDB.Context.AccountsChargenResources.Add(dbaccountresource);
+				}
+
+				dbaccountresource.Amount += amount;
+				dbaccountresource.LastAwardDate = now;
+				FMDB.Context.SaveChanges();
+			}
+
 			Result = new NumberVariable(chargen.Account.AccountResources[resource]);
 			return StatementResult.Normal;
 		}

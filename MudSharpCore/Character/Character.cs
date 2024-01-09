@@ -1060,16 +1060,39 @@ public partial class Character : PerceiverItem, ICharacter
 	{
 		var sb = new StringBuilder();
 		sb.AppendLine(
-			$"{(IsPlayerCharacter ? IsGuest ? "Guest" : "Player" : "NPC")} Character #{Id:N0}{(IsPlayerCharacter && !IsGuest ? $" - Account: {Account.Name}" : "")} - State: {State.Describe()}");
-		sb.AppendLine(
-			$"Name: {PersonalName.GetName(NameStyle.FullWithNickname)} - Current Name: {CurrentName.GetName(NameStyle.FullWithNickname)}");
-		sb.AppendLine($"Aliases: {Aliases.Select(x => x.GetName(NameStyle.FullWithNickname)).ListToString()}");
-		sb.AppendLine(
-			$"Race: {Race.Name} - Culture: {Culture.Name} - Ethnicity: {Ethnicity.Name} - Gender: {Gender.Name} - Age: {Location.Date(Birthday.Calendar).YearsDifference(Birthday)}");
-		sb.AppendLine(
-			$"Stats: {TraitsOfType(TraitType.Attribute).Select(x => $"{x.Definition.Name} [{x.Value}]").ListToString(separator: " ", conjunction: "")}");
+			$"{(IsPlayerCharacter ? IsGuest ? "Guest" : "Player" : "NPC")} Character #{Id.ToString("N0", voyeur)}".GetLineWithTitle(voyeur, Telnet.Green, Telnet.BoldWhite));
+		sb.AppendLine($"Short Description: {HowSeen(voyeur, flags: PerceiveIgnoreFlags.IgnoreCanSee | PerceiveIgnoreFlags.IgnoreLoadThings | PerceiveIgnoreFlags.IgnoreObscured | PerceiveIgnoreFlags.IgnoreSelf | PerceiveIgnoreFlags.IgnoreDisguises)}");
+		sb.AppendLine($"Name: {PersonalName.GetName(NameStyle.FullWithNickname).ColourName()}");
+		sb.AppendLine($"Aliases: {Aliases.Select(x => x.GetName(NameStyle.FullWithNickname).ColourName()).ListToString()}");
+		sb.AppendLine($"Current Name: {CurrentName.GetName(NameStyle.FullWithNickname).ColourName()}");
+		sb.AppendLine($"Account: {(Account is DummyAccount ? "NPC".ColourError() : Account.Name.ColourName())}");
+		sb.AppendLine($"Status: {Status.Describe().ColourValue()}");
+		sb.AppendLine($"Race: {Race.Name.ColourValue()}");
+		sb.AppendLine($"Culture: {Culture.Name.ColourValue()}");
+		sb.AppendLine($"Ethnicity: {Ethnicity.Name.ColourValue()}");
+		sb.AppendLine($"Gender: {Gender.Name.ColourValue()}");
+		sb.AppendLine($"Age: {AgeInYears.ToString("N0", voyeur).ColourValue()} ({AgeCategory.DescribeEnum()})");
+		
+		
+		sb.AppendLine($"Height: {Gameworld.UnitManager.Describe(Body.Height, UnitType.Length, voyeur).ColourValue()}");
+		sb.AppendLine($"Weight: {Gameworld.UnitManager.DescribeMostSignificant(Body.Weight, UnitType.Mass, voyeur).ColourValue()}");
+		sb.AppendLine($"Location: {Location?.GetFriendlyReference(voyeur).ColourValue() ?? "Nowhere".ColourError()} ({RoomLayer.LocativeDescription().ColourValue()})");
+		sb.AppendLine($"Short Term Plan: {ShortTermPlan?.ColourCommand() ?? "None".ColourError()}");
+		sb.AppendLine($"Long Term Plan: {LongTermPlan?.ColourCommand() ?? "None".ColourError()}");
+		if (CurrentProject.Project is not null)
+		{
+			sb.AppendLine($"Project: {CurrentProject.Project.Name.ColourName()} (#{CurrentProject.Project.Id.ToString("N0", voyeur)}) - {CurrentProject.Labour.Description.ColourValue()}");
+		}
+		else
+		{
+			sb.AppendLine($"Project: {"None".ColourError()}");
+		}
+		sb.AppendLine();
+		sb.AppendLine($"Stats: {TraitsOfType(TraitType.Attribute).Select(x => $"{x.Definition.Name.ColourName()} [{x.Value.ToString("N0", voyeur).ColourValue()}]").ListToString(separator: " ", conjunction: "")}");
+		sb.AppendLine();
 		sb.AppendLine($"Skills:");
-		sb.Append(TraitsOfType(TraitType.Skill).Select(x => $"{x.Definition.Name} [{x.Value} | {x.MaxValue}]")
+		sb.AppendLine();
+		sb.Append(TraitsOfType(TraitType.Skill).Select(x => $"{x.Definition.Name.ColourName()} [{x.Value.ToString("N2", voyeur).ColourValue()} | {x.MaxValue.ToString("N2", voyeur).ColourValue()}]")
 		                                       .ArrangeStringsOntoLines(4,
 			                                       (uint)voyeur.LineFormatLength)
 		);

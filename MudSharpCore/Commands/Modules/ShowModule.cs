@@ -115,6 +115,7 @@ public class ShowModule : Module<ICharacter>
 	#3calendar <which> [<year>]#0 - shows details about a calendar
 	#3characteristics#0 - shows all characteristic definitions
 	#3character <id>#0 - shows a specific character
+	#3characters#0 - shows a list of all characters
 	#3climates#0 - shows a list of regional climates
 	#3climate <id|name>#0 - shows a specific regional climate
 	#3climatemodels#0 - shows a list of climate models
@@ -389,6 +390,9 @@ public class ShowModule : Module<ICharacter>
 			case "character":
 				Show_Character(actor, ss);
 				break;
+			case "characters":
+				Show_Characters(actor, ss);
+				break;
 			case "permissions":
 				Show_Permissions(actor, ss);
 				break;
@@ -477,6 +481,12 @@ public class ShowModule : Module<ICharacter>
 
 				return;
 		}
+	}
+
+	private static void Show_Characters(ICharacter actor, StringStack ss)
+	{
+		
+		throw new NotImplementedException();
 	}
 
 	private static void Show_Bodies(ICharacter actor)
@@ -757,6 +767,7 @@ public class ShowModule : Module<ICharacter>
 					"Email"
 				},
 				actor,
+				Telnet.Green,
 				truncatableColumnIndex: 6
 			)
 		);

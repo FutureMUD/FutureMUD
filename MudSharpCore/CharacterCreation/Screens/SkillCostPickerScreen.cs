@@ -220,7 +220,7 @@ public class SkillCostPickerScreenStoryboard : ChargenScreenStoryboard
 				if (nonFreeSkills.Count > freePicks)
 				{
 					AdditionalSkillsCostExpression.Parameters["picks"] = nonFreeSkills.Count - freePicks;
-					sum += (int)(double)AdditionalSkillsCostExpression.Evaluate();
+					sum += Convert.ToInt32(AdditionalSkillsCostExpression.Evaluate());
 				}
 
 				sum += chargen.SelectedSkillBoosts.Sum(x => BoostCostForSkill(x.Key, chargen, x.Value));
@@ -235,7 +235,7 @@ public class SkillCostPickerScreenStoryboard : ChargenScreenStoryboard
 		BoostCostExpression.Parameters["base"] =
 			(double)((decimal?)BaseBoostCostProg.Execute(skill, chargen) ?? 1.0M);
 		BoostCostExpression.Parameters["boosts"] = boosts;
-		return (int)(double)BoostCostExpression.Evaluate();
+		return Convert.ToInt32(BoostCostExpression.Evaluate());
 	}
 
 	internal class SkillCostPickerScreen : ChargenScreen
@@ -271,7 +271,7 @@ public class SkillCostPickerScreenStoryboard : ChargenScreenStoryboard
 			Storyboard.BoostCostExpression.Parameters["base"] =
 				(double)((decimal?)Storyboard.BaseBoostCostProg.Execute(skill, Chargen) ?? 1.0M);
 			Storyboard.BoostCostExpression.Parameters["boosts"] = SelectedBoosts[skill];
-			return (int)(double)Storyboard.BoostCostExpression.Evaluate();
+			return Convert.ToInt32(Storyboard.BoostCostExpression.Evaluate());
 		}
 
 		protected string DisplaySkillBoostStage()

@@ -134,7 +134,8 @@ public class DescriptionPickerScreenStoryboard : ChargenScreenStoryboard
 			{
 				if (InCustomMode)
 				{
-					return "Enter the custom short description that you would like to use.";
+					// TODO - show variables
+					return "Please enter the custom short description that you would like to use: ";
 				}
 
 				if (SelectedEntityDescriptionPattern == null)
@@ -161,7 +162,7 @@ public class DescriptionPickerScreenStoryboard : ChargenScreenStoryboard
 								? $"This is a random sample of 20 of the {ValidPatterns.Count(x => x.Type == EntityDescriptionType.ShortDescription)} available patterns. Type {"shuffle".Colour(Telnet.Yellow)} to view another random sample.\n"
 								: "",
 							Storyboard.AllowCustomDescription
-								? ", or 0 to enter your own custom description."
+								? ", or #3custom#0 to enter your own custom description.".SubstituteANSIColour()
 								: ""
 						);
 				}
@@ -172,7 +173,7 @@ public class DescriptionPickerScreenStoryboard : ChargenScreenStoryboard
 
 			if (InCustomMode)
 			{
-				return "Enter the custom description that you would like to use.";
+				return "Please enter the custom description that you would like to use:\n";
 			}
 
 			if (SelectedEntityDescriptionPattern == null)
@@ -197,7 +198,7 @@ public class DescriptionPickerScreenStoryboard : ChargenScreenStoryboard
 							? $"This is a random sample of 4 of the {ValidPatterns.Count(x => x.Type == EntityDescriptionType.FullDescription)} available patterns. Type {"shuffle".Colour(Telnet.Yellow)} to view another random sample.\n"
 							: "",
 						Storyboard.AllowCustomDescription
-							? ", or 0 to enter your own custom description."
+							? ", or #3custom#0 to enter your own custom description.".SubstituteANSIColour()
 							: ""
 					);
 			}
@@ -234,14 +235,13 @@ public class DescriptionPickerScreenStoryboard : ChargenScreenStoryboard
 
 				if (SelectedEntityDescriptionPattern == null)
 				{
+					if (command.EqualTo("custom") && Storyboard.AllowCustomDescription)
+					{
+						InCustomMode = true;
+						return Display();
+					}
 					if (int.TryParse(command, out var value))
 					{
-						if (value == 0 && Storyboard.AllowCustomDescription)
-						{
-							InCustomMode = true;
-							return Display();
-						}
-
 						SelectedEntityDescriptionPattern = RandomPatterns.ElementAtOrDefault(value - 1);
 					}
 					else
@@ -266,13 +266,16 @@ public class DescriptionPickerScreenStoryboard : ChargenScreenStoryboard
 
 			if (SelectedEntityDescriptionPattern == null)
 			{
+				if (command.EqualTo("custom") && Storyboard.AllowCustomDescription)
+				{
+					Chargen.SetEditor(new EditorController(Chargen.Menu, null, PostCustomDescription,
+						CancelCustomDescription, EditorOptions.None));
+					return $"\n\nPlease enter your custom description in the editor below.\n\n{"You are now entering an editor, use @ on a blank line to exit and *help to see help.".Colour(Telnet.Yellow)}";
+				}
+
 				if (int.TryParse(command, out var value))
 				{
-					if (value == 0 && Storyboard.AllowCustomDescription)
-					{
-						Chargen.SetEditor(new EditorController(Chargen.Menu, null, PostCustomDescription,
-							CancelCustomDescription, EditorOptions.None));
-					}
+
 
 					SelectedEntityDescriptionPattern = RandomPatterns.ElementAtOrDefault(value - 1);
 				}
@@ -314,7 +317,8 @@ public class DescriptionPickerScreenStoryboard : ChargenScreenStoryboard
 		private void PostCustomDescription(string description, IOutputHandler outputHandler, object[] arguments)
 		{
 			SelectedDesc = description;
-			outputHandler.Send("You set your description to:\n" + SelectedDesc);
+			outputHandler.Send("\n\nYou set your description to:\n\n" + SelectedDesc.Wrap(80) + "\n");
+			FinaliseScreen();
 		}
 	}
 

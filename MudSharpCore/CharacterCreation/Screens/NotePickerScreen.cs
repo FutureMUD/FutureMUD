@@ -397,10 +397,11 @@ public class NotePickerScreenStoryboard : ChargenScreenStoryboard
 			Chargen.SetEditor(new EditorController(Chargen.Menu, null, PostNote, null, EditorOptions.DenyCancel));
 			return
 				string.Format(
-					"{2} Entry\n\n{0}\n\nEnter your {1} in the editor below.\nYou are now entering an editor, use @ on a blank line to exit and *help to see help.\n",
+					"{2} Entry\n\n{0}\n\nEnter your {1} in the editor below.\n{3}\n",
 					Enumerator.Current.Blurb.SubstituteANSIColour().Wrap(Account.InnerLineFormatLength),
 					Enumerator.Current.Name,
-					Enumerator.Current.Name.Colour(Telnet.Cyan)
+					Enumerator.Current.Name.Colour(Telnet.Cyan), 
+					"You are now entering an editor, use @ on a blank line to exit and *help to see help.".Colour(Telnet.Yellow)
 				);
 		}
 

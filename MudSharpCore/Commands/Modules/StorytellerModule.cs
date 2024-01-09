@@ -1202,11 +1202,11 @@ The syntax to use this command is #3newplayer <target>#0", AutoHelp.HelpArgOrNoA
 			sb.AppendLine(
 				$"{$"Account Note {note.Id.ToString().Colour(Telnet.Green)}".RawTextPadRight(25)}{$"Account: {note.Account.Name.Proper().Colour(Telnet.Green)}".RawTextPadRight(25)}{string.Format($"Author: {(note.Author != null ? note.Author.Name.Proper().Colour(Telnet.Green) : "System".Colour(Telnet.Green))}", note.Author != null ? note.Author.Name.Proper().Colour(Telnet.Green) : "System".Colour(Telnet.Green))}");
 			sb.AppendLine("Subject: " + note.Subject.Colour(Telnet.Green));
-			if (note.CharacterId != null)
+			if (note.CharacterId != null && note.Character?.NameInfo != null && XElement.Parse(note.Character.NameInfo) is { } pne)
 			{
 				sb.AppendLine();
 				sb.AppendLine(
-					$"From the journal of {new PersonalName(XElement.Parse(note.Character.NameInfo).Element("PersonalName"), character.Gameworld).GetName(NameStyle.FullName).ColourName()}.");
+					$"From the journal of {new PersonalName(pne.Element("PersonalName").Element("Name"), character.Gameworld).GetName(NameStyle.FullName).ColourName()}.");
 				sb.AppendLine();
 			}
 

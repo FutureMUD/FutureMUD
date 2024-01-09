@@ -87,6 +87,11 @@ namespace MudSharp.Framework
     {
         void ReleasePrimedGameItems();
         void PrimeGameItems();
+        /// <summary>
+        /// Loads all Player Characters that are not currently in the game, adds them to the game world, and returns a list of the PCs that were loaded
+        /// </summary>
+        /// <returns></returns>
+        IEnumerable<ICharacter> LoadAllPlayerCharacters();
         IUneditableAll<IAccent> Accents { get; }
         IUneditableAll<IAccount> Accounts { get; }
 

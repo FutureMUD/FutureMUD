@@ -71,6 +71,8 @@ using MudSharp.RPG.ScriptedEvents;
 using System.Xml.Linq;
 using MudSharp.RPG.Hints;
 using MudSharp.Effects.Concrete;
+using MudSharp.PerceptionEngine.Handlers;
+using System.Numerics;
 
 namespace MudSharp.Framework;
 
@@ -525,6 +527,39 @@ public sealed partial class Futuremud : IFuturemud, IDisposable
 			}
 		}
 		Console.WriteLine($"Preloaded {_accounts.Count:N0} Accounts...");
+	}
+
+	public IEnumerable<ICharacter> LoadAllPlayerCharacters()
+	{
+		var loadedPCs = new List<ICharacter>();
+		var onlinePCIDs = Characters.Select(x => x.Id).ToList();
+		using (new FMDB())
+		{
+			var PCsToLoad =
+				FMDB.Context.Characters.Where(
+						x => !x.NpcsCharacter.Any() && x.Guest == null && !onlinePCIDs.Contains(x.Id))
+					.OrderBy(x => x.Id);
+			var i = 0;
+			while (true)
+			{
+				var any = false;
+				foreach (var pc in PCsToLoad.Skip(i++ * 10).Take(10).ToList())
+				{
+					any = true;
+					var character = TryGetCharacter(pc.Id, true);
+					character.Register(new NonPlayerOutputHandler());
+					loadedPCs.Add(character);
+					Add(character, false);
+				}
+				if (!any)
+				{
+					break;
+				}
+			}
+		}
+
+		Console.WriteLine($"Loaded {loadedPCs.Count} offline PCs", true);
+		return loadedPCs;
 	}
 
 	private record CharacterPersonalNameLookup : IHavePersonalName

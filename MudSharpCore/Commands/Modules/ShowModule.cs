@@ -5,6 +5,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Xml.Linq;
+using MailKit.Search;
 using MudSharp.Accounts;
 using MudSharp.Body;
 using MudSharp.Body.Traits;
@@ -30,6 +31,7 @@ using MudSharp.RPG.Checks;
 using MudSharp.RPG.Merits;
 using MudSharp.TimeAndDate.Date;
 using MudSharp.TimeAndDate.Time;
+using Org.BouncyCastle.Utilities;
 
 namespace MudSharp.Commands.Modules;
 
@@ -115,7 +117,7 @@ public class ShowModule : Module<ICharacter>
 	#3calendar <which> [<year>]#0 - shows details about a calendar
 	#3characteristics#0 - shows all characteristic definitions
 	#3character <id>#0 - shows a specific character
-	#3characters#0 - shows a list of all characters
+	#3characters [+/- keywords, <date, >date, $days, *account, guest, alive|dead|retired|suspended]#0 - shows a list of all characters
 	#3climates#0 - shows a list of regional climates
 	#3climate <id|name>#0 - shows a specific regional climate
 	#3climatemodels#0 - shows a list of climate models
@@ -485,8 +487,135 @@ public class ShowModule : Module<ICharacter>
 
 	private static void Show_Characters(ICharacter actor, StringStack ss)
 	{
-		
-		throw new NotImplementedException();
+		actor.Gameworld.LoadAllPlayerCharacters();
+		var characters = actor.Gameworld.Characters.Where(x => !x.IsGuest).ToList();
+		var filterTexts = new List<string>();
+		while (!ss.IsFinished)
+		{
+			var cmd = ss.PopSpeech().ToLowerInvariant();
+			if (cmd.EqualToAny("guests", "guest"))
+			{
+				characters = actor.Gameworld.Characters.Where(x => x.IsGuest).ToList();
+				filterTexts.Add("...who are guest Avatars");
+				continue;
+			}
+
+			if (cmd.EqualToAny("alive", "live", "living"))
+			{
+				characters = characters.Where(x => x.Status == CharacterStatus.Active).ToList();
+				filterTexts.Add("...who are alive");
+				continue;
+			}
+
+			if (cmd.EqualToAny("dead", "deceased", "unalive"))
+			{
+				characters = characters.Where(x => x.Status == CharacterStatus.Deceased).ToList();
+				filterTexts.Add("...who are dead");
+				continue;
+			}
+
+			if (cmd.EqualToAny("suspended", "banned"))
+			{
+				characters = characters.Where(x => x.Status == CharacterStatus.Suspended).ToList();
+				filterTexts.Add("...who are suspended");
+				continue;
+			}
+
+			if (cmd.EqualToAny("retired", "stored"))
+			{
+				characters = characters.Where(x => x.Status == CharacterStatus.Retired).ToList();
+				filterTexts.Add("...who are retired");
+				continue;
+			}
+
+			if (cmd.Length > 1)
+			{
+				var cmdSub = cmd.Substring(1);
+				switch (cmd[0])
+				{
+					case '+':
+						characters = characters.Where(x => 
+						x.PersonalName.GetName(NameStyle.FullName).Contains(cmdSub, StringComparison.InvariantCultureIgnoreCase) ||
+						x.HowSeen(actor, false, flags: PerceiveIgnoreFlags.IgnoreSelf | PerceiveIgnoreFlags.IgnoreCanSee | PerceiveIgnoreFlags.IgnoreDisguises | PerceiveIgnoreFlags.IgnoreObscured | PerceiveIgnoreFlags.IgnoreLoadThings | PerceiveIgnoreFlags.IgnoreNamesSetting).Contains(cmdSub, StringComparison.InvariantCultureIgnoreCase)
+						).ToList();
+						filterTexts.Add($"...with name or description containing {cmdSub.ColourCommand()}");
+						continue;
+					case '-':
+						characters = characters.Where(x =>
+						!x.PersonalName.GetName(NameStyle.FullName).Contains(cmdSub, StringComparison.InvariantCultureIgnoreCase) &&
+						!x.HowSeen(actor, false, flags: PerceiveIgnoreFlags.IgnoreSelf | PerceiveIgnoreFlags.IgnoreCanSee | PerceiveIgnoreFlags.IgnoreDisguises | PerceiveIgnoreFlags.IgnoreObscured | PerceiveIgnoreFlags.IgnoreLoadThings | PerceiveIgnoreFlags.IgnoreNamesSetting).Contains(cmdSub, StringComparison.InvariantCultureIgnoreCase)
+						).ToList();
+						filterTexts.Add($"...with name or description not containing {cmdSub.ColourCommand()}");
+						continue;
+					case '*':
+						characters = characters.Where(x => x.Account.Name.EqualTo(cmdSub)).ToList();
+						filterTexts.Add($"...with account name {cmdSub.ColourValue()}");
+						continue;
+					case '>':
+						if (DateTime.TryParse(cmdSub, actor, out var dt))
+						{
+							var udt = dt.ToUniversalTime();
+							filterTexts.Add($"...last logged in after {udt.GetLocalDateString(actor, true).ColourValue()}");
+							characters = characters.Where(x => x.LoginDateTime > udt).ToList();
+							continue;
+						}
+						actor.OutputHandler.Send($"The text {cmdSub.ColourCommand()} is not a valid datetime.");
+						continue;
+					case '<':
+						if (DateTime.TryParse(cmdSub, actor, out dt))
+						{
+							var udt = dt.ToUniversalTime();
+							filterTexts.Add($"...last logged in before {udt.GetLocalDateString(actor, true).ColourValue()}");
+							characters = characters.Where(x => x.LoginDateTime < udt).ToList();
+							continue;
+						}
+						actor.OutputHandler.Send($"The text {cmdSub.ColourCommand()} is not a valid datetime.");
+						continue;
+					case '$':
+						if (int.TryParse(cmdSub, out var minutes))
+						{
+							var result = minutes;
+							var now = DateTime.UtcNow;
+							characters = characters.Where(x => (now - x.LoginDateTime).Days <= result).ToList();
+							filterTexts.Add($"...played in the last {result.ToString("N0", actor).ColourValue()} {"day".Pluralise(result != 1)}");
+							continue;
+						}
+						actor.OutputHandler.Send($"The text {cmdSub.ColourCommand()} is not a valid amount of days.");
+						continue;
+				}
+			}
+		}
+		var sb = new StringBuilder();
+		sb.AppendLine($"Showing all Player Characters...");
+		foreach (var filter in filterTexts)
+		{
+			sb.AppendLine(filter);
+		}
+		sb.AppendLine(StringUtilities.GetTextTable(
+			from ch in characters
+			select new List<string>
+			{
+				ch.Id.ToString("N0", actor),
+				ch.PersonalName.GetName(NameStyle.FullName),
+				ch.HowSeen(actor, flags: PerceiveIgnoreFlags.IgnoreSelf | PerceiveIgnoreFlags.IgnoreCanSee | PerceiveIgnoreFlags.IgnoreDisguises | PerceiveIgnoreFlags.IgnoreObscured | PerceiveIgnoreFlags.IgnoreLoadThings | PerceiveIgnoreFlags.IgnoreNamesSetting),
+				ch.Status.Describe(),
+				ch.Account.Name,
+				ch.LoginDateTime.GetLocalDateString(actor, true),
+				TimeSpan.FromMinutes(ch.TotalMinutesPlayed).Describe(actor)
+			},
+			new List<string>
+			{
+				"Id",
+				"Name",
+				"Description",
+				"Status",
+				"Account",
+				"Last Login",
+				"Time Played"
+			},
+			actor,
+			Telnet.Magenta
+		));
 	}
 
 	private static void Show_Bodies(ICharacter actor)

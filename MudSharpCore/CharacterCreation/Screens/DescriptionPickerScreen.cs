@@ -111,10 +111,6 @@ public class DescriptionPickerScreenStoryboard : ChargenScreenStoryboard
 			: base(chargen, storyboard)
 		{
 			Storyboard = storyboard;
-			if (!storyboard.AllowEntityDescriptionPatterns)
-			{
-				InCustomMode = true;
-			}
 
 			ValidPatterns =
 				Storyboard.Gameworld.EntityDescriptionPatterns.Where(
@@ -223,12 +219,13 @@ public class DescriptionPickerScreenStoryboard : ChargenScreenStoryboard
 			{
 				if (InCustomMode)
 				{
-					if (command.Length == 0)
+					var sdesc = command.ToLowerInvariant().Trim();
+					if (sdesc.Length == 0)
 					{
 						return "You must enter a short description";
 					}
 
-					SelectedSdesc = command.ToLowerInvariant().Trim();
+					SelectedSdesc = sdesc;
 					InCustomMode = false;
 					return Display();
 				}
@@ -303,6 +300,7 @@ public class DescriptionPickerScreenStoryboard : ChargenScreenStoryboard
 
 		private void CancelCustomDescription(IOutputHandler outputHandler, object[] arguments)
 		{
+			InCustomMode = false;
 			outputHandler.Send("You decide not to enter a custom description.");
 		}
 

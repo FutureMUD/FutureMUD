@@ -861,6 +861,7 @@ public partial class Chargen : FrameworkItem, IChargen
 
 	public void RejectApplication(ICharacter rejecter, IAccount rejecterAccount, string comment, IOutputHandler handler)
 	{
+		comment ??= string.Empty;
 		State = ChargenState.InProgress;
 		_priorRejections.Add(Tuple.Create(rejecterAccount.Name, comment));
 		Save();

@@ -2,29 +2,35 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using MudSharp.Character;
 using MudSharp.Framework;
+using MudSharp.Framework.Save;
 using MudSharp.FutureProg;
+using Org.BouncyCastle.Asn1.Pkcs;
 
 namespace MudSharp.Economy.Currency;
 
-public class CurrencyDescriptionPattern : FrameworkItem, ICurrencyDescriptionPattern
+public class CurrencyDescriptionPattern : SaveableItem, ICurrencyDescriptionPattern
 {
 	private readonly List<ICurrencyDescriptionPatternElement> _elements =
 		new();
 
-	private readonly string _negativeValuePrefix;
+	public IEnumerable<ICurrencyDescriptionPatternElement> Elements => _elements;
 
-	public CurrencyDescriptionPattern(MudSharp.Models.CurrencyDescriptionPattern pattern, Currency parent,
+	public string NegativeValuePrefix { get; private set; }
+
+	public CurrencyDescriptionPattern(MudSharp.Models.CurrencyDescriptionPattern pattern, ICurrency parent,
 		CurrencyDescriptionPatternType type)
 	{
+		Gameworld = parent.Gameworld;
 		_id = pattern.Id;
 		Type = type;
 		Order = pattern.Order;
 		UseNaturalAggregationStyle = pattern.UseNaturalAggregationStyle;
 		ApplicabilityProg = pattern.FutureProgId.HasValue
-			? parent.Gameworld.FutureProgs.Get(pattern.FutureProgId.Value)
+			? Gameworld.FutureProgs.Get(pattern.FutureProgId.Value)
 			: null;
-		_negativeValuePrefix = pattern.NegativePrefix;
+		NegativeValuePrefix = pattern.NegativePrefix;
 		foreach (var item in pattern.CurrencyDescriptionPatternElements.OrderBy(x => x.Order))
 		{
 			_elements.Add(new CurrencyDescriptionPatternElement(item, this, parent));
@@ -57,7 +63,7 @@ public class CurrencyDescriptionPattern : FrameworkItem, ICurrencyDescriptionPat
 		var outList = new StringBuilder();
 		if (value < 0.0M)
 		{
-			outList.Append(_negativeValuePrefix);
+			outList.Append(NegativeValuePrefix);
 			value = Math.Abs(value);
 		}
 
@@ -91,6 +97,62 @@ public class CurrencyDescriptionPattern : FrameworkItem, ICurrencyDescriptionPat
 		}
 
 		return outList.ToString().NormaliseSpacing(true).Trim();
+	}
+
+	public bool BuildingCommand(ICharacter actor, StringStack command)
+	{
+		throw new NotImplementedException();
+	}
+
+	public string Show(ICharacter actor)
+	{
+		var sb = new StringBuilder();
+		sb.AppendLine($"Currency Description Pattern #{Id.ToString("N0", actor)}".GetLineWithTitle(actor, Telnet.FunctionYellow, Telnet.BoldWhite));
+		sb.AppendLine();
+		sb.AppendLine($"Type: {Type.DescribeEnum().ColourValue()}");
+		sb.AppendLine($"Evaluation Order: {Order.ToString("N0", actor).ColourValue()}");
+		sb.AppendLine($"Use Natural Aggregation: {UseNaturalAggregationStyle.ToColouredString()}");
+		sb.AppendLine($"Negative Prefix: {NegativeValuePrefix.ColourCommand()}");
+		sb.AppendLine($"Applicability Prog: {ApplicabilityProg?.MXPClickableFunctionName() ?? "None".ColourError()}");
+		sb.AppendLine();
+		sb.AppendLine("Elements:");
+		sb.AppendLine();
+		sb.AppendLine(StringUtilities.GetTextTable(
+			from element in Elements
+			select new List<string>
+			{
+				element.Id.ToString("N0", actor),
+				element.Pattern,
+				element.Order.ToString("N0", actor),
+				element.TargetDivision.Name,
+				element.ShowIfZero.ToColouredString(),
+				element.PluraliseWord,
+				element.Rounding.DescribeEnum(),
+				element.SpecialValuesOverridePattern.ToColouredString(),
+				element.SpecialValues.Count.ToString("N0", actor)
+			},
+			new List<string>
+			{
+				"Id",
+				"Pattern",
+				"Order",
+				"Division",
+				"Show If Zero",
+				"Pluralise On",
+				"Rounding",
+				"Specials Override",
+				"# Specials"
+			},
+			actor,
+			Telnet.Yellow
+		)) ;
+		return sb.ToString();
+	}
+
+	public override void Save()
+	{
+		Changed = false;
+		// TODO
 	}
 
 	#endregion

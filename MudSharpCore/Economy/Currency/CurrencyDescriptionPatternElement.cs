@@ -2,10 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using MudSharp.Framework;
+using MudSharp.Framework.Save;
 
 namespace MudSharp.Economy.Currency;
 
-public class CurrencyDescriptionPatternElement : FrameworkItem, ICurrencyDescriptionPatternElement
+public class CurrencyDescriptionPatternElement : SaveableItem, ICurrencyDescriptionPatternElement
 {
 	private readonly string _alternatePattern;
 	private readonly CurrencyDescriptionPattern _parent;
@@ -13,11 +14,14 @@ public class CurrencyDescriptionPatternElement : FrameworkItem, ICurrencyDescrip
 	private readonly string _pluraliseWord;
 	private readonly Dictionary<decimal, string> _specialValues = new();
 	private readonly bool _specialValuesOverridePattern;
+	private int _order;
 
 	public CurrencyDescriptionPatternElement(MudSharp.Models.CurrencyDescriptionPatternElement element,
-		CurrencyDescriptionPattern parentPattern, Currency parent)
+		CurrencyDescriptionPattern parentPattern, ICurrency parent)
 	{
+		Gameworld = parent.Gameworld;
 		_id = element.Id;
+		_order = element.Order;
 		_pattern = element.Pattern;
 		_alternatePattern = element.AlternatePattern;
 		_pluraliseWord = element.PluraliseWord;
@@ -37,7 +41,7 @@ public class CurrencyDescriptionPatternElement : FrameworkItem, ICurrencyDescrip
 	public override string ToString()
 	{
 		return
-			$"CurrencyDescriptionPatternElement [#{Id}]: pattern: \"{_pattern}\" alternate: \"{_alternatePattern}\" plural: \"{_pluraliseWord}\"";
+			$"CurrencyDescriptionPatternElement [#{Id}]: pattern: \"{Pattern}\" alternate: \"{AlternatePattern}\" plural: \"{PluraliseWord}\"";
 	}
 
 	#region ICurrencyDescriptionPatternElement Members
@@ -59,11 +63,11 @@ public class CurrencyDescriptionPatternElement : FrameworkItem, ICurrencyDescrip
 
 		var remainder = amount != originalAmount;
 
-		var pattern = remainder || string.IsNullOrEmpty(_alternatePattern) ? _pattern : _alternatePattern;
+		var pattern = remainder || string.IsNullOrEmpty(AlternatePattern) ? Pattern : AlternatePattern;
 		string value;
 		if (_specialValues.ContainsKey(amount))
 		{
-			if (_specialValuesOverridePattern)
+			if (SpecialValuesOverridePattern)
 			{
 				return _specialValues[amount];
 			}
@@ -80,10 +84,10 @@ public class CurrencyDescriptionPatternElement : FrameworkItem, ICurrencyDescrip
 			value = string.Format(pattern, amount);
 		}
 
-		if (!string.IsNullOrEmpty(_pluraliseWord) &&
+		if (!string.IsNullOrEmpty(PluraliseWord) &&
 		    (amount >= 2.0M || amount <= -2.0M || (amount > -1.0M && amount < 1.0M)))
 		{
-			return value.Replace(_pluraliseWord, _pluraliseWord.Pluralise());
+			return value.Replace(PluraliseWord, PluraliseWord.Pluralise());
 		}
 
 		return value;
@@ -92,6 +96,22 @@ public class CurrencyDescriptionPatternElement : FrameworkItem, ICurrencyDescrip
 	public ICurrencyDivision TargetDivision { get; }
 
 	public bool ShowIfZero { get; }
+	public int Order => _order;
 
+	public string Pattern => _pattern;
+
+	public string PluraliseWord => _pluraliseWord;
+
+	public bool SpecialValuesOverridePattern => _specialValuesOverridePattern;
+
+	public string AlternatePattern => _alternatePattern;
+
+	public IReadOnlyDictionary<decimal, string> SpecialValues => _specialValues.AsReadOnly();
 	#endregion
+
+	public override void Save()
+	{
+		// TODO
+		Changed = false;
+	}
 }

@@ -1,9 +1,10 @@
 ﻿using System.Collections.Generic;
 using MudSharp.Framework;
+using MudSharp.Framework.Revision;
 using MudSharp.FutureProg;
 
 namespace MudSharp.Economy.Currency {
-    public interface ICurrency : IFrameworkItem, IHaveFuturemud, IFutureProgVariable {
+    public interface ICurrency : IEditableItem, IFutureProgVariable {
         /// <summary>
         ///     All Currency Divisions belonging to this Currency
         /// </summary>

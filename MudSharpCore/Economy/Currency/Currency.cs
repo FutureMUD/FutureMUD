@@ -1,8 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Text.RegularExpressions;
+using MudSharp.Character;
+using MudSharp.Database;
 using MudSharp.Framework;
+using MudSharp.Framework.Save;
 using MudSharp.FutureProg;
 using MudSharp.FutureProg.Variables;
 
@@ -20,7 +24,7 @@ public static class CurrencyExtensions
 	}
 }
 
-public class Currency : FrameworkItem, ICurrency
+public class Currency : SaveableItem, ICurrency
 {
 	public Currency(MudSharp.Models.Currency currency, IFuturemud gameworld)
 	{
@@ -30,7 +34,7 @@ public class Currency : FrameworkItem, ICurrency
 		BaseCurrencyToGlobalBaseCurrencyConversion = currency.BaseCurrencyToGlobalBaseCurrencyConversion;
 		foreach (var item in currency.CurrencyDivisions)
 		{
-			_currencyDivisions.Add(new CurrencyDivision(item));
+			_currencyDivisions.Add(new CurrencyDivision(gameworld, item));
 		}
 
 		PatternDictionary = new Dictionary<CurrencyDescriptionPatternType, List<ICurrencyDescriptionPattern>>();
@@ -52,7 +56,7 @@ public class Currency : FrameworkItem, ICurrency
 
 		foreach (var item in currency.Coins)
 		{
-			_coins.Add(new Coin(item));
+			_coins.Add(new Coin(gameworld, item));
 		}
 	}
 
@@ -240,6 +244,8 @@ public class Currency : FrameworkItem, ICurrency
 				return new NumberVariable(Id);
 			case "name":
 				return new TextVariable(Name);
+			case "conversion":
+				return new NumberVariable(BaseCurrencyToGlobalBaseCurrencyConversion);
 			default:
 				throw new NotSupportedException("Invalid IFutureProgVariableType requested in Currency.GetProperty");
 		}
@@ -254,7 +260,8 @@ public class Currency : FrameworkItem, ICurrency
 		return new Dictionary<string, FutureProgVariableTypes>(StringComparer.InvariantCultureIgnoreCase)
 		{
 			{ "id", FutureProgVariableTypes.Number },
-			{ "name", FutureProgVariableTypes.Text }
+			{ "name", FutureProgVariableTypes.Text },
+			{ "conversion", FutureProgVariableTypes.Number }
 		};
 	}
 
@@ -262,8 +269,9 @@ public class Currency : FrameworkItem, ICurrency
 	{
 		return new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase)
 		{
-			{ "id", "" },
-			{ "name", "" }
+			{ "id", "The database ID of the currency" },
+			{ "name", "The name of the currency" },
+			{ "conversion", "The conversion rate of this currency to a global base currency" }
 		};
 	}
 
@@ -274,4 +282,125 @@ public class Currency : FrameworkItem, ICurrency
 	}
 
 	#endregion
+
+	public override void Save()
+	{
+		var dbitem = FMDB.Context.Currencies.Find(Id);
+		dbitem.Name = Name;
+		dbitem.BaseCurrencyToGlobalBaseCurrencyConversion = BaseCurrencyToGlobalBaseCurrencyConversion;
+		Changed = false;
+	}
+
+	public bool BuildingCommand(ICharacter actor, StringStack command)
+	{
+		throw new NotImplementedException();
+	}
+
+	public string Show(ICharacter actor)
+	{
+		var sb = new StringBuilder();
+		sb.AppendLine($"Currency #{Id.ToString("N0", actor)} - {Name}".GetLineWithTitle(actor, Telnet.FunctionYellow, Telnet.BoldWhite));
+		sb.AppendLine();
+		sb.AppendLine($"Conversion to Global: {BaseCurrencyToGlobalBaseCurrencyConversion.ToString("N0", actor).ColourValue()}");
+		sb.AppendLine();
+		sb.AppendLine("Currency Divisions".GetLineWithTitle(actor, Telnet.FunctionYellow, Telnet.BoldWhite));
+		sb.AppendLine();
+		foreach (var division in _currencyDivisions) {
+			sb.AppendLine(division.Name.TitleCase().ColourName());
+			sb.AppendLine($"Conversion To Base: {division.BaseUnitConversionRate.ToString("N0", actor).ColourValue()}");
+			sb.AppendLine(StringUtilities.GetTextTable(
+				from pattern in division.Patterns
+				select new List<string>
+				{
+					pattern.ToString()
+				},
+				new List<string>
+				{
+					"Regex Patterns"
+				},
+				actor,
+				Telnet.Yellow
+			));
+		}
+		sb.AppendLine();
+		sb.AppendLine("Patterns".GetLineWithTitle(actor, Telnet.FunctionYellow, Telnet.BoldWhite));
+		sb.AppendLine();
+		sb.AppendLine(StringUtilities.GetTextTable(
+				from pattern in PatternDictionary.SelectMany(x => x.Value)
+				select new List<string>
+				{
+					pattern.Id.ToString("N0", actor),
+					pattern.Type.DescribeEnum(),
+					pattern.ApplicabilityProg?.MXPClickableFunctionName() ?? "",
+					pattern.NegativeValuePrefix,
+					pattern.Elements.Count().ToString("N0", actor)
+				},
+				new List<string>
+				{
+					"Id",
+					"Type",
+					"Prog",
+					"Negative",
+					"# Elements"
+				},
+				actor,
+				Telnet.Yellow
+			));
+		foreach (var patternType in PatternDictionary)
+		{
+			sb.AppendLine(StringUtilities.GetTextTable(
+				from pattern in patternType.Value
+				select new List<string>
+				{
+					patternType.Key.DescribeEnum(),
+					pattern.Id.ToString("N0", actor),
+					pattern.ApplicabilityProg?.MXPClickableFunctionName() ?? "",
+					pattern.NegativeValuePrefix,
+					pattern.Elements.Count().ToString("N0", actor)
+				},
+				new List<string>
+				{
+					"Type",
+					"Id",
+					"Prog",
+					"Negative",
+					"# Elements"
+				},
+				actor,
+				Telnet.Yellow
+			));
+		}
+		sb.AppendLine();
+		sb.AppendLine("Coins".GetLineWithTitle(actor, Telnet.FunctionYellow, Telnet.BoldWhite));
+		sb.AppendLine();
+		sb.AppendLine(StringUtilities.GetTextTable(
+				from coin in Coins
+				select new List<string>
+				{
+					coin.Id.ToString("N0", actor),
+					coin.Name,
+					coin.ShortDescription,
+					coin.GeneralForm,
+					coin.PluralWord,
+					coin.Value.ToString("N0", actor),
+					Gameworld.UnitManager.Describe(coin.Weight, Framework.Units.UnitType.Mass, actor),
+					coin.FullDescription
+				},
+				new List<string>
+				{
+					"Id",
+					"Name",
+					"SDesc",
+					"General",
+					"Plural",
+					"Value",
+					"Weight",
+					"Desc"
+				},
+				actor,
+				Telnet.Yellow,
+				7
+			));
+		return sb.ToString();
+	}
 }

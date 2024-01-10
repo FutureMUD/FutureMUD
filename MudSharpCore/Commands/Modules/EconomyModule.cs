@@ -368,8 +368,81 @@ The syntax is as follows:
 			case "set":
 				CurrencySet(character, ss);
 				break;
+			case "show":
+				CurrencyShow(character, ss);
+				break;
 			default:
 				character.OutputHandler.Send("That is not a valid option for the Currency command.");
+				return;
+		}
+	}
+
+	private static void CurrencyShow(ICharacter actor, StringStack ss)
+	{
+		if (ss.IsFinished)
+		{
+			var current = actor.EffectsOfType<BuilderEditingEffect<ICurrency>>().FirstOrDefault();
+			if (current is null)
+			{
+				actor.OutputHandler.Send("Which currency did you want to view?");
+				return;
+			}
+
+			actor.OutputHandler.Send(current.EditingItem.Show(actor));
+			return;
+		}
+
+		var currency = actor.Gameworld.Currencies.GetByIdOrName(ss.PopSpeech());
+		if (currency is null)
+		{
+			actor.OutputHandler.Send("There is no currency like that.");
+			return;
+		}
+
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send(currency.Show(actor));
+			return;
+		}
+
+		var switchType = ss.PopSpeech().ToLowerInvariant();
+		switch (switchType)
+		{
+			case "pattern":
+				if (!long.TryParse(ss.PopSpeech(), out var value))
+				{
+					actor.OutputHandler.Send("You must enter a valid ID.");
+					return;
+				}
+
+				var pattern = currency.PatternDictionary.Values.SelectMany(x => x).Get(value);
+				if (pattern is null)
+				{
+					actor.OutputHandler.Send($"The {currency.Name.ColourValue()} currency does not have any such pattern.");
+					return;
+				}
+				actor.OutputHandler.Send(pattern.Show(actor));
+				return;
+			case "division":
+				var division = currency.CurrencyDivisions.GetByIdOrName(ss.PopSpeech());
+				if (division is null)
+				{
+					actor.OutputHandler.Send($"The {currency.Name.ColourValue()} currency does not have any such division.");
+					return;
+				}
+				actor.OutputHandler.Send(division.Show(actor));
+				return;
+			case "coin":
+				var coin = currency.Coins.GetByIdOrName(ss.PopSpeech());
+				if (coin is null)
+				{
+					actor.OutputHandler.Send($"The {currency.Name.ColourValue()} currency does not have any such coin.");
+					return;
+				}
+				actor.OutputHandler.Send(coin.Show(actor));
+				return;
+			default:
+				actor.OutputHandler.Send("You must either specify #3pattern#0, #3coin#0 or #3division#0.".SubstituteANSIColour());
 				return;
 		}
 	}

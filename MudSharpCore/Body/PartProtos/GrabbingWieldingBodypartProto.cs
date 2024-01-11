@@ -14,7 +14,7 @@ using MudSharp.PerceptionEngine.Parsers;
 
 namespace MudSharp.Body.PartProtos;
 
-public class GrabbingWieldingBodypartProto : GrabbingBodypartProto, IWield, IWear
+public class GrabbingWieldingBodypartProto : GrabbingBodypartProto, IWield
 {
 	public GrabbingWieldingBodypartProto(BodypartProto proto, IFuturemud game)
 		: base(proto, game)
@@ -220,54 +220,5 @@ public class GrabbingWieldingBodypartProto : GrabbingBodypartProto, IWield, IWea
 
 	#endregion
 
-	#region Implementation of IWear
-
-	public WearableItemCoverStatus HowCovered(IGameItem item, IBody body)
-	{
-		return CoverInformation(item, body).Item1;
-	}
-
-	public Tuple<WearableItemCoverStatus, IGameItem> CoverInformation(IGameItem item, IBody body)
-	{
-		var wornItems = body.WornItemsProfilesFor(this).ToList();
-
-		// Check the item even exists on this location
-		if (wornItems.All(x => x.Item1 != item))
-		{
-			return new Tuple<WearableItemCoverStatus, IGameItem>(WearableItemCoverStatus.NoCoverInformation, null);
-		}
-
-		// The DrapedItems list is ordered from oldest to newest - items further in the list are "over the top" of other items. To take everything over the top
-		// of a given item, we'll reverse the list, then takewhile.
-		var coverItems = wornItems.AsEnumerable().Reverse().TakeWhile(x => x.Item1 != item).ToList();
-		if (!coverItems.Any()) // No items, not covered
-		{
-			return new Tuple<WearableItemCoverStatus, IGameItem>(WearableItemCoverStatus.Uncovered, null);
-		}
-
-		if (coverItems.All(x => x.Item2.Transparent))
-		{
-			return new Tuple<WearableItemCoverStatus, IGameItem>(WearableItemCoverStatus.TransparentlyCovered,
-				coverItems.LastOrDefault().Item1);
-		}
-
-		return new Tuple<WearableItemCoverStatus, IGameItem>(WearableItemCoverStatus.Covered,
-			coverItems.First().Item1);
-	}
-
-	public bool CanWear(IGameItem item, IInventory body)
-	{
-		return true;
-	}
-
-	public bool CanRemove(IGameItem item, IInventory body)
-	{
-		return
-			!body.WornItemsProfilesFor(this)
-			     .Reverse()
-			     .TakeWhile(x => x.Item1 != item)
-			     .Any(x => x.Item2.PreventsRemoval);
-	}
-
-	#endregion
+	
 }

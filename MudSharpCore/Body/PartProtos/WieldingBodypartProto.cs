@@ -14,7 +14,7 @@ using MudSharp.PerceptionEngine.Parsers;
 
 namespace MudSharp.Body.PartProtos;
 
-public class WieldingBodypartProto : ExternalBodypartProto, IWield
+public class WieldingBodypartProto : DrapeableBodypartProto, IWield
 {
 	public WieldingBodypartProto(BodypartProto proto, IFuturemud game)
 		: base(proto, game)
@@ -125,7 +125,7 @@ public class WieldingBodypartProto : ExternalBodypartProto, IWield
 			return IWieldItemWieldResult.NotWieldable;
 		}
 
-		if (!body.WieldedItemsFor(this).Any())
+		if (body.WieldedItemsFor(this).Any())
 		{
 			return IWieldItemWieldResult.AlreadyWielding;
 		}

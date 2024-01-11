@@ -83,7 +83,7 @@ public partial class Character : PerceiverItem, ICharacter
 		Gameworld = gameworld;
 		LoadFromDatabase(character);
 		CommandTree = Gameworld.RetrieveAppropriateCommandTree(this);
-		LoginDateTime = DateTime.UtcNow;
+		LoginDateTime = character.LastLoginTime ?? DateTime.MinValue;
 		LastMinutesUpdate = LoginDateTime;
 		_dbTotalMinutesPlayed = character.TotalMinutesPlayed;
 		LoadEffects(XElement.Parse(character.EffectData.IfNullOrWhiteSpace("<Effects/>")));
@@ -1498,6 +1498,7 @@ public partial class Character : PerceiverItem, ICharacter
 			: Gameworld.Currencies.FirstOrDefault();
 
 		_state = (CharacterState)character.State;
+		_state |= CharacterState.Stasis;
 		_status = (CharacterStatus)character.Status;
 		_noMercy = character.NoMercy;
 		BriefRoomDescs = character.RoomBrief;
@@ -2252,6 +2253,7 @@ public partial class Character : PerceiverItem, ICharacter
 	public void LoginCharacter()
 	{
 		ScheduleCachedEffects();
+		LoginDateTime = DateTime.UtcNow;
 		OutputHandler.Handle(new EmoteOutput(new Emote("@ has entered the area.", this),
 			flags: OutputFlags.SuppressObscured | OutputFlags.SuppressSource));
 		HandleEvent(EventType.CharacterEntersGame, this);

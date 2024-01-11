@@ -26,6 +26,7 @@ using MudSharp.FutureProg;
 using MudSharp.GameItems;
 using MudSharp.GameItems.Prototypes;
 using MudSharp.Health;
+using MudSharp.NPC;
 using MudSharp.PerceptionEngine;
 using MudSharp.RPG.Checks;
 using MudSharp.RPG.Merits;
@@ -488,7 +489,9 @@ public class ShowModule : Module<ICharacter>
 	private static void Show_Characters(ICharacter actor, StringStack ss)
 	{
 		actor.Gameworld.LoadAllPlayerCharacters();
-		var characters = actor.Gameworld.Characters.Where(x => !x.IsGuest).ToList();
+		var characters = actor.Gameworld.Characters.Concat(actor.Gameworld.CachedActors).Distinct()
+		                      .Where(x => !x.IsGuest && x is not INPC)
+		                      .ToList();
 		var filterTexts = new List<string>();
 		while (!ss.IsFinished)
 		{
@@ -536,14 +539,14 @@ public class ShowModule : Module<ICharacter>
 					case '+':
 						characters = characters.Where(x => 
 						x.PersonalName.GetName(NameStyle.FullName).Contains(cmdSub, StringComparison.InvariantCultureIgnoreCase) ||
-						x.HowSeen(actor, false, flags: PerceiveIgnoreFlags.IgnoreSelf | PerceiveIgnoreFlags.IgnoreCanSee | PerceiveIgnoreFlags.IgnoreDisguises | PerceiveIgnoreFlags.IgnoreObscured | PerceiveIgnoreFlags.IgnoreLoadThings | PerceiveIgnoreFlags.IgnoreNamesSetting).Contains(cmdSub, StringComparison.InvariantCultureIgnoreCase)
+						x.HowSeen(actor, false, flags: PerceiveIgnoreFlags.TrueDescription).Contains(cmdSub, StringComparison.InvariantCultureIgnoreCase)
 						).ToList();
 						filterTexts.Add($"...with name or description containing {cmdSub.ColourCommand()}");
 						continue;
 					case '-':
 						characters = characters.Where(x =>
 						!x.PersonalName.GetName(NameStyle.FullName).Contains(cmdSub, StringComparison.InvariantCultureIgnoreCase) &&
-						!x.HowSeen(actor, false, flags: PerceiveIgnoreFlags.IgnoreSelf | PerceiveIgnoreFlags.IgnoreCanSee | PerceiveIgnoreFlags.IgnoreDisguises | PerceiveIgnoreFlags.IgnoreObscured | PerceiveIgnoreFlags.IgnoreLoadThings | PerceiveIgnoreFlags.IgnoreNamesSetting).Contains(cmdSub, StringComparison.InvariantCultureIgnoreCase)
+						!x.HowSeen(actor, false, flags: PerceiveIgnoreFlags.TrueDescription).Contains(cmdSub, StringComparison.InvariantCultureIgnoreCase)
 						).ToList();
 						filterTexts.Add($"...with name or description not containing {cmdSub.ColourCommand()}");
 						continue;
@@ -597,25 +600,26 @@ public class ShowModule : Module<ICharacter>
 			{
 				ch.Id.ToString("N0", actor),
 				ch.PersonalName.GetName(NameStyle.FullName),
-				ch.HowSeen(actor, flags: PerceiveIgnoreFlags.IgnoreSelf | PerceiveIgnoreFlags.IgnoreCanSee | PerceiveIgnoreFlags.IgnoreDisguises | PerceiveIgnoreFlags.IgnoreObscured | PerceiveIgnoreFlags.IgnoreLoadThings | PerceiveIgnoreFlags.IgnoreNamesSetting),
-				ch.Status.Describe(),
+				ch.HowSeen(actor, flags: PerceiveIgnoreFlags.TrueDescription),
+				ch.Location.GetFriendlyReference(actor),
 				ch.Account.Name,
-				ch.LoginDateTime.GetLocalDateString(actor, true),
-				TimeSpan.FromMinutes(ch.TotalMinutesPlayed).Describe(actor)
+				ch.Account.LastLoginTime.GetLocalDateString(actor, true),
+				ch.Status.Describe(),
 			},
 			new List<string>
 			{
 				"Id",
 				"Name",
 				"Description",
-				"Status",
+				"Location",
 				"Account",
 				"Last Login",
-				"Time Played"
+				"Status",
 			},
 			actor,
 			Telnet.Magenta
 		));
+		actor.OutputHandler.Send(sb.ToString());
 	}
 
 	private static void Show_Bodies(ICharacter actor)

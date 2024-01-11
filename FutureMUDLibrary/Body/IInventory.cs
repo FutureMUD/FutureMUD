@@ -540,7 +540,7 @@ namespace MudSharp.Body {
 
             if (perceiver.Gameworld.GetStaticBool("HeldAndWieldedDisplayAtTop"))
             {
-	            foreach (var item in inv.HeldOrWieldedItems.Where(item => perceiver.CanSee(item)))
+	            foreach (var item in inv.HeldOrWieldedItems.Where(item => (ignoreCover || (inv.HoldOrWieldLocFor(item) as IGrab)?.ItemsVisible() != false) && perceiver.CanSee(item)))
 	            {
 		            sb.AppendLine(item.GetItemType<IHoldable>().CurrentInventoryDescription + item.HowSeen(perceiver));
 		            output = true;
@@ -618,7 +618,7 @@ namespace MudSharp.Body {
 					sb.AppendLine("");
 				}
 
-				foreach (var item in inv.HeldOrWieldedItems.Where(item => perceiver.CanSee(item)))
+				foreach (var item in inv.HeldOrWieldedItems.Where(item => (ignoreCover || (inv.HoldOrWieldLocFor(item) as IGrab)?.ItemsVisible() != false) && perceiver.CanSee(item)))
 	            {
 		            sb.AppendLine(item.GetItemType<IHoldable>().CurrentInventoryDescription + item.HowSeen(perceiver));
 		            output = true;

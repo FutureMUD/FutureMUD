@@ -532,29 +532,20 @@ public sealed partial class Futuremud : IFuturemud, IDisposable
 	public IEnumerable<ICharacter> LoadAllPlayerCharacters()
 	{
 		var loadedPCs = new List<ICharacter>();
-		var onlinePCIDs = Characters.Select(x => x.Id).ToList();
+		var onlinePCIDs = Characters.Select(x => x.Id).Concat(_cachedActors.Select(x => x.Id)).Distinct().ToHashSet();
 		using (new FMDB())
 		{
 			var PCsToLoad =
 				FMDB.Context.Characters.Where(
 						x => !x.NpcsCharacter.Any() && x.Guest == null && !onlinePCIDs.Contains(x.Id))
-					.OrderBy(x => x.Id);
-			var i = 0;
-			while (true)
+				    .OrderBy(x => x.Id)
+				    .Select(x => x.Id)
+				    .ToList();
+			foreach (var pc in PCsToLoad)
 			{
-				var any = false;
-				foreach (var pc in PCsToLoad.Skip(i++ * 10).Take(10).ToList())
-				{
-					any = true;
-					var character = TryGetCharacter(pc.Id, true);
-					character.Register(new NonPlayerOutputHandler());
-					loadedPCs.Add(character);
-					Add(character, false);
-				}
-				if (!any)
-				{
-					break;
-				}
+				var character = TryGetCharacter(pc, true); // This will add to the cache
+				character.Register(new NonPlayerOutputHandler());
+				loadedPCs.Add(character);
 			}
 		}
 

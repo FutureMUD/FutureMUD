@@ -13,7 +13,7 @@ using MudSharp.PerceptionEngine.Parsers;
 
 namespace MudSharp.Body.PartProtos;
 
-public class GrabbingBodypartProto : ExternalBodypartProto, IGrab
+public class GrabbingBodypartProto : DrapeableBodypartProto, IGrab
 {
 	public GrabbingBodypartProto(BodypartProto proto, IFuturemud game)
 		: base(proto, game)

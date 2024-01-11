@@ -18,5 +18,6 @@ internal class PlayerCommandTree : ActorCommandTree
 	{
 		base.ProcessCommands();
 		Commands.AddFrom(PlayerOnlyModule.Instance.Commands);
+		Commands.AddFrom(ItemBuilderModule.Instance.Commands);
 	}
 }

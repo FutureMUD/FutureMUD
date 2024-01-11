@@ -240,9 +240,9 @@ public partial class Body
 		return targetKeywords.All(x => HasKeyword(x, voyeur, abbreviated));
 	}
 
-	public string ProcessDescriptionAdditions(string description, IPerceiver voyeur, bool colour)
+	public string ProcessDescriptionAdditions(string description, IPerceiver voyeur, bool colour, PerceiveIgnoreFlags flags)
 	{
-		if (voyeur is ICharacter vch && vch.Account.CharacterNameOverlaySetting != Accounts.CharacterNameOverlaySetting.None)
+		if (!flags.HasFlag(PerceiveIgnoreFlags.IgnoreNamesSetting) && voyeur is ICharacter vch && vch.Account.CharacterNameOverlaySetting != Accounts.CharacterNameOverlaySetting.None)
 		{
 			var dub = vch.Dubs.FirstOrDefault(x => x.TargetId == Actor.Id && x.TargetType == Actor.FrameworkItemType);
 			if (dub is not null)
@@ -283,7 +283,6 @@ public partial class Body
 						description = Actor.PersonalName.GetName(Character.Name.NameStyle.FullName);
 						break;
 				}
-				
 			}
 		}
 
@@ -450,7 +449,7 @@ public partial class Body
 			.SubstituteWrittenLanguage(voyeur, Gameworld)
 			.NormaliseSpacing()
 			.Trim()
-			.FluentProper(proper), voyeur, colour);
+			.FluentProper(proper), voyeur, colour, flags);
 
 		return colour ? output.ColourCharacter() : output;
 	}

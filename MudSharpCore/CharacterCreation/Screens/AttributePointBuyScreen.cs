@@ -262,7 +262,6 @@ public class AttributePointBuyScreenStoryboard : ChargenScreenStoryboard
 			}
 
 			var (boosts, remaining) = Storyboard.EvaluateBoosts(Chargen);
-			var maxBoosts = Storyboard.MaximumBoostsProg.ExecuteInt(Chargen);
 
 			sb.AppendLine();
 			sb.AppendLine(

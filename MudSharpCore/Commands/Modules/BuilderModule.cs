@@ -30,6 +30,7 @@ using MudSharp.Body.Traits;
 using MudSharp.Communication.Language;
 using MudSharp.FutureProg;
 using MudSharp.Work.Butchering;
+using MudSharp.Body.Implementations;
 
 namespace MudSharp.Commands.Modules;
 
@@ -2966,12 +2967,23 @@ Also, as an admin you should see the two related commands #3GIVETATTOO#0 and #3F
 
 	private const string BodypartCommandHelpText = @"You can use the following options with this command:
 
+	#3bodypart list [<filters>]#0 - lists all bodyparts
 	#3bodypart edit <body> <part>#0 - edits a bodypart
 	#3bodypart edit#0 - equivalent to bodypart show on your edited bodypart
 	#3bodypart clone <newname>#0 - clones your currently edited bodypart
 	#3bodypart close#0 - closes your editing bodypart
 	#3bodypart show <body> <part>#0 - shows a bodypart
-	#3bodypart set <...>#0 - changes something about a bodypart. See command for more info.";
+	#3bodypart set <...>#0 - changes something about a bodypart. See command for more info.
+
+The list of filters you can use with #3bodypart list#0 are as follows:
+
+	#6part#0 - only show external bodyparts
+	#6!part#0 - only show parts that are not external bodyparts
+	#6organ#0 - only show organs
+	#6!organ#0 - only show parts that are not organs
+	#6bone#0 - only show bones
+	#6!bone#0 - only show parts that are not bones
+	#6<id|name>#0 - only show parts that belong to the specified body prototype";
 
 	[PlayerCommand("Bodypart", "bodypart")]
 	[CommandPermission(PermissionLevel.SeniorAdmin)]
@@ -2998,10 +3010,127 @@ Also, as an admin you should see the two related commands #3GIVETATTOO#0 and #3F
 			case "clone":
 				BodypartClone(actor, ss);
 				return;
+			case "list":
+				BodypartList(actor, ss);
+				return;
 			default:
 				actor.OutputHandler.Send(BodypartCommandHelpText.SubstituteANSIColour());
 				return;
 		}
+	}
+
+	private static void BodypartList(ICharacter actor, StringStack ss)
+	{
+		var parts = actor.Gameworld.BodypartPrototypes.AsEnumerable();
+		var filters = new List<string>();
+		IBodyPrototype bodyProto = null;
+		while (!ss.IsFinished)
+		{
+			var cmd = ss.PopSpeech().ToLowerInvariant();
+			switch (cmd)
+			{
+				case "organs":
+				case "organ":
+					parts = parts.Where(x => x is IOrganProto);
+					filters.Add("...which are organs");
+					continue;
+				case "bones":
+				case "bone":
+					parts = parts.Where(x => x is IBone);
+					filters.Add("...which are bones");
+					continue;
+				case "parts":
+				case "part":
+					parts = parts.Where(x => x is IExternalBodypart);
+					filters.Add("...which are external body parts");
+					continue;
+				case "!organs":
+				case "!organ":
+					parts = parts.Where(x => x is not IOrganProto);
+					filters.Add("...which not are organs");
+					continue;
+				case "!bones":
+				case "!bone":
+					parts = parts.Where(x => x is not IBone);
+					filters.Add("...which not are bones");
+					continue;
+				case "!parts":
+				case "!part":
+					parts = parts.Where(x => x is not IExternalBodypart);
+					filters.Add("...which not are external body parts");
+					continue;
+			}
+
+			if (cmd.Length > 1)
+			{
+				var cmd1 = cmd.Substring(1);
+				switch (cmd[0])
+				{
+					case '%':
+						continue;
+				}
+			}
+
+			bodyProto = actor.Gameworld.BodyPrototypes.GetByIdOrName(cmd);
+			if (bodyProto is null)
+			{
+				actor.OutputHandler.Send($"The text {cmd.ColourCommand()} is not a valid filter.");
+				return;
+			}
+
+			var body = bodyProto;
+			parts = parts.Where(x => body.CountsAs(x.Body));
+			filters.Add($"...which belong to the body proto {body.Name.ColourName()}");
+		}
+
+		var sb = new StringBuilder();
+		sb.AppendLine($"Listing all bodyparts...");
+		foreach (var filter in filters)
+		{
+			sb.AppendLine(filter);
+		}
+
+		sb.AppendLine(StringUtilities.GetTextTable(
+			from part in parts
+			select new List<string>
+			{
+				part.Id.ToString("N0", actor),
+				part.Name,
+				part.FullDescription(),
+				part.Body.Name,
+				part.BodypartType.DescribeEnum(),
+				part.Alignment.Describe(),
+				part.Orientation.Describe(),
+				part.DamageModifier.ToString("P2", actor),
+				part.StunModifier.ToString("P2", actor),
+				part.PainModifier.ToString("P2", actor),
+				part.BleedModifier.ToString("P2", actor),
+				part.RelativeHitChance.ToString("N0", actor),
+				part.MaxLife.ToString("N0", actor),
+				part.SeveredThreshold.ToString("N0", actor),
+				part.UpstreamConnection?.Name ?? ""
+			},
+			new List<string>
+			{
+				"Id",
+				"Name",
+				"Desc",
+				"Body",
+				"Type",
+				"Alignment",
+				"Orientation",
+				"Dam%",
+				"Stun%",
+				"Pain%",
+				"Bleed%",
+				"Hits",
+				"HP",
+				"Sever",
+				"Upstream"
+			},
+			actor,
+			Telnet.Green));
+		actor.OutputHandler.Send(sb.ToString());
 	}
 
 	private static void BodypartClone(ICharacter actor, StringStack ss)

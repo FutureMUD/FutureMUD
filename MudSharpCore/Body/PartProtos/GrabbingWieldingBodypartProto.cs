@@ -46,9 +46,9 @@ public class GrabbingWieldingBodypartProto : GrabbingBodypartProto, IWield
 	{
 		var sb = new StringBuilder(ShowToBuilderSkipThis(builder));
 		sb.AppendLineColumns((uint)builder.LineFormatLength, 3,
-			$"Display Order: {DisplayOrder.ToString("N0", builder).ColourValue()}",
 			$"Unary {Unary.ToColouredString()}",
-			$"Max Single Wield: {MaxSingleSize.Describe().ColourValue()}"
+			$"Max Single Wield: {MaxSingleSize.Describe().ColourValue()}",
+			""
 		);
 		return sb.ToString();
 	}
@@ -56,7 +56,7 @@ public class GrabbingWieldingBodypartProto : GrabbingBodypartProto, IWield
 	public SizeCategory MaxSingleSize { get; protected set; }
 
 	protected override string HelpInfo =>
-		$"{base.HelpInfo}\n\twieldsize <size> - sets the maximum size that can be wielded one handed";
+		$"{base.HelpInfo}\n\t#3wieldsize <size>#0 - sets the maximum size that can be wielded one handed";
 
 	public override bool BuildingCommand(ICharacter builder, StringStack command)
 	{

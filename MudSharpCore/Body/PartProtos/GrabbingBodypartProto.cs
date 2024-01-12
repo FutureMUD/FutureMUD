@@ -47,8 +47,8 @@ public class GrabbingBodypartProto : DrapeableBodypartProto, IGrab
 	{
 		var sb = new StringBuilder(base.ShowToBuilder(builder));
 		sb.AppendLineColumns((uint)builder.LineFormatLength, 3,
-			$"Display Order: {DisplayOrder.ToString("N0", builder).ColourValue()}",
 			$"Unary: {Unary.ToColouredString()}",
+			"",
 			""
 		);
 		return sb.ToString();
@@ -60,14 +60,12 @@ public class GrabbingBodypartProto : DrapeableBodypartProto, IGrab
 	}
 
 	protected override string HelpInfo =>
-		$"{base.HelpInfo}\n\tdisplay <number> - changes the display order\n\tunary - toggles unitary mode (e.g. hands vs inventory)";
+		$"{base.HelpInfo}\n\t#3unary#0 - toggles unitary mode (e.g. hands vs inventory)";
 
 	public override bool BuildingCommand(ICharacter builder, StringStack command)
 	{
 		switch (command.PopSpeech().ToLowerInvariant())
 		{
-			case "display":
-				return BuildingCommandDisplay(builder, command);
 			case "unary":
 				return BuildingCommandUnary(builder, command);
 		}
@@ -91,28 +89,6 @@ public class GrabbingBodypartProto : DrapeableBodypartProto, IGrab
 		}
 
 		return true;
-	}
-
-	private bool BuildingCommandDisplay(ICharacter builder, StringStack command)
-	{
-		if (command.IsFinished)
-		{
-			builder.OutputHandler.Send("Which order should this bodypart display in inventory commands?");
-			return false;
-		}
-
-		if (!int.TryParse(command.PopSpeech(), out var value))
-		{
-			builder.OutputHandler.Send("You must enter a valid number.");
-			return false;
-		}
-
-		DisplayOrder = value;
-		Changed = true;
-		builder.OutputHandler.Send(
-			$"This bodypart will now display at position {DisplayOrder.ToString("N0", builder).ColourValue()} in inventory commands.");
-		return true;
-		throw new NotImplementedException();
 	}
 
 	public bool ItemsVisible()

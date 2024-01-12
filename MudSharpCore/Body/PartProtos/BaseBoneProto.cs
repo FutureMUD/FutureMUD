@@ -81,7 +81,10 @@ public abstract class BaseBoneProto : BodypartPrototype, IBone
 	}
 
 	protected override string HelpInfo =>
-		$"{base.HelpInfo}\n\tinternal <part> <hitchance> [<group>] - sets this bone to be in the target part\n\tremoveinternal <part> - removes this bone from a part\n\tprimary <part> - sets a part to be the primary bodypart for this bone";
+		$@"{base.HelpInfo}
+	#3internal <part> <hitchance> [<group>]#0 - sets this bone to be in the target part
+	#3removeinternal <part>#0 - removes this bone from a part
+	#3primary <part>#0 - sets a part to be the primary bodypart for this bone";
 
 	public override bool BuildingCommand(ICharacter builder, StringStack command)
 	{

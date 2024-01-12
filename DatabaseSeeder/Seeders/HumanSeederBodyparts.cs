@@ -759,17 +759,17 @@ public partial class HumanSeeder
 		nextId = _context.BodypartProtos.Select(x => x.Id).AsEnumerable().DefaultIfEmpty(0).Max() + 1;
 
 		var drapeableType = _questionAnswers.ContainsKey("bones") && !_questionAnswers["bones"].Equals("implied") ?
-			BodypartTypeEnum.Drapeable :
+			BodypartTypeEnum.Wear :
 			BodypartTypeEnum.BonyDrapeable;
 		var niDrapeableType = _questionAnswers.ContainsKey("bones") && !_questionAnswers["bones"].Equals("implied") ?
-			BodypartTypeEnum.Drapeable :
+			BodypartTypeEnum.Wear :
 			BodypartTypeEnum.NonImmobilisingBonyDrapeable;
 		var gwType = _questionAnswers.ContainsKey("bones") && !_questionAnswers["bones"].Equals("implied") ?
 			BodypartTypeEnum.GrabbingWielding :
 			BodypartTypeEnum.BonyGrabbingWielding;
 
 		// TORSO
-		CreateBodypart(baseHumanoid, "abdomen", "abdomen", "abdomen", BodypartTypeEnum.Drapeable, null, Alignment.Front,
+		CreateBodypart(baseHumanoid, "abdomen", "abdomen", "abdomen", BodypartTypeEnum.Wear, null, Alignment.Front,
 			Orientation.Centre, 80, -1, 100, 50, flesh, SizeCategory.Normal, "Torso", isVital: true, implantSpace: 5,
 			stunMultiplier: 0.2);
 		CreateBodypart(baseHumanoid, "rbreast", "right breast", "breast", niDrapeableType, "abdomen",
@@ -778,16 +778,16 @@ public partial class HumanSeeder
 		CreateBodypart(baseHumanoid, "lbreast", "left breast", "breast", niDrapeableType, "abdomen",
 			Alignment.FrontLeft, Orientation.High, 80, -1, 50, 50, flesh, SizeCategory.Normal, "Torso", isVital: true,
 			implantSpace: 5, stunMultiplier: 0.2);
-		CreateBodypart(baseHumanoid, "rnipple", "right nipple", "nipple", BodypartTypeEnum.Drapeable, "rbreast",
+		CreateBodypart(baseHumanoid, "rnipple", "right nipple", "nipple", BodypartTypeEnum.Wear, "rbreast",
 			Alignment.FrontRight, Orientation.High, 80, -1, 5, 50, flesh, SizeCategory.VerySmall, "Torso",
 			false, isVital: false, implantSpace: 0, stunMultiplier: 0.2);
-		CreateBodypart(baseHumanoid, "lnipple", "left nipple", "nipple", BodypartTypeEnum.Drapeable, "lbreast",
+		CreateBodypart(baseHumanoid, "lnipple", "left nipple", "nipple", BodypartTypeEnum.Wear, "lbreast",
 			Alignment.FrontLeft, Orientation.High, 80, -1, 5, 50, flesh, SizeCategory.VerySmall, "Torso",
 			false, isVital: false, implantSpace: 0, stunMultiplier: 0.2);
 		CreateBodypart(baseHumanoid, "uback", "upper back", "upper back", niDrapeableType, "abdomen",
 			Alignment.Rear, Orientation.Centre, 80, -1, 100, 51, fattyFlesh, SizeCategory.Normal, "Torso",
 			isVital: true, implantSpace: 5, stunMultiplier: 0.2);
-		CreateBodypart(baseHumanoid, "belly", "belly", "belly", BodypartTypeEnum.Drapeable, "abdomen", Alignment.Front,
+		CreateBodypart(baseHumanoid, "belly", "belly", "belly", BodypartTypeEnum.Wear, "abdomen", Alignment.Front,
 			Orientation.Centre, 80, -1, 100, 51, fattyFlesh, SizeCategory.Normal, "Torso", isVital: true,
 			implantSpace: 5, stunMultiplier: 0.2);
 		CreateBodypart(baseHumanoid, "lback", "lower back", "lower back", niDrapeableType, "belly",
@@ -823,7 +823,7 @@ public partial class HumanSeeder
 		CreateBodypart(baseHumanoid, "bneck", "back of neck", "neck back", drapeableType, "neck",
 			Alignment.Rear, Orientation.Highest, 80, 100, 50, 50, flesh, SizeCategory.Normal, "Head", isVital: true,
 			implantSpace: 5, stunMultiplier: 0.4);
-		CreateBodypart(baseHumanoid, "throat", "throat", "throat", BodypartTypeEnum.Drapeable, "neck", Alignment.Front,
+		CreateBodypart(baseHumanoid, "throat", "throat", "throat", BodypartTypeEnum.Wear, "neck", Alignment.Front,
 			Orientation.Highest, 40, 100, 50, 50, flesh, SizeCategory.Normal, "Head", isVital: true, implantSpace: 5,
 			stunMultiplier: 0.4);
 		CreateBodypart(baseHumanoid, "face", "face", "face", niDrapeableType, "neck", Alignment.Front,
@@ -862,10 +862,10 @@ public partial class HumanSeeder
 		CreateBodypart(baseHumanoid, "leye", "left eye", "eye", BodypartTypeEnum.Eye, "leyesocket", Alignment.FrontLeft,
 			Orientation.Highest, 10, 30, 50, 50, flesh, SizeCategory.Small, "Head", isVital: true, implantSpace: 5,
 			stunMultiplier: 0.4);
-		CreateBodypart(baseHumanoid, "rear", "right ear", "ear", BodypartTypeEnum.Drapeable, "rcheek", Alignment.Right,
+		CreateBodypart(baseHumanoid, "rear", "right ear", "ear", BodypartTypeEnum.Wear, "rcheek", Alignment.Right,
 			Orientation.Highest, 10, 30, 50, 50, flesh, SizeCategory.Small, "Head", isVital: false, implantSpace: 5,
 			stunMultiplier: 0.4);
-		CreateBodypart(baseHumanoid, "lear", "left ear", "ear", BodypartTypeEnum.Drapeable, "lcheek", Alignment.Left,
+		CreateBodypart(baseHumanoid, "lear", "left ear", "ear", BodypartTypeEnum.Wear, "lcheek", Alignment.Left,
 			Orientation.Highest, 10, 30, 50, 50, flesh, SizeCategory.Small, "Head", isVital: false, implantSpace: 5,
 			stunMultiplier: 0.4);
 		CreateBodypart(baseHumanoid, "bhead", "back of head", "head back", niDrapeableType, "neck",
@@ -1049,10 +1049,10 @@ public partial class HumanSeeder
 		CreateBodypart(baseHumanoid, "groin", "groin", "groin", niDrapeableType, "belly", Alignment.Front,
 			Orientation.Centre, 40, -1, 75, 52, flesh, SizeCategory.Small, "Genitals", implantSpace: 2,
 			stunMultiplier: 0.2);
-		CreateBodypart(baseHumanoid, "testicles", "testicles", "testicles", BodypartTypeEnum.Drapeable, "groin",
+		CreateBodypart(baseHumanoid, "testicles", "testicles", "testicles", BodypartTypeEnum.Wear, "groin",
 			Alignment.Front, Orientation.Centre, 10, 50, 5, 52, flesh, SizeCategory.Small, "Genitals", implantSpace: 2,
 			stunMultiplier: 0.2, isCore: false);
-		CreateBodypart(baseHumanoid, "penis", "penis", "penis", BodypartTypeEnum.Drapeable, "groin", Alignment.Front,
+		CreateBodypart(baseHumanoid, "penis", "penis", "penis", BodypartTypeEnum.Wear, "groin", Alignment.Front,
 			Orientation.Centre, 10, 50, 5, 52, flesh, SizeCategory.Small, "Genitals", implantSpace: 2,
 			stunMultiplier: 0.2, isCore: false);
 		_context.BodyProtosAdditionalBodyparts.Add(new BodyProtosAdditionalBodyparts

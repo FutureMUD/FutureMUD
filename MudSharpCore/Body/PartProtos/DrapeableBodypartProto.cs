@@ -26,14 +26,14 @@ public class DrapeableBodypartProto : ExternalBodypartProto, IWear
 		return new DrapeableBodypartProto(this, newName);
 	}
 
-	public override BodypartTypeEnum BodypartType => BodypartTypeEnum.Drapeable;
+	public override BodypartTypeEnum BodypartType => BodypartTypeEnum.Wear;
 
 	protected override void InternalSave(BodypartProto dbitem)
 	{
 		dbitem.DisplayOrder = DisplayOrder;
 	}
 
-	protected override string HelpInfo => $"{base.HelpInfo}\n\tdisplay <number> - changes the display order";
+	protected override string HelpInfo => $"{base.HelpInfo}\n\t#3display <number>#0 - changes the display order";
 
 	public override bool BuildingCommand(ICharacter builder, StringStack command)
 	{

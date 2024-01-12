@@ -299,7 +299,7 @@ public abstract partial class BodypartPrototype : LateKeywordedInitialisingItem,
 			case "?":
 			case "help":
 			default:
-				builder.OutputHandler.Send(HelpInfo);
+				builder.OutputHandler.Send(HelpInfo.SubstituteANSIColour());
 				return false;
 		}
 	}
@@ -849,7 +849,28 @@ public abstract partial class BodypartPrototype : LateKeywordedInitialisingItem,
 	}
 
 	protected virtual string HelpInfo =>
-		"You can use the following options with this command:\n\tname <name> - renames this bodypart\n\tdescription <desc> - sets the description\n\ttype <type> - changes the type\n\torientation <orientation> - set the orientation\n\talignment <alignment> - sets the alignment\n\tshape <shape> - sets the shape\n\tdamage <multiplier> - sets the damage multiplier\n\tpain <multiplier> - sets the pain multiplier\n\tstun <multiplier> - sets the stun multiplier\n\tlife <amount> - sets the max life of this bodypart\n\tsever <amount> - sets the threshold for severing\n\tbleed <multiplier> - sets the bleed modifier\n\thit <chances> - sets the hit chances for this bodypart\n\tvital - toggles whether this is a vital part\n\tsignificant - toggles whether this is a significant part\n\tmaterial <material> - sets the material this part is made from\n\tarmour <armour> - sets the default armour type\n\timplantspace <space> - sets the implant space\n\tsize <size> - sets the bodypart size\n\tcountas <other> - sets a bodypart for this to count as";
+		@"You can use the following options with this command:
+
+	#3name <name>#0 - renames this bodypart
+	#3description <desc>#0 - sets the description
+	#3type <type>#0 - changes the type
+	#3orientation <orientation>#0 - set the orientation
+	#3alignment <alignment>#0 - sets the alignment
+	#3shape <shape>#0 - sets the shape
+	#3damage <multiplier>#0 - sets the damage multiplier
+	#3pain <multiplier>#0 - sets the pain multiplier
+	#3stun <multiplier>#0 - sets the stun multiplier
+	#3life <amount>#0 - sets the max life of this bodypart
+	#3sever <amount>#0 - sets the threshold for severing
+	#3bleed <multiplier>#0 - sets the bleed modifier
+	#3hit <chances>#0 - sets the hit chances for this bodypart
+	#3vital#0 - toggles whether this is a vital part
+	#3significant#0 - toggles whether this is a significant part
+	#3material <material>#0 - sets the material this part is made from
+	#3armour <armour>#0 - sets the default armour type
+	#3implantspace <space>#0 - sets the implant space
+	#3size <size>#0 - sets the bodypart size
+	#3countas <other>#0 - sets a bodypart for this to count as";
 
 	#endregion
 
@@ -886,7 +907,7 @@ public abstract partial class BodypartPrototype : LateKeywordedInitialisingItem,
 	{
 		switch ((BodypartTypeEnum)proto.BodypartType)
 		{
-			case BodypartTypeEnum.Drapeable:
+			case BodypartTypeEnum.Wear:
 				return new DrapeableBodypartProto(proto, gameworld);
 			case BodypartTypeEnum.GrabbingWielding:
 				return new GrabbingWieldingBodypartProto(proto, gameworld);

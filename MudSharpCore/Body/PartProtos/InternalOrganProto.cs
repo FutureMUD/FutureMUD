@@ -68,7 +68,13 @@ public abstract class InternalOrganProto : BodypartPrototype, IOrganProto
 	}
 
 	protected override string HelpInfo =>
-		$"{base.HelpInfo}\n\tinfectability <multiplier> - base infection chance multiplier\n\thypoxia <damage> - hypoxia damage per 10 seconds to this organ\n\toccupied <space> - how much space this organ occupies\n\tinternal <part> <hitchance> [<group>] - sets this bone to be in the target part\n\tremoveinternal <part> - removes this bone from a part\n\tprimary <part> - sets a part to be the primary bodypart for this bone";
+		$@"{base.HelpInfo}
+	#3infectability <multiplier>#0 - base infection chance multiplier
+	#3hypoxia <damage>#0 - hypoxia damage per 10 seconds to this organ
+	#3occupied <space>#0 - how much space this organ occupies
+	#3internal <part> <hitchance> [<group>]#0 - sets this bone to be in the target part
+	#3removeinternal <part>#0 - removes this bone from a part
+	#3primary <part>#0 - sets a part to be the primary bodypart for this bone";
 
 	public override bool BuildingCommand(ICharacter builder, StringStack command)
 	{

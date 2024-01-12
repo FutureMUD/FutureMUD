@@ -12,7 +12,7 @@ using MudSharp.GameItems;
 namespace MudSharp.Body {
     public enum BodypartTypeEnum
     {
-        Drapeable = 0,
+        Wear = 0,
         GrabbingWielding = 1,
         Grabbing = 2,
         Wielding = 3,

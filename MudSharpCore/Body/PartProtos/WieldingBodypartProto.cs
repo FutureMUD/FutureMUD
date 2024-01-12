@@ -54,7 +54,8 @@ public class WieldingBodypartProto : DrapeableBodypartProto, IWield
 	}
 
 	protected override string HelpInfo =>
-		$"{base.HelpInfo}\n\tdisplay <number> - changes the display order\n\twieldsize <size> - sets the maximum size that can be wielded one handed";
+		$@"{base.HelpInfo}
+	#3wieldsize <size>#0 - sets the maximum size that can be wielded one handed";
 
 	public override bool BuildingCommand(ICharacter builder, StringStack command)
 	{
@@ -62,33 +63,9 @@ public class WieldingBodypartProto : DrapeableBodypartProto, IWield
 		{
 			case "wieldsize":
 				return BuildingCommandWieldSize(builder, command);
-			case "display":
-				return BuildingCommandDisplay(builder, command);
 		}
 
 		return base.BuildingCommand(builder, new StringStack($"\"{command.Last}\" {command.RemainingArgument}"));
-	}
-
-	private bool BuildingCommandDisplay(ICharacter builder, StringStack command)
-	{
-		if (command.IsFinished)
-		{
-			builder.OutputHandler.Send("Which order should this bodypart display in inventory commands?");
-			return false;
-		}
-
-		if (!int.TryParse(command.PopSpeech(), out var value))
-		{
-			builder.OutputHandler.Send("You must enter a valid number.");
-			return false;
-		}
-
-		DisplayOrder = value;
-		Changed = true;
-		builder.OutputHandler.Send(
-			$"This bodypart will now display at position {DisplayOrder.ToString("N0", builder).ColourValue()} in inventory commands.");
-		return true;
-		throw new NotImplementedException();
 	}
 
 	private bool BuildingCommandWieldSize(ICharacter builder, StringStack command)

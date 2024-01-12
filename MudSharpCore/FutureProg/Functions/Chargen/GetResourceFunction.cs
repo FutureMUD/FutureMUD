@@ -48,9 +48,7 @@ internal class GetResourceFunction : BuiltInFunction, IHaveFuturemud
 			return StatementResult.Error;
 		}
 
-		Result = chargen.Account.AccountResources.TryGetValue(resource, out var value)
-			? new NumberVariable(value)
-			: new NumberVariable(0);
+		Result = new NumberVariable(chargen.Account.AccountResources[resource]);
 		return StatementResult.Normal;
 	}
 

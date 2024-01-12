@@ -140,7 +140,7 @@ namespace MudSharp.Accounts {
 
         bool IsRegistered { get; }
 
-        Dictionary<IChargenResource, int> AccountResources { get; }
+        DoubleCounter<IChargenResource> AccountResources { get; }
         Dictionary<IChargenResource, DateTime?> AccountResourcesLastAwarded { get; }
 
         bool TryAccountRegistration(string text);

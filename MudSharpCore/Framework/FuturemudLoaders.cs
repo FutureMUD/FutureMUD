@@ -1942,7 +1942,7 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 		var stagingTable = new Dictionary<IChargenResource, ChargenResource>();
 		foreach (var item in resources)
 		{
-			var newItem = ChargenResourceBase.LoadFromDatabase(item);
+			var newItem = ChargenResourceBase.LoadFromDatabase(this, item);
 			stagingTable.Add(newItem, item);
 			_chargenResources.Add(newItem);
 		}

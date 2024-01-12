@@ -44,8 +44,6 @@ public sealed class Account : SaveableItem, IAccount
 	public Account(MudSharp.Models.Account account, IFuturemud gameworld, IAuthority authority = null)
 	{
 		Gameworld = gameworld;
-		AccountResources = new Dictionary<IChargenResource, int>();
-		AccountResourcesLastAwarded = new Dictionary<IChargenResource, DateTime?>();
 		_name = account.Name.Proper();
 		_id = account.Id;
 		ControllingContext = null;
@@ -97,8 +95,8 @@ public sealed class Account : SaveableItem, IAccount
 
 	public IAll<ICharacter> Characters { get; } = new All<ICharacter>();
 
-	public Dictionary<IChargenResource, int> AccountResources { get; }
-	public Dictionary<IChargenResource, DateTime?> AccountResourcesLastAwarded { get; }
+	public DoubleCounter<IChargenResource> AccountResources { get; } = new();
+	public Dictionary<IChargenResource, DateTime?> AccountResourcesLastAwarded { get; } = new();
 	public bool HintsEnabled { get => _hintsEnabled; set { _hintsEnabled = value; Changed = true; } }
 	public IAccountController ControllingContext { get; private set; }
 

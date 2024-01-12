@@ -7,7 +7,7 @@ namespace MudSharp.Models
     {
         public long AccountId { get; set; }
         public long ChargenResourceId { get; set; }
-        public int Amount { get; set; }
+        public double Amount { get; set; }
         public DateTime LastAwardDate { get; set; }
 
         public virtual Account Account { get; set; }

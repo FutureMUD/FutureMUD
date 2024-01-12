@@ -4,16 +4,20 @@ using MudSharp.Accounts;
 using MudSharp.Character;
 using MudSharp.Framework;
 using ExpressionEngine;
+using MudSharp.FutureProg;
 
 namespace MudSharp.CharacterCreation.Resources;
 
 public abstract class ChargenResourceBase : FrameworkItem, IChargenResource
 {
+	public sealed override string FrameworkItemType => "ChargenResource";
+
 	private readonly Expression _maximumResourceExpression;
 
 	private IChargenResource _maximumResourceReference;
+	protected IFutureProg ControlProg { get; private set; }
 
-	protected ChargenResourceBase(ChargenResource resource)
+	protected ChargenResourceBase(IFuturemud gameworld, ChargenResource resource)
 	{
 		_id = resource.Id;
 		_name = resource.Name;
@@ -28,18 +32,21 @@ public abstract class ChargenResourceBase : FrameworkItem, IChargenResource
 		TextDisplayedToPlayerOnAward = resource.TextDisplayedToPlayerOnAward;
 		TextDisplayedToPlayerOnDeduct = resource.TextDisplayedToPlayerOnDeduct;
 		_maximumResourceExpression = new Expression(resource.MaximumResourceFormula);
+		ControlProg = gameworld.FutureProgs.Get(resource.ControlProgId ?? 0);
 	}
 
-	public static IChargenResource LoadFromDatabase(ChargenResource resource)
+	public static IChargenResource LoadFromDatabase(IFuturemud gameworld, ChargenResource resource)
 	{
 		switch (resource.Type)
 		{
 			case "Simple":
-				return new SimpleChargenResource(resource);
+				return new SimpleChargenResource(gameworld, resource);
 			case "Regenerating":
-				return new RegeneratingChargenResource(resource);
+				return new RegeneratingChargenResource(gameworld, resource);
 			case "Playtime":
-				return new TotalPlaytimeResource(resource);
+				return new TotalPlaytimeResource(gameworld, resource);
+			case "Realtime":
+				return new RealtimeRegeneratingResource(gameworld, resource);
 			default:
 				throw new NotSupportedException(
 					"Unsupported ChargenResource type in ChargeResourceBase.LoadFromDatabase.");
@@ -48,7 +55,7 @@ public abstract class ChargenResourceBase : FrameworkItem, IChargenResource
 
 	#region IChargenResource Members
 
-	public void PerformPostLoadUpdate(ChargenResource resource, IFuturemud gameworld)
+	public virtual void PerformPostLoadUpdate(ChargenResource resource, IFuturemud gameworld)
 	{
 		if (resource.MaximumResourceId.HasValue)
 		{

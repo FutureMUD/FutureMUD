@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using MudSharp.Models;
 
 namespace MudSharp.Database
@@ -273,7 +274,7 @@ namespace MudSharp.Database
 
                 entity.Property(e => e.ChargenResourceId).HasColumnType("bigint(20)");
 
-                entity.Property(e => e.Amount).HasColumnType("int(11)");
+                entity.Property(e => e.Amount).HasColumnType("double");
 
                 entity.Property(e => e.LastAwardDate).HasColumnType("datetime");
 
@@ -3306,7 +3307,11 @@ namespace MudSharp.Database
                     .HasCharSet("utf8")
                     .UseCollation("utf8_general_ci");
 
-                entity.Property(e => e.MaximumNumberAwardedPerAward).HasColumnType("double");
+                entity.Property(e => e.ControlProgId)
+                      .HasColumnType("bigint(20)")
+                      .IsRequired(false);
+
+				entity.Property(e => e.MaximumNumberAwardedPerAward).HasColumnType("double");
 
                 entity.Property(e => e.MaximumResourceFormula)
                     .IsRequired()
@@ -3353,6 +3358,12 @@ namespace MudSharp.Database
                     .HasColumnType("varchar(50)")
                     .HasCharSet("utf8")
                     .UseCollation("utf8_general_ci");
+
+                entity.HasOne(e => e.ControlProg)
+                      .WithMany()
+                      .HasForeignKey(e => e.ControlProgId)
+                      .OnDelete(DeleteBehavior.SetNull)
+                      .HasForeignKey("FK_ChargenResources_FutureProgs");
             });
 
             modelBuilder.Entity<ChargenRole>(entity =>

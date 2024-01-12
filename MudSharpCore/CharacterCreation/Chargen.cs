@@ -182,7 +182,7 @@ public partial class Chargen : FrameworkItem, IChargen
 
 		if (requestType == DiscordRequestType.Approve)
 		{
-			if (chargen.ApplicationCosts.Any(x => chargen.Account.AccountResources.ValueOrDefault(x.Key, 0) < x.Value))
+			if (chargen.ApplicationCosts.Any(x => chargen.Account.AccountResources[x.Key] < x.Value))
 			{
 				responseCallback(
 					$"error {discordUserId} {discordChannelId} That character application no longer has sufficient account resources to pay for that application.");

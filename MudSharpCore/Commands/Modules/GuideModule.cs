@@ -283,12 +283,12 @@ The syntax to edit roles is as follows:
 
 			if (
 				loadedChargen.ApplicationCosts.Any(
-					x => loadedChargen.Account.AccountResources.ValueOrDefault(x.Key, 0) < x.Value))
+					x => loadedChargen.Account.AccountResources[x.Key] < x.Value))
 			{
 				character.Send("Account {0} no longer has sufficient {1} to pay for that application.",
 					loadedChargen.Account.Name.Proper(),
 					loadedChargen.ApplicationCosts.Where(
-									 x => loadedChargen.Account.AccountResources.ValueOrDefault(x.Key, 0) < x.Value)
+									 x => loadedChargen.Account.AccountResources[x.Key] < x.Value)
 								 .Select(x => x.Key.PluralName)
 								 .ListToString()
 				);

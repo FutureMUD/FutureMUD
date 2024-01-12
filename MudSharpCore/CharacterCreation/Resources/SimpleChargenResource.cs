@@ -1,5 +1,6 @@
 ﻿using MudSharp.Models;
 using MudSharp.Character;
+using MudSharp.Framework;
 
 namespace MudSharp.CharacterCreation.Resources;
 
@@ -8,11 +9,9 @@ namespace MudSharp.CharacterCreation.Resources;
 /// </summary>
 public class SimpleChargenResource : ChargenResourceBase
 {
-	public SimpleChargenResource(ChargenResource resource) : base(resource)
+	public SimpleChargenResource(IFuturemud gameworld, ChargenResource resource) : base(gameworld, resource)
 	{
 	}
-
-	public override string FrameworkItemType => "ChargenResource";
 
 	public override void UpdateOnSave(ICharacter character, int oldMinutes, int newMinutes)
 	{

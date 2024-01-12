@@ -16,13 +16,11 @@ public class RegeneratingChargenResource : ChargenResourceBase
 	public TimeSpan AwardInterval { get; set; }
 	public double AwardAmount { get; set; }
 
-	public RegeneratingChargenResource(ChargenResource resource) : base(resource)
+	public RegeneratingChargenResource(IFuturemud gameworld, ChargenResource resource) : base(gameworld, resource)
 	{
 		AwardInterval = TimeSpan.FromMinutes(resource.MinimumTimeBetweenAwards);
 		AwardAmount = MaximumNumberAwardedPerAward;
 	}
-
-	public override string FrameworkItemType => "ChargenResource";
 
 	public override void UpdateOnSave(ICharacter character, int oldMinutes, int newMinutes)
 	{
@@ -38,12 +36,13 @@ public class RegeneratingChargenResource : ChargenResourceBase
 			lastAward = character.LoginDateTime;
 		}
 
-		var intervalCount = (DateTime.UtcNow - lastAward).Ticks / AwardInterval.Ticks;
+		var intervalCount = (DateTime.UtcNow - lastAward).Ticks / (double)AwardInterval.Ticks;
 		if (intervalCount > 0 &&
-		    character.Account.AccountResources.ValueOrDefault(this, 0) < GetMaximum(character.Account))
+		    character.Account.AccountResources[this] < GetMaximum(character.Account) &&
+		    ControlProg?.ExecuteBool(character) != false
+			)
 		{
-			character.Account.AccountResources[this] =
-				character.Account.AccountResources.ValueOrDefault(this, 0) + (int)intervalCount;
+			character.Account.AccountResources[this] += intervalCount;
 			character.Account.AccountResourcesLastAwarded[this] = DateTime.UtcNow;
 			var dbaccount = FMDB.Context.Accounts.Find(character.Account.Id);
 			if (dbaccount == null)

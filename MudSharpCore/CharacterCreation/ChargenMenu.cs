@@ -35,7 +35,7 @@ public class ChargenMenu : Menu, IChargenMenu
 			if (_chargen.CurrentCosts.Any(x => x.Value > 0))
 			{
 				return
-					$"\nCost: {_chargen.CurrentCosts.Where(x => x.Value > 0).Select(x => $"{x.Value:N0}/{_chargen.Account.AccountResources.ValueOrDefault(x.Key, 0)} {x.Key.Alias}".Colour(x.Value < 0 ? Telnet.Red : Telnet.Green)).ListToString()}>\n\n";
+					$"\nCost: {_chargen.CurrentCosts.Where(x => x.Value > 0).Select(x => $"{x.Value:N0}/{_chargen.Account.AccountResources[x.Key]} {x.Key.Alias}".Colour(x.Value < 0 ? Telnet.Red : Telnet.Green)).ListToString()}>\n\n";
 			}
 
 			return $"\n>\n\n";

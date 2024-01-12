@@ -14,8 +14,6 @@ public sealed class DummyAccount : FrameworkItem, IAccount
 {
 	private DummyAccount()
 	{
-		AccountResources = new Dictionary<IChargenResource, int>();
-		AccountResourcesLastAwarded = new Dictionary<IChargenResource, DateTime?>();
 	}
 
 	public static DummyAccount Instance { get; } = new();
@@ -67,8 +65,8 @@ public sealed class DummyAccount : FrameworkItem, IAccount
 		set { }
 	}
 
-	public Dictionary<IChargenResource, int> AccountResources { get; }
-	public Dictionary<IChargenResource, DateTime?> AccountResourcesLastAwarded { get; }
+	public DoubleCounter<IChargenResource> AccountResources { get; } = new();
+	public Dictionary<IChargenResource, DateTime?> AccountResourcesLastAwarded { get; } = new();
 
 	public IAccountController ControllingContext => null;
 

@@ -452,10 +452,10 @@ public sealed class DiscordConnection : IDiscordConnection
 		}
 
 		if (
-			chargen.ApplicationCosts.Any(x => chargen.Account.AccountResources.ValueOrDefault(x.Key, 0) < x.Value))
+			chargen.ApplicationCosts.Any(x => chargen.Account.AccountResources[x.Key] < x.Value))
 		{
 			SendClientMessage(
-				$"request {request} chargenapprovalerror {which} Account {chargen.Account.Name.Proper()} no longer has sufficient {chargen.ApplicationCosts.Where(x => chargen.Account.AccountResources.ValueOrDefault(x.Key, 0) < x.Value).Select(x => x.Key.PluralName).ListToString()} to pay for that application.");
+				$"request {request} chargenapprovalerror {which} Account {chargen.Account.Name.Proper()} no longer has sufficient {chargen.ApplicationCosts.Where(x => chargen.Account.AccountResources[x.Key] < x.Value).Select(x => x.Key.PluralName).ListToString()} to pay for that application.");
 			return;
 		}
 

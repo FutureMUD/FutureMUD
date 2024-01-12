@@ -60,7 +60,7 @@ public class DerivedSkillDefinition : DerivedTraitDefinition, ISkillDefinition
 	{
 		return
 			_costs.Where(x => x.RequirementOnly).All(x =>
-				template.Account.AccountResources.ValueOrDefault(x.Resource, 0) >= x.Amount) &&
+				template.Account.AccountResources[x.Resource] >= x.Amount) &&
 			((bool?)AvailabilityProg?.Execute(template) ?? true);
 	}
 

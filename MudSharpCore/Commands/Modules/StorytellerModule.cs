@@ -225,7 +225,7 @@ The syntax to use this command is #3newplayer <target>#0", AutoHelp.HelpArgOrNoA
 				ch.Account.Name,
 				ch.PersonalName.GetName(NameStyle.FullName),
 				ch.HowSeen(ch, flags: PerceiveIgnoreFlags.IgnoreSelf),
-				ch.Account.AccountResources.ValueOrDefault(targetResource, 0).ToString(),
+				ch.Account.AccountResources[targetResource].ToString("N1", actor),
 				ch.Account.AccountResourcesLastAwarded.ValueOrDefault(targetResource, null)
 				  ?.GetLocalDateString(actor, true)
 			},

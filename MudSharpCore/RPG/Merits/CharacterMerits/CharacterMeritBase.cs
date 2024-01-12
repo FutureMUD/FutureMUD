@@ -138,7 +138,7 @@ public abstract class CharacterMeritBase : MeritBase, ICharacterMerit, IHaveFutu
 	{
 		return
 			_costs.Where(x => x.RequirementOnly)
-			      .All(x => chargen.Account.AccountResources.ValueOrDefault(x.Resource, 0) >= x.Amount) &&
+			      .All(x => chargen.Account.AccountResources[x.Resource] >= x.Amount) &&
 			((bool?)_chargenAvailableProg?.Execute(chargen) ?? true);
 	}
 

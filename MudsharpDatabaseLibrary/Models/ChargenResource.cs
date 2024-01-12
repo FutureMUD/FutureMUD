@@ -31,6 +31,7 @@ namespace MudSharp.Models
         public long? MaximumResourceId { get; set; }
         public string MaximumResourceFormula { get; set; }
         public string Type { get; set; }
+        public long? ControlProgId { get; set; }
 
         public virtual ICollection<AccountsChargenResources> AccountsChargenResources { get; set; }
         public virtual ICollection<ChargenRolesCost> ChargenRolesCosts { get; set; }
@@ -40,5 +41,6 @@ namespace MudSharp.Models
         public virtual ICollection<RacesChargenResources> RacesChargenResources { get; set; }
         public virtual ICollection<TraitDefinitionsChargenResources> TraitDefinitionsChargenResources { get; set; }
         public virtual ICollection<KnowledgesCosts> KnowledgesCosts { get; set; }
+        public virtual FutureProg ControlProg { get; set; }
     }
 }

@@ -12,12 +12,10 @@ namespace MudSharp.CharacterCreation.Resources;
 
 internal class TotalPlaytimeResource : ChargenResourceBase
 {
-	public override string FrameworkItemType => "ChargenResource";
-
 	public TimeSpan AwardInterval { get; set; }
 	public double AwardAmount { get; set; }
 
-	public TotalPlaytimeResource(ChargenResource resource) : base(resource)
+	public TotalPlaytimeResource(IFuturemud gameworld, ChargenResource resource) : base(gameworld, resource)
 	{
 		AwardInterval = TimeSpan.FromMinutes(resource.MinimumTimeBetweenAwards);
 		AwardAmount = MaximumNumberAwardedPerAward;
@@ -35,10 +33,11 @@ internal class TotalPlaytimeResource : ChargenResourceBase
 		var intervalCount = newMinutesTS / MinimumTimeBetweenAwards - oldMinutesTS / MinimumTimeBetweenAwards;
 
 		if (intervalCount > 0 &&
-		    character.Account.AccountResources.ValueOrDefault(this, 0) < GetMaximum(character.Account))
+		    character.Account.AccountResources[this] < GetMaximum(character.Account) &&
+			ControlProg?.ExecuteBool(character) != false
+		    )
 		{
-			character.Account.AccountResources[this] =
-				character.Account.AccountResources.ValueOrDefault(this, 0) + (int)intervalCount;
+			character.Account.AccountResources[this] += intervalCount;
 			character.Account.AccountResourcesLastAwarded[this] = DateTime.UtcNow;
 			var dbaccount = FMDB.Context.Accounts.Find(character.Account.Id);
 			if (dbaccount == null)

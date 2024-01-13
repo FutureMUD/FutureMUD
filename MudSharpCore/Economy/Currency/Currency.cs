@@ -291,9 +291,55 @@ public class Currency : SaveableItem, ICurrency
 		Changed = false;
 	}
 
+	public const string HelpText = @"";
+
 	public bool BuildingCommand(ICharacter actor, StringStack command)
 	{
-		throw new NotImplementedException();
+		switch (command.PopForSwitch())
+		{
+			case "name":
+				return BuildingCommandName(actor, command);
+			case "conversion":
+				return BuildingCommandConversion(actor, command);
+		}
+
+		actor.OutputHandler.Send(HelpText.SubstituteANSIColour());
+		return false;
+	}
+
+	private bool BuildingCommandName(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("What name do you want to give to this currency?");
+			return false;
+		}
+
+		var name = command.SafeRemainingArgument.TitleCase();
+		if (Gameworld.Currencies.Any(x => x.Name.EqualTo(name)))
+		{
+			actor.OutputHandler.Send($"There is already a currency called {name.ColourName()}. Names must be unique.");
+			return false;
+		}
+
+		actor.OutputHandler.Send($"You rename the currency {Name.ColourName()} to {name.ColourName()}.");
+		_name = name;
+		Changed = true;
+		return true;
+	}
+
+	private bool BuildingCommandConversion(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished || !decimal.TryParse(command.SafeRemainingArgument, out var value) || value < 0.0M)
+		{
+			actor.OutputHandler.Send("You must enter a valid conversion rate to universal currency that is 0 or higher.");
+			return false;
+		}
+
+		BaseCurrencyToGlobalBaseCurrencyConversion = value;
+		Changed = true;
+		actor.OutputHandler.Send("");
+		return true;
 	}
 
 	public string Show(ICharacter actor)

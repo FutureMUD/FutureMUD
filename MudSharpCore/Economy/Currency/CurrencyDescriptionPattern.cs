@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using MudSharp.Character;
+using MudSharp.Database;
 using MudSharp.Framework;
 using MudSharp.Framework.Save;
 using MudSharp.FutureProg;
@@ -35,6 +36,18 @@ public class CurrencyDescriptionPattern : SaveableItem, ICurrencyDescriptionPatt
 		{
 			_elements.Add(new CurrencyDescriptionPatternElement(item, this, parent));
 		}
+	}
+
+	public override void Save()
+	{
+		var dbitem = FMDB.Context.CurrencyDescriptionPatterns.Find(Id);
+		dbitem.Type = (int)Type;
+		dbitem.Order = Order;
+		dbitem.UseNaturalAggregationStyle = UseNaturalAggregationStyle;
+		dbitem.FutureProgId = ApplicabilityProg?.Id;
+		dbitem.NegativePrefix = NegativeValuePrefix;
+		Changed = false;
+		// TODO
 	}
 
 	public override string FrameworkItemType => "CurrencyDescriptionPattern";
@@ -74,7 +87,7 @@ public class CurrencyDescriptionPattern : SaveableItem, ICurrencyDescriptionPatt
 			    item.ShowIfZero)
 			{
 				var ivalue = value / item.TargetDivision.BaseUnitConversionRate;
-				value = value % item.TargetDivision.BaseUnitConversionRate;
+				value %= item.TargetDivision.BaseUnitConversionRate;
 
 				if ((ivalue != 0 && (item.Rounding != RoundingMode.Truncate || (int)ivalue != 0)) ||
 				    item.ShowIfZero)
@@ -147,12 +160,6 @@ public class CurrencyDescriptionPattern : SaveableItem, ICurrencyDescriptionPatt
 			Telnet.Yellow
 		)) ;
 		return sb.ToString();
-	}
-
-	public override void Save()
-	{
-		Changed = false;
-		// TODO
 	}
 
 	#endregion

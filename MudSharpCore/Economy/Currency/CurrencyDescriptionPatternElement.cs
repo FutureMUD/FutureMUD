@@ -1,8 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using MoreLinq.Extensions;
+using MudSharp.Database;
 using MudSharp.Framework;
 using MudSharp.Framework.Save;
+using MudSharp.Models;
 
 namespace MudSharp.Economy.Currency;
 
@@ -111,7 +114,26 @@ public class CurrencyDescriptionPatternElement : SaveableItem, ICurrencyDescript
 
 	public override void Save()
 	{
-		// TODO
+		var dbitem = FMDB.Context.CurrencyDescriptionPatternElements.Find(Id);
+		dbitem.Order = _order;
+		dbitem.Pattern = _pattern;
+		dbitem.AlternatePattern = _alternatePattern;
+		dbitem.PluraliseWord = _pluraliseWord;
+		dbitem.RoundingMode = (int)Rounding;
+		dbitem.CurrencyDivisionId = TargetDivision.Id;
+		dbitem.SpecialValuesOverrideFormat = _specialValuesOverridePattern;
+		dbitem.ShowIfZero = ShowIfZero;
+		FMDB.Context.CurrencyDescriptionPatternElementSpecialValues.RemoveRange(dbitem
+			.CurrencyDescriptionPatternElementSpecialValues);
+		foreach (var item in SpecialValues)
+		{
+			dbitem.CurrencyDescriptionPatternElementSpecialValues.Add(new CurrencyDescriptionPatternElementSpecialValues
+			{
+				CurrencyDescriptionPatternElement = dbitem,
+				Text = item.Value,
+				Value = item.Key
+			});
+		}
 		Changed = false;
 	}
 }

@@ -3,8 +3,10 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using MudSharp.Character;
+using MudSharp.Database;
 using MudSharp.Framework;
 using MudSharp.Framework.Save;
+using MudSharp.Models;
 using MudSharp.ThirdPartyCode;
 
 namespace MudSharp.Economy.Currency;
@@ -27,7 +29,7 @@ public class CurrencyDivision : SaveableItem, ICurrencyDivision
 
 	#region ICurrencyDivision Members
 
-	public decimal BaseUnitConversionRate { get; }
+	public decimal BaseUnitConversionRate { get; private set; }
 
 	private readonly List<Regex> _patterns;
 	public IEnumerable<Regex> Patterns => _patterns;
@@ -56,7 +58,18 @@ public class CurrencyDivision : SaveableItem, ICurrencyDivision
 
 	public override void Save()
 	{
-		// TODO
+		var dbitem = FMDB.Context.CurrencyDivisions.Find(Id);
+		dbitem.Name = Name;
+		dbitem.BaseUnitConversionRate = BaseUnitConversionRate;
+		FMDB.Context.CurrencyDivisionAbbreviations.RemoveRange(dbitem.CurrencyDivisionAbbreviations);
+		foreach (var pattern in _patterns)
+		{
+			dbitem.CurrencyDivisionAbbreviations.Add(new CurrencyDivisionAbbreviation
+			{
+				CurrencyDivision = dbitem,
+				Pattern = pattern.ToString()
+			});
+		}
 		Changed = false;
 	}
 

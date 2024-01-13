@@ -212,7 +212,7 @@ internal class GameModule : Module<ICharacter>
 
 	[PlayerCommand("Attacks", "attacks")]
 	[HelpInfo("Attacks",
-		@"This command is used to list the available attacks that you have, either from weapons or otherwise any other source. The basic syntax is either ATTACKS on its own to see unarmed attacks, or ATTACKS <weapon> to view attacks with a weapon that you're holding.
+		@"This command is used to list the available attacks that you have, either from weapons or otherwise any other source. The basic syntax is either #3ATTACKS#0 on its own to see unarmed attacks, or #3ATTACKS <weapon>#0 to view attacks with a weapon that you're holding.
 
 The information that the command gives you will be useful in planning your combat settings. The information will be presented in the following form, based on a fictional example:
 
@@ -228,8 +228,8 @@ The explanation of each piece of the above is below:
 #21.3#0s - the attack's base delay before attacking again is 1.3 seconds (final delay modified by other factors)
 #3NO#0 vs b: #BHA#0 d: #3NO#0 p: #2EA#0 - this attack is difficulty #3NO#0rmal to the attacker, and #BHA#0rd to block, #3NO#0rmal to dodge, #2EA#0sy to parry
 
-For a full list of difficulties, see SHOW DIFFICULTIES.
-For a full list of combat flags, see SHOW COMBATFLAGS", AutoHelp.HelpArg)]
+For a full list of difficulties, see #3SHOW DIFFICULTIES#0.
+For a full list of combat flags, see #3SHOW COMBATFLAGS#0", AutoHelp.HelpArg)]
 	protected static void Attacks(ICharacter actor, string input)
 	{
 		var ss = new StringStack(input.RemoveFirstWord());

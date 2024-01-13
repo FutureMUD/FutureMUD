@@ -2,6 +2,7 @@
 using MudSharp.Framework;
 using MudSharp.Framework.Save;
 using System.Text;
+using MudSharp.Database;
 
 namespace MudSharp.Economy.Currency;
 
@@ -18,6 +19,19 @@ public class Coin : SaveableItem, ICoin
 		Value = coin.Value;
 		GeneralForm = coin.GeneralForm;
 		PluralWord = coin.PluralWord;
+	}
+
+	public override void Save()
+	{
+		var dbitem = FMDB.Context.Coins.Find(Id);
+		dbitem.Name = Name;
+		dbitem.ShortDescription = ShortDescription;
+		dbitem.FullDescription = FullDescription;
+		dbitem.Weight = Weight;
+		dbitem.Value = Value;
+		dbitem.GeneralForm = GeneralForm;
+		dbitem.PluralWord = PluralWord;
+		Changed = false;
 	}
 
 	public override string FrameworkItemType => "Coin";
@@ -56,11 +70,6 @@ public class Coin : SaveableItem, ICoin
 		sb.AppendLine();
 		sb.AppendLine(FullDescription.Wrap(actor.InnerLineFormatLength, "\t").SubstituteANSIColour());
 		return sb.ToString();
-	}
-
-	public override void Save()
-	{
-		throw new System.NotImplementedException();
 	}
 
 	#endregion

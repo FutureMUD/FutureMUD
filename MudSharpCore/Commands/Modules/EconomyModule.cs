@@ -3018,7 +3018,7 @@ Additionally, you can use the following shop admin subcommands:
 	private static void ShopMerchandiseSet(ICharacter actor, StringStack ss)
 	{
 		var editing = actor.EffectsOfType<BuilderEditingEffect<IMerchandise>>()
-						   .FirstOrDefault(x => x.EditingItem.Shop == actor.Location.Shop);
+						   .FirstOrDefault();
 		if (editing == null)
 		{
 			actor.OutputHandler.Send("You are not currently editing any merchandise entries.");
@@ -3203,7 +3203,7 @@ Additionally, you can use the following shop admin subcommands:
 		if (ss.IsFinished)
 		{
 			var editing = actor.EffectsOfType<BuilderEditingEffect<IMerchandise>>()
-							   .FirstOrDefault(x => x.EditingItem.Shop == shop);
+							   .FirstOrDefault();
 			if (editing == null)
 			{
 				actor.OutputHandler.Send("Which merchandise record would you like to edit?");

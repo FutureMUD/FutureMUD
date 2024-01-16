@@ -277,12 +277,15 @@ public sealed class DiscordConnection : IDiscordConnection
 		switch (ss.Pop())
 		{
 			case "help":
+				Console.WriteLine("Discord asked for HELP.");
 				HandleHelpTcpCommand(ss);
 				return;
 			case "proghelp":
+				Console.WriteLine("Discord asked for PROGHELP.");
 				HandleProgHelpTcpCommand(ss);
 				return;
 			case "adminhelp":
+				Console.WriteLine("Discord asked for ADMINHELP.");
 				HandleHelpTcpCommand(ss, true);
 				return;
 			case "authsuccess":

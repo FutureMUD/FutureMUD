@@ -301,7 +301,7 @@ And the result would be a number with the value of #233#0.".SubstituteANSIColour
 		foreach (var function in functions)
 		{
 			sb.AppendLine();
-			sb.AppendLine(function.FunctionDisplayForm.GetLineWithTitle(
+			sb.AppendLine(function.FunctionDisplayForm.StripANSIColour(!colour).GetLineWithTitle(
 				linewidth,
 				unicode, 
 				colour ? Telnet.BoldMagenta : null, null));

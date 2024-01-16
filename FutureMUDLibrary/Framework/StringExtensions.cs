@@ -747,11 +747,6 @@ namespace MudSharp.Framework {
         /// <returns>The line</returns>
         public static string GetLineWithTitle(this string text, int linelength, bool useUnicode, ANSIColour rulerColour, ANSIColour titleColour)
         {
-            if (text.RawTextLength() + 12 > linelength)
-            {
-                return text;
-            }
-
             var sb = new StringBuilder();
             if (rulerColour != null) {
                 sb.Append(rulerColour.Colour);
@@ -780,7 +775,7 @@ namespace MudSharp.Framework {
                 sb.Append(rulerColour.Colour);
             }
             sb.Append(useUnicode ? "╠" : "]");
-            sb.Append(useUnicode ? '═' : '=', linelength - 11 - text.RawTextLength());
+            sb.Append(useUnicode ? '═' : '=', Math.Max(linelength - 11 - text.RawTextLength(), 1));
             
             if (rulerColour != null)
             {

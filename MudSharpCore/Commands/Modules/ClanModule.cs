@@ -336,7 +336,7 @@ All of the following commands must happen with an edited clan selected:
 			return;
 		}
 
-		if (!RecurringInterval.TryParse(ss.PopSpeech(), out var interval))
+		if (!RecurringInterval.TryParse(ss.SafeRemainingArgument, out var interval))
 		{
 			actor.OutputHandler.Send(
 				$"That is not a valid interval.\n{"Use the following form: every <x> hours|days|weekdays|weeks|months|years <offset>".ColourCommand()}");

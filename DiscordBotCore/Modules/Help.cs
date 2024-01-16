@@ -13,7 +13,39 @@ namespace Discord_Bot.Modules
 {
     public class Help : BaseCommandModule
     {
-        [Command("help")]
+        [Command("proghelp")]
+        [Aliases("phelp")]
+	    public async Task ProgHelpAsync(CommandContext context, [RemainingText] string arguments = "")
+	    {
+		    if (!DiscordBot.Instance.TCPConnections.Any(x => x.TcpClientAuthenticated))
+		    {
+			    await context.RespondAsync($"{context.User.Mention} - I'm not currently connected to the MUD so I cannot do that for you.");
+			    return;
+		    }
+
+		    await context.Message.CreateReactionAsync(DiscordEmoji.FromUnicode("👌"));
+
+		    var request = new CachedDiscordRequest
+		    {
+			    Context = context,
+			    OnResponseAction = HandleMudProgHelpResponse
+			};
+		    DiscordBot.Instance.CachedDiscordRequests[request.RequestId] = request;
+		    DiscordBot.Instance.TCPConnections.First(x => x.TcpClientAuthenticated).SendTcpCommand($"proghelp {request.RequestId} {arguments}");
+		}
+
+
+
+	    private async Task HandleMudProgHelpResponse(string text, CommandContext context)
+	    {
+		    await context.RespondAsync($"{context.User.Mention} - Prog Help Request");
+		    foreach (var part in text.SplitStringsForDiscord())
+		    {
+			    await context.RespondAsync($"```{part}```");
+		    }
+	    }
+
+		[Command("help")]
         [Aliases("halp", "hjalp")]
         public async Task HelpAsync(CommandContext context, [RemainingText]string arguments = "")
         {
@@ -24,6 +56,7 @@ namespace Discord_Bot.Modules
     **help** - shows this help message
     **help <helpfile>** - shows a helpfile from the MUD
     **playerhelp <helpfile>** - shows the player-specific version of a helpfile, if there are two versions
+	**proghelp <args>** - shows help on prog statements, functions, etc. Do PROGHELP on its own to see full syntax.
     **who** - shows the WHO output from the MUD
     **stats** - shows the STATS output from the MUD
     **status** - shows whether the discord bot is connected to the MUD

@@ -18,8 +18,15 @@ namespace MudSharp.Framework
     {
         public static string HMark = " \x1B[1;33m-\x1B[0;39m ";
         public static string Indent = "   ";
+
+        /// <summary>
+        /// Form is #N, e.g. #2, #F, #0
+        /// </summary>
         private static readonly Regex _substituteANSIColourRegex = new(@"(?<=(?:##){0,})#([0-9A-I#])", RegexOptions.IgnoreCase);
-        private static readonly Regex _substituteANSIColourRGBRegex = new(@"(?<=(?:##){0,})#`(?<red>[0-9]+);(?<green>[0-9]+);(?<blue>[0-9]+);", RegexOptions.IgnoreCase);
+		/// <summary>
+		/// Form is #`r;g;b; for example #`156;220;254;
+		/// </summary>
+		private static readonly Regex _substituteANSIColourRGBRegex = new(@"(?<=(?:##){0,})#`(?<red>[0-9]+);(?<green>[0-9]+);(?<blue>[0-9]+);", RegexOptions.IgnoreCase);
 		private static readonly Regex _stripANSIRegex = new(@"\e\[(.*?)m");
         // Form is: writing{language,script,style=???,colour=???,skill>???}{text if can understand}{optional text if can't understand}
         private static readonly Regex LanguageReplacementRegex = new(@"writing\{(?<details>[a-z0-9 ,><=\.\-]+)\}\{(?<text>[^}]+)\}(?:\{(?<alt>[^}]+)\}){0,1}", RegexOptions.IgnoreCase);
@@ -248,6 +255,11 @@ namespace MudSharp.Framework
         public static string StripANSIColour(this string input)
         {
 	        return _stripANSIRegex.Replace(input, string.Empty);
+        }
+
+        public static string StripANSIColour(this string input, bool strip)
+        {
+	        return strip ? input.StripANSIColour() : input;
         }
 
         /// <summary>

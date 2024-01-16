@@ -31,6 +31,8 @@ using MudSharp.TimeAndDate;
 using MudSharp.TimeAndDate.Date;
 using MudSharp.TimeAndDate.Intervals;
 using MudSharp.TimeAndDate.Time;
+using System.Numerics;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace MudSharp.Commands.Modules;
 
@@ -172,6 +174,20 @@ See also the closely related #6hook#0 and #6events#0 areas for some further supp
 		actor.OutputHandler.Send(NewProgHelpText.SubstituteANSIColour());
 	}
 
+	public static string GetTextProgHelpStatement((string HelpText, string Related) help, string function, int linewidth, bool colour)
+	{
+		var sb = new StringBuilder();
+		sb.AppendLine($"Prog Statement - {function.ToUpperInvariant()}".FluentColour(Telnet.Magenta, colour));
+		sb.AppendLine();
+		sb.AppendLine(help.HelpText.Wrap(linewidth).SubstituteANSIColour().StripANSIColour(!colour));
+		if (!string.IsNullOrEmpty(help.Related))
+		{
+			sb.AppendLine();
+			sb.AppendLine($"Related: {help.Related.FluentColour(Telnet.Cyan, colour)}");
+		}
+		return sb.ToString();
+	}
+
 	private static void ProgHelpStatement(ICharacter actor, StringStack ss)
 	{
 		if (ss.IsFinished)
@@ -186,9 +202,21 @@ See also the closely related #6hook#0 and #6events#0 areas for some further supp
 			return;
 		}
 
-		actor.OutputHandler.Send(@$"#5Prog Statement - {ss.SafeRemainingArgument.ToUpperInvariant()}#0
+		actor.OutputHandler.Send(GetTextProgHelpStatement(value, ss.SafeRemainingArgument, actor.LineFormatLength, true));
+	}
 
-{value.HelpText.Wrap(actor.InnerLineFormatLength, "\t")}".SubstituteANSIColour());
+	public static string GetTextProgHelpCollection(CollectionExtensionFunctionCompilerInformation info, int linewidth, bool colour)
+	{
+		var sb = new StringBuilder();
+		sb.AppendLine($@"#5Collection Extension Function - {info.FunctionName.ToUpperInvariant()}#0
+
+Inner Function Type: {info.InnerFunctionReturnType.DescribeEnum().ColourName(colour)}
+Return Type Info: {info.FunctionReturnInfo.ColourName(colour)}
+");
+		var line = info.FunctionHelp.Wrap(linewidth, "\t").FluentColourIncludingReset(Telnet.Yellow, colour)
+		               .SubstituteANSIColour();
+		sb.AppendLine(colour ? line : line.StripANSIColour());
+		return sb.ToString();
 	}
 
 	private static void ProgHelpCollection(ICharacter actor, StringStack ss)
@@ -207,39 +235,34 @@ See also the closely related #6hook#0 and #6events#0 areas for some further supp
 			return;
 		}
 
-		actor.OutputHandler.Send($@"#5Collection Extension Function - {info.FunctionName.ToUpperInvariant()}#0
-
-Inner Function Type: {info.InnerFunctionReturnType.DescribeEnum().ColourName()}
-Return Type Info: {info.FunctionReturnInfo.ColourName()}
-
-{info.FunctionHelp.Wrap(actor.InnerLineFormatLength, "\t").ColourCommand()}".SubstituteANSIColour());
+		actor.OutputHandler.Send(GetTextProgHelpCollection(info, actor.LineFormatLength, true));
 	}
 
-	private static void ProgHelpCollections(ICharacter actor, StringStack ss)
+	public static string GetTextProgHelpCollections(int linewidth, bool unicode, bool colour)
 	{
 		var sb = new StringBuilder();
 		sb.AppendLine("Help on Collection Functions".ColourName());
 		sb.AppendLine();
 		sb.AppendLine(@"These functions are accessed by doing something in the following form after a collection variable:
 
-	#3@CollectionVariable.FunctionName(ItemVariableName, InnerFunction)#0
+	#`156;220;254;@CollectionVariable#0.#`220;220;170;FunctionName#0(ItemVariableName#0, InnerFunction#0)#0
 
 Where:
 	
 	#3CollectionVariable#0 is any variable or function returning a collection
-	#3FunctionName#0 is the specific collection extension function you want to run (e.g. Any, Sum, etc)
+	#3FunctionName#0 is the specific collection extension function you want to run (e.g. #`220;220;170;Any#0, #`220;220;170;Sum#0, etc)
 	#3ItemVariableName#0 is a variable name that will be used inside the inner function to refer to each item in the collection
 	#3InnerFunction#0 is a function (usually returning a Boolean or Number) that is run on each element in the collection
 
 For example, if you had a #6Number Collection#0 called #3fibonacci#0 that contained the following items:
 
-	1, 1, 2, 3, 5, 8, 13
+	#21#0, #21#0, #22#0, #23#0, #25#0, #28#0, #213#0
 
 You could run:
 
-	@fibonacci.Sum(number, @number)
+	#`156;220;254;@fibonacci#0.#`220;220;170;Sum(#`156;220;254;number#0, #`156;220;254;@number#0)
 
-And the result would be a number with the value of 33.".SubstituteANSIColour());
+And the result would be a number with the value of #233#0.".SubstituteANSIColour());
 		sb.AppendLine();
 		sb.AppendLine("Collection Functions:");
 		sb.AppendLine(StringUtilities.GetTextTable(
@@ -256,10 +279,50 @@ And the result would be a number with the value of 33.".SubstituteANSIColour());
 				"Inner Function",
 				"Return Type"
 			},
-			actor,
-			Telnet.BoldMagenta
+			linewidth,
+			colour,
+			colour ? Telnet.BoldMagenta : null,
+			1,
+			unicode
 		));
-		actor.OutputHandler.Send(sb.ToString());
+
+		return colour ? sb.ToString() : sb.ToString().StripANSIColour();
+	}
+
+	private static void ProgHelpCollections(ICharacter actor, StringStack ss)
+	{
+		actor.OutputHandler.Send(GetTextProgHelpCollections(actor.LineFormatLength, actor.Account.UseUnicode, true));
+	}
+
+	public static string GetTextProgHelpFunction(IEnumerable<FunctionCompilerInformation> functions, int linewidth, int innerwidth,
+		bool unicode, bool colour)
+	{
+		var sb = new StringBuilder();
+		foreach (var function in functions)
+		{
+			sb.AppendLine();
+			sb.AppendLine(function.FunctionDisplayForm.GetLineWithTitle(
+				linewidth,
+				unicode, 
+				colour ? Telnet.BoldMagenta : null, null));
+			sb.AppendLine();
+			sb.AppendLine(function.FunctionHelp.Wrap(innerwidth).FluentColour(Telnet.Yellow, colour));
+			sb.AppendLine();
+			for (var i = 0; i < function.Parameters.Count(); i++)
+			{
+				sb.Append("\t");
+				sb.Append(function.Parameters.ElementAt(i).Describe().FluentColour(Telnet.Cyan, colour));
+				sb.Append(" ");
+				sb.Append(function.ParameterNames?.ElementAt(i) ?? $"var{i}");
+				sb.Append(": ");
+				sb.AppendLine(function.ParameterHelp?.ElementAt(i).FluentColour(Telnet.Yellow, colour) ??
+				              "no help available".ColourError(colour));
+			}
+
+			sb.AppendLine();
+		}
+
+		return sb.ToString();
 	}
 
 	private static void ProgHelpFunction(ICharacter actor, StringStack ss)
@@ -281,30 +344,30 @@ And the result would be a number with the value of 33.".SubstituteANSIColour());
 			return;
 		}
 
+		actor.OutputHandler.Send(GetTextProgHelpFunction(functions, actor.LineFormatLength, actor.InnerLineFormatLength, actor.Account.UseUnicode, true));
+	}
+
+	public static string GetTextProgHelpFunctions(IEnumerable<FunctionCompilerInformation> infos, int linewidth, bool unicode, bool colour)
+	{
 		var sb = new StringBuilder();
-		foreach (var function in functions)
+		sb.AppendLine("There are the following built-in functions:");
+		sb.AppendLine();
+		foreach (var category in infos.GroupBy(x => x.Category))
 		{
 			sb.AppendLine();
-			sb.AppendLine(function.FunctionDisplayForm.GetLineWithTitle(actor.LineFormatLength,
-				actor.Account.UseUnicode, Telnet.BoldMagenta, null));
+			sb.AppendLine(category.Key.GetLineWithTitle(linewidth, unicode,
+				colour ? Telnet.BoldGreen : null, colour ? Telnet.BoldYellow : null));
 			sb.AppendLine();
-			sb.AppendLine(function.FunctionHelp.Wrap(actor.InnerLineFormatLength).Colour(Telnet.Yellow));
-			sb.AppendLine();
-			for (var i = 0; i < function.Parameters.Count(); i++)
+			foreach (var function in category
+			                         .OrderBy(x => x.FunctionName)
+			                         .ThenBy(x => x.Parameters.Count())
+			                         .Select(x => x.FunctionDisplayForm))
 			{
-				sb.Append("\t");
-				sb.Append(function.Parameters.ElementAt(i).Describe().Colour(Telnet.Cyan));
-				sb.Append(" ");
-				sb.Append(function.ParameterNames?.ElementAt(i) ?? $"var{i}");
-				sb.Append(": ");
-				sb.AppendLine(function.ParameterHelp?.ElementAt(i).Colour(Telnet.Yellow) ??
-				              "no help available".ColourError());
+				sb.AppendLine($"\t{function}");
 			}
-
-			sb.AppendLine();
 		}
 
-		actor.OutputHandler.Send(sb.ToString());
+		return sb.ToString();
 	}
 
 	private static void ProgHelpFunctions(ICharacter actor, StringStack ss)
@@ -319,28 +382,10 @@ And the result would be a number with the value of 33.".SubstituteANSIColour());
 				x.Category.StartsWith(text, StringComparison.InvariantCultureIgnoreCase)).ToList();
 		}
 
-		var sb = new StringBuilder();
-		sb.AppendLine("There are the following built-in functions:");
-		sb.AppendLine();
-		foreach (var category in infos.GroupBy(x => x.Category))
-		{
-			sb.AppendLine();
-			sb.AppendLine(category.Key.GetLineWithTitle(actor.LineFormatLength, actor.Account.UseUnicode,
-				Telnet.BoldGreen, Telnet.BoldYellow));
-			sb.AppendLine();
-			foreach (var function in category
-			                         .OrderBy(x => x.FunctionName)
-			                         .ThenBy(x => x.Parameters.Count())
-			                         .Select(x => x.FunctionDisplayForm))
-			{
-				sb.AppendLine($"\t{function}");
-			}
-		}
-
-		actor.OutputHandler.Send(sb.ToString(), nopage: true);
+		actor.OutputHandler.Send(GetTextProgHelpFunctions(infos, actor.LineFormatLength, actor.Account.UseUnicode, true), nopage: true);
 	}
 
-	private static void ProgHelpStatements(ICharacter actor)
+	public static string GetTextProgHelpStatements(int linewidth, bool unicode, bool colour)
 	{
 		var sb = new StringBuilder();
 		sb.AppendLine("Statement Help");
@@ -364,10 +409,49 @@ A function (See PROG HELP FUNCTIONS) can also function as a statement on a line.
 				"Statement",
 				"Related Statements"
 			},
-			actor,
-			Telnet.BoldMagenta
+			linewidth,
+			colour,
+			colour ? Telnet.BoldMagenta : null,
+			1,
+			unicode
 		));
-		actor.OutputHandler.Send(sb.ToString());
+
+		return sb.ToString();
+	}
+
+	private static void ProgHelpStatements(ICharacter actor)
+	{
+		actor.OutputHandler.Send(GetTextProgHelpStatements(actor.LineFormatLength, actor.Account.UseUnicode, true));
+	}
+
+	public static string GetProgTypeHelpText(FutureProgVariableTypes type, int linewidth, bool unicode, bool colour)
+	{
+		var sb = new StringBuilder();
+		sb.AppendLine($"Showing properties for the type {type.Describe().ColourName(colour)}:");
+		var info = FutureProgVariable.DotReferenceCompileInfos.GetValueOrDefault(type, null);
+		if (info == null)
+		{
+			return null;
+		}
+
+		sb.AppendLine(StringUtilities.GetTextTable(info.PropertyTypeMap.Keys.Select(x => new List<string>
+			{
+				x,
+				info.PropertyTypeMap[x].Describe(),
+				info.PropertyHelpInfo.GetValueOrDefault(x, string.Empty)
+			}),
+			new List<string>
+			{
+				"Property",
+				"Return Type",
+				"Help"
+			}, 
+			linewidth, 
+			colour: colour ? Telnet.BoldMagenta : null,  
+			truncatableColumnIndex: 2,
+			unicodeTable: unicode));
+
+		return sb.ToString();
 	}
 
 	private static void ProgHelpType(ICharacter actor, StringStack ss)
@@ -386,33 +470,17 @@ A function (See PROG HELP FUNCTIONS) can also function as a statement on a line.
 			return;
 		}
 
-		var sb = new StringBuilder();
-		sb.AppendLine($"Showing properties for the type {type.Describe().ColourName()}:");
-		var info = FutureProgVariable.DotReferenceCompileInfos.GetValueOrDefault(type, null);
-		if (info == null)
+		var text = GetProgTypeHelpText(type, actor.LineFormatLength, actor.Account.UseUnicode, true);
+		if (text is null)
 		{
-			actor.OutputHandler.Send($"There is no help for the type {type.Describe().ColourName()}.");
+			actor.OutputHandler.Send($"The type {type.Describe().ColourName()} does not have any help.");
 			return;
 		}
 
-		sb.AppendLine(StringUtilities.GetTextTable(info.PropertyTypeMap.Keys.Select(x => new List<string>
-			{
-				x,
-				info.PropertyTypeMap[x].Describe(),
-				info.PropertyHelpInfo.GetValueOrDefault(x, string.Empty)
-			}),
-			new List<string>
-			{
-				"Property",
-				"Return Type",
-				"Help"
-			}, actor.LineFormatLength, colour: Telnet.BoldMagenta, truncatableColumnIndex: 2,
-			unicodeTable: actor.Account.UseUnicode));
-
-		actor.OutputHandler.Send(sb.ToString(), nopage: true);
+		actor.OutputHandler.Send(text, nopage: true);
 	}
 
-	private static void ProgHelpTypes(ICharacter actor)
+	public static string GetTextProgHelpTypes(bool colour)
 	{
 		var sb = new StringBuilder();
 		sb.AppendLine("There are the following types:");
@@ -420,23 +488,28 @@ A function (See PROG HELP FUNCTIONS) can also function as a statement on a line.
 		{
 			if (type == FutureProgVariableTypes.Collection)
 			{
-				sb.AppendLine($"\t<OtherType> Collection");
+				sb.AppendLine($"\t<OtherType> Collection".FluentColour(Telnet.VariableGreen, colour));
 			}
 			else if (type == FutureProgVariableTypes.CollectionDictionary)
 			{
-				sb.AppendLine($"\t<OtherType> CollectionDictionary");
+				sb.AppendLine($"\t<OtherType> CollectionDictionary".FluentColour(Telnet.VariableGreen, colour));
 			}
 			else if (type == FutureProgVariableTypes.Dictionary)
 			{
-				sb.AppendLine($"\t<OtherType> Dictionary");
+				sb.AppendLine($"\t<OtherType> Dictionary".FluentColour(Telnet.VariableGreen, colour));
 			}
 			else
 			{
-				sb.AppendLine($"\t{type.DescribeEnum()}");
+				sb.AppendLine($"\t{type.DescribeEnum().FluentColour(Telnet.VariableGreen, colour)}");
 			}
 		}
 
-		actor.OutputHandler.Send(sb.ToString(), nopage: true);
+		return sb.ToString();
+	}
+
+	private static void ProgHelpTypes(ICharacter actor)
+	{
+		actor.OutputHandler.Send(GetTextProgHelpTypes(true), nopage: true);
 	}
 
 	private static void ProgCategories(ICharacter actor, StringStack ss)

@@ -15,7 +15,11 @@ using MudSharp.Effects.Interfaces;
 using MudSharp.Effects.Concrete;
 using MudSharp.Framework;
 using System.IO;
+using MudSharp.Commands.Modules;
 using MudSharp.Network;
+using MudSharp.FutureProg;
+using System.Numerics;
+using MudSharp.FutureProg.Functions;
 
 namespace MudSharp.Discord;
 
@@ -274,6 +278,9 @@ public sealed class DiscordConnection : IDiscordConnection
 		{
 			case "help":
 				HandleHelpTcpCommand(ss);
+				return;
+			case "proghelp":
+				HandleProgHelpTcpCommand(ss);
 				return;
 			case "adminhelp":
 				HandleHelpTcpCommand(ss, true);
@@ -564,6 +571,145 @@ public sealed class DiscordConnection : IDiscordConnection
 
 		Gameworld.SystemMessage(ss.RemainingArgument.ParseSpecialCharacters().SubstituteANSIColour().ProperSentences());
 		HandleBroadcast(ss.RemainingArgument.ParseSpecialCharacters().SubstituteANSIColour().ProperSentences());
+	}
+
+	private void HandleProgHelpTcpCommand(StringStack ss)
+	{
+		var response = ulong.Parse(ss.Pop());
+		var which = ss.PopForSwitch();
+		switch (which)
+		{
+			case "collections":
+			case "collection":
+			case "statements":
+			case "statement":
+			case "functioncategories":
+			case "functions":
+			case "function":
+			case "types":
+			case "type":
+				break;
+			default:
+				SendClientMessage(
+					$@"request {response} You can use the following prog help options:
+
+	proghelp types - shows all variable types
+	proghelp type <which> - shows help for a specific variable type
+	proghelp collections - show all collection functions
+	proghelp collection <which> - show help for a specific collection function
+	proghelp statements - show all statements
+	proghelp statement <which> - show help for a specific statement
+	proghelp functioncategories - show all function categories
+	proghelp functions <category> - show all prog functions for a specific category
+	proghelp function <which> - show help for a specific prog function");
+				return;
+		}
+
+		switch (which)
+		{
+			case "collections":
+				SendClientMessage($"request {response} {ProgModule.GetTextProgHelpCollections(100, true, false)}");
+				return;
+			case "collection":
+				if (ss.IsFinished)
+				{
+					SendClientMessage($"request {response} Which collection extension function would you like to see help for? See PROGHELP COLLECTIONS for a list.");
+					return;
+				}
+
+				var info = CollectionExtensionFunction.FunctionCompilerInformations.FirstOrDefault(x =>
+					x.FunctionName.EqualTo(ss.SafeRemainingArgument));
+				if (info is null)
+				{
+					SendClientMessage($"request {response} There is no such collection extension type. See PROGHELP COLLECTIONS for a list.");
+					return;
+				}
+				SendClientMessage($"request {response} {ProgModule.GetTextProgHelpCollection(info, 100, false)}");
+				return;
+			case "statements":
+				SendClientMessage($"request {response} {ProgModule.GetTextProgHelpStatements(100, true, false)}");
+				return;
+			case "statement":
+				if (ss.IsFinished)
+				{
+					SendClientMessage($"request {response} Which statement would you like to see help for? See PROGHELP STATEMENTS for a list.");
+					return;
+				}
+
+				if (!FutureProg.FutureProg.StatementHelpTexts.TryGetValue(ss.SafeRemainingArgument, out var value))
+				{
+					SendClientMessage($"request {response} There is no such statement. See PROGHELP STATEMENTS for a list.");
+					return;
+				}
+				SendClientMessage($"request {response} {ProgModule.GetTextProgHelpStatement(value, ss.SafeRemainingArgument, 100, false)}");
+				return;
+			case "functioncategories":
+				SendClientMessage($"request {response} {FutureProg.FutureProg.GetFunctionCompilerInformations().Select(x => x.Category).Distinct().ListToCommaSeparatedValues(",")}");
+				return;
+			case "functions":
+				var category = ss.SafeRemainingArgument;
+				if (string.IsNullOrEmpty(category))
+				{
+					SendClientMessage($"request {response} You must specify a function category.");
+					return;
+				}
+
+				var infos = FutureProg.FutureProg.GetFunctionCompilerInformations().Where(x =>
+					x.Category.EqualTo(category) ||
+					x.Category.StartsWith(category, StringComparison.InvariantCultureIgnoreCase)).ToList();
+				if (!infos.Any())
+				{
+					SendClientMessage($"request {response} There are no prog functions matching that category.");
+					return;
+				}
+				SendClientMessage($"request {response} {ProgModule.GetTextProgHelpFunctions(infos, 100, true, false)}");
+				return;
+			case "function":
+				if (ss.IsFinished)
+				{
+					SendClientMessage($"request {response} Which function do you want to see help for?");
+					return;
+				}
+
+				var whichFunction = ss.SafeRemainingArgument;
+				var functions = FutureProg.FutureProg.GetFunctionCompilerInformations()
+				                          .Where(x => x.FunctionName.EqualTo(whichFunction))
+				                          .ToList();
+
+				if (!functions.Any())
+				{
+					SendClientMessage($"request {response} There are no such functions. Please see PROGHELP FUNCTIONS <CATEGORY> for a list.");
+					return;
+				}
+				SendClientMessage($"request {response} {ProgModule.GetTextProgHelpFunction(functions, 100, 80, true, false)}");
+				return;
+			case "types":
+				SendClientMessage($"request {response} {ProgModule.GetTextProgHelpTypes(false)}");
+				return;
+			case "type":
+				if (ss.IsFinished)
+				{
+					SendClientMessage($"request {response} What type do you want to see property help for?");
+					return;
+				}
+
+				var whichType = ss.SafeRemainingArgument;
+				var type = FutureProg.FutureProg.GetTypeByName(whichType);
+				if (type == FutureProgVariableTypes.Error)
+				{
+					SendClientMessage($"request {response} There is no such type.");
+					return;
+				}
+
+				var text = ProgModule.GetProgTypeHelpText(type, 100, true, false);
+				if (text is null)
+				{
+					SendClientMessage($"request {response} The type {type.Describe()} does not have any help.");
+					return;
+				}
+				SendClientMessage($"request {response} {text}");
+				return;
+		}
 	}
 
 	private void HandleHelpTcpCommand(StringStack ss, bool admin = false)

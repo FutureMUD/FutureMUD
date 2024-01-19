@@ -56,5 +56,6 @@ namespace MudSharp.Economy.Currency {
             decimal amount);
 
         decimal BaseCurrencyToGlobalBaseCurrencyConversion { get; }
+        void AddCoin(ICoin coin);
     }
 }

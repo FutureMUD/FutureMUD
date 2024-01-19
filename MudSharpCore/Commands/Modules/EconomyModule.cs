@@ -447,6 +447,34 @@ The syntax is as follows:
 		}
 	}
 
+	public const string CoinHelp = @"You can use this building command to edit coins, which are virtual items that exist in currency piles and used for economic transactions. Keep in mind that your coins don't have to perfectly match your currency divisions and you can even have coins that can be loaded (perhaps by an admin or a prog) but won't be used to automatically generate change for example.
+
+The syntax for editing coins is as follows:
+
+	#3coin list#0 - lists all of the coins (see below for filters)
+    #3coin edit <which>#0 - begins editing a coin
+    #3coin edit new <currency> <name> <value>#0 - generates a new coin
+    #3coin clone <old> <new>#0 - clones an existing coin to a new one
+    #3coin close#0 - stops editing a coin
+    #3coin show <which>#0 - views information about a coin
+    #3coin show#0 - views information about your currently editing coin
+
+You can use the following search filters:
+
+	#6+<keyword>#0 - include coins with this keyword in the name, sdesc or desc
+	#6-<keyword>#0 - exclude coins with this keyword in the name, sdesc or desc
+	#6<currency>#0 - only include coins from this currency
+	#6change#0 - only include coins that are used for change
+	#6!change#0 - only include coins that are not used for change";
+
+	[PlayerCommand("Coin", "coin")]
+	[HelpInfo("coin", CoinHelp, AutoHelp.HelpArgOrNoArg)]
+	[CommandPermission(PermissionLevel.Admin)]
+	protected static void Coin(ICharacter actor, string command)
+	{
+		BaseBuilderModule.GenericBuildingCommand(actor, new StringStack(command.RemoveFirstWord()), EditableItemHelper.CoinHelper);
+	}
+
 	[PlayerCommand("List", "list")]
 	[RequiredCharacterState(CharacterState.Conscious)]
 	[NoCombatCommand]

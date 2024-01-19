@@ -500,6 +500,12 @@ namespace MudSharp.Database
 
                 entity.Property(e => e.CurrencyId).HasColumnType("bigint(20)");
 
+                entity.Property(e => e.UseForChange)
+                      .HasColumnType("bit(1)")
+                      .HasDefaultValue(true)
+                      ;
+
+
                 entity.Property(e => e.FullDescription)
                     .IsRequired()
                     .HasColumnType("varchar(4000)")

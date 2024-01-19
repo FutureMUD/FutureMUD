@@ -56,7 +56,9 @@ public class Currency : SaveableItem, ICurrency
 
 		foreach (var item in currency.Coins)
 		{
-			_coins.Add(new Coin(gameworld, item));
+			var coin = new Coin(gameworld, item, this);
+			_coins.Add(coin);
+			Gameworld.Add(coin);
 		}
 	}
 
@@ -77,6 +79,11 @@ public class Currency : SaveableItem, ICurrency
 
 	private readonly List<ICoin> _coins = new();
 	public IEnumerable<ICoin> Coins => _coins;
+
+	public void AddCoin(ICoin coin)
+	{
+		_coins.Add(coin);
+	}
 
 	private readonly List<ICurrencyDivision> _currencyDivisions = new();
 	public IEnumerable<ICurrencyDivision> CurrencyDivisions => _currencyDivisions;
@@ -158,7 +165,7 @@ public class Currency : SaveableItem, ICurrency
 	{
 		var remainingAmount = amount;
 		var results = new Dictionary<ICoin, int>();
-		foreach (var coin in Coins.OrderByDescending(x => x.Value))
+		foreach (var coin in Coins.Where(x => x.UseForChange).OrderByDescending(x => x.Value))
 		{
 			var coinAmount = (int)(remainingAmount / coin.Value);
 			if (coinAmount > 0)
@@ -429,8 +436,8 @@ public class Currency : SaveableItem, ICurrency
 					coin.GeneralForm,
 					coin.PluralWord,
 					coin.Value.ToString("N0", actor),
-					Gameworld.UnitManager.Describe(coin.Weight, Framework.Units.UnitType.Mass, actor),
-					coin.FullDescription
+					Gameworld.UnitManager.Describe(coin.Weight, Framework.Units.UnitType.Mass, actor).ColourValue(),
+					coin.UseForChange.ToColouredString()
 				},
 				new List<string>
 				{
@@ -441,7 +448,7 @@ public class Currency : SaveableItem, ICurrency
 					"Plural",
 					"Value",
 					"Weight",
-					"Desc"
+					"Change?"
 				},
 				actor,
 				Telnet.Yellow,

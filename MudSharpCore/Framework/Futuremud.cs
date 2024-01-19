@@ -73,6 +73,7 @@ using MudSharp.RPG.Hints;
 using MudSharp.Effects.Concrete;
 using MudSharp.PerceptionEngine.Handlers;
 using System.Numerics;
+using MudSharp.Economy.Currency;
 
 namespace MudSharp.Framework;
 
@@ -676,6 +677,11 @@ public sealed partial class Futuremud : IFuturemud, IDisposable
 	public void AddGuest(ICharacter character)
 	{
 		_guests.Add(character);
+	}
+
+	public void Add(ICoin coin)
+	{
+		_coins.Add(coin);
 	}
 
 	public void Add(ICombatArena arena)
@@ -1496,6 +1502,11 @@ public sealed partial class Futuremud : IFuturemud, IDisposable
 		{
 			listener.CancelListener();
 		}
+	}
+
+	public void Destroy(ICoin coin)
+	{
+		_coins.Remove(coin);
 	}
 	public void Destroy(ICombatArena arena)
 	{

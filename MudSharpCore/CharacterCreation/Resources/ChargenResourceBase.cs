@@ -90,7 +90,7 @@ public abstract class ChargenResourceBase : FrameworkItem, IChargenResource
 			_maximumResourceExpression.Parameters["variable"] = account.AccountResources[_maximumResourceReference];
 		}
 
-		return (int)_maximumResourceExpression.Evaluate();
+		return Convert.ToInt32(_maximumResourceExpression.Evaluate());
 	}
 
 	#endregion

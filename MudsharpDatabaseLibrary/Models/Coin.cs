@@ -14,6 +14,7 @@ namespace MudSharp.Models
         public double Weight { get; set; }
         public string GeneralForm { get; set; }
         public string PluralWord { get; set; }
+        public bool UseForChange { get; set; }
 
         public virtual Currency Currency { get; set; }
     }

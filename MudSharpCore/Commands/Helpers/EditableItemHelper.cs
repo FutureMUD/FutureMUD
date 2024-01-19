@@ -14,11 +14,13 @@ using MudSharp.Community;
 using MudSharp.Construction.Autobuilder;
 using MudSharp.Database;
 using MudSharp.Economy;
+using MudSharp.Economy.Currency;
 using MudSharp.Economy.Property;
 using MudSharp.Effects.Concrete;
 using MudSharp.Form.Shape;
 using MudSharp.Framework;
 using MudSharp.Framework.Revision;
+using MudSharp.Framework.Units;
 using MudSharp.Health;
 using MudSharp.Magic;
 using MudSharp.Magic.Capabilities;
@@ -29,6 +31,8 @@ using MudSharp.NPC.AI;
 using MudSharp.PerceptionEngine;
 using MudSharp.RPG.Dreams;
 using MudSharp.RPG.Hints;
+using Newtonsoft.Json.Linq;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 using AuctionHouse = MudSharp.Economy.Auctions.AuctionHouse;
 using Bank = MudSharp.Economy.Banking.Bank;
 using ChargenAdvice = MudSharp.CharacterCreation.ChargenAdvice;
@@ -2384,6 +2388,257 @@ The core syntax is as follows:
 		DefaultCommandHelp = NPCBuilderModule.AIHelp,
 
 		GetEditHeader = item => $"Artificial Intelligence #{item.Id:N0} ({item.Name})"
+	};
+
+	public static EditableItemHelper CoinHelper = new()
+	{
+		ItemName = "Coin",
+		ItemNamePlural = "Coins",
+		SetEditableItemAction = (actor, item) =>
+		{
+			actor.RemoveAllEffects<BuilderEditingEffect<ICoin>>();
+			if (item == null)
+			{
+				return;
+			}
+
+			actor.AddEffect(new BuilderEditingEffect<ICoin>(actor) { EditingItem = (ICoin)item });
+		},
+		GetEditableItemFunc = actor =>
+			actor.CombinedEffectsOfType<BuilderEditingEffect<ICoin>>().FirstOrDefault()?.EditingItem,
+		GetAllEditableItems = actor => actor.Gameworld.Coins.ToList(),
+		GetEditableItemByIdFunc = (actor, id) => actor.Gameworld.Coins.Get(id),
+		GetEditableItemByIdOrNameFunc = (actor, input) => actor.Gameworld.Coins.GetByIdOrName(input),
+		AddItemToGameWorldAction = item => item.Gameworld.Add((ICoin)item),
+		CastToType = typeof(ICoin),
+		EditableNewAction = (actor, input) =>
+		{
+			if (input.IsFinished)
+			{
+				actor.OutputHandler.Send("You must specify a currency for your new coin.");
+				return;
+			}
+
+			var currency = actor.Gameworld.Currencies.GetByIdOrName(input.PopSpeech());
+			if (currency is null)
+			{
+				actor.OutputHandler.Send("There is no such currency.");
+				return;
+			}
+
+			if (input.IsFinished)
+			{
+				actor.OutputHandler.Send("You must specify a name for your new coin.");
+				return;
+			}
+
+			var name = input.PopSpeech().TitleCase();
+			if (currency.Coins.Any(x => x.Name.EqualTo(name)))
+			{
+				actor.OutputHandler.Send(
+					$"There is already a coin for the {currency.Name.ColourValue()} with that name. Names must be unique.");
+				return;
+			}
+
+			if (input.IsFinished)
+			{
+				actor.OutputHandler.Send("How much should this new coin be worth?");
+				return;
+			}
+
+			decimal coinValue;
+			if (decimal.TryParse(input.SafeRemainingArgument, out var value))
+			{
+				if (value <= 0.0M)
+				{
+					actor.OutputHandler.Send("You must enter a valid number greater than zero for the value.");
+					return;
+				}
+
+				coinValue = value;
+			}
+			else
+			{
+				if (!currency.TryGetBaseCurrency(input.SafeRemainingArgument, out value))
+				{
+					actor.OutputHandler.Send($"You must either enter a number for the base currency, or enter a currency amount, and the text {input.SafeRemainingArgument.ColourCommand()} is neither.");
+					return;
+				}
+
+				coinValue = value;
+			}
+
+			ICoin coin;
+			using (new FMDB())
+			{
+				var dbitem = new Models.Coin
+				{
+					CurrencyId = currency.Id,
+					Name = name,
+					FullDescription = "This coin has no description",
+					ShortDescription = "an undescribed coin",
+					GeneralForm = "coin",
+					PluralWord = "coin",
+					Weight = actor.Gameworld.UnitManager.GetBaseUnits("10g", UnitType.Mass, out _),
+					Value = coinValue
+				};
+				FMDB.Context.Coins.Add(dbitem);
+				FMDB.Context.SaveChanges();
+				coin = new Economy.Currency.Coin(actor.Gameworld, dbitem, currency);
+				currency.AddCoin(coin);
+			}
+
+			actor.Gameworld.Add(coin);
+			actor.RemoveAllEffects<BuilderEditingEffect<ICoin>>();
+			actor.AddEffect(new BuilderEditingEffect<ICoin>(actor) { EditingItem = coin });
+			actor.OutputHandler.Send(
+				$"You create a new coin for the {currency.Name.ColourValue()} currency worth {currency.Describe(coinValue, CurrencyDescriptionPatternType.ShortDecimal).ColourValue()} called {name.ColourValue()}, which you are now editing.");
+		},
+		EditableCloneAction = (actor, input) =>
+		{
+			if (input.IsFinished)
+			{
+				actor.OutputHandler.Send("Which coin do you want to clone?");
+				return;
+			}
+
+			var template = actor.Gameworld.Coins.GetByIdOrName(input.PopSpeech());
+			if (template == null)
+			{
+				actor.OutputHandler.Send("There is no such coin.");
+				return;
+			}
+
+			if (input.IsFinished)
+			{
+				actor.OutputHandler.Send("You must specify a name for your new coin.");
+				return;
+			}
+
+			var name = input.SafeRemainingArgument;
+			if (template.Currency.Coins.Any(x => x.Name.EqualTo(name)))
+			{
+				actor.OutputHandler.Send($"There is already a coin with that name for the {template.Currency.Name.ColourValue()} currency. Names must be unique.");
+				return;
+			}
+
+			ICoin coin;
+			using (new FMDB())
+			{
+				var dbitem = new Models.Coin
+				{
+					CurrencyId = template.Currency.Id,
+					Name = name,
+					FullDescription = template.FullDescription,
+					ShortDescription = template.ShortDescription,
+					GeneralForm = template.GeneralForm,
+					PluralWord = template.PluralWord,
+					Weight = template.Weight,
+					Value = template.Value
+				};
+				FMDB.Context.Coins.Add(dbitem);
+				FMDB.Context.SaveChanges();
+				coin = new Economy.Currency.Coin(actor.Gameworld, dbitem, template.Currency);
+				template.Currency.AddCoin(coin);
+			}
+
+			actor.Gameworld.Add(coin);
+			actor.RemoveAllEffects<BuilderEditingEffect<ICoin>>();
+			actor.AddEffect(new BuilderEditingEffect<ICoin>(actor) { EditingItem = coin });
+			actor.OutputHandler.Send($"You create a new coin for the {template.Currency.Name.ColourValue()} as a clone of {template.Name.ColourValue()}, called {name.ColourValue()}, which you are now editing.");
+		},
+
+		GetListTableHeaderFunc = character => new List<string>
+		{
+			"Id",
+			"Name",
+			"SDesc",
+			"General",
+			"Plural",
+			"Value",
+			"Weight",
+			"Currency",
+			"Change?"
+		},
+
+		GetListTableContentsFunc = (actor, protos) => from coin in protos.OfType<ICoin>()
+														  select new List<string>
+														  {
+															  coin.Id.ToString("N0", actor),
+															  coin.Name,
+															  coin.ShortDescription,
+															  coin.GeneralForm,
+															  coin.PluralWord,
+															  coin.Value.ToString("N0", actor),
+															  actor.Gameworld.UnitManager.Describe(coin.Weight, Framework.Units.UnitType.Mass, actor).ColourValue(),
+															  coin.Currency.Name.ColourName(),
+															  coin.UseForChange.ToColouredString()
+														  },
+
+		CustomSearch = (protos, keyword, gameworld) =>
+		{
+			if (keyword.Length > 1 && keyword[0] == '+')
+			{
+				keyword = keyword.Substring(1);
+				return protos
+				       .Cast<ICoin>()
+				       .Where(x =>
+					       x.Name.Contains(keyword, StringComparison.InvariantCultureIgnoreCase) ||
+					       x.ShortDescription.Contains(keyword, StringComparison.InvariantCultureIgnoreCase) ||
+					       x.FullDescription.Contains(keyword, StringComparison.InvariantCultureIgnoreCase))
+				       .Cast<IEditableItem>()
+				       .ToList();
+			}
+
+			if (keyword.Length > 1 && keyword[0] == '-')
+			{
+				keyword = keyword.Substring(1);
+				return protos
+				       .Cast<ICoin>()
+				       .Where(x =>
+					       !x.Name.Contains(keyword, StringComparison.InvariantCultureIgnoreCase) &&
+					       !x.ShortDescription.Contains(keyword, StringComparison.InvariantCultureIgnoreCase) &&
+						   !x.FullDescription.Contains(keyword, StringComparison.InvariantCultureIgnoreCase))
+					   .Cast<IEditableItem>()
+				       .ToList();
+			}
+
+			if (keyword.EqualTo("change"))
+			{
+				return protos
+				       .Cast<ICoin>()
+				       .Where(x => x.UseForChange)
+				       .Cast<IEditableItem>()
+					   .ToList()
+					;
+			}
+
+			if (keyword.EqualTo("!change"))
+			{
+				return protos
+				       .Cast<ICoin>()
+				       .Where(x => !x.UseForChange)
+				       .Cast<IEditableItem>()
+					   .ToList()
+					;
+			}
+
+			var currency = gameworld.Currencies.GetByIdOrName(keyword);
+			if (currency is not null)
+			{
+				return protos
+				       .Cast<ICoin>()
+				       .Where(x => x.Currency == currency)
+				       .Cast<IEditableItem>()
+					   .ToList();
+			}
+
+			return protos;
+		},
+
+		DefaultCommandHelp = EconomyModule.CoinHelp,
+
+		GetEditHeader = item => $"Coin #{item.Id:N0} ({item.Name})"
 	};
 
 	public string ItemName { get; private set; }

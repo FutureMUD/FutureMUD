@@ -1,5 +1,7 @@
 ﻿using MudSharp.Framework;
 using System.Collections.Generic;
+using MudSharp.Framework.Revision;
+using MudSharp.Framework.Save;
 
 namespace MudSharp.Economy.Currency {
     public enum RoundingMode {
@@ -8,7 +10,7 @@ namespace MudSharp.Economy.Currency {
         NoRounding = 2
     }
 
-    public interface ICurrencyDescriptionPatternElement : IFrameworkItem {
+    public interface ICurrencyDescriptionPatternElement : IEditableItem, ISaveable {
         RoundingMode Rounding { get; }
         ICurrencyDivision TargetDivision { get; }
         bool ShowIfZero { get; }
@@ -19,5 +21,6 @@ namespace MudSharp.Economy.Currency {
         string AlternatePattern { get; }
         int Order { get; }
         IReadOnlyDictionary<decimal, string> SpecialValues { get; }
+        void Delete();
     }
 }

@@ -679,6 +679,11 @@ public sealed partial class Futuremud : IFuturemud, IDisposable
 		_guests.Add(character);
 	}
 
+	public void Add(ICurrency currency)
+	{
+		_currencies.Add(currency);
+	}
+
 	public void Add(ICoin coin)
 	{
 		_coins.Add(coin);
@@ -1502,6 +1507,11 @@ public sealed partial class Futuremud : IFuturemud, IDisposable
 		{
 			listener.CancelListener();
 		}
+	}
+
+	public void Destroy(ICurrency currency)
+	{
+		_currencies.Remove(currency);
 	}
 
 	public void Destroy(ICoin coin)

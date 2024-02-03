@@ -1235,6 +1235,7 @@ namespace MudSharp.Database
                 entity.HasOne(d => d.CurrencyDescriptionPatternElement)
                     .WithMany(p => p.CurrencyDescriptionPatternElementSpecialValues)
                     .HasForeignKey(d => d.CurrencyDescriptionPatternElementId)
+                    .OnDelete(DeleteBehavior.Cascade)
                     .HasConstraintName("FK_CDPESV_CDPE");
             });
 
@@ -1282,12 +1283,13 @@ namespace MudSharp.Database
                 entity.HasOne(d => d.CurrencyDescriptionPattern)
                     .WithMany(p => p.CurrencyDescriptionPatternElements)
                     .HasForeignKey(d => d.CurrencyDescriptionPatternId)
-                    .HasConstraintName("FK_CDPE_CurrencyDescriptionPatterns");
+                    .OnDelete(DeleteBehavior.Cascade)
+					.HasConstraintName("FK_CDPE_CurrencyDescriptionPatterns");
 
                 entity.HasOne(d => d.CurrencyDivision)
                     .WithMany(p => p.CurrencyDescriptionPatternElements)
                     .HasForeignKey(d => d.CurrencyDivisionId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .OnDelete(DeleteBehavior.Cascade)
                     .HasConstraintName("FK_CDPE_CurrencyDivisions");
             });
 
@@ -1320,7 +1322,8 @@ namespace MudSharp.Database
                 entity.HasOne(d => d.Currency)
                     .WithMany(p => p.CurrencyDescriptionPatterns)
                     .HasForeignKey(d => d.CurrencyId)
-                    .HasConstraintName("FK_CurrencyDescriptionPatterns_Currencies");
+                    .OnDelete(DeleteBehavior.Cascade)
+					.HasConstraintName("FK_CurrencyDescriptionPatterns_Currencies");
 
                 entity.HasOne(d => d.FutureProg)
                     .WithMany(p => p.CurrencyDescriptionPatterns)
@@ -1347,7 +1350,8 @@ namespace MudSharp.Database
                 entity.HasOne(d => d.CurrencyDivision)
                     .WithMany(p => p.CurrencyDivisionAbbreviations)
                     .HasForeignKey(d => d.CurrencyDivisionId)
-                    .HasConstraintName("FK_CurrencyDivisionAbbreviations_CurrencyDivisions");
+                    .OnDelete(DeleteBehavior.Cascade)
+					.HasConstraintName("FK_CurrencyDivisionAbbreviations_CurrencyDivisions");
             });
 
             modelBuilder.Entity<CurrencyDivision>(entity =>
@@ -1372,7 +1376,8 @@ namespace MudSharp.Database
                 entity.HasOne(d => d.Currency)
                     .WithMany(p => p.CurrencyDivisions)
                     .HasForeignKey(d => d.CurrencyId)
-                    .HasConstraintName("FK_CurrencyDivisions_Currencies");
+                    .OnDelete(DeleteBehavior.Cascade)
+					.HasConstraintName("FK_CurrencyDivisions_Currencies");
             });
 
             modelBuilder.Entity<DamagePatterns>(entity =>

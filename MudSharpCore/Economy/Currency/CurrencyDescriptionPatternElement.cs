@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using MoreLinq.Extensions;
+using MudSharp.Character;
 using MudSharp.Database;
 using MudSharp.Framework;
 using MudSharp.Framework.Save;
@@ -11,27 +13,22 @@ namespace MudSharp.Economy.Currency;
 
 public class CurrencyDescriptionPatternElement : SaveableItem, ICurrencyDescriptionPatternElement
 {
-	private readonly string _alternatePattern;
 	private readonly CurrencyDescriptionPattern _parent;
-	private readonly string _pattern;
-	private readonly string _pluraliseWord;
 	private readonly Dictionary<decimal, string> _specialValues = new();
-	private readonly bool _specialValuesOverridePattern;
-	private int _order;
 
 	public CurrencyDescriptionPatternElement(MudSharp.Models.CurrencyDescriptionPatternElement element,
 		CurrencyDescriptionPattern parentPattern, ICurrency parent)
 	{
 		Gameworld = parent.Gameworld;
 		_id = element.Id;
-		_order = element.Order;
-		_pattern = element.Pattern;
-		_alternatePattern = element.AlternatePattern;
-		_pluraliseWord = element.PluraliseWord;
+		Order = element.Order;
+		Pattern = element.Pattern;
+		AlternatePattern = element.AlternatePattern;
+		PluraliseWord = element.PluraliseWord;
 		_parent = parentPattern;
 		Rounding = (RoundingMode)element.RoundingMode;
 		TargetDivision = parent.CurrencyDivisions.First(x => x.Id == element.CurrencyDivisionId);
-		_specialValuesOverridePattern = element.SpecialValuesOverrideFormat;
+		SpecialValuesOverridePattern = element.SpecialValuesOverrideFormat;
 		ShowIfZero = element.ShowIfZero;
 		foreach (var item in element.CurrencyDescriptionPatternElementSpecialValues)
 		{
@@ -49,7 +46,7 @@ public class CurrencyDescriptionPatternElement : SaveableItem, ICurrencyDescript
 
 	#region ICurrencyDescriptionPatternElement Members
 
-	public RoundingMode Rounding { get; }
+	public RoundingMode Rounding { get; private set; }
 
 	public string Describe(decimal amount)
 	{
@@ -96,18 +93,18 @@ public class CurrencyDescriptionPatternElement : SaveableItem, ICurrencyDescript
 		return value;
 	}
 
-	public ICurrencyDivision TargetDivision { get; }
+	public ICurrencyDivision TargetDivision { get; private set; }
 
-	public bool ShowIfZero { get; }
-	public int Order => _order;
+	public bool ShowIfZero { get; private set; }
+	public int Order { get; private set; }
 
-	public string Pattern => _pattern;
+	public string Pattern { get; private set; }
 
-	public string PluraliseWord => _pluraliseWord;
+	public string PluraliseWord { get; private set; }
 
-	public bool SpecialValuesOverridePattern => _specialValuesOverridePattern;
+	public bool SpecialValuesOverridePattern { get; private set; }
 
-	public string AlternatePattern => _alternatePattern;
+	public string AlternatePattern { get; private set; }
 
 	public IReadOnlyDictionary<decimal, string> SpecialValues => _specialValues.AsReadOnly();
 	#endregion
@@ -115,13 +112,13 @@ public class CurrencyDescriptionPatternElement : SaveableItem, ICurrencyDescript
 	public override void Save()
 	{
 		var dbitem = FMDB.Context.CurrencyDescriptionPatternElements.Find(Id);
-		dbitem.Order = _order;
-		dbitem.Pattern = _pattern;
-		dbitem.AlternatePattern = _alternatePattern;
-		dbitem.PluraliseWord = _pluraliseWord;
+		dbitem.Order = Order;
+		dbitem.Pattern = Pattern;
+		dbitem.AlternatePattern = AlternatePattern;
+		dbitem.PluraliseWord = PluraliseWord;
 		dbitem.RoundingMode = (int)Rounding;
 		dbitem.CurrencyDivisionId = TargetDivision.Id;
-		dbitem.SpecialValuesOverrideFormat = _specialValuesOverridePattern;
+		dbitem.SpecialValuesOverrideFormat = SpecialValuesOverridePattern;
 		dbitem.ShowIfZero = ShowIfZero;
 		FMDB.Context.CurrencyDescriptionPatternElementSpecialValues.RemoveRange(dbitem
 			.CurrencyDescriptionPatternElementSpecialValues);
@@ -135,5 +132,60 @@ public class CurrencyDescriptionPatternElement : SaveableItem, ICurrencyDescript
 			});
 		}
 		Changed = false;
+	}
+
+	/// <inheritdoc />
+	public bool BuildingCommand(ICharacter actor, StringStack command)
+	{
+		throw new NotImplementedException();
+	}
+
+	/// <inheritdoc />
+	public string Show(ICharacter actor)
+	{
+		var sb = new StringBuilder();
+		sb.AppendLine($"Currency Description Pattern Element #{Id.ToString("N0", actor)}".GetLineWithTitle(actor, Telnet.FunctionYellow, Telnet.BoldWhite));
+		sb.AppendLine($"Currency: {_parent.Currency.Name.ColourValue()}");
+		sb.AppendLine($"Pattern: #{_parent.Id.ToString("N0", actor).ColourValue()}");
+		sb.AppendLine($"Target Division: {TargetDivision.Name.ColourValue()}");
+		sb.AppendLine($"Order: {Order.ToString("N0", actor).ColourValue()}");
+		sb.AppendLine($"Show If Zero: {ShowIfZero.ToColouredString()}");
+		sb.AppendLine($"Pluralise Word: {PluraliseWord.ColourCommand()}");
+		sb.AppendLine($"Specials Override: {SpecialValuesOverridePattern.ToColouredString()}");
+		sb.AppendLine($"Pattern: {Pattern.ColourCommand()}");
+		sb.AppendLine($"Alternate If Last: {AlternatePattern?.ColourCommand()}");
+		sb.AppendLine();
+		sb.AppendLine("Special Values:");
+		sb.AppendLine();
+		if (SpecialValues.Count == 0)
+		{
+			sb.AppendLine("\tNone");
+		}
+		else
+		{
+			foreach (var (value, special) in SpecialValues)
+			{
+				sb.AppendLine($"\t{value.ToString("N3", actor).ColourValue()} = {special.ColourCommand()}");
+			}
+		}
+		return sb.ToString();
+	}
+
+	public void Delete()
+	{
+		Gameworld.SaveManager.Abort(this);
+		if (_id != 0)
+		{
+			using (new FMDB())
+			{
+				Gameworld.SaveManager.Flush();
+				var dbitem = FMDB.Context.CurrencyDescriptionPatternElements.Find(Id);
+				if (dbitem != null)
+				{
+					FMDB.Context.CurrencyDescriptionPatternElements.Remove(dbitem);
+					FMDB.Context.SaveChanges();
+				}
+			}
+		}
 	}
 }

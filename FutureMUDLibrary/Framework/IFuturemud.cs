@@ -344,6 +344,7 @@ namespace MudSharp.Framework
         void SystemMessage(IOutput message, bool adminonly = false);
 
         void AddGuest(ICharacter character);
+        void Add(ICurrency currency);
         void Add(ICoin coin);
         void Add(ICombatArena arena);
         void Add(IChannel channel);
@@ -488,7 +489,8 @@ namespace MudSharp.Framework
 		IGameItem TryGetItem(Models.GameItem dbitem, bool addToGameworld);
         IGameItem TryGetItem(long id, bool addToGameworld = false);
         void Destroy(ICombatArena arena);
-        void Destroy(ICoin coin);
+        void Destroy(ICurrency currency);
+		void Destroy(ICoin coin);
         void Destroy(ICrime crime);
         void Destroy(INPCSpawner spawner);
         void Destroy(IJobListing listing);

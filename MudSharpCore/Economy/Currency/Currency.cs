@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using MoreLinq.Extensions;
 using MudSharp.Character;
 using MudSharp.Database;
+using MudSharp.Effects.Concrete;
 using MudSharp.Framework;
 using MudSharp.Framework.Save;
 using MudSharp.FutureProg;
@@ -26,21 +28,11 @@ public static class CurrencyExtensions
 
 public class Currency : SaveableItem, ICurrency
 {
-	public Currency(MudSharp.Models.Currency currency, IFuturemud gameworld)
+	private void LoadFromDatabase(Models.Currency currency)
 	{
-		Gameworld = gameworld;
-		_id = currency.Id;
-		_name = currency.Name;
-		BaseCurrencyToGlobalBaseCurrencyConversion = currency.BaseCurrencyToGlobalBaseCurrencyConversion;
 		foreach (var item in currency.CurrencyDivisions)
 		{
-			_currencyDivisions.Add(new CurrencyDivision(gameworld, item));
-		}
-
-		PatternDictionary = new Dictionary<CurrencyDescriptionPatternType, List<ICurrencyDescriptionPattern>>();
-		foreach (var value in Enum.GetValues(typeof(CurrencyDescriptionPatternType)))
-		{
-			PatternDictionary.Add((CurrencyDescriptionPatternType)value, new List<ICurrencyDescriptionPattern>());
+			_currencyDivisions.Add(new CurrencyDivision(Gameworld, item, this));
 		}
 
 		foreach (var item in currency.CurrencyDescriptionPatterns.OrderBy(x => x.Order))
@@ -56,19 +48,214 @@ public class Currency : SaveableItem, ICurrency
 
 		foreach (var item in currency.Coins)
 		{
-			var coin = new Coin(gameworld, item, this);
+			var coin = new Coin(Gameworld, item, this);
 			_coins.Add(coin);
 			Gameworld.Add(coin);
 		}
 	}
+	public Currency(MudSharp.Models.Currency currency, IFuturemud gameworld)
+	{
+		Gameworld = gameworld;
+		_id = currency.Id;
+		_name = currency.Name;
+		BaseCurrencyToGlobalBaseCurrencyConversion = currency.BaseCurrencyToGlobalBaseCurrencyConversion;
+		LoadFromDatabase(currency);
+	}
+
+	public Currency(IFuturemud gameworld, string name, string lowestDivision, string lowestCoin)
+	{
+		Gameworld = gameworld;
+		_name = name;
+		BaseCurrencyToGlobalBaseCurrencyConversion = 1.0M;
+		using (new FMDB())
+		{
+			var dbitem = new Models.Currency
+			{
+				Name = name,
+				BaseCurrencyToGlobalBaseCurrencyConversion = BaseCurrencyToGlobalBaseCurrencyConversion
+			};
+			FMDB.Context.Currencies.Add(dbitem);
+			var dbdivision = new Models.CurrencyDivision
+			{
+				Currency = dbitem,
+				BaseUnitConversionRate = 1.0M,
+				IgnoreCase = true,
+				Name = lowestDivision
+			};
+			dbitem.CurrencyDivisions.Add(dbdivision);
+			dbdivision.CurrencyDivisionAbbreviations.Add(new Models.CurrencyDivisionAbbreviation
+			{
+				CurrencyDivision = dbdivision,
+				Pattern = $"(-?\\d+(?:\\.\\d+)*)(?:\\s*(?:{lowestDivision.ToLowerInvariant().Pluralise()}|{lowestDivision.ToLowerInvariant()}|{lowestDivision.ToLowerInvariant()[0]}))$"
+			});
+			dbitem.CurrencyDescriptionPatterns.Add(new Models.CurrencyDescriptionPattern
+			{
+				Currency = dbitem,
+				FutureProgId = Gameworld.AlwaysTrueProg.Id,
+				Order = 1,
+				Type = (int)CurrencyDescriptionPatternType.Casual,
+				NegativePrefix = "negative ",
+				UseNaturalAggregationStyle = false,
+				CurrencyDescriptionPatternElements = new List<Models.CurrencyDescriptionPatternElement>
+				{
+					new()
+					{
+						Pattern = $"{{0}} {lowestDivision.ToLowerInvariant()}",
+						Order = 0,
+						ShowIfZero = false,
+						PluraliseWord = lowestDivision.ToLowerInvariant(),
+						AlternatePattern = null,
+						RoundingMode = (int)RoundingMode.Truncate,
+						SpecialValuesOverrideFormat = false,
+						CurrencyDivision = dbdivision,
+					}
+				}
+			});
+			dbitem.CurrencyDescriptionPatterns.Add(new Models.CurrencyDescriptionPattern
+			{
+				Currency = dbitem,
+				FutureProgId = Gameworld.AlwaysTrueProg.Id,
+				Order = 1,
+				Type = (int)CurrencyDescriptionPatternType.Short,
+				NegativePrefix = "-",
+				UseNaturalAggregationStyle = false,
+				CurrencyDescriptionPatternElements = new List<Models.CurrencyDescriptionPatternElement>
+				{
+					new()
+					{
+						Pattern = $"{{0}}{lowestDivision.ToLowerInvariant()[0]}",
+						Order = 0,
+						ShowIfZero = true,
+						PluraliseWord = string.Empty,
+						AlternatePattern = null,
+						RoundingMode = (int)RoundingMode.Truncate,
+						SpecialValuesOverrideFormat = false,
+						CurrencyDivision = dbdivision,
+					}
+				}
+			});
+			dbitem.CurrencyDescriptionPatterns.Add(new Models.CurrencyDescriptionPattern
+			{
+				Currency = dbitem,
+				FutureProgId = Gameworld.AlwaysTrueProg.Id,
+				Order = 1,
+				Type = (int)CurrencyDescriptionPatternType.ShortDecimal,
+				NegativePrefix = "-",
+				UseNaturalAggregationStyle = false,
+				CurrencyDescriptionPatternElements = new List<Models.CurrencyDescriptionPatternElement>
+				{
+					new()
+					{
+						Pattern = $"{{0}}{lowestDivision.ToLowerInvariant()[0]}",
+						Order = 0,
+						ShowIfZero = true,
+						PluraliseWord = string.Empty,
+						AlternatePattern = null,
+						RoundingMode = (int)RoundingMode.Truncate,
+						SpecialValuesOverrideFormat = false,
+						CurrencyDivision = dbdivision,
+					}
+				}
+			});
+			dbitem.CurrencyDescriptionPatterns.Add(new Models.CurrencyDescriptionPattern
+			{
+				Currency = dbitem,
+				FutureProgId = Gameworld.AlwaysTrueProg.Id,
+				Order = 1,
+				Type = (int)CurrencyDescriptionPatternType.Long,
+				NegativePrefix = "negative ",
+				UseNaturalAggregationStyle = false,
+				CurrencyDescriptionPatternElements = new List<Models.CurrencyDescriptionPatternElement>
+				{
+					new()
+					{
+						Pattern = $"{{0}} {lowestDivision.ToLowerInvariant()}",
+						Order = 0,
+						ShowIfZero = false,
+						PluraliseWord = lowestDivision.ToLowerInvariant(),
+						AlternatePattern = null,
+						RoundingMode = (int)RoundingMode.Truncate,
+						SpecialValuesOverrideFormat = false,
+						CurrencyDivision = dbdivision,
+					}
+				}
+			});
+			dbitem.CurrencyDescriptionPatterns.Add(new Models.CurrencyDescriptionPattern
+			{
+				Currency = dbitem,
+				FutureProgId = Gameworld.AlwaysTrueProg.Id,
+				Order = 1,
+				Type = (int)CurrencyDescriptionPatternType.Wordy,
+				NegativePrefix = "negative ",
+				UseNaturalAggregationStyle = true,
+				CurrencyDescriptionPatternElements = new List<Models.CurrencyDescriptionPatternElement>
+				{
+					new()
+					{
+						Pattern = $"{{0}} {lowestDivision.ToLowerInvariant()}",
+						Order = 0,
+						ShowIfZero = false,
+						PluraliseWord = lowestDivision.ToLowerInvariant(),
+						AlternatePattern = null,
+						RoundingMode = (int)RoundingMode.Truncate,
+						SpecialValuesOverrideFormat = false,
+						CurrencyDivision = dbdivision,
+					}
+				}
+			});
+			dbitem.Coins.Add(new()
+			{
+				Name = lowestCoin.ToLowerInvariant(),
+				ShortDescription = $"a {lowestCoin.ToLowerInvariant()} coin",
+				FullDescription = $"This is a small, round coin made of precious metal called a {lowestCoin}, worth 1 {lowestDivision}.",
+				Value = 1.0M,
+				Weight = 5,
+				GeneralForm = "coin",
+				PluralWord = lowestCoin.ToLowerInvariant(),
+				UseForChange = true,
+				Currency = dbitem,
+			});
+			FMDB.Context.SaveChanges();
+			_id = dbitem.Id;
+			LoadFromDatabase(dbitem);
+		}
+	}
+
+	private Currency(Currency rhs, string name)
+	{
+		Gameworld = rhs.Gameworld;
+		_name = name;
+		BaseCurrencyToGlobalBaseCurrencyConversion = rhs.BaseCurrencyToGlobalBaseCurrencyConversion;
+		using (new FMDB())
+		{
+			var dbitem = new Models.Currency
+			{
+				Name = name,
+				BaseCurrencyToGlobalBaseCurrencyConversion = BaseCurrencyToGlobalBaseCurrencyConversion
+			};
+			FMDB.Context.Currencies.Add(dbitem);
+
+			var divisionMap = new Dictionary<long, Models.CurrencyDivision>();
+			foreach (var division in rhs.CurrencyDivisions)
+			{
+				var dbdivision = new Models.CurrencyDivision
+				{
+					Name = division.Name,
+					BaseUnitConversionRate = division.BaseUnitConversionRate,
+					IgnoreCase = division.IgnoreCase,
+					Currency = dbitem,
+				};
+				divisionMap[division.Id] = dbdivision;
+			}
+		}
+	}
+
+	public ICurrency Clone(string name)
+	{
+		return new Currency(this, name);
+	}
 
 	public override string FrameworkItemType => "Currency";
-
-	#region IHaveFuturemud Members
-
-	public IFuturemud Gameworld { get; }
-
-	#endregion
 
 	public override string ToString()
 	{
@@ -104,7 +291,8 @@ public class Currency : SaveableItem, ICurrency
 			                       .Describe(value);
 	}
 
-	public Dictionary<CurrencyDescriptionPatternType, List<ICurrencyDescriptionPattern>> PatternDictionary { get; }
+	public CollectionDictionary<CurrencyDescriptionPatternType, ICurrencyDescriptionPattern> PatternDictionary { get; } =
+		new();
 
 	private static readonly Regex _baseCurrencyRegex =
 		new(@"([^\d\s]){0,1}(\d{1,}[\.\d]{0,})[ ]{0,1}([a-zA-Z]+)*");
@@ -298,7 +486,18 @@ public class Currency : SaveableItem, ICurrency
 		Changed = false;
 	}
 
-	public const string HelpText = @"";
+	public const string HelpText = @"You can use the following commands to edit currencies:
+
+	#3name <name>#0 - sets the name of this currency
+	#3conversion <rate>#0 - sets the global currency conversion rate (to global base currency)
+	#3adddivision <name> <rate>#0 - adds a new currency division
+	#3remdivision <id|name>#0 - removes a currency division
+	#3division <id|name> name <name>#0 - sets a new name for the division
+	#3division <id|name> base <amount>#0 - sets the amount of base currency this division is worth
+	#3division <id|name> ignorecase#0 - toggles ignoring case in the regular expression patterns for the division
+	#3division <id|name> addabbr <regex>#0 - adds a regular expression pattern for this division
+	#3division <id|name> remabbr <##>#0 - removes a particular pattern abbreviation for this division
+	#3division <id|name> abbr <##> <regex>#0 - overwrites the regular expression pattern at the specified index for this division";
 
 	public bool BuildingCommand(ICharacter actor, StringStack command)
 	{
@@ -308,10 +507,110 @@ public class Currency : SaveableItem, ICurrency
 				return BuildingCommandName(actor, command);
 			case "conversion":
 				return BuildingCommandConversion(actor, command);
+			case "adddivision":
+			case "addivision":
+			case "adddiv":
+				return BuildingCommandAddDivision(actor, command);
+			case "remdivision":
+			case "remdiv":
+			case "removedivision":
+				return BuildingCommandRemoveDivision(actor, command);
+			case "division":
+			case "div":
+				return BuildingCommandDivision(actor, command);
 		}
 
 		actor.OutputHandler.Send(HelpText.SubstituteANSIColour());
 		return false;
+	}
+
+	private bool BuildingCommandRemoveDivision(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("Which division do you want to remove?");
+			return false;
+		}
+
+		var division = CurrencyDivisions.GetByIdOrName(command.PopSpeech());
+		if (division is null)
+		{
+			actor.OutputHandler.Send($"The {Name.ColourName()} currency has no such currency division.");
+			return false;
+		}
+
+		actor.OutputHandler.Send($"Are you sure you want to remove the {division.Name.ColourName()} currency division? This will permanently remove all associated information such as patterns for this division as well.\n{Accept.StandardAcceptPhrasing}");
+		actor.AddEffect(new Accept(actor, new GenericProposal
+		{
+			DescriptionString = $"Deleting the {division.Name.ColourName()} currency division",
+			AcceptAction = text =>
+			{
+				if (_currencyDivisions.Count == 1)
+				{
+					actor.OutputHandler.Send("You cannot delete the last currency division. Create some new ones first.");
+					return;
+				}
+
+				division.Delete();
+				_currencyDivisions.Remove(division);
+				actor.OutputHandler.Send($"You delete the {division.Name.ColourName()} currency division.");
+			},
+			RejectAction = text =>
+			{
+				actor.OutputHandler.Send($"You decide not to delete the {division.Name.ColourName()} currency division.");
+			},
+			ExpireAction = () =>
+			{
+				actor.OutputHandler.Send($"You decide not to delete the {division.Name.ColourName()} currency division.");
+			},
+			Keywords = new List<string>{ "delete", "division", "currency"}
+		}), TimeSpan.FromSeconds(120));
+		return true;
+	}
+
+	private bool BuildingCommandAddDivision(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("What name do you want to give to your new currency division?");
+			return false;
+		}
+
+		var name = command.PopSpeech().ToLowerInvariant();
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("What should be the conversion rate between this division and the base currency rate?");
+			return false;
+		}
+
+		if (!decimal.TryParse(command.SafeRemainingArgument, out var value))
+		{
+			actor.OutputHandler.Send($"The text {command.SafeRemainingArgument.ColourCommand()} is not a valid number.");
+			return false;
+		}
+
+		var division = new CurrencyDivision(Gameworld, name, value, this);
+		_currencyDivisions.Add(division);
+		actor.OutputHandler.Send($"You create a new currency division called {division.Name.TitleCase().ColourName()} with a value in base currency of {value.ToString("N3", actor).ColourValue()}.");
+		return true;
+	}
+
+	private bool BuildingCommandDivision(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("Which currency division do you want to edit?");
+			return false;
+		}
+
+		var division = CurrencyDivisions.GetByIdOrName(command.PopSpeech());
+		if (division is null)
+		{
+			actor.OutputHandler.Send("There is no such currency division.");
+			return false;
+		}
+
+		return division.BuildingCommand(actor, command);
 	}
 
 	private bool BuildingCommandName(ICharacter actor, StringStack command)

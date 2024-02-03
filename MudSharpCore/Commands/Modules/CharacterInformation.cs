@@ -569,6 +569,22 @@ Additionally, admins can use the following options:
 					$"You will {(actor.BriefRoomDescs ? "no longer" : "now")} see full room descriptions as you move about.");
 				actor.Changed = true;
 				return;
+			case "currency":
+				if (ss.IsFinished)
+				{
+					actor.OutputHandler.Send($"Which currency do you want to use?\nThe available currencies are {actor.Gameworld.Currencies.Select(x => x.Name.ColourValue()).ListToString()}.");
+					return;
+				}
+				var currency = actor.Gameworld.Currencies.GetByIdOrName(ss.SafeRemainingArgument);
+				if (currency is null)
+				{
+					actor.OutputHandler.Send("There is no such currency.");
+					return;
+				}
+
+				actor.Currency = currency;
+				actor.OutputHandler.Send($"You will now use the {currency.Name.ColourName()} currency in financial transactions.");
+				return;
 			default:
 				actor.OutputHandler.Send(SetCommandHelp.SubstituteANSIColour());
 				return;

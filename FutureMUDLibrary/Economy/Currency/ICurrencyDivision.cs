@@ -14,5 +14,7 @@ namespace MudSharp.Economy.Currency {
         ///     Abbreviations that can be used to refer to this currency division, e.g. $, dollars, bucks
         /// </summary>
         IEnumerable<Regex> Patterns { get; }
+        bool IgnoreCase { get; }
+        void Delete();
     }
 }

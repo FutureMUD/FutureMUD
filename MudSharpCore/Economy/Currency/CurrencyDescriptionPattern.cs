@@ -7,12 +7,15 @@ using MudSharp.Database;
 using MudSharp.Framework;
 using MudSharp.Framework.Save;
 using MudSharp.FutureProg;
+using MudSharp.Models;
 using Org.BouncyCastle.Asn1.Pkcs;
 
 namespace MudSharp.Economy.Currency;
 
 public class CurrencyDescriptionPattern : SaveableItem, ICurrencyDescriptionPattern
 {
+	public ICurrency Currency { get; }
+
 	private readonly List<ICurrencyDescriptionPatternElement> _elements =
 		new();
 
@@ -24,6 +27,7 @@ public class CurrencyDescriptionPattern : SaveableItem, ICurrencyDescriptionPatt
 		CurrencyDescriptionPatternType type)
 	{
 		Gameworld = parent.Gameworld;
+		Currency = parent;
 		_id = pattern.Id;
 		Type = type;
 		Order = pattern.Order;
@@ -50,6 +54,33 @@ public class CurrencyDescriptionPattern : SaveableItem, ICurrencyDescriptionPatt
 		// TODO
 	}
 
+	public void Delete()
+	{
+		Gameworld.SaveManager.Abort(this);
+		if (_id != 0)
+		{
+			using (new FMDB())
+			{
+				Gameworld.SaveManager.Flush();
+				var dbitem = FMDB.Context.CurrencyDescriptionPatterns.Find(Id);
+				if (dbitem != null)
+				{
+					FMDB.Context.CurrencyDescriptionPatterns.Remove(dbitem);
+					FMDB.Context.SaveChanges();
+				}
+			}
+		}
+	}
+
+	public void DivisionDeleted(ICurrencyDivision division)
+	{
+		var remove = _elements.Where(x => x.TargetDivision == division).ToList();
+		foreach (var item in remove)
+		{
+			item.Delete();
+			_elements.Remove(item);
+		}
+	}
 	public override string FrameworkItemType => "CurrencyDescriptionPattern";
 
 	public override string ToString()
@@ -60,16 +91,19 @@ public class CurrencyDescriptionPattern : SaveableItem, ICurrencyDescriptionPatt
 
 	#region ICurrencyDescriptionPattern Members
 
-	public CurrencyDescriptionPatternType Type { get; }
+	public CurrencyDescriptionPatternType Type { get; private set; }
 
-	public int Order { get; }
+	public int Order { get; set; }
 
 	/// <summary>
 	///     A FutureProg returning Boolean that accepts a Single Number parameter
 	/// </summary>
-	public IFutureProg ApplicabilityProg { get; }
+	public IFutureProg ApplicabilityProg { get; private set; }
 
-	public bool UseNaturalAggregationStyle { get; }
+	/// <summary>
+	/// If true, use ListToString instead of simple concatenation (e.g. use "and" to link last two elements)
+	/// </summary>
+	public bool UseNaturalAggregationStyle { get; private set; }
 
 	public string Describe(decimal value)
 	{
@@ -112,11 +146,141 @@ public class CurrencyDescriptionPattern : SaveableItem, ICurrencyDescriptionPatt
 		return outList.ToString().NormaliseSpacing(true).Trim();
 	}
 
+	public const string HelpText = @"";
+
 	public bool BuildingCommand(ICharacter actor, StringStack command)
+	{
+		switch (command.PopForSwitch())
+		{
+			case "order":
+				return BuildingCommandOrder(actor, command);
+			case "natural":
+				return BuildingCommandNatural(actor, command);
+			case "negative":
+			case "prefix":
+			case "negativeprefix":
+				return BuildingCommandNegativePrefix(actor, command);
+			case "prog":
+				return BuildingCommandApplicabilityProg(actor, command);
+			case "element":
+				return BuildingCommandElement(actor, command);
+			case "addelement":
+				return BuildingCommandAddElement(actor, command);
+			case "removeelement":
+			case "remelement":
+				return BuildingCommandRemoveElement(actor, command);
+		}
+
+		actor.OutputHandler.Send(HelpText.SubstituteANSIColour());
+		return false;
+	}
+
+	private bool BuildingCommandRemoveElement(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("Which element do you want to edit?");
+			return false;
+		}
+
+		var element = Elements.GetByIdOrOrder(command.PopSpeech());
+		if (element is null)
+		{
+			actor.OutputHandler.Send("This pattern has no such element.");
+			return false;
+		}
+
+		return element.BuildingCommand(actor, command);
+	}
+
+	private bool BuildingCommandElement(ICharacter actor, StringStack command)
 	{
 		throw new NotImplementedException();
 	}
 
+	private bool BuildingCommandAddElement(ICharacter actor, StringStack command)
+	{
+		throw new NotImplementedException();
+	}
+
+	private bool BuildingCommandApplicabilityProg(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("You must specify a prog.");
+			return false;
+		}
+
+		var prog = new FutureProgLookupFromBuilderInput(actor.Gameworld, actor, command.SafeRemainingArgument,
+			FutureProgVariableTypes.Boolean, new FutureProgVariableTypes[]
+			{
+				FutureProgVariableTypes.Number
+			}).LookupProg();
+		if (prog is null)
+		{
+			return false;
+		}
+
+		ApplicabilityProg = prog;
+		Changed = true;
+		actor.OutputHandler.Send($"This pattern will now use the {prog.MXPClickableFunctionName()} prog to determine if it applies.");
+		return true;
+	}
+
+	private bool BuildingCommandNegativePrefix(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("You must specify a prefix for negative values.");
+			return false;
+		}
+
+		NegativeValuePrefix = command.SafeRemainingArgument;
+		actor.OutputHandler.Send($"The text \"{NegativeValuePrefix.ColourValue()}\" will now be prefixed to any negative values.");
+		Changed = true;
+		return true;
+	}
+
+	private bool BuildingCommandNatural(ICharacter actor, StringStack command)
+	{
+		UseNaturalAggregationStyle = !UseNaturalAggregationStyle;
+		Changed = true;
+		actor.OutputHandler.Send($"This element will {UseNaturalAggregationStyle.NowNoLonger()} use a natural aggregation style (with commas and 'and')");
+		return true;
+	}
+
+	private bool BuildingCommandOrder(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("Which order do you want this pattern to be evaluated in? Lower numbers are evaluated first.");
+			return false;
+		}
+
+		if (!int.TryParse(command.SafeRemainingArgument, out var value))
+		{
+			actor.OutputHandler.Send($"The text {command.SafeRemainingArgument.ColourCommand()} is not a valid number.");
+			return false;
+		}
+
+		if (value < 1 || value > Currency.PatternDictionary[Type].Count)
+		{
+			actor.OutputHandler.Send($"You must enter a number between {1.ToString("N0", actor).ColourValue()} and {Currency.PatternDictionary[Type].Count.ToString("N0", actor).ColourValue()}.");
+			return false;
+		}
+
+		var currentIndex = Currency.PatternDictionary[Type].IndexOf(this);
+		Currency.PatternDictionary[Type].RemoveAt(currentIndex);
+		Currency.PatternDictionary[Type].Insert(value - 1, this);
+		for (var i = 0; i < Currency.PatternDictionary[Type].Count; i++)
+		{
+			Currency.PatternDictionary[Type][i].Order = i + 1;
+			Currency.PatternDictionary[Type][i].Changed = true;
+		}
+
+		actor.OutputHandler.Send($"This currency description pattern will now be evaluated {value.ToOrdinal().ColourValue()}.");
+		return true;
+	}
 	public string Show(ICharacter actor)
 	{
 		var sb = new StringBuilder();
@@ -132,6 +296,7 @@ public class CurrencyDescriptionPattern : SaveableItem, ICurrencyDescriptionPatt
 		sb.AppendLine();
 		sb.AppendLine(StringUtilities.GetTextTable(
 			from element in Elements
+			orderby element.Order
 			select new List<string>
 			{
 				element.Id.ToString("N0", actor),

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Resources;
 using System.Text;
 using Dapper;
 using JetBrains.Annotations;
@@ -41,6 +42,7 @@ using MudSharp.TimeAndDate.Date;
 using MudSharp.TimeAndDate.Time;
 using MudSharp.Work.Butchering;
 using Org.BouncyCastle.Asn1.Cms;
+using Org.BouncyCastle.Crypto.Parameters;
 using AuctionBid = MudSharp.Economy.AuctionBid;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
@@ -335,25 +337,32 @@ internal class EconomyModule : Module<ICharacter>
 		actor.OutputHandler.Send(sb.ToString());
 	}
 
-	private static void CurrencySet(ICharacter character, StringStack command)
-	{
-		ICurrency currency = null;
-		currency = character.Gameworld.Currencies.GetByIdOrName(command.SafeRemainingArgument);
+	#region Currency
 
-		if (currency == null)
-		{
-			character.OutputHandler.Send(
-				$"There is no such currency.\nThe valid currencies are {character.Gameworld.Currencies.Select(x => x.Name.ColourValue()).ListToString()}.");
-			return;
-		}
+	public const string CurrencyHelp = @"This command is used to edit and view currencies. See also the closely related COIN command for editing coins.
 
-		character.Currency = currency;
-		character.OutputHandler.Send(
-			$"You will now use the {currency.Name.Colour(Telnet.Cyan)} currency in economic transactions.");
-	}
+The syntax for editing currencies is as follows:
+
+	#3currency list#0 - lists all of the currencies (see below for filters)
+    #3currency edit <which>#0 - begins editing a currency
+    #3currency edit new <name> <lowest division> <lowest coin>#0 - generates a new coin
+    #3currency clone <old> <new>#0 - clones an existing currency to a new one
+    #3currency close#0 - stops editing a currency
+    #3currency show <which>#0 - views information about a currency
+    #3currency show#0 - views information about your currently editing currency
+	#3currency set name <name>#0 - sets the name of this currency
+	#3currency set conversion <rate>#0 - sets the global currency conversion rate (to global base currency)
+	#3currency set adddivision <name> <rate>#0 - adds a new currency division
+	#3currency set remdivision <id|name>#0 - removes a currency division
+	#3currency set division <id|name> name <name>#0 - sets a new name for the division
+	#3currency set division <id|name> base <amount>#0 - sets the amount of base currency this division is worth
+	#3currency set division <id|name> ignorecase#0 - toggles ignoring case in the regular expression patterns for the division
+	#3currency set division <id|name> addabbr <regex>#0 - adds a regular expression pattern for this division
+	#3currency set division <id|name> remabbr <##>#0 - removes a particular pattern abbreviation for this division
+	#3currency set division <id|name> abbr <##> <regex>#0 - overwrites the regular expression pattern at the specified index for this division";
 
 	[PlayerCommand("Currency", "currency")]
-	[RequiredCharacterState(CharacterState.Conscious)]
+	[CommandPermission(PermissionLevel.Admin)]
 	[HelpInfo("currency",
 		@"You can use this command to set the currency that you use in economic transactions (such as shops and banks), as well as currency versions of inventory commands (get, give, etc). 
 
@@ -363,7 +372,30 @@ The syntax is as follows:
 	protected static void Currency(ICharacter character, string command)
 	{
 		var ss = new StringStack(command.RemoveFirstWord());
-		switch (ss.Pop().ToLowerInvariant())
+		switch (ss.PopForSwitch())
+		{
+			case "list":
+				CurrencyList(character, ss);
+				break;
+			case "set":
+			case "show":
+			case "edit":
+			case "close":
+			case "new":
+			case "clone":
+				if (!character.IsAdministrator(PermissionLevel.SeniorAdmin))
+				{
+					character.OutputHandler.Send("Due to the potential to break things, only Senior Admins or higher can run this specific subcommand.");
+					return;
+				}
+
+				break;
+			default:
+				character.OutputHandler.Send(CurrencyHelp.SubstituteANSIColour());
+				return;
+		}
+
+		switch (ss.Last)
 		{
 			case "set":
 				CurrencySet(character, ss);
@@ -371,10 +403,166 @@ The syntax is as follows:
 			case "show":
 				CurrencyShow(character, ss);
 				break;
-			default:
-				character.OutputHandler.Send("That is not a valid option for the Currency command.");
-				return;
+			case "edit":
+				CurrencyEdit(character, ss);
+				break;
+			case "close":
+				CurrencyClose(character, ss);
+				break;
+			case "new":
+				CurrencyNew(character, ss);
+				break;
+			case "clone":
+				CurrencyClone(character, ss);
+				break;
 		}
+	}
+
+	private static void CurrencyClone(ICharacter actor, StringStack ss)
+	{
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send("Which currency do you want to clone?");
+			return;
+		}
+
+		var currency = actor.Gameworld.Currencies.GetByIdOrName(ss.PopSpeech());
+		if (currency is null)
+		{
+			actor.OutputHandler.Send("There is no such currency.");
+			return;
+		}
+
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send("What name do you want to give to the new currency?");
+			return;
+		}
+
+		var name = ss.SafeRemainingArgument.TitleCase();
+		if (actor.Gameworld.Currencies.Any(x => x.Name.EqualTo(name)))
+		{
+			actor.OutputHandler.Send($"There is already a currency called {name.ColourName()}. Names must be unique.");
+			return;
+		}
+
+		var clone = currency.Clone(name);
+		actor.Gameworld.Add(clone);
+		actor.RemoveAllEffects<BuilderEditingEffect<ICurrency>>();
+		actor.AddEffect(new BuilderEditingEffect<ICurrency>(actor) { EditingItem = clone });
+		actor.OutputHandler.Send($"You create a new currency called {name.ColourName()} cloned from {currency.Name.ColourName()}, which you are now editing.");
+	}
+
+	private static void CurrencyNew(ICharacter actor, StringStack ss)
+	{
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send("What name do you want to give to your new currency?");
+			return;
+		}
+
+		var name = ss.PopSpeech().TitleCase();
+		if (actor.Gameworld.Currencies.Any(x => x.Name.EqualTo(name)))
+		{
+			actor.OutputHandler.Send($"There is already a currency called {name.ColourName()}. Names must be unique.");
+			return;
+		}
+
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send("What do you want to call the lowest currency division for your currency?");
+			return;
+		}
+
+		var division = ss.PopSpeech().TitleCase();
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send("What do you want to call the lowest coin for your currency?");
+			return;
+		}
+
+		var coin = ss.SafeRemainingArgument;
+		var currency = new Currency(actor.Gameworld, name, division, coin);
+		actor.Gameworld.Add(currency);
+		actor.RemoveAllEffects<BuilderEditingEffect<ICurrency>>();
+		actor.AddEffect(new BuilderEditingEffect<ICurrency>(actor){EditingItem = currency});
+		actor.OutputHandler.Send($"You create a new currency called {name.ColourName()}, which you are now editing.");
+	}
+
+	private static void CurrencyEdit(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			var current = actor.EffectsOfType<BuilderEditingEffect<ICurrency>>().FirstOrDefault();
+			if (current is null)
+			{
+				actor.OutputHandler.Send("Which currency did you want to edit?");
+				return;
+			}
+
+			actor.OutputHandler.Send(current.EditingItem.Show(actor));
+			return;
+		}
+
+		var currency = actor.Gameworld.Currencies.GetByIdOrName(command.PopSpeech());
+		if (currency is null)
+		{
+			actor.OutputHandler.Send("There is no currency like that.");
+			return;
+		}
+
+		actor.RemoveAllEffects<BuilderEditingEffect<ICurrency>>();
+		actor.AddEffect(new BuilderEditingEffect<ICurrency>(actor) { EditingItem = currency });
+		actor.OutputHandler.Send($"You are now editing the {currency.Name.ColourName()} currency.");
+	}
+
+	private static void CurrencyClose(ICharacter actor, StringStack command)
+	{
+		var effect = actor.EffectsOfType<BuilderEditingEffect<ICurrency>>().FirstOrDefault();
+		if (effect is null)
+		{
+			actor.OutputHandler.Send("You are not editing any currencies.");
+			return;
+		}
+
+		actor.RemoveAllEffects<BuilderEditingEffect<ICurrency>>();
+		actor.OutputHandler.Send("You are no longer editing any currencies.");
+	}
+
+	private static void CurrencyList(ICharacter actor, StringStack command)
+	{
+		var currencies = actor.Gameworld.Currencies.ToList();
+		// TODO - filters
+
+		actor.OutputHandler.Send(StringUtilities.GetTextTable(
+			from currency in currencies
+			select new List<string>
+			{
+				currency.Id.ToString("N0", actor),
+				currency.Name,
+				currency.BaseCurrencyToGlobalBaseCurrencyConversion.ToString("N3", actor),
+			},
+			new List<string>
+			{
+				"Id",
+				"Name",
+				"Conversion"
+			},
+			actor,
+			Telnet.BoldYellow
+			));
+	}
+
+	private static void CurrencySet(ICharacter actor, StringStack command)
+	{
+		var effect = actor.EffectsOfType<BuilderEditingEffect<ICurrency>>().FirstOrDefault();
+		if (effect is null)
+		{
+			actor.OutputHandler.Send("You are not editing any currencies.");
+			return;
+		}
+
+		effect.EditingItem.BuildingCommand(actor, command);
 	}
 
 	private static void CurrencyShow(ICharacter actor, StringStack ss)
@@ -441,12 +629,26 @@ The syntax is as follows:
 				}
 				actor.OutputHandler.Send(coin.Show(actor));
 				return;
+			case "element":
+				var element = currency.PatternDictionary.Values.SelectMany(x => x).SelectMany(x => x.Elements).GetById(ss.PopSpeech());
+				if (element is null)
+				{
+					actor.OutputHandler.Send(
+						$"The {currency.Name.ColourValue()} currency does not have such a pattern element.");
+					return;
+				}
+
+				actor.OutputHandler.Send(element.Show(actor));
+				return;
 			default:
-				actor.OutputHandler.Send("You must either specify #3pattern#0, #3coin#0 or #3division#0.".SubstituteANSIColour());
+				actor.OutputHandler.Send("You must either specify #3pattern#0, #3element#0, #3coin#0 or #3division#0.".SubstituteANSIColour());
 				return;
 		}
 	}
 
+	#endregion
+
+	#region Coins
 	public const string CoinHelp = @"You can use this building command to edit coins, which are virtual items that exist in currency piles and used for economic transactions. Keep in mind that your coins don't have to perfectly match your currency divisions and you can even have coins that can be loaded (perhaps by an admin or a prog) but won't be used to automatically generate change for example.
 
 The syntax for editing coins is as follows:
@@ -474,6 +676,8 @@ You can use the following search filters:
 	{
 		BaseBuilderModule.GenericBuildingCommand(actor, new StringStack(command.RemoveFirstWord()), EditableItemHelper.CoinHelper);
 	}
+
+	#endregion
 
 	[PlayerCommand("List", "list")]
 	[RequiredCharacterState(CharacterState.Conscious)]

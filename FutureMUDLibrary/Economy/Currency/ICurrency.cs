@@ -16,9 +16,9 @@ namespace MudSharp.Economy.Currency {
         IEnumerable<ICoin> Coins { get; }
 
         /// <summary>
-        ///     A dictionary containing all of the CurrencyDescriptionPatterns by their CurrencyDescriptionPatternType
+        ///     A collection dictionary containing all of the CurrencyDescriptionPatterns by their CurrencyDescriptionPatternType
         /// </summary>
-        Dictionary<CurrencyDescriptionPatternType, List<ICurrencyDescriptionPattern>> PatternDictionary { get; }
+        CollectionDictionary<CurrencyDescriptionPatternType, ICurrencyDescriptionPattern> PatternDictionary { get; }
 
         /// <summary>
         ///     Requests that the Currency describe the stated amount in the specified pattern
@@ -57,5 +57,6 @@ namespace MudSharp.Economy.Currency {
 
         decimal BaseCurrencyToGlobalBaseCurrencyConversion { get; }
         void AddCoin(ICoin coin);
+        ICurrency Clone(string name);
     }
 }

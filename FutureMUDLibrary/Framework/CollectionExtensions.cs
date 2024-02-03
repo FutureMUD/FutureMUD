@@ -867,5 +867,30 @@ namespace MudSharp.Framework {
                    itemList.FirstOrDefault(x =>
                        x.Name.StartsWith(text, StringComparison.InvariantCultureIgnoreCase));
         }
-    }
+
+        public static T? GetById<T>(this IEnumerable<T> items, string text) where T : IFrameworkItem
+        {
+	        if (long.TryParse(text, out var id))
+	        {
+		        return items.FirstOrDefault(x => x.Id == id);
+	        }
+
+	        return default;
+        }
+
+        public static T? GetByIdOrOrder<T>(this IEnumerable<T> items, string text) where T : IFrameworkItem
+        {
+	        if (long.TryParse(text, out var id))
+	        {
+		        return items.FirstOrDefault(x => x.Id == id);
+	        }
+
+	        if (text.Length > 1 && text[0] == '#' && int.TryParse(text.Substring(1), out var index))
+	        {
+		        return items.ElementAtOrDefault(index - 1);
+	        }
+
+	        return default;
+        }
+	}
 }

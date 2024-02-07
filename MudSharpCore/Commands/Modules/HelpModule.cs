@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -6,6 +7,7 @@ using MudSharp.Accounts;
 using MudSharp.Character;
 using MudSharp.Database;
 using MudSharp.Editor;
+using MudSharp.Effects.Concrete;
 using MudSharp.Framework;
 using MudSharp.FutureProg;
 using MudSharp.Help;
@@ -77,13 +79,44 @@ internal class HelpModule : Module<ICharacter>
 			nameText.Proper().Colour(Telnet.Green), categoryText.TitleCase().Colour(Telnet.Green),
 			subcategoryText.TitleCase().Colour(Telnet.Green));
 		actor.EditorMode(HEditNewPost, HEditNewCancel, 1.0, null, EditorOptions.None,
-			new object[] { actor, nameText, categoryText, subcategoryText, command.RemainingArgument });
+			new object[] { actor, nameText, categoryText, subcategoryText, command.SafeRemainingArgument });
 	}
 
 	private static void HEditDelete(ICharacter actor, StringStack command)
 	{
-		//TODO - Implement command to delete help file.
-		actor.OutputHandler.Send(StringUtilities.HMark + "Subcommand not yet implemented.");
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("Which helpfile do you want to delete?");
+			return;
+		}
+
+		var helpfile = GetHelpfile(actor, command, true);
+		if (helpfile == null)
+		{
+			actor.OutputHandler.Send("There is no such helpfile.");
+			return;
+		}
+
+		actor.OutputHandler.Send($"Are you sure you want to delete the {helpfile.Name.ColourName()} ({helpfile.Category.ColourValue()}/{helpfile.Subcategory.ColourValue()}) help file? This cannot be undone.\n{Accept.StandardAcceptPhrasing}");
+		actor.AddEffect(new Accept(actor, new GenericProposal
+		{
+			DescriptionString = $"Deleting the {helpfile.Name.ColourName()} ({helpfile.Category.ColourValue()}/{helpfile.Subcategory.ColourValue()}) help file",
+			AcceptAction = text =>
+			{
+				helpfile.Delete();
+				actor.Gameworld.Destroy(helpfile);
+				actor.OutputHandler.Send($"You delete the {helpfile.Name.ColourName()} ({helpfile.Category.ColourValue()}/{helpfile.Subcategory.ColourValue()}) help file.");
+			},
+			RejectAction = text =>
+			{
+				actor.OutputHandler.Send($"You decide not to delete the {helpfile.Name.ColourName()} ({helpfile.Category.ColourValue()}/{helpfile.Subcategory.ColourValue()}) help file.");
+			},
+			ExpireAction = () =>
+			{
+				actor.OutputHandler.Send($"You decide not to delete the {helpfile.Name.ColourName()} ({helpfile.Category.ColourValue()}/{helpfile.Subcategory.ColourValue()}) help file.");
+			},
+			Keywords = new List<string>{ "delete", "help", "file", helpfile.Name}
+		}), TimeSpan.FromSeconds(120));
 	}
 
 	private static void HEditName(ICharacter actor, StringStack command)
@@ -94,7 +127,7 @@ internal class HelpModule : Module<ICharacter>
 			return;
 		}
 
-		var helpfile = GetHelpfile(actor, command);
+		var helpfile = GetHelpfile(actor, command, false);
 		if (helpfile == null)
 		{
 			actor.Send("There is no such helpfile for you to edit.");
@@ -145,9 +178,9 @@ internal class HelpModule : Module<ICharacter>
 
 	private static void HEditTagline(ICharacter actor, StringStack command)
 	{
-		if (command.CountRemainingArguments() < 2)
+		if (command.IsFinished)
 		{
-			actor.Send(StringUtilities.HMark + "Syntax: hedit tagline <helpfile> <newtagline>");
+			actor.OutputHandler.Send("Which help file do you want to edit the tagline for?");
 			return;
 		}
 
@@ -155,6 +188,12 @@ internal class HelpModule : Module<ICharacter>
 		if (helpfile == null)
 		{
 			actor.Send("There is no such helpfile for you to edit.");
+			return;
+		}
+
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("What do you want to set the tagline to for this new helpfile?");
 			return;
 		}
 
@@ -250,9 +289,9 @@ internal class HelpModule : Module<ICharacter>
 			return;
 		}
 
-		if (!prog.MatchesParameters(new[] { FutureProgVariableTypes.Character }))
+		if (!prog.MatchesParameters(new[] { FutureProgVariableTypes.Toon }))
 		{
-			actor.Send("You may only use progs that take a single character parameter.");
+			actor.Send("You may only use progs that take a single toon parameter.");
 			return;
 		}
 
@@ -382,12 +421,52 @@ internal class HelpModule : Module<ICharacter>
 
 	private static void HEditExtraTextRemove(ICharacter actor, StringStack command)
 	{
-		actor.Send(StringUtilities.HMark + "Subcommand 'remove' not yet implemented.");
-	}
+		if (command.CountRemainingArguments() < 2)
+		{
+			actor.Send(StringUtilities.HMark + "Syntax: hedit extra remove <helpfile> <extra index>");
+			return;
+		}
 
-	private static void HEditExtraTextMove(ICharacter actor, StringStack command)
-	{
-		actor.Send(StringUtilities.HMark + "Subcommand 'move' not yet implemented.");
+		var helpfile = GetHelpfile(actor, command);
+		if (helpfile == null)
+		{
+			actor.Send("There is no such helpfile for you to edit.");
+			return;
+		}
+
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("Which extra text did you want to remove?");
+			return;
+		}
+
+		if (!int.TryParse(command.PopSpeech(), out var index) || index < 1 || index > helpfile.AdditionalTexts.Count())
+		{
+			actor.OutputHandler.Send(
+				$"You must enter a valid number between {1.ToString("N0", actor).ColourValue()} and {helpfile.AdditionalTexts.Count().ToString("N0", actor).ColourValue()}.");
+			return;
+		}
+
+		actor.OutputHandler.Send(
+			$"Are you sure you want to delete the {index.ToOrdinal().ColourValue()} extra text (below)? This cannot be undone.\n\n{helpfile.AdditionalTexts.ElementAt(index - 1).Item2.Wrap(actor.InnerLineFormatLength, "\t")}\n\n{Accept.StandardAcceptPhrasing}");
+		actor.AddEffect(new Accept(actor, new GenericProposal
+		{
+			DescriptionString = $"Deleting the {index.ToOrdinal().ColourValue()} extra text of help file {helpfile.Name.ColourName()}",
+			AcceptAction = text =>
+			{
+				helpfile.DeleteExtraText(index - 1);
+				actor.OutputHandler.Send("You delete the extra text.");
+			},
+			RejectAction = text =>
+			{
+				actor.OutputHandler.Send("You decide not to delete the helpfile's extra text.");
+			},
+			ExpireAction = () =>
+			{
+				actor.OutputHandler.Send("You decide not to delete the helpfile's extra text.");
+			},
+			Keywords = new List<string>{"delete", "help", "extra"}
+		}), TimeSpan.FromSeconds(120));
 	}
 
 	private static void HEditExtraTextEditPost(string text, IOutputHandler handler, object[] parameters)
@@ -535,9 +614,6 @@ internal class HelpModule : Module<ICharacter>
 			case "delete":
 				HEditExtraTextRemove(actor, command);
 				break;
-			case "move":
-				HEditExtraTextMove(actor, command);
-				break;
 			case "text":
 				HEditExtraTextEdit(actor, command);
 				break;
@@ -546,7 +622,7 @@ internal class HelpModule : Module<ICharacter>
 				break;
 			default:
 				actor.Send(
-					StringUtilities.HMark + "Subcommands of 'hedit extra' include: add, remove, move, text, prog");
+					StringUtilities.HMark + "Subcommands of 'hedit extra' include: add, remove, text, prog");
 				return;
 		}
 	}
@@ -605,11 +681,8 @@ internal class HelpModule : Module<ICharacter>
 	//                     help file name either from between quote marks or as a single word.
 	private static IHelpfile GetHelpfile(ICharacter actor, StringStack command, bool useFullArgument = false)
 	{
-		var helpName = command.SafeRemainingArgument;
-		var helpfile = long.TryParse(helpName, out var value)
-			? actor.Gameworld.Helpfiles.Get(value)
-			: actor.Gameworld.Helpfiles.FirstOrDefault(
-				x => x.Name.Equals(helpName, StringComparison.InvariantCultureIgnoreCase));
+		var helpName = useFullArgument ? command.SafeRemainingArgument : command.PopSpeech();
+		var helpfile = actor.Gameworld.Helpfiles.GetByIdOrName(helpName);
 		if (helpfile != null && !helpfile.CanView(actor))
 		{
 			return null;
@@ -618,17 +691,41 @@ internal class HelpModule : Module<ICharacter>
 		return helpfile;
 	}
 
+	public const string HEditHelpText = @"This command allows you to create and edit help files.
+
+The syntax for this is as follows:
+
+	#3hedit list#0 - lists all helpfiles
+	#3hedit show <helpfile>#0 - shows builder information about a helpfile
+	#3hedit new <name> <category> <subcategory> [<tagline>]#0 - creates a new helpfile
+	#3hedit delete <which>#0 - deletes a helpfile
+	#3hedit name <helpfile> <newname>#0 - renames a helpfile
+	#3hedit keywords <keywords separated by spaces>#0 - sets keywords for the helpfile for searching
+	#3hedit tagline <helpile> <tagline>#0 - sets the tagline for a helpfile
+	#3hedit category <category>#0 - sets the category of a helpfile
+	#3hedit subcategory <subcategory#0 - sets the subcategory of a helpfile
+	#3hedit prog <helpfile> <prog>#0 - sets a prog that controls if someone can see the helpfile
+	#3hedit prog <helpfile> clear#0 - clears a prog from a helpfile (instead always visible)
+	#3hedit text <helpfile#0 - drops you into an editor to edit the helpfile text
+	#3hedit extra add <helpfile> <prog>#0 - drops you into an editor to add a new extra text
+	#3hedit extra remove <helpfile> <##>#0 - removes the specified extra text
+	#3hedit extra text <helpfile> <##>#0 - drops you into an editor to edit the text of an extra text
+	#3hedit extra prog <##> <prog>#0 - changes the prog associated with an extra text
+
+Command for editing helpfiles, subcommands include: new, delete, name, keywords, tagline, subcategory, prog, text, extra, show";
+
 	[PlayerCommand("Hedit", "hedit")]
 	[CommandPermission(PermissionLevel.JuniorAdmin)]
-	[HelpInfo("hedit",
-		"Command for editing helpfiles, subcommands include: new, delete, name, keywords, tagline, subcategory, prog, text, extra, show",
-		AutoHelp.HelpArgOrNoArg)]
+	[HelpInfo("hedit", HEditHelpText, AutoHelp.HelpArgOrNoArg)]
 	protected static void HEdit(ICharacter actor, string command)
 	{
 		var ss = new StringStack(command.RemoveFirstWord());
 
-		switch (ss.Pop().ToLowerInvariant())
+		switch (ss.PopForSwitch())
 		{
+			case "list":
+				HEditList(actor, ss);
+				return;
 			case "new":
 			case "create":
 				HEditNew(actor, ss);
@@ -665,11 +762,36 @@ internal class HelpModule : Module<ICharacter>
 				HEditView(actor, ss);
 				break;
 			default:
-				actor.OutputHandler.Send(StringUtilities.HMark + "Invalid sub-command.");
-				actor.OutputHandler.Send(StringUtilities.HMark +
-				                         "HEDIT has the following subcommands: new, create, delete, name, keywords, tagline, category, subcategory, prog, text, extra, show, help");
+				actor.OutputHandler.Send(HEditHelpText.SubstituteANSIColour());
 				return;
 		}
+	}
+
+	private static void HEditList(ICharacter actor, StringStack ss)
+	{
+		var sb = new StringBuilder();
+		var helpfiles = actor.Gameworld.Helpfiles.ToList();
+		sb.AppendLine(StringUtilities.GetTextTable(
+			from help in helpfiles
+			select new List<string>
+			{
+				help.Name.TitleCase(),
+				help.Category.TitleCase(),
+				help.Subcategory.TitleCase(),
+				help.Rule?.MXPClickableFunctionName() ?? "",
+				help.TagLine
+			},
+			new List<string>
+			{
+				"Name",
+				"Category",
+				"Subcategory",
+				"Prog",
+				"Tagline"
+			},
+			actor,
+			Telnet.Orange));
+		actor.OutputHandler.Send(sb.ToString());
 	}
 
 	//Finds and echoes an exact match help file. Returns false if it was unable to find the exact match.

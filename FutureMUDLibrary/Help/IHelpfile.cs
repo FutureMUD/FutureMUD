@@ -73,5 +73,9 @@ namespace MudSharp.Help {
         /// <param name="chargen">The chargen enquiring</param>
         /// <returns>The text of the helpfile</returns>
         string DisplayHelpFile(IChargen chargen);
+
+        void Delete();
+        void DeleteExtraText(int index);
+        void ReorderExtraText(int oldIndex, int newIndex);
     }
 }

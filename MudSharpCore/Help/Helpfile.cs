@@ -255,4 +255,34 @@ public class Helpfile : SaveableItem, IEditableHelpfile
 	}
 
 	#endregion
+
+	public void Delete()
+	{
+		Gameworld.SaveManager.Abort(this);
+		if (_id != 0)
+		{
+			using (new FMDB())
+			{
+				Gameworld.SaveManager.Flush();
+				var dbitem = FMDB.Context.Helpfiles.Find(Id);
+				if (dbitem != null)
+				{
+					FMDB.Context.Helpfiles.Remove(dbitem);
+					FMDB.Context.SaveChanges();
+				}
+			}
+		}
+	}
+
+	public void DeleteExtraText(int index)
+	{
+		_additionalTexts.RemoveAt(index);
+		Changed = true;
+	}
+
+	public void ReorderExtraText(int oldIndex, int newIndex)
+	{
+		_additionalTexts.Swap(oldIndex, newIndex);
+		Changed = true;
+	}
 }

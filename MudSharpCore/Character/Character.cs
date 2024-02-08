@@ -2194,6 +2194,7 @@ public partial class Character : PerceiverItem, ICharacter
 		PerceivableQuit();
 		Movement?.CancelForMoverOnly(this);
 		LeaveParty(true);
+		CeaseFollowing();
 		Combat?.LeaveCombat(this);
 
 		if (Location != null)

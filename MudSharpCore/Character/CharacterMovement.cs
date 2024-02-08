@@ -981,8 +981,9 @@ public partial class Character
 
 	protected void TargetMoved(object sender, MoveEventArgs args)
 	{
-		if (Location == Following.Location && CanSee(Following) && Body.CanSee(Location, args.Movement.Exit))
+		if (ColocatedWith(Following) && CanSee(Following) && Body.CanSee(Location, args.Movement.Exit))
 		{
+			// TODO - check trespassing
 			if (Movement != null && Movement.Exit == args.Movement.Exit)
 			{
 				return;
@@ -994,7 +995,7 @@ public partial class Character
 
 	protected void TargetStopped(object sender, MoveEventArgs args)
 	{
-		if (Movement?.IsMovementLeader(this) != false)
+		if (Movement?.IsMovementLeader(this) != true)
 		{
 			return;
 		}
@@ -1019,11 +1020,13 @@ public partial class Character
 	public void Follow(IMove thing)
 	{
 		CeaseFollowing();
-
 		Following = thing;
-		thing.OnStartMove += TargetMoved;
-		thing.OnStopMove += TargetStopped;
-		thing.OnQuit += FollowingThingDisappeared;
+		if (thing is not null)
+		{
+			thing.OnStartMove += TargetMoved;
+			thing.OnStopMove += TargetStopped;
+			thing.OnQuit += FollowingThingDisappeared;
+		}
 	}
 
 	public void CeaseFollowing()
@@ -1032,6 +1035,7 @@ public partial class Character
 		{
 			Following.OnStartMove -= TargetMoved;
 			Following.OnStopMove -= TargetStopped;
+			Following.OnQuit -= FollowingThingDisappeared;
 			Following = null;
 		}
 	}
@@ -1039,7 +1043,6 @@ public partial class Character
 	private void FollowingThingDisappeared(IPerceivable thing)
 	{
 		CeaseFollowing();
-		thing.OnQuit -= FollowingThingDisappeared;
 	}
 
 	public string DisplayInGroup(IPerceiver voyeur, int indent = 0)

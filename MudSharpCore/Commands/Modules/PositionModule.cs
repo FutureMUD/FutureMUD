@@ -30,7 +30,7 @@ internal class PositionModule : Module<ICharacter>
 
 	private static readonly Regex _positionTableRegex =
 		new(
-			@"^(sit|rest|lounge|lay down|lie down|lay|lie) ([\w]{0,}[a-zA-Z.-]{0,}) {0,}([\w]{0,}[a-zA-Z.-]{0,}) {0,1}(?:\[(.*)\]){0,1} {0,1}(?:\((.*)\)){0,1}$",
+			@"^(sit|rest|lounge|sprawl|lay down|lie down|lay|lie) ([\w]{0,}[a-zA-Z.-]{0,}) {0,}([\w]{0,}[a-zA-Z.-]{0,}) {0,1}(?:\[(.*)\]){0,1} {0,1}(?:\((.*)\)){0,1}$",
 			RegexOptions.IgnoreCase);
 
 	private static readonly Regex _positionRegex =
@@ -56,9 +56,22 @@ internal class PositionModule : Module<ICharacter>
 	[PlayerCommand("Pmote", "pmote")]
 	[RequiredCharacterState(CharacterState.Awake)]
 	[NoCombatCommand]
+	[HelpInfo("pmote", @"A #6pmote#0 is a ""Player Emote"", which is an emote that is appended to your long description (what people see when they use the #6look#0 command in a room where you are. PMotes use the same syntax and full grammar markup as other types of emotes and can target other people and things in the room.
+
+Note that PMotes reset if you move, get into combat, or if you change your position in the room (i.e. go from standing to sitting etc.), or if any of the targets of the pmote become invalid (e.g. your pmote targets a person and that person moves away)
+
+The syntax to use this command is as follows:
+
+	#3pmote#0 - shows your current pmote, if any
+	#3pmote clear#0 - removes your currently set pmote
+	#3pmote <emote text>#0 - sets your pmote
+
+For example, if you set your pmote to #6flipping *pen back and forth between his fingers#0, your long description might appear like this:
+
+#5A tall, dark-haired man#0 is standing here, flipping #2a silver pen#0 back and forth between his fingers.", AutoHelp.HelpArg)]
 	protected static void Pmote(ICharacter character, string input)
 	{
-		var cmd = new StringStack(input.RemoveFirstWord()).Pop().ToLowerInvariant();
+		var cmd = new StringStack(input.RemoveFirstWord()).PopSpeech().ToLowerInvariant();
 
 		if (cmd.Length == 0)
 		{
@@ -103,10 +116,23 @@ internal class PositionModule : Module<ICharacter>
 	[PlayerCommand("Omote", "omote")]
 	[NoCombatCommand]
 	[RequiredCharacterState(CharacterState.Awake)]
+	[HelpInfo("omote", @"An #6omote#0 is an ""Object Emote"", which is an emote that is appended to an item's long description (what people see when they use the #6look#0 command in a room where it is). OMotes use the same syntax and full grammar markup as other types of emotes and can target other people and things in the room.
+
+Note that 
+
+The syntax to use this command is as follows:
+
+	#3omote <item>#0 - views the current omote for an item, if any
+	#3omote <item> clear#0 - removes an item's current omote
+	#3omote <item> <emote text>#0 - sets an item's omote
+
+For example, if you set the omote of #2a white cotton shirt#0 to #6folded in a neat, crisp square#0, its long description might appear like this:
+
+#2A white cotton shirt#0 is standing here, flipping #2a silver pen#0 back and forth between his fingers.", AutoHelp.HelpArg)]
 	protected static void Omote(ICharacter character, string input)
 	{
 		var ss = new StringStack(input.RemoveFirstWord());
-		var cmd = ss.Pop();
+		var cmd = ss.PopSpeech();
 		if (cmd.Length == 0)
 		{
 			character.OutputHandler.Send("What do you want to set the omote for?");
@@ -116,7 +142,7 @@ internal class PositionModule : Module<ICharacter>
 		var item = character.TargetLocalItem(cmd);
 		if (item == null)
 		{
-			character.OutputHandler.Send("You do not see that here to change the omote.");
+			character.OutputHandler.Send("You do not see that item here.");
 			return;
 		}
 
@@ -653,7 +679,7 @@ The syntax can be either of the following:
 
 			if (target is IGameItem && (target as IGameItem).IsItemType<ITable>() &&
 			    (desiredState == PositionSitting.Instance || desiredState == PositionLounging.Instance ||
-			     desiredState == PositionLyingDown.Instance) && !match.Groups[3].Success)
+			     desiredState == PositionLyingDown.Instance || desiredState == PositionSprawled.Instance) && !match.Groups[3].Success)
 			{
 				Position_Table(character,
 					_positionTableRegex.Match(
@@ -859,7 +885,75 @@ The syntax can be either of the following:
 	[DisplayOptions(CommandDisplayOptions.DisplayCommandWords)]
 	[RequiredCharacterState(CharacterState.Able)]
 	[NoMovementCommand]
-	[HelpInfo("Position", @"", AutoHelp.HelpArg)]
+	[HelpInfo("Position", @"This command is used to change your position or the position of an item. It's important to know that there are three components to your position; a target, a modifier, and an emote (also known as pmote for players or omote for items).
+
+#6Player Positioning#0
+
+There are a number of positions available to players, which include:
+
+	#3stand#0, #3stand easy#0, #3stand attention#0, #3sit#0, #3lounge#0, #3rest#0, #3sprawl#0, #3prone#0, #3kneel#0, #3prostrate#0, #3squat#0, #3lean#0 and #3slump#0.
+
+
+
+There are also a number of modifiers that you can use, which are as follows:
+
+	#3by#0, #3in#0, #3on#0, #3under#0, #3before#0, #3behind#0, #3around#0 (note - #3by#0 is the default and is implied if not specified)
+
+The syntax pattern for using the various iterations of these positions is exactly the same so for brevity on the #3sit#0 position will be used in the examples below. 
+The syntax to use these commands is as follows:
+
+	#3sit#0 - changes your position to sitting (preserving existing target, modifier and pmote)
+	#3sit <target>#0 - sits next to a person or item (implied modifier #3by#0)
+	#3sit in|on|under|before|behind|around <target>#0 - sits with the target/modifier combination
+	#3sit reset#0 - resets your position target / pmote while remaining sitting
+
+All of the above can have an optional pmote set within square brackets #3[]#0, an an optional emote addendum after that with round brackets #3()#0.
+
+Additionally, there is special syntax when sitting at a table or chair (see below).
+
+For example, consider the following examples:
+
+	#3sit chair (throwing herself back with a frustrated sigh)#0
+
+Would echo: #5A short, dark-haired woman#0 sits on #2a wooden chair#0, throwing herself back with a frustrated sigh.
+Look Desc: #5A short, dark-haired woman#0 is sitting on #2a wooden chair#0 here.
+
+	#3sit under arch [with his legs crossed and palms upturned, praying]#0
+
+Would echo: #5A tall, dark-haired man#0 sits underneath #2a stone archway#0.
+Look Desc: #5A tall, dark-haired man#0 is sitting underneath #2a stone archway#0, with his legs crossed and palms upturned, praying.
+
+	#3sit (unceremoniously) [looking bored]#0
+
+Would echo: #5A bespectacled, dark-skinned lass#0 sits down, unceremoniously.
+Look Desc: #5A bespectacled, dark-skinned lass#0 is sitting here, looking bored.
+
+#6Tables and Chairs#0
+
+Items that are codedly set up as tables and chairs have a slightly different interaction with the above syntax for playability purposes. This only applies with the #3sit#0, #3lay#0, #3rest#0 and #3sprawl#0 commands.
+
+Firstly, when you don't specify a modifier with a chair it will automatically assume that you want to sit #3on#0 the chair rather than #3by#0 the chair.
+
+Secondly, when you don't specify a modifier and target a table it will try to find a free chair at that table to put you instead.
+
+If you explicitly want to sit #3by#0 a table or chair, use the #3by#0 modifier.
+
+#6Positioning Other Items#0
+
+You can also use the #3position#0, #3hang#0, #3lean#0, and #3slump#0 versions of this command to change the position of items in the room.
+
+The syntax of this is as follows:
+
+	#3position <item> [<modifier>] <target>#0 - positions an item relative to another target
+	#3position <item> reset#0 - resets an item to just generally in the room
+
+Like with the player version you can have an optional omote set within square brackets #3[]#0, an an optional emote addendum after that with round brackets #3()#0.
+
+For example:
+
+	#3position sack behind counter#0
+	#3hang notice on noticeboard [affixed with neat iron nails]#0
+	#3slump shirt [in an unceremonious heap] (discarding it without a second thought)#0", AutoHelp.HelpArg)]
 	protected static void Position(ICharacter actor, string input)
 	{
 		if (_positionItemRegex.IsMatch(input))

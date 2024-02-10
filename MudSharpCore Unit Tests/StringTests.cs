@@ -259,5 +259,95 @@ Item 6
             Assert.IsTrue(new Regex("^colou?r1").TransformRegexIntoPattern().EqualTo("colour1"));
             Assert.IsTrue(new Regex("skin(colou?r|tone)").TransformRegexIntoPattern().EqualTo("skincolour"));
         }
-    }
+
+		[TestMethod]
+		public void IsValidFormatString_WithValidStrings_ReturnsTrue()
+		{
+			// Arrange
+			string validFormat1 = "This is a test: {0}, {1:N0}";
+			string validFormat2 = "Just a single parameter: {0} works fine.";
+			string validFormat3 = "No parameters works fine too.";
+
+			// Act
+			bool result1 = validFormat1.IsValidFormatString(2);
+			bool result2 = validFormat2.IsValidFormatString(1);
+			bool result3 = validFormat3.IsValidFormatString(0);
+
+			// Assert
+			Assert.IsTrue(result1, "Expected to return true for valid format string with 2 parameters.");
+			Assert.IsTrue(result2, "Expected to return true for valid format string with 1 parameter.");
+			Assert.IsTrue(result3, "Expected to return true for valid format string with no parameters.");
+		}
+
+		[TestMethod]
+		public void IsValidFormatString_WithInvalidStrings_ReturnsFalse()
+		{
+			// Arrange
+			string invalidFormat1 = "This is a test: {0}, {2:N0}";
+			string invalidFormat2 = "This {2} is out of range for a single parameter.";
+			string invalidFormat3 = "This is {1} missing.";
+
+			// Act
+			bool result1 = invalidFormat1.IsValidFormatString(2);
+			bool result2 = invalidFormat2.IsValidFormatString(1);
+			bool result3 = invalidFormat3.IsValidFormatString(2);
+
+			// Assert
+			Assert.IsFalse(result1, "Expected to return false for invalid format string with a missing {1}.");
+			Assert.IsFalse(result2, "Expected to return false for invalid format string with out of range parameter.");
+			Assert.IsFalse(result3, "Expected to return false for invalid format string with skipped parameter.");
+		}
+
+		[TestMethod]
+		public void IsValidFormatString_WithEdgeCases_ReturnsCorrectly()
+		{
+			// Arrange
+			string edgeCaseFormat1 = "Edge case with escaped braces: {{1}} {0}";
+			string edgeCaseFormat2 = "Edge case with double usage: {0} {0:N0}";
+
+			// Act
+			bool result1 = edgeCaseFormat1.IsValidFormatString(1);
+			bool result2 = edgeCaseFormat2.IsValidFormatString(1);
+
+			// Assert
+			Assert.IsTrue(result1, "Expected to return true for valid format string with escaped braces.");
+			Assert.IsTrue(result2, "Expected to return true for valid format string with double usage of the same parameter.");
+		}
+
+        [TestMethod]
+		public void IsValidFormatString_WithTruthMask()
+		{
+            // Arrange
+			var format1 = "This text has {0} and {2} as mandatory";
+			var format2 = "This text has {0}, {1}, {2}, {3}";
+			var format3 = "This text has no parameters";
+			var format4 = "This text has {0} and {{1}}";
+
+            // Act
+			var result1 = format1.IsValidFormatString(new bool[] { true, false, true }.AsSpan());
+			var result2 = format1.IsValidFormatString(new bool[] { false, false, true }.AsSpan());
+			var result3 = format1.IsValidFormatString(new bool[] { true, true, true }.AsSpan());
+			var result4 = format2.IsValidFormatString(new bool[] { true, true, true, true }.AsSpan());
+			var result5 = format2.IsValidFormatString(new bool[] { true, true, true, true, true }.AsSpan());
+			var result6 = format2.IsValidFormatString(new bool[] { true, true, true, true, false }.AsSpan());
+			var result7 = format3.IsValidFormatString(new bool[] { }.AsSpan());
+			var result8 = format3.IsValidFormatString(new bool[] { false, false }.AsSpan());
+			var result9 = format4.IsValidFormatString(new bool[] { true }.AsSpan());
+			var result10 = format4.IsValidFormatString(new bool[] { true, false }.AsSpan());
+			var result11 = format4.IsValidFormatString(new bool[] { true, true }.AsSpan());
+
+            // Assert
+            Assert.IsTrue(result1, "Expected to return true for case 1");
+            Assert.IsTrue(result2, "Expected to return true for case 2");
+            Assert.IsFalse(result3, "Expected to return false for case 3");
+            Assert.IsTrue(result4, "Expected to return true for case 4");
+            Assert.IsFalse(result5, "Expected to return false for case 5");
+            Assert.IsTrue(result6, "Expected to return true for case 6");
+            Assert.IsTrue(result7, "Expected to return true for case 7");
+            Assert.IsTrue(result8, "Expected to return true for case 8");
+            Assert.IsTrue(result9, "Expected to return true for case 9");
+            Assert.IsTrue(result10, "Expected to return true for case 10");
+            Assert.IsFalse(result11, "Expected to return false for case 11");
+		}
+	}
 }

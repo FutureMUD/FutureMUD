@@ -884,5 +884,55 @@ namespace MudSharp.Framework
             }
             return sb.ToString().RemoveBlankLines();
         }
-    }
+
+        public static bool IsValidFormatString(this string formatString, int expectedParameterCount)
+        {
+	        return formatString.IsValidFormatString(expectedParameterCount, new ReadOnlySpan<bool>(Enumerable.Repeat(true, expectedParameterCount).ToArray()));
+        }
+
+        public static bool IsValidFormatString(this string formatString, ReadOnlySpan<bool> mandatoryMask)
+        {
+	        return formatString.IsValidFormatString(mandatoryMask.Length, mandatoryMask);
+        }
+
+		private static Regex IsValidFormatStringRegex = new Regex(@"(?<!\{)\{\d+(:[^}]+)?\}(?!\})", RegexOptions.Compiled);
+
+		public static bool IsValidFormatString(this string formatString, int expectedParameterCount, ReadOnlySpan<bool> mandatoryMask)
+		{
+			// This regex pattern matches {number} or {number:format} placeholders
+			var matches = IsValidFormatStringRegex.Matches(formatString);
+
+			// Track if all expected placeholders are present
+			bool[] placeholdersPresent = new bool[expectedParameterCount];
+
+			foreach (Match match in matches)
+			{
+				var placeholder = match.Value;
+				var numberPart = placeholder.Split(new[] { ':', '}' })[0].Trim('{');
+				if (int.TryParse(numberPart, out int placeholderIndex))
+				{
+					if (placeholderIndex < expectedParameterCount)
+					{
+						placeholdersPresent[placeholderIndex] = true;
+					}
+					else
+					{
+						// Placeholder index is out of expected range
+						return false;
+					}
+				}
+			}
+
+			// Verify all expected placeholders are present
+			for (var i = 0; i < placeholdersPresent.Length; i++)
+			{
+				if (!placeholdersPresent[i] && mandatoryMask[i])
+				{
+					return false;
+				}
+			}
+
+			return true;
+		}
+	}
 }

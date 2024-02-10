@@ -81,6 +81,41 @@ public class CurrencyDescriptionPattern : SaveableItem, ICurrencyDescriptionPatt
 			_elements.Remove(item);
 		}
 	}
+
+	public void ReorderElement(ICurrencyDescriptionPatternElement element, int targetIndex)
+	{
+		var list = new List<ICurrencyDescriptionPatternElement>();
+		var i = 0;
+		foreach (var item in _elements)
+		{
+			if (item == element && targetIndex != i)
+			{
+				continue;
+			}
+
+			if (targetIndex == i)
+			{
+				list.Add(element);
+				element.Order = i + 1;
+				i++;
+			}
+
+			list.Add(item);
+			item.Order = i + 1;
+			i++;
+		}
+
+		if (!list.Contains(element))
+		{
+			list.Add(element);
+			element.Order = i + 2;
+		}
+
+		_elements.Clear();
+		_elements.AddRange(list);
+		Changed = true;
+	}
+
 	public override string FrameworkItemType => "CurrencyDescriptionPattern";
 
 	public override string ToString()
@@ -115,7 +150,7 @@ public class CurrencyDescriptionPattern : SaveableItem, ICurrencyDescriptionPatt
 		}
 
 		var elements = new List<string>();
-		foreach (var item in _elements)
+		foreach (var item in _elements.OrderBy(x => x.Order))
 		{
 			if (value / item.TargetDivision.BaseUnitConversionRate >= 1.0M || item == _elements.Last() ||
 			    item.ShowIfZero)

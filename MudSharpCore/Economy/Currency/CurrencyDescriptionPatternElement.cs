@@ -96,7 +96,17 @@ public class CurrencyDescriptionPatternElement : SaveableItem, ICurrencyDescript
 	public ICurrencyDivision TargetDivision { get; private set; }
 
 	public bool ShowIfZero { get; private set; }
-	public int Order { get; private set; }
+	private int _order;
+
+	public int Order
+	{
+		get => _order;
+		set
+		{
+			_order = value;
+			Changed = true;
+		}
+	}
 
 	public string Pattern { get; private set; }
 
@@ -134,10 +144,146 @@ public class CurrencyDescriptionPatternElement : SaveableItem, ICurrencyDescript
 		Changed = false;
 	}
 
+	public const string HelpText = @"You can use the following options with this building command:
+
+";
+
 	/// <inheritdoc />
 	public bool BuildingCommand(ICharacter actor, StringStack command)
 	{
-		throw new NotImplementedException();
+		switch (command.PopForSwitch())
+		{
+			case "order":
+				return BuildingCommandOrder(actor, command);
+			case "zero":
+				return BuildingCommandZero(actor);
+			case "specials":
+			case "specialsoverride":
+			case "override":
+				return BuildingCommandSpecialsOverride(actor);
+			case "plural":
+			case "pluralword":
+				return BuildingCommandPluralWord(actor, command);
+			case "pattern":
+				return BuildingCommandPattern(actor, command);
+			case "last":
+			case "lastpattern":
+			case "alternate":
+			case "alternative":
+			case "alternatepattern":
+			case "alternativepattern":
+				return BuildingCommandAlternativePattern(actor, command);
+		}
+
+		actor.OutputHandler.Send(HelpText.SubstituteANSIColour());
+		return false;
+	}
+
+	private bool BuildingCommandAlternativePattern(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send($"What is the format you want to use for the alternate pattern when this is the last element? Alternately you can specify {"none".ColourCommand()} to have no alternate pattern. Use {"{0}".ColourCommand()} as a token for the numerical value.");
+			return false;
+		}
+
+		if (command.SafeRemainingArgument.EqualTo("none"))
+		{
+			AlternatePattern = string.Empty;
+			Changed = true;
+			actor.OutputHandler.Send("This element will no longer have an alternate pattern when it is the last element.");
+			return true;
+		}
+
+		var pattern = command.SafeRemainingArgument;
+		if (!pattern.IsValidFormatString(new[] { true }))
+		{
+			actor.OutputHandler.Send($"The text {pattern.ColourCommand()} is not a valid format string. Hint: Use {"{0}".ColourCommand()} as a token for the numerical value.");
+			return false;
+		}
+
+		AlternatePattern = pattern;
+		Changed = true;
+		actor.OutputHandler.Send($"You set the alternate final element pattern to {pattern.ColourCommand()}.");
+		return true;
+	}
+
+	private bool BuildingCommandPattern(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send($"What is the format you want to use for the pattern? Use {"{0}".ColourCommand()} as a token for the numerical value.");
+			return false;
+		}
+
+		var pattern = command.SafeRemainingArgument;
+		if (!pattern.IsValidFormatString(new[]{ true}))
+		{
+			actor.OutputHandler.Send($"The text {pattern.ColourCommand()} is not a valid format string. Hint: Use {"{0}".ColourCommand()} as a token for the numerical value.");
+			return false;
+		}
+
+		Pattern = pattern;
+		Changed = true;
+		actor.OutputHandler.Send($"You set the element pattern to {pattern.ColourCommand()}.");
+		return true;
+	}
+
+	private bool BuildingCommandPluralWord(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("Which word in this element is pluralisation done on?");
+			return false;
+		}
+
+		PluraliseWord = command.SafeRemainingArgument.ToLowerInvariant();
+		Changed = true;
+		actor.OutputHandler.Send($"This pattern will now pluralise on the word {PluraliseWord.ColourCommand()}.");
+		return true;
+	}
+
+	private bool BuildingCommandSpecialsOverride(ICharacter actor)
+	{
+		SpecialValuesOverridePattern = !SpecialValuesOverridePattern;
+		Changed = true;
+		actor.OutputHandler.Send($"This pattern will {SpecialValuesOverridePattern.NowNoLonger()} allow special values to override the pattern.");
+		return true;
+	}
+
+	private bool BuildingCommandZero(ICharacter actor)
+	{
+		ShowIfZero = !ShowIfZero;
+		Changed = true;
+		actor.OutputHandler.Send($"This pattern will {ShowIfZero.NowNoLonger()} show if the value is zero for its target division.");
+		return true;
+	}
+
+	private bool BuildingCommandOrder(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("What order should this element be evaluated in?");
+			return false;
+		}
+
+		if (!int.TryParse(command.SafeRemainingArgument, out var value) || value < 1 || value > _parent.Elements.Count())
+		{
+			actor.OutputHandler.Send($"You must enter a valid number between {1.ToString("N0", actor).ColourValue()} and {_parent.Elements.Count().ToString("N0", actor).ColourValue()}.");
+			return false;
+		}
+
+		if (Order == value)
+		{
+			actor.OutputHandler.Send($"This element is already the {value.ToOrdinal().ColourValue()} one evaluated.");
+			return false;
+		}
+
+		_parent.ReorderElement(this, value-1);
+		Changed = true;
+		actor.OutputHandler.Send(
+			$"You reorder this element to be the {value.ToOrdinal().ColourValue()} one evaluated.");
+		return true;
 	}
 
 	/// <inheritdoc />

@@ -24,5 +24,5 @@ public interface ICurrencyDescriptionPattern : IEditableItem, ISaveable
     string NegativeValuePrefix { get; }
     void DivisionDeleted(ICurrencyDivision division);
     void Delete();
-
+    void ReorderElement(ICurrencyDescriptionPatternElement element, int targetIndex);
 }

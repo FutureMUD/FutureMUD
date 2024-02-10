@@ -19,7 +19,7 @@ namespace MudSharp.Economy.Currency {
         string PluraliseWord { get; }
         bool SpecialValuesOverridePattern { get; }
         string AlternatePattern { get; }
-        int Order { get; }
+        int Order { get; set; }
         IReadOnlyDictionary<decimal, string> SpecialValues { get; }
         void Delete();
     }

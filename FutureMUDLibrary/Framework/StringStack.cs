@@ -37,28 +37,37 @@ namespace MudSharp.Framework {
             }
         }
 
+        public string GetSafeRemainingArgument(bool trimSpaces = true)
+        {
+	        var result = new List<char>(RemainingArgument.Length);
+	        var open = false;
+	        for (var i = 0; i < RemainingArgument.Length; i++)
+	        {
+		        if (!open && RemainingArgument[i].In('"', '“'))
+		        {
+			        open = true;
+			        continue;
+		        }
+
+		        if (open && RemainingArgument[i].In('"', '”'))
+		        {
+			        open = false;
+			        continue;
+		        }
+
+		        result.Add(RemainingArgument[i]);
+	        }
+
+	        return 
+		        trimSpaces ? 
+		        new string(result.ToArray()).Trim() : 
+		        new string(result.ToArray());
+        }
+
         public string SafeRemainingArgument {
-            get {
-                var result = new List<char>(RemainingArgument.Length);
-                var open = false;
-                for (var i = 0; i < RemainingArgument.Length; i++)
-                {
-                    if (!open && RemainingArgument[i].In('"', '“'))
-                    {
-                        open = true;
-                        continue;
-                    }
-
-                    if (open && RemainingArgument[i].In('"', '”'))
-                    {
-                        open = false;
-                        continue;
-                    }
-
-                    result.Add(RemainingArgument[i]);
-                }
-
-                return new string(result.ToArray()).Trim();
+            get
+            {
+	            return GetSafeRemainingArgument(true);
             }
         }
 

@@ -7,6 +7,7 @@ using MudSharp.Character;
 using MudSharp.Database;
 using MudSharp.Framework;
 using MudSharp.Framework.Save;
+using MudSharp.FutureProg.Functions.Mathematical;
 using MudSharp.Models;
 
 namespace MudSharp.Economy.Currency;
@@ -33,6 +34,38 @@ public class CurrencyDescriptionPatternElement : SaveableItem, ICurrencyDescript
 		foreach (var item in element.CurrencyDescriptionPatternElementSpecialValues)
 		{
 			_specialValues.Add(item.Value, item.Text);
+		}
+	}
+
+	public CurrencyDescriptionPatternElement(CurrencyDescriptionPattern parentPattern, string pattern,
+		string plural, ICurrencyDivision targetDivision)
+	{
+		Gameworld = parentPattern.Gameworld;
+		_parent = parentPattern;
+		TargetDivision = targetDivision;
+		Pattern = pattern;
+		AlternatePattern = string.Empty;
+		PluraliseWord = plural;
+		Rounding = RoundingMode.Round;
+		SpecialValuesOverridePattern = false;
+		ShowIfZero = false;
+		Order = parentPattern.Elements.Count() + 1;
+		using (new FMDB())
+		{
+			var dbitem = new Models.CurrencyDescriptionPatternElement
+			{
+				Order = Order,
+				ShowIfZero = ShowIfZero,
+				CurrencyDivisionId = TargetDivision.Id,
+				CurrencyDescriptionPatternId = parentPattern.Id,
+				PluraliseWord = PluraliseWord,
+				AlternatePattern = AlternatePattern,
+				RoundingMode = (int)Rounding,
+				SpecialValuesOverrideFormat = SpecialValuesOverridePattern,
+			};
+			FMDB.Context.CurrencyDescriptionPatternElements.Add(dbitem);
+			FMDB.Context.SaveChanges();
+			_id = dbitem.Id;
 		}
 	}
 
@@ -146,7 +179,16 @@ public class CurrencyDescriptionPatternElement : SaveableItem, ICurrencyDescript
 
 	public const string HelpText = @"You can use the following options with this building command:
 
-";
+	#3zero#0 - toggles showing this element if it is zero
+	#3specials#0 - toggles special values totally overriding the pattern instead of just the value part
+	#3order <##>#0 - changes the order this element appears in the list of its pattern
+	#3pattern <pattern>#0 - sets the pattern for the element. Use #3{0}#0 for the numerical value.
+	#3last <pattern>#0 - sets an alternate pattern if this is the last element in the display. Use #3{0}#0 for the numerical value.
+	#3last none#0 - clears the last alternative pattern
+	#3plural <word>#0 - sets the word in the pattern that should be used for pluralisation
+	#3rounding <truncate|round|noround>#0 - changes the rounding mode for this element
+	#3addspecial <value> <text>#0 - adds or sets a special value
+	#3remspecial <value>#0 - removes a special value";
 
 	/// <inheritdoc />
 	public bool BuildingCommand(ICharacter actor, StringStack command)
@@ -173,10 +215,92 @@ public class CurrencyDescriptionPatternElement : SaveableItem, ICurrencyDescript
 			case "alternatepattern":
 			case "alternativepattern":
 				return BuildingCommandAlternativePattern(actor, command);
+			case "round":
+			case "rounding":
+				return BuildingCommandRounding(actor, command);
+			case "addspecial":
+				return BuildingCommandAddSpecial(actor, command);
+			case "removespecial":
+			case "remspecial":
+				return BuildingCommandRemoveSpecial(actor, command);
 		}
 
 		actor.OutputHandler.Send(HelpText.SubstituteANSIColour());
 		return false;
+	}
+
+	private bool BuildingCommandAddSpecial(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished || !decimal.TryParse(command.PopSpeech(), out var value))
+		{
+			actor.OutputHandler.Send("You must enter a valid number value for the special value.");
+			return false;
+		}
+
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("You must specify a text override for the special value.");
+			return false;
+		}
+
+		_specialValues[value] = command.GetSafeRemainingArgument(false);
+		Changed = true;
+		actor.OutputHandler.Send($"The value {value.ToString("N3", actor).ColourValue()} will now be replaced with the text {_specialValues[value].ColourCommand()}.");
+		return true;
+	}
+
+	private bool BuildingCommandRemoveSpecial(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished || !decimal.TryParse(command.PopSpeech(), out var value))
+		{
+			actor.OutputHandler.Send("You must enter a valid number value for the special value.");
+			return false;
+		}
+
+		if (!_specialValues.ContainsKey(value))
+		{
+			actor.OutputHandler.Send("There is no such special value to remove.");
+			return false;
+		}
+
+		_specialValues.Remove(value);
+		Changed = true;
+		actor.OutputHandler.Send($"You delete the special value associated with the {value.ToString("N3", actor).ColourValue()} value.");
+		return true;
+	}
+
+	private bool BuildingCommandRounding(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send($"Which rounding type do you want to use? The valid options are {Enum.GetValues<RoundingMode>().Select(x => x.DescribeEnum().ColourName()).ListToString()}.");
+			return false;
+		}
+
+		if (!Enum.TryParse<RoundingMode>(command.SafeRemainingArgument, out var value))
+		{
+			actor.OutputHandler.Send($"That is not a valid rounding mode. The valid options are {Enum.GetValues<RoundingMode>().Select(x => x.DescribeEnum().ColourName()).ListToString()}.");
+			return false;
+		}
+
+		Rounding = value;
+		Changed = true;
+		switch (value)
+		{
+			case RoundingMode.Truncate:
+				actor.OutputHandler.Send("Currency values for this element will now truncate (i.e. drop decimals and just show integer values).");
+				break;
+			case RoundingMode.Round:
+				actor.OutputHandler.Send("Currency values for this element will now be rounded using normal rounding rules (<0.5 down, >=0.5 up etc).");
+				break;
+			case RoundingMode.NoRounding:
+				actor.OutputHandler.Send("Currency values for this element will no longer be rounded, and will show as decimals.");
+				break;
+			default:
+				throw new ArgumentOutOfRangeException();
+		}
+
+		return true;
 	}
 
 	private bool BuildingCommandAlternativePattern(ICharacter actor, StringStack command)

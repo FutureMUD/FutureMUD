@@ -359,16 +359,29 @@ The syntax for editing currencies is as follows:
 	#3currency set division <id|name> ignorecase#0 - toggles ignoring case in the regular expression patterns for the division
 	#3currency set division <id|name> addabbr <regex>#0 - adds a regular expression pattern for this division
 	#3currency set division <id|name> remabbr <##>#0 - removes a particular pattern abbreviation for this division
-	#3currency set division <id|name> abbr <##> <regex>#0 - overwrites the regular expression pattern at the specified index for this division";
+	#3currency set division <id|name> abbr <##> <regex>#0 - overwrites the regular expression pattern at the specified index for this division
+	#3currency set addpattern <type>#0 - adds a new pattern of the specified type
+	#3currency set removepattern <id>#0 - removes a pattern
+	#3currency set pattern <id|name> order <##>#0 - changes the order in which this pattern is evaluated for applicability
+	#3currency set pattern <id|name> prog <which>#0 - sets the prog that controls applicability for this pattern
+	#3currency set pattern <id|name> negative <prefix>#0 - sets a prefix applied to negative values for this pattern (e.g. #2-#0 or #2negative #0.) Be sure to include spaces if necessary
+	#3currency set pattern <id|name> natural#0 - toggles natural aggregation style for pattern elements (commas plus ""and"") rather than just concatenation
+	#3currency set pattern <id|name> addelement <division> <plural> <pattern>#0 - adds a new pattern element
+	#3currency set pattern <id|name> remelement <id|##>#0 - deletes an element.
+	#3currency set pattern <id|name> element <id|##order> zero#0 - toggles showing this element if it is zero
+	#3currency set pattern <id|name> element <id|##order> specials#0 - toggles special values totally overriding the pattern instead of just the value part
+	#3currency set pattern <id|name> element <id|##order> order <##>#0 - changes the order this element appears in the list of its pattern
+	#3currency set pattern <id|name> element <id|##order> pattern <pattern>#0 - sets the pattern for the element. Use #3{0}#0 for the numerical value.
+	#3currency set pattern <id|name> element <id|##order> last <pattern>#0 - sets an alternate pattern if this is the last element in the display. Use #3{0}#0 for the numerical value.
+	#3currency set pattern <id|name> element <id|##order> last none#0 - clears the last alternative pattern
+	#3currency set pattern <id|name> element <id|##order> plural <word>#0 - sets the word in the pattern that should be used for pluralisation
+	#3currency set pattern <id|name> element <id|##order> rounding <truncate|round|noround>#0 - changes the rounding mode for this element
+	#3currency set pattern <id|name> element <id|##order> addspecial <value> <text>#0 - adds or sets a special value
+	#3currency set pattern <id|name> element <id|##order> remspecial <value>#0 - removes a special value";
 
 	[PlayerCommand("Currency", "currency")]
 	[CommandPermission(PermissionLevel.Admin)]
-	[HelpInfo("currency",
-		@"You can use this command to set the currency that you use in economic transactions (such as shops and banks), as well as currency versions of inventory commands (get, give, etc). 
-
-The syntax is as follows:
-
-	currency set <currency> - adopts a currency", AutoHelp.HelpArgOrNoArg)]
+	[HelpInfo("currency", CurrencyHelp, AutoHelp.HelpArgOrNoArg)]
 	protected static void Currency(ICharacter character, string command)
 	{
 		var ss = new StringStack(command.RemoveFirstWord());

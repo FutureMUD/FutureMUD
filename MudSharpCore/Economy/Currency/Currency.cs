@@ -497,7 +497,25 @@ public class Currency : SaveableItem, ICurrency
 	#3division <id|name> ignorecase#0 - toggles ignoring case in the regular expression patterns for the division
 	#3division <id|name> addabbr <regex>#0 - adds a regular expression pattern for this division
 	#3division <id|name> remabbr <##>#0 - removes a particular pattern abbreviation for this division
-	#3division <id|name> abbr <##> <regex>#0 - overwrites the regular expression pattern at the specified index for this division";
+	#3division <id|name> abbr <##> <regex>#0 - overwrites the regular expression pattern at the specified index for this division
+	#3addpattern <type>#0 - adds a new pattern of the specified type
+	#3removepattern <id>#0 - removes a pattern
+	#3pattern <id> order <##>#0 - changes the order in which this pattern is evaluated for applicability
+	#3pattern <id> prog <which>#0 - sets the prog that controls applicability for this pattern
+	#3pattern <id> negative <prefix>#0 - sets a prefix applied to negative values for this pattern (e.g. #2-#0 or #2negative #0.) Be sure to include spaces if necessary
+	#3pattern <id> natural#0 - toggles natural aggregation style for pattern elements (commas plus ""and"") rather than just concatenation
+	#3pattern <id> addelement <division> <plural> <pattern>#0 - adds a new pattern element
+	#3pattern <id> remelement <id|##>#0 - deletes an element.
+	#3pattern <id> element <id|##order> zero#0 - toggles showing this element if it is zero
+	#3pattern <id> element <id|##order> specials#0 - toggles special values totally overriding the pattern instead of just the value part
+	#3pattern <id> element <id|##order> order <##>#0 - changes the order this element appears in the list of its pattern
+	#3pattern <id> element <id|##order> pattern <pattern>#0 - sets the pattern for the element. Use #3{0}#0 for the numerical value.
+	#3pattern <id> element <id|##order> last <pattern>#0 - sets an alternate pattern if this is the last element in the display. Use #3{0}#0 for the numerical value.
+	#3pattern <id> element <id|##order> last none#0 - clears the last alternative pattern
+	#3pattern <id> element <id|##order> plural <word>#0 - sets the word in the pattern that should be used for pluralisation
+	#3pattern <id> element <id|##order> rounding <truncate|round|noround>#0 - changes the rounding mode for this element
+	#3pattern <id> element <id|##order> addspecial <value> <text>#0 - adds or sets a special value
+	#3pattern <id> element <id|##order> remspecial <value>#0 - removes a special value";
 
 	public bool BuildingCommand(ICharacter actor, StringStack command)
 	{
@@ -518,10 +536,103 @@ public class Currency : SaveableItem, ICurrency
 			case "division":
 			case "div":
 				return BuildingCommandDivision(actor, command);
+			case "pattern":
+				return BuildingCommandPattern(actor, command);
+			case "addpattern":
+				return BuildingCommandAddPattern(actor, command);
+			case "removepattern":
+				return BuildingCommandRemovePattern(actor, command);
 		}
 
 		actor.OutputHandler.Send(HelpText.SubstituteANSIColour());
 		return false;
+	}
+
+	private bool BuildingCommandRemovePattern(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("Which pattern do you want to remove?");
+			return false;
+		}
+
+		var pattern = PatternDictionary.Values.SelectMany(x => x).GetById(command.SafeRemainingArgument);
+		if (pattern is null)
+		{
+			actor.OutputHandler.Send("There is no such pattern.");
+			return false;
+		}
+
+		actor.OutputHandler.Send($"Are you sure you want to delete the currency description pattern with ID #{pattern.Id.ToString("N0", actor)}? This action is irreversible.\n{Accept.StandardAcceptPhrasing}");
+		actor.AddEffect(new Accept(actor, new GenericProposal
+		{
+			DescriptionString = "deleting a currency description pattern",
+			AcceptAction = text =>
+			{
+				if (PatternDictionary[pattern.Type].Count <= 1)
+				{
+					actor.OutputHandler.Send("You cannot delete the last pattern for a type.");
+					return;
+				}
+
+				actor.OutputHandler.Send("You delete the pattern.");
+				pattern.Delete();
+				PatternDictionary.Remove(pattern.Type, pattern);
+			},
+			RejectAction = text =>
+			{
+				actor.OutputHandler.Send("You decide not to delete the pattern.");
+			},
+			ExpireAction = () =>
+			{
+				actor.OutputHandler.Send("You decide not to delete the pattern.");
+			},
+			Keywords = new List<string>
+			{
+				"delete",
+				"pattern"
+			}
+		}), TimeSpan.FromSeconds(120));
+		return true;
+	}
+
+	private bool BuildingCommandAddPattern(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send($"Which type do you want to make a new pattern for? The valid types are {Enum.GetValues<CurrencyDescriptionPatternType>().Select(x => x.DescribeEnum().ColourName()).ListToString()}.");
+			return false;
+		}
+
+		if (!command.SafeRemainingArgument.TryParseEnum(out CurrencyDescriptionPatternType type))
+		{
+			actor.OutputHandler.Send($"That is not a valid type. The valid types are {Enum.GetValues<CurrencyDescriptionPatternType>().Select(x => x.DescribeEnum().ColourName()).ListToString()}.");
+			return false;
+
+		}
+
+		var pattern = new CurrencyDescriptionPattern(this, type);
+		PatternDictionary[type].Add(pattern);
+		actor.OutputHandler.Send($"You create a new pattern for the {type.DescribeEnum()} type.");
+		return true;
+	}
+
+	private bool BuildingCommandPattern(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("Which currency pattern do you want to edit?");
+			return false;
+		}
+
+		var pattern = PatternDictionary.Values.SelectMany(x => x).GetById(command.PopSpeech());
+		if (pattern is null)
+		{
+			actor.OutputHandler.Send("There is no such currency pattern.");
+			return false;
+		}
+
+		return pattern.BuildingCommand(actor, command);
 	}
 
 	private bool BuildingCommandRemoveDivision(ICharacter actor, StringStack command)

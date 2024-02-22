@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using MudSharp.Character;
 using MudSharp.Database;
+using MudSharp.Effects.Concrete;
 using MudSharp.Framework;
 using MudSharp.Framework.Save;
 using MudSharp.FutureProg;
@@ -39,6 +40,68 @@ public class CurrencyDescriptionPattern : SaveableItem, ICurrencyDescriptionPatt
 		foreach (var item in pattern.CurrencyDescriptionPatternElements.OrderBy(x => x.Order))
 		{
 			_elements.Add(new CurrencyDescriptionPatternElement(item, this, parent));
+		}
+	}
+
+	public CurrencyDescriptionPattern(ICurrency parent, CurrencyDescriptionPatternType type)
+	{
+		Gameworld = parent.Gameworld;
+		Currency = parent;
+		Type = type;
+		UseNaturalAggregationStyle = false;
+		ApplicabilityProg = Gameworld.AlwaysTrueProg;
+		switch (type)
+		{
+
+			case CurrencyDescriptionPatternType.Short:
+			case CurrencyDescriptionPatternType.ShortDecimal:
+				NegativeValuePrefix = "-";
+				break;
+			case CurrencyDescriptionPatternType.Casual:
+			case CurrencyDescriptionPatternType.Long:
+			case CurrencyDescriptionPatternType.Wordy:
+				NegativeValuePrefix = "negative ";
+				break;
+			default:
+				throw new ArgumentOutOfRangeException(nameof(type), type, null);
+		}
+
+		using (new FMDB())
+		{
+			var dbitem = new Models.CurrencyDescriptionPattern
+			{ 
+				Type = (int)Type,
+				CurrencyId = Currency.Id,
+				FutureProgId = ApplicabilityProg.Id,
+				NegativePrefix = NegativeValuePrefix,
+				Order = parent.PatternDictionary[type].Count + 1,
+				UseNaturalAggregationStyle = UseNaturalAggregationStyle,
+			};
+			FMDB.Context.CurrencyDescriptionPatterns.Add(dbitem);
+			FMDB.Context.SaveChanges();
+			_id = dbitem.Id;
+		}
+
+		switch (type)
+		{
+
+			case CurrencyDescriptionPatternType.Short:
+			case CurrencyDescriptionPatternType.ShortDecimal:
+				foreach (var division in parent.CurrencyDivisions)
+				{
+					_elements.Add(new CurrencyDescriptionPatternElement(this, $"{{0}}{division.Name[0]}", "", division));
+				}
+				break;
+			case CurrencyDescriptionPatternType.Casual:
+			case CurrencyDescriptionPatternType.Long:
+			case CurrencyDescriptionPatternType.Wordy:
+				foreach (var division in parent.CurrencyDivisions)
+				{
+					_elements.Add(new CurrencyDescriptionPatternElement(this, $"{{0}} {division.Name}", division.Name, division));
+				}
+				break;
+			default:
+				throw new ArgumentOutOfRangeException(nameof(type), type, null);
 		}
 	}
 
@@ -181,7 +244,24 @@ public class CurrencyDescriptionPattern : SaveableItem, ICurrencyDescriptionPatt
 		return outList.ToString().NormaliseSpacing(true).Trim();
 	}
 
-	public const string HelpText = @"";
+	public const string HelpText = @"You can use the following options with this command:
+
+	#3order <##>#0 - changes the order in which this pattern is evaluated for applicability
+	#3prog <which>#0 - sets the prog that controls applicability for this pattern
+	#3negative <prefix>#0 - sets a prefix applied to negative values for this pattern (e.g. #2-#0 or #2negative #0.) Be sure to include spaces if necessary
+	#3natural#0 - toggles natural aggregation style for pattern elements (commas plus ""and"") rather than just concatenation
+	#3addelement <division> <plural> <pattern>#0 - adds a new pattern element
+	#3remelement <id|##>#0 - deletes an element.
+	#3element <id|##order> zero#0 - toggles showing this element if it is zero
+	#3element <id|##order> specials#0 - toggles special values totally overriding the pattern instead of just the value part
+	#3element <id|##order> order <##>#0 - changes the order this element appears in the list of its pattern
+	#3element <id|##order> pattern <pattern>#0 - sets the pattern for the element. Use #3{0}#0 for the numerical value.
+	#3element <id|##order> last <pattern>#0 - sets an alternate pattern if this is the last element in the display. Use #3{0}#0 for the numerical value.
+	#3element <id|##order> last none#0 - clears the last alternative pattern
+	#3element <id|##order> plural <word>#0 - sets the word in the pattern that should be used for pluralisation
+	#3element <id|##order> rounding <truncate|round|noround>#0 - changes the rounding mode for this element
+	#3element <id|##order> addspecial <value> <text>#0 - adds or sets a special value
+	#3element <id|##order> remspecial <value>#0 - removes a special value";
 
 	public bool BuildingCommand(ICharacter actor, StringStack command)
 	{
@@ -225,17 +305,102 @@ public class CurrencyDescriptionPattern : SaveableItem, ICurrencyDescriptionPatt
 			return false;
 		}
 
-		return element.BuildingCommand(actor, command);
+		if (_elements.Count(x => x.TargetDivision == element.TargetDivision) <= 1)
+		{
+			actor.OutputHandler.Send("You cannot delete the last pattern for a currency division.");
+			return false;
+		}
+
+		actor.OutputHandler.Send($"Are you sure you want to delete the currency description pattern element #{element.Id.ToString("N0", actor)} ({element.Pattern.ColourCommand()}). This action cannot be undone.\n{Accept.StandardAcceptPhrasing}");
+		actor.AddEffect(new Accept(actor, new GenericProposal
+		{
+			DescriptionString = $"Deleting currency description pattern element {element.Id.ToString("N0", actor)}",
+			AcceptAction = text =>
+			{
+				if (_elements.Count(x => x.TargetDivision == element.TargetDivision) <= 1)
+				{
+					actor.OutputHandler.Send("You cannot delete the last pattern for a currency division.");
+					return;
+				}
+
+				actor.OutputHandler.Send($"You delete the currency description pattern element #{element.Id.ToString("N0", actor).ColourValue()}.");
+				_elements.Remove(element);
+				element.Delete();
+			},
+			RejectAction = text =>
+			{
+				actor.OutputHandler.Send("You decide not to delete the currency description pattern.");
+			},
+			ExpireAction = () =>
+			{
+				actor.OutputHandler.Send("You decide not to delete the currency description pattern.");
+			},
+			Keywords = new List<string>
+			{
+				"element",
+				"delete"
+			}
+		}), TimeSpan.FromSeconds(120));
+		return true;
 	}
 
 	private bool BuildingCommandElement(ICharacter actor, StringStack command)
 	{
-		throw new NotImplementedException();
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("Which element do you want to edit?");
+			return false;
+		}
+
+		var element = Elements.GetByIdOrOrder(command.PopSpeech());
+		if (element is null)
+		{
+			actor.OutputHandler.Send("This pattern has no such element.");
+			return false;
+		}
+
+		return element.BuildingCommand(actor, command);
 	}
 
 	private bool BuildingCommandAddElement(ICharacter actor, StringStack command)
 	{
-		throw new NotImplementedException();
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("Which currency division should this new element target?");
+			return false;
+		}
+
+		var division = Currency.CurrencyDivisions.GetByIdOrName(command.PopSpeech());
+		if (division is null)
+		{
+			actor.OutputHandler.Send($"The {Currency.Name.ColourName()} currency does not have any such currency division.");
+			return false;
+		}
+
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("What word should be used to pluralise in the pattern?");
+			return false;
+		}
+
+		var plural = command.PopSpeech().ToLowerInvariant();
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("What should be the pattern text for this currency description pattern element?");
+			return false;
+		}
+
+		var pattern = command.SafeRemainingArgument;
+		if (!pattern.IsValidFormatString(new[] { true }))
+		{
+			actor.OutputHandler.Send($"The text {pattern.ColourCommand()} is not a valid format string. Hint: Use {"{0}".ColourCommand()} as a token for the numerical value.");
+			return false;
+		}
+
+		var element = new CurrencyDescriptionPatternElement(this, pattern, plural, division);
+		_elements.Add(element);
+		actor.OutputHandler.Send($"You create a new currency description pattern element with ID #{element.Id.ToString("N0", actor)} and pattern {pattern.ColourCommand()}.");
+		return true;
 	}
 
 	private bool BuildingCommandApplicabilityProg(ICharacter actor, StringStack command)
@@ -270,7 +435,7 @@ public class CurrencyDescriptionPattern : SaveableItem, ICurrencyDescriptionPatt
 			return false;
 		}
 
-		NegativeValuePrefix = command.SafeRemainingArgument;
+		NegativeValuePrefix = command.GetSafeRemainingArgument(false);
 		actor.OutputHandler.Send($"The text \"{NegativeValuePrefix.ColourValue()}\" will now be prefixed to any negative values.");
 		Changed = true;
 		return true;

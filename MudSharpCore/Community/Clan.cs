@@ -409,7 +409,7 @@ public class Clan : SaveableItem, IClan
 #if DEBUG
 		var sw = new Stopwatch();
 		sw.Start();
-		Console.WriteLine($"...Clan {FullName}...Loading paygrades [{sw.ElapsedMilliseconds}ms]");
+		ConsoleUtilities.WriteLine($"...Clan #6{FullName}#0...Loading #5paygrades#0 [#2{sw.ElapsedMilliseconds}ms#0]");
 #endif
 		foreach (var item in clan.Paygrades)
 		{
@@ -417,7 +417,7 @@ public class Clan : SaveableItem, IClan
 		}
 
 #if DEBUG
-		Console.WriteLine($"...Clan {FullName}...Loading ranks [{sw.ElapsedMilliseconds}ms]");
+		ConsoleUtilities.WriteLine($"...Clan #6{FullName}#0...Loading ranks [#2{sw.ElapsedMilliseconds}ms#0]");
 #endif
 		var rankNumber = 0;
 		foreach (var item in clan.Ranks.OrderBy(x => x.RankNumber))
@@ -426,7 +426,7 @@ public class Clan : SaveableItem, IClan
 		}
 
 #if DEBUG
-		Console.WriteLine($"...Clan {FullName}...Loading appointments [{sw.ElapsedMilliseconds}ms]");
+		ConsoleUtilities.WriteLine($"...Clan #6{FullName}#0...Loading appointments [#2{sw.ElapsedMilliseconds}ms#0]");
 #endif
 		var staging = new Dictionary<IAppointment, MudSharp.Models.Appointment>();
 		foreach (var item in clan.Appointments)
@@ -437,7 +437,7 @@ public class Clan : SaveableItem, IClan
 		}
 
 #if DEBUG
-		Console.WriteLine($"...Clan {FullName}...Finalising appointments [{sw.ElapsedMilliseconds}ms]");
+		ConsoleUtilities.WriteLine($"...Clan #6{FullName}#0...Finalising appointments [#2{sw.ElapsedMilliseconds}ms#0]");
 #endif
 		foreach (var item in staging)
 		{
@@ -445,7 +445,7 @@ public class Clan : SaveableItem, IClan
 		}
 
 #if DEBUG
-		Console.WriteLine($"...Clan {FullName}...Loading memberships [{sw.ElapsedMilliseconds}ms]");
+		ConsoleUtilities.WriteLine($"...Clan #6{FullName}#0...Loading memberships [#2{sw.ElapsedMilliseconds}ms#0]");
 #endif
 		foreach (var item in memberships.Where(x => x.ClanId == Id))
 		{
@@ -453,7 +453,7 @@ public class Clan : SaveableItem, IClan
 		}
 
 #if DEBUG
-		Console.WriteLine($"...Clan {FullName}...Loading elections [{sw.ElapsedMilliseconds}ms]");
+		ConsoleUtilities.WriteLine($"...Clan #6{FullName}#0...Loading elections [#2{sw.ElapsedMilliseconds}ms#0]");
 #endif
 		if (!IsTemplate)
 		{
@@ -466,7 +466,7 @@ public class Clan : SaveableItem, IClan
 		}
 
 #if DEBUG
-		Console.WriteLine($"...Clan {FullName}...Setting up listener [{sw.ElapsedMilliseconds}ms]");
+		ConsoleUtilities.WriteLine($"...Clan #6{FullName}#0...Setting up listener [#2{sw.ElapsedMilliseconds}ms#0]");
 #endif
 		_paydayListener = CreatePaydayListener();
 	}

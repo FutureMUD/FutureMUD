@@ -149,18 +149,18 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 		var sw = new Stopwatch();
 		sw.Start();
 		GameStatistics = new GameStatistics(this) { LastBootTime = DateTime.UtcNow };
-		Console.WriteLine("Booting Futuremud Server...\n");
+		ConsoleUtilities.WriteLine("#DBooting Futuremud Server...#0\n");
 
-		Console.WriteLine("========================================");
-		Console.WriteLine("Constructing FutureMud...");
+		ConsoleUtilities.WriteLine("#C========================================#0");
+		ConsoleUtilities.WriteLine("#5Constructing FutureMUD...#0");
 
-		Console.WriteLine("Initialising Non-Database Statics.");
+		ConsoleUtilities.WriteLine("#EInitialising Non-Database Statics.#0");
 		PositionState.SetupPositions();
 		FutureProg.FutureProg.Initialise();
 
 		var game = (IFuturemudLoader)this;
 
-		Console.WriteLine("Ensuring that Database migrations are applied...");
+		ConsoleUtilities.WriteLine("#EEnsuring that Database migrations are applied...#0");
 		using (var context = new FuturemudDatabaseContext(new DbContextOptionsBuilder<FuturemudDatabaseContext>()
 		                                                  .UseMySql(FMDB.ConnectionString,
 			                                                  ServerVersion.AutoDetect(FMDB.ConnectionString)).Options))
@@ -172,7 +172,7 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 			{
 				Console.Write($"...Applying migration {i++} of {migrations.Count}: ");
 				Console.ForegroundColor = ConsoleColor.Cyan;
-				Console.WriteLine(migration);
+				ConsoleUtilities.WriteLine(migration);
 				Console.ForegroundColor = ConsoleColor.White;
 				try
 				{
@@ -186,21 +186,21 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 			}
 		}
 
-		Console.WriteLine("Database is up to date.");
+		ConsoleUtilities.WriteLine("#ADatabase is up to date.#0");
 
-		Console.WriteLine("Connecting to Database...");
+		ConsoleUtilities.WriteLine("#EConnecting to Database...#0");
 
 		using (new FMDB())
 		{
 #if DEBUG
 			var sqlwriter = new StreamWriter("SqlDebugLog.txt");
 #endif
-			Console.WriteLine("Database connection opened.");
+			ConsoleUtilities.WriteLine("#ADatabase connection opened.#0");
 
-			Console.WriteLine("Setting up Email Server...");
-			Console.WriteLine(EmailHelper.SetupEmailClient()
-				? "Email Server successfully setup."
-				: "Warning! Email Server did not successfully setup!");
+			ConsoleUtilities.WriteLine("#ESetting up Email Server...#0");
+			ConsoleUtilities.WriteLine(EmailHelper.SetupEmailClient()
+				? "#AEmail Server successfully setup.#0"
+				: "#9Warning! Email Server did not successfully setup!#0");
 
 			game.LoadStaticValues(); // Definitely call this before all other Loader methods as it caches values that many of them look up later.
 			LogManager = new LogManager(this); // Should go as early as possible after LoadStaticValues
@@ -334,18 +334,18 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 			SaveManager.MudBootingMode = false;
 
 			// Cells need to do a few things that have to happen outside the boot order. Todo - use reflection to solve problems like this
-			Console.WriteLine("Finalising Cells...");
+			ConsoleUtilities.WriteLine("#EFinalising Cells...#0");
 			var cells = FMDB.Context.Cells.Include(x => x.CellsForagableYields).ToList();
 			foreach (var cell in _cells)
 			{
 				cell.PostLoadTasks(cells.FirstOrDefault(x => x.Id == cell.Id));
 			}
 
-			Console.WriteLine("Done Finalising Cells.");
-			Console.WriteLine("Loading Statistics...");
+			ConsoleUtilities.WriteLine("#ADone Finalising Cells.#0");
+			ConsoleUtilities.WriteLine("#ELoading Statistics...#0");
 			GameStatistics.LoadStatistics(game);
-			Console.WriteLine("Done Loading Statistics.");
-			Console.WriteLine("Loading Maintenance Mode...");
+			ConsoleUtilities.WriteLine("#ADone Loading Statistics.#0");
+			ConsoleUtilities.WriteLine("#ELoading Maintenance Mode...#0");
 			var maintenanceSetting = FMDB.Context.StaticConfigurations.Find("MaintenanceMode");
 			if (maintenanceSetting == null || !maintenanceSetting.Definition.IsInteger())
 			{
@@ -356,11 +356,11 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 				_maintenanceMode = (MaintenanceModeSetting)int.Parse(maintenanceSetting.Definition);
 			}
 
-			Console.WriteLine("Done Loading Maintenance Mode.");
+			ConsoleUtilities.WriteLine("#ADone Loading Maintenance Mode.#0");
 
-			Console.WriteLine("Loading Combat Messages...");
+			ConsoleUtilities.WriteLine("#ELoading Combat Messages...#0");
 			CombatMessageManager = new CombatMessageManager(this);
-			Console.WriteLine("Done Loading Combat Messages.");
+			ConsoleUtilities.WriteLine("#ADone Loading Combat Messages.#0");
 			// Setup Combat - todo - where should this live?
 			var pType = typeof(ICombat);
 			foreach (
@@ -377,10 +377,10 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 #endif
 		}
 
-		Console.WriteLine("\nDatabase connection closed.");
-		Console.WriteLine("FutureMud constructed.");
-		Console.WriteLine("========================================");
-		Console.WriteLine("\nScheduling core system tasks...");
+		ConsoleUtilities.WriteLine("\n#BDatabase connection closed.#0");
+		ConsoleUtilities.WriteLine("#AFutureMUD constructed.#0");
+		ConsoleUtilities.WriteLine("#C========================================#0");
+		ConsoleUtilities.WriteLine("\n#EScheduling core system tasks...#0");
 		ClockManager.Initialise();
 		// Scheduler.AddSchedule(new RepeatingSchedule<Game>(this, this, fm => fm.SaveManager.Flush(), ScheduleType.System, new TimeSpan(0, 0, 10), "Main Save Loop"));
 		//Scheduler.AddSchedule(new RepeatingSchedule<Game>(this, this, fm => new Monitoring.DuplicationMonitor(this).AuditCharacters(), ScheduleType.System, TimeSpan.FromHours(1)));
@@ -422,30 +422,30 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 			CheckNewPlayerHints();
 		}, ScheduleType.System, TimeSpan.FromMinutes(1), "Check New Player Hints"));
 		sw.Stop();
-		Console.WriteLine("Total Boot Time: " + TimeSpan.FromMilliseconds(sw.ElapsedMilliseconds).ToString());
+		ConsoleUtilities.WriteLine($"Total Boot Time: #2{TimeSpan.FromMilliseconds(sw.ElapsedMilliseconds)}#0");
 		foreach (var npc in NPCs)
 		{
 			npc.HandleEvent(Events.EventType.NPCOnGameLoadFinished, npc);
 		}
 
 		GameStatistics.LastStartupSpan = TimeSpan.FromMilliseconds(sw.ElapsedMilliseconds);
-		Console.WriteLine("\nAttempting to connect to Discord Server...");
+		ConsoleUtilities.WriteLine("\n#EAttempting to connect to Discord Server...#0");
 		DiscordConnection = new DiscordConnection(this);
 		if (DiscordConnection.OpenTcpConnection())
 		{
-			Console.WriteLine("Successfully connected to the Discord Server.");
+			ConsoleUtilities.WriteLine("#ASuccessfully connected to the Discord Server.#0");
 		}
 		else
 		{
-			Console.WriteLine("Was unable to connect to the Discord Server.");
+			ConsoleUtilities.WriteLine("#9Was unable to connect to the Discord Server.#0");
 		}
 
-		Console.WriteLine("\nAttempting to create listening server thread...");
+		ConsoleUtilities.WriteLine("\n#ECreating listening server thread...#0");
 	}
 
 	void IFuturemudLoader.LoadNewPlayerHints()
 	{
-		Console.WriteLine("\nLoading New Player Hints...");
+		ConsoleUtilities.WriteLine("\nLoading #5New Player Hints#0...");
 #if DEBUG
 		var sw = new Stopwatch();
 		sw.Start();
@@ -461,16 +461,16 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 
 #if DEBUG
 		sw.Stop();
-		Console.WriteLine($"Duration: {sw.ElapsedMilliseconds}ms");
+		ConsoleUtilities.WriteLine($"Duration: #2{sw.ElapsedMilliseconds}ms#0");
 #endif
 		var count = _newPlayerHints.Count;
-		Console.WriteLine("Loaded {0:N0} {1}.", count, count == 1 ? "Hint" : "Hints");
+		ConsoleUtilities.WriteLine("Loaded #2{0:N0}#0 {1}.", count, count == 1 ? "Hint" : "Hints");
 
 	}
 
 	void IFuturemudLoader.LoadLegal()
 	{
-		Console.WriteLine("\nLoading Legal System...");
+		ConsoleUtilities.WriteLine("\nLoading #5Legal System#0...");
 #if DEBUG
 		var sw = new Stopwatch();
 		sw.Start();
@@ -506,10 +506,10 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 		}
 #if DEBUG
 		sw.Stop();
-		Console.WriteLine($"Duration: {sw.ElapsedMilliseconds}ms");
+		ConsoleUtilities.WriteLine($"Duration: #2{sw.ElapsedMilliseconds}ms#0");
 #endif
 		var count = _legalAuthorities.Count;
-		Console.WriteLine("Loaded {0:N0} {1}.", count, count == 1 ? "Legal Authority" : "Legal Authorities");
+		ConsoleUtilities.WriteLine("Loaded #2{0:N0}#0 {1}.", count, count == 1 ? "Legal Authority" : "Legal Authorities");
 
 #if DEBUG
 		sw.Restart();
@@ -528,15 +528,15 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 
 #if DEBUG
 		sw.Stop();
-		Console.WriteLine($"Duration: {sw.ElapsedMilliseconds}ms");
+		ConsoleUtilities.WriteLine($"Duration: #2{sw.ElapsedMilliseconds}ms#0");
 #endif
 		count = _witnessProfiles.Count;
-		Console.WriteLine("Loaded {0:N0} {1}.", count, count == 1 ? "Witness Profile" : "Witness Profiles");
+		ConsoleUtilities.WriteLine("Loaded #2{0:N0}#0 {1}.", count, count == 1 ? "Witness Profile" : "Witness Profiles");
 	}
 
 	void IFuturemudLoader.LoadGrids()
 	{
-		Console.WriteLine("\nLoading Grids...");
+		ConsoleUtilities.WriteLine("\nLoading #5Grids#0...");
 #if DEBUG
 		var sw = new Stopwatch();
 		sw.Start();
@@ -548,15 +548,15 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 		}
 #if DEBUG
 		sw.Stop();
-		Console.WriteLine($"Duration: {sw.ElapsedMilliseconds}ms");
+		ConsoleUtilities.WriteLine($"Duration: #2{sw.ElapsedMilliseconds}ms#0");
 #endif
 		var count = grids.Count;
-		Console.WriteLine("Loaded {0:N0} {1}.", count, count == 1 ? "Grid" : "Grids");
+		ConsoleUtilities.WriteLine("Loaded #2{0:N0}#0 {1}.", count, count == 1 ? "Grid" : "Grids");
 	}
 
 	void IFuturemudLoader.LoadDisfigurements()
 	{
-		Console.WriteLine("\nLoading Disfigurement Templates...");
+		ConsoleUtilities.WriteLine("\nLoading #5Disfigurement Templates#0...");
 #if DEBUG
 		var sw = new Stopwatch();
 		sw.Start();
@@ -568,16 +568,15 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 		}
 #if DEBUG
 		sw.Stop();
-		Console.WriteLine($"Duration: {sw.ElapsedMilliseconds}ms");
+		ConsoleUtilities.WriteLine($"Duration: #2{sw.ElapsedMilliseconds}ms#0");
 #endif
 		var count = templates.Count;
-		Console.WriteLine("Loaded {0:N0} {1}.", count,
-			count == 1 ? "Disfigurement Template" : "Disfigurement Templates");
+		ConsoleUtilities.WriteLine("Loaded #2{0:N0}#0 {1}.", count, count == 1 ? "Disfigurement Template" : "Disfigurement Templates");
 	}
 
 	void IFuturemudLoader.LoadEconomy()
 	{
-		Console.WriteLine("\nLoading Economic Zones...");
+		ConsoleUtilities.WriteLine("\nLoading #5Economic Zones#0...");
 #if DEBUG
 		var sw = new Stopwatch();
 		sw.Start();
@@ -597,12 +596,12 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 		}
 #if DEBUG
 		sw.Stop();
-		Console.WriteLine($"Duration: {sw.ElapsedMilliseconds}ms");
+		ConsoleUtilities.WriteLine($"Duration: #2{sw.ElapsedMilliseconds}ms#0");
 #endif
 		var count = zones.Count;
-		Console.WriteLine("Loaded {0:N0} {1}.", count, count == 1 ? "Economic Zone" : "Economic Zones");
+		ConsoleUtilities.WriteLine("Loaded #2{0:N0}#0 {1}.", count, count == 1 ? "Economic Zone" : "Economic Zones");
 
-		Console.WriteLine("\nLoading Banks...");
+		ConsoleUtilities.WriteLine("\nLoading #5Banks#0...");
 #if DEBUG
 		sw.Restart();
 #endif
@@ -621,12 +620,12 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 		}
 #if DEBUG
 		sw.Stop();
-		Console.WriteLine($"Duration: {sw.ElapsedMilliseconds}ms");
+		ConsoleUtilities.WriteLine($"Duration: #2{sw.ElapsedMilliseconds}ms#0");
 #endif
 		count = banks.Count;
-		Console.WriteLine("Loaded {0:N0} {1}.", count, count == 1 ? "Bank" : "Banks");
+		ConsoleUtilities.WriteLine("Loaded #2{0:N0}#0 {1}.", count, count == 1 ? "Bank" : "Banks");
 
-		Console.WriteLine("\nLoading Properties...");
+		ConsoleUtilities.WriteLine("\nLoading #5Properties#0...");
 #if DEBUG
 		sw.Restart();
 #endif
@@ -646,12 +645,12 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 		}
 #if DEBUG
 		sw.Stop();
-		Console.WriteLine($"Duration: {sw.ElapsedMilliseconds}ms");
+		ConsoleUtilities.WriteLine($"Duration: #2{sw.ElapsedMilliseconds}ms#0");
 #endif
 		count = properties.Count;
-		Console.WriteLine("Loaded {0:N0} {1}.", count, count == 1 ? "Property" : "Properties");
+		ConsoleUtilities.WriteLine("Loaded #2{0:N0}#0 {1}.", count, count == 1 ? "Property" : "Properties");
 
-		Console.WriteLine("\nLoading Auction Houses...");
+		ConsoleUtilities.WriteLine("\nLoading #5Auction Houses#0...");
 #if DEBUG
 		sw.Restart();
 #endif
@@ -664,12 +663,12 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 		}
 #if DEBUG
 		sw.Stop();
-		Console.WriteLine($"Duration: {sw.ElapsedMilliseconds}ms");
+		ConsoleUtilities.WriteLine($"Duration: #2{sw.ElapsedMilliseconds}ms#0");
 #endif
 		count = auctionhouses.Count;
-		Console.WriteLine("Loaded {0:N0} {1}.", count, count == 1 ? "Auction House" : "Auction Houses");
+		ConsoleUtilities.WriteLine("Loaded #2{0:N0}#0 {1}.", count, count == 1 ? "Auction House" : "Auction Houses");
 
-		Console.WriteLine("\nLoading Shops...");
+		ConsoleUtilities.WriteLine("\nLoading #5Shops#0...");
 #if DEBUG
 		sw.Restart();
 #endif
@@ -688,16 +687,16 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 		}
 #if DEBUG
 		sw.Stop();
-		Console.WriteLine($"Duration: {sw.ElapsedMilliseconds}ms");
+		ConsoleUtilities.WriteLine($"Duration: #2{sw.ElapsedMilliseconds}ms#0");
 #endif
 		count = shops.Count;
-		Console.WriteLine("Loaded {0:N0} {1}.", count, count == 1 ? "Shop" : "Shops");
+		ConsoleUtilities.WriteLine("Loaded #2{0:N0}#0 {1}.", count, count == 1 ? "Shop" : "Shops");
 	}
 
 
 	void IFuturemudLoader.LoadClimate()
 	{
-		Console.WriteLine("\nLoading Seasons...");
+		ConsoleUtilities.WriteLine("\nLoading #5Seasons#0...");
 #if DEBUG
 		var sw = new Stopwatch();
 		sw.Start();
@@ -709,12 +708,12 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 		}
 #if DEBUG
 		sw.Stop();
-		Console.WriteLine($"Duration: {sw.ElapsedMilliseconds}ms");
+		ConsoleUtilities.WriteLine($"Duration: #2{sw.ElapsedMilliseconds}ms#0");
 #endif
 		var count = _seasons.Count;
-		Console.WriteLine("Loaded {0:N0} {1}.", count, count == 1 ? "Season" : "Seasons");
+		ConsoleUtilities.WriteLine("Loaded #2{0:N0}#0 {1}.", count, count == 1 ? "Season" : "Seasons");
 
-		Console.WriteLine("\nLoading Weather Events...");
+		ConsoleUtilities.WriteLine("\nLoading #5Weather Events#0...");
 #if DEBUG
 		sw = new Stopwatch();
 		sw.Start();
@@ -726,12 +725,12 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 		}
 #if DEBUG
 		sw.Stop();
-		Console.WriteLine($"Duration: {sw.ElapsedMilliseconds}ms");
+		ConsoleUtilities.WriteLine($"Duration: #2{sw.ElapsedMilliseconds}ms#0");
 #endif
 		count = _weatherEvents.Count;
-		Console.WriteLine("Loaded {0:N0} {1}.", count, count == 1 ? "Weather Event" : "Weather Events");
+		ConsoleUtilities.WriteLine("Loaded #2{0:N0}#0 {1}.", count, count == 1 ? "Weather Event" : "Weather Events");
 
-		Console.WriteLine("\nLoading Climate Models...");
+		ConsoleUtilities.WriteLine("\nLoading #5Climate Models#0...");
 #if DEBUG
 		sw = new Stopwatch();
 		sw.Start();
@@ -748,12 +747,12 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 		}
 #if DEBUG
 		sw.Stop();
-		Console.WriteLine($"Duration: {sw.ElapsedMilliseconds}ms");
+		ConsoleUtilities.WriteLine($"Duration: #2{sw.ElapsedMilliseconds}ms#0");
 #endif
 		count = _climateModels.Count;
-		Console.WriteLine("Loaded {0:N0} {1}.", count, count == 1 ? "Climate Model" : "Climate Models");
+		ConsoleUtilities.WriteLine("Loaded #2{0:N0}#0 {1}.", count, count == 1 ? "Climate Model" : "Climate Models");
 
-		Console.WriteLine("\nLoading Regional Climates...");
+		ConsoleUtilities.WriteLine("\nLoading #5Regional Climates#0...");
 #if DEBUG
 		sw = new Stopwatch();
 		sw.Start();
@@ -767,12 +766,12 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 		}
 #if DEBUG
 		sw.Stop();
-		Console.WriteLine($"Duration: {sw.ElapsedMilliseconds}ms");
+		ConsoleUtilities.WriteLine($"Duration: #2{sw.ElapsedMilliseconds}ms#0");
 #endif
 		count = regionals.Count;
-		Console.WriteLine("Loaded {0:N0} {1}.", count, count == 1 ? "Regional Climate" : "Regional Climates");
+		ConsoleUtilities.WriteLine("Loaded #2{0:N0}#0 {1}.", count, count == 1 ? "Regional Climate" : "Regional Climates");
 
-		Console.WriteLine("\nLoading Weather Controllers...");
+		ConsoleUtilities.WriteLine("\nLoading #5Weather Controllers#0...");
 #if DEBUG
 		sw = new Stopwatch();
 		sw.Start();
@@ -785,16 +784,16 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 		}
 #if DEBUG
 		sw.Stop();
-		Console.WriteLine($"Duration: {sw.ElapsedMilliseconds}ms");
+		ConsoleUtilities.WriteLine($"Duration: #2{sw.ElapsedMilliseconds}ms#0");
 #endif
 		count = controllers.Count;
-		Console.WriteLine("Loaded {0:N0} {1}.", count, count == 1 ? "Weather Controller" : "Weather Controllers");
+		ConsoleUtilities.WriteLine("Loaded #2{0:N0}#0 {1}.", count, count == 1 ? "Weather Controller" : "Weather Controllers");
 	}
 
 
 	void IFuturemudLoader.LoadMagic()
 	{
-		Console.WriteLine("\nLoading Magic Schools...");
+		ConsoleUtilities.WriteLine("\nLoading #5Magic Schools#0...");
 #if DEBUG
 		var sw = new Stopwatch();
 		sw.Start();
@@ -806,12 +805,12 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 		}
 #if DEBUG
 		sw.Stop();
-		Console.WriteLine($"Duration: {sw.ElapsedMilliseconds}ms");
+		ConsoleUtilities.WriteLine($"Duration: #2{sw.ElapsedMilliseconds}ms#0");
 #endif
 		var count = schools.Count;
-		Console.WriteLine("Loaded {0:N0} {1}.", count, count == 1 ? "School" : "Schools");
+		ConsoleUtilities.WriteLine("Loaded #2{0:N0}#0 {1}.", count, count == 1 ? "School" : "Schools");
 
-		Console.WriteLine("\nLoading Magic Resources...");
+		ConsoleUtilities.WriteLine("\nLoading #5Magic Resources#0...");
 #if DEBUG
 		sw = new Stopwatch();
 		sw.Start();
@@ -823,12 +822,12 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 		}
 #if DEBUG
 		sw.Stop();
-		Console.WriteLine($"Duration: {sw.ElapsedMilliseconds}ms");
+		ConsoleUtilities.WriteLine($"Duration: #2{sw.ElapsedMilliseconds}ms#0");
 #endif
 		count = resources.Count;
-		Console.WriteLine("Loaded {0:N0} {1}.", count, count == 1 ? "Resource" : "Resources");
+		ConsoleUtilities.WriteLine("Loaded #2{0:N0}#0 {1}.", count, count == 1 ? "Resource" : "Resources");
 
-		Console.WriteLine("\nLoading Magic Resource Generators...");
+		ConsoleUtilities.WriteLine("\nLoading #5Magic Resource Generators#0...");
 #if DEBUG
 		sw = new Stopwatch();
 		sw.Start();
@@ -840,12 +839,12 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 		}
 #if DEBUG
 		sw.Stop();
-		Console.WriteLine($"Duration: {sw.ElapsedMilliseconds}ms");
+		ConsoleUtilities.WriteLine($"Duration: #2{sw.ElapsedMilliseconds}ms#0");
 #endif
 		count = generators.Count;
-		Console.WriteLine("Loaded {0:N0} {1}.", count, count == 1 ? "Generator" : "Generators");
+		ConsoleUtilities.WriteLine("Loaded #2{0:N0}#0 {1}.", count, count == 1 ? "Generator" : "Generators");
 
-		Console.WriteLine("\nLoading Magic Powers...");
+		ConsoleUtilities.WriteLine("\nLoading #5Magic Powers#0...");
 #if DEBUG
 		sw = new Stopwatch();
 		sw.Start();
@@ -857,10 +856,12 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 		}
 #if DEBUG
 		sw.Stop();
-		Console.WriteLine($"Duration: {sw.ElapsedMilliseconds}ms");
-#endif
+		ConsoleUtilities.WriteLine($"Duration: #2{sw.ElapsedMilliseconds}ms#0");
 
-		Console.WriteLine("\nLoading Magic Spells...");
+#endif
+		ConsoleUtilities.WriteLine("\nLoaded #2{0:N0}#0 {1}", count, count == 1 ? "Magic Power" : "Magic Powers");
+
+		ConsoleUtilities.WriteLine("\nLoading #5Magic Spells#0...");
 #if DEBUG
 		sw = new Stopwatch();
 		sw.Start();
@@ -872,12 +873,12 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 		}
 #if DEBUG
 		sw.Stop();
-		Console.WriteLine($"Duration: {sw.ElapsedMilliseconds}ms");
+		ConsoleUtilities.WriteLine($"Duration: #2{sw.ElapsedMilliseconds}ms#0");
 #endif
 		count = spells.Count;
-		Console.WriteLine("Loaded {0:N0} {1}.", count, count == 1 ? "Spell" : "Spells");
+		ConsoleUtilities.WriteLine("Loaded #2{0:N0}#0 {1}.", count, count == 1 ? "Spell" : "Spells");
 
-		Console.WriteLine("\nLoading Magic Capabilities...");
+		ConsoleUtilities.WriteLine("\nLoading #5Magic Capabilities#0...");
 #if DEBUG
 		sw = new Stopwatch();
 		sw.Start();
@@ -891,10 +892,10 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 		}
 #if DEBUG
 		sw.Stop();
-		Console.WriteLine($"Duration: {sw.ElapsedMilliseconds}ms");
+		ConsoleUtilities.WriteLine($"Duration: #2{sw.ElapsedMilliseconds}ms#0");
 #endif
 		count = capabilities.Count;
-		Console.WriteLine("Loaded {0:N0} {1}.", count, count == 1 ? "Capability" : "Capabilities");
+		ConsoleUtilities.WriteLine("Loaded #2{0:N0}#0 {1}.", count, count == 1 ? "Capability" : "Capabilities");
 
 
 		foreach (var verb in _magicSchools.Select(x => x.SchoolVerb).Distinct())
@@ -915,7 +916,7 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 
 	void IFuturemudLoader.LoadChargenAdvices()
 	{
-		Console.WriteLine("\nLoading Chargen Advices...");
+		ConsoleUtilities.WriteLine("\nLoading #5Chargen Advices#0...");
 #if DEBUG
 		var sw = new Stopwatch();
 		sw.Start();
@@ -927,15 +928,15 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 		}
 #if DEBUG
 		sw.Stop();
-		Console.WriteLine($"Duration: {sw.ElapsedMilliseconds}ms");
+		ConsoleUtilities.WriteLine($"Duration: #2{sw.ElapsedMilliseconds}ms#0");
 #endif
 		var count = advices.Count;
-		Console.WriteLine("Loaded {0:N0} {1}.", count, count == 1 ? "Advice" : "Advices");
+		ConsoleUtilities.WriteLine("Loaded #2{0:N0}#0 {1}.", count, count == 1 ? "Advice" : "Advices");
 	}
 
 	void IFuturemudLoader.LoadCharacterIntroTemplates()
 	{
-		Console.WriteLine("\nLoading Character Intro Templates...");
+		ConsoleUtilities.WriteLine("\nLoading #5Character Intro Templates#0...");
 #if DEBUG
 		var sw = new Stopwatch();
 		sw.Start();
@@ -948,15 +949,15 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 		}
 #if DEBUG
 		sw.Stop();
-		Console.WriteLine($"Duration: {sw.ElapsedMilliseconds}ms");
+		ConsoleUtilities.WriteLine($"Duration: #2{sw.ElapsedMilliseconds}ms#0");
 #endif
 		var count = templates.Count;
-		Console.WriteLine("Loaded {0:N0} {1}.", count, count == 1 ? "Template" : "Templates");
+		ConsoleUtilities.WriteLine("Loaded #2{0:N0}#0 {1}.", count, count == 1 ? "Template" : "Templates");
 	}
 
 	void IFuturemudLoader.LoadBloodtypes()
 	{
-		Console.WriteLine("\nLoading Bloodtype Antigens...");
+		ConsoleUtilities.WriteLine("\nLoading #5Bloodtype Antigens#0...");
 #if DEBUG
 		var sw = new Stopwatch();
 		sw.Start();
@@ -968,11 +969,11 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 		}
 #if DEBUG
 		sw.Stop();
-		Console.WriteLine($"Duration: {sw.ElapsedMilliseconds}ms");
+		ConsoleUtilities.WriteLine($"Duration: #2{sw.ElapsedMilliseconds}ms#0");
 #endif
 		var count = antigens.Count;
-		Console.WriteLine("Loaded {0:N0} {1}.", count, count == 1 ? "Antigen" : "Antigens");
-		Console.WriteLine("\n\nLoading Bloodtypes...");
+		ConsoleUtilities.WriteLine("Loaded #2{0:N0}#0 {1}.", count, count == 1 ? "Antigen" : "Antigens");
+		ConsoleUtilities.WriteLine("\n\nLoading Bloodtypes...");
 #if DEBUG
 		sw.Restart();
 #endif
@@ -985,12 +986,12 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 		}
 #if DEBUG
 		sw.Stop();
-		Console.WriteLine($"Duration: {sw.ElapsedMilliseconds}ms");
+		ConsoleUtilities.WriteLine($"Duration: #2{sw.ElapsedMilliseconds}ms#0");
 #endif
 		count = bloodtypes.Count;
-		Console.WriteLine("Loaded {0:N0} {1}.", count, count == 1 ? "Bloodtype" : "Bloodtypes");
+		ConsoleUtilities.WriteLine("Loaded #2{0:N0}#0 {1}.", count, count == 1 ? "Bloodtype" : "Bloodtypes");
 
-		Console.WriteLine("\n\nLoading Blood Models...");
+		ConsoleUtilities.WriteLine("\n\nLoading Blood Models...");
 #if DEBUG
 		sw.Restart();
 #endif
@@ -1003,12 +1004,12 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 		}
 #if DEBUG
 		sw.Stop();
-		Console.WriteLine($"Duration: {sw.ElapsedMilliseconds}ms");
+		ConsoleUtilities.WriteLine($"Duration: #2{sw.ElapsedMilliseconds}ms#0");
 #endif
 		count = bloodModels.Count;
-		Console.WriteLine("Loaded {0:N0} {1}.", count, count == 1 ? "Blood Model" : "Blood Models");
+		ConsoleUtilities.WriteLine("Loaded #2{0:N0}#0 {1}.", count, count == 1 ? "Blood Model" : "Blood Models");
 
-		Console.WriteLine("\n\nLoading Population Blood Models...");
+		ConsoleUtilities.WriteLine("\n\nLoading Population Blood Models...");
 #if DEBUG
 		sw.Restart();
 #endif
@@ -1022,22 +1023,22 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 
 #if DEBUG
 		sw.Stop();
-		Console.WriteLine($"Duration: {sw.ElapsedMilliseconds}ms");
+		ConsoleUtilities.WriteLine($"Duration: #2{sw.ElapsedMilliseconds}ms#0");
 #endif
 		count = antigens.Count;
-		Console.WriteLine("Loaded {0:N0} {1}.", count,
+		ConsoleUtilities.WriteLine("Loaded #2{0:N0}#0 {1}.", count,
 			count == 1 ? "Population Blood Model" : "Population Blood Models");
 	}
 
 	void IFuturemudLoader.LoadAutobuilderTemplates()
 	{
-		Console.WriteLine("\nLoading Autobuilder Templates...");
+		ConsoleUtilities.WriteLine("\nLoading #5Autobuilder Templates#0...");
 		Construction.Autobuilder.AutobuilderFactory.InitialiseAutobuilders();
 #if DEBUG
 		var sw = new Stopwatch();
 		sw.Start();
 #endif
-		Console.WriteLine("Loading Room Templates...");
+		ConsoleUtilities.WriteLine("Loading #5Room Templates...#0");
 		var roomTemplates = FMDB.Context.AutobuilderRoomTemplates.AsNoTracking().ToList();
 		foreach (var item in roomTemplates)
 		{
@@ -1045,9 +1046,9 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 		}
 
 		var count = _autobuilderRooms.Count;
-		Console.WriteLine("Loaded {0:N0} {1}.", count, count == 1 ? "Room Template" : "Room Templates");
+		ConsoleUtilities.WriteLine("Loaded #2{0:N0}#0 {1}.", count, count == 1 ? "Room Template" : "Room Templates");
 
-		Console.WriteLine("Loading Area Templates...");
+		ConsoleUtilities.WriteLine("Loading #5Area Templates...#0");
 		var areaTemplates = FMDB.Context.AutobuilderAreaTemplates.AsNoTracking().ToList();
 		foreach (var item in areaTemplates)
 		{
@@ -1055,10 +1056,10 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 		}
 
 		count = _autobuilderAreas.Count;
-		Console.WriteLine("Loaded {0:N0} {1}.", count, count == 1 ? "Area Template" : "Area Templates");
+		ConsoleUtilities.WriteLine("Loaded #2{0:N0}#0 {1}.", count, count == 1 ? "Area Template" : "Area Templates");
 #if DEBUG
 		sw.Stop();
-		Console.WriteLine($"Duration: {sw.ElapsedMilliseconds}ms");
+		ConsoleUtilities.WriteLine($"Duration: #2{sw.ElapsedMilliseconds}ms#0");
 #endif
 
 		if (_autobuilderAreas.Count < 6)
@@ -1151,7 +1152,7 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 
 	void IFuturemudLoader.LoadButchering()
 	{
-		Console.WriteLine("\nLoading Butchery Products...");
+		ConsoleUtilities.WriteLine("\nLoading #5Butchery Products#0...");
 #if DEBUG
 		var sw = new Stopwatch();
 		sw.Start();
@@ -1167,10 +1168,10 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 		}
 #if DEBUG
 		sw.Stop();
-		Console.WriteLine($"Duration: {sw.ElapsedMilliseconds}ms");
+		ConsoleUtilities.WriteLine($"Duration: #2{sw.ElapsedMilliseconds}ms#0");
 #endif
 		var count = products.Count;
-		Console.WriteLine("Loaded {0:N0} {1}.", count, count == 1 ? "Product" : "Products");
+		ConsoleUtilities.WriteLine("Loaded #2{0:N0}#0 {1}.", count, count == 1 ? "Product" : "Products");
 
 #if DEBUG
 		sw.Restart();
@@ -1188,15 +1189,15 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 		}
 #if DEBUG
 		sw.Stop();
-		Console.WriteLine($"Duration: {sw.ElapsedMilliseconds}ms");
+		ConsoleUtilities.WriteLine($"Duration: #2{sw.ElapsedMilliseconds}ms#0");
 #endif
 		count = products.Count;
-		Console.WriteLine("Loaded {0:N0} {1}.", count, count == 1 ? "Profile" : "Profiles");
+		ConsoleUtilities.WriteLine("Loaded #2{0:N0}#0 {1}.", count, count == 1 ? "Profile" : "Profiles");
 	}
 
 	void IFuturemudLoader.LoadBoards()
 	{
-		Console.WriteLine("\nLoading boards...");
+		ConsoleUtilities.WriteLine("\nLoading #5boards#0...");
 #if DEBUG
 		var sw = new Stopwatch();
 		sw.Start();
@@ -1212,15 +1213,15 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 		}
 #if DEBUG
 		sw.Stop();
-		Console.WriteLine($"Duration: {sw.ElapsedMilliseconds}ms");
+		ConsoleUtilities.WriteLine($"Duration: #2{sw.ElapsedMilliseconds}ms#0");
 #endif
 		var count = boards.Count;
-		Console.WriteLine("Loaded {0:N0} {1}.", count, count == 1 ? "Board" : "Boards");
+		ConsoleUtilities.WriteLine("Loaded #2{0:N0}#0 {1}.", count, count == 1 ? "Board" : "Boards");
 	}
 
 	void IFuturemudLoader.LoadTraitExpressions()
 	{
-		Console.WriteLine("\nLoading Trait Expressions...");
+		ConsoleUtilities.WriteLine("\nLoading #5Trait Expressions#0...");
 #if DEBUG
 		var sw = new Stopwatch();
 		sw.Start();
@@ -1234,15 +1235,15 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 		}
 #if DEBUG
 		sw.Stop();
-		Console.WriteLine($"Duration: {sw.ElapsedMilliseconds}ms");
+		ConsoleUtilities.WriteLine($"Duration: #2{sw.ElapsedMilliseconds}ms#0");
 #endif
 		var count = expressions.Count;
-		Console.WriteLine("Loaded {0:N0} {1}.", count, count == 1 ? "Trait Expression" : "Trait Expressions");
+		ConsoleUtilities.WriteLine("Loaded #2{0:N0}#0 {1}.", count, count == 1 ? "Trait Expression" : "Trait Expressions");
 	}
 
 	void IFuturemudLoader.LoadCrafts()
 	{
-		Console.WriteLine("\nLoading Crafts...");
+		ConsoleUtilities.WriteLine("\nLoading #5Crafts#0...");
 #if DEBUG
 		var sw = new Stopwatch();
 		sw.Start();
@@ -1260,15 +1261,15 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 		}
 #if DEBUG
 		sw.Stop();
-		Console.WriteLine($"Duration: {sw.ElapsedMilliseconds}ms");
+		ConsoleUtilities.WriteLine($"Duration: #2{sw.ElapsedMilliseconds}ms#0");
 #endif
 		var count = crafts.Count;
-		Console.WriteLine("Loaded {0:N0} {1}.", count, count == 1 ? "Craft" : "Crafts");
+		ConsoleUtilities.WriteLine("Loaded #2{0:N0}#0 {1}.", count, count == 1 ? "Craft" : "Crafts");
 	}
 
 	void IFuturemudLoader.LoadScripts()
 	{
-		Console.WriteLine("\nLoading Scripts...");
+		ConsoleUtilities.WriteLine("\nLoading #5Scripts#0...");
 #if DEBUG
 		var sw = new Stopwatch();
 		sw.Start();
@@ -1282,15 +1283,15 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 		}
 #if DEBUG
 		sw.Stop();
-		Console.WriteLine($"Duration: {sw.ElapsedMilliseconds}ms");
+		ConsoleUtilities.WriteLine($"Duration: #2{sw.ElapsedMilliseconds}ms#0");
 #endif
 		var count = scripts.Count;
-		Console.WriteLine("Loaded {0:N0} {1}.", count, count == 1 ? "Script" : "Scripts");
+		ConsoleUtilities.WriteLine("Loaded #2{0:N0}#0 {1}.", count, count == 1 ? "Script" : "Scripts");
 	}
 
 	void IFuturemudLoader.LoadDrawings()
 	{
-		Console.WriteLine("\nLoading Drawings...");
+		ConsoleUtilities.WriteLine("\nLoading #5Drawings#0...");
 #if DEBUG
 		var sw = new Stopwatch();
 		sw.Start();
@@ -1302,15 +1303,15 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 		}
 #if DEBUG
 		sw.Stop();
-		Console.WriteLine($"Duration: {sw.ElapsedMilliseconds}ms");
+		ConsoleUtilities.WriteLine($"Duration: #2{sw.ElapsedMilliseconds}ms#0");
 #endif
 		var count = drawings.Count;
-		Console.WriteLine("Loaded {0:N0} {1}.", count, count == 1 ? "Drawing" : "Drawings");
+		ConsoleUtilities.WriteLine("Loaded #2{0:N0}#0 {1}.", count, count == 1 ? "Drawing" : "Drawings");
 	}
 
 	void IFuturemudLoader.LoadWritings()
 	{
-		Console.WriteLine("\nLoading Writings...");
+		ConsoleUtilities.WriteLine("\nLoading #5Writings#0...");
 #if DEBUG
 		var sw = new Stopwatch();
 		sw.Start();
@@ -1322,15 +1323,15 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 		}
 #if DEBUG
 		sw.Stop();
-		Console.WriteLine($"Duration: {sw.ElapsedMilliseconds}ms");
+		ConsoleUtilities.WriteLine($"Duration: #2{sw.ElapsedMilliseconds}ms#0");
 #endif
 		var count = writings.Count;
-		Console.WriteLine("Loaded {0:N0} {1}.", count, count == 1 ? "Writing" : "Writings");
+		ConsoleUtilities.WriteLine("Loaded #2{0:N0}#0 {1}.", count, count == 1 ? "Writing" : "Writings");
 	}
 
 	void IFuturemudLoader.LoadCover()
 	{
-		Console.WriteLine("\nLoading Ranged Cover...");
+		ConsoleUtilities.WriteLine("\nLoading #5Ranged Cover#0...");
 #if DEBUG
 		var sw = new Stopwatch();
 		sw.Start();
@@ -1342,15 +1343,15 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 		}
 #if DEBUG
 		sw.Stop();
-		Console.WriteLine($"Duration: {sw.ElapsedMilliseconds}ms");
+		ConsoleUtilities.WriteLine($"Duration: #2{sw.ElapsedMilliseconds}ms#0");
 #endif
 		var count = covers.Count;
-		Console.WriteLine("Loaded {0:N0} {1}.", count, count == 1 ? "Cover" : "Covers");
+		ConsoleUtilities.WriteLine("Loaded #2{0:N0}#0 {1}.", count, count == 1 ? "Cover" : "Covers");
 	}
 
 	void IFuturemudLoader.LoadSurgery()
 	{
-		Console.WriteLine("\nLoading Surgical Procedures...");
+		ConsoleUtilities.WriteLine("\nLoading #5Surgical Procedures#0...");
 #if DEBUG
 		var sw = new Stopwatch();
 		sw.Start();
@@ -1364,16 +1365,16 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 		}
 #if DEBUG
 		sw.Stop();
-		Console.WriteLine($"Duration: {sw.ElapsedMilliseconds}ms");
+		ConsoleUtilities.WriteLine($"Duration: #2{sw.ElapsedMilliseconds}ms#0");
 #endif
 
 		var count = surgeries.Count;
-		Console.WriteLine("Loaded {0:N0} {1}.", count, count == 1 ? "Procedure" : "Procedures");
+		ConsoleUtilities.WriteLine("Loaded #2{0:N0}#0 {1}.", count, count == 1 ? "Procedure" : "Procedures");
 	}
 
 	void IFuturemudLoader.LoadKnowledges()
 	{
-		Console.WriteLine("\nLoading Knowledges...");
+		ConsoleUtilities.WriteLine("\nLoading #5Knowledges#0...");
 #if DEBUG
 		var sw = new Stopwatch();
 		sw.Start();
@@ -1385,15 +1386,15 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 		}
 #if DEBUG
 		sw.Stop();
-		Console.WriteLine($"Duration: {sw.ElapsedMilliseconds}ms");
+		ConsoleUtilities.WriteLine($"Duration: #2{sw.ElapsedMilliseconds}ms#0");
 #endif
 		var count = knowledges.Count;
-		Console.WriteLine("Loaded {0:N0} {1}.", count, count == 1 ? "Knowledge" : "Knowledges");
+		ConsoleUtilities.WriteLine("Loaded #2{0:N0}#0 {1}.", count, count == 1 ? "Knowledge" : "Knowledges");
 	}
 
 	void IFuturemudLoader.LoadDrugs()
 	{
-		Console.WriteLine("\nLoading Drugs...");
+		ConsoleUtilities.WriteLine("\nLoading #5Drugs#0...");
 #if DEBUG
 		var sw = new Stopwatch();
 		sw.Start();
@@ -1407,15 +1408,15 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 		}
 #if DEBUG
 		sw.Stop();
-		Console.WriteLine($"Duration: {sw.ElapsedMilliseconds}ms");
+		ConsoleUtilities.WriteLine($"Duration: #2{sw.ElapsedMilliseconds}ms#0");
 #endif
 		var count = drugs.Count;
-		Console.WriteLine("Loaded {0:N0} {1}.", count, count == 1 ? "Drug" : "Drugs");
+		ConsoleUtilities.WriteLine("Loaded #2{0:N0}#0 {1}.", count, count == 1 ? "Drug" : "Drugs");
 	}
 
 	void IFuturemudLoader.LoadCharacterCombatSettings()
 	{
-		Console.WriteLine("\nLoading Character Combat Settings...");
+		ConsoleUtilities.WriteLine("\nLoading #5Character Combat Settings#0...");
 #if DEBUG
 		var sw = new Stopwatch();
 		sw.Start();
@@ -1427,16 +1428,16 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 		}
 #if DEBUG
 		sw.Stop();
-		Console.WriteLine($"Duration: {sw.ElapsedMilliseconds}ms");
+		ConsoleUtilities.WriteLine($"Duration: #2{sw.ElapsedMilliseconds}ms#0");
 #endif
 		var count = combatSettings.Count;
-		Console.WriteLine("Loaded {0:N0} {1}.", count,
+		ConsoleUtilities.WriteLine("Loaded #2{0:N0}#0 {1}.", count,
 			count == 1 ? "Character Combat Setting" : "Character Combat Settings");
 	}
 
 	void IFuturemudLoader.LoadArmourTypes()
 	{
-		Console.WriteLine("\nLoading Armour Types...");
+		ConsoleUtilities.WriteLine("\nLoading #5Armour Types#0...");
 #if DEBUG
 		var sw = new Stopwatch();
 		sw.Start();
@@ -1448,15 +1449,15 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 		}
 #if DEBUG
 		sw.Stop();
-		Console.WriteLine($"Duration: {sw.ElapsedMilliseconds}ms");
+		ConsoleUtilities.WriteLine($"Duration: #2{sw.ElapsedMilliseconds}ms#0");
 #endif
 		var count = armourTypes.Count;
-		Console.WriteLine("Loaded {0:N0} {1}.", count, count == 1 ? "Armour Type" : "Armour Types");
+		ConsoleUtilities.WriteLine("Loaded #2{0:N0}#0 {1}.", count, count == 1 ? "Armour Type" : "Armour Types");
 	}
 
 	void IFuturemudLoader.LoadWeaponTypes()
 	{
-		Console.WriteLine("\nLoading Weapon Attacks...");
+		ConsoleUtilities.WriteLine("\nLoading #5Weapon Attacks#0...");
 #if DEBUG
 		var sw = new Stopwatch();
 		sw.Start();
@@ -1470,13 +1471,13 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 		}
 #if DEBUG
 		sw.Stop();
-		Console.WriteLine($"Duration: {sw.ElapsedMilliseconds}ms");
+		ConsoleUtilities.WriteLine($"Duration: #2{sw.ElapsedMilliseconds}ms#0");
 #endif
 
 		var count = attacks.Count;
-		Console.WriteLine("Loaded {0:N0} {1}.", count, count == 1 ? "Weapon Attack" : "Weapon Attacks");
+		ConsoleUtilities.WriteLine("Loaded #2{0:N0}#0 {1}.", count, count == 1 ? "Weapon Attack" : "Weapon Attacks");
 
-		Console.WriteLine("\nLoading Auxiliary Combat Action Types...");
+		ConsoleUtilities.WriteLine("\nLoading #5Auxiliary Combat Action Types#0...");
 		var actions = (from action in FMDB.Context.CombatActions.AsNoTracking() select action).ToList();
 		foreach (var action in actions)
 		{
@@ -1484,17 +1485,17 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 		}
 #if DEBUG
 		sw.Stop();
-		Console.WriteLine($"Duration: {sw.ElapsedMilliseconds}ms");
+		ConsoleUtilities.WriteLine($"Duration: #2{sw.ElapsedMilliseconds}ms#0");
 #endif
 
 		count = attacks.Count;
-		Console.WriteLine("Loaded {0:N0} {1}.", count, count == 1 ? "Auxiliary Combat Action" : "Auxiliary Combat Actions");
+		ConsoleUtilities.WriteLine("Loaded #2{0:N0}#0 {1}.", count, count == 1 ? "Auxiliary Combat Action" : "Auxiliary Combat Actions");
 
 #if DEBUG
 		sw.Restart();
 #endif
 
-		Console.WriteLine("\nLoading Melee Weapon Types...");
+		ConsoleUtilities.WriteLine("\nLoading #5Melee Weapon Types#0...");
 #if DEBUG
 		sw.Restart();
 #endif
@@ -1508,13 +1509,13 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 		}
 #if DEBUG
 		sw.Stop();
-		Console.WriteLine($"Duration: {sw.ElapsedMilliseconds}ms");
+		ConsoleUtilities.WriteLine($"Duration: #2{sw.ElapsedMilliseconds}ms#0");
 #endif
 
 		count = weaponTypes.Count;
-		Console.WriteLine("Loaded {0:N0} {1}.", count, count == 1 ? "Weapon Type" : "Weapon Types");
+		ConsoleUtilities.WriteLine("Loaded #2{0:N0}#0 {1}.", count, count == 1 ? "Weapon Type" : "Weapon Types");
 
-		Console.WriteLine("\nLoading Ranged Weapon Types...");
+		ConsoleUtilities.WriteLine("\nLoading #5Ranged Weapon Types#0...");
 #if DEBUG
 		sw.Restart();
 #endif
@@ -1525,12 +1526,12 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 		}
 #if DEBUG
 		sw.Stop();
-		Console.WriteLine($"Duration: {sw.ElapsedMilliseconds}ms");
+		ConsoleUtilities.WriteLine($"Duration: #2{sw.ElapsedMilliseconds}ms#0");
 #endif
 		count = rangedTypes.Count;
-		Console.WriteLine("Loaded {0:N0} {1}.", count, count == 1 ? "Weapon Type" : "Weapon Types");
+		ConsoleUtilities.WriteLine("Loaded #2{0:N0}#0 {1}.", count, count == 1 ? "Weapon Type" : "Weapon Types");
 
-		Console.WriteLine("\nLoading Ammunition Types...");
+		ConsoleUtilities.WriteLine("\nLoading #5Ammunition Types#0...");
 #if DEBUG
 		sw.Restart();
 #endif
@@ -1541,15 +1542,15 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 		}
 #if DEBUG
 		sw.Stop();
-		Console.WriteLine($"Duration: {sw.ElapsedMilliseconds}ms");
+		ConsoleUtilities.WriteLine($"Duration: #2{sw.ElapsedMilliseconds}ms#0");
 #endif
 		count = ammoTypes.Count;
-		Console.WriteLine("Loaded {0:N0} {1}.", count, count == 1 ? "Ammo Type" : "Ammo Types");
+		ConsoleUtilities.WriteLine("Loaded #2{0:N0}#0 {1}.", count, count == 1 ? "Ammo Type" : "Ammo Types");
 	}
 
 	void IFuturemudLoader.LoadShieldTypes()
 	{
-		Console.WriteLine("\nLoading Shield Types...");
+		ConsoleUtilities.WriteLine("\nLoading #5Shield Types#0...");
 #if DEBUG
 		var sw = new Stopwatch();
 		sw.Start();
@@ -1561,15 +1562,15 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 		}
 #if DEBUG
 		sw.Stop();
-		Console.WriteLine($"Duration: {sw.ElapsedMilliseconds}ms");
+		ConsoleUtilities.WriteLine($"Duration: #2{sw.ElapsedMilliseconds}ms#0");
 #endif
 		var count = shieldTypes.Count;
-		Console.WriteLine("Loaded {0:N0} {1}.", count, count == 1 ? "Shield Type" : "Shield Types");
+		ConsoleUtilities.WriteLine("Loaded #2{0:N0}#0 {1}.", count, count == 1 ? "Shield Type" : "Shield Types");
 	}
 
 	void IFuturemudLoader.LoadDreams()
 	{
-		Console.WriteLine("\nLoading Dreams...");
+		ConsoleUtilities.WriteLine("\nLoading #5Dreams#0...");
 #if DEBUG
 		var sw = new Stopwatch();
 		sw.Start();
@@ -1586,15 +1587,15 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 		}
 #if DEBUG
 		sw.Stop();
-		Console.WriteLine($"Duration: {sw.ElapsedMilliseconds}ms");
+		ConsoleUtilities.WriteLine($"Duration: #2{sw.ElapsedMilliseconds}ms#0");
 #endif
 		var count = dreams.Count;
-		Console.WriteLine("Loaded {0:N0} {1}.", count, count == 1 ? "Dream" : "Dreams");
+		ConsoleUtilities.WriteLine("Loaded #2{0:N0}#0 {1}.", count, count == 1 ? "Dream" : "Dreams");
 	}
 
 	void IFuturemudLoader.LoadMerits()
 	{
-		Console.WriteLine("\nLoading Merits and Flaws...");
+		ConsoleUtilities.WriteLine("\nLoading #5Merits and Flaws#0...");
 #if DEBUG
 		var sw = new Stopwatch();
 		sw.Start();
@@ -1610,15 +1611,15 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 		}
 #if DEBUG
 		sw.Stop();
-		Console.WriteLine($"Duration: {sw.ElapsedMilliseconds}ms");
+		ConsoleUtilities.WriteLine($"Duration: #2{sw.ElapsedMilliseconds}ms#0");
 #endif
 		var count = _merits.Count;
-		Console.WriteLine("Loaded {0:N0} {1}.", count, count == 1 ? "Merit or Flaw" : "Merits and Flaws");
+		ConsoleUtilities.WriteLine("Loaded #2{0:N0}#0 {1}.", count, count == 1 ? "Merit or Flaw" : "Merits and Flaws");
 	}
 
 	void IFuturemudLoader.LoadHealthStrategies()
 	{
-		Console.WriteLine("\nLoading Health Strategies...");
+		ConsoleUtilities.WriteLine("\nLoading #5Health Strategies#0...");
 #if DEBUG
 		var sw = new Stopwatch();
 		sw.Start();
@@ -1633,15 +1634,15 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 		}
 #if DEBUG
 		sw.Stop();
-		Console.WriteLine($"Duration: {sw.ElapsedMilliseconds}ms");
+		ConsoleUtilities.WriteLine($"Duration: #2{sw.ElapsedMilliseconds}ms#0");
 #endif
 		var count = strategies.Count;
-		Console.WriteLine("Loaded {0:N0} {1}.", count, count == 1 ? "Health Strategy" : "Health Strategies");
+		ConsoleUtilities.WriteLine("Loaded #2{0:N0}#0 {1}.", count, count == 1 ? "Health Strategy" : "Health Strategies");
 	}
 
 	void IFuturemudLoader.LoadForagables()
 	{
-		Console.WriteLine("\nLoading Foragables...");
+		ConsoleUtilities.WriteLine("\nLoading #5Foragables#0...");
 #if DEBUG
 		var sw = new Stopwatch();
 		sw.Start();
@@ -1656,12 +1657,12 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 		}
 #if DEBUG
 		sw.Stop();
-		Console.WriteLine($"Duration: {sw.ElapsedMilliseconds}ms");
+		ConsoleUtilities.WriteLine($"Duration: #2{sw.ElapsedMilliseconds}ms#0");
 #endif
 		var count = foragables.Count;
-		Console.WriteLine("Loaded {0:N0} {1}.", count, count == 1 ? "Foragable" : "Foragables");
+		ConsoleUtilities.WriteLine("Loaded #2{0:N0}#0 {1}.", count, count == 1 ? "Foragable" : "Foragables");
 
-		Console.WriteLine("\nLoading Foragable Profiles...");
+		ConsoleUtilities.WriteLine("\nLoading #5Foragable Profiles#0...");
 #if DEBUG
 		sw.Restart();
 #endif
@@ -1679,15 +1680,15 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 		}
 #if DEBUG
 		sw.Stop();
-		Console.WriteLine($"Duration: {sw.ElapsedMilliseconds}ms");
+		ConsoleUtilities.WriteLine($"Duration: #2{sw.ElapsedMilliseconds}ms#0");
 #endif
 		count = foragableProfiles.Count;
-		Console.WriteLine("Loaded {0:N0} {1}.", count, count == 1 ? "Foragable Profile" : "Foragable Profiles");
+		ConsoleUtilities.WriteLine("Loaded #2{0:N0}#0 {1}.", count, count == 1 ? "Foragable Profile" : "Foragable Profiles");
 	}
 
 	void IFuturemudLoader.LoadCorpseModels()
 	{
-		Console.WriteLine("\nLoading Corpse Models...");
+		ConsoleUtilities.WriteLine("\nLoading #5Corpse Models#0...");
 #if DEBUG
 		var sw = new Stopwatch();
 		sw.Start();
@@ -1700,21 +1701,21 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 		}
 #if DEBUG
 		sw.Stop();
-		Console.WriteLine($"Duration: {sw.ElapsedMilliseconds}ms");
+		ConsoleUtilities.WriteLine($"Duration: #2{sw.ElapsedMilliseconds}ms#0");
 #endif
 		var count = models.Count;
-		Console.WriteLine("Loaded {0:N0} {1}.", count, count == 1 ? "Corpse Model" : "Corpse Models");
+		ConsoleUtilities.WriteLine("Loaded #2{0:N0}#0 {1}.", count, count == 1 ? "Corpse Model" : "Corpse Models");
 	}
 
 	void IFuturemudLoader.LoadWorldItems()
 	{
-		Console.WriteLine("\nLoading World Items...");
+		ConsoleUtilities.WriteLine("\nLoading #5World Items#0...");
 #if DEBUG
 		var sw = new Stopwatch();
 		sw.Start();
 #endif
 #if DEBUG
-		//FMDB.Context.Database.Log = Console.WriteLine;
+		//FMDB.Context.Database.Log = ConsoleUtilities.WriteLine;
 #endif
 		var cellItems = _bootTimeCachedGameItems.Values.GroupBy(x => x.CellsGameItems.FirstOrDefault());
 		var count = 0;
@@ -1730,27 +1731,27 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 		}
 #if DEBUG
 		sw.Stop();
-		Console.WriteLine($"Duration: {sw.ElapsedMilliseconds}ms");
+		ConsoleUtilities.WriteLine($"Duration: #2{sw.ElapsedMilliseconds}ms#0");
 #endif
 #if DEBUG
 		//FMDB.Context.Database.Log = null;
 #endif
-		Console.WriteLine("Loaded {0:N0} {1}.", count, count == 1 ? "Item" : "Items");
+		ConsoleUtilities.WriteLine("Loaded #2{0:N0}#0 {1}.", count, count == 1 ? "Item" : "Items");
 
 		// Initialise all the grids after the items are definitely loaded and in game
-		Console.WriteLine("Initialising Grids...");
+		ConsoleUtilities.WriteLine("#EInitialising Grids...#0");
 		foreach (var grid in _grids)
 		{
 			grid.LoadTimeInitialise();
 		}
 
-		Console.WriteLine("Initialising Shops...");
+		ConsoleUtilities.WriteLine("#EInitialising Shops...#0");
 		foreach (var shop in _shops)
 		{
 			shop.PostLoadInitialisation();
 		}
 
-		Console.WriteLine("Logging in world game items...");
+		ConsoleUtilities.WriteLine("#ELogging in world game items...#0");
 		foreach (var cell in cellItems)
 		{
 			if (cell.Key == null)
@@ -1768,7 +1769,7 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 
 	void IFuturemudLoader.LoadGameItemGroups()
 	{
-		Console.WriteLine("\nLoading Game Item Groups...");
+		ConsoleUtilities.WriteLine("\nLoading #5Game Item Groups#0...");
 #if DEBUG
 		var sw = new Stopwatch();
 		sw.Start();
@@ -1782,16 +1783,16 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 		}
 #if DEBUG
 		sw.Stop();
-		Console.WriteLine($"Duration: {sw.ElapsedMilliseconds}ms");
+		ConsoleUtilities.WriteLine($"Duration: #2{sw.ElapsedMilliseconds}ms#0");
 #endif
 
 		var count = groups.Count;
-		Console.WriteLine("Loaded {0:N0} {1}.", count, count == 1 ? "Item Group" : "Item Groups");
+		ConsoleUtilities.WriteLine("Loaded #2{0:N0}#0 {1}.", count, count == 1 ? "Item Group" : "Item Groups");
 	}
 
 	void IFuturemudLoader.LoadSkyDescriptionTemplates()
 	{
-		Console.WriteLine("\nLoading Sky Description Templates...");
+		ConsoleUtilities.WriteLine("\nLoading #5Sky Description Templates#0...");
 #if DEBUG
 		var sw = new Stopwatch();
 		sw.Start();
@@ -1807,15 +1808,15 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 		}
 #if DEBUG
 		sw.Stop();
-		Console.WriteLine($"Duration: {sw.ElapsedMilliseconds}ms");
+		ConsoleUtilities.WriteLine($"Duration: #2{sw.ElapsedMilliseconds}ms#0");
 #endif
 		var count = templates.Count;
-		Console.WriteLine("Loaded {0:N0} {1}.", count, count == 1 ? "Template" : "Templates");
+		ConsoleUtilities.WriteLine("Loaded #2{0:N0}#0 {1}.", count, count == 1 ? "Template" : "Templates");
 	}
 
 	void IFuturemudLoader.LoadRoles()
 	{
-		Console.WriteLine("\nLoading Roles...");
+		ConsoleUtilities.WriteLine("\nLoading #5Roles#0...");
 #if DEBUG
 		var sw = new Stopwatch();
 		sw.Start();
@@ -1839,21 +1840,21 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 		}
 #if DEBUG
 		sw.Stop();
-		Console.WriteLine($"Duration: {sw.ElapsedMilliseconds}ms");
+		ConsoleUtilities.WriteLine($"Duration: #2{sw.ElapsedMilliseconds}ms#0");
 #endif
 
 		var count = roles.Count;
-		Console.WriteLine("Loaded {0:N0} {1}.", count, count == 1 ? "Role" : "Roles");
+		ConsoleUtilities.WriteLine("Loaded #2{0:N0}#0 {1}.", count, count == 1 ? "Role" : "Roles");
 	}
 
 	void IFuturemudLoader.LoadMaterials()
 	{
-		Console.WriteLine("\nLoading Materials...");
+		ConsoleUtilities.WriteLine("\nLoading #5Materials#0...");
 #if DEBUG
 		var sw = new Stopwatch();
 		sw.Start();
 #endif
-		Console.WriteLine("\nLoading Solids...");
+		ConsoleUtilities.WriteLine("\nLoading #5Solids#0...");
 		var materials = (from item in FMDB.Context.Materials
 		                                  .Include(x => x.MaterialsTags)
 		                                  .AsNoTracking()
@@ -1867,9 +1868,9 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 		}
 
 		var count = materials.Count;
-		Console.WriteLine("Loaded {0:N0} {1}.", count, count == 1 ? "Solid" : "Solids");
+		ConsoleUtilities.WriteLine("Loaded #2{0:N0}#0 {1}.", count, count == 1 ? "Solid" : "Solids");
 
-		Console.WriteLine("\nLoading Liquids...");
+		ConsoleUtilities.WriteLine("\nLoading #5Liquids#0...");
 		var liquids = (from item in FMDB.Context.Liquids
 		                                .Include(x => x.LiquidsTags)
 		                                .AsNoTracking()
@@ -1881,9 +1882,9 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 		}
 
 		count = liquids.Count;
-		Console.WriteLine("Loaded {0:N0} {1}.", count, count == 1 ? "Liquid" : "Liquids");
+		ConsoleUtilities.WriteLine("Loaded #2{0:N0}#0 {1}.", count, count == 1 ? "Liquid" : "Liquids");
 
-		Console.WriteLine("\nLoading Gases...");
+		ConsoleUtilities.WriteLine("\nLoading #5Gases#0...");
 		var gases = (from item in FMDB.Context.Gases
 		                              .Include(x => x.GasesTags)
 		                              .AsNoTracking()
@@ -1895,15 +1896,15 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 		}
 #if DEBUG
 		sw.Stop();
-		Console.WriteLine($"Duration: {sw.ElapsedMilliseconds}ms");
+		ConsoleUtilities.WriteLine($"Duration: #2{sw.ElapsedMilliseconds}ms#0");
 #endif
 		count = gases.Count;
-		Console.WriteLine("Loaded {0:N0} {1}.", count, count == 1 ? "Gas" : "Gases");
+		ConsoleUtilities.WriteLine("Loaded #2{0:N0}#0 {1}.", count, count == 1 ? "Gas" : "Gases");
 	}
 
 	void IFuturemudLoader.LoadSocials()
 	{
-		Console.WriteLine("\nLoading Socials...");
+		ConsoleUtilities.WriteLine("\nLoading #5Socials#0...");
 #if DEBUG
 		var sw = new Stopwatch();
 		sw.Start();
@@ -1922,16 +1923,16 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 		}
 #if DEBUG
 		sw.Stop();
-		Console.WriteLine($"Duration: {sw.ElapsedMilliseconds}ms");
+		ConsoleUtilities.WriteLine($"Duration: #2{sw.ElapsedMilliseconds}ms#0");
 #endif
 
 		var count = socials.Count;
-		Console.WriteLine("Loaded {0:N0} {1}.", count, count == 1 ? "Social" : "Socials");
+		ConsoleUtilities.WriteLine("Loaded #2{0:N0}#0 {1}.", count, count == 1 ? "Social" : "Socials");
 	}
 
 	void IFuturemudLoader.LoadChargenResources()
 	{
-		Console.WriteLine("\nLoading Chargen Resources...");
+		ConsoleUtilities.WriteLine("\nLoading #5Chargen Resources#0...");
 #if DEBUG
 		var sw = new Stopwatch();
 		sw.Start();
@@ -1953,16 +1954,16 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 		}
 #if DEBUG
 		sw.Stop();
-		Console.WriteLine($"Duration: {sw.ElapsedMilliseconds}ms");
+		ConsoleUtilities.WriteLine($"Duration: #2{sw.ElapsedMilliseconds}ms#0");
 #endif
 
 		var count = resources.Count;
-		Console.WriteLine("Loaded {0:N0} {1}.", count, count == 1 ? "Chargen Resource" : "Chargen Resources");
+		ConsoleUtilities.WriteLine("Loaded #2{0:N0}#0 {1}.", count, count == 1 ? "Chargen Resource" : "Chargen Resources");
 	}
 
 	void IFuturemudLoader.LoadHeightWeightModels()
 	{
-		Console.WriteLine("\nLoading Height Weight Models...");
+		ConsoleUtilities.WriteLine("\nLoading #5Height Weight Models#0...");
 #if DEBUG
 		var sw = new Stopwatch();
 		sw.Start();
@@ -1975,17 +1976,17 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 		}
 #if DEBUG
 		sw.Stop();
-		Console.WriteLine($"Duration: {sw.ElapsedMilliseconds}ms");
+		ConsoleUtilities.WriteLine($"Duration: #2{sw.ElapsedMilliseconds}ms#0");
 #endif
 		var count = models.Count;
-		Console.WriteLine("Loaded {0:N0} {1}.", count,
+		ConsoleUtilities.WriteLine("Loaded #2{0:N0}#0 {1}.", count,
 			count == 1 ? "Height Weight Model" : "Height Weight Models");
 	}
 
 
 	void IFuturemudLoader.LoadStaticValues()
 	{
-		Console.WriteLine("\nLoading Static Values...");
+		ConsoleUtilities.WriteLine("\nLoading #5Static Values#0...");
 #if DEBUG
 		var sw = new Stopwatch();
 		sw.Start();
@@ -2001,7 +2002,7 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 		}
 
 		var count = strings.Count;
-		Console.WriteLine("Loaded {0:N0} {1}.", count, count == 1 ? "Static String" : "Static Strings");
+		ConsoleUtilities.WriteLine("Loaded #2{0:N0}#0 {1}.", count, count == 1 ? "Static String" : "Static Strings");
 
 		var settings = (from item in FMDB.Context.StaticConfigurations.AsNoTracking()
 		                select item).ToList();
@@ -2013,15 +2014,15 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 		}
 #if DEBUG
 		sw.Stop();
-		Console.WriteLine($"Duration: {sw.ElapsedMilliseconds}ms");
+		ConsoleUtilities.WriteLine($"Duration: #2{sw.ElapsedMilliseconds}ms#0");
 #endif
 		count = settings.Count;
-		Console.WriteLine("Loaded {0:N0} {1}.", count, count == 1 ? "Static Setting" : "Static Settings");
+		ConsoleUtilities.WriteLine("Loaded #2{0:N0}#0 {1}.", count, count == 1 ? "Static Setting" : "Static Settings");
 	}
 
 	void IFuturemudLoader.LoadChannels()
 	{
-		Console.WriteLine("\nLoading Channels...");
+		ConsoleUtilities.WriteLine("\nLoading #5Channels#0...");
 #if DEBUG
 		var sw = new Stopwatch();
 		sw.Start();
@@ -2072,13 +2073,13 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 			Channel.ChannelCommandDelegate, options: CommandDisplayOptions.DisplayCommandWords);
 #if DEBUG
 		sw.Stop();
-		Console.WriteLine($"Duration: {sw.ElapsedMilliseconds}ms");
+		ConsoleUtilities.WriteLine($"Duration: #2{sw.ElapsedMilliseconds}ms#0");
 #endif
 	}
 
 	void IFuturemudLoader.LoadNonCardinalExitTemplates()
 	{
-		Console.WriteLine("\nLoading Non Cardinal Exit Templates...");
+		ConsoleUtilities.WriteLine("\nLoading #5Non Cardinal Exit Templates#0...");
 #if DEBUG
 		var sw = new Stopwatch();
 		sw.Start();
@@ -2092,15 +2093,15 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 		}
 #if DEBUG
 		sw.Stop();
-		Console.WriteLine($"Duration: {sw.ElapsedMilliseconds}ms");
+		ConsoleUtilities.WriteLine($"Duration: #2{sw.ElapsedMilliseconds}ms#0");
 #endif
 		var count = templates.Count;
-		Console.WriteLine("Loaded {0} Non Cardinal Exit Template{1}.", count, count == 1 ? "" : "s");
+		ConsoleUtilities.WriteLine("Loaded #2{0}#0 Non Cardinal Exit Template{1}.", count, count == 1 ? "" : "s");
 	}
 
 	void IFuturemudLoader.LoadNPCTemplates()
 	{
-		Console.WriteLine("\nLoading NPC Templates...");
+		ConsoleUtilities.WriteLine("\nLoading #5NPC Templates#0...");
 #if DEBUG
 		var sw = new Stopwatch();
 		sw.Start();
@@ -2117,15 +2118,15 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 		}
 #if DEBUG
 		sw.Stop();
-		Console.WriteLine($"Duration: {sw.ElapsedMilliseconds}ms");
+		ConsoleUtilities.WriteLine($"Duration: #2{sw.ElapsedMilliseconds}ms#0");
 #endif
 		var count = templates.Count;
-		Console.WriteLine("Loaded {0} NPC Template{1}.", count, count == 1 ? "" : "s");
+		ConsoleUtilities.WriteLine("Loaded #2{0}#0 NPC Template{1}.", count, count == 1 ? "" : "s");
 	}
 
 	void IFuturemudLoader.LoadNPCs()
 	{
-		Console.WriteLine("\nLoading NPCs...");
+		ConsoleUtilities.WriteLine("\nLoading #5NPCs#0...");
 #if DEBUG
 		var sw = new Stopwatch();
 		sw.Start();
@@ -2185,12 +2186,12 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 		}
 #if DEBUG
 		sw.Stop();
-		Console.WriteLine($"Duration: {sw.ElapsedMilliseconds}ms");
+		ConsoleUtilities.WriteLine($"Duration: #2{sw.ElapsedMilliseconds}ms#0");
 #endif
 		var count = npcs.Count;
-		Console.WriteLine("Loaded {0} NPC{1}.", count, count == 1 ? "" : "s");
+		ConsoleUtilities.WriteLine("Loaded #2{0}#0 NPC{1}.", count, count == 1 ? "" : "s");
 
-		Console.WriteLine("\nLoading Guests...");
+		ConsoleUtilities.WriteLine("\nLoading #5Guests#0...");
 #if DEBUG
 		sw.Restart();
 #endif
@@ -2204,11 +2205,11 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 		}
 #if DEBUG
 		sw.Stop();
-		Console.WriteLine($"Duration: {sw.ElapsedMilliseconds}ms");
+		ConsoleUtilities.WriteLine($"Duration: #2{sw.ElapsedMilliseconds}ms#0");
 #endif
 
 		count = guests.Count;
-		Console.WriteLine("Loaded {0} Guest{1}.", count, count == 1 ? "" : "s");
+		ConsoleUtilities.WriteLine("Loaded #2{0}#0 Guest{1}.", count, count == 1 ? "" : "s");
 
 		foreach (var authority in _legalAuthorities)
 		{
@@ -2218,7 +2219,7 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 #if DEBUG
 		sw.Restart();
 #endif
-		Console.WriteLine("\nLoading NPC Spawners...");
+		ConsoleUtilities.WriteLine("\nLoading #5NPC Spawners#0...");
 
 		var spawners = (from spawner in FMDB.Context.NpcSpawners select spawner).ToList();
 
@@ -2228,16 +2229,16 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 		}
 
 		count = spawners.Count;
-		Console.WriteLine("Loaded {0} NPC Spawner{1}.", count, count == 1 ? "" : "s");
+		ConsoleUtilities.WriteLine("Loaded #2{0}#0 NPC Spawner{1}.", count, count == 1 ? "" : "s");
 #if DEBUG
 		sw.Stop();
-		Console.WriteLine($"Duration: {sw.ElapsedMilliseconds}ms");
+		ConsoleUtilities.WriteLine($"Duration: #2{sw.ElapsedMilliseconds}ms#0");
 #endif
 	}
 
 	void IFuturemudLoader.LoadGroupAIs()
 	{
-		Console.WriteLine("\nLoading Group AI Templates...");
+		ConsoleUtilities.WriteLine("\nLoading #5Group AI Templates#0...");
 #if DEBUG
 		var sw = new Stopwatch();
 		sw.Start();
@@ -2250,12 +2251,12 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 		}
 #if DEBUG
 		sw.Stop();
-		Console.WriteLine($"Duration: {sw.ElapsedMilliseconds}ms");
+		ConsoleUtilities.WriteLine($"Duration: #2{sw.ElapsedMilliseconds}ms#0");
 #endif
 		var count = templates.Count;
-		Console.WriteLine("Loaded {0} Template{1}.", count, count == 1 ? "" : "s");
+		ConsoleUtilities.WriteLine("Loaded #2{0}#0 Template{1}.", count, count == 1 ? "" : "s");
 
-		Console.WriteLine("\nLoading Group AIs...");
+		ConsoleUtilities.WriteLine("\nLoading #5Group AIs#0...");
 #if DEBUG
 		sw.Restart();
 #endif
@@ -2267,15 +2268,15 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 		}
 #if DEBUG
 		sw.Stop();
-		Console.WriteLine($"Duration: {sw.ElapsedMilliseconds}ms");
+		ConsoleUtilities.WriteLine($"Duration: #2{sw.ElapsedMilliseconds}ms#0");
 #endif
 		count = templates.Count;
-		Console.WriteLine("Loaded {0} AI{1}.", count, count == 1 ? "" : "s");
+		ConsoleUtilities.WriteLine("Loaded #2{0}#0 AI{1}.", count, count == 1 ? "" : "s");
 	}
 
 	void IFuturemudLoader.LoadAIs()
 	{
-		Console.WriteLine("\nLoading AIs...");
+		ConsoleUtilities.WriteLine("\nLoading #5AIs#0...");
 #if DEBUG
 		var sw = new Stopwatch();
 		sw.Start();
@@ -2290,15 +2291,15 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 		}
 #if DEBUG
 		sw.Stop();
-		Console.WriteLine($"Duration: {sw.ElapsedMilliseconds}ms");
+		ConsoleUtilities.WriteLine($"Duration: #2{sw.ElapsedMilliseconds}ms#0");
 #endif
 		var count = ais.Count;
-		Console.WriteLine("Loaded {0} AI{1}.", count, count == 1 ? "" : "s");
+		ConsoleUtilities.WriteLine("Loaded #2{0}#0 AI{1}.", count, count == 1 ? "" : "s");
 	}
 
 	void IFuturemudLoader.LoadHooks()
 	{
-		Console.WriteLine("\nLoading Hooks...");
+		ConsoleUtilities.WriteLine("\nLoading #5Hooks#0...");
 #if DEBUG
 		var sw = new Stopwatch();
 		sw.Start();
@@ -2313,9 +2314,9 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 		}
 
 		var count = hooks.Count;
-		Console.WriteLine("Loaded {0} Hook{1}.", count, count == 1 ? "" : "s");
+		ConsoleUtilities.WriteLine("Loaded #2{0}#0 Hook{1}.", count, count == 1 ? "" : "s");
 
-		Console.WriteLine("\nLoading Default Hooks...");
+		ConsoleUtilities.WriteLine("\nLoading #5Default Hooks#0...");
 		var defaultHooks = (from hook in FMDB.Context.DefaultHooks.AsNoTracking() select hook).ToList();
 		foreach (var hook in defaultHooks)
 		{
@@ -2323,15 +2324,15 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 		}
 #if DEBUG
 		sw.Stop();
-		Console.WriteLine($"Duration: {sw.ElapsedMilliseconds}ms");
+		ConsoleUtilities.WriteLine($"Duration: #2{sw.ElapsedMilliseconds}ms#0");
 #endif
 		count = defaultHooks.Count;
-		Console.WriteLine("Loaded {0} Default Hook{1}.", count, count == 1 ? "" : "s");
+		ConsoleUtilities.WriteLine("Loaded #2{0}#0 Default Hook{1}.", count, count == 1 ? "" : "s");
 	}
 
 	void IFuturemudLoader.LoadCurrencies()
 	{
-		Console.WriteLine("\nLoading Currencies...");
+		ConsoleUtilities.WriteLine("\nLoading #5Currencies#0...");
 #if DEBUG
 		var sw = new Stopwatch();
 		sw.Start();
@@ -2353,15 +2354,15 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 		}
 #if DEBUG
 		sw.Stop();
-		Console.WriteLine($"Duration: {sw.ElapsedMilliseconds}ms");
+		ConsoleUtilities.WriteLine($"Duration: #2{sw.ElapsedMilliseconds}ms#0");
 #endif
 		var count = currencies.Count;
-		Console.WriteLine("Loaded {0} Currenc{1}.", count, count == 1 ? "y" : "ies");
+		ConsoleUtilities.WriteLine("Loaded #2{0}#0 Currenc{1}.", count, count == 1 ? "y" : "ies");
 	}
 
 	void IFuturemudLoader.LoadChargen()
 	{
-		Console.WriteLine("\nLoading Character Creation Storyboard...");
+		ConsoleUtilities.WriteLine("\nLoading #5Character Creation Storyboard#0...");
 #if DEBUG
 		var sw = new Stopwatch();
 		sw.Start();
@@ -2369,14 +2370,14 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 		ChargenStoryboard = new ChargenStoryboard(this);
 #if DEBUG
 		sw.Stop();
-		Console.WriteLine($"Duration: {sw.ElapsedMilliseconds}ms");
+		ConsoleUtilities.WriteLine($"Duration: #2{sw.ElapsedMilliseconds}ms#0");
 #endif
-		Console.WriteLine("Done.");
+		ConsoleUtilities.WriteLine("Done.");
 	}
 
 	void IFuturemudLoader.LoadEntityDescriptionPatterns()
 	{
-		Console.WriteLine("\nLoading Entity Description Patterns...");
+		ConsoleUtilities.WriteLine("\nLoading #5Entity Description Patterns#0...");
 #if DEBUG
 		var sw = new Stopwatch();
 		sw.Start();
@@ -2390,15 +2391,15 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 		}
 #if DEBUG
 		sw.Stop();
-		Console.WriteLine($"Duration: {sw.ElapsedMilliseconds}ms");
+		ConsoleUtilities.WriteLine($"Duration: #2{sw.ElapsedMilliseconds}ms#0");
 #endif
 		var count = patterns.Count;
-		Console.WriteLine("Loaded {0} Entity Description Pattern{1}.", count, count == 1 ? "" : "s");
+		ConsoleUtilities.WriteLine("Loaded #2{0}#0 Entity Description Pattern{1}.", count, count == 1 ? "" : "s");
 	}
 
 	void IFuturemudLoader.LoadCellOverlayPackages()
 	{
-		Console.WriteLine("\nLoading Cell Overlay Packages...");
+		ConsoleUtilities.WriteLine("\nLoading #5Cell Overlay Packages#0...");
 #if DEBUG
 		var sw = new Stopwatch();
 		sw.Start();
@@ -2415,15 +2416,15 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 		}
 #if DEBUG
 		sw.Stop();
-		Console.WriteLine($"Duration: {sw.ElapsedMilliseconds}ms");
+		ConsoleUtilities.WriteLine($"Duration: #2{sw.ElapsedMilliseconds}ms#0");
 #endif
 		var count = packages.Count;
-		Console.WriteLine("Loaded {0} Cell Overlay Package{1}.", count, count == 1 ? "" : "s");
+		ConsoleUtilities.WriteLine("Loaded #2{0}#0 Cell Overlay Package{1}.", count, count == 1 ? "" : "s");
 	}
 
 	void IFuturemudLoader.LoadHelpFiles()
 	{
-		Console.WriteLine("\nLoading Help Files...");
+		ConsoleUtilities.WriteLine("\nLoading #5Help Files#0...");
 #if DEBUG
 		var sw = new Stopwatch();
 		sw.Start();
@@ -2439,15 +2440,15 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 		}
 #if DEBUG
 		sw.Stop();
-		Console.WriteLine($"Duration: {sw.ElapsedMilliseconds}ms");
+		ConsoleUtilities.WriteLine($"Duration: #2{sw.ElapsedMilliseconds}ms#0");
 #endif
 		var count = helpfiles.Count;
-		Console.WriteLine("Loaded {0} Help File{1}.", count, count == 1 ? "" : "s");
+		ConsoleUtilities.WriteLine("Loaded #2{0}#0 Help File{1}.", count, count == 1 ? "" : "s");
 	}
 
 	void IFuturemudLoader.LoadFutureProgs()
 	{
-		Console.WriteLine("\nLoading FutureProgs...");
+		ConsoleUtilities.WriteLine("\nLoading #5FutureProgs#0...");
 #if DEBUG
 		var sw = new Stopwatch();
 		sw.Start();
@@ -2463,24 +2464,23 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 		}
 #if DEBUG
 		sw.Stop();
-		Console.WriteLine($"Duration: {sw.ElapsedMilliseconds}ms");
+		ConsoleUtilities.WriteLine($"Duration: #2{sw.ElapsedMilliseconds}ms#0");
 #endif
 		var count = progs.Count;
-		Console.WriteLine("Loaded {0} FutureProg{1}...Compiling...", count, count == 1 ? "" : "s");
+		ConsoleUtilities.WriteLine("Loaded #2{0}#0 FutureProg{1}...Compiling...", count, count == 1 ? "" : "s");
 
 		foreach (var prog in _futureProgs)
 		{
 			if (!prog.Compile())
 			{
-				Console.WriteLine("FutureProg {0} ({2}) failed to compile: {1}", prog.Id, prog.CompileError,
-					prog.FunctionName);
+				ConsoleUtilities.WriteLine("#9FutureProg {0} ({2}) failed to compile: {1}#0", prog.Id, prog.CompileError, prog.FunctionName);
 			}
 		}
 	}
 
 	void IFuturemudLoader.LoadScriptedEvents()
 	{
-		Console.WriteLine("\nLoading Scripted Events...");
+		ConsoleUtilities.WriteLine("\nLoading #5Scripted Events#0...");
 #if DEBUG
 		var sw = new Stopwatch();
 		sw.Start();
@@ -2498,15 +2498,15 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 		}
 #if DEBUG
 		sw.Stop();
-		Console.WriteLine($"Duration: {sw.ElapsedMilliseconds}ms");
+		ConsoleUtilities.WriteLine($"Duration: #2{sw.ElapsedMilliseconds}ms#0");
 #endif
 		var count = scripteds.Count;
-		Console.WriteLine("Loaded {0} Scripted Event{1}.", count, count == 1 ? "" : "s");
+		ConsoleUtilities.WriteLine("Loaded #2{0}#0 Scripted Event{1}.", count, count == 1 ? "" : "s");
 	}
 
 	void IFuturemudLoader.LoadCharacteristics()
 	{
-		Console.WriteLine("\nLoading Characteristics...");
+		ConsoleUtilities.WriteLine("\nLoading #5Characteristics#0...");
 #if DEBUG
 		var sw = new Stopwatch();
 		sw.Start();
@@ -2546,7 +2546,7 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 		}
 
 		var count = definitions.Count;
-		Console.WriteLine("Loaded {0} Characteristic Definition{1}.", count, count == 1 ? "" : "s");
+		ConsoleUtilities.WriteLine("Loaded #2{0}#0 Characteristic Definition{1}.", count, count == 1 ? "" : "s");
 
 		var values = (from value in FMDB.Context.CharacteristicValues.AsNoTracking()
 		              where value.DefinitionId != relativeHeightDefinition.Id
@@ -2563,7 +2563,7 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 		}
 
 		count = values.Count;
-		Console.WriteLine("Loaded {0} Characteristic Value{1}.", count, count == 1 ? "" : "s");
+		ConsoleUtilities.WriteLine("Loaded #2{0}#0 Characteristic Value{1}.", count, count == 1 ? "" : "s");
 
 		var profiles = (from profile in FMDB.Context.CharacteristicProfiles.AsNoTracking() select profile).ToList();
 		foreach (var profile in profiles)
@@ -2572,15 +2572,15 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 		}
 #if DEBUG
 		sw.Stop();
-		Console.WriteLine($"Duration: {sw.ElapsedMilliseconds}ms");
+		ConsoleUtilities.WriteLine($"Duration: #2{sw.ElapsedMilliseconds}ms#0");
 #endif
 		count = profiles.Count;
-		Console.WriteLine("Loaded {0} Characteristic Profile{1}.", count, count == 1 ? "" : "s");
+		ConsoleUtilities.WriteLine("Loaded #2{0}#0 Characteristic Profile{1}.", count, count == 1 ? "" : "s");
 	}
 
 	void IFuturemudLoader.LoadUnits()
 	{
-		Console.WriteLine("\nLoading Units of Measure...");
+		ConsoleUtilities.WriteLine("\nLoading #5Units of Measure#0...");
 #if DEBUG
 		var sw = new Stopwatch();
 		sw.Start();
@@ -2588,15 +2588,15 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 		UnitManager = new UnitManager(this);
 #if DEBUG
 		sw.Stop();
-		Console.WriteLine($"Duration: {sw.ElapsedMilliseconds}ms");
+		ConsoleUtilities.WriteLine($"Duration: #2{sw.ElapsedMilliseconds}ms#0");
 #endif
 		var count = UnitManager.Units.Count();
-		Console.WriteLine("Loaded {0} Unit{1} of Measure.", count, count == 1 ? "" : "s");
+		ConsoleUtilities.WriteLine("Loaded #2{0}#0 Unit{1} of Measure.", count, count == 1 ? "" : "s");
 	}
 
 	void IFuturemudLoader.LoadStackDecorators()
 	{
-		Console.WriteLine("\nLoading Stack Decorators...");
+		ConsoleUtilities.WriteLine("\nLoading #5Stack Decorators#0...");
 #if DEBUG
 		var sw = new Stopwatch();
 		sw.Start();
@@ -2610,16 +2610,16 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 		}
 #if DEBUG
 		sw.Stop();
-		Console.WriteLine($"Duration: {sw.ElapsedMilliseconds}ms");
+		ConsoleUtilities.WriteLine($"Duration: #2{sw.ElapsedMilliseconds}ms#0");
 #endif
 
 		var count = _stackDecorators.Count;
-		Console.WriteLine("Loaded {0} Stack Decorator{1}.", count, count == 1 ? "" : "s");
+		ConsoleUtilities.WriteLine("Loaded #2{0}#0 Stack Decorator{1}.", count, count == 1 ? "" : "s");
 	}
 
 	void IFuturemudLoader.LoadHearingProfiles()
 	{
-		Console.WriteLine("\nLoading Hearing Profiles...");
+		ConsoleUtilities.WriteLine("\nLoading #5Hearing Profiles#0...");
 #if DEBUG
 		var sw = new Stopwatch();
 		sw.Start();
@@ -2641,16 +2641,16 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 		}
 #if DEBUG
 		sw.Stop();
-		Console.WriteLine($"Duration: {sw.ElapsedMilliseconds}ms");
+		ConsoleUtilities.WriteLine($"Duration: #2{sw.ElapsedMilliseconds}ms#0");
 #endif
 
 		var count = profiles.Count;
-		Console.WriteLine("Loaded {0} Hearing Profile{1}.", count, count == 1 ? "" : "s");
+		ConsoleUtilities.WriteLine("Loaded #2{0}#0 Hearing Profile{1}.", count, count == 1 ? "" : "s");
 	}
 
 	void IFuturemudLoader.LoadLanguageDifficultyModels()
 	{
-		Console.WriteLine("\nLoading Language Difficulty Models...");
+		ConsoleUtilities.WriteLine("\nLoading #5Language Difficulty Models#0...");
 #if DEBUG
 		var sw = new Stopwatch();
 		sw.Start();
@@ -2663,15 +2663,15 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 		}
 #if DEBUG
 		sw.Stop();
-		Console.WriteLine($"Duration: {sw.ElapsedMilliseconds}ms");
+		ConsoleUtilities.WriteLine($"Duration: #2{sw.ElapsedMilliseconds}ms#0");
 #endif
 		var count = models.Count;
-		Console.WriteLine("Loaded {0} Language Difficulty Model{1}.", count, count == 1 ? "" : "s");
+		ConsoleUtilities.WriteLine("Loaded #2{0}#0 Language Difficulty Model{1}.", count, count == 1 ? "" : "s");
 	}
 
 	void IFuturemudLoader.LoadLanguages()
 	{
-		Console.WriteLine("\nLoading Languages and Accents...");
+		ConsoleUtilities.WriteLine("\nLoading #5Languages and Accents#0...");
 #if DEBUG
 		var sw = new Stopwatch();
 		sw.Start();
@@ -2688,18 +2688,18 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 		}
 #if DEBUG
 		sw.Stop();
-		Console.WriteLine($"Duration: {sw.ElapsedMilliseconds}ms");
+		ConsoleUtilities.WriteLine($"Duration: #2{sw.ElapsedMilliseconds}ms#0");
 #endif
 
 		var count = languages.Count;
 		var accents = _accents.Count;
-		Console.WriteLine("Loaded {0} Language{1} and {2} Accent{3}.", count, count == 1 ? "" : "s", accents,
+		ConsoleUtilities.WriteLine("Loaded #2{0}#0 Language{1} and #2{2}#0 Accent{3}.", count, count == 1 ? "" : "s", accents,
 			accents == 1 ? "" : "s");
 	}
 
 	void IFuturemudLoader.LoadAuthorityGroups()
 	{
-		Console.WriteLine("\nLoading Authority Groups...");
+		ConsoleUtilities.WriteLine("\nLoading #5Authority Groups#0...");
 #if DEBUG
 		var sw = new Stopwatch();
 		sw.Start();
@@ -2717,15 +2717,15 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 		}
 #if DEBUG
 		sw.Stop();
-		Console.WriteLine($"Duration: {sw.ElapsedMilliseconds}ms");
+		ConsoleUtilities.WriteLine($"Duration: #2{sw.ElapsedMilliseconds}ms#0");
 #endif
 		var count = authorityGroups.Count;
-		Console.WriteLine("Loaded {0:N0} {1}.", count, count == 1 ? "Authority Group" : "Authority Groups");
+		ConsoleUtilities.WriteLine("Loaded #2{0:N0}#0 {1}.", count, count == 1 ? "Authority Group" : "Authority Groups");
 	}
 
 	void IFuturemudLoader.LoadTerrains()
 	{
-		Console.WriteLine("\nLoading Terrains...");
+		ConsoleUtilities.WriteLine("\nLoading #5Terrains#0...");
 #if DEBUG
 		var sw = new Stopwatch();
 		sw.Start();
@@ -2738,15 +2738,15 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 		}
 #if DEBUG
 		sw.Stop();
-		Console.WriteLine($"Duration: {sw.ElapsedMilliseconds}ms");
+		ConsoleUtilities.WriteLine($"Duration: #2{sw.ElapsedMilliseconds}ms#0");
 #endif
 		var count = terrains.Count;
-		Console.WriteLine("Loaded {0:N0} {1}.", count, count == 1 ? "Terrain" : "Terrains");
+		ConsoleUtilities.WriteLine("Loaded #2{0:N0}#0 {1}.", count, count == 1 ? "Terrain" : "Terrains");
 	}
 
 	void IFuturemudLoader.LoadWorld()
 	{
-		Console.WriteLine("\nLoading Shards...");
+		ConsoleUtilities.WriteLine("\nLoading #5Shards#0...");
 #if DEBUG
 		var sw = new Stopwatch();
 		sw.Start();
@@ -2764,14 +2764,14 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 		}
 #if DEBUG
 		sw.Stop();
-		Console.WriteLine($"Duration: {sw.ElapsedMilliseconds}ms");
+		ConsoleUtilities.WriteLine($"Duration: #2{sw.ElapsedMilliseconds}ms#0");
 #endif
 		var count = shards.Count;
-		Console.WriteLine("Loaded {0:N0} {1}.", count, count == 1 ? "Shard" : "Shards");
+		ConsoleUtilities.WriteLine("Loaded #2{0:N0}#0 {1}.", count, count == 1 ? "Shard" : "Shards");
 
 		// ------------------------------------------------------------------- //
 
-		Console.WriteLine("\nLoading Zones...");
+		ConsoleUtilities.WriteLine("\nLoading #5Zones#0...");
 #if DEBUG
 		sw.Restart();
 #endif
@@ -2786,14 +2786,14 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 		}
 #if DEBUG
 		sw.Stop();
-		Console.WriteLine($"Duration: {sw.ElapsedMilliseconds}ms");
+		ConsoleUtilities.WriteLine($"Duration: #2{sw.ElapsedMilliseconds}ms#0");
 #endif
 		count = zones.Count;
-		Console.WriteLine("Loaded {0} {1}.", count, count == 1 ? "Zone" : "Zones");
+		ConsoleUtilities.WriteLine("Loaded #2{0}#0 {1}.", count, count == 1 ? "Zone" : "Zones");
 
 		// ------------------------------------------------------------------- //
 
-		Console.WriteLine("\nLoading Rooms...");
+		ConsoleUtilities.WriteLine("\nLoading #5Rooms#0...");
 #if DEBUG
 		sw.Restart();
 #endif
@@ -2805,14 +2805,14 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 		}
 #if DEBUG
 		sw.Stop();
-		Console.WriteLine($"Duration: {sw.ElapsedMilliseconds}ms");
+		ConsoleUtilities.WriteLine($"Duration: #2{sw.ElapsedMilliseconds}ms#0");
 #endif
 		count = rooms.Count;
-		Console.WriteLine("Loaded {0} {1}.", count, count == 1 ? "Room" : "Rooms");
+		ConsoleUtilities.WriteLine("Loaded #2{0}#0 {1}.", count, count == 1 ? "Room" : "Rooms");
 
 		// ------------------------------------------------------------------- //
 
-		Console.WriteLine("\nLoading Cells");
+		ConsoleUtilities.WriteLine("\nLoading #5Cells#0...");
 #if DEBUG
 		sw.Restart();
 #endif
@@ -2837,12 +2837,12 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 		}
 #if DEBUG
 		sw.Stop();
-		Console.WriteLine($"Duration: {sw.ElapsedMilliseconds}ms");
+		ConsoleUtilities.WriteLine($"Duration: #2{sw.ElapsedMilliseconds}ms#0");
 #endif
 		count = cells.Count;
-		Console.WriteLine("Loaded {0:N0} {1}.", count, count == 1 ? "Cell" : "Cells");
+		ConsoleUtilities.WriteLine("Loaded #2{0:N0}#0 {1}.", count, count == 1 ? "Cell" : "Cells");
 
-		Console.WriteLine("\nLoading Areas");
+		ConsoleUtilities.WriteLine("\nLoading #5Areas#0...");
 #if DEBUG
 		sw.Restart();
 #endif
@@ -2856,24 +2856,24 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 		}
 #if DEBUG
 		sw.Stop();
-		Console.WriteLine($"Duration: {sw.ElapsedMilliseconds}ms");
+		ConsoleUtilities.WriteLine($"Duration: #2{sw.ElapsedMilliseconds}ms#0");
 #endif
 		count = areas.Count;
-		Console.WriteLine("Loaded {0:N0} {1}.", count, count == 1 ? "Area" : "Areas");
+		ConsoleUtilities.WriteLine("Loaded #2{0:N0}#0 {1}.", count, count == 1 ? "Area" : "Areas");
 
 		// ------------------------------------------------------------------- //
 
 
-		Console.WriteLine("Loading Exit Manager and Preloading Critical Cell Exits...");
+		ConsoleUtilities.WriteLine("#ELoading Exit Manager and Preloading Critical Cell Exits...#0");
 #if DEBUG
 		sw.Restart();
 #endif
 		ExitManager = new ExitManager(this);
 #if DEBUG
 		sw.Stop();
-		Console.WriteLine($"Duration: {sw.ElapsedMilliseconds}ms");
+		ConsoleUtilities.WriteLine($"Duration: #2{sw.ElapsedMilliseconds}ms#0");
 #endif
-		Console.WriteLine("Exit Manager Complete.");
+		ConsoleUtilities.WriteLine("#AExit Manager Complete.#0");
 
 		foreach (var zone in _zones)
 		{
@@ -2887,7 +2887,7 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 
 	void IFuturemudLoader.LoadBodies()
 	{
-		Console.WriteLine("\nLoading Bodypart Group Describers...");
+		ConsoleUtilities.WriteLine("\nLoading #5#5Bodypart Group Describers#0#0...");
 #if DEBUG
 		var sw = new Stopwatch();
 		sw.Start();
@@ -2908,17 +2908,17 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 		}
 #if DEBUG
 		sw.Stop();
-		Console.WriteLine($"Duration: {sw.ElapsedMilliseconds}ms");
+		ConsoleUtilities.WriteLine($"Duration: #2{sw.ElapsedMilliseconds}ms#0");
 #endif
 		var count = _bodypartGroupDescriptionRules.Count;
-		Console.WriteLine("Loaded {0:N0} {1}.", count,
+		ConsoleUtilities.WriteLine("Loaded #2{0:N0}#0 {1}.", count,
 			count == 1 ? "Bodypart Group Describer" : "Bodypart Group Describers");
 
-		Console.WriteLine("\nLoading Bodies...");
+		ConsoleUtilities.WriteLine("\nLoading #5Bodies#0...");
 #if DEBUG
 		sw.Restart();
 #endif
-		Console.WriteLine("\nLoading Bodyparts...");
+		ConsoleUtilities.WriteLine("\nLoading #5Bodyparts#0...");
 
 		var bpprotos = FMDB.Context.BodypartProtos.ToList();
 		foreach (var bpproto in bpprotos)
@@ -2971,10 +2971,10 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 		}
 #if DEBUG
 		sw.Stop();
-		Console.WriteLine($"Duration: {sw.ElapsedMilliseconds}ms");
+		ConsoleUtilities.WriteLine($"Duration: #2{sw.ElapsedMilliseconds}ms#0");
 #endif
 
-		Console.WriteLine("\nLoading Body Protos...");
+		ConsoleUtilities.WriteLine("\nLoading #5Body Protos#0...");
 #if DEBUG
 		sw.Restart();
 #endif
@@ -2997,28 +2997,28 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 
 #if DEBUG
 		sw.Stop();
-		Console.WriteLine($"Duration: {sw.ElapsedMilliseconds}ms");
+		ConsoleUtilities.WriteLine($"Duration: #2{sw.ElapsedMilliseconds}ms#0");
 #endif
 
-		Console.WriteLine("\nLinking Bodyparts...");
+		ConsoleUtilities.WriteLine("\n#ELinking Bodyparts...#0");
 		foreach (var part in bpprotos)
 		{
 			BodypartPrototypes.Get(part.Id).SetBodyProto(BodyPrototypes.Get(part.BodyId));
 		}
 
-		Console.WriteLine("\nFinalising Bodyparts...");
+		ConsoleUtilities.WriteLine("\n#EFinalising Bodyparts...#0");
 		foreach (var body in BodyPrototypes)
 		{
 			body.FinaliseBodyparts(bodyStaging[body]);
 		}
 #if DEBUG
 		sw.Stop();
-		Console.WriteLine($"Duration: {sw.ElapsedMilliseconds}ms");
+		ConsoleUtilities.WriteLine($"Duration: #2{sw.ElapsedMilliseconds}ms#0");
 #endif
 		count = bodies.Count;
-		Console.WriteLine("Loaded {0:N0} {1}.", count, count == 1 ? "Body Prototype" : "Body Prototypes");
+		ConsoleUtilities.WriteLine("Loaded #2{0:N0}#0 {1}.", count, count == 1 ? "Body Prototype" : "Body Prototypes");
 
-		Console.WriteLine("\nLoading Limbs...");
+		ConsoleUtilities.WriteLine("\nLoading #5Limbs#0...");
 #if DEBUG
 		sw.Restart();
 #endif
@@ -3032,18 +3032,18 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 		}
 #if DEBUG
 		sw.Stop();
-		Console.WriteLine($"Duration: {sw.ElapsedMilliseconds}ms");
+		ConsoleUtilities.WriteLine($"Duration: #2{sw.ElapsedMilliseconds}ms#0");
 #endif
 		count = limbs.Count;
-		Console.WriteLine("Loaded {0:N0} {1}.", count, count == 1 ? "Limb" : "Limbs");
+		ConsoleUtilities.WriteLine("Loaded #2{0:N0}#0 {1}.", count, count == 1 ? "Limb" : "Limbs");
 
-		Console.WriteLine("Finalising Bodypart Group Describers...");
+		ConsoleUtilities.WriteLine("#EFinalising Bodypart Group Describers...#0");
 		foreach (var item in bodypartStagingTable)
 		{
 			item.Key.FinaliseLoad(item.Value, this);
 		}
 
-		Console.WriteLine("Done finalising Bodypart Group Describers...");
+		ConsoleUtilities.WriteLine("#ADone finalising Bodypart Group Describers...#0");
 
 		foreach (var part in BodypartPrototypes)
 		{
@@ -3075,7 +3075,7 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 
 	void IFuturemudLoader.LoadBodypartShapes()
 	{
-		Console.WriteLine("\nLoading Bodypart Shapes...");
+		ConsoleUtilities.WriteLine("\nLoading #5Bodypart Shapes#0...");
 #if DEBUG
 		var sw = new Stopwatch();
 		sw.Start();
@@ -3089,16 +3089,16 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 		}
 #if DEBUG
 		sw.Stop();
-		Console.WriteLine($"Duration: {sw.ElapsedMilliseconds}ms");
+		ConsoleUtilities.WriteLine($"Duration: #2{sw.ElapsedMilliseconds}ms#0");
 #endif
 
 		var count = _bodypartShapes.Count;
-		Console.WriteLine("Loaded {0:N0} {1}.", count, count == 1 ? "Bodypart Shape" : "Bodypart Shapes");
+		ConsoleUtilities.WriteLine("Loaded #2{0:N0}#0 {1}.", count, count == 1 ? "Bodypart Shape" : "Bodypart Shapes");
 	}
 
 	void IFuturemudLoader.LoadClans()
 	{
-		Console.WriteLine("\nLoading Clans...");
+		ConsoleUtilities.WriteLine("\nLoading #5Clans#0...");
 #if DEBUG
 		var sw = new Stopwatch();
 		sw.Start();
@@ -3129,7 +3129,7 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 			).ToList();
 
 #if DEBUG
-		Console.WriteLine($"...Creating Clan objects [{sw.ElapsedMilliseconds}ms]");
+		ConsoleUtilities.WriteLine($"#E...Creating Clan objects#0 [#2{sw.ElapsedMilliseconds}ms#0]");
 #endif
 		var staging = new Dictionary<IClan, Clan>();
 		foreach (var clan in clans)
@@ -3140,7 +3140,7 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 		}
 
 #if DEBUG
-		Console.WriteLine($"...Finalising Load of Clans [{sw.ElapsedMilliseconds}ms]");
+		ConsoleUtilities.WriteLine($"#E...Finalising Load of Clans#0 [#2{sw.ElapsedMilliseconds}ms#0]");
 #endif
 		foreach (var clan in staging)
 		{
@@ -3148,7 +3148,7 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 		}
 
 #if DEBUG
-		Console.WriteLine($"...Loading External Controls [{sw.ElapsedMilliseconds}ms]");
+		ConsoleUtilities.WriteLine($"#E...Loading External Controls#0 [#2{sw.ElapsedMilliseconds}ms#0]");
 #endif
 		var externals = from external
 			                in FMDB.Context.ExternalClanControls
@@ -3162,18 +3162,18 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 		}
 #if DEBUG
 		sw.Stop();
-		Console.WriteLine($"Duration: {sw.ElapsedMilliseconds}ms");
+		ConsoleUtilities.WriteLine($"Duration: #2{sw.ElapsedMilliseconds}ms#0");
 #endif
 		var count = clans.Count;
-		Console.WriteLine("Loaded {0:N0} {1}.", count, count == 1 ? "Clan" : "Clans");
+		ConsoleUtilities.WriteLine("Loaded #2{0:N0}#0 {1}.", count, count == 1 ? "Clan" : "Clans");
 		count = externals.Count();
-		Console.WriteLine("Loaded {0:N0} {1}.", count,
+		ConsoleUtilities.WriteLine("Loaded #2{0:N0}#0 {1}.", count,
 			count == 1 ? "External Clan Control" : "External Clan Controls");
 	}
 
 	void IFuturemudLoader.LoadColours()
 	{
-		Console.WriteLine("\nLoading Colours...");
+		ConsoleUtilities.WriteLine("\nLoading #5Colours#0...");
 #if DEBUG
 		var sw = new Stopwatch();
 		sw.Start();
@@ -3185,15 +3185,15 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 		}
 #if DEBUG
 		sw.Stop();
-		Console.WriteLine($"Duration: {sw.ElapsedMilliseconds}ms");
+		ConsoleUtilities.WriteLine($"Duration: #2{sw.ElapsedMilliseconds}ms#0");
 #endif
 		var count = _colours.Count;
-		Console.WriteLine("Loaded {0:N0} {1}.", count, count == 1 ? "Colour" : "Colours");
+		ConsoleUtilities.WriteLine("Loaded #2{0:N0}#0 {1}.", count, count == 1 ? "Colour" : "Colours");
 	}
 
 	void IFuturemudLoader.LoadTags()
 	{
-		Console.WriteLine("\nLoading Tags...");
+		ConsoleUtilities.WriteLine("\nLoading #5Tags#0...");
 #if DEBUG
 		var sw = new Stopwatch();
 		sw.Start();
@@ -3216,16 +3216,16 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 		}
 #if DEBUG
 		sw.Stop();
-		Console.WriteLine($"Duration: {sw.ElapsedMilliseconds}ms");
+		ConsoleUtilities.WriteLine($"Duration: #2{sw.ElapsedMilliseconds}ms#0");
 #endif
 
 		var count = tags.Count;
-		Console.WriteLine("Loaded {0:N0} {1}.", count, count == 1 ? "Tag" : "Tags");
+		ConsoleUtilities.WriteLine("Loaded #2{0:N0}#0 {1}.", count, count == 1 ? "Tag" : "Tags");
 	}
 
 	void IFuturemudLoader.LoadWearProfiles()
 	{
-		Console.WriteLine("\nLoading Wear Profiles...");
+		ConsoleUtilities.WriteLine("\nLoading #5Wear Profiles#0...");
 #if DEBUG
 		var sw = new Stopwatch();
 		sw.Start();
@@ -3238,16 +3238,16 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 		}
 #if DEBUG
 		sw.Stop();
-		Console.WriteLine($"Duration: {sw.ElapsedMilliseconds}ms");
+		ConsoleUtilities.WriteLine($"Duration: #2{sw.ElapsedMilliseconds}ms#0");
 #endif
 
 		var count = _wearProfiles.Count;
-		Console.WriteLine("Loaded {0} Wear Profile{1}.", count, count == 1 ? "" : "s");
+		ConsoleUtilities.WriteLine("Loaded #2{0}#0 Wear Profile{1}.", count, count == 1 ? "" : "s");
 	}
 
 	void IFuturemudLoader.LoadGameItemComponentProtos()
 	{
-		Console.WriteLine("\nLoading Game Item Component Protos...");
+		ConsoleUtilities.WriteLine("\nLoading #5Game Item Component Protos#0...");
 #if DEBUG
 		var sw = new Stopwatch();
 		sw.Start();
@@ -3262,16 +3262,16 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 		}
 #if DEBUG
 		sw.Stop();
-		Console.WriteLine($"Duration: {sw.ElapsedMilliseconds}ms");
+		ConsoleUtilities.WriteLine($"Duration: #2{sw.ElapsedMilliseconds}ms#0");
 #endif
 		var count = _itemComponentProtos.Count();
-		Console.WriteLine("Loaded {0:N0} {1}.", count,
+		ConsoleUtilities.WriteLine("Loaded #2{0:N0}#0 {1}.", count,
 			count == 1 ? "Game Item Component Proto" : "Game Item Component Protos");
 	}
 
 	void IFuturemudLoader.LoadGameItemProtos()
 	{
-		Console.WriteLine("\nLoading Game Item Protos...");
+		ConsoleUtilities.WriteLine("\nLoading #5Game Item Protos#0...");
 #if DEBUG
 		var sw = new Stopwatch();
 		sw.Start();
@@ -3323,16 +3323,16 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 		}
 #if DEBUG
 		sw.Stop();
-		Console.WriteLine($"Duration: {sw.ElapsedMilliseconds}ms");
+		ConsoleUtilities.WriteLine($"Duration: #2{sw.ElapsedMilliseconds}ms#0");
 #endif
 
 		var count = _itemProtos.Count();
-		Console.WriteLine("Loaded {0:N0} {1}.", count, count == 1 ? "Game Item Proto" : "Game Item Protos");
+		ConsoleUtilities.WriteLine("Loaded #2{0:N0}#0 {1}.", count, count == 1 ? "Game Item Proto" : "Game Item Protos");
 	}
 
 	void IFuturemudLoader.LoadGameItemSkins()
 	{
-		Console.WriteLine("\nLoading Game Item Skins...");
+		ConsoleUtilities.WriteLine("\nLoading #5Game Item Skins#0...");
 #if DEBUG
 		var sw = new Stopwatch();
 		sw.Start();
@@ -3349,16 +3349,16 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 
 #if DEBUG
 		sw.Stop();
-		Console.WriteLine($"Duration: {sw.ElapsedMilliseconds}ms");
+		ConsoleUtilities.WriteLine($"Duration: #2{sw.ElapsedMilliseconds}ms#0");
 #endif
 
 		var count = _itemSkins.Count();
-		Console.WriteLine("Loaded {0:N0} {1}.", count, count == 1 ? "Game Item Skin" : "Game Item Skins");
+		ConsoleUtilities.WriteLine("Loaded #2{0:N0}#0 {1}.", count, count == 1 ? "Game Item Skin" : "Game Item Skins");
 	}
 
 	void IFuturemudLoader.LoadImprovementModels()
 	{
-		Console.WriteLine("\nLoading Improvement Models...");
+		ConsoleUtilities.WriteLine("\nLoading #5Improvement Models#0...");
 #if DEBUG
 		var sw = new Stopwatch();
 		sw.Start();
@@ -3370,15 +3370,15 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 		}
 #if DEBUG
 		sw.Stop();
-		Console.WriteLine($"Duration: {sw.ElapsedMilliseconds}ms");
+		ConsoleUtilities.WriteLine($"Duration: #2{sw.ElapsedMilliseconds}ms#0");
 #endif
 		var count = _improvementModels.Count;
-		Console.WriteLine("Loaded {0} Improvement Model{1}", count, count == 1 ? "" : "s");
+		ConsoleUtilities.WriteLine("Loaded #2{0}#0 Improvement Model{1}", count, count == 1 ? "" : "s");
 	}
 
 	void IFuturemudLoader.LoadTraits()
 	{
-		Console.WriteLine("\nLoading Trait Definitions...");
+		ConsoleUtilities.WriteLine("\nLoading #5Trait Definitions#0...");
 #if DEBUG
 		var sw = new Stopwatch();
 		sw.Start();
@@ -3398,15 +3398,15 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 		}
 #if DEBUG
 		sw.Stop();
-		Console.WriteLine($"Duration: {sw.ElapsedMilliseconds}ms");
+		ConsoleUtilities.WriteLine($"Duration: #2{sw.ElapsedMilliseconds}ms#0");
 #endif
 		var count = traits.Count;
-		Console.WriteLine("Loaded {0} Trait Definition{1}", count, count == 1 ? "" : "s");
+		ConsoleUtilities.WriteLine("Loaded #2{0}#0 Trait Definition{1}", count, count == 1 ? "" : "s");
 	}
 
 	void IFuturemudLoader.LoadTraitDecorators()
 	{
-		Console.WriteLine("\nLoading Trait Decorators...");
+		ConsoleUtilities.WriteLine("\nLoading #5Trait Decorators#0...");
 #if DEBUG
 		var sw = new Stopwatch();
 		sw.Start();
@@ -3418,15 +3418,15 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 		}
 #if DEBUG
 		sw.Stop();
-		Console.WriteLine($"Duration: {sw.ElapsedMilliseconds}ms");
+		ConsoleUtilities.WriteLine($"Duration: #2{sw.ElapsedMilliseconds}ms#0");
 #endif
 		var count = decorators.Count;
-		Console.WriteLine("Loaded {0} Trait Decorator{1}", count, count == 1 ? "" : "s");
+		ConsoleUtilities.WriteLine("Loaded #2{0}#0 Trait Decorator{1}", count, count == 1 ? "" : "s");
 	}
 
 	void IFuturemudLoader.LoadEthnicities()
 	{
-		Console.WriteLine("\nLoading Ethnicities...");
+		ConsoleUtilities.WriteLine("\nLoading #5Ethnicities#0...");
 #if DEBUG
 		var sw = new Stopwatch();
 		sw.Start();
@@ -3444,16 +3444,16 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 		}
 #if DEBUG
 		sw.Stop();
-		Console.WriteLine($"Duration: {sw.ElapsedMilliseconds}ms");
+		ConsoleUtilities.WriteLine($"Duration: #2{sw.ElapsedMilliseconds}ms#0");
 #endif
 
 		var count = ethnicities.Count;
-		Console.WriteLine("Loaded {0} Ethnicit{1}", count, count == 1 ? "y" : "ies");
+		ConsoleUtilities.WriteLine("Loaded #2{0}#0 Ethnicit{1}", count, count == 1 ? "y" : "ies");
 	}
 
 	void IFuturemudLoader.LoadCultures()
 	{
-		Console.WriteLine("\nLoading Cultures and Name Cultures, and Names...");
+		ConsoleUtilities.WriteLine("\nLoading #5Cultures and Name Cultures, and Names#0...");
 #if DEBUG
 		var sw = new Stopwatch();
 		sw.Start();
@@ -3472,7 +3472,7 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 		}
 
 		var count = namecultures.Count;
-		Console.WriteLine("Loaded {0} Name Culture{1}", count, count == 1 ? "" : "s");
+		ConsoleUtilities.WriteLine("Loaded #2{0}#0 Name Culture{1}", count, count == 1 ? "" : "s");
 
 		var cultures = (from culture in FMDB.Context.Cultures
 		                                    .Include(x => x.CulturesChargenResources)
@@ -3485,12 +3485,12 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 		}
 
 		count = cultures.Count;
-		Console.WriteLine("Loaded {0} Culture{1}", count, count == 1 ? "" : "s");
+		ConsoleUtilities.WriteLine("Loaded #2{0}#0 Culture{1}", count, count == 1 ? "" : "s");
 	}
 
 	void IFuturemudLoader.LoadRaces()
 	{
-		Console.WriteLine("\nLoading Races...");
+		ConsoleUtilities.WriteLine("\nLoading #5Races#0...");
 #if DEBUG
 		var sw = new Stopwatch();
 		sw.Start();
@@ -3523,15 +3523,15 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 		}
 #if DEBUG
 		sw.Stop();
-		Console.WriteLine($"Duration: {sw.ElapsedMilliseconds}ms");
+		ConsoleUtilities.WriteLine($"Duration: #2{sw.ElapsedMilliseconds}ms#0");
 #endif
 		var count = staging.Count;
-		Console.WriteLine("Loaded {0} Race{1}", count, count == 1 ? "" : "s");
+		ConsoleUtilities.WriteLine("Loaded #2{0}#0 Race{1}", count, count == 1 ? "" : "s");
 	}
 
 	void IFuturemudLoader.LoadProjects()
 	{
-		Console.WriteLine("\nLoading Projects...");
+		ConsoleUtilities.WriteLine("\nLoading #5Projects#0...");
 #if DEBUG
 		var sw = new Stopwatch();
 		sw.Start();
@@ -3553,12 +3553,12 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 		}
 #if DEBUG
 		sw.Stop();
-		Console.WriteLine($"Duration: {sw.ElapsedMilliseconds}ms");
+		ConsoleUtilities.WriteLine($"Duration: #2{sw.ElapsedMilliseconds}ms#0");
 #endif
 		var count = projects.Count;
-		Console.WriteLine("Loaded {0:N0} {1}.", count, count == 1 ? "Project" : "Projects");
+		ConsoleUtilities.WriteLine("Loaded #2{0:N0}#0 {1}.", count, count == 1 ? "Project" : "Projects");
 
-		Console.WriteLine("\nLoading Active Projects...");
+		ConsoleUtilities.WriteLine("\nLoading #5Active Projects#0...");
 #if DEBUG
 		sw.Restart();
 #endif
@@ -3573,15 +3573,15 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 		}
 #if DEBUG
 		sw.Stop();
-		Console.WriteLine($"Duration: {sw.ElapsedMilliseconds}ms");
+		ConsoleUtilities.WriteLine($"Duration: #2{sw.ElapsedMilliseconds}ms#0");
 #endif
 		count = projects.Count;
-		Console.WriteLine("Loaded {0:N0} {1}.", count, count == 1 ? "Active Project" : "Active Projects");
+		ConsoleUtilities.WriteLine("Loaded #2{0:N0}#0 {1}.", count, count == 1 ? "Active Project" : "Active Projects");
 	}
 
 	void IFuturemudLoader.LoadJobs()
 	{
-		Console.WriteLine("\nLoading Job Listings...");
+		ConsoleUtilities.WriteLine("\nLoading #5Job Listings#0...");
 #if DEBUG
 		var sw = new Stopwatch();
 		sw.Start();
@@ -3597,10 +3597,10 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 		}
 #if DEBUG
 		sw.Stop();
-		Console.WriteLine($"Duration: {sw.ElapsedMilliseconds}ms");
+		ConsoleUtilities.WriteLine($"Duration: #2{sw.ElapsedMilliseconds}ms#0");
 #endif
 		var count = _jobListings.Count;
-		Console.WriteLine("Loaded {0:N0} {1}.", count, count == 1 ? "Job Listing" : "Job Listings");
+		ConsoleUtilities.WriteLine("Loaded #2{0:N0}#0 {1}.", count, count == 1 ? "Job Listing" : "Job Listings");
 	}
 
 	public void ReleasePrimedGameItems()
@@ -3610,7 +3610,7 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 
 	public void PrimeGameItems()
 	{
-		Console.WriteLine("Preparing to Cache Game Items...");
+		ConsoleUtilities.WriteLine("Preparing to Cache Game Items...");
 #if DEBUG
 		var sw = new Stopwatch();
 		sw.Start();
@@ -3627,7 +3627,7 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 		while (true)
 		{
 #if DEBUG
-			Console.WriteLine($"Retrieving records {i * 250} to {(i + 1) * 250}...");
+			ConsoleUtilities.WriteLine($"#3...Retrieving records #2{i * 250} #3to #2{(i + 1) * 250}#3...#0");
 #endif
 			var result = query.Skip(i++ * 250).Take(250).ToList();
 			if (!result.Any())
@@ -3642,16 +3642,16 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 		}
 #if DEBUG
 		sw.Stop();
-		Console.WriteLine($"Duration: {sw.ElapsedMilliseconds}ms");
+		ConsoleUtilities.WriteLine($"Duration: #2{sw.ElapsedMilliseconds}ms#0");
 #endif
-		Console.WriteLine("Done Caching Game Items.");
+		ConsoleUtilities.WriteLine("Done Caching Game Items.");
 	}
 
 	#region IFuturemudLoader Members
 
 	void IFuturemudLoader.LoadCalendars()
 	{
-		Console.WriteLine("\nLoading Calendars...");
+		ConsoleUtilities.WriteLine("\nLoading #5Calendars#0...");
 #if DEBUG
 		var sw = new Stopwatch();
 		sw.Start();
@@ -3664,15 +3664,15 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 		}
 #if DEBUG
 		sw.Stop();
-		Console.WriteLine($"Duration: {sw.ElapsedMilliseconds}ms");
+		ConsoleUtilities.WriteLine($"Duration: #2{sw.ElapsedMilliseconds}ms#0");
 #endif
 		var count = calendars.Count;
-		Console.WriteLine("Loaded {0} Calendar{1}", count, count == 1 ? "" : "s");
+		ConsoleUtilities.WriteLine("Loaded #2{0}#0 Calendar{1}", count, count == 1 ? "" : "s");
 	}
 
 	void IFuturemudLoader.LoadClocks()
 	{
-		Console.WriteLine("\nLoading Clocks...");
+		ConsoleUtilities.WriteLine("\nLoading #5Clocks#0...");
 #if DEBUG
 		var sw = new Stopwatch();
 		sw.Start();
@@ -3691,16 +3691,16 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 		}
 #if DEBUG
 		sw.Stop();
-		Console.WriteLine($"Duration: {sw.ElapsedMilliseconds}ms");
+		ConsoleUtilities.WriteLine($"Duration: #2{sw.ElapsedMilliseconds}ms#0");
 #endif
 
 		var count = clocks.Count;
-		Console.WriteLine("Loaded {0} Clock{1}", count, count == 1 ? "" : "s");
+		ConsoleUtilities.WriteLine("Loaded #2{0}#0 Clock{1}", count, count == 1 ? "" : "s");
 	}
 
 	void IFuturemudLoader.LoadChecks()
 	{
-		Console.WriteLine("\nLoading Checks...");
+		ConsoleUtilities.WriteLine("\nLoading #5Checks#0...");
 #if DEBUG
 		var sw = new Stopwatch();
 		sw.Start();
@@ -3751,11 +3751,11 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 		}
 #if DEBUG
 		sw.Stop();
-		Console.WriteLine($"Duration: {sw.ElapsedMilliseconds}ms");
+		ConsoleUtilities.WriteLine($"Duration: #2{sw.ElapsedMilliseconds}ms#0");
 #endif
 
 		var count = checks.Count;
-		Console.WriteLine("Loaded {0} Check{1}", count, count == 1 ? "" : "s");
+		ConsoleUtilities.WriteLine("Loaded #2{0}#0 Check{1}", count, count == 1 ? "" : "s");
 		foreach (var value in Enum.GetValues(typeof(CheckType)).OfType<CheckType>())
 		{
 			if (_checksIDs.ContainsKey(value))
@@ -3763,8 +3763,8 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 				continue;
 			}
 
-			Console.WriteLine(
-				$"Warning - no check defined for check type {(int)value:N0} ({Enum.GetName(typeof(CheckType), value)})");
+			ConsoleUtilities.WriteLine(
+				$"#1Warning - no check defined for check type {(int)value:N0} ({Enum.GetName(typeof(CheckType), value)})#0");
 		}
 	}
 
@@ -3779,7 +3779,7 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 		var sw = new Stopwatch();
 		sw.Start();
 #endif
-		Console.WriteLine("\nLoading Prog Schedules...");
+		ConsoleUtilities.WriteLine("\nLoading #5Prog Schedules#0...");
 		var schedules = (from schedule in FMDB.Context.ProgSchedules.AsNoTracking() select schedule).ToList();
 		foreach (var schedule in schedules)
 		{
@@ -3787,10 +3787,10 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 		}
 #if DEBUG
 		sw.Stop();
-		Console.WriteLine($"Duration: {sw.ElapsedMilliseconds}ms");
+		ConsoleUtilities.WriteLine($"Duration: #2{sw.ElapsedMilliseconds}ms#0");
 #endif
 		var count = schedules.Count;
-		Console.WriteLine("Loaded {0:N0} {1}.", count, count == 1 ? "Prog Schedule" : "Prog Schedules");
+		ConsoleUtilities.WriteLine("Loaded #2{0:N0}#0 {1}.", count, count == 1 ? "Prog Schedule" : "Prog Schedules");
 	}
 
 	void IFuturemudLoader.LoadCelestials()
@@ -3799,7 +3799,7 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 		var sw = new Stopwatch();
 		sw.Start();
 #endif
-		Console.WriteLine("\nLoading Celestials...");
+		ConsoleUtilities.WriteLine("\nLoading #5Celestials#0...");
 
 		var celestials = (from celestial in FMDB.Context.Celestials.AsNoTracking()
 		                  select celestial).ToList();
@@ -3819,11 +3819,11 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 		}
 #if DEBUG
 		sw.Stop();
-		Console.WriteLine($"Duration: {sw.ElapsedMilliseconds}ms");
+		ConsoleUtilities.WriteLine($"Duration: #2{sw.ElapsedMilliseconds}ms#0");
 #endif
 
 		var count = celestials.Count;
-		Console.WriteLine("Loaded {0} Celestial Object{1}", count, count == 1 ? "" : "s");
+		ConsoleUtilities.WriteLine("Loaded #2{0}#0 Celestial Object{1}", count, count == 1 ? "" : "s");
 	}
 
 	#endregion

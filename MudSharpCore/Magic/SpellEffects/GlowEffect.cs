@@ -89,10 +89,10 @@ public class GlowEffect : IMagicSpellEffectTemplate
 
 		actor.OutputHandler.Send(@"You can use the following options with this effect:
 
-    glow <lux> - sets the amount of glow per power level
-    sdesc <sdesc> - sets the sdesc addendum e.g. (glowing)
-    desc <desc> - sets the look desc addendum e.g. This person is glowing
-    colour <colour> - sets the colour of the sdesc/desc addenda
+    #3glow <lux>#0 - sets the amount of glow per power level
+    #3sdesc <sdesc>#0 - sets the sdesc addendum e.g. (glowing)
+    #3desc <desc>#0 - sets the look desc addendum e.g. This person is glowing
+    #3colour <colour>#0 - sets the colour of the sdesc/desc addenda
 
 Note: You can use {0} in the sdesc/desc addenda to have a light-level description (dim, bright, etc) inserted, e.g. ({0}ly glowing) might resolve as (brightly glowing)");
 		return false;

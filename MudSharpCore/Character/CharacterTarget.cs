@@ -148,6 +148,30 @@ public partial class Character : ITarget
 		               .GetFromItemListByKeyword(keyword, this);
 	}
 
+	public ICorpse? TargetCorpse(string keyword, PerceiveIgnoreFlags ignoreFlags = PerceiveIgnoreFlags.None)
+	{
+		if (ignoreFlags.HasFlag(PerceiveIgnoreFlags.IgnoreLayers))
+		{
+			return
+				Body
+					.ExternalItems
+					.WhereNotNull(x => x.GetItemType<ICorpse>())
+				    .Concat(Location.GameItems)
+				    .Where(x => CanSee(x, ignoreFlags))
+				    .GetFromItemListByKeyword(keyword, this)
+				    ?.GetItemType<ICorpse>();
+		}
+
+		return
+			Body
+				.ExternalItems
+				.WhereNotNull(x => x.GetItemType<ICorpse>())
+				.Concat(Location.LayerGameItems(RoomLayer))
+				.Where(x => CanSee(x, ignoreFlags))
+				.GetFromItemListByKeyword(keyword, this)
+				?.GetItemType<ICorpse>();
+	}
+
 	public ICharacter? TargetAlly(string keyword)
 	{
 		return Location

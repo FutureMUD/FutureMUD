@@ -3,6 +3,7 @@ using MudSharp.Character;
 using MudSharp.Construction.Boundary;
 using MudSharp.GameItems;
 using System.Collections.Generic;
+using MudSharp.GameItems.Interfaces;
 
 #nullable enable
 
@@ -103,6 +104,8 @@ namespace MudSharp.Framework {
         IGameItem? TargetTopLevelWornItem(string keyword);
 
         ICharacter? TargetActorOrCorpse(string keyword, PerceiveIgnoreFlags ignoreFlags = PerceiveIgnoreFlags.None);
+
+        ICorpse? TargetCorpse(string keyword, PerceiveIgnoreFlags ignoreFlags = PerceiveIgnoreFlags.None);
 
         (ICharacter? Target, IEnumerable<ICellExit> Path) TargetDistantActor(string keyword, ICellExit? initialExit, uint maximumRange, bool respectDoors,
             bool respectCorners);

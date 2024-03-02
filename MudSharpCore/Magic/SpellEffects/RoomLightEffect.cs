@@ -83,10 +83,10 @@ public class RoomLightEffect : IMagicSpellEffectTemplate
 
 		actor.OutputHandler.Send(@"You can use the following options with this effect:
 
-    light <lux> - sets the amount of added light per power level
-    desc <desc> - sets the room desc addendum e.g. There is a big ball of light here
-    desc none - sets there to be no room desc addendum (effect is invisible)
-    colour <colour> - sets the colour of the desc addenda
+    #3light <lux>#0 - sets the amount of added light per power level
+    #3desc <desc>#0 - sets the room desc addendum e.g. There is a big ball of light here
+    #3desc none#0 - sets there to be no room desc addendum (effect is invisible)
+    #3colour <colour>#0 - sets the colour of the desc addenda
 
 Note: You can use {0} in the desc addenda to have a light-level description (dim, bright, etc) inserted, e.g. ({0}ly glowing) might resolve as (brighly glowing)");
 		return false;

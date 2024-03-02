@@ -1056,6 +1056,11 @@ public partial class Body
 		return Actor.TargetActorOrCorpse(keyword, ignoreFlags);
 	}
 
+	public ICorpse? TargetCorpse(string keyword, PerceiveIgnoreFlags ignoreFlags = PerceiveIgnoreFlags.None)
+	{
+		return Actor.TargetCorpse(keyword, ignoreFlags);
+	}
+
 	public ICharacter? TargetAlly(string keyword)
 	{
 		return Actor.TargetAlly(keyword);

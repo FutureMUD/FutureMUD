@@ -72,7 +72,7 @@ public class InvisibilityEffect : IMagicSpellEffectTemplate
 
 		actor.OutputHandler.Send(@"You can use the following options with this effect:
 
-    filter <prog> - sets a prog that controls who can see the invisible thing");
+    #3filter <prog>#0 - sets a prog that controls who can see the invisible thing");
 		return false;
 	}
 

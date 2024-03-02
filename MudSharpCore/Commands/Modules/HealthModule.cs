@@ -21,6 +21,7 @@ using MudSharp.PerceptionEngine;
 using MudSharp.PerceptionEngine.Outputs;
 using MudSharp.PerceptionEngine.Parsers;
 using MudSharp.RPG.Checks;
+using Org.BouncyCastle.Asn1.X509.Qualified;
 
 namespace MudSharp.Commands.Modules;
 
@@ -2556,12 +2557,11 @@ The syntax is either of the following:
 			targetWoundable = (target as IGameItem).GetItemType<ICorpse>().OriginalCharacter;
 		}
 
-		var fullInfo = !ss.IsFinished && ss.Pop().EqualToAny("all", "debug", "full");
 		var sb = new StringBuilder();
 		sb.AppendLine($"Health information for {target.HowSeen(actor)}:");
 		if (targetAsCharacter != null)
 		{
-			sb.AppendLine($"Bloodtype: {targetAsCharacter.Body.Bloodtype?.Name.ColourValue() ?? "None"}");
+			sb.AppendLine($"Bloodtype: {targetAsCharacter.Body.Bloodtype?.Name.ColourValue() ?? "None".ColourError()}");
 			sb.AppendLine(
 				$"Blood: {actor.Gameworld.UnitManager.DescribeMostSignificantExact(targetAsCharacter.Body.CurrentBloodVolumeLitres / actor.Gameworld.UnitManager.BaseFluidToLitres, UnitType.FluidVolume, actor).ColourValue()} of total {actor.Gameworld.UnitManager.DescribeMostSignificantExact(targetAsCharacter.Body.TotalBloodVolumeLitres / actor.Gameworld.UnitManager.BaseFluidToLitres, UnitType.FluidVolume, actor).ColourValue()} - {(targetAsCharacter.Body.CurrentBloodVolumeLitres / targetAsCharacter.Body.TotalBloodVolumeLitres).ToString("P1", actor).ColourValue()}");
 			var bac = 10.0 * targetAsCharacter.NeedsModel.AlcoholLitres /
@@ -2576,36 +2576,106 @@ The syntax is either of the following:
 		}
 
 		sb.AppendLine();
-		if (targetAsCharacter != null && fullInfo)
+		if (targetAsCharacter != null)
 		{
-			sb.AppendLine(
-				$"Brain: {targetAsCharacter.Body.OrganFunction<BrainProto>().ToString("N3", actor).ColourValue()}");
-			sb.AppendLine(
-				$"Heart: {targetAsCharacter.Body.OrganFunction<HeartProto>().ToString("N3", actor).ColourValue()}");
-			sb.AppendLine(
-				$"Lungs: {targetAsCharacter.Body.OrganFunction<LungProto>().ToString("N3", actor).ColourValue()}");
-			sb.AppendLine(
-				$"Liver: {targetAsCharacter.Body.OrganFunction<LiverProto>().ToString("N3", actor).ColourValue()}");
-			sb.AppendLine(
-				$"Spleen: {targetAsCharacter.Body.OrganFunction<SpleenProto>().ToString("N3", actor).ColourValue()}");
-			sb.AppendLine(
-				$"Kidney: {targetAsCharacter.Body.OrganFunction<KidneyProto>().ToString("N3", actor).ColourValue()}");
-			sb.AppendLine(
-				$"Trachea: {targetAsCharacter.Body.OrganFunction<TracheaProto>().ToString("N3", actor).ColourValue()}");
-			sb.AppendLine(
-				$"Esophagus: {targetAsCharacter.Body.OrganFunction<EsophagusProto>().ToString("N3", actor).ColourValue()}");
-			sb.AppendLine(
-				$"Intestines: {targetAsCharacter.Body.OrganFunction<IntestinesProto>().ToString("N3", actor).ColourValue()}");
-			sb.AppendLine(
-				$"Ears: {targetAsCharacter.Body.OrganFunction<EarProto>().ToString("N3", actor).ColourValue()}");
-			sb.AppendLine();
-			sb.AppendLine(
-				$"Positronic Brain: {targetAsCharacter.Body.OrganFunction<PositronicBrain>().ToString("N3", actor).ColourValue()}");
-			sb.AppendLine(
-				$"Power Core: {targetAsCharacter.Body.OrganFunction<PowerCore>().ToString("N3", actor).ColourValue()}");
-			sb.AppendLine(
-				$"Speech Synthesizer: {targetAsCharacter.Body.OrganFunction<SpeechSynthesizer>().ToString("N3", actor).ColourValue()}");
-			sb.AppendLine();
+			var types = new List<Type>
+			{
+				typeof(BrainProto),
+				typeof(PositronicBrain),
+				typeof(HeartProto),
+				typeof(PowerCore),
+				typeof(LungProto),
+				typeof(LiverProto),
+				typeof(SpleenProto),
+				typeof(KidneyProto),
+				typeof(TracheaProto),
+				typeof(EsophagusProto),
+				typeof(IntestinesProto),
+				typeof(EarProto),
+				typeof(SpeechSynthesizer)
+			};
+
+			foreach (var type in types.ToList())
+			{
+				if (targetAsCharacter.Body.Prototype.AllBodypartsBonesAndOrgans.All(x => !type.IsInstanceOfType(x)))
+				{
+					types.Remove(type);
+				}
+			}
+
+			var strings = new List<string>();
+			foreach (var type in types)
+			{
+				switch (type.Name)
+				{
+					case nameof(BrainProto):
+						strings.Add($"Brain: {targetAsCharacter.Body.OrganFunction<BrainProto>().ToString("P2", actor).ColourValue()}");
+						continue;
+					case nameof(PositronicBrain):
+						strings.Add($"Positronic Brain: {targetAsCharacter.Body.OrganFunction<PositronicBrain>().ToString("P2", actor).ColourValue()}");
+						continue;
+					case nameof(HeartProto):
+						strings.Add($"Heart: {targetAsCharacter.Body.OrganFunction<HeartProto>().ToString("P2", actor).ColourValue()}");
+						continue;
+					case nameof(PowerCore):
+						strings.Add($"Power Core: {targetAsCharacter.Body.OrganFunction<PowerCore>().ToString("P2", actor).ColourValue()}");
+						continue;
+					case nameof(LungProto):
+						strings.Add($"Lungs: {targetAsCharacter.Body.OrganFunction<LungProto>().ToString("P2", actor).ColourValue()}");
+						continue;
+					case nameof(LiverProto):
+						strings.Add($"Liver: {targetAsCharacter.Body.OrganFunction<LiverProto>().ToString("P2", actor).ColourValue()}");
+						continue;
+					case nameof(SpleenProto):
+						strings.Add($"Spleen: {targetAsCharacter.Body.OrganFunction<SpleenProto>().ToString("P2", actor).ColourValue()}");
+						continue;
+					case nameof(KidneyProto):
+						strings.Add($"Kidneys: {targetAsCharacter.Body.OrganFunction<KidneyProto>().ToString("P2", actor).ColourValue()}");
+						continue;
+					case nameof(TracheaProto):
+						strings.Add($"Trachea: {targetAsCharacter.Body.OrganFunction<TracheaProto>().ToString("P2", actor).ColourValue()}");
+						continue;
+					case nameof(EsophagusProto):
+						strings.Add($"Esophagus: {targetAsCharacter.Body.OrganFunction<EsophagusProto>().ToString("P2", actor).ColourValue()}");
+						continue;
+					case nameof(IntestinesProto):
+						strings.Add($"Intestines: {targetAsCharacter.Body.OrganFunction<IntestinesProto>().ToString("P2", actor).ColourValue()}");
+						continue;
+					case nameof(EarProto):
+						strings.Add($"Ears: {targetAsCharacter.Body.OrganFunction<EarProto>().ToString("P2", actor).ColourValue()}");
+						continue;
+					case nameof(SpeechSynthesizer):
+						strings.Add($"Speech Synthesizer: {targetAsCharacter.Body.OrganFunction<SpeechSynthesizer>().ToString("P2", actor).ColourValue()}");
+						continue;
+				}
+			}
+
+			while (strings.Count >= 3)
+			{
+				sb.AppendLineColumns((uint)actor.LineFormatLength, 3,
+					strings[0],
+					strings[1],
+					strings[2]
+				);
+				strings.RemoveRange(0,3);
+			}
+
+			if (strings.Count == 2)
+			{
+				sb.AppendLineColumns((uint)actor.LineFormatLength, 3,
+					strings[0],
+					strings[1],
+					""
+				);
+			}
+			else if (strings.Count == 1)
+			{
+				sb.AppendLineColumns((uint)actor.LineFormatLength, 3,
+					strings[0],
+					"",
+					""
+				);
+			}
 		}
 
 		foreach (var wound in targetWoundable.Wounds)

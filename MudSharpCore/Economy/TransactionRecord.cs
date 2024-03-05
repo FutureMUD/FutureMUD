@@ -104,6 +104,8 @@ public class TransactionRecord : LateInitialisingItem, ITransactionRecord
 					return -1 * PretaxValue;
 				case ShopTransactionType.Stock:
 					return PretaxValue;
+				case ShopTransactionType.Purchase:
+					return PretaxValue;
 				case ShopTransactionType.StockLoss:
 					return -1 * PretaxValue;
 				case ShopTransactionType.PriceAdjustment:

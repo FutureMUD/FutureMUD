@@ -76,6 +76,7 @@ public abstract class Shop : SaveableItem, IShop
 		_name = shop.Name;
 		EconomicZone = gameworld.EconomicZones.Get(shop.EconomicZoneId);
 		_cashBalance = shop.CashBalance;
+		MinimumFloatToBuyItems = shop.MinimumFloatToBuyItems;
 		IsTrading = shop.IsTrading;
 		Currency = gameworld.Currencies.Get(shop.CurrencyId);
 		
@@ -134,6 +135,7 @@ public abstract class Shop : SaveableItem, IShop
 		dbitem.IsTrading = IsTrading;
 		dbitem.CanShopProgId = CanShopProg?.Id;
 		dbitem.WhyCannotShopProgId = WhyCannotShopProg?.Id;
+		dbitem.MinimumFloatToBuyItems = MinimumFloatToBuyItems;
 		dbitem.EmployeeRecords = new XElement("Employees",
 			from employee in EmployeeRecords
 			select employee.SaveToXml()
@@ -177,6 +179,8 @@ public abstract class Shop : SaveableItem, IShop
 			Changed = true;
 		}
 	}
+
+	public decimal MinimumFloatToBuyItems { get; set; }
 
 	public IBankAccount BankAccount
 	{
@@ -376,6 +380,124 @@ public abstract class Shop : SaveableItem, IShop
 	{
 		_lineOfCreditAccounts.Remove(account);
 		Changed = true;
+	}
+
+	public abstract (bool Truth, string Reason) CanSellInternal(ICharacter actor, IMerchandise merchandise,
+		IPaymentMethod method,
+		IGameItem item);
+
+	public (bool Truth, string Reason) CanSell(ICharacter actor, IMerchandise merchandise, IPaymentMethod method,
+		IGameItem item)
+	{
+		if (!IsTrading && !actor.IsAdministrator())
+		{
+			return (false, "the store is currently closed");
+		}
+
+		if ((bool?)CanShopProg?.Execute(actor, merchandise?.Item.Id ?? 0L,
+			    merchandise?.Item.Tags.Select(x => x.Name)) == false)
+		{
+			return (false,
+				WhyCannotShopProg.Execute(actor, merchandise?.Item.Id ?? 0L, merchandise.Item.Tags.Select(x => x.Name))
+				                 ?.ToString() ?? "of an unknown reason");
+		}
+
+		var price = merchandise!.EffectivePrice * merchandise.BaseBuyModifier * item.Quantity;
+
+		switch (method)
+		{
+			case null:
+				break;
+			case ShopCashPayment cash:
+				var cashonhand = cash.AccessibleMoneyForCredit();
+				if (cashonhand < price)
+				{
+					return (false, $"the shop does not have enough cash on hand to pay the sale price of that item.");
+				}
+
+				if (cashonhand < MinimumFloatToBuyItems)
+				{
+					return (false, "the shop is not currently buying items due to insufficient cash on hand.");
+				}
+
+				break;
+			case LineOfCreditPayment loc:
+				switch (loc.Account.IsAuthorisedToUse(actor, 0.0M))
+				{
+					case LineOfCreditAuthorisationFailureReason.NotAuthorisedAccountUser:
+						return (false, "you are not an authorised user of that line of credit account.");
+					case LineOfCreditAuthorisationFailureReason.AccountSuspended:
+						return (false, "that account has been temporarily suspended.");
+				}
+
+				break;
+			case BankPayment bp:
+				if (bp.Item.BankAccount is null)
+				{
+					return (false, $"{bp.Item.Parent.HowSeen(actor)} is not tied to an actual bank account.");
+				}
+
+				if (!bp.Item.BankAccount.IsAuthorisedPaymentItem(bp.Item))
+				{
+					return (false, $"{bp.Item.Parent.HowSeen(actor)} is no longer valid for payment.");
+				}
+
+				if (bp.Currency != Currency)
+				{
+					return (false, $"{bp.Item.Parent.HowSeen(actor)} is for a different currency than this shop uses.");
+				}
+
+				var cashinbank = bp.AccessibleMoneyForCredit();
+				if (cashinbank < price)
+				{
+					return (false,
+						$"the shop does not have enough balance in their bank account to pay the sale price of that item.");
+				}
+
+				if (cashinbank < MinimumFloatToBuyItems)
+				{
+					return (false, "the shop is not currently buying items due to insufficient cash in their bank account.");
+				}
+
+				break;
+		}
+
+		var stockedItems = StockedItems(merchandise).ToList();
+		var stockedQuantity = stockedItems.Sum(x => x.Quantity);
+		if (merchandise.MaximumStockLevelsToBuy > 0 && (stockedQuantity + item.Quantity) > merchandise.MaximumStockLevelsToBuy)
+		{
+			var maxQuantity = merchandise.MaximumStockLevelsToBuy - stockedQuantity;
+			if (maxQuantity <= 0)
+			{
+				return (false, "the shop already has the maximum amount of those items that it will buy.");
+			}
+
+			return (false, $"the shop will buy at most {maxQuantity.ToString("N0", actor).ColourValue()} of those items.");
+		}
+
+		var baseReason = CanSellInternal(actor, merchandise, method, item);
+		if (!baseReason.Truth)
+		{
+			return baseReason;
+		}
+
+		return (true, string.Empty);
+	}
+
+	public void Sell(ICharacter actor, IMerchandise merchandise, IPaymentMethod method, IGameItem item)
+	{
+		item.AddEffect(new ItemOnDisplayInShop(item, this, merchandise));
+		var price = merchandise.EffectivePrice * merchandise.BaseBuyModifier * item.Quantity;
+		actor.OutputHandler.Handle(new EmoteOutput(new Emote($"@ sell|sells $1 to {Name.TitleCase().ColourName()} for $2.", actor, actor, item, new DummyPerceivable(Currency.Describe(price, CurrencyDescriptionPatternType.ShortDecimal).ColourValue()))));
+		AddTransaction(new TransactionRecord(ShopTransactionType.Purchase, Currency, this,
+			EconomicZone.ZoneForTimePurposes.DateTime(), actor,
+			 price * -1, 0.0M));
+		_stockedMerchandise.Add(merchandise, item.Id);
+		_stockedMerchandiseCounts.Add(merchandise, item.Quantity);
+		item.InInventoryOf?.Take(item);
+		item.Location?.Extract(item);
+		SortItemToStorePhysicalLocation(item, merchandise, null);
+		method.GivePayment(price);
 	}
 
 	protected abstract (bool Truth, string Reason) CanBuyInternal(ICharacter actor, IMerchandise merchandise, int quantity,
@@ -613,6 +735,8 @@ public abstract class Shop : SaveableItem, IShop
 
 	public abstract IEnumerable<IGameItem> DoAutoRestockForMerchandise(IMerchandise merchandise,
 		List<(IGameItem Item, IGameItem Container)> purchasedItems = null);
+
+	public abstract void SortItemToStorePhysicalLocation(IGameItem item, IMerchandise merchandise, IGameItem container);
 
 	public abstract IEnumerable<IGameItem> DoAutostockForMerchandise(IMerchandise merchandise);
 
@@ -885,6 +1009,8 @@ public abstract class Shop : SaveableItem, IShop
 				sb.AppendLine(
 					$"This shop uses the bank account {BankAccount.AccountReference.ColourValue()} for transactions.");
 			}
+
+			sb.AppendLine($"Minimum Float to Buy Items: {Currency.Describe(MinimumFloatToBuyItems, CurrencyDescriptionPatternType.ShortDecimal).ColourValue()}");
 		}
 
 		if (IsProprietor(actor) || actor.IsAdministrator())
@@ -993,6 +1119,10 @@ public abstract class Shop : SaveableItem, IShop
 			case "name":
 			case "rename":
 				return BuildingCommandName(actor, command);
+			case "buyfloat":
+			case "minbuyfloat":
+			case "minfloat":
+				return BuildingCommandBuyFloat(actor, command);
 			default:
 				actor.OutputHandler.Send(@"Valid options for this command are as follows:
 
@@ -1001,6 +1131,20 @@ public abstract class Shop : SaveableItem, IShop
 	#3trading#0 - toggles whether this shop is trading".SubstituteANSIColour());
 				return false;
 		}
+	}
+
+	private bool BuildingCommandBuyFloat(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished || !Currency.TryGetBaseCurrency(command.SafeRemainingArgument, out var amount))
+		{
+			actor.OutputHandler.Send("You must enter a valid amount of currency.");
+			return false;
+		}
+
+		MinimumFloatToBuyItems = amount;
+		Changed = true;
+		actor.OutputHandler.Send($"This shop will no longer buy any items when its cash float is below {Currency.Describe(amount, CurrencyDescriptionPatternType.ShortDecimal).ColourValue()}.");
+		return true;
 	}
 
 	private bool BuildingCommandName(ICharacter actor, StringStack command)

@@ -15,7 +15,8 @@ namespace MudSharp.Economy
         PriceAdjustment,
         Float,
         Withdrawal,
-        AccessCashDraw
+        AccessCashDraw,
+        Purchase
     }
 
     public interface ITransactionRecord : ILateInitialisingItem

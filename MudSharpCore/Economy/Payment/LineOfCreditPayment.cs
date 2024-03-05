@@ -35,4 +35,16 @@ public class LineOfCreditPayment : IPaymentMethod
 	{
 		Account.ChargeAccount(price);
 	}
+
+	/// <inheritdoc />
+	public decimal AccessibleMoneyForCredit()
+	{
+		return decimal.MaxValue;
+	}
+
+	/// <inheritdoc />
+	public void GivePayment(decimal price)
+	{
+		Account.PayoffAccount(price);
+	}
 }

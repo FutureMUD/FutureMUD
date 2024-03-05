@@ -244,6 +244,7 @@ public class PermanentShop : Shop, IPermanentShop
 		var quantityToRestock = merchandise.MinimumStockLevels - _stockedMerchandiseCounts[merchandise];
 		var originalQuantity = quantityToRestock;
 		var newItems = new List<IGameItem>();
+		var newItemsOriginalContainers = new Dictionary<IGameItem, IGameItem>();
 		if (merchandise.PreserveVariablesOnReorder && purchasedItems != null)
 		{
 			foreach (var item in purchasedItems)
@@ -251,6 +252,7 @@ public class PermanentShop : Shop, IPermanentShop
 				var newItem = item.Item.DeepCopy(true);
 				newItem.Skin = merchandise.Skin;
 				newItems.Add(newItem);
+				newItemsOriginalContainers[newItem] = item.Container;
 				quantityToRestock -= newItem.Quantity;
 			}
 		}
@@ -282,16 +284,10 @@ public class PermanentShop : Shop, IPermanentShop
 			return newItems;
 		}
 
-		var targetCell = StockroomCell;
-		if (targetCell == null)
-		{
-			targetCell = ShopfrontCells.First();
-		}
-
 		foreach (var item in newItems)
 		{
 			item.AddEffect(new ItemOnDisplayInShop(item, this, merchandise));
-			targetCell.Insert(item);
+			SortItemToStorePhysicalLocation(item, merchandise, newItemsOriginalContainers[item]);
 			item.HandleEvent(EventType.ItemFinishedLoading, item);
 			item.Login();
 			_stockedMerchandise.Add(merchandise, item.Id);
@@ -301,6 +297,30 @@ public class PermanentShop : Shop, IPermanentShop
 		AddTransaction(new TransactionRecord(ShopTransactionType.Restock, Currency, this,
 			ShopfrontCells.First().DateTime(), null, merchandise.EffectiveAutoReorderPrice * originalQuantity, 0.0M));
 		return newItems;
+	}
+
+	/// <inheritdoc />
+	public override void SortItemToStorePhysicalLocation(IGameItem item, IMerchandise merchandise, IGameItem container)
+	{
+		if (container is not null && container.GetItemType<IContainer>()?.CanPut(item) == true)
+		{
+			container.GetItemType<IContainer>().Put(null, item, false);
+		}
+		else if (merchandise.PreferredDisplayContainer is not null &&
+		         merchandise.PreferredDisplayContainer.GetItemType<IContainer>()?.CanPut(item) == true)
+		{
+			merchandise.PreferredDisplayContainer.GetItemType<IContainer>().Put(null, item, false);
+		}
+		else
+		{
+
+			var targetCell = StockroomCell;
+			if (targetCell == null)
+			{
+				targetCell = ShopfrontCells.First();
+			}
+			targetCell.Insert(item);
+		}
 	}
 
 	public override IEnumerable<IGameItem> DoAutostockForMerchandise(IMerchandise merchandise)
@@ -443,12 +463,19 @@ public class PermanentShop : Shop, IPermanentShop
 	{
 		if (method is CashPayment)
 		{
-			if (!TillItems.Any())
+			if (!TillItems.Any() && StockroomCell is null)
 			{
 				return (false, "the store is currently missing its till, and so cannot do cash transactions.");
 			}
 		}
 
+		return (true, string.Empty);
+	}
+
+	/// <inheritdoc />
+	public override (bool Truth, string Reason) CanSellInternal(ICharacter actor, IMerchandise merchandise, IPaymentMethod method,
+		IGameItem item)
+	{
 		return (true, string.Empty);
 	}
 

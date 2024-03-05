@@ -36,6 +36,11 @@ public class Merchandise : LateInitialisingItem, IMerchandise
 		AutoReorderPrice = rhs.AutoReorderPrice;
 		AutoReordering = rhs.AutoReordering;
 		PreserveVariablesOnReorder = rhs.PreserveVariablesOnReorder;
+		WillBuy = rhs.WillBuy;
+		WillSell = rhs.WillSell;
+		MinimumConditionToBuy = rhs.MinimumConditionToBuy;
+		BaseBuyModifier = rhs.BaseBuyModifier;
+		MaximumStockLevelsToBuy = rhs.MaximumStockLevelsToBuy;
 	}
 
 	public Merchandise(IShop shop, string name, IGameItemProto proto, decimal price, bool isDefault,
@@ -52,6 +57,11 @@ public class Merchandise : LateInitialisingItem, IMerchandise
 		PreferredDisplayContainer = preferredContainer;
 		PreserveVariablesOnReorder = true;
 		_listDescription = customListDescription;
+		WillBuy = false;
+		WillSell = true;
+		MinimumConditionToBuy = 1.0;
+		BaseBuyModifier = 0.3M;
+		MaximumStockLevelsToBuy = 1;
 	}
 
 	public Merchandise(MudSharp.Models.Merchandise merch, IShop shop, IFuturemud gameworld)
@@ -71,6 +81,11 @@ public class Merchandise : LateInitialisingItem, IMerchandise
 		MinimumStockLevels = merch.MinimumStockLevels;
 		MinimumStockLevelsByWeight = merch.MinimumStockLevelsByWeight;
 		PreserveVariablesOnReorder = merch.PreserveVariablesOnReorder;
+		WillBuy = merch.WillBuy;
+		WillSell = merch.WillSell;
+		MinimumConditionToBuy = merch.MinimumConditionToBuy;
+		BaseBuyModifier = merch.BaseBuyModifier;
+		MaximumStockLevelsToBuy = merch.MaximumStockLevelsToBuy;
 	}
 
 	public override void Save()
@@ -89,6 +104,11 @@ public class Merchandise : LateInitialisingItem, IMerchandise
 		dbitem.Name = Name;
 		dbitem.SkinId = _skinId;
 		dbitem.ShopId = Shop.Id;
+		dbitem.WillBuy = WillBuy;
+		dbitem.WillSell = WillSell;
+		dbitem.BaseBuyModifier = BaseBuyModifier;
+		dbitem.MinimumConditionToBuy = MinimumConditionToBuy;
+		dbitem.MaximumStockLevelsToBuy = MaximumStockLevelsToBuy;
 		Changed = false;
 	}
 
@@ -109,6 +129,11 @@ public class Merchandise : LateInitialisingItem, IMerchandise
 		dbitem.MinimumStockLevelsByWeight = MinimumStockLevelsByWeight;
 		dbitem.ListDescription = _listDescription;
 		dbitem.SkinId = _skinId;
+		dbitem.WillBuy = WillBuy;
+		dbitem.WillSell = WillSell;
+		dbitem.BaseBuyModifier = BaseBuyModifier;
+		dbitem.MinimumConditionToBuy = MinimumConditionToBuy;
+		dbitem.MaximumStockLevelsToBuy = MaximumStockLevelsToBuy;
 		return dbitem;
 	}
 
@@ -132,6 +157,11 @@ public class Merchandise : LateInitialisingItem, IMerchandise
 	#3shop merch set default#0 - toggles whether this is the default for items of its prototype
 	#3shop merch set price <price>#0 - sets the pre-tax price
 	#3shop merch set price default#0 - sets the merchandise price to the item default
+	#3shop merch set willsell#0 - toggles whether the merchandise is for sale
+	#3shop merch set willbuy#0 - toggles whether the merchandise will be bought
+	#3shop merch set markdown <%>#0 - sets a markdown on buying relative to sale price
+	#3shop merch set mincond <%>#0 - sets the minimum condition for buying an item
+	#3shop merch set maxamount <##>#0 - sets the maximum amount to buy (use 0 for unlimited)
 	#3shop merch set desc clear#0 - clears a custom list description
 	#3shop merch set desc <description>#0 - sets a custom list description
 	#3shop merch set container clear#0 - clears a preferred display container
@@ -148,6 +178,12 @@ public class Merchandise : LateInitialisingItem, IMerchandise
 	#3shop merch set proto <target>#0 - sets the item type associated with this merchandise
 	#3shop merch set default#0 - toggles whether this is the default for similar items
 	#3shop merch set price <price>#0 - sets the pre-tax price
+	#3shop merch set price default#0 - sets the merchandise price to the item default
+	#3shop merch set willsell#0 - toggles whether the merchandise is for sale
+	#3shop merch set willbuy#0 - toggles whether the merchandise will be bought
+	#3shop merch set markdown <%>#0 - sets a markdown on buying relative to sale price
+	#3shop merch set mincond <%>#0 - sets the minimum condition for buying an item
+	#3shop merch set maxamount <##>#0 - sets the maximum amount to buy (use 0 for unlimited)
 	#3shop merch set desc clear#0 - clears a custom list description
 	#3shop merch set desc <description>#0 - sets a custom list description
 	#3shop merch set container clear#0 - clears a preferred display container
@@ -177,6 +213,18 @@ public class Merchandise : LateInitialisingItem, IMerchandise
 			case "container":
 			case "display":
 				return BuildingCommandContainer(actor, command);
+			case "willbuy":
+				return BuildingCommandWillBuy(actor);
+			case "willsell":
+				return BuildingCommandWillSell(actor);
+			case "markdown":
+			case "buymarkdown":
+				return BuildingCommandBuyMarkdown(actor, command);
+			case "mincond":
+				return BuildingCommandMinimumCondition(actor, command);
+			case "maxamount":
+			case "maximumamount":
+				return BuildingCommandMaximumAmount(actor, command);
 		}
 
 		if (actor.IsAdministrator())
@@ -195,6 +243,77 @@ public class Merchandise : LateInitialisingItem, IMerchandise
 
 		SendHelpText();
 		return false;
+	}
+
+	private bool BuildingCommandMaximumAmount(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("How many items should be the maximum number that this shop will buy?");
+			return false;
+		}
+
+		if (!int.TryParse(command.SafeRemainingArgument, out var value) || value < 0)
+		{
+			actor.OutputHandler.Send("You must enter a valid number, or 0 to make it unlimited.");
+			return false;
+		}
+
+		MaximumStockLevelsToBuy = value;
+		Changed = true;
+		actor.OutputHandler.Send(
+			value == 0 ? 
+				"The store will now buy an unlimited number of this item." : 
+				$"The store will now buy as many as {value.ToString("N0", actor).ColourValue()} of this item.");
+		return true;
+	}
+
+	private bool BuildingCommandMinimumCondition(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished || !command.SafeRemainingArgument.TryParsePercentage(actor.Account.Culture, out var value) || value < 0.0 || value > 1.0)
+		{
+			actor.OutputHandler.Send($"You must enter a valid percentage between {0.ToString("P0", actor).ColourValue()} and {1.ToString("P0", actor).ColourValue()}.");
+			return false;
+		}
+
+		MinimumConditionToBuy = value;
+		Changed = true;
+		actor.OutputHandler.Send($"This shop will now require this merchandise to be at a minimum condition of {MinimumConditionToBuy.ToString("P2", actor).ColourValue()} to buy.");
+		return true;
+	}
+
+	private bool BuildingCommandWillSell(ICharacter actor)
+	{
+		WillSell = !WillSell;
+		Changed = true;
+		actor.OutputHandler.Send($"The shop will {WillSell.NowNoLonger()} offer this merchandise for sale.");
+		return true;
+	}
+
+	private bool BuildingCommandWillBuy(ICharacter actor)
+	{
+		WillBuy = !WillBuy;
+		Changed = true;
+		actor.OutputHandler.Send($"The shop will {WillBuy.NowNoLonger()} offer to buy this merchandise.");
+		if (WillBuy)
+		{
+			actor.OutputHandler.Send($"#B[Hint]#0: Don't forget to set the markdown price.".SubstituteANSIColour());
+		}
+		return true;
+	}
+
+	private bool BuildingCommandBuyMarkdown(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished || !command.SafeRemainingArgument.TryParsePercentageDecimal(actor.Account.Culture, out var value) || value < 0.0M)
+		{
+			actor.OutputHandler.Send("You must enter a valid markdown percentage for buying this merchandise (relative to the sale price).");
+			return false;
+		}
+
+		BaseBuyModifier = value;
+		Changed = true;
+		actor.OutputHandler.Send($"This shop will now buy this merchandise at a {BaseBuyModifier.ToString("P2", actor).ColourValue()} markdown from the sale price.\nThis means it would buy for {Shop.Currency.Describe(value * EffectivePrice, CurrencyDescriptionPatternType.ShortDecimal).ColourValue()} and sell for {Shop.Currency.Describe(EffectivePrice, CurrencyDescriptionPatternType.ShortDecimal).ColourValue()}");
+		return true;
 	}
 
 	private bool BuildingCommandSkin(ICharacter actor, StringStack command)
@@ -523,6 +642,12 @@ public class Merchandise : LateInitialisingItem, IMerchandise
 		{
 			sb.AppendLine($"Pre-Tax Price: {Shop.Currency.Describe(BasePrice, CurrencyDescriptionPatternType.ShortDecimal).ColourValue()}");
 		}
+
+		sb.AppendLine($"Will Sell: {WillSell.ToColouredString()}");
+		sb.AppendLine($"Will Buy: {WillBuy.ToColouredString()}");
+		sb.AppendLine($"Base Buy Markdown: {BaseBuyModifier.ToString("P2", actor).ColourValue()}");
+		sb.AppendLine($"Minimum Buy Condition: {MinimumConditionToBuy.ToString("P2", actor).ColourValue()}");
+		sb.AppendLine($"Maximum Buy Stock: {(MaximumStockLevelsToBuy == 0 ? "Unlimited".ColourValue() : MaximumStockLevelsToBuy.ToString("N0", actor).ColourValue())}");
 		
 		sb.AppendLine(
 			$"Preferred Display Container: {PreferredDisplayContainer?.HowSeen(actor, flags: PerceiveIgnoreFlags.IgnoreCanSee) ?? "None".Colour(Telnet.Red)}");
@@ -569,6 +694,11 @@ public class Merchandise : LateInitialisingItem, IMerchandise
 	public IGameItemSkin Skin => Gameworld.ItemSkins.Get(_skinId ?? 0);
 	public decimal BasePrice { get; private set; }
 
+	public bool WillSell { get; private set; }
+	public bool WillBuy { get; private set; }
+	public decimal BaseBuyModifier { get; private set; }
+	public double MinimumConditionToBuy { get; private set; }
+	public int MaximumStockLevelsToBuy { get; private set; }
 	public decimal EffectivePrice => BasePrice == -1
 		? Item.CostInBaseCurrency / Shop.Currency.BaseCurrencyToGlobalBaseCurrencyConversion
 		: BasePrice;
@@ -636,6 +766,14 @@ public class Merchandise : LateInitialisingItem, IMerchandise
 				return new TextVariable(ListDescription);
 			case "shop":
 				return Shop;
+			case "willbuy":
+				return new BooleanVariable(WillBuy);
+			case "willsell":
+				return new BooleanVariable(WillSell);
+			case "mincond":
+				return new NumberVariable(MinimumConditionToBuy);
+			case "markdown":
+				return new NumberVariable(BaseBuyModifier);
 		}
 
 		throw new ApplicationException("Unknown property in Merchandise.GetProperty");
@@ -649,7 +787,11 @@ public class Merchandise : LateInitialisingItem, IMerchandise
 			{ "id", FutureProgVariableTypes.Number },
 			{ "price", FutureProgVariableTypes.Number },
 			{ "description", FutureProgVariableTypes.Text },
-			{ "shop", FutureProgVariableTypes.Shop }
+			{ "shop", FutureProgVariableTypes.Shop },
+			{ "willbuy", FutureProgVariableTypes.Boolean},
+			{ "willsell", FutureProgVariableTypes.Boolean},
+			{ "mincond", FutureProgVariableTypes.Number},
+			{ "markdown", FutureProgVariableTypes.Number},
 		};
 	}
 
@@ -661,7 +803,11 @@ public class Merchandise : LateInitialisingItem, IMerchandise
 			{ "id", "The ID of the merchandise record" },
 			{ "price", "The price that the merchandise is selling for" },
 			{ "description", "The description of the merchandise on the LIST command" },
-			{ "shop", "The shop the merchandise is being sold in" }
+			{ "shop", "The shop the merchandise is being sold in" },
+			{ "willbuy", "Whether the merchandise will be bought"},
+			{ "willsell", "Whether the merchandise will be sold"},
+			{ "mincond", "The minimum condition (0.0 to 1.0) the item must be in to be bought"},
+			{ "markdown", "The markdown percentage on sale price for buying"},
 		};
 	}
 

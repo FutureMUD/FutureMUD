@@ -24,6 +24,12 @@ namespace MudSharp.Economy
         string ListDescription { get; }
         IGameItemProto Item { get; }
         IGameItemSkin Skin { get; }
+        bool WillSell { get; }
+        bool WillBuy { get; }
+        decimal BaseBuyModifier { get; }
+        double MinimumConditionToBuy { get; }
+        int MaximumStockLevelsToBuy { get; }
+
 
         bool IsMerchandiseFor(IGameItem item);
         bool BuildingCommand(ICharacter actor, StringStack command);

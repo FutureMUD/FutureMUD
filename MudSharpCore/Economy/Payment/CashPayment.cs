@@ -44,4 +44,8 @@ public abstract class CashPayment : IPaymentMethod
 	}
 
 	public abstract void TakePayment(decimal price);
+
+	public abstract decimal AccessibleMoneyForCredit();
+
+	public abstract void GivePayment(decimal price);
 }

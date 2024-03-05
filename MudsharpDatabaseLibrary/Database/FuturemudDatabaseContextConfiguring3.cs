@@ -98,9 +98,29 @@ namespace MudSharp.Database
 
                 entity.Property(e => e.BasePrice).HasColumnType("decimal(58,29)");
 
-                entity.Property(e => e.DefaultMerchandiseForItem).HasColumnType("bit(1)");
+                entity.Property(e => e.BaseBuyModifier)
+                      .HasColumnType("decimal(58,29)")
+                      .HasDefaultValue(0.3M)
+                      ;
 
-                entity.Property(e => e.ItemProtoId).HasColumnType("bigint(20)");
+                entity.Property(e => e.MinimumConditionToBuy)
+                      .HasColumnType("double")
+                      .HasDefaultValue(0.95)
+                      ;
+
+				entity.Property(e => e.DefaultMerchandiseForItem).HasColumnType("bit(1)");
+
+                entity.Property(e => e.WillSell)
+                      .HasColumnType("bit(1)")
+                      .HasDefaultValue(true)
+                      ;
+
+                entity.Property(e => e.WillBuy)
+                      .HasColumnType("bit(1)")
+                      .HasDefaultValue(false)
+                      ;
+
+				entity.Property(e => e.ItemProtoId).HasColumnType("bigint(20)");
 
                 entity.Property(e => e.SkinId).HasColumnType("bigint(20)").IsRequired(false);
 

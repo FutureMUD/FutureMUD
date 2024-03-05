@@ -19,6 +19,8 @@ public interface IShop : IFrameworkItem, ISaveable, IFutureProgVariable
     decimal CashBalance { get; set; }
     IEconomicZone EconomicZone { get; set; }
     ICurrency Currency { get; set; }
+    decimal MinimumFloatToBuyItems { get; }
+
     IEnumerable<ITransactionRecord> TransactionRecords { get; }
     IEnumerable<IEmployeeRecord> EmployeeRecords { get; }
     bool IsEmployee(ICharacter actor);
@@ -77,8 +79,11 @@ public interface IShop : IFrameworkItem, ISaveable, IFutureProgVariable
     (decimal Price, IEnumerable<IGameItem> Items) PreviewBuy(ICharacter actor, IMerchandise merchandise, int quantity, IPaymentMethod method, string extraArguments = null);
     decimal PriceForMerchandise(ICharacter actor, IMerchandise merchandise, int quantity);
     (decimal TotalPrice, decimal IncludedTax, bool VolumeDealsExist) GetDetailedPriceInfo(ICharacter actor, IMerchandise merchandise);
+    (bool Truth, string Reason) CanSell(ICharacter actor, IMerchandise merchandise, IPaymentMethod method, IGameItem item);
+    void Sell(ICharacter actor, IMerchandise merchandise, IPaymentMethod method, IGameItem item);
+    void SortItemToStorePhysicalLocation(IGameItem item, IMerchandise merchandise, IGameItem container);
 
-    void PriceAdjustmentForMerchandise(IMerchandise merchandise, decimal oldValue, ICharacter actor);
+	void PriceAdjustmentForMerchandise(IMerchandise merchandise, decimal oldValue, ICharacter actor);
     IEnumerable<IGameItem> DoAutoRestockForMerchandise(IMerchandise merchandise, List<(IGameItem Item, IGameItem Container)> purchasedItems = null);
     IEnumerable<IGameItem> DoAutostockForMerchandise(IMerchandise merchandise);
 	IEnumerable<IGameItem> DoAutostockAllMerchandise();

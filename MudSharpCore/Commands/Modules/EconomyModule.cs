@@ -841,6 +841,12 @@ If you are in a shop, you can view the list output as a specific line of credit 
 	[RequiredCharacterState(CharacterState.Conscious)]
 	[NoCombatCommand]
 	[NoHideCommand]
+	[HelpInfo("preview", @"The preview command allows you to see the specific items that you would buy if you used a particular combination of syntax for buy.
+
+The syntax is as follows:
+
+	#3preview <thing>#0 - previews buying a specified item
+	#3preview <quantity> <thing>#0- previews buying the specified quantity of the thing", AutoHelp.HelpArgOrNoArg)]
 	protected static void Preview(ICharacter actor, string command)
 	{
 		var ss = new StringStack(command.RemoveFirstWord());
@@ -932,10 +938,10 @@ If you are in a shop, you can view the list output as a specific line of credit 
 
 The syntax for this command is as follows:
 
-BUY <thing> - buys a specified item
-BUY <quantity> <thing> - buys the specified quantity of the thing
-BUY [<quantity>] <thing> ACCOUNT <accountname> - buys the the thing with a line of credit account
-BUY [<quantity>] <thing> WITH <item> - buys the thing with a payment item such as a cheque, credit card, writ, etc.",
+	#3buy <thing>#0 - buys a specified item
+	#3buy <quantity> <thing>#0- buys the specified quantity of the thing
+	#3buy [<quantity>] <thing> account <accountname>#0 - buys the the thing with a line of credit account
+	#3buy [<quantity>] <thing> with <item>#0 - buys the thing with a payment item such as a cheque, credit card, writ, etc.",
 		AutoHelp.HelpArgOrNoArg)]
 	protected static void Buy(ICharacter actor, string command)
 	{
@@ -1081,9 +1087,161 @@ BUY [<quantity>] <thing> WITH <item> - buys the thing with a payment item such a
 	[RequiredCharacterState(CharacterState.Conscious)]
 	[NoCombatCommand]
 	[NoHideCommand]
+	[HelpInfo("sell", @"The sell command is used to sell items that you have to a shop. Not all shops buy items, and shops have to be explicitly set to buy the items that you're selling. Finally, if you're holding a stack of something, you will be trying to sell the whole stack. Try splitting it up if you want to sell less.
+
+The syntax for this command is as follows:
+
+	#3sell <item>#0", AutoHelp.HelpArgOrNoArg)]
 	protected static void Sell(ICharacter actor, string command)
 	{
-		actor.OutputHandler.Send("Coming soon.");
+		var ss = new StringStack(command.RemoveFirstWord());
+		var item = actor.TargetHeldItem(ss.PopSpeech());
+		if (item is null)
+		{
+			actor.OutputHandler.Send("You aren't holding anything like that.");
+			return;
+		}
+
+		if (!DoShopCommandFindShop(actor, out var shop))
+		{
+			return;
+		}
+
+		if (!shop.IsTrading || (shop as ITransientShop)?.CurrentStall?.IsTrading == false)
+		{
+			actor.OutputHandler.Send("This shop is not currently trading.");
+			return;
+		}
+
+		IMerchandise merch = null;
+		if (!ss.IsFinished)
+		{
+			merch = shop.Merchandises
+			            .Where(x => x.IsMerchandiseFor(item))
+			            .GetFromItemListByKeyword(ss.PopSpeech(), actor);
+			if (merch == null)
+			{
+				actor.OutputHandler.Send(
+					$"There is no matching merchandise profile for {item.HowSeen(actor)} with the specified keywords. The shop will not buy that item.");
+				return;
+			}
+		}
+		else
+		{
+			merch = shop.Merchandises.FirstOrDefault(x => x.IsMerchandiseFor(item));
+			if (merch == null)
+			{
+				actor.OutputHandler.Send(
+					$"There is no merchandise profile for items like {item.HowSeen(actor)}. The shop will not buy that item.");
+				return;
+			}
+		}
+
+		if (!merch.WillBuy)
+		{
+			actor.OutputHandler.Send($"This shop does not buy items like {item.HowSeen(actor)}.");
+			return;
+		}
+
+		var condition = Math.Min(item.Condition, item.DamageCondition);
+		if (condition < merch.MinimumConditionToBuy)
+		{
+			actor.OutputHandler.Send($"Unfortunately, {item.HowSeen(actor)} is in too poor condition for this shop to accept.");
+			return;
+		}
+
+		IPaymentMethod payment = null;
+		if (ss.IsFinished)
+		{
+			payment = new ShopCashPayment(shop.Currency, shop, actor);
+		}
+		else
+		{
+			switch (ss.PopSpeech().ToLowerInvariant())
+			{
+				case "account":
+				case "credit":
+				case "cred":
+					if (ss.IsFinished)
+					{
+						actor.OutputHandler.Send(
+							"What is the name of the line of credit account you'd like to credit to?");
+						return;
+					}
+
+					var accn = ss.PopSpeech();
+					var loc = shop.LineOfCreditAccounts.FirstOrDefault(x => x.AccountName.EqualTo(accn));
+					if (loc == null)
+					{
+						// TODO - echoed by shopkeep?
+						actor.OutputHandler.Send("There is no such line of credit account associated with this shop.");
+						return;
+					}
+
+					payment = new LineOfCreditPayment(actor, loc);
+					break;
+				case "with":
+				case "card":
+				case "keycard":
+					if (!actor.Gameworld.GetStaticBool("KeycardPaymentsEnabled"))
+					{
+						goto default;
+					}
+
+					if (shop.BankAccount is null)
+					{
+						actor.OutputHandler.Send("This shop does not accept non-cash payment.");
+						return;
+					}
+
+					if (ss.IsFinished)
+					{
+						actor.OutputHandler.Send("What payment item do you want to be paid to?");
+						return;
+					}
+
+					var targetItem = actor.TargetPersonalItem(ss.SafeRemainingArgument);
+					if (targetItem is null)
+					{
+						actor.OutputHandler.Send("You don't see anything like that.");
+						return;
+					}
+
+					var paymentItem = targetItem.GetItemType<IBankPaymentItem>();
+					if (paymentItem is null)
+					{
+						actor.OutputHandler.Send(
+							$"{targetItem.HowSeen(actor, true)} is not something that be used to pay for things.");
+						return;
+					}
+
+					payment = new BankPayment(actor, paymentItem, shop);
+					break;
+				default:
+					if (actor.Gameworld.GetStaticBool("KeycardPaymentsEnabled"))
+					{
+						actor.OutputHandler.Send(
+							$"If you specify an argument after the thing you want to sell, it must be either CREDIT <account name> or WITH <card>.");
+					}
+					else
+					{
+						actor.OutputHandler.Send(
+							$"If you specify an argument after the thing you want to sell, it must be CREDIT <account name>.");
+					}
+
+					return;
+			}
+		}
+
+		var (truth, reason) = shop.CanSell(actor, merch, payment, item);
+		if (!truth)
+		{
+			actor.OutputHandler.Send(
+				$"You cannot sell {item.HowSeen(actor)} because {reason}.");
+			return;
+		}
+
+		shop.Sell(actor, merch, payment, item);
 	}
 
 	[PlayerCommand("Shop", "shop")]
@@ -1235,7 +1393,8 @@ BUY [<quantity>] <thing> WITH <item> - buys the thing with a payment item such a
 	#3shop close <shop>#0 - closes a shop to trading
 	#3shop set name <name>#0 - renames a shop
 	#3shop set can <prog> <whyprog>#0 - sets a prog to control who can shop here (and associated error message)
-	#3shop set trading#0 - toggles whether this shop is trading";
+	#3shop set trading#0 - toggles whether this shop is trading
+	#3shop set minfloat <amount>#0 - sets the minimum float for the shop to buy anything";
 
 	private const string ShopHelpAdmins = @"You can use the following options with the shop command:
 
@@ -1264,6 +1423,7 @@ BUY [<quantity>] <thing> WITH <item> - buys the thing with a payment item such a
 	#3shop set name <name>#0 - renames a shop
 	#3shop set can <prog> <whyprog>#0 - sets a prog to control who can shop here (and associated error message)
 	#3shop set trading#0 - toggles whether this shop is trading
+	#3shop set minfloat <amount>#0 - sets the minimum float for the shop to buy anything
 
 Additionally, you can use the following shop admin subcommands:
 
@@ -2625,7 +2785,7 @@ Additionally, you can use the following shop admin subcommands:
 
 		var sb = new StringBuilder();
 		sb.AppendLine(
-			$"Transaction record for {shop.Name.ColourName()} for financial period {period.FinancialPeriodStartMUD.Date.Display(CalendarDisplayMode.Short)} to {period.FinancialPeriodEndMUD.Date.Display(CalendarDisplayMode.Short)}:");
+			$"Transaction record for {shop.Name.ColourName()} for financial period {period.FinancialPeriodStartMUD.Date.Display(CalendarDisplayMode.Short).ColourName()} to {period.FinancialPeriodEndMUD.Date.Display(CalendarDisplayMode.Short).ColourName()}:");
 		sb.AppendLine();
 		var records = shop.TransactionRecords.Where(x => period.InPeriod(x.RealDateTime))
 						  .OrderByDescending(x => x.RealDateTime).ToList();

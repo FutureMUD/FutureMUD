@@ -28,7 +28,16 @@ namespace MudSharp.GameItems {
         ISolid Material { get; set; }
         double Buoyancy(double fluidDensity);
         IGameItemGroup ItemGroup { get; }
+        /// <summary>
+        /// This is a percentage condition between 0.0 (destroyed) and 1.0 (perfect) that represents non-damage condition, i.e. wear and tear or maintenance
+        /// </summary>
         double Condition { get; set; }
+
+        /// <summary>
+        /// This is a percentage condition between 0.0 (destroyed) and 1.0 (undamaged) that represents damage as a percentage of hitpoints
+        /// </summary>
+        double DamageCondition { get; }
+
 
         bool DesignedForOffhandUse { get; }
 

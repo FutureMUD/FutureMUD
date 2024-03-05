@@ -1230,7 +1230,7 @@ public class EconomicZone : SaveableItem, IEconomicZone
 			$"# Financial Periods to Keep: {PreviousFinancialPeriodsToKeep.ToString("N0", actor).ColourValue()}");
 		sb.AppendLine();
 		sb.AppendLine(
-			$"Current Financial Period: {CurrentFinancialPeriod.FinancialPeriodStartMUD.Date.Display(CalendarDisplayMode.Short)} to {CurrentFinancialPeriod.FinancialPeriodEndMUD.Date.Display(CalendarDisplayMode.Short)}");
+			$"Current Financial Period: {CurrentFinancialPeriod.FinancialPeriodStartMUD.Date.Display(CalendarDisplayMode.Short).ColourName()} to {CurrentFinancialPeriod.FinancialPeriodEndMUD.Date.Display(CalendarDisplayMode.Short).ColourName()}");
 		sb.AppendLine(
 			$"CFP Revenue: {Currency.Describe(_historicalRevenues.FirstOrDefault(x => x.Period == CurrentFinancialPeriod).TotalTaxRevenue, CurrencyDescriptionPatternType.ShortDecimal).ColourValue()}");
 		sb.AppendLine(

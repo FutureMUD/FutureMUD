@@ -52,6 +52,22 @@ public class TransientShop : Shop, ITransientShop
 		return (true, string.Empty);
 	}
 
+	public override (bool Truth, string Reason) CanSellInternal(ICharacter actor, IMerchandise merchandise, IPaymentMethod method,
+		IGameItem item)
+	{
+		if (CurrentStall is null)
+		{
+			return (false, "the shop has not been set up to have a stall.");
+		}
+
+		if (!CurrentStall.CanPut(item))
+		{
+			return (false, "the stall is too full to fit that item.");
+		}
+
+		return (true, string.Empty);
+	}
+
 	public override IEnumerable<IGameItem> DoAutoRestockForMerchandise(IMerchandise merchandise, List<(IGameItem Item, IGameItem Container)> purchasedItems = null)
 	{
 		if (CurrentStall is null)
@@ -103,7 +119,7 @@ public class TransientShop : Shop, ITransientShop
 		foreach (var item in newItems)
 		{
 			item.AddEffect(new ItemOnDisplayInShop(item, this, merchandise));
-			CurrentStall.Put(null, item, false);
+			SortItemToStorePhysicalLocation(item, merchandise, null);
 			item.HandleEvent(EventType.ItemFinishedLoading, item);
 			item.Login();
 			_stockedMerchandise.Add(merchandise, item.Id);
@@ -113,6 +129,12 @@ public class TransientShop : Shop, ITransientShop
 		AddTransaction(new TransactionRecord(ShopTransactionType.Restock, Currency, this,
 			EconomicZone.ZoneForTimePurposes.DateTime(), null, merchandise.EffectiveAutoReorderPrice * originalQuantity, 0.0M));
 		return newItems;
+	}
+
+	/// <inheritdoc />
+	public override void SortItemToStorePhysicalLocation(IGameItem item, IMerchandise merchandise, IGameItem container)
+	{
+		CurrentStall?.Put(null, item, false);
 	}
 
 	public override IEnumerable<IGameItem> DoAutostockForMerchandise(IMerchandise merchandise)

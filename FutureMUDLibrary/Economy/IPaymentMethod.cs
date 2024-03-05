@@ -13,5 +13,7 @@ namespace MudSharp.Economy
         decimal AccessibleMoneyForPayment();
         ICurrency Currency { get; }
         void TakePayment(decimal price);
+        decimal AccessibleMoneyForCredit();
+        void GivePayment(decimal price);
     }
 }

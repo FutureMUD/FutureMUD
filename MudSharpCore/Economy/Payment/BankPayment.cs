@@ -24,6 +24,26 @@ public class BankPayment : IPaymentMethod
 
 	#region Implementation of IPaymentMethod
 
+	public decimal AccessibleMoneyForCredit()
+	{
+		if (!Item.BankAccount.IsAuthorisedPaymentItem(Item))
+		{
+			return 0.0M;
+		}
+
+		return Shop.BankAccount?.MaximumWithdrawal() ?? 0.0M;
+	}
+
+	public void GivePayment(decimal price)
+	{
+		Shop!.BankAccount!.WithdrawFromTransaction(price, $"Item sold at {Shop.Name}");
+		Item.BankAccount!.DepositFromTransaction(price, "Payment for Goods Sold");
+		if (Item.CurrentUsesRemaining > 0)
+		{
+			Item.CurrentUsesRemaining--;
+		}
+	}
+
 	/// <inheritdoc />
 	public decimal AccessibleMoneyForPayment()
 	{

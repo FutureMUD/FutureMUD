@@ -68,5 +68,17 @@ public class OtherCashPayment : CashPayment
 		}
 	}
 
+	/// <inheritdoc />
+	public override decimal AccessibleMoneyForCredit()
+	{
+		return 0.0M;
+	}
+
+	/// <inheritdoc />
+	public override void GivePayment(decimal price)
+	{
+		// Do nothing
+	}
+
 	#endregion
 }

@@ -29,6 +29,7 @@ namespace MudSharp.Models
         public decimal CashBalance { get; set; }
         public long? BankAccountId { get; set; }
         public string ShopType { get; set; }
+        public decimal MinimumFloatToBuyItems { get; set; }
 
         public virtual FutureProg CanShopProg { get; set; }
         public virtual Currency Currency { get; set; }

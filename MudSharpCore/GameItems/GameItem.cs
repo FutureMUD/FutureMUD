@@ -1755,6 +1755,22 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable
 		return newItem;
 	}
 
+	public double DamageCondition
+	{
+		get
+		{
+			var destroyable = GetItemType<IDestroyable>();
+			if (destroyable == null)
+			{
+				return 1.0;
+			}
+
+			return destroyable.MaximumDamage == 0.0
+				? 1.0
+				: (1.0 - (_wounds.Sum(x => x.CurrentDamage) / destroyable.MaximumDamage));
+		}
+	}
+
 	public string Evaluate(ICharacter actor)
 	{
 		var sb = new StringBuilder();
@@ -1769,49 +1785,39 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable
 		sb.AppendLine($"It is {Size.Describe().Colour(Telnet.Green)} in size.");
 		sb.AppendLine($"It is made primarily out of {Material?.MaterialDescription.Colour(Telnet.Green) ?? "an unknown material".Colour(Telnet.Red)}.");
 		sb.AppendLine($"It is at {Condition.ToString("P0", actor).ColourValue()} condition.");
-		var destroyable = GetItemType<IDestroyable>();
-		if (destroyable == null)
-		{
-			sb.AppendLine($"It is {0.ToString("P0", actor).ColourValue()} damaged.");
-		}
-		else
-		{
-			var percentage = destroyable.MaximumDamage != 0.0
-				? _wounds.Sum(x => x.CurrentDamage) / destroyable.MaximumDamage
-				: 0.0;
-			var colour = Telnet.Green;
+		var percentage = 1.0 - DamageCondition;
+		var colour = Telnet.Green;
 
-			if (percentage >= 0.95)
-			{
-				colour = Telnet.BoldMagenta;
-			}
-			else if (percentage >= 0.85)
-			{
-				colour = Telnet.BoldRed;
-			}
-			else if (percentage >= 0.7)
-			{
-				colour = Telnet.Red;
-			}
-			else if (percentage >= 0.55)
-			{
-				colour = Telnet.Orange;
-			}
-			else if (percentage >= 0.4)
-			{
-				colour = Telnet.Yellow;
-			}
-			else if (percentage >= 0.25)
-			{
-				colour = Telnet.BoldYellow;
-			}
-			else if (percentage >= 0.1)
-			{
-				colour = Telnet.BoldGreen;
-			}
-
-			sb.AppendLine($"It is {percentage.ToString("P0", actor).Colour(colour)} damaged.");
+		if (percentage >= 0.95)
+		{
+			colour = Telnet.BoldMagenta;
 		}
+		else if (percentage >= 0.85)
+		{
+			colour = Telnet.BoldRed;
+		}
+		else if (percentage >= 0.7)
+		{
+			colour = Telnet.Red;
+		}
+		else if (percentage >= 0.55)
+		{
+			colour = Telnet.Orange;
+		}
+		else if (percentage >= 0.4)
+		{
+			colour = Telnet.Yellow;
+		}
+		else if (percentage >= 0.25)
+		{
+			colour = Telnet.BoldYellow;
+		}
+		else if (percentage >= 0.1)
+		{
+			colour = Telnet.BoldGreen;
+		}
+
+		sb.AppendLine($"It is {percentage.ToString("P0", actor).Colour(colour)} damaged.");
 
 		var tags = Tags.Where(x => x.ShouldSee(actor)).ToList();
 		if (tags.Any())

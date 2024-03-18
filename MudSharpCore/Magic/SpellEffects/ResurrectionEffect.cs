@@ -18,7 +18,7 @@ public class ResurrectionEffect : IMagicSpellEffectTemplate
 {
 	public static void RegisterFactory()
 	{
-		SpellEffectFactory.RegisterLoadTimeFactory("resurrect", (root, spell) => new GlowEffect(root, spell));
+		SpellEffectFactory.RegisterLoadTimeFactory("resurrect", (root, spell) => new ResurrectionEffect(root, spell));
 		SpellEffectFactory.RegisterBuilderFactory("resurrect", BuilderFactory);
 	}
 
@@ -35,7 +35,7 @@ public class ResurrectionEffect : IMagicSpellEffectTemplate
 	public bool HealWounds { get; set; }
 	public bool RestoreSevers { get; set; }
 
-	public ResurrectionEffect(XElement root, IMagicSpell spell)
+	protected ResurrectionEffect(XElement root, IMagicSpell spell)
 	{
 		Spell = spell;
 		HealWounds = bool.Parse(root.Element("HealWounds").Value);
@@ -136,7 +136,7 @@ public class ResurrectionEffect : IMagicSpellEffectTemplate
 
 	public IMagicSpellEffectTemplate Clone()
 	{
-		return new GlowEffect(SaveToXml(), Spell);
+		return new ResurrectionEffect(SaveToXml(), Spell);
 	}
 
 	#endregion

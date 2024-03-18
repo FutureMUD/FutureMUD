@@ -39,7 +39,7 @@ public class GlowEffect : IMagicSpellEffectTemplate
 	public string DescAddendum { get; set; }
 	public ANSIColour GlowAddendumColour { get; set; }
 
-	public GlowEffect(XElement root, IMagicSpell spell)
+	protected GlowEffect(XElement root, IMagicSpell spell)
 	{
 		Spell = spell;
 		GlowLuxPerPower = double.Parse(root.Element("GlowLuxPerPower").Value);

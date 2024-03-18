@@ -465,7 +465,15 @@ public partial class TraitExpression : SaveableItem, ITraitExpression
 		}
 
 		actor.OutputHandler.Send(
-			"Valid options are as follows:\n\tname <name> - the name of this trait expression\n\tformula <formula> - the formula for the expression\n\tparameter <which> <trait> - adds a new parameter named referring to the specified trait\n\tbranch <which> - toggles branching of an existing parameter\n\timprove <which> - toggles improvement of a particular parameter\n\trait <which> <trait> - sets the trait for a particular parameter\n\tdelete <which> - deletes a particular parameter");
+			@"Valid options are as follows:
+
+	#3name <name>#0 - the name of this trait expression
+	#3formula <formula>#0 - the formula for the expression
+	#3parameter <which> <trait>#0 - adds a new parameter named referring to the specified trait
+	#3branch <which>#0 - toggles branching of an existing parameter
+	#3improve <which>#0 - toggles improvement of a particular parameter
+	#3trait <which> <trait>#0 - sets the trait for a particular parameter
+	#3delete <which>#0 - deletes a particular parameter".SubstituteANSIColour());
 		return false;
 	}
 

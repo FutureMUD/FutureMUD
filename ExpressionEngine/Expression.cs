@@ -95,10 +95,27 @@ namespace ExpressionEngine
             _expression.EvaluateFunction += DRandFunction;
             _expression.EvaluateFunction += RandFunction;
             _expression.EvaluateFunction += DiceFunction;
+            _expression.EvaluateFunction += NotFunction;
         }
         #endregion
 
         #region In-built functions
+
+        private void NotFunction(string name, NCalc.FunctionArgs args)
+        {
+	        if (!name.Equals("not", StringComparison.OrdinalIgnoreCase))
+	        {
+		        return;
+	        }
+
+	        if (args.Parameters.Length != 1)
+	        {
+		        throw new ArgumentException("Not() takes exactly 1 argument");
+	        }
+
+	        var value = Convert.ToDouble(args.Parameters[0].Evaluate());
+	        args.Result = value == 0.0 ? 1.0 : 0.0;
+        }
         private void DRandFunction(string name, NCalc.FunctionArgs args)
         {
             if (!name.Equals("drand", StringComparison.OrdinalIgnoreCase))

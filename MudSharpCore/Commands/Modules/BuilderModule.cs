@@ -1365,8 +1365,118 @@ The syntax to use this command is as follows:
 	
 	#region Trait Expressions
 
+	public const string TraitExpressionHelp = @"The Trait Expression command is used to work with Trait Expressions, which are used in numerous points of the code to do mathematical formulas that can also parse the traits (i.e. skills and attributes) of a character. 
+
+Examples of trait expressions might include damage formulas for weapons, the length of time someone can hold their breathe, caps for skills, etc.
+
+Trait expressions can be edited with the following syntax:
+
+	#3te list#0 - shows all trait expressions
+	#3te show <id>#0 - shows a particular trait expression
+	#3te edit <id>#0 - begins editing a trait expression
+	#3te edit#0 - an alias for #3te show <editing id>#0
+	#3te close#0 - stops editing a trait expression
+	#3te clone <id>#0 - clones an existing expression and then begins editing the clone
+	#3te new <name>#0 - creates a new trait expression
+	#3te set name <name>#0 - edits the name of this trait expression
+	#3te set formula <formula>#0 - edits the formula for the expression
+	#3te set parameter <which> <trait>#0 - adds a new parameter named referring to the specified trait
+	#3te set branch <which>#0 - toggles branching of an existing parameter
+	#3te set improve <which>#0 - toggles improvement of a particular parameter
+	#3te set trait <which> <trait>#0 - sets the trait for a particular parameter
+	#3te set delete <which>#0 - deletes a particular parameter
+
+#6Using parameters#0
+
+The heart of the formulas is parameters. Each parameter has a name, and when the formula is evaluated by the engine that parameter will be replaced with an actual value. For example, you might have a parameter called #6strength#0 and at evaluate time, it points to the strength attribute of the character the expression is about.
+
+There are two options for working with parameters:
+
+1) You can add them at the top level, as per #3te set parameter#0
+2) You can refer to them directly in the formula with the syntax #6name:id#0, e.g. #6strength:1#0
+
+There is also a special parameter called #6variable#0, which some parts of the code will substitute with a skill value (or something else). This is the case with expressions for weapon checks for example, where the weapon skill will be substituted for the #6variable#0 parameter.
+
+Additionally, you can mimic the effects of the #6nobranch#0 and #6noimprove#0 flags with type 2 variables by using syntax like the following: #6sorcery:123{nobranch,noimprove}#0. 
+
+Finally, all of these parameters can be reused. So once you've done #6str:1#0 earlier in a formula, simply refering to #6str#0 later in the formula will be sufficient.
+
+#6Special Functions#0
+
+There are a number of special functions you can use (varname in the below stores the outcome in a variable that can be referred back to, it can otherwise be something perfunctory):
+
+#5{varname race=race names/ids split by commas}#0 - 1 if the character is any of the listed races, 0 otherwise
+#5{varname culture=culture names/ids split by commas}#0 - 1 if the character is any of the listed cultures, 0 otherwise
+#5{varname merit=merit names/ids split by commas}#0 - 1 if the character has any of the listed merits, 0 otherwise
+#5{varname role=role names/ids split by commas}#0 - 1 if the character has any of the listed roles, 0 otherwise
+#5{varname class=class names/ids split by commas}#0 - 1 if the character has is any of the listed classes, 0 otherwise
+
+#6Formula Functions#0
+
+You can also use the following functions in your formula:
+
+#3dice(num,sides)#0 - a random dice roll, e.g. dice(1,6) rolls a 6-sided dice
+#3xdy#0 - e.g. #32d6#0 - a shorthand for doing #3dice(x,y)#0
+#3rand(min,max)#0 - a random whole number between min and max
+#3drand(min,max)#0 - a random decimal number between min and max
+#3not(num)#0 - if num is exactly 0, then returns 1. Otherwise returns 0.
+#3abs(num)#0 - Returns the absolute value of a specified number
+#3acos(num)#0 - Returns the angle whose cosine is the specified number
+#3asin(num)#0 - Returns the angle whose sine is the specified number
+#3atan(num)#0 - Returns the angle whose tangent is the specified number
+#3ceiling(num)#0 - Returns the smallest integer greater than or equal to the specified number
+#3cos(num)#0 - Returns the cosine of the specified angle
+#3exp(num)#0 - Returns e raised to the specified power
+#3floor(num)#0 - Returns the largest integer less than or equal to the specified number
+#3IEEERemainder(num,div)#0 - Returns the remainder resulting from the division of a specified number by another specified number
+#3log(num)#0 - Returns the logarithm of a specified number
+#3log10(num)#0 - Returns the base 10 logarithm of a specified number
+#3max(num1,num2)#0 - Returns the larger of two specified numbers
+#3min(num1,num2)#0 - Returns the smaller of two numbers
+#3pow(num,power)#0 - Returns a specified number raised to the specified power
+#3round(num)#0 - Rounds a value to the nearest integer or specified number of decimal places
+#3sin(num)#0 - Returns the sine of the specified angle
+#3sqrt(num)#0 - Returns the square root of a specified number
+#3tan(num)#0 - Returns the tangent of the specified angle
+#3truncate(num)#0	Calculates an integral part of a number
+#3in(num1,num2,...,numn)#0 - Returns whether an element is in a set of values
+#3if(cond,truevalue,falsevalue)#0 - Returns a value based on a condition
+
+#6Examples#0
+
+Here are some examples of plausible trait expressions applying the above:
+
+1) #327#0
+
+	This formula would return 27 every single time
+
+2) #3axes:37{nobranch}#0 
+
+	This would substitute the character's value for axes (skill 37), and not permit it to branch if they don't have it
+
+3) #01d10+truncate(str:1/10)#0
+
+	This would roll 1 ten-sided dice and add +1 for every 10 whole points of strength the character had
+
+4) #3{ismartial class=warrior,paladin,barbarian,rogue,monk}*{str:1}+{isarcane class=mage,sorcerer,warlock}*{int:2}#0
+
+	This would use the value of a character's strength if they were a martial class, or intelligence if they were arcane
+
+5) #3swimming:45 + {value merit=Natural Swimmer}*50#0
+
+	This formula combines swimming with a +50 bonus if they have the natural swimmer merit (likely to be a trait expression for a check)
+
+6) #3listening:12 + {value merit=Good Ears}*30 + {elf race=Elf}*50#0
+
+	This formula combines the listening skill, a +30 bonus for the merit Good Ears, and an additional +50 bonus for the Elf race
+
+7) #3min(99, (2 * dex:4) + (1 * str:1) + (2 * wil:5))#0
+
+	This formula is probably a skill cap combining 2*dex, str, and 2*wil, with a cap of 99";
+
 	[PlayerCommand("TraitExpression", "traitexpression", "te")]
 	[CommandPermission(PermissionLevel.Admin)]
+	[HelpInfo("traitexpression", TraitExpressionHelp, AutoHelp.HelpArgOrNoArg)]
 	protected static void TraitExpression(ICharacter actor, string command)
 	{
 		var ss = new StringStack(command.RemoveFirstWord());
@@ -1399,7 +1509,7 @@ The syntax to use this command is as follows:
 				return;
 		}
 
-		actor.OutputHandler.Send("The valid choices are list, show, new, edit, close, set, clone and delete.");
+		actor.OutputHandler.Send(TraitExpressionHelp.SubstituteANSIColour());
 	}
 
 	private static void TraitExpressionView(ICharacter actor, StringStack ss)

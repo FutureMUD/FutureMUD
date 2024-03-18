@@ -25,7 +25,7 @@ public class ResurrectionEffect : IMagicSpellEffectTemplate
 	private static (IMagicSpellEffectTemplate Trigger, string Error) BuilderFactory(StringStack commands,
 		IMagicSpell spell)
 	{
-		return (new GlowEffect(new XElement("Effect",
+		return (new ResurrectionEffect(new XElement("Effect",
 			new XAttribute("type", "resurrect"),
 			new XElement("HealWounds", "true"),
 			new XElement("RestoreSevers", "true")), spell), string.Empty);

@@ -54,7 +54,7 @@ public class ChangeCharacteristicEffect : IMagicSpellEffectTemplate
 				return (null, $"There is no profile called {valueText.ColourCommand()} for definition {definition.Name.ColourName()}.");
 			}
 
-			return (new GlowEffect(new XElement("Effect",
+			return (new ChangeCharacteristicEffect(new XElement("Effect",
 			new XAttribute("type", "changecharacteristic"),
 			new XElement("WhichCharacteristic", definition.Id),
 			new XElement("CharacteristicValueTarget", 0),
@@ -68,7 +68,7 @@ public class ChangeCharacteristicEffect : IMagicSpellEffectTemplate
 			return (null, $"There is no such value as {valueText.ColourCommand()} for the {definition.Name.ColourName()} characteristic.");
 		}
 
-		return (new GlowEffect(new XElement("Effect",
+		return (new ChangeCharacteristicEffect(new XElement("Effect",
 			new XAttribute("type", "changecharacteristic"),
 			new XElement("WhichCharacteristic", definition.Id),
 			new XElement("CharacteristicValueTarget", value.Id),
@@ -86,7 +86,7 @@ public class ChangeCharacteristicEffect : IMagicSpellEffectTemplate
 
 	#region Constructors and Saving
 
-	public ChangeCharacteristicEffect(XElement root, IMagicSpell spell)
+	protected ChangeCharacteristicEffect(XElement root, IMagicSpell spell)
 	{
 		Spell = spell;
 		WhichCharacteristic = spell.Gameworld.Characteristics.Get(long.Parse(root.Element("WhichCharacteristic")!.Value))!;

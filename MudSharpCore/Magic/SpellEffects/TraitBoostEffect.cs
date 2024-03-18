@@ -20,14 +20,14 @@ public class TraitBoostEffect : IMagicSpellEffectTemplate
 
 	public static void RegisterFactory()
 	{
-		SpellEffectFactory.RegisterLoadTimeFactory("boost", (root, spell) => new GlowEffect(root, spell));
+		SpellEffectFactory.RegisterLoadTimeFactory("boost", (root, spell) => new TraitBoostEffect(root, spell));
 		SpellEffectFactory.RegisterBuilderFactory("boost", BuilderFactory);
 	}
 
 	private static (IMagicSpellEffectTemplate Trigger, string Error) BuilderFactory(StringStack commands,
 		IMagicSpell spell)
 	{
-		return (new GlowEffect(new XElement("Effect",
+		return (new TraitBoostEffect(new XElement("Effect",
 			new XAttribute("type", "glow"),
 			new XAttribute("trait", 0),
 			new XAttribute("bonus", 0.0),
@@ -39,7 +39,7 @@ public class TraitBoostEffect : IMagicSpellEffectTemplate
 	public double Bonus { get; private set; }
 	public TraitBonusContext TraitBonusContext { get; private set; }
 
-	public TraitBoostEffect(XElement root, IMagicSpell spell)
+	protected TraitBoostEffect(XElement root, IMagicSpell spell)
 	{
 		Spell = spell;
 		Trait = Gameworld.Traits.Get(long.Parse(root.Attribute("trait").Value));

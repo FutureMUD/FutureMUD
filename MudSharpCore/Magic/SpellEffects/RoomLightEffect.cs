@@ -24,7 +24,7 @@ public class RoomLightEffect : IMagicSpellEffectTemplate
 	private static (IMagicSpellEffectTemplate Trigger, string Error) BuilderFactory(StringStack commands,
 		IMagicSpell spell)
 	{
-		return (new GlowEffect(new XElement("Effect",
+		return (new RoomLightEffect(new XElement("Effect",
 			new XAttribute("type", "roomlight"),
 			new XElement("AddedLuxPerPower", 10),
 			new XElement("DescAddendum", new XCData("A ball of {0} white light illuminates the area.")),
@@ -36,7 +36,7 @@ public class RoomLightEffect : IMagicSpellEffectTemplate
 	public string DescAddendum { get; set; }
 	public ANSIColour GlowAddendumColour { get; set; }
 
-	public RoomLightEffect(XElement root, IMagicSpell spell)
+	protected RoomLightEffect(XElement root, IMagicSpell spell)
 	{
 		Spell = spell;
 		AddedLuxPerPower = double.Parse(root.Element("AddedLuxPerPower").Value);

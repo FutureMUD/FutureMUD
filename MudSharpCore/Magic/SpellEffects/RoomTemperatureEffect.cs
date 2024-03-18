@@ -25,7 +25,7 @@ public class RoomTemperatureEffect : IMagicSpellEffectTemplate
 	private static (IMagicSpellEffectTemplate Trigger, string Error) BuilderFactory(StringStack commands,
 		IMagicSpell spell)
 	{
-		return (new GlowEffect(new XElement("Effect",
+		return (new RoomTemperatureEffect(new XElement("Effect",
 			new XAttribute("type", "roomtemperature"),
 			new XElement("TemperatureDeltaPerPower", 1.0),
 			new XElement("DescAddendum", new XCData("")),
@@ -37,7 +37,7 @@ public class RoomTemperatureEffect : IMagicSpellEffectTemplate
 	public string DescAddendum { get; set; }
 	public ANSIColour AddendumColour { get; set; }
 
-	public RoomTemperatureEffect(XElement root, IMagicSpell spell)
+	protected RoomTemperatureEffect(XElement root, IMagicSpell spell)
 	{
 		Spell = spell;
 		TemperatureDeltaPerPower = double.Parse(root.Element("TemperatureDeltaPerPower").Value);
@@ -185,7 +185,7 @@ public class RoomTemperatureEffect : IMagicSpellEffectTemplate
 
 	public IMagicSpellEffectTemplate Clone()
 	{
-		return new RoomLightEffect(SaveToXml(), Spell);
+		return new RoomTemperatureEffect(SaveToXml(), Spell);
 	}
 
 	#endregion

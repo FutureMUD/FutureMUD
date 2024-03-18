@@ -19,14 +19,14 @@ public class InvisibilityEffect : IMagicSpellEffectTemplate
 {
 	public static void RegisterFactory()
 	{
-		SpellEffectFactory.RegisterLoadTimeFactory("invisibility", (root, spell) => new GlowEffect(root, spell));
+		SpellEffectFactory.RegisterLoadTimeFactory("invisibility", (root, spell) => new InvisibilityEffect(root, spell));
 		SpellEffectFactory.RegisterBuilderFactory("invisibility", BuilderFactory);
 	}
 
 	private static (IMagicSpellEffectTemplate Trigger, string Error) BuilderFactory(StringStack commands,
 		IMagicSpell spell)
 	{
-		return (new GlowEffect(new XElement("Effect",
+		return (new InvisibilityEffect(new XElement("Effect",
 			new XAttribute("type", "glow"),
 			new XElement("FilterProg", 0)
 		), spell), string.Empty);
@@ -35,7 +35,7 @@ public class InvisibilityEffect : IMagicSpellEffectTemplate
 	public IMagicSpell Spell { get; }
 	public IFutureProg FilterProg { get; set; }
 
-	public InvisibilityEffect(XElement root, IMagicSpell spell)
+	protected InvisibilityEffect(XElement root, IMagicSpell spell)
 	{
 		Spell = spell;
 		FilterProg = Gameworld.FutureProgs.Get(long.Parse(root.Element("FilterProg")?.Value ?? "0"));
@@ -136,7 +136,7 @@ public class InvisibilityEffect : IMagicSpellEffectTemplate
 
 	public IMagicSpellEffectTemplate Clone()
 	{
-		return new GlowEffect(SaveToXml(), Spell);
+		return new InvisibilityEffect(SaveToXml(), Spell);
 	}
 
 	#endregion

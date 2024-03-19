@@ -540,7 +540,7 @@ namespace MudSharp.Framework {
             return value;
         }
 
-        public static string Wrap(this string text, int width, string indent = "")
+		public static string Wrap(this string text, int width, string indent = "")
         {
             if (width < 1 || string.IsNullOrEmpty(text))
             {

@@ -10,8 +10,14 @@ namespace MudSharp.Economy;
 
 public interface IMarketInfluenceTemplate : ISaveable, IEditableItem
 {
-	IMarket Market { get; }
+	/// <summary>
+	/// A summary of the template itself and what it's about
+	/// </summary>
 	string TemplateSummary { get; }
+
+	/// <summary>
+	/// The description parameter passed to an instance of IMarketInfluence
+	/// </summary>
 	string Description { get; }
 	IEnumerable<MarketImpact> MarketImpacts { get; }
 	IFutureProg CharacterKnowsAboutInfluenceProg { get; }

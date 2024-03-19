@@ -9,5 +9,6 @@ public interface IMarketCategory : ISaveable, IEditableItem
 	string Description { get; }
 	bool BelongsToCategory(IGameItem item);
 	bool BelongsToCategory(IGameItemProto proto);
-	double ElasticityFactor { get; }
+	double ElasticityFactorAbove { get; }
+	double ElasticityFactorBelow { get; }
 }

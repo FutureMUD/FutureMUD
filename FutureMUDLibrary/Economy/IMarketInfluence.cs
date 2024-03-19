@@ -18,4 +18,6 @@ public interface IMarketInfluence : ISaveable, IEditableItem
 	MudDateTime? AppliesUntil { get; }
 	IEnumerable<MarketImpact> MarketImpacts { get; }
 	bool CharacterKnowsAboutInfluence(ICharacter character);
+	bool Applies(IMarketCategory category, MudDateTime currentDateTime);
+	string TextForMarketShow(ICharacter actor);
 }

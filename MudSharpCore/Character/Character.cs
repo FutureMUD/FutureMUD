@@ -402,6 +402,8 @@ public partial class Character : PerceiverItem, ICharacter
 		}
 	}
 
+	public sealed override string Name => _personalName?.GetName(NameStyle.GivenOnly) ?? "Entity";
+
 	public IEditableRevisableItem EditingItemComponent { get; set; }
 
 	public bool BriefRoomDescs { get; set; }

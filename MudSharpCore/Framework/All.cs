@@ -53,7 +53,7 @@ public class All<T> : IAll<T>, IUneditableAll<T> where T : class, IFrameworkItem
 		if (_iterlist.Contains(value))
 		{
 			throw new ApplicationException(
-				$"Trying to add a duplicate object {value.Id} / {value.Name} / {value.FrameworkItemType} to All.");
+				$"Trying to add a duplicate object {value.Id} / {value?.Name ?? ""} / {value.FrameworkItemType} to All.");
 		}
 
 		_idlookup.Add(value.Id, value);
@@ -74,7 +74,7 @@ public class All<T> : IAll<T>, IUneditableAll<T> where T : class, IFrameworkItem
 	public bool Has(string name)
 	{
 		var lowercaseName = name.ToLowerInvariant();
-		return _idlookup.Values.ToList().Exists(x => x.Name.ToLowerInvariant().Equals(lowercaseName));
+		return _idlookup.Values.ToList().Exists(x => x.Name?.ToLowerInvariant().Equals(lowercaseName) == true);
 	}
 
 	public T? Get(long id)
@@ -93,7 +93,7 @@ public class All<T> : IAll<T>, IUneditableAll<T> where T : class, IFrameworkItem
 		var lowercaseName = name.ToLowerInvariant();
 
 		var matchesName = from value in values
-		                  where value.Name.ToLowerInvariant().Equals(lowercaseName)
+		                  where value.Name?.ToLowerInvariant().Equals(lowercaseName) == true
 		                  select value;
 
 		return matchesName.ToList();
@@ -101,7 +101,7 @@ public class All<T> : IAll<T>, IUneditableAll<T> where T : class, IFrameworkItem
 
 	public T? GetByName(string name)
 	{
-		return _iterlist.FirstOrDefault(x => x.Name.Equals(name, StringComparison.InvariantCultureIgnoreCase));
+		return _iterlist.FirstOrDefault(x => x.Name?.Equals(name, StringComparison.InvariantCultureIgnoreCase) == true);
 	}
 
 	public T? GetByIdOrName(string value, bool permitAbbreviations = true)
@@ -117,11 +117,11 @@ public class All<T> : IAll<T>, IUneditableAll<T> where T : class, IFrameworkItem
 
 		if (!permitAbbreviations)
 		{
-			return _iterlist.FirstOrDefault(x => x.Name.Equals(value, StringComparison.InvariantCultureIgnoreCase));
+			return _iterlist.FirstOrDefault(x => x.Name?.Equals(value, StringComparison.InvariantCultureIgnoreCase) == true);
 		}
 
-		return _iterlist.FirstOrDefault(x => x.Name.Equals(value, StringComparison.InvariantCultureIgnoreCase)) ??
-		       _iterlist.FirstOrDefault(x => x.Name.StartsWith(value, StringComparison.InvariantCultureIgnoreCase));
+		return _iterlist.FirstOrDefault(x => x.Name?.Equals(value, StringComparison.InvariantCultureIgnoreCase) == true) ??
+		       _iterlist.FirstOrDefault(x => x.Name?.StartsWith(value, StringComparison.InvariantCultureIgnoreCase) == true);
 	}
 
 	public void ForEach(Action<T> action)

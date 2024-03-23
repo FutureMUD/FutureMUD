@@ -16,6 +16,7 @@ public interface IMarket : ISaveable, IEditableItem
 	IEconomicZone EconomicZone { get; }
 	string Description { get; }
 	IEnumerable<IMarketInfluence> MarketInfluences { get; }
+	IEnumerable<IMarketCategory> MarketCategories { get; }
 	decimal PriceMultiplierForCategory(IMarketCategory category);
 	void ApplyMarketInfluence(IMarketInfluence influence);
 	void RemoveMarketInfluence(IMarketInfluence influence);

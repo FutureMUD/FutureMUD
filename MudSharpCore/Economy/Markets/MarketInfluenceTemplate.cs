@@ -1,5 +1,7 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Text;
+using System.Xml.Linq;
 using MudSharp.Character;
 using MudSharp.Framework;
 using MudSharp.Framework.Save;
@@ -11,6 +13,25 @@ namespace MudSharp.Economy.Markets;
 
 public class MarketInfluenceTemplate : SaveableItem, IMarketInfluenceTemplate
 {
+	public MarketInfluenceTemplate(IFuturemud gameworld, Models.MarketInfluenceTemplate template)
+	{
+		Gameworld = gameworld;
+		_id = template.Id;
+		_name = template.Name;
+		Description = template.Description;
+		TemplateSummary = template.TemplateSummary;
+		CharacterKnowsAboutInfluenceProg = Gameworld.FutureProgs.Get(template.CharacterKnowsAboutInfluenceProgId) ?? Gameworld.AlwaysFalseProg;
+		foreach (var impact in XElement.Parse(template.Impacts).Elements("Impact"))
+		{
+			_marketImpacts.Add(new MarketImpact
+			{
+				DemandImpact = double.Parse(impact.Attribute("demand").Value),
+				SupplyImpact = double.Parse(impact.Attribute("supply").Value),
+				MarketCategory = Gameworld.MarketCategories.Get(long.Parse(impact.Attribute("category").Value))
+			});
+		}
+	}
+
 	/// <inheritdoc />
 	public sealed override string FrameworkItemType => "MarketInfluenceTemplate";
 
@@ -18,6 +39,18 @@ public class MarketInfluenceTemplate : SaveableItem, IMarketInfluenceTemplate
 	public override void Save()
 	{
 		throw new System.NotImplementedException();
+	}
+
+	public XElement SaveImpacts()
+	{
+		return new XElement("Impacts",
+			from impact in _marketImpacts
+			select new XElement("Impact",
+				new XAttribute("demand", impact.DemandImpact),
+				new XAttribute("supply", impact.SupplyImpact),
+				new XAttribute("category", impact.MarketCategory.Id)
+			)
+		);
 	}
 
 	/// <inheritdoc />

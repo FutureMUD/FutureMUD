@@ -273,6 +273,10 @@ namespace MudSharp.Database
         public virtual DbSet<MagicResource> MagicResources { get; set; }
         public virtual DbSet<MagicSchool> MagicSchools { get; set; }
         public virtual DbSet<MagicSpell> MagicSpells { get; set; }
+        public virtual DbSet<Market> Markets { get; set; }
+        public virtual DbSet<MarketCategory> MarketCategories { get; set; }
+        public virtual DbSet<MarketInfluenceTemplate> MarketInfluenceTemplates { get; set; }
+        public virtual DbSet<MarketInfluence> MarketInfluences { get; set; }
         public virtual DbSet<Material> Materials { get; set; }
         public virtual DbSet<MaterialsTags> MaterialsTags { get; set; }
         public virtual DbSet<Merchandise> Merchandises { get; set; }

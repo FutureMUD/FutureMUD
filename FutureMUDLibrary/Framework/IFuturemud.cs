@@ -202,6 +202,12 @@ namespace MudSharp.Framework
         IUneditableAll<IMagicResource> MagicResources { get; }
         IUneditableAll<IMagicResourceRegenerator> MagicResourceRegenerators { get; }
         IUneditableAll<IMagicSpell> MagicSpells { get; }
+
+        IUneditableAll<IMarket> Markets { get; }
+        IUneditableAll<IMarketCategory> MarketCategories { get; }
+        IUneditableAll<IMarketInfluenceTemplate> MarketInfluenceTemplates { get; }
+        IUneditableAll<IMarketInfluence> MarketInfluences { get; }
+
         IUneditableAll<ISolid> Materials { get; }
         IUneditableAll<IMerit> Merits { get; }
         IUneditableAll<INameCulture> NameCultures { get; }
@@ -467,6 +473,10 @@ namespace MudSharp.Framework
         void Add(IArmourType type);
         void Add(IScriptedEvent item);
         void Add(INewPlayerHint hint);
+        void Add(IMarket market);
+        void Add(IMarketCategory category);
+        void Add(IMarketInfluenceTemplate item);
+        void Add(IMarketInfluence item);
 
 		ICheck GetCheck(CheckType type);
 
@@ -596,6 +606,10 @@ namespace MudSharp.Framework
         void Destroy(IScript script);
 		void Destroy(IScriptedEvent item);
         void Destroy(INewPlayerHint hint);
+        void Destroy(IMarket market);
+        void Destroy(IMarketCategory category);
+        void Destroy(IMarketInfluenceTemplate template);
+        void Destroy(IMarketInfluence influence);
 		void Dispose();
         void ForceOutgoingMessages();
         string ToString();

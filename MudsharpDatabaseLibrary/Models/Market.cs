@@ -12,6 +12,7 @@ public class Market
 	public Market()
 	{
 		Influences = new HashSet<MarketInfluence>();
+		MarketMarketCategories = new HashSet<MarketMarketCategory>();
 	}
 
 	public long Id { get; set; }
@@ -22,6 +23,7 @@ public class Market
 
 	public virtual EconomicZone EconomicZone { get; set; }
 	public virtual ICollection<MarketInfluence> Influences { get; set; }
+	public virtual ICollection<MarketMarketCategory> MarketMarketCategories { get; set; }
 }
 
 public class MarketInfluence
@@ -56,4 +58,15 @@ public class MarketCategory
 	public long Id { get; set; }
 	public string Name { get; set; }
 	public string Description { get; set; }
+	public double ElasticityFactorAbove { get; set; }
+	public double ElasticityFactorBelow { get; set; }
+	public string Tags { get; set; }
+}
+
+public class MarketMarketCategory
+{
+	public long MarketId { get; set; }
+	public long MarketCategoryId { get; set; }
+	public virtual Market Market { get; set; }
+	public virtual MarketCategory MarketCategory { get; set; }
 }

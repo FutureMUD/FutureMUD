@@ -1320,6 +1320,23 @@ public sealed partial class Futuremud : IFuturemud, IDisposable
 		_newPlayerHints.Add(hint);
 	}
 
+	public void Add(IMarket market)
+	{
+		_markets.Add(market);
+	}
+	public void Add(IMarketCategory category)
+	{
+		_marketCategories.Add(category);
+	}
+	public void Add(IMarketInfluenceTemplate item)
+	{
+		_marketInfluenceTemplates.Add(item);
+	}
+	public void Add(IMarketInfluence item)
+	{
+		_marketInfluences.Add(item);
+	}
+
 	#endregion Special Add Methods
 
 	#region Special Find
@@ -1508,6 +1525,8 @@ public sealed partial class Futuremud : IFuturemud, IDisposable
 			listener.CancelListener();
 		}
 	}
+
+	
 
 	public void Destroy(ICurrency currency)
 	{
@@ -2087,6 +2106,26 @@ public sealed partial class Futuremud : IFuturemud, IDisposable
 	public void Destroy(INewPlayerHint hint)
 	{
 		_newPlayerHints.Remove(hint);
+	}
+
+	public void Destroy(IMarket market)
+	{
+		_markets.Remove(market);
+	}
+
+	public void Destroy(IMarketCategory category)
+	{
+		_marketCategories.Remove(category);
+	}
+
+	public void Destroy(IMarketInfluenceTemplate template)
+	{
+		_marketInfluenceTemplates.Remove(template);
+	}
+
+	public void Destroy(IMarketInfluence influence)
+	{
+		_marketInfluences.Remove(influence);
 	}
 
 	#endregion Destruction

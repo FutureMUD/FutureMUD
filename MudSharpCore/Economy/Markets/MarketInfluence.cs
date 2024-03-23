@@ -1,7 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Xml.Linq;
 using JetBrains.Annotations;
+using MoreLinq.Extensions;
 using MudSharp.Character;
 using MudSharp.Framework;
 using MudSharp.Framework.Save;
@@ -27,14 +29,50 @@ public class MarketInfluence : SaveableItem, IMarketInfluence
 		Description = template.Description;
 		AppliesFrom = appliesFrom;
 		AppliesUntil = appliesUntil;
+		foreach (var impact in template.MarketImpacts)
+		{
+			_marketImpacts.Add(impact with {});
+		}
 		_marketImpacts.AddRange(template.MarketImpacts);
 		CharacterKnowsAboutInfluenceProg = template.CharacterKnowsAboutInfluenceProg;
+	}
+
+	public MarketInfluence(IMarket market, Models.MarketInfluence influence)
+	{
+		Gameworld=market.Gameworld;
+		Market = market;
+		MarketInfluenceTemplate = Gameworld.MarketInfluenceTemplates.Get(influence.MarketInfluenceTemplateId ?? 0);
+		Description = market.Description;
+		_name = market.Name;
+		AppliesFrom = new MudDateTime(influence.AppliesFrom, Gameworld);
+		AppliesUntil = new MudDateTime(influence.AppliesUntil, Gameworld);
+		foreach (var impact in XElement.Parse(influence.Impacts).Elements("Impact"))
+		{
+			_marketImpacts.Add(new MarketImpact
+			{
+				DemandImpact = double.Parse(impact.Attribute("demand").Value),
+				SupplyImpact = double.Parse(impact.Attribute("supply").Value),
+				MarketCategory = Gameworld.MarketCategories.Get(long.Parse(impact.Attribute("category").Value))
+			});
+		}
 	}
 
 	/// <inheritdoc />
 	public override void Save()
 	{
 		throw new System.NotImplementedException();
+	}
+
+	public XElement SaveImpacts()
+	{
+		return new XElement("Impacts",
+			from impact in _marketImpacts
+			select new XElement("Impact", 
+				new XAttribute("demand", impact.DemandImpact),
+				new XAttribute("supply", impact.SupplyImpact),
+				new XAttribute("category", impact.MarketCategory.Id)
+			)
+		);
 	}
 
 	/// <inheritdoc />

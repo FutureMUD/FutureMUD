@@ -40,12 +40,15 @@ public class MarketInfluence : SaveableItem, IMarketInfluence
 	public MarketInfluence(IMarket market, Models.MarketInfluence influence)
 	{
 		Gameworld=market.Gameworld;
+		_id = influence.Id;
 		Market = market;
 		MarketInfluenceTemplate = Gameworld.MarketInfluenceTemplates.Get(influence.MarketInfluenceTemplateId ?? 0);
 		Description = market.Description;
 		_name = market.Name;
 		AppliesFrom = new MudDateTime(influence.AppliesFrom, Gameworld);
-		AppliesUntil = new MudDateTime(influence.AppliesUntil, Gameworld);
+		AppliesUntil = influence.AppliesUntil is not null ?
+			new MudDateTime(influence.AppliesUntil, Gameworld) :
+			null;
 		foreach (var impact in XElement.Parse(influence.Impacts).Elements("Impact"))
 		{
 			_marketImpacts.Add(new MarketImpact

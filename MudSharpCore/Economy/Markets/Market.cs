@@ -28,14 +28,16 @@ internal class Market : SaveableItem, IMarket
 		Description = dbitem.Description;
 		EconomicZone = Gameworld.EconomicZones.Get(dbitem.EconomicZoneId);
 		MarketPriceFormula = new Expression(dbitem.MarketPriceFormula, EvaluateOptions.IgnoreCase);
-		foreach (var item in dbitem.MarketMarketCategories)
+		foreach (var item in dbitem.MarketCategories)
 		{
-			_marketCategories.AddNotNull(Gameworld.MarketCategories.Get(item.MarketCategoryId));
+			_marketCategories.AddNotNull(Gameworld.MarketCategories.Get(item.Id));
 		}
 
-		foreach (var item in dbitem.Influences)
+		foreach (var influence in dbitem.Influences)
 		{
-			_marketInfluences.Add(new MarketInfluence(this, item));
+			var inf = new MarketInfluence(this, influence);
+			_marketInfluences.Add(inf);
+			Gameworld.Add(inf);
 		}
 	}
 
@@ -47,10 +49,6 @@ internal class Market : SaveableItem, IMarket
 		EconomicZone = rhs.EconomicZone;
 		MarketPriceFormula = new Expression(rhs.MarketPriceFormula.OriginalExpression, EvaluateOptions.IgnoreCase);
 		_marketCategories.AddRange(rhs.MarketCategories);
-		foreach (var influence in _marketInfluences)
-		{
-
-		}
 		using (new FMDB())
 		{
 			var dbitem = new Models.Market
@@ -60,12 +58,7 @@ internal class Market : SaveableItem, IMarket
 				EconomicZoneId = EconomicZone.Id,
 				MarketPriceFormula = MarketPriceFormula.OriginalExpression
 			};
-			dbitem.MarketMarketCategories = new HashSet<MarketMarketCategory>(rhs.MarketCategories.Select(x =>
-				new MarketMarketCategory
-				{
-					Market = dbitem,
-					MarketCategoryId = x.Id
-				}));
+			dbitem.MarketCategories = new HashSet<Models.MarketCategory>(rhs.MarketCategories.Select(x => FMDB.Context.MarketCategories.Find(x.Id)));
 			foreach (var influence in rhs.MarketInfluences)
 			{
 				var dbinfluence = new Models.MarketInfluence
@@ -85,6 +78,13 @@ internal class Market : SaveableItem, IMarket
 			FMDB.Context.Markets.Add(dbitem);
 			FMDB.Context.SaveChanges();
 			_id = dbitem.Id;
+
+			foreach (var influence in dbitem.Influences)
+			{
+				var inf = new MarketInfluence(this, influence);
+				_marketInfluences.Add(inf);
+				Gameworld.Add(inf);
+			}
 		}
 	}
 

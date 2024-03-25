@@ -1,6 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Xml;
+using System.Xml.Linq;
 using MudSharp.Character;
 using MudSharp.Framework;
 using MudSharp.Framework.Save;
@@ -22,6 +24,26 @@ public class MarketCategory : SaveableItem, IMarketCategory
 		_tags.Add(tag);
 		ElasticityFactorAbove = 0.75;
 		ElasticityFactorBelow = 0.75;
+	}
+
+	public MarketCategory(IFuturemud gameworld, Models.MarketCategory category)
+	{
+		Gameworld = gameworld;
+		_id = category.Id;
+		_name = category.Name;
+		Description = category.Description;
+		ElasticityFactorBelow = category.ElasticityFactorBelow;
+		ElasticityFactorAbove = category.ElasticityFactorAbove;
+		foreach (var tag in XElement.Parse(category.Tags).Elements("Tag"))
+		{
+			var gtag = Gameworld.Tags.Get(long.Parse(tag.Value));
+			if (gtag is null)
+			{
+				continue;
+			}
+
+			_tags.Add(gtag);
+		}
 	}
 
 	/// <inheritdoc />

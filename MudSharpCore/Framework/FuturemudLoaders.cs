@@ -315,6 +315,7 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 			// Needs to come after LoadFutureprogs, LoadClans, LoadCurrencies, LoadMerits and LoadGameItemProtos
 			game.LoadCrafts(); // Needs to come after LoadFutureProgs and before LoadWorldItems
 			game.LoadEconomy(); // Should come before LoadWorldItems as late as possible
+			game.LoadMarkets(); // Should come after LoadEconomy as late as possible
 			game.LoadLegal(); // Should come after LoadWorld, LoadEconomy and after LoadFutureProgs
 			game.LoadJobs(); // Needs to come after LoadEconomy
 			game.LoadWorldItems(); // Depends on LoadWorld and LoadGameItemProtos and LoadRaces
@@ -466,6 +467,75 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 		var count = _newPlayerHints.Count;
 		ConsoleUtilities.WriteLine("Loaded #2{0:N0}#0 {1}.", count, count == 1 ? "Hint" : "Hints");
 
+	}
+
+	void IFuturemudLoader.LoadMarkets()
+	{
+		#region Categories
+		ConsoleUtilities.WriteLine("\nLoading #5Market Categories#0...");
+#if DEBUG
+		var sw = new Stopwatch();
+		sw.Start();
+#endif
+
+		var categories = FMDB.Context.MarketCategories
+		                .AsNoTracking()
+		                .ToList();
+		foreach (var item in categories)
+		{
+			_marketCategories.Add(new Economy.Markets.MarketCategory(this, item));
+		}
+
+#if DEBUG
+		sw.Stop();
+		ConsoleUtilities.WriteLine($"Duration: #2{sw.ElapsedMilliseconds}ms#0");
+#endif
+		var count = _marketCategories.Count;
+		ConsoleUtilities.WriteLine("Loaded #2{0:N0}#0 {1}.", count, count == 1 ? "Category" : "Categories");
+		#endregion
+
+		#region Influence Templates
+		ConsoleUtilities.WriteLine("\nLoading #5Market Influence Templates#0...");
+#if DEBUG
+		sw.Restart();
+#endif
+		var templates = FMDB.Context.MarketInfluenceTemplates.AsNoTracking().ToList();
+		foreach (var item in templates)
+		{
+			_marketInfluenceTemplates.Add(new Economy.Markets.MarketInfluenceTemplate(this, item));
+		}
+
+
+#if DEBUG
+		sw.Stop();
+		ConsoleUtilities.WriteLine($"Duration: #2{sw.ElapsedMilliseconds}ms#0");
+#endif
+		count = _marketInfluenceTemplates.Count;
+		ConsoleUtilities.WriteLine("Loaded #2{0:N0}#0 {1}.", count, count == 1 ? "Template" : "Templates");
+		#endregion
+
+		#region Markets
+		ConsoleUtilities.WriteLine("\nLoading #5Markets#0...");
+#if DEBUG
+		sw.Restart();
+#endif
+		var markets = FMDB.Context.Markets
+		                  .Include(x => x.MarketCategories)
+		                  .Include(x => x.Influences)
+		                  .AsNoTracking().ToList();
+		foreach (var item in markets)
+		{
+			_markets.Add(new Economy.Markets.Market(this, item));
+		}
+
+
+#if DEBUG
+		sw.Stop();
+		ConsoleUtilities.WriteLine($"Duration: #2{sw.ElapsedMilliseconds}ms#0");
+#endif
+		count = _markets.Count;
+		ConsoleUtilities.WriteLine("Loaded #2{0:N0}#0 {1}.", count, count == 1 ? "Market" : "Markets");
+		#endregion
 	}
 
 	void IFuturemudLoader.LoadLegal()

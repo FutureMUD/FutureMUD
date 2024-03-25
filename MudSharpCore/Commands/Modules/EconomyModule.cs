@@ -6362,4 +6362,14 @@ Note: There may be additional properties that can be edited depending on the typ
 	}
 
 	#endregion
+
+	#region Markets
+
+	[PlayerCommand("Market", "market")]
+	protected static void Market(ICharacter actor, string command)
+	{
+		// debug
+		actor.OutputHandler.Send(actor.Gameworld.Markets.First().Show(actor));
+	}
+	#endregion
 }

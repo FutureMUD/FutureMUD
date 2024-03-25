@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
 using System.Xml.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -478,5 +479,14 @@ namespace MudSharp_Unit_Tests
 
 			var test = sb.ToString();
         }
+
+        [TestMethod]
+        public void TestPassword()
+        {
+	        var salt = 8675309;
+	        var password = "password";
+            var result = Encoding.UTF8.GetString(SHA384.Create().ComputeHash(Encoding.UTF8.GetBytes(password + salt)));
+            Assert.AreEqual("ӳ?~\u00068\ufffd\ufffddV\ufffd\ufffdR\u0010\ufffdv\ufffd\ufffdcw\b\ufffd\u001fm\ufffdW\ufffd\ufffd\ufffdO\ufffd/\u0010_\ufffd\ufffd\u0005\ufffd\ufffdhɼ\ufffd\ufffd\ufffd\ufffd\u000e9", result, "Hashed/Salted password didn't match.");
+		}
     }    
 }

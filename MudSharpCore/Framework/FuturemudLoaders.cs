@@ -125,6 +125,7 @@ using Helpfile = MudSharp.Help.Helpfile;
 using RaceButcheryProfile = MudSharp.Work.Butchering.RaceButcheryProfile;
 using TraitExpression = MudSharp.Body.Traits.TraitExpression;
 using MudSharp.RPG.Hints;
+using System.Numerics;
 
 namespace MudSharp.Framework;
 
@@ -157,6 +158,16 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 		ConsoleUtilities.WriteLine("#EInitialising Non-Database Statics.#0");
 		PositionState.SetupPositions();
 		FutureProg.FutureProg.Initialise();
+
+#if DEBUG
+		ConsoleUtilities.WriteLine("\n#EWriting prog help text htmls...#0");
+		var infos = FutureProg.FutureProg.GetFunctionCompilerInformations().ToList();
+		ImplementorModule.WriteProgParametersByCategory(this, infos);
+		ImplementorModule.WriteProgParametersAlphabetically(this, infos);
+		ImplementorModule.WriteTypeHelps(this);
+		ImplementorModule.WriteCollectionHelps(this);
+		ConsoleUtilities.WriteLine("#ADone.#0");
+#endif
 
 		var game = (IFuturemudLoader)this;
 

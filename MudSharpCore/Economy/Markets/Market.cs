@@ -10,6 +10,8 @@ using MudSharp.Database;
 using MudSharp.Framework;
 using MudSharp.Framework.Save;
 using MudSharp.Models;
+using MudSharp.TimeAndDate.Date;
+using MudSharp.TimeAndDate.Time;
 using NCalc;
 using Expression = ExpressionEngine.Expression;
 
@@ -132,6 +134,8 @@ internal class Market : SaveableItem, IMarket
 				item.Name,
 				item.ElasticityFactorBelow.ToString("N3", actor),
 				item.ElasticityFactorAbove.ToString("N3", actor),
+				NetSupply(item).ToString("P2", actor),
+				NetDemand(item).ToString("P2", actor),
 				PriceMultiplierForCategory(item).ToString("P3", actor),
 				Gameworld.ItemProtos.GetAllApprovedOrMostRecent().Count(x => item.BelongsToCategory(x)).ToString("N0", actor)
 			},
@@ -141,7 +145,10 @@ internal class Market : SaveableItem, IMarket
 				"Name",
 				"E(Under)",
 				"E(Over)",
-				"Current Price %"
+				"Supply",
+				"Demand",
+				"Current Price %",
+				"# Items"
 			},
 			actor,
 			Telnet.BoldYellow
@@ -149,6 +156,27 @@ internal class Market : SaveableItem, IMarket
 		sb.AppendLine();
 		sb.AppendLine("Influences:");
 		sb.AppendLine();
+		sb.AppendLine(StringUtilities.GetTextTable(
+			from item in MarketInfluences
+			select new List<string>
+			{
+				item.Id.ToString("N0", actor),
+				item.Name,
+				item.AppliesFrom.ToString(CalendarDisplayMode.Short, TimeDisplayTypes.Short),
+				item.AppliesUntil?.ToString(CalendarDisplayMode.Short, TimeDisplayTypes.Short) ?? "Until Removed",
+				item.Applies(null, EconomicZone.FinancialPeriodReferenceCalendar.CurrentDateTime).ToColouredString()
+			},
+			new List<string>
+			{
+				"Id",
+				"Name",
+				"From",
+				"Until",
+				"Active?"
+			},
+			actor,
+			Telnet.BoldYellow
+		));
 		foreach (var influence in _marketInfluences)
 		{
 			sb.AppendLine(influence.TextForMarketShow(actor));
@@ -173,17 +201,32 @@ internal class Market : SaveableItem, IMarket
 
 	public Expression MarketPriceFormula { get; private set; }
 
+	public IReadOnlyCollection<MarketImpact> ApplicableMarketImpacts(IMarketCategory category)
+	{
+		var now = EconomicZone.FinancialPeriodReferenceCalendar.CurrentDateTime;
+		return _marketInfluences
+		       .Where(x => x.Applies(category, now))
+		       .SelectMany(x => x.MarketImpacts)
+		       .Where(x => x.MarketCategory == category)
+		       .ToList();
+	}
+
+	public double NetDemand(IMarketCategory category)
+	{
+		return ApplicableMarketImpacts(category).Sum(x => x.DemandImpact) + 1;
+	}
+
+	public double NetSupply(IMarketCategory category)
+	{
+		return ApplicableMarketImpacts(category).Sum(x => x.SupplyImpact) + 1;
+	}
+
 	/// <inheritdoc />
 	public decimal PriceMultiplierForCategory(IMarketCategory category)
 	{
-		var now = EconomicZone.FinancialPeriodReferenceCalendar.CurrentDateTime;
-		var influences = _marketInfluences
-		                .Where(x => x.Applies(category, now))
-		                .SelectMany(x => x.MarketImpacts)
-		                .Where(x => x.MarketCategory == category)
-		                .ToList();
-		var supply = influences.Sum(x => x.SupplyImpact) + 1;
-		var demand = influences.Sum(x => x.DemandImpact) + 1;
+		var impacts = ApplicableMarketImpacts(category);
+		var supply = impacts.Sum(x => x.SupplyImpact) + 1;
+		var demand = impacts.Sum(x => x.DemandImpact) + 1;
 		var elasticity = supply > demand ? category.ElasticityFactorBelow : category.ElasticityFactorAbove;
 
 		return MarketPriceFormula.EvaluateDecimalWith(

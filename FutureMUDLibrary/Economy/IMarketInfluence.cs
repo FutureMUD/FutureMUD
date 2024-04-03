@@ -21,7 +21,7 @@ public interface IMarketInfluence : ISaveable, IEditableItem
 	IEnumerable<MarketImpact> MarketImpacts { get; }
 	IFutureProg CharacterKnowsAboutInfluenceProg { get; }
 	bool CharacterKnowsAboutInfluence(ICharacter character);
-	bool Applies(IMarketCategory category, MudDateTime currentDateTime);
+	bool Applies(IMarketCategory? category, MudDateTime currentDateTime);
 	string TextForMarketShow(ICharacter actor);
 	XElement SaveImpacts();
 }

@@ -43,12 +43,13 @@ public class MarketInfluence : SaveableItem, IMarketInfluence
 		_id = influence.Id;
 		Market = market;
 		MarketInfluenceTemplate = Gameworld.MarketInfluenceTemplates.Get(influence.MarketInfluenceTemplateId ?? 0);
-		Description = market.Description;
-		_name = market.Name;
+		Description = influence.Description;
+		_name = influence.Name;
 		AppliesFrom = new MudDateTime(influence.AppliesFrom, Gameworld);
 		AppliesUntil = influence.AppliesUntil is not null ?
 			new MudDateTime(influence.AppliesUntil, Gameworld) :
 			null;
+		CharacterKnowsAboutInfluenceProg = Gameworld.FutureProgs.Get(influence.CharacterKnowsAboutInfluenceProgId);
 		foreach (var impact in XElement.Parse(influence.Impacts).Elements("Impact"))
 		{
 			_marketImpacts.Add(new MarketImpact
@@ -137,11 +138,11 @@ public class MarketInfluence : SaveableItem, IMarketInfluence
 	}
 
 	/// <inheritdoc />
-	public bool Applies(IMarketCategory category, MudDateTime currentDateTime)
+	public bool Applies([CanBeNull] IMarketCategory category, MudDateTime currentDateTime)
 	{
 		return AppliesFrom <= currentDateTime &&
 		       (AppliesUntil is null || AppliesUntil >= currentDateTime) &&
-		       _marketImpacts.Any(x => x.MarketCategory == category);
+		       (category is null || _marketImpacts.Any(x => x.MarketCategory == category));
 	}
 
 	/// <inheritdoc />

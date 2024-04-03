@@ -5,7 +5,6 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Xml.Linq;
-using Antlr.Runtime;
 using Humanizer;
 using Microsoft.Extensions.Logging;
 using Microsoft.SqlServer.Server;

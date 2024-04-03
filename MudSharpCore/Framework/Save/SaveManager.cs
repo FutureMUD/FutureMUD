@@ -110,6 +110,11 @@ public class SaveManager : ISaveManager
 				return $"Cell {cell.Id} - {cell.Name}";
 			}
 
+			if (thing is IGameItemComponent component)
+			{
+				return $"GameItemComponent {component.Id} - {component.Prototype.TypeDescription} -  [{component.Prototype.Name} #{component.Prototype.Id}]";
+			}
+
 			return thing.ToString();
 		}
 

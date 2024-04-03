@@ -46,7 +46,7 @@ namespace MudSharp.Commands.Modules;
 ///     Implementor Module is for commands designed to be executed either by the implementor only or used primarily in
 ///     testing
 /// </summary>
-internal class ImplementorModule : Module<ICharacter>
+public class ImplementorModule : Module<ICharacter>
 {
 	private ImplementorModule()
 		: base("Implementor")
@@ -824,14 +824,14 @@ internal class ImplementorModule : Module<ICharacter>
 	private static void DebugProgFunctions(ICharacter actor)
 	{
 		var infos = FutureProg.FutureProg.GetFunctionCompilerInformations().ToList();
-		WriteProgParametersByCategory(actor, infos);
-		WriteProgParametersAlphabetically(actor, infos);
+		WriteProgParametersByCategory(actor.Gameworld, infos);
+		WriteProgParametersAlphabetically(actor.Gameworld, infos);
 		WriteTypeHelps(actor.Gameworld);
 		WriteCollectionHelps(actor.Gameworld);
 		actor.Send("Done.");
 	}
 
-	private static void WriteCollectionHelps(IFuturemud gameworld)
+	public static void WriteCollectionHelps(IFuturemud gameworld)
 	{
 		using var html = new StreamWriter("ProgCollectionHelps.html");
 		html.WriteLine("<html>");
@@ -896,7 +896,7 @@ And the result would be a number with the value of 33.</p>");
 		html.Close();
 	}
 
-	private static void WriteTypeHelps(IFuturemud gameworld)
+	public static void WriteTypeHelps(IFuturemud gameworld)
 	{
 		using var html = new StreamWriter("ProgTypeHelps.html");
 		html.WriteLine("<html>");
@@ -952,7 +952,7 @@ div.function-generalhelp {
 		html.Close();
 	}
 
-	private static void WriteProgParametersAlphabetically(ICharacter actor,
+	public static void WriteProgParametersAlphabetically(IFuturemud gameworld,
 		IEnumerable<FunctionCompilerInformation> infos)
 	{
 		using var html = new StreamWriter("ProgFunctionsAlphabetically.html");
@@ -1009,7 +1009,7 @@ div.function-generalhelp {
 			}
 			else
 			{
-				var compiled = function.CompilerFunction(new List<IFunction>(), actor.Gameworld);
+				var compiled = function.CompilerFunction(new List<IFunction>(), gameworld);
 				returnType = compiled.ReturnType;
 			}
 
@@ -1070,7 +1070,7 @@ div.function-generalhelp {
 		html.Close();
 	}
 
-	private static void WriteProgParametersByCategory(ICharacter actor, IEnumerable<FunctionCompilerInformation> infos)
+	public static void WriteProgParametersByCategory(IFuturemud gameworld, IEnumerable<FunctionCompilerInformation> infos)
 	{
 		using var html = new StreamWriter("ProgFunctionsByCategory.html");
 		html.WriteLine("<html>");
@@ -1130,7 +1130,7 @@ div.function-generalhelp {
 				}
 				else
 				{
-					var compiled = function.CompilerFunction(new List<IFunction>(), actor.Gameworld);
+					var compiled = function.CompilerFunction(new List<IFunction>(), gameworld);
 					returnType = compiled.ReturnType;
 				}
 

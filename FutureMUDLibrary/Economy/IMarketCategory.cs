@@ -11,4 +11,5 @@ public interface IMarketCategory : ISaveable, IEditableItem
 	bool BelongsToCategory(IGameItemProto proto);
 	double ElasticityFactorAbove { get; }
 	double ElasticityFactorBelow { get; }
+	IMarketCategory Clone(string newName);
 }

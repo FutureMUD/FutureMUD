@@ -29,6 +29,7 @@ using MudSharp.Economy.Auctions;
 using MudSharp.Economy.Banking;
 using MudSharp.Economy.Currency;
 using MudSharp.Economy.Employment;
+using MudSharp.Economy.Markets;
 using MudSharp.Economy.Payment;
 using MudSharp.Economy.Property;
 using MudSharp.Form.Shape;
@@ -43,8 +44,10 @@ using MudSharp.TimeAndDate.Time;
 using MudSharp.Work.Butchering;
 using Org.BouncyCastle.Asn1.Cms;
 using Org.BouncyCastle.Crypto.Parameters;
+using Org.BouncyCastle.Tls.Crypto.Impl.BC;
 using AuctionBid = MudSharp.Economy.AuctionBid;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
+using System.Security.Cryptography;
 
 namespace MudSharp.Commands.Modules;
 
@@ -6363,13 +6366,877 @@ Note: There may be additional properties that can be edited depending on the typ
 
 	#endregion
 
+	#region Market Related Code
+
+	#region Market Influence Templates
+	public const string MarketInfluenceTemplateHelpText = @"";
+
+	[PlayerCommand("MarketInfluenceTemplate", "marketinfluencetemplate", "mit")]
+	[CommandPermission(PermissionLevel.Admin)]
+	[HelpInfo("MarketInfluenceTemplate", MarketInfluenceTemplateHelpText, AutoHelp.HelpArgOrNoArg)]
+	protected static void MarketInfluenceTemplate(ICharacter actor, string command)
+	{
+		var ss = new StringStack(command.RemoveFirstWord());
+		switch (ss.PopForSwitch())
+		{
+			case "list":
+				MarketInfluenceTemplateList(actor, ss);
+				return;
+			case "new":
+			case "create":
+				MarketInfluenceTemplateNew(actor, ss);
+				return;
+			case "clone":
+				MarketInfluenceTemplateClone(actor, ss);
+				return;
+			case "set":
+				MarketInfluenceTemplateSet(actor, ss);
+				return;
+			case "edit":
+				MarketInfluenceTemplateEdit(actor, ss);
+				return;
+			case "close":
+				MarketInfluenceTemplateClose(actor, ss);
+				return;
+			case "show":
+			case "view":
+				MarketInfluenceTemplateShow(actor, ss);
+				return;
+			default:
+				actor.OutputHandler.Send(MarketInfluenceTemplateHelpText.SubstituteANSIColour());
+				return;
+		}
+	}
+
+	private static void MarketInfluenceTemplateNew(ICharacter actor, StringStack ss)
+	{
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send("What name would you like to give to this market influence template?");
+			return;
+		}
+
+		var name = ss.SafeRemainingArgument.TitleCase();
+		if (actor.Gameworld.MarketInfluenceTemplates.Any(x => x.Name.EqualTo(name)))
+		{
+			actor.OutputHandler.Send(
+				$"There is already a market influence template called {name.ColourName()}. Names must be unique.");
+			return;
+		}
+
+		var template = new MarketInfluenceTemplate(actor.Gameworld, name);
+		actor.Gameworld.Add(template);
+		actor.RemoveAllEffects<BuilderEditingEffect<IMarketInfluenceTemplate>>();
+		actor.AddEffect(new BuilderEditingEffect<IMarketInfluenceTemplate>(actor) { EditingItem = template });
+		actor.OutputHandler.Send($"You are create a new market influence template called {name.ColourValue()}, which you are now editing.");
+	}
+
+	private static void MarketInfluenceTemplateClone(ICharacter actor, StringStack ss)
+	{
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send("Which market influence template do you want to clone?");
+			return;
+		}
+
+		var old = actor.Gameworld.MarketInfluenceTemplates.GetByIdOrName(ss.SafeRemainingArgument);
+		if (old is null)
+		{
+			actor.OutputHandler.Send("There is no market influence template like that.");
+			return;
+		}
+
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send("What name do you want to give to the new market influence template?");
+			return;
+		}
+
+		var name = ss.SafeRemainingArgument.TitleCase();
+		if (actor.Gameworld.MarketInfluenceTemplates.Any(x => x.Name.EqualTo(name)))
+		{
+			actor.OutputHandler.Send($"There is already a market influence template called {name.ColourName()}. Names must be unique.");
+			return;
+		}
+
+		var category = old.Clone(name);
+		actor.Gameworld.Add(category);
+		actor.RemoveAllEffects<BuilderEditingEffect<IMarketInfluenceTemplate>>();
+		actor.AddEffect(new BuilderEditingEffect<IMarketInfluenceTemplate>(actor) { EditingItem = category });
+		actor.OutputHandler.Send($"You are clone market influence template {old.Name.ColourValue()} to a new market influence template called {category.Name.ColourName()}, which you are now editing.");
+	}
+
+	private static void MarketInfluenceTemplateSet(ICharacter actor, StringStack ss)
+	{
+		var effect = actor.CombinedEffectsOfType<BuilderEditingEffect<IMarketInfluenceTemplate>>().FirstOrDefault();
+		if (effect is null)
+		{
+			actor.OutputHandler.Send("You are not editing any market influence templates.");
+			return;
+		}
+
+		effect.EditingItem.BuildingCommand(actor, ss);
+	}
+
+	private static void MarketInfluenceTemplateEdit(ICharacter actor, StringStack ss)
+	{
+		if (ss.IsFinished)
+		{
+			var effect = actor.CombinedEffectsOfType<BuilderEditingEffect<IMarketInfluenceTemplate>>().FirstOrDefault();
+			if (effect is null)
+			{
+				actor.OutputHandler.Send("Which market influence template would you like to edit?");
+				return;
+			}
+
+			actor.OutputHandler.Send(effect.EditingItem.Show(actor));
+			return;
+		}
+
+		var template = actor.Gameworld.MarketInfluenceTemplates.GetByIdOrName(ss.SafeRemainingArgument);
+		if (template is null)
+		{
+			actor.OutputHandler.Send("There is no market influence template like that.");
+			return;
+		}
+
+		actor.RemoveAllEffects<BuilderEditingEffect<IMarketInfluenceTemplate>>();
+		actor.AddEffect(new BuilderEditingEffect<IMarketInfluenceTemplate>(actor) { EditingItem = template });
+		actor.OutputHandler.Send($"You are now editing the {template.Name.ColourName()} market influence template.");
+	}
+
+	private static void MarketInfluenceTemplateClose(ICharacter actor, StringStack ss)
+	{
+		var effect = actor.CombinedEffectsOfType<BuilderEditingEffect<IMarketInfluenceTemplate>>().FirstOrDefault();
+		if (effect is null)
+		{
+			actor.OutputHandler.Send("You are not editing any market influence templates.");
+			return;
+		}
+
+		actor.RemoveAllEffects<BuilderEditingEffect<IMarketInfluenceTemplate>>();
+		actor.OutputHandler.Send("You are no longer editing any market influence templates.");
+	}
+
+	private static void MarketInfluenceTemplateShow(ICharacter actor, StringStack ss)
+	{
+		if (ss.IsFinished)
+		{
+			var effect = actor.CombinedEffectsOfType<BuilderEditingEffect<IMarketInfluenceTemplate>>().FirstOrDefault();
+			if (effect is null)
+			{
+				actor.OutputHandler.Send("Which market influence template would you like to show?");
+				return;
+			}
+
+			actor.OutputHandler.Send(effect.EditingItem.Show(actor));
+			return;
+		}
+
+		var category = actor.Gameworld.MarketInfluenceTemplates.GetByIdOrName(ss.SafeRemainingArgument);
+		if (category is null)
+		{
+			actor.OutputHandler.Send("There is no market influence template like that.");
+			return;
+		}
+
+		actor.OutputHandler.Send(category.Show(actor));
+	}
+
+	private static void MarketInfluenceTemplateList(ICharacter actor, StringStack ss)
+	{
+		var templates = actor.Gameworld.MarketInfluenceTemplates.ToList();
+		// TODO - filters
+		actor.OutputHandler.Send(StringUtilities.GetTextTable(
+			from item in templates
+			select new List<string>
+			{
+				item.Id.ToString("N0", actor),
+				item.Name,
+				item.CharacterKnowsAboutInfluenceProg.MXPClickableFunctionName(),
+				item.TemplateSummary,
+				actor.Gameworld.MarketInfluences.Count(x => x.MarketInfluenceTemplate == item).ToString("N0", actor),
+				actor.Gameworld.MarketInfluences.Count(x => x.MarketInfluenceTemplate == item && x.Applies(null, x.Market.EconomicZone.FinancialPeriodReferenceCalendar.CurrentDateTime)).ToString("N0", actor)
+			},
+			new List<string>
+			{
+				"Id",
+				"Name",
+				"Prog",
+				"Summary",
+				"# Infl",
+				"# Active"
+			},
+			actor,
+			Telnet.Cyan,
+			3
+		));
+	}
+	#endregion
+
+	#region Market Influences
+	public const string MarketInfluenceHelpText = @"";
+	[PlayerCommand("MarketInfluence", "marketinfluence", "mi")]
+	[CommandPermission(PermissionLevel.Admin)]
+	[HelpInfo("MarketInfluence", MarketInfluenceHelpText, AutoHelp.HelpArgOrNoArg)]
+	protected static void MarketInfluence(ICharacter actor, string command)
+	{
+		var ss = new StringStack(command.RemoveFirstWord());
+		switch (ss.PopForSwitch())
+		{
+			case "list":
+				MarketInfluenceList(actor, ss);
+				return;
+			case "new":
+			case "create":
+				MarketInfluenceNew(actor, ss);
+				return;
+			case "clone":
+				MarketInfluenceClone(actor, ss);
+				return;
+			case "set":
+				MarketInfluenceSet(actor, ss);
+				return;
+			case "edit":
+				MarketInfluenceEdit(actor, ss);
+				return;
+			case "close":
+				MarketInfluenceClose(actor, ss);
+				return;
+			case "show":
+			case "view":
+				MarketInfluenceShow(actor, ss);
+				return;
+			default:
+				actor.OutputHandler.Send(MarketInfluenceHelpText.SubstituteANSIColour());
+				return;
+		}
+	}
+
+	private static void MarketInfluenceNew(ICharacter actor, StringStack ss)
+	{
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send("Which market do you want to create an influence for?");
+			return;
+		}
+
+		var market = actor.Gameworld.Markets.GetByIdOrName(ss.PopSpeech());
+		if (market is null)
+		{
+			actor.OutputHandler.Send("There is no such market.");
+			return;
+		}
+
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send("What date should this influence apply from?");
+			return;
+		}
+
+		if (!MudDateTime.TryParse(ss.PopSpeech(), market.EconomicZone.FinancialPeriodReferenceCalendar, market.EconomicZone.FinancialPeriodReferenceClock, out var date))
+		{
+			actor.OutputHandler.Send($"The text {ss.Last.ColourCommand()} is not a valid date and time.{MudDateTime.TryParseHelpText(actor, market.EconomicZone)}");
+			return;
+		}
+
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send("What name would you like to give to this market influence?");
+			return;
+		}
+
+		var name = ss.SafeRemainingArgument.TitleCase();
+		if (actor.Gameworld.MarketInfluenceTemplates.Any(x => x.Name.EqualTo(name)))
+		{
+			actor.OutputHandler.Send(
+				$"There is already a market influence template called {name.ColourName()}. Names must be unique.");
+			return;
+		}
+
+		var influence = new MarketInfluence(market, name, "This influence has no detailed description", date, null);
+		actor.Gameworld.Add(influence);
+		actor.RemoveAllEffects<BuilderEditingEffect<IMarketInfluence>>();
+		actor.AddEffect(new BuilderEditingEffect<IMarketInfluence>(actor) { EditingItem = influence });
+		actor.OutputHandler.Send($"You are create a new market influence for the {market.Name.ColourName()} market called {name.ColourValue()}, which you are now editing.");
+	}
+
+	private static void MarketInfluenceClone(ICharacter actor, StringStack ss)
+	{
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send("Which market influence do you want to clone?");
+			return;
+		}
+
+		var old = actor.Gameworld.MarketInfluences.GetByIdOrName(ss.SafeRemainingArgument);
+		if (old is null)
+		{
+			actor.OutputHandler.Send("There is no market influence like that.");
+			return;
+		}
+
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send("What name do you want to give to the new market influence?");
+			return;
+		}
+
+		var name = ss.SafeRemainingArgument.TitleCase();
+
+		var influence = old.Clone(name);
+		actor.Gameworld.Add(influence);
+		influence.Market.ApplyMarketInfluence(influence);
+		actor.RemoveAllEffects<BuilderEditingEffect<IMarketInfluence>>();
+		actor.AddEffect(new BuilderEditingEffect<IMarketInfluence>(actor) { EditingItem = influence });
+		actor.OutputHandler.Send($"You are clone market influence {old.Name.ColourValue()} to a new market influence called {influence.Name.ColourName()}, which you are now editing.");
+	}
+
+	private static void MarketInfluenceSet(ICharacter actor, StringStack ss)
+	{
+		var effect = actor.CombinedEffectsOfType<BuilderEditingEffect<IMarketInfluence>>().FirstOrDefault();
+		if (effect is null)
+		{
+			actor.OutputHandler.Send("You are not editing any market influences.");
+			return;
+		}
+
+		effect.EditingItem.BuildingCommand(actor, ss);
+	}
+
+	private static void MarketInfluenceEdit(ICharacter actor, StringStack ss)
+	{
+		if (ss.IsFinished)
+		{
+			var effect = actor.CombinedEffectsOfType<BuilderEditingEffect<IMarketInfluence>>().FirstOrDefault();
+			if (effect is null)
+			{
+				actor.OutputHandler.Send("Which market influence would you like to edit?");
+				return;
+			}
+
+			actor.OutputHandler.Send(effect.EditingItem.Show(actor));
+			return;
+		}
+
+		var influence = actor.Gameworld.MarketInfluences.GetByIdOrName(ss.SafeRemainingArgument);
+		if (influence is null)
+		{
+			actor.OutputHandler.Send("There is no market influence like that.");
+			return;
+		}
+
+		actor.RemoveAllEffects<BuilderEditingEffect<IMarketInfluence>>();
+		actor.AddEffect(new BuilderEditingEffect<IMarketInfluence>(actor) { EditingItem = influence });
+		actor.OutputHandler.Send($"You are now editing the {influence.Name.ColourName()} market influence.");
+	}
+
+	private static void MarketInfluenceClose(ICharacter actor, StringStack ss)
+	{
+		var effect = actor.CombinedEffectsOfType<BuilderEditingEffect<IMarketInfluence>>().FirstOrDefault();
+		if (effect is null)
+		{
+			actor.OutputHandler.Send("You are not editing any market influences.");
+			return;
+		}
+
+		actor.RemoveAllEffects<BuilderEditingEffect<IMarketInfluence>>();
+		actor.OutputHandler.Send("You are no longer editing any market influences.");
+	}
+
+	private static void MarketInfluenceShow(ICharacter actor, StringStack ss)
+	{
+		if (ss.IsFinished)
+		{
+			var effect = actor.CombinedEffectsOfType<BuilderEditingEffect<IMarketInfluence>>().FirstOrDefault();
+			if (effect is null)
+			{
+				actor.OutputHandler.Send("Which market influence would you like to show?");
+				return;
+			}
+
+			actor.OutputHandler.Send(effect.EditingItem.Show(actor));
+			return;
+		}
+
+		var category = actor.Gameworld.MarketInfluences.GetByIdOrName(ss.SafeRemainingArgument);
+		if (category is null)
+		{
+			actor.OutputHandler.Send("There is no market influences like that.");
+			return;
+		}
+
+		actor.OutputHandler.Send(category.Show(actor));
+	}
+
+	private static void MarketInfluenceList(ICharacter actor, StringStack ss)
+	{
+		var influences = actor.Gameworld.MarketInfluences.ToList();
+		// TODO - filters
+		actor.OutputHandler.Send(StringUtilities.GetTextTable(
+			from item in influences
+			select new List<string>
+			{
+				item.Id.ToString("N0", actor),
+				item.Name,
+				item.CharacterKnowsAboutInfluenceProg.MXPClickableFunctionName(),
+				item.Market.Name,
+				item.MarketInfluenceTemplate?.Name ?? "",
+				item.AppliesFrom.ToString(CalendarDisplayMode.Short, TimeDisplayTypes.Short),
+				item.AppliesUntil?.ToString(CalendarDisplayMode.Short, TimeDisplayTypes.Short) ?? "Until Removed",
+				item.Applies(null, item.Market.EconomicZone.FinancialPeriodReferenceCalendar.CurrentDateTime).ToColouredString()
+			},
+			new List<string>
+			{
+				"Id",
+				"Name",
+				"Prog",
+				"Market",
+				"Template",
+				"From",
+				"Until",
+				"Active"
+			},
+			actor,
+			Telnet.Cyan,
+			3
+		));
+	}
+	#endregion
+
+	#region Market Categories
+	public const string MarketCategoryHelpText = @"";
+
+	[PlayerCommand("MarketCategory", "marketcategory", "mc")]
+	[CommandPermission(PermissionLevel.Admin)]
+	protected static void MarketCategory(ICharacter actor, string command)
+	{
+		var ss = new StringStack(command.RemoveFirstWord());
+		switch (ss.PopForSwitch())
+		{
+			case "list":
+				MarketCategoryList(actor, ss);
+				return;
+			case "new":
+			case "create":
+				MarketCategoryNew(actor, ss);
+				return;
+			case "clone":
+				MarketCategoryClone(actor, ss);
+				return;
+			case "set":
+				MarketCategorySet(actor, ss);
+				return;
+			case "edit":
+				MarketCategoryEdit(actor, ss);
+				return;
+			case "close":
+				MarketCategoryClose(actor, ss);
+				return;
+			case "show":
+			case "view":
+				MarketCategoryShow(actor, ss);
+				return;
+			default:
+				actor.OutputHandler.Send(MarketCategoryHelpText.SubstituteANSIColour());
+				return;
+		}
+	}
+
+	private static void MarketCategoryNew(ICharacter actor, StringStack ss)
+	{
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send("What item tag would you like this market category to apply to?");
+			return;
+		}
+
+		var tag = actor.Gameworld.Tags.GetByIdOrName(ss.PopSpeech());
+		if (tag is null)
+		{
+			actor.OutputHandler.Send("There is no such tag.");
+			return;
+		}
+
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send("What name would you like to give to this market category?");
+			return;
+		}
+
+		var name = ss.SafeRemainingArgument.TitleCase();
+		if (actor.Gameworld.MarketCategories.Any(x => x.Name.EqualTo(name)))
+		{
+			actor.OutputHandler.Send(
+				$"There is already a market category called {name.ColourName()}. Names must be unique.");
+			return;
+		}
+
+		var category = new MarketCategory(actor.Gameworld, name, tag);
+		actor.Gameworld.Add(category);
+		actor.RemoveAllEffects<BuilderEditingEffect<IMarketCategory>>();
+		actor.AddEffect(new BuilderEditingEffect<IMarketCategory>(actor) { EditingItem = category });
+		actor.OutputHandler.Send($"You are create a new market category called {name.ColourValue()} that applies to the tag {tag.FullName.ColourName()}, which you are now editing.");
+	}
+
+	private static void MarketCategoryClone(ICharacter actor, StringStack ss)
+	{
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send("Which market category do you want to clone?");
+			return;
+		}
+
+		var old = actor.Gameworld.MarketCategories.GetByIdOrName(ss.SafeRemainingArgument);
+		if (old is null)
+		{
+			actor.OutputHandler.Send("There is no market category like that.");
+			return;
+		}
+
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send("What name do you want to give to the new market category?");
+			return;
+		}
+
+		var name = ss.SafeRemainingArgument.TitleCase();
+		if (actor.Gameworld.MarketCategories.Any(x => x.Name.EqualTo(name)))
+		{
+			actor.OutputHandler.Send($"There is already a market category called {name.ColourName()}. Names must be unique.");
+			return;
+		}
+
+		var category = old.Clone(name);
+		actor.Gameworld.Add(category);
+		actor.RemoveAllEffects<BuilderEditingEffect<IMarketCategory>>();
+		actor.AddEffect(new BuilderEditingEffect<IMarketCategory>(actor) { EditingItem = category });
+		actor.OutputHandler.Send($"You are clone market category {old.Name.ColourValue()} to a new market category called {category.Name.ColourName()}, which you are now editing.");
+	}
+
+	private static void MarketCategorySet(ICharacter actor, StringStack ss)
+	{
+		var effect = actor.CombinedEffectsOfType<BuilderEditingEffect<IMarketCategory>>().FirstOrDefault();
+		if (effect is null)
+		{
+			actor.OutputHandler.Send("You are not editing any market categories.");
+			return;
+		}
+
+		effect.EditingItem.BuildingCommand(actor, ss);
+	}
+
+	private static void MarketCategoryEdit(ICharacter actor, StringStack ss)
+	{
+		if (ss.IsFinished)
+		{
+			var effect = actor.CombinedEffectsOfType<BuilderEditingEffect<IMarketCategory>>().FirstOrDefault();
+			if (effect is null)
+			{
+				actor.OutputHandler.Send("Which market category would you like to edit?");
+				return;
+			}
+
+			actor.OutputHandler.Send(effect.EditingItem.Show(actor));
+			return;
+		}
+
+		var category = actor.Gameworld.MarketCategories.GetByIdOrName(ss.SafeRemainingArgument);
+		if (category is null)
+		{
+			actor.OutputHandler.Send("There is no market category like that.");
+			return;
+		}
+
+		actor.RemoveAllEffects<BuilderEditingEffect<IMarketCategory>>();
+		actor.AddEffect(new BuilderEditingEffect<IMarketCategory>(actor) { EditingItem = category });
+		actor.OutputHandler.Send($"You are now editing the {category.Name.ColourName()} market category.");
+	}
+
+	private static void MarketCategoryClose(ICharacter actor, StringStack ss)
+	{
+		var effect = actor.CombinedEffectsOfType<BuilderEditingEffect<IMarketCategory>>().FirstOrDefault();
+		if (effect is null)
+		{
+			actor.OutputHandler.Send("You are not editing any market categories.");
+			return;
+		}
+
+		actor.RemoveAllEffects<BuilderEditingEffect<IMarketCategory>>();
+		actor.OutputHandler.Send("You are no longer editing any market categories.");
+	}
+
+	private static void MarketCategoryShow(ICharacter actor, StringStack ss)
+	{
+		if (ss.IsFinished)
+		{
+			var effect = actor.CombinedEffectsOfType<BuilderEditingEffect<IMarketCategory>>().FirstOrDefault();
+			if (effect is null)
+			{
+				actor.OutputHandler.Send("Which market category would you like to show?");
+				return;
+			}
+
+			actor.OutputHandler.Send(effect.EditingItem.Show(actor));
+			return;
+		}
+
+		var category = actor.Gameworld.MarketCategories.GetByIdOrName(ss.SafeRemainingArgument);
+		if (category is null)
+		{
+			actor.OutputHandler.Send("There is no market category like that.");
+			return;
+		}
+
+		actor.OutputHandler.Send(category.Show(actor));
+	}
+
+	private static void MarketCategoryList(ICharacter actor, StringStack ss)
+	{
+		var categories = actor.Gameworld.MarketCategories.ToList();
+		// TODO - filters
+		actor.OutputHandler.Send(StringUtilities.GetTextTable(
+			from item in categories
+			let prices = actor.Gameworld.Markets.Where(x => x.MarketCategories.Contains(item))
+			                  .Select(x => x.PriceMultiplierForCategory(item))
+			                  .DefaultIfEmpty(1.0M)
+			                  .ToList()
+			select new List<string>
+			{
+				item.Id.ToString("N0", actor),
+				item.Name,
+				item.ElasticityFactorBelow.ToString("N3", actor),
+				item.ElasticityFactorAbove.ToString("N3", actor),
+				actor.Gameworld.Markets.Count(x => x.MarketCategories.Contains(item)).ToString("N0", actor),
+				prices.Min().ToString("P2", actor),
+				prices.Average().ToString("P2", actor),
+				prices.Max().ToString("P2", actor)
+			},
+			new List<string>
+			{
+				"Id",
+				"Name",
+				"E(Under)",
+				"E(Over)",
+				"# Markets",
+				"Min Price",
+				"Avg Price",
+				"Max Price"
+			},
+			actor,
+			Telnet.Cyan
+		));
+	}
+
+	#endregion
+
 	#region Markets
+	public const string MarketHelpText = @"";
 
 	[PlayerCommand("Market", "market")]
+	[CommandPermission(PermissionLevel.Admin)]
 	protected static void Market(ICharacter actor, string command)
 	{
-		// debug
-		actor.OutputHandler.Send(actor.Gameworld.Markets.First().Show(actor));
+		var ss = new StringStack(command.RemoveFirstWord());
+		switch (ss.PopForSwitch())
+		{
+			case "list":
+				MarketList(actor, ss);
+				return;
+			case "new":
+			case "create":
+				MarketNew(actor, ss);
+				return;
+			case "clone":
+				MarketClone(actor, ss);
+				return;
+			case "set":
+				MarketSet(actor, ss);
+				return;
+			case "edit":
+				MarketEdit(actor, ss);
+				return;
+			case "close":
+				MarketClose(actor, ss);
+				return;
+			case "show":
+			case "view":
+				MarketShow(actor, ss);
+				return;
+			default:
+				actor.OutputHandler.Send(MarketHelpText.SubstituteANSIColour());
+				return;
+		}
 	}
+
+	private static void MarketClone(ICharacter actor, StringStack ss)
+	{
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send("Which market do you want to clone?");
+			return;
+		}
+
+		var old = actor.Gameworld.Markets.GetByIdOrName(ss.SafeRemainingArgument);
+		if (old is null)
+		{
+			actor.OutputHandler.Send("There is no market like that.");
+			return;
+		}
+
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send("What name do you want to give to the new market?");
+			return;
+		}
+
+		var name = ss.SafeRemainingArgument.TitleCase();
+		if (actor.Gameworld.Markets.Any(x => x.Name.EqualTo(name)))
+		{
+			actor.OutputHandler.Send($"There is already a market called {name.ColourName()}. Names must be unique.");
+			return;
+		}
+
+		var market = old.Clone(name);
+		actor.Gameworld.Add(market);
+		actor.RemoveAllEffects<BuilderEditingEffect<IMarket>>();
+		actor.AddEffect(new BuilderEditingEffect<IMarket>(actor) { EditingItem = market });
+		actor.OutputHandler.Send($"You are clone market {old.Name.ColourValue()} to a new market called {market.Name.ColourName()}, which you are now editing.");
+	}
+
+	private static void MarketShow(ICharacter actor, StringStack ss)
+	{
+		if (ss.IsFinished)
+		{
+			var effect = actor.CombinedEffectsOfType<BuilderEditingEffect<IMarket>>().FirstOrDefault();
+			if (effect is null)
+			{
+				actor.OutputHandler.Send("Which market would you like to show?");
+				return;
+			}
+
+			actor.OutputHandler.Send(effect.EditingItem.Show(actor));
+			return;
+		}
+
+		var market = actor.Gameworld.Markets.GetByIdOrName(ss.SafeRemainingArgument);
+		if (market is null)
+		{
+			actor.OutputHandler.Send("There is no market like that.");
+			return;
+		}
+
+		actor.OutputHandler.Send(market.Show(actor));
+	}
+
+	private static void MarketList(ICharacter actor, StringStack ss)
+	{
+		var markets = actor.Gameworld.Markets.ToList();
+		// TODO - filters
+		actor.OutputHandler.Send(StringUtilities.GetTextTable(
+			from item in markets select new List<string>
+			{
+				item.Id.ToString("N0", actor),
+				item.Name,
+				item.EconomicZone.Name,
+			},
+			new List<string>
+			{
+				"ID",
+				"Name",
+				"Economic Zone"
+			},
+			actor,
+			Telnet.Yellow
+		));
+	}
+
+	private static void MarketNew(ICharacter actor, StringStack ss)
+	{
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send("Which economic zone do you want to create a market in?");
+			return;
+		}
+
+		var ez = actor.Gameworld.EconomicZones.GetByIdOrName(ss.PopSpeech());
+		if (ez is null)
+		{
+			actor.OutputHandler.Send("There is no such economic zones.");
+			return;
+		}
+
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send("What name do you want to give to the new market?");
+			return;
+		}
+
+		var name = ss.SafeRemainingArgument.TitleCase();
+		if (actor.Gameworld.Markets.Any(x => x.Name.EqualTo(name)))
+		{
+			actor.OutputHandler.Send($"There is already a market called {name.ColourName()}. Names must be unique.");
+			return;
+		}
+
+		var market = new Market(actor.Gameworld, name, ez);
+		actor.Gameworld.Add(market);
+		actor.RemoveAllEffects<BuilderEditingEffect<IMarket>>();
+		actor.AddEffect(new BuilderEditingEffect<IMarket>(actor) { EditingItem = market });
+		actor.OutputHandler.Send($"You are create a new market in the {ez.Name.ColourValue()} economic zone called {market.Name.ColourName()}, which you are now editing.");
+	}
+
+	private static void MarketSet(ICharacter actor, StringStack ss)
+	{
+		var effect = actor.CombinedEffectsOfType<BuilderEditingEffect<IMarket>>().FirstOrDefault();
+		if (effect is null)
+		{
+			actor.OutputHandler.Send("You are not editing any markets.");
+			return;
+		}
+
+		effect.EditingItem.BuildingCommand(actor, ss);
+	}
+
+	private static void MarketEdit(ICharacter actor, StringStack ss)
+	{
+		if (ss.IsFinished)
+		{
+			var effect = actor.CombinedEffectsOfType<BuilderEditingEffect<IMarket>>().FirstOrDefault();
+			if (effect is null)
+			{
+				actor.OutputHandler.Send("Which market would you like to edit?");
+				return;
+			}
+
+			actor.OutputHandler.Send(effect.EditingItem.Show(actor));
+			return;
+		}
+
+		var market = actor.Gameworld.Markets.GetByIdOrName(ss.SafeRemainingArgument);
+		if (market is null)
+		{
+			actor.OutputHandler.Send("There is no market like that.");
+			return;
+		}
+
+		actor.RemoveAllEffects<BuilderEditingEffect<IMarket>>();
+		actor.AddEffect(new BuilderEditingEffect<IMarket>(actor) { EditingItem = market });
+		actor.OutputHandler.Send($"You are now editing the {market.Name.ColourName()} market.");
+	}
+
+	private static void MarketClose(ICharacter actor, StringStack ss)
+	{
+		var effect = actor.CombinedEffectsOfType<BuilderEditingEffect<IMarket>>().FirstOrDefault();
+		if (effect is null)
+		{
+			actor.OutputHandler.Send("You are not editing any markets.");
+			return;
+		}
+
+		actor.RemoveAllEffects<BuilderEditingEffect<IMarket>>();
+		actor.OutputHandler.Send("You are no longer editing any markets.");
+	}
+	#endregion Markets
 	#endregion
 }

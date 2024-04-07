@@ -4,6 +4,7 @@ using System.Text;
 using System.Xml;
 using System.Xml.Linq;
 using MudSharp.Character;
+using MudSharp.Database;
 using MudSharp.Framework;
 using MudSharp.Framework.Save;
 using MudSharp.FutureProg.Functions.DateTime;
@@ -16,6 +17,35 @@ public class MarketCategory : SaveableItem, IMarketCategory
 	/// <inheritdoc />
 	public sealed override string FrameworkItemType => "MarketCategory";
 
+	public IMarketCategory Clone(string newName)
+	{
+		return new MarketCategory(this, newName);
+	}
+
+	private MarketCategory(MarketCategory rhs, string newName)
+	{
+		Gameworld = rhs.Gameworld;
+		_name = newName;
+		Description = rhs.Description;
+		ElasticityFactorBelow = rhs.ElasticityFactorBelow;
+		ElasticityFactorAbove = rhs.ElasticityFactorAbove;
+		_tags.AddRange(rhs._tags);
+		using (new FMDB())
+		{
+			var dbitem = new Models.MarketCategory
+			{
+				Name = Name,
+				Description = Description,
+				ElasticityFactorBelow = ElasticityFactorBelow,
+				ElasticityFactorAbove = ElasticityFactorAbove,
+				Tags = SaveTags().ToString()
+			};
+			FMDB.Context.MarketCategories.Add(dbitem);
+			FMDB.Context.SaveChanges();
+			_id = dbitem.Id;
+		}
+	}
+
 	public MarketCategory(IFuturemud gameworld, string name, ITag tag)
 	{
 		Gameworld = gameworld;
@@ -24,6 +54,20 @@ public class MarketCategory : SaveableItem, IMarketCategory
 		_tags.Add(tag);
 		ElasticityFactorAbove = 0.75;
 		ElasticityFactorBelow = 0.75;
+		using (new FMDB())
+		{
+			var dbitem = new Models.MarketCategory
+			{
+				Name = Name,
+				Description = Description,
+				ElasticityFactorBelow = ElasticityFactorBelow,
+				ElasticityFactorAbove = ElasticityFactorAbove,
+				Tags = SaveTags().ToString()
+			};
+			FMDB.Context.MarketCategories.Add(dbitem);
+			FMDB.Context.SaveChanges();
+			_id = dbitem.Id;
+		}
 	}
 
 	public MarketCategory(IFuturemud gameworld, Models.MarketCategory category)
@@ -49,7 +93,20 @@ public class MarketCategory : SaveableItem, IMarketCategory
 	/// <inheritdoc />
 	public override void Save()
 	{
-		throw new System.NotImplementedException();
+		var dbitem = FMDB.Context.MarketCategories.Find(Id);
+		dbitem.Name = Name;
+		dbitem.Description = Description;
+		dbitem.ElasticityFactorBelow = ElasticityFactorBelow;
+		dbitem.ElasticityFactorAbove = ElasticityFactorAbove;
+		dbitem.Tags = SaveTags().ToString();
+		Changed = false;
+	}
+
+	private XElement SaveTags()
+	{
+		return new XElement("Tags",
+			from tag in _tags select new XElement("Tag", tag.Id)
+		);
 	}
 
 	/// <inheritdoc />
@@ -68,7 +125,7 @@ public class MarketCategory : SaveableItem, IMarketCategory
 		sb.AppendLine();
 		sb.AppendLine("Description:");
 		sb.AppendLine();
-		sb.AppendLine(Description.Wrap(actor.InnerLineFormatLength, "\t"));
+		sb.AppendLine(Description.Wrap(actor.InnerLineFormatLength, "\t").ColourCommand());
 		sb.AppendLine();
 		sb.AppendLine("Tags:");
 		sb.AppendLine();

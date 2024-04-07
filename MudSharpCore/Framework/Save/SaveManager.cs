@@ -339,7 +339,7 @@ public class SaveManager : ISaveManager
 			_mudBootingMode = value;
 			if (!value)
 			{
-				Console.WriteLine("Finalising and Sorting Lazy Load Queue...");
+				ConsoleUtilities.WriteLine("#EFinalising and Sorting Lazy Load Queue...#0");
 				var sorted = _lazyLoaders.AsEnumerable().OrderByDescending(x => x.LazyLoadPriority).ToList();
 				_lazyLoaders.Clear();
 				foreach (var item in sorted)

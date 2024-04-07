@@ -43,6 +43,11 @@ internal class Market : SaveableItem, IMarket
 		}
 	}
 
+	public IMarket Clone(string newName)
+	{
+		return new Market(this, newName);
+	}
+
 	public Market(Market rhs, string name)
 	{
 		Gameworld = rhs.Gameworld;
@@ -97,12 +102,35 @@ internal class Market : SaveableItem, IMarket
 		EconomicZone = zone;
 		Description = "An undescribed market.";
 		MarketPriceFormula = new Expression("if(demand<=0,0,if(supply<=0,100,1 + (elasticity * min(1, max(-1, (demand-supply) / min(demand,supply))))))", EvaluateOptions.IgnoreCase);
+		using (new FMDB())
+		{
+			var dbitem = new Models.Market
+			{
+				Name = name,
+				EconomicZoneId = zone.Id,
+				Description = Description,
+				MarketPriceFormula = MarketPriceFormula.OriginalExpression
+			};
+			FMDB.Context.Markets.Add(dbitem);
+			FMDB.Context.SaveChanges();
+			_id = dbitem.Id;
+		}
 	}
 
 	/// <inheritdoc />
 	public override void Save()
 	{
-		throw new NotImplementedException();
+		var dbitem = FMDB.Context.Markets.Find(Id);
+		dbitem.Name = Name;
+		dbitem.EconomicZoneId = EconomicZone.Id;
+		dbitem.Description = Description;
+		dbitem.MarketPriceFormula = MarketPriceFormula.OriginalExpression;
+		dbitem.MarketCategories.Clear();
+		foreach (var item in MarketCategories)
+		{
+			dbitem.MarketCategories.Add(FMDB.Context.MarketCategories.Find(item.Id));
+		}
+		Changed = false;
 	}
 
 	/// <inheritdoc />
@@ -120,7 +148,7 @@ internal class Market : SaveableItem, IMarket
 		sb.AppendLine();
 		sb.AppendLine("Description:");
 		sb.AppendLine();
-		sb.AppendLine(Description.Wrap(actor.InnerLineFormatLength, "\t"));
+		sb.AppendLine(Description.Wrap(actor.InnerLineFormatLength, "\t").ColourCommand());
 		sb.AppendLine();
 		sb.AppendLine($"Price Formula: {MarketPriceFormula.OriginalExpression.ColourCommand()}");
 		sb.AppendLine();

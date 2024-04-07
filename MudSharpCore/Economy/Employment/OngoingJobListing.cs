@@ -480,7 +480,7 @@ You will be paid {PayDescriptionForJobListing()}.{(PersonalProject is not null ?
 			var time = PayReference.Time;
 			var tz = PayReference.TimeZone;
 			actor.OutputHandler.Send(
-				$"That is not a valid date and time for the {EconomicZone.FinancialPeriodReferenceCalendar.FullName.ColourName()} calendar and {EconomicZone.FinancialPeriodReferenceClock.Name.ColourName()} clock.\nValid input is in this format: {"<day>/<month name>/<year> <timezone> <hours>:<minutes>:<seconds>".ColourCommand()}\nFor example, this is how you would enter the current reference date: {$"{date.Day.ToString("N0", actor)}/{date.Month.Alias}/{date.Year} {tz.Name} {time.Hours.ToString("N0", actor)}:{time.Minutes.ToString("N0", actor)}:{time.Seconds.ToString("N0", actor)}".ColourCommand()}");
+				$"That is not a valid date and time for the {EconomicZone.FinancialPeriodReferenceCalendar.FullName.ColourName()} calendar and {EconomicZone.FinancialPeriodReferenceClock.Name.ColourName()} clock.{MudDateTime.TryParseHelpText(actor, EconomicZone)}");
 			return false;
 		}
 

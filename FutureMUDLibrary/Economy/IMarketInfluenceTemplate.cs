@@ -21,4 +21,5 @@ public interface IMarketInfluenceTemplate : ISaveable, IEditableItem
 	string Description { get; }
 	IEnumerable<MarketImpact> MarketImpacts { get; }
 	IFutureProg CharacterKnowsAboutInfluenceProg { get; }
+	IMarketInfluenceTemplate Clone(string newName);
 }

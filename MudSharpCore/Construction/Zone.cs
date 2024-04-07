@@ -212,7 +212,7 @@ public class Zone : Location, IEditableZone
 
 	public override IMudTimeZone TimeZone(IClock whichClock)
 	{
-		return TimeZones.TryGetValue(whichClock, out var value)
+		return TimeZones.TryGetValue(whichClock ?? Clocks.FirstOrDefault(), out var value)
 			? value
 			: throw new ApplicationException(
 				"Zone.TimeZone(whichClock) was asked for a timezone for a clock it doesn't have.");
@@ -224,19 +224,26 @@ public class Zone : Location, IEditableZone
 		{
 			return Calendars.First(x => x == whichCalendar).CurrentDate.GetDateByTime(Time(whichCalendar.FeedClock));
 		}
-		else
-		{
-			return Calendars.First().CurrentDate.GetDateByTime(Time(Calendars.First().FeedClock));
-		}
+
+		return Calendars.First().CurrentDate.GetDateByTime(Time(Calendars.First().FeedClock));
 	}
 
 	public Dictionary<IClock, IMudTimeZone> TimeZones { get; protected set; }
 
 	public override MudTime Time(IClock whichClock)
 	{
+		if (Clocks.Contains(whichClock))
+		{
+			return
+				Clocks.First(x => x == whichClock)
+				      .CurrentTime
+				      .GetTimeByTimezone(TimeZones[Clocks.First(x => x == whichClock)]);
+		}
+
 		return
-			Clocks.First(x => x == whichClock)
-			      .CurrentTime.GetTimeByTimezone(TimeZones[Clocks.First(x => x == whichClock)]);
+			Clocks.First()
+			      .CurrentTime
+			      .GetTimeByTimezone(TimeZones[Clocks.First()]);
 	}
 
 	public string DescribeSky => Shard.DescribeSky(CurrentLightLevel);

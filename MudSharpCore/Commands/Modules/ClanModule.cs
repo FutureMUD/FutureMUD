@@ -355,7 +355,7 @@ All of the following commands must happen with an edited clan selected:
 			var date = clan.Calendar.CurrentDateTime.Date;
 			var time = clan.Calendar.CurrentDateTime.Time;
 			var tz = clan.Calendar.CurrentDateTime.TimeZone;
-			actor.OutputHandler.Send($"That is not a valid date and time for the {clan.Calendar.FullName.ColourName()} calendar and {clan.Calendar.FeedClock.Name.ColourName()} clock.\nValid input is in this format: {"<day>/<month name>/<year> <timezone> <hours>:<minutes>:<seconds>".ColourCommand()}\nFor example, this is how you would enter the current date and time: {$"{date.Day.ToString("N0", actor)}/{date.Month.Alias}/{date.Year} {tz.Name} {time.Hours.ToString("N0", actor)}:{time.Minutes.ToString("N0", actor)}:{time.Seconds.ToString("N0", actor)}".ColourCommand()}");
+			actor.OutputHandler.Send($"That is not a valid date and time for the {clan.Calendar.FullName.ColourName()} calendar and {clan.Calendar.FeedClock.Name.ColourName()} clock.{MudDateTime.TryParseHelpText(actor, date, time, tz)}");
 			return;
 		}
 

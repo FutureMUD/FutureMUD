@@ -24,4 +24,5 @@ public interface IMarketInfluence : ISaveable, IEditableItem
 	bool Applies(IMarketCategory? category, MudDateTime currentDateTime);
 	string TextForMarketShow(ICharacter actor);
 	XElement SaveImpacts();
+	IMarketInfluence Clone(string newName);
 }

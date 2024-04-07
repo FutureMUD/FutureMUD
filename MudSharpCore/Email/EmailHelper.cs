@@ -308,10 +308,10 @@ public class EmailHelper
 			return;
 		}
 
-		Console.WriteLine("Starting email handling thread...");
+		ConsoleUtilities.WriteLine("#EStarting email handling thread...#0");
 		_emailThreadCancellation = new CancellationTokenSource();
 		_emailThread = Task.Factory.StartNew(EmailDelegate, _emailThreadCancellation.Token);
-		Console.WriteLine("Successfully started email handling thread.");
+		ConsoleUtilities.WriteLine("#ASuccessfully started email handling thread.#0");
 	}
 
 	public void EndEmailThread()

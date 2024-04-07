@@ -120,10 +120,10 @@ public class CombatMessageManager : ICombatMessageManager
 
 		if (missingMessages.Any())
 		{
-			Console.WriteLine("Critical Error - the following combat messages are missing a default value:");
+			ConsoleUtilities.WriteLine("#9Critical Error - the following combat messages are missing a default value:#0");
 			foreach (var message in missingMessages)
 			{
-				Console.WriteLine($"\t{message.Item1.Describe()} ({message.Item1}) - {message.Item2.Describe()}");
+				ConsoleUtilities.WriteLine($"\t#2{message.Item1.Describe()}#0 (#6{message.Item1}#0) - {message.Item2.Describe()}");
 			}
 		}
 	}

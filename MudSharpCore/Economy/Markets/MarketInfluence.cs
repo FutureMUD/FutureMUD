@@ -5,9 +5,11 @@ using System.Xml.Linq;
 using JetBrains.Annotations;
 using MoreLinq.Extensions;
 using MudSharp.Character;
+using MudSharp.Database;
 using MudSharp.Framework;
 using MudSharp.Framework.Save;
 using MudSharp.FutureProg;
+using MudSharp.Models;
 using MudSharp.TimeAndDate;
 using MudSharp.TimeAndDate.Date;
 using MudSharp.TimeAndDate.Time;
@@ -33,8 +35,92 @@ public class MarketInfluence : SaveableItem, IMarketInfluence
 		{
 			_marketImpacts.Add(impact with {});
 		}
-		_marketImpacts.AddRange(template.MarketImpacts);
 		CharacterKnowsAboutInfluenceProg = template.CharacterKnowsAboutInfluenceProg;
+		using (new FMDB())
+		{
+			var dbitem = new Models.MarketInfluence
+			{
+				Name = Name,
+				Description = Description,
+				MarketId = Market.Id,
+				MarketInfluenceTemplateId = MarketInfluenceTemplate?.Id,
+				AppliesFrom = AppliesFrom.GetDateTimeString(),
+				AppliesUntil = AppliesUntil?.GetDateTimeString(),
+				CharacterKnowsAboutInfluenceProgId = CharacterKnowsAboutInfluenceProg.Id,
+				Impacts = SaveImpacts().ToString()
+			};
+			FMDB.Context.MarketInfluences.Add(dbitem);
+			FMDB.Context.SaveChanges();
+			_id = dbitem.Id;
+		}
+	}
+
+	public MarketInfluence(IMarket market, string name, string description,
+		MudDateTime appliesFrom,
+		[CanBeNull] MudDateTime appliesUntil)
+	{
+		Gameworld = market.Gameworld;
+		Market = market;
+		_name = name;
+		Description = description;
+		AppliesFrom = appliesFrom;
+		AppliesUntil = appliesUntil;
+		CharacterKnowsAboutInfluenceProg = Gameworld.AlwaysFalseProg;
+		using (new FMDB())
+		{
+			var dbitem = new Models.MarketInfluence
+			{
+				Name = Name,
+				Description = Description,
+				MarketId = Market.Id,
+				MarketInfluenceTemplateId = null,
+				AppliesFrom = AppliesFrom.GetDateTimeString(),
+				AppliesUntil = AppliesUntil?.GetDateTimeString(),
+				CharacterKnowsAboutInfluenceProgId = CharacterKnowsAboutInfluenceProg.Id,
+				Impacts = SaveImpacts().ToString()
+			};
+			FMDB.Context.MarketInfluences.Add(dbitem);
+			FMDB.Context.SaveChanges();
+			_id = dbitem.Id;
+		}
+	}
+
+	public IMarketInfluence Clone(string newName)
+	{
+		return new MarketInfluence(this, newName);
+	}
+
+	private MarketInfluence(MarketInfluence rhs, string newName)
+	{
+		Gameworld = rhs.Gameworld;
+		Market = rhs.Market;
+		MarketInfluenceTemplate = rhs.MarketInfluenceTemplate;
+		_name = newName;
+		Description = rhs.Description;
+		AppliesFrom = rhs.AppliesFrom;
+		AppliesUntil = rhs.AppliesUntil;
+		foreach (var impact in rhs.MarketImpacts)
+		{
+			_marketImpacts.Add(impact with { });
+		}
+		CharacterKnowsAboutInfluenceProg = rhs.CharacterKnowsAboutInfluenceProg;
+		using (new FMDB())
+		{
+			var dbitem = new Models.MarketInfluence
+			{
+				Name = Name,
+				Description = Description,
+				MarketId = Market.Id,
+				MarketInfluenceTemplateId = MarketInfluenceTemplate?.Id,
+				AppliesFrom = AppliesFrom.GetDateTimeString(),
+				AppliesUntil = AppliesUntil?.GetDateTimeString(),
+				CharacterKnowsAboutInfluenceProgId = CharacterKnowsAboutInfluenceProg.Id,
+				Impacts = SaveImpacts().ToString()
+			};
+			FMDB.Context.MarketInfluences.Add(dbitem);
+			FMDB.Context.SaveChanges();
+			_id = dbitem.Id;
+		}
 	}
 
 	public MarketInfluence(IMarket market, Models.MarketInfluence influence)

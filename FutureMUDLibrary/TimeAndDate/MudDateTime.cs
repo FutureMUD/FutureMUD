@@ -1,12 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Numerics;
 using System.Text.RegularExpressions;
+using MudSharp.Character;
+using MudSharp.Economy;
 using MudSharp.Framework;
 using MudSharp.FutureProg;
 using MudSharp.FutureProg.Variables;
 using MudSharp.TimeAndDate.Date;
 using MudSharp.TimeAndDate.Time;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace MudSharp.TimeAndDate {
     public class MudDateTime : IFutureProgVariable, IComparable, IComparable<MudDateTime> {
@@ -21,73 +25,87 @@ namespace MudSharp.TimeAndDate {
 
         public ICalendar Calendar => Date?.Calendar;
         public IClock Clock => Time?.Clock;
-        public IFuturemud Gameworld { get; set; }
+		public IFuturemud Gameworld { get; set; }
 
-        public static bool TryParse(string text, ICalendar calendar, IClock clock, out MudDateTime dt) {
-            dt = null;
-            if (text.Equals("never", StringComparison.InvariantCultureIgnoreCase)) {
-                dt = Never;
-                return true;
-            }
+		public static string TryParseHelpText(ICharacter actor, MudDate date, MudTime time, IMudTimeZone tz)
+		{
+			return $@"
+Valid input is in this format: {"<day>/<month name>/<year> <timezone> <hours>:<minutes>:<seconds>".ColourCommand()}
+For example, this is how you would enter the current date and time: {$"{date.Day.ToString("N0", actor)}/{date.Month.Alias}/{date.Year} {tz.Name} {time.Hours.ToString("N0", actor)}:{time.Minutes.ToString("N0", actor)}:{time.Seconds.ToString("N0", actor)}".ColourCommand()}
+You can also enter the special values #3never#0 and #3now#0.";
+		}
 
-            if (string.IsNullOrEmpty(text) || (calendar == null) || (clock == null)) {
-                return false;
-            }
+		public static string TryParseHelpText(ICharacter actor)
+		{
+			return TryParseHelpText(actor, actor.Location.Date(null), actor.Location.Time(null),
+				actor.Location.TimeZone(null));
+		}
 
-            var match = PlayerParseRegex.Match(text);
-            if (!match.Success) {
-                return false;
-            }
+		public static string TryParseHelpText(ICharacter actor, IEconomicZone zone)
+		{
+			return TryParseHelpText(actor, zone.FinancialPeriodReferenceCalendar.CurrentDate, zone.FinancialPeriodReferenceClock.CurrentTime, zone.FinancialPeriodTimezone);
+		}
 
-            try {
-                var date = calendar.GetDate(match.Groups["date"].Value);
-                var timezone = match.Groups["timezone"].Length > 0
-	                ? clock.Timezones.GetByName(match.Groups["timezone"].Value)
-	                : clock.PrimaryTimezone;
-                if (timezone == null) {
-                    return false;
-                }
-                var time = clock.GetTime(match.Groups["time"].Value);
-                dt = new MudDateTime(date, time, timezone);
-                return true;
-            }
-            catch {
-                return false;
-            }
-        }
-
-        public static bool TryParse(string text, IFuturemud gameworld, out MudDateTime dt) {
-            dt = null;
-            if (text.Equals("never", StringComparison.InvariantCultureIgnoreCase)) {
-                dt = Never;
-                return true;
-            }
-
-            if (string.IsNullOrEmpty(text) || (gameworld == null)) {
-                return false;
-            }
-
-            var match = ParseRegex.Match(text);
-            if (!match.Success) {
-                return false;
-            }
-
-            var calendar = gameworld.Calendars.Get(long.Parse(match.Groups["calendar"].Value));
-            if (calendar == null) {
-                return false;
-            }
-
-            var clock = gameworld.Clocks.Get(long.Parse(match.Groups["clock"].Value));
-            if (clock == null) {
-                return false;
-            }
-
-            try {
-                var date = calendar.GetDate(match.Groups["date"].Value);
-                var timezone = clock.Timezones.GetByName(match.Groups["timezone"].Value);
-                if (timezone == null) {
-                    return false;
-                }
+		public static bool TryParse(string text, ICalendar calendar, IClock clock, out MudDateTime dt) {
+			dt = null;
+			if (text.Equals("never", StringComparison.InvariantCultureIgnoreCase)) {
+				dt = Never;
+				return true;
+			}
+			if (text.Equals("now", StringComparison.InvariantCultureIgnoreCase))
+			{
+				dt = calendar.CurrentDateTime;
+			}
+			if (string.IsNullOrEmpty(text) || (calendar == null) || (clock == null)) {
+				return false;
+			}
+			var match = PlayerParseRegex.Match(text);
+			if (!match.Success) {
+				return false;
+			}
+			try {
+				var date = calendar.GetDate(match.Groups["date"].Value);
+				var timezone = match.Groups["timezone"].Length > 0
+				? clock.Timezones.GetByName(match.Groups["timezone"].Value)
+				: clock.PrimaryTimezone;
+				if (timezone == null) {
+					return false;
+				}
+				var time = clock.GetTime(match.Groups["time"].Value);
+				dt = new MudDateTime(date, time, timezone);
+				return true;
+			}
+			catch {
+				return false;
+			}
+		}
+		public static bool TryParse(string text, IFuturemud gameworld, out MudDateTime dt) {
+			dt = null;
+			if (text.Equals("never", StringComparison.InvariantCultureIgnoreCase)) {
+				dt = Never;
+				return true;
+			}
+			if (string.IsNullOrEmpty(text) || (gameworld == null)) {
+				return false;
+			}
+			var match = ParseRegex.Match(text);
+			if (!match.Success) {
+				return false;
+			}
+			var calendar = gameworld.Calendars.Get(long.Parse(match.Groups["calendar"].Value));
+			if (calendar == null) {
+				return false;
+			}
+			var clock = gameworld.Clocks.Get(long.Parse(match.Groups["clock"].Value));
+			if (clock == null) {
+				return false;
+			}
+			try {
+				var date = calendar.GetDate(match.Groups["date"].Value);
+				var timezone = clock.Timezones.GetByName(match.Groups["timezone"].Value);
+				if (timezone == null) {
+					return false;
+				}
                 var time = clock.GetTime(match.Groups["time"].Value);
                 dt = new MudDateTime(date, time, timezone);
                 return true;

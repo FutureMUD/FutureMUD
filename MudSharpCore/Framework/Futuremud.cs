@@ -512,7 +512,7 @@ public sealed partial class Futuremud : IFuturemud, IDisposable
 
 	public void PreloadAccounts()
 	{
-		Console.WriteLine("\nPreloading Accounts...");
+		ConsoleUtilities.WriteLine("\nPreloading #5Accounts#0...");
 		using (new FMDB())
 		{
 			foreach (var dbaccount in FMDB.Context.Accounts.ToList())
@@ -527,7 +527,7 @@ public sealed partial class Futuremud : IFuturemud, IDisposable
 				_accounts.Add(newAccount);
 			}
 		}
-		Console.WriteLine($"Preloaded {_accounts.Count:N0} Accounts...");
+		ConsoleUtilities.WriteLine($"Preloaded #2{_accounts.Count:N0}#0 Accounts...");
 	}
 
 	public IEnumerable<ICharacter> LoadAllPlayerCharacters()
@@ -562,7 +562,7 @@ public sealed partial class Futuremud : IFuturemud, IDisposable
 
 	public void PreloadCharacterNames()
 	{
-		Console.WriteLine("\nPreloading Character Name Lookups...");
+		ConsoleUtilities.WriteLine("\nPreloading #5Character Name Lookups#0...");
 		using (new FMDB())
 		{
 			foreach (var dbcharacter in FMDB.Context.Characters
@@ -578,7 +578,7 @@ public sealed partial class Futuremud : IFuturemud, IDisposable
 			}
 		}
 
-		Console.WriteLine($"Preloaded {_cachedPersonalNames.Count:N0} Character Names...");
+		ConsoleUtilities.WriteLine($"Preloaded #2{_cachedPersonalNames.Count:N0}#0 Character Names...");
 	}
 
 	private void AddConnection(IPlayerConnection connection)

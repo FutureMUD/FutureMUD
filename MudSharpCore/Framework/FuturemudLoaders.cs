@@ -155,7 +155,7 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 		ConsoleUtilities.WriteLine("#C========================================#0");
 		ConsoleUtilities.WriteLine("#5Constructing FutureMUD...#0");
 
-		ConsoleUtilities.WriteLine("#EInitialising Non-Database Statics.#0");
+		ConsoleUtilities.WriteLine("\n#EInitialising Non-Database Statics.#0");
 		PositionState.SetupPositions();
 		FutureProg.FutureProg.Initialise();
 
@@ -171,7 +171,7 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 
 		var game = (IFuturemudLoader)this;
 
-		ConsoleUtilities.WriteLine("#EEnsuring that Database migrations are applied...#0");
+		ConsoleUtilities.WriteLine("\n#EEnsuring that Database migrations are applied...#0");
 		using (var context = new FuturemudDatabaseContext(new DbContextOptionsBuilder<FuturemudDatabaseContext>()
 		                                                  .UseMySql(FMDB.ConnectionString,
 			                                                  ServerVersion.AutoDetect(FMDB.ConnectionString)).Options))
@@ -208,7 +208,7 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 #endif
 			ConsoleUtilities.WriteLine("#ADatabase connection opened.#0");
 
-			ConsoleUtilities.WriteLine("#ESetting up Email Server...#0");
+			ConsoleUtilities.WriteLine("\n#ESetting up Email Server...#0");
 			ConsoleUtilities.WriteLine(EmailHelper.SetupEmailClient()
 				? "#AEmail Server successfully setup.#0"
 				: "#9Warning! Email Server did not successfully setup!#0");
@@ -389,7 +389,8 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 #endif
 		}
 
-		ConsoleUtilities.WriteLine("\n#BDatabase connection closed.#0");
+		
+		ConsoleUtilities.WriteLine("\n\n#BDatabase connection closed.#0");
 		ConsoleUtilities.WriteLine("#AFutureMUD constructed.#0");
 		ConsoleUtilities.WriteLine("#C========================================#0");
 		ConsoleUtilities.WriteLine("\n#EScheduling core system tasks...#0");
@@ -940,7 +941,7 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 		ConsoleUtilities.WriteLine($"Duration: #2{sw.ElapsedMilliseconds}ms#0");
 
 #endif
-		ConsoleUtilities.WriteLine("\nLoaded #2{0:N0}#0 {1}", count, count == 1 ? "Magic Power" : "Magic Powers");
+		ConsoleUtilities.WriteLine("Loaded #2{0:N0}#0 {1}", count, count == 1 ? "Magic Power" : "Magic Powers");
 
 		ConsoleUtilities.WriteLine("\nLoading #5Magic Spells#0...");
 #if DEBUG
@@ -1054,7 +1055,7 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 #endif
 		var count = antigens.Count;
 		ConsoleUtilities.WriteLine("Loaded #2{0:N0}#0 {1}.", count, count == 1 ? "Antigen" : "Antigens");
-		ConsoleUtilities.WriteLine("\n\nLoading Bloodtypes...");
+		ConsoleUtilities.WriteLine("\n\nLoading #5Bloodtypes#0...");
 #if DEBUG
 		sw.Restart();
 #endif
@@ -1072,7 +1073,7 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 		count = bloodtypes.Count;
 		ConsoleUtilities.WriteLine("Loaded #2{0:N0}#0 {1}.", count, count == 1 ? "Bloodtype" : "Bloodtypes");
 
-		ConsoleUtilities.WriteLine("\n\nLoading Blood Models...");
+		ConsoleUtilities.WriteLine("\n\nLoading #5Blood Models#0...");
 #if DEBUG
 		sw.Restart();
 #endif
@@ -1090,7 +1091,7 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 		count = bloodModels.Count;
 		ConsoleUtilities.WriteLine("Loaded #2{0:N0}#0 {1}.", count, count == 1 ? "Blood Model" : "Blood Models");
 
-		ConsoleUtilities.WriteLine("\n\nLoading Population Blood Models...");
+		ConsoleUtilities.WriteLine("\n\nLoading #5Population Blood Models#0...");
 #if DEBUG
 		sw.Restart();
 #endif
@@ -1113,13 +1114,13 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 
 	void IFuturemudLoader.LoadAutobuilderTemplates()
 	{
-		ConsoleUtilities.WriteLine("\nLoading #5Autobuilder Templates#0...");
+		ConsoleUtilities.WriteLine("\n#ELoading Autobuilder Templates...#0");
 		Construction.Autobuilder.AutobuilderFactory.InitialiseAutobuilders();
 #if DEBUG
 		var sw = new Stopwatch();
 		sw.Start();
 #endif
-		ConsoleUtilities.WriteLine("Loading #5Room Templates...#0");
+		ConsoleUtilities.WriteLine("\nLoading #5Room Templates...#0");
 		var roomTemplates = FMDB.Context.AutobuilderRoomTemplates.AsNoTracking().ToList();
 		foreach (var item in roomTemplates)
 		{
@@ -1129,7 +1130,7 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 		var count = _autobuilderRooms.Count;
 		ConsoleUtilities.WriteLine("Loaded #2{0:N0}#0 {1}.", count, count == 1 ? "Room Template" : "Room Templates");
 
-		ConsoleUtilities.WriteLine("Loading #5Area Templates...#0");
+		ConsoleUtilities.WriteLine("\nLoading #5Area Templates...#0");
 		var areaTemplates = FMDB.Context.AutobuilderAreaTemplates.AsNoTracking().ToList();
 		foreach (var item in areaTemplates)
 		{
@@ -1930,7 +1931,6 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 
 	void IFuturemudLoader.LoadMaterials()
 	{
-		ConsoleUtilities.WriteLine("\nLoading #5Materials#0...");
 #if DEBUG
 		var sw = new Stopwatch();
 		sw.Start();
@@ -2156,6 +2156,8 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 		sw.Stop();
 		ConsoleUtilities.WriteLine($"Duration: #2{sw.ElapsedMilliseconds}ms#0");
 #endif
+		var count = channels.Count;
+		ConsoleUtilities.WriteLine("Loaded #2{0}#0 Channel{1}.", count, count == 1 ? "" : "s");
 	}
 
 	void IFuturemudLoader.LoadNonCardinalExitTemplates()
@@ -2945,7 +2947,7 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 		// ------------------------------------------------------------------- //
 
 
-		ConsoleUtilities.WriteLine("#ELoading Exit Manager and Preloading Critical Cell Exits...#0");
+		ConsoleUtilities.WriteLine("\n#ELoading Exit Manager and Preloading Critical Cell Exits...#0");
 #if DEBUG
 		sw.Restart();
 #endif
@@ -2968,6 +2970,7 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 
 	void IFuturemudLoader.LoadBodies()
 	{
+		ConsoleUtilities.WriteLine("\n#ELoading Bodies...#0");
 		ConsoleUtilities.WriteLine("\nLoading #5#5Bodypart Group Describers#0#0...");
 #if DEBUG
 		var sw = new Stopwatch();
@@ -2995,7 +2998,6 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 		ConsoleUtilities.WriteLine("Loaded #2{0:N0}#0 {1}.", count,
 			count == 1 ? "Bodypart Group Describer" : "Bodypart Group Describers");
 
-		ConsoleUtilities.WriteLine("\nLoading #5Bodies#0...");
 #if DEBUG
 		sw.Restart();
 #endif
@@ -3080,6 +3082,8 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 		sw.Stop();
 		ConsoleUtilities.WriteLine($"Duration: #2{sw.ElapsedMilliseconds}ms#0");
 #endif
+		count = bodies.Count;
+		ConsoleUtilities.WriteLine("Loaded #2{0:N0}#0 {1}.", count, count == 1 ? "Body Prototype" : "Body Prototypes");
 
 		ConsoleUtilities.WriteLine("\n#ELinking Bodyparts...#0");
 		foreach (var part in bpprotos)
@@ -3087,7 +3091,7 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 			BodypartPrototypes.Get(part.Id).SetBodyProto(BodyPrototypes.Get(part.BodyId));
 		}
 
-		ConsoleUtilities.WriteLine("\n#EFinalising Bodyparts...#0");
+		ConsoleUtilities.WriteLine("#EFinalising Bodyparts...#0");
 		foreach (var body in BodyPrototypes)
 		{
 			body.FinaliseBodyparts(bodyStaging[body]);
@@ -3096,8 +3100,6 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 		sw.Stop();
 		ConsoleUtilities.WriteLine($"Duration: #2{sw.ElapsedMilliseconds}ms#0");
 #endif
-		count = bodies.Count;
-		ConsoleUtilities.WriteLine("Loaded #2{0:N0}#0 {1}.", count, count == 1 ? "Body Prototype" : "Body Prototypes");
 
 		ConsoleUtilities.WriteLine("\nLoading #5Limbs#0...");
 #if DEBUG

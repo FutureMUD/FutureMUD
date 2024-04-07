@@ -85,7 +85,7 @@ public sealed class TCPServer : IServer
 	{
 		var tcp = new TcpListener(IPAddress.Any, Port);
 		tcp.Start();
-		Console.WriteLine("Successfully started listening on {0}.", IPAddress);
+		ConsoleUtilities.WriteLine("Successfully started listening on #2{0}#0.", IPAddress);
 		while (true)
 		{
 			IEnumerable<IPlayerConnection> connections;

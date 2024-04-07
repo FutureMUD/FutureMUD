@@ -20,4 +20,5 @@ public interface IMarket : ISaveable, IEditableItem
 	decimal PriceMultiplierForCategory(IMarketCategory category);
 	void ApplyMarketInfluence(IMarketInfluence influence);
 	void RemoveMarketInfluence(IMarketInfluence influence);
+	IMarket Clone(string newName);
 }

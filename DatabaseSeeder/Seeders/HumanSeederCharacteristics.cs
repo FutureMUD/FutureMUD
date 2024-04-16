@@ -2118,7 +2118,7 @@ return @bmi > 24 and @bmi < 35"
 		_context.CharacteristicValues.Add(new CharacteristicValue
 		{
 			Id = nextId++, Definition = hairStyleDef, Name = "fauxhawk", Value = "fauxhawked",
-			AdditionalValue = "2 1 0 short hairStyleDefd toward a center spike", Default = false, Pluralisation = 0
+			AdditionalValue = "2 1 0 short hair style toward a center spike", Default = false, Pluralisation = 0
 		});
 		_context.CharacteristicValues.Add(new CharacteristicValue
 		{
@@ -2395,13 +2395,13 @@ return @bmi > 24 and @bmi < 35"
 		_context.CharacteristicValues.Add(new CharacteristicValue
 		{
 			Id = nextId++, Definition = hairStyleDef, Name = "warhawk", Value = "warhawked",
-			AdditionalValue = "4 2 0 hairStyleDefd in a very short mohawk, and shaved along the sides of the skull",
+			AdditionalValue = "4 2 0 hair style in a very short mohawk, and shaved along the sides of the skull",
 			Default = false, Pluralisation = 0
 		});
 		_context.CharacteristicValues.Add(new CharacteristicValue
 		{
 			Id = nextId++, Definition = hairStyleDef, Name = "frohawk", Value = "frohawked",
-			AdditionalValue = "4 2 0 hairStyleDefd like a typical afro, only the sides of the skull have been shaved",
+			AdditionalValue = "4 2 0 hair style like a typical afro, only the sides of the skull have been shaved",
 			Default = false, Pluralisation = 0
 		});
 		_context.CharacteristicValues.Add(new CharacteristicValue
@@ -2415,7 +2415,7 @@ return @bmi > 24 and @bmi < 35"
 		{
 			Id = nextId++, Definition = hairStyleDef, Name = "deathhawk", Value = "deathhawked",
 			AdditionalValue =
-				"4 2 0 voluminous, backcombed hairStyleDefd into a loose mohawk, with shaved hair along the sides of the skull",
+				"4 2 0 voluminous, backcombed hair style into a loose mohawk, with shaved hair along the sides of the skull",
 			Default = false, Pluralisation = 0
 		});
 		_context.CharacteristicValues.Add(new CharacteristicValue

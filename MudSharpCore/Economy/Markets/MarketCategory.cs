@@ -9,6 +9,7 @@ using MudSharp.Framework;
 using MudSharp.Framework.Save;
 using MudSharp.FutureProg.Functions.DateTime;
 using MudSharp.GameItems;
+using MudSharp.PerceptionEngine;
 
 namespace MudSharp.Economy.Markets;
 
@@ -109,10 +110,147 @@ public class MarketCategory : SaveableItem, IMarketCategory
 		);
 	}
 
+	public const string HelpText = @"You can use the following options with this command:
+
+	#3name <name>#0 - changes the name
+	#3eover <%>#0 - changes the elasticity for oversupply
+	#3eunder <%>#0 - changes the elasticity for undersupply
+	#3desc#0 - drops you into an editor to set the description
+	#3tag <tag>#0 - toggles an item tag as being a part of this category";
+
 	/// <inheritdoc />
 	public bool BuildingCommand(ICharacter actor, StringStack command)
 	{
-		throw new System.NotImplementedException();
+		switch (command.PopForSwitch())
+		{
+			case "name":
+				return BuildingCommandName(actor, command);
+			case "elasticityover":
+			case "eover":
+			case "overe":
+				return BuildingCommandElasticityOversupply(actor, command);
+			case "elasticityunder":
+			case "eunder":
+			case "undere":
+				return BuildingCommandElasticityUndersupply(actor, command);
+			case "tag":
+				return BuildingCommandTag(actor, command);
+			case "description":
+			case "desc":
+				return BuildingCommandDescription(actor);
+
+		}
+
+		actor.OutputHandler.Send(HelpText.SubstituteANSIColour());
+		return false;
+	}
+
+	private bool BuildingCommandTag(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("Which tag do you want to toggle as belonging to this category?");
+			return false;
+		}
+
+		var tag = Gameworld.Tags.GetByIdOrName(command.SafeRemainingArgument);
+		if (tag is null)
+		{
+			actor.OutputHandler.Send("That is not a valid tag.");
+			return false;
+		}
+
+		Changed = true;
+		if (_tags.Contains(tag))
+		{
+			_tags.Remove(tag);
+			actor.OutputHandler.Send($"This market category will no longer include items with the {tag.FullName.ColourName()} tag.");
+			return true;
+		}
+
+		_tags.Add(tag);
+		actor.OutputHandler.Send($"This market category will now include items with the {tag.FullName.ColourName()} tag.");
+		return true;
+	}
+
+	private bool BuildingCommandDescription(ICharacter actor)
+	{
+		actor.EditorMode(DescriptionPost, DescriptionCancel, suppliedArguments: [actor.InnerLineFormatLength]);
+		return true;
+	}
+
+	private void DescriptionPost(string text, IOutputHandler handler, object[] args)
+	{
+		Description = text;
+		Changed = true;
+		handler.Send($"You set the description for this market category to:\n\n{Description.Wrap((int)args[0], "\t")}");
+	}
+
+	private void DescriptionCancel(IOutputHandler handler, object[] args)
+	{
+		handler.Send("You decide not to edit the description.");
+	}
+
+	private bool BuildingCommandElasticityUndersupply(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("What elasticity do you want to use for undersupply of this category?");
+			return false;
+		}
+
+		if (!command.SafeRemainingArgument.TryParsePercentage(actor.Account.Culture, out var value))
+		{
+			actor.OutputHandler.Send($"The text {command.SafeRemainingArgument.ColourCommand()} is not a valid percentage.");
+			return false;
+		}
+
+		ElasticityFactorBelow = value;
+		Changed = true;
+		actor.OutputHandler.Send($"This market category will use an elasticity of {value.ToString("P2", actor).ColourValue()} for undersupply.");
+		return true;
+	}
+
+	private bool BuildingCommandElasticityOversupply(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("What elasticity do you want to use for oversupply of this category?");
+			return false;
+		}
+
+		if (!command.SafeRemainingArgument.TryParsePercentage(actor.Account.Culture, out var value))
+		{
+			actor.OutputHandler.Send($"The text {command.SafeRemainingArgument.ColourCommand()} is not a valid percentage.");
+			return false;
+		}
+
+		ElasticityFactorAbove = value;
+		Changed = true;
+		actor.OutputHandler.Send($"This market category will use an elasticity of {value.ToString("P2", actor).ColourValue()} for oversupply.");
+		return true;
+	}
+
+	private bool BuildingCommandName(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("What new name do you want to give to this market category?");
+			return false;
+		}
+
+		var name = command.SafeRemainingArgument.TitleCase();
+		if (Gameworld.MarketCategories.Any(x => x.Name.EqualTo(name)))
+		{
+			actor.OutputHandler.Send($"There is already a market category called {name.ColourName()}. Names must be unique.");
+			return false;
+		}
+
+		actor.OutputHandler.Send(
+			$"You rename this market category from {Name.ColourName()} to {name.ColourName()}.");
+		_name = name;
+		Changed = true;
+		return true;
 	}
 
 	/// <inheritdoc />

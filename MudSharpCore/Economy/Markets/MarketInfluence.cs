@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Xml.Linq;
@@ -10,6 +11,7 @@ using MudSharp.Framework;
 using MudSharp.Framework.Save;
 using MudSharp.FutureProg;
 using MudSharp.Models;
+using MudSharp.PerceptionEngine;
 using MudSharp.TimeAndDate;
 using MudSharp.TimeAndDate.Date;
 using MudSharp.TimeAndDate.Time;
@@ -150,7 +152,14 @@ public class MarketInfluence : SaveableItem, IMarketInfluence
 	/// <inheritdoc />
 	public override void Save()
 	{
-		throw new System.NotImplementedException();
+		var dbitem = FMDB.Context.MarketInfluences.Find(Id);
+		dbitem.Name = Name;
+		dbitem.Description = Description;
+		dbitem.AppliesFrom = AppliesFrom.GetDateTimeString();
+		dbitem.AppliesUntil = AppliesUntil?.GetDateTimeString();
+		dbitem.CharacterKnowsAboutInfluenceProgId = CharacterKnowsAboutInfluenceProg.Id;
+		dbitem.Impacts = SaveImpacts().ToString();
+		Changed = false;
 	}
 
 	public XElement SaveImpacts()
@@ -165,11 +174,269 @@ public class MarketInfluence : SaveableItem, IMarketInfluence
 		);
 	}
 
+	public const string HelpText = @"You can use the following options with this command:
+
+	#3name <name>#0 - sets a new name
+	#3desc#0 - drops you into an editor to write a description for players
+	#3know <prog>#0 - sets the prog that controls if players know about this
+	#3impact <category> <supply%> <demand%>#0 - adds or edits an impact for a category
+	#3remimpact <category>#0 - removes the impact for a category
+	#3applies <date>#0 - the date that this impact applies from
+	#3until <date>#0 - the date that this impact applies until
+	#3until always#0 - removes the expiry date for this impact
+	#3duration <timespan>#0 - an alternative way to set until based on duration";
+
 	/// <inheritdoc />
 	public bool BuildingCommand(ICharacter actor, StringStack command)
 	{
-		throw new System.NotImplementedException();
+		switch (command.PopForSwitch())
+		{
+			case "name":
+				return BuildingCommandName(actor, command);
+			case "description":
+			case "desc":
+				return BuildingCommandDescription(actor);
+			case "applies":
+				return BuildingCommandApplies(actor, command);
+			case "until":
+				return BuildingCommandUntil(actor, command);
+			case "duration":
+				return BuildingCommandDuration(actor, command);
+			case "prog":
+			case "know":
+			case "knows":
+			case "knowprog":
+			case "knowsprog":
+				return BuildingCommandProg(actor, command);
+			case "impact":
+			case "addimpact":
+				return BuildingCommandImpact(actor, command);
+			case "removeimpact":
+			case "remimpact":
+			case "deleteimpact":
+			case "delimpact":
+				return BuildingCommandRemoveImpact(actor, command);
+		}
+
+		actor.OutputHandler.Send(HelpText.SubstituteANSIColour());
+		return false;
 	}
+
+	private bool BuildingCommandDuration(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("What should be the duration of this market influence's impact?");
+			return false;
+		}
+
+		if (!TimeSpan.TryParse(command.SafeRemainingArgument, out var value))
+		{
+			actor.OutputHandler.Send($"The text {command.SafeRemainingArgument.ColourCommand()} is not a valid timespan.");
+			return false;
+		}
+
+		AppliesUntil = AppliesFrom + value;
+		actor.OutputHandler.Send($"This influence now applies for {value.DescribePrecise(actor).ColourValue()}, until {AppliesUntil.ToString(CalendarDisplayMode.Short, TimeDisplayTypes.Immortal).ColourValue()}.");
+		Changed = true;
+		return true;
+	}
+
+	private bool BuildingCommandUntil(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("What date should this influence apply from?");
+			return false;
+		}
+
+		if (command.SafeRemainingArgument.EqualToAny("never", "always"))
+		{
+			AppliesUntil = null;
+			Changed = true;
+			actor.OutputHandler.Send("This influence will now apply until manually removed.");
+			return true;
+		}
+
+		if (!MudDateTime.TryParse(command.SafeRemainingArgument, Market.EconomicZone.FinancialPeriodReferenceCalendar, Market.EconomicZone.FinancialPeriodReferenceClock, out var date))
+		{
+			actor.OutputHandler.Send($"The text {command.SafeRemainingArgument.ColourCommand()} is not a valid date and time.{MudDateTime.TryParseHelpText(actor, Market.EconomicZone)}");
+			return false;
+		}
+
+		if (date <= AppliesFrom)
+		{
+			actor.OutputHandler.Send("Applies Until cannot be before the Applies From.");
+			return false;
+		}
+
+		AppliesUntil = date;
+		Changed = true;
+		actor.OutputHandler.Send($"This influence now applies until {date.ToString(CalendarDisplayMode.Short, TimeDisplayTypes.Immortal).ColourValue()}.");
+		return true;
+	}
+
+	private bool BuildingCommandApplies(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("What date should this influence apply from?");
+			return false;
+		}
+
+		if (!MudDateTime.TryParse(command.SafeRemainingArgument, Market.EconomicZone.FinancialPeriodReferenceCalendar, Market.EconomicZone.FinancialPeriodReferenceClock, out var date))
+		{
+			actor.OutputHandler.Send($"The text {command.SafeRemainingArgument.ColourCommand()} is not a valid date and time.{MudDateTime.TryParseHelpText(actor, Market.EconomicZone)}");
+			return false;
+		}
+
+		if (AppliesUntil is not null && AppliesUntil <= date)
+		{
+			actor.OutputHandler.Send("Applies Until cannot be before the Applies From.");
+			return false;
+		}
+
+		AppliesFrom = date;
+		Changed = true;
+		actor.OutputHandler.Send($"This influence now applies from {date.ToString(CalendarDisplayMode.Short, TimeDisplayTypes.Immortal).ColourValue()}.");
+		return true;
+	}
+
+	private bool BuildingCommandImpact(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("Which category do you want to set an impact for?");
+			return false;
+		}
+
+		var category = Gameworld.MarketCategories.GetByIdOrName(command.PopSpeech());
+		if (category is null)
+		{
+			actor.OutputHandler.Send("There is no such market category.");
+			return false;
+		}
+
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("By what percentage should supply increase?");
+			return false;
+		}
+
+		if (!command.PopSpeech().TryParsePercentage(actor.Account.Culture, out var supply))
+		{
+			actor.OutputHandler.Send($"The text {command.Last.ColourCommand()} is not a valid percentage.");
+			return false;
+		}
+
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("By what percentage should demand increase?");
+			return false;
+		}
+
+		if (!command.PopSpeech().TryParsePercentage(actor.Account.Culture, out var demand))
+		{
+			actor.OutputHandler.Send($"The text {command.Last.ColourCommand()} is not a valid percentage.");
+			return false;
+		}
+
+		_marketImpacts.RemoveAll(x => x.MarketCategory == category);
+		_marketImpacts.Add(new MarketImpact
+		{
+			MarketCategory = category,
+			SupplyImpact = supply,
+			DemandImpact = demand
+		});
+		actor.OutputHandler.Send($"You set the impact for the {category.Name.ColourValue()} market category to {supply.ToBonusPercentageString(actor)} supply and {demand.ToBonusPercentageString(actor)} demand.");
+		Changed = true;
+		return true;
+	}
+
+	private bool BuildingCommandRemoveImpact(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("Which category would you like to remove impacts for?");
+			return false;
+		}
+
+		var category = Gameworld.MarketCategories.GetByIdOrName(command.SafeRemainingArgument);
+		if (category is null)
+		{
+			actor.OutputHandler.Send("There is no such market category.");
+			return false;
+		}
+
+		if (_marketImpacts.All(x => x.MarketCategory != category))
+		{
+			actor.OutputHandler.Send("There is no impact to that market category.");
+			return false;
+		}
+
+		_marketImpacts.RemoveAll(x => x.MarketCategory == category);
+		actor.OutputHandler.Send($"You remove all impacts associated with the {category.Name.ColourValue()} market category.");
+		Changed = true;
+		return true;
+	}
+
+	private bool BuildingCommandProg(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("What prog would you like to use to control whether players know about this market influence?");
+			return false;
+		}
+
+		var prog = new FutureProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument,
+			FutureProgVariableTypes.Boolean, [FutureProgVariableTypes.Character]).LookupProg();
+		if (prog is null)
+		{
+			return false;
+		}
+
+		CharacterKnowsAboutInfluenceProg = prog;
+		Changed = true;
+		actor.OutputHandler.Send(
+			$"This influence will now use the {prog.MXPClickableFunctionName()} prog to control whether players know about them.");
+		return true;
+	}
+
+	private bool BuildingCommandDescription(ICharacter actor)
+	{
+		actor.EditorMode(DescriptionPost, DescriptionCancel, suppliedArguments: [actor.InnerLineFormatLength]);
+		return true;
+	}
+
+	private void DescriptionPost(string text, IOutputHandler handler, object[] args)
+	{
+		Description = text;
+		Changed = true;
+		handler.Send($"You set the description for this influence to:\n\n{Description.Wrap((int)args[0], "\t")}");
+	}
+
+	private void DescriptionCancel(IOutputHandler handler, object[] args)
+	{
+		handler.Send("You decide not to edit the description.");
+	}
+
+	private bool BuildingCommandName(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("What new name do you want to give to this market influence?");
+			return false;
+		}
+
+		var name = command.SafeRemainingArgument.TitleCase();
+
+		actor.OutputHandler.Send(
+			$"You rename this market influence from {Name.ColourName()} to {name.ColourName()}.");
+		_name = name;
+		Changed = true;
+		return true;
+	}
+
 
 	/// <inheritdoc />
 	public string Show(ICharacter actor)

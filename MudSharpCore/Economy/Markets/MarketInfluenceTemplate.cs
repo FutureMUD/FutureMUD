@@ -7,6 +7,7 @@ using MudSharp.Database;
 using MudSharp.Framework;
 using MudSharp.Framework.Save;
 using MudSharp.FutureProg;
+using MudSharp.PerceptionEngine;
 using MudSharp.TimeAndDate.Date;
 using MudSharp.TimeAndDate.Time;
 
@@ -81,7 +82,7 @@ public class MarketInfluenceTemplate : SaveableItem, IMarketInfluenceTemplate
 		_name = template.Name;
 		Description = template.Description;
 		TemplateSummary = template.TemplateSummary;
-		CharacterKnowsAboutInfluenceProg = Gameworld.FutureProgs.Get(template.CharacterKnowsAboutInfluenceProgId) ?? Gameworld.AlwaysFalseProg;
+		CharacterKnowsAboutInfluenceProg = Gameworld.FutureProgs.Get(template.CharacterKnowsAboutInfluenceProgId) ?? Gameworld.AlwaysTrueProg;
 		foreach (var impact in XElement.Parse(template.Impacts).Elements("Impact"))
 		{
 			_marketImpacts.Add(new MarketImpact
@@ -120,10 +121,203 @@ public class MarketInfluenceTemplate : SaveableItem, IMarketInfluenceTemplate
 		);
 	}
 
+	public const string HelpText = @"You can use the following options with this command:
+
+	#3name <name>#0 - sets a new name
+	#3about#0 - drops you into an editor to write an about info for builders
+	#3desc#0 - drops you into an editor to write a description for players
+	#3know <prog>#0 - sets the prog that controls if players know about this
+	#3impact <category> <supply%> <demand%>#0 - adds or edits an impact for a category
+	#3remimpact <category>#0 - removes the impact for a category";
+
 	/// <inheritdoc />
 	public bool BuildingCommand(ICharacter actor, StringStack command)
 	{
-		throw new System.NotImplementedException();
+		switch (command.PopForSwitch())
+		{
+			case "name":
+				return BuildingCommandName(actor, command);
+			case "about":
+				return BuildingCommandAbout(actor);
+			case "description":
+			case "desc":
+				return BuildingCommandDescription(actor);
+			case "prog":
+			case "know":
+			case "knows":
+			case "knowprog":
+			case "knowsprog":
+				return BuildingCommandProg(actor, command);
+			case "impact":
+			case "addimpact":
+				return BuildingCommandImpact(actor, command);
+			case "removeimpact":
+			case "remimpact":
+			case "deleteimpact":
+			case "delimpact":
+				return BuildingCommandRemoveImpact(actor, command);
+		}
+
+		actor.OutputHandler.Send(HelpText.SubstituteANSIColour());
+		return false;
+	}
+
+	private bool BuildingCommandImpact(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("Which category do you want to set an impact for?");
+			return false;
+		}
+
+		var category = Gameworld.MarketCategories.GetByIdOrName(command.PopSpeech());
+		if (category is null)
+		{
+			actor.OutputHandler.Send("There is no such market category.");
+			return false;
+		}
+
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("By what percentage should supply increase?");
+			return false;
+		}
+
+		if (!command.PopSpeech().TryParsePercentage(actor.Account.Culture, out var supply))
+		{
+			actor.OutputHandler.Send($"The text {command.Last.ColourCommand()} is not a valid percentage.");
+			return false;
+		}
+
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("By what percentage should demand increase?");
+			return false;
+		}
+
+		if (!command.PopSpeech().TryParsePercentage(actor.Account.Culture, out var demand))
+		{
+			actor.OutputHandler.Send($"The text {command.Last.ColourCommand()} is not a valid percentage.");
+			return false;
+		}
+
+		_marketImpacts.RemoveAll(x => x.MarketCategory == category);
+		_marketImpacts.Add(new MarketImpact
+		{
+			MarketCategory = category,
+			SupplyImpact = supply,
+			DemandImpact = demand
+		});
+		actor.OutputHandler.Send($"You set the impact for the {category.Name.ColourValue()} market category to {supply.ToBonusPercentageString(actor)} supply and {demand.ToBonusPercentageString(actor)} demand.");
+		Changed = true;
+		return true;
+	}
+
+	private bool BuildingCommandRemoveImpact(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("Which category would you like to remove impacts for?");
+			return false;
+		}
+
+		var category = Gameworld.MarketCategories.GetByIdOrName(command.SafeRemainingArgument);
+		if (category is null)
+		{
+			actor.OutputHandler.Send("There is no such market category.");
+			return false;
+		}
+
+		if (_marketImpacts.All(x => x.MarketCategory != category))
+		{
+			actor.OutputHandler.Send("There is no impact to that market category.");
+			return false;
+		}
+
+		_marketImpacts.RemoveAll(x => x.MarketCategory == category);
+		actor.OutputHandler.Send($"You remove all impacts associated with the {category.Name.ColourValue()} market category.");
+		Changed = true;
+		return true;
+	}
+
+	private bool BuildingCommandProg(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("What prog would you like to use to control whether players know about this market influence?");
+			return false;
+		}
+
+		var prog = new FutureProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument,
+			FutureProgVariableTypes.Boolean, [FutureProgVariableTypes.Character]).LookupProg();
+		if (prog is null)
+		{
+			return false;
+		}
+
+		CharacterKnowsAboutInfluenceProg = prog;
+		Changed = true;
+		actor.OutputHandler.Send(
+			$"Market influences created by this template will now use the {prog.MXPClickableFunctionName()} prog to control whether players know about them.");
+		return true;
+	}
+
+	private bool BuildingCommandDescription(ICharacter actor)
+	{
+		actor.EditorMode(DescriptionPost, DescriptionCancel, suppliedArguments: [actor.InnerLineFormatLength]);
+		return true;
+	}
+
+	private void DescriptionPost(string text, IOutputHandler handler, object[] args)
+	{
+		Description = text;
+		Changed = true;
+		handler.Send($"You set the description for this template to:\n\n{Description.Wrap((int)args[0], "\t")}");
+	}
+
+	private void DescriptionCancel(IOutputHandler handler, object[] args)
+	{
+		handler.Send("You decide not to edit the description.");
+	}
+
+	private bool BuildingCommandAbout(ICharacter actor)
+	{
+		actor.EditorMode(AboutPost, AboutCancel, suppliedArguments: [actor.InnerLineFormatLength]);
+		return true;
+	}
+
+	private void AboutPost(string text, IOutputHandler handler, object[] args)
+	{
+		TemplateSummary = text;
+		Changed = true;
+		handler.Send($"You set the about information for this template to:\n\n{TemplateSummary.Wrap((int)args[0], "\t")}");
+	}
+
+	private void AboutCancel(IOutputHandler handler, object[] args)
+	{
+		handler.Send("You decide not to edit the about information.");
+	}
+
+	private bool BuildingCommandName(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("What new name do you want to give to this market influence template?");
+			return false;
+		}
+
+		var name = command.SafeRemainingArgument.TitleCase();
+		if (Gameworld.MarketInfluenceTemplates.Any(x => x.Name.EqualTo(name)))
+		{
+			actor.OutputHandler.Send($"There is already a market influence template called {name.ColourName()}. Names must be unique.");
+			return false;
+		}
+
+		actor.OutputHandler.Send(
+			$"You rename this market influence template from {Name.ColourName()} to {name.ColourName()}.");
+		_name = name;
+		Changed = true;
+		return true;
 	}
 
 	/// <inheritdoc />

@@ -540,6 +540,23 @@ namespace MudSharp.Framework {
             return value;
         }
 
+        public static string ToBonusPercentageString(this double number, IFormatProvider formatProvider = null, uint decimalPlaces = 2, bool colour = true)
+        {
+	        formatProvider ??= NumberFormatInfo.InvariantInfo;
+
+	        var decimalBit = (decimalPlaces > 0 ? $".{new string('0', (int)decimalPlaces)}" : "");
+	        var format = $"+#,0{decimalBit}%;-#,0{decimalBit}%;+0{decimalBit}%";
+	        var value = number.ToString(format, formatProvider);
+	        if (colour)
+	        {
+		        return number >= 0.00 ?
+			        value.Colour(Telnet.Green) :
+			        value.Colour(Telnet.Red);
+	        }
+
+	        return value;
+        }
+
 		public static string Wrap(this string text, int width, string indent = "")
         {
             if (width < 1 || string.IsNullOrEmpty(text))

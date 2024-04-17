@@ -10,6 +10,7 @@ using MudSharp.Database;
 using MudSharp.Framework;
 using MudSharp.Framework.Save;
 using MudSharp.Models;
+using MudSharp.PerceptionEngine;
 using MudSharp.TimeAndDate.Date;
 using MudSharp.TimeAndDate.Time;
 using NCalc;
@@ -133,10 +134,153 @@ internal class Market : SaveableItem, IMarket
 		Changed = false;
 	}
 
+	public const string HelpText = @"You can use the following options with this command:
+
+	#3name <name>#0 - changes the name
+	#3ez <zone>#0 - changes the economic zone
+	#3category <which>#0 - toggles a category as being part of the market
+	#3desc#0 - drops you into an editor for the market's description
+	#3formula <formula>#0 - edits the market's price formula.
+
+In the market price formula, you can use the following variables:
+
+	#6elasticity#0 - the elasticity of the market good
+	#6supply#0 - the net supply percentage
+	#6demand#0 - the net demand percentage";
+
 	/// <inheritdoc />
 	public bool BuildingCommand(ICharacter actor, StringStack command)
 	{
-		throw new NotImplementedException();
+		switch (command.PopForSwitch())
+		{
+			case "name":
+				return BuildingCommandName(actor, command);
+			case "ez":
+			case "economiczone":
+			case "zone":
+				return BuildingCommandEconomicZone(actor, command);
+			case "formula":
+				return BuildingCommandFormula(actor, command);
+			case "category":
+				return BuildingCommandCategory(actor, command);
+			case "description":
+			case "desc":
+				return BuildingCommandDescription(actor);
+
+		}
+
+		actor.OutputHandler.Send(HelpText.SubstituteANSIColour());
+		return false;
+	}
+
+	private bool BuildingCommandDescription(ICharacter actor)
+	{
+		actor.EditorMode(DescriptionPost, DescriptionCancel, suppliedArguments: [actor.InnerLineFormatLength]);
+		return true;
+	}
+
+	private void DescriptionPost(string text, IOutputHandler handler, object[] args)
+	{
+		Description = text;
+		Changed = true;
+		handler.Send($"You set the description for this market to:\n\n{Description.Wrap((int)args[0], "\t")}");
+	}
+
+	private void DescriptionCancel(IOutputHandler handler, object[] args)
+	{
+		handler.Send("You decide not to edit the description.");
+	}
+
+	private bool BuildingCommandCategory(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("Which market category do you want to toggle as belonging to this market?");
+			return false;
+		}
+
+		var category = Gameworld.MarketCategories.GetByIdOrName(command.SafeRemainingArgument);
+		if (category is null)
+		{
+			actor.OutputHandler.Send("There is no such market category.");
+			return false;
+		}
+
+		Changed = true;
+		if (_marketCategories.Contains(category))
+		{
+			_marketCategories.Remove(category);
+			actor.OutputHandler.Send($"This market will no longer contain the {category.Name.ColourValue()} market category.");
+			return true;
+		}
+
+		_marketCategories.Add(category);
+		actor.OutputHandler.Send($"This market will now contain the {category.Name.ColourValue()} market category.");
+		return true;
+	}
+
+	private bool BuildingCommandFormula(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("What formula would you like to use for prices for this market?");
+			return false;
+		}
+
+		var formula = new Expression(command.SafeRemainingArgument, EvaluateOptions.IgnoreCase);
+		if (formula.HasErrors())
+		{
+			actor.OutputHandler.Send(formula.Error);
+			return false;
+		}
+
+		MarketPriceFormula = formula;
+		Changed = true;
+		actor.OutputHandler.Send($"The formula for this market's prices is now {formula.OriginalExpression.ColourCommand()}.");
+		return true;
+	}
+
+	private bool BuildingCommandName(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("What new name do you want to give to this market?");
+			return false;
+		}
+
+		var name = command.SafeRemainingArgument.TitleCase();
+		if (Gameworld.Markets.Any(x => x.Name.EqualTo(name)))
+		{
+			actor.OutputHandler.Send($"There is already a market called {name.ColourName()}. Names must be unique.");
+			return false;
+		}
+
+		actor.OutputHandler.Send(
+			$"You rename this market from {Name.ColourName()} to {name.ColourName()}.");
+		_name = name;
+		Changed = true;
+		return true;
+	}
+
+	private bool BuildingCommandEconomicZone(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("Which economic zone do you want to change this market to?");
+			return false;
+		}
+
+		var ez = Gameworld.EconomicZones.GetByIdOrName(command.SafeRemainingArgument);
+		if (ez is null)
+		{
+			actor.OutputHandler.Send("There is no such economic zones.");
+			return false;
+		}
+
+		EconomicZone = ez;
+		Changed = true;
+		actor.OutputHandler.Send($"This market now belongs to the {ez.Name.ColourName()} economic zones.");
+		return true;
 	}
 
 	/// <inheritdoc />

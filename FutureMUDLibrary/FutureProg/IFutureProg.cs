@@ -62,9 +62,9 @@ namespace MudSharp.FutureProg {
         FutureProgVariableTypes ReturnType { get; set; }
 
         /// <summary>
-        ///     The time that the program took to compile in Milliseconds
+        ///     The time that the program took to compile
         /// </summary>
-        int CompileTimeMilliseconds { get; }
+        TimeSpan CompileTime { get; }
 
         bool MatchesParameters(IEnumerable<FutureProgVariableTypes> parameters);
 

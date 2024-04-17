@@ -54,7 +54,129 @@ namespace MudSharp.Framework {
             return sb.ListToString();
         }
 
-        public static string Describe(this MudTimeSpan source, IFormatProvider format = null)
+        public static string DescribePrecise(this TimeSpan source, IFormatProvider format = null)
+        {
+	        format ??= CultureInfo.InvariantCulture;
+	        var sb = new List<string>();
+
+	        if (source.TotalSeconds < 0)
+	        {
+		        sb.Add("negative ");
+		        source = new TimeSpan(source.Ticks * -1);
+	        }
+
+	        if (source.TotalSeconds < 1)
+	        {
+		        if (source.TotalMilliseconds < 1)
+		        {
+			        if (source.TotalMicroseconds < 1)
+			        {
+				        return string.Format(format, "{0:N0} nanosecond{1}", source.TotalNanoseconds, source.Nanoseconds == 1 ? "" : "s");
+			        }
+
+			        return string.Format(format, "{0:N0} microsecond{1}", source.TotalMicroseconds, source.Microseconds == 1 ? "" : "s");
+				}
+
+				return string.Format(format, "{0:N0} millisecond{1}", source.TotalMilliseconds, source.Milliseconds == 1 ? "" : "s");
+			}
+
+	        if (source.Days > 365)
+	        {
+		        var days = source.Days;
+		        sb.Add(string.Format(format, "{0:N0} year{1}", days / 365, days > 730 ? "s" : ""));
+		        if (source.Days % 365 > 0)
+		        {
+			        sb.Add($"{source.Days % 365:N0} day{(source.Days % 365 == 1 ? "" : "s")}");
+		        }
+	        }
+	        else
+	        {
+		        if (source.Days > 0)
+		        {
+			        sb.Add(string.Format(format, "{0:N0} day{1}", source.Days, source.Days == 1 ? "" : "s"));
+		        }
+	        }
+
+	        if (source.Hours % 24 > 0)
+	        {
+		        sb.Add(string.Format(format, "{0:N0} hour{1}", source.Hours % 24, source.Hours % 24 == 1 ? "" : "s"));
+	        }
+
+	        if ((sb.Count <= 2) && (source.Minutes % 60 > 0))
+	        {
+		        sb.Add(string.Format(format, "{0:N0} minute{1}", source.Minutes % 60, source.Minutes % 60 == 1 ? "" : "s"));
+	        }
+
+	        if ((sb.Count <= 2) && (source.Seconds % 60 > 0))
+	        {
+		        sb.Add(string.Format(format, "{0:N0} second{1}", source.Seconds % 60, source.Seconds % 60 == 1 ? "" : "s"));
+	        }
+
+	        return sb.ListToString();
+        }
+
+		public static string DescribePreciseBrief(this TimeSpan source, IFormatProvider format = null)
+		{
+			format ??= CultureInfo.InvariantCulture;
+			var sb = new List<string>();
+
+			if (source.TotalSeconds < 0)
+			{
+				sb.Add("-");
+				source = new TimeSpan(source.Ticks * -1);
+			}
+
+			if (source.TotalSeconds < 1)
+			{
+				if (source.TotalMilliseconds < 1)
+				{
+					if (source.TotalMicroseconds < 1)
+					{
+						return string.Format(format, "{0:N0}ns", source.TotalNanoseconds);
+					}
+
+					return string.Format(format, "{0:N0}us", source.TotalMicroseconds);
+				}
+
+				return string.Format(format, "{0:N0}ms", source.TotalMilliseconds);
+			}
+
+			if (source.Days > 365)
+			{
+				var days = source.Days;
+				sb.Add(string.Format(format, "{0:N0}y", days / 365));
+				if (source.Days % 365 > 0)
+				{
+					sb.Add($"{source.Days % 365:N0}d");
+				}
+			}
+			else
+			{
+				if (source.Days > 0)
+				{
+					sb.Add(string.Format(format, "{0:N0}d", source.Days));
+				}
+			}
+
+			if (source.Hours % 24 > 0)
+			{
+				sb.Add(string.Format(format, "{0:N0}h", source.Hours % 24));
+			}
+
+			if ((sb.Count <= 2) && (source.Minutes % 60 > 0))
+			{
+				sb.Add(string.Format(format, "{0:N0}m", source.Minutes % 60));
+			}
+
+			if ((sb.Count <= 2) && (source.Seconds % 60 > 0))
+			{
+				sb.Add(string.Format(format, "{0:N0}s", source.Seconds % 60));
+			}
+
+			return sb.ListToString();
+		}
+
+		public static string Describe(this MudTimeSpan source, IFormatProvider format = null)
         {
             format ??= CultureInfo.InvariantCulture;
             var sb = new List<string>();

@@ -2775,7 +2775,7 @@ public class ShowModule : Module<ICharacter>
 		{
 			$"Returns: {prog.ReturnType.Describe().Colour(Telnet.VariableGreen)}",
 			$"Static: {prog.StaticType.DescribeEnum().ColourValue()}",
-			$"Compile Time: {(!string.IsNullOrEmpty(prog.CompileError) ? "N/A" : TimeSpan.FromMilliseconds(prog.CompileTimeMilliseconds).Describe(actor).ColourValue())}"
+			$"Compile Time: {(!string.IsNullOrEmpty(prog.CompileError) ? "N/A" : prog.CompileTime.DescribePrecise(actor).ColourValue())}"
 		}.ArrangeStringsOntoLines(3,
 			(uint)actor.LineFormatLength
 		));

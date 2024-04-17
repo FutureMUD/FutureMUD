@@ -118,7 +118,7 @@ public class FutureProg : SaveableItem, IFutureProg
 
 	public override string FrameworkItemType => "FutureProg";
 
-	public int CompileTimeMilliseconds { get; protected set; }
+	public TimeSpan CompileTime { get; protected set; }
 
 	public string ColourisedFunctionText { get; protected set; }
 
@@ -283,7 +283,7 @@ public class FutureProg : SaveableItem, IFutureProg
 
 			sw.Stop();
 			CompileError = string.Empty;
-			CompileTimeMilliseconds = (int)sw.ElapsedMilliseconds;
+			CompileTime = TimeSpan.FromTicks(sw.ElapsedTicks);
 			return true;
 		}
 		catch (Exception e)

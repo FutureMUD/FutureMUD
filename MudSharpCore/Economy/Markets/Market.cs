@@ -140,7 +140,7 @@ internal class Market : SaveableItem, IMarket
 	#3ez <zone>#0 - changes the economic zone
 	#3category <which>#0 - toggles a category as being part of the market
 	#3desc#0 - drops you into an editor for the market's description
-	#3formula <formula>#0 - edits the market's price formula.
+	#3formula <formula>#0 - edits the market's price formula
 
 In the market price formula, you can use the following variables:
 

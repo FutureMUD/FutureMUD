@@ -134,14 +134,19 @@ You can also enter the special values #3never#0 and #3now#0.";
                 : $"{Date.Calendar.DisplayDate(Date, calendarMode)} {Time.Clock.DisplayTime(Time, clockMode)}";
         }
 
-        public override string ToString() {
-            if (Date == null) {
-                return "Never";
-            }
-
-            return Date.GetDateString() + " " + Time.GetTimeString();
+		/// <summary>
+		/// An alias for calling ToString with the CalendarDisplayMode.Short and TimeDisplayTypes.Short options
+		/// </summary>
+		/// <returns>The time and date strings</returns>
+		public override string ToString()
+        {
+	        return ToString(CalendarDisplayMode.Short, TimeDisplayTypes.Short);
         }
 
+        /// <summary>
+        /// Returns a round-trip parseable version of the datetime not primarily intended for user display
+        /// </summary>
+        /// <returns></returns>
         public string GetDateTimeString() {
             return Date == null ? "Never" : $"{Calendar?.Id ?? 0}_{Date.GetDateString()}_{Clock?.Id ?? 0}_{Time.GetTimeString()}";
         }

@@ -32,7 +32,7 @@ public class MarketInfluence : SaveableItem, IMarketInfluence
 		_name = name;
 		Description = template.Description;
 		AppliesFrom = appliesFrom;
-		AppliesUntil = appliesUntil;
+		_appliesUntil = appliesUntil;
 		foreach (var impact in template.MarketImpacts)
 		{
 			_marketImpacts.Add(impact with {});
@@ -66,7 +66,7 @@ public class MarketInfluence : SaveableItem, IMarketInfluence
 		_name = name;
 		Description = description;
 		AppliesFrom = appliesFrom;
-		AppliesUntil = appliesUntil;
+		_appliesUntil = appliesUntil;
 		CharacterKnowsAboutInfluenceProg = Gameworld.AlwaysFalseProg;
 		using (new FMDB())
 		{
@@ -100,7 +100,7 @@ public class MarketInfluence : SaveableItem, IMarketInfluence
 		_name = newName;
 		Description = rhs.Description;
 		AppliesFrom = rhs.AppliesFrom;
-		AppliesUntil = rhs.AppliesUntil;
+		_appliesUntil = rhs.AppliesUntil;
 		foreach (var impact in rhs.MarketImpacts)
 		{
 			_marketImpacts.Add(impact with { });
@@ -134,7 +134,7 @@ public class MarketInfluence : SaveableItem, IMarketInfluence
 		Description = influence.Description;
 		_name = influence.Name;
 		AppliesFrom = new MudDateTime(influence.AppliesFrom, Gameworld);
-		AppliesUntil = influence.AppliesUntil is not null ?
+		_appliesUntil = influence.AppliesUntil is not null ?
 			new MudDateTime(influence.AppliesUntil, Gameworld) :
 			null;
 		CharacterKnowsAboutInfluenceProg = Gameworld.FutureProgs.Get(influence.CharacterKnowsAboutInfluenceProgId);
@@ -474,8 +474,18 @@ public class MarketInfluence : SaveableItem, IMarketInfluence
 	/// <inheritdoc />
 	public MudDateTime AppliesFrom { get; set; }
 
+	private MudDateTime _appliesUntil;
+
 	/// <inheritdoc />
-	public MudDateTime AppliesUntil { get; set; }
+	public MudDateTime AppliesUntil
+	{
+		get => _appliesUntil;
+		set
+		{
+			_appliesUntil = value;
+			Changed = true;
+		}
+	}
 
 	private readonly List<MarketImpact> _marketImpacts = new();
 

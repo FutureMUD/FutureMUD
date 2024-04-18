@@ -48,6 +48,7 @@ using Org.BouncyCastle.Tls.Crypto.Impl.BC;
 using AuctionBid = MudSharp.Economy.AuctionBid;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 using System.Security.Cryptography;
+using System.Xml.Linq;
 
 namespace MudSharp.Commands.Modules;
 
@@ -6369,7 +6370,25 @@ Note: There may be additional properties that can be edited depending on the typ
 	#region Market Related Code
 
 	#region Market Influence Templates
-	public const string MarketInfluenceTemplateHelpText = @"";
+	public const string MarketInfluenceTemplateHelpText = @"This command is used to create and edit Market Influence Templates. These are templates for creating market influences which apply supply or demand changes for goods in a market.
+
+It is recommended that you use this command rather than creating market influences directly with #3MARKETINFLUENCE#0, but that is also an option.
+
+The syntax for this command is as follows:
+
+	#3mit list#0 - shows all market influence templates
+	#3mit show <id>#0 - shows a particular market influence template
+	#3mit edit <id>#0 - begins editing a market influence template
+	#3mit edit#0 - an alias for #3mit show <editing id>#0
+	#3mit close#0 - stops editing a market influence template
+	#3mit clone <name>#0 - clones an existing template and then begins editing the clone
+	#3mit new <name>#0 - creates a new market influence template
+	#3mit set name <name>#0 - sets a new name
+	#3mit set about#0 - drops you into an editor to write an about info for builders
+	#3mit set desc#0 - drops you into an editor to write a description for players
+	#3mit set know <prog>#0 - sets the prog that controls if players know about this
+	#3mit set impact <category> <supply%> <demand%>#0 - adds or edits an impact for a category
+	#3mit set remimpact <category>#0 - removes the impact for a category";
 
 	[PlayerCommand("MarketInfluenceTemplate", "marketinfluencetemplate", "mit")]
 	[CommandPermission(PermissionLevel.Admin)]
@@ -6575,7 +6594,26 @@ Note: There may be additional properties that can be edited depending on the typ
 	#endregion
 
 	#region Market Influences
-	public const string MarketInfluenceHelpText = @"";
+	public const string MarketInfluenceHelpText = @"The Market Influence command is used to create and manage 
+
+	#3mi list#0 - shows all market influences
+	#3mi show <id>#0 - shows a particular market influence
+	#3mi edit <id>#0 - begins editing a market influence
+	#3mi edit#0 - an alias for #3mi show <editing id>#0
+	#3mi close#0 - stops editing a market influence
+	#3mi clone <name>#0 - clones an existing influence and then begins editing the clone
+	#3mi new <market> <date> <name>#0 - creates a new market influence
+	#3mi begin <market> <template> [<from>] [<until>]#0 - creates a new market influence from a template
+	#3mi end <id>#0 - ends a market influence
+	#3mi set name <name>#0 - sets a new name
+	#3mi set desc#0 - drops you into an editor to write a description for players
+	#3mi set know <prog>#0 - sets the prog that controls if players know about this
+	#3mi set impact <category> <supply%> <demand%>#0 - adds or edits an impact for a category
+	#3mi set remimpact <category>#0 - removes the impact for a category
+	#3mi set applies <date>#0 - the date that this impact applies from
+	#3mi set until <date>#0 - the date that this impact applies until
+	#3mi set until always#0 - removes the expiry date for this impact
+	#3mi set duration <timespan>#0 - an alternative way to set until based on duration";
 	[PlayerCommand("MarketInfluence", "marketinfluence", "mi")]
 	[CommandPermission(PermissionLevel.Admin)]
 	[HelpInfo("MarketInfluence", MarketInfluenceHelpText, AutoHelp.HelpArgOrNoArg)]
@@ -6590,6 +6628,12 @@ Note: There may be additional properties that can be edited depending on the typ
 			case "new":
 			case "create":
 				MarketInfluenceNew(actor, ss);
+				return;
+			case "begin":
+				MarketInfluenceBegin(actor, ss);
+				return;
+			case "end":
+				MarketInfluenceEnd(actor, ss);
 				return;
 			case "clone":
 				MarketInfluenceClone(actor, ss);
@@ -6611,6 +6655,140 @@ Note: There may be additional properties that can be edited depending on the typ
 				actor.OutputHandler.Send(MarketInfluenceHelpText.SubstituteANSIColour());
 				return;
 		}
+	}
+
+	private static void MarketInfluenceEnd(ICharacter actor, StringStack ss)
+	{
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send("Which market influence do you want end?");
+			return;
+		}
+
+		var influence = actor.Gameworld.MarketInfluences.GetById(ss.SafeRemainingArgument);
+		if (influence is null)
+		{
+			actor.OutputHandler.Send("There is no such market influence.");
+			return;
+		}
+
+		if (influence.AppliesUntil is not null && influence.AppliesUntil <= influence.Market.EconomicZone.FinancialPeriodReferenceCalendar.CurrentDateTime)
+		{
+			actor.OutputHandler.Send("That influence has already ended.");
+			return;
+		}
+
+		var sb = new StringBuilder();
+		sb.Append("Are you sure that you want to end market influence #");
+		sb.Append(influence.Id.ToString("N0", actor));
+		sb.Append(" (");
+		sb.Append(influence.Name.ColourValue());
+		sb.AppendLine(")?");
+		sb.Append("This influence ");
+		var now = influence.Market.EconomicZone.FinancialPeriodReferenceCalendar.CurrentDateTime;
+		if (influence.AppliesFrom > now)
+		{
+			sb.Append("has not yet begun".Colour(Telnet.Yellow));
+		}
+		else
+		{
+			sb.Append($"began at {influence.AppliesFrom}".Colour(Telnet.Green));
+		}
+
+		sb.Append(" and ");
+		if (influence.AppliesUntil is null)
+		{
+			sb.Append("continues until cancelled".Colour(Telnet.Cyan));
+		}
+		else
+		{
+			if (influence.AppliesUntil > now)
+			{
+				sb.Append("currently applies".Colour(Telnet.Green));
+			}
+			else
+			{
+				sb.Append("has already ended".Colour(Telnet.Red));
+			}
+		}
+
+		sb.AppendLine(".");
+		sb.AppendLine(Accept.StandardAcceptPhrasing);
+		actor.OutputHandler.Send(sb.ToString());
+		actor.AddEffect(new Accept(actor, new GenericProposal
+		{
+			DescriptionString = "ending a market influence",
+			AcceptAction = text =>
+			{
+				var end = new MudDateTime(influence.Market.EconomicZone.FinancialPeriodReferenceCalendar.CurrentDateTime) - TimeSpan.FromSeconds(1);
+				influence.AppliesUntil = end;
+				actor.OutputHandler.Send("You end the market influence.");
+			},
+			RejectAction = text =>
+			{
+				actor.OutputHandler.Send("You decide not to end the market influence.");
+			},
+			ExpireAction = () =>
+			{
+				actor.OutputHandler.Send("You decide not to end the market influence.");
+			},
+			Keywords = ["influence", "end"]
+		}), TimeSpan.FromSeconds(120));
+	}
+
+	private static void MarketInfluenceBegin(ICharacter actor, StringStack ss)
+	{
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send("Which market do you want to begin an influence in?");
+			return;
+		}
+
+		var market = actor.Gameworld.Markets.GetByIdOrName(ss.PopSpeech());
+		if (market is null)
+		{
+			actor.OutputHandler.Send("There is no such market.");
+			return;
+		}
+
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send("Which template do you want to use for the influence?");
+			return;
+		}
+
+		var template = actor.Gameworld.MarketInfluenceTemplates.GetByIdOrName(ss.PopSpeech());
+		if (template is null)
+		{
+			actor.OutputHandler.Send("There is no such market influence template.");
+			return;
+		}
+
+		var begin = market.EconomicZone.FinancialPeriodReferenceCalendar.CurrentDateTime;
+		if (!ss.IsFinished)
+		{
+			if (!MudDateTime.TryParse(ss.PopSpeech(), market.EconomicZone.FinancialPeriodReferenceCalendar, market.EconomicZone.FinancialPeriodReferenceClock, out begin))
+			{
+				actor.OutputHandler.Send($"The text {ss.Last.ColourCommand()} is not a valid date and time.{MudDateTime.TryParseHelpText(actor, market.EconomicZone)}");
+				return;
+			}
+		}
+
+		var end = default(MudDateTime);
+		if (!ss.IsFinished)
+		{
+			if (!MudDateTime.TryParse(ss.PopSpeech(), market.EconomicZone.FinancialPeriodReferenceCalendar, market.EconomicZone.FinancialPeriodReferenceClock, out end))
+			{
+				actor.OutputHandler.Send($"The text {ss.Last.ColourCommand()} is not a valid date and time.{MudDateTime.TryParseHelpText(actor, market.EconomicZone)}");
+				return;
+			}
+		}
+
+		var influence = new MarketInfluence(market, template, template.Name, begin, end);
+		actor.Gameworld.Add(influence);
+		actor.RemoveAllEffects<BuilderEditingEffect<IMarketInfluence>>();
+		actor.AddEffect(new BuilderEditingEffect<IMarketInfluence>(actor) { EditingItem = influence });
+		actor.OutputHandler.Send($"You are create a new market influence for the {market.Name.ColourName()} market from the template {template.Name.ColourValue()}, which you are now editing.");
 	}
 
 	private static void MarketInfluenceNew(ICharacter actor, StringStack ss)
@@ -6805,7 +6983,26 @@ Note: There may be additional properties that can be edited depending on the typ
 	#endregion
 
 	#region Market Categories
-	public const string MarketCategoryHelpText = @"";
+	public const string MarketCategoryHelpText = @"This command allows you to edit market categories. Market categories are groupings of goods or services that have the same price multipliers in a market. 
+
+These categories can be broad or specific, for example, you could have ""Food"" as a category or separate ""Luxury Food"", ""Staple Foods"", etc.
+
+Not every market needs to have every category, but categories themselves can be shared between different markets.
+
+The syntax for working with categories is as follows:
+
+	#3mc list#0 - shows all market categories
+	#3mc show <id>#0 - shows a particular market category
+	#3mc edit <id>#0 - begins editing a market category
+	#3mc edit#0 - an alias for #3mc show <editing id>#0
+	#3mc close#0 - stops editing a market category
+	#3mc clone <name>#0 - clones an existing market category and then begins editing the clone
+	#3mc new <tag> <name>#0 - creates a new market category with a specified default item tag
+	#3mc set name <name>#0 - changes the name
+	#3mc set eover <%>#0 - changes the elasticity for oversupply
+	#3mc set eunder <%>#0 - changes the elasticity for undersupply
+	#3mc set desc#0 - drops you into an editor to set the description
+	#3mc set tag <tag>#0 - toggles an item tag as being a part of this category";
 
 	[PlayerCommand("MarketCategory", "marketcategory", "mc")]
 	[CommandPermission(PermissionLevel.Admin)]
@@ -7031,7 +7228,24 @@ Note: There may be additional properties that can be edited depending on the typ
 	#endregion
 
 	#region Markets
-	public const string MarketHelpText = @"";
+	public const string MarketHelpText = @"This command allows you to create and edit markets, which can be used to control prices of various goods in way that responds to supply and demand changes.
+
+There are several related commands, #3marketcategory#0, #3marketinfluencetemplate#0 and #3markettemplate#0.
+
+The syntax for this command is as follows:
+
+	#3market list#0 - shows all markets
+	#3market show <id>#0 - shows a particular market
+	#3market edit <id>#0 - begins editing a market
+	#3market edit#0 - an alias for #3market show <editing id>#0
+	#3market close#0 - stops editing a market
+	#3market clone <name>#0 - clones an existing market and then begins editing the clone
+	#3market new <ez> <name>#0 - creates a new market in an economic zone
+	#3market set name <name>#0 - changes the name
+	#3market set ez <zone>#0 - changes the economic zone
+	#3market set category <which>#0 - toggles a category as being part of the market
+	#3market set desc#0 - drops you into an editor for the market's description
+	#3market set formula <formula>#0 - edits the market's price formula";
 
 	[PlayerCommand("Market", "market")]
 	[CommandPermission(PermissionLevel.Admin)]

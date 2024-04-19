@@ -17,7 +17,7 @@ public interface IMarketInfluence : ISaveable, IEditableItem
 	IMarketInfluenceTemplate? MarketInfluenceTemplate { get; }
 	string Description { get; }
 	MudDateTime AppliesFrom { get; }
-	MudDateTime? AppliesUntil { get; set; }
+	MudDateTime? AppliesUntil { get; }
 	IEnumerable<MarketImpact> MarketImpacts { get; }
 	IFutureProg CharacterKnowsAboutInfluenceProg { get; }
 	bool CharacterKnowsAboutInfluence(ICharacter character);
@@ -25,4 +25,5 @@ public interface IMarketInfluence : ISaveable, IEditableItem
 	string TextForMarketShow(ICharacter actor);
 	XElement SaveImpacts();
 	IMarketInfluence Clone(string newName);
+	void EndOrCancel();
 }

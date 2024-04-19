@@ -10,6 +10,7 @@ using System.Text;
 using MudSharp.Framework;
 using System.Threading.Tasks;
 using System.Xml.Linq;
+using JetBrains.Annotations;
 using MudSharp.Character.Name;
 using MudSharp.Database;
 using MudSharp.Economy.Currency;
@@ -79,6 +80,7 @@ public abstract class Shop : SaveableItem, IShop
 		MinimumFloatToBuyItems = shop.MinimumFloatToBuyItems;
 		IsTrading = shop.IsTrading;
 		Currency = gameworld.Currencies.Get(shop.CurrencyId);
+		MarketForPricingPurposes = gameworld.Markets.Get(shop.MarketId ?? 0);
 		
 		_canShopProg = gameworld.FutureProgs.Get(shop.CanShopProgId ?? 0);
 		_whyCannotShopProg = gameworld.FutureProgs.Get(shop.WhyCannotShopProgId ?? 0);
@@ -136,6 +138,7 @@ public abstract class Shop : SaveableItem, IShop
 		dbitem.CanShopProgId = CanShopProg?.Id;
 		dbitem.WhyCannotShopProgId = WhyCannotShopProg?.Id;
 		dbitem.MinimumFloatToBuyItems = MinimumFloatToBuyItems;
+		dbitem.MarketId = MarketForPricingPurposes?.Id;
 		dbitem.EmployeeRecords = new XElement("Employees",
 			from employee in EmployeeRecords
 			select employee.SaveToXml()
@@ -168,7 +171,7 @@ public abstract class Shop : SaveableItem, IShop
 
 	private readonly List<ITransactionRecord> _transactionRecords = new();
 	public IEnumerable<ITransactionRecord> TransactionRecords => _transactionRecords;
-	
+	public IMarket MarketForPricingPurposes { get; private set; }
 
 	public decimal CashBalance
 	{
@@ -1025,6 +1028,7 @@ public abstract class Shop : SaveableItem, IShop
 
 		if (actor.IsAdministrator())
 		{
+			sb.AppendLine($"Market for Pricing: {MarketForPricingPurposes?.Name.ColourValue() ?? "None".Colour(Telnet.Red)}");
 			sb.AppendLine();
 			sb.AppendLine("Employees:");
 			sb.AppendLine(StringUtilities.GetTextTable(
@@ -1123,14 +1127,53 @@ public abstract class Shop : SaveableItem, IShop
 			case "minbuyfloat":
 			case "minfloat":
 				return BuildingCommandBuyFloat(actor, command);
+			case "market":
+				return BuildingCommandMarket(actor, command);
 			default:
 				actor.OutputHandler.Send(@"Valid options for this command are as follows:
 
 	#3name <name>#0 - renames this shop
 	#3can <prog> <whyprog>#0 - sets a prog that determines who can shop here and a prog to give an error reason
-	#3trading#0 - toggles whether this shop is trading".SubstituteANSIColour());
+	#3trading#0 - toggles whether this shop is trading
+	#3market <which>#0 - sets a market to draw pricing multipliers from
+	#3market none#0 - clears the market pricing".SubstituteANSIColour());
 				return false;
 		}
+	}
+
+	private bool BuildingCommandMarket(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("You must either specify a market, or #3none#0 to remove any market.".SubstituteANSIColour());
+			return false;
+		}
+
+		if (command.SafeRemainingArgument.EqualToAny("none", "delete", "remove"))
+		{
+			MarketForPricingPurposes = null;
+			Changed = true;
+			actor.OutputHandler.Send("This shop will no longer use a market for pricing purposes.");
+			return false;
+		}
+
+		var market = Gameworld.Markets.GetByIdOrName(command.SafeRemainingArgument);
+		if (market is null)
+		{
+			actor.OutputHandler.Send("There is no such market.");
+			return false;
+		}
+
+		if (market.EconomicZone != EconomicZone)
+		{
+			actor.OutputHandler.Send("You cannot link to a market with a different economic zone.");
+			return false;
+		}
+
+		MarketForPricingPurposes = market;
+		Changed = true;
+		actor.OutputHandler.Send($"This shop will now use the {market.Name.ColourValue()} market for price multipliers on all non-exempted stock.");
+		return true;
 	}
 
 	private bool BuildingCommandBuyFloat(ICharacter actor, StringStack command)

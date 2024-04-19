@@ -9,6 +9,7 @@ using MudSharp.Character;
 using MudSharp.Database;
 using MudSharp.Framework;
 using MudSharp.Framework.Save;
+using MudSharp.GameItems;
 using MudSharp.Models;
 using MudSharp.PerceptionEngine;
 using MudSharp.TimeAndDate.Date;
@@ -396,6 +397,11 @@ In the market price formula, you can use the following variables:
 	/// <inheritdoc />
 	public decimal PriceMultiplierForCategory(IMarketCategory category)
 	{
+		if (category is null)
+		{
+			return 1.0M;
+		}
+
 		var impacts = ApplicableMarketImpacts(category);
 		var supply = impacts.Sum(x => x.SupplyImpact) + 1;
 		var demand = impacts.Sum(x => x.DemandImpact) + 1;
@@ -406,6 +412,22 @@ In the market price formula, you can use the following variables:
 			("demand", demand),
 			("elasticity", elasticity)
 		);
+	}
+
+	public decimal PriceMultiplierForItem(IGameItem item)
+	{
+		return MarketCategories.Where(x => x.BelongsToCategory(item))
+		                       .Select(x => PriceMultiplierForCategory(x))
+		                       .DefaultIfEmpty(1.0M)
+		                       .Max();
+	}
+
+	public decimal PriceMultiplierForItem(IGameItemProto item)
+	{
+		return MarketCategories.Where(x => x.BelongsToCategory(item))
+		                       .Select(x => PriceMultiplierForCategory(x))
+		                       .DefaultIfEmpty(1.0M)
+		                       .Max();
 	}
 
 	/// <inheritdoc />

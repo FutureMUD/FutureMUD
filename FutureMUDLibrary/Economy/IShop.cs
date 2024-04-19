@@ -38,6 +38,7 @@ public interface IShop : IFrameworkItem, ISaveable, IFutureProgVariable
 
     bool IsTrading { get; }
     void ToggleIsTrading();
+    [CanBeNull] IMarket MarketForPricingPurposes { get; }
 
     IReadOnlyDictionary<ICurrencyPile, Dictionary<ICoin, int>> GetCurrencyForShop(decimal amount);
     IEnumerable<ICurrencyPile> GetCurrencyPilesForShop();

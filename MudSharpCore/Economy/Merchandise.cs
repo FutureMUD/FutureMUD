@@ -164,6 +164,7 @@ public class Merchandise : LateInitialisingItem, IMerchandise
 	#3shop merch set maxamount <##>#0 - sets the maximum amount to buy (use 0 for unlimited)
 	#3shop merch set desc clear#0 - clears a custom list description
 	#3shop merch set desc <description>#0 - sets a custom list description
+	#3shop merch set marketprice#0 - toggles ignoring market pricing multipliers
 	#3shop merch set container clear#0 - clears a preferred display container
 	#3shop merch set container <target>#0 - sets a preferred display container
 	#3shop merch set reorder off#0 - turns auto-reordering off
@@ -186,6 +187,7 @@ public class Merchandise : LateInitialisingItem, IMerchandise
 	#3shop merch set maxamount <##>#0 - sets the maximum amount to buy (use 0 for unlimited)
 	#3shop merch set desc clear#0 - clears a custom list description
 	#3shop merch set desc <description>#0 - sets a custom list description
+	#3shop merch set marketprice#0 - toggles ignoring market pricing multipliers
 	#3shop merch set container clear#0 - clears a preferred display container
 	#3shop merch set container <target>#0 - sets a preferred display container".SubstituteANSIColour());
 			}
@@ -225,6 +227,10 @@ public class Merchandise : LateInitialisingItem, IMerchandise
 			case "maxamount":
 			case "maximumamount":
 				return BuildingCommandMaximumAmount(actor, command);
+			case "marketpricing":
+			case "marketprice":
+			case "market":
+				return BuildingCommandMarket(actor);
 		}
 
 		if (actor.IsAdministrator())
@@ -243,6 +249,14 @@ public class Merchandise : LateInitialisingItem, IMerchandise
 
 		SendHelpText();
 		return false;
+	}
+
+	private bool BuildingCommandMarket(ICharacter actor)
+	{
+		IgnoreMarketPricing = !IgnoreMarketPricing;
+		Changed = true;
+		actor.OutputHandler.Send($"This merchandise will {IgnoreMarketPricing.NowNoLonger()} ignore market effects on its prices.");
+		return true;
 	}
 
 	private bool BuildingCommandMaximumAmount(ICharacter actor, StringStack command)
@@ -648,6 +662,7 @@ public class Merchandise : LateInitialisingItem, IMerchandise
 		sb.AppendLine($"Base Buy Markdown: {BaseBuyModifier.ToString("P2", actor).ColourValue()}");
 		sb.AppendLine($"Minimum Buy Condition: {MinimumConditionToBuy.ToString("P2", actor).ColourValue()}");
 		sb.AppendLine($"Maximum Buy Stock: {(MaximumStockLevelsToBuy == 0 ? "Unlimited".ColourValue() : MaximumStockLevelsToBuy.ToString("N0", actor).ColourValue())}");
+		sb.AppendLine($"Ignore Market Pricing: {IgnoreMarketPricing.ToColouredString()}");
 		
 		sb.AppendLine(
 			$"Preferred Display Container: {PreferredDisplayContainer?.HowSeen(actor, flags: PerceiveIgnoreFlags.IgnoreCanSee) ?? "None".Colour(Telnet.Red)}");
@@ -699,9 +714,14 @@ public class Merchandise : LateInitialisingItem, IMerchandise
 	public decimal BaseBuyModifier { get; private set; }
 	public double MinimumConditionToBuy { get; private set; }
 	public int MaximumStockLevelsToBuy { get; private set; }
-	public decimal EffectivePrice => BasePrice == -1
+	public bool IgnoreMarketPricing { get; private set; }
+	public decimal EffectivePrice => 
+		(BasePrice == -1
 		? Item.CostInBaseCurrency / Shop.Currency.BaseCurrencyToGlobalBaseCurrencyConversion
-		: BasePrice;
+		: BasePrice) *
+		MarketPriceMultiplier;
+
+	public decimal MarketPriceMultiplier => Shop.MarketForPricingPurposes?.PriceMultiplierForItem(Item) ?? 1.0M;
 
 	public IGameItem PreferredDisplayContainer
 	{

@@ -487,6 +487,38 @@ public class MarketInfluence : SaveableItem, IMarketInfluence
 		}
 	}
 
+	public void EndOrCancel()
+	{
+		var now = Market.EconomicZone.FinancialPeriodReferenceCalendar.CurrentDateTime;
+		if (AppliesFrom > now)
+		{
+			Delete();
+			return;
+		}
+
+		AppliesUntil = now;
+	}
+
+	public void Delete()
+	{
+		Market.RemoveMarketInfluence(this);
+		Gameworld.Destroy(this);
+		Gameworld.SaveManager.Abort(this);
+		if (_id != 0)
+		{
+			using (new FMDB())
+			{
+				Gameworld.SaveManager.Flush();
+				var dbitem = FMDB.Context.MarketInfluences.Find(Id);
+				if (dbitem != null)
+				{
+					FMDB.Context.MarketInfluences.Remove(dbitem);
+					FMDB.Context.SaveChanges();
+				}
+			}
+		}
+	}
+
 	private readonly List<MarketImpact> _marketImpacts = new();
 
 	/// <inheritdoc />

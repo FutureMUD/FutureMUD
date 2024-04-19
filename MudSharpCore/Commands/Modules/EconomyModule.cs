@@ -1384,7 +1384,7 @@ The syntax for this command is as follows:
 	#3shop fire <target>|<name>#0 - fires an employee from this store
 	#3shop manager <target>|<name>#0 - toggles an employee's status as a manager
 	#3shop proprietor <target>|<name>#0 - toggles and employee's status as a proprietor
-	#3till <target>#0 - toggles an item being used as a till for the store
+	#3shop till <target>#0 - toggles an item being used as a till for the store
 	#3shop display <target>#0 - toggles an item being used as a display cabinet for the store
 	#3shop info#0 - shows detailed information about the shop
 	#3shop stock <target>#0 - adds an item as shop inventory
@@ -1398,7 +1398,9 @@ The syntax for this command is as follows:
 	#3shop set name <name>#0 - renames a shop
 	#3shop set can <prog> <whyprog>#0 - sets a prog to control who can shop here (and associated error message)
 	#3shop set trading#0 - toggles whether this shop is trading
-	#3shop set minfloat <amount>#0 - sets the minimum float for the shop to buy anything";
+	#3shop set minfloat <amount>#0 - sets the minimum float for the shop to buy anything
+	#3shop set market <which>#0 - sets a market to draw pricing multipliers from
+	#3shop set market none#0 - clears the market pricing";
 
 	private const string ShopHelpAdmins = @"You can use the following options with the shop command:
 
@@ -1428,6 +1430,8 @@ The syntax for this command is as follows:
 	#3shop set can <prog> <whyprog>#0 - sets a prog to control who can shop here (and associated error message)
 	#3shop set trading#0 - toggles whether this shop is trading
 	#3shop set minfloat <amount>#0 - sets the minimum float for the shop to buy anything
+	#3shop set market <which>#0 - sets a market to draw pricing multipliers from
+	#3shop set market none#0 - clears the market pricing
 
 Additionally, you can use the following shop admin subcommands:
 
@@ -6721,7 +6725,7 @@ The syntax for this command is as follows:
 			AcceptAction = text =>
 			{
 				var end = new MudDateTime(influence.Market.EconomicZone.FinancialPeriodReferenceCalendar.CurrentDateTime) - TimeSpan.FromSeconds(1);
-				influence.AppliesUntil = end;
+				influence.EndOrCancel();
 				actor.OutputHandler.Send("You end the market influence.");
 			},
 			RejectAction = text =>

@@ -13,6 +13,7 @@ public class Market
 	{
 		Influences = new HashSet<MarketInfluence>();
 		MarketCategories = new HashSet<MarketCategory>();
+		Shops = new HashSet<Shop>();
 	}
 
 	public long Id { get; set; }
@@ -25,6 +26,7 @@ public class Market
 	public virtual ICollection<MarketInfluence> Influences { get; set; }
 	
 	public virtual ICollection<MarketCategory> MarketCategories { get; set; }
+	public virtual ICollection<Shop> Shops { get; set; }
 }
 
 public class MarketInfluence

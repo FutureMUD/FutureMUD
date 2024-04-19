@@ -30,6 +30,7 @@ namespace MudSharp.Models
         public long? BankAccountId { get; set; }
         public string ShopType { get; set; }
         public decimal MinimumFloatToBuyItems { get; set; }
+        public long? MarketId { get; set; }
 
         public virtual FutureProg CanShopProg { get; set; }
         public virtual Currency Currency { get; set; }
@@ -38,6 +39,7 @@ namespace MudSharp.Models
         public virtual FutureProg WhyCannotShopProg { get; set; }
         public virtual Cell WorkshopCell { get; set; }
         public virtual BankAccount BankAccount { get; set; }
+        public virtual Market Market { get; set; }
         public virtual ICollection<EconomicZoneShopTax> EconomicZoneShopTaxes { get; set; }
         public virtual ICollection<Merchandise> Merchandises { get; set; }
         public virtual ICollection<ShopFinancialPeriodResult> ShopFinancialPeriodResults { get; set; }

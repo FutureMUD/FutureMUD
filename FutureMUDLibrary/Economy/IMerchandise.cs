@@ -29,6 +29,7 @@ namespace MudSharp.Economy
         decimal BaseBuyModifier { get; }
         double MinimumConditionToBuy { get; }
         int MaximumStockLevelsToBuy { get; }
+        bool IgnoreMarketPricing { get; }
 
 
         bool IsMerchandiseFor(IGameItem item);

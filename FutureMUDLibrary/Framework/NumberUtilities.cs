@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Text;
 using System.Text.RegularExpressions;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace MudSharp.Framework {
     public static class NumberUtilities {
@@ -636,7 +638,51 @@ namespace MudSharp.Framework {
             }
         }
 
-        public static string ToWordyNumber(this int num) {
+		private static readonly string[] RomanNumerals = {
+		"I", "IV", "V", "IX", "X", "XL", "L", "XC", "C", "CD", "D", "CM", "M"
+	};
+
+		private static readonly int[] DecimalValues = {
+		1, 4, 5, 9, 10, 40, 50, 90, 100, 400, 500, 900, 1000
+	};
+
+        private static readonly int MaxValueRomanNumeral = 3999999;
+
+		public static string ToRomanNumeral(this int num)
+		{
+			if (num < 0 || num >= MaxValueRomanNumeral)
+				throw new ArgumentOutOfRangeException(nameof(num), $"Input must be between 1 and {MaxValueRomanNumeral}");
+
+            if (num == 0)
+            {
+                return "N";
+            }
+
+            if (num > 3999)
+            {
+				int thousands = num / 1000;
+				int remainder = num % 1000;
+				string thousandsRoman = ToRomanNumeral(thousands);
+				string remainderRoman = remainder == 0 ? "" : ToRomanNumeral(remainder);
+
+				return $"|{thousandsRoman}|{remainderRoman}";
+			}
+
+			StringBuilder sb = new StringBuilder();
+
+			for (int i = RomanNumerals.Length - 1; i >= 0; i--)
+			{
+				while (num >= DecimalValues[i])
+				{
+					sb.Append(RomanNumerals[i]);
+					num -= DecimalValues[i];
+				}
+			}
+
+			return sb.ToString();
+		}
+
+		public static string ToWordyNumber(this int num) {
             return ToWordyNumber((long) num);
         }
 

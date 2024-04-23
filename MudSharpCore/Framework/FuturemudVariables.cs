@@ -195,6 +195,7 @@ public sealed partial class Futuremud : IDisposable
 	private readonly All<IMarketCategory> _marketCategories = new();
 	private readonly All<IMarketInfluenceTemplate> _marketInfluenceTemplates = new();
 	private readonly All<IMarketInfluence> _marketInfluences = new();
+	private readonly All<IMarketPopulation> _marketPopulations = new();
 
 	private readonly RevisableAll<IProject> _projects = new();
 	private readonly All<IActiveProject> _activeProjects = new();
@@ -443,6 +444,8 @@ public sealed partial class Futuremud : IDisposable
 	public IUneditableAll<IMarketCategory> MarketCategories => _marketCategories;
 	public IUneditableAll<IMarketInfluenceTemplate> MarketInfluenceTemplates => _marketInfluenceTemplates;
 	public IUneditableAll<IMarketInfluence> MarketInfluences => _marketInfluences;
+
+	public IUneditableAll<IMarketPopulation> MarketPopulations => _marketPopulations;
 
 	public IUneditableAll<ISolid> Materials => _materials;
 

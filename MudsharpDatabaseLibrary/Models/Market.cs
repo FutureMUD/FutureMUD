@@ -27,6 +27,7 @@ public class Market
 	
 	public virtual ICollection<MarketCategory> MarketCategories { get; set; }
 	public virtual ICollection<Shop> Shops { get; set; }
+	public virtual ICollection<MarketPopulation> MarketPopulations { get; set; }
 }
 
 public class MarketInfluence

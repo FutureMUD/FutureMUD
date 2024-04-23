@@ -207,6 +207,7 @@ namespace MudSharp.Framework
         IUneditableAll<IMarketCategory> MarketCategories { get; }
         IUneditableAll<IMarketInfluenceTemplate> MarketInfluenceTemplates { get; }
         IUneditableAll<IMarketInfluence> MarketInfluences { get; }
+        IUneditableAll<IMarketPopulation> MarketPopulations { get; }
 
         IUneditableAll<ISolid> Materials { get; }
         IUneditableAll<IMerit> Merits { get; }
@@ -477,6 +478,7 @@ namespace MudSharp.Framework
         void Add(IMarketCategory category);
         void Add(IMarketInfluenceTemplate item);
         void Add(IMarketInfluence item);
+        void Add(IMarketPopulation item);
 
 		ICheck GetCheck(CheckType type);
 

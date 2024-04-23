@@ -1337,6 +1337,11 @@ public sealed partial class Futuremud : IFuturemud, IDisposable
 		_marketInfluences.Add(item);
 	}
 
+	public void Add(IMarketPopulation item)
+	{
+		_marketPopulations.Add(item);
+	}
+
 	#endregion Special Add Methods
 
 	#region Special Find

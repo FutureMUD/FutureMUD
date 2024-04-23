@@ -368,6 +368,19 @@ Item 6
 	}
 
 	[TestMethod]
+	public void TestConvertToAscii()
+	{
+		
+		Assert.AreEqual("Tuile", "Tuilë".ConvertToAscii());
+		Assert.AreEqual("Yavie", "Yávië".ConvertToAscii());
+		Assert.AreEqual("Aryabhata", "Āryabhaṭa".ConvertToAscii());
+		Assert.AreEqual("Nitobe Inazo", "Nitobe Inazō".ConvertToAscii()); 
+		Assert.AreEqual("Gis", "Ĝis".ConvertToAscii());
+		Assert.AreEqual("Café", "Café".ConvertToLatin1());
+		Assert.AreEqual("Cafe", "Café".ConvertToAscii());
+	}
+
+	[TestMethod]
 	public void TestRomanNumerals()
 	{
 		// Testing values within standard Roman numeral range

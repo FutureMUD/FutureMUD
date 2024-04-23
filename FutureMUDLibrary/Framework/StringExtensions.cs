@@ -912,5 +912,80 @@ namespace MudSharp.Framework {
 
 	        return RegexCleanupRegex.Replace(text, m => m.Groups["option1"].Value);
         }
-    }
+
+        public static string ConverToLatin1Alternate(this string input)
+        {
+			Encoding latin1 = Encoding.GetEncoding("ISO-8859-1");
+			StringBuilder stringBuilder = new StringBuilder();
+
+			foreach (char c in input)
+			{
+				// Encode the character to Latin-1
+				byte[] latin1Bytes = latin1.GetBytes(new char[] { c });
+				string encodedChar = latin1.GetString(latin1Bytes);
+
+				// Check if the character can be represented in Latin-1
+				if (encodedChar != "?")
+				{
+					stringBuilder.Append(encodedChar);
+				}
+				else
+				{
+					// Normalize the character if it cannot be represented directly in Latin-1
+					string normalizedChar = c.ToString().Normalize(NormalizationForm.FormD);
+					foreach (char normChar in normalizedChar)
+					{
+						if (CharUnicodeInfo.GetUnicodeCategory(normChar) != UnicodeCategory.NonSpacingMark)
+						{
+							byte[] bytes = latin1.GetBytes(new char[] { normChar });
+							string resultChar = latin1.GetString(bytes);
+
+							// Append the normalized character if representable, else '?'
+							stringBuilder.Append(resultChar != "?" ? resultChar : '?');
+						}
+					}
+				}
+			}
+
+			return stringBuilder.ToString();
+		}
+
+		public static string ConvertToLatin1(this string input)
+		{
+			var normalizedString = input.Normalize(NormalizationForm.FormD);
+			var stringBuilder = new StringBuilder();
+
+			foreach (var c in normalizedString)
+			{
+				// Check if the Unicode category of the character is not NonSpacingMark
+				// This filters out diacritic marks
+				if (CharUnicodeInfo.GetUnicodeCategory(c) != UnicodeCategory.NonSpacingMark)
+				{
+					stringBuilder.Append(c);
+				}
+			}
+
+			// Convert to iso-8859-1 - any non-iso-8859-1 character will be converted to '?'
+			return Encoding.GetEncoding("iso-8859-1").GetString(Encoding.GetEncoding("iso-8859-1").GetBytes(stringBuilder.ToString()));
+		}
+
+		public static string ConvertToAscii(this string input)
+		{
+			var normalizedString = input.Normalize(NormalizationForm.FormD);
+			var stringBuilder = new StringBuilder();
+
+			foreach (var c in normalizedString)
+			{
+				// Check if the Unicode category of the character is not NonSpacingMark
+				// This filters out diacritic marks
+				if (CharUnicodeInfo.GetUnicodeCategory(c) != UnicodeCategory.NonSpacingMark)
+				{
+					stringBuilder.Append(c);
+				}
+			}
+
+			// Convert to ascii - any non-ascii character will be converted to '?'
+			return Encoding.ASCII.GetString(Encoding.ASCII.GetBytes(stringBuilder.ToString()));
+		}
+	}
 }

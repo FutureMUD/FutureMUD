@@ -516,10 +516,15 @@ public class PlayerConnection : IPlayerConnection
 		{
 			try
 			{
-				_client.Client.Send(ControlPuppet.Account?.UseUnicode ?? false
-					? Encoding.UTF8.GetBytes(_outgoingCommands.ToString())
-					: Encoding.GetEncoding("iso-8859-1").GetBytes(_outgoingCommands.ToString())
-				);
+				if (ControlPuppet.Account?.UseUnicode ?? false)
+				{
+					_client.Client.Send(Encoding.UTF8.GetBytes(_outgoingCommands.ToString()));
+				}
+				else
+				{
+					_client.Client.Send(Encoding.GetEncoding("iso-8859-1").GetBytes(_outgoingCommands.ToString().ConvertToLatin1()));
+				}
+				
 				_client.Client.Send(_useAlternatePrompt ? AlternatePrompt : Prompt);
 				_outgoingCommands.Clear();
 				HasOutgoingCommands = false;

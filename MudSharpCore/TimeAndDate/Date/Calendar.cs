@@ -936,6 +936,8 @@ public class Calendar : SaveableItem, ICalendar
 					                return theDate.Day.ToOrdinal();
 				                case "DT":
 					                return theDate.Day.ToWordyOrdinal();
+								case "dr":
+									return theDate.Day.ToRomanNumeral();
 				                case "nn":
 					                return theDate.Month.GetDayName(theDate);
 				                case "NN":

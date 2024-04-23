@@ -1785,14 +1785,14 @@ Your answer: ", (context, answers) => answers["mode"].EqualTo("middle-earth"), (
   <modernerashortstring>AUC</modernerashortstring>
   <moderneralongstring>year since the founding of Rome</moderneralongstring>
   <weekdays>
-    <weekday>Nûndinârum A</weekday>
-    <weekday>Nûndinârum B</weekday>
-    <weekday>Nûndinârum C</weekday>
-    <weekday>Nûndinârum D</weekday>
-    <weekday>Nûndinârum E</weekday>
-    <weekday>Nûndinârum F</weekday>
-    <weekday>Nûndinârum G</weekday>
-    <weekday>Nûndinârum H</weekday>
+    <weekday>Nundinarum A</weekday>
+    <weekday>Nundinarum B</weekday>
+    <weekday>Nundinarum C</weekday>
+    <weekday>Nundinarum D</weekday>
+    <weekday>Nundinarum E</weekday>
+    <weekday>Nundinarum F</weekday>
+    <weekday>Nundinarum G</weekday>
+    <weekday>Nundinarum H</weekday>
   </weekdays>
   <months>
     <month>
@@ -2077,7 +2077,7 @@ Your answer: ", (context, answers) => answers["mode"].EqualTo("middle-earth"), (
   <modernerashortstring>AUC</modernerashortstring>
   <moderneralongstring>year since the founding of Rome</moderneralongstring>
   <weekdays>
-    {(useNundinae ? "<weekday>Nûndinârum A</weekday>\n    <weekday>Nûndinârum B</weekday>\n    <weekday>Nûndinârum C</weekday>\n    <weekday>Nûndinârum D</weekday>\n    <weekday>Nûndinârum E</weekday>\n    <weekday>Nûndinârum F</weekday>\n    <weekday>Nûndinârum G</weekday>\n    <weekday>Nûndinârum H</weekday>" : "<weekday>Dies Saturni</weekday>\n    <weekday> Dies Solis</weekday>\n    <weekday>Dies Lunae</weekday>\n    <weekday>Dies Martis</weekday>\n    <weekday>Dies Mercurii</weekday>\n    <weekday>Dies Jovis</weekday>\n    <weekday>Dies Veneris</weekday>")}
+    {(useNundinae ? "<weekday>Nundinarum A</weekday>\n    <weekday>Nundinarum B</weekday>\n    <weekday>Nundinarum C</weekday>\n    <weekday>Nundinarum D</weekday>\n    <weekday>Nundinarum E</weekday>\n    <weekday>Nundinarum F</weekday>\n    <weekday>Nundinarum G</weekday>\n    <weekday>Nundinarum H</weekday>" : "<weekday>Dies Saturni</weekday>\n    <weekday> Dies Solis</weekday>\n    <weekday>Dies Lunae</weekday>\n    <weekday>Dies Martis</weekday>\n    <weekday>Dies Mercurii</weekday>\n    <weekday>Dies Jovis</weekday>\n    <weekday>Dies Veneris</weekday>")}
   </weekdays>
   <months>
     <month>

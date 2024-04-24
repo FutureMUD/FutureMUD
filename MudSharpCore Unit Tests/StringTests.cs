@@ -376,8 +376,29 @@ Item 6
 		Assert.AreEqual("Aryabhata", "Āryabhaṭa".ConvertToAscii());
 		Assert.AreEqual("Nitobe Inazo", "Nitobe Inazō".ConvertToAscii()); 
 		Assert.AreEqual("Gis", "Ĝis".ConvertToAscii());
-		Assert.AreEqual("Café", "Café".ConvertToLatin1());
 		Assert.AreEqual("Cafe", "Café".ConvertToAscii());
+	}
+
+	[TestMethod]
+	public void TestConvertToLatin1()
+	{
+		Assert.AreEqual("2 Tuilë", "2 Tuilë".ConvertToLatin1());
+		Assert.AreEqual("2 Yávië", "2 Yávië".ConvertToLatin1());
+		Assert.AreEqual("2 Aryabhata", "2 Āryabhaṭa".ConvertToLatin1());
+		Assert.AreEqual("2 Nitobe Inazo", "2 Nitobe Inazō".ConvertToLatin1());
+		Assert.AreEqual("2 Gis", "2 Ĝis".ConvertToLatin1());
+		Assert.AreEqual("2 Café", "2 Café".ConvertToLatin1());
+
+		Assert.AreEqual(@"+----+---------+------+------------------+---------+
+| ID | Name    | Room | Room Desc        | Account |
++----+---------+------+------------------+---------+
+| 1  | Japheth | 1    | The Guest Lounge | Japheth |
++----+---------+------+------------------+---------+", @"╔════╦═════════╦══════╦══════════════════╦═════════╗
+║ ID ║ Name    ║ Room ║ Room Desc        ║ Account ║
+╠════╬═════════╬══════╬══════════════════╬═════════╣
+║ 1  ║ Japheth ║ 1    ║ The Guest Lounge ║ Japheth ║
+╚════╩═════════╩══════╩══════════════════╩═════════╝".ConvertToLatin1());
+		Assert.AreEqual(@"TestTest", @"Test𒀊Test".ConvertToLatin1());
 	}
 
 	[TestMethod]

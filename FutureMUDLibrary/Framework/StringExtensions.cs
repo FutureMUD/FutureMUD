@@ -913,60 +913,126 @@ namespace MudSharp.Framework {
 	        return RegexCleanupRegex.Replace(text, m => m.Groups["option1"].Value);
         }
 
-        public static string ConverToLatin1Alternate(this string input)
+        class Latin1EncoderFallback : EncoderFallback
         {
-			Encoding latin1 = Encoding.GetEncoding("ISO-8859-1");
-			StringBuilder stringBuilder = new StringBuilder();
+	        public override int MaxCharCount { get { return 11; } }
+	        private EncoderFallbackBuffer _buffer = new Latin1EncoderFallbackBuffer();
+	        public override EncoderFallbackBuffer CreateFallbackBuffer()
+	        {
+		        return _buffer;
+	        }
+        }
 
-			foreach (char c in input)
-			{
-				// Encode the character to Latin-1
-				byte[] latin1Bytes = latin1.GetBytes(new char[] { c });
-				string encodedChar = latin1.GetString(latin1Bytes);
+        class Latin1EncoderFallbackBuffer : EncoderFallbackBuffer
+        {
+	        public Latin1EncoderFallbackBuffer()
+	        {
+		        _encoded.Clear();
+		        _nextIndex = 0;
+	        }
 
-				// Check if the character can be represented in Latin-1
-				if (encodedChar != "?")
-				{
-					stringBuilder.Append(encodedChar);
-				}
-				else
-				{
-					// Normalize the character if it cannot be represented directly in Latin-1
-					string normalizedChar = c.ToString().Normalize(NormalizationForm.FormD);
-					foreach (char normChar in normalizedChar)
-					{
-						if (CharUnicodeInfo.GetUnicodeCategory(normChar) != UnicodeCategory.NonSpacingMark)
-						{
-							byte[] bytes = latin1.GetBytes(new char[] { normChar });
-							string resultChar = latin1.GetString(bytes);
+	        private List<char> _encoded = new(11);
+	        private int _nextIndex = 0;
 
-							// Append the normalized character if representable, else '?'
-							stringBuilder.Append(resultChar != "?" ? resultChar : '?');
-						}
-					}
-				}
-			}
+	        public override int Remaining => _encoded.Count - _nextIndex;
 
-			return stringBuilder.ToString();
-		}
+	        public override bool Fallback(char unknownChar, int index)
+	        {
+		        var normalizedString = unknownChar.ToString().Normalize(NormalizationForm.FormD);
+		        _encoded.Clear();
+
+		        foreach (var c in normalizedString)
+		        {
+			        switch (c)
+			        {
+                        case '\u2554':
+                        case '\u255a':
+                        case '\u2566':
+                        case '\u2569':
+                        case '\u256c':
+                        case '\u2557':
+                        case '\u2563':
+                        case '\u2560':
+                        case '\u255d':
+                            _encoded.Add('+');
+	                        continue;
+                        case '\u2550':
+                            _encoded.Add('-');
+                            continue;
+                        case '\u2551':
+                            _encoded.Add('|');
+                            continue;
+
+			        }
+
+			        if (c < 256)
+			        {
+				        _encoded.Add(c);
+				        continue;
+			        }
+                    
+			        // Check if the Unicode category of the character is not NonSpacingMark
+			        // This filters out diacritic marks
+			        if (CharUnicodeInfo.GetUnicodeCategory(c) != UnicodeCategory.NonSpacingMark)
+			        {
+				        _encoded.Add('?');
+			        }
+		        }
+
+                _nextIndex = 0;
+		        return true;
+	        }
+
+	        public override bool Fallback(char charUnknownHigh, char charUnknownLow, int index)
+	        {
+		        return false;
+	        }
+
+	        public override char GetNextChar()
+	        {
+		        char next;
+		        if (_nextIndex < _encoded.Count)
+		        {
+			        next = _encoded[_nextIndex];
+			        _nextIndex += 1;
+		        }
+		        else
+		        {
+			        next = default(char);
+		        }
+
+		        return next;
+	        }
+
+	        public override bool MovePrevious()
+	        {
+		        bool result;
+
+		        if (_nextIndex > 0)
+		        {
+			        _nextIndex -= 1;
+			        result = true;
+		        }
+		        else
+		        {
+			        result = false;
+		        }
+
+		        return result;
+	        }
+
+	        public override void Reset()
+	        {
+		        _encoded.Clear();
+		        _nextIndex = 0;
+	        }
+        }
+
+        public static Encoding Latin1Encoder { get; } = Encoding.GetEncoding("iso-8859-1", new Latin1EncoderFallback(), DecoderFallback.ExceptionFallback);
 
 		public static string ConvertToLatin1(this string input)
 		{
-			var normalizedString = input.Normalize(NormalizationForm.FormD);
-			var stringBuilder = new StringBuilder();
-
-			foreach (var c in normalizedString)
-			{
-				// Check if the Unicode category of the character is not NonSpacingMark
-				// This filters out diacritic marks
-				if (CharUnicodeInfo.GetUnicodeCategory(c) != UnicodeCategory.NonSpacingMark)
-				{
-					stringBuilder.Append(c);
-				}
-			}
-
-			// Convert to iso-8859-1 - any non-iso-8859-1 character will be converted to '?'
-			return Encoding.GetEncoding("iso-8859-1").GetString(Encoding.GetEncoding("iso-8859-1").GetBytes(stringBuilder.ToString()));
+			return Latin1Encoder.GetString(Latin1Encoder.GetBytes(input));
 		}
 
 		public static string ConvertToAscii(this string input)

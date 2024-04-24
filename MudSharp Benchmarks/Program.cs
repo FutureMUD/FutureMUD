@@ -6,6 +6,7 @@ namespace MudSharp_Benchmarks
 	{
 		static void Main(string[] args)
 		{
+			BenchmarkRunner.Run<Latin1Benchmarks>();
 			//BenchmarkRunner.Run<StringBenchmarks>();
 		}
 	}

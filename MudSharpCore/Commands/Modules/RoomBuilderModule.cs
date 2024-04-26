@@ -1450,13 +1450,14 @@ The syntax for this command is as follows:
 
 You can use the following subcommands:
 
-	shard new <name> <sky template> - creates a new shard with the specified sky template
-	shard set <shard> name <newname> - renames a shard
-	shard set <shard> clocks <clock1> ... [<clockn>] - sets which clocks apply in this shard
-	shard set <shard> calendars <calendar1> ... [<calendarn>] - sets which calendars apply in this shard
-	shard set <shard> celestials <celestial1> ... [<celestialn>] - sets which celestials this shard has
-	shard set <shard> sky <which> - sets the sky template
-	shard set <shard> lux <#> - sets the base illumination for the whole shard";
+	#3shard list#0 - lists all of the shards
+	#3shard new <name> <sky template>#0 - creates a new shard with the specified sky template
+	#3shard set <shard> name <newname>#0 - renames a shard
+	#3shard set <shard> clocks <clock1> ... [<clockn>]#0 - sets which clocks apply in this shard
+	#3shard set <shard> calendars <calendar1> ... [<calendarn>]#0 - sets which calendars apply in this shard
+	#3shard set <shard> celestials <celestial1> ... [<celestialn>]#0 - sets which celestials this shard has
+	#3shard set <shard> sky <which>#0 - sets the sky template
+	#3shard set <shard> lux <##>#0 - sets the base illumination for the whole shard";
 
 	[PlayerCommand("Shard", "shard")]
 	[CommandPermission(PermissionLevel.HighAdmin)]
@@ -3761,6 +3762,7 @@ You can use the following subcommands:
 
 	#endregion
 
+	#region Areas
 	private static void AreaList(ICharacter actor, string target)
 	{
 		IEnumerable<IArea> areas;
@@ -4069,20 +4071,23 @@ The syntax for working with areas is as follows:
 		actor.AddEffect(new BuilderEditingEffect<IArea>(actor) { EditingItem = area });
 	}
 
+	#endregion
+
+	#region Autorooms
 	public const string AutoRoomHelpText =
 		@"This command is used to work with and edit room templates for the autobuilder.
 
 The core syntax is as follows:
 
-    autoroom list - shows all room templates
-    autoroom edit new <name> <school> - creates a new room template
-    autoroom clone <old> <new> - clones an existing room template
-    autoroom edit <which> - begins editing a room template
-    autoroom close - closes an editing room template
-    autoroom show <which> - shows builder information about a room
-    autoroom show - shows builder information about the currently edited room
-    autoroom edit - an alias for room template show (with no args)
-    autoroom set <...> - edits the properties of a room template";
+    #3autoroom list#0 - shows all room templates
+    #3autoroom edit new <name> <school>#0 - creates a new room template
+    #3autoroom clone <old> <new>#0 - clones an existing room template
+    #3autoroom edit <which>#0 - begins editing a room template
+    #3autoroom close#0 - closes an editing room template
+    #3autoroom show <which>#0 - shows builder information about a room
+    #3autoroom show#0 - shows builder information about the currently edited room
+    #3autoroom edit#0 - an alias for room template show (with no args)
+    #3autoroom set <...>#0 - edits the properties of a room template";
 
 	[PlayerCommand("AutoRoom", "autoroom")]
 	[CommandPermission(PermissionLevel.Admin)]
@@ -4098,15 +4103,15 @@ The core syntax is as follows:
 
 The core syntax is as follows:
 
-    autoarea list - shows all area templates
-    autoarea edit new <name> <school> - creates a new area template
-    autoarea clone <old> <new> - clones an existing area template
-    autoarea edit <which> - begins editing an area template
-    autoarea close - closes an editing area template
-    autoarea show <which> - shows builder information about a area
-    autoarea show - shows builder information about the currently edited area
-    autoarea edit - an alias for area template show (with no args)
-    autoarea set <...> - edits the properties of an area template";
+    #3autoarea list#0 - shows all area templates
+    #3autoarea edit new <name> <school>#0 - creates a new area template
+    #3autoarea clone <old> <new>#0 - clones an existing area template
+    #3autoarea edit <which>#0 - begins editing an area template
+    #3autoarea close#0 - closes an editing area template
+    #3autoarea show#0 <which> - shows builder information about a area
+    #3autoarea show#0 - shows builder information about the currently edited area
+    #3autoarea edit#0 - an alias for area template show (with no args)
+    #3autoarea set <...>#0 - edits the properties of an area template";
 
 	[PlayerCommand("AutoArea", "autoarea")]
 	[CommandPermission(PermissionLevel.Admin)]
@@ -4116,4 +4121,6 @@ The core syntax is as follows:
 		BuilderModule.GenericBuildingCommand(actor, new StringStack(command.RemoveFirstWord()),
 			EditableItemHelper.AreaBuilder);
 	}
+
+	#endregion
 }

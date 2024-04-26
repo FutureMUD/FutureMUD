@@ -24,17 +24,17 @@ public abstract class ClimateModelBase : FrameworkItem, IClimateModel
 	/// <summary>
 	/// The number of in-character minutes between checking for weather changes
 	/// </summary>
-	public int MinuteProcessingInterval { get; protected set; }
+	public int MinuteProcessingInterval { get; protected init; }
 
 	/// <summary>
 	/// The minimum number of in-character minutes between flavour echoes for current weather being sent
 	/// </summary>
-	public int MinimumMinutesBetweenFlavourEchoes { get; protected set; }
+	public int MinimumMinutesBetweenFlavourEchoes { get; protected init; }
 
 	/// <summary>
 	/// The chance (0.0-1.0) of a flavour echo being issued every in-character minute
 	/// </summary>
-	public double MinuteFlavourEchoChance { get; protected set; }
+	public double MinuteFlavourEchoChance { get; protected init; }
 
 	public abstract IEnumerable<IWeatherEvent> PermittedTransitions(IWeatherEvent currentEvent, ISeason currentSeason,
 		TimeOfDay timeOfDay);

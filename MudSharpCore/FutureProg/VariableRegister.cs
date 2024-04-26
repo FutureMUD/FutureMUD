@@ -306,8 +306,8 @@ internal class VariableRegister : SaveableItem, IVariableRegister
 			}
 		}
 
-		public List<IVariableValue> Collection { get; set; }
-		public FutureProgVariableTypes UnderlyingType { get; set; }
+		public List<IVariableValue> Collection { get; init; }
+		public FutureProgVariableTypes UnderlyingType { get; init; }
 
 		public FutureProgVariableTypes Type => UnderlyingType | FutureProgVariableTypes.Collection;
 
@@ -381,8 +381,8 @@ internal class VariableRegister : SaveableItem, IVariableRegister
 			}
 		}
 
-		public CollectionDictionary<string, IVariableValue> Dictionary { get; set; }
-		public FutureProgVariableTypes UnderlyingType { get; set; }
+		public CollectionDictionary<string, IVariableValue> Dictionary { get; init; }
+		public FutureProgVariableTypes UnderlyingType { get; init; }
 
 		public FutureProgVariableTypes Type => UnderlyingType | FutureProgVariableTypes.CollectionDictionary;
 
@@ -458,8 +458,8 @@ internal class VariableRegister : SaveableItem, IVariableRegister
 			}
 		}
 
-		public Dictionary<string, IVariableValue> Dictionary { get; set; }
-		public FutureProgVariableTypes UnderlyingType { get; set; }
+		public Dictionary<string, IVariableValue> Dictionary { get; init; }
+		public FutureProgVariableTypes UnderlyingType { get; init; }
 
 		public FutureProgVariableTypes Type => UnderlyingType | FutureProgVariableTypes.Dictionary;
 
@@ -535,8 +535,8 @@ internal class VariableRegister : SaveableItem, IVariableRegister
 			}
 		}
 
-		public object Value { get; set; }
-		public FutureProgVariableTypes Type { get; set; }
+		public object Value { get; init; }
+		public FutureProgVariableTypes Type { get; init; }
 
 		#region Overrides of Object
 
@@ -607,8 +607,8 @@ internal class VariableRegister : SaveableItem, IVariableRegister
 			ID = long.Parse(root.Value);
 		}
 
-		public long ID { get; set; }
-		public FutureProgVariableTypes Type { get; set; }
+		public long ID { get; init; }
+		public FutureProgVariableTypes Type { get; init; }
 
 		#region Overrides of Object
 

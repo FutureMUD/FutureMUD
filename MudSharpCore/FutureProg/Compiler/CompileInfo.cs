@@ -82,7 +82,7 @@ internal class CompileInfo : ICompileInfo
 	/// </summary>
 	public bool IsError { get; protected set; }
 
-	public bool IsComment { get; protected set; }
+	public bool IsComment { get; protected init; }
 
 	/// <summary>
 	///     The error message associated with any compilation error

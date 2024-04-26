@@ -26,10 +26,10 @@ public class SelectableOption
 		Description = definition.Element("Description")?.Value ?? "";
 	}
 
-	public IFutureProg CanSelectProg { get; set; }
-	public IFutureProg OnSelectProg { get; set; }
-	public string Keyword { get; set; }
-	public string Description { get; set; }
+	public IFutureProg CanSelectProg { get; init; }
+	public IFutureProg OnSelectProg { get; init; }
+	public string Keyword { get; init; }
+	public string Description { get; init; }
 
 	public XElement SaveDefinition()
 	{

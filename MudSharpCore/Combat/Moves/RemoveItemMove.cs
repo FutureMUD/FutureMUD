@@ -7,9 +7,9 @@ namespace MudSharp.Combat.Moves;
 
 public class RemoveItemMove : CombatMoveBase
 {
-	public IGameItem Item { get; set; }
+	public IGameItem Item { get; init; }
 
-	public IEmote PlayerEmote { get; set; }
+	public IEmote PlayerEmote { get; init; }
 
 	#region Overrides of CombatMoveBase
 

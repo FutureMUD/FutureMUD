@@ -23,7 +23,7 @@ public class BeingStrangled : Effect, IBodypartIneffectiveEffect, INoQuitEffect,
 
 	public ICharacter Strangler { get; set; }
 
-	public IBodypart Bodypart { get; set; }
+	public IBodypart Bodypart { get; init; }
 
 	public override void RemovalEffect()
 	{

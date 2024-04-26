@@ -10,9 +10,9 @@ namespace MudSharp.RPG.Law
 {
     public class PunishmentResult
     {
-        public decimal Fine { get; set; } = 0.0M;
-        public TimeAndDate.MudTimeSpan CustodialSentence {  get; set; } = TimeAndDate.MudTimeSpan.Zero;
-        public TimeAndDate.MudTimeSpan GoodBehaviourBondLength { get; set;} = TimeAndDate.MudTimeSpan.Zero;
+        public decimal Fine { get; init; } = 0.0M;
+        public TimeAndDate.MudTimeSpan CustodialSentence {  get; init; } = TimeAndDate.MudTimeSpan.Zero;
+        public TimeAndDate.MudTimeSpan GoodBehaviourBondLength { get; init;} = TimeAndDate.MudTimeSpan.Zero;
         public bool Execution { get; set; } = false;
 
         public static PunishmentResult operator +(PunishmentResult r1, PunishmentResult r2)

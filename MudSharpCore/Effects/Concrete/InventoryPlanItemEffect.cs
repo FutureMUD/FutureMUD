@@ -21,11 +21,11 @@ public class InventoryPlanItemEffect : Effect, IInventoryPlanItemEffect
 
 	public IInventoryPlan Plan { get; set; }
 
-	public DesiredItemState DesiredState { get; set; }
+	public DesiredItemState DesiredState { get; init; }
 
-	public IGameItem TargetItem { get; set; }
+	public IGameItem TargetItem { get; init; }
 
-	public IGameItem SecondaryItem { get; set; }
+	public IGameItem SecondaryItem { get; init; }
 
 	public override string Describe(IPerceiver voyeur)
 	{

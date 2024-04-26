@@ -28,7 +28,7 @@ public class ActivePersonalProject : ActiveProject, IPersonalProject
 	public override ICell Location
 	{
 		get => CharacterOwner.Location;
-		protected set { }
+		protected init { }
 	}
 
 	public override void Cancel(ICharacter actor)

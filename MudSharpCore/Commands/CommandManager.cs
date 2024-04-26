@@ -31,7 +31,7 @@ public class CommandManager : ICommandManager
 
 	public PermissionLevel HasPermissionUpTo { get; protected set; }
 
-	public string FailedToFindCommand { get; set; }
+	public string FailedToFindCommand { get; init; }
 
 	public bool ConsumesUsedCommand => true;
 

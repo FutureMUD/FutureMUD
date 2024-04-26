@@ -2113,9 +2113,8 @@ internal class ManipulationModule : Module<ICharacter>
 
 		if (!ss.IsFinished)
 		{
-			IGameItem secondTarget;
 			var secondTargetText = ss.PopSafe();
-			secondTarget = actor.TargetItem(secondTargetText);
+			var secondTarget = actor.TargetItem(secondTargetText);
 			if (secondTarget == null)
 			{
 				actor.OutputHandler.Send($"You don't see anything like that to empty {target.HowSeen(actor)} into.");
@@ -2181,18 +2180,14 @@ internal class ManipulationModule : Module<ICharacter>
 			return;
 		}
 
-		IGameItem fromItem;
-		ILiquidContainer fromItemContainer;
-		double amount;
-
-		fromItem = actor.TargetPersonalItem(fromArg);
+		var fromItem = actor.TargetPersonalItem(fromArg);
 		if (fromItem == null)
 		{
 			actor.OutputHandler.Send("You don't have anything like that to pour from.");
 			return;
 		}
 
-		fromItemContainer = fromItem.GetItemType<ILiquidContainer>();
+		var fromItemContainer = fromItem.GetItemType<ILiquidContainer>();
 		if (fromItemContainer == null)
 		{
 			actor.OutputHandler.Send($"{fromItem.HowSeen(actor)} is not a liquid container.");
@@ -2211,7 +2206,7 @@ internal class ManipulationModule : Module<ICharacter>
 			return;
 		}
 
-		amount = actor.Gameworld.UnitManager.GetBaseUnits(amountArg, UnitType.FluidVolume, out var success);
+		var amount = actor.Gameworld.UnitManager.GetBaseUnits(amountArg, UnitType.FluidVolume, out var success);
 		if (!success)
 		{
 			actor.OutputHandler.Send("That is not a valid amount of liquid to pour.");
@@ -2225,9 +2220,7 @@ internal class ManipulationModule : Module<ICharacter>
 			return;
 		}
 
-		IGameItem intoItem;
-		ILiquidContainer intoItemContainer;
-		intoItem = actor.TargetItem(intoArg);
+		var intoItem = actor.TargetItem(intoArg);
 		if (intoItem == null)
 		{
 			actor.OutputHandler.Send(
@@ -2242,7 +2235,7 @@ internal class ManipulationModule : Module<ICharacter>
 			return;
 		}
 
-		intoItemContainer = intoItem.GetItemType<ILiquidContainer>();
+		var intoItemContainer = intoItem.GetItemType<ILiquidContainer>();
 		if (intoItemContainer == null)
 		{
 			actor.OutputHandler.Send($"{intoItem.HowSeen(actor, true)} is not a liquid container.");

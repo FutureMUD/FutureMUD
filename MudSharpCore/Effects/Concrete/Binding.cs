@@ -24,7 +24,7 @@ namespace MudSharp.Effects.Concrete;
 public class BeingBound : Effect, IAffectProximity
 {
 	public IBodypart Bodypart { get; set; }
-	public ICharacter Binder { get; set; }
+	public ICharacter Binder { get; init; }
 
 	public BeingBound(IPerceivable owner, IFutureProg applicabilityProg = null) : base(owner, applicabilityProg)
 	{

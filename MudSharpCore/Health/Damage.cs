@@ -56,27 +56,27 @@ public class Damage : IDamage
 
 	#region IDamage Members
 
-	public DamageType DamageType { get; set; }
+	public DamageType DamageType { get; init; }
 
-	public double DamageAmount { get; set; }
+	public double DamageAmount { get; init; }
 
-	public double PainAmount { get; set; }
+	public double PainAmount { get; init; }
 
-	public double ShockAmount { get; set; }
+	public double ShockAmount { get; init; }
 
-	public double StunAmount { get; set; }
+	public double StunAmount { get; init; }
 
-	public IBodypart Bodypart { get; set; }
+	public IBodypart Bodypart { get; init; }
 
-	public ICharacter ActorOrigin { get; set; }
+	public ICharacter ActorOrigin { get; init; }
 
-	public IGameItem ToolOrigin { get; set; }
+	public IGameItem ToolOrigin { get; init; }
 
-	public IGameItem LodgableItem { get; set; }
+	public IGameItem LodgableItem { get; init; }
 
-	public double AngleOfIncidentRadians { get; set; } = Math.PI / 2;
+	public double AngleOfIncidentRadians { get; init; } = Math.PI / 2;
 
-	public Outcome PenetrationOutcome { get; set; } = Outcome.NotTested;
+	public Outcome PenetrationOutcome { get; init; } = Outcome.NotTested;
 
 	#endregion
 }

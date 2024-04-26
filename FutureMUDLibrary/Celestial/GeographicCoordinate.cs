@@ -19,25 +19,25 @@ namespace MudSharp.Celestial {
         public double Latitude
         {
             get { return _latitude; }
-            protected set { _latitude = value; }
+            protected init { _latitude = value; }
         }
 
         public double Longitude
         {
             get { return _longitude; }
-            protected set { _longitude = value; }
+            protected init { _longitude = value; }
         }
 
         public double Elevation
         {
             get { return _elevation; }
-            protected set { _elevation = value; }
+            protected init { _elevation = value; }
         }
 
         public double Radius
         {
             get { return _radius; }
-            protected set { _radius = value; }
+            protected init { _radius = value; }
         }
 
         /// <summary>

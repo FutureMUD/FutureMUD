@@ -152,7 +152,7 @@ public class SurgicalProcedureEffect : StagedCharacterActionWithTarget
 		get =>
 			$"@ cannot move because $0 $0|are|is {Procedure.DescribeProcedureGerund(Surgeon, Patient, AdditionalArguments)}.";
 
-		set { }
+		init { }
 	}
 
 	public override void RemovalEffect()

@@ -15,11 +15,11 @@ public class RepositionMove : CombatMoveBase
 	public override string Description { get; } = "Attempting to change position.";
 	public override double BaseDelay => 0.1;
 	public override double StaminaCost => StandStaminaCost(Gameworld);
-	public IPositionState TargetState { get; set; }
-	public PositionModifier TargetModifier { get; set; }
-	public IPerceivable TargetTarget { get; set; }
-	public IEmote TargetEmote { get; set; }
-	public IEmote Emote { get; set; }
+	public IPositionState TargetState { get; init; }
+	public PositionModifier TargetModifier { get; init; }
+	public IPerceivable TargetTarget { get; init; }
+	public IEmote TargetEmote { get; init; }
+	public IEmote Emote { get; init; }
 
 	public static double StandStaminaCost(IFuturemud gameworld)
 	{

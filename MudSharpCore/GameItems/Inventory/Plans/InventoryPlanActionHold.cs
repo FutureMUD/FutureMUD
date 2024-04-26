@@ -50,7 +50,7 @@ public class InventoryPlanActionHold : InventoryPlanAction
 
 	public int Quantity { get; set; }
 
-	public bool QuantityIsOptional { get; set; }
+	public bool QuantityIsOptional { get; init; }
 
 	protected double GetItemFitness(ICharacter executor, IGameItem item)
 	{

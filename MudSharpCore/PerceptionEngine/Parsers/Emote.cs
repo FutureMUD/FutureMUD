@@ -74,7 +74,7 @@ public partial class Emote : IEmote
 	{
 	}
 
-	public bool Valid { get; protected set; }
+	public bool Valid { get; protected init; }
 
 	//public bool Prepared {
 	//    get;
@@ -87,14 +87,14 @@ public partial class Emote : IEmote
 
 	public virtual bool FixedFormat => false;
 
-	public IPerceiver Source { get; protected set; }
+	public IPerceiver Source { get; protected init; }
 
 	public IEnumerable<IPerceivable> Targets
 	{
 		get { return _tokens.Select(x => x.Target); }
 	}
 
-	public bool ForcedSourceInclusion { get; protected set; }
+	public bool ForcedSourceInclusion { get; protected init; }
 
 	public virtual XElement SaveToXml()
 	{

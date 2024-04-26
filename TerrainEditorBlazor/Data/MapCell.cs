@@ -20,8 +20,8 @@ namespace TerrainEditorBlazor.Data
 			PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 		}
 
-		public int X { get; set; }
-		public int Y { get; set; }
+		public int X { get; init; }
+		public int Y { get; init; }
 
 		private Terrain? _terrain;
 		public Terrain? Terrain {

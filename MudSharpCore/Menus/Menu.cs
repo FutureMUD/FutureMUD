@@ -28,7 +28,7 @@ public abstract class Menu : IControllable, IHaveFuturemud, ISubContextControlle
 		OutputHandler = handler;
 	}
 
-	public IFuturemud Gameworld { get; protected set; }
+	public IFuturemud Gameworld { get; protected init; }
 
 	public virtual void Close()
 	{

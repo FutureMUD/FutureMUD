@@ -13,7 +13,7 @@ public abstract class CorpseModel : FrameworkItem, ICorpseModel
 
 	#region ICorpseModel Members
 
-	public string Description { get; set; }
+	public string Description { get; init; }
 
 	public abstract string Describe(DescriptionType type, DecayState state,
 		ICharacter originalCharacter, IPerceiver voyeur, double eatenPercentage);

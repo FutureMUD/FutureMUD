@@ -18,8 +18,8 @@ public abstract class LessonProposal : Proposal
 		{ 0, 0, 0, 1.4, 1.6, 1.9 }
 	};
 
-	public ICharacter Teacher { get; set; }
-	public ICharacter Student { get; set; }
+	public ICharacter Teacher { get; init; }
+	public ICharacter Student { get; init; }
 
 	protected void AddFatigue(ILearningFatigueEffect effect)
 	{

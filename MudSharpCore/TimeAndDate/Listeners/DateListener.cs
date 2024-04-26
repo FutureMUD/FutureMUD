@@ -38,25 +38,25 @@ public class DateListener : ListenerBase
 	public int WatchForDay
 	{
 		get => _watchForDay;
-		protected set => _watchForDay = value;
+		protected init => _watchForDay = value;
 	}
 
 	public string WatchForMonth
 	{
 		get => _watchForMonth;
-		protected set => _watchForMonth = value;
+		protected init => _watchForMonth = value;
 	}
 
 	public int WatchForYear
 	{
 		get => _watchForYear;
-		protected set => _watchForYear = value;
+		protected init => _watchForYear = value;
 	}
 
 	public ICalendar WatchCalendar
 	{
 		get => _watchCalendar;
-		protected set => _watchCalendar = value;
+		protected init => _watchCalendar = value;
 	}
 
 	protected bool DateIsRight()

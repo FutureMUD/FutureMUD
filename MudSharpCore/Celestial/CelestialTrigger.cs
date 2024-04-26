@@ -31,18 +31,18 @@ public class CelestialTrigger
 	public double Threshold
 	{
 		get => _threshold;
-		protected set => _threshold = value;
+		protected init => _threshold = value;
 	}
 
 	public CelestialMoveDirection Direction
 	{
 		get => _direction;
-		protected set => _direction = value;
+		protected init => _direction = value;
 	}
 
 	public string Echo
 	{
 		get => _echo;
-		protected set => _echo = value;
+		protected init => _echo = value;
 	}
 }

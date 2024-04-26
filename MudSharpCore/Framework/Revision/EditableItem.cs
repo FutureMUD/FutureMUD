@@ -67,7 +67,7 @@ public abstract class EditableItem : SavableKeywordedItem, IEditableRevisableIte
 		return GetAllSameId().Any(x => x.BuilderAccountID == character.Account.Id);
 	}
 
-	public int RevisionNumber { get; protected set; }
+	public int RevisionNumber { get; protected init; }
 
 	public RevisionStatus Status { get; protected set; }
 

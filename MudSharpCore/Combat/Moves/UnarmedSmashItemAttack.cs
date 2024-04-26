@@ -23,9 +23,9 @@ public class UnarmedSmashItemAttack : WeaponAttackMove
 
 	public override BuiltInCombatMoveType MoveType => BuiltInCombatMoveType.UnarmedSmashItem;
 
-	public INaturalAttack NaturalAttack { get; set; }
-	public IGameItem Target { get; set; }
-	public IGameItem ParentItem { get; set; }
+	public INaturalAttack NaturalAttack { get; init; }
+	public IGameItem Target { get; init; }
+	public IGameItem ParentItem { get; init; }
 	public IBodypart Bodypart => NaturalAttack.Bodypart;
 
 	public override string Description =>

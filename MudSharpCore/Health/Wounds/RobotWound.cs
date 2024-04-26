@@ -356,7 +356,7 @@ public class RobotWound : PerceivedItem, IWound
 	public IBodypart Bodypart
 	{
 		get => _bodypart;
-		set
+		init
 		{
 			_bodypart = value;
 			Changed = true;

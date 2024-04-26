@@ -321,7 +321,7 @@ public class Crime : LateInitialisingItem, ICrime
 
 	public ICell? CrimeLocation
 	{
-		get => _crimeLocation; set
+		get => _crimeLocation; init
 		{
 			if (_crimeLocation is not null)
 			{

@@ -57,7 +57,7 @@ public abstract class PerceivedItem : LateKeywordedInitialisingItem, IPerceivabl
 	protected IEntityDescriptionPattern _shortDescriptionPattern;
 	protected IEntityDescriptionPattern _fullDescriptionPattern;
 
-	public virtual IEffectHandler EffectHandler { get; protected set; }
+	public virtual IEffectHandler EffectHandler { get; protected init; }
 
 	public virtual bool IsSelf(IPerceivable other)
 	{

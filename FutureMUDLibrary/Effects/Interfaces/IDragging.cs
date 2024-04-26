@@ -7,8 +7,8 @@ using MudSharp.GameItems.Interfaces;
 namespace MudSharp.Effects.Interfaces
 {
     public class Dragger {
-        public ICharacter Character { get; set; }
-        public IDragAid Aid { get; set; }
+        public ICharacter Character { get; init; }
+        public IDragAid Aid { get; init; }
     }
 
     public interface IDragging : ILDescSuffixEffect, IDragParticipant, IEffect

@@ -49,7 +49,7 @@ public abstract partial class Effect : FrameworkItem, IEffect
 		);
 	}
 
-	protected IFutureProg ApplicabilityProg { get; set; }
+	protected IFutureProg ApplicabilityProg { get; init; }
 
 	public override string FrameworkItemType => SpecificEffectType;
 	public bool LoadErrors { get; protected set; } = false;

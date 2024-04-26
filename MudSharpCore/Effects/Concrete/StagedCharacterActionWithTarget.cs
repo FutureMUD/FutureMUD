@@ -40,9 +40,9 @@ public class StagedCharacterActionWithTarget : CharacterActionWithTarget
 	}
 
 	public int CurrentCount { get; set; }
-	public int FireOnCount { get; set; }
-	public Queue<TimeSpan> TimesBetweenTicks { get; set; }
-	public Queue<Action<IPerceivable>> ActionQueue { get; set; }
+	public int FireOnCount { get; init; }
+	public Queue<TimeSpan> TimesBetweenTicks { get; init; }
+	public Queue<Action<IPerceivable>> ActionQueue { get; init; }
 	public new Action<IPerceivable> Action => ActionQueue?.Dequeue();
 
 	protected override string SpecificEffectType => "StagedCharacterActionWithTarget";

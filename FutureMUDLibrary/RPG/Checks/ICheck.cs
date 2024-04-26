@@ -81,8 +81,8 @@ namespace MudSharp.RPG.Checks {
             return Enum.GetValues<Difficulty>().ToDictionary(x => x, x => NotTested(type));
         }
 
-        public bool IsAbjectFailure { get; set; }
-        public Outcome Outcome { get; set; }
+        public bool IsAbjectFailure { get; init; }
+        public Outcome Outcome { get; init; }
         public CheckType CheckType { get; set; }
         public IEnumerable<ITraitDefinition> AcquiredTraits { get; set; }
         public IEnumerable<ITraitDefinition> ImprovedTraits { get; set; }

@@ -2975,7 +2975,7 @@ You can use the following subcommands:
 
 					using (new FMDB())
 					{
-						var dbaccount = FMDB.Context.Accounts.FirstOrDefault(x => x.Name.ToLowerInvariant() == cmd);
+						var dbaccount = FMDB.Context.Accounts.FirstOrDefault(x => x.Name == cmd);
 						if (dbaccount == null)
 						{
 							actor.OutputHandler.Send("There is no such account.");
@@ -3279,7 +3279,7 @@ You can use the following subcommands:
 
 					using (new FMDB())
 					{
-						var dbaccount = FMDB.Context.Accounts.FirstOrDefault(x => x.Name.ToLowerInvariant() == cmd);
+						var dbaccount = FMDB.Context.Accounts.FirstOrDefault(x => x.Name == cmd);
 						if (dbaccount == null)
 						{
 							actor.OutputHandler.Send("There is no such account.");
@@ -3342,7 +3342,7 @@ You can use the following subcommands:
 
 					using (new FMDB())
 					{
-						var dbaccount = FMDB.Context.Accounts.FirstOrDefault(x => x.Name.ToLowerInvariant() == cmd);
+						var dbaccount = FMDB.Context.Accounts.FirstOrDefault(x => x.Name == cmd);
 						if (dbaccount == null)
 						{
 							actor.OutputHandler.Send("There is no such account.");

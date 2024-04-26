@@ -60,7 +60,7 @@ namespace MudSharp.Health {
     }
 
     public class SurgicalProcedurePhase {
-        public required TimeSpan BaseLength { get; set; }
+        public required TimeSpan BaseLength { get; init; }
         public required string PhaseEmote { get; set; }
         public required IFutureProg OnPhaseProg { get; set; }
         public required IInventoryPlanTemplate InventoryPlanTemplate { get; set; }

@@ -37,7 +37,7 @@ public class SneakMove : Effect, ISneakMoveEffect
 		_sawSneakers.Add(effect);
 	}
 
-	public bool Subtle { get; set; }
+	public bool Subtle { get; init; }
 
 	#endregion
 

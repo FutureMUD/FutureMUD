@@ -14,7 +14,7 @@ namespace MudSharp.Communication;
 /// </summary>
 public class DummyDrawing : IDrawing
 {
-	public DrawingSize DrawingSize { get; set; }
+	public DrawingSize DrawingSize { get; init; }
 	public string ShortDescription { get; set; }
 	public string FullDescription { get; set; }
 	public double DrawingSkill { get; set; }
@@ -25,8 +25,8 @@ public class DummyDrawing : IDrawing
 	}
 
 	public int DocumentLength => DrawingSize.DocumentLength();
-	public ICharacter Author { get; set; }
-	public WritingImplementType ImplementType { get; set; }
+	public ICharacter Author { get; init; }
+	public WritingImplementType ImplementType { get; init; }
 
 	public string ParseFor(ICharacter voyeur)
 	{

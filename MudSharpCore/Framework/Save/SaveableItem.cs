@@ -29,7 +29,7 @@ public abstract class SaveableItem : FrameworkItem, ISaveable
 	public IFuturemud Gameworld
 	{
 		get => _gameworld ?? Futuremud.Games.First();
-		protected set { _gameworld = value; }
+		protected init { _gameworld = value; }
 	}
 
 	#endregion

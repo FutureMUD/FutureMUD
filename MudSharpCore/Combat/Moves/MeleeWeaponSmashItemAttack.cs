@@ -22,8 +22,8 @@ public class MeleeWeaponSmashItemAttack : WeaponAttackMove
 	}
 
 	public override BuiltInCombatMoveType MoveType => BuiltInCombatMoveType.MeleeWeaponSmashItem;
-	public IGameItem Target { get; set; }
-	public IGameItem ParentItem { get; set; }
+	public IGameItem Target { get; init; }
+	public IGameItem ParentItem { get; init; }
 
 	public override string Description =>
 		$"Attacking {Target.HowSeen(Assailant)}{ParentItem?.HowSeen(Assailant).LeadingSpaceIfNotEmpty().Parentheses() ?? ""} with {Weapon.Parent.HowSeen(Assailant)} to smash it.";

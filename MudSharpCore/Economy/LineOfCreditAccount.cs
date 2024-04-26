@@ -121,7 +121,7 @@ public class LineOfCreditAccount : SaveableItem, ILineOfCreditAccount
 	public string AccountName
 	{
 		get => _accountName;
-		set
+		init
 		{
 			_accountName = value;
 			Changed = true;

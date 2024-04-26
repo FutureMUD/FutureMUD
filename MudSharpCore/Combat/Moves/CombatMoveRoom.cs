@@ -7,7 +7,7 @@ public class CombatMoveRoom : CombatMoveBase
 {
 	#region Overrides of CombatMoveBase
 
-	public ICellExit Direction { get; set; }
+	public ICellExit Direction { get; init; }
 
 	public override string Description => $"Moving towards {Direction.DescribeFor(Assailant, false)}.";
 

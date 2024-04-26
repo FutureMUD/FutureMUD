@@ -4,8 +4,8 @@ namespace MudSharp.NPC.Templates;
 
 public class VariableSkillTemplate
 {
-	public ITraitDefinition Trait { get; set; }
-	public double Chance { get; set; }
-	public double SkillMean { get; set; }
-	public double SkillStddev { get; set; }
+	public ITraitDefinition Trait { get; init; }
+	public double Chance { get; init; }
+	public double SkillMean { get; init; }
+	public double SkillStddev { get; init; }
 }

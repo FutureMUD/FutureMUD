@@ -50,9 +50,11 @@ internal static class OpenAIHandler
 #if DEBUG
 		Futuremud.Games.First().SystemMessage($"GPT Request:\n\n{context}\n\n{requestText}", true);
 #endif
+		$"#CGPT Request#0:\n\n#3{context}#0\n\n#2{requestText}#0".WriteLineConsole();
 		var task = Task.Run(async () =>
 		{
 			var result = await chat.GetResponseFromChatbotAsync();
+			$"#CGPT Response#0\n\n{result}".WriteLineConsole();
 			callback(result);
 		});
 		return true;

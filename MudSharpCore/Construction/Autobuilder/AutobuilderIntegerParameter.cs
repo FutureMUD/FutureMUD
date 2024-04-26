@@ -23,9 +23,9 @@ public class AutobuilderIntegerParameter : IAutobuilderParameter
 	public string ParameterName { get; set; }
 	public string MissingErrorMessage { get; set; }
 
-	public int MinimumValue { get; set; } = int.MinValue;
+	public int MinimumValue { get; init; } = int.MinValue;
 
-	public int MaximumValue { get; set; } = int.MaxValue;
+	public int MaximumValue { get; init; } = int.MaxValue;
 
 	public bool IsValidArgument(string argument, object[] previousArguments)
 	{

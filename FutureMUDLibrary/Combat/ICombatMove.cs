@@ -16,12 +16,12 @@ namespace MudSharp.Combat {
             DefenderOutcome = Outcome.NotTested
         };
 
-        public bool MoveWasSuccessful { get; set; }
-        public Difficulty RecoveryDifficulty { get; set; } = Difficulty.Automatic;
-        public Outcome AttackerOutcome { get; set; } = Outcome.NotTested;
-        public Outcome DefenderOutcome { get; set; } = Outcome.NotTested;
+        public bool MoveWasSuccessful { get; init; }
+        public Difficulty RecoveryDifficulty { get; init; } = Difficulty.Automatic;
+        public Outcome AttackerOutcome { get; init; } = Outcome.NotTested;
+        public Outcome DefenderOutcome { get; init; } = Outcome.NotTested;
 
-        public IEnumerable<IWound> WoundsCaused { get; set; } = Enumerable.Empty<IWound>();
+        public IEnumerable<IWound> WoundsCaused { get; init; } = Enumerable.Empty<IWound>();
         public IEnumerable<IWound> SelfWoundsCaused { get; set; } = Enumerable.Empty<IWound>();
     }
 

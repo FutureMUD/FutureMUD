@@ -11,7 +11,7 @@ namespace MudSharp.Combat.Moves;
 
 public class BlockMove : CombatMoveBase, IDefenseMove
 {
-	public IShield Shield { get; set; }
+	public IShield Shield { get; init; }
 
 	public override string Description
 		=>

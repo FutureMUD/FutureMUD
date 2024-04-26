@@ -21,8 +21,8 @@ namespace MudSharp.Economy
 
     public class LineOfCreditAccountUser : IHavePersonalName
     {
-        public long Id { get; set; }
-        public IPersonalName PersonalName { get; set; }
+        public long Id { get; init; }
+        public IPersonalName PersonalName { get; init; }
         public decimal? SpendingLimit { get; set; }
     }
 

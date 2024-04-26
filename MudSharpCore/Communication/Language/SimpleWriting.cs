@@ -72,8 +72,8 @@ public class SimpleWriting : LateInitialisingItem, IWriting, ILazyLoadDuringIdle
 		Gameworld.SaveManager.AddInitialisation(this);
 	}
 
-	public WritingImplementType ImplementType { get; set; }
-	public IColour WritingColour { get; set; }
+	public WritingImplementType ImplementType { get; init; }
+	public IColour WritingColour { get; init; }
 
 	private long _authorId;
 	private ICharacter _author;
@@ -89,7 +89,7 @@ public class SimpleWriting : LateInitialisingItem, IWriting, ILazyLoadDuringIdle
 
 			return _author;
 		}
-		set
+		init
 		{
 			_author = value;
 			_authorId = value?.Id ?? 0;
@@ -129,7 +129,7 @@ public class SimpleWriting : LateInitialisingItem, IWriting, ILazyLoadDuringIdle
 
 			return _trueAuthor;
 		}
-		set
+		init
 		{
 			_trueAuthor = value;
 			_trueAuthorId = value?.Id;

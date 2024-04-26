@@ -48,7 +48,7 @@ public class WardDefenseMove : CombatMoveBase, IDefenseMove
 		return BaseStaminaCost(assailant.Gameworld) * CombatBase.GraceMoveStaminaMultiplier(assailant);
 	}
 
-	public IMeleeWeapon WardWeapon { get; set; }
+	public IMeleeWeapon WardWeapon { get; init; }
 
 	public int Reach => WardWeapon?.WeaponType.Reach ?? 0; // TODO - natural reach
 

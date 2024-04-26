@@ -91,7 +91,7 @@ public abstract class CombatBase : ICombat
 	protected readonly List<IPerceiver> _combatants = new();
 	public IEnumerable<IPerceiver> Combatants => _combatants;
 	public abstract void JoinCombat(IPerceiver character, Difficulty initialDelayDifficulty = Difficulty.Automatic);
-	public IFuturemud Gameworld { get; set; }
+	public IFuturemud Gameworld { get; init; }
 
 	/// <summary>
 	///     Removes a specified combatant from the combat

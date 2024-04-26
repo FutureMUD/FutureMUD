@@ -51,7 +51,7 @@ public class SelectedCombatAction : CombatEffectBase, ISelectedCombatAction
 
 	internal class ChargeAction : CombatActionType
 	{
-		public ICharacter Target { get; set; }
+		public ICharacter Target { get; init; }
 
 		public override string Describe(IPerceiver voyeur)
 		{
@@ -68,7 +68,7 @@ public class SelectedCombatAction : CombatEffectBase, ISelectedCombatAction
 
 	internal class MoveToMeleeAction : CombatActionType
 	{
-		public ICharacter Target { get; set; }
+		public ICharacter Target { get; init; }
 
 		public override string Describe(IPerceiver voyeur)
 		{
@@ -84,7 +84,7 @@ public class SelectedCombatAction : CombatEffectBase, ISelectedCombatAction
 
 	internal class GetAction : CombatActionType
 	{
-		public IGameItem TargetItem { get; set; }
+		public IGameItem TargetItem { get; init; }
 
 		public IEmote PlayerEmote { get; set; }
 
@@ -101,13 +101,13 @@ public class SelectedCombatAction : CombatEffectBase, ISelectedCombatAction
 
 	internal class DrawAction : CombatActionType
 	{
-		public IWieldable TargetItem { get; set; }
+		public IWieldable TargetItem { get; init; }
 
-		public IWield SpecificHand { get; set; }
+		public IWield SpecificHand { get; init; }
 
 		public IEmote PlayerEmote { get; set; }
 
-		public ItemCanWieldFlags Flags { get; set; }
+		public ItemCanWieldFlags Flags { get; init; }
 
 		public override string Describe(IPerceiver voyeur)
 		{
@@ -124,13 +124,13 @@ public class SelectedCombatAction : CombatEffectBase, ISelectedCombatAction
 
 	internal class WieldAction : CombatActionType
 	{
-		public IWieldable TargetItem { get; set; }
+		public IWieldable TargetItem { get; init; }
 
-		public IWield SpecificHand { get; set; }
+		public IWield SpecificHand { get; init; }
 
-		public IEmote PlayerEmote { get; set; }
+		public IEmote PlayerEmote { get; init; }
 
-		public ItemCanWieldFlags Flags { get; set; }
+		public ItemCanWieldFlags Flags { get; init; }
 
 		public override string Describe(IPerceiver voyeur)
 		{
@@ -149,7 +149,7 @@ public class SelectedCombatAction : CombatEffectBase, ISelectedCombatAction
 
 	internal class TakeCoverAction : CombatActionType
 	{
-		public CombatantCover Cover { get; set; }
+		public CombatantCover Cover { get; init; }
 
 		public override string Describe(IPerceiver voyeur)
 		{
@@ -174,8 +174,8 @@ public class SelectedCombatAction : CombatEffectBase, ISelectedCombatAction
 
 	internal class RemoveItemAction : CombatActionType
 	{
-		public IGameItem Item { get; set; }
-		public IEmote PlayerEmote { get; set; }
+		public IGameItem Item { get; init; }
+		public IEmote PlayerEmote { get; init; }
 
 		public override string Describe(IPerceiver voyeur)
 		{
@@ -195,9 +195,9 @@ public class SelectedCombatAction : CombatEffectBase, ISelectedCombatAction
 
 	internal class WearItemAction : CombatActionType
 	{
-		public IGameItem Item { get; set; }
-		public IEmote PlayerEmote { get; set; }
-		public string SpecificProfile { get; set; }
+		public IGameItem Item { get; init; }
+		public IEmote PlayerEmote { get; init; }
+		public string SpecificProfile { get; init; }
 
 		public override ICombatMove GetCombatMove(ICharacter actor)
 		{
@@ -218,8 +218,8 @@ public class SelectedCombatAction : CombatEffectBase, ISelectedCombatAction
 
 	internal class AimItemAction : CombatActionType
 	{
-		public IPerceiver Target { get; set; }
-		public IRangedWeapon Weapon { get; set; }
+		public IPerceiver Target { get; init; }
+		public IRangedWeapon Weapon { get; init; }
 
 		public override string Describe(IPerceiver voyeur)
 		{
@@ -261,8 +261,8 @@ public class SelectedCombatAction : CombatEffectBase, ISelectedCombatAction
 
 	internal class FireItemAction : CombatActionType
 	{
-		public IPerceiver Target { get; set; }
-		public IRangedWeapon Weapon { get; set; }
+		public IPerceiver Target { get; init; }
+		public IRangedWeapon Weapon { get; init; }
 
 		public override string Describe(IPerceiver voyeur)
 		{
@@ -277,7 +277,7 @@ public class SelectedCombatAction : CombatEffectBase, ISelectedCombatAction
 
 	internal class LoadItemAction : CombatActionType
 	{
-		public IRangedWeapon Weapon { get; set; }
+		public IRangedWeapon Weapon { get; init; }
 
 		public override string Describe(IPerceiver voyeur)
 		{
@@ -292,7 +292,7 @@ public class SelectedCombatAction : CombatEffectBase, ISelectedCombatAction
 
 	internal class ReadyItemAction : CombatActionType
 	{
-		public IRangedWeapon Weapon { get; set; }
+		public IRangedWeapon Weapon { get; init; }
 
 		public override string Describe(IPerceiver voyeur)
 		{
@@ -307,10 +307,10 @@ public class SelectedCombatAction : CombatEffectBase, ISelectedCombatAction
 
 	internal class SmashItemAction : CombatActionType
 	{
-		public IGameItem Target { get; set; }
-		public IGameItem ParentItem { get; set; }
-		public IMeleeWeapon Weapon { get; set; }
-		public IWeaponAttack Attack { get; set; }
+		public IGameItem Target { get; init; }
+		public IGameItem ParentItem { get; init; }
+		public IMeleeWeapon Weapon { get; init; }
+		public IWeaponAttack Attack { get; init; }
 
 		public override ICombatMove GetCombatMove(ICharacter actor)
 		{
@@ -332,9 +332,9 @@ public class SelectedCombatAction : CombatEffectBase, ISelectedCombatAction
 
 	internal class SmashItemUnarmedAction : CombatActionType
 	{
-		public IGameItem Target { get; set; }
-		public IGameItem ParentItem { get; set; }
-		public INaturalAttack Attack { get; set; }
+		public IGameItem Target { get; init; }
+		public IGameItem ParentItem { get; init; }
+		public INaturalAttack Attack { get; init; }
 
 		public override ICombatMove GetCombatMove(ICharacter actor)
 		{
@@ -356,11 +356,11 @@ public class SelectedCombatAction : CombatEffectBase, ISelectedCombatAction
 
 	internal class RepositionAction : CombatActionType
 	{
-		public IPositionState TargetState { get; set; }
-		public PositionModifier TargetModifier { get; set; }
-		public IPerceivable TargetTarget { get; set; }
-		public IEmote TargetEmote { get; set; }
-		public IEmote Emote { get; set; }
+		public IPositionState TargetState { get; init; }
+		public PositionModifier TargetModifier { get; init; }
+		public IPerceivable TargetTarget { get; init; }
+		public IEmote TargetEmote { get; init; }
+		public IEmote Emote { get; init; }
 
 		#region Overrides of CombatActionType
 

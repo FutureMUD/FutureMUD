@@ -6,16 +6,16 @@ namespace Discord_Bot
 {
     public partial class DiscordBot {
         public class DiscordBotSetttings {
-            public int Port { get; set; }
-            public string Token { get; set; }
-            public IList<string> Prefixes { get; set; }
-            public string ServerAuth { get; set; }
-            public ulong AnnounceChannelId { get; set; }
-            public ulong AdminAnnounceChannelId { get; set; }
-            public ulong DebugAnnounceChannelId { get; set; }
-            public string GameName { get; set; }
-            public IList<ulong> AdminUsers { get; set; }
-            public IList<CustomGlobalReaction> CustomGlobalReactions { get; set; }
+            public int Port { get; init; }
+            public string Token { get; init; }
+            public IList<string> Prefixes { get; init; }
+            public string ServerAuth { get; init; }
+            public ulong AnnounceChannelId { get; init; }
+            public ulong AdminAnnounceChannelId { get; init; }
+            public ulong DebugAnnounceChannelId { get; init; }
+            public string GameName { get; init; }
+            public IList<ulong> AdminUsers { get; init; }
+            public IList<CustomGlobalReaction> CustomGlobalReactions { get; init; }
         }
     }
 }

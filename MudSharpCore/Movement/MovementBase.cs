@@ -18,7 +18,7 @@ public abstract class MovementBase : IMovement
 
 	public virtual double StaminaMultiplier => 1.0;
 	public virtual bool IgnoreTerrainStamina => false;
-	public TimeSpan Duration { get; protected set; }
+	public TimeSpan Duration { get; protected init; }
 
 	public bool Cancelled { get; protected set; }
 	public MovementPhase Phase { get; protected set; }

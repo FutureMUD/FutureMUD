@@ -5,7 +5,7 @@ namespace MudSharp.Effects.Concrete;
 
 public class BuilderEditingEffect<T> : Effect, IEffectSubtype
 {
-	public T EditingItem { get; set; }
+	public T EditingItem { get; init; }
 
 	public BuilderEditingEffect(ICharacter owner) : base(owner)
 	{

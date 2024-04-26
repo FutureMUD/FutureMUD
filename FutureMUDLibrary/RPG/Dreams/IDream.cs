@@ -20,7 +20,7 @@ namespace MudSharp.RPG.Dreams {
         public string DreamerText { get; set; }
         public string DreamerCommand { get; set; }
         public int WaitSeconds { get; set; }
-        public int PhaseID { get; set; }
+        public int PhaseID { get; init; }
     }
 
     public interface IDream : IEditableItem {

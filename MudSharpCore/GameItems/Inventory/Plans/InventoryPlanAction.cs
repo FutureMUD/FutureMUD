@@ -40,13 +40,13 @@ public abstract class InventoryPlanAction : IInventoryPlanAction, IHaveFuturemud
 	public Func<IGameItem, bool> PrimaryItemSelector { get; set; }
 	public Func<IGameItem, bool> SecondaryItemSelector { get; set; }
 
-	public Func<IGameItem, double> PrimaryItemFitnessScorer { get; set; }
+	public Func<IGameItem, double> PrimaryItemFitnessScorer { get; init; }
 
-	public bool ItemsAlreadyInPlaceOverrideFitnessScore { get; set; }
+	public bool ItemsAlreadyInPlaceOverrideFitnessScore { get; init; }
 
-	public double ItemsAlreadyInPlaceMultiplier { get; set; } = 1.0;
+	public double ItemsAlreadyInPlaceMultiplier { get; init; } = 1.0;
 
-	public object OriginalReference { get; set; }
+	public object OriginalReference { get; init; }
 
 	public IFuturemud Gameworld { get; set; }
 

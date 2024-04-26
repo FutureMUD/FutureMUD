@@ -13,7 +13,7 @@ namespace MudSharp.Combat.Moves;
 
 public class RescueMove : CombatMoveBase
 {
-	public ICharacter Target { get; set; }
+	public ICharacter Target { get; init; }
 	public override string Description => $"Trying to rescue {Target.HowSeen(Assailant)}";
 
 	#region Overrides of CombatMoveBase

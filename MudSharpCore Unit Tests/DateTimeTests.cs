@@ -375,9 +375,7 @@ namespace MudSharp_Unit_Tests
         [TestMethod]
         public void TestMudTimeSpan()
         {
-            bool result;
-
-            result = MudTimeSpan.TryParse("24:0:0", out var mts);
+	        var result = MudTimeSpan.TryParse("24:0:0", out var mts);
             Assert.IsTrue(result, "Was not valid using simple colon form for 24days.");
             Assert.AreEqual<TimeSpan>(TimeSpan.FromDays(24), mts);
 

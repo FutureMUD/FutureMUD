@@ -12,9 +12,9 @@ namespace MudSharp.TimeAndDate.Intervals {
             new(
                 @"every\s*(?<amount>[0-9]+)*\s*(?<interval>minutes?|hours?|days?|months?|weekdays?|weeks?|years?)(?:\s(?<modifier>.+))*");
 
-        public IntervalType Type { get; set; }
-        public int IntervalAmount { get; set; }
-        public int Modifier { get; set; }
+        public IntervalType Type { get; init; }
+        public int IntervalAmount { get; init; }
+        public int Modifier { get; init; }
 
         #region Overrides of Object
 

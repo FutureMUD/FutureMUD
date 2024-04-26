@@ -10,9 +10,9 @@ namespace MudSharp.Combat.Moves;
 
 public class InventoryPlanMove : CombatMoveBase
 {
-	public IInventoryPlan Plan { get; set; }
+	public IInventoryPlan Plan { get; init; }
 
-	public Action<InventoryPlanActionResult> AfterPlanActions { get; set; }
+	public Action<InventoryPlanActionResult> AfterPlanActions { get; init; }
 
 	#region Overrides of CombatMoveBase
 

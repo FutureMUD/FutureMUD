@@ -68,9 +68,9 @@ public abstract class BodypartGroupDescriber : FrameworkItem, IBodypartGroupDesc
 
 	#region IBodypartGroupDescriber Members
 
-	public string DescribedAs { get; protected set; }
+	public string DescribedAs { get; protected init; }
 
-	public string Comment { get; protected set; }
+	public string Comment { get; protected init; }
 
 	public abstract BodypartGroupResult Match(IEnumerable<IBodypart> parts);
 

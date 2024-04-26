@@ -284,7 +284,7 @@ internal class EconomyModule : Module<ICharacter>
 			sb.AppendLine();
 			sb.AppendLine(StringUtilities.GetTextTable(from result in results select new List<string>
 			{
-				new string('*', result.Levels),
+				new('*', result.Levels),
 				result.ItemDescription,
 				result.ValueDescription
 			}, new List<string>
@@ -305,7 +305,7 @@ internal class EconomyModule : Module<ICharacter>
 			EvaluateItem(target, results, ref minTotal, ref maxTotal, 0, true);
 			sb.AppendLine(StringUtilities.GetTextTable(from result in results select new List<string>
 			{
-				new string('*', result.Levels),
+				new('*', result.Levels),
 				result.ItemDescription,
 				result.ValueDescription
 			}, new List<string>

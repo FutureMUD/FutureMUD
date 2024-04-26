@@ -65,7 +65,7 @@ internal class ScriptedEvent : SaveableItem, IScriptedEvent
 
 			return dbitem;
 		}
-		}
+	}
 
 	protected ScriptedEvent(ScriptedEvent rhs, ICharacter? character)
 	{
@@ -573,10 +573,10 @@ internal class ScriptedEvent : SaveableItem, IScriptedEvent
 		{
 			var PCsToLoad =
 				FMDB.Context.Characters.Where(
-						x => !x.NpcsCharacter.Any() && x.Guest == null && !onlinePCIDs.Contains(x.Id) &&
-							 (x.Status == (int)CharacterStatus.Active ||
-							  x.Status == (int)CharacterStatus.Retired))
-					.OrderBy(x => x.Id);
+					    x => !x.NpcsCharacter.Any() && x.Guest == null && !onlinePCIDs.Contains(x.Id) &&
+					         (x.Status == (int)CharacterStatus.Active ||
+					          x.Status == (int)CharacterStatus.Retired))
+				    .OrderBy(x => x.Id);
 			var i = 0;
 			while (true)
 			{

@@ -101,7 +101,7 @@ public abstract class RangedWeaponAttackBase : CombatMoveBase, IRangedWeaponAtta
 	public static Expression TargetExpression => _targetExpression ??= new Expression(Futuremud.Games.First()
 		.GetStaticConfiguration("RangedCombatTargetBodypartExpression"));
 
-	public bool SuppressAttackMessage { get; set; }
+	public bool SuppressAttackMessage { get; init; }
 
 	protected abstract BuiltInCombatMoveType MoveType { get; }
 

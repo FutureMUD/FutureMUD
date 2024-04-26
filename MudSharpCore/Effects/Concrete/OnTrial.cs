@@ -24,7 +24,7 @@ public class OnTrial : Effect, IEffect
 	public DateTime LastTrialAction
 	{
 		get => _lastTrialAction;
-		set
+		init
 		{
 			_lastTrialAction = value;
 			Changed = true;

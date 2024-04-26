@@ -439,7 +439,7 @@ Help:
 
 						using (new FMDB())
 						{
-							var dbaccount = FMDB.Context.Accounts.FirstOrDefault(x => x.Name.ToLowerInvariant() == cmd);
+							var dbaccount = FMDB.Context.Accounts.FirstOrDefault(x => x.Name == cmd);
 							if (dbaccount == null)
 							{
 								actor.OutputHandler.Send("There is no such account.");
@@ -545,7 +545,7 @@ Help:
 
 						using (new FMDB())
 						{
-							var dbaccount = FMDB.Context.Accounts.FirstOrDefault(x => x.Name.ToLowerInvariant() == cmd);
+							var dbaccount = FMDB.Context.Accounts.FirstOrDefault(x => x.Name == cmd);
 							if (dbaccount == null)
 							{
 								actor.OutputHandler.Send("There is no such account.");
@@ -937,7 +937,7 @@ Help:
 
 						using (new FMDB())
 						{
-							var dbaccount = FMDB.Context.Accounts.FirstOrDefault(x => x.Name.ToLowerInvariant() == cmd);
+							var dbaccount = FMDB.Context.Accounts.FirstOrDefault(x => x.Name == cmd);
 							if (dbaccount == null)
 							{
 								actor.OutputHandler.Send("There is no such account.");

@@ -15,7 +15,7 @@ public class ChangePositionMove : CombatMoveBase
 	{
 	}
 
-	public IPositionState DesiredState { get; set; }
+	public IPositionState DesiredState { get; init; }
 	public override string Description { get; } = "Attempting to change position.";
 	public override double BaseDelay => 0.1;
 	public override double StaminaCost => StandStaminaCost(Gameworld);

@@ -61,7 +61,7 @@ public class ExitHidden : Effect, IExitHiddenEffect
 
 			return _exit;
 		}
-		set
+		init
 		{
 			_exit = value;
 			_exitId = value.Id;

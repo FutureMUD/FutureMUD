@@ -523,7 +523,7 @@ public class Clock : SaveableItem, IClock
 	public MudTime CurrentTime
 	{
 		get => _currentTime;
-		protected set => _currentTime = value;
+		protected init => _currentTime = value;
 	}
 
 	protected readonly All<IMudTimeZone> _timezones = new();

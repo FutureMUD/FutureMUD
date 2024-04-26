@@ -12,7 +12,7 @@ namespace MudSharp.Combat.AuxiliaryEffects;
 #nullable enable
 internal class DefenderAdvantage : IAuxiliaryEffect
 {
-	public required IFuturemud Gameworld { get; set; }
+	public required IFuturemud Gameworld { get; init; }
 	public required double DefenseBonusPerDegree { get; set; }
 	public required double OffenseBonusPerDegree { get; set; }
 	public required ITraitDefinition DefenseTrait { get; set; }

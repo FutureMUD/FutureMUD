@@ -770,7 +770,7 @@ public class SimpleOrganicWound : PerceivedItem, IWound
 	public IBodypart Bodypart
 	{
 		get => _bodypart;
-		set
+		init
 		{
 			_bodypart = value;
 			Changed = true;

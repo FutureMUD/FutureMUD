@@ -15,7 +15,7 @@ public class TakeCover : CombatMoveBase
 {
 	public override string Description => "Seeking cover.";
 
-	public CombatantCover Cover { get; set; }
+	public CombatantCover Cover { get; init; }
 
 	private bool _calculatedStamina = false;
 	private double _staminaCost = 0.0;

@@ -1686,9 +1686,46 @@ The syntax is as follows:
 			case "set":
 				GPTSet(actor, ss);
 				return;
+			case "query":
+				GPTQuery(actor, ss);
+				return;
 			default:
 				actor.OutputHandler.Send(GPTHelp.SubstituteANSIColour());
 				return;
+		}
+	}
+
+	private static void GPTQuery(ICharacter actor, StringStack ss)
+	{
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send("Which GPT Thread would you like to set the properties of?");
+			return;
+		}
+
+		using (new FMDB())
+		{
+			Models.GPTThread thread;
+			if (long.TryParse(ss.PopSpeech(), out var id))
+			{
+				thread = FMDB.Context.GPTThreads.Find(id);
+			}
+			else
+			{
+				thread = FMDB.Context.GPTThreads.Include(x => x.Messages).FirstOrDefault(x => x.Name == ss.Last);
+			}
+
+			if (thread is null)
+			{
+				actor.OutputHandler.Send("There is no such GPT Thread.");
+				return;
+			}
+
+			actor.OutputHandler.Send($"You make the following request to the GPT Thread:\n\n{ss.SafeRemainingArgument}");
+			MudSharp.OpenAI.OpenAIHandler.MakeGPTRequest(thread, ss.SafeRemainingArgument, actor, text =>
+			{
+				actor.OutputHandler.Send($"GPT Response:\n\n{text}");
+			}, -1, true);
 		}
 	}
 

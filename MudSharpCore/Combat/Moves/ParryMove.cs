@@ -11,7 +11,7 @@ namespace MudSharp.Combat.Moves;
 
 public class ParryMove : CombatMoveBase, IDefenseMove
 {
-	public IMeleeWeapon Weapon { get; set; }
+	public IMeleeWeapon Weapon { get; init; }
 
 	public override string Description
 		=>

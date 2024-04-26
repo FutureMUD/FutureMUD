@@ -11,13 +11,13 @@ namespace MudSharp.Combat.Moves;
 
 public class DrawAndWieldMove : CombatMoveBase
 {
-	public IWieldable Weapon { get; set; }
+	public IWieldable Weapon { get; init; }
 
-	public IWield SpecificHand { get; set; }
+	public IWield SpecificHand { get; init; }
 
 	public Emote PlayerEmote { get; set; }
 
-	public ItemCanWieldFlags Flags { get; set; }
+	public ItemCanWieldFlags Flags { get; init; }
 
 	#region Overrides of CombatMoveBase
 

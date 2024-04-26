@@ -29,7 +29,7 @@ internal class SendLocationFunction : BuiltInFunction
 
 	private IFuturemud Gameworld { get; }
 
-	public bool FixedFormat { get; set; }
+	public bool FixedFormat { get; init; }
 	public bool UseLayerArgument { get; }
 
 	public override StatementResult Execute(IVariableSpace variables)

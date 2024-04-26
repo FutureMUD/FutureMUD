@@ -24,10 +24,10 @@ public enum WouldOpenResponseType
 
 public class WouldOpenResponse
 {
-	public WouldOpenResponseType Response { get; set; }
-	public string Social { get; set; }
-	public bool DirectionRequired { get; set; }
-	public bool SocialTargetRequired { get; set; }
+	public WouldOpenResponseType Response { get; init; }
+	public string Social { get; init; }
+	public bool DirectionRequired { get; init; }
+	public bool SocialTargetRequired { get; init; }
 }
 
 public class DoorguardAI : ArtificialIntelligenceBase

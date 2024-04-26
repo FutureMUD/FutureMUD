@@ -100,7 +100,7 @@ public class NeutralHerdGrazers : HerdGrazers
 		return new NeutralHerdGrazerData(gameworld);
 	}
 
-	public double Confidence { get; protected set; }
+	public double Confidence { get; protected init; }
 
 	public override string Name
 	{

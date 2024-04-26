@@ -1046,7 +1046,7 @@ The syntax is simply #3attributes#0 or #3attributes <target>#0 to see someone el
 			Difficulty.Impossible
 		};
 
-		public IFuturemud Gameworld { get; set; }
+		public IFuturemud Gameworld { get; init; }
 		public abstract CheckOutcome TestAgainst(ICharacter actor, Difficulty difficulty);
 
 		public abstract IReadOnlyDictionary<Difficulty, CheckOutcome> TestAgainstAllDifficulties(
@@ -1078,7 +1078,7 @@ The syntax is simply #3attributes#0 or #3attributes <target>#0 to see someone el
 
 	internal class SkillTest : TestType
 	{
-		public ITraitDefinition Trait { get; set; }
+		public ITraitDefinition Trait { get; init; }
 
 		#region Overrides of TestType
 
@@ -1104,7 +1104,7 @@ The syntax is simply #3attributes#0 or #3attributes <target>#0 to see someone el
 
 	internal class AttributeTest : TestType
 	{
-		public ITraitDefinition Trait { get; set; }
+		public ITraitDefinition Trait { get; init; }
 
 		#region Overrides of TestType
 
@@ -1371,15 +1371,13 @@ You can also use this command to test against someone else. This always echoes.
 			var vsOutput =
 				$"$0 test|tests &0's {playerTest.DescribeTest()} against $1's {targetTest.DescribeTest()} at {diff.Describe().ToLowerInvariant().Colour(Telnet.Yellow)} difficulty.";
 			ICharacter vsWinner = null;
-			CheckOutcome playerOutcome, targetOutcome;
 			IReadOnlyDictionary<Difficulty, CheckOutcome> playerOutcomes = new Dictionary<Difficulty, CheckOutcome>();
 			IReadOnlyDictionary<Difficulty, CheckOutcome> targetOutcomes = new Dictionary<Difficulty, CheckOutcome>();
-			OpposedOutcome outcome;
 			playerOutcomes = playerTest.TestAgainstAllDifficulties(actor, diff);
 			targetOutcomes = targetTest.TestAgainstAllDifficulties(target, diff);
-			outcome = new OpposedOutcome(playerOutcomes, targetOutcomes, diff, diff);
-			playerOutcome = playerOutcomes[outcome.ProponentDifficulty];
-			targetOutcome = targetOutcomes[outcome.OpponentDifficulty];
+			var outcome = new OpposedOutcome(playerOutcomes, targetOutcomes, diff, diff);
+			var playerOutcome = playerOutcomes[outcome.ProponentDifficulty];
+			var targetOutcome = targetOutcomes[outcome.OpponentDifficulty];
 			var nonExperimentalOutcome = new OpposedOutcome(playerOutcomes[diff], targetOutcomes[diff]);
 
 			if (!outcome.IsEquivalent(nonExperimentalOutcome))

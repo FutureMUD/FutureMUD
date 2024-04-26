@@ -302,7 +302,7 @@ internal abstract class BaseBuilderModule : Module<ICharacter>
 
 					using (new FMDB())
 					{
-						var dbaccount = FMDB.Context.Accounts.FirstOrDefault(x => x.Name.ToLowerInvariant() == cmd);
+						var dbaccount = FMDB.Context.Accounts.FirstOrDefault(x => x.Name == cmd);
 						if (dbaccount == null)
 						{
 							character.OutputHandler.Send("There is no such account.");
@@ -354,7 +354,7 @@ internal abstract class BaseBuilderModule : Module<ICharacter>
 
 					using (new FMDB())
 					{
-						var dbaccount = FMDB.Context.Accounts.FirstOrDefault(x => x.Name.ToLowerInvariant() == cmd);
+						var dbaccount = FMDB.Context.Accounts.FirstOrDefault(x => x.Name == cmd);
 						if (dbaccount == null)
 						{
 							character.OutputHandler.Send("There is no such account.");

@@ -28,56 +28,56 @@ public class SimpleCharacterTemplate : ICharacterTemplate
 {
 	#region ICharacterTemplate Members
 
-	public List<IAccent> SelectedAccents { get; set; }
+	public List<IAccent> SelectedAccents { get; init; }
 
-	public List<ITrait> SelectedAttributes { get; set; }
+	public List<ITrait> SelectedAttributes { get; init; }
 
-	public MudDate SelectedBirthday { get; set; }
+	public MudDate SelectedBirthday { get; init; }
 
-	public List<Tuple<ICharacteristicDefinition, ICharacteristicValue>> SelectedCharacteristics { get; set; }
+	public List<Tuple<ICharacteristicDefinition, ICharacteristicValue>> SelectedCharacteristics { get; init; }
 
-	public ICulture SelectedCulture { get; set; }
+	public ICulture SelectedCulture { get; init; }
 
 	public List<IEntityDescriptionPattern> SelectedEntityDescriptionPatterns { get; set; }
 
-	public IEthnicity SelectedEthnicity { get; set; }
+	public IEthnicity SelectedEthnicity { get; init; }
 
 	public string SelectedFullDesc { get; set; }
 
-	public Gender SelectedGender { get; set; }
+	public Gender SelectedGender { get; init; }
 
-	public double SelectedHeight { get; set; }
+	public double SelectedHeight { get; init; }
 
-	public IPersonalName SelectedName { get; set; }
+	public IPersonalName SelectedName { get; init; }
 
-	public IRace SelectedRace { get; set; }
+	public IRace SelectedRace { get; init; }
 
 	public string SelectedSdesc { get; set; }
 
-	public List<Tuple<ITraitDefinition, double>> SkillValues { get; set; }
+	public List<Tuple<ITraitDefinition, double>> SkillValues { get; init; }
 
 	public List<ITraitDefinition> SelectedSkills
 	{
 		get { return SkillValues.Select(x => x.Item1).ToList(); }
 	}
 
-	public double SelectedWeight { get; set; }
+	public double SelectedWeight { get; init; }
 
 	public ICell SelectedStartingLocation { get; set; }
 
-	public List<IChargenRole> SelectedRoles { get; set; }
+	public List<IChargenRole> SelectedRoles { get; init; }
 
-	public List<ICharacterMerit> SelectedMerits { get; set; }
+	public List<ICharacterMerit> SelectedMerits { get; init; }
 
-	public List<IKnowledge> SelectedKnowledges { get; set; }
+	public List<IKnowledge> SelectedKnowledges { get; init; }
 
-	public Alignment Handedness { get; set; }
+	public Alignment Handedness { get; init; }
 
-	public List<IBodypart> MissingBodyparts { get; set; }
+	public List<IBodypart> MissingBodyparts { get; init; }
 
-	public List<(IDisfigurementTemplate Disfigurement, IBodypart Bodypart)> SelectedDisfigurements { get; set; }
+	public List<(IDisfigurementTemplate Disfigurement, IBodypart Bodypart)> SelectedDisfigurements { get; init; }
 
-	public List<IGameItemProto> SelectedProstheses { get; set; }
+	public List<IGameItemProto> SelectedProstheses { get; init; }
 
 	public IAccount Account => DummyAccount.Instance;
 

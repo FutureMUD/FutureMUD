@@ -28,7 +28,7 @@ public class WildAnimalHerdEffect : Effect, IEffectSubtype
 	public WildAnimalHerdRole Role
 	{
 		get => _role;
-		set
+		init
 		{
 			_role = value;
 			Changed = true;

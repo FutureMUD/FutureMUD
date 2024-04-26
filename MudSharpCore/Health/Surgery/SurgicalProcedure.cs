@@ -1099,8 +1099,8 @@ There are the following special phase actions available for this surgical proced
 		return true;
 	}
 
-	private static readonly Regex PhaseEmoteRegexInvPlan = new Regex(@"\$i(?<index>[0-9]+)", RegexOptions.IgnoreCase);
-	private static readonly Regex PhaseEmoteRegexAdditionalArgs = new Regex(@"\{(?<index>\d+)\}");
+	private static readonly Regex PhaseEmoteRegexInvPlan = new(@"\$i(?<index>[0-9]+)", RegexOptions.IgnoreCase);
+	private static readonly Regex PhaseEmoteRegexAdditionalArgs = new(@"\{(?<index>\d+)\}");
 
 	private bool BuildingCommandPhaseEmote(ICharacter actor, StringStack command, SurgicalProcedurePhase phase)
 	{

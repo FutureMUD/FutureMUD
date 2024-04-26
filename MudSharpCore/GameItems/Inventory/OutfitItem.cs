@@ -12,7 +12,7 @@ namespace MudSharp.GameItems.Inventory;
 
 public class OutfitItem : IOutfitItem
 {
-	public long Id { get; set; }
+	public long Id { get; init; }
 	public string ItemDescription { get; set; }
 	public long? PreferredContainerId { get; set; }
 	public string PreferredContainerDescription { get; set; }

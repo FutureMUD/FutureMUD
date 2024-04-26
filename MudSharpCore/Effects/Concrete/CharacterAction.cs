@@ -17,13 +17,13 @@ namespace MudSharp.Effects.Concrete;
 
 public abstract class CharacterAction : Effect, IActionEffect, ILDescSuffixEffect
 {
-	public virtual string CancelEmoteString { get; set; }
-	public virtual string WhyCannotMoveEmoteString { get; set; }
+	public virtual string CancelEmoteString { get; init; }
+	public virtual string WhyCannotMoveEmoteString { get; init; }
 	public Action<IPerceivable> OnStopAction { get; set; }
-	public ICharacter CharacterOwner { get; set; }
-	public string ActionDescription { get; set; }
-	public string LDescAddendum { get; set; }
-	public Action<IPerceivable> Action { get; set; }
+	public ICharacter CharacterOwner { get; init; }
+	public string ActionDescription { get; init; }
+	public string LDescAddendum { get; init; }
+	public Action<IPerceivable> Action { get; init; }
 
 	#region Constructors
 

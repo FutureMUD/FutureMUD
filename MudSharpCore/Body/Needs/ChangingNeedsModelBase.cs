@@ -11,7 +11,7 @@ public abstract class ChangingNeedsModelBase : INeedsModel
 	public static double StaticRealSecondsToInGameSeconds { get; set; }
 	protected double RealSecondsToInGameSeconds => StaticRealSecondsToInGameSeconds;
 
-	public ICharacter Owner { get; set; }
+	public ICharacter Owner { get; init; }
 
 	#region INeedsModel Members
 

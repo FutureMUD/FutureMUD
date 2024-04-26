@@ -195,7 +195,7 @@ public abstract class Material : SaveableItem, IMaterial
 
 	public abstract MaterialType MaterialType { get; }
 
-	public MaterialBehaviourType BehaviourType { get; set; }
+	public MaterialBehaviourType BehaviourType { get; init; }
 
 	public double ThermalConductivity { get; private set; }
 

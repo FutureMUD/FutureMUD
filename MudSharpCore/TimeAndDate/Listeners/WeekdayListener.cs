@@ -24,13 +24,13 @@ public class WeekdayListener : ListenerBase
 	public ICalendar WatchCalendar
 	{
 		get => _watchCalendar;
-		protected set => _watchCalendar = value;
+		protected init => _watchCalendar = value;
 	}
 
 	public List<string> Weekdays
 	{
 		get => _weekdays;
-		protected set => _weekdays = value;
+		protected init => _weekdays = value;
 	}
 
 	public void Subscribe()

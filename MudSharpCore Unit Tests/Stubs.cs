@@ -19,9 +19,9 @@ using MudSharp.RPG.Checks;
 namespace MudSharp_Unit_Tests {
     public class RoomStub
     {
-        public int X { get; set; }
-        public int Y { get; set; }
-        public int Z { get; set; }
+        public int X { get; init; }
+        public int Y { get; init; }
+        public int Z { get; init; }
 
         public IRoom ToMock()
         {
@@ -36,7 +36,7 @@ namespace MudSharp_Unit_Tests {
     public class CellStub {
         public string Name { get; set; }
         public List<CellExitStub> Exits { get; set; }
-        public IRoom Room { get; set; }
+        public IRoom Room { get; init; }
         public long Id { get; set; }
 
         public Mock<ICell> ToMock() {
@@ -60,11 +60,11 @@ namespace MudSharp_Unit_Tests {
         public override string ToString() {
             return $"Cell Exit {OutboundDirection.Describe()} to {Destination.Name}";
         }
-        public CellStub Destination { get; set; }
+        public CellStub Destination { get; init; }
         
-        public ExitStub Exit { get; set; }
+        public ExitStub Exit { get; init; }
 
-        public CardinalDirection OutboundDirection { get; set; }
+        public CardinalDirection OutboundDirection { get; init; }
 
         public ICellExit ToMock(IEnumerable<Mock<ICell>> cellMocks, ICell origin) {
             var mock = new Mock<ICellExit>();
@@ -78,11 +78,11 @@ namespace MudSharp_Unit_Tests {
 
     public class DoorStub {
         public bool CanFireThrough {
-            get; set;
+            get; init;
         }
 
         public bool CanPlayersSmash {
-            get;set;
+            get;init;
         }
 
         public ExitStub Exit {
@@ -93,10 +93,10 @@ namespace MudSharp_Unit_Tests {
             get;set;
         }
 
-        public bool IsOpen { get; set; }
+        public bool IsOpen { get; init; }
         
         public DoorState State {
-            get;set;
+            get;init;
         }
 
         public IDoor ToMock() {
@@ -113,10 +113,10 @@ namespace MudSharp_Unit_Tests {
 
     public class ExitStub {
         public DoorStub Door {
-            get; set;
+            get; init;
         }
 
-        public bool AcceptsDoor { get; set; }
+        public bool AcceptsDoor { get; init; }
 
         public IExit ToMock(ICell origin, ICell destination) {
             var mock = new Mock<IExit>();
@@ -128,7 +128,7 @@ namespace MudSharp_Unit_Tests {
     }
 
     public class PerceivableStub {
-        public ICell Location { get; set; }
+        public ICell Location { get; init; }
         public IPerceivable ToMock() {
             var mock = new Mock<IPerceivable>();
             mock.Setup(t => t.Location).Returns(Location);

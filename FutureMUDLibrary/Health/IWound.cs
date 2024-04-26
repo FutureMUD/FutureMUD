@@ -8,10 +8,10 @@ using MudSharp.RPG.Checks;
 
 namespace MudSharp.Health {
     public class BleedResult {
-        public double BloodAmount { get; set; }
-        public bool Visible { get; set; }
-        public IGameItem CoverItem { get; set; }
-        public IBodypart Bodypart { get; set; }
+        public double BloodAmount { get; init; }
+        public bool Visible { get; init; }
+        public IGameItem CoverItem { get; init; }
+        public IBodypart Bodypart { get; init; }
 
         public static BleedResult NoBleed { get; } = new();
     }

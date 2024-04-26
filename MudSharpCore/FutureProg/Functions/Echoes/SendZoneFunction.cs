@@ -28,7 +28,7 @@ internal class SendZoneFunction : BuiltInFunction
 
 	private IFuturemud Gameworld { get; }
 
-	public bool FixedFormat { get; set; }
+	public bool FixedFormat { get; init; }
 
 	public override StatementResult Execute(IVariableSpace variables)
 	{

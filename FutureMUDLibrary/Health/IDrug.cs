@@ -17,9 +17,9 @@ namespace MudSharp.Health
     }
 
     public class DrugDosage {
-        public IDrug Drug { get; set; }
+        public IDrug Drug { get; init; }
         public double Grams { get; set; }
-        public DrugVector OriginalVector { get; set; }
+        public DrugVector OriginalVector { get; init; }
     }
 
     public interface IDrug : IFrameworkItem, IFutureProgVariable {

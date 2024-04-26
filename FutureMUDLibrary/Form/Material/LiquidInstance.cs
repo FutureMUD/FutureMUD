@@ -21,7 +21,7 @@ namespace MudSharp.Form.Material
         public virtual string LiquidDescription => Liquid.MaterialDescription;
         public virtual string LiquidLongDescription => Liquid.Description;
 
-        public ILiquid Liquid { get; set; }
+        public ILiquid Liquid { get; init; }
         public double Amount { get; set; }
 
         public virtual bool CanMergeWith(LiquidInstance other)

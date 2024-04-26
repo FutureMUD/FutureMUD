@@ -530,7 +530,7 @@ public partial class Emote
 
 		public string Error => _error;
 
-		public bool Valid { get; protected set; }
+		public bool Valid { get; protected init; }
 
 		public IPerceivable Target => _target;
 

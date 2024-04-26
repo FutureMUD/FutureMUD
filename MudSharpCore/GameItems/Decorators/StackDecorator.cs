@@ -26,7 +26,7 @@ public abstract class StackDecorator : FrameworkItem, IStackDecorator
 
 	public abstract string Describe(string name, string description, double quantity);
 
-	public string Description { get; protected set; }
+	public string Description { get; protected init; }
 
 	#endregion
 }

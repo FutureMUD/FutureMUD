@@ -21,7 +21,7 @@ public abstract class CombatMoveBase : ICombatMove
 	public ICharacter Assailant
 	{
 		get => _assailant;
-		set
+		init
 		{
 			_assailant = value;
 			if (value.CombatTarget is ICharacter item)

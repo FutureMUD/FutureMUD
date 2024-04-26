@@ -26,7 +26,7 @@ public abstract class WeaponAttackMove : CombatMoveBase, IWeaponAttackMove
 		Attack = attack;
 	}
 
-	public IMeleeWeapon Weapon { get; set; }
+	public IMeleeWeapon Weapon { get; init; }
 
 	public virtual double BloodSprayMultiplier => 0.0;
 
@@ -744,15 +744,15 @@ public abstract class WeaponAttackMove : CombatMoveBase, IWeaponAttackMove
 
 	protected class WardResult
 	{
-		public bool WardSucceeded { get; set; }
-		public IMeleeWeapon WardWeapon { get; set; }
-		public string WardEmotes { get; set; }
-		public bool WardAttack { get; set; }
+		public bool WardSucceeded { get; init; }
+		public IMeleeWeapon WardWeapon { get; init; }
+		public string WardEmotes { get; init; }
+		public bool WardAttack { get; init; }
 	}
 
 	#region Implementation of IWeaponAttackMove
 
-	public IWeaponAttack Attack { get; set; }
+	public IWeaponAttack Attack { get; init; }
 	public IBodypart TargetBodypart { get; set; }
 	public abstract int Reach { get; }
 

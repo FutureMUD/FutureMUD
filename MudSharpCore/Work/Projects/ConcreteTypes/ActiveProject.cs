@@ -227,7 +227,7 @@ public abstract class ActiveProject : LateInitialisingItem, IActiveProject, ILaz
 		}
 	}
 
-	public virtual ICell Location { get; protected set; }
+	public virtual ICell Location { get; protected init; }
 
 	public void DoLoad()
 	{

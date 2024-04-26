@@ -18,10 +18,10 @@ namespace MudSharp.Movement;
 public class DragMovement : MovementBase
 {
 	public override double StaminaMultiplier => 1.5;
-	public string DragAddendum { get; set; } = string.Empty;
-	public string DragVerb1stPerson { get; set; } = "drag";
-	public string DragVerb3rdPerson { get; set; } = "drags";
-	public string DragVerbGerund { get; set; } = "dragging";
+	public string DragAddendum { get; init; } = string.Empty;
+	public string DragVerb1stPerson { get; init; } = "drag";
+	public string DragVerb3rdPerson { get; init; } = "drags";
+	public string DragVerbGerund { get; init; } = "dragging";
 	public Dragging DragEffect { get; set; }
 
 	public ICharacter Dragger { get; set; }

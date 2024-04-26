@@ -25,7 +25,7 @@ public class CoupDeGrace : WeaponAttackMove
 	}
 
 	public ICharacter Target { get; set; }
-	public PlayerEmote Emote { get; set; }
+	public PlayerEmote Emote { get; init; }
 
 	#region Overrides of CombatMoveBase
 

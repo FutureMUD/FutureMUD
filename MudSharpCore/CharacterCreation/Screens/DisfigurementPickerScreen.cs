@@ -1730,9 +1730,9 @@ public class DisfigurementPickerScreenStoryboard : ChargenScreenStoryboard
 
 	internal class ChargenProsthesisSelection
 	{
-		public IGameItemProto Item { get; set; }
-		public ProstheticGameItemComponentProto ProstheticProto { get; set; }
-		public Counter<IChargenResource> ResourceCosts { get; set; }
+		public IGameItemProto Item { get; init; }
+		public ProstheticGameItemComponentProto ProstheticProto { get; init; }
+		public Counter<IChargenResource> ResourceCosts { get; init; }
 		public IFutureProg CanSelectProg { get; set; }
 	}
 }

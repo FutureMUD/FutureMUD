@@ -13,7 +13,7 @@ namespace MudSharp.Logging;
 
 public class HealingLogger : ICustomLogger
 {
-	public string FileName { get; set; }
+	public string FileName { get; init; }
 	private StringBuilder _pendingLogEntries = new();
 
 	public HealingLogger()

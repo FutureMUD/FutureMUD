@@ -51,7 +51,7 @@ public class PreparingCoupDeGrace : CharacterActionWithTarget, IAffectProximity
 
 	public IMeleeWeapon Weapon { get; set; }
 	public IFixedBodypartWeaponAttack Attack { get; set; }
-	public PlayerEmote Emote { get; set; }
+	public PlayerEmote Emote { get; init; }
 
 	#region Overrides of TargetedBlockingDelayedAction
 

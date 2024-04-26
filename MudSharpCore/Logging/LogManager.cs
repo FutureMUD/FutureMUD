@@ -101,11 +101,11 @@ public class LogManager : ILogManager
 
 	internal class CharacterCommand
 	{
-		public long CharacterId { get; set; }
-		public long CellId { get; set; }
-		public long? AccountId { get; set; }
-		public string Command { get; set; }
-		public DateTime Time { get; set; }
-		public bool IsPlayerCharacter { get; set; }
+		public long CharacterId { get; init; }
+		public long CellId { get; init; }
+		public long? AccountId { get; init; }
+		public string Command { get; init; }
+		public DateTime Time { get; init; }
+		public bool IsPlayerCharacter { get; init; }
 	}
 }

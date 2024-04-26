@@ -119,7 +119,7 @@ public abstract class LateKeywordedInitialisingItem : KeywordedItem, ILateInitia
 
 	#region IHaveFuturemud Members
 
-	public IFuturemud Gameworld { get; protected set; }
+	public IFuturemud Gameworld { get; protected init; }
 
 	#endregion
 

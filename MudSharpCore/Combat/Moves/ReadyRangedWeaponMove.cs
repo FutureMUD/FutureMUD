@@ -16,7 +16,7 @@ public class ReadyRangedWeaponMove : CombatMoveBase
 
 	#endregion
 
-	public IRangedWeapon Weapon { get; set; }
+	public IRangedWeapon Weapon { get; init; }
 
 	public override CombatMoveResult ResolveMove(ICombatMove defenderMove)
 	{

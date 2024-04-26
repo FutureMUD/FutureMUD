@@ -5,15 +5,15 @@
     public class NeedFulfiller : INeedFulfiller {
         #region IFulfilNeeds Members
 
-        public double Calories { get; set; }
+        public double Calories { get; init; }
 
-        public double SatiationPoints { get; set; }
+        public double SatiationPoints { get; init; }
 
-        public double WaterLitres { get; set; }
+        public double WaterLitres { get; init; }
 
-        public double ThirstPoints { get; set; }
+        public double ThirstPoints { get; init; }
 
-        public double AlcoholLitres { get; set; }
+        public double AlcoholLitres { get; init; }
 
         #endregion
     }

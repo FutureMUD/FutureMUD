@@ -38,37 +38,37 @@ public class WeekdayTimeListener : ListenerBase
 	public ICalendar WatchCalendar
 	{
 		get => _watchCalendar;
-		protected set => _watchCalendar = value;
+		protected init => _watchCalendar = value;
 	}
 
 	public List<string> Weekdays
 	{
 		get => _weekdays;
-		protected set => _weekdays = value;
+		protected init => _weekdays = value;
 	}
 
 	public int WatchForSecond
 	{
 		get => _watchForSecond;
-		protected set => _watchForSecond = value;
+		protected init => _watchForSecond = value;
 	}
 
 	public int WatchForMinute
 	{
 		get => _watchForMinute;
-		protected set => _watchForMinute = value;
+		protected init => _watchForMinute = value;
 	}
 
 	public int WatchForHour
 	{
 		get => _watchForHour;
-		protected set => _watchForHour = value;
+		protected init => _watchForHour = value;
 	}
 
 	public IClock WatchClock
 	{
 		get => _watchClock;
-		protected set => _watchClock = value;
+		protected init => _watchClock = value;
 	}
 
 	protected bool TimeIsRight()

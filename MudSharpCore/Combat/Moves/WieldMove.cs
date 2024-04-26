@@ -9,13 +9,13 @@ namespace MudSharp.Combat.Moves;
 
 public class WieldMove : CombatMoveBase
 {
-	public IWieldable Item { get; set; }
+	public IWieldable Item { get; init; }
 
-	public IWield SpecificHand { get; set; }
+	public IWield SpecificHand { get; init; }
 
-	public IEmote PlayerEmote { get; set; }
+	public IEmote PlayerEmote { get; init; }
 
-	public ItemCanWieldFlags Flags { get; set; }
+	public ItemCanWieldFlags Flags { get; init; }
 
 	#region Overrides of CombatMoveBase
 

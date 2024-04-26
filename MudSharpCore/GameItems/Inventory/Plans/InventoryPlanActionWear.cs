@@ -259,5 +259,5 @@ public class InventoryPlanActionWear : InventoryPlanAction
 		return potentialItems.OrderByDescending(x => x.Fitness).ThenBy(x => x.InternalOrder).FirstOrDefault().Item;
 	}
 
-	public IWearProfile DesiredProfile { get; set; }
+	public IWearProfile DesiredProfile { get; init; }
 }

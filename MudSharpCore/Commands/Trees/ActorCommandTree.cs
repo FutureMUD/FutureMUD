@@ -20,7 +20,7 @@ internal class ActorCommandTree : ICharacterCommandTree
 	public PermissionLevel PermissionLevel
 	{
 		get => _permissionLevel;
-		set
+		init
 		{
 			_permissionLevel = value;
 			ProcessCommands();

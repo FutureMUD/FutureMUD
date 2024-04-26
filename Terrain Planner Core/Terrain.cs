@@ -32,7 +32,7 @@ namespace Terrain_Planner_Tool
 
             public long Id {
                 get { return _id; }
-                set {
+                init {
                     if (value == _id) return;
                     _id = value;
                     OnPropertyChanged();
@@ -43,7 +43,7 @@ namespace Terrain_Planner_Tool
 
             public string Name {
                 get { return _name; }
-                set {
+                init {
                     if (value == _name) return;
                     _name = value;
                     OnPropertyChanged();
@@ -54,7 +54,7 @@ namespace Terrain_Planner_Tool
 
             public Color Colour {
                 get { return _colour; }
-                set {
+                init {
                     if (value.Equals(_colour)) return;
                     _colour = value;
                     OnPropertyChanged();

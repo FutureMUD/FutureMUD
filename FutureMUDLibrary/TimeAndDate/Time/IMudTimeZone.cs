@@ -10,4 +10,12 @@ namespace MudSharp.TimeAndDate.Time
         string Alias { get; }
         IClock Clock { get; }
     }
+
+    public interface IEditableMudTimeZone : IMudTimeZone
+    {
+	    new int OffsetHours { set; }
+	    new int OffsetMinutes { set; }
+	    new string Description { set; }
+
+	}
 }

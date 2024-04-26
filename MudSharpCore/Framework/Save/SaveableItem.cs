@@ -1,4 +1,5 @@
-﻿using MudSharp.Framework;
+﻿using System.Linq;
+using MudSharp.Framework;
 using MudSharp.Character;
 
 namespace MudSharp.Framework.Save;
@@ -23,7 +24,13 @@ public abstract class SaveableItem : FrameworkItem, ISaveable
 
 	#region IHaveFuturemud Members
 
-	public IFuturemud Gameworld { get; protected set; }
+	private IFuturemud? _gameworld;
+
+	public IFuturemud Gameworld
+	{
+		get => _gameworld ?? Futuremud.Games.First();
+		protected set { _gameworld = value; }
+	}
 
 	#endregion
 
@@ -76,7 +83,13 @@ public abstract class SavableKeywordedItem : KeywordedItem, ISaveable
 
 	#region IHaveFuturemud Members
 
-	public IFuturemud Gameworld { get; set; }
+	private IFuturemud? _gameworld;
+
+	public IFuturemud Gameworld
+	{
+		get => _gameworld ?? Futuremud.Games.First();
+		protected set { _gameworld = value; }
+	}
 
 	#endregion
 

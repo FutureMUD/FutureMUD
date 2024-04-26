@@ -1,10 +1,11 @@
 ﻿using MudSharp.Models;
 using MudSharp.Database;
 using MudSharp.Framework;
+using MudSharp.Framework.Save;
 
 namespace MudSharp.TimeAndDate.Time;
 
-public class MudTimeZone : FrameworkItem, IMudTimeZone
+public class MudTimeZone : SaveableItem, IMudTimeZone
 {
 	protected string _alias;
 	protected string _description;
@@ -12,8 +13,21 @@ public class MudTimeZone : FrameworkItem, IMudTimeZone
 	protected int _offsetMinutes;
 	public IClock Clock { get; }
 
+	/// <inheritdoc />
+	public override void Save()
+	{
+		var dbitem = FMDB.Context.Timezones.Find(Id);
+		dbitem.Name = Alias;
+		dbitem.Description = Description;
+		dbitem.OffsetHours = OffsetHours;
+		dbitem.OffsetMinutes = OffsetMinutes;
+		Changed = false;
+	}
+
 	public MudTimeZone(IClock clock, int offsethours, int offsetminutes, string description, string alias)
 	{
+		Gameworld = clock.Gameworld;
+		Clock = clock;
 		using (new FMDB())
 		{
 			var dbitem = new Timezone();
@@ -26,22 +40,21 @@ public class MudTimeZone : FrameworkItem, IMudTimeZone
 			FMDB.Context.SaveChanges();
 			LoadFromDB(dbitem);
 		}
-
-		Clock = clock;
 	}
 
 	public MudTimeZone(int id, int offsethours, int offsetminutes, string description, string alias)
 	{
 		_id = id;
-		OffsetHours = offsethours;
-		OffsetMinutes = offsetminutes;
-		Description = description;
-		Alias = alias;
+		_offsetHours = offsethours;
+		_offsetMinutes = offsetminutes;
+		_description = description;
+		_alias = alias;
 		_name = Alias;
 	}
 
 	public MudTimeZone(Timezone zone, IClock clock, IFuturemud game)
 	{
+		Gameworld = game;
 		Clock = clock;
 		LoadFromDB(zone);
 	}
@@ -51,34 +64,42 @@ public class MudTimeZone : FrameworkItem, IMudTimeZone
 	public int OffsetHours
 	{
 		get => _offsetHours;
-		protected set => _offsetHours = value;
+		set
+		{
+			_offsetHours = value;
+			Changed = true;
+		}
 	}
 
 	public int OffsetMinutes
 	{
 		get => _offsetMinutes;
-		protected set => _offsetMinutes = value;
+		set { _offsetMinutes = value; Changed = true; }
 	}
 
 	public string Description
 	{
 		get => _description;
-		protected set => _description = value;
+		set { _description = value; Changed = true; }
 	}
 
 	public string Alias
 	{
 		get => _alias;
-		protected set => _alias = value;
+		set
+		{
+			_alias = value;
+			_name = value;
+		}
 	}
 
 	private void LoadFromDB(Timezone zone)
 	{
 		_id = zone.Id;
-		OffsetHours = zone.OffsetHours;
-		OffsetMinutes = zone.OffsetMinutes;
-		Description = zone.Description;
-		Alias = zone.Name;
+		_offsetHours = zone.OffsetHours;
+		_offsetMinutes = zone.OffsetMinutes;
+		_description = zone.Description;
+		_alias = zone.Name;
 		_name = Alias;
 	}
 

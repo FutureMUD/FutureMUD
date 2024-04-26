@@ -743,11 +743,11 @@ Possible filter options include:
 	}
 
 	private const string ZoneHelpText =
-		@"This command is used to create and edit zones, which are distinct geographical areas within a specific shard. For example, all zones share the same timezone, geographic coordinates and usually weather as well.
+		@"This command is used to create and edit zones, which are distinct geographical areas within a specific shard. For example, all rooms in a zone share the same timezone, geographic coordinates and usually weather as well.
 
 You can use the following subcommands:
 
-	#3zone new <name> <shard> <timezones...>#0 - creates a new zone (note: must be editing a CELL PACKAGE)
+	#3zone new <name> <shard> <timezones...>#0 - creates a new zone (note: must be editing a #3CELL PACKAGE#0)
 	#3zone show <which>#0 - shows detailed information about a zone
 	#3zone set <which> name <new name>#0 - renames a zone
 	#3zone set <which> latitude <degrees>#0 - sets the latitude of a zone
@@ -758,8 +758,8 @@ You can use the following subcommands:
 	#3zone set <which> fp <which>#0 - sets the foragable profile for the zone
 	#3zone set <which> fp clear#0 - clears the foragable profile for the zone
 
-See also the ZONES command to see a list of commands, and the ROOMS <zone> command to see a list of rooms within a zone.
-See the CELL command for more information about CELL PACKAGES.";
+See also the #3ZONES#0 command to see a list of commands, and the #3ROOMS <zone>#0 command to see a list of rooms within a zone.
+See the #3CELL#0 command for more information about #3CELL PACKAGES#0.";
 
 	[PlayerCommand("Zone", "zone")]
 	[CommandPermission(PermissionLevel.SeniorAdmin)]
@@ -770,6 +770,9 @@ See the CELL command for more information about CELL PACKAGES.";
 
 		switch (ss.Pop().ToLowerInvariant())
 		{
+			case "list":
+				Zones(actor, input);
+				return;
 			case "create":
 			case "new":
 				ZoneCreate(actor, ss);
@@ -1261,31 +1264,120 @@ See the CELL command for more information about CELL PACKAGES.";
 	#endregion
 
 
-	[PlayerCommand("Timezone", "timezone")]
-	[CommandPermission(PermissionLevel.SeniorAdmin)]
-	[HelpInfo("timezone", @"This command is used to create in-game timezones for a particular clock. Timezones are relative to a standard default timezone for that clock - a real world example would be UTC.
+
+	public const string TimeZoneHelp = @"This command is used to create and edit in-game timezones for a particular clock. Timezones are relative to a standard default timezone for that clock - a real world example would be UTC.
 
 The syntax for this command is as follows:
 
-	#3timezone create <clock> <alias> ""<name>"" <hoursoffset> [<minutesoffset>]#0", AutoHelp.HelpArgOrNoArg)]
+	#3timezone list [<clock>]#0 - lists all of the time zones
+	#3timezone create <clock> <alias> ""<name>"" <hoursoffset> [<minutesoffset>]#0 - create a new timezone
+	#3timezone edit <clock> <alias> ""<name>"" <hoursoffset> [<minutesoffset>]#0 - edit an existing timezone";
+
+	[PlayerCommand("Timezone", "timezone")]
+	[CommandPermission(PermissionLevel.Admin)]
+	[HelpInfo("timezone", TimeZoneHelp, AutoHelp.HelpArgOrNoArg)]
 	protected static void Timezone(ICharacter actor, string input)
 	{
 		var ss = new StringStack(input.RemoveFirstWord());
+
+		switch (ss.PopForSwitch())
+		{
+			case "list":
+				TimeZoneList(actor, ss);
+				return;
+			case "create":
+			case "new":
+				TimeZoneCreate(actor, ss);
+				return;
+			case "edit":
+			case "update":
+				TimeZoneEdit(actor, ss);
+				return;
+			default:
+				actor.OutputHandler.Send(TimeZoneHelp.SubstituteANSIColour());
+				return;
+		}
+	}
+
+	private static void TimeZoneList(ICharacter actor, StringStack ss)
+	{
+		ShowModule.Show_Timezones(actor, ss);
+	}
+
+	private static void TimeZoneEdit(ICharacter actor, StringStack ss)
+	{
 		if (ss.IsFinished)
 		{
-			actor.Send("Syntax is {0}.",
-				"timezone create <clockid> <alias> \"<name>\" <hoursoffset> (<minutesoffset>)".Colour(Telnet.Yellow));
+			actor.Send("Which clock do you want to edit a timezone for?");
 			return;
 		}
 
-		// TODO - other actions other than create
-		if (!ss.Pop().Equals("create", StringComparison.InvariantCultureIgnoreCase))
+		var clock = actor.Gameworld.Clocks.GetByIdOrName(ss.PopSpeech());
+		if (clock is null)
 		{
-			actor.Send("Syntax is {0}.",
-				"timezone create <clockid> <alias> \"<name>\" <hoursoffset> (<minutesoffset>)".Colour(Telnet.Yellow));
+			actor.Send("There is no such clock.");
 			return;
 		}
 
+		if (ss.IsFinished)
+		{
+			actor.Send("What is the alias of the timezone you want to edit (e.g. #6GMT#0)?".SubstituteANSIColour());
+			return;
+		}
+
+		var alias = ss.PopSpeech();
+		if (!clock.Timezones.Any(x => x.Alias.Equals(alias, StringComparison.InvariantCultureIgnoreCase)))
+		{
+			actor.Send($"There is no timezone for the {clock.Name.ColourName()} clock with that alias.");
+			return;
+		}
+
+		if (ss.IsFinished)
+		{
+			actor.Send("What name do you want to set for the timezone (e.g. #6\"Pacific Standard Time\"#0)?".SubstituteANSIColour());
+			return;
+		}
+
+		var name = ss.PopSpeech().TitleCase();
+
+		if (ss.IsFinished)
+		{
+			actor.Send("How many hours offset from the base should this timezone be?");
+			return;
+		}
+
+		if (!int.TryParse(ss.PopSpeech(), out var hoursoffset))
+		{
+			actor.Send("You must enter a number of hours for this timezone to be offset.");
+			return;
+		}
+
+		var minutesoffset = 0;
+		if (!ss.IsFinished)
+		{
+			if (!int.TryParse(ss.SafeRemainingArgument, out minutesoffset))
+			{
+				actor.Send(
+					"You must enter a number of minutes for this timezone to be offset, or enter nothing at all.");
+				return;
+			}
+		}
+
+		var timezone = clock.Timezones.GetByName(alias)!;
+		var eTimezone = (IEditableMudTimeZone)timezone;
+		eTimezone.Description = name;
+		eTimezone.OffsetHours = hoursoffset;
+		eTimezone.OffsetMinutes = minutesoffset;
+		actor.Send("You set the timezone {0} from the {1} clock to be called ({2}) and have offset {3}.",
+			timezone.Alias.ColourValue(),
+			clock.Name.ColourName(),
+			timezone.Description.ColourName(),
+			new TimeSpan(0, hoursoffset, minutesoffset, 0, 0).Describe().ColourValue()
+		);
+	}
+
+	private static void TimeZoneCreate(ICharacter actor, StringStack ss)
+	{
 		if (ss.IsFinished)
 		{
 			actor.Send("Which clock do you want to create a timezone for?");
@@ -1326,7 +1418,7 @@ The syntax for this command is as follows:
 			return;
 		}
 
-		if (!int.TryParse(ss.Pop(), out var hoursoffset))
+		if (!int.TryParse(ss.PopSpeech(), out var hoursoffset))
 		{
 			actor.Send("You must enter a number of hours for this timezone to be offset.");
 			return;
@@ -1335,7 +1427,7 @@ The syntax for this command is as follows:
 		var minutesoffset = 0;
 		if (!ss.IsFinished)
 		{
-			if (!int.TryParse(ss.Pop(), out minutesoffset))
+			if (!int.TryParse(ss.SafeRemainingArgument, out minutesoffset))
 			{
 				actor.Send(
 					"You must enter a number of minutes for this timezone to be offset, or enter nothing at all.");
@@ -1347,9 +1439,9 @@ The syntax for this command is as follows:
 		clock.AddTimezone(timezone);
 		actor.Send("You create timezone #{0:N0} - {1} ({2}), offset {3}.",
 			timezone.Id,
-			timezone.Description,
-			timezone.Alias,
-			new TimeSpan(0, hoursoffset, minutesoffset, 0, 0).Describe()
+			timezone.Description.ColourName(),
+			timezone.Alias.ColourValue(),
+			new TimeSpan(0, hoursoffset, minutesoffset, 0, 0).Describe().ColourValue()
 		);
 	}
 
@@ -1374,6 +1466,9 @@ You can use the following subcommands:
 		var ss = new StringStack(input.RemoveFirstWord());
 		switch (ss.PopSpeech().ToLowerInvariant())
 		{
+			case "list":
+				Shards(actor, input);
+				return;
 			case "create":
 			case "new":
 				ShardCreate(actor, ss);
@@ -3666,12 +3761,9 @@ You can use the following subcommands:
 
 	#endregion
 
-	[PlayerCommand("Areas", "areas")]
-	[CommandPermission(PermissionLevel.JuniorAdmin)]
-	protected static void Areas(ICharacter actor, string input)
+	private static void AreaList(ICharacter actor, string target)
 	{
 		IEnumerable<IArea> areas;
-		var target = input.RemoveFirstWord();
 		if (string.IsNullOrWhiteSpace(target))
 		{
 			areas = actor.Gameworld.Areas;
@@ -3710,19 +3802,37 @@ You can use the following subcommands:
 		);
 	}
 
+	public const string AreaHelpText = @"This command is used to create, view and edit #6Areas#0, which are a way to group together rooms with similar proximity or purpose.
+
+Areas are independent of the location hierarchy; so for example, they are not a stage in-between rooms and zones but rather separate; areas can split across multiple zones. Rooms can even belong to more than one area at a time.
+
+Areas are useful for organising echoes and logic in progs (law enforcement for example).
+
+The syntax for working with areas is as follows:
+
+	#3area list [<zone>]#0 - lists all areas (optionally containing rooms in a zone)
+	#3area show <id|name>#0 - shows details about an area
+	#3area edit <id|name>#0 - begins editing an area
+	#3area edit#0 - an alias for #3area edit <id>#0 for the area you're editing
+	#3area close#0 - stops editing an area
+	#3area new <name>#0 - creates a new area and begins editing it
+	#3area add#0 - adds the room you're in to your currently editing area
+	#3area remove#0 - removes the room you're in from your currently editing area
+	#3area weather <id|name>#0 - sets a weather controller for the area that overrides zone
+	#3area weather clear#0 - clears a weather controller override";
+
 	[PlayerCommand("Area", "area")]
 	[CommandPermission(PermissionLevel.JuniorAdmin)]
+	[HelpInfo("area", AreaHelpText, AutoHelp.HelpArgOrNoArg)]
 	protected static void Area(ICharacter actor, string input)
 	{
 		var ss = new StringStack(input.RemoveFirstWord());
-		if (ss.IsFinished)
-		{
-			actor.OutputHandler.Send("Valid options are new, edit, close, view, add, remove, rename, and weather.");
-			return;
-		}
 
 		switch (ss.PopSpeech().ToLowerInvariant())
 		{
+			case "list":
+				AreaList(actor, ss.SafeRemainingArgument);
+				return;
 			case "new":
 			case "create":
 				AreaCreate(actor, ss);
@@ -3751,8 +3861,7 @@ You can use the following subcommands:
 				return;
 		}
 
-		actor.OutputHandler.Send("Valid options are new, edit, close, view, add, remove, rename, and weather.");
-		return;
+		actor.OutputHandler.Send(AreaHelpText.SubstituteANSIColour());
 	}
 
 	private static void AreaClose(ICharacter actor, StringStack ss)

@@ -906,7 +906,7 @@ public class ShowModule : Module<ICharacter>
 		);
 	}
 
-	private static void Show_Timezones(ICharacter actor, StringStack command)
+	public static void Show_Timezones(ICharacter actor, StringStack command)
 	{
 		if (!actor.IsAdministrator())
 		{

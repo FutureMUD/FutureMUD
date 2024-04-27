@@ -9660,7 +9660,7 @@ end if",
             Name = name,
             Parent = _tags.ValueOrDefault(parent, null)
         };
-        _tags.Add(name, tag);
+        _tags[name] = tag;
         context.Tags.Add(tag);
     }
 
@@ -9861,7 +9861,6 @@ end if",
         AddTag(context, "Grout Brush", "Brush");
         AddTag(context, "Toilet Brush", "Brush");
         AddTag(context, "Wirebrush", "Brush");
-        AddTag(context, "Bottlebrush", "Brush");
         AddTag(context, "Bottlebrush", "Brush");
         AddTag(context, "Stem Brush", "Brush");
         AddTag(context, "Drain Brush", "Brush");
@@ -10111,7 +10110,6 @@ end if",
 		AddTag(context, "Domestic Heating", "Market");
 		AddTag(context, "Combustion Heating", "Domestic Heating");
 		AddTag(context, "Oil Heating", "Domestic Heating");
-		AddTag(context, "Combustion Heating", "Domestic Heating");
 		AddTag(context, "Electric Heating", "Domestic Heating");
 
 		AddTag(context, "Intoxicants", "Market");
@@ -10180,7 +10178,7 @@ end if",
 		AddTag(context, "Sand", "Raw Materials");
 		AddTag(context, "Clay", "Raw Materials");
 		AddTag(context, "Aggregate", "Raw Materials");
-		AddTag(context, "Cement", "Raw Materials");
+		AddTag(context, "Cement Mineral", "Raw Materials");
 		AddTag(context, "Steel", "Raw Materials");
 		AddTag(context, "Copper", "Raw Materials");
 		AddTag(context, "Gold", "Raw Materials");
@@ -10188,6 +10186,8 @@ end if",
 		AddTag(context, "Bronze", "Raw Materials");
 		AddTag(context, "Brass", "Raw Materials");
 		AddTag(context, "Lead", "Raw Materials");
+
+		AddTag(context, "Lighting", "Market");
 
 		context.SaveChanges();
     }

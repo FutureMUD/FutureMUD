@@ -9660,6 +9660,7 @@ end if",
             Name = name,
             Parent = _tags.ValueOrDefault(parent, null)
         };
+        _tags.Add(name, tag);
         context.Tags.Add(tag);
     }
 
@@ -10092,6 +10093,102 @@ end if",
         AddTag(context, "Edge Brush", "Grooming");
         AddTag(context, "Diffuser", "Grooming");
 
-        context.SaveChanges();
+        // Market Items
+        AddTag(context, "Market", "");
+
+        AddTag(context, "Food", "Market");
+        AddTag(context, "Staple Food", "Food");
+        AddTag(context, "Standard Food", "Food");
+        AddTag(context, "Luxury Food", "Food");
+
+		AddTag(context, "Clothing", "Market");
+        AddTag(context, "Simple Clothing", "Clothing");
+        AddTag(context, "Standard Clothing", "Clothing");
+        AddTag(context, "Luxury Clothing", "Clothing");
+        AddTag(context, "Winter Clothing", "Clothing");
+        AddTag(context, "Military Uniforms", "Clothing");
+
+		AddTag(context, "Domestic Heating", "Market");
+		AddTag(context, "Combustion Heating", "Domestic Heating");
+		AddTag(context, "Oil Heating", "Domestic Heating");
+		AddTag(context, "Combustion Heating", "Domestic Heating");
+		AddTag(context, "Electric Heating", "Domestic Heating");
+
+		AddTag(context, "Intoxicants", "Market");
+		AddTag(context, "Wine", "Intoxicants");
+		AddTag(context, "Beer", "Intoxicants");
+		AddTag(context, "Mead", "Intoxicants");
+		AddTag(context, "Spirits", "Intoxicants");
+
+		AddTag(context, "Luxury Drinks", "Market");
+		AddTag(context, "Tea", "Luxury Drinks");
+		AddTag(context, "Coffee", "Luxury Drinks");
+
+		AddTag(context, "Household Goods", "Market");
+        AddTag(context, "Simple Furniture", "Household Goods");
+        AddTag(context, "Standard Furniture", "Household Goods");
+        AddTag(context, "Luxury Furniture", "Household Goods");
+		AddTag(context, "Simple Decorations", "Household Goods");
+		AddTag(context, "Standard Decorations", "Household Goods");
+		AddTag(context, "Luxury Decorations", "Household Goods");
+
+		AddTag(context, "Military Goods", "Market");
+		AddTag(context, "Weapons", "Military Goods");
+		AddTag(context, "Spears", "Weapons");
+		AddTag(context, "Swords", "Weapons");
+		AddTag(context, "Clubs", "Weapons");
+		AddTag(context, "Axes", "Weapons");
+		AddTag(context, "Daggers", "Weapons");
+
+		AddTag(context, "Armour", "Military Goods");
+		AddTag(context, "Leather Armour", "Armour");
+		AddTag(context, "Mail Armour", "Armour");
+		AddTag(context, "Plate Armour", "Armour");
+		AddTag(context, "Primitive Armour", "Armour");
+		AddTag(context, "Shields", "Armour");
+
+		AddTag(context, "Transportation", "Market");
+		AddTag(context, "Cargo Transportation", "Transportation");
+		AddTag(context, "Cart Haulage", "Cargo Transportation");
+		AddTag(context, "Manual Haulage", "Cargo Transportation");
+		AddTag(context, "Mule Haulage", "Cargo Transportation");
+		AddTag(context, "Ship Haulage", "Cargo Transportation");
+		AddTag(context, "Passenger Transportation", "Transportation");
+		AddTag(context, "Cart Passage", "Passenger Transportation");
+		AddTag(context, "Horse Passage", "Passenger Transportation");
+		AddTag(context, "Wagon Passage", "Passenger Transportation");
+		AddTag(context, "Ship Passage", "Passenger Transportation");
+
+		AddTag(context, "Medicine", "Market");
+		AddTag(context, "Simple Medicine", "Medicine");
+		AddTag(context, "Standard Medicine", "Medicine");
+		AddTag(context, "High-Quality Medicine", "Medicine");
+
+		AddTag(context, "Warehousing", "Market");
+
+		AddTag(context, "Professional Tools", "Market");
+		AddTag(context, "Primitive Tools", "Professional Tools");
+		AddTag(context, "Simple Tools", "Professional Tools");
+		AddTag(context, "Standard Tools", "Professional Tools");
+		AddTag(context, "High-Quality Tools", "Professional Tools");
+
+		AddTag(context, "Raw Materials", "Market");
+		AddTag(context, "Lumber", "Raw Materials");
+		AddTag(context, "Straw", "Raw Materials");
+		AddTag(context, "Cloth", "Raw Materials");
+		AddTag(context, "Stone", "Raw Materials");
+		AddTag(context, "Sand", "Raw Materials");
+		AddTag(context, "Clay", "Raw Materials");
+		AddTag(context, "Aggregate", "Raw Materials");
+		AddTag(context, "Cement", "Raw Materials");
+		AddTag(context, "Steel", "Raw Materials");
+		AddTag(context, "Copper", "Raw Materials");
+		AddTag(context, "Gold", "Raw Materials");
+		AddTag(context, "Silver", "Raw Materials");
+		AddTag(context, "Bronze", "Raw Materials");
+		AddTag(context, "Brass", "Raw Materials");
+		AddTag(context, "Lead", "Raw Materials");
+
+		context.SaveChanges();
     }
 }

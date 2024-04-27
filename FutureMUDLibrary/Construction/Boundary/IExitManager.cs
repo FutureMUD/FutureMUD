@@ -69,5 +69,6 @@ namespace MudSharp.Construction.Boundary {
 
         void PreloadCriticalExits();
         void DeleteCell(ICell cell);
-	}
+        void InitialiseCell(ICell cell, ICellOverlay overlay);
+    }
 }

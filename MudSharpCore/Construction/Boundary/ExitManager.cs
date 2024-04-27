@@ -26,7 +26,7 @@ public class ExitManager : IExitManager, IHaveFuturemud
 	/// </summary>
 	/// <param name="cell">The cell which is being initialised</param>
 	/// <param name="overlay">The overlay which is being initialised (if not specified, initialise all overlays)</param>
-	protected void InitialiseCell(ICell cell, ICellOverlay overlay)
+	public void InitialiseCell(ICell cell, ICellOverlay overlay)
 	{
 		if (overlay == null)
 		{

@@ -56,6 +56,7 @@ public class ExitHidden : Effect, IExitHiddenEffect
 		{
 			if (_exit == null)
 			{
+				Gameworld.ExitManager.InitialiseCell((ICell)Owner, null);
 				_exit = Gameworld.ExitManager.GetExitByID(_exitId);
 			}
 

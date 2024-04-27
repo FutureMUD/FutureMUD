@@ -240,8 +240,9 @@ public class ExitManager : IExitManager, IHaveFuturemud
 		if (CellExitDictionary.ContainsKey((cell, overlay)))
 		{
 			CellExitDictionary.Remove((cell, overlay));
-			InitialiseCell(cell, overlay);
 		}
+
+		InitialiseCell(cell, overlay);
 	}
 
 	public void DeleteCell(ICell cell)

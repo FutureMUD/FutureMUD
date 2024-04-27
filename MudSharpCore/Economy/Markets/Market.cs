@@ -9,6 +9,8 @@ using MudSharp.Character;
 using MudSharp.Database;
 using MudSharp.Framework;
 using MudSharp.Framework.Save;
+using MudSharp.FutureProg;
+using MudSharp.FutureProg.Variables;
 using MudSharp.GameItems;
 using MudSharp.Models;
 using MudSharp.PerceptionEngine;
@@ -441,4 +443,59 @@ In the market price formula, you can use the following variables:
 	{
 		_marketInfluences.Remove(influence);
 	}
+
+	#region FutureProgs
+
+	/// <inheritdoc />
+	public FutureProgVariableTypes Type => FutureProgVariableTypes.Market;
+
+	/// <inheritdoc />
+	public object GetObject => this;
+
+	/// <inheritdoc />
+	public IFutureProgVariable GetProperty(string property)
+	{
+		switch (property.ToLowerInvariant())
+		{
+			case "id":
+				return new NumberVariable(Id);
+			case "name":
+				return new TextVariable(Name);
+			case "categories":
+				return new CollectionVariable(_marketCategories.ToList(), FutureProgVariableTypes.MarketCategory);
+			case "influences":
+				return new DictionaryVariable(_marketInfluences.ToDictionary<IMarketInfluence, string, IFutureProgVariable>(x => x.Name, x => new NumberVariable(x.Id)), FutureProgVariableTypes.Number);
+		}
+
+		throw new ArgumentOutOfRangeException(nameof(property));
+	}
+
+	private static IReadOnlyDictionary<string, FutureProgVariableTypes> DotReferenceHandler()
+	{
+		return new Dictionary<string, FutureProgVariableTypes>(StringComparer.InvariantCultureIgnoreCase)
+		{
+			{ "name", FutureProgVariableTypes.Text },
+			{ "id", FutureProgVariableTypes.Number },
+			{ "categories", FutureProgVariableTypes.MarketCategory | FutureProgVariableTypes.Collection },
+			{ "influences", FutureProgVariableTypes.Dictionary | FutureProgVariableTypes.Number }
+		};
+	}
+
+	private static IReadOnlyDictionary<string, string> DotReferenceHelp()
+	{
+		return new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase)
+		{
+			{ "name", "The name of the market" },
+			{ "id", "The Id of the market" },
+			{ "categories", "The market categories that apply in this market" },
+			{ "influences", "A dictionary with the names and IDs of influences effecting this market"}
+		};
+	}
+
+	public static void RegisterFutureProgCompiler()
+	{
+		FutureProgVariable.RegisterDotReferenceCompileInfo(FutureProgVariableTypes.Market, DotReferenceHandler(),
+			DotReferenceHelp());
+	}
+	#endregion
 }

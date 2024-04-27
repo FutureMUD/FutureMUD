@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Xml;
@@ -7,8 +8,11 @@ using MudSharp.Character;
 using MudSharp.Database;
 using MudSharp.Framework;
 using MudSharp.Framework.Save;
+using MudSharp.FutureProg;
 using MudSharp.FutureProg.Functions.DateTime;
+using MudSharp.FutureProg.Variables;
 using MudSharp.GameItems;
+using MudSharp.Models;
 using MudSharp.PerceptionEngine;
 
 namespace MudSharp.Economy.Markets;
@@ -296,4 +300,51 @@ public class MarketCategory : SaveableItem, IMarketCategory
 	public double ElasticityFactorBelow { get; set; }
 
 	public readonly List<ITag> _tags = new();
+
+	#region FutureProgs
+
+	/// <inheritdoc />
+	public FutureProgVariableTypes Type => FutureProgVariableTypes.MarketCategory;
+
+	/// <inheritdoc />
+	public object GetObject => this;
+
+	/// <inheritdoc />
+	public IFutureProgVariable GetProperty(string property)
+	{
+		switch (property.ToLowerInvariant())
+		{
+			case "id":
+				return new NumberVariable(Id);
+			case "name":
+				return new TextVariable(Name);
+		}
+
+		throw new ArgumentOutOfRangeException(nameof(property));
+	}
+
+	private static IReadOnlyDictionary<string, FutureProgVariableTypes> DotReferenceHandler()
+	{
+		return new Dictionary<string, FutureProgVariableTypes>(StringComparer.InvariantCultureIgnoreCase)
+		{
+			{ "name", FutureProgVariableTypes.Text },
+			{ "id", FutureProgVariableTypes.Number },
+		};
+	}
+
+	private static IReadOnlyDictionary<string, string> DotReferenceHelp()
+	{
+		return new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase)
+		{
+			{ "name", "The name of the market category" },
+			{ "id", "The Id of the market category" },
+		};
+	}
+
+	public static void RegisterFutureProgCompiler()
+	{
+		FutureProgVariable.RegisterDotReferenceCompileInfo(FutureProgVariableTypes.MarketCategory, DotReferenceHandler(),
+			DotReferenceHelp());
+	}
+	#endregion
 }

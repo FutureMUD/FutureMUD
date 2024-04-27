@@ -225,6 +225,10 @@ namespace MudSharp.FutureProg {
 
         Crime = 1L << 56,
 
+        Market = 1L << 57,
+
+        MarketCategory = 1L << 58,
+
         #region Special Flag Combinations
 
         /// <summary>
@@ -235,7 +239,7 @@ namespace MudSharp.FutureProg {
             Shard | Accent | Language | Race | Culture | Trait | Clan | ClanRank | ClanAppointment | ClanPaygrade |
             Currency | Exit | Merit | MudDateTime | Calendar | Clock | Effect | Knowledge | Role | Ethnicity | Drug | 
             WeatherEvent | Shop | Merchandise | Outfit | OutfitItem | OverlayPackage | Terrain | Project |
-            Solid | Liquid | Gas | MagicSchool | MagicCapability | MagicSpell | Bank | BankAccount | BankAccountType | LegalAuthority | Law | Crime
+            Solid | Liquid | Gas | MagicSchool | MagicCapability | MagicSpell | Bank | BankAccount | BankAccountType | LegalAuthority | Law | Crime | Market | MarketCategory
             ,
 
         /// <summary>

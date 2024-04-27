@@ -334,7 +334,13 @@ namespace MudSharp.FutureProg {
                 case FutureProgVariableTypes.WeatherEvent:
 	                sb.Insert(0, "WeatherEvent");
                     break;
-                case FutureProgVariableTypes.ReferenceType:
+                case FutureProgVariableTypes.Market:
+	                sb.Insert(0, "Market");
+	                break;
+                case FutureProgVariableTypes.MarketCategory:
+	                sb.Insert(0, "MarketCategory");
+	                break;
+				case FutureProgVariableTypes.ReferenceType:
 	                sb.Insert(0, "ReferenceType");
                     break;
                 case FutureProgVariableTypes.ValueType:

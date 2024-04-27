@@ -8,6 +8,8 @@ using JetBrains.Annotations;
 using MudSharp.Character;
 using MudSharp.Database;
 using MudSharp.Economy.Currency;
+using MudSharp.Editor;
+using MudSharp.Effects.Concrete;
 using MudSharp.Framework;
 using MudSharp.Framework.Save;
 using MudSharp.FutureProg;
@@ -32,6 +34,62 @@ internal class MarketPopulation : SaveableItem, IMarketPopulation
 		LoadNeeds(XElement.Parse(population.MarketPopulationNeeds));
 		LoadStresses(XElement.Parse(population.MarketStressPoints));
 		RecalculateStress();
+	}
+
+	private MarketPopulation(MarketPopulation rhs, string name)
+	{
+		Gameworld = rhs.Gameworld;
+		Market = rhs.Market;
+		_name = name;
+		Description = rhs.Description;
+		PopulationScale = rhs.PopulationScale;
+		LoadNeeds(rhs.SaveNeeds());
+		LoadStresses(rhs.SaveStresses());
+		RecalculateStress();
+		using (new FMDB())
+		{
+			var dbitem = new Models.MarketPopulation
+			{
+				Name = Name,
+				Description = Description,
+				PopulationScale = PopulationScale,
+				MarketPopulationNeeds = SaveNeeds().ToString(),
+				MarketStressPoints = SaveStresses().ToString(),
+				MarketId = Market.Id
+			};
+			FMDB.Context.MarketPopulations.Add(dbitem);
+			FMDB.Context.SaveChanges();
+			_id = dbitem.Id;
+		}
+	}
+
+	public MarketPopulation(IMarket market, string name)
+	{
+		Gameworld = market.Gameworld;
+		Market = market;
+		_name = name;
+		Description = "An undescribed market population";
+		PopulationScale = 10000;
+		using (new FMDB())
+		{
+			var dbitem = new Models.MarketPopulation
+			{
+				Name = Name,
+				Description = Description,
+				PopulationScale = PopulationScale,
+				MarketPopulationNeeds = SaveNeeds().ToString(),
+				MarketStressPoints = SaveStresses().ToString(),
+				MarketId = Market.Id
+			};
+			FMDB.Context.MarketPopulations.Add(dbitem);
+			FMDB.Context.SaveChanges();
+			_id = dbitem.Id;
+		}
+	}
+
+	public IMarketPopulation Clone(string name)
+	{
+		return new MarketPopulation(this, name);
 	}
 
 	private void LoadNeeds(XElement root)
@@ -98,7 +156,18 @@ internal class MarketPopulation : SaveableItem, IMarketPopulation
 		);
 	}
 
-	public const string HelpText = @"";
+	public const string HelpText = @"You can use the following options with this command:
+
+	#3name <name>#0 - renames this market population
+	#3desc#0 - drops you into an editor to edit the description
+	#3scale <number>#0 - sets the number of people represented by this pop
+	#3need <category> <money>#0 - sets or removes (with 0) the need to spend on a category
+	#3stress add <threshold> <name> <onstart>|none <onend>|none#0 - creates a new population stress threshold
+	#3stress <threshold> remove#0 - permanently removes a stress threshold
+	#3stress <threshold> name <name>#0 - renames a stress threshold
+	#3stress <threshold> desc#0 - drops into an editor to edit the threshold's description
+	#3stress <threshold> onstart <prog>|none#0 - sets or clears an on-start prog for the threshold
+	#3stress <threshold> onend <prog>|none#0 - sets or clears an on-end prog for the threshold";
 
 	/// <inheritdoc />
 	public bool BuildingCommand(ICharacter actor, StringStack command)
@@ -190,33 +259,245 @@ internal class MarketPopulation : SaveableItem, IMarketPopulation
 			return true;
 		}
 
-		//var prog = new FutureProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument, FutureProgVariableTypes.Void, [])
-		throw new NotImplementedException();
+		var prog = new FutureProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument, FutureProgVariableTypes.Void, 
+			[
+				[FutureProgVariableTypes.Number],
+				[FutureProgVariableTypes.Number, FutureProgVariableTypes.Boolean],
+				[FutureProgVariableTypes.Number, FutureProgVariableTypes.Boolean, FutureProgVariableTypes.Market]
+			]
+			).LookupProg();
+		if (prog is null)
+		{
+			return false;
+		}
+
+		_marketStressPoints[_marketStressPoints.IndexOf(stress)] = stress with { ExecuteOnEnd = prog };
+		Changed = true;
+		actor.OutputHandler.Send($"This stress threshold will now execute the {prog.MXPClickableFunctionName()} prog when it ends.");
+		return true;
 	}
 
 	private bool BuildingCommandStressTresholdOnStart(ICharacter actor, decimal result, StringStack command)
 	{
-		throw new NotImplementedException();
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("You must either specify a prog or use #3none#0 to clear the existing one.");
+			return false;
+		}
+
+		var stress = _marketStressPoints.First(x => x.StressThreshold == result);
+
+		if (command.SafeRemainingArgument.EqualToAny("none", "remove", "delete"))
+		{
+			_marketStressPoints[_marketStressPoints.IndexOf(stress)] = stress with { ExecuteOnStart = null };
+			Changed = true;
+			actor.OutputHandler.Send("This stress threshold will no longer execute any prog when it starts.");
+			return true;
+		}
+
+		var prog = new FutureProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument, FutureProgVariableTypes.Void,
+			[
+				[FutureProgVariableTypes.Number],
+				[FutureProgVariableTypes.Number, FutureProgVariableTypes.Boolean],
+				[FutureProgVariableTypes.Number, FutureProgVariableTypes.Boolean, FutureProgVariableTypes.Market]
+			]
+		).LookupProg();
+		if (prog is null)
+		{
+			return false;
+		}
+
+		_marketStressPoints[_marketStressPoints.IndexOf(stress)] = stress with { ExecuteOnStart = prog };
+		Changed = true;
+		actor.OutputHandler.Send($"This stress threshold will now execute the {prog.MXPClickableFunctionName()} prog when it starts.");
+		return true;
 	}
 
 	private bool BuildingCommandStressThresholdDescription(ICharacter actor, decimal result)
 	{
-		throw new NotImplementedException();
+		var stress = _marketStressPoints.First(x => x.StressThreshold == result);
+		var sb = new StringBuilder();
+		if (!string.IsNullOrEmpty(Description))
+		{
+			sb.AppendLine("Replacing:\n");
+			sb.AppendLine(Description.ProperSentences().Wrap(actor.InnerLineFormatLength, "\t"));
+			sb.AppendLine();
+		}
+
+		sb.AppendLine("Enter the description in the editor below.");
+		sb.AppendLine();
+		actor.OutputHandler.Send(sb.ToString());
+		actor.EditorMode(StressDescriptionPost, StressDescriptionCancel, suppliedArguments: [actor, stress]);
+		return true;
+	}
+
+	private void StressDescriptionPost(string text, IOutputHandler handler, object[] args)
+	{
+		var actor = (ICharacter)args[0];
+		var stress = (MarketStressPoint)args[1];
+		_marketStressPoints[_marketStressPoints.IndexOf(stress)] = stress with { Description = text };
+		handler.Send($"You set the description of the {stress.Name.ColourName()} stress point to:\n\n{text.Wrap(actor.InnerLineFormatLength, "\t")}");
+		Changed = true;
+	}
+
+	private void StressDescriptionCancel(IOutputHandler handler, object[] args)
+	{
+		handler.Send("You decide not to change the stress threshold's description.");
 	}
 
 	private bool BuildingCommandStressTresholdName(ICharacter actor, decimal result, StringStack command)
 	{
-		throw new NotImplementedException();
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("What name do you want to give to this stress point?");
+			return false;
+		}
+
+		var name = command.SafeRemainingArgument.TitleCase();
+		if (_marketStressPoints.Any(x => x.Name.EqualTo(name)))
+		{
+			actor.OutputHandler.Send($"This market population already has a stress point named {name.ColourName()}. Names must be unique.");
+			return false;
+		}
+
+		var stress = _marketStressPoints.First(x => x.StressThreshold == result);
+		Changed = true;
+		actor.OutputHandler.Send($"You rename the {Name.ColourName()} stress threshold to {name.ColourName()}.");
+		_marketStressPoints[_marketStressPoints.IndexOf(stress)] = stress with { Name = name };
+		return true;
 	}
 
 	private bool BuildingCommandStressThresholdRemove(ICharacter actor, decimal result)
 	{
-		throw new NotImplementedException();
+		var stress = _marketStressPoints.First(x => x.StressThreshold == result);
+		actor.OutputHandler.Send($"Are you sure you want to remove the {stress.Name.ColourName()} stress threshold?\n{Accept.StandardAcceptPhrasing}");
+		actor.AddEffect(new Accept(actor, new GenericProposal
+		{
+			DescriptionString = "Removing a stress threshold",
+			AcceptAction = text =>
+			{
+				_marketStressPoints.Remove(stress);
+				Changed = true;
+				actor.OutputHandler.Send($"You remove the {stress.Name.ColourName()} stress threshold.");
+			},
+			RejectAction = text =>
+			{
+				actor.OutputHandler.Send($"You decide not to remove the {stress.Name.ColourName()} stress threshold.");
+			},
+			ExpireAction = () =>
+			{
+				actor.OutputHandler.Send($"You decide not to remove the {stress.Name.ColourName()} stress threshold.");
+			},
+			Keywords = ["stress", "remove", "market"]
+		}), TimeSpan.FromSeconds(120));
+		return true;
 	}
 
 	private bool BuildingCommandStressThresholdAdd(ICharacter actor, StringStack command)
 	{
-		throw new NotImplementedException();
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("What minimum percentage value of stress should this threshold kick in at?");
+			return false;
+		}
+
+		if (!command.PopSpeech().TryParsePercentageDecimal(actor.Account.Culture, out var value))
+		{
+			actor.OutputHandler.Send($"The text {command.Last.ColourCommand()} is not a valid percentage.");
+			return false;
+		}
+
+		if (_marketStressPoints.Any(x => x.StressThreshold == value))
+		{
+			actor.OutputHandler.Send($"There is already a stress threshold at {value.ToString("P2", actor).ColourValue()}.");
+			return false;
+		}
+
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send($"What name do you want to give to this stress threshold?");
+			return false;
+		}
+
+		var name = command.PopSpeech().TitleCase();
+		if (_marketStressPoints.Any(x => x.Name.EqualTo(name)))
+		{
+			actor.OutputHandler.Send($"This population already has a market stress threshold called {name.ColourName()}. Names must be unique.");
+			return false;
+		}
+
+		var onstart = default(IFutureProg);
+		var onend = default(IFutureProg);
+		if (!command.IsFinished)
+		{
+			var text = command.PopSpeech();
+			if (!text.EqualTo("none"))
+			{
+				var prog = new FutureProgLookupFromBuilderInput(Gameworld, actor, text, FutureProgVariableTypes.Void,
+				[
+					[FutureProgVariableTypes.Number],
+					[FutureProgVariableTypes.Number, FutureProgVariableTypes.Boolean],
+					[FutureProgVariableTypes.Number, FutureProgVariableTypes.Boolean, FutureProgVariableTypes.Market]
+				]).LookupProg();
+				if (prog is null)
+				{
+					return false;
+				}
+
+				onstart = prog;
+			}
+
+			if (!command.IsFinished)
+			{
+				text = command.SafeRemainingArgument;
+				if (!text.EqualTo("none"))
+				{
+					var prog = new FutureProgLookupFromBuilderInput(Gameworld, actor, text, FutureProgVariableTypes.Void,
+					[
+						[FutureProgVariableTypes.Number],
+						[FutureProgVariableTypes.Number, FutureProgVariableTypes.Boolean],
+						[FutureProgVariableTypes.Number, FutureProgVariableTypes.Boolean, FutureProgVariableTypes.Market]
+					]).LookupProg();
+					if (prog is null)
+					{
+						return false;
+					}
+
+					onend = prog;
+				}
+			}
+		}
+
+		actor.OutputHandler.Send("Please enter a description for your new stress threshold in the editor below:\n");
+		actor.EditorMode(NewStressThresholdPost, NewStressThresholdCancel, options: EditorOptions.PermitEmpty, suppliedArguments: [actor, value, name, onstart, onend]);
+		return true;
+	}
+
+	private void NewStressThresholdPost(string text, IOutputHandler handler, object[] args)
+	{
+		var actor = (ICharacter)args[0];
+		var value = (decimal)args[1];
+		var name = (string)args[2];
+		var onstart = (IFutureProg?)args[3];
+		var onend = (IFutureProg?)args[4];
+
+		var stress = new MarketStressPoint
+		{
+			Name = name,
+			Description = text,
+			StressThreshold = value,
+			ExecuteOnStart = onstart,
+			ExecuteOnEnd = onend
+		};
+		_marketStressPoints.Add(stress);
+		_marketStressPoints.Sort((x, y) => x.StressThreshold.CompareTo(y.StressThreshold));
+		Changed = true;
+		handler.Send($"You create a new market stress point at {value.ToString("P2", actor).ColourValue()} called {name.ColourName()}, which executes {onstart?.MXPClickableFunctionName() ?? "nothing".ColourError()} on start and {onend?.MXPClickableFunctionName() ?? "nothing".ColourError()} on end.\n\nIt has the following description:\n\n{Description.Wrap(actor.InnerLineFormatLength, "\t").ColourCommand()}");
+	}
+
+	private void NewStressThresholdCancel(IOutputHandler handler, object[] args)
+	{
+		handler.Send("You decide not to create a new stress threshold.");
 	}
 
 	private bool BuildingCommandNeed(ICharacter actor, StringStack command)
@@ -394,12 +675,24 @@ internal class MarketPopulation : SaveableItem, IMarketPopulation
 
 	private void RecalculateStress()
 	{
+		if (_marketPopulationNeeds.Count == 0)
+		{
+			CurrentStress = 0.0M;
+			return;
+		}
+
 		var expectedSpend = MarketPopulationNeeds.Sum(x => x.BaseExpenditure);
+		if (expectedSpend == 0.0M)
+		{
+			CurrentStress = 0.0M;
+			return;
+		}
+
 		var actualSpend = MarketPopulationNeeds.Sum(x => Market.PriceMultiplierForCategory(x.MarketCategory) * x.BaseExpenditure);
 		CurrentStress = (actualSpend / expectedSpend) - 1.0M;
 	}
 
-	private MarketStressPoint? CurrentStressPoint => _marketStressPoints
+	public MarketStressPoint? CurrentStressPoint => _marketStressPoints
 	                                                 .Where(x => x.StressThreshold <= CurrentStress)
 	                                                 .FirstMax(x => x.StressThreshold);
 
@@ -415,7 +708,7 @@ internal class MarketPopulation : SaveableItem, IMarketPopulation
 			return;
 		}
 
-		old?.ExecuteOnEnd?.Execute();
-		stress?.ExecuteOnStart?.Execute();
+		old?.ExecuteOnEnd?.Execute(Id, CurrentStress > previous, Market);
+		stress?.ExecuteOnStart?.Execute(Id, CurrentStress > previous, Market);
 	}
 }

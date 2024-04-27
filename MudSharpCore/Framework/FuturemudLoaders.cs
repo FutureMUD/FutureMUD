@@ -146,7 +146,6 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 	void IFuturemudLoader.LoadFromDatabase()
 	{
 		SaveManager.MudBootingMode = true;
-		// TODO: Consider remaking context every 100 - 500 entities for the performance boost
 		var sw = new Stopwatch();
 		sw.Start();
 		GameStatistics = new GameStatistics(this) { LastBootTime = DateTime.UtcNow };
@@ -428,6 +427,15 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 				spawner.CheckSpawn();
 			}
 		}, ScheduleType.System, TimeSpan.FromMinutes(5), "Check NPC Spawners"));
+		Scheduler.AddSchedule(new RepeatingSchedule<IFuturemud>(this, this,
+			fm =>
+			{
+				foreach (var population in fm.MarketPopulations)
+				{
+					population.MarketPopulationHeartbeat();
+				}
+			}, ScheduleType.System, TimeSpan.FromMinutes(60),
+			"Market Population Heartbeats"));
 		Chargen.SetupChargen(this);
 		HeartbeatManager.StartHeartbeatTick();
 		EffectScheduler.SetupEffectSaver();
@@ -548,6 +556,28 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 		count = _markets.Count;
 		ConsoleUtilities.WriteLine("Loaded #2{0:N0}#0 {1}.", count, count == 1 ? "Market" : "Markets");
 		#endregion
+
+		#region Market Populations
+		ConsoleUtilities.WriteLine("\nLoading #5Market Populations#0...");
+#if DEBUG
+		sw.Restart();
+#endif
+		var populations = FMDB.Context.MarketPopulations
+		                      .AsNoTracking()
+		                      .ToList();
+		foreach (var item in populations)
+		{
+			_marketPopulations.Add(new Economy.Markets.MarketPopulation(this, item));
+		}
+#if DEBUG
+		sw.Stop();
+		ConsoleUtilities.WriteLine($"Duration: #2{sw.ElapsedMilliseconds}ms#0");
+#endif
+		count = _marketPopulations.Count;
+		ConsoleUtilities.WriteLine("Loaded #2{0:N0}#0 {1}.", count, count == 1 ? "Market Population" : "Market Populations");
+
+		#endregion
+
 	}
 
 	void IFuturemudLoader.LoadLegal()

@@ -7294,7 +7294,7 @@ The syntax for this command is as follows:
 			return;
 		}
 
-		var old = actor.Gameworld.Markets.GetByIdOrName(ss.SafeRemainingArgument);
+		var old = actor.Gameworld.Markets.GetByIdOrName(ss.PopSpeech());
 		if (old is null)
 		{
 			actor.OutputHandler.Send("There is no market like that.");
@@ -7455,5 +7455,257 @@ The syntax for this command is as follows:
 		actor.OutputHandler.Send("You are no longer editing any markets.");
 	}
 	#endregion Markets
+
+	#region Market Populations
+	public const string MarketPopulationHelpText = @"This command allows you to create and edit markets, which can be used to control prices of various goods in way that responds to supply and demand changes.
+
+There are several related commands, #3marketcategory#0, #3marketinfluencetemplate#0 and #3markettemplate#0.
+
+The syntax for this command is as follows:
+
+	#3market list#0 - shows all market populations
+	#3market show <id>#0 - shows a particular market population
+	#3market edit <id>#0 - begins editing a market population
+	#3market edit#0 - an alias for #3market show <editing id>#0
+	#3market close#0 - stops editing a market population
+	#3market clone <name>#0 - clones an existing market population and then begins editing the clone
+	#3market new <ez> <name>#0 - creates a new market population in an economic zone
+	#3market set name <name>#0 - renames this market population
+	#3market set desc#0 - drops you into an editor to edit the description
+	#3market set scale <number>#0 - sets the number of people represented by this pop
+	#3market set need <category> <money>#0 - sets or removes (with 0) the need to spend on a category
+	#3market set stress add <threshold> <name> <onstart>|none <onend>|none#0 - creates a new population stress threshold
+	#3market set stress <threshold> remove#0 - permanently removes a stress threshold
+	#3market set stress <threshold> name <name>#0 - renames a stress threshold
+	#3market set stress <threshold> desc#0 - drops into an editor to edit the threshold's description
+	#3market set stress <threshold> onstart <prog>|none#0 - sets or clears an on-start prog for the threshold
+	#3market set stress <threshold> onend <prog>|none#0 - sets or clears an on-end prog for the threshold";
+
+	[PlayerCommand("MarketPopulation", "marketpopulation", "mp")]
+	[CommandPermission(PermissionLevel.Admin)]
+	protected static void MarketPopulation(ICharacter actor, string command)
+	{
+		var ss = new StringStack(command.RemoveFirstWord());
+		switch (ss.PopForSwitch())
+		{
+			case "list":
+				MarketPopulationList(actor, ss);
+				return;
+			case "new":
+			case "create":
+				MarketPopulationNew(actor, ss);
+				return;
+			case "clone":
+				MarketPopulationClone(actor, ss);
+				return;
+			case "set":
+				MarketPopulationSet(actor, ss);
+				return;
+			case "edit":
+				MarketPopulationEdit(actor, ss);
+				return;
+			case "close":
+				MarketPopulationClose(actor, ss);
+				return;
+			case "show":
+			case "view":
+				MarketPopulationShow(actor, ss);
+				return;
+			default:
+				actor.OutputHandler.Send(MarketPopulationHelpText.SubstituteANSIColour());
+				return;
+		}
+	}
+
+	private static void MarketPopulationClone(ICharacter actor, StringStack ss)
+	{
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send("Which market population do you want to clone?");
+			return;
+		}
+
+		var old = actor.Gameworld.MarketPopulations.GetByIdOrName(ss.PopSpeech());
+		if (old is null)
+		{
+			actor.OutputHandler.Send("There is no market population like that.");
+			return;
+		}
+
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send("What name do you want to give to the new market population?");
+			return;
+		}
+
+		var name = ss.SafeRemainingArgument.TitleCase();
+		if (actor.Gameworld.MarketPopulations.Any(x => x.Name.EqualTo(name)))
+		{
+			actor.OutputHandler.Send($"There is already a market population called {name.ColourName()}. Names must be unique.");
+			return;
+		}
+
+		var population = old.Clone(name);
+		actor.Gameworld.Add(population);
+		actor.RemoveAllEffects<BuilderEditingEffect<IMarketPopulation>>();
+		actor.AddEffect(new BuilderEditingEffect<IMarketPopulation>(actor) { EditingItem = population });
+		actor.OutputHandler.Send($"You are clone market population {old.Name.ColourValue()} to a new market population called {population.Name.ColourName()}, which you are now editing.");
+	}
+
+	private static void MarketPopulationShow(ICharacter actor, StringStack ss)
+	{
+		if (ss.IsFinished)
+		{
+			var effect = actor.CombinedEffectsOfType<BuilderEditingEffect<IMarketPopulation>>().FirstOrDefault();
+			if (effect is null)
+			{
+				actor.OutputHandler.Send("Which market population would you like to show?");
+				return;
+			}
+
+			actor.OutputHandler.Send(effect.EditingItem.Show(actor));
+			return;
+		}
+
+		var market = actor.Gameworld.MarketPopulations.GetByIdOrName(ss.SafeRemainingArgument);
+		if (market is null)
+		{
+			actor.OutputHandler.Send("There is no market population like that.");
+			return;
+		}
+
+		actor.OutputHandler.Send(market.Show(actor));
+	}
+
+	private static void MarketPopulationList(ICharacter actor, StringStack ss)
+	{
+		var populations = actor.Gameworld.MarketPopulations.ToList();
+
+		while (!ss.IsFinished)
+		{
+			var market = actor.Gameworld.Markets.GetByIdOrName(ss.PopSpeech());
+			if (market is null)
+			{
+				actor.OutputHandler.Send("There is no such market.");
+				return;
+			}
+
+			populations = populations.Where(x => x.Market == market).ToList();
+		}
+
+		actor.OutputHandler.Send(StringUtilities.GetTextTable(
+			from item in populations
+			select new List<string>
+			{
+				item.Id.ToString("N0", actor),
+				item.Name,
+				item.Market.Name,
+				item.CurrentStress.ToString("P2", actor),
+				item.CurrentStressPoint?.Name ?? "",
+				item.PopulationScale.ToString("N0", actor),
+				item.MarketPopulationNeeds.Count().ToString("N0", actor)
+			},
+			new List<string>
+			{
+				"ID",
+				"Name",
+				"Market",
+				"Stress",
+				"Stress Name",
+				"Population",
+				"# Needs"
+			},
+			actor,
+			Telnet.Yellow
+		));
+	}
+
+	private static void MarketPopulationNew(ICharacter actor, StringStack ss)
+	{
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send("Which market do you want to create a market population in?");
+			return;
+		}
+
+		var ez = actor.Gameworld.EconomicZones.GetByIdOrName(ss.PopSpeech());
+		if (ez is null)
+		{
+			actor.OutputHandler.Send("There is no such economic zones.");
+			return;
+		}
+
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send("What name do you want to give to the new market?");
+			return;
+		}
+
+		var name = ss.SafeRemainingArgument.TitleCase();
+		if (actor.Gameworld.Markets.Any(x => x.Name.EqualTo(name)))
+		{
+			actor.OutputHandler.Send($"There is already a market called {name.ColourName()}. Names must be unique.");
+			return;
+		}
+
+		var market = new Market(actor.Gameworld, name, ez);
+		actor.Gameworld.Add(market);
+		actor.RemoveAllEffects<BuilderEditingEffect<IMarket>>();
+		actor.AddEffect(new BuilderEditingEffect<IMarket>(actor) { EditingItem = market });
+		actor.OutputHandler.Send($"You are create a new market in the {ez.Name.ColourValue()} economic zone called {market.Name.ColourName()}, which you are now editing.");
+	}
+
+	private static void MarketPopulationSet(ICharacter actor, StringStack ss)
+	{
+		var effect = actor.CombinedEffectsOfType<BuilderEditingEffect<IMarketPopulation>>().FirstOrDefault();
+		if (effect is null)
+		{
+			actor.OutputHandler.Send("You are not editing any market populations.");
+			return;
+		}
+
+		effect.EditingItem.BuildingCommand(actor, ss);
+	}
+
+	private static void MarketPopulationEdit(ICharacter actor, StringStack ss)
+	{
+		if (ss.IsFinished)
+		{
+			var effect = actor.CombinedEffectsOfType<BuilderEditingEffect<IMarketPopulation>>().FirstOrDefault();
+			if (effect is null)
+			{
+				actor.OutputHandler.Send("Which market population would you like to edit?");
+				return;
+			}
+
+			actor.OutputHandler.Send(effect.EditingItem.Show(actor));
+			return;
+		}
+
+		var population = actor.Gameworld.MarketPopulations.GetByIdOrName(ss.SafeRemainingArgument);
+		if (population is null)
+		{
+			actor.OutputHandler.Send("There is no market population like that.");
+			return;
+		}
+
+		actor.RemoveAllEffects<BuilderEditingEffect<IMarketPopulation>>();
+		actor.AddEffect(new BuilderEditingEffect<IMarketPopulation>(actor) { EditingItem = population });
+		actor.OutputHandler.Send($"You are now editing the {population.Name.ColourName()} market population.");
+	}
+
+	private static void MarketPopulationClose(ICharacter actor, StringStack ss)
+	{
+		var effect = actor.CombinedEffectsOfType<BuilderEditingEffect<IMarketPopulation>>().FirstOrDefault();
+		if (effect is null)
+		{
+			actor.OutputHandler.Send("You are not editing any market populations.");
+			return;
+		}
+
+		actor.RemoveAllEffects<BuilderEditingEffect<IMarketPopulation>>();
+		actor.OutputHandler.Send("You are no longer editing any market populations.");
+	}
+	#endregion
 	#endregion
 }

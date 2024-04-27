@@ -24,7 +24,10 @@ public interface IMarketPopulation : ISaveable, IEditableItem
 	/// </summary>
 	decimal CurrentStress { get; }
 
+	MarketStressPoint? CurrentStressPoint { get; }
+
 	IEnumerable<MarketPopulationNeed> MarketPopulationNeeds { get; }
 	IEnumerable<MarketStressPoint> MarketStressPoints { get; }
 	void MarketPopulationHeartbeat();
+	IMarketPopulation Clone(string name);
 }

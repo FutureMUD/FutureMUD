@@ -1,10 +1,11 @@
 ﻿using MudSharp.Framework.Revision;
 using MudSharp.Framework.Save;
+using MudSharp.FutureProg;
 using MudSharp.GameItems;
 
 namespace MudSharp.Economy;
 #nullable enable
-public interface IMarketCategory : ISaveable, IEditableItem
+public interface IMarketCategory : ISaveable, IEditableItem, IFutureProgVariable
 {
 	string Description { get; }
 	bool BelongsToCategory(IGameItem item);

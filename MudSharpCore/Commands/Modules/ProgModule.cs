@@ -612,7 +612,7 @@ A function (See PROG HELP FUNCTIONS) can also function as a statement on a line.
 			case FutureProgVariableTypes.Culture:
 				return $"the {((IFrameworkItem)result).Name.ColourValue()} culture";
 			case FutureProgVariableTypes.Trait:
-				break;
+				return $"the {((IFrameworkItem)result).Name.ColourValue()} trait";
 			case FutureProgVariableTypes.Clan:
 				return $"the {((IFrameworkItem)result).Name.ColourName()} clan";
 			case FutureProgVariableTypes.ClanRank:
@@ -646,19 +646,19 @@ A function (See PROG HELP FUNCTIONS) can also function as a statement on a line.
 			case FutureProgVariableTypes.Ethnicity:
 				return $"the {((IFrameworkItem)result).Name.ColourValue()} ethnicity";
 			case FutureProgVariableTypes.WeatherEvent:
-				break;
+				return $"the {((IFrameworkItem)result).Name.ColourValue()} weather event";
 			case FutureProgVariableTypes.Shop:
-				break;
+				return $"the {((IFrameworkItem)result).Name.ColourValue()} shop";
 			case FutureProgVariableTypes.Merchandise:
-				break;
+				return $"the {((IFrameworkItem)result).Name.ColourValue()} merchandise";
 			case FutureProgVariableTypes.Outfit:
 				break;
 			case FutureProgVariableTypes.OutfitItem:
 				break;
 			case FutureProgVariableTypes.Project:
-				break;
+				return $"the {((IFrameworkItem)result).Name.ColourValue()} project";
 			case FutureProgVariableTypes.OverlayPackage:
-				break;
+				return $"the {((IFrameworkItem)result).Name.ColourValue()} overlay package";
 			case FutureProgVariableTypes.Terrain:
 				return $"the {((IFrameworkItem)result).Name.ColourValue()} terrain";
 			case FutureProgVariableTypes.Solid:
@@ -674,18 +674,22 @@ A function (See PROG HELP FUNCTIONS) can also function as a statement on a line.
 			case FutureProgVariableTypes.MagicCapability:
 				return $"the {((IFrameworkItem)result).Name.ColourValue()} magic capability";
 			case FutureProgVariableTypes.Bank:
-				break;
+				return $"the {((IFrameworkItem)result).Name.ColourValue()} bank";
 			case FutureProgVariableTypes.BankAccount:
-				break;
+				return $"the {((IFrameworkItem)result).Name.ColourValue()} bank account";
 			case FutureProgVariableTypes.BankAccountType:
-				break;
+				return $"the {((IFrameworkItem)result).Name.ColourValue()} bank account type";
 			case FutureProgVariableTypes.LegalAuthority:
 				return $"the {((IFrameworkItem)result).Name.ColourValue()} legal authority";
 
 			case FutureProgVariableTypes.Law:
-				break;
+				return $"the {((IFrameworkItem)result).Name.ColourValue()} law";
 			case FutureProgVariableTypes.Crime:
-				break;
+				return $"the #{((IFrameworkItem)result).Id.ToString("N0", actor).ColourValue()} crime";
+			case FutureProgVariableTypes.Market:
+				return $"the {((IFrameworkItem)result).Name.ColourValue()} market";
+			case FutureProgVariableTypes.MarketCategory:
+				return $"the {((IFrameworkItem)result).Name.ColourValue()} market category";
 			case FutureProgVariableTypes.Perceivable:
 				var perceivable = (IPerceivable)result;
 				return perceivable.HowSeen(actor);
@@ -1269,6 +1273,24 @@ A function (See PROG HELP FUNCTIONS) can also function as a statement on a line.
 				}
 
 				return (law, true);
+			case FutureProgVariableTypes.Market:
+				var market = actor.Gameworld.Markets.GetByIdOrName(parText);
+				if (market is null)
+				{
+					actor.OutputHandler.Send($"There is no such market{parameterArgument}");
+					return (null, false);
+				}
+
+				return (market, true);
+			case FutureProgVariableTypes.MarketCategory:
+				var category = actor.Gameworld.MarketCategories.GetByIdOrName(parText);
+				if (category is null)
+				{
+					actor.OutputHandler.Send($"There is no such market category{parameterArgument}");
+					return (null, false);
+				}
+
+				return (category, true);
 			case FutureProgVariableTypes.Crime:
 				var crime = actor.Gameworld.Crimes.GetByIdOrName(parText);
 				if (crime is null)

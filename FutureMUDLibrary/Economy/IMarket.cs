@@ -7,12 +7,13 @@ using JetBrains.Annotations;
 using MudSharp.Framework;
 using MudSharp.Framework.Revision;
 using MudSharp.Framework.Save;
+using MudSharp.FutureProg;
 using MudSharp.GameItems;
 
 namespace MudSharp.Economy;
 #nullable enable
 
-public interface IMarket : ISaveable, IEditableItem
+public interface IMarket : ISaveable, IEditableItem, IFutureProgVariable
 {
 	IEconomicZone EconomicZone { get; }
 	string Description { get; }

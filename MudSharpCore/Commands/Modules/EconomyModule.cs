@@ -7463,13 +7463,13 @@ There are several related commands, #3marketcategory#0, #3marketinfluencetemplat
 
 The syntax for this command is as follows:
 
-	#3market list#0 - shows all market populations
+	#3market list [<market>]#0 - shows all market populations
 	#3market show <id>#0 - shows a particular market population
 	#3market edit <id>#0 - begins editing a market population
 	#3market edit#0 - an alias for #3market show <editing id>#0
 	#3market close#0 - stops editing a market population
 	#3market clone <name>#0 - clones an existing market population and then begins editing the clone
-	#3market new <ez> <name>#0 - creates a new market population in an economic zone
+	#3market new <market> <name>#0 - creates a new market population in a market
 	#3market set name <name>#0 - renames this market population
 	#3market set desc#0 - drops you into an editor to edit the description
 	#3market set scale <number>#0 - sets the number of people represented by this pop
@@ -7628,31 +7628,31 @@ The syntax for this command is as follows:
 			return;
 		}
 
-		var ez = actor.Gameworld.EconomicZones.GetByIdOrName(ss.PopSpeech());
-		if (ez is null)
+		var market = actor.Gameworld.Markets.GetByIdOrName(ss.PopSpeech());
+		if (market is null)
 		{
-			actor.OutputHandler.Send("There is no such economic zones.");
+			actor.OutputHandler.Send("There is no such market.");
 			return;
 		}
 
 		if (ss.IsFinished)
 		{
-			actor.OutputHandler.Send("What name do you want to give to the new market?");
+			actor.OutputHandler.Send("What name do you want to give to the new market population?");
 			return;
 		}
 
 		var name = ss.SafeRemainingArgument.TitleCase();
-		if (actor.Gameworld.Markets.Any(x => x.Name.EqualTo(name)))
+		if (actor.Gameworld.MarketPopulations.Where(x => x.Market == market).Any(x => x.Name.EqualTo(name)))
 		{
-			actor.OutputHandler.Send($"There is already a market called {name.ColourName()}. Names must be unique.");
+			actor.OutputHandler.Send($"There is already a market population for the {market.Name.ColourValue()} market called {name.ColourName()}. Names must be unique.");
 			return;
 		}
 
-		var market = new Market(actor.Gameworld, name, ez);
-		actor.Gameworld.Add(market);
-		actor.RemoveAllEffects<BuilderEditingEffect<IMarket>>();
-		actor.AddEffect(new BuilderEditingEffect<IMarket>(actor) { EditingItem = market });
-		actor.OutputHandler.Send($"You are create a new market in the {ez.Name.ColourValue()} economic zone called {market.Name.ColourName()}, which you are now editing.");
+		var population = new MarketPopulation(market, name);
+		actor.Gameworld.Add(population);
+		actor.RemoveAllEffects<BuilderEditingEffect<IMarketPopulation>>();
+		actor.AddEffect(new BuilderEditingEffect<IMarketPopulation>(actor) { EditingItem = population });
+		actor.OutputHandler.Send($"You are create a new market population in the {market.Name.ColourValue()} market called {population.Name.ColourName()}, which you are now editing.");
 	}
 
 	private static void MarketPopulationSet(ICharacter actor, StringStack ss)

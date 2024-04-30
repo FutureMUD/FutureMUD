@@ -282,38 +282,42 @@ public class GameItemProto : EditableItem, IGameItemProto
 		using (new FMDB())
 		{
 			var dbnew = new Models.GameItemProto
-			{
-				Id = Id,
-				RevisionNumber =
-					FMDB.Context.GameItemProtos.Where(x => x.Id == Id)
-					    .Select(x => x.RevisionNumber)
-					    .AsEnumerable()
-					    .DefaultIfEmpty(0)
-					    .Max() +
-					1,
-				Keywords = Keywords.ListToString(separator: " ",
-					conjunction: ""),
-				MaterialId = Material?.Id ?? 0,
-				Name = Name.Proper(),
-				Size = (int)Size,
-				Weight = Weight,
-				ReadOnly = false,
-				LongDescription = LongDescription,
-				BaseItemQuality = (int)BaseItemQuality,
-				MorphTimeSeconds = (int)MorphTimeSpan.TotalSeconds,
-				ItemGroupId = ItemGroup?.Id,
-				OnDestroyedGameItemProtoId = _onDestroyedGameItemProto == 0 ? null : _onDestroyedGameItemProto,
-				HealthStrategyId = HealthStrategy?.Id,
-				FullDescription = FullDescription,
-				ShortDescription = ShortDescription,
-				MorphEmote = MorphEmote,
-				PermitPlayerSkins = PermitPlayerSkins,
-				MorphGameItemProtoId = _onMorphGameItemProto != 0
-					? _onMorphGameItemProto
-					: default(long?),
-				CustomColour = CustomColour?.Name.ToLowerInvariant() ?? "",
-				HighPriority = HighPriority
-			};
+            {
+                Id = Id,
+                RevisionNumber =
+                    FMDB.Context.GameItemProtos.Where(x => x.Id == Id)
+                        .Select(x => x.RevisionNumber)
+                        .AsEnumerable()
+                        .DefaultIfEmpty(0)
+                        .Max() +
+                    1,
+                Keywords = Keywords.ListToString(separator: " ",
+                    conjunction: ""),
+                MaterialId = Material?.Id ?? 0,
+                EditableItemId = 0,
+                Name = Name.Proper(),
+                Size = (int)Size,
+                Weight = Weight,
+                ReadOnly = false,
+                LongDescription = LongDescription,
+                BaseItemQuality = (int)BaseItemQuality,
+                MorphTimeSeconds = (int)MorphTimeSpan.TotalSeconds,
+                ItemGroupId = ItemGroup?.Id,
+                OnDestroyedGameItemProtoId = _onDestroyedGameItemProto == 0
+                    ? null
+                    : _onDestroyedGameItemProto,
+                HealthStrategyId = HealthStrategy?.Id,
+                FullDescription = FullDescription,
+                ShortDescription = ShortDescription,
+                MorphEmote = MorphEmote,
+                PermitPlayerSkins = PermitPlayerSkins,
+                MorphGameItemProtoId = _onMorphGameItemProto != 0
+                    ? _onMorphGameItemProto
+                    : default(long?),
+                CustomColour = CustomColour?.Name.ToLowerInvariant() ?? "",
+                HighPriority = HighPriority,
+                CostInBaseCurrency = CostInBaseCurrency,
+            };
 
 			foreach (var tag in Tags)
 			{
@@ -410,7 +414,8 @@ public class GameItemProto : EditableItem, IGameItemProto
 				CustomColour = CustomColour?.Name.ToLowerInvariant() ?? "",
 				HighPriority = HighPriority,
 				ItemGroupId = ItemGroup?.Id,
-				HealthStrategyId = HealthStrategy?.Id
+				HealthStrategyId = HealthStrategy?.Id,
+				CostInBaseCurrency = CostInBaseCurrency
 			};
 
 			foreach (var tag in Tags)
@@ -918,9 +923,8 @@ public class GameItemProto : EditableItem, IGameItemProto
 				return BuildingCommandMorph(actor, command);
 			case "extra":
 				return BuildingCommandExtra(actor, command);
-			case "help":
-			case "?":
-				actor.OutputHandler.Send(@"You can use the following options with the ITEM SET command:
+			default:
+                actor.OutputHandler.Send(@"You can use the following options with the ITEM SET command:
 
 	#3add <id|name>#0 - adds the specified component to this item
 	#3remove <id|name>#0 - removes the specified component from this item
@@ -952,20 +956,17 @@ public class GameItemProto : EditableItem, IGameItemProto
 	#3destroyed none#0 - clears a destroyed item setting
 	#3strategy <id|name>#0 - sets a custom health strategy for this item
 	#3strategy none#0 - sets the item to use the default item health strategy
-    #3extra add <prog>#0 - adds a new extra description slot with a specified prog
-    #3extra remove <which##>#0 - removes the specified numbered extra description
-    #3extra swap <first##> <second##>#0 - swaps the evaluation order of two extra descriptions
-    #3extra <which##> sdesc <sdesc>#0 - sets the short description for the extra description
-    #3extra <which##> clear sdesc#0 - clears the short description for the extra description
-    #3extra <which##> desc <desc>#0 - sets the full description for the extra description
-    #3extra <which##> clear desc#0 - clears the full description for the extra description
-    #3extra <which##> addendum <text>#0 - sets an addendum text for the full description
-    #3extra <which##> clear addendum#0 - clears the addendum text for the full description".SubstituteANSIColour());
-				return true;
-			default:
-				actor.OutputHandler.Send("That is not a valid building command. See ITEM SET HELP for more info.");
-				return false;
-		}
+	#3extra add <prog>#0 - adds a new extra description slot with a specified prog
+	#3extra remove <which##>#0 - removes the specified numbered extra description
+	#3extra swap <first##> <second##>#0 - swaps the evaluation order of two extra descriptions
+	#3extra <which##> sdesc <sdesc>#0 - sets the short description for the extra description
+	#3extra <which##> clear sdesc#0 - clears the short description for the extra description
+	#3extra <which##> desc <desc>#0 - sets the full description for the extra description
+	#3extra <which##> clear desc#0 - clears the full description for the extra description
+	#3extra <which##> addendum <text>#0 - sets an addendum text for the full description
+	#3extra <which##> clear addendum#0 - clears the addendum text for the full description".SubstituteANSIColour());
+                return true;
+        }
 	}
 
 	private bool BuildingCommandSkinnable(ICharacter actor)
@@ -1477,14 +1478,14 @@ public class GameItemProto : EditableItem, IGameItemProto
 	{
 		if (command.IsFinished)
 		{
-			actor.Send("What item quality do you want to assign to this prototype by default?");
+			actor.Send($"What item quality do you want to assign to this prototype by default? Please see {"show itemquality".MXPSend("show itemquality")} for a list of item qualities.");
 			return false;
 		}
 
 		if (!GameItemEnumExtensions.TryParseQuality(command.SafeRemainingArgument, out var quality))
 		{
 			actor.Send(
-				$"That is not a valid item quality. Please see {"show itemquality".Colour(Telnet.Yellow)} for a list of item qualities.");
+				$"That is not a valid item quality. Please see {"show itemquality".MXPSend("show itemquality")} for a list of item qualities.");
 			return false;
 		}
 

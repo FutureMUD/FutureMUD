@@ -109,13 +109,9 @@ public abstract class GameItemComponentProto : EditableItem, IGameItemComponentP
 				return BuildingCommand_Name(actor, command);
 			case "keywords":
 				return BuildingCommand_Keywords(actor, command);
-			case "help":
-			case "?":
-				return BuildingCommand_Help(actor);
 			default:
-				actor.OutputHandler.Send("That is not a valid option for editing this component.");
-				return false;
-		}
+                return BuildingCommand_Help(actor);
+        }
 	}
 
 	public virtual string ShowBuildingHelp => "This component does not yet have specific help.";

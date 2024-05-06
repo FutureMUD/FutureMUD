@@ -1926,19 +1926,19 @@ The core syntax is as follows:
 
 		CustomSearch = (protos, keyword, gameworld) => protos,
 
-		DefaultCommandHelp = @"This command is used to work with and edit magic regenerators.
+		DefaultCommandHelp = @"This command is used to work with and edit magic powers.
 
 The core syntax is as follows:
 
-    #3magic regenerator list - shows all magic regenerators
-    #3magic regenerator edit new <type> <name> <resource>#0 - creates a new magic regenerator
-    #3magic regenerator clone <old> <new>#0 - clones an existing magic regenerator
-    #3magic regenerator edit <which>#0 - begins editing a magic regenerator
-    #3magic regenerator close#0 - closes an editing magic regenerator
-    #3magic regenerator show <which>#0 - shows builder information about a regenerator
-    #3magic regenerator show#0 - shows builder information about the currently edited regenerator
-    #3magic regenerator edit#0 - an alias for magic regenerator show (with no args)
-    #3magic regenerator set ...#0 - edits the properties of a magic regenerator. See #3magic regenerator set ?#0 for more info.",
+    #3magic power list - shows all magic powers
+    #3magic power edit new <type> <school> <name>#0 - creates a new magic power
+    #3magic power clone <old> <new>#0 - clones an existing magic power
+    #3magic power edit <which>#0 - begins editing a magic power
+    #3magic power close#0 - closes an editing magic power
+    #3magic power show <which>#0 - shows builder information about a power
+    #3magic power show#0 - shows builder information about the currently edited power
+    #3magic power edit#0 - an alias for magic power show (with no args)
+    #3magic power set ...#0 - edits the properties of a magic power. See #3magic power set ?#0 for more info.",
 
 		GetEditHeader = item => $"Magic Power #{item.Id:N0} ({item.Name})"
 	};

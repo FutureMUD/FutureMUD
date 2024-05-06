@@ -24,8 +24,25 @@ public class MindBroadcastPower : MagicPowerBase
 		MagicPowerFactory.RegisterLoader("mindbroadcast",
 			(power, gameworld) => new MindBroadcastPower(power, gameworld));
 	}
+	protected override XElement SaveDefinition()
+    {
+        var definition = new XElement("Definition",
+            new XElement("Verb", Verb),
+            new XElement("EmoteText", new XCData(EmoteText)),
+            new XElement("FailEmoteText", new XCData(FailEmoteText)),
+            new XElement("TargetEmoteText", new XCData(TargetEmoteText)),
+            new XElement("UnknownIdentityDescription", new XCData(UnknownIdentityDescription)),
+            new XElement("MinimumSuccessThreshold", (int)MinimumSuccessThreshold),
+			new XElement("UseAccent", UseAccent),
+            new XElement("UseLanguage", UseLanguage),
+            new XElement("TargetCanSeeIdentityProg", TargetCanSeeIdentityProg.Id),
+            new XElement("TargetIncluded", TargetIncluded.Id),
+            new XElement("SkillCheckTrait", SkillCheckTrait.Id)
+        );
+        return definition;
+    }
 
-	protected MindBroadcastPower(MagicPower power, IFuturemud gameworld) : base(power, gameworld)
+    protected MindBroadcastPower(MagicPower power, IFuturemud gameworld) : base(power, gameworld)
 	{
 		var root = XElement.Parse(power.Definition);
 		var element = root.Element("UnknownIdentityDescription");
@@ -238,7 +255,26 @@ public class MindBroadcastPower : MagicPowerBase
 	public bool UseAccent { get; protected set; }
 	public IFutureProg TargetIncluded { get; protected set; }
 
-	public string GetAppropriateHowSeen(ICharacter connecter, ICharacter connectee)
+    protected override void ShowSubtype(ICharacter actor, StringBuilder sb)
+    {
+        sb.AppendLine($"Power Verb: {Verb.ColourCommand()}");
+        sb.AppendLine($"Skill Check Trait: {SkillCheckTrait.Name.ColourValue()}");
+        sb.AppendLine($"Skill Check Difficulty: {SkillCheckDifficulty.DescribeColoured()}");
+        sb.AppendLine($"Minimum Success Threshold: {MinimumSuccessThreshold.DescribeColour()}");
+        sb.AppendLine($"Target Can See Identity Prog: {TargetCanSeeIdentityProg.MXPClickableFunctionName()}");
+        sb.AppendLine($"Target Included Prog: {TargetIncluded.MXPClickableFunctionName()}");
+        sb.AppendLine($"Unknown Identity Desc: {UnknownIdentityDescription.ColourCharacter()}");
+        sb.AppendLine($"Use Language: {UseLanguage.ToColouredString()}");
+        sb.AppendLine($"Use Accent: {UseAccent.ToColouredString()}");
+        sb.AppendLine();
+        sb.AppendLine("Emotes:");
+        sb.AppendLine();
+        sb.AppendLine($"Emote: {EmoteText.ColourCommand()}");
+        sb.AppendLine($"Self Emote: {FailEmoteText.ColourCommand()}");
+        sb.AppendLine($"Detected Target Emote: {TargetEmoteText.ColourCommand()}");
+    }
+
+    public string GetAppropriateHowSeen(ICharacter connecter, ICharacter connectee)
 	{
 		if ((bool?)TargetCanSeeIdentityProg.Execute(connecter, connectee) == true)
 		{

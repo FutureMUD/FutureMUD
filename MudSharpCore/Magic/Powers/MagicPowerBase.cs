@@ -10,6 +10,8 @@ using MudSharp.Effects.Concrete;
 using MudSharp.Framework;
 using MudSharp.Framework.Save;
 using MudSharp.FutureProg;
+using MudSharp.Models;
+using MudSharp.PerceptionEngine;
 
 namespace MudSharp.Magic.Powers;
 
@@ -99,62 +101,62 @@ public abstract class MagicPowerBase : SaveableItem, IMagicPower
 		{
 			case MagicPowerDistance.AnyConnectedMind:
 				return owner.CombinedEffectsOfType<ConnectMindEffect>()
-				            .Where(x => x.School == School)
-				            .Select(x => x.TargetCharacter)
-				            .Where(x => TargetFilterFunction(owner, x))
-				            .GetFromItemListByKeyword(targetText, owner);
+							.Where(x => x.School == School)
+							.Select(x => x.TargetCharacter)
+							.Where(x => TargetFilterFunction(owner, x))
+							.GetFromItemListByKeyword(targetText, owner);
 			case MagicPowerDistance.AnyConnectedMindOrConnectedTo:
 				return owner.CombinedEffectsOfType<ConnectMindEffect>().Where(x => x.School == School)
-				            .Select(x => x.TargetCharacter)
-				            .Concat(owner.CombinedEffectsOfType<MindConnectedToEffect>().Where(x => x.School == School)
-				                         .Select(x => x.OriginatorCharacter))
-				            .Where(x => TargetFilterFunction(owner, x))
-				            .GetFromItemListByKeyword(targetText, owner);
+							.Select(x => x.TargetCharacter)
+							.Concat(owner.CombinedEffectsOfType<MindConnectedToEffect>().Where(x => x.School == School)
+										 .Select(x => x.OriginatorCharacter))
+							.Where(x => TargetFilterFunction(owner, x))
+							.GetFromItemListByKeyword(targetText, owner);
 			case MagicPowerDistance.SameLocationOnly:
 				return owner.Location.Characters
-				            .Where(x => TargetFilterFunction(owner, x))
-				            .GetFromItemListByKeyword(targetText, owner);
+							.Where(x => TargetFilterFunction(owner, x))
+							.GetFromItemListByKeyword(targetText, owner);
 			case MagicPowerDistance.AdjacentLocationsOnly:
 				return owner.Location.Characters
-				            .Except(owner)
-				            .Concat(owner.Location.ExitsFor(owner).Select(x => x.Destination)
-				                         .SelectMany(x => x.Characters))
-				            .Where(x => TargetFilterFunction(owner, x))
-				            .GetFromItemListByKeyword(targetText, owner);
+							.Except(owner)
+							.Concat(owner.Location.ExitsFor(owner).Select(x => x.Destination)
+										 .SelectMany(x => x.Characters))
+							.Where(x => TargetFilterFunction(owner, x))
+							.GetFromItemListByKeyword(targetText, owner);
 			case MagicPowerDistance.SameAreaOnly:
 				return owner.Location.Areas.Any()
 					? owner.Location.Areas
-					       .SelectMany(x => x.Cells.SelectMany(y => y.Characters))
-					       .Except(owner)
-					       .Where(x => TargetFilterFunction(owner, x))
-					       .GetFromItemListByKeyword(targetText, owner)
+						   .SelectMany(x => x.Cells.SelectMany(y => y.Characters))
+						   .Except(owner)
+						   .Where(x => TargetFilterFunction(owner, x))
+						   .GetFromItemListByKeyword(targetText, owner)
 					: owner.Location.Characters
-					       .Where(x => TargetFilterFunction(owner, x))
-					       .GetFromItemListByKeyword(targetText, owner);
+						   .Where(x => TargetFilterFunction(owner, x))
+						   .GetFromItemListByKeyword(targetText, owner);
 			case MagicPowerDistance.SameZoneOnly:
 				return owner.Location.Zone.Cells
-				            .SelectMany(x => x.Characters)
-				            .Except(owner)
-				            .Where(x => TargetFilterFunction(owner, x))
-				            .GetFromItemListByKeyword(targetText, owner);
+							.SelectMany(x => x.Characters)
+							.Except(owner)
+							.Where(x => TargetFilterFunction(owner, x))
+							.GetFromItemListByKeyword(targetText, owner);
 			case MagicPowerDistance.SameShardOnly:
 				return owner.Location.Shard.Cells
-				            .SelectMany(x => x.Characters)
-				            .Except(owner)
-				            .Where(x => TargetFilterFunction(owner, x))
-				            .GetFromItemListByKeyword(targetText, owner);
+							.SelectMany(x => x.Characters)
+							.Except(owner)
+							.Where(x => TargetFilterFunction(owner, x))
+							.GetFromItemListByKeyword(targetText, owner);
 			case MagicPowerDistance.SamePlaneOnly:
 				// TODO
 				return Gameworld.Shards
-				                .SelectMany(x => x.Cells.SelectMany(y => y.Characters))
-				                .Except(owner)
-				                .Where(x => TargetFilterFunction(owner, x))
-				                .GetFromItemListByKeyword(targetText, owner);
+								.SelectMany(x => x.Cells.SelectMany(y => y.Characters))
+								.Except(owner)
+								.Where(x => TargetFilterFunction(owner, x))
+								.GetFromItemListByKeyword(targetText, owner);
 			case MagicPowerDistance.SeenTargetOnly:
 				return owner.SeenTargets
-				            .OfType<ICharacter>()
-				            .Concat(owner.Location.Characters)
-				            .Where(x => TargetFilterFunction(owner, x)).GetFromItemListByKeyword(targetText, owner);
+							.OfType<ICharacter>()
+							.Concat(owner.Location.Characters)
+							.Where(x => TargetFilterFunction(owner, x)).GetFromItemListByKeyword(targetText, owner);
 		}
 
 		throw new ApplicationException("Unknown MagicPowerDistance in MagicPowerBase.AcquireTarget");
@@ -173,16 +175,16 @@ public abstract class MagicPowerBase : SaveableItem, IMagicPower
 				return owner.CombinedEffectsOfType<ConnectMindEffect>().Any(x => x.TargetCharacter == target);
 			case MagicPowerDistance.AnyConnectedMindOrConnectedTo:
 				return owner.CombinedEffectsOfType<ConnectMindEffect>().Any(x => x.TargetCharacter == target) ||
-				       owner.CombinedEffectsOfType<MindConnectedToEffect>().Any(x => x.OriginatorCharacter == target)
+					   owner.CombinedEffectsOfType<MindConnectedToEffect>().Any(x => x.OriginatorCharacter == target)
 					;
 			case MagicPowerDistance.SameLocationOnly:
 				return owner.Location == target.Location;
 			case MagicPowerDistance.AdjacentLocationsOnly:
 				return owner.Location.CellsInVicinity(1, x => true, x => true)
-				            .Any(x => x == target.Location);
+							.Any(x => x == target.Location);
 			case MagicPowerDistance.SameAreaOnly:
 				return owner.Location.Areas.Any(x => target.Location.Areas.Contains(x)) ||
-				       owner.Location == target.Location;
+					   owner.Location == target.Location;
 			case MagicPowerDistance.SameZoneOnly:
 				return owner.Location.Zone == target.Location.Zone;
 			case MagicPowerDistance.SameShardOnly:
@@ -191,7 +193,7 @@ public abstract class MagicPowerBase : SaveableItem, IMagicPower
 				return true; // TODO
 			case MagicPowerDistance.SeenTargetOnly:
 				return owner.SeenTargets.Concat(owner.Location.Characters.Except(owner).Where(x => owner.CanSee(x)))
-				            .Contains(target);
+							.Contains(target);
 			default:
 				throw new ArgumentOutOfRangeException();
 		}
@@ -295,18 +297,242 @@ public abstract class MagicPowerBase : SaveableItem, IMagicPower
 	public IFutureProg CanInvokePowerProg { get; private set; }
 	public IFutureProg WhyCantInvokePowerProg { get; private set; }
 
-	public CollectionDictionary<string, (IMagicResource Resource, double Cost)> InvocationCosts { get; } = new();
+	public CollectionDictionary<string, (IMagicResource Resource, double Cost)> InvocationCosts { get; } = new(StringComparer.InvariantCultureIgnoreCase);
 
-	public bool BuildingCommand(ICharacter actor, StringStack command)
+	protected abstract string SubtypeHelpText { get; }
+
+    public virtual string HelpText => $@"You can use the following options with this magic power:
+
+    #3name <name>#0 - renames the magic power
+    #3school <which>#0 - sets the school the power belongs to
+    #3blurb <blurb>#0 - sets the blurb for power list
+    #3can <prog>#0 - sets a prog that controls if the power can be used
+    #3why <prog>#0 - sets a prog that controls an error message if prog can't be used
+    #3help#0 - drops you into an editor to write the player help file
+    #3cost <verb> <which> <number>#0 - sets the cost of using a particular verb
+{SubtypeHelpText}";
+
+	public virtual bool BuildingCommand(ICharacter actor, StringStack command)
 	{
-		actor.OutputHandler.Send("Building commands are not yet implemented for Magic Powers.");
+		switch (command.PopForSwitch())
+		{
+			case "name":
+				return BuildingCommandName(actor, command);
+			case "can":
+			case "canprog":
+			case "caninvokeprog":
+				return BuildingCommandCanInvokeProg(actor, command);
+			case "why":
+			case "whycant":
+			case "whycan't":
+			case "whycantprog":
+				return BuildingCommandWhyCantProg(actor, command);
+			case "help":
+			case "playerhelp":
+				return BuildingCommandHelpText(actor);
+			case "blurb":
+				return BuildingCommandBlurb(actor, command);
+			case "cost":
+				return BuildingCommandCost(actor, command);
+			case "school":
+				return BuildingCommandSchool(actor, command);
+		}
+
+		actor.OutputHandler.Send(HelpText.SubstituteANSIColour());
 		return false;
 	}
 
-	protected virtual void ShowSubtype(ICharacter actor, StringBuilder sb)
+	private bool BuildingCommandSchool(ICharacter actor, StringStack command)
 	{
-		// Do nothing while todo
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("Which magic school do you want to move this power to?");
+			return false;
+		}
+
+		var school = Gameworld.MagicSchools.GetByIdOrName(command.SafeRemainingArgument);
+		if (school is null)
+		{
+			actor.OutputHandler.Send("There is no such magic school.");
+			return false;
+		}
+
+		if (Gameworld.MagicPowers.Where(x => x.School == school).Any(x => x.Name.EqualTo(Name)))
+		{
+			actor.OutputHandler.Send($"There is already a power in the {school.Name.Colour(school.PowerListColour)} named {Name.ColourName()}. Names must be unique per school.");
+			return false;
+		}
+
+		School = school;
+		Changed = true;
+		actor.OutputHandler.Send($"This magic power now belongs to the {school.Name.Colour(school.PowerListColour)} magic school.");
+		return true;
 	}
+
+	private bool BuildingCommandCost(ICharacter actor, StringStack command)
+	{
+        if (command.IsFinished)
+        {
+            actor.OutputHandler.Send($"Which verb do you want to change the cost for? The available verbs are {Verbs.Select(x => x.ColourName()).ListToString()}.");
+            return false;
+        }
+
+        var verb = command.PopSpeech();
+        if (Verbs.All(x => !x.EqualTo(verb)))
+        {
+            actor.OutputHandler.Send($"There is no such verb for this power. The available verbs are {Verbs.Select(x => x.ColourName()).ListToString()}.");
+            return false;
+        }
+
+        if (command.IsFinished)
+        {
+            actor.OutputHandler.Send("Which magic resource would you like to alter the cost of?");
+            return false;
+        }
+
+        var resource = Gameworld.MagicResources.GetByIdOrName(command.PopSpeech());
+        if (resource is null)
+        {
+            actor.OutputHandler.Send("There is no such chargen resource.");
+            return false;
+        }
+
+        if (command.IsFinished)
+        {
+            actor.OutputHandler.Send($"How much {resource.Name.ColourValue()} should be expended when using the {verb.ColourCommand()} verb? Use 0 to remove a cost.");
+            return false;
+        }
+
+        if (!double.TryParse(command.SafeRemainingArgument, out var value))
+        {
+            actor.OutputHandler.Send($"The text {command.SafeRemainingArgument.ColourCommand()} is not a valid number.");
+            return false;
+        }
+
+        InvocationCosts[verb].RemoveAll(x => x.Resource == resource);
+        Changed = true;
+        if (value <= 0.0)
+        {
+            actor.OutputHandler.Send($"It will no longer cost any {resource.Name.ColourValue()} to use the {verb.ColourCommand()} verb with this power.");
+            return true;
+        }
+
+        InvocationCosts[verb].Add((resource, value));
+        actor.OutputHandler.Send($"It will now cost {value.ToString("N3", actor).ColourValue()} {resource.ShortName.ColourValue()} to use the {verb.ColourCommand()} verb for this power.");
+        return true;
+	}
+
+	private bool BuildingCommandBlurb(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("What should the blurb for the school's power list be?");
+			return false;
+		}
+
+		Blurb = command.SafeRemainingArgument.ProperSentences();
+		Changed = true;
+		actor.OutputHandler.Send($"You change this power's blurb to: {Blurb.ColourCommand()}");
+		return true;
+	}
+
+	private bool BuildingCommandHelpText(ICharacter actor)
+	{
+		if (!string.IsNullOrEmpty(_showHelpText))
+		{
+			actor.OutputHandler.Send($"Replacing:\n\n{_showHelpText.ProperSentences().Wrap(actor.InnerLineFormatLength, "\t")}");
+		}
+
+		actor.OutputHandler.Send("Enter the player help text in the editor below.");
+		actor.EditorMode(PostAction, CancelAction, suppliedArguments: [actor]);
+		return true;
+	}
+
+	private void CancelAction(IOutputHandler handler, object[] args)
+	{
+		handler.Send("You decide not to edit the player help text.");
+	}
+
+	private void PostAction(string text, IOutputHandler handler, object[] args)
+	{
+		var actor = (ICharacter)args[0];
+		_showHelpText = text.Trim().ProperSentences();
+		Changed = true;
+		handler.Send($"You set the player help text of this magic power to:\n\n{_showHelpText.SubstituteANSIColour().Wrap(actor.InnerLineFormatLength, "\t")}");
+	}
+
+	private bool BuildingCommandWhyCantProg(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("What prog should be used to send an error message about why this power can't be invoked?");
+			return false;
+		}
+
+		var prog = new FutureProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument, FutureProgVariableTypes.Text,
+			[
+				[FutureProgVariableTypes.Character],
+				[FutureProgVariableTypes.Character, FutureProgVariableTypes.Character],
+			]
+		).LookupProg();
+		if (prog is null)
+		{
+			return false;
+		}
+
+		WhyCantInvokePowerProg = prog;
+		Changed = true;
+		actor.OutputHandler.Send($"This power now uses the {prog.MXPClickableFunctionName()} prog to generate error messages about power invocation.");
+		return true;
+	}
+
+	private bool BuildingCommandCanInvokeProg(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("What prog should be used to control whether this power can be invoked?");
+			return false;
+		}
+
+		var prog = new FutureProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument, FutureProgVariableTypes.Boolean,
+			[
+				[FutureProgVariableTypes.Character],
+				[FutureProgVariableTypes.Character, FutureProgVariableTypes.Character],
+			]
+		).LookupProg();
+		if (prog is null)
+		{
+			return false;
+		}
+
+		CanInvokePowerProg = prog;
+		Changed = true;
+		actor.OutputHandler.Send($"This power now uses the {prog.MXPClickableFunctionName()} prog to determine whether a power can be invoked.");
+		return true;
+	}
+
+	private bool BuildingCommandName(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("What name do you want to give to this power?");
+			return false;
+		}
+
+		var name = command.SafeRemainingArgument.TitleCase();
+		if (Gameworld.MagicPowers.Where(x => x.School == School).Any(x => x.Name.EqualTo(name)))
+		{
+			actor.OutputHandler.Send($"There is already a magic power in the {School.Name.Colour(School.PowerListColour)} magic school with the name {name.ColourName()}. Names must be unique per school.");
+			return false;
+		}
+
+		actor.OutputHandler.Send($"You rename the {Name.ColourName()} power to {name.ColourName()}.");
+		_name = name;
+		Changed = true;
+		return true;
+	}
+
+	protected abstract void ShowSubtype(ICharacter actor, StringBuilder sb);
 
 	public string Show(ICharacter actor)
 	{
@@ -339,8 +565,11 @@ public abstract class MagicPowerBase : SaveableItem, IMagicPower
 		dbitem.MagicSchoolId = School.Id;
 		dbitem.ShowHelp = _showHelpText;
 		dbitem.Blurb = Blurb;
-		// TODO - save defintion
+		dbitem.Definition = SaveDefinition().ToString();
 		Changed = false;
 	}
+
+	protected abstract XElement SaveDefinition();
+
 	#endregion
 }

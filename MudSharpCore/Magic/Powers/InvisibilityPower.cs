@@ -25,7 +25,26 @@ public class InvisibilityPower : SustainedMagicPower
 		MagicPowerFactory.RegisterLoader("invisibility", (power, gameworld) => new InvisibilityPower(power, gameworld));
 	}
 
-	public InvisibilityPower(Models.MagicPower power, IFuturemud gameworld) : base(power, gameworld)
+    protected override XElement SaveDefinition()
+    {
+        var definition = new XElement("Definition",
+            new XElement("ConnectVerb", StartPowerVerb),
+            new XElement("DisconnectVerb", EndPowerVerb),
+            new XElement("SkillCheckDifficulty", (int)SkillCheckDifficulty),
+            new XElement("SkillCheckTrait", SkillCheckTrait.Id),
+            new XElement("InvisibilityAppliesProg", InvisibilityAppliesProg.Id),
+            new XElement("CanEndPowerProg", CanEndPowerProg.Id),
+            new XElement("WhyCantEndPowerProg", WhyCantEndPowerProg.Id),
+            new XElement("EmoteText", new XCData(EmoteText)),
+            new XElement("FailEmoteText", new XCData(FailEmoteText)),
+            new XElement("EndPowerEmoteText", new XCData(EndPowerEmoteText)),
+			new XElement("PerceptionTypes", (long)PerceptionTypes)
+        );
+        SaveSustainedDefinition(definition);
+        return definition;
+    }
+
+    public InvisibilityPower(Models.MagicPower power, IFuturemud gameworld) : base(power, gameworld)
 	{
 		var root = XElement.Parse(power.Definition);
 		var element = root.Element("StartPowerVerb");
@@ -223,4 +242,23 @@ public class InvisibilityPower : SustainedMagicPower
 	public ITraitDefinition SkillCheckTrait { get; protected set; }
 	public Outcome MinimumSuccessThreshold { get; protected set; }
 	public PerceptionTypes PerceptionTypes { get; protected set; }
+
+    protected override void ShowSubtype(ICharacter actor, StringBuilder sb)
+    {
+        sb.AppendLine($"Begin Verb: {StartPowerVerb.ColourCommand()}");
+        sb.AppendLine($"End Verb: {EndPowerVerb.ColourCommand()}");
+        sb.AppendLine($"Skill Check Trait: {SkillCheckTrait.Name.ColourValue()}");
+        sb.AppendLine($"Skill Check Difficulty: {SkillCheckDifficulty.DescribeColoured()}");
+        sb.AppendLine($"Minimum Success Threshold: {MinimumSuccessThreshold.DescribeColour()}");
+        sb.AppendLine($"Invisibility Applies Prog: {InvisibilityAppliesProg.MXPClickableFunctionName()}");
+        sb.AppendLine($"Can End Prog: {CanEndPowerProg.MXPClickableFunctionName()}");
+        sb.AppendLine($"Why Can't End Prog: {WhyCantEndPowerProg.MXPClickableFunctionName()}");
+        sb.AppendLine($"Perception Types: {PerceptionTypes.GetSingleFlags().Select(x => x.DescribeEnum().ColourValue()).ListToString()}");
+        sb.AppendLine();
+        sb.AppendLine("Emotes:");
+        sb.AppendLine();
+        sb.AppendLine($"Emote: {EmoteText.ColourCommand()}");
+        sb.AppendLine($"Fail Emote: {FailEmoteText.ColourCommand()}");
+        sb.AppendLine($"End Emote: {EndPowerEmoteText.ColourCommand()}");
+    }
 }

@@ -236,7 +236,31 @@ public class ChokePower : SustainedMagicPower
 		}
 	}
 
-	public override void UseCommand(ICharacter actor, string verb, StringStack command)
+    /// <inheritdoc />
+    protected override XElement SaveDefinition()
+    {
+        var definition = new XElement("Definition",
+			new XElement("BeginVerb", BeginVerb),
+			new XElement("EndVerb", EndVerb),
+			new XElement("PowerDistance", (int)PowerDistance),
+			new XElement("SkillCheckDifficulty", (int)SkillCheckDifficulty),
+			new XElement("SkillCheckTrait", SkillCheckTrait.Id),
+			new XElement("MinimumSuccessThreshold", (int)MinimumSuccessThreshold),
+			new XElement("ResistCheckDifficulty", (int)ResistCheckDifficulty),
+			new XElement("ResistCheckInterval", ResistCheckInterval.TotalSeconds),
+			new XElement("TargetResistanceEmoteText", new XCData(TargetResistanceEmoteText)),
+            new XElement("TargetResistanceEmoteTextTarget", new XCData(TargetResistanceEmoteTextTarget)),
+            new XElement("EmoteText", new XCData(EmoteText)),
+            new XElement("EmoteTextTarget", new XCData(EmoteTextTarget)),
+            new XElement("FailEmoteText", new XCData(FailEmoteText)),
+            new XElement("FailEmoteTextTarget", new XCData(FailEmoteTextTarget)),
+            new XElement("EndPowerEmoteText", new XCData(EndPowerEmoteText)),
+            new XElement("EndPowerEmoteTextTarget", new XCData(EndPowerEmoteTextTarget))
+        );
+        SaveSustainedDefinition(definition);
+        return definition;
+    }
+    public override void UseCommand(ICharacter actor, string verb, StringStack command)
 	{
 		var (truth, missing) = CanAffordToInvokePower(actor, verb);
 		if (!truth)
@@ -354,7 +378,9 @@ public class ChokePower : SustainedMagicPower
 	public string BeginVerb { get; protected set; }
 	public string EndVerb { get; protected set; }
 	public override IEnumerable<string> Verbs => new[] { BeginVerb, EndVerb };
-	public bool TargetGetsResistanceCheck { get; protected set; }
+
+
+    public bool TargetGetsResistanceCheck { get; protected set; }
 	public string TargetResistanceEmoteText { get; protected set; }
 	public string TargetResistanceEmoteTextTarget { get; protected set; }
 	public TimeSpan ResistCheckInterval { get; protected set; }
@@ -365,4 +391,28 @@ public class ChokePower : SustainedMagicPower
 			$"You are unable to sustain your efforts to maintain the {Name.Colour(Telnet.Magenta)} power.");
 		actor.RemoveAllEffects<MagicChoking>(x => x.Power == this, true);
 	}
+
+    /// <inheritdoc />
+    protected override void ShowSubtype(ICharacter actor, StringBuilder sb)
+    {
+        sb.AppendLine($"Begin Verb: {BeginVerb.ColourCommand()}");
+        sb.AppendLine($"End Verb: {EndVerb.ColourCommand()}");
+        sb.AppendLine($"Skill Check Trait: {SkillCheckTrait.Name.ColourValue()}");
+        sb.AppendLine($"Skill Check Difficulty: {SkillCheckDifficulty.DescribeColoured()}");
+        sb.AppendLine($"Minimum Success Threshold: {MinimumSuccessThreshold.DescribeColour()}");
+        sb.AppendLine($"Power Distance: {PowerDistance.DescribeEnum().ColourValue()}");
+        sb.AppendLine($"Resist Check Difficulty: {ResistCheckDifficulty.DescribeColoured()}");
+        sb.AppendLine($"Resist Check Interval: {ResistCheckInterval.DescribePreciseBrief().ColourValue()}");
+        sb.AppendLine();
+        sb.AppendLine("Emotes:");
+        sb.AppendLine();
+        sb.AppendLine($"Emote: {EmoteText.ColourCommand()}");
+        sb.AppendLine($"Emote Target: {EmoteTextTarget.ColourCommand()}");
+        sb.AppendLine($"Fail Emote: {FailEmoteText.ColourCommand()}");
+        sb.AppendLine($"Fail Emote Target: {FailEmoteTextTarget.ColourCommand()}");
+        sb.AppendLine($"End Emote: {EndPowerEmoteText.ColourCommand()}");
+        sb.AppendLine($"End Emote Target: {EndPowerEmoteTextTarget.ColourCommand()}");
+        sb.AppendLine($"Resist Emote: {TargetResistanceEmoteText.ColourCommand()}");
+        sb.AppendLine($"Resist Emote Target: {TargetResistanceEmoteTextTarget.ColourCommand()}");
+    }
 }

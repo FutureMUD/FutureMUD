@@ -8,7 +8,7 @@ using MudSharp.Framework;
 
 namespace MudSharp.Magic.Powers;
 
-public class MagicalMeleeAttackPower : MagicPowerBase
+public abstract class MagicalMeleeAttackPower : MagicPowerBase
 {
 	public override string PowerType => "Magical Melee Attack";
 	public MagicalMeleeAttackPower(Models.MagicPower power, IFuturemud gameworld) : base(power, gameworld)

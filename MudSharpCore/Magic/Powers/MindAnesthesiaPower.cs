@@ -26,7 +26,40 @@ public class MindAnesthesiaPower : SustainedMagicPower
 		MagicPowerFactory.RegisterLoader("anesthesia", (power, gameworld) => new MindAnesthesiaPower(power, gameworld));
 	}
 
-	protected MindAnesthesiaPower(Models.MagicPower power, IFuturemud gameworld) : base(power, gameworld)
+    /// <inheritdoc />
+    protected override XElement SaveDefinition()
+    {
+        var definition = new XElement("Definition",
+            new XElement("BeginVerbs", 
+				from item in PowerLevelVerbs
+				select new XElement("Verb",
+					new XAttribute("power", item.Value),
+					item.Key
+                )
+            ),
+            new XElement("CancelVerb", CancelVerb),
+            new XElement("SkillCheckDifficulty", (int)SkillCheckDifficulty),
+            new XElement("SkillCheckTrait", SkillCheckTrait.Id),
+            new XElement("ApplicabilityProg", AppliesProg.Id),
+            new XElement("EmoteText", new XCData(EmoteText)),
+            new XElement("EmoteTextTarget", new XCData(EmoteTextTarget)),
+            new XElement("FailEmoteText", new XCData(FailEmoteText)),
+            new XElement("FailEmoteTextTarget", new XCData(FailEmoteTextTarget)),
+            new XElement("EndPowerEmoteText", new XCData(EndPowerEmoteText)),
+            new XElement("EndPowerEmoteTextTarget", new XCData(EndPowerEmoteTextTarget)),
+            new XElement("TargetResistanceEmoteText", new XCData(TargetResistanceEmoteText)),
+            new XElement("TargetResistanceEmoteTextTarget", new XCData(TargetResistanceEmoteTextTarget)),
+            new XElement("RampRatePerTick", RampRatePerTick),
+            new XElement("TickLength", TickLength.TotalSeconds),
+            new XElement("PowerDistance", (int)PowerDistance),
+			new XElement("ResistCheckDifficulty", (int)ResistCheckDifficulty),
+            new XElement("ResistCheckInterval", ResistCheckInterval.TotalSeconds)
+        );
+        SaveSustainedDefinition(definition);
+        return definition;
+    }
+
+    protected MindAnesthesiaPower(Models.MagicPower power, IFuturemud gameworld) : base(power, gameworld)
 	{
 		var root = XElement.Parse(power.Definition);
 		var element = root.Element("BeginVerbs");
@@ -445,4 +478,32 @@ public class MindAnesthesiaPower : SustainedMagicPower
 	public string TargetResistanceEmoteText { get; protected set; }
 	public string TargetResistanceEmoteTextTarget { get; protected set; }
 	public TimeSpan ResistCheckInterval { get; protected set; }
+
+    protected override void ShowSubtype(ICharacter actor, StringBuilder sb)
+    {
+        foreach (var verb in PowerLevelVerbs)
+        {
+            sb.AppendLine($"Begin Verb (@{verb.Value.ToString("N3", actor).ColourValue()}): {verb.Key.ColourCommand()}");
+        }
+        sb.AppendLine($"End Verb: {CancelVerb.ColourCommand()}");
+        sb.AppendLine($"Skill Check Trait: {SkillCheckTrait.Name.ColourValue()}");
+        sb.AppendLine($"Skill Check Difficulty: {SkillCheckDifficulty.DescribeColoured()}");
+        sb.AppendLine($"Minimum Success Threshold: {MinimumSuccessThreshold.DescribeColour()}");
+        sb.AppendLine($"Power Distance: {PowerDistance.DescribeEnum().ColourValue()}");
+        sb.AppendLine($"Resist Check Difficulty: {ResistCheckDifficulty.DescribeColoured()}");
+        sb.AppendLine($"Resist Check Interval: {ResistCheckInterval.DescribePreciseBrief().ColourValue()}");
+        sb.AppendLine($"Ramp Rate Per Tick: {RampRatePerTick.ToString("N3", actor).ColourValue()}");
+        sb.AppendLine($"Tick Interval: {TickLength.DescribePreciseBrief().ColourValue()}");
+        sb.AppendLine();
+        sb.AppendLine("Emotes:");
+        sb.AppendLine();
+        sb.AppendLine($"Emote: {EmoteText.ColourCommand()}");
+        sb.AppendLine($"Emote Target: {EmoteTextTarget.ColourCommand()}");
+        sb.AppendLine($"Fail Emote: {FailEmoteText.ColourCommand()}");
+        sb.AppendLine($"Fail Emote Target: {FailEmoteTextTarget.ColourCommand()}");
+        sb.AppendLine($"End Emote: {EndPowerEmoteText.ColourCommand()}");
+        sb.AppendLine($"End Emote Target: {EndPowerEmoteTextTarget.ColourCommand()}");
+        sb.AppendLine($"Resist Emote: {TargetResistanceEmoteText.ColourCommand()}");
+        sb.AppendLine($"Resist Emote Target: {TargetResistanceEmoteTextTarget.ColourCommand()}");
+    }
 }

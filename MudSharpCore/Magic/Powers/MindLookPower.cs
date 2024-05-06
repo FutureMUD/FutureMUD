@@ -23,7 +23,26 @@ public class MindLookPower : MagicPowerBase
 		MagicPowerFactory.RegisterLoader("mindlook", (power, gameworld) => new MindLookPower(power, gameworld));
 	}
 
-	protected MindLookPower(MagicPower power, IFuturemud gameworld) : base(power, gameworld)
+    protected override XElement SaveDefinition()
+    {
+        var definition = new XElement("Definition",
+            new XElement("LookRoomVerb", LookRoomVerb),
+            new XElement("LookThingVerb", LookThingVerb),
+            new XElement("LookInThingVerb", LookInThingVerb),
+            new XElement("EmoteText", new XCData(EmoteText)),
+            new XElement("FailEmoteText", new XCData(FailEmoteText)),
+            new XElement("SkillCheckDifficultyLookRoom", (int)SkillCheckDifficultyLookRoom),
+            new XElement("SkillCheckDifficultyLookThing", (int)SkillCheckDifficultyLookThing),
+            new XElement("SkillCheckDifficultyLookInThing", (int)SkillCheckDifficultyLookInThing),
+            new XElement("MinimumSuccessThresholdLookRoom", (int)MinimumSuccessThresholdLookRoom),
+            new XElement("MinimumSuccessThresholdLookThing", (int)MinimumSuccessThresholdLookThing),
+            new XElement("MinimumSuccessThresholdLookInThing", (int)MinimumSuccessThresholdLookInThing),
+            new XElement("SkillCheckTrait", SkillCheckTrait.Id)
+        );
+        return definition;
+    }
+
+    protected MindLookPower(MagicPower power, IFuturemud gameworld) : base(power, gameworld)
 	{
 		var root = XElement.Parse(power.Definition);
 		var element = root.Element("LookRoomVerb");
@@ -340,4 +359,21 @@ public class MindLookPower : MagicPowerBase
 
 	public string EmoteText { get; set; }
 	public string FailEmoteText { get; set; }
+
+    protected override void ShowSubtype(ICharacter actor, StringBuilder sb)
+    {
+        sb.AppendLine($"Look Room Verb: {LookRoomVerb.ColourCommand()}");
+        sb.AppendLine($"Look Thing Verb: {LookThingVerb.ColourCommand()}");
+        sb.AppendLine($"Look In Thing Verb: {LookInThingVerb.ColourCommand()}");
+        sb.AppendLine($"Skill Check Trait: {SkillCheckTrait.Name.ColourValue()}");
+        sb.AppendLine($"Look Room Difficulty: {SkillCheckDifficultyLookRoom.DescribeColoured()}");
+        sb.AppendLine($"Look Thing Success Threshold: {MinimumSuccessThresholdLookRoom.DescribeColour()}");
+        sb.AppendLine($"Look Thing Success Threshold: {MinimumSuccessThresholdLookRoom.DescribeColour()}");
+        sb.AppendLine($"Look In Thing Success Threshold: {MinimumSuccessThresholdLookRoom.DescribeColour()}");
+        sb.AppendLine();
+        sb.AppendLine("Emotes:");
+        sb.AppendLine();
+        sb.AppendLine($"Emote: {EmoteText.ColourCommand()}");
+        sb.AppendLine($"Fail Emote: {FailEmoteText.ColourCommand()}");
+    }
 }

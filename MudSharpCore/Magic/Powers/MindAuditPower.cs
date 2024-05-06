@@ -13,6 +13,8 @@ using MudSharp.PerceptionEngine.Parsers;
 using MudSharp.FutureProg;
 using System.Xml.Linq;
 using MudSharp.PerceptionEngine;
+using MudSharp.Combat;
+using MudSharp.Effects;
 
 namespace MudSharp.Magic.Powers;
 
@@ -24,7 +26,23 @@ public class MindAuditPower : MagicPowerBase
 		MagicPowerFactory.RegisterLoader("mindaudit", (power, gameworld) => new MindAuditPower(power, gameworld));
 	}
 
-	protected MindAuditPower(Models.MagicPower power, IFuturemud gameworld) : base(power, gameworld)
+    /// <inheritdoc />
+    protected override XElement SaveDefinition()
+    {
+        var definition = new XElement("Definition",
+            new XElement("Verb", Verb),
+			new XElement("EmoteText", new XCData(EmoteText)),
+            new XElement("EmoteTextSelf", new XCData(EmoteTextSelf)),
+            new XElement("EchoToDetectedTarget", new XCData(EchoToDetectedTarget)),
+            new XElement("MinimumSuccessThreshold", (int)MinimumSuccessThreshold), 
+            new XElement("SkillCheckDifficultyProg", SkillCheckDifficultyProg.Id),
+            new XElement("ShouldEchoDetectionProg", ShouldEchoDetectionProg.Id),
+            new XElement("SkillCheckTrait", SkillCheckTrait.Id)
+        );
+        return definition;
+    }
+
+    protected MindAuditPower(Models.MagicPower power, IFuturemud gameworld) : base(power, gameworld)
 	{
 		var root = XElement.Parse(power.Definition);
 		var element = root.Element("Verb");
@@ -171,4 +189,19 @@ public class MindAuditPower : MagicPowerBase
 	public string EmoteText { get; protected set; }
 	public string EmoteTextSelf { get; protected set; }
 	public string EchoToDetectedTarget { get; protected set; }
+
+    protected override void ShowSubtype(ICharacter actor, StringBuilder sb)
+    {
+        sb.AppendLine($"Power Verb: {Verb.ColourCommand()}");
+        sb.AppendLine($"Skill Check Trait: {SkillCheckTrait.Name.ColourValue()}");
+        sb.AppendLine($"Skill Check Difficulty Prog: {SkillCheckDifficultyProg.MXPClickableFunctionName()}");
+        sb.AppendLine($"Minimum Success Threshold: {MinimumSuccessThreshold.DescribeColour()}");
+        sb.AppendLine($"Should Detection Echo Prog: {ShouldEchoDetectionProg.MXPClickableFunctionName()}");
+        sb.AppendLine();
+        sb.AppendLine("Emotes:");
+        sb.AppendLine();
+        sb.AppendLine($"Emote: {EmoteText.ColourCommand()}");
+        sb.AppendLine($"Self Emote: {EmoteTextSelf.ColourCommand()}");
+        sb.AppendLine($"Detected Target Emote: {EchoToDetectedTarget.ColourCommand()}");
+    }
 }

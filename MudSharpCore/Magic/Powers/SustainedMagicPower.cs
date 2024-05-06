@@ -13,7 +13,7 @@ namespace MudSharp.Magic.Powers;
 
 public abstract class SustainedMagicPower : MagicPowerBase
 {
-	protected SustainedMagicPower(Models.MagicPower power, IFuturemud gameworld) : base(power, gameworld)
+    protected SustainedMagicPower(Models.MagicPower power, IFuturemud gameworld) : base(power, gameworld)
 	{
 		var root = XElement.Parse(power.Definition);
 		var element = root.Element("ConcentrationPointsToSustain");
@@ -158,5 +158,46 @@ public abstract class SustainedMagicPower : MagicPowerBase
 		return sb.ToString();
 	}
 
-	#endregion
+    protected XElement SaveSustainedDefinition(XElement root)
+    {
+        root.Add(new XElement("ConcentrationPointsToSustain", ConcentrationPointsToSustain));
+        root.Add(new XElement("SustainPenalty", SustainPenalty));
+        root.Add(new XElement("DetectableWithDetectMagic", DetectableWithDetectMagic));
+        if (HasDuration)
+        {
+            root.Add(new XElement("Duration", _durationExpression.OriginalExpression));
+        }
+        root.Add(new XElement("SustainResourceCosts",
+            from item in SustainCostsPerMinute
+            select new XElement("Cost",
+                new XAttribute("resource", item.Resource.Id),
+                item.Cost
+            )
+        ));
+        return root;
+    }
+
+    /// <inheritdoc />
+    public override string HelpText => $@"You can use the following options with this magic power:
+
+    #3name <name>#0 - renames the magic power
+    #3school <which>#0 - sets the school the power belongs to
+    #3blurb <blurb>#0 - sets the blurb for power list
+    #3can <prog>#0 - sets a prog that controls if the power can be used
+    #3why <prog>#0 - sets a prog that controls an error message if prog can't be used
+    #3help#0 - drops you into an editor to write the player help file
+    #3cost <verb> <which> <number>#0 - sets the cost of using a particular verb
+{SubtypeHelpText}";
+
+    /// <inheritdoc />
+    public override bool BuildingCommand(ICharacter actor, StringStack command)
+    {
+        switch (command.PopForSwitch())
+        {
+
+        }
+        return base.BuildingCommand(actor, command.GetUndo());
+    }
+
+    #endregion
 }

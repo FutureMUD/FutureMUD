@@ -28,7 +28,41 @@ public class MindBarrierPower : SustainedMagicPower
 			(power, gameworld) => new MindBarrierPower(power, gameworld));
 	}
 
-	protected MindBarrierPower(MagicPower power, IFuturemud gameworld) : base(power, gameworld)
+    /// <inheritdoc />
+    protected override XElement SaveDefinition()
+    {
+        var definition = new XElement("Definition",
+            new XElement("BeginVerb", BeginVerb),
+            new XElement("EndVerb", EndVerb),
+            new XElement("SkillCheckDifficulty", (int)SkillCheckDifficulty),
+            new XElement("SkillCheckTrait", SkillCheckTrait.Id),
+            new XElement("AppliesToCharacterProg", AppliesToCharacterProg.Id),
+            new XElement("EmoteForBegin", new XCData(EmoteForBegin)),
+            new XElement("EmoteForBeginSelf", new XCData(EmoteForBeginSelf)),
+            new XElement("EmoteForEnd", new XCData(EmoteForEnd)),
+            new XElement("EmoteForEndSelf", new XCData(EmoteForEndSelf)),
+            new XElement("BlockEmoteSelf", new XCData(BlockEmoteSelf)),
+            new XElement("BlockEmoteTarget", new XCData(BlockEmoteTarget)),
+            new XElement("OvercomeEmoteSelf", new XCData(OvercomeEmoteSelf)),
+            new XElement("OvercomeEmoteTarget", new XCData(OvercomeEmoteTarget)),
+            new XElement("EndWhenNotSustainingError", new XCData(EndWhenNotSustainingError)),
+            new XElement("BeginWhenAlreadySustainingError", new XCData(BeginWhenAlreadySustainingError)),
+            new XElement("PermitAllies", PermitAllies),
+            new XElement("PermitTrustedAllies", PermitTrustedAllies),
+            new XElement("FailIfOvercome", FailIfOvercome),
+			new XElement("Bonuses",
+				from bonus in TargetCheckBonusPerOutcome
+				select new XElement("Bonus",
+					new XAttribute("outcome", (int)bonus.Key),
+					new XAttribute("bonus", bonus.Value)
+                )
+            )
+        );
+        SaveSustainedDefinition(definition);
+        return definition;
+    }
+
+    protected MindBarrierPower(MagicPower power, IFuturemud gameworld) : base(power, gameworld)
 	{
 		var root = XElement.Parse(power.Definition);
 		var element = root.Element("BeginVerb");
@@ -285,5 +319,36 @@ public class MindBarrierPower : SustainedMagicPower
 	public string OvercomeEmoteTarget { get; protected set; }
 	public string EndWhenNotSustainingError { get; protected set; }
 	public string BeginWhenAlreadySustainingError { get; protected set; }
+
+    protected override void ShowSubtype(ICharacter actor, StringBuilder sb)
+    {
+        sb.AppendLine($"Begin Verb: {BeginVerb.ColourCommand()}");
+        sb.AppendLine($"End Verb: {EndVerb.ColourCommand()}");
+        sb.AppendLine($"Skill Check Trait: {SkillCheckTrait.Name.ColourValue()}");
+        sb.AppendLine($"Skill Check Difficulty: {SkillCheckDifficulty.DescribeColoured()}");
+        sb.AppendLine($"Applies Character Prog: {AppliesToCharacterProg.MXPClickableFunctionName()}");
+        sb.AppendLine($"Permit Allies: {PermitAllies.ToColouredString()}");
+        sb.AppendLine($"Permit Trusted Allies: {PermitAllies.ToColouredString()}");
+        sb.AppendLine($"Fail If Overcome: {FailIfOvercome.ToColouredString()}");
+        sb.AppendLine();
+        sb.AppendLine("Check Bonuses:");
+        foreach (var item in TargetCheckBonusPerOutcome.OrderBy(x => x.Key))
+        {
+            sb.AppendLine($"\t{item.Key.DescribeColour()}: {item.Value.ToBonusString(actor)}");
+        }
+        sb.AppendLine();
+        sb.AppendLine("Emotes:");
+        sb.AppendLine();
+        sb.AppendLine($"Begin Emote: {EmoteForBegin.ColourCommand()}");
+        sb.AppendLine($"Emote Self: {EmoteForBeginSelf.ColourCommand()}");
+        sb.AppendLine($"End Emote: {EmoteForEnd.ColourCommand()}");
+        sb.AppendLine($"End Emote Self: {EmoteForEndSelf.ColourCommand()}");
+        sb.AppendLine($"End Emote Self: {BlockEmoteSelf.ColourCommand()}");
+        sb.AppendLine($"End Emote Target: {BlockEmoteTarget.ColourCommand()}");
+        sb.AppendLine($"Overcome Emote Self: {OvercomeEmoteSelf.ColourCommand()}");
+        sb.AppendLine($"Overcome Emote Target: {OvercomeEmoteTarget.ColourCommand()}");
+        sb.AppendLine($"End Not Sustain Emote: {EndWhenNotSustainingError.ColourCommand()}");
+        sb.AppendLine($"Begin Already Sustaining Emote: {BeginWhenAlreadySustainingError.ColourCommand()}");
+    }
 
 }

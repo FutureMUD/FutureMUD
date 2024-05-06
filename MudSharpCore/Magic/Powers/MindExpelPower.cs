@@ -23,8 +23,23 @@ public class MindExpelPower : MagicPowerBase
 	{
 		MagicPowerFactory.RegisterLoader("mindexpel", (power, gameworld) => new MindExpelPower(power, gameworld));
 	}
+	
+    protected override XElement SaveDefinition()
+    {
+        var definition = new XElement("Definition",
+            new XElement("Verb", Verb),
+            new XElement("EmoteText", new XCData(EmoteText)),
+            new XElement("EmoteTextSelf", new XCData(EmoteTextSelf)),
+            new XElement("EchoToExpelledTarget", new XCData(EchoToExpelledTarget)),
+            new XElement("EchoToNonExpelledTarget", new XCData(EchoToNonExpelledTarget)),
+            new XElement("MinimumSuccessThreshold", (int)MinimumSuccessThreshold),
+            new XElement("SkillCheckDifficultyProg", SkillCheckDifficultyProg.Id),
+            new XElement("SkillCheckTrait", SkillCheckTrait.Id)
+        );
+        return definition;
+    }
 
-	protected MindExpelPower(Models.MagicPower power, IFuturemud gameworld) : base(power, gameworld)
+    protected MindExpelPower(Models.MagicPower power, IFuturemud gameworld) : base(power, gameworld)
 	{
 		var root = XElement.Parse(power.Definition);
 		var element = root.Element("Verb");
@@ -175,4 +190,19 @@ public class MindExpelPower : MagicPowerBase
 	public string EmoteTextSelf { get; protected set; }
 	public string EchoToExpelledTarget { get; protected set; }
 	public string EchoToNonExpelledTarget { get; protected set; }
+
+    protected override void ShowSubtype(ICharacter actor, StringBuilder sb)
+    {
+        sb.AppendLine($"Power Verb: {Verb.ColourCommand()}");
+        sb.AppendLine($"Skill Check Trait: {SkillCheckTrait.Name.ColourValue()}");
+        sb.AppendLine($"Skill Check Difficulty Prog: {SkillCheckDifficultyProg.MXPClickableFunctionName()}");
+        sb.AppendLine($"Minimum Success Threshold: {MinimumSuccessThreshold.DescribeColour()}");
+        sb.AppendLine();
+        sb.AppendLine("Emotes:");
+        sb.AppendLine();
+        sb.AppendLine($"Emote: {EmoteText.ColourCommand()}");
+        sb.AppendLine($"Self Emote: {EmoteTextSelf.ColourCommand()}");
+        sb.AppendLine($"Expelled Target Emote: {EchoToExpelledTarget.ColourCommand()}");
+        sb.AppendLine($"Non-Expelled Target Emote: {EchoToNonExpelledTarget.ColourCommand()}");
+    }
 }

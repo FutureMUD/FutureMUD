@@ -23,9 +23,27 @@ public class SensePower : MagicPowerBase
 	public static void RegisterLoader()
 	{
 		MagicPowerFactory.RegisterLoader("sense", (power, gameworld) => new SensePower(power, gameworld));
-	}
+    }
 
-	public SensePower(Models.MagicPower power, IFuturemud gameworld) : base(power, gameworld)
+    protected override XElement SaveDefinition()
+    {
+        var definition = new XElement("Definition",
+            new XElement("Verb", Verb),
+            new XElement("EmoteVisible", EmoteVisible),
+            new XElement("EmoteText", new XCData(EmoteText)),
+            new XElement("EchoHeader", new XCData(EchoHeader)),
+            new XElement("NoTargetsFoundEcho", new XCData(NoTargetsFoundEcho)),
+            new XElement("SenseType", (long)SenseType),
+            new XElement("CommandDelay", CommandDelay.TotalSeconds),
+            new XElement("SenseTargetFilterProg", SenseTargetFilterProg.Id),
+            new XElement("TargetDifficultyProg", TargetDifficultyProg.Id),
+            new XElement("CheckTrait", CheckTrait.Id),
+            new XElement("PowerDistance", (int)PowerDistance)
+        );
+        return definition;
+    }
+
+    public SensePower(Models.MagicPower power, IFuturemud gameworld) : base(power, gameworld)
 	{
 		var definition = XElement.Parse(power.Definition);
 		Verb = definition.Element("Verb")?.Value ??
@@ -437,4 +455,22 @@ public class SensePower : MagicPowerBase
 	}
 
 	public override IEnumerable<string> Verbs => new[] { Verb };
+
+    protected override void ShowSubtype(ICharacter actor, StringBuilder sb)
+    {
+        sb.AppendLine($"Power Verb: {Verb.ColourCommand()}");
+        sb.AppendLine($"Skill Check Trait: {CheckTrait.Name.ColourValue()}");
+        sb.AppendLine($"Skill Check Difficulty Prog: {TargetDifficultyProg.MXPClickableFunctionName()}");
+        sb.AppendLine($"Target Filter Prog: {SenseTargetFilterProg.MXPClickableFunctionName()}");
+        sb.AppendLine($"Power Distance: {PowerDistance.DescribeEnum().ColourValue()}");
+        sb.AppendLine($"Command Delay: {CommandDelay.DescribePreciseBrief().ColourValue()}");
+        sb.AppendLine($"Emote Visible To Others: {EmoteVisible.ToColouredString()}");
+        sb.AppendLine($"Sense Types: {SenseType.GetSingleFlags().Select(x => x.Describe().ColourValue()).ListToString()}");
+        sb.AppendLine();
+        sb.AppendLine("Emotes:");
+        sb.AppendLine();
+        sb.AppendLine($"Emote: {EmoteText.ColourCommand()}");
+        sb.AppendLine($"Echo Header: {EchoHeader.ColourCommand()}");
+        sb.AppendLine($"No Targets Found Echo: {NoTargetsFoundEcho.ColourCommand()}");
+    }
 }

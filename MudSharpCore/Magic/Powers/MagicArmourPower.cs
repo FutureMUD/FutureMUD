@@ -8,6 +8,7 @@ using MudSharp.Body;
 using MudSharp.Body.Traits;
 using MudSharp.Character;
 using MudSharp.Combat;
+using MudSharp.Effects;
 using MudSharp.Effects.Concrete;
 using MudSharp.Form.Material;
 using MudSharp.Form.Shape;
@@ -30,7 +31,35 @@ public class MagicArmourPower : SustainedMagicPower
 		MagicPowerFactory.RegisterLoader("armor", (power, gameworld) => new MagicArmourPower(power, gameworld));
 	}
 
-	protected MagicArmourPower(Models.MagicPower power, IFuturemud gameworld) : base(power, gameworld)
+    protected override XElement SaveDefinition()
+    {
+        var definition = new XElement("Definition",
+            new XElement("BeginVerb", BeginVerb),
+            new XElement("EndVerb", EndVerb),
+            new XElement("SkillCheckDifficulty", (int)SkillCheckDifficulty),
+            new XElement("SkillCheckTrait", SkillCheckTrait.Id),
+            new XElement("ArmourAppliesProg", ArmourAppliesProg.Id),
+            new XElement("EmoteText", new XCData(EmoteText)),
+            new XElement("FailEmoteText", new XCData(FailEmoteText)),
+            new XElement("EndPowerEmoteText", new XCData(EndPowerEmoteText)),
+			new XElement("Quality", (int)Quality),
+			new XElement("ArmourType", ArmourType?.Id ?? 0L),
+			new XElement("ArmourMaterial", ArmourMaterial?.Id ?? 0L),
+			new XElement("FullDescriptionAddendum", new XCData(FullDescriptionAddendum)),
+			new XElement("CanBeObscuredByInventory", ArmourCanBeObscuredByInventory),
+			new XElement("MaximumDamageAbsorbed", new XCData(MaximumDamageAbsorbed.OriginalFormulaText)),
+            new XElement("BodypartShapes",
+                from shape in _coveredShapes
+                select new XElement("Shape",
+                    shape.Id
+                )
+            )
+        );
+        SaveSustainedDefinition(definition);
+        return definition;
+    }
+
+    protected MagicArmourPower(Models.MagicPower power, IFuturemud gameworld) : base(power, gameworld)
 	{
 		var root = XElement.Parse(power.Definition);
 		BeginVerb = root.Element("BeginVerb")?.Value ??
@@ -132,7 +161,8 @@ public class MagicArmourPower : SustainedMagicPower
 			                 $"Invalid armour material in MagicArmourPower #{Id} ({Name})");
 		FullDescriptionAddendum = root.Element("FullDescriptionAddendum")?.Value ?? string.Empty;
 		ArmourCanBeObscuredByInventory = bool.Parse(root.Element("CanBeObscuredByInventory")?.Value ?? "false");
-	}
+        MaximumDamageAbsorbed = new TraitExpression(root.Element("MaximumDamageAbsorbed")?.Value ?? "0", Gameworld);
+    }
 
 	#region Overrides of MagicPowerBase
 
@@ -218,7 +248,31 @@ public class MagicArmourPower : SustainedMagicPower
 	public string FullDescriptionAddendum { get; protected set; }
 	public bool ArmourCanBeObscuredByInventory { get; protected set; }
 
-	#endregion
+    /// <inheritdoc />
+    protected override void ShowSubtype(ICharacter actor, StringBuilder sb)
+    {
+        sb.AppendLine($"Begin Verb: {BeginVerb.ColourCommand()}");
+        sb.AppendLine($"End Verb: {EndVerb.ColourCommand()}");
+        sb.AppendLine($"Skill Check Trait: {SkillCheckTrait.Name.ColourValue()}");
+        sb.AppendLine($"Skill Check Difficulty: {SkillCheckDifficulty.DescribeColoured()}");
+        sb.AppendLine($"Minimum Success Threshold: {MinimumSuccessThreshold.DescribeColour()}");
+        sb.AppendLine($"Armour Applies Prog: {ArmourAppliesProg.MXPClickableFunctionName()}");
+        sb.AppendLine($"Maximum Damage Absorbed: {MaximumDamageAbsorbed.OriginalFormulaText.ColourCommand()}");
+        sb.AppendLine($"Armour Type: {ArmourType.Name.ColourValue()}");
+        sb.AppendLine($"Armour Quality: {Quality.Describe().ColourValue()}");
+        sb.AppendLine($"Armour Material: {ArmourMaterial.Name.ColourValue()}");
+        sb.AppendLine($"Can Be Obscured By Inventory: {ArmourCanBeObscuredByInventory.ToColouredString()}");
+        sb.AppendLine($"Full Desc Addendum: {FullDescriptionAddendum.ColourCommand()}");
+        sb.AppendLine($"Covered Shapes: {(_coveredShapes.Any() ? _coveredShapes.Select(x => x.Name.ColourValue()).ListToString() : "All".ColourValue())}");
+        sb.AppendLine();
+        sb.AppendLine("Emotes:");
+        sb.AppendLine();
+        sb.AppendLine($"Emote: {EmoteText.ColourCommand()}");
+        sb.AppendLine($"Fail Emote: {FailEmoteText.ColourCommand()}");
+        sb.AppendLine($"End Emote: {EndPowerEmoteText.ColourCommand()}");
+    }
+
+    #endregion
 
 	#region Overrides of SustainedMagicPower
 

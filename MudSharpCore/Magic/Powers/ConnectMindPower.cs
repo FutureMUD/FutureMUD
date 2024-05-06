@@ -26,7 +26,37 @@ public class ConnectMindPower : SustainedMagicPower
 			(power, gameworld) => new ConnectMindPower(power, gameworld));
 	}
 
-	protected ConnectMindPower(MagicPower power, IFuturemud gameworld) : base(power, gameworld)
+    /// <inheritdoc />
+    protected override XElement SaveDefinition()
+    {
+        var definition = new XElement("Definition",
+            new XElement("ConnectVerb", ConnectVerb),
+            new XElement("DisconnectVerb", DisconnectVerb),
+            new XElement("PowerDistance", (int)PowerDistance),
+            new XElement("SkillCheckDifficulty", (int)SkillCheckDifficulty),
+            new XElement("SkillCheckTrait", SkillCheckTrait.Id),
+            new XElement("TargetCanSeeIdentityProg", TargetCanSeeIdentityProg.Id),
+            new XElement("ExclusiveConnection", ExclusiveConnection),
+            new XElement("EmoteForConnect", new XCData(EmoteForConnect)),
+            new XElement("SelfEmoteForConnect", new XCData(SelfEmoteForConnect)),
+            new XElement("EmoteForDisconnect", new XCData(EmoteForDisconnect)),
+            new XElement("SelfEmoteForDisconnect", new XCData(SelfEmoteForDisconnect)),
+            new XElement("UnknownIdentityDescription", new XCData(UnknownIdentityDescription)),
+            new XElement("EmoteForFailConnect", new XCData(EmoteForFailConnect)),
+            new XElement("SelfEmoteForFailConnect", new XCData(SelfEmoteForFailConnect)),
+			new XElement("OutcomeEchoes",
+                from echo in _outcomeEchoDictionary
+                select new XElement("OutcomeEcho",
+                    new XAttribute("outcome", (int)echo.Key),
+                    new XAttribute("shouldecho", echo.Value)
+                )
+            )
+        );
+        SaveSustainedDefinition(definition);
+        return definition;
+    }
+
+    protected ConnectMindPower(MagicPower power, IFuturemud gameworld) : base(power, gameworld)
 	{
 		var root = XElement.Parse(power.Definition);
 		var element = root.Element("ConnectVerb");
@@ -459,7 +489,34 @@ public class ConnectMindPower : SustainedMagicPower
 
 	public bool ExclusiveConnection { get; protected set; }
 
-	public string GetAppropriateConnectEmote(ICharacter connecter, ICharacter connectee)
+    protected override void ShowSubtype(ICharacter actor, StringBuilder sb)
+    {
+        sb.AppendLine($"Connect Verb: {ConnectVerb.ColourCommand()}");
+        sb.AppendLine($"Disconnect Verb: {DisconnectVerb.ColourCommand()}");
+        sb.AppendLine($"Skill Check Trait: {SkillCheckTrait.Name.ColourValue()}");
+        sb.AppendLine($"Skill Check Difficulty: {SkillCheckDifficulty.DescribeColoured()}");
+        sb.AppendLine($"Power Distance: {PowerDistance.DescribeEnum().ColourValue()}");
+        sb.AppendLine($"Unknown Identity Desc: {UnknownIdentityDescription.ColourCharacter()}");
+        sb.AppendLine($"Exclusive: {ExclusiveConnection.ToColouredString()}");
+        sb.AppendLine($"Target Knows Identity Prog: {TargetCanSeeIdentityProg.MXPClickableFunctionName()}");
+        sb.AppendLine();
+        sb.AppendLine("Emotes:");
+        sb.AppendLine();
+        sb.AppendLine($"Emote: {EmoteForConnect.ColourCommand()}");
+        sb.AppendLine($"Emote Target: {SelfEmoteForConnect.ColourCommand()}");
+        sb.AppendLine($"Fail Emote: {EmoteForFailConnect.ColourCommand()}");
+        sb.AppendLine($"Fail Emote Target: {SelfEmoteForFailConnect.ColourCommand()}");
+        sb.AppendLine($"End Emote: {EmoteForDisconnect.ColourCommand()}");
+        sb.AppendLine($"End Emote Target: {SelfEmoteForDisconnect.ColourCommand()}");
+        sb.AppendLine();
+        sb.AppendLine("Outcome Echoes:");
+        foreach (var item in _outcomeEchoDictionary.OrderBy(x => x.Key))
+        {
+            sb.AppendLine($"\t{item.Key.DescribeColour()}: {item.Value.ToColouredString()}");
+        }
+    }
+
+    public string GetAppropriateConnectEmote(ICharacter connecter, ICharacter connectee)
 	{
 		if ((bool?)TargetCanSeeIdentityProg.Execute(connecter, connectee) == true)
 		{

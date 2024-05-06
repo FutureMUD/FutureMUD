@@ -14,6 +14,7 @@ using MudSharp.FutureProg;
 using MudSharp.PerceptionEngine.Outputs;
 using MudSharp.PerceptionEngine.Parsers;
 using MudSharp.RPG.Checks;
+using MudSharp.Construction;
 
 namespace MudSharp.Magic.Powers;
 
@@ -25,7 +26,25 @@ public class MindSayPower : MagicPowerBase
 		MagicPowerFactory.RegisterLoader("mindsay", (power, gameworld) => new MindSayPower(power, gameworld));
 	}
 
-	protected MindSayPower(MagicPower power, IFuturemud gameworld) : base(power, gameworld)
+    protected override XElement SaveDefinition()
+    {
+        var definition = new XElement("Definition",
+            new XElement("SayVerb", SayVerb),
+            new XElement("TellVerb", TellVerb),
+            new XElement("EmoteText", new XCData(EmoteText)),
+            new XElement("FailEmoteText", new XCData(FailEmoteText)),
+            new XElement("TargetEmoteText", new XCData(TargetEmoteText)),
+            new XElement("UnknownIdentityDescription", new XCData(UnknownIdentityDescription)),
+            new XElement("MinimumSuccessThreshold", (int)MinimumSuccessThreshold),
+            new XElement("UseAccent", UseAccent),
+            new XElement("UseLanguage", UseLanguage),
+            new XElement("TargetCanSeeIdentityProg", TargetCanSeeIdentityProg.Id),
+            new XElement("SkillCheckTrait", SkillCheckTrait.Id)
+        );
+        return definition;
+    }
+
+    protected MindSayPower(MagicPower power, IFuturemud gameworld) : base(power, gameworld)
 	{
 		var root = XElement.Parse(power.Definition);
 		var element = root.Element("UnknownIdentityDescription");
@@ -236,7 +255,26 @@ public class MindSayPower : MagicPowerBase
 	public ITraitDefinition SkillCheckTrait { get; protected set; }
 	public Outcome MinimumSuccessThreshold { get; protected set; }
 
-	public string GetAppropriateHowSeen(ICharacter connecter, ICharacter connectee)
+    protected override void ShowSubtype(ICharacter actor, StringBuilder sb)
+    {
+        sb.AppendLine($"Say Verb: {SayVerb.ColourCommand()}");
+        sb.AppendLine($"Tell Verb: {TellVerb.ColourCommand()}");
+        sb.AppendLine($"Skill Check Trait: {SkillCheckTrait.Name.ColourValue()}");
+        sb.AppendLine($"Skill Check Difficulty: {SkillCheckDifficulty.DescribeColoured()}");
+        sb.AppendLine($"Minimum Success Threshold: {MinimumSuccessThreshold.DescribeColour()}");
+        sb.AppendLine($"Target Can See Identity Prog: {TargetCanSeeIdentityProg.MXPClickableFunctionName()}");
+        sb.AppendLine($"Unknown Identity Desc: {UnknownIdentityDescription.ColourCharacter()}");
+        sb.AppendLine($"Use Language: {UseLanguage.ToColouredString()}");
+        sb.AppendLine($"Use Accent: {UseAccent.ToColouredString()}");
+        sb.AppendLine();
+        sb.AppendLine("Emotes:");
+        sb.AppendLine();
+        sb.AppendLine($"Emote: {EmoteText.ColourCommand()}");
+        sb.AppendLine($"Fail Emote: {FailEmoteText.ColourCommand()}");
+        sb.AppendLine($"Detected Target Emote: {TargetEmoteText.ColourCommand()}");
+    }
+
+    public string GetAppropriateHowSeen(ICharacter connecter, ICharacter connectee)
 	{
 		if ((bool?)TargetCanSeeIdentityProg.Execute(connecter, connectee) == true)
 		{

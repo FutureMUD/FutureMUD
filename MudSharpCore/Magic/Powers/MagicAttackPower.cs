@@ -9,6 +9,7 @@ using MudSharp.Body.Traits;
 using MudSharp.Character;
 using MudSharp.Combat;
 using MudSharp.Combat.Moves;
+using MudSharp.Effects;
 using MudSharp.Framework;
 using MudSharp.Health;
 using MudSharp.RPG.Checks;
@@ -24,7 +25,24 @@ public class MagicAttackPower : MagicPowerBase, IMagicAttackPower
 		MagicPowerFactory.RegisterLoader("magicattack", (power, gameworld) => new MagicAttackPower(power, gameworld));
 	}
 
-	protected MagicAttackPower(Models.MagicPower power, IFuturemud gameworld) : base(power, gameworld)
+    protected override XElement SaveDefinition()
+    {
+        var definition = new XElement("Definition",
+            new XElement("Verb", _verb),
+			new XElement("PowerIntentions", (long)PowerIntentions),
+			new XElement("ValidDefenseTypes",
+				from item in _validDefenseTypes
+				select new XElement("Defense", (int)item)
+            ),
+			new XElement("WeaponAttack", WeaponAttack.Id),
+			new XElement("AttackerTrait", AttackerTrait.Id),
+			new XElement("Reach", Reach),
+			new XElement("MoveType", (int)MoveType)
+        );
+        return definition;
+    }
+
+    protected MagicAttackPower(Models.MagicPower power, IFuturemud gameworld) : base(power, gameworld)
 	{
 		var root = XElement.Parse(power.Definition);
 		var element = root.Element("Verb");
@@ -171,7 +189,19 @@ public class MagicAttackPower : MagicPowerBase, IMagicAttackPower
 	public int Reach { get; }
 	public BuiltInCombatMoveType MoveType { get; }
 
-	public double BaseDelay => WeaponAttack.BaseDelay;
+    /// <inheritdoc />
+    protected override void ShowSubtype(ICharacter actor, StringBuilder sb)
+    {
+        sb.AppendLine($"Power Verb: {_verb.ColourCommand()}");
+        sb.AppendLine($"AttackerTrait Trait: {AttackerTrait.Name.ColourValue()}");
+        sb.AppendLine($"Weapon Attack: {WeaponAttack.Name.MXPSend($"wa show {WeaponAttack.Id}", $"wa show {WeaponAttack.Id}")}");
+        sb.AppendLine($"Move Type: {MoveType.DescribeEnum().ColourValue()}");
+        sb.AppendLine($"Valid Defenses: {ValidDefenseTypes.Select(x => x.DescribeEnum().ColourValue()).ListToString()}");
+        sb.AppendLine($"Intentions: {PowerIntentions.GetSingleFlags().Select(x => x.Describe().ColourValue()).ListToString()}");
+        sb.AppendLine($"Reach: {Reach.ToString("N0", actor)}");
+    }
+
+    public double BaseDelay => WeaponAttack.BaseDelay;
 	public ExertionLevel ExertionLevel => WeaponAttack.ExertionLevel;
 	public double StaminaCost => WeaponAttack.StaminaCost;
 	public double Weighting => WeaponAttack.Weighting;

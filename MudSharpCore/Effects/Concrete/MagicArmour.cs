@@ -128,8 +128,14 @@ public class MagicArmour : ConcentrationConsumingEffect, IMagicEffect, ICheckBon
 	public double TotalDamageAbsorbed { get; protected set; }
 
 	private void CheckDamageAbsorbed()
-	{
-		if (TotalDamageAbsorbed >= Power.MaximumDamageAbsorbed.Evaluate(CharacterOwner))
+    {
+        var max = Power.MaximumDamageAbsorbed.Evaluate(CharacterOwner);
+        if (max <= 0.0)
+        {
+            return;
+        }
+
+        if (TotalDamageAbsorbed >= max)
 		{
 			CharacterOwner.RemoveEffect(this, true);
 		}

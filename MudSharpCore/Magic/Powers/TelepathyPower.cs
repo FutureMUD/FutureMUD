@@ -24,7 +24,24 @@ public partial class TelepathyPower : SustainedMagicPower
 		MagicPowerFactory.RegisterLoader("telepathy", (power, gameworld) => new TelepathyPower(power, gameworld));
 	}
 
-	protected TelepathyPower(MagicPower power, IFuturemud gameworld) : base(power, gameworld)
+    protected override XElement SaveDefinition()
+    {
+        var definition = new XElement("Definition",
+            new XElement("Verb", Verb),
+            new XElement("SkillCheckDifficulty", (int)SkillCheckDifficulty),
+            new XElement("SkillCheckTrait", SkillCheckTrait.Id),
+            new XElement("BeginEmoteText", new XCData(BeginEmoteText)),
+            new XElement("EndEmoteText", new XCData(EndEmoteText)),
+            new XElement("ShowFeels", ShowFeels),
+            new XElement("ShowThinks", ShowThinks),
+            new XElement("ShowThinkEmote", ShowThinkEmote),
+            new XElement("Distance", (int)Distance)
+        );
+        SaveSustainedDefinition(definition);
+        return definition;
+    }
+
+    protected TelepathyPower(MagicPower power, IFuturemud gameworld) : base(power, gameworld)
 	{
 		var root = XElement.Parse(power.Definition);
 		var element = root.Element("ShowFeels");
@@ -181,4 +198,22 @@ public partial class TelepathyPower : SustainedMagicPower
 
 	public string BeginEmoteText { get; protected set; }
 	public string EndEmoteText { get; protected set; }
+
+    protected override void ShowSubtype(ICharacter actor, StringBuilder sb)
+    {
+        sb.AppendLine($"Power Verb: {Verb.ColourCommand()}");
+        sb.AppendLine($"Skill Check Trait: {SkillCheckTrait.Name.ColourValue()}");
+        sb.AppendLine($"Skill Check Difficulty: {SkillCheckDifficulty.DescribeColoured()}");
+        sb.AppendLine($"Minimum Success Threshold: {MinimumSuccessThreshold.DescribeColour()}");
+        sb.AppendLine($"Show Thinker Desc Prog: {ShowThinkerDescription.MXPClickableFunctionName()}");
+        sb.AppendLine($"Show Feels: {ShowFeels.ToColouredString()}");
+        sb.AppendLine($"Show Thinks: {ShowThinks.ToColouredString()}");
+        sb.AppendLine($"Show Think Emote: {ShowThinkEmote.ToColouredString()}");
+        sb.AppendLine($"Power Distance: {Distance.DescribeEnum().ColourValue()}");
+        sb.AppendLine();
+        sb.AppendLine("Emotes:");
+        sb.AppendLine();
+        sb.AppendLine($"Begin Emote: {BeginEmoteText.ColourCommand()}");
+        sb.AppendLine($"End Emote: {EndEmoteText.ColourCommand()}");
+    }
 }

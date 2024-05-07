@@ -415,4 +415,5 @@ public class ChokePower : SustainedMagicPower
         sb.AppendLine($"Resist Emote: {TargetResistanceEmoteText.ColourCommand()}");
         sb.AppendLine($"Resist Emote Target: {TargetResistanceEmoteTextTarget.ColourCommand()}");
     }
+
 }

@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 using ExpressionEngine;
+using MoreLinq.Extensions;
 using MudSharp.Character;
 using MudSharp.Framework;
 using MudSharp.RPG.Checks;
@@ -194,9 +195,50 @@ public abstract class SustainedMagicPower : MagicPowerBase
     {
         switch (command.PopForSwitch())
         {
-
+			case "detect":
+                return BuildingCommandDetect(actor, command);
+			case "sustainpenalty":
+				return BuildingCommandSustainPenalty(actor, command);
+			case "concentration":
+				return BuildingCommandConcentration(actor, command);
+			case "sustaincost":
+                return BuildingCommandSustainCost(actor, command);
+			case "duration":
+				return BuildingCommandDuration(actor, command);
         }
         return base.BuildingCommand(actor, command.GetUndo());
+    }
+
+    private bool BuildingCommandDuration(ICharacter actor, StringStack command)
+    {
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("You must either specify a formula for a duration, or #30#0 to last indefinitely.".SubstituteANSIColour());
+			return false;
+		}
+
+		if (command.SafeRemainingArgument.EqualTo("0"))
+        throw new NotImplementedException();
+    }
+
+    private bool BuildingCommandSustainCost(ICharacter actor, StringStack command)
+    {
+        throw new NotImplementedException();
+    }
+
+    private bool BuildingCommandConcentration(ICharacter actor, StringStack command)
+    {
+        throw new NotImplementedException();
+    }
+
+    private bool BuildingCommandSustainPenalty(ICharacter actor, StringStack command)
+    {
+        throw new NotImplementedException();
+    }
+
+    private bool BuildingCommandDetect(ICharacter actor, StringStack command)
+    {
+        throw new NotImplementedException();
     }
 
     #endregion

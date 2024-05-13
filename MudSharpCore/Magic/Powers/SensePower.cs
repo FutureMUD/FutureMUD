@@ -37,7 +37,7 @@ public class SensePower : MagicPowerBase
             new XElement("CommandDelay", CommandDelay.TotalSeconds),
             new XElement("SenseTargetFilterProg", SenseTargetFilterProg.Id),
             new XElement("TargetDifficultyProg", TargetDifficultyProg.Id),
-            new XElement("CheckTrait", CheckTrait.Id),
+            new XElement("CheckTrait", SkillCheckTrait.Id),
             new XElement("PowerDistance", (int)PowerDistance)
         );
         return definition;
@@ -82,14 +82,14 @@ public class SensePower : MagicPowerBase
 		CommandDelay = TimeSpan.FromSeconds(double.Parse(definition.Element("CommandDelay")?.Value ??
 		                                                 throw new ApplicationException(
 			                                                 $"Missing CommandDelay element in SensePower definition {Id}")));
-		CheckTrait =
+		SkillCheckTrait =
 			long.TryParse(
 				definition.Element("CheckTrait")?.Value ??
 				throw new ApplicationException($"Missing CheckTrait element in SensePower definition {Id}"),
 				out var value)
 				? Gameworld.Traits.Get(value)
 				: Gameworld.Traits.GetByName(definition.Element("CheckTrait").Value);
-		if (CheckTrait == null)
+		if (SkillCheckTrait == null)
 		{
 			throw new ApplicationException($"CheckTrait not found in SeensePower definition {Id}");
 		}
@@ -209,7 +209,7 @@ public class SensePower : MagicPowerBase
 
 	public string NoTargetsFoundEcho { get; protected set; }
 
-	public ITraitDefinition CheckTrait { get; protected set; }
+	public ITraitDefinition SkillCheckTrait { get; protected set; }
 
 	public IFutureProg TargetDifficultyProg { get; protected set; }
 
@@ -407,7 +407,7 @@ public class SensePower : MagicPowerBase
 		}
 
 		var check = Gameworld.GetCheck(CheckType.MagicSensePower);
-		var results = check.CheckAgainstAllDifficulties(actor, Difficulty.Normal, CheckTrait);
+		var results = check.CheckAgainstAllDifficulties(actor, Difficulty.Normal, SkillCheckTrait);
 
 		var final = targets
 		            .Distinct()
@@ -459,7 +459,7 @@ public class SensePower : MagicPowerBase
     protected override void ShowSubtype(ICharacter actor, StringBuilder sb)
     {
         sb.AppendLine($"Power Verb: {Verb.ColourCommand()}");
-        sb.AppendLine($"Skill Check Trait: {CheckTrait.Name.ColourValue()}");
+        sb.AppendLine($"Skill Check Trait: {SkillCheckTrait.Name.ColourValue()}");
         sb.AppendLine($"Skill Check Difficulty Prog: {TargetDifficultyProg.MXPClickableFunctionName()}");
         sb.AppendLine($"Target Filter Prog: {SenseTargetFilterProg.MXPClickableFunctionName()}");
         sb.AppendLine($"Power Distance: {PowerDistance.DescribeEnum().ColourValue()}");
@@ -473,4 +473,125 @@ public class SensePower : MagicPowerBase
         sb.AppendLine($"Echo Header: {EchoHeader.ColourCommand()}");
         sb.AppendLine($"No Targets Found Echo: {NoTargetsFoundEcho.ColourCommand()}");
     }
+
+    #region Building Commands
+    /// <inheritdoc />
+    protected override string SubtypeHelpText => @"	#3begin <verb>#0 - sets the verb to activate this power
+    #3end <verb>#0 - sets the verb to end this power
+    #3skill <which>#0 - sets the skill used in the skill check
+    #3difficulty <difficulty>#0 - sets the difficulty of the skill check
+    #3threshold <outcome>#0 - sets the minimum outcome for skill success
+    #3distance <distance>#0 - sets the distance that this power can be used at";
+
+    /// <inheritdoc />
+    public override bool BuildingCommand(ICharacter actor, StringStack command)
+    {
+        switch (command.PopForSwitch())
+        {
+            case "beginverb":
+            case "begin":
+            case "startverb":
+            case "start":
+                return BuildingCommandBeginVerb(actor, command);
+            case "endverb":
+            case "end":
+            case "cancelverb":
+            case "cancel":
+                return BuildingCommandEndVerb(actor, command);
+            case "skill":
+            case "trait":
+                return BuildingCommandSkill(actor, command);
+            case "difficulty":
+                return BuildingCommandDifficulty(actor, command);
+            case "threshold":
+                return BuildingCommandThreshold(actor, command);
+            case "distance":
+                return BuildingCommandDistance(actor, command);
+        }
+        return base.BuildingCommand(actor, command.GetUndo());
+    }
+
+    #region Building Subcommands
+    private bool BuildingCommandDistance(ICharacter actor, StringStack command)
+    {
+        if (command.IsFinished)
+        {
+            actor.OutputHandler.Send($"At what distance should this power be able to be used? The valid options are {Enum.GetValues<MagicPowerDistance>().Select(x => x.DescribeEnum().ColourValue()).ListToString()}.");
+            return false;
+        }
+
+        if (!command.SafeRemainingArgument.TryParseEnum(out MagicPowerDistance value))
+        {
+            actor.OutputHandler.Send($"That is not a valid distance. The valid options are {Enum.GetValues<MagicPowerDistance>().Select(x => x.DescribeEnum().ColourValue()).ListToString()}.");
+            return false;
+        }
+
+        PowerDistance = value;
+        Changed = true;
+        actor.OutputHandler.Send($"This magic power can now be used against {value.LongDescription().ColourValue()}.");
+        return true;
+    }
+
+    private bool BuildingCommandThreshold(ICharacter actor, StringStack command)
+    {
+        if (command.IsFinished)
+        {
+            actor.OutputHandler.Send($"What is the minimum success threshold for this power to work? See {"show outcomes".MXPSend("show outcomes")} for a list of valid values.");
+            return false;
+        }
+
+        if (!command.SafeRemainingArgument.TryParseEnum(out Outcome value))
+        {
+            actor.OutputHandler.Send($"That is not a valid outcome. See {"show outcomes".MXPSend("show outcomes")} for a list of valid values.");
+            return false;
+        }
+
+        MinimumSuccessThreshold = value;
+        Changed = true;
+        actor.OutputHandler.Send($"The power user will now need to achieve a {value.DescribeColour()} in order to activate this power.");
+        return true;
+    }
+
+    private bool BuildingCommandDifficulty(ICharacter actor, StringStack command)
+    {
+        if (command.IsFinished)
+        {
+            actor.OutputHandler.Send($"What difficulty should the skill check for this power be? See {"show difficulties".MXPSend("show difficulties")} for a list of values.");
+            return false;
+        }
+
+        if (!command.SafeRemainingArgument.TryParseEnum(out Difficulty value))
+        {
+            actor.OutputHandler.Send($"That is not a valid difficulty. See {"show difficulties".MXPSend("show difficulties")} for a list of values.");
+            return false;
+        }
+
+        SkillCheckDifficulty = value;
+        Changed = true;
+        actor.OutputHandler.Send($"This power's skill check will now be at a difficulty of {value.DescribeColoured()}.");
+        return true;
+    }
+
+    private bool BuildingCommandSkill(ICharacter actor, StringStack command)
+    {
+        if (command.IsFinished)
+        {
+            actor.OutputHandler.Send("Which skill or trait should be used for this power's skill check?");
+            return false;
+        }
+
+        var skill = Gameworld.Traits.GetByIdOrName(command.SafeRemainingArgument);
+        if (skill is null)
+        {
+            actor.OutputHandler.Send("That is not a valid skill or trait.");
+            return false;
+        }
+
+        SkillCheckTrait = skill;
+        Changed = true;
+        actor.OutputHandler.Send($"This magic power will now use the {skill.Name.ColourName()} skill for its skill check.");
+        return true;
+    }
+    #endregion Building Subcommands
+    #endregion Building Commands
 }

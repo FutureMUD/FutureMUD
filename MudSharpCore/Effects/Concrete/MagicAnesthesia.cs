@@ -92,13 +92,14 @@ public class MagicAnesthesia : ConcentrationConsumingEffect, IMagicEffect, IChec
 {
 	#region Constructors
 
-	public MagicAnesthesia(ICharacter owner, MindAnesthesiaPower power, ICharacter target, double targetIntensity) :
+	public MagicAnesthesia(ICharacter owner, MindAnesthesiaPower power, ICharacter target, double targetIntensity, double sustainMultiplier) :
 		base(owner, power.School, power.ConcentrationPointsToSustain)
 	{
 		AnesthesiaPower = power;
 		ApplicabilityProg = power.AppliesProg;
 		TargetIntensity = targetIntensity;
 		CharacterTarget = target;
+        SustainCostMultiplier = sustainMultiplier;
 		ChildEffect = new BeingMagicallyAnesthetised(CharacterTarget, this);
 		CharacterTarget.AddEffect(ChildEffect);
 		Login();
@@ -132,6 +133,7 @@ public class MagicAnesthesia : ConcentrationConsumingEffect, IMagicEffect, IChec
 
 	public double CurrentIntensity { get; protected set; }
 	public double TargetIntensity { get; protected set; }
+	public double SustainCostMultiplier { get; protected set; }
 
 	public bool AppliesToCheck(CheckType type)
 	{
@@ -143,7 +145,7 @@ public class MagicAnesthesia : ConcentrationConsumingEffect, IMagicEffect, IChec
 
 	private void DoSustainCostsTick()
 	{
-		AnesthesiaPower.DoSustainCostsTick(CharacterOwner);
+		AnesthesiaPower.DoSustainCostsTick(CharacterOwner, SustainCostMultiplier);
 	}
 
 	public override void ExpireEffect()

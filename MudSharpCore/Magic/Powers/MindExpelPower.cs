@@ -205,4 +205,115 @@ public class MindExpelPower : MagicPowerBase
         sb.AppendLine($"Expelled Target Emote: {EchoToExpelledTarget.ColourCommand()}");
         sb.AppendLine($"Non-Expelled Target Emote: {EchoToNonExpelledTarget.ColourCommand()}");
     }
+
+    #region Building Commands
+    /// <inheritdoc />
+    protected override string SubtypeHelpText => @"	#3begin <verb>#0 - sets the verb to activate this power
+    #3end <verb>#0 - sets the verb to end this power
+    #3skill <which>#0 - sets the skill used in the skill check
+    #3difficulty <difficulty>#0 - sets the difficulty of the skill check
+    #3threshold <outcome>#0 - sets the minimum outcome for skill success
+    #3distance <distance>#0 - sets the distance that this power can be used at";
+
+    /// <inheritdoc />
+    public override bool BuildingCommand(ICharacter actor, StringStack command)
+    {
+        switch (command.PopForSwitch())
+        {
+            case "verb":
+                return BuildingCommandVerb(actor, command);
+            case "skill":
+            case "trait":
+                return BuildingCommandSkill(actor, command);
+            case "difficulty":
+                return BuildingCommandDifficulty(actor, command);
+            case "threshold":
+                return BuildingCommandThreshold(actor, command);
+        }
+        return base.BuildingCommand(actor, command.GetUndo());
+    }
+
+    #region Building Subcommands
+
+    private bool BuildingCommandThreshold(ICharacter actor, StringStack command)
+    {
+        if (command.IsFinished)
+        {
+            actor.OutputHandler.Send($"What is the minimum success threshold for this power to work? See {"show outcomes".MXPSend("show outcomes")} for a list of valid values.");
+            return false;
+        }
+
+        if (!command.SafeRemainingArgument.TryParseEnum(out Outcome value))
+        {
+            actor.OutputHandler.Send($"That is not a valid outcome. See {"show outcomes".MXPSend("show outcomes")} for a list of valid values.");
+            return false;
+        }
+
+        MinimumSuccessThreshold = value;
+        Changed = true;
+        actor.OutputHandler.Send($"The power user will now need to achieve a {value.DescribeColour()} in order to activate this power.");
+        return true;
+    }
+
+    private bool BuildingCommandDifficulty(ICharacter actor, StringStack command)
+    {
+        if (command.IsFinished)
+        {
+            actor.OutputHandler.Send($"What difficulty should the skill check for this power be? See {"show difficulties".MXPSend("show difficulties")} for a list of values.");
+            return false;
+        }
+
+        if (!command.SafeRemainingArgument.TryParseEnum(out Difficulty value))
+        {
+            actor.OutputHandler.Send($"That is not a valid difficulty. See {"show difficulties".MXPSend("show difficulties")} for a list of values.");
+            return false;
+        }
+
+        SkillCheckDifficulty = value;
+        Changed = true;
+        actor.OutputHandler.Send($"This power's skill check will now be at a difficulty of {value.DescribeColoured()}.");
+        return true;
+    }
+
+    private bool BuildingCommandSkill(ICharacter actor, StringStack command)
+    {
+        if (command.IsFinished)
+        {
+            actor.OutputHandler.Send("Which skill or trait should be used for this power's skill check?");
+            return false;
+        }
+
+        var skill = Gameworld.Traits.GetByIdOrName(command.SafeRemainingArgument);
+        if (skill is null)
+        {
+            actor.OutputHandler.Send("That is not a valid skill or trait.");
+            return false;
+        }
+
+        SkillCheckTrait = skill;
+        Changed = true;
+        actor.OutputHandler.Send($"This magic power will now use the {skill.Name.ColourName()} skill for its skill check.");
+        return true;
+    }
+
+    private bool BuildingCommandVerb(ICharacter actor, StringStack command)
+    {
+        if (command.IsFinished)
+        {
+            actor.OutputHandler.Send("Which verb should be used to end this power when active?");
+            return false;
+        }
+
+        var verb = command.SafeRemainingArgument.ToLowerInvariant();
+
+        var costs = InvocationCosts[Verb].ToList();
+        InvocationCosts[verb] = costs;
+        InvocationCosts.Remove(Verb);
+        Verb = verb;
+        Changed = true;
+        actor.OutputHandler.Send($"This magic power will now use the verb {verb.ColourCommand()} to invoke the power.");
+        return true;
+    }
+    #endregion Building Subcommands
+    #endregion Building Commands
 }

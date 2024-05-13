@@ -56,7 +56,7 @@ public class MagicTelepathyEffect : ConcentrationConsumingEffect, IMagicEffect, 
 	public override bool Applies(object target)
 	{
 		var tch = (ICharacter)target;
-		switch (TelepathyPower.Distance)
+		switch (TelepathyPower.PowerDistance)
 		{
 			case MagicPowerDistance.AnyConnectedMind:
 				if (CharacterOwner.EffectsOfType<ConnectMindEffect>().All(x => x.TargetCharacter != tch))

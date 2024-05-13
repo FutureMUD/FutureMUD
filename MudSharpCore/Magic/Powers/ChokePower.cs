@@ -236,10 +236,10 @@ public class ChokePower : SustainedMagicPower
 		}
 	}
 
-    /// <inheritdoc />
-    protected override XElement SaveDefinition()
-    {
-        var definition = new XElement("Definition",
+	/// <inheritdoc />
+	protected override XElement SaveDefinition()
+	{
+		var definition = new XElement("Definition",
 			new XElement("BeginVerb", BeginVerb),
 			new XElement("EndVerb", EndVerb),
 			new XElement("PowerDistance", (int)PowerDistance),
@@ -249,18 +249,18 @@ public class ChokePower : SustainedMagicPower
 			new XElement("ResistCheckDifficulty", (int)ResistCheckDifficulty),
 			new XElement("ResistCheckInterval", ResistCheckInterval.TotalSeconds),
 			new XElement("TargetResistanceEmoteText", new XCData(TargetResistanceEmoteText)),
-            new XElement("TargetResistanceEmoteTextTarget", new XCData(TargetResistanceEmoteTextTarget)),
-            new XElement("EmoteText", new XCData(EmoteText)),
-            new XElement("EmoteTextTarget", new XCData(EmoteTextTarget)),
-            new XElement("FailEmoteText", new XCData(FailEmoteText)),
-            new XElement("FailEmoteTextTarget", new XCData(FailEmoteTextTarget)),
-            new XElement("EndPowerEmoteText", new XCData(EndPowerEmoteText)),
-            new XElement("EndPowerEmoteTextTarget", new XCData(EndPowerEmoteTextTarget))
-        );
-        SaveSustainedDefinition(definition);
-        return definition;
-    }
-    public override void UseCommand(ICharacter actor, string verb, StringStack command)
+			new XElement("TargetResistanceEmoteTextTarget", new XCData(TargetResistanceEmoteTextTarget)),
+			new XElement("EmoteText", new XCData(EmoteText)),
+			new XElement("EmoteTextTarget", new XCData(EmoteTextTarget)),
+			new XElement("FailEmoteText", new XCData(FailEmoteText)),
+			new XElement("FailEmoteTextTarget", new XCData(FailEmoteTextTarget)),
+			new XElement("EndPowerEmoteText", new XCData(EndPowerEmoteText)),
+			new XElement("EndPowerEmoteTextTarget", new XCData(EndPowerEmoteTextTarget))
+		);
+		SaveSustainedDefinition(definition);
+		return definition;
+	}
+	public override void UseCommand(ICharacter actor, string verb, StringStack command)
 	{
 		var (truth, missing) = CanAffordToInvokePower(actor, verb);
 		if (!truth)
@@ -380,7 +380,7 @@ public class ChokePower : SustainedMagicPower
 	public override IEnumerable<string> Verbs => new[] { BeginVerb, EndVerb };
 
 
-    public bool TargetGetsResistanceCheck { get; protected set; }
+	public bool TargetGetsResistanceCheck { get; protected set; }
 	public string TargetResistanceEmoteText { get; protected set; }
 	public string TargetResistanceEmoteTextTarget { get; protected set; }
 	public TimeSpan ResistCheckInterval { get; protected set; }
@@ -392,28 +392,257 @@ public class ChokePower : SustainedMagicPower
 		actor.RemoveAllEffects<MagicChoking>(x => x.Power == this, true);
 	}
 
-    /// <inheritdoc />
-    protected override void ShowSubtype(ICharacter actor, StringBuilder sb)
-    {
-        sb.AppendLine($"Begin Verb: {BeginVerb.ColourCommand()}");
-        sb.AppendLine($"End Verb: {EndVerb.ColourCommand()}");
-        sb.AppendLine($"Skill Check Trait: {SkillCheckTrait.Name.ColourValue()}");
-        sb.AppendLine($"Skill Check Difficulty: {SkillCheckDifficulty.DescribeColoured()}");
-        sb.AppendLine($"Minimum Success Threshold: {MinimumSuccessThreshold.DescribeColour()}");
-        sb.AppendLine($"Power Distance: {PowerDistance.DescribeEnum().ColourValue()}");
-        sb.AppendLine($"Resist Check Difficulty: {ResistCheckDifficulty.DescribeColoured()}");
-        sb.AppendLine($"Resist Check Interval: {ResistCheckInterval.DescribePreciseBrief().ColourValue()}");
-        sb.AppendLine();
-        sb.AppendLine("Emotes:");
-        sb.AppendLine();
-        sb.AppendLine($"Emote: {EmoteText.ColourCommand()}");
-        sb.AppendLine($"Emote Target: {EmoteTextTarget.ColourCommand()}");
-        sb.AppendLine($"Fail Emote: {FailEmoteText.ColourCommand()}");
-        sb.AppendLine($"Fail Emote Target: {FailEmoteTextTarget.ColourCommand()}");
-        sb.AppendLine($"End Emote: {EndPowerEmoteText.ColourCommand()}");
-        sb.AppendLine($"End Emote Target: {EndPowerEmoteTextTarget.ColourCommand()}");
-        sb.AppendLine($"Resist Emote: {TargetResistanceEmoteText.ColourCommand()}");
-        sb.AppendLine($"Resist Emote Target: {TargetResistanceEmoteTextTarget.ColourCommand()}");
-    }
+	/// <inheritdoc />
+	protected override void ShowSubtype(ICharacter actor, StringBuilder sb)
+	{
+		sb.AppendLine($"Begin Verb: {BeginVerb.ColourCommand()}");
+		sb.AppendLine($"End Verb: {EndVerb.ColourCommand()}");
+		sb.AppendLine($"Skill Check Trait: {SkillCheckTrait.Name.ColourValue()}");
+		sb.AppendLine($"Skill Check Difficulty: {SkillCheckDifficulty.DescribeColoured()}");
+		sb.AppendLine($"Minimum Success Threshold: {MinimumSuccessThreshold.DescribeColour()}");
+		sb.AppendLine($"Power Distance: {PowerDistance.DescribeEnum().ColourValue()}");
+		sb.AppendLine($"Resist Check Difficulty: {ResistCheckDifficulty.DescribeColoured()}");
+		sb.AppendLine($"Resist Check Interval: {ResistCheckInterval.DescribePreciseBrief().ColourValue()}");
+		sb.AppendLine();
+		sb.AppendLine("Emotes:");
+		sb.AppendLine();
+		sb.AppendLine($"Emote: {EmoteText.ColourCommand()}");
+		sb.AppendLine($"Emote Target: {EmoteTextTarget.ColourCommand()}");
+		sb.AppendLine($"Fail Emote: {FailEmoteText.ColourCommand()}");
+		sb.AppendLine($"Fail Emote Target: {FailEmoteTextTarget.ColourCommand()}");
+		sb.AppendLine($"End Emote: {EndPowerEmoteText.ColourCommand()}");
+		sb.AppendLine($"End Emote Target: {EndPowerEmoteTextTarget.ColourCommand()}");
+		sb.AppendLine($"Resist Emote: {TargetResistanceEmoteText.ColourCommand()}");
+		sb.AppendLine($"Resist Emote Target: {TargetResistanceEmoteTextTarget.ColourCommand()}");
+	}
 
+	#region Building Commands
+	/// <inheritdoc />
+	protected override string SubtypeHelpText => @"	#3begin <verb>#0 - sets the verb to activate this power
+	#3end <verb>#0 - sets the verb to end this power
+	#3skill <which>#0 - sets the skill used in the skill check
+	#3difficulty <difficulty>#0 - sets the difficulty of the skill check
+	#3threshold <outcome>#0 - sets the minimum outcome for skill success
+	#3distance <distance>#0 - sets the distance that this power can be used at";
+
+	/// <inheritdoc />
+	public override bool BuildingCommand(ICharacter actor, StringStack command)
+	{
+		switch (command.PopForSwitch())
+		{
+			case "beginverb":
+			case "begin":
+			case "startverb":
+			case "start":
+				return BuildingCommandBeginVerb(actor, command);
+			case "endverb":
+			case "end":
+			case "cancelverb":
+			case "cancel":
+				return BuildingCommandEndVerb(actor, command);
+			case "skill":
+			case "trait":
+				return BuildingCommandSkill(actor, command);
+			case "difficulty":
+				return BuildingCommandDifficulty(actor, command);
+			case "threshold":
+				return BuildingCommandThreshold(actor, command);
+			case "distance":
+				return BuildingCommandDistance(actor, command);
+			case "resistdifficulty":
+				return BuildingCommandResistDifficulty(actor, command);
+			case "resistinterval":
+				return BuildingCommandResistInterval(actor, command);
+		}
+		return base.BuildingCommand(actor, command.GetUndo());
+	}
+
+	private bool BuildingCommandResistInterval(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+        {
+            actor.OutputHandler.Send("What should be the interval in seconds between resistance checks?");
+            return false;
+        }
+
+        if (!double.TryParse(command.SafeRemainingArgument, out var value))
+        {
+            actor.OutputHandler.Send($"The text {command.SafeRemainingArgument.ColourCommand()} is not a valid number.");
+            return false;
+        }
+
+        if (value <= 0.0)
+        {
+            ResistCheckDifficulty = Difficulty.Impossible;
+            TargetGetsResistanceCheck = false;
+            ResistCheckInterval = TimeSpan.Zero;
+            Changed = true;
+            actor.OutputHandler.Send($"The target will no longer get any kind of resistance check to this power.");
+            return true;
+        }
+
+        ResistCheckInterval = TimeSpan.FromSeconds(value);
+        
+        TargetGetsResistanceCheck = true;
+        if (ResistCheckDifficulty == Difficulty.Impossible)
+        {
+            ResistCheckDifficulty = Difficulty.Insane;
+        }
+
+        Changed = true;
+        actor.OutputHandler.Send($"");
+        return true;
+	}
+
+	private bool BuildingCommandResistDifficulty(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send($"What difficulty should the resist check for this power be? See {"show difficulties".MXPSend("show difficulties")} for a list of values.");
+			return false;
+		}
+
+		if (!command.SafeRemainingArgument.TryParseEnum(out Difficulty value))
+		{
+			actor.OutputHandler.Send($"That is not a valid difficulty. See {"show difficulties".MXPSend("show difficulties")} for a list of values.");
+			return false;
+		}
+
+		ResistCheckDifficulty = value;
+		Changed = true;
+		actor.OutputHandler.Send($"This power's resist check will now be at a difficulty of {value.DescribeColoured()}.");
+		return true;
+	}
+
+	#region Building Subcommands
+	private bool BuildingCommandDistance(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send($"At what distance should this power be able to be used? The valid options are {Enum.GetValues<MagicPowerDistance>().Select(x => x.DescribeEnum().ColourValue()).ListToString()}.");
+			return false;
+		}
+
+		if (!command.SafeRemainingArgument.TryParseEnum(out MagicPowerDistance value))
+		{
+			actor.OutputHandler.Send($"That is not a valid distance. The valid options are {Enum.GetValues<MagicPowerDistance>().Select(x => x.DescribeEnum().ColourValue()).ListToString()}.");
+			return false;
+		}
+
+		PowerDistance = value;
+		Changed = true;
+		actor.OutputHandler.Send($"This magic power can now be used against {value.LongDescription().ColourValue()}.");
+		return true;
+	}
+
+	private bool BuildingCommandThreshold(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send($"What is the minimum success threshold for this power to work? See {"show outcomes".MXPSend("show outcomes")} for a list of valid values.");
+			return false;
+		}
+
+		if (!command.SafeRemainingArgument.TryParseEnum(out Outcome value))
+		{
+			actor.OutputHandler.Send($"That is not a valid outcome. See {"show outcomes".MXPSend("show outcomes")} for a list of valid values.");
+			return false;
+		}
+
+		MinimumSuccessThreshold = value;
+		Changed = true;
+		actor.OutputHandler.Send($"The power user will now need to achieve a {value.DescribeColour()} in order to activate this power.");
+		return true;
+	}
+
+	private bool BuildingCommandDifficulty(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send($"What difficulty should the skill check for this power be? See {"show difficulties".MXPSend("show difficulties")} for a list of values.");
+			return false;
+		}
+
+		if (!command.SafeRemainingArgument.TryParseEnum(out Difficulty value))
+		{
+			actor.OutputHandler.Send($"That is not a valid difficulty. See {"show difficulties".MXPSend("show difficulties")} for a list of values.");
+			return false;
+		}
+
+		SkillCheckDifficulty = value;
+		Changed = true;
+		actor.OutputHandler.Send($"This power's skill check will now be at a difficulty of {value.DescribeColoured()}.");
+		return true;
+	}
+
+	private bool BuildingCommandSkill(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("Which skill or trait should be used for this power's skill check?");
+			return false;
+		}
+
+		var skill = Gameworld.Traits.GetByIdOrName(command.SafeRemainingArgument);
+		if (skill is null)
+		{
+			actor.OutputHandler.Send("That is not a valid skill or trait.");
+			return false;
+		}
+
+		SkillCheckTrait = skill;
+		Changed = true;
+		actor.OutputHandler.Send($"This magic power will now use the {skill.Name.ColourName()} skill for its skill check.");
+		return true;
+	}
+
+	private bool BuildingCommandEndVerb(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("Which verb should be used to end this power when active?");
+			return false;
+		}
+
+		var verb = command.SafeRemainingArgument.ToLowerInvariant();
+		if (BeginVerb.EqualTo(verb))
+		{
+			actor.OutputHandler.Send("The begin and verb cannot be the same.");
+			return false;
+		}
+
+		var costs = InvocationCosts[EndVerb].ToList();
+		InvocationCosts[verb] = costs;
+		InvocationCosts.Remove(EndVerb);
+		EndVerb = verb;
+		Changed = true;
+		actor.OutputHandler.Send($"This magic power will now use the verb {verb.ColourCommand()} to end the power.");
+		return true;
+	}
+
+	private bool BuildingCommandBeginVerb(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("Which verb should be used to activate this power?");
+			return false;
+		}
+
+		var verb = command.SafeRemainingArgument.ToLowerInvariant();
+		if (EndVerb.EqualTo(verb))
+		{
+			actor.OutputHandler.Send("The begin and verb cannot be the same.");
+			return false;
+		}
+
+		var costs = InvocationCosts[BeginVerb].ToList();
+		InvocationCosts[verb] = costs;
+		InvocationCosts.Remove(BeginVerb);
+		BeginVerb = verb;
+		Changed = true;
+		actor.OutputHandler.Send($"This magic power will now use the verb {verb.ColourCommand()} to begin the power.");
+		return true;
+	}
+	#endregion Building Subcommands
+#endregion Building Commands
 }

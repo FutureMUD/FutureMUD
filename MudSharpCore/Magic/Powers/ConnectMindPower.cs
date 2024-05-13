@@ -30,11 +30,12 @@ public class ConnectMindPower : SustainedMagicPower
     protected override XElement SaveDefinition()
     {
         var definition = new XElement("Definition",
-            new XElement("ConnectVerb", ConnectVerb),
-            new XElement("DisconnectVerb", DisconnectVerb),
+            new XElement("ConnectVerb", BeginVerb),
+            new XElement("DisconnectVerb", EndVerb),
             new XElement("PowerDistance", (int)PowerDistance),
             new XElement("SkillCheckDifficulty", (int)SkillCheckDifficulty),
             new XElement("SkillCheckTrait", SkillCheckTrait.Id),
+            new XElement("MinimumSuccessThreshold", (int)MinimumSuccessThreshold),
             new XElement("TargetCanSeeIdentityProg", TargetCanSeeIdentityProg.Id),
             new XElement("ExclusiveConnection", ExclusiveConnection),
             new XElement("EmoteForConnect", new XCData(EmoteForConnect)),
@@ -66,7 +67,7 @@ public class ConnectMindPower : SustainedMagicPower
 				$"There was no ConnectVerb in the definition XML for power {Id} ({Name}).");
 		}
 
-		ConnectVerb = element.Value;
+		BeginVerb = element.Value;
 
 		element = root.Element("DisconnectVerb");
 		if (element == null)
@@ -75,7 +76,7 @@ public class ConnectMindPower : SustainedMagicPower
 				$"There was no DisconnectVerb in the definition XML for power {Id} ({Name}).");
 		}
 
-		DisconnectVerb = element.Value;
+		EndVerb = element.Value;
 
 		element = root.Element("PowerDistance");
 		if (element == null)
@@ -108,7 +109,11 @@ public class ConnectMindPower : SustainedMagicPower
 				$"There was no SkillCheckTrait in the definition XML for power {Id} ({Name}).");
 		}
 
-		SkillCheckTrait = Gameworld.Traits.Get(long.Parse(element.Value));
+        element = root.Element("MinimumSuccessThreshold");
+
+        MinimumSuccessThreshold = (Outcome)int.Parse(element?.Value ?? ((int)Outcome.MinorFail).ToString());
+
+        SkillCheckTrait = Gameworld.Traits.Get(long.Parse(element.Value));
 
 		element = root.Element("EmoteForConnect");
 		if (element == null)
@@ -248,7 +253,7 @@ public class ConnectMindPower : SustainedMagicPower
 			return;
 		}
 
-		if (verb.EqualTo(ConnectVerb))
+		if (verb.EqualTo(BeginVerb))
 		{
 			UseCommandConnect(actor, command);
 			return;
@@ -413,7 +418,7 @@ public class ConnectMindPower : SustainedMagicPower
 			actor.AddEffect(new ConnectMindEffect(actor, target, this), GetDuration(result.SuccessDegrees()));
 		}
 
-		ConsumePowerCosts(actor, ConnectVerb);
+		ConsumePowerCosts(actor, BeginVerb);
 	}
 
 	public void UseCommandDisconnect(ICharacter actor, StringStack command)
@@ -444,7 +449,7 @@ public class ConnectMindPower : SustainedMagicPower
 		}
 
 		actor.RemoveEffect(targetEffect, true);
-		ConsumePowerCosts(actor, DisconnectVerb);
+		ConsumePowerCosts(actor, EndVerb);
 	}
 
 	#region Overrides of SustainedMagicPower
@@ -460,13 +465,13 @@ public class ConnectMindPower : SustainedMagicPower
 
 	#endregion
 
-	public override IEnumerable<string> Verbs => new[] { ConnectVerb, DisconnectVerb };
+	public override IEnumerable<string> Verbs => new[] { BeginVerb, EndVerb };
 
 	#endregion
 
-	public string ConnectVerb { get; protected set; }
+	public string BeginVerb { get; protected set; }
 
-	public string DisconnectVerb { get; protected set; }
+	public string EndVerb { get; protected set; }
 
 	public MagicPowerDistance PowerDistance { get; protected set; }
 
@@ -475,8 +480,9 @@ public class ConnectMindPower : SustainedMagicPower
 	public Difficulty SkillCheckDifficulty { get; protected set; }
 
 	public ITraitDefinition SkillCheckTrait { get; protected set; }
+    public Outcome MinimumSuccessThreshold { get; protected set; }
 
-	public string EmoteForConnect { get; protected set; }
+    public string EmoteForConnect { get; protected set; }
 	public string SelfEmoteForConnect { get; protected set; }
 	public string EmoteForFailConnect { get; protected set; }
 	public string SelfEmoteForFailConnect { get; protected set; }
@@ -491,8 +497,8 @@ public class ConnectMindPower : SustainedMagicPower
 
     protected override void ShowSubtype(ICharacter actor, StringBuilder sb)
     {
-        sb.AppendLine($"Connect Verb: {ConnectVerb.ColourCommand()}");
-        sb.AppendLine($"Disconnect Verb: {DisconnectVerb.ColourCommand()}");
+        sb.AppendLine($"Connect Verb: {BeginVerb.ColourCommand()}");
+        sb.AppendLine($"Disconnect Verb: {EndVerb.ColourCommand()}");
         sb.AppendLine($"Skill Check Trait: {SkillCheckTrait.Name.ColourValue()}");
         sb.AppendLine($"Skill Check Difficulty: {SkillCheckDifficulty.DescribeColoured()}");
         sb.AppendLine($"Power Distance: {PowerDistance.DescribeEnum().ColourValue()}");
@@ -550,4 +556,173 @@ public class ConnectMindPower : SustainedMagicPower
 
 		return UnknownIdentityDescription.ColourCharacter();
 	}
+
+    #region Building Commands
+    /// <inheritdoc />
+    protected override string SubtypeHelpText => @"	#3begin <verb>#0 - sets the verb to activate this power
+    #3end <verb>#0 - sets the verb to end this power
+    #3skill <which>#0 - sets the skill used in the skill check
+    #3difficulty <difficulty>#0 - sets the difficulty of the skill check
+    #3threshold <outcome>#0 - sets the minimum outcome for skill success
+    #3distance <distance>#0 - sets the distance that this power can be used at";
+
+    /// <inheritdoc />
+    public override bool BuildingCommand(ICharacter actor, StringStack command)
+    {
+        switch (command.PopForSwitch())
+        {
+            case "beginverb":
+            case "begin":
+            case "startverb":
+            case "start":
+                return BuildingCommandBeginVerb(actor, command);
+            case "endverb":
+            case "end":
+            case "cancelverb":
+            case "cancel":
+                return BuildingCommandEndVerb(actor, command);
+            case "skill":
+            case "trait":
+                return BuildingCommandSkill(actor, command);
+            case "difficulty":
+                return BuildingCommandDifficulty(actor, command);
+            case "threshold":
+                return BuildingCommandThreshold(actor, command);
+            case "distance":
+                return BuildingCommandDistance(actor, command);
+        }
+        return base.BuildingCommand(actor, command.GetUndo());
+    }
+
+    #region Building Subcommands
+    private bool BuildingCommandDistance(ICharacter actor, StringStack command)
+    {
+        if (command.IsFinished)
+        {
+            actor.OutputHandler.Send($"At what distance should this power be able to be used? The valid options are {Enum.GetValues<MagicPowerDistance>().Select(x => x.DescribeEnum().ColourValue()).ListToString()}.");
+            return false;
+        }
+
+        if (!command.SafeRemainingArgument.TryParseEnum(out MagicPowerDistance value))
+        {
+            actor.OutputHandler.Send($"That is not a valid distance. The valid options are {Enum.GetValues<MagicPowerDistance>().Select(x => x.DescribeEnum().ColourValue()).ListToString()}.");
+            return false;
+        }
+
+        PowerDistance = value;
+        Changed = true;
+        actor.OutputHandler.Send($"This magic power can now be used against {value.LongDescription().ColourValue()}.");
+        return true;
+    }
+
+    private bool BuildingCommandThreshold(ICharacter actor, StringStack command)
+    {
+        if (command.IsFinished)
+        {
+            actor.OutputHandler.Send($"What is the minimum success threshold for this power to work? See {"show outcomes".MXPSend("show outcomes")} for a list of valid values.");
+            return false;
+        }
+
+        if (!command.SafeRemainingArgument.TryParseEnum(out Outcome value))
+        {
+            actor.OutputHandler.Send($"That is not a valid outcome. See {"show outcomes".MXPSend("show outcomes")} for a list of valid values.");
+            return false;
+        }
+
+        MinimumSuccessThreshold = value;
+        Changed = true;
+        actor.OutputHandler.Send($"The power user will now need to achieve a {value.DescribeColour()} in order to activate this power.");
+        return true;
+    }
+
+    private bool BuildingCommandDifficulty(ICharacter actor, StringStack command)
+    {
+        if (command.IsFinished)
+        {
+            actor.OutputHandler.Send($"What difficulty should the skill check for this power be? See {"show difficulties".MXPSend("show difficulties")} for a list of values.");
+            return false;
+        }
+
+        if (!command.SafeRemainingArgument.TryParseEnum(out Difficulty value))
+        {
+            actor.OutputHandler.Send($"That is not a valid difficulty. See {"show difficulties".MXPSend("show difficulties")} for a list of values.");
+            return false;
+        }
+
+        SkillCheckDifficulty = value;
+        Changed = true;
+        actor.OutputHandler.Send($"This power's skill check will now be at a difficulty of {value.DescribeColoured()}.");
+        return true;
+    }
+
+    private bool BuildingCommandSkill(ICharacter actor, StringStack command)
+    {
+        if (command.IsFinished)
+        {
+            actor.OutputHandler.Send("Which skill or trait should be used for this power's skill check?");
+            return false;
+        }
+
+        var skill = Gameworld.Traits.GetByIdOrName(command.SafeRemainingArgument);
+        if (skill is null)
+        {
+            actor.OutputHandler.Send("That is not a valid skill or trait.");
+            return false;
+        }
+
+        SkillCheckTrait = skill;
+        Changed = true;
+        actor.OutputHandler.Send($"This magic power will now use the {skill.Name.ColourName()} skill for its skill check.");
+        return true;
+    }
+
+    private bool BuildingCommandEndVerb(ICharacter actor, StringStack command)
+    {
+        if (command.IsFinished)
+        {
+            actor.OutputHandler.Send("Which verb should be used to end this power when active?");
+            return false;
+        }
+
+        var verb = command.SafeRemainingArgument.ToLowerInvariant();
+        if (BeginVerb.EqualTo(verb))
+        {
+            actor.OutputHandler.Send("The begin and verb cannot be the same.");
+            return false;
+        }
+
+        var costs = InvocationCosts[EndVerb].ToList();
+        InvocationCosts[verb] = costs;
+        InvocationCosts.Remove(EndVerb);
+        EndVerb = verb;
+        Changed = true;
+        actor.OutputHandler.Send($"This magic power will now use the verb {verb.ColourCommand()} to end the power.");
+        return true;
+    }
+
+    private bool BuildingCommandBeginVerb(ICharacter actor, StringStack command)
+    {
+        if (command.IsFinished)
+        {
+            actor.OutputHandler.Send("Which verb should be used to activate this power?");
+            return false;
+        }
+
+        var verb = command.SafeRemainingArgument.ToLowerInvariant();
+        if (EndVerb.EqualTo(verb))
+        {
+            actor.OutputHandler.Send("The begin and verb cannot be the same.");
+            return false;
+        }
+
+        var costs = InvocationCosts[BeginVerb].ToList();
+        InvocationCosts[verb] = costs;
+        InvocationCosts.Remove(BeginVerb);
+        BeginVerb = verb;
+        Changed = true;
+        actor.OutputHandler.Send($"This magic power will now use the verb {verb.ColourCommand()} to begin the power.");
+        return true;
+    }
+    #endregion Building Subcommands
+    #endregion Building Commands
 }

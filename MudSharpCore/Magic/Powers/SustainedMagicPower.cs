@@ -47,19 +47,18 @@ public abstract class SustainedMagicPower : MagicPowerBase
 		element = root.Element("Duration");
 		if (element == null)
 		{
-			_durationExpression = new Expression("-1");
+			DurationExpression = new Expression("-1");
 			HasDuration = false;
 		}
 		else
 		{
 			HasDuration = true;
-			_durationExpression = new Expression(element.Value);
+			DurationExpression = new Expression(element.Value);
 		}
 
 		element = root.Element("SustainResourceCosts");
 		if (element == null)
 		{
-			SustainCostsPerMinute = Enumerable.Empty<(IMagicResource Resource, double Cost)>();
 		}
 		else
 		{
@@ -88,10 +87,8 @@ public abstract class SustainedMagicPower : MagicPowerBase
 						$"Could not convert the amount in the SustainResourceCost in the definition XML for power {Id} ({Name}).");
 				}
 
-				list.Add((resource, dvalue));
+				_sustainCostsPerMinute.Add((resource, dvalue));
 			}
-
-			SustainCostsPerMinute = list;
 		}
 	}
 
@@ -100,14 +97,15 @@ public abstract class SustainedMagicPower : MagicPowerBase
 	public Difficulty DetectableWithDetectMagic { get; protected set; }
 	public bool HasDuration { get; protected set; }
 
-	public IEnumerable<(IMagicResource Resource, double Cost)> SustainCostsPerMinute { get; }
+    private readonly List<(IMagicResource Resource, double Cost)> _sustainCostsPerMinute = new();
+    public IEnumerable<(IMagicResource Resource, double Cost)> SustainCostsPerMinute => _sustainCostsPerMinute;
 
-	public void DoSustainCostsTick(ICharacter actor)
+	public void DoSustainCostsTick(ICharacter actor, double multiplier = 1.0)
 	{
 		var remove = false;
 		foreach (var (resource, cost) in SustainCostsPerMinute)
 		{
-			if (!actor.UseResource(resource, cost))
+			if (!actor.UseResource(resource, cost * multiplier))
 			{
 				remove = true;
 			}
@@ -121,14 +119,14 @@ public abstract class SustainedMagicPower : MagicPowerBase
 
 	protected abstract void ExpireSustainedEffect(ICharacter actor);
 
-	private readonly Expression _durationExpression;
+	private Expression DurationExpression { get; set; }
 
 	public TimeSpan GetDuration(int successDegrees)
 	{
 		if (HasDuration)
 		{
-			_durationExpression.Parameters["degrees"] = successDegrees;
-			return TimeSpan.FromMilliseconds(Convert.ToDouble(_durationExpression.Evaluate()));
+			DurationExpression.Parameters["degrees"] = successDegrees;
+			return TimeSpan.FromMilliseconds(Convert.ToDouble(DurationExpression.Evaluate()));
 		}
 
 		return TimeSpan.MinValue;
@@ -149,7 +147,7 @@ public abstract class SustainedMagicPower : MagicPowerBase
 
 		if (HasDuration)
 		{
-			sb.AppendLine($"Duration Formula: {_durationExpression.OriginalExpression.ColourCommand()}");
+			sb.AppendLine($"Duration Formula: {DurationExpression.OriginalExpression.ColourCommand()}");
 		}
 
 		sb.AppendLine($"Concentration to Sustain: {ConcentrationPointsToSustain.ToString("N2", voyeur).ColourValue()}");
@@ -166,7 +164,7 @@ public abstract class SustainedMagicPower : MagicPowerBase
         root.Add(new XElement("DetectableWithDetectMagic", DetectableWithDetectMagic));
         if (HasDuration)
         {
-            root.Add(new XElement("Duration", _durationExpression.OriginalExpression));
+            root.Add(new XElement("Duration", DurationExpression.OriginalExpression));
         }
         root.Add(new XElement("SustainResourceCosts",
             from item in SustainCostsPerMinute
@@ -188,6 +186,11 @@ public abstract class SustainedMagicPower : MagicPowerBase
     #3why <prog>#0 - sets a prog that controls an error message if prog can't be used
     #3help#0 - drops you into an editor to write the player help file
     #3cost <verb> <which> <number>#0 - sets the cost of using a particular verb
+    #3sustaincost <which> <number>#0 - sets the sustain cost per minute of the power
+    #3duration <expression>#0 - sets the duration the power will last
+    #3concentration <points>#0 - sets the number of concentration points this power occupies
+    #3sustainpenalty <degrees>#0 - sets the skill check penalty for sustaining this power
+    #3detect <difficulty>#0 - sets the difficulty to detect this power
 {SubtypeHelpText}";
 
     /// <inheritdoc />
@@ -217,28 +220,128 @@ public abstract class SustainedMagicPower : MagicPowerBase
 			return false;
 		}
 
-		if (command.SafeRemainingArgument.EqualTo("0"))
-        throw new NotImplementedException();
+        if (command.SafeRemainingArgument.EqualTo("0"))
+        {
+            DurationExpression = new Expression("-1");
+            HasDuration = false;
+            Changed = true;
+            actor.OutputHandler.Send("This power now lasts as long as it is sustained.");
+            return true;
+        }
+
+        var expression = new Expression(command.SafeRemainingArgument);
+        if (expression.HasErrors())
+        {
+            actor.OutputHandler.Send(expression.Error);
+            return false;
+        }
+
+        DurationExpression = expression;
+        Changed = true;
+        actor.OutputHandler.Send($"This power will now last for {expression.OriginalExpression.ColourCommand()} seconds.");
+        return true;
     }
 
     private bool BuildingCommandSustainCost(ICharacter actor, StringStack command)
     {
-        throw new NotImplementedException();
+        if (command.IsFinished)
+        {
+            actor.OutputHandler.Send($"Which magic resource do you want to edit costs for?");
+            return false;
+        }
+
+        var resource = Gameworld.MagicResources.GetByIdOrName(command.PopSpeech());
+        if (resource is null)
+        {
+            actor.OutputHandler.Send($"There is no magic resource identified by {command.Last.ColourCommand()}.");
+            return false;
+        }
+
+        if (command.IsFinished)
+        {
+            actor.OutputHandler.Send($"How much {resource.Name.ColourValue()} per minute should be consumed to sustain this power?");
+            return false;
+        }
+
+        if (!double.TryParse(command.SafeRemainingArgument, out var value))
+        {
+            actor.OutputHandler.Send($"The text {command.SafeRemainingArgument.ColourCommand()} is not a valid number.");
+            return false;
+        }
+
+        if (value == 0.0)
+        {
+            _sustainCostsPerMinute.RemoveAll(x => x.Resource == resource);
+            Changed = true;
+            actor.OutputHandler.Send($"This power will no longer cost any {resource.Name.ColourValue()} to sustain.");
+            return true;
+        }
+
+        _sustainCostsPerMinute.RemoveAll(x => x.Resource == resource);
+        _sustainCostsPerMinute.Add((resource, value));
+        Changed = true;
+        actor.OutputHandler.Send($"This power will now cost {value.ToBonusString(actor)} {resource.Name.ColourValue()} per minute to sustain.");
+        return true;
     }
 
     private bool BuildingCommandConcentration(ICharacter actor, StringStack command)
     {
-        throw new NotImplementedException();
+        if (command.IsFinished)
+        {
+            actor.OutputHandler.Send("How many concentration points should this power consume?");
+            return false;
+        }
+
+        if (!double.TryParse(command.SafeRemainingArgument, out var value))
+        {
+            actor.OutputHandler.Send($"The text {command.SafeRemainingArgument.ColourCommand()} is not a valid number.");
+            return false;
+        }
+
+        ConcentrationPointsToSustain = value;
+        Changed = true;
+        actor.OutputHandler.Send($"Sustaining this power will now use up {value.ToBonusString(actor)} concentration point slots.");
+        return true;
     }
 
     private bool BuildingCommandSustainPenalty(ICharacter actor, StringStack command)
     {
-        throw new NotImplementedException();
+        if (command.IsFinished)
+        {
+            actor.OutputHandler.Send("What should be the skill check penalty for sustaining this magical power?");
+            return false;
+        }
+
+        if (!double.TryParse(command.SafeRemainingArgument, out var value))
+        {
+            actor.OutputHandler.Send($"The text {command.SafeRemainingArgument.ColourCommand()} is not a valid number.");
+            return false;
+        }
+
+        SustainPenalty = value;
+        Changed = true;
+        actor.OutputHandler.Send($"Sustaining this power will now cause a {value.ToBonusString(actor)} penalty to all skill checks.");
+        return true;
     }
 
     private bool BuildingCommandDetect(ICharacter actor, StringStack command)
     {
-        throw new NotImplementedException();
+        if (command.IsFinished)
+        {
+            actor.OutputHandler.Send($"What difficulty should it be to detect this ongoing power with detect magic abilities?\nHint: See {"show difficulties".MXPSend("show difficulties")} for a list.");
+            return false;
+        }
+
+        if (!command.SafeRemainingArgument.TryParseEnum(out Difficulty value))
+        {
+            actor.OutputHandler.Send($"That is not a valid difficulty.\nHint: See {"show difficulties".MXPSend("show difficulties")} for a list.");
+            return false;
+        }
+
+        DetectableWithDetectMagic = value;
+        Changed = true;
+        actor.OutputHandler.Send($"This power will now be {value.DescribeColoured()} to detect with detect magic spells and abilities.");
+        return true;
     }
 
     #endregion

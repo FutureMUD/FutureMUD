@@ -23,26 +23,26 @@ public class MindLookPower : MagicPowerBase
 		MagicPowerFactory.RegisterLoader("mindlook", (power, gameworld) => new MindLookPower(power, gameworld));
 	}
 
-    protected override XElement SaveDefinition()
-    {
-        var definition = new XElement("Definition",
-            new XElement("LookRoomVerb", LookRoomVerb),
-            new XElement("LookThingVerb", LookThingVerb),
-            new XElement("LookInThingVerb", LookInThingVerb),
-            new XElement("EmoteText", new XCData(EmoteText)),
-            new XElement("FailEmoteText", new XCData(FailEmoteText)),
-            new XElement("SkillCheckDifficultyLookRoom", (int)SkillCheckDifficultyLookRoom),
-            new XElement("SkillCheckDifficultyLookThing", (int)SkillCheckDifficultyLookThing),
-            new XElement("SkillCheckDifficultyLookInThing", (int)SkillCheckDifficultyLookInThing),
-            new XElement("MinimumSuccessThresholdLookRoom", (int)MinimumSuccessThresholdLookRoom),
-            new XElement("MinimumSuccessThresholdLookThing", (int)MinimumSuccessThresholdLookThing),
-            new XElement("MinimumSuccessThresholdLookInThing", (int)MinimumSuccessThresholdLookInThing),
-            new XElement("SkillCheckTrait", SkillCheckTrait.Id)
-        );
-        return definition;
-    }
+	protected override XElement SaveDefinition()
+	{
+		var definition = new XElement("Definition",
+			new XElement("LookRoomVerb", LookRoomVerb),
+			new XElement("LookThingVerb", LookThingVerb),
+			new XElement("LookInThingVerb", LookInThingVerb),
+			new XElement("EmoteText", new XCData(EmoteText)),
+			new XElement("FailEmoteText", new XCData(FailEmoteText)),
+			new XElement("SkillCheckDifficultyLookRoom", (int)SkillCheckDifficultyLookRoom),
+			new XElement("SkillCheckDifficultyLookThing", (int)SkillCheckDifficultyLookThing),
+			new XElement("SkillCheckDifficultyLookInThing", (int)SkillCheckDifficultyLookInThing),
+			new XElement("MinimumSuccessThresholdLookRoom", (int)MinimumSuccessThresholdLookRoom),
+			new XElement("MinimumSuccessThresholdLookThing", (int)MinimumSuccessThresholdLookThing),
+			new XElement("MinimumSuccessThresholdLookInThing", (int)MinimumSuccessThresholdLookInThing),
+			new XElement("SkillCheckTrait", SkillCheckTrait.Id)
+		);
+		return definition;
+	}
 
-    protected MindLookPower(MagicPower power, IFuturemud gameworld) : base(power, gameworld)
+	protected MindLookPower(MagicPower power, IFuturemud gameworld) : base(power, gameworld)
 	{
 		var root = XElement.Parse(power.Definition);
 		var element = root.Element("LookRoomVerb");
@@ -360,139 +360,285 @@ public class MindLookPower : MagicPowerBase
 	public string EmoteText { get; set; }
 	public string FailEmoteText { get; set; }
 
-    protected override void ShowSubtype(ICharacter actor, StringBuilder sb)
-    {
-        sb.AppendLine($"Look Room Verb: {LookRoomVerb.ColourCommand()}");
-        sb.AppendLine($"Look Thing Verb: {LookThingVerb.ColourCommand()}");
-        sb.AppendLine($"Look In Thing Verb: {LookInThingVerb.ColourCommand()}");
-        sb.AppendLine($"Skill Check Trait: {SkillCheckTrait.Name.ColourValue()}");
-        sb.AppendLine($"Look Room Difficulty: {SkillCheckDifficultyLookRoom.DescribeColoured()}");
-        sb.AppendLine($"Look Thing Success Threshold: {MinimumSuccessThresholdLookRoom.DescribeColour()}");
-        sb.AppendLine($"Look Thing Success Threshold: {MinimumSuccessThresholdLookRoom.DescribeColour()}");
-        sb.AppendLine($"Look In Thing Success Threshold: {MinimumSuccessThresholdLookRoom.DescribeColour()}");
-        sb.AppendLine();
-        sb.AppendLine("Emotes:");
-        sb.AppendLine();
-        sb.AppendLine($"Emote: {EmoteText.ColourCommand()}");
-        sb.AppendLine($"Fail Emote: {FailEmoteText.ColourCommand()}");
-    }
+	protected override void ShowSubtype(ICharacter actor, StringBuilder sb)
+	{
+		sb.AppendLine($"Look Room Verb: {LookRoomVerb.ColourCommand()}");
+		sb.AppendLine($"Look Thing Verb: {LookThingVerb.ColourCommand()}");
+		sb.AppendLine($"Look In Thing Verb: {LookInThingVerb.ColourCommand()}");
+		sb.AppendLine($"Skill Check Trait: {SkillCheckTrait.Name.ColourValue()}");
+		sb.AppendLine($"Look Room Difficulty: {SkillCheckDifficultyLookRoom.DescribeColoured()}");
+		sb.AppendLine($"Look Thing Success Threshold: {MinimumSuccessThresholdLookRoom.DescribeColour()}");
+		sb.AppendLine($"Look Thing Success Threshold: {MinimumSuccessThresholdLookRoom.DescribeColour()}");
+		sb.AppendLine($"Look In Thing Success Threshold: {MinimumSuccessThresholdLookRoom.DescribeColour()}");
+		sb.AppendLine();
+		sb.AppendLine("Emotes:");
+		sb.AppendLine();
+		sb.AppendLine($"Emote: {EmoteText.ColourCommand()}");
+		sb.AppendLine($"Fail Emote: {FailEmoteText.ColourCommand()}");
+	}
 
-    #region Building Commands
-    /// <inheritdoc />
-    protected override string SubtypeHelpText => @"	#3begin <verb>#0 - sets the verb to activate this power
-    #3end <verb>#0 - sets the verb to end this power
-    #3skill <which>#0 - sets the skill used in the skill check
-    #3difficulty <difficulty>#0 - sets the difficulty of the skill check
-    #3threshold <outcome>#0 - sets the minimum outcome for skill success
-    #3distance <distance>#0 - sets the distance that this power can be used at";
+	#region Building Commands
+	/// <inheritdoc />
+	protected override string SubtypeHelpText => @"	#3roomverb <verb>#0 - sets the verb to activate this power on a room
+	#3thingverb <verb>#0 - sets the verb to activate this power on a thing
+	#3inthingverb <verb>#0 - sets the verb to activate this power to look in a thing
+	#3difficultyroom <difficulty>#0 - sets the difficulty of the skill check for rooms
+	#3difficultything <difficulty>#0 - sets the difficulty of the skill check for things
+	#3difficultyinthing <difficulty>#0 - sets the difficulty of the skill check for looking in things
+	#3thresholdroom <outcome>#0 - sets the minimum outcome for skill success for rooms
+	#3thresholdthing <outcome>#0 - sets the minimum outcome for skill success for things
+	#3thresholdinthing <outcome>#0 - sets the minimum outcome for skill success for looking in things
+	#3skill <which>#0 - sets the skill used in the skill check";
 
-    /// <inheritdoc />
-    public override bool BuildingCommand(ICharacter actor, StringStack command)
-    {
-        switch (command.PopForSwitch())
-        {
-            case "beginverb":
-            case "begin":
-            case "startverb":
-            case "start":
-                return BuildingCommandBeginVerb(actor, command);
-            case "endverb":
-            case "end":
-            case "cancelverb":
-            case "cancel":
-                return BuildingCommandEndVerb(actor, command);
-            case "skill":
-            case "trait":
-                return BuildingCommandSkill(actor, command);
-            case "difficulty":
-                return BuildingCommandDifficulty(actor, command);
-            case "threshold":
-                return BuildingCommandThreshold(actor, command);
-        }
-        return base.BuildingCommand(actor, command.GetUndo());
-    }
+	/// <inheritdoc />
+	public override bool BuildingCommand(ICharacter actor, StringStack command)
+	{
+		switch (command.PopForSwitch())
+		{
+			case "lookroomverb":
+			case "roomverb":
+				return BuildingCommandLookRoomVerb(actor, command);
+			case "lookthingverb":
+			case "thingverb":
+				return BuildingCommandLookThingVerb(actor, command);
+			case "lookinthingverb":
+			case "inthingverb":
+				return BuildingCommandLookInThingVerb(actor, command);
+			case "skill":
+			case "trait":
+				return BuildingCommandSkill(actor, command);
+			case "difficultyroom":
+				return BuildingCommandDifficultyRoom(actor, command);
+			case "difficultything":
+				return BuildingCommandDifficultyThing(actor, command);
+			case "difficultyinthing":
+				return BuildingCommandDifficultyInThing(actor, command);
+			case "thresholdroom":
+				return BuildingCommandThresholdRoom(actor, command);
+			case "thresholdthing":
+				return BuildingCommandThresholdThing(actor, command);
+			case "thresholdinthing":
+				return BuildingCommandThresholdInThing(actor, command);
+		}
+		return base.BuildingCommand(actor, command.GetUndo());
+	}
 
-    #region Building Subcommands
+	#region Building Subcommands
 
-    private bool BuildingCommandThreshold(ICharacter actor, StringStack command)
-    {
-        if (command.IsFinished)
-        {
-            actor.OutputHandler.Send($"What is the minimum success threshold for this power to work? See {"show outcomes".MXPSend("show outcomes")} for a list of valid values.");
-            return false;
-        }
+	private bool BuildingCommandThresholdRoom(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send($"What is the minimum success threshold for this power to work on a room? See {"show outcomes".MXPSend("show outcomes")} for a list of valid values.");
+			return false;
+		}
 
-        if (!command.SafeRemainingArgument.TryParseEnum(out Outcome value))
-        {
-            actor.OutputHandler.Send($"That is not a valid outcome. See {"show outcomes".MXPSend("show outcomes")} for a list of valid values.");
-            return false;
-        }
+		if (!command.SafeRemainingArgument.TryParseEnum(out Outcome value))
+		{
+			actor.OutputHandler.Send($"That is not a valid outcome. See {"show outcomes".MXPSend("show outcomes")} for a list of valid values.");
+			return false;
+		}
 
-        MinimumSuccessThreshold = value;
-        Changed = true;
-        actor.OutputHandler.Send($"The power user will now need to achieve a {value.DescribeColour()} in order to activate this power.");
-        return true;
-    }
+		MinimumSuccessThresholdLookRoom = value;
+		Changed = true;
+		actor.OutputHandler.Send($"The power user will now need to achieve a {value.DescribeColour()} in order to activate this power to look in a room.");
+		return true;
+	}
 
-    private bool BuildingCommandDifficulty(ICharacter actor, StringStack command)
-    {
-        if (command.IsFinished)
-        {
-            actor.OutputHandler.Send($"What difficulty should the skill check for this power be? See {"show difficulties".MXPSend("show difficulties")} for a list of values.");
-            return false;
-        }
+	private bool BuildingCommandThresholdThing(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send($"What is the minimum success threshold for this power to work on a thing? See {"show outcomes".MXPSend("show outcomes")} for a list of valid values.");
+			return false;
+		}
 
-        if (!command.SafeRemainingArgument.TryParseEnum(out Difficulty value))
-        {
-            actor.OutputHandler.Send($"That is not a valid difficulty. See {"show difficulties".MXPSend("show difficulties")} for a list of values.");
-            return false;
-        }
+		if (!command.SafeRemainingArgument.TryParseEnum(out Outcome value))
+		{
+			actor.OutputHandler.Send($"That is not a valid outcome. See {"show outcomes".MXPSend("show outcomes")} for a list of valid values.");
+			return false;
+		}
 
-        SkillCheckDifficulty = value;
-        Changed = true;
-        actor.OutputHandler.Send($"This power's skill check will now be at a difficulty of {value.DescribeColoured()}.");
-        return true;
-    }
+		MinimumSuccessThresholdLookThing = value;
+		Changed = true;
+		actor.OutputHandler.Send($"The power user will now need to achieve a {value.DescribeColour()} in order to activate this power to look at a thing.");
+		return true;
+	}
 
-    private bool BuildingCommandSkill(ICharacter actor, StringStack command)
-    {
-        if (command.IsFinished)
-        {
-            actor.OutputHandler.Send("Which skill or trait should be used for this power's skill check?");
-            return false;
-        }
+	private bool BuildingCommandThresholdInThing(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send($"What is the minimum success threshold for this power to work looking in a thing? See {"show outcomes".MXPSend("show outcomes")} for a list of valid values.");
+			return false;
+		}
 
-        var skill = Gameworld.Traits.GetByIdOrName(command.SafeRemainingArgument);
-        if (skill is null)
-        {
-            actor.OutputHandler.Send("That is not a valid skill or trait.");
-            return false;
-        }
+		if (!command.SafeRemainingArgument.TryParseEnum(out Outcome value))
+		{
+			actor.OutputHandler.Send($"That is not a valid outcome. See {"show outcomes".MXPSend("show outcomes")} for a list of valid values.");
+			return false;
+		}
 
-        SkillCheckTrait = skill;
-        Changed = true;
-        actor.OutputHandler.Send($"This magic power will now use the {skill.Name.ColourName()} skill for its skill check.");
-        return true;
-    }
+		MinimumSuccessThresholdLookInThing = value;
+		Changed = true;
+		actor.OutputHandler.Send($"The power user will now need to achieve a {value.DescribeColour()} in order to activate this power to look in a thing.");
+		return true;
+	}
 
-    private bool BuildingCommandVerb(ICharacter actor, StringStack command)
-    {
-        if (command.IsFinished)
-        {
-            actor.OutputHandler.Send("Which verb should be used to end this power when active?");
-            return false;
-        }
+	private bool BuildingCommandDifficultyRoom(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send($"What difficulty should the skill check for this power be to look at a room? See {"show difficulties".MXPSend("show difficulties")} for a list of values.");
+			return false;
+		}
 
-        var verb = command.SafeRemainingArgument.ToLowerInvariant();
+		if (!command.SafeRemainingArgument.TryParseEnum(out Difficulty value))
+		{
+			actor.OutputHandler.Send($"That is not a valid difficulty. See {"show difficulties".MXPSend("show difficulties")} for a list of values.");
+			return false;
+		}
 
-        var costs = InvocationCosts[Verb].ToList();
-        InvocationCosts[verb] = costs;
-        InvocationCosts.Remove(Verb);
-        Verb = verb;
-        Changed = true;
-        actor.OutputHandler.Send($"This magic power will now use the verb {verb.ColourCommand()} to invoke the power.");
-        return true;
-    }
-    #endregion Building Subcommands
-    #endregion Building Commands
+		SkillCheckDifficultyLookRoom = value;
+		Changed = true;
+		actor.OutputHandler.Send($"This power's skill check will now be at a difficulty of {value.DescribeColoured()} for rooms.");
+		return true;
+	}
+
+	private bool BuildingCommandDifficultyThing(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send($"What difficulty should the skill check for this power be to look at a thing? See {"show difficulties".MXPSend("show difficulties")} for a list of values.");
+			return false;
+		}
+
+		if (!command.SafeRemainingArgument.TryParseEnum(out Difficulty value))
+		{
+			actor.OutputHandler.Send($"That is not a valid difficulty. See {"show difficulties".MXPSend("show difficulties")} for a list of values.");
+			return false;
+		}
+
+		SkillCheckDifficultyLookThing = value;
+		Changed = true;
+		actor.OutputHandler.Send($"This power's skill check will now be at a difficulty of {value.DescribeColoured()} for things.");
+		return true;
+	}
+
+	private bool BuildingCommandDifficultyInThing(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send($"What difficulty should the skill check for this power be to look in a thing? See {"show difficulties".MXPSend("show difficulties")} for a list of values.");
+			return false;
+		}
+
+		if (!command.SafeRemainingArgument.TryParseEnum(out Difficulty value))
+		{
+			actor.OutputHandler.Send($"That is not a valid difficulty. See {"show difficulties".MXPSend("show difficulties")} for a list of values.");
+			return false;
+		}
+
+		SkillCheckDifficultyLookInThing = value;
+		Changed = true;
+		actor.OutputHandler.Send($"This power's skill check will now be at a difficulty of {value.DescribeColoured()} for looking in things.");
+		return true;
+	}
+
+	private bool BuildingCommandSkill(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("Which skill or trait should be used for this power's skill check?");
+			return false;
+		}
+
+		var skill = Gameworld.Traits.GetByIdOrName(command.SafeRemainingArgument);
+		if (skill is null)
+		{
+			actor.OutputHandler.Send("That is not a valid skill or trait.");
+			return false;
+		}
+
+		SkillCheckTrait = skill;
+		Changed = true;
+		actor.OutputHandler.Send($"This magic power will now use the {skill.Name.ColourName()} skill for its skill check.");
+		return true;
+	}
+
+	private bool BuildingCommandLookRoomVerb(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("Which verb should be used to activate this power to look at a room?");
+			return false;
+		}
+
+		var verb = command.SafeRemainingArgument.ToLowerInvariant();
+		if (LookThingVerb.EqualTo(verb) || LookInThingVerb.EqualTo(verb))
+		{
+			actor.OutputHandler.Send("The Look Room, Look Thing and Look In Things verbs must all be different to one another.");
+			return false;
+		}
+
+		var costs = InvocationCosts[LookRoomVerb].ToList();
+		InvocationCosts[verb] = costs;
+		InvocationCosts.Remove(LookRoomVerb);
+		LookRoomVerb = verb;
+		Changed = true;
+		actor.OutputHandler.Send($"This magic power will now use the verb {verb.ColourCommand()} to invoke the power as a look room.");
+		return true;
+	}
+
+	private bool BuildingCommandLookThingVerb(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("Which verb should be used to activate this power to look at a thing?");
+			return false;
+		}
+
+		var verb = command.SafeRemainingArgument.ToLowerInvariant();
+
+		if (LookRoomVerb.EqualTo(verb) || LookInThingVerb.EqualTo(verb))
+		{
+			actor.OutputHandler.Send("The Look Room, Look Thing and Look In Things verbs must all be different to one another.");
+			return false;
+		}
+
+		var costs = InvocationCosts[LookThingVerb].ToList();
+		InvocationCosts[verb] = costs;
+		InvocationCosts.Remove(LookThingVerb);
+		LookThingVerb = verb;
+		Changed = true;
+		actor.OutputHandler.Send($"This magic power will now use the verb {verb.ColourCommand()} to invoke the power to look at a thing.");
+		return true;
+	}
+
+	private bool BuildingCommandLookInThingVerb(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("Which verb should be used to activate this power to look in a thing?");
+			return false;
+		}
+
+		var verb = command.SafeRemainingArgument.ToLowerInvariant();
+
+		if (LookThingVerb.EqualTo(verb) || LookRoomVerb.EqualTo(verb))
+		{
+			actor.OutputHandler.Send("The Look Room, Look Thing and Look In Things verbs must all be different to one another.");
+			return false;
+		}
+
+		var costs = InvocationCosts[LookInThingVerb].ToList();
+		InvocationCosts[verb] = costs;
+		InvocationCosts.Remove(LookInThingVerb);
+		LookInThingVerb = verb;
+		Changed = true;
+		actor.OutputHandler.Send($"This magic power will now use the verb {verb.ColourCommand()} to invoke the power to look in a thing.");
+		return true;
+	}
+	#endregion Building Subcommands
+	#endregion Building Commands
 }

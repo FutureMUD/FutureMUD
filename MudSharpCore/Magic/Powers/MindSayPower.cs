@@ -308,16 +308,12 @@ public class MindSayPower : MagicPowerBase
     {
         switch (command.PopForSwitch())
         {
-            case "beginverb":
-            case "begin":
-            case "startverb":
-            case "start":
-                return BuildingCommandBeginVerb(actor, command);
-            case "endverb":
-            case "end":
-            case "cancelverb":
-            case "cancel":
-                return BuildingCommandEndVerb(actor, command);
+            case "tell":
+            case "tellverb":
+                return BuildingCommandTellVerb(actor, command);
+            case "say":
+            case "sayverb":
+                return BuildingCommandSayVerb(actor, command);
             case "skill":
             case "trait":
                 return BuildingCommandSkill(actor, command);
@@ -325,32 +321,11 @@ public class MindSayPower : MagicPowerBase
                 return BuildingCommandDifficulty(actor, command);
             case "threshold":
                 return BuildingCommandThreshold(actor, command);
-            case "distance":
-                return BuildingCommandDistance(actor, command);
         }
         return base.BuildingCommand(actor, command.GetUndo());
     }
 
     #region Building Subcommands
-    private bool BuildingCommandDistance(ICharacter actor, StringStack command)
-    {
-        if (command.IsFinished)
-        {
-            actor.OutputHandler.Send($"At what distance should this power be able to be used? The valid options are {Enum.GetValues<MagicPowerDistance>().Select(x => x.DescribeEnum().ColourValue()).ListToString()}.");
-            return false;
-        }
-
-        if (!command.SafeRemainingArgument.TryParseEnum(out MagicPowerDistance value))
-        {
-            actor.OutputHandler.Send($"That is not a valid distance. The valid options are {Enum.GetValues<MagicPowerDistance>().Select(x => x.DescribeEnum().ColourValue()).ListToString()}.");
-            return false;
-        }
-
-        PowerDistance = value;
-        Changed = true;
-        actor.OutputHandler.Send($"This magic power can now be used against {value.LongDescription().ColourValue()}.");
-        return true;
-    }
 
     private bool BuildingCommandThreshold(ICharacter actor, StringStack command)
     {
@@ -413,51 +388,51 @@ public class MindSayPower : MagicPowerBase
         return true;
     }
 
-    private bool BuildingCommandEndVerb(ICharacter actor, StringStack command)
+    private bool BuildingCommandSayVerb(ICharacter actor, StringStack command)
     {
         if (command.IsFinished)
         {
-            actor.OutputHandler.Send("Which verb should be used to end this power when active?");
+            actor.OutputHandler.Send("Which verb should be used to activate this power as a say?");
             return false;
         }
 
         var verb = command.SafeRemainingArgument.ToLowerInvariant();
-        if (BeginVerb.EqualTo(verb))
+        if (TellVerb.EqualTo(verb))
         {
-            actor.OutputHandler.Send("The begin and verb cannot be the same.");
+            actor.OutputHandler.Send("The say and tell cannot be the same.");
             return false;
         }
 
-        var costs = InvocationCosts[EndVerb].ToList();
+        var costs = InvocationCosts[SayVerb].ToList();
         InvocationCosts[verb] = costs;
-        InvocationCosts.Remove(EndVerb);
-        EndVerb = verb;
+        InvocationCosts.Remove(SayVerb);
+        SayVerb = verb;
         Changed = true;
-        actor.OutputHandler.Send($"This magic power will now use the verb {verb.ColourCommand()} to end the power.");
+        actor.OutputHandler.Send($"This magic power will now use the verb {verb.ColourCommand()} to invoke the power as a say.");
         return true;
     }
 
-    private bool BuildingCommandBeginVerb(ICharacter actor, StringStack command)
+    private bool BuildingCommandTellVerb(ICharacter actor, StringStack command)
     {
         if (command.IsFinished)
         {
-            actor.OutputHandler.Send("Which verb should be used to activate this power?");
+            actor.OutputHandler.Send("Which verb should be used to activate this power as a tell?");
             return false;
         }
 
         var verb = command.SafeRemainingArgument.ToLowerInvariant();
-        if (EndVerb.EqualTo(verb))
+        if (SayVerb.EqualTo(verb))
         {
-            actor.OutputHandler.Send("The begin and verb cannot be the same.");
+            actor.OutputHandler.Send("The say and tell verb cannot be the same.");
             return false;
         }
 
-        var costs = InvocationCosts[BeginVerb].ToList();
+        var costs = InvocationCosts[TellVerb].ToList();
         InvocationCosts[verb] = costs;
-        InvocationCosts.Remove(BeginVerb);
-        BeginVerb = verb;
+        InvocationCosts.Remove(TellVerb);
+        TellVerb = verb;
         Changed = true;
-        actor.OutputHandler.Send($"This magic power will now use the verb {verb.ColourCommand()} to begin the power.");
+        actor.OutputHandler.Send($"This magic power will now use the verb {verb.ColourCommand()} to invoke the power as a tell.");
         return true;
     }
     #endregion Building Subcommands

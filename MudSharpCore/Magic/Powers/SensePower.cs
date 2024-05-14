@@ -14,6 +14,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 using MudSharp.Body.Traits;
+using MudSharp.Models;
 
 namespace MudSharp.Magic.Powers;
 
@@ -34,6 +35,7 @@ public class SensePower : MagicPowerBase
             new XElement("EchoHeader", new XCData(EchoHeader)),
             new XElement("NoTargetsFoundEcho", new XCData(NoTargetsFoundEcho)),
             new XElement("SenseType", (long)SenseType),
+            new XElement("MinimumSuccessThreshold", (int)MinimumSuccessThreshold),
             new XElement("CommandDelay", CommandDelay.TotalSeconds),
             new XElement("SenseTargetFilterProg", SenseTargetFilterProg.Id),
             new XElement("TargetDifficultyProg", TargetDifficultyProg.Id),
@@ -92,9 +94,11 @@ public class SensePower : MagicPowerBase
 		if (SkillCheckTrait == null)
 		{
 			throw new ApplicationException($"CheckTrait not found in SeensePower definition {Id}");
-		}
+        }
 
-		var targetFilterProg =
+        MinimumSuccessThreshold = (Outcome)int.Parse(definition.Element("MinimumSuccessThreshold")?.Value ?? "1");
+
+        var targetFilterProg =
 			long.TryParse(
 				definition.Element("SenseTargetFilterProg")?.Value ??
 				throw new ApplicationException($"Missing SenseTargetFilterProg element in SensePower definition {Id}"),
@@ -217,7 +221,9 @@ public class SensePower : MagicPowerBase
 
 	public IFutureProg SenseTargetFilterProg { get; protected set; }
 
-	public override void UseCommand(ICharacter actor, string verb, StringStack command)
+    public Outcome MinimumSuccessThreshold { get; protected set; }
+
+    public override void UseCommand(ICharacter actor, string verb, StringStack command)
 	{
 		var (truth, missing) = CanAffordToInvokePower(actor, verb);
 		if (!truth)
@@ -412,7 +418,7 @@ public class SensePower : MagicPowerBase
 		var final = targets
 		            .Distinct()
 		            .Where(x => SenseTargetFilterProg.Execute<bool?>(x.Target) == true)
-		            .Where(x => results[(Difficulty)TargetDifficultyProg.ExecuteInt(x.Target)].IsPass())
+		            .Where(x => results[TargetDifficultyProg.Execute<string>(x.Target).ParseEnumWithDefault(Difficulty.Normal)] >= MinimumSuccessThreshold)
 		            .ToList();
 
 		if (!final.Any())
@@ -461,6 +467,7 @@ public class SensePower : MagicPowerBase
         sb.AppendLine($"Power Verb: {Verb.ColourCommand()}");
         sb.AppendLine($"Skill Check Trait: {SkillCheckTrait.Name.ColourValue()}");
         sb.AppendLine($"Skill Check Difficulty Prog: {TargetDifficultyProg.MXPClickableFunctionName()}");
+        sb.AppendLine($"Minimum Success Threshold: {MinimumSuccessThreshold.DescribeColour()}");
         sb.AppendLine($"Target Filter Prog: {SenseTargetFilterProg.MXPClickableFunctionName()}");
         sb.AppendLine($"Power Distance: {PowerDistance.DescribeEnum().ColourValue()}");
         sb.AppendLine($"Command Delay: {CommandDelay.DescribePreciseBrief().ColourValue()}");
@@ -488,16 +495,8 @@ public class SensePower : MagicPowerBase
     {
         switch (command.PopForSwitch())
         {
-            case "beginverb":
-            case "begin":
-            case "startverb":
-            case "start":
-                return BuildingCommandBeginVerb(actor, command);
-            case "endverb":
-            case "end":
-            case "cancelverb":
-            case "cancel":
-                return BuildingCommandEndVerb(actor, command);
+            case "verb":
+                return BuildingCommandVerb(actor, command);
             case "skill":
             case "trait":
                 return BuildingCommandSkill(actor, command);
@@ -512,6 +511,25 @@ public class SensePower : MagicPowerBase
     }
 
     #region Building Subcommands
+    private bool BuildingCommandVerb(ICharacter actor, StringStack command)
+    {
+        if (command.IsFinished)
+        {
+            actor.OutputHandler.Send("Which verb should be used to activate this power?");
+            return false;
+        }
+
+        var verb = command.SafeRemainingArgument.ToLowerInvariant();
+
+        var costs = InvocationCosts[Verb].ToList();
+        InvocationCosts[verb] = costs;
+        InvocationCosts.Remove(Verb);
+        Verb = verb;
+        Changed = true;
+        actor.OutputHandler.Send($"This magic power will now use the verb {verb.ColourCommand()} to invoke the power.");
+        return true;
+    }
+
     private bool BuildingCommandDistance(ICharacter actor, StringStack command)
     {
         if (command.IsFinished)
@@ -556,19 +574,24 @@ public class SensePower : MagicPowerBase
     {
         if (command.IsFinished)
         {
-            actor.OutputHandler.Send($"What difficulty should the skill check for this power be? See {"show difficulties".MXPSend("show difficulties")} for a list of values.");
+            actor.OutputHandler.Send($"What prog should be used to determine the difficulty of the skill check?");
             return false;
         }
 
-        if (!command.SafeRemainingArgument.TryParseEnum(out Difficulty value))
+        var prog = new FutureProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument, FutureProgVariableTypes.Text,
+            [
+                [FutureProgVariableTypes.Character],
+                [FutureProgVariableTypes.Character, FutureProgVariableTypes.Character]
+            ]
+        ).LookupProg();
+        if (prog is null)
         {
-            actor.OutputHandler.Send($"That is not a valid difficulty. See {"show difficulties".MXPSend("show difficulties")} for a list of values.");
             return false;
         }
 
-        SkillCheckDifficulty = value;
+        TargetDifficultyProg = prog;
         Changed = true;
-        actor.OutputHandler.Send($"This power's skill check will now be at a difficulty of {value.DescribeColoured()}.");
+        actor.OutputHandler.Send($"This power's skill check will now be at a difficulty determined by the prog {prog.MXPClickableFunctionName()}.");
         return true;
     }
 

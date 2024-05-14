@@ -312,12 +312,8 @@ public class MindBroadcastPower : MagicPowerBase
             case "begin":
             case "startverb":
             case "start":
+			case "verb":
                 return BuildingCommandBeginVerb(actor, command);
-            case "endverb":
-            case "end":
-            case "cancelverb":
-            case "cancel":
-                return BuildingCommandEndVerb(actor, command);
             case "skill":
             case "trait":
                 return BuildingCommandSkill(actor, command);
@@ -392,30 +388,6 @@ public class MindBroadcastPower : MagicPowerBase
         return true;
     }
 
-    private bool BuildingCommandEndVerb(ICharacter actor, StringStack command)
-    {
-        if (command.IsFinished)
-        {
-            actor.OutputHandler.Send("Which verb should be used to end this power when active?");
-            return false;
-        }
-
-        var verb = command.SafeRemainingArgument.ToLowerInvariant();
-        if (BeginVerb.EqualTo(verb))
-        {
-            actor.OutputHandler.Send("The begin and verb cannot be the same.");
-            return false;
-        }
-
-        var costs = InvocationCosts[EndVerb].ToList();
-        InvocationCosts[verb] = costs;
-        InvocationCosts.Remove(EndVerb);
-        EndVerb = verb;
-        Changed = true;
-        actor.OutputHandler.Send($"This magic power will now use the verb {verb.ColourCommand()} to end the power.");
-        return true;
-    }
-
     private bool BuildingCommandBeginVerb(ICharacter actor, StringStack command)
     {
         if (command.IsFinished)
@@ -425,18 +397,13 @@ public class MindBroadcastPower : MagicPowerBase
         }
 
         var verb = command.SafeRemainingArgument.ToLowerInvariant();
-        if (EndVerb.EqualTo(verb))
-        {
-            actor.OutputHandler.Send("The begin and verb cannot be the same.");
-            return false;
-        }
 
-        var costs = InvocationCosts[BeginVerb].ToList();
+        var costs = InvocationCosts[Verb].ToList();
         InvocationCosts[verb] = costs;
-        InvocationCosts.Remove(BeginVerb);
-        BeginVerb = verb;
+        InvocationCosts.Remove(Verb);
+        Verb = verb;
         Changed = true;
-        actor.OutputHandler.Send($"This magic power will now use the verb {verb.ColourCommand()} to begin the power.");
+        actor.OutputHandler.Send($"This magic power will now use the verb {verb.ColourCommand()} to invoke the power.");
         return true;
     }
     #endregion Building Subcommands

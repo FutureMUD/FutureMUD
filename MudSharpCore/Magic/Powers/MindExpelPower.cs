@@ -259,19 +259,24 @@ public class MindExpelPower : MagicPowerBase
     {
         if (command.IsFinished)
         {
-            actor.OutputHandler.Send($"What difficulty should the skill check for this power be? See {"show difficulties".MXPSend("show difficulties")} for a list of values.");
+            actor.OutputHandler.Send($"What prog should be used to determine the difficulty of the skill check?");
             return false;
         }
 
-        if (!command.SafeRemainingArgument.TryParseEnum(out Difficulty value))
+        var prog = new FutureProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument, FutureProgVariableTypes.Text,
+			[
+				[FutureProgVariableTypes.Character],
+                [FutureProgVariableTypes.Character, FutureProgVariableTypes.Character]
+            ]
+        ).LookupProg();
+        if (prog is null)
         {
-            actor.OutputHandler.Send($"That is not a valid difficulty. See {"show difficulties".MXPSend("show difficulties")} for a list of values.");
             return false;
         }
 
-        SkillCheckDifficulty = value;
+        SkillCheckDifficultyProg = prog;
         Changed = true;
-        actor.OutputHandler.Send($"This power's skill check will now be at a difficulty of {value.DescribeColoured()}.");
+        actor.OutputHandler.Send($"This power's skill check will now be at a difficulty determined by the prog {prog.MXPClickableFunctionName()}.");
         return true;
     }
 
@@ -300,7 +305,7 @@ public class MindExpelPower : MagicPowerBase
     {
         if (command.IsFinished)
         {
-            actor.OutputHandler.Send("Which verb should be used to end this power when active?");
+            actor.OutputHandler.Send("Which verb should be used to activate this power?");
             return false;
         }
 

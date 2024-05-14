@@ -528,6 +528,8 @@ public class MindAnesthesiaPower : SustainedMagicPower
             case "startverb":
             case "start":
                 return BuildingCommandBeginVerb(actor, command);
+			case "removeverb":
+                return BuildingCommandRemoveVerb(actor, command);
             case "endverb":
             case "end":
             case "cancelverb":
@@ -544,6 +546,28 @@ public class MindAnesthesiaPower : SustainedMagicPower
                 return BuildingCommandDistance(actor, command);
         }
         return base.BuildingCommand(actor, command.GetUndo());
+    }
+
+    private bool BuildingCommandRemoveVerb(ICharacter actor, StringStack command)
+    {
+        if (command.IsFinished)
+        {
+            actor.OutputHandler.Send("Which begin verb do you want to remove?");
+            return false;
+        }
+
+        var verb = command.SafeRemainingArgument.ToLowerInvariant();
+        if (!PowerLevelVerbs.ContainsKey(verb))
+        {
+            actor.OutputHandler.Send($"There is no such begin verb as {verb.ColourCommand()}.");
+            return false;
+        }
+
+        PowerLevelVerbs.Remove(verb);
+        InvocationCosts.Remove(verb);
+        Changed = true;
+        actor.OutputHandler.Send($"This power no longer has the {verb.ColourCommand()} invocation verb.");
+        return true;
     }
 
     #region Building Subcommands
@@ -637,16 +661,16 @@ public class MindAnesthesiaPower : SustainedMagicPower
         }
 
         var verb = command.SafeRemainingArgument.ToLowerInvariant();
-        if (BeginVerb.EqualTo(verb))
+        if (PowerLevelVerbs.Keys.Any(x => x.EqualTo(verb)))
         {
-            actor.OutputHandler.Send("The begin and verb cannot be the same.");
+            actor.OutputHandler.Send("The begin and end verbs cannot be the same.");
             return false;
         }
 
-        var costs = InvocationCosts[EndVerb].ToList();
+        var costs = InvocationCosts[CancelVerb].ToList();
         InvocationCosts[verb] = costs;
-        InvocationCosts.Remove(EndVerb);
-        EndVerb = verb;
+        InvocationCosts.Remove(CancelVerb);
+        CancelVerb = verb;
         Changed = true;
         actor.OutputHandler.Send($"This magic power will now use the verb {verb.ColourCommand()} to end the power.");
         return true;
@@ -660,19 +684,40 @@ public class MindAnesthesiaPower : SustainedMagicPower
             return false;
         }
 
-        var verb = command.SafeRemainingArgument.ToLowerInvariant();
-        if (EndVerb.EqualTo(verb))
+        var verb = command.PopSpeech().ToLowerInvariant();
+        if (CancelVerb.EqualTo(verb))
         {
-            actor.OutputHandler.Send("The begin and verb cannot be the same.");
+            actor.OutputHandler.Send("The begin and end verbs cannot be the same.");
             return false;
         }
 
-        var costs = InvocationCosts[BeginVerb].ToList();
-        InvocationCosts[verb] = costs;
-        InvocationCosts.Remove(BeginVerb);
-        BeginVerb = verb;
+        if (command.IsFinished)
+        {
+            actor.OutputHandler.Send("What anesthetic intensity should this verb usage generate?");
+            return false;
+        }
+
+        if (!double.TryParse(command.PopSpeech(), out var value))
+        {
+            actor.OutputHandler.Send($"The text {command.Last.ColourCommand()} is not a valid number.");
+            return false;
+        }
+
+        if (command.IsFinished)
+        {
+            actor.OutputHandler.Send("What should be the cost multiplier for this level of the power?");
+            return false;
+        }
+
+        if (!command.SafeRemainingArgument.TryParsePercentage(actor.Account.Culture, out var cost))
+        {
+            actor.OutputHandler.Send($"The text {command.SafeRemainingArgument.ColourCommand()} is not a valid percentage.");
+            return false;
+        }
+
+        PowerLevelVerbs[verb] = (value, cost);
         Changed = true;
-        actor.OutputHandler.Send($"This magic power will now use the verb {verb.ColourCommand()} to begin the power.");
+        actor.OutputHandler.Send($"This magic power will now use the verb {verb.ColourCommand()} to begin the power at {value.ToString("P2", actor).ColourValue()} intensity with a {cost.ToString("P2").ColourValue()} sustain cost multiplier.");
         return true;
     }
     #endregion Building Subcommands

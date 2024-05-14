@@ -146,6 +146,11 @@ namespace MudSharp.Framework {
             return true;
         }
 
+        public static T ParseEnumWithDefault<T>(this string text, T fallback) where T : Enum
+        {
+            return TryParseEnum<T>(text, out var value) ? value : fallback;
+        }
+
         public static IEnumerable<T> GetAllFlags<T>(this T flags) where T : Enum{
             foreach (var value in Enum.GetValues(flags.GetType()).Cast<T>())
             {

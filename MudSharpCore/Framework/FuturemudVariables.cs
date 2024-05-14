@@ -768,7 +768,45 @@ public sealed partial class Futuremud : IDisposable
 		}
 	}
 
-	private readonly List<CharacterPersonalNameLookup> _cachedPersonalNames = new();
+	private IFutureProg _universalErrorTextProg;
+
+    public
+        IFutureProg UniversalErrorTextProg
+    { get
+		{
+            if (_universalErrorTextProg is null)
+            {
+                _universalErrorTextProg = FutureProgs.FirstOrDefault(x => x.FunctionName.EqualTo("UniversalErrorText"));
+                if (_universalErrorTextProg is null)
+                {
+                    using (new FMDB())
+                    {
+                        var dbitem = new Models.FutureProg
+                        {
+                            FunctionName = "UniversalErrorText",
+                            AcceptsAnyParameters = true,
+                            ReturnType = (long)FutureProgVariableTypes.Text,
+                            Category = "Core",
+                            Subcategory = "Universal",
+                            Public = true,
+                            FunctionComment = "Accepts any parameters, and returns a universal error message.",
+                            FunctionText = @"return """"You cannot do that for an unspecified reason.""""",
+                            StaticType = 2
+                        };
+                        FMDB.Context.FutureProgs.Add(dbitem);
+                        FMDB.Context.SaveChanges();
+                        var prog = new FutureProg.FutureProg(dbitem, this);
+                        _futureProgs.Add(prog);
+                        _universalErrorTextProg = prog;
+                    }
+                }
+            }
+
+            return _universalErrorTextProg;
+        }
+	}
+
+    private readonly List<CharacterPersonalNameLookup> _cachedPersonalNames = new();
 
 	#endregion
 

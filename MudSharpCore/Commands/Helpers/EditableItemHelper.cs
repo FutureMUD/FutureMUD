@@ -25,6 +25,7 @@ using MudSharp.Health;
 using MudSharp.Magic;
 using MudSharp.Magic.Capabilities;
 using MudSharp.Magic.Generators;
+using MudSharp.Magic.Powers;
 using MudSharp.Magic.Resources;
 using MudSharp.NPC;
 using MudSharp.NPC.AI;
@@ -1900,7 +1901,53 @@ The core syntax is as follows:
 		CastToType = typeof(IMagicPower),
 		EditableNewAction = (actor, input) =>
 		{
-			actor.OutputHandler.Send("Not yet implemented.");
+			if (input.IsFinished)
+			{
+				actor.OutputHandler.Send($"Which type of magic power do you want to create? Valid types are {MagicPowerFactory.BuilderTypes.Select(x => x.ColourName()).ListToString()}.");
+				return;
+			}
+
+			var typeText = input.PopSpeech();
+			if (!MagicPowerFactory.BuilderTypes.Any(x => x.EqualTo(typeText)))
+			{
+                actor.OutputHandler.Send($"The text {typeText.ColourCommand()} is not a valid magic power type. Valid types are {MagicPowerFactory.BuilderTypes.Select(x => x.ColourName()).ListToString()}.");
+                return;
+            }
+
+			if (input.IsFinished)
+			{
+				actor.OutputHandler.Send("Which magic school is your new power for?");
+				return;
+			}
+
+			var school = actor.Gameworld.MagicSchools.GetByIdOrName(input.PopSpeech());
+			if (school is null)
+			{
+				actor.OutputHandler.Send("There is no such magic school.");
+				return;
+			}
+
+			var name = input.PopSpeech().TitleCase();
+			if (actor.Gameworld.MagicPowers.Any(x => x.School == school && x.Name.EqualTo(name)))
+			{
+				actor.OutputHandler.Send($"There is already a magic power in the {school.Name.Colour(school.PowerListColour)} with the name {name.ColourName()}. Names must be unique.");
+				return;
+			}
+
+			var power = MagicPowerFactory.LoadPowerFromBuilderInput(actor.Gameworld, school, name, typeText, actor, input);
+			if (power is null)
+			{
+				return;
+			}
+
+			actor.Gameworld.Add(power);
+			actor.RemoveAllEffects<BuilderEditingEffect<IMagicPower>>();
+			actor.AddEffect(new BuilderEditingEffect<IMagicPower>(actor)
+			{
+				EditingItem
+			 = power
+			});
+			actor.OutputHandler.Send($"You create a new power of type {typeText.ColourName} called {name.ColourName()} in the {school.Name.ColourName()} school, which you are now editing.");
 		},
 		EditableCloneAction = (actor, input) =>
 		{

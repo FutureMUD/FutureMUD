@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
+using System.Xml.XPath;
 using MudSharp.Character;
 using MudSharp.Database;
 using MudSharp.Effects.Concrete;
@@ -86,7 +87,35 @@ public abstract class MagicPowerBase : SaveableItem, IMagicPower
 		}
 	}
 
-	public sealed override string FrameworkItemType => "MagicPower";
+	protected MagicPowerBase(IFuturemud gameworld, IMagicSchool school, string name)
+	{
+		Gameworld = gameworld;
+		School = school;
+		_name = name;
+        CanInvokePowerProg = Gameworld.AlwaysTrueProg;
+		WhyCantInvokePowerProg = Gameworld.UniversalErrorTextProg;
+    }
+
+	protected void DoDatabaseInsert()
+	{
+		using (new FMDB())
+		{
+			var dbitem = new Models.MagicPower
+			{
+				Name = Name,
+				Blurb = Blurb,
+				ShowHelp = _showHelpText,
+				MagicSchoolId = School.Id,
+				PowerModel = PowerType,
+				Definition = SaveDefinition().ToString()
+			};
+			FMDB.Context.MagicPowers.Add(dbitem);
+			FMDB.Context.SaveChanges();
+			_id = dbitem.Id;
+		}
+	}
+
+    public sealed override string FrameworkItemType => "MagicPower";
 
 	/// <summary>Returns a string that represents the current object.</summary>
 	/// <returns>A string that represents the current object.</returns>
@@ -299,7 +328,7 @@ public abstract class MagicPowerBase : SaveableItem, IMagicPower
 
 	public CollectionDictionary<string, (IMagicResource Resource, double Cost)> InvocationCosts { get; } = new(StringComparer.InvariantCultureIgnoreCase);
 
-	protected abstract string SubtypeHelpText { get; }
+	protected virtual string SubtypeHelpText { get; }
 
     public virtual string HelpText => $@"You can use the following options with this magic power:
 

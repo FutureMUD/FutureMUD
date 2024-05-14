@@ -92,6 +92,10 @@ public abstract class SustainedMagicPower : MagicPowerBase
 		}
 	}
 
+    protected SustainedMagicPower(IFuturemud gameworld, IMagicSchool school, string name) : base(gameworld, school, name)
+    {
+    }
+
 	public double ConcentrationPointsToSustain { get; protected set; }
 	public double SustainPenalty { get; protected set; }
 	public Difficulty DetectableWithDetectMagic { get; protected set; }

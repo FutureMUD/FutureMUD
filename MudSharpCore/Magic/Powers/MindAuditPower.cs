@@ -12,9 +12,11 @@ using MudSharp.PerceptionEngine.Outputs;
 using MudSharp.PerceptionEngine.Parsers;
 using MudSharp.FutureProg;
 using System.Xml.Linq;
+using Antlr4.Runtime.Atn;
 using MudSharp.PerceptionEngine;
 using MudSharp.Combat;
 using MudSharp.Effects;
+using MudSharp.FutureProg.Statements;
 
 namespace MudSharp.Magic.Powers;
 
@@ -207,12 +209,14 @@ public class MindAuditPower : MagicPowerBase
 
     #region Building Commands
     /// <inheritdoc />
-    protected override string SubtypeHelpText => @"	#3begin <verb>#0 - sets the verb to activate this power
-    #3end <verb>#0 - sets the verb to end this power
+    protected override string SubtypeHelpText => @"	#3verb <verb>#0 - sets the verb to activate this power
     #3skill <which>#0 - sets the skill used in the skill check
-    #3difficulty <difficulty>#0 - sets the difficulty of the skill check
+    #3difficulty <prog>#0 - sets the difficulty prog of the skill check
     #3threshold <outcome>#0 - sets the minimum outcome for skill success
-    #3distance <distance>#0 - sets the distance that this power can be used at";
+    #3distance <distance>#0 - sets the distance that this power can be used at
+    #3emote <echo>#0 - sets the emote for using the power
+    #3emoteself <echo>#0 - sets the self echo for using this power
+    #3emotetarget <echo>#0 - sets the echo sent to a detected target ($0 = auditor)";
 
     /// <inheritdoc />
     public override bool BuildingCommand(ICharacter actor, StringStack command)
@@ -228,11 +232,104 @@ public class MindAuditPower : MagicPowerBase
                 return BuildingCommandDifficulty(actor, command);
             case "threshold":
                 return BuildingCommandThreshold(actor, command);
+            case "shouldecho":
+            case "shouldechoprog":
+            case "echoprog":
+                return BuildingCommandShouldEchoProg(actor, command);
+            case "emote":
+                return BuildingCommandEmote(actor, command);
+            case "emoteself":
+            case "selfemote":
+            case "self":
+                return BuildingCommandEmoteSelf(actor, command);
+            case "echotarget":
+            case "emotetarget":
+                return BuildingCommandEchoTarget(actor, command);
         }
         return base.BuildingCommand(actor, command.GetUndo());
     }
 
+
+
     #region Building Subcommands
+    private bool BuildingCommandEchoTarget(ICharacter actor, StringStack command)
+    {
+        if (command.IsFinished)
+        {
+            actor.OutputHandler.Send("What do you want to set the echo to detected targets to?");
+            return false;
+        }
+
+        var emote = new Emote(command.SafeRemainingArgument, new DummyPerceiver(), new DummyPerceivable());
+        if (!emote.Valid)
+        {
+            actor.OutputHandler.Send(emote.ErrorMessage);
+            return false;
+        }
+
+        EchoToDetectedTarget = command.SafeRemainingArgument;
+        Changed = true;
+        actor.OutputHandler.Send($"The echo to detected targets for this power is now {command.SafeRemainingArgument.ColourCommand()}.");
+        return true;
+    }
+
+    private bool BuildingCommandEmoteSelf(ICharacter actor, StringStack command)
+    {
+        if (command.IsFinished)
+        {
+            actor.OutputHandler.Send("What do you want to set the echo to self to?");
+            return false;
+        }
+
+        EmoteTextSelf = command.SafeRemainingArgument;
+        Changed = true;
+        actor.OutputHandler.Send($"The echo to self for this power is now {command.SafeRemainingArgument.ColourCommand()}.");
+        return true;
+    }
+
+    private bool BuildingCommandEmote(ICharacter actor, StringStack command)
+    {
+        if (command.IsFinished)
+        {
+            actor.OutputHandler.Send("What do you want to set the non-self echo to?");
+            return false;
+        }
+
+        var emote = new Emote(command.SafeRemainingArgument, new DummyPerceiver(), new DummyPerceivable());
+        if (!emote.Valid)
+        {
+            actor.OutputHandler.Send(emote.ErrorMessage);
+            return false;
+        }
+
+        EmoteText = command.SafeRemainingArgument;
+        Changed = true;
+        actor.OutputHandler.Send($"The non-self echo for this power is now {command.SafeRemainingArgument.ColourCommand()}.");
+        return true;
+    }
+
+    private bool BuildingCommandShouldEchoProg(ICharacter actor, StringStack command)
+    {
+        if (command.IsFinished)
+        {
+            actor.OutputHandler.Send("Which prog do you want to use to control whether the target gets an echo about being detected?");
+            return false;
+        }
+
+        var prog = new FutureProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument, FutureProgVariableTypes.Boolean, [
+            [FutureProgVariableTypes.Character],
+            [FutureProgVariableTypes.Character, FutureProgVariableTypes.Character]
+        ]).LookupProg();
+        if (prog is null)
+        {
+            return false;
+        }
+
+        ShouldEchoDetectionProg = prog;
+        Changed = true;
+        actor.OutputHandler.Send($"This power will now use the {prog.MXPClickableFunctionName()} prog to control whether the target gets an echo about being detected.");
+        return true;
+    }
 
     private bool BuildingCommandThreshold(ICharacter actor, StringStack command)
     {

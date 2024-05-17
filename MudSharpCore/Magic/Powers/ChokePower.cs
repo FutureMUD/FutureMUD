@@ -475,7 +475,9 @@ public class ChokePower : SustainedMagicPower
     #3endemote <emote>#0 - sets an emote when this power is ended
     #3endemotetarget <emote>#0 - sets an echo for the target when this power ends
     #3resistemote <emote>#0 - sets an emote for when this power is resisted by the target
-    #3resistemotetarget <emote>#0 - sets an echo for the target when this power is resisted by them";
+    #3resistemotetarget <emote>#0 - sets an echo for the target when this power is resisted by them
+
+#6Note: For all echoes/emotes above, $0 is the caster, $1 is the target.#0";
 
     /// <inheritdoc />
     public override bool BuildingCommand(ICharacter actor, StringStack command)

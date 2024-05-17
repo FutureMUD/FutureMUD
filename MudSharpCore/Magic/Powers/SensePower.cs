@@ -14,6 +14,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 using MudSharp.Body.Traits;
+using MudSharp.Effects;
 using MudSharp.Models;
 
 namespace MudSharp.Magic.Powers;
@@ -506,8 +507,115 @@ public class SensePower : MagicPowerBase
                 return BuildingCommandThreshold(actor, command);
             case "distance":
                 return BuildingCommandDistance(actor, command);
-        }
+			case "delay":
+                return BuildingCommandDelay(actor, command);
+			case "emotevisible":
+                return BuildingCommandEmoteVisible(actor);
+			case "emote":
+                return BuildingCommandEmote(actor, command);
+			case "header":
+                return BuildingCommandHeader(actor, command);
+			case "notargets":
+			case "notargetsecho":
+                return BuildingCommandNoTargetsEcho(actor, command);
+			case "filter":
+			case "filterprog":
+                return BuildingCommandFilterProg(actor, command);
+			case "senses":
+                return BuildingCommandSense(actor, command);
+
+		}
         return base.BuildingCommand(actor, command.GetUndo());
+    }
+
+    private bool BuildingCommandSense(ICharacter actor, StringStack command)
+    {
+        if (command.IsFinished)
+        {
+            actor.OutputHandler.Send($"Which type of thing does this power detect? Valid options are #3character#0, #3item#0 and #3perceiver#0 (i.e. both).");
+            return false;
+        }
+
+        switch (command.SafeRemainingArgument.ToLowerInvariant())
+        {
+			case "character":
+			case "characters":
+			case "ch":
+                SenseType = FutureProgVariableTypes.Character;
+                actor.OutputHandler.Send("This power will now detect characters.");
+                break;
+			case "item":
+			case "obj":
+			case "objects":
+			case "object":
+			case "items":
+			case "gameitem":
+			case "gameitems":
+                SenseType = FutureProgVariableTypes.Item;
+                actor.OutputHandler.Send("This power will now detect items.");
+                break;
+			case "perceiver":
+			case "perceivable":
+			case "thing":
+			case "both":
+                SenseType = FutureProgVariableTypes.Perceivable;
+                actor.OutputHandler.Send("This power will now detect both items and characters.");
+                break;
+			default:
+                actor.OutputHandler.Send($"That is not a valid type of thing to detect. Valid options are #3character#0, #3item#0 and #3perceiver#0 (i.e. both).");
+                return false;
+        }
+
+        Changed = true;
+        return true;
+    }
+
+    private bool BuildingCommandFilterProg(ICharacter actor, StringStack command)
+    {
+        if (command.IsFinished)
+        {
+            actor.OutputHandler.Send("Which prog should be used to filter whether a target is valid?");
+            return false;
+        }
+
+        var prog = new FutureProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument, FutureProgVariableTypes.Boolean, [
+			[FutureProgVariableTypes.Character],
+            [FutureProgVariableTypes.Item],
+            [FutureProgVariableTypes.Perceivable],
+            [FutureProgVariableTypes.Perceiver],
+        ]).LookupProg();
+        if (prog is null)
+        {
+            return false;
+        }
+
+
+        throw new NotImplementedException();
+    }
+
+    private bool BuildingCommandNoTargetsEcho(ICharacter actor, StringStack command)
+    {
+        throw new NotImplementedException();
+    }
+
+    private bool BuildingCommandHeader(ICharacter actor, StringStack command)
+    {
+        throw new NotImplementedException();
+    }
+
+    private bool BuildingCommandEmote(ICharacter actor, StringStack command)
+    {
+        throw new NotImplementedException();
+    }
+
+    private bool BuildingCommandEmoteVisible(ICharacter actor)
+    {
+        throw new NotImplementedException();
+    }
+
+    private bool BuildingCommandDelay(ICharacter actor, StringStack command)
+    {
+        throw new NotImplementedException();
     }
 
     #region Building Subcommands

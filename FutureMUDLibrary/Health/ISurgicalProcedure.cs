@@ -47,10 +47,28 @@ namespace MudSharp.Health {
         ///     Installing a Cannula for use in an IV setup
         /// </summary>
         Cannulation,
+
+        /// <summary>
+        /// Repairing internal damage from a traumatic injury
+        /// </summary>
         TraumaControl,
+
+        /// <summary>
+        /// Excising an organ from the body
+        /// </summary>
         OrganExtraction,
+
+        /// <summary>
+        /// Implanting an organ into a person
+        /// </summary>
         OrganTransplant,
+
+        /// <summary>
+        /// Removing a cannula installed in a patient
+        /// </summary>
         Decannulation,
+
+
         OrganStabilisation,
         SurgicalBoneSetting,
         InstallImplant,

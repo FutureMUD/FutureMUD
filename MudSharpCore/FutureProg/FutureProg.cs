@@ -393,7 +393,18 @@ public class FutureProg : SaveableItem, IFutureProg
 		return Enumerable.Empty<T>();
 	}
 
-	public double ExecuteDouble(params object[] variables)
+    public string ExecuteString(params object[] variables)
+    {
+		var value = Execute(variables);
+        if (value is null)
+        {
+            return string.Empty;
+        }
+
+        return value.ToString();
+    }
+
+    public double ExecuteDouble(params object[] variables)
 	{
 		if (ReturnType != FutureProgVariableTypes.Number)
 		{

@@ -92,9 +92,9 @@ public abstract class MagicPowerBase : SaveableItem, IMagicPower
 		Gameworld = gameworld;
 		School = school;
 		_name = name;
-        CanInvokePowerProg = Gameworld.AlwaysTrueProg;
+		CanInvokePowerProg = Gameworld.AlwaysTrueProg;
 		WhyCantInvokePowerProg = Gameworld.UniversalErrorTextProg;
-    }
+	}
 
 	protected void DoDatabaseInsert()
 	{
@@ -115,7 +115,7 @@ public abstract class MagicPowerBase : SaveableItem, IMagicPower
 		}
 	}
 
-    public sealed override string FrameworkItemType => "MagicPower";
+	public sealed override string FrameworkItemType => "MagicPower";
 
 	/// <summary>Returns a string that represents the current object.</summary>
 	/// <returns>A string that represents the current object.</returns>
@@ -330,15 +330,15 @@ public abstract class MagicPowerBase : SaveableItem, IMagicPower
 
 	protected virtual string SubtypeHelpText { get; }
 
-    public virtual string HelpText => $@"You can use the following options with this magic power:
+	public virtual string HelpText => $@"You can use the following options with this magic power:
 
-    #3name <name>#0 - renames the magic power
-    #3school <which>#0 - sets the school the power belongs to
-    #3blurb <blurb>#0 - sets the blurb for power list
-    #3can <prog>#0 - sets a prog that controls if the power can be used
-    #3why <prog>#0 - sets a prog that controls an error message if prog can't be used
-    #3help#0 - drops you into an editor to write the player help file
-    #3cost <verb> <which> <number>#0 - sets the cost of using a particular verb
+	#3name <name>#0 - renames the magic power
+	#3school <which>#0 - sets the school the power belongs to
+	#3blurb <blurb>#0 - sets the blurb for power list
+	#3can <prog>#0 - sets a prog that controls if the power can be used
+	#3why <prog>#0 - sets a prog that controls an error message if prog can't be used
+	#3help#0 - drops you into an editor to write the player help file
+	#3cost <verb> <which> <number>#0 - sets the cost of using a particular verb
 {SubtypeHelpText}";
 
 	public virtual bool BuildingCommand(ICharacter actor, StringStack command)
@@ -400,55 +400,55 @@ public abstract class MagicPowerBase : SaveableItem, IMagicPower
 
 	private bool BuildingCommandCost(ICharacter actor, StringStack command)
 	{
-        if (command.IsFinished)
-        {
-            actor.OutputHandler.Send($"Which verb do you want to change the cost for? The available verbs are {Verbs.Select(x => x.ColourName()).ListToString()}.");
-            return false;
-        }
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send($"Which verb do you want to change the cost for? The available verbs are {Verbs.Select(x => x.ColourName()).ListToString()}.");
+			return false;
+		}
 
-        var verb = command.PopSpeech();
-        if (Verbs.All(x => !x.EqualTo(verb)))
-        {
-            actor.OutputHandler.Send($"There is no such verb for this power. The available verbs are {Verbs.Select(x => x.ColourName()).ListToString()}.");
-            return false;
-        }
+		var verb = command.PopSpeech();
+		if (Verbs.All(x => !x.EqualTo(verb)))
+		{
+			actor.OutputHandler.Send($"There is no such verb for this power. The available verbs are {Verbs.Select(x => x.ColourName()).ListToString()}.");
+			return false;
+		}
 
-        if (command.IsFinished)
-        {
-            actor.OutputHandler.Send("Which magic resource would you like to alter the cost of?");
-            return false;
-        }
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("Which magic resource would you like to alter the cost of?");
+			return false;
+		}
 
-        var resource = Gameworld.MagicResources.GetByIdOrName(command.PopSpeech());
-        if (resource is null)
-        {
-            actor.OutputHandler.Send("There is no such chargen resource.");
-            return false;
-        }
+		var resource = Gameworld.MagicResources.GetByIdOrName(command.PopSpeech());
+		if (resource is null)
+		{
+			actor.OutputHandler.Send("There is no such chargen resource.");
+			return false;
+		}
 
-        if (command.IsFinished)
-        {
-            actor.OutputHandler.Send($"How much {resource.Name.ColourValue()} should be expended when using the {verb.ColourCommand()} verb? Use 0 to remove a cost.");
-            return false;
-        }
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send($"How much {resource.Name.ColourValue()} should be expended when using the {verb.ColourCommand()} verb? Use 0 to remove a cost.");
+			return false;
+		}
 
-        if (!double.TryParse(command.SafeRemainingArgument, out var value))
-        {
-            actor.OutputHandler.Send($"The text {command.SafeRemainingArgument.ColourCommand()} is not a valid number.");
-            return false;
-        }
+		if (!double.TryParse(command.SafeRemainingArgument, out var value))
+		{
+			actor.OutputHandler.Send($"The text {command.SafeRemainingArgument.ColourCommand()} is not a valid number.");
+			return false;
+		}
 
-        InvocationCosts[verb].RemoveAll(x => x.Resource == resource);
-        Changed = true;
-        if (value <= 0.0)
-        {
-            actor.OutputHandler.Send($"It will no longer cost any {resource.Name.ColourValue()} to use the {verb.ColourCommand()} verb with this power.");
-            return true;
-        }
+		InvocationCosts[verb].RemoveAll(x => x.Resource == resource);
+		Changed = true;
+		if (value <= 0.0)
+		{
+			actor.OutputHandler.Send($"It will no longer cost any {resource.Name.ColourValue()} to use the {verb.ColourCommand()} verb with this power.");
+			return true;
+		}
 
-        InvocationCosts[verb].Add((resource, value));
-        actor.OutputHandler.Send($"It will now cost {value.ToString("N3", actor).ColourValue()} {resource.ShortName.ColourValue()} to use the {verb.ColourCommand()} verb for this power.");
-        return true;
+		InvocationCosts[verb].Add((resource, value));
+		actor.OutputHandler.Send($"It will now cost {value.ToString("N3", actor).ColourValue()} {resource.ShortName.ColourValue()} to use the {verb.ColourCommand()} verb for this power.");
+		return true;
 	}
 
 	private bool BuildingCommandBlurb(ICharacter actor, StringStack command)

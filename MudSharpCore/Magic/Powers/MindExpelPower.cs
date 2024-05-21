@@ -125,6 +125,11 @@ public class MindExpelPower : MagicPowerBase
 		SkillCheckDifficultyProg = Gameworld.FutureProgs.GetByIdOrName(element.Value);
 	}
 
+    protected MindExpelPower(IFuturemud gameworld, IMagicSchool school, string name) : base(gameworld, school, name)
+    {
+
+    }
+
 	public override void UseCommand(ICharacter actor, string verb, StringStack command)
 	{
 		var (truth, missing) = CanAffordToInvokePower(actor, verb);

@@ -510,9 +510,10 @@ public class StartingLocationPickerScreenStoryboard : ChargenScreenStoryboard
 			return false;
 		}
 
-		var which = Locations.FirstOrDefault(x => x.Name.EqualTo(command.SafeRemainingArgument)) ??
+		var text = command.PopSpeech();
+		var which = Locations.FirstOrDefault(x => x.Name.EqualTo(text)) ??
 		            Locations.FirstOrDefault(x =>
-			            x.Name.StartsWith(command.SafeRemainingArgument, StringComparison.InvariantCultureIgnoreCase));
+			            x.Name.StartsWith(text, StringComparison.InvariantCultureIgnoreCase));
 		if (which is null)
 		{
 			actor.OutputHandler.Send("There is no such starting location.");
@@ -550,9 +551,10 @@ public class StartingLocationPickerScreenStoryboard : ChargenScreenStoryboard
 			return false;
 		}
 
-		var which = Locations.FirstOrDefault(x => x.Name.EqualTo(command.SafeRemainingArgument)) ??
+		var text = command.PopSpeech();
+		var which = Locations.FirstOrDefault(x => x.Name.EqualTo(text)) ??
 		            Locations.FirstOrDefault(x =>
-			            x.Name.StartsWith(command.SafeRemainingArgument, StringComparison.InvariantCultureIgnoreCase));
+			            x.Name.StartsWith(text, StringComparison.InvariantCultureIgnoreCase));
 		if (which is null)
 		{
 			actor.OutputHandler.Send("There is no such starting location.");
@@ -595,9 +597,10 @@ public class StartingLocationPickerScreenStoryboard : ChargenScreenStoryboard
 			return false;
 		}
 
-		var which = Locations.FirstOrDefault(x => x.Name.EqualTo(command.SafeRemainingArgument)) ??
+		var text = command.PopSpeech();
+		var which = Locations.FirstOrDefault(x => x.Name.EqualTo(text)) ??
 		            Locations.FirstOrDefault(x =>
-			            x.Name.StartsWith(command.SafeRemainingArgument, StringComparison.InvariantCultureIgnoreCase));
+			            x.Name.StartsWith(text, StringComparison.InvariantCultureIgnoreCase));
 		if (which is null)
 		{
 			actor.OutputHandler.Send("There is no such starting location.");

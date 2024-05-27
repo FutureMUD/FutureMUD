@@ -14,7 +14,6 @@ using MudSharp.PerceptionEngine;
 using MudSharp.PerceptionEngine.Outputs;
 using MudSharp.PerceptionEngine.Parsers;
 using MudSharp.RPG.Checks;
-using Trait = MudSharp.Body.Traits.Trait;
 
 namespace MudSharp.Magic.Powers;
 
@@ -242,29 +241,34 @@ public class ConnectMindPower : SustainedMagicPower
 		}
 	}
 
-    protected ConnectMindPower(IFuturemud gameworld, IMagicSchool school, string name, ITraitDefinition trait) : base(gameworld, school, name)
-    {
-        Blurb = "";
-        _showHelpText = @$"You can use #3{school.SchoolVerb.ToUpperInvariant()} CHOKE <person>#0 to choke someone in your presence, and #3{school.SchoolVerb.ToUpperInvariant()} STOPCHOKE [<person>]#0 to stop choking them. While choked, they will not be able to breathe."; ;
-        BeginVerb = "connect";
-        EndVerb = "disconnect";
-        PowerDistance = MagicPowerDistance.SameShardOnly;
-        SkillCheckTrait = trait;
-        SkillCheckDifficulty = Difficulty.VeryEasy;
-        MinimumSuccessThreshold = Outcome.Fail;
-        ConcentrationPointsToSustain = 1.0;
-        TargetCanSeeIdentityProg = Gameworld.AlwaysFalseProg;
-        ExclusiveConnection = true;
-        UnknownIdentityDescription = "an unknown entity";
-        _outcomeEchoDictionary[Outcome.MajorFail] = false;
-        _outcomeEchoDictionary[Outcome.Fail] = false;
-        _outcomeEchoDictionary[Outcome.MinorFail] = false;
-        _outcomeEchoDictionary[Outcome.MinorPass] = false;
-        _outcomeEchoDictionary[Outcome.Pass] = false;
-        _outcomeEchoDictionary[Outcome.MajorPass] = false;
-
-        DoDatabaseInsert();
-    }
+	protected ConnectMindPower(IFuturemud gameworld, IMagicSchool school, string name, ITraitDefinition trait) : base(gameworld, school, name)
+	{
+		Blurb = "Connect to the mind of someone you're familiar with";
+		_showHelpText = @$"You can use #3{school.SchoolVerb.ToUpperInvariant()} CHOKE <person>#0 to choke someone in your presence, and #3{school.SchoolVerb.ToUpperInvariant()} STOPCHOKE [<person>]#0 to stop choking them. While choked, they will not be able to breathe."; ;
+		BeginVerb = "connect";
+		EndVerb = "disconnect";
+		PowerDistance = MagicPowerDistance.SameShardOnly;
+		SkillCheckTrait = trait;
+		SkillCheckDifficulty = Difficulty.VeryEasy;
+		MinimumSuccessThreshold = Outcome.Fail;
+		ConcentrationPointsToSustain = 1.0;
+		TargetCanSeeIdentityProg = Gameworld.AlwaysFalseProg;
+		ExclusiveConnection = true;
+		UnknownIdentityDescription = "an unknown entity";
+		_outcomeEchoDictionary[Outcome.MajorFail] = false;
+		_outcomeEchoDictionary[Outcome.Fail] = false;
+		_outcomeEchoDictionary[Outcome.MinorFail] = false;
+		_outcomeEchoDictionary[Outcome.MinorPass] = false;
+		_outcomeEchoDictionary[Outcome.Pass] = false;
+		_outcomeEchoDictionary[Outcome.MajorPass] = false;
+		EmoteForConnect = "You feel the presence of {0} at the back of your mind.";
+		SelfEmoteForConnect = "You reach out and connect to $1's mind.";
+		EmoteForFailConnect = "You feel the presence of {0} at the back of your mind, but it does not take hold.";
+		SelfEmoteForFailConnect = "You reach out and try to connect to $1's mind, but cannot reach stability.";
+		EmoteForDisconnect = "You feel the presence of {0} withdraw from your mind.";
+		SelfEmoteForDisconnect = "You lose your connection to $1's mind.";
+		DoDatabaseInsert();
+	}
 
 	#region Overrides of MagicPowerBase
 
@@ -534,11 +538,11 @@ public class ConnectMindPower : SustainedMagicPower
 		sb.AppendLine("Emotes:");
 		sb.AppendLine();
 		sb.AppendLine($"Emote: {EmoteForConnect.ColourCommand()}");
-		sb.AppendLine($"Emote Target: {SelfEmoteForConnect.ColourCommand()}");
+		sb.AppendLine($"Self Emote: {SelfEmoteForConnect.ColourCommand()}");
 		sb.AppendLine($"Fail Emote: {EmoteForFailConnect.ColourCommand()}");
-		sb.AppendLine($"Fail Emote Target: {SelfEmoteForFailConnect.ColourCommand()}");
+		sb.AppendLine($"Self Fail Emote: {SelfEmoteForFailConnect.ColourCommand()}");
 		sb.AppendLine($"End Emote: {EmoteForDisconnect.ColourCommand()}");
-		sb.AppendLine($"End Emote Target: {SelfEmoteForDisconnect.ColourCommand()}");
+		sb.AppendLine($"Self End Emote: {SelfEmoteForDisconnect.ColourCommand()}");
 		sb.AppendLine();
 		sb.AppendLine("Outcome Echoes:");
 		foreach (var item in _outcomeEchoDictionary.OrderBy(x => x.Key))

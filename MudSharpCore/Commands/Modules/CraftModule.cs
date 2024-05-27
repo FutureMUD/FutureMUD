@@ -236,6 +236,7 @@ The syntax for building crafts is as follows:
 	#3craft review <id>|all|mine#0 - reviews specified crafts
 	#3craft edit new#0 - creates a new craft
 	#3craft clone <craft> <newName>#0 - clones a craft
+	#3craft categories#0 - lists all the existing categories of crafts
 	#3craft set <...>#0 - sets properties of the craft. See CRAFT SET HELP for more detailed help.
 
 #3Note: In order to see the player version of this help, turn mortal mode on.#0";
@@ -263,24 +264,52 @@ The syntax for building crafts is as follows:
 				CraftPreview(actor, ss);
 				return;
 			case "list":
+				if (!actor.IsAdministrator())
+				{
+					goto default;
+				}
 				BuilderModule.GenericRevisableList(actor, ss, EditableRevisableItemHelper.CraftHelper);
 				return;
 			case "show":
+				if (!actor.IsAdministrator())
+				{
+					goto default;
+				}
 				BuilderModule.GenericRevisableShow(actor, ss, EditableRevisableItemHelper.CraftHelper);
 				return;
 			case "edit":
+				if (!actor.IsAdministrator())
+				{
+					goto default;
+				}
 				BuilderModule.GenericRevisableEdit(actor, ss, EditableRevisableItemHelper.CraftHelper);
 				return;
 			case "set":
+				if (!actor.IsAdministrator())
+				{
+					goto default;
+				}
 				BuilderModule.GenericRevisableSet(actor, ss, EditableRevisableItemHelper.CraftHelper);
 				return;
 			case "review":
+				if (!actor.IsAdministrator())
+				{
+					goto default;
+				}
 				BuilderModule.GenericReview(actor, ss, EditableRevisableItemHelper.CraftHelper);
 				return;
 			case "categories":
+				if (!actor.IsAdministrator())
+				{
+					goto default;
+				}
 				CraftCategories(actor);
 				return;
 			case "clone":
+				if (!actor.IsAdministrator())
+				{
+					goto default;
+				}
 				CraftClone(actor, ss);
 				return;
 			default:

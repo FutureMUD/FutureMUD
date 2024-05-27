@@ -28,6 +28,7 @@ public class RoleClanMembership : IRoleClanMembership
 		Clan = clan;
 		Rank = rank;
 		Paygrade = paygrade;
+		Appointments = new();
 	}
 
 	public IClan Clan { get; set; }

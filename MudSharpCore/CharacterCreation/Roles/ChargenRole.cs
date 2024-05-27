@@ -117,6 +117,10 @@ internal class ChargenRole : SaveableItem, IChargenRole
 				FMDB.Context.ChargenRolesTraits.Add(newItem);
 			}
 
+			foreach (var membership in dbitem.ChargenRolesClanMemberships)
+			{
+				FMDB.Context.ChargenRolesClanMembershipsAppointments.RemoveRange(membership.ChargenRolesClanMembershipsAppointments);
+			}
 			FMDB.Context.ChargenRolesClanMemberships.RemoveRange(dbitem.ChargenRolesClanMemberships);
 			foreach (var item in ClanMemberships)
 			{
@@ -1015,7 +1019,7 @@ internal class ChargenRole : SaveableItem, IChargenRole
 		var sb = new StringBuilder();
 		sb.AppendLine(string.Format(actor, "Role #{0:N0}".Colour(Telnet.Cyan), Id));
 		sb.AppendLine();
-		sb.AppendLine(string.Format(actor, "Name: {0}", Name));
+		sb.AppendLine(string.Format(actor, "Name: {0}", Name.ColourValue()));
 		sb.Append(new[]
 		{
 			$"Type: {RoleType.ToString().Colour(Telnet.Green)}",
@@ -1058,7 +1062,7 @@ internal class ChargenRole : SaveableItem, IChargenRole
 			foreach (var clan in ClanMemberships)
 			{
 				sb.AppendLine(
-					$"Clan: {clan.Clan.FullName.TitleCase().Colour(Telnet.Green)} Rank: {clan.Rank.Name.TitleCase().Colour(Telnet.Green)} Paygrade: {(clan.Paygrade != null ? clan.Paygrade.Name.TitleCase().Colour(Telnet.Green) : "None".Colour(Telnet.Red))} Appointments: {(clan.Appointments.Any() ? clan.Appointments.Select(x => x.Name.TitleCase().Colour(Telnet.Green)).ListToString() : "None".Colour(Telnet.Red))}");
+					$"\tClan: {clan.Clan.FullName.TitleCase().Colour(Telnet.Green)} Rank: {clan.Rank.Name.TitleCase().Colour(Telnet.Green)} Paygrade: {(clan.Paygrade != null ? clan.Paygrade.Name.TitleCase().Colour(Telnet.Green) : "None".Colour(Telnet.Red))} Appointments: {(clan.Appointments.Any() ? clan.Appointments.Select(x => x.Name.TitleCase().Colour(Telnet.Green)).ListToString() : "None".Colour(Telnet.Red))}");
 			}
 		}
 
@@ -1070,7 +1074,7 @@ internal class ChargenRole : SaveableItem, IChargenRole
 			foreach (var adjust in TraitAdjustments)
 			{
 				sb.AppendLine(
-					$"Trait: {adjust.Key.Name.TitleCase().Colour(Telnet.Green)} Adjustment: {adjust.Value.amount.ToString("N2", actor).Colour(Telnet.Green)}{(adjust.Value.giveIfMissing ? "" : " (boost only)")}");
+					$"\tTrait: {adjust.Key.Name.TitleCase().Colour(Telnet.Green)} Adjustment: {adjust.Value.amount.ToString("N2", actor).Colour(Telnet.Green)}{(adjust.Value.giveIfMissing ? "" : " (boost only)")}");
 			}
 		}
 
@@ -1082,7 +1086,7 @@ internal class ChargenRole : SaveableItem, IChargenRole
 			foreach (var item in StartingCurrency)
 			{
 				sb.AppendLine(
-					$"Currency: {item.Key.Name.TitleCase().Colour(Telnet.Green)} Amount: {item.Key.Describe(item.Value, CurrencyDescriptionPatternType.Short).Colour(Telnet.Green)}");
+					$"\tCurrency: {item.Key.Name.TitleCase().Colour(Telnet.Green)} Amount: {item.Key.Describe(item.Value, CurrencyDescriptionPatternType.Short).Colour(Telnet.Green)}");
 			}
 		}
 
@@ -1093,7 +1097,7 @@ internal class ChargenRole : SaveableItem, IChargenRole
 			sb.AppendLine();
 			foreach (var merit in AdditionalMerits)
 			{
-				sb.AppendLine($"#{merit.Id.ToString("N0", actor)} ({merit.Name.ColourName()})");
+				sb.AppendLine($"\t#{merit.Id.ToString("N0", actor)} ({merit.Name.ColourName()})");
 			}
 		}
 

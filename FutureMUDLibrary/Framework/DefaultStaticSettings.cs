@@ -774,9 +774,13 @@ If you have received an email with the code for your Account Recovery, please en
 
 Please enter the name of your account, your account email, or 0 to return to the main menu: " },
 		{ "AccountCreationDisabledMessage", "\nAccount creation is presently disabled. Please check back at a later time." },
-		{ "AccountCreationMessage", @"Welcome to {0}!
+		{ "AccountCreationMessage", @"\n\nWelcome to #2{0}#0!
 
-Participating in this game requires that you create an account. This is separate to any characters you might create on the game, and helps us keep track of your history, which is important in an RPI MUD. You will now be guided through a series of questions that will help us create your account for you. You must complete all steps to successfully create an account. If at any time you make a mistake or want to go back, you can type ""quit"" to be returned to the front menu.
+Participating in this game requires that you create an account. This is separate to any characters you might create on the game, and helps us keep track of your history, which is important in an RPI MUD. 
+
+You will now be guided through a series of questions that will help us create your account for you. You must complete all steps to successfully create an account. 
+
+If at any time you make a mistake or want to go back, you can type #3""quit""#0 to be returned to the front menu.
 " },
 		{"PasswordSelectionMessage", @"
 #3Password Selection#0

@@ -1697,7 +1697,10 @@ Your email address: "
 			Id = "CreateAccountGMTOffset",
 			Text = @"#3Timezone Settings#0
 
-The engine will automatically convert any real-world time you encounter in game to your local Timezone. If you know the GMT Offset of your Timezone, please enter it here (e.g. -5 for US East Coast, -8 for US West Coast). Otherwise, enter ""unknown"" to be shown a list of all Timezones. Please note that this game uses timezones from the following list: http://en.wikipedia.org/wiki/List_of_tz_database_time_zones
+The engine will automatically convert any real-world time you encounter in game to your local Timezone. If you know the GMT Offset of your Timezone, please enter it here (e.g. -5 for US East Coast, -8 for US West Coast). Otherwise, enter ""unknown"" to be shown a list of all Timezones. 
+
+Please note that this game uses timezones from the following list: 
+#6http://en.wikipedia.org/wiki/List_of_tz_database_time_zones#0
             
 Please select your GMT Offset: "
 		});
@@ -1705,7 +1708,9 @@ Please select your GMT Offset: "
 		{
 			Id = "CreateAccountLineWrap", Text = @"#3Line Wrap Width#0
 
-Your Line Wrap Width is the number of characters after which excess text on one line will be wrapped to a new line. In many cases you may have to change a setting in your MUD Client to match the value you enter here, though it is recommended that you disable client-side word wrapping. Recommended values are between 80 and 130, although the game is best enjoyed at 120 characters. Please note that some text will be wrapped at 80 characters regardless of this setting.
+Your Line Wrap Width is the number of characters after which excess text on one line will be wrapped to a new line. In many cases you may have to change a setting in your MUD Client to match the value you enter here, though it is recommended that you disable client-side word wrapping. 
+
+Recommended values are between #280#0 and #2130#0, although the game is best enjoyed at #2120#0 characters. Please note that some text will be wrapped at #280#0 characters regardless of this setting.
 
 Please enter your desired line wrap width: "
 		});
@@ -1729,7 +1734,8 @@ Please enter a password for your new account: "
 		{
 			Id = "CreateAccountTimezone",
 			Text =
-				@"#3{0}#0: {1} Please select the number of your desired Timezone, or enter the code for it directly if you know it:"
+				@"#3{0}#0: {1}
+Please select the number of your desired Timezone, or enter the code for it directly if you know it:"
 		});
 		context.StaticStrings.Add(new StaticString
 		{
@@ -2410,7 +2416,7 @@ return IsAdmin(@ch)",
 		context.CultureInfos.Add(new CultureInfo { Id = "fr-CA", DisplayName = "French (Canadian)", Order = 10 });
 		context.CultureInfos.Add(new CultureInfo { Id = "de-DE", DisplayName = "German (Germany)", Order = 11 });
 		context.CultureInfos.Add(new CultureInfo { Id = "el-GR", DisplayName = "Greek (Greece)", Order = 12 });
-		context.CultureInfos.Add(new CultureInfo { Id = "zh-C", DisplayName = "Chinese (P.R.C)", Order = 13 });
+		context.CultureInfos.Add(new CultureInfo { Id = "zh-CN", DisplayName = "Chinese (P.R.C)", Order = 13 });
 		context.CultureInfos.Add(new CultureInfo { Id = "zn-TW", DisplayName = "Chinese (Taiwan)", Order = 14 });
 		context.CultureInfos.Add(new CultureInfo { Id = "ja-JP", DisplayName = "Japanese (Japan)", Order = 15 });
 		context.CultureInfos.Add(new CultureInfo { Id = "ru-RU", DisplayName = "Russian (Russian)", Order = 16 });

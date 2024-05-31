@@ -514,7 +514,7 @@ public class MainMenu : Menu, IController
 		}
 
 		_unitPreference = preference;
-		OutputHandler.Send($"You will now see all units in the {_unitPreference} system.");
+		OutputHandler.Send($"You will now see all units in the {_unitPreference.ColourValue()} system.");
 		_state = MainMenuState.CreateAccountCulture;
 		using (new FMDB())
 		{
@@ -524,7 +524,7 @@ public class MainMenu : Menu, IController
 				                          orderby culture.Order, culture.Id
 				                          select culture)
 				                         .ToList()
-				                         .Select(culture => $"{number++}) {culture.DisplayName} ({culture.Id})")
+				                         .Select(culture => $"{number++}) #6{culture.DisplayName}#0 #2({culture.Id})#0")
 				                         .ArrangeStringsOntoLines(_linewidth / 40, _linewidth))
 			                         .SubstituteANSIColour().Wrap((int)_linewidth), false);
 		}
@@ -557,8 +557,8 @@ public class MainMenu : Menu, IController
 		var index = 1;
 		OutputHandler.Send(string.Format(Gameworld.GetStaticString("CreateAccountUnitPreference"),
 			Gameworld.UnitManager.Units.Select(x => x.System).Distinct().OrderBy(x => x).Select(x =>
-				$"{index++}) {x}").ArrangeStringsOntoLines(1, 80)
-		).SubstituteANSIColour().Wrap((int)_linewidth), false);
+				$"{index++}) #2{x}#0").ArrangeStringsOntoLines(1, 80)
+		).SubstituteANSIColour().Wrap((int)80), false);
 	}
 
 	private void CreateAccountUnicode(string command)
@@ -694,13 +694,13 @@ public class MainMenu : Menu, IController
 			var index = 1;
 			OutputHandler.Send(string.Format(Gameworld.GetStaticString("CreateAccountTimezone"),
 				_timezoneGMTOffset.HasValue
-					? $"Time Zones for GMT{_timezoneGMTOffset.Value:+#0.00;-#0.00}"
-					: "All Time Zones",
+					? $"Time Zones for GMT{_timezoneGMTOffset.Value:+#0.00;-#0.00}\n\n"
+					: "All Time Zones:\n\n",
 				(from tz in FMDB.Context.TimeZoneInfos
 				 where !_timezoneGMTOffset.HasValue || _timezoneGMTOffset.Value == tz.Order
 				 orderby tz.Order, tz.Display
 				 select tz).ToList()
-				           .Select(tz => $"{index++}) {tz.Display}")
+				           .Select(tz => $"\t{index++}) #6{tz.Display}#0 #2[{tz.Id}]#0")
 				           .ArrangeStringsOntoLines(_linewidth / 60, _linewidth)
 			).SubstituteANSIColour().Wrap((int)_linewidth), false);
 		}

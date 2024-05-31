@@ -105,6 +105,12 @@ public class ScrapInputProduct : BaseProduct
 	public double PercentageRecovered { get; set; }
 	public ITag Tag { get; set; }
 
+	/// <inheritdoc />
+	public override bool RefersToTag(ITag tag)
+	{
+		return Tag?.IsA(tag) == true;
+	}
+
 	#region Overrides of BaseProduct
 
 	public override ICraftProductData ProduceProduct(IActiveCraftGameItemComponent component,

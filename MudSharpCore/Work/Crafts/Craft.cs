@@ -732,6 +732,17 @@ public class Craft : Framework.Revision.EditableItem, ICraft
 			}
 		}
 
+		foreach (var item in _tools.Keys)
+		{
+			if (_craftToolUsagePhases.All(x => !x.Value.Contains(item)))
+			{
+				foreach (var key in _craftToolUsagePhases.Keys)
+				{
+					_craftToolUsagePhases[key].Add(item);
+				}
+			}
+		}
+
 		if (_phaseEchoes.Any())
 		{
 			foreach (var phasenum in 1.GetIntRange(_phaseEchoes.Count))
@@ -1005,6 +1016,8 @@ public class Craft : Framework.Revision.EditableItem, ICraft
 	}
 
 	private bool _craftIsValid;
+	public bool CraftIsValid => _craftIsValid;
+
 	private readonly List<TimeSpan> _phaseLengths;
 	private readonly List<string> _failPhaseEchoes;
 	private readonly List<string> _phaseEchoes;
@@ -1308,7 +1321,7 @@ public class Craft : Framework.Revision.EditableItem, ICraft
 			foreach (var tool in Tools)
 			{
 				sb.AppendLine(
-					$"\t{tool.HowSeen(character).ColourIncludingReset(Telnet.Yellow)} [{tool.DesiredState.Describe().ColourValue()}]{(tool.UseToolDuration ? " [Use]".Colour(Telnet.Red) : "")}");
+					$"\t{tool.HowSeen(character).ColourIncludingReset(Telnet.Yellow)} {$"[{tool.DesiredState.Describe()}]".ColourValue()}{(tool.UseToolDuration ? " [Use]".Colour(Telnet.Red) : "")}");
 			}
 		}
 
@@ -2446,15 +2459,16 @@ public class Craft : Framework.Revision.EditableItem, ICraft
 	public override string Show(ICharacter actor)
 	{
 		var sb = new StringBuilder();
-		sb.AppendLine(EditHeader().ColourName());
+		sb.AppendLine(EditHeader().GetLineWithTitle(actor, Telnet.Cyan, Telnet.BoldWhite));
+		sb.AppendLine();
 		sb.AppendLine($"Status: {Status.DescribeEnum(true).ColourValue()}");
 		sb.AppendLine($"Valid: {(_craftIsValid ? "Yes".Colour(Telnet.Green) : "No".Colour(Telnet.Red))}");
 		sb.AppendLineColumns((uint)actor.LineFormatLength, 3,
 			$"Name: {Name.Colour(Telnet.Green)}",
-			$"Category: {Category.Colour(Telnet.Green)}",
-			$"Action: {ActionDescription.Colour(Telnet.Green)}"
+			$"Action: {ActionDescription.Colour(Telnet.Green)}",
+			$"Category: {Category.Colour(Telnet.Green)}"
 		);
-		sb.AppendLine($"Craft In-Progress Item Desc: {ActiveCraftItemSDesc.Colour(Telnet.Green)}");
+		sb.AppendLine($"In-Progress Item Desc: {ActiveCraftItemSDesc.Colour(Telnet.Green)}");
 		sb.AppendLine($"Blurb: {Blurb.ColourCommand()}");
 		sb.AppendLineColumns((uint)actor.LineFormatLength, 3,
 			$"Appear Prog: {(AppearInCraftsListProg != null ? $"{AppearInCraftsListProg.FunctionName} (#{AppearInCraftsListProg.Id})".FluentTagMXP("send", $"href='show futureprog {AppearInCraftsListProg.Id}'") : "None".Colour(Telnet.Red))}",
@@ -2478,52 +2492,129 @@ public class Craft : Framework.Revision.EditableItem, ICraft
 		);
 		sb.AppendLine($"Check Type: {(IsPracticalCheck ? "Practical" : "Theoretical").ColourValue()}");
 		sb.AppendLine();
-		sb.AppendLine("Phases:");
+		sb.AppendLine("Phases".GetLineWithTitle(actor, Telnet.Cyan, Telnet.BoldWhite));
+		sb.AppendLine();
+		var sb2 = new StringBuilder();
 		for (var i = 0; i < _phaseEchoes.Count; i++)
 		{
+			sb2.AppendLine();
 			if (_phaseEchoes[i].EqualTo(_failPhaseEchoes[i]))
 			{
-				sb.AppendLine(
+				sb2.AppendLine(
 					$"\t{i + 1}) {_phaseLengths[i].Describe().Colour(Telnet.Green)} -> {$"\"{_phaseEchoes[i]}\"".Colour(Telnet.Yellow)}");
 			}
 			else
 			{
-				sb.AppendLine(
-					$"\t{i + 1}) {_phaseLengths[i].Describe().Colour(Telnet.Green)} -> {$"\"{_phaseEchoes[i]}\"".Colour(Telnet.Yellow)} fail: {$"\"{_failPhaseEchoes[i]}\"".Colour(Telnet.Yellow)}");
+				sb2.AppendLine(
+					$"\t{i + 1}) {_phaseLengths[i].Describe().Colour(Telnet.Green)} -> {$"\"{_phaseEchoes[i]}\"".Colour(Telnet.Yellow)}\n\n\t{new string(' ',$"{i + 1}) {_phaseLengths[i].Describe()}".RawTextLength() - 4)}{"fail".ColourError()} -> {$"\"{_failPhaseEchoes[i]}\"".Colour(Telnet.Yellow)}");
 			}
 		}
 
-		sb.AppendLine();
-		sb.AppendLine("Inputs:");
-		for (var i = 0; i < _orderedInputs.Count; i++)
-		{
-			sb.AppendLine($"\t$i{i + 1}: {_orderedInputs[i].HowSeen(actor).ColourIncludingReset(Telnet.Yellow)}");
-		}
+		sb.Append(sb2.ToString().Wrap(actor.InnerLineFormatLength));
 
 		sb.AppendLine();
-		sb.AppendLine("Tools:");
-		for (var i = 0; i < _orderedTools.Count; i++)
-		{
-			sb.AppendLine(
-				$"\t$t{i + 1}: {_orderedTools[i].HowSeen(actor).ColourIncludingReset(Telnet.Yellow)} {_orderedTools[i].DesiredState.Describe().SquareBrackets().ColourValue()}{(_orderedTools[i].UseToolDuration ? " [UseTool]".Colour(Telnet.Red) : "")}");
-		}
+		sb.AppendLine("Inputs".GetLineWithTitle(actor, Telnet.Cyan, Telnet.BoldWhite));
+		sb.AppendLine();
+		var index = 0;
+		sb.AppendLine(StringUtilities.GetTextTable(
+			from item in _orderedInputs
+			let i = ++index
+			select new List<string>
+			{
+				$"$i{i}",
+				item.HowSeen(actor),
+				_craftInputConsumedPhases[item.Id].ToString("N0", actor)
+			},
+			[
+				"Name",
+				"Description",
+				"Consumed Phase"
+			],
+			actor,
+			Telnet.Yellow
+		));
 
 		sb.AppendLine();
-		sb.AppendLine("Products:");
-		for (var i = 0; i < _orderedProducts.Count; i++)
-		{
-			sb.AppendLine($"\t$p{i + 1}: {_orderedProducts[i].HowSeen(actor).ColourIncludingReset(Telnet.Yellow)}");
-		}
+		sb.AppendLine("Tools".GetLineWithTitle(actor, Telnet.Cyan, Telnet.BoldWhite));
+		sb.AppendLine();
+		index = 0;
+		sb.AppendLine(StringUtilities.GetTextTable(
+			from item in _orderedTools
+			let i = ++index
+			select new List<string>
+			{
+				$"$t{i}",
+				item.HowSeen(actor),
+				$"{item.DesiredState.Describe().SquareBrackets().ColourValue()}{(item.UseToolDuration ? " [UseTool]".Colour(Telnet.Red) : "")}",
+				_craftToolUsagePhases
+					.Where(x => x.Value.Contains(item.Id))
+					.Select(x => x.Key.ToString("N0", actor))
+					.Concat(
+						_craftToolUsageFailPhases
+							.Where(x => x.Value.Contains(item.Id))
+							.Where(x => x.Key >= FailPhase)
+							.Select(x => $"F{x.Key.ToString("N0", actor)}")
+					)
+					.ListToCommaSeparatedValues(", ")
+			},
+			[
+				"Name",
+				"Description",
+				"Rules",
+				"Used Phases"
+			],
+			actor,
+			Telnet.Yellow
+		));
 
 		sb.AppendLine();
-		sb.AppendLine("Fail Products:");
-		for (var i = 0; i < _orderedFailProducts.Count; i++)
-		{
-			sb.AppendLine($"\t$f{i + 1}: {_orderedFailProducts[i].HowSeen(actor).ColourIncludingReset(Telnet.Yellow)}");
-		}
+		sb.AppendLine("Products".GetLineWithTitle(actor, Telnet.Cyan, Telnet.BoldWhite));
+		sb.AppendLine();
+		index = 0;
+		sb.AppendLine(StringUtilities.GetTextTable(
+			from item in _orderedProducts
+			let i = ++index
+			select new List<string>
+			{
+				$"$p{i}",
+				item.HowSeen(actor),
+				_craftProductProducedPhases[item.Id].ToString("N0", actor)
+			},
+			[
+				"Name",
+				"Description",
+				"Produced Phase"
+			],
+			actor,
+			Telnet.Yellow
+		));
+
+		sb.AppendLine();
+		sb.AppendLine("Fail Products".GetLineWithTitle(actor, Telnet.Cyan, Telnet.BoldWhite));
+		sb.AppendLine();
+		index = 0;
+		sb.AppendLine(StringUtilities.GetTextTable(
+			from item in _orderedFailProducts
+			let i = ++index
+			select new List<string>
+			{
+				$"$f{i}",
+				item.HowSeen(actor),
+				_craftFailProductProducedPhases[item.Id].ToString("N0", actor)
+			},
+			[
+				"Name",
+				"Description",
+				"Produced Phase"
+			],
+			actor,
+			Telnet.Yellow
+		));
 
 		if (!_craftIsValid)
 		{
+			sb.AppendLine();
+			sb.AppendLine("Errors".GetLineWithTitle(actor, Telnet.Red, Telnet.BoldWhite));
 			sb.AppendLine();
 			if (FailPhase <= 0 || FailPhase > LastPhase)
 			{

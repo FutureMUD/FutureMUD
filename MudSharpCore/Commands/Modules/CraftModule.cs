@@ -104,7 +104,7 @@ internal class CraftModule : Module<ICharacter>
 		var crafts = actor.Gameworld.Crafts.Where(x => x.AppearInCraftsList(actor)).ToList();
 		var craftName = ss.SafeRemainingArgument.Trim();
 		var craft = crafts.FirstOrDefault(x => x.Name.EqualTo(craftName)) ?? crafts.FirstOrDefault(x =>
-			x.Name.StartsWith(craftName, StringComparison.InvariantCultureIgnoreCase));
+			x.Name.Contains(craftName, StringComparison.InvariantCultureIgnoreCase));
 
 		if (craft == null)
 		{
@@ -144,7 +144,7 @@ internal class CraftModule : Module<ICharacter>
 			return;
 		}
 
-		if (!(target.GetItemType<ActiveCraftGameItemComponent>() is ActiveCraftGameItemComponent active))
+		if (!(target.GetItemType<ActiveCraftGameItemComponent>() is { } active))
 		{
 			actor.Send($"{target.HowSeen(actor, true)} is not a craft progress item.");
 			return;
@@ -181,7 +181,7 @@ internal class CraftModule : Module<ICharacter>
 		var craft = long.TryParse(craftName, out var value)
 			? crafts.FirstOrDefault(x => x.Id == value)
 			: crafts.FirstOrDefault(x => x.Name.EqualTo(craftName)) ?? crafts.FirstOrDefault(x =>
-				x.Name.StartsWith(craftName, StringComparison.InvariantCultureIgnoreCase));
+				x.Name.Contains(craftName, StringComparison.InvariantCultureIgnoreCase));
 
 		if (craft == null)
 		{
@@ -203,7 +203,7 @@ internal class CraftModule : Module<ICharacter>
 		var crafts = actor.Gameworld.Crafts.Where(x => x.AppearInCraftsList(actor)).ToList();
 		var craftName = ss.SafeRemainingArgument;
 		var craft = crafts.FirstOrDefault(x => x.Name.EqualTo(craftName)) ?? crafts.FirstOrDefault(x =>
-			x.Name.StartsWith(craftName, StringComparison.InvariantCultureIgnoreCase));
+			x.Name.Contains(craftName, StringComparison.InvariantCultureIgnoreCase));
 
 		if (craft == null)
 		{
@@ -221,7 +221,10 @@ The syntax to use crafts is a follows:
 	#3craft begin <craft name>#0 - begins a new craft as specified.
 	#3craft resume <targetitem>#0 - resumes an in-progress craft by targeting the item.
 	#3craft view <craft name>#0 - shows you information about a craft.
-	#3craft preview <craft name>#0 - shows you what tools and materials you would consume if you executed that craft.";
+	#3craft preview <craft name>#0 - shows you what tools and materials you would consume if you executed that craft.
+	#3craft find <item>#0 - shows you what crafts you can do that use or produce the specified item
+
+See the #3crafts#0 command for a list of crafts that you can do.";
 
 	private const string CraftHelpAdmin = @"This command allows you to create, view and edit crafts.
 
@@ -238,6 +241,15 @@ The syntax for building crafts is as follows:
 	#3craft clone <craft> <newName>#0 - clones a craft
 	#3craft categories#0 - lists all the existing categories of crafts
 	#3craft set <...>#0 - sets properties of the craft. See CRAFT SET HELP for more detailed help.
+
+The full list of filters for craft list is below:
+
+	#6+<keyword>#0 - include crafts with the keyword in the name or blurb
+	#6-<keyword>#0 - exclude crafts with the keyword in the name or blurb
+	#6<category>#0 - include crafts with the listed category
+	#6*<id>#0 - include crafts that use or produce the specified item proto
+	#6&<tag>#0 - include crafts that use or produce items with the specified tag
+	#6^<liquid>#0 - include crafts that use or produce items that count as the specified liquid
 
 #3Note: In order to see the player version of this help, turn mortal mode on.#0";
 
@@ -262,6 +274,9 @@ The syntax for building crafts is as follows:
 			case "preview":
 			case "materials":
 				CraftPreview(actor, ss);
+				return;
+			case "find":
+				CraftFind(actor, ss);
 				return;
 			case "list":
 				if (!actor.IsAdministrator())
@@ -319,6 +334,51 @@ The syntax for building crafts is as follows:
 		}
 	}
 
+	private static void CraftFind(ICharacter actor, StringStack ss)
+	{
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send("What item do you want to lookup crafts for?");
+			return;
+		}
+
+		var item = actor.TargetItem(ss.SafeRemainingArgument);
+		if (item is null)
+		{
+			actor.OutputHandler.Send("You don't see any items like that.");
+			return;
+		}
+
+		var crafts = (actor.IsAdministrator()
+			             ? actor.Gameworld.Crafts
+			             : actor.Gameworld.Crafts.Where(x => x.AppearInCraftsList(actor)))
+		             .Where(x => x.Status == RevisionStatus.Current)
+		             .Where(x => 
+			             x.Inputs.Any(y => y.IsInput(item)) ||
+						 x.Products.Any(y => y.IsItem(item)) ||
+						 x.FailProducts.Any(y => y.IsItem(item)) ||
+						 x.Tools.Any(y => y.IsTool(item))
+		             )
+		             .OrderBy(x => x.Category)
+		             .ThenBy(x => x.Name)
+		             .ToList();
+		if (!crafts.Any())
+		{
+			actor.OutputHandler.Send($"You don't know any crafts that could use or produce {item.HowSeen(actor)}.");
+			return;
+		}
+
+		var sb = new StringBuilder();
+		sb.AppendLine($"You know the following crafts that can use or produce {item.HowSeen(actor)}:");
+		sb.AppendLine();
+		foreach (var craft in crafts)
+		{
+			sb.AppendLine($"\t{craft.Name.ColourName()} {craft.Category.SquareBrackets().ColourValue()}");
+		}
+
+		actor.OutputHandler.Send(sb.ToString());
+	}
+
 	private static void CraftClone(ICharacter actor, StringStack ss)
 	{
 		if (!actor.IsAdministrator())
@@ -333,9 +393,7 @@ The syntax for building crafts is as follows:
 			return;
 		}
 
-		var craft = long.TryParse(ss.PopSpeech(), out var value)
-			? actor.Gameworld.Crafts.Get(value)
-			: actor.Gameworld.Crafts.GetByName(ss.Last);
+		var craft = actor.Gameworld.Crafts.GetByIdOrName(ss.PopSpeech());
 		if (craft == null)
 		{
 			actor.OutputHandler.Send("There is no such craft.");

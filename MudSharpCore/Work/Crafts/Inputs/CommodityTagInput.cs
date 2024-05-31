@@ -4,6 +4,7 @@ using System.Linq;
 using System.Xml.Linq;
 using MudSharp.Accounts;
 using MudSharp.Character;
+using MudSharp.Form.Material;
 using MudSharp.Framework;
 using MudSharp.GameItems;
 using MudSharp.GameItems.Interfaces;
@@ -274,5 +275,11 @@ public class CommodityTagInput : BaseInput, ICraftInputConsumesGameItem
 		actor.OutputHandler.Send(
 			$"This input will now consume commodities tagged as {MaterialTag.FullName.Colour(Telnet.Cyan)}.");
 		return true;
+	}
+
+	/// <inheritdoc />
+	public override bool RefersToTag(ITag tag)
+	{
+		return MaterialTag?.IsA(tag) == true;
 	}
 }

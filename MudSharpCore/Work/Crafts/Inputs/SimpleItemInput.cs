@@ -19,6 +19,12 @@ public class SimpleItemInput : BaseInput, ICraftInputConsumesGameItemGroup
 	public long TargetItemId { get; set; }
 	public int Quantity { get; set; }
 
+	/// <inheritdoc />
+	public override bool RefersToItemProto(long id)
+	{
+		return TargetItemId == id;
+	}
+
 	protected override string SaveDefinition()
 	{
 		return new XElement("Definition",

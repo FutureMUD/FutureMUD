@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Xml.Linq;
 using MudSharp.Character;
+using MudSharp.Form.Material;
 using MudSharp.Framework;
 using MudSharp.Framework.Save;
 
@@ -21,5 +22,8 @@ namespace MudSharp.Work.Crafts
         bool IsValid();
         string WhyNotValid();
         string HowSeen(IPerceiver voyeur);
-    }
+        bool RefersToItemProto(long id);
+        bool RefersToTag(ITag tag);
+        bool RefersToLiquid(ILiquid liquid);
+	}
 }

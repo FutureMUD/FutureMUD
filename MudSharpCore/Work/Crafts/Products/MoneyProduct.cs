@@ -59,6 +59,18 @@ public class MoneyProduct : BaseProduct
 	public ICurrency Currency { get; set; }
 	public decimal Amount { get; set; }
 
+	/// <inheritdoc />
+	public override bool IsItem(IGameItem item)
+	{
+		var currencyPile = item.GetItemType<ICurrencyPile>();
+		if (currencyPile?.Currency != Currency)
+		{
+			return false;
+		}
+
+		return true;
+	}
+
 	public override string Name => Currency == null
 		? "an unspecified amount of currency"
 		: Currency.Describe(Amount, CurrencyDescriptionPatternType.Short);

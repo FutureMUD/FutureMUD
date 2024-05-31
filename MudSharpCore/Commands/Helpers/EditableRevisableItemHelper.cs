@@ -7,7 +7,6 @@ using MudSharp.Commands.Modules;
 using MudSharp.Database;
 using MudSharp.Effects;
 using MudSharp.Effects.Concrete;
-using MudSharp.Form.Shape;
 using MudSharp.Framework;
 using MudSharp.Framework.Revision;
 using MudSharp.GameItems;
@@ -502,36 +501,112 @@ internal class EditableRevisableItemHelper
 					       select
 						       new[]
 						       {
-							       proto.Id.ToString(), proto.RevisionNumber.ToString(), proto.Name.Proper(),
-							       proto.Category,
-							       FMDB.Context.Accounts.Find(proto.BuilderAccountID).Name, proto.BuilderComment ?? ""
+							       proto.Id.ToString("N0", actor), 
+							       proto.RevisionNumber.ToString("N0", actor), 
+							       proto.Name.TitleCase(),
+							       proto.Category.TitleCase(),
+							       FMDB.Context.Accounts.Find(proto.BuilderAccountID)?.Name ?? "Unknown", 
+							       proto.BuilderComment ?? "",
+								   proto.CraftIsValid.ToColouredString()
 						       };
 				}
 			},
 			GetReviewTableHeaderFunc =
-				character => new[] { "ID#", "Rev#", "Name", "Category", "Builder", "Comment" },
+				character => new[] { "ID#", "Rev#", "Name", "Category", "Builder", "Comment", "Valid" },
 			GetListTableContentsFunc = (character, protos) => from proto in protos.OfType<ICraft>()
 			                                                  select
 				                                                  new[]
 				                                                  {
 					                                                  proto.Id.ToString(),
 					                                                  proto.RevisionNumber.ToString(),
-					                                                  proto.Name.Proper(),
-					                                                  proto.Category,
+					                                                  proto.Name.TitleCase(),
 					                                                  proto.Blurb,
-					                                                  proto.Status.Describe()
+																	  proto.Category.TitleCase(),
+					                                                  proto.Status.Describe(),
+																	  proto.CraftIsValid.ToColouredString()
 				                                                  },
-			GetListTableHeaderFunc = character => new[] { "ID#", "Rev#", "Name", "Category", "Blurb", "Status" },
+			GetListTableHeaderFunc = character => new[] { "ID#", "Rev#", "Name", "Category", "Blurb", "Status", "Valid" },
 			GetReviewProposalEffectFunc =
 				(protos, character) =>
 					new Accept(character,
 						new EditableItemReviewProposal<ICraft>(character,
 							protos.Cast<ICraft>().ToList())),
 			CastToType = typeof(ICraft),
-			CustomSearch = (protos, keyword, gameworld) => protos.OfType<ICraft>()
-			                                                     .Where(x => x.Category.StartsWith(keyword,
-				                                                     StringComparison.InvariantCultureIgnoreCase))
-			                                                     .ToList<IEditableRevisableItem>()
+			CustomSearch = (protos, keyword, gameworld) =>
+			{
+				if (keyword.Length > 1)
+				{
+					var key2 = keyword.Substring(1);
+					switch (char.ToLowerInvariant(keyword[0]))
+					{
+						case '+':
+							return protos
+							       .OfType<ICraft>()
+							       .Where(x =>
+								       x.Name.Contains(key2, StringComparison.InvariantCultureIgnoreCase) ||
+								       x.Name.Contains(key2, StringComparison.InvariantCultureIgnoreCase))
+							       .ToList<IEditableRevisableItem>();
+						case '-':
+							return protos
+							       .OfType<ICraft>()
+							       .Where(x =>
+								       !x.Name.Contains(key2, StringComparison.InvariantCultureIgnoreCase) &&
+								       !x.Name.Contains(key2, StringComparison.InvariantCultureIgnoreCase))
+							       .ToList<IEditableRevisableItem>();
+						case '&':
+							var tag = gameworld.Tags.GetByIdOrName(key2);
+							if (tag is null)
+							{
+								return [];
+							}
+
+							return protos
+							       .OfType<ICraft>()
+								   .Where(x =>
+								       x.Inputs.Any(y => y.RefersToTag(tag)) ||
+								       x.Products.Any(y => y.RefersToTag(tag)) ||
+								       x.FailProducts.Any(y => y.RefersToTag(tag)) ||
+								       x.Tools.Any(y => y.RefersToTag(tag))
+									)
+								    .ToList<IEditableRevisableItem>();
+						case '*':
+							if (!long.TryParse(key2, out var id))
+							{
+								return [];
+							}
+							return protos
+							       .OfType<ICraft>()
+							       .Where(x =>
+									    x.Inputs.Any(y => y.RefersToItemProto(id)) ||
+									    x.Products.Any(y => y.RefersToItemProto(id)) ||
+									    x.FailProducts.Any(y => y.RefersToItemProto(id)) ||
+									    x.Tools.Any(y => y.RefersToItemProto(id))
+
+									)
+							       .ToList<IEditableRevisableItem>();
+						case '^':
+							var liquid = gameworld.Liquids.GetByIdOrName(key2);
+							if (liquid is null)
+							{
+								return [];
+							}
+
+							return protos
+							       .OfType<ICraft>()
+							       .Where(x =>
+								       x.Inputs.Any(y => y.RefersToLiquid(liquid)) ||
+								       x.Products.Any(y => y.RefersToLiquid(liquid)) ||
+								       x.FailProducts.Any(y => y.RefersToLiquid(liquid)) ||
+								       x.Tools.Any(y => y.RefersToLiquid(liquid))
+							       )
+							       .ToList<IEditableRevisableItem>();
+					}
+				}
+				return protos.OfType<ICraft>()
+				             .Where(x => x.Category.StartsWith(keyword,
+					             StringComparison.InvariantCultureIgnoreCase))
+				             .ToList<IEditableRevisableItem>();
+			}
 		};
 
 		#endregion

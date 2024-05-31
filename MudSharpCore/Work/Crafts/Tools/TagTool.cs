@@ -22,6 +22,12 @@ public class TagTool : BaseTool
 
 	public ITag TargetItemTag { get; set; }
 
+	/// <inheritdoc />
+	public override bool RefersToTag(ITag tag)
+	{
+		return TargetItemTag?.IsA(tag) == true;
+	}
+
 	#region Overrides of BaseTool
 
 	public override bool IsTool(IGameItem item)

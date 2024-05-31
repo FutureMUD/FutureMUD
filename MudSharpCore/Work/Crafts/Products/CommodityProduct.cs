@@ -17,6 +17,24 @@ public class CommodityProduct : BaseProduct
 	public double Weight { get; set; }
 	public ITag Tag { get; set; }
 
+	/// <inheritdoc />
+	public override bool RefersToTag(ITag tag)
+	{
+		return Tag?.IsA(tag) == true;
+	}
+
+	/// <inheritdoc />
+	public override bool IsItem(IGameItem item)
+	{
+		var commodity = item.GetItemType<ICommodity>();
+		if (commodity is null)
+		{
+			return false;
+		}
+
+		return commodity.Material == Material && commodity.Tag == Tag;
+	}
+
 	protected CommodityProduct(CraftProduct product, ICraft craft, IFuturemud gameworld) : base(product, craft,
 		gameworld)
 	{

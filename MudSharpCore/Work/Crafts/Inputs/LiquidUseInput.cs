@@ -42,6 +42,12 @@ public class LiquidUseInput : BaseInput, ICraftInputConsumeLiquid
 		return 1.0;
 	}
 
+	/// <inheritdoc />
+	public override bool RefersToLiquid(ILiquid liquid)
+	{
+		return TargetLiquid?.LiquidCountsAs(liquid) == true;
+	}
+
 	internal class LiquidUseInputData : ICraftInputConsumeLiquidData
 	{
 		public LiquidUseInputData(IPerceivable group, ILiquid target, double amount, IFuturemud gameworld)

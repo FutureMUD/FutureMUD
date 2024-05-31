@@ -32,6 +32,18 @@ public class SimpleProduct : BaseProduct
 	public int Quantity { get; set; }
 	public IGameItemSkin Skin { get; set; }
 
+	/// <inheritdoc />
+	public override bool IsItem(IGameItem item)
+	{
+		return ProductProducedId == item.Prototype.Id && Skin?.Id == item.Skin?.Id;
+	}
+
+	/// <inheritdoc />
+	public override bool RefersToItemProto(long id)
+	{
+		return ProductProducedId == id;
+	}
+
 	#region Overrides of BaseProduct
 
 	public override ICraftProductData ProduceProduct(IActiveCraftGameItemComponent component,

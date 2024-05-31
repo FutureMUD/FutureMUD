@@ -116,6 +116,26 @@ public abstract class BaseProduct : LateInitialisingItem, ICraftProduct
 
 	public int? MaterialDefiningInputIndex { get; set; }
 
+	public virtual bool RefersToItemProto(long id)
+	{
+		return false;
+	}
+
+	public virtual bool RefersToTag(ITag tag)
+	{
+		return false;
+	}
+
+	public virtual bool RefersToLiquid(ILiquid liquid)
+	{
+		return false;
+	}
+
+	public virtual bool IsItem(IGameItem item)
+	{
+		return false;
+	}
+
 	#region Implementation of ICraftProduct
 
 	public abstract ICraftProductData ProduceProduct(IActiveCraftGameItemComponent component,

@@ -19,6 +19,12 @@ public class SimpleMaterialInput : BaseInput, ICraftInputConsumesGameItemGroup
 	public ISolid TargetMaterial { get; set; }
 	public int Quantity { get; set; }
 
+	/// <inheritdoc />
+	public override bool RefersToTag(ITag tag)
+	{
+		return TargetMaterialTag?.IsA(tag) == true;
+	}
+
 	protected override string SaveDefinition()
 	{
 		return new XElement("Definition",

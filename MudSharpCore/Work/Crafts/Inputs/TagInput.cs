@@ -14,6 +14,12 @@ public class TagInput : BaseInput, ICraftInputConsumesGameItemGroup
 	public ITag TargetTag { get; set; }
 	public int Quantity { get; set; }
 
+	/// <inheritdoc />
+	public override bool RefersToTag(ITag tag)
+	{
+		return TargetTag?.IsA(tag) == true;
+	}
+
 	protected TagInput(Models.CraftInput input, ICraft craft, IFuturemud gameworld) : base(input, craft, gameworld)
 	{
 		var root = XElement.Parse(input.Definition);

@@ -1,5 +1,6 @@
 ﻿using System;
 using MudSharp.Character;
+using MudSharp.Form.Material;
 using MudSharp.Framework;
 using MudSharp.Framework.Save;
 using MudSharp.GameItems;
@@ -15,5 +16,9 @@ namespace MudSharp.Work.Crafts
         bool IsValid();
         string WhyNotValid();
         string HowSeen(IPerceiver voyeur);
+        bool RefersToItemProto(long id);
+        bool RefersToTag(ITag tag);
+        bool RefersToLiquid(ILiquid liquid);
+        bool IsItem(IGameItem item);
     }
 }

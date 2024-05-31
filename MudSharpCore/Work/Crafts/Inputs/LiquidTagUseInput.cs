@@ -232,6 +232,12 @@ public class LiquidTagUseInput : BaseInput, ICraftInputConsumeLiquid
 			$"{Gameworld.UnitManager.DescribeMostSignificantExact(TargetLiquidAmount, UnitType.FluidVolume, DummyAccount.Instance).Colour(Telnet.Green)} of a liquid tagged {TargetTag.FullName.Colour(Telnet.Cyan)}";
 	}
 
+	/// <inheritdoc />
+	public override bool RefersToTag(ITag tag)
+	{
+		return TargetTag?.IsA(tag) == true;
+	}
+
 	internal class LiquidUseInputData : ICraftInputConsumeLiquidData
 	{
 		public LiquidUseInputData(IPerceivable group, ITag target, double amount, IFuturemud gameworld)

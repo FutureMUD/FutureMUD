@@ -4,6 +4,7 @@ using System.Linq;
 using System.Xml.Linq;
 using MudSharp.Character;
 using MudSharp.Database;
+using MudSharp.Form.Material;
 using MudSharp.Framework;
 using MudSharp.Framework.Save;
 using MudSharp.GameItems;
@@ -148,6 +149,21 @@ public abstract class BaseInput : LateInitialisingItem, ICraftInput
 			Changed = value;
 			_craft.CalculateCraftIsValid();
 		}
+	}
+
+	public virtual bool RefersToItemProto(long id)
+	{
+		return false;
+	}
+
+	public virtual bool RefersToTag(ITag tag)
+	{
+		return false;
+	}
+
+	public virtual bool RefersToLiquid(ILiquid liquid)
+	{
+		return false;
 	}
 
 	internal class SimpleItemInputData : ICraftInputData

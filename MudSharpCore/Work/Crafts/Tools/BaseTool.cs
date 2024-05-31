@@ -1,6 +1,7 @@
 ﻿using System;
 using MudSharp.Character;
 using MudSharp.Database;
+using MudSharp.Form.Material;
 using MudSharp.Framework;
 using MudSharp.Framework.Save;
 using MudSharp.GameItems;
@@ -48,6 +49,20 @@ public abstract class BaseTool : LateInitialisingItem, ICraftTool
 	public DesiredItemState DesiredState { get; set; }
 
 	public bool UseToolDuration { get; set; }
+	public virtual bool RefersToItemProto(long id)
+	{
+		return false;
+	}
+
+	public virtual bool RefersToTag(ITag tag)
+	{
+		return false;
+	}
+
+	public virtual bool RefersToLiquid(ILiquid liquid)
+	{
+		return false;
+	}
 
 	public abstract string HowSeen(IPerceiver voyeur);
 

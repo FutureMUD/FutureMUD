@@ -19,6 +19,12 @@ public class SimpleTool : BaseTool
 
 	public long TargetItemId { get; set; }
 
+	/// <inheritdoc />
+	public override bool RefersToItemProto(long id)
+	{
+		return TargetItemId == id;
+	}
+
 	#region Overrides of BaseTool
 
 	public override bool IsTool(IGameItem item)

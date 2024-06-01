@@ -7,14 +7,14 @@ using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
 
-namespace Discord_Bot.Modules
+namespace Discord_Bot.Modules;
+
+public class Authorise: BaseCommandModule
 {
-    public class Authorise: BaseCommandModule
-    {
-        [Command("authorise")]
-        [Aliases("authorize")]
-        public async Task AuthoriseAsync(CommandContext context, [RemainingText]string remainder)
-        {
+	[Command("authorise")]
+	[Aliases("authorize")]
+	public async Task AuthoriseAsync(CommandContext context, [RemainingText]string remainder)
+	{
             if (!DiscordBot.Instance.IsAuthorisedUser(context.User))
             {
                 await context.RespondAsync($"You are not authorised to do that command, {context.User.Mention}.");
@@ -38,5 +38,4 @@ namespace Discord_Bot.Modules
             await DiscordBot.Instance.AddAuthorisedUser(target.Id);
             await context.RespondAsync($"{context.User.Mention} - Successfully authorised {target.Mention} as an admin user.");
         }
-    }
 }

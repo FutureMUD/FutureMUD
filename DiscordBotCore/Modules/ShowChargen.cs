@@ -8,13 +8,13 @@ using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
 using MudSharp.Framework;
 
-namespace Discord_Bot.Modules
+namespace Discord_Bot.Modules;
+
+public class ShowChargen : BaseCommandModule
 {
-    public class ShowChargen : BaseCommandModule
-    {
-        [Command("showchargen")]
-        public async Task ShowChargenAsync(CommandContext context, string which)
-        {
+	[Command("showchargen")]
+	public async Task ShowChargenAsync(CommandContext context, string which)
+	{
             if (!DiscordBot.Instance.IsAuthorisedUser(context.User))
             {
                 await context.RespondAsync($"You are not authorised to do that command, {context.User.Mention}.");
@@ -49,8 +49,8 @@ namespace Discord_Bot.Modules
             DiscordBot.Instance.TCPConnections.First(x => x.TcpClientAuthenticated).SendTcpCommand($"showchargen {request.RequestId} {DiscordBot.Instance.DetailedUserSettings.First(x => x.DiscordUserId == context.User.Id).MudAccountId} {which}");
         }
 
-        private async Task HandleMudResponse(string text, CommandContext context)
-        {
+	private async Task HandleMudResponse(string text, CommandContext context)
+	{
             var ss = new StringStack(text);
             switch (ss.Pop())
             {
@@ -69,5 +69,4 @@ namespace Discord_Bot.Modules
                     return;
             }
         }
-    }
 }

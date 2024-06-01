@@ -5,13 +5,12 @@ using System.Threading.Tasks;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 
-namespace Discord_Bot.Modules
+namespace Discord_Bot.Modules;
+
+public class Status : BaseCommandModule
 {
-    public class Status : BaseCommandModule
-    {
-        [Command("status")]
-        public async Task StatusAsync(CommandContext context) {
+	[Command("status")]
+	public async Task StatusAsync(CommandContext context) {
             await context.RespondAsync(await DiscordBot.Instance.GetMudStatusAsync());
         }
-    }
 }

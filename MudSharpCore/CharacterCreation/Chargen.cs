@@ -753,7 +753,7 @@ public partial class Chargen : FrameworkItem, IChargen
 		RecalculateCurrentCosts();
 		ReleaseApplication();
 		Gameworld.DiscordConnection?.NotifyCharacterApproval(Account.Name.Proper(),
-			SelectedName.GetName(NameStyle.FullWithNickname), approverAccount?.Name.Proper() ?? "the system");
+			SelectedName.GetName(NameStyle.FullWithNickname), approverAccount?.Name.Proper() ?? "System");
 		var timestamp = DateTime.UtcNow;
 		using (new FMDB())
 		{

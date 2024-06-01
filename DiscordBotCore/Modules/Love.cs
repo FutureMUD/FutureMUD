@@ -9,10 +9,10 @@ using DSharpPlus.Entities;
 using DSharpPlus.Interactivity.EventHandling;
 using MudSharp.Framework;
 
-namespace Discord_Bot.Modules
-{
-    public class Love : BaseCommandModule {
-        public string[] Responses = {
+namespace Discord_Bot.Modules;
+
+public class Love : BaseCommandModule {
+	public string[] Responses = {
             "I love you too, {0}!",
             "I love you more, {0}!",
             "Awww, you're so sweet {0}!",
@@ -28,7 +28,7 @@ namespace Discord_Bot.Modules
             "Let's run away together, {0}.",
         };
 
-        public string[] Reactions = {
+	public string[] Reactions = {
             "👌",
             "👌",
             "👌",
@@ -51,11 +51,10 @@ namespace Discord_Bot.Modules
             "😍",
         };
 
-        [Command("love")]
-        public async Task LoveAsync(CommandContext context)
-        {
+	[Command("love")]
+	public async Task LoveAsync(CommandContext context)
+	{
             await context.Message.CreateReactionAsync(DiscordEmoji.FromUnicode(Reactions.GetRandomElement()));
             await context.RespondAsync(string.Format(Responses.GetRandomElement(), context.User.Mention));
         }
-    }
 }

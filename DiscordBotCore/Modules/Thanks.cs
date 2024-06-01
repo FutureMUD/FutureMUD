@@ -8,11 +8,11 @@ using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
 using MudSharp.Framework;
 
-namespace Discord_Bot.Modules
+namespace Discord_Bot.Modules;
+
+public class Thanks : BaseCommandModule
 {
-    public class Thanks : BaseCommandModule
-    {
-        public string[] Responses = {
+	public string[] Responses = {
             "I need no thanks, {0}, doing my duty is enough for me.",
             "I'm just doing my job, {0}.",
             "You're welcome, {0}.",
@@ -30,10 +30,9 @@ namespace Discord_Bot.Modules
             "It's nothing, {0}."
         };
 
-        [Command("thanks")]
-        public async Task ThanksAsync(CommandContext context) {
+	[Command("thanks")]
+	public async Task ThanksAsync(CommandContext context) {
             await context.Message.CreateReactionAsync(DiscordEmoji.FromUnicode("👌"));
             await context.RespondAsync(string.Format(Responses.GetRandomElement(), context.User.Mention));
         }
-    }
 }

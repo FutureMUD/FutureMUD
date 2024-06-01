@@ -8,13 +8,13 @@ using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
 using MudSharp.Framework;
 
-namespace Discord_Bot.Modules
+namespace Discord_Bot.Modules;
+
+public class Register : BaseCommandModule
 {
-    public class Register : BaseCommandModule
-    {
-        [Command("register")]
-        public async Task RegisterAsync(CommandContext context, string account)
-        {
+	[Command("register")]
+	public async Task RegisterAsync(CommandContext context, string account)
+	{
             if (DiscordBot.Instance.DetailedUserSettings.Any(x => x.MudAccountName.Equals(account, StringComparison.InvariantCultureIgnoreCase)))
             {
                 await context.RespondAsync("There is already a registration for an account with that name.");
@@ -43,8 +43,8 @@ namespace Discord_Bot.Modules
             await DiscordBot.Instance.TCPConnections.First(x => x.TcpClientAuthenticated).SendTcpCommand($"register {request.RequestId} {context.User.Id} \"{context.User.Username}\" {account}");
         }
 
-        private async Task HandleMudResponse(string text, CommandContext context)
-        {
+	private async Task HandleMudResponse(string text, CommandContext context)
+	{
             var ss = new StringStack(text);
             switch (ss.Pop())
             {
@@ -67,5 +67,4 @@ namespace Discord_Bot.Modules
                     return;
             }
         }
-    }
 }

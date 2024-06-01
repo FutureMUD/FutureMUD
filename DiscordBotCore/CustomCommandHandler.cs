@@ -8,15 +8,15 @@ using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Exceptions;
 using DSharpPlus.EventArgs;
 
-namespace Discord_Bot
-{
-    public class CustomCommandHandler
-    {
-        public IEnumerable<(string Phrase, Command Binding)> CustomBindings { get; init; }
-        public IEnumerable<string> StringPrefixes { get; init; }
+namespace Discord_Bot;
 
-        public async Task HandleCommandAsync(DiscordClient sender, MessageCreateEventArgs e)
-        {
+public class CustomCommandHandler
+{
+	public IEnumerable<(string Phrase, Command Binding)> CustomBindings { get; init; }
+	public IEnumerable<string> StringPrefixes { get; init; }
+
+	public async Task HandleCommandAsync(DiscordClient sender, MessageCreateEventArgs e)
+	{
             if (e.Author.IsBot || e.Author.IsSystem == true)
             {
                 return;
@@ -71,5 +71,4 @@ namespace Discord_Bot
             ctx = cnext.CreateContext(e.Message, prefix, command, args);
             await cnext.ExecuteCommandAsync(ctx);
         }
-    }
 }

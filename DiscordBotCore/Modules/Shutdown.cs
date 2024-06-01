@@ -7,13 +7,13 @@ using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
 
-namespace Discord_Bot.Modules
+namespace Discord_Bot.Modules;
+
+public class Shutdown : BaseCommandModule
 {
-    public class Shutdown : BaseCommandModule
-    {
-        [Command("shutdown")]
-        public async Task ShutdownAsync(CommandContext context)
-        {
+	[Command("shutdown")]
+	public async Task ShutdownAsync(CommandContext context)
+	{
             if (!DiscordBot.Instance.IsAuthorisedUser(context.User))
             {
                 await context.RespondAsync($"You are not authorised to do that command, {context.User.Mention}.");
@@ -37,9 +37,9 @@ namespace Discord_Bot.Modules
             await DiscordBot.Instance.AskMudToShutdown(registration.MudAccountId, false);
         }
 
-        [Command("shutdownstop")]
-        public async Task ShutdownStopAsync(CommandContext context)
-        {
+	[Command("shutdownstop")]
+	public async Task ShutdownStopAsync(CommandContext context)
+	{
               if (!DiscordBot.Instance.IsAuthorisedUser(context.User))
               {
 	              await context.RespondAsync($"You are not authorised to do that command, {context.User.Mention}.");
@@ -62,5 +62,4 @@ namespace Discord_Bot.Modules
               await context.Message.CreateReactionAsync(DiscordEmoji.FromUnicode("👌"));
               await DiscordBot.Instance.AskMudToShutdown(registration.MudAccountId, true);
         }
-    }
 }

@@ -20,6 +20,8 @@ using MudSharp.Network;
 using MudSharp.FutureProg;
 using System.Numerics;
 using MudSharp.FutureProg.Functions;
+using MimeKit;
+using Humanizer;
 
 namespace MudSharp.Discord;
 
@@ -158,6 +160,18 @@ public sealed class DiscordConnection : IDiscordConnection
 		try
 		{
 			SendClientMessage($"custom {channel} \"{header}\" {echo}");
+		}
+		catch (SocketException)
+		{
+			CloseTcpConnection();
+		}
+	}
+
+	public void NotifyInGameChannelUsed(string channel, ulong discordChannel, string author, string text)
+	{
+		try
+		{
+			SendClientMessage($"ingamechannel \"{channel}\" {discordChannel} \"{author}\" \"{text}\"");
 		}
 		catch (SocketException)
 		{
@@ -321,6 +335,9 @@ public sealed class DiscordConnection : IDiscordConnection
 			case "send":
 				HandleSendTcpCommand(ss);
 				return;
+			case "sendchannel":
+				HandleSendChannelTcpCommand(ss);
+				return;
 			case "register":
 				HandleRegisterTcpCommand(ss);
 				return;
@@ -328,6 +345,36 @@ public sealed class DiscordConnection : IDiscordConnection
 				HandleShutdownTcpCommand(ss);
 				return;
 		}
+	}
+
+	private void HandleSendChannelTcpCommand(StringStack ss)
+	{
+		var request = ulong.Parse(ss.Pop());
+		var from = ss.PopSpeech();
+		var channel = ss.PopSpeech();
+		var message = ss.SafeRemainingArgument;
+		var account = Gameworld.Accounts.FirstOrDefault(x => x.Name == from);
+		if (account is null)
+		{
+			SendClientMessage($"request {request} sendfailedaccount");
+			return;
+		}
+
+		var igChannel = Gameworld.Channels.FirstOrDefault(x =>
+			x.CommandWords.Any(y => y.StartsWith(channel, StringComparison.InvariantCultureIgnoreCase)));
+		if (igChannel == null)
+		{
+			SendClientMessage($"request {request} sendfailed {channel}");
+			return;
+		}
+
+		if (!igChannel.Send(account, message))
+		{
+			SendClientMessage($"request {request} sendfailed {channel}");
+			return;
+		}
+
+		SendClientMessage($"request {request} sendacknowledge");
 	}
 
 	private void HandleShutdownTcpCommand(StringStack ss)

@@ -2,11 +2,11 @@
 using System.IO;
 using System.Threading.Tasks;
 
-namespace Discord_Bot
+namespace Discord_Bot;
+
+class Program
 {
-    class Program
-    {
-        private static async Task Main(string[] args) {
+	private static async Task Main(string[] args) {
             try {
                 var bot = DiscordBot.Instance;
                 await bot.RunBotAsync();
@@ -17,5 +17,4 @@ namespace Discord_Bot
                 await writer.WriteAsync(e.ToString());
             }
         }
-    }
 }

@@ -7,13 +7,13 @@ using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
 
-namespace Discord_Bot.Modules
+namespace Discord_Bot.Modules;
+
+public class Where : BaseCommandModule
 {
-    public class Where : BaseCommandModule
-    {
-        [Command("where")]
-        public async Task WhereAsync(CommandContext context)
-        {
+	[Command("where")]
+	public async Task WhereAsync(CommandContext context)
+	{
             if (!DiscordBot.Instance.IsAuthorisedUser(context.User)) {
                 await context.RespondAsync($"You are not authorised to do that command, {context.User.Mention}.");
             }
@@ -34,9 +34,8 @@ namespace Discord_Bot.Modules
             DiscordBot.Instance.TCPConnections.First(x => x.TcpClientAuthenticated).SendTcpCommand($"where {request.RequestId}");
         }
 
-        private async Task HandleMudResponse(string text, CommandContext context)
-        {
+	private async Task HandleMudResponse(string text, CommandContext context)
+	{
             await context.RespondAsync($"{context.User.Mention}\n```{text}```");
         }
-    }
 }

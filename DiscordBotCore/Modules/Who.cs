@@ -7,13 +7,13 @@ using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
 
-namespace Discord_Bot.Modules
+namespace Discord_Bot.Modules;
+
+public class Who : BaseCommandModule
 {
-    public class Who : BaseCommandModule
-    {
-        [Command("who")]
-        [Aliases("whom", "whomst", "whomsoever", "hu", "hwo")]
-        public async Task WhoAsync(CommandContext context) {
+	[Command("who")]
+	[Aliases("whom", "whomst", "whomsoever", "hu", "hwo")]
+	public async Task WhoAsync(CommandContext context) {
             if (!DiscordBot.Instance.TCPConnections.Any(x => x.TcpClientAuthenticated))
             {
                 await context.RespondAsync($"{context.User.Mention} - I'm not currently connected to the MUD so I cannot do that for you.");
@@ -30,9 +30,8 @@ namespace Discord_Bot.Modules
             DiscordBot.Instance.TCPConnections.First(x => x.TcpClientAuthenticated).SendTcpCommand($"who {request.RequestId}");
         }
         
-        private async Task HandleMudResponse(string text, CommandContext context)
-        {
+	private async Task HandleMudResponse(string text, CommandContext context)
+	{
             await context.RespondAsync($"{context.User.Mention}\n```{text}```");
         }
-    }
 }

@@ -21,8 +21,9 @@ namespace MudSharp.Models
         public bool AnnounceMissedListeners { get; set; }
         public bool AddToPlayerCommandTree { get; set; }
         public bool AddToGuideCommandTree { get; set; }
+        public ulong? DiscordChannelId { get; set; }
 
-        public virtual FutureProg ChannelListenerProg { get; set; }
+		public virtual FutureProg ChannelListenerProg { get; set; }
         public virtual FutureProg ChannelSpeakerProg { get; set; }
         public virtual ICollection<ChannelCommandWord> ChannelCommandWords { get; set; }
         public virtual ICollection<ChannelIgnorer> ChannelIgnorers { get; set; }

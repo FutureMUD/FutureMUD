@@ -22,19 +22,19 @@ using MudSharp.Framework;
 using Newtonsoft.Json;
 using Serilog;
 
-namespace Discord_Bot
-{
-    public partial class DiscordBot {
-        private static DiscordBot _instance;
+namespace Discord_Bot;
 
-        public static DiscordBot Instance => _instance ??= new DiscordBot();
+public partial class DiscordBot {
+	private static DiscordBot _instance;
 
-        private readonly List<TcpConnection> _tcpConnections = new List<TcpConnection>();
-        public IEnumerable<TcpConnection> TCPConnections => _tcpConnections;
-        private readonly Dictionary<ulong, CachedDiscordRequest> _cachedDiscordRequests = new ();
-        public Dictionary<ulong, CachedDiscordRequest> CachedDiscordRequests => _cachedDiscordRequests;
+	public static DiscordBot Instance => _instance ??= new DiscordBot();
+
+	private readonly List<TcpConnection> _tcpConnections = new List<TcpConnection>();
+	public IEnumerable<TcpConnection> TCPConnections => _tcpConnections;
+	private readonly Dictionary<ulong, CachedDiscordRequest> _cachedDiscordRequests = new ();
+	public Dictionary<ulong, CachedDiscordRequest> CachedDiscordRequests => _cachedDiscordRequests;
         
-        private async Task TcpListenerAsync() {
+	private async Task TcpListenerAsync() {
             var tcp = new TcpListener(IPAddress.Any, _tcpClientPort);
             tcp.Start();
             while (true) {
@@ -59,7 +59,7 @@ namespace Discord_Bot
             }
         }
 
-        public DiscordBot() {
+	public DiscordBot() {
             using (var reader = new StreamReader(new FileStream("settings.json", FileMode.Open))) {
                 try {
                     DiscordBotSetttings settings =
@@ -110,137 +110,137 @@ namespace Discord_Bot
             }
         }
 
-        private readonly List<CustomGlobalReaction> _customGlobalReactions = new List<CustomGlobalReaction>();
-        private int _tcpClientPort;
-        private string _botToken;
-        private readonly List<string> _botPrefixes = new List<string>();
-        public string ServerAuth { get; private set; }
-        private ulong _announceChannelId;
-        private ulong _adminAnnounceChannelId;
-        private ulong _debugAnnounceChannelId;
-        private string _lastVersion;
-        private DiscordClient _client;
-        private CommandsNextExtension _commands;
-        private IServiceProvider _services;
-        public string GameName { get; private set; }
-        public DiscordChannel AnnounceChannel { get; private set; }
-        public DiscordChannel AdminAnnounceChannel { get; private set; }
-        public DiscordChannel DebugAnnounceChannel { get; private set; }
-        public List<DetailedUserSetting> DetailedUserSettings { get; } = new List<DetailedUserSetting>();
-        public CustomCommandHandler CustomCommandHandler { get; private set; }
+	private readonly List<CustomGlobalReaction> _customGlobalReactions = new List<CustomGlobalReaction>();
+	private int _tcpClientPort;
+	private string _botToken;
+	private readonly List<string> _botPrefixes = new List<string>();
+	public string ServerAuth { get; private set; }
+	private ulong _announceChannelId;
+	private ulong _adminAnnounceChannelId;
+	private ulong _debugAnnounceChannelId;
+	private string _lastVersion;
+	private DiscordClient _client;
+	private CommandsNextExtension _commands;
+	private IServiceProvider _services;
+	public string GameName { get; private set; }
+	public DiscordChannel AnnounceChannel { get; private set; }
+	public DiscordChannel AdminAnnounceChannel { get; private set; }
+	public DiscordChannel DebugAnnounceChannel { get; private set; }
+	public List<DetailedUserSetting> DetailedUserSettings { get; } = new List<DetailedUserSetting>();
+	public CustomCommandHandler CustomCommandHandler { get; private set; }
 
-        private readonly List<ulong> _authorisedUsers = new List<ulong>();
+	private readonly List<ulong> _authorisedUsers = new List<ulong>();
 
-        public bool IsAuthorisedUser(DiscordUser user) {
+	public bool IsAuthorisedUser(DiscordUser user) {
             return _authorisedUsers.Contains(user.Id);
         }
 
-        public async Task RunBotAsync() {
-            Log.Logger = new LoggerConfiguration()
-                .WriteTo.Console()
-                .CreateLogger();    
-            var logFactory = new LoggerFactory().AddSerilog();
+	public async Task RunBotAsync() {
+		Log.Logger = new LoggerConfiguration()
+		             .WriteTo.Console()
+		             .CreateLogger();    
+		var logFactory = new LoggerFactory().AddSerilog();
 
-            _client = new DiscordClient(new DiscordConfiguration
-            {
-                Token = _botToken,
-                TokenType = TokenType.Bot,
-                Intents = DiscordIntents.DirectMessageReactions | 
-                          DiscordIntents.MessageContents |
-                          DiscordIntents.DirectMessages |
-                          DiscordIntents.GuildMessages |
-                          DiscordIntents.GuildMessageReactions | 
-                          DiscordIntents.Guilds,
-                LoggerFactory = logFactory,
+		_client = new DiscordClient(new DiscordConfiguration
+		{
+			Token = _botToken,
+			TokenType = TokenType.Bot,
+			Intents = DiscordIntents.DirectMessageReactions | 
+			          DiscordIntents.MessageContents |
+			          DiscordIntents.DirectMessages |
+			          DiscordIntents.GuildMessages |
+			          DiscordIntents.GuildMessageReactions | 
+			          DiscordIntents.Guilds,
+			LoggerFactory = logFactory,
 #if DEBUG
-                MinimumLogLevel = LogLevel.Debug,
+			MinimumLogLevel = LogLevel.Debug,
 #endif
-            });
+		});
 
-            _services = new ServiceCollection()
-                .AddSingleton(_client)
-                .BuildServiceProvider();
+		_services = new ServiceCollection()
+		            .AddSingleton(_client)
+		            .BuildServiceProvider();
 
-            _commands = _client.UseCommandsNext(new CommandsNextConfiguration
-            {
-                CaseSensitive = false,
-                Services = _services,
-                EnableDms = true,
-                EnableMentionPrefix = true,
-                StringPrefixes = _botPrefixes,
-                EnableDefaultHelp = false,
-                UseDefaultCommandHandler = false
-            });
+		_commands = _client.UseCommandsNext(new CommandsNextConfiguration
+		{
+			CaseSensitive = false,
+			Services = _services,
+			EnableDms = true,
+			EnableMentionPrefix = true,
+			StringPrefixes = _botPrefixes,
+			EnableDefaultHelp = false,
+			UseDefaultCommandHandler = false
+		});
 
-            _commands.RegisterCommands(Assembly.GetExecutingAssembly());
-            CustomCommandHandler = new CustomCommandHandler
-            {
-                StringPrefixes = _botPrefixes,
-                CustomBindings = new List<(string Phrase, Command Binding)>
-                {
-                    ("I love you", _commands.RegisteredCommands["love"]),
-                    ("<3", _commands.RegisteredCommands["love"]),
-                    ("I <3 you", _commands.RegisteredCommands["love"]),
-                    ("I love u", _commands.RegisteredCommands["love"]),
-                    ("I <3 u", _commands.RegisteredCommands["love"]),
-                    ("luf", _commands.RegisteredCommands["love"]),
-                    ("lov", _commands.RegisteredCommands["love"]),
-                    ("luv", _commands.RegisteredCommands["love"]),
-                    ("I luf you", _commands.RegisteredCommands["love"]),
-                    ("I luf u", _commands.RegisteredCommands["love"]),
-                    ("I luv you", _commands.RegisteredCommands["love"]),
-                    ("I luv u", _commands.RegisteredCommands["love"]),
-                    ("ich liebe dich", _commands.RegisteredCommands["love"]),
-                    ("te amo", _commands.RegisteredCommands["love"]),
-                    ("wo ai ni", _commands.RegisteredCommands["love"]),
-                    ("我愛你", _commands.RegisteredCommands["love"]),
-                    ("i wub u", _commands.RegisteredCommands["love"]),
-                    ("I wuv u", _commands.RegisteredCommands["love"]),
-                    ("I wuv you", _commands.RegisteredCommands["love"]),
-                    ("I wub you", _commands.RegisteredCommands["love"]),
-                    ("thank", _commands.RegisteredCommands["thanks"]), 
-                    ("thank you", _commands.RegisteredCommands["thanks"]), 
-                    ("ty", _commands.RegisteredCommands["thanks"]), 
-                    ("thanks!", _commands.RegisteredCommands["thanks"]), 
-                    ("good bot", _commands.RegisteredCommands["thanks"]), 
-                    ("ty bot", _commands.RegisteredCommands["thanks"]), 
-                    ("thanks bot", _commands.RegisteredCommands["thanks"]), 
-                    ("thank you bot", _commands.RegisteredCommands["thanks"]), 
-                    ("thankyou", _commands.RegisteredCommands["thanks"]), 
-                    ("thankyou bot", _commands.RegisteredCommands["thanks"]), 
-                    ("gud bot", _commands.RegisteredCommands["thanks"]), 
-                    ("danke", _commands.RegisteredCommands["thanks"]), 
-                    ("danke bot", _commands.RegisteredCommands["thanks"]), 
-                    ("bedankt", _commands.RegisteredCommands["thanks"]), 
-                    ("bedankt bot", _commands.RegisteredCommands["thanks"]), 
-                    ("merci", _commands.RegisteredCommands["thanks"]), 
-                    ("merci bot", _commands.RegisteredCommands["thanks"])
-                }
-            };
+		_commands.RegisterCommands(Assembly.GetExecutingAssembly());
+		CustomCommandHandler = new CustomCommandHandler
+		{
+			StringPrefixes = _botPrefixes,
+			CustomBindings = new List<(string Phrase, Command Binding)>
+			{
+				("I love you", _commands.RegisteredCommands["love"]),
+				("<3", _commands.RegisteredCommands["love"]),
+				("I <3 you", _commands.RegisteredCommands["love"]),
+				("I love u", _commands.RegisteredCommands["love"]),
+				("I <3 u", _commands.RegisteredCommands["love"]),
+				("luf", _commands.RegisteredCommands["love"]),
+				("lov", _commands.RegisteredCommands["love"]),
+				("luv", _commands.RegisteredCommands["love"]),
+				("I luf you", _commands.RegisteredCommands["love"]),
+				("I luf u", _commands.RegisteredCommands["love"]),
+				("I luv you", _commands.RegisteredCommands["love"]),
+				("I luv u", _commands.RegisteredCommands["love"]),
+				("ich liebe dich", _commands.RegisteredCommands["love"]),
+				("te amo", _commands.RegisteredCommands["love"]),
+				("wo ai ni", _commands.RegisteredCommands["love"]),
+				("我愛你", _commands.RegisteredCommands["love"]),
+				("i wub u", _commands.RegisteredCommands["love"]),
+				("I wuv u", _commands.RegisteredCommands["love"]),
+				("I wuv you", _commands.RegisteredCommands["love"]),
+				("I wub you", _commands.RegisteredCommands["love"]),
+				("thank", _commands.RegisteredCommands["thanks"]), 
+				("thank you", _commands.RegisteredCommands["thanks"]), 
+				("ty", _commands.RegisteredCommands["thanks"]), 
+				("thanks!", _commands.RegisteredCommands["thanks"]), 
+				("good bot", _commands.RegisteredCommands["thanks"]), 
+				("ty bot", _commands.RegisteredCommands["thanks"]), 
+				("thanks bot", _commands.RegisteredCommands["thanks"]), 
+				("thank you bot", _commands.RegisteredCommands["thanks"]), 
+				("thankyou", _commands.RegisteredCommands["thanks"]), 
+				("thankyou bot", _commands.RegisteredCommands["thanks"]), 
+				("gud bot", _commands.RegisteredCommands["thanks"]), 
+				("danke", _commands.RegisteredCommands["thanks"]), 
+				("danke bot", _commands.RegisteredCommands["thanks"]), 
+				("bedankt", _commands.RegisteredCommands["thanks"]), 
+				("bedankt bot", _commands.RegisteredCommands["thanks"]), 
+				("merci", _commands.RegisteredCommands["thanks"]), 
+				("merci bot", _commands.RegisteredCommands["thanks"])
+			}
+		};
 
-            _client.MessageCreated += CustomCommandHandler.HandleCommandAsync;
-            _commands.CommandErrored += Commands_CommandErrored;
+		_client.MessageCreated += CustomCommandHandler.HandleCommandAsync;
+		_commands.CommandErrored += Commands_CommandErrored;
 
-            _client.UseInteractivity(new InteractivityConfiguration
-            {
-                PollBehaviour = PollBehaviour.DeleteEmojis,
-                Timeout = TimeSpan.FromMinutes(5)
-            });
+		_client.UseInteractivity(new InteractivityConfiguration
+		{
+			PollBehaviour = PollBehaviour.DeleteEmojis,
+			Timeout = TimeSpan.FromMinutes(5)
+		});
             
-            _client.Ready += ClientOnReady;
-            await _client.ConnectAsync();
-            await TcpListenerAsync();
-            await Task.Delay(-1);
-        }
+		_client.Ready += ClientOnReady;
+		await _client.ConnectAsync();
+		await TcpListenerAsync();
+		await Task.Delay(-1);
+	}
 
-        private async Task ClientOnReady(DiscordClient sender, ReadyEventArgs e)
-        {
+	private async Task ClientOnReady(DiscordClient sender, ReadyEventArgs e)
+	{
             AnnounceChannel = await _client.GetChannelAsync(_announceChannelId);
             AdminAnnounceChannel = await _client.GetChannelAsync(_adminAnnounceChannelId);
             DebugAnnounceChannel = await _client.GetChannelAsync(_debugAnnounceChannelId);
         }
         
-        public async Task AnnounceToDiscord(string message) {
+	public async Task AnnounceToDiscord(string message) {
             try {
                 if (AnnounceChannel != null) {
                     await AnnounceChannel.SendMessageAsync(message);
@@ -251,8 +251,8 @@ namespace Discord_Bot
             }
         }
 
-        public async Task AnnounceToDiscord(DiscordEmbed embed)
-        {
+	public async Task AnnounceToDiscord(DiscordEmbed embed)
+	{
             try
             {
                 if (AnnounceChannel != null)
@@ -266,15 +266,14 @@ namespace Discord_Bot
             }
         }
 
-        private async Task Commands_CommandErrored(CommandsNextExtension sender, CommandErrorEventArgs e)
-        {
+	private async Task Commands_CommandErrored(CommandsNextExtension sender, CommandErrorEventArgs e)
+	{
             DiscordEmbedBuilder embed;
             // let's check if the error is a result of lack
             // of required permissions
             if (e.Exception is ChecksFailedException ex)
             {
-                // yes, the user lacks required permissions, 
-                // let them know
+                // yes, the user lacks required permissions, 	 // let them know
 
                 var emoji = DiscordEmoji.FromName(e.Context.Client, ":no_entry:");
                 await e.Context.Message.CreateReactionAsync(emoji);
@@ -329,8 +328,8 @@ namespace Discord_Bot
             }
         }
         
-        public async Task CheckVersionInfo(string newVersionInfo)
-        {
+	public async Task CheckVersionInfo(string newVersionInfo)
+	{
             if (!string.Equals(newVersionInfo, _lastVersion))
             {
                 _lastVersion = newVersionInfo;
@@ -342,7 +341,7 @@ namespace Discord_Bot
             }
         }
 
-        public async Task<string> GetMudStatusAsync() {
+	public async Task<string> GetMudStatusAsync() {
             if (!_tcpConnections.Any()) {
                 return $"I'm not currently connected to **{GameName}**. Probably safe to presume it's down.";
             }
@@ -350,8 +349,8 @@ namespace Discord_Bot
             return $"I am currently connected to **{GameName}**.";
         }
 
-        public async Task AddAuthorisedUser(ulong who)
-        {
+	public async Task AddAuthorisedUser(ulong who)
+	{
             _authorisedUsers.Add(who);
             await using (var writer = new StreamWriter(new FileStream("settings.json", FileMode.OpenOrCreate)))
             {
@@ -396,7 +395,7 @@ namespace Discord_Bot
             }
         }
 
-        public async Task AnnounceToAdminChannel(string message) {
+	public async Task AnnounceToAdminChannel(string message) {
             try
             {
                 if (AdminAnnounceChannel != null)
@@ -410,7 +409,7 @@ namespace Discord_Bot
             }
         }
 
-        public async Task AnnounceToAdminChannel(DiscordEmbed embed) {
+	public async Task AnnounceToAdminChannel(DiscordEmbed embed) {
             try
             {
                 if (AdminAnnounceChannel != null)
@@ -424,8 +423,8 @@ namespace Discord_Bot
             }
         }
 
-        public async Task AnnounceToDebugChannel(string message)
-        {
+	public async Task AnnounceToDebugChannel(string message)
+	{
             try
             {
                 if (DebugAnnounceChannel != null)
@@ -439,8 +438,8 @@ namespace Discord_Bot
             }
         }
 
-        public async Task AnnounceToDebugChannel(DiscordEmbed embed)
-        {
+	public async Task AnnounceToDebugChannel(DiscordEmbed embed)
+	{
             try
             {
                 if (DebugAnnounceChannel != null)
@@ -454,8 +453,8 @@ namespace Discord_Bot
             }
         }
 
-        public async Task AnnounceToChannel(ulong channelId, DiscordEmbed embed)
-        {
+	public async Task AnnounceToChannel(ulong channelId, DiscordEmbed embed)
+	{
             try
             {
                 var channel = await _client.GetChannelAsync(channelId);
@@ -470,7 +469,7 @@ namespace Discord_Bot
             }
         }
 
-        public async Task AskMudToShutdown(long userid, bool stop){
+	public async Task AskMudToShutdown(long userid, bool stop){
              if (!_tcpConnections.Any(x => x.TcpClientAuthenticated))
             {
                 return;
@@ -479,8 +478,8 @@ namespace Discord_Bot
              await _tcpConnections.First(x => x.TcpClientAuthenticated).SendTcpCommand($"shutdown {userid} {stop}");
         }
 
-        public async Task AskMudToBroadcast(string message)
-        {
+	public async Task AskMudToBroadcast(string message)
+	{
             if (!_tcpConnections.Any(x => x.TcpClientAuthenticated))
             {
                 return;
@@ -489,8 +488,8 @@ namespace Discord_Bot
             await _tcpConnections.First(x => x.TcpClientAuthenticated).SendTcpCommand($"broadcast {message}");
         }
 
-        public async Task SaveRegistrationConfig()
-        {
+	public async Task SaveRegistrationConfig()
+	{
             await using (var writer = new StreamWriter(new FileStream("accountlinks.data", FileMode.Open, FileAccess.ReadWrite)))
             {
                 foreach (var config in DetailedUserSettings)
@@ -499,5 +498,4 @@ namespace Discord_Bot
                 }
             }
         }
-    }
 }

@@ -9,14 +9,14 @@ using DSharpPlus.Entities;
 using Microsoft.EntityFrameworkCore.Storage;
 using MudSharp.Framework;
 
-namespace Discord_Bot.Modules
+namespace Discord_Bot.Modules;
+
+public class Help : BaseCommandModule
 {
-    public class Help : BaseCommandModule
-    {
-        [Command("proghelp")]
-        [Aliases("phelp")]
-	    public async Task ProgHelpAsync(CommandContext context, [RemainingText] string arguments = "")
-	    {
+	[Command("proghelp")]
+	[Aliases("phelp")]
+	public async Task ProgHelpAsync(CommandContext context, [RemainingText] string arguments = "")
+	{
 		    if (!DiscordBot.Instance.TCPConnections.Any(x => x.TcpClientAuthenticated))
 		    {
 			    await context.RespondAsync($"{context.User.Mention} - I'm not currently connected to the MUD so I cannot do that for you.");
@@ -36,8 +36,8 @@ namespace Discord_Bot.Modules
 
 
 
-	    private async Task HandleMudProgHelpResponse(string text, CommandContext context)
-	    {
+	private async Task HandleMudProgHelpResponse(string text, CommandContext context)
+	{
 		    await context.RespondAsync($"{context.User.Mention} - Prog Help Request");
 		    foreach (var part in text.SplitStringsForDiscord())
 		    {
@@ -45,10 +45,10 @@ namespace Discord_Bot.Modules
 		    }
 	    }
 
-		[Command("help")]
-        [Aliases("halp", "hjalp")]
-        public async Task HelpAsync(CommandContext context, [RemainingText]string arguments = "")
-        {
+	[Command("help")]
+	[Aliases("halp", "hjalp")]
+	public async Task HelpAsync(CommandContext context, [RemainingText]string arguments = "")
+	{
             if (string.IsNullOrWhiteSpace(arguments))
             {
                 await context.RespondAsync(@$"Thanks {context.User.Mention}, here is how to use me:
@@ -61,6 +61,10 @@ namespace Discord_Bot.Modules
     **stats** - shows the STATS output from the MUD
     **status** - shows whether the discord bot is connected to the MUD
     **register <account>** - connects your discord and MUD accounts (you need to be logged in to the MUD)
+
+The following commands require you to be registered but not necessarily authorised before using them:
+
+	**channel <which> <message>** - send a message to an in-game channel (e.g. wiznet)
 
 The following commands require you to be registered and authorised before using them:
 
@@ -94,8 +98,8 @@ The following commands require you to be registered and authorised before using 
             DiscordBot.Instance.TCPConnections.First(x => x.TcpClientAuthenticated).SendTcpCommand($"adminhelp {request.RequestId} {arguments}");
         }
 
-        private async Task HandleMudHelpResponse(string text, CommandContext context)
-        {
+	private async Task HandleMudHelpResponse(string text, CommandContext context)
+	{
             await context.RespondAsync($"{context.User.Mention} - Help Request");
             foreach (var part in text.SplitStringsForDiscord())
             {
@@ -103,9 +107,9 @@ The following commands require you to be registered and authorised before using 
             }
         }
 
-        [Command("playerhelp")]
-        public async Task PlayerHelpAsync(CommandContext context, [RemainingText]string arguments)
-        {
+	[Command("playerhelp")]
+	public async Task PlayerHelpAsync(CommandContext context, [RemainingText]string arguments)
+	{
             if (string.IsNullOrWhiteSpace(arguments))
             {
                 await context.RespondAsync(@$"{context.User.Mention} - you must specify a helpfile you want me to retrieve for you.");
@@ -128,5 +132,4 @@ The following commands require you to be registered and authorised before using 
             DiscordBot.Instance.CachedDiscordRequests[request.RequestId] = request;
             DiscordBot.Instance.TCPConnections.First(x => x.TcpClientAuthenticated).SendTcpCommand($"help {request.RequestId} {arguments}");
         }
-    }
 }

@@ -16,6 +16,7 @@ namespace MudSharp.Discord
         void NotifyAdmins(string echo);
         void NotifyDeath(ICharacter who);
         void NotifyCustomChannel(ulong channel, string header, string echo);
+        void NotifyInGameChannelUsed(string channel, ulong discordChannel, string author, string text);
         bool OpenTcpConnection();
         void CloseTcpConnection();
         void HandleMessages();

@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using System.Text;
+using MudSharp.Accounts;
 using MudSharp.Character;
 using MudSharp.Character.Name;
 using MudSharp.Database;
@@ -26,6 +28,7 @@ public class Channel : SaveableItem, IChannel
 	protected IFutureProg _channelListenerProg;
 	private bool _addToPlayerCommandTree;
 	private bool _addToGuideCommandTree;
+	private ulong? _discordChannelId;
 
 	protected string _channelName;
 	protected IFutureProg _channelSpeakerProg;
@@ -40,6 +43,7 @@ public class Channel : SaveableItem, IChannel
 	public IFutureProg ChannelSpeakerProg => _channelSpeakerProg;
 	public string ChannelColour => _channelColour;
 	public ANSIColour ChannelAnsiColour => Telnet.GetColour(ChannelColour);
+	public ulong? DiscordChannelId => _discordChannelId;
 
 	public Channel(IFuturemud gameworld, string name)
 	{
@@ -95,6 +99,7 @@ public class Channel : SaveableItem, IChannel
 		_commandWords.AddRange(channel.ChannelCommandWords.Select(x => x.Word));
 		_addToGuideCommandTree = channel.AddToGuideCommandTree;
 		_addToPlayerCommandTree = channel.AddToPlayerCommandTree;
+		_discordChannelId = channel.DiscordChannelId;
 	}
 
 	public override string FrameworkItemType => "Channel";
@@ -139,7 +144,9 @@ public class Channel : SaveableItem, IChannel
 	#3channel set joiners#0 - toggles channel join/leave being announced
 	#3channel set missed#0 - toggles notifying when people miss your messages
 	#3channel set commands <list of command words separated by spaces>#0 - sets the channel commands
-	#3channel set mode <accountname|charactername|characterfullname|anonymoustoplayers>#0 - change the mode";
+	#3channel set mode <accountname|charactername|characterfullname|anonymoustoplayers>#0 - change the mode
+	#3channel set discord <channelid>#0 - sets a discord channel to echo messages to
+	#3channel set discord none#0 - clears a discord channel";
 
 	public static void ChannelCommandDelegate(ICharacter character, string command)
 	{
@@ -348,6 +355,7 @@ public class Channel : SaveableItem, IChannel
 		dbitem.AddToPlayerCommandTree = _addToPlayerCommandTree;
 		dbitem.ChannelColour = Telnet.GetColour(_channelColour).Name;
 		dbitem.Mode = (int)_mode;
+		dbitem.DiscordChannelId = _discordChannelId;
 		FMDB.Context.ChannelIgnorers.RemoveRange(dbitem.ChannelIgnorers);
 		foreach (var item in _ignoringAccountIDs)
 		{
@@ -365,6 +373,51 @@ public class Channel : SaveableItem, IChannel
 
 	private readonly List<string> _commandWords = new();
 	public IEnumerable<string> CommandWords => _commandWords;
+
+	public bool Send(IAccount account, string message)
+	{
+		Gameworld.LoadAllPlayerCharacters();
+		foreach (var character in Gameworld.Characters.Concat(Gameworld.CachedActors).Distinct())
+		{
+			if (character.Account != account)
+			{
+				continue;
+			}
+
+			if (!_channelSpeakerProg.ExecuteBool(false, character))
+			{
+				continue;
+			}
+
+			message = message.Fullstop().ProperSentences();
+			foreach (var tch in Gameworld.Characters.Where(x => (bool?)_channelListenerProg.Execute(x, character) ?? true))
+			{
+				if (_announceMissedListeners)
+				{
+					if (_ignoringAccountIDs.Contains(tch.Account.Id))
+					{
+						continue;
+					}
+
+					if (tch.OutputHandler.QuietMode)
+					{
+						continue;
+					}
+				}
+
+				tch.OutputHandler.Send($"{$"[{_channelName}: {GetSpeakerName(character, tch)}]".Colour(ChannelAnsiColour)} {message}");
+			}
+
+			if (DiscordChannelId is not null)
+			{
+				Gameworld.DiscordConnection.NotifyInGameChannelUsed(_channelName, DiscordChannelId.Value, GetSpeakerName(character, character), message);
+			}
+
+			return true;
+		}
+
+		return false;
+	}
 
 	public void Send(ICharacter source, string message)
 	{
@@ -389,6 +442,7 @@ public class Channel : SaveableItem, IChannel
 			}
 		}
 
+		message = message.Fullstop().ProperSentences();
 		var sb = new StringBuilder();
 		foreach (var character in Gameworld.Characters.Where(x => (bool?)_channelListenerProg.Execute(x, source) ?? true))
 		{
@@ -407,7 +461,12 @@ public class Channel : SaveableItem, IChannel
 				}
 			}
 
-			character.OutputHandler.Send($"{$"[{_channelName}: {GetSpeakerName(source, character)}]".Colour(ChannelAnsiColour)} {message.Fullstop().ProperSentences()}");
+			character.OutputHandler.Send($"{$"[{_channelName}: {GetSpeakerName(source, character)}]".Colour(ChannelAnsiColour)} {message}");
+		}
+
+		if (DiscordChannelId is not null)
+		{
+			Gameworld.DiscordConnection.NotifyInGameChannelUsed(_channelName, DiscordChannelId.Value, GetSpeakerName(source, source), message);
 		}
 
 		if (sb.Length > 0)
@@ -502,10 +561,34 @@ public class Channel : SaveableItem, IChannel
 				return BuildingCommandMode(actor, command);
 			case "commands":
 				return BuildingCommandCommands(actor, command);
+			case "discord":
+				return BuildingCommandDiscord(actor, command);
 			default:
 				actor.OutputHandler.Send(HelpText.SubstituteANSIColour());
 				return false;
 		}
+	}
+
+	private bool BuildingCommandDiscord(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished || command.SafeRemainingArgument.EqualToAny("none", "remove", "delete"))
+		{
+			_discordChannelId = null;
+			Changed = true;
+			actor.OutputHandler.Send("This channel will no longer broadcast its conversations to discord.");
+			return true;
+		}
+
+		if (!ulong.TryParse(command.SafeRemainingArgument, out var value))
+		{
+			actor.OutputHandler.Send($"The text {command.SafeRemainingArgument.ColourCommand()} is not a valid discord channel ID.");
+			return false;
+		}
+
+		_discordChannelId = value;
+		Changed = true;
+		actor.OutputHandler.Send($"This channel will now broadcast its conversations on the {value.ToString("F0", actor).ColourValue()} discord channel.");
+		return true;
 	}
 
 	private bool BuildingCommandCommands(ICharacter actor, StringStack command)
@@ -692,6 +775,7 @@ For you, this would look like the following:
 		sb.AppendLine($"Command Words: {CommandWords.Select(x => x.ColourValue()).ListToCommaSeparatedValues(", ")}");
 		sb.AppendLine($"Add To Player Commands: {_addToPlayerCommandTree.ToColouredString()}");
 		sb.AppendLine($"Add To Guide Commands: {_addToGuideCommandTree.ToColouredString()}");
+		sb.AppendLine($"Discord Channel: {DiscordChannelId?.ToString("F0", actor).ColourValue() ?? "None".ColourError()}");
 		sb.AppendLine();
 		sb.AppendLine("Online Listeners:");
 		sb.AppendLine();

@@ -319,7 +319,7 @@ public partial class Cell
 				if (character?.IsAdministrator() == true)
 				{
 					sb
-						.Append(HowSeen(voyeur, proper, DescriptionType.Short, colour, flags))
+						.AppendLine(HowSeen(voyeur, proper, DescriptionType.Short, colour, flags))
 						.AppendLine(AdminInfoStrings(character))
 						.Append(ExitStrings(character, overlay, colour));
 
@@ -369,7 +369,7 @@ public partial class Cell
 		var descSubSB = new StringBuilder();
 		var weather = CurrentWeather(voyeur);
 
-		sb.Append(HowSeen(voyeur, proper, DescriptionType.Short, colour, flags));
+		sb.AppendLine(HowSeen(voyeur, proper, DescriptionType.Short, colour, flags));
 		if (character?.IsAdministrator() == true)
 		{
 			sb.AppendLine(AdminInfoStrings(character));
@@ -567,7 +567,7 @@ public partial class Cell
 		var terrain = Terrain(perceiver);
 		var terrainString = overlay.Terrain == terrain ? $"{overlay.Terrain.Name.TitleCase().Colour(Telnet.Green)}" : $"{terrain.Name.TitleCase().Colour(Telnet.Magenta)}";
 		return
-			$" ID[{Id.ToString("N0", perceiver).Colour(Telnet.Green)}] - {terrainString} - {(overlay.SafeQuit ? "[SafeQuit]".Colour(Telnet.Green) : "[NoQuit]".Colour(Telnet.Yellow))}{(EffectsOfType<IPeacefulEffect>().Any() ? " (Peaceful)".Colour(Telnet.BoldCyan) : "")} - {X},{Y},{Z}\nOverlay[{overlay.Package.Name.TitleCase().Colour(overlay == CurrentOverlay ? Telnet.Green : Telnet.Red)} (#{overlay.Package.Id.ToString("N0", perceiver)}r{overlay.Package.RevisionNumber.ToString("N0", perceiver)})]";
+			$"ID[{Id.ToString("N0", perceiver).Colour(Telnet.Green)}] #3|#0 Terrain[{terrainString}] #3|#0 {(overlay.SafeQuit ? "[SafeQuit]".Colour(Telnet.Green) : "[NoQuit]".Colour(Telnet.Yellow))}{(EffectsOfType<IPeacefulEffect>().Any() ? " [Peaceful]".Colour(Telnet.BoldCyan) : "")} #3|#0 Overlay[{overlay.Package.Name.TitleCase().Colour(overlay == CurrentOverlay ? Telnet.Green : Telnet.Red)} #2(##{overlay.Package.Id.ToString("N0", perceiver)}r{overlay.Package.RevisionNumber.ToString("N0", perceiver)})#0] #3|#0 Coordinates[#2{X?.ToString("F0", perceiver) ?? "x"},{Y?.ToString("F0", perceiver) ?? "y"},{Z?.ToString("F0", perceiver) ?? "z"}#0]".SubstituteANSIColour();
 	}
 
 	public string ExitStrings(IPerceiver voyeur, ICellOverlay overlay, bool colour = true)
@@ -586,7 +586,7 @@ public partial class Cell
 		sb.Append(outputStrings.ListToString());
 		if (colour)
 		{
-			sb.Append(Telnet.RESET);
+			sb.AppendLine(Telnet.RESET);
 		}
 
 		return sb.ToString();

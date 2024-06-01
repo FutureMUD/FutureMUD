@@ -52,7 +52,7 @@ public class SendChannel : BaseCommandModule
 				await context.RespondAsync($"{context.User.Mention} - Failed to send your message, couldn't locate your account.");
 				return;
 			case "sendacknowledge":
-				await context.Message.CreateReactionAsync(DiscordEmoji.FromUnicode(":checkered_flag:"));
+				await context.Message.CreateReactionAsync(DiscordEmoji.FromName(context.Client, ":checkered_flag:"));
 				return;
 		}
 	}

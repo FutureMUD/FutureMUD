@@ -273,7 +273,8 @@ public partial class DiscordBot {
             // of required permissions
             if (e.Exception is ChecksFailedException ex)
             {
-                // yes, the user lacks required permissions, 	 // let them know
+                // yes, the user lacks required permissions, 
+	 // let them know
 
                 var emoji = DiscordEmoji.FromName(e.Context.Client, ":no_entry:");
                 await e.Context.Message.CreateReactionAsync(emoji);

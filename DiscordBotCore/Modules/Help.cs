@@ -64,7 +64,7 @@ public class Help : BaseCommandModule
 
 The following commands require you to be registered but not necessarily authorised before using them:
 
-	**channel <which> <message>** - send a message to an in-game channel (e.g. wiznet)
+	**sendchannel <which> <message>** - send a message to an in-game channel (e.g. wiznet)
 
 The following commands require you to be registered and authorised before using them:
 

@@ -70,6 +70,8 @@ public abstract class NPCTemplateBase : EditableItem, INPCTemplate
 
 	public abstract string HelpText { get; }
 
+	public abstract string ReferenceDescription(IPerceiver voyeur);
+
 	public override bool BuildingCommand(ICharacter actor, StringStack command)
 	{
 		switch (command.PeekSpeech().ToLowerInvariant())

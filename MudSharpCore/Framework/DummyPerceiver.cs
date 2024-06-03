@@ -196,7 +196,7 @@ public class DummyPerceiver : DummyPerceivable, IPerceiver
 		return CultureInfo.InvariantCulture.GetFormat(formatType);
 	}
 
-	public IAccount Account { get; set; }
+	public IAccount Account { get; set; } = DummyAccount.Instance;
 
 	#region Implementation of ICombatant
 

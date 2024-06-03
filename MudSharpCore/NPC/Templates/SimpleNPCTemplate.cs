@@ -105,6 +105,8 @@ public class SimpleNPCTemplate : NPCTemplateBase
 
 	public override string NPCTemplateType => "Simple";
 
+	public override string ReferenceDescription(IPerceiver voyeur) => $"{SelectedSdesc} (#{Id.ToString("N0", voyeur)}r{RevisionNumber.ToString("N0", voyeur)})".ColourCharacter();
+
 	public List<Tuple<ITraitDefinition, double>> SkillValues { get; set; }
 
 	private void Initialise()

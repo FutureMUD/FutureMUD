@@ -104,6 +104,8 @@ public class VariableNPCTemplate : NPCTemplateBase
 
 	public override string NPCTemplateType => "Variable";
 
+	public override string ReferenceDescription(IPerceiver voyeur) => $"{Name} (#{Id.ToString("N0", voyeur)}r{RevisionNumber.ToString("N0", voyeur)})".ColourCharacter();
+
 	public override string FrameworkItemType => "VariableNPCTemplate";
 
 	private void LoadFromXml(XElement root)

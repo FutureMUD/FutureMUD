@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using MudSharp.Framework;
 using MudSharp.TimeAndDate.Time;
 
 namespace MudSharp.TimeAndDate.Date {
@@ -77,6 +78,13 @@ namespace MudSharp.TimeAndDate.Date {
             SetWeekday();
             IsPrimaryDate = false;
         }
+
+        public static MudDate ParseFromText(string text, IFuturemud gameworld)
+        {
+	        var splitText = text.Split('_');
+	        var calendar = gameworld.Calendars.Get(long.Parse(splitText[0]));
+	        return calendar.GetDate(splitText[1]);
+		}
 
         public ICalendar Calendar => _calendar;
 

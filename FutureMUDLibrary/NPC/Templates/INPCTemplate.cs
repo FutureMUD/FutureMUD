@@ -2,6 +2,7 @@
 using MudSharp.Character;
 using MudSharp.CharacterCreation;
 using MudSharp.Construction;
+using MudSharp.Framework;
 using MudSharp.Framework.Revision;
 using MudSharp.FutureProg;
 using MudSharp.NPC.AI;
@@ -14,5 +15,6 @@ namespace MudSharp.NPC.Templates {
         ICharacterTemplate GetCharacterTemplate(ICell cell = null);
         ICharacter CreateNewCharacter(ICell location);
         INPCTemplate Clone(ICharacter builder);
+        string ReferenceDescription(IPerceiver voyeur);
     }
 }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Xml.Linq;
 using MudSharp.Accounts;
 using MudSharp.Body;
 using MudSharp.Body.Disfigurements;
@@ -21,11 +22,45 @@ using MudSharp.RPG.Knowledge;
 using MudSharp.RPG.Merits;
 using MudSharp.TimeAndDate.Date;
 using MudSharp.Body.Traits.Subtypes;
+using MudSharp.TimeAndDate;
 
 namespace MudSharp.NPC.Templates;
 
 public class SimpleCharacterTemplate : ICharacterTemplate
 {
+	public SimpleCharacterTemplate()
+	{
+
+	}
+
+	public SimpleCharacterTemplate(XElement definition, IFuturemud gameworld)
+	{
+		Gameworld = gameworld;
+		SelectedSdesc = definition.Element("SelectedSdesc").Value;
+		SelectedAccents = new List<IAccent>(
+			definition
+				.Element("SelectedAccents")
+				.Elements("Accent")
+				.SelectNotNull(x => gameworld.Accents.Get(long.Parse(x.Value))));
+		SelectedAttributes = new List<ITrait>(
+				definition
+					.Element("SelectedAttributes")
+					.Elements("Attribute")
+					.SelectNotNull( x =>
+						TraitFactory.LoadAttribute(
+							gameworld.Traits.Get(long.Parse(x.Attribute("id").Value)) as IAttributeDefinition, 
+							null,
+							double.Parse(x.Attribute("value").Value)
+							)
+					)
+			);
+		SelectedBirthday = MudDate.ParseFromText(definition.Element("SelectedBirthday").Value, Gameworld);
+		SelectedCharacteristics = new(
+			definition
+				
+		);
+	}
+
 	#region ICharacterTemplate Members
 
 	public List<IAccent> SelectedAccents { get; init; }

@@ -38,6 +38,8 @@ public class CharacterKnowledge : SaveableItem, ICharacterKnowledge
 		HowAcquired = knowledge.HowAcquired;
 	}
 
+	public override string Name => Knowledge.Name;
+
 	public ICharacter Character
 	{
 		get => _character;

@@ -23,7 +23,7 @@ public class SpecialApplicationScreenStoryboard : ChargenScreenStoryboard
 		dbitem, gameworld)
 	{
 		var definition = XElement.Parse(dbitem.StageDefinition);
-		Blurb = definition.Element("Blurb").Value.SubstituteANSIColour();
+		Blurb = definition.Element("Blurb").Value;
 		AutomaticallyDoShortApplicationForAccountFirst = bool.Parse(definition.Element("AutomaticallyDoShortApplicationForAccountFirst")?.Value ?? "true");
 	}
 
@@ -120,7 +120,7 @@ public class SpecialApplicationScreenStoryboard : ChargenScreenStoryboard
 			return
 				$@"{"Application Type".Colour(Telnet.Cyan)}
 
-{Storyboard.Blurb.Wrap(Account.InnerLineFormatLength)}
+{Storyboard.Blurb.SubstituteANSIColour().Wrap(Account.InnerLineFormatLength)}
 
 Please enter your choice. Type {"simple".ColourCommand()}, {"normal".ColourCommand()} or {"special".ColourCommand()}.";
 		}

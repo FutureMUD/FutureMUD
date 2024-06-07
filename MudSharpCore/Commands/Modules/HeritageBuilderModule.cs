@@ -917,8 +917,7 @@ internal class HeritageBuilderModule: BaseBuilderModule
 		var target = ss.SafeRemainingArgument;
 		var knowledge = actor.CharacterKnowledges.FirstOrDefault(x => x.Knowledge.Name.EqualTo(target)) ??
 		                actor.CharacterKnowledges.FirstOrDefault(x => x.Knowledge.Description.EqualTo(target)) ??
-		                actor.CharacterKnowledges.FirstOrDefault(x =>
-			                x.Name.StartsWith(target, StringComparison.InvariantCultureIgnoreCase));
+		                actor.CharacterKnowledges.FirstOrDefault(x => x.Name.StartsWith(target, StringComparison.InvariantCultureIgnoreCase));
 		if (knowledge == null)
 		{
 			actor.OutputHandler.Send("You don't know of any knowledge like that.");

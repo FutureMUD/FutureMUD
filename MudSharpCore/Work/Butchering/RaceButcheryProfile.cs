@@ -1355,8 +1355,17 @@ For all of the below phase emote echoes, you can use #6$0#0 for the actor, #6$1#
 		sb.AppendLine();
 		sb.AppendLine($"Main Breakdown".GetLineWithTitle(voyeur.LineFormatLength, voyeur.Account.UseUnicode, Telnet.Red,
 			Telnet.BoldRed));
-		var check = _breakdownChecks[string.Empty];
-		sb.AppendLine($"Check vs {check.Trait.Name.ColourName()} @ {check.CheckDifficulty.Describe().ColourValue()}");
+		sb.AppendLine();
+		(ITraitDefinition Trait, Difficulty CheckDifficulty) check;
+		if (_breakdownChecks.ContainsKey(string.Empty))
+		{
+			check = _breakdownChecks[string.Empty];
+			sb.AppendLine($"Check vs {check.Trait.Name.ColourName()} @ {check.CheckDifficulty.Describe().ColourValue()}");
+		}
+		else
+		{
+			sb.AppendLine($"Check vs #1Unknown#0 @ #2Unknown#0".SubstituteANSIColour());
+		}
 		sb.AppendLine();
 		i = 1;
 		foreach (var emote in BreakdownEmotes(string.Empty))

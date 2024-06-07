@@ -157,7 +157,7 @@ namespace MudSharp.Framework
                     if ((truncateLength != -1) && (col.Key == truncatableColumnIndex) &&
                         (value.RawTextLength() > truncateLength))
                     {
-                        var truncatedText = value.RawTextSubstring(0, truncateLength - 3) + "...";
+                        var truncatedText = value.RawTextSubstring(0, truncateLength - 3) + "..." + Telnet.RESETALL;
                         line +=
                             truncatedText.RawTextPadLeft(truncatedText.RawTextLength() + 1)
                                 .RawTextPadRight((denseTable ? 0 : 2) + truncateLength) + vertical;

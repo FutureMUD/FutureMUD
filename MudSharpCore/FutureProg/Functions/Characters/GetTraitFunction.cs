@@ -73,7 +73,7 @@ internal class GetTraitFunction : BuiltInFunction
 			else
 			{
 				var skill = chargen.SkillValues.FirstOrDefault(x => x.Item1 == trait);
-				Result = skill == null ? new NumberVariable(0.0M) : new NumberVariable(skill.Item2);
+				Result = skill.Item1 == null ? new NumberVariable(0.0M) : new NumberVariable(skill.Item2);
 			}
 		}
 

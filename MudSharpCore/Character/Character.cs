@@ -2558,7 +2558,7 @@ public partial class Character : PerceiverItem, ICharacter
 			SelectedAccents = accents,
 			SelectedKnowledges = Knowledges.ToList(),
 			SelectedCharacteristics = Body.CharacteristicDefinitions
-			                              .Select(x => Tuple.Create(x, Body.GetCharacteristic(x, this))).ToList(),
+			                              .Select(x => (x, Body.GetCharacteristic(x, this))).ToList(),
 			SelectedMerits = Merits.OfType<ICharacterMerit>().ToList(),
 			SelectedRoles = Roles.ToList(),
 			SelectedWeight = Weight,
@@ -2572,7 +2572,7 @@ public partial class Character : PerceiverItem, ICharacter
 			SelectedFullDesc = Body.GetRawDescriptions.FullDescription,
 			SelectedSdesc = Body.GetRawDescriptions.ShortDescription,
 			SelectedGender = Gender.Enum,
-			SkillValues = (from skill in Traits.OfType<ISkill>() select Tuple.Create(skill.Definition, skill.RawValue))
+			SkillValues = (from skill in Traits.OfType<ISkill>() select (skill.Definition, skill.RawValue))
 				.ToList(),
 			SelectedAttributes =
 				(from attribute in Traits.OfType<IAttribute>()

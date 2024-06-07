@@ -87,7 +87,7 @@ namespace MudSharp.CharacterCreation
         new List<IAccent> SelectedAccents { get; set; }
         new List<ITrait> SelectedAttributes { get; set; }
         new MudDate SelectedBirthday { get; set; }
-        new List<Tuple<ICharacteristicDefinition, ICharacteristicValue>> SelectedCharacteristics { get; set; }
+        new List<(ICharacteristicDefinition, ICharacteristicValue)> SelectedCharacteristics { get; set; }
         new ICulture SelectedCulture { get; set; }
         new List<IEntityDescriptionPattern> SelectedEntityDescriptionPatterns { get; set; }
         new IEthnicity SelectedEthnicity { get; set; }
@@ -98,7 +98,7 @@ namespace MudSharp.CharacterCreation
         new IRace SelectedRace { get; set; }
         new string SelectedSdesc { get; set; }
         new List<ITraitDefinition> SelectedSkills { get; set; }
-        new List<Tuple<ITraitDefinition, double>> SkillValues { get; set; }
+        new List<(ITraitDefinition, double)> SkillValues { get; set; }
         new double SelectedWeight { get; set; }
         new List<IChargenRole> SelectedRoles { get; set; }
         new IAccount Account { get; set; }

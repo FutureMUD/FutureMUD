@@ -75,7 +75,7 @@ namespace MudSharp.Form.Characteristics {
             new(@"\%(?<characteristic>\w+)(?:\[(?<normal>(?:[^\[\]]|(?<open>\[)|(?<-open>\]))*(?(open)(?!)))\])(?:\[(?<alt1low>\d+)(?:\-(?<alt1high>\d+))?\:(?<alt1>(?:[^\[\]]|(?<open>\[)|(?<-open>\]))*(?(open)(?!)))\])?(?:\[(?<alt2low>\d+)(?:\-(?<alt2high>\d+))?\:(?<alt2>(?:[^\[\]]|(?<open>\[)|(?<-open>\]))*(?(open)(?!)))\])?(?:\[(?<alt3low>\d+)(?:\-(?<alt3high>\d+))?\:(?<alt3>(?:[^\[\]]|(?<open>\[)|(?<-open>\]))*(?(open)(?!)))\])?", RegexOptions.IgnoreCase);
 
         private static Tuple<ICharacteristicDefinition, CharacteristicDescriptionType> GetDefinition(string definition,
-            IEnumerable<Tuple<ICharacteristicDefinition, ICharacteristicValue>> characteristics) {
+            IEnumerable<(ICharacteristicDefinition, ICharacteristicValue)> characteristics) {
             var type = CharacteristicDescriptionType.Normal;
             var selection =
                 characteristics.Select(x => x.Item1)
@@ -133,7 +133,7 @@ namespace MudSharp.Form.Characteristics {
         }
 
         private static bool ContainsPlural(string description,
-            IEnumerable<Tuple<ICharacteristicDefinition, ICharacteristicValue>> characteristics, Gendering gender,
+            IEnumerable<(ICharacteristicDefinition, ICharacteristicValue)> characteristics, Gendering gender,
             IFuturemud gameworld, IRace race = null, ICulture culture = null, IEthnicity ethnicity = null, int age = 0, double height = 0.0) {
             // First of all, check to see if there are any replacable characteristic values that are plurals
             var matches = CharacteristicRegex.Matches(description);
@@ -163,7 +163,7 @@ namespace MudSharp.Form.Characteristics {
         /// <param name="gender"></param>
         /// <returns></returns>
         public static string ParseCharacteristicsAbsolute(string description,
-            IEnumerable<Tuple<ICharacteristicDefinition, ICharacteristicValue>> characteristics, Gendering gender,
+            IEnumerable<(ICharacteristicDefinition, ICharacteristicValue)> characteristics, Gendering gender,
             IFuturemud gameworld, IRace race = null, ICulture culture = null, IEthnicity ethnicity = null, int age = 0, double height = 0.0) {
             if (description == null) {
                 Console.WriteLine("Null description passed to IHaveCharacteristics.ParseDescriptionAbsolute");

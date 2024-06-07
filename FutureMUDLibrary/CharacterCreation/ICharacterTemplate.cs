@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Xml.Linq;
 using MudSharp.Accounts;
 using MudSharp.Body;
 using MudSharp.Body.Disfigurements;
@@ -24,7 +25,7 @@ namespace MudSharp.CharacterCreation {
         List<IAccent> SelectedAccents { get; }
         List<ITrait> SelectedAttributes { get; }
         MudDate SelectedBirthday { get; }
-        List<Tuple<ICharacteristicDefinition, ICharacteristicValue>> SelectedCharacteristics { get; }
+        List<(ICharacteristicDefinition, ICharacteristicValue)> SelectedCharacteristics { get; }
         ICulture SelectedCulture { get; }
         List<IEntityDescriptionPattern> SelectedEntityDescriptionPatterns { get; }
         IEthnicity SelectedEthnicity { get; }
@@ -35,7 +36,7 @@ namespace MudSharp.CharacterCreation {
         IRace SelectedRace { get; }
         string SelectedSdesc { get; }
         List<ITraitDefinition> SelectedSkills { get; }
-        List<Tuple<ITraitDefinition, double>> SkillValues { get; }
+		List<(ITraitDefinition, double)> SkillValues { get; }
         double SelectedWeight { get; }
         ICell SelectedStartingLocation { get; }
         List<IChargenRole> SelectedRoles { get; }
@@ -47,5 +48,7 @@ namespace MudSharp.CharacterCreation {
         List<IBodypart> MissingBodyparts { get; }
         List<(IDisfigurementTemplate Disfigurement, IBodypart Bodypart)> SelectedDisfigurements { get; }
         List<IGameItemProto> SelectedProstheses { get; }
+
+        XElement SaveToXml();
 	}
 }

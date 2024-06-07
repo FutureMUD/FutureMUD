@@ -107,18 +107,18 @@ public class SimpleNPCTemplate : NPCTemplateBase
 
 	public override string ReferenceDescription(IPerceiver voyeur) => $"{SelectedSdesc} (#{Id.ToString("N0", voyeur)}r{RevisionNumber.ToString("N0", voyeur)})".ColourCharacter();
 
-	public List<Tuple<ITraitDefinition, double>> SkillValues { get; set; }
+	public List<(ITraitDefinition, double)> SkillValues { get; set; }
 
 	private void Initialise()
 	{
-		SelectedCharacteristics = new List<Tuple<ICharacteristicDefinition, ICharacteristicValue>>();
+		SelectedCharacteristics = new();
 		SelectedEntityDescriptionPatterns = new List<IEntityDescriptionPattern>();
 		SelectedAccents = new List<IAccent>();
 		SelectedAttributes = new List<ITrait>();
 		SelectedRoles = new List<IChargenRole>();
 		SelectedSdesc = "an unnamed NPC";
 		SelectedFullDesc = "A newly created, undescribed NPC.";
-		SkillValues = new List<Tuple<ITraitDefinition, double>>();
+		SkillValues = new();
 	}
 
 	protected override ICharacterTemplate CharacterTemplate(ICell location)
@@ -612,7 +612,7 @@ public class SimpleNPCTemplate : NPCTemplateBase
 					continue;
 				}
 
-				SkillValues.Add(Tuple.Create(trait, double.Parse(item.Attribute("Value").Value)));
+				SkillValues.Add((trait, double.Parse(item.Attribute("Value").Value)));
 			}
 
 			foreach (var item in root.Element("SelectedAccents").Elements("Accent"))
@@ -635,8 +635,7 @@ public class SimpleNPCTemplate : NPCTemplateBase
 					continue;
 				}
 
-				SelectedCharacteristics.Add(
-					Tuple.Create(definition, value));
+				SelectedCharacteristics.Add((definition, value));
 			}
 
 			element = root.Element("SelectedRoles");
@@ -861,7 +860,7 @@ public class SimpleNPCTemplate : NPCTemplateBase
 		SelectedCharacteristics =
 			SelectedRace.Characteristics(SelectedGender)
 			            .Select(x =>
-				            Tuple.Create(x,
+				            (x,
 								ethnicity.CharacteristicChoices[x].GetRandomCharacteristic(template)))
 			            .ToList();
 	}
@@ -1245,7 +1244,7 @@ public class SimpleNPCTemplate : NPCTemplateBase
 		foreach (var choice in
 		         SelectedEthnicity.CharacteristicChoices.Where(x => characteristicChoices.Contains(x.Key)))
 		{
-			SelectedCharacteristics.Add(Tuple.Create(choice.Key,
+			SelectedCharacteristics.Add((choice.Key,
 				choice.Value.GetRandomCharacteristic(template) ?? choice.Value.GetRandomCharacteristic()));
 		}
 
@@ -1294,7 +1293,7 @@ public class SimpleNPCTemplate : NPCTemplateBase
 		}
 
 		var definition = SelectedCharacteristics.FirstOrDefault(x => x.Item1.Pattern.IsMatch(cmd));
-		if (definition == null)
+		if (definition.Item1 == null)
 		{
 			actor.OutputHandler.Send("There is no such characteristic definition.");
 			return false;
@@ -1319,7 +1318,7 @@ public class SimpleNPCTemplate : NPCTemplateBase
 		}
 
 		SelectedCharacteristics.Remove(definition);
-		SelectedCharacteristics.Add(Tuple.Create(definition.Item1, value));
+		SelectedCharacteristics.Add((definition.Item1, value));
 		actor.OutputHandler.Send(
 			$"This NPC will now have {definition.Item1.Name.A_An(true, Telnet.Cyan)} of \"{value.GetValue}\"");
 		Changed = true;
@@ -1625,7 +1624,7 @@ public class SimpleNPCTemplate : NPCTemplateBase
 		}
 
 		SkillValues.RemoveAll(x => x.Item1 == skill);
-		SkillValues.Add(Tuple.Create(skill, value));
+		SkillValues.Add((skill, value));
 		Changed = true;
 		actor.OutputHandler.Send(
 			$"You set the {skill.Name.Proper().Colour(Telnet.Cyan)} skill for this NPC to be {value.ToString("N2").Colour(Telnet.Green)}.");
@@ -1664,7 +1663,7 @@ public class SimpleNPCTemplate : NPCTemplateBase
 
 	public MudDate SelectedBirthday { get; set; }
 
-	public List<Tuple<ICharacteristicDefinition, ICharacteristicValue>> SelectedCharacteristics { get; set; }
+	public List<(ICharacteristicDefinition, ICharacteristicValue)> SelectedCharacteristics { get; set; }
 
 	public ICulture SelectedCulture { get; set; }
 

@@ -2085,7 +2085,7 @@ public class ShowModule : Module<ICharacter>
 		IRace race = null;
 		ICulture culture = null;
 		IEthnicity ethnicity = null;
-		IEnumerable<Tuple<ICharacteristicDefinition, ICharacteristicValue>> characteristics;
+		IEnumerable<(ICharacteristicDefinition, ICharacteristicValue)> characteristics;
 		Gendering gender;
 		double height;
 		string whoFor;
@@ -2098,7 +2098,7 @@ public class ShowModule : Module<ICharacter>
 				culture = actor.Culture;
 				ethnicity = actor.Ethnicity;
 				characteristics =
-					actor.CharacteristicDefinitions.Select(x => Tuple.Create(x, actor.GetCharacteristic(x, actor)))
+					actor.CharacteristicDefinitions.Select(x => (x, actor.GetCharacteristic(x, actor)))
 					     .ToList();
 				gender = actor.Gender;
 				height = actor.Height;
@@ -2167,7 +2167,7 @@ public class ShowModule : Module<ICharacter>
 					character.CurrentName.GetName(NameStyle.FullWithNickname));
 				characteristics =
 					character.CharacteristicDefinitions.Select(
-						         x => Tuple.Create(x, character.GetCharacteristic(x, actor)))
+						         x => (x, character.GetCharacteristic(x, actor)))
 					         .ToList();
 				height = character.Height;
 				age = character.AgeInYears;
@@ -2199,7 +2199,7 @@ public class ShowModule : Module<ICharacter>
 		IRace race = null;
 		ICulture culture = null;
 		IEthnicity ethnicity = null;
-		IEnumerable<Tuple<ICharacteristicDefinition, ICharacteristicValue>> characteristics = null;
+		IEnumerable<(ICharacteristicDefinition, ICharacteristicValue)> characteristics = null;
 		Gendering gender = null;
 		var height = 0.0;
 		var whoFor = string.Empty;
@@ -2226,7 +2226,7 @@ public class ShowModule : Module<ICharacter>
 				culture = actor.Culture;
 				ethnicity = actor.Ethnicity;
 				characteristics =
-					actor.CharacteristicDefinitions.Select(x => Tuple.Create(x, actor.GetCharacteristic(x, actor)))
+					actor.CharacteristicDefinitions.Select(x => (x, actor.GetCharacteristic(x, actor)))
 					     .ToList();
 				gender = actor.Gender;
 				whoFor = "yourself";
@@ -2297,7 +2297,7 @@ public class ShowModule : Module<ICharacter>
 				age = character.AgeInYears;
 				characteristics =
 					character.CharacteristicDefinitions.Select(
-						         x => Tuple.Create(x, character.GetCharacteristic(x, actor)))
+						         x => (x, character.GetCharacteristic(x, actor)))
 					         .ToList();
 				break;
 			case "":

@@ -436,7 +436,7 @@ public class CharacteristicPickerScreenStoryboard : ChargenScreenStoryboard
 
 			State = ChargenScreenState.Complete;
 			Chargen.SelectedCharacteristics =
-				SelectedCharacteristics.Select(x => Tuple.Create(x.Key, x.Value)).ToList();
+				SelectedCharacteristics.Select(x => (x.Key, x.Value)).ToList();
 			return "";
 		}
 	}

@@ -307,7 +307,7 @@ public class VariableNPCTemplate : NPCTemplateBase
 			                                  Convert.ToDouble(_race.AttributeBonusProg.Execute(x))))
 		                                  .ToList<ITrait>();
 		var rolledSkills = _skillTemplates.Where(x => Constants.Random.NextDouble() <= x.Chance)
-		                                  .Select(y => Tuple.Create(y.Trait,
+		                                  .Select(y => (y.Trait,
 			                                  RandomUtilities.RandomNormal(y.SkillMean, y.SkillStddev))).ToList();
 		var randomName = _nameProfiles[rolledGender].GetRandomPersonalName();
 		var birthday = _culture.PrimaryCalendar.GetRandomBirthday(rolledAge);
@@ -327,7 +327,7 @@ public class VariableNPCTemplate : NPCTemplateBase
 			SelectedHeight = rolledHeightWeight.Item1,
 			SelectedWeight = rolledHeightWeight.Item2,
 			SelectedBirthday = birthday,
-			SelectedCharacteristics = new List<Tuple<ICharacteristicDefinition, ICharacteristicValue>>(),
+			SelectedCharacteristics = new(),
 			SelectedAttributes = assignedStats,
 			SkillValues = rolledSkills,
 			SelectedAccents = accents,
@@ -367,7 +367,7 @@ public class VariableNPCTemplate : NPCTemplateBase
 		var characteristicChoices = template.SelectedRace.Characteristics(template.SelectedGender);
 		foreach (var choice in ethnicity.CharacteristicChoices.Where(x => characteristicChoices.Contains(x.Key)))
 		{
-			template.SelectedCharacteristics.Add(Tuple.Create(choice.Key,
+			template.SelectedCharacteristics.Add((choice.Key,
 				choice.Value.GetRandomCharacteristic(template) ?? choice.Value.GetRandomCharacteristic()));
 		}
 

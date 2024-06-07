@@ -631,7 +631,7 @@ Note that the #6Multi#0 strategy has additional building commands:
 
 	private void DoSpawnNPC(INPCTemplate npcTemplate, ICharacterTemplate chTemplate, ICell location)
 	{
-		((SimpleCharacterTemplate)chTemplate).SelectedStartingLocation = location;
+		chTemplate = ((SimpleCharacterTemplate)chTemplate) with { SelectedStartingLocation = location };
 		var newCharacter = new NPC(Gameworld, chTemplate, npcTemplate);
 		OnSpawnProg?.Execute(newCharacter);
 		npcTemplate.OnLoadProg?.Execute(newCharacter);

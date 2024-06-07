@@ -23,20 +23,19 @@ using MudSharp.RPG.Merits;
 using MudSharp.TimeAndDate.Date;
 using MudSharp.Body.Traits.Subtypes;
 using MudSharp.TimeAndDate;
+using Org.BouncyCastle.Crypto.Agreement;
 
 namespace MudSharp.NPC.Templates;
 
-public class SimpleCharacterTemplate : ICharacterTemplate
+public record SimpleCharacterTemplate : ICharacterTemplate
 {
 	public SimpleCharacterTemplate()
 	{
-
 	}
 
 	public SimpleCharacterTemplate(XElement definition, IFuturemud gameworld)
 	{
 		Gameworld = gameworld;
-		SelectedSdesc = definition.Element("SelectedSdesc").Value;
 		SelectedAccents = new List<IAccent>(
 			definition
 				.Element("SelectedAccents")
@@ -56,9 +55,153 @@ public class SimpleCharacterTemplate : ICharacterTemplate
 			);
 		SelectedBirthday = MudDate.ParseFromText(definition.Element("SelectedBirthday").Value, Gameworld);
 		SelectedCharacteristics = new(
-			definition
-				
+			from item in definition.Element("SelectedCharacteristics").Elements("Characteristic")
+			let tuple = (Gameworld.Characteristics.Get(long.Parse(item.Attribute("definition").Value)), Gameworld.CharacteristicValues.Get(long.Parse(item.Attribute("value").Value)))
+			where tuple.Item1 is not null && tuple.Item2 is not null
+			select tuple	
 		);
+		SelectedCulture = gameworld.Cultures.Get(long.Parse(definition.Element("SelectedCulture").Value));
+		SelectedDisfigurements = new(
+			from item in definition.Element("SelectedDisfigurements").Elements("Disfigurement")
+			let tuple = (
+				Gameworld.DisfigurementTemplates.Get(long.Parse(item.Attribute("template").Value)),
+				Gameworld.BodypartPrototypes.Get(long.Parse(item.Attribute("bodypart").Value))
+				)
+			where tuple.Item1 is not null && tuple.Item2 is not null
+			select tuple
+		);
+		SelectedEntityDescriptionPatterns = new(
+			from item in definition.Element("SelectedEntityDescriptionPatterns").Elements("Pattern")
+			let pattern = Gameworld.EntityDescriptionPatterns.Get(long.Parse(item.Value))
+			where pattern is not null
+			select pattern
+		);
+		SelectedEthnicity = Gameworld.Ethnicities.Get(long.Parse(definition.Element("SelectedEthnicity").Value));
+		SelectedFullDesc = definition.Element("SelectedFullDesc").Value;
+		SelectedGender = (Gender)short.Parse(definition.Element("SelectedGender").Value);
+		SelectedHeight = double.Parse(definition.Element("SelectedHeight").Value);
+		SelectedKnowledges = new(
+			from item in definition.Element("SelectedKnowledges").Elements("Knowledge")
+			let knowledge = Gameworld.Knowledges.Get(long.Parse(item.Value))
+			where knowledge is not null
+			select knowledge
+		);
+		SelectedMerits = new(
+			from item in definition.Element("SelectedMerits").Elements("Merit")
+			let merit = Gameworld.Merits.Get(long.Parse(item.Value)) as ICharacterMerit
+			where merit is not null
+			select merit
+		);
+		SelectedName = new PersonalName(definition.Element("SelectedName").Element("Name"), Gameworld);
+		SelectedProstheses = new(
+			from item in definition.Element("SelectedProstheses").Elements("Item")
+			let proto = Gameworld.ItemProtos.Get(long.Parse(item.Value))
+			where proto is not null
+			select proto
+		);
+
+		SelectedRace = Gameworld.Races.Get(long.Parse(definition.Element("SelectedRace").Value));
+		SelectedRoles = new(
+			from item in definition.Element("SelectedRoles").Elements("Role")
+			let role = Gameworld.Roles.Get(long.Parse(item.Value))
+			where role is not null
+			select role
+		);
+		SelectedSdesc = definition.Element("SelectedSdesc").Value;
+		SelectedStartingLocation = Gameworld.Cells.Get(long.Parse(definition.Element("SelectedStartingLocation").Value));
+		SelectedWeight = double.Parse(definition.Element("SelectedWeight").Value);
+		SkillValues = new(
+			from item in definition.Element("SkillValues").Elements("Skill")
+			let tuple = (
+				Gameworld.Traits.Get(long.Parse(item.Attribute("definition").Value)),
+				double.Parse(item.Attribute("value").Value)
+				)
+			where tuple.Item1 is not null
+			select tuple
+		);
+		Handedness = (Alignment)int.Parse(definition.Element("Handedness").Value);
+		MissingBodyparts = new(
+			from item in definition.Element("MissingBodyparts").Elements("Bodypart")
+			let bodypart = Gameworld.BodypartPrototypes.Get(long.Parse(item.Value))
+			where bodypart is not null
+			select bodypart
+		);
+	}
+
+	public XElement SaveToXml()
+	{
+		return new XElement("Character",
+			new XElement("SelectedAccents",
+				from accent in SelectedAccents
+				select new XElement("Accent", accent.Id)
+			),
+			new XElement("SelectedAttributes",
+				from attribute in SelectedAttributes
+				select new XElement("Attribute",
+					new XAttribute("id", attribute.Definition.Id),
+					new XAttribute("value", attribute.RawValue)
+				)
+			),
+			new XElement("SelectedBirthday",
+				SelectedBirthday.GetRoundtripString()
+			),
+			new XElement("SelectedCharacteristics",
+				from item in SelectedCharacteristics
+				select new XElement("Characteristic",
+					new XAttribute("definition", item.Item1.Id),
+					new XAttribute("value", item.Item2.Id)
+				)
+			),
+			new XElement("SelectedCulture", SelectedCulture.Id),
+			new XElement("SelectedDisfigurements",
+				from item in SelectedDisfigurements
+				select new XElement("Disfigurement",
+					new XAttribute("template", item.Disfigurement.Id),
+					new XAttribute("bodypart", item.Bodypart.Id)
+				)
+			),
+			new XElement("SelectedEntityDescriptionPatterns",
+				from item in SelectedEntityDescriptionPatterns
+				select new XElement("Pattern", item.Id)
+			),
+			new XElement("SelectedEthnicity", SelectedEthnicity.Id),
+			new XElement("SelectedFullDesc", new XCData(SelectedFullDesc)),
+			new XElement("SelectedGender", (short)SelectedGender),
+			new XElement("SelectedHeight", SelectedHeight),
+			new XElement("SelectedKnowledges",
+				from item in SelectedKnowledges
+				select new XElement("Knowledge", item.Id)
+			),
+			new XElement("SelectedMerits",
+				from item in SelectedMerits
+				select new XElement("Merit", item.Id)
+			),
+			new XElement("SelectedName", SelectedName.SaveToXml()),
+			new XElement("SelectedProstheses",
+				from item in SelectedProstheses
+				select new XElement("Item", item.Id)
+			),
+			new XElement("SelectedRace", SelectedRace.Id),
+			new XElement("SelectedRoles", 
+				from item in SelectedRoles
+				select new XElement("Role", item.Id)
+			),
+			new XElement("SelectedSdesc", new XCData(SelectedSdesc)),
+			new XElement("SelectedStartingLocation", SelectedStartingLocation?.Id ?? 0),
+			new XElement("SelectedWeight", SelectedWeight),
+			new XElement("SkillValues", 
+				from item in SkillValues
+				select new XElement("Skill",
+					new XAttribute("definition", item.Item1.Id),
+					new XAttribute("value", item.Item2)
+				)
+			),
+			new XElement("Handedness", (int)Handedness),
+			new XElement("MissingBodyparts", 
+				from item in MissingBodyparts
+				select new XElement("Bodypart", item.Id)
+			)
+		); // TODO
 	}
 
 	#region ICharacterTemplate Members
@@ -69,7 +212,7 @@ public class SimpleCharacterTemplate : ICharacterTemplate
 
 	public MudDate SelectedBirthday { get; init; }
 
-	public List<Tuple<ICharacteristicDefinition, ICharacteristicValue>> SelectedCharacteristics { get; init; }
+	public List<(ICharacteristicDefinition, ICharacteristicValue)> SelectedCharacteristics { get; init; }
 
 	public ICulture SelectedCulture { get; init; }
 
@@ -89,7 +232,7 @@ public class SimpleCharacterTemplate : ICharacterTemplate
 
 	public string SelectedSdesc { get; set; }
 
-	public List<Tuple<ITraitDefinition, double>> SkillValues { get; init; }
+	public List<(ITraitDefinition, double)> SkillValues { get; init; }
 
 	public List<ITraitDefinition> SelectedSkills
 	{
@@ -98,7 +241,7 @@ public class SimpleCharacterTemplate : ICharacterTemplate
 
 	public double SelectedWeight { get; init; }
 
-	public ICell SelectedStartingLocation { get; set; }
+	public ICell SelectedStartingLocation { get; init; }
 
 	public List<IChargenRole> SelectedRoles { get; init; }
 
@@ -316,7 +459,7 @@ public class SimpleCharacterTemplate : ICharacterTemplate
 			}
 
 			SelectedSkills.Add(trait);
-			SkillValues.Add(Tuple.Create(trait, value));
+			SkillValues.Add((trait, value));
 			return true;
 		}
 		if (SelectedAttributes.Any(x => x.Definition == trait))
@@ -361,7 +504,7 @@ public class SimpleCharacterTemplate : ICharacterTemplate
 			}
 
 			SkillValues.RemoveAll(x => x.Item1 == trait);
-			SkillValues.Add(Tuple.Create(trait, value));
+			SkillValues.Add((trait, value));
 			return true;
 		}
 

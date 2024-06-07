@@ -43,8 +43,8 @@ namespace MudSharp.CharacterCreation;
 
 public partial class Chargen : FrameworkItem, IChargen
 {
-	private readonly HashSet<ChargenStage> _completedStages = new();
-	private readonly List<Tuple<string, string>> _priorRejections = new();
+	private readonly HashSet<ChargenStage> _completedStages = [];
+	private readonly List<Tuple<string, string>> _priorRejections = [];
 
 	public Chargen(MudSharp.Models.Chargen chargen, IFuturemud gameworld, Account account)
 		: this((ChargenState)chargen.Status, null, gameworld, gameworld.TryAccount(account))
@@ -82,18 +82,18 @@ public partial class Chargen : FrameworkItem, IChargen
 		Gameworld = gameworld;
 		Account = account;
 		State = status;
-		SelectedAttributes = new List<ITrait>();
-		SelectedSkills = new List<ITraitDefinition>();
-		SelectedCharacteristics = new List<Tuple<ICharacteristicDefinition, ICharacteristicValue>>();
-		SelectedEntityDescriptionPatterns = new List<IEntityDescriptionPattern>();
-		SelectedNotes = new List<Tuple<string, string>>();
-		SelectedAccents = new List<IAccent>();
-		SelectedRoles = new List<IChargenRole>();
-		SkillValues = new List<Tuple<ITraitDefinition, double>>();
-		SelectedMerits = new List<ICharacterMerit>();
-		SelectedKnowledges = new List<IKnowledge>();
-		SelectedSkillBoosts = new Dictionary<ITraitDefinition, int>();
-		SelectedSkillBoostCosts = new Dictionary<IChargenResource, int>();
+		SelectedAttributes = [];
+		SelectedSkills = [];
+		SelectedCharacteristics = [];
+		SelectedEntityDescriptionPatterns = [];
+		SelectedNotes = [];
+		SelectedAccents = [];
+		SelectedRoles = [];
+		SkillValues = [];
+		SelectedMerits = [];
+		SelectedKnowledges = [];
+		SelectedSkillBoosts = [];
+		SelectedSkillBoostCosts = [];
 	}
 
 	public override string FrameworkItemType => "Chargen";
@@ -275,7 +275,7 @@ public partial class Chargen : FrameworkItem, IChargen
 		}
 	}
 
-	public Dictionary<IChargenResource, int> ApplicationCosts { get; } = new();
+	public Dictionary<IChargenResource, int> ApplicationCosts { get; } = [];
 
 	public bool ApplicationLocked { get; protected set; }
 
@@ -287,7 +287,7 @@ public partial class Chargen : FrameworkItem, IChargen
 
 	public MudDate SelectedBirthday { get; set; }
 
-	public List<Tuple<ICharacteristicDefinition, ICharacteristicValue>> SelectedCharacteristics { get; set; }
+	public List<(ICharacteristicDefinition, ICharacteristicValue)> SelectedCharacteristics { get; set; }
 
 	public ICulture SelectedCulture { get; set; }
 
@@ -307,7 +307,7 @@ public partial class Chargen : FrameworkItem, IChargen
 
 	public string SelectedSdesc { get; set; }
 
-	public List<IBodypart> MissingBodyparts { get; set; } = new();
+	public List<IBodypart> MissingBodyparts { get; set; } = [];
 
 	public List<ITraitDefinition> SelectedSkills { get; set; }
 
@@ -315,7 +315,7 @@ public partial class Chargen : FrameworkItem, IChargen
 
 	public Dictionary<IChargenResource, int> SelectedSkillBoostCosts { get; set; }
 
-	public List<Tuple<ITraitDefinition, double>> SkillValues { get; set; }
+	public List<(ITraitDefinition, double)> SkillValues { get; set; }
 
 	public double SelectedWeight { get; set; }
 
@@ -332,9 +332,9 @@ public partial class Chargen : FrameworkItem, IChargen
 	public Alignment Handedness { get; set; }
 
 	public List<(IDisfigurementTemplate Disfigurement, IBodypart Bodypart)> SelectedDisfigurements { get; set; } =
-		new();
+		[];
 
-	public List<IGameItemProto> SelectedProstheses { get; set; } = new();
+	public List<IGameItemProto> SelectedProstheses { get; set; } = [];
 
 	public IEnumerable<IChargenAdvice> AllAdvice => Enumerable.Empty<IChargenAdvice>(); // TODO
 
@@ -1086,7 +1086,7 @@ public partial class Chargen : FrameworkItem, IChargen
 		SkillValues.Clear();
 		foreach (var skill in SelectedSkills)
 		{
-			SkillValues.Add(Tuple.Create(skill,
+			SkillValues.Add((skill,
 				Convert.ToDouble(SelectedCulture.SkillStartingValueProg.Execute(this, skill,
 					SelectedSkillBoosts.TryGetValue(skill, out var value) ? value : 0))));
 		}
@@ -1248,7 +1248,7 @@ public partial class Chargen : FrameworkItem, IChargen
 						continue;
 					}
 
-					SkillValues.Add(Tuple.Create(skill, double.Parse(item.Attribute("Value").Value)));
+					SkillValues.Add((skill, double.Parse(item.Attribute("Value").Value)));
 				}
 			}
 
@@ -1269,7 +1269,7 @@ public partial class Chargen : FrameworkItem, IChargen
 			foreach (var item in root.Element("SelectedCharacteristics").Elements("Characteristic"))
 			{
 				SelectedCharacteristics.Add(
-					Tuple.Create(Gameworld.Characteristics.Get(long.Parse(item.Attribute("Definition").Value)),
+					(Gameworld.Characteristics.Get(long.Parse(item.Attribute("Definition").Value)),
 						Gameworld.CharacteristicValues.Get(long.Parse(item.Attribute("Value").Value))));
 			}
 
@@ -1416,6 +1416,13 @@ public partial class Chargen : FrameworkItem, IChargen
 
 	private string SaveDefinition()
 	{
+		return 
+			SaveToXml()
+			.ToString();
+	}
+
+	public XElement SaveToXml()
+	{
 		return new XElement("Definition", new XElement("CurrentStage", (int)Stage), new XElement("CompletedStages",
 				from stage in
 					CompletedStages
@@ -1494,7 +1501,7 @@ public partial class Chargen : FrameworkItem, IChargen
 				from prosthetic in SelectedProstheses select new XElement("Prosthetic", prosthetic.Id)),
 			new XElement("SelectedKnowledges",
 				from item in SelectedKnowledges select new XElement("Knowledge", item.Id))
-		).ToString();
+		);
 	}
 
 	#region IHaveMerits Members
@@ -1576,7 +1583,7 @@ public partial class Chargen : FrameworkItem, IChargen
 			}
 
 			SelectedSkills.Add(trait);
-			SkillValues.Add(Tuple.Create(trait, value));
+			SkillValues.Add((trait, value));
 			return true;
 		}
 		if (SelectedAttributes.Any(x => x.Definition == trait))
@@ -1621,7 +1628,7 @@ public partial class Chargen : FrameworkItem, IChargen
 			}
 
 			SkillValues.RemoveAll(x => x.Item1 == trait);
-			SkillValues.Add(Tuple.Create(trait, value));
+			SkillValues.Add((trait, value));
 			return true;
 		}
 

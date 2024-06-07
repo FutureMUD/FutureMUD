@@ -77,7 +77,7 @@ internal class GetCharacteristicFunction : BuiltInFunction
 			var definition =
 				chargen.SelectedCharacteristics.FirstOrDefault(
 					x => x.Item1.Name.Equals(targetDefinition, StringComparison.InvariantCultureIgnoreCase));
-			if (definition == null)
+			if (definition.Item1 == null)
 			{
 				Result = new NullVariable(FutureProgVariableTypes.Text);
 				return StatementResult.Normal;

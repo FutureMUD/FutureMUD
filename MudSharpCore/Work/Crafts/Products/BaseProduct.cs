@@ -19,9 +19,11 @@ namespace MudSharp.Work.Crafts.Products;
 
 public abstract class BaseProduct : LateInitialisingItem, ICraftProduct
 {
-	internal class SimpleProductData : ICraftProductData
+	internal class SimpleProductData : ICraftProductDataWithItems
 	{
 		public List<IGameItem> Products { get; } = new();
+		IEnumerable<IGameItem> ICraftProductDataWithItems.Products => Products;
+
 		public IPerceivable Perceivable { get; }
 
 		public void FinaliseLoadTimeTasks()

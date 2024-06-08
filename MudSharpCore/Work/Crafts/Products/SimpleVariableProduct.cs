@@ -139,7 +139,7 @@ public class SimpleVariableProduct : SimpleProduct
 			         ivi.DeterminesVariable(x.Definition)))
 		{
 			sb.AppendLine(
-				$"Craft Input $i{input} determining variable {definition.Name.Colour(Telnet.Green)} was not found or was not providing said variable.");
+				$"Craft Input $i{input + 1} determining variable {definition.Name.Colour(Telnet.Green)} was not found or was not providing said variable.");
 		}
 
 		if (sb.Length > 0)
@@ -246,7 +246,7 @@ public class SimpleVariableProduct : SimpleProduct
 				sb.Append(" ").Append(definition.Name).Append(" <- ");
 				if (Craft.Inputs.ElementAtOrDefault(input) is IVariableInput ivi && ivi.DeterminesVariable(definition))
 				{
-					sb.Append(ivi.Name).Append($" ($i{input})");
+					sb.Append(ivi.Name).Append($" ($i{input + 1})");
 				}
 				else
 				{
@@ -281,7 +281,7 @@ public class SimpleVariableProduct : SimpleProduct
 			sb.Append(" ").Append(definition.Name).Append(" <- ");
 			if (Craft.Inputs.ElementAtOrDefault(input) is IVariableInput ivi && ivi.DeterminesVariable(definition))
 			{
-				sb.Append(ivi.Name).Append($" ($i{input})");
+				sb.Append(ivi.Name).Append($" ($i{input+1})");
 			}
 			else
 			{

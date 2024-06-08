@@ -166,7 +166,7 @@ public abstract class BaseInput : LateInitialisingItem, ICraftInput
 		return false;
 	}
 
-	internal class SimpleItemInputData : ICraftInputData
+	internal class SimpleItemInputData : ICraftInputDataWithItems
 	{
 		public SimpleItemInputData(XElement root, IFuturemud gameworld)
 		{
@@ -220,6 +220,8 @@ public abstract class BaseInput : LateInitialisingItem, ICraftInput
 		public IPerceivable Perceivable => ConsumedGroup;
 
 		public List<IGameItem> ConsumedItems { get; } = new();
+
+		IEnumerable<IGameItem> ICraftInputDataWithItems.ConsumedItems => ConsumedItems;
 
 		public PerceivableGroup ConsumedGroup { get; set; }
 

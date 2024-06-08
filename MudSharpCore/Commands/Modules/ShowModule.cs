@@ -119,6 +119,7 @@ public class ShowModule : Module<ICharacter>
 	#3characteristics#0 - shows all characteristic definitions
 	#3character <id>#0 - shows a specific character
 	#3characters [+/- keywords, <date, >date, $days, *account, guest, alive|dead|retired|suspended]#0 - shows a list of all characters
+	#3checks#0 - shows all checks
 	#3climates#0 - shows a list of regional climates
 	#3climate <id|name>#0 - shows a specific regional climate
 	#3climatemodels#0 - shows a list of climate models
@@ -187,6 +188,9 @@ public class ShowModule : Module<ICharacter>
 		var ss = new StringStack(command.RemoveFirstWord());
 		switch (ss.PopForSwitch())
 		{
+			case "checks":
+				Show_Checks(actor, ss);
+				return;
 			case "bodies":
 				Show_Bodies(actor);
 				return;
@@ -484,6 +488,37 @@ public class ShowModule : Module<ICharacter>
 
 				return;
 		}
+	}
+
+	private static void Show_Checks(ICharacter actor, StringStack ss)
+	{
+		var checks = actor.Gameworld.Checks.ToList();
+		// TODO filters
+
+		actor.OutputHandler.Send(StringUtilities.GetTextTable(
+			from check in checks
+			select
+			new List<string> {
+				check.Type.DescribeEnum(),
+				check.TargetNumberExpression.Id.ToString("N0", actor),
+				check.TargetNumberExpression.OriginalFormulaText,
+				check.MaximumDifficultyForImprovement.Describe(),
+				check.CanTraitBranchIfMissing.ToColouredString(),
+				check.FailIfTraitMissing.DescribeEnum(),
+				check.CheckTemplateName,
+			},
+			[
+				"Check",
+				"Expr ID",
+				"Expr",
+				"Max Improve",
+				"Branch?",
+				"Missing?",
+				"Template",
+			],
+			actor,
+			Telnet.Yellow
+		));
 	}
 
 	private static void Show_Characters(ICharacter actor, StringStack ss)

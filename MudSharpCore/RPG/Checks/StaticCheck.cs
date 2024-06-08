@@ -68,6 +68,9 @@ public class StaticCheck : FrameworkItem, ICheck
 
 	public string CheckTemplateName { get; set; }
 	public CheckType Type { get; set; }
+	public bool ImproveTraits => false;
+
+	public bool CanTraitBranchIfMissing => false;
 
 	public CheckOutcome Check(IPerceivableHaveTraits checkee, Difficulty difficulty, IPerceivable target = null,
 		IUseTrait tool = null, double externalBonus = 0.0, TraitUseType traitUseType = TraitUseType.Practical,
@@ -283,7 +286,7 @@ public class StaticCheck : FrameworkItem, ICheck
 	/// <summary>
 	///     A TraitExpression representing the Target Number of the check
 	/// </summary>
-	protected ITraitExpression TargetNumberExpression { get; set; }
+	public ITraitExpression TargetNumberExpression { get; protected set; }
 
 	public Difficulty MaximumDifficultyForImprovement => Difficulty.Impossible;
 

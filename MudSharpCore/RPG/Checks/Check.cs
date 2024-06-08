@@ -80,7 +80,7 @@ public class StandardCheck : FrameworkItem, ICheck
 	/// <summary>
 	///     A TraitExpression representing the Target Number of the check
 	/// </summary>
-	protected ITraitExpression TargetNumberExpression { get; set; }
+	public ITraitExpression TargetNumberExpression { get; protected set; }
 
 	/// <summary>
 	///     Name of the Check Template that this check uses

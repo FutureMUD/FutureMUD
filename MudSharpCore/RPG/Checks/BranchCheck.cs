@@ -25,6 +25,12 @@ public class BranchCheck : FrameworkItem, ICheck
 
 	public CheckType Type { get; protected set; }
 
+	public bool ImproveTraits => false;
+
+	public bool CanTraitBranchIfMissing => false;
+
+	public FailIfTraitMissingType FailIfTraitMissing => FailIfTraitMissingType.DoNotFail;
+
 	public double TargetNumber(IPerceivableHaveTraits checkee, Difficulty difficulty, ITraitDefinition trait,
 		IPerceivable target = null, double externalBonus = 0,
 		params (string Parameter, object value)[] customParameters)
@@ -134,7 +140,7 @@ public class BranchCheck : FrameworkItem, ICheck
 	/// <summary>
 	///     A TraitExpression representing the Target Number of the check
 	/// </summary>
-	protected ITraitExpression TargetNumberExpression { get; set; }
+	public ITraitExpression TargetNumberExpression { get; protected set; }
 
 	/// <summary>
 	///     Name of the Check Template that this check uses

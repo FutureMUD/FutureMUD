@@ -33,8 +33,23 @@ namespace MudSharp.RPG.Checks {
 
     public interface ICheck : IFrameworkItem, IHaveFuturemud {
         CheckType Type { get; }
+		bool ImproveTraits { get; }
 
-        double TargetNumber(IPerceivableHaveTraits checkee, Difficulty difficulty, ITraitDefinition trait,
+		bool CanTraitBranchIfMissing { get;  }
+
+		FailIfTraitMissingType FailIfTraitMissing { get;}
+
+		/// <summary>
+		///     A TraitExpression representing the Target Number of the check
+		/// </summary>
+		ITraitExpression TargetNumberExpression { get;  }
+
+		/// <summary>
+		///     Name of the Check Template that this check uses
+		/// </summary>
+		string CheckTemplateName { get; }
+
+		double TargetNumber(IPerceivableHaveTraits checkee, Difficulty difficulty, ITraitDefinition trait,
                             IPerceivable target = null, double externalBonus = 0.0, params (string Parameter, object value)[] customParameters);
 
         CheckOutcome Check(IPerceivableHaveTraits checkee, Difficulty difficulty, IPerceivable target = null,

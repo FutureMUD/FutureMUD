@@ -6,6 +6,7 @@ using System.Reflection;
 using System.Text;
 using System.Xml.Linq;
 using MailKit.Search;
+using Microsoft.EntityFrameworkCore;
 using MudSharp.Accounts;
 using MudSharp.Body;
 using MudSharp.Body.Traits;
@@ -120,6 +121,7 @@ public class ShowModule : Module<ICharacter>
 	#3character <id>#0 - shows a specific character
 	#3characters [+/- keywords, <date, >date, $days, *account, guest, alive|dead|retired|suspended]#0 - shows a list of all characters
 	#3checks#0 - shows all checks
+	#3checktemplates#0 - shows all check templates
 	#3climates#0 - shows a list of regional climates
 	#3climate <id|name>#0 - shows a specific regional climate
 	#3climatemodels#0 - shows a list of climate models
@@ -190,6 +192,9 @@ public class ShowModule : Module<ICharacter>
 		{
 			case "checks":
 				Show_Checks(actor, ss);
+				return;
+			case "checktemplates":
+				Show_CheckTemplates(actor, ss);
 				return;
 			case "bodies":
 				Show_Bodies(actor);
@@ -487,6 +492,41 @@ public class ShowModule : Module<ICharacter>
 				}
 
 				return;
+		}
+	}
+
+	private static void Show_CheckTemplates(ICharacter actor, StringStack ss)
+	{
+		using (new FMDB())
+		{
+			var templates = FMDB.Context.CheckTemplates.Include(x => x.CheckTemplateDifficulties).ToList();
+			actor.OutputHandler.Send(StringUtilities.GetTextTable(
+				from item in templates
+				select new List<string>
+				{
+					item.Id.ToString("N0", actor),
+					item.Name,
+					item.CheckMethod,
+					item.CanBranchIfTraitMissing.ToColouredString(),
+					((FailIfTraitMissingType)item.FailIfTraitMissingMode).DescribeEnum(),
+					item.ImproveTraits.ToColouredString(),
+					item.CheckTemplateDifficulties
+					    .OrderBy(x => x.Difficulty)
+					    .Select(x => x.Modifier.ToBonusString(actor, 0U))
+					    .ListToCommaSeparatedValues(" ")
+				},
+				[
+					"Id",
+					"Name",
+					"Method",
+					"Branch?",
+					"Missing",
+					"Improve?",
+					"Difficulties"
+				],
+				actor,
+				Telnet.Yellow
+			));
 		}
 	}
 

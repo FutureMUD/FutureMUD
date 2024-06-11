@@ -40,6 +40,43 @@ public class DirectWearProfile : WearProfile
 		}
 	}
 
+	protected DirectWearProfile(DirectWearProfile rhs, string name)
+	{
+		Gameworld = rhs.Gameworld;
+		_name = name;
+		DesignedBody = rhs.DesignedBody;
+		Description = rhs.Description;
+		WearAction1st = rhs.WearAction1st;
+		WearAction3rd = rhs.WearAction3rd;
+		WearStringInventory = rhs.WearStringInventory;
+		WearAffix = rhs.WearAffix;
+		RequireContainerIsEmpty = rhs.RequireContainerIsEmpty;
+		using (new FMDB())
+		{
+			var dbitem = new Models.WearProfile
+			{
+				Name = Name,
+				Description = Description,
+				BodyPrototypeId = DesignedBody.Id,
+				WearAction1st = WearAction1st,
+				WearAction3rd = WearAction3rd,
+				WearAffix = WearAffix,
+				WearStringInventory = WearStringInventory,
+				RequireContainerIsEmpty = RequireContainerIsEmpty,
+				WearlocProfiles = SaveDefinition().ToString()
+			};
+			FMDB.Context.WearProfiles.Add(dbitem);
+			FMDB.Context.SaveChanges();
+			_id = dbitem.Id;
+			LoadWearlocsFromXml(XElement.Parse(dbitem.WearlocProfiles));
+		}
+	}
+
+	public override IWearProfile Clone(string newName)
+	{
+		return new DirectWearProfile(this, newName);
+	}
+
 	public override string FrameworkItemType => "DirectWearProfile";
 
 	public Dictionary<IBodypart, IWearlocProfile> Locations { get; protected set; }
@@ -70,18 +107,18 @@ public class DirectWearProfile : WearProfile
 		sb.AppendLine();
 		sb.Append(new[]
 		{
-			string.Format(actor, "Name: {0}", Name),
-			string.Format(actor, "Body: {0} (#{1})", DesignedBody?.Name.TitleCase() ?? "None",
+			string.Format(actor, "Name: {0}", Name.ColourValue()),
+			string.Format(actor, "Body: {0} (#{1})", DesignedBody?.Name.TitleCase().ColourValue() ?? "None".ColourError(),
 				DesignedBody?.Id ?? -1),
-			string.Format(actor, "Type: {0}", Type)
+			string.Format(actor, "Type: {0}", Type.ColourValue())
 		}.ArrangeStringsOntoLines(3, (uint)actor.Account.LineFormatLength));
 		sb.Append(new[]
 		{
-			string.Format(actor, "Inventory: {0:N0}", WearStringInventory),
-			string.Format(actor, "Wear: {0}|{1} {2}", WearAction1st, WearAction3rd, WearAffix),
-			string.Format(actor, "Require Empty: {0}", RequireContainerIsEmpty)
+			string.Format(actor, "Inventory: {0:N0}", WearStringInventory.ColourValue()),
+			string.Format(actor, "Wear: #2{0}|{1} {2}#0".SubstituteANSIColour(), WearAction1st, WearAction3rd, WearAffix),
+			string.Format(actor, "Require Empty: {0}", RequireContainerIsEmpty.ToColouredString())
 		}.ArrangeStringsOntoLines(3, (uint)actor.Account.LineFormatLength));
-		sb.AppendLine($"Description:\n\n{Description.Wrap(80, "\t")}");
+		sb.AppendLine($"Description:\n\n{Description.Wrap(80, "\t").ColourCommand()}");
 		sb.AppendLine();
 		sb.Append(
 			StringUtilities.GetTextTable(
@@ -96,7 +133,7 @@ public class DirectWearProfile : WearProfile
 					location.Value.HidesSeveredBodyparts ? "True" : "False"
 				},
 				new[] { "Bodypart", "Mandatory", "Prevent Removal", "Transparent", "No Armour", "Covers Sever" },
-				actor.Account.LineFormatLength,
+				actor,
 				colour: Telnet.Green
 			)
 		);
@@ -126,6 +163,21 @@ public class DirectWearProfile : WearProfile
 		}
 	}
 
+	protected XElement SaveDefinition()
+	{
+		return new XElement("Profiles",
+			from item in Locations
+			select new XElement("Profile",
+				new XAttribute("Bodypart", item.Key.Id),
+				new XAttribute("Transparent", item.Value.Transparent),
+				new XAttribute("NoArmour", item.Value.NoArmour),
+				new XAttribute("PreventsRemoval", item.Value.PreventsRemoval),
+				new XAttribute("Mandatory", item.Value.Mandatory),
+				new XAttribute("HidesSevered", item.Value.HidesSeveredBodyparts)
+			)
+		);
+	}
+
 	public override void Save()
 	{
 		var dbitem = FMDB.Context.WearProfiles.Find(Id);
@@ -137,17 +189,7 @@ public class DirectWearProfile : WearProfile
 		dbitem.WearAction3rd = WearAction3rd;
 		dbitem.WearAffix = WearAffix;
 		dbitem.RequireContainerIsEmpty = RequireContainerIsEmpty;
-		dbitem.WearlocProfiles = new XElement("Profiles",
-			from item in Locations
-			select new XElement("Profile",
-				new XAttribute("Bodypart", item.Key.Id),
-				new XAttribute("Transparent", item.Value.Transparent),
-				new XAttribute("NoArmour", item.Value.NoArmour),
-				new XAttribute("PreventsRemoval", item.Value.PreventsRemoval),
-				new XAttribute("Mandatory", item.Value.Mandatory),
-				new XAttribute("HidesSevered", item.Value.HidesSeveredBodyparts)
-			)
-		).ToString();
+		dbitem.WearlocProfiles = SaveDefinition().ToString();
 		Changed = false;
 	}
 
@@ -186,9 +228,18 @@ public class DirectWearProfile : WearProfile
 
 	#region Building Commands
 
+	/// <inheritdoc />
+	protected override string SubtypeBuildingHelp => @"	#3add <part>#0 - adds a body part to the definition
+	#3remove <part>#0 - removes a body part from the definition
+	#3set <part> transparent#0 - toggles the cover at the part being transparent
+	#3set <part> noarmour#0 - toggles the cover at the part not providing armour
+	#3set <part> preventsremoval#0 - toggles the cover at the part preventing covered items being removed
+	#3set <part> mandatory#0 - toggles the cover at the part being mandatory
+	#3set <part> hidessevered#0 - toggles the cover at the part hiding severed body parts";
+
 	public override void BuildingCommand(ICharacter actor, StringStack command)
 	{
-		switch (command.Pop().ToLowerInvariant())
+		switch (command.PopForSwitch())
 		{
 			case "add":
 			case "new":
@@ -260,6 +311,9 @@ public class DirectWearProfile : WearProfile
 				Locations[part].Transparent = bValue;
 				break;
 			case "noarmour":
+			case "noarmor":
+			case "armor":
+			case "armour":
 				if (command.IsFinished)
 				{
 					Locations[part].NoArmour = !Locations[part].NoArmour;
@@ -309,6 +363,11 @@ public class DirectWearProfile : WearProfile
 				Locations[part].Mandatory = bValue;
 				break;
 			case "hidessevered":
+			case "hide":
+			case "hidesevered":
+			case "hidesever":
+			case "hidessever":
+			case "sever":
 				if (command.IsFinished)
 				{
 					Locations[part].HidesSeveredBodyparts = !Locations[part].HidesSeveredBodyparts;
@@ -431,8 +490,6 @@ public class DirectWearProfile : WearProfile
 		actor.Send(
 			$"Wear Profile {Id:N0} ({Name}) now has a removal-preventing, non-mandatory, non-transparent, armour-allowing, non-sever covering role at the {part.FullDescription().Colour(Telnet.Green)} part.");
 	}
-
-	protected override IEnumerable<string> BuildingOptions => new[] { "add", "remove", "set" };
 
 	#endregion
 }

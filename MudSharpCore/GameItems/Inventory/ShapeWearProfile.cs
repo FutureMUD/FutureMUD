@@ -32,6 +32,44 @@ public class ShapeWearProfile : WearProfile
 		LoadWearlocsFromXml(XElement.Parse(profile.WearlocProfiles), game);
 	}
 
+	protected ShapeWearProfile(ShapeWearProfile rhs, string newName)
+	{
+		Gameworld = rhs.Gameworld;
+		_name = newName;
+		DesignedBody = rhs.DesignedBody;
+		Description = rhs.Description;
+		WearAction1st = rhs.WearAction1st;
+		WearAction3rd = rhs.WearAction3rd;
+		WearStringInventory = rhs.WearStringInventory;
+		WearAffix = rhs.WearAffix;
+		RequireContainerIsEmpty = rhs.RequireContainerIsEmpty;
+		using (new FMDB())
+		{
+			var dbitem = new Models.WearProfile
+			{
+				Name = Name,
+				Description = Description,
+				BodyPrototypeId = DesignedBody.Id,
+				WearAction1st = WearAction1st,
+				WearAction3rd = WearAction3rd,
+				WearAffix = WearAffix,
+				WearStringInventory = WearStringInventory,
+				RequireContainerIsEmpty = RequireContainerIsEmpty,
+				WearlocProfiles = SaveDefinition().ToString()
+			};
+			FMDB.Context.WearProfiles.Add(dbitem);
+			FMDB.Context.SaveChanges();
+			_id = dbitem.Id;
+			LoadWearlocsFromXml(XElement.Parse(dbitem.WearlocProfiles), Gameworld);
+		}
+	}
+
+	/// <inheritdoc />
+	public override IWearProfile Clone(string newName)
+	{
+		return new ShapeWearProfile(this, newName);
+	}
+
 	public override string FrameworkItemType => "ShapeWearProfile";
 	public override string Type => "Shape";
 
@@ -64,18 +102,18 @@ public class ShapeWearProfile : WearProfile
 		sb.AppendLine();
 		sb.Append(new[]
 		{
-			string.Format(actor, "Name: {0}", Name),
-			string.Format(actor, "Body: {0} (#{1})", DesignedBody?.Name.TitleCase() ?? "None",
+			string.Format(actor, "Name: {0}", Name.ColourValue()),
+			string.Format(actor, "Body: {0} (#{1})", DesignedBody?.Name.TitleCase().ColourValue() ?? "None".ColourError(),
 				DesignedBody?.Id ?? -1),
-			string.Format(actor, "Type: {0}", Type)
+			string.Format(actor, "Type: {0}", Type.ColourValue())
 		}.ArrangeStringsOntoLines(3, (uint)actor.Account.LineFormatLength));
 		sb.Append(new[]
 		{
-			string.Format(actor, "Inventory: {0:N0}", WearStringInventory),
-			string.Format(actor, "Wear: {0}|{1} {2}", WearAction1st, WearAction3rd, WearAffix),
-			string.Format(actor, "Require Empty: {0}", RequireContainerIsEmpty)
+			string.Format(actor, "Inventory: {0:N0}", WearStringInventory.ColourValue()),
+			string.Format(actor, "Wear: #2{0}|{1} {2}#0".SubstituteANSIColour(), WearAction1st, WearAction3rd, WearAffix),
+			string.Format(actor, "Require Empty: {0}", RequireContainerIsEmpty.ToColouredString())
 		}.ArrangeStringsOntoLines(3, (uint)actor.Account.LineFormatLength));
-		sb.AppendLine($"Description:\n\n{Description.Wrap(80, "\t")}");
+		sb.AppendLine($"Description:\n\n{Description.Wrap(80, "\t").ColourCommand()}");
 		sb.AppendLine();
 		sb.Append(
 			StringUtilities.GetTextTable(
@@ -91,8 +129,8 @@ public class ShapeWearProfile : WearProfile
 					location.Value.Item2.HidesSeveredBodyparts ? "True" : "False"
 				},
 				new[]
-					{ "Shape", "Min", "Mandatory", "Prevent Removal", "Transparent", "No Armour", "Covers Sever" },
-				actor.Account.LineFormatLength,
+					{ "Shape", "Count", "Mandatory", "Prevent Removal", "Transparent", "No Armour", "Covers Sever" },
+				actor,
 				colour: Telnet.Green
 			)
 		);
@@ -115,6 +153,21 @@ public class ShapeWearProfile : WearProfile
 		}
 	}
 
+	protected XElement SaveDefinition()
+	{
+		return new XElement("Profiles",
+			from item in ShapeCounts
+			select new XElement("Shape",
+				new XAttribute("ShapeId", item.Key.Id),
+				new XAttribute("Count", item.Value.Item1),
+				new XAttribute("Transparent", item.Value.Item2.Transparent),
+				new XAttribute("NoArmour", item.Value.Item2.NoArmour),
+				new XAttribute("PreventsRemoval", item.Value.Item2.PreventsRemoval),
+				new XAttribute("Mandatory", item.Value.Item2.Mandatory),
+				new XAttribute("HidesSevered", item.Value.Item2.HidesSeveredBodyparts)
+			)
+		);
+	}
 
 	public override void Save()
 	{
@@ -127,18 +180,7 @@ public class ShapeWearProfile : WearProfile
 		dbitem.WearAction3rd = WearAction3rd;
 		dbitem.WearAffix = WearAffix;
 		dbitem.RequireContainerIsEmpty = RequireContainerIsEmpty;
-		dbitem.WearlocProfiles = new XElement("Profiles",
-			from item in ShapeCounts
-			select new XElement("Shape",
-				new XAttribute("ShapeId", item.Key.Id),
-				new XAttribute("Count", item.Value.Item1),
-				new XAttribute("Transparent", item.Value.Item2.Transparent),
-				new XAttribute("NoArmour", item.Value.Item2.NoArmour),
-				new XAttribute("PreventsRemoval", item.Value.Item2.PreventsRemoval),
-				new XAttribute("Mandatory", item.Value.Item2.Mandatory),
-				new XAttribute("HidesSevered", item.Value.Item2.HidesSeveredBodyparts)
-			)
-		).ToString();
+		dbitem.WearlocProfiles = SaveDefinition().ToString();
 		Changed = false;
 	}
 
@@ -177,9 +219,19 @@ public class ShapeWearProfile : WearProfile
 
 	#region Building Commands
 
+	/// <inheritdoc />
+	protected override string SubtypeBuildingHelp => @"	#3add <shape>#0 - adds a shape to this definition
+	#3remove <shape>#0 - removes a shape from this definition
+	#3set <shape> count <##>#0 - sets the number of parts of that shape to affect
+	#3set <shape> transparent#0 - toggles the cover at the shape being transparent
+	#3set <shape> noarmour#0 - toggles the cover at the shape not providing armour
+	#3set <shape> preventsremoval#0 - toggles the cover at the shape preventing covered items being removed
+	#3set <shape> mandatory#0 - toggles the cover at the shape being mandatory
+	#3set <shape> hidessevered#0 - toggles the cover at the shape hiding severed body parts";
+
 	public override void BuildingCommand(ICharacter actor, StringStack command)
 	{
-		switch (command.Pop().ToLowerInvariant())
+		switch (command.PopForSwitch())
 		{
 			case "add":
 			case "new":
@@ -262,6 +314,9 @@ public class ShapeWearProfile : WearProfile
 				ShapeCounts[shape].Item2.Transparent = bValue;
 				break;
 			case "noarmour":
+			case "noarmor":
+			case "armor":
+			case "armour":
 				if (command.IsFinished)
 				{
 					ShapeCounts[shape].Item2.NoArmour = !ShapeCounts[shape].Item2.NoArmour;
@@ -311,6 +366,11 @@ public class ShapeWearProfile : WearProfile
 				ShapeCounts[shape].Item2.Mandatory = bValue;
 				break;
 			case "hidessevered":
+			case "hide":
+			case "hidesevered":
+			case "hidesever":
+			case "hidessever":
+			case "sever":
 				if (command.IsFinished)
 				{
 					ShapeCounts[shape].Item2.HidesSeveredBodyparts = !ShapeCounts[shape].Item2.HidesSeveredBodyparts;
@@ -344,6 +404,9 @@ public class ShapeWearProfile : WearProfile
 					$"Wear Profile {Id:N0} ({Name}) with the {shape.Name.Colour(Telnet.Green)} shape will {(ShapeCounts[shape].Item2.Transparent ? "now" : "no longer")} be transparent.");
 				break;
 			case "noarmour":
+			case "noarmor":
+			case "armor":
+			case "armour":
 				actor.Send(
 					$"Wear Profile {Id:N0} ({Name}) with the {shape.Name.Colour(Telnet.Green)} shape will {(ShapeCounts[shape].Item2.NoArmour ? "now" : "no longer")} count as armour.");
 				break;
@@ -357,6 +420,11 @@ public class ShapeWearProfile : WearProfile
 					$"Wear Profile {Id:N0} ({Name}) with the {shape.Name.Colour(Telnet.Green)} shape will {(ShapeCounts[shape].Item2.Mandatory ? "now" : "no longer")} be mandatory.");
 				break;
 			case "hidessevered":
+			case "hide":
+			case "hidesevered":
+			case "hidesever":
+			case "hidessever":
+			case "sever":
 				actor.Send(
 					$"Wear Profile {Id:N0} ({Name}) with the {shape.Name.Colour(Telnet.Green)} shape will {(ShapeCounts[shape].Item2.HidesSeveredBodyparts ? "now" : "no longer")} hide severed bodyparts.");
 				break;
@@ -432,8 +500,6 @@ public class ShapeWearProfile : WearProfile
 		actor.Send(
 			$"Wear Profile {Id:N0} ({Name}) now has a removal-preventing, non-mandatory, non-transparent, armour-allowing, non-sever covering role at the {part.Name.Colour(Telnet.Green)} shape.");
 	}
-
-	protected override IEnumerable<string> BuildingOptions => new[] { "add", "remove", "set" };
 
 	#endregion
 }

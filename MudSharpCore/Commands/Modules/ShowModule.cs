@@ -538,15 +538,16 @@ public class ShowModule : Module<ICharacter>
 		actor.OutputHandler.Send(StringUtilities.GetTextTable(
 			from check in checks
 			select
-			new List<string> {
-				check.Type.DescribeEnum(),
-				check.TargetNumberExpression.Id.ToString("N0", actor),
-				check.TargetNumberExpression.OriginalFormulaText,
-				check.MaximumDifficultyForImprovement.Describe(),
-				check.CanTraitBranchIfMissing.ToColouredString(),
-				check.FailIfTraitMissing.DescribeEnum(),
-				check.CheckTemplateName,
-			},
+				new List<string>
+				{
+					check.Type.DescribeEnum(),
+					check.TargetNumberExpression.Id.ToString("N0", actor),
+					check.TargetNumberExpression.OriginalFormulaText,
+					check.MaximumDifficultyForImprovement.Describe(),
+					check.CanTraitBranchIfMissing.ToColouredString(),
+					check.FailIfTraitMissing.DescribeEnum(),
+					check.CheckTemplateName,
+				},
 			[
 				"Check",
 				"Expr ID",
@@ -612,16 +613,16 @@ public class ShowModule : Module<ICharacter>
 				switch (cmd[0])
 				{
 					case '+':
-						characters = characters.Where(x => 
-						x.PersonalName.GetName(NameStyle.FullName).Contains(cmdSub, StringComparison.InvariantCultureIgnoreCase) ||
-						x.HowSeen(actor, false, flags: PerceiveIgnoreFlags.TrueDescription).Contains(cmdSub, StringComparison.InvariantCultureIgnoreCase)
+						characters = characters.Where(x =>
+							x.PersonalName.GetName(NameStyle.FullName).Contains(cmdSub, StringComparison.InvariantCultureIgnoreCase) ||
+							x.HowSeen(actor, false, flags: PerceiveIgnoreFlags.TrueDescription).Contains(cmdSub, StringComparison.InvariantCultureIgnoreCase)
 						).ToList();
 						filterTexts.Add($"...with name or description containing {cmdSub.ColourCommand()}");
 						continue;
 					case '-':
 						characters = characters.Where(x =>
-						!x.PersonalName.GetName(NameStyle.FullName).Contains(cmdSub, StringComparison.InvariantCultureIgnoreCase) &&
-						!x.HowSeen(actor, false, flags: PerceiveIgnoreFlags.TrueDescription).Contains(cmdSub, StringComparison.InvariantCultureIgnoreCase)
+							!x.PersonalName.GetName(NameStyle.FullName).Contains(cmdSub, StringComparison.InvariantCultureIgnoreCase) &&
+							!x.HowSeen(actor, false, flags: PerceiveIgnoreFlags.TrueDescription).Contains(cmdSub, StringComparison.InvariantCultureIgnoreCase)
 						).ToList();
 						filterTexts.Add($"...with name or description not containing {cmdSub.ColourCommand()}");
 						continue;
@@ -637,6 +638,7 @@ public class ShowModule : Module<ICharacter>
 							characters = characters.Where(x => x.LoginDateTime > udt).ToList();
 							continue;
 						}
+
 						actor.OutputHandler.Send($"The text {cmdSub.ColourCommand()} is not a valid datetime.");
 						continue;
 					case '<':
@@ -647,6 +649,7 @@ public class ShowModule : Module<ICharacter>
 							characters = characters.Where(x => x.LoginDateTime < udt).ToList();
 							continue;
 						}
+
 						actor.OutputHandler.Send($"The text {cmdSub.ColourCommand()} is not a valid datetime.");
 						continue;
 					case '$':
@@ -658,17 +661,20 @@ public class ShowModule : Module<ICharacter>
 							filterTexts.Add($"...played in the last {result.ToString("N0", actor).ColourValue()} {"day".Pluralise(result != 1)}");
 							continue;
 						}
+
 						actor.OutputHandler.Send($"The text {cmdSub.ColourCommand()} is not a valid amount of days.");
 						continue;
 				}
 			}
 		}
+
 		var sb = new StringBuilder();
 		sb.AppendLine($"Showing all Player Characters...");
 		foreach (var filter in filterTexts)
 		{
 			sb.AppendLine(filter);
 		}
+
 		sb.AppendLine(StringUtilities.GetTextTable(
 			from ch in characters
 			select new List<string>
@@ -1747,7 +1753,7 @@ public class ShowModule : Module<ICharacter>
 				    .Select(x => (Event: x, Attribute: x.GetAttribute<EventInfoAttribute>()))
 				    .Select(x => new[]
 				    {
-					    ((int)x.Event).ToString("N0"), 
+					    ((int)x.Event).ToString("N0"),
 					    Enum.GetName(typeof(EventType), x.Event),
 					    x.Attribute?.Description ?? "Unknown",
 				    }),
@@ -1782,10 +1788,11 @@ public class ShowModule : Module<ICharacter>
 		sb.AppendLine();
 		sb.AppendLine("Parameters:");
 		sb.AppendLine();
-		foreach (var parameter in info?.Parameters ?? Enumerable.Empty<(string,string)>())
+		foreach (var parameter in info?.Parameters ?? Enumerable.Empty<(string, string)>())
 		{
 			sb.AppendLine($"\t{parameter.type.Colour(Telnet.VariableGreen)} {parameter.name.Colour(Telnet.VariableCyan)}");
 		}
+
 		sb.AppendLine();
 		sb.AppendLine(info?.Description?.Wrap(actor.InnerLineFormatLength) ?? "No event-specific description set up yet.");
 		actor.OutputHandler.Send(sb.ToString());
@@ -3255,10 +3262,7 @@ public class ShowModule : Module<ICharacter>
 			return;
 		}
 
-		var profile = long.TryParse(input.PopSpeech(), out var value)
-			? actor.Gameworld.WearProfiles.Get(value)
-			: actor.Gameworld.WearProfiles.FirstOrDefault(
-				x => x.Name.Equals(input.Last, StringComparison.InvariantCultureIgnoreCase));
+		var profile = actor.Gameworld.WearProfiles.GetByIdOrName(input.SafeRemainingArgument);
 		if (profile == null)
 		{
 			actor.OutputHandler.Send("There is no such wear profile to view.");
@@ -3276,26 +3280,7 @@ public class ShowModule : Module<ICharacter>
 			return;
 		}
 
-		var profiles = actor.Gameworld.WearProfiles.ToList();
-
-		//while (!input.IsFinished) {
-		// TODO - filter conditions
-		//}
-
-		actor.OutputHandler.Send(
-			StringUtilities.GetTextTable(
-				from profile in profiles.OrderBy(x => x.Id)
-				select
-					new[]
-					{
-						profile.Id.ToString(), profile.Name?.Proper() ?? "Unnamed",
-						profile.DesignedBody?.Name.Proper() ?? "None",
-						profile.Description
-					},
-				new[] { "ID#", "Name", "Designed Body", "Description" }, actor.Account.LineFormatLength,
-				colour: Telnet.Green, unicodeTable: actor.Account.UseUnicode
-			)
-		);
+		BuilderModule.WearProfileList(actor, input);
 	}
 
 	private static void Show_StackDecorators(ICharacter actor, StringStack input)

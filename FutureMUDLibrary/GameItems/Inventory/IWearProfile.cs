@@ -26,5 +26,7 @@ namespace MudSharp.GameItems.Inventory {
         string ShowTo(ICharacter actor);
         void BuildingCommand(ICharacter actor, StringStack command);
         bool CompatibleWith(IWearProfile otherProfile);
+        IWearProfile Clone(string newName);
+
     }
 }

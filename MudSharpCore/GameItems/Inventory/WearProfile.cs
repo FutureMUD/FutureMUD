@@ -60,9 +60,23 @@ public abstract class WearProfile : SaveableItem, IWearProfile
 
 	public abstract bool CompatibleWith(IWearProfile otherProfile);
 
+	public abstract IWearProfile Clone(string newName);
+
 	#region Building Commands
 
-	protected abstract IEnumerable<string> BuildingOptions { get; }
+	protected abstract string SubtypeBuildingHelp { get; }
+
+	public string BuildingHelp => $@"You can use the following options with this command:
+
+	#3name <name>#0 - renames the profile
+	#3description <desc>#0 - sets the description of the profile
+	#3body <which>#0 - sets the body for which this wear profile is designed
+	#3action1st <word>#0 - sets the 1st person verb for when worn
+	#3action3rd <word>#0 - sets the 3rd person verb for when worn
+	#3affix <word>#0 - sets the affix for how worn (on, over, around, etc)
+	#3inv <phrase>#0 - sets the inventory description
+	#3empty#0 - toggles whether this item needs to be empty to be worn (if container)
+{SubtypeBuildingHelp}";
 
 	public virtual void BuildingCommand(ICharacter actor, StringStack command)
 	{
@@ -108,8 +122,7 @@ public abstract class WearProfile : SaveableItem, IWearProfile
 				BuildingCommandEmpty(actor, command);
 				return;
 			default:
-				actor.Send(
-					$"The valid options are {new[] { "name", "description", "wear3rd", "wear1st", "affix", "wearstring", "body" }.Concat(BuildingOptions).Select(x => x.Colour(Telnet.Yellow)).ListToString()}");
+				actor.OutputHandler.Send(BuildingHelp.SubstituteANSIColour());
 				return;
 		}
 	}

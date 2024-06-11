@@ -19,19 +19,25 @@ internal class IfBlock : Statement
 	private static readonly Regex IfBlockElseCompileRegex = new(@"^\s*else\s*$",
 		RegexOptions.Multiline | RegexOptions.IgnoreCase);
 
+	private static readonly Regex IfBlockElseIfCompileRegex = new(@"^\s*elseif\s*\((.+)\)$",
+		RegexOptions.Multiline | RegexOptions.IgnoreCase);
+
 	protected IEnumerable<IStatement> FalseBlock;
 	protected IFunction LogicFunction;
 
 	protected IEnumerable<IStatement> TrueBlock;
+	protected IEnumerable<(IFunction ElseLogic, IEnumerable<IStatement> Statements)> ElseIfBlocks;
 
 	public override bool IsReturnOrContainsReturnOnAllBranches() => (TrueBlock.LastOrDefault()?.IsReturnOrContainsReturnOnAllBranches() ?? false) &&
-		(FalseBlock.LastOrDefault()?.IsReturnOrContainsReturnOnAllBranches() ?? false);
+	                                                                (FalseBlock.LastOrDefault()?.IsReturnOrContainsReturnOnAllBranches() ?? false) &&
+	                                                                (ElseIfBlocks.All(x => x.Statements.LastOrDefault()?.IsReturnOrContainsReturnOnAllBranches() ?? false));
 
-	public IfBlock(IEnumerable<IStatement> trueBlock, IEnumerable<IStatement> falseBlock, IFunction logicFunction)
+	public IfBlock(IEnumerable<IStatement> trueBlock, IEnumerable<IStatement> falseBlock, IFunction logicFunction, IEnumerable<(IFunction ElseLogic, IEnumerable<IStatement> Statements)> elseIfBlocks)
 	{
 		TrueBlock = trueBlock;
 		FalseBlock = falseBlock;
 		LogicFunction = logicFunction;
+		ElseIfBlocks = elseIfBlocks;
 	}
 
 	private static ICompileInfo IfBlockCompile(IEnumerable<string> lines,
@@ -54,33 +60,87 @@ internal class IfBlock : Statement
 		lines = lines.Skip(1);
 		var trueStatements = new List<IStatement>();
 		var falseStatements = new List<IStatement>();
+		var elseIfBlocks = new List<(IFunction ElseLogic, IEnumerable<IStatement> Statements)>();
 		IDictionary<string, FutureProgVariableTypes> localVariablesTrue =
 			new Dictionary<string, FutureProgVariableTypes>(variableSpace);
 		IDictionary<string, FutureProgVariableTypes> localVariablesFalse =
 			new Dictionary<string, FutureProgVariableTypes>(variableSpace);
 		var inFalseBlock = false;
+
+		var inElseIfBlock = false;
+		IFunction elseIfLogic = null;
+		List<IStatement> elseIfStatements = null;
+		IDictionary<string, FutureProgVariableTypes> localVariablesElseIf = new Dictionary<string, FutureProgVariableTypes>(variableSpace);
+
 		var currentLine = lineNumber;
 		while (lines.Any())
 		{
 			var line = lines.First();
 			if (IfBlockEndCompileRegex.IsMatch(line))
 			{
+				if (inElseIfBlock)
+				{
+					elseIfBlocks.Add((elseIfLogic, elseIfStatements));
+				}
 				return CompileInfo.GetFactory()
-				                  .CreateNew(new IfBlock(trueStatements, falseStatements, function), variableSpace,
+				                  .CreateNew(new IfBlock(trueStatements, falseStatements, function, elseIfBlocks), variableSpace,
 					                  lines.Skip(1),
 					                  lineNumber, currentLine + 1);
 			}
 
 			if (IfBlockElseCompileRegex.IsMatch(line))
 			{
+				if (inElseIfBlock)
+				{
+					elseIfBlocks.Add((elseIfLogic, elseIfStatements));
+					inElseIfBlock = false;
+				}
+				
 				inFalseBlock = true;
 				lines = lines.Skip(1);
 				currentLine++;
 				continue;
 			}
 
+			if (IfBlockElseIfCompileRegex.IsMatch(line))
+			{
+				if (inFalseBlock)
+				{
+					return CompileInfo.GetFactory()
+					                  .CreateError("Else If Block appears after an Else Block for the same If Statement.", lineNumber);
+				}
+
+				if (inElseIfBlock)
+				{
+					elseIfBlocks.Add((elseIfLogic, elseIfStatements));
+				}
+
+				inElseIfBlock = true;
+				var elseifmatch = IfBlockElseIfCompileRegex.Match(lines.First());
+				var elseiffuncInfo = FunctionHelper.CompileFunction(elseifmatch.Groups[1].Value, variableSpace, lineNumber, gameworld);
+				if (elseiffuncInfo.IsError)
+				{
+					return new CompileInfo(null, null, null, $"Error Message with Else If Function - {elseiffuncInfo.ErrorMessage}");
+				}
+
+				var elseiffunction = (IFunction)elseiffuncInfo.CompiledStatement;
+				if (!elseiffunction.ReturnType.CompatibleWith(FutureProgVariableTypes.Boolean))
+				{
+					return CompileInfo.GetFactory()
+					                  .CreateError("Else If Block's logic statement returned a non boolean value.", lineNumber);
+				}
+
+				elseIfLogic = elseiffunction;
+				localVariablesElseIf = new Dictionary<string, FutureProgVariableTypes>(variableSpace);
+				lines = lines.Skip(1);
+				elseIfStatements = new();
+				continue;
+			}
+
 			var statementInfo = FutureProg.CompileNextStatement(lines,
-				inFalseBlock ? localVariablesFalse : localVariablesTrue, currentLine + 1, gameworld);
+				inFalseBlock ? localVariablesFalse : (inElseIfBlock ? localVariablesElseIf : localVariablesTrue), 
+				currentLine + 1, 
+				gameworld);
 			if (statementInfo.IsError)
 			{
 				return CompileInfo.GetFactory()
@@ -93,6 +153,10 @@ internal class IfBlock : Statement
 				{
 					falseStatements.Add(statementInfo.CompiledStatement);
 				}
+				else if (inElseIfBlock)
+				{
+					elseIfStatements.Add(statementInfo.CompiledStatement);
+				}
 				else
 				{
 					trueStatements.Add(statementInfo.CompiledStatement);
@@ -103,6 +167,10 @@ internal class IfBlock : Statement
 			if (inFalseBlock)
 			{
 				localVariablesFalse = statementInfo.VariableSpace;
+			}
+			else if (inElseIfBlock)
+			{
+				localVariablesElseIf = statementInfo.VariableSpace;
 			}
 			else
 			{
@@ -136,6 +204,20 @@ internal class IfBlock : Statement
 	private static string ColouriseElseStatementDarkMode(string line)
 	{
 		return "else".Colour(Telnet.KeywordPink);
+	}
+
+	private static string ColouriseElseIfStatement(string line)
+	{
+		var match = IfBlockElseIfCompileRegex.Match(line);
+		return
+			$"{"elseif".Colour(Telnet.Blue, Telnet.Black)} ({FunctionHelper.ColouriseFunction(match.Groups[1].Value)})";
+	}
+
+	private static string ColouriseElseIfStatementDarkMode(string line)
+	{
+		var match = IfBlockElseIfCompileRegex.Match(line);
+		return
+			$"{"elseif".Colour(Telnet.KeywordPink)} ({FunctionHelper.ColouriseFunction(match.Groups[1].Value, true)})";
 	}
 
 	private static string ColouriseEndStatement(string line)
@@ -179,6 +261,14 @@ internal class IfBlock : Statement
 		);
 
 		FutureProg.RegisterStatementColouriser(
+			new Tuple<Regex, Func<string, string>>(IfBlockElseIfCompileRegex, ColouriseElseIfStatement)
+		);
+
+		FutureProg.RegisterStatementColouriser(
+			new Tuple<Regex, Func<string, string>>(IfBlockElseIfCompileRegex, ColouriseElseIfStatementDarkMode), true
+		);
+
+		FutureProg.RegisterStatementColouriser(
 			new Tuple<Regex, Func<string, string>>(new Regex(@"^\s*end .+", RegexOptions.IgnoreCase),
 				ColouriseEndStatement)
 		);
@@ -191,12 +281,14 @@ internal class IfBlock : Statement
 		FutureProg.RegisterStatementHelp("if", 
 			@"The IF statement is used to do different code actions depending on some condition. It takes a boolean function that determines whether the main branch executes or not.
 
-An IF statement block is ended by either an ELSE statement or an END IF statement. Everything between the IF and the first of these two is the main branch. The ELSE block is optional.
+An IF statement block is ended by either an ELSEIF statement, an ELSE statement or an END IF statement. Everything between the IF and the first of these three is the main branch. The ELSEIF and ELSE blocks are optional. There can be more than one ELSEIF branch.
 
 The syntax for this statement is:
 
 	#Hif#0 (#4condition#0)
 		#2// Do if true#0
+	#Helseif#0 (#4condition#0)
+		#2// Do if elseif is true
 	#Helse#0
 		#2// Do if false#0
 	#Hend if#0
@@ -208,13 +300,19 @@ For example:
 	#Helse#0
 		#3Echo#0(#6@ch#0, #1""Only admins can use this command.""#0)
 	#Hend if#0", 
-			"else, end");
+			"else, elseif end");
 
 		FutureProg.RegisterStatementHelp("else",
 			@"The ELSE statement is used to end the main branch of an IF statement and open the branch that executes if the main branch doesn't. The ELSE statement is optional.
 
 See the IF statement for full syntax for the else command",
-			"if, end");
+			"if, elseif, end");
+
+		FutureProg.RegisterStatementHelp("elseif",
+			@"The ELSE statement is used to open a branch that executes if the main branch doesn't and additional conditions are met. The ELSEIF statement is optional. An IF statement can have more than one ELSEIF branch.
+
+See the IF statement for full syntax for the elseif command",
+			"if, elseif, end");
 
 		FutureProg.RegisterStatementHelp("end",
 			@"The END statement is used to end several different ""block"" statements that have a block of code lines that belong to them. In some respects, it takes the place of closing curly braces in other languages.
@@ -228,7 +326,7 @@ The various forms this can take are as follows:
 	#Hend while#0 - closes a #Hwhile#0 loop statement block
 
 Execution of the prog resumes from the END statement after the conditional/loop block finishes.",
-			"if, else, switch, for, foreach, while");
+			"if, else, elseif, switch, for, foreach, while");
 	}
 
 	public override StatementResult Execute(IVariableSpace variables)
@@ -262,6 +360,38 @@ Execution of the prog resumes from the END statement after the conditional/loop 
 		}
 		else
 		{
+			foreach (var (elseIfLogic, elseIfBlock) in ElseIfBlocks)
+			{
+				if (elseIfLogic.Execute(variables) == StatementResult.Error)
+				{
+					ErrorMessage = elseIfLogic.ErrorMessage;
+					return StatementResult.Error;
+				}
+
+				if (!((bool)elseIfLogic.Result.GetObject))
+				{
+					continue;
+				}
+
+				var localVariables = new LocalVariableSpace(variables);
+				foreach (var statement in elseIfBlock)
+				{
+					var result = statement.Execute(localVariables);
+					if (result == StatementResult.Error)
+					{
+						ErrorMessage = statement.ErrorMessage;
+						return result;
+					}
+
+					if (result != StatementResult.Normal)
+					{
+						return result;
+					}
+				}
+
+				return StatementResult.Normal;
+			}
+
 			if (FalseBlock.Any())
 			{
 				var localVariables = new LocalVariableSpace(variables);

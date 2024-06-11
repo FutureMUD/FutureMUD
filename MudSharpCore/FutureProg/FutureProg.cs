@@ -68,7 +68,7 @@ public class FutureProg : SaveableItem, IFutureProg
 		RegexOptions.IgnoreCase);
 
 	private static readonly Regex _unendedDepthIncreasingStatementsRegex = new(
-		@"^\s*(case|default|else)( |$)", RegexOptions.IgnoreCase);
+		@"^\s*(case|default|else|elseif)( |$)", RegexOptions.IgnoreCase);
 
 	private static readonly Regex _commentRegex = new(@"^\s*(?:--|//|').*$", RegexOptions.IgnoreCase);
 

@@ -766,7 +766,18 @@ internal class HeritageBuilderModule: BaseBuilderModule
     #3knowledge edit new <name>#0 - creates a new knowledge with the specified name
     #3knowledge edit <which>#0 - begins editing a language
     #3knowledge close#0 - stops editing a knowledge
-    #3knowledge set ...#0 - sets the properties of a knowledge you're editing";
+	#3knowledge set name <name>#0 - renames the knowledge
+	#3knowledge set desc <desc>#0 - gives a new brief description of the knowledge
+	#3knowledge set ldesc <desc>#0 - sets the long description of a knowledge
+	#3knowledge set type <type>#0 - sets the knowledge type / category
+	#3knowledge set subtype <type>#0 - sets the knowledge subtype / subcategory
+	#3knowledge set sessions <##>#0 - sets the number of #3teach#0 sessions before someone learns the knowledge
+	#3knowledge set learnable LearnableAtSkillUp|LearnableAtChargen|LearnableFromTeacher#0 - toggles a learn type
+	#3knowledge set learnprog <prog>#0 - sets a prog that controls if someone can learn the knowledge
+	#3knowledge set learndifficulty <difficulty>#0 - sets the difficulty of the learn checks
+	#3knowledge set teachdifficulty <difficulty>#0 - sets the difficulty of the teach checks
+	#3knowledge set chargenprog <prog>#0 - sets the prog that controls if it can be taken at chargen
+	#3knowledge set resource <which> <##>#0 - sets the chargne cost of this knowledge (use 0 to remove cost)";
 
 	[PlayerCommand("Knowledge", "knowledge")]
 	[HelpInfo("knowledge", KnowledgeCommandHelp, AutoHelp.HelpArgOrNoArg, AdminKnowledgeCommandHelp)]

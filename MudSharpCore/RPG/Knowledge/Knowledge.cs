@@ -325,6 +325,21 @@ public class Knowledge : SaveableItem, IKnowledge
 
 	#region Implementation of IEditableItem
 
+	protected const string HelpText = @"You can use the following options with this command:
+
+	#3name <name>#0 - renames the knowledge
+	#3desc <desc>#0 - gives a new brief description of the knowledge
+	#3ldesc <desc>#0 - sets the long description of a knowledge
+	#3type <type>#0 - sets the knowledge type / category
+	#3subtype <type>#0 - sets the knowledge subtype / subcategory
+	#3sessions <##>#0 - sets the number of #3teach#0 sessions before someone learns the knowledge
+	#3learnable LearnableAtSkillUp|LearnableAtChargen|LearnableFromTeacher#0 - toggles a learn type
+	#3learnprog <prog>#0 - sets a prog that controls if someone can learn the knowledge
+	#3learndifficulty <difficulty>#0 - sets the difficulty of the learn checks
+	#3teachdifficulty <difficulty>#0 - sets the difficulty of the teach checks
+	#3chargenprog <prog>#0 - sets the prog that controls if it can be taken at chargen
+	#3resource <which> <##>#0 - sets the chargne cost of this knowledge (use 0 to remove cost)";
+
 	public bool BuildingCommand(ICharacter actor, StringStack command)
 	{
 		switch (command.PopSpeech().ToLowerInvariant())
@@ -372,7 +387,7 @@ public class Knowledge : SaveableItem, IKnowledge
 				return BuildingCommandTeachDifficulty(actor, command);
 
 			default:
-				actor.OutputHandler.Send("Help");
+				actor.OutputHandler.Send(HelpText.SubstituteANSIColour());
 				return false;
 		}
 	}

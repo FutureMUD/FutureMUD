@@ -155,6 +155,18 @@ public sealed class DiscordConnection : IDiscordConnection
 		}
 	}
 
+	public void NotifyProgError(long progId, string progName, string errorMessage)
+	{
+		try
+		{
+			SendClientMessage($"progerror {progId} \"{progName}\" {errorMessage}");
+		}
+		catch (SocketException)
+		{
+			CloseTcpConnection();
+		}
+	}
+
 	public void NotifyCustomChannel(ulong channel, string header, string echo)
 	{
 		try

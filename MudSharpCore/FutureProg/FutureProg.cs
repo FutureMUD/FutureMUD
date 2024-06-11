@@ -508,29 +508,31 @@ public class FutureProg : SaveableItem, IFutureProg
 
 #if DEBUG
 #else
-            try {
-#endif
-		foreach (var statement in _statements)
+		try
 		{
-			var result = statement.Execute(variableSpace);
-			switch (result)
+#endif
+			foreach (var statement in _statements)
 			{
-				case StatementResult.Return:
-					return ReturnType != FutureProgVariableTypes.Void
-						? variableSpace.GetVariable("return")?.GetObject
-						: null;
-				case StatementResult.Error:
-					Console.WriteLine("Error in Prog {0}: {1}", Id, statement.ErrorMessage);
-					return null;
+				var result = statement.Execute(variableSpace);
+				switch (result)
+				{
+					case StatementResult.Return:
+						return ReturnType != FutureProgVariableTypes.Void
+							? variableSpace.GetVariable("return")?.GetObject
+							: null;
+					case StatementResult.Error:
+						Gameworld.DiscordConnection.NotifyProgError(Id, FunctionName, $"There was a prog error in prog {Id} ({FunctionName}).\nParameters:\n{NamedParameters.Select(x => $"{x.Item2}: {variables.ElementAtOrDefault(NamedParameters.IndexOf(x))?.ToString() ?? "null"}").ArrangeStringsOntoLines(1, 120)}\n\nError:\n\n{statement.ErrorMessage}");
+						return null;
+				}
 			}
-		}
 #if DEBUG
 #else
-        }
-
-            catch (Exception e) {
-                throw new ApplicationException($"There was an unhandled exception in prog {Id} ({FunctionName}).\nParameters:\n{NamedParameters.Select(x => $"{x.Item2}: {variables.ElementAtOrDefault(NamedParameters.IndexOf(x))?.ToString() ?? "null"}").ArrangeStringsOntoLines(1, 120)}\n\nRaw Text:\n{FunctionText}\n\nException:\n{e.ToString()}");
-            }
+		}
+		catch (Exception e)
+		{
+			Gameworld.DiscordConnection.NotifyProgError(Id, FunctionName, $"There was an unhandled exception in prog {Id} ({FunctionName}).\nParameters:\n{NamedParameters.Select(x => $"{x.Item2}: {variables.ElementAtOrDefault(NamedParameters.IndexOf(x))?.ToString() ?? "null"}").ArrangeStringsOntoLines(1, 120)}\n\nException:\n\n{e.ToString()}");
+			return null;
+		}
 #endif
 
 		if (StaticType == FutureProgStaticType.FullyStatic)

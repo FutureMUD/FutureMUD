@@ -22,5 +22,6 @@ namespace MudSharp.Discord
         void HandleMessages();
         void HandleBroadcast(string message);
         void NotifyEnforcement(string subtype, ulong discordChannel, string otherText);
+        void NotifyProgError(long progId, string progName, string errorMessage);
     }
 }

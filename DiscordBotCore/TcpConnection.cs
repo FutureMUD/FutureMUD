@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using DSharpPlus;
 using DSharpPlus.Entities;
+using Microsoft.EntityFrameworkCore.Query.Internal;
 using MudSharp.Framework;
 using Serilog;
 using Utilities = MudSharp.Framework.Utilities;
@@ -123,9 +124,33 @@ public class TcpConnection {
 			case "ingamechannel":
 				await HandleTcpCommandInGameChannel(ss);
 				return;
+			case "progerror":
+				await HandleProgError(ss);
+				return;
 			default:
 				return;
 		}
+	}
+
+	private async Task HandleProgError(StringStack ss)
+	{
+		if (!TcpClientAuthenticated)
+		{
+			return;
+		}
+
+		var progId = long.Parse(ss.Pop());
+		var progName = ss.PopSpeech();
+		var errorText = ss.SafeRemainingArgument;
+
+		var embedBuilder = new DiscordEmbedBuilder()
+		                   .WithTitle($"Error In Prog #{progId} ({progName})")
+		                   .AddField("progID", progId.ToString("N0"))
+		                   .AddField("progName", progName)
+		                   .WithDescription(errorText);
+
+		var embed = embedBuilder.Build();
+		await _discordBot.AnnounceToDebugChannel(embed);
 	}
 
 	private async Task HandleTcpCommandInGameChannel(StringStack ss)

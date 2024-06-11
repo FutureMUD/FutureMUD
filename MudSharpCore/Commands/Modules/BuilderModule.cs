@@ -1386,6 +1386,12 @@ Trait expressions can be edited with the following syntax:
 	#3te set trait <which> <trait>#0 - sets the trait for a particular parameter
 	#3te set delete <which>#0 - deletes a particular parameter
 
+You can use the following filters with the #3te list#0 command:
+
+	#6+<keyword>#0 - formula or name should include the keyword
+	#6-<keyword>#0 - formula and name should not include the keyword
+	#6*<keyword>#0 - one of the parameters of the formula should be the named skill/attribute
+
 #6Using parameters#0
 
 The heart of the formulas is parameters. Each parameter has a name, and when the formula is evaluated by the engine that parameter will be replaced with an actual value. For example, you might have a parameter called #6strength#0 and at evaluate time, it points to the strength attribute of the character the expression is about.
@@ -1542,8 +1548,51 @@ Here are some examples of plausible trait expressions applying the above:
 
 	private static void TraitExpressionList(ICharacter actor, StringStack ss)
 	{
+		var expressions = actor.Gameworld.TraitExpressions.ToList();
+		// Filters
+		while (!ss.IsFinished)
+		{
+			var cmd = ss.PopSpeech();
+			if (cmd.Length < 2)
+			{
+				continue;
+			}
+
+			var first = cmd[0];
+			cmd = cmd.Substring(1);
+			switch (first)
+			{
+				case '+':
+					expressions = expressions
+					              .Where(x => 
+						              x.Name.Contains(cmd, StringComparison.InvariantCultureIgnoreCase) ||
+									  x.OriginalFormulaText.Contains(cmd, StringComparison.InvariantCultureIgnoreCase) ||
+									  x.Parameters.Any(y => y.Key.Contains(cmd, StringComparison.InvariantCultureIgnoreCase))
+						            )
+					              .ToList();
+					continue;
+				case '-':
+					expressions = expressions
+					              .Where(x =>
+						              !x.Name.Contains(cmd, StringComparison.InvariantCultureIgnoreCase) &&
+						              !x.OriginalFormulaText.Contains(cmd, StringComparison.InvariantCultureIgnoreCase) &&
+									  !x.Parameters.Any(y => y.Key.Contains(cmd, StringComparison.InvariantCultureIgnoreCase))
+					              )
+					              .ToList();
+					continue;
+				case '*':
+					expressions = expressions
+					              .Where(x => x.Parameters.Any(y => y.Value.Trait?.Name.Contains(cmd, StringComparison.InvariantCultureIgnoreCase) == true))
+					              .ToList();
+					continue;
+				default:
+					actor.OutputHandler.Send($"Invalid filter: {ss.Last.ColourCommand()}");
+					return;
+			}
+		}
+
 		actor.OutputHandler.Send(StringUtilities.GetTextTable(
-			from item in actor.Gameworld.TraitExpressions
+			from item in expressions
 			select new[]
 			{
 				item.Id.ToString("N0", actor),

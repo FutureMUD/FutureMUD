@@ -148,7 +148,7 @@ public partial class TraitExpression : SaveableItem, ITraitExpression
 		_name = "Unnamed Trait Expression";
 		Formula = expression;
 		OriginalFormulaText = expression.OriginalExpression;
-		Parameters = parameters.ToDictionary(x => x.Key, x => new TraitExpressionParameter
+		_parameters = parameters.ToDictionary(x => x.Key, x => new TraitExpressionParameter
 		{
 			Trait = x.Value,
 			CanImprove = true,
@@ -275,8 +275,16 @@ public partial class TraitExpression : SaveableItem, ITraitExpression
 
 	public Expression Formula { get; protected set; }
 
-	public Dictionary<string, TraitExpressionParameter> Parameters { get; protected set; } =
-		new();
+	private Dictionary<string, TraitExpressionParameter> _parameters = new();
+
+	public Dictionary<string, TraitExpressionParameter> Parameters
+	{
+		get
+		{
+			ProcessLazyLoading();
+			return _parameters;
+		}
+	}
 
 	private void ProcessLazyLoading()
 	{
@@ -289,7 +297,7 @@ public partial class TraitExpression : SaveableItem, ITraitExpression
 					Trait = Gameworld.Traits.Get(param.Value)
 				};
 				(newParam.CanImprove, newParam.CanBranch) = _parameterProperties[param.Key];
-				Parameters[param.Key] = newParam;
+				_parameters[param.Key] = newParam;
 			}
 
 			_parameterIndexes.Clear();

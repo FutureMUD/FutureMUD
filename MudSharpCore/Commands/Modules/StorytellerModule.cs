@@ -631,8 +631,19 @@ The syntax to use this command is #3newplayer <target>#0", AutoHelp.HelpArgOrNoA
 		character.SilentAssumeControl(character.Controller);
 	}
 
+	public const string LoadCurrencyHelp = @"This command is used to load an amount of currency into the world. Currency exists as a virtual currency pile object and so cannot be loaded directly using the normal methods.
+
+This command will assume you are referring to whatever currency is set as your current currency via #3set currency#0.
+
+The syntax to use this command is as follows:
+
+	#3loadcurrency <amounts>#0 - loads the specified currency amounts. You can specify multiple.
+	#3loadcurrency coins <##> <cointype>#0 - loads specific coins. You can specify multiple.
+	#3loadcurrency <##>#0 - loads the specified base value in coins";
+
 	[PlayerCommand("LoadCurrency", "loadcurrency")]
 	[CommandPermission(PermissionLevel.JuniorAdmin)]
+	[HelpInfo("loadcurrency", LoadCurrencyHelp, AutoHelp.HelpArgOrNoArg)]
 	protected static void LoadCurrency(ICharacter character, string input)
 	{
 		var ss = new StringStack(input.RemoveFirstWord());
@@ -660,7 +671,7 @@ The syntax to use this command is #3newplayer <target>#0", AutoHelp.HelpArgOrNoA
 				var scoin = ss.PopSpeech();
 				if (string.IsNullOrEmpty(scoin))
 				{
-					character.OutputHandler.Send("Which coin do you want to load " + amount + " of?");
+					character.OutputHandler.Send($"Which coin do you want to load {amount.ToString("N0", character)} of?");
 					return;
 				}
 
@@ -672,7 +683,7 @@ The syntax to use this command is #3newplayer <target>#0", AutoHelp.HelpArgOrNoA
 							 .StartsWith(scoin, StringComparison.InvariantCultureIgnoreCase));
 				if (coin == null)
 				{
-					character.OutputHandler.Send("There is no such coin as \"" + scoin + "\" for this currency.");
+					character.OutputHandler.Send($"There is no such coin as \"{scoin.ColourCommand()}\" for the {currency.Name.ColourName()} currency.");
 					return;
 				}
 
@@ -698,13 +709,16 @@ The syntax to use this command is #3newplayer <target>#0", AutoHelp.HelpArgOrNoA
 				return;
 			}
 
-			var decimalAmount = currency.GetBaseCurrency(strAmount, out var success);
-			if (!success || decimalAmount <= 0.0M)
+			if (!decimal.TryParse(strAmount, out var decimalAmount))
 			{
-				character.OutputHandler.Send("That is not a valid amount of currency to load.");
-				return;
+				decimalAmount = currency.GetBaseCurrency(strAmount, out var success);
+				if (!success || decimalAmount <= 0.0M)
+				{
+					character.OutputHandler.Send("That is not a valid amount of currency to load.");
+					return;
+				}
 			}
-
+			
 			coins = currency.FindCoinsForAmount(decimalAmount, out var exact);
 			if (!exact)
 			{

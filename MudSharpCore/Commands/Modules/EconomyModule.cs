@@ -343,17 +343,19 @@ internal class EconomyModule : Module<ICharacter>
 
 	#region Currency
 
-	public const string CurrencyHelp = @"This command is used to edit and view currencies. See also the closely related COIN command for editing coins.
+	public const string CurrencyHelp = @"This command is used to create, edit and view currencies. 
+
+See also the closely related #3COIN#0 command for editing coins for your currencies, and #3LOADCURRENCY#0 for loading some into the world.
 
 The syntax for editing currencies is as follows:
 
 	#3currency list#0 - lists all of the currencies (see below for filters)
-    #3currency edit <which>#0 - begins editing a currency
-    #3currency edit new <name> <lowest division> <lowest coin>#0 - generates a new coin
-    #3currency clone <old> <new>#0 - clones an existing currency to a new one
-    #3currency close#0 - stops editing a currency
-    #3currency show <which>#0 - views information about a currency
-    #3currency show#0 - views information about your currently editing currency
+	#3currency edit <which>#0 - begins editing a currency
+	#3currency edit new <name> <lowest division> <lowest coin>#0 - generates a new coin
+	#3currency clone <old> <new>#0 - clones an existing currency to a new one
+	#3currency close#0 - stops editing a currency
+	#3currency show <which>#0 - views information about a currency
+	#3currency show#0 - views information about your currently editing currency
 	#3currency set name <name>#0 - sets the name of this currency
 	#3currency set conversion <rate>#0 - sets the global currency conversion rate (to global base currency)
 	#3currency set adddivision <name> <rate>#0 - adds a new currency division
@@ -671,12 +673,20 @@ The syntax for editing currencies is as follows:
 The syntax for editing coins is as follows:
 
 	#3coin list#0 - lists all of the coins (see below for filters)
-    #3coin edit <which>#0 - begins editing a coin
-    #3coin edit new <currency> <name> <value>#0 - generates a new coin
-    #3coin clone <old> <new>#0 - clones an existing coin to a new one
-    #3coin close#0 - stops editing a coin
-    #3coin show <which>#0 - views information about a coin
-    #3coin show#0 - views information about your currently editing coin
+	#3coin edit <which>#0 - begins editing a coin
+	#3coin edit new <currency> <name> <value>#0 - generates a new coin
+	#3coin clone <old> <new>#0 - clones an existing coin to a new one
+	#3coin close#0 - stops editing a coin
+	#3coin show <which>#0 - views information about a coin
+	#3coin show#0 - views information about your currently editing coin
+	#3coin set name <name>#0 - renames the coin
+	#3coin set general <general>#0 - the general form of the coin (e.g. note, coin, etc)
+	#3coin set plural <word>#0 - the keyword from the sdesc to pluralise (e.g. coin, penny, bill)
+	#3coin set sdesc <sdesc>#0 - sets the short description of the coin
+	#3coin set desc#0 - drops you into an editor to edit the full description of the coin
+	#3coin set value <##>#0 - sets the base value of the coin
+	#3coin set weight <weight>#0 - sets the weight of each coin
+	#3coin set change#0 - toggles this coin being used for giving change
 
 You can use the following search filters:
 
@@ -1121,8 +1131,8 @@ The syntax for this command is as follows:
 		if (!ss.IsFinished)
 		{
 			merch = shop.Merchandises
-			            .Where(x => x.IsMerchandiseFor(item))
-			            .GetFromItemListByKeyword(ss.PopSpeech(), actor);
+						.Where(x => x.IsMerchandiseFor(item))
+						.GetFromItemListByKeyword(ss.PopSpeech(), actor);
 			if (merch == null)
 			{
 				actor.OutputHandler.Send(
@@ -7198,9 +7208,9 @@ The syntax for working with categories is as follows:
 		actor.OutputHandler.Send(StringUtilities.GetTextTable(
 			from item in categories
 			let prices = actor.Gameworld.Markets.Where(x => x.MarketCategories.Contains(item))
-			                  .Select(x => x.PriceMultiplierForCategory(item))
-			                  .DefaultIfEmpty(1.0M)
-			                  .ToList()
+							  .Select(x => x.PriceMultiplierForCategory(item))
+							  .DefaultIfEmpty(1.0M)
+							  .ToList()
 			select new List<string>
 			{
 				item.Id.ToString("N0", actor),

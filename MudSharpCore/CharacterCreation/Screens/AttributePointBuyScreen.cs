@@ -167,7 +167,7 @@ public class AttributePointBuyScreenStoryboard : ChargenScreenStoryboard
 			var boosts =
 				(int)Math.Round(
 					attribute.RawValue - AttributeBaseValueProg.ExecuteDouble(chargen, attribute.Definition) -
-					chargen.SelectedRace.AttributeBonusProg.ExecuteDouble(attribute.Definition), 0);
+					chargen.SelectedRace.AttributeBonusProg.ExecuteDouble(attribute.Definition, chargen), 0);
 			var nonFreeBoosts = Math.Max(0,
 				boosts - (int)(MaximumFreeBoostsProg?.ExecuteDouble(chargen, attribute.Definition) ?? 0.0));
 			totalNonFreeBoosts += nonFreeBoosts;
@@ -225,7 +225,7 @@ public class AttributePointBuyScreenStoryboard : ChargenScreenStoryboard
 			{
 				selectedAttributes.Add(TraitFactory.LoadAttribute(attribute, null,
 					_baseValues[attribute] + _numberOfBoosts[attribute] +
-					Chargen.SelectedRace.AttributeBonusProg.ExecuteDouble(attribute)));
+					Chargen.SelectedRace.AttributeBonusProg.ExecuteDouble(attribute, Chargen)));
 			}
 
 			Chargen.SelectedAttributes = selectedAttributes;
@@ -246,7 +246,7 @@ public class AttributePointBuyScreenStoryboard : ChargenScreenStoryboard
 			foreach (var attribute in _baseValues.Keys.OrderBy(x => x.Name))
 			{
 				var current = _baseValues[attribute] + _numberOfBoosts[attribute] +
-				              Chargen.SelectedRace.AttributeBonusProg.ExecuteDouble(attribute);
+				              Chargen.SelectedRace.AttributeBonusProg.ExecuteDouble(attribute, Chargen);
 				var boostString = "";
 				if (_numberOfBoosts[attribute] > 0)
 				{

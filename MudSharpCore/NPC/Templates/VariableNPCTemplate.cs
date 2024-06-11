@@ -304,7 +304,7 @@ public class VariableNPCTemplate : NPCTemplateBase
 			     .ToList();
 		var assignedStats = attributeOrder.Select(x => TraitFactory.LoadAttribute(x, null,
 			                                  statrolls[attributeOrder.IndexOf(x)] +
-			                                  Convert.ToDouble(_race.AttributeBonusProg.Execute(x))))
+			                                  Convert.ToDouble(_race.AttributeBonusProg.Execute(x, this))))
 		                                  .ToList<ITrait>();
 		var rolledSkills = _skillTemplates.Where(x => Constants.Random.NextDouble() <= x.Chance)
 		                                  .Select(y => (y.Trait,

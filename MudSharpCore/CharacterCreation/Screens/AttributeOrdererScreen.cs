@@ -209,7 +209,7 @@ public class AttributeOrdererScreenStoryboard : ChargenScreenStoryboard
 				Chargen.SelectedRace.IndividualAttributeCap, Chargen.SelectedRace.DiceExpression);
 			Chargen.SelectedAttributes = selectedAttributes.Select(x =>
 				TraitFactory.LoadAttribute(x, null, stats[selectedAttributes.IndexOf(x)] +
-				                                    Convert.ToDouble(Chargen.SelectedRace.AttributeBonusProg.Execute(x))
+				                                    Convert.ToDouble(Chargen.SelectedRace.AttributeBonusProg.Execute(x, Chargen))
 				)).ToList<ITrait>();
 			State = ChargenScreenState.Complete;
 			return "\n";

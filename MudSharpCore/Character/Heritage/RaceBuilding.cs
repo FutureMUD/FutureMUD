@@ -1041,10 +1041,12 @@ public partial class Race
 		}
 
 		var prog = new FutureProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument,
-			FutureProgVariableTypes.Number, new List<FutureProgVariableTypes>
-			{
-				FutureProgVariableTypes.Trait
-			}).LookupProg();
+			FutureProgVariableTypes.Number, 
+			[
+				[FutureProgVariableTypes.Trait],
+				[FutureProgVariableTypes.Trait, FutureProgVariableTypes.Chargen]
+			]
+			).LookupProg();
 		if (prog is null)
 		{
 			return false;

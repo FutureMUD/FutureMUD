@@ -48,6 +48,12 @@ internal class ClanInviteFunction : BuiltInFunction
 			return StatementResult.Error;
 		}
 
+		if (rank.Clan != clan)
+		{
+			ErrorMessage = $"Tried to add a rank from a non-matching clan";
+			return StatementResult.Error;
+		}
+
 		using (new FMDB())
 		{
 			var dbitem = new Models.ClanMembership

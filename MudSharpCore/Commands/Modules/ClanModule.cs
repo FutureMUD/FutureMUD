@@ -2493,7 +2493,7 @@ Your next payday is {3}.
 		var membership =
 			clan.Memberships.FirstOrDefault(x =>
 				!x.IsArchivedMembership && x.PersonalName.GetName(NameStyle.FullName).EqualTo(targetText));
-		if (membership != null)
+		if (membership is not null)
 		{
 			targetMembership = membership;
 		}
@@ -2507,7 +2507,7 @@ Your next payday is {3}.
 			}
 
 			targetMembership = targetActor.ClanMemberships.FirstOrDefault(x => x.Clan == clan);
-			if (targetMembership == null)
+			if (targetMembership is null)
 			{
 				actor.OutputHandler.Send(
 					new EmoteOutput(new Emote("$0 is not a member of " + clan.FullName.TitleCase() + ".", actor,
@@ -2554,7 +2554,7 @@ Your next payday is {3}.
 			));
 		}
 
-		clan.RemoveMembership(membership);
+		clan.RemoveMembership(targetMembership);
 	}
 
 	private static void ClanPromote(ICharacter actor, StringStack command)

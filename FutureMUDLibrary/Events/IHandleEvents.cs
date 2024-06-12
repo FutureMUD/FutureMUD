@@ -1,4 +1,5 @@
-﻿using MudSharp.Events.Hooks;
+﻿using System.Collections.Generic;
+using MudSharp.Events.Hooks;
 
 namespace MudSharp.Events {
     public delegate bool FutureMUDEventHandler(EventType type, params dynamic[] arguments);
@@ -9,5 +10,6 @@ namespace MudSharp.Events {
         bool HandlesEvent(params EventType[] types);
         bool InstallHook(IHook hook);
         bool RemoveHook(IHook hook);
+        IEnumerable<IHook> Hooks { get; }
     }
 }

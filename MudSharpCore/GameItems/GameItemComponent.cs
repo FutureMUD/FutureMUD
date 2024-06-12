@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using MudSharp.Body;
@@ -328,6 +329,8 @@ public abstract class GameItemComponent : LateInitialisingItem, IGameItemCompone
 		get => false;
 		set { }
 	}
+
+	public IEnumerable<IHook> Hooks => Enumerable.Empty<IHook>();
 
 	#endregion
 }

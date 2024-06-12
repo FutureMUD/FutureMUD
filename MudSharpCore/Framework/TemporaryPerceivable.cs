@@ -311,6 +311,8 @@ public abstract class TemporaryPerceivable : FrameworkItem, IPerceivable
 		set { }
 	}
 
+	public IEnumerable<IHook> Hooks => Enumerable.Empty<IHook>();
+
 	public bool Changed
 	{
 		get => false;

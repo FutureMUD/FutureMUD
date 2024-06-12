@@ -217,6 +217,8 @@ public abstract class ArtificialIntelligenceBase : SaveableItem, IArtificialInte
 		set { }
 	}
 
+	public IEnumerable<IHook> Hooks => Enumerable.Empty<IHook>();
+
 	#endregion
 
 	#region Implementation of IEditableItem

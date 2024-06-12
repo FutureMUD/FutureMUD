@@ -3000,6 +3000,13 @@ The syntax is as follows:
 		}
 
 		sb.AppendLine();
+		sb.AppendLine("Hooks:");
+		foreach (var hook in gi.Hooks)
+		{
+			sb.AppendLine($"\t#{hook.Id.ToString("N0", actor)}) {hook.Name.ColourName()} | {hook.Type.DescribeEnum(colour: Telnet.Green)} | {hook.InfoForHooklist}");
+		}
+
+		sb.AppendLine();
 		sb.AppendLine("Variables:");
 		foreach (var variable in actor.Gameworld.VariableRegister.AllVariables(FutureProgVariableTypes.Item))
 		{
@@ -3037,6 +3044,13 @@ The syntax is as follows:
 		foreach (var effect in ch.Effects)
 		{
 			sb.AppendLine($"\t{effect.Describe(actor)}");
+		}
+
+		sb.AppendLine();
+		sb.AppendLine("Hooks:");
+		foreach (var hook in ch.Hooks)
+		{
+			sb.AppendLine($"\t#{hook.Id.ToString("N0", actor)}) {hook.Name.ColourName()} | {hook.Type.DescribeEnum(colour: Telnet.Green)} | {hook.InfoForHooklist}");
 		}
 
 		sb.AppendLine();
@@ -3078,6 +3092,13 @@ The syntax is as follows:
 		foreach (var effect in exit.Exit.Effects)
 		{
 			sb.AppendLine($"\t{effect.Describe(actor)}");
+		}
+
+		sb.AppendLine();
+		sb.AppendLine("Hooks:");
+		foreach (var hook in exit.Exit.Hooks)
+		{
+			sb.AppendLine($"\t#{hook.Id.ToString("N0", actor)}) {hook.Name.ColourName()} | {hook.Type.DescribeEnum(colour: Telnet.Green)} | {hook.InfoForHooklist}");
 		}
 
 		sb.AppendLine();
@@ -3140,6 +3161,13 @@ The syntax is as follows:
 		foreach (var effect in cell.Effects)
 		{
 			sb.AppendLine($"\t{effect.Describe(actor)}");
+		}
+
+		sb.AppendLine();
+		sb.AppendLine("Hooks:");
+		foreach (var hook in cell.Hooks)
+		{
+			sb.AppendLine($"\t#{hook.Id.ToString("N0", actor)}) {hook.Name.ColourName()} | {hook.Type.DescribeEnum(colour: Telnet.Green)} | {hook.InfoForHooklist}");
 		}
 
 		sb.AppendLine();

@@ -698,6 +698,8 @@ public abstract class PerceivedItem : LateKeywordedInitialisingItem, IPerceivabl
 	protected readonly List<IHook> _installedHooks = new();
 	protected ILookup<EventType, Func<EventType, object[], bool>> _hookedFunctions;
 
+	public IEnumerable<IHook> Hooks => _installedHooks;
+
 	public virtual bool HandleEvent(EventType type, params dynamic[] arguments)
 	{
 		// Hooks cannot have exclusive "right to fire". Even if one hook handles the event, we want others to keep handling it.

@@ -3,6 +3,7 @@ using System.Linq;
 using MudSharp.Character;
 using MudSharp.Community;
 using MudSharp.Database;
+using MudSharp.FutureProg.Variables;
 
 namespace MudSharp.FutureProg.Functions.Clan;
 
@@ -54,6 +55,13 @@ internal class ClanInviteFunction : BuiltInFunction
 			return StatementResult.Error;
 		}
 
+		var existing = character.ClanMemberships.FirstOrDefault(x => x.Clan == clan);
+		if (existing is not null)
+		{
+			Result = new BooleanVariable(false);
+			return StatementResult.Normal;
+		}
+
 		using (new FMDB())
 		{
 			var dbitem = new Models.ClanMembership
@@ -73,6 +81,7 @@ internal class ClanInviteFunction : BuiltInFunction
 			clan.Memberships.Add(newMembership);
 		}
 
+		Result = new BooleanVariable(true);
 		return StatementResult.Normal;
 	}
 
@@ -86,7 +95,24 @@ internal class ClanInviteFunction : BuiltInFunction
 					FutureProgVariableTypes.Character, FutureProgVariableTypes.Clan,
 					FutureProgVariableTypes.ClanRank, FutureProgVariableTypes.Character
 				},
-				(pars, gameworld) => new ClanInviteFunction(pars)
+				(pars, gameworld) => new ClanInviteFunction(pars),
+				new List<string>
+				{
+					"Character",
+					"Clan",
+					"Rank",
+					"Manager"
+				},
+				new List<string>
+				{
+					"The characer to be invited to the clan",
+					"The clan to invite them into",
+					"The rank for them to be set to",
+					"The manager (or person considered to have invited them)"
+				},
+				"This function adds a character to a clan. It returns false if the character was already in the clan.",
+				"Clans",
+				FutureProgVariableTypes.Boolean
 			)
 		);
 
@@ -98,7 +124,22 @@ internal class ClanInviteFunction : BuiltInFunction
 					FutureProgVariableTypes.Character, FutureProgVariableTypes.Clan,
 					FutureProgVariableTypes.ClanRank
 				},
-				(pars, gameworld) => new ClanInviteFunction(pars)
+				(pars, gameworld) => new ClanInviteFunction(pars),
+				new List<string>
+				{
+					"Character",
+					"Clan",
+					"Rank",
+				},
+				new List<string>
+				{
+					"The characer to be invited to the clan",
+					"The clan to invite them into",
+					"The rank for them to be set to",
+				},
+				"This function adds a character to a clan. It returns false if the character was already in the clan.",
+				"Clans",
+				FutureProgVariableTypes.Boolean
 			)
 		);
 
@@ -106,7 +147,20 @@ internal class ClanInviteFunction : BuiltInFunction
 			new FunctionCompilerInformation(
 				"claninvite",
 				new[] { FutureProgVariableTypes.Character, FutureProgVariableTypes.Clan },
-				(pars, gameworld) => new ClanInviteFunction(pars)
+				(pars, gameworld) => new ClanInviteFunction(pars),
+				new List<string>
+				{
+					"Character",
+					"Clan",
+				},
+				new List<string>
+				{
+					"The characer to be invited to the clan",
+					"The clan to invite them into",
+				},
+				"This function adds a character to a clan at the default rank. It returns false if the character was already in the clan.",
+				"Clans",
+				FutureProgVariableTypes.Boolean
 			)
 		);
 	}

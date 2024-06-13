@@ -537,7 +537,7 @@ A function (See PROG HELP FUNCTIONS) can also function as a statement on a line.
 
 	#region Prog Sub Commands
 
-	private static string DescribeProgVariable(ICharacter actor, FutureProgVariableTypes returnType, object result)
+	public static string DescribeProgVariable(ICharacter actor, FutureProgVariableTypes returnType, object result)
 	{
 		if (result is null)
 		{
@@ -759,7 +759,7 @@ A function (See PROG HELP FUNCTIONS) can also function as a statement on a line.
 		actor.OutputHandler.Send(sb.ToString());
 	}
 
-	private static (object result, bool success) GetArgument(FutureProgVariableTypes type, string parText,
+	public static (object result, bool success) GetArgument(FutureProgVariableTypes type, string parText,
 		int parNumber, ICharacter actor)
 	{
 		if (type.HasFlag(FutureProgVariableTypes.Collection))

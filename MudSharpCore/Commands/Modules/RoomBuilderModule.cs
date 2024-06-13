@@ -29,6 +29,7 @@ using MudSharp.PerceptionEngine.Parsers;
 using MudSharp.RPG.Checks;
 using MudSharp.TimeAndDate.Date;
 using MudSharp.TimeAndDate.Time;
+using ProgSchedule = MudSharp.FutureProg.ProgSchedule;
 
 namespace MudSharp.Commands.Modules;
 
@@ -1724,34 +1725,24 @@ You can use the following subcommands:
 		var variableType = actor.Gameworld.VariableRegister.GetType(FutureProgVariableTypes.Location, variableName);
 		if (variableType == FutureProgVariableTypes.Error)
 		{
-			actor.Send("There is no cell variable called {0} - you will need to register it first.",
-				variableName);
-			return;
-		}
-
-		if (!FutureProgVariableTypes.ValueType.CompatibleWith(variableType))
-		{
-			actor.Send("Only value type variables can be set for Cells.");
+			actor.OutputHandler.Send($"There is no cell variable called {variableName.ColourName()} - you will need to register it first.");
 			return;
 		}
 
 		if (command.IsFinished)
 		{
-			actor.Send(
-				"What value do you want to set for this variable?\nNote: To delete the variable, use {0} instead",
-				"cell set register delete <variable>".Colour(Telnet.Yellow));
+			actor.OutputHandler.Send($"What value do you want to set for this variable?\nNote: To delete the variable, use {"cell set register delete <variable>".Colour(Telnet.Yellow)} instead");
 			return;
 		}
 
-		if (!actor.Gameworld.VariableRegister.ValidValueType(variableType, command.SafeRemainingArgument))
+		var (result, success) = ProgModule.GetArgument(variableType, command.SafeRemainingArgument, 1, actor);
+		if (!success)
 		{
-			actor.Send("That is not a valid value for the {0} variable type.", variableType.Describe());
 			return;
 		}
 
-		actor.Gameworld.VariableRegister.SetValue(actor.Location, variableName, null);
-		actor.Send("You set the register value {0} for this cell to {1}.", variableName.Colour(Telnet.Cyan),
-			command.SafeRemainingArgument.Colour(Telnet.Green));
+		actor.Gameworld.VariableRegister.SetValue(actor.Location, variableName, FutureProg.FutureProg.GetVariable(variableType, result));
+		actor.OutputHandler.Send($"You set the register value {variableName.Colour(Telnet.Cyan)} for this cell to {ProgModule.DescribeProgVariable(actor, variableType, result)}.");
 	}
 
 	private static void CellSetRegisterDelete(ICharacter actor, StringStack command)

@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
+using MudSharp.Framework.Revision;
 
 #nullable enable
 namespace MudSharp.Framework {
@@ -867,6 +868,20 @@ namespace MudSharp.Framework {
                    itemList.FirstOrDefault(x =>
                        x.Name.StartsWith(text, StringComparison.InvariantCultureIgnoreCase));
         }
+
+        public static T? GetByRevisableId<T>(this IEnumerable<T> items, string text) where T : IRevisableItem
+        {
+	        if (long.TryParse(text, out var id))
+	        {
+		        var ids = items.Where(x => x.Id == id).ToList();
+		        return
+			        ids.FirstOrDefault(x => x.Status == RevisionStatus.Current) ??
+			        ids.FirstOrDefault(x => x.Status == RevisionStatus.PendingRevision || x.Status == RevisionStatus.UnderDesign) ??
+			        ids.FirstMax(x => x.RevisionNumber);
+	        }
+
+	        return default;
+		}
 
         public static T? GetById<T>(this IEnumerable<T> items, string text) where T : IFrameworkItem
         {

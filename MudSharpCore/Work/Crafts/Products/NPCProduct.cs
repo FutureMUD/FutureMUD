@@ -195,11 +195,13 @@ internal class NPCProduct : BaseProduct
 			case "quantity":
 				return BuildingCommandQuantity(actor, command);
 			case "template":
+			case "npc":
+			case "mob":
 				return BuildingCommandTemplate(actor, command);
 			case "prog":
 				return BuildingCommandProg(actor, command);
 		}
-		return base.BuildingCommand(actor, command.GetUndo());
+		return base.BuildingCommand(actor, command);
 	}
 
 	private bool BuildingCommandProg(ICharacter actor, StringStack command)
@@ -238,7 +240,7 @@ internal class NPCProduct : BaseProduct
 			return false;
 		}
 
-		var template = Gameworld.NpcTemplates.GetById(command.SafeRemainingArgument);
+		var template = Gameworld.NpcTemplates.GetByRevisableId(command.SafeRemainingArgument);
 		if (template is null)
 		{
 			actor.OutputHandler.Send("There is no such NPC Template.");

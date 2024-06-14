@@ -2461,15 +2461,17 @@ public class Craft : Framework.Revision.EditableItem, ICraft
 		var sb = new StringBuilder();
 		sb.AppendLine(EditHeader().GetLineWithTitle(actor, Telnet.Cyan, Telnet.BoldWhite));
 		sb.AppendLine();
-		sb.AppendLine($"Status: {Status.DescribeEnum(true).ColourValue()}");
-		sb.AppendLine($"Valid: {(_craftIsValid ? "Yes".Colour(Telnet.Green) : "No".Colour(Telnet.Red))}");
+
 		sb.AppendLineColumns((uint)actor.LineFormatLength, 3,
 			$"Name: {Name.Colour(Telnet.Green)}",
-			$"Action: {ActionDescription.Colour(Telnet.Green)}",
-			$"Category: {Category.Colour(Telnet.Green)}"
+			$"Category: {Category.Colour(Telnet.Green)}",
+			$"Valid: {(_craftIsValid ? "Yes".Colour(Telnet.Green) : "No".Colour(Telnet.Red))}"
 		);
-		sb.AppendLine($"In-Progress Item Desc: {ActiveCraftItemSDesc.Colour(Telnet.Green)}");
 		sb.AppendLine($"Blurb: {Blurb.ColourCommand()}");
+		sb.AppendLine($"Status: {Status.DescribeEnum(true).ColourValue()}");
+		sb.AppendLine($"Action: {ActionDescription.Colour(Telnet.Green)}");
+		sb.AppendLine($"In-Progress Item Desc: {ActiveCraftItemSDesc.Colour(Telnet.Green)}");
+		sb.AppendLine();
 		sb.AppendLineColumns((uint)actor.LineFormatLength, 3,
 			$"Appear Prog: {(AppearInCraftsListProg != null ? $"{AppearInCraftsListProg.FunctionName} (#{AppearInCraftsListProg.Id})".FluentTagMXP("send", $"href='show futureprog {AppearInCraftsListProg.Id}'") : "None".Colour(Telnet.Red))}",
 			$"CanUse Prog: {(CanUseProg != null ? $"{CanUseProg.FunctionName} (#{CanUseProg.Id})".FluentTagMXP("send", $"href='show futureprog {CanUseProg.Id}'") : "None".Colour(Telnet.Red))}",

@@ -330,7 +330,7 @@ internal class InputVariableProduct : BaseProduct
 
 	public override bool BuildingCommand(ICharacter actor, StringStack command)
 	{
-		switch (command.PopSpeech().ToLowerInvariant())
+		switch (command.PopForSwitch())
 		{
 			case "item":
 				return BuildingCommandItem(actor, command);

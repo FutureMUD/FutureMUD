@@ -497,6 +497,40 @@ public class EconomicZone : SaveableItem, IEconomicZone
 		       _shopsTaxesInCredit[shop.Id];
 	}
 
+	public void ForgiveTaxesForShop(IShop shop, decimal amount = 0.0M)
+	{
+		Changed = true;
+		if (amount <= 0.0M)
+		{
+			_shopsOutstandingSalesTaxes[shop.Id] = 0.0M;
+			_shopsOutstandingProfitTaxes[shop.Id] = 0.0M;
+			return;
+		}
+
+		if (_shopsOutstandingSalesTaxes[shop.Id] >= amount)
+		{
+			_shopsOutstandingSalesTaxes[shop.Id] -= amount;
+			return;
+		}
+
+		amount -= _shopsOutstandingSalesTaxes[shop.Id];
+		_shopsOutstandingSalesTaxes[shop.Id] = 0.0M;
+
+		if (_shopsOutstandingProfitTaxes[shop.Id] >= amount)
+		{
+			_shopsOutstandingProfitTaxes[shop.Id] -= amount;
+			return;
+		}
+
+		amount -= _shopsOutstandingProfitTaxes[shop.Id];
+		_shopsOutstandingProfitTaxes[shop.Id] = 0.0M;
+
+		if (amount > 0.0M)
+		{
+			_shopsTaxesInCredit[shop.Id] += amount;
+		}
+	}
+
 	public void PayTaxesForShop(IShop shop, decimal amount)
 	{
 		Changed = true;

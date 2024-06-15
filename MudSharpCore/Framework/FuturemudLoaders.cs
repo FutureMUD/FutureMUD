@@ -436,6 +436,7 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 				}
 			}, ScheduleType.System, TimeSpan.FromMinutes(60),
 			"Market Population Heartbeats"));
+		Scheduler.AddSchedule(new RepeatingSchedule<IFuturemud>(this, this, MudSharp.Economy.Shop.DoAutopayShopTaxes, ScheduleType.System, TimeSpan.FromMinutes(60), "Shop Autopay Taxes"));
 		Chargen.SetupChargen(this);
 		HeartbeatManager.StartHeartbeatTick();
 		EffectScheduler.SetupEffectSaver();

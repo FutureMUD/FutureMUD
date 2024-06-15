@@ -33,6 +33,7 @@ namespace MudSharp.Economy
         void CloseCurrentFinancialPeriod();
         decimal OutstandingTaxesForShop(IShop shop);
         void PayTaxesForShop(IShop shop, decimal amount);
+        void ForgiveTaxesForShop(IShop shop, decimal amount = 0.0M);
         void ReportSalesTaxCollected(IShop shop, decimal amount);
         IEnumerable<(IFinancialPeriod Period, decimal TotalTaxRevenue)> HistoricalRevenues { get; }
 

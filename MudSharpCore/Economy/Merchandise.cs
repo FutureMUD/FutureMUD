@@ -765,6 +765,13 @@ public class Merchandise : LateInitialisingItem, IMerchandise
 			;
 	}
 
+	public void ShopCurrencyChanged(ICurrency oldCurrency, ICurrency newCurrency)
+	{
+		BasePrice *= oldCurrency.BaseCurrencyToGlobalBaseCurrencyConversion / newCurrency.BaseCurrencyToGlobalBaseCurrencyConversion;
+		AutoReorderPrice *= oldCurrency.BaseCurrencyToGlobalBaseCurrencyConversion / newCurrency.BaseCurrencyToGlobalBaseCurrencyConversion;
+		Changed = true;
+	}
+
 	public IEnumerable<string> Keywords => ListDescription.Strip_A_An().Split(' ', '-', ',');
 
 	#region IFutureProgVariable Implementation

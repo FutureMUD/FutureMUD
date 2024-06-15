@@ -1041,7 +1041,7 @@ The syntax for this command is as follows:
 						goto default;
 					}
 
-					if (shop.BankAccount is null)
+					if (shop.BankAccount is null || shop.BankAccount.Currency != shop.Currency)
 					{
 						actor.OutputHandler.Send("This shop does not accept non-cash payment.");
 						return;
@@ -1202,7 +1202,7 @@ The syntax for this command is as follows:
 						goto default;
 					}
 
-					if (shop.BankAccount is null)
+					if (shop.BankAccount is null || shop.BankAccount.Currency != shop.Currency)
 					{
 						actor.OutputHandler.Send("This shop does not accept non-cash payment.");
 						return;
@@ -1373,10 +1373,13 @@ The syntax for this command is as follows:
 				case "remove":
 					ShopRemove(actor, ss);
 					return;
+				case "rezone":
+					ShopRezone(actor, ss);
+					return;
 			}
 		}
 
-		actor.OutputHandler.Send("That is not a valid option. See SHOP HELP for more information.");
+		actor.OutputHandler.Send((actor.IsAdministrator() ? ShopHelpAdmins : ShopHelpPlayers).SubstituteANSIColour());
 	}
 
 	#region Shop Subcommands
@@ -1384,7 +1387,7 @@ The syntax for this command is as follows:
 	private const string ShopHelpPlayers = @"You can use the following options with the shop command:
 
 	#3shop payaccount <account> <amount>#0 - pays off a line of credit account
-	#3shop paytax <amount>|all#0 - pays owing taxes out of the till
+	#3shop paytax <amount>|all#0 - pays owing taxes out of all sources of available cash
 	#3shop accountstatus <account>#0 - inquires about the status of a line of credit account
 	#3shop account ...#0 - allows store managers to configure line of credit accounts. See #3SHOP ACCOUNT HELP#0.
 	#3shop clockin#0 - clocks in as an on-duty employee
@@ -1415,7 +1418,7 @@ The syntax for this command is as follows:
 	private const string ShopHelpAdmins = @"You can use the following options with the shop command:
 
 	#3shop payaccount <account> <amount>#0 - pays off a line of credit account
-	#3shop paytax <amount>|all#0 - pays owing taxes out of the till
+	#3shop paytax <amount>|all#0 - pays owing taxes out of all sources of available cash
 	#3shop accountstatus <account>#0 - inquires about the status of a line of credit account
 	#3shop account ...#0 - allows store managers to configure line of credit accounts. See #3SHOP ACCOUNT HELP#0.
 	#3shop clockin#0 - clocks in as an on-duty employee
@@ -1454,7 +1457,38 @@ Additionally, you can use the following shop admin subcommands:
 	#3shop extend <shop> <direction> [stockroom|workshop]#0 - extends the specified shop in the specified direction, optionally as the stockroom or workshop
 	#3shop remove#0 - removes the current location from its shop.
 	#3shop autostock#0 - automatically loads and stocks items up to the minimum reorder levels for all merchandise
-	#3shop setupstall <stall> <shop>#0 - sets up a stall item as belonging to a shop";
+	#3shop setupstall <stall> <shop>#0 - sets up a stall item as belonging to a shop
+	#3shop rezone <zone>#0 - changes the economic zone of a shop";
+	private static void ShopRezone(ICharacter actor, StringStack ss)
+	{
+		if (!DoShopCommandFindShop(actor, out var shop))
+		{
+			return;
+		}
+
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send("Which Economic Zone do you want to move this shop to?");
+			return;
+		}
+
+		var zone = actor.Gameworld.EconomicZones.GetByIdOrName(ss.SafeRemainingArgument);
+		if (zone is null)
+		{
+			actor.OutputHandler.Send($"The text {ss.SafeRemainingArgument.ColourCommand()} is not a valid economic zone.");
+			return;
+		}
+
+		if (shop.EconomicZone == zone)
+		{
+			actor.OutputHandler.Send($"{shop.Name.TitleCase().ColourName()} is already in the {zone.Name.ColourValue()} economic zone.");
+			return;
+		}
+
+		actor.OutputHandler.Send($"You move the {shop.Name.TitleCase().ColourName()} shop from the {shop.EconomicZone.Name.ColourValue()} economic zone to the {zone.Name.ColourValue()} economic zone.");
+		shop.EconomicZone = zone;
+	}
+
 	private static void ShopClose(ICharacter actor, StringStack ss)
 	{
 		if (!DoShopCommandFindShop(actor, out var shop))
@@ -1736,37 +1770,16 @@ Additionally, you can use the following shop admin subcommands:
 			return;
 		}
 
-		var currencyPiles = shop.GetCurrencyPilesForShop().ToList();
-		var targetCoins = shop.Currency.FindCurrency(currencyPiles, amount);
-		var value = targetCoins.Sum(x => x.Value.Sum(y => y.Value * y.Key.Value));
+		var available = shop.AvailableCashFromAllSources();
 
-		if (value < amount)
+		if (available < amount)
 		{
 			actor.OutputHandler.Send(
-				$"This shop cannot afford to pay that much. The most it could pay is {shop.Currency.Describe(value, CurrencyDescriptionPatternType.ShortDecimal).ColourValue()}.");
+				$"This shop cannot afford to pay that much. The most it could pay is {shop.Currency.Describe(available, CurrencyDescriptionPatternType.ShortDecimal).ColourValue()}.");
 			return;
 		}
 
-		var change = value - amount;
-		foreach (var item in targetCoins.Where(item =>
-					 !item.Key.RemoveCoins(item.Value.Select(x => Tuple.Create(x.Key, x.Value)))))
-		{
-			item.Key.Parent.Delete();
-		}
-
-		var counter = new Counter<ICoin>();
-		foreach (var item in targetCoins)
-			foreach (var coin in item.Value)
-			{
-				counter[coin.Key] += coin.Value;
-			}
-
-		if (change > 0.0M)
-		{
-			shop.AddCurrencyToShop(CurrencyGameItemComponentProto.CreateNewCurrencyPile(shop.Currency,
-					shop.Currency.FindCoinsForAmount(change, out _)));
-		}
-
+		shop.TakeCashFromAllSources(amount, "Paying taxes");
 		shop.EconomicZone.PayTaxesForShop(shop, amount);
 		actor.OutputHandler.Send(
 			$"You pay {shop.Currency.Describe(amount, CurrencyDescriptionPatternType.ShortDecimal).ColourValue()} in taxes for {shop.Name.TitleCase().ColourName()}. The shop now owes {shop.Currency.Describe(shop.EconomicZone.OutstandingTaxesForShop(shop), CurrencyDescriptionPatternType.ShortDecimal).ColourValue()} in taxes.");

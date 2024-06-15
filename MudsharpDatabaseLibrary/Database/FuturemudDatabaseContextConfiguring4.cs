@@ -606,6 +606,7 @@ namespace MudSharp.Database
                 entity.Property(e => e.EconomicZoneId).HasColumnType("bigint(20)");
                 entity.Property(e => e.BankAccountId).HasColumnType("bigint(20)");
                 entity.Property(e => e.CashBalance).HasColumnType("decimal(58, 29)");
+                entity.Property(e => e.AutopayTaxes).HasColumnType("bit(1)").HasDefaultValue(true);
 
 				entity.Property(e => e.EmployeeRecords)
                     .IsRequired()

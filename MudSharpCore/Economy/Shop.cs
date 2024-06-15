@@ -27,11 +27,40 @@ using MudSharp.Events;
 using MudSharp.Models;
 using MudSharp.TimeAndDate.Date;
 using MudSharp.TimeAndDate.Time;
+using System.Security.Cryptography;
 
 namespace MudSharp.Economy;
 
 public abstract class Shop : SaveableItem, IShop
 {
+	public static void DoAutopayShopTaxes(IFuturemud gameworld)
+	{
+		foreach (var shop in gameworld.Shops)
+		{
+			if (!shop.AutoPayTaxes)
+			{
+				continue;
+			}
+
+			var owed = shop.EconomicZone.OutstandingTaxesForShop(shop);
+			if (owed <= 0.0M)
+			{
+				continue;
+			}
+
+			var available = shop.AvailableCashFromAllSources();
+			if (available > owed)
+			{
+				shop.TakeCashFromAllSources(owed, "Automatically paying taxes");
+				shop.EconomicZone.PayTaxesForShop(shop, owed);
+				continue;
+			}
+
+			shop.TakeCashFromAllSources(available, "Automatically paying taxes");
+			shop.EconomicZone.PayTaxesForShop(shop, owed);
+		}
+	}
+
 	public static IShop LoadShop(Models.Shop shop, IFuturemud gameworld)
 	{
 		switch (shop.ShopType)
@@ -52,6 +81,7 @@ public abstract class Shop : SaveableItem, IShop
 		_name = name;
 		EconomicZone = zone;
 		IsTrading = true;
+		AutoPayTaxes = true;
 		using (new FMDB())
 		{
 			var dbitem = new Models.Shop();
@@ -61,6 +91,7 @@ public abstract class Shop : SaveableItem, IShop
 			dbitem.EconomicZoneId = zone.Id;
 			dbitem.IsTrading = true;
 			dbitem.ShopType = type;
+			dbitem.AutopayTaxes = true;
 			dbitem.EmployeeRecords = "<Employees/>";
 			if (originalShopFront is not null) { 
 				dbitem.ShopsStoreroomCells.Add(new ShopsStoreroomCell { Shop = dbitem, CellId = originalShopFront.Id });
@@ -70,21 +101,21 @@ public abstract class Shop : SaveableItem, IShop
 		}
 	}
 
-    protected Shop(MudSharp.Models.Shop shop, IFuturemud gameworld)
+	protected Shop(MudSharp.Models.Shop shop, IFuturemud gameworld)
 	{
 		Gameworld = gameworld;
 		_id = shop.Id;
 		_name = shop.Name;
-		EconomicZone = gameworld.EconomicZones.Get(shop.EconomicZoneId);
+		_economicZone = gameworld.EconomicZones.Get(shop.EconomicZoneId);
 		_cashBalance = shop.CashBalance;
 		MinimumFloatToBuyItems = shop.MinimumFloatToBuyItems;
 		IsTrading = shop.IsTrading;
 		Currency = gameworld.Currencies.Get(shop.CurrencyId);
 		MarketForPricingPurposes = gameworld.Markets.Get(shop.MarketId ?? 0);
-		
+		AutoPayTaxes = shop.AutopayTaxes;
 		_canShopProg = gameworld.FutureProgs.Get(shop.CanShopProgId ?? 0);
 		_whyCannotShopProg = gameworld.FutureProgs.Get(shop.WhyCannotShopProgId ?? 0);
-        
+		
 		_bankAccountId = shop.BankAccountId;
 		foreach (var item in shop.Merchandises)
 		{
@@ -139,12 +170,13 @@ public abstract class Shop : SaveableItem, IShop
 		dbitem.WhyCannotShopProgId = WhyCannotShopProg?.Id;
 		dbitem.MinimumFloatToBuyItems = MinimumFloatToBuyItems;
 		dbitem.MarketId = MarketForPricingPurposes?.Id;
+		dbitem.AutopayTaxes = AutoPayTaxes;
 		dbitem.EmployeeRecords = new XElement("Employees",
 			from employee in EmployeeRecords
 			select employee.SaveToXml()
 		).ToString();
 		Save(dbitem);
-        Changed = false;
+		Changed = false;
 	}
 
 	public override string FrameworkItemType => "Shop";
@@ -154,8 +186,42 @@ public abstract class Shop : SaveableItem, IShop
 		get => _economicZone;
 		set
 		{
+			var old = _economicZone;
 			_economicZone = value;
 			Changed = true;
+			if (old is not null && old != value)
+			{
+				var owed = old.OutstandingTaxesForShop(this);
+				if (owed > 0.0M)
+				{
+					var available = AvailableCashFromAllSources();
+					if (available > owed)
+					{
+						TakeCashFromAllSources(owed, "Paying taxes due to change of economic zone");
+						old.PayTaxesForShop(this, owed);
+					}
+					else
+					{
+						TakeCashFromAllSources(available, "Paying taxes due to change of economic zone");
+						old.PayTaxesForShop(this, owed);
+						old.ForgiveTaxesForShop(this);
+					}
+				}
+			}
+
+			if (old is not null && value is not null && old != value)
+			{
+				MarketForPricingPurposes = null;
+				if (old.Currency != value.Currency)
+				{
+					CashBalance *= old.Currency.BaseCurrencyToGlobalBaseCurrencyConversion / value.Currency.BaseCurrencyToGlobalBaseCurrencyConversion;
+					MinimumFloatToBuyItems *= old.Currency.BaseCurrencyToGlobalBaseCurrencyConversion / value.Currency.BaseCurrencyToGlobalBaseCurrencyConversion;
+					foreach (var merch in Merchandises)
+					{
+						merch.ShopCurrencyChanged(old.Currency, value.Currency);
+					}
+				}
+			}
 		}
 	}
 
@@ -185,6 +251,8 @@ public abstract class Shop : SaveableItem, IShop
 
 	public decimal MinimumFloatToBuyItems { get; set; }
 
+	public bool AutoPayTaxes { get; private set; }
+
 	public IBankAccount BankAccount
 	{
 		get
@@ -203,9 +271,9 @@ public abstract class Shop : SaveableItem, IShop
 			Changed = true;
 		}
 	}
-    
+	
 
-    protected readonly CollectionDictionary<IMerchandise, long> _stockedMerchandise = new();
+	protected readonly CollectionDictionary<IMerchandise, long> _stockedMerchandise = new();
 	protected readonly Counter<IMerchandise> _stockedMerchandiseCounts = new();
 
 	public bool IsTrading { get; protected set; }
@@ -220,7 +288,7 @@ public abstract class Shop : SaveableItem, IShop
 	private readonly List<IEmployeeRecord> _employeeRecords = new();
 	public IEnumerable<IEmployeeRecord> EmployeeRecords => _employeeRecords;
 	public abstract IEnumerable<ICell> CurrentLocations { get; }
-    public bool IsEmployee(ICharacter actor)
+	public bool IsEmployee(ICharacter actor)
 	{
 		return _employeeRecords.Any(x => x.EmployeeCharacterId == actor.Id);
 	}
@@ -398,11 +466,11 @@ public abstract class Shop : SaveableItem, IShop
 		}
 
 		if ((bool?)CanShopProg?.Execute(actor, merchandise?.Item.Id ?? 0L,
-			    merchandise?.Item.Tags.Select(x => x.Name)) == false)
+				merchandise?.Item.Tags.Select(x => x.Name)) == false)
 		{
 			return (false,
 				WhyCannotShopProg.Execute(actor, merchandise?.Item.Id ?? 0L, merchandise.Item.Tags.Select(x => x.Name))
-				                 ?.ToString() ?? "of an unknown reason");
+								 ?.ToString() ?? "of an unknown reason");
 		}
 
 		var price = merchandise!.EffectivePrice * merchandise.BaseBuyModifier * item.Quantity;
@@ -504,10 +572,10 @@ public abstract class Shop : SaveableItem, IShop
 	}
 
 	protected abstract (bool Truth, string Reason) CanBuyInternal(ICharacter actor, IMerchandise merchandise, int quantity,
-        IPaymentMethod method, string extraArguments = null);
+		IPaymentMethod method, string extraArguments = null);
 
 
-    public (bool Truth, string Reason) CanBuy(ICharacter actor, IMerchandise merchandise, int quantity,
+	public (bool Truth, string Reason) CanBuy(ICharacter actor, IMerchandise merchandise, int quantity,
 		IPaymentMethod method, string extraArguments = null)
 	{
 		if (!IsTrading && !actor.IsAdministrator())
@@ -516,11 +584,11 @@ public abstract class Shop : SaveableItem, IShop
 		}
 
 		if ((bool?)CanShopProg?.Execute(actor, merchandise?.Item.Id ?? 0L,
-			    merchandise?.Item.Tags.Select(x => x.Name)) == false)
+				merchandise?.Item.Tags.Select(x => x.Name)) == false)
 		{
 			return (false,
 				WhyCannotShopProg.Execute(actor, merchandise?.Item.Id ?? 0L, merchandise.Item.Tags.Select(x => x.Name))
-				                 ?.ToString() ?? "of an unknown reason");
+								 ?.ToString() ?? "of an unknown reason");
 		}
 
 		var stockedItems = StockedItems(merchandise).ToList();
@@ -743,6 +811,76 @@ public abstract class Shop : SaveableItem, IShop
 
 	public abstract IEnumerable<IGameItem> DoAutostockForMerchandise(IMerchandise merchandise);
 
+	public decimal AvailableCashFromAllSources()
+	{
+		return
+			GetCurrencyPilesForShop()
+				.Where(x => x.Currency == Currency)
+				.Sum(x => x.TotalValue) +
+			CashBalance +
+			(BankAccount is not null && BankAccount.Currency == Currency ?
+				BankAccount.MaximumWithdrawal()
+			: 0.0M)
+		;
+	}
+
+	public void TakeCashFromAllSources(decimal amount, string paymentReference)
+	{
+		Changed = true;
+		if (CashBalance >= amount)
+		{
+			CashBalance -= amount;
+			return;
+		}
+
+		amount -= CashBalance;
+		CashBalance = 0.0M;
+
+		var piles = GetCurrencyPilesForShop()
+					.Where(x => x.Currency == Currency)
+					.ToList();
+		var coinBalance = piles
+						  .Sum(x => x.TotalValue);
+		if (coinBalance >= amount)
+		{
+			var targetCoins = Currency.FindCurrency(piles, amount);
+			var value = targetCoins.Sum(x => x.Value.Sum(y => y.Value * y.Key.Value));
+			var change = value - amount;
+			foreach (var item in targetCoins.Where(item =>
+						 !item.Key.RemoveCoins(item.Value.Select(x => Tuple.Create(x.Key, x.Value)))))
+			{
+				item.Key.Parent.Delete();
+			}
+
+			if (change > 0.0M)
+			{
+				AddCurrencyToShop(CurrencyGameItemComponentProto.CreateNewCurrencyPile(Currency, Currency.FindCoinsForAmount(change, out var _)));
+			}
+
+			return;
+		}
+
+		amount -= coinBalance;
+		foreach (var pile in piles)
+		{
+			pile.Parent.Delete();
+		}
+
+		if (BankAccount is null || BankAccount.Currency != Currency)
+		{
+			return;
+		}
+
+		var bankBalance = BankAccount.MaximumWithdrawal();
+		if (bankBalance >= amount)
+		{
+			BankAccount.WithdrawFromTransaction(amount, paymentReference);
+			return;
+		}
+
+		BankAccount.WithdrawFromTransaction(bankBalance, paymentReference);
+	}
+
 	public IEnumerable<IGameItem> DoAutostockAllMerchandise()
 	{
 		var items = new List<IGameItem>();
@@ -769,7 +907,7 @@ public abstract class Shop : SaveableItem, IShop
 			// Extras were located
 		{
 			_transactionRecords.Add(new TransactionRecord(ShopTransactionType.Stock, Currency, this,
-                EconomicZone.ZoneForTimePurposes.DateTime(), null,
+				EconomicZone.ZoneForTimePurposes.DateTime(), null,
 				merchandise.EffectiveAutoReorderPrice * (expectedChange - difference) * -1, 0.0M));
 		}
 
@@ -829,7 +967,7 @@ public abstract class Shop : SaveableItem, IShop
 	{
 		// TODO - volume deals
 		var tax = EconomicZone.SalesTaxes.Where(x => x.Applies(merchandise, actor))
-		                      .Sum(x => x.TaxValue(merchandise, actor));
+							  .Sum(x => x.TaxValue(merchandise, actor));
 		return (merchandise.EffectivePrice + tax) * quantity;
 	}
 
@@ -856,8 +994,8 @@ public abstract class Shop : SaveableItem, IShop
 	public void PriceAdjustmentForMerchandise(IMerchandise merchandise, decimal oldValue, ICharacter actor)
 	{
 		var stock = _stockedMerchandise[merchandise]
-		            .Select(x => Gameworld.TryGetItem(x))
-		            .ToList();
+					.Select(x => Gameworld.TryGetItem(x))
+					.ToList();
 
 		var quantity = stock.Sum(x => x.Quantity);
 		AddTransaction(new TransactionRecord(ShopTransactionType.PriceAdjustment, Currency, this,
@@ -1014,6 +1152,8 @@ public abstract class Shop : SaveableItem, IShop
 			}
 
 			sb.AppendLine($"Minimum Float to Buy Items: {Currency.Describe(MinimumFloatToBuyItems, CurrencyDescriptionPatternType.ShortDecimal).ColourValue()}");
+			sb.AppendLine($"Autopay Taxes: {AutoPayTaxes.ToColouredString()}");
+			sb.AppendLine($"Market for Pricing: {MarketForPricingPurposes?.Name.ColourValue() ?? "None".Colour(Telnet.Red)}");
 		}
 
 		if (IsProprietor(actor) || actor.IsAdministrator())
@@ -1028,7 +1168,6 @@ public abstract class Shop : SaveableItem, IShop
 
 		if (actor.IsAdministrator())
 		{
-			sb.AppendLine($"Market for Pricing: {MarketForPricingPurposes?.Name.ColourValue() ?? "None".Colour(Telnet.Red)}");
 			sb.AppendLine();
 			sb.AppendLine("Employees:");
 			sb.AppendLine(StringUtilities.GetTextTable(
@@ -1129,6 +1268,9 @@ public abstract class Shop : SaveableItem, IShop
 				return BuildingCommandBuyFloat(actor, command);
 			case "market":
 				return BuildingCommandMarket(actor, command);
+			case "autopay":
+			case "autopaytaxes":
+				return BuildingCommandAutopayTaxes(actor);
 			default:
 				actor.OutputHandler.Send(@"Valid options for this command are as follows:
 
@@ -1136,9 +1278,18 @@ public abstract class Shop : SaveableItem, IShop
 	#3can <prog> <whyprog>#0 - sets a prog that determines who can shop here and a prog to give an error reason
 	#3trading#0 - toggles whether this shop is trading
 	#3market <which>#0 - sets a market to draw pricing multipliers from
-	#3market none#0 - clears the market pricing".SubstituteANSIColour());
+	#3market none#0 - clears the market pricing
+	#3minfloat <amount>#0 - sets the minimum float for the shop to buy anything".SubstituteANSIColour());
 				return false;
 		}
+	}
+
+	private bool BuildingCommandAutopayTaxes(ICharacter actor)
+	{
+		AutoPayTaxes = !AutoPayTaxes;
+		Changed = true;
+		actor.OutputHandler.Send($"This shop will {AutoPayTaxes.NowNoLonger()} automatically pay its taxes.");
+		return true;
 	}
 
 	private bool BuildingCommandMarket(ICharacter actor, StringStack command)
@@ -1237,10 +1388,10 @@ public abstract class Shop : SaveableItem, IShop
 		}
 
 		if (!prog.MatchesParameters(new[]
-		    {
-			    FutureProgVariableTypes.Character, FutureProgVariableTypes.Number,
-			    FutureProgVariableTypes.Text | FutureProgVariableTypes.Collection
-		    }))
+			{
+				FutureProgVariableTypes.Character, FutureProgVariableTypes.Number,
+				FutureProgVariableTypes.Text | FutureProgVariableTypes.Collection
+			}))
 		{
 			actor.OutputHandler.Send(
 				"You must specify a prog that accepts a character, a number and a text collection.");
@@ -1270,10 +1421,10 @@ public abstract class Shop : SaveableItem, IShop
 		}
 
 		if (!why.MatchesParameters(new[]
-		    {
-			    FutureProgVariableTypes.Character, FutureProgVariableTypes.Number,
-			    FutureProgVariableTypes.Text | FutureProgVariableTypes.Collection
-		    }))
+			{
+				FutureProgVariableTypes.Character, FutureProgVariableTypes.Number,
+				FutureProgVariableTypes.Text | FutureProgVariableTypes.Collection
+			}))
 		{
 			actor.OutputHandler.Send(
 				"You must specify a 'why' prog that accepts a character, a number and a text collection.");

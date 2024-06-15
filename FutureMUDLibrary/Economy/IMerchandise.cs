@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using MudSharp.Economy.Currency;
 
 namespace MudSharp.Economy
 {
@@ -35,5 +36,6 @@ namespace MudSharp.Economy
         bool IsMerchandiseFor(IGameItem item);
         bool BuildingCommand(ICharacter actor, StringStack command);
         void ShowToBuilder(ICharacter actor);
+        void ShopCurrencyChanged(ICurrency oldCurrency, ICurrency newCurrency);
     }
 }

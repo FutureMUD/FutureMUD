@@ -31,6 +31,7 @@ namespace MudSharp.Models
         public string ShopType { get; set; }
         public decimal MinimumFloatToBuyItems { get; set; }
         public long? MarketId { get; set; }
+        public bool AutopayTaxes { get; set; }
 
         public virtual FutureProg CanShopProg { get; set; }
         public virtual Currency Currency { get; set; }

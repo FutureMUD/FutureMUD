@@ -2724,6 +2724,8 @@ Additionally, you can use the following shop admin subcommands:
 			{
 				actor.OutputHandler.Send($"You delete the shop {shop.Name.TitleCase().Colour(Telnet.Cyan)}.");
 				shop.Delete();
+				actor.Location.Shop = null;
+				actor.SetEditingItem<IShop>(null);
 			},
 			RejectAction = text =>
 			{

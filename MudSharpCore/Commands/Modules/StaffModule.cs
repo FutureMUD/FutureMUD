@@ -66,6 +66,39 @@ internal class StaffModule : Module<ICharacter>
 
 	public static StaffModule Instance { get; } = new();
 
+	[PlayerCommand("TestAnsi", "testansi")]
+	[CommandPermission(PermissionLevel.JuniorAdmin)]
+	[HelpInfo("testansi", @"This command is used to give you a list of all of the codes that can be used to add colour to text in echoes, descriptions etc. It will also help you see which of these are supported by your current MUD client.
+
+The syntax is simply #3testansi#0.", AutoHelp.HelpArg)]
+	protected static void TestANSI(ICharacter actor, string input)
+	{
+		var sb = new StringBuilder();
+		sb.AppendLine("Normal (#0):         text");
+		sb.AppendLine($"Red (#1):            {"text".Colour(Telnet.Red)}");
+		sb.AppendLine($"Green (#2):          {"text".Colour(Telnet.Green)}");
+		sb.AppendLine($"Yellow (#3):         {"text".Colour(Telnet.Yellow)}");
+		sb.AppendLine($"Blue (#4):           {"text".Colour(Telnet.Blue)}");
+		sb.AppendLine($"Magenta (#5):        {"text".Colour(Telnet.Magenta)}");
+		sb.AppendLine($"Cyan (#6):           {"text".Colour(Telnet.Cyan)}");
+		sb.AppendLine($"Black (#7):          {"text".Colour(Telnet.BoldBlack)}");
+		sb.AppendLine($"Orange (#8):         {"text".Colour(Telnet.Orange)}");
+		sb.AppendLine($"Pink (#I):           {"text".Colour(Telnet.Pink)}");
+		sb.AppendLine($"Bold Red (#9):       {"text".Colour(Telnet.BoldRed)}");
+		sb.AppendLine($"Bold Green (#A):     {"text".Colour(Telnet.BoldGreen)}");
+		sb.AppendLine($"Bold Yellow (#B):    {"text".Colour(Telnet.BoldYellow)}");
+		sb.AppendLine($"Bold Blue (#C):      {"text".Colour(Telnet.BoldBlue)}");
+		sb.AppendLine($"Bold Magenta (#D):   {"text".Colour(Telnet.BoldMagenta)}");
+		sb.AppendLine($"Bold Cyan (#E):      {"text".Colour(Telnet.BoldCyan)}");
+		sb.AppendLine($"Bold White (#F):     {"text".Colour(Telnet.BoldWhite)}");
+		sb.AppendLine($"Bold Orange (#G):    {"text".Colour(Telnet.BoldOrange)}");
+		sb.AppendLine($"Bold Pink (#H):      {"text".Colour(Telnet.BoldPink)}");
+		sb.AppendLine($"This text has {"some underlined text".Underline()} in it.");
+		sb.AppendLine($"This text has {"some blinking text".Blink()} in it.");
+		sb.AppendLine($"This text is {"coloured and underlined".Underline().Colour(Telnet.BoldRed)}.");
+		actor.OutputHandler.Send(sb.ToString());
+	}
+
 	[PlayerCommand("PartInfo", "partinfo")]
 	[HelpInfo("partinfo", "Full info report on a body's specific bodypart. Syntax: partinfo <target> <partName>",
 		AutoHelp.HelpArgOrNoArg)]

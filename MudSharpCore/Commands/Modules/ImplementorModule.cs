@@ -11,6 +11,7 @@ using MudSharp.Body;
 using MudSharp.Body.Needs;
 using MudSharp.Celestial;
 using MudSharp.Character;
+using MudSharp.Character.Name;
 using MudSharp.Combat;
 using MudSharp.Construction;
 using MudSharp.Construction.Boundary;
@@ -83,36 +84,6 @@ public class ImplementorModule : Module<ICharacter>
 				group.Select(x => x.Name).Distinct().OrderBy(x => x).ToArray());
 		}
 
-		actor.OutputHandler.Send(sb.ToString());
-	}
-
-	[PlayerCommand("TestAnsi", "testansi")]
-	[CommandPermission(PermissionLevel.Founder)]
-	protected static void TestANSI(ICharacter actor, string input)
-	{
-		var sb = new StringBuilder();
-		sb.AppendLine("Normal (#0):         text");
-		sb.AppendLine($"Red (#1):            {"text".Colour(Telnet.Red)}");
-		sb.AppendLine($"Green (#2):          {"text".Colour(Telnet.Green)}");
-		sb.AppendLine($"Yellow (#3):         {"text".Colour(Telnet.Yellow)}");
-		sb.AppendLine($"Blue (#4):           {"text".Colour(Telnet.Blue)}");
-		sb.AppendLine($"Magenta (#5):        {"text".Colour(Telnet.Magenta)}");
-		sb.AppendLine($"Cyan (#6):           {"text".Colour(Telnet.Cyan)}");
-		sb.AppendLine($"Black (#7):          {"text".Colour(Telnet.BoldBlack)}");
-		sb.AppendLine($"Orange (#8):         {"text".Colour(Telnet.Orange)}");
-		sb.AppendLine($"Pink (#I):           {"text".Colour(Telnet.Pink)}");
-		sb.AppendLine($"Bold Red (#9):       {"text".Colour(Telnet.BoldRed)}");
-		sb.AppendLine($"Bold Green (#A):     {"text".Colour(Telnet.BoldGreen)}");
-		sb.AppendLine($"Bold Yellow (#B):    {"text".Colour(Telnet.BoldYellow)}");
-		sb.AppendLine($"Bold Blue (#C):      {"text".Colour(Telnet.BoldBlue)}");
-		sb.AppendLine($"Bold Magenta (#D):   {"text".Colour(Telnet.BoldMagenta)}");
-		sb.AppendLine($"Bold Cyan (#E):      {"text".Colour(Telnet.BoldCyan)}");
-		sb.AppendLine($"Bold White (#F):     {"text".Colour(Telnet.BoldWhite)}");
-		sb.AppendLine($"Bold Orange (#G):    {"text".Colour(Telnet.BoldOrange)}");
-		sb.AppendLine($"Bold Pink (#H):      {"text".Colour(Telnet.BoldPink)}");
-		sb.AppendLine($"This text has {"some underlined text".Underline()} in it.");
-		sb.AppendLine($"This text has {"some blinking text".Blink()} in it.");
-		sb.AppendLine($"This text is {"coloured and underlined".Underline().Colour(Telnet.BoldRed)}.");
 		actor.OutputHandler.Send(sb.ToString());
 	}
 
@@ -265,40 +236,44 @@ public class ImplementorModule : Module<ICharacter>
 	[HelpInfo("impdebug",
 		@"This command runs various routines that should generally only be done by an implementor in the course of debugging and/or maintenance. There are the following routines to choose from:
 
-	cleanupitems - deletes all 'orphaned' items that have become disconnected from the game world
-	scheduler - shows all things in the scheduler
-	hitchance <target> [<weapon attack>] [front|back|rflank|lflank] - shows hit chances (optionally for attack)
-	listeners - shows all listeners
-	sun <sun> <minutes> - adds the specified number of minutes to a sun
-	healing - attaches the healing logger (writes to file)
-	skills - attaches the skill check logger (writes to file)
-	save - shows debug info about the save queue
-	character <id> - shows debug info about a character
-	duplication - checks for duplicated items and characters
-	reloademail - reloads the email client
-	reloadstatics - reloads static strings and configs. Some things may not work until a reboot
-	reloadchargen - reloads the chargen definition
-	celestials - runs all the celestial objects through 1 year and tracks their position, writing out to file. Do not do this on the live server.
-	guests <number> <template> - generates the specified number of guest avatars from the template
-	coordinates - recalculates all the x,y,z coordinates for all zones
-	string <which> - shows the value of a static string
-	config <which> - shows the value of a static config
-	dream <who> - gives a dream to the specified PC
-	combatspeed <multiplier> - sets a global multiplier to combat speed
-	progfunctions - writes out all the prog function help to a file (saved to disk)
-	cleanupcorpses - deletes all NPC corpses of skeletal decay level. Loads up all PCs to check their inventories
-	descriptions short|full [<person>] - writes all valid descriptors for that person to a file on disk.
-	flare - sends a flare up into the sky.
-	time - shows the current time where you are
-	addtime <timespan> - adds the specified amount of time to all in-game clocks
-	seedrooms - loads the 10 rooms with the highest IDs into the new room queue
-    failemail - tests the fail email routine", AutoHelp.HelpArgOrNoArg)]
+	#3cleanupitems#0 - deletes all 'orphaned' items that have become disconnected from the game world
+	#3scheduler#0 - shows all things in the scheduler
+	#3hitchance <target> [<weapon attack>] [front|back|rflank|lflank]#0 - shows hit chances (optionally for attack)
+	#3listeners#0 - shows all listeners
+	#3sun <sun> <minutes>#0 - adds the specified number of minutes to a sun
+	#3healing#0 - attaches the healing logger (writes to file)
+	#3skills#0 - attaches the skill check logger (writes to file)
+	#3save#0 - shows debug info about the save queue
+	#3character <id>#0 - shows debug info about a character
+	#3duplication#0 - checks for duplicated items and characters
+	#3reloademail#0 - reloads the email client
+	#3reloadstatics#0 - reloads static strings and configs. Some things may not work until a reboot
+	#3reloadchargen#0 - reloads the chargen definition
+	#3celestials#0 - runs all the celestial objects through 1 year and tracks their position, writing out to file. Do not do this on the live server.
+	#3guests <number> <template>#0 - generates the specified number of guest avatars from the template
+	#3coordinates#0 - recalculates all the x,y,z coordinates for all zones
+	#3string <which>#0 - shows the value of a static string
+	#3config <which>#0 - shows the value of a static config
+	#3dream <who>#0 - gives a dream to the specified PC
+	#3combatspeed <multiplier>#0 - sets a global multiplier to combat speed
+	#3progfunctions#0 - writes out all the prog function help to a file (saved to disk)
+	#3cleanupcorpses#0 - deletes all NPC corpses of skeletal decay level. Loads up all PCs to check their inventories
+	#3descriptions short|full [<person>]#0 - writes all valid descriptors for that person to a file on disk.
+	#3flare#0 - sends a flare up into the sky.
+	#3time#0 - shows the current time where you are
+	#3addtime <timespan>#0 - adds the specified amount of time to all in-game clocks
+	#3seedrooms#0 - loads the 10 rooms with the highest IDs into the new room queue
+    #3failemail#0 - tests the fail email routine
+	#3crash#0 - causes the MUD to crash", AutoHelp.HelpArgOrNoArg)]
 	[CommandPermission(PermissionLevel.Founder)]
 	protected static void ImpDebug(ICharacter actor, string input)
 	{
 		var ss = new StringStack(input.RemoveFirstWord());
 		switch (ss.PopSpeech().CollapseString().ToLowerInvariant())
 		{
+			case "crash":
+				Debug_Crash(actor);
+				return;
 			case "failemail":
 				Debug_FailEmail(actor);
 				return;
@@ -407,6 +382,11 @@ public class ImplementorModule : Module<ICharacter>
 				actor.Send("That's not a known debug routine.");
 				return;
 		}
+	}
+
+	private static void Debug_Crash(ICharacter actor)
+	{
+		throw new ApplicationException($"{actor.PersonalName.GetName(NameStyle.FullName)} intentionally crashed the game using IMPDEBUG CRASH.");
 	}
 
 	private static void Debug_FailEmail(ICharacter actor)

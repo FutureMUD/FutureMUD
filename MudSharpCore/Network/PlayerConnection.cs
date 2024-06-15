@@ -4,6 +4,10 @@ using System.Diagnostics;
 using System.Linq;
 using System.Net.Sockets;
 using System.Text;
+using System.Threading;
+using MudSharp.Character.Name;
+using MudSharp.Effects;
+using MudSharp.Effects.Concrete;
 using MudSharp.Framework;
 
 namespace MudSharp.Network;
@@ -232,7 +236,48 @@ public class PlayerConnection : IPlayerConnection
 
 	public void AttemptCommand()
 	{
-		ControlPuppet.HandleCommand(GetNextCommand());
+		var cmd = GetNextCommand();
+//#if DEBUG
+//#else
+		try
+		{
+//#endif
+			
+			ControlPuppet.HandleCommand(cmd);
+//#if DEBUG
+//#else
+		}
+		catch (Exception e)
+		{
+			var sb = new StringBuilder();
+			sb.AppendLine("Crash during player input");
+			if (ControlPuppet is IFuturemudControlContext fcc)
+			{
+				sb.AppendLine($"Account: {fcc.Account?.Name ?? "N/A"}");
+				if (fcc.Actor is not null)
+				{
+					sb.AppendLine($"Character: #{fcc.Actor.Id:N0} {fcc.Actor.PersonalName.GetName(NameStyle.FullName)} - {fcc.Actor.HowSeen(fcc.Actor, colour: false, flags: PerceiveIgnoreFlags.IgnoreCanSee | PerceiveIgnoreFlags.IgnoreSelf)}");
+					var edit = fcc.Actor
+					              .CombinedEffectsOfType<IBuilderEditingEffect>()
+					              .SelectNotNull(x => x.EditingItem as IFrameworkItem)
+					              .ToList();
+					foreach (var item in edit)
+					{
+						sb.AppendLine($"Editing: {item.ToString()}");
+					}
+				}
+			}
+			sb.AppendLine("Input:");
+			sb.AppendLine();
+			sb.AppendLine(cmd);
+			sb.AppendLine();
+			sb.AppendLine("Exception:");
+			sb.AppendLine();
+			sb.AppendLine(e.ToString());
+			Server.MudSharp.WriteCrashLog(sb.ToString());
+			Environment.Exit(0);
+		}
+//#endif
 	}
 
 	public void AddOutgoing(string text)

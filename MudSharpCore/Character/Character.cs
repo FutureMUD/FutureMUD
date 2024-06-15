@@ -404,7 +404,20 @@ public partial class Character : PerceiverItem, ICharacter
 
 	public sealed override string Name => _personalName?.GetName(NameStyle.GivenOnly) ?? "Entity";
 
-	public IEditableRevisableItem EditingItemComponent { get; set; }
+	public T EditingItem<T>() where T : class
+	{
+		return EffectHandler.EffectsOfType<BuilderEditingEffect<T>>().FirstOrDefault()?.EditingItem;
+	}
+#nullable enable
+	public void SetEditingItem<T>(T? item) where T : class
+	{
+		EffectHandler.RemoveAllEffects(x => x is BuilderEditingEffect<T>);
+		if (item is not null)
+		{
+			EffectHandler.AddEffect(new BuilderEditingEffect<T>(this) { EditingItem = item });
+		}
+	}
+#nullable restore
 
 	public bool BriefRoomDescs { get; set; }
 

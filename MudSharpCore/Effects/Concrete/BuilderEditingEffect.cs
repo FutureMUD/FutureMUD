@@ -3,7 +3,7 @@ using MudSharp.Framework;
 
 namespace MudSharp.Effects.Concrete;
 
-public class BuilderEditingEffect<T> : Effect, IEffectSubtype
+public class BuilderEditingEffect<T> : Effect, IEffectSubtype, IBuilderEditingEffect<T>
 {
 	public T EditingItem { get; init; }
 

@@ -52,9 +52,9 @@ The valid sub-commands and their syntaxes are as follows:
 
 	#3item load [<quantity>] <id> [<extra args>]#0 - loads an item into the game. See below for extra args:
 
-        #6variable=value|id#0 - sets a specific variable
-        #6variable=""value""#0 - same as above, for variable values with spaces
-        #6*<skin name|id>#0 - sets a skin for the item. Must be the first extra argument
+		#6variable=value|id#0 - sets a specific variable
+		#6variable=""value""#0 - same as above, for variable values with spaces
+		#6*<skin name|id>#0 - sets a skin for the item. Must be the first extra argument
 
 	#3item edit new#0 - creates a new item prototype
 	#3item edit <id>#0 - opens prototype with ID for editing
@@ -96,15 +96,15 @@ The valid sub-commands and their syntaxes are as follows:
 	#3item set destroyed none#0 - clears a destroyed item setting
 	#3item set strategy <id|name>#0 - sets a custom health strategy for this item
 	#3item set strategy none#0 - sets the item to use the default item health strategy
-    #3item set extra add <prog>#0 - adds a new extra description slot with a specified prog
-    #3item set extra remove <which##>#0 - removes the specified numbered extra description
-    #3item set extra swap <first##> <second##>#0 - swaps the evaluation order of two extra descriptions
-    #3item set extra <which##> sdesc <sdesc>#0 - sets the short description for the extra description
-    #3item set extra <which##> clear sdesc#0 - clears the short description for the extra description
-    #3item set extra <which##> desc <desc>#0 - sets the full description for the extra description
-    #3item set extra <which##> clear desc#0 - clears the full description for the extra description
-    #3item set extra <which##> addendum <text>#0 - sets an addendum text for the full description
-    #3item set extra <which##> clear addendum#0 - clears the addendum text for the full description",
+	#3item set extra add <prog>#0 - adds a new extra description slot with a specified prog
+	#3item set extra remove <which##>#0 - removes the specified numbered extra description
+	#3item set extra swap <first##> <second##>#0 - swaps the evaluation order of two extra descriptions
+	#3item set extra <which##> sdesc <sdesc>#0 - sets the short description for the extra description
+	#3item set extra <which##> clear sdesc#0 - clears the short description for the extra description
+	#3item set extra <which##> desc <desc>#0 - sets the full description for the extra description
+	#3item set extra <which##> clear desc#0 - clears the full description for the extra description
+	#3item set extra <which##> addendum <text>#0 - sets an addendum text for the full description
+	#3item set extra <which##> clear addendum#0 - clears the addendum text for the full description",
 			AutoHelp.HelpArgOrNoArg)]
 		protected static void Item(ICharacter actor, string input)
 		{
@@ -166,10 +166,7 @@ The valid sub-commands and their syntaxes are as follows:
 
 		#region Item Component Prototypes
 
-		[PlayerCommand("Component", "component", "comp")]
-		[CommandPermission(PermissionLevel.Admin)]
-		[HelpInfo("component",
-			@"The component command is used to edit and view item components. Item components are shared definitions that can be added to items to give them some kind of functionality, like turning them into a container, making them into a weapon or giving them the ability to provide power.
+		public const string ComponentHelp = @"The component command is used to edit and view item components. Item components are shared definitions that can be added to items to give them some kind of functionality, like turning them into a container, making them into a weapon or giving them the ability to provide power.
 
 The editing subcommands are all done on whichever item component the builder currently has open for editing. 
 
@@ -177,8 +174,8 @@ The valid subcommands and their syntaxes are as follows:
 
 	#3comp edit new <type>#0 - creates a new component of the specified type
 	#3comp types#0 - lists the available component types
-    #3comp types +<keyword>|-<keyword>#0 - lists the available component types with keyword filters
-    #3comp typehelp <type>#0 - shows the COMP SET HELP for the requested type
+	#3comp types +<keyword>|-<keyword>#0 - lists the available component types with keyword filters
+	#3comp typehelp <type>#0 - shows the COMP SET HELP for the requested type
 	#3comp edit <id>#0 - opens component with ID for editing
 	#3comp edit#0 - shows the currently open component. Equivalent to doing COMP SHOW <ID> on it.
 	#3comp edit submit#0 - submits the open component for review
@@ -200,8 +197,13 @@ The valid subcommands and their syntaxes are as follows:
 
 Note: The following two subcommands take a long time and can sometimes cause issues with performance afterwards because of the aggressive loading of things that they do. You should generally plan to reboot the MUD immediately after running these.
 
-    #3comp update#0 - updates all items with obsolete components or revisions to their current versions
-    #3comp update all#0 - same as comp update, but also loads all characters so that their inventories are included",
+	#3comp update#0 - updates all items with obsolete components or revisions to their current versions
+	#3comp update all#0 - same as comp update, but also loads all characters so that their inventories are included";
+
+		[PlayerCommand("Component", "component", "comp")]
+		[CommandPermission(PermissionLevel.Admin)]
+		[HelpInfo("component",
+			ComponentHelp,
 			AutoHelp.HelpArgOrNoArg)]
 		protected static void Component(ICharacter actor, string input)
 		{
@@ -233,7 +235,7 @@ Note: The following two subcommands take a long time and can sometimes cause iss
 					Component_Update(actor, ss);
 					break;
 				default:
-					actor.OutputHandler.Send("That is not a valid usage of the component command.");
+					actor.OutputHandler.Send(ComponentHelp.SubstituteANSIColour());
 					break;
 			}
 		}
@@ -651,20 +653,21 @@ Help:
 
 		private static void Component_Edit(ICharacter actor, StringStack input)
 		{
-			var cmd = input.Pop().ToLowerInvariant();
+			var cmd = input.PopForSwitch();
 			if (cmd.Length == 0)
 			{
-				if (actor.EditingItemComponent != null)
+				var effect = actor.CombinedEffectsOfType<BuilderEditingEffect<IGameItemComponentProto>>().FirstOrDefault();
+				if (effect is not null)
 				{
 					var sb = new StringBuilder();
-					sb.AppendLine("You are currently editing " + actor.EditingItemComponent.EditHeader());
+					sb.AppendLine($"You are currently editing {effect.EditingItem.EditHeader()}");
 					sb.AppendLine();
-					sb.Append(actor.EditingItemComponent.Show(actor));
+					sb.Append(effect.EditingItem.Show(actor));
 					actor.OutputHandler.Send(sb.ToString());
 					return;
 				}
 
-				actor.OutputHandler.Send("What do you wish to edit?");
+				actor.OutputHandler.Send("Which item component do you wish to edit?");
 				return;
 			}
 
@@ -693,25 +696,27 @@ Help:
 
 		private static void Component_Edit_Close(ICharacter actor, StringStack input)
 		{
-			if (actor.EditingItemComponent == null)
+			var effect = actor.CombinedEffectsOfType<BuilderEditingEffect<IGameItemComponentProto>>().FirstOrDefault();
+			if (effect is null)
 			{
 				actor.OutputHandler.Send("You are not currently editing any item component.");
 				return;
 			}
 
-			actor.EditingItemComponent = null;
+			actor.RemoveAllEffects<BuilderEditingEffect<IGameItemComponentProto>>();
 			actor.OutputHandler.Send("You close your current edited item component.");
 		}
 
 		private static void Component_Edit_Delete(ICharacter actor, StringStack input)
 		{
-			if (actor.EditingItemComponent == null)
+			var item = actor.EditingItem<IGameItemComponentProto>();
+			if (item is null)
 			{
 				actor.OutputHandler.Send("You are not currently editing any item component.");
 				return;
 			}
-
-			if (actor.EditingItemComponent.Status != RevisionStatus.UnderDesign)
+			
+			if (item.Status != RevisionStatus.UnderDesign)
 			{
 				actor.OutputHandler.Send("That item component is not currently under design.");
 				return;
@@ -719,8 +724,7 @@ Help:
 
 			using (new FMDB())
 			{
-				var dbproto = FMDB.Context.GameItemComponentProtos.Find(actor.EditingItemComponent.Id,
-					actor.EditingItemComponent.RevisionNumber);
+				var dbproto = FMDB.Context.GameItemComponentProtos.Find(item.Id, item.RevisionNumber);
 				if (dbproto != null)
 				{
 					actor.Gameworld.SaveManager.Flush();
@@ -729,57 +733,59 @@ Help:
 				}
 			}
 
-			actor.OutputHandler.Send("You delete " + actor.EditingItemComponent.EditHeader() + ".");
-			actor.Gameworld.Destroy((IGameItemComponentProto)actor.EditingItemComponent);
-			actor.EditingItemComponent = null;
+			actor.OutputHandler.Send($"You delete {item.EditHeader()}.");
+			actor.Gameworld.Destroy(item);
+			actor.SetEditingItem<IGameItemComponentProto>(null);
 		}
 
 		private static void Component_Edit_Submit(ICharacter actor, StringStack input)
 		{
-			if (actor.EditingItemComponent == null)
+			var item = actor.EditingItem<IGameItemComponentProto>();
+			if (item is null)
 			{
 				actor.OutputHandler.Send("You are not currently editing any item component.");
 				return;
 			}
 
-			if (actor.EditingItemComponent.Status != RevisionStatus.UnderDesign)
+			if (item.Status != RevisionStatus.UnderDesign)
 			{
 				actor.OutputHandler.Send("That item component is not currently under design.");
 				return;
 			}
 
-			if (!actor.EditingItemComponent.CanSubmit())
+			if (!item.CanSubmit())
 			{
-				actor.Send(actor.EditingItemComponent.WhyCannotSubmit());
+				actor.Send(item.WhyCannotSubmit());
 				return;
 			}
 
 			var comment = input.IsFinished ? "" : input.SafeRemainingArgument;
 
-			actor.EditingItemComponent.ChangeStatus(RevisionStatus.PendingRevision, comment, actor.Account);
-			actor.OutputHandler.Send("You submit " + actor.EditingItemComponent.EditHeader() + " for review" +
+			item.ChangeStatus(RevisionStatus.PendingRevision, comment, actor.Account);
+			actor.OutputHandler.Send("You submit " + item.EditHeader() + " for review" +
 									 (comment.Length > 0 ? ", with the comment: " + comment : "."));
-			actor.EditingItemComponent = null;
+			actor.SetEditingItem<IGameItemComponentProto>(null);
 		}
 
 		private static void Component_Edit_Obsolete(ICharacter actor, StringStack input)
 		{
-			if (actor.EditingItemComponent == null)
+			var item = actor.EditingItem<IGameItemComponentProto>();
+			if (item is null)
 			{
 				actor.OutputHandler.Send("You are not currently editing any item component.");
 				return;
 			}
 
-			if (actor.EditingItemComponent.Status != RevisionStatus.Current)
+			if (item.Status != RevisionStatus.Current)
 			{
 				actor.OutputHandler.Send("You are not editing the most current revision of this item component.");
 				return;
 			}
 
-			actor.EditingItemComponent.ChangeStatus(RevisionStatus.Obsolete, input.SafeRemainingArgument, actor.Account);
-			actor.OutputHandler.Send("You mark " + actor.EditingItemComponent.EditHeader() +
+			item.ChangeStatus(RevisionStatus.Obsolete, input.SafeRemainingArgument, actor.Account);
+			actor.OutputHandler.Send("You mark " + item.EditHeader() +
 									 " as an obsolete component prototype.");
-			actor.EditingItemComponent = null;
+			actor.SetEditingItem<IGameItemComponentProto>(null);
 		}
 
 		private static void Component_Edit_New(ICharacter actor, StringStack input)
@@ -798,10 +804,9 @@ Help:
 				return;
 			}
 
-			actor.EditingItemComponent = result;
-			actor.Gameworld.Add((IGameItemComponentProto)actor.EditingItemComponent);
-			actor.OutputHandler.Send("You create a new item component prototype with ID " +
-									 actor.EditingItemComponent.Id + ".");
+			actor.SetEditingItem(result);
+			actor.Gameworld.Add(result);
+			actor.OutputHandler.Send($"You create a new item component prototype with ID {result.Id}.");
 		}
 
 		private static void Component_Edit_Default(ICharacter actor, StringStack input)
@@ -849,28 +854,32 @@ Help:
 				return;
 			}
 
+			IGameItemComponentProto item;
 			if (proto.Status == RevisionStatus.UnderDesign || proto.Status == RevisionStatus.PendingRevision)
 			{
-				actor.EditingItemComponent = proto;
+				actor.SetEditingItem(proto);
+				item = proto;
 			}
 			else
 			{
-				actor.EditingItemComponent = proto.CreateNewRevision(actor);
-				actor.Gameworld.Add((IGameItemComponentProto)actor.EditingItemComponent);
+				item = (IGameItemComponentProto)proto.CreateNewRevision(actor);
+				actor.SetEditingItem(item);
+				actor.Gameworld.Add(item);
 			}
 
-			actor.OutputHandler.Send("You open " + actor.EditingItemComponent.EditHeader() + " for editing.");
+			actor.OutputHandler.Send($"You open {item.EditHeader()} for editing.");
 		}
 
 		private static void Component_Set(ICharacter actor, StringStack input)
 		{
-			if (actor.EditingItemComponent == null)
+			var item = actor.EditingItem<IGameItemComponentProto>();
+			if (item is null)
 			{
-				actor.OutputHandler.Send("You are not editing an Item Component.");
+				actor.OutputHandler.Send("You are not currently editing any item component.");
 				return;
 			}
 
-			actor.EditingItemComponent.BuildingCommand(actor, input);
+			item.BuildingCommand(actor, input);
 		}
 
 		private static void Component_List(ICharacter actor, StringStack input)

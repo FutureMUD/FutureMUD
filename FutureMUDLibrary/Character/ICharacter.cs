@@ -120,7 +120,8 @@ namespace MudSharp.Character {
     }
 
     public interface IBuilder {
-        IEditableRevisableItem EditingItemComponent { get; set; }
+        T EditingItem<T>() where T : class;
+        void SetEditingItem<T>(T? item) where T : class;
     }
 
     public interface IEat {

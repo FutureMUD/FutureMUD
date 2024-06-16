@@ -28,7 +28,7 @@ public abstract class SaveableItem : FrameworkItem, ISaveable
 
 	public IFuturemud Gameworld
 	{
-		get => _gameworld ?? Futuremud.Games.First();
+		get => _gameworld ?? Futuremud.Games.FirstOrDefault();
 		protected init { _gameworld = value; }
 	}
 

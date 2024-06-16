@@ -9,24 +9,24 @@ namespace MudSharp.TimeAndDate.Listeners;
 public static class ListenerFactory
 {
 	public static ITemporalListener CreateDateListener(ICalendar watchCalendar, int watchForDay, string watchForMonth,
-		int watchForYear, int repeatTimes, Action<object[]> payload, object[] objects)
+		int watchForYear, int repeatTimes, Action<object[]> payload, object[] objects, string debuggerReference)
 	{
 		var listener = new DateListener(watchCalendar, watchForDay, watchForMonth, watchForYear, repeatTimes,
-			payload, objects);
+			payload, objects, debuggerReference);
 		watchCalendar.Gameworld.Add(listener);
 		return listener;
 	}
 
 	public static ITemporalListener CreateDateOffsetListener(ICalendar watchCalendar, int daysOffset,
 		int monthsOffset, int yearsOffset, bool ignoreIntercalaries, int repeatTimes, Action<object[]> payload,
-		object[] objects)
+		object[] objects, string debuggerReference)
 	{
 		var newDate = new MudDate(watchCalendar.CurrentDate);
 		newDate.AdvanceDays(daysOffset);
 		newDate.AdvanceMonths(monthsOffset, ignoreIntercalaries, true);
 		newDate.AdvanceYears(yearsOffset, true);
 		var listener = new DateListener(watchCalendar, newDate.Day, newDate.Month.Alias, newDate.Year, repeatTimes,
-			payload, objects);
+			payload, objects, debuggerReference);
 		watchCalendar.Gameworld.Add(listener);
 		return listener;
 	}
@@ -73,7 +73,7 @@ public static class ListenerFactory
 
 	public static ITemporalListener CreateDateTimeOffsetListener(IClock watchClock, int secondsOffset,
 		int minutesOffset, int hoursOffset, ICalendar watchCalendar, int daysOffset, int monthsOffset,
-		int yearsOffset, bool ignoreIntercalaries, int repeatTimes, Action<object[]> payload, object[] objects)
+		int yearsOffset, bool ignoreIntercalaries, int repeatTimes, Action<object[]> payload, object[] objects, string debuggerReference)
 	{
 		var newTime = new MudTime(watchClock.CurrentTime);
 		newTime.AddSeconds(secondsOffset);
@@ -96,7 +96,7 @@ public static class ListenerFactory
 			listener = new DateListener(watchCalendar, newDate.Day, newDate.Month.Alias, newDate.Year, 1,
 				x =>
 					CreateTimeListener(watchClock, newTime.Seconds, newTime.Minutes, newTime.Hours, repeatTimes,
-						payload, objects), objects
+						payload, objects), objects, debuggerReference
 			);
 		}
 
@@ -105,7 +105,7 @@ public static class ListenerFactory
 	}
 
 	public static ITemporalListener? CreateDateTimeListener(MudDateTime watchForTime, Action<object[]> payload,
-		object[] objects)
+		object[] objects, string debuggerReference)
 	{
 		if (watchForTime <= watchForTime.Calendar.CurrentDateTime)
 		{
@@ -139,14 +139,14 @@ public static class ListenerFactory
 			var timeListener = new TimeListener(watchForTime.Clock, watchForTime.Time.Seconds,
 				watchForTime.Time.Minutes, watchForTime.Time.Hours, 1, payload, objects);
 			watchForTime.Gameworld.Add(timeListener);
-		}, objects);
+		}, objects, debuggerReference);
 		watchForTime.Gameworld.Add(listener);
 		return listener;
 	}
 
 	public static ITemporalListener? CreateDateTimeListener(IClock watchClock, int watchForSecond, int watchForMinute,
 		int watchForHour, ICalendar watchCalendar, int watchForDay, string watchForMonth, int watchForYear,
-		int repeatTimes, Action<object[]> payload, object[] objects)
+		int repeatTimes, Action<object[]> payload, object[] objects, string debuggerReference)
 	{
 		ITemporalListener listener;
 		if ((watchForDay == -1 && watchForMonth.Length == 0 && watchForYear == -1) ||
@@ -179,7 +179,7 @@ public static class ListenerFactory
 						payload,
 						objects);
 				},
-				objects
+				objects, debuggerReference
 			);
 		}
 

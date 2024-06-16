@@ -618,10 +618,16 @@ The syntax for this command is as follows:
 	#3ez set profittax remove <name>#0 - removes a profit tax
 	#3ez set profittax <which> <...>#0 - edit properties of a particular tax
 	#3ez set realty#0 - toggles your current location as a conveyancing/realty location
-	#3ez set jobs#0 - toggles your current location as a job listing and finding location";
+	#3ez set jobs#0 - toggles your current location as a job listing and finding location
+	#3ez set forgive <shop> <amount>#0 - forgives a certain amount of owing tax for a shop (excess gives credits)
+	#3ez set forgive <shop> all#0 - forgives all owing taxes for a shop
+	#3ez set shops#0 - lists all shops in this economic zone
+	#3ez set shop <which>#0 - shows tax information about a shop in the zone
+	#3ez set taxinfo#0 - shows you information about tax revenues in this zone";
 
 	[PlayerCommand("EconomicZone", "economiczone", "ez")]
 	[CommandPermission(PermissionLevel.JuniorAdmin)]
+	[HelpInfo("economiczone", EconomicZoneHelp, AutoHelp.HelpArgOrNoArg)]
 	protected static void EconomicZone(ICharacter actor, string command)
 	{
 		var ss = new StringStack(command.RemoveFirstWord());

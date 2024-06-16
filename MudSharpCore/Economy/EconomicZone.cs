@@ -23,6 +23,7 @@ using MoreLinq.Extensions;
 using MudSharp.Effects.Concrete;
 using MudSharp.Economy.Tax;
 using System.Numerics;
+using MudSharp.FutureProg.Statements;
 
 namespace MudSharp.Economy;
 
@@ -211,7 +212,7 @@ public class EconomicZone : SaveableItem, IEconomicZone
 			Gameworld.Add(new TimeAndDate.Listeners.DateListener(
 				CurrentFinancialPeriod.FinancialPeriodEndMUD, 0,
 				payload => { CloseCurrentFinancialPeriod(); },
-				new object[] { }));
+				new object[] { }, $"End Current Financial Period EZ #{Id} {Name}"));
 		}
 
 		foreach (var item in zone.EconomicZoneTaxes)
@@ -392,6 +393,30 @@ public class EconomicZone : SaveableItem, IEconomicZone
 		Changed = false;
 	}
 
+	public void SaveFinancialPeriodResults()
+	{
+		var dbitem = FMDB.Context.EconomicZones.Find(Id);
+		FMDB.Context.ShopFinancialPeriodResults.RemoveRange(dbitem.ShopFinancialPeriodResults);
+		foreach (var (key, results) in _shopsPreviousFinancialPeriodResults)
+		{
+			foreach (var result in results)
+			{
+				dbitem.ShopFinancialPeriodResults.Add(new ShopFinancialPeriodResult
+				{
+					EconomicZoneId = Id,
+					ShopId = key,
+					FinancialPeriodId = result.Period.Id,
+					GrossRevenue = result.GrossRevenue,
+					NetRevenue = result.NetRevenue,
+					SalesTax = result.SalesTax,
+					ProfitsTax = result.ProfitsTax
+				});
+			}
+		}
+
+		FMDB.Context.SaveChanges();
+	}
+
 	public override string FrameworkItemType => "EconomicZone";
 
 	private readonly DecimalCounter<long> _shopsOutstandingProfitTaxes = new();
@@ -485,10 +510,11 @@ public class EconomicZone : SaveableItem, IEconomicZone
 		}
 
 		Changed = true;
+		SaveFinancialPeriodResults();
 		Gameworld.Add(new TimeAndDate.Listeners.DateListener(
 			CurrentFinancialPeriod.FinancialPeriodEndMUD, 0,
 			payload => { CloseCurrentFinancialPeriod(); },
-			new object[] { }));
+			new object[] { }, $"Close Financial Period for EZ #{Id} {Name}"));
 	}
 
 	public decimal OutstandingTaxesForShop(IShop shop)
@@ -600,7 +626,12 @@ public class EconomicZone : SaveableItem, IEconomicZone
 	#3profittax remove <name>#0 - removes a profit tax
 	#3profittax <which> <...>#0 - edit properties of a particular tax
 	#3realty#0 - toggles your current location as a conveyancing/realty location
-	#3jobs#0 - toggles your current location as a job listing and finding location";
+	#3jobs#0 - toggles your current location as a job listing and finding location
+	#3forgive <shop> <amount>#0 - forgives a certain amount of owing tax for a shop (excess gives credits)
+	#3forgive <shop> all#0 - forgives all owing taxes for a shop
+	#3shops#0 - lists all shops in this economic zone
+	#3shop <which>#0 - shows tax information about a shop in the zone
+	#3taxinfo#0 - shows you information about tax revenues in this zone";
 
 	public string ClanHelpInfo => @"You can use the following options with this command:
 
@@ -612,7 +643,12 @@ public class EconomicZone : SaveableItem, IEconomicZone
 	#3salestax <which> <...>#0 - edit properties of a particular tax
 	#3profittax add <type> <name>#0 - adds a new profit tax
 	#3profittax remove <name>#0 - removes a profit tax
-	#3profittax <which> <...>#0 - edit properties of a particular tax";
+	#3profittax <which> <...>#0 - edit properties of a particular tax
+	#3forgive <shop> <amount>#0 - forgives a certain amount of owing tax for a shop (excess gives credits)
+	#3forgive <shop> all#0 - forgives all owing taxes for a shop
+	#3shops#0 - lists all shops in this economic zone
+	#3shop <which>#0 - shows tax information about a shop in the zone
+	#3taxinfo#0 - shows you information about tax revenues in this zone";
 
 	public bool BuildingCommand(ICharacter actor, StringStack command)
 	{
@@ -648,6 +684,15 @@ public class EconomicZone : SaveableItem, IEconomicZone
 			case "job":
 			case "jobs":
 				return BuildingCommandJobs(actor, command);
+			case "forgive":
+			case "forgivetaxes":
+				return BuildingCommandForgiveTaxes(actor, command);
+			case "endperiod":
+				return BuildingCommandEndFinancialPeriod(actor, command);
+			case "shop":
+				return BuildingCommandShop(actor, command);
+			case "taxinfo":
+				return BuildingCommandTaxInfo(actor, command);
 			default:
 				actor.OutputHandler.Send(HelpInfo.SubstituteANSIColour());
 				return false;
@@ -656,7 +701,7 @@ public class EconomicZone : SaveableItem, IEconomicZone
 
 	public bool BuildingCommandFromClanCommand(ICharacter actor, StringStack command)
 	{
-		switch (command.PopSpeech())
+		switch (command.PopForSwitch())
 		{
 			case "permitloss":
 				return BuildingCommandPermitLoss(actor, command, true);
@@ -666,10 +711,195 @@ public class EconomicZone : SaveableItem, IEconomicZone
 				return BuildingCommandProfitTax(actor, command, true);
 			case "clan":
 				return BuildingCommandClan(actor, command, true);
+			case "forgive":
+			case "forgivetaxes":
+				return BuildingCommandForgiveTaxes(actor, command);
+			case "endperiod":
+				return BuildingCommandEndFinancialPeriod(actor, command);
+			case "shop":
+				return BuildingCommandShop(actor, command);
+			case "shops":
+				return BuildingCommandShops(actor);
+			case "taxinfo":
+			case "tax":
+				return BuildingCommandTaxInfo(actor, command);
 			default:
 				actor.OutputHandler.Send(ClanHelpInfo.SubstituteANSIColour());
 				return false;
 		}
+	}
+
+	private bool BuildingCommandShops(ICharacter actor)
+	{
+		var sb = new StringBuilder();
+		sb.AppendLine($"List of shops for economic zone {Name.TitleCase().ColourName()}");
+		sb.AppendLine();
+		sb.AppendLine(StringUtilities.GetTextTable(
+			from shop in Gameworld.Shops
+			where shop.EconomicZone == this
+			let pshop = shop as IPermanentShop
+			select new[]
+			{
+				shop.Id.ToString("N0", actor),
+				shop.Name.TitleCase(),
+				shop.IsTrading.ToString(actor),
+				shop.EmployeeRecords.Count().ToString("N0", actor),
+				shop.EmployeesOnDuty.Count().ToString("N0", actor),
+				pshop?.ShopfrontCells.Select(x =>
+					x.GetFriendlyReference(actor).FluentTagMXP("send",
+						$"href='goto {x.Id}'")).FirstOrDefault() ?? "",
+				shop.EconomicZone.Name,
+				(shop is ITransientShop).ToColouredString()
+			},
+			new[]
+			{
+				"ID",
+				"Name",
+				"Open?",
+				"Employs",
+				"Working",
+				"Storefront",
+				"Economic Zone",
+				"Transient?"
+			},
+			actor,
+			colour: Telnet.Green
+		));
+
+		actor.OutputHandler.Send(sb.ToString());
+		return true;
+	}
+
+	private bool BuildingCommandTaxInfo(ICharacter actor, StringStack command)
+	{
+		var sb = new StringBuilder();
+		sb.AppendLine($"Tax Information for {Name}".GetLineWithTitle(actor, Telnet.FunctionYellow, Telnet.BoldWhite));
+		sb.AppendLine();
+		sb.AppendLine($"Revenue Held: {Currency.Describe(TotalRevenueHeld, CurrencyDescriptionPatternType.ShortDecimal).ColourValue()}");
+		var totalOwed =
+			_shopsOutstandingProfitTaxes.Sum(x => x.Value) +
+			_shopsOutstandingSalesTaxes.Sum(x => x.Value) -
+			_shopsTaxesInCredit.Sum(x => x.Value);
+		sb.AppendLine($"Uncollected Tax Revenue: {Currency.Describe(totalOwed, CurrencyDescriptionPatternType.ShortDecimal).ColourValue()}");
+		sb.AppendLine();
+		sb.AppendLine("Previous Financial Period Results:");
+		sb.AppendLine(StringUtilities.GetTextTable(
+			from item in _historicalRevenues orderby item.Period.FinancialPeriodStartMUD descending 
+			select new List<string>
+			{
+				item.Period.FinancialPeriodStartMUD.Date.Display(CalendarDisplayMode.Short).ColourValue(),
+				item.Period.FinancialPeriodEndMUD.Date.Display(CalendarDisplayMode.Short).ColourValue(),
+				Currency.Describe(item.TotalTaxRevenue, CurrencyDescriptionPatternType.ShortDecimal).ColourValue(),
+			},
+			new List<string>
+			{
+				"Start",
+				"End",
+				"Total Tax Revenue",
+			},
+			actor,
+			Telnet.FunctionYellow));
+		actor.OutputHandler.Send(sb.ToString());
+		return true;
+	}
+
+	private bool BuildingCommandShop(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("Which shop do you want to view economic information about?");
+			return false;
+		}
+
+		var shop = Gameworld.Shops.Where(x => x.EconomicZone == this).GetByIdOrName(command.SafeRemainingArgument);
+		if (shop is null)
+		{
+			actor.OutputHandler.Send("This economic zone has no such shop.");
+			return false;
+		}
+
+		var sb = new StringBuilder();
+		sb.AppendLine($"Shop #{shop.Id.ToString("N0", actor)} ({shop.Name.TitleCase()})".GetLineWithTitle(actor, Telnet.Yellow, Telnet.BoldWhite));
+		sb.AppendLine();
+		sb.AppendLine($"Tax Credits: {Currency.Describe(_shopsTaxesInCredit[shop.Id], CurrencyDescriptionPatternType.ShortDecimal).ColourValue()}");
+		sb.AppendLine($"Profit Tax Owed: {Currency.Describe(_shopsOutstandingProfitTaxes[shop.Id], CurrencyDescriptionPatternType.ShortDecimal).ColourValue()}");
+		sb.AppendLine($"Sales Tax Owed: {Currency.Describe(_shopsOutstandingSalesTaxes[shop.Id], CurrencyDescriptionPatternType.ShortDecimal).ColourValue()}");
+		sb.AppendLine();
+		sb.AppendLine("Financial Period Results:");
+		sb.AppendLine();
+		sb.AppendLine(StringUtilities.GetTextTable(
+			from item in _shopsPreviousFinancialPeriodResults[shop.Id] orderby item.Period.FinancialPeriodStartMUD descending
+			select new List<string>
+			{
+				item.Period.FinancialPeriodStartMUD.Date.Display(CalendarDisplayMode.Short).ColourValue(),
+				item.Period.FinancialPeriodEndMUD.Date.Display(CalendarDisplayMode.Short).ColourValue(),
+				Currency.Describe(item.GrossRevenue, CurrencyDescriptionPatternType.ShortDecimal).ColourValue(),
+				Currency.Describe(item.NetRevenue, CurrencyDescriptionPatternType.ShortDecimal).ColourValue(),
+				Currency.Describe(item.ProfitsTax, CurrencyDescriptionPatternType.ShortDecimal).ColourValue(),
+				Currency.Describe(item.SalesTax, CurrencyDescriptionPatternType.ShortDecimal).ColourValue(),
+			},
+			new List<string>
+			{
+				"Start",
+				"End",
+				"Gross Revenue",
+				"Net Revenue",
+				"Profit Tax",
+				"Sales Tax"
+			},
+			actor,
+			Telnet.FunctionYellow
+		));
+		actor.OutputHandler.Send(sb.ToString());
+		return true;
+	}
+
+	private bool BuildingCommandEndFinancialPeriod(ICharacter actor, StringStack command)
+	{
+		CloseCurrentFinancialPeriod();
+		actor.OutputHandler.Send("You manually end the current financial period.");
+		return true;
+	}
+
+	private bool BuildingCommandForgiveTaxes(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("Which shop do you want to forgive taxes for?");
+			return false;
+		}
+
+		var shop = Gameworld.Shops.Where(x => x.EconomicZone == this).GetByIdOrName(command.PopSpeech());
+		if (shop is null)
+		{
+			actor.OutputHandler.Send($"This economic zone does not have any such shop.");
+			return false;
+		}
+
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send($"How much of the outstanding taxes from {shop.Name.TitleCase().ColourName()} do you want to forgive?");
+			return false;
+		}
+
+		var outstanding = OutstandingTaxesForShop(shop);
+		if (command.SafeRemainingArgument.EqualTo("all"))
+		{
+			ForgiveTaxesForShop(shop);
+			actor.OutputHandler.Send($"You forgive all of the taxes that {shop.Name.TitleCase().ColourName()} owes, totalling {Currency.Describe(outstanding, CurrencyDescriptionPatternType.ShortDecimal).ColourValue()}.");
+			return true;
+		}
+
+		if (!Currency.TryGetBaseCurrency(command.SafeRemainingArgument, out var amount))
+		{
+			actor.OutputHandler.Send($"The text {command.SafeRemainingArgument.ColourCommand()} is not a valid amount of {Currency.Name.ColourValue()}.");
+			return false;
+		}
+
+		ForgiveTaxesForShop(shop, amount);
+		var remaining = OutstandingTaxesForShop(shop);
+		actor.OutputHandler.Send($"You forgive {Currency.Describe(amount, CurrencyDescriptionPatternType.ShortDecimal).ColourValue()} of the taxes owed by {shop.Name.TitleCase().ColourName()}, taking their total from {Currency.Describe(outstanding, CurrencyDescriptionPatternType.ShortDecimal).ColourValue()} to {Currency.Describe(remaining, CurrencyDescriptionPatternType.ShortDecimal).ColourValue()}.");
+		return true;
 	}
 
 	public bool BuildingCommandCalendar(ICharacter actor, StringStack command)
@@ -723,7 +953,7 @@ public class EconomicZone : SaveableItem, IEconomicZone
 				Gameworld.Add(new TimeAndDate.Listeners.DateListener(
 					CurrentFinancialPeriod.FinancialPeriodEndMUD, 0,
 					payload => { CloseCurrentFinancialPeriod(); },
-					new object[] { }));
+					new object[] { }, $"Close Financial Period for EZ #{Id} {Name}"));
 				actor.OutputHandler.Send(
 					$"You set this economic zone to now use the {calendar.Name.ColourName()} calendar.");
 			},

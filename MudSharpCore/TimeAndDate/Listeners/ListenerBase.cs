@@ -12,13 +12,15 @@ public abstract class ListenerBase : FrameworkItem, ITemporalListener
 
 	private int _repeatTimes;
 	protected object[] Objects;
+	protected string DebuggerReference;
 
-	protected ListenerBase(int repeatTimes, Action<object[]> payload, object[] objects)
+	protected ListenerBase(int repeatTimes, Action<object[]> payload, object[] objects, string debuggerReference = "Unspecified Payload")
 	{
 		_id = GetNextId();
 		_repeatTimes = repeatTimes;
 		Payload = payload;
 		Objects = objects;
+		DebuggerReference = debuggerReference;
 	}
 
 	public Action<object[]> Payload { get; protected set; }

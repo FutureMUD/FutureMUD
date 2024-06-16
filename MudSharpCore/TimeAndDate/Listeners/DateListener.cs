@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Text;
+using MudSharp.Framework;
 using MudSharp.TimeAndDate.Date;
 
 namespace MudSharp.TimeAndDate.Listeners;
@@ -13,23 +15,31 @@ public class DateListener : ListenerBase
 	protected int _watchForYear;
 
 	public DateListener(ICalendar watchCalendar, int watchForDay, string watchForMonth, int watchForYear,
-		int repeatTimes, Action<object[]> payload, object[] objects)
-		: base(repeatTimes, payload, objects)
+		int repeatTimes, Action<object[]> payload, object[] objects, string debuggerReference)
+		: base(repeatTimes, payload, objects, debuggerReference)
 	{
 		WatchCalendar = watchCalendar;
 		WatchForDay = watchForDay;
 		WatchForMonth = watchForMonth;
 		WatchForYear = watchForYear;
+		if (WatchForDay != -1 && WatchForYear != -1 && WatchForMonth.Length > 0)
+		{
+			_watchDate = WatchCalendar.GetDate($"{WatchForDay}-{WatchForMonth}-{WatchForYear}");
+		}
 		Subscribe();
 	}
 
-	public DateListener(MudDateTime datetime, int repeatTimes, Action<object[]> payload, object[] objects) : base(
-		repeatTimes, payload, objects)
+	public DateListener(MudDateTime datetime, int repeatTimes, Action<object[]> payload, object[] objects, string debuggerReference) : base(
+		repeatTimes, payload, objects, debuggerReference)
 	{
 		WatchCalendar = datetime.Calendar;
 		WatchForDay = datetime.Date.Day;
 		WatchForMonth = datetime.Date.Month.Alias;
 		WatchForYear = datetime.Date.Year;
+		if (WatchForDay != -1 && WatchForYear != -1 && WatchForMonth.Length > 0)
+		{
+			_watchDate = WatchCalendar.GetDate($"{WatchForDay}-{WatchForMonth}-{WatchForYear}");
+		}
 		Subscribe();
 	}
 
@@ -59,8 +69,15 @@ public class DateListener : ListenerBase
 		protected init => _watchCalendar = value;
 	}
 
+	private readonly MudDate _watchDate = null;
+
 	protected bool DateIsRight()
 	{
+		if (_watchDate is not null)
+		{
+			return WatchCalendar.CurrentDate <= _watchDate;
+		}
+
 		return
 			(WatchCalendar.CurrentDate.Day == WatchForDay || WatchForDay == -1) &&
 			(WatchCalendar.CurrentDate.Month.Alias == WatchForMonth || WatchForMonth.Length == 0) &&
@@ -81,39 +98,70 @@ public class DateListener : ListenerBase
 		if (WatchForDay != -1)
 		{
 			WatchCalendar.DaysUpdated += DateUpdated;
+			return;
 		}
 
 		if (WatchForMonth.Length > 0)
 		{
 			WatchCalendar.MonthsUpdated += DateUpdated;
+			return;
 		}
 
 		if (WatchForYear != -1)
 		{
 			WatchCalendar.YearsUpdated += DateUpdated;
+			return;
 		}
 	}
 
 	public override void UnSubscribe()
 	{
-		if (WatchForDay != -1)
-		{
-			WatchCalendar.DaysUpdated -= DateUpdated;
-		}
-
-		if (WatchForMonth.Length > 0)
-		{
-			WatchCalendar.MonthsUpdated -= DateUpdated;
-		}
-
-		if (WatchForYear != -1)
-		{
-			WatchCalendar.YearsUpdated -= DateUpdated;
-		}
+		WatchCalendar.DaysUpdated -= DateUpdated;
+		WatchCalendar.MonthsUpdated -= DateUpdated;
+		WatchCalendar.YearsUpdated -= DateUpdated;
 	}
 
 	public override string ToString()
 	{
-		return $"Date Listener: {WatchForYear}y {WatchForMonth}M {WatchForDay}d";
+		if (_watchDate is not null)
+		{
+			return $"Date Listener: {_watchDate.Display(CalendarDisplayMode.Short).ColourValue()} - {DebuggerReference.ColourCommand()} - x{RepeatTimes}";
+		}
+
+		var sb = new StringBuilder();
+		sb.Append("Date Listener: ");
+		sb.Append(Telnet.Green.Colour);
+		if (WatchForDay == -1)
+		{
+			sb.Append("Any day");
+		}
+		else
+		{
+			sb.Append($"The {WatchForDay.ToOrdinal()} day");
+		}
+
+		if (WatchForMonth.Length == 0)
+		{
+			sb.Append(" of any month");
+		}
+		else
+		{
+			sb.Append($" of the month {WatchForMonth}");
+		}
+
+		if (WatchForYear == -1)
+		{
+			sb.Append(" of any year");
+		}
+		else
+		{
+			sb.Append($" of the year {WatchForYear}");
+		}
+
+		sb.Append(Telnet.RESETALL);
+		sb.Append($" - {DebuggerReference.ColourCommand()} -");
+
+		sb.Append($" x{RepeatTimes}");
+		return sb.ToString();
 	}
 }

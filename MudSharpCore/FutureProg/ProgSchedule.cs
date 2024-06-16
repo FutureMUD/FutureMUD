@@ -102,7 +102,7 @@ public class ProgSchedule : SaveableItem, IProgSchedule
 		};
 		Prog = Gameworld.FutureProgs.Get(schedule.FutureProgId);
 		NextReferenceTime = Interval.GetNextDateTime(new MudDateTime(schedule.ReferenceDate, Gameworld));
-		_listener = Interval.CreateListenerFromInterval(NextReferenceTime, SchedulePayload, null);
+		_listener = Interval.CreateListenerFromInterval(NextReferenceTime, SchedulePayload, null, $"Prog Schedule #{Id} {Name.ColourName()}");
 		Changed = true;
 	}
 
@@ -111,7 +111,7 @@ public class ProgSchedule : SaveableItem, IProgSchedule
 		Prog.Execute();
 
 		NextReferenceTime = Interval.GetNextDateTime(NextReferenceTime);
-		_listener = Interval.CreateListenerFromInterval(NextReferenceTime, SchedulePayload, null);
+		_listener = Interval.CreateListenerFromInterval(NextReferenceTime, SchedulePayload, null, $"Prog Schedule #{Id} {Name.ColourName()}");
 		Changed = true;
 	}
 }

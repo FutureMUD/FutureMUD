@@ -2681,9 +2681,10 @@ Additionally, you can use the following shop admin subcommands:
 			shops = shops.Where(x => x.EconomicZone == zone).ToList();
 		}
 
-		actor.OutputHandler.Send(
-			$"List of shops{(zone != null ? $" for economic zone {zone.Name.TitleCase().Colour(Telnet.Cyan)}" : "")}:");
-		actor.OutputHandler.Send(StringUtilities.GetTextTable(
+		var sb = new StringBuilder();
+		sb.AppendLine($"List of shops{(zone != null ? $" for economic zone {zone.Name.TitleCase().Colour(Telnet.Cyan)}" : "")}:");
+		sb.AppendLine();
+		sb.AppendLine(StringUtilities.GetTextTable(
 			from shop in shops
 			let pshop = shop as IPermanentShop
 			select new[]
@@ -2696,6 +2697,7 @@ Additionally, you can use the following shop admin subcommands:
 				pshop?.ShopfrontCells.Select(x =>
 					x.GetFriendlyReference(actor).FluentTagMXP("send",
 						$"href='goto {x.Id}'")).FirstOrDefault() ?? "",
+				shop.EconomicZone.Name,
 				(shop is ITransientShop).ToColouredString()
 			},
 			new[]
@@ -2706,12 +2708,14 @@ Additionally, you can use the following shop admin subcommands:
 				"Employs",
 				"Working",
 				"Storefront",
+				"Economic Zone",
 				"Transient?"
 			},
-			colour: Telnet.Green,
-			maxwidth: actor.LineFormatLength,
-			unicodeTable: actor.Account.UseUnicode
+			actor,
+			colour: Telnet.Green
 		));
+		
+		actor.OutputHandler.Send(sb.ToString());
 	}
 
 	private static void ShopDelete(ICharacter actor, StringStack command)

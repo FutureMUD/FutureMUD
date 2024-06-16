@@ -386,19 +386,19 @@ public class Election : SaveableItem, IElection
 		{
 			case ElectionStage.Preelection:
 				_activeListener = ListenerFactory.CreateDateTimeListener(NominationStartDate,
-					objects => { CheckElectionStage(); }, new object[] { });
+					objects => { CheckElectionStage(); }, new object[] { }, $"Election #{Id} Nomination Start Date");
 				break;
 			case ElectionStage.Nomination:
 				_activeListener = ListenerFactory.CreateDateTimeListener(VotingStartDate,
-					objects => { CheckElectionStage(); }, new object[] { });
+					objects => { CheckElectionStage(); }, new object[] { }, $"Election #{Id} Voting Start Date");
 				break;
 			case ElectionStage.Voting:
 				_activeListener = ListenerFactory.CreateDateTimeListener(VotingEndDate,
-					objects => { CheckElectionStage(); }, new object[] { });
+					objects => { CheckElectionStage(); }, new object[] { }, $"Election #{Id} Voting End Date");
 				break;
 			case ElectionStage.Preinstallation:
 				_activeListener = ListenerFactory.CreateDateTimeListener(ResultsInEffectDate,
-					objects => { CheckElectionStage(); }, new object[] { });
+					objects => { CheckElectionStage(); }, new object[] { }, $"Election #{Id} Results In Effect Date");
 				break;
 			case ElectionStage.Finalised:
 				break;

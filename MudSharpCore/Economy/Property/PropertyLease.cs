@@ -158,10 +158,11 @@ public class PropertyLease : SaveableItem, IPropertyLease
 
 	private void SetupListeners()
 	{
-		_leaseEndListener = new DateListener(_leaseEnd, 0, DoLeaseEnd, Array.Empty<object>());
+		_leaseEndListener = new DateListener(_leaseEnd, 0, DoLeaseEnd, Array.Empty<object>(), $"End of Lease for Property #{Property.Id} {Property.Name.ColourName()}");
+		Gameworld.Add(_leaseEndListener);
 		_paymentIntervalListener =
 			_interval.CreateRecurringListenerFromInterval(_lastLeasePayment, DoLeaseInterval,
-				Array.Empty<object>());
+				Array.Empty<object>(), $"Lease Payment for Property #{_property.Id} {_property.Name.ColourName()}");
 	}
 
 	private void ReleaseListeners()

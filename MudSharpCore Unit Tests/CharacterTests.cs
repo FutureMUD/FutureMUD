@@ -8,7 +8,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace MudSharp_Unit_Tests;
 
 [TestClass]
-internal class CharacterTests
+public class CharacterTests
 {
 	
 }

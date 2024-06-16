@@ -13,7 +13,7 @@ public static class IntervalExtensions
 {
 	public static ITemporalListener CreateListenerFromInterval(this RecurringInterval interval,
 		MudDateTime referenceTime, Action<object[]> payload,
-		object[] objects)
+		object[] objects, string debuggerReference)
 	{
 		if (referenceTime.TimeZone != referenceTime.Clock.PrimaryTimezone)
 		{
@@ -28,37 +28,37 @@ public static class IntervalExtensions
 					referenceTime.Time.Seconds, referenceTime.Time.Minutes, referenceTime.Time.Hours,
 					referenceTime.Calendar,
 					referenceTime.Date.Day, referenceTime.Date.Month.Alias, referenceTime.Date.Year, 1,
-					payload, objects);
+					payload, objects, debuggerReference);
 			case IntervalType.Daily:
 				return ListenerFactory.CreateDateTimeListener(referenceTime.Clock,
 					referenceTime.Time.Seconds, referenceTime.Time.Minutes, referenceTime.Time.Hours,
 					referenceTime.Calendar,
 					referenceTime.Date.Day, referenceTime.Date.Month.Alias, referenceTime.Date.Year, 1,
-					payload, objects);
+					payload, objects, debuggerReference);
 			case IntervalType.Monthly:
 				return ListenerFactory.CreateDateTimeListener(referenceTime.Clock,
 					referenceTime.Time.Seconds, referenceTime.Time.Minutes, referenceTime.Time.Hours,
 					referenceTime.Calendar,
 					referenceTime.Date.Day, referenceTime.Date.Month.Alias, referenceTime.Date.Year, 1,
-					payload, objects);
+					payload, objects, debuggerReference);
 			case IntervalType.SpecificWeekday:
 				return ListenerFactory.CreateDateTimeListener(referenceTime.Clock,
 					referenceTime.Time.Seconds, referenceTime.Time.Minutes, referenceTime.Time.Hours,
 					referenceTime.Calendar,
 					referenceTime.Date.Day, referenceTime.Date.Month.Alias, referenceTime.Date.Year, 1,
-					payload, objects);
+					payload, objects, debuggerReference);
 			case IntervalType.Weekly:
 				return ListenerFactory.CreateDateTimeListener(referenceTime.Clock,
 					referenceTime.Time.Seconds, referenceTime.Time.Minutes, referenceTime.Time.Hours,
 					referenceTime.Calendar,
 					referenceTime.Date.Day, referenceTime.Date.Month.Alias, referenceTime.Date.Year, 1,
-					payload, objects);
+					payload, objects, debuggerReference);
 			case IntervalType.Yearly:
 				return ListenerFactory.CreateDateTimeListener(referenceTime.Clock,
 					referenceTime.Time.Seconds, referenceTime.Time.Minutes, referenceTime.Time.Hours,
 					referenceTime.Calendar,
 					referenceTime.Date.Day, referenceTime.Date.Month.Alias, referenceTime.Date.Year, 1,
-					payload, objects);
+					payload, objects, debuggerReference);
 			default:
 				throw new NotSupportedException("Unsupported IntervalType in CreateListenerFromInterval.");
 		}
@@ -67,7 +67,7 @@ public static class IntervalExtensions
 	public static ITemporalListener CreateListenerFromInterval(this RecurringInterval interval, ICalendar whichCalendar,
 		MudDate referenceDate,
 		MudTime recurringTime,
-		Action<object[]> payload, object[] objects)
+		Action<object[]> payload, object[] objects, string debuggerReference)
 	{
 		var date = interval.GetNextDate(whichCalendar, referenceDate);
 		switch (interval.Type)
@@ -77,32 +77,32 @@ public static class IntervalExtensions
 				return ListenerFactory.CreateDateTimeListener(whichCalendar.FeedClock,
 					recurringTime.Seconds, recurringTime.Minutes, recurringTime.Hours, whichCalendar,
 					date.Day, date.Month.Alias, date.Year, 1,
-					payload, objects);
+					payload, objects, debuggerReference);
 			case IntervalType.Daily:
 				return ListenerFactory.CreateDateTimeListener(whichCalendar.FeedClock,
 					recurringTime.Seconds, recurringTime.Minutes, recurringTime.Hours, whichCalendar,
 					date.Day, date.Month.Alias, date.Year, 1,
-					payload, objects);
+					payload, objects, debuggerReference);
 			case IntervalType.Monthly:
 				return ListenerFactory.CreateDateTimeListener(whichCalendar.FeedClock,
 					recurringTime.Seconds, recurringTime.Minutes, recurringTime.Hours, whichCalendar,
 					date.Day, date.Month.Alias, date.Year, 1,
-					payload, objects);
+					payload, objects, debuggerReference);
 			case IntervalType.SpecificWeekday:
 				return ListenerFactory.CreateDateTimeListener(whichCalendar.FeedClock,
 					recurringTime.Seconds, recurringTime.Minutes, recurringTime.Hours, whichCalendar,
 					date.Day, date.Month.Alias, date.Year, 1,
-					payload, objects);
+					payload, objects, debuggerReference);
 			case IntervalType.Weekly:
 				return ListenerFactory.CreateDateTimeListener(whichCalendar.FeedClock,
 					recurringTime.Seconds, recurringTime.Minutes, recurringTime.Hours, whichCalendar,
 					date.Day, date.Month.Alias, date.Year, 1,
-					payload, objects);
+					payload, objects, debuggerReference);
 			case IntervalType.Yearly:
 				return ListenerFactory.CreateDateTimeListener(whichCalendar.FeedClock,
 					recurringTime.Seconds, recurringTime.Minutes, recurringTime.Hours, whichCalendar,
 					date.Day, date.Month.Alias, date.Year, 1,
-					payload, objects);
+					payload, objects, debuggerReference);
 			default:
 				throw new NotSupportedException("Unsupported IntervalType in CreateListenerFromInterval.");
 		}
@@ -110,16 +110,16 @@ public static class IntervalExtensions
 
 	public static ITemporalListener CreateRecurringListenerFromInterval(this RecurringInterval interval,
 		MudDateTime dateTime,
-		Action<object[]> payload, object[] objects)
+		Action<object[]> payload, object[] objects, string debuggerReference)
 	{
 		return CreateRecurringListenerFromInterval(interval, dateTime.Calendar, dateTime.Date, dateTime.Time,
-			payload, objects);
+			payload, objects, debuggerReference);
 	}
 
 	public static ITemporalListener CreateRecurringListenerFromInterval(this RecurringInterval interval,
 		ICalendar whichCalendar, MudDate referenceDate,
 		MudTime recurringTime,
-		Action<object[]> payload, object[] objects)
+		Action<object[]> payload, object[] objects, string debuggerReference)
 	{
 		var date = interval.GetNextDate(whichCalendar, referenceDate);
 		if (recurringTime.Timezone != whichCalendar.FeedClock.PrimaryTimezone)
@@ -148,8 +148,8 @@ public static class IntervalExtensions
 						}
 
 						payload(objects1);
-						interval.CreateListenerFromInterval(whichCalendar, newDate, newTime, payload, objects1);
-					}, objects);
+						interval.CreateListenerFromInterval(whichCalendar, newDate, newTime, payload, objects1, debuggerReference);
+					}, objects, debuggerReference);
 			case IntervalType.Hourly:
 				return ListenerFactory.CreateDateTimeListener(whichCalendar.FeedClock,
 					recurringTime.Seconds, recurringTime.Minutes, recurringTime.Hours, whichCalendar,
@@ -165,8 +165,8 @@ public static class IntervalExtensions
 						}
 
 						payload(objects1);
-						interval.CreateListenerFromInterval(whichCalendar, newDate, newTime, payload, objects1);
-					}, objects);
+						interval.CreateListenerFromInterval(whichCalendar, newDate, newTime, payload, objects1, debuggerReference);
+					}, objects, debuggerReference);
 			case IntervalType.Daily:
 				return ListenerFactory.CreateDateTimeListener(whichCalendar.FeedClock,
 					recurringTime.Seconds, recurringTime.Minutes, recurringTime.Hours, whichCalendar,
@@ -176,8 +176,8 @@ public static class IntervalExtensions
 						var newDate = new MudDate(date);
 						newDate.AdvanceDays(interval.IntervalAmount);
 						payload(objects1);
-						interval.CreateListenerFromInterval(whichCalendar, newDate, recurringTime, payload, objects1);
-					}, objects);
+						interval.CreateListenerFromInterval(whichCalendar, newDate, recurringTime, payload, objects1, debuggerReference);
+					}, objects, debuggerReference);
 			case IntervalType.Monthly:
 				return ListenerFactory.CreateDateTimeListener(whichCalendar.FeedClock,
 					recurringTime.Seconds, recurringTime.Minutes, recurringTime.Hours, whichCalendar,
@@ -187,8 +187,8 @@ public static class IntervalExtensions
 						payload(objects1);
 						var newDate = new MudDate(date);
 						newDate.AdvanceMonths(interval.IntervalAmount, true, true);
-						interval.CreateListenerFromInterval(whichCalendar, newDate, recurringTime, payload, objects1);
-					}, objects);
+						interval.CreateListenerFromInterval(whichCalendar, newDate, recurringTime, payload, objects1, debuggerReference);
+					}, objects, debuggerReference);
 			case IntervalType.SpecificWeekday:
 				return ListenerFactory.CreateDateTimeListener(whichCalendar.FeedClock,
 					recurringTime.Seconds, recurringTime.Minutes, recurringTime.Hours, whichCalendar,
@@ -198,8 +198,8 @@ public static class IntervalExtensions
 						payload(objects1);
 						var newDate = new MudDate(date);
 						newDate.AdvanceToNextWeekday(interval.Modifier, interval.IntervalAmount);
-						interval.CreateListenerFromInterval(whichCalendar, newDate, recurringTime, payload, objects1);
-					}, objects);
+						interval.CreateListenerFromInterval(whichCalendar, newDate, recurringTime, payload, objects1, debuggerReference);
+					}, objects, debuggerReference);
 			case IntervalType.Weekly:
 				return ListenerFactory.CreateDateTimeListener(whichCalendar.FeedClock,
 					recurringTime.Seconds, recurringTime.Minutes, recurringTime.Hours, whichCalendar,
@@ -209,8 +209,8 @@ public static class IntervalExtensions
 						payload(objects1);
 						var newDate = new MudDate(date);
 						newDate.AdvanceDays(interval.IntervalAmount * whichCalendar.Weekdays.Count);
-						interval.CreateListenerFromInterval(whichCalendar, newDate, recurringTime, payload, objects1);
-					}, objects);
+						interval.CreateListenerFromInterval(whichCalendar, newDate, recurringTime, payload, objects1, debuggerReference);
+					}, objects, debuggerReference);
 			case IntervalType.Yearly:
 				return ListenerFactory.CreateDateTimeListener(whichCalendar.FeedClock,
 					recurringTime.Seconds, recurringTime.Minutes, recurringTime.Hours, whichCalendar,
@@ -220,8 +220,8 @@ public static class IntervalExtensions
 						payload(objects1);
 						var newDate = new MudDate(date);
 						newDate.AdvanceYears(interval.IntervalAmount, false);
-						interval.CreateListenerFromInterval(whichCalendar, newDate, recurringTime, payload, objects1);
-					}, objects);
+						interval.CreateListenerFromInterval(whichCalendar, newDate, recurringTime, payload, objects1, debuggerReference);
+					}, objects, debuggerReference);
 			default:
 				throw new NotSupportedException("Unsupported IntervalType in CreateRecurringListenerFromInterval.");
 		}

@@ -395,26 +395,29 @@ public class EconomicZone : SaveableItem, IEconomicZone
 
 	public void SaveFinancialPeriodResults()
 	{
-		var dbitem = FMDB.Context.EconomicZones.Find(Id);
-		FMDB.Context.ShopFinancialPeriodResults.RemoveRange(dbitem.ShopFinancialPeriodResults);
-		foreach (var (key, results) in _shopsPreviousFinancialPeriodResults)
+		using (new FMDB())
 		{
-			foreach (var result in results)
+			var dbitem = FMDB.Context.EconomicZones.Find(Id);
+			FMDB.Context.ShopFinancialPeriodResults.RemoveRange(dbitem.ShopFinancialPeriodResults);
+			foreach (var (key, results) in _shopsPreviousFinancialPeriodResults)
 			{
-				dbitem.ShopFinancialPeriodResults.Add(new ShopFinancialPeriodResult
+				foreach (var result in results)
 				{
-					EconomicZoneId = Id,
-					ShopId = key,
-					FinancialPeriodId = result.Period.Id,
-					GrossRevenue = result.GrossRevenue,
-					NetRevenue = result.NetRevenue,
-					SalesTax = result.SalesTax,
-					ProfitsTax = result.ProfitsTax
-				});
+					dbitem.ShopFinancialPeriodResults.Add(new ShopFinancialPeriodResult
+					{
+						EconomicZoneId = Id,
+						ShopId = key,
+						FinancialPeriodId = result.Period.Id,
+						GrossRevenue = result.GrossRevenue,
+						NetRevenue = result.NetRevenue,
+						SalesTax = result.SalesTax,
+						ProfitsTax = result.ProfitsTax
+					});
+				}
 			}
-		}
 
-		FMDB.Context.SaveChanges();
+			FMDB.Context.SaveChanges();
+		}
 	}
 
 	public override string FrameworkItemType => "EconomicZone";

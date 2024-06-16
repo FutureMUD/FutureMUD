@@ -244,7 +244,7 @@ public class PermanentShop : Shop, IPermanentShop
 		var quantityToRestock = merchandise.MinimumStockLevels - _stockedMerchandiseCounts[merchandise];
 		var originalQuantity = quantityToRestock;
 		var newItems = new List<IGameItem>();
-		var newItemsOriginalContainers = new Dictionary<IGameItem, IGameItem>();
+		var newItemsOriginalContainers = new DictionaryWithDefault<IGameItem, IGameItem>();
 		if (merchandise.PreserveVariablesOnReorder && purchasedItems != null)
 		{
 			foreach (var item in purchasedItems)

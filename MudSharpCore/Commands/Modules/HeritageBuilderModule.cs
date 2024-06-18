@@ -1892,7 +1892,7 @@ The correct syntax for this command is as follows:
 				return;
 			}
 
-			ethnicities = ethnicities.Where(x => x.ParentRace.SameRace(race)).ToList();
+			ethnicities = ethnicities.Where(x => race.SameRace(x.ParentRace)).ToList();
 		}
 
 		actor.OutputHandler.Send(StringUtilities.GetTextTable(

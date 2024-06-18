@@ -156,7 +156,9 @@ public class EditableItemHelper
 			"Parent",
 			"Breathing",
 			"Swims",
-			"Climbs"
+			"Climbs",
+			"Body",
+			"# Ethnicities"
 		},
 
 		GetListTableContentsFunc = (character, protos) => from proto in protos.OfType<IRace>()
@@ -167,7 +169,9 @@ public class EditableItemHelper
 			                                                  proto.ParentRace?.Name ?? "",
 			                                                  proto.BreathingStrategy.Name.TitleCase(),
 			                                                  proto.CanSwim.ToString(),
-			                                                  proto.CanClimb.ToString()
+			                                                  proto.CanClimb.ToString(),
+															  proto.BaseBody.Name,
+															  character.Gameworld.Ethnicities.Count(x => proto.SameRace(x.ParentRace)).ToString("N0", character).MXPSend($"ethnicity list {proto.Name}")
 		                                                  },
 
 		CustomSearch = (protos, keyword, gameworld) =>

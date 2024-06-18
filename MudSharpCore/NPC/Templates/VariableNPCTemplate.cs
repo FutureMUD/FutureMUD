@@ -243,8 +243,12 @@ public class VariableNPCTemplate : NPCTemplateBase
 	{
 		return _genderChances.Any() &&
 		       _genderChances.All(
-			       x => _heightWeightModels.Any(y => y.Key == x.Value) && _nameProfiles.Any(y => y.Key == x.Value)) &&
-		       _race != null && _culture != null;
+			       x => 
+				       _heightWeightModels.Any(y => y.Key == x.Value) && 
+			            _nameProfiles.Any(y => y.Key == x.Value)) &&
+		       _race != null && 
+		       _culture != null &&
+		       Gameworld.Ethnicities.Any(x => _race.SameRace(x.ParentRace));
 	}
 
 	public override string WhyCannotSubmit()
@@ -259,6 +263,11 @@ public class VariableNPCTemplate : NPCTemplateBase
 		if (_culture == null)
 		{
 			errors.Add("You must select a culture.");
+		}
+
+		if (Gameworld.Ethnicities.All(x => !_race.SameRace(x.ParentRace)))
+		{
+			errors.Add("The selected race doesn't have any cultures.");
 		}
 
 		if (!_genderChances.Any())

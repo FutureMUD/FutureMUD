@@ -1333,9 +1333,9 @@ For all of the below phase emote echoes, you can use #6$0#0 for the actor, #6$1#
 				select new List<string>
 				{
 					item.Id.ToString("N0", voyeur),
-					item.Name,
-					item.CanProduceProg.MXPClickableFunctionName(),
-					item.TargetBody.Name,
+					item?.Name ?? "",
+					item.CanProduceProg?.MXPClickableFunctionName() ?? "",
+					item.TargetBody?.Name ?? "",
 					item.RequiredBodyparts.Select(x => x.Name).ListToCommaSeparatedValues(", "),
 					item.ProductItems.Select(x => $"{x.NormalQuantity.ToString("N0", voyeur)}x {x.NormalProto.EditHeader()}".ColourObject()).ListToCommaSeparatedValues(", ")
 				},
@@ -1382,9 +1382,9 @@ For all of the below phase emote echoes, you can use #6$0#0 for the actor, #6$1#
 			{
 				item.Id.ToString("N0", voyeur),
 				item.Name,
-				item.CanProduceProg.MXPClickableFunctionName(),
-				item.TargetBody.Name,
-				item.Subcategory,
+				item.CanProduceProg?.MXPClickableFunctionName() ?? "",
+				item.TargetBody?.Name ?? "",
+				item.Subcategory ?? "",
 				item.RequiredBodyparts.Select(x => x.Name).ListToCommaSeparatedValues(", "),
 				item.ProductItems.Select(x => $"{x.NormalQuantity.ToString("N0", voyeur)}x {x.NormalProto.EditHeader()}".ColourObject()).ListToCommaSeparatedValues(", ")
 			},

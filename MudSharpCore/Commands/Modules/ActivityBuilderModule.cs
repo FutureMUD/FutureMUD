@@ -359,12 +359,12 @@ You can use the following options with this command:
 			from item in items select new List<string>
 			{
 				item.Id.ToString("N0", actor),
-				item.Name,
-				item.Subcategory,
+				item.Name ?? "",
+				item.Subcategory ?? "",
 				item.IsPelt.ToColouredString(),
-				item.TargetBody.Name,
+				item.TargetBody?.Name ?? "",
 				item.RequiredBodyparts.Select(x => x.Name).ListToCommaSeparatedValues(", "),
-				item.CanProduceProg.MXPClickableFunctionName(),
+				item.CanProduceProg?.MXPClickableFunctionName() ?? "",
 				item.ProductItems.Count().ToString("N0", actor)
 			},
 			new List<string>

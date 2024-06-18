@@ -44,10 +44,9 @@ public class WandererAI : ArtificialIntelligenceBase
 		OpenDoors = false;
 		WanderTimeDiceExpression = "1d40+100";
 		WillWanderIntoCellProg = Gameworld.AlwaysTrueProg;
-		TargetBodyPrototype = Gameworld.BodyPrototypes.First();
+		TargetBodyPrototype = null;
 		IsWanderingProg = Gameworld.AlwaysTrueProg;
-		TargetMoveSpeed = TargetBodyPrototype.Speeds
-		                                     .FirstOrDefault(x => x.Position == PositionStanding.Instance);
+		TargetMoveSpeed = TargetBodyPrototype?.Speeds.FirstOrDefault(x => x.Position == PositionStanding.Instance);
 		DatabaseInitialise();
 	}
 
@@ -116,11 +115,6 @@ public class WandererAI : ArtificialIntelligenceBase
 	private void EvaluateWander(ICharacter character)
 	{
 		if (character.State.HasFlag(CharacterState.Dead))
-		{
-			return;
-		}
-
-		if (!character.Body.Prototype.CountsAs(TargetBodyPrototype))
 		{
 			return;
 		}
@@ -216,8 +210,8 @@ public class WandererAI : ArtificialIntelligenceBase
 
 			case EventType.CharacterEntersGame:
 			case EventType.LeaveCombat:
-				var character = arguments[0];
-				if (TargetMoveSpeed != null)
+				var character = (ICharacter)arguments[0];
+				if (character.Body.Prototype.CountsAs(TargetBodyPrototype) && TargetMoveSpeed != null)
 				{
 					character.CurrentSpeeds[PositionStanding.Instance] = TargetMoveSpeed;
 				}
@@ -378,6 +372,12 @@ public class WandererAI : ArtificialIntelligenceBase
 		if (command.IsFinished)
 		{
 			actor.OutputHandler.Send("What movement speed should the AI try to use?");
+			return false;
+		}
+
+		if (TargetBodyPrototype is null)
+		{
+			actor.OutputHandler.Send("You must first set a target body prototype before you set a speed.");
 			return false;
 		}
 

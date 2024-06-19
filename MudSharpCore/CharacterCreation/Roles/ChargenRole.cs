@@ -21,6 +21,7 @@ using MudSharp.FutureProg.Variables;
 using MudSharp.Models;
 using MudSharp.PerceptionEngine;
 using MudSharp.RPG.Merits;
+using Org.BouncyCastle.Cms;
 
 namespace MudSharp.CharacterCreation.Roles;
 
@@ -51,6 +52,93 @@ internal class ChargenRole : SaveableItem, IChargenRole
 	{
 		Gameworld = gameworld;
 		LoadFromDatabase(role);
+	}
+
+	public IChargenRole Clone(string newName)
+	{
+		return new ChargenRole(this, newName);
+	}
+
+	private ChargenRole(ChargenRole rhs, string name)
+	{
+		Gameworld = rhs.Gameworld;
+		using (new FMDB())
+		{
+			var dbitem = new Models.ChargenRole();
+			FMDB.Context.ChargenRoles.Add(dbitem);
+			dbitem.Name = name;
+			dbitem.ChargenBlurb = rhs.ChargenBlurb;
+			dbitem.Expired = false;
+			dbitem.AvailabilityProgId = rhs.AvailabilityProg?.Id;
+			dbitem.PosterId = rhs.PosterId;
+			dbitem.MaximumNumberAlive = rhs.MaximumNumberAlive;
+			dbitem.MaximumNumberTotal = rhs.MaximumNumberTotal;
+			dbitem.Type = (int)rhs.RoleType;
+			foreach (var item in rhs._chargenAdvices)
+			{
+				dbitem.ChargenAdvicesChargenRoles.Add(new ChargenAdvicesChargenRoles
+				{ ChargenAdviceId = item.Id, ChargenRole = dbitem });
+			}
+
+			foreach (var account in rhs.RequiredApprovers)
+			{
+				dbitem.ChargenRolesApprovers.Add(
+					new ChargenRolesApprovers
+					{
+						Approver = FMDB.Context.Accounts.FirstOrDefault(x => x.Name == account),
+						ChargenRole = dbitem
+					});
+			}
+
+			foreach (var item in rhs.Costs)
+			{
+				var newItem = new ChargenRolesCost();
+				newItem.ChargenRole = dbitem;
+				newItem.ChargenResourceId = item.Key.Id;
+				newItem.Amount = item.Value;
+				FMDB.Context.ChargenRolesCosts.Add(newItem);
+			}
+
+			foreach (var item in rhs.StartingCurrency)
+			{
+				var newItem = new ChargenRolesCurrency();
+				newItem.ChargenRole = dbitem;
+				newItem.CurrencyId = item.Key.Id;
+				newItem.Amount = item.Value;
+				FMDB.Context.ChargenRolesCurrencies.Add(newItem);
+			}
+
+			foreach (var item in rhs.TraitAdjustments)
+			{
+				var newItem = new ChargenRolesTrait();
+				newItem.ChargenRole = dbitem;
+				newItem.TraitId = item.Key.Id;
+				newItem.Amount = item.Value.amount;
+				newItem.GiveIfDoesntHave = item.Value.giveIfMissing;
+				FMDB.Context.ChargenRolesTraits.Add(newItem);
+			}
+			
+			foreach (var item in rhs.ClanMemberships)
+			{
+				var newItem = new ChargenRolesClanMemberships();
+				newItem.ChargenRole = dbitem;
+				newItem.ClanId = item.Clan.Id;
+				newItem.RankId = item.Rank.Id;
+				newItem.PaygradeId = item.Paygrade?.Id;
+				FMDB.Context.ChargenRolesClanMemberships.Add(newItem);
+				foreach (var appointment in item.Appointments)
+				{
+					var newAppointment = new ChargenRolesClanMembershipsAppointments();
+					newAppointment.ChargenRolesClanMembership = newItem;
+					newAppointment.AppointmentId = appointment.Id;
+					FMDB.Context.ChargenRolesClanMembershipsAppointments.Add(newAppointment);
+				}
+
+			}
+
+			FMDB.Context.SaveChanges();
+			LoadFromDatabase(dbitem);
+		}
 	}
 
 	public override void Save()

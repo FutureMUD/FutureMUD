@@ -78,5 +78,6 @@ namespace MudSharp.CharacterCreation.Roles {
         void SetName(string name);
         IEnumerable<IChargenAdvice> ChargenAdvices { get; }
         bool ToggleAdvice(IChargenAdvice advice);
+        IChargenRole Clone(string newName);
     }
 }

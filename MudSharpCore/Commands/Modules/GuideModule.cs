@@ -15,6 +15,7 @@ using Chargen = MudSharp.Models.Chargen;
 using Microsoft.EntityFrameworkCore;
 using MudSharp.Accounts;
 using MudSharp.Character.Name;
+using System.Xml.Linq;
 
 namespace MudSharp.Commands.Modules;
 
@@ -40,6 +41,7 @@ The syntax to edit roles is as follows:
 	#3role edit#0 - an alias for #3role show#0 on your currently edited role
 	#3role close#0 - no longer edit the role that you are editing
 	#3role new <type> <name>#0 - creates a new role
+	#3role clone <which> <newName>#0 - clones an existing role to a new one
 	#3role set name <name>#0 - renames this role
 	#3role set type <type>#0 - changes the type of this role
 	#3role set blurb#0 - drops you into an editor to enter the blurb in chargen
@@ -96,8 +98,11 @@ The syntax to edit roles is as follows:
 			case "new":
 				RoleCreate(actor, ss);
 				break;
+			case "clone":
+				RoleClone(actor, ss);
+				return;
 			default:
-				actor.Send("That is not a valid option with the role command.");
+				actor.OutputHandler.Send(RoleHelp.SubstituteANSIColour());
 				return;
 		}
 	}
@@ -454,6 +459,34 @@ The syntax to edit roles is as follows:
 
 		var role = editing.EditingItem;
 		role.BuildingCommand(actor, ss);
+	}
+
+	private static void RoleClone(ICharacter actor, StringStack ss)
+	{
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send("Which role do you want to clone?");
+			return;
+		}
+
+		var role = actor.Gameworld.Roles.GetByIdOrName(ss.PopSpeech());
+		if (role is null)
+		{
+			actor.OutputHandler.Send("There is no such role.");
+			return;
+		}
+
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send("What name do you want to give to the new role?");
+			return;
+		}
+
+		var newRole = role.Clone(ss.SafeRemainingArgument.TitleCase());
+		actor.Gameworld.Add(newRole);
+		actor.RemoveAllEffects<BuilderEditingEffect<IChargenRole>>();
+		actor.AddEffect(new BuilderEditingEffect<IChargenRole>(actor) { EditingItem = newRole });
+		actor.OutputHandler.Send($"You clone the role called {role.Name.ColourName()} into a new role called {newRole.Name.ColourName()}, which are now editing.");
 	}
 
 	private static void RoleCreate(ICharacter actor, StringStack ss)

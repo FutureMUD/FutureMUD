@@ -2635,9 +2635,27 @@ The syntax is #3editstaticconfig <whichsetting>#0, which will drop you into an e
 		var ss = new StringStack(input.RemoveFirstWord());
 		if (ss.IsFinished)
 		{
-			actor.OutputHandler.Send(
-				$"Which static configuration would you like to edit? The options are as follows:\n\n{actor.Gameworld.StaticConfigurationNames.OrderBy(x => x).Select(x => x.ColourCommand()).SplitTextIntoColumns((uint)actor.LineFormatLength / 60U, (uint)actor.LineFormatLength)}",
-				nopage: true);
+			var sb = new StringBuilder();
+			sb.AppendLine("Which static configuration would you like to edit? The options are as follows:\n");
+			sb.AppendLine(
+				StringUtilities.GetTextTable(
+					from item in actor.Gameworld.StaticConfigurationNames
+					orderby item
+					select new List<string>
+					{
+						item,
+						actor.Gameworld.GetStaticConfiguration(item)
+					},
+					[
+						"Setting",
+						"Value"
+					],
+					actor,
+					Telnet.Yellow,
+					1
+				)
+			);
+			actor.OutputHandler.Send(sb.ToString(), nopage: true);
 			return;
 		}
 

@@ -2271,17 +2271,27 @@ To see what register values a room, item or character has use the #3sniff#0 comm
 
 Once you have a prog that matches the right call signature for an event, you create a matching hook. Then, you can install that hook on a character, item, room or the like to ensure that it always fires in response to the event.
 
+Note - you may need to restart the game for some hook-related changes to take effect. Generally it's good practice to reboot after doing anything much which these.
+
 The syntax for this command is as follows:
     
-	#3hook list#0 - lists all of the hooks
+	#3hook list [<filters>]#0 - lists all of the hooks
 	#3hook create <name> <prog> <event>#0 - creates a new hook for an event
 	#3hook create <name> <prog> CommandInput|SelfCommandInput <command>#0 - creates a new hook for a command input
 	#3hook category <hook> <category>#0 - sets a category for a hook for ease of searching
+	#3hook rename <hook> <name>#0 - renames a hook
+	#3hook prog <hook> <prog>#0 - changes or toggles the prog payload of a hook
+	#3hook command <hook> <command>#0 - changes the command for a command triggered hook
 	#3hook install <hook> <target>#0 - installs a hook on a target
 	#3hook remove <hook> <target>#0 - removes a hook on a target
 	#3hook defaults#0 - shows all default hooks
 	#3hook adddefault <perceivable type> <hook> <filter prog>#0 - adds a default hook
-	#3hook remdefault <perceivable type> <hook> <filter prog>#0 - removes a default hook";
+	#3hook remdefault <perceivable type> <hook> <filter prog>#0 - removes a default hook
+
+You can use the following filters with #3hook list#0:
+
+	#6*<prog>#0 - filters by a prog that the hook calls
+	#6<eventtype>#0 - filters by a hook that pertains to the event";
 
 	[PlayerCommand("Hook", "hook")]
 	[CommandPermission(PermissionLevel.HighAdmin)]
@@ -2320,10 +2330,144 @@ The syntax for this command is as follows:
 			case "remove":
 				HookRemove(actor, ss);
 				return;
+			case "rename":
+				HookRename(actor, ss);
+				return;
+			case "prog":
+				HookProg(actor, ss);
+				return;
+			case "command":
+				HookCommand(actor, ss);
+				return;
 			default:
 				actor.OutputHandler.Send(HookHelpText.SubstituteANSIColour());
 				return;
 		}
+	}
+
+	private static void HookCommand(ICharacter actor, StringStack ss)
+	{
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send("Which hook do you want to change the name of?");
+			return;
+		}
+
+		var hook = actor.Gameworld.Hooks.GetByIdOrName(ss.PopSpeech());
+		if (hook is null)
+		{
+			actor.OutputHandler.Send("There is no such hook.");
+			return;
+		}
+
+		if (hook is not ICommandHook chook)
+		{
+			actor.OutputHandler.Send($"The {hook.Name.ColourName()} hook is not triggered by command input.");
+			return;
+		}
+
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send("What command would you like this hook to trigger on?");
+			return;
+		}
+
+		var command = ss.Pop();
+		chook.CommandText = command;
+		chook.Changed = true;
+		actor.OutputHandler.Send($"The {hook.Name.ColourName()} hook will now execute from the {command.ColourCommand()} command.");
+	}
+
+	private static void HookProg(ICharacter actor, StringStack ss)
+	{
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send("Which hook do you want to change the name of?");
+			return;
+		}
+
+		var hook = actor.Gameworld.Hooks.GetByIdOrName(ss.PopSpeech());
+		if (hook is null)
+		{
+			actor.OutputHandler.Send("There is no such hook.");
+			return;
+		}
+
+		if (hook is not IExecuteProgHook phook)
+		{
+			actor.OutputHandler.Send($"The hook {hook.Name.ColourName()} is not a hook that executes a prog.");
+			return;
+		}
+
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send("Which prog do you want to set or toggle for that hook?");
+			return;
+		}
+
+		var prog = actor.Gameworld.FutureProgs.GetByIdOrName(ss.SafeRemainingArgument);
+		if (prog is null)
+		{
+			actor.OutputHandler.Send($"There is no prog identified by the text {ss.SafeRemainingArgument.ColourCommand()}.");
+			return;
+		}
+
+		if (phook.FutureProgs.Contains(prog))
+		{
+			if (!phook.RemoveProg(prog))
+			{
+				actor.OutputHandler.Send($"The {prog.MXPClickableFunctionName()} prog cannot be removed from that hook.");
+				return;
+			}
+
+			phook.Changed = true;
+			actor.OutputHandler.Send($"The {hook.Name.ColourName()} hook no longer executes the {prog.MXPClickableFunctionName()} prog.");
+			return;
+		}
+
+		var info = hook.Type.GetAttribute<EventInfoAttribute>();
+		if (info?.ProgTypes.CompatibleWith(prog.Parameters) != true)
+		{
+			actor.OutputHandler.Send($"The {prog.MXPClickableFunctionName()} prog is not compatible with the {hook.Type.DescribeEnum(colour: Telnet.Cyan)} event.");
+			return;
+		}
+
+		phook.AddProg(prog);
+		phook.Changed = true;
+		actor.OutputHandler.Send($"The {hook.Name.ColourName()} hook now executes the {prog.MXPClickableFunctionName()} prog.");
+	}
+
+	private static void HookRename(ICharacter actor, StringStack ss)
+	{
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send("Which hook do you want to change the name of?");
+			return;
+		}
+
+		var hook = actor.Gameworld.Hooks.GetByIdOrName(ss.PopSpeech());
+		if (hook is null)
+		{
+			actor.OutputHandler.Send("There is no such hook.");
+			return;
+		}
+
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send($"What new name do you want to set for the hook {hook.Name.ColourName()}?");
+			return;
+		}
+
+		var name = ss.SafeRemainingArgument.TitleCase();
+		if (actor.Gameworld.Hooks.Any(x => x.Name.EqualTo(name)))
+		{
+			actor.Send("There is already a hook with that name. Hook names must be unique.");
+			return;
+		}
+
+		actor.OutputHandler.Send($"You rename the hook {hook.Name.ColourName()} to {name.ColourName()}.");
+		hook.Name = name;
+		hook.Changed = true;
 	}
 
 	private static void HookInstall(ICharacter actor, StringStack input)
@@ -2378,7 +2522,7 @@ The syntax for this command is as follows:
 			return;
 		}
 
-		var name = ss.PopSpeech();
+		var name = ss.PopSpeech().TitleCase();
 		if (actor.Gameworld.Hooks.Any(x => x.Name.EqualTo(name)))
 		{
 			actor.Send("There is already a hook with that name. Hook names must be unique.");
@@ -2730,12 +2874,14 @@ The syntax for this command is as follows:
 		sb.AppendLine();
 		sb.AppendLine(StringUtilities.GetTextTable(
 			from hook in hooks
+			let chook = hook as ICommandHook
 			select new List<string>
 			{
 				hook.Id.ToString("N0", actor),
 				hook.Name,
 				hook.Category,
 				hook.Type.DescribeEnum(),
+				chook?.CommandText ?? "",
 				hook.InfoForHooklist
 			},
 			new List<string>
@@ -2744,6 +2890,7 @@ The syntax for this command is as follows:
 				"Name",
 				"Category",
 				"Event",
+				"Command",
 				"Payload"
 			},
 			actor,

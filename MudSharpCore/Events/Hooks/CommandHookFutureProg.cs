@@ -7,10 +7,10 @@ using MudSharp.FutureProg;
 
 namespace MudSharp.Events.Hooks;
 
-public class CommandHookFutureProg : CommandHook, IHookWithProgs
+public class CommandHookFutureProg : CommandHook, IHookWithProgs, IExecuteProgHook
 {
-	private IFutureProg CommandProg;
-	public IEnumerable<IFutureProg> FutureProgs => new IFutureProg[] { CommandProg };
+	private IFutureProg _commandProg;
+	public IEnumerable<IFutureProg> FutureProgs => new[] { _commandProg };
 
 	public CommandHookFutureProg(Models.Hooks hook, IFuturemud gameworld)
 		: base(hook, gameworld)
@@ -24,8 +24,8 @@ public class CommandHookFutureProg : CommandHook, IHookWithProgs
 
 	protected override void LoadFromXml(XElement root)
 	{
-		CommandProg = Gameworld.FutureProgs.Get(long.Parse(root.Element("FutureProg").Value));
-		if (CommandProg.ReturnType != FutureProgVariableTypes.Text)
+		_commandProg = Gameworld.FutureProgs.Get(long.Parse(root.Element("FutureProg").Value));
+		if (_commandProg?.ReturnType != FutureProgVariableTypes.Text)
 		{
 			Console.WriteLine("Warning: CommandHookFutureProg " + Id + " has a non-text prog.");
 		}
@@ -33,10 +33,31 @@ public class CommandHookFutureProg : CommandHook, IHookWithProgs
 		base.LoadFromXml(root);
 	}
 
-	protected override string CommandToExecute(object[] parameters)
+	/// <inheritdoc />
+	protected override XElement SaveDefinition()
 	{
-		return CommandProg.Execute(parameters).ToString();
+		return new XElement("Definition",
+			new XElement("FutureProg", _commandProg.Id),
+			new XElement("CommandExecutorIndex", _commandExecuterIndex),
+			new XElement("CommandToExecute", "")
+		);
 	}
 
-	public override string InfoForHooklist => $"Executes from {CommandProg.MXPClickableFunctionName()}";
+	protected override string CommandToExecute(object[] parameters)
+	{
+		return _commandProg.Execute(parameters).ToString();
+	}
+
+	public override string InfoForHooklist => $"Executes from {_commandProg.MXPClickableFunctionName()}";
+
+	/// <inheritdoc />
+	public void AddProg(IFutureProg prog)
+	{
+		_commandProg = prog;
+	}
+
+	public bool RemoveProg(IFutureProg prog)
+	{
+		return false;
+	}
 }

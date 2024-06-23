@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Xml.Linq;
 using MudSharp.Database;
 using MudSharp.Models;
 using MudSharp.Framework;
@@ -30,12 +31,6 @@ public abstract class HookBase : SaveableItem, IHook
 		Gameworld = gameworld;
 		Type = type;
 	}
-
-	#region IHaveFuturemud Members
-
-	public IFuturemud Gameworld { get; }
-
-	#endregion
 
 	public static IHook LoadHook(Models.Hooks hook, IFuturemud gameworld)
 	{
@@ -68,18 +63,28 @@ public abstract class HookBase : SaveableItem, IHook
 
 	public string Category { get; set; }
 
+	string IHook.Name
+	{
+		get => _name;
+		set => _name = value;
+	}
+
 	public abstract string InfoForHooklist { get; }
 
 	#endregion
 
 	#region Implementation of ISaveable
 
-	public override void Save()
+	public sealed override void Save()
 	{
 		var dbitem = FMDB.Context.Hooks.Find(Id);
 		dbitem.Category = Category;
-		Changed = true;
+		dbitem.Name = Name;
+		dbitem.Definition = SaveDefinition().ToString();
+		Changed = false;
 	}
+
+	protected abstract XElement SaveDefinition();
 
 	#endregion
 }

@@ -46,6 +46,16 @@ namespace MudSharp.Events.Hooks
 			Gameworld.Add(this);
 		}
 
+		/// <inheritdoc />
+		protected override XElement SaveDefinition()
+		{
+			return new XElement("Definition",
+				new XElement("Prog", ExecuteProgWithResults.Id),
+				new XElement("Thread", GPTThreadId),
+				new XElement("History", MaximumHistory)
+			);
+		}
+
 		public int MaximumHistory { get; protected set; }
 
 		public long GPTThreadId { get; protected set; }

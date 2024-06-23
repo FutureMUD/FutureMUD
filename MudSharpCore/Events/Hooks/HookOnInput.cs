@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Xml.Linq;
 using MudSharp.Models;
 using MudSharp.Character;
@@ -9,7 +10,7 @@ using MudSharp.FutureProg;
 
 namespace MudSharp.Events.Hooks;
 
-public class HookOnInput : HookBase, IHookWithProgs
+public class HookOnInput : HookBase, IHookWithProgs, ICommandHook, IExecuteProgHook
 {
 	private readonly List<IFutureProg> _futureProgs = new();
 	public IEnumerable<IFutureProg> FutureProgs => _futureProgs;
@@ -44,10 +45,6 @@ public class HookOnInput : HookBase, IHookWithProgs
 	}
 
 	public string TargetCommand { get; set; }
-
-	#region Overrides of Item
-
-	#endregion
 
 	#region Overrides of HookBase
 
@@ -101,6 +98,16 @@ public class HookOnInput : HookBase, IHookWithProgs
 		}
 	}
 
+	/// <inheritdoc />
+	protected override XElement SaveDefinition()
+	{
+		return new XElement("Definition",
+			new XElement("TargetCommand", new XCData(TargetCommand)),
+			from item in _futureProgs
+			select new XElement("FutureProg", item.Id)
+		);
+	}
+
 	public static void RegisterLoader()
 	{
 		HookLoaders.Add("HookOnInput", (hook, gameworld) => new HookOnInput(hook, gameworld));
@@ -108,4 +115,25 @@ public class HookOnInput : HookBase, IHookWithProgs
 
 	public override string InfoForHooklist =>
 		$"Executes {_futureProgs.SelectNotNull(x => x.MXPClickableFunctionName()).ListToString()}";
+
+	/// <inheritdoc />
+	public string CommandText
+	{
+		get => TargetCommand;
+		set => TargetCommand = value;
+	}
+
+	/// <inheritdoc />
+	public void AddProg(IFutureProg prog)
+	{
+		if (!_futureProgs.Contains(prog))
+		{
+			_futureProgs.Add(prog);
+		}
+	}
+
+	public bool RemoveProg(IFutureProg prog)
+	{
+		return _futureProgs.Remove(prog);
+	}
 }

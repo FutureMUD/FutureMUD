@@ -8,7 +8,7 @@ namespace MudSharp.Events.Hooks;
 /// <summary>
 ///     A CommandHook forces a specified parameter (which must be an IControllable) to execute a command
 /// </summary>
-public class CommandHook : HookBase
+public class CommandHook : HookBase, ICommandHook
 {
 	protected int _commandExecuterIndex;
 	private string _commandToExecute;
@@ -56,10 +56,25 @@ public class CommandHook : HookBase
 		}
 	}
 
+	/// <inheritdoc />
+	protected override XElement SaveDefinition()
+	{
+		return new XElement("Definition",
+			new XElement("CommandExecutorIndex", _commandExecuterIndex),
+			new XElement("CommandToExecute", new XCData(_commandToExecute))
+		);
+	}
+
 	protected virtual string CommandToExecute(object[] parameters)
 	{
 		return _commandToExecute;
 	}
 
 	public override string InfoForHooklist => $"Executes {_commandToExecute.ColourCommand()}";
+
+	public string CommandText
+	{
+		get => _commandToExecute;
+		set => _commandToExecute = value;
+	}
 }

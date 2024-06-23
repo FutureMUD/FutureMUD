@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Xml.Linq;
 using MudSharp.Models;
 using MudSharp.Database;
@@ -8,7 +9,7 @@ using MudSharp.FutureProg;
 
 namespace MudSharp.Events.Hooks;
 
-public class FutureProgHook : HookBase, IHookWithProgs
+public class FutureProgHook : HookBase, IHookWithProgs, IExecuteProgHook
 {
 	private readonly List<IFutureProg> _futureProgs = new();
 
@@ -77,6 +78,28 @@ public class FutureProgHook : HookBase, IHookWithProgs
 		}
 	}
 
+	/// <inheritdoc />
+	protected override XElement SaveDefinition()
+	{
+		return new XElement("Definition",
+			from item in _futureProgs
+			select new XElement("FutureProg", item.Id)
+		);
+	}
+
 	public override string InfoForHooklist =>
 		$"Executes {_futureProgs.SelectNotNull(x => x.MXPClickableFunctionName()).ListToString()}";
+
+	public void AddProg(IFutureProg prog)
+	{
+		if (!_futureProgs.Contains(prog))
+		{
+			_futureProgs.Add(prog);
+		}
+	}
+
+	public bool RemoveProg(IFutureProg prog)
+	{
+		return _futureProgs.Remove(prog);
+	}
 }

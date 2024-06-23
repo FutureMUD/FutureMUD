@@ -496,8 +496,16 @@ public class FutureProg : SaveableItem, IFutureProg
 		var variableSpaceDict = new Dictionary<string, IFutureProgVariable>();
 		for (var i = 0; i < NamedParameters.Count; i++)
 		{
-			variableSpaceDict.Add(NamedParameters[i].Item2,
-				GetVariable(NamedParameters[i].Item1, variables.ElementAtOrDefault(i)));
+			try
+			{
+				variableSpaceDict.Add(NamedParameters[i].Item2, GetVariable(NamedParameters[i].Item1, variables.ElementAtOrDefault(i)));
+			}
+			catch (Exception e)
+			{
+				Gameworld.DiscordConnection.NotifyProgError(Id, FunctionName, $"There was an exception while assigning parameter #{i} ({NamedParameters[i].Item2}) in prog {Id} ({FunctionName}).\nParameters:\n{NamedParameters.Select(x => $"{x.Item2}: {variables.ElementAtOrDefault(NamedParameters.IndexOf(x))?.ToString() ?? "null"}").ArrangeStringsOntoLines(1, 120)}\n\nException:\n\n{e.ToString()}");
+				variableSpaceDict.Add(NamedParameters[i].Item2, new NullVariable(NamedParameters[i].Item1));
+			}
+			
 		}
 
 		var variableSpace = new VariableSpace(variableSpaceDict);

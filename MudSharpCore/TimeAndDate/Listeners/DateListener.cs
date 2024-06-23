@@ -88,13 +88,17 @@ public class DateListener : ListenerBase
 	{
 		if (DateIsRight())
 		{
-			Payload(Objects);
+			Payload?.Invoke(Objects);
 			RepeatTimes--;
 		}
 	}
 
 	public void Subscribe()
 	{
+		WatchCalendar.DaysUpdated -= DateUpdated;
+		WatchCalendar.MonthsUpdated -= DateUpdated;
+		WatchCalendar.YearsUpdated -= DateUpdated;
+
 		if (WatchForDay != -1)
 		{
 			WatchCalendar.DaysUpdated += DateUpdated;
@@ -116,6 +120,7 @@ public class DateListener : ListenerBase
 
 	public override void UnSubscribe()
 	{
+		Payload = null;
 		WatchCalendar.DaysUpdated -= DateUpdated;
 		WatchCalendar.MonthsUpdated -= DateUpdated;
 		WatchCalendar.YearsUpdated -= DateUpdated;

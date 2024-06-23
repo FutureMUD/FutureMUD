@@ -93,7 +93,7 @@ public static class ListenerFactory
 		}
 		else
 		{
-			listener = new DateListener(watchCalendar, newDate.Day, newDate.Month.Alias, newDate.Year, 1,
+			listener = new DateListener(watchCalendar, newDate.Day, newDate.Month.Alias, newDate.Year, 0,
 				x =>
 					CreateTimeListener(watchClock, newTime.Seconds, newTime.Minutes, newTime.Hours, repeatTimes,
 						payload, objects), objects, debuggerReference
@@ -123,12 +123,12 @@ public static class ListenerFactory
 			}
 
 			listener = new TimeListener(watchForTime.Clock, watchForTime.Time.Seconds, watchForTime.Time.Minutes,
-				watchForTime.Time.Hours, 1, payload, objects);
+				watchForTime.Time.Hours, 0, payload, objects);
 			watchForTime.Gameworld.Add(listener);
 			return listener;
 		}
 
-		listener = new DateListener(watchForTime, 1, x =>
+		listener = new DateListener(watchForTime, 0, x =>
 		{
 			if (watchForTime.Time <= watchForTime.Clock.CurrentTime)
 			{
@@ -137,7 +137,7 @@ public static class ListenerFactory
 			}
 
 			var timeListener = new TimeListener(watchForTime.Clock, watchForTime.Time.Seconds,
-				watchForTime.Time.Minutes, watchForTime.Time.Hours, 1, payload, objects);
+				watchForTime.Time.Minutes, watchForTime.Time.Hours, 0, payload, objects);
 			watchForTime.Gameworld.Add(timeListener);
 		}, objects, debuggerReference);
 		watchForTime.Gameworld.Add(listener);

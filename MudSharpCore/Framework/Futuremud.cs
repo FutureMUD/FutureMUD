@@ -1531,7 +1531,10 @@ public sealed partial class Futuremud : IFuturemud, IDisposable
 		}
 	}
 
-	
+	public void Destroy(object obj)
+	{
+		throw new ApplicationException("No game level destroy implemented for this type.");
+	}
 
 	public void Destroy(ICurrency currency)
 	{
@@ -1739,11 +1742,6 @@ public sealed partial class Futuremud : IFuturemud, IDisposable
 	public void Destroy(IAutobuilderRoom room)
 	{
 		_autobuilderRooms.Remove(room);
-	}
-
-	public void Destroy(object obj)
-	{
-		throw new ApplicationException("No game level destroy implemented for this type.");
 	}
 
 	public void Destroy(IRaceButcheryProfile profile)

@@ -39,7 +39,7 @@ public static class AuthorityExtensions
 	}
 }
 
-public class Authority : FrameworkItem, IDisposable, IAuthority
+public class Authority : FrameworkItem, IAuthority
 {
 	public Authority(AuthorityGroup authority)
 	{
@@ -80,9 +80,4 @@ public class Authority : FrameworkItem, IDisposable, IAuthority
 	public Permissions AccountPermissions { get; private set; }
 
 	public Permissions ItemPermissions { get; private set; }
-
-	public void Dispose()
-	{
-		Futuremud.Games.First().Destroy(this);
-	}
 }

@@ -97,7 +97,6 @@ public class FinancialPeriod : LateInitialisingItem, IFinancialPeriod
 
 	public void Delete()
 	{
-		Gameworld.Destroy(this);
 		Gameworld.SaveManager.Abort(this);
 		if (_id != 0)
 		{

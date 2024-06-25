@@ -501,7 +501,9 @@ namespace MudSharp.Framework
 
 		IGameItem TryGetItem(Models.GameItem dbitem, bool addToGameworld);
         IGameItem TryGetItem(long id, bool addToGameworld = false);
-        void Destroy(ICombatArena arena);
+
+        void Destroy(object obj);
+		void Destroy(ICombatArena arena);
         void Destroy(ICurrency currency);
 		void Destroy(ICoin coin);
         void Destroy(ICrime crime);
@@ -538,7 +540,6 @@ namespace MudSharp.Framework
         void Destroy(IBloodModel model);
         void Destroy(IAutobuilderArea area);
         void Destroy(IAutobuilderRoom room);
-        void Destroy(object obj);
         void Destroy(IGameItemSkin skin);
         void Destroy(IRaceButcheryProfile profile);
         void Destroy(IButcheryProduct product);

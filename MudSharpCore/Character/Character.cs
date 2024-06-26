@@ -63,6 +63,7 @@ using MudSharp.Models;
 using MudSharp.Work.Projects;
 using Attribute = MudSharp.Body.Traits.Subtypes.Attribute;
 using TraitExpression = MudSharp.Body.Traits.TraitExpression;
+using MudSharp.Body.CommunicationStrategies;
 
 namespace MudSharp.Character;
 

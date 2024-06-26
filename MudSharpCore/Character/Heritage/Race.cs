@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using MudSharp.Accounts;
 using MudSharp.Body;
+using MudSharp.Body.CommunicationStrategies;
 using MudSharp.Body.Needs;
 using MudSharp.Body.PartProtos;
 using MudSharp.Body.Position;

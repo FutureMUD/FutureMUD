@@ -1,17 +1,18 @@
-﻿using MudSharp.Character;
+﻿using System.Linq;
+using System.Text.RegularExpressions;
+using System.Xml.Linq;
+using MudSharp.Character;
 using MudSharp.Database;
+using MudSharp.Form.Colour;
 using MudSharp.Framework;
 using MudSharp.Framework.Save;
 using MudSharp.GameItems.Interfaces;
-using System.Linq;
-using MudSharp.Form.Colour;
-using Colour = MudSharp.Form.Colour.Colour;
 
 namespace MudSharp.Communication.Language;
 
-public class SimpleWriting : LateInitialisingItem, IWriting, ILazyLoadDuringIdleTime
+public class CompositeWriting : LateInitialisingItem, IWriting, ILazyLoadDuringIdleTime
 {
-	public SimpleWriting(IFuturemud gameworld, ICharacter author, string text, ICharacter trueAuthor = null)
+	public CompositeWriting(IFuturemud gameworld, ICharacter author, string text, string sdesc, DrawingSize size, ICharacter trueAuthor = null)
 	{
 		Gameworld = gameworld;
 		_authorId = author.Id;
@@ -28,14 +29,18 @@ public class SimpleWriting : LateInitialisingItem, IWriting, ILazyLoadDuringIdle
 		ForgerySkill = author.GetTrait(gameworld.Traits.Get(gameworld.GetStaticLong("ForgerySkillId")))?.Value ?? 0.0;
 		LanguageSkill = author.GetTrait(Language.LinkedTrait)?.Value ?? 0.0;
 		DocumentLength = (int)(Text.RawTextLength() * Script.DocumentLengthModifier);
+		ShortDescription = sdesc;
+		DrawingSize = size;
+		DrawingSkill = author.GetTrait(gameworld.Traits.Get(gameworld.GetStaticLong("DrawingTraitId")))?.Value ?? 0.0;
 		gameworld.SaveManager.AddInitialisation(this);
 	}
 
-	public SimpleWriting(Models.Writing writing, IFuturemud gameworld)
+	public CompositeWriting(Models.Writing writing, IFuturemud gameworld)
 	{
 		_id = writing.Id;
 		Gameworld = gameworld;
-		Text = writing.Definition;
+		var definition = XElement.Parse(writing.Definition);
+		Text = definition.Element("Text").Value;
 		ForgerySkill = writing.ForgerySkill;
 		HandwritingSkill = writing.HandwritingSkill;
 		LiteracySkill = writing.LiteracySkill;
@@ -48,11 +53,14 @@ public class SimpleWriting : LateInitialisingItem, IWriting, ILazyLoadDuringIdle
 		DocumentLength = (int)(Text.RawTextLength() * Script.DocumentLengthModifier);
 		WritingColour = gameworld.Colours.Get(writing.WritingColour);
 		ImplementType = (WritingImplementType)writing.ImplementType;
+		DrawingSize = (DrawingSize)int.Parse(definition.Element("DrawingSize").Value);
+		DrawingSkill = double.Parse(definition.Element("DrawingSkill").Value);
+		ShortDescription = definition.Element("ShortDescription").Value;
 		IdInitialised = true;
 		Gameworld.SaveManager.AddLazyLoad(this);
 	}
 
-	public SimpleWriting(SimpleWriting rhs)
+	public CompositeWriting(CompositeWriting rhs)
 	{
 		Author = rhs.Author;
 		DocumentLength = rhs.DocumentLength;
@@ -68,6 +76,9 @@ public class SimpleWriting : LateInitialisingItem, IWriting, ILazyLoadDuringIdle
 		Style = rhs.Style;
 		WritingColour = rhs.WritingColour;
 		ImplementType = rhs.ImplementType;
+		DrawingSize = rhs.DrawingSize;
+		DrawingSkill = rhs.DrawingSkill;
+		ShortDescription = rhs.ShortDescription;
 		Gameworld.SaveManager.AddInitialisation(this);
 	}
 
@@ -114,6 +125,10 @@ public class SimpleWriting : LateInitialisingItem, IWriting, ILazyLoadDuringIdle
 
 	public IScript Script { get; set; }
 
+	public DrawingSize DrawingSize { get; set; }
+	public string ShortDescription { get; set; }
+	public double DrawingSkill { get; set; }
+
 	private long? _trueAuthorId;
 	private ICharacter _trueAuthor;
 
@@ -140,7 +155,7 @@ public class SimpleWriting : LateInitialisingItem, IWriting, ILazyLoadDuringIdle
 
 	public IWriting Copy()
 	{
-		return new SimpleWriting(this);
+		return new CompositeWriting(this);
 	}
 
 	public override object DatabaseInsert()
@@ -156,8 +171,13 @@ public class SimpleWriting : LateInitialisingItem, IWriting, ILazyLoadDuringIdle
 			LanguageSkill = LanguageSkill,
 			LiteracySkill = LiteracySkill,
 			Style = (int)Style,
-			WritingType = "simple",
-			Definition = Text,
+			WritingType = "composite",
+			Definition = new XElement("Definition",
+				new XElement("Text", new XCData(Text)),
+				new XElement("ShortDescription", new XCData(ShortDescription)),
+				new XElement("DrawingSkill", DrawingSkill),
+				new XElement("DrawingSize", (int)DrawingSize)
+			).ToString(),
 			WritingColour = WritingColour?.Id ?? 0,
 			ImplementType = (int)ImplementType
 		};
@@ -165,8 +185,28 @@ public class SimpleWriting : LateInitialisingItem, IWriting, ILazyLoadDuringIdle
 		return dbitem;
 	}
 
+	private readonly Regex LanguageRegex = new(@"""[^""]+""", RegexOptions.IgnoreCase);
+
 	public string ParseFor(ICharacter voyeur)
 	{
+		LanguageRegex.Replace(Text, m =>
+		{
+			if (!voyeur.IsLiterate)
+			{
+				return "***a bunch of squiggly non-sense***";
+			}
+
+			if (!voyeur.Scripts.Contains(Script))
+			{
+				return $"***something written in {Script.UnknownScriptDescription.Strip_A_An()}***";
+			}
+
+			if (!voyeur.Languages.Contains(Language))
+			{
+
+			}
+			return "";
+		});
 		return Text;
 	}
 
@@ -182,7 +222,12 @@ public class SimpleWriting : LateInitialisingItem, IWriting, ILazyLoadDuringIdle
 		dbitem.LanguageSkill = LanguageSkill;
 		dbitem.LiteracySkill = LiteracySkill;
 		dbitem.Style = (int)Style;
-		dbitem.Definition = Text;
+		dbitem.Definition = new XElement("Definition",
+			new XElement("Text", new XCData(Text)),
+			new XElement("ShortDescription", new XCData(ShortDescription)),
+			new XElement("DrawingSkill", DrawingSkill),
+			new XElement("DrawingSize", (int)DrawingSize)
+		).ToString();
 		dbitem.WritingColour = WritingColour?.Id ?? 0;
 		dbitem.ImplementType = (int)ImplementType;
 		Changed = false;

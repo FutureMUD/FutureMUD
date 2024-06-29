@@ -3702,7 +3702,7 @@ internal class ManipulationModule : Module<ICharacter>
 		return true;
 	}
 
-	[PlayerCommand("Detach", "detach", "detatch")]
+	[PlayerCommand("Detach", "detach", "detatch", "unattach")]
 	[DelayBlock("general", "You must first stop {0} before you can do that.")]
 	[RequiredCharacterState(CharacterState.Able)]
 	[HelpInfo("detatch", "Syntax: detatch <belt> <item>\n\tdetatch [<target>] <prosthetic>", AutoHelp.HelpArgOrNoArg)]

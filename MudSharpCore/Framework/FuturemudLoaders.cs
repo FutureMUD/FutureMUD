@@ -696,13 +696,14 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 #endif
 		var zones = FMDB.Context.EconomicZones
 		                .Include(x => x.FinancialPeriods)
+		                .ThenInclude(x => x.ShopFinancialPeriodResults)
 		                .Include(x => x.EconomicZoneRevenues)
 		                .Include(x => x.EconomicZoneShopTaxes)
-		                .Include(x => x.ShopFinancialPeriodResults)
 		                .Include(x => x.EconomicZoneTaxes)
 		                .Include(x => x.ConveyancingLocations)
 		                .Include(x => x.JobFindingLocations)
-		                .AsNoTracking().ToList();
+		                .AsNoTracking()
+		                .ToList();
 		foreach (var zone in zones)
 		{
 			_economicZones.Add(new MudSharp.Economy.EconomicZone(zone, this));

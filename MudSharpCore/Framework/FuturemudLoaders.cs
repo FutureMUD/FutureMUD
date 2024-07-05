@@ -3844,15 +3844,25 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 				var newCheck = new Check
 				{
 					CheckTemplate =
-						FMDB.Context.CheckTemplates.FirstOrDefault(x =>
-							x.Name == "SkillCheck" || x.Name == "Skill Check") ??
+						checkType switch
+						{
+							CheckType.WritingComprehendCheck => FMDB.Context.CheckTemplates.FirstOrDefault(x =>
+								x.Name == "CapabilityCheck" || x.Name == "Capability Check"),
+							_ => FMDB.Context.CheckTemplates.FirstOrDefault(x =>
+								x.Name == "SkillCheck" || x.Name == "Skill Check")
+
+						} ??
 						FMDB.Context.CheckTemplates.First(),
 					MaximumDifficultyForImprovement = (int)Difficulty.Impossible,
 					Type = (int)checkType,
 					TraitExpression = new Models.TraitExpression
 					{
 						Name = $"{checkType.DescribeEnum(true)} Check",
-						Expression = "50"
+						Expression = checkType switch
+						{
+							CheckType.WritingComprehendCheck => "variable",
+							_ => "50"
+						}
 					}
 				};
 				FMDB.Context.Checks.Add(newCheck);

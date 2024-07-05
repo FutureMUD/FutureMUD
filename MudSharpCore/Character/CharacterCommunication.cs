@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using MudSharp.Body.Traits;
 using MudSharp.Communication.Language;
 using MudSharp.Database;
 using MudSharp.Effects.Interfaces;
@@ -285,6 +286,17 @@ public partial class Character
 		}
 	}
 
+	public ITraitDefinition LanguageForReadCheck(IWriting writing)
+	{
+		if (Languages.Contains(writing.Language))
+		{
+			return writing.Language.LinkedTrait;
+		}
+
+		var mutual = Languages.FirstMin(x => x.MutualIntelligability(writing.Language));
+		return mutual?.LinkedTrait ?? writing.Language.LinkedTrait;
+	}
+
 	public bool CanRead(IWriting writing)
 	{
 		if (IsAdministrator() == true)
@@ -302,12 +314,12 @@ public partial class Character
 			return false;
 		}
 
-		if (!Languages.Contains(writing.Language))
+		var difficulty = WritingDifficulty(writing);
+		var result = Gameworld.GetCheck(CheckType.WritingComprehendCheck).Check(this, difficulty, LanguageForReadCheck(writing));
+		if (result.IsFail())
 		{
 			return false;
 		}
-
-		// TODO - how should skill play into this?
 
 		return true;
 	}
@@ -329,7 +341,7 @@ public partial class Character
 			return "Although you can read the script, you are unfamiliar with the language in which that is written.";
 		}
 
-		throw new ApplicationException("Unknown reason in Character.WhyCannotRead");
+		return "This piece of writing is too hard for you to understand.";
 	}
 
 	public string GetWritingHeader(IWriting writing)
@@ -339,44 +351,14 @@ public partial class Character
 				.ColourIncludingReset(Telnet.Yellow);
 	}
 
+	private Difficulty WritingDifficulty(IWriting writing)
+	{
+		return writing.WritingDifficulty(this);
+	}
+
 	public bool Read(IWriting writing)
 	{
-		var difficulty = Difficulty.Trivial;
-
-		// Stage up difficulty based on writing style
-		if (writing.Style.HasFlag(WritingStyleDescriptors.SemiCursive))
-		{
-			difficulty = difficulty.StageUp(1);
-		}
-		else if (writing.Style.HasFlag(WritingStyleDescriptors.Cursive))
-		{
-			difficulty = difficulty.StageUp(2);
-		}
-		else if (writing.Style.HasFlag(WritingStyleDescriptors.Stylised))
-		{
-			difficulty = difficulty.StageUp(3);
-		}
-
-		if (writing.DocumentLength > 1000)
-		{
-			difficulty = difficulty.StageUp(1);
-		}
-
-		if (writing.LanguageSkill > Gameworld.GetStaticDouble("ReadDifficultyLanguageSkillThreshold"))
-		{
-			difficulty = difficulty.StageUp(1);
-		}
-
-		if (writing.LiteracySkill > Gameworld.GetStaticDouble("ReadDifficultyLiteracySkillThreshold"))
-		{
-			difficulty = difficulty.StageUp(1);
-		}
-
-		if (writing.HandwritingSkill > Gameworld.GetStaticDouble("ReadDifficultyHandwritingSkillThreshold"))
-		{
-			difficulty = difficulty.StageUp(1);
-		}
-
+		var difficulty = WritingDifficulty(writing);
 		Gameworld.GetCheck(CheckType.ReadTextImprovementCheck).Check(this, difficulty);
 		return true;
 	}
@@ -384,5 +366,12 @@ public partial class Character
 	public bool CanWrite()
 	{
 		throw new NotImplementedException();
+	}
+
+	public bool CanIdentifyLanguage(ILanguage language)
+	{
+		return
+			Languages.Contains(language) ||
+			Languages.Any(x => x.MutualIntelligability(language) != Difficulty.Impossible);
 	}
 }

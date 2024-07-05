@@ -33,6 +33,8 @@ namespace MudSharp.Communication.Language {
         bool CanWrite();
     }
 
-    public interface ILanguagePerceiver : IPerceiver, IPerceivableHaveTraits, IHaveLanguage {
+    public interface ILanguagePerceiver : IPerceiver, IPerceivableHaveTraits, IHaveLanguage
+    {
+	    bool CanIdentifyLanguage(ILanguage language);
     }
 }

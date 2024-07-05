@@ -226,7 +226,11 @@ Again, the choices you make here can be fixed later so don't stress it too great
                     AddCheck(check, new TraitExpression { Name = $"{check.DescribeEnum(true)}", Expression = "2.0" },
                         12, Difficulty.Automatic);
                     break;
-                case CheckType.TraitBranchCheck:
+				case CheckType.WritingComprehendCheck:
+					AddCheck(check, new TraitExpression { Name = $"{check.DescribeEnum(true)}", Expression = "variable" },
+						8, Difficulty.Automatic);
+					break;
+				case CheckType.TraitBranchCheck:
                     // Trait Branch Only
                     AddCheck(check, new TraitExpression { Name = $"{check.DescribeEnum(true)}", Expression = "0.1" }, 6,
                         Difficulty.Automatic);

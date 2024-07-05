@@ -7,12 +7,13 @@ using MudSharp.Form.Colour;
 using MudSharp.Framework;
 using MudSharp.Framework.Save;
 using MudSharp.GameItems.Interfaces;
+using MudSharp.Models;
 
 namespace MudSharp.Communication.Language;
 
-public class CompositeWriting : LateInitialisingItem, IWriting, ILazyLoadDuringIdleTime
+public class CompositeWriting : LateInitialisingItem, IGraffitiWriting, ILazyLoadDuringIdleTime
 {
-	public CompositeWriting(IFuturemud gameworld, ICharacter author, string text, string sdesc, DrawingSize size, ICharacter trueAuthor = null)
+	public CompositeWriting(IFuturemud gameworld, ICharacter author, IWritingImplement implement, string text, string sdesc, ICharacter trueAuthor = null)
 	{
 		Gameworld = gameworld;
 		_authorId = author.Id;
@@ -23,6 +24,8 @@ public class CompositeWriting : LateInitialisingItem, IWriting, ILazyLoadDuringI
 		Language = author.CurrentWritingLanguage;
 		Script = author.CurrentScript;
 		Style = author.WritingStyle;
+		ImplementType = implement.WritingImplementType;
+		WritingColour = implement.WritingImplementColour;
 		LiteracySkill = author.GetTrait(gameworld.Traits.Get(gameworld.GetStaticLong("LiteracySkillId")))?.Value ?? 0.0;
 		HandwritingSkill =
 			author.GetTrait(gameworld.Traits.Get(gameworld.GetStaticLong("HandwritingSkillId")))?.Value ?? 0.0;
@@ -30,7 +33,7 @@ public class CompositeWriting : LateInitialisingItem, IWriting, ILazyLoadDuringI
 		LanguageSkill = author.GetTrait(Language.LinkedTrait)?.Value ?? 0.0;
 		DocumentLength = (int)(Text.RawTextLength() * Script.DocumentLengthModifier);
 		ShortDescription = sdesc;
-		DrawingSize = size;
+		DrawingSize = GetDrawingSizeForLength(text.Length);
 		DrawingSkill = author.GetTrait(gameworld.Traits.Get(gameworld.GetStaticLong("DrawingTraitId")))?.Value ?? 0.0;
 		gameworld.SaveManager.AddInitialisation(this);
 	}
@@ -80,6 +83,46 @@ public class CompositeWriting : LateInitialisingItem, IWriting, ILazyLoadDuringI
 		DrawingSkill = rhs.DrawingSkill;
 		ShortDescription = rhs.ShortDescription;
 		Gameworld.SaveManager.AddInitialisation(this);
+	}
+
+	public static DrawingSize GetDrawingSizeForLength(int length)
+	{
+		if (Futuremud.Games.First().GetStaticInt("DocumentLengthDrawingScribble") <= length)
+		{
+			return DrawingSize.Scribble;
+		}
+
+		if (Futuremud.Games.First().GetStaticInt("DocumentLengthDrawingDoodle") <= length)
+		{
+			return DrawingSize.Doodle;
+		}
+
+		if (Futuremud.Games.First().GetStaticInt("DocumentLengthDrawingFigure") <= length)
+		{
+			return DrawingSize.Figure;
+		}
+
+		if (Futuremud.Games.First().GetStaticInt("DocumentLengthDrawingSketch") <= length)
+		{
+			return DrawingSize.Sketch;
+		}
+
+		if (Futuremud.Games.First().GetStaticInt("DocumentLengthDrawingPicture") <= length)
+		{
+			return DrawingSize.Picture;
+		}
+
+		if (Futuremud.Games.First().GetStaticInt("DocumentLengthDrawingPoster") <= length)
+		{
+			return DrawingSize.Poster;
+		}
+
+		if (Futuremud.Games.First().GetStaticInt("DocumentLengthDrawingMural") <= length)
+		{
+			return DrawingSize.Mural;
+		}
+
+		return DrawingSize.Mural;
 	}
 
 	public WritingImplementType ImplementType { get; init; }
@@ -185,29 +228,33 @@ public class CompositeWriting : LateInitialisingItem, IWriting, ILazyLoadDuringI
 		return dbitem;
 	}
 
-	private readonly Regex LanguageRegex = new(@"""[^""]+""", RegexOptions.IgnoreCase);
+	public readonly Regex LanguageRegex = new(@"""[^""]+""", RegexOptions.IgnoreCase);
 
 	public string ParseFor(ICharacter voyeur)
 	{
-		LanguageRegex.Replace(Text, m =>
+		return LanguageRegex.Replace(Text, m =>
 		{
 			if (!voyeur.IsLiterate)
 			{
-				return "***a bunch of squiggly non-sense***";
+				return "***a bunch of squiggly non-sense***".Colour(Telnet.KeywordBlue);
 			}
 
 			if (!voyeur.Scripts.Contains(Script))
 			{
-				return $"***something written in {Script.UnknownScriptDescription.Strip_A_An()}***";
+				return $"***something written in {Script.UnknownScriptDescription.Strip_A_An()}***".Colour(Telnet.KeywordBlue);
 			}
 
 			if (!voyeur.Languages.Contains(Language))
 			{
-
+				var mutual = voyeur.Languages.FirstMin(x => x.MutualIntelligability(Language));
+				if (mutual is null)
+				{
+					return $"***something written in an unknown language in {Script.KnownScriptDescription.Strip_A_An()}***".Colour(Telnet.KeywordBlue);
+				}
 			}
-			return "";
+
+			return m.Groups[0].Value.Colour(Telnet.KeywordBlue);
 		});
-		return Text;
 	}
 
 	public override void Save()
@@ -253,19 +300,6 @@ public class CompositeWriting : LateInitialisingItem, IWriting, ILazyLoadDuringI
 
 	public string DescribeInLook(ICharacter voyeur)
 	{
-		if (!voyeur.IsLiterate)
-		{
-			return "A bunch of squiggly non-sense.";
-		}
-
-		if (!voyeur.Knowledges.Contains(Script.ScriptKnowledge))
-		{
-			return
-				$"{DocumentLength.ToString("N0", voyeur)} characters written in {Script.UnknownScriptDescription.Strip_A_An()}.";
-		}
-
-		return voyeur.HasTrait(Language.LinkedTrait)
-			? $"{DocumentLength.ToString("N0", voyeur)} characters of {Language.Name} written in {Style.Describe()} {Script.KnownScriptDescription.Strip_A_An()}."
-			: $"{DocumentLength.ToString("N0", voyeur)} characters of an unknown language written in {Style.Describe()} {Script.KnownScriptDescription.Strip_A_An()}.";
+		return $"{ShortDescription.Colour(Telnet.BoldCyan)}";
 	}
 }

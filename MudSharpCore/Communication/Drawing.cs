@@ -181,6 +181,6 @@ public class Drawing : LateInitialisingItem, IDrawing, ILazyLoadDuringIdleTime
 
 	public string DescribeInLook(ICharacter voyeur)
 	{
-		return $"{ShortDescription.Colour(Telnet.BoldCyan)} ({DrawingSize.DescribeEnum()})";
+		return $"{ShortDescription.Colour(Telnet.BoldCyan)} ({DrawingSize.DescribeEnum().ColourValue()})";
 	}
 }

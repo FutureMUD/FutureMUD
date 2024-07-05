@@ -5,12 +5,15 @@ using System.Text;
 using System.Threading.Tasks;
 using MudSharp.Communication;
 using MudSharp.Communication.Language;
+using MudSharp.Construction;
+using MudSharp.Framework;
 
 #nullable enable
 namespace MudSharp.Effects.Interfaces;
-public interface IGraffitiEffect : IEffect
+public interface IGraffitiEffect : IEffect, IKeyworded
 {
-	IWriting? Writing { get; }
-	IDrawing? Drawing { get; }
+	IGraffitiWriting? Writing { get; }
 	string? LocaleDescription { get; }
+	RoomLayer Layer { get; }
+	bool IsJustDrawing { get; }
 }

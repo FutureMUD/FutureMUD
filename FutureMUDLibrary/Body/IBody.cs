@@ -77,12 +77,16 @@ namespace MudSharp.Body {
         void LookTattoos(ICharacter actor, IBodypart forBodypart = null);
         void LookScars(ICharacter actor, IBodypart forBodypart = null);
         void LookWounds(IMortalPerceiver thing);
+        void LookGraffiti(string target);
+        void LookGraffitiThing(IGameItem item, string target);
 
         string LookText(bool fromMovement = false);
         string LookText(IPerceivable thing, bool fromLookCommand = false);
         string LookInText(IPerceivable thing);
         string LookTattoosText(ICharacter actor, IBodypart forBodypart = null);
         string LookWoundsText(IMortalPerceiver thing);
+        string LookGraffitiText(string target);
+        string LookGraffitiThingText(IGameItem item, string target);
 
         string ReportCondition();
 

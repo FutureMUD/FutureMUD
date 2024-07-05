@@ -208,19 +208,24 @@ public class SimpleWriting : LateInitialisingItem, IWriting, ILazyLoadDuringIdle
 
 	public string DescribeInLook(ICharacter voyeur)
 	{
+		if (voyeur is null)
+		{
+			return $"{DocumentLength:N0} characters of {Language.Name} written in {Style.Describe()} {Script.KnownScriptDescription.Strip_A_An()}.".Colour(Telnet.BoldCyan);
+		}
+
 		if (!voyeur.IsLiterate)
 		{
-			return "A bunch of squiggly non-sense.";
+			return "A bunch of squiggly non-sense.".Colour(Telnet.BoldCyan);
 		}
 
 		if (!voyeur.Knowledges.Contains(Script.ScriptKnowledge))
 		{
 			return
-				$"{DocumentLength.ToString("N0", voyeur)} characters written in {Script.UnknownScriptDescription.Strip_A_An()}.";
+				$"{DocumentLength.ToString("N0", voyeur)} characters written in {Script.UnknownScriptDescription.Strip_A_An()}.".Colour(Telnet.BoldCyan);
 		}
 
 		return voyeur.HasTrait(Language.LinkedTrait)
-			? $"{DocumentLength.ToString("N0", voyeur)} characters of {Language.Name} written in {Style.Describe()} {Script.KnownScriptDescription.Strip_A_An()}."
-			: $"{DocumentLength.ToString("N0", voyeur)} characters of an unknown language written in {Style.Describe()} {Script.KnownScriptDescription.Strip_A_An()}.";
+			? $"{DocumentLength.ToString("N0", voyeur)} characters of {Language.Name} written in {Style.Describe()} {Script.KnownScriptDescription.Strip_A_An()}.".Colour(Telnet.BoldCyan)
+			: $"{DocumentLength.ToString("N0", voyeur)} characters of an unknown language written in {Style.Describe()} {Script.KnownScriptDescription.Strip_A_An()}.".Colour(Telnet.BoldCyan);
 	}
 }

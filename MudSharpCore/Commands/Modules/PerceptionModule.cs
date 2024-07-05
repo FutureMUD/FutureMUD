@@ -343,13 +343,15 @@ The syntax is either:
 	[HelpInfo("look",
 		@"The look command is used to show you specific information about your character's surrounds, and has a few simple variants:
 
-To view you general surroundings: #3look#0
+To view your general surroundings: #3look#0
 To look at something in particular: #3look <thing>#0
 To look inside something: #3look in <thing>#0
 To look at something someone else has: #3look <person> <thing>#0
 To look at a door installed in an exit: #3look <direction> <doorkeywords>#0
 To look at a person's tattoos: #3look <person> tattoos [<bodypart>]#0
 To look at a person's scars: #3look <person> scars [<bodypart>]
+To look at graffiti in a location: #3look graffiti [<which>]#0
+To look at graffiti on an object: #3look <item> graffiti [<which>]#0
 
 The use of the look command is affected by various factors such as the ambient light level, the relative skill and attribute levels of you and the things you could potentially see, magical effects, and damage to your eyes.
 
@@ -377,6 +379,12 @@ See also: HELP EVALUATE, HELP SEARCH, HELP SCAN",
 			}
 
 			lookin = true;
+		}
+
+		if (arg.EqualTo("graffiti"))
+		{
+			actor.Body.LookGraffiti(ss.SafeRemainingArgument);
+			return;
 		}
 
 		var target = actor.Target(arg);
@@ -481,6 +489,14 @@ See also: HELP EVALUATE, HELP SEARCH, HELP SCAN",
 				{
 					actor.Send(
 						$"{targetActor.HowSeen(actor, true)} {(targetActor == actor ? "do" : "does")} not have anything like that to look at.");
+					return;
+				}
+			}
+			else if (target is IGameItem item)
+			{
+				if (text.EqualTo("graffiti"))
+				{
+					actor.Body.LookGraffitiThing(item, ss.SafeRemainingArgument);
 					return;
 				}
 			}

@@ -1,10 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using System.Text;
+using JetBrains.Annotations;
 using MudSharp.Body.PartProtos;
 using MudSharp.Celestial;
 using MudSharp.Character;
+using MudSharp.Communication.Language;
 using MudSharp.Construction;
 using MudSharp.Construction.Boundary;
 using MudSharp.Effects;
@@ -517,6 +520,12 @@ public partial class Body
 			sb.AppendLine(move.Describe(Actor).Wrap(InnerLineFormatLength).Colour(Telnet.Yellow));
 		}
 
+		var graffitis = Location.EffectsOfType<IGraffitiEffect>(x => x.Layer == RoomLayer).ToList();
+		if (graffitis.Any())
+		{
+			sb.AppendLine($"There is graffiti in this location. Use LOOK GRAFFITI to view it.".Colour(Telnet.BoldCyan));
+		}
+
 		var items = Location.LayerGameItems(RoomLayer).Where(x => CanSee(x)).ToList();
 		if (items.GroupBy(x => x.ItemGroup?.Forms.Any() == true ? x.ItemGroup : null).Sum(x => x.Key != null ? 1 : x.Count()) > 25 &&
 		    GameItemProto.TooManyItemsGroup != null)
@@ -530,7 +539,7 @@ public partial class Body
 			{
 				if (group.Key != null)
 				{
-					sb.Append(
+					sb.AppendLine(
 						group.Key.Describe(Actor, group.AsEnumerable(), Location).Wrap(InnerLineFormatLength)
 						     .Colour(Telnet.Cyan));
 				}
@@ -852,6 +861,10 @@ public partial class Body
 
 		if (thing is IGameItem gi && fromLookCommand)
 		{
+			if (gi.EffectsOfType<IGraffitiEffect>().Any())
+			{
+				sb.AppendLine($"This item has graffiti. Use LOOK <item> GRAFFITI to view it.".Colour(Telnet.BoldCyan));
+			}
 			var dub = Dubs.FirstOrDefault(x => x.TargetId == thing.Id && x.TargetType == thing.FrameworkItemType);
 			if (dub != null)
 			{
@@ -957,6 +970,99 @@ public partial class Body
 		return sb.ToString();
 	}
 
+	public string LookGraffitiText(string target)
+	{
+		var sb = new StringBuilder();
+		var graffitis = Location.EffectsOfType<IGraffitiEffect>(x => x.Layer == RoomLayer).ToList();
+		if (string.IsNullOrEmpty(target))
+		{
+			if (!graffitis.Any())
+			{
+				return "There are is no graffiti in this location.";
+			}
+
+			sb.AppendLine($"There are the following items of graffiti here:\n");
+			var i = 1;
+			foreach (var g in graffitis)
+			{
+				sb.AppendLine($"\t#{i++.ToString("N0", Actor)}) {g.Writing?.DescribeInLook(Actor) ?? "unknown graffiti".ColourError()}{(string.IsNullOrEmpty(g.LocaleDescription) ? "" : $" ({g.LocaleDescription.ColourCommand()})")}");
+			}
+			return sb.ToString();
+		}
+
+		var graffiti = graffitis.GetFromItemListByKeyword(target, Actor);
+		if (graffiti?.Writing is null)
+		{
+			return $"There is no graffiti here that can be targeted with the keyword {target.ColourCommand()}.";
+		}
+
+		return DescribeGraffiti(graffiti);
+	}
+
+	public string LookGraffitiThingText(IGameItem item, string target)
+	{
+		var sb = new StringBuilder();
+		var graffitis = item.EffectsOfType<IGraffitiEffect>().ToList();
+		if (string.IsNullOrEmpty(target))
+		{
+			if (!graffitis.Any())
+			{
+				return $"There is no graffiti on {item.HowSeen(Actor)}.";
+			}
+
+			sb.AppendLine($"{item.HowSeen(Actor, true)} has the following items of graffiti:\n");
+			var i = 1;
+			foreach (var g in graffitis)
+			{
+				sb.AppendLine($"\t#{i++.ToString("N0", Actor)}) {g.Writing?.DescribeInLook(Actor) ?? "unknown graffiti".ColourError()}");
+			}
+			return sb.ToString();
+		}
+
+		var graffiti = graffitis.GetFromItemListByKeyword(target, Actor);
+		if (graffiti?.Writing is null)
+		{
+			return $"There is no graffiti on {item.HowSeen(Actor)} that can be targeted with the keyword {target.ColourCommand()}.";
+		}
+
+		return DescribeGraffiti(graffiti);
+	}
+
+#nullable enable
+	private string DescribeGraffiti(IGraffitiEffect graffiti)
+	{
+		var sb = new StringBuilder();
+		sb.AppendLine($"{graffiti.Writing!.DescribeInLook(Actor) ?? "unknown graffiti".ColourError()}{(string.IsNullOrEmpty(graffiti.LocaleDescription) ? "" : $" ({graffiti.LocaleDescription.ColourCommand()})")}");
+		sb.AppendLine();
+		sb.AppendLine($"Size: {graffiti.Writing.DrawingSize.DescribeEnum().ColourValue()}");
+		sb.AppendLine($"Medium: {graffiti.Writing.ImplementType.Describe().ColourValue()}");
+		sb.AppendLine($"Colour: {graffiti.Writing.WritingColour.Name.ColourValue()}");
+		var drawingSkill = Gameworld.Traits.Get(Gameworld.GetStaticLong("DrawingTraitId"));
+		if (drawingSkill is not null)
+		{
+			sb.AppendLine($"Skill: {drawingSkill.Decorator.Decorate(graffiti.Writing.DrawingSkill).Strip(c => c is '(' or ')').ColourValue()}");
+		}
+
+		if (!graffiti.IsJustDrawing)
+		{
+			sb.AppendLine($"Language: {(CanIdentifyLanguage(graffiti.Writing.Language) ? graffiti.Writing.Language.Name.ColourValue() : graffiti.Writing.Language.UnknownLanguageSpokenDescription.ColourValue())}");
+			sb.AppendLine($"Script: {(Scripts.Contains(graffiti.Writing.Script) ? graffiti.Writing.Script.KnownScriptDescription.ColourValue() : graffiti.Writing.Script.UnknownScriptDescription.ColourValue())}");
+			sb.AppendLine($"Style: {(Scripts.Contains(graffiti.Writing.Script) ? graffiti.Writing.Style.Describe().ColourValue() : graffiti.Writing.Script.UnknownScriptDescription.ColourValue())}");
+			var handwritingSkill = Gameworld.Traits.Get(Gameworld.GetStaticLong("HandwritingSkillId"));
+			if (handwritingSkill is not null)
+			{
+				sb.AppendLine($"Handwriting: {handwritingSkill.Decorator.Decorate(graffiti.Writing.HandwritingSkill).Strip(c => c is '(' or ')').ColourValue()}");
+			}
+		}
+
+		sb.AppendLine();
+		sb.AppendLine(new string(Actor.Account.UseUnicode ? '═' : '=', Actor.InnerLineFormatLength));
+		sb.AppendLine();
+		sb.AppendLine(graffiti.Writing.ParseFor(Actor));
+		return sb.ToString();
+	}
+#nullable restore
+
 	public string LookWoundsText(IMortalPerceiver thing)
 	{
 		var sb = new StringBuilder();
@@ -1009,6 +1115,17 @@ public partial class Body
 	public void LookWounds(IMortalPerceiver thing)
 	{
 		OutputHandler.Send(LookWoundsText(thing));
+	}
+
+
+	public void LookGraffiti(string target)
+	{
+		OutputHandler.Send(LookGraffitiText(target));
+	}
+
+	public void LookGraffitiThing(IGameItem item, string target)
+	{
+		OutputHandler.Send(LookGraffitiThingText(item, target));
 	}
 
 	public override PerceptionTypes NaturalPerceptionTypes => Race.NaturalPerceptionTypes;

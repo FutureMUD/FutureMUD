@@ -22,9 +22,9 @@ namespace MudSharp.Framework {
             var type = value.GetType();
             if (type.GetCustomAttribute<FlagsAttribute>() is not null)
             {
-                value.GetSingleFlags()
+                return value.GetSingleFlags()
                     .Where(x => value.HasFlag(x))
-                    .Select(x => Enum.GetName(type, value).SplitCamelCase(explodeCamelCase).Colour(colour))
+                    .Select(x => Enum.GetName(type, x).SplitCamelCase(explodeCamelCase).Colour(colour))
                     .ListToString();
             }
 

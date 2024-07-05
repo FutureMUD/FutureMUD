@@ -237,15 +237,15 @@ public class PlayerConnection : IPlayerConnection
 	public void AttemptCommand()
 	{
 		var cmd = GetNextCommand();
-//#if DEBUG
-//#else
+#if DEBUG
+#else
 		try
 		{
-//#endif
+#endif
 			
 			ControlPuppet.HandleCommand(cmd);
-//#if DEBUG
-//#else
+#if DEBUG
+#else
 		}
 		catch (Exception e)
 		{
@@ -277,7 +277,7 @@ public class PlayerConnection : IPlayerConnection
 			Server.MudSharp.WriteCrashLog(sb.ToString());
 			Environment.Exit(0);
 		}
-//#endif
+#endif
 	}
 
 	public void AddOutgoing(string text)

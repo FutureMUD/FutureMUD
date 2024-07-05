@@ -7,6 +7,7 @@ using MudSharp.Body;
 using MudSharp.Character;
 using MudSharp.Communication;
 using MudSharp.Communication.Language;
+using MudSharp.Form.Characteristics;
 using MudSharp.Form.Shape;
 using MudSharp.Framework;
 using MudSharp.GameItems.Interfaces;
@@ -406,8 +407,8 @@ public class PaperSheetGameItemComponent : GameItemComponent, IWriteable, IReada
 		sb.AppendLine(description);
 		sb.AppendLine();
 		sb.AppendLine(
-			$"This item can contain {_prototype.MaximumCharacterLengthOfText:N0} characters of written text.");
-		sb.AppendLine($"It is {(string.IsNullOrEmpty(Title) ? "not currently titled" : $"titled as \"{Title}\"")}.");
+			$"This item can contain {_prototype.MaximumCharacterLengthOfText.ToString("N0", voyeur).ColourValue()} characters of written text.");
+		sb.AppendLine($"It is {(string.IsNullOrEmpty(Title) ? "not currently titled" : $"titled as \"{Title.Colour(Telnet.BoldWhite)}\"")}.");
 		if (!Readables.Any())
 		{
 			sb.AppendLine("It does not presently have anything written or drawn on it.");
@@ -416,7 +417,7 @@ public class PaperSheetGameItemComponent : GameItemComponent, IWriteable, IReada
 		{
 			var itemNum = 1;
 			sb.AppendLine(
-				$"It has {Readables.Count.ToString("N0", voyeur)} separate pieces of writing and drawing. Type {"read <number>".Colour(Telnet.Yellow)} to read each piece:");
+				$"It has {Readables.Count.ToString("N0", voyeur).ColourValue()} separate pieces of writing and drawing. Type {"read <number>".Colour(Telnet.Yellow)} to read each piece:\n");
 
 			foreach (var item in Readables)
 			{

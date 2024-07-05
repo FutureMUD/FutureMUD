@@ -1005,8 +1005,11 @@ Please choose either #6simple#0 or #6complex#0: ", (context, answers) => true,
                     AddCheck(check, new TraitExpression { Expression = "variable" }, templates["Skill Check"].Id,
                         Difficulty.Impossible);
                     break;
-
-                case CheckType.InfectionHeartbeat:
+				case CheckType.WritingComprehendCheck:
+					AddCheck(check, new TraitExpression { Expression = $"variable + lit:{skills["Literacy"].Id}" }, templates["Capability Check"].Id,
+						Difficulty.Impossible);
+					break;
+				case CheckType.InfectionHeartbeat:
                     AddCheck(check, new TraitExpression { Expression = $"con:{conAttribute.Id}*5" },
                         templates["Skill Check No Improvement"].Id, Difficulty.Automatic);
                     continue;

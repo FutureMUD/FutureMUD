@@ -899,6 +899,11 @@ public partial class Body : PerceiverItem, IBody
 		return Actor.CanWrite();
 	}
 
+	public bool CanIdentifyLanguage(ILanguage language)
+	{
+		return Actor.CanIdentifyLanguage(language);
+	}
+
 	public bool IsLiterate => Actor.IsLiterate;
 
 	private bool _loading;

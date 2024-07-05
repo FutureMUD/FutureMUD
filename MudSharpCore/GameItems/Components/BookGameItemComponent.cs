@@ -16,6 +16,7 @@ using MudSharp.RPG.Checks;
 using MudSharp.Body;
 using MudSharp.Form.Shape;
 using MudSharp.Communication;
+using Antlr4.Runtime.Misc;
 
 namespace MudSharp.GameItems.Components;
 
@@ -592,25 +593,25 @@ public class BookGameItemComponent : GameItemComponent, IWriteable, IReadable, I
 		if (!IsOpen)
 		{
 			sb.AppendLine(
-				$"This item is a book{(string.IsNullOrEmpty(Title) ? ", which is not currently titled" : $"titled as \"{Title}\"")}."
+				$"This item is a book{(string.IsNullOrEmpty(Title) ? ", which is not currently titled" : $"titled as \"{Title.Colour(Telnet.BoldWhite)}\"")}."
 					.Colour(Telnet.Yellow));
 			sb.AppendLine("It is not currently open.".Colour(Telnet.Yellow));
 		}
 		else if (TornPages.Count >= _prototype.PageCount)
 		{
 			sb.AppendLine("This item is a book, but all of the pages have been torn out.".Colour(Telnet.Red));
-			sb.AppendLine($"It is {(string.IsNullOrEmpty(Title) ? "not currently titled" : $"titled as \"{Title}\"")}."
+			sb.AppendLine($"It is {(string.IsNullOrEmpty(Title) ? "not currently titled" : $"titled as \"{Title.Colour(Telnet.BoldWhite)}\"")}."
 				.Colour(Telnet.Yellow));
 		}
 		else
 		{
 			sb.AppendLine(
-				$"This item is a book with a total of {_prototype.PageCount:N0} pages.".Colour(Telnet.Yellow));
-			sb.AppendLine($"It is currently open to the {CurrentPage.ToOrdinal()} page.".Colour(Telnet.Yellow));
+				$"This item is a book with a total of {_prototype.PageCount.ToString("N0", voyeur).ColourValue()} pages.".Colour(Telnet.Yellow));
+			sb.AppendLine($"It is currently open to the {CurrentPage.ToOrdinal().ColourValue()} page.".Colour(Telnet.Yellow));
 			sb.AppendLine(
-				$"Each page can contain {_prototype.MaximumCharacterLengthOfText:N0} characters of written text."
+				$"Each page can contain {_prototype.MaximumCharacterLengthOfText.ToString("N0", voyeur).ColourValue()} characters of written text."
 					.Colour(Telnet.Yellow));
-			sb.AppendLine($"It is {(string.IsNullOrEmpty(Title) ? "not currently titled" : $"titled as \"{Title}\"")}."
+			sb.AppendLine($"It is {(string.IsNullOrEmpty(Title) ? "not currently titled" : $"titled as \"{Title.Colour(Telnet.BoldWhite)}\"")}."
 				.Colour(Telnet.Yellow));
 			if (!Readables.Any())
 			{
@@ -620,7 +621,7 @@ public class BookGameItemComponent : GameItemComponent, IWriteable, IReadable, I
 			{
 				var itemNum = 1;
 				sb.AppendLine(
-					$"The current page has {Readables.Count():N0} separate pieces of writing and drawing. Type {"read <number>".Colour(Telnet.Yellow)} to read each piece:");
+					$"The current page has {Readables.Count().ToString("N0", voyeur).ColourValue()} separate pieces of writing and drawing. Type {"read <number>".Colour(Telnet.Yellow)} to read each piece:\n");
 				foreach (var item in Readables)
 				{
 					sb.AppendLine($"\t#{(itemNum++).ToString("N0", voyeur)}) {item.DescribeInLook(character)}");

@@ -166,7 +166,8 @@ namespace MudSharp.RPG.Checks {
 		MindExpelPower = 160,
 		MindAuditPower = 161,
 		AppraiseItemCheck = 162,
-        AuxiliaryMoveCheck = 163
+        AuxiliaryMoveCheck = 163,
+        WritingComprehendCheck = 164,
     }
 
     public enum FailIfTraitMissingType {

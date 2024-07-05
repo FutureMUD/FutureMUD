@@ -5,8 +5,10 @@ using MudSharp.Form.Colour;
 using MudSharp.Framework;
 using MudSharp.Framework.Save;
 using MudSharp.GameItems.Interfaces;
+using MudSharp.RPG.Checks;
 
 namespace MudSharp.Communication.Language {
+
     [Flags]
     public enum WritingStyleDescriptors {
         None = 0,
@@ -162,5 +164,57 @@ namespace MudSharp.Communication.Language {
         double LanguageSkill { get; }
         IWriting Copy();
         IColour WritingColour { get; }
+
+        Difficulty WritingDifficulty(ICharacter actor)
+        {
+	        var difficulty = Difficulty.Trivial;
+
+	        if (!actor.Languages.Contains(Language))
+	        {
+		        var mutual = actor.Languages.Select(x => x.MutualIntelligability(Language)).DefaultIfEmpty(Difficulty.Impossible).Min();
+		        if (mutual == Difficulty.Impossible)
+		        {
+			        return Difficulty.Impossible;
+		        }
+
+		        difficulty = mutual;
+	        }
+
+	        // Stage up difficulty based on writing style
+	        if (Style.HasFlag(WritingStyleDescriptors.SemiCursive))
+	        {
+		        difficulty = difficulty.StageUp(1);
+	        }
+	        else if (Style.HasFlag(WritingStyleDescriptors.Cursive))
+	        {
+		        difficulty = difficulty.StageUp(2);
+	        }
+	        else if (Style.HasFlag(WritingStyleDescriptors.Stylised))
+	        {
+		        difficulty = difficulty.StageUp(3);
+	        }
+
+	        if (DocumentLength > 1000)
+	        {
+		        difficulty = difficulty.StageUp(1);
+	        }
+
+	        if (LanguageSkill < Gameworld.GetStaticDouble("ReadDifficultyLanguageSkillThreshold"))
+	        {
+		        difficulty = difficulty.StageUp(1);
+	        }
+
+	        if (LiteracySkill < Gameworld.GetStaticDouble("ReadDifficultyLiteracySkillThreshold"))
+	        {
+		        difficulty = difficulty.StageUp(1);
+	        }
+
+	        if (HandwritingSkill < Gameworld.GetStaticDouble("ReadDifficultyHandwritingSkillThreshold"))
+	        {
+		        difficulty = difficulty.StageUp(1);
+	        }
+
+	        return difficulty;
+		}
     }
 }

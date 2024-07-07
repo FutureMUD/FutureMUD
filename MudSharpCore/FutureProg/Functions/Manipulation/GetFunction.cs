@@ -2,6 +2,7 @@
 using MudSharp.Character;
 using MudSharp.FutureProg.Variables;
 using MudSharp.GameItems;
+using MudSharp.GameItems.Interfaces;
 using MudSharp.PerceptionEngine.Parsers;
 
 namespace MudSharp.FutureProg.Functions.Manipulation;
@@ -68,6 +69,18 @@ internal class GetFunction : BuiltInFunction
 
 		if (getter.Body.CanGet(target, quantity))
 		{
+			var holdable = target.GetItemType<IHoldable>();
+			if (holdable?.HeldBy != null && holdable.HeldBy != getter.Body)
+			{
+				holdable.HeldBy.Take(target);
+			}
+			else
+			{
+				var containedInContainer = target.ContainedIn?.GetItemType<IContainer>();
+				containedInContainer?.Take(null, target, 0);
+			}
+
+			target.Location?.Extract(target);
 			getter.Body.Get(target, quantity, emote, Silent);
 			Result = new BooleanVariable(true);
 		}
@@ -134,21 +147,21 @@ internal class GetContainerFunction : BuiltInFunction
 			return StatementResult.Error;
 		}
 
-		var getter = (ICharacter)ParameterFunctions[0].Result;
+		var getter = (ICharacter)ParameterFunctions[0].Result?.GetObject;
 		if (getter == null)
 		{
 			ErrorMessage = "Getter Character was null in GetContainer function.";
 			return StatementResult.Error;
 		}
 
-		var target = (IGameItem)ParameterFunctions[1].Result;
+		var target = (IGameItem)ParameterFunctions[1].Result?.GetObject;
 		if (target == null)
 		{
 			ErrorMessage = "Target GameItem was null in GetContainer function.";
 			return StatementResult.Error;
 		}
 
-		var container = (IGameItem)ParameterFunctions[2].Result;
+		var container = (IGameItem)ParameterFunctions[2].Result?.GetObject;
 		if (container == null)
 		{
 			ErrorMessage = "Container GameItem was null in GetContainer function.";
@@ -156,7 +169,7 @@ internal class GetContainerFunction : BuiltInFunction
 		}
 
 		var quantity = ParameterFunctions[3].ReturnType.CompatibleWith(FutureProgVariableTypes.Number)
-			? (int)(decimal)ParameterFunctions[3].Result.GetObject
+			? ((int?)(decimal?)ParameterFunctions[3].Result.GetObject ?? 0)
 			: 0;
 
 		var emoteText = ParameterFunctions[3].ReturnType.CompatibleWith(FutureProgVariableTypes.Number)
@@ -175,6 +188,17 @@ internal class GetContainerFunction : BuiltInFunction
 
 		if (getter.Body.CanGet(target, container, quantity))
 		{
+			var holdable = target.GetItemType<IHoldable>();
+			if (holdable?.HeldBy != null && holdable.HeldBy != getter.Body)
+			{
+				holdable.HeldBy.Take(target);
+			}
+			else if (target.ContainedIn?.GetItemType<IContainer>() is { } containedInContainer && target.ContainedIn != container)
+			{
+				containedInContainer.Take(null, target, 0);
+			}
+
+			target.Location?.Extract(target);
 			getter.Body.Get(target, container, quantity, emote, Silent);
 			Result = new BooleanVariable(true);
 		}

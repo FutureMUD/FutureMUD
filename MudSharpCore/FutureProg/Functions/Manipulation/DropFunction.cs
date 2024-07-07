@@ -2,6 +2,7 @@
 using MudSharp.Character;
 using MudSharp.FutureProg.Variables;
 using MudSharp.GameItems;
+using MudSharp.GameItems.Interfaces;
 using MudSharp.PerceptionEngine.Parsers;
 
 namespace MudSharp.FutureProg.Functions.Manipulation;
@@ -31,14 +32,14 @@ internal class DropFunction : BuiltInFunction
 			return StatementResult.Error;
 		}
 
-		var dropper = (ICharacter)ParameterFunctions[0].Result;
+		var dropper = (ICharacter)ParameterFunctions[0].Result?.GetObject;
 		if (dropper == null)
 		{
 			ErrorMessage = "Dropper Character was null in Drop function.";
 			return StatementResult.Error;
 		}
 
-		var target = (IGameItem)ParameterFunctions[1].Result;
+		var target = (IGameItem)ParameterFunctions[1].Result?.GetObject;
 		if (target == null)
 		{
 			ErrorMessage = "Target GameItem was null in Drop function.";
@@ -57,6 +58,18 @@ internal class DropFunction : BuiltInFunction
 
 		if (dropper.Body.CanDrop(target, Quantity))
 		{
+			var holdable = target.GetItemType<IHoldable>();
+			if (holdable?.HeldBy != null && holdable.HeldBy != dropper.Body)
+			{
+				holdable.HeldBy.Take(target);
+			}
+			else
+			{
+				var containedInContainer = target.ContainedIn?.GetItemType<IContainer>();
+				containedInContainer?.Take(null, target, 0);
+			}
+
+			target.Location?.Extract(target);
 			dropper.Body.Drop(target, Quantity, false, emote, Silent);
 			Result = new BooleanVariable(true);
 		}

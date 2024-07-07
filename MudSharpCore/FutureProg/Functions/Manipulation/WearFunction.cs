@@ -2,6 +2,7 @@
 using MudSharp.Character;
 using MudSharp.FutureProg.Variables;
 using MudSharp.GameItems;
+using MudSharp.GameItems.Interfaces;
 using MudSharp.PerceptionEngine.Parsers;
 
 namespace MudSharp.FutureProg.Functions.Manipulation;
@@ -56,6 +57,18 @@ internal class WearFunction : BuiltInFunction
 
 		if (wearer.Body.CanWear(target))
 		{
+			var holdable = target.GetItemType<IHoldable>();
+			if (holdable?.HeldBy != null && holdable.HeldBy != wearer.Body)
+			{
+				holdable.HeldBy.Take(target);
+			}
+			else
+			{
+				var containedInContainer = target.ContainedIn?.GetItemType<IContainer>();
+				containedInContainer?.Take(null, target, 0);
+			}
+
+			target.Location?.Extract(target);
 			wearer.Body.Wear(target, emote, Silent);
 			Result = new BooleanVariable(true);
 		}

@@ -2,6 +2,7 @@
 using MudSharp.Character;
 using MudSharp.FutureProg.Variables;
 using MudSharp.GameItems;
+using MudSharp.GameItems.Interfaces;
 using MudSharp.PerceptionEngine.Parsers;
 
 namespace MudSharp.FutureProg.Functions.Manipulation;
@@ -55,6 +56,18 @@ internal class WieldFunction : BuiltInFunction
 
 		if (wielder.Body.CanWield(target))
 		{
+			var holdable = target.GetItemType<IHoldable>();
+			if (holdable?.HeldBy != null && holdable.HeldBy != wielder.Body)
+			{
+				holdable.HeldBy.Take(target);
+			}
+			else
+			{
+				var containedInContainer = target.ContainedIn?.GetItemType<IContainer>();
+				containedInContainer?.Take(null, target, 0);
+			}
+
+			target.Location?.Extract(target);
 			wielder.Body.Wield(target, emote, Silent);
 			Result = new BooleanVariable(true);
 		}

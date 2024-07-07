@@ -25,14 +25,14 @@ internal class CanGetFunction : BuiltInFunction
 			return StatementResult.Error;
 		}
 
-		var getter = (ICharacter)ParameterFunctions[0].Result;
+		var getter = (ICharacter)ParameterFunctions[0].Result?.GetObject;
 		if (getter == null)
 		{
 			ErrorMessage = "Getter Character was null in CanGet function.";
 			return StatementResult.Error;
 		}
 
-		var target = (IGameItem)ParameterFunctions[1].Result;
+		var target = (IGameItem)ParameterFunctions[1].Result?.GetObject;
 		if (target == null)
 		{
 			ErrorMessage = "Target GameItem was null in CanGet function.";
@@ -40,7 +40,7 @@ internal class CanGetFunction : BuiltInFunction
 		}
 
 		var quantity = ParameterFunctions.Count == 3
-			? (int)(decimal)ParameterFunctions[2].Result.GetObject
+			? ((int?)(decimal?)ParameterFunctions[2].Result.GetObject ?? 0)
 			: 0;
 
 		Result = new BooleanVariable(getter.Body.CanGet(target, quantity));
@@ -52,13 +52,37 @@ internal class CanGetFunction : BuiltInFunction
 		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
 			"canget",
 			new[] { FutureProgVariableTypes.Character, FutureProgVariableTypes.Item },
-			(pars, gameworld) => new CanGetFunction(pars)
+			(pars, gameworld) => new CanGetFunction(pars),
+			[
+				"who",
+				"thing"
+			],
+			[
+				"The character doing the getting",
+				"The thing being gotten"
+			],
+			"This function tells you if a player could pick up an item into hands/inventory. Returns true if so. Respects all normal inventory rules.",
+			"Manipulation",
+			FutureProgVariableTypes.Boolean
 		));
 
 		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
 			"canget",
 			new[] { FutureProgVariableTypes.Character, FutureProgVariableTypes.Item, FutureProgVariableTypes.Number },
-			(pars, gameworld) => new CanGetFunction(pars)
+			(pars, gameworld) => new CanGetFunction(pars),
+			[
+				"who",
+				"thing",
+				"quantity"
+			],
+			[
+				"The character doing the getting",
+				"The thing being gotten",
+				"The number of things being gotten, or 0 for the full stack"
+			],
+			"This function tells you if a player could pick up a specified quantity of item into hands/inventory. Returns true if so. Respects all normal inventory rules.",
+			"Manipulation",
+			FutureProgVariableTypes.Boolean
 		));
 	}
 }
@@ -83,29 +107,29 @@ internal class CanGetContainerFunction : BuiltInFunction
 			return StatementResult.Error;
 		}
 
-		var getter = (ICharacter)ParameterFunctions[0].Result;
+		var getter = (ICharacter)ParameterFunctions[0].Result?.GetObject;
 		if (getter == null)
 		{
 			ErrorMessage = "Getter Character was null in GetContainer function.";
 			return StatementResult.Error;
 		}
 
-		var target = (IGameItem)ParameterFunctions[1].Result;
+		var target = (IGameItem)ParameterFunctions[1].Result?.GetObject;
 		if (target == null)
 		{
 			ErrorMessage = "Target GameItem was null in CanGetContainer function.";
 			return StatementResult.Error;
 		}
 
-		var container = (IGameItem)ParameterFunctions[2].Result;
+		var container = (IGameItem)ParameterFunctions[2].Result?.GetObject;
 		if (container == null)
 		{
 			ErrorMessage = "Container GameItem was null in CanGetContainer function.";
 			return StatementResult.Error;
 		}
 
-		var quantity = ParameterFunctions.Count == 3
-			? (int)(decimal)ParameterFunctions[3].Result.GetObject
+		var quantity = ParameterFunctions.Count == 4
+			? ((int?)(decimal?)ParameterFunctions[3].Result.GetObject ?? 0)
 			: 0;
 		Result = new BooleanVariable(getter.Body.CanGet(target, container, quantity));
 		return StatementResult.Normal;

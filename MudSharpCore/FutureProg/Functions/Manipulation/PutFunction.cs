@@ -34,21 +34,21 @@ internal class PutFunction : BuiltInFunction
 			return StatementResult.Error;
 		}
 
-		var putter = (ICharacter)ParameterFunctions[0].Result;
+		var putter = (ICharacter)ParameterFunctions[0].Result?.GetObject;
 		if (putter == null)
 		{
 			ErrorMessage = "Putter Character was null in Put function.";
 			return StatementResult.Error;
 		}
 
-		var target = (IGameItem)ParameterFunctions[1].Result;
+		var target = (IGameItem)ParameterFunctions[1].Result?.GetObject;
 		if (target == null)
 		{
 			ErrorMessage = "Target GameItem was null in Put function.";
 			return StatementResult.Error;
 		}
 
-		var container = (IGameItem)ParameterFunctions[2].Result;
+		var container = (IGameItem)ParameterFunctions[2].Result?.GetObject;
 		if (container == null)
 		{
 			ErrorMessage = "Container GameItem was null in Put function.";
@@ -64,6 +64,18 @@ internal class PutFunction : BuiltInFunction
 				emote = null;
 			}
 		}
+		var holdable = target.GetItemType<IHoldable>();
+		if (holdable?.HeldBy != null && holdable.HeldBy != putter.Body)
+		{
+			holdable.HeldBy.Take(target);
+		}
+		else
+		{
+			var containedInContainer = target.ContainedIn?.GetItemType<IContainer>();
+			containedInContainer?.Take(null, target, 0);
+		}
+
+		target.Location?.Extract(target);
 
 		if (putter.Body.CanPut(target, container, null, Quantity, false))
 		{
@@ -87,13 +99,41 @@ internal class PutFunction : BuiltInFunction
 				FutureProgVariableTypes.Character, FutureProgVariableTypes.Item, FutureProgVariableTypes.Item,
 				FutureProgVariableTypes.Text
 			},
-			(pars, gameworld) => new PutFunction(pars, 0, false)
+			(pars, gameworld) => new PutFunction(pars, 0, false),
+			[ 
+				"who",
+				"thing",
+				"container",
+				"emote"
+			],
+			[
+				"The character doing the putting",
+				"The thing being put into something else",
+				"The container the thing is being put into",
+				"The optional player emote to add to the standard echo"
+			],
+			"This function causes a player to put an item into a container using the ordinary inventory code. It echoes to all, and returns true if successful.",
+			"Manipulation",
+			FutureProgVariableTypes.Boolean
 		));
 
 		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
 			"silentput",
 			new[] { FutureProgVariableTypes.Character, FutureProgVariableTypes.Item, FutureProgVariableTypes.Item },
-			(pars, gameworld) => new PutFunction(pars, 0, true)
+			(pars, gameworld) => new PutFunction(pars, 0, true),
+			[
+				"who",
+				"thing",
+				"container"
+			],
+			[
+				"The character doing the putting",
+				"The thing being put into something else",
+				"The container the thing is being put into"
+			],
+			"This function causes a player to put an item into a container using the ordinary inventory code. It does not echo to anyone, and returns true if successful.",
+			"Manipulation",
+			FutureProgVariableTypes.Boolean
 		));
 	}
 }
@@ -124,14 +164,14 @@ internal class PutContainerFunction : BuiltInFunction
 			return StatementResult.Error;
 		}
 
-		var target = (IGameItem)ParameterFunctions[0].Result;
+		var target = (IGameItem)ParameterFunctions[0].Result?.GetObject;
 		if (target == null)
 		{
 			ErrorMessage = "Target GameItem was null in Put function.";
 			return StatementResult.Error;
 		}
 
-		if (ParameterFunctions[1].Result is not IGameItem containerItem)
+		if (ParameterFunctions[1].Result?.GetObject is not IGameItem containerItem)
 		{
 			ErrorMessage = "Container GameItem was null in Put function.";
 			return StatementResult.Error;
@@ -173,13 +213,35 @@ internal class PutContainerFunction : BuiltInFunction
 		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
 			"put",
 			new[] { FutureProgVariableTypes.Item, FutureProgVariableTypes.Item },
-			(pars, gameworld) => new PutContainerFunction(pars, false)
+			(pars, gameworld) => new PutContainerFunction(pars, false),
+			[
+				"thing",
+				"container"
+			],
+			[
+				"The thing being put into something else",
+				"The container the thing is being put into"
+			],
+			"This function puts an item into a container (respecting normal inventory rules), does not echo anything, and returns true if successful.",
+			"Manipulation",
+			FutureProgVariableTypes.Boolean
 		));
 
 		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
 			"forceput",
 			new[] { FutureProgVariableTypes.Item, FutureProgVariableTypes.Item },
-			(pars, gameworld) => new PutContainerFunction(pars, true)
+			(pars, gameworld) => new PutContainerFunction(pars, true),
+			[
+				"thing",
+				"container"
+			],
+			[
+				"The thing being put into something else",
+				"The container the thing is being put into"
+			],
+			"This function puts an item into a container (ignoring normal inventory rules), does not echo anything, and returns true if successful.",
+			"Manipulation",
+			FutureProgVariableTypes.Boolean
 		));
 	}
 }
@@ -204,14 +266,14 @@ internal class PutLocationFunction : BuiltInFunction
 			return StatementResult.Error;
 		}
 
-		var target = (IGameItem)ParameterFunctions[0].Result;
+		var target = (IGameItem)ParameterFunctions[0].Result?.GetObject;
 		if (target == null)
 		{
 			ErrorMessage = "Target GameItem was null in Put function.";
 			return StatementResult.Error;
 		}
 
-		var location = (ILocation)ParameterFunctions[1].Result;
+		var location = (ILocation)ParameterFunctions[1].Result?.GetObject;
 		if (location == null)
 		{
 			ErrorMessage = "Location was null in Put function.";
@@ -221,8 +283,7 @@ internal class PutLocationFunction : BuiltInFunction
 		var layer = RoomLayer.GroundLevel;
 		if (ParameterFunctions.Count == 3)
 		{
-			if (!Utilities.TryParseEnum<RoomLayer>(ParameterFunctions[2].Result?.GetObject?.ToString() ?? "",
-				    out layer))
+			if (!(ParameterFunctions[2].Result?.GetObject?.ToString() ?? "").TryParseEnum(out layer))
 			{
 				ErrorMessage = "An invalid layer was supplied in Put function.";
 				return StatementResult.Error;
@@ -260,7 +321,7 @@ internal class PutLocationFunction : BuiltInFunction
 				"The location you want to put the item in"
 			},
 			"This function puts an item in a room, using the GroundLevel (or closest layer to).",
-			"Items",
+			"Manipulation",
 			FutureProgVariableTypes.Boolean
 		));
 
@@ -276,7 +337,7 @@ internal class PutLocationFunction : BuiltInFunction
 				"The layer of the location that you want to put the item in"
 			},
 			"This function puts an item in a room in the specified layer. Possible values for layers are VeryDeepUnderwater, DeepUnderwater, Underwater, GroundLevel, OnRooftops, InTrees, HighInTrees, InAir, HighInAir. See function ROOMLAYERS for how to obtain the list of room layers for a location.",
-			"Items",
+			"Manipulation",
 			FutureProgVariableTypes.Boolean
 		));
 	}

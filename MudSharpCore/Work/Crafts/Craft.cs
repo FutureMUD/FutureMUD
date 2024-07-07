@@ -2525,11 +2525,13 @@ public class Craft : Framework.Revision.EditableItem, ICraft
 			{
 				$"$i{i}",
 				item.HowSeen(actor),
+				item.InputType,
 				_craftInputConsumedPhases[item.Id].ToString("N0", actor)
 			},
 			[
 				"Name",
 				"Description",
+				"Type",
 				"Consumed Phase"
 			],
 			actor,
@@ -2547,7 +2549,8 @@ public class Craft : Framework.Revision.EditableItem, ICraft
 			{
 				$"$t{i}",
 				item.HowSeen(actor),
-				$"{item.DesiredState.Describe().SquareBrackets().ColourValue()}{(item.UseToolDuration ? " [UseTool]".Colour(Telnet.Red) : "")}",
+				$"{item.DesiredState.Describe()}{(item.UseToolDuration ? ", UseTool" : "")}",
+				item.ToolType,
 				_craftToolUsagePhases
 					.Where(x => x.Value.Contains(item.Id))
 					.Select(x => x.Key.ToString("N0", actor))
@@ -2563,6 +2566,7 @@ public class Craft : Framework.Revision.EditableItem, ICraft
 				"Name",
 				"Description",
 				"Rules",
+				"Type",
 				"Used Phases"
 			],
 			actor,
@@ -2580,11 +2584,13 @@ public class Craft : Framework.Revision.EditableItem, ICraft
 			{
 				$"$p{i}",
 				item.HowSeen(actor),
+				item.ProductType,
 				_craftProductProducedPhases[item.Id].ToString("N0", actor)
 			},
 			[
 				"Name",
 				"Description",
+				"Type",
 				"Produced Phase"
 			],
 			actor,
@@ -2602,11 +2608,13 @@ public class Craft : Framework.Revision.EditableItem, ICraft
 			{
 				$"$f{i}",
 				item.HowSeen(actor),
+				item.ProductType,
 				_craftFailProductProducedPhases[item.Id].ToString("N0", actor)
 			},
 			[
 				"Name",
 				"Description",
+				"Type",
 				"Produced Phase"
 			],
 			actor,

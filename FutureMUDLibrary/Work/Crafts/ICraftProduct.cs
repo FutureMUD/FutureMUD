@@ -20,5 +20,6 @@ namespace MudSharp.Work.Crafts
         bool RefersToTag(ITag tag);
         bool RefersToLiquid(ILiquid liquid);
         bool IsItem(IGameItem item);
-    }
+        string ProductType { get; }
+	}
 }

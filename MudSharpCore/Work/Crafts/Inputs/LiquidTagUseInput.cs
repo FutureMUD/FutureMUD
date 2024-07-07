@@ -196,7 +196,7 @@ public class LiquidTagUseInput : BaseInput, ICraftInputConsumeLiquid
 		return true;
 	}
 
-	protected override string InputType => "LiquidTagUse";
+	public override string InputType => "LiquidTagUse";
 
 	protected override string SaveDefinition()
 	{

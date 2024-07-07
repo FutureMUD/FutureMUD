@@ -293,7 +293,7 @@ public class LiquidUseInput : BaseInput, ICraftInputConsumeLiquid
 		throw new ApplicationException("Invalid WhyNotValid reason in LiquidUseInput.");
 	}
 
-	protected override string InputType => "LiquidUse";
+	public override string InputType => "LiquidUse";
 
 	protected override string SaveDefinition()
 	{

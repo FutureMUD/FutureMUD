@@ -27,5 +27,6 @@ namespace MudSharp.Work.Crafts
         bool RefersToItemProto(long id);
         bool RefersToTag(ITag tag);
         bool RefersToLiquid(ILiquid liquid);
-    }
+        string ToolType { get; }
+	}
 }

@@ -104,7 +104,7 @@ public abstract class BaseInput : LateInitialisingItem, ICraftInput
 		return true;
 	}
 
-	protected abstract string InputType { get; }
+	public abstract string InputType { get; }
 
 	#region Overrides of SaveableItem
 

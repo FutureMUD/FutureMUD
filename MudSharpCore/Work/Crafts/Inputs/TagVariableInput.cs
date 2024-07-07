@@ -89,7 +89,7 @@ public class TagVariableInput : TagInput, IVariableInput
 		return ((SimpleItemInputData)data).ConsumedItems.First().GetCharacteristic(definition, null);
 	}
 
-	protected override string InputType => "TagVariable";
+	public override string InputType => "TagVariable";
 
 	public new static void RegisterCraftInput()
 	{

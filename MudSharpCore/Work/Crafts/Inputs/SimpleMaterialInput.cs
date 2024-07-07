@@ -13,7 +13,7 @@ namespace MudSharp.Work.Crafts.Inputs;
 
 public class SimpleMaterialInput : BaseInput, ICraftInputConsumesGameItemGroup
 {
-	protected override string InputType => "SimpleMaterial";
+	public override string InputType => "SimpleMaterial";
 
 	public ITag TargetMaterialTag { get; set; }
 	public ISolid TargetMaterial { get; set; }

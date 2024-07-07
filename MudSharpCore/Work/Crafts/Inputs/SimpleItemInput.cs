@@ -14,7 +14,7 @@ namespace MudSharp.Work.Crafts.Inputs;
 /// </summary>
 public class SimpleItemInput : BaseInput, ICraftInputConsumesGameItemGroup
 {
-	protected override string InputType => "SimpleItem";
+	public override string InputType => "SimpleItem";
 
 	public long TargetItemId { get; set; }
 	public int Quantity { get; set; }

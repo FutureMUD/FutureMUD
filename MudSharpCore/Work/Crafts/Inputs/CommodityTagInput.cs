@@ -80,7 +80,7 @@ public class CommodityTagInput : BaseInput, ICraftInputConsumesGameItem
 		}
 	}
 
-	protected override string InputType => "CommodityTag";
+	public override string InputType => "CommodityTag";
 
 	public ITag MaterialTag { get; set; }
 

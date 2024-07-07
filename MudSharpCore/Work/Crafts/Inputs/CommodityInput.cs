@@ -80,7 +80,7 @@ public class CommodityInput : BaseInput, ICraftInputConsumesGameItem
 		}
 	}
 
-	protected override string InputType => "Commodity";
+	public override string InputType => "Commodity";
 
 	public ISolid Material { get; set; }
 

@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 using MudSharp.Character;
+using MudSharp.Commands.Trees;
 using MudSharp.Form.Characteristics;
 using MudSharp.Framework;
 using MudSharp.Framework.Revision;
@@ -41,6 +42,7 @@ internal class InputVariableProduct : BaseProduct
 				continue;
 			}
 
+			VariableIndexes[definition] = int.Parse(element.Attribute("index").Value);
 			var list = new List<(long, ICharacteristicValue)>();
 			foreach (var sub in element.Elements("Specific"))
 			{
@@ -193,50 +195,26 @@ internal class InputVariableProduct : BaseProduct
 	public override string HowSeen(IPerceiver voyeur)
 	{
 		var sb = new StringBuilder();
-		sb.Append(Quantity)
+		sb.Append(Quantity.ToString("N0", voyeur))
 		  .Append("x ");
+		var proto = Gameworld.ItemProtos.Get(ProductProducedId);
+		if (proto is null)
+		{
+			sb.Append("an unspecified item".Colour(Telnet.Red));
+			return sb.ToString();
+		}
 
 		if (Skin is not null && voyeur is ICharacter ch && ch.IsAdministrator())
 		{
-			sb.Append((Skin.ShortDescription ?? Gameworld.ItemProtos.Get(ProductProducedId)?.ShortDescription)
-					  .ConcatIfNotEmpty($" [reskinned: #{Skin.Id.ToString("N0", voyeur)}]") ??
-					  "an unspecified item".Colour(Telnet.Red));
+			sb.Append($"{(Skin.ShortDescription ?? Gameworld.ItemProtos.Get(ProductProducedId).ShortDescription)} (#{proto.Id.ToString("N0", voyeur)}) [reskinned: #{Skin.Id.ToString("N0", voyeur)}]");
 		}
 		else
 		{
-			sb.Append(Gameworld.ItemProtos.Get(ProductProducedId)?.ShortDescription ??
-					  "an unspecified item".Colour(Telnet.Red));
+			sb.Append(Gameworld.ItemProtos.Get(ProductProducedId).ShortDescription);
+			sb.Append($" (#{proto.Id.ToString("N0", voyeur)})");
 		}
 
-		foreach (var (definition, input) in VariableIndexes)
-		{
-			sb.Append(" ").Append(definition.Name).Append(" <- ");
-			if (Craft.Inputs.ElementAtOrDefault(input-1) is ICraftInput ici)
-			{
-				sb.Append(ici.Name).Append($" ($i{input})");
-			}
-			else
-			{
-				sb.Append(" an invalid input".Colour(Telnet.Red));
-			}
-		}
-
-		var sb2 = new StringBuilder();
-		foreach (var (definition, list) in VariableSpecifics)
-		{
-			sb2.AppendLine($"--Variable {definition.Name}--\n");
-			foreach (var (proto, value) in list)
-			{
-				var item = Gameworld.ItemProtos.Get(proto);
-				if (item is null)
-				{
-					sb2.AppendLine($"An invalid item #{proto.ToString("N0", voyeur)}");
-				}
-				sb2.AppendLine($"{item.ShortDescription} (#{item.Id.ToString("N0", voyeur)}) = {value.Name}");
-			}
-		}
-
-		return sb.ToString().MXPSend("look", sb2.ToString());
+		return sb.ToString();
 	}
 
 	public override string ProductType => "InputVariable";
@@ -323,6 +301,7 @@ internal class InputVariableProduct : BaseProduct
 	#3skin <id|name>#0 - sets a skin to go with the item prototype
 	#3skin clear#0 - clears the skin
 	#3quantity <amount>#0 - sets the quantity of that item to be loaded
+	#3variable#0 - show detailed information about the variables for this item
 	#3variable <which> index <##>#0 - sets the input index that determines an output variable
 	#3variable <which> remove#0 - removes a variable from the mixture
 	#3variable <which> item <which> <value>#0 - sets it so that if the indexed input is this item, set the variable value to this value
@@ -352,8 +331,7 @@ internal class InputVariableProduct : BaseProduct
 	{
 		if (command.IsFinished)
 		{
-			actor.OutputHandler.Send("Which variable do you want to change the interaction with?");
-			return false;
+			return BuildingCommmandVariableDefault(actor);
 		}
 
 		var definition = Gameworld.Characteristics.GetByIdOrName(command.PopSpeech());
@@ -381,6 +359,41 @@ internal class InputVariableProduct : BaseProduct
 				actor.OutputHandler.Send("You must either use #3remove#0, #3index#0, or #3item#0.".SubstituteANSIColour());
 				return false;
 		}
+	}
+
+	private bool BuildingCommmandVariableDefault(ICharacter actor)
+	{
+		var sb = new StringBuilder();
+		sb.AppendLine("Detailed Variable Information for the Product:");
+		
+		foreach (var (variable, index) in VariableIndexes)
+		{
+			var input = Craft.Inputs.ElementAtOrDefault(index - 1);
+			sb.AppendLine();
+			sb.AppendLine($"Variable {variable.Name}".GetLineWithTitle(actor, Telnet.Cyan, Telnet.BoldWhite));
+			sb.AppendLine();
+			if (input is null)
+			{
+				sb.AppendLine($"Invalid target input {$"$i{index.ToString("N0", actor)}".ColourValue()}.");
+				continue;
+			}
+			sb.AppendLine($"Determined by input {$"$i{index.ToString("N0", actor)}".ColourValue()} ({input.HowSeen(actor)})");
+			sb.AppendLine();
+			sb.AppendLine("Values:");
+			sb.AppendLine();
+			foreach (var (proto,value) in VariableSpecifics[variable])
+			{
+				var iProto = Gameworld.ItemProtos.Get(proto);
+				if (iProto is null)
+				{
+					sb.AppendLine($"\tInvalid item prototye #{proto.ToString("N0", actor)} -> {value.Name.ColourValue()}");
+					continue;
+				}
+				sb.AppendLine($"\t#{proto.ToString("N0", actor)} ({iProto.ShortDescription.Colour(iProto.CustomColour ?? Telnet.Green)}) -> {value.Name.ColourValue()}");
+			}
+		}
+		actor.OutputHandler.Send(sb.ToString());
+		return true;
 	}
 
 	private bool BuildingCommandVariableItem(ICharacter actor, StringStack command, ICharacteristicDefinition definition)

@@ -10,7 +10,7 @@ namespace MudSharp.Work.Crafts.Inputs;
 
 public class TagInput : BaseInput, ICraftInputConsumesGameItemGroup
 {
-	protected override string InputType => "Tag";
+	public override string InputType => "Tag";
 	public ITag TargetTag { get; set; }
 	public int Quantity { get; set; }
 

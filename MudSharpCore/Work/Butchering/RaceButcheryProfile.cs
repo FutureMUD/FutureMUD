@@ -918,7 +918,7 @@ For all of the below phase emote echoes, you can use #6$0#0 for the actor, #6$1#
 			return false;
 		}
 
-		if (!int.TryParse(command.SafeRemainingArgument, out var value) || value < 1)
+		if (!int.TryParse(command.PopSpeech(), out var value) || value < 1)
 		{
 			actor.OutputHandler.Send("You must enter a valid emote number.");
 			return false;
@@ -1177,7 +1177,7 @@ For all of the below phase emote echoes, you can use #6$0#0 for the actor, #6$1#
 			return false;
 		}
 
-		if (!int.TryParse(command.SafeRemainingArgument, out var value) || value < 1)
+		if (!int.TryParse(command.PopSpeech(), out var value) || value < 1)
 		{
 			actor.OutputHandler.Send("You must enter a valid emote number.");
 			return false;
@@ -1227,7 +1227,7 @@ For all of the below phase emote echoes, you can use #6$0#0 for the actor, #6$1#
 			return false;
 		}
 
-		if (!int.TryParse(command.SafeRemainingArgument, out var value) || value < 1)
+		if (!int.TryParse(command.PopSpeech(), out var value) || value < 1)
 		{
 			actor.OutputHandler.Send("You must enter a valid emote number.");
 			return false;

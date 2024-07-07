@@ -108,7 +108,7 @@ public class StartingLocationPickerScreenStoryboard : ChargenScreenStoryboard
 			sb.AppendLine($"Location: {location.Location?.GetFriendlyReference(voyeur) ?? "None".ColourError()}");
 			sb.AppendLine($"Role: {location.Role?.Name.ColourName() ?? "None".ColourError()}");
 			sb.AppendLine(
-				$"Filter Prog: {location.Role.AvailabilityProg?.MXPClickableFunctionName() ?? "None".ColourError()}");
+				$"Filter Prog: {location.Role?.AvailabilityProg?.MXPClickableFunctionName() ?? "None".ColourError()}");
 			sb.AppendLine(
 				$"Commence Prog: {location.OnCommenceProg?.MXPClickableFunctionName() ?? "None".ColourError()}");
 			sb.AppendLine();
@@ -293,9 +293,9 @@ public class StartingLocationPickerScreenStoryboard : ChargenScreenStoryboard
 			return false;
 		}
 
-		var which = Locations.FirstOrDefault(x => x.Name.EqualTo(command.SafeRemainingArgument)) ??
+		var which = Locations.FirstOrDefault(x => x.Name.EqualTo(command.PopSpeech())) ??
 		            Locations.FirstOrDefault(x =>
-			            x.Name.StartsWith(command.SafeRemainingArgument, StringComparison.InvariantCultureIgnoreCase));
+			            x.Name.StartsWith(command.PopSpeech(), StringComparison.InvariantCultureIgnoreCase));
 		if (which is null)
 		{
 			actor.OutputHandler.Send("There is no such starting location.");

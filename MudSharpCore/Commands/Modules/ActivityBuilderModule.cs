@@ -30,23 +30,25 @@ internal class ActivityBuilderModule : BaseBuilderModule
 
 These butchery profiles can be attached to races to show what happens when you use the #3skin#0, #3butcher#0 or #3salvage#0 commands on them. They control what items can be gained and how it all breaks down.
 
+You must also separately make #6butchery products#0 with the #3butcheryproduct#0 command. See that command's helpfile for more information about how to use them.
+
 You can use the following options with this command:
 
-    #3butchery list [+key, -key]#0 - shows all the butchery profiles
-    #3butchery show <which>#0 - shows a butchery profile
-    #3butchery edit <which>#0 - opens a butchery profile for editing
-    #3butchery edit new <name>#0 - creates a new butchery profile
-    #3butchery edit#0 - an alias for #3butchery show#0 on an opened butchery profile
+	#3butchery list [+key, -key]#0 - shows all the butchery profiles
+	#3butchery show <which>#0 - shows a butchery profile
+	#3butchery edit <which>#0 - opens a butchery profile for editing
+	#3butchery edit new <name>#0 - creates a new butchery profile
+	#3butchery edit#0 - an alias for #3butchery show#0 on an opened butchery profile
 	#3butchery clone <which> <name>#0 - clones a butchery profile to a new one
 	#3butchery shallowclone <which> <name>#0 - clones a butchery profile to a new one (excluding products)
-    #3butchery close#0 - closes the currently edited foragable profile
+	#3butchery close#0 - closes the currently edited foragable profile
 	#3butchery set name <name>#0 - renames this profile
 	#3butchery set verb butcher|salvage#0 - changes the verb used for interacting with these corpses
 	#3butchery set tool <tag>#0 - sets the tag of tools required to interact with this
 	#3butchery set skindiff <difficulty>#0 - sets the difficulty of the skinning check
 	#3butchery set can <prog>#0 - sets a prog to control whether someone can butcher this
 	#3butchery set why <prog>#0 - sets a prog for a custom error message on can butcher failure
-	#3butchery set product <which>#0 - toggles a butchery product being included in this profile
+	#3butchery set product <which>#0 - toggles a #6butchery product#0 being included in this profile
 
 For all of the below phase emote echoes, you can use #6$0#0 for the actor, #6$1#0 for the corpse, and #6$2#0 for the tool item.
 
@@ -184,7 +186,7 @@ For all of the below phase emote echoes, you can use #6$0#0 for the actor, #6$1#
 		if (ss.IsFinished)
 		{
 			var editing = actor.CombinedEffectsOfType<BuilderEditingEffect<IRaceButcheryProfile>>()
-			                   .FirstOrDefault();
+							   .FirstOrDefault();
 			if (editing == null)
 			{
 				actor.OutputHandler.Send("Which butchery profile do you want to edit?");
@@ -240,7 +242,7 @@ For all of the below phase emote echoes, you can use #6$0#0 for the actor, #6$1#
 		if (ss.IsFinished)
 		{
 			var editing = actor.CombinedEffectsOfType<BuilderEditingEffect<IRaceButcheryProfile>>()
-			                   .FirstOrDefault();
+							   .FirstOrDefault();
 			if (editing == null)
 			{
 				actor.OutputHandler.Send("Which butchery profile do you want to show?");
@@ -266,7 +268,7 @@ For all of the below phase emote echoes, you can use #6$0#0 for the actor, #6$1#
 	private static void ButcheringSet(ICharacter actor, StringStack ss)
 	{
 		var editing = actor.CombinedEffectsOfType<BuilderEditingEffect<IRaceButcheryProfile>>()
-		                   .FirstOrDefault();
+						   .FirstOrDefault();
 		if (editing == null)
 		{
 			actor.OutputHandler.Send("You are not editing any butchery profiles.");
@@ -279,7 +281,7 @@ For all of the below phase emote echoes, you can use #6$0#0 for the actor, #6$1#
 	private static void ButcheringClose(ICharacter actor)
 	{
 		var editing = actor.CombinedEffectsOfType<BuilderEditingEffect<IRaceButcheryProfile>>()
-		                   .FirstOrDefault();
+						   .FirstOrDefault();
 		if (editing == null)
 		{
 			actor.OutputHandler.Send("You are not editing any butchery profiles.");
@@ -297,13 +299,13 @@ Butchery products are essentially an item or group of items that is produced fro
 
 You can use the following options with this command:
 
-    #3butcheringproduct list [+key, -key]#0 - shows all the butchering products
-    #3butcheringproduct show <which>#0 - shows a butchering product
-    #3butcheringproduct edit <which>#0 - opens a butchering product for editing
-    #3butcheringproduct edit new <name>#0 - creates a new butchering product
-    #3butcheringproduct edit#0 - an alias for #3butcheringproduct show#0 on an opened butchering product
+	#3butcheringproduct list [+key, -key]#0 - shows all the butchering products
+	#3butcheringproduct show <which>#0 - shows a butchering product
+	#3butcheringproduct edit <which>#0 - opens a butchering product for editing
+	#3butcheringproduct edit new <name>#0 - creates a new butchering product
+	#3butcheringproduct edit#0 - an alias for #3butcheringproduct show#0 on an opened butchering product
 	#3butcheringproduct clone <which> <name>#0 - clones a butchering products to a new one
-    #3butcheringproduct close#0 - closes the currently edited butchering product
+	#3butcheringproduct close#0 - closes the currently edited butchering product
 	#3butcheringproduct set name <name>#0 - renames this product
 	#3butcheringproduct set category <category>#0 - changes the category of this product
 	#3butcheringproduct set pelt#0 - toggles whether this is a pelt (i.e. from SKIN) or not (i.e. BUTCHER/SALVAGE)
@@ -426,7 +428,7 @@ You can use the following options with this command:
 		if (ss.IsFinished)
 		{
 			var editing = actor.CombinedEffectsOfType<BuilderEditingEffect<IButcheryProduct>>()
-			                   .FirstOrDefault();
+							   .FirstOrDefault();
 			if (editing == null)
 			{
 				actor.OutputHandler.Send("Which butchery product do you want to edit?");
@@ -532,7 +534,7 @@ You can use the following options with this command:
 		if (ss.IsFinished)
 		{
 			var editing = actor.CombinedEffectsOfType<BuilderEditingEffect<IButcheryProduct>>()
-			                   .FirstOrDefault();
+							   .FirstOrDefault();
 			if (editing == null)
 			{
 				actor.OutputHandler.Send("Which butchery product do you want to show?");
@@ -558,7 +560,7 @@ You can use the following options with this command:
 	private static void ButcheryProductSet(ICharacter actor, StringStack ss)
 	{
 		var editing = actor.CombinedEffectsOfType<BuilderEditingEffect<IButcheryProduct>>()
-		                   .FirstOrDefault();
+						   .FirstOrDefault();
 		if (editing == null)
 		{
 			actor.OutputHandler.Send("You are not editing any butchery products.");
@@ -571,7 +573,7 @@ You can use the following options with this command:
 	private static void ButcheryProductClose(ICharacter actor)
 	{
 		var editing = actor.CombinedEffectsOfType<BuilderEditingEffect<IButcheryProduct>>()
-		                   .FirstOrDefault();
+						   .FirstOrDefault();
 		if (editing == null)
 		{
 			actor.OutputHandler.Send("You are not editing any butchery products.");
@@ -853,29 +855,29 @@ The syntax for this command is as follows:
 
 You can use the following options with this command:
 
-    #3foragable list [+key, -key]#0 - shows all the foragables
-    #3foragable show <which>#0 - shows a foragable
-    #3foragable edit <which>#0 - opens a revision of a foragable
-    #3foragable edit new#0 - creates a new foragable
-    #3foragable edit#0 - an alias for foragable show on an opened foragable
-    #3foragable edit close#0 - closes the currently edited foragable
-    #3foragable edit submit#0 - submits the foragable for review
-    #3foragable edit delete#0 - deletes a non-approved revision
-    #3foragable edit obsolete#0 - marks a foragable as obsolete
-    #3foragable review all|mine|<which>#0 - opens a foragable for review
-    #3foragable review list#0 - shows all the foragables due to review
-    #3foragable review history <which>#0 - shows the history of a foragable
+	#3foragable list [+key, -key]#0 - shows all the foragables
+	#3foragable show <which>#0 - shows a foragable
+	#3foragable edit <which>#0 - opens a revision of a foragable
+	#3foragable edit new#0 - creates a new foragable
+	#3foragable edit#0 - an alias for foragable show on an opened foragable
+	#3foragable edit close#0 - closes the currently edited foragable
+	#3foragable edit submit#0 - submits the foragable for review
+	#3foragable edit delete#0 - deletes a non-approved revision
+	#3foragable edit obsolete#0 - marks a foragable as obsolete
+	#3foragable review all|mine|<which>#0 - opens a foragable for review
+	#3foragable review list#0 - shows all the foragables due to review
+	#3foragable review history <which>#0 - shows the history of a foragable
 	#3foragable set name <name>#0 - renames this foragable
-    #3foragable set proto <which>#0 - sets the proto for this foragable to load
-    #3foragable set chance <#>#0 - the relative weight of this option being found
-    #3foragable set quanity <# or dice>#0 - a number or dice expression for the quantity found
-    #3foragable set difficulty <difficulty>#0 - the difficulty that the result is evaluated against for this item
-    #3foragable set outcome <min> <max>#0 - the minimum and maximum check outcome that this item can appear on
-    #3foragable set types <type1> [<type2>] ... [<typen>]#0 - sets the yield types that this foragable appears against
-    #3foragable set canforage <prog>#0 - sets a prog that controls whether this foragable can be found
-    #3foragable set canforage clear#0 - clears the can-forage prog
-    #3foragable set onforage <prog>#0 - sets a prog that will run when this item is foraged
-    #3foragable set onforage clear#0 - clears the on-forage prog
+	#3foragable set proto <which>#0 - sets the proto for this foragable to load
+	#3foragable set chance <#>#0 - the relative weight of this option being found
+	#3foragable set quanity <# or dice>#0 - a number or dice expression for the quantity found
+	#3foragable set difficulty <difficulty>#0 - the difficulty that the result is evaluated against for this item
+	#3foragable set outcome <min> <max>#0 - the minimum and maximum check outcome that this item can appear on
+	#3foragable set types <type1> [<type2>] ... [<typen>]#0 - sets the yield types that this foragable appears against
+	#3foragable set canforage <prog>#0 - sets a prog that controls whether this foragable can be found
+	#3foragable set canforage clear#0 - clears the can-forage prog
+	#3foragable set onforage <prog>#0 - sets a prog that will run when this item is foraged
+	#3foragable set onforage clear#0 - clears the on-forage prog
 
 {GenericReviewableSearchList}";
 
@@ -925,22 +927,22 @@ See #6cell set forage <id|name>#0 to set a foragable profile at a room level.
 
 You can use the following options with this command:
 
-    #3fp list [+key, -key]#0 - shows all the foragable profiles
-    #3fp show <which>#0 - shows a foragable profile
-    #3fp edit <which>#0 - opens a revision of a foragable profile
-    #3fp edit new#0 - creates a new foragable profile
-    #3fp edit#0 - an alias for fp show on an opened foragable profile
-    #3fp edit close#0 - closes the currently edited foragable profile
-    #3fp edit submit#0 - submits the foragable profile for review
-    #3fp edit delete#0 - deletes a non-approved revision
-    #3fp edit obsolete#0 - marks a foragable profile as obsolete
-    #3fp review all|mine|<which>#0 - opens a foragable profile for review
-    #3fp review list#0 - shows all the foragable profile due to review
-    #3fp review history <which>#0 - shows the history of a foragable profile
+	#3fp list [+key, -key]#0 - shows all the foragable profiles
+	#3fp show <which>#0 - shows a foragable profile
+	#3fp edit <which>#0 - opens a revision of a foragable profile
+	#3fp edit new#0 - creates a new foragable profile
+	#3fp edit#0 - an alias for fp show on an opened foragable profile
+	#3fp edit close#0 - closes the currently edited foragable profile
+	#3fp edit submit#0 - submits the foragable profile for review
+	#3fp edit delete#0 - deletes a non-approved revision
+	#3fp edit obsolete#0 - marks a foragable profile as obsolete
+	#3fp review all|mine|<which>#0 - opens a foragable profile for review
+	#3fp review list#0 - shows all the foragable profile due to review
+	#3fp review history <which>#0 - shows the history of a foragable profile
 	#3fp set name <name>#0 - renames this foragable profile
-    #3fp set yield <which> <max> <hourly regain>#0 - sets up a yield for this profile
-    #3fp set yield <which> 0#0 - removes a yield from this profile
-    #3fp set foragable <which>#0 - toggles a foragable belonging to this profile
+	#3fp set yield <which> <max> <hourly regain>#0 - sets up a yield for this profile
+	#3fp set yield <which> 0#0 - removes a yield from this profile
+	#3fp set foragable <which>#0 - toggles a foragable belonging to this profile
 
 {GenericReviewableSearchList}";
 

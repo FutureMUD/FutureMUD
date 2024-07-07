@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Net;
+using System.Net.Http;
 using System.Text;
 using System.Threading;
 using Microsoft.EntityFrameworkCore;
@@ -40,6 +42,10 @@ using MudSharp.TimeAndDate.Time;
 using MudSharp.FutureProg.Variables;
 using MudSharp.Models;
 using MudSharp.OpenAI;
+using System.IO.Compression;
+using System.Net.Mime;
+using System.Reflection;
+using System.Threading.Tasks;
 
 namespace MudSharp.Commands.Modules;
 
@@ -76,8 +82,8 @@ public class ImplementorModule : Module<ICharacter>
 		var sb = new StringBuilder();
 		sb.AppendLine($"Commands for permission level {minimum.DescribeEnum().ColourName()} and up:");
 		foreach (var group in actor.CommandTree.Commands.TCommands.Values
-		                           .Where(x => x.PermissionRequired >= minimum).GroupBy(x => x.PermissionRequired)
-		                           .OrderBy(x => x.Key))
+								   .Where(x => x.PermissionRequired >= minimum).GroupBy(x => x.PermissionRequired)
+								   .OrderBy(x => x.Key))
 		{
 			sb.AppendLine($"\n{group.Key.DescribeEnum().ColourName()}\n");
 			sb.AppendLineColumns((uint)actor.LineFormatLength, (uint)actor.LineFormatLength / 30,
@@ -146,17 +152,17 @@ public class ImplementorModule : Module<ICharacter>
 	{
 		var sb = new StringBuilder();
 		sb.AppendLine("This line has a little bit of " + "bold text".FluentTagMXP("B") + " as well as something " +
-		              "struck-out".FluentTagMXP("S") + ".");
+					  "struck-out".FluentTagMXP("S") + ".");
 		sb.AppendLine("This line is in a different font family.".FluentTagMXP("FONT", "FACE=\"Times New Roman\""));
 		sb.AppendLine("This line has " + "blinking text".FluentTagMXP("COLOR", "FORE=Blink") + " and text with " +
-		              "red foreground".FluentTagMXP("COLOR", "FORE=Red") + " and " +
-		              "white text on red".FluentTagMXP("COLOR", "FORE=White BACK=Red") + ".");
+					  "red foreground".FluentTagMXP("COLOR", "FORE=Red") + " and " +
+					  "white text on red".FluentTagMXP("COLOR", "FORE=White BACK=Red") + ".");
 		sb.AppendLine("This line contains a " +
-		              "clickable link to google".FluentTagMXP("A",
-			              "HREF=\"http://www.google.com\" hint=\"Hey look, it has a hint!\"") + ".");
+					  "clickable link to google".FluentTagMXP("A",
+						  "HREF=\"http://www.google.com\" hint=\"Hey look, it has a hint!\"") + ".");
 		sb.AppendLine();
 		sb.AppendLine("Image!  " +
-		              MXP.TagMXP("image batman-thumbs-up-o.gif URL=\"http://stream1.gifsoup.com/view3/3414762/\""));
+					  MXP.TagMXP("image batman-thumbs-up-o.gif URL=\"http://stream1.gifsoup.com/view3/3414762/\""));
 		actor.OutputHandler.Send(sb.ToString());
 	}
 
@@ -263,14 +269,18 @@ public class ImplementorModule : Module<ICharacter>
 	#3time#0 - shows the current time where you are
 	#3addtime <timespan>#0 - adds the specified amount of time to all in-game clocks
 	#3seedrooms#0 - loads the 10 rooms with the highest IDs into the new room queue
-    #3failemail#0 - tests the fail email routine
-	#3crash#0 - causes the MUD to crash", AutoHelp.HelpArgOrNoArg)]
+	#3failemail#0 - tests the fail email routine
+	#3crash#0 - causes the MUD to crash
+	#3update#0 - download the latest update and unzip to the Binaries directory", AutoHelp.HelpArgOrNoArg)]
 	[CommandPermission(PermissionLevel.Founder)]
 	protected static void ImpDebug(ICharacter actor, string input)
 	{
 		var ss = new StringStack(input.RemoveFirstWord());
 		switch (ss.PopSpeech().CollapseString().ToLowerInvariant())
 		{
+			case "update":
+				Debug_Update(actor);
+				return;
 			case "crash":
 				Debug_Crash(actor);
 				return;
@@ -382,6 +392,45 @@ public class ImplementorModule : Module<ICharacter>
 				actor.Send("That's not a known debug routine.");
 				return;
 		}
+	}
+
+	private static void Debug_Update(ICharacter actor)
+	{
+		actor.OutputHandler.Send("Downloading and applying the update...");
+		actor.Gameworld.ForceOutgoingMessages();
+		Thread.Sleep(100);
+		using var hc = new HttpClient();
+		using var responseTask = hc.GetAsync(
+			Environment.OSVersion.Platform.In(PlatformID.Unix, PlatformID.MacOSX, PlatformID.Other) ?
+			"https://www.labmud.com/downloads/FutureMUD-Linux.zip" :
+			"https://www.labmud.com/downloads/FutureMUD-Windows.zip");
+		using var stream = Task.Run(() => responseTask).Result.Content.ReadAsStream();
+		var root = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
+		using var zip = File.Open(Path.Combine(root, "FutureMUD Update.zip"), FileMode.Create);
+		stream.CopyTo(zip);
+		var toPath = Path.Combine(root, "Binaries");
+		if (!Directory.Exists(toPath))
+		{
+			if (Environment.OSVersion.Platform == PlatformID.Unix)
+			{
+				Directory.CreateDirectory(toPath, UnixFileMode.UserWrite | UnixFileMode.UserRead | UnixFileMode.UserExecute | UnixFileMode.SetUser | UnixFileMode.SetGroup | UnixFileMode.GroupExecute | UnixFileMode.GroupRead | UnixFileMode.GroupWrite);
+			}
+			else
+			{
+				Directory.CreateDirectory(toPath);
+			}
+		}
+
+		zip.Close();
+
+		using var archive = ZipFile.OpenRead(Path.Combine(root, "FutureMUD Update.zip"));
+		foreach (var entry in archive.Entries)
+		{
+			var destination = Path.GetFullPath(entry.FullName, toPath);
+			entry.ExtractToFile(destination, true);
+		}
+
+		actor.OutputHandler.Send("Done.");
 	}
 
 	private static void Debug_Crash(ICharacter actor)
@@ -569,7 +618,7 @@ public class ImplementorModule : Module<ICharacter>
 				foreach (var part in appendageParts)
 				{
 					chances[part] += alignmentMultiplier * 0.3333333333333333333333333 * part.RelativeHitChance /
-					                 appendageTotalChance;
+									 appendageTotalChance;
 					limbChances[target.Body.GetLimbFor(part)] += alignmentMultiplier * 0.3333333333333333333333333 *
 						part.RelativeHitChance / appendageTotalChance;
 				}
@@ -580,7 +629,7 @@ public class ImplementorModule : Module<ICharacter>
 					foreach (var part in target.Body.Bodyparts.Where(x => x.RelativeHitChance > 0))
 					{
 						chances[part] += alignmentMultiplier * 0.3333333333333333333333333 * part.RelativeHitChance /
-						                 totalHitChance;
+										 totalHitChance;
 						limbChances[target.Body.GetLimbFor(part)] += alignmentMultiplier * 0.3333333333333333333333333 *
 							part.RelativeHitChance / totalHitChance;
 					}
@@ -642,10 +691,10 @@ public class ImplementorModule : Module<ICharacter>
 			{
 				var PCsToLoad =
 					FMDB.Context.Characters.Where(
-						    x => !x.NpcsCharacter.Any() && x.Guest == null && !onlinePCIDs.Contains(x.Id) &&
-						         (x.Status == (int)CharacterStatus.Active ||
-						          x.Status == (int)CharacterStatus.Suspended))
-					    .OrderBy(x => x.Id);
+							x => !x.NpcsCharacter.Any() && x.Guest == null && !onlinePCIDs.Contains(x.Id) &&
+								 (x.Status == (int)CharacterStatus.Active ||
+								  x.Status == (int)CharacterStatus.Suspended))
+						.OrderBy(x => x.Id);
 				var i = 0;
 				while (true)
 				{
@@ -866,7 +915,7 @@ You could run:
 And the result would be a number with the value of 33.</p>");
 
 		foreach (var compiler in CollectionExtensionFunction.FunctionCompilerInformations
-		                                                    .OrderBy(x => x.FunctionName))
+															.OrderBy(x => x.FunctionName))
 		{
 			html.WriteLine($"<details><summary>{compiler.FunctionName.ToUpperInvariant()}</summary><p>{compiler.FunctionHelp}</p></details>");
 		}
@@ -906,10 +955,10 @@ div.function-generalhelp {
 		html.WriteLine("<body>\n<h1>FutureMUD Type Help Reference</h1>");
 
 		foreach (var type in FutureProgVariableTypes.Anything
-		                                            .GetAllFlags()
-		                                            .OrderBy(x => x is FutureProgVariableTypes.Collection or FutureProgVariableTypes.CollectionDictionary or FutureProgVariableTypes.Dictionary)
-		                                            .ThenBy(x => x.Describe())
-		                                            .ToList())
+													.GetAllFlags()
+													.OrderBy(x => x is FutureProgVariableTypes.Collection or FutureProgVariableTypes.CollectionDictionary or FutureProgVariableTypes.Dictionary)
+													.ThenBy(x => x.Describe())
+													.ToList())
 		{
 			var info = FutureProgVariable.DotReferenceCompileInfos.GetValueOrDefault(type, null);
 			if (info is null)
@@ -976,7 +1025,7 @@ div.function-generalhelp {
 				foreach (var item in function.Parameters)
 				{
 					list.Add(list.NameOrAppendNumberToName(item.Describe().ToLowerInvariant()
-					                                           .IncrementNumberOrAddNumber()));
+															   .IncrementNumberOrAddNumber()));
 				}
 
 				parameterNames = list;
@@ -1097,7 +1146,7 @@ div.function-generalhelp {
 					foreach (var item in function.Parameters)
 					{
 						list.Add(list.NameOrAppendNumberToName(item.Describe().ToLowerInvariant()
-						                                           .IncrementNumberOrAddNumber()));
+																   .IncrementNumberOrAddNumber()));
 					}
 
 					parameterNames = list;
@@ -1292,7 +1341,7 @@ div.function-generalhelp {
 		target.RemoveAllEffects(x => x.IsEffectType<INoDreamEffect>());
 		var dream =
 			actor.Gameworld.Dreams.Where(x => x.CanDream(target))
-			     .GetWeightedRandom(x => x.Priority);
+				 .GetWeightedRandom(x => x.Priority);
 		if (dream == null)
 		{
 			actor.Send("No valid dreams for {0}", target.HowSeen(actor));
@@ -1488,10 +1537,10 @@ div.function-generalhelp {
 			{
 				var PCsToLoad =
 					FMDB.Context.Characters.Where(
-						    x => !x.NpcsCharacter.Any() && x.Guest == null && !onlinePCIDs.Contains(x.Id) &&
-						         (x.Status == (int)CharacterStatus.Active ||
-						          x.Status == (int)CharacterStatus.Suspended))
-					    .OrderBy(x => x.Id);
+							x => !x.NpcsCharacter.Any() && x.Guest == null && !onlinePCIDs.Contains(x.Id) &&
+								 (x.Status == (int)CharacterStatus.Active ||
+								  x.Status == (int)CharacterStatus.Suspended))
+						.OrderBy(x => x.Id);
 				var i = 0;
 				while (true)
 				{
@@ -1566,7 +1615,7 @@ div.function-generalhelp {
 			using (new FMDB())
 			{
 				foreach (var npc in FMDB.Context.Npcs.Include(x => x.Character.Body)
-				                        .Where(x => x.Character.State == (int)CharacterState.Dead).ToList())
+										.Where(x => x.Character.State == (int)CharacterState.Dead).ToList())
 				{
 					if (corpses.Any(x => x.OriginalCharacter.Id == npc.CharacterId))
 					{
@@ -1833,7 +1882,7 @@ The syntax is as follows:
 
 		var modelText = ss.SafeRemainingArgument;
 		var model = models.FirstOrDefault(x => x.EqualTo(modelText)) ??
-		            models.FirstOrDefault(x => x.StartsWith(modelText, StringComparison.InvariantCultureIgnoreCase));
+					models.FirstOrDefault(x => x.StartsWith(modelText, StringComparison.InvariantCultureIgnoreCase));
 		if (model is null)
 		{
 			actor.OutputHandler.Send($"There is no such model.\nThe valid models are {models.Select(x => x.ColourName()).ListToString()}.");
@@ -1982,7 +2031,7 @@ The syntax is as follows:
 
 		var modelText = ss.SafeRemainingArgument;
 		var model = models.FirstOrDefault(x => x.EqualTo(modelText)) ??
-		            models.FirstOrDefault(x => x.StartsWith(modelText, StringComparison.InvariantCultureIgnoreCase));
+					models.FirstOrDefault(x => x.StartsWith(modelText, StringComparison.InvariantCultureIgnoreCase));
 		if (model is null)
 		{
 			actor.OutputHandler.Send($"There is no such model.\nThe valid models are {models.Select(x => x.ColourName()).ListToString()}.");

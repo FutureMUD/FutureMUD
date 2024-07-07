@@ -180,7 +180,7 @@ public abstract class BaseTool : LateInitialisingItem, ICraftTool
 	private bool BuildingCommandUseTool(ICharacter actor, StringStack command)
 	{
 		UseToolDuration = !UseToolDuration;
-		Changed = true;
+		ToolChanged = true;
 		actor.OutputHandler.Send(
 			$"This tool will {(UseToolDuration ? "now" : "no longer")} use up duration on hand/power tool components.");
 		return true;

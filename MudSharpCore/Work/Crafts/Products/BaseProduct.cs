@@ -223,7 +223,7 @@ public abstract class BaseProduct : LateInitialisingItem, ICraftProduct
 		if (command.Peek().EqualToAny("none", "clear", "reset", "off"))
 		{
 			MaterialDefiningInputIndex = null;
-			Changed = true;
+			ProductChanged = true;
 			actor.OutputHandler.Send(
 				"This craft product will no longer use any input to determine its material, instead loading with the base material.");
 			return true;
@@ -250,7 +250,7 @@ public abstract class BaseProduct : LateInitialisingItem, ICraftProduct
 		}
 
 		MaterialDefiningInputIndex = ivalue - 1;
-		Changed = true;
+		ProductChanged = true;
 		actor.OutputHandler.Send(
 			$"This product will now use input $i{ivalue} ({input.Name}) to determine which material it is made from.");
 		return true;

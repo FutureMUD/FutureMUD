@@ -214,7 +214,7 @@ public class BloodTypingProduct : BaseProduct
 		}
 
 		Model = model;
-		Changed = true;
+		ProductChanged = true;
 		actor.OutputHandler.Send(
 			$"This blood typing product will now work with the {Model.Name.Colour(Telnet.BoldRed)} blood model.");
 		return true;

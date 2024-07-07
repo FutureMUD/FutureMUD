@@ -120,7 +120,7 @@ public class CommodityProduct : BaseProduct
 		if (command.SafeRemainingArgument.EqualTo("none"))
 		{
 			Tag = null;
-			Changed = true;
+			ProductChanged = true;
 			actor.OutputHandler.Send("This product will now not set any tag on the commodity pile.");
 			return true;
 		}
@@ -133,7 +133,7 @@ public class CommodityProduct : BaseProduct
 		}
 
 		Tag = tag;
-		Changed = true;
+		ProductChanged = true;
 		actor.OutputHandler.Send(
 			$"This product will set the {Tag.FullName.ColourName()} tag on the loaded commodity pile.");
 		return true;

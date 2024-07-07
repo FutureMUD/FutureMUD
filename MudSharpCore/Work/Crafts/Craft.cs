@@ -487,11 +487,11 @@ public class Craft : Framework.Revision.EditableItem, ICraft
 	public IFutureProg OnUseProgComplete { get; set; }
 	public IFutureProg OnUseProgCancel { get; set; }
 
-	private readonly Dictionary<long, int> _craftInputConsumedPhases = new();
-	private readonly Dictionary<long, int> _craftProductProducedPhases = new();
-	private readonly Dictionary<long, int> _craftFailProductProducedPhases = new();
-	private readonly Dictionary<int, HashSet<long>> _craftToolUsagePhases = new();
-	private readonly Dictionary<int, HashSet<long>> _craftToolUsageFailPhases = new();
+	private readonly DictionaryWithDefault<long, int> _craftInputConsumedPhases = new();
+	private readonly DictionaryWithDefault<long, int> _craftProductProducedPhases = new();
+	private readonly DictionaryWithDefault<long, int> _craftFailProductProducedPhases = new();
+	private readonly DictionaryWithDefault<int, HashSet<long>> _craftToolUsagePhases = new();
+	private readonly DictionaryWithDefault<int, HashSet<long>> _craftToolUsageFailPhases = new();
 
 	private static readonly Regex InputInEchoRegex = new(@"\$i(?<id>\d+)", RegexOptions.IgnoreCase);
 	private static readonly Regex ToolInEchoRegex = new(@"\$t(?<id>\d+)", RegexOptions.IgnoreCase);
@@ -1022,16 +1022,6 @@ public class Craft : Framework.Revision.EditableItem, ICraft
 	private readonly List<string> _failPhaseEchoes;
 	private readonly List<string> _phaseEchoes;
 
-	public new bool Changed
-	{
-		get => base.Changed;
-		set
-		{
-			CalculateCraftIsValid();
-			base.Changed = value;
-		}
-	}
-
 	public bool CraftChanged
 	{
 		get => Changed;
@@ -1491,7 +1481,7 @@ public class Craft : Framework.Revision.EditableItem, ICraft
 	private bool BuildingCommandPractical(ICharacter actor)
 	{
 		IsPracticalCheck = !IsPracticalCheck;
-		Changed = true;
+		CraftChanged = true;
 		if (IsPracticalCheck)
 		{
 			actor.OutputHandler.Send(
@@ -2069,7 +2059,7 @@ public class Craft : Framework.Revision.EditableItem, ICraft
 		}
 
 		FailThreshold = outcome;
-		Changed = true;
+		CraftChanged = true;
 		actor.OutputHandler.Send(
 			$"This craft will now be considered to have failed it an outcome of {FailThreshold.DescribeColour()} or worse is rolled on the check.");
 		return true;

@@ -20,7 +20,7 @@ namespace MudSharp.Framework {
         public static string DescribeEnum(this Enum value, bool explodeCamelCase = false, ANSIColour colour = null)
         {
             var type = value.GetType();
-            if (type.GetCustomAttribute<FlagsAttribute>() is not null)
+            if (type.GetCustomAttribute<FlagsAttribute>() is not null && !Enum.IsDefined(value.GetType(), value))
             {
                 return value.GetSingleFlags()
                     .Where(x => value.HasFlag(x))

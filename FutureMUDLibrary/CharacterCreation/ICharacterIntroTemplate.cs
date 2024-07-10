@@ -2,11 +2,12 @@
 using System.Collections.Generic;
 using MudSharp.Character;
 using MudSharp.Framework;
+using MudSharp.Framework.Revision;
 using MudSharp.FutureProg;
 
 namespace MudSharp.CharacterCreation
 {
-    public interface ICharacterIntroTemplate : IFrameworkItem
+    public interface ICharacterIntroTemplate : IEditableItem
     {
         bool AppliesToCharacter(ICharacterTemplate template);
         bool AppliesToCharacter(ICharacter character);

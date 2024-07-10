@@ -16,6 +16,7 @@ using MudSharp.Database;
 using MudSharp.Economy;
 using MudSharp.Economy.Currency;
 using MudSharp.Economy.Property;
+using MudSharp.Effects;
 using MudSharp.Effects.Concrete;
 using MudSharp.Form.Shape;
 using MudSharp.Framework;
@@ -46,6 +47,77 @@ namespace MudSharp.Commands.Helpers;
 
 public class EditableItemHelper
 {
+	public static EditableItemHelper CharacterIntroTemplateHelper { get; } = new()
+	{
+		ItemName = "Character Intro Template",
+		ItemNamePlural = "Character Intro Templates",
+		SetEditableItemAction = (actor, item) =>
+		{
+			actor.RemoveAllEffects<BuilderEditingEffect<ICharacterIntroTemplate>>();
+			if (item == null)
+			{
+				return;
+			}
+
+			actor.AddEffect(new BuilderEditingEffect<ICharacterIntroTemplate>(actor) { EditingItem = (ICharacterIntroTemplate)item });
+		},
+		GetEditableItemFunc = actor =>
+			actor.CombinedEffectsOfType<BuilderEditingEffect<ICharacterIntroTemplate>>().FirstOrDefault()?.EditingItem,
+		GetAllEditableItems = actor => actor.Gameworld.CharacterIntroTemplates.ToList(),
+		GetEditableItemByIdFunc = (actor, id) => actor.Gameworld.CharacterIntroTemplates.Get(id),
+		GetEditableItemByIdOrNameFunc = (actor, input) => actor.Gameworld.CharacterIntroTemplates.GetByIdOrName(input),
+		AddItemToGameWorldAction = item => item.Gameworld.Add((ICharacterIntroTemplate)item),
+		CastToType = typeof(ICharacterIntroTemplate),
+		EditableNewAction = (actor, input) =>
+		{
+			if (input.IsFinished)
+			{
+				actor.OutputHandler.Send("What name do you want to give to the character intro template?");
+				return;
+			}
+
+			var name = input.SafeRemainingArgument.TitleCase();
+			if (actor.Gameworld.CharacterIntroTemplates.Any(x => x.Name.EqualTo(name)))
+			{
+				actor.OutputHandler.Send($"There is already a character intro template with the name {name.ColourName()}. Names must be unique.");
+				return;
+			}
+
+			var cit = new CharacterCreation.CharacterIntroTemplate(actor.Gameworld, name);
+			actor.Gameworld.Add(cit);
+			actor.RemoveAllEffects(x => x.IsEffectType<IBuilderEditingEffect<ICharacterIntroTemplate>>());
+			actor.AddEffect(new BuilderEditingEffect<ICharacterIntroTemplate>(actor){EditingItem = cit});
+			actor.OutputHandler.Send($"You create a new character intro template called {name.ColourName()}, which you are now editing.");
+		},
+		EditableCloneAction = null,
+		GetListTableHeaderFunc = character => new List<string>
+		{
+			"Id",
+			"Name",
+			"Priority",
+			"Prog",
+			"# Echoes",
+			"Length"
+		},
+
+		GetListTableContentsFunc = (character, protos) =>
+			from proto in protos.OfType<ICharacterIntroTemplate>()
+			select new List<string>
+			{
+				proto.Id.ToString("N0", character),
+				proto.Name,
+				proto.ResolutionPriority.ToString("N0", character),
+				proto.AppliesToCharacterProg.MXPClickableFunctionName(),
+				proto.Echoes.Count.ToString("N0", character),
+				TimeSpan.FromSeconds(proto.Delays.Sum(x => x.TotalSeconds)).DescribePreciseBrief(character)
+
+			},
+
+		CustomSearch = (protos, keyword, gameworld) => protos,
+		GetEditHeader = item => $"Character Intro Template #{item.Id:N0}",
+		DefaultCommandHelp = ChargenModule.IntroTemplateHelp
+	};
+
 	public static EditableItemHelper RaceHelper { get; } = new()
 	{
 		ItemName = "Race",
@@ -162,17 +234,17 @@ public class EditableItemHelper
 		},
 
 		GetListTableContentsFunc = (character, protos) => from proto in protos.OfType<IRace>()
-		                                                  select new List<string>
-		                                                  {
-			                                                  proto.Id.ToString("N0", character),
-			                                                  proto.Name,
-			                                                  proto.ParentRace?.Name ?? "",
-			                                                  proto.BreathingStrategy.Name.TitleCase(),
-			                                                  proto.CanSwim.ToString(),
-			                                                  proto.CanClimb.ToString(),
+														  select new List<string>
+														  {
+															  proto.Id.ToString("N0", character),
+															  proto.Name,
+															  proto.ParentRace?.Name ?? "",
+															  proto.BreathingStrategy.Name.TitleCase(),
+															  proto.CanSwim.ToString(),
+															  proto.CanClimb.ToString(),
 															  proto.BaseBody.Name,
 															  character.Gameworld.Ethnicities.Count(x => proto.SameRace(x.ParentRace)).ToString("N0", character).MXPSend($"ethnicity list {proto.Name}")
-		                                                  },
+														  },
 
 		CustomSearch = (protos, keyword, gameworld) =>
 		{
@@ -180,34 +252,34 @@ public class EditableItemHelper
 			{
 				keyword = keyword.Substring(1);
 				return protos
-				       .Cast<IRace>()
-				       .Where(x =>
-					       x.Name.Contains(keyword, StringComparison.InvariantCultureIgnoreCase) ||
-					       x.Description.Contains(keyword))
-				       .Cast<IEditableItem>()
-				       .ToList();
+					   .Cast<IRace>()
+					   .Where(x =>
+						   x.Name.Contains(keyword, StringComparison.InvariantCultureIgnoreCase) ||
+						   x.Description.Contains(keyword))
+					   .Cast<IEditableItem>()
+					   .ToList();
 			}
 
 			if (keyword.Length > 1 && keyword[0] == '-')
 			{
 				keyword = keyword.Substring(1);
 				return protos
-				       .Cast<IRace>()
-				       .Where(x =>
-					       !x.Name.Contains(keyword, StringComparison.InvariantCultureIgnoreCase) &&
-					       !x.Description.Contains(keyword))
-				       .Cast<IEditableItem>()
-				       .ToList();
+					   .Cast<IRace>()
+					   .Where(x =>
+						   !x.Name.Contains(keyword, StringComparison.InvariantCultureIgnoreCase) &&
+						   !x.Description.Contains(keyword))
+					   .Cast<IEditableItem>()
+					   .ToList();
 			}
 
 			var race = gameworld.Races.GetByIdOrName(keyword);
 			if (race is not null)
 			{
 				return protos
-				       .Cast<IRace>()
-				       .Where(x => x.ParentRace?.SameRace(race) == true)
-				       .Cast<IEditableItem>()
-				       .ToList();
+					   .Cast<IRace>()
+					   .Where(x => x.ParentRace?.SameRace(race) == true)
+					   .Cast<IEditableItem>()
+					   .ToList();
 			}
 
 			return protos;
@@ -272,11 +344,11 @@ public class EditableItemHelper
 		},
 
 		GetListTableContentsFunc = (character, protos) => from proto in protos.OfType<IBodypartShape>()
-		                                                  select new List<string>
-		                                                  {
-			                                                  proto.Id.ToString("N0", character),
-			                                                  proto.Name
-		                                                  },
+														  select new List<string>
+														  {
+															  proto.Id.ToString("N0", character),
+															  proto.Name
+														  },
 
 		CustomSearch = (protos, keyword, gameworld) => protos,
 		GetEditHeader = item => $"Bodypart Shape #{item.Id:N0} ({item.Name})",
@@ -426,17 +498,17 @@ public class EditableItemHelper
 		},
 
 		GetListTableContentsFunc = (character, protos) => from proto in protos.OfType<IWeaponType>()
-		                                                  select new List<string>
-		                                                  {
-			                                                  proto.Id.ToString("N0", character),
-			                                                  proto.Name,
-			                                                  proto.Classification.Describe(),
-			                                                  proto.AttackTrait?.Name ?? "None",
-			                                                  proto.ParryTrait?.Name ?? "None",
-			                                                  proto.ParryBonus.ToBonusString(),
-			                                                  proto.Reach.ToString("N0", character),
-			                                                  proto.Attacks.Count().ToString("N0", character)
-		                                                  },
+														  select new List<string>
+														  {
+															  proto.Id.ToString("N0", character),
+															  proto.Name,
+															  proto.Classification.Describe(),
+															  proto.AttackTrait?.Name ?? "None",
+															  proto.ParryTrait?.Name ?? "None",
+															  proto.ParryBonus.ToBonusString(),
+															  proto.Reach.ToString("N0", character),
+															  proto.Attacks.Count().ToString("N0", character)
+														  },
 
 		CustomSearch = (protos, keyword, gameworld) => protos,
 		GetEditHeader = item => $"Weapon Type #{item.Id:N0} ({item.Name})",
@@ -663,18 +735,18 @@ public class EditableItemHelper
 		},
 
 		GetListTableContentsFunc = (character, protos) => from proto in protos.OfType<IAmmunitionType>()
-		                                                  select new List<string>
-		                                                  {
-			                                                  proto.Id.ToString("N0", character),
-			                                                  proto.Name,
-			                                                  proto.SpecificType,
-			                                                  proto.RangedWeaponTypes.Select(x => x.Describe())
-			                                                       .ListToCommaSeparatedValues(", "),
-			                                                  proto.BaseAccuracy.ToBonusString(),
-			                                                  proto.DamageProfile.DamageType.Describe(),
-			                                                  proto.DamageProfile.DamageExpression.Formula
-			                                                       .OriginalExpression
-		                                                  },
+														  select new List<string>
+														  {
+															  proto.Id.ToString("N0", character),
+															  proto.Name,
+															  proto.SpecificType,
+															  proto.RangedWeaponTypes.Select(x => x.Describe())
+																   .ListToCommaSeparatedValues(", "),
+															  proto.BaseAccuracy.ToBonusString(),
+															  proto.DamageProfile.DamageType.Describe(),
+															  proto.DamageProfile.DamageExpression.Formula
+																   .OriginalExpression
+														  },
 
 		CustomSearch = (protos, keyword, gameworld) => protos,
 		GetEditHeader = item => $"Ammunition Type #{item.Id:N0} ({item.Name})",
@@ -770,12 +842,12 @@ public class EditableItemHelper
 		},
 
 		GetListTableContentsFunc = (character, protos) => from proto in protos.OfType<INPCSpawner>()
-		                                                  select new List<string>
-		                                                  {
-			                                                  proto.Id.ToString("N0", character),
-			                                                  proto.Name,
-			                                                  proto.IsActive.ToColouredString()
-		                                                  },
+														  select new List<string>
+														  {
+															  proto.Id.ToString("N0", character),
+															  proto.Name,
+															  proto.IsActive.ToColouredString()
+														  },
 
 		CustomSearch = (protos, keyword, gameworld) => protos,
 		GetEditHeader = item => $"NPC Spawner #{item.Id:N0} ({item.Name})",
@@ -873,25 +945,25 @@ public class EditableItemHelper
 		},
 
 		GetListTableContentsFunc = (character, protos) => from proto in protos.OfType<IChargenAdvice>()
-		                                                  select new List<string>
-		                                                  {
-			                                                  proto.Id.ToString("N0", character),
-			                                                  proto.AdviceTitle,
-			                                                  proto.ShouldShowAdviceProg?.MXPClickableFunctionName() ??
-			                                                  "None",
-			                                                  proto.Gameworld.Races
-			                                                       .Count(x => x.ChargenAdvices.Contains(proto))
-			                                                       .ToString("N0", character),
-			                                                  proto.Gameworld.Cultures
-			                                                       .Count(x => x.ChargenAdvices.Contains(proto))
-			                                                       .ToString("N0", character),
-			                                                  proto.Gameworld.Ethnicities
-			                                                       .Count(x => x.ChargenAdvices.Contains(proto))
-			                                                       .ToString("N0", character),
-			                                                  proto.Gameworld.Roles
-			                                                       .Count(x => x.ChargenAdvices.Contains(proto))
-			                                                       .ToString("N0", character)
-		                                                  },
+														  select new List<string>
+														  {
+															  proto.Id.ToString("N0", character),
+															  proto.AdviceTitle,
+															  proto.ShouldShowAdviceProg?.MXPClickableFunctionName() ??
+															  "None",
+															  proto.Gameworld.Races
+																   .Count(x => x.ChargenAdvices.Contains(proto))
+																   .ToString("N0", character),
+															  proto.Gameworld.Cultures
+																   .Count(x => x.ChargenAdvices.Contains(proto))
+																   .ToString("N0", character),
+															  proto.Gameworld.Ethnicities
+																   .Count(x => x.ChargenAdvices.Contains(proto))
+																   .ToString("N0", character),
+															  proto.Gameworld.Roles
+																   .Count(x => x.ChargenAdvices.Contains(proto))
+																   .ToString("N0", character)
+														  },
 
 		CustomSearch = (protos, keyword, gameworld) => protos,
 		GetEditHeader = item => $"Chargen Advice #{item.Id:N0} ({item.Name})",
@@ -1006,12 +1078,12 @@ public class EditableItemHelper
 		},
 
 		GetListTableContentsFunc = (character, protos) => from proto in protos.OfType<IProperty>()
-		                                                  select new List<string>
-		                                                  {
-			                                                  proto.Id.ToString("N0", character),
-			                                                  proto.Name,
-			                                                  proto.EconomicZone.Name
-		                                                  },
+														  select new List<string>
+														  {
+															  proto.Id.ToString("N0", character),
+															  proto.Name,
+															  proto.EconomicZone.Name
+														  },
 
 		CustomSearch = (protos, keyword, gameworld) => protos,
 		GetEditHeader = item => $"Property #{item.Id:N0} ({item.Name})",
@@ -1104,12 +1176,12 @@ public class EditableItemHelper
 		},
 
 		GetListTableContentsFunc = (character, protos) => from proto in protos.OfType<IAuctionHouse>()
-		                                                  select new List<string>
-		                                                  {
-			                                                  proto.Id.ToString("N0", character),
-			                                                  proto.Name,
-			                                                  proto.EconomicZone.Name
-		                                                  },
+														  select new List<string>
+														  {
+															  proto.Id.ToString("N0", character),
+															  proto.Name,
+															  proto.EconomicZone.Name
+														  },
 
 		CustomSearch = (protos, keyword, gameworld) => protos,
 		GetEditHeader = item => $"Auction House #{item.Id:N0} ({item.Name})",
@@ -1231,13 +1303,13 @@ public class EditableItemHelper
 		},
 
 		GetListTableContentsFunc = (character, protos) => from proto in protos.OfType<IBank>()
-		                                                  select new List<string>
-		                                                  {
-			                                                  proto.Id.ToString("N0", character),
-			                                                  proto.Name,
-			                                                  proto.EconomicZone.Name,
-			                                                  proto.BankAccounts.Count().ToString("N0", character)
-		                                                  },
+														  select new List<string>
+														  {
+															  proto.Id.ToString("N0", character),
+															  proto.Name,
+															  proto.EconomicZone.Name,
+															  proto.BankAccounts.Count().ToString("N0", character)
+														  },
 
 		CustomSearch = (protos, keyword, gameworld) => protos,
 		GetEditHeader = item => $"Bank #{item.Id:N0} ({item.Name})",
@@ -1355,13 +1427,13 @@ public class EditableItemHelper
 		},
 
 		GetListTableContentsFunc = (character, protos) => from proto in protos.OfType<IMagicSpell>()
-		                                                  select new List<string>
-		                                                  {
-			                                                  proto.Id.ToString("N0", character),
-			                                                  proto.Name,
-			                                                  proto.Blurb,
-			                                                  proto.School.Name
-		                                                  },
+														  select new List<string>
+														  {
+															  proto.Id.ToString("N0", character),
+															  proto.Name,
+															  proto.Blurb,
+															  proto.School.Name
+														  },
 
 		CustomSearch = (protos, keyword, gameworld) => protos,
 
@@ -1369,15 +1441,15 @@ public class EditableItemHelper
 
 The core syntax is as follows:
 
-    magic spell list - shows all magic spells
-    magic spell edit new <name> <school> - creates a new magic spell
-    magic spell clone <old> <new> - clones an existing magic spell
-    magic spell edit <which> - begins editing a magic spell
-    magic spell close - closes an editing magic spell
-    magic spell show <which> - shows builder information about a spell
-    magic spell show - shows builder information about the currently edited spell
-    magic spell edit - an alias for magic spell show (with no args)
-    magic spell set <...> - edits the properties of a magic spell",
+	magic spell list - shows all magic spells
+	magic spell edit new <name> <school> - creates a new magic spell
+	magic spell clone <old> <new> - clones an existing magic spell
+	magic spell edit <which> - begins editing a magic spell
+	magic spell close - closes an editing magic spell
+	magic spell show <which> - shows builder information about a spell
+	magic spell show - shows builder information about the currently edited spell
+	magic spell edit - an alias for magic spell show (with no args)
+	magic spell set <...> - edits the properties of a magic spell",
 
 		GetEditHeader = item => $"Magic Spell #{item.Id:N0} ({item.Name})"
 	};
@@ -1521,15 +1593,15 @@ The core syntax is as follows:
 
 The core syntax is as follows:
 
-    #3magic school list - shows all magic schools
-    #3magic school edit new <name> <school>#0 - creates a new magic school
-    #3magic school clone <old> <new>#0 - clones an existing magic school
-    #3magic school edit <which>#0 - begins editing a magic school
-    #3magic school close#0 - closes an editing magic school
-    #3magic school show <which>#0 - shows builder information about a school
-    #3magic school show#0 - shows builder information about the currently edited school
-    #3magic school edit#0 - an alias for magic school show (with no args)
-    #3magic school set name <name>#0 - renames this school
+	#3magic school list - shows all magic schools
+	#3magic school edit new <name> <school>#0 - creates a new magic school
+	#3magic school clone <old> <new>#0 - clones an existing magic school
+	#3magic school edit <which>#0 - begins editing a magic school
+	#3magic school close#0 - closes an editing magic school
+	#3magic school show <which>#0 - shows builder information about a school
+	#3magic school show#0 - shows builder information about the currently edited school
+	#3magic school edit#0 - an alias for magic school show (with no args)
+	#3magic school set name <name>#0 - renames this school
 	#3magic school set parent <which>#0 - sets a parent school
 	#3magic school set parent none#0 - clears a parent school
 	#3magic school set adjective <which>#0 - sets the adjective used to refer to powers in this school
@@ -1638,15 +1710,15 @@ The core syntax is as follows:
 
 The core syntax is as follows:
 
-    #3magic capability list - shows all magic capabilities
-    #3magic capability edit new <type> <name>`#0 - creates a new magic capability
-    #3magic capability clone <old> <new>#0 - clones an existing magic capability
-    #3magic capability edit <which>#0 - begins editing a magic capability
-    #3magic capability close#0 - closes an editing magic capability
-    #3magic capability show <which>#0 - shows builder information about a capability
-    #3magic capability show#0 - shows builder information about the currently edited capability
-    #3magic capability edit#0 - an alias for magic capability show (with no args)
-    #3magic capability set ...#0 - edits the properties of a magic capability. See #3magic capability set ?#0 for more info.",
+	#3magic capability list - shows all magic capabilities
+	#3magic capability edit new <type> <name>`#0 - creates a new magic capability
+	#3magic capability clone <old> <new>#0 - clones an existing magic capability
+	#3magic capability edit <which>#0 - begins editing a magic capability
+	#3magic capability close#0 - closes an editing magic capability
+	#3magic capability show <which>#0 - shows builder information about a capability
+	#3magic capability show#0 - shows builder information about the currently edited capability
+	#3magic capability edit#0 - an alias for magic capability show (with no args)
+	#3magic capability set ...#0 - edits the properties of a magic capability. See #3magic capability set ?#0 for more info.",
 
 		GetEditHeader = item => $"Magic Capability #{item.Id:N0} ({item.Name})"
 	};
@@ -1761,15 +1833,15 @@ The core syntax is as follows:
 
 The core syntax is as follows:
 
-    #3magic resource list - shows all magic resources
-    #3magic resource edit new <type> <name> <shortname>#0 - creates a new magic resource
-    #3magic resource clone <old> <new>#0 - clones an existing magic resource
-    #3magic resource edit <which>#0 - begins editing a magic resource
-    #3magic resource close#0 - closes an editing magic resource
-    #3magic resource show <which>#0 - shows builder information about a resource
-    #3magic resource show#0 - shows builder information about the currently edited resource
-    #3magic resource edit#0 - an alias for magic resource show (with no args)
-    #3magic resource set ...#0 - edits the properties of a magic resource. See #3magic resource set ?#0 for more info.",
+	#3magic resource list - shows all magic resources
+	#3magic resource edit new <type> <name> <shortname>#0 - creates a new magic resource
+	#3magic resource clone <old> <new>#0 - clones an existing magic resource
+	#3magic resource edit <which>#0 - begins editing a magic resource
+	#3magic resource close#0 - closes an editing magic resource
+	#3magic resource show <which>#0 - shows builder information about a resource
+	#3magic resource show#0 - shows builder information about the currently edited resource
+	#3magic resource edit#0 - an alias for magic resource show (with no args)
+	#3magic resource set ...#0 - edits the properties of a magic resource. See #3magic resource set ?#0 for more info.",
 
 		GetEditHeader = item => $"Magic Resource #{item.Id:N0} ({item.Name})"
 	};
@@ -1869,15 +1941,15 @@ The core syntax is as follows:
 
 The core syntax is as follows:
 
-    #3magic regenerator list - shows all magic regenerators
-    #3magic regenerator edit new <type> <name> <resource>#0 - creates a new magic regenerator
-    #3magic regenerator clone <old> <new>#0 - clones an existing magic regenerator
-    #3magic regenerator edit <which>#0 - begins editing a magic regenerator
-    #3magic regenerator close#0 - closes an editing magic regenerator
-    #3magic regenerator show <which>#0 - shows builder information about a regenerator
-    #3magic regenerator show#0 - shows builder information about the currently edited regenerator
-    #3magic regenerator edit#0 - an alias for magic regenerator show (with no args)
-    #3magic regenerator set ...#0 - edits the properties of a magic regenerator. See #3magic regenerator set ?#0 for more info.",
+	#3magic regenerator list - shows all magic regenerators
+	#3magic regenerator edit new <type> <name> <resource>#0 - creates a new magic regenerator
+	#3magic regenerator clone <old> <new>#0 - clones an existing magic regenerator
+	#3magic regenerator edit <which>#0 - begins editing a magic regenerator
+	#3magic regenerator close#0 - closes an editing magic regenerator
+	#3magic regenerator show <which>#0 - shows builder information about a regenerator
+	#3magic regenerator show#0 - shows builder information about the currently edited regenerator
+	#3magic regenerator edit#0 - an alias for magic regenerator show (with no args)
+	#3magic regenerator set ...#0 - edits the properties of a magic regenerator. See #3magic regenerator set ?#0 for more info.",
 
 		GetEditHeader = item => $"Magic Regenerator #{item.Id:N0} ({item.Name})"
 	};
@@ -1914,9 +1986,9 @@ The core syntax is as follows:
 			var typeText = input.PopSpeech();
 			if (!MagicPowerFactory.BuilderTypes.Any(x => x.EqualTo(typeText)))
 			{
-                actor.OutputHandler.Send($"The text {typeText.ColourCommand()} is not a valid magic power type. Valid types are {MagicPowerFactory.BuilderTypes.Select(x => x.ColourName()).ListToString()}.");
-                return;
-            }
+				actor.OutputHandler.Send($"The text {typeText.ColourCommand()} is not a valid magic power type. Valid types are {MagicPowerFactory.BuilderTypes.Select(x => x.ColourName()).ListToString()}.");
+				return;
+			}
 
 			if (input.IsFinished)
 			{
@@ -1981,15 +2053,15 @@ The core syntax is as follows:
 
 The core syntax is as follows:
 
-    #3magic power list - shows all magic powers
-    #3magic power edit new <type> <school> <name>#0 - creates a new magic power
-    #3magic power clone <old> <new>#0 - clones an existing magic power
-    #3magic power edit <which>#0 - begins editing a magic power
-    #3magic power close#0 - closes an editing magic power
-    #3magic power show <which>#0 - shows builder information about a power
-    #3magic power show#0 - shows builder information about the currently edited power
-    #3magic power edit#0 - an alias for magic power show (with no args)
-    #3magic power set ...#0 - edits the properties of a magic power. See #3magic power set ?#0 for more info.",
+	#3magic power list - shows all magic powers
+	#3magic power edit new <type> <school> <name>#0 - creates a new magic power
+	#3magic power clone <old> <new>#0 - clones an existing magic power
+	#3magic power edit <which>#0 - begins editing a magic power
+	#3magic power close#0 - closes an editing magic power
+	#3magic power show <which>#0 - shows builder information about a power
+	#3magic power show#0 - shows builder information about the currently edited power
+	#3magic power edit#0 - an alias for magic power show (with no args)
+	#3magic power set ...#0 - edits the properties of a magic power. See #3magic power set ?#0 for more info.",
 
 		GetEditHeader = item => $"Magic Power #{item.Id:N0} ({item.Name})"
 	};
@@ -2098,12 +2170,12 @@ The core syntax is as follows:
 		},
 
 		GetListTableContentsFunc = (character, protos) => from proto in protos.OfType<IAutobuilderArea>()
-		                                                  select new List<string>
-		                                                  {
-			                                                  proto.Id.ToString("N0", character),
-			                                                  proto.Name,
-			                                                  proto.ShowCommandByLine
-		                                                  },
+														  select new List<string>
+														  {
+															  proto.Id.ToString("N0", character),
+															  proto.Name,
+															  proto.ShowCommandByLine
+														  },
 
 		CustomSearch = (protos, keyword, gameworld) => protos,
 
@@ -2216,12 +2288,12 @@ The core syntax is as follows:
 		},
 
 		GetListTableContentsFunc = (character, protos) => from proto in protos.OfType<IAutobuilderRoom>()
-		                                                  select new List<string>
-		                                                  {
-			                                                  proto.Id.ToString("N0", character),
-			                                                  proto.Name,
-			                                                  proto.ShowCommandByline
-		                                                  },
+														  select new List<string>
+														  {
+															  proto.Id.ToString("N0", character),
+															  proto.Name,
+															  proto.ShowCommandByline
+														  },
 
 		CustomSearch = (protos, keyword, gameworld) => protos,
 
@@ -2322,17 +2394,17 @@ The core syntax is as follows:
 		},
 
 		GetListTableContentsFunc = (character, protos) => from proto in protos.OfType<IDream>()
-		                                                  select new List<string>
-		                                                  {
-			                                                  proto.Id.ToString("N0", character),
-			                                                  proto.Name,
-			                                                  proto.CanDreamProg?.MXPClickableFunctionName() ??
-			                                                  "Manual Only",
-			                                                  TimeSpan.FromSeconds(
-				                                                          proto.DreamStages.Sum(x => x.WaitSeconds))
-			                                                          .Describe(character),
-			                                                  proto.OnceOnly.ToColouredString()
-		                                                  },
+														  select new List<string>
+														  {
+															  proto.Id.ToString("N0", character),
+															  proto.Name,
+															  proto.CanDreamProg?.MXPClickableFunctionName() ??
+															  "Manual Only",
+															  TimeSpan.FromSeconds(
+																		  proto.DreamStages.Sum(x => x.WaitSeconds))
+																	  .Describe(character),
+															  proto.OnceOnly.ToColouredString()
+														  },
 
 		CustomSearch = (protos, keyword, gameworld) => protos,
 
@@ -2632,34 +2704,34 @@ The core syntax is as follows:
 			{
 				keyword = keyword.Substring(1);
 				return protos
-				       .Cast<ICoin>()
-				       .Where(x =>
-					       x.Name.Contains(keyword, StringComparison.InvariantCultureIgnoreCase) ||
-					       x.ShortDescription.Contains(keyword, StringComparison.InvariantCultureIgnoreCase) ||
-					       x.FullDescription.Contains(keyword, StringComparison.InvariantCultureIgnoreCase))
-				       .Cast<IEditableItem>()
-				       .ToList();
+					   .Cast<ICoin>()
+					   .Where(x =>
+						   x.Name.Contains(keyword, StringComparison.InvariantCultureIgnoreCase) ||
+						   x.ShortDescription.Contains(keyword, StringComparison.InvariantCultureIgnoreCase) ||
+						   x.FullDescription.Contains(keyword, StringComparison.InvariantCultureIgnoreCase))
+					   .Cast<IEditableItem>()
+					   .ToList();
 			}
 
 			if (keyword.Length > 1 && keyword[0] == '-')
 			{
 				keyword = keyword.Substring(1);
 				return protos
-				       .Cast<ICoin>()
-				       .Where(x =>
-					       !x.Name.Contains(keyword, StringComparison.InvariantCultureIgnoreCase) &&
-					       !x.ShortDescription.Contains(keyword, StringComparison.InvariantCultureIgnoreCase) &&
+					   .Cast<ICoin>()
+					   .Where(x =>
+						   !x.Name.Contains(keyword, StringComparison.InvariantCultureIgnoreCase) &&
+						   !x.ShortDescription.Contains(keyword, StringComparison.InvariantCultureIgnoreCase) &&
 						   !x.FullDescription.Contains(keyword, StringComparison.InvariantCultureIgnoreCase))
 					   .Cast<IEditableItem>()
-				       .ToList();
+					   .ToList();
 			}
 
 			if (keyword.EqualTo("change"))
 			{
 				return protos
-				       .Cast<ICoin>()
-				       .Where(x => x.UseForChange)
-				       .Cast<IEditableItem>()
+					   .Cast<ICoin>()
+					   .Where(x => x.UseForChange)
+					   .Cast<IEditableItem>()
 					   .ToList()
 					;
 			}
@@ -2667,9 +2739,9 @@ The core syntax is as follows:
 			if (keyword.EqualTo("!change"))
 			{
 				return protos
-				       .Cast<ICoin>()
-				       .Where(x => !x.UseForChange)
-				       .Cast<IEditableItem>()
+					   .Cast<ICoin>()
+					   .Where(x => !x.UseForChange)
+					   .Cast<IEditableItem>()
 					   .ToList()
 					;
 			}
@@ -2678,9 +2750,9 @@ The core syntax is as follows:
 			if (currency is not null)
 			{
 				return protos
-				       .Cast<ICoin>()
-				       .Where(x => x.Currency == currency)
-				       .Cast<IEditableItem>()
+					   .Cast<ICoin>()
+					   .Where(x => x.Currency == currency)
+					   .Cast<IEditableItem>()
 					   .ToList();
 			}
 

@@ -11,6 +11,7 @@ using MoreLinq.Extensions;
 using MudSharp.Accounts;
 using MudSharp.Character.Name;
 using MudSharp.CharacterCreation;
+using MudSharp.Commands.Helpers;
 using MudSharp.Database;
 using MudSharp.Effects.Concrete;
 using MudSharp.Framework;
@@ -611,5 +612,14 @@ Description: {type.Description.ColourValue()}
 
 
 		actor.OutputHandler.Send(sb.ToString());
+	}
+
+	public const string IntroTemplateHelp = @"";
+
+	[PlayerCommand("IntroTemplate", "introtemplate")]
+	[HelpInfo("IntroTemplate", IntroTemplateHelp, AutoHelp.HelpArgOrNoArg)]
+	protected static void IntroTemplate(ICharacter actor, string command)
+	{
+		BaseBuilderModule.GenericBuildingCommand(actor, new StringStack(command.RemoveFirstWord()), EditableItemHelper.CharacterIntroTemplateHelper);
 	}
 }

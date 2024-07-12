@@ -1513,6 +1513,13 @@ You can use the following subcommands:
 
 	private static void CellSet(ICharacter actor, StringStack input)
 	{
+		if (input.Peek().EqualTo("exit"))
+		{
+			input.Pop();
+			CellExit(actor, input);
+			return;
+		}
+
 		if (input.Peek().Equals("register", StringComparison.InvariantCultureIgnoreCase))
 		{
 			input.Pop();
@@ -2081,16 +2088,17 @@ You can use the following subcommands:
 		if (input.IsFinished || input.Peek().ToLowerInvariant() == "list")
 		{
 			var exits = actor.Gameworld.ExitManager.GetAllExits(actor.Location);
-			actor.OutputHandler.Send("This Cell has the following exits" + (overlay != null
-				                         ? $" ({"Note: Exits for your current Overlay appear with a [x] after them".Colour(Telnet.Red)})"
-				                         : "") + ":\n\n"
-			                         + (from exit in exits
-			                            select exit.BuilderInformationString(actor)
-			                                   +
-			                                   (overlay != null && overlay.ExitIDs.Contains(exit.Exit.Id)
-				                                   ? "[x]"
-				                                   : "")
-			                         ).ListToString(separator: "\n", conjunction: "")
+			actor.OutputHandler.Send($@"This Cell has the following exits{(overlay != null
+				? $" ({"Note: Exits for your current Overlay appear with a [x] after them".Colour(Telnet.Red)})"
+				: "")}:
+
+{(from exit in exits
+				             select exit.BuilderInformationString(actor)
+				                    +
+				                    (overlay != null && overlay.ExitIDs.Contains(exit.Exit.Id)
+					                    ? "[x]"
+					                    : "")
+				).ListToString(separator: "\n", conjunction: "")}"
 			);
 			return;
 		}
@@ -2179,16 +2187,29 @@ You can use the following subcommands:
 				add = true;
 				break;
 			case "remove":
+			case "rem":
+			case "delete":
+			case "del":
 				break;
 			default:
-				actor.OutputHandler.Send("You may only either add or remove exits using this command.");
+				actor.OutputHandler.Send(@"The valid options for this command are as follows:
+
+	#3add <id>#0 - adds an existing exit from another overlay for this cell to this overlay
+	#3remove <id>#0 - removes an exit from this overlay
+	#3size <id|direction> <size>#0 - sets the maximum size of creatures that can use the exit
+	#3upright <id|direction> <size>#0 - sets the maximum size of creatures that can use the exit in a standing position
+	#3reset <id|direction>#0 - turns a climb/fall exit into a regular exit
+	#3fall <id|direction>#0 - turns an up/down exit into a fall exit or toggles it off
+	#3climb <id|direction> <difficulty>#0 - turns an exit into a climb exit with a specified difficulty
+	#3climb <id|direction>#0 - toggles a climb exit off
+	#3block <id|direction> <layer>#0 - blocks an exit from appearing in a specified layer
+	#3unblock <id|direction> <layer>#0 - removes a block on an exit from appearing in a specified layer".SubstituteANSIColour());
 				return;
 		}
 
 		if (!long.TryParse(input.Pop(), out var value))
 		{
-			actor.OutputHandler.Send("You must enter the ID of the exit you want to " + (add ? "add" : "remove") +
-			                         ".");
+			actor.OutputHandler.Send($"You must enter the ID of the exit you want to {(add ? "add" : "remove")}.");
 			return;
 		}
 

@@ -406,9 +406,9 @@ public class ImplementorModule : Module<ICharacter>
 			"https://www.labmud.com/downloads/FutureMUD-Windows.zip");
 		using var stream = Task.Run(() => responseTask).Result.Content.ReadAsStream();
 		var root = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
-		using var zip = File.Open(Path.Combine(root, "FutureMUD Update.zip"), FileMode.Create);
+		using var zip = File.Open(string.IsNullOrEmpty(root) ? "FutureMUD Update.zip" : Path.Combine(root, "FutureMUD Update.zip"), FileMode.Create);
 		stream.CopyTo(zip);
-		var toPath = Path.Combine(root, "Binaries");
+		var toPath = string.IsNullOrEmpty(root) ? "Binaries" : Path.Combine(root, "Binaries");
 		if (!Directory.Exists(toPath))
 		{
 			if (Environment.OSVersion.Platform == PlatformID.Unix)
@@ -423,7 +423,7 @@ public class ImplementorModule : Module<ICharacter>
 
 		zip.Close();
 
-		using var archive = ZipFile.OpenRead(Path.Combine(root, "FutureMUD Update.zip"));
+		using var archive = ZipFile.OpenRead(string.IsNullOrEmpty(root) ? "FutureMUD Update.zip" : Path.Combine(root, "FutureMUD Update.zip"));
 		foreach (var entry in archive.Entries)
 		{
 			var destination = Path.GetFullPath(entry.FullName, toPath);

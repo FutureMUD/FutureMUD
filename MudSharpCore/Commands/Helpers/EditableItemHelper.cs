@@ -215,8 +215,12 @@ public class EditableItemHelper
 			actor.Gameworld.Add(race);
 			actor.RemoveAllEffects<BuilderEditingEffect<IRace>>();
 			actor.AddEffect(new BuilderEditingEffect<IRace>(actor) { EditingItem = race });
-			actor.OutputHandler.Send(
-				$"You create a new race called {name.ColourName()}{(parent is not null ? $" as a child race of {parent.Name.ColourName()}" : "")}, which you are now editing.");
+			var newEthnicity = new Ethnicity(actor.Gameworld, race, name);
+			actor.Gameworld.Add(newEthnicity);
+			actor.RemoveAllEffects<BuilderEditingEffect<IEthnicity>>();
+			actor.AddEffect(new BuilderEditingEffect<IEthnicity>(actor) { EditingItem = newEthnicity });
+			actor.OutputHandler.Send($"You create a new race called {name.ColourName()}{(parent is not null ? $" as a child race of {parent.Name.ColourName()}" : "")}, which you are now editing.\nAlso created a new ethnicity with the same name for that race, which you are also editing.");
+
 		},
 		EditableCloneAction = (actor, input) =>
 		{
@@ -250,8 +254,12 @@ public class EditableItemHelper
 			actor.Gameworld.Add(race);
 			actor.RemoveAllEffects<BuilderEditingEffect<IRace>>();
 			actor.AddEffect(new BuilderEditingEffect<IRace>(actor) { EditingItem = race });
+			var newEthnicity = new Ethnicity(actor.Gameworld, race, name);
+			actor.Gameworld.Add(newEthnicity);
+			actor.RemoveAllEffects<BuilderEditingEffect<IEthnicity>>();
+			actor.AddEffect(new BuilderEditingEffect<IEthnicity>(actor) { EditingItem = newEthnicity });
 			actor.OutputHandler.Send(
-				$"You clone the race {parent.Name.ColourName()} into a new race called {name.ColourName()}, which you are now editing.");
+				$"You clone the race {parent.Name.ColourName()} into a new race called {name.ColourName()}, which you are now editing.\nAlso created a new ethnicity for the new race, which you are now editing.");
 		},
 
 		GetListTableHeaderFunc = character => new List<string>

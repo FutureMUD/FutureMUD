@@ -9,11 +9,40 @@ using System.Threading.Tasks;
 using System.Xml.Linq;
 using MudSharp.Database;
 using MudSharp.Framework.Save;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace MudSharp.CharacterCreation;
 
 public class CharacterIntroTemplate : SaveableItem, ICharacterIntroTemplate
 {
+	public ICharacterIntroTemplate Clone(string newName)
+	{
+		return new CharacterIntroTemplate(this, newName);
+	}
+
+	private CharacterIntroTemplate(CharacterIntroTemplate rhs, string newName)
+	{
+		Gameworld = rhs.Gameworld;
+		_name = newName;
+		AppliesToCharacterProg = rhs.AppliesToCharacterProg;
+		ResolutionPriority = rhs.ResolutionPriority;
+		Echoes.AddRange(rhs.Echoes);
+		Delays.AddRange(rhs.Delays);
+		using (new FMDB())
+		{
+			var dbitem = new Models.CharacterIntroTemplate
+			{
+				Name = Name,
+				ResolutionPriority = ResolutionPriority,
+				AppliesToCharacterProgId = AppliesToCharacterProg.Id,
+				Definition = SaveDefinition().ToString()
+			};
+			FMDB.Context.CharacterIntroTemplates.Add(dbitem);
+			FMDB.Context.SaveChanges();
+			_id = dbitem.Id;
+		}
+	}
+
 	public CharacterIntroTemplate(IFuturemud gameworld, string name)
 	{
 		Gameworld = gameworld;
@@ -103,7 +132,18 @@ public class CharacterIntroTemplate : SaveableItem, ICharacterIntroTemplate
 		);
 	}
 
-	public const string BuildHelpText = @"";
+	public const string BuildHelpText = @"You can use the following options with this command:
+
+	#3name <name>#0 - changes the name of this template
+	#3priority <##>#0 - sets the evaluation priority when deciding which to apply (higher number = higher priority)
+	#3prog <prog>#0 - sets the prog that controls whether this is a valid template for a character
+	#3echo add <seconds>#0 - drops you into an editor to write a new echo that lasts for the specified seconds amount
+	#3echo add <seconds> <text>#0 - directly enters an echo without going into the editor
+	#3echo remove <##>#0 - permanently deletes an echo
+	#3echo text <##>#0 - drops you into an editor to edit a specific echo
+	#3echo text <##> <text>#0 - directly overwrites an echo without going into the editor
+	#3echo delay <##> <seconds>#0 - adjusts the delay on an echo
+	#3echo swap <##> <##>#0 - swaps the order of two echoes";
 
 	/// <inheritdoc />
 	public bool BuildingCommand(ICharacter actor, StringStack command)
@@ -145,33 +185,214 @@ public class CharacterIntroTemplate : SaveableItem, ICharacterIntroTemplate
 				return BuildingCommandEchoText(actor, command);
 		}
 
-		actor.OutputHandler.Send(@"".SubstituteANSIColour());
+		actor.OutputHandler.Send(@"You can use the following options with echo:
+
+	#3echo add <seconds>#0 - drops you into an editor to write a new echo that lasts for the specified seconds amount
+	#3echo add <seconds> <text>#0 - directly enters an echo without going into the editor
+	#3echo remove <##>#0 - permanently deletes an echo
+	#3echo text <##>#0 - drops you into an editor to edit a specific echo
+	#3echo text <##> <text>#0 - directly overwrites an echo without going into the editor
+	#3echo delay <##> <seconds>#0 - adjusts the delay on an echo
+	#3echo swap <##> <##>#0 - swaps the order of two echoes".SubstituteANSIColour());
 		return true;
 	}
 
 	private bool BuildingCommandEchoText(ICharacter actor, StringStack command)
 	{
-		throw new NotImplementedException();
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("Which echo do you want to edit the text of?");
+			return false;
+		}
+
+		if (!int.TryParse(command.PopSpeech(), out var pos1))
+		{
+			actor.OutputHandler.Send($"The text {command.Last.ColourCommand()} is not a valid number.");
+			return false;
+		}
+
+		if (pos1 < 1 || pos1 > Echoes.Count)
+		{
+			actor.OutputHandler.Send($"There is no echo at position {pos1.ToString("N0", actor).ColourValue()} to edit.");
+			return false;
+		}
+
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("Enter the echo in the editor below:\n");
+			actor.EditorMode((text, handler, _) =>
+			{
+				Echoes[pos1 - 1] = text;
+				Changed = true;
+				handler.Send($"\n\nYou change the {pos1.ToOrdinal().ColourValue()} echo to:\n\n{text.SubstituteANSIColour()}");
+			}, (handler, _) =>
+			{
+				handler.Send("You decide not to change the text of the echo.");
+			});
+			return true;
+		}
+
+		Echoes[pos1 - 1] = command.SafeRemainingArgument;
+		Changed = true;
+		actor.OutputHandler.Send($"\n\nYou change the {pos1.ToOrdinal().ColourValue()} echo to:\n\n{command.SafeRemainingArgument.SubstituteANSIColour()}");
+		return true;
 	}
 
 	private bool BuildingCommandEchoDelay(ICharacter actor, StringStack command)
 	{
-		throw new NotImplementedException();
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("Which echo do you want to edit the delay of?");
+			return false;
+		}
+
+		if (!int.TryParse(command.PopSpeech(), out var pos1))
+		{
+			actor.OutputHandler.Send($"The text {command.Last.ColourCommand()} is not a valid number.");
+			return false;
+		}
+
+		if (pos1 < 1 || pos1 > Echoes.Count)
+		{
+			actor.OutputHandler.Send($"There is no echo at position {pos1.ToString("N0", actor).ColourValue()} to edit.");
+			return false;
+		}
+
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("How long should this echo be displayed for, in seconds?");
+			return false;
+		}
+
+		if (!double.TryParse(command.PopSpeech(), out var value) || value <= 0.0)
+		{
+			actor.OutputHandler.Send($"The text {command.Last.ColourCommand()} is not a valid number greater than zero.");
+			return false;
+		}
+
+		var timeSpan = TimeSpan.FromSeconds(value);
+		Delays[pos1 - 1] = timeSpan;
+		Changed = true;
+		actor.OutputHandler.Send($"The {pos1.ToOrdinal().ColourValue()} echo will now be displayed for {timeSpan.DescribePreciseBrief().ColourValue()}.");
+		return true;
 	}
 
 	private bool BuildingCommandEchoDelete(ICharacter actor, StringStack command)
 	{
-		throw new NotImplementedException();
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("Which echo do you want to edit the delay of?");
+			return false;
+		}
+
+		if (!int.TryParse(command.PopSpeech(), out var pos1))
+		{
+			actor.OutputHandler.Send($"The text {command.Last.ColourCommand()} is not a valid number.");
+			return false;
+		}
+
+		if (pos1 < 1 || pos1 > Echoes.Count)
+		{
+			actor.OutputHandler.Send($"There is no echo at position {pos1.ToString("N0", actor).ColourValue()} to edit.");
+			return false;
+		}
+
+		var text = Echoes[pos1 - 1];
+		Echoes.RemoveAt(pos1-1);
+		Delays.RemoveAt(pos1 - 1);
+		Changed = true;
+		actor.OutputHandler.Send($"You remove the {pos1.ToOrdinal().ColourValue()} echo, which had the following text:\n\n{text.SubstituteANSIColour()}");
+		return true;
 	}
 
 	private bool BuildingCommandEchoSwap(ICharacter actor, StringStack command)
 	{
-		throw new NotImplementedException();
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("Which two numbered echoes do you want to swap the position of?");
+			return false;
+		}
+
+		if (!int.TryParse(command.PopSpeech(), out var pos1))
+		{
+			actor.OutputHandler.Send($"The text {command.Last.ColourCommand()} is not a valid number.");
+			return false;
+		}
+
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("What is the index of the second echo you want to swap the position of?");
+			return false;
+		}
+
+		if (!int.TryParse(command.PopSpeech(), out var pos2))
+		{
+			actor.OutputHandler.Send($"The text {command.Last.ColourCommand()} is not a valid number.");
+			return false;
+		}
+
+		if (pos1 == pos2)
+		{
+			actor.OutputHandler.Send("You cannot swap an echo with itself.");
+			return false;
+		}
+
+		if (pos1 < 1 || pos1 > Echoes.Count)
+		{
+			actor.OutputHandler.Send($"There is no echo at position {pos1.ToString("N0", actor).ColourValue()} to swap.");
+			return false;
+		}
+
+		if (pos2 < 1 || pos2 > Echoes.Count)
+		{
+			actor.OutputHandler.Send($"There is no echo at position {pos2.ToString("N0", actor).ColourValue()} to swap.");
+			return false;
+		}
+
+		Echoes.Swap(pos1 - 1, pos2 - 1);
+		Delays.Swap(pos1 - 1, pos2 - 1);
+		Changed = true;
+		actor.OutputHandler.Send($"You swap the order of the {pos1.ToOrdinal().ColourValue()} and {pos2.ToOrdinal().ColourValue()} echo.");
+		return true;
 	}
 
 	private bool BuildingCommandEchoAdd(ICharacter actor, StringStack command)
 	{
-		throw new NotImplementedException();
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("How long should this echo be displayed for, in seconds?");
+			return false;
+		}
+
+		if (!double.TryParse(command.PopSpeech(), out var value) || value <= 0.0)
+		{
+			actor.OutputHandler.Send($"The text {command.Last.ColourCommand()} is not a valid number greater than zero.");
+			return false;
+		}
+
+		var timeSpan = TimeSpan.FromSeconds(value);
+
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("Enter the echo in the editor below:\n");
+			actor.EditorMode((text, handler, _) =>
+			{
+				Echoes.Add(text);
+				Delays.Add(timeSpan);
+				Changed = true;
+				handler.Send($"\n\nYou add the following echo for {timeSpan.DescribePreciseBrief().ColourValue()}:\n\n{text.SubstituteANSIColour()}");
+			}, (handler, _) =>
+			{
+				handler.Send("You decide not to add a new echo.");
+			});
+			return true;
+		}
+
+		Echoes.Add(command.SafeRemainingArgument);
+		Delays.Add(timeSpan);
+		Changed = true;
+		actor.OutputHandler.Send($"\n\nYou add the following echo for {timeSpan.DescribePreciseBrief().ColourValue()}:\n\n{command.SafeRemainingArgument.SubstituteANSIColour()}");
+		return true;
 	}
 
 	private bool BuildingCommandProg(ICharacter actor, StringStack command)

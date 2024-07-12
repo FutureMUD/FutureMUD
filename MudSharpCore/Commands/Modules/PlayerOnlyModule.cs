@@ -376,11 +376,11 @@ The syntax for this command is as follows:
 				if (dbitem == null)
 				{
 					FMDB.Context.StaticConfigurations.Add(new Models.StaticConfiguration
-						{ SettingName = "TyposBoardId", Definition = dbBoard.Id.ToString("F") });
+						{ SettingName = "TyposBoardId", Definition = dbBoard.Id.ToString("F0") });
 				}
 				else
 				{
-					dbitem.Definition = dbBoard.Id.ToString("F");
+					dbitem.Definition = dbBoard.Id.ToString("F0");
 				}
 
 				FMDB.Context.SaveChanges();

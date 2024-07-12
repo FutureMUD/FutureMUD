@@ -16,5 +16,6 @@ namespace MudSharp.CharacterCreation
         List<string> Echoes { get; }
         List<TimeSpan> Delays { get; }
         ICharacterIntro GetCharacterIntro();
+        ICharacterIntroTemplate Clone(string newName);
     }
 }

@@ -89,7 +89,40 @@ public class EditableItemHelper
 			actor.AddEffect(new BuilderEditingEffect<ICharacterIntroTemplate>(actor){EditingItem = cit});
 			actor.OutputHandler.Send($"You create a new character intro template called {name.ColourName()}, which you are now editing.");
 		},
-		EditableCloneAction = null,
+		EditableCloneAction = (actor, input) =>
+		{
+			if (input.IsFinished)
+			{
+				actor.OutputHandler.Send("Which character intro template do you want to clone?");
+				return;
+			}
+
+			var template = actor.Gameworld.CharacterIntroTemplates.GetByIdOrName(input.PopSpeech());
+			if (template is null)
+			{
+				actor.OutputHandler.Send("There is no such character intro template.");
+				return;
+			}
+
+			if (input.IsFinished)
+			{
+				actor.OutputHandler.Send("What name do you want to give to the new character intro template?");
+				return;
+			}
+
+			var name = input.SafeRemainingArgument.TitleCase();
+			if (actor.Gameworld.CharacterIntroTemplates.Any(x => x.Name.EqualTo(name)))
+			{
+				actor.OutputHandler.Send($"There is already a character intro template with the name {name.ColourName()}. Names must be unique.");
+				return;
+			}
+
+			var cit = template.Clone(name);
+			actor.Gameworld.Add(cit);
+			actor.RemoveAllEffects(x => x.IsEffectType<IBuilderEditingEffect<ICharacterIntroTemplate>>());
+			actor.AddEffect(new BuilderEditingEffect<ICharacterIntroTemplate>(actor) { EditingItem = cit });
+			actor.OutputHandler.Send($"You create a new character intro template called {name.ColourName()} as a clone of {template.Name.ColourName()}, which you are now editing.");
+		},
 		GetListTableHeaderFunc = character => new List<string>
 		{
 			"Id",

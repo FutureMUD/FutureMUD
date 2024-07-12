@@ -614,7 +614,30 @@ Description: {type.Description.ColourValue()}
 		actor.OutputHandler.Send(sb.ToString());
 	}
 
-	public const string IntroTemplateHelp = @"";
+	public const string IntroTemplateHelp = @"This command is used to edit #6Character Intro Templates#0, which are a series of echoes that are shown to characters when they log in for the first time after character creation.
+
+Each character will be shown a maximum of one introduction, and they will be shown the first valid one with the highest priority (numerically).
+
+You can use the following syntax with this command:
+
+	#3introtemplate list#0 - lists all templates
+	#3introtemplate show <id|name>#0 - shows a template
+	#3introtemplate show#0 - an alias for showing your currently edited template
+	#3introtemplate edit <which>#0 - begin editing a particular existing template
+	#3introtemplate edit#0 - an alias for showing your currently edited template
+	#3introtemplate close#0 - stop editing your current template
+	#3introtemplate new <name>#0 - creates and begins editing a new intro template
+	#3introtemplate clone <old> <newName>#0 - clones and begins editing a template
+	#3introtemplate set name <name>#0 - changes the name of this template
+	#3introtemplate set priority <##>#0 - sets the evaluation priority when deciding which to apply (higher number = higher priority)
+	#3introtemplate set prog <prog>#0 - sets the prog that controls whether this is a valid template for a character
+	#3introtemplate set echo add <seconds>#0 - drops you into an editor to write a new echo that lasts for the specified seconds amount
+	#3introtemplate set echo add <seconds> <text>#0 - directly enters an echo without going into the editor
+	#3introtemplate set echo remove <##>#0 - permanently deletes an echo
+	#3introtemplate set echo text <##>#0 - drops you into an editor to edit a specific echo
+	#3introtemplate set echo text <##> <text>#0 - directly overwrites an echo without going into the editor
+	#3introtemplate set echo delay <##> <seconds>#0 - adjusts the delay on an echo
+	#3introtemplate set echo swap <##> <##>#0 - swaps the order of two echoes";
 
 	[PlayerCommand("IntroTemplate", "introtemplate")]
 	[HelpInfo("IntroTemplate", IntroTemplateHelp, AutoHelp.HelpArgOrNoArg)]

@@ -534,7 +534,11 @@ The syntax for this command is as follows:
 	[PlayerCommand("Introduce", "introduce")]
 	[RequiredCharacterState(CharacterState.Conscious)]
 	[HelpInfo("introduce",
-		"The introduce command allows you to let others know your name, and also creates a \"dub\" (a keyword alias) for you with the people to whom you introduce yourself.\n\nYou can introduce yourself or others. To introduce others, you need to have been introduced to them yourself, or have set up a dub for them (see HELP DUB) and added a name for them (see HELP DUBNAME). You will always introduce yourself by your current name (the name which you have NAME SELECT <which>).\n\nThe syntax is INTRODUCE ME or INTRODUCE <person>. You can append a bracketed emote to this command.",
+		@"The introduce command allows you to let others know your name, and also creates a ""dub"" (a keyword alias) for you with the people to whom you introduce yourself.
+
+You can introduce yourself or others. To introduce others, you need to have been introduced to them yourself, or have set up a dub for them (see HELP DUB) and added a name for them (see HELP DUBNAME). You will always introduce yourself by your current name (the name which you have NAME SELECT <which>).
+
+The syntax is #3INTRODUCE ME#0 or #3INTRODUCE <person>#0. You can append a bracketed emote to this command.",
 		AutoHelp.HelpArg)]
 	[CustomModuleName("Game")]
 	protected static void Introduce(ICharacter actor, string command)

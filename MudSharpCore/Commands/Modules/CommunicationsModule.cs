@@ -6,6 +6,8 @@ using MudSharp.Accounts;
 using MudSharp.Character;
 using MudSharp.Character.Name;
 using MudSharp.Communication.Language;
+using MudSharp.Community.Boards;
+using MudSharp.Database;
 using MudSharp.Effects.Interfaces;
 using MudSharp.Framework;
 using MudSharp.GameItems;
@@ -158,8 +160,8 @@ internal class CommunicationsModule : Module<ICharacter>
 		var languageText = ss.PopSpeech();
 
 		var accent = actor.Accents.FirstOrDefault(x => x.Name.EqualTo(accentText) &&
-		                                               (string.IsNullOrEmpty(languageText) ||
-		                                                x.Language.Name.EqualTo(languageText)));
+																									 (string.IsNullOrEmpty(languageText) ||
+																										x.Language.Name.EqualTo(languageText)));
 		if (accent == null)
 		{
 			actor.Send("You have no accent like that to set as a preferred accent.");
@@ -227,7 +229,7 @@ internal class CommunicationsModule : Module<ICharacter>
 		if (lang.Length == 0)
 		{
 			actor.OutputHandler.Send("You are currently speaking " + actor.CurrentLanguage.Name.Proper() + " " +
-			                         actor.CurrentAccent.AccentSuffix + ".");
+															 actor.CurrentAccent.AccentSuffix + ".");
 			return;
 		}
 
@@ -246,12 +248,12 @@ internal class CommunicationsModule : Module<ICharacter>
 		{
 			accent =
 				actor.Accents.Where(x => language.Accents.Contains(x))
-				     .FirstOrDefault(x => x.Name.StartsWith(taccent, StringComparison.InvariantCultureIgnoreCase));
+						 .FirstOrDefault(x => x.Name.StartsWith(taccent, StringComparison.InvariantCultureIgnoreCase));
 		}
 		else
 		{
 			accent = actor.PreferredAccent(language) ?? actor.Accents.Where(x => language.Accents.Contains(x))
-			                                                 .FirstMin(x => actor.AccentDifficulty(x, false));
+																											 .FirstMin(x => actor.AccentDifficulty(x, false));
 		}
 
 		if (accent == null)
@@ -261,10 +263,10 @@ internal class CommunicationsModule : Module<ICharacter>
 		}
 
 		if (actor.AccentDifficulty(accent, false) > Difficulty.Easy && !actor.IsAdministrator() &&
-		    actor.Accents.Count(x => x.Language == language) > 1)
+				actor.Accents.Count(x => x.Language == language) > 1)
 		{
 			actor.OutputHandler.Send("You do not have sufficient command over " + accent.Description +
-			                         " to speak it.");
+															 " to speak it.");
 			return;
 		}
 
@@ -384,9 +386,9 @@ internal class CommunicationsModule : Module<ICharacter>
 
 		var splitMessage =
 			message.Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries)
-			       .Select(x => x.Trim())
-			       .Where(x => !string.IsNullOrWhiteSpace(x))
-			       .ToList();
+						 .Select(x => x.Trim())
+						 .Where(x => !string.IsNullOrWhiteSpace(x))
+						 .ToList();
 		if (!splitMessage.Any())
 		{
 			actor.OutputHandler.Send("What do you want to sing?");
@@ -394,7 +396,7 @@ internal class CommunicationsModule : Module<ICharacter>
 		}
 
 		message = splitMessage.Select(x => x.ProperSentences())
-		                      .ListToString(separator: "\n ", conjunction: "", twoItemJoiner: "\n ");
+													.ListToString(separator: "\n ", conjunction: "", twoItemJoiner: "\n ");
 
 		actor.Body.Sing(null, message, emote);
 	}
@@ -435,9 +437,9 @@ internal class CommunicationsModule : Module<ICharacter>
 
 		var splitMessage =
 			message.Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries)
-			       .Select(x => x.Trim())
-			       .Where(x => !string.IsNullOrWhiteSpace(x))
-			       .ToList();
+						 .Select(x => x.Trim())
+						 .Where(x => !string.IsNullOrWhiteSpace(x))
+						 .ToList();
 		if (!splitMessage.Any())
 		{
 			actor.OutputHandler.Send("What do you want to sing?");
@@ -445,7 +447,7 @@ internal class CommunicationsModule : Module<ICharacter>
 		}
 
 		message = splitMessage.Select(x => x.ProperSentences())
-		                      .ListToString(separator: "\n ", conjunction: "", twoItemJoiner: "\n ");
+													.ListToString(separator: "\n ", conjunction: "", twoItemJoiner: "\n ");
 		actor.Body.Sing(ptarget, message, emote);
 	}
 
@@ -827,8 +829,8 @@ The syntax is simply #3OOC <your message>#0 to send a message to everyone in the
 
 You can use the following syntax with this command:
 
-  #3board read <##>#0 - reads the specified board post
-  #3board write <title>#0 - drops you into an editor to make a post";
+	#3board read <##>#0 - reads the specified board post
+	#3board write <title>#0 - drops you into an editor to make a post";
 
 	private const string BoardHelpAdmin =
 		@"The board command can be used either to interact with a discussion board item in room or to view boards, including ones that have no in-game item presence. See the BOARDS command for a list of board.
@@ -837,11 +839,12 @@ You can use the following syntax with this command:
 
 You can use the following syntax with this command:
 
-  #3board posts <board>#0 - view all posts on a specified board
-  #3board read <board> <##>#0 - views a particular board post
-  #3board read <##>#0 - reads the specified board post from an in-room board
-  #3board write <title>#0 - drops you into an editor to make a post to an in-room board
-  #3board view <##>#0 - views a post for a virtual board";
+	#3board posts <board>#0 - view all posts on a specified board
+	#3board read <board> <##>#0 - views a particular board post
+	#3board read <##>#0 - reads the specified board post from an in-room board
+	#3board write <title>#0 - drops you into an editor to make a post to an in-room board
+	#3board view <##>#0 - views a post for a virtual board
+	#3board create <name> <calendar>#0 - creates a new board";
 
 	[PlayerCommand("Board", "board")]
 	[RequiredCharacterState(CharacterState.Conscious)]
@@ -876,16 +879,63 @@ You can use the following syntax with this command:
 
 				BoardView(actor, ss);
 				break;
+			case "create":
+			case "new":
+				if (!actor.IsAdministrator())
+				{
+					goto default;
+				}
+
+				BoardCreate(actor, ss);
+				break;
 			default:
 				actor.Send((actor.IsAdministrator() ? BoardHelpAdmin : BoardHelpPlayer).SubstituteANSIColour());
 				return;
 		}
 	}
 
+	private static void BoardCreate(ICharacter actor, StringStack ss)
+	{
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send("What name do you want to give to your new board?");
+			return;
+		}
+
+		var name = ss.PopSpeech().TitleCase();
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send("Which calendar do you want to use for displaying in-game dates for posts on this board?");
+			return;
+		}
+
+		var calendar = actor.Gameworld.Calendars.GetByIdOrName(ss.PopSpeech());
+		if (calendar is null)
+		{
+			actor.OutputHandler.Send($"There is no calendar identified by the text \"{ss.Last.ColourCommand()}\".");
+			return;
+		}
+
+		using (new FMDB())
+		{
+			var dbBoard = new Models.Board
+			{
+				Name = name,
+				ShowOnLogin = true,
+				CalendarId = calendar.Id,
+			};
+			FMDB.Context.Boards.Add(dbBoard);
+			FMDB.Context.SaveChanges();
+			var board = new Board(dbBoard, actor.Gameworld);
+			actor.Gameworld.Add(board);
+			actor.OutputHandler.Send($"You create a new board with ID #{dbBoard.Id.ToString("N0", actor)} called {name.ColourName()} and controlled by the {calendar.Name.ColourName()} calendar.");
+		}
+	}
+
 	private static void BoardRead(ICharacter actor, StringStack input)
 	{
 		var board = actor.Location.LayerGameItems(actor.RoomLayer)
-		                 .SelectNotNull(x => x.GetItemType<IBoardItem>()).FirstOrDefault();
+										 .SelectNotNull(x => x.GetItemType<IBoardItem>()).FirstOrDefault();
 		if (board is null)
 		{
 			actor.OutputHandler.Send("There is not a discussion board present in your location.");
@@ -963,7 +1013,7 @@ You can use the following syntax with this command:
 	private static void BoardWrite(ICharacter actor, StringStack input)
 	{
 		var board = actor.Location.LayerGameItems(actor.RoomLayer)
-		                 .SelectNotNull(x => x.GetItemType<IBoardItem>()).FirstOrDefault();
+										 .SelectNotNull(x => x.GetItemType<IBoardItem>()).FirstOrDefault();
 		if (board is null)
 		{
 			actor.OutputHandler.Send("There is not a discussion board present in your location.");

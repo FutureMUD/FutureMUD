@@ -121,6 +121,8 @@ public class Property : SaveableItem, IProperty
 			}
 		}
 
+		_lease?.SetupListeners();
+
 		foreach (var location in property.PropertyLocations)
 		{
 			var cell = Gameworld.Cells.Get(location.CellId);

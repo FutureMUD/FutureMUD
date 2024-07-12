@@ -176,7 +176,7 @@ public class PropertyLeaseOrder : SaveableItem, IPropertyLeaseOrder
 		_bondRequired = Math.Round(_bondRequired * (1.0M + _feeIncreasePercentageAfterLeaseTerm));
 		Changed = true;
 
-		if (oldLease.AutoRenew)
+		if (oldLease.AutoRenew && oldLease.PaymentBalance >= 0.0M && oldLease.BondClaimed <= 0.0M)
 		{
 			Property.Lease = RenewLease(oldLease);
 			return;

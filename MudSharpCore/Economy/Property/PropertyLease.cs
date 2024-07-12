@@ -156,7 +156,7 @@ public class PropertyLease : SaveableItem, IPropertyLease
 	private ITemporalListener _leaseEndListener;
 	private ITemporalListener _paymentIntervalListener;
 
-	private void SetupListeners()
+	public void SetupListeners()
 	{
 		_leaseEndListener = new DateListener(_leaseEnd, 0, DoLeaseEnd, Array.Empty<object>(), $"End of Lease for Property #{Property.Id} {Property.Name.ColourName()}");
 		Gameworld.Add(_leaseEndListener);

@@ -29,5 +29,6 @@ namespace MudSharp.Economy.Property
 		void Delete();
 		void TerminateLease();
 		bool IsAuthorisedLeaseHolder(ICharacter who);
+		void SetupListeners();
 	}
 }

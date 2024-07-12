@@ -408,7 +408,7 @@ public class ImplementorModule : Module<ICharacter>
 		var root = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
 		using var zip = File.Open(string.IsNullOrEmpty(root) ? "FutureMUD Update.zip" : Path.Combine(root, "FutureMUD Update.zip"), FileMode.Create);
 		stream.CopyTo(zip);
-		var toPath = string.IsNullOrEmpty(root) ? "Binaries" : Path.Combine(root, "Binaries");
+		var toPath = Path.GetFullPath(string.IsNullOrEmpty(root) ? "Binaries" : Path.Combine(root, "Binaries"));
 		if (!Directory.Exists(toPath))
 		{
 			if (Environment.OSVersion.Platform == PlatformID.Unix)

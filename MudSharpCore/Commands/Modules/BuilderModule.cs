@@ -4066,4 +4066,26 @@ The syntax for this command is as follows:
 		GenericBuildingCommand(actor, new StringStack(input.RemoveFirstWord()), EditableItemHelper.NewPlayerHintHelper);
 	}
 	#endregion
+
+	#region Improvers
+
+	public const string ImproverHelpText = @"The Improver command is used to edit improvement models, which are used by skills to determine how and when they improve.
+
+You can use the following syntax with this command:
+
+	#3improver list#0 - lists all of the improvers
+	#3improver edit <which>#0 - begins editing an improver
+	#3improver edit new <type> <name>#0 - creates a new improver
+	#3improver close#0 - stops editing an improver
+	#3improver show <which>#0 - views information about an improver
+	#3improver show#0 - views information about your currently editing improver
+	#3improver set ...#0 - edits the properties of an improver. See type specific help text";
+	[PlayerCommand("Improver", "improver")]
+	[CommandPermission(PermissionLevel.Admin)]
+	[HelpInfo("Improver", ImproverHelpText, AutoHelp.HelpArgOrNoArg)]
+	protected static void Improver(ICharacter actor, string input)
+	{
+		GenericBuildingCommand(actor, new StringStack(input.RemoveFirstWord()), EditableItemHelper.ImproverHelper);
+	}
+	#endregion
 }

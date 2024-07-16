@@ -20,9 +20,9 @@ public class SkillDefinition : TraitDefinition, ISkillDefinition
 	public SkillDefinition(MudSharp.Models.TraitDefinition trait, IFuturemud game)
 		: base(trait, game)
 	{
-		Improver = trait.ImproverId.HasValue
+		Improver = (trait.ImproverId.HasValue
 			? game.ImprovementModels.Get(trait.ImproverId.Value)
-			: new NonImproving();
+			: game.ImprovementModels.FirstOrDefault(x => x is NonImproving)) ?? new NonImproving();
 		AvailabilityProg = game.FutureProgs.Get(trait.AvailabilityProgId ?? 0);
 		foreach (var item in trait.TraitDefinitionsChargenResources)
 		{

@@ -352,6 +352,7 @@ namespace MudSharp.Framework
         void SystemMessage(IOutput message, bool adminonly = false);
 
         void AddGuest(ICharacter character);
+        void Add(IImprovementModel model);
         void Add(ICurrency currency);
         void Add(ICoin coin);
         void Add(ICombatArena arena);

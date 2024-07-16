@@ -73,6 +73,7 @@ using MudSharp.RPG.Hints;
 using MudSharp.Effects.Concrete;
 using MudSharp.PerceptionEngine.Handlers;
 using System.Numerics;
+using MudSharp.Body.Traits.Improvement;
 using MudSharp.Economy.Currency;
 
 namespace MudSharp.Framework;
@@ -679,6 +680,10 @@ public sealed partial class Futuremud : IFuturemud, IDisposable
 		_guests.Add(character);
 	}
 
+	public void Add(IImprovementModel model)
+	{
+		_improvementModels.Add(model);
+	}
 	public void Add(ICurrency currency)
 	{
 		_currencies.Add(currency);

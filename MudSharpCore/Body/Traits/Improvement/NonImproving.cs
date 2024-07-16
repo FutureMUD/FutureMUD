@@ -1,4 +1,8 @@
-﻿using MudSharp.RPG.Checks;
+﻿using System.Text;
+using System.Xml.Linq;
+using MudSharp.Character;
+using MudSharp.Framework;
+using MudSharp.RPG.Checks;
 
 namespace MudSharp.Body.Traits.Improvement;
 
@@ -8,9 +12,16 @@ public class NonImproving : ImprovementModel
 	{
 	}
 
-	public NonImproving(long id)
+	public NonImproving(IFuturemud gameworld, long id)
 	{
+		Gameworld = gameworld;
 		_id = id;
+	}
+
+	/// <inheritdoc />
+	public override IImprovementModel Clone(string name)
+	{
+		return null;
 	}
 
 	public override double GetImprovement(IHaveTraits person, ITrait trait, Difficulty difficulty, Outcome outcome,
@@ -28,9 +39,34 @@ public class NonImproving : ImprovementModel
 		return false;
 	}
 
-	#region Overrides of FrameworkItem
+	/// <inheritdoc />
+	protected override string SubtypeHelpText => "";
+
+	/// <inheritdoc />
+	protected override XElement SaveDefinition()
+	{
+		return new XElement("Definition");
+	}
+
+	/// <inheritdoc />
+	public override string Show(ICharacter actor)
+	{
+		var sb = new StringBuilder();
+		sb.AppendLine($"Improver #{Id.ToString("N0", actor)} - {Name}".GetLineWithTitle(actor, Telnet.Cyan, Telnet.BoldWhite));
+		sb.AppendLine();
+		sb.AppendLine($"Type: {ImproverType.TitleCase().ColourValue()}");
+		return sb.ToString();
+	}
+
+	/// <inheritdoc />
+	public override bool BuildingCommand(ICharacter actor, StringStack command)
+	{
+		actor.OutputHandler.Send($"Non-Improving Improvement Models have no properties that can be edited.");
+		return false;
+	}
 
 	public override string Name => "Non Improving";
 
-	#endregion
+	/// <inheritdoc />
+	public override string ImproverType => "non-improving";
 }

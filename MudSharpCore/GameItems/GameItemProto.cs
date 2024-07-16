@@ -488,6 +488,11 @@ public class GameItemProto : EditableItem, IGameItemProto
 		return $"Item Proto #{Id}r{RevisionNumber} ({ShortDescription})";
 	}
 
+	public string EditHeaderColour(ICharacter voyeur)
+	{
+		return $"Item Proto #{Id.ToString("N0", voyeur)}r{RevisionNumber.ToString("N0", voyeur)} ({ShortDescription.Colour(CustomColour ?? Telnet.Green)})";
+	}
+
 	public override bool CanSubmit()
 	{
 		return Material != null;

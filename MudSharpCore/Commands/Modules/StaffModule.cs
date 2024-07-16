@@ -3245,4 +3245,249 @@ For example:
 			actor.OutputHandler.Send(sb.ToString());
 		}
 	}
+
+	[PlayerCommand("ItemAudit", "itemaudit")]
+	[CommandPermission(PermissionLevel.JuniorAdmin)]
+	[HelpInfo("itemaudit", @"The ItemAudit command is used to see how many items are loaded into the game world. This can be useful for keeping an eye on which items are being used and consumed, and give you further targets of investigation for related commands like #3locateitem#0 and #3summonitem#0.
+
+The syntax is #itemaudit [<filters>]#0.
+
+The filters that can be used are as follows:
+
+	#6*<tag>#0 - show only items with a particular tag
+	#6%<zone>#0 - show only items in a particular zone
+	#6+<keyword>#0 - show only items with a particular keyword
+	#6-<keyword>#0 - show only items without a particular keyword
+	#6<component>#0 - show only items with component types as described", AutoHelp.HelpArgOrNoArg)]
+	protected static void ItemAudit(ICharacter actor, string input)
+	{
+		var ss = new StringStack(input.RemoveFirstWord());
+		var protos = actor.Gameworld.ItemProtos.ToList();
+		var filters = new List<string>();
+		IZone zone = null;
+
+		while (!ss.IsFinished)
+		{
+			var keyword = ss.PopSpeech();
+			if (keyword.Length < 2)
+			{
+				actor.OutputHandler.Send($"The text {keyword.ColourCommand()} is not a valid filter.");
+				return;
+			}
+
+			if (keyword[0] == '*')
+			{
+				keyword = keyword.Substring(1);
+				var tags = actor.Gameworld.Tags.FindMatchingTags(keyword);
+				protos = protos
+				             .Where(x => x.Tags.Any(y => tags.Any(z => y.IsA(z))))
+				             .ToList();
+				filters.Add($"with the {"tag".Pluralise(tags.Count != 1)} {tags.Select(x => x.FullName.ColourName()).ListToString(conjunction: "or ")}");
+				continue;
+			}
+
+			if (keyword[0] == '+')
+			{
+				keyword = keyword.Substring(1);
+				protos = protos
+				         .Where(x => 
+					         x.ShortDescription.Contains(keyword, StringComparison.InvariantCultureIgnoreCase) ||
+							 x.Name.Contains(keyword, StringComparison.InvariantCultureIgnoreCase) ||
+							 x.LongDescription.Contains(keyword, StringComparison.InvariantCultureIgnoreCase) ||
+							 x.FullDescription.Contains(keyword, StringComparison.InvariantCultureIgnoreCase)
+					        )
+				         .ToList();
+				filters.Add($"with the keyword {keyword.ColourCommand()}");
+				continue;
+			}
+
+			if (keyword[0] == '-')
+			{
+				keyword = keyword.Substring(1);
+				protos = protos
+				         .Where(x =>
+					         !x.ShortDescription.Contains(keyword, StringComparison.InvariantCultureIgnoreCase) &&
+					         !x.Name.Contains(keyword, StringComparison.InvariantCultureIgnoreCase) &&
+							 !x.LongDescription.Contains(keyword, StringComparison.InvariantCultureIgnoreCase) &&
+							 !x.FullDescription.Contains(keyword, StringComparison.InvariantCultureIgnoreCase)
+				         )
+				         .ToList();
+				filters.Add($"without the keyword {keyword.ColourCommand()}");
+				continue;
+			}
+
+			if (keyword[0] == '%')
+			{
+				keyword = keyword.Substring(1);
+				zone = actor.Gameworld.Zones.GetByIdOrName(keyword);
+				if (zone is null)
+				{
+					actor.OutputHandler.Send($"There is no zone identified by the text {keyword.ColourCommand()}.");
+					return;
+				}
+
+				filters.Add($"in the zone {zone.Name.ColourValue()}");
+				continue;
+			}
+
+			protos = protos
+			               .Where(x => x.Components.Any(
+				               y => y.TypeDescription.StartsWith(
+					               keyword, StringComparison.InvariantCultureIgnoreCase)))
+			               .ToList();
+			filters.Add($"with component types starting with the text {keyword.ColourCommand()}");
+		}
+
+		var protosHash = protos.Select(x => x.Id).ToHashSet();
+		var items = actor.Gameworld.Items
+		                 .Where(x => protosHash.Contains(x.Prototype.Id))
+		                 .ToList();
+		var counterTotal = new Counter<IGameItemProto>();
+		var counterWorld = new Counter<IGameItemProto>();
+		var counterInventories = new Counter<IGameItemProto>();
+		var counterContainers = new Counter<IGameItemProto>();
+
+		foreach (var item in items)
+		{
+			var location = item.TrueLocations.FirstOrDefault();
+			if (zone is not null && location is not null && location.Zone != zone)
+			{
+				continue;
+			}
+
+			counterTotal.Add(item.Prototype, 1);
+			if (item.ContainedIn != null)
+			{
+				counterContainers.Add(item.Prototype, 1);
+			}
+			else if (item.InInventoryOf != null)
+			{
+				counterInventories.Add(item.Prototype, 1);
+			}
+			else
+			{
+				counterWorld.Add(item.Prototype, 1);
+			}
+		}
+
+		var sb = new StringBuilder();
+		sb.AppendLine($"Audit of all world items".GetLineWithTitle(actor, Telnet.Green, Telnet.BoldWhite));
+		sb.AppendLine();
+		sb.AppendLine($"Filters:");
+		sb.AppendLine();
+		if (filters.Any())
+		{
+			foreach (var item in filters)
+			{
+				sb.AppendLine($"\t{item}");
+			}
+		}
+		else
+		{
+			sb.AppendLine("\tNo filters");
+		}
+
+		sb.AppendLine();
+		sb.AppendLine(StringUtilities.GetTextTable(
+			from item in counterTotal
+			orderby item.Value descending
+			select new List<string>
+			{
+				$"{item.Key.Id.ToString("N0", actor)}r{item.Key.RevisionNumber.ToString("N0", actor)}",
+				item.Key.ShortDescription.Colour(item.Key.CustomColour ?? Telnet.Green),
+				item.Value.ToString("N0", actor),
+				counterWorld[item.Key].ToString("N0", actor),
+				counterInventories[item.Key].ToString("N0", actor),
+				counterContainers[item.Key].ToString("N0", actor),
+				(!(item.Key.Status.In(RevisionStatus.Current, RevisionStatus.UnderDesign))).ToColouredString()
+			},
+			new List<string>
+			{
+				"Proto",
+				"Description",
+				"# Total",
+				"# World",
+				"# Inventories",
+				"# Containers",
+				"Obsolete"
+			},
+			actor,
+			Telnet.Yellow
+		));
+		actor.OutputHandler.Send(sb.ToString());
+	}
+
+	[PlayerCommand("LocateItem", "locateitem", "li")]
+	[CommandPermission(PermissionLevel.JuniorAdmin)]
+	protected static void LocateItem(ICharacter actor, string command)
+	{
+		var ss = new StringStack(command.RemoveFirstWord());
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send(
+				"What keyword, item ID (prefixed by !) or item prototype ID (prefixed by *) do you want to search for?");
+			return;
+		}
+
+		var text = ss.PopSpeech();
+		List<IGameItem> items;
+		if (text[0] == '*')
+		{
+			if (!long.TryParse(text.Substring(1), out var value))
+			{
+				actor.OutputHandler.Send("That is not a valid ID.");
+				return;
+			}
+
+			items = actor.Gameworld.Items.Where(x => x.Prototype.Id == value).ToList();
+		}
+		else if (text[0] == '!')
+		{
+			if (!long.TryParse(text.Substring(1), out var value))
+			{
+				actor.OutputHandler.Send("That is not a valid ID.");
+				return;
+			}
+
+			items = actor.Gameworld.Items.Where(x => x.Id == value).ToList();
+		}
+		else
+		{
+			var split = text.Split('.');
+			// The early ToList() in the next query is necessary because this is one of the few cases in the code where the entire Gameworld.Items is queried as an 
+			// IEnumerable and HasKeyword can cause some items to initialise themselves (such as corpses) that modify the list of items loaded into the world
+			items = actor.Gameworld.Items.ToList().Where(x => split.All(y => x.HasKeyword(y, actor, true))).ToList();
+		}
+
+		if (!items.Any())
+		{
+			actor.OutputHandler.Send("You don't find any items like that.");
+			return;
+		}
+
+		items = items.OrderBy(x => x.TrueLocations.FirstOrDefault()?.Id ?? 0).ToList();
+
+		var sb = new StringBuilder();
+		foreach (var item in items)
+		{
+			var location = item.TrueLocations.FirstOrDefault();
+			if (item.ContainedIn != null)
+			{
+				sb.AppendLine(
+					$"[#{item.Id.ToString("N0", actor)}] {{{item.Prototype.Id.ToString("N0", actor)}r{item.Prototype.RevisionNumber.ToString("N0", actor)}}} {item.HowSeen(actor, flags: PerceiveIgnoreFlags.IgnoreCanSee)} - {location?.HowSeen(actor) ?? "Nowhere".Colour(Telnet.Red)}{(location != null ? $" ({location.Id})" : "")} [contained: {item.ContainedIn.HowSeen(actor, flags: PerceiveIgnoreFlags.IgnoreCanSee)}]");
+			}
+			else if (item.InInventoryOf != null)
+			{
+				sb.AppendLine(
+					$"[#{item.Id.ToString("N0", actor)}] {{{item.Prototype.Id.ToString("N0", actor)}r{item.Prototype.RevisionNumber.ToString("N0", actor)}}} {item.HowSeen(actor, flags: PerceiveIgnoreFlags.IgnoreCanSee)} - {location?.HowSeen(actor) ?? "Nowhere".Colour(Telnet.Red)}{(location != null ? $" ({location.Id})" : "")} [inventory: {item.InInventoryOf.HowSeen(actor, flags: PerceiveIgnoreFlags.IgnoreCanSee)}]");
+			}
+			else
+			{
+				sb.AppendLine(
+					$"[#{item.Id.ToString("N0", actor)}] {{{item.Prototype.Id.ToString("N0", actor)}r{item.Prototype.RevisionNumber.ToString("N0", actor)}}} {item.HowSeen(actor, flags: PerceiveIgnoreFlags.IgnoreCanSee)} - {location?.HowSeen(actor) ?? "Nowhere".Colour(Telnet.Red)}{(location != null ? $" ({location.Id})" : "")}");
+			}
+		}
+
+		actor.OutputHandler.Send(sb.ToString());
+	}
 }

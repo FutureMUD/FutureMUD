@@ -22,7 +22,6 @@ using MudSharp.RPG.Knowledge;
 using MudSharp.Form.Material;
 using MudSharp.NPC;
 using System.Reflection;
-using C5;
 using MudSharp.Accounts;
 using MudSharp.Body.Traits;
 using MudSharp.Body.Traits.Subtypes;
@@ -109,7 +108,7 @@ internal class GameModule : Module<ICharacter>
 			return;
 		}
 
-		if (!(target is INPC npc) || !npc.HandlesEvent(EventType.CommandIssuedToCharacter))
+		if (!(target is INPC npc) || !npc.HandlesEvent(Events.EventType.CommandIssuedToCharacter))
 		{
 			if (actor.CanSee(target))
 			{
@@ -123,7 +122,7 @@ internal class GameModule : Module<ICharacter>
 			return;
 		}
 
-		npc.HandleEvent(EventType.CommandIssuedToCharacter, target, actor, ss.RemainingArgument);
+		npc.HandleEvent(Events.EventType.CommandIssuedToCharacter, target, actor, ss.RemainingArgument);
 	}
 
 	[PlayerCommand("Notify", "notify")]
@@ -1091,7 +1090,7 @@ You can also type 'forage' on its own to see what kinds of yields you can search
 						anyInLocation = true;
 					}
 
-					item.HandleEvent(EventType.ItemFinishedLoading, item);
+					item.HandleEvent(Events.EventType.ItemFinishedLoading, item);
 					item.Login();
 				}
 
@@ -1406,7 +1405,7 @@ You can also type 'forage' on its own to see what kinds of yields you can search
 	}
 
 	public static IComparer<string> CommandGroupComparer =>
-		ComparerFactory<string>.CreateComparer(
+		C5.ComparerFactory<string>.CreateComparer(
 			(group1, group2) =>
 			{
 				var result1 = GetCommandGroupScore(group1);

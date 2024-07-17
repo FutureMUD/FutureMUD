@@ -427,7 +427,9 @@ public abstract class Shop : SaveableItem, IShop
 		item.RemoveAllEffects<ItemOnDisplayInShop>();
 		actor?.OutputHandler.Send(
 			$"You dispose of {item.HowSeen(actor)} from the for-sale inventory of {Name.TitleCase().Colour(Telnet.Cyan)}.");
-		var merch = _merchandises.FirstOrDefault(x => x.IsMerchandiseFor(item));
+		var merch =
+			_merchandises.FirstOrDefault(x => x.IsMerchandiseFor(item)) ??
+			_merchandises.FirstOrDefault(x => x.IsMerchandiseFor(item, true));
 		AddTransaction(new TransactionRecord(ShopTransactionType.StockLoss, Currency, this,
 			EconomicZone.ZoneForTimePurposes.DateTime(), actor,
 			merch?.EffectivePrice ?? 0.0M * item.Quantity, 0.0M));

@@ -152,7 +152,8 @@ public class TransientShop : Shop, ITransientShop
 				continue;
 			}
 
-			var merch = Merchandises.FirstOrDefault(x => x.IsMerchandiseFor(item));
+			var merch = Merchandises.FirstOrDefault(x => x.IsMerchandiseFor(item)) ??
+			            _merchandises.FirstOrDefault(x => x.IsMerchandiseFor(item, true));
 			if (merch == null)
 			{
 				continue;

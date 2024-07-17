@@ -639,15 +639,18 @@ public class Merchandise : LateInitialisingItem, IMerchandise
 		if (actor.IsAdministrator())
 		{
 			sb.AppendLine(
-				$"Item Proto: {Item.ShortDescription.ColourObject()}{(DefaultMerchandiseForItem ? " [default for item]".Colour(Telnet.BoldWhite) : "")} ({Item.Id.ToString("N0", actor)}r{Item.RevisionNumber.ToString("N0", actor)})");
+				$"Item Proto: {Item.ShortDescription.ColourObject()} ({Item.Id.ToString("N0", actor)}r{Item.RevisionNumber.ToString("N0", actor)})");
 		}
 		else
 		{
 			sb.AppendLine(
-				$"Item Proto: {Item.ShortDescription.ColourObject()}{(DefaultMerchandiseForItem ? " [default for item]".Colour(Telnet.BoldWhite) : "")}");
+				$"Item Proto: {Item.ShortDescription.ColourObject()}");
 		}
 
-		sb.AppendLine($"List Description: {ListDescription}");
+		sb.AppendLine($"Default for Item Proto: {DefaultMerchandiseForItem.ToColouredString()}");
+		sb.AppendLine($"Skin: {(_skinId.HasValue ? Gameworld.ItemSkins.Get(_skinId.Value).Name.MXPSend($"itemskin show {_skinId.Value}") : "Default".ColourCommand())}");
+
+		sb.AppendLine($"List Description: {ListDescription.ColourObject()}");
 		if (BasePrice == -1.0M)
 		{
 			sb.AppendLine($"Pre-Tax Price: {"Based on Item Cost".ColourCommand()} (currently: {Shop.Currency.Describe(Item.CostInBaseCurrency / Shop.Currency.BaseCurrencyToGlobalBaseCurrencyConversion, CurrencyDescriptionPatternType.ShortDecimal).ColourValue()})");
@@ -758,10 +761,10 @@ public class Merchandise : LateInitialisingItem, IMerchandise
 		}
 	}
 
-	public bool IsMerchandiseFor(IGameItem item)
+	public bool IsMerchandiseFor(IGameItem item, bool ignoreDefault = false)
 	{
 		return item.EffectsOfType<ItemOnDisplayInShop>().Any(x => x.Merchandise == this) ||
-		       (DefaultMerchandiseForItem && Item.Id == item.Prototype.Id && (_skinId is null || item.Skin == Skin))
+		       ((ignoreDefault || DefaultMerchandiseForItem) && Item.Id == item.Prototype.Id && (_skinId is null || item.Skin == Skin))
 			;
 	}
 

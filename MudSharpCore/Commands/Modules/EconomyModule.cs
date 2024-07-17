@@ -1131,7 +1131,7 @@ The syntax for this command is as follows:
 		if (!ss.IsFinished)
 		{
 			merch = shop.Merchandises
-						.Where(x => x.IsMerchandiseFor(item))
+						.Where(x => x.IsMerchandiseFor(item, true))
 						.GetFromItemListByKeyword(ss.PopSpeech(), actor);
 			if (merch == null)
 			{
@@ -1142,7 +1142,8 @@ The syntax for this command is as follows:
 		}
 		else
 		{
-			merch = shop.Merchandises.FirstOrDefault(x => x.IsMerchandiseFor(item));
+			merch = shop.Merchandises.FirstOrDefault(x => x.IsMerchandiseFor(item)) ??
+			        shop.Merchandises.FirstOrDefault(x => x.IsMerchandiseFor(item, true)); ;
 			if (merch == null)
 			{
 				actor.OutputHandler.Send(
@@ -3301,7 +3302,7 @@ Additionally, you can use the following shop admin subcommands:
 		if (!ss.IsFinished)
 		{
 			merch = shop.Merchandises
-						.Where(x => x.IsMerchandiseFor(item))
+						.Where(x => x.IsMerchandiseFor(item, true))
 						.GetFromItemListByKeyword(ss.PopSpeech(), actor);
 			if (merch == null)
 			{
@@ -3312,7 +3313,8 @@ Additionally, you can use the following shop admin subcommands:
 		}
 		else
 		{
-			merch = shop.Merchandises.FirstOrDefault(x => x.IsMerchandiseFor(item));
+			merch = shop.Merchandises.FirstOrDefault(x => x.IsMerchandiseFor(item)) ??
+			        shop.Merchandises.FirstOrDefault(x => x.IsMerchandiseFor(item, true));
 			if (merch == null)
 			{
 				actor.OutputHandler.Send(
@@ -3364,7 +3366,9 @@ Additionally, you can use the following shop admin subcommands:
 			return;
 		}
 
-		var merch = shop.Merchandises.FirstOrDefault(x => x.Item.Id == item.Prototype.Id);
+		var merch =
+			shop.Merchandises.FirstOrDefault(x => x.IsMerchandiseFor(item)) ??
+			shop.Merchandises.FirstOrDefault(x => x.IsMerchandiseFor(item, true));
 		if (merch == null)
 		{
 			actor.OutputHandler.Send(

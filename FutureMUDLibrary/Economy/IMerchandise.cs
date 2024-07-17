@@ -33,7 +33,7 @@ namespace MudSharp.Economy
         bool IgnoreMarketPricing { get; }
 
 
-        bool IsMerchandiseFor(IGameItem item);
+        bool IsMerchandiseFor(IGameItem item, bool ignoreDefault = false);
         bool BuildingCommand(ICharacter actor, StringStack command);
         void ShowToBuilder(ICharacter actor);
         void ShopCurrencyChanged(ICurrency oldCurrency, ICurrency newCurrency);

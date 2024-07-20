@@ -27,17 +27,36 @@ public class ComboMerit : CharacterMeritBase
 
 	private readonly List<ICharacterMerit> _characterMerits = new();
 
+	private void InitialiseChildren()
+	{
+		if (!_characterMerits.Any() && _childMeritIds.Any())
+		{
+			_characterMerits.AddRange(_childMeritIds.SelectNotNull(x => Gameworld.Merits.Get(x) as ICharacterMerit));
+		}
+	}
+
 	public IEnumerable<ICharacterMerit> CharacterMerits
 	{
 		get
 		{
-			if (!_characterMerits.Any() && _childMeritIds.Any())
-			{
-				_characterMerits.AddRange(
-					_childMeritIds.SelectNotNull(x => Gameworld.Merits.Get(x) as ICharacterMerit));
-			}
-
+			InitialiseChildren();
 			return _characterMerits;
 		}
+	}
+
+	public void AddChild(ICharacterMerit merit)
+	{
+		InitialiseChildren();
+		_childMeritIds.Add(merit.Id);
+		_characterMerits.Add(merit);
+		Changed = true;
+	}
+
+	public void RemoveChild(ICharacterMerit merit)
+	{
+		InitialiseChildren();
+		_childMeritIds.Remove(merit.Id);
+		_characterMerits.Remove(merit);
+		Changed = true;
 	}
 }

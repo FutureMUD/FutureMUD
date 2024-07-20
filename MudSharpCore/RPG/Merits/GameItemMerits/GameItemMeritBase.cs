@@ -6,7 +6,7 @@ namespace MudSharp.RPG.Merits.GameItemMerits;
 
 public abstract class GameItemMeritBase : MeritBase, IGameItemMerit
 {
-	protected GameItemMeritBase(Merit merit, IFuturemud gameworld) : base(merit)
+	protected GameItemMeritBase(Merit merit, IFuturemud gameworld) : base(merit, gameworld)
 	{
 	}
 

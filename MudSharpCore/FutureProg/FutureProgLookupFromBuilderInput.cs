@@ -36,6 +36,16 @@ internal class FutureProgLookupFromBuilderInput
 		Character = character;
 	}
 
+	public FutureProgLookupFromBuilderInput(ICharacter character, string builderInput, FutureProgVariableTypes targetReturnType, IEnumerable<FutureProgVariableTypes> parameters) :
+		this(character.Gameworld, character, builderInput, targetReturnType, parameters)
+	{
+	}
+
+	public FutureProgLookupFromBuilderInput(ICharacter character, string builderInput, FutureProgVariableTypes targetReturnType, IEnumerable<IEnumerable<FutureProgVariableTypes>> parameters) :
+		this(character.Gameworld, character, builderInput, targetReturnType, parameters)
+	{
+	}
+
 	/// <summary>
 	/// This function will search for the prog based on the supplied criteria and echo to the admin any reason for failure.
 	/// </summary>

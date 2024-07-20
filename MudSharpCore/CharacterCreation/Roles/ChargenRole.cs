@@ -250,9 +250,12 @@ internal class ChargenRole : SaveableItem, IChargenRole
 		MinimumPermissionToView = (PermissionLevel)role.MinimumAuthorityToView;
 		AvailabilityProg = Gameworld.FutureProgs.Get(role.AvailabilityProgId ?? 0);
 		_costs.AddRange(role.ChargenRolesCosts.Select(x =>
-			new ChargenResourceCost(
-				Gameworld.ChargenResources.Get(x.ChargenResourceId) ?? throw new InvalidOperationException(),
-				x.RequirementOnly)));
+			new ChargenResourceCost
+			{
+				Resource = Gameworld.ChargenResources.Get(x.ChargenResourceId) ?? throw new InvalidOperationException(),
+				RequirementOnly = x.RequirementOnly,
+				Amount = x.Amount
+			}));
 		TraitAdjustments = role.ChargenRolesTraits.ToDictionary(x => Gameworld.Traits.Get(x.TraitId),
 			x => (x.Amount, x.GiveIfDoesntHave));
 		StartingCurrency = role.ChargenRolesCurrencies.ToDictionary(x => Gameworld.Currencies.Get(x.CurrencyId),

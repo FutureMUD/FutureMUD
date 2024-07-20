@@ -26,9 +26,13 @@ public class SkillDefinition : TraitDefinition, ISkillDefinition
 		AvailabilityProg = game.FutureProgs.Get(trait.AvailabilityProgId ?? 0);
 		foreach (var item in trait.TraitDefinitionsChargenResources)
 		{
-			_costs.Add(new ChargenResourceCost(amount: item.Amount, requirementOnly: item.RequirementOnly,
-				resource: Gameworld.ChargenResources.Get(item.ChargenResourceId) ??
-				          throw new InvalidOperationException()));
+			_costs.Add(new ChargenResourceCost
+			{
+				Resource = Gameworld.ChargenResources.Get(item.ChargenResourceId) ??
+				           throw new InvalidOperationException(),
+				Amount = item.Amount,
+				RequirementOnly = item.RequirementOnly
+			});
 		}
 
 		TeachableProg = game.FutureProgs.Get(trait.TeachableProgId ?? 0);

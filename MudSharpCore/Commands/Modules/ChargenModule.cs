@@ -15,6 +15,7 @@ using MudSharp.Commands.Helpers;
 using MudSharp.Database;
 using MudSharp.Effects.Concrete;
 using MudSharp.Framework;
+using MudSharp.RPG.Merits;
 
 namespace MudSharp.Commands.Modules;
 
@@ -641,8 +642,95 @@ You can use the following syntax with this command:
 
 	[PlayerCommand("IntroTemplate", "introtemplate")]
 	[HelpInfo("IntroTemplate", IntroTemplateHelp, AutoHelp.HelpArgOrNoArg)]
+	[CommandPermission(PermissionLevel.SeniorAdmin)]
 	protected static void IntroTemplate(ICharacter actor, string command)
 	{
 		BaseBuilderModule.GenericBuildingCommand(actor, new StringStack(command.RemoveFirstWord()), EditableItemHelper.CharacterIntroTemplateHelper);
+	}
+
+	public const string MeritHelpText = @"This command is used to create and edit merits (also known as flaws or quirks). These can be added to items and characters to give them various effects.
+
+You can use the following commands to work with merits:
+
+	#3merit list#0 - lists all merits
+	#3merit show <id|name>#0 - shows a merit
+	#3merit show#0 - an alias for showing your currently edited merit
+	#3merit edit <which>#0 - begin editing a particular existing merit
+	#3merit edit#0 - an alias for showing your currently edited merit
+	#3merit close#0 - stop editing your current merit
+	#3merit new <type> <name>#0 - creates and begins editing a new merit
+	#3merit clone <old> <newName>#0 - clones and begins editing a merit
+	#3merit types#0 - shows a list of merit types
+	#3merit typehelp <type>#0 - shows the help text for a merit type
+	#3merit set ...#0 - edits the properties of a merit. See the type help for more info.";
+
+	[PlayerCommand("Merit", "merit")]
+	[HelpInfo("merit", MeritHelpText, AutoHelp.HelpArgOrNoArg)]
+	[CommandPermission(PermissionLevel.Admin)]
+	protected static void Merit(ICharacter actor, string command)
+	{
+		var ss = new StringStack(command.RemoveFirstWord());
+		if (ss.PeekSpeech().EqualTo("types"))
+		{
+			MeritTypes(actor);
+			return;
+		}
+
+		if (ss.PeekSpeech().EqualTo("typehelp"))
+		{
+			ss.PopSpeech();
+			MeritTypeHelp(actor, ss);
+			return;
+		}
+
+		BaseBuilderModule.GenericBuildingCommand(actor, new StringStack(command.RemoveFirstWord()), EditableItemHelper.MeritHelper);
+	}
+
+	private static void MeritTypeHelp(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send($"Which merit type do you want to view help for? See {"merit types".MXPSend("merit types")} for a complete list.");
+			return;
+		}
+
+		var type = MeritFactory.TypeHelps.FirstOrDefault(x => x.Type.EqualTo(command.SafeRemainingArgument));
+		if (string.IsNullOrEmpty(type.HelpText))
+		{
+			actor.OutputHandler.Send($"There is no merit type identified by the text {command.SafeRemainingArgument.ColourCommand()}. See {"merit types".MXPSend("merit types")} for a complete list.");
+			return;
+		}
+
+		var sb = new StringBuilder();
+		sb.AppendLine($"Merit Type Help - {type.Type}".GetLineWithTitle(actor, Telnet.Cyan, Telnet.BoldWhite));
+		sb.AppendLine();
+		sb.AppendLine($"Blurb: {type.Blurb}");
+		sb.AppendLine();
+		sb.AppendLine(type.HelpText);
+		actor.OutputHandler.Send(sb.ToString());
+	}
+
+	private static void MeritTypes(ICharacter actor)
+	{
+		var sb = new StringBuilder();
+		sb.AppendLine($"There are the following merit types:");
+		sb.AppendLine();
+		sb.AppendLine(StringUtilities.GetTextTable(
+			from item in MeritFactory.TypeHelps
+			orderby item.Type
+			select new List<string>
+			{
+				item.Type.TitleCase(),
+				item.Blurb
+			},
+			new List<string>
+			{
+				"Type",
+				"Blurb"
+			},
+			actor,
+			Telnet.Cyan
+		));
+		actor.OutputHandler.Send(sb.ToString());
 	}
 }

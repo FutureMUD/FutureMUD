@@ -119,6 +119,11 @@ namespace MudSharp.Framework {
 	               .Replace(">", "&gt;");
         }
 
+        public static string StripMXP(this string input)
+        {
+	        return _mxpTagRegex.Replace(input, "");
+		}
+
         public static string SanitiseMXP(this string input, MXPSupport support) {
             if (support?.UseMXP == false) {
                 return _mxpTagRegex.Replace(input, "");

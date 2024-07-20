@@ -3404,10 +3404,31 @@ Additionally, you can use the following shop admin subcommands:
 			case "set":
 				ShopMerchandiseSet(actor, ss);
 				return;
+			case "close":
+				ShopMerchandiseClose(actor);
+				return;
 			default:
 				ShopMerchandiseHelp(actor);
 				return;
 		}
+	}
+
+	private static void ShopMerchandiseClose(ICharacter actor)
+	{
+		if (!DoShopCommandFindShop(actor, out var shop))
+		{
+			return;
+		}
+		var editing = actor.EffectsOfType<BuilderEditingEffect<IMerchandise>>()
+		                   .FirstOrDefault(x => x.EditingItem.Shop == shop);
+		if (editing is null)
+		{
+			actor.OutputHandler.Send("You are not editing any merchandise for your current shop.");
+			return;
+		}
+
+		actor.RemoveEffect(editing);
+		actor.OutputHandler.Send($"You are no longer editing any merchandise records for your current shop.");
 	}
 
 	private const string ShopMerchandiseHelpText = @"You can use the following subcommands for working with merchandise:
@@ -3420,6 +3441,7 @@ Additionally, you can use the following shop admin subcommands:
 	#3shop merch new <name> <id>|<target> <price>|default [<custom description>]#0 - creates a new record with the specified item and price, and optional custom LIST description
 	#3shop merch clone <new name>#0 - clones the currently edited record to an identical new record
 	#3shop merch delete#0 - deletes the current merchandise record
+	#3shop merch close#0 - closes the merchandise record you're editing
 	#3shop merch set name <name>#0 - sets the name of a merchandise
 	#3shop merch set proto <target>#0 - sets the item type associated with a merchandise
 	#3shop merch set default#0 - toggles whether this is the default merch record for similar items
@@ -3440,6 +3462,7 @@ Additionally, you can use the following shop admin subcommands:
 	#3shop merch new <name> <id>|<target> <price>|default [<custom description>]#0 - creates a new record with the specified item and price, and optional custom LIST description
 	#3shop merch clone <new name>#0 - clones the currently edited record to an identical new record
 	#3shop merch delete#0 - deletes the current merchandise record
+	#3shop merch close#0 - closes the merchandise record you're editing
 	#3shop merch set name <name>#0 - sets the name of a merchandise
 	#3shop merch set proto <target>#0 - sets the item type associated with a merchandise
 	#3shop merch set default#0 - toggles whether this is the default merch record for similar items
@@ -3463,11 +3486,15 @@ Additionally, you can use the following shop admin subcommands:
 
 	private static void ShopMerchandiseSet(ICharacter actor, StringStack ss)
 	{
+		if (!DoShopCommandFindShop(actor, out var shop))
+		{
+			return;
+		}
 		var editing = actor.EffectsOfType<BuilderEditingEffect<IMerchandise>>()
-						   .FirstOrDefault();
+						   .FirstOrDefault(x => x.EditingItem.Shop == shop);
 		if (editing == null)
 		{
-			actor.OutputHandler.Send("You are not currently editing any merchandise entries.");
+			actor.OutputHandler.Send("You are not currently editing any merchandise entries for your current shop.");
 			return;
 		}
 
@@ -3476,11 +3503,15 @@ Additionally, you can use the following shop admin subcommands:
 
 	private static void ShopMerchandiseDelete(ICharacter actor, StringStack ss)
 	{
+		if (!DoShopCommandFindShop(actor, out var shop))
+		{
+			return;
+		}
 		var editing = actor.EffectsOfType<BuilderEditingEffect<IMerchandise>>()
-						   .FirstOrDefault(x => x.EditingItem.Shop == actor.Location.Shop);
+						   .FirstOrDefault(x => x.EditingItem.Shop == shop);
 		if (editing == null)
 		{
-			actor.OutputHandler.Send("You are not currently editing any merchandise entries.");
+			actor.OutputHandler.Send("You are not currently editing any merchandise entries for your current shop.");
 			return;
 		}
 
@@ -3512,8 +3543,12 @@ Additionally, you can use the following shop admin subcommands:
 
 	private static void ShopMerchandiseClone(ICharacter actor, StringStack ss)
 	{
+		if (!DoShopCommandFindShop(actor, out var shop))
+		{
+			return;
+		}
 		var editing = actor.EffectsOfType<BuilderEditingEffect<IMerchandise>>()
-						   .FirstOrDefault(x => x.EditingItem.Shop == actor.Location.Shop);
+						   .FirstOrDefault(x => x.EditingItem.Shop == shop);
 		if (editing == null)
 		{
 			actor.OutputHandler.Send("You are not currently editing any merchandise entries.");
@@ -3638,8 +3673,7 @@ Additionally, you can use the following shop admin subcommands:
 		{
 			return;
 		}
-
-
+		
 		if (!shop.IsManager(actor) && !actor.IsAdministrator())
 		{
 			actor.OutputHandler.Send("Only managers or proprietors of the shop can edit merchandise records.");
@@ -3661,7 +3695,9 @@ Additionally, you can use the following shop admin subcommands:
 		}
 
 		var text = ss.PopSpeech();
-		var merch = shop.Merchandises.GetFromItemListByKeywordIncludingNames(text, actor);
+		var merch = 
+			shop.Merchandises.GetById(text) ??
+			shop.Merchandises.GetFromItemListByKeywordIncludingNames(text, actor);
 		if (merch == null)
 		{
 			actor.OutputHandler.Send("There is no merchandise record like that for you to edit.");
@@ -3702,7 +3738,9 @@ Additionally, you can use the following shop admin subcommands:
 		}
 
 		var text = ss.PopSpeech();
-		var merch = shop.Merchandises.GetFromItemListByKeywordIncludingNames(text, actor);
+		var merch = 
+			shop.Merchandises.GetById(text) ?? 
+			shop.Merchandises.GetFromItemListByKeywordIncludingNames(text, actor);
 		if (merch == null)
 		{
 			actor.OutputHandler.Send("There is no merchandise record like that for you to view.");
@@ -3728,16 +3766,18 @@ Additionally, you can use the following shop admin subcommands:
 		var stockTake = shop.StocktakeAllMerchandise();
 		actor.OutputHandler.Send(StringUtilities.GetTextTable(
 			from merch in shop.Merchandises
-			orderby merch.Name
+			orderby merch.Id
 			select new[]
 			{
+				merch.Id.ToString("N0", actor),
 				merch.Name,
 				merch.ListDescription,
 				shop.Currency.Describe(merch.EffectivePrice, CurrencyDescriptionPatternType.Short),
 				stockTake[merch].OnFloorCount.ToString("N0", actor),
-				stockTake[merch].InStockroomCount.ToString("N0", actor)
+				stockTake[merch].InStockroomCount.ToString("N0", actor),
+				merch.DefaultMerchandiseForItem.ToColouredString()
 			},
-			new[] { "Name", "List Description", "Price", "On Display", "In Store" },
+			new[] { "Id", "Name", "List Description", "Price", "On Display", "In Store", "Default?" },
 			actor.LineFormatLength,
 			truncatableColumnIndex: 1,
 			colour: Telnet.Green,

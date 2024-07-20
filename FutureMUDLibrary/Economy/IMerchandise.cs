@@ -12,30 +12,32 @@ using MudSharp.Economy.Currency;
 
 namespace MudSharp.Economy
 {
-    public interface IMerchandise : ISaveable, IKeywordedItem, IFutureProgVariable
-    {
-        IShop Shop { get; }
-        bool AutoReordering { get; }
-        decimal EffectiveAutoReorderPrice { get; }
-        bool PreserveVariablesOnReorder { get; }
-        int MinimumStockLevels { get; }
-        double MinimumStockLevelsByWeight { get; }
-        decimal EffectivePrice { get; }
-        IGameItem PreferredDisplayContainer { get; }
-        string ListDescription { get; }
-        IGameItemProto Item { get; }
-        IGameItemSkin Skin { get; }
-        bool WillSell { get; }
-        bool WillBuy { get; }
-        decimal BaseBuyModifier { get; }
-        double MinimumConditionToBuy { get; }
-        int MaximumStockLevelsToBuy { get; }
-        bool IgnoreMarketPricing { get; }
+	public interface IMerchandise : ISaveable, IKeywordedItem, IFutureProgVariable
+	{
+		IShop Shop { get; }
+		bool AutoReordering { get; }
+		decimal EffectiveAutoReorderPrice { get; }
+		bool PreserveVariablesOnReorder { get; }
+		int MinimumStockLevels { get; }
+		double MinimumStockLevelsByWeight { get; }
+		decimal EffectivePrice { get; }
+		IGameItem PreferredDisplayContainer { get; }
+		string ListDescription { get; }
+		IGameItemProto Item { get; }
+		IGameItemSkin Skin { get; }
+		bool WillSell { get; }
+		bool WillBuy { get; }
+		decimal BaseBuyModifier { get; }
+		double MinimumConditionToBuy { get; }
+		int MaximumStockLevelsToBuy { get; }
+		bool IgnoreMarketPricing { get; }
+		bool DefaultMerchandiseForItem { get; }
 
 
-        bool IsMerchandiseFor(IGameItem item, bool ignoreDefault = false);
-        bool BuildingCommand(ICharacter actor, StringStack command);
-        void ShowToBuilder(ICharacter actor);
-        void ShopCurrencyChanged(ICurrency oldCurrency, ICurrency newCurrency);
-    }
+
+		bool IsMerchandiseFor(IGameItem item, bool ignoreDefault = false);
+		bool BuildingCommand(ICharacter actor, StringStack command);
+		void ShowToBuilder(ICharacter actor);
+		void ShopCurrencyChanged(ICurrency oldCurrency, ICurrency newCurrency);
+	}
 }

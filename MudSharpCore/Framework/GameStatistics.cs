@@ -24,6 +24,8 @@ public class GameStatistics : IGameStatistics
 	public DateTime LastBootTime { get; set; }
 	public TimeSpan LastStartupSpan { get; set; }
 
+	public bool RecordPlayersPaused { get; set; }
+
 	public WeeklyStatistic GetOrCreateWeeklyStatistic()
 	{
 		var currentWeekStart = DateTime.UtcNow.GetStartOfWeek();
@@ -164,6 +166,11 @@ public class GameStatistics : IGameStatistics
 
 	public bool UpdateOnlinePlayers()
 	{
+		if (RecordPlayersPaused)
+		{
+			return false;
+		}
+
 		var count = _parent.Characters.Count(x => !x.IsAdministrator() && !x.IsGuest);
 		if (count <= RecordOnlinePlayers)
 		{

@@ -18,6 +18,7 @@ namespace MudSharp.Framework
         void UpdatePlayerDeath();
         void UpdateNonPlayerDeath();
         void DoPlayerActivitySnapshot();
+        bool RecordPlayersPaused { get; set; }
 
         Models.WeeklyStatistic GetOrCreateWeeklyStatistic();
     }

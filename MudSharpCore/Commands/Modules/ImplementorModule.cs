@@ -244,7 +244,6 @@ public class ImplementorModule : Module<ICharacter>
 
 	#3cleanupitems#0 - deletes all 'orphaned' items that have become disconnected from the game world
 	#3scheduler#0 - shows all things in the scheduler
-	#3hitchance <target> [<weapon attack>] [front|back|rflank|lflank]#0 - shows hit chances (optionally for attack)
 	#3listeners#0 - shows all listeners
 	#3sun <sun> <minutes>#0 - adds the specified number of minutes to a sun
 	#3healing#0 - attaches the healing logger (writes to file)
@@ -257,7 +256,6 @@ public class ImplementorModule : Module<ICharacter>
 	#3reloadchargen#0 - reloads the chargen definition
 	#3celestials#0 - runs all the celestial objects through 1 year and tracks their position, writing out to file. Do not do this on the live server.
 	#3guests <number> <template>#0 - generates the specified number of guest avatars from the template
-	#3coordinates#0 - recalculates all the x,y,z coordinates for all zones
 	#3string <which>#0 - shows the value of a static string
 	#3config <which>#0 - shows the value of a static config
 	#3dream <who>#0 - gives a dream to the specified PC
@@ -270,17 +268,13 @@ public class ImplementorModule : Module<ICharacter>
 	#3addtime <timespan>#0 - adds the specified amount of time to all in-game clocks
 	#3seedrooms#0 - loads the 10 rooms with the highest IDs into the new room queue
 	#3failemail#0 - tests the fail email routine
-	#3crash#0 - causes the MUD to crash
-	#3update#0 - download the latest update and unzip to the Binaries directory", AutoHelp.HelpArgOrNoArg)]
+	#3crash#0 - causes the MUD to crash", AutoHelp.HelpArgOrNoArg)]
 	[CommandPermission(PermissionLevel.Founder)]
 	protected static void ImpDebug(ICharacter actor, string input)
 	{
 		var ss = new StringStack(input.RemoveFirstWord());
 		switch (ss.PopSpeech().CollapseString().ToLowerInvariant())
 		{
-			case "update":
-				Debug_Update(actor);
-				return;
 			case "crash":
 				Debug_Crash(actor);
 				return;
@@ -305,9 +299,7 @@ public class ImplementorModule : Module<ICharacter>
 			case "schedules":
 				DebugScheduler(actor);
 				return;
-			case "hitchance":
-				DebugHitChance(actor, ss);
-				return;
+			
 			case "listeners":
 				DebugListeners(actor);
 				return;
@@ -355,9 +347,7 @@ public class ImplementorModule : Module<ICharacter>
 			case "guests":
 				DebugGuests(actor, ss);
 				return;
-			case "coordinates":
-				DebugCoordinates(actor);
-				return;
+			
 			case "characteristics":
 				DebugCharacteristics(actor, ss);
 				return;
@@ -394,44 +384,7 @@ public class ImplementorModule : Module<ICharacter>
 		}
 	}
 
-	private static void Debug_Update(ICharacter actor)
-	{
-		actor.OutputHandler.Send("Downloading and applying the update...");
-		actor.Gameworld.ForceOutgoingMessages();
-		Thread.Sleep(100);
-		using var hc = new HttpClient();
-		using var responseTask = hc.GetAsync(
-			Environment.OSVersion.Platform.In(PlatformID.Unix, PlatformID.MacOSX, PlatformID.Other) ?
-			"https://www.labmud.com/downloads/FutureMUD-Linux.zip" :
-			"https://www.labmud.com/downloads/FutureMUD-Windows.zip");
-		using var stream = Task.Run(() => responseTask).Result.Content.ReadAsStream();
-		var root = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
-		using var zip = File.Open(string.IsNullOrEmpty(root) ? "FutureMUD Update.zip" : Path.Combine(root, "FutureMUD Update.zip"), FileMode.Create);
-		stream.CopyTo(zip);
-		var toPath = Path.GetFullPath(string.IsNullOrEmpty(root) ? "Binaries" : Path.Combine(root, "Binaries"));
-		if (!Directory.Exists(toPath))
-		{
-			if (Environment.OSVersion.Platform == PlatformID.Unix)
-			{
-				Directory.CreateDirectory(toPath, UnixFileMode.UserWrite | UnixFileMode.UserRead | UnixFileMode.UserExecute | UnixFileMode.SetUser | UnixFileMode.SetGroup | UnixFileMode.GroupExecute | UnixFileMode.GroupRead | UnixFileMode.GroupWrite);
-			}
-			else
-			{
-				Directory.CreateDirectory(toPath);
-			}
-		}
-
-		zip.Close();
-
-		using var archive = ZipFile.OpenRead(string.IsNullOrEmpty(root) ? "FutureMUD Update.zip" : Path.Combine(root, "FutureMUD Update.zip"));
-		foreach (var entry in archive.Entries)
-		{
-			var destination = Path.GetFullPath(entry.FullName, toPath);
-			entry.ExtractToFile(destination, true);
-		}
-
-		actor.OutputHandler.Send("Done.");
-	}
+	
 
 	private static void Debug_Crash(ICharacter actor)
 	{
@@ -488,184 +441,6 @@ public class ImplementorModule : Module<ICharacter>
 		sb.AppendLine();
 		sb.AppendLine("Effect Scheduler:");
 		actor.Gameworld.EffectScheduler.DebugOutputForScheduler(sb);
-		actor.OutputHandler.Send(sb.ToString());
-	}
-
-	private static void DebugHitChance(ICharacter actor, StringStack ss)
-	{
-		if (ss.IsFinished)
-		{
-			actor.OutputHandler.Send("Who do you want to debug the hit chance for?");
-			return;
-		}
-
-		var target = actor.TargetActor(ss.PopSpeech());
-		if (target == null)
-		{
-			actor.OutputHandler.Send("You don't see anyone like that.");
-			return;
-		}
-
-		var totalHitChance = target.Body.Bodyparts.Sum(x => x.RelativeHitChance);
-		var sb = new StringBuilder();
-		var chances = new DoubleCounter<IBodypart>();
-		var limbChances = new DoubleCounter<ILimb>();
-		var facing = Facing.Front;
-
-		if (!ss.IsFinished)
-		{
-			var attack = long.TryParse(ss.PopSpeech(), out var value)
-				? actor.Gameworld.WeaponAttacks.Get(value)
-				: actor.Gameworld.WeaponAttacks.GetByName(ss.Last);
-			if (attack == null)
-			{
-				actor.OutputHandler.Send("There is no such weapon attack.");
-				return;
-			}
-
-			if (!ss.IsFinished)
-			{
-				switch (ss.PopSpeech().ToLowerInvariant())
-				{
-					case "front":
-						facing = Facing.Front;
-						break;
-					case "back":
-					case "rear":
-						facing = Facing.Rear;
-						break;
-					case "right":
-					case "rightflank":
-					case "right flank":
-						facing = Facing.RightFlank;
-						break;
-					case "left":
-					case "leftflank":
-					case "left flank":
-						facing = Facing.LeftFlank;
-						break;
-				}
-			}
-
-			for (var i = -2; i <= 2; i++)
-			{
-				var alignmentMultiplier = 0.0;
-				switch (i)
-				{
-					case -2:
-					case 2:
-						alignmentMultiplier = 0.01;
-						break;
-					case 1:
-					case -1:
-						alignmentMultiplier = 0.24;
-						break;
-					case 0:
-						alignmentMultiplier = 0.5;
-						break;
-				}
-
-				var alignment = BodyExtensions.FromAlignmentPolar((attack.Alignment.ToAlignmentPolar(facing) + i) % 8);
-
-				for (var j = -2; j <= 2; j++)
-				{
-					var multiplier = alignmentMultiplier;
-					switch (j)
-					{
-						case -2:
-						case 2:
-							multiplier *= 0.01;
-							break;
-						case 1:
-						case -1:
-							multiplier *= 0.24;
-							break;
-						case 0:
-							multiplier *= 0.5;
-							break;
-					}
-
-					var orientation = attack.Orientation.RaiseUp(j);
-					var parts = target.Body.Bodyparts.Where(x =>
-						x.Alignment.LeftRightOnly() == alignment.LeftRightOnly() &&
-						x.Alignment.FrontRearOnly() == alignment.FrontRearOnly() && x.Orientation == orientation &&
-						x.RelativeHitChance > 0).ToList();
-					var totalChance = parts.Sum(x => x.RelativeHitChance);
-					foreach (var part in parts)
-					{
-						chances[part] += multiplier * 0.66666666666666667 * part.RelativeHitChance / totalChance;
-						limbChances[target.Body.GetLimbFor(part)] +=
-							multiplier * 0.66666666666666667 * part.RelativeHitChance / totalChance;
-					}
-
-					// If the code can't find a bodypart at that location, it just picks a totally random one instead
-					if (!parts.Any())
-					{
-						foreach (var part in target.Body.Bodyparts.Where(x => x.RelativeHitChance > 0))
-						{
-							chances[part] += multiplier * 0.66666666666666667 * part.RelativeHitChance / totalHitChance;
-							limbChances[target.Body.GetLimbFor(part)] += multiplier * 0.66666666666666667 *
-								part.RelativeHitChance / totalHitChance;
-						}
-					}
-				}
-
-				var appendageParts = target.Body.Bodyparts.Where(x =>
-					x.Alignment.LeftRightOnly() == alignment.LeftRightOnly() &&
-					x.Alignment.FrontRearOnly() == alignment.FrontRearOnly() &&
-					x.Orientation == Orientation.Appendage && x.RelativeHitChance > 0).ToList();
-				var appendageTotalChance = appendageParts.Sum(x => x.RelativeHitChance);
-				foreach (var part in appendageParts)
-				{
-					chances[part] += alignmentMultiplier * 0.3333333333333333333333333 * part.RelativeHitChance /
-									 appendageTotalChance;
-					limbChances[target.Body.GetLimbFor(part)] += alignmentMultiplier * 0.3333333333333333333333333 *
-						part.RelativeHitChance / appendageTotalChance;
-				}
-
-				// If the code can't find a bodypart at that location, it just picks a totally random one instead
-				if (!appendageParts.Any())
-				{
-					foreach (var part in target.Body.Bodyparts.Where(x => x.RelativeHitChance > 0))
-					{
-						chances[part] += alignmentMultiplier * 0.3333333333333333333333333 * part.RelativeHitChance /
-										 totalHitChance;
-						limbChances[target.Body.GetLimbFor(part)] += alignmentMultiplier * 0.3333333333333333333333333 *
-							part.RelativeHitChance / totalHitChance;
-					}
-				}
-			}
-
-			sb.AppendLine(
-				$"Hit Percentages for attack {attack.Name.Colour(Telnet.BoldRed)} against {target.HowSeen(actor, flags: PerceiveIgnoreFlags.IgnoreSelf)} when at {facing.Describe().Colour(Telnet.Cyan)}:");
-		}
-		else
-		{
-			sb.AppendLine($"Hit Percentages against {target.HowSeen(actor, flags: PerceiveIgnoreFlags.IgnoreSelf)}:");
-			var total = target.Body.Bodyparts.Sum(x => x.RelativeHitChance);
-			foreach (var part in target.Body.Bodyparts)
-			{
-				chances[part] += part.RelativeHitChance / total;
-				limbChances[target.Body.GetLimbFor(part)] += part.RelativeHitChance / total;
-			}
-		}
-
-		sb.AppendLine();
-		sb.AppendLine("Limbs:");
-		sb.AppendLine();
-		foreach (var limb in limbChances.OrderByDescending(x => x.Value))
-		{
-			sb.AppendLine($"\t{limb.Key.Name,-25} {limb.Value.ToString("P2", actor).ColourValue(),-6}");
-		}
-
-		sb.AppendLine();
-		sb.AppendLine("Parts:");
-		sb.AppendLine("");
-		foreach (var pc in chances.OrderByDescending(x => x.Value))
-		{
-			sb.AppendLine($"\t{pc.Key.FullDescription(),-25} {pc.Value.ToString("P2", actor).ColourValue(),-6}");
-		}
-
 		actor.OutputHandler.Send(sb.ToString());
 	}
 
@@ -1271,7 +1046,7 @@ div.function-generalhelp {
 				$"{pattern.Id},\"{target.ParseCharacteristics(pattern.Pattern, actor)}\",\"{pattern.Pattern}\"");
 		}
 
-		actor.Send($"Wrote to file {file.Name}");
+		actor.Send($"Wrote to file #3{file.Name}#0".SubstituteANSIColour());
 		writer.Close();
 	}
 
@@ -1476,17 +1251,6 @@ div.function-generalhelp {
 		actor.Send("Done debugging Celestials.");
 	}
 
-	private static void DebugCoordinates(ICharacter actor)
-	{
-		actor.Send("Recalculating all of the zone coordinates...");
-		foreach (var zone in actor.Gameworld.Zones)
-		{
-			zone.CalculateCoordinates();
-		}
-
-		actor.Send("Done recalculating all of the zone coordinates.");
-	}
-
 	private static void DebugCombatSpeed(ICharacter actor, StringStack ss)
 	{
 		if (ss.IsFinished)
@@ -1522,6 +1286,8 @@ div.function-generalhelp {
 	{
 		void DoCleanupCorpses()
 		{
+			actor.Gameworld.GameStatistics.RecordPlayersPaused = true;
+
 			// Firstly, flush the save manager in case there is anything pending
 			actor.Gameworld.SystemMessage("Flushing the save manager...", true);
 			actor.Gameworld.SaveManager.Flush();
@@ -1536,10 +1302,15 @@ div.function-generalhelp {
 			using (new FMDB())
 			{
 				var PCsToLoad =
-					FMDB.Context.Characters.Where(
-							x => !x.NpcsCharacter.Any() && x.Guest == null && !onlinePCIDs.Contains(x.Id) &&
-								 (x.Status == (int)CharacterStatus.Active ||
-								  x.Status == (int)CharacterStatus.Suspended))
+					FMDB.Context.Characters
+					    .Include(x => x.NpcsCharacter)
+					    .Where(
+							x => 
+								x.NpcsCharacter.Count == 0 && 
+								x.Guest == null && 
+								!onlinePCIDs.Contains(x.Id) &&
+								(x.Status == (int)CharacterStatus.Active || x.Status == (int)CharacterStatus.Suspended)
+								)
 						.OrderBy(x => x.Id);
 				var i = 0;
 				while (true)
@@ -1606,6 +1377,7 @@ div.function-generalhelp {
 
 			actor.Gameworld.SystemMessage($"Removed {pcs} superfluous PC Corpses and {npcs} superfluous NPC corpses.",
 				true);
+
 			// Make sure that the messaging thread gets a chance to resume and send out echoes
 			actor.Gameworld.ForceOutgoingMessages();
 			Thread.Sleep(100);
@@ -1643,6 +1415,8 @@ div.function-generalhelp {
 			{
 				character.Quit(true);
 			}
+
+			actor.Gameworld.GameStatistics.RecordPlayersPaused = false;
 		}
 
 		actor.Send(

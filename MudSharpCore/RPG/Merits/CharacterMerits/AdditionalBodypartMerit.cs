@@ -75,6 +75,7 @@ public class AdditionalBodypartMerit : CharacterMeritBase, IAdditionalBodypartsM
 
 	private AdditionalBodypartMerit(IFuturemud gameworld, string name) : base(gameworld, name, "Additional Bodyparts", "$0 have|has additional bodyparts")
 	{
+		DoDatabaseInsert();
 	}
 
 	private AdditionalBodypartMerit()

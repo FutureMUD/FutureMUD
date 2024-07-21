@@ -6,6 +6,7 @@ using MudSharp.Framework;
 using MudSharp.RPG.Checks;
 using MudSharp.RPG.Merits.Interfaces;
 using Chargen = MudSharp.CharacterCreation.Chargen;
+using System.Text;
 
 namespace MudSharp.RPG.Merits.CharacterMerits;
 
@@ -23,6 +24,28 @@ public class CheckCategoryBonusMerit : CharacterMeritBase, ICheckBonusMerit
 		AppliesToLanguageChecks = bool.Parse(definition.Attribute("language")?.Value ?? "false");
 	}
 
+	protected override XElement SaveSubtypeDefinition(XElement root)
+	{
+		root.Add(new XAttribute("bonus", SpecificBonus));
+		root.Add(new XAttribute("healing", AppliesToHealingChecks));
+		root.Add(new XAttribute("friendly", AppliesToFriendlyChecks));
+		root.Add(new XAttribute("hostile", AppliesToHostileChecks));
+		root.Add(new XAttribute("active", AppliesToActiveChecks));
+		root.Add(new XAttribute("perception", AppliesToPerceptionChecks));
+		root.Add(new XAttribute("language", AppliesToLanguageChecks));
+		return root;
+	}
+
+	protected CheckCategoryBonusMerit(IFuturemud gameworld, string name) : base(gameworld, name, "Check Category Bonus", "@ have|has a bonus to specific categories of checks")
+	{
+		DoDatabaseInsert();
+	}
+
+	protected CheckCategoryBonusMerit()
+	{
+
+	}
+
 	public double SpecificBonus { get; set; }
 
 	public bool AppliesToHealingChecks { get; set; }
@@ -31,6 +54,53 @@ public class CheckCategoryBonusMerit : CharacterMeritBase, ICheckBonusMerit
 	public bool AppliesToActiveChecks { get; set; }
 	public bool AppliesToPerceptionChecks { get; set; }
 	public bool AppliesToLanguageChecks { get; set; }
+
+	/// <inheritdoc />
+	protected override void SubtypeShow(ICharacter actor, StringBuilder sb)
+	{
+		sb.AppendLine($"Bonus for Checks: {SpecificBonus.ToBonusString(actor)}");
+		sb.AppendLine($"Applies to Healing: {AppliesToHealingChecks.ToColouredString()}");
+		sb.AppendLine($"Applies to Friendly: {AppliesToFriendlyChecks.ToColouredString()}");
+		sb.AppendLine($"Applies to Hostile: {AppliesToHostileChecks.ToColouredString()}");
+		sb.AppendLine($"Applies to Active: {AppliesToActiveChecks.ToColouredString()}");
+		sb.AppendLine($"Applies to Perception: {AppliesToPerceptionChecks.ToColouredString()}");
+		sb.AppendLine($"Applies to Language: {AppliesToLanguageChecks.ToColouredString()}");
+	}
+
+	/// <inheritdoc />
+	public override bool BuildingCommand(ICharacter actor, StringStack command)
+	{
+		switch (command.PopForSwitch())
+		{
+			case "bonus":
+				return BuildingCommandBonus(actor, command);
+		}
+		return base.BuildingCommand(actor, command.GetUndo());
+	}
+
+	private bool BuildingCommandBonus(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("What should the bonus be when this merit applies?");
+			return false;
+		}
+
+		if (!double.TryParse(command.SafeRemainingArgument, out var value))
+		{
+			actor.OutputHandler.Send($"The text {command.SafeRemainingArgument.ColourCommand()} is not a valid number.");
+			return false;
+		}
+
+		SpecificBonus = value;
+		Changed = true;
+		actor.OutputHandler.Send($"This merit will now add a bonus of {SpecificBonus.ToBonusString(actor)} to all checks when it applies.");
+		return true;
+	}
+
+	/// <inheritdoc />
+	protected override string SubtypeHelp => @"
+	#3bonus <##>#0 - sets the bonus for this merit";
 
 	#region Implementation of ICheckBonusMerit
 
@@ -75,5 +145,7 @@ public class CheckCategoryBonusMerit : CharacterMeritBase, ICheckBonusMerit
 	{
 		MeritFactory.RegisterMeritInitialiser("Check Category Bonus",
 			(merit, gameworld) => new CheckCategoryBonusMerit(merit, gameworld));
+		MeritFactory.RegisterBuilderMeritInitialiser("Check Category Bonus", (gameworld, name) => new CheckCategoryBonusMerit(gameworld, name));
+		MeritFactory.RegisterMeritHelp("Check Category Bonus", "Adds a bonus or penalty to specific categories of checks rolled", new CheckCategoryBonusMerit().HelpText);
 	}
 }

@@ -165,7 +165,7 @@ public class AdditionalBodypartMerit : CharacterMeritBase, IAdditionalBodypartsM
 	}
 
 	/// <inheritdoc />
-	protected override string SubtypeHelp => @"
+	protected override string SubtypeHelp => $@"{base.SubtypeHelp}
 	#3addpart <part>#0 - adds or removes a bodypart that the merit adds to the character
 	#3addpart <part> [<gender>] [<race>]#0 - adds or sets a part to be only added for specific races or genders
 	#3rempart <part>#0 - adds or removes a bodypart that the merit removes from the character

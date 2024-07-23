@@ -936,7 +936,7 @@ The syntax is as follows:
 			}
 		}
 
-		actor.Send($@"Quirks for {target.HowSeen(actor, flags: PerceiveIgnoreFlags.IgnoreSelf)}:
+		actor.OutputHandler.Send($@"Quirks for {target.HowSeen(actor, flags: PerceiveIgnoreFlags.IgnoreSelf)}:
 
 {target.Merits
 				  .OfType<ICharacterMerit>()

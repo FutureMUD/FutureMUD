@@ -196,6 +196,9 @@ public class ShowModule : Module<ICharacter>
 			case "checktemplates":
 				Show_CheckTemplates(actor, ss);
 				return;
+			case "checktypes":
+				Show_CheckTypes(actor, ss);
+				return;
 			case "bodies":
 				Show_Bodies(actor);
 				return;
@@ -529,6 +532,45 @@ public class ShowModule : Module<ICharacter>
 			));
 		}
 	}
+
+	private static void Show_CheckTypes(ICharacter actor, StringStack ss)
+	{
+		var checks = actor.Gameworld.Checks.ToList();
+		// TODO filters
+
+		actor.OutputHandler.Send(StringUtilities.GetTextTable(
+			from check in checks
+			select
+				new List<string>
+				{
+					check.Type.DescribeEnum(),
+					check.Type.IsHealingCheck().ToColouredString(),
+					check.Type.IsGeneralActivityCheck().ToColouredString(),
+					check.Type.IsTargettedHostileCheck().ToColouredString(),
+					check.Type.IsTargettedFriendlyCheck().ToColouredString(),
+					check.Type.IsLanguageCheck().ToColouredString(),
+					check.Type.IsPerceptionCheck().ToColouredString(),
+					check.Type.IsDefensiveCombatAction().ToColouredString(),
+					check.Type.IsOffensiveCombatAction().ToColouredString(),
+					check.Type.IsVisionInfluencedCheck().ToColouredString(),
+				},
+			[
+				"Check",
+				"Healing?",
+				"Active?",
+				"Hostile?",
+				"Friendly?",
+				"Language?",
+				"Perception?",
+				"Combat Def?",
+				"Combat Off?",
+				"Vision Influenced?"
+			],
+			actor,
+			Telnet.Yellow
+		));
+	}
+
 
 	private static void Show_Checks(ICharacter actor, StringStack ss)
 	{

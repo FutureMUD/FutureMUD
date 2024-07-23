@@ -1,4 +1,5 @@
-﻿using System.Xml.Linq;
+﻿using System.Collections.Generic;
+using System.Xml.Linq;
 using MudSharp.Models;
 using MudSharp.Body;
 using MudSharp.Character;
@@ -7,6 +8,7 @@ using MudSharp.RPG.Checks;
 using MudSharp.RPG.Merits.Interfaces;
 using Chargen = MudSharp.CharacterCreation.Chargen;
 using System.Text;
+using MudSharp.FutureProg;
 
 namespace MudSharp.RPG.Merits.CharacterMerits;
 
@@ -159,7 +161,7 @@ public class CheckCategoryBonusMerit : CharacterMeritBase, ICheckBonusMerit
 	}
 
 	/// <inheritdoc />
-	protected override string SubtypeHelp => @"
+	protected override string SubtypeHelp => $@"{base.SubtypeHelp}
 	#3bonus <##>#0 - sets the bonus for this merit
 	#3healing#0 - toggles applying to healing checks
 	#3friendly#0 - toggles applying to friendly checks
@@ -169,8 +171,8 @@ public class CheckCategoryBonusMerit : CharacterMeritBase, ICheckBonusMerit
 	#3perception#0 - toggles applying to perception checks";
 
 	#region Implementation of ICheckBonusMerit
-
-	public double CheckBonus(ICharacter ch, CheckType type)
+	protected override IEnumerable<IEnumerable<FutureProgVariableTypes>> AppliesProgValidTypes => [[FutureProgVariableTypes.Character], [FutureProgVariableTypes.Character, FutureProgVariableTypes.Perceivable], [FutureProgVariableTypes.Character, FutureProgVariableTypes.Character]];
+	public double CheckBonus(ICharacter ch, IPerceivable target, CheckType type)
 	{
 		if ((AppliesToHealingChecks && type.IsHealingCheck()) ||
 		    (AppliesToFriendlyChecks && type.IsTargettedFriendlyCheck()) ||

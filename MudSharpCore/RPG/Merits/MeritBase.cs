@@ -216,6 +216,17 @@ public abstract class MeritBase : SaveableItem, IMerit
 	/// <inheritdoc />
 	public override void Save()
 	{
+		// TODO _ remove after debug
+		try
+		{
+			var definition = SaveDefinition().ToString();
+		}
+		catch
+		{
+			Changed = false;
+			return;
+		}
+		
 		var dbitem = FMDB.Context.Merits.Find(Id);
 		dbitem.Name = Name;
 		dbitem.MeritType = (int)MeritType;

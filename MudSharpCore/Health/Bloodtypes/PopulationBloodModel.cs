@@ -31,7 +31,11 @@ public class PopulationBloodModel : FrameworkItem, IPopulationBloodModel
 	{
 		if (character?.SelectedMerits.OfType<IFixedBloodTypeMerit>().Any() == true)
 		{
-			return character.SelectedMerits.OfType<IFixedBloodTypeMerit>().First().Bloodtype;
+			var bloodtype = character.SelectedMerits.OfType<IFixedBloodTypeMerit>().First().Bloodtype;
+			if (BloodTypes.Any(x => x.Bloodtype == bloodtype))
+			{
+				return bloodtype;
+			}
 		}
 
 		return BloodTypes.GetWeightedRandom(x => x.Weight).Bloodtype;

@@ -74,12 +74,12 @@ public class AllCheckBonusMerit : CharacterMeritBase, ICheckBonusMerit
 	}
 
 	/// <inheritdoc />
-	protected override string SubtypeHelp => @"
+	protected override string SubtypeHelp => $@"{base.SubtypeHelp}
 	#3bonus <##>#0 - sets the bonus for this merit";
 
 	#region Implementation of ICheckBonusMerit
 
-	public double CheckBonus(ICharacter ch, CheckType type)
+	public double CheckBonus(ICharacter ch, IPerceivable target, CheckType type)
 	{
 		return SpecificBonus;
 	}

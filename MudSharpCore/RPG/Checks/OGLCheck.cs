@@ -43,7 +43,7 @@ public class OGLCheck : StandardCheck
 			checkee.Merits
 			       .OfType<ICheckBonusMerit>()
 			       .Where(x => x.Applies(checkee, target))
-			       .Sum(x => x.CheckBonus(checkeeAsCharacter, Type)) +
+			       .Sum(x => x.CheckBonus(checkeeAsCharacter, target, Type)) +
 			externalBonus;
 
 		var roll = Dice.Roll(1, 20);
@@ -82,7 +82,7 @@ public class OGLCheck : StandardCheck
 			checkee.Merits
 			       .OfType<ICheckBonusMerit>()
 			       .Where(x => x.Applies(checkee, target))
-			       .Sum(x => x.CheckBonus(checkeeAsCharacter, Type)) +
+			       .Sum(x => x.CheckBonus(checkeeAsCharacter, target, Type)) +
 			externalBonus;
 
 		return Modifiers[difficulty] - TargetNumberExpression.EvaluateWith(checkee, trait, values: customParameters) -
@@ -108,7 +108,7 @@ public class OGLCheck : StandardCheck
 			checkee.Merits
 			       .OfType<ICheckBonusMerit>()
 			       .Where(x => x.Applies(checkee, target))
-			       .Sum(x => x.CheckBonus(checkeeAsCharacter, Type)) +
+			       .Sum(x => x.CheckBonus(checkeeAsCharacter, target, Type)) +
 			externalBonus;
 
 		// TODO: allowing for arbitrary DCs i.e. attacking someone.

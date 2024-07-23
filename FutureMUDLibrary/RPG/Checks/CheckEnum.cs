@@ -250,6 +250,14 @@ namespace MudSharp.RPG.Checks {
                 case CheckType.KnowledgeLearnCheck:
                 case CheckType.SkillLearnCheck:
                 case CheckType.StyleCharacteristicCheck:
+                case CheckType.InkTattooCheck:
+                case CheckType.TendWoundCheck:
+                case CheckType.CannulationProcedure:
+                case CheckType.DecannulationProcedure:
+                case CheckType.OrganStabilisationCheck:
+                case CheckType.ConfigureImplantInterfaceSurgery:
+                case CheckType.ConfigureImplantPowerSurgery:
+                case CheckType.RescueCheck:
                     return true;
                 default:
                     return false;
@@ -276,7 +284,14 @@ namespace MudSharp.RPG.Checks {
                 case CheckType.ExtendGrappleCheck:
                 case CheckType.CounterGrappleCheck:
                 case CheckType.StruggleFreeFromGrapple:
-                    return true;
+                case CheckType.FireBow:
+                case CheckType.FireCrossbow:
+                case CheckType.FireFirearm:
+                case CheckType.FireSling:
+                case CheckType.TakedownCheck:
+                case CheckType.WrenchAttackCheck:
+                case CheckType.AuxiliaryMoveCheck:
+					return true;
                 default:
                     return false;
             }
@@ -330,6 +345,16 @@ namespace MudSharp.RPG.Checks {
                 case CheckType.CounterGrappleCheck:
                 case CheckType.OpposeStruggleFreeFromGrapple:
                 case CheckType.StruggleFreeFromGrapple:
+                case CheckType.MagicChokePower:
+                case CheckType.BreakoutCheck:
+                case CheckType.OpposeBreakoutCheck:
+                case CheckType.FireBow:
+                case CheckType.FireCrossbow:
+                case CheckType.FireFirearm:
+                case CheckType.FireSling:
+                case CheckType.TakedownCheck:
+                case CheckType.WrenchAttackCheck:
+                case CheckType.AuxiliaryMoveCheck:
                     return true;
                 default:
                     return false;
@@ -441,6 +466,10 @@ namespace MudSharp.RPG.Checks {
                 case CheckType.LongscanPerceptionCheck:
                 case CheckType.WatchLocation:
                 case CheckType.PassiveStealthCheck:
+                case CheckType.WritingComprehendCheck:
+                case CheckType.ActiveSearchCheck:
+                case CheckType.EvaluateDiceFairnessCheck:
+                case CheckType.KeepAimTargetMoved:
                     return true;
                 default:
                     return false;
@@ -452,6 +481,10 @@ namespace MudSharp.RPG.Checks {
                 case CheckType.LanguageListenCheck:
                 case CheckType.SpokenLanguageHearCheck:
                 case CheckType.SpokenLanguageSpeakCheck:
+                case CheckType.WritingComprehendCheck:
+                case CheckType.PsychicLanguageHearCheck:
+                case CheckType.AccentAcquireCheck:
+                case CheckType.AccentImproveCheck:
                     return true;
                 default:
                     return false;

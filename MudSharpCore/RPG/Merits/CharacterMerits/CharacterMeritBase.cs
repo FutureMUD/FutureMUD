@@ -393,6 +393,8 @@ Enter your blurb that will be visible in chargen in the editor below:");
 		return true;
 	}
 
+	protected virtual IEnumerable<IEnumerable<FutureProgVariableTypes>> AppliesProgValidTypes => [[FutureProgVariableTypes.Character]];
+
 	private bool BuildingCommandAppliesProg(ICharacter actor, StringStack command)
 	{
 		if (command.IsFinished)
@@ -401,7 +403,7 @@ Enter your blurb that will be visible in chargen in the editor below:");
 			return false;
 		}
 
-		var prog = new FutureProgLookupFromBuilderInput(actor, command.SafeRemainingArgument, FutureProgVariableTypes.Boolean, [FutureProgVariableTypes.Character]).LookupProg();
+		var prog = new FutureProgLookupFromBuilderInput(actor, command.SafeRemainingArgument, FutureProgVariableTypes.Boolean, AppliesProgValidTypes).LookupProg();
 		if (prog is null)
 		{
 			return false;
@@ -438,11 +440,28 @@ Enter your blurb that will be visible in chargen in the editor below:");
 	{
 		var sb = new StringBuilder(base.Show(actor));
 		sb.AppendLine($"Parent: {ParentMerit?.Name.ColourValue() ?? "None".ColourError()}");
+		sb.AppendLine($"Type: {DatabaseType.ColourName()}");
 		sb.AppendLine($"Applies Prog: {ApplicabilityProg.MXPClickableFunctionName()}");
 		sb.AppendLine($"Chargen Prog: {ChargenAvailableProg.MXPClickableFunctionName()}");
 		sb.AppendLine($"Description: {_descriptionText.ColourCommand()}");
 		sb.AppendLine($"Blurb:\n\n{ChargenBlurb.Wrap(actor.InnerLineFormatLength).SubstituteANSIColour()}");
+		sb.AppendLine();
 		SubtypeShow(actor, sb);
+		sb.AppendLine();
+		sb.AppendLine("Costs:"); 
+		sb.AppendLine();
+		if (_costs.Count == 0)
+		{
+			sb.AppendLine($"\t#3None#0".SubstituteANSIColour());
+		}
+		else
+		{
+			foreach (var item in _costs)
+			{
+				sb.AppendLine($"\t#2{item.Amount.ToString("N0", actor)} {(item.Amount == 1 ? item.Resource.Name : item.Resource.PluralName)}#0 {(item.RequirementOnly ? "[requirement only]".Colour(Telnet.BoldYellow) : "[spent]".Colour(Telnet.Orange))}".SubstituteANSIColour());
+			}
+		}
+		
 		return sb.ToString();
 	}
 

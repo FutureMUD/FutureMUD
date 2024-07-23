@@ -7,6 +7,7 @@ using MudSharp.Framework;
 using MudSharp.RPG.Checks;
 using MudSharp.RPG.Merits.Interfaces;
 using System.Text;
+using MudSharp.FutureProg;
 
 namespace MudSharp.RPG.Merits.CharacterMerits;
 
@@ -46,15 +47,15 @@ public class MultiCheckBonusMerit : CharacterMeritBase, ICheckBonusMerit
 	public double SpecificBonus { get; set; }
 
 	#region Implementation of ICheckBonusMerit
-
-	public double CheckBonus(ICharacter ch, CheckType type)
+	protected override IEnumerable<IEnumerable<FutureProgVariableTypes>> AppliesProgValidTypes => [[FutureProgVariableTypes.Character], [FutureProgVariableTypes.Character, FutureProgVariableTypes.Perceivable], [FutureProgVariableTypes.Character, FutureProgVariableTypes.Character]];
+	public double CheckBonus(ICharacter ch, IPerceivable target, CheckType type)
 	{
 		return CheckTypes.Contains(type) ? SpecificBonus : 0.0;
 	}
 
 	#endregion
 
-	protected override string SubtypeHelp => @"
+	protected override string SubtypeHelp => $@"{base.SubtypeHelp}
 	#3bonus <##>#0 - sets the bonus for this merit
 	#3check <which>#0 - toggles a particular check type applying";
 

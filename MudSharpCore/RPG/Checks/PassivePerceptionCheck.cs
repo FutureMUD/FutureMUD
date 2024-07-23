@@ -78,7 +78,7 @@ public class PassivePerceptionCheck : TimeboundCheck
 
 		bonuses.AddRange(checkee.Merits.OfType<ICheckBonusMerit>()
 		                        .Where(x => x.Applies(checkee, target))
-		                        .Select(x => x.CheckBonus(checkeeAsCharacter, CheckType.PassiveStealthCheck)));
+		                        .Select(x => x.CheckBonus(checkeeAsCharacter, target, CheckType.PassiveStealthCheck)));
 
 		var bonus = bonuses.Sum();
 		difficulty = bonus > 0

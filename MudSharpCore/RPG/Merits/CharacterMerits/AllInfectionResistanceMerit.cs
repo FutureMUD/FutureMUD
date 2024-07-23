@@ -79,7 +79,7 @@ public class AllInfectionResistanceMerit : CharacterMeritBase, IInfectionResista
 	}
 
 	/// <inheritdoc />
-	protected override string SubtypeHelp => @"
+	protected override string SubtypeHelp => $@"{base.SubtypeHelp}
 	#3bonus <##>#0 - sets the bonus steps for this merit";
 
 	public static void RegisterMeritInitialiser()

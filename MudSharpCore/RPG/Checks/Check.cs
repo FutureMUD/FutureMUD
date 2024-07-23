@@ -362,7 +362,7 @@ public class StandardCheck : FrameworkItem, ICheck
 
 		bonuses.AddRange(checkee.Merits.OfType<ICheckBonusMerit>()
 		                        .Where(x => x.Applies(checkee, target))
-		                        .Select(x => Tuple.Create(x.ToString(), x.CheckBonus(checkeeAsCharacter, Type))));
+		                        .Select(x => Tuple.Create(x.ToString(), x.CheckBonus(checkeeAsCharacter, target, Type))));
 
 		var bonus = bonuses.Sum(x => x.Item2);
 		// Roll versus target number w/difficulty mods, store outcome
@@ -448,7 +448,7 @@ public class StandardCheck : FrameworkItem, ICheck
 
 		bonuses.AddRange(checkee.Merits.OfType<ICheckBonusMerit>()
 		                        .Where(x => x.Applies(checkee, target))
-		                        .Select(x => Tuple.Create(x.ToString(), x.CheckBonus(checkeeAsCharacter, Type))));
+		                        .Select(x => Tuple.Create(x.ToString(), x.CheckBonus(checkeeAsCharacter, target, Type))));
 
 		var bonus = bonuses.Sum(x => x.Item2);
 
@@ -461,7 +461,7 @@ public class StandardCheck : FrameworkItem, ICheck
 			checkee.Merits
 			       .OfType<ICheckBonusMerit>()
 			       .Where(x => x.Applies(checkee, target))
-			       .Sum(x => x.CheckBonus(checkeeAsCharacter, Type)) +
+			       .Sum(x => x.CheckBonus(checkeeAsCharacter, target, Type)) +
 			externalBonus;
 
 #if DEBUG
@@ -570,7 +570,7 @@ public class StandardCheck : FrameworkItem, ICheck
 			checkee.Merits
 			       .OfType<ICheckBonusMerit>()
 			       .Where(x => x.Applies(checkee, target))
-			       .Sum(x => x.CheckBonus(checkeeAsCharacter, Type)) +
+			       .Sum(x => x.CheckBonus(checkeeAsCharacter, target, Type)) +
 			externalBonus;
 
 		difficulty = bonus > 0
@@ -620,7 +620,7 @@ public class StandardCheck : FrameworkItem, ICheck
 
 		bonuses.AddRange(checkee.Merits.OfType<ICheckBonusMerit>()
 		                        .Where(x => x.Applies(checkee, target))
-		                        .Select(x => Tuple.Create(x.ToString(), x.CheckBonus(checkeeAsCharacter, Type))));
+		                        .Select(x => Tuple.Create(x.ToString(), x.CheckBonus(checkeeAsCharacter, target, Type))));
 
 		if (Type.IsVisionInfluencedCheck())
 		{

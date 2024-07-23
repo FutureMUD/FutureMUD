@@ -704,9 +704,9 @@ You can use the following commands to work with merits:
 		var sb = new StringBuilder();
 		sb.AppendLine($"Merit Type Help - {type.Type}".GetLineWithTitle(actor, Telnet.Cyan, Telnet.BoldWhite));
 		sb.AppendLine();
-		sb.AppendLine($"Blurb: {type.Blurb}");
+		sb.AppendLine($"Blurb: {type.Blurb.ColourCommand()}");
 		sb.AppendLine();
-		sb.AppendLine(type.HelpText);
+		sb.AppendLine(type.HelpText.SubstituteANSIColour());
 		actor.OutputHandler.Send(sb.ToString());
 	}
 

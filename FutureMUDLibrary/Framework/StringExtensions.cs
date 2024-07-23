@@ -557,6 +557,19 @@ namespace MudSharp.Framework {
 	        return value;
         }
 
+        /// <summary>
+        /// Returns a number in a specified "bonus-style" format, that is to say +x.xx and -x.xx with optional colour and decimal place lengths
+        /// </summary>
+        /// <param name="number">The number to format</param>
+        /// <param name="formatProvider">The format provider to provide the culture info for the number format</param>
+        /// <param name="decimalPlaces">The number of decimal places</param>
+        /// <param name="colour">Whether to colour green/red for bonus/penalty</param>
+        /// <returns></returns>
+        public static string ToBonusString(this int number, IFormatProvider formatProvider = null, bool colour = true)
+        {
+	        return ((double)number).ToBonusString(formatProvider, 0U, colour);
+        }
+
 		public static string Wrap(this string text, int width, string indent = "")
         {
             if (width < 1 || string.IsNullOrEmpty(text))

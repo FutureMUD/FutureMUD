@@ -74,8 +74,68 @@ public class CheckCategoryBonusMerit : CharacterMeritBase, ICheckBonusMerit
 		{
 			case "bonus":
 				return BuildingCommandBonus(actor, command);
+			case "healing":
+				return BuildingCommandHealing(actor);
+			case "friendly":
+				return BuildingCommandFriendly(actor);
+			case "hostile":
+				return BuildingCommandHostile(actor);
+			case "active":
+				return BuildingCommandActive(actor);
+			case "perception":
+				return BuildingCommandPerception(actor);
+			case "language":
+				return BuildingCommandLanguage(actor);
 		}
 		return base.BuildingCommand(actor, command.GetUndo());
+	}
+
+	private bool BuildingCommandLanguage(ICharacter actor)
+	{
+		AppliesToLanguageChecks = !AppliesToLanguageChecks;
+		Changed = true;
+		actor.OutputHandler.Send($"The bonus will {AppliesToLanguageChecks.NowNoLonger()} apply to language checks.");
+		return true;
+	}
+
+	private bool BuildingCommandPerception(ICharacter actor)
+	{
+		AppliesToPerceptionChecks = !AppliesToPerceptionChecks;
+		Changed = true;
+		actor.OutputHandler.Send($"The bonus will {AppliesToPerceptionChecks.NowNoLonger()} apply to perception checks.");
+		return true;
+	}
+
+	private bool BuildingCommandActive(ICharacter actor)
+	{
+		AppliesToActiveChecks = !AppliesToActiveChecks;
+		Changed = true;
+		actor.OutputHandler.Send($"The bonus will {AppliesToActiveChecks.NowNoLonger()} apply to active checks.");
+		return true;
+	}
+
+	private bool BuildingCommandHostile(ICharacter actor)
+	{
+		AppliesToHostileChecks = !AppliesToHostileChecks;
+		Changed = true;
+		actor.OutputHandler.Send($"The bonus will {AppliesToHostileChecks.NowNoLonger()} apply to hostile checks.");
+		return true;
+	}
+
+	private bool BuildingCommandFriendly(ICharacter actor)
+	{
+		AppliesToFriendlyChecks = !AppliesToFriendlyChecks;
+		Changed = true;
+		actor.OutputHandler.Send($"The bonus will {AppliesToFriendlyChecks.NowNoLonger()} apply to friendly checks.");
+		return true;
+	}
+
+	private bool BuildingCommandHealing(ICharacter actor)
+	{
+		AppliesToHealingChecks = !AppliesToHealingChecks;
+		Changed = true;
+		actor.OutputHandler.Send($"The bonus will {AppliesToHealingChecks.NowNoLonger()} apply to healing checks.");
+		return true;
 	}
 
 	private bool BuildingCommandBonus(ICharacter actor, StringStack command)
@@ -94,13 +154,19 @@ public class CheckCategoryBonusMerit : CharacterMeritBase, ICheckBonusMerit
 
 		SpecificBonus = value;
 		Changed = true;
-		actor.OutputHandler.Send($"This merit will now add a bonus of {SpecificBonus.ToBonusString(actor)} to all checks when it applies.");
+		actor.OutputHandler.Send($"This merit will now add a bonus of {SpecificBonus.ToBonusString(actor)} to all affected checks when it applies.");
 		return true;
 	}
 
 	/// <inheritdoc />
 	protected override string SubtypeHelp => @"
-	#3bonus <##>#0 - sets the bonus for this merit";
+	#3bonus <##>#0 - sets the bonus for this merit
+	#3healing#0 - toggles applying to healing checks
+	#3friendly#0 - toggles applying to friendly checks
+	#3active#0 - toggles applying to active checks
+	#3hostile#0 - toggles applying to hostile checks
+	#3language#0 - toggles applying to language checks
+	#3perception#0 - toggles applying to perception checks";
 
 	#region Implementation of ICheckBonusMerit
 

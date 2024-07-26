@@ -19,6 +19,7 @@ using MudSharp.PerceptionEngine.Parsers;
 using MudSharp.Work.Butchering;
 using MudSharp.Work.Crafts;
 using MudSharp.Work.Projects;
+using Humanizer;
 
 namespace MudSharp.Commands.Modules;
 
@@ -222,6 +223,7 @@ The syntax to use crafts is a follows:
 	#3craft resume <targetitem>#0 - resumes an in-progress craft by targeting the item.
 	#3craft view <craft name>#0 - shows you information about a craft.
 	#3craft preview <craft name>#0 - shows you what tools and materials you would consume if you executed that craft.
+	#3craft categories#0 - shows you the categories of crafts that you know
 	#3craft find <item>#0 - shows you what crafts you can do that use or produce the specified item
 
 See the #3crafts#0 command for a list of crafts that you can do.";
@@ -314,10 +316,6 @@ The full list of filters for craft list is below:
 				BuilderModule.GenericReview(actor, ss, EditableRevisableItemHelper.CraftHelper);
 				return;
 			case "categories":
-				if (!actor.IsAdministrator())
-				{
-					goto default;
-				}
 				CraftCategories(actor);
 				return;
 			case "clone":
@@ -426,8 +424,38 @@ The full list of filters for craft list is below:
 
 	private static void CraftCategories(ICharacter actor)
 	{
-		actor.OutputHandler.Send(
-			$"There are the following categories of crafts: {actor.Gameworld.Crafts.Where(x => x.Status == RevisionStatus.Current).Select(x => x.Category).Distinct().Select(x => x.ColourValue()).ListToString()}.");
+		if (actor.IsAdministrator())
+		{
+
+
+			actor.OutputHandler.Send(
+				$"There are the following categories of crafts: {actor.Gameworld.Crafts.Where(x => x.Status == RevisionStatus.Current).Select(x => x.Category).Distinct().Select(x => x.ColourValue()).ListToString()}.");
+			return;
+		}
+
+		var knownCrafts = actor.Gameworld.Crafts.Where(x => x.AppearInCraftsList(actor)).ToList();
+		var categories = knownCrafts
+									  .Where(x => x.Status == RevisionStatus.Current)
+									  .Select(x => x.Category.TitleCase())
+									  .Distinct()
+									  .OrderBy(x => x)
+									  .ToList();
+		if (categories.Count == 0)
+		{
+			actor.OutputHandler.Send("You don't know any crafts.");
+			return;
+		}
+
+		var sb = new StringBuilder();
+		sb.AppendLine($"You know crafts in the following categories:");
+		sb.AppendLine();
+		foreach (var item in categories)
+		{
+			var kccc = knownCrafts.Count(x => x.Category.EqualTo(item));
+			sb.AppendLine($"\t{item.ColourName()} ({kccc.ToString("N0", actor)} {"craft".Pluralise(kccc != 1)})");
+		}
+		actor.OutputHandler.Send(sb.ToString());
+		
 	}
 
 	[PlayerCommand("Materials", "materials")]

@@ -110,19 +110,19 @@ public class TimePieceGameItemComponentProto : GameItemComponentProto
 
 Note: With the DISPLAY subcommand you can use the following markup in the text:
 
-    #5$s#0 - the seconds as a number, e.g. 21
-    #5$S#0 - the seconds as a word, e.g. twenty one
-    #5$m#0 - the minutes as a number, e.g. 08
-    #5$M#0 - the minutes as a word, e.g. eight
-    #5$h#0 - the hours as a number. Note, this ignores time intervals (e.g. 24 hour time). E.g. 15
-    #5$H#0 - the hours as a word. Note, this ignores time intervals (e.g. 24 hour time). E.g. fifteen
-    #5$j#0 - the hours as a number, respecting time intervals (e.g. a.m / p.m), e.g. 3
-    #5$J#0 - the hours as a word, respecting time intervals (e.g. a.m / p.m), e.g. three
-    #5$t#0 - the timezone abbreviation, e.g. GMT
-    #5$T#0 - the timezone description, e.g. Grenwich Mean Time
-    #5$c#0 - the crude time, e.g. four o'clock
-    #5$i#0 - the interval abbreviation, e.g. a.m or p.m
-    #5$I#0 - the interval description, e.g. in the afternoon, in the morning";
+	#5$s#0 - the seconds as a number, e.g. 21
+	#5$S#0 - the seconds as a word, e.g. twenty one
+	#5$m#0 - the minutes as a number, e.g. 08
+	#5$M#0 - the minutes as a word, e.g. eight
+	#5$h#0 - the hours as a number. Note, this ignores time intervals (e.g. 24 hour time). E.g. 15
+	#5$H#0 - the hours as a word. Note, this ignores time intervals (e.g. 24 hour time). E.g. fifteen
+	#5$j#0 - the hours as a number, respecting time intervals (e.g. a.m / p.m), e.g. 3
+	#5$J#0 - the hours as a word, respecting time intervals (e.g. a.m / p.m), e.g. three
+	#5$t#0 - the timezone abbreviation, e.g. GMT
+	#5$T#0 - the timezone description, e.g. Grenwich Mean Time
+	#5$c#0 - the crude time, e.g. four o'clock
+	#5$i#0 - the interval abbreviation, e.g. a.m or p.m
+	#5$I#0 - the interval description, e.g. in the afternoon, in the morning";
 
 	public override string ShowBuildingHelp => BuildingHelpText;
 
@@ -164,19 +164,19 @@ Note: With the DISPLAY subcommand you can use the following markup in the text:
 		{
 			actor.OutputHandler.Send(@"You can use the following special characters in the string:
 
-    #5$s#0 - the seconds as a number, e.g. 21
-    #5$S#0 - the seconds as a word, e.g. twenty one
-    #5$m#0 - the minutes as a number, e.g. 08
-    #5$M#0 - the minutes as a word, e.g. eight
-    #5$h#0 - the hours as a number. Note, this ignores time intervals (e.g. 24 hour time). E.g. 15
-    #5$H#0 - the hours as a word. Note, this ignores time intervals (e.g. 24 hour time). E.g. fifteen
-    #5$j#0 - the hours as a number, respecting time intervals (e.g. a.m / p.m), e.g. 3
-    #5$J#0 - the hours as a word, respecting time intervals (e.g. a.m / p.m), e.g. three
-    #5$t#0 - the timezone abbreviation, e.g. GMT
-    #5$T#0 - the timezone description, e.g. Grenwich Mean Time
-    #5$c#0 - the crude time, e.g. four o'clock
-    #5$i#0 - the interval abbreviation, e.g. a.m or p.m
-    #5$I#0 - the interval description, e.g. in the afternoon, in the morning".SubstituteANSIColour());
+	#5$s#0 - the seconds as a number, e.g. 21
+	#5$S#0 - the seconds as a word, e.g. twenty one
+	#5$m#0 - the minutes as a number, e.g. 08
+	#5$M#0 - the minutes as a word, e.g. eight
+	#5$h#0 - the hours as a number. Note, this ignores time intervals (e.g. 24 hour time). E.g. 15
+	#5$H#0 - the hours as a word. Note, this ignores time intervals (e.g. 24 hour time). E.g. fifteen
+	#5$j#0 - the hours as a number, respecting time intervals (e.g. a.m / p.m), e.g. 3
+	#5$J#0 - the hours as a word, respecting time intervals (e.g. a.m / p.m), e.g. three
+	#5$t#0 - the timezone abbreviation, e.g. GMT
+	#5$T#0 - the timezone description, e.g. Grenwich Mean Time
+	#5$c#0 - the crude time, e.g. four o'clock
+	#5$i#0 - the interval abbreviation, e.g. a.m or p.m
+	#5$I#0 - the interval description, e.g. in the afternoon, in the morning".SubstituteANSIColour());
 			return false;
 		}
 
@@ -221,9 +221,7 @@ Note: With the DISPLAY subcommand you can use the following markup in the text:
 		}
 
 		var text = command.SafeRemainingArgument;
-		var timezone =
-			Clock.Timezones.FirstOrDefault(x => x.Description.EqualTo(text)) ??
-			Clock.Timezones.FirstOrDefault(x => x.Alias.EqualTo(text));
+		var timezone = Clock.Timezones.GetByIdOrNames(text);
 		if (timezone is null)
 		{
 			actor.OutputHandler.Send(

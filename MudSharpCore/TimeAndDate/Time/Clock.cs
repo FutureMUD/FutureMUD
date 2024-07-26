@@ -372,6 +372,8 @@ public class Clock : SaveableItem, IClock
 		protected set => _description = value;
 	}
 
+	IEnumerable<string> IHaveMultipleNames.Names => [Name, Alias];
+
 	#endregion
 
 	#region Behavioural Properties

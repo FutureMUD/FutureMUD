@@ -98,7 +98,9 @@ public class BodyPrototype : SaveableItem, IBodyPrototype
 
 		foreach (var speed in proto.MoveSpeeds)
 		{
-			_speeds.Add(new MoveSpeed(speed));
+			var gspeed = new MoveSpeed(speed);
+			Gameworld.Add(gspeed);
+			_speeds.Add(gspeed);
 		}
 
 

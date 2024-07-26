@@ -756,18 +756,12 @@ If you do not wish to approve or decline, you may type {"abort edit".Colour(Teln
 	public static void GenericEditDefault(ICharacter character, StringStack input, EditableItemHelper helper)
 	{
 		var cmd = input.Last;
-		if (!long.TryParse(cmd, out var id))
-		{
-			character.OutputHandler.Send(
-				$"You must either enter an ID of {helper.ItemName.A_An()} to edit, or use the {"new".Colour(Telnet.Cyan)} keyword.");
-			return;
-		}
 
-		var proto = helper.GetEditableItemByIdFunc(character, id);
+		var proto = helper.GetEditableItemByIdOrNameFunc(character, cmd);
 
 		if (proto == null)
 		{
-			character.Send("There is no such {0} for you to edit.", helper.ItemName);
+			character.Send($"The text {cmd.ColourCommand()} is not a valid {helper.ItemName} for you to edit.");
 			return;
 		}
 
@@ -853,19 +847,13 @@ If you do not wish to approve or decline, you may type {"abort edit".Colour(Teln
 
 	public static void GenericShow(ICharacter character, StringStack input, EditableItemHelper helper)
 	{
-		var cmd = input.Pop();
-		if (!long.TryParse(cmd, out var vnum))
-		{
-			character.OutputHandler.Send("That is not a valid id number.");
-			return;
-		}
+		var cmd = input.PopSpeech();
 
-		var proto = helper.GetEditableItemByIdFunc(character, vnum);
-		;
+		var proto = helper.GetEditableItemByIdOrNameFunc(character, cmd);
 
 		if (proto == null)
 		{
-			character.OutputHandler.Send($"That is not a valid {helper.ItemName}.");
+			character.OutputHandler.Send($"The text {cmd.ColourCommand()} is not a valid {helper.ItemName}.");
 			return;
 		}
 

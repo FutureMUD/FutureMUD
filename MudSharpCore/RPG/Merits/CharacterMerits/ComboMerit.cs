@@ -2,7 +2,9 @@
 using MudSharp.Framework;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Xml.Linq;
+using MudSharp.Character;
 
 namespace MudSharp.RPG.Merits.CharacterMerits;
 
@@ -12,6 +14,8 @@ public class ComboMerit : CharacterMeritBase
 	{
 		MeritFactory.RegisterMeritInitialiser("Combo",
 			(merit, gameworld) => new ComboMerit(merit, gameworld));
+		MeritFactory.RegisterBuilderMeritInitialiser("Combo", (gameworld, name) => new ComboMerit(gameworld, name));
+		MeritFactory.RegisterMeritHelp("Combo", "Controls multiple child quirks at once", new ComboMerit().HelpText);
 	}
 
 	public ComboMerit(Merit merit, IFuturemud gameworld) : base(merit, gameworld)
@@ -20,6 +24,35 @@ public class ComboMerit : CharacterMeritBase
 		foreach (var element in definition.Element("Children")?.Elements() ?? Enumerable.Empty<XElement>())
 		{
 			_childMeritIds.Add(long.Parse(element.Value));
+		}
+	}
+
+	protected ComboMerit(){}
+
+	protected ComboMerit(IFuturemud gameworld, string name) : base(gameworld, name, "Combo", "@ have|has some combination of other quirks")
+	{
+
+	}
+
+	/// <inheritdoc />
+	protected override XElement SaveSubtypeDefinition(XElement root)
+	{
+		root.Add(new XElement("Children",
+			from item in _childMeritIds
+			select new XElement("Child", item)
+		));
+		return root;
+	}
+
+	/// <inheritdoc />
+	protected override void SubtypeShow(ICharacter actor, StringBuilder sb)
+	{
+		InitialiseChildren();
+		sb.AppendLine($"Child Merits:");
+		sb.AppendLine();
+		foreach (var item in CharacterMerits)
+		{
+			sb.AppendLine($"\t#{item.Id.ToString("N0", actor)}) {item.Name.ColourValue()}");
 		}
 	}
 

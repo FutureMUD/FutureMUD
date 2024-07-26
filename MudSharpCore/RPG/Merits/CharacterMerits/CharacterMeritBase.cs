@@ -220,7 +220,7 @@ public abstract class CharacterMeritBase : MeritBase, ICharacterMerit
 			return false;
 		}
 
-		var resource = Gameworld.ChargenResources.GetByIdOrName(command.PopSpeech());
+		var resource = Gameworld.ChargenResources.GetByIdOrNames(command.PopSpeech());
 		if (resource is null)
 		{
 			actor.OutputHandler.Send($"There is no chargen resource identified by the text {command.Last.ColourCommand()}.");

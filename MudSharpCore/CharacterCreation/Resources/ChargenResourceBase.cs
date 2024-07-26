@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using MudSharp.Models;
 using MudSharp.Accounts;
 using MudSharp.Character;
@@ -66,6 +67,8 @@ public abstract class ChargenResourceBase : FrameworkItem, IChargenResource
 	public string PluralName { get; protected set; }
 
 	public string Alias { get; protected set; }
+
+	IEnumerable<string> IHaveMultipleNames.Names => [Name, PluralName, Alias];
 
 	public TimeSpan MinimumTimeBetweenAwards { get; protected set; }
 

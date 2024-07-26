@@ -956,11 +956,7 @@ See the #3CELL#0 command for more information about #3CELL PACKAGES#0.";
 			return;
 		}
 
-		var timeZone =
-			clock.Timezones.FirstOrDefault(
-				x => x.Description.Equals(timezoneText, StringComparison.InvariantCultureIgnoreCase)) ??
-			clock.Timezones.FirstOrDefault(
-				x => x.Alias.Equals(timezoneText, StringComparison.InvariantCultureIgnoreCase));
+		var timeZone = clock.Timezones.GetByIdOrNames(timezoneText);
 		if (timeZone == null)
 		{
 			actor.Send("There is no such timezone for the {0} clock.", clock.Alias);
@@ -1137,11 +1133,7 @@ See the #3CELL#0 command for more information about #3CELL PACKAGES#0.";
 			}
 
 			var timezoneText = command.PopSpeech();
-			var timezone =
-				clock.Timezones.FirstOrDefault(
-					x => x.Description.Equals(timezoneText, StringComparison.InvariantCultureIgnoreCase)) ??
-				clock.Timezones.FirstOrDefault(
-					x => x.Alias.Equals(timezoneText, StringComparison.InvariantCultureIgnoreCase));
+			var timezone = clock.Timezones.GetByIdOrNames(timezoneText);
 			if (timezone == null)
 			{
 				actor.Send("There is no such timezone for the {0} clock.",
@@ -1313,7 +1305,7 @@ The syntax for this command is as follows:
 			return;
 		}
 
-		var clock = actor.Gameworld.Clocks.GetByIdOrName(ss.PopSpeech());
+		var clock = actor.Gameworld.Clocks.GetByIdOrNames(ss.PopSpeech());
 		if (clock is null)
 		{
 			actor.Send("There is no such clock.");
@@ -1364,7 +1356,7 @@ The syntax for this command is as follows:
 			}
 		}
 
-		var timezone = clock.Timezones.GetByName(alias)!;
+		var timezone = clock.Timezones.GetByIdOrNames(alias)!;
 		var eTimezone = (IEditableMudTimeZone)timezone;
 		eTimezone.Description = name;
 		eTimezone.OffsetHours = hoursoffset;
@@ -1385,7 +1377,7 @@ The syntax for this command is as follows:
 			return;
 		}
 
-		var clock = actor.Gameworld.Clocks.GetByIdOrName(ss.PopSpeech());
+		var clock = actor.Gameworld.Clocks.GetByIdOrNames(ss.PopSpeech());
 		if (clock is null)
 		{
 			actor.Send("There is no such clock.");

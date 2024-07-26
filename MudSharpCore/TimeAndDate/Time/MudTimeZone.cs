@@ -2,6 +2,7 @@
 using MudSharp.Database;
 using MudSharp.Framework;
 using MudSharp.Framework.Save;
+using System.Collections.Generic;
 
 namespace MudSharp.TimeAndDate.Time;
 
@@ -92,6 +93,8 @@ public class MudTimeZone : SaveableItem, IMudTimeZone
 			_name = value;
 		}
 	}
+
+	IEnumerable<string> IHaveMultipleNames.Names => [Name, Alias];
 
 	private void LoadFromDB(Timezone zone)
 	{

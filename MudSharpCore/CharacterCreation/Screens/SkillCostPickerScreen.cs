@@ -796,7 +796,7 @@ Note, the boost cost expression can use the following parameters:
 			return false;
 		}
 
-		var resource = Gameworld.ChargenResources.GetByIdOrName(command.SafeRemainingArgument);
+		var resource = Gameworld.ChargenResources.GetByIdOrNames(command.SafeRemainingArgument);
 		if (resource is null)
 		{
 			actor.OutputHandler.Send("There is no such account resource.");

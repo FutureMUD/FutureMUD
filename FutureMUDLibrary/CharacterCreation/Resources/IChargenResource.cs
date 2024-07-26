@@ -5,7 +5,7 @@ using MudSharp.Character;
 using MudSharp.Framework;
 
 namespace MudSharp.CharacterCreation.Resources {
-    public interface IChargenResource : IFrameworkItem {
+    public interface IChargenResource : IHaveMultipleNames {
         /// <summary>
         ///     Pluralised version of Item.Name
         /// </summary>

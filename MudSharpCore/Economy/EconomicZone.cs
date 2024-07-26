@@ -914,7 +914,7 @@ public class EconomicZone : SaveableItem, IEconomicZone
 			return false;
 		}
 
-		var calendar = actor.Gameworld.Calendars.GetByIdOrName(command.SafeRemainingArgument);
+		var calendar = actor.Gameworld.Calendars.GetByIdOrNames(command.SafeRemainingArgument);
 		if (calendar is null)
 		{
 			actor.OutputHandler.Send("There is no such calendar.");

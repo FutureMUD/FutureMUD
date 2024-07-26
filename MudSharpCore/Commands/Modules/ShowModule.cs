@@ -164,6 +164,7 @@ public class ShowModule : Module<ICharacter>
 	#3sky <template>#0 - shows a sky template
 	#3skies#0 - shows all sky templates
 	#3sizes#0 - shows all sizes
+	#3speeds#0 - shows all movement speeds
 	#3stacks#0 - shows all stack descriptors 
 	#3staticconfig <which>#0 - shows a static config setting
 	#3staticstring <which>#0 - shows a static string setting
@@ -190,6 +191,9 @@ public class ShowModule : Module<ICharacter>
 		var ss = new StringStack(command.RemoveFirstWord());
 		switch (ss.PopForSwitch())
 		{
+			case "speeds":
+				Show_Speeds(actor, ss);
+				return;
 			case "checks":
 				Show_Checks(actor, ss);
 				return;
@@ -496,6 +500,71 @@ public class ShowModule : Module<ICharacter>
 
 				return;
 		}
+	}
+
+	private static void Show_Speeds(ICharacter actor, StringStack ss)
+	{
+		var speeds = actor.Gameworld.MoveSpeeds
+		                  .OrderBy(x => x.Id)
+		                  .ToList();
+
+		while (!ss.IsFinished)
+		{
+			var cmd = ss.PopSpeech();
+			if (cmd.Length < 2)
+			{
+				continue;
+			}
+
+			var cmd1 = cmd.Substring(1);
+			switch (cmd[0])
+			{
+				case '+':
+					speeds = speeds.Where(x => x.Name.Contains(cmd1, StringComparison.InvariantCultureIgnoreCase)).ToList();
+					continue;
+				case '-':
+					speeds = speeds.Where(x => !x.Name.Contains(cmd1, StringComparison.InvariantCultureIgnoreCase)).ToList();
+					continue;
+				case '*':
+					speeds = speeds.Where(x => x.Position.Name.Contains(cmd1, StringComparison.InvariantCultureIgnoreCase)).ToList();
+					continue;
+				default:
+					var body = actor.Gameworld.BodyPrototypes.GetByIdOrName(cmd);
+					if (body is null)
+					{
+						actor.OutputHandler.Send($"There is no body prototype identified by the text {cmd.ColourCommand()}.");
+						return;
+					}
+
+					speeds = speeds.Where(x => body.Speeds.Contains(x)).ToList();
+					continue;
+
+			}
+		}
+
+		actor.OutputHandler.Send(StringUtilities.GetTextTable(
+			from speed in speeds
+			select new List<string>
+			{
+				speed.Id.ToString("N0", actor),
+				speed.Name,
+				speed.Position.Name,
+				speed.Multiplier.ToString("P2", actor),
+				speed.StaminaMultiplier.ToString("P2", actor),
+				actor.Gameworld.BodyPrototypes.FirstOrDefault(x => x.Speeds.Contains(speed))?.Name
+			},
+			new List<string>
+			{
+				"Id",
+				"Name",
+				"Position",
+				"Move Time",
+				"Stamina",
+				"Body"
+			},
+			actor,
+			Telnet.Green
+		));
 	}
 
 	private static void Show_CheckTemplates(ICharacter actor, StringStack ss)
@@ -1044,7 +1113,7 @@ public class ShowModule : Module<ICharacter>
 		}
 		else
 		{
-			var clock = actor.Gameworld.Clocks.GetByIdOrName(command.SafeRemainingArgument);
+			var clock = actor.Gameworld.Clocks.GetByIdOrNames(command.SafeRemainingArgument);
 			if (clock is null)
 			{
 				actor.OutputHandler.Send("There is no such clock.");
@@ -1112,7 +1181,7 @@ public class ShowModule : Module<ICharacter>
 			return;
 		}
 
-		var calendar = actor.Gameworld.Calendars.GetByIdOrName(command.PopSpeech());
+		var calendar = actor.Gameworld.Calendars.GetByIdOrNames(command.PopSpeech());
 		if (calendar is null)
 		{
 			actor.OutputHandler.Send("There is no such calendar.");

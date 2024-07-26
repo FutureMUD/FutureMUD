@@ -50,6 +50,7 @@ using MudSharp.Health;
 using MudSharp.Help;
 using MudSharp.Logging;
 using MudSharp.Magic;
+using MudSharp.Movement;
 using MudSharp.Network;
 using MudSharp.NPC;
 using MudSharp.NPC.AI;
@@ -211,6 +212,7 @@ namespace MudSharp.Framework
 
         IUneditableAll<ISolid> Materials { get; }
         IUneditableAll<IMerit> Merits { get; }
+        IUneditableAll<IMoveSpeed> MoveSpeeds { get; }
         IUneditableAll<INameCulture> NameCultures { get; }
         IUneditableAll<INewPlayerHint> NewPlayerHints { get; }
 
@@ -352,6 +354,7 @@ namespace MudSharp.Framework
         void SystemMessage(IOutput message, bool adminonly = false);
 
         void AddGuest(ICharacter character);
+        void Add(IMoveSpeed speed);
         void Add(IImprovementModel model);
         void Add(ICurrency currency);
         void Add(ICoin coin);

@@ -2,7 +2,7 @@
 
 namespace MudSharp.TimeAndDate.Time
 {
-    public interface IMudTimeZone : IFrameworkItem
+    public interface IMudTimeZone : IHaveMultipleNames
     {
         int OffsetHours { get; }
         int OffsetMinutes { get; }

@@ -332,7 +332,7 @@ public class DisfigurementPickerScreenStoryboard : ChargenScreenStoryboard
 				return false;
 			}
 
-			var resource = Gameworld.ChargenResources.GetByIdOrName(command.PopSpeech());
+			var resource = Gameworld.ChargenResources.GetByIdOrNames(command.PopSpeech());
 			if (resource is null)
 			{
 				actor.OutputHandler.Send("There is no such account resource.");
@@ -469,7 +469,7 @@ public class DisfigurementPickerScreenStoryboard : ChargenScreenStoryboard
 				return false;
 			}
 
-			var resource = Gameworld.ChargenResources.GetByIdOrName(command.PopSpeech());
+			var resource = Gameworld.ChargenResources.GetByIdOrNames(command.PopSpeech());
 			if (resource is null)
 			{
 				actor.OutputHandler.Send("There is no such account resource.");

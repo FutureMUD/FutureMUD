@@ -1076,7 +1076,7 @@ A function (See PROG HELP FUNCTIONS) can also function as a statement on a line.
 
 				return (merit, true);
 			case FutureProgVariableTypes.Calendar:
-				var calendar = actor.Gameworld.Calendars.GetByIdOrName(parText);
+				var calendar = actor.Gameworld.Calendars.GetByIdOrNames(parText);
 				if (calendar is null)
 				{
 					actor.OutputHandler.Send($"There is no such calendar{parameterArgument}");
@@ -1085,7 +1085,7 @@ A function (See PROG HELP FUNCTIONS) can also function as a statement on a line.
 
 				return (calendar, true);
 			case FutureProgVariableTypes.Clock:
-				var clock = actor.Gameworld.Clocks.GetByIdOrName(parText);
+				var clock = actor.Gameworld.Clocks.GetByIdOrNames(parText);
 				if (clock is null)
 				{
 					actor.OutputHandler.Send($"There is no such clock{parameterArgument}");

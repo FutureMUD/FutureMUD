@@ -434,7 +434,7 @@ Type {"continue".Colour(Telnet.Yellow)} to begin, or {"reset".Colour(Telnet.Yell
 			return false;
 		}
 
-		var resource = Gameworld.ChargenResources.GetByIdOrName(command.SafeRemainingArgument);
+		var resource = Gameworld.ChargenResources.GetByIdOrNames(command.SafeRemainingArgument);
 		if (resource is null)
 		{
 			actor.OutputHandler.Send("There is no such account resource.");

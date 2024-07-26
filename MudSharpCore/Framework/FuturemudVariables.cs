@@ -49,6 +49,7 @@ using MudSharp.Health;
 using MudSharp.Help;
 using MudSharp.Logging;
 using MudSharp.Magic;
+using MudSharp.Movement;
 using MudSharp.NPC;
 using MudSharp.NPC.AI;
 using MudSharp.NPC.AI.Groups;
@@ -201,6 +202,7 @@ public sealed partial class Futuremud : IDisposable
 	private readonly All<IActiveProject> _activeProjects = new();
 
 	private readonly All<IMerit> _merits = new();
+	private readonly All<IMoveSpeed> _moveSpeeds = new();
 	private readonly All<INameCulture> _nameCultures = new();
 	private readonly All<INewPlayerHint> _newPlayerHints = new();
 	private readonly All<INPCSpawner> _npcSpawners = new();
@@ -450,6 +452,8 @@ public sealed partial class Futuremud : IDisposable
 	public IUneditableAll<ISolid> Materials => _materials;
 
 	public IUneditableAll<IMerit> Merits => _merits;
+
+	public IUneditableAll<IMoveSpeed> MoveSpeeds => _moveSpeeds;
 
 	public IUneditableAll<INameCulture> NameCultures => _nameCultures;
 	public IUneditableAll<INewPlayerHint> NewPlayerHints => _newPlayerHints;

@@ -13,7 +13,7 @@ using MudSharp.TimeAndDate.Date;
 using MudSharp.TimeAndDate.Intervals;
 
 namespace MudSharp.Community {
-    public interface IClan : IFrameworkItem, ISaveable, IFutureProgVariable {
+    public interface IClan : IFrameworkItem, ISaveable, IFutureProgVariable, IHaveMultipleNames {
         bool IsTemplate { get; set; }
         string Alias { get; set; }
         string FullName { get; set; }

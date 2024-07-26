@@ -909,7 +909,7 @@ You can use the following syntax with this command:
 			return;
 		}
 
-		var calendar = actor.Gameworld.Calendars.GetByIdOrName(ss.PopSpeech());
+		var calendar = actor.Gameworld.Calendars.GetByIdOrNames(ss.PopSpeech());
 		if (calendar is null)
 		{
 			actor.OutputHandler.Send($"There is no calendar identified by the text \"{ss.Last.ColourCommand()}\".");

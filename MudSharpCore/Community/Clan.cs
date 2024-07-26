@@ -260,6 +260,8 @@ public class Clan : SaveableItem, IClan
 		}
 	}
 
+	IEnumerable<string> IHaveMultipleNames.Names => [Name, FullName, Alias];
+
 	public string Description { get; set; }
 
 	private readonly List<ICell> _treasuryCells = new();

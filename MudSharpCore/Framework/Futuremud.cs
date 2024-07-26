@@ -75,6 +75,7 @@ using MudSharp.PerceptionEngine.Handlers;
 using System.Numerics;
 using MudSharp.Body.Traits.Improvement;
 using MudSharp.Economy.Currency;
+using MudSharp.Movement;
 
 namespace MudSharp.Framework;
 
@@ -678,6 +679,11 @@ public sealed partial class Futuremud : IFuturemud, IDisposable
 	public void AddGuest(ICharacter character)
 	{
 		_guests.Add(character);
+	}
+
+	public void Add(IMoveSpeed speed)
+	{
+		_moveSpeeds.Add(speed);
 	}
 
 	public void Add(IImprovementModel model)

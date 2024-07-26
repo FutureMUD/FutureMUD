@@ -85,6 +85,6 @@ internal class AllSpeedMovesSpeedMerit : CharacterMeritBase, IMovementSpeedMerit
 		MeritFactory.RegisterMeritInitialiser("All Speed Multiplier",
 			(merit, gameworld) => new AllSpeedMovesSpeedMerit(merit, gameworld));
 		MeritFactory.RegisterBuilderMeritInitialiser("All Speed Multiplier", (gameworld, name) => new AllSpeedMovesSpeedMerit(gameworld, name));
-		MeritFactory.RegisterMeritHelp("All Speed Multiplier", "Multiplies move speed", new AllSpeedMovesSpeedMerit().HelpText);
+		MeritFactory.RegisterMeritHelp("All Speed Multiplier", "Multiplies all move speeds", new AllSpeedMovesSpeedMerit().HelpText);
 	}
 }

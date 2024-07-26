@@ -319,6 +319,8 @@ public class Calendar : SaveableItem, ICalendar
 		protected set => _fullName = value;
 	}
 
+	IEnumerable<string> IHaveMultipleNames.Names => [Name, Alias, ShortName, FullName];
+
 	// A verbose description of the calendar
 	protected string _description;
 

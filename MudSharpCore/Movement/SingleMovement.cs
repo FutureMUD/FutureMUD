@@ -61,6 +61,7 @@ public class SingleMovement : MovementBase
 			var (canCross, whyNot) = Mover.CanCross(Exit);
 			if (!canCross)
 			{
+				TurnaroundTracks();
 				Mover.OutputHandler.Handle(whyNot);
 				Mover.HandleEvent(EventType.CharacterStopMovementClosedDoor, Mover, Exit.Origin, Exit);
 				foreach (var witness in Mover.Location.EventHandlers.Except(Mover))
@@ -76,50 +77,52 @@ public class SingleMovement : MovementBase
 				}
 
 				Cancel();
+				return;
+			}
+
+			Mover.ExecuteMove();
+			// Mover.ExecuteMove() can cause the movement to become cancelled if someone tumbles off a cliff for example
+			if (Cancelled)
+			{
+				return;
+			}
+
+			Phase = MovementPhase.NewRoom;
+			Exit.Destination.RegisterMovement(this);
+			Exit.Origin.ResolveMovement(this);
+			HandleMovementEcho();
+
+			CreateArrivalTracks(Mover, MovementTrackCircumstances);
+
+			// If they have the hide effect but are not sneaking, everyone sees them by default
+			if (Mover.AffectedBy<IHideEffect>())
+			{
+				foreach (var witness in Mover.Location.Characters.Except(Mover))
+				{
+					witness.AddEffect(new SawHider(witness, Mover), TimeSpan.FromSeconds(300));
+				}
+			}
+
+			Mover.Body.Look(true);
+
+			var finalDelay = TimeSpan.FromTicks(Duration.Ticks / 5);
+			if (TimeSpan.Zero.CompareTo(finalDelay) < 0)
+			{
+				Mover.Gameworld.Scheduler.AddSchedule(new Schedule(FinalStep, ScheduleType.Movement,
+					finalDelay.TotalSeconds > 5 ? TimeSpan.FromSeconds(5) : finalDelay,
+					"SingleMovement Final Step"));
 			}
 			else
 			{
-				Mover.ExecuteMove();
-				// Mover.ExecuteMove() can cause the movement to become cancelled if someone tumbles off a cliff for example
-				if (Cancelled)
-				{
-					return;
-				}
-
-				Phase = MovementPhase.NewRoom;
-				Exit.Destination.RegisterMovement(this);
-				Exit.Origin.ResolveMovement(this);
-				HandleMovementEcho();
-
-				// If they have the hide effect but are not sneaking, everyone sees them by default
-				if (Mover.AffectedBy<IHideEffect>())
-				{
-					foreach (var witness in Mover.Location.Characters.Except(Mover))
-					{
-						witness.AddEffect(new SawHider(witness, Mover), TimeSpan.FromSeconds(300));
-					}
-				}
-
-				Mover.Body.Look(true);
-
-				var finalDelay = TimeSpan.FromTicks(Duration.Ticks / 5);
-				if (TimeSpan.Zero.CompareTo(finalDelay) < 0)
-				{
-					Mover.Gameworld.Scheduler.AddSchedule(new Schedule(FinalStep, ScheduleType.Movement,
-						finalDelay.TotalSeconds > 5 ? TimeSpan.FromSeconds(5) : finalDelay,
-						"SingleMovement Final Step"));
-				}
-				else
-				{
-					FinalStep();
-				}
+				FinalStep();
 			}
+
+			return;
 		}
-		else
-		{
-			Mover.Send(Mover.WhyCannotMove());
-			Cancel();
-		}
+
+		TurnaroundTracks();
+		Mover.Send(Mover.WhyCannotMove());
+		Cancel();
 	}
 
 	protected virtual void HandleMovementEcho()
@@ -150,6 +153,8 @@ public class SingleMovement : MovementBase
 		}
 	}
 
+	protected virtual TrackCircumstances MovementTrackCircumstances => TrackCircumstances.None;
+
 	public override void InitialAction()
 	{
 		Mover.StartMove(this);
@@ -158,6 +163,8 @@ public class SingleMovement : MovementBase
 		{
 			character.OutputHandler.Send(output);
 		}
+
+		CreateDepartureTracks(Mover, MovementTrackCircumstances);
 
 		if (TimeSpan.Zero.CompareTo(Duration) < 0)
 		{
@@ -206,6 +213,7 @@ public class SingleMovement : MovementBase
 			witness.HandleEvent(EventType.CharacterStopMovementWitness, Mover, Exit.Origin, Exit, witness);
 		}
 
+		TurnaroundTracks();
 		Cancel();
 	}
 

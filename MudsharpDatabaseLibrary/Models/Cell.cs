@@ -24,6 +24,7 @@ namespace MudSharp.Models
             ShopsStoreroomCells = new HashSet<ShopsStoreroomCell>();
             ShopsWorkshopCell = new HashSet<Shop>();
             Zones = new HashSet<Zone>();
+            Tracks = new HashSet<Track>();
         }
 
         public long Id { get; set; }
@@ -52,5 +53,6 @@ namespace MudSharp.Models
         public virtual ICollection<ShopsStoreroomCell> ShopsStoreroomCells { get; set; }
         public virtual ICollection<Shop> ShopsWorkshopCell { get; set; }
         public virtual ICollection<Zone> Zones { get; set; }
+        public virtual ICollection<Track> Tracks { get; set; }
     }
 }

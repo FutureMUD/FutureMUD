@@ -217,7 +217,11 @@ namespace MudSharp.Character.Heritage {
         IRace Clone(string newName);
         double HungerRate { get; }
         double ThirstRate { get; }
-    }
+        double TrackIntensityVisual { get; }
+        double TrackIntensityOlfactory { get; }
+        double TrackingAbilityVisual { get; }
+        double TrackingAbilityOlfactory { get; }
+	}
 
     public enum SizeContext {
         None,

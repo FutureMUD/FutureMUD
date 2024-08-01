@@ -1405,4 +1405,26 @@ See also: HELP EVALUATE, HELP SEARCH, HELP SCAN",
 			person.SeeTarget(target);
 		}
 	}
+
+	[PlayerCommand("Tracks", "tracks")]
+	protected static void Tracks(ICharacter actor, string input)
+	{
+		// TODO - for debug only
+		var tracks = actor.Location.Tracks.Where(x => x.RoomLayer == actor.RoomLayer).ToList();
+		if (tracks.Count == 0)
+		{
+			actor.OutputHandler.Send("There are no tracks here.");
+			return;
+		}
+		var sb = new StringBuilder();
+		sb.AppendLine("There are the following tracks here:");
+		sb.AppendLine();
+		var i = 1;
+		foreach (var track in tracks)
+		{
+			sb.AppendLine($"{i++.ToString("N0", actor)}) {track.DescribeForTracksCommand(actor)}");
+		}
+
+		actor.OutputHandler.Send(sb.ToString());
+	}
 }

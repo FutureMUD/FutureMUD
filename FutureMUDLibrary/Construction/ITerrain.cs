@@ -40,5 +40,8 @@ namespace MudSharp.Construction
         string TerrainEditorColour { get; }
         string TerrainEditorText { get; }
         string TerrainANSIColour { get; }
-    }
+        bool CanHaveTracks { get; }
+        double TrackIntensityMultiplierVisual { get; }
+        double TrackIntensityMultiplierOlfactory { get; }
+	}
 }

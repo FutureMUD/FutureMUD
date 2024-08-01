@@ -90,6 +90,10 @@ public partial class Race
 	#3bloodmodel none#0 - clears a blood antigen typing model from this race
 	#3tempfloor <temperature>#0 - sets the base minimum tolerable temperature for this race
 	#3tempceiling <temperature>#0 - sets the base maximum tolerable temperature for this race
+	#3trackvisual <%>#0 - sets the intensity modifier of visual tracks left behind
+	#3tracksmell <%>#0 - sets the intensity modifier of olfactory tracks left behind
+	#3trackingvisual <%>#0 - sets the skill modifier for tracking visual tracks
+	#3trackingsmell <%>#0 - sets the skill modifier for tracking olfactory tracks
 
 	#6Eating Properties#0
 
@@ -262,10 +266,106 @@ public partial class Race
 			case "description":
 			case "desc":
 				return BuildingCommandDescription(actor, command);
+			case "trackintensityvisual":
+			case "trackvisual":
+				return BuildingCommandTrackVisual(actor, command);
+			case "trackintensityolfactory":
+			case "trackolfactory":
+			case "trackintensitysmell":
+			case "tracksmell":
+				return BuildingCommandTrackOlfactory(actor, command);
+			case "trackingabilityvisual":
+			case "trackingvisual":
+				return BuildingCommandTrackingVisual(actor, command);
+			case "trackingabilityolfactory":
+			case "trackingolfactory":
+			case "trackingabilitysmell":
+			case "trackingsmell":
+				return BuildingCommandTrackingOlfactory(actor, command);
 			default:
 				actor.OutputHandler.Send(HelpText.SubstituteANSIColour());
 				return false;
 		}
+	}
+
+	private bool BuildingCommandTrackingOlfactory(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("You must specify a percentage modifier.");
+			return false;
+		}
+
+		if (!command.SafeRemainingArgument.TryParsePercentage(actor.Account.Culture, out var value))
+		{
+			actor.OutputHandler.Send($"The text {command.SafeRemainingArgument.ColourCommand()} is not a valid percentage.");
+			return false;
+		}
+
+		TrackingAbilityOlfactory = value;
+		Changed = true;
+		actor.OutputHandler.Send($"This race now has a {value.ToStringP2Colour(actor)} of base olfactory tracking ability.");
+		return true;
+	}
+
+	private bool BuildingCommandTrackingVisual(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("You must specify a percentage modifier.");
+			return false;
+		}
+
+		if (!command.SafeRemainingArgument.TryParsePercentage(actor.Account.Culture, out var value))
+		{
+			actor.OutputHandler.Send($"The text {command.SafeRemainingArgument.ColourCommand()} is not a valid percentage.");
+			return false;
+		}
+
+		TrackingAbilityVisual = value;
+		Changed = true;
+		actor.OutputHandler.Send($"This race now has a {value.ToStringP2Colour(actor)} of base visual tracking ability.");
+		return true;
+	}
+
+	private bool BuildingCommandTrackOlfactory(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("You must specify a percentage modifier.");
+			return false;
+		}
+
+		if (!command.SafeRemainingArgument.TryParsePercentage(actor.Account.Culture, out var value))
+		{
+			actor.OutputHandler.Send($"The text {command.SafeRemainingArgument.ColourCommand()} is not a valid percentage.");
+			return false;
+		}
+
+		TrackIntensityOlfactory = value;
+		Changed = true;
+		actor.OutputHandler.Send($"This race now has a {value.ToStringP2Colour(actor)} base intensity for olfactory tracks left behind.");
+		return true;
+	}
+
+	private bool BuildingCommandTrackVisual(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("You must specify a percentage modifier.");
+			return false;
+		}
+
+		if (!command.SafeRemainingArgument.TryParsePercentage(actor.Account.Culture, out var value))
+		{
+			actor.OutputHandler.Send($"The text {command.SafeRemainingArgument.ColourCommand()} is not a valid percentage.");
+			return false;
+		}
+
+		TrackIntensityVisual = value;
+		Changed = true;
+		actor.OutputHandler.Send($"This race now has a {value.ToStringP2Colour(actor)} base intensity for visual tracks left behind.");
+		return true;
 	}
 
 	private bool BuildingCommandThirst(ICharacter actor, StringStack command)
@@ -2306,6 +2406,17 @@ public partial class Race
 			""
 		);
 		sb.AppendLineColumns((uint)actor.LineFormatLength, 3,
+			$"Track Intensity (Visual): {TrackIntensityVisual.ToStringP2Colour(actor)}",
+			$"Track Intensity (Smell): {TrackIntensityOlfactory.ToStringP2Colour(actor)}",
+			$"Tracking Ability (Visual): {TrackingAbilityVisual.ToStringP2Colour(actor)}"
+		);
+		sb.AppendLineColumns((uint)actor.LineFormatLength, 3,
+			$"Tracking Ability (Smell): {TrackingAbilityOlfactory.ToStringP2Colour(actor)}",
+			"",
+			""
+		);
+		
+		sb.AppendLineColumns((uint)actor.LineFormatLength, 3,
 			$"Min Temperature: {Gameworld.UnitManager.DescribeDecimal(TemperatureRangeFloor, UnitType.Temperature, actor).ColourValue()}",
 			$"Max Temperature: {Gameworld.UnitManager.DescribeDecimal(TemperatureRangeCeiling, UnitType.Temperature, actor).ColourValue()}",
 			""
@@ -2478,6 +2589,7 @@ public partial class Race
 				"Emote"
 			},
 			actor,
+			Telnet.Yellow,
 			truncatableColumnIndex: 7
 		));
 		sb.AppendLine();
@@ -2497,7 +2609,8 @@ public partial class Race
 		}
 
 		sb.AppendLine();
-		sb.AppendLine("Chargen Advice:");
+		sb.AppendLine("Chargen Advices".GetLineWithTitle(actor, Telnet.Blue, Telnet.BoldWhite));
+		sb.AppendLine();
 		if (_chargenAdvices.Any())
 		{
 			foreach (var advice in _chargenAdvices)
@@ -2540,7 +2653,7 @@ public partial class Race
 					"From Parent?"
 				},
 				actor,
-				Telnet.Blue
+				Telnet.Yellow
 			));
 		}
 		else

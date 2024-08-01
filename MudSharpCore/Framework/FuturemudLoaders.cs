@@ -126,6 +126,7 @@ using RaceButcheryProfile = MudSharp.Work.Butchering.RaceButcheryProfile;
 using TraitExpression = MudSharp.Body.Traits.TraitExpression;
 using MudSharp.RPG.Hints;
 using System.Numerics;
+using Track = MudSharp.Movement.Track;
 
 namespace MudSharp.Framework;
 
@@ -338,6 +339,7 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 			game.LoadCharacterIntroTemplates(); // Needs to come after LoadFutureProgs
 			game.LoadNewPlayerHints(); // Needs to come after LoadFutureProgs
 			game.LoadChargen(); // Needs to come after LoadFutureProgs and LoadRoles
+			game.LoadTracks();
 
 			game.LoadTemporalListeners(); // Should come after everything else is loaded
 			game.LoadProgSchedules(); // Should come after everything else is loaded
@@ -488,6 +490,36 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 		var count = _newPlayerHints.Count;
 		ConsoleUtilities.WriteLine("Loaded #2{0:N0}#0 {1}.", count, count == 1 ? "Hint" : "Hints");
 
+	}
+
+	void IFuturemudLoader.LoadTracks()
+	{
+		ConsoleUtilities.WriteLine("\nLoading #5Tracks#0...");
+#if DEBUG
+		var sw = new Stopwatch();
+		sw.Start();
+#endif
+		var tracks = FMDB.Context.Tracks
+		                      .AsNoTracking()
+		                      .ToList();
+		foreach (var item in tracks)
+		{
+			_tracks.Add(new Track(item, this));
+		}
+#if DEBUG
+		sw.Stop();
+		ConsoleUtilities.WriteLine($"Duration: #2{sw.ElapsedMilliseconds}ms#0");
+#endif
+		var count = _tracks.Count;
+		ConsoleUtilities.WriteLine("Loaded #2{0:N0}#0 {1}.", count, count == 1 ? "Track" : "Tracks");
+
+		ConsoleUtilities.WriteLine("\n#EInitialising Tracks...#0");
+		var trackDictionary = _tracks.AsEnumerable().Select(x => (x.Cell, x)).ToCollectionDictionary().AsReadOnlyCollectionDictionary();
+		foreach (var cell in _cells)
+		{
+			cell.InitialiseTracks(trackDictionary);
+		}
+		ConsoleUtilities.WriteLine("#ADone.#0");
 	}
 
 	void IFuturemudLoader.LoadMarkets()

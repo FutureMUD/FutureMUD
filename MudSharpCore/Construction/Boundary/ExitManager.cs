@@ -231,7 +231,7 @@ public class ExitManager : IExitManager, IHaveFuturemud
 
 	public IExit GetExitByID(long id)
 	{
-		return MasterExitList.TryGetValue(id, out var value) ? value : null;
+		return MasterExitList.GetValueOrDefault(id);
 	}
 
 	public void UpdateCellOverlayExits(ICell cell, ICellOverlay overlay)

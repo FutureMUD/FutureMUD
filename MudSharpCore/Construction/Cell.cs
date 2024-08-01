@@ -1724,6 +1724,43 @@ public partial class Cell : Location, IDisposable, ICell
 		_localProjects.Remove(project);
 	}
 
+	private readonly List<ITrack> _tracks = new();
+	public IEnumerable<ITrack> Tracks => _tracks;
+
+	public void AddTrack(ITrack track)
+	{
+		if (_tracks.Count == 0)
+		{
+			Gameworld.HeartbeatManager.FuzzyMinuteHeartbeat -= TrackHeartbeat;
+			Gameworld.HeartbeatManager.FuzzyMinuteHeartbeat += TrackHeartbeat;
+		}
+		_tracks.Add(track);
+	}
+
+	public void RemoveTrack(ITrack track)
+	{
+		_tracks.Remove(track);
+		if (_tracks.Count == 0)
+		{
+			Gameworld.HeartbeatManager.FuzzyMinuteHeartbeat -= TrackHeartbeat;
+		}
+	}
+
+	private void TrackHeartbeat()
+	{
+		// TODO
+	}
+
+	public void InitialiseTracks(IReadOnlyCollectionDictionary<ICell, ITrack> tracks)
+	{
+		_tracks.AddRange(tracks[this]);
+		if (_tracks.Count > 0)
+		{
+			Gameworld.HeartbeatManager.FuzzyMinuteHeartbeat -= TrackHeartbeat;
+			Gameworld.HeartbeatManager.FuzzyMinuteHeartbeat += TrackHeartbeat;
+		}
+	}
+
 	#endregion
 
 	#region Tags

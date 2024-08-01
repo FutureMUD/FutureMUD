@@ -53,6 +53,7 @@ public class GroupMovement : MovementBase
 	{
 		if (Party.Leader == null)
 		{
+			TurnaroundTracks();
 			foreach (var ch in CharacterMovers)
 			{
 				ch.Send("You stop moving because your leader has disappeared.");
@@ -83,6 +84,7 @@ public class GroupMovement : MovementBase
 			var (canCross, whyNot) = Party.Leader.CanCross(Exit);
 			if (!canCross)
 			{
+				TurnaroundTracks();
 				Party.Leader.OutputHandler.Handle(whyNot);
 
 				foreach (var ch in CharacterMovers.Except(Party.Leader))
@@ -119,6 +121,7 @@ public class GroupMovement : MovementBase
 					_characterMovers.Remove(nonMover);
 					nonMover.StopMovement(this);
 					nonMover.Movement = null;
+					TurnaroundTrack(nonMover);
 				}
 
 				if (!_characterMovers.Any())
@@ -137,6 +140,12 @@ public class GroupMovement : MovementBase
 			Exit.Origin.ResolveMovement(this);
 			Exit.Destination.RegisterMovement(this);
 			Phase = MovementPhase.NewRoom;
+
+			foreach (var mover in CharacterMovers)
+			{
+				CreateArrivalTracks(mover, TrackCircumstances.None);
+			}
+
 			var partyHiders = CharacterMovers.Where(x => x.AffectedBy<IHideEffect>()).ToList();
 
 			foreach (var ch in Exit.Destination.Characters.Except(CharacterMovers).Where(x => SeenBy(x)))
@@ -242,6 +251,11 @@ public class GroupMovement : MovementBase
 			                      Exit.OutboundMovementSuffix + ".");
 		}
 
+		foreach (var mover in CharacterMovers)
+		{
+			CreateDepartureTracks(mover, TrackCircumstances.None);
+		}
+
 		if (TimeSpan.Zero.CompareTo(Duration) < 0)
 		{
 			Exit.Origin.Gameworld.Scheduler.AddSchedule(new Schedule(IntermediateStep, ScheduleType.Movement,
@@ -288,6 +302,7 @@ public class GroupMovement : MovementBase
 
 	public override void StopMovement()
 	{
+		TurnaroundTracks();
 		Party.Leader.OutputHandler.Handle(
 			new EmoteOutput(new Emote("@ call|calls the group to a halt.", Party.Leader)));
 

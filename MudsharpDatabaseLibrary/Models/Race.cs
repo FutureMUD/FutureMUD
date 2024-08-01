@@ -85,8 +85,12 @@ namespace MudSharp.Models
 
         public double HungerRate { get; set; }
         public double ThirstRate { get; set; }
+        public double TrackIntensityVisual { get; set; }
+        public double TrackIntensityOlfactory { get; set; }
+        public double TrackingAbilityVisual { get; set; }
+        public double TrackingAbilityOlfactory { get; set; }
 
-        public virtual HeightWeightModel DefaultHeightWeightModelMale { get; set; }
+		public virtual HeightWeightModel DefaultHeightWeightModelMale { get; set; }
         public virtual HeightWeightModel DefaultHeightWeightModelFemale { get; set; }
         public virtual HeightWeightModel DefaultHeightWeightModelNeuter { get; set; }
         public virtual HeightWeightModel DefaultHeightWeightModelNonBinary { get; set; }

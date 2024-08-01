@@ -224,6 +224,7 @@ public sealed partial class Futuremud : IDisposable
 	private readonly All<ISurgicalProcedure> _surgicalProcedures = new();
 	private readonly All<ITag> _tags = new();
 	private readonly All<ITerrain> _terrains = new();
+	private readonly All<ITrack> _tracks = new();
 	private readonly All<ITraitValueDecorator> _traitDecorators = new();
 	private readonly All<ITraitDefinition> _traits = new();
 	private readonly All<ITraitExpression> _traitExpressions = new();
@@ -507,6 +508,8 @@ public sealed partial class Futuremud : IDisposable
 	public IUneditableAll<ITraitDefinition> Traits => _traits;
 
 	public IUneditableAll<ITraitExpression> TraitExpressions => _traitExpressions;
+
+	public IUneditableAll<ITrack> Tracks => _tracks;
 
 	public IUneditableAll<IWearProfile> WearProfiles => _wearProfiles;
 

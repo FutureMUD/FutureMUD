@@ -96,6 +96,7 @@
         void LoadLegal();
         void LoadNewPlayerHints();
         void LoadMarkets();
+        void LoadTracks();
 
         public string GetStaticConfiguration(string whichConfiguration);
     }

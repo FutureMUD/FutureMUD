@@ -122,5 +122,9 @@ namespace MudSharp.Construction
         event CellProposedForDeletionDelegate CellProposedForDeletion;
 		event EventHandler CellRequestsDeletion;
 		void CheckFallExitStatus();
+        IEnumerable<ITrack> Tracks { get; }
+        void AddTrack(ITrack track);
+        void RemoveTrack(ITrack track);
+        void InitialiseTracks(IReadOnlyCollectionDictionary<ICell, ITrack> tracks);
     }
 }

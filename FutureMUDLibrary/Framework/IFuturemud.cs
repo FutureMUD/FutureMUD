@@ -246,7 +246,8 @@ namespace MudSharp.Framework
         IUneditableAll<ITraitValueDecorator> TraitDecorators { get; }
         IUneditableAll<ITraitDefinition> Traits { get; }
         IUneditableAll<ITraitExpression> TraitExpressions { get; }
-        IUneditableAll<IWearProfile> WearProfiles { get; }
+        IUneditableAll<ITrack> Tracks { get; }
+		IUneditableAll<IWearProfile> WearProfiles { get; }
         IUneditableAll<IZone> Zones { get; }
         IEnumerable<ISocial> Socials { get; }
         IUneditableAll<IChargenRole> Roles { get; }
@@ -354,6 +355,7 @@ namespace MudSharp.Framework
         void SystemMessage(IOutput message, bool adminonly = false);
 
         void AddGuest(ICharacter character);
+        void Add(ITrack track);
         void Add(IMoveSpeed speed);
         void Add(IImprovementModel model);
         void Add(ICurrency currency);
@@ -507,6 +509,7 @@ namespace MudSharp.Framework
         IGameItem TryGetItem(long id, bool addToGameworld = false);
 
         void Destroy(object obj);
+        void Destroy(ITrack track);
 		void Destroy(ICombatArena arena);
         void Destroy(ICurrency currency);
 		void Destroy(ICoin coin);

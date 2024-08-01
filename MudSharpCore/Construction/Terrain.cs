@@ -50,6 +50,8 @@ public class Terrain : SaveableItem, ITerrain
 		TerrainEditorText = terrain.TerrainEditorText;
 		TerrainEditorColour = terrain.TerrainEditorColour;
 		TerrainANSIColour = terrain.TerrainANSIColour;
+		CanHaveTracks = terrain.CanHaveTracks;
+		TrackIntensityMultiplierVisual = terrain.TrackIntensityMultiplierVisual;
 		if (terrain.AtmosphereId != null)
 		{
 			Atmosphere = terrain.AtmosphereType.Equals("gas", StringComparison.InvariantCultureIgnoreCase)
@@ -413,6 +415,9 @@ public class Terrain : SaveableItem, ITerrain
 			dbitem.TerrainEditorColour = "#FF7CFC00";
 			dbitem.TerrainEditorText = null;
 			dbitem.DefaultCellOutdoorsType = (int)CellOutdoorsType.Outdoors;
+			dbitem.TrackIntensityMultiplierOlfactory = 1.0;
+			dbitem.TrackIntensityMultiplierVisual = 1.0;
+			dbitem.CanHaveTracks = true;
 
 			FMDB.Context.SaveChanges();
 			LoadFromDB(dbitem);
@@ -446,6 +451,9 @@ public class Terrain : SaveableItem, ITerrain
 			dbitem.DefaultCellOutdoorsType = rhsItem.DefaultCellOutdoorsType;
 			dbitem.TerrainEditorText = rhsItem.TerrainEditorText;
 			dbitem.TerrainANSIColour = rhsItem.TerrainANSIColour;
+			dbitem.TrackIntensityMultiplierOlfactory = rhsItem.TrackIntensityMultiplierOlfactory;
+			dbitem.TrackIntensityMultiplierVisual = rhsItem.TrackIntensityMultiplierVisual;
+			dbitem.CanHaveTracks = rhsItem.CanHaveTracks;
 			foreach (var cover in rhs.TerrainCovers)
 			{
 				dbitem.TerrainsRangedCovers.Add(new TerrainsRangedCovers
@@ -475,6 +483,9 @@ public class Terrain : SaveableItem, ITerrain
 		dbitem.TerrainBehaviourMode = TerrainBehaviourString;
 		dbitem.TerrainANSIColour = TerrainANSIColour;
 		dbitem.DefaultCellOutdoorsType = (int)DefaultCellOutdoorsType;
+		dbitem.CanHaveTracks = CanHaveTracks;
+		dbitem.TrackIntensityMultiplierVisual = TrackIntensityMultiplierVisual;
+		dbitem.TrackIntensityMultiplierOlfactory = TrackIntensityMultiplierOlfactory;
 		FMDB.Context.TerrainsRangedCovers.RemoveRange(dbitem.TerrainsRangedCovers);
 		foreach (var cover in _terrainCovers)
 		{
@@ -551,6 +562,11 @@ public class Terrain : SaveableItem, ITerrain
 
 	private readonly List<RoomLayer> _terrainLayers = new();
 	public IEnumerable<RoomLayer> TerrainLayers => _terrainLayers;
+
+	public bool CanHaveTracks { get; private set; } // TODO Load/save
+	public double TrackIntensityMultiplierVisual { get; private set; } // TODO Load/save
+
+	public double TrackIntensityMultiplierOlfactory { get; private set; }
 
 	public string RoomNameForLayer(string baseRoomName, RoomLayer layer)
 	{
@@ -697,6 +713,9 @@ public class Terrain : SaveableItem, ITerrain
 		sb.AppendLine(
 			$"Infection: {PrimaryInfection.Describe().Colour(Telnet.Magenta)} @ {InfectionVirulence.Describe().ColourValue()} {InfectionMultiplier.ToString("P2", actor).ColourValue()} Intensity");
 		sb.AppendLine($"Model: {TerrainBehaviourString.ColourCommand()}");
+		sb.AppendLine($"Can Have Tracks: {CanHaveTracks.ToColouredString()}");
+		sb.AppendLine($"Track Intensity (Visual): {TrackIntensityMultiplierVisual.ToStringP2Colour(actor)}");
+		sb.AppendLine($"Track Intensity (Olfactory): {TrackIntensityMultiplierOlfactory.ToStringP2Colour(actor)}");
 		sb.AppendLine($"Editor Colour: {TerrainEditorColour.FluentTagMXP("Color", $"FORE={TerrainEditorColour}")}");
 		sb.AppendLine($"Editor Text: {TerrainEditorText ?? ""}");
 		sb.AppendLine($"Map Colour: {TerrainANSIColour.ColourForegroundCustom(TerrainANSIColour)}");
@@ -714,6 +733,26 @@ public class Terrain : SaveableItem, ITerrain
 		{
 			case "name":
 				return BuildingCommandName(actor, command);
+			case "tracks":
+			case "cantrack":
+				return BuildingCommandCanTrack(actor);
+			case "trackintensityvisual":
+			case "trackmultipliervisual":
+			case "trackvisual":
+			case "intensityvisual":
+			case "multipliervisual":
+				return BuildingCommandTrackIntensityVisual(actor, command);
+			case "trackintensityolfactory":
+			case "trackmultiplierolfactory":
+			case "trackolfactory":
+			case "intensityolfactory":
+			case "multiplierolfactory":
+			case "trackintensitysmell":
+			case "trackmultipliersmell":
+			case "tracksmell":
+			case "intensitysmell":
+			case "multipliersmell":
+				return BuildingCommandTrackIntensityOlfactory(actor, command);
 			case "atmosphere":
 				return BuildingCommandAtmosphere(actor, command);
 			case "movement":
@@ -785,11 +824,62 @@ public class Terrain : SaveableItem, ITerrain
 	#3infection <type> <difficulty> <virulence>#0 - sets the infection for this terrain
 	#3outdoors|indoors|exposed|cave|windows#0 - sets the default behaviour type
 	#3model <model>#0 - sets the layer model. See TERRAIN SET MODEL for a list of valid values.
-    #3mapcolour <0-255>#0 - sets the ANSI colour for the MAP command
-    #3editorcolour <#00000000>#0 - sets the hexadecimal colour for the terrain planner
-    #3editortext <1 or 2 letter code>#0 - sets a code to appear on the terrain planner tile".SubstituteANSIColour());
+	#3tracks#0 - toggles whether this terrain can have tracks
+	#3trackvisual <%>#0 - sets the visual intensity of tracks left in this terrain
+	#3tracksmell <%>#0 - sets the olfactory intensity of tracks left in this terrain
+	#3mapcolour <0-255>#0 - sets the ANSI colour for the MAP command
+	#3editorcolour <#00000000>#0 - sets the hexadecimal colour for the terrain planner
+	#3editortext <1 or 2 letter code>#0 - sets a code to appear on the terrain planner tile".SubstituteANSIColour());
 				return false;
 		}
+	}
+
+	private bool BuildingCommandTrackIntensityOlfactory(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send($"What percentage intensity of default do you want the olfactory strength of tracks made in this terrain to be?");
+			return false;
+		}
+
+		if (!command.SafeRemainingArgument.TryParsePercentage(actor.Account.Culture, out var value))
+		{
+			actor.OutputHandler.Send($"The text {command.SafeRemainingArgument.ColourCommand()} is not a valid number.");
+			return false;
+		}
+
+		TrackIntensityMultiplierOlfactory = value;
+		Changed = true;
+		actor.OutputHandler.Send($"Tracks left in this terrain are now at {value.ToStringP2Colour(actor)} olfactory intensity compared to baseline.");
+		return true;
+	}
+
+	private bool BuildingCommandTrackIntensityVisual(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send($"What percentage intensity of default visual strength do you want the tracks made in this terrain to be?");
+			return false;
+		}
+
+		if (!command.SafeRemainingArgument.TryParsePercentage(actor.Account.Culture, out var value))
+		{
+			actor.OutputHandler.Send($"The text {command.SafeRemainingArgument.ColourCommand()} is not a valid number.");
+			return false;
+		}
+
+		TrackIntensityMultiplierVisual = value;
+		Changed = true;
+		actor.OutputHandler.Send($"Tracks left in this terrain are now at {value.ToStringP2Colour(actor)} visual intensity compared to baseline.");
+		return true;
+	}
+
+	private bool BuildingCommandCanTrack(ICharacter actor)
+	{
+		CanHaveTracks = !CanHaveTracks;
+		Changed = true;
+		actor.OutputHandler.Send($"This terrain will {CanHaveTracks.NowNoLonger()} permit tracks to be left.");
+		return true;
 	}
 
 	private bool BuildingCommandModel(ICharacter actor, StringStack command)

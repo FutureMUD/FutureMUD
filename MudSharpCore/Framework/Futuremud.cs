@@ -681,6 +681,11 @@ public sealed partial class Futuremud : IFuturemud, IDisposable
 		_guests.Add(character);
 	}
 
+	public void Add(ITrack track)
+	{
+		_tracks.Add(track);
+	}
+
 	public void Add(IMoveSpeed speed)
 	{
 		_moveSpeeds.Add(speed);
@@ -1545,6 +1550,11 @@ public sealed partial class Futuremud : IFuturemud, IDisposable
 	public void Destroy(object obj)
 	{
 		throw new ApplicationException("No game level destroy implemented for this type.");
+	}
+
+	public void Destroy(ITrack track)
+	{
+		_tracks.Remove(track);
 	}
 
 	public void Destroy(ICurrency currency)

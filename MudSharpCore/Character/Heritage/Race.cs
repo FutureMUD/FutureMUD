@@ -114,6 +114,10 @@ public partial class Race : SaveableItem, IRace
 			CorpseModel = ParentRace.CorpseModel;
 			HungerRate = ParentRace.HungerRate;
 			ThirstRate = ParentRace.ThirstRate;
+			TrackIntensityOlfactory = ParentRace.TrackIntensityOlfactory;
+			TrackIntensityVisual = ParentRace.TrackIntensityVisual;
+			TrackingAbilityVisual = ParentRace.TrackingAbilityVisual;
+			TrackingAbilityOlfactory = ParentRace.TrackingAbilityOlfactory;
 			CombatSettings = new RacialCombatSettings
 			{
 				CanAttack = ParentRace.CombatSettings.CanAttack,
@@ -209,6 +213,10 @@ public partial class Race : SaveableItem, IRace
 			CorpseModel = Gameworld.CorpseModels.First();
 			HungerRate = 1.0;
 			ThirstRate = 1.0;
+			TrackIntensityOlfactory = 1.0;
+			TrackIntensityVisual = 1.0;
+			TrackingAbilityVisual = 1.0;
+			TrackingAbilityOlfactory = 0.0;
 			CombatSettings = new RacialCombatSettings
 			{
 				CanAttack = true,
@@ -288,6 +296,10 @@ public partial class Race : SaveableItem, IRace
 				SizeSitting = (int)SizeSitting,
 				HungerRate = HungerRate,
 				ThirstRate = ThirstRate,
+				TrackIntensityOlfactory = TrackIntensityOlfactory,
+				TrackIntensityVisual = TrackIntensityVisual,
+				TrackingAbilityOlfactory = TrackingAbilityOlfactory,
+				TrackingAbilityVisual = TrackingAbilityVisual,
 				CommunicationStrategyType = CommunicationStrategy.Name,
 				DefaultHandedness = (int)DefaultHandedness,
 				HandednessOptions = HandednessOptions.Select(x => ((int)x).ToString("F0"))
@@ -348,6 +360,10 @@ public partial class Race : SaveableItem, IRace
 		ButcheryProfile = gameworld.RaceButcheryProfiles.Get(race.RaceButcheryProfileId ?? 0L);
 		HungerRate = race.HungerRate;
 		ThirstRate = race.ThirstRate;
+		TrackIntensityOlfactory = race.TrackIntensityOlfactory;
+		TrackIntensityVisual = race.TrackIntensityVisual;
+		TrackingAbilityOlfactory = race.TrackingAbilityOlfactory;
+		TrackingAbilityVisual = race.TrackingAbilityVisual;
 
 		foreach (var item in race.ChargenAdvicesRaces)
 		{
@@ -583,6 +599,10 @@ public partial class Race : SaveableItem, IRace
 		CorpseModel = rhs.CorpseModel;
 		HungerRate = rhs.HungerRate;
 		ThirstRate = rhs.ThirstRate;
+		TrackIntensityOlfactory = rhs.TrackIntensityOlfactory;
+		TrackIntensityVisual = rhs.TrackIntensityVisual;
+		TrackingAbilityOlfactory = rhs.TrackingAbilityOlfactory;
+		TrackingAbilityVisual = rhs.TrackingAbilityVisual;
 		CombatSettings = new RacialCombatSettings
 		{
 			CanAttack = rhs.CombatSettings.CanAttack,
@@ -1106,6 +1126,10 @@ public partial class Race : SaveableItem, IRace
 		dbitem.NaturalArmourMaterialId = NaturalArmourMaterial?.Id;
 		dbitem.HungerRate = HungerRate;
 		dbitem.ThirstRate = ThirstRate;
+		dbitem.TrackIntensityOlfactory = TrackIntensityOlfactory;
+		dbitem.TrackIntensityVisual = TrackIntensityVisual;
+		dbitem.TrackingAbilityOlfactory = TrackingAbilityOlfactory;
+		dbitem.TrackingAbilityVisual = TrackingAbilityVisual;
 		dbitem.BloodLiquidId = BloodLiquid?.Id;
 		dbitem.NeedsToBreathe = NeedsToBreathe;
 		dbitem.BreathingModel = BreathingStrategy.Name;
@@ -1677,6 +1701,10 @@ public partial class Race : SaveableItem, IRace
 
 	public double HungerRate { get; set; }
 	public double ThirstRate { get; set; }
+	public double TrackIntensityVisual { get; set; }
+	public double TrackIntensityOlfactory { get; set; }
+	public double TrackingAbilityVisual { get; set; }
+	public double TrackingAbilityOlfactory { get; set; }
 
 	public SizeCategory CurrentContextualSize(SizeContext context)
 	{

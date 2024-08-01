@@ -94,7 +94,7 @@ public class GroupDragMovement : MovementBase
 	{
 		Party.Leader.OutputHandler.Handle(
 			new EmoteOutput(new Emote("@ call|calls the group to a halt.", Party.Leader)));
-
+		TurnaroundTracks();
 		foreach (var mover in CharacterMovers)
 		{
 			mover.HandleEvent(EventType.CharacterStopMovement, mover, Exit.Origin, Exit);
@@ -285,6 +285,7 @@ public class GroupDragMovement : MovementBase
 
 		if (Party.Leader == null)
 		{
+			TurnaroundTracks();
 			foreach (var ch in CharacterMovers)
 			{
 				ch.Send("You stop moving because your leader has disappeared.");
@@ -312,6 +313,7 @@ public class GroupDragMovement : MovementBase
 
 		if (!CharacterMovers.All(x => x.CanMove(Exit)))
 		{
+			TurnaroundTracks();
 			var nonmovers = CharacterMovers.Where(x => !x.CanMove(Exit)).ToList();
 			var count = 0;
 			var output =
@@ -330,6 +332,7 @@ public class GroupDragMovement : MovementBase
 
 		if (!Party.Leader.CanMove(Exit))
 		{
+			TurnaroundTracks();
 			Party.Leader.OutputHandler.Handle(
 				new EmoteOutput(
 					new Emote("@ stop|stops &0's group because #0 can't move.", Party.Leader),
@@ -341,6 +344,7 @@ public class GroupDragMovement : MovementBase
 		var (canCross, whyNot) = Party.Leader.CanCross(Exit);
 		if (!canCross)
 		{
+			TurnaroundTracks();
 			Party.Leader.OutputHandler.Handle(whyNot);
 			Cancel();
 			return;
@@ -353,6 +357,7 @@ public class GroupDragMovement : MovementBase
 			var draggers = effect.CharacterDraggers.Except(dragLeader).ToList();
 			if (!dragLeader.CanMove(Exit))
 			{
+				TurnaroundTracks();
 				dragLeader.OutputHandler.Handle(
 					new EmoteOutput(
 						new Emote("@ stop|stops dragging $1 because #0 can't move.", dragLeader, dragLeader, target),
@@ -364,6 +369,7 @@ public class GroupDragMovement : MovementBase
 			(canCross, whyNot) = dragLeader.CanCross(Exit);
 			if (!canCross)
 			{
+				TurnaroundTracks();
 				dragLeader.OutputHandler.Handle(whyNot);
 				Cancel();
 				return;
@@ -378,6 +384,7 @@ public class GroupDragMovement : MovementBase
 				Helpers.Remove(person);
 				_characterMovers.Remove(person);
 				effect.RemoveHelper(person);
+				TurnaroundTrack(person);
 			}
 
 			var dragCapacity = effect.Draggers.Sum(x =>
@@ -386,6 +393,7 @@ public class GroupDragMovement : MovementBase
 			var weightThing = (IHaveWeight)target;
 			if (dragCapacity < weightThing.Weight)
 			{
+				TurnaroundTracks();
 				dragLeader.OutputHandler.Handle(new EmoteOutput(new Emote(
 					$"@{(Helpers.Any() ? " and &0's helpers are" : " are|is")} unable to drag $1 {Exit.OutboundMovementSuffix} as #1 is too heavy.",
 					dragLeader, dragLeader, target)));
@@ -403,6 +411,7 @@ public class GroupDragMovement : MovementBase
 				_characterMovers.Remove(nonMover);
 				nonMover.StopMovement(this);
 				nonMover.Movement = null;
+				TurnaroundTrack(nonMover);
 			}
 
 			if (!_characterMovers.Any())
@@ -446,6 +455,11 @@ public class GroupDragMovement : MovementBase
 		Exit.Origin.ResolveMovement(this);
 		Exit.Destination.RegisterMovement(this);
 		Phase = MovementPhase.NewRoom;
+
+		foreach (var mover in CharacterMovers)
+		{
+			CreateArrivalTracks(mover, DragEffects.Any(x => x.Target == mover) ? TrackCircumstances.Dragged : TrackCircumstances.None);
+		}
 
 		foreach (var ch in Exit.Destination.Characters.Except(CharacterMovers).Where(x => SeenBy(x)).ToList())
 		{
@@ -530,6 +544,11 @@ public class GroupDragMovement : MovementBase
 		{
 			ch.OutputHandler.Send(
 				$"You and your party begin moving {Exit.OutboundMovementSuffix} along with those dragging {Targets.Select(x => x.HowSeen(ch)).ListToString()}.");
+		}
+
+		foreach (var mover in CharacterMovers)
+		{
+			CreateDepartureTracks(mover, DragEffects.Any(x => x.Target == mover) ? TrackCircumstances.Dragged : TrackCircumstances.None);
 		}
 
 		if (TimeSpan.Zero.CompareTo(Duration) < 0)

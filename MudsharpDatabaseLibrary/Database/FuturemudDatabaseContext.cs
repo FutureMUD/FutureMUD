@@ -378,6 +378,7 @@ namespace MudSharp.Database
         public virtual DbSet<TerrainsRangedCovers> TerrainsRangedCovers { get; set; }
         public virtual DbSet<Models.TimeZoneInfo> TimeZoneInfos { get; set; }
         public virtual DbSet<Timezone> Timezones { get; set; }
+        public virtual DbSet<Track> Tracks { get; set; }
         public virtual DbSet<TraitDecorator> TraitDecorators { get; set; }
         public virtual DbSet<TraitDefinition> TraitDefinitions { get; set; }
         public virtual DbSet<TraitDefinitionsChargenResources> TraitDefinitionsChargenResources { get; set; }

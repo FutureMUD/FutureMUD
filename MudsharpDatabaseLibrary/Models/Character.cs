@@ -39,6 +39,7 @@ public partial class Character
 		Patrols = new HashSet<Patrol>();
 		GPTMessages = new HashSet<GPTMessage>();
 		ScriptedEvents = new HashSet<ScriptedEvent>();
+		Tracks = new HashSet<Track>();
 	}
 
 	public string Name { get; set; }
@@ -140,4 +141,5 @@ public partial class Character
 	public virtual ICollection<LegalAuthorityFine> Fines { get; set; }
 	public virtual ICollection<GPTMessage> GPTMessages { get; set; }
 	public virtual ICollection<ScriptedEvent> ScriptedEvents { get; set; }
+	public virtual ICollection<Track> Tracks { get; set; }
 }

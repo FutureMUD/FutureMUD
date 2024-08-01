@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using MudSharp.Character;
 using MudSharp.Construction.Boundary;
 using MudSharp.Effects.Concrete;
@@ -89,6 +90,8 @@ public class DragMovement : MovementBase
 				? new EmoteOutput(new Emote("@ stop|stops moving.", Dragger))
 				: new EmoteOutput(new Emote("@ call|calls the group to a halt.", Dragger)));
 
+		TurnaroundTracks();
+
 		foreach (var mover in movers)
 		{
 			mover.HandleEvent(EventType.CharacterStopMovement, mover, Exit.Origin, Exit);
@@ -136,6 +139,7 @@ public class DragMovement : MovementBase
 
 		if (!Dragger.CanMove(Exit))
 		{
+			TurnaroundTracks();
 			Dragger.OutputHandler.Handle(
 				new EmoteOutput(
 					new Emote($"@ stop|stops {DragVerbGerund} $1{DragAddendum} because #0 can't move.", Dragger,
@@ -147,6 +151,7 @@ public class DragMovement : MovementBase
 		var (canCross, whyNot) = Dragger.CanCross(Exit);
 		if (!canCross)
 		{
+			TurnaroundTracks();
 			Dragger.OutputHandler.Handle(whyNot);
 			Cancel();
 			return;
@@ -155,6 +160,7 @@ public class DragMovement : MovementBase
 		var nonMovers = Helpers.Where(x => !x.CanMove(Exit, true) || !x.CanCross(Exit).Success).ToList();
 		foreach (var person in nonMovers)
 		{
+			TurnaroundTrack(person);
 			person.OutputHandler.Handle(person.CanCross(Exit).FailureOutput);
 			person.StopMovement(this);
 			person.Movement = null;
@@ -168,6 +174,7 @@ public class DragMovement : MovementBase
 		var weightThing = (IHaveWeight)Target;
 		if (dragCapacity < weightThing.Weight)
 		{
+			TurnaroundTracks();
 			Dragger.OutputHandler.Handle(new EmoteOutput(new Emote(
 				$"@{(Helpers.Any() ? " and &0's helpers are" : " are|is")} unable to {DragVerb1stPerson} $1{DragAddendum} {Exit.OutboundMovementSuffix} as #1 is too heavy.",
 				Dragger, Dragger, Target)));
@@ -196,6 +203,11 @@ public class DragMovement : MovementBase
 		Exit.Origin.ResolveMovement(this);
 		Exit.Destination.RegisterMovement(this);
 		Phase = MovementPhase.NewRoom;
+
+		foreach (var mover in CharacterMovers)
+		{
+			CreateArrivalTracks(mover, mover == Target ? TrackCircumstances.Dragged : TrackCircumstances.None);
+		}
 
 		foreach (var ch in Exit.Destination.Characters.Except(CharacterMovers).Where(x => SeenBy(x)).ToList())
 		{
@@ -272,6 +284,11 @@ public class DragMovement : MovementBase
 
 		Dragger.OutputHandler.Send(
 			$"You{(Helpers.Any() ? " and your helpers" : "")} begin to {DragVerb1stPerson} {Target.HowSeen(Dragger)}{DragAddendum} {Exit.OutboundMovementSuffix}.");
+
+		foreach (var mover in CharacterMovers)
+		{
+			CreateDepartureTracks(mover, mover == Target ? TrackCircumstances.Dragged : TrackCircumstances.None);
+		}
 
 		if (TimeSpan.Zero.CompareTo(Duration) < 0)
 		{

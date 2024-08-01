@@ -111,6 +111,7 @@ public class SingleStealthMovement : SingleMovement
 			var (canCross, whyNot) = Mover.CanCross(Exit);
 			if (!canCross)
 			{
+				TurnaroundTracks();
 				foreach (var character in Exit.Origin.Characters.Where(x => SeenBy(x)))
 				{
 					character.OutputHandler.Send(whyNot);
@@ -122,7 +123,6 @@ public class SingleStealthMovement : SingleMovement
 					witness.HandleEvent(EventType.CharacterStopMovementClosedDoorWitness, Mover, Exit.Origin, Exit,
 						witness);
 				}
-
 				Cancel();
 			}
 			else
@@ -131,6 +131,7 @@ public class SingleStealthMovement : SingleMovement
 				Phase = MovementPhase.NewRoom;
 				Exit.Destination.RegisterMovement(this);
 				Exit.Origin.ResolveMovement(this);
+				CreateArrivalTracks(Mover, MovementTrackCircumstances);
 				var output =
 					new MixedEmoteOutput(
 						new Emote(
@@ -163,5 +164,12 @@ public class SingleStealthMovement : SingleMovement
 				}
 			}
 		}
+
+		TurnaroundTracks();
+		Mover.Send(Mover.WhyCannotMove());
+		Cancel();
 	}
+
+	/// <inheritdoc />
+	protected override TrackCircumstances MovementTrackCircumstances => TrackCircumstances.Careful;
 }

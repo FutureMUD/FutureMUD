@@ -12,15 +12,20 @@ public sealed class FMDB : IDisposable
 {
 	public FMDB()
 	{
-		if (Context == null)
+		lock (_lock)
 		{
-			InitialiseContext();
-		}
-		else
-		{
-			InstanceCount++;
+			if (Context == null)
+			{
+				InitialiseContext();
+			}
+			else
+			{
+				InstanceCount++;
+			}
 		}
 	}
+
+	private static readonly object _lock = new object();
 
 	public static FuturemudDatabaseContext Context { get; private set; }
 
@@ -42,30 +47,35 @@ public sealed class FMDB : IDisposable
 
 	public void Dispose(bool disposing)
 	{
-		if (--InstanceCount > 0)
+		lock (_lock)
 		{
-			return;
-		}
+			if (--InstanceCount > 0)
+			{
+				return;
+			}
 
-		Context.Dispose();
-		Context = null;
-		Connection.StateChange -= OnStateChange;
-		Connection.Close();
-		Connection.Dispose();
-		Connection = null;
+			Context.Dispose();
+			Context = null;
+			Connection.StateChange -= OnStateChange;
+			Connection.Close();
+			Connection.Dispose();
+			Connection = null;
+		}
 	}
 
 	#endregion
 
 	private void InitialiseContext()
 	{
-		Context = new FuturemudDatabaseContext(new DbContextOptionsBuilder<FuturemudDatabaseContext>()
-		                                       .UseLazyLoadingProxies().UseMySql(ConnectionString,
-			                                       ServerVersion.AutoDetect(ConnectionString)).Options);
-		Connection = new MySqlConnection(ConnectionString);
-		Connection.Open();
-		InstanceCount++;
-		Connection.StateChange += OnStateChange;
+		lock(_lock) {
+			Context = new FuturemudDatabaseContext(new DbContextOptionsBuilder<FuturemudDatabaseContext>()
+			                                       .UseLazyLoadingProxies().UseMySql(ConnectionString,
+				                                       ServerVersion.AutoDetect(ConnectionString)).Options);
+			Connection = new MySqlConnection(ConnectionString);
+			Connection.Open();
+			InstanceCount++;
+			Connection.StateChange += OnStateChange;
+		}
 	}
 
 	private static void OnStateChange(object sender,

@@ -138,6 +138,27 @@ public class BodyPrototype : SaveableItem, IBodyPrototype
 		_femaleOnlyAdditions.AddRange(allParts.Where(x => proto.BodyProtosAdditionalBodyparts.Any(y => y.BodypartId == x.Id && y.Usage == "female")));
 	}
 
+	public BodypartRole GetBodypartRole(IBodypart bodypart)
+	{
+		
+		if ((Parent?.CoreBodyparts?.Concat(_coreBodyparts) ?? _coreBodyparts).Contains(bodypart))
+		{
+			return BodypartRole.Core;
+		}
+
+		if ((Parent?.MaleOnlyAdditions?.Concat(_maleOnlyAdditions) ?? _maleOnlyAdditions).Contains(bodypart))
+		{
+			return BodypartRole.MaleAddition;
+		}
+
+		if ((Parent?.FemaleOnlyAdditions?.Concat(_femaleOnlyAdditions) ?? _femaleOnlyAdditions).Contains(bodypart))
+		{
+			return BodypartRole.FemaleAddition;
+		}
+
+		return BodypartRole.Extra;
+	}
+
 	public void UpdateBodypartRole(IBodypart bodypart, BodypartRole role)
 	{
 		if (bodypart is IBone bone)
@@ -496,21 +517,10 @@ public class BodyPrototype : SaveableItem, IBodyPrototype
 		sb.AppendLine();
 		sb.AppendLine("External Bodyparts".GetLineWithTitle(actor, Telnet.Red, Telnet.BoldWhite));
 		sb.AppendLine();
-		var parts = new List<(IBodypart Part, Gender Gender, bool FromParent)>();
-		var neutralParts = BodypartsFor(null, Gender.Indeterminate).ToList();
-		var maleParts = BodypartsFor(null, Gender.Male).Where(x => !neutralParts.Contains(x)).ToList();
-		var femaleParts = BodypartsFor(null, Gender.Female).Where(x => !neutralParts.Contains(x)).ToList();
-		foreach (var part in neutralParts)
+		var parts = new List<(IBodypart Part, bool FromParent)>();
+		foreach (var part in AllBodypartsBonesAndOrgans)
 		{
-			parts.Add((part, Gender.Neuter, !_allBodyparts.Contains(part)));
-		}
-		foreach (var part in maleParts)
-		{
-			parts.Add((part, Gender.Male, !_allBodyparts.Contains(part)));
-		}
-		foreach (var part in femaleParts)
-		{
-			parts.Add((part, Gender.Female, !_allBodyparts.Contains(part)));
+			parts.Add((part, _allBodyparts.Contains(part)));
 		}
 		sb.AppendLine(StringUtilities.GetTextTable(
 			from part in parts.Where(x => x.Part is IExternalBodypart)
@@ -520,7 +530,7 @@ public class BodyPrototype : SaveableItem, IBodyPrototype
 				part.Part.Id.ToString("N0", actor),
 				part.Part.Name,
 				part.Part.FullDescription(),
-				part.Gender == Gender.Neuter ? "All" : part.Gender.DescribeEnum(),
+				GetBodypartRole(part.Part).DescribeEnum(),
 				part.Part.Shape.Name,
 				limb?.Name ?? "",
 				part.Part.MaxLife.ToString("N0", actor),
@@ -537,7 +547,7 @@ public class BodyPrototype : SaveableItem, IBodyPrototype
 				"Id",
 				"Alias",
 				"Name",
-				"Gender",
+				"Role",
 				"Shape",
 				"Limb",
 				"HP",
@@ -564,7 +574,7 @@ public class BodyPrototype : SaveableItem, IBodyPrototype
 				part.Part.Id.ToString("N0", actor),
 				part.Part.Name,
 				part.Part.FullDescription(),
-				part.Gender == Gender.Neuter ? "All" : part.Gender.DescribeEnum(),
+				GetBodypartRole(part.Part).DescribeEnum(),
 				part.Part.MaxLife.ToString("N0", actor),
 				contain?.Name ?? "",
 				organ.ImplantSpaceOccupied.ToString("N2", actor),
@@ -578,7 +588,7 @@ public class BodyPrototype : SaveableItem, IBodyPrototype
 				"Id",
 				"Alias",
 				"Name",
-				"Gender",
+				"Role",
 				"HP",
 				"Inside",
 				"Space Cost",
@@ -602,7 +612,7 @@ public class BodyPrototype : SaveableItem, IBodyPrototype
 				part.Part.Id.ToString("N0", actor),
 				part.Part.Name,
 				part.Part.FullDescription(),
-				part.Gender == Gender.Neuter ? "All" : part.Gender.DescribeEnum(),
+				GetBodypartRole(part.Part).DescribeEnum(),
 				part.Part.MaxLife.ToString("N0", actor),
 				contain?.Name ?? "",
 				bone.CriticalBone.ToString(),
@@ -615,7 +625,7 @@ public class BodyPrototype : SaveableItem, IBodyPrototype
 				"Id",
 				"Alias",
 				"Name",
-				"Gender",
+				"Role",
 				"HP",
 				"Inside",
 				"Critical?",

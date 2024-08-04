@@ -50,6 +50,7 @@ namespace MudSharp.Body {
         IEnumerable<IBodypart> MaleOnlyAdditions { get; }
 
         void UpdateBodypartRole(IBodypart bodypart, BodypartRole role);
+        BodypartRole GetBodypartRole(IBodypart bodypart);
 
         IEnumerable<ILimb> Limbs { get; }
 

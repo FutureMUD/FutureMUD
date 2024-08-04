@@ -228,7 +228,7 @@ public abstract partial class BodypartPrototype : LateKeywordedInitialisingItem,
 		sb.AppendLineColumns((uint)builder.LineFormatLength, 3,
 			$"Size: {Size.Describe().ColourValue()}",
 			$"Counts As: {(_countsAsId.HasValue ? _countsAsId.Value.ToString("N0", builder).ColourValue() : "None".Colour(Telnet.Red))}",
-			$""
+			$"Role: {Body.GetBodypartRole(this).DescribeEnum().ColourValue()}"
 		);
 		return sb.ToString();
 	}

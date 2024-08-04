@@ -84,6 +84,11 @@ Please answer #3yes#f or #3no#f. ", (context, answers) => true,
 		if (!context.Races.Any(x => x.Name == "Human") || !context.TraitDecorators.Any(x => x.Name.Contains("Skill")))
 			return ShouldSeedResult.PrerequisitesNotMet;
 
+		if (!context.FutureProgs.Any(x => x.FunctionName == "MaximumHeightChargen"))
+		{
+			return ShouldSeedResult.PrerequisitesNotMet;
+		}
+
 		if (context.RandomNameProfiles.Any()) return ShouldSeedResult.MayAlreadyBeInstalled;
 
 		return ShouldSeedResult.ReadyToInstall;

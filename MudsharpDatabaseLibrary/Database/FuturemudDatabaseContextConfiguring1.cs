@@ -1621,8 +1621,7 @@ namespace MudSharp.Database
                 entity.Property(e => e.HypoxiaDamagePerTick).HasDefaultValueSql("'0.2'");
 
                 entity.Property(e => e.IsCore)
-                    .HasColumnType("bit(1)")
-                    .HasDefaultValueSql("b'1'");
+                      .HasColumnType("bit(1)");
 
                 entity.Property(e => e.IsOrgan).HasColumnType("int(11)");
 
@@ -2043,7 +2042,7 @@ namespace MudSharp.Database
 
                 entity.Property(e => e.OutdoorsType).HasColumnType("int(11)");
 
-                entity.Property(e => e.SafeQuit).HasColumnType("bit(1)").HasDefaultValueSql("b'1'");
+                entity.Property(e => e.SafeQuit).HasColumnType("bit(1)");
 
                 entity.Property(e => e.TerrainId).HasColumnType("bigint(20)");
 
@@ -2430,8 +2429,7 @@ namespace MudSharp.Database
                     .UseCollation("utf8mb4_unicode_ci");
 
                 entity.Property(e => e.MoveToMeleeIfCannotEngageInRangedCombat)
-                    .HasColumnType("bit(1)")
-                    .HasDefaultValueSql("b'1'");
+                      .HasColumnType("bit(1)");
 
                 entity.Property(e => e.MovementManagement).HasColumnType("int(11)");
 
@@ -2446,16 +2444,13 @@ namespace MudSharp.Database
                     .HasDefaultValueSql("b'0'");
 
                 entity.Property(e => e.PreferNonContactClinchBreaking)
-                    .HasColumnType("bit(1)")
-                    .HasDefaultValueSql("b'1'");
+                      .HasColumnType("bit(1)");
 
                 entity.Property(e => e.PreferShieldUse)
-                    .HasColumnType("bit(1)")
-                    .HasDefaultValueSql("b'0'");
+                      .HasColumnType("bit(1)");
 
                 entity.Property(e => e.PreferToFightArmed)
-                    .HasColumnType("bit(1)")
-                    .HasDefaultValueSql("b'0'");
+                      .HasColumnType("bit(1)");
 
                 entity.Property(e => e.PreferredIntentions).HasColumnType("bigint(20)");
 

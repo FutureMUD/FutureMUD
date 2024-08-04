@@ -38,19 +38,40 @@ public class CharacterCombatSettings : SaveableItem, ICharacterCombatSettings
 				CharacterOwnerId = characterOwner?.Id,
 				Description = "An undescribed manner of fighting",
 				ClassificationsAllowed = "1 2 3 4 5 7",
+				RequiredIntentions = (long)CombatMoveIntentions.None,
 				GlobalTemplate = false,
+				AvailabilityProgId = Gameworld.AlwaysTrueProg.Id,
 				WeaponUsePercentage = 1,
+				MagicUsePercentage = 0,
+				PsychicUsePercentage = 0,
+				NaturalWeaponPercentage = 0,
+				AuxiliaryPercentage = 0,
 				PreferToFightArmed = true,
+				PreferFavouriteWeapon = false,
 				PreferShieldUse = true,
 				PreferNonContactClinchBreaking = true,
 				ForbiddenIntentions =
 					(long)(CombatMoveIntentions.Dirty | CombatMoveIntentions.Flashy | CombatMoveIntentions.Savage),
+				PreferredIntentions = 0,
+				AttackUnarmedOrHelpless = false,
+				FallbackToUnarmedIfNoWeapon = false,
+				AttackCriticallyInjured = false,
+				SkirmishToOtherLocations = false,
+				PursuitMode = (int)PursuitMode.AlwaysPursue,
+				DefaultPreferredDefenseType = (int)DefenseType.None,
 				InventoryManagement = (int)AutomaticInventorySettings.AutomaticButDontDiscard,
+				MovementManagement = (int)AutomaticMovementSettings.FullyAutomatic,
+				RangedManagement = (int)AutomaticRangedSettings.FullyAutomatic,
+				ManualPositionManagement = false,
 				PreferredMeleeMode = (int)CombatStrategyMode.StandardMelee,
 				PreferredRangedMode = (int)CombatStrategyMode.StandardRange,
+				AutomaticallyMoveTowardsTarget = false,
 				MinimumStaminaToAttack = MinimumStaminaToAttack,
+				MoveToMeleeIfCannotEngageInRangedCombat = false,
+				PreferredWeaponSetup = (int)AttackHandednessOptions.Any,
+				RequiredMinimumAim = 0,
 				MeleeAttackOrderPreference = "0 1 2 3 4",
-				GrappleResponse = (int)GrappleResponse.Avoidance
+				GrappleResponse = (int)GrappleResponse.Avoidance,
 			};
 			FMDB.Context.CharacterCombatSettings.Add(dbitem);
 			FMDB.Context.SaveChanges();
@@ -70,7 +91,8 @@ public class CharacterCombatSettings : SaveableItem, ICharacterCombatSettings
 				Description = settingToCopy.Description,
 				AvailabilityProgId = settingToCopy.AvailabilityProg?.Id,
 				ClassificationsAllowed = settingToCopy.ClassificationsAllowed.Select(x => ((int)x).ToString())
-				                                      .ListToString(separator: " ", conjunction: ""),
+				                                      .ListToString(separator: " ",
+					                                      conjunction: ""),
 				GlobalTemplate = false,
 				WeaponUsePercentage = settingToCopy.WeaponUsePercentage,
 				NaturalWeaponPercentage = settingToCopy.NaturalWeaponPercentage,
@@ -104,7 +126,7 @@ public class CharacterCombatSettings : SaveableItem, ICharacterCombatSettings
 				MeleeAttackOrderPreference = settingToCopy.MeleeAttackOrderPreferences
 				                                          .Select(x => ((int)x).ToString())
 				                                          .ListToCommaSeparatedValues(" "),
-				GrappleResponse = (int)settingToCopy.GrappleResponse
+				GrappleResponse = (int)settingToCopy.GrappleResponse,
 			};
 			FMDB.Context.CharacterCombatSettings.Add(dbitem);
 			FMDB.Context.SaveChanges();

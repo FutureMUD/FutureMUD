@@ -264,7 +264,33 @@ The core syntax to use this command is as follows:
 		#region Group AI
 
 		protected static string GroupAITemplateHelpText =
-			$"The GroupAITemplate command (which can be abbreviated as GAIT) allows you to edit templates for group AIs, which are AIs that control an entire group of NPCs at once. Unlike some other kinds of building commands, these do not use revisions so any changes are immediate. You can use the following options:\n\t{"gait edit new - creates a new group AI Template\n\tgait edit <id> - opens a specified group AI for editing\n\tgait close - closes the currently open template\n\tgait list - lists all group AI templates\n\tgait show - shows the currently open group AI Template\n\tgait show <id> - shows the specified group AI Template\n\tgait clone <which> <newname> - clones an existing group AI Template\n\tgait set <subcommands> - sets the properties of the open group AI Template".ColourCommand()}";
+			$@"The GroupAITemplate command (which can be abbreviated as GAIT) allows you to edit templates for group AIs, which are AIs that control an entire group of NPCs at once. Unlike some other kinds of building commands, these do not use revisions so any changes are immediate. 
+
+You should also see the related #6group#0 command to create groups using these templates.
+
+You can use the following options:
+
+	#3gait list#0 - lists all group AI templates
+	#3gait edit new#0 - creates a new group AI Template
+	#3gait edit <id>#0 - opens a specified group AI for editing
+	#3gait close#0 - closes the currently open template
+	#3gait show#0 - shows the currently open group AI Template
+	#3gait show <id>#0 - shows the specified group AI Template
+	#3gait clone <which> <newname>#0 - clones an existing group AI Template
+	#3gait set name <name>#0 - renames this template
+	#3gait set avoid <prog>#0 - sets the avoid prog
+	#3gait set threat <prog>#0 - sets the threat prog
+	#3gait set avoid none#0 - clears the avoid prog
+	#3gait set type <newtype>#0 - changes the type of this ai
+	#3gait set emote add <text>#0 - adds a new emote. $0 is emoter, $1 is target
+	#3gait set emote remove <#>#0 - removes a particular emote
+	#3gait set emote <#> text <new text>#0 - changes an emote
+	#3gait set emote <#> age <age>|none#0 - sets or clears an age requirement for an emote
+	#3gait set emote <#> role <role>|none#0 - sets of clears a role requirement
+	#3gait set emote <#> target <role>|none#0 - sets or clears a target role required
+	#3gait set emote <#> gender <gender>|none#0 - sets or clears a required gender
+	#3gait set emote <#> minalert <alertness>#0 - sets minimum group alertness
+	#3gait set emote <#> maxalert <alertness>#0 - sets maximum group alertness";
 
 		[PlayerCommand("GroupAITemplate", "groupaitemplate", "gait")]
 		[CommandPermission(PermissionLevel.SeniorAdmin)]
@@ -477,6 +503,13 @@ The core syntax to use this command is as follows:
 
 		[PlayerCommand("Groups", "groups")]
 		[CommandPermission(PermissionLevel.JuniorAdmin)]
+		[HelpInfo("Groups", @"The #6Groups#0 command is used to view all of the AI groups that are currently in game. 
+
+See the #6group#0 command for editing these groups, and #6gait#0 for editing the templates.
+
+The syntax is simply:
+
+	#3groups [<filter template>]#0 - show all of the groups (or those belonging to a template)", AutoHelp.HelpArg)]
 		protected static void Groups(ICharacter actor, string input)
 		{
 			var ss = new StringStack(input.RemoveFirstWord());
@@ -528,7 +561,19 @@ The core syntax to use this command is as follows:
 		}
 
 		private static string GroupCommandHelp =
-			$"This command is used to create and manage AI groups, which are special types of AI that control entire groups of NPCs at once. You can use the following sub-commands:\n\t{"group new <template> <name> - creates a new group AI from the specified template\n\tgroup delete <which> - deletes a group AI\n\tgroup show <which> - shows a group AI's current status\n\tgroup addmember <which> <who> - adds the specified NPC to the specified group AI\n\tgroup removemember <which> <who> - removes the specified NPC from the specified group AI\n\tgroup setaction <which> <action> - overrides the current action priority of a group\n\tgroup setalertness <which> <alertness> - overrides the alertness level of a group".ColourCommand()}";
+			$@"This command is used to create and manage AI groups, which are special types of AI that control entire groups of NPCs at once. 
+
+These groups use templates which are managed with the #6gait#0 command. See that command for editing the templates. Also see the #6groups#0 command for a list of groups in the game.
+
+You can use the following sub-commands:
+
+	#3group new <template> <name>#0 - creates a new group AI from the specified template
+	#3group delete <which>#0 - deletes a group AI
+	#3group show <which>#0 - shows a group AI's current status
+	#3group addmember <which> <who>#0 - adds the specified NPC to the specified group AI
+	#3group removemember <which> <who>#0 - removes the specified NPC from the specified group AI
+	#3group setaction <which> <action>#0 - overrides the current action priority of a group
+	#3group setalertness <which> <alertness>#0 - overrides the alertness level of a group";
 
 		[PlayerCommand("Group", "group")]
 		[CommandPermission(PermissionLevel.JuniorAdmin)]

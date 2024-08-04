@@ -770,7 +770,8 @@ public class GroupAITemplate : SaveableItem, IGroupAITemplate
 		var sb = new StringBuilder();
 		sb.AppendLine($"Group AI Template #{Id.ToString("N0", actor)} - {Name.Colour(Telnet.Cyan)}");
 		sb.AppendLine($"AI Type: {GroupAIType?.Name.ColourValue() ?? "None".Colour(Telnet.Red)}");
-		sb.AppendLine($"Avoid Prog: {_avoidCellProg?.MXPClickableFunctionNameWithId() ?? "None".Colour(Telnet.Red)}");
+		sb.AppendLine($"Avoid Prog: {_avoidCellProg?.MXPClickableFunctionName() ?? "None".Colour(Telnet.Red)}");
+		sb.AppendLine($"Threat Prog: {_considersThreatProg?.MXPClickableFunctionName() ?? "None".ColourError()}");
 		sb.AppendLine($"Random Emotes:");
 		for (var i = 0; i < _groupEmotes.Count; i++)
 		{

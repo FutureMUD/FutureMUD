@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using MudSharp.Character;
 using MudSharp.Combat;
+using MudSharp.Construction;
 using MudSharp.Construction.Boundary;
 using MudSharp.Framework;
 using MudSharp.Health;
@@ -98,12 +99,38 @@ public abstract class MovementBase : IMovement
 			return;
 		}
 
-		circumstance = ApplyTrackCircumstances(actor, circumstance);
+		if (actor.IsAdministrator())
+		{
+			return;
+		}
 
-		var track = new Movement.Track(actor.Gameworld, actor, Exit, circumstance, true);
+		circumstance = ApplyTrackCircumstances(actor, circumstance);
+		if (GetTrackIntensities(actor, location, out var visual, out var olfactory))
+		{
+			return;
+		}
+
+		var track = new Movement.Track(actor.Gameworld, actor, Exit, circumstance, true, visual, olfactory);
 		actor.Gameworld.Add(track);
 		DepartureTracks[actor] = track;
 		location.AddTrack(track);
+	}
+
+	private static bool GetTrackIntensities(ICharacter actor, ICell location, out double visual, out double olfactory)
+	{
+		visual = 1.0 * location.Terrain(actor).TrackIntensityMultiplierVisual * actor.Race.TrackIntensityVisual; ;
+		olfactory = 1.0 * location.Terrain(actor).TrackIntensityMultiplierOlfactory * actor.Race.TrackIntensityOlfactory; ;
+		if (location.IsSwimmingLayer(actor.RoomLayer) || actor.RoomLayer.In(RoomLayer.InAir, RoomLayer.HighInAir))
+		{
+			visual = 0.0;
+		}
+
+		if (visual <= 0.0 && olfactory <= 0.0)
+		{
+			return true;
+		}
+
+		return false;
 	}
 
 	protected void CreateArrivalTracks(ICharacter actor, TrackCircumstances circumstance)
@@ -113,8 +140,19 @@ public abstract class MovementBase : IMovement
 		{
 			return;
 		}
+
+		if (actor.IsAdministrator())
+		{
+			return;
+		}
+
+		if (GetTrackIntensities(actor, location, out var visual, out var olfactory))
+		{
+			return;
+		}
+
 		circumstance = ApplyTrackCircumstances(actor, circumstance);
-		var track = new Movement.Track(actor.Gameworld, actor, Exit.Opposite, circumstance, false);
+		var track = new Movement.Track(actor.Gameworld, actor, Exit.Opposite, circumstance, false, visual, olfactory);
 		actor.Gameworld.Add(track);
 		location.AddTrack(track);
 	}

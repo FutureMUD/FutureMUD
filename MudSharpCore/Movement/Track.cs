@@ -41,7 +41,7 @@ public class Track : LateInitialisingItem, ITrack
 		MudDateTime = new MudDateTime(track.MudDateTime, Gameworld);
 	}
 
-	public Track(IFuturemud gameworld, ICharacter who, ICellExit exit, TrackCircumstances circumstances, bool isLeaving)
+	public Track(IFuturemud gameworld, ICharacter who, ICellExit exit, TrackCircumstances circumstances, bool isLeaving, double visual, double olfactory)
 	{
 		Gameworld = gameworld;
 		_character = who;
@@ -51,16 +51,8 @@ public class Track : LateInitialisingItem, ITrack
 		TrackCircumstances = circumstances;
 		MudDateTime = who.Location.DateTime();
 		RoomLayer = who.RoomLayer;
-		if (who.Location.IsSwimmingLayer(RoomLayer) || RoomLayer.In(RoomLayer.InAir, RoomLayer.HighInAir))
-		{
-			TrackIntensityVisual = 0.0;
-		}
-		else
-		{
-			TrackIntensityVisual = 1.0 * who.Location.Terrain(who).TrackIntensityMultiplierVisual * who.Race.TrackIntensityVisual;
-		}
-
-		TrackIntensityOlfactory = 1.0 * who.Location.Terrain(who).TrackIntensityMultiplierOlfactory * who.Race.TrackIntensityOlfactory;
+		TrackIntensityOlfactory = olfactory;
+		TrackIntensityVisual = visual;
 		Cell = exit.Origin;
 		if (isLeaving)
 		{

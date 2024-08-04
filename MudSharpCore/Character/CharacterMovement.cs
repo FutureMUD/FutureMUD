@@ -463,11 +463,15 @@ public partial class Character
 		switch (PositionState)
 		{
 			case PositionSwimming _:
+				movingPosition = PositionSwimming.Instance;
+				staminaMultiplier = dragging ? 2.5 : 1.5;
+				break;
 			case PositionClimbing _:
-				movingPosition = PositionState;
+				movingPosition = PositionClimbing.Instance;
 				staminaMultiplier = dragging ? 2.5 : 1.5;
 				break;
 			case PositionFlying _:
+				movingPosition = PositionFlying.Instance;
 				ignoreTerrainStamina = true;
 				goto default;
 			default:
@@ -502,7 +506,7 @@ public partial class Character
 		}
 
 		if ((PositionState == PositionProne.Instance ||
-		     PositionState.TransitionOnMovement == PositionProne.Instance) &&
+		     movingPosition.TransitionOnMovement == PositionProne.Instance) &&
 		    !Body.Limbs.Any(x =>
 			    x.LimbType.In(LimbType.Leg, LimbType.Arm, LimbType.Appendage, LimbType.Wing) &&
 			    Body.CanUseLimb(x) == CanUseLimbResult.CanUse)
@@ -513,7 +517,7 @@ public partial class Character
 		}
 
 		if ((PositionState == PositionProstrate.Instance ||
-		     PositionState.TransitionOnMovement == PositionProstrate.Instance) &&
+		     movingPosition.TransitionOnMovement == PositionProstrate.Instance) &&
 		    Body.Limbs.Count(x => x.LimbType == LimbType.Leg && Body.CanUseLimb(x) == CanUseLimbResult.CanUse) <
 		    Body.Prototype.MinimumLegsToStand)
 		{
@@ -521,7 +525,7 @@ public partial class Character
 			return false;
 		}
 
-		if (PositionState == PositionClimbing.Instance && !Body.Limbs.Any(x =>
+		if (movingPosition == PositionClimbing.Instance && !Body.Limbs.Any(x =>
 			    x.LimbType.In(LimbType.Leg, LimbType.Arm, LimbType.Appendage, LimbType.Wing) &&
 			    Body.CanUseLimb(x) == CanUseLimbResult.CanUse)
 		   )
@@ -571,6 +575,12 @@ public partial class Character
 			if (exit.IsFlyExit && PositionState != PositionFlying.Instance)
 			{
 				_cannotMoveReason = "You cannot move in that direction unless you can fly.";
+				return false;
+			}
+
+			if (exit.IsClimbExit && !Race.CanClimb)
+			{
+				_cannotMoveReason = "Your kind are not built for climbing.";
 				return false;
 			}
 

@@ -177,6 +177,7 @@ The core syntax to use this command is as follows:
 
 		[PlayerCommand("NPC", "npc")]
 		[CommandPermission(PermissionLevel.JuniorAdmin)]
+		[HelpInfo("NPC", NPCHelp, AutoHelp.HelpArgOrNoArg)]
 		protected static void NPC(ICharacter character, string command)
 		{
 			var ss = new StringStack(command.RemoveFirstWord());
@@ -263,7 +264,7 @@ The core syntax to use this command is as follows:
 
 		#region Group AI
 
-		protected static string GroupAITemplateHelpText =
+		protected const string GroupAITemplateHelpText =
 			$@"The GroupAITemplate command (which can be abbreviated as GAIT) allows you to edit templates for group AIs, which are AIs that control an entire group of NPCs at once. Unlike some other kinds of building commands, these do not use revisions so any changes are immediate. 
 
 You should also see the related #6group#0 command to create groups using these templates.
@@ -294,6 +295,7 @@ You can use the following options:
 
 		[PlayerCommand("GroupAITemplate", "groupaitemplate", "gait")]
 		[CommandPermission(PermissionLevel.SeniorAdmin)]
+		[HelpInfo("GroupAITemplate", GroupAITemplateHelpText, AutoHelp.HelpArgOrNoArg)]
 		protected static void GroupAITemplate(ICharacter actor, string command)
 		{
 			var ss = new StringStack(command.RemoveFirstWord());
@@ -319,7 +321,7 @@ You can use the following options:
 					GroupAITemplateView(actor, ss);
 					return;
 				default:
-					actor.OutputHandler.Send(GroupAITemplateHelpText);
+					actor.OutputHandler.Send(GroupAITemplateHelpText.SubstituteANSIColour());
 					return;
 			}
 		}
@@ -560,7 +562,7 @@ The syntax is simply:
 			);
 		}
 
-		private static string GroupCommandHelp =
+		private const string GroupCommandHelp =
 			$@"This command is used to create and manage AI groups, which are special types of AI that control entire groups of NPCs at once. 
 
 These groups use templates which are managed with the #6gait#0 command. See that command for editing the templates. Also see the #6groups#0 command for a list of groups in the game.
@@ -577,6 +579,7 @@ You can use the following sub-commands:
 
 		[PlayerCommand("Group", "group")]
 		[CommandPermission(PermissionLevel.JuniorAdmin)]
+		[HelpInfo("Group", GroupCommandHelp, AutoHelp.HelpArgOrNoArg)]
 		protected static void Group(ICharacter actor, string input)
 		{
 			var ss = new StringStack(input.RemoveFirstWord());
@@ -604,7 +607,7 @@ You can use the following sub-commands:
 					GroupSetAlertness(actor, ss);
 					return;
 				default:
-					actor.OutputHandler.Send(GroupCommandHelp);
+					actor.OutputHandler.Send(GroupCommandHelp.SubstituteANSIColour());
 					return;
 			}
 		}
@@ -906,6 +909,7 @@ The following options are available:
 
 		[PlayerCommand("NPCSpawner", "npcspawner", "spawner")]
 		[CommandPermission(PermissionLevel.Admin)]
+		[HelpInfo("NPCSpawner", NPCSpawnerHelp, AutoHelp.HelpArgOrNoArg)]
 		protected static void NPCSpawner(ICharacter actor, string command)
 		{
 			GenericBuildingCommand(actor, new StringStack(command.RemoveFirstWord()), EditableItemHelper.NPCSpawnerHelper);
@@ -919,15 +923,15 @@ The following options are available:
 
 The core syntax is as follows:
 
-    #3ai list#0 - shows all AIs
-    #3ai edit new <type> <name>#0 - creates a new AI
-    #3ai clone <old> <new>#0 - clones an existing AI
-    #3ai edit <which>#0 - begins editing a AI
-    #3ai close#0 - closes an editing AI
-    #3ai show <which>#0 - shows builder information about a resource
-    #3ai show#0 - shows builder information about the currently edited resource
-    #3ai edit#0 - an alias for AI show (with no args)
-    #3ai set ...#0 - edits the properties of a AI. See #3AI set ?#0 for more info.
+	#3ai list#0 - shows all AIs
+	#3ai edit new <type> <name>#0 - creates a new AI
+	#3ai clone <old> <new>#0 - clones an existing AI
+	#3ai edit <which>#0 - begins editing a AI
+	#3ai close#0 - closes an editing AI
+	#3ai show <which>#0 - shows builder information about a resource
+	#3ai show#0 - shows builder information about the currently edited resource
+	#3ai edit#0 - an alias for AI show (with no args)
+	#3ai set ...#0 - edits the properties of a AI. See #3AI set ?#0 for more info.
 	#3ai add <ai> <npc>#0 - adds an AI routine to an NPC in the gameworld
 	#3ai remove <ai> <npc>#0 - removes an AI routine from an NPC in the gameworld
 	#3ai npclist <which>#0 - shows all NPCs who have the AI in question running
@@ -1009,11 +1013,11 @@ The following options are available as filters with the #3list#0 subcommand:
 
 		private static void AINPCList(ICharacter actor, StringStack ss)
 		{
-            if (ss.IsFinished)
-            {
+			if (ss.IsFinished)
+			{
 				actor.OutputHandler.Send("Which AI do you want to show NPCs for?");
 				return;
-            }
+			}
 
 			var ai = actor.Gameworld.AIs.GetByIdOrName(ss.SafeRemainingArgument);
 			if (ai is null)

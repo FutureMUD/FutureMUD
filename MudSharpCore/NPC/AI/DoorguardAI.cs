@@ -633,7 +633,7 @@ public class DoorguardAI : ArtificialIntelligenceBase
 			// TODO - can open might need to be more AI-based than capability based
 			if (RespectGameRulesForOpeningDoors && !exit.Exit.Door.IsOpen && !exit.Exit.Door.CanOpen(doorguard.Body))
 			{
-				CantOpenDoorActionProg.Execute(doorguard, mover, exit);
+				CantOpenDoorActionProg?.Execute(doorguard, mover, exit);
 				return true;
 			}
 
@@ -704,9 +704,9 @@ public class DoorguardAI : ArtificialIntelligenceBase
 		}
 
 		// TODO - can open might need to be more AI-based than capability based
-		if (!exit.Exit.Door.IsOpen && !exit.Exit.Door.CanOpen(doorguard.Body))
+		if (RespectGameRulesForOpeningDoors && !exit.Exit.Door.IsOpen && !exit.Exit.Door.CanOpen(doorguard.Body))
 		{
-			CantOpenDoorActionProg.Execute(doorguard, socialite, exit);
+			CantOpenDoorActionProg?.Execute(doorguard, socialite, exit);
 			return true;
 		}
 
@@ -739,7 +739,7 @@ public class DoorguardAI : ArtificialIntelligenceBase
 				return;
 			}
 
-			CloseDoorActionProg.Execute(doorguard, mover, exit);
+			CloseDoorActionProg?.Execute(doorguard, mover, exit);
 		}
 
 		doorguard.RemoveAllEffects(
@@ -793,7 +793,7 @@ public class DoorguardAI : ArtificialIntelligenceBase
 
 		if (OnWitnessDoorStopProg != null)
 		{
-			OnWitnessDoorStopProg.Execute(doorguard, mover, exit);
+			OnWitnessDoorStopProg?.Execute(doorguard, mover, exit);
 			return true;
 		}
 
@@ -813,7 +813,7 @@ public class DoorguardAI : ArtificialIntelligenceBase
 			return false;
 		}
 
-		if (!((bool?)WillOpenDoorForProg.Execute(doorguard, knocker, exit) ?? false))
+		if (!((bool?)WillOpenDoorForProg?.Execute(doorguard, knocker, exit) ?? false))
 		{
 			if (WontOpenDoorForActionProg != null)
 			{

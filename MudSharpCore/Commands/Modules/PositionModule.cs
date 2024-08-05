@@ -1181,7 +1181,7 @@ For example:
 		actor.MovePosition(PositionSwimming.Instance, PositionModifier.None, null, null, null);
 	}
 
-	[PlayerCommand("Climb", "climb")]
+	[PlayerCommand("Climb", "climb", "cli")]
 	[DelayBlock("movement", "You cannot move until you stop {0}.")]
 	[RequiredCharacterState(CharacterState.Able)]
 	[NoMovementCommand]

@@ -166,7 +166,7 @@ public class Track : LateInitialisingItem, ITrack
 	public string DescribeForTracksCommand(ICharacter actor)
 	{
 		var sb = new StringBuilder();
-		sb.Append(BodyProtoType.Name.A_An_RespectPlurals(true).ColourCharacter());
+		sb.Append(BodyProtoType.NameForTracking.A_An_RespectPlurals(true).ColourCharacter());
 		var speed = FromSpeed ?? ToSpeed;
 		sb.Append(" ");
 		if (TrackCircumstances.HasFlag(TrackCircumstances.Dragged))
@@ -180,6 +180,10 @@ public class Track : LateInitialisingItem, ITrack
 		}
 		
 		sb.Append((FromCellExit?.InboundMovementSuffix ?? ToCellExit?.OutboundMovementSuffix));
+		if (TurnedAround)
+		{
+			sb.Append(" and looped back");
+		}
 		// TODO _ how to display intensity
 		var since = Cell.DateTime() - MudDateTime;
 		sb.Append(" ");

@@ -36,12 +36,12 @@ using ExpressionEngine;
 using System.Xml.Linq;
 using MudSharp.Models;
 using Microsoft.EntityFrameworkCore;
-using MoreLinq.Extensions;
 using MudSharp.Body.Position.PositionStates;
 using MudSharp.Character.Name;
 using MudSharp.Framework.Revision;
 using MudSharp.Work.Foraging;
 using MudSharp.Work.Projects;
+using Track = MudSharp.Models.Track;
 
 namespace MudSharp.Construction;
 
@@ -1748,7 +1748,39 @@ public partial class Cell : Location, IDisposable, ICell
 
 	private void TrackHeartbeat()
 	{
-		// TODO
+		var weather = CurrentWeather(null);
+		var visualReduction = 0.0;
+		var olfactoryReduction = 0.0;
+		if (weather is null)
+		{
+			olfactoryReduction = Gameworld.GetStaticDouble("OlfactoryTrackReductionPerTickNone") +
+								  Gameworld.GetStaticDouble("OlfactoryTrackReductionPerTickParched");
+			visualReduction = Gameworld.GetStaticDouble("VisualTrackReductionPerTickParched");
+		}
+		else
+		{
+			olfactoryReduction = Gameworld.GetStaticDouble($"OlfactoryTrackReductionPerTick{weather.Precipitation.DescribeEnum()}") +
+			                     Gameworld.GetStaticDouble($"OlfactoryTrackReductionPerTick{weather.Wind.DescribeEnum()}");
+			visualReduction = Gameworld.GetStaticDouble($"VisualTrackReductionPerTick{weather.Precipitation.DescribeEnum()}");
+		}
+
+		foreach (var track in _tracks)
+		{
+			track.TrackIntensityOlfactory -= olfactoryReduction;
+			track.TrackIntensityVisual -= visualReduction;
+		}
+
+		var toDelete = _tracks.Where(x => x.TrackIntensityOlfactory <= 0.0 && x.TrackIntensityVisual <= 0.0).Select(x => x.Id).ToHashSet();
+		using (new FMDB())
+		{
+			FMDB.Context.Tracks.Where(x => toDelete.Contains(x.Id)).ExecuteDelete();
+		}
+
+		_tracks.RemoveAll(x => toDelete.Contains(x.Id));
+		if (_tracks.Count <= 0)
+		{
+			Gameworld.HeartbeatManager.FuzzyMinuteHeartbeat -= TrackHeartbeat;
+		}
 	}
 
 	public void InitialiseTracks(IReadOnlyCollectionDictionary<ICell, ITrack> tracks)

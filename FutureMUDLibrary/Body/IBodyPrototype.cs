@@ -67,6 +67,7 @@ namespace MudSharp.Body {
         string LegDescriptionPlural { get; }
 
         string ConsiderString { get; }
+        string NameForTracking { get; }
 
         IFutureProg StaminaRecoveryProg { get; }
 

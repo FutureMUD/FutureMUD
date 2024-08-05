@@ -1355,7 +1355,12 @@ namespace MudSharp.Database
                     .HasCharSet("utf8")
                     .UseCollation("utf8_general_ci");
 
-                entity.Property(e => e.StaminaRecoveryProgId).HasColumnType("bigint(20)");
+                entity.Property(e => e.NameForTracking)
+                      .HasColumnType("varchar(4000)")
+                      .HasCharSet("utf8")
+                      .UseCollation("utf8_general_ci");
+
+				entity.Property(e => e.StaminaRecoveryProgId).HasColumnType("bigint(20)");
 
                 entity.Property(e => e.WearSizeParameterId).HasColumnType("bigint(20)");
 

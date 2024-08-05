@@ -31,6 +31,7 @@ namespace MudSharp.Models
         public string LegDescriptionSingular { get; set; }
         public string LegDescriptionPlural { get; set; }
         public long? DefaultSmashingBodypartId { get; set; }
+        public string NameForTracking { get; set; }
 
         public virtual BodyProto CountsAs { get; set; }
         public virtual BodypartProto DefaultSmashingBodypart { get; set; }

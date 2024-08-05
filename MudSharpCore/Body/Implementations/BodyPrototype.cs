@@ -79,6 +79,7 @@ public class BodyPrototype : SaveableItem, IBodyPrototype
 
 		_id = proto.Id;
 		_name = proto.Name;
+		NameForTracking = proto.NameForTracking ?? _name;
 
 		StaminaRecoveryProg = Gameworld.FutureProgs.Get(proto.StaminaRecoveryProgId ?? 0);
 
@@ -233,6 +234,8 @@ public class BodyPrototype : SaveableItem, IBodyPrototype
 	public IFutureProg StaminaRecoveryProg { get; protected set; }
 
 	public string ConsiderString { get; protected set; }
+
+	public string NameForTracking { get; protected set; }
 
 	public IEnumerable<IBodypart> CoreBodyparts
 	{
@@ -475,6 +478,7 @@ public class BodyPrototype : SaveableItem, IBodyPrototype
 		sb.AppendLine("Core Properties".GetLineWithTitle(actor, Telnet.Red, Telnet.BoldWhite));
 		sb.AppendLine();
 		sb.AppendLine($"Parent: {Parent?.Name.ColourName() ?? "None".ColourError()}");
+		sb.AppendLine($"Name For Tracking: {NameForTracking.ColourCharacter()}");
 		sb.AppendLine($"Minimum Legs to Stand: {MinimumLegsToStand.ToString("N0", actor).ColourValue()}");
 		sb.AppendLine($"Minimum Wings to Fly: {MinimumWingsToFly.ToString("N0", actor).ColourValue()}");
 		sb.AppendLine($"Stamina Prog: {StaminaRecoveryProg?.MXPClickableFunctionName() ?? "None".ColourError()}");

@@ -190,7 +190,16 @@ public class TattooTemplate : DisfigurementTemplate, ITattooTemplate
 	#region Overrides of DisfigurementTemplate
 
 	protected override string BuildingHelpText =>
-		$"{base.BuildingHelpText}\n\tsize <size> - sets the size of this tattoo\n\tbodypart <shape> - sets the target bodypart shapes\n\tknowledge <knowledge> - sets the knowledge required to ink this tattoo\n\tskill <minimum> - sets the minimum skill to ink this tattoo\n\tink <colour> [<weight>] - toggles an ink colour required for this tattoo\n\tchargen [<amount> <resource>] - toggles tattoo selectable in chargen. Admins only.\n\tprog <prog> - sets the prog that controls appearance in chargen. Admins only.\n\tchargenprog <prog> - sets the chargen prog. Admins only.\n\toverride \"<plain>\" \"<with>\" - special override descriptions for sdescs, both a plain form and a with form.";
+		$@"{base.BuildingHelpText}
+	#3size <size>#0 - sets the size of this tattoo
+	#3bodypart <shape>#0 - sets the target bodypart shapes
+	#3knowledge <knowledge>#0 - sets the knowledge required to ink this tattoo
+	#3skill <minimum>#0 - sets the minimum skill to ink this tattoo
+	#3ink <colour> [<weight>]#0 - toggles an ink colour required for this tattoo
+	#3chargen [<amount> <resource>]#0 - toggles tattoo selectable in chargen. Admins only.
+	#3prog <prog>#0 - sets the prog that controls appearance in chargen. Admins only.
+	#3chargenprog <prog>#0 - sets the chargen prog. Admins only.
+	#3override ""<plain>"" ""<with>""#0 - special override descriptions for sdescs, both a plain form and a with form.";
 
 	/// <summary>Handles OLC Building related commands from an Actor</summary>
 	/// <param name="actor">The ICharacter requesting the edit</param>

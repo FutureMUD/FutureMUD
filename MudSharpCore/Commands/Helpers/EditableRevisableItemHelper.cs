@@ -525,7 +525,7 @@ internal class EditableRevisableItemHelper
 					                                                  proto.Status.Describe(),
 																	  proto.CraftIsValid.ToColouredString()
 				                                                  },
-			GetListTableHeaderFunc = character => new[] { "ID#", "Rev#", "Name", "Category", "Blurb", "Status", "Valid" },
+			GetListTableHeaderFunc = character => new[] { "ID#", "Rev#", "Name", "Blurb", "Category", "Status", "Valid" },
 			GetReviewProposalEffectFunc =
 				(protos, character) =>
 					new Accept(character,

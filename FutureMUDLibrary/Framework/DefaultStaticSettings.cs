@@ -654,6 +654,7 @@ public static class DefaultStaticSettings
 			{"OlfactoryTrackReductionPerTickHeavySnow", "0.0083333333333333300"},
 			{"OlfactoryTrackReductionPerTickBlizzard", "0.0416666666666667000"},
 			{"OlfactoryTrackReductionPerTickSleet", "0.0083333333333333300"},
+			{ "TrackingEnabled", "true" }
 
 		};
 

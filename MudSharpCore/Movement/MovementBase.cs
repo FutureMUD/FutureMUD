@@ -93,6 +93,10 @@ public abstract class MovementBase : IMovement
 
 	protected void CreateDepartureTracks(ICharacter actor, TrackCircumstances circumstance)
 	{
+		if (!actor.Gameworld.GetStaticBool("TrackingEnabled"))
+		{
+			return;
+		}
 		var location = actor.Location;
 		if (!location.Terrain(actor).CanHaveTracks)
 		{
@@ -135,6 +139,10 @@ public abstract class MovementBase : IMovement
 
 	protected void CreateArrivalTracks(ICharacter actor, TrackCircumstances circumstance)
 	{
+		if (!actor.Gameworld.GetStaticBool("TrackingEnabled"))
+		{
+			return;
+		}
 		var location = actor.Location;
 		if (!location.Terrain(actor).CanHaveTracks)
 		{

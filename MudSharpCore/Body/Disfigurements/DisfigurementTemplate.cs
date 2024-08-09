@@ -28,7 +28,11 @@ public abstract class DisfigurementTemplate : Framework.Revision.EditableItem, I
 	#region Overrides of EditableItem
 
 	protected virtual string BuildingHelpText =>
-		"You can use the following building commmands:\n\tname <name> - sets the name for this template\n\tsdesc <description> - this item's short description\n\tdesc <description> - this item's full (i.e. look) description";
+		@"You can use the following building commmands:
+
+	#3name <name>#0 - sets the name for this template
+	#3sdesc <description>#0 - this item's short description
+	#3desc <description>#0 - this item's full (i.e. look) description";
 
 	/// <summary>Handles OLC Building related commands from an Actor</summary>
 	/// <param name="actor">The ICharacter requesting the edit</param>
@@ -69,7 +73,7 @@ public abstract class DisfigurementTemplate : Framework.Revision.EditableItem, I
 
 				return BuildingCommandProg(actor, command);
 			default:
-				actor.OutputHandler.Send(BuildingHelpText);
+				actor.OutputHandler.Send(BuildingHelpText.SubstituteANSIColour());
 				return false;
 		}
 	}

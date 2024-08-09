@@ -261,7 +261,15 @@ public class ScarTemplate : DisfigurementTemplate, IScarTemplate
 	#region Building Commands
 
 	protected override string BuildingHelpText =>
-		$"{base.BuildingHelpText}\n\tsize <steps> - sets the number of sizes smaller than the bodypart this scar is\n\tsurgery <type> - toggle the surgery types that can apply this scar\n\tdamage <type> <severity> - set a damage type and minimum severity for this scar\n\tdamage <type> - clears a damage type\n\tbodypart <shape> - sets the target bodypart shapes\n\tchargen [<amount> <resource>] - toggles tattoo selectable in chargen. Admins only.\n\tprog <prog> - sets the prog that controls appearance in chargen. Admins only.\n\toverride \"<plain>\" \"<with>\" - special override descriptions for sdescs, both a plain form and a with form.";
+		$@"{base.BuildingHelpText}
+	#3size <steps>#0 - sets the number of sizes smaller than the bodypart this scar is
+	#3surgery <type>#0 - toggle the surgery types that can apply this scar
+	#3damage <type> <severity>#0 - set a damage type and minimum severity for this scar
+	#3damage <type>#0 - clears a damage type
+	#3bodypart <shape>#0 - sets the target bodypart shapes
+	#3chargen [<amount> <resource>]#0 - toggles tattoo selectable in chargen. Admins only.
+	#3prog <prog>#0 - sets the prog that controls appearance in chargen. Admins only.
+	#3override ""<plain>"" ""<with>""#0 - special override descriptions for sdescs, both a plain form and a with form.";
 
 	public override bool BuildingCommand(ICharacter actor, StringStack command)
 	{

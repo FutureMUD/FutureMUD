@@ -265,5 +265,7 @@ public class RevisableAll<T> : IRevisableAll<T>, IUneditableRevisableAll<T> wher
 		return list;
 	}
 
+	public int Count => _iterlist.Count;
+
 	#endregion
 }

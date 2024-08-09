@@ -86,8 +86,7 @@ public class BloodTypingProduct : BaseProduct
 					if (missingAntigens.Any())
 					{
 #if DEBUG
-						Gameworld.SystemMessage("Blood Typing failed and added a false positive antigen",
-							x => x.AffectedBy<DebugMode>());
+						Gameworld.DebugMessage("Blood Typing failed and added a false positive antigen");
 #endif
 						antigens.Add(missingAntigens.GetRandomElement());
 					}
@@ -97,8 +96,7 @@ public class BloodTypingProduct : BaseProduct
 					if (antigens.Any())
 					{
 #if DEBUG
-						Gameworld.SystemMessage("Blood Typing failed and removed a real positive antigen",
-							x => x.AffectedBy<DebugMode>());
+						Gameworld.DebugMessage("Blood Typing failed and removed a real positive antigen");
 #endif
 						antigens.Remove(antigens.GetRandomElement());
 					}

@@ -54,7 +54,7 @@ public class AttributePointBuyScreenStoryboard : ChargenScreenStoryboard
 	{
 		BoostResource = Gameworld.ChargenResources.FirstOrDefault();
 		MaximumExtraBoosts = 3;
-		BoostCostExpression = new Expression("pow(2, max(0,boosts-1)) * 100", EvaluateOptions.IgnoreCase);
+		BoostCostExpression = new Expression("pow(2, max(0,boosts-1)) * 100");
 		switch (storyboard)
 		{
 			case AttributeOrdererScreenStoryboard aos:
@@ -501,7 +501,7 @@ The following parameters can be used in the cost expression:
 			return false;
 		}
 
-		var expression = new Expression(command.SafeRemainingArgument, EvaluateOptions.IgnoreCase);
+		var expression = new Expression(command.SafeRemainingArgument);
 		if (expression.HasErrors())
 		{
 			actor.OutputHandler.Send(expression.Error);

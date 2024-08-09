@@ -36,8 +36,7 @@ public class OngoingJobListing : JobListingBase, IOngoingJobListing
 		var definition = XElement.Parse(dbitem.Definition);
 		PayInterval = RecurringInterval.Parse(definition.Element("PayInterval")!.Value);
 		PayCurrency = Gameworld.Currencies.Get(long.Parse(definition.Element("PayCurrency")!.Value))!;
-		PayExpression = new ExpressionEngine.Expression(definition.Element("PayExpression")!.Value,
-			EvaluateOptions.IgnoreCase);
+		PayExpression = new ExpressionEngine.Expression(definition.Element("PayExpression")!.Value);
 		PayReference = new MudDateTime(definition.Element("PayReference")!.Value, Gameworld);
 
 		foreach (var dbjob in dbitem.ActiveJobs)
@@ -60,7 +59,7 @@ public class OngoingJobListing : JobListingBase, IOngoingJobListing
 		PayInterval = new RecurringInterval { IntervalAmount = 1, Modifier = 0, Type = IntervalType.Weekly };
 		PayReference = economicZone.FinancialPeriodReferenceCalendar.CurrentDateTime;
 		PayExpression = new ExpressionEngine.Expression(
-			Gameworld.GetStaticConfiguration("OngoingJobPerformanceDefaultPayFormula"), EvaluateOptions.IgnoreCase);
+			Gameworld.GetStaticConfiguration("OngoingJobPerformanceDefaultPayFormula"));
 		RegisterEvents();
 	}
 
@@ -577,7 +576,7 @@ You will be paid {PayDescriptionForJobListing()}.{(PersonalProject is not null ?
 			return false;
 		}
 
-		var expr = new ExpressionEngine.Expression(command.SafeRemainingArgument, EvaluateOptions.IgnoreCase);
+		var expr = new ExpressionEngine.Expression(command.SafeRemainingArgument);
 		if (expr.HasErrors())
 		{
 			actor.OutputHandler.Send(expr.Error);

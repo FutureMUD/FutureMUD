@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using Humanizer;
 using MoreLinq;
+using MudSharp.Accounts;
 using MudSharp.Body;
 using MudSharp.Character;
 using MudSharp.Character.Heritage;
@@ -1407,6 +1408,7 @@ See also: HELP EVALUATE, HELP SEARCH, HELP SCAN",
 	}
 
 	[PlayerCommand("Tracks", "tracks")]
+	[CommandPermission(PermissionLevel.Admin)]
 	protected static void Tracks(ICharacter actor, string input)
 	{
 		// TODO - for debug only

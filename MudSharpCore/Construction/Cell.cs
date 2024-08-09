@@ -36,6 +36,7 @@ using ExpressionEngine;
 using System.Xml.Linq;
 using MudSharp.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using MudSharp.Body.Position.PositionStates;
 using MudSharp.Character.Name;
 using MudSharp.Framework.Revision;
@@ -1770,13 +1771,19 @@ public partial class Cell : Location, IDisposable, ICell
 			track.TrackIntensityVisual -= visualReduction;
 		}
 
-		var toDelete = _tracks.Where(x => x.TrackIntensityOlfactory <= 0.0 && x.TrackIntensityVisual <= 0.0).Select(x => x.Id).ToHashSet();
+		var toDeleteTracks = _tracks.Where(x => x.TrackIntensityOlfactory <= 0.0 && x.TrackIntensityVisual <= 0.0).ToArray();
+		var toDelete = toDeleteTracks.Select(x => x.Id).ToHashSet();
 		using (new FMDB())
 		{
 			FMDB.Context.Tracks.Where(x => toDelete.Contains(x.Id)).ExecuteDelete();
 		}
 
 		_tracks.RemoveAll(x => toDelete.Contains(x.Id));
+		foreach (var track in toDeleteTracks)
+		{
+			Gameworld.Destroy(track);
+		}
+
 		if (_tracks.Count <= 0)
 		{
 			Gameworld.HeartbeatManager.FuzzyMinuteHeartbeat -= TrackHeartbeat;

@@ -33,7 +33,7 @@ public class OrganHitChanceReductionMerit : CharacterMeritBase, IOrganHitReducti
 		MaximumWoundSeverity =
 			(WoundSeverity)int.Parse(root.Attribute("maxseverity")?.Value ??
 			                         ((int)WoundSeverity.Horrifying).ToString());
-		HitChanceExpression = new Expression(root.Element("Chance")?.Value ?? "0.0", EvaluateOptions.IgnoreCase);
+		HitChanceExpression = new Expression(root.Element("Chance")?.Value ?? "0.0");
 		foreach (var item in root.Element("Organs")?.Elements("Organ") ?? Enumerable.Empty<XElement>())
 		{
 			_organs.Add((BodypartTypeEnum)int.Parse(item.Value));
@@ -46,7 +46,7 @@ public class OrganHitChanceReductionMerit : CharacterMeritBase, IOrganHitReducti
 	{
 		MinimumWoundSeverity = WoundSeverity.None;
 		MaximumWoundSeverity = WoundSeverity.Horrifying;
-		HitChanceExpression = new Expression("chance*0.75", EvaluateOptions.IgnoreCase);
+		HitChanceExpression = new Expression("chance*0.75");
 		DoDatabaseInsert();
 	}
 
@@ -139,7 +139,7 @@ public class OrganHitChanceReductionMerit : CharacterMeritBase, IOrganHitReducti
 			return false;
 		}
 
-		var formula = new Expression(command.SafeRemainingArgument, EvaluateOptions.IgnoreCase);
+		var formula = new Expression(command.SafeRemainingArgument);
 		if (formula.HasErrors())
 		{
 			actor.OutputHandler.Send(formula.Error);

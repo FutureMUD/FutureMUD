@@ -33,7 +33,7 @@ internal class Market : SaveableItem, IMarket
 		_name = dbitem.Name;
 		Description = dbitem.Description;
 		EconomicZone = Gameworld.EconomicZones.Get(dbitem.EconomicZoneId);
-		MarketPriceFormula = new Expression(dbitem.MarketPriceFormula, EvaluateOptions.IgnoreCase);
+		MarketPriceFormula = new Expression(dbitem.MarketPriceFormula);
 		foreach (var item in dbitem.MarketCategories)
 		{
 			_marketCategories.AddNotNull(Gameworld.MarketCategories.Get(item.Id));
@@ -58,7 +58,7 @@ internal class Market : SaveableItem, IMarket
 		_name = name;
 		Description = rhs.Description;
 		EconomicZone = rhs.EconomicZone;
-		MarketPriceFormula = new Expression(rhs.MarketPriceFormula.OriginalExpression, EvaluateOptions.IgnoreCase);
+		MarketPriceFormula = new Expression(rhs.MarketPriceFormula.OriginalExpression);
 		_marketCategories.AddRange(rhs.MarketCategories);
 		using (new FMDB())
 		{
@@ -105,7 +105,7 @@ internal class Market : SaveableItem, IMarket
 		_name = name;
 		EconomicZone = zone;
 		Description = "An undescribed market.";
-		MarketPriceFormula = new Expression("if(demand<=0,0,if(supply<=0,100,1 + (elasticity * min(1, max(-1, (demand-supply) / min(demand,supply))))))", EvaluateOptions.IgnoreCase);
+		MarketPriceFormula = new Expression("if(demand<=0,0,if(supply<=0,100,1 + (elasticity * min(1, max(-1, (demand-supply) / min(demand,supply))))))");
 		using (new FMDB())
 		{
 			var dbitem = new Models.Market
@@ -230,7 +230,7 @@ In the market price formula, you can use the following variables:
 			return false;
 		}
 
-		var formula = new Expression(command.SafeRemainingArgument, EvaluateOptions.IgnoreCase);
+		var formula = new Expression(command.SafeRemainingArgument);
 		if (formula.HasErrors())
 		{
 			actor.OutputHandler.Send(formula.Error);

@@ -1292,8 +1292,7 @@ public class WildAnimalHerdAI : PathingAIBase
 				        .All(x => !x.Animal.Body.NeedsModel.Status.IsThirsty()))
 				{
 #if DEBUG
-					Gameworld.SystemMessage($"Herd {Name} has finished drinking and is now grazing.",
-						x => x.AffectedBy<DebugMode>());
+					Gameworld.DebugMessage($"Herd {Name} has finished drinking and is now grazing.");
 #endif
 					effect.Priority = WildAnimalHerdPriority.Graze;
 					return true;
@@ -1309,9 +1308,7 @@ public class WildAnimalHerdAI : PathingAIBase
 				if (target != null)
 				{
 #if DEBUG
-					Gameworld.SystemMessage(
-						$"Herd {Name} is headed to known waterhole {target.HowSeen(character)} to find a drink.",
-						x => x.AffectedBy<DebugMode>());
+					Gameworld.DebugMessage($"Herd {Name} is headed to known waterhole {target.HowSeen(character)} to find a drink.");
 #endif
 					var fp = new FollowingPath(character, path);
 					character.AddEffect(fp);
@@ -1327,17 +1324,15 @@ public class WildAnimalHerdAI : PathingAIBase
 				if (random != null && character.CanMove(random))
 				{
 #if DEBUG
-					Gameworld.SystemMessage(
-						$"Herd {Name} is thirsty but knows of no water. Wandering randomly to {random.Destination.HowSeen(character)}.",
-						x => x.AffectedBy<DebugMode>());
+					Gameworld.DebugMessage(
+						$"Herd {Name} is thirsty but knows of no water. Wandering randomly to {random.Destination.HowSeen(character)}.");
 #endif
 					character.Move(random);
 					return true;
 				}
 
 #if DEBUG
-				Gameworld.SystemMessage($"Herd {Name} is thirsty but knows of no water, and Alpha cannot move.",
-					x => x.AffectedBy<DebugMode>());
+				Gameworld.DebugMessage($"Herd {Name} is thirsty but knows of no water, and Alpha cannot move.");
 #endif
 				break;
 			case WildAnimalHerdPriority.Graze:
@@ -1381,9 +1376,7 @@ public class WildAnimalHerdAI : PathingAIBase
 					if (character.NeedsModel.Status.IsThirsty())
 					{
 #if DEBUG
-						Gameworld.SystemMessage(
-							$"Herd {Name} is thirsty but has no water at {character.Location.HowSeen(character)}.",
-							x => x.AffectedBy<DebugMode>());
+						Gameworld.DebugMessage($"Herd {Name} is thirsty but has no water at {character.Location.HowSeen(character)}.");
 #endif
 						// If we got this far, they wanted to drink but couldn't
 						effect.KnownWater.Remove(character.Location);
@@ -1413,9 +1406,7 @@ public class WildAnimalHerdAI : PathingAIBase
 					if (character.NeedsModel.Status.IsHungry())
 					{
 #if DEBUG
-						Gameworld.SystemMessage(
-							$"Herd {Name} is hungry but no food at {character.Location.HowSeen(character)}.",
-							x => x.AffectedBy<DebugMode>());
+						Gameworld.DebugMessage($"Herd {Name} is hungry but no food at {character.Location.HowSeen(character)}.");
 #endif
 						random = character.Location.ExitsFor(character)
 						                  .Where(x => character.CanMove(x) && SuitabilityFunction(x))
@@ -1426,9 +1417,7 @@ public class WildAnimalHerdAI : PathingAIBase
 						if (random != null && character.CanMove(random))
 						{
 #if DEBUG
-							Gameworld.SystemMessage(
-								$"Herd {Name} is wandering to {random.Destination.HowSeen(character)} to graze.",
-								x => x.AffectedBy<DebugMode>());
+							Gameworld.DebugMessage($"Herd {Name} is wandering to {random.Destination.HowSeen(character)} to graze.");
 #endif
 							character.Move(random);
 							return true;
@@ -1441,9 +1430,7 @@ public class WildAnimalHerdAI : PathingAIBase
 						if (random != null && character.CanMove(random))
 						{
 #if DEBUG
-							Gameworld.SystemMessage(
-								$"Herd {Name} is hungry but couldn't find any nearby food. Wandering randomly to {random.Destination.HowSeen(character)}.",
-								x => x.AffectedBy<DebugMode>());
+							Gameworld.DebugMessage($"Herd {Name} is hungry but couldn't find any nearby food. Wandering randomly to {random.Destination.HowSeen(character)}.");
 #endif
 							character.Move(random);
 							return true;

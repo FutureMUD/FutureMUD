@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
+using NCalc;
+using NCalc.Handlers;
 
 namespace ExpressionEngine
 {
@@ -24,11 +26,6 @@ namespace ExpressionEngine
 
 		public object Evaluate()
 		{
-			foreach (var parameter in _expression.Parameters)
-			{
-				_expression.Parameters[parameter.Key] = 0.0;
-			}
-
 			foreach (var parameter in Parameters)
 			{
 				if (parameter.Value is Enum)
@@ -82,15 +79,15 @@ namespace ExpressionEngine
 			return _expression.HasErrors();
 		}
 
-		public string Error => _expression.Error;
+		public string Error => _expression.Error?.Message ?? string.Empty;
 		
 
 		#region Constructors
-		public Expression(string expression) : this(expression, NCalc.EvaluateOptions.IgnoreCase)
+		public Expression(string expression) : this(expression, ExpressionOptions.CaseInsensitiveStringComparer | ExpressionOptions.IgnoreCaseAtBuiltInFunctions | ExpressionOptions.AllowBooleanCalculation)
 		{
 		}
 
-		public Expression(string expression, NCalc.EvaluateOptions options)
+		protected Expression(string expression, ExpressionOptions options)
 		{
 			OriginalExpression = expression;
 			var parsed = _regex.Replace(expression, m =>
@@ -102,12 +99,20 @@ namespace ExpressionEngine
 			_expression.EvaluateFunction += RandFunction;
 			_expression.EvaluateFunction += DiceFunction;
 			_expression.EvaluateFunction += NotFunction;
+
+			if (!_expression.HasErrors())
+			{
+				foreach (var parameter in _expression.GetParameterNames())
+				{
+					_expression.Parameters[parameter] = 0.0;
+				}
+			}
 		}
 		#endregion
 
 		#region In-built functions
 
-		private void NotFunction(string name, NCalc.FunctionArgs args)
+		private void NotFunction(string name, FunctionArgs args)
 		{
 			if (!name.Equals("not", StringComparison.OrdinalIgnoreCase))
 			{
@@ -122,7 +127,7 @@ namespace ExpressionEngine
 			var value = Convert.ToDouble(args.Parameters[0].Evaluate());
 			args.Result = value == 0.0 ? 1.0 : 0.0;
 		}
-		private void DRandFunction(string name, NCalc.FunctionArgs args)
+		private void DRandFunction(string name, FunctionArgs args)
 		{
 			if (!name.Equals("drand", StringComparison.OrdinalIgnoreCase))
 			{
@@ -139,7 +144,7 @@ namespace ExpressionEngine
 			args.Result = (RandomInstance.NextDouble() * (randright - randleft)) + randleft;
 		}
 
-		private void RandFunction(string name, NCalc.FunctionArgs args)
+		private void RandFunction(string name, FunctionArgs args)
 		{
 			if (!name.Equals("rand", StringComparison.OrdinalIgnoreCase))
 			{
@@ -156,7 +161,7 @@ namespace ExpressionEngine
 			args.Result = RandomInstance.Next(randleft, randright + 1);
 		}
 
-		private void DiceFunction(string name, NCalc.FunctionArgs args)
+		private void DiceFunction(string name, FunctionArgs args)
 		{
 			if (!name.Equals("dice", StringComparison.OrdinalIgnoreCase))
 			{

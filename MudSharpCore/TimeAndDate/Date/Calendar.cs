@@ -521,6 +521,8 @@ public class Calendar : SaveableItem, ICalendar
 
 	#region Methods
 
+	private Dictionary<int, Year> _cachedYears = new();
+
 	/// <summary>
 	///     Generates a new year (An ordered list of Months) accurate for the given calendar year
 	/// </summary>
@@ -528,13 +530,22 @@ public class Calendar : SaveableItem, ICalendar
 	/// <returns>A list of months generated correctly for that year</returns>
 	public Year CreateYear(int whichYear)
 	{
+		if (_cachedYears.TryGetValue(whichYear, out var year))
+		{
+			return year;
+		}
+
 		var returnList = new List<Month>();
 		returnList.AddRange(Months.Select(x => new Month(x, whichYear)));
 		returnList.AddRange(
 			Intercalaries.Where(x => x.Rule.IsIntercalaryYear(whichYear)).Select(x => new Month(x.Month, whichYear)));
 		returnList = returnList.OrderBy(x => x.NominalOrder).ToList();
-		return new Year(returnList, whichYear, this);
+		var newYear = new Year(returnList, whichYear, this);
+		_cachedYears[whichYear]	 = newYear;
+		return newYear;
 	}
+
+	private Dictionary<int, int> _cachedWeekdaysInYear = new();
 
 	/// <summary>
 	///     This function counts the number of weekdays in a year - that is, days that are not specifically excluded from being
@@ -544,7 +555,12 @@ public class Calendar : SaveableItem, ICalendar
 	/// <returns>The number of weekdays in the year</returns>
 	public int CountWeekdaysInYear(int whichYear)
 	{
-		return _months.Sum(x => x.NormalDays - x.NonWeekdays.Count)
+		if (_cachedWeekdaysInYear.TryGetValue(whichYear, out var year))
+		{
+			return year;
+		}
+
+		var sum = _months.Sum(x => x.NormalDays - x.NonWeekdays.Count)
 		       +
 		       Months.Sum(
 			       x =>
@@ -565,8 +581,12 @@ public class Calendar : SaveableItem, ICalendar
 								         : 0)
 					       : 0)
 			;
+		_cachedWeekdaysInYear[whichYear] = sum;
+		return sum;
 	}
 
+
+	private Dictionary<int, int> _cachedDaysInYear = new();
 
 	/// <summary>
 	///     This function counts the number of days in a year.
@@ -575,7 +595,11 @@ public class Calendar : SaveableItem, ICalendar
 	/// <returns>The number of days in the year</returns>
 	public int CountDaysInYear(int whichYear)
 	{
-		return _months.Sum(x => x.NormalDays)
+		if (_cachedDaysInYear.TryGetValue(whichYear, out var year))
+		{
+			return year;
+		}
+		var sum = _months.Sum(x => x.NormalDays)
 		       +
 		       Months.Sum(
 			       x => x.Intercalaries.Sum(y => y.Rule.IsIntercalaryYear(whichYear) ? y.InsertNumnewDays : 0))
@@ -588,8 +612,11 @@ public class Calendar : SaveableItem, ICalendar
 						         y => y.Rule.IsIntercalaryYear(whichYear) ? y.InsertNumnewDays : 0)
 					       : 0)
 			;
+		_cachedDaysInYear[whichYear] = sum;
+		return sum;
 	}
 
+	private Dictionary<(int, int), int> _cachedDaysBetweenYears = new();
 	/// <summary>
 	///     This function returns the number of days between two years exclusive of the endYear
 	/// </summary>
@@ -598,22 +625,32 @@ public class Calendar : SaveableItem, ICalendar
 	/// <returns>The number of days in the year</returns>
 	public int CountDaysBetweenYears(int startYear, int endYear)
 	{
-		if (startYear > endYear)
+		if (startYear == endYear)
 		{
-			var temp = startYear;
-			startYear = endYear;
-			endYear = temp;
+			return 0;
 		}
 
-		var count = 0;
+		if (startYear > endYear)
+		{
+			(startYear, endYear) = (endYear, startYear);
+		}
+
+		if (_cachedDaysBetweenYears.TryGetValue((startYear, endYear), out var count))
+		{
+			return count;
+		}
+
+		count = 0;
 		while (startYear < endYear)
 		{
 			count += CountDaysInYear(startYear++);
 		}
 
+		_cachedDaysBetweenYears[(startYear, endYear)] = count;
 		return count;
 	}
 
+	private Dictionary<int, int> _cachedFirstWeekday = new();
 	/// <summary>
 	///     Returns the index of the first weekday of the year for the specified year. This may not be the first day of the
 	///     year if the first day is excluded from weekdays.
@@ -627,6 +664,11 @@ public class Calendar : SaveableItem, ICalendar
 			return FirstWeekdayAtEpoch;
 		}
 
+		if (_cachedFirstWeekday.TryGetValue(whichYear, out var count))
+		{
+			return count;
+		}
+
 		var daysBetween = 0;
 		var lowerYear = Math.Min(whichYear, EpochYear);
 		var upperYear = Math.Max(whichYear, EpochYear);
@@ -636,11 +678,13 @@ public class Calendar : SaveableItem, ICalendar
 			daysBetween += CountWeekdaysInYear(i);
 		}
 
-		return whichYear > EpochYear
+		var day = whichYear > EpochYear
 			? (FirstWeekdayAtEpoch + daysBetween) % Weekdays.Count
 			: Weekdays.Count - Math.Abs((FirstWeekdayAtEpoch - daysBetween) % Weekdays.Count) == 7
 				? 0
 				: Weekdays.Count - Math.Abs((FirstWeekdayAtEpoch - daysBetween) % Weekdays.Count);
+		_cachedFirstWeekday[whichYear] = day;
+		return day;
 	}
 
 	/// <summary>

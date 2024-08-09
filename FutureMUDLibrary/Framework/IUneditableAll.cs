@@ -16,5 +16,6 @@ namespace MudSharp.Framework
         T? GetByIdOrName(string value, bool permitAbbreviations = true);
 
         void ForEach(Action<T> action);
-    }
+        int Count { get; }
+	}
 }

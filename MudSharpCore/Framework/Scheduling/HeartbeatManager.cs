@@ -23,6 +23,55 @@ public class HeartbeatManager : IHaveFuturemud, IHeartbeatManager
 			TimeSpan.FromSeconds(1), "Heatbeat Tick"));
 	}
 
+	public void ManuallyFireHeartbeatHour()
+	{
+		_hourHeartbeat?.Invoke();
+		_FuzzyHourGeneration1?.Invoke();
+		_FuzzyHourGeneration2?.Invoke();
+		_FuzzyHourGeneration3?.Invoke();
+		_FuzzyHourGeneration4?.Invoke();
+		_FuzzyHourGeneration5?.Invoke();
+	}
+	public void ManuallyFireHeartbeatMinute()
+	{
+		_minuteHeartbeat?.Invoke();
+		_FuzzyMinuteGeneration1?.Invoke();
+		_FuzzyMinuteGeneration2?.Invoke();
+		_FuzzyMinuteGeneration3?.Invoke();
+		_FuzzyMinuteGeneration4?.Invoke();
+		_FuzzyMinuteGeneration5?.Invoke();
+	}
+	public void ManuallyFireHeartbeat30Second()
+	{
+		_thirtySecondHeartbeat?.Invoke();
+		_FuzzyThirtySecondGeneration1?.Invoke();
+		_FuzzyThirtySecondGeneration2?.Invoke();
+		_FuzzyThirtySecondGeneration3?.Invoke();
+		_FuzzyThirtySecondGeneration4?.Invoke();
+		_FuzzyThirtySecondGeneration5?.Invoke();
+	}
+	public void ManuallyFireHeartbeat10Second()
+	{
+		_tenSecondHeartbeat?.Invoke();
+		_FuzzyTenSecondGeneration1?.Invoke();
+		_FuzzyTenSecondGeneration2?.Invoke();
+		_FuzzyTenSecondGeneration3?.Invoke();
+		_FuzzyTenSecondGeneration4?.Invoke();
+		_FuzzyTenSecondGeneration5?.Invoke();
+	}
+	public void ManuallyFireHeartbeat5Second()
+	{
+		_FuzzyFiveSecondGeneration1?.Invoke();
+		_FuzzyFiveSecondGeneration2?.Invoke();
+		_FuzzyFiveSecondGeneration3?.Invoke();
+		_FuzzyFiveSecondGeneration4?.Invoke();
+		_FuzzyFiveSecondGeneration5?.Invoke();
+	}
+	public void ManuallyFireHeartbeatSecond()
+	{
+		_secondHeartbeat?.Invoke();
+	}
+
 	#region IHaveGame Members
 
 	public IFuturemud Gameworld { get; }

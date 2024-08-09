@@ -7,5 +7,7 @@
         bool Has(T item);
         bool Has(string name);
         void Clear();
-    }
+        int Count { get; }
+
+	}
 }

@@ -354,6 +354,12 @@ namespace MudSharp.Framework
         /// <param name="adminonly">If true, only sends to admin avatars. Otherwise sends to all players</param>
         void SystemMessage(IOutput message, bool adminonly = false);
 
+        /// <summary>
+        /// Sends debug output to all admins who are tuned in to debug information
+        /// </summary>
+        /// <param name="message">The message to send</param>
+        void DebugMessage(string message);
+
         void AddGuest(ICharacter character);
         void Add(ITrack track);
         void Add(IMoveSpeed speed);

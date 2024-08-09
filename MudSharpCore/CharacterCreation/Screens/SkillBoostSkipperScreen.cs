@@ -40,7 +40,7 @@ internal class SkillBoostSkipperScreenStoryboard : ChargenScreenStoryboard
 		gameworld,
 		storyboard)
 	{
-		BoostCostExpression = new Expression("base * Pow(boosts,2)", EvaluateOptions.IgnoreCase);
+		BoostCostExpression = new Expression("base * Pow(boosts,2)");
 		switch (storyboard)
 		{
 			case SkillSkipperScreenStoryboard skip:
@@ -65,7 +65,7 @@ internal class SkillBoostSkipperScreenStoryboard : ChargenScreenStoryboard
 				FreeSkillsProg = cost.FreeSkillsProg;
 				Blurb = cost.SkillBoostBlurb;
 				BoostCostExpression =
-					new Expression(cost.BoostCostExpression.OriginalExpression, EvaluateOptions.IgnoreCase);
+					new Expression(cost.BoostCostExpression.OriginalExpression);
 				BaseBoostCostProg = cost.BaseBoostCostProg;
 				BoostResource = cost.BoostResource;
 				FreeBoostResource = cost.FreeBoostResource;
@@ -426,7 +426,7 @@ Note, the cost expression can use the following parameters:
 			return false;
 		}
 
-		var expression = new Expression(command.SafeRemainingArgument, EvaluateOptions.IgnoreCase);
+		var expression = new Expression(command.SafeRemainingArgument);
 		if (expression.HasErrors())
 		{
 			actor.OutputHandler.Send(expression.Error);

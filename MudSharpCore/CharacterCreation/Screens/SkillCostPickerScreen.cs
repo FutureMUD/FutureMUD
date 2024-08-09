@@ -60,8 +60,8 @@ public class SkillCostPickerScreenStoryboard : ChargenScreenStoryboard
 		gameworld,
 		storyboard)
 	{
-		BoostCostExpression = new Expression("base * Pow(boosts,2)", EvaluateOptions.IgnoreCase);
-		AdditionalSkillsCostExpression = new Expression("50 * Pow(picks,2)", EvaluateOptions.IgnoreCase);
+		BoostCostExpression = new Expression("base * Pow(boosts,2)");
+		AdditionalSkillsCostExpression = new Expression("50 * Pow(picks,2)");
 		switch (storyboard)
 		{
 			case SkillSkipperScreenStoryboard skip:
@@ -96,8 +96,7 @@ public class SkillCostPickerScreenStoryboard : ChargenScreenStoryboard
 				NumberOfFreeSkillPicksProg =
 					Gameworld.FutureProgs.FirstOrDefault(x => x.FunctionName.EqualTo("AlwaysOne"));
 				SkillBoostBlurb = boost.Blurb;
-				BoostCostExpression = new Expression(boost.BoostCostExpression.OriginalExpression,
-					EvaluateOptions.IgnoreCase);
+				BoostCostExpression = new Expression(boost.BoostCostExpression.OriginalExpression);
 				BaseBoostCostProg = boost.BaseBoostCostProg;
 				BoostResource = boost.BoostResource;
 				FreeBoostResource = boost.FreeBoostResource;
@@ -727,7 +726,7 @@ Note, the boost cost expression can use the following parameters:
 			return false;
 		}
 
-		var expression = new Expression(command.SafeRemainingArgument, EvaluateOptions.IgnoreCase);
+		var expression = new Expression(command.SafeRemainingArgument);
 		if (expression.HasErrors())
 		{
 			actor.OutputHandler.Send(expression.Error);
@@ -774,7 +773,7 @@ Note, the boost cost expression can use the following parameters:
 			return false;
 		}
 
-		var expression = new Expression(command.SafeRemainingArgument, EvaluateOptions.IgnoreCase);
+		var expression = new Expression(command.SafeRemainingArgument);
 		if (expression.HasErrors())
 		{
 			actor.OutputHandler.Send(expression.Error);

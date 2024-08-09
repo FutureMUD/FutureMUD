@@ -3499,7 +3499,7 @@ For example:
 	[CommandPermission(PermissionLevel.JuniorAdmin)]
 	[HelpInfo("itemaudit", @"The ItemAudit command is used to see how many items are loaded into the game world. This can be useful for keeping an eye on which items are being used and consumed, and give you further targets of investigation for related commands like #3locateitem#0 and #3summonitem#0.
 
-The syntax is #itemaudit [<filters>]#0.
+The syntax is #3itemaudit [<filters>]#0.
 
 The filters that can be used are as follows:
 
@@ -3507,7 +3507,7 @@ The filters that can be used are as follows:
 	#6%<zone>#0 - show only items in a particular zone
 	#6+<keyword>#0 - show only items with a particular keyword
 	#6-<keyword>#0 - show only items without a particular keyword
-	#6<component>#0 - show only items with component types as described", AutoHelp.HelpArgOrNoArg)]
+	#6<component>#0 - show only items with component types as described", AutoHelp.HelpArg)]
 	protected static void ItemAudit(ICharacter actor, string input)
 	{
 		var ss = new StringStack(input.RemoveFirstWord());
@@ -3542,7 +3542,7 @@ The filters that can be used are as follows:
 				         .Where(x => 
 					         x.ShortDescription.Contains(keyword, StringComparison.InvariantCultureIgnoreCase) ||
 							 x.Name.Contains(keyword, StringComparison.InvariantCultureIgnoreCase) ||
-							 x.LongDescription.Contains(keyword, StringComparison.InvariantCultureIgnoreCase) ||
+							 x.LongDescription?.Contains(keyword, StringComparison.InvariantCultureIgnoreCase) == true ||
 							 x.FullDescription.Contains(keyword, StringComparison.InvariantCultureIgnoreCase)
 					        )
 				         .ToList();

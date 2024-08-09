@@ -623,6 +623,19 @@ public sealed partial class Futuremud : IFuturemud, IDisposable
 		Console.ResetColor();
 	}
 
+	public void DebugMessage(string message)
+	{
+		var realMessage = $"{"[Debug Message]".Colour(Telnet.BoldCyan)} {message}\n";
+		foreach (var person in Actors.Where(x => x.AffectedBy<DebugMode>()))
+		{
+			person.OutputHandler?.Send(realMessage, nopage: true);
+		}
+
+		Console.ForegroundColor = ConsoleColor.Cyan;
+		Console.WriteLine($"[Debug Message] {message.RawText()}");
+		Console.ResetColor();
+	}
+
 	/// <summary>
 	///     Send a text message to every player character in game, with a filter for admin-only messages
 	/// </summary>

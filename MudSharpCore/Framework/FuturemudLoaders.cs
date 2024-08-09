@@ -441,6 +441,7 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 		Scheduler.AddSchedule(new RepeatingSchedule<IFuturemud>(this, this, MudSharp.Economy.Shop.DoAutopayShopTaxes, ScheduleType.System, TimeSpan.FromMinutes(60), "Shop Autopay Taxes"));
 		Chargen.SetupChargen(this);
 		HeartbeatManager.StartHeartbeatTick();
+		Track.CreateGlobalHeartbeatEvent();
 		EffectScheduler.SetupEffectSaver();
 		Scheduler.AddSchedule(new RepeatingSchedule<IFuturemud>(this, this, fm => {
 			CheckNewPlayerHints();
@@ -734,6 +735,7 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 		                .Include(x => x.EconomicZoneTaxes)
 		                .Include(x => x.ConveyancingLocations)
 		                .Include(x => x.JobFindingLocations)
+		                .AsSplitQuery()
 		                .AsNoTracking()
 		                .ToList();
 		foreach (var zone in zones)
@@ -1400,7 +1402,9 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 		                 .Include(x => x.CraftInputs)
 		                 .Include(x => x.CraftProducts)
 		                 .Include(x => x.CraftTools)
-		                 .AsNoTracking().ToList();
+		                 .AsSplitQuery()
+		                 .AsNoTracking()
+		                 .ToList();
 		foreach (var item in crafts)
 		{
 			_crafts.Add(new Craft(item, this));
@@ -1977,6 +1981,7 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 		                              .Include(x => x.ChargenRolesCurrencies)
 		                              .Include(x => x.ChargenRolesMerits)
 		                              .Include(x => x.ChargenRolesTraits)
+		                              .AsSplitQuery()
 		                              .AsNoTracking()
 		             select item).ToList();
 
@@ -2492,7 +2497,8 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 			                      .Include(x => x.CurrencyDescriptionPatterns)
 			                      .ThenInclude(x => x.CurrencyDescriptionPatternElements)
 			                      .ThenInclude(x => x.CurrencyDescriptionPatternElementSpecialValues)
-			                      .AsNoTracking()
+			                      .AsSplitQuery()
+								  .AsNoTracking()
 		                  select currency).ToList();
 
 		foreach (var currency in currencies)
@@ -2636,6 +2642,7 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 									  .Include(x => x.FreeTextQuestions)
 									  .Include(x => x.MultipleChoiceQuestions)
 									  .ThenInclude(x => x.Answers)
+									  .AsSplitQuery()
 									  .AsNoTracking()
 					 select scripted).ToList();
 
@@ -2973,7 +2980,8 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 			                 .Include(x => x.CellsRangedCovers)
 			                 .Include(x => x.CellsTags)
 			                 .Include(x => x.HooksPerceivables)
-			                 .AsNoTracking()
+			                 .AsSplitQuery()
+							 .AsNoTracking()
 		             select cell).ToList();
 		var loadedCells = new Dictionary<MudSharp.Models.Cell, Cell>();
 		foreach (var cell in cells)
@@ -3265,7 +3273,8 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 		                              .Include(x => x.Appointments)
 		                              .ThenInclude(x => x.AppointmentsTitles)
 		                              .Include(x => x.ExternalClanControlsLiegeClan)
-		                              .AsNoTracking()
+		                              .AsSplitQuery()
+									  .AsNoTracking()
 		             select clan).ToList();
 
 		var memberships = (from membership in FMDB.Context.ClanMemberships
@@ -3611,7 +3620,8 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 			                         .ThenInclude(x => x.RandomNameProfilesDiceExpressions)
 			                         .Include(x => x.RandomNameProfiles)
 			                         .ThenInclude(x => x.RandomNameProfilesElements)
-			                         .AsNoTracking()
+			                         .AsSplitQuery()
+									 .AsNoTracking()
 			 select nameculture).ToList();
 		foreach (var nameculture in namecultures)
 		{
@@ -3692,7 +3702,8 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 		                   .ThenInclude(x => x.ProjectLabourImpacts)
 		                   .Include(x => x.ProjectPhases)
 		                   .ThenInclude(x => x.ProjectMaterialRequirements)
-		                   .AsNoTracking().ToList();
+		                   .AsSplitQuery()
+						   .AsNoTracking().ToList();
 
 		foreach (var project in projects)
 		{
@@ -3769,7 +3780,8 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 		                .Include(x => x.GameItemComponents)
 		                .Include(x => x.HooksPerceivables)
 		                .Include(x => x.GameItemsMagicResources)
-		                .OrderBy(x => x.Id);
+		                .AsSplitQuery()
+						.OrderBy(x => x.Id);
 
 		while (true)
 		{

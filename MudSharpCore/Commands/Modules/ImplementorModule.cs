@@ -268,13 +268,17 @@ public class ImplementorModule : Module<ICharacter>
 	#3addtime <timespan>#0 - adds the specified amount of time to all in-game clocks
 	#3seedrooms#0 - loads the 10 rooms with the highest IDs into the new room queue
 	#3failemail#0 - tests the fail email routine
-	#3crash#0 - causes the MUD to crash", AutoHelp.HelpArgOrNoArg)]
+	#3crash#0 - causes the MUD to crash
+	#3heartbeat hour|minute|second|5second|10second|30second#0 - manually triggers a heartbeat", AutoHelp.HelpArgOrNoArg)]
 	[CommandPermission(PermissionLevel.Founder)]
 	protected static void ImpDebug(ICharacter actor, string input)
 	{
 		var ss = new StringStack(input.RemoveFirstWord());
 		switch (ss.PopSpeech().CollapseString().ToLowerInvariant())
 		{
+			case "heartbeat":
+				Debug_Heartbeat(actor, ss);
+				return;
 			case "crash":
 				Debug_Crash(actor);
 				return;
@@ -384,7 +388,39 @@ public class ImplementorModule : Module<ICharacter>
 		}
 	}
 
-	
+	private static void Debug_Heartbeat(ICharacter actor, StringStack ss)
+	{
+		switch (ss.PopForSwitch())
+		{
+			case "hour":
+				actor.OutputHandler.Send("Manually triggering hour heartbeat...");
+				actor.Gameworld.HeartbeatManager.ManuallyFireHeartbeatHour();
+				return;
+			case "minute":
+				actor.OutputHandler.Send("Manually triggering 1 minute heartbeat...");
+				actor.Gameworld.HeartbeatManager.ManuallyFireHeartbeatMinute();
+				return;
+			case "second":
+				actor.OutputHandler.Send("Manually triggering 1 second heartbeat...");
+				actor.Gameworld.HeartbeatManager.ManuallyFireHeartbeatSecond();
+				return;
+			case "5second":
+				actor.OutputHandler.Send("Manually triggering 5 second heartbeat...");
+				actor.Gameworld.HeartbeatManager.ManuallyFireHeartbeat5Second();
+				return;
+			case "10second":
+				actor.OutputHandler.Send("Manually triggering 10 second heartbeat...");
+				actor.Gameworld.HeartbeatManager.ManuallyFireHeartbeat10Second();
+				return;
+			case "30second":
+				actor.OutputHandler.Send("Manually triggering 30 second heartbeat...");
+				actor.Gameworld.HeartbeatManager.ManuallyFireHeartbeat30Second();
+				return;
+		}
+
+		actor.OutputHandler.Send("The valid values are #3hour#0, #3minute#0, #3second#0, #35second#0, #310second#0, and #330second#0.".SubstituteANSIColour());
+	}
+
 
 	private static void Debug_Crash(ICharacter actor)
 	{

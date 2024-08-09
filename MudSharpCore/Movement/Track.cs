@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using MudSharp.Body;
 using MudSharp.Character;
 using MudSharp.Construction;
@@ -25,20 +26,21 @@ public class Track : LateInitialisingItem, ITrack
 	{
 		Gameworld = gameworld;
 		_id = track.Id;
-		BodyProtoType = Gameworld.BodyPrototypes.Get(track.BodyPrototypeId)!;
-		Cell = Gameworld.Cells.Get(track.CellId)!;
+		IdInitialised = true;
+		_bodyProtoTypeId = track.BodyPrototypeId;
+		_cellId = track.CellId;
 		RoomLayer = (RoomLayer)track.RoomLayer;
-		FromExit = Gameworld.ExitManager.GetExitByID(track.FromDirectionExitId ?? 0);
-		ToExit = Gameworld.ExitManager.GetExitByID(track.ToDirectionExitId ?? 0);
-		FromSpeed = Gameworld.MoveSpeeds.Get(track.FromMoveSpeedId ?? 0);
-		ToSpeed = Gameworld.MoveSpeeds.Get(track.ToMoveSpeedId ?? 0);
+		_fromExitId = track.FromDirectionExitId;
+		_toExitId = track.ToDirectionExitId;
+		_fromSpeedId = track.FromMoveSpeedId;
+		_toSpeedId = track.ToMoveSpeedId;
 		TrackCircumstances = (TrackCircumstances)track.TrackCircumstances;
 		ExertionLevel = (ExertionLevel)track.ExertionLevel;
 		TrackIntensityVisual = track.TrackIntensityVisual;
 		TrackIntensityOlfactory = track.TrackIntensityOlfactory;
 		TurnedAround = track.TurnedAround;
 		_characterId = track.CharacterId;
-		MudDateTime = new MudDateTime(track.MudDateTime, Gameworld);
+		_mudDateTimeText = track.MudDateTime;
 	}
 
 	public Track(IFuturemud gameworld, ICharacter who, ICellExit exit, TrackCircumstances circumstances, bool isLeaving, double visual, double olfactory)
@@ -46,23 +48,23 @@ public class Track : LateInitialisingItem, ITrack
 		Gameworld = gameworld;
 		_character = who;
 		_characterId = who.Id;
-		BodyProtoType = who.Body.Prototype;
+		_bodyProtoType = who.Body.Prototype;
 		ExertionLevel = who.Body.CurrentExertion;
 		TrackCircumstances = circumstances;
-		MudDateTime = who.Location.DateTime();
+		_mudDateTime = who.Location.DateTime();
 		RoomLayer = who.RoomLayer;
 		TrackIntensityOlfactory = olfactory;
 		TrackIntensityVisual = visual;
-		Cell = exit.Origin;
+		_cell = exit.Origin;
 		if (isLeaving)
 		{
 			ToExit = exit.Exit;
-			ToSpeed = who.CurrentSpeed;
+			_toSpeed = who.CurrentSpeed;
 		}
 		else
 		{
 			FromExit = exit.Exit;
-			FromSpeed = who.CurrentSpeed;
+			_fromSpeed = who.CurrentSpeed;
 		}
 
 		gameworld.SaveManager.AddInitialisation(this);
@@ -118,36 +120,118 @@ public class Track : LateInitialisingItem, ITrack
 		_id = ((MudSharp.Models.Track)dbitem).Id;
 	}
 
+	public static void CreateGlobalHeartbeatEvent()
+	{
+		var gameworld = Futuremud.Games.First();
+		gameworld.HeartbeatManager.FuzzyHourHeartbeat += () =>
+		{
+			var delete = gameworld.Tracks.Count - gameworld.GetStaticInt("MaximumTrackCount");
+			if (delete > 0)
+			{
+				var toDeleteTracks = gameworld.Tracks
+				                              .OrderBy(x => x.MudDateTime)
+				                              .Take(delete)
+				                              .ToArray();
+				var toDelete = toDeleteTracks
+				                        .Select(x => x.Id)
+				                        .ToHashSet();
+				using (new FMDB())
+				{
+					FMDB.Context.Tracks
+					    .Where(x => toDelete.Contains(x.Id))
+					    .ExecuteDelete();
+				}
+				
+				foreach (var track in toDeleteTracks)
+				{
+					track.Cell.RemoveTrack(track);
+					gameworld.Destroy(track);
+				}
+
+				gameworld.DebugMessage($"Destroyed {delete.ToString("N0").ColourValue()} tracks to maintain target maximum count.");
+			}
+		};
+	}
+
 	private readonly long _characterId;
 	private ICharacter? _character;
 
 	/// <inheritdoc />
 	public ICharacter Character => _character ??= Gameworld.TryGetCharacter(_characterId, true);
 
-	/// <inheritdoc />
-	public IBodyPrototype BodyProtoType { get; set; }
+	private readonly long _bodyProtoTypeId;
+	private IBodyPrototype? _bodyProtoType;
 
 	/// <inheritdoc />
-	public ICell Cell { get; set; }
+	public IBodyPrototype BodyProtoType => _bodyProtoType ??= Gameworld.BodyPrototypes.Get(_bodyProtoTypeId)!;
+
+	private long _cellId;
+	private ICell? _cell;
+
+	/// <inheritdoc />
+	public ICell Cell => (_cell ??= Gameworld.Cells.Get(_cellId))!;
 
 	/// <inheritdoc />
 	public RoomLayer RoomLayer { get; set; }
 
+	private long? _fromExitId;
+	private IExit? _fromExit;
+
 	/// <inheritdoc />
-	public IExit? FromExit { get; set; }
+	public IExit? FromExit 
+	{
+		get
+		{
+			if (_fromExit is null && _fromExitId is not null)
+			{
+				_fromExit = Gameworld.ExitManager.GetExitByID(_fromExitId.Value);
+			}
+
+			return _fromExit;
+		}
+		private init
+		{
+			_fromExit = value;
+			_fromExitId = value?.Id;
+		}
+	}
 
 	public ICellExit? FromCellExit => FromExit?.CellExitFor(Cell);
 
+	private long? _toExitId;
+	private IExit? _toExit;
+
 	/// <inheritdoc />
-	public IExit? ToExit { get; set; }
+	public IExit? ToExit
+	{
+		get
+		{
+			if (_toExit is null && _toExitId is not null)
+			{
+				_toExit = Gameworld.ExitManager.GetExitByID(_toExitId.Value);
+			}
+
+			return _toExit;
+		}
+		private init
+		{
+			_toExit = value;
+			_toExitId = value?.Id;
+		}
+	}
 
 	public ICellExit? ToCellExit => ToExit?.CellExitFor(Cell);
 
-	/// <inheritdoc />
-	public IMoveSpeed? FromSpeed { get; set; }
+	private long? _fromSpeedId;
+	private IMoveSpeed? _fromSpeed;
 
 	/// <inheritdoc />
-	public IMoveSpeed? ToSpeed { get; set; }
+	public IMoveSpeed? FromSpeed => _fromSpeed ??= Gameworld.MoveSpeeds.Get(_fromSpeedId ?? 0);
+
+	private long? _toSpeedId;
+	private IMoveSpeed? _toSpeed;
+	/// <inheritdoc />
+	public IMoveSpeed? ToSpeed => _toSpeed ??= Gameworld.MoveSpeeds.Get(_toSpeedId ?? 0);
 
 	/// <inheritdoc />
 	public TrackCircumstances TrackCircumstances { get; set; }
@@ -155,8 +239,11 @@ public class Track : LateInitialisingItem, ITrack
 	/// <inheritdoc />
 	public ExertionLevel ExertionLevel { get; set; }
 
+	private string _mudDateTimeText;
+	private MudDateTime? _mudDateTime;
+
 	/// <inheritdoc />
-	public MudDateTime MudDateTime { get; set; }
+	public MudDateTime MudDateTime => _mudDateTime ??= new MudDateTime(_mudDateTimeText, Gameworld);
 
 	/// <inheritdoc />
 	public double TrackIntensityVisual { get; set; }

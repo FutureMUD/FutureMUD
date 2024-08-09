@@ -212,6 +212,7 @@ public static class DefaultStaticSettings
 			{ "TraitBonusDescriptionThresholdVeryLarge", "20.0" },
 			{ "BaseForceUOMToNewtons", "1" },
 			{ "BaseStressUOMToPascals", "1" },
+			{ "BaseBMIUOMToKGPerM2", "1"},
 			{ "BloodTypingProductFailureErrorChanceSides", "3.0" },
 			{ "DNATestingProductFailureErrorChanceSides", "3.0" },
 			{ "TattooInkTotalPerSize", "0.00075" },

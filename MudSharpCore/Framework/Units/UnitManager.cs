@@ -41,6 +41,8 @@ public class UnitManager : IUnitManager
 
 	public double BaseStressToPascals { get; private set; }
 
+	public double BaseBMIToKGPerM2 { get; private set; }
+
 	public double GetBaseUnits(string pattern, UnitType type, out bool success)
 	{
 		double baseSum = 0;
@@ -171,6 +173,12 @@ public class UnitManager : IUnitManager
 		if (stressConfig != null)
 		{
 			BaseStressToPascals = stressConfig.GetDouble() ?? 0.0;
+		}
+
+		var bmiConfig = game.GetStaticConfiguration("BaseBMIUOMToKGPerM2");
+		if (bmiConfig != null)
+		{
+			BaseBMIToKGPerM2 = bmiConfig.GetDouble() ?? 0.0;
 		}
 	}
 

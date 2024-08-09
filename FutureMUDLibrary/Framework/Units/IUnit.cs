@@ -17,7 +17,8 @@ namespace MudSharp.Framework.Units
         /// </summary>
         TemperatureDelta = 6,
         Force = 7,
-        Stress = 8
+        Stress = 8,
+        BMI = 9
     }
 
     public interface IUnit

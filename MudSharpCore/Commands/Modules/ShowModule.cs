@@ -1384,8 +1384,8 @@ public class ShowModule : Module<ICharacter>
 				hwmodel.Name,
 				actor.Gameworld.UnitManager.DescribeBrief(hwmodel.MeanHeight, UnitType.Length, actor),
 				actor.Gameworld.UnitManager.DescribeBrief(hwmodel.StandardDeviationHeight, UnitType.Length, actor),
-				actor.Gameworld.UnitManager.DescribeBrief(hwmodel.MeanBMI, UnitType.Length, actor),
-				actor.Gameworld.UnitManager.DescribeBrief(hwmodel.StandardDeviationBMI, UnitType.Length, actor)
+				actor.Gameworld.UnitManager.DescribeBrief(hwmodel.MeanBMI, UnitType.BMI, actor),
+				actor.Gameworld.UnitManager.DescribeBrief(hwmodel.StandardDeviationBMI, UnitType.BMI, actor)
 			},
 			new[] { "Id", "Name", "Mean Height", "Height StdDev", "Mean BMI", "BMI StdDev" },
 			actor.LineFormatLength,

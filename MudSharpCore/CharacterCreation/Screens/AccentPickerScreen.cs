@@ -104,7 +104,7 @@ public class AccentPickerScreenStoryboard : ChargenScreenStoryboard
 		{
 			(AdditionalPickResource,
 				chargen.SelectedAccents.GroupBy(x => x.Language)
-				       .Sum(x => Math.Max(0, x.Count() - NumberOfAccentsPerLanguage)))
+				       .Sum(x => Math.Max(0, x.Count() - NumberOfAccentsPerLanguage) * AdditionalPickCost))
 		};
 	}
 

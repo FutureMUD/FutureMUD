@@ -60,6 +60,12 @@ public class DerivedAttributeDefinition : DerivedTraitDefinition, IAttributeDefi
 		return new DerivedAttribute(this, trait, owner);
 	}
 
+	/// <inheritdoc />
+	protected override ITrait NewTraitBeforeInsert(IHaveTraits owner, double value)
+	{
+		return new DerivedAttribute(this, owner);
+	}
+
 	public int DisplayOrder { get; set; }
 	public bool DisplayAsSubAttribute { get; set; }
 	public bool ShowInScoreCommand { get; set; }

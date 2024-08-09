@@ -12,8 +12,8 @@ using MudSharp.Database;
 namespace MudSharp.Migrations
 {
     [DbContext(typeof(FuturemudDatabaseContext))]
-    [Migration("20240805104244_BodyNameTracking")]
-    partial class BodyNameTracking
+    [Migration("20240808232211_TrackingNameForBodyProtos")]
+    partial class TrackingNameForBodyProtos
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -1896,7 +1896,7 @@ namespace MudSharp.Migrations
                     b.Property<string>("LegDescriptionPlural")
                         .IsRequired()
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("varchar(1000)")
+                        .HasColumnType("varchar(100)")
                         .HasDefaultValueSql("'legs'")
                         .UseCollation("utf8_general_ci");
 
@@ -1905,7 +1905,7 @@ namespace MudSharp.Migrations
                     b.Property<string>("LegDescriptionSingular")
                         .IsRequired()
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("varchar(1000)")
+                        .HasColumnType("varchar(100)")
                         .HasDefaultValueSql("'leg'")
                         .UseCollation("utf8_general_ci");
 
@@ -1922,13 +1922,13 @@ namespace MudSharp.Migrations
                         .HasDefaultValueSql("'2'");
 
                     b.Property<string>("Name")
-                        .HasColumnType("varchar(4000)")
+                        .HasColumnType("varchar(100)")
                         .UseCollation("utf8_general_ci");
 
                     MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("Name"), "utf8");
 
                     b.Property<string>("NameForTracking")
-                        .HasColumnType("varchar(4000)")
+                        .HasColumnType("varchar(100)")
                         .UseCollation("utf8_general_ci");
 
                     MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("NameForTracking"), "utf8");
@@ -1942,7 +1942,7 @@ namespace MudSharp.Migrations
                     b.Property<string>("WielderDescriptionPlural")
                         .IsRequired()
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("varchar(4000)")
+                        .HasColumnType("varchar(100)")
                         .HasDefaultValueSql("'hands'")
                         .UseCollation("utf8_general_ci");
 
@@ -1951,7 +1951,7 @@ namespace MudSharp.Migrations
                     b.Property<string>("WielderDescriptionSingle")
                         .IsRequired()
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("varchar(4000)")
+                        .HasColumnType("varchar(100)")
                         .HasDefaultValueSql("'hand'")
                         .UseCollation("utf8_general_ci");
 

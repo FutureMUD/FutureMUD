@@ -1893,7 +1893,7 @@ namespace MudSharp.Migrations
                     b.Property<string>("LegDescriptionPlural")
                         .IsRequired()
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("varchar(1000)")
+                        .HasColumnType("varchar(100)")
                         .HasDefaultValueSql("'legs'")
                         .UseCollation("utf8_general_ci");
 
@@ -1902,7 +1902,7 @@ namespace MudSharp.Migrations
                     b.Property<string>("LegDescriptionSingular")
                         .IsRequired()
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("varchar(1000)")
+                        .HasColumnType("varchar(100)")
                         .HasDefaultValueSql("'leg'")
                         .UseCollation("utf8_general_ci");
 
@@ -1919,13 +1919,13 @@ namespace MudSharp.Migrations
                         .HasDefaultValueSql("'2'");
 
                     b.Property<string>("Name")
-                        .HasColumnType("varchar(4000)")
+                        .HasColumnType("varchar(100)")
                         .UseCollation("utf8_general_ci");
 
                     MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("Name"), "utf8");
 
                     b.Property<string>("NameForTracking")
-                        .HasColumnType("varchar(4000)")
+                        .HasColumnType("varchar(100)")
                         .UseCollation("utf8_general_ci");
 
                     MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("NameForTracking"), "utf8");
@@ -1939,7 +1939,7 @@ namespace MudSharp.Migrations
                     b.Property<string>("WielderDescriptionPlural")
                         .IsRequired()
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("varchar(4000)")
+                        .HasColumnType("varchar(100)")
                         .HasDefaultValueSql("'hands'")
                         .UseCollation("utf8_general_ci");
 
@@ -1948,7 +1948,7 @@ namespace MudSharp.Migrations
                     b.Property<string>("WielderDescriptionSingle")
                         .IsRequired()
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("varchar(4000)")
+                        .HasColumnType("varchar(100)")
                         .HasDefaultValueSql("'hand'")
                         .UseCollation("utf8_general_ci");
 

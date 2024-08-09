@@ -4,176 +4,182 @@ using System.Text.RegularExpressions;
 
 namespace ExpressionEngine
 {
-    public class Expression
-    {
-        public static Random RandomInstance { get; } = new();
+	public class Expression
+	{
+		public static Random RandomInstance { get; } = new();
 
-        private NCalc.Expression _expression;
+		private NCalc.Expression _expression;
 
-        public string OriginalExpression { get; private set; }
+		public string OriginalExpression { get; private set; }
 
-        private Dictionary<string, object> _parameters;
+		private Dictionary<string, object> _parameters;
 
-        public Dictionary<string, object> Parameters
-        {
-            get { return _parameters ??= new Dictionary<string, object>(); }
-            set { _parameters = value; }
-        }
+		public Dictionary<string, object> Parameters
+		{
+			get { return _parameters ??= new Dictionary<string, object>(); }
+			set { _parameters = value; }
+		}
 
-        private static readonly Regex _regex = new(@"(?:(?<numdice>\d+)d(?<sides>\d+))", RegexOptions.IgnoreCase);
+		private static readonly Regex _regex = new(@"(?:(?<numdice>\d+)d(?<sides>\d+))", RegexOptions.IgnoreCase);
 
-        public object Evaluate()
-        {
-            foreach (var parameter in Parameters)
-            {
-                if (parameter.Value is Enum)
-                {
-                    _expression.Parameters[parameter.Key] = Convert.ToInt64(parameter.Value);
-                    continue;
-                }
-                _expression.Parameters[parameter.Key] = parameter.Value;
-            }
-            return _expression.Evaluate();
-        }
+		public object Evaluate()
+		{
+			foreach (var parameter in _expression.Parameters)
+			{
+				_expression.Parameters[parameter.Key] = 0.0;
+			}
 
-        public double EvaluateDouble()
-        {
-            return Convert.ToDouble(Evaluate());
-        }
+			foreach (var parameter in Parameters)
+			{
+				if (parameter.Value is Enum)
+				{
+					_expression.Parameters[parameter.Key] = Convert.ToInt64(parameter.Value);
+					continue;
+				}
+				_expression.Parameters[parameter.Key] = parameter.Value;
+			}
+			
+			return _expression.Evaluate();
+		}
 
-        public decimal EvaluateDecimal()
-        {
-            return Convert.ToDecimal(Evaluate());
-        }
+		public double EvaluateDouble()
+		{
+			return Convert.ToDouble(Evaluate());
+		}
 
-        public object EvaluateWith(params (string Name, object Value)[] values)
-        {
-            foreach (var parameter in Parameters)
-            {
-                _expression.Parameters[parameter.Key] = parameter.Value;
-            }
+		public decimal EvaluateDecimal()
+		{
+			return Convert.ToDecimal(Evaluate());
+		}
 
-            foreach (var parameter in values)
-            {
-                _expression.Parameters[parameter.Name] = parameter.Value;
-            }
+		public object EvaluateWith(params (string Name, object Value)[] values)
+		{
+			foreach (var parameter in Parameters)
+			{
+				_expression.Parameters[parameter.Key] = parameter.Value;
+			}
 
-            return _expression.Evaluate();
-        }
+			foreach (var parameter in values)
+			{
+				_expression.Parameters[parameter.Name] = parameter.Value;
+			}
 
-        public double EvaluateDoubleWith(params (string Name, object Value)[] values)
-        {
-            return Convert.ToDouble(EvaluateWith(values));
-        }
+			return _expression.Evaluate();
+		}
 
-        public decimal EvaluateDecimalWith(params (string Name, object Value)[] values)
-        {
-            return Convert.ToDecimal(EvaluateWith(values));
-        }
+		public double EvaluateDoubleWith(params (string Name, object Value)[] values)
+		{
+			return Convert.ToDouble(EvaluateWith(values));
+		}
 
-        public bool HasErrors()
-        {
-            return _expression.HasErrors();
-        }
+		public decimal EvaluateDecimalWith(params (string Name, object Value)[] values)
+		{
+			return Convert.ToDecimal(EvaluateWith(values));
+		}
 
-        public string Error => _expression.Error;
-        
+		public bool HasErrors()
+		{
+			return _expression.HasErrors();
+		}
 
-        #region Constructors
-        public Expression(string expression) : this(expression, NCalc.EvaluateOptions.IgnoreCase)
-        {
-        }
+		public string Error => _expression.Error;
+		
 
-        public Expression(string expression, NCalc.EvaluateOptions options)
-        {
-            OriginalExpression = expression;
-            var parsed = _regex.Replace(expression, m =>
-            {
-                return $"dice({m.Groups["numdice"].Value},{m.Groups["sides"].Value})";
-            });
-            _expression = new NCalc.Expression(parsed, options);
-            _expression.EvaluateFunction += DRandFunction;
-            _expression.EvaluateFunction += RandFunction;
-            _expression.EvaluateFunction += DiceFunction;
-            _expression.EvaluateFunction += NotFunction;
-        }
-        #endregion
+		#region Constructors
+		public Expression(string expression) : this(expression, NCalc.EvaluateOptions.IgnoreCase)
+		{
+		}
 
-        #region In-built functions
+		public Expression(string expression, NCalc.EvaluateOptions options)
+		{
+			OriginalExpression = expression;
+			var parsed = _regex.Replace(expression, m =>
+			{
+				return $"dice({m.Groups["numdice"].Value},{m.Groups["sides"].Value})";
+			});
+			_expression = new NCalc.Expression(parsed, options);
+			_expression.EvaluateFunction += DRandFunction;
+			_expression.EvaluateFunction += RandFunction;
+			_expression.EvaluateFunction += DiceFunction;
+			_expression.EvaluateFunction += NotFunction;
+		}
+		#endregion
 
-        private void NotFunction(string name, NCalc.FunctionArgs args)
-        {
-	        if (!name.Equals("not", StringComparison.OrdinalIgnoreCase))
-	        {
-		        return;
-	        }
+		#region In-built functions
 
-	        if (args.Parameters.Length != 1)
-	        {
-		        throw new ArgumentException("Not() takes exactly 1 argument");
-	        }
+		private void NotFunction(string name, NCalc.FunctionArgs args)
+		{
+			if (!name.Equals("not", StringComparison.OrdinalIgnoreCase))
+			{
+				return;
+			}
 
-	        var value = Convert.ToDouble(args.Parameters[0].Evaluate());
-	        args.Result = value == 0.0 ? 1.0 : 0.0;
-        }
-        private void DRandFunction(string name, NCalc.FunctionArgs args)
-        {
-            if (!name.Equals("drand", StringComparison.OrdinalIgnoreCase))
-            {
-                return;
-            }
+			if (args.Parameters.Length != 1)
+			{
+				throw new ArgumentException("Not() takes exactly 1 argument");
+			}
 
-            if (args.Parameters.Length != 2)
-            {
-                throw new ArgumentException("DRand() takes exactly 2 arguments");
-            }
+			var value = Convert.ToDouble(args.Parameters[0].Evaluate());
+			args.Result = value == 0.0 ? 1.0 : 0.0;
+		}
+		private void DRandFunction(string name, NCalc.FunctionArgs args)
+		{
+			if (!name.Equals("drand", StringComparison.OrdinalIgnoreCase))
+			{
+				return;
+			}
 
-            var randleft = Convert.ToDouble(args.Parameters[0].Evaluate());
-            var randright = Convert.ToDouble(args.Parameters[1].Evaluate());
-            args.Result = (RandomInstance.NextDouble() * (randright - randleft)) + randleft;
-        }
+			if (args.Parameters.Length != 2)
+			{
+				throw new ArgumentException("DRand() takes exactly 2 arguments");
+			}
 
-        private void RandFunction(string name, NCalc.FunctionArgs args)
-        {
-            if (!name.Equals("rand", StringComparison.OrdinalIgnoreCase))
-            {
-                return;
-            }
+			var randleft = Convert.ToDouble(args.Parameters[0].Evaluate());
+			var randright = Convert.ToDouble(args.Parameters[1].Evaluate());
+			args.Result = (RandomInstance.NextDouble() * (randright - randleft)) + randleft;
+		}
 
-            if (args.Parameters.Length != 2)
-            {
-                throw new ArgumentException("Rand() takes exactly 2 arguments");
-            }
+		private void RandFunction(string name, NCalc.FunctionArgs args)
+		{
+			if (!name.Equals("rand", StringComparison.OrdinalIgnoreCase))
+			{
+				return;
+			}
 
-            var randleft = Convert.ToInt32(args.Parameters[0].Evaluate());
-            var randright = Convert.ToInt32(args.Parameters[1].Evaluate());
-            args.Result = RandomInstance.Next(randleft, randright + 1);
-        }
+			if (args.Parameters.Length != 2)
+			{
+				throw new ArgumentException("Rand() takes exactly 2 arguments");
+			}
 
-        private void DiceFunction(string name, NCalc.FunctionArgs args)
-        {
-            if (!name.Equals("dice", StringComparison.OrdinalIgnoreCase))
-            {
-                return;
-            }
+			var randleft = Convert.ToInt32(args.Parameters[0].Evaluate());
+			var randright = Convert.ToInt32(args.Parameters[1].Evaluate());
+			args.Result = RandomInstance.Next(randleft, randright + 1);
+		}
 
-            if (args.Parameters.Length != 2)
-            {
-                throw new ArgumentException("Dice() takes exactly 2 arguments");
-            }
+		private void DiceFunction(string name, NCalc.FunctionArgs args)
+		{
+			if (!name.Equals("dice", StringComparison.OrdinalIgnoreCase))
+			{
+				return;
+			}
 
-            var left = Convert.ToInt32(args.Parameters[0].Evaluate());
-            var right = Convert.ToInt32(args.Parameters[1].Evaluate());
-            var result = 0;
-            if (left > 0)
-            {
-                for (var i = 0; i < left; i++)
-                {
-                    result += RandomInstance.Next(1, right + 1);
-                }
-            }
-            args.Result = result;
-        }
-        #endregion
-    }
+			if (args.Parameters.Length != 2)
+			{
+				throw new ArgumentException("Dice() takes exactly 2 arguments");
+			}
+
+			var left = Convert.ToInt32(args.Parameters[0].Evaluate());
+			var right = Convert.ToInt32(args.Parameters[1].Evaluate());
+			var result = 0;
+			if (left > 0)
+			{
+				for (var i = 0; i < left; i++)
+				{
+					result += RandomInstance.Next(1, right + 1);
+				}
+			}
+			args.Result = result;
+		}
+		#endregion
+	}
 }

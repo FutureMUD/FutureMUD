@@ -50,6 +50,12 @@ public class DerivedSkillDefinition : DerivedTraitDefinition, ISkillDefinition
 		return new DerivedSkill(this, trait, owner);
 	}
 
+	/// <inheritdoc />
+	protected override ITrait NewTraitBeforeInsert(IHaveTraits owner, double value)
+	{
+		return new DerivedSkill(this, owner);
+	}
+
 	#endregion
 
 	#region Chargen

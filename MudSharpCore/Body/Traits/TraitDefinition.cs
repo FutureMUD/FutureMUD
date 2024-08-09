@@ -79,11 +79,19 @@ public abstract class TraitDefinition : SaveableItem, ITraitDefinition
 
 	public abstract ITrait LoadTrait(MudSharp.Models.Trait trait, IHaveTraits owner);
 
+	protected abstract ITrait NewTraitBeforeInsert(IHaveTraits owner, double value);
+
 	public virtual ITrait NewTrait(IHaveTraits owner, double value)
 	{
-		var
-			ownerId = owner
-				.Id; // Note, it is necessary to do this prior to creating the MudSharp.Models.Trait because owner.ID may trigger a database save, which would flush the DBContext
+		// Note, it is necessary to do this prior to creating the MudSharp.Models.Trait because owner.ID may trigger a database save, which would flush the DBContext
+		var ownerId = owner.Id; 
+
+		// It's also possible that the OwnerID is 0, which happens when a skill gets added during creation from a CharacterTemplate due to a trait adjustment. We need to handle that separately as the character and body won't have been inserted into the database at that point.
+		if (ownerId == 0L)
+		{
+			return NewTraitBeforeInsert(owner, value);
+		}
+
 		using (new FMDB())
 		{
 			var trait = FMDB.Context.Traits.Find(owner.Id, Id);

@@ -85,6 +85,12 @@ public class SkillDefinition : TraitDefinition, ISkillDefinition
 		return new Skill(this, trait, owner);
 	}
 
+	/// <inheritdoc />
+	protected override ITrait NewTraitBeforeInsert(IHaveTraits owner, double value)
+	{
+		return new Skill(this, value, owner);
+	}
+
 	public override bool ChargenAvailable(ICharacterTemplate template)
 	{
 		return

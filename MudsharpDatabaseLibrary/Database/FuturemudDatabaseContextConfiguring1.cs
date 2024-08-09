@@ -1330,14 +1330,14 @@ namespace MudSharp.Database
 
                 entity.Property(e => e.LegDescriptionPlural)
                     .IsRequired()
-                    .HasColumnType("varchar(1000)")
+                    .HasColumnType("varchar(100)")
                     .HasDefaultValueSql("'legs'")
                     .HasCharSet("utf8")
                     .UseCollation("utf8_general_ci");
 
                 entity.Property(e => e.LegDescriptionSingular)
                     .IsRequired()
-                    .HasColumnType("varchar(1000)")
+                    .HasColumnType("varchar(100)")
                     .HasDefaultValueSql("'leg'")
                     .HasCharSet("utf8")
                     .UseCollation("utf8_general_ci");
@@ -1351,12 +1351,12 @@ namespace MudSharp.Database
                     .HasDefaultValueSql("'2'");
 
                 entity.Property(e => e.Name)
-                    .HasColumnType("varchar(4000)")
+                    .HasColumnType("varchar(100)")
                     .HasCharSet("utf8")
                     .UseCollation("utf8_general_ci");
 
                 entity.Property(e => e.NameForTracking)
-                      .HasColumnType("varchar(4000)")
+                      .HasColumnType("varchar(100)")
                       .HasCharSet("utf8")
                       .UseCollation("utf8_general_ci");
 
@@ -1366,14 +1366,14 @@ namespace MudSharp.Database
 
                 entity.Property(e => e.WielderDescriptionPlural)
                     .IsRequired()
-                    .HasColumnType("varchar(4000)")
+                    .HasColumnType("varchar(100)")
                     .HasDefaultValueSql("'hands'")
                     .HasCharSet("utf8")
                     .UseCollation("utf8_general_ci");
 
                 entity.Property(e => e.WielderDescriptionSingle)
                     .IsRequired()
-                    .HasColumnType("varchar(4000)")
+                    .HasColumnType("varchar(100)")
                     .HasDefaultValueSql("'hand'")
                     .HasCharSet("utf8")
                     .UseCollation("utf8_general_ci");

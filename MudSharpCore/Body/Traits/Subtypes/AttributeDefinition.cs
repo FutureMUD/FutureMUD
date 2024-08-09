@@ -26,6 +26,12 @@ public class AttributeDefinition : TraitDefinition, IAttributeDefinition
 		return new Attribute(this, trait, owner);
 	}
 
+	/// <inheritdoc />
+	protected override ITrait NewTraitBeforeInsert(IHaveTraits owner, double value)
+	{
+		return new Attribute(this, value, owner);
+	}
+
 
 	public override void Save()
 	{

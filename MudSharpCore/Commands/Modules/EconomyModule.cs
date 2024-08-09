@@ -910,7 +910,7 @@ The syntax is as follows:
 		var items = new List<IGameItem>();
 		var count = 0;
 		
-		foreach (var item in shop.AllStockedItems)
+		foreach (var item in shop.StockedItems(merch))
 		{
 			if (count + item.Quantity <= quantity)
 			{

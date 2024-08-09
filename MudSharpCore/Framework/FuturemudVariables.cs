@@ -777,43 +777,43 @@ public sealed partial class Futuremud : IDisposable
 
 	private IFutureProg _universalErrorTextProg;
 
-    public
-        IFutureProg UniversalErrorTextProg
-    { get
+	public
+		IFutureProg UniversalErrorTextProg
+	{ get
 		{
-            if (_universalErrorTextProg is null)
-            {
-                _universalErrorTextProg = FutureProgs.FirstOrDefault(x => x.FunctionName.EqualTo("UniversalErrorText"));
-                if (_universalErrorTextProg is null)
-                {
-                    using (new FMDB())
-                    {
-                        var dbitem = new Models.FutureProg
-                        {
-                            FunctionName = "UniversalErrorText",
-                            AcceptsAnyParameters = true,
-                            ReturnType = (long)FutureProgVariableTypes.Text,
-                            Category = "Core",
-                            Subcategory = "Universal",
-                            Public = true,
-                            FunctionComment = "Accepts any parameters, and returns a universal error message.",
-                            FunctionText = @"return """"You cannot do that for an unspecified reason.""""",
-                            StaticType = 2
-                        };
-                        FMDB.Context.FutureProgs.Add(dbitem);
-                        FMDB.Context.SaveChanges();
-                        var prog = new FutureProg.FutureProg(dbitem, this);
-                        _futureProgs.Add(prog);
-                        _universalErrorTextProg = prog;
-                    }
-                }
-            }
+			if (_universalErrorTextProg is null)
+			{
+				_universalErrorTextProg = FutureProgs.FirstOrDefault(x => x.FunctionName.EqualTo("UniversalErrorText"));
+				if (_universalErrorTextProg is null)
+				{
+					using (new FMDB())
+					{
+						var dbitem = new Models.FutureProg
+						{
+							FunctionName = "UniversalErrorText",
+							AcceptsAnyParameters = true,
+							ReturnType = (long)FutureProgVariableTypes.Text,
+							Category = "Core",
+							Subcategory = "Universal",
+							Public = true,
+							FunctionComment = "Accepts any parameters, and returns a universal error message.",
+							FunctionText = @"return """"You cannot do that for an unspecified reason.""""",
+							StaticType = 2
+						};
+						FMDB.Context.FutureProgs.Add(dbitem);
+						FMDB.Context.SaveChanges();
+						var prog = new FutureProg.FutureProg(dbitem, this);
+						_futureProgs.Add(prog);
+						_universalErrorTextProg = prog;
+					}
+				}
+			}
 
-            return _universalErrorTextProg;
-        }
+			return _universalErrorTextProg;
+		}
 	}
 
-    private readonly List<CharacterPersonalNameLookup> _cachedPersonalNames = new();
+	private readonly List<CharacterPersonalNameLookup> _cachedPersonalNames = new();
 
 	#endregion
 
@@ -887,12 +887,12 @@ public sealed partial class Futuremud : IDisposable
 						0,
 						0,
 						item => item.GetItemType<ITreatment>()
-						            ?.IsTreatmentType(TreatmentType.Close) ??
-						        false,
+									?.IsTreatmentType(TreatmentType.Close) ??
+								false,
 						null,
 						fitnessscorer: item =>
 							(int)item.GetItemType<ITreatment>()
-							         .GetTreatmentDifficulty(Difficulty.Normal),
+									 .GetTreatmentDifficulty(Difficulty.Normal),
 						originalReference: "treatment")
 				})
 			});
@@ -914,12 +914,12 @@ public sealed partial class Futuremud : IDisposable
 						0,
 						0,
 						item => item.GetItemType<ITreatment>()
-						            ?.IsTreatmentType(TreatmentType.Tend) ??
-						        false,
+									?.IsTreatmentType(TreatmentType.Tend) ??
+								false,
 						null,
 						fitnessscorer: item =>
 							(int)item.GetItemType<ITreatment>()
-							         .GetTreatmentDifficulty(Difficulty.Normal),
+									 .GetTreatmentDifficulty(Difficulty.Normal),
 						originalReference: "treatment")
 				})
 			});
@@ -931,8 +931,8 @@ public sealed partial class Futuremud : IDisposable
 	#region Static Configs and Strings
 
 	public IEnumerable<string> StaticStringNames => _staticStrings.Keys.AsEnumerable()
-	                                                              .Concat(DefaultStaticSettings.DefaultStaticStrings
-		                                                              .Keys).Distinct();
+																  .Concat(DefaultStaticSettings.DefaultStaticStrings
+																	  .Keys).Distinct();
 
 	public IEnumerable<string> StaticConfigurationNames => _staticConfigurations.Keys.AsEnumerable()
 		.Concat(DefaultStaticSettings.DefaultStaticConfigurations.Keys).Distinct();
@@ -1007,7 +1007,7 @@ public sealed partial class Futuremud : IDisposable
 		}
 
 		throw new ApplicationException("Undefined Static String Requested in Futuremud.GetStaticString - " +
-		                               whichString);
+									   whichString);
 	}
 
 	private readonly Dictionary<string, bool> _staticBools = new();

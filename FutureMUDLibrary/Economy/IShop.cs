@@ -78,6 +78,7 @@ public interface IShop : IFrameworkItem, ISaveable, IFutureProgVariable
 	void DisposeFromStock(ICharacter actor, IGameItem item);
 	IEnumerable<IMerchandise> StockedMerchandise { get; }
 	IEnumerable<IGameItem> AllStockedItems { get; }
+	IEnumerable<IGameItem> StockedItems(IMerchandise merchandise);
 	(bool Truth, string Reason) CanBuy(ICharacter actor, IMerchandise merchandise, int quantity, IPaymentMethod method, string extraArguments = null);
 	IEnumerable<IGameItem> Buy(ICharacter actor, IMerchandise merchandise, int quantity, IPaymentMethod method, string extraArguments = null);
 	(decimal Price, IEnumerable<IGameItem> Items) PreviewBuy(ICharacter actor, IMerchandise merchandise, int quantity, IPaymentMethod method, string extraArguments = null);

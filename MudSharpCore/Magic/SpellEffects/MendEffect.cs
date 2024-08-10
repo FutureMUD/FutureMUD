@@ -1,46 +1,58 @@
-﻿using MudSharp.Character;
-using MudSharp.Effects.Interfaces;
-using MudSharp.Framework;
-using MudSharp.GameItems.Interfaces;
-using MudSharp.GameItems;
-using MudSharp.RPG.Checks;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 using MudSharp.Body.Traits;
+using MudSharp.Character;
+using MudSharp.Effects.Interfaces;
+using MudSharp.Framework;
 using MudSharp.Health;
-using NCalc;
+using MudSharp.RPG.Checks;
 
 namespace MudSharp.Magic.SpellEffects;
-
-public class HealEffect : IMagicSpellEffectTemplate
+public class MendEffect : IMagicSpellEffectTemplate
 {
+	#region Implementation of IHaveFuturemud
+
+	public IFuturemud Gameworld => Spell.Gameworld;
+
+	#endregion
+
 	public static void RegisterFactory()
 	{
-		SpellEffectFactory.RegisterLoadTimeFactory("heal", (root, spell) => new HealEffect(root, spell));
-		SpellEffectFactory.RegisterBuilderFactory("heal", BuilderFactory);
+		SpellEffectFactory.RegisterLoadTimeFactory("mend", (root, spell) => new MendEffect(root, spell));
+		SpellEffectFactory.RegisterBuilderFactory("mend", BuilderFactory);
 	}
 
 	private static (IMagicSpellEffectTemplate Trigger, string Error) BuilderFactory(StringStack commands,
 		IMagicSpell spell)
 	{
-		return (new HealEffect(new XElement("Effect",
-			new XAttribute("type", "heal"),
+		return (new MendEffect(new XElement("Effect",
+			new XAttribute("type", "mend"),
 			new XElement("HealWorstWoundsFirst", true),
 			new XElement("HealOverflow", true),
 			new XElement("HealingAmount", new XCData("power*outcome"))
-			), spell), string.Empty);
+		), spell), string.Empty);
 	}
 
-	protected HealEffect(XElement root, IMagicSpell spell)
+	protected MendEffect(XElement root, IMagicSpell spell)
 	{
 		Spell = spell;
 		HealWorstWoundsFirst = bool.Parse(root.Element("HealWorstWoundsFirst").Value);
 		HealOverflow = bool.Parse(root.Element("HealOverflow").Value);
 		HealingAmount = new TraitExpression(root.Element("HealingAmount").Value, Gameworld);
+	}
+
+	public XElement SaveToXml()
+	{
+		return new XElement("Effect",
+			new XAttribute("type", "mend"),
+			new XElement("HealWorstWoundsFirst", HealWorstWoundsFirst),
+			new XElement("HealOverflow", HealOverflow),
+			new XElement("HealingAmount", new XCData(HealingAmount.ToString()))
+		);
 	}
 
 	public IMagicSpell Spell { get; }
@@ -49,31 +61,11 @@ public class HealEffect : IMagicSpellEffectTemplate
 	public ITraitExpression HealingAmount { get; set; }
 	public bool HealOverflow { get; set; }
 
-	#region Implementation of IHaveFuturemud
-
-	public IFuturemud Gameworld => Spell.Gameworld;
-
-	#endregion
-
-	#region Implementation of IXmlSavable
-
-	public XElement SaveToXml()
-	{
-		return new XElement("Effect",
-			new XAttribute("type", "heal"),
-			new XElement("HealWorstWoundsFirst", HealWorstWoundsFirst),
-			new XElement("HealOverflow", HealOverflow),
-			new XElement("HealingAmount", new XCData(HealingAmount.ToString()))
-		);
-	}
-
-	#endregion
-
 	#region Implementation of IEditableItem
 	public string Show(ICharacter actor)
 	{
 		return
-			$"HealEffect - {HealingAmount.OriginalFormulaText.ColourCommand()} - {(HealWorstWoundsFirst ? "[WorstFirst]".Colour(Telnet.BoldYellow) : "[RandomTarget]".Colour(Telnet.Magenta))} {(HealOverflow ? "[Overflow]".Colour(Telnet.BoldGreen) : "[Single]".Colour(Telnet.BoldYellow))}";
+			$"MendEffect - {HealingAmount.OriginalFormulaText.ColourCommand()} - {(HealWorstWoundsFirst ? "[WorstFirst]".Colour(Telnet.BoldYellow) : "[RandomTarget]".Colour(Telnet.Magenta))} {(HealOverflow ? "[Overflow]".Colour(Telnet.BoldGreen) : "[Single]".Colour(Telnet.BoldYellow))}";
 	}
 
 	public bool BuildingCommand(ICharacter actor, StringStack command)
@@ -92,9 +84,9 @@ public class HealEffect : IMagicSpellEffectTemplate
 
 		actor.OutputHandler.Send(@"You can use the following options with this effect:
 
-	#3worst#0 - toggles healing worst wound first (as opposed to random)
-	#3overflow#0 - toggles overflow healing the next wound (as opposed to only a single wound)
-	#3formula <formula>#0 - sets the formula for healing amount. See below for possible parameters.
+	#3worst#0 - toggles mending worst wound first (as opposed to random)
+	#3overflow#0 - toggles overflow mending the next wound (as opposed to only a single wound)
+	#3formula <formula>#0 - sets the formula for mending amount. See below for possible parameters.
 
 Parameters for healing formula:
 
@@ -109,7 +101,7 @@ You can also use the traits of the caster as per #3TE HELP#0.".SubstituteANSICol
 	{
 		if (command.IsFinished)
 		{
-			actor.OutputHandler.Send("What do you want to set the healing formula to?");
+			actor.OutputHandler.Send("What do you want to set the mending formula to?");
 			return false;
 		}
 
@@ -122,7 +114,7 @@ You can also use the traits of the caster as per #3TE HELP#0.".SubstituteANSICol
 
 		HealingAmount = formula;
 		Spell.Changed = true;
-		actor.OutputHandler.Send($"The formula for healing amount is now {formula.OriginalFormulaText.ColourCommand()}.");
+		actor.OutputHandler.Send($"The formula for mending amount is now {formula.OriginalFormulaText.ColourCommand()}.");
 		return true;
 	}
 
@@ -131,8 +123,8 @@ You can also use the traits of the caster as per #3TE HELP#0.".SubstituteANSICol
 		HealWorstWoundsFirst = !HealWorstWoundsFirst;
 		Spell.Changed = true;
 		actor.OutputHandler.Send(HealWorstWoundsFirst ?
-			"This spell will now heal the worst wounds first." :
-			"This spell will now heal wounds in a random order.");
+			"This spell will now mend the worst wounds first." :
+			"This spell will now mend wounds in a random order.");
 		return true;
 	}
 
@@ -141,8 +133,8 @@ You can also use the traits of the caster as per #3TE HELP#0.".SubstituteANSICol
 		HealOverflow = !HealOverflow;
 		Spell.Changed = true;
 		actor.OutputHandler.Send(HealOverflow ?
-			"This spell will now overflow excess healing onto the next wounds." :
-			"This spell will now only heal a single wound.");
+			"This spell will now overflow excess mending onto the next wounds." :
+			"This spell will now only mend a single wound.");
 		return true;
 	}
 
@@ -156,7 +148,7 @@ You can also use the traits of the caster as per #3TE HELP#0.".SubstituteANSICol
 	public IMagicSpellEffect? GetOrApplyEffect(ICharacter caster, IPerceivable? target, OpposedOutcomeDegree outcome,
 		SpellPower power, IMagicSpellEffectParent parent)
 	{
-		if (target is not ICharacter tch)
+		if (target is not IHaveWounds hw)
 		{
 			return null;
 		}
@@ -167,9 +159,9 @@ You can also use the traits of the caster as per #3TE HELP#0.".SubstituteANSICol
 			("outcome", (int)outcome)
 		});
 
-		var wounds = tch.Body.Wounds
-		                .Where(x => x.CanBeTreated(TreatmentType.Mend) != Difficulty.Impossible)
-		                .ToList();
+		var wounds = hw.Wounds
+		               .Where(x => x.CanBeTreated(TreatmentType.Repair) != Difficulty.Impossible)
+		               .ToList();
 		if (HealWorstWoundsFirst)
 		{
 			wounds = wounds.OrderByDescending(x => x.CurrentDamage).ToList();
@@ -204,13 +196,13 @@ You can also use the traits of the caster as per #3TE HELP#0.".SubstituteANSICol
 			}
 		}
 
-		tch.Body.EvaluateWounds();
+		hw.EvaluateWounds();
 		return null;
 	}
 
 	public IMagicSpellEffectTemplate Clone()
 	{
-		return new HealEffect(SaveToXml(), Spell);
+		return new MendEffect(SaveToXml(), Spell);
 	}
 
 	#endregion

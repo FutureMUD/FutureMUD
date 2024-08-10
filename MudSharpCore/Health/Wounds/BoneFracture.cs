@@ -950,9 +950,12 @@ public class BoneFracture : PerceivedItem, IImmobilisableWound
 				{
 					if (!silent)
 					{
-						treater?.OutputHandler.Handle(new EmoteOutput(new Emote(
-							$"$0's efforts to relocate {Describe(WoundExaminationType.Look, Outcome.MajorPass).Colour(Telnet.Cyan)} has been {(testOutcome == Outcome.MajorPass ? "majorly" : testOutcome == Outcome.Pass ? "" : "marginally")} unsuccessful.",
-							treater, treater)));
+						if (treater is not null)
+						{
+							treater.OutputHandler.Handle(new EmoteOutput(new Emote(
+								$"$0's efforts to relocate {Describe(WoundExaminationType.Look, Outcome.MajorPass).Colour(Telnet.Cyan)} has been {(testOutcome == Outcome.MajorPass ? "majorly" : testOutcome == Outcome.Pass ? "" : "marginally")} unsuccessful.",
+								treater, treater)));
+						}
 					}
 
 					if (testOutcome != Outcome.MinorFail)
@@ -967,9 +970,17 @@ public class BoneFracture : PerceivedItem, IImmobilisableWound
 				{
 					if (!silent)
 					{
-						treater?.OutputHandler.Handle(new EmoteOutput(new Emote(
-							$"$0's efforts to relocate {Describe(WoundExaminationType.Look, Outcome.MajorPass).Colour(Telnet.Cyan)} has been {(testOutcome == Outcome.MajorPass ? "majorly" : testOutcome == Outcome.Pass ? "" : "marginally")} successful.",
-							treater, treater)));
+						if (treater is not null)
+						{
+							treater.OutputHandler.Handle(new EmoteOutput(new Emote(
+								$"$0's efforts to relocate {Describe(WoundExaminationType.Look, Outcome.MajorPass).Colour(Telnet.Cyan)} has been {(testOutcome == Outcome.MajorPass ? "majorly" : testOutcome == Outcome.Pass ? "" : "marginally")} successful.",
+								treater, treater)));
+						}
+						else
+						{
+							Parent.OutputHandler.Handle(new EmoteOutput(new Emote($"{Describe(WoundExaminationType.Look, Outcome.MajorPass).Strip_A_An().The(true).Colour(Telnet.Cyan)} on $0's {Bodypart.FullDescription()} straightens up and re-sets itself.", _parent, _parent)));
+						}
+						
 					}
 
 					SetStage(BoneFractureStage.Reparation);

@@ -541,6 +541,8 @@ public static class DefaultStaticSettings
 			{ "PrecipitationAmountPerItemSizeGiganticTorrentialRain", "10.0" },
 			{ "PrecipitationAmountPerItemSizeTitanicTorrentialRain", "20.0" },
 			{ "GPT_Secret_Key", "" },
+			{ "Gemini_Secret_Key", ""},
+			{ "GeminiDefaultModel", "gemini-1.0-pro"},
 			{ "BonyPartOrdinaryDamageSlashing", "1" },
 			{ "BonyPartOrdinaryDamageChopping", "1" },
 			{ "BonyPartOrdinaryDamageCrushing", "1" },

@@ -212,6 +212,52 @@ public class ImplementorModule : Module<ICharacter>
 		}
 	}
 
+	[PlayerCommand("TestGemini", "testgemini")]
+	[CommandPermission(PermissionLevel.Founder)]
+	protected static void TestGemini(ICharacter actor, string input)
+	{
+		var ss = new StringStack(input.RemoveFirstWord());
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send("Which GPT Thread shall we test?");
+			return;
+		}
+
+		using (new FMDB())
+		{
+			Models.GPTThread thread;
+			var cmd = ss.PopSpeech();
+			if (long.TryParse(cmd, out var id))
+			{
+				thread = FMDB.Context.GPTThreads.Find(id);
+			}
+			else
+			{
+				thread = FMDB.Context.GPTThreads.Include(x => x.Messages).FirstOrDefault(x => x.Name == cmd);
+			}
+
+			if (thread is null)
+			{
+				actor.OutputHandler.Send("There is no such GPT Thread.");
+				return;
+			}
+
+			if (ss.IsFinished)
+			{
+				actor.OutputHandler.Send("What is your prompt for GPT?");
+				return;
+			}
+
+			var threadName = thread.Name;
+			actor.OutputHandler.Send(
+				$"You send the following request to the {thread.Name.ColourName()} Gemini thread:\n\n{ss.RemainingArgument}");
+			OpenAI.OpenAIHandler.MakeGeminiRequest(thread.Prompt, ss.SafeRemainingArgument, text =>
+			{
+				actor.OutputHandler.Send($"#B[Gemini Response for {threadName}]#0\n\n{text.Wrap(actor.InnerLineFormatLength)}".SubstituteANSIColour());
+			}, actor.Gameworld.GetStaticConfiguration("GeminiDefaultModel"));
+		}
+	}
+
 	[PlayerCommand("TestUnicode", "testunicode")]
 	[CommandPermission(PermissionLevel.Founder)]
 	protected static void Unicode(ICharacter actor, string input)

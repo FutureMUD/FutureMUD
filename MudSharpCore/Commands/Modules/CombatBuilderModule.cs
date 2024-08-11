@@ -158,9 +158,70 @@ The syntax for this command is as follows:
 			case "view":
 				WeaponAttackView(actor, ss);
 				return;
+			case "audit":
+				WeaponAttackAudit(actor, ss);
+				return;
 		}
 
 		actor.OutputHandler.Send(WeaponAttackHelp.SubstituteANSIColour());
+	}
+
+	private static void WeaponAttackAudit(ICharacter actor, StringStack ss)
+	{
+		var sb = new StringBuilder();
+		sb.AppendLine("Running an audit of issues with weapon attacks...");
+		var errors = false;
+
+		var gameworld = actor.Gameworld;
+		var missingMessages = new List<(BuiltInCombatMoveType, Outcome)>();
+		var outcomeValues =
+			Enum.GetValues(typeof(Outcome))
+			    .Cast<Outcome>()
+			    .Where(x => x != Outcome.None && x != Outcome.NotTested)
+			    .ToList();
+		var typeValues = Enum.GetValues(typeof(BuiltInCombatMoveType)).Cast<BuiltInCombatMoveType>().ToList();
+		// Make sure there is a universal fallback message for every attack type
+		foreach (var typeValue in typeValues)
+		{
+			if (gameworld.CombatMessageManager.CombatMessages.Any(x =>
+				    x.Type == typeValue && (!x.Outcome.HasValue || x.Outcome == Outcome.None) &&
+				    (bool?)x.WeaponAttackProg?.Execute(null, null, null, 0, "") != false))
+			{
+				continue;
+			}
+
+			if (gameworld.WeaponAttacks.Any(x => x.MoveType == typeValue) && gameworld.WeaponAttacks.Where(x => x.MoveType == typeValue).All(x =>
+				    outcomeValues.All(y => gameworld.CombatMessageManager.GetCombatMessageFor(null, null, null, x, typeValue, y, null) != null)))
+			{
+				continue;
+			}
+
+			missingMessages.AddRange(from outcomeValue in outcomeValues
+			                         where
+				                         !gameworld.CombatMessageManager.CombatMessages.Any(
+					                         x =>
+						                         x.Type == typeValue &&
+						                         (!x.Outcome.HasValue || x.Outcome == outcomeValue ||
+						                          x.Outcome == Outcome.None) &&
+						                         (bool?)x.WeaponAttackProg?.Execute(null, null, null, 0, "") != false)
+			                         select (typeValue, outcomeValue));
+			errors = true;
+		}
+
+		if (missingMessages.Count > 0)
+		{
+			sb.AppendLine($"...found missing fallback messages for the following types:".Colour(Telnet.Red));
+			foreach (var (type,outcome) in missingMessages)
+			{
+				sb.AppendLine($"......{type.DescribeEnum(false, Telnet.Cyan)}@{outcome.DescribeColour()}");
+			}
+		}
+
+		if (!errors)
+		{
+			sb.AppendLine("...Good news, no errors found!".Colour(Telnet.BoldGreen));
+		}
+		actor.OutputHandler.Send(sb.ToString());
 	}
 
 	private static void WeaponAttackView(ICharacter actor, StringStack ss)

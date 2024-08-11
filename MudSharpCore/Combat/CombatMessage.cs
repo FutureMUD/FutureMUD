@@ -488,6 +488,7 @@ public class CombatMessage : SaveableItem, ICombatMessage
 			case BuiltInCombatMoveType.StaggeringBlow:
 			case BuiltInCombatMoveType.UnbalancingBlow:
 			case BuiltInCombatMoveType.DownedAttack:
+			case BuiltInCombatMoveType.SwoopAttack:
 				return
 					@"Valid tokens for this message: 
 
@@ -507,6 +508,7 @@ public class CombatMessage : SaveableItem, ICombatMessage
 			case BuiltInCombatMoveType.StaggeringBlowClinch:
 			case BuiltInCombatMoveType.UnbalancingBlowClinch:
 			case BuiltInCombatMoveType.DownedAttackUnarmed:
+			case BuiltInCombatMoveType.MagicPowerAttack:
 				return
 					@"Valid tokens for this message: 
 
@@ -543,15 +545,23 @@ public class CombatMessage : SaveableItem, ICombatMessage
 	
 	{0} - the bodypart the attacker is using to make the attack
 	{1} - the bodypart the attack targets";
-			case BuiltInCombatMoveType.Disarm:
-				break;
 			case BuiltInCombatMoveType.Flee:
-				break;
+			case BuiltInCombatMoveType.Breakout:
+			case BuiltInCombatMoveType.ScreechAttack:
+				return
+					@"Valid tokens for this message: 
+
+	$0 - the attacker";
+
+			case BuiltInCombatMoveType.AuxiliaryMove:
 			case BuiltInCombatMoveType.RetrieveItem:
-				break;
 			case BuiltInCombatMoveType.ChargeToMelee:
-				break;
 			case BuiltInCombatMoveType.MoveToMelee:
+				return
+					@"Valid tokens for this message: 
+
+	$0 - the attacker
+	$1 - the target";
 				break;
 			case BuiltInCombatMoveType.AdvanceAndFire:
 				return
@@ -560,6 +570,17 @@ public class CombatMessage : SaveableItem, ICombatMessage
 	$0 - the attacker
 	$1 - the defender
 	$2 - the attack weapon";
+
+			case BuiltInCombatMoveType.TakedownMove:
+				return
+					@"Valid tokens for this message: 
+
+	$0 - the attacker
+	$1 - the defender
+
+	{0} - the bodypart the attacker is using to make the attack
+	{1} - the bodypart the attack targets
+	@hand - left|right|front|back depending on which side the bodypart is on";
 			case BuiltInCombatMoveType.ReceiveCharge:
 				break;
 			case BuiltInCombatMoveType.WardDefense:
@@ -595,27 +616,42 @@ public class CombatMessage : SaveableItem, ICombatMessage
 			case BuiltInCombatMoveType.UnarmedSmashItem:
 				break;
 			case BuiltInCombatMoveType.InitiateGrapple:
-				break;
 			case BuiltInCombatMoveType.DodgeGrapple:
-				break;
 			case BuiltInCombatMoveType.CounterGrapple:
-				break;
+				return
+					@"Valid tokens for this message: 
+
+	$0 - the attacker
+	$1 - the defender
+
+	{0} - the bodypart the attacker is using to make the attack
+	@hand - left|right|front|back depending on which side the bodypart is on";
 			case BuiltInCombatMoveType.ExtendGrapple:
-				break;
+			case BuiltInCombatMoveType.StrangleAttackExtendGrapple:
+			case BuiltInCombatMoveType.DodgeExtendGrapple:
+				return
+					@"Valid tokens for this message: 
+
+	$0 - the attacker
+	$1 - the defender
+
+	{0} - the bodypart the attacker is using to make the attack
+	{1} - the limb the attack targets
+	@hand - left|right|front|back depending on which side the bodypart is on";
 			case BuiltInCombatMoveType.WrenchAttack:
 				break;
 			case BuiltInCombatMoveType.StrangleAttack:
 				break;
-			case BuiltInCombatMoveType.DodgeExtendGrapple:
 				break;
 			case BuiltInCombatMoveType.BeamAttack:
 				break;
-			case BuiltInCombatMoveType.ScreechAttack:
+			case BuiltInCombatMoveType.Disarm:
 				break;
 			case BuiltInCombatMoveType.OverpowerGrapple:
 				break;
-			case BuiltInCombatMoveType.StrangleAttackExtendGrapple:
 				break;
+			default:
+				throw new ArgumentOutOfRangeException(nameof(type), type, null);
 		}
 
 		return "No specific help for this type.";
@@ -673,6 +709,9 @@ public class CombatMessage : SaveableItem, ICombatMessage
 			case BuiltInCombatMoveType.SwoopAttackUnarmed:
 			case BuiltInCombatMoveType.EnvenomingAttack:
 			case BuiltInCombatMoveType.EnvenomingAttackClinch:
+			case BuiltInCombatMoveType.AuxiliaryMove:
+			case BuiltInCombatMoveType.DodgeExtendGrapple:
+			case BuiltInCombatMoveType.StrangleAttackExtendGrapple:
 				emote = new Emote(text, new DummyPerceiver(), new DummyPerceivable(), new DummyPerceivable());
 				if (!emote.Valid)
 				{
@@ -700,6 +739,7 @@ public class CombatMessage : SaveableItem, ICombatMessage
 			case BuiltInCombatMoveType.DodgeRange:
 			case BuiltInCombatMoveType.StandAndFire:
 			case BuiltInCombatMoveType.SkirmishAndFire:
+			case BuiltInCombatMoveType.SwoopAttack:
 				emote = new Emote(text, new DummyPerceiver(), new DummyPerceivable(), new DummyPerceivable(),
 					new DummyPerceivable());
 				if (!emote.Valid)
@@ -819,14 +859,8 @@ public class CombatMessage : SaveableItem, ICombatMessage
 				}
 
 				break;
-			case BuiltInCombatMoveType.DodgeExtendGrapple:
-				break;
 			case BuiltInCombatMoveType.BeamAttack:
-				break;
 			case BuiltInCombatMoveType.OverpowerGrapple:
-				break;
-			case BuiltInCombatMoveType.StrangleAttackExtendGrapple:
-				break;
 
 			default:
 				return ("That type has not been set up properly to work with the building commands, sorry.", false);
@@ -843,14 +877,17 @@ public class CombatMessage : SaveableItem, ICombatMessage
 			return false;
 		}
 
-		var (help, valid) = VetEmote(Type, command.SafeRemainingArgument);
+		var emote = command.SafeRemainingArgument
+		                   .Replace("\\n", "\n")
+		                   .Replace("\\b", "\b");
+		var (help, valid) = VetEmote(Type, emote);
 		if (!valid)
 		{
 			actor.OutputHandler.Send($"Your supplied combat message is not valid.\n{help}");
 			return false;
 		}
 
-		Message = command.SafeRemainingArgument;
+		Message = emote;
 		Changed = true;
 		actor.OutputHandler.Send($"This combat message's success message is now {Message.Colour(Telnet.Yellow)}");
 		return true;
@@ -863,17 +900,19 @@ public class CombatMessage : SaveableItem, ICombatMessage
 			actor.OutputHandler.Send($"You must specify a combat message.\n{VetEmote(Type, string.Empty)}");
 			return false;
 		}
-
-		var (help, valid) = VetEmote(Type, command.SafeRemainingArgument);
+		var emote = command.SafeRemainingArgument
+		                   .Replace("\\n", "\n")
+		                   .Replace("\\b", "\b");
+		var (help, valid) = VetEmote(Type, emote);
 		if (!valid)
 		{
 			actor.OutputHandler.Send($"Your supplied combat message is not valid.\n{help}");
 			return false;
 		}
 
-		FailMessage = command.SafeRemainingArgument;
+		FailMessage = emote;
 		Changed = true;
-		actor.OutputHandler.Send($"This combat message's failure message is now {Message.Colour(Telnet.Yellow)}");
+		actor.OutputHandler.Send($"This combat message's failure message is now {FailMessage.Colour(Telnet.Yellow)}");
 		return true;
 	}
 

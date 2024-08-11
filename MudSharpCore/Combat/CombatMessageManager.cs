@@ -32,7 +32,7 @@ public class CombatMessageManager : ICombatMessageManager
 		_combatMessages.Remove(message);
 	}
 
-	private ICombatMessage GetCombatMessageFor(ICharacter character, IPerceiver target, IGameItem weapon,
+	public ICombatMessage GetCombatMessageFor(ICharacter character, IPerceiver target, IGameItem weapon,
 		IWeaponAttack attack, BuiltInCombatMoveType type, Outcome outcome, IBodypart bodypart)
 	{
 		return
@@ -41,7 +41,7 @@ public class CombatMessageManager : ICombatMessageManager
 			               .FirstOrDefault(x => Constants.Random.NextDouble() <= x.Chance);
 	}
 
-	private ICombatMessage GetCombatMessageFor(ICharacter character, IPerceiver target, IAuxiliaryCombatAction action,
+	public ICombatMessage GetCombatMessageFor(ICharacter character, IPerceiver target, IAuxiliaryCombatAction action,
 		Outcome outcome)
 	{
 		return _combatMessages.Where(x => x.Applies(character, target, action, outcome))

@@ -289,6 +289,7 @@ public partial class Character : PerceiverItem, ICharacter
 			InstallHook(hook.Hook);
 		}
 
+		CurrentStamina = MaximumStamina;
 		Gameworld.SaveManager.AddInitialisation(this);
 	}
 

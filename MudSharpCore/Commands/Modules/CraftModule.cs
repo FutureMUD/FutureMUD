@@ -95,6 +95,12 @@ internal class CraftModule : Module<ICharacter>
 			return;
 		}
 
+		if (!actor.State.IsAble())
+		{
+			actor.OutputHandler.Send($"You cannot perform any crafts while you are {actor.State.DescribeEnum(true, Telnet.Red)}.");
+			return;
+		}
+
 		if (actor.Effects.Any(x => x.IsBlockingEffect("general")))
 		{
 			actor.OutputHandler.Send(
@@ -128,6 +134,12 @@ internal class CraftModule : Module<ICharacter>
 		if (ss.IsFinished)
 		{
 			actor.Send("Which in-progress craft did you want to resume? Target the craft-progress item itself.");
+			return;
+		}
+
+		if (!actor.State.IsAble())
+		{
+			actor.OutputHandler.Send($"You cannot perform any crafts while you are {actor.State.DescribeEnum(true, Telnet.Red)}.");
 			return;
 		}
 

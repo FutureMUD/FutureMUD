@@ -65,20 +65,31 @@ public class PersonalName : FrameworkItem, IPersonalName
 		return elements;
 	}
 
-	private static Regex OptionalElementRegex = new(@"\?(?<index>\d+)\[(?<true>[^\]]+)\](?:\[(?<false>[^\]]+)\])*");
+	private static Regex OptionalElementRegex = new(@"\?(?<which>\w+)\[(?<true>[^\]]+)\](?:\[(?<false>[^\]]+)\])*");
 
 	public string GetName(NameStyle style)
 	{
 		var (pattern, usages) = Culture.NamePattern(style);
 		pattern = OptionalElementRegex.Replace(pattern, match =>
 		{
-			var index = int.Parse(match.Groups["index"].Value);
-			if (index >= usages.Count)
+			NameUsage usage;
+			var which = match.Groups["which"].Value;
+			if (int.TryParse(which, out var index))
 			{
-				return "";
+				if (index >= usages.Count)
+				{
+					return "";
+				}
+				usage = usages.ElementAt(index);
+			}
+			else
+			{
+				if (!which.TryParseEnum<NameUsage>(out usage))
+				{
+					return "";
+				}
 			}
 
-			var usage = usages.ElementAt(index);
 			if (NameElements.Any(x => x.Usage == usage))
 			{
 				return match.Groups["true"].Value;

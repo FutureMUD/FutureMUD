@@ -20,7 +20,7 @@ using MudSharp.Effects.Concrete;
 
 namespace MudSharp.GameItems.Components;
 
-public class BowGameItemComponent : GameItemComponent, IRangedWeapon, IMeleeWeapon
+public class BowGameItemComponent : GameItemComponent, IRangedWeaponWithUnreadyEvent, IMeleeWeapon
 {
 	protected BowGameItemComponentProto _prototype;
 	public override IGameItemComponentProto Prototype => _prototype;

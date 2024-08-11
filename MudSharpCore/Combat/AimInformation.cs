@@ -16,6 +16,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using MudSharp.Body.Traits;
+using MudSharp.GameItems.Components;
 
 namespace MudSharp.Combat;
 
@@ -66,6 +67,11 @@ public class AimInformation : IAimInformation
 		Weapon.Parent.OnDeath += WeaponDestroyed;
 		Weapon.Parent.OnDeleted += WeaponLost;
 		Weapon.Parent.OnQuit += WeaponLost;
+		if (Weapon is IRangedWeaponWithUnreadyEvent bow)
+		{
+			bow.OnUnready += WeaponUnreadied;
+		}
+
 		if (Shooter is ICharacter characterOwner)
 		{
 			characterOwner.OnMoved += CharacterOwner_OnMoved;
@@ -73,6 +79,18 @@ public class AimInformation : IAimInformation
 		}
 
 		RegisterPathEvents();
+	}
+
+	private void WeaponUnreadied(IPerceivable owner)
+	{
+		Shooter.OutputHandler.Handle(
+			new EmoteOutput(new Emote(
+				"You stop aiming $2 at $1=0 because $2 is no longer readied.", Shooter, Shooter,
+				Target, Weapon.Parent)), OutputRange.Personal);
+		Shooter.OutputHandler.Handle(new EmoteOutput(
+			new Emote("$0 stops aiming $2 at $1=0.", Shooter, Shooter, Target, Weapon.Parent),
+			flags: OutputFlags.SuppressSource));
+		ReleaseEvents();
 	}
 
 	private void CharacterOwner_OnMoved(object sender, Movement.MoveEventArgs e)
@@ -150,12 +168,25 @@ public class AimInformation : IAimInformation
 
 	protected void WeaponInventoryStateChange(InventoryState oldState, InventoryState newState, IGameItem item)
 	{
-		if (item == Weapon.Parent && newState != InventoryState.Wielded)
+		if (item == Weapon.Parent)
 		{
-			Shooter.OutputHandler.Handle(
-				new EmoteOutput(new Emote("@ stop|stops aiming at $1=0 because #0 are|is no longer wielding $2.",
-					Shooter, Shooter, Target, Weapon.Parent)));
-			ReleaseEvents();
+			if (newState != InventoryState.Wielded)
+			{
+				Shooter.OutputHandler.Handle(
+					new EmoteOutput(new Emote("@ stop|stops aiming at $1=0 because #0 are|is no longer wielding $2.",
+						Shooter, Shooter, Target, Weapon.Parent)));
+				ReleaseEvents();
+				return;
+			}
+
+			if (!Weapon.ReadyToFire && !Weapon.WeaponType.RangedWeaponType.IsFirearm())
+			{
+				Shooter.OutputHandler.Handle(
+					new EmoteOutput(new Emote("@ stop|stops aiming at $1=0 because #2 $2|are|is no longer ready to fire.",
+						Shooter, Shooter, Target, Weapon.Parent)));
+				ReleaseEvents();
+				return;
+			}
 		}
 	}
 
@@ -287,6 +318,10 @@ public class AimInformation : IAimInformation
 			Weapon.Parent.OnDeath -= WeaponDestroyed;
 			Weapon.Parent.OnDeleted -= WeaponLost;
 			Weapon.Parent.OnQuit -= WeaponLost;
+			if (Weapon is IRangedWeaponWithUnreadyEvent bow)
+			{
+				bow.OnUnready -= WeaponUnreadied;
+			}
 			if (Shooter is ICharacter characterOwner)
 			{
 				characterOwner.OnMoved -= CharacterOwner_OnMoved;

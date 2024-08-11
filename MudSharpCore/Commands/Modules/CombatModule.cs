@@ -408,7 +408,7 @@ public class CombatModule : Module<ICharacter>
 			switch (actor.CombatStrategyMode)
 			{
 				case CombatStrategyMode.GrappleForControl:
-				case CombatStrategyMode.GrappleForIncapitation:
+				case CombatStrategyMode.GrappleForIncapacitation:
 				case CombatStrategyMode.GrappleForKill:
 					actor.CombatStrategyMode = actor.CombatSettings.PreferredMeleeMode.IsGrappleMode()
 						? CombatStrategyMode.StandardMelee
@@ -434,7 +434,7 @@ public class CombatModule : Module<ICharacter>
 			case "incapacitate":
 			case "maim":
 			case "hurt":
-				desiredStrategy = CombatStrategyMode.GrappleForIncapitation;
+				desiredStrategy = CombatStrategyMode.GrappleForIncapacitation;
 				break;
 			case "control":
 				break;

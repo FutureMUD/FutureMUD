@@ -14,7 +14,7 @@ namespace MudSharp.Combat.Strategies;
 
 public class GrappleForIncapacitationStrategy : GrappleForControlStrategy
 {
-	public override CombatStrategyMode Mode => CombatStrategyMode.GrappleForIncapitation;
+	public override CombatStrategyMode Mode => CombatStrategyMode.GrappleForIncapacitation;
 
 	protected GrappleForIncapacitationStrategy()
 	{

@@ -5815,7 +5815,7 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
 		SeedCombatStrategy("Bonebreaker",
 			"Fight unarmed in melee and try to grapple your opponent and break their limbs", 0.0, 1.0, 0.0, false,
 			false, false, false, true, true, false, true, false, false, true, PursuitMode.OnlyAttemptToStop,
-			CombatStrategyMode.GrappleForIncapitation, CombatStrategyMode.FullAdvance,
+			CombatStrategyMode.GrappleForIncapacitation, CombatStrategyMode.FullAdvance,
 			AutomaticInventorySettings.AutomaticButDontDiscard, AutomaticMovementSettings.SeekCoverOnly,
 			AutomaticRangedSettings.ContinueFiringOnly, AttackHandednessOptions.Any, GrappleResponse.Avoidance, 0.5,
 			5.0, DefenseType.Dodge, defaultOrder);

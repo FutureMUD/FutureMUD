@@ -165,7 +165,7 @@ public abstract class PatrolStrategyBase : IPatrolStrategy
 			{
 				case EnforcementStrategy.ArrestAndDetainedUnarmedOnly:
 					if (member.CombatSettings.PreferredMeleeMode.In(CombatStrategyMode.GrappleForControl,
-						    CombatStrategyMode.GrappleForIncapitation))
+						    CombatStrategyMode.GrappleForIncapacitation))
 					{
 						return;
 					}
@@ -173,7 +173,7 @@ public abstract class PatrolStrategyBase : IPatrolStrategy
 					var grapple = member.Gameworld.CharacterCombatSettings
 					                    .FirstOrDefault(x =>
 						                    x.PreferredMeleeMode.In(CombatStrategyMode.GrappleForControl,
-							                    CombatStrategyMode.GrappleForIncapitation) &&
+							                    CombatStrategyMode.GrappleForIncapacitation) &&
 						                    x.CanUse(member)
 					                    );
 					if (grapple != null)

@@ -131,7 +131,7 @@ namespace MudSharp.Combat {
         FireNoCover,
         Flee,
         GrappleForControl,
-        GrappleForIncapitation,
+        GrappleForIncapacitation,
         GrappleForKill,
         MeleeShooter,
         MeleeMagic

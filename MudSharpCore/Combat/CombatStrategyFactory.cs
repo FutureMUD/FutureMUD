@@ -34,7 +34,7 @@ public class CombatStrategyFactory
 				return Strategies.FullSkirmishStrategy.Instance;
 			case CombatStrategyMode.GrappleForControl:
 				return Strategies.GrappleForControlStrategy.Instance;
-			case CombatStrategyMode.GrappleForIncapitation:
+			case CombatStrategyMode.GrappleForIncapacitation:
 				return Strategies.GrappleForIncapacitationStrategy.Instance;
 			case CombatStrategyMode.GrappleForKill:
 				return Strategies.GrappleForKillStrategy.Instance;

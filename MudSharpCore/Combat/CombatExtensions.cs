@@ -277,7 +277,7 @@ public static class CombatExtensions
 		switch (mode)
 		{
 			case CombatStrategyMode.GrappleForControl:
-			case CombatStrategyMode.GrappleForIncapitation:
+			case CombatStrategyMode.GrappleForIncapacitation:
 			case CombatStrategyMode.GrappleForKill:
 				return true;
 		}
@@ -319,7 +319,7 @@ public static class CombatExtensions
 				return "Flee";
 			case CombatStrategyMode.GrappleForControl:
 				return "Grapple for Control";
-			case CombatStrategyMode.GrappleForIncapitation:
+			case CombatStrategyMode.GrappleForIncapacitation:
 				return "Grapple for Incapacitation";
 			case CombatStrategyMode.GrappleForKill:
 				return "Grapple for Kill";
@@ -368,7 +368,7 @@ public static class CombatExtensions
 			case CombatStrategyMode.GrappleForControl:
 				return
 					"grapple with an opponent and try to get in control of all their limbs, to restrain and hold them";
-			case CombatStrategyMode.GrappleForIncapitation:
+			case CombatStrategyMode.GrappleForIncapacitation:
 				return
 					"grapple with an opponent and use the opportunity to incapacitate them by wrenching joints and throwing them down";
 			case CombatStrategyMode.GrappleForKill:
@@ -399,7 +399,7 @@ public static class CombatExtensions
 			case CombatStrategyMode.Skirmish:
 			case CombatStrategyMode.Flee:
 			case CombatStrategyMode.GrappleForKill:
-			case CombatStrategyMode.GrappleForIncapitation:
+			case CombatStrategyMode.GrappleForIncapacitation:
 			case CombatStrategyMode.GrappleForControl:
 			case CombatStrategyMode.MeleeShooter:
 			case CombatStrategyMode.MeleeMagic:
@@ -450,7 +450,7 @@ public static class CombatExtensions
 			case CombatStrategyMode.Ward:
 			case CombatStrategyMode.Clinch:
 			case CombatStrategyMode.GrappleForKill:
-			case CombatStrategyMode.GrappleForIncapitation:
+			case CombatStrategyMode.GrappleForIncapacitation:
 			case CombatStrategyMode.GrappleForControl:
 			case CombatStrategyMode.MeleeMagic:
 			case CombatStrategyMode.MeleeShooter:

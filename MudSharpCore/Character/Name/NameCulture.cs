@@ -301,7 +301,7 @@ public class NameCulture : SaveableItem, INameCulture
 		var pattern = command.SafeRemainingArgument;
 		var elements = new List<NameUsage>();
 		var index = 0;
-		regex.Replace(pattern, m =>
+		pattern = regex.Replace(pattern, m =>
 		{
 			if (!m.Groups["enum"].Value.TryParseEnum<NameUsage>(out var usage))
 			{

@@ -65,7 +65,7 @@ public class PersonalName : FrameworkItem, IPersonalName
 		return elements;
 	}
 
-	private static Regex OptionalElementRegex = new(@"\?(?<which>\w+)\[(?<true>[^\]]+)\](?:\[(?<false>[^\]]+)\])*");
+	private static Regex OptionalElementRegex = new(@"\?(?<which>\w+)\[(?<true>[^\]]*)\](?:\[(?<false>[^\]]*)\])*");
 
 	public string GetName(NameStyle style)
 	{

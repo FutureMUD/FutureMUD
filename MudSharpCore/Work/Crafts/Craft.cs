@@ -1054,15 +1054,17 @@ public class Craft : Framework.Revision.EditableItem, ICraft
 	public string GetMaterialPreview(ICharacter character)
 	{
 		var (success, error) = CanDoCraft(character, null, false, true);
-		if (!success)
-		{
-			return error;
-		}
 
 		var (_, inputs, plans, missing) = ScoutToolsAndInputs(character, null);
 		var sb = new StringBuilder();
 
 		sb.AppendLine($"Materials preview for craft {Name.Colour(Telnet.Cyan)}:");
+		if (!success)
+		{
+			sb.AppendLine();
+			sb.AppendLine("Note: You cannot currently do this craft because of the below error.".Colour(Telnet.Red));
+			sb.AppendLine(error);
+		}
 		sb.AppendLine();
 		sb.AppendLine("Tools:");
 		sb.AppendLine();

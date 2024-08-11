@@ -351,15 +351,7 @@ public abstract class PerceivedItem : LateKeywordedInitialisingItem, IPerceivabl
 	public virtual IPerceivable PositionTarget
 	{
 		get => _positionTarget;
-		set
-		{
-			if (value != _positionTarget)
-			{
-				PositionChanged = true;
-			}
-
-			_positionTarget = value;
-		}
+		set => SetTarget(value);
 	}
 
 	private PositionModifier _positionModifier = PositionModifier.None;
@@ -532,11 +524,11 @@ public abstract class PerceivedItem : LateKeywordedInitialisingItem, IPerceivabl
 			PositionTarget.RemoveTargetedBy(this);
 		}
 
-		PositionTarget = target;
+		_positionTarget = target;
 		if (target != null)
 		{
-			PositionTarget.SetTargetedBy(this);
-			PositionTarget.InvalidPositionTargets += Target_InvalidPositionTargets;
+			_positionTarget.SetTargetedBy(this);
+			_positionTarget.InvalidPositionTargets += Target_InvalidPositionTargets;
 		}
 
 		PositionChanged = true;

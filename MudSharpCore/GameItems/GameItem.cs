@@ -1604,6 +1604,7 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable
 		}
 
 		InvalidatePositionTargets();
+		SoftReleasePositionTarget();
 		PerceivableDeleted();
 		ContainedIn?.Take(this);
 		InInventoryOf?.Take(this);
@@ -1676,6 +1677,7 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable
 		}
 
 		InvalidatePositionTargets();
+		SoftReleasePositionTarget();
 		PerceivableQuit();
 
 		Location?.Extract(this);

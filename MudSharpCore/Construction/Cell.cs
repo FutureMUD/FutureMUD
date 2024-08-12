@@ -561,6 +561,12 @@ public partial class Cell : Location, IDisposable, ICell
 
 	public void Login(ICharacter loginCharacter)
 	{
+#if DEBUG
+		if (loginCharacter.State.HasFlag(CharacterState.Dead))
+		{
+			Console.WriteLine("Dead NPC!");
+		}
+#endif
 		loginCharacter.State &= ~CharacterState.Stasis;
 		loginCharacter.LastMinutesUpdate = System.DateTime.UtcNow;
 		loginCharacter.LoginDateTime = System.DateTime.UtcNow;

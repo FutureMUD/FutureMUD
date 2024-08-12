@@ -2309,7 +2309,7 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 		                        .Include(x => x.Character.Body.Wounds)
 		                        .ThenInclude(x => x.Infections)
 		            */
-		            where npc.Character.State != (int)CharacterState.Dead
+		            where !((CharacterState)npc.Character.State).HasFlag(CharacterState.Dead)
 		            select npc).ToList();
 
 		foreach (var npc in npcs)

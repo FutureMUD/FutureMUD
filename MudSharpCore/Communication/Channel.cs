@@ -155,6 +155,12 @@ public class Channel : SaveableItem, IChannel
 
 		if (original.Equals("channel", StringComparison.InvariantCultureIgnoreCase))
 		{
+			if (!character.IsAdministrator())
+			{
+				character.OutputHandler.Send("Huh?");
+				return;
+			}
+
 			switch (ss.PopForSwitch())
 			{
 				case "list":
@@ -181,46 +187,46 @@ public class Channel : SaveableItem, IChannel
 					return;
 			}
 		}
-		else
+
+		var channel = character.Gameworld.Channels.FirstOrDefault(x =>
+			x.CommandWords.Any(y => y.StartsWith(original, StringComparison.InvariantCultureIgnoreCase)) &&
+			(x.ChannelListenerProg?.ExecuteBool(character) != false || x.ChannelSpeakerProg?.ExecuteBool(character) != false)
+			);
+		if (channel == null)
 		{
-			var channel = character.Gameworld.Channels.FirstOrDefault(x =>
-				x.CommandWords.Any(y => y.StartsWith(original, StringComparison.InvariantCultureIgnoreCase)));
-			if (channel == null)
-			{
-				character.OutputHandler.Send("There is no such channel.");
-				return;
-			}
-
-			if (ss.Peek().Equals("leave", StringComparison.InvariantCultureIgnoreCase) ||
-			    ss.Peek().Equals("ignore", StringComparison.InvariantCultureIgnoreCase))
-			{
-				if (!channel.Ignore(character))
-				{
-					character.OutputHandler.Send("You are already ignoring that channel.");
-				}
-
-				return;
-			}
-
-			if (ss.Peek().Equals("join", StringComparison.InvariantCultureIgnoreCase) ||
-			    ss.Peek().Equals("acknowledge", StringComparison.InvariantCultureIgnoreCase))
-			{
-				if (!channel.Acknowledge(character))
-				{
-					character.OutputHandler.Send("You are already listening to that channel.");
-				}
-
-				return;
-			}
-
-			if (ss.IsFinished)
-			{
-				character.OutputHandler.Send($"What do you want to send to the {channel.Name.ColourName()} channel?");
-				return;
-			}
-
-			channel.Send(character, ss.RemainingArgument);
+			character.OutputHandler.Send("There is no such channel.");
+			return;
 		}
+
+		if (ss.Peek().Equals("leave", StringComparison.InvariantCultureIgnoreCase) ||
+		    ss.Peek().Equals("ignore", StringComparison.InvariantCultureIgnoreCase))
+		{
+			if (!channel.Ignore(character))
+			{
+				character.OutputHandler.Send("You are already ignoring that channel.");
+			}
+
+			return;
+		}
+
+		if (ss.Peek().Equals("join", StringComparison.InvariantCultureIgnoreCase) ||
+		    ss.Peek().Equals("acknowledge", StringComparison.InvariantCultureIgnoreCase))
+		{
+			if (!channel.Acknowledge(character))
+			{
+				character.OutputHandler.Send("You are already listening to that channel.");
+			}
+
+			return;
+		}
+
+		if (ss.IsFinished)
+		{
+			character.OutputHandler.Send($"What do you want to send to the {channel.Name.ColourName()} channel?");
+			return;
+		}
+
+		channel.Send(character, ss.RemainingArgument);
 	}
 
 	private static void ChannelCommandSet(ICharacter actor, StringStack ss)

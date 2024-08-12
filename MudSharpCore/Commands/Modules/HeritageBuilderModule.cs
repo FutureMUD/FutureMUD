@@ -36,11 +36,11 @@ internal class HeritageBuilderModule: BaseBuilderModule
 	private const string AdminLanguageCommandHelp =
 		@"This command allows you to create and edit languages. You can use the following options with this command:
 
-    #3language show <which>#0 - shows you a language
-    #3language edit new <name> <trait>#0 - creates a new language with the specified name and linked trait
-    #3language edit <which>#0 - begins editing a language
-    #3language close#0 - stops editing a language
-    #3language set ...#0 - sets the properties of a language you're editing";
+	#3language show <which>#0 - shows you a language
+	#3language edit new <name> <trait>#0 - creates a new language with the specified name and linked trait
+	#3language edit <which>#0 - begins editing a language
+	#3language close#0 - stops editing a language
+	#3language set ...#0 - sets the properties of a language you're editing";
 
 	[PlayerCommand("Language", "language")]
 	[HelpInfo("language", LanguageCommandHelp, AutoHelp.HelpArgOrNoArg, AdminLanguageCommandHelp)]
@@ -80,10 +80,10 @@ internal class HeritageBuilderModule: BaseBuilderModule
 		var which = input.RemoveFirstWord();
 		var languages = actor.IsAdministrator() ? actor.Gameworld.Languages.ToList() : actor.Languages.ToList();
 		var language = languages.FirstOrDefault(x => x.Name.EqualTo(which)) ??
-		               languages.FirstOrDefault(x =>
-			               x.Name.StartsWith(which, StringComparison.InvariantCultureIgnoreCase)) ??
-		               languages.FirstOrDefault(
-			               x => x.Name.Contains(which, StringComparison.InvariantCultureIgnoreCase));
+					   languages.FirstOrDefault(x =>
+						   x.Name.StartsWith(which, StringComparison.InvariantCultureIgnoreCase)) ??
+					   languages.FirstOrDefault(
+						   x => x.Name.Contains(which, StringComparison.InvariantCultureIgnoreCase));
 
 		if (language == null)
 		{
@@ -113,7 +113,7 @@ internal class HeritageBuilderModule: BaseBuilderModule
 		sb.AppendLine();
 		sb.AppendLine("Offers mutual intelligibility with the following languages:");
 		var mutuals = actor.Gameworld.Languages.Where(x => language.MutualIntelligability(x) != Difficulty.Impossible)
-		                   .ToList();
+						   .ToList();
 		if (!mutuals.Any())
 		{
 			sb.AppendLine("\tNone that you are aware of.");
@@ -265,11 +265,11 @@ internal class HeritageBuilderModule: BaseBuilderModule
 	private const string AccentAdminHelp =
 		@"This command allows you to create and edit accents. You can use the following options with this command:
 
-    #3accent show <which>#0 - shows you an accent
-    #3accent edit new <name> <language>#0 - creates a new accent with the specified name for a language
-    #3accent edit <which>#0 - begins editing an accent
-    #3accent close#0 - stops editing an accent
-    #3accent set ...#0 - sets the properties of an accent you're editing";
+	#3accent show <which>#0 - shows you an accent
+	#3accent edit new <name> <language>#0 - creates a new accent with the specified name for a language
+	#3accent edit <which>#0 - begins editing an accent
+	#3accent close#0 - stops editing an accent
+	#3accent set ...#0 - sets the properties of an accent you're editing";
 
 	[PlayerCommand("Accent", "accent")]
 	[HelpInfo("accent", AccentPlayerHelp, AutoHelp.HelpArgOrNoArg, AccentAdminHelp)]
@@ -440,10 +440,10 @@ internal class HeritageBuilderModule: BaseBuilderModule
 			var lang = split[0];
 			var languages = actor.IsAdministrator() ? actor.Gameworld.Languages.ToList() : actor.Languages.ToList();
 			language = languages.FirstOrDefault(x => x.Name.EqualTo(lang)) ??
-			           languages.FirstOrDefault(x =>
-				           x.Name.StartsWith(lang, StringComparison.InvariantCultureIgnoreCase)) ??
-			           languages.FirstOrDefault(x =>
-				           x.Name.Contains(lang, StringComparison.InvariantCultureIgnoreCase));
+					   languages.FirstOrDefault(x =>
+						   x.Name.StartsWith(lang, StringComparison.InvariantCultureIgnoreCase)) ??
+					   languages.FirstOrDefault(x =>
+						   x.Name.Contains(lang, StringComparison.InvariantCultureIgnoreCase));
 
 			if (language == null)
 			{
@@ -461,9 +461,9 @@ internal class HeritageBuilderModule: BaseBuilderModule
 		}
 
 		var accent = accents.FirstOrDefault(x => x.Name.EqualTo(which)) ??
-		             accents.FirstOrDefault(x =>
-			             x.Name.StartsWith(which, StringComparison.InvariantCultureIgnoreCase)) ??
-		             accents.FirstOrDefault(x => x.Name.Contains(which, StringComparison.InvariantCultureIgnoreCase));
+					 accents.FirstOrDefault(x =>
+						 x.Name.StartsWith(which, StringComparison.InvariantCultureIgnoreCase)) ??
+					 accents.FirstOrDefault(x => x.Name.Contains(which, StringComparison.InvariantCultureIgnoreCase));
 		if (accent == null)
 		{
 			actor.OutputHandler.Send(
@@ -499,11 +499,11 @@ internal class HeritageBuilderModule: BaseBuilderModule
 	private const string ScriptCommandAdminHelp =
 		@"This command allows you to create and edit scripts. You can use the following options with this command:
 
-    #3script show <which>#0 - shows you a script
-    #3script edit new <name> <knowledge>#0 - creates a new script with the specified name and linked knowledge
-    #3script edit <which>#0 - begins editing a script
-    #3script close#0 - stops editing a script
-    #3script set ...#0 - sets the properties of a script you're editing";
+	#3script show <which>#0 - shows you a script
+	#3script edit new <name> <knowledge>#0 - creates a new script with the specified name and linked knowledge
+	#3script edit <which>#0 - begins editing a script
+	#3script close#0 - stops editing a script
+	#3script set ...#0 - sets the properties of a script you're editing";
 
 	[PlayerCommand("Script", "script")]
 	[HelpInfo("script", ScriptCommandPlayerHelp, AutoHelp.HelpArgOrNoArg, ScriptCommandAdminHelp)]
@@ -762,10 +762,10 @@ internal class HeritageBuilderModule: BaseBuilderModule
 	private const string AdminKnowledgeCommandHelp =
 		@"This command allows you to create and edit knowledges. You can use the following options with this command:
 
-    #3knowledge show <which>#0 - shows you a knowledge
-    #3knowledge edit new <name>#0 - creates a new knowledge with the specified name
-    #3knowledge edit <which>#0 - begins editing a language
-    #3knowledge close#0 - stops editing a knowledge
+	#3knowledge show <which>#0 - shows you a knowledge
+	#3knowledge edit new <name>#0 - creates a new knowledge with the specified name
+	#3knowledge edit <which>#0 - begins editing a language
+	#3knowledge close#0 - stops editing a knowledge
 	#3knowledge set name <name>#0 - renames the knowledge
 	#3knowledge set desc <desc>#0 - gives a new brief description of the knowledge
 	#3knowledge set ldesc <desc>#0 - sets the long description of a knowledge
@@ -927,8 +927,8 @@ internal class HeritageBuilderModule: BaseBuilderModule
 
 		var target = ss.SafeRemainingArgument;
 		var knowledge = actor.CharacterKnowledges.FirstOrDefault(x => x.Knowledge.Name.EqualTo(target)) ??
-		                actor.CharacterKnowledges.FirstOrDefault(x => x.Knowledge.Description.EqualTo(target)) ??
-		                actor.CharacterKnowledges.FirstOrDefault(x => x.Name.StartsWith(target, StringComparison.InvariantCultureIgnoreCase));
+						actor.CharacterKnowledges.FirstOrDefault(x => x.Knowledge.Description.EqualTo(target)) ??
+						actor.CharacterKnowledges.FirstOrDefault(x => x.Name.StartsWith(target, StringComparison.InvariantCultureIgnoreCase));
 		if (knowledge == null)
 		{
 			actor.OutputHandler.Send("You don't know of any knowledge like that.");
@@ -960,15 +960,15 @@ For the closely related command to generate your own names on the fly, see RANDO
 
 The syntax for this command is as follows:
 
-    #3randomname list#0 - lists all of the random name profiles
-    #3randomname list <culture>#0 - lists all of the random name profiles for a specific culture
-    #3randomname edit <which>#0 - begins editing a random name profile
-    #3randomname edit new <culture> <name> <gender>#0 - generates a new random name profile
-    #3randomname clone <old> <new>#0 - clones an existing random name profile to a new one
-    #3randomname close#0 - stops editing a random name profile
-    #3randomname show <which>#0 - views information about a random name profile
-    #3randomname show#0 - views information about your currently editing random name profile
-    #3randomname set ...#0 - edits the properties of a random name culture";
+	#3randomname list#0 - lists all of the random name profiles
+	#3randomname list <culture>#0 - lists all of the random name profiles for a specific culture
+	#3randomname edit <which>#0 - begins editing a random name profile
+	#3randomname edit new <culture> <name> <gender>#0 - generates a new random name profile
+	#3randomname clone <old> <new>#0 - clones an existing random name profile to a new one
+	#3randomname close#0 - stops editing a random name profile
+	#3randomname show <which>#0 - views information about a random name profile
+	#3randomname show#0 - views information about your currently editing random name profile
+	#3randomname set ...#0 - edits the properties of a random name culture";
 
 	[PlayerCommand("RandomName", "randomname", "rn")]
 	[CommandPermission(PermissionLevel.Admin)]
@@ -1015,9 +1015,9 @@ The syntax for this command is as follows:
 				item.Gender.DescribeEnum(),
 				item.Culture.Name,
 				item.RandomNames
-				    .Select(x =>
-					    $"{x.Value.Count.ToString("N0", actor)} {x.Key.DescribeEnum().Pluralise()}".ColourValue())
-				    .ListToCommaSeparatedValues(", ")
+					.Select(x =>
+						$"{x.Value.Count.ToString("N0", actor)} {x.Key.DescribeEnum().Pluralise()}".ColourValue())
+					.ListToCommaSeparatedValues(", ")
 			},
 			new List<string>
 			{
@@ -1216,14 +1216,33 @@ The syntax for this command is as follows:
 
 The correct syntax for this command is as follows:
 
-    #3nameculture list#0 - lists all of the name cultures
-    #3nameculture edit#0 <which> - begins editing a name culture
-    #3nameculture edit new <name>#0 - begins editing a new name culture
-    #3nameculture clone <old> <new>#0 - clones an existing name culture to a new one
-    #3nameculture close#0 - stops editing a name culture
-    #3nameculture show <which>#0 - views information about a name culture
-    #3nameculture show#0 - views information about your currently editing name culture
-    #3nameculture set ...#0 - edits properties of a name culture";
+	#3nameculture list#0 - lists all of the name cultures
+	#3nameculture edit#0 <which> - begins editing a name culture
+	#3nameculture edit new <name>#0 - begins editing a new name culture
+	#3nameculture clone <old> <new>#0 - clones an existing name culture to a new one
+	#3nameculture close#0 - stops editing a name culture
+	#3nameculture show <which>#0 - views information about a name culture
+	#3nameculture show#0 - views information about your currently editing name culture
+	#3nameculture set name <name>#0 - renames the naming culture	
+	#3nameculture set regex <regex>#0 - sets the regex for the naming culture
+	#3nameculture set pattern <which> <pattern>#0 - sets the naming pattern for a particular context
+	#3nameculture set element add <type>#0 - adds a new naming element of the specified type
+	#3nameculture set element remove <type>#0 - removes a naming element of the specified type
+	#3nameculture set element <type> name <name>#0 - renames an element
+	#3nameculture set element <type> min <min>#0 - sets the minimum number of picks for an element
+	#3nameculture set element <type> max <max>#0 - sets the maximum number of picks for an element
+	#3nameculture set element <type> blurb#0 - drops into an editor for the chargen blurb
+
+#6Note 1 - Regex Rules#0
+
+For the regular expression, each of the name elements should be captured as a group, with the name being the string representation of the name element type (not the name). So for example a BirthName element type should be captured in a group like (?<birthname>...)
+
+#6Note 2 - Patterns#0
+
+In the pattern you use the text #3$ElementType#0 to refer to each of the elements. For example, #3$BirthName#0 for a Birth Name element.
+
+You can also use a pattern in the form #3?ElementType[true][false]#0 to show the true or false text if the name has one or more of the specified element. 
+For example, #3?Nickname[ a.k.a ""$Nickname""][]#0";
 
 	[PlayerCommand("NameCulture", "nameculture", "nc")]
 	[CommandPermission(PermissionLevel.Admin)]
@@ -1410,15 +1429,15 @@ The correct syntax for this command is as follows:
 				culture.Id.ToString("N0", actor),
 				culture.Name,
 				actor.Gameworld.Cultures
-				     .Where(x =>
-					     x.NameCultureForGender(Gender.Male) == culture ||
-					     x.NameCultureForGender(Gender.Female) == culture ||
-					     x.NameCultureForGender(Gender.NonBinary) == culture ||
-					     x.NameCultureForGender(Gender.Neuter) == culture ||
-					     x.NameCultureForGender(Gender.Indeterminate) == culture
-				     )
-				     .Select(x => x.Name)
-				     .ListToString()
+					 .Where(x =>
+						 x.NameCultureForGender(Gender.Male) == culture ||
+						 x.NameCultureForGender(Gender.Female) == culture ||
+						 x.NameCultureForGender(Gender.NonBinary) == culture ||
+						 x.NameCultureForGender(Gender.Neuter) == culture ||
+						 x.NameCultureForGender(Gender.Indeterminate) == culture
+					 )
+					 .Select(x => x.Name)
+					 .ListToString()
 			},
 			new List<string>
 			{
@@ -1442,14 +1461,14 @@ The correct syntax for this command is as follows:
 
 The correct syntax for this command is as follows:
 
-    #3culture list#0 - lists all of the cultures
-    #3culture edit <which>#0 - begins editing a culture
-    #3culture edit new <name>#0 - begins editing a new culture
-    #3culture clone <old> <new>#0 - clones an existing culture to a new one
-    #3culture close#0 - stops editing a culture
-    #3culture show <which>#0 - views information about a culture
-    #3culture show#0 - views information about your currently editing culture
-    #3culture set ...#0 - edits properties of a culture";
+	#3culture list#0 - lists all of the cultures
+	#3culture edit <which>#0 - begins editing a culture
+	#3culture edit new <name>#0 - begins editing a new culture
+	#3culture clone <old> <new>#0 - clones an existing culture to a new one
+	#3culture close#0 - stops editing a culture
+	#3culture show <which>#0 - views information about a culture
+	#3culture show#0 - views information about your currently editing culture
+	#3culture set ...#0 - edits properties of a culture";
 
 	[PlayerCommand("Culture", "culture")]
 	[CommandPermission(PermissionLevel.JuniorAdmin)]

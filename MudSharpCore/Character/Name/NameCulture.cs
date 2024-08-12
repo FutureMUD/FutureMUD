@@ -159,7 +159,7 @@ public class NameCulture : SaveableItem, INameCulture
 				{
 					elements.Add(item,
 						match.Groups[name].Value.Split(new[] { ' ', '-' }, StringSplitOptions.RemoveEmptyEntries)
-						     .ToList());
+							 .ToList());
 				}
 			}
 
@@ -195,15 +195,26 @@ public class NameCulture : SaveableItem, INameCulture
 
 	private const string NameCultureBuildingHelp = @"You can use the following options with this subcommand:
 
-    name <name> - renames the naming culture	
-    regex <regex> - sets the regex for the naming culture
-    pattern <which> <pattern> - sets the naming pattern for a particular context
-    element add <type> - adds a new naming element of the specified type
-    element remove <type> - removes a naming element of the specified type
-    element <type> name <name> - renames an element
-    element <type> min <min> - sets the minimum number of picks for an element
-    element <type> max <max> - sets the maximum number of picks for an element
-    element <type> blurb - drops into an editor for the chargen blurb";
+	#3name <name>#0 - renames the naming culture	
+	#3regex <regex>#0 - sets the regex for the naming culture
+	#3pattern <which> <pattern>#0 - sets the naming pattern for a particular context
+	#3element add <type>#0 - adds a new naming element of the specified type
+	#3element remove <type>#0 - removes a naming element of the specified type
+	#3element <type> name <name>#0 - renames an element
+	#3element <type> min <min>#0 - sets the minimum number of picks for an element
+	#3element <type> max <max>#0 - sets the maximum number of picks for an element
+	#3element <type> blurb#0 - drops into an editor for the chargen blurb
+
+#6Note 1 - Regex Rules#0
+
+For the regular expression, each of the name elements should be captured as a group, with the name being the string representation of the name element type (not the name). So for example a BirthName element type should be captured in a group like (?<birthname>...)
+
+#6Note 2 - Patterns#0
+
+In the pattern you use the text #3$ElementType#0 to refer to each of the elements. For example, #3$BirthName#0 for a Birth Name element.
+
+You can also use a pattern in the form #3?ElementType[true][false]#0 to show the true or false text if the name has one or more of the specified element. 
+For example, #3?Nickname[ a.k.a ""$Nickname""][]#0";
 
 	public bool BuildingCommand(ICharacter actor, StringStack command)
 	{
@@ -218,7 +229,7 @@ public class NameCulture : SaveableItem, INameCulture
 			case "regex":
 				return BuildingCommandRegex(actor, command);
 			default:
-				actor.OutputHandler.Send(NameCultureBuildingHelp);
+				actor.OutputHandler.Send(NameCultureBuildingHelp.SubstituteANSIColour());
 				return false;
 		}
 	}

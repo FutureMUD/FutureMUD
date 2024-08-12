@@ -45,9 +45,9 @@ public class CombatModule : Module<ICharacter>
 		var sb = new StringBuilder();
 		sb.AppendLine("You have eyes on the following targets:");
 		var targets = actor.Location.LayerCharacters(actor.RoomLayer).Except(actor)
-		                   .Concat<IMortalPerceiver>(actor.Location.LayerGameItems(actor.RoomLayer))
-		                   .Where(x => actor.CanSee(x))
-		                   .Concat(actor.SeenTargets).ToList();
+						   .Concat<IMortalPerceiver>(actor.Location.LayerGameItems(actor.RoomLayer))
+						   .Where(x => actor.CanSee(x))
+						   .Concat(actor.SeenTargets).ToList();
 		foreach (var thing in targets)
 		{
 			sb.AppendLine($"\t{thing.HowSeen(actor)}");
@@ -294,7 +294,7 @@ public class CombatModule : Module<ICharacter>
 	protected static void Surrender(ICharacter actor, string command)
 	{
 		var blockingEffects = actor.CombinedEffectsOfType<IEffect>()
-		                           .Where(x => x.IsBlockingEffect("general") && !x.CanBeStoppedByPlayer).ToList();
+								   .Where(x => x.IsBlockingEffect("general") && !x.CanBeStoppedByPlayer).ToList();
 		if (blockingEffects.Any())
 		{
 			actor.OutputHandler.Send(
@@ -321,7 +321,7 @@ public class CombatModule : Module<ICharacter>
 				}
 
 				if (actor.CombatTarget?.ColocatedWith(actor) != true &&
-				    actor.Combat.Combatants.All(x => x.CombatTarget != actor))
+					actor.Combat.Combatants.All(x => x.CombatTarget != actor))
 				{
 					actor.OutputHandler.Send(
 						"You're not in close proximity to anyone you can surrender to. Try specifying a target.");
@@ -458,12 +458,12 @@ public class CombatModule : Module<ICharacter>
 		}
 
 		if (actor.EffectsOfType<FixedCombatMoveType>()
-		         .Any(x => x.FixedTypes.Contains(BuiltInCombatMoveType.StrangleAttack)))
+				 .Any(x => x.FixedTypes.Contains(BuiltInCombatMoveType.StrangleAttack)))
 		{
 			actor.RemoveAllEffects(x => x.IsEffectType<FixedCombatMoveType>());
 			actor.Send("You will no longer try to strangle your opponent.");
 			if (actor.MeleeRange && actor.CombatStrategyMode == CombatStrategyMode.GrappleForKill &&
-			    actor.CombatSettings.PreferredMeleeMode != CombatStrategyMode.GrappleForKill)
+				actor.CombatSettings.PreferredMeleeMode != CombatStrategyMode.GrappleForKill)
 			{
 				actor.CombatStrategyMode = actor.CombatSettings.PreferredMeleeMode;
 			}
@@ -608,7 +608,7 @@ public class CombatModule : Module<ICharacter>
 		{
 			target = ss.PopSpeech();
 			targetLock = targetItem.GetItemType<ILockable>()?.Locks.Select(x => x.Parent)
-			                       .GetFromItemListByKeyword(target, actor)?.GetItemType<ILock>();
+								   .GetFromItemListByKeyword(target, actor)?.GetItemType<ILock>();
 			if (targetLock == null)
 			{
 				actor.Send("{0} does not have any locks with those keywords for you to smash.",
@@ -660,7 +660,7 @@ public class CombatModule : Module<ICharacter>
 				}
 
 				var attack = attacks.Where(x => actor.CanSpendStamina(x.StaminaCost))
-				                    .GetWeightedRandom(x => x.Weighting);
+									.GetWeightedRandom(x => x.Weighting);
 				if (attack == null)
 				{
 					actor.Send("You don't have enough stamina to use any of {0}'s attacks.",
@@ -680,12 +680,12 @@ public class CombatModule : Module<ICharacter>
 		else
 		{
 			var possibleWeapon = actor.Body.WieldedItems
-			                          .SelectNotNull(x => x.GetItemType<IMeleeWeapon>()).FirstOrDefault(x =>
-				                          x.WeaponType
-				                           .UsableAttacks(actor, x.Parent, targetLock?.Parent ?? targetItem,
-					                           x.HandednessForWeapon(actor), false,
-					                           BuiltInCombatMoveType.MeleeWeaponSmashItem)
-				                           .Any(y => actor.CanSpendStamina(y.StaminaCost)));
+									  .SelectNotNull(x => x.GetItemType<IMeleeWeapon>()).FirstOrDefault(x =>
+										  x.WeaponType
+										   .UsableAttacks(actor, x.Parent, targetLock?.Parent ?? targetItem,
+											   x.HandednessForWeapon(actor), false,
+											   BuiltInCombatMoveType.MeleeWeaponSmashItem)
+										   .Any(y => actor.CanSpendStamina(y.StaminaCost)));
 			if (possibleWeapon != null)
 			{
 				targetWeapon = possibleWeapon.Parent;
@@ -704,12 +704,12 @@ public class CombatModule : Module<ICharacter>
 				targetLock?.Parent ?? targetItem, targetAsWeapon.HandednessForWeapon(actor), false,
 				BuiltInCombatMoveType.MeleeWeaponSmashItem).ToList();
 			var attack = attacks.Where(x => actor.CanSpendStamina(x.StaminaCost))
-			                    .GetWeightedRandom(x => x.Weighting);
+								.GetWeightedRandom(x => x.Weighting);
 			if (actor.Combat != null)
 			{
 				if (actor.TakeOrQueueCombatAction(SelectedCombatAction.GetEffectSmashItem(actor,
-					    targetLock?.Parent ?? targetItem, targetLock == null ? null : targetItem, targetAsWeapon,
-					    attack)) && actor.Gameworld.GetStaticBool("EchoQueuedActions"))
+						targetLock?.Parent ?? targetItem, targetLock == null ? null : targetItem, targetAsWeapon,
+						attack)) && actor.Gameworld.GetStaticBool("EchoQueuedActions"))
 				{
 					actor.Send(
 						$"{"[Queued Action]: ".ColourBold(Telnet.Yellow)}Smashing {(targetLock?.Parent ?? targetItem).HowSeen(actor)} with {targetWeapon.HowSeen(actor)}.");
@@ -768,7 +768,7 @@ public class CombatModule : Module<ICharacter>
 		else
 		{
 			nattack = nattacks.Where(x => actor.CanSpendStamina(x.Attack.StaminaCost))
-			                  .GetWeightedRandom(x => x.Attack.Weighting);
+							  .GetWeightedRandom(x => x.Attack.Weighting);
 		}
 
 		if (nattack == null)
@@ -781,8 +781,8 @@ public class CombatModule : Module<ICharacter>
 		if (actor.Combat != null)
 		{
 			if (actor.TakeOrQueueCombatAction(SelectedCombatAction.GetEffectSmashItemUnarmed(actor,
-				    targetLock?.Parent ?? targetItem, targetLock == null ? null : targetItem, nattack)) &&
-			    actor.Gameworld.GetStaticBool("EchoQueuedActions"))
+					targetLock?.Parent ?? targetItem, targetLock == null ? null : targetItem, nattack)) &&
+				actor.Gameworld.GetStaticBool("EchoQueuedActions"))
 			{
 				actor.Send(
 					$"{"[Queued Action]: ".ColourBold(Telnet.Yellow)}Smashing {(targetLock?.Parent ?? targetItem).HowSeen(actor)}.");
@@ -840,9 +840,9 @@ Syntax:
 				foreach (
 					var attack in
 					item.WeaponType.Attacks.OfType<IFixedBodypartWeaponAttack>()
-					    .Where(x => x.UsableAttack(actor, item.Parent, null, AttackHandednessOptions.Any, false,
-						    BuiltInCombatMoveType.CoupDeGrace))
-					    .ToList())
+						.Where(x => x.UsableAttack(actor, item.Parent, null, AttackHandednessOptions.Any, false,
+							BuiltInCombatMoveType.CoupDeGrace))
+						.ToList())
 				{
 					var flag = "";
 					switch (attack.HandednessOptions)
@@ -911,11 +911,11 @@ Syntax:
 			}
 
 			wattack = weapon.WeaponType.Attacks.OfType<IFixedBodypartWeaponAttack>()
-			                .Where(
-				                x =>
-					                x.UsableAttack(actor, weapon.Parent, actor.CombatTarget,
-						                weapon.HandednessForWeapon(actor),
-						                false, BuiltInCombatMoveType.CoupDeGrace)).GetWeightedRandom(x => x.Weighting);
+							.Where(
+								x =>
+									x.UsableAttack(actor, weapon.Parent, actor.CombatTarget,
+										weapon.HandednessForWeapon(actor),
+										false, BuiltInCombatMoveType.CoupDeGrace)).GetWeightedRandom(x => x.Weighting);
 			if (wattack == null)
 			{
 				actor.Send(
@@ -926,12 +926,12 @@ Syntax:
 		else
 		{
 			wattack = weapons.SelectMany(x => x.WeaponType.Attacks.OfType<IFixedBodypartWeaponAttack>().Where(
-				                 y =>
-					                 y.UsableAttack(actor, x.Parent, actor.CombatTarget, x.HandednessForWeapon(actor),
-						                 false,
-						                 BuiltInCombatMoveType.CoupDeGrace)).ToList())
-			                 .FirstOrDefault(
-				                 x => x.Name.Equals(attackText, StringComparison.InvariantCultureIgnoreCase));
+								 y =>
+									 y.UsableAttack(actor, x.Parent, actor.CombatTarget, x.HandednessForWeapon(actor),
+										 false,
+										 BuiltInCombatMoveType.CoupDeGrace)).ToList())
+							 .FirstOrDefault(
+								 x => x.Name.Equals(attackText, StringComparison.InvariantCultureIgnoreCase));
 			if (wattack == null)
 			{
 				actor.Send(
@@ -1022,7 +1022,7 @@ Syntax:
 		var effect = actor.EffectsOfType<Rescue>().FirstOrDefault();
 		var ss = new StringStack(command.RemoveFirstWord());
 		if (ss.IsFinished || ss.Peek().EqualTo("me") || ss.Peek().EqualTo("self") || ss.Peek().EqualTo("clear") ||
-		    ss.Peek().EqualTo("none") || ss.Peek().EqualTo("off"))
+			ss.Peek().EqualTo("none") || ss.Peek().EqualTo("off"))
 		{
 			if (effect == null)
 			{
@@ -1043,7 +1043,7 @@ Syntax:
 		}
 
 		if (target.Combat == null || !target.MeleeRange ||
-		    target.Combat.Combatants.All(x => x.CombatTarget != target))
+			target.Combat.Combatants.All(x => x.CombatTarget != target))
 		{
 			actor.Send("{0} is not in need of any rescuing.", target.HowSeen(actor, true));
 			return;
@@ -1138,7 +1138,7 @@ Syntax:
 		// Clearing Guard
 		var targetText = ss.Pop();
 		if (targetText.EqualTo("clear") || targetText.EqualTo("none") || targetText.EqualTo("off") ||
-		    targetText.EqualTo("self") || targetText.EqualTo("me"))
+			targetText.EqualTo("self") || targetText.EqualTo("me"))
 		{
 			var guardCharacter = actor.EffectsOfType<IGuardCharacterEffect>().FirstOrDefault();
 			if (guardCharacter != null)
@@ -1850,8 +1850,8 @@ Note: The prog used with #3peace permanent#0 takes the following parameters and 
 		IGameItem target = null;
 		target = ss.IsFinished
 			? actor.Body.HeldOrWieldedItems
-			       .SelectNotNull(x => x.GetItemType<IRangedWeapon>())
-			       .FirstOrDefault(x => x.CanLoad(actor, true))?.Parent
+				   .SelectNotNull(x => x.GetItemType<IRangedWeapon>())
+				   .FirstOrDefault(x => x.CanLoad(actor, true))?.Parent
 			: actor.TargetHeldItem(ss.PopSpeech());
 
 		if (target == null)
@@ -1878,7 +1878,7 @@ Note: The prog used with #3peace permanent#0 takes the following parameters and 
 		if (actor.Combat != null)
 		{
 			if (actor.TakeOrQueueCombatAction(SelectedCombatAction.GetEffectLoadItem(actor, targetWeapon)) &&
-			    actor.Gameworld.GetStaticBool("EchoQueuedActions"))
+				actor.Gameworld.GetStaticBool("EchoQueuedActions"))
 			{
 				actor.Send($"{"[Queued Action]: ".ColourBold(Telnet.Yellow)}Loading {target.HowSeen(actor)}.");
 			}
@@ -1898,8 +1898,8 @@ Note: The prog used with #3peace permanent#0 takes the following parameters and 
 		IGameItem target = null;
 		target = ss.IsFinished
 			? actor.Body.HeldOrWieldedItems
-			       .SelectNotNull(x => x.GetItemType<IRangedWeapon>())
-			       .FirstOrDefault(x => x.CanUnload(actor))?.Parent
+				   .SelectNotNull(x => x.GetItemType<IRangedWeapon>())
+				   .FirstOrDefault(x => x.CanUnload(actor))?.Parent
 			: actor.TargetLocalOrHeldItem(ss.PopSpeech());
 
 		if (target == null)
@@ -1935,8 +1935,8 @@ Note: The prog used with #3peace permanent#0 takes the following parameters and 
 		IGameItem target = null;
 		target = ss.IsFinished
 			? actor.Body.HeldOrWieldedItems
-			       .SelectNotNull(x => x.GetItemType<IRangedWeapon>())
-			       .FirstOrDefault(x => x.CanReady(actor))?.Parent
+				   .SelectNotNull(x => x.GetItemType<IRangedWeapon>())
+				   .FirstOrDefault(x => x.CanReady(actor))?.Parent
 			: actor.TargetLocalOrHeldItem(ss.PopSpeech());
 
 		if (target == null)
@@ -1963,7 +1963,7 @@ Note: The prog used with #3peace permanent#0 takes the following parameters and 
 		if (actor.Combat != null)
 		{
 			if (actor.TakeOrQueueCombatAction(SelectedCombatAction.GetEffectReadyItem(actor, targetWeapon)) &&
-			    actor.Gameworld.GetStaticBool("EchoQueuedActions"))
+				actor.Gameworld.GetStaticBool("EchoQueuedActions"))
 			{
 				actor.Send($"{"[Queued Action]: ".ColourBold(Telnet.Yellow)}Readying {target.HowSeen(actor)}.");
 			}
@@ -1983,8 +1983,8 @@ Note: The prog used with #3peace permanent#0 takes the following parameters and 
 		IGameItem target = null;
 		target = ss.IsFinished
 			? actor.Body.HeldOrWieldedItems
-			       .SelectNotNull(x => x.GetItemType<IRangedWeapon>())
-			       .FirstOrDefault(x => x.CanUnready(actor))?.Parent
+				   .SelectNotNull(x => x.GetItemType<IRangedWeapon>())
+				   .FirstOrDefault(x => x.CanUnready(actor))?.Parent
 			: actor.TargetLocalOrHeldItem(ss.PopSpeech());
 
 		if (target == null)
@@ -2019,8 +2019,8 @@ Note: The prog used with #3peace permanent#0 takes the following parameters and 
 	{
 		var weapons =
 			actor.Body.WieldedItems.SelectNotNull(x => x.GetItemType<IRangedWeapon>())
-			     .Where(x => x.ReadyToFire || x.WeaponType.RangedWeaponType.IsFirearm())
-			     .ToList();
+				 .Where(x => x.ReadyToFire || x.WeaponType.RangedWeaponType.IsFirearm())
+				 .ToList();
 		if (!weapons.Any())
 		{
 			actor.Send("You aren't wielding any ready ranged weapons that you can aim at anybody.");
@@ -2037,7 +2037,7 @@ Note: The prog used with #3peace permanent#0 takes the following parameters and 
 
 		var blockingEffect =
 			actor.Effects.Where(x => !x.IsEffectType<OutOfCombatAim>())
-			     .FirstOrDefault(x => x.IsBlockingEffect("general"));
+				 .FirstOrDefault(x => x.IsBlockingEffect("general"));
 		if (blockingEffect != null)
 		{
 			actor.Send(
@@ -2108,7 +2108,7 @@ Note: The prog used with #3peace permanent#0 takes the following parameters and 
 			{
 				weapon =
 					weapons.Select(x => x.Parent)
-					       .GetFromItemListByKeyword(targetText, actor)?.GetItemType<IRangedWeapon>();
+						   .GetFromItemListByKeyword(targetText, actor)?.GetItemType<IRangedWeapon>();
 				if (weapon == null)
 				{
 					actor.OutputHandler.Send("You do not have any weapon like that to aim.");
@@ -2131,7 +2131,7 @@ Note: The prog used with #3peace permanent#0 takes the following parameters and 
 				else
 				{
 					if (actor.TakeOrQueueCombatAction(SelectedCombatAction.GetEffectAimItem(actor, null, weapon)) &&
-					    actor.Gameworld.GetStaticBool("EchoQueuedActions"))
+						actor.Gameworld.GetStaticBool("EchoQueuedActions"))
 					{
 						actor.Send(
 							$"{"[Queued Action]: ".ColourBold(Telnet.Yellow)}Aiming {weapon.Parent.HowSeen(actor)} into the air.");
@@ -2142,9 +2142,9 @@ Note: The prog used with #3peace permanent#0 takes the following parameters and 
 			}
 
 			var targets = actor.Location.LayerCharacters(actor.RoomLayer).Except(actor)
-			                   .Concat<IMortalPerceiver>(actor.Location.LayerGameItems(actor.RoomLayer))
-			                   .Where(x => actor.CanSee(x))
-			                   .Concat(actor.SeenTargets).ToList();
+							   .Concat<IMortalPerceiver>(actor.Location.LayerGameItems(actor.RoomLayer))
+							   .Where(x => actor.CanSee(x))
+							   .Concat(actor.SeenTargets).ToList();
 			target = targets.GetFromItemListByKeyword(targetText, actor);
 			if (target == null)
 			{
@@ -2185,7 +2185,7 @@ Note: The prog used with #3peace permanent#0 takes the following parameters and 
 		}
 
 		if (actor.TakeOrQueueCombatAction(SelectedCombatAction.GetEffectAimItem(actor, target, weapon)) &&
-		    actor.Gameworld.GetStaticBool("EchoQueuedActions"))
+			actor.Gameworld.GetStaticBool("EchoQueuedActions"))
 		{
 			actor.Send(
 				$"{"[Queued Action]: ".ColourBold(Telnet.Yellow)}Aiming {weapon.Parent.HowSeen(actor)} at {target.HowSeen(actor)}.");
@@ -2205,8 +2205,8 @@ Note: The prog used with #3peace permanent#0 takes the following parameters and 
 		if (actor.Aim != null && actor.Combat != null)
 		{
 			if (actor.TakeOrQueueCombatAction(
-				    SelectedCombatAction.GetEffectFireItem(actor, actor.Aim.Target, actor.Aim.Weapon)) &&
-			    actor.Gameworld.GetStaticBool("EchoQueuedActions"))
+					SelectedCombatAction.GetEffectFireItem(actor, actor.Aim.Target, actor.Aim.Weapon)) &&
+				actor.Gameworld.GetStaticBool("EchoQueuedActions"))
 			{
 				actor.Send(
 					$"{"[Queued Action]: ".ColourBold(Telnet.Yellow)}Firing {actor.Aim.Weapon.Parent.HowSeen(actor)} at {actor.Aim.Target?.HowSeen(actor) ?? "the sky"}.");
@@ -2223,7 +2223,7 @@ Note: The prog used with #3peace permanent#0 takes the following parameters and 
 		}
 
 		if (aiming.Weapon.WeaponType.StaminaToFire > 0 &&
-		    !actor.CanSpendStamina(aiming.Weapon.WeaponType.StaminaToFire))
+			!actor.CanSpendStamina(aiming.Weapon.WeaponType.StaminaToFire))
 		{
 			actor.Send($"You are too exhausted to fire {aiming.Weapon.Parent.HowSeen(actor)}.");
 			return;
@@ -2260,7 +2260,7 @@ Note: The prog used with #3peace permanent#0 takes the following parameters and 
 			}
 
 			if (CrimeExtensions.HandleCrimesAndLawfulActing(actor, CrimeTypes.AssaultWithADeadlyWeapon,
-				    (ICharacter)aiming.Aim.Target))
+					(ICharacter)aiming.Aim.Target))
 			{
 				return;
 			}
@@ -2275,8 +2275,8 @@ Note: The prog used with #3peace permanent#0 takes the following parameters and 
 			}
 
 			if (actor.TakeOrQueueCombatAction(
-				    SelectedCombatAction.GetEffectFireItem(actor, actor.Aim.Target, aiming.Weapon)) &&
-			    actor.Gameworld.GetStaticBool("EchoQueuedActions"))
+					SelectedCombatAction.GetEffectFireItem(actor, actor.Aim.Target, aiming.Weapon)) &&
+				actor.Gameworld.GetStaticBool("EchoQueuedActions"))
 			{
 				actor.Send(
 					$"{"[Queued Action]: ".ColourBold(Telnet.Yellow)}Firing {actor.Aim.Weapon.Parent.HowSeen(actor)} at {actor.Aim.Target.HowSeen(actor)}.");
@@ -2331,7 +2331,7 @@ Note: The prog used with #3peace permanent#0 takes the following parameters and 
 			if (actor.Combat != null)
 			{
 				if (actor.TakeOrQueueCombatAction(SelectedCombatAction.GetEffectTakeCover(actor, cover)) &&
-				    actor.Gameworld.GetStaticBool("EchoQueuedActions"))
+					actor.Gameworld.GetStaticBool("EchoQueuedActions"))
 				{
 					actor.Send(
 						$"{"[Queued Action]: ".ColourBold(Telnet.Yellow)}Seeking cover @ {cover.Cover.Describe(actor, cover.CoverItem?.Parent, actor)}");
@@ -2354,7 +2354,7 @@ Note: The prog used with #3peace permanent#0 takes the following parameters and 
 
 		var targets = new List<IKeywordedItem>();
 		targets.AddRange(actor.Location.LayerGameItems(actor.RoomLayer)
-		                      .Where(x => x.GetItemType<IProvideCover>()?.Cover != null));
+							  .Where(x => x.GetItemType<IProvideCover>()?.Cover != null));
 		targets.AddRange(actor.Location.GetCoverFor(actor));
 		var target = targets.GetFromItemListByKeyword(ss.Pop(), actor);
 		if (target == null)
@@ -2383,7 +2383,7 @@ Note: The prog used with #3peace permanent#0 takes the following parameters and 
 		if (actor.Combat != null)
 		{
 			if (actor.TakeOrQueueCombatAction(SelectedCombatAction.GetEffectTakeCover(actor, newcover)) &&
-			    actor.Gameworld.GetStaticBool("EchoQueuedActions"))
+				actor.Gameworld.GetStaticBool("EchoQueuedActions"))
 			{
 				actor.Send(
 					$"{"[Queued Action]: ".ColourBold(Telnet.Yellow)}Seeking cover @ {newcover.Cover.Describe(actor, newcover.CoverItem?.Parent, actor)}");
@@ -2449,7 +2449,7 @@ Note: The prog used with #3peace permanent#0 takes the following parameters and 
 		}
 
 		if (actor.TakeOrQueueCombatAction(SelectedCombatAction.GetEffectCharge(actor, target)) &&
-		    actor.Gameworld.GetStaticBool("EchoQueuedActions"))
+			actor.Gameworld.GetStaticBool("EchoQueuedActions"))
 		{
 			actor.Send(
 				$"{"[Queued Action]: ".ColourBold(Telnet.Yellow)}Charging into melee with {target.HowSeen(actor)}.");
@@ -2502,7 +2502,7 @@ Note: The prog used with #3peace permanent#0 takes the following parameters and 
 		}
 
 		if (actor.TakeOrQueueCombatAction(SelectedCombatAction.GetEffectMoveToMelee(actor, target)) &&
-		    actor.Gameworld.GetStaticBool("EchoQueuedActions"))
+			actor.Gameworld.GetStaticBool("EchoQueuedActions"))
 		{
 			actor.Send(
 				$"{"[Queued Action]: ".ColourBold(Telnet.Yellow)}Engaging in melee with {target.HowSeen(actor)}.");
@@ -2560,7 +2560,7 @@ The syntax for this command is as follows:
 		}
 
 		var tch = actor.CombatTarget as ICharacter ??
-		          actor.EffectsOfType<OutOfCombatAim>().FirstOrDefault()?.Target as ICharacter;
+				  actor.EffectsOfType<OutOfCombatAim>().FirstOrDefault()?.Target as ICharacter;
 		if (tch == null)
 		{
 			actor.Send("You can't use this option when you're targeting something other than characters.");
@@ -2598,7 +2598,7 @@ The syntax for this command is as follows:
 			? actor.Gameworld.CharacterCombatSettings.Where(x => x.CharacterOwnerId == actor.Id).ToList()
 			: actor.Gameworld.CharacterCombatSettings.Where(
 				x => ((bool?)x.AvailabilityProg?.Execute(actor) ?? true) &&
-				     (x.GlobalTemplate || x.CharacterOwnerId == actor.Id)
+					 (x.GlobalTemplate || x.CharacterOwnerId == actor.Id)
 			).ToList();
 	}
 
@@ -2607,19 +2607,19 @@ The syntax for this command is as follows:
 		var settings = GetSettingsForCharacter(actor, command.PopSpeech());
 
 		actor.Send("Combat Settings:\n\n" +
-		           StringUtilities.GetTextTable(
-			           from setting in settings
-			           select new[]
-			           {
-				           setting.Id.ToString("N0", actor),
-				           setting.Name.TitleCase(),
-				           setting.Description.ProperSentences(),
-				           setting.GlobalTemplate ? "Y" : "N"
-			           },
-			           new[] { "ID", "Name", "Description", "Global" },
-			           actor.LineFormatLength,
-			           truncatableColumnIndex: 2, unicodeTable: actor.Account.UseUnicode
-		           )
+				   StringUtilities.GetTextTable(
+					   from setting in settings
+					   select new[]
+					   {
+						   setting.Id.ToString("N0", actor),
+						   setting.Name.TitleCase(),
+						   setting.Description.ProperSentences(),
+						   setting.GlobalTemplate ? "Y" : "N"
+					   },
+					   new[] { "ID", "Name", "Description", "Global" },
+					   actor.LineFormatLength,
+					   truncatableColumnIndex: 2, unicodeTable: actor.Account.UseUnicode
+				   )
 		);
 	}
 
@@ -2642,7 +2642,7 @@ The syntax for this command is as follows:
 			}
 
 			if (!actor.IsAdministrator(PermissionLevel.Admin) && setting.CharacterOwnerId != actor.Id &&
-			    (!setting.GlobalTemplate || ((bool?)setting.AvailabilityProg?.Execute(actor) ?? true)))
+				(!setting.GlobalTemplate || ((bool?)setting.AvailabilityProg?.Execute(actor) ?? true)))
 			{
 				actor.Send("You do not have permission to view that combat setting.");
 				return;
@@ -2796,44 +2796,44 @@ The syntax to use this command is as follows:");
 	{
 		actor.Send($@"You can edit the following settings:
 
-    #3name <name>#0         - Change the name of the combat setting
-    #3desc <description>#0  - Change the description
-    #3global#0              - Toggle the Global flag (admin only)
-    #3availprog <progID>#0  - Configure the Availability Prog (admin only)
-    #3classifications <classifications>#0 - Designated weapon classifications legal for this Combat Config
-    #3character <id>#0      - Reassign a Combat Config to a character
-    #3aim <percentage>#0    - The percentage of aim before you auto-shoot
-    #3stamina <amount>#0    - The amount of stamina below which you will stop attacking
-    #3melee <strategy>#0    - Designate overall melee strategy
-    #3range <strategy>#0    - Designate overall ranged strategy
-    #3grapple <response>#0  - Set the response to someone grappling you
-    #3setup <setup>#0       - Preferred overall gear setup for the auto-inventory
-    #3weapon <percentage>#0 - configures the percentage chance of you using a weapon attack move
-    #3natural <percentage>#0 - configures the percentage chance of you using a natural attack move
-    #3auxiliary <percentage>#0 - configures the percentage chance of you using an auxiliary move
-    #3magic <percentage>#0 - configures the percentage chance of you using a magic attack move
-    #3prefer_armed <true/false>#0 - configures whether you prefer to fight armed and will seek to wield a weapon
-    #3prefer_favourite <true/false>#0 - configures whether you prefer to retrieve the weapon you're wielding rather than drawing a new one if you lose it
-    #3prefer_shield <true/false>#0 - configures whether you prefer to fight with a shield
-    #3prefer_stagger <true/false>#0 - configures whether you prefer using staggering blows over footwork to end clinches
-    #3fallback <true/false>#0 - configures whether you will fallback to unarmed attacks if you cannot acquire a weapon
-    #3attack_helpless <true/false>#0 - configures whether you will attack a helpless opponent
-    #3attack_critical <true/false>#0 - configures whether you will attack a critically injured opponent
-    #3pursue <true/false>#0 - configures whether you will pursue targets to other locations if they flee
-    #3auto_inventory <auto|manual|no_discard|retrieve_only>#0 - changes the degree of automation of your inventory management
-    #3auto_ranged <auto|manual|continue_only>#0 - changes the degree of automation of your ranged combat
-    #3auto_move <auto|manual|cover_only|keep_range>#0 - changes the degree of automation of your combat movement
-    #3auto_position#0 - Toggle whether position will be managed automatically
-    #3auto_melee#0 - Toggle whether you will automatically move to melee if you are unable to engage in ranged combat
-    #3movetotarget#0 - Toggle whether you will try to close to the same room as a distant target
-    #3skirmish#0 - Toggle whether you will disengage to other rooms when skirmishing
-    #3swap <type1> <type2>#0 - swaps the order in which you will execute different attack types
+	#3name <name>#0         - Change the name of the combat setting
+	#3desc <description>#0  - Change the description
+	#3global#0              - Toggle the Global flag (admin only)
+	#3availprog <progID>#0  - Configure the Availability Prog (admin only)
+	#3classifications <classifications>#0 - Designated weapon classifications legal for this Combat Config
+	#3character <id>#0      - Reassign a Combat Config to a character
+	#3aim <percentage>#0    - The percentage of aim before you auto-shoot
+	#3stamina <amount>#0    - The amount of stamina below which you will stop attacking
+	#3melee <strategy>#0    - Designate overall melee strategy
+	#3range <strategy>#0    - Designate overall ranged strategy
+	#3grapple <response>#0  - Set the response to someone grappling you
+	#3setup <setup>#0       - Preferred overall gear setup for the auto-inventory
+	#3weapon <percentage>#0 - configures the percentage chance of you using a weapon attack move
+	#3natural <percentage>#0 - configures the percentage chance of you using a natural attack move
+	#3auxiliary <percentage>#0 - configures the percentage chance of you using an auxiliary move
+	#3magic <percentage>#0 - configures the percentage chance of you using a magic attack move
+	#3prefer_armed <true/false>#0 - configures whether you prefer to fight armed and will seek to wield a weapon
+	#3prefer_favourite <true/false>#0 - configures whether you prefer to retrieve the weapon you're wielding rather than drawing a new one if you lose it
+	#3prefer_shield <true/false>#0 - configures whether you prefer to fight with a shield
+	#3prefer_stagger <true/false>#0 - configures whether you prefer using staggering blows over footwork to end clinches
+	#3fallback <true/false>#0 - configures whether you will fallback to unarmed attacks if you cannot acquire a weapon
+	#3attack_helpless <true/false>#0 - configures whether you will attack a helpless opponent
+	#3attack_critical <true/false>#0 - configures whether you will attack a critically injured opponent
+	#3pursue <true/false>#0 - configures whether you will pursue targets to other locations if they flee
+	#3auto_inventory <auto|manual|no_discard|retrieve_only>#0 - changes the degree of automation of your inventory management
+	#3auto_ranged <auto|manual|continue_only>#0 - changes the degree of automation of your ranged combat
+	#3auto_move <auto|manual|cover_only|keep_range>#0 - changes the degree of automation of your combat movement
+	#3auto_position#0 - Toggle whether position will be managed automatically
+	#3auto_melee#0 - Toggle whether you will automatically move to melee if you are unable to engage in ranged combat
+	#3movetotarget#0 - Toggle whether you will try to close to the same room as a distant target
+	#3skirmish#0 - Toggle whether you will disengage to other rooms when skirmishing
+	#3swap <type1> <type2>#0 - swaps the order in which you will execute different attack types
 
 The following options refer to flags listed in the SHOW COMBATFLAGS list:
 
-    #3require <flag>#0 - toggles a flag that is REQUIRED for all combat moves you use. Moves without the flag will not be used.
-    #3prefer <flag>#0 - toggles a flag that is PREFERRED for all combat moves you use. Moves with the flag are significantly more likely to be used.
-    #3forbid <flag>#0 - toggles a flag that is FORBIDDEN for all combat moves you use. Moves with the flag will not be used.
+	#3require <flag>#0 - toggles a flag that is REQUIRED for all combat moves you use. Moves without the flag will not be used.
+	#3prefer <flag>#0 - toggles a flag that is PREFERRED for all combat moves you use. Moves with the flag are significantly more likely to be used.
+	#3forbid <flag>#0 - toggles a flag that is FORBIDDEN for all combat moves you use. Moves with the flag will not be used.
 ".SubstituteANSIColour());
 	}
 
@@ -2957,7 +2957,7 @@ The following options refer to flags listed in the SHOW COMBATFLAGS list:
 	private static void CombatConfigAim(ICharacter actor, StringStack command)
 	{
 		if (command.IsFinished ||
-		    !command.SafeRemainingArgument.TryParsePercentage(actor.Account.Culture, out var value))
+			!command.SafeRemainingArgument.TryParsePercentage(actor.Account.Culture, out var value))
 		{
 			actor.Send("You must specify a valid percentage of aim at which the auto-shooter will shoot your gun.");
 			return;
@@ -3019,19 +3019,19 @@ The following options refer to flags listed in the SHOW COMBATFLAGS list:
 		if (command.IsFinished)
 		{
 			actor.Send(StringUtilities.HMark +
-			           $"Toggle a Forbidden CombatFlag on or off via: combat config forbid <CombatFlag>\n" +
-			           StringUtilities.Indent + "Valid options are: " +
-			           Enum.GetValues(typeof(CombatMoveIntentions)).OfType<CombatMoveIntentions>()
-			               .OrderBy(x => (int)x)
-			               .Select(x => x.Describe().Colour(Telnet.Green))
-			               .ListToString() + ".");
+					   $"Toggle a Forbidden CombatFlag on or off via: combat config forbid <CombatFlag>\n" +
+					   StringUtilities.Indent + "Valid options are: " +
+					   Enum.GetValues(typeof(CombatMoveIntentions)).OfType<CombatMoveIntentions>()
+						   .OrderBy(x => (int)x)
+						   .Select(x => x.Describe().Colour(Telnet.Green))
+						   .ListToString() + ".");
 			return;
 		}
 
 		if (!CombatExtensions.TryParseCombatMoveIntention(command.PopSpeech(), out var intention))
 		{
 			actor.Send(StringUtilities.HMark +
-			           $"There is no such combat flag. You can view the combat flags with the command {"show combatflags".Colour(Telnet.Yellow)}.");
+					   $"There is no such combat flag. You can view the combat flags with the command {"show combatflags".Colour(Telnet.Yellow)}.");
 			return;
 		}
 
@@ -3039,13 +3039,13 @@ The following options refer to flags listed in the SHOW COMBATFLAGS list:
 		{
 			actor.CombatSettings.ForbiddenIntentions &= ~intention;
 			actor.Send(StringUtilities.HMark +
-			           $"You will once again use combat moves which have the {intention.Describe().Colour(Telnet.Green)} flag.");
+					   $"You will once again use combat moves which have the {intention.Describe().Colour(Telnet.Green)} flag.");
 		}
 		else
 		{
 			actor.CombatSettings.ForbiddenIntentions |= intention;
 			actor.Send(StringUtilities.HMark +
-			           $"You will no longer use combat moves which have the {intention.Describe().Colour(Telnet.Green)} flag.");
+					   $"You will no longer use combat moves which have the {intention.Describe().Colour(Telnet.Green)} flag.");
 		}
 	}
 
@@ -3054,19 +3054,19 @@ The following options refer to flags listed in the SHOW COMBATFLAGS list:
 		if (command.IsFinished)
 		{
 			actor.Send(StringUtilities.HMark +
-			           $"Toggle a Preferred CombatFlag on or off via: combat config prefer <CombatFlag>\n" +
-			           StringUtilities.Indent + "Valid options are: " +
-			           Enum.GetValues(typeof(CombatMoveIntentions)).OfType<CombatMoveIntentions>()
-			               .OrderBy(x => (int)x)
-			               .Select(x => x.Describe().Colour(Telnet.Green))
-			               .ListToString() + ".");
+					   $"Toggle a Preferred CombatFlag on or off via: combat config prefer <CombatFlag>\n" +
+					   StringUtilities.Indent + "Valid options are: " +
+					   Enum.GetValues(typeof(CombatMoveIntentions)).OfType<CombatMoveIntentions>()
+						   .OrderBy(x => (int)x)
+						   .Select(x => x.Describe().Colour(Telnet.Green))
+						   .ListToString() + ".");
 			return;
 		}
 
 		if (!CombatExtensions.TryParseCombatMoveIntention(command.PopSpeech(), out var intention))
 		{
 			actor.Send(StringUtilities.HMark +
-			           $"There is no such combat flag. You can view the combat flags with the command {"show combatflags".Colour(Telnet.Yellow)}.");
+					   $"There is no such combat flag. You can view the combat flags with the command {"show combatflags".Colour(Telnet.Yellow)}.");
 			return;
 		}
 
@@ -3074,13 +3074,13 @@ The following options refer to flags listed in the SHOW COMBATFLAGS list:
 		{
 			actor.CombatSettings.PreferredIntentions &= ~intention;
 			actor.Send(StringUtilities.HMark +
-			           $"You will no longer prefer combat moves which have the {intention.Describe().Colour(Telnet.Green)} flag.");
+					   $"You will no longer prefer combat moves which have the {intention.Describe().Colour(Telnet.Green)} flag.");
 		}
 		else
 		{
 			actor.CombatSettings.PreferredIntentions |= intention;
 			actor.Send(StringUtilities.HMark +
-			           $"You will now prefer combat moves which have the {intention.Describe().Colour(Telnet.Green)} flag.");
+					   $"You will now prefer combat moves which have the {intention.Describe().Colour(Telnet.Green)} flag.");
 		}
 	}
 
@@ -3089,19 +3089,19 @@ The following options refer to flags listed in the SHOW COMBATFLAGS list:
 		if (command.IsFinished)
 		{
 			actor.Send(StringUtilities.HMark +
-			           $"Toggle a Required CombatFlag on or off via: combat config require <CombatFlag>\n" +
-			           StringUtilities.Indent + "Valid options are: " +
-			           Enum.GetValues(typeof(CombatMoveIntentions)).OfType<CombatMoveIntentions>()
-			               .OrderBy(x => (int)x)
-			               .Select(x => x.Describe().Colour(Telnet.Green))
-			               .ListToString() + ".");
+					   $"Toggle a Required CombatFlag on or off via: combat config require <CombatFlag>\n" +
+					   StringUtilities.Indent + "Valid options are: " +
+					   Enum.GetValues(typeof(CombatMoveIntentions)).OfType<CombatMoveIntentions>()
+						   .OrderBy(x => (int)x)
+						   .Select(x => x.Describe().Colour(Telnet.Green))
+						   .ListToString() + ".");
 			return;
 		}
 
 		if (!CombatExtensions.TryParseCombatMoveIntention(command.PopSpeech(), out var intention))
 		{
 			actor.Send(StringUtilities.HMark +
-			           $"There is no such combat flag. You can view the combat flags with the command {"show combatflags".Colour(Telnet.Yellow)}.");
+					   $"There is no such combat flag. You can view the combat flags with the command {"show combatflags".Colour(Telnet.Yellow)}.");
 			return;
 		}
 
@@ -3109,13 +3109,13 @@ The following options refer to flags listed in the SHOW COMBATFLAGS list:
 		{
 			actor.CombatSettings.RequiredIntentions &= ~intention;
 			actor.Send(StringUtilities.HMark +
-			           $"You will no longer require combat moves which have the {intention.Describe().Colour(Telnet.Green)} flag.");
+					   $"You will no longer require combat moves which have the {intention.Describe().Colour(Telnet.Green)} flag.");
 		}
 		else
 		{
 			actor.CombatSettings.RequiredIntentions |= intention;
 			actor.Send(StringUtilities.HMark +
-			           $"You will now require combat moves which have the {intention.Describe().Colour(Telnet.Green)} flag.");
+					   $"You will now require combat moves which have the {intention.Describe().Colour(Telnet.Green)} flag.");
 		}
 	}
 
@@ -3157,8 +3157,8 @@ The following options refer to flags listed in the SHOW COMBATFLAGS list:
 		double total()
 		{
 			return actor.CombatSettings.MagicUsePercentage + actor.CombatSettings.PsychicUsePercentage +
-			       actor.CombatSettings.NaturalWeaponPercentage + actor.CombatSettings.WeaponUsePercentage +
-			       actor.CombatSettings.AuxiliaryPercentage;
+				   actor.CombatSettings.NaturalWeaponPercentage + actor.CombatSettings.WeaponUsePercentage +
+				   actor.CombatSettings.AuxiliaryPercentage;
 		}
 
 		while (1.0 - total() > 0.00005)
@@ -3282,7 +3282,7 @@ The following options refer to flags listed in the SHOW COMBATFLAGS list:
 					return false;
 				default:
 					actor.Send(StringUtilities.HMark +
-					           $"You must either specify {"true".Colour(Telnet.Green)} or {"false".Colour(Telnet.Red)}, or just omit the argument altogether to toggle.");
+							   $"You must either specify {"true".Colour(Telnet.Green)} or {"false".Colour(Telnet.Red)}, or just omit the argument altogether to toggle.");
 					return null;
 			}
 		}
@@ -3435,8 +3435,8 @@ The following options refer to flags listed in the SHOW COMBATFLAGS list:
 		actor.CombatSettings.Changed = true;
 
 		actor.Send(StringUtilities.HMark +
-		           $"Description for {actor.CombatSettings.Name} updated to '{actor.CombatSettings.Description}'"
-			           .Colour(Telnet.BoldGreen));
+				   $"Description for {actor.CombatSettings.Name} updated to '{actor.CombatSettings.Description}'"
+					   .Colour(Telnet.BoldGreen));
 	}
 
 	private static void CombatConfigGlobal(ICharacter actor, StringStack command)
@@ -3451,13 +3451,13 @@ The following options refer to flags listed in the SHOW COMBATFLAGS list:
 		{
 			actor.CombatSettings.GlobalTemplate = false;
 			actor.Send(StringUtilities.HMark +
-			           $"{actor.CombatSettings.Name} is no longer a Global Template.".Colour(Telnet.BoldGreen));
+					   $"{actor.CombatSettings.Name} is no longer a Global Template.".Colour(Telnet.BoldGreen));
 		}
 		else
 		{
 			actor.CombatSettings.GlobalTemplate = true;
 			actor.Send(StringUtilities.HMark +
-			           $"{actor.CombatSettings.Name} is now a Global Template.".Colour(Telnet.BoldGreen));
+					   $"{actor.CombatSettings.Name} is now a Global Template.".Colour(Telnet.BoldGreen));
 		}
 	}
 
@@ -3480,7 +3480,7 @@ The following options refer to flags listed in the SHOW COMBATFLAGS list:
 			actor.CombatSettings.AvailabilityProg = null;
 			actor.CombatSettings.Changed = true;
 			actor.Send(StringUtilities.HMark +
-			           $"Availability prog for {actor.CombatSettings.Name} cleared.".Colour(Telnet.BoldGreen));
+					   $"Availability prog for {actor.CombatSettings.Name} cleared.".Colour(Telnet.BoldGreen));
 			return;
 		}
 
@@ -3497,7 +3497,7 @@ The following options refer to flags listed in the SHOW COMBATFLAGS list:
 		if (!prog.MatchesParameters(new[] { FutureProgVariableTypes.Character }))
 		{
 			actor.Send(StringUtilities.HMark +
-			           "Only progs that accept a single character parameter are eligible for Availability Progs.");
+					   "Only progs that accept a single character parameter are eligible for Availability Progs.");
 			return;
 		}
 
@@ -3505,7 +3505,7 @@ The following options refer to flags listed in the SHOW COMBATFLAGS list:
 		actor.CombatSettings.Changed = true;
 
 		actor.Send(StringUtilities.HMark +
-		           $"AvailProg for {actor.CombatSettings.Name} set to: {prog.FunctionName} (#{prog.Id}).");
+				   $"AvailProg for {actor.CombatSettings.Name} set to: {prog.FunctionName} (#{prog.Id}).");
 	}
 
 	private static void CombatConfigCharacter(ICharacter actor, StringStack command)
@@ -3523,7 +3523,7 @@ The following options refer to flags listed in the SHOW COMBATFLAGS list:
 		}
 
 		var target = actor.Gameworld.Actors.GetByName(command.PopSpeech()) ??
-		             actor.Gameworld.Actors.GetFromItemListByKeyword(command.Last, actor);
+					 actor.Gameworld.Actors.GetFromItemListByKeyword(command.Last, actor);
 
 		if (target == null)
 		{
@@ -3535,8 +3535,8 @@ The following options refer to flags listed in the SHOW COMBATFLAGS list:
 		actor.CombatSettings.Changed = true;
 
 		actor.Send(StringUtilities.HMark +
-		           $"{actor.CombatSettings.Name.Proper()} has been assigned to {target.Name.Proper()}.".Colour(
-			           Telnet.BoldGreen));
+				   $"{actor.CombatSettings.Name.Proper()} has been assigned to {target.Name.Proper()}.".Colour(
+					   Telnet.BoldGreen));
 	}
 
 	private static void CombatConfigClassifications(ICharacter actor, StringStack command)
@@ -3546,10 +3546,10 @@ The following options refer to flags listed in the SHOW COMBATFLAGS list:
 		if (command.IsFinished)
 		{
 			actor.Send(StringUtilities.HMark + "Syntax: combat config classifications <classifications list>\n" +
-			           StringUtilities.Indent + "Valid Classifications are: " +
-			           classifications.OrderBy(x => (int)x)
-			                          .Select(x => x.Describe().Colour(Telnet.Green))
-			                          .ListToString() + ".");
+					   StringUtilities.Indent + "Valid Classifications are: " +
+					   classifications.OrderBy(x => (int)x)
+									  .Select(x => x.Describe().Colour(Telnet.Green))
+									  .ListToString() + ".");
 			return;
 		}
 
@@ -3557,7 +3557,7 @@ The following options refer to flags listed in the SHOW COMBATFLAGS list:
 		{
 			actor.CombatSettings.ClearClassifications();
 			actor.Send(StringUtilities.HMark +
-			           $"Classifications for {actor.CombatSettings.Name} have been cleared. This setting won't use any weapons until new Classifications are added.");
+					   $"Classifications for {actor.CombatSettings.Name} have been cleared. This setting won't use any weapons until new Classifications are added.");
 			return;
 		}
 
@@ -3569,24 +3569,24 @@ The following options refer to flags listed in the SHOW COMBATFLAGS list:
 			{
 				actor.CombatSettings.ClearClassifications();
 				actor.Send(StringUtilities.HMark +
-				           $"Invalid Classification: {command.Last}. Valid choices are: " +
-				           classifications.OrderBy(x => (int)x)
-				                          .Select(x => x.Describe().Colour(Telnet.Green))
-				                          .ListToString() + ".\n" +
-				           StringUtilities.Indent +
-				           "Classifications cleared. Must set new list before Settings are usable.");
+						   $"Invalid Classification: {command.Last}. Valid choices are: " +
+						   classifications.OrderBy(x => (int)x)
+										  .Select(x => x.Describe().Colour(Telnet.Green))
+										  .ListToString() + ".\n" +
+						   StringUtilities.Indent +
+						   "Classifications cleared. Must set new list before Settings are usable.");
 				return;
 			}
 
 			actor.CombatSettings.AddClassification(classifications.First(x => x.Describe()
-			                                                                   .Equals(cmd,
-				                                                                   StringComparison
-					                                                                   .InvariantCultureIgnoreCase)));
+																			   .Equals(cmd,
+																				   StringComparison
+																					   .InvariantCultureIgnoreCase)));
 		}
 
 		actor.CombatSettings.Changed = true;
 		actor.Send(StringUtilities.HMark +
-		           $"{actor.CombatSettings.Name.Proper()} has had its Weapon Classifications updated.");
+				   $"{actor.CombatSettings.Name.Proper()} has had its Weapon Classifications updated.");
 	}
 
 	private static void CombatConfigMovement(ICharacter actor, StringStack command)
@@ -3594,7 +3594,7 @@ The following options refer to flags listed in the SHOW COMBATFLAGS list:
 		if (command.IsFinished || command.Peek().EqualTo("help") || command.Peek().EqualTo("?"))
 		{
 			actor.Send(StringUtilities.HMark + $"You can choose to set your automatic combat movement management to " +
-			           $"{new[] { "auto", "manual", "cover_only", "keep_range" }.Select(x => x.Colour(Telnet.Cyan)).ListToString(conjunction: "or ")}.");
+					   $"{new[] { "auto", "manual", "cover_only", "keep_range" }.Select(x => x.Colour(Telnet.Cyan)).ListToString(conjunction: "or ")}.");
 			return;
 		}
 
@@ -3620,8 +3620,8 @@ The following options refer to flags listed in the SHOW COMBATFLAGS list:
 				break;
 			default:
 				actor.Send(StringUtilities.HMark +
-				           $"You can choose to set your automatic combat movement management to " +
-				           $"{new[] { "auto", "manual", "cover_only", "keep_range" }.Select(x => x.Colour(Telnet.Cyan)).ListToString(conjunction: "or ")}.");
+						   $"You can choose to set your automatic combat movement management to " +
+						   $"{new[] { "auto", "manual", "cover_only", "keep_range" }.Select(x => x.Colour(Telnet.Cyan)).ListToString(conjunction: "or ")}.");
 				;
 				return;
 		}
@@ -3629,7 +3629,7 @@ The following options refer to flags listed in the SHOW COMBATFLAGS list:
 		actor.CombatSettings.MovementManagement = setting;
 		actor.CombatSettings.Changed = true;
 		actor.Send(StringUtilities.HMark +
-		           $"Your combat movement management has been set to {setting.Describe().Colour(Telnet.Green)}.");
+				   $"Your combat movement management has been set to {setting.Describe().Colour(Telnet.Green)}.");
 	}
 
 	private static void CombatConfigRanged(ICharacter actor, StringStack command)
@@ -3637,7 +3637,7 @@ The following options refer to flags listed in the SHOW COMBATFLAGS list:
 		if (command.IsFinished || command.Peek().EqualTo("help") || command.Peek().EqualTo("?"))
 		{
 			actor.Send(StringUtilities.HMark + $"You can choose to set your automatic ranged combat management to " +
-			           $"{new[] { "auto", "manual", "continue_only" }.Select(x => x.Colour(Telnet.Cyan)).ListToString(conjunction: "or ")}.");
+					   $"{new[] { "auto", "manual", "continue_only" }.Select(x => x.Colour(Telnet.Cyan)).ListToString(conjunction: "or ")}.");
 			return;
 		}
 
@@ -3658,15 +3658,15 @@ The following options refer to flags listed in the SHOW COMBATFLAGS list:
 				break;
 			default:
 				actor.Send(StringUtilities.HMark +
-				           $"You can choose to set your automatic ranged combat management to" +
-				           $" {new[] { "auto", "manual", "continue_only" }.Select(x => x.Colour(Telnet.Cyan)).ListToString(conjunction: "or ")}.");
+						   $"You can choose to set your automatic ranged combat management to" +
+						   $" {new[] { "auto", "manual", "continue_only" }.Select(x => x.Colour(Telnet.Cyan)).ListToString(conjunction: "or ")}.");
 				return;
 		}
 
 		actor.CombatSettings.RangedManagement = setting;
 		actor.CombatSettings.Changed = true;
 		actor.Send(StringUtilities.HMark +
-		           $"Your ranged combat management has been set to {setting.Describe().Colour(Telnet.Green)}.");
+				   $"Your ranged combat management has been set to {setting.Describe().Colour(Telnet.Green)}.");
 	}
 
 	private static void CombatConfigInventory(ICharacter actor, StringStack command)
@@ -3674,7 +3674,7 @@ The following options refer to flags listed in the SHOW COMBATFLAGS list:
 		if (command.IsFinished || command.Peek().EqualTo("help") || command.Peek().EqualTo("?"))
 		{
 			actor.Send(StringUtilities.HMark + $"You can choose to set your automatic inventory management to " +
-			           $"{new[] { "auto", "retrieve_only", "no_discard", "manual" }.Select(x => x.Colour(Telnet.Cyan)).ListToString(conjunction: "or ")}.");
+					   $"{new[] { "auto", "retrieve_only", "no_discard", "manual" }.Select(x => x.Colour(Telnet.Cyan)).ListToString(conjunction: "or ")}.");
 			return;
 		}
 
@@ -3699,14 +3699,14 @@ The following options refer to flags listed in the SHOW COMBATFLAGS list:
 				break;
 			default:
 				actor.Send(StringUtilities.HMark + $"You can choose to set your automatic inventory management to " +
-				           $"{new[] { "auto", "retrieve_only", "no_discard", "manual" }.Select(x => x.Colour(Telnet.Cyan)).ListToString(conjunction: "or ")}.");
+						   $"{new[] { "auto", "retrieve_only", "no_discard", "manual" }.Select(x => x.Colour(Telnet.Cyan)).ListToString(conjunction: "or ")}.");
 				return;
 		}
 
 		actor.CombatSettings.InventoryManagement = setting;
 		actor.CombatSettings.Changed = true;
 		actor.Send(StringUtilities.HMark +
-		           $"Your inventory management has been set to {setting.Describe().Colour(Telnet.Green)}.");
+				   $"Your inventory management has been set to {setting.Describe().Colour(Telnet.Green)}.");
 	}
 
 	private static void CombatConfigPosition(ICharacter actor, StringStack command)
@@ -3727,13 +3727,28 @@ The following options refer to flags listed in the SHOW COMBATFLAGS list:
 	private static void CombatConfigMeleeStrategy(ICharacter actor, StringStack command)
 	{
 		var meleeStrategies = Enum.GetValues(typeof(CombatStrategyMode)).OfType<CombatStrategyMode>()
-		                          .Where(x => x.IsMeleeStrategy())
-		                          .ToList();
+								  .Where(x => x.IsMeleeStrategy())
+								  .ToList();
+		var validStrategyText = StringUtilities.GetTextTable(
+			from item in meleeStrategies
+			select new List<string>
+			{
+				item.DescribeEnum(),
+				item.DescribeWordy()
+			},
+			new List<string>
+			{
+				"Name",
+				"Description"
+			},
+			actor,
+			Telnet.TextRed
+		);
 
 		if (command.IsFinished)
 		{
 			actor.OutputHandler.Send(
-				$"Which melee strategy do you want to set? The valid strategies are:\n{meleeStrategies.Select(x => $"\t{x.DescribeEnum()} - {x.DescribeWordy()}\n").ListToCommaSeparatedValues("\n")}",
+				$"Which melee strategy do you want to set? The valid strategies are:\n{validStrategyText}",
 				false);
 			return;
 		}
@@ -3742,7 +3757,7 @@ The following options refer to flags listed in the SHOW COMBATFLAGS list:
 		if (!stratName.TryParseEnum<CombatStrategyMode>(out var value))
 		{
 			actor.OutputHandler.Send(
-				$"That is not a valid melee strategy. The valid strategies are:\n{meleeStrategies.Select(x => $"\t{x.DescribeEnum()} - {x.DescribeWordy()}\n").ListToCommaSeparatedValues("\n")}",
+				$"That is not a valid melee strategy. The valid strategies are:\n{validStrategyText}",
 				false);
 			return;
 		}
@@ -3756,13 +3771,28 @@ The following options refer to flags listed in the SHOW COMBATFLAGS list:
 	private static void CombatConfigRangedStrategy(ICharacter actor, StringStack command)
 	{
 		var rangeStrategies = Enum.GetValues(typeof(CombatStrategyMode)).OfType<CombatStrategyMode>()
-		                          .Where(x => x.IsRangedStrategy())
-		                          .ToList();
+								  .Where(x => x.IsRangedStrategy())
+								  .ToList();
+		var validStrategyText = StringUtilities.GetTextTable(
+			from item in rangeStrategies
+			select new List<string>
+			{
+				item.DescribeEnum(),
+				item.DescribeWordy()
+			},
+			new List<string>
+			{
+				"Name",
+				"Description"
+			},
+			actor,
+			Telnet.TextRed
+		);
 
 		if (command.IsFinished)
 		{
 			actor.OutputHandler.Send(
-				$"Which ranged strategy do you want to set? The valid strategies are:\n{rangeStrategies.Select(x => $"\t{x.DescribeEnum()} - {x.DescribeWordy()}\n").ListToCommaSeparatedValues("\n")}",
+				$"Which ranged strategy do you want to set? The valid strategies are:\n{validStrategyText}",
 				false);
 			return;
 		}
@@ -3771,7 +3801,7 @@ The following options refer to flags listed in the SHOW COMBATFLAGS list:
 		if (!stratName.TryParseEnum<CombatStrategyMode>(out var value))
 		{
 			actor.OutputHandler.Send(
-				$"That is not a valid ranged strategy. The valid strategies are:\n{rangeStrategies.Select(x => $"\t{x.DescribeEnum()} - {x.DescribeWordy()}\n").ListToCommaSeparatedValues("\n")}",
+				$"That is not a valid ranged strategy. The valid strategies are:\n{validStrategyText}",
 				false);
 			return;
 		}
@@ -3857,7 +3887,7 @@ The following options refer to flags listed in the SHOW COMBATFLAGS list:
 	protected static void CombatConfig(ICharacter actor, StringStack command)
 	{
 		if (command.IsFinished || command.Peek().Equals("help", StringComparison.InvariantCultureIgnoreCase) ||
-		    command.Peek().Equals("?", StringComparison.InvariantCultureIgnoreCase))
+			command.Peek().Equals("?", StringComparison.InvariantCultureIgnoreCase))
 		{
 			CombatConfigHelp(actor);
 			return;

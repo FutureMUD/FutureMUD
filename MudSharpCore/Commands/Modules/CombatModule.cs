@@ -3833,35 +3833,25 @@ The following options refer to flags listed in the SHOW COMBATFLAGS list:
 	{
 		if (command.IsFinished)
 		{
-			actor.Send(StringUtilities.HMark +
-			           $"Which defense type would you like to prefer?\nHint: use {"\"none\"".Colour(Telnet.Yellow)} to reset to no preference)");
+			actor.Send($"Which defense type would you like to prefer?\nHint: use {"\"none\"".Colour(Telnet.Yellow)} to reset to no preference)");
 			return;
 		}
 
-		if (command.Peek().Equals("none", StringComparison.InvariantCultureIgnoreCase))
+		if (command.SafeRemainingArgument.Equals("none", StringComparison.InvariantCultureIgnoreCase))
 		{
 			actor.PreferredDefenseType = DefenseType.None;
-			actor.Send(StringUtilities.HMark +
-			           "You will no longer prefer any defense type, instead relying on your judgement.");
+			actor.Send("You will no longer prefer any defense type, instead relying on your judgement.");
 			return;
 		}
 
-		if (!CombatExtensions.TryParseDefenseType(command.PopSpeech(), out var type))
+		if (!CombatExtensions.TryParseDefenseType(command.SafeRemainingArgument, out var type))
 		{
-			actor.Send(StringUtilities.HMark + "There is no such defense type.");
+			actor.Send("There is no such defense type.");
 			return;
 		}
 
-		if (actor.PreferredDefenseType.HasFlag(type))
-		{
-			actor.PreferredDefenseType &= ~type;
-			actor.Send(StringUtilities.HMark + $"You will no longer prefer to {type.Describe().Colour(Telnet.Green)}.");
-		}
-		else
-		{
-			actor.PreferredDefenseType |= type;
-			actor.Send(StringUtilities.HMark + $"You will now prefer to {type.Describe().Colour(Telnet.Green)}.");
-		}
+		actor.PreferredDefenseType = type;
+		actor.OutputHandler.Send($"You will now prefer to {type.DescribeEnum().ColourValue()} in defense.");
 	}
 
 	protected static void CombatConfig(ICharacter actor, StringStack command)
@@ -3972,6 +3962,7 @@ The following options refer to flags listed in the SHOW COMBATFLAGS list:
 				CombatConfigFallback(actor, command);
 				break;
 			case "attack helpless":
+			case "attack_helpless":
 			case "attackhelpless":
 			case "helpless":
 				CombatConfigAttackHelpless(actor, command);

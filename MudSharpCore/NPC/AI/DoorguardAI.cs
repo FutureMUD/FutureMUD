@@ -155,7 +155,7 @@ public class DoorguardAI : ArtificialIntelligenceBase
 			new XElement("OnWitnessDoorStopProg", OnWitnessDoorStopProg?.Id ?? 0L),
 			new XElement("OpenCloseDelayProg", OpenCloseDelayProg?.Id ?? 0L),
 			new XElement("OpenDoorActionProg", OpenDoorActionProg?.Id ?? 0L),
-			new XElement("RequiredSocialTrigger", new XCData(RequiredSocialTrigger)),
+			new XElement("RequiredSocialTrigger", new XCData(RequiredSocialTrigger ?? "")),
 			new XElement("OwnSideOnly", OwnSideOnly),
 			new XElement("RespectGameRulesForOpeningDoors", RespectGameRulesForOpeningDoors),
 			new XElement("RespondToSocialDirection", RespondToSocialDirection),

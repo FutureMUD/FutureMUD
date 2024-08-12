@@ -1100,7 +1100,6 @@ public partial class EditableItemHelper
 		CastToType = typeof(IArtificialIntelligence),
 		EditableNewAction = (actor, input) =>
 		{
-			actor.OutputHandler.Send("Creating new artificial intelligences is not currently supported.");
 			var newItem = ArtificialIntelligenceBase.LoadFromBuilderInput(actor, input);
 			if (newItem is null)
 			{

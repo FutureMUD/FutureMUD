@@ -181,18 +181,21 @@ public class NamePickerScreenStoryboard : ChargenScreenStoryboard
 				return HandleCommandChargenAdvice(command);
 			}
 
+			var nce = Enumerator.Current!;
+
 			var ss = new StringStack(command);
-			if (ss.IsFinished && Enumerator.Current.MinimumCount > 0)
+			if (ss.IsFinished && nce.MinimumCount > 0)
 			{
 				return Display();
 			}
 
-			ss.PopSpeechAll();
-			var names = ss.Memory.Select(x => x.ToLowerInvariant()).ToList();
-			if (names.Count > Enumerator.Current.MaximumCount || names.Count < Enumerator.Current.MinimumCount)
+			var names = nce.MaximumCount == 1 ?
+				[ss.SafeRemainingArgument.ToLowerInvariant()] :
+				ss.PopSpeechAll().Select(x => x.ToLowerInvariant()).ToList();
+			if (names.Count > nce.MaximumCount || names.Count < nce.MinimumCount)
 			{
 				return
-					$"You must select {(Enumerator.Current.MinimumCount == Enumerator.Current.MaximumCount ? $"exactly {Enumerator.Current.MinimumCount}" : $"between {Enumerator.Current.MinimumCount} and {Enumerator.Current.MaximumCount}")} {(Enumerator.Current.MaximumCount > 1 ? Enumerator.Current.Name.Pluralise() : Enumerator.Current.Name)}.";
+					$"You must select {(nce.MinimumCount == nce.MaximumCount ? $"exactly {nce.MinimumCount}" : $"between {Enumerator.Current.MinimumCount} and {Enumerator.Current.MaximumCount}")} {(nce.MaximumCount > 1 ? nce.Name.Pluralise() : nce.Name)}.";
 			}
 
 			if (names.Distinct().Count() != names.Count)
@@ -220,7 +223,7 @@ public class NamePickerScreenStoryboard : ChargenScreenStoryboard
 				return "Your names may not contain Unicode characters.";
 			}
 
-			SelectedNameElements.Add(Enumerator.Current.Usage, names);
+			SelectedNameElements.Add(nce.Usage, names);
 			if (Enumerator.MoveNext())
 			{
 				return Display();

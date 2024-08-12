@@ -126,6 +126,11 @@ public abstract class CombatBase : ICombat
 
 	public static bool CanFreelyLeaveCombatAgainstOpponent(IPerceiver who, IPerceiver opponent)
 	{
+		if (opponent is null)
+		{
+			return true;
+		}
+
 		if (opponent.CombatTarget != who)
 		{
 			return true;

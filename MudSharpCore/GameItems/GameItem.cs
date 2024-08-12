@@ -1777,13 +1777,14 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable
 	{
 		var sb = new StringBuilder();
 		sb.AppendLine($"You evaluate {HowSeen(actor)}:");
+		sb.AppendLine();
 		if (actor.IsAdministrator() && _skinId is not null)
 		{
 			sb.AppendLine($"{Skin.EditHeader().Colour(Telnet.Cyan)} skin applied.");
 		}
 
 		sb.AppendLine($"Its quality is {Quality.Describe().ColourValue()}.");
-		sb.AppendLine($"It weighs {actor.Gameworld.UnitManager.Describe(Weight, UnitType.Mass, actor)}.");
+		sb.AppendLine($"It weighs {actor.Gameworld.UnitManager.Describe(Weight, UnitType.Mass, actor).ColourValue()}.");
 		sb.AppendLine($"It is {Size.Describe().Colour(Telnet.Green)} in size.");
 		sb.AppendLine($"It is made primarily out of {Material?.MaterialDescription.Colour(Telnet.Green) ?? "an unknown material".Colour(Telnet.Red)}.");
 		sb.AppendLine($"It is at {Condition.ToString("P0", actor).ColourValue()} condition.");

@@ -947,9 +947,16 @@ The syntax is as follows:
 		sb.AppendLine(
 			$"The price would be {shop.Currency.Describe(price, CurrencyDescriptionPatternType.ShortDecimal).Colour(Telnet.Green)}.");
 		sb.AppendLine($"You would get the following specific items:");
+		sb.AppendLine();
 		foreach (var item in items)
 		{
 			sb.AppendLine($"\t{item.HowSeen(actor)}");
+		}
+
+		if (quantity <= 1)
+		{
+			sb.AppendLine();
+			sb.AppendLine(items.First().Evaluate(actor));
 		}
 
 		actor.OutputHandler.Send(sb.ToString());

@@ -162,6 +162,8 @@ public class SingleStealthMovement : SingleMovement
 				{
 					FinalStep();
 				}
+
+				return;
 			}
 		}
 

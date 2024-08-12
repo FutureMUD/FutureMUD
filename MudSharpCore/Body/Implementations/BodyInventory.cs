@@ -2877,7 +2877,7 @@ public partial class Body
 
 	public bool Dress(IGameItem item, ICharacter dresser, IWearProfile profile = null, IEmote emote = null)
 	{
-		var tempProfile = profile ?? WhichProfile(item);
+		var tempProfile = profile ?? WhichProfile(item) ?? item.GetItemType<IWearable>()?.DefaultProfile;
 
 		//If no profile was passed in, grab the default
 

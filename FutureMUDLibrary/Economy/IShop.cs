@@ -96,6 +96,7 @@ public interface IShop : IFrameworkItem, ISaveable, IFutureProgVariable
 
 	void ShowDeals(ICharacter actor, ICharacter purchaser, IMerchandise merchandise = null);
 	void ShowList(ICharacter actor, ICharacter purchaser, IMerchandise merchandise = null);
+	void ShowList(ICharacter actor, ICharacter purchaser, string keyword);
 	void ShowInfo(ICharacter actor);
 
 	bool BuildingCommand(ICharacter actor, StringStack command);

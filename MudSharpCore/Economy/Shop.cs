@@ -1016,6 +1016,99 @@ public abstract class Shop : SaveableItem, IShop
 		actor.OutputHandler.Send("Coming soon.");
 	}
 
+	public void ShowList(ICharacter actor, ICharacter purchaser, string keyword)
+	{
+		var sb = new StringBuilder();
+		sb.AppendLine(Name.TitleCase().Colour(Telnet.Cyan));
+		sb.AppendLine($"Merchandise with keyword {keyword.ColourCommand()}:");
+		var stockTake = StocktakeAllMerchandise();
+		var index = 1;
+		if (Gameworld.GetStaticBool("DisplayTaxInShopList"))
+		{
+			sb.AppendLine(StringUtilities.GetTextTable(
+			from merch in stockTake
+			let priceInfo = GetDetailedPriceInfo(purchaser, merch.Key)
+			where merch.Value.InStockroomCount + merch.Value.OnFloorCount > 0 &&
+				  (merch.Key.ListDescription.Contains(keyword, StringComparison.InvariantCultureIgnoreCase) || 
+				   merch.Key.Name.Contains(keyword, StringComparison.InvariantCultureIgnoreCase))
+			orderby merch.Key.Name
+			select new[]
+			{
+					index++.ToString("N0", actor),
+					merch.Key.Name,
+					merch.Key.ListDescription.ColourObject(),
+					Currency.Describe(priceInfo.TotalPrice, CurrencyDescriptionPatternType.Short),
+					Currency.Describe(priceInfo.IncludedTax, CurrencyDescriptionPatternType.Short),
+					priceInfo.VolumeDealsExist.ToString(actor),
+					merch.Key.Item.IsItemType<VariableGameItemComponentProto>().ToString(actor),
+					(merch.Value.InStockroomCount + merch.Value.OnFloorCount).ToString("N0", actor)
+			},
+			new[]
+			{
+					"#",
+					"Name",
+					"Description",
+					"Price",
+					"Included Tax",
+					"Deals?",
+					"Variants?",
+					"Stock"
+			},
+			actor.LineFormatLength,
+			truncatableColumnIndex: 1,
+			colour: Telnet.Yellow,
+			unicodeTable: actor.Account.UseUnicode
+		));
+		}
+		else
+		{
+			sb.AppendLine(StringUtilities.GetTextTable(
+			from merch in stockTake
+			let priceInfo = GetDetailedPriceInfo(purchaser, merch.Key)
+			where merch.Value.InStockroomCount + merch.Value.OnFloorCount > 0
+			orderby merch.Key.Name
+			select new[]
+			{
+					index++.ToString("N0", actor),
+					merch.Key.Name,
+					merch.Key.ListDescription.ColourObject(),
+					Currency.Describe(priceInfo.TotalPrice, CurrencyDescriptionPatternType.Short),
+					priceInfo.VolumeDealsExist.ToString(actor),
+					merch.Key.Item.IsItemType<VariableGameItemComponentProto>().ToString(actor),
+					(merch.Value.InStockroomCount + merch.Value.OnFloorCount).ToString("N0", actor)
+			},
+			new[]
+			{
+					"#",
+					"Name",
+					"Description",
+					"Price",
+					"Deals?",
+					"Variants?",
+					"Stock"
+			},
+			actor.LineFormatLength,
+			truncatableColumnIndex: 1,
+			colour: Telnet.Yellow,
+			unicodeTable: actor.Account.UseUnicode
+		));
+		}
+
+
+		if (actor != purchaser)
+		{
+			sb.AppendLine(
+				$"Note: Showing prices for an individual other than yourself. Only valid when using their account."
+					.Colour(Telnet.Red));
+		}
+
+		sb.AppendLine($"Note: Use the {"deals".ColourCommand()} command to follow up on any deals in place.");
+		sb.AppendLine(
+			$"Note: Use the {"list variants <item>".ColourCommand()} command to view any variants (e.g. colours) available if desired.");
+		actor.OutputHandler.Send(sb.ToString(), false);
+		return;
+	}
+
 	public void ShowList(ICharacter actor, ICharacter purchaser, IMerchandise merchandise = null)
 	{
 		var sb = new StringBuilder();
@@ -1104,7 +1197,7 @@ public abstract class Shop : SaveableItem, IShop
 
 			sb.AppendLine($"Note: Use the {"deals".ColourCommand()} command to follow up on any deals in place.");
 			sb.AppendLine(
-				$"Note: Use the {"list <item>".ColourCommand()} command to view any variants (e.g. colours) available if desired.");
+				$"Note: Use the {"list variants <item>".ColourCommand()} command to view any variants (e.g. colours) available if desired.");
 			actor.OutputHandler.Send(sb.ToString(), false);
 			return;
 		}

@@ -712,9 +712,15 @@ You can use the following search filters:
 	[NoHideCommand]
 	[HelpInfo("list", @"The list command is used with systems like shops to show you the inventory for sale.
 
-At its simplest, the syntax is simply LIST. If there are multiple things in the room that can accept a LIST command you can specify which one you want with the syntax LIST *<thing>, e.g. LIST *vending
+At its simplest, the syntax is simply #3list#0. 
 
-If you are in a shop, you can view the list output as a specific line of credit account (which may include custom discounts) with the syntax LIST ~<account> <password>, e.g. LIST ~cityguard thinblueline",
+If there are multiple things in the room that can accept a #3list#0 command you can specify which one you want with the syntax #3list *<thing>#0 , e.g. #3list *vending#0
+
+If you are in a shop, you can view the list output as a specific line of credit account (which may include custom discounts) with the syntax #3list ~<account> <password>#0, e.g. #3list ~cityguard thinblueline#0
+
+You can also view variants of a particular item of merchandise with #3list variants <item>#0.
+
+Finally, you can filter the output of list by a keyword with #3list <keyword>#0. You can combine the variants, keyword and account parameters for shops.",
 		AutoHelp.HelpArg)]
 	protected static void List(ICharacter actor, string command)
 	{
@@ -760,74 +766,80 @@ If you are in a shop, you can view the list output as a specific line of credit 
 			if (shop is not null && ss.Peek()[0] != '*')
 			{
 				ILineOfCreditAccount account = null;
-				var arg = ss.PopSpeech();
-
-				bool HandleAccountArgument()
+				IMerchandise merch = null;
+				string keyword = null;
+				while (!ss.IsFinished)
 				{
-					arg = arg.RemoveFirstCharacter();
-					account = shop.LineOfCreditAccounts.FirstOrDefault(x => x.Name.EqualTo(arg));
-					if (account == null)
+					var arg = ss.PopSpeech();
+					if (arg[0] == '~')
 					{
-						// TODO - echoed by shopkeeper?
-						actor.OutputHandler.Send("There is no such line of credit account associated with this shop.");
-						return false;
+						arg = arg.RemoveFirstCharacter();
+						account = shop.LineOfCreditAccounts.FirstOrDefault(x => x.Name.EqualTo(arg));
+						if (account == null)
+						{
+							// TODO - echoed by shopkeeper?
+							actor.OutputHandler.Send("There is no such line of credit account associated with this shop.");
+							return;
+						}
+
+						switch (account.IsAuthorisedToUse(actor, 0.0M))
+						{
+							case LineOfCreditAuthorisationFailureReason.None:
+							case LineOfCreditAuthorisationFailureReason.AccountOverbalanced:
+							case LineOfCreditAuthorisationFailureReason.UserOverbalanced:
+								break;
+							case LineOfCreditAuthorisationFailureReason.NotAuthorisedAccountUser:
+								// TODO - echoed by shopkeeper?
+								actor.OutputHandler.Send("You are not an authorised user of that account.");
+								return;
+
+							case LineOfCreditAuthorisationFailureReason.AccountSuspended:
+								// TODO - echoed by shopkeeper?
+								actor.OutputHandler.Send("That account has been suspended.");
+								return;
+							default:
+								actor.OutputHandler.Send("There is a problem with that account.");
+								return;
+						}
+
+						continue;
 					}
 
-					switch (account.IsAuthorisedToUse(actor, 0.0M))
+					if (arg.EqualTo("variants"))
 					{
-						case LineOfCreditAuthorisationFailureReason.None:
-						case LineOfCreditAuthorisationFailureReason.AccountOverbalanced:
-						case LineOfCreditAuthorisationFailureReason.UserOverbalanced:
-							break;
-						case LineOfCreditAuthorisationFailureReason.NotAuthorisedAccountUser:
-							// TODO - echoed by shopkeeper?
-							actor.OutputHandler.Send("You are not an authorised user of that account.");
-							return false;
+						if (ss.IsFinished)
+						{
+							actor.OutputHandler.Send("Which item of merchandise do you want to view variants for?");
+							return;
+						}
 
-						case LineOfCreditAuthorisationFailureReason.AccountSuspended:
-							// TODO - echoed by shopkeeper?
-							actor.OutputHandler.Send("That account has been suspended.");
-							return false;
-						default:
-							actor.OutputHandler.Send("There is a problem with that account.");
-							return false;
+						merch = shop.StockedMerchandise.GetFromItemListByKeyword(ss.PopSpeech(), actor);
+						if (merch == null)
+						{
+							actor.OutputHandler.Send(
+								"There is no such merchandise for sale in this shop that you can view detailed information for.");
+							return;
+						}
+
+						continue;
 					}
 
-					return true;
+					keyword = arg;
 				}
 
-				IMerchandise merch = null;
-				if (arg[0] == '~')
+				if (merch is not null || keyword is null)
 				{
-					if (!HandleAccountArgument())
-					{
-						return;
-					}
+					shop.ShowList(actor,
+						account?.IsAccountOwner(actor) == false
+							? actor.Gameworld.TryGetCharacter(account.AccountOwnerId, true)
+							: actor, merch);
 				}
 				else
 				{
-					merch = shop.StockedMerchandise.GetFromItemListByKeyword(arg, actor);
-					if (merch == null)
-					{
-						actor.OutputHandler.Send(
-							"There is no such merchandise for sale in this shop that you can view detailed information for.");
-						return;
-					}
-
-					arg = ss.PopSpeech();
-					if (!string.IsNullOrEmpty(arg) && arg[0] == '~')
-					{
-						if (!HandleAccountArgument())
-						{
-							return;
-						}
-					}
+					shop.ShowList(actor, account?.IsAccountOwner(actor) == false ? actor.Gameworld.TryGetCharacter(account.AccountOwnerId, true)
+						: actor, keyword);
 				}
 
-				shop.ShowList(actor,
-					account?.IsAccountOwner(actor) == false
-						? actor.Gameworld.TryGetCharacter(account.AccountOwnerId, true)
-						: actor, merch);
 				return;
 			}
 

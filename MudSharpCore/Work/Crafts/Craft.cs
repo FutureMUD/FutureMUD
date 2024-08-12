@@ -44,7 +44,7 @@ public class Craft : Framework.Revision.EditableItem, ICraft
 		ActionDescription = rhs.ActionDescription;
 		ActiveCraftItemSDesc = rhs.ActiveCraftItemSDesc;
 		Category = rhs.Category;
-		QualityFormula = new TraitExpression(rhs.QualityFormula.Formula.ToString(), Gameworld);
+		QualityFormula = new TraitExpression(rhs.QualityFormula.OriginalFormulaText, Gameworld);
 		FailThreshold = rhs.FailThreshold;
 		CheckDifficulty = rhs.CheckDifficulty;
 		CheckQualityWeighting = rhs.CheckQualityWeighting;
@@ -181,7 +181,9 @@ public class Craft : Framework.Revision.EditableItem, ICraft
 		ToolQualityWeighting = craft.ToolQualityWeighting;
 		InputQualityWeighting = craft.InputQualityWeighting;
 		CheckQualityWeighting = craft.CheckQualityWeighting;
-		QualityFormula = new TraitExpression(craft.QualityFormula, Gameworld);
+		QualityFormula = new TraitExpression(
+			craft.QualityFormula == "ExpressionEngine.Expression" ? "5 + (outcome/3) + (variable/20)" : craft.QualityFormula, // TODO - remove this later, fixing a temporary bug
+			Gameworld);
 		FreeSkillChecks = craft.FreeSkillChecks;
 		IsPracticalCheck = craft.IsPracticalCheck;
 		FailThreshold = (Outcome)craft.FailThreshold;

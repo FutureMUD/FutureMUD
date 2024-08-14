@@ -82,6 +82,8 @@ public class FixedBodypartWeaponAttack : WeaponAttack, IFixedBodypartWeaponAttac
 	public override string HelpText => $@"{base.HelpText}
 	#3target <shape>#0 - sets the bodypart shape this attack targets";
 
+	public override string SpecialListText => $"Target {Bodypart.Name.ColourValue()}";
+
 	public override bool BuildingCommand(ICharacter actor, StringStack command)
 	{
 		switch (command.PeekSpeech().ToLowerInvariant())

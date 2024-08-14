@@ -36,5 +36,6 @@ namespace MudSharp.Combat {
         string ShowBuilder(ICharacter actor);
         bool BuildingCommand(ICharacter actor, StringStack command);
         IWeaponAttack CloneWeaponAttack();
+        string SpecialListText { get; }
     }
 }

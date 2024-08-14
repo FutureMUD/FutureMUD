@@ -8,6 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
+using MudSharp.Accounts;
 using MudSharp.Commands.Trees;
 using MudSharp.Framework.Units;
 
@@ -29,6 +30,8 @@ public class EnvenomingAttack : WeaponAttack, IEnvenomingAttack
 	public ILiquid Liquid { get; set; }
 	public double MaximumQuantity { get; set; }
 	public WoundSeverity MinimumWoundSeverity { get; set; }
+
+	public override string SpecialListText => $"Envenom {Gameworld.UnitManager.DescribeBrief(MaximumQuantity, UnitType.FluidVolume, DummyAccount.Instance).ColourValue()} {Liquid.Name.Colour(Liquid.DisplayColour)} >= {MinimumWoundSeverity.Describe().ColourValue()}";
 
 	protected override void LoadFromDatabase(Models.WeaponAttack attack)
 	{

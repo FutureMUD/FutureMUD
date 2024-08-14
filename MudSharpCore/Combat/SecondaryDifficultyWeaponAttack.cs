@@ -51,6 +51,8 @@ public class SecondaryDifficultyWeaponAttack : WeaponAttack, ISecondaryDifficult
 		return $"Resist Difficulty: {SecondaryDifficulty.Describe().Colour(Telnet.Green)}";
 	}
 
+	public override string SpecialListText => $"Resist @ {SecondaryDifficulty.DescribeColoured()}";
+
 	#region Overrides of WeaponAttack
 
 	protected override void DescribeForAttacksCommandInternal(StringBuilder sb, ICharacter actor)

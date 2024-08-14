@@ -111,7 +111,7 @@ Weapon attacks have types that determine how they work mechanically. You cannot 
 
 The syntax for this command is as follows:
 
-	#3weaponattack list#0 - lists all weapon attacks
+	#3weaponattack list [<filters>]#0 - lists all weapon attacks
 	#3weaponattack edit <id|name>#0 - opens a weapon attack for editing
 	#3weaponattack edit#0 - an alias for WEAPONATTACK SHOW when you have something open
 	#3weaponattack show <id|name>#0 - shows details about a particular weapon attack
@@ -119,7 +119,15 @@ The syntax for this command is as follows:
 	#3weaponattack natural <race> <attack> <bodypart>#0 - toggles an unarmed attack being enabled for a race
 	#3weaponattack new <type>#0 - creates a new weapon attack of the specified type
 	#3weaponattack clone <which>#0 - creates a carbon copy of the specified weapon type
-	#3weaponattack set ...#0 - edits the properties of a weapon attack. See that command for more help.";
+	#3weaponattack set ...#0 - edits the properties of a weapon attack. See that command for more help.
+
+You can use the following arguments to refine the list command:
+
+	#6<weapontype>#0 - shows only attacks with a specified weapon type
+	#6unarmed#0 - shows only unarmed attacks
+	#6+key#0 - shows only attacks whose names have the keyword
+	#6-key#0 - excludes weapon types whose names have the keyword
+	#6*<movetype>#0 - shows only attacks of the specified move type";
 
 	[PlayerCommand("WeaponAttack", "weaponattack", "wa")]
 	[CommandPermission(PermissionLevel.Admin)]
@@ -323,9 +331,10 @@ The syntax for this command is as follows:
 				attack.Name,
 				actor.Gameworld.WeaponTypes.FirstOrDefault(x => x.Attacks.Contains(attack))
 				     ?.Name ?? "None",
-				attack.MoveType.Describe()
+				attack.MoveType.Describe(),
+				attack.SpecialListText
 			},
-			new[] { "ID", "Name", "Weapon Type", "Move Type" },
+			new[] { "ID", "Name", "Weapon Type", "Move Type", "Special" },
 			actor.LineFormatLength, colour: Telnet.Green,
 			unicodeTable: actor.Account.UseUnicode
 		));

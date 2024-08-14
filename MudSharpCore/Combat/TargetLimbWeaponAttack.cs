@@ -50,6 +50,9 @@ public class TargetLimbWeaponAttack : WeaponAttack, ITargetLimbWeaponAttack
 		return $"Target Limb: {TargetLimbType.DescribePlural().Colour(Telnet.Green)}";
 	}
 
+	/// <inheritdoc />
+	public override string SpecialListText => $"Target {TargetLimbType.DescribePlural().ColourValue()}";
+
 	public override string HelpText => $@"{base.HelpText}
 	#3limb <type>#0 - sets the limb type this attack targets";
 

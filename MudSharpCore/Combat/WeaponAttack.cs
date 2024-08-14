@@ -123,6 +123,7 @@ public class WeaponAttack : CombatAction, IWeaponAttack
 	public Orientation Orientation { get; set; }
 	public Alignment Alignment { get; set; }
 	public AttackHandednessOptions HandednessOptions { get; set; }
+	public virtual string SpecialListText => "";
 
 	public T GetAttackType<T>() where T : class, IWeaponAttack
 	{

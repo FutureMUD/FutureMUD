@@ -749,7 +749,7 @@ namespace MudSharp.RPG.Checks {
 		        case Difficulty.Easy:
 			        return "Easy".Colour(Telnet.Green);
 		        case Difficulty.ExtremelyHard:
-			        return "Extremely Hard";
+			        return "Extremely Hard".Colour(Telnet.Red);
 		        case Difficulty.ExtremelyEasy:
 			        return "Extremely Easy".Colour(Telnet.BoldGreen);
 		        case Difficulty.Hard:

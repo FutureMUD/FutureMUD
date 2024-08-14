@@ -2293,7 +2293,7 @@ public partial class Race
 			return false;
 		}
 
-		if (!BaseBody.CountsAs(ParentRace.BaseBody))
+		if (!BaseBody.CountsAs(race.BaseBody))
 		{
 			actor.OutputHandler.Send(
 				$"{"Warning: This parent race has a non-compatible body type with this race's current body type, so it will be changed. Changing the body type of a race that has any existing characters, especially PCs, is VERY dangerous. This could lead to character dying because of missing organs, dropping their inventory (including offline characters) etc. Be absolutely certain that you are aware of the consequences of what you are doing before you change this race's body.".ColourError()}\n{Accept.StandardAcceptPhrasing}");
@@ -2302,7 +2302,7 @@ public partial class Race
 				AcceptAction = text =>
 				{
 					ParentRace = race;
-					BaseBody = ParentRace.BaseBody;
+					BaseBody = race.BaseBody;
 					Changed = true;
 					actor.OutputHandler.Send($"This race is now a child race of the {race.Name.ColourName()} race.");
 					RecalculateCharactersBecauseOfRaceChange();

@@ -902,7 +902,7 @@ The syntax is as follows:
 			target = ss.PopSpeech();
 		}
 
-		var merch = shop.StockedMerchandise.GetFromItemListByKeywordIncludingNames(target, actor);
+		var merch = shop.StockedMerchandise.OrderBy(x => x.Name).GetFromItemListByKeywordIncludingNames(target, actor);
 		if (merch == null)
 		{
 			actor.OutputHandler.Send(
@@ -1008,11 +1008,11 @@ The syntax for this command is as follows:
 		IMerchandise merch;
 		if (int.TryParse(target, out var value))
 		{
-			merch = shop.StockedMerchandise.ElementAtOrDefault(value - 1);
+			merch = shop.StockedMerchandise.OrderBy(x => x.Name).ElementAtOrDefault(value - 1);
 		}
 		else
 		{
-			merch = shop.StockedMerchandise.GetFromItemListByKeywordIncludingNames(target, actor);
+			merch = shop.StockedMerchandise.OrderBy(x => x.Name).GetFromItemListByKeywordIncludingNames(target, actor);
 		}
 
 		if (merch == null)

@@ -1023,6 +1023,12 @@ public abstract class Shop : SaveableItem, IShop
 		sb.AppendLine($"Merchandise with keyword {keyword.ColourCommand()}:");
 		var stockTake = StocktakeAllMerchandise();
 		var index = 1;
+		var merchIndexes = new Dictionary<IMerchandise,int>();
+		foreach (var item in stockTake)
+		{
+			merchIndexes[item.Key] = index++;
+		}
+		
 		if (Gameworld.GetStaticBool("DisplayTaxInShopList"))
 		{
 			sb.AppendLine(StringUtilities.GetTextTable(
@@ -1034,7 +1040,7 @@ public abstract class Shop : SaveableItem, IShop
 			orderby merch.Key.Name
 			select new[]
 			{
-					index++.ToString("N0", actor),
+					merchIndexes[merch.Key].ToString("N0", actor),
 					merch.Key.Name,
 					merch.Key.ListDescription.ColourObject(),
 					Currency.Describe(priceInfo.TotalPrice, CurrencyDescriptionPatternType.Short),
@@ -1069,7 +1075,7 @@ public abstract class Shop : SaveableItem, IShop
 			orderby merch.Key.Name
 			select new[]
 			{
-					index++.ToString("N0", actor),
+				merchIndexes[merch.Key].ToString("N0", actor),
 					merch.Key.Name,
 					merch.Key.ListDescription.ColourObject(),
 					Currency.Describe(priceInfo.TotalPrice, CurrencyDescriptionPatternType.Short),

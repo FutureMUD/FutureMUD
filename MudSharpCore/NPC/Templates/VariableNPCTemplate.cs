@@ -265,9 +265,9 @@ public class VariableNPCTemplate : NPCTemplateBase
 			errors.Add("You must select a culture.");
 		}
 
-		if (Gameworld.Ethnicities.All(x => !_race.SameRace(x.ParentRace)))
+		if (_ethnicity is null && Gameworld.Ethnicities.All(x => !_race.SameRace(x.ParentRace)))
 		{
-			errors.Add("The selected race doesn't have any cultures.");
+			errors.Add("The selected race doesn't have any ethnicities.");
 		}
 
 		if (!_genderChances.Any())
@@ -803,6 +803,12 @@ public class VariableNPCTemplate : NPCTemplateBase
 		{
 			actor.OutputHandler.Send(
 				$"This NPC is already of the {_ethnicity.Name.Proper().Colour(Telnet.Cyan)} ethnicity.");
+			return false;
+		}
+
+		if (!_race.SameRace(ethnicity.ParentRace))
+		{
+			actor.OutputHandler.Send($"The {ethnicity.Name.ColourName()} ethnicity is not valid for the {_race.Name.ColourName()} race.");
 			return false;
 		}
 

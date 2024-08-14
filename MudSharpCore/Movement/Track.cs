@@ -146,6 +146,7 @@ public class Track : LateInitialisingItem, ITrack
 				{
 					track.Cell.RemoveTrack(track);
 					gameworld.Destroy(track);
+					gameworld.SaveManager.Abort(track);
 				}
 
 				gameworld.DebugMessage($"Destroyed {delete.ToString("N0").ColourValue()} tracks to maintain target maximum count.");

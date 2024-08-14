@@ -1788,6 +1788,7 @@ public partial class Cell : Location, IDisposable, ICell
 		foreach (var track in toDeleteTracks)
 		{
 			Gameworld.Destroy(track);
+			Gameworld.SaveManager.Abort(track);
 		}
 
 		if (_tracks.Count <= 0)

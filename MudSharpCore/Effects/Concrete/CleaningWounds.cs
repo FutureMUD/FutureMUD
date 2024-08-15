@@ -184,7 +184,7 @@ public class CleaningWounds : CharacterActionWithTarget, IAffectProximity
 		if (canContinue)
 		{
 			CharacterOwner.OutputHandler.Handle(new EmoteOutput(new Emote(
-				"@ continue|continues &0's efforts to clean $1's wounds.", CharacterOwner, CharacterOwner,
+				"@ continue|continues to clean $1's wounds.", CharacterOwner, CharacterOwner,
 				TargetCharacter)));
 			CharacterOwner.Reschedule(this, TimeSpan.FromSeconds(Dice.Roll(EffectDurationDiceExpression)));
 			return;

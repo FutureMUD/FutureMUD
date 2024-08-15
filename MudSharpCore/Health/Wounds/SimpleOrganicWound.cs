@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Xml.Linq;
 using MudSharp.Models;
 using MudSharp.Body;
@@ -588,6 +589,52 @@ public class SimpleOrganicWound : PerceivedItem, IWound
 		).ToString();
 	}
 
+	public string TextForAdminWoundsCommand
+	{
+		get
+		{
+			var conditions = new List<string>();
+			switch (BleedStatus)
+			{
+				case BleedStatus.Bleeding:
+					conditions.Add("Bleeding".Colour(Telnet.Red));
+					break;
+				case BleedStatus.TraumaControlled:
+					conditions.Add("Bound".Colour(Telnet.BoldPink));
+					break;
+				case BleedStatus.Closed:
+					conditions.Add("Sutured".Colour(Telnet.BoldCyan));
+					break;
+			}
+
+			if (Infection is not null)
+			{
+				conditions.Add($"{Infection.VirulenceDifficulty.DescribeColoured()} {Infection.InfectionType.DescribeEnum().Colour(Telnet.BoldGreen)} ({Infection.Intensity.ToStringP2Colour()}|{Infection.Immunity.ToStringP2Colour()})");
+			}
+
+			if (CharacterParent.Body.AffectedBy<IAntisepticTreatmentEffect>(Bodypart))
+			{
+				conditions.Add("Antiseptic".Colour(Telnet.Yellow));
+			}
+
+			if (_cleaned)
+			{
+				conditions.Add("Cleaned".Colour(Telnet.Cyan));
+			}
+			else if (_cleanAttempted)
+			{
+				conditions.Add("Cleanish".Colour(Telnet.BoldYellow));
+			}
+
+			if (_tended != Outcome.None)
+			{
+				conditions.Add($"Tended ({_tended.DescribeColour()})");
+			}
+
+			return conditions.ListToCommaSeparatedValues(", ").ToString();
+		}
+	}
+
 	#region IWound Members
 
 	public void SetNewOwner(IHaveWounds newOwner)
@@ -818,6 +865,8 @@ public class SimpleOrganicWound : PerceivedItem, IWound
 		return "";
 	}
 
+	public string WoundTypeDescription => _damageDescription;
+
 	public Difficulty CanBeTreated(TreatmentType type)
 	{
 		if (!(_parent is ICharacter ch))
@@ -868,7 +917,7 @@ public class SimpleOrganicWound : PerceivedItem, IWound
 			return Difficulty.Impossible;
 		}
 
-		if (type == TreatmentType.Clean && _cleaned)
+		if (type == TreatmentType.Clean && (_cleaned || _cleanAttempted))
 		{
 			return Difficulty.Impossible;
 		}
@@ -1037,8 +1086,8 @@ public class SimpleOrganicWound : PerceivedItem, IWound
 					if (treater != null && !silent)
 					{
 						treater.OutputHandler.Handle(new EmoteOutput(new Emote(
-							$"$0's efforts to treat {Describe(WoundExaminationType.Glance, Outcome.MajorPass).Colour(Telnet.Cyan)} have only succeeded in making things worse!",
-							treater, treater)));
+							$"$0's efforts to treat {Describe(WoundExaminationType.Glance, Outcome.MajorPass).Colour(Telnet.Cyan)} on $1's {Bodypart.FullDescription()} have only succeeded in making things worse!",
+							treater, treater, CharacterParent)));
 					}
 				}
 				else if (testOutcome == Outcome.MinorFail)
@@ -1046,8 +1095,8 @@ public class SimpleOrganicWound : PerceivedItem, IWound
 					if (treater != null && !silent)
 					{
 						treater.OutputHandler.Handle(new EmoteOutput(new Emote(
-							$"$0's efforts to treat {Describe(WoundExaminationType.Glance, Outcome.MajorPass).Colour(Telnet.Cyan)} has not succeeded.",
-							treater, treater)));
+							$"$0's efforts to treat {Describe(WoundExaminationType.Glance, Outcome.MajorPass).Colour(Telnet.Cyan)} on $1's {Bodypart.FullDescription()} has not succeeded.",
+							treater, treater, CharacterParent)));
 					}
 				}
 				else
@@ -1055,8 +1104,8 @@ public class SimpleOrganicWound : PerceivedItem, IWound
 					if (treater != null && !silent)
 					{
 						treater.OutputHandler.Handle(new EmoteOutput(new Emote(
-							$"$0's effort to mend {Describe(WoundExaminationType.Glance, Outcome.MajorPass).Colour(Telnet.Cyan)} has been {(testOutcome == Outcome.MajorPass ? "majorly" : testOutcome == Outcome.Pass ? "" : "marginally")} successful.",
-							treater, treater)));
+							$"$0's effort to mend {Describe(WoundExaminationType.Glance, Outcome.MajorPass).Colour(Telnet.Cyan)} on $1's {Bodypart.FullDescription()} has been {(testOutcome == Outcome.MajorPass ? "majorly" : testOutcome == Outcome.Pass ? "" : "marginally")} successful.",
+							treater, treater, CharacterParent)));
 					}
 
 					_unsuccessfulTreatmentAttempts = 0;
@@ -1070,8 +1119,8 @@ public class SimpleOrganicWound : PerceivedItem, IWound
 					_bleedStatus = BleedStatus.TraumaControlled;
 					if (!silent)
 					{
-						Parent.OutputHandler.Handle(
-							$"{Describe(WoundExaminationType.Glance, Outcome.MajorPass)} has stopped bleeding.",
+						Parent.OutputHandler.Handle(new EmoteOutput(new Emote($"{Describe(WoundExaminationType.Glance, Outcome.MajorPass)} on $1's {Bodypart.FullDescription()} has stopped bleeding.", treater, treater, CharacterParent))
+							,
 							OutputRange.Local);
 					}
 				}
@@ -1086,8 +1135,8 @@ public class SimpleOrganicWound : PerceivedItem, IWound
 					}
 
 					treater.OutputHandler.Handle(new EmoteOutput(new Emote(
-						$"Despite $0's efforts, #0 are|is unable to stop {Describe(WoundExaminationType.Glance, Outcome.MajorPass)} from bleeding.",
-						treater, treater)));
+						$"Despite $0's efforts, #0 are|is unable to stop {Describe(WoundExaminationType.Glance, Outcome.MajorPass)} on $1's {Bodypart.FullDescription()} from bleeding.",
+						treater, treater, CharacterParent)));
 					return;
 				}
 
@@ -1096,14 +1145,14 @@ public class SimpleOrganicWound : PerceivedItem, IWound
 					if (treatmentItem == null)
 					{
 						treater.OutputHandler.Handle(new EmoteOutput(new Emote(
-							$"$0's efforts have stopped the bleeding from {Describe(WoundExaminationType.Glance, Outcome.MajorPass)}.",
-							treater, treater)));
+							$"$0's efforts have stopped the bleeding from {Describe(WoundExaminationType.Glance, Outcome.MajorPass)} on $1's {Bodypart.FullDescription()}.",
+							treater, treater, CharacterParent)));
 					}
 					else
 					{
 						treater.OutputHandler.Handle(new EmoteOutput(new Emote(
-							$"$0's efforts with $1 have stopped the bleeding from {Describe(WoundExaminationType.Glance, Outcome.MajorPass)}.",
-							treater, treater, treatmentItem.Parent)));
+							$"$0's efforts with $2 have stopped the bleeding from {Describe(WoundExaminationType.Glance, Outcome.MajorPass)} on $1's {Bodypart.FullDescription()}.",
+							treater, treater, CharacterParent, treatmentItem.Parent)));
 					}
 				}
 
@@ -1117,14 +1166,14 @@ public class SimpleOrganicWound : PerceivedItem, IWound
 					if (treatmentItem == null)
 					{
 						treater.OutputHandler.Handle(new EmoteOutput(new Emote(
-							$"$0 have|has finished tending to {Describe(WoundExaminationType.Glance, Outcome.MajorPass)}.",
-							treater, treater)));
+							$"$0 have|has finished tending to {Describe(WoundExaminationType.Glance, Outcome.MajorPass)} on $1's {Bodypart.FullDescription()}.",
+							treater, treater, CharacterParent)));
 					}
 					else
 					{
 						treater.OutputHandler.Handle(new EmoteOutput(new Emote(
-							$"$0 have|has finished tending to {Describe(WoundExaminationType.Glance, Outcome.MajorPass)} with $1.",
-							treater, treater, treatmentItem.Parent)));
+							$"$0 have|has finished tending to {Describe(WoundExaminationType.Glance, Outcome.MajorPass)} on $1's {Bodypart.FullDescription()} with $2.",
+							treater, treater, CharacterParent, treatmentItem.Parent)));
 					}
 				}
 
@@ -1241,14 +1290,14 @@ public class SimpleOrganicWound : PerceivedItem, IWound
 					if (treatmentItem == null)
 					{
 						treater.OutputHandler.Handle(new EmoteOutput(new Emote(
-							$"$0 have|has finished cleaning {Describe(WoundExaminationType.Glance, Outcome.MajorPass)}.",
-							treater, treater)));
+							$"$0 have|has finished cleaning {Describe(WoundExaminationType.Glance, Outcome.MajorPass)} on $1's {Bodypart.FullDescription()}.",
+							treater, treater, CharacterParent)));
 					}
 					else
 					{
 						treater.OutputHandler.Handle(new EmoteOutput(new Emote(
-							$"$0 have|has finished cleaning {Describe(WoundExaminationType.Glance, Outcome.MajorPass)} with $1.",
-							treater, treater, treatmentItem.Parent)));
+							$"$0 have|has finished cleaning {Describe(WoundExaminationType.Glance, Outcome.MajorPass)} on $1's {Bodypart.FullDescription()} with $2.",
+							treater, treater, CharacterParent, treatmentItem.Parent)));
 					}
 				}
 
@@ -1260,8 +1309,8 @@ public class SimpleOrganicWound : PerceivedItem, IWound
 					if (treater != null && !silent)
 					{
 						treater.OutputHandler.Handle(new EmoteOutput(new Emote(
-							$"Despite $0's efforts, #0 are|is unable to close up {Describe(WoundExaminationType.Glance, Outcome.MajorPass)}.",
-							treater, treater)));
+							$"Despite $0's efforts, #0 are|is unable to close up {Describe(WoundExaminationType.Glance, Outcome.MajorPass)} on $1's {Bodypart.FullDescription()}.",
+							treater, treater, CharacterParent)));
 					}
 
 					return;
@@ -1272,14 +1321,14 @@ public class SimpleOrganicWound : PerceivedItem, IWound
 					if (treatmentItem == null)
 					{
 						treater.OutputHandler.Handle(new EmoteOutput(new Emote(
-							$"$0's efforts have closed {Describe(WoundExaminationType.Glance, Outcome.MajorPass)}.",
-							treater, treater)));
+							$"$0's efforts have closed {Describe(WoundExaminationType.Glance, Outcome.MajorPass)} on $1's {Bodypart.FullDescription()}.",
+							treater, treater, CharacterParent)));
 					}
 					else
 					{
 						treater.OutputHandler.Handle(new EmoteOutput(new Emote(
-							$"$0's efforts with $1 have closed {Describe(WoundExaminationType.Glance, Outcome.MajorPass)}.",
-							treater, treater, treatmentItem.Parent)));
+							$"$0's efforts with $2 have closed {Describe(WoundExaminationType.Glance, Outcome.MajorPass)} on $1's {Bodypart.FullDescription()}.",
+							treater, treater, CharacterParent, treatmentItem.Parent)));
 					}
 				}
 
@@ -1380,6 +1429,7 @@ public class SimpleOrganicWound : PerceivedItem, IWound
 				{
 					_bleedStatus = BleedStatus.Bleeding;
 					_cleaned = false;
+					_cleanAttempted = false;
 					Parent.OutputHandler.Handle(
 						new EmoteOutput(
 							new Emote(
@@ -1556,6 +1606,7 @@ public class SimpleOrganicWound : PerceivedItem, IWound
 			ch.Send(
 				$"You feel as if {Describe(WoundExaminationType.Glance, Outcome.MajorPass)} on your {Bodypart.FullDescription()} could benefit from a clean.");
 			_cleaned = false;
+			_cleanAttempted = false;
 			Changed = true;
 			return;
 		}
@@ -1569,6 +1620,7 @@ public class SimpleOrganicWound : PerceivedItem, IWound
 			ch.Send(
 				$"You feel as if {Describe(WoundExaminationType.Glance, Outcome.MajorPass)} on your {Bodypart.FullDescription()} could benefit from a clean.");
 			_cleaned = false;
+			_cleanAttempted = false;
 			Changed = true;
 			return;
 		}

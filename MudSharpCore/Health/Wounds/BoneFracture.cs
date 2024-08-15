@@ -199,6 +199,38 @@ public class BoneFracture : PerceivedItem, IImmobilisableWound
 	public bool Repairable => false;
 	public bool UseDamagePercentageSeverities => true;
 
+	public string WoundTypeDescription => "Bone Fracture";
+
+	public string TextForAdminWoundsCommand
+	{
+		get
+		{
+			var sb = new StringBuilder();
+			sb.Append("Fracture (");
+			sb.Append(Stage.DescribeEnum());
+			sb.Append(" ");
+			sb.Append(FractureStagePercentage().ToStringP2Colour());
+			sb.Append(")");
+			if (HasBeenRelocated)
+			{
+				sb.Append(", ");
+				sb.Append(Telnet.BoldCyan);
+				sb.Append("Relocated");
+				sb.Append(Telnet.RESETALL);
+			}
+
+			if (HasBeenSurgicallyReinforced)
+			{
+				sb.Append(", ");
+				sb.Append(Telnet.BoldOrange);
+				sb.Append("Surgically Reinforced");
+				sb.Append(Telnet.RESETALL);
+
+			}
+			return sb.ToString();
+		}
+	}
+
 	public Difficulty ConcentrationDifficulty
 	{
 		get

@@ -365,6 +365,8 @@ public class RobotWound : PerceivedItem, IWound
 
 	public DamageType DamageType { get; set; }
 
+	public string TextForAdminWoundsCommand => "";
+
 	private int _unsuccessfulTreatmentAttempts;
 
 	public static string GetWoundDescription(DamageType type)
@@ -434,6 +436,8 @@ public class RobotWound : PerceivedItem, IWound
 
 		return $"{Severity.Describe()} {GetWoundDescription(DamageType)}".A_An().ToLowerInvariant();
 	}
+
+	public string WoundTypeDescription => GetWoundDescription(DamageType);
 
 	public Difficulty CanBeTreated(TreatmentType type)
 	{

@@ -276,6 +276,8 @@ public class SimpleWound : PerceivedItem, IWound
 		return _currentDamage <= 0.0 && _lodged == null;
 	}
 
+	public string TextForAdminWoundsCommand => "";
+
 	public BleedStatus BleedStatus
 	{
 		get => BleedStatus.NeverBled;
@@ -406,6 +408,8 @@ public class SimpleWound : PerceivedItem, IWound
 
 		return $"{Severity.Describe()} {GetWoundDescription(DamageType)}".A_An().ToLowerInvariant();
 	}
+
+	public string WoundTypeDescription => GetWoundDescription(DamageType);
 
 	public Difficulty CanBeTreated(TreatmentType type)
 	{

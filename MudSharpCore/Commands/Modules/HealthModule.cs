@@ -2558,9 +2558,10 @@ The syntax is either of the following:
 		}
 
 		var sb = new StringBuilder();
-		sb.AppendLine($"Health information for {target.HowSeen(actor)}:");
+		sb.AppendLine($"Health information for {target.HowSeen(actor)}:".GetLineWithTitle(actor, Telnet.Red, Telnet.BoldWhite));
 		if (targetAsCharacter != null)
 		{
+			sb.AppendLine();
 			sb.AppendLine($"Bloodtype: {targetAsCharacter.Body.Bloodtype?.Name.ColourValue() ?? "None".ColourError()}");
 			sb.AppendLine(
 				$"Blood: {actor.Gameworld.UnitManager.DescribeMostSignificantExact(targetAsCharacter.Body.CurrentBloodVolumeLitres / actor.Gameworld.UnitManager.BaseFluidToLitres, UnitType.FluidVolume, actor).ColourValue()} of total {actor.Gameworld.UnitManager.DescribeMostSignificantExact(targetAsCharacter.Body.TotalBloodVolumeLitres / actor.Gameworld.UnitManager.BaseFluidToLitres, UnitType.FluidVolume, actor).ColourValue()} - {(targetAsCharacter.Body.CurrentBloodVolumeLitres / targetAsCharacter.Body.TotalBloodVolumeLitres).ToString("P1", actor).ColourValue()}");
@@ -2578,6 +2579,8 @@ The syntax is either of the following:
 		sb.AppendLine();
 		if (targetAsCharacter != null)
 		{
+			sb.AppendLine("Organ Function".GetLineWithTitle(actor, Telnet.Red, Telnet.BoldWhite));
+			sb.AppendLine();
 			var types = new List<Type>
 			{
 				typeof(BrainProto),
@@ -2652,7 +2655,7 @@ The syntax is either of the following:
 
 			while (strings.Count >= 3)
 			{
-				sb.AppendLineColumns((uint)actor.LineFormatLength, 3,
+				sb.AppendLineColumns(Math.Min(120, (uint)actor.LineFormatLength), 3,
 					strings[0],
 					strings[1],
 					strings[2]
@@ -2662,7 +2665,7 @@ The syntax is either of the following:
 
 			if (strings.Count == 2)
 			{
-				sb.AppendLineColumns((uint)actor.LineFormatLength, 3,
+				sb.AppendLineColumns(Math.Min(120, (uint)actor.LineFormatLength), 3,
 					strings[0],
 					strings[1],
 					""
@@ -2670,31 +2673,66 @@ The syntax is either of the following:
 			}
 			else if (strings.Count == 1)
 			{
-				sb.AppendLineColumns((uint)actor.LineFormatLength, 3,
+				sb.AppendLineColumns(Math.Min(120, (uint)actor.LineFormatLength), 3,
 					strings[0],
 					"",
 					""
 				);
 			}
+
+			sb.AppendLine();
 		}
 
-		foreach (var wound in targetWoundable.Wounds)
-		{
-			if (wound is BoneFracture bf)
+		var fractures = targetWoundable.Wounds.OfType<BoneFracture>().ToArray();
+		var nonFractures = targetWoundable.Wounds.Except(fractures).ToArray();
+
+		sb.AppendLine("Wounds".GetLineWithTitle(actor, Telnet.Red, Telnet.BoldWhite));
+		sb.AppendLine();
+		sb.AppendLine(StringUtilities.GetTextTable(
+			from wound in targetWoundable.Wounds
+			select new List<string>
 			{
-				sb.AppendLine(
-					$"{$"{wound.Severity.Describe()} Fracture".Colour(Telnet.Yellow)} on {wound.Bodypart.FullDescription().Colour(Telnet.Cyan)} - Hp: {wound.CurrentDamage.ToString("N1", actor).Colour(Telnet.Red)} - {bf.Stage} {bf.FractureStagePercentage():P2}{(bf.HasBeenSurgicallyReinforced ? " [s]" : "")}");
-				continue;
-			}
+				wound.Severity.Describe(),
+				wound.WoundTypeDescription,
+				wound.Bodypart?.FullDescription() ?? "",
+				wound.DamageType.Describe(),
+				wound.CurrentDamage.ToStringN2Colour(actor),
+				wound.CurrentStun.ToStringN2Colour(actor),
+				wound.CurrentPain.ToStringN2Colour(actor),
+				wound.TextForAdminWoundsCommand
+			},
+			new List<string>
+			{
+				"Severity",
+				"Type",
+				"Bodypart",
+				"Type",
+				"Dam",
+				"Stun",
+				"Pain",
+				"Other"
+			},
+			actor,
+			Telnet.Red
+		));
 
-			sb.AppendLine(
-				$"{wound.Describe(WoundExaminationType.Omniscient, Outcome.MajorPass).Colour(Telnet.Yellow)} ({wound.DamageType.Describe().Colour(Telnet.Magenta)}) on {wound.Bodypart?.FullDescription().Colour(Telnet.Cyan) ?? "None"} - Hp: {wound.CurrentDamage.ToString("N1", actor).Colour(Telnet.Red)}, St: {wound.CurrentStun.ToString("N1", actor).Colour(Telnet.Red)}, Pn: {wound.CurrentPain.ToString("N1", actor).Colour(Telnet.Red)} - {wound.BleedStatus}{(wound.Infection != null ? $" - {wound.Infection.InfectionType.Describe()} ({wound.Infection.VirulenceDifficulty.Describe()}) @ {wound.Infection.Intensity.ToString("P3", actor).ColourValue()} i[{wound.Infection.Immunity.ToString("P3", actor).ColourValue()}]" : "")}");
-		}
+		//foreach (var wound in targetWoundable.Wounds)
+		//{
+		//	if (wound is BoneFracture bf)
+		//	{
+		//		sb.AppendLine(
+		//			$"{$"{wound.Severity.Describe()} Fracture".Colour(Telnet.Yellow)} on {wound.Bodypart.FullDescription().Colour(Telnet.Cyan)} - Hp: {wound.CurrentDamage.ToString("N1", actor).Colour(Telnet.Red)} - {bf.Stage} {bf.FractureStagePercentage():P2}{(bf.HasBeenSurgicallyReinforced ? " [s]" : "")}");
+		//		continue;
+		//	}
+
+		//	sb.AppendLine(
+		//		$"{wound.Describe(WoundExaminationType.Omniscient, Outcome.MajorPass).Colour(Telnet.Yellow)} ({wound.DamageType.Describe().Colour(Telnet.Magenta)}) on {wound.Bodypart?.FullDescription().Colour(Telnet.Cyan) ?? "None"} - Hp: {wound.CurrentDamage.ToString("N1", actor).Colour(Telnet.Red)}, St: {wound.CurrentStun.ToString("N1", actor).Colour(Telnet.Red)}, Pn: {wound.CurrentPain.ToString("N1", actor).Colour(Telnet.Red)} - {wound.BleedStatus}{(wound.Infection != null ? $" - {wound.Infection.InfectionType.Describe()} ({wound.Infection.VirulenceDifficulty.Describe()}) @ {wound.Infection.Intensity.ToString("P3", actor).ColourValue()} i[{wound.Infection.Immunity.ToString("P3", actor).ColourValue()}]" : "")}");
+		//}
 
 		if (targetAsCharacter != null && targetAsCharacter.Body.PartInfections.Any())
 		{
 			sb.AppendLine();
-			sb.AppendLine("Part Infections:");
+			sb.AppendLine("Part Infections".GetLineWithTitle(actor, Telnet.Red, Telnet.BoldWhite));
 			foreach (var infection in targetAsCharacter.Body.PartInfections)
 			{
 				if (infection.Bodypart == null)

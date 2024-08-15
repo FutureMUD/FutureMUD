@@ -203,6 +203,8 @@ public class HealingSimpleWound : PerceivedItem, IWound
 
 	private string _damageDescription;
 
+	public string TextForAdminWoundsCommand => "";
+
 	#region IFutureProgVariable Implementation
 
 	public override FutureProgVariableTypes Type => FutureProgVariableTypes.Error;
@@ -434,6 +436,8 @@ public class HealingSimpleWound : PerceivedItem, IWound
 
 		return $"{Severity.Describe()} {_damageDescription}".A_An().ToLowerInvariant();
 	}
+
+	public string WoundTypeDescription => _damageDescription;
 
 	public Difficulty CanBeTreated(TreatmentType type)
 	{

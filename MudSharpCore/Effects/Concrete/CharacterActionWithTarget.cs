@@ -51,6 +51,7 @@ public class CharacterActionWithTarget : CharacterAction
 		TargetMover = target as IMove;
 		TargetCharacter = target as ICharacter;
 		TargetItem = target as IGameItem;
+		SetupEventHandlers();
 	}
 
 	public IPerceivable Target { get; set; }
@@ -59,6 +60,8 @@ public class CharacterActionWithTarget : CharacterAction
 	public IMove TargetMover { get; set; }
 	public ICharacter TargetCharacter { get; set; }
 	public IGameItem TargetItem { get; set; }
+
+	protected virtual bool PreventsTargetFromMoving => false;
 
 	protected override string SpecificEffectType => "CharacterActionWithTarget";
 
@@ -91,7 +94,10 @@ public class CharacterActionWithTarget : CharacterAction
 		{
 			TargetMover.OnStartMove += TargetMoved;
 			TargetMover.OnMoved += TargetMoved;
-			TargetMover.OnWantsToMove += TargetWantsToMove;
+			if (PreventsTargetFromMoving)
+			{
+				TargetMover.OnWantsToMove += TargetWantsToMove;
+			}
 		}
 
 		if (TargetCharacter != null)

@@ -546,7 +546,7 @@ You can use the following arguments to refine the list command:
 			return;
 		}
 
-		if (!Enum.TryParse<ItemQuality>(ss.PopSpeech(), out var quality))
+		if (!ss.PopSpeech().TryParseEnum(out ItemQuality quality))
 		{
 			actor.OutputHandler.Send("That is not a valid item quality.");
 			return;
@@ -1173,4 +1173,46 @@ You can also use the following options to filter searches:
 	}
 
 	#endregion
+
+	public const string ArmourTypeHelp = @"The #3Armour#0 command allows you to create and edit armour types. Armour types can be added to items, bodyparts and spells to reduce incoming damage.
+
+You can use the following syntax with this command:
+
+	#3armour list#0 - lists all armour types
+	#3armour edit <id|name>#0 - opens the specified armour type for editing
+	#3armour edit new <name>#0 - creates a new armour type for editing
+	#3armour edit#0 - equivalent of doing SHOW on your currently editing armour type
+	#3armour close#0 - closes the currently edited armour type
+	#3armour clone <id|name> <new name>#0 - creates a carbon copy of an armour type for editing
+	#3armour show <id|name>#0 - shows a particular armour type
+	#3armour set name <name>#0 - renames the armour type
+	#3armour set penetration <outcome>#0 - sets the minimum outcome required for penetration
+	#3armour set difficulty <bonus>#0 - sets the base penalty for wearing this armour
+	#3armour set stacked <bonus>#0 - sets the penalty for wearing this armour when stacked
+	#3armour set dissipate damage|stun|pain <damagetype> <formula>#0 - sets the dissipate damage/stun/pain formula for a damage type
+	#3armour set absorb damage|stun|pain <damagetype> <formula>#0 - sets the absorb damage/stun/pain formula for a damage type
+
+Note, the formulas use the following parameters:
+
+	#6damage#0 - the raw damage amount
+	#6angle#0 - the angle in radians that the attack struck at
+	#6density#0 - the density of the armour material in kg/m3
+	#6strength#0 - the yield strength (shear or impact depending on damage type) of the armour material in Pascals
+	#6electrical#0 - the electrical conductivity of the armour material in 1/ohms
+	#6thermal#0 - the thermal conductivity of the armour material in W/m/DegK
+	#6organic#0 - 1 if armour material is organic, 0 if not
+
+Additionally, absorb formulas can use the following parameter:
+
+	#6originaldamage#0 - the original damage, before dissipation step";
+
+	#region Armour Types
+	[PlayerCommand("Armour", "armour", "armor")]
+	[CommandPermission(PermissionLevel.Admin)]
+	[HelpInfo("Armour", ArmourTypeHelp, AutoHelp.HelpArgOrNoArg)]
+	protected static void Armour(ICharacter actor, string command)
+	{
+		GenericBuildingCommand(actor, new StringStack(command.RemoveFirstWord()), EditableItemHelper.ArmourTypeHelper);
+	}
+	#endregion	
 }

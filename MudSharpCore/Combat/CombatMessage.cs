@@ -1000,7 +1000,7 @@ public class CombatMessage : SaveableItem, ICombatMessage
 			return true;
 		}
 
-		if (!Enum.TryParse<MeleeWeaponVerb>(command.PopSpeech(), out var value))
+		if (!command.PopSpeech().TryParseEnum(out MeleeWeaponVerb value))
 		{
 			actor.OutputHandler.Send(
 				$"That is not a valid verb. Valid verbs are: {Enum.GetValues(typeof(MeleeWeaponVerb)).Cast<MeleeWeaponVerb>().Select(x => x.Describe().Colour(Telnet.Cyan)).ListToString()}");

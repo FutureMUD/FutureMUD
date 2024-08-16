@@ -260,7 +260,7 @@ public class BombGameItemComponentProto : GameItemComponentProto
 			return false;
 		}
 
-		if (!Enum.TryParse<Proximity>(command.SafeRemainingArgument, out var value))
+		if (!command.SafeRemainingArgument.TryParseEnum(out Proximity value))
 		{
 			actor.OutputHandler.Send(
 				$"That is not a valid proximity. The valid values, in order of closeness, are: {Enum.GetValues(typeof(Proximity)).OfType<Proximity>().Select(x => x.Describe().Colour(Telnet.Cyan)).ListToString()}.");
@@ -283,7 +283,7 @@ public class BombGameItemComponentProto : GameItemComponentProto
 			return false;
 		}
 
-		if (!Enum.TryParse<AudioVolume>(command.SafeRemainingArgument, out var value))
+		if (!command.SafeRemainingArgument.TryParseEnum(out AudioVolume value))
 		{
 			actor.OutputHandler.Send(
 				$"That is not a valid audio volume for the explosion. Valid values are {Enum.GetValues(typeof(AudioVolume)).OfType<AudioVolume>().Select(x => x.Describe().Colour(Telnet.Cyan)).ListToString()}.");

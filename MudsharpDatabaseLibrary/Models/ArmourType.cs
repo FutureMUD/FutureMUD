@@ -15,8 +15,8 @@ namespace MudSharp.Models
         public long Id { get; set; }
         public string Name { get; set; }
         public int MinimumPenetrationDegree { get; set; }
-        public int BaseDifficultyDegrees { get; set; }
-        public int StackedDifficultyDegrees { get; set; }
+        public double BaseDifficultyDegrees { get; set; }
+        public double StackedDifficultyDegrees { get; set; }
         public string Definition { get; set; }
 
         public virtual ICollection<BodypartProto> BodypartProto { get; set; }

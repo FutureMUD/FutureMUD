@@ -950,7 +950,7 @@ public class SimpleNPCTemplate : NPCTemplateBase
 			return false;
 		}
 
-		if (!Enum.TryParse(command.SafeRemainingArgument, out Alignment alignment))
+		if (!command.SafeRemainingArgument.TryParseEnum(out Alignment alignment))
 		{
 			actor.Send(
 				$"That is not a valid selection for handedness. Valid options are {SelectedRace.HandednessOptions.Select(x => x.Describe().Colour(Telnet.Green)).ListToString()}.");

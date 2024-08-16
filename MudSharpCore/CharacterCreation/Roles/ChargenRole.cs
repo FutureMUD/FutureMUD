@@ -756,7 +756,7 @@ internal class ChargenRole : SaveableItem, IChargenRole
 			return false;
 		}
 
-		if (!Enum.TryParse(ss.Pop(), out PermissionLevel level))
+		if (!ss.PopSpeech().TryParseEnum(out PermissionLevel level))
 		{
 			actor.Send("That is not a valid permission level. See {0}.",
 				"show permissions".Colour(Telnet.Yellow).FluentTagMXP("send", "href='show permissions'"));

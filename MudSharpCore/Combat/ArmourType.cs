@@ -12,11 +12,77 @@ using MudSharp.Health;
 using MudSharp.RPG.Checks;
 using ExpressionEngine;
 using MudSharp.Commands.Trees;
+using MudSharp.Database;
+using MudSharp.Framework.Save;
 
 namespace MudSharp.Combat;
 
-public class ArmourType : FrameworkItem, IArmourType, IHaveFuturemud
+public class ArmourType : SaveableItem, IArmourType
 {
+	public ArmourType(IFuturemud gameworld, string name)
+	{
+		Gameworld = gameworld;
+		_name = name;
+		MinimumPenetrationDegree = OpposedOutcomeDegree.Major;
+		BaseDifficultyBonus = 1;
+		StackedDifficultyBonus = 0;
+		foreach (var dt in Enum.GetValues(typeof(DamageType)).OfType<DamageType>().ToList())
+		{
+			if (!DissipateExpressions.ContainsKey(dt))
+			{
+				DissipateExpressions[dt] = new Expression("damage");
+			}
+
+			if (!AbsorbExpressions.ContainsKey(dt))
+			{
+				AbsorbExpressions[dt] = new Expression("damage");
+			}
+
+			if (!DissipateExpressionsPain.ContainsKey(dt))
+			{
+				DissipateExpressionsPain[dt] = new Expression("pain");
+			}
+
+			if (!AbsorbExpressionsPain.ContainsKey(dt))
+			{
+				AbsorbExpressionsPain[dt] = new Expression("pain");
+			}
+
+			if (!DissipateExpressionsStun.ContainsKey(dt))
+			{
+				DissipateExpressionsStun[dt] = new Expression("stun");
+			}
+
+			if (!AbsorbExpressionsStun.ContainsKey(dt))
+			{
+				AbsorbExpressionsStun[dt] = new Expression("stun");
+			}
+		}
+
+		DamageTypeTransformations[DamageType.Slashing] = (WoundSeverity.Severe, DamageType.Crushing);
+		DamageTypeTransformations[DamageType.Chopping] = (WoundSeverity.Severe, DamageType.Crushing);
+		DamageTypeTransformations[DamageType.Piercing] = (WoundSeverity.Moderate, DamageType.Crushing);
+		DamageTypeTransformations[DamageType.Ballistic] = (WoundSeverity.Moderate, DamageType.Crushing);
+		DamageTypeTransformations[DamageType.Bite] = (WoundSeverity.Severe, DamageType.Crushing);
+		DamageTypeTransformations[DamageType.Claw] = (WoundSeverity.Severe, DamageType.Crushing);
+		DamageTypeTransformations[DamageType.Shearing] = (WoundSeverity.Severe, DamageType.Crushing);
+		DamageTypeTransformations[DamageType.Wrenching] = (WoundSeverity.Severe, DamageType.Crushing);
+		DamageTypeTransformations[DamageType.ArmourPiercing] = (WoundSeverity.Severe, DamageType.Crushing);
+
+		using (new FMDB())
+		{
+			var dbitem = new Models.ArmourType();
+			dbitem.Name = Name;
+			dbitem.MinimumPenetrationDegree = (int)MinimumPenetrationDegree;
+			dbitem.BaseDifficultyDegrees = BaseDifficultyBonus;
+			dbitem.StackedDifficultyDegrees = StackedDifficultyBonus;
+			dbitem.Definition = SaveDefinition().ToString();
+			FMDB.Context.ArmourTypes.Add(dbitem);
+			FMDB.Context.SaveChanges();
+			_id = dbitem.Id;
+		}
+	}
+
 	public ArmourType(MudSharp.Models.ArmourType type, IFuturemud gameworld)
 	{
 		Gameworld = gameworld;
@@ -113,6 +179,131 @@ public class ArmourType : FrameworkItem, IArmourType, IHaveFuturemud
 		}
 	}
 
+	private ArmourType(ArmourType rhs, string newName)
+	{
+		Gameworld = rhs.Gameworld;
+		_name = newName;
+		MinimumPenetrationDegree = rhs.MinimumPenetrationDegree;
+		BaseDifficultyBonus = rhs.BaseDifficultyBonus;
+		StackedDifficultyBonus = rhs.StackedDifficultyBonus;
+
+		foreach (var item in rhs.AbsorbExpressions)
+		{
+			AbsorbExpressions[item.Key] = new Expression(item.Value.OriginalExpression);
+		}
+		foreach (var item in rhs.AbsorbExpressionsPain)
+		{
+			AbsorbExpressionsPain[item.Key] = new Expression(item.Value.OriginalExpression);
+		}
+		foreach (var item in rhs.AbsorbExpressionsStun)
+		{
+			AbsorbExpressionsStun[item.Key] = new Expression(item.Value.OriginalExpression);
+		}
+		foreach (var item in rhs.DissipateExpressions)
+		{
+			DissipateExpressions[item.Key] = new Expression(item.Value.OriginalExpression);
+		}
+		foreach (var item in rhs.DissipateExpressionsPain)
+		{
+			DissipateExpressionsPain[item.Key] = new Expression(item.Value.OriginalExpression);
+		}
+		foreach (var item in rhs.DissipateExpressionsStun)
+		{
+			DissipateExpressionsStun[item.Key] = new Expression(item.Value.OriginalExpression);
+		}
+
+		foreach (var item in rhs.DamageTypeTransformations)
+		{
+			DamageTypeTransformations[item.Key] = (item.Value.Threshold, item.Value.Transform);
+		}
+
+		using (new FMDB())
+		{
+			var dbitem = new Models.ArmourType();
+			dbitem.Name = Name;
+			dbitem.MinimumPenetrationDegree = (int)MinimumPenetrationDegree;
+			dbitem.BaseDifficultyDegrees = BaseDifficultyBonus;
+			dbitem.StackedDifficultyDegrees = StackedDifficultyBonus;
+			dbitem.Definition = SaveDefinition().ToString();
+			FMDB.Context.ArmourTypes.Add(dbitem);
+			FMDB.Context.SaveChanges();
+			_id = dbitem.Id;
+		}
+	}
+
+	public IArmourType Clone(string newName)
+	{
+		return new ArmourType(this, newName);
+	}
+
+	/// <inheritdoc />
+	public override void Save()
+	{
+		var dbitem = FMDB.Context.ArmourTypes.Find(Id);
+		dbitem.MinimumPenetrationDegree = (int)MinimumPenetrationDegree;
+		dbitem.BaseDifficultyDegrees = BaseDifficultyBonus;
+		dbitem.Name = Name;
+		dbitem.StackedDifficultyDegrees = StackedDifficultyBonus;
+		dbitem.Definition = SaveDefinition().ToString();
+		Changed = false;
+	}
+
+	protected XElement SaveDefinition()
+	{
+		return new XElement("Definition",
+			new XElement("DissipateExpressions",
+				from item in DissipateExpressions
+				select new XElement("Expression",
+					new XAttribute("damagetype", (int)item.Key),
+					new XCData(item.Value.OriginalExpression)
+				)
+			), 
+			new XElement("DissipateExpressionsPain",
+				from item in DissipateExpressionsPain
+				select new XElement("Expression",
+					new XAttribute("damagetype", (int)item.Key),
+					new XCData(item.Value.OriginalExpression)
+				)
+			), 
+			new XElement("DissipateExpressionsStun",
+				from item in DissipateExpressionsStun
+				select new XElement("Expression",
+					new XAttribute("damagetype", (int)item.Key),
+					new XCData(item.Value.OriginalExpression)
+				)
+			),
+			new XElement("AbsorbExpressions",
+				from item in AbsorbExpressions
+				select new XElement("Expression",
+					new XAttribute("damagetype", (int)item.Key),
+					new XCData(item.Value.OriginalExpression)
+				)
+			),
+			new XElement("AbsorbExpressionsPain",
+				from item in AbsorbExpressionsPain
+				select new XElement("Expression",
+					new XAttribute("damagetype", (int)item.Key),
+					new XCData(item.Value.OriginalExpression)
+				)
+			),
+			new XElement("AbsorbExpressionsStun",
+				from item in AbsorbExpressionsStun
+				select new XElement("Expression",
+					new XAttribute("damagetype", (int)item.Key),
+					new XCData(item.Value.OriginalExpression)
+				)
+			),
+			new XElement("DamageTransformations",
+				from item in DamageTypeTransformations
+				select new XElement("Transform",
+					new XAttribute("fromtype", (int)item.Key),
+					new XAttribute("totype", (int)item.Value.Transform),
+					new XAttribute("severity", (int)item.Value.Threshold)
+				)
+			)
+		);
+	}
+
 	public Dictionary<DamageType, Expression> DissipateExpressions { get; set; } =
 		new();
 
@@ -135,8 +326,8 @@ public class ArmourType : FrameworkItem, IArmourType, IHaveFuturemud
 		new();
 
 	public OpposedOutcomeDegree MinimumPenetrationDegree { get; set; }
-	public int BaseDifficultyBonus { get; set; }
-	public int StackedDifficultyBonus { get; set; }
+	public double BaseDifficultyBonus { get; set; }
+	public double StackedDifficultyBonus { get; set; }
 
 	/// <summary>
 	///     This call represents armours that do not take damage being called upon to absorb - such as spells, and natural
@@ -633,13 +824,13 @@ public class ArmourType : FrameworkItem, IArmourType, IHaveFuturemud
 	public string Show(ICharacter voyeur)
 	{
 		var sb = new StringBuilder();
-		sb.AppendLine($"Armour Type #{Id.ToString("N0", voyeur)} - {Name.TitleCase()}".ColourName());
+		sb.AppendLine($"Armour Type #{Id.ToString("N0", voyeur)} - {Name.TitleCase()}".GetLineWithTitle(voyeur, Telnet.Orange, Telnet.BoldWhite));
 		sb.AppendLine();
-		sb.AppendLine($"Bonus When Worn Alone: {BaseDifficultyBonus.ToString("N0", voyeur).ColourValue()}");
-		sb.AppendLine($"Bonus When Worn Stacked: {StackedDifficultyBonus.ToString("N0", voyeur).ColourValue()}");
-		sb.AppendLine($"Minimum Degree for Penetration: {MinimumPenetrationDegree.Describe().ColourValue()}");
+		sb.AppendLine($"Bonus When Worn Alone: {BaseDifficultyBonus.ToBonusString(voyeur)}");
+		sb.AppendLine($"Bonus When Worn Stacked: {StackedDifficultyBonus.ToBonusString(voyeur)}");
+		sb.AppendLine($"Minimum Degree for Penetration: {MinimumPenetrationDegree.DescribeColour()}");
 		sb.AppendLine();
-		sb.AppendLine("Damage Transforms:".ColourName());
+		sb.AppendLine("Damage Transforms".GetLineWithTitle(voyeur, Telnet.Orange, Telnet.BoldWhite));
 		sb.AppendLine();
 		foreach (var item in DamageTypeTransformations)
 		{
@@ -648,16 +839,17 @@ public class ArmourType : FrameworkItem, IArmourType, IHaveFuturemud
 		}
 
 		sb.AppendLine();
-		sb.AppendLine("Armour Formulae".ColourName());
+		sb.AppendLine("Armour Formulae".GetLineWithTitle(voyeur, Telnet.Orange, Telnet.BoldWhite));
 		sb.AppendLine();
 		sb.AppendLine("Note - Armour is applied in the following sequence");
 		sb.AppendLine(
-			$"{"Incoming Damage".ColourName()} -> {"Dissipate".ColourName()} -> {"Damage Armour".ColourName()} -> {"Absorb".ColourName()} -> {"Pass Residual Damage Down".ColourName()}");
+			$"{"Incoming Damage".ColourName()} -> {"Dissipate".ColourName()} -> {"Damage Armour/Bodypart".ColourName()} -> {"Absorb".ColourName()} -> {"Pass Residual Damage Down a Layer".ColourName()}");
 		sb.AppendLine();
 		sb.AppendLine(@"There are also numerous variables that may appear, which can be any of the following:
 
 	#3quality#0 - the Quality of the item 0 (terrible) - 5 (normal) - 11 (legendary)
 	#3damage#0 - the damage/stun/pain of the attack
+	#3originaldamage#0 - the original pre-mitigation damage/stun/pain of the attack (absorb formulae only)
 	#3angle#0 - the angle in radians that the attack hit. This is determine by the weapon attack type and how successful the defense was (even if missed). 
 	#3density#0 - the relative density (specific gravity) of  the material that the armour is made out of
 	#3electrical#0 - the electrical resistivity of the material in 1/ohm metres
@@ -666,7 +858,9 @@ public class ArmourType : FrameworkItem, IArmourType, IHaveFuturemud
 	#3strength#0 - either the shear or tensile strength of the material depending on the damage type, in pascals"
 			.SubstituteANSIColour());
 		sb.AppendLine();
-		sb.AppendLine("Dissipate Damage:".ColourName());
+		sb.AppendLine("Note: damage/originaldamage can be stun/originalstun or pain/originalpain in the stun/pain formulas. They are the same value.".Colour(Telnet.Cyan));
+		sb.AppendLine();
+		sb.AppendLine("Dissipate Damage".GetLineWithTitle(voyeur, Telnet.Orange, Telnet.BoldWhite));
 		sb.AppendLine();
 		foreach (var item in DissipateExpressions.OrderBy(x => x.Key))
 		{
@@ -674,7 +868,7 @@ public class ArmourType : FrameworkItem, IArmourType, IHaveFuturemud
 		}
 
 		sb.AppendLine();
-		sb.AppendLine("Absorb Damage:".ColourName());
+		sb.AppendLine("Absorb Damage".GetLineWithTitle(voyeur, Telnet.Orange, Telnet.BoldWhite));
 		sb.AppendLine();
 		foreach (var item in AbsorbExpressions.OrderBy(x => x.Key))
 		{
@@ -682,7 +876,7 @@ public class ArmourType : FrameworkItem, IArmourType, IHaveFuturemud
 		}
 
 		sb.AppendLine();
-		sb.AppendLine("Dissipate Stun:".ColourName());
+		sb.AppendLine("Dissipate Stun".GetLineWithTitle(voyeur, Telnet.Orange, Telnet.BoldWhite));
 		sb.AppendLine();
 		foreach (var item in DissipateExpressionsStun.OrderBy(x => x.Key))
 		{
@@ -690,7 +884,7 @@ public class ArmourType : FrameworkItem, IArmourType, IHaveFuturemud
 		}
 
 		sb.AppendLine();
-		sb.AppendLine("Absorb Stun:".ColourName());
+		sb.AppendLine("Absorb Stun".GetLineWithTitle(voyeur, Telnet.Orange, Telnet.BoldWhite));
 		sb.AppendLine();
 		foreach (var item in AbsorbExpressionsStun.OrderBy(x => x.Key))
 		{
@@ -698,7 +892,7 @@ public class ArmourType : FrameworkItem, IArmourType, IHaveFuturemud
 		}
 
 		sb.AppendLine();
-		sb.AppendLine("Dissipate Pain:".ColourName());
+		sb.AppendLine("Dissipate Pain".GetLineWithTitle(voyeur, Telnet.Orange, Telnet.BoldWhite));
 		sb.AppendLine();
 		foreach (var item in DissipateExpressionsPain.OrderBy(x => x.Key))
 		{
@@ -706,7 +900,7 @@ public class ArmourType : FrameworkItem, IArmourType, IHaveFuturemud
 		}
 
 		sb.AppendLine();
-		sb.AppendLine("Absorb Pain:".ColourName());
+		sb.AppendLine("Absorb Pain".GetLineWithTitle(voyeur, Telnet.Orange, Telnet.BoldWhite));
 		sb.AppendLine();
 		foreach (var item in AbsorbExpressionsPain.OrderBy(x => x.Key))
 		{
@@ -716,15 +910,300 @@ public class ArmourType : FrameworkItem, IArmourType, IHaveFuturemud
 		return sb.ToString();
 	}
 
+	public const string BuildingHelpText = @"You can use the following options with this command:
+
+	#3name <name>#0 - renames the armour type
+	#3penetration <outcome>#0 - sets the minimum outcome required for penetration
+	#3difficulty <bonus>#0 - sets the base penalty for wearing this armour
+	#3stacked <bonus>#0 - sets the penalty for wearing this armour when stacked
+	#3dissipate damage|stun|pain <damagetype> <formula>#0 - sets the dissipate damage/stun/pain formula for a damage type
+	#3absorb damage|stun|pain <damagetype> <formula>#0 - sets the absorb damage/stun/pain formula for a damage type
+
+Note, the formulas use the following parameters:
+
+	#6damage#0 - the raw damage amount
+	#6angle#0 - the angle in radians that the attack struck at
+	#6density#0 - the density of the armour material in kg/m3
+	#6strength#0 - the yield strength (shear or impact depending on damage type) of the armour material in Pascals
+	#6electrical#0 - the electrical conductivity of the armour material in 1/ohms
+	#6thermal#0 - the thermal conductivity of the armour material in W/m/DegK
+	#6organic#0 - 1 if armour material is organic, 0 if not
+
+Additionally, absorb formulas can use the following parameter:
+
+	#6originaldamage#0 - the original damage, before dissipation step";
+
+	public bool BuildingCommand(ICharacter actor, StringStack ss)
+	{
+		switch (ss.PopForSwitch())
+		{
+			case "name":
+				return BuildingCommandName(actor, ss);
+			case "difficulty":
+				return BuildingCommandDifficulty(actor, ss);
+			case "stacked":
+			case "stackeddifficulty":
+				return BuildingCommandStackedDifficulty(actor, ss);
+			case "penetration":
+				return BuildingCommandMinimumPenetrationDegree(actor, ss);
+			case "absorb":
+				return BuildingCommandFormula(actor, ss, false);
+			case "dissipate":
+				return BuildingCommandFormula(actor, ss, true);
+			default:
+				actor.OutputHandler.Send(BuildingHelpText.SubstituteANSIColour());
+				return false;
+		}
+	}
+
+	internal enum ArmourFormulaType
+	{
+		Damage,
+		Pain,
+		Stun
+	}
+
+	private bool BuildingCommandFormula(ICharacter actor, StringStack ss, bool dissipate)
+	{
+		ArmourFormulaType type;
+		switch (ss.PopForSwitch())
+		{
+			case "damage":
+			case "dam":
+				type = ArmourFormulaType.Damage;
+				break;
+			case "pain":
+				type = ArmourFormulaType.Pain;
+				break;
+			case "stun":
+				type = ArmourFormulaType.Stun;
+				break;
+			default:
+				actor.OutputHandler.Send($"You need to specify #3damage#0, #3pain#0 or #3stun#0.".SubstituteANSIColour());
+				return false;
+		}
+
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send($"Which damage type do you want to edit the formula for? The valid types are {Enum.GetValues<DamageType>().ListToColouredString(Telnet.Green)}.");
+			return false;
+		}
+
+		if (!ss.PopSpeech().TryParseEnum(out DamageType dt))
+		{
+			actor.OutputHandler.Send($"The text {ss.Last.ColourCommand()} is not a valid damage type. The valid types are {Enum.GetValues<DamageType>().ListToColouredString(Telnet.Green)}.");
+			return false;
+		}
+
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send($@"What should the formula be set to? 
+
+You can use the following parameters in this formula:
+
+	#6damage#0 - the raw damage amount{(dissipate ? "" : "\n\t#6originaldamage#0 - the original damage, before dissipation step")}
+	#6angle#0 - the angle in radians that the attack struck at
+	#6density#0 - the density of the armour material in kg/m3
+	#6strength#0 - the yield strength (shear or impact depending on damage type) of the armour material in Pascals
+	#6electrical#0 - the electrical conductivity of the armour material in 1/ohms
+	#6thermal#0 - the thermal conductivity of the armour material in W/m/DegK
+	#6organic#0 - 1 if armour material is organic, 0 if not".SubstituteANSIColour());
+			return false;
+		}
+
+		var expression = new Expression(ss.SafeRemainingArgument);
+		if (expression.HasErrors())
+		{
+			actor.OutputHandler.Send(expression.Error);
+			return false;
+		}
+
+		var sb = new StringBuilder();
+		sb.Append("You update this armour's ");
+		if (dissipate)
+		{
+			switch (type)
+			{
+				case ArmourFormulaType.Damage:
+					DissipateExpressions[dt] = expression;
+					sb.Append("dissipate damage");
+					break;
+				case ArmourFormulaType.Pain:
+					DissipateExpressionsPain[dt] = expression;
+					sb.Append("dissipate pain");
+					break;
+				case ArmourFormulaType.Stun:
+					DissipateExpressionsStun[dt] = expression;
+					sb.Append("dissipate stun");
+					break;
+			}
+		}
+		else
+		{
+			switch (type)
+			{
+				case ArmourFormulaType.Damage:
+					AbsorbExpressions[dt] = expression;
+					sb.Append("absorb damage");
+					break;
+				case ArmourFormulaType.Pain:
+					AbsorbExpressionsPain[dt] = expression;
+					sb.Append("absorb pain");
+					break;
+				case ArmourFormulaType.Stun:
+					AbsorbExpressionsStun[dt] = expression;
+					sb.Append("absorb stun");
+					break;
+			}
+		}
+
+		sb.Append(" formula to ");
+		sb.Append(Telnet.Yellow);
+		sb.Append(expression.OriginalExpression);
+		sb.Append(Telnet.RESET);
+		sb.AppendLine(".");
+
+		foreach (var parameter in expression.Parameters)
+		{
+			switch (parameter.Key.ToLowerInvariant())
+			{
+				case "damage":
+				case "density":
+				case "strength":
+				case "electrical":
+				case "thermal":
+				case "organic":
+					continue;
+				case "stun":
+					if (type != ArmourFormulaType.Stun)
+					{
+						sb.AppendLine("Warning: The parameter \"stun\" is not valid and will always be zero.".ColourError());
+					}
+
+					continue;
+				case "pain":
+					if (type != ArmourFormulaType.Pain)
+					{
+						sb.AppendLine("Warning: The parameter \"pain\" is not valid and will always be zero.".ColourError());
+					}
+
+					continue;
+				case "originaldamage":
+					if (dissipate)
+					{
+						sb.AppendLine("Warning: The parameter \"originaldamage\" is not valid and will always be zero.".ColourError());
+					}
+
+					continue;
+				case "originalstun":
+					if (type != ArmourFormulaType.Stun || dissipate)
+					{
+						sb.AppendLine("Warning: The parameter \"originalstun\" is not valid and will always be zero.".ColourError());
+					}
+
+					continue;
+				case "originalpain":
+					if (type != ArmourFormulaType.Stun || dissipate)
+					{
+						sb.AppendLine("Warning: The parameter \"originalpain\" is not valid and will always be zero.".ColourError());
+					}
+
+					continue;
+				default:
+					sb.AppendLine($"Warning: The parameter \"{parameter.Key.ToLowerInvariant()}\" is not valid and will always be zero.".ColourError());
+					continue;
+			}
+		}
+
+		actor.OutputHandler.Send(sb.ToString());
+		Changed = true;
+		return true;
+	}
+
+	private bool BuildingCommandMinimumPenetrationDegree(ICharacter actor, StringStack ss)
+	{
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send($"What should be the minimum opposed outcome needed to penetrate and bypass this armour type? The valid values are {Enum.GetNames<OpposedOutcomeDegree>().ListToColouredString()}.");
+			return false;
+		}
+
+		if (!ss.SafeRemainingArgument.TryParseEnum(out OpposedOutcomeDegree degree))
+		{
+			actor.OutputHandler.Send($"The text {ss.SafeRemainingArgument.ColourCommand()} is not a valid opposed outcome. The valid values are {Enum.GetNames<OpposedOutcomeDegree>().ListToColouredString()}.");
+			return false;
+		}
+
+		MinimumPenetrationDegree = degree;
+		Changed = true;
+		actor.OutputHandler.Send($"Attackers will now need to get an opposed outcome degree of {MinimumPenetrationDegree.DescribeColour()} to penetrate and bypass this armour.");
+		return true;
+	}
+
+	private bool BuildingCommandStackedDifficulty(ICharacter actor, StringStack ss)
+	{
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send("What should the penalty be for active checks be when this armour is stacked?");
+			return false;
+		}
+
+		if (!double.TryParse(ss.SafeRemainingArgument, out var value))
+		{
+			actor.OutputHandler.Send($"The text {ss.SafeRemainingArgument.ColourCommand()} is not a valid number.");
+			return false;
+		}
+
+		StackedDifficultyBonus = value;
+		Changed = true;
+		actor.OutputHandler.Send($"This armour type will now impose a penalty of {(-1 * value).ToBonusString(actor)} when stacked.");
+		return true;
+	}
+
+	private bool BuildingCommandDifficulty(ICharacter actor, StringStack ss)
+	{
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send("What should the penalty be for active checks be when this armour is worn alone?");
+			return false;
+		}
+
+		if (!double.TryParse(ss.SafeRemainingArgument, out var value))
+		{
+			actor.OutputHandler.Send($"The text {ss.SafeRemainingArgument.ColourCommand()} is not a valid number.");
+			return false;
+		}
+
+		BaseDifficultyBonus = value;
+		Changed = true;
+		actor.OutputHandler.Send($"This armour type will now impose a penalty of {(-1 * value).ToBonusString(actor)} when worn alone.");
+		return true;
+	}
+
+	private bool BuildingCommandName(ICharacter actor, StringStack ss)
+	{
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send("What name do you want to give to this armour type?");
+			return false;
+		}
+
+		var name = ss.SafeRemainingArgument.TitleCase();
+		if (Gameworld.ArmourTypes.Any(x => x.Name.EqualTo(name)))
+		{
+			actor.OutputHandler.Send($"There is already an armour type called {name.ColourName()}. Names must be unique.");
+			return false;
+		}
+
+		actor.OutputHandler.Send($"You rename the armour type {Name.ColourName()} to {name.ColourName()}.");
+		_name = name;
+		Changed = true;
+		return true;
+	}
+
 	#region Overrides of Item
 
 	public override string FrameworkItemType { get; } = "ArmourType";
-
-	#endregion
-
-	#region Implementation of IHaveFuturemud
-
-	public IFuturemud Gameworld { get; set; }
 
 	#endregion
 }

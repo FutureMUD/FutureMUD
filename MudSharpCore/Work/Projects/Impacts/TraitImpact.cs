@@ -107,7 +107,7 @@ public class TraitImpact : BaseImpact, ILabourImpactTraits
 			return false;
 		}
 
-		if (!Enum.TryParse<TraitBonusContext>(command.PopSpeech(), out var value))
+		if (!command.SafeRemainingArgument.TryParseEnum(out TraitBonusContext value))
 		{
 			actor.OutputHandler.Send(
 				$"That is not a valid context.\nValid values are {Enum.GetNames(typeof(TraitBonusContext)).Select(x => x.ColourCommand()).ListToString()}.");

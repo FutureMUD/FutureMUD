@@ -185,7 +185,7 @@ Note: When using the STYLE command people can apply any style with an equal or l
 					return;
 				}
 
-				if (!Enum.TryParse<Difficulty>(difftext, out var difficulty))
+				if (!difftext.TryParseEnum(out Difficulty difficulty))
 				{
 					actor.OutputHandler.Send("That is not a valid difficulty.");
 					return;

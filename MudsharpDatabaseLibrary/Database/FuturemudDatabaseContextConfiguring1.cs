@@ -700,7 +700,7 @@ namespace MudSharp.Database
             {
                 entity.Property(e => e.Id).HasColumnType("bigint(20)");
 
-                entity.Property(e => e.BaseDifficultyDegrees).HasColumnType("int(11)");
+                entity.Property(e => e.BaseDifficultyDegrees).HasColumnType("double");
 
                 entity.Property(e => e.Definition)
                     .IsRequired()
@@ -716,7 +716,7 @@ namespace MudSharp.Database
                     .HasCharSet("utf8mb4")
                     .UseCollation("utf8mb4_unicode_ci");
 
-                entity.Property(e => e.StackedDifficultyDegrees).HasColumnType("int(11)");
+                entity.Property(e => e.StackedDifficultyDegrees).HasColumnType("double");
             });
 
             modelBuilder.Entity<ArtificialIntelligence>(entity =>

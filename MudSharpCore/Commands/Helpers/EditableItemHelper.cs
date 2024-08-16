@@ -23,6 +23,7 @@ using MudSharp.Form.Shape;
 using MudSharp.Framework;
 using MudSharp.Framework.Revision;
 using MudSharp.Framework.Units;
+using MudSharp.GameItems.Interfaces;
 using MudSharp.Health;
 using MudSharp.Magic;
 using MudSharp.Magic.Capabilities;
@@ -32,6 +33,7 @@ using MudSharp.Magic.Resources;
 using MudSharp.NPC;
 using MudSharp.NPC.AI;
 using MudSharp.PerceptionEngine;
+using MudSharp.RPG.Checks;
 using MudSharp.RPG.Dreams;
 using MudSharp.RPG.Hints;
 using Newtonsoft.Json.Linq;
@@ -627,6 +629,160 @@ public partial class EditableItemHelper
 		CustomSearch = (protos, keyword, gameworld) => protos,
 		GetEditHeader = item => $"Ammunition Type #{item.Id:N0} ({item.Name})",
 		DefaultCommandHelp = CombatBuilderModule.AmmunitionHelp
+	};
+
+	public static EditableItemHelper ArmourTypeHelper { get; } = new()
+	{
+		ItemName = "Armour Type",
+		ItemNamePlural = "Armour Types",
+		SetEditableItemAction = (actor, item) =>
+		{
+			actor.RemoveAllEffects<BuilderEditingEffect<IArmourType>>();
+			if (item == null)
+			{
+				return;
+			}
+
+			actor.AddEffect(new BuilderEditingEffect<IArmourType>(actor) { EditingItem = (IArmourType)item });
+		},
+		GetEditableItemFunc = actor =>
+			actor.CombinedEffectsOfType<BuilderEditingEffect<IArmourType>>().FirstOrDefault()?.EditingItem,
+		GetAllEditableItems = actor => actor.Gameworld.ArmourTypes.ToList(),
+		GetEditableItemByIdFunc = (actor, id) => actor.Gameworld.ArmourTypes.Get(id),
+		GetEditableItemByIdOrNameFunc = (actor, input) => actor.Gameworld.ArmourTypes.GetByIdOrName(input),
+		AddItemToGameWorldAction = item => item.Gameworld.Add((IArmourType)item),
+		CastToType = typeof(IArmourType),
+		EditableNewAction = (actor, input) =>
+		{
+			if (input.IsFinished)
+			{
+				actor.OutputHandler.Send("You must specify a name for your armour type.");
+				return;
+			}
+
+			var name = input.PopSpeech().TitleCase();
+			if (actor.Gameworld.ArmourTypes.Any(x => x.Name.EqualTo(name)))
+			{
+				actor.OutputHandler.Send(
+					$"There is already an armour type called {name.ColourName()}. Names must be unique.");
+				return;
+			}
+
+			var armour = new ArmourType(actor.Gameworld, name);
+			actor.Gameworld.Add(armour);
+			actor.RemoveAllEffects<BuilderEditingEffect<IArmourType>>();
+			actor.AddEffect(new BuilderEditingEffect<IArmourType>(actor) { EditingItem = armour });
+
+			using (new FMDB())
+			{
+				var dbcomp = new Models.GameItemComponentProto
+				{
+					Id = actor.Gameworld.ItemComponentProtos.NextID(),
+					RevisionNumber = 0,
+					Name = $"Armour_{name.CollapseString()}",
+					Description = $"Turns an item into armour type \"{name}\"",
+					EditableItem = new Models.EditableItem
+					{
+						BuilderAccountId = actor.Account.Id,
+						RevisionStatus = (int)RevisionStatus.Current,
+						RevisionNumber = 0,
+						BuilderDate = DateTime.UtcNow,
+						BuilderComment = "System generated"
+					},
+					Type = "Armour",
+					Definition = $"<Definition><ArmourType>{armour.Id}</ArmourType></Definition>"
+				};
+				FMDB.Context.GameItemComponentProtos.Add(dbcomp);
+				FMDB.Context.SaveChanges();
+				var comp = actor.Gameworld.GameItemComponentManager.GetProto(dbcomp, actor.Gameworld);
+				actor.Gameworld.Add(comp);
+				actor.OutputHandler.Send(
+					$"You create a new armour type called {name.ColourName()}, which you are now editing.\nAlso created a matching item component to add to items called {comp.Name.ColourName()} with Id #{comp.Id.ToString("N0", actor)}.");
+			}
+		},
+		EditableCloneAction = (actor, input) =>
+		{
+			if (input.IsFinished)
+			{
+				actor.OutputHandler.Send("Which armour type would you like to clone?");
+				return;
+			}
+
+			var target = actor.Gameworld.ArmourTypes.GetByIdOrName(input.PopSpeech());
+			if (target is null)
+			{
+				actor.OutputHandler.Send("There is no such armour type to clone.");
+				return;
+			}
+
+			if (input.IsFinished)
+			{
+				actor.OutputHandler.Send("What name would you like to give to the cloned armour type?");
+				return;
+			}
+
+			var name = input.SafeRemainingArgument.TitleCase();
+			if (actor.Gameworld.ArmourTypes.Any(x => x.Name.EqualTo(name)))
+			{
+				actor.OutputHandler.Send(
+					$"There is already an armour type called {name.ColourName()}. Names must be unique.");
+				return;
+			}
+
+			var clone = target.Clone(name);
+			actor.Gameworld.Add(clone);
+			actor.RemoveAllEffects<BuilderEditingEffect<IArmourType>>();
+			actor.AddEffect(new BuilderEditingEffect<IArmourType>(actor) { EditingItem = clone });
+			using (new FMDB())
+			{
+				var dbcomp = new Models.GameItemComponentProto
+				{
+					Id = actor.Gameworld.ItemComponentProtos.NextID(),
+					RevisionNumber = 0,
+					Name = $"Armour_{name.CollapseString()}",
+					Description = $"Turns an item into armour type \"{name}\"",
+					EditableItem = new Models.EditableItem
+					{
+						BuilderAccountId = actor.Account.Id,
+						RevisionStatus = (int)RevisionStatus.Current,
+						RevisionNumber = 0,
+						BuilderDate = DateTime.UtcNow,
+						BuilderComment = "System generated"
+					},
+					Type = "Armour",
+					Definition = $"<Definition><ArmourType>{clone.Id}</ArmourType></Definition>"
+				};
+				FMDB.Context.GameItemComponentProtos.Add(dbcomp);
+				FMDB.Context.SaveChanges();
+				var comp = actor.Gameworld.GameItemComponentManager.GetProto(dbcomp, actor.Gameworld);
+				actor.Gameworld.Add(comp);
+				actor.OutputHandler.Send(
+					$"You create a cloned armour type from {target.Name.ColourName()} called {name.ColourName()}, which you are now editing.\nAlso created a matching item component to add to items called {comp.Name.ColourName()} with Id #{comp.Id.ToString("N0", actor)}.");
+			}
+		},
+
+		GetListTableHeaderFunc = character => new List<string>
+		{
+			"Id",
+			"Name",
+			"Min Pen",
+			"Penalty",
+			"Stack Penalty"
+		},
+
+		GetListTableContentsFunc = (character, protos) => from proto in protos.OfType<IArmourType>()
+														  select new List<string>
+														  {
+															  proto.Id.ToString("N0", character),
+															  proto.Name,
+															  proto.MinimumPenetrationDegree.DescribeColour(),
+															  proto.BaseDifficultyBonus.ToBonusString(character),
+															  proto.StackedDifficultyBonus.ToBonusString(character)
+														  },
+
+		CustomSearch = (protos, keyword, gameworld) => protos,
+		GetEditHeader = item => $"Armour Type #{item.Id:N0} ({item.Name})",
+		DefaultCommandHelp = CombatBuilderModule.ArmourTypeHelp
 	};
 
 	public static EditableItemHelper NPCSpawnerHelper { get; } = new()

@@ -277,7 +277,7 @@ public class CurrencyDescriptionPatternElement : SaveableItem, ICurrencyDescript
 			return false;
 		}
 
-		if (!Enum.TryParse<RoundingMode>(command.SafeRemainingArgument, out var value))
+		if (!command.SafeRemainingArgument.TryParseEnum(out RoundingMode value))
 		{
 			actor.OutputHandler.Send($"That is not a valid rounding mode. The valid options are {Enum.GetValues<RoundingMode>().Select(x => x.DescribeEnum().ColourName()).ListToString()}.");
 			return false;

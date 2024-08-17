@@ -2122,7 +2122,7 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 		              select item).ToList();
 		foreach (var item in models)
 		{
-			_heightWeightModels.Add(new HeightWeightModel(item));
+			_heightWeightModels.Add(new HeightWeightModel(this, item));
 		}
 #if DEBUG
 		sw.Stop();

@@ -361,6 +361,7 @@ namespace MudSharp.Framework
         void DebugMessage(string message);
 
         void AddGuest(ICharacter character);
+        void Add(IHeightWeightModel model);
         void Add(ITrack track);
         void Add(IMoveSpeed speed);
         void Add(IImprovementModel model);
@@ -515,6 +516,7 @@ namespace MudSharp.Framework
         IGameItem TryGetItem(long id, bool addToGameworld = false);
 
         void Destroy(object obj);
+        void Destroy(IHeightWeightModel model);
         void Destroy(ITrack track);
 		void Destroy(ICombatArena arena);
         void Destroy(ICurrency currency);

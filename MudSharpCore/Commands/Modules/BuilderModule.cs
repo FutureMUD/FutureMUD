@@ -4088,4 +4088,35 @@ You can use the following syntax with this command:
 		GenericBuildingCommand(actor, new StringStack(input.RemoveFirstWord()), EditableItemHelper.ImproverHelper);
 	}
 	#endregion
+
+	#region Height Weight Models
+
+	public const string HeightWeightModelHelp = @"The #3hwmodel#0 command is used to edit height/weight models, which are models that the engine uses to randomly determine heights and weights for characters.
+
+When creating them, you can either use a height and a BMI or a height and a weight. If at all possible I recommend you use BMI (for humanoids at least) because then your weights will correspond with your heights a little more directly. However with animals you're probably better off using weights as it's easier to look up the average weight of a hippopotamus than the average BMI of a hippopotamus.
+
+You can use the following syntax with this command:
+
+	#3hwmodel list#0 - lists all of the height/weight models
+	#3hwmodel edit <which>#0 - begins editing a height/weight model
+	#3hwmodel edit new <type> <name>#0 - creates a new height/weight model
+	#3hwmodel close#0 - stops editing a height/weight model
+	#3hwmodel show <which>#0 - views information about a height/weight model
+	#3hwmodel show#0 - views information about your currently editing height/weight model
+	#3hwmodel set name <name>#0 - renames this model
+	#3hwmodel set meanbmi <value>#0 - sets the mean (average) BMI
+	#3hwmodel set stddevbmi <value>#0 - sets the standard deviation of BMI
+	#3hwmodel set meanheight <value>#0 - sets the mean (average) height
+	#3hwmodel set stddevheight <value>#0 - sets the standard deviation of height
+	#3hwmodel set meanweight <value>#0 - sets the mean (average) weight
+	#3hwmodel set stddevweight <value#0 - sets the standard deviation of weight";
+
+	[PlayerCommand("HWModel", "hwmodel")]
+	[CommandPermission(PermissionLevel.Admin)]
+	[HelpInfo("HWModel", HeightWeightModelHelp, AutoHelp.HelpArgOrNoArg)]
+	protected static void HWModel(ICharacter actor, string input)
+	{
+		GenericBuildingCommand(actor, new StringStack(input.RemoveFirstWord()), EditableItemHelper.HeightWeightModelHelper);
+	}
+	#endregion
 }

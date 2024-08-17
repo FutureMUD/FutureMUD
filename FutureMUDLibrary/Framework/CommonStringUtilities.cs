@@ -456,7 +456,7 @@ namespace MudSharp.Framework
 		}
 
 		/// <summary>
-		/// An alias for .ToString("N0", format).Colour(colour)
+		/// An alias for .ToString("N0", format).Colour(colour) - default colour green if not specified
 		/// </summary>
 		/// <typeparam name="T">Any numeric type</typeparam>
 		/// <param name="number">The number to format</param>
@@ -467,6 +467,18 @@ namespace MudSharp.Framework
 		{
 			colour ??= Telnet.Green;
 			return number.ToString("N0", format).Colour(colour);
+		}
+
+		/// <summary>
+		/// An alias for .ToString("N0", format)
+		/// </summary>
+		/// <typeparam name="T">Any numeric type</typeparam>
+		/// <param name="number">The number to format</param>
+		/// <param name="format">The IFormatProvider to format the string</param>
+		/// <returns>The number as a string</returns>
+		public static string ToStringN0<T>(this T number, IFormatProvider format = null) where T : INumber<T>
+		{
+			return number.ToString("N0", format);
 		}
 
 		/// <summary>

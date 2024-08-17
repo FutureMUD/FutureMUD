@@ -1371,6 +1371,11 @@ public sealed partial class Futuremud : IFuturemud, IDisposable
 		_marketPopulations.Add(item);
 	}
 
+	public void Add(IHeightWeightModel model)
+	{
+		_heightWeightModels.Add(model);
+	}
+
 	#endregion Special Add Methods
 
 	#region Special Find
@@ -1563,6 +1568,11 @@ public sealed partial class Futuremud : IFuturemud, IDisposable
 	public void Destroy(object obj)
 	{
 		throw new ApplicationException("No game level destroy implemented for this type.");
+	}
+
+	public void Destroy(IHeightWeightModel model)
+	{
+		_heightWeightModels.Remove(model);
 	}
 
 	public void Destroy(ITrack track)

@@ -32,6 +32,7 @@ using MudSharp.Magic.Powers;
 using MudSharp.Magic.Resources;
 using MudSharp.NPC;
 using MudSharp.NPC.AI;
+using MudSharp.NPC.Templates;
 using MudSharp.PerceptionEngine;
 using MudSharp.RPG.Checks;
 using MudSharp.RPG.Dreams;
@@ -1466,6 +1467,123 @@ public partial class EditableItemHelper
 		DefaultCommandHelp = BuilderModule.ImproverHelpText,
 
 		GetEditHeader = item => $"Improver #{item.Id:N0} ({item.Name})"
+	};
+
+	public static EditableItemHelper HeightWeightModelHelper = new()
+	{
+		ItemName = "Height/Weight Model",
+		ItemNamePlural = "Height/Weight Models",
+		SetEditableItemAction = (actor, item) =>
+		{
+			actor.RemoveAllEffects<BuilderEditingEffect<IHeightWeightModel>>();
+			if (item == null)
+			{
+				return;
+			}
+
+			actor.AddEffect(new BuilderEditingEffect<IHeightWeightModel>(actor) { EditingItem = (IHeightWeightModel)item });
+		},
+		GetEditableItemFunc = actor =>
+			actor.CombinedEffectsOfType<BuilderEditingEffect<IHeightWeightModel>>().FirstOrDefault()?.EditingItem,
+		GetAllEditableItems = actor => actor.Gameworld.HeightWeightModels.ToList(),
+		GetEditableItemByIdFunc = (actor, id) => actor.Gameworld.HeightWeightModels.Get(id),
+		GetEditableItemByIdOrNameFunc = (actor, input) => actor.Gameworld.HeightWeightModels.GetByIdOrName(input),
+		AddItemToGameWorldAction = item => item.Gameworld.Add((IHeightWeightModel)item),
+		CastToType = typeof(IHeightWeightModel),
+		EditableNewAction = (actor, input) =>
+		{
+			if (input.IsFinished)
+			{
+				actor.OutputHandler.Send("You must specify a name for your new height/weight model.");
+				return;
+			}
+
+			var name = input.PopSpeech().TitleCase();
+
+			if (actor.Gameworld.HeightWeightModels.Any(x => x.Name.EqualTo(name)))
+			{
+				actor.OutputHandler.Send($"There is already a height/weight model with the name {name.ColourName()}. Names must be unique.");
+				return;
+			}
+
+			var newModel = new HeightWeightModel(actor.Gameworld, name);
+
+			actor.Gameworld.Add(newModel);
+			actor.RemoveAllEffects<BuilderEditingEffect<IHeightWeightModel>>();
+			actor.AddEffect(new BuilderEditingEffect<IHeightWeightModel>(actor) { EditingItem = newModel });
+			actor.OutputHandler.Send($"You create a new height/weight model called {name.ColourValue()}, which you are now editing.");
+		},
+		EditableCloneAction = (actor, input) =>
+		{
+			if (input.IsFinished)
+			{
+				actor.OutputHandler.Send("Which height/weight model do you want to clone?");
+				return;
+			}
+
+			var hwModel = actor.Gameworld.HeightWeightModels.GetByIdOrName(input.PopSpeech());
+			if (hwModel == null)
+			{
+				actor.OutputHandler.Send("There is no such height/weight model.");
+				return;
+			}
+
+			if (input.IsFinished)
+			{
+				actor.OutputHandler.Send("You must specify a name for your new height/weight model.");
+				return;
+			}
+
+			var name = input.SafeRemainingArgument;
+			if (actor.Gameworld.HeightWeightModels.Any(x => x.Name.EqualTo(name)))
+			{
+				actor.OutputHandler.Send($"There is already a height/weight model with the name {name.ColourName()}. Names must be unique.");
+				return;
+			}
+
+			var clone = hwModel.Clone(name);
+			if (clone is null)
+			{
+				actor.OutputHandler.Send($"You cannot clone improvers of the same type as {hwModel.Name.ColourName()}.");
+				return;
+			}
+
+			actor.Gameworld.Add(clone);
+			actor.RemoveAllEffects<BuilderEditingEffect<IHeightWeightModel>>();
+			actor.AddEffect(new BuilderEditingEffect<IHeightWeightModel>(actor) { EditingItem = clone });
+			actor.OutputHandler.Send($"You clone the height/weight model {hwModel.Name.ColourValue()} to a new one called {clone.Name.ColourValue()}, which you are now editing.");
+		},
+
+		GetListTableHeaderFunc = character => new List<string>
+		{
+			"Id",
+			"Name",
+			"Mean Height",
+			"Std Dev Height",
+			"Mean BMI",
+			"Std Dev BMI",
+			"Mean Weight",
+			"Std Dev Weight"
+		},
+
+		GetListTableContentsFunc = (character, protos) => from proto in protos.OfType<IHeightWeightModel>()
+		                                                  select new List<string>
+		                                                  {
+			                                                  proto.Id.ToString("N0", character),
+			                                                  proto.Name,
+			                                                  character.Gameworld.UnitManager.DescribeBrief(proto.MeanHeight, UnitType.Length, character),
+			                                                  character.Gameworld.UnitManager.DescribeBrief(proto.StandardDeviationHeight, UnitType.Length, character),
+			                                                  proto.MeanWeight is not null & proto.StandardDeviationWeight is not null ? "" : character.Gameworld.UnitManager.DescribeBrief(proto.MeanBMI, UnitType.BMI, character),
+			                                                  proto.MeanWeight is not null & proto.StandardDeviationWeight is not null ? "" : character.Gameworld.UnitManager.DescribeBrief(proto.StandardDeviationBMI, UnitType.BMI, character),
+			                                                  proto.MeanWeight is not null & proto.StandardDeviationWeight is not null ? character.Gameworld.UnitManager.DescribeBrief(proto.MeanWeight.Value, UnitType.Mass, character) : "",
+			                                                  proto.MeanWeight is not null & proto.StandardDeviationWeight is not null ? character.Gameworld.UnitManager.DescribeBrief(proto.StandardDeviationWeight.Value, UnitType.Mass, character)  : ""
+														  },
+
+		CustomSearch = (protos, keyword, gameworld) => protos,
+
+		DefaultCommandHelp = BuilderModule.HeightWeightModelHelp,
+
+		GetEditHeader = item => $"Height/Weight Model #{item.Id:N0} ({item.Name})"
 	};
 
 	public string ItemName { get; private set; }

@@ -18,7 +18,7 @@ using MudSharp.RPG.Knowledge;
 
 namespace MudSharp.Commands.Modules;
 
-internal class HeritageBuilderModule: BaseBuilderModule
+internal class HeritageBuilderModule : BaseBuilderModule
 {
 	private HeritageBuilderModule()
 		: base("HeritageBuilder")
@@ -27,7 +27,7 @@ internal class HeritageBuilderModule: BaseBuilderModule
 	}
 
 	public new static HeritageBuilderModule Instance { get; } = new();
-	
+
 	#region Languages
 
 	private const string LanguageCommandHelp =
@@ -429,7 +429,7 @@ internal class HeritageBuilderModule: BaseBuilderModule
 
 		actor.OutputHandler.Send(accent.Show(actor));
 	}
-	
+
 	protected static void PlayerAccent(ICharacter actor, string input)
 	{
 		var which = input.RemoveFirstWord();
@@ -950,7 +950,7 @@ internal class HeritageBuilderModule: BaseBuilderModule
 	}
 
 	#endregion
-	
+
 	#region Random Names
 
 	private const string RandomNameHelp =

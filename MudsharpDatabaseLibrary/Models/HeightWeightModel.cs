@@ -12,5 +12,7 @@ namespace MudSharp.Models
         public double StddevHeight { get; set; }
         public double StddevBmi { get; set; }
         public double Bmimultiplier { get; set; }
+        public double? MeanWeight { get; set; }
+        public double? StddevWeight { get; set; }
     }
 }

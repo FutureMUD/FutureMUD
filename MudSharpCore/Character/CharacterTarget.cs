@@ -75,7 +75,8 @@ public partial class Character : ITarget
 		var targets = Location.LayerCharacters(RoomLayer).Except(this)
 		                      .Cast<IPerceiver>()
 		                      .Concat(Body.ExternalItems.Concat(Location.LayerGameItems(RoomLayer)))
-		                      .Where(x => CanSee(x)).ToList();
+		                      .Where(x => CanSee(x))
+		                      .ToList();
 		return targets.GetFromItemListByKeyword(keyword, this);
 	}
 

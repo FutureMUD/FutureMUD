@@ -983,6 +983,12 @@ Syntax:
 				return;
 			}
 
+			if (!wattack.UsableAttack(actor, weapon.Parent, target, weapon.HandednessForWeapon(actor), false, BuiltInCombatMoveType.CoupDeGrace))
+			{
+				actor.OutputHandler.Send($"The {wattack.Name.ColourName()} coup-de-grace is not usable against {target.HowSeen(actor)}.");
+				return;
+			}
+
 			actor.OutputHandler.Handle(
 				new EmoteOutput(new Emote("@ are|is preparing to deliver a Coup De Grace to $1 with $2.", actor,
 					actor, target, weapon.Parent)));

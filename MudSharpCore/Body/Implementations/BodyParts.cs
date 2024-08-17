@@ -86,14 +86,14 @@ public partial class Body
 			if (limb != null && bodypart.Significant && !limb.Name.EqualTo(bodypart.Name))
 			{
 				OutputHandler.Handle(
-					new EmoteOutput(new Emote($"$0's {limb.Name} is severed at the {bodypart.FullDescription()}!",
+					new EmoteOutput(new Emote($"$0's {limb.Name.ToLowerInvariant()} is severed at the {bodypart.FullDescription()}!",
 						Actor,
 						Actor)));
 			}
 			else if (!(bodypart is IOrganProto))
 			{
 				OutputHandler.Handle(
-					new EmoteOutput(new Emote($"$0's {bodypart.FullDescription()} is severed!", Actor,
+					new EmoteOutput(new Emote($"$0's {bodypart.FullDescription().ToLowerInvariant()} is severed!", Actor,
 						Actor)));
 			}
 		}

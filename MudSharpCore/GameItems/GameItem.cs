@@ -377,7 +377,9 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable
 			GetKeywordsFromSDesc((this as IHaveCharacteristics).ParseCharacteristics(
 					HowSeen(voyeur, colour: false), voyeur))
 				.Concat(GetKeywordsFromSDesc((this as IHaveCharacteristics).ParseCharacteristics(
-					HowSeen(voyeur, type: DescriptionType.Long, colour: false), voyeur)));
+					HowSeen(voyeur, type: DescriptionType.Long, colour: false, flags: PerceiveIgnoreFlags.IgnorePositionInformationForLongDesc), voyeur)))
+				.Distinct()
+				.ToList();
 		return abbreviated
 			? keywords.Any(x => x.StartsWith(targetKeyword, StringComparison.InvariantCultureIgnoreCase))
 			: keywords.Contains(targetKeyword);
@@ -405,7 +407,7 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable
 			case DescriptionType.Possessive:
 				return HowSeen(voyeur, proper, DescriptionType.Short, colour) + "'s";
 			case DescriptionType.Long:
-				return LongDescription(voyeur, proper, colour);
+				return LongDescription(voyeur, proper, colour, flags.HasFlag(PerceiveIgnoreFlags.IgnorePositionInformationForLongDesc));
 			case DescriptionType.Full:
 				return FullDescription(voyeur, colour, flags, false);
 			case DescriptionType.Contents:
@@ -417,7 +419,7 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable
 		}
 	}
 
-	private string LongDescription(IPerceiver voyeur, bool proper, bool colour)
+	private string LongDescription(IPerceiver voyeur, bool proper, bool colour, bool ignorePosition)
 	{
 		var ldesc = HowSeen(voyeur, true, DescriptionType.Short, colour);
 		var alteredldesc = false;
@@ -438,9 +440,20 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable
 			alteredldesc = true;
 		}
 
-		if (alteredldesc && PositionTarget == null && PositionEmote == null)
+		ldesc = ItemMaterialRegex.Replace(
+			ldesc,
+			match => match.Groups["which"].Value.Equals("material")
+				? Material.Name.ToLowerInvariant()
+				: Material.MaterialDescription.ToLowerInvariant());
+
+		if ((alteredldesc && PositionTarget == null && PositionEmote == null))
 		{
-			return DressLongDescription(voyeur, (this as IHaveCharacteristics).ParseCharacteristics(ldesc, voyeur).Fullstop()).FluentProper(proper).ColourIncludingReset(Prototype.CustomColour ?? Telnet.Green);
+			return DressLongDescription(voyeur, (this as IHaveCharacteristics).ParseCharacteristics(ldesc, voyeur).Fullstop()).FluentProper(proper).FluentColourIncludingReset(Prototype.CustomColour ?? Telnet.Green, colour);
+		}
+
+		if (ignorePosition)
+		{
+			return $"{ldesc}{(ldesc.Contains(name.Pluralise(), StringComparison.InvariantCultureIgnoreCase) ? " are " : " is ")} here.";
 		}
 
 		var description = DressLongDescription(voyeur, ldesc);
@@ -686,11 +699,6 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable
 
 	private string DressLongDescription(IPerceiver voyeur, string description)
 	{
-		description = ItemMaterialRegex.Replace(
-			description,
-			match => match.Groups["which"].Value.Equals("material")
-				? Material.Name.ToLowerInvariant()
-				: Material.MaterialDescription.ToLowerInvariant());
 		var sb = new StringBuilder(description);
 		if (EffectHandler.EffectsOfType<IAdminInvisEffect>().Any())
 		{

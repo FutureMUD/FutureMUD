@@ -661,13 +661,13 @@ public partial class Body
 					if (item.Key == null)
 					{
 						sb.AppendLine(
-							$"{gender.Subjective(true)} {gender.Is()} missing {gender.Possessive()} {item.Select(x => x.FullDescription()).ListToString()}."
+							$"{gender.Subjective(true)} {gender.Is()} missing {gender.Possessive()} {item.Select(x => x.FullDescription().ToLowerInvariant()).ListToString()}."
 								.Wrap(InnerLineFormatLength).Colour(Telnet.Yellow));
 						continue;
 					}
 
 					sb.AppendLine(
-						$"{gender.Possessive(true)} {item.Key.Name} is severed at the {item.Select(x => x.FullDescription()).ListToString()}."
+						$"{gender.Possessive(true)} {item.Key.Name.ToLowerInvariant()} is severed at the {item.Select(x => x.FullDescription().ToLowerInvariant()).ListToString()}."
 							.Wrap(InnerLineFormatLength).Colour(Telnet.Yellow));
 				}
 
@@ -680,7 +680,7 @@ public partial class Body
 				if (insignificantSevers.Any())
 				{
 					sb.AppendLine(
-						$"{gender.Subjective(true)} {gender.Is()} missing {gender.Possessive()} {insignificantSevers.Select(x => x.FullDescription()).ListToString()}."
+						$"{gender.Subjective(true)} {gender.Is()} missing {gender.Possessive()} {insignificantSevers.Select(x => x.FullDescription().ToLowerInvariant()).ListToString()}."
 							.Wrap(InnerLineFormatLength).Colour(Telnet.Yellow));
 				}
 

@@ -24,6 +24,7 @@ public class PreparingCoupDeGrace : CharacterActionWithTarget, IAffectProximity
 	{
 		Action = perceivable =>
 		{
+			ReleaseEventHandlers();
 			if (Attack.UsableAttack(owner, Weapon.Parent, target, Weapon.HandednessForWeapon(owner), false,
 				    BuiltInCombatMoveType.CoupDeGrace))
 			{
@@ -35,6 +36,13 @@ public class PreparingCoupDeGrace : CharacterActionWithTarget, IAffectProximity
 				};
 				var result = coupMove.ResolveMove(null);
 				coupMove.ResolveBloodSpray(result);
+			}
+			else
+			{
+				Owner.OutputHandler.Send("You were no longer able to use the selected attack.");
+				Owner.OutputHandler.Handle(
+					new EmoteOutput(new Emote($"@ are|is no longer preparing to coup-de-grace $1 with $2", owner,
+						owner, target, Weapon.Parent)));
 			}
 		};
 		OnStopAction =

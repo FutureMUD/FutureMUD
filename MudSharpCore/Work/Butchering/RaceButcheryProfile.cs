@@ -355,6 +355,16 @@ public class RaceButcheryProfile : SaveableItem, IRaceButcheryProfile
 			});
 		}
 
+		FMDB.Context.RaceButcheryProfilesButcheryProducts.RemoveRange(dbitem.RaceButcheryProfilesButcheryProducts);
+		foreach (var product in _products)
+		{
+			dbitem.RaceButcheryProfilesButcheryProducts.Add(new RaceButcheryProfilesButcheryProducts
+			{
+				RaceButcheryProfile = dbitem,
+				ButcheryProductId = product.Id
+			});
+		}
+
 		Changed = false;
 	}
 

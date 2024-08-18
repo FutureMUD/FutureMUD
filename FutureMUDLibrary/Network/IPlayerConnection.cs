@@ -28,5 +28,6 @@ namespace MudSharp.Network
         void PrepareIncoming();
         void SendOutgoing();
         void Reconnect(TcpClient client);
+        void NegotiateClientSet();
     }
 }

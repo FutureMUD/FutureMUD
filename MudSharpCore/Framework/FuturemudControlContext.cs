@@ -76,8 +76,7 @@ public sealed class FuturemudControlContext : IFuturemudControlContext
 			if (loginAccount.ControllingContext != this)
 			{
 				loginAccount.ControllingContext.DetachConnection();
-				Console.WriteLine(
-					$"Connection closed due to account {loginAccount.Name} being logged into from another connection.");
+				Console.WriteLine($"Connection closed due to account {loginAccount.Name} being logged into from another connection.");
 			}
 		}
 
@@ -93,6 +92,7 @@ public sealed class FuturemudControlContext : IFuturemudControlContext
 
 		Account = loginAccount;
 		Account.Register(this);
+		_connection?.NegotiateClientSet();
 	}
 
 	public void Close()

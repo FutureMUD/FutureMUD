@@ -14,40 +14,91 @@ namespace MudSharp.Network;
 
 public class PlayerConnection : IPlayerConnection
 {
-	private static readonly byte[] ByteSeparators = { (byte)'\n', Telnet.END_IAC };
+	private static readonly byte[] ByteSeparators = [(byte)'\n', Telnet.END_IAC];
 
-	private static readonly byte[] WillMxp = { Telnet.IAC, Telnet.WILL, Telnet.TELOPT_MXP, Telnet.END_IAC };
+	private static readonly byte[] WillMxp = [Telnet.IAC, Telnet.WILL, Telnet.TELOPT_MXP, Telnet.END_IAC];
 
 	private static readonly byte[] StartMxp =
-	{
+	[
 		Telnet.IAC, Telnet.SB, Telnet.TELOPT_MXP, Telnet.IAC, Telnet.SE,
 		Telnet.END_IAC
-	};
+	];
 
-	private static readonly byte[] WillEOR = { Telnet.IAC, Telnet.WILL, Telnet.TELOPT_EOR, Telnet.END_IAC };
+	private static readonly byte[] WillEOR = [Telnet.IAC, Telnet.WILL, Telnet.TELOPT_EOR, Telnet.END_IAC];
 
-	private static readonly byte[] DoEOR = { Telnet.IAC, Telnet.DO, Telnet.TELOPT_EOR, Telnet.END_IAC };
+	private static readonly byte[] DoEOR = [Telnet.IAC, Telnet.DO, Telnet.TELOPT_EOR, Telnet.END_IAC];
 
 	private static readonly byte[] Prompt =
-	{
+	[
 		Telnet.IAC,
 		Telnet.GA,
 		Telnet.END_IAC
-	};
+	];
 
 	private static readonly byte[] AlternatePrompt =
-	{
+	[
 		Telnet.IAC,
 		Telnet.TELOPT_EOR,
 		Telnet.END_IAC
-	};
+	];
 
-	private static readonly byte[] BeginWillNegotiation = { Telnet.IAC, Telnet.WILL };
+	private static readonly byte[] BeginWillNegotiation = [Telnet.IAC, Telnet.WILL];
 
-	private static readonly byte[] DoMxp = { Telnet.IAC, Telnet.DO, Telnet.TELOPT_MXP };
-	private static readonly byte[] DontMXP = { Telnet.IAC, Telnet.DONT, Telnet.TELOPT_MXP };
-	private static byte[] _dontMxp = { Telnet.IAC, Telnet.DONT, Telnet.TELOPT_MXP };
+	private static readonly byte[] DoMxp = [Telnet.IAC, Telnet.DO, Telnet.TELOPT_MXP];
+	private static readonly byte[] DontMXP = [Telnet.IAC, Telnet.DONT, Telnet.TELOPT_MXP];
+	private static byte[] _dontMxp = [Telnet.IAC, Telnet.DONT, Telnet.TELOPT_MXP];
 	private static readonly byte[] SupportsBytes = Encoding.ASCII.GetBytes("\x1B[1z<SUPPORTS");
+
+	private static readonly byte[] WillCharset =
+	[
+		Telnet.IAC,
+		Telnet.WILL,
+		Telnet.CHARSET
+	];
+
+	private static readonly byte[] DoCharset =
+	[
+		Telnet.IAC,
+		Telnet.DO,
+		Telnet.CHARSET
+	];
+
+	private static readonly byte[] DontCharset =
+	[
+		Telnet.IAC,
+		Telnet.DONT,
+		Telnet.CHARSET
+	];
+
+	private static readonly byte[] RequestUTF8 =
+		new byte[]{
+		Telnet.IAC,
+		Telnet.SB,
+		Telnet.CHARSET,
+		Telnet.REQUEST
+		}.Concat(" UTF-8"u8.ToArray()).Concat(
+			new byte[]{Telnet.IAC, Telnet.SE}
+		).ToArray();
+
+	private static readonly byte[] AcknowledgeUTF8 =
+		new byte[]{
+			Telnet.IAC,
+			Telnet.SB,
+			Telnet.CHARSET,
+			Telnet.ACCEPTED
+		}.Concat("UTF-8"u8.ToArray()).Concat(
+			new byte[] { Telnet.IAC, Telnet.SE}
+		).ToArray();
+
+	private static readonly byte[] RejectUTF8 =
+		new byte[]{
+			Telnet.IAC,
+			Telnet.SB,
+			Telnet.CHARSET,
+			Telnet.REJECTED
+		}.Concat("UTF-8"u8.ToArray()).Concat(
+			new byte[] { Telnet.IAC, Telnet.SE }
+		).ToArray();
 
 	private readonly TcpClient _client;
 	private readonly Stopwatch _inactivityStopwatch = new();
@@ -67,9 +118,6 @@ public class PlayerConnection : IPlayerConnection
 	{
 		_client = client;
 		_client.Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, true);
-		// TODO: Negotiate preferred charset
-
-
 		// Negotiate Telnet protocol support
 		MXPSupport = new MXPSupport();
 		try
@@ -170,6 +218,24 @@ public class PlayerConnection : IPlayerConnection
 			AddOutgoing(
 				$"{"[System Message]".Colour(Telnet.Green)} You will time out in 5 minutes unless you do something.\n");
 			_fiveMinuteWarning = true;
+		}
+	}
+
+	public void NegotiateClientSet()
+	{
+		try
+		{
+			_client.Client.Send(WillCharset);
+		}
+		catch (SocketException e)
+		{
+			Console.WriteLine("SocketException ({0}) in PlayerConnection Constructor: " + e.Message, e.ErrorCode);
+			DiscardConnection();
+		}
+		catch (ObjectDisposedException e)
+		{
+			Console.WriteLine("ObjectDisposedException in PlayerConnection Constructor: " + e.Message);
+			DiscardConnection();
 		}
 	}
 
@@ -378,7 +444,8 @@ public class PlayerConnection : IPlayerConnection
 
 	private void HandleTelnetNegotiation(IEnumerable<byte> negotiation)
 	{
-		var negSeq = negotiation.ToList();
+		var negSeq = negotiation.ToArray();
+		var text = Encoding.ASCII.GetString(negSeq);
 
 		if (negSeq.SequenceEqual(DoMxp))
 		{
@@ -392,6 +459,35 @@ public class PlayerConnection : IPlayerConnection
 		if (negSeq.SequenceEqual(DoEOR))
 		{
 			_useAlternatePrompt = true;
+			return;
+		}
+
+		if (negSeq.SequenceEqual(DoCharset))
+		{
+			_client.Client.Send(RequestUTF8);
+			return;
+		}
+
+		if (negSeq.SequenceEqual(DontCharset))
+		{
+			return;
+		}
+
+		if (negSeq.SequenceEqual(RejectUTF8))
+		{
+			if (ControlPuppet?.Account is not null)
+			{
+				ControlPuppet.Account.UseUnicode = false;
+			}
+			return;
+		}
+
+		if (negSeq.SequenceEqual(AcknowledgeUTF8))
+		{
+			if (ControlPuppet?.Account is not null)
+			{
+				ControlPuppet.Account.UseUnicode = true;
+			}
 			return;
 		}
 

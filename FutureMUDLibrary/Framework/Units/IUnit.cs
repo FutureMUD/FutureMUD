@@ -1,4 +1,6 @@
 ﻿using System.Collections.Generic;
+using MudSharp.Framework.Revision;
+using MudSharp.Framework.Save;
 
 namespace MudSharp.Framework.Units
 {
@@ -21,12 +23,8 @@ namespace MudSharp.Framework.Units
         BMI = 9
     }
 
-    public interface IUnit
+    public interface IUnit : IEditableItem, ISaveable
     {
-        /// <summary>
-        ///     The name of this unit
-        /// </summary>
-        string Name { get; }
 
         string PrimaryAbbreviation { get; }
 
@@ -63,6 +61,10 @@ namespace MudSharp.Framework.Units
         bool SpaceBetween { get; }
         bool LastDescriber { get; set; }
         string System { get; set; }
-        bool DefaultUnitForSystem { get; }
+        bool DefaultUnitForSystem { get; set; }
+
+        void Delete();
+        IUnit Clone(string newName, string newAbbreviation);
+
     }
 }

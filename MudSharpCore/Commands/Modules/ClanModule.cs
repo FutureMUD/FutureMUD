@@ -442,7 +442,7 @@ All of the following commands must happen with an edited clan selected:
 				clan.FullName,
 				clan.Alias,
 				membership?.Rank.Title(actor) ?? "",
-				membership?.Paygrade.Name ?? "",
+				membership?.Paygrade?.Name ?? "",
 				membership?.Appointments.Select(x => x.Title(actor)).ListToCommaSeparatedValues(", ") ?? "",
 				membership?.PersonalName.GetName(NameStyle.FullName) ?? ""
 			},

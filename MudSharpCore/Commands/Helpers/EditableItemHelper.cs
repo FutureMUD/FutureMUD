@@ -1469,6 +1469,172 @@ public partial class EditableItemHelper
 		GetEditHeader = item => $"Improver #{item.Id:N0} ({item.Name})"
 	};
 
+	public static EditableItemHelper UnitOfMeasureHelper = new()
+	{
+		ItemName = "Unit of Measure",
+		ItemNamePlural = "Units of Measure",
+		SetEditableItemAction = (actor, item) =>
+		{
+			actor.RemoveAllEffects<BuilderEditingEffect<IUnit>>();
+			if (item == null)
+			{
+				return;
+			}
+
+			actor.AddEffect(new BuilderEditingEffect<IUnit>(actor) { EditingItem = (IUnit)item });
+		},
+		GetEditableItemFunc = actor =>
+			actor.CombinedEffectsOfType<BuilderEditingEffect<IUnit>>().FirstOrDefault()?.EditingItem,
+		GetAllEditableItems = actor => actor.Gameworld.UnitManager.Units.ToList(),
+		GetEditableItemByIdFunc = (actor, id) => actor.Gameworld.UnitManager.Units.Get(id),
+		GetEditableItemByIdOrNameFunc = (actor, input) => actor.Gameworld.UnitManager.Units.GetByIdOrName(input),
+		AddItemToGameWorldAction = item => item.Gameworld.UnitManager.AddUnit((IUnit)item),
+		CastToType = typeof(IUnit),
+		EditableNewAction = (actor, input) =>
+		{
+			if (input.IsFinished)
+			{
+				actor.OutputHandler.Send("Which system do you want to make your new unit for?");
+				return;
+			}
+
+			var system = input.PopSpeech().TitleCase();
+
+			if (input.IsFinished)
+			{
+				actor.OutputHandler.Send($"Which type of unit do you want to create? Valid options are {Enum.GetValues<UnitType>().ListToColouredString()}.");
+				return;
+			}
+
+			if (!input.PopSpeech().TryParseEnum<UnitType>(out var type))
+			{
+				actor.OutputHandler.Send($"The text {input.Last.ColourCommand()} is not a valid unit type. Valid options are {Enum.GetValues<UnitType>().ListToColouredString()}.");
+				return;
+			}
+
+			if (input.IsFinished)
+			{
+				actor.OutputHandler.Send($"What multiplier should the new unit have relative to the engine base unit?");
+				return;
+			}
+
+			if (!double.TryParse(input.PopSpeech(), out var multiplier))
+			{
+				actor.OutputHandler.Send($"The text {input.Last.ColourCommand()} is not a valid number.");
+				return;
+			}
+
+
+			if (input.IsFinished)
+			{
+				actor.OutputHandler.Send("You must specify a name for your new unit.");
+				return;
+			}
+
+			var name = input.PopSpeech().ToLowerInvariant();
+
+			if (input.IsFinished)
+			{
+				actor.OutputHandler.Send("What should the primary abbreviation of your new unit be?");
+				return;
+			}
+
+			var abbreviation = input.SafeRemainingArgument;
+
+			if (actor.Gameworld.UnitManager.Units.Any(x => x.System.EqualTo(system) && x.Type == type && x.Name.EqualTo(name)))
+			{
+				actor.OutputHandler.Send($"There is already a unit for the {system.ColourName()} system of type {type.DescribeEnum().ColourValue()} with the name {name.ColourCommand()}. Names must be unique.");
+				return;
+			}
+
+			var unit = new Unit(actor.Gameworld, name, system, abbreviation, type, multiplier);
+			actor.Gameworld.UnitManager.AddUnit(unit);
+			actor.Gameworld.UnitManager.RecalculateAllUnits();
+			actor.RemoveAllEffects<BuilderEditingEffect<IUnit>>();
+			actor.AddEffect(new BuilderEditingEffect<IUnit>(actor) { EditingItem = unit });
+			actor.OutputHandler.Send($"You create a new unit for the {system.ColourName()} system of type {type.DescribeEnum().ColourValue()} called {name.ColourValue()}, which you are now editing.");
+		},
+		EditableCloneAction = (actor, input) =>
+		{
+			if (input.IsFinished)
+			{
+				actor.OutputHandler.Send("Which unit do you want to clone?");
+				return;
+			}
+
+			var unit = actor.Gameworld.UnitManager.Units.GetByIdOrName(input.PopSpeech());
+			if (unit == null)
+			{
+				actor.OutputHandler.Send("There is no such height/weight model.");
+				return;
+			}
+
+			if (input.IsFinished)
+			{
+				actor.OutputHandler.Send("You must specify a name for your new unit.");
+				return;
+			}
+
+			var name = input.PopSpeech().ToLowerInvariant();
+
+			if (input.IsFinished)
+			{
+				actor.OutputHandler.Send("What should the primary abbreviation of your new unit be?");
+				return;
+			}
+
+			var abbreviation = input.SafeRemainingArgument;
+			if (actor.Gameworld.UnitManager.Units.Any(x => x.System.EqualTo(unit.System) && x.Type == unit.Type && x.Name.EqualTo(name)))
+			{
+				actor.OutputHandler.Send($"There is already a unit for the {unit.System.ColourName()} system of type {unit.Type.DescribeEnum().ColourValue()} with the name {name.ColourCommand()}. Names must be unique.");
+				return;
+			}
+
+			var clone = unit.Clone(name, abbreviation);
+
+			actor.Gameworld.UnitManager.AddUnit(clone);
+			actor.Gameworld.UnitManager.RecalculateAllUnits();
+			actor.RemoveAllEffects<BuilderEditingEffect<IUnit>>();
+			actor.AddEffect(new BuilderEditingEffect<IUnit>(actor) { EditingItem = clone });
+			actor.OutputHandler.Send($"You clone the unit {unit.Name.ColourValue()} to a new one called {clone.Name.ColourValue()}, which you are now editing.");
+		},
+
+		GetListTableHeaderFunc = character => new List<string>
+		{
+			"Id",
+			"Name",
+			"Primary",
+			"Type",
+			"System",
+			"Multiplier",
+			"Pre-Offset",
+			"Post-Offset",
+			"Describer",
+			"Last"
+		},
+
+		GetListTableContentsFunc = (character, protos) => from proto in protos.OfType<IUnit>()
+		                                                  select new List<string>
+		                                                  {
+			                                                  proto.Id.ToString("N0", character),
+			                                                  proto.Name,
+															  proto.PrimaryAbbreviation,
+															  proto.Type.DescribeEnum(),
+															  proto.System,
+															  proto.MultiplierFromBase.ToString("N", character),
+															  proto.PreMultiplierOffsetFrombase.ToString("N", character),
+															  proto.PostMultiplierOffsetFrombase.ToString("N", character),
+															  proto.DescriberUnit.ToColouredString(),
+															  proto.LastDescriber.ToColouredString()
+		                                                  },
+
+		CustomSearch = (protos, keyword, gameworld) => protos,
+
+		DefaultCommandHelp = BuilderModule.UnitHelpText,
+
+		GetEditHeader = item => $"Unit #{item.Id:N0} ({item.Name})"
+	};
+
 	public static EditableItemHelper HeightWeightModelHelper = new()
 	{
 		ItemName = "Height/Weight Model",

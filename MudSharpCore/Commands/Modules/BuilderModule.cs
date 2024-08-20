@@ -29,6 +29,9 @@ using MudSharp.Accounts;
 using MudSharp.Body.Traits;
 using MudSharp.FutureProg;
 using MudSharp.GameItems.Prototypes;
+using Org.BouncyCastle.Asn1.Cmp;
+using MudSharp.Framework.Units;
+using MudSharp.NPC;
 
 namespace MudSharp.Commands.Modules;
 
@@ -4118,5 +4121,106 @@ You can use the following syntax with this command:
 	{
 		GenericBuildingCommand(actor, new StringStack(input.RemoveFirstWord()), EditableItemHelper.HeightWeightModelHelper);
 	}
+	#endregion
+
+	#region Units of Measure
+	public const string UnitHelpText = @"The #3unit#0 command is used to units of measure, used by the engine to display quantities that have units and accept input from players in their preferred system.
+
+You can use the following syntax with this command:
+
+	#3unit list#0 - lists all of the units
+	#3unit edit <which>#0 - begins editing a unit
+	#3unit edit new <system> <type> <multiplier> <name> <abbreviation>#0 - creates a new unit
+	#3unit clone <old> <new name> <new abbrev>#0 - clones a unit to a new unit
+	#3unit close#0 - stops editing a unit
+	#3unit show <which>#0 - views information about a unit
+	#3unit show#0 - views information about your currently editing unit
+	#3unit set name <name>#0 - renames this unit
+	#3unit set system <system>#0 - changes the system that this unit belongs to
+	#3unit set type <type>#0 - changes the type of unit that this unit is
+	#3unit set abbreviation <which>#0 - toggles an abbreviation for this unit
+	#3unit set primary <which>#0 - sets the primary abbreviation for a unit
+	#3unit set multiplier <##>#0 - sets the multiplier for the unit
+	#3unit set preoffset <##>#0 - sets the pre-multiplier offset for the unit
+	#3unit set postoffset <##>#0 - sets the post-multiplier offset for the unit
+	#3unit set describer#0 - toggles whether this unit is used for description
+	#3unit set space#0 - toggles whether a space is put between the number and the unit
+	#3unit set default#0 - makes this the default unit for a system and type";
+	[PlayerCommand("Unit", "unit", "uom")]
+	[CommandPermission(PermissionLevel.Admin)]
+	[HelpInfo("Unit", UnitHelpText, AutoHelp.HelpArgOrNoArg)]
+	protected static void Unit(ICharacter actor, string input)
+	{
+		var ss = new StringStack(input.RemoveFirstWord());
+		switch (ss.PopForSwitch())
+		{
+			case "test":
+				UnitTest(actor, ss);
+				return;
+			case "audit":
+				UnitAudit(actor, ss);
+				return;
+			default:
+				GenericBuildingCommand(actor, ss.GetUndo(), EditableItemHelper.UnitOfMeasureHelper);
+				return;
+		}
+	}
+
+	private static void UnitAudit(ICharacter actor, StringStack ss)
+	{
+		actor.OutputHandler.Send("Coming soon.");
+	}
+
+	private static void UnitTest(ICharacter actor, StringStack ss)
+	{
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send("Which system do you want to test in?");
+			return;
+		}
+
+		var system = ss.PopSpeech();
+		if (actor.Gameworld.UnitManager.Systems.All(x => !x.EqualTo(system)))
+		{
+			actor.OutputHandler.Send($"There is no unit system called {system.ColourCommand()}.");
+			return;
+		}
+
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send($"Which type of unit do you want to create? Valid options are {Enum.GetValues<UnitType>().ListToColouredString()}.");
+			return;
+		}
+
+		if (!ss.PopSpeech().TryParseEnum<UnitType>(out var type))
+		{
+			actor.OutputHandler.Send($"The text {ss.Last.ColourCommand()} is not a valid unit type. Valid options are {Enum.GetValues<UnitType>().ListToColouredString()}.");
+			return;
+		}
+
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send("What quantity do you want to test in that system?");
+			return;
+		}
+
+		if (!actor.Gameworld.UnitManager.TryGetBaseUnits(ss.SafeRemainingArgument, type, out var value))
+		{
+			actor.OutputHandler.Send($"The text {ss.SafeRemainingArgument.ColourCommand()} is not a valid amount of {type.DescribeEnum().ColourValue()} units.");
+			return;
+		}
+
+		var sb = new StringBuilder();
+		sb.AppendLine($"Showing different forms of the value {ss.SafeRemainingArgument.ColourCommand()} in the {system.ColourName()} system for type {type.DescribeEnum().ColourValue()}:");
+		sb.AppendLine();
+		sb.AppendLine($"Describe: {actor.Gameworld.UnitManager.Describe(value, type, system, actor).ColourValue()}");
+		sb.AppendLine($"Describe Brief: {actor.Gameworld.UnitManager.DescribeBrief(value, type, system, actor).ColourValue()}");
+		sb.AppendLine($"Describe Exact: {actor.Gameworld.UnitManager.DescribeExact(value, type, system, actor).ColourValue()}"); sb.AppendLine($"Describe: {actor.Gameworld.UnitManager.Describe(value, type, system, actor).ColourValue()}");
+		sb.AppendLine($"Describe Decimal: {actor.Gameworld.UnitManager.DescribeDecimal(value, type, system, actor).ColourValue()}");
+		sb.AppendLine($"Describe Most Significant: {actor.Gameworld.UnitManager.DescribeMostSignificant(value, type, system, actor).ColourValue()}");
+		sb.AppendLine($"Describe Most Significant Exact: {actor.Gameworld.UnitManager.DescribeMostSignificantExact(value, type, system, actor).ColourValue()}");
+		actor.OutputHandler.Send(sb.ToString());
+	}
+
 	#endregion
 }

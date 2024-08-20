@@ -7,6 +7,7 @@ namespace MudSharp.Framework.Units
     public interface IUnitManager
     {
         IEnumerable<IUnit> Units { get; }
+        IEnumerable<string> Systems { get; }
         double BaseWeightToKilograms { get; }
         double BaseHeightToMetres { get; }
         double BaseFluidToLitres { get; }
@@ -15,6 +16,11 @@ namespace MudSharp.Framework.Units
         double BaseTemperatureToCelcius { get; }
         double BaseForceToNewtons { get; }
         double BaseStressToPascals { get; }
+        void RecalculateLastUnits();
+        void RecalculateAllUnits();
+        void AddUnit(IUnit unit);
+        void RemoveUnit(IUnit unit);
+
         double GetBaseUnits(string pattern, UnitType type, out bool success);
         bool TryGetBaseUnits(string pattern, UnitType type, out double value);
         string DescribeDecimal(double value, UnitType type, IPerceiver character);
@@ -39,5 +45,7 @@ namespace MudSharp.Framework.Units
 
         string DescribeMostSignificantExact(double value, UnitType type, string system,
             IFormatProvider format = null);
+
+        string DescribeSpecificUnit(double value, IUnit unit, IFormatProvider format = null);
     }
 }

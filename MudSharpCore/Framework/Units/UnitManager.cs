@@ -15,15 +15,17 @@ public class UnitManager : IUnitManager
 	private static readonly Regex PatternRegex = new(@"(\d{1,}[\.\d]{0,})[ ]{0,1}([a-zA-Z'""]{1,})");
 	private readonly List<IUnit> _units = new();
 
-	private readonly Dictionary<string, IEnumerable<IUnit>> _unitSystems =
-		new();
+	private readonly CollectionDictionary<string, IUnit> _unitSystems =
+		new(StringComparer.InvariantCultureIgnoreCase);
 
-	public UnitManager(IFuturemudLoader game)
+	public UnitManager(IFuturemud game)
 	{
 		InitialiseUnitManager(game);
 	}
 
 	public IEnumerable<IUnit> Units => _units;
+
+	public IEnumerable<string> Systems => _unitSystems.Keys;
 
 	public double BaseWeightToKilograms { get; private set; }
 
@@ -42,6 +44,54 @@ public class UnitManager : IUnitManager
 	public double BaseStressToPascals { get; private set; }
 
 	public double BaseBMIToKGPerM2 { get; private set; }
+
+	public void AddUnit(IUnit unit)
+	{
+		_units.Add(unit);
+		RecalculateAllUnits();
+	}
+
+	public void RemoveUnit(IUnit unit)
+	{
+		_units.Remove(unit);
+		RecalculateAllUnits();
+	}
+
+	public void RecalculateLastUnits()
+	{
+		foreach (var system in _unitSystems.Keys)
+		{
+			foreach (UnitType value in Enum.GetValues(typeof(UnitType)))
+			{
+				_unitSystems[system].Sort((u1,u2) => u2.MultiplierFromBase.CompareTo(u1.MultiplierFromBase));
+				foreach (var unit in _unitSystems[system])
+				{
+					unit.LastDescriber = false;
+				}
+
+				var last = _unitSystems[system].LastOrDefault(x => x.DescriberUnit && x.Type == value);
+				if (last is not null)
+				{
+					last.LastDescriber = true;
+				}
+			}
+		}
+	}
+
+	public void RecalculateAllUnits()
+	{
+		_unitSystems.Clear();
+		foreach (var system in _units.Select(x => x.System).Distinct())
+		{
+			_unitSystems.AddRange(system,
+				_units.Where(x => x.System == system && x.DescriberUnit)
+				      .OrderBy(x => x.System)
+				      .ThenByDescending(x => x.MultiplierFromBase)
+				      .ToList());
+		}
+
+		RecalculateLastUnits();
+	}
 
 	public double GetBaseUnits(string pattern, UnitType type, out bool success)
 	{
@@ -97,35 +147,22 @@ public class UnitManager : IUnitManager
 		return true;
 	}
 
-	private void InitialiseUnitManager(IFuturemudLoader game)
+	private void InitialiseUnitManager(IFuturemud game)
 	{
 		using (new FMDB())
 		{
 			foreach (var unit in FMDB.Context.UnitsOfMeasure)
 			{
-				_units.Add(new Unit(unit));
+				_units.Add(new Unit(game, unit));
 			}
 
-			foreach (var system in _units.Select(x => x.System).Distinct())
-			{
-				_unitSystems.Add(system,
-					_units.Where(x => x.System == system && x.DescriberUnit)
-					      .OrderBy(x => x.System)
-					      .ThenByDescending(x => x.MultiplierFromBase)
-					      .ToList());
-			}
-
-			foreach (var system in _unitSystems.Keys)
-			foreach (UnitType value in Enum.GetValues(typeof(UnitType)))
-			{
-				_unitSystems[system].Last(x => x.Type == value).LastDescriber = true;
-			}
-
+			RecalculateAllUnits();
+			RecalculateLastUnits();
 			LoadStaticConfigurations(game);
 		}
 	}
 
-	private void LoadStaticConfigurations(IFuturemudLoader game)
+	private void LoadStaticConfigurations(IFuturemud game)
 	{
 		var heightConfig = game.GetStaticConfiguration("BaseHeightUOMToMetres");
 		if (heightConfig != null)
@@ -542,5 +579,23 @@ public class UnitManager : IUnitManager
 		}
 
 		return (negative ? "negative " : "") + value.ToString(format);
+	}
+
+	public string DescribeSpecificUnit(double value, IUnit unit, IFormatProvider format = null){
+		if (format == null)
+		{
+			format = CultureInfo.InvariantCulture;
+		}
+
+		var negative = value < 0;
+		value = Math.Abs(value);
+
+		var dvalue =
+			(value + unit.PreMultiplierOffsetFrombase) / unit.MultiplierFromBase +
+			unit.PostMultiplierOffsetFrombase;
+		return string.Format(format, $"{(negative ? "negative " : "")}{{0:G17}}{{1}}{{2}}",
+			dvalue,
+			unit.SpaceBetween ? " " : "",
+			unit.PrimaryAbbreviation);
 	}
 }

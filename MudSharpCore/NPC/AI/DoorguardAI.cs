@@ -140,9 +140,17 @@ public class DoorguardAI : ArtificialIntelligenceBase
 		var element = root.Element("Social");
 		if (element != null)
 		{
+			// Legacy AI Definition
 			RequiredSocialTrigger = element.Attribute("Trigger").Value;
 			SocialTargettedOnly = bool.Parse(element.Attribute("TargettedOnly").Value);
 			RespondToSocialDirection = bool.Parse(element.Attribute("Direction").Value);
+		}
+		else
+		{
+			// Updated AI Definition as per SaveToXml
+			RespondToSocialDirection = bool.Parse(root.Element("RespondToSocialDirection")?.Value ?? "false");
+			SocialTargettedOnly = bool.Parse(root.Element("SocialTargettedOnly")?.Value ?? "false");
+			RequiredSocialTrigger = root.Element("RequiredSocialTrigger")?.Value ?? "";
 		}
 	}
 
@@ -824,7 +832,7 @@ public class DoorguardAI : ArtificialIntelligenceBase
 			return false;
 		}
 
-		if (!exit.Exit.Door.CanOpen(doorguard.Body))
+		if (RespectGameRulesForOpeningDoors && !exit.Exit.Door.CanOpen(doorguard.Body))
 		{
 			if (CantOpenDoorActionProg != null)
 			{

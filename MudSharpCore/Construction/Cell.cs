@@ -1789,6 +1789,7 @@ public partial class Cell : Location, IDisposable, ICell
 		{
 			Gameworld.Destroy(track);
 			Gameworld.SaveManager.Abort(track);
+			track.Deleted = true;
 		}
 
 		if (_tracks.Count <= 0)

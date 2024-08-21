@@ -73,7 +73,16 @@ public class Track : LateInitialisingItem, ITrack
 	/// <inheritdoc />
 	public override void Save()
 	{
+		if (Deleted)
+		{
+			return;
+		}
+
 		var dbitem = FMDB.Context.Tracks.Find(Id);
+		if (dbitem is null)
+		{
+			return;
+		}
 		dbitem.ExertionLevel = (int)ExertionLevel;
 		dbitem.TrackIntensityVisual = TrackIntensityVisual;
 		dbitem.TrackIntensityOlfactory = TrackIntensityOlfactory;
@@ -144,6 +153,7 @@ public class Track : LateInitialisingItem, ITrack
 				
 				foreach (var track in toDeleteTracks)
 				{
+					track.Deleted = true;
 					track.Cell.RemoveTrack(track);
 					gameworld.Destroy(track);
 					gameworld.SaveManager.Abort(track);
@@ -250,6 +260,8 @@ public class Track : LateInitialisingItem, ITrack
 	public double TrackIntensityVisual { get; set; }
 	public double TrackIntensityOlfactory { get; set; }
 	public bool TurnedAround { get; set; }
+
+	public bool Deleted { get; set; }
 
 	public string DescribeForTracksCommand(ICharacter actor)
 	{

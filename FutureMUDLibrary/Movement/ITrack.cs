@@ -41,4 +41,5 @@ public interface ITrack : IFrameworkItem, ISaveable
 	double TrackIntensityOlfactory { get; set; }
 	bool TurnedAround { get; set; }
 	string DescribeForTracksCommand(ICharacter actor);
+	bool Deleted { get; set; }
 }

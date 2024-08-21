@@ -52,6 +52,11 @@ public class VariableNPCTemplate : NPCTemplateBase
 	private int _minimumAge;
 	private IRace _race;
 	private IEntityDescriptionPattern _sdescPattern;
+	private readonly List<(IKnowledge Knowledge, double Chance)> _knowledgeChances = new();
+	private int _numberMerits = 0;
+	private int _numberFlaws = 0;
+	private int _numberQuirks = 0;
+	private readonly List<ICharacterMerit> _validMerits = new();
 
 	public VariableNPCTemplate(NpcTemplate template, IFuturemud gameworld) : base(template, gameworld)
 	{
@@ -190,6 +195,36 @@ public class VariableNPCTemplate : NPCTemplateBase
 				_roles.Add(Gameworld.Roles.Get(long.Parse(item.Value)));
 			}
 		}
+
+		element = root.Element("Merits");
+		if (element is not null)
+		{
+			_numberMerits = int.Parse(element.Attribute("nummerits").Value);
+			_numberFlaws = int.Parse(element.Attribute("numflaws").Value);
+			_numberQuirks = int.Parse(element.Attribute("numquirks").Value);
+			foreach (var sub in element.Elements("Merit"))
+			{
+				if (Gameworld.Merits.Get(long.Parse(sub.Value)) is ICharacterMerit merit)
+				{
+					_validMerits.Add(merit);
+				}
+			}
+		}
+
+		element = root.Element("Knowledges");
+		if (element is not null)
+		{
+			foreach (var sub in element.Elements("Knowledge"))
+			{
+				var knowledge = Gameworld.Knowledges.Get(long.Parse(sub.Attribute("which").Value));
+				if (knowledge is null)
+				{
+					continue;
+				}
+
+				_knowledgeChances.Add((knowledge, double.Parse(sub.Attribute("chance").Value)));
+			}
+		}
 	}
 
 	private string SaveDefinition()
@@ -221,22 +256,40 @@ public class VariableNPCTemplate : NPCTemplateBase
 					select
 						new XElement("HeightWeightModel", new XAttribute("Model", hwmodel.Value.Id),
 							new XAttribute("Gender", hwmodel.Key))
-				}), new XElement("PriorityAttributes", new object[]
+				}), 
+				new XElement("PriorityAttributes", new object[]
 				{
 					from item in _priorityAttributeDefinitions
 					select new XElement("Attribute", item.Id)
-				}), new XElement("Skills", new object[]
+				}), 
+				new XElement("Skills", new object[]
 				{
 					from item in _skillTemplates
 					select
 						new XElement("Skill", new XAttribute("Chance", item.Chance),
 							new XAttribute("Mean", item.SkillMean), new XAttribute("Stddev", item.SkillStddev),
 							new XAttribute("Trait", item.Trait.Id))
-				}), new XElement("Roles", new object[]
+				}), 
+				new XElement("Roles", new object[]
 				{
 					from item in _roles
 					select new XElement("Role", item.Id)
-				})).ToString();
+				}),
+				new XElement("Knowledges",
+					from item in _knowledgeChances
+					select new XElement("Knowledge",
+						new XAttribute("which", item.Knowledge.Id),
+						new XAttribute("chance", item.Chance)
+					)
+				),
+				new XElement("Merits",
+					new XAttribute("nummerits", _numberMerits),
+					new XAttribute("numflaws", _numberFlaws),
+					new XAttribute("numquirks", _numberQuirks),
+					from item in _validMerits
+					select new XElement("Merit", item.Id)
+				)
+				).ToString();
 	}
 
 	public override bool CanSubmit()
@@ -326,6 +379,48 @@ public class VariableNPCTemplate : NPCTemplateBase
 			         .ToList();
 		var ethnicity = _ethnicity ??
 		                Gameworld.Ethnicities.Where(x => _race.SameRace(x.ParentRace)).GetRandomElement();
+		var knowledges = _knowledgeChances.Where(x => x.Chance >= RandomUtilities.DoubleRandom(0.0, 1.0)).Select(x => x.Knowledge).ToList();
+		var merits = new List<ICharacterMerit>();
+		var unselectedMerits = _validMerits.ToList();
+		var i = 0;
+		while (_numberMerits > i++)
+		{
+			var merit = unselectedMerits.Where(x => x.MeritType == MeritType.Merit).GetRandomElement();
+			if (merit is null)
+			{
+				break;
+			}
+
+			unselectedMerits.Remove(merit);
+			merits.Add(merit);
+		}
+
+		i = 0;
+		while (_numberFlaws > i++)
+		{
+			var merit = unselectedMerits.Where(x => x.MeritType == MeritType.Flaw).GetRandomElement();
+			if (merit is null)
+			{
+				break;
+			}
+
+			unselectedMerits.Remove(merit);
+			merits.Add(merit);
+		}
+
+		i = 0;
+		while (_numberQuirks > i++)
+		{
+			var merit = unselectedMerits.GetRandomElement();
+			if (merit is null)
+			{
+				break;
+			}
+
+			unselectedMerits.Remove(merit);
+			merits.Add(merit);
+		}
+
 		var template = new SimpleCharacterTemplate
 		{
 			SelectedGender = rolledGender,
@@ -342,8 +437,8 @@ public class VariableNPCTemplate : NPCTemplateBase
 			SelectedAccents = accents,
 			SelectedStartingLocation = location,
 			SelectedRoles = _roles,
-			SelectedMerits = new List<ICharacterMerit>(), // TODO
-			SelectedKnowledges = new List<IKnowledge>(), // TODO
+			SelectedMerits = merits,
+			SelectedKnowledges = knowledges,
 			MissingBodyparts = new List<IBodypart>(), // TODO
 			Handedness = _race.HandednessOptions.GetRandomElement(), // TODO
 			SelectedProstheses = new List<GameItems.IGameItemProto>(),
@@ -487,6 +582,23 @@ public class VariableNPCTemplate : NPCTemplateBase
 				      .Select(x => string.Format(actor, "#{0:N0}: {1}", x.Id, x.Name.TitleCase()))
 				      .ArrangeStringsOntoLines(1));
 			sb.AppendLine();
+		}
+
+		sb.AppendLine("Merits and Flaws:");
+		sb.AppendLine();
+		sb.AppendLine($"# Quirks: {_numberQuirks.ToStringN0Colour(actor)}");
+		sb.AppendLine($"# Merits: {_numberMerits.ToStringN0Colour(actor)}");
+		sb.AppendLine($"# Flaws: {_numberFlaws.ToStringN0Colour(actor)}");
+		sb.AppendLine();
+		sb.AppendLine($"Valid Merits: {_validMerits.Select(x => x.Name.Colour(x.MeritType == MeritType.Merit ? Telnet.Green : Telnet.Red)).DefaultIfEmpty("None".ColourCommand()).ListToString()}");
+
+		sb.AppendLine();
+		sb.AppendLine("Knowledges:");
+		sb.AppendLine();
+		
+		foreach (var knowledge in _knowledgeChances)
+		{
+			sb.AppendLine($"\t{knowledge.Knowledge.Name.ColourName()} ({knowledge.Chance.ToStringP2Colour(actor)})");
 		}
 
 		sb.AppendLine();
@@ -1240,7 +1352,14 @@ public class VariableNPCTemplate : NPCTemplateBase
 	#3skill <which> 0%#0 - removes a skill from the list
 	#3class <class>#0 - sets the class of this NPC (if using classes)
 	#3subclass <subclass>#0 - sets the subclass of  this NPC (if using subclasses)
-	#3role <which>#0 - toggles this NPC having a particular role";
+	#3role <which>#0 - toggles this NPC having a particular role
+	#3knowledge <which> <% chance>#0 - sets the percentage chance of having a knowledge
+	#3merit <which>#0 - toggles a merit being valid
+	#3merit all#0 - adds all valid merits
+	#3merit none#0 - removes all valid merits
+	#3numquirks <##>#0 - sets the number of quirks (either merit or flaw) to give
+	#3nummerits <##>#0 - sets the number of merits to give
+	#3numflaws <##>#0 - sets the number of flaws to give";
 
 	public override bool BuildingCommand(ICharacter actor, StringStack command)
 	{
@@ -1248,6 +1367,16 @@ public class VariableNPCTemplate : NPCTemplateBase
 		{
 			case "gender":
 				return BuildingCommandGender(actor, command);
+			case "knowledge":
+				return BuildingCommandKnowledge(actor, command);
+			case "merit":
+				return BuildingCommandMerit(actor, command);
+			case "numquirks":
+				return BuildingCommandNumQuirks(actor, command);
+			case "nummerits":
+				return BuildingCommandNumMerits(actor, command);
+			case "numflaws":
+				return BuildingCommandNumFlaws(actor, command);
 			case "name":
 				return BuildingCommandName(actor, command);
 			case "nameprofile":
@@ -1295,6 +1424,150 @@ public class VariableNPCTemplate : NPCTemplateBase
 			default:
 				return base.BuildingCommand(actor, command.GetUndo());
 		}
+	}
+
+	private bool BuildingCommandNumFlaws(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("How many flaws should this Variable NPC roll?");
+			return false;
+		}
+
+		if (!int.TryParse(command.SafeRemainingArgument, out var value) || value < 0)
+		{
+			actor.OutputHandler.Send($"The text {command.SafeRemainingArgument.ColourCommand()} is not a valid number zero or greater.");
+			return false;
+		}
+
+		_numberFlaws = value;
+		Changed = true;
+		actor.OutputHandler.Send($"This variable NPC will now have {value.ToStringN0Colour(actor)} {"flaw".Pluralise(value != 1)} rolled.");
+		return true;
+	}
+
+	private bool BuildingCommandNumMerits(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("How many merits should this Variable NPC roll?");
+			return false;
+		}
+
+		if (!int.TryParse(command.SafeRemainingArgument, out var value) || value < 0)
+		{
+			actor.OutputHandler.Send($"The text {command.SafeRemainingArgument.ColourCommand()} is not a valid number zero or greater.");
+			return false;
+		}
+
+		_numberMerits = value;
+		Changed = true;
+		actor.OutputHandler.Send($"This variable NPC will now have {value.ToStringN0Colour(actor)} {"merit".Pluralise(value != 1)} rolled.");
+		return true;
+	}
+
+	private bool BuildingCommandNumQuirks(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("How many quirks should this Variable NPC roll?");
+			return false;
+		}
+
+		if (!int.TryParse(command.SafeRemainingArgument, out var value) || value < 0)
+		{
+			actor.OutputHandler.Send($"The text {command.SafeRemainingArgument.ColourCommand()} is not a valid number zero or greater.");
+			return false;
+		}
+
+		_numberQuirks = value;
+		Changed = true;
+		actor.OutputHandler.Send($"This variable NPC will now have {value.ToStringN0Colour(actor)} {"quirk".Pluralise(value != 1)} rolled.");
+		return true;
+	}
+
+	private bool BuildingCommandMerit(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send($"Which merit do you want to toggle as being a part of the valid mixture for this NPC?");
+			return false;
+		}
+
+		if (command.SafeRemainingArgument.EqualTo("all"))
+		{
+			_validMerits.Clear();
+			_validMerits.AddRange(Gameworld.Merits.OfType<ICharacterMerit>());
+			Changed = true;
+			actor.OutputHandler.Send($"This NPC could now get any merit in the game.");
+			return true;
+		}
+
+		if (command.SafeRemainingArgument.EqualTo("none"))
+		{
+			_validMerits.Clear();
+			Changed = true;
+			actor.OutputHandler.Send($"This NPC no longer has any valid merits.");
+			return true;
+		}
+
+		var merit = Gameworld.Merits.OfType<ICharacterMerit>().GetByIdOrName(command.SafeRemainingArgument);
+		if (merit is null)
+		{
+			actor.OutputHandler.Send($"There is no character merit identified by the text {command.SafeRemainingArgument.ColourCommand()}.");
+			return false;
+		}
+
+		Changed = true;
+		if (_validMerits.Remove(merit))
+		{
+			actor.OutputHandler.Send($"The merit {merit.Name.ColourValue()} is no longer a valid choice for this NPC.");
+			return true;
+		}
+
+		_validMerits.Add(merit);
+		actor.OutputHandler.Send($"The merit {merit.Name.ColourValue()} is now a valid choice for this NPC.");
+		return true;
+	}
+
+	private bool BuildingCommandKnowledge(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("Which knowledge would you like to edit for this NPC Template?");
+			return false;
+		}
+
+		var knowledge = Gameworld.Knowledges.GetByIdOrName(command.PopSpeech());
+		if (knowledge is null)
+		{
+			actor.OutputHandler.Send($"There is no knowledge identified by the text {command.Last.ColourCommand()}.");
+			return false;
+		}
+
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("What should be the percentage chance of this NPC having that knowledge?");
+			return false;
+		}
+
+		if (!command.SafeRemainingArgument.TryParsePercentage(actor.Account.Culture, out var value))
+		{
+			actor.OutputHandler.Send($"The text {command.SafeRemainingArgument.ColourCommand()} is not a valid percentage.");
+			return false;
+		}
+
+		_knowledgeChances.RemoveAll(x => x.Knowledge == knowledge);
+		Changed = true;
+		if (value <= 0.0)
+		{
+			actor.OutputHandler.Send($"This NPC no longer has any chance to have the {knowledge.Name.ColourValue()} knowledge.");
+			return true;
+		}
+
+		_knowledgeChances.Add((knowledge,value));
+		actor.OutputHandler.Send($"This NPC has a {value.ToStringP2Colour(actor)} chance to have the {knowledge.Name.ColourValue()} knowledge.");
+		return true;
 	}
 
 	#endregion

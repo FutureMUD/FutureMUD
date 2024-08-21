@@ -489,6 +489,9 @@ public class VariableNPCTemplate : NPCTemplateBase
 			sb.AppendLine();
 		}
 
+		sb.AppendLine();
+		sb.AppendLine($"OnLoadProg: {OnLoadProg?.MXPClickableFunctionName() ?? "None".Colour(Telnet.Red)}");
+
 		sb.AppendLine("AI Routines:");
 		sb.AppendLine();
 		foreach (var ai in ArtificialIntelligences)

@@ -93,12 +93,42 @@ internal class SetOpenFunction : BuiltInFunction
 		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
 			"setopen",
 			new[] { FutureProgVariableTypes.Item, FutureProgVariableTypes.Boolean, FutureProgVariableTypes.Boolean },
-			(pars, gameworld) => new SetOpenFunction(pars, false)
+			(pars, gameworld) => new SetOpenFunction(pars, false),
+			new List<string>
+			{
+				"item",
+				"locked",
+				"echo"
+			},
+			new List<string>
+			{
+				"The item to be opened or closed",
+				"If true, set to open, otherwise set to closed",
+				"Whether to echo the change in state"
+			},
+			"Changes an openable item from open to closed or the reverse. True if the change was successfully applied. Respects game rules about whether something can be opened.",
+			"Items",
+			FutureProgVariableTypes.Boolean
 		));
 		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
 			"forceopen",
 			new[] { FutureProgVariableTypes.Item, FutureProgVariableTypes.Boolean, FutureProgVariableTypes.Boolean },
-			(pars, gameworld) => new SetOpenFunction(pars, true)
+			(pars, gameworld) => new SetOpenFunction(pars, true),
+			new List<string>
+			{
+				"item",
+				"locked",
+				"echo"
+			},
+			new List<string>
+			{
+				"The item to be opened or closed",
+				"If true, set to open, otherwise set to closed",
+				"Whether to echo the change in state"
+			},
+			"Changes an openable item from open to closed or the reverse. True if the change was successfully applied. Ignores game rules about whether something can be opened.",
+			"Items",
+			FutureProgVariableTypes.Boolean
 		));
 	}
 }

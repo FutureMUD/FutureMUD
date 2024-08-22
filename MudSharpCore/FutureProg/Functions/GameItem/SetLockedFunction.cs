@@ -61,7 +61,22 @@ internal class SetLockedFunction : BuiltInFunction
 		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
 			"setlocked",
 			new[] { FutureProgVariableTypes.Item, FutureProgVariableTypes.Boolean, FutureProgVariableTypes.Boolean },
-			(pars, gameworld) => new SetLockedFunction(pars)
+			(pars, gameworld) => new SetLockedFunction(pars),
+			new List<string>
+			{
+				"lock",
+				"locked",
+				"echo"
+			},
+			new List<string>
+			{
+				"The item to be locked or unlocked",
+				"If true, set to locked. If false, set to unlocked",
+				"Whether to echo the change in state"
+			},
+			"Changes a lock or lockable item from locked to unlocked if specified. True if the change was successfully applied.",
+			"Items",
+			FutureProgVariableTypes.Boolean
 		));
 	}
 }

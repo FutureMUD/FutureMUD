@@ -204,6 +204,7 @@ namespace MudSharp.Character.Heritage {
         bool CanSwim { get; }
         AgeCategory AgeCategory(int ageInYears);
         AgeCategory AgeCategory(ICharacter character);
+        AgeCategory AgeCategory(ICharacterTemplate template);
         int MinimumAgeForCategory(AgeCategory category);
         string ConsiderString { get; }
         IHeightWeightModel DefaultHeightWeightModel(Gender gender);

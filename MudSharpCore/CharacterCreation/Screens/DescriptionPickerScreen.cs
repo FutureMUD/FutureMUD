@@ -130,8 +130,7 @@ public class DescriptionPickerScreenStoryboard : ChargenScreenStoryboard
 			{
 				if (InCustomMode)
 				{
-					// TODO - show variables
-					return "Please enter the custom short description that you would like to use: ";
+					return $"{EntityDescriptionPatternExtensions.GetDescriptionHelpFor(Chargen, Account)}\n\nPlease enter the custom short description that you would like to use:\n";
 				}
 
 				if (SelectedEntityDescriptionPattern == null)
@@ -169,7 +168,7 @@ public class DescriptionPickerScreenStoryboard : ChargenScreenStoryboard
 
 			if (InCustomMode)
 			{
-				return "Please enter the custom description that you would like to use:\n";
+				return $"{EntityDescriptionPatternExtensions.GetDescriptionHelpFor(Chargen, Account)}\n\nPlease enter the custom description that you would like to use:\n";
 			}
 
 			if (SelectedEntityDescriptionPattern == null)

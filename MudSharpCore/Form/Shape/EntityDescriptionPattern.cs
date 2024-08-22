@@ -1,7 +1,9 @@
-﻿using System.Text;
+﻿using System.Runtime.InteropServices;
+using System.Text;
 using MudSharp.Character;
 using MudSharp.CharacterCreation;
 using MudSharp.Database;
+using MudSharp.Form.Characteristics;
 using MudSharp.Framework;
 using MudSharp.Framework.Save;
 using MudSharp.FutureProg;
@@ -10,6 +12,48 @@ namespace MudSharp.Form.Shape;
 
 public class EntityDescriptionPattern : SaveableItem, IEntityDescriptionPattern
 {
+	private void DoDatabaseInsert()
+	{
+		using (new FMDB())
+		{
+			var dbitem = new Models.EntityDescriptionPattern
+			{
+				Type = (int)Type,
+				ApplicabilityProgId = ApplicabilityProg?.Id,
+				RelativeWeight = RelativeWeight,
+				Pattern = Pattern
+			};
+			FMDB.Context.EntityDescriptionPatterns.Add(dbitem);
+			FMDB.Context.SaveChanges();
+			_id = dbitem.Id;
+		}
+	}
+
+	public IEntityDescriptionPattern Clone()
+	{
+		return new EntityDescriptionPattern(this);
+	}
+
+	private EntityDescriptionPattern(EntityDescriptionPattern rhs)
+	{
+		Gameworld = rhs.Gameworld;
+		Type = rhs.Type;
+		Pattern = rhs.Pattern;
+		ApplicabilityProg = rhs.ApplicabilityProg;
+		RelativeWeight = rhs.RelativeWeight;
+		DoDatabaseInsert();
+	}
+
+	public EntityDescriptionPattern(IFuturemud gameworld, string pattern, EntityDescriptionType type, IFutureProg prog)
+	{
+		Gameworld = gameworld;
+		Pattern = pattern;
+		Type = type;
+		ApplicabilityProg = prog;
+		RelativeWeight = 100;
+		DoDatabaseInsert();
+	}
+
 	public EntityDescriptionPattern(MudSharp.Models.EntityDescriptionPattern pattern, IFuturemud gameworld)
 	{
 		Gameworld = gameworld;
@@ -61,22 +105,21 @@ public class EntityDescriptionPattern : SaveableItem, IEntityDescriptionPattern
 
 	public string Pattern { get; protected set; }
 
-	public string Show(IPerceiver voyeur)
+	public string Show(ICharacter actor)
 	{
 		var sb = new StringBuilder();
-		sb.AppendLineFormat("{0}", "Description Pattern".Colour(Telnet.Cyan));
+		sb.AppendLine($"Description Pattern #{Id.ToStringN0(actor).GetLineWithTitle(actor, Telnet.Cyan, Telnet.BoldWhite)}");
 		sb.AppendLine();
-		sb.AppendLineFormat("Id: {0:N0} Type: {1}", Id, Type.Describe().Colour(Telnet.Green));
-		sb.AppendLineFormat("Prog: {0}",
-			ApplicabilityProg == null
-				? "None".Colour(Telnet.Red)
-				: string.Format("{0} (#{1:N0})".FluentTagMXP("send",
-						$"href='show futureprog {ApplicabilityProg.Id}'"), ApplicabilityProg.FunctionName,
-					ApplicabilityProg.Id));
+		sb.AppendLine($"Type: {Type.Describe().ColourValue()}");
+		sb.AppendLine($"Prog: {ApplicabilityProg?.MXPClickableFunctionName() ?? "None".ColourError()}");
+		sb.AppendLine($"Weight: {RelativeWeight.ToStringN0Colour(actor)}");
 		sb.AppendLine("Pattern: ");
 		sb.AppendLine();
-		sb.AppendLine(Pattern.Wrap(voyeur.InnerLineFormatLength, "\t"));
-
+		sb.AppendLine(
+			Type == EntityDescriptionType.FullDescription ?
+			Pattern.Wrap(actor.InnerLineFormatLength, "\t") :
+			Pattern
+			);
 		return sb.ToString();
 	}
 
@@ -94,4 +137,117 @@ public class EntityDescriptionPattern : SaveableItem, IEntityDescriptionPattern
 	}
 
 	#endregion
+
+	public const string BuildingCommandHelp = @"You can use the following options with this command:
+
+	#3type#0 - toggles this being a short description or full description pattern
+	#3prog <prog>#0 - sets the prog which controls if this pattern is valid for a character
+	#3pattern <text>#0 - sets the pattern text
+	#3pattern#0 - drops you into an editor with extended markup help info to enter the new pattern
+	#3weight <##>#0 - sets the relative weight for randomly selected descriptions";
+
+	public bool BuildingCommand(ICharacter actor, StringStack command)
+	{
+		switch (command.PopForSwitch())
+		{
+			case "type":
+				return BuildingCommandType(actor);
+			case "prog":
+				return BuildingCommandProg(actor, command);
+			case "pattern":
+				return BuildingCommandPattern(actor, command);
+			case "weight":
+				return BuildingCommandWeight(actor, command);
+			default:
+				actor.OutputHandler.Send(BuildingCommandHelp.SubstituteANSIColour());
+				return false;
+		}
+	}
+
+	private bool BuildingCommandWeight(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("What should be the relative weight of this pattern against others that might be randomly chosen?");
+			return false;
+		}
+
+		if (!int.TryParse(command.SafeRemainingArgument, out var value) || value <= 0)
+		{
+			actor.OutputHandler.Send($"The text {command.SafeRemainingArgument.ColourCommand()} is not a valid number greater than zero.");
+			return false;
+		}
+
+		RelativeWeight = value;
+		Changed = true;
+		actor.OutputHandler.Send($"This pattern will now have a relative weight of {value.ToStringN0Colour(actor)} for random selection.");
+		return true;
+	}
+
+	private bool BuildingCommandPattern(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			var sb = new StringBuilder();
+			sb.AppendLine("Replacing:\n\n");
+			sb.AppendLine(Pattern.Wrap(actor.InnerLineFormatLength, "\t"));
+			sb.AppendLine();
+			sb.AppendLine(EntityDescriptionPatternExtensions.GetDescriptionHelpNoTemplate());
+			sb.AppendLine();
+			sb.AppendLine("Enter your new pattern below: ");
+			actor.EditorMode((text, handler, _) =>
+				{
+					Pattern = text;
+					handler.Send($"The pattern is now:\n\n{Pattern.ColourCommand()}");
+					Changed = true;
+				},
+			(handler, _) =>
+			{
+				handler.Send("You decide not to change the pattern.");
+			});
+			return true;
+		}
+
+		Pattern = command.SafeRemainingArgument;
+		actor.OutputHandler.Send($"The pattern is now:\n\n{Pattern.ColourCommand()}");
+		Changed = true;
+		return true;
+	}
+
+	private bool BuildingCommandProg(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("Which prog should control whether this is a valid pattern for a character?");
+			return false;
+		}
+
+		var prog = new FutureProgLookupFromBuilderInput(actor, command.SafeRemainingArgument, FutureProgVariableTypes.Boolean, [FutureProgVariableTypes.Toon]).LookupProg();
+		if (prog is null)
+		{
+			return false;
+		}
+
+		ApplicabilityProg = prog;
+		Changed = true;
+		actor.OutputHandler.Send($"This pattern will now use the {prog.MXPClickableFunctionName()} function to control whether it applies for a character.");
+		return true;
+	}
+
+	private bool BuildingCommandType(ICharacter actor)
+	{
+		if (Type == EntityDescriptionType.FullDescription)
+		{
+			Type = EntityDescriptionType.ShortDescription;
+			actor.OutputHandler.Send("This is now a pattern for short descriptions.");
+		}
+		else
+		{
+			Type = EntityDescriptionType.FullDescription;
+			actor.OutputHandler.Send("This is now a pattern for full descriptions.");
+		}
+
+		Changed = true;
+		return true;
+	}
 }

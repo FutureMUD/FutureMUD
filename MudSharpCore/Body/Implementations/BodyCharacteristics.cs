@@ -17,9 +17,6 @@ namespace MudSharp.Body.Implementations;
 
 public partial class Body
 {
-	private static readonly Regex _basicCharacteristicRegex = new(@"(.+)basic", RegexOptions.IgnoreCase);
-	private static readonly Regex _fancyCharacteristicRegex = new(@"(.+)fancy", RegexOptions.IgnoreCase);
-
 	protected readonly Dictionary<ICharacteristicDefinition, ICharacteristicValue> DefaultCharacteristicValues =
 		new();
 
@@ -120,18 +117,18 @@ public partial class Body
 		var descType = CharacteristicDescriptionType.Normal;
 
 		ICharacteristicDefinition type;
-		if (_basicCharacteristicRegex.IsMatch(pattern))
+		if (IHaveCharacteristicsExtensions.BasicCharacteristicRegex.IsMatch(pattern))
 		{
 			type =
 				CharacteristicDefinitions.FirstOrDefault(
-					x => x.Pattern.IsMatch(_basicCharacteristicRegex.Match(pattern).Groups[1].Value));
+					x => x.Pattern.IsMatch(IHaveCharacteristicsExtensions.BasicCharacteristicRegex.Match(pattern).Groups[1].Value));
 			descType = CharacteristicDescriptionType.Basic;
 		}
-		else if (_fancyCharacteristicRegex.IsMatch(pattern))
+		else if (IHaveCharacteristicsExtensions.FancyCharacteristicRegex.IsMatch(pattern))
 		{
 			type =
 				CharacteristicDefinitions.FirstOrDefault(
-					x => x.Pattern.IsMatch(_fancyCharacteristicRegex.Match(pattern).Groups[1].Value));
+					x => x.Pattern.IsMatch(IHaveCharacteristicsExtensions.FancyCharacteristicRegex.Match(pattern).Groups[1].Value));
 			descType = CharacteristicDescriptionType.Fancy;
 		}
 		else

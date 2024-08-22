@@ -1,11 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using MudSharp.CharacterCreation;
 using MudSharp.Commands.Modules;
 using MudSharp.Effects;
 using MudSharp.Effects.Concrete;
+using MudSharp.Form.Shape;
 using MudSharp.Framework;
+using MudSharp.FutureProg;
 using MudSharp.PerceptionEngine;
 using MudSharp.RPG.Hints;
 using MudSharp.RPG.Merits;
@@ -14,6 +17,134 @@ namespace MudSharp.Commands.Helpers;
 
 public partial class EditableItemHelper
 {
+	public static EditableItemHelper EntityDescriptionHelper { get; } = new()
+	{
+		ItemName = "Description",
+		ItemNamePlural = "Descriptions",
+		SetEditableItemAction = (actor, item) =>
+		{
+			actor.RemoveAllEffects<BuilderEditingEffect<IEntityDescriptionPattern>>();
+			if (item == null)
+			{
+				return;
+			}
+
+			actor.AddEffect(new BuilderEditingEffect<IEntityDescriptionPattern>(actor) { EditingItem = (IEntityDescriptionPattern)item });
+		},
+		GetEditableItemFunc = actor =>
+			actor.CombinedEffectsOfType<BuilderEditingEffect<IEntityDescriptionPattern>>().FirstOrDefault()?.EditingItem,
+		GetAllEditableItems = actor => actor.Gameworld.EntityDescriptionPatterns.ToList(),
+		GetEditableItemByIdFunc = (actor, id) => actor.Gameworld.EntityDescriptionPatterns.Get(id),
+		GetEditableItemByIdOrNameFunc = (actor, input) => actor.Gameworld.EntityDescriptionPatterns.GetByIdOrName(input),
+		AddItemToGameWorldAction = item => item.Gameworld.Add((IEntityDescriptionPattern)item),
+		CastToType = typeof(IEntityDescriptionPattern),
+		EditableNewAction = (actor, input) =>
+		{
+			EntityDescriptionType type;
+			switch (input.PopForSwitch())
+			{
+				case "sdesc":
+				case "short":
+				case "shortdesc":
+					type = EntityDescriptionType.ShortDescription; 
+					break;
+				case "fdesc":
+				case "full":
+				case "fulldesc":
+				case "desc":
+					type = EntityDescriptionType.FullDescription; 
+					break;
+				default:
+					actor.OutputHandler.Send("Is this a description for a #3sdesc#0 or a #3fdesc#0?".SubstituteANSIColour());
+					return;
+			}
+
+			if (input.IsFinished)
+			{
+				actor.OutputHandler.Send("Which prog do you want to use to control this description?");
+				return;
+			}
+
+			var prog = new FutureProgLookupFromBuilderInput(actor, input.PopSpeech(), FutureProgVariableTypes.Boolean, [FutureProgVariableTypes.Toon]).LookupProg();
+			if (prog is null)
+			{
+				return;
+			}
+
+			if (input.IsFinished)
+			{
+				var sb = new StringBuilder();
+				sb.AppendLine(EntityDescriptionPatternExtensions.GetDescriptionHelpNoTemplate());
+				sb.AppendLine();
+				sb.AppendLine("Enter your new pattern below: ");
+				actor.EditorMode((text, handler, _) =>
+					{
+						var desc = new EntityDescriptionPattern(actor.Gameworld, text, type, prog);
+						actor.Gameworld.Add(desc);
+						actor.RemoveAllEffects(x => x.IsEffectType<IBuilderEditingEffect<IEntityDescriptionPattern>>());
+						actor.AddEffect(new BuilderEditingEffect<IEntityDescriptionPattern>(actor) { EditingItem = desc });
+						handler.Send($"You create a new {type.DescribeEnum()} description pattern, which you are now editing.");
+					},
+					(handler, _) =>
+					{
+						handler.Send("You decide not to create a new pattern.");
+					});
+				return;
+			}
+
+			var pattern = input.SafeRemainingArgument;
+			var desc = new EntityDescriptionPattern(actor.Gameworld, pattern, type, prog);
+			actor.Gameworld.Add(desc);
+			actor.RemoveAllEffects(x => x.IsEffectType<IBuilderEditingEffect<IEntityDescriptionPattern>>());
+			actor.AddEffect(new BuilderEditingEffect<IEntityDescriptionPattern>(actor) { EditingItem = desc });
+			actor.OutputHandler.Send($"You create a new {type.DescribeEnum()} description pattern, which you are now editing.");
+		},
+		EditableCloneAction = (actor, input) =>
+		{
+			if (input.IsFinished)
+			{
+				actor.OutputHandler.Send("Which description pattern do you want to clone?");
+				return;
+			}
+
+			var template = actor.Gameworld.EntityDescriptionPatterns.GetById(input.SafeRemainingArgument);
+			if (template is null)
+			{
+				actor.OutputHandler.Send("There is no such description pattern.");
+				return;
+			}
+
+			var clone = template.Clone();
+			actor.Gameworld.Add(clone);
+			actor.RemoveAllEffects(x => x.IsEffectType<IBuilderEditingEffect<IEntityDescriptionPattern>>());
+			actor.AddEffect(new BuilderEditingEffect<IEntityDescriptionPattern>(actor) { EditingItem = clone });
+			actor.OutputHandler.Send($"You clone pattern {template.Id.ToStringN0(actor)}, which you are now editing.");
+		},
+		GetListTableHeaderFunc = character => new List<string>
+		{
+			"Id",
+			"Type",
+			"Pattern",
+			"Prog",
+			"Weight"
+		},
+
+		GetListTableContentsFunc = (character, protos) =>
+			from proto in protos.OfType<IEntityDescriptionPattern>()
+			select new List<string>
+			{
+				proto.Id.ToString("N0", character),
+				proto.Type.DescribeEnum(),
+				proto.Pattern,
+				proto.ApplicabilityProg?.MXPClickableFunctionName() ?? "",
+				proto.RelativeWeight.ToStringN0(character)
+			},
+
+		CustomSearch = (protos, keyword, gameworld) => protos,
+		GetEditHeader = item => $"Description Pattern #{item.Id:N0}",
+		DefaultCommandHelp = BuilderModule.DescriptionPatternHelp
+	};
+
 	public static EditableItemHelper CharacterIntroTemplateHelper { get; } = new()
 	{
 		ItemName = "Character Intro Template",

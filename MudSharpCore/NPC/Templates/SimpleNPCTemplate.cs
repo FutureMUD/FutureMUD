@@ -1471,12 +1471,15 @@ public class SimpleNPCTemplate : NPCTemplateBase
 
 	private bool BuildingCommandDesc(ICharacter actor, StringStack command)
 	{
+		var sb = new StringBuilder();
 		if (SelectedFullDesc.Length > 0)
 		{
-			actor.OutputHandler.Send("Replacing:\n\n" + SelectedFullDesc.Wrap(actor.InnerLineFormatLength, "\t"));
+			sb.AppendLine("Replacing:\n\n" + SelectedFullDesc.Wrap(actor.InnerLineFormatLength, "\t"));
 		}
 
-		actor.OutputHandler.Send("\nEnter the description in the editor below.");
+		sb.AppendLine(EntityDescriptionPatternExtensions.GetDescriptionHelpFor(GetCharacterTemplate(), actor.Account));
+		sb.AppendLine("\nEnter the description in the editor below.");
+		actor.OutputHandler.Send(sb.ToString());
 		actor.EditorMode(PostDesc, CancelPostDesc, 1.0);
 		return true;
 	}

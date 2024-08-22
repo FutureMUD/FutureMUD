@@ -4223,4 +4223,32 @@ You can use the following syntax with this command:
 	}
 
 	#endregion
+
+	#region Entity Descriptions
+
+	public const string DescriptionPatternHelp = @"This command is used to create and edit #6Entity Description Patterns#0, which are template descriptions for characters, usually written in a special markup language that respects their characteristic values, covering items, missing bodyparts etc.
+
+You can use the following options with this command:
+
+	#3description list#0 - lists all of the descriptions
+	#3description edit <which>#0 - begins editing a description
+	#3description edit new sdesc|fdesc <prog> [<pattern>]#0 - creates a new description
+	#3description clone <old> <new name> <new abbrev>#0 - clones a description to a new description
+	#3description close#0 - stops editing a description
+	#3description show <which>#0 - views information about a description
+	#3description show#0 - views information about your currently editing description
+	#3description set type#0 - toggles this being a short description or full description pattern
+	#3description set prog <prog>#0 - sets the prog which controls if this pattern is valid for a character
+	#3description set pattern <text>#0 - sets the pattern text
+	#3description set pattern#0 - drops you into an editor with extended markup help info to enter the new pattern
+	#3description set weight <##>#0 - sets the relative weight for randomly selected descriptions";
+
+	[PlayerCommand("Description", "description", "desc")]
+	[CommandPermission(PermissionLevel.Admin)]
+	[HelpInfo("description", DescriptionPatternHelp, AutoHelp.HelpArgOrNoArg)]
+	protected static void Description(ICharacter actor, string command)
+	{
+		GenericBuildingCommand(actor, new StringStack(command.RemoveFirstWord()), EditableItemHelper.EntityDescriptionHelper);
+	}
+	#endregion	
 }

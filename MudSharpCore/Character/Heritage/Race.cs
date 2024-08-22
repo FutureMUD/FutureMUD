@@ -1813,6 +1813,12 @@ public partial class Race : SaveableItem, IRace
 		return AgeCategory(age);
 	}
 
+	public AgeCategory AgeCategory(ICharacterTemplate template)
+	{
+		var age = template.SelectedBirthday.Calendar.CurrentDate.YearsDifference(template.SelectedBirthday);
+		return AgeCategory(age);
+	}
+
 	public int MinimumAgeForCategory(AgeCategory category)
 	{
 		return Math.Max(0, (int)Ages.Ranges.First(x => x.Value == category).LowerBound);

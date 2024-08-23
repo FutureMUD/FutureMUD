@@ -8,6 +8,7 @@ using MudSharp.Effects;
 using MudSharp.Effects.Concrete;
 using MudSharp.Form.Shape;
 using MudSharp.Framework;
+using MudSharp.Framework.Revision;
 using MudSharp.FutureProg;
 using MudSharp.PerceptionEngine;
 using MudSharp.RPG.Hints;
@@ -140,7 +141,51 @@ public partial class EditableItemHelper
 				proto.RelativeWeight.ToStringN0(character)
 			},
 
-		CustomSearch = (protos, keyword, gameworld) => protos,
+		CustomSearch = (protos, keyword, gameworld) =>
+		{
+			if (keyword.Length > 1)
+			{
+				if (keyword[0] == '+')
+				{
+					keyword = keyword.Substring(1);
+					return protos
+					       .OfType<IEntityDescriptionPattern>()
+					       .Where(x => x.Pattern.Contains(keyword, StringComparison.InvariantCultureIgnoreCase))
+					       .ToList<IEditableItem>();
+				}
+
+				if (keyword[0] == '-')
+				{
+					keyword = keyword.Substring(1);
+					return protos
+					       .OfType<IEntityDescriptionPattern>()
+					       .Where(x => !x.Pattern.Contains(keyword, StringComparison.InvariantCultureIgnoreCase))
+					       .ToList<IEditableItem>();
+				}
+
+				if (keyword.EqualToAny("sdesc", "short", "shortdesc"))
+				{
+					return protos
+					       .OfType<IEntityDescriptionPattern>()
+					       .Where(x => x.Type == EntityDescriptionType.ShortDescription)
+					       .ToList<IEditableItem>();
+				}
+
+				if (keyword.EqualToAny("fdesc", "fulldesc", "desc"))
+				{
+					return protos
+					       .OfType<IEntityDescriptionPattern>()
+					       .Where(x => x.Type == EntityDescriptionType.FullDescription)
+					       .ToList<IEditableItem>();
+				}
+
+				return protos
+				       .OfType<IEntityDescriptionPattern>()
+				       .Where(x => x.ApplicabilityProg?.FunctionName.Contains(keyword, StringComparison.InvariantCultureIgnoreCase) ?? false)
+				       .ToList<IEditableItem>();
+			}
+			return protos;
+		},
 		GetEditHeader = item => $"Description Pattern #{item.Id:N0}",
 		DefaultCommandHelp = BuilderModule.DescriptionPatternHelp
 	};

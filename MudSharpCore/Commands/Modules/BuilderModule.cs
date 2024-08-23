@@ -4230,7 +4230,7 @@ You can use the following syntax with this command:
 
 You can use the following options with this command:
 
-	#3description list#0 - lists all of the descriptions
+	#3description list [<filters>]#0 - lists all of the descriptions
 	#3description edit <which>#0 - begins editing a description
 	#3description edit new sdesc|fdesc <prog> [<pattern>]#0 - creates a new description
 	#3description clone <old> <new name> <new abbrev>#0 - clones a description to a new description
@@ -4241,7 +4241,15 @@ You can use the following options with this command:
 	#3description set prog <prog>#0 - sets the prog which controls if this pattern is valid for a character
 	#3description set pattern <text>#0 - sets the pattern text
 	#3description set pattern#0 - drops you into an editor with extended markup help info to enter the new pattern
-	#3description set weight <##>#0 - sets the relative weight for randomly selected descriptions";
+	#3description set weight <##>#0 - sets the relative weight for randomly selected descriptions
+
+You can also use the following filters on the list subcommand:
+
+	#6+<keyword>#0 - only include descs with this keyword in the pattern somewhere
+	#6-<keyword>#0 - only include descs without this keyword in the pattern somewhere
+	#6sdesc#0 - only show short descriptions
+	#6fdesc#0 - only show full descriptions
+	#6<keyword>#0 - only include descs whose prog includes the keyword in the function name";
 
 	[PlayerCommand("Description", "description", "desc")]
 	[CommandPermission(PermissionLevel.Admin)]

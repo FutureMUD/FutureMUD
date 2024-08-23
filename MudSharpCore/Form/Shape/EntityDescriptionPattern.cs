@@ -89,6 +89,8 @@ public class EntityDescriptionPattern : SaveableItem, IEntityDescriptionPattern
 
 	#region IEntityDescriptionPattern Members
 
+	/// <inheritdoc />
+	public override string Name => Pattern;
 	public EntityDescriptionType Type { get; protected set; }
 
 	public IFutureProg ApplicabilityProg { get; protected set; }

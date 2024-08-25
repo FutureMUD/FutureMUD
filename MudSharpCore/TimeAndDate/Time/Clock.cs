@@ -535,6 +535,10 @@ public class Clock : SaveableItem, IClock
 	public void AddTimezone(IMudTimeZone timezone)
 	{
 		_timezones.Add(timezone);
+		if (PrimaryTimezone is null)
+		{
+			PrimaryTimezone = timezone;
+		}
 	}
 
 	#endregion
@@ -732,6 +736,11 @@ public class Clock : SaveableItem, IClock
 				? Timezones.FirstOrDefault(
 					x => x.Alias.Equals(match.Groups["timezone"].Value, StringComparison.InvariantCultureIgnoreCase))
 				: PrimaryTimezone, this, 0);
+	}
+
+	public void SetTime(MudTime time)
+	{
+		_currentTime = time;
 	}
 
 	#endregion

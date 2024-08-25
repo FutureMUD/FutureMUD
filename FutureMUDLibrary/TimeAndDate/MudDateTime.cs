@@ -117,7 +117,7 @@ You can also enter the special values #3never#0 and #3now#0.";
 
         public MudDateTime GetByTimeZone(IMudTimeZone timezone) {
             if ((timezone == TimeZone) || (Date == null)) {
-                return this;
+                return new MudDateTime(this);
             }
 
             var newTime = Time.GetTimeByTimezone(timezone);
@@ -295,18 +295,9 @@ You can also enter the special values #3never#0 and #3now#0.";
             }
 
             if (dt1.TimeZone != dt2.TimeZone) {
-                var newTime = dt2.Time.GetTimeByTimezone(dt1.TimeZone);
-                MudDate newDate;
-                if (newTime.DaysOffsetFromDatum == 0) {
-                    newDate = dt2.Date;
-                }
-                else {
-                    newDate = new MudDate(dt2.Date);
-                    newDate.AdvanceDays(newTime.DaysOffsetFromDatum);
-                }
-
-                dt2 = new MudDateTime(newDate, newTime, dt1.TimeZone);
-            }
+				dt1 = dt1.GetByTimeZone(dt1.Clock.PrimaryTimezone);
+				dt2 = dt2.GetByTimeZone(dt2.Clock.PrimaryTimezone);
+			}
 
             return dt1.Date - dt2.Date + (dt1.Time - dt2.Time);
         }
@@ -324,13 +315,9 @@ You can also enter the special values #3never#0 and #3now#0.";
             }
 
             if (dt1.TimeZone != dt2.TimeZone) {
-                var newTime = dt2.Time.GetTimeByTimezone(dt1.TimeZone);
-                var newDate = new MudDate(dt2.Date);
-                if (newTime.DaysOffsetFromDatum != 0) {
-                    newDate.AdvanceDays(newTime.DaysOffsetFromDatum);
-                }
-                dt2 = new MudDateTime(newDate, newTime, dt1.TimeZone);
-            }
+				dt1 = dt1.GetByTimeZone(dt1.Clock.PrimaryTimezone);
+				dt2 = dt2.GetByTimeZone(dt2.Clock.PrimaryTimezone);
+			}
 
             if (dt1.Date.Equals(dt2.Date)) {
                 return dt1.Time < dt2.Time;
@@ -352,13 +339,9 @@ You can also enter the special values #3never#0 and #3now#0.";
             }
 
             if (dt1.TimeZone != dt2.TimeZone) {
-                var newTime = dt2.Time.GetTimeByTimezone(dt1.TimeZone);
-                var newDate = new MudDate(dt2.Date);
-                if (newTime.DaysOffsetFromDatum != 0) {
-                    newDate.AdvanceDays(newTime.DaysOffsetFromDatum);
-                }
-                dt2 = new MudDateTime(newDate, newTime, dt1.TimeZone);
-            }
+				dt1 = dt1.GetByTimeZone(dt1.Clock.PrimaryTimezone);
+				dt2 = dt2.GetByTimeZone(dt2.Clock.PrimaryTimezone);
+			}
 
             if (dt1.Date.Equals(dt2.Date)) {
                 return dt1.Time <= dt2.Time;
@@ -380,13 +363,9 @@ You can also enter the special values #3never#0 and #3now#0.";
             }
 
             if (dt1.TimeZone != dt2.TimeZone) {
-                var newTime = dt2.Time.GetTimeByTimezone(dt1.TimeZone);
-                var newDate = new MudDate(dt2.Date);
-                if (newTime.DaysOffsetFromDatum != 0) {
-                    newDate.AdvanceDays(newTime.DaysOffsetFromDatum);
-                }
-                dt2 = new MudDateTime(newDate, newTime, dt1.TimeZone);
-            }
+				dt1 = dt1.GetByTimeZone(dt1.Clock.PrimaryTimezone);
+				dt2 = dt2.GetByTimeZone(dt2.Clock.PrimaryTimezone);
+			}
 
             if (dt1.Date.Equals(dt2.Date)) {
                 return dt1.Time > dt2.Time;
@@ -407,13 +386,10 @@ You can also enter the special values #3never#0 and #3now#0.";
                 return false;
             }
 
-            if (dt1.TimeZone != dt2.TimeZone) {
-                var newTime = dt2.Time.GetTimeByTimezone(dt1.TimeZone);
-                var newDate = new MudDate(dt2.Date);
-                if (newTime.DaysOffsetFromDatum != 0) {
-                    newDate.AdvanceDays(newTime.DaysOffsetFromDatum);
-                }
-                dt2 = new MudDateTime(newDate, newTime, dt1.TimeZone);
+            if (dt1.TimeZone != dt2.TimeZone)
+            {
+	            dt1 = dt1.GetByTimeZone(dt1.Clock.PrimaryTimezone);
+	            dt2 = dt2.GetByTimeZone(dt2.Clock.PrimaryTimezone);
             }
 
             if (dt1.Date.Equals(dt2.Date)) {

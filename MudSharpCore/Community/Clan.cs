@@ -475,7 +475,7 @@ public class Clan : SaveableItem, IClan
 
 	private ITemporalListener CreatePaydayListener()
 	{
-		return PayInterval.CreateListenerFromInterval(Calendar, NextPay.Date, NextPay.Time, ProcessPays, new object[] { }, $"Clan Payday Listener for {FullName.ColourName()}");
+		return PayInterval.CreateListenerFromInterval(Calendar, NextPay.Date, NextPay.Time, NextPay.TimeZone, ProcessPays, new object[] { }, $"Clan Payday Listener for {FullName.ColourName()}");
 	}
 
 	public void Disband(ICharacter disbander)

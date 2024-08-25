@@ -2,6 +2,7 @@
 using System.Text;
 using MudSharp.Framework;
 using MudSharp.TimeAndDate.Date;
+using MudSharp.TimeAndDate.Time;
 
 namespace MudSharp.TimeAndDate.Listeners;
 
@@ -13,8 +14,10 @@ public class DateListener : ListenerBase
 	protected string _watchForMonth;
 
 	protected int _watchForYear;
+	private IMudTimeZone _watchForTimeZone;
 
 	public DateListener(ICalendar watchCalendar, int watchForDay, string watchForMonth, int watchForYear,
+		IMudTimeZone watchForTimeZone,
 		int repeatTimes, Action<object[]> payload, object[] objects, string debuggerReference)
 		: base(repeatTimes, payload, objects, debuggerReference)
 	{
@@ -22,9 +25,10 @@ public class DateListener : ListenerBase
 		WatchForDay = watchForDay;
 		WatchForMonth = watchForMonth;
 		WatchForYear = watchForYear;
+		_watchForTimeZone = watchForTimeZone;
 		if (WatchForDay != -1 && WatchForYear != -1 && WatchForMonth.Length > 0)
 		{
-			_watchDate = WatchCalendar.GetDate($"{WatchForDay}-{WatchForMonth}-{WatchForYear}");
+			_watchDate = new MudDateTime(WatchCalendar.GetDate($"{WatchForDay}-{WatchForMonth}-{WatchForYear}"), WatchCalendar.FeedClock.GetTime($"{watchForTimeZone.Alias} 0:0:0"), watchForTimeZone);
 		}
 		Subscribe();
 	}
@@ -36,10 +40,8 @@ public class DateListener : ListenerBase
 		WatchForDay = datetime.Date.Day;
 		WatchForMonth = datetime.Date.Month.Alias;
 		WatchForYear = datetime.Date.Year;
-		if (WatchForDay != -1 && WatchForYear != -1 && WatchForMonth.Length > 0)
-		{
-			_watchDate = WatchCalendar.GetDate($"{WatchForDay}-{WatchForMonth}-{WatchForYear}");
-		}
+		_watchForTimeZone = datetime.TimeZone;
+		_watchDate = datetime;
 		Subscribe();
 	}
 
@@ -69,19 +71,20 @@ public class DateListener : ListenerBase
 		protected init => _watchCalendar = value;
 	}
 
-	private readonly MudDate _watchDate = null;
+	private readonly MudDateTime _watchDate = null;
 
 	protected bool DateIsRight()
 	{
 		if (_watchDate is not null)
 		{
-			return WatchCalendar.CurrentDate <= _watchDate;
+			return WatchCalendar.CurrentDateTime >= _watchDate;
 		}
 
+		var currentDate = WatchCalendar.CurrentDateTime.GetByTimeZone(_watchForTimeZone);
 		return
-			(WatchCalendar.CurrentDate.Day == WatchForDay || WatchForDay == -1) &&
-			(WatchCalendar.CurrentDate.Month.Alias == WatchForMonth || WatchForMonth.Length == 0) &&
-			(WatchCalendar.CurrentDate.Year == WatchForYear || WatchForYear == -1);
+			(currentDate.Date.Day == WatchForDay || WatchForDay == -1) &&
+			(currentDate.Date.Month.Alias == WatchForMonth || WatchForMonth.Length == 0) &&
+			(currentDate.Date.Year == WatchForYear || WatchForYear == -1);
 	}
 
 	public void DateUpdated()
@@ -95,32 +98,20 @@ public class DateListener : ListenerBase
 
 	public void Subscribe()
 	{
+		WatchCalendar.FeedClock.MinutesUpdated -= DateUpdated;
 		WatchCalendar.DaysUpdated -= DateUpdated;
 		WatchCalendar.MonthsUpdated -= DateUpdated;
 		WatchCalendar.YearsUpdated -= DateUpdated;
-
-		if (WatchForDay != -1)
-		{
-			WatchCalendar.DaysUpdated += DateUpdated;
-			return;
-		}
-
-		if (WatchForMonth.Length > 0)
-		{
-			WatchCalendar.MonthsUpdated += DateUpdated;
-			return;
-		}
-
-		if (WatchForYear != -1)
-		{
-			WatchCalendar.YearsUpdated += DateUpdated;
-			return;
-		}
+		WatchCalendar.FeedClock.MinutesUpdated += DateUpdated;
+		WatchCalendar.DaysUpdated += DateUpdated;
+		WatchCalendar.MonthsUpdated += DateUpdated;
+		WatchCalendar.YearsUpdated += DateUpdated;
 	}
 
 	public override void UnSubscribe()
 	{
 		Payload = null;
+		WatchCalendar.FeedClock.MinutesUpdated -= DateUpdated;
 		WatchCalendar.DaysUpdated -= DateUpdated;
 		WatchCalendar.MonthsUpdated -= DateUpdated;
 		WatchCalendar.YearsUpdated -= DateUpdated;
@@ -130,7 +121,7 @@ public class DateListener : ListenerBase
 	{
 		if (_watchDate is not null)
 		{
-			return $"Date Listener: {_watchDate.Display(CalendarDisplayMode.Short).ColourValue()} - {DebuggerReference.ColourCommand()} - x{RepeatTimes}";
+			return $"Date Listener: {_watchDate.ToString(CalendarDisplayMode.Short, TimeDisplayTypes.Immortal).ColourValue()} - {DebuggerReference.ColourCommand()} - x{RepeatTimes}";
 		}
 
 		var sb = new StringBuilder();
@@ -162,6 +153,8 @@ public class DateListener : ListenerBase
 		{
 			sb.Append($" of the year {WatchForYear}");
 		}
+
+		sb.Append($" in the {_watchForTimeZone.Alias} timezone");
 
 		sb.Append(Telnet.RESETALL);
 		sb.Append($" - {DebuggerReference.ColourCommand()} -");

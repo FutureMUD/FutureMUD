@@ -11,8 +11,10 @@ using MudSharp.Database;
 using MudSharp.Framework;
 using MudSharp.Framework.Save;
 using MudSharp.TimeAndDate;
+using MudSharp.TimeAndDate.Date;
 using MudSharp.TimeAndDate.Intervals;
 using MudSharp.TimeAndDate.Listeners;
+using MudSharp.TimeAndDate.Time;
 
 namespace MudSharp.Economy.Property;
 
@@ -158,11 +160,9 @@ public class PropertyLease : SaveableItem, IPropertyLease
 
 	public void SetupListeners()
 	{
-		_leaseEndListener = new DateListener(_leaseEnd, 0, DoLeaseEnd, Array.Empty<object>(), $"End of Lease for Property #{Property.Id} {Property.Name.ColourName()}");
+		_leaseEndListener = new DateListener(_leaseEnd, 0, DoLeaseEnd, [], $"End of Lease for Property #{Property.Id} {Property.Name.ColourName()}");
 		Gameworld.Add(_leaseEndListener);
-		_paymentIntervalListener =
-			_interval.CreateRecurringListenerFromInterval(_lastLeasePayment, DoLeaseInterval,
-				Array.Empty<object>(), $"Lease Payment for Property #{_property.Id} {_property.Name.ColourName()}");
+		_paymentIntervalListener = _interval.CreateRecurringListenerFromInterval(_lastLeasePayment, DoLeaseInterval, [], $"Lease Payment for Property #{_property.Id} {_property.Name.ColourName()}");
 	}
 
 	private void ReleaseListeners()
@@ -185,6 +185,7 @@ public class PropertyLease : SaveableItem, IPropertyLease
 
 	private void DoLeaseEnd(object[] objects)
 	{
+		Console.WriteLine($"Lease #{Id:N0} expired (Lease Order #{_leaseOrder.Id:N0} @ {_leaseEnd.ToString(CalendarDisplayMode.Short, TimeDisplayTypes.Short)}");
 		Property.ExpireLease(this);
 		foreach (var owner in Property.PropertyOwners)
 		{

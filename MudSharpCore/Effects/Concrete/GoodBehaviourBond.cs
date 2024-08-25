@@ -86,7 +86,7 @@ public class GoodBehaviourBond : Effect, IEffect
 	private void RegisterListener()
 	{
 		_listener = TimeAndDate.Listeners.ListenerFactory.CreateDateListener(DateUntil.Calendar, DateUntil.Date.Day,
-			DateUntil.Date.Month.Alias, DateUntil.Date.Year, 0, items => Owner.RemoveEffect(this, true),
+			DateUntil.Date.Month.Alias, DateUntil.Date.Year, DateUntil.TimeZone, 0, items => Owner.RemoveEffect(this, true),
 			Array.Empty<object>(), $"Good Behaviour Bond for {Owner.HowSeen(null, flags: PerceiveIgnoreFlags.IgnoreCanSee | PerceiveIgnoreFlags.IgnoreSelf)}");
 	}
 

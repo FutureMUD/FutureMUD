@@ -65,5 +65,6 @@ namespace MudSharp.TimeAndDate.Time
         string DisplayTime(MudTime theTime, TimeDisplayTypes type);
         string DisplayTime(TimeDisplayTypes type);
         MudTime GetTime(string timeString);
+        void SetTime(MudTime time);
     }
 }

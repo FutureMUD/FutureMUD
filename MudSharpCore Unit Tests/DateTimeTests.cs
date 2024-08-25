@@ -41,8 +41,10 @@ namespace MudSharp_Unit_Tests
 			}
 		}
 
-		private static Calendar _testCalendar;
-		private static Clock _testClock;
+		private static ICalendar _testCalendar;
+		private static IClock _testClock;
+		private static IMudTimeZone _cstTimezone;
+		private static IMudTimeZone _utcTimezone;
 
 		#region Additional test attributes
 		//
@@ -58,19 +60,25 @@ namespace MudSharp_Unit_Tests
 			_testClock = new Clock(XElement.Parse(@"<Clock>  <Alias>UTC</Alias>  <Description>Universal Time Clock</Description>  <ShortDisplayString>$j:$m:$s $i</ShortDisplayString>  <SuperDisplayString>$j:$m:$s $i $t</SuperDisplayString>  <LongDisplayString>$c $i</LongDisplayString>  <SecondsPerMinute>60</SecondsPerMinute>  <MinutesPerHour>60</MinutesPerHour>  <HoursPerDay>24</HoursPerDay>  <InGameSecondsPerRealSecond>2</InGameSecondsPerRealSecond>  <SecondFixedDigits>2</SecondFixedDigits>  <MinuteFixedDigits>2</MinuteFixedDigits>  <HourFixedDigits>0</HourFixedDigits>  <NoZeroHour>true</NoZeroHour>  <NumberOfHourIntervals>2</NumberOfHourIntervals>  <HourIntervalNames>    <HourIntervalName>a.m</HourIntervalName>    <HourIntervalName>p.m</HourIntervalName>  </HourIntervalNames>  <HourIntervalLongNames>    <HourIntervalLongName>in the morning</HourIntervalLongName>    <HourIntervalLongName>in the afternoon</HourIntervalLongName>  </HourIntervalLongNames>  <CrudeTimeIntervals>    <CrudeTimeInterval text=""night"" Lower=""-2"" Upper=""4""/>    <CrudeTimeInterval text=""morning"" Lower=""4"" Upper=""12""/>    <CrudeTimeInterval text=""afternoon"" Lower=""12"" Upper=""18""/>    <CrudeTimeInterval text=""evening"" Lower=""18"" Upper=""22""/>  </CrudeTimeIntervals></Clock>")) {Id = 1};
 
 			_testCalendar.FeedClock = _testClock;
-			_testCalendar.FeedClock = _testClock;
-			_testClock.AddTimezone(new MudTimeZone(1, 0, 0, "Universal Time Clock", "UTC"));
-			_testClock.AddTimezone(new MudTimeZone(2, -6, 0, "Central Time", "CST"));
+			_utcTimezone = new MudTimeZone(1, 0, 0, "Universal Time Clock", "UTC");
+			_testClock.AddTimezone(_utcTimezone);
+			_cstTimezone = new MudTimeZone(2, -6, 0, "Central Time", "CST");
+			_testClock.AddTimezone(_cstTimezone);
+			_testClock.SetTime(new MudTime(0, 0, 0, _utcTimezone, _testClock, true));
 		}
 		//
 		// Use ClassCleanup to run code after all tests in a class have run
 		// [ClassCleanup()]
 		// public static void MyClassCleanup() { }
-		//
+		
 		// Use TestInitialize to run code before running each test 
-		// [TestInitialize()]
-		// public void MyTestInitialize() { }
-		//
+		[TestInitialize()]
+		public void MyTestInitialize()
+		{
+			_testCalendar.SetDate("27/jun/34");
+			_testClock.SetTime(new MudTime(0, 0, 0, _utcTimezone, _testClock, true));
+		}
+		
 		// Use TestCleanup to run code after each test has run
 		// [TestCleanup()]
 		// public void MyTestCleanup() { }
@@ -81,8 +89,8 @@ namespace MudSharp_Unit_Tests
 		public void TestIntervals() {
 			var assertionHit1 = false;
 			var assertionHit2 = false;
-			var listener2 = new DateListener(_testCalendar, 28, "jung", 34, 1, objs => assertionHit1 = true, new object[] { }, "Test");
-			var listener1 = new DateListener(_testCalendar, 1, "kepler", 34, 1, objs => assertionHit2 = true, new object[] { }, "Test");
+			var listener2 = new DateListener(_testCalendar, 28, "jung", 34, _utcTimezone, 0, objs => assertionHit1 = true, new object[] { }, "Test");
+			var listener1 = new DateListener(_testCalendar, 1, "kepler", 34, _utcTimezone, 0, objs => assertionHit2 = true, new object[] { }, "Test");
 
 			_testCalendar.CurrentDate.AdvanceDays(1);
 			Assert.AreEqual(true, assertionHit1, "Didn't advance from 27th to 28th");
@@ -97,9 +105,18 @@ namespace MudSharp_Unit_Tests
 			};
 
 			Assert.AreEqual(expectedNextDate.GetDateString(), daily.GetNextDateExclusive(_testCalendar, _testCalendar.CurrentDate).GetDateString(), "The daily interval after the 28th was not the 1st");
-
 			_testCalendar.CurrentDate.AdvanceDays(1);
 			Assert.AreEqual(true, assertionHit2, "Didn't advance to new month");
+		}
+
+		[TestMethod]
+		public void TestIntervalsWithDifferentTimezones()
+		{
+			var assertionHit1 = false;
+			var listener1 = new DateListener(_testCalendar, 28, "jung", 34, _cstTimezone, 0, objs => assertionHit1 = true, new object[] { }, "Test");
+			_testCalendar.CurrentDate.AdvanceDays(1);
+			listener1.CancelListener();
+			Assert.AreEqual(false, assertionHit1, "Advanced from 27th to 28th in the CST timezone, should have only advanced in UTC timezone");
 		}
 
 		[TestMethod]

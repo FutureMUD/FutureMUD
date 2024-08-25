@@ -49,7 +49,7 @@ public abstract class ListenerBase : FrameworkItem, ITemporalListener
 	public void CancelListener()
 	{
 		UnSubscribe();
-		Futuremud.Games.First().Destroy(this);
+		Futuremud.Games.FirstOrDefault()?.Destroy(this);
 	}
 
 	#endregion

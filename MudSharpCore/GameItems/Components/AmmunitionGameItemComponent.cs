@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using MudSharp.Body;
+using MudSharp.Body.Traits;
 using MudSharp.Character;
 using MudSharp.Combat;
 using MudSharp.Construction;
@@ -209,19 +210,27 @@ public class AmmunitionGameItemComponent : GameItemComponent, IAmmo
 		AmmoType.DamageProfile.DamageExpression.Formula.Parameters["quality"] = (int)ammo.Quality;
 		AmmoType.DamageProfile.DamageExpression.Formula.Parameters["degree"] = (int)defenseOutcome.Degree;
 		AmmoType.DamageProfile.DamageExpression.Formula.Parameters["pointblank"] = actor == target ? 1 : 0;
+		AmmoType.DamageProfile.DamageExpression.Formula.Parameters["inmelee"] = actor.MeleeRange ? 1 : 0;
+		AmmoType.DamageProfile.DamageExpression.Formula.Parameters["range"] = target.DistanceBetween(actor, 10);
 		AmmoType.DamageProfile.PainExpression.Formula.Parameters["quality"] = (int)ammo.Quality;
 		AmmoType.DamageProfile.PainExpression.Formula.Parameters["degree"] = (int)defenseOutcome.Degree;
 		AmmoType.DamageProfile.PainExpression.Formula.Parameters["pointblank"] = actor == target ? 1 : 0;
+		AmmoType.DamageProfile.PainExpression.Formula.Parameters["inmelee"] = actor.MeleeRange ? 1 : 0;
+		AmmoType.DamageProfile.PainExpression.Formula.Parameters["range"] = target.DistanceBetween(actor, 10);
 		AmmoType.DamageProfile.StunExpression.Formula.Parameters["quality"] = (int)ammo.Quality;
 		AmmoType.DamageProfile.StunExpression.Formula.Parameters["degree"] = (int)defenseOutcome.Degree;
 		AmmoType.DamageProfile.StunExpression.Formula.Parameters["pointblank"] = actor == target ? 1 : 0;
+		AmmoType.DamageProfile.StunExpression.Formula.Parameters["inmelee"] = actor.MeleeRange ? 1 : 0;
+		AmmoType.DamageProfile.StunExpression.Formula.Parameters["range"] = target.DistanceBetween(actor, 10);
 
 		weaponType.DamageBonusExpression.Formula.Parameters["range"] = target.DistanceBetween(actor, 10);
 		weaponType.DamageBonusExpression.Formula.Parameters["quality"] = (int)Parent.Quality;
+		weaponType.DamageBonusExpression.Formula.Parameters["degree"] = (int)defenseOutcome.Degree;
 		weaponType.DamageBonusExpression.Formula.Parameters["pointblank"] = actor == target ? 1 : 0;
+		weaponType.DamageBonusExpression.Formula.Parameters["inmelee"] = actor.MeleeRange ? 1 : 0;
 
 		var finalDamage = AmmoType.DamageProfile.DamageExpression.Evaluate(actor) +
-		                  weaponType.DamageBonusExpression.Evaluate(actor);
+		                  weaponType.DamageBonusExpression.Evaluate(actor, weaponType.FireTrait);
 		var finalPain = AmmoType.DamageProfile.PainExpression.Evaluate(actor);
 		var finalStun = AmmoType.DamageProfile.StunExpression.Evaluate(actor);
 		var damage = new Damage

@@ -57,7 +57,9 @@ Note, with the damage/pain/stun expressions, you can use the following variables
 
 	#6pointblank#0 - 1 if fired at own bodypart or during coup de grace, 0 otherwise
 	#6quality#0 - 0-11 for item quality, 5 = standard quality
-	#6degree#0 - 0-5 for check success, 0 = marginal success, 5 = total success";
+	#6degree#0 - 0-5 for check success, 0 = marginal success, 5 = total success
+	#6inmelee#0 - 1 if being fired in melee, or 0 otherwise
+	#6range#0 - the range in rooms";
 
 	[PlayerCommand("AmmunitionType", "ammunition", "ammunitiontype", "ammo", "ammotype")]
 	[CommandPermission(PermissionLevel.SeniorAdmin)]
@@ -72,7 +74,7 @@ Note, with the damage/pain/stun expressions, you can use the following variables
 
 	#region Weapon Types
 	public const string WeaponTypeHelp =
-		@"The WeaponType command is used to edit weapon types, which control the properties of a weapon. To use a weapon type on an item you need an item component, but the new/clone subcommands will automatically make one for you.
+		@"The #3WeaponType#0 command is used to edit weapon types, which control the properties of a weapon. To use a weapon type on an item you need an item component, but the new/clone subcommands will automatically make one for you.
 
 See also the closely related #6weaponattack#0 and #6traitexpression#0 commands.
 
@@ -84,7 +86,7 @@ You can use the following syntax with this command:
 	#3weapontype edit#0 - equivalent of doing SHOW on your currently editing weapon type
 	#3weapontype close#0 - closes the currently edited weapon type
 	#3weapontype clone <id|name> <new name>#0 - creates a carbon copy of a weapon type for editing (including attacks)
-	#3weapontype show <id|name>#0 - shows a particular weapon type.
+	#3weapontype show <id|name>#0 - shows a particular weapon type
 	#3weapontype set name <name>#0 - the name of this weapon type
 	#3weapontype set classification <which>#0 - changes the classification of this weapon for law enforcement
 	#3weapontype set skill <which>#0 - sets the skill which this weapon uses
@@ -101,7 +103,69 @@ You can use the following syntax with this command:
 		GenericBuildingCommand(actor, new StringStack(command.RemoveFirstWord()), EditableItemHelper.WeaponTypeHelper);
 	}
 	#endregion
-		
+
+	#region Ranged Weapon Types
+
+	public const string RangedWeaponTypeHelp = @"The #3RangedWeaponType#0 command is used to create and edit Ranged Weapon Types, which are used in the matching game item components to turn an item into a ranged weapon.
+
+You will separately need to make the matching item component with the #3Component#0 command.
+
+You can use the following syntax with this command:
+
+	#3rwt list#0 - lists all ranged weapon types
+	#3rwt edit <id|name>#0 - opens the specified ranged weapon type for editing
+	#3rwt edit new <name>#0 - creates a new ranged weapon type for editing
+	#3rwt edit#0 - equivalent of doing SHOW on your currently editing ranged weapon type
+	#3rwt close#0 - closes the currently edited ranged weapon type
+	#3rwt clone <id|name> <new name>#0 - creates a carbon copy of a ranged weapon type for editing (including attacks)
+	#3rwt show <id|name>#0 - shows a particular ranged weapon type
+	#3rwt set name <name>#0 - changes the name
+	#3rwt set type <type>#0 - changes the ranged weapon type that it codedly applies to
+	#3rwt set range <##>#0 - sets the range in rooms that this weapon can fire
+	#3rwt set class <class>#0 - sets the weapon classification of this weapon
+	#3rwt set firestamina <##>#0 - the amount of stamina needed to fire this weapon	
+	#3rwt set loadstamina <##>#0 - the amount of stamina needed to load this weapon
+	#3rwt set cover <##>#0 - the bonus (-ve for penalty) against targets in cover
+	#3rwt set aimdifficulty <difficulty>#0 - the difficulty of the aim check
+	#3rwt set aimloss <%>#0 - how much percentage of the aim to lose after firing
+	#3rwt set freehand#0 - toggles needing a free hand to ready the weapon
+	#3rwt set fireskill <skill>#0 - sets the skill used when firing the weapon
+	#3rwt set operateskill <skill>#0 - sets the skill used when loading/readying the weapon
+	#3rwt set melee#0 - toggles being able to use the weapon to shoot in melee
+	#3rwt set ammotype <grade>#0 - sets the ammo type that ammunition must match
+	#3rwt set ammocapacity <##>#0 - sets the internal capacity for ammunition
+	#3rwt set loadtype <loadtype>#0 - sets the ammunition load type
+	#3rwt set loaddelay <seconds>#0 - sets the delay after loading
+	#3rwt set readydelay <seconds>#0 - sets the delay after readying
+	#3rwt set firedelay <seconds>#0 - sets the delay after firing
+	#3rwt set accuracy <formula>#0 - sets the formula for accuracy bonus with the weapon
+	#3rwt set damage <formula>#0 - sets the formula for damage bonus with the weapon
+
+For the accuracy formula you can use the following parameters:
+
+	#6quality#0 - the quality of the weapon item
+	#6range#0 - the range in rooms
+	#6inmelee#0 - 1 if being fired in melee, 0 otherwise
+	#6aim#0 - the aim percentage between 0 and 1
+	#6variable#0 - the character's current value of the fire skill
+
+For the damage formula you can use the following parameters:
+
+	#6quality#0 - the quality of the weapon item
+	#6range#0 - the range in rooms
+	#6inmelee#0 - 1 if being fired in melee, or 0 otherwise
+	#6pointblank#0 - 1 if fired point blank, or 0 otherwise
+	#6degree#0 - the opposed outcome degree between 0 (marginal) and 5 (total)
+	#6variable#0 - the character's current value of the fire skill";
+	[PlayerCommand("RangedWeaponType", "rangedweapontype", "rwt")]
+	[CommandPermission(PermissionLevel.SeniorAdmin)]
+	[HelpInfo("RangedWeaponType", RangedWeaponTypeHelp, AutoHelp.HelpArgOrNoArg)]
+	protected static void Ranged(ICharacter actor, string command)
+	{
+		GenericBuildingCommand(actor, new StringStack(command.RemoveFirstWord()), EditableItemHelper.RangedWeaponTypeHelper);
+	}
+	#endregion
+
 	#region Weapon Attacks
 
 	public const string WeaponAttackHelp =

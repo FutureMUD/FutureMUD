@@ -298,6 +298,136 @@ public partial class EditableItemHelper
 		DefaultCommandHelp = BuilderModule.BodypartShapesHelp
 	};
 
+	public static EditableItemHelper RangedWeaponTypeHelper { get; } = new()
+	{
+		ItemName = "Ranged Weapon Type",
+		ItemNamePlural = "Ranged Weapon Types",
+		SetEditableItemAction = (actor, item) =>
+		{
+			actor.RemoveAllEffects<BuilderEditingEffect<IRangedWeaponType>>();
+			if (item == null)
+			{
+				return;
+			}
+
+			actor.AddEffect(new BuilderEditingEffect<IRangedWeaponType>(actor) { EditingItem = (IRangedWeaponType)item });
+		},
+		GetEditableItemFunc = actor =>
+			actor.CombinedEffectsOfType<BuilderEditingEffect<IRangedWeaponType>>().FirstOrDefault()?.EditingItem,
+		GetAllEditableItems = actor => actor.Gameworld.RangedWeaponTypes.ToList(),
+		GetEditableItemByIdFunc = (actor, id) => actor.Gameworld.RangedWeaponTypes.Get(id),
+		GetEditableItemByIdOrNameFunc = (actor, input) => actor.Gameworld.RangedWeaponTypes.GetByIdOrName(input),
+		AddItemToGameWorldAction = item => item.Gameworld.Add((IRangedWeaponType)item),
+		CastToType = typeof(IRangedWeaponType),
+		EditableNewAction = (actor, input) =>
+		{
+			if (input.IsFinished)
+			{
+				actor.OutputHandler.Send("You must specify a name for your ranged weapon type.");
+				return;
+			}
+
+			var name = input.PopSpeech().TitleCase();
+			if (actor.Gameworld.RangedWeaponTypes.Any(x => x.Name.EqualTo(name)))
+			{
+				actor.OutputHandler.Send(
+					$"There is already a ranged weapon type called {name.ColourName()}. Names must be unique.");
+				return;
+			}
+
+			if (input.IsFinished)
+			{
+				actor.OutputHandler.Send($"Which ranged weapon type do you want this to be? The options are {Enum.GetValues<RangedWeaponType>().ListToColouredString()}.");
+				return;
+			}
+
+			if (!input.PopSpeech().TryParseEnum<RangedWeaponType>(out var type))
+			{
+				actor.OutputHandler.Send($"The text {input.Last.ColourCommand()} is not a valid ranged weapon type. The options are {Enum.GetValues<RangedWeaponType>().ListToColouredString()}.");
+				return;
+			}
+
+			if (input.IsFinished)
+			{
+				actor.OutputHandler.Send("Which skill do you want to use to operate that weapon?");
+				return;
+			}
+
+			var skill = actor.Gameworld.Traits.GetByIdOrName(input.SafeRemainingArgument);
+			if (skill is null)
+			{
+				actor.OutputHandler.Send($"There is no skill or trait identified by the text {input.SafeRemainingArgument.ColourCommand()}.");
+				return;
+			}
+
+			var weapon = new RangedWeaponTypeDefinition(actor.Gameworld, name, type, skill);
+			actor.Gameworld.Add(weapon);
+			actor.RemoveAllEffects<BuilderEditingEffect<IRangedWeaponType>>();
+			actor.AddEffect(new BuilderEditingEffect<IRangedWeaponType>(actor) { EditingItem = weapon });
+			actor.OutputHandler.Send($"You create a new ranged weapon type called {name.ColourName()}, which you are now editing.");
+		},
+		EditableCloneAction = (actor, input) =>
+		{
+			if (input.IsFinished)
+			{
+				actor.OutputHandler.Send("Which ranged weapon type would you like to clone?");
+				return;
+			}
+
+			var target = actor.Gameworld.RangedWeaponTypes.GetByIdOrName(input.PopSpeech());
+			if (target is null)
+			{
+				actor.OutputHandler.Send("There is no such ranged weapon type to clone.");
+				return;
+			}
+
+			if (input.IsFinished)
+			{
+				actor.OutputHandler.Send("What name would you like to give to the cloned ranged weapon type?");
+				return;
+			}
+
+			var name = input.SafeRemainingArgument.TitleCase();
+			if (actor.Gameworld.RangedWeaponTypes.Any(x => x.Name.EqualTo(name)))
+			{
+				actor.OutputHandler.Send(
+					$"There is already a ranged weapon type called {name.ColourName()}. Names must be unique.");
+				return;
+			}
+
+			var clone = target.Clone(name);
+			actor.Gameworld.Add(clone);
+			actor.RemoveAllEffects<BuilderEditingEffect<IRangedWeaponType>>();
+			actor.AddEffect(new BuilderEditingEffect<IRangedWeaponType>(actor) { EditingItem = clone });
+			actor.OutputHandler.Send($"You create a cloned ranged weapon type from {target.Name.ColourName()} called {name.ColourName()}, which you are now editing.");
+		},
+
+		GetListTableHeaderFunc = character => new List<string>
+		{
+			"Id",
+			"Name",
+			"Class",
+			"Type",
+			"Ammunition",
+			"Fire Trait",
+		},
+
+		GetListTableContentsFunc = (character, protos) => from proto in protos.OfType<IRangedWeaponType>()
+														  select new List<string>
+														  {
+															  proto.Id.ToString("N0", character),
+															  proto.Name,
+															  proto.Classification.Describe(),
+															  proto.RangedWeaponType.DescribeEnum(),
+															  proto.SpecificAmmunitionGrade,
+															  proto.FireTrait.Name
+														  },
+
+		CustomSearch = (protos, keyword, gameworld) => protos,
+		GetEditHeader = item => $"Ranged Weapon Type #{item.Id:N0} ({item.Name})",
+		DefaultCommandHelp = CombatBuilderModule.RangedWeaponTypeHelp
+	};
+
 	public static EditableItemHelper WeaponTypeHelper { get; } = new()
 	{
 		ItemName = "Weapon Type",

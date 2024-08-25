@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using MudSharp.Body.Traits;
 using MudSharp.Character;
+using MudSharp.Commands.Trees;
 using MudSharp.Database;
 using MudSharp.Framework;
 using MudSharp.Framework.Save;
@@ -277,42 +278,43 @@ public class RangedWeaponTypeDefinition : SaveableItem, IRangedWeaponType
 	public string Show(ICharacter character)
 	{
 		var sb = new StringBuilder();
-		sb.AppendLine($"Ranged Weapon Type: #{Id} - {Name}");
-		sb.AppendLineColumns((uint)character.LineFormatLength, 3,
+		sb.AppendLine($"Ranged Weapon Type: #{Id} - {Name}".GetLineWithTitle(character, Telnet.Cyan, Telnet.BoldWhite));
+		sb.AppendLine();
+		sb.AppendLineColumns(Math.Min((uint)character.LineFormatLength, 120U), 3,
 			$"Type: {RangedWeaponType.Describe().Colour(Telnet.Green)}",
 			$"Range: {DefaultRangeInRooms.ToString().Colour(Telnet.Green)}",
 			$"Class: {Classification.Describe().Colour(Telnet.Green)}");
 
-		sb.AppendLineColumns((uint)character.LineFormatLength, 3,
+		sb.AppendLineColumns(Math.Min((uint)character.LineFormatLength, 120U), 3,
 			$"Fire Stamina: {StaminaToFire.ToString(CultureInfo.InvariantCulture).Colour(Telnet.Green)}",
 			$"Load Stamina: {StaminaPerLoadStage.ToString(CultureInfo.InvariantCulture).Colour(Telnet.Green)}",
-			$"Cover Bonus: {CoverBonus.ToString("N3").Colour(Telnet.Green)}");
+			$"Cover Bonus: {CoverBonus.ToBonusString(character)}");
 
-		sb.AppendLineColumns((uint)character.LineFormatLength, 3,
-			$"Aim: {BaseAimDifficulty.Describe().Colour(Telnet.Green)}", 
-			$"Aim Lost Per Shot: {AimBonusLostPerShot:P1}",
-			$"Free Hand to Ready?: {RequiresFreeHandToReady}");
+		sb.AppendLineColumns(Math.Min((uint)character.LineFormatLength, 120U), 3,
+			$"Aim: {BaseAimDifficulty.DescribeColoured()}", 
+			$"Aim Lost Per Shot: {AimBonusLostPerShot.ToStringP2Colour(character)}",
+			$"Free Hand to Ready?: {RequiresFreeHandToReady.ToColouredString()}");
 
-		sb.AppendLineColumns((uint)character.LineFormatLength, 3, 
+		sb.AppendLineColumns(Math.Min((uint)character.LineFormatLength, 120U), 3, 
 			$"Fire: {FireTrait.Name.Colour(Telnet.Green)}",
 			$"Operate: {OperateTrait.Name.Colour(Telnet.Green)}",
 			$"Melee: {FireableInMelee.ToColouredString()}");
 
-		sb.AppendLineColumns((uint)character.LineFormatLength, 3,
+		sb.AppendLineColumns(Math.Min((uint)character.LineFormatLength, 120U), 3,
 			$"Ammo: {AmmunitionCapacity.ToString().Colour(Telnet.Green)}",
 			$"Ammo Type: {SpecificAmmunitionGrade.Colour(Telnet.Green)}",
 			$"Load Type: {AmmunitionLoadType.Describe().Colour(Telnet.Green)}");
 
-		sb.AppendLineColumns((uint)character.LineFormatLength, 3,
-			$"Load Delay: {LoadCombatDelay.ToString("N3", character)}",
-			$"Ready Delay: {ReadyCombatDelay.ToString("N3", character)}",
-			$"Fire Delay: {FireCombatDelay.ToString("N3", character)}");
+		sb.AppendLineColumns(Math.Min((uint)character.LineFormatLength, 120U), 3,
+			$"Load Delay: {TimeSpan.FromSeconds(LoadCombatDelay).DescribePreciseBrief(character).ColourValue()}",
+			$"Ready Delay: {TimeSpan.FromSeconds(ReadyCombatDelay).DescribePreciseBrief(character).ColourValue()}",
+			$"Fire Delay: {TimeSpan.FromSeconds(FireCombatDelay).DescribePreciseBrief(character).ColourValue()}");
 
-		sb.AppendLineColumns((uint)character.LineFormatLength, 3,
+		sb.AppendLineColumns(Math.Min((uint)character.LineFormatLength, 120U), 3,
 			$"Always 2-Handed: {AlwaysRequiresTwoHandsToWield.ToColouredString()}",
 			$"",
 			$"");
-
+		sb.AppendLine();
 		sb.AppendLine($"Accuracy Bonus: {AccuracyBonusExpression.OriginalFormulaText.Colour(Telnet.Cyan)}");
 		sb.AppendLine($"Damage Bonus: {AccuracyBonusExpression.OriginalFormulaText.Colour(Telnet.Cyan)}");
 

@@ -2046,7 +2046,7 @@ public partial class Character : PerceiverItem, ICharacter
 			"You are now entering an editor, use @ on a blank line to exit and *help to see help.".Colour(
 				Telnet.Yellow));
 		OutputHandler.Send(CommonStringUtilities.GetWidthRuler(Account.LineFormatLength).Colour(Telnet.Yellow));
-		
+		Gameworld.ForceOutgoingMessages();
 		_nextContext = new EditorController(this, suppliedArguments, postAction, cancelAction, options,
 			characterLengthMultiplier, recallText ?? EffectsOfType<StoredEditorText>().FirstOrDefault()?.Text);
 		_noControllerTags = " (editing)".Colour(Telnet.Red);

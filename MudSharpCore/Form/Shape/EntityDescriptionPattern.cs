@@ -197,6 +197,7 @@ public class EntityDescriptionPattern : SaveableItem, IEntityDescriptionPattern
 			sb.AppendLine(EntityDescriptionPatternExtensions.GetDescriptionHelpNoTemplate());
 			sb.AppendLine();
 			sb.AppendLine("Enter your new pattern below: ");
+			actor.OutputHandler.Send(sb.ToString());
 			actor.EditorMode((text, handler, _) =>
 				{
 					Pattern = text;

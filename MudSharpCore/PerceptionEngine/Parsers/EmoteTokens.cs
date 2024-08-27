@@ -64,26 +64,26 @@ public partial class Emote
 	///     give|gives you $0
 	/// </summary>
 	private static readonly Regex FirstThirdInternalTokenRegex =
-		new(@"(?<=([!.?:] |^){0,1})(?:[$](\d*[\w.]+)\|)(\w+)\|(\w+)", RegexOptions.Multiline);
+		new(@"(?<=([!.?:] |^){0,1})(?:[$](\d*[\w.]+)\|)([\w'\-]+)\|([\w'\-]+)", RegexOptions.Multiline);
 
 	/// <summary>
 	/// The plurality token is used to differentiate between the plurality of a token. &0|text if single thing|text if group of things.
 	/// </summary>
 	private static readonly Regex PluralityTokenRegex =
-		new(@"(?<=([!.?:] |^){0,1})(?:[&](?<index>\d*[\w.]+)\|)(?<first>\w+)\|(?<second>\w+)", RegexOptions.Multiline);
+		new(@"(?<=([!.?:] |^){0,1})(?:[&](?<index>\d*[\w.]+)\|)(?<first>[\w'\-]+)\|(?<second>[\w'\-]+)", RegexOptions.Multiline);
 
 	/// <summary>
 	/// This token is used to differentiate the number of a pronoun, e.g. %0|stop|stops would be stop for you/they and stops for he/she/it
 	/// </summary>
 	private static readonly Regex PronounPersonTokenRegex =
-		new(@"(?<=([!.?:] |^){0,1})(?:[%](?<index>\d*[\w.]+)\|)(?<plural>\w+)\|(?<singular>\w+)",
+		new(@"(?<=([!.?:] |^){0,1})(?:[%](?<index>\d*[\w.]+)\|)(?<plural>[\w'\-]+)\|(?<singular>[\w'\-]+)",
 			RegexOptions.Multiline);
 
 	/// <summary>
 	///     The first third player token is used when players, in emotes, give a different form for a specific target.
 	/// </summary>
 	private static readonly Regex FirstThirdPlayerTokenRegex =
-		new(@"(?<=([!.?:] |^){0,1})(?:([~*]\d*[\w.]+)\|){0,1}(\w+)\|(\w+)", RegexOptions.Multiline);
+		new(@"(?<=([!.?:] |^){0,1})(?:([~*]\d*[\w.]+)\|){0,1}([\w'\-]+)\|([\w'\-]+)", RegexOptions.Multiline);
 
 	/// <summary>
 	///     Used to test if a perceivable is null, and display different text depending on the outcome. Used like: @ lock|locks $0 $?2|on $2||$ $?1|with $1||$.

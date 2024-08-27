@@ -3389,10 +3389,12 @@ Also, as an admin you should see the two related commands #3GIVETATTOO#0 and #3F
 
 	#3bodypart list [<filters>]#0 - lists all bodyparts
 	#3bodypart edit <body> <part>#0 - edits a bodypart
+	#3bodypart edit <id|name>#0 - edits a bodypart (alt syntax for above)
 	#3bodypart edit#0 - equivalent to bodypart show on your edited bodypart
 	#3bodypart clone <newname>#0 - clones your currently edited bodypart
 	#3bodypart close#0 - closes your editing bodypart
 	#3bodypart show <body> <part>#0 - shows a bodypart
+	#3bodypart show <id|name>#0 - shows a bodypart (alt syntax for above)
 	#3bodypart set <...>#0 - changes something about a bodypart. See command for more info.
 
 The list of filters you can use with #3bodypart list#0 are as follows:
@@ -3553,6 +3555,52 @@ The list of filters you can use with #3bodypart list#0 are as follows:
 		actor.OutputHandler.Send(sb.ToString());
 	}
 
+	private static IBodypart GetBodypartFromBuilderInput(ICharacter actor, StringStack ss)
+	{
+		var cmd1 = ss.PopSpeech();
+		IBodypart bodypart;
+		if (ss.IsFinished)
+		{
+			bodypart = actor.Gameworld.BodypartPrototypes.GetByIdOrName(cmd1);
+			if (bodypart is null)
+			{
+				actor.OutputHandler.Send($"There is no bodypart identified by the text {cmd1.ColourCommand()}.");
+				return null;
+			}
+		}
+		else
+		{
+			var body = actor.Gameworld.BodyPrototypes.GetByIdOrName(cmd1);
+			if (body == null)
+			{
+				actor.OutputHandler.Send($"There is no body prototype identified by the text {cmd1.ColourCommand()}.");
+				return null;
+			}
+
+			if (ss.IsFinished)
+			{
+				actor.OutputHandler.Send(
+					$"Which bodypart from the {body.Name.Colour(Telnet.Cyan)} body do you want to view?");
+				return null;
+			}
+
+			var text = ss.SafeRemainingArgument;
+			bodypart = body.AllBodypartsBonesAndOrgans
+			               .FirstOrDefault(x => x.Name.EqualTo(text) || x.FullDescription().EqualTo(text)) ??
+			           body.AllBodypartsBonesAndOrgans
+			               .FirstOrDefault(x => x.Name.StartsWith(text, StringComparison.InvariantCultureIgnoreCase) || x.FullDescription().StartsWith(text, StringComparison.InvariantCultureIgnoreCase)) ??
+			           body.AllBodypartsBonesAndOrgans
+			               .FirstOrDefault(x => x.Name.Contains(text, StringComparison.InvariantCultureIgnoreCase) || x.FullDescription().Contains(text, StringComparison.InvariantCultureIgnoreCase));
+			if (bodypart == null)
+			{
+				actor.OutputHandler.Send($"The {body.Name.Colour(Telnet.Cyan)} body has no bodypart identified by the text {text.ColourCommand()}.");
+				return null;
+			}
+		}
+
+		return bodypart;
+	}
+
 	private static void BodypartClone(ICharacter actor, StringStack ss)
 	{
 		var effect = actor.EffectsOfType<BuilderEditingEffect<IBodypart>>().FirstOrDefault();
@@ -3595,27 +3643,9 @@ The list of filters you can use with #3bodypart list#0 are as follows:
 			return;
 		}
 
-		var body = long.TryParse(ss.PopSpeech(), out var value)
-			? actor.Gameworld.BodyPrototypes.Get(value)
-			: actor.Gameworld.BodyPrototypes.GetByName(ss.Last);
-		if (body == null)
+		var bodypart = GetBodypartFromBuilderInput(actor, ss);
+		if (bodypart is null)
 		{
-			actor.OutputHandler.Send("There is no such body prototype.");
-			return;
-		}
-
-		if (ss.IsFinished)
-		{
-			actor.OutputHandler.Send(
-				$"Which bodypart from the {body.Name.Colour(Telnet.Cyan)} body do you want to view?");
-			return;
-		}
-
-		var text = ss.PopSpeech();
-		var bodypart = body.AllBodypartsBonesAndOrgans.FirstOrDefault(x => x.Name.EqualTo(text));
-		if (bodypart == null)
-		{
-			actor.OutputHandler.Send($"The {body.Name.Colour(Telnet.Cyan)} body has no such bodypart.");
 			return;
 		}
 
@@ -3662,34 +3692,16 @@ The list of filters you can use with #3bodypart list#0 are as follows:
 			return;
 		}
 
-		var body = long.TryParse(ss.PopSpeech(), out var value)
-			? actor.Gameworld.BodyPrototypes.Get(value)
-			: actor.Gameworld.BodyPrototypes.GetByName(ss.Last);
-		if (body == null)
+		var bodypart = GetBodypartFromBuilderInput(actor, ss);
+		if (bodypart is null)
 		{
-			actor.OutputHandler.Send("There is no such body prototype.");
-			return;
-		}
-
-		if (ss.IsFinished)
-		{
-			actor.OutputHandler.Send(
-				$"Which bodypart from the {body.Name.Colour(Telnet.Cyan)} body do you want to edit?");
-			return;
-		}
-
-		var text = ss.PopSpeech();
-		var bodypart = body.AllBodypartsBonesAndOrgans.FirstOrDefault(x => x.Name.EqualTo(text));
-		if (bodypart == null)
-		{
-			actor.OutputHandler.Send($"The {body.Name.Colour(Telnet.Cyan)} body has no such bodypart.");
 			return;
 		}
 
 		actor.RemoveAllEffects<BuilderEditingEffect<IBodypart>>();
 		actor.AddEffect(new BuilderEditingEffect<IBodypart>(actor) { EditingItem = bodypart });
 		actor.OutputHandler.Send(
-			$"You open the {bodypart.FullDescription().Colour(Telnet.Yellow)} bodypart from the {body.Name.Colour(Telnet.Cyan)} body for editing.");
+			$"You open the {bodypart.FullDescription().Colour(Telnet.Yellow)} bodypart from the {bodypart.Body.Name.Colour(Telnet.Cyan)} body for editing.");
 	}
 
 	#endregion

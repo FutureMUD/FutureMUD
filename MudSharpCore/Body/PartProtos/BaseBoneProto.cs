@@ -56,7 +56,7 @@ public abstract class BaseBoneProto : BodypartPrototype, IBone
 
 	public override void PostLoadProcessing(IBodyPrototype body, BodypartProto proto)
 	{
-		foreach (var organ in proto.BoneOrganCoveragesOrgan)
+		foreach (var organ in proto.BoneOrganCoveragesBone)
 		{
 			_coveredOrgans.Add((Gameworld.BodypartPrototypes.OfType<IOrganProto>().First(x => x.Id == organ.OrganId),
 				new BodypartInternalInfo(organ.CoverageChance, false, string.Empty)));
@@ -70,13 +70,43 @@ public abstract class BaseBoneProto : BodypartPrototype, IBone
 		var sb = new StringBuilder(base.ShowToBuilder(builder));
 		sb.AppendLine();
 		sb.AppendLine("Contained In:");
-		foreach (var part in Body.AllBodyparts.SelectMany(x => x.BoneInfo).Where(x => x.Key == this)
-		                         .OrderByDescending(x => x.Value.IsPrimaryInternalLocation))
-		{
-			sb.AppendLine(
-				$"\t{part.Key.Name}: {part.Value.HitChance.ToString("P2", builder).ColourValue()} chance - group='{part.Value.ProximityGroup}', primary: {part.Value.IsPrimaryInternalLocation.ToColouredString()}");
-		}
-
+		sb.AppendLine();
+		var parts = Body.AllBodyparts.Select(x => (Part: x, Info: x.BoneInfo.ValueOrDefault(this, null))).Where(x => x.Item2 is not null).ToArray();
+		sb.AppendLine(StringUtilities.GetTextTable(
+			from part in parts
+			select new List<string>
+			{
+				part.Part.FullDescription(),
+				(part.Info.HitChance/100.0).ToStringP2Colour(builder),
+				part.Info.ProximityGroup ?? "",
+				part.Info.IsPrimaryInternalLocation.ToColouredString()
+			},
+			new List<string>
+			{
+				"Parent Part",
+				"Hit %",
+				"Group",
+				"Primary Location?"
+			},
+			builder,
+			Telnet.Yellow));
+		sb.AppendLine();
+		sb.AppendLine("Organ Coverage:");
+		sb.AppendLine();
+		sb.AppendLine(StringUtilities.GetTextTable(
+			from bone in CoveredOrgans
+			select new List<string>
+			{
+				bone.Organ.FullDescription(),
+				(bone.Info.HitChance/100.0).ToStringP2Colour(builder),
+			},
+			new List<string>
+			{
+				"Covered Organ",
+				"Cover %",
+			},
+			builder,
+			Telnet.Yellow));
 		return sb.ToString();
 	}
 

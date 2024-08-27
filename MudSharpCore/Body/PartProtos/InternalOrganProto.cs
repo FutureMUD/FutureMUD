@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Mscc.GenerativeAI;
 using MudSharp.Models;
 using MudSharp.Character;
 using MudSharp.Database;
@@ -57,12 +59,45 @@ public abstract class InternalOrganProto : BodypartPrototype, IOrganProto
 		);
 		sb.AppendLine();
 		sb.AppendLine("Contained In:");
-		foreach (var part in Body.AllBodyparts.SelectMany(x => x.OrganInfo).Where(x => x.Key == this)
-		                         .OrderByDescending(x => x.Value.IsPrimaryInternalLocation))
-		{
-			sb.AppendLine(
-				$"\t{part.Key.Name}: {part.Value.HitChance.ToString("P2", builder).ColourValue()} chance - group='{part.Value.ProximityGroup}', primary: {part.Value.IsPrimaryInternalLocation.ToColouredString()}");
-		}
+		sb.AppendLine();
+		var parts = Body.AllBodyparts.Select(x => (Part: x, Info: x.OrganInfo.ValueOrDefault(this, null))).Where(x => x.Item2 is not null).ToArray();
+		sb.AppendLine(StringUtilities.GetTextTable(
+			from part in parts
+			select new List<string>
+				{
+					part.Part.FullDescription(),
+					(part.Info.HitChance/100.0).ToStringP2Colour(builder),
+					part.Info.ProximityGroup ?? "",
+					part.Info.IsPrimaryInternalLocation.ToColouredString()
+				},
+			new List<string>
+			{
+				"Parent Part",
+				"Hit %",
+				"Group",
+				"Primary Location?"
+			},
+			builder,
+			Telnet.Yellow));
+
+		sb.AppendLine();
+		sb.AppendLine("Covered By Bones:");
+		sb.AppendLine();
+		var bones = Body.AllBodypartsBonesAndOrgans.OfType<IBone>().Select(x => (Part: x, Info: x.CoveredOrgans.FirstOrDefault(y => y.Organ == this))).Where(x => x.Info.Organ is not null).ToArray();
+		sb.AppendLine(StringUtilities.GetTextTable(
+			from bone in bones
+			select new List<string>
+			{
+				bone.Part.FullDescription(),
+				(bone.Info.Info.HitChance/100.0).ToStringP2Colour(builder),
+			},
+			new List<string>
+			{
+				"Covering Bone",
+				"Cover %",
+			},
+			builder,
+			Telnet.Yellow));
 
 		return sb.ToString();
 	}

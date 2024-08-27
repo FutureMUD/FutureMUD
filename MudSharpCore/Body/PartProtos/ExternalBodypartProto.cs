@@ -127,4 +127,48 @@ public abstract class ExternalBodypartProto : BodypartPrototype, IExternalBodypa
 			$"The {FullDescription().Colour(Telnet.Yellow)} bodypart is now downstream of part {part.FullDescription().Colour(Telnet.Yellow)}.");
 		return true;
 	}
+
+	public override string ShowToBuilder(ICharacter builder)
+	{
+		var sb = new StringBuilder(base.ShowToBuilder(builder));
+		sb.AppendLine();
+		sb.AppendLine("Contained Organs:");
+		sb.AppendLine();
+		sb.AppendLine(StringUtilities.GetTextTable(
+			from part in OrganInfo
+			select new List<string>
+			{
+				part.Key.FullDescription(),
+				(part.Value.HitChance/100.0).ToStringP2Colour(builder),
+				part.Value.ProximityGroup ?? "",
+				part.Value.IsPrimaryInternalLocation.ToColouredString()
+			},
+			new List<string>
+			{
+				"Organ",
+				"Hit %",
+				"Group",
+				"Primary Location?"
+			},
+			builder,
+			Telnet.Yellow));
+		sb.AppendLine();
+		sb.AppendLine("Contained Bones:");
+		sb.AppendLine();
+		sb.AppendLine(StringUtilities.GetTextTable(
+			from bone in BoneInfo
+			select new List<string>
+			{
+				bone.Key.FullDescription(),
+				(bone.Value.HitChance/100.0).ToStringP2Colour(builder),
+			},
+			new List<string>
+			{
+				"Bone",
+				"Cover %",
+			},
+			builder,
+			Telnet.Yellow));
+		return sb.ToString();
+	}
 }

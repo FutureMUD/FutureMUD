@@ -3075,7 +3075,15 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 #endif
 		ConsoleUtilities.WriteLine("\nLoading #5Bodyparts#0...");
 
-		var bpprotos = FMDB.Context.BodypartProtos.ToList();
+		var bpprotos = FMDB.Context.BodypartProtos
+		                   .Include(x => x.BodypartInternalInfosBodypartProto)
+		                   .Include(x => x.BodypartInternalInfosInternalPart)
+		                   .Include(x => x.BodyProtosAdditionalBodyparts)
+		                   .Include(x => x.BodypartProtoBodypartProtoUpstreamChildNavigation)
+		                   .Include(x => x.BoneOrganCoveragesBone)
+		                   .Include(x => x.BoneOrganCoveragesOrgan)
+						   .AsSplitQuery()
+		                   .ToList();
 		foreach (var bpproto in bpprotos)
 		{
 			_bodypartPrototypes.Add(BodypartPrototype.LoadFromDatabase(bpproto, this));

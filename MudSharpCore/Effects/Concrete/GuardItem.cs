@@ -109,6 +109,16 @@ public class GuardItem : Effect, IGuardItemEffect, ILDescSuffixEffect, IAffectPr
 		CharacterOwner.OnMoved += CharacterOwner_OnMoved;
 		CharacterOwner.OnEngagedInMelee += InvalidateEffect;
 		CharacterOwner.OnDeath += InvalidateEffect;
+		CharacterOwner.OnStateChanged += CharacterOwner_OnStateChanged;
+	}
+
+	private void CharacterOwner_OnStateChanged(IPerceivable owner)
+	{
+		if (CharacterOwner.State.IsDisabled())
+		{
+			InvalidateEffect(CharacterOwner);
+			return;
+		}
 	}
 
 	private void CharacterOwner_OnMoved(object sender, MoveEventArgs e)
@@ -132,6 +142,7 @@ public class GuardItem : Effect, IGuardItemEffect, ILDescSuffixEffect, IAffectPr
 		CharacterOwner.OnMoved -= CharacterOwner_OnMoved;
 		CharacterOwner.OnEngagedInMelee -= InvalidateEffect;
 		CharacterOwner.OnDeath -= InvalidateEffect;
+		CharacterOwner.OnStateChanged -= CharacterOwner_OnStateChanged;
 	}
 
 	private void InvalidateEffect(IPerceivable owner)

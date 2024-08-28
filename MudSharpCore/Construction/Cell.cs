@@ -1577,7 +1577,9 @@ public partial class Cell : Location, IDisposable, ICell
 			                                         x =>
 				                                         x.EffectsOfType<IGuardItemEffect>()
 				                                          .Any(y => (y.Applies() && y.TargetItem == item) ||
-				                                                    vicinity.Contains(y.TargetItem)));
+				                                                    vicinity.Contains(y.TargetItem)) &&
+				                                         !x.TrustedAllyIDs.Contains(getter.Id) &&
+				                                         !x.AllyIDs.Contains(getter.Id));
 	}
 
 	public string WhyCannotGetAccess(IGameItem item, ICharacter getter)
@@ -1589,7 +1591,9 @@ public partial class Cell : Location, IDisposable, ICell
 				                                 x =>
 					                                 x.EffectsOfType<IGuardItemEffect>()
 					                                  .Any(y => (y.Applies() && y.TargetItem == item) ||
-					                                            vicinity.Contains(y.TargetItem)))
+					                                            vicinity.Contains(y.TargetItem)) &&
+					                                 !x.TrustedAllyIDs.Contains(getter.Id) &&
+					                                 !x.AllyIDs.Contains(getter.Id))
 			                                 .ToList();
 		if (guarders.Any())
 		{

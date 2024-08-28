@@ -40,6 +40,11 @@ public class CombatModule : Module<ICharacter>
 	public override int CommandsDisplayOrder => 8;
 
 	[PlayerCommand("Targets", "targets")]
+	[HelpInfo("Targets", @"The #3Targets#0 command shows you viable ranged targets you have seen, either in your own location or using the various #3scan#0 commands in adjacent locations. Only targets on this list can be targeted with ranged attacks or effects.
+
+See also the related #3quickscan#0, #3scan#0 and #3longscan#0 commands.
+
+The syntax for this command is simply #3targets#0.", AutoHelp.HelpArg)]
 	protected static void Targets(ICharacter actor, string command)
 	{
 		var sb = new StringBuilder();
@@ -57,15 +62,19 @@ public class CombatModule : Module<ICharacter>
 	}
 
 	[PlayerCommand("Burden", "burden")]
+	[HelpInfo("burden", @"The burden command allows you to manually make combat checks harder on yourself; to go easy on someone, or appear weaker than you are. Burden for offense and defense are separate values, and they are not saved in the database so need to be set each time you log in.
+
+The degrees referenced below are difficulty levels - for each ""degree"" of burden a check becomes one level harder.
+
+The syntax is:
+
+	#3burden reset#0 - resets your burden to default, i.e. no burden
+	#3burden <degrees>#0 - applies a burden of x degrees to all offensive and defensive checks
+	#3burden offense <degrees>#0 - sets the offensive burden specifically
+	#3burden defense <degrees>#0 - sets the defensive burden specifically", AutoHelp.HelpArgOrNoArg)]
 	protected static void Burden(ICharacter actor, string command)
 	{
 		var ss = new StringStack(command.RemoveFirstWord());
-		if (ss.IsFinished || ss.Peek().EqualToAny("help", "?"))
-		{
-			actor.Send(
-				"The burden command allows you to manually make combat checks harder on yourself; to go easy on someone, or appear weaker than you are. Burden for offense and defense are separate values, and they are not saved in the database so need to be set each time you log in.\nThe syntax is:\n\tburden reset - resets your burden to default, i.e. no burden\n\tburden <degrees> - applies a burden of x degrees to all offensive and defensive checks\n\tburden offense <degrees> - sets the offensive burden specifically\n\tburden defense <degrees> - sets the defensive burden specifically");
-			return;
-		}
 
 		if (ss.Peek().EqualToAny("reset", "clear", "none", "normal"))
 		{
@@ -144,6 +153,13 @@ public class CombatModule : Module<ICharacter>
 	}
 
 	[PlayerCommand("Release", "release")]
+	[HelpInfo("Release", @"The #3Release#0 command is used to let go of someone who you are grappling or dragging.
+
+You can use the command in one of three ways:
+
+	#3release#0 - releases your target normally
+	#3release kneel#0 - releases your target and forces them to kneel (if they are capable of kneeling)
+	#3release sprawl#0 - releases your target and sends them sprawling", AutoHelp.HelpArg)]
 	protected static void Release(ICharacter actor, string command)
 	{
 		var ss = new StringStack(command.RemoveFirstWord());
@@ -182,6 +198,11 @@ public class CombatModule : Module<ICharacter>
 
 		if (ss.Peek().EqualTo("kneel") || ss.Peek().EqualTo("knees"))
 		{
+			if (!target.ValidPositions.Contains(PositionKneeling.Instance))
+			{
+				actor.OutputHandler.Send($"Unfortunately {target.HowSeen(actor)} does not have a physiology capable of kneeling.");
+				return;
+			}
 			actor.OutputHandler.Handle(
 				new MixedEmoteOutput(
 					new Emote("@ push|pushes $1 down onto &1's knees and release|releases &1 from &0's grip", actor,
@@ -291,6 +312,15 @@ public class CombatModule : Module<ICharacter>
 	[PlayerCommand("Surrender", "surrender")]
 	[RequiredCharacterState(CharacterState.Able)]
 	[NoMovementCommand]
+	[HelpInfo("Surrender", @"The #3Surrender#0 command is used to voluntarily submit to someone, often a combat opponent or enforcer. The target must be willing to accept your surrender, and not all opponents can or will.
+
+If used outside of combat you will automatically become a drag target for the person you surrender too.
+If used inside of combat your opponent will get a grapple on every single one of your limbs.
+
+The syntax is one of the following:
+
+	#3surrender#0 - surrender to any person attacking you who will accept your surrender
+	#3surrender <target>#0 - try to surrender to a particular person", AutoHelp.HelpArg)]
 	protected static void Surrender(ICharacter actor, string command)
 	{
 		var blockingEffects = actor.CombinedEffectsOfType<IEffect>()
@@ -385,7 +415,12 @@ public class CombatModule : Module<ICharacter>
 
 	[PlayerCommand("Grapple", "grapple")]
 	[HelpInfo("grapple",
-		"The grapple command is used while you are already in combat to switch to a strategy of trying to grapple your opponent. There are several options for using this command:\n\tGRAPPLE - toggles grappling on or off, defaults to control\n\tGRAPPLE CONTROL - switches to grappling for control, trying to get all limbs grappled\n\tGRAPPLE INCAPACITATE - attempts to grapple someone and break their limbs\n\tGRAPPLE KILL - attempts to grapple someone and strangle them or break their neck",
+		@"The #3Grapple#0 command is used while you are already in combat to switch to a strategy of trying to grapple your opponent. There are several options for using this command:
+
+	#3grapple#0 - toggles grappling on or off, defaults to control
+	#3grapple control#0 - switches to grappling for control, trying to get all limbs grappled
+	#3grapple incapacitate#0 - attempts to grapple someone and break their limbs
+	#3grapple kill#0 - attempts to grapple someone and strangle them or break their neck",
 		AutoHelp.HelpArg)]
 	protected static void Grapple(ICharacter actor, string command)
 	{
@@ -449,6 +484,11 @@ public class CombatModule : Module<ICharacter>
 	}
 
 	[PlayerCommand("Strangle", "strangle")]
+	[HelpInfo("strangle", @"The #3Strangle#0 command is used to signal that you want to switch to a mode where you will try to grapple your opponent and kill them through moves such as strangulation.
+
+Strangle attacks are only used from within grapples, so this mode will first attempt to get your opponent into a grapple.
+
+The syntax is #3strangle#0 to toggle the mode on and off.", AutoHelp.HelpArg)]
 	protected static void Strangle(ICharacter actor, string command)
 	{
 		if (actor.Combat == null)
@@ -481,6 +521,9 @@ public class CombatModule : Module<ICharacter>
 	}
 
 	[PlayerCommand("Stagger", "stagger")]
+	[HelpInfo("stagger", @"The #3Stagger#0 command is used in combat to signal that your next attack should be an staggering blow which attempts to render your opponent prone and at disadvantage. This kind of attack could be unarmed or with a weapon, though not all weapons will have staggering attacks.
+
+The syntax is simply #3stagger#0 when in combat to signal your next attack to be a staggering attack.", AutoHelp.HelpArg)]
 	protected static void Stagger(ICharacter actor, string command)
 	{
 		if (actor.Combat == null)
@@ -527,6 +570,9 @@ public class CombatModule : Module<ICharacter>
 	}
 
 	[PlayerCommand("Trip", "trip")]
+	[HelpInfo("trip", @"The #3Trip#0 command is used in combat to signal that your next attack should be an unbalancing blow which attempts to render your opponent prone and at disadvantage. This kind of attack could be unarmed or with a weapon, though not all weapons will have trip attacks.
+
+The syntax is simply #3trip#0 when you're in combat to signal that your next attack will be a trip attack.", AutoHelp.HelpArg)]
 	protected static void Trip(ICharacter actor, string command)
 	{
 		if (actor.Combat == null)
@@ -574,15 +620,22 @@ public class CombatModule : Module<ICharacter>
 
 	[PlayerCommand("Smash", "smash")]
 	[RequiredCharacterState(CharacterState.Able)]
+	[HelpInfo("smash", @"The #3Smash#0 command makes a single attack against an object not being held with the intention of damaging or breaking the object. It is the primary way to attack inanimate objects.
+
+It can also be used to target doors (by supplying the direction as the target) or locks on items.
+
+If you don't specify a weapon, it will prefer melee weapons over unarmed attacks.
+
+The syntax for the smash command is as follows:
+
+	#3smash <item>#0 - attack an item (with whatever weapon or unarmed attack is available)
+	#3smash <item|exit> with <weapon>#0 - attack an item or door with a specified weapon
+	#3smash <item|exit> with <bodypart>#0 - attack an item or door with a specified unarmed attack bodypart
+	#3smash <item|exit> <lock> <weapon>#0 - attack a lock on an item or door with a specified weapon
+	#3smash <item|exit> <lock> <bodypart>#0 - attack a lock on an item or door with a specified unarmed attack bodypart", AutoHelp.HelpArgOrNoArg)]
 	protected static void Smash(ICharacter actor, string command)
 	{
 		var ss = new StringStack(command.RemoveFirstWord());
-		if (ss.IsFinished || ss.Peek().EqualTo("?") || ss.Peek().EqualTo("help"))
-		{
-			actor.Send(
-				$"The smash command makes a single attack against an object not being held with the intention of breaking the object. When used with a direction as the target, it implicitly targets the door. The syntax for the smash command is {"smash <thing> [<lock>] [with <weapon>|<bodypart>]".Colour(Telnet.Yellow)} or {"smash <direction> [<lock>] [with <weapon>|<bodypart>]".Colour(Telnet.Yellow)}");
-			return;
-		}
 
 		var target = ss.PopSpeech();
 		var targetExit = actor.Location.ExitsFor(actor).GetFromItemListByKeyword(target, actor);
@@ -617,9 +670,9 @@ public class CombatModule : Module<ICharacter>
 			}
 		}
 
-		if (!actor.Location.CanGet(targetItem, actor))
+		if (!actor.Location.CanGetAccess(targetItem, actor))
 		{
-			actor.Send(actor.Location.WhyCannotGet(targetItem, actor));
+			actor.Send(actor.Location.WhyCannotGetAccess(targetItem, actor));
 			return;
 		}
 
@@ -808,12 +861,16 @@ public class CombatModule : Module<ICharacter>
 	[RequiredCharacterState(CharacterState.Able)]
 	[DelayBlock("general", "You must first stop {0} before you can deliver the blow of mercy.")]
 	[HelpInfo("execute",
-		@"The Execute command allows you to execute a powerful finishing move, designed generally to kill, mortally wound or maim a helpless opponent. It can be used both inside and outside of combat. When used outside of combat, it sets in motion a delayed action that, if not interrupted, will deliver the blow of mercy to the target. When used in combat, it signals to override combat settings which prevent a killing blow being given.
+		@"The #6Execute#0 command allows you to execute a powerful finishing move, designed generally to kill, mortally wound or maim a helpless opponent. 
 
-Syntax:
-	#3coupdegrace list#0 - shows a list of available Coup-De-Grace moves for wielded weapons.
-	#3coupdegrace#0 - in combat, flags that a killing blow should be given if the opportunity arises.
-	#3coupdegrace ""<Move Name>"" <target>#0 - delivers the specified Coup-De-Grace to the target.",
+It can be used both inside and outside of combat. When used outside of combat, it sets in motion a delayed action that, if not interrupted, will deliver the blow of mercy to the target. 
+
+When used in combat, it signals to override combat settings which prevent a killing blow being given.
+
+The syntax:
+	#3execute list#0 - shows a list of available [5mcoup de grace[25m moves for wielded weapons.
+	#3execute#0 - in combat, flags that a killing blow should be given if the opportunity arises.
+	#3execute ""<Move Name>"" <target>#0 - delivers the specified [5mcoup de grace[25m to the target.",
 		AutoHelp.HelpArgOrNoArg)]
 	protected static void CoupDeGrace(ICharacter actor, string command)
 	{
@@ -824,7 +881,7 @@ Syntax:
 		{
 			if (!weapons.Any())
 			{
-				actor.Send("You are not wielding any weapons, and so have no Coup De Grace options.");
+				actor.Send("You are not wielding any weapons, and so have no [5mcoup de grace[25m options.");
 				return;
 			}
 
@@ -836,7 +893,8 @@ Syntax:
 					sb.AppendLine();
 				}
 
-				sb.AppendLine($"Coup De Grace options for {item.Parent.HowSeen(actor)}:");
+				sb.AppendLine($@"[5mCoup de grace[25m options for {item.Parent.HowSeen(actor)}:");
+				sb.AppendLine();
 				foreach (
 					var attack in
 					item.WeaponType.Attacks.OfType<IFixedBodypartWeaponAttack>()
@@ -866,7 +924,7 @@ Syntax:
 				}
 			}
 
-			actor.Send(sb.ToString());
+			actor.OutputHandler.Send(sb.ToString());
 			return;
 		}
 
@@ -875,7 +933,7 @@ Syntax:
 			if (actor.EffectsOfType<PreparingCoupDeGrace>().Any())
 			{
 				actor.RemoveAllEffects(x => x.IsEffectType<PreparingCoupDeGrace>());
-				actor.Send("You are no longer trying to deliver a Coup De Grace to your target.");
+				actor.Send("You are no longer trying to deliver a [5mcoup de grace[25m to your target.");
 				return;
 			}
 
@@ -893,7 +951,7 @@ Syntax:
 
 			if (!tch.IsHelpless && !tch.State.HasFlag(CharacterState.Sleeping))
 			{
-				actor.Send("You can only deliver a Coup de Grace to a helpless opponent.");
+				actor.Send("You can only deliver a [5mcoup de grace[25m to a helpless opponent.");
 				return;
 			}
 		}
@@ -918,8 +976,8 @@ Syntax:
 										false, BuiltInCombatMoveType.CoupDeGrace)).GetWeightedRandom(x => x.Weighting);
 			if (wattack == null)
 			{
-				actor.Send(
-					$"There are no available weapon attacks for you to use as a Coup De Grace; perhaps try a different type of weapon? Also see {"coupdegrace list".Colour(Telnet.Yellow)} to see a list of available attacks or type {"coupdegrace help".Colour(Telnet.Yellow)} for more help.");
+				actor.OutputHandler.Send(
+					$"There are no available weapon attacks for you to use as a [5mcoup de grace[25m; perhaps try a different type of weapon? Also see {"execute list".MXPSend()} to see a list of available attacks or type {"execute help".MXPSend()} for more help.");
 				return;
 			}
 		}
@@ -935,7 +993,7 @@ Syntax:
 			if (wattack == null)
 			{
 				actor.Send(
-					$"There is no such weapon attack for you to use as a Coup De Grace. Try {"coupdegrace list".Colour(Telnet.Yellow)} to see a list of available attacks or type {"coupdegrace help".Colour(Telnet.Yellow)} for more help.");
+					$"There is no such weapon attack for you to use as a [5mcoup de grace[25m. Try {"execute list".MXPSend()} to see a list of available attacks or type {"execute help".MXPSend()} for more help.");
 				return;
 			}
 
@@ -946,20 +1004,20 @@ Syntax:
 		{
 			if (ss.IsFinished)
 			{
-				actor.Send("Who do you want to deliver a Coup De Gras to?");
+				actor.Send("Who do you want to deliver a [5mcoup de grace[25m to?");
 				return;
 			}
 
 			var target = actor.TargetActor(ss.PopSpeech());
 			if (target == null)
 			{
-				actor.Send("You don't see anyone like that to deliver a Coup De Grace to.");
+				actor.Send("You don't see anyone like that to deliver a [5mcoup de grace[25m to.");
 				return;
 			}
 
 			if (!target.IsHelpless && !target.State.HasFlag(CharacterState.Sleeping))
 			{
-				actor.Send("You can't deliver a Coup De Grace to someone who is not helpless.");
+				actor.Send("You can't deliver a [5mcoup de grace[25m to someone who is not helpless.");
 				return;
 			}
 
@@ -985,12 +1043,12 @@ Syntax:
 
 			if (!wattack.UsableAttack(actor, weapon.Parent, target, weapon.HandednessForWeapon(actor), false, BuiltInCombatMoveType.CoupDeGrace))
 			{
-				actor.OutputHandler.Send($"The {wattack.Name.ColourName()} coup-de-grace is not usable against {target.HowSeen(actor)}.");
+				actor.OutputHandler.Send($"The {wattack.Name.ColourName()} [5mcoup de grace[25m is not usable against {target.HowSeen(actor)}.");
 				return;
 			}
 
 			actor.OutputHandler.Handle(
-				new EmoteOutput(new Emote("@ are|is preparing to deliver a Coup De Grace to $1 with $2.", actor,
+				new EmoteOutput(new Emote("@ are|is preparing to deliver a [5mcoup de grace[25m to $1 with $2.", actor,
 					actor, target, weapon.Parent)));
 			actor.AddEffect(new PreparingCoupDeGrace(actor, weapon, wattack, target) { Emote = emote },
 				TimeSpan.FromSeconds(25));
@@ -1016,13 +1074,16 @@ Syntax:
 
 		actor.AddEffect(new CombatCoupDeGrace(actor, actor.Combat, weapon, wattack, pemote));
 		actor.Send(
-			$"You will now deliver the {wattack.Name.Colour(Telnet.Cyan)} Coup-De-Gras to your opponent if you get the opportunity.");
+			$"You will now deliver the {wattack.Name.Colour(Telnet.Cyan)} [5mcoup de grace[25m to your opponent if you get the opportunity.");
 	}
 
 	[PlayerCommand("Rescue", "rescue")]
 	[RequiredCharacterState(CharacterState.Able)]
 	[DelayBlock("general", "You must first stop {0} before you can fight.")]
 	[NoMovementCommand]
+	[HelpInfo("rescue", @"The #3Rescue#0 command is used to try to draw the attention away from the attackers of a target. You will attempt to redirect the attackers towards yourself instead. You can only rescue one target at a time.
+
+The syntax is #3rescue <target>#0 or #3rescue none#0 to stop trying to rescue them.", AutoHelp.HelpArgOrNoArg)]
 	protected static void Rescue(ICharacter actor, string command)
 	{
 		var effect = actor.EffectsOfType<Rescue>().FirstOrDefault();
@@ -1032,7 +1093,7 @@ Syntax:
 		{
 			if (effect == null)
 			{
-				actor.Send("You are not currently attmpeting to rescue anybody.");
+				actor.Send("You are not currently attempting to rescue anybody.");
 				return;
 			}
 
@@ -1092,6 +1153,43 @@ Syntax:
 	}
 
 	[PlayerCommand("Guard", "guard")]
+	[HelpInfo("guard", @"The #3Guard#0 command is used for a wide variety of effects that are about keeping something or someone safe.
+
+You can guard #6people#0, #6things#0 and #6exits#0. For all of these scenarios, you can #3guard clear#0 to stop guarding.
+
+#6Guarding People#0
+
+When you guard a person, it means you will automatically use the #3rescue#0 command on them if they are engaged in melee combat. You can guard more than one person at once. 
+
+The syntax for using this version is #6guard <target>#0 where the target is a character. If you target the same person again, it will remove them from the list of people you are guarding.
+
+You can also #3guard interpose <target>#0 as an alias for the #3interpose#0 command.
+
+#6Guarding Items#0
+
+When you guard an item in a room, you will not allow people to use, get or otherwise interact with the item. The syntax for this is #3guard <item>#0.
+
+You can also #3guard <item> vicinity#0 to additionally protect everything in the vicinity of the item (i.e. with a position emote targeting the item)
+
+Anyone who you have marked as an #6ally#0 or #6trusted ally#0 will not be affected by your guarding of the item.
+
+#6Guarding Exits#0
+
+When you guard an exit, you prevent people from moving through that exit. You can also set exceptions that you will allow to pass, and forbid specific people who are listed as an exception.
+
+The syntax for this version of the command is #3guard <direction>#0.
+
+The syntax to set up exceptions is as follows:
+
+	#3guard permit allies#0 - permit all allies
+	#3guard permit <target>#0 - permit someone present with you
+	#3guard permit *<dub>#0 - permit someone from your dubs list
+
+Similarly to reverse the above you can use the following:
+
+	#3guard forbid allies#0 - remove the permission for allies
+	#3guard forbid <target>#0 - remove a particular target
+	#3guard forbid *<dub>#0 - remove someone by dubs", AutoHelp.HelpArg)]
 	protected static void Guard(ICharacter actor, string command)
 	{
 		var ss = new StringStack(command.RemoveFirstWord());
@@ -1420,7 +1518,7 @@ Syntax:
 	[NoMeleeCombatCommand]
 	[NoHideCommand]
 	[HelpInfo("interpose",
-		"This command allows you to physically place yourself between a target and their ranged attackers, so that you are more likely to get hit than they. The syntax is INTERPOSE <target>, or INTERPOSE STOP to stop. You can interpose more than one target at a time if they are substantially smaller than you.",
+		"This command allows you to physically place yourself between a target and their ranged attackers, so that you are more likely to get hit than they. The syntax is #3INTERPOSE <target>#0, or #3INTERPOSE STOP#0 to stop. You can interpose more than one target at a time if they are substantially smaller than you.",
 		AutoHelp.HelpArgOrNoArg)]
 	[DelayBlock("general", "You must first stop {0} before you can fight.")]
 	protected static void Interpose(ICharacter actor, string command)
@@ -1472,6 +1570,15 @@ Syntax:
 	[RequiredCharacterState(CharacterState.Able)]
 	[CommandPermission(PermissionLevel.Any)]
 	[DelayBlock("general", "You must first stop {0} before you can fight.")]
+	[HelpInfo("spar", @"The #3Spar#0 command is used to propose a ""friendly"" combat with another target. 
+
+The target has to accept your proposal for the fight to begin (some NPC AIs know how and when to accept these too). If the target accepts, it is otherwise as if the combat had begun with the #3hit#0 command.
+
+Friendly combats end automatically if anyone is rendered unconscious or helpless, or if anyone requests it. You will also release grapples at the conclusion of a friendly fight.
+
+See also the #3hit#0, #3support#0 and #3aim#0 commands.
+
+The syntax for this command is #3spar <target>#0.", AutoHelp.HelpArgOrNoArg)]
 	protected static void Spar(ICharacter actor, string command)
 	{
 		var ss = new StringStack(command.RemoveFirstWord());
@@ -1539,6 +1646,13 @@ Syntax:
 	[RequiredCharacterState(CharacterState.Able)]
 	[CommandPermission(PermissionLevel.Any)]
 	[DelayBlock("general", "You must first stop {0} before you can fight.")]
+	[HelpInfo("", @"The #3Support#0 command is used to join another character in combat, by joining in to their combat and targeting their current target. 
+
+This command is functionally equivalent to having typed #3hit <target's target>#0. 
+
+See also the #3hit#0, #3spar#0 and #3aim#0 commands for other ways of joining combat.
+
+The syntax for this command is #3support <target>#0.", AutoHelp.HelpArgOrNoArg)]
 	protected static void Support(ICharacter actor, string command)
 	{
 		var ss = new StringStack(command.RemoveFirstWord());
@@ -1581,6 +1695,13 @@ Syntax:
 	[RequiredCharacterState(CharacterState.Able)]
 	[CommandPermission(PermissionLevel.Any)]
 	[DelayBlock("general", "aim", "You must first stop {0} before you can fight.")]
+	[HelpInfo("hit", @"The #3Hit#0 command is used to begin combat with a target.
+
+If you begin combat with this command and both you and the target have a ranged combat setting that prefers melee combat, you will begin engaged in melee combat. If the target doesn't want to be in melee though you will begin combat outside of melee range.
+
+There are other ways to begin combat; see also #3support#0, #3aim#0 and #3spar#0.
+
+The syntax for this command is #3hit <target>#0.", AutoHelp.HelpArgOrNoArg)]
 	protected static void Hit(ICharacter actor, string command)
 	{
 		var ss = new StringStack(command.RemoveFirstWord());
@@ -1590,7 +1711,7 @@ Syntax:
 			return;
 		}
 
-		var target = actor.TargetActor(ss.Pop());
+		var target = actor.TargetActor(ss.SafeRemainingArgument);
 		if (target == null)
 		{
 			actor.Send("You don't see anyone or anything like that to engage.");
@@ -1617,7 +1738,27 @@ Syntax:
 		actor.Engage(target);
 	}
 
+	private const string CombatCommandHelpText = @"#6Combat Command Help#0
+
+The combat command is used to view, manage and adopt various settings that control how your character will act in combat. 
+
+Most important of these are #3combat settings#0, which are pre-defined sets of rules about what your character will do in combat. 
+There are a number of global templates for these that cover a variety of situations but you can create and customise your own once you feel comfortable doing so.
+
+The syntax to use this command is as follows:
+
+	#3combat help#0 - shows this list
+	#3combat status#0 - shows information about your current conflict
+	#3combat list#0 - shows available combat settings
+	#3combat show <id/name>#0 - shows details of a particular combat setting
+	#3combat set <id/name>#0 - adopts a particular combat setting as your current
+	#3combat clone <id/name> <newname>#0 - makes a new combat setting out of an existing one for editing
+	#3combat defense <block/dodge/parry/none>#0 - sets or clears a favoured defense type
+
+Additionally, there are numerous options for configuring combat settings. See #3combat config help#0 for more information.";
+
 	[PlayerCommand("Combat", "combat")]
+	[HelpInfo("combat", CombatCommandHelpText, AutoHelp.HelpArg)]
 	protected static void Combat(ICharacter actor, string command)
 	{
 		var ss = new StringStack(command.RemoveFirstWord());
@@ -1625,8 +1766,7 @@ Syntax:
 		{
 			if (actor.Combat == null)
 			{
-				actor.Send(
-					$"You are not involved in any combat at the moment. You can use {"combat set".Colour(Telnet.Yellow)} to view your current combat settings.");
+				actor.OutputHandler.Send(CombatCommandHelpText.SubstituteANSIColour());
 				return;
 			}
 
@@ -1636,10 +1776,6 @@ Syntax:
 
 		switch (ss.PopSpeech().ToLowerInvariant())
 		{
-			case "?":
-			case "help":
-				CombatHelp(actor, ss);
-				return;
 			case "list":
 				CombatList(actor, ss);
 				return;
@@ -1647,6 +1783,7 @@ Syntax:
 				CombatShow(actor, ss);
 				return;
 			case "status":
+			case "stat":
 			case "":
 				CombatShowCombat(actor, ss);
 				return;
@@ -1660,6 +1797,8 @@ Syntax:
 				CombatSet(actor, ss);
 				return;
 			case "defense":
+			case "defence":
+			case "def":
 				CombatPreferredDefense(actor, ss);
 				return;
 		}
@@ -1751,6 +1890,9 @@ Note: The prog used with #3peace permanent#0 takes the following parameters and 
 
 	[PlayerCommand("Flee", "flee")]
 	[RequiredCharacterState(CharacterState.Able)]
+	[HelpInfo("flee", @"The #3Flee#0 command is used to toggle your desire to flee the current combat. If you toggle it on, you will try to leave melee and (depending on your settings) potentially flee to other rooms and try to put enough distance between you and your opponent to get out of combat.
+
+The syntax is simply #3flee#0 to toggle it on, and the same again to return to your default combat setting.", AutoHelp.HelpArg)]
 	protected static void Flee(ICharacter actor, string command)
 	{
 		if (actor.Combat == null)
@@ -1761,9 +1903,14 @@ Note: The prog used with #3peace permanent#0 takes the following parameters and 
 
 		if (actor.CombatStrategyMode == CombatStrategyMode.Flee)
 		{
-			actor.CombatStrategyMode = actor.MeleeRange
+			var mode = actor.MeleeRange
 				? actor.CombatSettings.PreferredMeleeMode
 				: actor.CombatSettings.PreferredRangedMode;
+			if (mode == CombatStrategyMode.Flee)
+			{
+				mode = actor.MeleeRange ? CombatStrategyMode.StandardMelee : CombatStrategyMode.StandardRange;
+			}
+
 			actor.Send("You are no longer attempting to flee.");
 			return;
 		}
@@ -1782,6 +1929,11 @@ Note: The prog used with #3peace permanent#0 takes the following parameters and 
 
 	[PlayerCommand("Ward", "ward")]
 	[RequiredCharacterState(CharacterState.Able)]
+	[HelpInfo("clinch", @"The #3Ward#0 command is used to focus on the ward defense, with means using the threat of counter-attacking with your weapon to keep your opponent at range and also to defend against attacks with that same threat.
+
+If the ward fails, you can still dodge the attack (albeit at a penalty) but you can't parry or block. If the opponent pushes through the ward attempt you will get a free counter-attack against them.
+
+The syntax is simply #3ward#0 to toggle the setting on or off.", AutoHelp.HelpArg)]
 	protected static void Ward(ICharacter actor, string command)
 	{
 		if (actor.Combat == null)
@@ -1798,6 +1950,14 @@ Note: The prog used with #3peace permanent#0 takes the following parameters and 
 
 		if (actor.CombatStrategyMode == CombatStrategyMode.Ward)
 		{
+			if (actor.CombatSettings.PreferredMeleeMode == CombatStrategyMode.FullDefense)
+			{
+				actor.CombatStrategyMode = CombatStrategyMode.FullDefense;
+				actor.OutputHandler.Handle(
+					new EmoteOutput(new Emote("@ shift|shifts out of a warding stance but remains on the full defense.", actor,
+						actor), flags: OutputFlags.NoticeCheckRequired));
+				return;
+			}
 			actor.CombatStrategyMode = CombatStrategyMode.StandardMelee;
 			actor.OutputHandler.Handle(
 				new EmoteOutput(new Emote("@ shift|shifts out of a warding stance and will fight normally.", actor,
@@ -1815,6 +1975,9 @@ Note: The prog used with #3peace permanent#0 takes the following parameters and 
 
 	[PlayerCommand("Clinch", "clinch")]
 	[RequiredCharacterState(CharacterState.Able)]
+	[HelpInfo("clinch", @"The #3Clinch#0 command is used to begin to try to get very close to your melee target. Some weapons have special attacks at this close range that often are difficult or impossible to defend against. However, there are also special attacks others can use to break out of clinches, so it isn't without risk.
+
+The syntax is simply #3clinch#0 to toggle the setting on or off.", AutoHelp.HelpArg)]
 	protected static void Clinch(ICharacter actor, string command)
 	{
 		if (actor.Combat == null)
@@ -1831,6 +1994,16 @@ Note: The prog used with #3peace permanent#0 takes the following parameters and 
 
 		if (actor.CombatStrategyMode == CombatStrategyMode.Clinch)
 		{
+			if (actor.CombatSettings.PreferredMeleeMode == CombatStrategyMode.FullDefense)
+			{
+				actor.CombatStrategyMode = CombatStrategyMode.FullDefense;
+				actor.OutputHandler.Handle(
+					new EmoteOutput(
+						new Emote(
+							"@ shift|shifts out of &0's aggressive stance, and returns to a stance of full defense.",
+							actor, actor), flags: OutputFlags.NoticeCheckRequired));
+				return;
+			}
 			actor.CombatStrategyMode = CombatStrategyMode.StandardMelee;
 			actor.OutputHandler.Handle(
 				new EmoteOutput(
@@ -1844,6 +2017,42 @@ Note: The prog used with #3peace permanent#0 takes the following parameters and 
 		actor.OutputHandler.Handle(
 			new EmoteOutput(
 				new Emote("@ shift|shifts into an aggressive stance, attempting to get up close and personal.",
+					actor, actor), flags: OutputFlags.NoticeCheckRequired));
+	}
+
+	[PlayerCommand("Defend", "defend")]
+	[RequiredCharacterState(CharacterState.Able)]
+	[HelpInfo("defend", @"The #3Defend#0 command is used to toggle your melee mode from one of full and total defense (you will get a bonus to defend but will not attack at all) back to a standard melee strategy (where you will attack normally but receive no bonuses).
+
+The syntax is simply #3defend#0 to toggle the setting on or off.", AutoHelp.HelpArg)]
+	protected static void Defend(ICharacter actor, string command)
+	{
+		if (actor.Combat == null)
+		{
+			actor.Send("You are not in combat, and so cannot begin to fight defensively.");
+			return;
+		}
+
+		if (!actor.MeleeRange)
+		{
+			actor.OutputHandler.Send("You are not in melee range, so you cannot begin to fight defensively.");
+			return;
+		}
+
+		if (actor.CombatStrategyMode == CombatStrategyMode.FullDefense)
+		{
+			actor.CombatStrategyMode = CombatStrategyMode.StandardMelee;
+			actor.OutputHandler.Handle(
+				new EmoteOutput(new Emote("@ stop|stops fighting exclusively in defense and begin|begins looking for opportunities to attack.", actor,
+					actor), flags: OutputFlags.NoticeCheckRequired));
+			return;
+		}
+
+		actor.CombatStrategyMode = CombatStrategyMode.FullDefense;
+		actor.OutputHandler.Handle(
+			new EmoteOutput(
+				new Emote(
+					"@ begin|begins fighting exclusively in their own defense.",
 					actor, actor), flags: OutputFlags.NoticeCheckRequired));
 	}
 
@@ -3369,7 +3578,7 @@ The following options refer to flags listed in the SHOW COMBATFLAGS list:
 		actor.CombatSettings.Changed = true;
 		actor.Send(truth.Value
 			? StringUtilities.HMark +
-			  "You will now attack the critically injured (For now, this just forbids Coup De Grace)."
+			  "You will now attack the critically injured (For now, this just forbids [5mcoup de grace[25m)."
 			: StringUtilities.HMark + "You will no longer attack the critically injured.");
 	}
 

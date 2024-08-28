@@ -3658,21 +3658,21 @@ The following options refer to flags listed in the SHOW COMBATFLAGS list:
 	{
 		if (!actor.IsAdministrator())
 		{
-			actor.Send(StringUtilities.HMark + "Permission denied.".Colour(Telnet.BoldRed));
+			actor.Send("You are not permitted to change settings to global settings.".Colour(Telnet.BoldRed));
 			return;
 		}
 
 		if (actor.CombatSettings.GlobalTemplate)
 		{
 			actor.CombatSettings.GlobalTemplate = false;
-			actor.Send(StringUtilities.HMark +
-					   $"{actor.CombatSettings.Name} is no longer a Global Template.".Colour(Telnet.BoldGreen));
+			actor.CombatSettings.Changed = true;
+			actor.Send($"{actor.CombatSettings.Name.ColourName()} is no longer a global template.".Colour(Telnet.BoldGreen));
 		}
 		else
 		{
 			actor.CombatSettings.GlobalTemplate = true;
-			actor.Send(StringUtilities.HMark +
-					   $"{actor.CombatSettings.Name} is now a Global Template.".Colour(Telnet.BoldGreen));
+			actor.CombatSettings.Changed = true;
+			actor.Send($"{actor.CombatSettings.Name.ColourName()} is now a global template.".Colour(Telnet.BoldGreen));
 		}
 	}
 

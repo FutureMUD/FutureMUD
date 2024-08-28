@@ -17,6 +17,7 @@ using MudSharp.Effects.Interfaces;
 using MudSharp.Construction;
 using ExpressionEngine;
 using MudSharp.Body;
+using MudSharp.Commands.Trees;
 
 namespace MudSharp.Combat;
 
@@ -186,11 +187,73 @@ public abstract class CombatBase : ICombat
 		var sb = new StringBuilder();
 		sb.AppendLine(CombatHeaderDescription);
 		sb.AppendLine();
+		if (Combatants.Contains(voyeur))
+		{
+			if (voyeur.State.IsDisabled())
+			{
+				sb.AppendLine($"You are {voyeur.State.DescribeEnum().Colour(Telnet.Red)}.");
+			}
+			else if (voyeur.CombatTarget is null)
+			{
+				sb.AppendLine($"You are not fighting anyone.");
+			}
+			else if (voyeur.MeleeRange)
+			{
+				switch (voyeur.GetFacingFor(voyeur.CombatTarget))
+				{
+					case Facing.Front:
+						sb.AppendLine(
+							$"You are in melee with {voyeur.CombatTarget.HowSeen(voyeur)}.");
+						break;
+					case Facing.RightFlank:
+						sb.AppendLine(
+							$"You are attacking the right flank of {voyeur.CombatTarget.HowSeen(voyeur)}.");
+						break;
+					case Facing.Rear:
+						sb.AppendLine(
+							$"You are attacking {voyeur.CombatTarget.HowSeen(voyeur)} from the rear.");
+						break;
+					case Facing.LeftFlank:
+						sb.AppendLine(
+							$"You are attacking the left flank of {voyeur.CombatTarget.HowSeen(voyeur)}.");
+						break;
+					default:
+						throw new ArgumentOutOfRangeException();
+				}
+			}
+			else
+			{
+				sb.AppendLine($"You are fighting {voyeur.CombatTarget.HowSeen(voyeur)} at range.");
+			}
+
+			var strategy = CombatStrategyFactory.GetStrategy(voyeur.CombatStrategyMode);
+			var why = strategy.WhyWontAttack(voyeur);
+			if (!string.IsNullOrEmpty(why))
+			{
+				sb.AppendLine(why);
+			}
+
+			var whyTarget = voyeur.CombatTarget is ICharacter tch ? strategy.WhyWontAttack(voyeur, tch) : string.Empty;
+			if (!string.IsNullOrEmpty(whyTarget))
+			{
+				sb.AppendLine($"You won't attack your target {whyTarget}");
+			}
+
+			sb.AppendLine();
+		}
+
+		sb.AppendLine("Combatants".GetLineWithTitle(voyeur, Telnet.Red, Telnet.White));
+		sb.AppendLine();
 		foreach (var combatant in Combatants)
 		{
 			if (combatant is not ICharacter ch)
 			{
 				continue; // TODO
+			}
+
+			if (voyeur == ch)
+			{
+				continue;
 			}
 
 			if (!voyeur.CanSee(ch))

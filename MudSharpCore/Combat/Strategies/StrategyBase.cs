@@ -92,6 +92,101 @@ public abstract class StrategyBase : ICombatStrategy
 		return false;
 	}
 
+	public virtual bool WillAttack(ICharacter ch, ICharacter tch)
+	{
+		if (!ch.CombatSettings.AttackHelpless)
+		{
+			if (tch.IsHelpless)
+			{
+				return false;
+			}
+		}
+
+		if (!ch.CombatSettings.AttackCriticallyInjured && tch.HealthStrategy.IsCriticallyInjured(tch)
+		   )
+		{
+			return false;
+		}
+
+		if (!ch.CombatSettings.AttackDisarmed)
+		{
+			if (tch.Race.CombatSettings.CanUseWeapons &&
+				!tch.CombatSettings.FallbackToUnarmedIfNoWeapon &&
+			    !tch.Body.HeldOrWieldedItems.Any(x =>
+				    x.IsItemType<IMeleeWeapon>() || x.IsItemType<IRangedWeapon>()))
+			{
+				return false;
+			}
+		}
+
+		return true;
+	}
+
+
+	public virtual string WhyWontAttack(ICharacter ch, ICharacter tch)
+	{
+		if (!ch.CombatSettings.AttackHelpless)
+		{
+			if (tch.IsHelpless)
+			{
+				return $"because {tch.ApparentGender(ch).Subjective()} is helpless.";
+			}
+		}
+
+		if (!ch.CombatSettings.AttackCriticallyInjured && tch.HealthStrategy.IsCriticallyInjured(tch)
+		   )
+		{
+			return $"because {tch.ApparentGender(ch).Subjective()} is critically injured.";
+		}
+
+		if (!ch.CombatSettings.AttackDisarmed)
+		{
+			if (tch.Race.CombatSettings.CanUseWeapons &&
+			    !tch.CombatSettings.FallbackToUnarmedIfNoWeapon &&
+			    !tch.Body.HeldOrWieldedItems.Any(x =>
+				    x.IsItemType<IMeleeWeapon>() || x.IsItemType<IRangedWeapon>()))
+			{
+				return $"because {tch.ApparentGender(ch).Subjective()} is disarmed.";
+			}
+		}
+
+		return string.Empty;
+	}
+
+	public string WhyWontAttack(ICharacter ch)
+	{
+		if (!ch.Race.CombatSettings.CanAttack)
+		{
+			return "You won't attack because your race cannot attack.";
+		}
+
+		if (ch.CombatTarget == null)
+		{
+			return "You won't attack because you don't have a combat target.";
+		}
+
+		if (!ch.Race.CombatSettings.CanUseWeapons && ch.CombatSettings.WeaponUsePercentage >= 1.0 &&
+		    !ch.CombatSettings.FallbackToUnarmedIfNoWeapon)
+		{
+			return "You won't attack because you won't fallback to an unarmed attack and don't have a weapon.";
+		}
+
+		if (ch.Body.EffectsOfType<IPacifismEffect>().Any(x => x.IsSuperPeaceful))
+		{
+			return "You won't attack because you are way too peaceful.";
+		}
+
+		if (ch.CombatTarget is ICharacter tch)
+		{
+			if (!WillAttack(ch, tch))
+			{
+				return "You won't attack because you won't attack your current target.";
+			}
+		}
+
+		return string.Empty;
+	}
+
 	protected bool WillAttackTarget(ICharacter ch)
 	{
 		if (!ch.Race.CombatSettings.CanAttack)
@@ -117,24 +212,7 @@ public abstract class StrategyBase : ICombatStrategy
 
 		if (ch.CombatTarget is ICharacter tch)
 		{
-			if (!ch.CombatSettings.AttackUnarmedOrHelpless
-			   )
-			{
-				if (tch.Race.CombatSettings.CanUseWeapons &&
-				    !tch.Body.HeldOrWieldedItems.Any(x =>
-					    x.IsItemType<IMeleeWeapon>() || x.IsItemType<IRangedWeapon>()))
-				{
-					return false;
-				}
-
-				if (tch.IsHelpless)
-				{
-					return false;
-				}
-			}
-
-			if (!ch.CombatSettings.AttackCriticallyInjured && tch.HealthStrategy.IsCriticallyInjured(tch)
-			   )
+			if (!WillAttack(ch, tch))
 			{
 				return false;
 			}

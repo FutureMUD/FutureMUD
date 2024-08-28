@@ -119,13 +119,15 @@ namespace MudSharp.Combat
         /// <summary>
         ///     If true, this combatant will attack opponents who are unarmed or helpless
         /// </summary>
-        bool AttackUnarmedOrHelpless { get; set; }
+        bool AttackHelpless { get; set; }
 
-        /// <summary>
-        ///     If true, this combatant will use unarmed attacks if they would otherwise have used an armed attack but don't have a
-        ///     weapon
-        /// </summary>
-        bool FallbackToUnarmedIfNoWeapon { get; set; }
+        bool AttackDisarmed { get; set; }
+
+		/// <summary>
+		///     If true, this combatant will use unarmed attacks if they would otherwise have used an armed attack but don't have a
+		///     weapon
+		/// </summary>
+		bool FallbackToUnarmedIfNoWeapon { get; set; }
 
         double RequiredMinimumAim { get; set; }
 

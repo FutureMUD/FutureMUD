@@ -231,6 +231,16 @@ public class AggressorAI : ArtificialIntelligenceBase
 			return false;
 		}
 
+		if (!aggressor.CombatSettings.AttackCriticallyInjured && target.HealthStrategy.IsCriticallyInjured(target))
+		{
+			return false;
+		}
+
+		if (!aggressor.CombatSettings.AttackHelpless && target.State.IsDisabled())
+		{
+			return false;
+		}
+
 		return true;
 	}
 

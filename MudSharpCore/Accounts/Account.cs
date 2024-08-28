@@ -98,6 +98,19 @@ public sealed class Account : SaveableItem, IAccount
 	public DoubleCounter<IChargenResource> AccountResources { get; } = new();
 	public Dictionary<IChargenResource, DateTime?> AccountResourcesLastAwarded { get; } = new();
 	public bool HintsEnabled { get => _hintsEnabled; set { _hintsEnabled = value; Changed = true; } }
+
+	private bool _autoReacquireTargets;
+
+	public bool AutoReacquireTargets
+	{
+		get => _autoReacquireTargets;
+		set
+		{
+			_autoReacquireTargets = value;
+			Changed = true;
+		}
+	}
+
 	public IAccountController ControllingContext { get; private set; }
 
 	public IOutputHandler OutputHandler => ControllingContext?.OutputHandler;
@@ -367,6 +380,7 @@ public sealed class Account : SaveableItem, IAccount
 			dbitem.AppendNewlinesBetweenMultipleEchoesPerPrompt = AppendNewlinesBetweenMultipleEchoesPerPrompt;
 			dbitem.ActLawfully = ActLawfully;
 			dbitem.HintsEnabled = HintsEnabled;
+			dbitem.AutoReacquireTargets = AutoReacquireTargets;
 			FMDB.Context.SaveChanges();
 		}
 
@@ -392,22 +406,37 @@ public sealed class Account : SaveableItem, IAccount
 					Name = name.ToLowerInvariant(),
 					Password = password,
 					Salt = salt,
+					AccessStatus = 0,
 					FormatLength = linewidth,
 					InnerFormatLength = 80,
+					UseMxp = true,
+					UseMsp = false,
+					UseMccp = false,
 					PageLength = 50,
+					PromptType = 0,
+					TabRoomDescriptions = false,
+					CodedRoomDescriptionAdditionsOnNewLine = false,
+					CharacterNameOverlaySetting = 0,
+					AppendNewlinesBetweenMultipleEchoesPerPrompt = false,
 					CultureName = culture,
 					TimeZoneId = timezone,
 					UseUnicode = unicode,
 					Email = email,
+					LastLoginTime = null,
+					LastLoginIp = null,
 					IsRegistered = false,
+					RecoveryCode = null,
 					UnitPreference = unitPreference,
 					ActiveCharactersAllowed = 1,
 					ActLawfully = true,
+					HasBeenActiveInWeek = false,
+					HintsEnabled = true,
+					AutoReacquireTargets = true,
 					CreationDate = DateTime.UtcNow,
 					RegistrationCode = SecurityUtilities.GetRandomString(8,
 						Constants.ValidRandomCharacters.ToCharArray()),
 					AuthorityGroup =
-						FMDB.Context.AuthorityGroups.First(x => x.AuthorityLevel == (int)PermissionLevel.Player)
+						FMDB.Context.AuthorityGroups.First(x => x.AuthorityLevel == (int)PermissionLevel.Player),
 				};
 
 				var ipLog = new LoginIp

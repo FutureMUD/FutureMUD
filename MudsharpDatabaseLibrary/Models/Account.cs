@@ -52,6 +52,8 @@ namespace MudSharp.Models
         public bool ActLawfully { get; set; }
         public bool HasBeenActiveInWeek { get; set; }
         public bool HintsEnabled { get; set; }
+        public bool AutoReacquireTargets { get; set; }
+
 
         public virtual AuthorityGroup AuthorityGroup { get; set; }
         public virtual ICollection<AccountNote> AccountNotesAccount { get; set; }

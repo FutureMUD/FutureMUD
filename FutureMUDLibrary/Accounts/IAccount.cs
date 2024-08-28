@@ -157,5 +157,6 @@ namespace MudSharp.Accounts {
         CharacterNameOverlaySetting CharacterNameOverlaySetting { get; set; }
         bool ActLawfully { get; set; }
         bool HintsEnabled { get; set; }
+        bool AutoReacquireTargets { get; set; }
     }
 }

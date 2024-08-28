@@ -67,6 +67,7 @@ The syntax for editing the settings is as follows:
 	#3set names none|brackets|replace#0 - sets name replacement overlay options
 	#3set mercy#0 - toggles showing no mercy (accepting or not accepting surrender in combat)
 	#3set lawful#0 - toggles acting lawfully and preventing actions that would criminalise you
+	#3set autotarget#0 - toggles automatically reacquiring combat targets when your current one is incapacitated
 
 Additionally, admins can use the following options:
 
@@ -102,6 +103,7 @@ Additionally, admins can use the following options:
 			sb.AppendLine(
 				$"Character Name Overlays: {actor.Account.CharacterNameOverlaySetting.DescribeEnum().ColourValue()}");
 			sb.AppendLine($"Acting Lawfully: {actor.Account.ActLawfully.ToColouredString()}");
+			sb.AppendLine($"Auto Reacquire Combat Targets: {actor.Account.AutoReacquireTargets.ToColouredString()}");
 			sb.AppendLine();
 			sb.AppendLine("Character Settings:".Colour(Telnet.Cyan));
 			sb.AppendLine();
@@ -293,6 +295,11 @@ Additionally, admins can use the following options:
 					case "hints":
 						actor.Account.HintsEnabled = !actor.Account.HintsEnabled;
 						actor.OutputHandler.Send($"You will {actor.Account.HintsEnabled.NowNoLonger()} see hint echoes.");
+						return;
+					case "autoreaquire":
+					case "autotarget":
+						actor.Account.AutoReacquireTargets = !actor.Account.AutoReacquireTargets;
+						actor.OutputHandler.Send($"You will {actor.Account.AutoReacquireTargets.NowNoLonger()} automatically acquire new targets when your current target is incapacitated.");
 						return;
 					default:
 						if (ss.IsFinished)

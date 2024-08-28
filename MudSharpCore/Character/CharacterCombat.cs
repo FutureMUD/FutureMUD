@@ -80,6 +80,16 @@ public partial class Character
 			return true;
 		}
 
+		if (type == EventType.TargetIncapacitated)
+		{
+			if (Account.AutoReacquireTargets && !CombatSettings.AttackCriticallyInjured && !CombatSettings.AttackHelpless)
+			{
+				CombatTarget = null;
+				AcquireTarget();
+				return true;
+			}
+		}
+
 		return false;
 	}
 
@@ -250,7 +260,7 @@ public partial class Character
 			return false;
 		}
 
-		if (CombatSettings.AttackUnarmedOrHelpless)
+		if (CombatSettings.AttackHelpless)
 		{
 			return true;
 		}

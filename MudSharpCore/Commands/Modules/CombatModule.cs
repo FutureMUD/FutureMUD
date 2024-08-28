@@ -1754,6 +1754,7 @@ The syntax to use this command is as follows:
 	#3combat set <id/name>#0 - adopts a particular combat setting as your current
 	#3combat clone <id/name> <newname>#0 - makes a new combat setting out of an existing one for editing
 	#3combat defense <block/dodge/parry/none>#0 - sets or clears a favoured defense type
+	#3combat targets#0 - shows you whether you would or wouldn't attack people in the room with your current settings
 
 Additionally, there are numerous options for configuring combat settings. See #3combat config help#0 for more information.";
 
@@ -1800,6 +1801,9 @@ Additionally, there are numerous options for configuring combat settings. See #3
 			case "defence":
 			case "def":
 				CombatPreferredDefense(actor, ss);
+				return;
+			case "targets":
+				CombatTargets(actor);
 				return;
 		}
 
@@ -2802,6 +2806,26 @@ The syntax for this command is as follows:
 
 	#region Combat Subcommands
 
+	protected static void CombatTargets(ICharacter actor)
+	{
+		var sb = new StringBuilder();
+		sb.AppendLine($"Combat settings attack information:");
+		sb.AppendLine();
+		var setting = CombatStrategyFactory.GetStrategy(actor.CombatStrategyMode);
+		foreach (var tch in actor.Location.LayerCharacters(actor.RoomLayer).Where(x => x != actor && actor.CanSee(x)))
+		{
+			var why = setting.WhyWontAttack(actor, tch);
+			if (string.IsNullOrEmpty(why))
+			{
+				sb.AppendLine($"You would attack {tch.HowSeen(actor)}");
+				continue;
+			}
+
+			sb.AppendLine($"You wouldn't attack {tch.HowSeen(actor)} {why}");
+		}
+		actor.OutputHandler.Send(sb.ToString());
+	}
+
 	protected static IEnumerable<ICharacterCombatSettings> GetSettingsForCharacter(ICharacter actor, string argument)
 	{
 		if (actor.IsAdministrator())
@@ -3009,7 +3033,7 @@ The syntax to use this command is as follows:");
 
 	private static void CombatConfigHelp(ICharacter actor)
 	{
-		actor.Send($@"You can edit the following settings:
+		actor.OutputHandler.Send($@"You can edit the following settings:
 
 	#3name <name>#0         - Change the name of the combat setting
 	#3desc <description>#0  - Change the description
@@ -3034,6 +3058,7 @@ The syntax to use this command is as follows:");
 	#3fallback <true/false>#0 - configures whether you will fallback to unarmed attacks if you cannot acquire a weapon
 	#3attack_helpless <true/false>#0 - configures whether you will attack a helpless opponent
 	#3attack_critical <true/false>#0 - configures whether you will attack a critically injured opponent
+	#3attack_disarmed <true/false>#0 - configures whether you will attack a disarmed opponent
 	#3pursue <true/false>#0 - configures whether you will pursue targets to other locations if they flee
 	#3auto_inventory <auto|manual|no_discard|retrieve_only>#0 - changes the degree of automation of your inventory management
 	#3auto_ranged <auto|manual|continue_only>#0 - changes the degree of automation of your ranged combat
@@ -3553,17 +3578,32 @@ The following options refer to flags listed in the SHOW COMBATFLAGS list:
 
 	private static void CombatConfigAttackHelpless(ICharacter actor, StringStack command)
 	{
-		var truth = GetTruthValue(actor, command, actor.CombatSettings.AttackUnarmedOrHelpless);
+		var truth = GetTruthValue(actor, command, actor.CombatSettings.AttackHelpless);
 		if (truth == null)
 		{
 			return;
 		}
 
-		actor.CombatSettings.AttackUnarmedOrHelpless = truth.Value;
+		actor.CombatSettings.AttackHelpless = truth.Value;
 		actor.CombatSettings.Changed = true;
 		actor.Send(truth.Value
-			? StringUtilities.HMark + "You will now attack unarmed or helpless (prone or sitting) opponents."
-			: StringUtilities.HMark + "You will no longer attack unarmed or helpless (prone or sitting) opponents.");
+			? "You will now attack helpless (unconscious, grappled, paralysed) opponents."
+			: "You will no longer attack helpless (unconscious, grappled, paralysed) opponents.");
+	}
+
+	private static void CombatConfigAttackDisarmed(ICharacter actor, StringStack command)
+	{
+		var truth = GetTruthValue(actor, command, actor.CombatSettings.AttackHelpless);
+		if (truth == null)
+		{
+			return;
+		}
+
+		actor.CombatSettings.AttackDisarmed = truth.Value;
+		actor.CombatSettings.Changed = true;
+		actor.Send(truth.Value
+			? "You will now attack disarmed opponents."
+			: "You will no longer attack disarmed opponents.");
 	}
 
 	private static void CombatConfigAttackCritical(ICharacter actor, StringStack command)
@@ -4211,6 +4251,12 @@ The following options refer to flags listed in the SHOW COMBATFLAGS list:
 			case "attackhelpless":
 			case "helpless":
 				CombatConfigAttackHelpless(actor, command);
+				break;
+			case "disarmed":
+			case "attackdisarmed":
+			case "attack_disarmed":
+			case "attack disarmed":
+				CombatConfigAttackDisarmed(actor, command);
 				break;
 			case "attack_critical":
 			case "attackcritical":

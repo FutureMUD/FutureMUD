@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using MudSharp.Database;
 
@@ -11,9 +12,11 @@ using MudSharp.Database;
 namespace MudSharp.Migrations
 {
     [DbContext(typeof(FuturemudDatabaseContext))]
-    partial class FutureMUDContextModelSnapshot : ModelSnapshot
+    [Migration("20240828105208_AutoReacquireTargetsSetting")]
+    partial class AutoReacquireTargetsSetting
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -3251,12 +3254,7 @@ namespace MudSharp.Migrations
                         .HasColumnType("bit(1)")
                         .HasDefaultValueSql("b'0'");
 
-                    b.Property<ulong>("AttackHelpless")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bit(1)")
-                        .HasDefaultValueSql("b'0'");
-
-                    b.Property<ulong>("AttackUnarmed")
+                    b.Property<ulong>("AttackUnarmedOrHelpless")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bit(1)")
                         .HasDefaultValueSql("b'0'");

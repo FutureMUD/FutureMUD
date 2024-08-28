@@ -221,22 +221,6 @@ public class SimpleMeleeCombat : CombatBase
 	public override string CombatHeaderDescription =>
 		$"This is an {"Unrestricted Combat".ColourValue()}, and has no rules or victory conditions.";
 
-	public override string DescribeFor(ICharacter voyeur)
-	{
-		var sb = new StringBuilder();
-		sb.AppendLine(
-		);
-		sb.AppendLine();
-		foreach (var combatant in Combatants)
-		{
-			sb.AppendLine(
-				$"{combatant.HowSeen(voyeur, true)} fighting {combatant.CombatTarget?.HowSeen(voyeur) ?? "Nobody"} ({combatant.CombatStrategyMode.Describe().Colour(Telnet.Cyan)} - {combatant.GetFacingFor(combatant.CombatTarget).Describe().Colour(Telnet.Green)})");
-		}
-
-		// TODO - what more could we show here?
-		return sb.ToString();
-	}
-
 	public override string LDescAddendumFor(ICombatant combatant, IPerceiver voyeur)
 	{
 		if (combatant.CombatTarget == null)

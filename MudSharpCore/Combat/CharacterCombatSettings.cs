@@ -53,9 +53,10 @@ public class CharacterCombatSettings : SaveableItem, ICharacterCombatSettings
 				ForbiddenIntentions =
 					(long)(CombatMoveIntentions.Dirty | CombatMoveIntentions.Flashy | CombatMoveIntentions.Savage),
 				PreferredIntentions = 0,
-				AttackUnarmedOrHelpless = false,
+				AttackHelpless = true,
+				AttackUnarmed = true,
 				FallbackToUnarmedIfNoWeapon = false,
-				AttackCriticallyInjured = false,
+				AttackCriticallyInjured = true,
 				SkirmishToOtherLocations = false,
 				PursuitMode = (int)PursuitMode.AlwaysPursue,
 				DefaultPreferredDefenseType = (int)DefenseType.None,
@@ -102,7 +103,8 @@ public class CharacterCombatSettings : SaveableItem, ICharacterCombatSettings
 				PreferToFightArmed = settingToCopy.PreferToFightArmed,
 				PreferShieldUse = settingToCopy.PreferShieldUse,
 				PreferFavouriteWeapon = settingToCopy.PreferFavouriteWeapon,
-				AttackUnarmedOrHelpless = settingToCopy.AttackUnarmedOrHelpless,
+				AttackHelpless = settingToCopy.AttackHelpless,
+				AttackUnarmed = settingToCopy.AttackDisarmed,
 				FallbackToUnarmedIfNoWeapon = settingToCopy.FallbackToUnarmedIfNoWeapon,
 				AttackCriticallyInjured = settingToCopy.AttackCriticallyInjured,
 				SkirmishToOtherLocations = settingToCopy.SkirmishToOtherLocations,
@@ -213,7 +215,9 @@ public class CharacterCombatSettings : SaveableItem, ICharacterCombatSettings
 	/// <summary>
 	///     If true, this combatant will attack opponents who are unarmed or helpless
 	/// </summary>
-	public bool AttackUnarmedOrHelpless { get; set; }
+	public bool AttackHelpless { get; set; }
+	
+	public bool AttackDisarmed { get; set; }
 
 	/// <summary>
 	///     If true, this combatant will use unarmed attacks if they would otherwise have used an armed attack but don't have a
@@ -298,8 +302,9 @@ public class CharacterCombatSettings : SaveableItem, ICharacterCombatSettings
 		PreferFavouriteWeapon = setting.PreferFavouriteWeapon;
 		PreferShieldUse = setting.PreferShieldUse;
 		PreferToFightArmed = setting.PreferToFightArmed;
-		AttackUnarmedOrHelpless = setting.AttackUnarmedOrHelpless;
+		AttackHelpless = setting.AttackHelpless;
 		AttackCriticallyInjured = setting.AttackCriticallyInjured;
+		AttackDisarmed = setting.AttackUnarmed;
 		FallbackToUnarmedIfNoWeapon = setting.FallbackToUnarmedIfNoWeapon;
 		SkirmishToOtherLocations = setting.SkirmishToOtherLocations;
 		AutomaticallyMoveTowardsTarget = setting.AutomaticallyMoveTowardsTarget;
@@ -364,9 +369,10 @@ public class CharacterCombatSettings : SaveableItem, ICharacterCombatSettings
 			dbitem.PreferFavouriteWeapon = PreferFavouriteWeapon;
 			dbitem.PreferShieldUse = PreferShieldUse;
 			dbitem.PreferToFightArmed = PreferToFightArmed;
-			dbitem.AttackUnarmedOrHelpless = AttackUnarmedOrHelpless;
+			dbitem.AttackHelpless = AttackHelpless;
 			dbitem.FallbackToUnarmedIfNoWeapon = FallbackToUnarmedIfNoWeapon;
 			dbitem.AttackCriticallyInjured = AttackCriticallyInjured;
+			dbitem.AttackUnarmed = AttackDisarmed;
 			dbitem.SkirmishToOtherLocations = SkirmishToOtherLocations;
 			dbitem.PreferredMeleeMode = (int)PreferredMeleeMode;
 			dbitem.PreferredRangedMode = (int)PreferredRangedMode;
@@ -472,13 +478,14 @@ public class CharacterCombatSettings : SaveableItem, ICharacterCombatSettings
 			$"Non-Contact Clinch Breakers: {(PreferNonContactClinchBreaking ? "Yes".Colour(Telnet.Green) : "No".Colour(Telnet.Red))}",
 			$"Melee if Can't Range? {(MoveToMeleeIfCannotEngageInRangedCombat ? "Yes".Colour(Telnet.Green) : "No".Colour(Telnet.Red))}");
 		sb.AppendLineColumns((uint)voyeur.LineFormatLength, 3,
-			$"Attack Unarmed or Helpless: {(AttackUnarmedOrHelpless ? "Yes".Colour(Telnet.Green) : "No".Colour(Telnet.Red))}",
+			$"Attack Helpless: {(AttackHelpless ? "Yes".Colour(Telnet.Green) : "No".Colour(Telnet.Red))}",
 			$"Attack Critically Wounded: {(AttackCriticallyInjured ? "Yes".Colour(Telnet.Green) : "No".Colour(Telnet.Red))}",
-			$"Unarmed if Weaponless: {(FallbackToUnarmedIfNoWeapon ? "Yes".Colour(Telnet.Green) : "No".Colour(Telnet.Red))}");
+			$"Attack Disarmed: {(AttackDisarmed ? "Yes".Colour(Telnet.Green) : "No".Colour(Telnet.Red))}");
 		sb.AppendLineColumns((uint)voyeur.LineFormatLength, 3,
 			$"Minimum Aim: {RequiredMinimumAim.ToString("P0", voyeur).Colour(Telnet.Green)}",
 			$"Minimum Stamina to Attack: {MinimumStaminaToAttack.ToString("N2", voyeur).Colour(Telnet.Green)}",
 			$"Grapple Response: {GrappleResponse.DescribeEnum(true).ColourValue()}");
+		sb.AppendLine($"Unarmed if Weaponless: {(FallbackToUnarmedIfNoWeapon ? "Yes".Colour(Telnet.Green) : "No".Colour(Telnet.Red))}");
 		sb.AppendLine($"Required Intentions: {RequiredIntentions.Describe().Colour(Telnet.Cyan)}");
 		sb.AppendLine($"Forbidden Intentions: {ForbiddenIntentions.Describe().Colour(Telnet.Red)}");
 		sb.AppendLine($"Preferred Intentions: {PreferredIntentions.Describe().Colour(Telnet.Green)}");

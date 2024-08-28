@@ -74,6 +74,12 @@ public sealed class DummyAccount : FrameworkItem, IAccount
 
 	public bool HintsEnabled { get => false; set { } }
 
+	public bool AutoReacquireTargets
+	{
+		get => true;
+		set { }
+	}
+
 	public int ActiveCharactersAllowed
 	{
 		get => 0;

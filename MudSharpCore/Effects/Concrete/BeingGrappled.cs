@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using MudSharp.Body;
 using MudSharp.Character;
 using MudSharp.Effects.Interfaces;
@@ -12,6 +13,15 @@ public class BeingGrappled : Effect, IBeingGrappled
 	public BeingGrappled(ICharacter owner, IGrappling grappling) : base(owner)
 	{
 		Grappling = grappling;
+	}
+
+	public override bool CanBeStoppedByPlayer => false;
+
+	public override IEnumerable<string> Blocks => new[] { "general", "combat-engage" };
+
+	public override string BlockingDescription(string blockingType, IPerceiver voyeur)
+	{
+		return $"being grappled by {Grappling.CharacterOwner.HowSeen(voyeur, colour: false)}";
 	}
 
 	public IGrappling Grappling { get; set; }

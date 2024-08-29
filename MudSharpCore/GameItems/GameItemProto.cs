@@ -36,7 +36,7 @@ public class GameItemProto : EditableItem, IGameItemProto
 		LoadFromDatabase(proto, gameworld);
 	}
 
-	public GameItemProto(IFuturemud gameworld, IAccount originator)
+	public GameItemProto(IFuturemud gameworld, IAccount originator, string name = "object", bool isReadOnly = false, bool doNotAddHoldable = false)
 		: base(originator)
 	{
 		using (new FMDB())
@@ -47,18 +47,19 @@ public class GameItemProto : EditableItem, IGameItemProto
 				RevisionNumber = RevisionNumber,
 				MaterialId = 0, // TODO
 				Keywords = "new object",
-				Name = "object",
+				Name = name,
 				Size = (int)SizeCategory.Normal,
 				Weight = 1.0
 			};
 			dbproto.MaterialId = 0;
+			dbproto.ReadOnly = isReadOnly;
 			dbproto.BaseItemQuality = (int)ItemQuality.Standard;
 			dbproto.MorphEmote = "$0 $?1|morphs into $1|decays into nothing|$.";
 
 			dbproto.ShortDescription = "a new object";
 			dbproto.FullDescription = "A new object that should not be loaded into the game.";
 
-			if (gameworld.GetStaticBool("AutomaticHoldableItemProtos"))
+			if (!doNotAddHoldable && gameworld.GetStaticBool("AutomaticHoldableItemProtos"))
 			{
 				var holdable = gameworld.ItemComponentProtos.First(x => x is HoldableGameItemComponentProto);
 				dbproto.GameItemProtosGameItemComponentProtos.Add(new GameItemProtosGameItemComponentProtos
@@ -818,7 +819,16 @@ public class GameItemProto : EditableItem, IGameItemProto
 	public double Weight { get; set; }
 
 	private bool _readOnly;
-	public override bool ReadOnly => _readOnly;
+
+	public override bool ReadOnly
+	{
+		get => _readOnly;
+		set
+		{
+			_readOnly = value;
+			Changed = true;
+		}
+	}
 
 	public ISolid Material { get; private set; }
 

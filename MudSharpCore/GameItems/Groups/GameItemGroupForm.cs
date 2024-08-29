@@ -13,6 +13,7 @@ public abstract class GameItemGroupForm : SaveableItem, IGameItemGroupForm
 {
 	private readonly IGameItemGroup _parent;
 	protected readonly List<ICell> Cells = new();
+	public sealed override string FrameworkItemType => "GameItemGroupForm";
 
 	protected GameItemGroupForm(IGameItemGroup parent)
 	{

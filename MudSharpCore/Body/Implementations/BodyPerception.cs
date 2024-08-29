@@ -13,10 +13,13 @@ using MudSharp.Construction.Boundary;
 using MudSharp.Effects;
 using MudSharp.Effects.Interfaces;
 using MudSharp.Form.Characteristics;
+using MudSharp.Form.Material;
 using MudSharp.Form.Shape;
 using MudSharp.Framework;
 using MudSharp.GameItems;
+using MudSharp.GameItems.Components;
 using MudSharp.GameItems.Interfaces;
+using MudSharp.GameItems.Prototypes;
 using MudSharp.Health;
 using MudSharp.PerceptionEngine;
 using MudSharp.RPG.Checks;
@@ -535,6 +538,37 @@ public partial class Body
 		}
 		else
 		{
+			// Do puddle groups first
+			var puddles = items.SelectNotNull(x => x.GetItemType<PuddleGameItemComponent>()).ToList();
+			var bloodPuddles = puddles.Where(x => x.LiquidMixture.Instances.All(y => y is BloodLiquidInstance)).ToList();
+			items = items.Except(puddles.Select(x => x.Parent)).ToList();
+			if (bloodPuddles.Any())
+			{
+				sb.AppendLine(PuddleGameItemComponentProto.BloodGroup.Describe(Actor, bloodPuddles.Select(x => x.Parent), Location).Wrap(InnerLineFormatLength));
+				puddles = puddles.Except(bloodPuddles).ToList();
+			}
+
+			if (puddles.Any())
+			{
+				sb.AppendLine(PuddleGameItemComponentProto.PuddleGroup.Describe(Actor, puddles.Select(x => x.Parent), Location).Wrap(InnerLineFormatLength));
+			}
+
+			// Next do dried residues
+			var commodityTag = Gameworld.Tags.Get(Gameworld.GetStaticLong("PuddleResidueTagId"));
+			if (commodityTag is not null)
+			{
+				var residues = items
+				               .SelectNotNull(x => x.GetItemType<ICommodity>())
+				               .Where(x => x.Tag == commodityTag)
+				               .ToList();
+				if (residues.Any())
+				{
+					sb.AppendLine(PuddleGameItemComponentProto.ResidueGroup.Describe(Actor, residues.Select(x => x.Parent), Location).Wrap(InnerLineFormatLength));
+					items = items.Except(residues.Select(x => x.Parent)).ToList();
+				}
+			}
+			
+			// Then display everything else
 			foreach (var group in items.GroupBy(x => x.ItemGroup?.Forms.Any() == true ? x.ItemGroup : null).OrderBy(x => x.Key == null))
 			{
 				if (group.Key != null)

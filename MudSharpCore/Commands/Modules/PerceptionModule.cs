@@ -12,10 +12,13 @@ using MudSharp.Combat;
 using MudSharp.Construction;
 using MudSharp.Construction.Boundary;
 using MudSharp.Effects.Concrete;
+using MudSharp.Form.Material;
 using MudSharp.Form.Shape;
 using MudSharp.Framework;
 using MudSharp.GameItems;
+using MudSharp.GameItems.Components;
 using MudSharp.GameItems.Interfaces;
+using MudSharp.GameItems.Prototypes;
 using MudSharp.Health;
 using MudSharp.PerceptionEngine;
 using MudSharp.PerceptionEngine.Outputs;
@@ -393,22 +396,49 @@ See also: HELP EVALUATE, HELP SEARCH, HELP SCAN",
 		if (target == null)
 		{
 			var localItems = actor.Location.LayerGameItems(actor.RoomLayer).Where(x => actor.CanSee(x)).ToList();
-			var targetGroup =
-				actor.Location.LayerGameItems(actor.RoomLayer).Where(x => actor.CanSee(x))
-				     .SelectNotNull(x => x.ItemGroup)
-				     .Distinct()
-				     .ConcatIfNotNull(localItems.Count > 25 ? GameItemProto.TooManyItemsGroup : null)
-				     .GetFromItemListByKeyword(arg, actor);
+			var groups = actor.Location.LayerGameItems(actor.RoomLayer).Where(x => actor.CanSee(x))
+			                  .SelectNotNull(x => x.ItemGroup)
+			                  .Distinct()
+			                  .ConcatIfNotNull(localItems.Count > 25 ? GameItemProto.TooManyItemsGroup : null)
+			                  .ToList();
+			var puddles = localItems.SelectNotNull(x => x.GetItemType<PuddleGameItemComponent>()).ToList();
+			var bloodPuddles = puddles.Where(x => x.LiquidMixture.Instances.All(y => y is BloodLiquidInstance)).ToList();
+			var commodityTag = actor.Gameworld.Tags.Get(actor.Gameworld.GetStaticLong("PuddleResidueTagId"));
+			var residues = (commodityTag is not null ? localItems
+			                                           .SelectNotNull(x => x.GetItemType<ICommodity>())
+			                                           .Where(x => x.Tag == commodityTag) : Enumerable.Empty<ICommodity>()).ToList();
+
+			if (puddles.Any())
+			{
+				groups.Add(PuddleGameItemComponentProto.PuddleGroup);
+			}
+
+			if (bloodPuddles.Any())
+			{
+				groups.Add(PuddleGameItemComponentProto.BloodGroup);
+			}
+
+			if (residues.Any())
+			{
+				groups.Add(PuddleGameItemComponentProto.ResidueGroup);
+			}
+
+			var targetGroup = groups.GetFromItemListByKeyword(arg, actor);
 			if (targetGroup == null)
 			{
 				actor.OutputHandler.Send("You do not see that to look at.");
 				return;
 			}
 
-			actor.Send(targetGroup.LookDescription(actor,
-				targetGroup == GameItemProto.TooManyItemsGroup
-					? localItems
-					: actor.Location.LayerGameItems(actor.RoomLayer).Where(x => x.ItemGroup == targetGroup),
+			actor.OutputHandler.Send(targetGroup.LookDescription(actor,
+				targetGroup switch
+				{
+					not null when GameItemProto.TooManyItemsGroup == targetGroup => localItems,
+					not null when PuddleGameItemComponentProto.PuddleGroup == targetGroup => puddles.Select(x => x.Parent),
+					not null when PuddleGameItemComponentProto.BloodGroup == targetGroup => bloodPuddles.Select(x => x.Parent),
+					not null when PuddleGameItemComponentProto.ResidueGroup == targetGroup => residues.Select(x => x.Parent),
+					_ => actor.Location.LayerGameItems(actor.RoomLayer).Where(x => x.ItemGroup == targetGroup)
+				},
 				actor.Location));
 			return;
 		}

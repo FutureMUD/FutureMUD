@@ -39,7 +39,6 @@ public class SimpleGameItemGroupForm : GameItemGroupForm
 	public string Description { get; set; }
 	public string RoomDescription { get; set; }
 	public string ItemName { get; set; }
-	public override string FrameworkItemType => "SimpleGameItemGroupForm";
 
 	private void LoadFromXML(XElement definition)
 	{
@@ -179,7 +178,7 @@ public class SimpleGameItemGroupForm : GameItemGroupForm
 
 	public override string Describe(IPerceiver voyeur, IEnumerable<IGameItem> items)
 	{
-		return items.Count() == 1 ? items.First().HowSeen(voyeur, true, DescriptionType.Long) : RoomDescription;
+		return items.Count() == 1 ? items.First().HowSeen(voyeur, true, DescriptionType.Long) : RoomDescription.SubstituteANSIColour();
 	}
 
 	public override string LookDescription(IPerceiver voyeur, IEnumerable<IGameItem> items)

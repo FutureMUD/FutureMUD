@@ -40,7 +40,11 @@ public abstract class EditableItem : SavableKeywordedItem, IEditableRevisableIte
 		RevisionNumber = item.RevisionNumber + 1;
 	}
 
-	public virtual bool ReadOnly => false;
+	public virtual bool ReadOnly
+	{
+		get => false;
+		set { }
+	}
 
 	public abstract string EditHeader();
 

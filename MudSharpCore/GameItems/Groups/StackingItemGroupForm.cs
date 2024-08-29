@@ -22,8 +22,6 @@ public class StackingItemGroupForm : GameItemGroupForm
 	public string ItemName { get; set; }
 	public string ItemDescription { get; set; }
 	public IStackDecorator Decorator { get; set; }
-	public override string FrameworkItemType => "StackingItemGroupForm";
-
 	public override string Describe(IPerceiver voyeur, IEnumerable<IGameItem> items)
 	{
 		return Decorator.Describe(ItemName, ItemDescription, items.Count());

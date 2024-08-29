@@ -15,6 +15,8 @@ using System.Threading.Tasks;
 using System.Xml.Linq;
 using MudSharp.Construction;
 using System.Numerics;
+using MudSharp.Database;
+using MudSharp.GameItems.Groups;
 
 namespace MudSharp.GameItems.Prototypes
 {
@@ -26,6 +28,9 @@ namespace MudSharp.GameItems.Prototypes
 		public override bool PreventManualLoad => true;
 
 		public static IGameItemProto ItemPrototype { get; set; }
+		public static IGameItemGroup PuddleGroup { get; set; }
+		public static IGameItemGroup BloodGroup { get; set; }
+		public static IGameItemGroup ResidueGroup { get; set; }
 
 		public static void InitialiseItemType(IFuturemud gameworld)
 		{
@@ -40,7 +45,108 @@ namespace MudSharp.GameItems.Prototypes
 				proto.AddComponent(comp);
 				proto.Weight = 0;
 				proto.ChangeStatus(RevisionStatus.Current, "Automatically generated", null);
+				proto.ReadOnly = true;
 				ItemPrototype = proto;
+			}
+
+			// Stacking Groups
+			if (gameworld.ItemGroups.All(x => !x.Name.EqualTo("Puddles")))
+			{
+				using (new FMDB())
+				{
+					var dbgroup = new Models.ItemGroup
+					{
+						Name = "Puddles",
+						Keywords = "puddle liquid"
+					};
+					FMDB.Context.ItemGroups.Add(dbgroup);
+
+					var dbform = new Models.ItemGroupForm
+					{
+						ItemGroup = dbgroup,
+						Type = "Simple",
+						Definition = new XElement("Definition",
+							new XElement("Description", new XCData("There are numerous puddles of liquid around the room.")),
+							new XElement("RoomDescription", new XCData("#6There are numerous puddles of liquid here.#0")),
+							new XElement("ItemName", new XCData("puddle"))
+						).ToString()
+					};
+					FMDB.Context.ItemGroupForms.Add(dbform);
+					FMDB.Context.SaveChanges();
+
+					PuddleGroup = new GameItemGroup(dbgroup, gameworld);
+					gameworld.Add(PuddleGroup);
+
+					
+				}
+			}
+			else
+			{
+				PuddleGroup = gameworld.ItemGroups.First(x => x.Name.EqualTo("Puddles"));
+			}
+
+			if (gameworld.ItemGroups.All(x => !x.Name.EqualTo("Blood Splatters")))
+			{
+				using (new FMDB())
+				{
+					var dbblood = new Models.ItemGroup
+					{
+						Name = "Blood Splatters",
+						Keywords = "blood splatter puddle"
+					};
+					FMDB.Context.ItemGroups.Add(dbblood);
+					var dbbloodform = new Models.ItemGroupForm
+					{
+						ItemGroup = dbblood,
+						Type = "Simple",
+						Definition = new XElement("Definition",
+							new XElement("Description", new XCData("There are numerous splatters of blood around the room.")),
+							new XElement("RoomDescription", new XCData("#9There are numerous splatters of blood here.#0")),
+							new XElement("ItemName", new XCData("splatter"))
+						).ToString()
+					};
+					FMDB.Context.ItemGroupForms.Add(dbbloodform);
+					FMDB.Context.SaveChanges();
+
+					BloodGroup = new GameItemGroup(dbblood, gameworld);
+					gameworld.Add(BloodGroup);
+				}
+			}
+			else
+			{
+				BloodGroup = gameworld.ItemGroups.First(x => x.Name.EqualTo("Blood Splatters"));
+			}
+
+			if (gameworld.ItemGroups.All(x => !x.Name.EqualTo("Dried Liquid Residue")))
+			{
+				using (new FMDB())
+				{
+					var dbblood = new Models.ItemGroup
+					{
+						Name = "Dried Liquid Residue",
+						Keywords = "dried residue liquid splatter"
+					};
+					FMDB.Context.ItemGroups.Add(dbblood);
+					var dbbloodform = new Models.ItemGroupForm
+					{
+						ItemGroup = dbblood,
+						Type = "Simple",
+						Definition = new XElement("Definition",
+							new XElement("Description", new XCData("There are numerous dried residues of liquid splatters here.")),
+							new XElement("RoomDescription", new XCData("#6There are numerous dried residues of liquid splatters here.#0")),
+							new XElement("ItemName", new XCData("residue"))
+						).ToString()
+					};
+					FMDB.Context.ItemGroupForms.Add(dbbloodform);
+					FMDB.Context.SaveChanges();
+
+					ResidueGroup = new GameItemGroup(dbblood, gameworld);
+					gameworld.Add(ResidueGroup);
+				}
+			}
+			else
+			{
+				ResidueGroup = gameworld.ItemGroups.First(x => x.Name.EqualTo("Dried Liquid Residue"));
 			}
 		}
 

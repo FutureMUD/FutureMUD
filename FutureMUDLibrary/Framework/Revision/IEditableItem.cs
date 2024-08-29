@@ -102,7 +102,7 @@ namespace MudSharp.Framework.Revision {
         /// <summary>
         /// A ReadOnly IEditableRevisableItem should not be allowed to have new revisions made to it
         /// </summary>
-        bool ReadOnly { get; }
+        bool ReadOnly { get; set; }
 
         bool IsAssociatedBuilder(ICharacter character);
     }

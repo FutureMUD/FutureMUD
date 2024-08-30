@@ -1,11 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Mscc.GenerativeAI;
+using MudSharp.Character;
 using MudSharp.Framework;
+using MudSharp.Framework.Save;
 
 namespace MudSharp.Body.Grouping;
 
-public abstract class BodypartGroupDescriber : FrameworkItem, IBodypartGroupDescriber
+public abstract class BodypartGroupDescriber : SaveableItem, IBodypartGroupDescriber
 {
 	public virtual void FinaliseLoad(MudSharp.Models.BodypartGroupDescriber describer, IFuturemud gameworld)
 	{
@@ -68,11 +71,87 @@ public abstract class BodypartGroupDescriber : FrameworkItem, IBodypartGroupDesc
 
 	#region IBodypartGroupDescriber Members
 
-	public string DescribedAs { get; protected init; }
+	public string DescribedAs { get; protected set; }
 
-	public string Comment { get; protected init; }
+	public string Comment { get; protected set; }
 
 	public abstract BodypartGroupResult Match(IEnumerable<IBodypart> parts);
 
+	public abstract string Show(ICharacter actor);
+
+	public string HelpText => $@"You can use the following options with this command:
+
+	#3name <name>#0 - renames this group
+	#3describedas <text>#0 - sets the substitute text for this group
+	#3comment <comment>#0 - sets a comment explaining the intention of this group
+
+{SubtypeHelpText}";
+
+	protected abstract string SubtypeHelpText { get; }
+
+	public virtual bool BuildingCommand(ICharacter actor, StringStack ss)
+	{
+		switch (ss.PopForSwitch())
+		{
+			case "name":
+				return BuildingCommandName(actor, ss);
+			case "describedas":
+				return BuildingCommandDescribedAs(actor, ss);
+			case "comment":
+				return BuildingCommandComment(actor, ss);
+			default:
+				actor.OutputHandler.Send(SubtypeHelpText.SubstituteANSIColour());
+				return false;
+		}
+	}
+
+	private bool BuildingCommandComment(ICharacter actor, StringStack ss)
+	{
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send("What do you want to set the comment do for this group?");
+			return false;
+		}
+
+		Comment = ss.SafeRemainingArgument.ProperSentences();
+		Changed = true;
+		actor.OutputHandler.Send($"The comment for this group is now {Comment.ColourCommand()}.");
+		return true;
+	}
+
+	private bool BuildingCommandDescribedAs(ICharacter actor, StringStack ss)
+	{
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send("What should the replacement description for this group be?");
+			return false;
+		}
+
+		DescribedAs = ss.SafeRemainingArgument;
+		Changed = true;
+		actor.OutputHandler.Send($"Instead of individual bodyparts, this group will now be described as {DescribedAs.ColourCommand()}.");
+		return true;
+	}
+
+	private bool BuildingCommandName(ICharacter actor, StringStack ss)
+	{
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send("What do you want to rename this group to?");
+			return false;
+		}
+
+		var name = ss.SafeRemainingArgument.TitleCase();
+		if (Gameworld.BodypartGroupDescriptionRules.Any(x => x.Name.EqualTo(Name)))
+		{
+			actor.OutputHandler.Send($"There is already a bodypart group description rule called {name.ColourName()}. Names must be unique.");
+			return false;
+		}
+
+		actor.OutputHandler.Send($"You rename this group description rule from {_name.ColourName()} to {name.ColourName()}.");
+		_name = name;
+		Changed = true;
+		return true;
+	}
 	#endregion
 }

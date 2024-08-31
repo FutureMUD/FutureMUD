@@ -158,7 +158,7 @@ characteristic profile ... - work with characteristic profiles";
 			var cmd = input.PopSpeech();
 			characteristics =
 				characteristics.Where(x => x.Name.StartsWith(cmd, StringComparison.CurrentCultureIgnoreCase))
-				               .ToList();
+							   .ToList();
 		}
 
 		actor.OutputHandler.Send(
@@ -287,14 +287,14 @@ characteristic profile ... - work with characteristic profiles";
 				break;
 			default:
 				actor.OutputHandler.Send("Valid types for Characteristic Definitions are " +
-				                         new[] { "Standard", "Coloured", "Multiform", "Relative Height", "Growable" }
-					                         .Select(
-						                         x => x
-							                         .Colour(
-								                         Telnet
-									                         .Cyan))
-					                         .ListToString() +
-				                         ".");
+										 new[] { "Standard", "Coloured", "Multiform", "Relative Height", "Growable" }
+											 .Select(
+												 x => x
+													 .Colour(
+														 Telnet
+															 .Cyan))
+											 .ListToString() +
+										 ".");
 				return;
 		}
 
@@ -379,12 +379,12 @@ characteristic profile ... - work with characteristic profiles";
 			default:
 				actor.OutputHandler.Send(@"You can use the following options with this command:
 
-    list [<definition>|*<profile>|+<keyword>|-<keyword>] - shows all values meeting the optional filter criteria
-    show <which> - shows detailed information about a characteristic value
-    add <definition> <name> [<type specific extra args>] - creates a new value
+	list [<definition>|*<profile>|+<keyword>|-<keyword>] - shows all values meeting the optional filter criteria
+	show <which> - shows detailed information about a characteristic value
+	add <definition> <name> [<type specific extra args>] - creates a new value
 	clone <which> <name> - creates a new value from an existing value
-    remove <name> - permanently deletes a characteristic value
-    set <which> ... - changes properties of a value. See values for more info.");
+	remove <name> - permanently deletes a characteristic value
+	set <which> ... - changes properties of a value. See values for more info.");
 				return;
 		}
 	}
@@ -457,24 +457,24 @@ characteristic profile ... - work with characteristic profiles";
 			{
 				cmd = cmd.Substring(1);
 				values = values
-				         .Where(x =>
-					         x.GetValue.Contains(cmd, StringComparison.InvariantCultureIgnoreCase) ||
-					         x.GetBasicValue.Contains(cmd, StringComparison.InvariantCultureIgnoreCase) ||
-					         x.GetFancyValue.Contains(cmd, StringComparison.InvariantCultureIgnoreCase)
-				         )
-				         .ToList();
+						 .Where(x =>
+							 x.GetValue.Contains(cmd, StringComparison.InvariantCultureIgnoreCase) ||
+							 x.GetBasicValue.Contains(cmd, StringComparison.InvariantCultureIgnoreCase) ||
+							 x.GetFancyValue.Contains(cmd, StringComparison.InvariantCultureIgnoreCase)
+						 )
+						 .ToList();
 			}
 			else if (cmd[0] == '-' && cmd.Length > 1)
 			{
 				cmd = cmd.Substring(1);
 				cmd = cmd.Substring(1);
 				values = values
-				         .Where(x =>
-					         !x.GetValue.Contains(cmd, StringComparison.InvariantCultureIgnoreCase) &&
-					         !x.GetBasicValue.Contains(cmd, StringComparison.InvariantCultureIgnoreCase) &&
-					         !x.GetFancyValue.Contains(cmd, StringComparison.InvariantCultureIgnoreCase)
-				         )
-				         .ToList();
+						 .Where(x =>
+							 !x.GetValue.Contains(cmd, StringComparison.InvariantCultureIgnoreCase) &&
+							 !x.GetBasicValue.Contains(cmd, StringComparison.InvariantCultureIgnoreCase) &&
+							 !x.GetFancyValue.Contains(cmd, StringComparison.InvariantCultureIgnoreCase)
+						 )
+						 .ToList();
 			}
 			else
 			{
@@ -742,17 +742,17 @@ characteristic profile ... - work with characteristic profiles";
 			{
 				cmd = cmd.Substring(1);
 				characteristics = characteristics
-				                  .Where(x => x.Name.Contains(cmd, StringComparison.InvariantCultureIgnoreCase) ||
-				                              x.Description.Contains(cmd, StringComparison.InvariantCultureIgnoreCase))
-				                  .ToList();
+								  .Where(x => x.Name.Contains(cmd, StringComparison.InvariantCultureIgnoreCase) ||
+											  x.Description.Contains(cmd, StringComparison.InvariantCultureIgnoreCase))
+								  .ToList();
 			}
 			else if (cmd[0] == '-' && cmd.Length > 1)
 			{
 				cmd = cmd.Substring(1);
 				characteristics = characteristics
-				                  .Where(x => !x.Name.Contains(cmd, StringComparison.InvariantCultureIgnoreCase) &&
-				                              !x.Description.Contains(cmd, StringComparison.InvariantCultureIgnoreCase))
-				                  .ToList();
+								  .Where(x => !x.Name.Contains(cmd, StringComparison.InvariantCultureIgnoreCase) &&
+											  !x.Description.Contains(cmd, StringComparison.InvariantCultureIgnoreCase))
+								  .ToList();
 			}
 			else
 			{
@@ -1825,26 +1825,26 @@ Here are some examples of plausible trait expressions applying the above:
 			{
 				case '+':
 					expressions = expressions
-					              .Where(x => 
-						              x.Name.Contains(cmd, StringComparison.InvariantCultureIgnoreCase) ||
+								  .Where(x => 
+									  x.Name.Contains(cmd, StringComparison.InvariantCultureIgnoreCase) ||
 									  x.OriginalFormulaText.Contains(cmd, StringComparison.InvariantCultureIgnoreCase) ||
 									  x.Parameters.Any(y => y.Key.Contains(cmd, StringComparison.InvariantCultureIgnoreCase))
-						            )
-					              .ToList();
+									)
+								  .ToList();
 					continue;
 				case '-':
 					expressions = expressions
-					              .Where(x =>
-						              !x.Name.Contains(cmd, StringComparison.InvariantCultureIgnoreCase) &&
-						              !x.OriginalFormulaText.Contains(cmd, StringComparison.InvariantCultureIgnoreCase) &&
+								  .Where(x =>
+									  !x.Name.Contains(cmd, StringComparison.InvariantCultureIgnoreCase) &&
+									  !x.OriginalFormulaText.Contains(cmd, StringComparison.InvariantCultureIgnoreCase) &&
 									  !x.Parameters.Any(y => y.Key.Contains(cmd, StringComparison.InvariantCultureIgnoreCase))
-					              )
-					              .ToList();
+								  )
+								  .ToList();
 					continue;
 				case '*':
 					expressions = expressions
-					              .Where(x => x.Parameters.Any(y => y.Value.Trait?.Name.Contains(cmd, StringComparison.InvariantCultureIgnoreCase) == true))
-					              .ToList();
+								  .Where(x => x.Parameters.Any(y => y.Value.Trait?.Name.Contains(cmd, StringComparison.InvariantCultureIgnoreCase) == true))
+								  .ToList();
 					continue;
 				default:
 					actor.OutputHandler.Send($"Invalid filter: {ss.Last.ColourCommand()}");
@@ -2935,7 +2935,7 @@ Also, as an admin you should see the two related commands #3GIVETATTOO#0 and #3F
 		}
 
 		var tattoo = target.Body.Tattoos.Where(x => target.Body.ExposedBodyparts.Contains(x.Bodypart))
-		                   .GetFromItemListByKeyword(ss.PopSpeech(), actor);
+						   .GetFromItemListByKeyword(ss.PopSpeech(), actor);
 		if (tattoo == null)
 		{
 			actor.OutputHandler.Send(
@@ -3104,9 +3104,9 @@ Also, as an admin you should see the two related commands #3GIVETATTOO#0 and #3F
 		}
 
 		if ((long.TryParse(ss.PopSpeech(), out var value)
-			    ? actor.Gameworld.DisfigurementTemplates.Get(value)
-			    : actor.Gameworld.DisfigurementTemplates.GetByName(ss.Last)) is not ITattooTemplate template ||
-		    !template.CanSeeTattooInList(actor))
+				? actor.Gameworld.DisfigurementTemplates.Get(value)
+				: actor.Gameworld.DisfigurementTemplates.GetByName(ss.Last)) is not ITattooTemplate template ||
+			!template.CanSeeTattooInList(actor))
 		{
 			actor.OutputHandler.Send("There is no such tattoo.");
 			return;
@@ -3586,11 +3586,11 @@ The list of filters you can use with #3bodypart list#0 are as follows:
 
 			var text = ss.SafeRemainingArgument;
 			bodypart = body.AllBodypartsBonesAndOrgans
-			               .FirstOrDefault(x => x.Name.EqualTo(text) || x.FullDescription().EqualTo(text)) ??
-			           body.AllBodypartsBonesAndOrgans
-			               .FirstOrDefault(x => x.Name.StartsWith(text, StringComparison.InvariantCultureIgnoreCase) || x.FullDescription().StartsWith(text, StringComparison.InvariantCultureIgnoreCase)) ??
-			           body.AllBodypartsBonesAndOrgans
-			               .FirstOrDefault(x => x.Name.Contains(text, StringComparison.InvariantCultureIgnoreCase) || x.FullDescription().Contains(text, StringComparison.InvariantCultureIgnoreCase));
+						   .FirstOrDefault(x => x.Name.EqualTo(text) || x.FullDescription().EqualTo(text)) ??
+					   body.AllBodypartsBonesAndOrgans
+						   .FirstOrDefault(x => x.Name.StartsWith(text, StringComparison.InvariantCultureIgnoreCase) || x.FullDescription().StartsWith(text, StringComparison.InvariantCultureIgnoreCase)) ??
+					   body.AllBodypartsBonesAndOrgans
+						   .FirstOrDefault(x => x.Name.Contains(text, StringComparison.InvariantCultureIgnoreCase) || x.FullDescription().Contains(text, StringComparison.InvariantCultureIgnoreCase));
 			if (bodypart == null)
 			{
 				actor.OutputHandler.Send($"The {body.Name.Colour(Telnet.Cyan)} body has no bodypart identified by the text {text.ColourCommand()}.");

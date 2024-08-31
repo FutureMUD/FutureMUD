@@ -4,6 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
+using MudSharp.Body;
+using MudSharp.Body.Grouping;
 using MudSharp.Body.Traits.Improvement;
 using MudSharp.Character;
 using MudSharp.Character.Heritage;
@@ -297,6 +299,127 @@ public partial class EditableItemHelper
 		GetEditHeader = item => $"Bodypart Shape #{item.Id:N0} ({item.Name})",
 		DefaultCommandHelp = BuilderModule.BodypartShapesHelp
 	};
+
+	public static EditableItemHelper BodypartGroupHelper { get; } = new()
+	{
+		ItemName = "Bodypart Group",
+		ItemNamePlural = "Bodypart Group",
+		SetEditableItemAction = (actor, item) =>
+		{
+			actor.RemoveAllEffects<BuilderEditingEffect<IBodypartGroupDescriber>>();
+			if (item == null)
+			{
+				return;
+			}
+
+			actor.AddEffect(new BuilderEditingEffect<IBodypartGroupDescriber>(actor) { EditingItem = (IBodypartGroupDescriber)item });
+		},
+		GetEditableItemFunc = actor =>
+			actor.CombinedEffectsOfType<BuilderEditingEffect<IBodypartGroupDescriber>>().FirstOrDefault()?.EditingItem,
+		GetAllEditableItems = actor => actor.Gameworld.BodypartGroupDescriptionRules.ToList(),
+		GetEditableItemByIdFunc = (actor, id) => actor.Gameworld.BodypartGroupDescriptionRules.Get(id),
+		GetEditableItemByIdOrNameFunc = (actor, input) => actor.Gameworld.BodypartGroupDescriptionRules.GetByIdOrName(input),
+		AddItemToGameWorldAction = item => item.Gameworld.Add((IBodypartGroupDescriber)item),
+		CastToType = typeof(IBodypartGroupDescriber),
+		EditableNewAction = (actor, input) =>
+		{
+			var direct = false;
+			switch (input.PopForSwitch())
+			{
+				case "direct":
+					direct = true;
+					break;
+				case "shape":
+					break;
+				default:
+					actor.OutputHandler.Send($"Do you want to create a #3direct#0 or #3shape#0 bodypart describer?");
+					return;
+			}
+
+			if (input.IsFinished)
+			{
+				actor.OutputHandler.Send("Which body should this describer be made for?");
+				return;
+			}
+
+			var body = actor.Gameworld.BodyPrototypes.GetByIdOrName(input.PopSpeech());
+			if (body is null)
+			{
+				actor.OutputHandler.Send($"There is no body identified by the text {input.Last.ColourCommand()}.");
+				return;
+			}
+
+			if (input.IsFinished)
+			{
+				actor.OutputHandler.Send("You must specify a name for your bodypart shape.");
+				return;
+			}
+
+			var name = input.SafeRemainingArgument.TitleCase();
+
+			var shape = direct ? 
+				(IBodypartGroupDescriber)new BodypartGroupIDDescriber(actor.Gameworld, name, body) :
+				(IBodypartGroupDescriber)new BodypartGroupShapeDescriber(actor.Gameworld, name, body);
+			actor.Gameworld.Add(shape);
+			actor.RemoveAllEffects<BuilderEditingEffect<IBodypartGroupDescriber>>();
+			actor.AddEffect(new BuilderEditingEffect<IBodypartGroupDescriber>(actor) { EditingItem = shape });
+			actor.OutputHandler.Send($"You create a new bodypart group described called {name.ColourName()}, which you are now editing.");
+		},
+		EditableCloneAction = (actor, input) =>
+		{
+			if (input.IsFinished)
+			{
+				actor.OutputHandler.Send("Which bodypart group describer do you want to clone?");
+				return;
+			}
+
+			var group = actor.Gameworld.BodypartGroupDescriptionRules.GetByIdOrName(input.SafeRemainingArgument);
+			if (group is null)
+			{
+				actor.OutputHandler.Send($"There is no such bodypart group describer identified by text {input.SafeRemainingArgument.ColourCommand()}.");
+				return;
+			}
+
+			var clone = group.Clone();
+			actor.Gameworld.Add(clone);
+			actor.RemoveAllEffects<BuilderEditingEffect<IBodypartGroupDescriber>>();
+			actor.AddEffect(new BuilderEditingEffect<IBodypartGroupDescriber>(actor) { EditingItem = clone });
+			actor.OutputHandler.Send($"You clone bodypart group {group.Name.ColourName()} to a duplicate group, which you are now editing.");
+		},
+
+		GetListTableHeaderFunc = character => new List<string>
+		{
+			"Id",
+			"Name",
+			"Type",
+			"Body",
+			"Comment"
+		},
+
+		GetListTableContentsFunc = (character, protos) => from proto in protos.OfType<IBodypartGroupDescriber>()
+														  select new List<string>
+														  {
+															  proto.Id.ToString("N0", character),
+															  proto.Name,
+															  proto is BodypartGroupIDDescriber ? "Direct" : "Shape",
+															  proto.BodyPrototype.Name,
+															  proto.Comment
+														  },
+
+		CustomSearch = (protos, keyword, gameworld) =>
+		{
+			var body = gameworld.BodyPrototypes.GetByIdOrName(keyword);
+			if (body is null)
+			{
+				return protos;
+			}
+
+			return protos.OfType<IBodypartGroupDescriber>().Where(x => body.CountsAs(x.BodyPrototype)).ToList<IEditableItem>();
+		},
+		GetEditHeader = item => $"Bodypart Group Describer #{item.Id:N0} ({item.Name})",
+		DefaultCommandHelp = BuilderModule.BodypartGroupHelp
+	};
+
 
 	public static EditableItemHelper RangedWeaponTypeHelper { get; } = new()
 	{

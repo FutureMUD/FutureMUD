@@ -3730,6 +3730,45 @@ You can use the following syntax with this command:
 
 	#endregion
 
+	#region Bodypart Groups
+
+	public const string BodypartGroupHelp = @"The #3BodypartGroup#0 command is used to edit bodypart group describers, which are special rules that tell the engine how to succinctly describe groups of bodyparts, such as in inventory descriptions.
+
+For example, one might instruct the engine to show something as worn on the ""body"" rather than saying that it covers the shoulders, back, chest, belly, waist etc.
+
+There are two kinds of bodypart group describers; #6direct#0 and #6shape#0. Direct describers list the specific bodyparts that must be included (right hand, right wrist, etc), whereas shapes can handle multiple bodyparts of the same type (a hand, a wrist, etc.)
+
+You can use the following syntax with this command:
+
+	#3bpg list#0 - lists all the bodypart group describers
+	#3bpg show <which>#0 - shows a bodypart group describer
+	#3bpg edit <which>#0 - starts editing a bodypart group describer
+	#3bpg edit#0 - an alias for show when editing a group describer
+	#3bpg close#0 - stops editing a bodypart group describer
+	#3bpg new direct|shape <body> <name>#0 - creates a new bodypart group describer
+	#3bpg set desc <name>#0 - sets what the group is described as
+	#3bpg set comment <comment>#0 - sets a brief description for builders about what it does
+
+The following commands are specific to #6direct#0 group describers:
+
+	#3bpg set part <which>#0 - toggles the inclusion of a part
+	#3bpg set part <which> mandatory#0 - sets a part to be a mandatory part
+	#3bpg set part <which> optional#0 - sets a part to be an optional part
+
+The following commands are specific to #6shape#0 group describers:
+
+	#3bpg set shape <which> <min> <max>#0 - sets a shape to be included
+	#3bpg set shape <which> remove#0 - removes a shape";
+
+	[PlayerCommand("BodypartGroup", "bodypartgroup", "bpg")]
+	[CommandPermission(PermissionLevel.Admin)]
+	[HelpInfo("bodypartgroup", BodypartGroupHelp, AutoHelp.HelpArgOrNoArg)]
+	protected static void BodypartGroup(ICharacter actor, string command)
+	{
+		GenericBuildingCommand(actor, new StringStack(command.RemoveFirstWord()), EditableItemHelper.BodypartGroupHelper);
+	}
+	#endregion
+
 	#region Terrain
 
 	private const string TerrainHelpText = @"This command is used to create, edit and view terrains.

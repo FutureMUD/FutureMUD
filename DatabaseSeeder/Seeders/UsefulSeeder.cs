@@ -10024,7 +10024,7 @@ end if",
         AddTag(context, "Theodolyte", "Surveying Equipment");
         AddTag(context, "Plumb Bob", "Surveying Equipment");
 
-        AddTag(context, "Navigational Tool", "Scientific Tools");
+        AddTag(context, "Navigational Tools", "Scientific Tools");
         AddTag(context, "Airspeed Indicator", "Navigational Tools");
         AddTag(context, "Altimeter", "Navigational Tools");
         AddTag(context, "Backstaff", "Navigational Tools");

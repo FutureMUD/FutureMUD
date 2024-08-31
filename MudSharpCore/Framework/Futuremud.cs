@@ -742,6 +742,11 @@ public sealed partial class Futuremud : IFuturemud, IDisposable
 		_bodypartShapes.Add(shape);
 	}
 
+	public void Add(IBodypartGroupDescriber describer)
+	{
+		_bodypartGroupDescriptionRules.Add(describer);
+	}
+
 	public void Add(INPCSpawner spawner)
 	{
 		_npcSpawners.Add(spawner);

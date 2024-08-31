@@ -16,6 +16,8 @@ namespace MudSharp.Models
         public string DescribedAs { get; set; }
         public string Comment { get; set; }
         public string Type { get; set; }
+        public long? BodyProtoId { get; set; }
+        public virtual BodyProto BodyProto { get; set; }
 
         public virtual ICollection<BodypartGroupDescribersBodyProtos> BodypartGroupDescribersBodyProtos { get; set; }
         public virtual ICollection<BodypartGroupDescribersBodypartProtos> BodypartGroupDescribersBodypartProtos { get; set; }

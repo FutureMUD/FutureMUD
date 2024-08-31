@@ -568,6 +568,10 @@ public class Craft : Framework.Revision.EditableItem, ICraft
 		_craftIsValid = true;
 		_phaseInventoryPlans.Clear();
 		_failPhaseInventoryPlans.Clear();
+		_craftFailProductProducedPhases.Clear();
+		_craftProductProducedPhases.Clear();
+		_craftToolUsageFailPhases.Clear();
+		_craftInputConsumedPhases.Clear();
 
 		// Scoop when items are required based on when they appear in echoes
 		foreach (var echo in PhaseEchoes)

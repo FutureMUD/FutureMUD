@@ -192,6 +192,28 @@ public class PunishmentStrategyHierarchy : PunishmentStrategyBase
 		}
 
 		var strategy = PunishmentStrategyFactory.GetStrategyFromBuilderInput(Gameworld, authority, command.PopSpeech());
+		if (strategy is null)
+		{
+			actor.OutputHandler.Send($"That is not a valid strategy type. Valid types are {PunishmentStrategyFactory.ValidTypes.ListToColouredString()}.");
+			return false;
+		}
+
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("What prog should be associated with this point on the hierarchy?");
+			return false;
+		}
+
+		var prog = new FutureProgLookupFromBuilderInput(actor, command.SafeRemainingArgument, FutureProgVariableTypes.Boolean, 
+			[[FutureProgVariableTypes.Character], [FutureProgVariableTypes.Character, FutureProgVariableTypes.Text]]
+			).LookupProg();
+		if (prog is null)
+		{
+			return false;
+		}
+
+		_strategyHierarchy.Add((prog, strategy));
+		
 		throw new NotImplementedException();
 	}
 

@@ -269,7 +269,12 @@ public class Law : SaveableItem, ILaw
 			case "type":
 				return BuildingCommandPunishmentStrategyType(actor, command);
 			default:
-				return PunishmentStrategy.BuildingCommand(actor, Authority, command.GetUndo());
+				var outcome = PunishmentStrategy.BuildingCommand(actor, Authority, command.GetUndo());
+				if (outcome)
+				{
+					Changed = true;
+				}
+				return outcome;
 		}
 	}
 

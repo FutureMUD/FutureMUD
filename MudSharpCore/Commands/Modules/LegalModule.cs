@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Humanizer;
 using MudSharp.Accounts;
+using MudSharp.Celestial;
 using MudSharp.Character;
 using MudSharp.Effects.Concrete;
 using MudSharp.Framework;
@@ -28,11 +29,15 @@ public class LegalModule : Module<ICharacter>
 
 	#3legal list#0 - lists all legal authorities
 	#3legal edit new <name> <currency>#0 - creates a new legal authority
-	#3legal edit<authority>#0 - opens a legal authority for editing
+	#3legal edit <authority>#0 - opens a legal authority for editing
 	#3legal edit#0 - equivalent to the show option for your currently edited authority
-	#3legal show<which>#0 - shows a legal authority in detail
+	#3legal show <which>#0 - shows a legal authority in detail
 	#3legal close#0 - closes your currently edited authority
 	#3legal delete#0 - permanently deletes the edited legal authority
+	#3legal laws [<legal authority>]#0 - shows all the laws
+	#3legal classes [<legal authority>]#0 - shows all the classes
+	#3legal enforcements [<legal authority>]#0 - shows all enforcer authorities
+	#3legal patrols [<legal authority>]#0 - shows all patrol routes
 
 You can also use the following options to change the properties of an authority that you are editing:
 
@@ -86,6 +91,18 @@ You can also use the following options to change the properties of an authority 
 			case "list":
 				LegalAuthorityList(actor, ss);
 				return;
+			case "laws":
+				LegalAuthorityLaws(actor, ss);
+				return;
+			case "classes":
+				LegalAuthorityClasses(actor, ss);
+				return;
+			case "enforcements":
+				LegalAuthorityEnforcements(actor, ss);
+				return;
+			case "patrols":
+				LegalAuthorityPatrols(actor, ss);
+				return;
 			case "edit":
 			case "open":
 				LegalAuthorityEdit(actor, ss);
@@ -106,6 +123,204 @@ You can also use the following options to change the properties of an authority 
 		}
 
 		actor.OutputHandler.Send(LegalAuthorityHelpText);
+	}
+
+	private static void LegalAuthorityPatrols(ICharacter actor, StringStack ss)
+	{
+		var editing = actor.CombinedEffectsOfType<BuilderEditingEffect<ILegalAuthority>>().FirstOrDefault()?.EditingItem;
+		if (ss.IsFinished)
+		{
+			if (editing is null)
+			{
+				actor.OutputHandler.Send("You must specify a legal authority if you are not editing one.");
+				return;
+			}
+		}
+		else
+		{
+			editing = actor.Gameworld.LegalAuthorities.GetByIdOrName(ss.PopSpeech());
+			if (editing is null)
+			{
+				actor.OutputHandler.Send($"There is no legal authority identified by the text {ss.Last.ColourCommand()}.");
+				return;
+			}
+		}
+
+		var patrols = editing.PatrolRoutes.ToList();
+		// TODO - filtering
+		actor.OutputHandler.Send(StringUtilities.GetTextTable(
+			from item in patrols
+			select new List<string>
+			{
+				item.Id.ToStringN0(actor),
+				item.Name,
+				item.Priority.ToStringN0(actor),
+				item.LingerTimeMajorNode.DescribePreciseBrief(actor),
+				item.LingerTimeMinorNode.DescribePreciseBrief(actor),
+				item.TimeOfDays.Select(x => x.DescribeColour()).ListToString(),
+				item.PatrolStrategy.Name
+			},
+			new List<string>
+			{
+				"Id",
+				"Name",
+				"Priority",
+				"Linger Major",
+				"Linger Minor",
+				"Times",
+				"Strategy"
+			},
+			actor,
+			Telnet.Magenta));
+	}
+
+	private static void LegalAuthorityEnforcements(ICharacter actor, StringStack ss)
+	{
+		var editing = actor.CombinedEffectsOfType<BuilderEditingEffect<ILegalAuthority>>().FirstOrDefault()?.EditingItem;
+		if (ss.IsFinished)
+		{
+			if (editing is null)
+			{
+				actor.OutputHandler.Send("You must specify a legal authority if you are not editing one.");
+				return;
+			}
+		}
+		else
+		{
+			editing = actor.Gameworld.LegalAuthorities.GetByIdOrName(ss.PopSpeech());
+			if (editing is null)
+			{
+				actor.OutputHandler.Send($"There is no legal authority identified by the text {ss.Last.ColourCommand()}.");
+				return;
+			}
+		}
+
+		var enforcements = editing.EnforcementAuthorities.ToList();
+		// TODO - filtering
+		actor.OutputHandler.Send(StringUtilities.GetTextTable(
+			from item in enforcements
+			select new List<string>
+			{
+				item.Id.ToStringN0(actor),
+				item.Name,
+				item.FilteringProg?.MXPClickableFunctionName() ?? "",
+				item.CanAccuse.ToColouredString(),
+				item.CanConvict.ToColouredString(),
+				item.CanForgive.ToColouredString(),
+				item.IncludedAuthorities.Select(x => x.Name).ListToString()
+			},
+			new List<string>
+			{
+				"Id",
+				"Name",
+				"Prog",
+				"Accuse?",
+				"Convict?",
+				"Forgive?",
+				"Includes"
+			},
+			actor,
+			Telnet.Magenta));
+	}
+
+	private static void LegalAuthorityClasses(ICharacter actor, StringStack ss)
+	{
+		var editing = actor.CombinedEffectsOfType<BuilderEditingEffect<ILegalAuthority>>().FirstOrDefault()?.EditingItem;
+		if (ss.IsFinished)
+		{
+			if (editing is null)
+			{
+				actor.OutputHandler.Send("You must specify a legal authority if you are not editing one.");
+				return;
+			}
+		}
+		else
+		{
+			editing = actor.Gameworld.LegalAuthorities.GetByIdOrName(ss.PopSpeech());
+			if (editing is null)
+			{
+				actor.OutputHandler.Send($"There is no legal authority identified by the text {ss.Last.ColourCommand()}.");
+				return;
+			}
+		}
+
+		var classes = editing.LegalClasses.ToList();
+		// TODO - filtering
+		actor.OutputHandler.Send(StringUtilities.GetTextTable(
+			from item in classes
+			select new List<string>
+			{
+				item.Id.ToStringN0(actor),
+				item.Name,
+				item.MembershipProg?.MXPClickableFunctionName() ?? "",
+				item.CanBeDetainedUntilFinesPaid.ToColouredString(),
+				item.LegalClassPriority.ToStringN0(actor)
+			},
+			new List<string>
+			{
+				"Id",
+				"Name",
+				"Prog",
+				"Arrest for Fines?",
+				"Priority"
+			},
+			actor,
+			Telnet.Magenta));
+	}
+
+	private static void LegalAuthorityLaws(ICharacter actor, StringStack ss)
+	{
+		var editing = actor.CombinedEffectsOfType<BuilderEditingEffect<ILegalAuthority>>().FirstOrDefault()?.EditingItem;
+		if (ss.IsFinished)
+		{
+			if (editing is null)
+			{
+				actor.OutputHandler.Send("You must specify a legal authority if you are not editing one.");
+				return;
+			}
+		}
+		else
+		{
+			editing = actor.Gameworld.LegalAuthorities.GetByIdOrName(ss.PopSpeech());
+			if (editing is null)
+			{
+				actor.OutputHandler.Send($"There is no legal authority identified by the text {ss.Last.ColourCommand()}.");
+				return;
+			}
+		}
+
+		var laws = editing.Laws.ToList();
+		// TODO - filtering
+		actor.OutputHandler.Send(StringUtilities.GetTextTable(
+			from item in laws
+			select new List<string>
+			{
+				item.Id.ToStringN0(actor),
+				item.Name,
+				item.CrimeType.DescribeEnum(),
+				item.ActivePeriod.DescribePreciseBrief(actor),
+				item.CanBeAppliedAutomatically.ToColouredString(),
+				item.CanBeArrested.ToColouredString(),
+				item.CanBeOfferedBail.ToColouredString(),
+				item.DoNotAutomaticallyApplyRepeats.ToColouredString(),
+				item.EnforcementStrategy.DescribeEnum(),
+				item.EnforcementPriority.ToStringN0(actor)
+			},
+			new List<string>
+			{
+				"Id",
+				"Name",
+				"Type",
+				"Active",
+				"Automatic?",
+				"Arrest?",
+				"Bail?",
+				"No Repeat?",
+				"Enforcement",
+				"Priority"
+			},
+			actor,
+			Telnet.Magenta));
 	}
 
 	private static void LegalAuthorityList(ICharacter actor, StringStack ss)

@@ -143,6 +143,50 @@ public partial class LegalAuthority : SaveableItem, ILegalAuthority
 		Gameworld.HeartbeatManager.FuzzyMinuteHeartbeat += LegalHeartbeat;
 	}
 
+	public override void Save()
+	{
+		var dbitem = FMDB.Context.LegalAuthorities.Find(Id);
+		dbitem.CurrencyId = Currency.Id;
+		dbitem.Name = Name;
+		dbitem.PreparingLocationId = PreparingLocation?.Id;
+		dbitem.MarshallingLocationId = MarshallingLocation?.Id;
+		dbitem.EnforcerStowingLocationId = EnforcerStowingLocation?.Id;
+		dbitem.PrisonLocationId = PrisonLocation?.Id;
+		dbitem.PrisonReleaseLocationId = PrisonReleaseLocation?.Id;
+		dbitem.PrisonBelongingsLocationId = PrisonerBelongingsStorageLocation?.Id;
+		dbitem.JailLocationId = JailLocation?.Id;
+		dbitem.OnImprisonProgId = OnPrisonerImprisoned?.Id;
+		dbitem.OnReleaseProgId = OnPrisonerReleased?.Id;
+		dbitem.OnHoldProgId = OnPrisonerHeld?.Id;
+		dbitem.BailCalculationProgId = BailCalculationProg?.Id;
+		dbitem.CourtLocationId = CourtLocation?.Id;
+		dbitem.BankAccountId = BankAccount?.Id;
+		dbitem.PlayersKnowTheirCrimes = PlayersKnowTheirCrimes;
+		dbitem.AutomaticallyConvict = AutomaticallyConvict;
+		dbitem.AutomaticConvictionTime = AutomaticConvictionTime.TotalSeconds;
+		dbitem.GuardianDiscordChannel = DiscordChannelId;
+		FMDB.Context.LegalAuthoritiyCells.RemoveRange(dbitem.LegalAuthorityCells);
+		foreach (var cell in CellLocations)
+		{
+			dbitem.LegalAuthorityCells.Add(new LegalAuthorityCells { LegalAuthority = dbitem, CellId = cell.Id });
+		}
+
+		FMDB.Context.LegalAuthorityJailCells.RemoveRange(dbitem.LegalAuthorityJailCells);
+		foreach (var cell in JailLocations)
+		{
+			dbitem.LegalAuthorityJailCells.Add(new LegalAuthorityJailCell
+				{ LegalAuthority = dbitem, CellId = cell.Id });
+		}
+
+		FMDB.Context.LegalAuthoritiesZones.RemoveRange(dbitem.LegalAuthoritiesZones);
+		foreach (var zone in _enforcementZones)
+		{
+			dbitem.LegalAuthoritiesZones.Add(new LegalAuthoritiesZones { LegalAuthority = dbitem, ZoneId = zone.Id });
+		}
+
+		Changed = false;
+	}
+
 	public void LoadPatrols()
 	{
 		var dbitem = FMDB.Context.LegalAuthorities.Find(Id);
@@ -184,7 +228,25 @@ public partial class LegalAuthority : SaveableItem, ILegalAuthority
 
 	private readonly DecimalCounter<long> _finesOwed = new();
 	private readonly Dictionary<long, MudDateTime> _finePaymentDueDates = new();
+	private readonly List<ICrime> _knownCrimes = new();
+	public IEnumerable<ICrime> KnownCrimes => _knownCrimes;
 
+	private readonly List<ICrime> _staleCrimes = new();
+	public IEnumerable<ICrime> StaleCrimes => _staleCrimes;
+
+	private readonly List<ICrime> _unknownCrimes = new();
+	public IEnumerable<ICrime> UnknownCrimes => _unknownCrimes;
+
+	private readonly List<ICrime> _resolvedCrimes = new();
+	public IEnumerable<ICrime> ResolvedCrimes => _resolvedCrimes;
+
+	public bool PlayersKnowTheirCrimes { get; set; }
+	public ulong? DiscordChannelId { get; set; }
+	public IBankAccount BankAccount { get; set; }
+	public bool AutomaticallyConvict { get; set; }
+	public TimeSpan AutomaticConvictionTime { get; set; }
+
+	#region Calculation Helpers
 	private void CalculateLawLookup()
 	{
 		_lawLookup.Clear();
@@ -220,7 +282,159 @@ public partial class LegalAuthority : SaveableItem, ILegalAuthority
 			_resolvedCrimesLookup.Add(crime.CriminalId, crime);
 		}
 	}
+	#endregion
 
+	#region Heartbeats
+	public void LegalHeartbeat()
+	{
+		var now = EnforcementZones.FirstOrDefault()?.DateTime() ?? Gameworld.Calendars.First().CurrentDateTime;
+		SentencingHeartbeat(now);
+		BailHeartbeat(now);
+		CustodialSentencesHeartbeat(now);
+	}
+
+	private void CustodialSentencesHeartbeat(MudDateTime now)
+	{
+		// Check for custodial sentences ending
+		var custodial = Gameworld.Actors.Where(x => x.AffectedBy<ServingCustodialSentence>(this)).ToList();
+		foreach (var prisoner in custodial)
+		{
+			var custodialEffect =
+				prisoner.EffectsOfType<ServingCustodialSentence>(x => x.LegalAuthority == this).First();
+			if (custodialEffect.ReleaseDate > now)
+			{
+				continue;
+			}
+
+			prisoner.RemoveEffect(custodialEffect, true);
+			ReleaseCharacterToFreedom(prisoner);
+			// Notify Discord
+			// Notify enforcers
+		}
+	}
+
+	private void BailHeartbeat(MudDateTime now)
+	{
+		// Check for bail skippers
+		var bailed = KnownCrimes.Where(x => x.BailPosted).Select(x => x.Criminal).Distinct().ToList();
+		foreach (var criminal in bailed)
+		{
+			var bailEffect = criminal.EffectsOfType<OnBail>(x => x.LegalAuthority == this).FirstOrDefault();
+			if (bailEffect is null)
+			{
+				continue;
+			}
+
+			if (bailEffect.ArrestTime > now)
+			{
+				continue;
+			}
+
+			var crimes = CheckPossibleCrime(criminal, CrimeTypes.ViolateBail, null, null, "");
+			if (!crimes.Any())
+			{
+				continue;
+			}
+
+			EndBail(criminal);
+
+			// Notify Discord
+			// Notify enforcers
+		}
+	}
+
+	private void SentencingHeartbeat(MudDateTime now)
+	{
+		if (AutomaticallyConvict)
+		{
+			// If we have a judge on duty, use the judge
+			if (Patrols.Any(x => x.PatrolStrategy.Name == "Judge"))
+			{
+				return;
+			}
+
+			foreach (var criminal in KnownCrimes.Where(x => x.EligableForAutomaticConviction()).Select(x => x.Criminal)
+			                                    .Distinct())
+			{
+				var awaitingEffect = criminal.EffectsOfType<AwaitingSentencing>(x => x.LegalAuthority == this)
+				                             .FirstOrDefault();
+				if (awaitingEffect is null)
+				{
+					continue;
+				}
+
+				if (criminal.AffectedBy<OnBail>(this))
+				{
+					continue;
+				}
+
+				if (now - awaitingEffect.ArrestTime < AutomaticConvictionTime)
+				{
+					continue;
+				}
+
+				// TODO - chance of failure
+				var crimes = KnownCrimesForIndividual(criminal).ToList();
+				var result = new PunishmentResult();
+				foreach (var crime in crimes)
+				{
+					var crimeResult = crime.Law.PunishmentStrategy.GetResult(criminal, crime);
+					result += crimeResult;
+					crime.Convict(null, result, "Automatic conviction by the system");
+					_knownCrimes.Remove(crime);
+					_knownCrimesLookup.Remove(criminal.Id, crime);
+					_resolvedCrimes.Add(crime);
+					_resolvedCrimesLookup.Add(criminal.Id, crime);
+				}
+
+				if (result.Fine > 0)
+				{
+					_finesOwed[criminal.Id] += result.Fine;
+					_finePaymentDueDates[criminal.Id] = now + MudTimeSpan.FromMonths(1);
+					Changed = true;
+				}
+
+				if (result.CustodialSentence > MudTimeSpan.Zero)
+				{
+					var servingEffect = criminal.EffectsOfType<ServingCustodialSentence>(x => x.LegalAuthority == this)
+					                            .FirstOrDefault();
+					if (servingEffect == null)
+					{
+						servingEffect = new ServingCustodialSentence(criminal, this, result.CustodialSentence,
+							now + result.CustodialSentence);
+						criminal.AddEffect(servingEffect);
+					}
+					else
+					{
+						servingEffect.ExtendSentence(result.CustodialSentence);
+					}
+				}
+
+				// Good Behaviour Bond
+				if (result.GoodBehaviourBondLength > MudTimeSpan.Zero)
+				{
+					var bondEffect = criminal.EffectsOfType<GoodBehaviourBond>(x => x.Authority == this)
+					                         .FirstOrDefault();
+					if (bondEffect is null)
+					{
+						bondEffect = new GoodBehaviourBond(criminal, this, result.GoodBehaviourBondLength);
+						criminal.AddEffect(bondEffect);
+					}
+					else
+					{
+						bondEffect.AddLengthToBond(result.GoodBehaviourBondLength);
+					}
+				}
+
+				criminal.RemoveAllEffects<AwaitingSentencing>(x => x.LegalAuthority == this);
+				// Notify Discord
+				// Notify enforcers
+			}
+		}
+	}
+	#endregion
+
+	#region Helper Methods
 	public void ConvictAllKnownCrimes(ICharacter criminal, ICharacter judge)
 	{
 		var now = EnforcementZones.FirstOrDefault()?.DateTime() ?? Gameworld.Calendars.First().CurrentDateTime;
@@ -230,7 +444,7 @@ public partial class LegalAuthority : SaveableItem, ILegalAuthority
 		{
 			var crimeResult = crime.Law.PunishmentStrategy.GetResult(criminal, crime);
 			result += crimeResult;
-			crime.Convict(judge, crimeResult.Fine, crimeResult.CustodialSentence, "Automatic conviction by the system");
+			crime.Convict(judge, crimeResult, "Automatic conviction by the system");
 			_knownCrimes.Remove(crime);
 			_knownCrimesLookup.Remove(criminal.Id, crime);
 			_resolvedCrimes.Add(crime);
@@ -247,7 +461,7 @@ public partial class LegalAuthority : SaveableItem, ILegalAuthority
 		if (result.CustodialSentence > MudTimeSpan.Zero)
 		{
 			var servingEffect = criminal.EffectsOfType<ServingCustodialSentence>(x => x.LegalAuthority == this)
-										.FirstOrDefault();
+			                            .FirstOrDefault();
 			if (servingEffect == null)
 			{
 				servingEffect = new ServingCustodialSentence(criminal, this, result.CustodialSentence,
@@ -277,137 +491,6 @@ public partial class LegalAuthority : SaveableItem, ILegalAuthority
 
 		criminal.RemoveAllEffects<AwaitingSentencing>(x => x.LegalAuthority == this);
 		criminal.RemoveAllEffects<OnTrial>(x => x.LegalAuthority == this);
-	}
-
-	public void LegalHeartbeat()
-	{
-		var now = EnforcementZones.FirstOrDefault()?.DateTime() ?? Gameworld.Calendars.First().CurrentDateTime;
-
-		if (AutomaticallyConvict)
-		{
-			foreach (var criminal in KnownCrimes.Where(x => x.EligableForAutomaticConviction()).Select(x => x.Criminal)
-												.Distinct())
-			{
-				var awaitingEffect = criminal.EffectsOfType<AwaitingSentencing>(x => x.LegalAuthority == this)
-											 .FirstOrDefault();
-				if (awaitingEffect is null)
-				{
-					continue;
-				}
-
-				if (criminal.AffectedBy<OnBail>(this))
-				{
-					continue;
-				}
-
-				if (now - awaitingEffect.ArrestTime < AutomaticConvictionTime)
-				{
-					continue;
-				}
-
-				// TODO - chance of failure
-				var crimes = KnownCrimesForIndividual(criminal).ToList();
-				var result = new PunishmentResult();
-				foreach (var crime in crimes)
-				{
-					var crimeResult = crime.Law.PunishmentStrategy.GetResult(criminal, crime);
-					result += crimeResult;
-					crime.Convict(null, crimeResult.Fine, crimeResult.CustodialSentence,
-						"Automatic conviction by the system");
-					_knownCrimes.Remove(crime);
-					_knownCrimesLookup.Remove(criminal.Id, crime);
-					_resolvedCrimes.Add(crime);
-					_resolvedCrimesLookup.Add(criminal.Id, crime);
-				}
-
-				if (result.Fine > 0)
-				{
-					_finesOwed[criminal.Id] += result.Fine;
-					_finePaymentDueDates[criminal.Id] = now + MudTimeSpan.FromMonths(1);
-					Changed = true;
-				}
-
-				if (result.CustodialSentence > MudTimeSpan.Zero)
-				{
-					var servingEffect = criminal.EffectsOfType<ServingCustodialSentence>(x => x.LegalAuthority == this)
-												.FirstOrDefault();
-					if (servingEffect == null)
-					{
-						servingEffect = new ServingCustodialSentence(criminal, this, result.CustodialSentence,
-							now + result.CustodialSentence);
-						criminal.AddEffect(servingEffect);
-					}
-					else
-					{
-						servingEffect.ExtendSentence(result.CustodialSentence);
-					}
-				}
-
-				// Good Behaviour Bond
-				if (result.GoodBehaviourBondLength > MudTimeSpan.Zero)
-				{
-					var bondEffect = criminal.EffectsOfType<GoodBehaviourBond>(x => x.Authority == this)
-											 .FirstOrDefault();
-					if (bondEffect is null)
-					{
-						bondEffect = new GoodBehaviourBond(criminal, this, result.GoodBehaviourBondLength);
-						criminal.AddEffect(bondEffect);
-					}
-					else
-					{
-						bondEffect.AddLengthToBond(result.GoodBehaviourBondLength);
-					}
-				}
-
-				criminal.RemoveAllEffects<AwaitingSentencing>(x => x.LegalAuthority == this);
-				// Notify Discord
-				// Notify enforcers
-			}
-		}
-
-		// Check for bail skippers
-		var bailed = KnownCrimes.Where(x => x.BailPosted).Select(x => x.Criminal).Distinct().ToList();
-		foreach (var criminal in bailed)
-		{
-			var bailEffect = criminal.EffectsOfType<OnBail>(x => x.LegalAuthority == this).FirstOrDefault();
-			if (bailEffect is null)
-			{
-				continue;
-			}
-
-			if (bailEffect.ArrestTime > now)
-			{
-				continue;
-			}
-
-			var crimes = CheckPossibleCrime(criminal, CrimeTypes.ViolateBail, null, null, "");
-			if (!crimes.Any())
-			{
-				continue;
-			}
-
-			EndBail(criminal);
-
-			// Notify Discord
-			// Notify enforcers
-		}
-
-		// Check for custodial sentences ending
-		var custodial = Gameworld.Actors.Where(x => x.AffectedBy<ServingCustodialSentence>(this)).ToList();
-		foreach (var prisoner in custodial)
-		{
-			var custodialEffect =
-				prisoner.EffectsOfType<ServingCustodialSentence>(x => x.LegalAuthority == this).First();
-			if (custodialEffect.ReleaseDate > now)
-			{
-				continue;
-			}
-
-			prisoner.RemoveEffect(custodialEffect, true);
-			ReleaseCharacterToFreedom(prisoner);
-			// Notify Discord
-			// Notify enforcers
-		}
 	}
 
 	public void CheckCharacterForCustodyChanges(ICharacter criminal)
@@ -533,7 +616,7 @@ public partial class LegalAuthority : SaveableItem, ILegalAuthority
 			crime.BailPosted = true;
 		}
 	}
-
+	
 	public void EndBail(ICharacter criminal)
 	{
 		criminal.RemoveAllEffects<OnBail>(x => x.LegalAuthority == this, true);
@@ -546,136 +629,6 @@ public partial class LegalAuthority : SaveableItem, ILegalAuthority
 				crime.CalculatedBail = 0.0M;
 			}
 		}
-	}
-
-	public void AddLaw(ILaw law)
-	{
-		_laws.Add(law);
-		Changed = true;
-		CalculateLawLookup();
-	}
-
-	public void RemoveLaw(ILaw law)
-	{
-		_laws.Remove(law);
-		Changed = true;
-		CalculateLawLookup();
-	}
-
-	private readonly List<IEnforcementAuthority> _enforcementAuthorities = new();
-	public IEnumerable<IEnforcementAuthority> EnforcementAuthorities => _enforcementAuthorities;
-
-	public void AddEnforcementAuthority(IEnforcementAuthority authority)
-	{
-		_enforcementAuthorities.Add(authority);
-		Changed = true;
-	}
-
-	public void RemoveEnforcementAuthority(IEnforcementAuthority authority)
-	{
-		_enforcementAuthorities.Remove(authority);
-		Changed = true;
-	}
-
-	private readonly List<IZone> _enforcementZones = new();
-	public IEnumerable<IZone> EnforcementZones => _enforcementZones;
-
-	public void AddEnforcementZone(IZone zone)
-	{
-		_enforcementZones.Add(zone);
-		Changed = true;
-	}
-
-	public void RemoveEnforcementZone(IZone zone)
-	{
-		_enforcementZones.Remove(zone);
-		Changed = true;
-	}
-
-	private readonly List<ILegalClass> _legalClasses = new();
-	public IEnumerable<ILegalClass> LegalClasses => _legalClasses;
-
-	public void AddLegalClass(ILegalClass item)
-	{
-		_legalClasses.Add(item);
-		Changed = true;
-	}
-
-	public void RemoveLegalClass(ILegalClass item)
-	{
-		_legalClasses.Remove(item);
-		Changed = true;
-	}
-
-	private readonly List<IPatrolRoute> _patrolRoutes = new();
-	public IEnumerable<IPatrolRoute> PatrolRoutes => _patrolRoutes;
-
-	public void AddPatrolRoute(IPatrolRoute route)
-	{
-		_patrolRoutes.Add(route);
-		Changed = true;
-	}
-
-	public void RemovePatrolRoute(IPatrolRoute route)
-	{
-		_patrolRoutes.Remove(route);
-		Changed = true;
-	}
-
-	private readonly List<ICrime> _knownCrimes = new();
-	public IEnumerable<ICrime> KnownCrimes => _knownCrimes;
-
-	private readonly List<ICrime> _staleCrimes = new();
-	public IEnumerable<ICrime> StaleCrimes => _staleCrimes;
-
-	private readonly List<ICrime> _unknownCrimes = new();
-	public IEnumerable<ICrime> UnknownCrimes => _unknownCrimes;
-
-	private readonly List<ICrime> _resolvedCrimes = new();
-	public IEnumerable<ICrime> ResolvedCrimes => _resolvedCrimes;
-
-	public override void Save()
-	{
-		var dbitem = FMDB.Context.LegalAuthorities.Find(Id);
-		dbitem.CurrencyId = Currency.Id;
-		dbitem.Name = Name;
-		dbitem.PreparingLocationId = PreparingLocation?.Id;
-		dbitem.MarshallingLocationId = MarshallingLocation?.Id;
-		dbitem.EnforcerStowingLocationId = EnforcerStowingLocation?.Id;
-		dbitem.PrisonLocationId = PrisonLocation?.Id;
-		dbitem.PrisonReleaseLocationId = PrisonReleaseLocation?.Id;
-		dbitem.PrisonBelongingsLocationId = PrisonerBelongingsStorageLocation?.Id;
-		dbitem.JailLocationId = JailLocation?.Id;
-		dbitem.OnImprisonProgId = OnPrisonerImprisoned?.Id;
-		dbitem.OnReleaseProgId = OnPrisonerReleased?.Id;
-		dbitem.OnHoldProgId = OnPrisonerHeld?.Id;
-		dbitem.BailCalculationProgId = BailCalculationProg?.Id;
-		dbitem.CourtLocationId = CourtLocation?.Id;
-		dbitem.BankAccountId = BankAccount?.Id;
-		dbitem.PlayersKnowTheirCrimes = PlayersKnowTheirCrimes;
-		dbitem.AutomaticallyConvict = AutomaticallyConvict;
-		dbitem.AutomaticConvictionTime = AutomaticConvictionTime.TotalSeconds;
-		dbitem.GuardianDiscordChannel = DiscordChannelId;
-		FMDB.Context.LegalAuthoritiyCells.RemoveRange(dbitem.LegalAuthorityCells);
-		foreach (var cell in CellLocations)
-		{
-			dbitem.LegalAuthorityCells.Add(new LegalAuthorityCells { LegalAuthority = dbitem, CellId = cell.Id });
-		}
-
-		FMDB.Context.LegalAuthorityJailCells.RemoveRange(dbitem.LegalAuthorityJailCells);
-		foreach (var cell in JailLocations)
-		{
-			dbitem.LegalAuthorityJailCells.Add(new LegalAuthorityJailCell
-			{ LegalAuthority = dbitem, CellId = cell.Id });
-		}
-
-		FMDB.Context.LegalAuthoritiesZones.RemoveRange(dbitem.LegalAuthoritiesZones);
-		foreach (var zone in _enforcementZones)
-		{
-			dbitem.LegalAuthoritiesZones.Add(new LegalAuthoritiesZones { LegalAuthority = dbitem, ZoneId = zone.Id });
-		}
-
-		Changed = false;
 	}
 
 	public IEnumerable<ICrime> CheckPossibleCrime(ICharacter criminal, CrimeTypes crime, ICharacter victim,
@@ -881,12 +834,101 @@ public partial class LegalAuthority : SaveableItem, ILegalAuthority
 	{
 		return _resolvedCrimesLookup[individual.Id];
 	}
+	#endregion
 
-	public bool PlayersKnowTheirCrimes { get; set; }
-	public ulong? DiscordChannelId { get; set; }
-	public IBankAccount BankAccount { get; set; }
-	public bool AutomaticallyConvict { get; set; }
-	public TimeSpan AutomaticConvictionTime { get; set; }
+	#region Laws
+	public void AddLaw(ILaw law)
+	{
+		_laws.Add(law);
+		Changed = true;
+		CalculateLawLookup();
+	}
+
+	public void RemoveLaw(ILaw law)
+	{
+		_laws.Remove(law);
+		Changed = true;
+		CalculateLawLookup();
+	}
+	#endregion
+
+	#region Enforcement Authorities
+
+	private readonly List<IEnforcementAuthority> _enforcementAuthorities = new();
+	public IEnumerable<IEnforcementAuthority> EnforcementAuthorities => _enforcementAuthorities;
+
+	public void AddEnforcementAuthority(IEnforcementAuthority authority)
+	{
+		_enforcementAuthorities.Add(authority);
+		Changed = true;
+	}
+
+	public void RemoveEnforcementAuthority(IEnforcementAuthority authority)
+	{
+		_enforcementAuthorities.Remove(authority);
+		Changed = true;
+	}
+
+	#endregion
+
+	#region EnforcementZones
+
+	private readonly List<IZone> _enforcementZones = new();
+	public IEnumerable<IZone> EnforcementZones => _enforcementZones;
+
+	public void AddEnforcementZone(IZone zone)
+	{
+		_enforcementZones.Add(zone);
+		Changed = true;
+	}
+
+	public void RemoveEnforcementZone(IZone zone)
+	{
+		_enforcementZones.Remove(zone);
+		Changed = true;
+	}
+	#endregion
+
+	#region Legal Classes
+	private readonly List<ILegalClass> _legalClasses = new();
+	public IEnumerable<ILegalClass> LegalClasses => _legalClasses;
+
+	public void AddLegalClass(ILegalClass item)
+	{
+		_legalClasses.Add(item);
+		Changed = true;
+	}
+
+	public void RemoveLegalClass(ILegalClass item)
+	{
+		_legalClasses.Remove(item);
+		Changed = true;
+	}
+	#endregion
+
+	#region Patrol Routes
+	private readonly List<IPatrolRoute> _patrolRoutes = new();
+	public IEnumerable<IPatrolRoute> PatrolRoutes => _patrolRoutes;
+
+	public void AddPatrolRoute(IPatrolRoute route)
+	{
+		_patrolRoutes.Add(route);
+		Changed = true;
+	}
+
+	public void RemovePatrolRoute(IPatrolRoute route)
+	{
+		_patrolRoutes.Remove(route);
+		Changed = true;
+	}
+
+
+	#endregion
+
+
+	
+
+	#region Location Properties
 	public ICell PreparingLocation
 	{
 		get
@@ -1119,10 +1161,6 @@ public partial class LegalAuthority : SaveableItem, ILegalAuthority
 
 	private readonly List<ICell> _jailLocations = new();
 	public IEnumerable<ICell> JailLocations => _jailLocations;
-
-	public IPatrolController PatrolController { get; }
-
-	private readonly List<IPatrol> _patrols = new();
 	private ICell _preparingLocation;
 	private ICell _marshallingLocation;
 	private ICell _enforcerStowingLocation;
@@ -1131,6 +1169,13 @@ public partial class LegalAuthority : SaveableItem, ILegalAuthority
 	private ICell _prisonerBelongingsStorageLocation;
 	private ICell _jailLocation;
 	private ICell _courtLocation;
+	#endregion
+
+	#region Patrols
+	public IPatrolController PatrolController { get; }
+
+	private readonly List<IPatrol> _patrols = new();
+	
 
 	public IEnumerable<IPatrol> Patrols => _patrols;
 
@@ -1143,7 +1188,9 @@ public partial class LegalAuthority : SaveableItem, ILegalAuthority
 	{
 		_patrols.Remove(patrol);
 	}
+	#endregion
 
+	#region Discord Notifications
 	public void HandleDiscordNotification(ICrime crime)
 	{
 		if (DiscordChannelId is null)
@@ -1239,4 +1286,5 @@ public partial class LegalAuthority : SaveableItem, ILegalAuthority
 		Gameworld.DiscordConnection.NotifyEnforcement("incarceration", DiscordChannelId.Value,
 			$"\"{Name}\" {criminal.Id} \"{criminal.PersonalName.GetName(NameStyle.FullName)}\"");
 	}
+	#endregion
 }

@@ -11,9 +11,11 @@ using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using MudSharp.Character.Name;
 using MudSharp.Form.Shape;
 using MudSharp.FutureProg;
 using MudSharp.FutureProg.Variables;
+using MudSharp.RPG.Checks;
 
 namespace MudSharp.RPG.Law;
 #nullable enable
@@ -366,19 +368,12 @@ public class Crime : LateInitialisingItem, ICrime
 		}
 	}
 
-	public string DescribeCrime(IPerceiver voyeur)
+	private string DescribeCrimeInternal(IPerceiver voyeur, string victimDesc, string locationAddendum, string thirdPartyDesc)
 	{
-		var victimDesc = Victim?.HowSeen(voyeur, flags: PerceiveIgnoreFlags.IgnoreCanSee) ??
-						 "unnamed victims".ColourCharacter();
-		var locationAddendum = CrimeLocation != null ? $" at {CrimeLocation.HowSeen(voyeur)}" : "";
-		var thirdPartyDesc = ThirdPartyId.HasValue
-			? Gameworld.GetPerceivable(ThirdPartyFrameworkItemType, ThirdPartyId.Value)
-					   .HowSeen(voyeur, flags: PerceiveIgnoreFlags.IgnoreCanSee)
-			: "an unidentified thing".ColourObject();
 		switch (Law.CrimeType)
 		{
 			case CrimeTypes.Assault:
-				return $"Assaulted {victimDesc}{locationAddendum}";
+				return $"assaulted {victimDesc}{locationAddendum}";
 			case CrimeTypes.AssaultWithADeadlyWeapon:
 				return $"Assaulted {victimDesc} with a deadly weapon{locationAddendum}";
 			case CrimeTypes.Battery:
@@ -473,14 +468,112 @@ public class Crime : LateInitialisingItem, ICrime
 				return $"Sedition{locationAddendum}";
 			case CrimeTypes.Mayhem:
 				return $"Mayhem{locationAddendum}";
+			case CrimeTypes.ContemptOfCourt:
+				return $"Contempt of Court{locationAddendum}";
+			case CrimeTypes.ViolateBail:
+				return "Violating Bail";
+			case CrimeTypes.Aiding:
+				return $"Aiding{locationAddendum}";
+			case CrimeTypes.Abetting:
+				return $"Abetting{locationAddendum}";
+			case CrimeTypes.Accessory:
+				return $"Accessory{locationAddendum}";
+			case CrimeTypes.Arson:
+				return $"Arson{locationAddendum}";
+			case CrimeTypes.Bribery:
+				return $"Bribery of {victimDesc}{locationAddendum}";
+			case CrimeTypes.Tyranny:
+				return "Tyranny";
+			case CrimeTypes.Harassment:
+				return $"Harassment of {victimDesc}{locationAddendum}";
+			case CrimeTypes.Extortion:
+				return $"Extortion of {victimDesc}{locationAddendum}";
+			case CrimeTypes.Rape:
+				return $"Rape of {victimDesc}{locationAddendum}";
+			case CrimeTypes.SexualAssault:
+				return $"Sexual Assault of {victimDesc}{locationAddendum}";
+			case CrimeTypes.Negligence:
+				return $"Negligence against {victimDesc}{locationAddendum}";
+			case CrimeTypes.Perjury:
+				return "Perjury";
+			case CrimeTypes.Desertion:
+				return $"Desertion{locationAddendum}";
+			case CrimeTypes.Mutiny:
+				return $"Mutiny against {victimDesc}{locationAddendum}";
+			case CrimeTypes.Rebellion:
+				return $"Rebellion against {victimDesc}{locationAddendum}";
+			case CrimeTypes.Rioting:
+				return $"Rioting{locationAddendum}";
+			case CrimeTypes.TaxEvasion:
+				return "Tax Evasion";
+			case CrimeTypes.Gambling:
+				return $"Gambling{locationAddendum}";
+			case CrimeTypes.ObstructionOfJustice:
+				return $"Obstruction of Justice{locationAddendum}";
+			case CrimeTypes.Forgery:
+				return $"Forgery of {thirdPartyDesc}{locationAddendum}";
+			case CrimeTypes.Adultery:
+				return $"Adultery with {victimDesc}{locationAddendum}";
+			case CrimeTypes.Sodomy:
+				return $"Sodomy with {victimDesc}{locationAddendum}";
+			case CrimeTypes.Fornication:
+				return $"Fornication with {victimDesc}{locationAddendum}";
+			case CrimeTypes.Prostitution:
+				return $"Prostitution with {victimDesc}{locationAddendum}";
+			case CrimeTypes.Kidnapping:
+				return $"Kidnapping of {victimDesc}{locationAddendum}";
+			case CrimeTypes.Slavery:
+				return $"Slavery{locationAddendum}";
+			case CrimeTypes.Smuggling:
+				return $"Smuggling of {thirdPartyDesc}{locationAddendum}";
+			case CrimeTypes.AnimalCruelty:
+				return $"Animal Cruelty {victimDesc}{locationAddendum}";
+			case CrimeTypes.UnlawfulUseOfMagic:
+				return $"Unlawful Use of Magic{locationAddendum}";
+			case CrimeTypes.UnlawfulUseOfPsionics:
+				return $"Unlawful Use of Psionics{locationAddendum}";
+			case CrimeTypes.IllegalConsumption:
+				return $"Illegal Consumption of {thirdPartyDesc}{locationAddendum}";
+			default:
+				return "An unknown crime";
 		}
+	}
 
-		return "An unknown crime";
+	public string DescribeCrimeAtTrial(IPerceiver voyeur)
+	{
+		var victimDesc = Victim?.PersonalName.GetName(NameStyle.FullName) ??
+						 "unnamed victims".ColourCharacter();
+		var locationAddendum = CrimeLocation != null ? $" at {CrimeLocation.CurrentOverlay.CellName.ColourRoom()}" : "";
+		var thirdPartyDesc = ThirdPartyId.HasValue
+			? Gameworld.GetPerceivable(ThirdPartyFrameworkItemType, ThirdPartyId.Value)
+					   .HowSeen(voyeur, flags: PerceiveIgnoreFlags.IgnoreCanSee)
+			: "an unidentified thing".ColourObject();
+		return DescribeCrimeInternal(voyeur, victimDesc, locationAddendum, thirdPartyDesc);
+	}
+
+	public string DescribeCrime(IPerceiver voyeur)
+	{
+		var victimDesc = Victim?.HowSeen(voyeur, flags: PerceiveIgnoreFlags.IgnoreCanSee) ??
+						 "unnamed victims".ColourCharacter();
+		var locationAddendum = CrimeLocation != null ? $" at {CrimeLocation.CurrentOverlay.CellName.ColourRoom()}" : "";
+		var thirdPartyDesc = ThirdPartyId.HasValue
+			? Gameworld.GetPerceivable(ThirdPartyFrameworkItemType, ThirdPartyId.Value)
+					   .HowSeen(voyeur, flags: PerceiveIgnoreFlags.IgnoreCanSee)
+			: "an unidentified thing".ColourObject();
+		return DescribeCrimeInternal(voyeur, victimDesc, locationAddendum, thirdPartyDesc);
 	}
 
 	public void Forgive(ICharacter forgiver, string reason)
 	{
-		// TODO - what happens if this crime is being actively enforced?
+		// Stop active enforcement
+		foreach (var patrol in LegalAuthority.Patrols)
+		{
+			if (patrol.ActiveEnforcementCrime == this)
+			{
+				patrol.InvalidateActiveCrime();
+			}
+		}
+
 		// TODO - log this
 		Gameworld.SaveManager.Abort(this);
 		Gameworld.Destroy(this);
@@ -498,13 +591,14 @@ public class Crime : LateInitialisingItem, ICrime
 		LegalAuthority.RemoveCrime(this);
 	}
 
-	public void Convict(ICharacter enforcer, decimal fine, TimeSpan custodialPeriod, string reason)
+	public void Convict(ICharacter? enforcer, PunishmentResult result, string reason)
 	{
-		FineRecorded = fine;
-		CustodialSentenceLength = CustodialSentenceLength;
+		FineRecorded = result.Fine;
+		CustodialSentenceLength = result.CustodialSentence;
 		// TODO - log
 		HasBeenConvicted = true;
 		HasBeenFinalised = true;
+		LegalAuthority.HandleDiscordNotificationOfConviction(Criminal, this, result, enforcer);
 		// TODO - echo to discord
 		// TODO - echo to enforcers
 	}
@@ -534,6 +628,23 @@ public class Crime : LateInitialisingItem, ICrime
 	{
 		TryLoadCharacter();
 	}
+
+	public Difficulty DefenseDifficulty
+	{
+		get
+		{
+			var difficulty = Difficulty.Normal;
+			// Easier if you've been accused by vNPCs
+			if (_accuserId is null)
+			{
+				//if (loc)
+				difficulty.StageDown();
+			}
+			return difficulty;
+		}
+	}
+
+	public Difficulty ProsecutionDifficulty { get; }
 
 	#region FutureProg Implementations
 

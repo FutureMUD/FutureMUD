@@ -543,6 +543,7 @@ You can also use the following options to change the properties of an authority 
 				$"Patrol \"{patrol.PatrolRoute.Name}\" (#{patrol.Id.ToString("N0", actor)}) in {patrol.LegalAuthority.Name}"
 					.GetLineWithTitle(actor.LineFormatLength, actor.Account.UseUnicode, Telnet.BoldBlue,
 						Telnet.BoldWhite));
+			sb.AppendLine();
 			sb.AppendLine($"Phase: {patrol.PatrolPhase.DescribeEnum().ColourValue()}");
 			sb.AppendLine($"Strategy: {patrol.PatrolStrategy.Name.ColourValue()}");
 			sb.AppendLine($"Leader: {patrol.PatrolLeader?.HowSeen(actor) ?? "Noone".ColourCharacter()}");

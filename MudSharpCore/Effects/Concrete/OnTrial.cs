@@ -11,48 +11,71 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
+using MudSharp.FutureProg.Statements;
+using MudSharp.RPG.Checks;
 
 namespace MudSharp.Effects.Concrete;
+
+public enum TrialPhase
+{
+	Introduction,
+	Charges,
+	Plea,
+	Case,
+	Verdict,
+	Sentencing
+}
 
 public class OnTrial : Effect, IEffect
 {
 	private DateTime _lastTrialAction;
-	private bool _introductionGiven;
 
 	public ILegalAuthority LegalAuthority { get; set; }
 
 	public DateTime LastTrialAction
 	{
 		get => _lastTrialAction;
-		init
+		set
 		{
 			_lastTrialAction = value;
 			Changed = true;
 		}
 	}
 
-	private readonly Queue<ICrime> _crimeQueue;
-	public IEnumerable<ICrime> CrimeQueue => _crimeQueue;
+	private TrialPhase _phase;
 
-	public bool IntroductionGiven
+	public TrialPhase Phase
 	{
-		get => _introductionGiven;
+		get => _phase;
 		set
 		{
-			_introductionGiven = value;
+			_phase = value;
 			Changed = true;
 		}
 	}
 
+	private readonly List<ICrime> _crimes;
+	public Queue<ICrime> CrimeQueue { get; private set; }
+
+	public void ResetCrimeQueue()
+	{
+		CrimeQueue = new Queue<ICrime>(_crimes);
+	}
+
+	public IEnumerable<ICrime> Crimes => _crimes;
+
+	private readonly Dictionary<ICrime, bool> _pleas = new();
+	public IDictionary<ICrime, bool> Pleas => _pleas;
+
 	public ICrime? NextCrime()
 	{
 		Changed = true;
-		if (_crimeQueue.Count == 0)
+		if (CrimeQueue.Count == 0)
 		{
 			return null;
 		}
 
-		return _crimeQueue.Dequeue();
+		return CrimeQueue.Dequeue();
 	}
 
 	#region Static Initialisation
@@ -70,20 +93,22 @@ public class OnTrial : Effect, IEffect
 		IEnumerable<ICrime> crimes) : base(owner, null)
 	{
 		LegalAuthority = legalAuthority;
-		LastTrialAction = lastTrialAction;
-		_crimeQueue = new Queue<ICrime>(crimes);
-		IntroductionGiven = false;
+		_lastTrialAction = lastTrialAction;
+		_crimes = crimes.ToList();
+		ResetCrimeQueue();
+		_phase = TrialPhase.Introduction;
 	}
 
 	protected OnTrial(XElement effect, IPerceivable owner) : base(effect, owner)
 	{
 		var root = effect.Element("Effect");
 		LegalAuthority = Gameworld.LegalAuthorities.Get(long.Parse(root.Element("LegalAuthority").Value));
-		LastTrialAction = DateTime.Parse(root.Element("LastTrialAction").Value, null,
+		_lastTrialAction = DateTime.Parse(root.Element("LastTrialAction").Value, null,
 			System.Globalization.DateTimeStyles.RoundtripKind);
-		_crimeQueue = new Queue<ICrime>(root.Element("Crimes").Elements()
+		_crimes = new List<ICrime>(root.Element("Crimes").Elements()
 		                                    .Select(x => Gameworld.Crimes.Get(long.Parse(x.Value))));
-		IntroductionGiven = bool.Parse(root.Element("IntroductionGiven").Value);
+		ResetCrimeQueue();
+		_phase = (TrialPhase)int.Parse(effect.Element("Phase")?.Value ?? "0");
 	}
 
 	#endregion
@@ -97,9 +122,9 @@ public class OnTrial : Effect, IEffect
 		return new XElement("Effect",
 			new XElement("LegalAuthority", LegalAuthority.Id),
 			new XElement("LastTrialAction", LastTrialAction.ToString("O")),
-			new XElement("IntroductionGiven", IntroductionGiven),
+			new XElement("Phase", (int)Phase),
 			new XElement("Crimes",
-				from crime in CrimeQueue
+				from crime in Crimes
 				select new XElement("Crime", crime.Id)
 			)
 		);
@@ -113,7 +138,7 @@ public class OnTrial : Effect, IEffect
 
 	public override string Describe(IPerceiver voyeur)
 	{
-		return $"On Trial in the {LegalAuthority.Name.ColourName()} authority.";
+		return $"On Trial in the {LegalAuthority.Name.ColourName()} authority - {Phase.DescribeEnum().ColourValue()}.";
 	}
 
 	public override bool SavingEffect => true;

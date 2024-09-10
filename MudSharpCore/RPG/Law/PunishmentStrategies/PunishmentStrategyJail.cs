@@ -28,8 +28,8 @@ internal class PunishmentStrategyJail : PunishmentStrategyBase
 	}
 
 	public override string TypeSpecificHelpText => @"
-    minimumsentence <length> - sets the minimum custodial sentence
-    maximumsentence <length> - sets the maximum custodial sentence";
+	minimumsentence <length> - sets the minimum custodial sentence
+	maximumsentence <length> - sets the maximum custodial sentence";
 
 	public override bool BuildingCommand(ICharacter actor, ILegalAuthority authority, StringStack command)
 	{
@@ -105,10 +105,10 @@ internal class PunishmentStrategyJail : PunishmentStrategyBase
 			: $"a custodial prison sentence of between {MinimumSentenceLength.Describe(voyeur).ColourValue()} and {MaximumSentenceLength.Describe(voyeur).ColourValue()}";
 	}
 
-	public override PunishmentResult GetResult(ICharacter actor, ICrime crime)
+	public override PunishmentResult GetResult(ICharacter actor, ICrime crime, double severity = 0)
 	{
 		// TODO - some 
-		return new PunishmentResult { CustodialSentence = MinimumSentenceLength };
+		return new PunishmentResult { CustodialSentence = MinimumSentenceLength + MudTimeSpan.FromDays(severity * (MaximumSentenceLength - MinimumSentenceLength).TotalDays)};
 	}
 
 	protected override void SaveSpecificType(XElement root)

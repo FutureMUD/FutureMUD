@@ -22,6 +22,7 @@ public enum TrialPhase
 	Charges,
 	Plea,
 	Case,
+	ClosingArguments,
 	Verdict,
 	Sentencing
 }
@@ -67,6 +68,27 @@ public class OnTrial : Effect, IEffect
 	private readonly Dictionary<ICrime, bool> _pleas = new();
 	public IDictionary<ICrime, bool> Pleas => _pleas;
 
+	private readonly Dictionary<ICrime, IReadOnlyDictionary<Difficulty,CheckOutcome>> _crimeDefenseCases = new();
+	private readonly Dictionary<ICrime, IReadOnlyDictionary<Difficulty, CheckOutcome>> _crimeProsecutionCases = new();
+
+	private readonly Dictionary<ICrime, PunishmentResult> _punishments = new();
+	public IDictionary<ICrime, PunishmentResult> Punishments => _punishments;
+
+	public void ArgueCaseDefender(ICharacter lawyer, ICrime crime)
+	{
+		_crimeDefenseCases[crime] = Gameworld.GetCheck(CheckType.DefendLegalCase).CheckAgainstAllDifficulties(lawyer, crime.DefenseDifficulty, null);
+	}
+
+	public void ArgueCaseProsecution(ICharacter lawyer, ICrime crime)
+	{
+		_crimeProsecutionCases[crime] = Gameworld.GetCheck(CheckType.ProsecuteLegalCase).CheckAgainstAllDifficulties(lawyer, crime.ProsecutionDifficulty, null);
+	}
+
+	public OpposedOutcome GetOutcome(ICrime crime)
+	{
+		return new OpposedOutcome(_crimeProsecutionCases[crime], _crimeDefenseCases[crime], crime.ProsecutionDifficulty, crime.DefenseDifficulty);
+	}
+
 	public ICrime? NextCrime()
 	{
 		Changed = true;
@@ -95,6 +117,12 @@ public class OnTrial : Effect, IEffect
 		LegalAuthority = legalAuthority;
 		_lastTrialAction = lastTrialAction;
 		_crimes = crimes.ToList();
+		foreach (var crime in _crimes)
+		{
+			_pleas[crime] = true;
+			_crimeDefenseCases[crime] = CheckOutcome.NotTestedAllDifficulties(CheckType.DefendLegalCase);
+			_crimeProsecutionCases[crime] = CheckOutcome.NotTestedAllDifficulties(CheckType.ProsecuteLegalCase);
+		}
 		ResetCrimeQueue();
 		_phase = TrialPhase.Introduction;
 	}
@@ -105,15 +133,34 @@ public class OnTrial : Effect, IEffect
 		LegalAuthority = Gameworld.LegalAuthorities.Get(long.Parse(root.Element("LegalAuthority").Value));
 		_lastTrialAction = DateTime.Parse(root.Element("LastTrialAction").Value, null,
 			System.Globalization.DateTimeStyles.RoundtripKind);
-		_crimes = new List<ICrime>(root.Element("Crimes").Elements()
-		                                    .Select(x => Gameworld.Crimes.Get(long.Parse(x.Value))));
+		_crimes = [];
+		foreach (var item in root.Element("Crimes").Elements())
+		{
+			var crime = Gameworld.Crimes.Get(long.Parse(item.Attribute("id").Value));
+			if (crime is null)
+			{
+				continue;
+			}
+			_crimes.Add(crime);
+			_pleas[crime] = bool.Parse(item.Attribute("plea").Value);
+			var defenseOutcome = new Dictionary<Difficulty, CheckOutcome>();
+			foreach (var result in item.Element("Defense").Elements())
+			{
+				defenseOutcome[(Difficulty)int.Parse(result.Attribute("difficulty").Value)] = CheckOutcome.SimpleOutcome(CheckType.DefendLegalCase, (Outcome)int.Parse(result.Attribute("outcome").Value));
+			}
+			_crimeDefenseCases[crime] = defenseOutcome;
+			var prosecutionOutcome = new Dictionary<Difficulty, CheckOutcome>();
+			foreach (var result in item.Element("Prosecution").Elements())
+			{
+				prosecutionOutcome[(Difficulty)int.Parse(result.Attribute("difficulty").Value)] = CheckOutcome.SimpleOutcome(CheckType.ProsecuteLegalCase, (Outcome)int.Parse(result.Attribute("outcome").Value));
+			}
+			_crimeProsecutionCases[crime] = prosecutionOutcome;
+		}
 		ResetCrimeQueue();
 		_phase = (TrialPhase)int.Parse(effect.Element("Phase")?.Value ?? "0");
 	}
 
 	#endregion
-
-	// Note: You can safely delete this entire region if your effect acts more like a flag and doesn't actually save any specific data on it (e.g. immwalk, admin telepathy, etc)
 
 	#region Saving and Loading
 
@@ -125,7 +172,24 @@ public class OnTrial : Effect, IEffect
 			new XElement("Phase", (int)Phase),
 			new XElement("Crimes",
 				from crime in Crimes
-				select new XElement("Crime", crime.Id)
+				select new XElement("Crime", 
+					new XAttribute("id", crime.Id),
+					new XAttribute("plea", _pleas[crime]),
+					new XElement("Defense",
+						from item in _crimeDefenseCases[crime]
+						select new XElement("Result",
+							new XAttribute("difficulty", (int)item.Key),
+							new XAttribute("outcome", (int)item.Value.Outcome)
+						)
+					),
+					new XElement("Prosecution",
+						from item in _crimeProsecutionCases[crime]
+						select new XElement("Result",
+							new XAttribute("difficulty", (int)item.Key),
+							new XAttribute("outcome", (int)item.Value.Outcome)
+						)
+					)
+				)
 			)
 		);
 	}

@@ -32,8 +32,8 @@ public class PunishmentStrategyFine : PunishmentStrategyBase
 	}
 
 	public override string TypeSpecificHelpText => @"
-    fine <amount> - sets the standard fine
-    maxfine <amount> - sets the maximum fine that can be manually imposed";
+	fine <amount> - sets the standard fine
+	maxfine <amount> - sets the maximum fine that can be manually imposed";
 
 	public override bool BuildingCommand(ICharacter actor, ILegalAuthority authority, StringStack command)
 	{
@@ -106,12 +106,15 @@ public class PunishmentStrategyFine : PunishmentStrategyBase
 	public override string Describe(IPerceiver voyeur)
 	{
 		return
-			$"a fine of up to {Currency.Describe(MaximumFineAmount, CurrencyDescriptionPatternType.Short).ColourValue()} (typically {Currency.Describe(FineAmount, CurrencyDescriptionPatternType.Short).ColourValue()})";
+			$"a fine of between {Currency.Describe(FineAmount, CurrencyDescriptionPatternType.Short).ColourValue()} and {Currency.Describe(MaximumFineAmount, CurrencyDescriptionPatternType.Short).ColourValue()}";
 	}
 
-	public override PunishmentResult GetResult(ICharacter actor, ICrime crime)
+	public override PunishmentResult GetResult(ICharacter actor, ICrime crime, double severity = 0)
 	{
-		return new PunishmentResult { Fine = FineAmount };
+		return new PunishmentResult
+		{
+			Fine = FineAmount + ((decimal)severity * MaximumFineAmount - FineAmount)
+		};
 	}
 
 	public override string Show(ICharacter actor)

@@ -48,7 +48,7 @@ public class EnforcerAI : ArtificialIntelligenceBase
 			: Gameworld.FutureProgs.GetByName(root.Element("ThrowInPrisonEchoProg")!.Value);
 	}
 
-	private EnforcerAI()
+	protected EnforcerAI()
 	{
 
 	}
@@ -56,6 +56,10 @@ public class EnforcerAI : ArtificialIntelligenceBase
 	private EnforcerAI(IFuturemud gameworld, string name) : base(gameworld, name, "Enforcer")
 	{
 		DatabaseInitialise();
+	}
+
+	protected EnforcerAI(IFuturemud gameworld, string name, string type) : base(gameworld, name, type)
+	{
 	}
 
 	protected override string SaveToXml()
@@ -378,7 +382,7 @@ public class EnforcerAI : ArtificialIntelligenceBase
 		return false;
 	}
 
-	private EnforcerEffect EnforcerEffect(ICharacter enforcer)
+	protected EnforcerEffect EnforcerEffect(ICharacter enforcer)
 	{
 		return enforcer.EffectsOfType<EnforcerEffect>().FirstOrDefault();
 	}
@@ -463,7 +467,7 @@ public class EnforcerAI : ArtificialIntelligenceBase
 		return false;
 	}
 
-	private bool CharacterFiveSecondTick(ICharacter enforcer)
+	protected virtual bool CharacterFiveSecondTick(ICharacter enforcer)
 	{
 		var effect = EnforcerEffect(enforcer);
 		if (effect == null)

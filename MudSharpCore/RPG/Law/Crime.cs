@@ -12,10 +12,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using MudSharp.Character.Name;
+using MudSharp.Commands.Trees;
 using MudSharp.Form.Shape;
 using MudSharp.FutureProg;
 using MudSharp.FutureProg.Variables;
 using MudSharp.RPG.Checks;
+using MudSharp.Accounts;
 
 namespace MudSharp.RPG.Law;
 #nullable enable
@@ -599,7 +601,6 @@ public class Crime : LateInitialisingItem, ICrime
 		HasBeenConvicted = true;
 		HasBeenFinalised = true;
 		LegalAuthority.HandleDiscordNotificationOfConviction(Criminal, this, result, enforcer);
-		// TODO - echo to discord
 		// TODO - echo to enforcers
 	}
 
@@ -637,14 +638,28 @@ public class Crime : LateInitialisingItem, ICrime
 			// Easier if you've been accused by vNPCs
 			if (_accuserId is null)
 			{
-				//if (loc)
+				// TODO - witness profile biases
 				difficulty.StageDown();
 			}
 			return difficulty;
 		}
 	}
 
-	public Difficulty ProsecutionDifficulty { get; }
+	public Difficulty ProsecutionDifficulty
+	{
+		get
+		{
+			var difficulty = Difficulty.Normal;
+			var crimes = LegalAuthority.ResolvedCrimesForIndividual(Criminal)
+			                           .Where(x => x.HasBeenConvicted && x.CustodialSentenceLength > TimeSpan.Zero)
+			                           .ToList();
+			if (crimes.Any())
+			{
+				difficulty.StageDown(2);
+			}
+			return difficulty;
+		}
+	}
 
 	#region FutureProg Implementations
 

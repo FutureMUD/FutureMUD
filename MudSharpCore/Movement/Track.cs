@@ -73,6 +73,7 @@ public class Track : LateInitialisingItem, ITrack
 	/// <inheritdoc />
 	public override void Save()
 	{
+		Changed = false;
 		if (Deleted)
 		{
 			return;
@@ -96,7 +97,6 @@ public class Track : LateInitialisingItem, ITrack
 		dbitem.FromDirectionExitId = FromExit?.Id;
 		dbitem.ToDirectionExitId = ToExit?.Id;
 		dbitem.BodyPrototypeId = BodyProtoType.Id;
-		Changed = false;
 	}
 
 	/// <inheritdoc />

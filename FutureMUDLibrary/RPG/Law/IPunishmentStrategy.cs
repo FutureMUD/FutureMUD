@@ -16,6 +16,6 @@ namespace MudSharp.RPG.Law
         string Describe(IPerceiver voyeur);
         bool BuildingCommand(ICharacter actor, ILegalAuthority authority, StringStack command);
         string Show(ICharacter actor);
-        PunishmentResult GetResult(ICharacter actor, ICrime crime);
+        PunishmentResult GetResult(ICharacter actor, ICrime crime, double severity = 0.0);
     }
 }

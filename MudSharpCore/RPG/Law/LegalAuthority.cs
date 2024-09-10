@@ -363,7 +363,7 @@ public partial class LegalAuthority : SaveableItem, ILegalAuthority
 					continue;
 				}
 
-				if (criminal.AffectedBy<OnBail>(this))
+				if (criminal.AffectedBy<OnBail>(this) || criminal.AffectedBy<OnTrial>(this))
 				{
 					continue;
 				}
@@ -373,7 +373,6 @@ public partial class LegalAuthority : SaveableItem, ILegalAuthority
 					continue;
 				}
 
-				// TODO - chance of failure
 				var crimes = KnownCrimesForIndividual(criminal).ToList();
 				var result = new PunishmentResult();
 				foreach (var crime in crimes)
@@ -381,10 +380,7 @@ public partial class LegalAuthority : SaveableItem, ILegalAuthority
 					var crimeResult = crime.Law.PunishmentStrategy.GetResult(criminal, crime);
 					result += crimeResult;
 					crime.Convict(null, result, "Automatic conviction by the system");
-					_knownCrimes.Remove(crime);
-					_knownCrimesLookup.Remove(criminal.Id, crime);
-					_resolvedCrimes.Add(crime);
-					_resolvedCrimesLookup.Add(criminal.Id, crime);
+					FinaliseCrime(crime);
 				}
 
 				if (result.Fine > 0)
@@ -427,8 +423,6 @@ public partial class LegalAuthority : SaveableItem, ILegalAuthority
 				}
 
 				criminal.RemoveAllEffects<AwaitingSentencing>(x => x.LegalAuthority == this);
-				// Notify Discord
-				// Notify enforcers
 			}
 		}
 	}
@@ -557,6 +551,28 @@ public partial class LegalAuthority : SaveableItem, ILegalAuthority
 
 		HandleDiscordNotificationOfIncarceration(criminal);
 		// Notify enforcers
+	}
+
+	public void SendCharacterToHoldingCell(ICharacter criminal)
+	{
+		criminal.Movement?.CancelForMoverOnly(criminal);
+		criminal.RemoveAllEffects(x => x.IsEffectType<IActionEffect>());
+		criminal.OutputHandler.Handle(new EmoteOutput(
+			new Emote(Gameworld.GetStaticString("SendCharacterToHoldingCellEmoteOrigin"), criminal, criminal),
+			flags: OutputFlags.SuppressSource));
+		criminal.OutputHandler.Send(
+			new EmoteOutput(new Emote(Gameworld.GetStaticString("SendCharacterToHoldingCellEmoteSelf"), criminal,
+				criminal)));
+		criminal.Location.Leave(criminal);
+		criminal.RoomLayer = RoomLayer.GroundLevel;
+		var cell = CellLocations.OrderBy(x => x.Characters.Count()).First();
+		cell.Enter(criminal);
+		OnPrisonerImprisoned?.Execute(criminal);
+		criminal.OutputHandler.Handle(new EmoteOutput(
+			new Emote(Gameworld.GetStaticString("SendCharacterToHoldingCellEmoteDestination"), criminal, criminal),
+			flags: OutputFlags.SuppressSource));
+		criminal.Body.Look(true);
+		HandleDiscordNotificationOfIncarceration(criminal);
 	}
 
 	public void SendCharacterToPrison(ICharacter criminal)
@@ -747,6 +763,18 @@ public partial class LegalAuthority : SaveableItem, ILegalAuthority
 		}
 	}
 
+	public void FinaliseCrime(ICrime crime)
+	{
+		_knownCrimes.Remove(crime);
+		_knownCrimesLookup[crime.CriminalId].Remove(crime);
+		_unknownCrimes.Remove(crime);
+		_unknownCrimesLookup[crime.CriminalId].Remove(crime);
+		_resolvedCrimes.Add(crime);
+		_resolvedCrimesLookup.Add(crime.CriminalId, crime);
+		_staleCrimes.Remove(crime);
+		Changed = true;
+	}
+
 	public void ReportCrime(ICrime crime, ICharacter witness, bool identityKnown, double reliability)
 	{
 		// TODO - should there be any kind of delay on this for fairness?
@@ -924,9 +952,6 @@ public partial class LegalAuthority : SaveableItem, ILegalAuthority
 
 
 	#endregion
-
-
-	
 
 	#region Location Properties
 	public ICell PreparingLocation

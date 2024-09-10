@@ -331,17 +331,22 @@ public class JudgePatrolStrategy : PatrolStrategyBase
 			return;
 		}
 
-		if (DateTime.UtcNow - patrol.LastArrivedTime >= patrol.PatrolRoute.LingerTimeMajorNode)
+		// Patrol can only be completed if there is no trial on-going
+		if (patrol.PatrolLeader.Location.LayerCharacters(patrol.PatrolLeader.RoomLayer).All(x => !x.EffectsOfType<OnTrial>(y => y.LegalAuthority == patrol.LegalAuthority).Any()))
 		{
-			patrol.CompletePatrol();
-			return;
-		}
+			if (DateTime.UtcNow - patrol.LastArrivedTime >= patrol.PatrolRoute.LingerTimeMajorNode)
+			{
+				patrol.CompletePatrol();
+				return;
+			}
 
-		if (!patrol.PatrolRoute.TimeOfDays.Contains(patrol.PatrolLeader.Location.CurrentTimeOfDay))
-		{
-			patrol.CompletePatrol();
-			return;
+			if (!patrol.PatrolRoute.TimeOfDays.Contains(patrol.PatrolLeader.Location.CurrentTimeOfDay))
+			{
+				patrol.CompletePatrol();
+				return;
+			}
 		}
+		
 
 		if (patrol.PatrolLeader.Location != patrol.NextMajorNode)
 		{

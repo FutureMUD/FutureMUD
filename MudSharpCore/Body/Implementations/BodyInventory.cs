@@ -687,8 +687,10 @@ public partial class Body
 		if (item == null)
 		{
 			var wielditem =
-				ExternalItems.SelectNotNull(x => x.GetItemType<ISheath>()).SelectNotNull(x => x.Content)
-				             .FirstOrDefault();
+				ExternalItems
+				.SelectNotNull(x => x.GetItemType<ISheath>())
+				.SelectNotNull(x => x.Content)
+				.FirstOrDefault();
 			if (wielditem == null)
 			{
 				return false;

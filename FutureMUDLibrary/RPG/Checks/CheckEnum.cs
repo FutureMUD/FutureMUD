@@ -168,7 +168,9 @@ namespace MudSharp.RPG.Checks {
 		AppraiseItemCheck = 162,
         AuxiliaryMoveCheck = 163,
         WritingComprehendCheck = 164,
-    }
+        ProsecuteLegalCase = 165,
+        DefendLegalCase = 166,
+	}
 
     public enum FailIfTraitMissingType {
         DoNotFail = 0,

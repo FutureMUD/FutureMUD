@@ -29,11 +29,11 @@ public class PunishmentStrategyHierarchy : PunishmentStrategyBase
 	}
 
 	public override string TypeSpecificHelpText => @"
-    add <type> <prog> - adds a new punishment at the end of the hierarchy
-    remove <#> - removes a punishment from the hierarchy
-    swap <#> <#> - swaps the order of two punishments in the hierarchy
-    prog <#> <prog> - edits the prog associated with a punishment
-    <#> ... - edits the properties of the punishment in the hierarchy";
+	add <type> <prog> - adds a new punishment at the end of the hierarchy
+	remove <#> - removes a punishment from the hierarchy
+	swap <#> <#> - swaps the order of two punishments in the hierarchy
+	prog <#> <prog> - edits the prog associated with a punishment
+	<#> ... - edits the properties of the punishment in the hierarchy";
 
 	public override bool BuildingCommand(ICharacter actor, ILegalAuthority authority, StringStack command)
 	{
@@ -192,6 +192,28 @@ public class PunishmentStrategyHierarchy : PunishmentStrategyBase
 		}
 
 		var strategy = PunishmentStrategyFactory.GetStrategyFromBuilderInput(Gameworld, authority, command.PopSpeech());
+		if (strategy is null)
+		{
+			actor.OutputHandler.Send($"That is not a valid strategy type. Valid types are {PunishmentStrategyFactory.ValidTypes.ListToColouredString()}.");
+			return false;
+		}
+
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("What prog should be associated with this point on the hierarchy?");
+			return false;
+		}
+
+		var prog = new FutureProgLookupFromBuilderInput(actor, command.SafeRemainingArgument, FutureProgVariableTypes.Boolean, 
+			[[FutureProgVariableTypes.Character], [FutureProgVariableTypes.Character, FutureProgVariableTypes.Text]]
+			).LookupProg();
+		if (prog is null)
+		{
+			return false;
+		}
+
+		_strategyHierarchy.Add((prog, strategy));
+		
 		throw new NotImplementedException();
 	}
 
@@ -201,13 +223,13 @@ public class PunishmentStrategyHierarchy : PunishmentStrategyBase
 			$"a hierarchy of {_strategyHierarchy.Count.ToString("N0", voyeur).ColourIncludingReset(Telnet.Green)} different punishments";
 	}
 
-	public override PunishmentResult GetResult(ICharacter actor, ICrime crime)
+	public override PunishmentResult GetResult(ICharacter actor, ICrime crime, double severity = 0)
 	{
 		foreach (var strategy in _strategyHierarchy)
 		{
 			if (strategy.Prog.Execute<bool?>(actor, crime) == true)
 			{
-				return strategy.Strategy.GetResult(actor, crime);
+				return strategy.Strategy.GetResult(actor, crime, severity);
 			}
 		}
 

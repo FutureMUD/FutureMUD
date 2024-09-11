@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using MudSharp.FutureProg;
 
 namespace MudSharp.RPG.Law
 {
@@ -24,5 +25,6 @@ namespace MudSharp.RPG.Law
         void RemoveAllReferencesTo(ILegalClass legalClass);
         int Priority { get; }
         bool HasAuthority(ICharacter actor);
-    }
+        IFutureProg FilteringProg { get; }
+	}
 }

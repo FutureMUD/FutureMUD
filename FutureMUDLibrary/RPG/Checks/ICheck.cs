@@ -78,6 +78,19 @@ namespace MudSharp.RPG.Checks {
 
 	public class CheckOutcome
 	{
+		public static CheckOutcome SimpleOutcome(CheckType type, Outcome outcome)
+		{
+			return new CheckOutcome
+			{
+				CheckType = type,
+				Outcome = outcome,
+				AcquiredTraits = Enumerable.Empty<ITraitDefinition>(),
+				ImprovedTraits = Enumerable.Empty<ITraitDefinition>(),
+				ActiveBonuses = Enumerable.Empty<Tuple<string, double>>(),
+				Rolls = Enumerable.Empty<double>()
+			};
+		}
+
 		public static CheckOutcome NotTested(CheckType type)
 		{
 			return new CheckOutcome

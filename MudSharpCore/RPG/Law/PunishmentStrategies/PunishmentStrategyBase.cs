@@ -82,7 +82,7 @@ public abstract class PunishmentStrategyBase : IPunishmentStrategy
 	}
 
 	public abstract string Describe(IPerceiver voyeur);
-	public abstract PunishmentResult GetResult(ICharacter actor, ICrime crime);
+	public abstract PunishmentResult GetResult(ICharacter actor, ICrime crime, double severity = 0);
 
 	public string SaveResult()
 	{

@@ -631,7 +631,7 @@ public class PatrolRoute : SaveableItem, IPatrolRoute, IEditableItem
 					continue;
 				}
 
-				var path = thisNode.PathBetween(nextNode, 15, PathSearch.PathIncludeUnlockableDoors(actor));
+				var path = thisNode.PathBetween(nextNode, 50, PathSearch.PathIncludeUnlockableDoors(actor));
 				if (!path.Any())
 				{
 					directions.Add($"[Broken Path between {thisNode.HowSeen(actor)} and {nextNode.HowSeen(actor)}]"

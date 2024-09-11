@@ -50,6 +50,14 @@ internal class CrimeModule : Module<ICharacter>
 
 	[PlayerCommand("Crimes", "crimes")]
 	[RequiredCharacterState(CharacterState.Able)]
+	[HelpInfo("crimes", @"The #3crimes#0 command is used to view the crimes that you have committed or the crimes that you know someone else has committed. Enforcers can see all reported crimes of an individual even if they didn't witness them.
+
+In some jurisdictions you may not necessarily know that you have committed a crime but you otherwise generally know about all of your own crimes, even if the authorities don't.
+
+The syntax is as follows:
+
+	#3crimes#0 - view all of your own crimes
+	#3crimes <target>#0 - view the crimes you know about of a target", AutoHelp.HelpArg)]
 	protected static void Crimes(ICharacter actor, string input)
 	{
 		var sb = new StringBuilder();
@@ -115,17 +123,21 @@ internal class CrimeModule : Module<ICharacter>
 		var jurisdictions = actor.Gameworld.LegalAuthorities
 		                         .Where(x => x.GetEnforcementAuthority(actor) is not null || actor.IsAdministrator())
 		                         .ToList();
-		if (!jurisdictions.Any())
-		{
-			actor.OutputHandler.Send("You are not an enforcer in any jurisdictions.");
-			return;
-		}
 
-		var crimes = jurisdictions
-		             .Select(x => (Authority: x, Known: x.KnownCrimesForIndividual(target).ToList(),
-			             Unknown: x.UnknownCrimesForIndividual(target).ToList()))
-		             .Where(x => x.Known.Count > 0 || x.Unknown.Count > 0)
-		             .ToList();
+		var crimes = actor.Gameworld.LegalAuthorities
+		                  .Select(x => (
+			                  Authority: x, 
+			                  Known: 
+			                  x.KnownCrimesForIndividual(target)
+			                   .Where(y => jurisdictions.Contains(x) || y.WitnessIds.Contains(actor.Id))
+			                   .ToList(),
+			                  Unknown: 
+			                  x.UnknownCrimesForIndividual(target)
+			                   .Where(y => jurisdictions.Contains(x) || y.WitnessIds.Contains(actor.Id))
+			                   .ToList()
+		                  ))
+		                  .Where(x => x.Known.Count > 0 || x.Unknown.Count > 0)
+		                  .ToList();
 
 		foreach (var (authority, known, unknown) in crimes)
 		{
@@ -161,6 +173,12 @@ internal class CrimeModule : Module<ICharacter>
 	[PlayerCommand("Rapsheet", "rapsheet")]
 	[RequiredCharacterState(CharacterState.Able)]
 	[MustBeAnEnforcer]
+	[HelpInfo("rapsheet", @"The #3rapsheet#0 command is a command that enforcers and admins can use to view the criminal history of a target they can see.
+
+The syntax for this command is as follows:
+
+	#3rapsheet <target>#0 - view the rapsheet of a target
+	#3rapsheet <character id>#0 - view the rapsheet of a target by id (admin only)", AutoHelp.HelpArgOrNoArg)]
 	protected static void Rapsheet(ICharacter actor, string input)
 	{
 		var ss = new StringStack(input.RemoveFirstWord());
@@ -256,6 +274,12 @@ internal class CrimeModule : Module<ICharacter>
 
 	[PlayerCommand("Report", "report")]
 	[RequiredCharacterState(CharacterState.Able)]
+	[HelpInfo("report", @"The #3report#0 command is used to report a crime that you are aware of. You are aware of your own crimes as well as any that you personally witnessed another character commit.
+
+The syntax is as follows:
+
+	#3report#0 - see a list of crimes you know about that you could report
+	#3report <id>#0 - report a crime that you know about to an enforcer", AutoHelp.HelpArg)]
 	protected static void Report(ICharacter actor, string input)
 	{
 		var ss = new StringStack(input.RemoveFirstWord());
@@ -320,6 +344,12 @@ internal class CrimeModule : Module<ICharacter>
 	[PlayerCommand("Accuse", "accuse")]
 	[MustBeAnEnforcer]
 	[RequiredCharacterState(CharacterState.Able)]
+	[HelpInfo("accuse", @"The #3accuse#0 command is used by enforcers to accuse someone of a crime. Accused crimes are automatically reported and known.
+
+The syntax to use this command is:
+
+	#3accuse <target> <crime>#0 - accuses a target of a crime
+	#3accuse <jurisdiction> <target> <crime>#0 - accuses a target of a crime (use when jurisdiction is unclear)", AutoHelp.HelpArg)]
 	protected static void Accuse(ICharacter actor, string input)
 	{
 		var legals = actor.Gameworld.LegalAuthorities
@@ -440,6 +470,15 @@ internal class CrimeModule : Module<ICharacter>
 	[PlayerCommand("Forgive", "forgive")]
 	[MustBeAnEnforcer]
 	[RequiredCharacterState(CharacterState.Able)]
+	[HelpInfo("forgive", @"The #3forgive#0 command is used to forgive an active crime (one that has not yet been convicted or acquitted). It is effectively equivalent to deleting a crime as if it never existed; it will not remain on the criminal record of the offender.
+
+The syntax is as follows:
+
+	#3forgive <target> <id>#0 - forgives a target of a crime
+	#3forgive <target> all#0 - forgives a target of all crimes
+	#3forvive <target>#0 - see all crimes you could forgive a target for
+
+#6Note: Admins can use character ID instead of a target keyword in the above.#0", AutoHelp.HelpArg)]
 	protected static void Forgive(ICharacter actor, string input)
 	{
 		var ss = new StringStack(input.RemoveFirstWord());
@@ -543,9 +582,22 @@ internal class CrimeModule : Module<ICharacter>
 		forgivencrime.LegalAuthority.CheckCharacterForCustodyChanges(who);
 	}
 
+	[PlayerCommand("BeginTrial", "begintrial")]
+	[RequiredCharacterState(CharacterState.Able)]
+	[MustBeAnEnforcer]
+	[HelpInfo("begintrial", @"", AutoHelp.HelpArg)]
+	protected static void BeginTrial(ICharacter actor, string input)
+	{
+		var ss = new StringStack(input.RemoveFirstWord());
+		if (ss.IsFinished)
+		{
+		}
+	}
+
 	[PlayerCommand("Convict", "convict")]
 	[RequiredCharacterState(CharacterState.Able)]
 	[MustBeAnEnforcer]
+	[HelpInfo("convict", @"", AutoHelp.HelpArg)]
 	protected static void Convict(ICharacter actor, string input)
 	{
 		var ss = new StringStack(input.RemoveFirstWord());
@@ -554,6 +606,7 @@ internal class CrimeModule : Module<ICharacter>
 	[PlayerCommand("Pardon", "pardon")]
 	[RequiredCharacterState(CharacterState.Able)]
 	[MustBeAnEnforcer]
+	[HelpInfo("pardon", @"", AutoHelp.HelpArg)]
 	protected static void Pardon(ICharacter actor, string input)
 	{
 		var ss = new StringStack(input.RemoveFirstWord());

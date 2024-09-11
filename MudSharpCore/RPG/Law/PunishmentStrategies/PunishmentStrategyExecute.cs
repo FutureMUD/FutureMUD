@@ -43,7 +43,7 @@ internal class PunishmentStrategyExecute : PunishmentStrategyBase
 		return sb.ToString();
 	}
 
-	public override PunishmentResult GetResult(ICharacter actor, ICrime crime)
+	public override PunishmentResult GetResult(ICharacter actor, ICrime crime, double severity = 0)
 	{
 		return new PunishmentResult { Execution = true };
 	}

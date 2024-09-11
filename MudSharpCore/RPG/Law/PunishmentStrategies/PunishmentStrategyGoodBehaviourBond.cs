@@ -25,7 +25,7 @@ public class PunishmentStrategyGoodBehaviourBond : PunishmentStrategyBase
 	public MudTimeSpan GoodBehaviourBondLength { get; set; }
 
 	public override string TypeSpecificHelpText => @"
-    length <time span> - the length of the good behaviour bond";
+	length <time span> - the length of the good behaviour bond";
 
 	public override string Describe(IPerceiver voyeur)
 	{
@@ -73,7 +73,7 @@ public class PunishmentStrategyGoodBehaviourBond : PunishmentStrategyBase
 		return sb.ToString();
 	}
 
-	public override PunishmentResult GetResult(ICharacter actor, ICrime crime)
+	public override PunishmentResult GetResult(ICharacter actor, ICrime crime, double severity = 0)
 	{
 		return new PunishmentResult { GoodBehaviourBondLength = GoodBehaviourBondLength };
 	}

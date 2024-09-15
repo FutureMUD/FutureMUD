@@ -55,7 +55,7 @@ namespace MudSharp.RPG.Law
 				case CrimeTypes.Immorality:
 				case CrimeTypes.PublicIntoxication:
 				case CrimeTypes.Blasphemy:
-				case CrimeTypes.Apostacy:
+				case CrimeTypes.Apostasy:
 				case CrimeTypes.Profanity:
 					return true;
 				default:

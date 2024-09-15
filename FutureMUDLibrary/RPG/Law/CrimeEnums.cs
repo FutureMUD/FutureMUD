@@ -43,7 +43,7 @@ namespace MudSharp.RPG.Law
         Immorality,
         PublicIntoxication,
         Blasphemy,
-        Apostacy,
+        Apostasy,
         Profanity,
         Vagrancy,
         DestructionOfProperty,

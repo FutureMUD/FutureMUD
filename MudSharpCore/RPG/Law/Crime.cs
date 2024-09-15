@@ -377,180 +377,186 @@ public class Crime : LateInitialisingItem, ICrime
 			case CrimeTypes.Assault:
 				return $"assaulted {victimDesc}{locationAddendum}";
 			case CrimeTypes.AssaultWithADeadlyWeapon:
-				return $"Assaulted {victimDesc} with a deadly weapon{locationAddendum}";
+				return $"assaulted {victimDesc} with a deadly weapon{locationAddendum}";
 			case CrimeTypes.Battery:
-				return $"Battery against {victimDesc}{locationAddendum}";
+				return $"committed battery against {victimDesc}{locationAddendum}";
 			case CrimeTypes.AttemptedMurder:
-				return $"Attempted murder of {victimDesc}{locationAddendum}";
+				return $"attempted murder of {victimDesc}{locationAddendum}";
 			case CrimeTypes.Murder:
-				return $"Murder of {victimDesc}{locationAddendum}";
+				return $"murdered {victimDesc}{locationAddendum}";
 			case CrimeTypes.Manslaughter:
-				return $"Manslaughter of {victimDesc}{locationAddendum}";
+				return $"were responsible for the manslaughter of {victimDesc}{locationAddendum}";
 			case CrimeTypes.Torture:
-				return $"Torture of {victimDesc}{locationAddendum}";
+				return $"tortured {victimDesc}{locationAddendum}";
 			case CrimeTypes.GreviousBodilyHarm:
-				return $"Grevious bodily harm of {victimDesc}{locationAddendum}";
+				return $"caused grevious bodily harm to {victimDesc}{locationAddendum}";
 			case CrimeTypes.Theft:
-				return $"Theft of {thirdPartyDesc} from {victimDesc}{locationAddendum}";
+				return $"stole {thirdPartyDesc} from {victimDesc}{locationAddendum}";
 			case CrimeTypes.Fraud:
-				return $"Fraud against {victimDesc}{locationAddendum}";
+				return $"committed fraud against {victimDesc}{locationAddendum}";
 			case CrimeTypes.Racketeering:
-				return $"Racketeering against {victimDesc}{locationAddendum}";
+				return $"committed racketeering against {victimDesc}{locationAddendum}";
 			case CrimeTypes.CartelCollusion:
-				return $"Cartel collusion against {victimDesc}{locationAddendum}";
+				return $"colluded as a cartel against {victimDesc}{locationAddendum}";
 			case CrimeTypes.PossessingStolenGoods:
-				return $"Possessing stolen goods{locationAddendum}";
+				return $"possessed stolen goods{locationAddendum}";
 			case CrimeTypes.SellingContraband:
-				return $"Selling {thirdPartyDesc} (contraband){locationAddendum}";
+				return $"sold contraband, namely {thirdPartyDesc}{locationAddendum}";
 			case CrimeTypes.PossessingContraband:
-				return $"Possessing {thirdPartyDesc} (contraband){locationAddendum}";
+				return $"possessed contrand, namely {thirdPartyDesc}{locationAddendum}";
 			case CrimeTypes.TrafficingContraband:
-				return $"Trafficing {thirdPartyDesc} (contraband){locationAddendum}";
+				return $"trafficked contraband, namely {thirdPartyDesc}{locationAddendum}";
 			case CrimeTypes.Vandalism:
 				if (Victim is null)
 				{
-					return $"Vandalism{locationAddendum}";
+					return $"committed vandalism{locationAddendum}";
 				}
 
-				return $"Vandalism of {thirdPartyDesc}{locationAddendum}";
+				return $"vandalised {thirdPartyDesc}{locationAddendum}";
 			case CrimeTypes.BreakAndEnter:
-				return $"Break and enter{locationAddendum}";
+				return $"committed break and enter{locationAddendum}";
 			case CrimeTypes.Loitering:
-				return $"Loitering{locationAddendum}";
+				return $"loitered{locationAddendum}";
 			case CrimeTypes.Littering:
-				return $"Littering of {thirdPartyDesc}{locationAddendum}";
+				return $"littered {thirdPartyDesc}{locationAddendum}";
 			case CrimeTypes.Libel:
-				return $"Libel against {victimDesc}{locationAddendum}";
+				return $"wrote libel against {victimDesc}{locationAddendum}";
 			case CrimeTypes.Slander:
-				return $"Slander against {victimDesc}{locationAddendum}";
+				return $"spoke slander against {victimDesc}{locationAddendum}";
 			case CrimeTypes.Treason:
-				return $"Treason{locationAddendum}";
+				return $"committed treason{locationAddendum}";
 			case CrimeTypes.Conspiracy:
-				return $"Conspiracy against {victimDesc}{locationAddendum}";
+				return $"conspired against {victimDesc}{locationAddendum}";
 			case CrimeTypes.Intimidation:
-				return $"Intimidation of {victimDesc}{locationAddendum}";
+				return $"intimidated {victimDesc}{locationAddendum}";
 			case CrimeTypes.Blackmail:
-				return $"Blackmail of {victimDesc}{locationAddendum}";
+				return $"blackmailed {victimDesc}{locationAddendum}";
 			case CrimeTypes.Trespassing:
-				return $"Tresspassing{locationAddendum}";
+				return $"trespassed{locationAddendum}";
 			case CrimeTypes.ResistArrest:
-				return $"Resisting Arrest{locationAddendum}";
+				return $"resisted arrest{locationAddendum}";
 			case CrimeTypes.DisobeyLegalInstruction:
-				return $"Disobeying a legal instruction of {victimDesc}{locationAddendum}";
+				return $"disobeyed a legal instruction of {victimDesc}{locationAddendum}";
 			case CrimeTypes.ViolateParole:
-				return $"Violating parole{locationAddendum}";
+				return $"violated parole{locationAddendum}";
 			case CrimeTypes.EscapeCaptivity:
 				if (Victim is not null)
 				{
-					return $"Escaping from the custody of {victimDesc}{locationAddendum}";
+					return $"escaping from the custody of {victimDesc}{locationAddendum}";
 				}
 
-				return $"Escaping captivity{locationAddendum}";
+				return $"escaped captivity{locationAddendum}";
 			case CrimeTypes.Indecency:
-				return $"Indecency against {victimDesc}{locationAddendum}";
+				return $"committed indecency against {victimDesc}{locationAddendum}";
 			case CrimeTypes.Immorality:
-				return $"Immorality{locationAddendum}";
+				return $"acted immorally{locationAddendum}";
 			case CrimeTypes.PublicIntoxication:
-				return $"Public intoxication{locationAddendum}";
+				return $"was publicly intoxicated{locationAddendum}";
 			case CrimeTypes.Blasphemy:
-				return $"Blasphemy{locationAddendum}";
-			case CrimeTypes.Apostacy:
-				return $"Apostacy{locationAddendum}";
+				return $"committed blasphemy{locationAddendum}";
+			case CrimeTypes.Apostasy:
+				return $"practiced apostasy{locationAddendum}";
 			case CrimeTypes.Profanity:
-				return $"Profanity{locationAddendum}";
+				return $"uttered profanity{locationAddendum}";
 			case CrimeTypes.Vagrancy:
-				return $"Vagrancy{locationAddendum}";
+				return $"was a vagrant{locationAddendum}";
 			case CrimeTypes.DestructionOfProperty:
-				return $"Destruction of {thirdPartyDesc}, property of {victimDesc}{locationAddendum}";
+				return $"destroyed {thirdPartyDesc}, property of {victimDesc}{locationAddendum}";
 			case CrimeTypes.UnauthorisedDealing:
-				return $"Unauthorised dealing{locationAddendum}";
+				return $"engaged in unauthorised dealing{locationAddendum}";
 			case CrimeTypes.Embezzlement:
-				return $"Embezzlement{locationAddendum}";
+				return $"embezzled{locationAddendum}";
 			case CrimeTypes.Sedition:
-				return $"Sedition{locationAddendum}";
+				return $"committed sedition{locationAddendum}";
 			case CrimeTypes.Mayhem:
-				return $"Mayhem{locationAddendum}";
+				return $"caused mayhem{locationAddendum}";
 			case CrimeTypes.ContemptOfCourt:
-				return $"Contempt of Court{locationAddendum}";
+				return $"was in contempt of court{locationAddendum}";
 			case CrimeTypes.ViolateBail:
-				return "Violating Bail";
+				return "violated bail";
 			case CrimeTypes.Aiding:
-				return $"Aiding{locationAddendum}";
+				return $"provided aid to the committing of a crime{locationAddendum}";
 			case CrimeTypes.Abetting:
-				return $"Abetting{locationAddendum}";
+				return $"abetted another to commit a crime{locationAddendum}";
 			case CrimeTypes.Accessory:
-				return $"Accessory{locationAddendum}";
+				return $"was an accessory to a crime{locationAddendum}";
 			case CrimeTypes.Arson:
-				return $"Arson{locationAddendum}";
+				return $"committed arson{locationAddendum}";
 			case CrimeTypes.Bribery:
-				return $"Bribery of {victimDesc}{locationAddendum}";
+				return $"bribed {victimDesc}{locationAddendum}";
 			case CrimeTypes.Tyranny:
-				return "Tyranny";
+				return "acted tyrannically";
 			case CrimeTypes.Harassment:
-				return $"Harassment of {victimDesc}{locationAddendum}";
+				return $"harassed {victimDesc}{locationAddendum}";
 			case CrimeTypes.Extortion:
-				return $"Extortion of {victimDesc}{locationAddendum}";
+				return $"extorted {victimDesc}{locationAddendum}";
 			case CrimeTypes.Rape:
-				return $"Rape of {victimDesc}{locationAddendum}";
+				return $"raped {victimDesc}{locationAddendum}";
 			case CrimeTypes.SexualAssault:
-				return $"Sexual Assault of {victimDesc}{locationAddendum}";
+				return $"sexually assaulted {victimDesc}{locationAddendum}";
 			case CrimeTypes.Negligence:
-				return $"Negligence against {victimDesc}{locationAddendum}";
+				return $"was negligent against {victimDesc}{locationAddendum}";
 			case CrimeTypes.Perjury:
-				return "Perjury";
+				return "commited perjury";
 			case CrimeTypes.Desertion:
-				return $"Desertion{locationAddendum}";
+				return $"deserted their lawful duty{locationAddendum}";
 			case CrimeTypes.Mutiny:
-				return $"Mutiny against {victimDesc}{locationAddendum}";
+				return $"mutinied against {victimDesc}{locationAddendum}";
 			case CrimeTypes.Rebellion:
-				return $"Rebellion against {victimDesc}{locationAddendum}";
+				return $"rebelled against {victimDesc}{locationAddendum}";
 			case CrimeTypes.Rioting:
-				return $"Rioting{locationAddendum}";
+				return $"rioted{locationAddendum}";
 			case CrimeTypes.TaxEvasion:
-				return "Tax Evasion";
+				return "committed tax evasion";
 			case CrimeTypes.Gambling:
-				return $"Gambling{locationAddendum}";
+				return $"gambled{locationAddendum}";
 			case CrimeTypes.ObstructionOfJustice:
-				return $"Obstruction of Justice{locationAddendum}";
+				return $"obstructed justice{locationAddendum}";
 			case CrimeTypes.Forgery:
-				return $"Forgery of {thirdPartyDesc}{locationAddendum}";
+				return $"forged {thirdPartyDesc}{locationAddendum}";
 			case CrimeTypes.Adultery:
-				return $"Adultery with {victimDesc}{locationAddendum}";
+				return $"committed adultery with {victimDesc}{locationAddendum}";
 			case CrimeTypes.Sodomy:
-				return $"Sodomy with {victimDesc}{locationAddendum}";
+				return $"committed sodomy with {victimDesc}{locationAddendum}";
 			case CrimeTypes.Fornication:
-				return $"Fornication with {victimDesc}{locationAddendum}";
+				return $"fornicated with {victimDesc}{locationAddendum}";
 			case CrimeTypes.Prostitution:
-				return $"Prostitution with {victimDesc}{locationAddendum}";
+				return $"engaged in prostitution with {victimDesc}{locationAddendum}";
 			case CrimeTypes.Kidnapping:
-				return $"Kidnapping of {victimDesc}{locationAddendum}";
+				return $"kidnapped {victimDesc}{locationAddendum}";
 			case CrimeTypes.Slavery:
-				return $"Slavery{locationAddendum}";
+				return $"was engaged in slavery{locationAddendum}";
 			case CrimeTypes.Smuggling:
-				return $"Smuggling of {thirdPartyDesc}{locationAddendum}";
+				return $"smuggled {thirdPartyDesc}{locationAddendum}";
 			case CrimeTypes.AnimalCruelty:
-				return $"Animal Cruelty {victimDesc}{locationAddendum}";
+				return $"was unlawfully cruel to {victimDesc}{locationAddendum}";
 			case CrimeTypes.UnlawfulUseOfMagic:
-				return $"Unlawful Use of Magic{locationAddendum}";
+				return $"unlawfully used magic{locationAddendum}";
 			case CrimeTypes.UnlawfulUseOfPsionics:
-				return $"Unlawful Use of Psionics{locationAddendum}";
+				return $"unlawfully used psionics{locationAddendum}";
 			case CrimeTypes.IllegalConsumption:
-				return $"Illegal Consumption of {thirdPartyDesc}{locationAddendum}";
+				return $"illegally consumed {thirdPartyDesc}{locationAddendum}";
 			default:
-				return "An unknown crime";
+				return "committed an unknown crime";
 		}
 	}
 
 	public string DescribeCrimeAtTrial(IPerceiver voyeur)
 	{
-		var victimDesc = Victim?.PersonalName.GetName(NameStyle.FullName) ??
-						 "unnamed victims".ColourCharacter();
-		var locationAddendum = CrimeLocation != null ? $" at {CrimeLocation.CurrentOverlay.CellName.ColourRoom()}" : "";
+		var victimDesc = 
+			Victim.PersonalName.GetName(NameStyle.FullName) ?? 
+			"unnamed victims".ColourCharacter();
+		var locationAddendum = 
+			CrimeLocation != null ? 
+				$" at {CrimeLocation.CurrentOverlay.CellName.ColourRoom()}" : 
+				"";
 		var thirdPartyDesc = ThirdPartyId.HasValue
 			? Gameworld.GetPerceivable(ThirdPartyFrameworkItemType, ThirdPartyId.Value)
 					   .HowSeen(voyeur, flags: PerceiveIgnoreFlags.IgnoreCanSee)
 			: "an unidentified thing".ColourObject();
-		return DescribeCrimeInternal(voyeur, victimDesc, locationAddendum, thirdPartyDesc);
+		return 
+			DescribeCrimeInternal(voyeur, victimDesc, locationAddendum, thirdPartyDesc)
+				.Replace("was ", "$1|were|was ");
 	}
 
 	public string DescribeCrime(IPerceiver voyeur)

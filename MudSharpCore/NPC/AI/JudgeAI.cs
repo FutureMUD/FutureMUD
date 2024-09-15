@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
+using MoreLinq;
 using MudSharp.Accounts;
 using MudSharp.Character;
 using MudSharp.Effects.Concrete;
@@ -39,6 +40,28 @@ public class JudgeAI : EnforcerAI
 
 	protected JudgeAI(IFuturemud gameworld, string name) : base(gameworld, name, "Judge")
 	{
+		IntroductionDelay = TimeSpan.FromSeconds(15);
+		ChargesDelay = TimeSpan.FromSeconds(15);
+		PleaDelay = TimeSpan.FromSeconds(30);
+		CaseDelayPerCrime = TimeSpan.FromSeconds(30);
+		ClosingArgumentDelay = TimeSpan.FromSeconds(30);
+		VerdictDelay = TimeSpan.FromSeconds(15);
+		SentencingDelay = TimeSpan.FromSeconds(15);
+
+		TrialIntroductionEmote = @"@ tell|tells $1, ""{4}, you stand accused of {6} {7}, being {5}. In this trial we will determine your guilt or innocence.""";
+		TrialChargesEmote = @"@ tell|tells $1, ""I will now proceed to read out the charges in order, and after each you can enter a plea of guilty or innocent.""";
+		TrialPleaEmote = @"@ ask|asks $1, ""The {10} charge is that on {8} you {9}. How do you plead?""";
+		TrialDefaultPleaEnteredEmote = @"@ declare|declares, ""By {2} silence, the defendant has entered a plea of guilty to the {10} charge.""";
+		TrialCaseEmote = @"@ say|says, ""I will now hear the cases of the prosecution and defense.""";
+		TrialClosingArgumentsEmote = @"@ say|says, ""Both parties will now give their closing arguments.""";
+		TrialEndArgumentsEmote = @"@ say|says, ""I have heard enough. We are now ready to move on to the verdict. I will read the verdict for each crime in turn.""";
+		TrialVerdictGuiltyEmote = @"@ tell|tells $1, ""On the matter of the {10} charge, that on {8} you {9}, I judge you to be guilty.""";
+		TrialVerdictNotGuiltyEmote = @"@ tell|tells $1, ""On the matter of the {10} charge, that on {8} you {9}, I judge you to be not guilty.""";
+		TrialSentencingEmote = @"@ tell|tells $1, ""For the {10} crime, I sentence you to {11}.""";
+		TrialEndFreeToGo = @"@ tell|tells $1, ""That concludes the trial. You are free to leave the court.""";
+		TrialEndRemandedIntoCustody = @"@ tell|tells $1, ""You will now begin your custodial sentence. Please remand the prisoner into custody.""";
+		TrialEndRemandedAwaitingExecution = @"@ tell|tells $1, ""You will now be returned to custody until the time of your execution.""";
+		DatabaseInitialise();
 	}
 
 	/// <inheritdoc />
@@ -260,7 +283,8 @@ public class JudgeAI : EnforcerAI
 				trialEffect.Crimes.Count().ToWordyNumber(),
 				trialEffect.Crimes.Count() == 1 ? "crime" : "crimes",
 				sentenceCrime.TimeOfCrime.ToString(CalendarDisplayMode.Long, TimeDisplayTypes.Long),
-				sentenceCrime.DescribeCrimeAtTrial(enforcer)
+				sentenceCrime.DescribeCrimeAtTrial(enforcer),
+				trialEffect.Crimes.IndexBy(x => x == sentenceCrime).First().Key.ToWordyOrdinal()
 			),
 			enforcer,
 			enforcer,
@@ -399,7 +423,8 @@ public class JudgeAI : EnforcerAI
 					trialEffect.Crimes.Count().ToWordyNumber(),
 					trialEffect.Crimes.Count() == 1 ? "crime" : "crimes",
 					verdictCrime.TimeOfCrime.ToString(CalendarDisplayMode.Long, TimeDisplayTypes.Long),
-					verdictCrime.DescribeCrimeAtTrial(enforcer)
+					verdictCrime.DescribeCrimeAtTrial(enforcer),
+					trialEffect.Crimes.IndexBy(x => x == verdictCrime).First().Key.ToWordyOrdinal()
 				),
 				enforcer,
 				enforcer,
@@ -421,7 +446,8 @@ public class JudgeAI : EnforcerAI
 				trialEffect.Crimes.Count().ToWordyNumber(),
 				trialEffect.Crimes.Count() == 1 ? "crime" : "crimes",
 				verdictCrime.TimeOfCrime.ToString(CalendarDisplayMode.Long, TimeDisplayTypes.Long),
-				verdictCrime.DescribeCrimeAtTrial(enforcer)
+				verdictCrime.DescribeCrimeAtTrial(enforcer),
+				trialEffect.Crimes.IndexBy(x => x == verdictCrime).First().Key.ToWordyOrdinal()
 			),
 			enforcer,
 			enforcer,
@@ -508,7 +534,8 @@ public class JudgeAI : EnforcerAI
 					trialEffect.Crimes.Count().ToWordyNumber(),
 					trialEffect.Crimes.Count() == 1 ? "crime" : "crimes",
 					pleaEffect.Crime.TimeOfCrime.ToString(CalendarDisplayMode.Long, TimeDisplayTypes.Long),
-					pleaEffect.Crime.DescribeCrimeAtTrial(enforcer)
+					pleaEffect.Crime.DescribeCrimeAtTrial(enforcer),
+					trialEffect.Crimes.IndexBy(x => x == pleaEffect.Crime).First().Key.ToWordyOrdinal()
 				),
 				enforcer,
 				enforcer,
@@ -553,7 +580,8 @@ public class JudgeAI : EnforcerAI
 				trialEffect.Crimes.Count().ToWordyNumber(),
 				trialEffect.Crimes.Count() == 1 ? "crime" : "crimes",
 				pleaCrime.TimeOfCrime.ToString(CalendarDisplayMode.Long, TimeDisplayTypes.Long),
-				pleaCrime.DescribeCrimeAtTrial(enforcer)
+				pleaCrime.DescribeCrimeAtTrial(enforcer),
+				trialEffect.Crimes.IndexBy(x => x == pleaCrime).First().Key.ToWordyOrdinal()
 			),
 			enforcer,
 			enforcer,

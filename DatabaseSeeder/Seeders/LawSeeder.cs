@@ -2013,7 +2013,7 @@ return true"
 						});
 					break;
 				case CrimeTypes.Blasphemy:
-				case CrimeTypes.Apostacy:
+				case CrimeTypes.Apostasy:
 				case CrimeTypes.Sodomy:
 				case CrimeTypes.Fornication:
 					if (!crimeContext.UseReligiousLaws) continue;

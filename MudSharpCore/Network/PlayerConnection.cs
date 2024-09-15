@@ -9,6 +9,7 @@ using MudSharp.Character.Name;
 using MudSharp.Effects;
 using MudSharp.Effects.Concrete;
 using MudSharp.Framework;
+using MudSharp.Server;
 
 namespace MudSharp.Network;
 
@@ -432,9 +433,13 @@ public class PlayerConnection : IPlayerConnection
 			return;
 		}
 
+		var command = bytes.Count > 0 ? encoding.GetString(bytes.ToArray()) : "";
+#if DEBUG
+		Console.WriteLine($"Player Command: {command}");
+#endif
 		lock (_incomingCommands)
 		{
-			_incomingCommands.Enqueue(bytes.Count > 0 ? encoding.GetString(bytes.ToArray()) : "");
+			_incomingCommands.Enqueue(command);
 			HasIncomingCommands = true;
 		}
 
@@ -697,7 +702,7 @@ public class PlayerConnection : IPlayerConnection
 			HasIncomingCommands = _incomingCommands.Any();
 		}
 
-		return command;
+		return command.TrimEnd('\n');
 	}
 
 	private bool HasTimedOut()

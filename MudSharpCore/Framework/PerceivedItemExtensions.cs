@@ -65,7 +65,7 @@ public static class PathSearch
 				return true;
 			}
 
-			foreach (var npc in exit.Origin.Characters.OfType<INPC>())
+			foreach (var npc in exit.Origin.Characters.OfType<INPC>().Concat(exit.Destination.Characters.OfType<INPC>()))
 			{
 				var doorguardAI = npc.AIs.OfType<DoorguardAI>().ToList();
 				foreach (var ai in doorguardAI)

@@ -20,6 +20,7 @@ using MudSharp.Character.Name;
 using MudSharp.Economy.Banking;
 using MudSharp.Economy.Currency;
 using MudSharp.Economy.Payment;
+using MudSharp.RPG.Checks;
 
 namespace MudSharp.Commands.Modules;
 
@@ -540,7 +541,7 @@ The syntax is as follows:
 		if (ss.IsFinished)
 		{
 			actor.OutputHandler.Send(
-				$"What crime do you want to forgive {who.HowSeen(actor)} of?\nThey have the following forgivable crimes:{crimes.Select(x => $"\t{x.Id}) {x.DescribeCrime(actor)}").ListToLines()}");
+				$"What crime do you want to forgive {who.HowSeen(actor)} of?\nThey have the following forgivable crimes:\n\n{crimes.Select(x => $"\t{x.Id}) {x.DescribeCrime(actor)}").ListToLines()}");
 			return;
 		}
 
@@ -592,6 +593,92 @@ The syntax is as follows:
 		if (ss.IsFinished)
 		{
 		}
+	}
+
+	[PlayerCommand("Plead", "plead")]
+	[RequiredCharacterState(CharacterState.Able)]
+	[HelpInfo("plead", @"", AutoHelp.HelpArgOrNoArg)]
+	protected static void Plead(ICharacter actor, string input)
+	{
+		var ss = new StringStack(input.RemoveFirstWord());
+		var pleaEffect = actor.EffectsOfType<ConsideringPlea>().FirstOrDefault();
+		if (pleaEffect is null)
+		{
+			actor.OutputHandler.Send("You are not considering a plea to a criminal charge.");
+			return;
+		}
+
+		var trialEffect = actor.EffectsOfType<OnTrial>(x => x.LegalAuthority == pleaEffect.LegalAuthority).FirstOrDefault();
+		if (trialEffect is null)
+		{
+			actor.OutputHandler.Send("You are not on trial.");
+			actor.RemoveEffect(pleaEffect);
+			return;
+		}
+
+		var plea = ss.PopSpeech().ToLowerInvariant().CollapseString();
+		PlayerEmote emote = null;
+		if (!ss.IsFinished)
+		{
+			var text = ss.PopParentheses();
+			if (!string.IsNullOrEmpty(text))
+			{
+				emote = new PlayerEmote(text, actor);
+				if (!emote.Valid)
+				{
+					actor.Send(emote.ErrorMessage);
+					return;
+				}
+			}
+		}
+
+		switch (ss.SafeRemainingArgument.ToLowerInvariant().CollapseString())
+		{
+			case "guilty":
+				actor.OutputHandler.Handle(new MixedEmoteOutput(new Emote("@ plead|pleads guilty", actor)).Append(emote));
+				trialEffect.Pleas[pleaEffect.Crime] = true;
+				break;
+			case "notguilty":
+			case "innocent":
+				actor.OutputHandler.Handle(new MixedEmoteOutput(new Emote("@ plead|pleads not guilty", actor)).Append(emote));
+				trialEffect.Pleas[pleaEffect.Crime] = false;
+				break;
+			default:
+				actor.OutputHandler.Send("You must either plead #1guilty#0 or #2not guilty#0.".SubstituteANSIColour());
+				return;
+		}
+
+		actor.RemoveEffect(pleaEffect);
+	}
+
+	[PlayerCommand("Argue", "argue")]
+	[RequiredCharacterState(CharacterState.Able)]
+	[HelpInfo("argue", @"", AutoHelp.HelpArg)]
+	protected static void Argue(ICharacter actor, string input)
+	{
+		var ss = new StringStack(input.RemoveFirstWord());
+		var trialEffect = actor.Location.LayerCharacters(actor.RoomLayer).SelectNotNull(x => x.EffectsOfType<OnTrial>().FirstOrDefault()).FirstOrDefault();
+		if (trialEffect is null)
+		{
+			actor.OutputHandler.Send("There are no trials taking place at your location.");
+			return;
+		}
+
+		if (!trialEffect.Phase.In(TrialPhase.Case, TrialPhase.ClosingArguments))
+		{
+			actor.OutputHandler.Send("The current trial is not at the right phase for you to argue a case.");
+			return;
+		}
+
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send("Do you want to argue the #2defense#0 or #1prosecution#0?");
+			return;
+		}
+
+		var defense = ss.PopSpeech().EqualToAny("defense", "defence");
+		// TODO - are they authorised to act in the prosecution or defense?
+		trialEffect.HandleArgueCommand(actor, defense);
 	}
 
 	[PlayerCommand("Convict", "convict")]

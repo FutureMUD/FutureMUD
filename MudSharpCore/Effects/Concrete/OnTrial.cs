@@ -74,14 +74,36 @@ public class OnTrial : Effect, IEffect
 	private readonly Dictionary<ICrime, PunishmentResult> _punishments = new();
 	public IDictionary<ICrime, PunishmentResult> Punishments => _punishments;
 
-	public void ArgueCaseDefender(ICharacter lawyer, ICrime crime)
+	public IReadOnlyDictionary<Difficulty, CheckOutcome> ArgueCaseDefender(ICharacter lawyer, ICrime crime)
 	{
 		_crimeDefenseCases[crime] = Gameworld.GetCheck(CheckType.DefendLegalCase).CheckAgainstAllDifficulties(lawyer, crime.DefenseDifficulty, null);
+		return _crimeDefenseCases[crime];
 	}
 
-	public void ArgueCaseProsecution(ICharacter lawyer, ICrime crime)
+	public IReadOnlyDictionary<Difficulty, CheckOutcome> ArgueCaseProsecution(ICharacter lawyer, ICrime crime)
 	{
 		_crimeProsecutionCases[crime] = Gameworld.GetCheck(CheckType.ProsecuteLegalCase).CheckAgainstAllDifficulties(lawyer, crime.ProsecutionDifficulty, null);
+		return _crimeProsecutionCases[crime];
+	}
+
+	public ICrime? NextDefenseCrime()
+	{
+		return _crimes.FirstOrDefault(x => !_crimeDefenseCases.ContainsKey(x));
+	}
+
+	public ICrime? NextProsecutionCrime()
+	{
+		return _crimes.FirstOrDefault(x => !_crimeProsecutionCases.ContainsKey(x));
+	}
+
+	public IReadOnlyDictionary<Difficulty, CheckOutcome> GetResultDefense(ICrime crime)
+	{
+		return _crimeDefenseCases.TryGetValue(crime, out var @case) ? @case : CheckOutcome.NotTestedAllDifficulties(CheckType.DefendLegalCase);
+	}
+
+	public IReadOnlyDictionary<Difficulty, CheckOutcome> GetResultProsecution(ICrime crime)
+	{
+		return _crimeProsecutionCases.TryGetValue(crime, out var @case) ? @case : CheckOutcome.NotTestedAllDifficulties(CheckType.ProsecuteLegalCase);
 	}
 
 	public OpposedOutcome GetOutcome(ICrime crime)
@@ -98,6 +120,57 @@ public class OnTrial : Effect, IEffect
 		}
 
 		return CrimeQueue.Dequeue();
+	}
+
+	public int ChargeNumber(ICrime crime)
+	{
+		return _crimes.IndexOf(crime) + 1;
+	}
+
+	public void HandleArgueCommand(ICharacter actor, bool defense)
+	{
+		var crime = defense ? NextDefenseCrime() : NextProsecutionCrime();
+		if (crime is null)
+		{
+			actor.OutputHandler.Send($"The {(defense ? "defense" : "prosecution")} has finished making its case for all crimes.");
+			return;
+		}
+
+		var result = defense ? ArgueCaseDefender(actor, crime) : ArgueCaseProsecution(actor, crime);
+		var primary = result[defense ? crime.DefenseDifficulty : crime.ProsecutionDifficulty];
+		string adverb = "";
+		if (primary.IsAbjectFailure)
+		{
+			adverb = "The legal arguments are complete nonsense and utterly ineffective.";
+		}
+		else
+		{
+			switch (primary.Outcome)
+			{
+				case Outcome.MajorFail:
+					adverb = "The case put forward is fairly weak.";
+					break;
+				case Outcome.Fail:
+					adverb = "The case put forward is weak, but still plausible.";
+					break;
+				case Outcome.MinorFail:
+					adverb = "The case put forward is convincing, but has some minor flaws.";
+					break;
+				case Outcome.MinorPass:
+					adverb = "The case put forward is convincing.";
+					break;
+				case Outcome.Pass:
+					adverb = "The case put forward is solid and well supported.";
+					break;
+				case Outcome.MajorPass:
+					adverb = "The case put forward is extremely robust and almost air-tight.";
+					break;
+				default:
+					throw new ArgumentOutOfRangeException();
+			}
+		}
+
+		actor.OutputHandler.Handle(new EmoteOutput(new Emote($"@ argue|argues the {(defense ? "defense" : "prosecution")} case for the {ChargeNumber(crime).ToOrdinal()} charge of {crime.Name}. {adverb}", actor, actor, Owner)));
 	}
 
 	#region Static Initialisation

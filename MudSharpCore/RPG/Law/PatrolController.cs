@@ -88,9 +88,18 @@ public class PatrolController : IPatrolController
 				var members = whichPatrol.PatrolStrategy
 				                         .SelectEnforcers(whichPatrol, enforcerCounts[requirement.Key],
 					                         requirement.Value).ToList();
+				if (members.Count == 0)
+				{
+					continue;
+				}
 				patrolMembers.AddRange(members);
 				enforcerCounts.RemoveRange(requirement.Key, members);
 				freeEnforcers.RemoveAll(members.Contains);
+			}
+
+			if (patrolMembers.Count == 0)
+			{
+				continue;
 			}
 
 			var leader = patrolMembers.GetRandomElement();

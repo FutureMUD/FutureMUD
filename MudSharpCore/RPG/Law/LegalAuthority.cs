@@ -498,6 +498,11 @@ public partial class LegalAuthority : SaveableItem, ILegalAuthority
 
 	public void IncarcerateCriminal(ICharacter criminal)
 	{
+		foreach (var crime in KnownCrimesForIndividual(criminal))
+		{
+			crime.HasBeenEnforced = true;
+		}
+
 		var items = new List<IGameItem>();
 		foreach (var item in criminal.Body.WornItems.ToArray())
 		{
@@ -845,6 +850,7 @@ public partial class LegalAuthority : SaveableItem, ILegalAuthority
 
 		_knownCrimesLookup.Add(crime.CriminalId, crime);
 		_unknownCrimesLookup.Remove(crime.CriminalId, crime);
+		crime.IsKnownCrime = true;
 	}
 
 	public IEnumerable<ICrime> KnownCrimesForIndividual(ICharacter character)

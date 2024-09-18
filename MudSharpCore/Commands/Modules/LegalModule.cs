@@ -122,7 +122,7 @@ You can also use the following options to change the properties of an authority 
 				return;
 		}
 
-		actor.OutputHandler.Send(LegalAuthorityHelpText);
+		actor.OutputHandler.Send(LegalAuthorityHelpText.SubstituteANSIColour());
 	}
 
 	private static void LegalAuthorityPatrols(ICharacter actor, StringStack ss)

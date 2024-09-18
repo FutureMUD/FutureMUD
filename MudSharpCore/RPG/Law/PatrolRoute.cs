@@ -16,6 +16,7 @@ using MudSharp.Framework.Save;
 using MudSharp.FutureProg;
 using MudSharp.RPG.Law.PatrolStrategies;
 using MudSharp.ThirdPartyCode;
+using MudSharp.TimeAndDate;
 
 namespace MudSharp.RPG.Law;
 
@@ -67,7 +68,7 @@ public class PatrolRoute : SaveableItem, IPatrolRoute, IEditableItem
 		PatrolStrategy = PatrolStrategyFactory.GetStrategy(route.PatrolStrategy, Gameworld);
 		StartPatrolProg = Gameworld.FutureProgs.Get(route.StartPatrolProgId ?? 0);
 		_patrolNodes.AddRange(route.PatrolRouteNodes.OrderBy(x => x.Order)
-		                           .SelectNotNull(x => Gameworld.Cells.Get(x.CellId)));
+								   .SelectNotNull(x => Gameworld.Cells.Get(x.CellId)));
 		foreach (var node in _patrolNodes)
 		{
 			node.CellProposedForDeletion -= Node_CellProposedForDeletion;
@@ -171,19 +172,19 @@ public class PatrolRoute : SaveableItem, IPatrolRoute, IEditableItem
 
 	public string HelpInfo => @"You can use the following options with this command:
 
-    #3name <name>#0 - renames the patrol route
-    #3time <list of time of days>#0 - sets the valid times of day
-    #3linger <major> <minor>#0 - sets the linger time on major and minor patrol nodes
-    #3strategy <which>#0 - sets the strategy for the patrol
-    #3priority <number>#0 - sets the priority of resourcing this patrol
-    #3numbers <enforcement> <number>#0 - sets the numbers of a particular enforcer type required
-    #3prog <prog>#0 - sets the prog that controls whether the patrol can start
-    #3prog clear#0 - clears the start prog
-    #3node#0 - adds the current location as a node to the end of the list
-    #3node delete <##>#0 - deletes a node
-    #3node swap <##1> <##2>#0 - swaps the position of two nodes
-    #3node insert <##>#0 - inserts the current location as a node at position #
-    #3ready#0 - toggles whether this patrol is ready to be used";
+	#3name <name>#0 - renames the patrol route
+	#3time <list of time of days>#0 - sets the valid times of day
+	#3linger <major> <minor>#0 - sets the linger time on major and minor patrol nodes
+	#3strategy <which>#0 - sets the strategy for the patrol
+	#3priority <number>#0 - sets the priority of resourcing this patrol
+	#3numbers <enforcement> <number>#0 - sets the numbers of a particular enforcer type required
+	#3prog <prog>#0 - sets the prog that controls whether the patrol can start
+	#3prog clear#0 - clears the start prog
+	#3node#0 - adds the current location as a node to the end of the list
+	#3node delete <##>#0 - deletes a node
+	#3node swap <##1> <##2>#0 - swaps the position of two nodes
+	#3node insert <##>#0 - inserts the current location as a node at position #
+	#3ready#0 - toggles whether this patrol is ready to be used";
 
 	public bool BuildingCommand(ICharacter actor, StringStack command)
 	{
@@ -287,7 +288,7 @@ public class PatrolRoute : SaveableItem, IPatrolRoute, IEditableItem
 			if (_patrolNodes.Count >= 2)
 			{
 				var last = _patrolNodes[_patrolNodes.Count - 2];
-				var path = last.PathBetween(actor.Location, 15, PathSearch.PathIncludeUnlockableDoors(actor));
+				var path = last.PathBetween(actor.Location, 50, PathSearch.PathIncludeUnlockableDoors(actor));
 				if (!path.Any())
 				{
 					actor.OutputHandler.Send(
@@ -460,8 +461,8 @@ public class PatrolRoute : SaveableItem, IPatrolRoute, IEditableItem
 			actor.OutputHandler.Send($"How long should this patrol linger on {(major ? "major" : "minor")} nodes?");
 			return false;
 		}
-
-		if (!TimeSpan.TryParse(command.SafeRemainingArgument, out var tspan))
+		
+		if (!MudTimeSpan.TryParse(command.SafeRemainingArgument, out var tspan))
 		{
 			actor.OutputHandler.Send("That is not a valid length of time.");
 			return false;

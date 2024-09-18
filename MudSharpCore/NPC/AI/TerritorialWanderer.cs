@@ -185,24 +185,24 @@ public class TerritorialWanderer : PathingAIBase
 	}
 
 	protected override string SaveToXml()
-    {
+	{
 		return new XElement("Definition",
 			new XElement("SuitableTerritoryProg", SuitableTerritoryProg?.Id ?? 0),
 			new XElement("DesiredTerritorySizeProg", DesiredTerritorySizeProg?.Id ?? 0),
 			new XElement("WanderChancePerMinute", WanderChancePerMinute),
 			new XElement("WanderEmote", new XCData(WanderEmote)),
-            new XElement("OpenDoors", OpenDoors),
-            new XElement("UseKeys", UseKeys),
-            new XElement("SmashLockedDoors", SmashLockedDoors),
-            new XElement("CloseDoorsBehind", CloseDoorsBehind),
-            new XElement("UseDoorguards", UseDoorguards),
-            new XElement("MoveEvenIfObstructionInWay", MoveEvenIfObstructionInWay),
-            new XElement("WillShareTerritory", WillShareTerritory),
-            new XElement("WillShareTerritoryWithOtherRaces", WillShareTerritoryWithOtherRaces)
-        ).ToString();
-    }
+			new XElement("OpenDoors", OpenDoors),
+			new XElement("UseKeys", UseKeys),
+			new XElement("SmashLockedDoors", SmashLockedDoors),
+			new XElement("CloseDoorsBehind", CloseDoorsBehind),
+			new XElement("UseDoorguards", UseDoorguards),
+			new XElement("MoveEvenIfObstructionInWay", MoveEvenIfObstructionInWay),
+			new XElement("WillShareTerritory", WillShareTerritory),
+			new XElement("WillShareTerritoryWithOtherRaces", WillShareTerritoryWithOtherRaces)
+		).ToString();
+	}
 
-    public static void RegisterLoader()
+	public static void RegisterLoader()
 	{
 		RegisterAIType("TerritorialWanderer", (ai, gameworld) => new TerritorialWanderer(ai, gameworld));
 		RegisterAIBuilderInformation("territorialwanderer", (game, name) => new TerritorialWanderer(game, name), new TerritorialWanderer().HelpText);
@@ -254,18 +254,18 @@ public class TerritorialWanderer : PathingAIBase
 			}
 
 			if (!SuitableTerritoryProg.MatchesParameters(new[]
-			    {
-				    FutureProgVariableTypes.Location,
-				    FutureProgVariableTypes.Character
-			    }) && !SuitableTerritoryProg.MatchesParameters(new[]
-			    {
-				    FutureProgVariableTypes.Location,
-				    FutureProgVariableTypes.Toon
-			    }) &&
-			    !SuitableTerritoryProg.MatchesParameters(new[]
-			    {
-				    FutureProgVariableTypes.Location
-			    })
+				{
+					FutureProgVariableTypes.Location,
+					FutureProgVariableTypes.Character
+				}) && !SuitableTerritoryProg.MatchesParameters(new[]
+				{
+					FutureProgVariableTypes.Location,
+					FutureProgVariableTypes.Toon
+				}) &&
+				!SuitableTerritoryProg.MatchesParameters(new[]
+				{
+					FutureProgVariableTypes.Location
+				})
 			   )
 			{
 				throw new ApplicationException(
@@ -297,9 +297,9 @@ public class TerritorialWanderer : PathingAIBase
 			}
 
 			if (!DesiredTerritorySizeProg.MatchesParameters(new[]
-			    {
-				    FutureProgVariableTypes.Character
-			    })
+				{
+					FutureProgVariableTypes.Character
+				})
 			   )
 			{
 				throw new ApplicationException(
@@ -330,8 +330,8 @@ public class TerritorialWanderer : PathingAIBase
 		}
 
 		WanderEmote = root.Element("WanderEmote")?.Value ??
-		              throw new ApplicationException(
-			              $"TerritorialWanderer #{Id} ({Name}) did not supply a WanderEmote element.");
+					  throw new ApplicationException(
+						  $"TerritorialWanderer #{Id} ({Name}) did not supply a WanderEmote element.");
 
 		OpenDoors = bool.Parse(root.Element("OpenDoors")?.Value ?? "false");
 		UseKeys = bool.Parse(root.Element("UseKeys")?.Value ?? "false");
@@ -349,14 +349,14 @@ public class TerritorialWanderer : PathingAIBase
 	public IEnumerable<ICell> PotentialFreeTerritory(ICharacterTemplate template, IEnumerable<IZone> zones)
 	{
 		if (!SuitableTerritoryProg.MatchesParameters(new[]
-		    {
-			    FutureProgVariableTypes.Location
-		    }) &&
-		    !SuitableTerritoryProg.MatchesParameters(new[]
-		    {
-			    FutureProgVariableTypes.Location,
-			    FutureProgVariableTypes.Toon
-		    }))
+			{
+				FutureProgVariableTypes.Location
+			}) &&
+			!SuitableTerritoryProg.MatchesParameters(new[]
+			{
+				FutureProgVariableTypes.Location,
+				FutureProgVariableTypes.Toon
+			}))
 		{
 			return Enumerable.Empty<ICell>();
 		}
@@ -369,25 +369,25 @@ public class TerritorialWanderer : PathingAIBase
 		else if (WillShareTerritoryWithOtherRaces)
 		{
 			claimedTerritory = template.Gameworld.NPCs
-			                           .Where(x => !x.Race.SameRace(template.SelectedRace))
-			                           .SelectNotNull(x => x.CombinedEffectsOfType<Territory>().FirstOrDefault())
-			                           .SelectMany(x => x.Cells)
-			                           .Distinct()
-			                           .ToList();
+									   .Where(x => !x.Race.SameRace(template.SelectedRace))
+									   .SelectNotNull(x => x.CombinedEffectsOfType<Territory>().FirstOrDefault())
+									   .SelectMany(x => x.Cells)
+									   .Distinct()
+									   .ToList();
 		}
 		else
 		{
 			claimedTerritory = template.Gameworld.NPCs
-			                           .SelectNotNull(x => x.CombinedEffectsOfType<Territory>().FirstOrDefault())
-			                           .SelectMany(x => x.Cells)
-			                           .Distinct()
-			                           .ToList();
+									   .SelectNotNull(x => x.CombinedEffectsOfType<Territory>().FirstOrDefault())
+									   .SelectMany(x => x.Cells)
+									   .Distinct()
+									   .ToList();
 		}
 
 		return zones
-		       .SelectMany(x => x.Cells)
-		       .Except(claimedTerritory)
-		       .Where(x => SuitableTerritoryProg?.Execute<bool?>(x, template) ?? false)
+			   .SelectMany(x => x.Cells)
+			   .Except(claimedTerritory)
+			   .Where(x => SuitableTerritoryProg?.Execute<bool?>(x, template) ?? false)
 			;
 	}
 
@@ -429,9 +429,9 @@ public class TerritorialWanderer : PathingAIBase
 
 			var suitability = GetSuitabilityFunction(character);
 			var options = character.Location.ExitsFor(character)
-			                       .Where(x => territoryEffect.Cells.Contains(x.Destination))
-			                       .Where(x => suitability(x))
-			                       .ToList();
+								   .Where(x => territoryEffect.Cells.Contains(x.Destination))
+								   .Where(x => suitability(x))
+								   .ToList();
 			if (options.Any())
 			{
 				character.Move(options.GetWeightedRandom(x => !character.AffectedBy<AdjacentToExit>(x) ? 5.0 : 1.0),
@@ -465,25 +465,25 @@ public class TerritorialWanderer : PathingAIBase
 			else if (WillShareTerritoryWithOtherRaces)
 			{
 				claimedTerritory = character.Gameworld.NPCs
-				                            .Where(x => !x.Race.SameRace(character.Race))
-				                            .SelectNotNull(x => x.CombinedEffectsOfType<Territory>().FirstOrDefault())
-				                            .SelectMany(x => x.Cells)
-				                            .Distinct()
-				                            .ToList();
+											.Where(x => !x.Race.SameRace(character.Race))
+											.SelectNotNull(x => x.CombinedEffectsOfType<Territory>().FirstOrDefault())
+											.SelectMany(x => x.Cells)
+											.Distinct()
+											.ToList();
 			}
 			else
 			{
 				claimedTerritory = character.Gameworld.NPCs
-				                            .SelectNotNull(x => x.CombinedEffectsOfType<Territory>().FirstOrDefault())
-				                            .SelectMany(x => x.Cells)
-				                            .Distinct()
-				                            .ToList();
+											.SelectNotNull(x => x.CombinedEffectsOfType<Territory>().FirstOrDefault())
+											.SelectMany(x => x.Cells)
+											.Distinct()
+											.ToList();
 			}
 
 			if (cells.Count == 0)
 			{
 				if (SuitableTerritoryProg.Execute<bool?>(character.Location, character) == true &&
-				    !claimedTerritory.Contains(character.Location))
+					!claimedTerritory.Contains(character.Location))
 				{
 					territoryEffect.AddCell(character.Location);
 					return;
@@ -491,7 +491,7 @@ public class TerritorialWanderer : PathingAIBase
 
 				var (target, _) = character.AcquireTargetAndPath(
 					loc => SuitableTerritoryProg.Execute<bool?>(loc, character) == true &&
-					       !claimedTerritory.Contains(loc),
+						   !claimedTerritory.Contains(loc),
 					20, GetSuitabilityFunction(character));
 				if (target is not ICell cell)
 				{
@@ -505,11 +505,11 @@ public class TerritorialWanderer : PathingAIBase
 			foreach (var cell in territoryEffect.Cells)
 			{
 				var expand = cell
-				             .ExitsFor(character, true)
-				             .Where(x => SuitableTerritoryProg.Execute<bool?>(x.Destination, character) == true &&
-				                         !claimedTerritory.Contains(x.Destination))
-				             .Select(x => x.Destination)
-				             .GetRandomElement();
+							 .ExitsFor(character, true)
+							 .Where(x => SuitableTerritoryProg.Execute<bool?>(x.Destination, character) == true &&
+										 !claimedTerritory.Contains(x.Destination))
+							 .Select(x => x.Destination)
+							 .GetRandomElement();
 				if (expand is not null && !territoryEffect.Cells.Contains(expand))
 				{
 					territoryEffect.AddCell(expand);

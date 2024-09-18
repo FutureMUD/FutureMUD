@@ -30,7 +30,44 @@ public class JudgeAI : EnforcerAI
 
 	protected JudgeAI(ArtificialIntelligence ai, IFuturemud gameworld) : base(ai, gameworld)
 	{
+		var root = XElement.Parse(ai.Definition);
+		IdentityIsKnownProg = long.TryParse(root.Element("IdentityProg")?.Value ?? "0", out var value)
+			? Gameworld.FutureProgs.Get(value)
+			: Gameworld.FutureProgs.GetByName(root.Element("IdentityProg")!.Value);
+		WarnEchoProg = long.TryParse(root.Element("WarnEchoProg")?.Value ?? "0", out value)
+			? Gameworld.FutureProgs.Get(value)
+			: Gameworld.FutureProgs.GetByName(root.Element("WarnEchoProg")!.Value);
+		WarnStartMoveEchoProg = long.TryParse(root.Element("WarnStartMoveEchoProg")?.Value ?? "0", out value)
+			? Gameworld.FutureProgs.Get(value)
+			: Gameworld.FutureProgs.GetByName(root.Element("WarnStartMoveEchoProg")!.Value);
+		FailToComplyEchoProg = long.TryParse(root.Element("FailToComplyEchoProg")?.Value ?? "0", out value)
+			? Gameworld.FutureProgs.Get(value)
+			: Gameworld.FutureProgs.GetByName(root.Element("FailToComplyEchoProg")!.Value);
+		ThrowInPrisonEchoProg = long.TryParse(root.Element("ThrowInPrisonEchoProg")?.Value ?? "0", out value)
+			? Gameworld.FutureProgs.Get(value)
+			: Gameworld.FutureProgs.GetByName(root.Element("ThrowInPrisonEchoProg")!.Value);
 
+		IntroductionDelay = TimeSpan.FromSeconds(double.Parse(root.Element("IntroductionDelay").Value));
+		ChargesDelay = TimeSpan.FromSeconds(double.Parse(root.Element("ChargesDelay").Value));
+		PleaDelay = TimeSpan.FromSeconds(double.Parse(root.Element("PleaDelay").Value));
+		CaseDelayPerCrime = TimeSpan.FromSeconds(double.Parse(root.Element("CaseDelayPerCrime").Value));
+		ClosingArgumentDelay = TimeSpan.FromSeconds(double.Parse(root.Element("ClosingArgumentDelay").Value));
+		VerdictDelay = TimeSpan.FromSeconds(double.Parse(root.Element("VerdictDelay").Value));
+		SentencingDelay = TimeSpan.FromSeconds(double.Parse(root.Element("SentencingDelay").Value));
+
+		TrialIntroductionEmote = root.Element("TrialIntroductionEmote").Value;
+		TrialChargesEmote = root.Element("TrialChargesEmote").Value;
+		TrialPleaEmote = root.Element("TrialPleaEmote").Value;
+		TrialDefaultPleaEnteredEmote = root.Element("TrialDefaultPleaEnteredEmote").Value;
+		TrialCaseEmote = root.Element("TrialCaseEmote").Value;
+		TrialClosingArgumentsEmote = root.Element("TrialClosingArgumentsEmote").Value;
+		TrialEndArgumentsEmote = root.Element("TrialEndArgumentsEmote").Value;
+		TrialVerdictGuiltyEmote = root.Element("TrialVerdictGuiltyEmote").Value;
+		TrialVerdictNotGuiltyEmote = root.Element("TrialVerdictNotGuiltyEmote").Value;
+		TrialSentencingEmote = root.Element("TrialSentencingEmote").Value;
+		TrialEndFreeToGo = root.Element("TrialEndFreeToGo").Value;
+		TrialEndRemandedIntoCustody = root.Element("TrialEndRemandedIntoCustody").Value;
+		TrialEndRemandedAwaitingExecution = root.Element("TrialEndRemandedAwaitingExecution").Value;
 	}
 
 	protected JudgeAI()
@@ -119,6 +156,41 @@ public class JudgeAI : EnforcerAI
 	public string TrialEndRemandedAwaitingExecution { get; protected set; }
 
 	/// <inheritdoc />
+	public override string Show(ICharacter actor)
+	{
+		var sb = new StringBuilder();
+		sb.Append(base.Show(actor));
+		sb.AppendLine();
+		sb.AppendLine("Delays Between Actions".GetLineWithTitle(actor, Telnet.Yellow, Telnet.BoldWhite));
+		sb.AppendLine();
+		sb.AppendLine($"Introduction: {IntroductionDelay.DescribePreciseBrief(actor).ColourValue()}");
+		sb.AppendLine($"Charges: {ChargesDelay.DescribePreciseBrief(actor).ColourValue()}");
+		sb.AppendLine($"Plea: {PleaDelay.DescribePreciseBrief(actor).ColourValue()}");
+		sb.AppendLine($"Case (Per Crime): {CaseDelayPerCrime.DescribePreciseBrief(actor).ColourValue()}");
+		sb.AppendLine($"Closing Argument: {ClosingArgumentDelay.DescribePreciseBrief(actor).ColourValue()}");
+		sb.AppendLine($"Verdict: {VerdictDelay.DescribePreciseBrief(actor).ColourValue()}");
+		sb.AppendLine($"Sentencing: {SentencingDelay.DescribePreciseBrief(actor).ColourValue()}");
+		sb.AppendLine();
+		sb.AppendLine("Emotes".GetLineWithTitle(actor, Telnet.Yellow, Telnet.BoldWhite));
+		sb.AppendLine();
+		sb.AppendLine($"Introduction: {TrialIntroductionEmote.ColourCommand()}");
+		sb.AppendLine($"Charges: {TrialChargesEmote.ColourCommand()}");
+		sb.AppendLine($"Plea: {TrialPleaEmote.ColourCommand()}");
+		sb.AppendLine($"Default Plea: {TrialDefaultPleaEnteredEmote.ColourCommand()}");
+		sb.AppendLine($"Case: {TrialCaseEmote.ColourCommand()}");
+		sb.AppendLine($"Closing Arguments: {TrialClosingArgumentsEmote.ColourCommand()}");
+		sb.AppendLine($"End of Arguments: {TrialEndArgumentsEmote.ColourCommand()}");
+		sb.AppendLine($"Guilty Verdict: {TrialVerdictGuiltyEmote.ColourCommand()}");
+		sb.AppendLine($"Not Guilty Verdict: {TrialVerdictNotGuiltyEmote.ColourCommand()}");
+		sb.AppendLine($"Sentencing: {TrialSentencingEmote.ColourCommand()}"); 
+		sb.AppendLine($"End Free To Go: {TrialEndFreeToGo.ColourCommand()}");
+		sb.AppendLine($"End Jail Time: {TrialEndRemandedIntoCustody.ColourCommand()}");
+		sb.AppendLine($"End Execution: {TrialEndRemandedAwaitingExecution.ColourCommand()}");
+		return sb.ToString();
+		
+	}
+
+	/// <inheritdoc />
 	protected override bool CharacterFiveSecondTick(ICharacter enforcer)
 	{
 		var general = base.CharacterFiveSecondTick(enforcer);
@@ -132,6 +204,12 @@ public class JudgeAI : EnforcerAI
 		{
 			return false;
 		}
+
+		if (enforcer.Location != enforcerEffect.LegalAuthority.CourtLocation)
+		{
+			return false;
+		}
+
 		var defendant =
 			enforcerEffect.LegalAuthority.CourtLocation.Characters.FirstOrDefault(x =>
 				x.EffectsOfType<OnTrial>(y => y.LegalAuthority == enforcerEffect.LegalAuthority).Any());
@@ -170,7 +248,7 @@ public class JudgeAI : EnforcerAI
 
 	private bool DoTrialTickSentencing(ICharacter enforcer, ICharacter defendant, OnTrial trialEffect, Gendering gender, string[] crimeNames)
 	{
-		if (trialEffect.LastTrialAction - DateTime.UtcNow < TrialPhaseDelay(trialEffect.Phase, trialEffect.Crimes.Count()))
+		if (DateTime.UtcNow - trialEffect.LastTrialAction < TrialPhaseDelay(trialEffect.Phase, trialEffect.Crimes.Count()))
 		{
 			return false;
 		}
@@ -284,7 +362,7 @@ public class JudgeAI : EnforcerAI
 				trialEffect.Crimes.Count() == 1 ? "crime" : "crimes",
 				sentenceCrime.TimeOfCrime.ToString(CalendarDisplayMode.Long, TimeDisplayTypes.Long),
 				sentenceCrime.DescribeCrimeAtTrial(enforcer),
-				trialEffect.Crimes.IndexBy(x => x == sentenceCrime).First().Key.ToWordyOrdinal()
+				(trialEffect.Crimes.IndexBy(x => x == sentenceCrime).First().Key+1).ToWordyOrdinal()
 			),
 			enforcer,
 			enforcer,
@@ -297,7 +375,7 @@ public class JudgeAI : EnforcerAI
 
 	private bool DoTrialTickVerdict(ICharacter enforcer, ICharacter defendant, OnTrial trialEffect, Gendering gender, string[] crimeNames)
 	{
-		if (trialEffect.LastTrialAction - DateTime.UtcNow < TrialPhaseDelay(trialEffect.Phase, trialEffect.Crimes.Count()))
+		if (DateTime.UtcNow - trialEffect.LastTrialAction < TrialPhaseDelay(trialEffect.Phase, trialEffect.Crimes.Count()))
 		{
 			return false;
 		}
@@ -460,7 +538,7 @@ public class JudgeAI : EnforcerAI
 
 	private bool DoTrialTickClosingArguments(ICharacter enforcer, ICharacter defendant, OnTrial trialEffect, Gendering gender, string[] crimeNames)
 	{
-		if (trialEffect.LastTrialAction - DateTime.UtcNow < TrialPhaseDelay(trialEffect.Phase, trialEffect.Crimes.Count()))
+		if (DateTime.UtcNow - trialEffect.LastTrialAction < TrialPhaseDelay(trialEffect.Phase, trialEffect.Crimes.Count()))
 		{
 			return false;
 		}
@@ -488,7 +566,7 @@ public class JudgeAI : EnforcerAI
 
 	private bool DoTrialTickCase(ICharacter enforcer, ICharacter defendant, OnTrial trialEffect, Gendering gender, string[] crimeNames)
 	{
-		if (trialEffect.LastTrialAction - DateTime.UtcNow < TrialPhaseDelay(trialEffect.Phase, trialEffect.Crimes.Count()))
+		if (DateTime.UtcNow - trialEffect.LastTrialAction < TrialPhaseDelay(trialEffect.Phase, trialEffect.Crimes.Count()))
 		{
 			return false;
 		}
@@ -515,7 +593,7 @@ public class JudgeAI : EnforcerAI
 
 	private bool DoTrialTickPlea(ICharacter enforcer, ICharacter defendant, OnTrial trialEffect, Gendering gender, string[] crimeNames)
 	{
-		if (trialEffect.LastTrialAction - DateTime.UtcNow < TrialPhaseDelay(trialEffect.Phase, trialEffect.Crimes.Count()))
+		if (DateTime.UtcNow - trialEffect.LastTrialAction < TrialPhaseDelay(trialEffect.Phase, trialEffect.Crimes.Count()))
 		{
 			return false;
 		}
@@ -535,7 +613,7 @@ public class JudgeAI : EnforcerAI
 					trialEffect.Crimes.Count() == 1 ? "crime" : "crimes",
 					pleaEffect.Crime.TimeOfCrime.ToString(CalendarDisplayMode.Long, TimeDisplayTypes.Long),
 					pleaEffect.Crime.DescribeCrimeAtTrial(enforcer),
-					trialEffect.Crimes.IndexBy(x => x == pleaEffect.Crime).First().Key.ToWordyOrdinal()
+					(trialEffect.Crimes.IndexBy(x => x == pleaEffect.Crime).First().Key+1).ToWordyOrdinal()
 				),
 				enforcer,
 				enforcer,
@@ -581,7 +659,7 @@ public class JudgeAI : EnforcerAI
 				trialEffect.Crimes.Count() == 1 ? "crime" : "crimes",
 				pleaCrime.TimeOfCrime.ToString(CalendarDisplayMode.Long, TimeDisplayTypes.Long),
 				pleaCrime.DescribeCrimeAtTrial(enforcer),
-				trialEffect.Crimes.IndexBy(x => x == pleaCrime).First().Key.ToWordyOrdinal()
+				(trialEffect.Crimes.IndexBy(x => x == pleaCrime).First().Key+1).ToWordyOrdinal()
 			),
 			enforcer,
 			enforcer,
@@ -596,7 +674,7 @@ public class JudgeAI : EnforcerAI
 
 	private bool DoTrialTickCharges(ICharacter enforcer, ICharacter defendant, OnTrial trialEffect, Gendering gender, string[] crimeNames)
 	{
-		if (trialEffect.LastTrialAction - DateTime.UtcNow < TrialPhaseDelay(trialEffect.Phase, trialEffect.Crimes.Count()))
+		if (DateTime.UtcNow - trialEffect.LastTrialAction < TrialPhaseDelay(trialEffect.Phase, trialEffect.Crimes.Count()))
 		{
 			return false;
 		}

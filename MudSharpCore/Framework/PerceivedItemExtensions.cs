@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using MudSharp.Character;
@@ -901,131 +902,70 @@ public static class PerceivedItemExtensions
 	/// <param name="maximumDistance">The maximum distance traversed before the algorithm gives up</param>
 	/// <param name="openDoors">Whether closed but unlocked doors should be considered traversible</param>
 	/// <returns>A collection of traversible ICellExits between the two targets</returns>
-	[Obsolete]
-	public static IEnumerable<ICellExit> PathBetweenObsolete(this IPerceivable source, IPerceivable target,
-		uint maximumDistance, bool openDoors, bool pathTransparentDoors = false, bool pathFireableDoors = false)
-	{
-		if (source?.Location == target?.Location)
-		{
-			return Enumerable.Empty<ICellExit>();
-		}
-
-		if (source == null || target == null || source.Location == null || target.Location == null)
-		{
-			return Enumerable.Empty<ICellExit>();
-		}
-
-		var locationsConsidered = new HashSet<ICell> { source.Location };
-		var generationExits =
-			new List<Node<ICellExit>>(source.Location.ExitsFor(null).Select(x => new Node<ICellExit>(x)));
-		var generation = 0;
-		while (generation++ < maximumDistance)
-		{
-			var thisGeneration = generationExits.ToList();
-			generationExits.Clear();
-			foreach (var exit in thisGeneration)
-			{
-				if (locationsConsidered.Contains(exit.Value.Destination))
-				{
-					continue;
-				}
-
-				if (!CanTraverse(exit.Value, openDoors, pathTransparentDoors, pathFireableDoors))
-				{
-					continue;
-				}
-
-				if (exit.Value.Destination == target.Location)
-				{
-					return exit.SelfAndAncestors.Values().Reverse().ToList();
-				}
-
-				locationsConsidered.Add(exit.Value.Destination);
-				foreach (var otherExit in exit.Value.Destination.ExitsFor(null))
-				{
-					var newNode = new Node<ICellExit>(otherExit);
-					exit.Add(newNode);
-					generationExits.Add(newNode);
-				}
-			}
-		}
-
-		return Enumerable.Empty<ICellExit>();
-	}
-
-	/// <summary>
-	///     Returns all Cell Exits which lie between two perceivables which can actually be traversed, using the A* algorithm
-	/// </summary>
-	/// <param name="source">The source IPerceivable</param>
-	/// <param name="target">The target IPerceivable</param>
-	/// <param name="maximumDistance">The maximum distance traversed before the algorithm gives up</param>
-	/// <param name="openDoors">Whether closed but unlocked doors should be considered traversible</param>
-	/// <returns>A collection of traversible ICellExits between the two targets</returns>
 	public static IEnumerable<ICellExit> PathBetween(this IPerceivable source, IPerceivable target,
 		uint maximumDistance, bool openDoors, bool pathTransparentDoors = false, bool pathFireableDoors = false)
 	{
-		if (source?.Location == target?.Location)
-		{
-			return Enumerable.Empty<ICellExit>();
-		}
-
-		if (source == null || target == null || source.Location == null || target.Location == null)
+		if (source?.Location == target?.Location ||
+			source == null || target == null || source.Location == null || target.Location == null)
 		{
 			return Enumerable.Empty<ICellExit>();
 		}
 
 		var queue = new RandomAccessPriorityQueue<double, Node<ICellExit>>();
-		foreach (var item in source.Location.ExitsFor(null))
+		var initialGScore = 0.0;
+		foreach (var exit in source.Location.ExitsFor(null, true))
 		{
-			queue.Enqueue(Hypotenuse(source.Location.Room, target.Location.Room), new Node<ICellExit>(item));
-		}
-
-		var locationsConsidered = new HashSet<ICell> { source.Location };
-
-		while (true)
-		{
-			if (queue.Count == 0)
-			{
-				break;
-			}
-
-			var next = queue.DequeueValue();
-			if (next.Value.Destination == target.Location)
-			{
-				return next.SelfAndAncestors.Values().Reverse().ToList();
-			}
-
-			if (next.Ancestors.Count() >= maximumDistance)
+			if (!CanTraverse(exit, openDoors, pathTransparentDoors, pathFireableDoors))
 			{
 				continue;
 			}
 
-			foreach (var exit in next.Value.Destination.ExitsFor(null))
+			var gScore = initialGScore + 1; // Assuming uniform cost
+			var hScore = Hypotenuse(exit.Destination.Room, target.Location.Room);
+			var fScore = gScore + hScore;
+			var node = new Node<ICellExit>(exit) { GScore = gScore };
+			queue.Enqueue(fScore, node);
+		}
+
+		var locationsConsidered = new Dictionary<ICell, double> { { source.Location, initialGScore } };
+
+		while (queue.Count > 0)
+		{
+			var next = queue.DequeueValue();
+			var currentLocation = next.Value.Destination;
+
+			if (currentLocation == target.Location)
+			{
+				return next.SelfAndAncestors.Values().Reverse().ToList();
+			}
+
+			if (next.GScore >= maximumDistance)
+			{
+				continue;
+			}
+
+			foreach (var exit in currentLocation.ExitsFor(null, true))
 			{
 				if (!CanTraverse(exit, openDoors, pathTransparentDoors, pathFireableDoors))
 				{
 					continue;
 				}
 
-				if (exit.Destination == target.Location)
+				var tentativeGScore = next.GScore + 1; // Assuming uniform cost
+
+				if (locationsConsidered.TryGetValue(exit.Destination, out var existingGScore))
 				{
-					var newNode = new Node<ICellExit>(exit);
-					next.Add(newNode);
-					return newNode.SelfAndAncestors.Values().Reverse().ToList();
+					if (tentativeGScore >= existingGScore)
+						continue;
 				}
 
-				if (locationsConsidered.Contains(exit.Destination))
-					// TODO - re-splice shorter routes when found
-				{
-					continue;
-				}
+				locationsConsidered[exit.Destination] = tentativeGScore;
 
-				locationsConsidered.Add(exit.Destination);
-				var node = new Node<ICellExit>(exit);
-				node.AddParent(next);
-				queue.Enqueue(
-					Hypotenuse(exit.Destination.Room.X, target.Location.Room.X, exit.Destination.Room.Y,
-						target.Location.Room.Y, exit.Destination.Room.Z, target.Location.Room.Z), node);
+				var hScore = Hypotenuse(exit.Destination.Room, target.Location.Room);
+				var fScore = tentativeGScore + hScore;
+				var newNode = new Node<ICellExit>(exit) { GScore = tentativeGScore };
+				newNode.AddParent(next);
+				queue.Enqueue(fScore, newNode);
 			}
 		}
 
@@ -1043,73 +983,63 @@ public static class PerceivedItemExtensions
 	public static IEnumerable<ICellExit> PathBetween(this IPerceivable source, IPerceivable target,
 		uint maximumDistance, Func<ICellExit, bool> suitabilityFunction)
 	{
-		if (source?.Location == target?.Location)
-		{
-			return Enumerable.Empty<ICellExit>();
-		}
-
-		if (source == null || target == null || source.Location == null || target.Location == null)
+		if (source?.Location == target?.Location ||
+			source == null || target == null || source.Location == null || target.Location == null)
 		{
 			return Enumerable.Empty<ICellExit>();
 		}
 
 		var queue = new RandomAccessPriorityQueue<double, Node<ICellExit>>();
-		foreach (var item in source.Location.ExitsFor(null, true))
+		var initialGScore = 0.0;
+		foreach (var exit in source.Location.ExitsFor(null, true))
 		{
-			queue.Enqueue(Hypotenuse(item.Destination.Room, target.Location.Room), new Node<ICellExit>(item));
+			if (!suitabilityFunction(exit))
+				continue;
+
+			var gScore = initialGScore + 1; // Assuming uniform cost
+			var hScore = Hypotenuse(exit.Destination.Room, target.Location.Room);
+			var fScore = gScore + hScore;
+			var node = new Node<ICellExit>(exit) { GScore = gScore };
+			queue.Enqueue(fScore, node);
 		}
 
-		var locationsConsidered = new Dictionary<ICell, int> { { source.Location, 0 } };
+		var locationsConsidered = new Dictionary<ICell, double> { { source.Location, initialGScore } };
 
-		while (true)
+		while (queue.Count > 0)
 		{
-			if (queue.Count == 0)
-			{
-				break;
-			}
-
 			var next = queue.DequeueValue();
-			if (next.Value.Destination == target.Location)
+			var currentLocation = next.Value.Destination;
+
+			if (currentLocation == target.Location)
 			{
 				return next.SelfAndAncestors.Values().Reverse().ToList();
 			}
 
-			if (next.Ancestors.Count() >= maximumDistance)
+			if (next.GScore >= maximumDistance)
 			{
 				continue;
 			}
 
-			foreach (var exit in next.Value.Destination.ExitsFor(null, true))
+			foreach (var exit in currentLocation.ExitsFor(null, true))
 			{
 				if (!suitabilityFunction(exit))
-				{
 					continue;
-				}
 
-				if (exit.Destination == target.Location)
-				{
-					var newNode = new Node<ICellExit>(exit);
-					next.Add(newNode);
-					return newNode.SelfAndAncestors.Values().Reverse().ToList();
-				}
+				var tentativeGScore = next.GScore + 1; // Assuming uniform cost
 
-				if (locationsConsidered.ContainsKey(exit.Destination))
+				if (locationsConsidered.TryGetValue(exit.Destination, out var existingGScore))
 				{
-					if (locationsConsidered[exit.Destination] >= next.Ancestors.Count())
-					{
+					if (tentativeGScore >= existingGScore)
 						continue;
-					}
-
-					queue.RemoveAll(x => x.Value.Value == exit.Destination);
-					locationsConsidered.Remove(exit.Destination);
 				}
 
-				locationsConsidered.Add(exit.Destination, next.Ancestors.Count());
-				var node = new Node<ICellExit>(exit);
-				node.AddParent(next);
-				queue.Enqueue(
-					Hypotenuse(exit.Destination.Room.X, target.Location.Room.X, exit.Destination.Room.Y,
-						target.Location.Room.Y, exit.Destination.Room.Z, target.Location.Room.Z), node);
+				locationsConsidered[exit.Destination] = tentativeGScore;
+
+				var hScore = Hypotenuse(exit.Destination.Room, target.Location.Room);
+				var fScore = tentativeGScore + hScore;
+				var newNode = new Node<ICellExit>(exit) { GScore = tentativeGScore };
+				newNode.AddParent(next);
+				queue.Enqueue(fScore, newNode);
 			}
 		}
 

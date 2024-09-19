@@ -17,6 +17,7 @@ public class Node<T> : IEqualityComparer, IEnumerable<T>, IEnumerable<Node<T>>
 
 	public Node<T> Parent { get; private set; }
 	public T Value { get; set; }
+	public double GScore { get; set; }
 
 	public Node<T> this[int index] => _children[index];
 
@@ -343,6 +344,7 @@ public class PolyNode<T> : IEqualityComparer, IEnumerable<T>, IEnumerable<PolyNo
 	}
 
 	public T Value { get; set; }
+	public double GScore { get; set; }
 
 	public PolyNode<T> this[int index] => _children[index];
 

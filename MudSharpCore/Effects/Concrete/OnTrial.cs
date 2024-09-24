@@ -18,6 +18,7 @@ namespace MudSharp.Effects.Concrete;
 
 public enum TrialPhase
 {
+	AwaitingLawyers,
 	Introduction,
 	Charges,
 	Plea,
@@ -27,6 +28,7 @@ public enum TrialPhase
 	Sentencing
 }
 
+#nullable enable
 public class OnTrial : Effect, IEffect
 {
 	private DateTime _lastTrialAction;
@@ -74,6 +76,38 @@ public class OnTrial : Effect, IEffect
 	private readonly Dictionary<ICrime, PunishmentResult> _punishments = new();
 	public IDictionary<ICrime, PunishmentResult> Punishments => _punishments;
 
+	private ICharacter? _prosecutor;
+	private long? _prosecutorId;
+
+	public ICharacter? Prosecutor
+	{
+		get
+		{
+			return _prosecutor ??= Gameworld.TryGetCharacter(_prosecutorId ?? 0, true);
+		}
+		set
+		{
+			_prosecutor = value;
+			_prosecutorId = value?.Id;
+		}
+	}
+
+	private ICharacter? _defender;
+	private long? _defenderId;
+
+	public ICharacter? Defender
+	{
+		get
+		{
+			return _defender ??= Gameworld.TryGetCharacter(_defenderId ?? 0, true);
+		}
+		set
+		{
+			_defender = value;
+			_defenderId = value?.Id;
+		}
+	}
+
 	public IReadOnlyDictionary<Difficulty, CheckOutcome> ArgueCaseDefender(ICharacter lawyer, ICrime crime)
 	{
 		_crimeDefenseCases[crime] = Gameworld.GetCheck(CheckType.DefendLegalCase).CheckAgainstAllDifficulties(lawyer, crime.DefenseDifficulty, null);
@@ -88,12 +122,12 @@ public class OnTrial : Effect, IEffect
 
 	public ICrime? NextDefenseCrime()
 	{
-		return _crimes.FirstOrDefault(x => !_crimeDefenseCases.ContainsKey(x));
+		return _crimes.FirstOrDefault(x => !_crimeDefenseCases.ContainsKey(x) || _crimeDefenseCases[x][Difficulty.Automatic].Outcome == Outcome.NotTested);
 	}
 
 	public ICrime? NextProsecutionCrime()
 	{
-		return _crimes.FirstOrDefault(x => !_crimeProsecutionCases.ContainsKey(x));
+		return _crimes.FirstOrDefault(x => !_crimeProsecutionCases.ContainsKey(x) || _crimeProsecutionCases[x][Difficulty.Automatic].Outcome == Outcome.NotTested);
 	}
 
 	public IReadOnlyDictionary<Difficulty, CheckOutcome> GetResultDefense(ICrime crime)
@@ -126,7 +160,7 @@ public class OnTrial : Effect, IEffect
 	{
 		return _crimes.IndexOf(crime) + 1;
 	}
-
+	
 	public void HandleArgueCommand(ICharacter actor, bool defense)
 	{
 		var crime = defense ? NextDefenseCrime() : NextProsecutionCrime();
@@ -197,7 +231,7 @@ public class OnTrial : Effect, IEffect
 			_crimeProsecutionCases[crime] = CheckOutcome.NotTestedAllDifficulties(CheckType.ProsecuteLegalCase);
 		}
 		ResetCrimeQueue();
-		_phase = TrialPhase.Introduction;
+		_phase = TrialPhase.AwaitingLawyers;
 	}
 
 	protected OnTrial(XElement effect, IPerceivable owner) : base(effect, owner)

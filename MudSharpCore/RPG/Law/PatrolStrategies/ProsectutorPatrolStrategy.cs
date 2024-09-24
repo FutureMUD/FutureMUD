@@ -1,23 +1,16 @@
-﻿using MudSharp.Effects.Concrete;
-using MudSharp.Framework;
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using MudSharp.Character;
-using MudSharp.Commands.Trees;
-using MudSharp.NPC;
-using MudSharp.TimeAndDate.Date;
-using MudSharp.TimeAndDate.Time;
+using MudSharp.Effects.Concrete;
+using MudSharp.Framework;
 
 namespace MudSharp.RPG.Law.PatrolStrategies;
 
-public class JudgePatrolStrategy : PatrolStrategyBase
+public class ProsectutorPatrolStrategy : PatrolStrategyBase
 {
-	public override string Name => "Judge";
+	/// <inheritdoc />
+	public override string Name => "Prosecutor";
 
-	public JudgePatrolStrategy(IFuturemud gameworld) : base(gameworld)
+	public ProsectutorPatrolStrategy(IFuturemud gameworld) : base(gameworld)
 	{
 	}
 
@@ -57,7 +50,7 @@ public class JudgePatrolStrategy : PatrolStrategyBase
 				return;
 			}
 		}
-		
+
 
 		if (patrol.PatrolLeader.Location != patrol.NextMajorNode)
 		{
@@ -83,11 +76,17 @@ public class JudgePatrolStrategy : PatrolStrategyBase
 			fp.FollowPathAction();
 			return;
 		}
-	}
 
-	/// <inheritdoc />
-	public override IEnumerable<ICharacter> SelectEnforcers(IPatrolRoute patrol, IEnumerable<ICharacter> pool, int numberToPick)
-	{
-		return base.SelectEnforcers(patrol, pool.OfType<INPC>().Where(x => x.AIs.Any(y => y.AIType == "Judge")), numberToPick);
+		// Argue in the trials
+		var trial = patrol.PatrolLeader.Location.Characters.SelectNotNull(x => x.EffectsOfType<OnTrial>().First()).FirstOrDefault();
+		if (trial is null)
+		{
+			return;
+		}
+
+		if (trial.Phase.In(TrialPhase.Case, TrialPhase.ClosingArguments))
+		{
+			trial.HandleArgueCommand(patrol.PatrolLeader, false);
+		}
 	}
 }

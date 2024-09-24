@@ -17,9 +17,12 @@ using MudSharp.RPG.Law;
 using TimeSpanParserUtil;
 using MudSharp.GameItems.Interfaces;
 using MudSharp.Character.Name;
+using MudSharp.Economy;
 using MudSharp.Economy.Banking;
 using MudSharp.Economy.Currency;
 using MudSharp.Economy.Payment;
+using MudSharp.NPC;
+using MudSharp.NPC.AI;
 using MudSharp.RPG.Checks;
 
 namespace MudSharp.Commands.Modules;
@@ -418,7 +421,13 @@ The syntax to use this command is:
 
 		if (ss.IsFinished)
 		{
-			actor.OutputHandler.Send($"What crime do you want to accuse {who.HowSeen(actor)} of?");
+			var enf = legal.GetEnforcementAuthority(actor);
+			actor.OutputHandler.Send($"What crime do you want to accuse {who.HowSeen(actor)} of?\nYou could accuse the following crimes: {
+				legal.Laws
+				     .Where(x => x.IsCrime(who, null, null) && enf?.CanAccuseOfCrime(actor, who, x) != false)
+				     .Select(x => x.Name)
+				     .ListToColouredString()
+			}");
 			return;
 		}
 
@@ -477,7 +486,7 @@ The syntax is as follows:
 
 	#3forgive <target> <id>#0 - forgives a target of a crime
 	#3forgive <target> all#0 - forgives a target of all crimes
-	#3forvive <target>#0 - see all crimes you could forgive a target for
+	#3forgive <target>#0 - see all crimes you could forgive a target of
 
 #6Note: Admins can use character ID instead of a target keyword in the above.#0", AutoHelp.HelpArg)]
 	protected static void Forgive(ICharacter actor, string input)
@@ -632,7 +641,7 @@ The syntax is as follows:
 			}
 		}
 
-		switch (ss.SafeRemainingArgument.ToLowerInvariant().CollapseString())
+		switch (plea)
 		{
 			case "guilty":
 				actor.OutputHandler.Handle(new MixedEmoteOutput(new Emote("@ plead|pleads guilty", actor)).Append(emote));
@@ -672,12 +681,27 @@ The syntax is as follows:
 
 		if (ss.IsFinished)
 		{
-			actor.OutputHandler.Send("Do you want to argue the #2defense#0 or #1prosecution#0?");
+			actor.OutputHandler.Send("Do you want to argue the #2defense#0 or #1prosecution#0?".SubstituteANSIColour());
 			return;
 		}
 
 		var defense = ss.PopSpeech().EqualToAny("defense", "defence");
-		// TODO - are they authorised to act in the prosecution or defense?
+		if (defense)
+		{
+			if (trialEffect.Defender != actor)
+			{
+				actor.OutputHandler.Send("You are not the defense lawyer for this case.");
+				return;
+			}
+		}
+		else
+		{
+			if (trialEffect.Defender != actor)
+			{
+				actor.OutputHandler.Send("You are not the prosecution lawyer for this case.");
+				return;
+			}
+		}
 		trialEffect.HandleArgueCommand(actor, defense);
 	}
 
@@ -1244,5 +1268,174 @@ The syntax is as follows:
 					$"marked as the property of {actor.CurrentName.GetName(NameStyle.FullWithNickname)}", bundle));
 			}
 		}
+	}
+
+	[PlayerCommand("EngageLawyer", "engagelawyer")]
+	[RequiredCharacterState(CharacterState.Able)]
+	protected static void EngageLawyer(ICharacter actor, string input)
+	{
+		var ss = new StringStack(input.RemoveFirstWord());
+		var who = actor;
+		var courtLawyers = actor.Gameworld.Characters
+		                            .OfType<INPC>()
+		                            .Select(x => (NPC: x, AI: x.AIs.OfType<LawyerAI>().FirstOrDefault()))
+		                            .Where(x => x.AI is not null)
+		                            .ToList();
+		ILegalAuthority jurisdiction;
+		if (ss.IsFinished || ss.PeekSpeech().EqualTo("me"))
+		{
+			who = actor;
+			if (actor.AffectedBy<HasLegalCounsel>())
+			{
+				actor.OutputHandler.Send("You already have legal counsel. You must fire your legal counsel before you can engage a new one.");
+				return;
+			}
+
+			var sentencingEffect = actor.EffectsOfType<AwaitingSentencing>().FirstOrDefault();
+			var bailEffect = actor.EffectsOfType<OnBail>().FirstOrDefault();
+			if (sentencingEffect is null && bailEffect is null)
+			{
+				actor.OutputHandler.Send("You are not being held in custody on remand by or on bail from any legal authorities.");
+				return;
+			}
+
+			jurisdiction = sentencingEffect?.LegalAuthority ?? bailEffect!.LegalAuthority;
+		}
+		else
+		{
+			jurisdiction = actor.Gameworld.LegalAuthorities.FirstOrDefault(x => x.PrisonLocation == actor.Location);
+			if (jurisdiction is null)
+			{
+				actor.OutputHandler.Send($"You are not at the prison location of any legal jurisdiction.");
+				return;
+			}
+
+			var prisoners = jurisdiction.CellLocations.SelectMany(x => x.Characters)
+			                            .Where(x => x.AffectedBy<AwaitingSentencing>(jurisdiction)).ToList();
+			var whoText = ss.PopSpeech();
+			if (whoText.EqualTo("list"))
+			{
+				if (prisoners.All(x => x.AffectedBy<HasLegalCounsel>()))
+				{
+					actor.OutputHandler.Send("There are no prisoners in the cells who do not have a lawyer engaged.");
+					return;
+				}
+
+				var sb = new StringBuilder();
+				sb.AppendLine("Prisoners on Remand:");
+				sb.AppendLine();
+				foreach (var prisoner in prisoners)
+				{
+					sb.AppendLine($"\t{prisoner.HowSeen(actor, flags: PerceiveIgnoreFlags.IgnoreCanSee)} ({prisoner.PersonalName.GetName(NameStyle.FullName).ColourName()})");
+				}
+
+				actor.OutputHandler.Send(sb.ToString());
+				return;
+			}
+
+			who = prisoners.GetFromItemListByKeywordIncludingNames(whoText, actor);
+			if (who is null)
+			{
+				actor.OutputHandler.Send(
+					$"There is no such prisoner who does not have legal representation currently on remand. Please see {"ENGAGELAWYER LIST".MXPSend("bailout list")} for a list of prisoners needing legal counsel.");
+				return;
+			}
+		}
+
+		var availableLawyers = courtLawyers.Where(x => x.AI.AvailableToHire(who, jurisdiction, false)).ToList();
+		if (ss.IsFinished || ss.SafeRemainingArgument.EqualTo("list"))
+		{
+			if (availableLawyers.Count == 0)
+			{
+				actor.OutputHandler.Send($"There are no available lawyers who would be willing to defend {(who == actor ? "you" : who.HowSeen(actor, flags: PerceiveIgnoreFlags.IgnoreCanSee))}.");
+				return;
+			}
+
+			var sb = new StringBuilder("The following lawyers are available for hire:");
+			sb.AppendLine();
+			sb.AppendLine(StringUtilities.GetTextTable(
+				from item in availableLawyers
+				select new List<string>
+				{
+					item.NPC.HowSeen(actor),
+					item.NPC.PersonalName.GetName(NameStyle.FullName),
+					jurisdiction.Currency.Describe(item.AI.FeeProg.ExecuteDecimal(who, item.NPC), CurrencyDescriptionPatternType.ShortDecimal)
+				},
+				new List<string>
+				{
+					"Description",
+					"Name",
+					"Fee"
+				},
+				actor
+				));
+			actor.OutputHandler.Send(sb.ToString());
+			return;
+		}
+
+		var target = availableLawyers.Select(x => x.NPC).GetFromItemListByKeywordIncludingNames(ss.PopSpeech(), actor);
+		if (target is null)
+		{
+			actor.OutputHandler.Send($"There is no such available lawyer. See {(who == actor ?  "engagelawyer me list" : $"engagelawyer {ss.Memory.First().ToLowerInvariant()} list").MXPSend()} for a list.");
+			return;
+		}
+
+		var (_, ai) = availableLawyers.First(x => x.NPC == target);
+		var fee = ai.FeeProg.ExecuteDecimal(who, target);
+		string actionText;
+		var lawyerBankAccount = ai.BankAccountProg?.Execute<IBankAccount>(target);
+		if (ss.IsFinished)
+		{
+			var (account, error) = Bank.FindBankAccount(ss.SafeRemainingArgument, null, actor);
+			if (account is null)
+			{
+				actor.OutputHandler.Send(error);
+				return;
+			}
+
+			if (!account.IsAuthorisedAccountUser(actor))
+			{
+				actor.OutputHandler.Send($"You are not an authorised person for that bank account.");
+				return;
+			}
+
+			var (truth, withdrawError) = account.CanWithdraw(fee, true);
+			if (!truth)
+			{
+				actor.OutputHandler.Send(withdrawError);
+				return;
+			}
+
+			account.WithdrawFromTransaction(fee, "Paying for a lawyer");
+			lawyerBankAccount?.DepositFromTransaction(fee, $"Lawyer fee for {who.PersonalName.GetName(NameStyle.FullName)}");
+			actionText = $"with funds from the bank account {account.AccountReference.ColourValue()}";
+		}
+		else
+		{
+			var payment = new OtherCashPayment(jurisdiction.Currency, actor);
+			if (payment.AccessibleMoneyForPayment() < fee)
+			{
+				actor.OutputHandler.Send(
+					$"You aren't holding enough money to pay {jurisdiction.Currency.Describe(fee, CurrencyDescriptionPatternType.Short).ColourValue()} in legal fees.\nYou are only holding {jurisdiction.Currency.Describe(payment.AccessibleMoneyForPayment(), CurrencyDescriptionPatternType.Short).ColourValue()}.");
+				return;
+			}
+
+			payment.TakePayment(fee);
+			lawyerBankAccount?.DepositFromTransaction(fee, $"Lawyer fee for {who.PersonalName.GetName(NameStyle.FullName)}");
+			actionText = "with cash";
+		}
+
+		if (actor == who)
+		{
+			actor.OutputHandler.Handle(new EmoteOutput(new Emote($"@ pay|pays to engage {target.PersonalName.GetName(NameStyle.FullName)} as &0's lawyer {actionText}.", actor, actor)));
+		}
+		else
+		{
+			actor.OutputHandler.Handle(new EmoteOutput(new Emote($"@ pay|pays to engage {target.PersonalName.GetName(NameStyle.FullName)} as $1's lawyer {actionText}.", actor, actor, who)));
+			who.OutputHandler.Send(new EmoteOutput(new Emote($"@ pay|pays to engage {target.PersonalName.GetName(NameStyle.FullName)} as your lawyer.", actor, actor, who)));
+		}
+
+		target.AddEffect(new Lawyering(target, jurisdiction){EngagedByCharacter = who});
+		who.AddEffect(new HasLegalCounsel(who, target));
 	}
 }

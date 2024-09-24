@@ -233,19 +233,6 @@ public partial class Body
 		return GetKeywordsFromSDesc(HowSeen(voyeur, colour: false));
 	}
 
-	public override bool HasKeyword(string targetKeyword, IPerceiver voyeur, bool abbreviated = true)
-	{
-		var keywords = GetKeywordsFromSDesc(HowSeen(voyeur, colour: false));
-		return abbreviated
-			? keywords.Any(x => x.StartsWith(targetKeyword, StringComparison.InvariantCultureIgnoreCase))
-			: keywords.Contains(targetKeyword);
-	}
-
-	public override bool HasKeywords(IEnumerable<string> targetKeywords, IPerceiver voyeur, bool abbreviated = true)
-	{
-		return targetKeywords.All(x => HasKeyword(x, voyeur, abbreviated));
-	}
-
 	public string ProcessDescriptionAdditions(string description, IPerceiver voyeur, bool colour, PerceiveIgnoreFlags flags)
 	{
 		if (!flags.HasFlag(PerceiveIgnoreFlags.IgnoreNamesSetting) && voyeur is ICharacter vch && vch.Account.CharacterNameOverlaySetting != Accounts.CharacterNameOverlaySetting.None)

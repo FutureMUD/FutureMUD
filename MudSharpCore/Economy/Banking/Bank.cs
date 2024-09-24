@@ -27,14 +27,14 @@ namespace MudSharp.Economy.Banking;
 public class Bank : SaveableItem, IBank, ILazyLoadDuringIdleTime
 {
 #nullable enable
-	public static (IBankAccount? Account, string Error) FindBankAccount(string accTarget, IBank? homeBank, ICharacter character)
+	public static (IBankAccount? Account, string Error) FindBankAccount(string accTarget, IBank? homeBank, ICharacter? character)
 	{
 		if (accTarget.Split(':').Length == 2)
 		{
 			var split = accTarget.Split(':');
 			var bankTarget = Futuremud.Games.First().Banks.GetByName(split[0]) ??
-			                 Futuremud.Games.First().Banks.FirstOrDefault(x =>
-				                 x.Code.StartsWith(split[0], StringComparison.InvariantCultureIgnoreCase));
+							 Futuremud.Games.First().Banks.FirstOrDefault(x =>
+								 x.Code.StartsWith(split[0], StringComparison.InvariantCultureIgnoreCase));
 			if (bankTarget == null)
 			{
 				return (null, $"There is no bank with the name or bank code '{split[0].ColourValue()}'.");
@@ -61,7 +61,8 @@ public class Bank : SaveableItem, IBank, ILazyLoadDuringIdleTime
 			_ = int.TryParse(accTarget, out var accn);
 
 			var accountTarget = homeBank.BankAccounts.FirstOrDefault(x =>
-				(x.AccountNumber == accn || (x.Name.StartsWith(accTarget, StringComparison.InvariantCultureIgnoreCase) && x.IsAuthorisedAccountUser(character)))
+				(x.AccountNumber == accn || (x.Name.StartsWith(accTarget, StringComparison.InvariantCultureIgnoreCase) && 
+											 (character is null || x.IsAuthorisedAccountUser(character))))
 				&& x.AccountStatus == BankAccountStatus.Active);
 			if (accountTarget == null)
 			{
@@ -511,15 +512,15 @@ public class Bank : SaveableItem, IBank, ILazyLoadDuringIdleTime
 			default:
 				actor.OutputHandler.Send(@"You can use the following options with the manager command:
 
-    bank manager balance - shows information about the banks funds and liabilities
-    bank manager audit [<who>] - shows audit logs (optionally for a specific person)
-    bank manager status <account> <active|suspended|locked> - changes the status of a bank account
-    bank manager close <account> - permanently closes an account (can get around restrictions)
-    bank manager credit <account> <amount> <comment> - credits an existing account
-    bank manager rollover <account> <newaccount> - closes an account and rolls balance into a new one
-    bank manager withdraw <amount> - withdraws money from the cash reserves
-    bank manager deposit <amount> - deposits money into the cash reserves
-    bank manager exchange <from> <to> <rate> - sets the currency exchange rate");
+	bank manager balance - shows information about the banks funds and liabilities
+	bank manager audit [<who>] - shows audit logs (optionally for a specific person)
+	bank manager status <account> <active|suspended|locked> - changes the status of a bank account
+	bank manager close <account> - permanently closes an account (can get around restrictions)
+	bank manager credit <account> <amount> <comment> - credits an existing account
+	bank manager rollover <account> <newaccount> - closes an account and rolls balance into a new one
+	bank manager withdraw <amount> - withdraws money from the cash reserves
+	bank manager deposit <amount> - deposits money into the cash reserves
+	bank manager exchange <from> <to> <rate> - sets the currency exchange rate");
 				return;
 		}
 	}
@@ -609,7 +610,7 @@ public class Bank : SaveableItem, IBank, ILazyLoadDuringIdleTime
 	public void ReferenceDateOnDateChanged()
 	{
 		var newMonth = EconomicZone.FinancialPeriodReferenceCalendar.CurrentDate.Day == 1 &&
-		               !EconomicZone.FinancialPeriodReferenceCalendar.CurrentDate.IsIntercalaryDay()
+					   !EconomicZone.FinancialPeriodReferenceCalendar.CurrentDate.IsIntercalaryDay()
 			;
 		foreach (var account in _bankAccounts)
 		{
@@ -694,7 +695,7 @@ public class Bank : SaveableItem, IBank, ILazyLoadDuringIdleTime
 		}
 
 		var moneyDescription = actor.Currency.Describe(amount, CurrencyDescriptionPatternType.Short)
-		                            .ColourValue();
+									.ColourValue();
 		actor.OutputHandler.Send($"You deposit {moneyDescription} into the currency reserves of {Name.ColourName()}.");
 		actor.OutputHandler.Handle(new EmoteOutput(
 			new Emote($"@ deposits {moneyDescription} into the currency reserves of {Name.ColourName()}.", actor,
@@ -731,7 +732,7 @@ public class Bank : SaveableItem, IBank, ILazyLoadDuringIdleTime
 		}
 
 		var moneyDescription = actor.Currency.Describe(amount, CurrencyDescriptionPatternType.Short)
-		                            .ColourValue();
+									.ColourValue();
 		actor.OutputHandler.Send($"You withdraw {moneyDescription} from the currency reserves of {Name.ColourName()}.");
 		actor.OutputHandler.Handle(new EmoteOutput(
 			new Emote($"@ withdraws {moneyDescription} from the currency reserves of {Name.ColourName()}.", actor,
@@ -874,7 +875,7 @@ public class Bank : SaveableItem, IBank, ILazyLoadDuringIdleTime
 
 		account.DoAccountCredit(amount, command.SafeRemainingArgument);
 		var moneyDescription = actor.Currency.Describe(amount, CurrencyDescriptionPatternType.Short)
-		                            .ColourValue();
+									.ColourValue();
 		InitialiseAuditLogs();
 		_auditLogs.Add(new BankManagerAuditLog(this, actor,
 			EconomicZone.ZoneForTimePurposes.DateTime(EconomicZone.FinancialPeriodReferenceCalendar),
@@ -1311,7 +1312,7 @@ public class Bank : SaveableItem, IBank, ILazyLoadDuringIdleTime
 	public (bool Truth, string Error) CanOpenNewBankAccounts(ICharacter character)
 	{
 		if (BankAccounts.Count(x => x.AccountStatus != BankAccountStatus.Closed && x.IsAccountOwner(character)) >=
-		    MaximumBankAccountsPerCustomer)
+			MaximumBankAccountsPerCustomer)
 		{
 			return (false,
 				$"Customers may only have a maximum of {MaximumBankAccountsPerCustomer.ToString("N0", character)} open accounts at one time.");

@@ -57,14 +57,14 @@ public class Accept : Effect, IProposalEffect
 
 	public IEnumerable<string> Keywords => Proposal.Keywords;
 
-	public bool HasKeyword(string targetKeyword, IPerceiver voyeur, bool abbreviated = false)
+	public bool HasKeyword(string targetKeyword, IPerceiver voyeur, bool abbreviated = false, bool useContainsOverStartsWith = false)
 	{
-		return Proposal.HasKeyword(targetKeyword, voyeur, abbreviated);
+		return Proposal.HasKeyword(targetKeyword, voyeur, abbreviated, useContainsOverStartsWith);
 	}
 
-	public bool HasKeywords(IEnumerable<string> targetKeywords, IPerceiver voyeur, bool abbreviated = false)
+	public bool HasKeywords(IEnumerable<string> targetKeywords, IPerceiver voyeur, bool abbreviated = false, bool useContainsOverStartsWith = false)
 	{
-		return Proposal.HasKeywords(targetKeywords, voyeur, abbreviated);
+		return Proposal.HasKeywords(targetKeywords, voyeur, abbreviated, useContainsOverStartsWith);
 	}
 
 	#endregion

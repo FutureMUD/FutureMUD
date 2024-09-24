@@ -78,14 +78,14 @@ namespace MudSharp.Economy
 			return Item.GetKeywordsFor(voyeur);
 		}
 
-		public bool HasKeyword(string targetKeyword, IPerceiver voyeur, bool abbreviated = false)
+		public bool HasKeyword(string targetKeyword, IPerceiver voyeur, bool abbreviated = false, bool useContainsOverStartsWith = false)
 		{
-			return Item.HasKeyword(targetKeyword, voyeur, abbreviated);
+			return Item.HasKeyword(targetKeyword, voyeur, abbreviated, useContainsOverStartsWith);
 		}
 
-		public bool HasKeywords(IEnumerable<string> targetKeywords, IPerceiver voyeur, bool abbreviated = false)
+		public bool HasKeywords(IEnumerable<string> targetKeywords, IPerceiver voyeur, bool abbreviated = false, bool useContainsOverStartsWith = false)
 		{
-			return Item.HasKeywords(targetKeywords, voyeur, abbreviated);
+			return Item.HasKeywords(targetKeywords, voyeur, abbreviated, useContainsOverStartsWith);
 		}
 
 		#endregion

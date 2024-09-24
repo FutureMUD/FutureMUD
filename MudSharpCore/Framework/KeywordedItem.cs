@@ -55,18 +55,21 @@ public static class KeywordedItemExtensions
 
 		return (from item in itemList
 		        where ItemMatches(item, strings, voyeur, abbreviated, false)
-		        select item).FirstOrDefault();
+		        select item).FirstOrDefault() ??
+			   (from item in itemList
+			    where ItemMatches(item, strings, voyeur, abbreviated, false, true)
+			    select item).FirstOrDefault();
 	}
 
 	private static bool ItemMatches<T>(T item, IEnumerable<string> keywords, IPerceiver voyeur, bool abbreviated,
-		bool includeNames) where T : IKeyworded
+		bool includeNames, bool useContainsOverStartsWith = false) where T : IKeyworded
 	{
 		var ihpn = item as IHavePersonalName;
 		var ifi = item as IFrameworkItem;
 		var pn = ihpn?.PersonalName.GetName(NameStyle.FullName);
 		foreach (var keyword in keywords)
 		{
-			if (item.HasKeyword(keyword, voyeur, abbreviated))
+			if (item.HasKeyword(keyword, voyeur, abbreviated, useContainsOverStartsWith))
 			{
 				continue;
 			}
@@ -82,9 +85,19 @@ public static class KeywordedItemExtensions
 				{
 					if (abbreviated)
 					{
-						if (pn.StartsWith(keyword, StringComparison.InvariantCultureIgnoreCase))
+						if (useContainsOverStartsWith)
 						{
-							continue;
+							if (pn.Contains(keyword, StringComparison.InvariantCultureIgnoreCase))
+							{
+								continue;
+							}
+						}
+						else
+						{
+							if (pn.StartsWith(keyword, StringComparison.InvariantCultureIgnoreCase))
+							{
+								continue;
+							}
 						}
 					}
 					else
@@ -99,9 +112,19 @@ public static class KeywordedItemExtensions
 				{
 					if (abbreviated)
 					{
-						if (ifi.Name.StartsWith(keyword, StringComparison.InvariantCultureIgnoreCase))
+						if (useContainsOverStartsWith)
 						{
-							continue;
+							if (ifi.Name.Contains(keyword, StringComparison.InvariantCultureIgnoreCase))
+							{
+								continue;
+							}
+						}
+						else
+						{
+							if (ifi.Name.StartsWith(keyword, StringComparison.InvariantCultureIgnoreCase))
+							{
+								continue;
+							}
 						}
 					}
 					else
@@ -156,7 +179,10 @@ public static class KeywordedItemExtensions
 
 		return (from item in itemList
 		        where ItemMatches(item, strings.ToArray(), voyeur, abbreviated, true)
-		        select item).FirstOrDefault();
+		        select item).FirstOrDefault() ??
+			   (from item in itemList
+			    where ItemMatches(item, strings.ToArray(), voyeur, abbreviated, true, true)
+			    select item).FirstOrDefault();
 	}
 }
 
@@ -166,30 +192,45 @@ public abstract class KeywordedItem : FrameworkItem, IKeywordedItem
 
 	public virtual Gendering Gender => Neuter.Instance;
 
-	public virtual IEnumerable<string> Keywords => _keywords?.Value ?? new List<string> { Name };
+	public virtual IEnumerable<string> Keywords => _keywords?.Value ?? [_name];
 
 	public virtual IEnumerable<string> GetKeywordsFor(IPerceiver voyeur)
 	{
-		return _keywords == null ? new List<string> { _name } : _keywords.Value;
+		return _keywords == null ? [_name] : _keywords.Value;
 	}
 
-	public virtual bool HasKeyword(string targetKeyword, IPerceiver voyeur, bool abbreviated = true)
+	public virtual bool HasKeyword(string targetKeyword, IPerceiver voyeur, bool abbreviated = true, bool useContainsOverStartsWith = false)
 	{
-		if (_keywords == null)
+		var keywords = GetKeywordsFor(voyeur);
+		if (!abbreviated)
 		{
-			return abbreviated
-				? _name.ToLowerInvariant().StartsWith(targetKeyword, StringComparison.InvariantCultureIgnoreCase)
-				: _name.ToLowerInvariant() == targetKeyword;
+			return keywords.Any(x => x.EqualTo(targetKeyword));
 		}
 
-		return abbreviated
-			? _keywords.Value.Any(x => x.StartsWith(targetKeyword, StringComparison.InvariantCultureIgnoreCase))
-			: _keywords.Value.Contains(targetKeyword);
+		if (useContainsOverStartsWith)
+		{
+			return keywords.Any(x => x.Contains(targetKeyword, StringComparison.InvariantCultureIgnoreCase));
+		}
+
+		return keywords.Any(x => x.StartsWith(targetKeyword, StringComparison.InvariantCultureIgnoreCase));
 	}
 
-	public virtual bool HasKeywords(IEnumerable<string> targetKeywords, IPerceiver voyeur, bool abbreviated = true)
+	public virtual bool HasKeywords(IEnumerable<string> targetKeywords, IPerceiver voyeur, bool abbreviated = true, bool useContainsOverStartsWith = false)
 	{
-		return targetKeywords.All(x => HasKeyword(x, voyeur, abbreviated));
+		var keywords = GetKeywordsFor(voyeur);
+		if (!abbreviated)
+		{
+			return targetKeywords.All(x => keywords.Any(y => y.EqualTo(x)));
+		}
+
+		if (useContainsOverStartsWith)
+		{
+			return targetKeywords.All(x =>
+				keywords.Any(y => y.Contains(x, StringComparison.InvariantCultureIgnoreCase)));
+		}
+
+		return targetKeywords.All(x =>
+			keywords.Any(y => y.StartsWith(x, StringComparison.InvariantCultureIgnoreCase)));
 	}
 
 	protected IEnumerable<string> GetKeywordsFromSDesc(string sdesc)
@@ -232,18 +273,6 @@ public class DummyKeywordedItem<T> : IKeyworded
 	public IEnumerable<string> GetKeywordsFor(IPerceiver voyeur)
 	{
 		return Keywords;
-	}
-
-	public bool HasKeyword(string targetKeyword, IPerceiver voyeur, bool abbreviated = false)
-	{
-		return abbreviated
-			? Keywords.Any(x => x.StartsWith(targetKeyword, StringComparison.InvariantCultureIgnoreCase))
-			: Keywords.Any(x => x.EqualTo(targetKeyword));
-	}
-
-	public bool HasKeywords(IEnumerable<string> targetKeywords, IPerceiver voyeur, bool abbreviated = false)
-	{
-		return targetKeywords.Any(x => HasKeyword(x, voyeur, abbreviated));
 	}
 
 	#endregion

@@ -23,6 +23,7 @@ public class ShopkeeperAI : PathingAIBase
 	public static void RegisterLoader()
 	{
 		RegisterAIType("Shopkeeper", (ai, gameworld) => new ShopkeeperAI(ai, gameworld));
+		RegisterAIBuilderInformation("shopkeeper", (game, name) => new ShopkeeperAI(game, name), new ShopkeeperAI().HelpText);
 	}
 
 	private IFutureProg _onSomeoneEntersProg;
@@ -50,14 +51,29 @@ public class ShopkeeperAI : PathingAIBase
 		).ToString();
 	}
 
-	protected ShopkeeperAI(Models.ArtificialIntelligence ai, IFuturemud gameworld) : base(ai, gameworld)
+	private ShopkeeperAI()
 	{
+	}
+
+	protected ShopkeeperAI(IFuturemud gameworld, string name) : base(gameworld, name, "Shopkeeper")
+	{
+		OpenDoors = true;
 		UseKeys = true;
 		SmashLockedDoors = false;
 		MoveEvenIfObstructionInWay = true;
 		UseDoorguards = true;
+		_restockStartDelay = TimeSpan.FromSeconds(30);
+		DatabaseInitialise();
+	}
 
+	protected ShopkeeperAI(Models.ArtificialIntelligence ai, IFuturemud gameworld) : base(ai, gameworld)
+	{
 		var root = XElement.Parse(ai.Definition);
+		OpenDoors = bool.Parse(root.Element("OpenDoors").Value);
+		UseKeys = bool.Parse(root.Element("UseKeys").Value);
+		SmashLockedDoors = bool.Parse(root.Element("SmashLockedDoors").Value);
+		MoveEvenIfObstructionInWay = bool.Parse(root.Element("MoveEvenIfObstructionInWay").Value);
+		UseDoorguards = bool.Parse(root.Element("UseDoorguards").Value);
 		_onSomeoneEntersProg = long.TryParse(root.Element("OnSomeoneEntersProg")?.Value ?? "0", out var value)
 			? gameworld.FutureProgs.Get(value)
 			: gameworld.FutureProgs.GetByName(root.Element("OnSomeoneEntersProg").Value);
@@ -85,7 +101,7 @@ public class ShopkeeperAI : PathingAIBase
 		{
 			case EventType.CharacterEnterCellFinish:
 				return HandleCharacterEnterCell((ICharacter)arguments[0], (ICell)arguments[1]) ||
-				       base.HandleEvent(type, arguments);
+					   base.HandleEvent(type, arguments);
 			case EventType.CharacterEnterCellFinishWitness:
 				return HandleWitnessCharacterEnterCell((ICharacter)arguments[0], (ICell)arguments[1],
 					(ICellExit)arguments[2], (ICharacter)arguments[3]);
@@ -109,18 +125,18 @@ public class ShopkeeperAI : PathingAIBase
 		if (employee.Location.Shop?.IsClockedIn(employee) == true)
 		{
 			var stockInRoom = employee.Body.HeldItems
-			                          .Concat(employee.Location.GameItems.SelectMany(x => x.ShallowItems))
-			                          .Where(x => x.AffectedBy<ItemOnDisplayInShop>()).ToList();
+									  .Concat(employee.Location.GameItems.SelectMany(x => x.ShallowItems))
+									  .Where(x => x.AffectedBy<ItemOnDisplayInShop>()).ToList();
 
 			foreach (var item in stockInRoom)
 			{
 				var effect = item.EffectsOfType<ItemOnDisplayInShop>().First();
 				if (effect.Merchandise.PreferredDisplayContainer != null &&
-				    item.ContainedIn != effect.Merchandise.PreferredDisplayContainer &&
-				    employee.Body.CanPut(item, effect.Merchandise.PreferredDisplayContainer, null, 0, true) &&
-				    item.ContainedIn != null
-					    ? employee.Body.CanGet(item, item.ContainedIn, 0)
-					    : employee.Body.CanGet(item, 0)
+					item.ContainedIn != effect.Merchandise.PreferredDisplayContainer &&
+					employee.Body.CanPut(item, effect.Merchandise.PreferredDisplayContainer, null, 0, true) &&
+					item.ContainedIn != null
+						? employee.Body.CanGet(item, item.ContainedIn, 0)
+						: employee.Body.CanGet(item, 0)
 				   )
 				{
 					if (item.ContainedIn != null)
@@ -137,8 +153,8 @@ public class ShopkeeperAI : PathingAIBase
 				}
 
 				if (item.ContainedIn == null && employee.Body.CanGet(item, 0) &&
-				    employee.Location.Shop.DisplayContainers.Any(x =>
-					    x.Location == employee.Location && employee.Body.CanPut(item, x, null, 0, false)))
+					employee.Location.Shop.DisplayContainers.Any(x =>
+						x.Location == employee.Location && employee.Body.CanPut(item, x, null, 0, false)))
 				{
 					employee.Body.Get(item);
 					employee.Body.Put(item,
@@ -173,7 +189,7 @@ public class ShopkeeperAI : PathingAIBase
 		}
 
 		if (shop.EmployeesOnDuty.Any(x => x.EffectsOfType<RestockingMerchandise>()
-		                                   .Any(y => y.TargetMerchandise == merchandise)))
+										   .Any(y => y.TargetMerchandise == merchandise)))
 		{
 			return false;
 		}
@@ -236,19 +252,19 @@ public class ShopkeeperAI : PathingAIBase
 			}
 
 			foreach (var item in employee.Body.HeldItems.Where(
-				         x => x.AffectedBy<ItemOnDisplayInShop>(effect.TargetMerchandise)).ToList())
+						 x => x.AffectedBy<ItemOnDisplayInShop>(effect.TargetMerchandise)).ToList())
 			{
 				if (effect.TargetMerchandise.PreferredDisplayContainer != null &&
-				    effect.TargetMerchandise.PreferredDisplayContainer.Location == employee.Location &&
-				    employee.Body.CanPut(item, effect.TargetMerchandise.PreferredDisplayContainer, null, 0, false))
+					effect.TargetMerchandise.PreferredDisplayContainer.Location == employee.Location &&
+					employee.Body.CanPut(item, effect.TargetMerchandise.PreferredDisplayContainer, null, 0, false))
 				{
 					employee.Body.Put(item, effect.TargetMerchandise.PreferredDisplayContainer, null);
 					continue;
 				}
 
 				if (shop.DisplayContainers.FirstOrDefault(
-					    x => x.Location == employee.Location && employee.Body.CanPut(item, x, null, 0, false)) is
-				    IGameItem container)
+						x => x.Location == employee.Location && employee.Body.CanPut(item, x, null, 0, false)) is
+					IGameItem container)
 				{
 					employee.Body.Put(item, container, null);
 					continue;
@@ -345,12 +361,12 @@ public class ShopkeeperAI : PathingAIBase
 	{
 		var effect = ch.EffectsOfType<RestockingMerchandise>().First();
 		var shop = effect.TargetMerchandise.Shop as IPermanentShop;
-        if (shop is null)
-        {
-            return (null, Enumerable.Empty<ICellExit>());
-        }
+		if (shop is null)
+		{
+			return (null, Enumerable.Empty<ICellExit>());
+		}
 
-        if (effect.CurrentGameItems.Any())
+		if (effect.CurrentGameItems.Any())
 		{
 			if (effect.TargetMerchandise.PreferredDisplayContainer != null)
 			{
@@ -373,6 +389,6 @@ public class ShopkeeperAI : PathingAIBase
 		}
 
 		return (shop.StockroomCell, ch.PathBetween(shop.StockroomCell, 10, GetSuitabilityFunction(ch))
-		         .ToList());
+				 .ToList());
 	}
 }

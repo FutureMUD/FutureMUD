@@ -89,24 +89,4 @@ public class GraffitiEffect : Effect, IGraffitiEffect
 	{
 		return new ExplodedString(Writing?.DescribeInLook(voyeur as ICharacter).Strip_A_An() ?? "").Words;
 	}
-
-	/// <inheritdoc />
-	public bool HasKeyword(string targetKeyword, IPerceiver voyeur, bool abbreviated = false)
-	{
-		return 
-			abbreviated ?
-			GetKeywordsFor(voyeur).Any(x => x.Contains(targetKeyword, StringComparison.InvariantCultureIgnoreCase)) :
-			GetKeywordsFor(voyeur).Any(x => x.Equals(targetKeyword, StringComparison.InvariantCultureIgnoreCase))
-			;
-	}
-
-	/// <inheritdoc />
-	public bool HasKeywords(IEnumerable<string> targetKeywords, IPerceiver voyeur, bool abbreviated = false)
-	{
-		return
-			abbreviated ?
-				GetKeywordsFor(voyeur).Any(x => targetKeywords.Any(y => x.Contains(y, StringComparison.InvariantCultureIgnoreCase))) :
-				GetKeywordsFor(voyeur).Any(x => targetKeywords.Any(y => x.Equals(y, StringComparison.InvariantCultureIgnoreCase)))
-			;
-	}
 }

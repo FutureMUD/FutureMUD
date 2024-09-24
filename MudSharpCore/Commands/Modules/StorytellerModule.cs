@@ -171,7 +171,7 @@ The syntax to use this command is #3newplayer <target>#0", AutoHelp.HelpArgOrNoA
 
 		var name = ss.SafeRemainingArgument;
 		var targetResource = actor.Gameworld.ChargenResources.GetByName(name) ??
-		                     actor.Gameworld.ChargenResources.FirstOrDefault(x => x.Alias.EqualTo(name));
+							 actor.Gameworld.ChargenResources.FirstOrDefault(x => x.Alias.EqualTo(name));
 		if (targetResource == null)
 		{
 			actor.Send("There is no such resource to audit.");
@@ -211,7 +211,7 @@ The syntax to use this command is #3newplayer <target>#0", AutoHelp.HelpArgOrNoA
 
 		var name = ss.SafeRemainingArgument;
 		var targetResource = actor.Gameworld.ChargenResources.GetByName(name) ??
-		                     actor.Gameworld.ChargenResources.FirstOrDefault(x => x.Alias.EqualTo(name));
+							 actor.Gameworld.ChargenResources.FirstOrDefault(x => x.Alias.EqualTo(name));
 		if (targetResource == null)
 		{
 			actor.Send("There is no such resource to audit.");
@@ -241,7 +241,7 @@ The syntax to use this command is #3newplayer <target>#0", AutoHelp.HelpArgOrNoA
 	{
 		actor.OutputHandler.Send(
 			actor.CommandTree.Commands.ReportCommands(PermissionLevel.JuniorAdmin, actor.PermissionLevel, actor)
-			     .ArrangeStringsOntoLines());
+				 .ArrangeStringsOntoLines());
 	}
 
 	private static void AwardEditorPost(string text, IOutputHandler handler, params object[] arguments)
@@ -280,9 +280,9 @@ The syntax to use this command is #3newplayer <target>#0", AutoHelp.HelpArgOrNoA
 				account.AccountResources[type] = dbaccountresource.Amount;
 				account.AccountResourcesLastAwarded[type] = dbaccountresource.LastAwardDate;
 				if (account.ControllingContext != null &&
-				    !string.IsNullOrEmpty(award
-					    ? type.TextDisplayedToPlayerOnAward
-					    : type.TextDisplayedToPlayerOnDeduct))
+					!string.IsNullOrEmpty(award
+						? type.TextDisplayedToPlayerOnAward
+						: type.TextDisplayedToPlayerOnDeduct))
 				{
 					account.ControllingContext.Send("{0} {1}", "[System Message]".Colour(Telnet.Green),
 						award ? type.TextDisplayedToPlayerOnAward : type.TextDisplayedToPlayerOnDeduct);
@@ -395,8 +395,8 @@ The syntax to use this command is #3newplayer <target>#0", AutoHelp.HelpArgOrNoA
 			var dbaccountresource =
 				dbaccount.AccountsChargenResources.FirstOrDefault(x => x.ChargenResourceId == type.Id);
 			if (award && dbaccountresource != null &&
-			    DateTime.UtcNow - dbaccountresource.LastAwardDate <= type.MinimumTimeBetweenAwards &&
-			    !character.IsAdministrator(type.PermissionLevelRequiredToCircumventMinimumTime))
+				DateTime.UtcNow - dbaccountresource.LastAwardDate <= type.MinimumTimeBetweenAwards &&
+				!character.IsAdministrator(type.PermissionLevelRequiredToCircumventMinimumTime))
 			{
 				character.OutputHandler.Send(
 					string.Format(character,
@@ -432,7 +432,7 @@ The syntax to use this command is #3newplayer <target>#0", AutoHelp.HelpArgOrNoA
 		}
 
 		if (targetText.Equals("all", StringComparison.InvariantCultureIgnoreCase) &&
-		    character.IsAdministrator(PermissionLevel.SeniorAdmin))
+			character.IsAdministrator(PermissionLevel.SeniorAdmin))
 		{
 			character.OutputHandler.Send(
 				$"Are you sure that you want to force EVERYONE (PC and NPC, including yourself) to execute the following command:\n\n\t{ss.RemainingArgument.ColourCommand()}\n\nThis should typically only be done for a VERY important reason. If you wish to proceed, type ACCEPT. Otherwise, DECLINE.");
@@ -445,8 +445,8 @@ The syntax to use this command is #3newplayer <target>#0", AutoHelp.HelpArgOrNoA
 							character),
 						flags: OutputFlags.WizOnly), true);
 					foreach (var person in character.Gameworld.Characters
-					                                .Where(x => !x.AffectedBy<IIgnoreForceEffect>())
-					                                .ToList())
+													.Where(x => !x.AffectedBy<IIgnoreForceEffect>())
+													.ToList())
 					{
 						person.ExecuteCommand(ss.RemainingArgument);
 					}
@@ -469,7 +469,7 @@ The syntax to use this command is #3newplayer <target>#0", AutoHelp.HelpArgOrNoA
 		}
 
 		if (targetText.Equals("players", StringComparison.InvariantCultureIgnoreCase) &&
-		    character.IsAdministrator(PermissionLevel.SeniorAdmin))
+			character.IsAdministrator(PermissionLevel.SeniorAdmin))
 		{
 			character.OutputHandler.Send(
 				$"Are you sure that you want to force EVERY PC IN THE GAME (including yourself) to execute the following command:\n\n\t{ss.RemainingArgument.ColourCommand()}\n\nThis should typically only be done for a VERY important reason. If you wish to proceed, type ACCEPT. Otherwise, DECLINE.");
@@ -482,7 +482,7 @@ The syntax to use this command is #3newplayer <target>#0", AutoHelp.HelpArgOrNoA
 							character),
 						flags: OutputFlags.WizOnly), true);
 					foreach (var person in character.Gameworld.Actors.Where(x => !x.AffectedBy<IIgnoreForceEffect>())
-					                                .ToList())
+													.ToList())
 					{
 						person.ExecuteCommand(ss.RemainingArgument);
 					}
@@ -505,7 +505,7 @@ The syntax to use this command is #3newplayer <target>#0", AutoHelp.HelpArgOrNoA
 		}
 
 		if (targetText.Equals("npcs", StringComparison.InvariantCultureIgnoreCase) &&
-		    character.IsAdministrator(PermissionLevel.SeniorAdmin))
+			character.IsAdministrator(PermissionLevel.SeniorAdmin))
 		{
 			character.OutputHandler.Send(
 				$"Are you sure that you want to force EVERY NPC IN THE GAME to execute the following command:\n\n\t{ss.RemainingArgument.ColourCommand()}\n\nThis should typically only be done for a VERY important reason. If you wish to proceed, type ACCEPT. Otherwise, DECLINE.");
@@ -518,7 +518,7 @@ The syntax to use this command is #3newplayer <target>#0", AutoHelp.HelpArgOrNoA
 							character),
 						flags: OutputFlags.WizOnly), true);
 					foreach (var person in character.Gameworld.NPCs.Where(x => !x.AffectedBy<IIgnoreForceEffect>())
-					                                .ToList())
+													.ToList())
 					{
 						person.ExecuteCommand(ss.RemainingArgument);
 					}
@@ -546,9 +546,9 @@ The syntax to use this command is #3newplayer <target>#0", AutoHelp.HelpArgOrNoA
 					$"@ force|forces everyone in the room to do the command '{ss.RemainingArgument}'", character),
 				flags: OutputFlags.WizOnly));
 			foreach (var person in character.Location.Characters
-			                                .Where(x => !x.AffectedBy<IIgnoreForceEffect>() &&
-			                                            !x.AffectedBy<IAdminInvisEffect>())
-			                                .ToList())
+											.Where(x => !x.AffectedBy<IIgnoreForceEffect>() &&
+														!x.AffectedBy<IAdminInvisEffect>())
+											.ToList())
 			{
 				person.ExecuteCommand(ss.RemainingArgument);
 			}
@@ -562,7 +562,7 @@ The syntax to use this command is #3newplayer <target>#0", AutoHelp.HelpArgOrNoA
 					$"@ force|forces all NPCs in the room to do the command '{ss.RemainingArgument}'", character),
 				flags: OutputFlags.WizOnly));
 			foreach (var person in character.Location.Characters.Where(x => !x.AffectedBy<IIgnoreForceEffect>())
-			                                .Where(x => x is INPC).ToList())
+											.Where(x => x is INPC).ToList())
 			{
 				person.ExecuteCommand(ss.RemainingArgument);
 			}
@@ -1169,9 +1169,9 @@ The syntax to use this command is as follows:
 
 			var notes =
 				FMDB.Context.AccountNotes.Where(x => x.AccountId == account.Id)
-				    .OrderByDescending(x => x.TimeStamp)
-				    .ThenBy(x => x.Id)
-				    .ToList();
+					.OrderByDescending(x => x.TimeStamp)
+					.ThenBy(x => x.Id)
+					.ToList();
 			character.OutputHandler.Send(
 				StringUtilities.GetTextTable(
 					from note in notes
@@ -1334,8 +1334,8 @@ The syntax to use this command is as follows:
 			if (!Enum.TryParse(ss.PopSpeech(), true, out difficulty))
 			{
 				actor.OutputHandler.Send("That is not a valid difficulty. Valid difficulties are " +
-				                         (from differ in Enum.GetNames(typeof(Difficulty))
-				                          select differ.Colour(Telnet.Cyan)).ListToString() + ".");
+										 (from differ in Enum.GetNames(typeof(Difficulty))
+										  select differ.Colour(Telnet.Cyan)).ListToString() + ".");
 				return;
 			}
 		}
@@ -1382,8 +1382,8 @@ The syntax to use this command is as follows:
 		foreach (var person in actor.Location.Characters.Except(actor))
 		{
 			if (!person.IsAdministrator() &&
-			    ((auditory && audioCheck.Check(person, difficulty).IsFail()) ||
-			     (visual && visualCheck.Check(person, difficulty).IsFail())))
+				((auditory && audioCheck.Check(person, difficulty).IsFail()) ||
+				 (visual && visualCheck.Check(person, difficulty).IsFail())))
 			{
 				if (secondaryText.Length != 0)
 				{
@@ -1624,7 +1624,7 @@ The syntax to use this command is as follows:
 		}
 
 		var target = actor.Gameworld.Actors.GetByName(targetText) ??
-		             actor.Gameworld.Actors.GetFromItemListByKeywordIncludingNames(targetText, actor);
+					 actor.Gameworld.Actors.GetFromItemListByKeywordIncludingNames(targetText, actor);
 		if (target == null)
 		{
 			actor.OutputHandler.Send("There is no such player for you to transfer.");
@@ -1680,7 +1680,7 @@ This command is useful when you write-up a bunch of room creation commands in a 
 			var ss = new StringStack(input.RemoveFirstWord());
 			var cmd = ss.SafeRemainingArgument;
 			var target = actor.Gameworld.Actors.Where(x => !x.State.HasFlag(CharacterState.Dead))
-			                  .GetFromItemListByKeywordIncludingNames(cmd, actor);
+							  .GetFromItemListByKeywordIncludingNames(cmd, actor);
 
 			if (target == null)
 			{
@@ -1706,32 +1706,32 @@ This command is useful when you write-up a bunch of room creation commands in a 
 
 This is the syntax for the storyteller portion of the command:
 
-    skill add <who> <skill> [<level>] - adds a skill to a character
-    skill remove <who> <skill> - removes a skill from a character
-    skill level <who> <skill> <level> - sets a character's skill to the specified amount
+	skill add <who> <skill> [<level>] - adds a skill to a character
+	skill remove <who> <skill> - removes a skill from a character
+	skill level <who> <skill> <level> - sets a character's skill to the specified amount
 
 This is the syntax for editing skills:
 
-    skill edit <skill> - begins editing a particular skill
-    skill edit - synonymous with SKILL VIEW on your currently edited skill
-    skill edit new <name> - creates a new skill
-    skill clone <cloned> <name> - clones an existing skill
-    skill edit close - stops editing a skill
-    skill view <skill> - shows details of a skill
-    skill set name <name> - edits the name of a skill
-    skill set expression <expression> - changes the cap expression for a skill(*)
-    skill set improver <which> - sets the skill improver for a skill
-    skill set describer <which> - sets the skill describer for a skill
-    skill set group <group> - sets the skill group for a skill
-    skill set branch <multiplier%> - sets the branch multiplier for a skill
-    skill set chargen <prog> - sets a prog to determine chargen availability
-    skill set teachable <prog> - sets a prog to determine teachability
-    skill set learnable <prog> - sets a prog to determine learnability
-    skill set teach <difficulty> - sets the difficulty of teaching the skill
-    skill set learn <difficulty> - sets the difficulty of learning the skill
-    skill set hidden - toggles this being a hidden skill
+	skill edit <skill> - begins editing a particular skill
+	skill edit - synonymous with SKILL VIEW on your currently edited skill
+	skill edit new <name> - creates a new skill
+	skill clone <cloned> <name> - clones an existing skill
+	skill edit close - stops editing a skill
+	skill view <skill> - shows details of a skill
+	skill set name <name> - edits the name of a skill
+	skill set expression <expression> - changes the cap expression for a skill(*)
+	skill set improver <which> - sets the skill improver for a skill
+	skill set describer <which> - sets the skill describer for a skill
+	skill set group <group> - sets the skill group for a skill
+	skill set branch <multiplier%> - sets the branch multiplier for a skill
+	skill set chargen <prog> - sets a prog to determine chargen availability
+	skill set teachable <prog> - sets a prog to determine teachability
+	skill set learnable <prog> - sets a prog to determine learnability
+	skill set teach <difficulty> - sets the difficulty of teaching the skill
+	skill set learn <difficulty> - sets the difficulty of learning the skill
+	skill set hidden - toggles this being a hidden skill
 
-    * - most often you will want to use the TRAITEXPRESSION command to edit the existing trait expression rather than changing to a new one";
+	* - most often you will want to use the TRAITEXPRESSION command to edit the existing trait expression rather than changing to a new one";
 
 	[PlayerCommand("Skill", "skill")]
 	[CommandPermission(PermissionLevel.Admin)]
@@ -1894,8 +1894,8 @@ This is the syntax for editing skills:
 		}
 
 		if ((long.TryParse(ss.PopSpeech(), out var value)
-			    ? actor.Gameworld.Traits.Get(value)
-			    : actor.Gameworld.Traits.GetByName(ss.Last)) is not ISkillDefinition skill)
+				? actor.Gameworld.Traits.Get(value)
+				: actor.Gameworld.Traits.GetByName(ss.Last)) is not ISkillDefinition skill)
 		{
 			actor.OutputHandler.Send("There is no such skill.");
 			return;
@@ -1913,8 +1913,8 @@ This is the syntax for editing skills:
 		}
 
 		if ((long.TryParse(ss.PopSpeech(), out var value)
-			    ? actor.Gameworld.Traits.Get(value)
-			    : actor.Gameworld.Traits.GetByName(ss.Last)) is not ISkillDefinition skill)
+				? actor.Gameworld.Traits.Get(value)
+				: actor.Gameworld.Traits.GetByName(ss.Last)) is not ISkillDefinition skill)
 		{
 			actor.OutputHandler.Send("There is no such skill.");
 			return;
@@ -2122,8 +2122,8 @@ This is the syntax for editing skills:
 
 		var text = ss.PopSpeech();
 		var attribute = target.TraitsOfType(TraitType.Attribute).Select(x => x.Definition)
-		                      .FirstOrDefault(x =>
-			                      x.Name.StartsWith(text, StringComparison.InvariantCultureIgnoreCase));
+							  .FirstOrDefault(x =>
+								  x.Name.StartsWith(text, StringComparison.InvariantCultureIgnoreCase));
 		if (attribute == null)
 		{
 			actor.OutputHandler.Send(new EmoteOutput(new Emote(
@@ -2165,13 +2165,13 @@ This is the syntax for editing skills:
 		}
 
 		foreach (var item in
-		         actor.Location.LayerGameItems(actor.RoomLayer).SelectNotNull(x => x.GetItemType<ICorpse>()))
+				 actor.Location.LayerGameItems(actor.RoomLayer).SelectNotNull(x => x.GetItemType<ICorpse>()))
 		{
 			item.DecayPoints += decay;
 		}
 
 		foreach (var item in actor.Location.LayerGameItems(actor.RoomLayer)
-		                          .SelectNotNull(x => x.GetItemType<ISeveredBodypart>()))
+								  .SelectNotNull(x => x.GetItemType<ISeveredBodypart>()))
 		{
 			item.DecayPoints += decay;
 		}
@@ -2418,9 +2418,9 @@ This is the syntax for editing skills:
 		}
 
 		if (!prog.MatchesParameters(new[]
-		    {
-			    FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Perceivable
-		    }))
+			{
+				FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Perceivable
+			}))
 		{
 			actor.Send("The prog must accept two perceivable parameters.");
 			return;
@@ -2718,7 +2718,7 @@ The syntax is as follows:
 		}
 
 		var newName = target.Culture.NameCultureForGender(target.Gender.Enum)
-		                    .GetPersonalName(ss.SafeRemainingArgument, true);
+							.GetPersonalName(ss.SafeRemainingArgument, true);
 		if (newName == null)
 		{
 			actor.OutputHandler.Send("That is not a valid name for their naming culture.");
@@ -2962,6 +2962,16 @@ The syntax is as follows:
 			sb.AppendLine($"\t{effect.Describe(actor)}");
 		}
 
+		if (ch is INPC npc)
+		{
+			sb.AppendLine();
+			sb.AppendLine("AIs:");
+			foreach (var ai in npc.AIs)
+			{
+				sb.AppendLine($"\t#{ai.Id.ToStringN0(actor)}) {ai.Name.ColourName()}");
+			}
+		}
+
 		sb.AppendLine();
 		sb.AppendLine("Hooks:");
 		foreach (var hook in ch.Hooks)
@@ -3048,7 +3058,7 @@ The syntax is as follows:
 		sb.AppendLine();
 		sb.AppendLine("Exits:");
 		foreach (var exit in actor.Gameworld.ExitManager.GetAllExits(cell)
-		                          .OrderByDescending(x => cell.CurrentOverlay.ExitIDs.Contains(x.Exit.Id)))
+								  .OrderByDescending(x => cell.CurrentOverlay.ExitIDs.Contains(x.Exit.Id)))
 		{
 			sb.AppendLine(
 				$"\t{exit.Exit.Id} - {exit.OutboundDirectionDescription} to {exit.Destination.CurrentOverlay.Name} ({exit.Destination.Id})");

@@ -38,18 +38,18 @@ public class PerceivableGroup : TemporaryPerceivable, IPerceivableGroup
 
 	public override double IlluminationProvided => _members.Sum(x => x.IlluminationProvided);
 
-        public SizeCategory Size => _members.Max(x => x.Size).Stage(1);
+		public SizeCategory Size => _members.Max(x => x.Size).Stage(1);
 
-        public override string HowSeen(IPerceiver voyeur, bool proper = false, DescriptionType type = DescriptionType.Short, bool colour = true, PerceiveIgnoreFlags flags = PerceiveIgnoreFlags.None)
-        {
-            switch (type)
-            {
-                case DescriptionType.Short:
-                case DescriptionType.Possessive:
-                    break;
-                default:
-                    throw new ApplicationException("PerceivableGroups should not be used for any types of descriptions other than Short or Possessive.");
-            }
+		public override string HowSeen(IPerceiver voyeur, bool proper = false, DescriptionType type = DescriptionType.Short, bool colour = true, PerceiveIgnoreFlags flags = PerceiveIgnoreFlags.None)
+		{
+			switch (type)
+			{
+				case DescriptionType.Short:
+				case DescriptionType.Possessive:
+					break;
+				default:
+					throw new ApplicationException("PerceivableGroups should not be used for any types of descriptions other than Short or Possessive.");
+			}
 
 		var seenMembers = _members.Where(x => voyeur.CanSee(x, flags)).ToList();
 		if (!seenMembers.Any())
@@ -63,22 +63,6 @@ public class PerceivableGroup : TemporaryPerceivable, IPerceivableGroup
 	public override IEnumerable<string> GetKeywordsFor(IPerceiver voyeur)
 	{
 		return _members.SelectMany(x => x.GetKeywordsFor(voyeur)).Distinct();
-	}
-
-	public override bool HasKeyword(string targetKeyword, IPerceiver voyeur, bool abbreviated = false)
-	{
-		return GetKeywordsFor(voyeur).Any(x =>
-			abbreviated
-				? x.StartsWith(targetKeyword, StringComparison.InvariantCultureIgnoreCase)
-				: x.EqualTo(targetKeyword));
-	}
-
-	public override bool HasKeywords(IEnumerable<string> targetKeywords, IPerceiver voyeur, bool abbreviated = false)
-	{
-		return GetKeywordsFor(voyeur).Any(x =>
-			abbreviated
-				? targetKeywords.Any(y => x.StartsWith(y, StringComparison.InvariantCultureIgnoreCase))
-				: targetKeywords.Any(y => x.EqualTo(y)));
 	}
 
 	public override bool HiddenFromPerception(IPerceiver voyeur, PerceptionTypes type,

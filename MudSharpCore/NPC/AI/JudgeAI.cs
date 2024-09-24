@@ -4,9 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
+using MimeKit.IO.Filters;
 using MoreLinq;
 using MudSharp.Accounts;
 using MudSharp.Character;
+using MudSharp.Character.Name;
 using MudSharp.Effects.Concrete;
 using MudSharp.Form.Shape;
 using MudSharp.Framework;
@@ -193,12 +195,7 @@ public class JudgeAI : EnforcerAI
 	/// <inheritdoc />
 	protected override bool CharacterFiveSecondTick(ICharacter enforcer)
 	{
-		var general = base.CharacterFiveSecondTick(enforcer);
-		if (general)
-		{
-			return true;
-		}
-
+		base.CharacterFiveSecondTick(enforcer);
 		var enforcerEffect = EnforcerEffect(enforcer);
 		if (enforcerEffect is null)
 		{
@@ -227,6 +224,8 @@ public class JudgeAI : EnforcerAI
 		var crimeNames = trialEffect.Crimes.Select(x => x.Law.CrimeType.DescribeEnum(true)).Distinct().ToArray();
 		switch (trialEffect.Phase)
 		{
+			case TrialPhase.AwaitingLawyers:
+				return DoTrialTickAwaitingLawyers(enforcer, defendant, trialEffect, gender, crimeNames);
 			case TrialPhase.Introduction:
 				return DoTrialTickIntroduction(enforcer, defendant, trialEffect, gender, crimeNames);
 			case TrialPhase.Charges:
@@ -244,6 +243,79 @@ public class JudgeAI : EnforcerAI
 			default:
 				throw new ArgumentOutOfRangeException();
 		}
+	}
+
+	private bool DoTrialTickAwaitingLawyers(ICharacter enforcer, ICharacter defendant, OnTrial trialEffect, Gendering gender, string[] crimeNames)
+	{
+		if (DateTime.UtcNow - trialEffect.LastTrialAction < TrialPhaseDelay(trialEffect.Phase, trialEffect.Crimes.Count()))
+		{
+			return false;
+		}
+
+		var court = trialEffect.LegalAuthority.CourtLocation;
+		trialEffect.Prosecutor ??= enforcer;
+
+		if (trialEffect.Defender is null)
+		{
+			var counselEffect = defendant.EffectsOfType<HasLegalCounsel>().FirstOrDefault();
+			if (counselEffect is not null)
+			{
+				if (counselEffect.Lawyer is null)
+				{
+					defendant.RemoveEffect(counselEffect);
+				}
+				else
+				{
+					trialEffect.Defender = counselEffect.Lawyer;
+					defendant.OutputHandler.Send($"#2[System Message]#0 A trial for your client #6{defendant.PersonalName.GetName(NameStyle.FullName)}#0 has started at #2{court.Name}#0.".SubstituteANSIColour());
+				}
+			}
+			else
+			{
+				var courtLawyers = Gameworld.Characters
+				                            .OfType<INPC>()
+				                            .Select(x => (NPC: x, AI: x.AIs.OfType<LawyerAI>().FirstOrDefault()))
+				                            .Where(x => x.AI?.AvailableToHire(x.NPC, trialEffect.LegalAuthority, true) == true)
+				                            .ToList();
+				if (courtLawyers.Count == 0)
+				{
+					trialEffect.Defender = defendant;
+					defendant.OutputHandler.Send("#2[System Message]#0 You are defending yourself in this case.".SubstituteANSIColour());
+				}
+				else
+				{
+					var lawyer = courtLawyers.GetRandomElement();
+					trialEffect.Defender = lawyer.NPC;
+					lawyer.NPC.AddEffect(new Lawyering(lawyer.NPC, trialEffect.LegalAuthority));
+					defendant.OutputHandler.Send("#2[System Message]#0 You have a court-appointed lawyer, who is on their way.".SubstituteANSIColour());
+				}
+			}
+		}
+
+		if (trialEffect.Defender.Location == court && trialEffect.Prosecutor.Location == court)
+		{
+			trialEffect.Phase = TrialPhase.Introduction;
+			trialEffect.LastTrialAction = DateTime.UtcNow;
+			return true;
+		}
+
+		// After 10 minutes, fire the lawyers that aren't there
+		if (DateTime.UtcNow - trialEffect.LastTrialAction > TimeSpan.FromMinutes(10))
+		{
+			if (trialEffect.Defender.Location != court)
+			{
+				trialEffect.Defender.RemoveAllEffects(x => x.IsEffectType<Lawyering>());
+				trialEffect.Defender = null;
+				defendant.RemoveAllEffects(x => x.IsEffectType<HasLegalCounsel>());
+			}
+
+			if (trialEffect.Prosecutor.Location != court)
+			{
+				trialEffect.Prosecutor = null;
+			}
+		}
+
+		return false;
 	}
 
 	private bool DoTrialTickSentencing(ICharacter enforcer, ICharacter defendant, OnTrial trialEffect, Gendering gender, string[] crimeNames)
@@ -350,6 +422,8 @@ public class JudgeAI : EnforcerAI
 			return true;
 		}
 
+		var result = sentenceCrime.Law.PunishmentStrategy.GetResult(defendant, sentenceCrime);
+		trialEffect.Punishments[sentenceCrime] = result;
 		enforcer.OutputHandler.Handle(new EmoteOutput(new Emote(
 			string.Format(TrialSentencingEmote,
 				gender.Subjective(),
@@ -362,7 +436,8 @@ public class JudgeAI : EnforcerAI
 				trialEffect.Crimes.Count() == 1 ? "crime" : "crimes",
 				sentenceCrime.TimeOfCrime.ToString(CalendarDisplayMode.Long, TimeDisplayTypes.Long),
 				sentenceCrime.DescribeCrimeAtTrial(enforcer),
-				(trialEffect.Crimes.IndexBy(x => x == sentenceCrime).First().Key+1).ToWordyOrdinal()
+				(trialEffect.Crimes.IndexBy(x => x == sentenceCrime).First().Key+1).ToWordyOrdinal(),
+				result.Describe(enforcer, trialEffect.LegalAuthority)
 			),
 			enforcer,
 			enforcer,
@@ -488,7 +563,7 @@ public class JudgeAI : EnforcerAI
 			}
 		}
 
-		if (!guilty)
+		if (!trialEffect.Pleas[verdictCrime] && !guilty)
 		{
 			enforcer.OutputHandler.Handle(new EmoteOutput(new Emote(
 				string.Format(TrialVerdictNotGuiltyEmote,
@@ -502,7 +577,7 @@ public class JudgeAI : EnforcerAI
 					trialEffect.Crimes.Count() == 1 ? "crime" : "crimes",
 					verdictCrime.TimeOfCrime.ToString(CalendarDisplayMode.Long, TimeDisplayTypes.Long),
 					verdictCrime.DescribeCrimeAtTrial(enforcer),
-					trialEffect.Crimes.IndexBy(x => x == verdictCrime).First().Key.ToWordyOrdinal()
+					(trialEffect.Crimes.IndexBy(x => x == verdictCrime).First().Key+1).ToWordyOrdinal()
 				),
 				enforcer,
 				enforcer,
@@ -525,7 +600,7 @@ public class JudgeAI : EnforcerAI
 				trialEffect.Crimes.Count() == 1 ? "crime" : "crimes",
 				verdictCrime.TimeOfCrime.ToString(CalendarDisplayMode.Long, TimeDisplayTypes.Long),
 				verdictCrime.DescribeCrimeAtTrial(enforcer),
-				trialEffect.Crimes.IndexBy(x => x == verdictCrime).First().Key.ToWordyOrdinal()
+				(trialEffect.Crimes.IndexBy(x => x == verdictCrime).First().Key+1).ToWordyOrdinal()
 			),
 			enforcer,
 			enforcer,
@@ -566,6 +641,13 @@ public class JudgeAI : EnforcerAI
 
 	private bool DoTrialTickCase(ICharacter enforcer, ICharacter defendant, OnTrial trialEffect, Gendering gender, string[] crimeNames)
 	{
+		if (trialEffect.Prosecutor == enforcer && DateTime.UtcNow - trialEffect.LastTrialAction < TimeSpan.FromSeconds(5) && trialEffect.NextProsecutionCrime() is not null)
+		{
+			trialEffect.HandleArgueCommand(enforcer, false);
+			trialEffect.LastTrialAction = DateTime.UtcNow;
+			return false;
+		}
+
 		if (DateTime.UtcNow - trialEffect.LastTrialAction < TrialPhaseDelay(trialEffect.Phase, trialEffect.Crimes.Count()))
 		{
 			return false;
@@ -621,6 +703,7 @@ public class JudgeAI : EnforcerAI
 			)));
 			trialEffect.Pleas[pleaEffect.Crime] = true;
 			trialEffect.LastTrialAction = DateTime.UtcNow;
+			defendant.RemoveEffect(pleaEffect);
 			return true;
 		}
 
@@ -727,6 +810,8 @@ public class JudgeAI : EnforcerAI
 	{
 		switch (phase)
 		{
+			case TrialPhase.AwaitingLawyers:
+				return TimeSpan.FromSeconds(30);
 			case TrialPhase.Introduction:
 				return IntroductionDelay;
 			case TrialPhase.Charges:

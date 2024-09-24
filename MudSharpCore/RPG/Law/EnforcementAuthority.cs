@@ -98,6 +98,28 @@ public class EnforcementAuthority : SaveableItem, IEnforcementAuthority
 		return FilteringProg?.Execute<bool?>(actor) == true;
 	}
 
+
+	public bool CanAccuseOfCrime(ICharacter accuser, ICharacter target, ILaw law)
+	{
+		if (!CanAccuse)
+		{
+			return false;
+		}
+
+		var targetClass = LegalAuthority.GetLegalClass(target);
+		if (!AccusableClasses.Contains(targetClass))
+		{
+			return false;
+		}
+
+		if (!law.OffenderClasses.Contains(targetClass))
+		{
+			return false;
+		}
+
+		return true;
+	}
+
 	public override void Save()
 	{
 		var dbitem = FMDB.Context.EnforcementAuthorities.Find(Id);

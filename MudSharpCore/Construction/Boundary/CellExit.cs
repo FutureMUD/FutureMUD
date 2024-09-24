@@ -164,19 +164,6 @@ public class CellExit : ICellExit
 
 	public IEnumerable<string> Keywords => _keywords.Value;
 
-	public virtual bool HasKeyword(string targetKeyword, IPerceiver voyeur, bool abbreviated = true)
-	{
-		return abbreviated
-			? _keywords.Value.Any(x => x.StartsWith(targetKeyword, StringComparison.InvariantCultureIgnoreCase))
-			: _keywords.Value.Contains(targetKeyword);
-	}
-
-	public virtual bool HasKeywords(IEnumerable<string> targetKeywords, IPerceiver voyeur, bool abbreviated = true)
-	{
-		return targetKeywords.All(x => HasKeyword(x, voyeur, abbreviated));
-	}
-
-
 	public IEnumerable<string> GetKeywordsFor(IPerceiver voyeur)
 	{
 		return _keywords.Value;

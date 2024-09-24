@@ -213,30 +213,31 @@ public abstract class PathingAIBase : ArtificialIntelligenceBase
 		return false;
 	}
 
-	protected void FiveSecondTick(ICharacter ch)
+	protected virtual bool FiveSecondTick(ICharacter ch)
 	{
 		if (ch.State.HasFlag(CharacterState.Dead))
 		{
-			return;
+			return true;
 		}
 
 		if (ch.Movement != null || ch.Combat != null)
 		{
-			return;
+			return true;
 		}
 
 		if (ch.AffectedBy<BreakDownDoor>())
 		{
 			CheckSmash(ch);
-			return;
+			return true;
 		}
 
 		if (ch.AffectedBy<UnlockDoor>() || ch.AffectedBy<LockDoor>())
 		{
-			return;
+			return true;
 		}
 
 		CheckPathingEffect(ch, false);
+		return false;
 	}
 
 	protected IInventoryPlan GetHoldPlanForItem(ICharacter ch, IGameItem item)

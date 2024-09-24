@@ -41,26 +41,6 @@ public class GenericProposal : IProposal
 
 	IEnumerable<string> IKeyworded.Keywords => Keywords.Any() ? Keywords : DescriptionString.Split(' ');
 
-	public bool HasKeyword(string targetKeyword, IPerceiver voyeur, bool abbreviated = false)
-	{
-		return
-			GetKeywordsFor(voyeur).Any(
-				x =>
-					abbreviated
-						? x.StartsWith(targetKeyword, StringComparison.InvariantCultureIgnoreCase)
-						: x.Equals(targetKeyword, StringComparison.InvariantCultureIgnoreCase));
-	}
-
-	public bool HasKeywords(IEnumerable<string> targetKeywords, IPerceiver voyeur, bool abbreviated = false)
-	{
-		return
-			GetKeywordsFor(voyeur).Any(
-				x =>
-					abbreviated
-						? targetKeywords.Any(y => x.StartsWith(y, StringComparison.InvariantCultureIgnoreCase))
-						: targetKeywords.Any(y => x.Equals(y, StringComparison.InvariantCultureIgnoreCase)));
-	}
-
 	#endregion
 
 	#region Implementation of IProposal

@@ -165,6 +165,8 @@ public class Crime : LateInitialisingItem, ICrime
 
 	public sealed override string FrameworkItemType => "Crime";
 
+	/// <inheritdoc />
+	public override string Name => Law.Name;
 	public ILaw Law { get; }
 	public ILegalAuthority LegalAuthority => Law.Authority;
 	public MudDateTime TimeOfCrime { get; }
@@ -234,7 +236,7 @@ public class Crime : LateInitialisingItem, ICrime
 	}
 
 	public long? VictimId { get; }
-	public ICharacter Victim => Gameworld.TryGetCharacter(VictimId ?? 0, true);
+	public ICharacter? Victim => Gameworld.TryGetCharacter(VictimId ?? 0, true);
 
 	public long? AccuserId
 	{
@@ -544,16 +546,16 @@ public class Crime : LateInitialisingItem, ICrime
 	public string DescribeCrimeAtTrial(IPerceiver voyeur)
 	{
 		var victimDesc = 
-			Victim.PersonalName.GetName(NameStyle.FullName) ?? 
-			"unnamed victims".ColourCharacter();
+			Victim?.PersonalName.GetName(NameStyle.FullName) ?? 
+			"unnamed victims";
 		var locationAddendum = 
 			CrimeLocation != null ? 
-				$" at {CrimeLocation.CurrentOverlay.CellName.ColourRoom()}" : 
+				$" at {CrimeLocation.CurrentOverlay.CellName}" : 
 				"";
 		var thirdPartyDesc = ThirdPartyId.HasValue
 			? Gameworld.GetPerceivable(ThirdPartyFrameworkItemType, ThirdPartyId.Value)
-					   .HowSeen(voyeur, flags: PerceiveIgnoreFlags.IgnoreCanSee)
-			: "an unidentified thing".ColourObject();
+					   .HowSeen(voyeur, colour: false, flags: PerceiveIgnoreFlags.IgnoreCanSee)
+			: "an unidentified thing";
 		return 
 			DescribeCrimeInternal(voyeur, victimDesc, locationAddendum, thirdPartyDesc)
 				.Replace("was ", "$1|were|was ");

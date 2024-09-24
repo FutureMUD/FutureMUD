@@ -77,19 +77,16 @@ public abstract class PatrolStrategyBase : IPatrolStrategy
 				continue;
 			}
 
-			if (person.AffectedBy<InCustodyOfEnforcer>(patrol.LegalAuthority))
+			if (person.AffectedBy<InCustodyOfEnforcer>(patrol.LegalAuthority) ||
+				person.AffectedBy<WarnedByEnforcer>(authority) ||
+				person.AffectedBy<Dragging.DragTarget>(authority) ||
+				person.AffectedBy<OnTrial>(authority))
 			{
 				continue;
 			}
 
 			var crimes = authority.KnownCrimesForIndividual(person).ToList();
 			if (!crimes.Any(x => !x.BailPosted && x.Law.EnforcementStrategy >= MinimumEnforcementStrategyToAct))
-			{
-				continue;
-			}
-
-			if (person.AffectedBy<WarnedByEnforcer>(authority) ||
-			    person.AffectedBy<Dragging.DragTarget>(authority))
 			{
 				continue;
 			}

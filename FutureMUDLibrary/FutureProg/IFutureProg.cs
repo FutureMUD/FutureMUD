@@ -78,6 +78,8 @@ namespace MudSharp.FutureProg {
 
         double ExecuteDouble(params object[] variables);
         double ExecuteDouble(double defaultIfNull, params object[] variables);
+        decimal ExecuteDecimal(params object[] variables);
+        decimal ExecuteDecimal(decimal defaultIfNull, params object[] variables);
         int ExecuteInt(params object[] variables);
         int ExecuteInt(int defaultIfNull, params object[] variables);
 		long ExecuteLong(params object[] variables);

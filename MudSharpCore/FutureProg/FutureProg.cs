@@ -107,8 +107,8 @@ public class FutureProg : SaveableItem, IFutureProg
 		ReturnType = (FutureProgVariableTypes)prog.ReturnType;
 		NamedParameters =
 			prog.FutureProgsParameters.OrderBy(x => x.ParameterIndex)
-			    .Select(x => Tuple.Create((FutureProgVariableTypes)x.ParameterType, x.ParameterName))
-			    .ToList();
+				.Select(x => Tuple.Create((FutureProgVariableTypes)x.ParameterType, x.ParameterName))
+				.ToList();
 		Public = prog.Public;
 		ColouriseFunctionText();
 		AcceptsAnyParameters = prog.AcceptsAnyParameters;
@@ -247,7 +247,7 @@ public class FutureProg : SaveableItem, IFutureProg
 				if (!compileResult.IsComment)
 				{
 					if (compileResult.CompiledStatement.ExpectedResult == StatementResult.Continue ||
-					    compileResult.CompiledStatement.ExpectedResult == StatementResult.Break)
+						compileResult.CompiledStatement.ExpectedResult == StatementResult.Break)
 					{
 						CompileError =
 							$"Line {compileResult.EndingLineNumber:N0}: Found a {(compileResult.CompiledStatement.ExpectedResult == StatementResult.Break ? "break" : "continue")} statement outside of an appropriate block.";
@@ -393,18 +393,18 @@ public class FutureProg : SaveableItem, IFutureProg
 		return Enumerable.Empty<T>();
 	}
 
-    public string ExecuteString(params object[] variables)
-    {
+	public string ExecuteString(params object[] variables)
+	{
 		var value = Execute(variables);
-        if (value is null)
-        {
-            return string.Empty;
-        }
+		if (value is null)
+		{
+			return string.Empty;
+		}
 
-        return value.ToString();
-    }
+		return value.ToString();
+	}
 
-    public double ExecuteDouble(params object[] variables)
+	public double ExecuteDouble(params object[] variables)
 	{
 		if (ReturnType != FutureProgVariableTypes.Number)
 		{
@@ -422,6 +422,26 @@ public class FutureProg : SaveableItem, IFutureProg
 		}
 
 		return (double?)(decimal?)Execute(variables) ?? defaultIfNull;
+	}
+
+	public decimal ExecuteDecimal(params object[] variables)
+	{
+		if (ReturnType != FutureProgVariableTypes.Number)
+		{
+			return 0.0M;
+		}
+
+		return (decimal?)Execute(variables) ?? 0.0M;
+	}
+
+	public decimal ExecuteDecimal(decimal defaultIfNull, params object[] variables)
+	{
+		if (ReturnType != FutureProgVariableTypes.Number)
+		{
+			return defaultIfNull;
+		}
+
+		return (decimal?)Execute(variables) ?? defaultIfNull;
 	}
 
 	public int ExecuteInt(params object[] variables)
@@ -828,8 +848,8 @@ public class FutureProg : SaveableItem, IFutureProg
 
 			return
 				CompileInfo.GetFactory()
-				           .CreateNew(new FunctionStatement((IFunction)functionResult.CompiledStatement), variableSpace,
-					           lines.Skip(1), lineNumber, lineNumber);
+						   .CreateNew(new FunctionStatement((IFunction)functionResult.CompiledStatement), variableSpace,
+							   lines.Skip(1), lineNumber, lineNumber);
 		}
 
 		return compiler.Item2(lines, variableSpace, lineNumber, gameworld);
@@ -895,7 +915,7 @@ public class FutureProg : SaveableItem, IFutureProg
 
 			var underlyingType = type ^ FutureProgVariableTypes.Collection;
 			var list = (from object item in value as IEnumerable ?? Enumerable.Empty<object>()
-			            select GetVariable(underlyingType, item)).ToList();
+						select GetVariable(underlyingType, item)).ToList();
 			return new CollectionVariable(list, underlyingType);
 		}
 
@@ -1038,8 +1058,8 @@ public class FutureProg : SaveableItem, IFutureProg
 		foreach (
 			var type in
 			Assembly.GetExecutingAssembly()
-			        .GetTypes()
-			        .Where(x => x.IsSubclassOf(typeof(CollectionExtensionFunction))))
+					.GetTypes()
+					.Where(x => x.IsSubclassOf(typeof(CollectionExtensionFunction))))
 		{
 			var compileInfo = type.GetMethod("RegisterFunctionCompiler", BindingFlags.Static | BindingFlags.Public);
 			compileInfo?.Invoke(null, null);
@@ -1061,8 +1081,8 @@ public class FutureProg : SaveableItem, IFutureProg
 
 		var lines =
 			FunctionText.Split("\n".ToCharArray(), StringSplitOptions.RemoveEmptyEntries)
-			            .Select(x => x.Trim())
-			            .ToList();
+						.Select(x => x.Trim())
+						.ToList();
 		var sb = new StringBuilder();
 		if (!DisplayInDarkMode)
 		{
@@ -1100,7 +1120,7 @@ public class FutureProg : SaveableItem, IFutureProg
 				($"{lineNumber++,3} |" + new string(' ', 2 * depth + 1) + colouriser.Item2(line)).RawTextPadRight(110)
 			);
 			if (_depthIncreasingStatementsRegex.IsMatch(line) ||
-			    _unendedDepthIncreasingStatementsRegex.IsMatch(line))
+				_unendedDepthIncreasingStatementsRegex.IsMatch(line))
 			{
 				depth++;
 			}
@@ -1152,7 +1172,7 @@ public class FutureProg : SaveableItem, IFutureProg
 				{
 					sb.Append(" {");
 					sb.Append(items.Select(x => VariableValueToText(x, voyeur))
-					               .ListToString(conjunction: "", twoItemJoiner: ", "));
+								   .ListToString(conjunction: "", twoItemJoiner: ", "));
 					sb.Append("}");
 				}
 			}
@@ -1182,7 +1202,7 @@ public class FutureProg : SaveableItem, IFutureProg
 				{
 					sb.Append(" {");
 					sb.Append(items.Select(x => $"\"{x.Key}\": {VariableValueToText(x.Value, voyeur)}")
-					               .ListToString(conjunction: "", twoItemJoiner: ", "));
+								   .ListToString(conjunction: "", twoItemJoiner: ", "));
 					sb.Append("}");
 				}
 			}
@@ -1216,9 +1236,9 @@ public class FutureProg : SaveableItem, IFutureProg
 				{
 					sb.Append(" {");
 					sb.Append(items
-					          .Select(x =>
-						          $"\"{x.Key}\": {{{x.Value.Select(y => VariableValueToText(y, voyeur)).ListToString(conjunction: "", twoItemJoiner: ", ")}}}")
-					          .ListToString(conjunction: "", twoItemJoiner: ", "));
+							  .Select(x =>
+								  $"\"{x.Key}\": {{{x.Value.Select(y => VariableValueToText(y, voyeur)).ListToString(conjunction: "", twoItemJoiner: ", ")}}}")
+							  .ListToString(conjunction: "", twoItemJoiner: ", "));
 					sb.Append("}");
 				}
 			}
@@ -1334,7 +1354,7 @@ public class FutureProg : SaveableItem, IFutureProg
 			if (_allreferenceTypes == null)
 			{
 				_allreferenceTypes = FutureProgVariableTypes.ReferenceType.GetFlags().Cast<FutureProgVariableTypes>()
-				                                            .ToList();
+															.ToList();
 			}
 
 			return _allreferenceTypes;

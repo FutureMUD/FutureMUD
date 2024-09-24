@@ -103,8 +103,8 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable
 			// Delete components that no longer exist
 			foreach (
 				var removedComponent in Prototype.Components
-				                                 .Where(x => newProto.Components.All(y => y.Id != x.Id))
-				                                 .ToList())
+												 .Where(x => newProto.Components.All(y => y.Id != x.Id))
+												 .ToList())
 			{
 				var myComponent = _components.FirstOrDefault(x => x.Prototype.Id == removedComponent.Id);
 				if (myComponent != null)
@@ -371,18 +371,16 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable
 
 	#endregion
 
-	public override bool HasKeyword(string targetKeyword, IPerceiver voyeur, bool abbreviated = true)
+
+	/// <inheritdoc />
+	public override IEnumerable<string> GetKeywordsFor(IPerceiver voyeur)
 	{
-		var keywords =
-			GetKeywordsFromSDesc((this as IHaveCharacteristics).ParseCharacteristics(
-					HowSeen(voyeur, colour: false), voyeur))
-				.Concat(GetKeywordsFromSDesc((this as IHaveCharacteristics).ParseCharacteristics(
-					HowSeen(voyeur, type: DescriptionType.Long, colour: false, flags: PerceiveIgnoreFlags.IgnorePositionInformationForLongDesc), voyeur)))
-				.Distinct()
-				.ToList();
-		return abbreviated
-			? keywords.Any(x => x.StartsWith(targetKeyword, StringComparison.InvariantCultureIgnoreCase))
-			: keywords.Contains(targetKeyword);
+		return GetKeywordsFromSDesc((this as IHaveCharacteristics).ParseCharacteristics(
+			       HowSeen(voyeur, colour: false), voyeur))
+		       .Concat(GetKeywordsFromSDesc((this as IHaveCharacteristics).ParseCharacteristics(
+			       HowSeen(voyeur, type: DescriptionType.Long, colour: false, flags: PerceiveIgnoreFlags.IgnorePositionInformationForLongDesc), voyeur)))
+		       .Distinct()
+		       .ToList();
 	}
 
 	public override string HowSeen(IPerceiver voyeur, bool proper = false,
@@ -397,7 +395,7 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable
 		if (EffectsOfType<IOverrideDescEffect>().Any(x => x.OverrideApplies(voyeur, type)) && voyeur.CanSee(this))
 		{
 			return EffectsOfType<IOverrideDescEffect>().First(x => x.OverrideApplies(voyeur, type))
-			                                           .Description(type, colour);
+													   .Description(type, colour);
 		}
 
 		switch (type)
@@ -413,7 +411,7 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable
 			case DescriptionType.Contents:
 				return
 					(this as IHaveCharacteristics).ParseCharacteristics(DisplayContents(voyeur, colour, flags), voyeur)
-					                              .Wrap(voyeur.InnerLineFormatLength);
+												  .Wrap(voyeur.InnerLineFormatLength);
 			default:
 				throw new NotImplementedException();
 		}
@@ -476,7 +474,7 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable
 		else if (voyeur is ICharacter ch)
 		{
 			var descValue = Prototype.ExtraDescriptions.Where(x => !string.IsNullOrEmpty(x.ShortDescription))
-			                         .FirstOrDefault(x => x.Prog.Execute<bool?>(ch) == true);
+									 .FirstOrDefault(x => x.Prog.Execute<bool?>(ch) == true);
 			if (descValue.Prog != null)
 			{
 				description = descValue.ShortDescription;
@@ -576,14 +574,14 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable
 		if (voyeur is ICharacter ch)
 		{
 			var descValue = Prototype.ExtraDescriptions.Where(x => !string.IsNullOrEmpty(x.FullDescription))
-			                         .FirstOrDefault(x => x.Prog.Execute<bool?>(ch) == true);
+									 .FirstOrDefault(x => x.Prog.Execute<bool?>(ch) == true);
 			if (descValue.Prog != null)
 			{
 				description = descValue.FullDescription;
 			}
 
 			var addendumValue = Prototype.ExtraDescriptions.Where(x => !string.IsNullOrEmpty(x.FullDescriptionAddendum))
-			                             .FirstOrDefault(x => x.Prog.Execute<bool?>(ch) == true);
+										 .FirstOrDefault(x => x.Prog.Execute<bool?>(ch) == true);
 			if (addendumValue.Prog != null)
 			{
 				description = $"{description}\n\n{addendumValue.FullDescriptionAddendum}";
@@ -599,9 +597,9 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable
 		text = (this as IHaveCharacteristics).ParseCharacteristics(text, voyeur);
 
 		text = EffectsOfType<IDescriptionAdditionEffect>().Where(x => x.DescriptionAdditionApplies(voyeur))
-		                                                  .Aggregate(text,
-			                                                  (current, component) =>
-				                                                  $"{current}\n\t{component.GetAdditionalText(voyeur, true)}");
+														  .Aggregate(text,
+															  (current, component) =>
+																  $"{current}\n\t{component.GetAdditionalText(voyeur, true)}");
 
 		return _components.Any(x => x.WrapFullDescription) ? text.Wrap(voyeur.InnerLineFormatLength) : text;
 	}
@@ -628,11 +626,11 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable
 
 		var preColour =
 			_components.Where(x => x.DescriptionDecorator(type) && x.DecorationPriority >= 0)
-			           .OrderBy(x => x.DecorationPriority)
-			           .Aggregate(input,
-				           (current, component) =>
-					           component.Decorate(voyeur, _name.ToLowerInvariant(), current, type, colour != null,
-						           flags));
+					   .OrderBy(x => x.DecorationPriority)
+					   .Aggregate(input,
+						   (current, component) =>
+							   component.Decorate(voyeur, _name.ToLowerInvariant(), current, type, colour != null,
+								   flags));
 		if (colour != null)
 		{
 			preColour = preColour.ColourIncludingReset(colour);
@@ -640,11 +638,11 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable
 
 		return
 			_components.Where(x => x.DescriptionDecorator(type) && x.DecorationPriority < 0)
-			           .OrderByDescending(x => x.DecorationPriority)
-			           .Aggregate(preColour,
-				           (current, component) =>
-					           component.Decorate(voyeur, _name.ToLowerInvariant(), current, type, colour != null,
-						           flags));
+					   .OrderByDescending(x => x.DecorationPriority)
+					   .Aggregate(preColour,
+						   (current, component) =>
+							   component.Decorate(voyeur, _name.ToLowerInvariant(), current, type, colour != null,
+								   flags));
 	}
 
 	protected virtual string ParseDescription(IPerceiver voyeur, string input, DescriptionType type, bool colour,
@@ -661,10 +659,10 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable
 		}
 
 		return _components.Where(x => x.DescriptionDecorator(type))
-		                  .OrderBy(x => x.DecorationPriority)
-		                  .Aggregate(input,
-			                  (current, component) =>
-				                  component.Decorate(voyeur, _name.ToLowerInvariant(), current, type, colour, flags))
+						  .OrderBy(x => x.DecorationPriority)
+						  .Aggregate(input,
+							  (current, component) =>
+								  component.Decorate(voyeur, _name.ToLowerInvariant(), current, type, colour, flags))
 			;
 	}
 
@@ -674,7 +672,7 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable
 		if (voyeur is ICharacter ch)
 		{
 			var descValue = Prototype.ExtraDescriptions.Where(x => !string.IsNullOrEmpty(x.FullDescription))
-			                         .FirstOrDefault(x => x.Prog.Execute<bool?>(ch) == true);
+									 .FirstOrDefault(x => x.Prog.Execute<bool?>(ch) == true);
 			if (descValue.Prog != null)
 			{
 				description = descValue.FullDescription;
@@ -691,10 +689,10 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable
 
 		return
 			_components.Where(x => x.DescriptionDecorator(DescriptionType.Contents))
-			           .OrderBy(x => x.DecorationPriority)
-			           .Aggregate(text,
-				           (current, component) =>
-					           component.Decorate(voyeur, Name, current, DescriptionType.Contents, colour, flags));
+					   .OrderBy(x => x.DecorationPriority)
+					   .Aggregate(text,
+						   (current, component) =>
+							   component.Decorate(voyeur, Name, current, DescriptionType.Contents, colour, flags));
 	}
 
 	private string DressLongDescription(IPerceiver voyeur, string description)
@@ -748,8 +746,8 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable
 		{
 			_components.Add(
 				Gameworld.ItemComponentProtos.Get(component.GameItemComponentProtoId,
-					         component.GameItemComponentProtoRevision)
-				         .LoadComponent(component, this));
+							 component.GameItemComponentProtoRevision)
+						 .LoadComponent(component, this));
 		}
 
 		LoadPosition(item.PositionId, item.PositionModifier, item.PositionEmote, item.PositionTargetId,
@@ -1037,16 +1035,16 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable
 					if (part == null)
 					{
 						foreach (var wornPart in GetItemType<IWearable>()?.CurrentProfile?.AllProfiles.Keys ??
-						                         Enumerable.Empty<IWear>())
+												 Enumerable.Empty<IWear>())
 						{
 							InInventoryOf.WornItemsFor(wornPart).SkipWhile(x => x != this).Skip(1).FirstOrDefault()
-							             ?.ExposeToLiquid(mixture, wornPart, LiquidExposureDirection.FromUnderneath);
+										 ?.ExposeToLiquid(mixture, wornPart, LiquidExposureDirection.FromUnderneath);
 						}
 					}
 					else
 					{
 						InInventoryOf.WornItemsFor(part).SkipWhile(x => x != this).Skip(1).FirstOrDefault()
-						             ?.ExposeToLiquid(mixture, part, LiquidExposureDirection.FromUnderneath);
+									 ?.ExposeToLiquid(mixture, part, LiquidExposureDirection.FromUnderneath);
 					}
 
 					break;
@@ -1054,17 +1052,17 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable
 					if (part == null)
 					{
 						foreach (var wornPart in GetItemType<IWearable>()?.CurrentProfile?.AllProfiles.Keys ??
-						                         Enumerable.Empty<IWear>())
+												 Enumerable.Empty<IWear>())
 						{
 							InInventoryOf.WornItemsFor(wornPart).Reverse().SkipWhile(x => x != this).Skip(1)
-							             .FirstOrDefault()?.ExposeToLiquid(mixture, wornPart,
-								             LiquidExposureDirection.FromOnTop);
+										 .FirstOrDefault()?.ExposeToLiquid(mixture, wornPart,
+											 LiquidExposureDirection.FromOnTop);
 						}
 					}
 					else
 					{
 						InInventoryOf.WornItemsFor(part).Reverse().SkipWhile(x => x != this).Skip(1).FirstOrDefault()
-						             ?.ExposeToLiquid(mixture, part, LiquidExposureDirection.FromOnTop);
+									 ?.ExposeToLiquid(mixture, part, LiquidExposureDirection.FromOnTop);
 						InInventoryOf.ExposeToLiquid(mixture, part, LiquidExposureDirection.FromOnTop);
 					}
 
@@ -1262,9 +1260,9 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable
 		get
 		{
 			return (GetItemType<IConnectable>()?.ConnectedItems.Select(x => x.Item2.Parent) ??
-			        Enumerable.Empty<IGameItem>())
-			       .Concat(GetItemType<IBelt>()?.ConnectedItems.Select(x => x.Parent) ?? Enumerable.Empty<IGameItem>())
-			       .Concat(Wounds.SelectNotNull(x => x.Lodged));
+					Enumerable.Empty<IGameItem>())
+				   .Concat(GetItemType<IBelt>()?.ConnectedItems.Select(x => x.Parent) ?? Enumerable.Empty<IGameItem>())
+				   .Concat(Wounds.SelectNotNull(x => x.Lodged));
 		}
 	}
 
@@ -1312,14 +1310,14 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable
 		get
 		{
 			return ContainedIn?.LocationLevelPerceivable ??
-			       InInventoryOf?.Actor ??
-			       GetItemType<IChair>()?.Table?.Parent.LocationLevelPerceivable ??
-			       (GetItemType<IDoor>()?.InstalledExit != null ? this : null) ??
-			       GetItemType<IBeltable>()?.ConnectedTo?.Parent.LocationLevelPerceivable ??
-			       (GetItemType<IConnectable>() is IConnectable conn && !conn.Independent
-				       ? conn.ConnectedItems.FirstOrDefault(x => x.Item2.Independent)?.Item2.Parent
-				       : null) ??
-			       this;
+				   InInventoryOf?.Actor ??
+				   GetItemType<IChair>()?.Table?.Parent.LocationLevelPerceivable ??
+				   (GetItemType<IDoor>()?.InstalledExit != null ? this : null) ??
+				   GetItemType<IBeltable>()?.ConnectedTo?.Parent.LocationLevelPerceivable ??
+				   (GetItemType<IConnectable>() is IConnectable conn && !conn.Independent
+					   ? conn.ConnectedItems.FirstOrDefault(x => x.Item2.Independent)?.Item2.Parent
+					   : null) ??
+				   this;
 		}
 	}
 
@@ -1339,7 +1337,7 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable
 	public bool IsInInventory(IBody body)
 	{
 		return (ContainedIn?.IsInInventory(body) ?? false) ||
-		       InInventoryOf == body;
+			   InInventoryOf == body;
 	}
 
 	private ISolid _overrideMaterial;
@@ -1349,7 +1347,7 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable
 		get
 		{
 			return Components.FirstOrDefault(x => x.OverridesMaterial)?.OverridenMaterial ??
-			       _overrideMaterial ?? Prototype.Material;
+				   _overrideMaterial ?? Prototype.Material;
 		}
 		set
 		{
@@ -1384,7 +1382,7 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable
 		}
 
 		return (fluidDensity - Material.Density) * Prototype.Weight +
-		       _components.Sum(x => x.ComponentBuoyancy(fluidDensity));
+			   _components.Sum(x => x.ComponentBuoyancy(fluidDensity));
 	}
 
 	public event ConnectedEvent OnConnected;
@@ -1851,12 +1849,12 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable
 		{
 #if DEBUG
 			var weight = (Prototype.Weight + _components.Sum(x => x.ComponentWeight) +
-			              EffectsOfType<IEffectAddsWeight>().Sum(x => x.AddedWeight)) *
-			             _components.Aggregate(1.0, (a, b) => a * b.ComponentWeightMultiplier);
+						  EffectsOfType<IEffectAddsWeight>().Sum(x => x.AddedWeight)) *
+						 _components.Aggregate(1.0, (a, b) => a * b.ComponentWeightMultiplier);
 #endif
 			return (Prototype.Weight + _components.Sum(x => x.ComponentWeight) +
-			        EffectsOfType<IEffectAddsWeight>().Sum(x => x.AddedWeight)) *
-			       _components.Aggregate(1.0, (a, b) => a * b.ComponentWeightMultiplier);
+					EffectsOfType<IEffectAddsWeight>().Sum(x => x.AddedWeight)) *
+				   _components.Aggregate(1.0, (a, b) => a * b.ComponentWeightMultiplier);
 		}
 		set
 		{
@@ -1864,7 +1862,7 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable
 		}
 	}
 
-        public override SizeCategory Size => Prototype.Size;
+		public override SizeCategory Size => Prototype.Size;
 
 	public bool CanMerge(IGameItem otherItem)
 	{
@@ -2517,8 +2515,8 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable
 		}
 
 		if ((PositionTarget != null &&
-		     (PositionTarget.IsSelf(thing.PositionTarget) || PositionTarget.IsSelf(thing))) ||
-		    thing.PositionTarget?.IsSelf(this) == true)
+			 (PositionTarget.IsSelf(thing.PositionTarget) || PositionTarget.IsSelf(thing))) ||
+			thing.PositionTarget?.IsSelf(this) == true)
 		{
 			return Proximity.Immediate;
 		}

@@ -94,12 +94,12 @@ public abstract class TemporaryPerceivable : FrameworkItem, IPerceivable
 		return Enumerable.Empty<string>();
 	}
 
-	public virtual bool HasKeyword(string targetKeyword, IPerceiver voyeur, bool abbreviated = false)
+	public virtual bool HasKeyword(string targetKeyword, IPerceiver voyeur, bool abbreviated = false, bool useContainsOverStartsWith = false)
 	{
 		return false;
 	}
 
-	public virtual bool HasKeywords(IEnumerable<string> targetKeywords, IPerceiver voyeur, bool abbreviated = false)
+	public virtual bool HasKeywords(IEnumerable<string> targetKeywords, IPerceiver voyeur, bool abbreviated = false, bool useContainsOverStartsWith = false)
 	{
 		return false;
 	}

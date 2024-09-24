@@ -437,9 +437,9 @@ public partial class Character : PerceiverItem, ICharacter
 		return Body.GetKeywordsFor(voyeur);
 	}
 
-	public override bool HasKeyword(string targetKeyword, IPerceiver voyeur, bool abbreviated = true)
+	public override bool HasKeyword(string targetKeyword, IPerceiver voyeur, bool abbreviated = true, bool useContainsOverStartsWith = false)
 	{
-		return Body.HasKeyword(targetKeyword, voyeur, abbreviated) ||
+		return Body.HasKeyword(targetKeyword, voyeur, abbreviated, useContainsOverStartsWith) ||
 		       (voyeur is ICharacter c && c.IsAdministrator() && PersonalName.GetName(NameStyle.FullWithNickname)
 		                                                                     .Split(new[] { ' ', '"', '-' },
 			                                                                     StringSplitOptions.RemoveEmptyEntries)
@@ -449,9 +449,9 @@ public partial class Character : PerceiverItem, ICharacter
 		;
 	}
 
-	public override bool HasKeywords(IEnumerable<string> targetKeywords, IPerceiver voyeur, bool abbreviated = true)
+	public override bool HasKeywords(IEnumerable<string> targetKeywords, IPerceiver voyeur, bool abbreviated = true, bool useContainsOverStartsWith = false)
 	{
-		return Body.HasKeywords(targetKeywords, voyeur, abbreviated) ||
+		return Body.HasKeywords(targetKeywords, voyeur, abbreviated, useContainsOverStartsWith) ||
 		       (voyeur is ICharacter c && c.IsAdministrator() && PersonalName.GetName(NameStyle.FullWithNickname)
 		                                                                     .Split(new[] { ' ', '"', '-' },
 			                                                                     StringSplitOptions.RemoveEmptyEntries)

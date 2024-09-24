@@ -316,7 +316,7 @@ public class RangedWeaponTypeDefinition : SaveableItem, IRangedWeaponType
 			$"");
 		sb.AppendLine();
 		sb.AppendLine($"Accuracy Bonus: {AccuracyBonusExpression.OriginalFormulaText.Colour(Telnet.Cyan)}");
-		sb.AppendLine($"Damage Bonus: {AccuracyBonusExpression.OriginalFormulaText.Colour(Telnet.Cyan)}");
+		sb.AppendLine($"Damage Bonus: {DamageBonusExpression.OriginalFormulaText.Colour(Telnet.Cyan)}");
 
 		return sb.ToString();
 	}

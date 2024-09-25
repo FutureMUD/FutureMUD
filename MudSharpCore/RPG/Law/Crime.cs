@@ -18,6 +18,8 @@ using MudSharp.FutureProg;
 using MudSharp.FutureProg.Variables;
 using MudSharp.RPG.Checks;
 using MudSharp.Accounts;
+using MudSharp.Economy.Currency;
+using MudSharp.Models;
 
 namespace MudSharp.RPG.Law;
 #nullable enable
@@ -76,6 +78,10 @@ public class Crime : LateInitialisingItem, ICrime
 		_custodialSentenceLength = TimeSpan.FromSeconds(dbitem.CustodialSentenceLength);
 		_calculatedBail = dbitem.CalculatedBail;
 		HasBeenFinalised = dbitem.IsFinalised;
+		_executionPunishment = dbitem.ExecutionPunishment;
+		_fineHasBeenPaid = dbitem.FineHasBeenPaid;
+		_sentenceHasBeenServed = dbitem.SentenceHasBeenServed;
+		_goodBehaviourBond = TimeSpan.FromSeconds(dbitem.GoodBehaviourBond);
 		if (dbitem.CriminalCharacteristics.Length > 0)
 		{
 			foreach (var item in dbitem.CriminalCharacteristics.Split('\n'))
@@ -121,6 +127,10 @@ public class Crime : LateInitialisingItem, ICrime
 		dbitem.CalculatedBail = CalculatedBail;
 		dbitem.FineRecorded = FineRecorded;
 		dbitem.CustodialSentenceLength = CustodialSentenceLength.TotalSeconds;
+		dbitem.FineHasBeenPaid = FineHasBeenPaid;
+		dbitem.ExecutionPunishment = ExecutionPunishment;
+		dbitem.SentenceHasBeenServed = SentenceHasBeenServed;
+		dbitem.GoodBehaviourBond = GoodBehaviourBond.TotalSeconds;
 		Changed = false;
 	}
 
@@ -152,7 +162,11 @@ public class Crime : LateInitialisingItem, ICrime
 			WitnessIds = WitnessIds.Select(x => x.ToString()).ListToCommaSeparatedValues(" "),
 			CalculatedBail = CalculatedBail,
 			FineRecorded = FineRecorded,
-			CustodialSentenceLength = CustodialSentenceLength.TotalSeconds
+			CustodialSentenceLength = CustodialSentenceLength.TotalSeconds,
+			FineHasBeenPaid = FineHasBeenPaid,
+			ExecutionPunishment = ExecutionPunishment,
+			SentenceHasBeenServed = SentenceHasBeenServed,
+			GoodBehaviourBond = GoodBehaviourBond.TotalSeconds
 		};
 		FMDB.Context.Crimes.Add(dbitem);
 		return dbitem;
@@ -199,6 +213,54 @@ public class Crime : LateInitialisingItem, ICrime
 		set
 		{
 			_fineRecorded = value;
+			Changed = true;
+		}
+	}
+
+	private bool _executionPunishment;
+
+	public bool ExecutionPunishment
+	{
+		get => _executionPunishment;
+		set
+		{
+			_executionPunishment = value;
+			Changed = true;
+		}
+	}
+
+	private bool _fineHasBeenPaid;
+
+	public bool FineHasBeenPaid
+	{
+		get => _fineHasBeenPaid;
+		set
+		{
+			_fineHasBeenPaid = value;
+			Changed = true;
+		}
+	}
+
+	private bool _sentenceHasBeenServed;
+
+	public bool SentenceHasBeenServed
+	{
+		get => _sentenceHasBeenServed;
+		set
+		{
+			_sentenceHasBeenServed = value;
+			Changed = true;
+		}
+	}
+
+	private TimeSpan _goodBehaviourBond;
+
+	public TimeSpan GoodBehaviourBond
+	{
+		get => _goodBehaviourBond;
+		set
+		{
+			_goodBehaviourBond = value;
 			Changed = true;
 		}
 	}
@@ -403,11 +465,11 @@ public class Crime : LateInitialisingItem, ICrime
 			case CrimeTypes.PossessingStolenGoods:
 				return $"possessed stolen goods{locationAddendum}";
 			case CrimeTypes.SellingContraband:
-				return $"sold contraband, namely {thirdPartyDesc}{locationAddendum}";
+				return $"sold contraband{(thirdPartyDesc.StripANSIColour().EqualTo("an unidentified thing") ? "" : $", namely {thirdPartyDesc}")}{locationAddendum}";
 			case CrimeTypes.PossessingContraband:
-				return $"possessed contrand, namely {thirdPartyDesc}{locationAddendum}";
+				return $"possessed contrand{(thirdPartyDesc.StripANSIColour().EqualTo("an unidentified thing") ? "" : $", namely {thirdPartyDesc}")}{locationAddendum}";
 			case CrimeTypes.TrafficingContraband:
-				return $"trafficked contraband, namely {thirdPartyDesc}{locationAddendum}";
+				return $"trafficked contraband{(thirdPartyDesc.StripANSIColour().EqualTo("an unidentified thing") ? "" : $", namely {thirdPartyDesc}")}{locationAddendum}";
 			case CrimeTypes.Vandalism:
 				if (Victim is null)
 				{
@@ -605,10 +667,13 @@ public class Crime : LateInitialisingItem, ICrime
 	{
 		FineRecorded = result.Fine;
 		CustodialSentenceLength = result.CustodialSentence;
+		ExecutionPunishment = result.Execution;
+		GoodBehaviourBond = result.GoodBehaviourBondLength;
 		// TODO - log
 		HasBeenConvicted = true;
 		HasBeenFinalised = true;
 		LegalAuthority.HandleDiscordNotificationOfConviction(Criminal, this, result, enforcer);
+		LegalAuthority.ConvictCrime(Criminal, this, result);
 		// TODO - echo to enforcers
 	}
 
@@ -631,6 +696,38 @@ public class Crime : LateInitialisingItem, ICrime
 		}
 
 		return false;
+	}
+
+	public string DescribePunishment(ICharacter voyeur)
+	{
+		var list = new List<string>();
+		var sb = new StringBuilder();
+		if (ExecutionPunishment)
+		{
+			list.Add("execution");
+		}
+
+		if (FineRecorded > 0.0M)
+		{
+			list.Add($"a {LegalAuthority.Currency.Describe(FineRecorded, CurrencyDescriptionPatternType.ShortDecimal)} fine");
+		}
+
+		if (CustodialSentenceLength > TimeSpan.Zero)
+		{
+			list.Add($"a {CustodialSentenceLength.DescribePreciseBrief(voyeur)} prison sentence");
+		}
+
+		if (GoodBehaviourBond > TimeSpan.Zero)
+		{
+			list.Add($"a {GoodBehaviourBond.DescribePreciseBrief(voyeur)} good behaviour bond");
+		}
+
+		if (list.Count == 0)
+		{
+			return "no punishment";
+		}
+
+		return list.ListToColouredString();
 	}
 
 	void ILazyLoadDuringIdleTime.DoLoad()

@@ -41,6 +41,10 @@ namespace MudSharp.RPG.Law
 		string? CriminalDescription { get; }
 		decimal CalculatedBail { get; set; }
 		decimal FineRecorded { get; set; }
+		bool ExecutionPunishment { get; set; }
+		bool FineHasBeenPaid { get; set; }
+		bool SentenceHasBeenServed { get; set; }
+		TimeSpan GoodBehaviourBond { get; set; }
 		TimeSpan CustodialSentenceLength { get; set; }
 		IReadOnlyDictionary<ICharacteristicDefinition, ICharacteristicValue> CriminalCharacteristics { get; }
 		void SetCharacteristicValue(ICharacteristicDefinition definition, ICharacteristicValue value);
@@ -53,6 +57,7 @@ namespace MudSharp.RPG.Law
 		bool EligableForAutomaticConviction();
 		Difficulty DefenseDifficulty { get; }
 		Difficulty ProsecutionDifficulty { get; }
+		string DescribePunishment(ICharacter voyeur);
 	}
 #nullable restore
 }

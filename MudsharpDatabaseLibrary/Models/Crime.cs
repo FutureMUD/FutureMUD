@@ -30,6 +30,10 @@ namespace MudSharp.Models
         public decimal FineRecorded { get; set; }
         public double CustodialSentenceLength { get; set; }
         public string WitnessIds { get; set; }
+        public bool ExecutionPunishment { get; set; }
+        public bool FineHasBeenPaid { get; set; }
+        public bool SentenceHasBeenServed { get; set; }
+        public double GoodBehaviourBond { get; set; }
 
         public virtual Character Accuser { get; set; }
         public virtual Character Criminal { get; set; }

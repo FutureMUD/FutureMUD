@@ -429,21 +429,14 @@ public partial class LegalAuthority : SaveableItem, ILegalAuthority
 	#endregion
 
 	#region Helper Methods
-	public void ConvictAllKnownCrimes(ICharacter criminal, ICharacter judge)
+
+	public void ConvictCrime(ICharacter criminal, ICrime crime, PunishmentResult result)
 	{
 		var now = EnforcementZones.FirstOrDefault()?.DateTime() ?? Gameworld.Calendars.First().CurrentDateTime;
-		var crimes = KnownCrimesForIndividual(criminal).ToList();
-		var result = new PunishmentResult();
-		foreach (var crime in crimes)
-		{
-			var crimeResult = crime.Law.PunishmentStrategy.GetResult(criminal, crime);
-			result += crimeResult;
-			crime.Convict(judge, crimeResult, "Automatic conviction by the system");
-			_knownCrimes.Remove(crime);
-			_knownCrimesLookup.Remove(criminal.Id, crime);
-			_resolvedCrimes.Add(crime);
-			_resolvedCrimesLookup.Add(criminal.Id, crime);
-		}
+		_knownCrimes.Remove(crime);
+		_knownCrimesLookup.Remove(criminal.Id, crime);
+		_resolvedCrimes.Add(crime);
+		_resolvedCrimesLookup.Add(criminal.Id, crime);
 
 		if (result.Fine > 0)
 		{
@@ -481,6 +474,29 @@ public partial class LegalAuthority : SaveableItem, ILegalAuthority
 			{
 				bondEffect.AddLengthToBond(result.GoodBehaviourBondLength);
 			}
+		}
+
+		if (result.Execution)
+		{
+			var executionEffect = criminal.EffectsOfType<AwaitingExecution>(x => x.LegalAuthority == this).FirstOrDefault();
+			if (executionEffect is null)
+			{
+				executionEffect = new AwaitingExecution(criminal, this, now + MudTimeSpan.FromDays(1));
+				criminal.AddEffect(executionEffect);
+			}
+		}
+	}
+
+	public void ConvictAllKnownCrimes(ICharacter criminal, ICharacter judge)
+	{
+		
+		var crimes = KnownCrimesForIndividual(criminal).ToList();
+		var result = new PunishmentResult();
+		foreach (var crime in crimes)
+		{
+			var crimeResult = crime.Law.PunishmentStrategy.GetResult(criminal, crime);
+			result += crimeResult;
+			crime.Convict(judge, crimeResult, "Automatic conviction by the system");
 		}
 
 		criminal.RemoveAllEffects<AwaitingSentencing>(x => x.LegalAuthority == this);

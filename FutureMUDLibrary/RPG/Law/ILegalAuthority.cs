@@ -89,6 +89,7 @@ namespace MudSharp.RPG.Law
 		void HandleDiscordNotificationOfConviction(ICharacter criminal, ICrime crime, PunishmentResult result, ICharacter enforcer);
 		void HandleDiscordNotificationOfForgiveness(ICrime crime, ICharacter enforcer);
 		void ConvictAllKnownCrimes(ICharacter criminal, ICharacter judge);
+		void ConvictCrime(ICharacter criminal, ICrime crime, PunishmentResult result);
 		void SendCharacterToHoldingCell(ICharacter criminal);
 		void SendCharacterToPrison(ICharacter criminal);
 		void ReleaseCharacterToFreedom(ICharacter criminal);

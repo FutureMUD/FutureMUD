@@ -18,6 +18,7 @@ using MudSharp.PerceptionEngine.Outputs;
 using MudSharp.PerceptionEngine.Parsers;
 using MudSharp.RPG.Checks;
 using MudSharp.RPG.Law;
+using MudSharp.TimeAndDate;
 using MudSharp.TimeAndDate.Date;
 using MudSharp.TimeAndDate.Time;
 
@@ -157,6 +158,50 @@ public class JudgeAI : EnforcerAI
 	public string TrialEndRemandedIntoCustody { get; protected set; }
 	public string TrialEndRemandedAwaitingExecution { get; protected set; }
 
+	#region Building Commands
+
+	/// <inheritdoc />
+	protected override string TypeHelpText => $@"{base.TypeHelpText}
+	#3delayintro <timespan>#0 - the delay between actions in the intro phase
+	#3delaycharges <timespan>#0 - the delay between actions in the charges phase
+	#3delayplea <timespan>#0 - the delay between actions in the plea phase
+	#3delaycase <timespan>#0 - the delay between actions in the argue case phase per crime
+	#3delayclosing <timespan>#0 - the delay between actions in the closing arguments phase
+	#3delayverdict <timespan>#0 - the delay between actions in the verdict phase
+	#3delaysentence <timespan>#0 - the delay between actions in the sentencing phase
+	#3emoteintro <emote>#0 - sets the emote for the introduction phase
+	#3emotecharges <emote>#0 - sets the emote for the charges phase
+	#3emoteplea <emote>#0 - sets the emote for the plea phase
+	#3emotedefaultplea <emote>#0 - sets the emote when a default plea is entered
+	#3emotecase <emote>#0 - sets the emote for the argue case phase
+	#3emoteclosing <emote>#0 - sets the emote for the closing arguments phase
+	#3emoteendarguments <emote>#0 - sets the emote for the end of arguments phase
+	#3emoteverdictguilty <emote>#0 - sets the emote for a guilty verdict
+	#3emoteverdictnotguilty <emote>#0 - sets the emote for a not guilty verdict
+	#3emotesentencing <emote>#0 - sets the emote for the sentencing phase
+	#3emoteendfree <emote>#0 - sets the emote for the end of the trial with a freedom result
+	#3emoteendcustody <emote>#0 - sets the emote for the end of the trial with a custody result
+	#3emoteendexecution <emote>#0 - sets the emote for the end of the trial with an execution result
+
+With each of the emotes, you can use the following tokens:
+
+	#6$0#0 - the judge
+	#6$1#0 - the defendant
+	#6{{0}}#0 - he/she/they/it of the defendant
+	#6{{1}}#0 - him/her/them/it of the defendant
+	#6{{2#0 - his/her/their/its of the defendant
+	#6{{3}}#0 - himself/herself/themself/itself of the defendant
+	#6{{4}}#0 - the defendant's full name
+	#6{{5}}#0 - a list of the defendant's crime types (e.g. murder, theft, etc.)
+	#6{{6}}#0 - the number of crimes they are on trial for
+	#6{{7}}#0 - ""crime"" or ""crimes"" as grammatically appropriate for the number of crimes
+	#6{{8}}#0 - the date and time that the crime was committed
+	#6{{9}}#0 - a description of the crime
+	#6{{10}}#0 - the ordinal number of the charge (1st, 2nd, 3rd, etc)
+	#6{{11}}#0 - the sentence for this crime
+
+#BNote: Not all tokens will be available for every emote, enter the emote's building command without an emote to see the list of valid tokens for that emote.#0";
+
 	/// <inheritdoc />
 	public override string Show(ICharacter actor)
 	{
@@ -192,6 +237,933 @@ public class JudgeAI : EnforcerAI
 		
 	}
 
+	/// <inheritdoc />
+	public override bool BuildingCommand(ICharacter actor, StringStack command)
+	{
+		switch (command.PopForSwitch())
+		{
+			// TimeSpan Properties
+			case "introdelay":
+			case "introductiondelay":
+			case "delayintro":
+			case "delayintroduction":
+				return BuildingCommandIntroductionDelay(actor, command);
+
+			case "chargesdelay":
+			case "delaycharges":
+				return BuildingCommandChargesDelay(actor, command);
+
+			case "pleadelay":
+			case "delayplea":
+				return BuildingCommandPleaDelay(actor, command);
+
+			case "casedelaypercrime":
+			case "delaycasepercrime":
+				return BuildingCommandCaseDelayPerCrime(actor, command);
+
+			case "closingargumentdelay":
+			case "delayclosingargument":
+			case "closingdelay":
+			case "delayclosing":
+				return BuildingCommandClosingArgumentDelay(actor, command);
+
+			case "verdictdelay":
+			case "delayverdict":
+				return BuildingCommandVerdictDelay(actor, command);
+
+			case "sentencingdelay":
+			case "delaysentencing":
+			case "sentencedelay":
+			case "delaysentence":
+				return BuildingCommandSentencingDelay(actor, command);
+
+			// String (Emote) Properties - Introduction
+			case "trialintroemote":
+			case "trialintroductionemote":
+			case "introemote":
+			case "introductionemote":
+			case "emoteintro":
+			case "emoteintroduction":
+			case "trialemoteintro":
+			case "trialemoteintroduction":
+				return BuildingCommandTrialIntroductionEmote(actor, command);
+
+			// String (Emote) Properties - Charges
+			case "trialchargesemote":
+			case "chargesemote":
+			case "emotecharges":
+			case "trialemotecharges":
+				return BuildingCommandTrialChargesEmote(actor, command);
+
+			// String (Emote) Properties - Plea
+			case "trialpleaemote":
+			case "pleaemote":
+			case "emoteplea":
+			case "trialemoteplea":
+				return BuildingCommandTrialPleaEmote(actor, command);
+
+			// String (Emote) Properties - DefaultPleaEntered
+			case "trialdefaultpleaenteredemote":
+			case "defaultpleaenteredemote":
+			case "emotedefaultpleaentered":
+			case "trialemotedefaultpleaentered":
+			case "trialdefaultpleademote":
+			case "defaultpleaemote":
+			case "emotedefaultplea":
+			case "trialemotedefaultplea":
+				return BuildingCommandTrialDefaultPleaEnteredEmote(actor, command);
+
+			// String (Emote) Properties - Case
+			case "trialcaseemote":
+			case "caseemote":
+			case "emotecase":
+			case "trialemotecase":
+				return BuildingCommandTrialCaseEmote(actor, command);
+
+			// String (Emote) Properties - ClosingArguments
+			case "trialclosingargumentsemote":
+			case "closingargumentsemote":
+			case "emoteclosingarguments":
+			case "trialemoteclosingarguments":
+			case "trialclosingemote":
+			case "closingemote":
+			case "emoteclosing":
+			case "trialemoteclosing":
+				return BuildingCommandTrialClosingArgumentsEmote(actor, command);
+
+			// String (Emote) Properties - EndArguments
+			case "trialendargumentsemote":
+			case "endargumentsemote":
+			case "emoteendarguments":
+			case "trialemoteendarguments":
+				return BuildingCommandTrialEndArgumentsEmote(actor, command);
+
+			// String (Emote) Properties - VerdictGuilty
+			case "trialverdictguiltyemote":
+			case "verdictguiltyemote":
+			case "emoteverdictguilty":
+			case "trialemoteverdictguilty":
+				return BuildingCommandTrialVerdictGuiltyEmote(actor, command);
+
+			// String (Emote) Properties - VerdictNotGuilty
+			case "trialverdictnotguiltyemote":
+			case "verdictnotguiltyemote":
+			case "emoteverdictnotguilty":
+			case "trialemoteverdictnotguilty":
+				return BuildingCommandTrialVerdictNotGuiltyEmote(actor, command);
+
+			// String (Emote) Properties - Sentencing
+			case "trialsentencingemote":
+			case "sentencingemote":
+			case "emotesentencing":
+			case "trialemotesentencing":
+				return BuildingCommandTrialSentencingEmote(actor, command);
+
+			// String (Emote) Properties - EndFreeToGo
+			case "trialendfreetogoemote":
+			case "endfreetogoemote":
+			case "emoteendfreetogo":
+			case "trialemoteendfreetogo":
+			case "trialendfreeemote":
+			case "endfreeemote":
+			case "emoteendfree":
+			case "trialemoteendfree":
+				return BuildingCommandTrialEndFreeToGo(actor, command);
+
+			// String (Emote) Properties - EndRemandedIntoCustody
+			case "trialendremandedintocustodyemote":
+			case "endremandedintocustodyemote":
+			case "emoteendremandedintocustody":
+			case "trialemoteendremandedintocustody":
+			case "trialendcustodyemote":
+			case "endcustodyemote":
+			case "emoteendcustody":
+			case "trialemoteendcustody":
+				return BuildingCommandTrialEndRemandedIntoCustody(actor, command);
+
+			// String (Emote) Properties - EndRemandedAwaitingExecution
+			case "trialendremandedawaitingexecutionemote":
+			case "endremandedawaitingexecutionemote":
+			case "emoteendremandedawaitingexecution":
+			case "trialemoteendremandedawaitingexecution":
+			case "trialendexecutionemote":
+			case "endexecutionemote":
+			case "emoteendexecution":
+			case "trialemoteendexecution":
+				return BuildingCommandTrialEndRemandedAwaitingExecution(actor, command);
+		}
+		return base.BuildingCommand(actor, command.GetUndo());
+	}
+
+	// TimeSpan Handlers
+	private bool BuildingCommandIntroductionDelay(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("You must enter a valid timespan.");
+			return false;
+		}
+
+		if (!MudTimeSpan.TryParse(command.SafeRemainingArgument, actor, out var ts))
+		{
+			actor.OutputHandler.Send($"The text {command.SafeRemainingArgument.ColourCommand()} is not a valid timespan.");
+			return false;
+		}
+
+		IntroductionDelay = ts;
+		Changed = true;
+		actor.OutputHandler.Send($"The delay for the {"introduction".ColourName()} phase is now {ts.Describe(actor).ColourValue()}.");
+		return true;
+	}
+
+	private bool BuildingCommandChargesDelay(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("You must enter a valid timespan.");
+			return false;
+		}
+
+		if (!MudTimeSpan.TryParse(command.SafeRemainingArgument, actor, out var ts))
+		{
+			actor.OutputHandler.Send($"The text {command.SafeRemainingArgument.ColourCommand()} is not a valid timespan.");
+			return false;
+		}
+
+		ChargesDelay = ts;
+		Changed = true;
+		actor.OutputHandler.Send($"The delay for the {"charges".ColourName()} phase is now {ts.Describe(actor).ColourValue()}.");
+		return true;
+	}
+
+	private bool BuildingCommandPleaDelay(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("You must enter a valid timespan.");
+			return false;
+		}
+
+		if (!MudTimeSpan.TryParse(command.SafeRemainingArgument, actor, out var ts))
+		{
+			actor.OutputHandler.Send($"The text {command.SafeRemainingArgument.ColourCommand()} is not a valid timespan.");
+			return false;
+		}
+
+		PleaDelay = ts;
+		Changed = true;
+		actor.OutputHandler.Send($"The delay for the {"plea".ColourName()} phase is now {ts.Describe(actor).ColourValue()}.");
+		return true;
+	}
+
+	private bool BuildingCommandCaseDelayPerCrime(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("You must enter a valid timespan.");
+			return false;
+		}
+
+		if (!MudTimeSpan.TryParse(command.SafeRemainingArgument, actor, out var ts))
+		{
+			actor.OutputHandler.Send($"The text {command.SafeRemainingArgument.ColourCommand()} is not a valid timespan.");
+			return false;
+		}
+
+		CaseDelayPerCrime = ts;
+		Changed = true;
+		actor.OutputHandler.Send($"The delay for the {"argue case".ColourName()} phase is now {ts.Describe(actor).ColourValue()} per crime.");
+		return true;
+	}
+
+	private bool BuildingCommandClosingArgumentDelay(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("You must enter a valid timespan.");
+			return false;
+		}
+
+		if (!MudTimeSpan.TryParse(command.SafeRemainingArgument, actor, out var ts))
+		{
+			actor.OutputHandler.Send($"The text {command.SafeRemainingArgument.ColourCommand()} is not a valid timespan.");
+			return false;
+		}
+
+		ClosingArgumentDelay = ts;
+		Changed = true;
+		actor.OutputHandler.Send($"The delay for the {"closing arguments".ColourName()} phase is now {ts.Describe(actor).ColourValue()}.");
+		return true;
+	}
+
+	private bool BuildingCommandVerdictDelay(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("You must enter a valid timespan.");
+			return false;
+		}
+
+		if (!MudTimeSpan.TryParse(command.SafeRemainingArgument, actor, out var ts))
+		{
+			actor.OutputHandler.Send($"The text {command.SafeRemainingArgument.ColourCommand()} is not a valid timespan.");
+			return false;
+		}
+
+		VerdictDelay = ts;
+		Changed = true;
+		actor.OutputHandler.Send($"The delay for the {"verdict".ColourName()} phase is now {ts.Describe(actor).ColourValue()}.");
+		return true;
+	}
+
+	private bool BuildingCommandSentencingDelay(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("You must enter a valid timespan.");
+			return false;
+		}
+
+		if (!MudTimeSpan.TryParse(command.SafeRemainingArgument, actor, out var ts))
+		{
+			actor.OutputHandler.Send($"The text {command.SafeRemainingArgument.ColourCommand()} is not a valid timespan.");
+			return false;
+		}
+
+		SentencingDelay = ts;
+		Changed = true;
+		actor.OutputHandler.Send($"The delay for the {"sentencing".ColourName()} phase is now {ts.Describe(actor).ColourValue()}.");
+		return true;
+	}
+
+	// String (Emote) Handlers - Introduction
+	private bool BuildingCommandTrialIntroductionEmote(ICharacter actor, StringStack command)
+	{
+		var tokenText = @"The valid tokens for this emote are as follows:
+
+	#6$0#0 - the judge
+	#6$1#0 - the defendant
+	#6{0}#0 - he/she/they/it of the defendant
+	#6{1}#0 - him/her/them/it of the defendant
+	#6{2#0 - his/her/their/its of the defendant
+	#6{3}#0 - himself/herself/themself/itself of the defendant
+	#6{4}#0 - the defendant's full name
+	#6{5}#0 - a list of the defendant's crime types (e.g. murder, theft, etc.)
+	#6{6}#0 - the number of crimes they are on trial for
+	#6{7}#0 - ""crime"" or ""crimes"" as grammatically appropriate for the number of crimes".SubstituteANSIColour();
+
+		var numberOfEmotes = 8;
+
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send($@"You must enter an emote.
+
+{tokenText}");
+			return false;
+		}
+
+		var emoteText = command.SafeRemainingArgument;
+		var emote = new Emote(emoteText, new DummyPerceiver(), new DummyPerceivable(), new DummyPerceivable());
+		if (!emote.Valid)
+		{
+			actor.OutputHandler.Send(emote.ErrorMessage);
+			return false;
+		}
+
+		
+		if (!emoteText.IsValidFormatString(numberOfEmotes, new ReadOnlySpan<bool>(Enumerable.Repeat(false, numberOfEmotes).ToArray())))
+		{
+			actor.OutputHandler.Send($"The maximum index in your emote is 	#6{{{(numberOfEmotes-1).ToStringN0Colour(actor)}}}#0.".SubstituteANSIColour());
+			return false;
+		}
+
+		TrialIntroductionEmote = emoteText;
+		Changed = true;
+		actor.OutputHandler.Send($"The emote for the {"introduction".ColourName()} phase is now {emoteText.ColourCommand()}.");
+		return true;
+	}
+
+	// String (Emote) Handlers - Charges
+	private bool BuildingCommandTrialChargesEmote(ICharacter actor, StringStack command)
+	{
+		var tokenText = @"The valid tokens for this emote are as follows:
+
+	#6$0#0 - the judge
+	#6$1#0 - the defendant
+	#6{0}#0 - he/she/they/it of the defendant
+	#6{1}#0 - him/her/them/it of the defendant
+	#6{2#0 - his/her/their/its of the defendant
+	#6{3}#0 - himself/herself/themself/itself of the defendant
+	#6{4}#0 - the defendant's full name
+	#6{5}#0 - a list of the defendant's crime types (e.g. murder, theft, etc.)
+	#6{6}#0 - the number of crimes they are on trial for
+	#6{7}#0 - ""crime"" or ""crimes"" as grammatically appropriate for the number of crimes".SubstituteANSIColour();
+
+		var numberOfEmotes = 8;
+
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send($@"You must enter an emote.
+
+{tokenText}");
+			return false;
+		}
+
+		var emoteText = command.SafeRemainingArgument;
+		var emote = new Emote(emoteText, new DummyPerceiver(), new DummyPerceivable(), new DummyPerceivable());
+		if (!emote.Valid)
+		{
+			actor.OutputHandler.Send(emote.ErrorMessage);
+			return false;
+		}
+
+
+		if (!emoteText.IsValidFormatString(numberOfEmotes, new ReadOnlySpan<bool>(Enumerable.Repeat(false, numberOfEmotes).ToArray())))
+		{
+			actor.OutputHandler.Send($"The maximum index in your emote is 	#6{{{(numberOfEmotes - 1).ToStringN0Colour(actor)}}}#0.".SubstituteANSIColour());
+			return false;
+		}
+
+		TrialChargesEmote = emoteText;
+		Changed = true;
+		actor.OutputHandler.Send($"The emote for the {"charges".ColourName()} phase is now {emoteText.ColourCommand()}.");
+		return true;
+	}
+
+	// String (Emote) Handlers - Plea
+	private bool BuildingCommandTrialPleaEmote(ICharacter actor, StringStack command)
+	{
+		var tokenText = @"The valid tokens for this emote are as follows:
+
+	#6$0#0 - the judge
+	#6$1#0 - the defendant
+	#6{0}#0 - he/she/they/it of the defendant
+	#6{1}#0 - him/her/them/it of the defendant
+	#6{2#0 - his/her/their/its of the defendant
+	#6{3}#0 - himself/herself/themself/itself of the defendant
+	#6{4}#0 - the defendant's full name
+	#6{5}#0 - a list of the defendant's crime types (e.g. murder, theft, etc.)
+	#6{6}#0 - the number of crimes they are on trial for
+	#6{7}#0 - ""crime"" or ""crimes"" as grammatically appropriate for the number of crimes
+	#6{8}#0 - the date and time that the crime was committed
+	#6{9}#0 - a description of the crime
+	#6{10}#0 - the ordinal number of the charge (1st, 2nd, 3rd, etc)".SubstituteANSIColour();
+
+		var numberOfEmotes = 11;
+
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send($@"You must enter an emote.
+
+{tokenText}");
+			return false;
+		}
+
+		var emoteText = command.SafeRemainingArgument;
+		var emote = new Emote(emoteText, new DummyPerceiver(), new DummyPerceivable(), new DummyPerceivable());
+		if (!emote.Valid)
+		{
+			actor.OutputHandler.Send(emote.ErrorMessage);
+			return false;
+		}
+
+
+		if (!emoteText.IsValidFormatString(numberOfEmotes, new ReadOnlySpan<bool>(Enumerable.Repeat(false, numberOfEmotes).ToArray())))
+		{
+			actor.OutputHandler.Send($"The maximum index in your emote is 	#6{{{(numberOfEmotes - 1).ToStringN0Colour(actor)}}}#0.".SubstituteANSIColour());
+			return false;
+		}
+
+		TrialPleaEmote = emoteText;
+		Changed = true;
+		actor.OutputHandler.Send($"The emote for the {"plea".ColourName()} phase is now {emoteText.ColourCommand()}.");
+		return true;
+	}
+
+	// String (Emote) Handlers - DefaultPleaEntered
+	private bool BuildingCommandTrialDefaultPleaEnteredEmote(ICharacter actor, StringStack command)
+	{
+		var tokenText = @"The valid tokens for this emote are as follows:
+
+	#6$0#0 - the judge
+	#6$1#0 - the defendant
+	#6{0}#0 - he/she/they/it of the defendant
+	#6{1}#0 - him/her/them/it of the defendant
+	#6{2#0 - his/her/their/its of the defendant
+	#6{3}#0 - himself/herself/themself/itself of the defendant
+	#6{4}#0 - the defendant's full name
+	#6{5}#0 - a list of the defendant's crime types (e.g. murder, theft, etc.)
+	#6{6}#0 - the number of crimes they are on trial for
+	#6{7}#0 - ""crime"" or ""crimes"" as grammatically appropriate for the number of crimes
+	#6{8}#0 - the date and time that the crime was committed
+	#6{9}#0 - a description of the crime
+	#6{10}#0 - the ordinal number of the charge (1st, 2nd, 3rd, etc)".SubstituteANSIColour();
+
+		var numberOfEmotes = 11;
+
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send($@"You must enter an emote.
+
+{tokenText}");
+			return false;
+		}
+
+		var emoteText = command.SafeRemainingArgument;
+		var emote = new Emote(emoteText, new DummyPerceiver(), new DummyPerceivable(), new DummyPerceivable());
+		if (!emote.Valid)
+		{
+			actor.OutputHandler.Send(emote.ErrorMessage);
+			return false;
+		}
+
+
+		if (!emoteText.IsValidFormatString(numberOfEmotes, new ReadOnlySpan<bool>(Enumerable.Repeat(false, numberOfEmotes).ToArray())))
+		{
+			actor.OutputHandler.Send($"The maximum index in your emote is 	#6{{{(numberOfEmotes - 1).ToStringN0Colour(actor)}}}#0.".SubstituteANSIColour());
+			return false;
+		}
+
+		TrialDefaultPleaEnteredEmote = emoteText;
+		Changed = true;
+		actor.OutputHandler.Send($"The emote for the {"default plea entered".ColourName()} action is now {emoteText.ColourCommand()}.");
+		return true;
+	}
+
+	// String (Emote) Handlers - Case
+	private bool BuildingCommandTrialCaseEmote(ICharacter actor, StringStack command)
+	{
+		var tokenText = @"The valid tokens for this emote are as follows:
+
+	#6$0#0 - the judge
+	#6$1#0 - the defendant
+	#6{0}#0 - he/she/they/it of the defendant
+	#6{1}#0 - him/her/them/it of the defendant
+	#6{2#0 - his/her/their/its of the defendant
+	#6{3}#0 - himself/herself/themself/itself of the defendant
+	#6{4}#0 - the defendant's full name
+	#6{5}#0 - a list of the defendant's crime types (e.g. murder, theft, etc.)
+	#6{6}#0 - the number of crimes they are on trial for
+	#6{7}#0 - ""crime"" or ""crimes"" as grammatically appropriate for the number of crimes".SubstituteANSIColour();
+
+		var numberOfEmotes = 8;
+
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send($@"You must enter an emote.
+
+{tokenText}");
+			return false;
+		}
+
+		var emoteText = command.SafeRemainingArgument;
+		var emote = new Emote(emoteText, new DummyPerceiver(), new DummyPerceivable(), new DummyPerceivable());
+		if (!emote.Valid)
+		{
+			actor.OutputHandler.Send(emote.ErrorMessage);
+			return false;
+		}
+
+
+		if (!emoteText.IsValidFormatString(numberOfEmotes, new ReadOnlySpan<bool>(Enumerable.Repeat(false, numberOfEmotes).ToArray())))
+		{
+			actor.OutputHandler.Send($"The maximum index in your emote is 	#6{{{(numberOfEmotes - 1).ToStringN0Colour(actor)}}}#0.".SubstituteANSIColour());
+			return false;
+		}
+
+		TrialCaseEmote = emoteText;
+		Changed = true;
+		actor.OutputHandler.Send($"The emote for the {"argue case".ColourName()} phase is now {emoteText.ColourCommand()}.");
+		return true;
+	}
+
+	// String (Emote) Handlers - ClosingArguments
+	private bool BuildingCommandTrialClosingArgumentsEmote(ICharacter actor, StringStack command)
+	{
+		var tokenText = @"The valid tokens for this emote are as follows:
+
+	#6$0#0 - the judge
+	#6$1#0 - the defendant
+	#6{0}#0 - he/she/they/it of the defendant
+	#6{1}#0 - him/her/them/it of the defendant
+	#6{2#0 - his/her/their/its of the defendant
+	#6{3}#0 - himself/herself/themself/itself of the defendant
+	#6{4}#0 - the defendant's full name
+	#6{5}#0 - a list of the defendant's crime types (e.g. murder, theft, etc.)
+	#6{6}#0 - the number of crimes they are on trial for
+	#6{7}#0 - ""crime"" or ""crimes"" as grammatically appropriate for the number of crimes".SubstituteANSIColour();
+
+		var numberOfEmotes = 8;
+
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send($@"You must enter an emote.
+
+{tokenText}");
+			return false;
+		}
+
+		var emoteText = command.SafeRemainingArgument;
+		var emote = new Emote(emoteText, new DummyPerceiver(), new DummyPerceivable(), new DummyPerceivable());
+		if (!emote.Valid)
+		{
+			actor.OutputHandler.Send(emote.ErrorMessage);
+			return false;
+		}
+
+
+		if (!emoteText.IsValidFormatString(numberOfEmotes, new ReadOnlySpan<bool>(Enumerable.Repeat(false, numberOfEmotes).ToArray())))
+		{
+			actor.OutputHandler.Send($"The maximum index in your emote is 	#6{{{(numberOfEmotes - 1).ToStringN0Colour(actor)}}}#0.".SubstituteANSIColour());
+			return false;
+		}
+
+		TrialClosingArgumentsEmote = emoteText;
+		Changed = true;
+		actor.OutputHandler.Send($"The emote for the {"closing arguments".ColourName()} phase is now {emoteText.ColourCommand()}.");
+		return true;
+	}
+
+	// String (Emote) Handlers - EndArguments
+	private bool BuildingCommandTrialEndArgumentsEmote(ICharacter actor, StringStack command)
+	{
+		var tokenText = @"The valid tokens for this emote are as follows:
+
+	#6$0#0 - the judge
+	#6$1#0 - the defendant
+	#6{0}#0 - he/she/they/it of the defendant
+	#6{1}#0 - him/her/them/it of the defendant
+	#6{2#0 - his/her/their/its of the defendant
+	#6{3}#0 - himself/herself/themself/itself of the defendant
+	#6{4}#0 - the defendant's full name
+	#6{5}#0 - a list of the defendant's crime types (e.g. murder, theft, etc.)
+	#6{6}#0 - the number of crimes they are on trial for
+	#6{7}#0 - ""crime"" or ""crimes"" as grammatically appropriate for the number of crimes".SubstituteANSIColour();
+
+		var numberOfEmotes = 8;
+
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send($@"You must enter an emote.
+
+{tokenText}");
+			return false;
+		}
+
+		var emoteText = command.SafeRemainingArgument;
+		var emote = new Emote(emoteText, new DummyPerceiver(), new DummyPerceivable(), new DummyPerceivable());
+		if (!emote.Valid)
+		{
+			actor.OutputHandler.Send(emote.ErrorMessage);
+			return false;
+		}
+
+
+		if (!emoteText.IsValidFormatString(numberOfEmotes, new ReadOnlySpan<bool>(Enumerable.Repeat(false, numberOfEmotes).ToArray())))
+		{
+			actor.OutputHandler.Send($"The maximum index in your emote is 	#6{{{(numberOfEmotes - 1).ToStringN0Colour(actor)}}}#0.".SubstituteANSIColour());
+			return false;
+		}
+
+		TrialEndArgumentsEmote = emoteText;
+		Changed = true;
+		actor.OutputHandler.Send($"The emote for the {"end of arguments".ColourName()} phase is now {emoteText.ColourCommand()}.");
+		return true;
+	}
+
+	// String (Emote) Handlers - VerdictGuilty
+	private bool BuildingCommandTrialVerdictGuiltyEmote(ICharacter actor, StringStack command)
+	{
+		var tokenText = @"The valid tokens for this emote are as follows:
+
+	#6$0#0 - the judge
+	#6$1#0 - the defendant
+	#6{0}#0 - he/she/they/it of the defendant
+	#6{1}#0 - him/her/them/it of the defendant
+	#6{2#0 - his/her/their/its of the defendant
+	#6{3}#0 - himself/herself/themself/itself of the defendant
+	#6{4}#0 - the defendant's full name
+	#6{5}#0 - a list of the defendant's crime types (e.g. murder, theft, etc.)
+	#6{6}#0 - the number of crimes they are on trial for
+	#6{7}#0 - ""crime"" or ""crimes"" as grammatically appropriate for the number of crimes
+	#6{8}#0 - the date and time that the crime was committed
+	#6{9}#0 - a description of the crime
+	#6{10}#0 - the ordinal number of the charge (1st, 2nd, 3rd, etc)".SubstituteANSIColour();
+
+		var numberOfEmotes = 11;
+
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send($@"You must enter an emote.
+
+{tokenText}");
+			return false;
+		}
+
+		var emoteText = command.SafeRemainingArgument;
+		var emote = new Emote(emoteText, new DummyPerceiver(), new DummyPerceivable(), new DummyPerceivable());
+		if (!emote.Valid)
+		{
+			actor.OutputHandler.Send(emote.ErrorMessage);
+			return false;
+		}
+
+
+		if (!emoteText.IsValidFormatString(numberOfEmotes, new ReadOnlySpan<bool>(Enumerable.Repeat(false, numberOfEmotes).ToArray())))
+		{
+			actor.OutputHandler.Send($"The maximum index in your emote is 	#6{{{(numberOfEmotes - 1).ToStringN0Colour(actor)}}}#0.".SubstituteANSIColour());
+			return false;
+		}
+
+		TrialVerdictGuiltyEmote = emoteText;
+		Changed = true;
+		actor.OutputHandler.Send($"The emote for the {"guilty verdict".ColourName()} action is now {emoteText.ColourCommand()}.");
+		return true;
+	}
+
+	// String (Emote) Handlers - VerdictNotGuilty
+	private bool BuildingCommandTrialVerdictNotGuiltyEmote(ICharacter actor, StringStack command)
+	{
+		var tokenText = @"The valid tokens for this emote are as follows:
+
+	#6$0#0 - the judge
+	#6$1#0 - the defendant
+	#6{0}#0 - he/she/they/it of the defendant
+	#6{1}#0 - him/her/them/it of the defendant
+	#6{2#0 - his/her/their/its of the defendant
+	#6{3}#0 - himself/herself/themself/itself of the defendant
+	#6{4}#0 - the defendant's full name
+	#6{5}#0 - a list of the defendant's crime types (e.g. murder, theft, etc.)
+	#6{6}#0 - the number of crimes they are on trial for
+	#6{7}#0 - ""crime"" or ""crimes"" as grammatically appropriate for the number of crimes
+	#6{8}#0 - the date and time that the crime was committed
+	#6{9}#0 - a description of the crime
+	#6{10}#0 - the ordinal number of the charge (1st, 2nd, 3rd, etc)".SubstituteANSIColour();
+
+		var numberOfEmotes = 11;
+
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send($@"You must enter an emote.
+
+{tokenText}");
+			return false;
+		}
+
+		var emoteText = command.SafeRemainingArgument;
+		var emote = new Emote(emoteText, new DummyPerceiver(), new DummyPerceivable(), new DummyPerceivable());
+		if (!emote.Valid)
+		{
+			actor.OutputHandler.Send(emote.ErrorMessage);
+			return false;
+		}
+
+
+		if (!emoteText.IsValidFormatString(numberOfEmotes, new ReadOnlySpan<bool>(Enumerable.Repeat(false, numberOfEmotes).ToArray())))
+		{
+			actor.OutputHandler.Send($"The maximum index in your emote is 	#6{{{(numberOfEmotes - 1).ToStringN0Colour(actor)}}}#0.".SubstituteANSIColour());
+			return false;
+		}
+
+		TrialVerdictNotGuiltyEmote = emoteText;
+		Changed = true;
+		actor.OutputHandler.Send($"The emote for the {"not guilty verdict".ColourName()} action is now {emoteText.ColourCommand()}.");
+		return true;
+	}
+
+	// String (Emote) Handlers - Sentencing
+	private bool BuildingCommandTrialSentencingEmote(ICharacter actor, StringStack command)
+	{
+		var tokenText = @"The valid tokens for this emote are as follows:
+
+	#6$0#0 - the judge
+	#6$1#0 - the defendant
+	#6{0}#0 - he/she/they/it of the defendant
+	#6{1}#0 - him/her/them/it of the defendant
+	#6{2#0 - his/her/their/its of the defendant
+	#6{3}#0 - himself/herself/themself/itself of the defendant
+	#6{4}#0 - the defendant's full name
+	#6{5}#0 - a list of the defendant's crime types (e.g. murder, theft, etc.)
+	#6{6}#0 - the number of crimes they are on trial for
+	#6{7}#0 - ""crime"" or ""crimes"" as grammatically appropriate for the number of crimes
+	#6{8}#0 - the date and time that the crime was committed
+	#6{9}#0 - a description of the crime
+	#6{10}#0 - the ordinal number of the charge (1st, 2nd, 3rd, etc)
+	#6{11}#0 - the sentence for this crime".SubstituteANSIColour();
+
+		var numberOfEmotes = 12;
+
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send($@"You must enter an emote.
+
+{tokenText}");
+			return false;
+		}
+
+		var emoteText = command.SafeRemainingArgument;
+		var emote = new Emote(emoteText, new DummyPerceiver(), new DummyPerceivable(), new DummyPerceivable());
+		if (!emote.Valid)
+		{
+			actor.OutputHandler.Send(emote.ErrorMessage);
+			return false;
+		}
+
+
+		if (!emoteText.IsValidFormatString(numberOfEmotes, new ReadOnlySpan<bool>(Enumerable.Repeat(false, numberOfEmotes).ToArray())))
+		{
+			actor.OutputHandler.Send($"The maximum index in your emote is 	#6{{{(numberOfEmotes - 1).ToStringN0Colour(actor)}}}#0.".SubstituteANSIColour());
+			return false;
+		}
+
+		TrialSentencingEmote = emoteText;
+		Changed = true;
+		actor.OutputHandler.Send($"The emote for the {"sentencing".ColourName()} action is now {emoteText.ColourCommand()}.");
+		return true;
+	}
+
+	// String (Emote) Handlers - EndFreeToGo
+	private bool BuildingCommandTrialEndFreeToGo(ICharacter actor, StringStack command)
+	{
+		var tokenText = @"The valid tokens for this emote are as follows:
+
+	#6$0#0 - the judge
+	#6$1#0 - the defendant
+	#6{0}#0 - he/she/they/it of the defendant
+	#6{1}#0 - him/her/them/it of the defendant
+	#6{2#0 - his/her/their/its of the defendant
+	#6{3}#0 - himself/herself/themself/itself of the defendant
+	#6{4}#0 - the defendant's full name
+	#6{5}#0 - a list of the defendant's crime types (e.g. murder, theft, etc.)
+	#6{6}#0 - the number of crimes they are on trial for
+	#6{7}#0 - ""crime"" or ""crimes"" as grammatically appropriate for the number of crimes".SubstituteANSIColour();
+
+		var numberOfEmotes = 8;
+
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send($@"You must enter an emote.
+
+{tokenText}");
+			return false;
+		}
+
+		var emoteText = command.SafeRemainingArgument;
+		var emote = new Emote(emoteText, new DummyPerceiver(), new DummyPerceivable(), new DummyPerceivable());
+		if (!emote.Valid)
+		{
+			actor.OutputHandler.Send(emote.ErrorMessage);
+			return false;
+		}
+
+
+		if (!emoteText.IsValidFormatString(numberOfEmotes, new ReadOnlySpan<bool>(Enumerable.Repeat(false, numberOfEmotes).ToArray())))
+		{
+			actor.OutputHandler.Send($"The maximum index in your emote is 	#6{{{(numberOfEmotes - 1).ToStringN0Colour(actor)}}}#0.".SubstituteANSIColour());
+			return false;
+		}
+
+		TrialEndFreeToGo = emoteText;
+		Changed = true;
+		actor.OutputHandler.Send($"The emote for the {"end trial freedom".ColourName()} action is now {emoteText.ColourCommand()}.");
+		return true;
+	}
+
+	// String (Emote) Handlers - EndRemandedIntoCustody
+	private bool BuildingCommandTrialEndRemandedIntoCustody(ICharacter actor, StringStack command)
+	{
+		var tokenText = @"The valid tokens for this emote are as follows:
+
+	#6$0#0 - the judge
+	#6$1#0 - the defendant
+	#6{0}#0 - he/she/they/it of the defendant
+	#6{1}#0 - him/her/them/it of the defendant
+	#6{2#0 - his/her/their/its of the defendant
+	#6{3}#0 - himself/herself/themself/itself of the defendant
+	#6{4}#0 - the defendant's full name
+	#6{5}#0 - a list of the defendant's crime types (e.g. murder, theft, etc.)
+	#6{6}#0 - the number of crimes they are on trial for
+	#6{7}#0 - ""crime"" or ""crimes"" as grammatically appropriate for the number of crimes".SubstituteANSIColour();
+
+		var numberOfEmotes = 8;
+
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send($@"You must enter an emote.
+
+{tokenText}");
+			return false;
+		}
+
+		var emoteText = command.SafeRemainingArgument;
+		var emote = new Emote(emoteText, new DummyPerceiver(), new DummyPerceivable(), new DummyPerceivable());
+		if (!emote.Valid)
+		{
+			actor.OutputHandler.Send(emote.ErrorMessage);
+			return false;
+		}
+
+
+		if (!emoteText.IsValidFormatString(numberOfEmotes, new ReadOnlySpan<bool>(Enumerable.Repeat(false, numberOfEmotes).ToArray())))
+		{
+			actor.OutputHandler.Send($"The maximum index in your emote is 	#6{{{(numberOfEmotes - 1).ToStringN0Colour(actor)}}}#0.".SubstituteANSIColour());
+			return false;
+		}
+
+		TrialEndRemandedIntoCustody = emoteText;
+		Changed = true;
+		actor.OutputHandler.Send($"The emote for the {"end trial custody".ColourName()} action is now {emoteText.ColourCommand()}.");
+		return true;
+	}
+
+	// String (Emote) Handlers - EndRemandedAwaitingExecution
+	private bool BuildingCommandTrialEndRemandedAwaitingExecution(ICharacter actor, StringStack command)
+	{
+		var tokenText = @"The valid tokens for this emote are as follows:
+
+	#6$0#0 - the judge
+	#6$1#0 - the defendant
+	#6{0}#0 - he/she/they/it of the defendant
+	#6{1}#0 - him/her/them/it of the defendant
+	#6{2#0 - his/her/their/its of the defendant
+	#6{3}#0 - himself/herself/themself/itself of the defendant
+	#6{4}#0 - the defendant's full name
+	#6{5}#0 - a list of the defendant's crime types (e.g. murder, theft, etc.)
+	#6{6}#0 - the number of crimes they are on trial for
+	#6{7}#0 - ""crime"" or ""crimes"" as grammatically appropriate for the number of crimes".SubstituteANSIColour();
+
+		var numberOfEmotes = 8;
+
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send($@"You must enter an emote.
+
+{tokenText}");
+			return false;
+		}
+
+		var emoteText = command.SafeRemainingArgument;
+		var emote = new Emote(emoteText, new DummyPerceiver(), new DummyPerceivable(), new DummyPerceivable());
+		if (!emote.Valid)
+		{
+			actor.OutputHandler.Send(emote.ErrorMessage);
+			return false;
+		}
+
+
+		if (!emoteText.IsValidFormatString(numberOfEmotes, new ReadOnlySpan<bool>(Enumerable.Repeat(false, numberOfEmotes).ToArray())))
+		{
+			actor.OutputHandler.Send($"The maximum index in your emote is 	#6{{{(numberOfEmotes - 1).ToStringN0Colour(actor)}}}#0.".SubstituteANSIColour());
+			return false;
+		}
+
+		TrialEndRemandedAwaitingExecution = emoteText;
+		Changed = true;
+		actor.OutputHandler.Send($"The emote for the {"end trial execution".ColourName()} action is now {emoteText.ColourCommand()}.");
+		return true;
+	}
+
+	#endregion
 	/// <inheritdoc />
 	protected override bool CharacterFiveSecondTick(ICharacter enforcer)
 	{
@@ -267,7 +1239,7 @@ public class JudgeAI : EnforcerAI
 				else
 				{
 					trialEffect.Defender = counselEffect.Lawyer;
-					defendant.OutputHandler.Send($"#2[System Message]#0 A trial for your client #6{defendant.PersonalName.GetName(NameStyle.FullName)}#0 has started at #2{court.Name}#0.".SubstituteANSIColour());
+					defendant.OutputHandler.Send($"#2[System Message]#0 A trial for your client 	#6{defendant.PersonalName.GetName(NameStyle.FullName)}#0 has started at #2{court.Name}#0.".SubstituteANSIColour());
 				}
 			}
 			else
@@ -367,7 +1339,8 @@ public class JudgeAI : EnforcerAI
 						gender.Reflexive(),
 						defendant.PersonalName.GetName(Character.Name.NameStyle.FullName),
 						crimeNames.ListToString(),
-						trialEffect.Crimes.Count().ToWordyNumber()
+						trialEffect.Crimes.Count().ToWordyNumber(),
+						trialEffect.Crimes.Count() == 1 ? "crime" : "crimes"
 					),
 					enforcer,
 					enforcer,
@@ -387,7 +1360,8 @@ public class JudgeAI : EnforcerAI
 						gender.Reflexive(),
 						defendant.PersonalName.GetName(Character.Name.NameStyle.FullName),
 						crimeNames.ListToString(),
-						trialEffect.Crimes.Count().ToWordyNumber()
+						trialEffect.Crimes.Count().ToWordyNumber(),
+						trialEffect.Crimes.Count() == 1 ? "crime" : "crimes"
 					),
 					enforcer,
 					enforcer,
@@ -407,7 +1381,8 @@ public class JudgeAI : EnforcerAI
 						gender.Reflexive(),
 						defendant.PersonalName.GetName(Character.Name.NameStyle.FullName),
 						crimeNames.ListToString(),
-						trialEffect.Crimes.Count().ToWordyNumber()
+						trialEffect.Crimes.Count().ToWordyNumber(),
+						trialEffect.Crimes.Count() == 1 ? "crime" : "crimes"
 					),
 					enforcer,
 					enforcer,
@@ -436,7 +1411,7 @@ public class JudgeAI : EnforcerAI
 				trialEffect.Crimes.Count() == 1 ? "crime" : "crimes",
 				sentenceCrime.TimeOfCrime.ToString(CalendarDisplayMode.Long, TimeDisplayTypes.Long),
 				sentenceCrime.DescribeCrimeAtTrial(enforcer),
-				(trialEffect.Crimes.IndexBy(x => x == sentenceCrime).First().Key+1).ToWordyOrdinal(),
+				trialEffect.Crimes.OrdinalPositionOf(sentenceCrime).ToWordyOrdinal(),
 				result.Describe(enforcer, trialEffect.LegalAuthority)
 			),
 			enforcer,
@@ -577,7 +1552,7 @@ public class JudgeAI : EnforcerAI
 					trialEffect.Crimes.Count() == 1 ? "crime" : "crimes",
 					verdictCrime.TimeOfCrime.ToString(CalendarDisplayMode.Long, TimeDisplayTypes.Long),
 					verdictCrime.DescribeCrimeAtTrial(enforcer),
-					(trialEffect.Crimes.IndexBy(x => x == verdictCrime).First().Key+1).ToWordyOrdinal()
+					trialEffect.Crimes.OrdinalPositionOf(verdictCrime).ToWordyOrdinal()
 				),
 				enforcer,
 				enforcer,
@@ -600,7 +1575,7 @@ public class JudgeAI : EnforcerAI
 				trialEffect.Crimes.Count() == 1 ? "crime" : "crimes",
 				verdictCrime.TimeOfCrime.ToString(CalendarDisplayMode.Long, TimeDisplayTypes.Long),
 				verdictCrime.DescribeCrimeAtTrial(enforcer),
-				(trialEffect.Crimes.IndexBy(x => x == verdictCrime).First().Key+1).ToWordyOrdinal()
+				trialEffect.Crimes.OrdinalPositionOf(verdictCrime).ToWordyOrdinal()
 			),
 			enforcer,
 			enforcer,
@@ -695,7 +1670,7 @@ public class JudgeAI : EnforcerAI
 					trialEffect.Crimes.Count() == 1 ? "crime" : "crimes",
 					pleaEffect.Crime.TimeOfCrime.ToString(CalendarDisplayMode.Long, TimeDisplayTypes.Long),
 					pleaEffect.Crime.DescribeCrimeAtTrial(enforcer),
-					(trialEffect.Crimes.IndexBy(x => x == pleaEffect.Crime).First().Key+1).ToWordyOrdinal()
+					trialEffect.Crimes.OrdinalPositionOf(pleaEffect.Crime).ToWordyOrdinal()
 				),
 				enforcer,
 				enforcer,
@@ -742,7 +1717,7 @@ public class JudgeAI : EnforcerAI
 				trialEffect.Crimes.Count() == 1 ? "crime" : "crimes",
 				pleaCrime.TimeOfCrime.ToString(CalendarDisplayMode.Long, TimeDisplayTypes.Long),
 				pleaCrime.DescribeCrimeAtTrial(enforcer),
-				(trialEffect.Crimes.IndexBy(x => x == pleaCrime).First().Key+1).ToWordyOrdinal()
+				trialEffect.Crimes.OrdinalPositionOf(pleaCrime).ToWordyOrdinal()
 			),
 			enforcer,
 			enforcer,

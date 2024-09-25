@@ -24,6 +24,8 @@ using MudSharp.Economy.Payment;
 using MudSharp.NPC;
 using MudSharp.NPC.AI;
 using MudSharp.RPG.Checks;
+using MudSharp.TimeAndDate.Date;
+using MudSharp.TimeAndDate.Time;
 
 namespace MudSharp.Commands.Modules;
 
@@ -70,9 +72,11 @@ The syntax is as follows:
 		{
 			var legalAuthorities = actor.Gameworld.LegalAuthorities
 			                            .Where(x => x.PlayersKnowTheirCrimes)
-			                            .Select(x => (Authority: x, Known: x.KnownCrimesForIndividual(actor).ToList(),
-				                            Unknown: x.UnknownCrimesForIndividual(actor).ToList()))
-			                            .Where(x => x.Known.Count > 0 || x.Unknown.Count > 0)
+			                            .Select(x => (Authority: x, 
+				                            Known: x.KnownCrimesForIndividual(actor).ToList(),
+				                            Unknown: x.UnknownCrimesForIndividual(actor).ToList(),
+				                            Resolved: x.ResolvedCrimesForIndividual(actor).ToList()))
+			                            .Where(x => x.Known.Count > 0 || x.Unknown.Count > 0 || x.Resolved.Count > 0)
 			                            .ToList();
 			if (!legalAuthorities.Any())
 			{
@@ -81,16 +85,39 @@ The syntax is as follows:
 				return;
 			}
 
-			foreach (var (authority, known, unknown) in legalAuthorities)
+			foreach (var (authority, known, unknown, resolved) in legalAuthorities)
 			{
 				sb.AppendLine(
 					$"You have committed the following crimes in the {authority.Name.ColourName()} jurisdiction:");
 				sb.AppendLine();
-				var combined = known.Concat(unknown).OrderBy(x => x.RealTimeOfCrime).ToList();
-				foreach (var crime in combined)
-				{
-					sb.AppendLine($"\t{crime.DescribeCrime(actor)}");
-				}
+				var combined = known
+				               .Concat(unknown)
+				               .Concat(resolved)
+				               .OrderBy(x => x.HasBeenFinalised)
+				               .ThenBy(x => x.RealTimeOfCrime).ToList();
+				sb.AppendLine(StringUtilities.GetTextTable(
+					from crime in combined
+					select new List<string>
+					{
+						crime.Name,
+						crime.Victim?.HowSeen(actor) ?? "",
+						crime.TimeOfCrime.ToString(CalendarDisplayMode.Short, TimeDisplayTypes.Short),
+						crime.CrimeLocation?.GetOverlayFor(actor).CellName ?? "",
+						crime.HasBeenEnforced.ToColouredString(),
+						crime.HasBeenFinalised ? (crime.HasBeenConvicted ? "Convicted" : "Acquitted") : ""
+					},
+					new List<string>
+					{
+						"Crime",
+						"Victim",
+						"Time",
+						"Location",
+						"Enforced?",
+						"Outcome"
+					},
+					actor,
+					Telnet.Red
+				));
 			}
 
 			actor.OutputHandler.Send(sb.ToString());
@@ -138,12 +165,16 @@ The syntax is as follows:
 			                  Unknown: 
 			                  x.UnknownCrimesForIndividual(target)
 			                   .Where(y => jurisdictions.Contains(x) || y.WitnessIds.Contains(actor.Id))
-			                   .ToList()
-		                  ))
-		                  .Where(x => x.Known.Count > 0 || x.Unknown.Count > 0)
+			                   .ToList(),
+							  Resolved:
+							  x.ResolvedCrimesForIndividual(target)
+							   .Where(y => jurisdictions.Contains(x) || y.WitnessIds.Contains(actor.Id))
+							   .ToList()
+						  ))
+		                  .Where(x => x.Known.Count > 0 || x.Unknown.Count > 0 || x.Resolved.Count > 0)
 		                  .ToList();
 
-		foreach (var (authority, known, unknown) in crimes)
+		foreach (var (authority, known, unknown, resolved) in crimes)
 		{
 			if (!known.Any() && !actor.IsAdministrator())
 			{
@@ -152,17 +183,43 @@ The syntax is as follows:
 
 			sb.AppendLine($"The crimes of {target.HowSeen(actor)} in the {authority.Name.ColourName()} jurisdiction:");
 			sb.AppendLine();
-			var combined = known.Concat(unknown).OrderBy(x => x.RealTimeOfCrime).ToList();
-			foreach (var crime in combined)
+			var combined = new List<ICrime>(known);
+			
+			if (actor.IsAdministrator())
 			{
-				if (!crime.IsKnownCrime && !actor.IsAdministrator())
-				{
-					continue;
-				}
-
-				sb.AppendLine(
-					$"\t{(crime.IsKnownCrime ? "[K]".Colour(Telnet.BoldCyan) : "[U]".Colour(Telnet.Red))}{crime.DescribeCrime(actor)}");
+				combined.AddRange(resolved);
+				combined.AddRange(unknown);
 			}
+			combined = combined.OrderBy(x => x.HasBeenFinalised)
+			                     .ThenBy(x => x.RealTimeOfCrime)
+			                     .ToList();
+			
+			sb.AppendLine(StringUtilities.GetTextTable(
+				from crime in actor.IsAdministrator() ? combined : known
+				select new List<string>
+				{
+						crime.Name,
+						crime.Victim?.HowSeen(actor) ?? "",
+						crime.TimeOfCrime.ToString(CalendarDisplayMode.Short, TimeDisplayTypes.Short),
+						crime.CrimeLocation?.GetOverlayFor(actor).CellName ?? "",
+						crime.HasBeenEnforced.ToColouredString(),
+						crime.HasBeenFinalised ? (crime.HasBeenConvicted ? "Convicted" : "Acquitted") : "",
+						crime.IsKnownCrime.ToColouredString()
+				},
+				new List<string>
+				{
+						"Crime",
+						"Victim",
+						"Time",
+						"Location",
+						"Enforced?",
+						"Outcome",
+						"Known"
+				},
+				actor,
+				Telnet.Red
+			));
+
 		}
 
 		if (sb.Length == 0)
@@ -237,7 +294,7 @@ The syntax for this command is as follows:
 
 		foreach (var (authority, known, resolved) in crimes)
 		{
-			if (!known.Any() && !actor.IsAdministrator())
+			if (!known.Any() && !resolved.Any() && !actor.IsAdministrator())
 			{
 				continue;
 			}
@@ -245,26 +302,31 @@ The syntax for this command is as follows:
 			sb.AppendLine($"The crimes of {target.HowSeen(actor)} in the {authority.Name.ColourName()} jurisdiction:");
 			sb.AppendLine();
 			var combined = known.Concat(resolved).OrderBy(x => x.RealTimeOfCrime).ToList();
-			foreach (var crime in combined)
-			{
-				if (!crime.IsKnownCrime && !actor.IsAdministrator())
+			sb.AppendLine(StringUtilities.GetTextTable(
+				from crime in combined
+				select new List<string>
 				{
-					continue;
-				}
-
-				if (crime.HasBeenConvicted)
+					crime.Name,
+					crime.Victim?.HowSeen(actor) ?? "",
+					crime.TimeOfCrime.ToString(CalendarDisplayMode.Short, TimeDisplayTypes.Short),
+					crime.CrimeLocation?.GetOverlayFor(actor).CellName ?? "",
+					crime.HasBeenEnforced.ToColouredString(),
+					crime.HasBeenFinalised ? (crime.HasBeenConvicted ? "Convicted" : "Acquitted") : "",
+					crime.HasBeenFinalised ? crime.DescribePunishment(actor) : "",
+				},
+				new List<string>
 				{
-					sb.AppendLine($"\t{crime.DescribeCrime(actor)} [convicted]");
-				}
-				else if (crime.BailPosted)
-				{
-					sb.AppendLine($"\t{crime.DescribeCrime(actor)} [on bail]");
-				}
-				else
-				{
-					sb.AppendLine($"\t{crime.DescribeCrime(actor)} [unresolved]");
-				}
-			}
+					"Crime",
+					"Victim",
+					"Time",
+					"Location",
+					"Enforced?",
+					"Outcome",
+					"Known"
+				},
+				actor,
+				Telnet.Red
+			));
 		}
 
 		if (sb.Length == 0)
@@ -606,7 +668,9 @@ The syntax is as follows:
 
 	[PlayerCommand("Plead", "plead")]
 	[RequiredCharacterState(CharacterState.Able)]
-	[HelpInfo("plead", @"", AutoHelp.HelpArgOrNoArg)]
+	[HelpInfo("plead", @"The #3plead#0 command is used to register a plea of guilty or not guilty in a trial. The engine will direct you when the appropriate time to use this command is.
+
+The syntax is #3plead guilty#0 or #3plead innocent#0.", AutoHelp.HelpArgOrNoArg)]
 	protected static void Plead(ICharacter actor, string input)
 	{
 		var ss = new StringStack(input.RemoveFirstWord());
@@ -662,7 +726,9 @@ The syntax is as follows:
 
 	[PlayerCommand("Argue", "argue")]
 	[RequiredCharacterState(CharacterState.Able)]
-	[HelpInfo("argue", @"", AutoHelp.HelpArg)]
+	[HelpInfo("argue", @"The #3argue#0 command is used to argue the prosecution or defense case in a trial. You must be appointed as the prosecutor or defense lawyer for the trial to use this command (in some circumstances the defendant can plead their own case).
+
+The syntax for this command is simply #3argue defense#0 or #3argue prosecution#0.", AutoHelp.HelpArg)]
 	protected static void Argue(ICharacter actor, string input)
 	{
 		var ss = new StringStack(input.RemoveFirstWord());

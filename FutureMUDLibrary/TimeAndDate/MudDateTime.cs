@@ -157,7 +157,7 @@ You can also enter the special values #3never#0 and #3now#0.";
 			Date = date;
 			Time = time;
 			TimeZone = timezone;
-			Gameworld = Clock.Gameworld;
+			Gameworld = Clock?.Gameworld;
 		}
 
 		public MudDateTime(MudDateTime rhs) {

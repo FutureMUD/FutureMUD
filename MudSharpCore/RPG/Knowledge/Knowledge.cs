@@ -87,29 +87,26 @@ public class Knowledge : SaveableItem, IKnowledge
 
 	public override void Save()
 	{
-		using (new FMDB())
+		var dbitem = FMDB.Context.Knowledges.Find(Id);
+		dbitem.Name = Name;
+		dbitem.Description = Description;
+		dbitem.LongDescription = LongDescription;
+		dbitem.Type = KnowledgeType;
+		dbitem.Subtype = KnowledgeSubtype;
+		dbitem.TeachDifficulty = (int)TeachDifficulty;
+		dbitem.LearnDifficulty = (int)LearnDifficulty;
+		dbitem.LearnableType = (int)Learnable;
+		dbitem.LearningSessionsRequired = LearnerSessionsRequired;
+		dbitem.CanAcquireProgId = CanPickChargenProg?.Id;
+		dbitem.CanLearnProgId = CanLearnProg?.Id;
+		FMDB.Context.KnowledgesCosts.RemoveRange(dbitem.KnowledgesCosts);
+		foreach (var cost in _resourceCosts)
 		{
-			var dbitem = FMDB.Context.Knowledges.Find(Id);
-			dbitem.Name = Name;
-			dbitem.Description = Description;
-			dbitem.LongDescription = LongDescription;
-			dbitem.Type = KnowledgeType;
-			dbitem.Subtype = KnowledgeSubtype;
-			dbitem.TeachDifficulty = (int)TeachDifficulty;
-			dbitem.LearnDifficulty = (int)LearnDifficulty;
-			dbitem.LearnableType = (int)Learnable;
-			dbitem.LearningSessionsRequired = LearnerSessionsRequired;
-			dbitem.CanAcquireProgId = CanPickChargenProg?.Id;
-			dbitem.CanLearnProgId = CanLearnProg?.Id;
-			FMDB.Context.KnowledgesCosts.RemoveRange(dbitem.KnowledgesCosts);
-			foreach (var cost in _resourceCosts)
-			{
-				dbitem.KnowledgesCosts.Add(new KnowledgesCosts
-					{ Knowledge = dbitem, ChargenResourceId = cost.Key.Id, Cost = cost.Value });
-			}
-
-			FMDB.Context.SaveChanges();
+			dbitem.KnowledgesCosts.Add(new KnowledgesCosts
+				{ Knowledge = dbitem, ChargenResourceId = cost.Key.Id, Cost = cost.Value });
 		}
+
+		Changed = false;
 	}
 
 	public override string FrameworkItemType => "Knowledge";

@@ -31,11 +31,11 @@ public class CharacterKnowledge : SaveableItem, ICharacterKnowledge
 	public CharacterKnowledge(MudSharp.Models.CharacterKnowledge knowledge, ICharacter character)
 	{
 		_id = knowledge.Id;
-		Character = character;
-		Knowledge = character.Gameworld.Knowledges.Get(knowledge.KnowledgeId);
-		WhenAcquired = knowledge.WhenAcquired;
-		TimesTaught = knowledge.TimesTaught;
-		HowAcquired = knowledge.HowAcquired;
+		_character = character;
+		_knowledge = character.Gameworld.Knowledges.Get(knowledge.KnowledgeId);
+		_whenAcquired = knowledge.WhenAcquired;
+		_timesTaught = knowledge.TimesTaught;
+		_howAcquired = knowledge.HowAcquired;
 	}
 
 	public override string Name => Knowledge.Name;
@@ -121,7 +121,6 @@ public class CharacterKnowledge : SaveableItem, ICharacterKnowledge
 			dbitem.HowAcquired = HowAcquired;
 			dbitem.WhenAcquired = WhenAcquired;
 			dbitem.TimesTaught = TimesTaught;
-			FMDB.Context.SaveChanges();
 		}
 	}
 }

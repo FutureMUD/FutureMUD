@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Text;
 using System.Xml.Linq;
 using MudSharp.Character;
@@ -104,8 +105,9 @@ public class SimpleProjectMaterial : MaterialRequirementBase
 	#region Overrides of MaterialRequirementBase
 
 	protected override string HelpText => $@"{base.HelpText}
-	#3tag <tag>#0 - sets the tag the item that satisifies this requirement needs to have
-	#3amount <##>#0 - sets the number of the material required";
+	#3tag <tag>#0 - sets the tag the item that satisfies this requirement needs to have
+	#3amount <##>#0 - sets the number of the material required
+	#3quality <quality>#0 - sets the minimum quality of the materials";
 
 	#endregion
 
@@ -120,9 +122,31 @@ public class SimpleProjectMaterial : MaterialRequirementBase
 			case "quantity":
 			case "num":
 				return BuildingCommandAmount(actor, command);
+			case "quality":
+				return BuildingCommandQuality(actor, command);
 		}
 
 		return base.BuildingCommand(actor, new StringStack($"\"{command.Last}\" {command.RemainingArgument}"), phase);
+	}
+
+	private bool BuildingCommandQuality(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send($"What minimum quality do you want to set? The valid values are {Enum.GetValues<ItemQuality>().ListToColouredString()}.");
+			return false;
+		}
+
+		if (!command.SafeRemainingArgument.TryParseEnum<ItemQuality>(out var quality))
+		{
+			actor.OutputHandler.Send($"The text {command.SafeRemainingArgument.ColourCommand()} is not a valid quality. The valid values are {Enum.GetValues<ItemQuality>().ListToColouredString()}.");
+			return false;
+		}
+
+		MinimumQuality = quality;
+		Changed = true;
+		actor.OutputHandler.Send($"Materials supplied will now need to be of at least {quality.Describe().ColourValue()} quality.");
+		return true;
 	}
 
 	private bool BuildingCommandAmount(ICharacter actor, StringStack command)

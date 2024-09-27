@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Net.Http.Headers;
 using System.Text.RegularExpressions;
 using NCalc;
 using NCalc.Handlers;
@@ -154,6 +155,31 @@ namespace ExpressionEngine
 			if (args.Parameters.Length != 2)
 			{
 				throw new ArgumentException("Rand() takes exactly 2 arguments");
+			}
+
+			var arg1 = args.Parameters[0].Evaluate();
+			var arg2 = args.Parameters[1].Evaluate();
+
+			if (arg1 is null || arg2 is null)
+			{
+				args.Result = 0;
+				return;
+			}
+
+			if (arg1 is double arg1d && arg2 is double arg2d)
+			{
+				args.Result = (RandomInstance.NextDouble() * (arg2d - arg1d)) + arg1d;
+				return;
+			}
+
+			if (
+				arg1 is string arg1s && arg2 is string arg2s && 
+			    !int.TryParse(arg1s, out _) && !int.TryParse(arg2s, out _) &&
+				double.TryParse(arg1s, out var arg1d2) && double.TryParse(arg2s, out var arg2d2)
+			)
+			{
+				args.Result = (RandomInstance.NextDouble() * (arg2d2 - arg1d2)) + arg1d2;
+				return;
 			}
 
 			var randleft = Convert.ToInt32(args.Parameters[0].Evaluate());

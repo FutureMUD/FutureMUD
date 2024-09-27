@@ -67,7 +67,7 @@ internal class ToBankFunction : BuiltInFunction
 
 	public override FutureProgVariableTypes ReturnType
 	{
-		get { return FutureProgVariableTypes.Boolean; }
+		get { return FutureProgVariableTypes.Bank; }
 		protected set { }
 	}
 

@@ -64,6 +64,7 @@ using MudSharp.Work.Projects;
 using Attribute = MudSharp.Body.Traits.Subtypes.Attribute;
 using TraitExpression = MudSharp.Body.Traits.TraitExpression;
 using MudSharp.Body.CommunicationStrategies;
+using MudSharp.TimeAndDate.Time;
 
 namespace MudSharp.Character;
 
@@ -172,8 +173,8 @@ public partial class Character : PerceiverItem, ICharacter
 						Rank = rank,
 						Paygrade =
 							clan.Select(x => x.Paygrade)
-							    .Where(x => rank.Paygrades.Contains(x))
-							    .FirstMax(x => x.PayAmount),
+								.Where(x => rank.Paygrades.Contains(x))
+								.FirstMax(x => x.PayAmount),
 						PersonalName = CurrentName,
 						JoinDate = clan.Key.Calendar.CurrentDate
 					};
@@ -188,13 +189,13 @@ public partial class Character : PerceiverItem, ICharacter
 						newMembership.Rank = rank;
 						newMembership.Paygrade =
 							clan.Select(x => x.Paygrade)
-							    .Where(x => rank.Paygrades.Contains(x))
-							    .FirstMax(x => x.PayAmount);
+								.Where(x => rank.Paygrades.Contains(x))
+								.FirstMax(x => x.PayAmount);
 					}
 				}
 
 				newMembership.Appointments.AddRange(clan.SelectMany(x => x.Appointments).Distinct()
-				                                        .Where(x => !newMembership.Appointments.Contains(x)).ToList());
+														.Where(x => !newMembership.Appointments.Contains(x)).ToList());
 			}
 
 			foreach (var adjustment in role.TraitAdjustments)
@@ -253,7 +254,7 @@ public partial class Character : PerceiverItem, ICharacter
 		//Body.BaseLiverAlcoholRemovalKilogramsPerHour = LiverFunction(this);
 		InitialiseStamina();
 		foreach (var language in template.SkillValues.SelectMany(skill =>
-			         Gameworld.Languages.Where(x => x.LinkedTrait == skill.Item1)))
+					 Gameworld.Languages.Where(x => x.LinkedTrait == skill.Item1)))
 		{
 			_languages.Add(language);
 		}
@@ -280,8 +281,8 @@ public partial class Character : PerceiverItem, ICharacter
 		Body.RecalculateItemHelpers();
 		_noSave = false;
 		CombatSettings = Gameworld.CharacterCombatSettings.FirstOrDefault(
-			                 x => x.GlobalTemplate && x.AvailabilityProg?.Execute<bool?>(this) == true) ??
-		                 Gameworld.CharacterCombatSettings.FirstOrDefault(x => x.GlobalTemplate);
+							 x => x.GlobalTemplate && x.AvailabilityProg?.Execute<bool?>(this) == true) ??
+						 Gameworld.CharacterCombatSettings.FirstOrDefault(x => x.GlobalTemplate);
 
 		var hooks = Gameworld.DefaultHooks.Where(x => x.Applies(template, "Character")).ToList();
 		foreach (var hook in hooks)
@@ -398,7 +399,7 @@ public partial class Character : PerceiverItem, ICharacter
 #if DEBUG
 #endif
 			_currentName = value ??
-			               throw new ApplicationException("Null CurrentName assigned in Character.CurrentName.Set");
+						   throw new ApplicationException("Null CurrentName assigned in Character.CurrentName.Set");
 			Changed = true;
 			NamesChanged = true;
 		}
@@ -425,12 +426,12 @@ public partial class Character : PerceiverItem, ICharacter
 
 	public Alignment Handedness { get; set; }
 
-        public override SizeCategory Size => Body.CurrentContextualSize(SizeContext.None);
+		public override SizeCategory Size => Body.CurrentContextualSize(SizeContext.None);
 
 		public override bool IsSelf(IPerceivable other)
-        {
-            return base.IsSelf(other) || Body == other;
-        }
+		{
+			return base.IsSelf(other) || Body == other;
+		}
 
 	public override IEnumerable<string> GetKeywordsFor(IPerceiver voyeur)
 	{
@@ -440,25 +441,25 @@ public partial class Character : PerceiverItem, ICharacter
 	public override bool HasKeyword(string targetKeyword, IPerceiver voyeur, bool abbreviated = true, bool useContainsOverStartsWith = false)
 	{
 		return Body.HasKeyword(targetKeyword, voyeur, abbreviated, useContainsOverStartsWith) ||
-		       (voyeur is ICharacter c && c.IsAdministrator() && PersonalName.GetName(NameStyle.FullWithNickname)
-		                                                                     .Split(new[] { ' ', '"', '-' },
-			                                                                     StringSplitOptions.RemoveEmptyEntries)
-		                                                                     .Any(x => x.StartsWith(targetKeyword,
-			                                                                     StringComparison
-				                                                                     .InvariantCultureIgnoreCase)));
+			   (voyeur is ICharacter c && c.IsAdministrator() && PersonalName.GetName(NameStyle.FullWithNickname)
+																			 .Split(new[] { ' ', '"', '-' },
+																				 StringSplitOptions.RemoveEmptyEntries)
+																			 .Any(x => x.StartsWith(targetKeyword,
+																				 StringComparison
+																					 .InvariantCultureIgnoreCase)));
 		;
 	}
 
 	public override bool HasKeywords(IEnumerable<string> targetKeywords, IPerceiver voyeur, bool abbreviated = true, bool useContainsOverStartsWith = false)
 	{
 		return Body.HasKeywords(targetKeywords, voyeur, abbreviated, useContainsOverStartsWith) ||
-		       (voyeur is ICharacter c && c.IsAdministrator() && PersonalName.GetName(NameStyle.FullWithNickname)
-		                                                                     .Split(new[] { ' ', '"', '-' },
-			                                                                     StringSplitOptions.RemoveEmptyEntries)
-		                                                                     .Any(x => targetKeywords.Any(
-			                                                                     y => x.StartsWith(y,
-				                                                                     StringComparison
-					                                                                     .InvariantCultureIgnoreCase))));
+			   (voyeur is ICharacter c && c.IsAdministrator() && PersonalName.GetName(NameStyle.FullWithNickname)
+																			 .Split(new[] { ' ', '"', '-' },
+																				 StringSplitOptions.RemoveEmptyEntries)
+																			 .Any(x => targetKeywords.Any(
+																				 y => x.StartsWith(y,
+																					 StringComparison
+																						 .InvariantCultureIgnoreCase))));
 		;
 	}
 
@@ -536,11 +537,11 @@ public partial class Character : PerceiverItem, ICharacter
 				$"Character ID {Id} could not find itself in the database to save. {HowSeen(this, colour: false)}");
 
 #else
-                Gameworld.SystemMessage(
-                    $"Critical Error: Character ID {Id} ({HowSeen(this)}) couldn't find itself in the database when it tried to save.",
-                    true);
-                Changed = false;
-                return;
+				Gameworld.SystemMessage(
+					$"Critical Error: Character ID {Id} ({HowSeen(this)}) couldn't find itself in the database when it tried to save.",
+					true);
+				Changed = false;
+				return;
 #endif
 		}
 
@@ -664,9 +665,9 @@ public partial class Character : PerceiverItem, ICharacter
 		if (NeedsToBreathe)
 		{
 			var lungs = Body.Organs.OfType<LungProto>().Select(x => Tuple.Create(x, x.OrganFunctionFactor(Body)))
-			                .ToList();
+							.ToList();
 			var tracheas = Body.Organs.OfType<TracheaProto>().Select(x => Tuple.Create(x, x.OrganFunctionFactor(Body)))
-			                   .ToList();
+							   .ToList();
 			if (CanBreathe)
 			{
 				sb.AppendLine("You can breathe.".Colour(Telnet.BoldGreen));
@@ -820,7 +821,7 @@ public partial class Character : PerceiverItem, ICharacter
 		}
 
 		foreach (var cybereye in eyes.Where(x =>
-			         Body.Prosthetics.Any(y => x.DownstreamOfPart(y.TargetBodypart) && !y.Functional)))
+					 Body.Prosthetics.Any(y => x.DownstreamOfPart(y.TargetBodypart) && !y.Functional)))
 		{
 			sb.AppendLine($"You cannot see out of your {cybereye.FullDescription()} because it is non-functional."
 				.Colour(Telnet.BoldRed));
@@ -845,7 +846,7 @@ public partial class Character : PerceiverItem, ICharacter
 		}
 
 		foreach (var cyberear in ears.Where(x =>
-			         Body.Prosthetics.Any(y => x.DownstreamOfPart(y.TargetBodypart) && !y.Functional)))
+					 Body.Prosthetics.Any(y => x.DownstreamOfPart(y.TargetBodypart) && !y.Functional)))
 		{
 			sb.Append(
 				$"You cannot hear out of your {cyberear.FullDescription()} because it is non-funcitonal.".Colour(
@@ -881,7 +882,7 @@ public partial class Character : PerceiverItem, ICharacter
 		}
 
 		var hearts = Body.Organs.OfType<HeartProto>().Select(x => Tuple.Create(x, x.OrganFunctionFactor(Body)))
-		                 .ToList();
+						 .ToList();
 		if (hearts.Any())
 		{
 			foreach (var heart in hearts)
@@ -923,8 +924,8 @@ public partial class Character : PerceiverItem, ICharacter
 		{
 			var wounds = Body.Wounds.Where(x => x.Bodypart == part).ToList();
 			var internalWounds = Body.Wounds
-			                         .Where(x => part.Organs.Contains(x.Bodypart) || part.Bones.Contains(x.Bodypart))
-			                         .ToList();
+									 .Where(x => part.Organs.Contains(x.Bodypart) || part.Bones.Contains(x.Bodypart))
+									 .ToList();
 			if (!wounds.Any() && !internalWounds.Any())
 			{
 				continue;
@@ -932,7 +933,7 @@ public partial class Character : PerceiverItem, ICharacter
 
 			var painRatio = wounds.Sum(x => x.CurrentPain) * 0.5 / Body.HitpointsForBodypart(part);
 			var internalStressRatio = internalWounds.Sum(x => Math.Max(x.CurrentDamage, x.CurrentPain)) /
-			                          Body.HitpointsForBodypart(part);
+									  Body.HitpointsForBodypart(part);
 			var totalRatio = painRatio + internalStressRatio;
 			if (double.IsNaN(totalRatio))
 			{
@@ -983,8 +984,8 @@ public partial class Character : PerceiverItem, ICharacter
 		{
 			var canUseLimb = Body.CanUseLimb(limb);
 			if ((limb.LimbType == LimbType.Head || limb.LimbType == LimbType.Torso) && !canUseLimb.In(
-				    CanUseLimbResult.CantUseGrappled, CanUseLimbResult.CantUseRestrained,
-				    CanUseLimbResult.CantUseSpinalDamage))
+					CanUseLimbResult.CantUseGrappled, CanUseLimbResult.CantUseRestrained,
+					CanUseLimbResult.CantUseSpinalDamage))
 			{
 				continue;
 			}
@@ -1026,10 +1027,10 @@ public partial class Character : PerceiverItem, ICharacter
 		}
 
 		foreach (var infection in Body.PartInfections.Select(x => (infection: x,
-			         part: x.Bodypart is IOrganProto op
-				         ? Body.Bodyparts.Where(y => y.Organs.Contains(op)).OrderByDescending(y => y.RelativeHitChance)
-				               .FirstOrDefault()
-				         : x.Bodypart)).GroupBy(x => x.part))
+					 part: x.Bodypart is IOrganProto op
+						 ? Body.Bodyparts.Where(y => y.Organs.Contains(op)).OrderByDescending(y => y.RelativeHitChance)
+							   .FirstOrDefault()
+						 : x.Bodypart)).GroupBy(x => x.part))
 		{
 			var intensity = infection.Sum(x => x.infection.Intensity);
 			if (intensity < 100.0)
@@ -1110,8 +1111,8 @@ public partial class Character : PerceiverItem, ICharacter
 		sb.AppendLine($"Skills:");
 		sb.AppendLine();
 		sb.Append(TraitsOfType(TraitType.Skill).Select(x => $"{x.Definition.Name.ColourName()} [{x.Value.ToString("N2", voyeur).ColourValue()} | {x.MaxValue.ToString("N2", voyeur).ColourValue()}]")
-		                                       .ArrangeStringsOntoLines(4,
-			                                       (uint)voyeur.LineFormatLength)
+											   .ArrangeStringsOntoLines(4,
+												   (uint)voyeur.LineFormatLength)
 		);
 		return sb.ToString();
 	}
@@ -1129,13 +1130,13 @@ public partial class Character : PerceiverItem, ICharacter
 		{
 			sb.AppendLine(
 				Body.Traits
-				    .OfType<IAttribute>()
-				    .Where(x => !x.Hidden && x.AttributeDefinition.ShowInScoreCommand)
-				    .OrderBy(x => x.AttributeDefinition.DisplayOrder)
-				    .Select(x =>
-					    $"{x.AttributeDefinition.Alias.Proper()}: {Body.GetTraitDecorated(x.Definition).ColourIfNotColoured(Telnet.Green)}")
-				    .ToList()
-				    .ListToString("", ", ", "", ""));
+					.OfType<IAttribute>()
+					.Where(x => !x.Hidden && x.AttributeDefinition.ShowInScoreCommand)
+					.OrderBy(x => x.AttributeDefinition.DisplayOrder)
+					.Select(x =>
+						$"{x.AttributeDefinition.Alias.Proper()}: {Body.GetTraitDecorated(x.Definition).ColourIfNotColoured(Telnet.Green)}")
+					.ToList()
+					.ListToString("", ", ", "", ""));
 		}
 
 		sb.AppendLine(
@@ -1246,6 +1247,18 @@ public partial class Character : PerceiverItem, ICharacter
 		{
 			sb.AppendLine(
 				$"You are guarding {guardItem.TargetItem.HowSeen(this)}{(guardItem.IncludeVicinity ? " and everything in its vicinity" : "")}.");
+		}
+
+		var bondEffects = EffectsOfType<GoodBehaviourBond>().Select(x => x.Authority).Distinct().ToList();
+		if (bondEffects.Any())
+		{
+			sb.AppendLine($"You are on a {"Good Behaviour Bond".Colour(Telnet.BoldCyan)} in the {bondEffects.Select(x => x.Name).ListToColouredString()} {"jurisdiction".Pluralise(bondEffects.Count != 1)}.");
+		}
+
+		var fines = Gameworld.LegalAuthorities.Select(x => (Legal: x, Owed: x.FinesOwed(this))).Where(x => x.Owed.Fine > 0.0M).ToList();
+		foreach (var (authority, (fine,date)) in fines)
+		{
+			sb.AppendLine($"You owe fines of {authority.Currency.Describe(fine, CurrencyDescriptionPatternType.ShortDecimal).ColourValue()} due by {date.ToString(CalendarDisplayMode.Short, TimeDisplayTypes.Short).ColourValue()} in the {authority.Name.ColourName()} jurisdiction.");
 		}
 
 		if (ClanMemberships.Any())
@@ -1554,7 +1567,7 @@ public partial class Character : PerceiverItem, ICharacter
 		if (character.CharactersChargenRoles.Any())
 		{
 			_roles.AddRange(character.CharactersChargenRoles.Select(x => Gameworld.Roles.Get(x.ChargenRoleId))
-			                         .ToList());
+									 .ToList());
 		}
 
 		NeedsModel = NeedsModelFactory.LoadNeedsModel(character, this);
@@ -1582,7 +1595,7 @@ public partial class Character : PerceiverItem, ICharacter
 		}
 
 		foreach (var language in Gameworld.Languages.Where(
-			         x => Traits.Any(y => y.Definition == x.LinkedTrait) && !_languages.Contains(x)))
+					 x => Traits.Any(y => y.Definition == x.LinkedTrait) && !_languages.Contains(x)))
 		{
 			_languages.Add(language);
 			if (_accents.All(x => x.Key.Language != language))
@@ -1602,8 +1615,8 @@ public partial class Character : PerceiverItem, ICharacter
 
 
 		CurrentAccent = Gameworld.Accents.Get(character.CurrentAccentId ?? 0) ??
-		                _preferredAccents.ValueOrDefault(CurrentLanguage, null) ??
-		                _accents.FirstOrDefault(x => x.Key.Language == CurrentLanguage).Key;
+						_preferredAccents.ValueOrDefault(CurrentLanguage, null) ??
+						_accents.FirstOrDefault(x => x.Key.Language == CurrentLanguage).Key;
 
 		foreach (var script in character.CharactersScripts)
 		{
@@ -1611,7 +1624,7 @@ public partial class Character : PerceiverItem, ICharacter
 		}
 
 		foreach (var script in Gameworld.Scripts.Where(
-			         x => Knowledges.Any(y => x.ScriptKnowledge == y) && !_scripts.Contains(x)))
+					 x => Knowledges.Any(y => x.ScriptKnowledge == y) && !_scripts.Contains(x)))
 		{
 			_scripts.Add(script);
 			LanguagesChanged = true;
@@ -1645,9 +1658,9 @@ public partial class Character : PerceiverItem, ICharacter
 		LoadProjects(character);
 		Body.LoadInventory(character.Body);
 		CombatSettings = Gameworld.CharacterCombatSettings.Get(character.CurrentCombatSettingId ?? 0) ??
-		                 Gameworld.CharacterCombatSettings.FirstOrDefault(
-			                 x => x.GlobalTemplate && x.AvailabilityProg?.Execute<bool?>(this) == true) ??
-		                 Gameworld.CharacterCombatSettings.FirstOrDefault(x => x.GlobalTemplate);
+						 Gameworld.CharacterCombatSettings.FirstOrDefault(
+							 x => x.GlobalTemplate && x.AvailabilityProg?.Execute<bool?>(this) == true) ??
+						 Gameworld.CharacterCombatSettings.FirstOrDefault(x => x.GlobalTemplate);
 		_preferredDefenseType = (DefenseType)character.PreferredDefenseType;
 
 		foreach (var item in character.ActiveJobs)
@@ -1994,14 +2007,14 @@ public partial class Character : PerceiverItem, ICharacter
 
 			if (
 				Location?.LayerCharacters(RoomLayer).Except(this)
-				        .Any(x => x.HandleEvent(EventType.CommandInput, this, x, cmd, ss)) ??
+						.Any(x => x.HandleEvent(EventType.CommandInput, this, x, cmd, ss)) ??
 				false)
 			{
 				return true;
 			}
 
 			if (Location?.LayerGameItems(RoomLayer).Any(x => x.HandleEvent(EventType.CommandInput, this, x, cmd, ss)) ??
-			    false)
+				false)
 			{
 				return true;
 			}
@@ -2223,8 +2236,8 @@ public partial class Character : PerceiverItem, ICharacter
 			}
 
 			foreach (var bodyguard in Location.LayerCharacters(RoomLayer).OfType<INPC>()
-			                                  .Where(x => x.BodyguardingCharacterID == Id)
-			                                  .ToList())
+											  .Where(x => x.BodyguardingCharacterID == Id)
+											  .ToList())
 			{
 				bodyguard.Quit();
 			}
@@ -2305,16 +2318,16 @@ public partial class Character : PerceiverItem, ICharacter
 		if (IsPlayerCharacter)
 		{
 			var elections = ClanMemberships
-			                .Where(x => x.NetPrivileges.HasFlag(ClanPrivilegeType.CanViewClanOfficeHolders))
-			                .SelectMany(x => x.Clan.Appointments.Where(y => y.IsAppointedByElection)
-			                                  .SelectMany(y => y.Elections))
-			                .Where(x =>
-				                (x.ElectionStage == ElectionStage.Nomination && x.Appointment.CanNominate(this).Truth &&
-				                 !x.Nominees.Any(y => y.MemberId == Id)) ||
-				                (x.ElectionStage == ElectionStage.Voting && x.Appointment.NumberOfVotes(this) > 0 &&
-				                 !x.Votes.Any(y => y.Voter.MemberId == Id))
-			                )
-			                .ToList();
+							.Where(x => x.NetPrivileges.HasFlag(ClanPrivilegeType.CanViewClanOfficeHolders))
+							.SelectMany(x => x.Clan.Appointments.Where(y => y.IsAppointedByElection)
+											  .SelectMany(y => y.Elections))
+							.Where(x =>
+								(x.ElectionStage == ElectionStage.Nomination && x.Appointment.CanNominate(this).Truth &&
+								 !x.Nominees.Any(y => y.MemberId == Id)) ||
+								(x.ElectionStage == ElectionStage.Voting && x.Appointment.NumberOfVotes(this) > 0 &&
+								 !x.Votes.Any(y => y.Voter.MemberId == Id))
+							)
+							.ToList();
 			if (elections.Any())
 			{
 				OutputHandler.Send(
@@ -2347,7 +2360,7 @@ public partial class Character : PerceiverItem, ICharacter
 		if (type == DescriptionType.Long)
 		{
 			return Body.HowSeen(voyeur, proper, DescriptionType.Long, colour, flags) +
-			       (Controller != null ? Controller.LDescAdditionalTags : _noControllerTags);
+				   (Controller != null ? Controller.LDescAdditionalTags : _noControllerTags);
 		}
 
 		return Body.HowSeen(voyeur, proper, type, colour, flags);
@@ -2446,14 +2459,14 @@ public partial class Character : PerceiverItem, ICharacter
 		{
 			// TODO - more reasons for being helpless, like being restrained
 			return State.HasFlag(CharacterState.Paralysed) ||
-			       State.HasFlag(CharacterState.Unconscious) ||
-			       State.HasFlag(CharacterState.Sleeping) ||
-			       State.HasFlag(CharacterState.Dead) ||
-			       EffectsOfType<Dragging.DragTarget>().Any() ||
-			       CombinedEffectsOfType<BeingGrappled>().Any(x => x.UnderControl) ||
-			       Body.Limbs.All(x =>
-				       EffectsOfType<ILimbIneffectiveEffect>().Any(y => y.Applies(x) && y.AppliesToLimb(x))) ||
-			       CombinedEffectsOfType<IHelplessEffect>().Any(x => x.Applies())
+				   State.HasFlag(CharacterState.Unconscious) ||
+				   State.HasFlag(CharacterState.Sleeping) ||
+				   State.HasFlag(CharacterState.Dead) ||
+				   EffectsOfType<Dragging.DragTarget>().Any() ||
+				   CombinedEffectsOfType<BeingGrappled>().Any(x => x.UnderControl) ||
+				   Body.Limbs.All(x =>
+					   EffectsOfType<ILimbIneffectiveEffect>().Any(y => y.Applies(x) && y.AppliesToLimb(x))) ||
+				   CombinedEffectsOfType<IHelplessEffect>().Any(x => x.Applies())
 				;
 		}
 	}
@@ -2493,14 +2506,14 @@ public partial class Character : PerceiverItem, ICharacter
 	public bool WillingToPermitInventoryManipulation(ICharacter manipulator)
 	{
 		return manipulator.IsAdministrator() ||
-		       manipulator == this ||
-		       IsHelpless ||
-		       State.HasFlag(CharacterState.Sleeping) ||
-		       State.HasFlag(CharacterState.Unconscious) ||
-		       State.HasFlag(CharacterState.Paralysed) ||
-		       State.HasFlag(CharacterState.Dead) ||
-		       IsTrustedAlly(manipulator) ||
-		       CombinedEffectsOfType<BeDressedEffect>().Any(x => x.Dresser == manipulator)
+			   manipulator == this ||
+			   IsHelpless ||
+			   State.HasFlag(CharacterState.Sleeping) ||
+			   State.HasFlag(CharacterState.Unconscious) ||
+			   State.HasFlag(CharacterState.Paralysed) ||
+			   State.HasFlag(CharacterState.Dead) ||
+			   IsTrustedAlly(manipulator) ||
+			   CombinedEffectsOfType<BeDressedEffect>().Any(x => x.Dresser == manipulator)
 			;
 	}
 
@@ -2521,10 +2534,10 @@ public partial class Character : PerceiverItem, ICharacter
 	public bool UnableToResistInterventions(ICharacter intervenor)
 	{
 		return intervenor.IsAdministrator() ||
-		       IsHelpless ||
-		       State.HasFlag(CharacterState.Unconscious) ||
-		       State.HasFlag(CharacterState.Paralysed) ||
-		       State.HasFlag(CharacterState.Dead);
+			   IsHelpless ||
+			   State.HasFlag(CharacterState.Unconscious) ||
+			   State.HasFlag(CharacterState.Paralysed) ||
+			   State.HasFlag(CharacterState.Dead);
 	}
 
 	public (bool Truth, string Message) CanManipulateItem(IGameItem item)
@@ -2562,7 +2575,7 @@ public partial class Character : PerceiverItem, ICharacter
 			if (accents.All(x => x.Language != language))
 			{
 				accents.Add(_accents.Where(x => x.Key.Language == language).FirstMin(x => x.Value).Key ??
-				            language.DefaultLearnerAccent);
+							language.DefaultLearnerAccent);
 			}
 		}
 
@@ -2573,7 +2586,7 @@ public partial class Character : PerceiverItem, ICharacter
 			SelectedAccents = accents,
 			SelectedKnowledges = Knowledges.ToList(),
 			SelectedCharacteristics = Body.CharacteristicDefinitions
-			                              .Select(x => (x, Body.GetCharacteristic(x, this))).ToList(),
+										  .Select(x => (x, Body.GetCharacteristic(x, this))).ToList(),
 			SelectedMerits = Merits.OfType<ICharacterMerit>().ToList(),
 			SelectedRoles = Roles.ToList(),
 			SelectedWeight = Weight,
@@ -2678,7 +2691,7 @@ public partial class Character : PerceiverItem, ICharacter
 
 				var classic = HealthStrategy.ReportConditionPrompt(this, PromptType.Classic);
 				if (Account.PromptType.HasFlag(PromptType.IncludeMagic) &&
-				    Capabilities.Any(x => x.ShowMagicResourcesInPrompt))
+					Capabilities.Any(x => x.ShowMagicResourcesInPrompt))
 				{
 					foreach (var resource in MagicResourceAmounts)
 					{
@@ -3090,7 +3103,7 @@ public partial class Character : PerceiverItem, ICharacter
 
 		//Knowledge might confer a script, add it too
 		foreach (var script in Gameworld.Scripts.Where(x =>
-			         x.ScriptKnowledge == knowledge.Knowledge && !_scripts.Contains(x)))
+					 x.ScriptKnowledge == knowledge.Knowledge && !_scripts.Contains(x)))
 		{
 			LearnScript(script);
 		}
@@ -3108,7 +3121,7 @@ public partial class Character : PerceiverItem, ICharacter
 
 		//May need to remove scripts too
 		foreach (var script in Gameworld.Scripts.Where(x => x.ScriptKnowledge == knowledge &&
-		                                                    _scripts.Contains(x)))
+															_scripts.Contains(x)))
 			//Make sure we don't have another knowledge that gives us the script
 		{
 			if (!_characterKnowledges.Any(x => x.Knowledge == script.ScriptKnowledge))
@@ -3135,7 +3148,7 @@ public partial class Character : PerceiverItem, ICharacter
 
 		return selectables.Where(x =>
 			x.GrowthStage <= current.GrowthStage || (x.GrowthStage == current.GrowthStage + 1 &&
-			                                         !Body.AffectedBy<IRecentlyStyled>(definition))).ToList();
+													 !Body.AffectedBy<IRecentlyStyled>(definition))).ToList();
 	}
 
 	public string WhyCannotStyle(ICharacter target, ICharacteristicDefinition definition,
@@ -3177,7 +3190,7 @@ public partial class Character : PerceiverItem, ICharacter
 		}
 
 		if (Gameworld.GetCheck(CheckType.StyleCharacteristicCapabilityCheck).Check(this, value.StyleDifficulty)
-		             .IsFail())
+					 .IsFail())
 		{
 			return "That style is too difficult for you to even attempt at your current level of ability.";
 		}
@@ -3247,7 +3260,7 @@ public partial class Character : PerceiverItem, ICharacter
 		}
 
 		if (Gameworld.GetCheck(CheckType.StyleCharacteristicCapabilityCheck).Check(this, value.StyleDifficulty)
-		             .IsFail())
+					 .IsFail())
 		{
 			return false;
 		}
@@ -3255,7 +3268,7 @@ public partial class Character : PerceiverItem, ICharacter
 		var current = target.Body.GetCharacteristic(definition, null) as IGrowableCharacteristicValue;
 		var universal = Gameworld.Tags.Get(Gameworld.GetStaticLong("UniversalStyleToolTagId"));
 		if (universal != null && value.StyleToolTag == null &&
-		    Body.HeldOrWieldedItems.All(x => !x.IsA(universal)))
+			Body.HeldOrWieldedItems.All(x => !x.IsA(universal)))
 		{
 			return false;
 		}
@@ -3316,7 +3329,7 @@ public partial class Character : PerceiverItem, ICharacter
 							$"@ continue|continues to work on $0's {definition.Name.ToLowerInvariant()}.", this,
 							target)));
 						Gameworld.GetCheck(CheckType.StyleCharacteristicCheck)
-						         .Check(this, value.StyleDifficulty, target);
+								 .Check(this, value.StyleDifficulty, target);
 					},
 					perc =>
 					{
@@ -3324,7 +3337,7 @@ public partial class Character : PerceiverItem, ICharacter
 							$"@ have|has finished working on $0's {definition.Name.ToLowerInvariant()}, it is now {value.GetValue.A_An().Colour(Telnet.Green)}.",
 							this, target)));
 						Gameworld.GetCheck(CheckType.StyleCharacteristicCheck)
-						         .Check(this, value.StyleDifficulty, target);
+								 .Check(this, value.StyleDifficulty, target);
 						target.SetCharacteristic(definition, value);
 						if (!target.Body.EffectsOfType<RecentlyStyled>(x => x.CharacteristicType == definition).Any())
 						{
@@ -3334,8 +3347,8 @@ public partial class Character : PerceiverItem, ICharacter
 						else
 						{
 							var effect = target.Body
-							                   .EffectsOfType<RecentlyStyled>(x => x.CharacteristicType == definition)
-							                   .First();
+											   .EffectsOfType<RecentlyStyled>(x => x.CharacteristicType == definition)
+											   .First();
 							target.Body.Reschedule(effect,
 								TimeSpan.FromSeconds(Gameworld.GetStaticInt("RecentlyStyledDelaySeconds")));
 						}

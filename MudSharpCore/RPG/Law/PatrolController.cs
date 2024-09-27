@@ -7,6 +7,7 @@ using System.Xml.Linq;
 using MudSharp.Character;
 using MudSharp.Effects.Concrete;
 using MudSharp.Framework;
+using MudSharp.Server;
 
 namespace MudSharp.RPG.Law;
 
@@ -23,12 +24,14 @@ public class PatrolController : IPatrolController
 	public void ReportPatrolAborted(IPatrol patrol)
 	{
 		LegalAuthority.RemovePatrol(patrol);
+		Console.WriteLine($"Patrol '{patrol.Name}' in {LegalAuthority.Name} was aborted.");
 		// TODO - what else should we do here?
 	}
 
 	public void ReportPatrolComplete(IPatrol patrol)
 	{
 		LegalAuthority.RemovePatrol(patrol);
+		Console.WriteLine($"Patrol '{patrol.Name}' in {LegalAuthority.Name} was completed.");
 		// TODO - what else should we do here?
 	}
 
@@ -40,6 +43,7 @@ public class PatrolController : IPatrolController
 			LegalAuthority.MarshallingLocation is null ||
 			LegalAuthority.EnforcerStowingLocation is null ||
 			LegalAuthority.PreparingLocation is null ||
+			LegalAuthority.CourtLocation is null ||
 			!LegalAuthority.CellLocations.Any()
 		)
 		{

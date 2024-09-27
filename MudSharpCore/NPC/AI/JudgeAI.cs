@@ -1412,7 +1412,7 @@ With each of the emotes, you can use the following tokens:
 				sentenceCrime.TimeOfCrime.ToString(CalendarDisplayMode.Long, TimeDisplayTypes.Long),
 				sentenceCrime.DescribeCrimeAtTrial(enforcer),
 				trialEffect.Crimes.OrdinalPositionOf(sentenceCrime).ToWordyOrdinal(),
-				result.Describe(enforcer, trialEffect.LegalAuthority)
+				result.Describe(enforcer, trialEffect.LegalAuthority).StripANSIColour()
 			),
 			enforcer,
 			enforcer,
@@ -1623,7 +1623,7 @@ With each of the emotes, you can use the following tokens:
 			return false;
 		}
 
-		if (DateTime.UtcNow - trialEffect.LastTrialAction < TrialPhaseDelay(trialEffect.Phase, trialEffect.Crimes.Count()))
+		if (!trialEffect.CasesFinishedArguing() && DateTime.UtcNow - trialEffect.LastTrialAction < TrialPhaseDelay(trialEffect.Phase, trialEffect.Crimes.Count()))
 		{
 			return false;
 		}
@@ -1725,7 +1725,7 @@ With each of the emotes, you can use the following tokens:
 		)));
 
 		defendant.AddEffect(new ConsideringPlea(defendant, trialEffect.LegalAuthority, pleaCrime));
-		defendant.OutputHandler.Send("You can #1plead guilty#0 to plead guilty or #2plead innocent#0 to plead innocent. If you do not enter a plea you will be pleading guilty by default.".SubstituteANSIColour());
+		defendant.OutputHandler.Send("\nYou can #1plead guilty#0 to plead guilty or #2plead innocent#0 to plead innocent.\nIf you do not enter a plea you will be pleading guilty by default.".SubstituteANSIColour());
 		trialEffect.LastTrialAction = DateTime.UtcNow;
 		return true;
 	}

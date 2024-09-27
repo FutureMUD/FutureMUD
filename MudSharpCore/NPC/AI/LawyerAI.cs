@@ -155,7 +155,7 @@ public class LawyerAI : PathingAIBase
 			return false;
 		}
 
-		if (trial.Phase.In(TrialPhase.Case, TrialPhase.ClosingArguments))
+		if (trial.Phase.In(TrialPhase.Case, TrialPhase.ClosingArguments) && Dice.Roll(1,3) == 1)
 		{
 			trial.HandleArgueCommand(ch, true);
 		}

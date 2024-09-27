@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using MudSharp.Economy.Currency;
 using MudSharp.FutureProg;
 using MudSharp.Economy;
+using MudSharp.TimeAndDate;
 
 namespace MudSharp.RPG.Law
 {
@@ -95,5 +96,8 @@ namespace MudSharp.RPG.Law
 		void ReleaseCharacterToFreedom(ICharacter criminal);
 		void CheckCharacterForCustodyChanges(ICharacter criminal);
 		void CalculateAndSetBail(ICharacter criminal);
+
+		(decimal Fine, MudDateTime DueDate) FinesOwed(ICharacter criminal);
+		void PayFine(ICharacter criminal, ICrime crime);
 	}
 }

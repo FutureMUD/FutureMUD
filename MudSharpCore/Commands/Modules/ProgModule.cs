@@ -214,7 +214,7 @@ Inner Function Type: {info.InnerFunctionReturnType.DescribeEnum().ColourName(col
 Return Type Info: {info.FunctionReturnInfo.ColourName(colour)}
 ");
 		var line = info.FunctionHelp.Wrap(linewidth, "\t").FluentColourIncludingReset(Telnet.Yellow, colour)
-		               .SubstituteANSIColour();
+					   .SubstituteANSIColour();
 		sb.AppendLine(colour ? line : line.StripANSIColour());
 		return sb.ToString();
 	}
@@ -316,7 +316,7 @@ And the result would be a number with the value of #233#0.".SubstituteANSIColour
 				sb.Append(function.ParameterNames?.ElementAt(i) ?? $"var{i}");
 				sb.Append(": ");
 				sb.AppendLine(function.ParameterHelp?.ElementAt(i).FluentColour(Telnet.Yellow, colour) ??
-				              "no help available".ColourError(colour));
+							  "no help available".ColourError(colour));
 			}
 
 			sb.AppendLine();
@@ -335,8 +335,8 @@ And the result would be a number with the value of #233#0.".SubstituteANSIColour
 
 		var which = ss.SafeRemainingArgument;
 		var functions = FutureProg.FutureProg.GetFunctionCompilerInformations()
-		                          .Where(x => x.FunctionName.EqualTo(which))
-		                          .ToList();
+								  .Where(x => x.FunctionName.EqualTo(which))
+								  .ToList();
 
 		if (!functions.Any())
 		{
@@ -359,9 +359,9 @@ And the result would be a number with the value of #233#0.".SubstituteANSIColour
 				colour ? Telnet.BoldGreen : null, colour ? Telnet.BoldYellow : null));
 			sb.AppendLine();
 			foreach (var function in category
-			                         .OrderBy(x => x.FunctionName)
-			                         .ThenBy(x => x.Parameters.Count())
-			                         .Select(x => x.FunctionDisplayForm))
+									 .OrderBy(x => x.FunctionName)
+									 .ThenBy(x => x.Parameters.Count())
+									 .Select(x => x.FunctionDisplayForm))
 			{
 				sb.AppendLine($"\t{function}");
 			}
@@ -523,8 +523,8 @@ A function (See PROG HELP FUNCTIONS) can also function as a statement on a line.
 
 		var category = ss.PopSpeech();
 		var progs = actor.Gameworld.FutureProgs
-		                 .Where(x => x.Category.StartsWith(category, StringComparison.InvariantCultureIgnoreCase))
-		                 .ToList();
+						 .Where(x => x.Category.StartsWith(category, StringComparison.InvariantCultureIgnoreCase))
+						 .ToList();
 		if (!progs.Any())
 		{
 			actor.OutputHandler.Send("There are no progs in that category.");
@@ -1299,6 +1299,10 @@ A function (See PROG HELP FUNCTIONS) can also function as a statement on a line.
 					return (null, false);
 				}
 				return (crime, true);
+			case FutureProgVariableTypes.Effect:
+			case FutureProgVariableTypes.Outfit:
+			case FutureProgVariableTypes.OutfitItem:
+			case FutureProgVariableTypes.Material:
 			default:
 				actor.Send(
 					$"The variable type {type.Describe().Colour(Telnet.VariableCyan)} is not yet supported in this command. Sorry.");
@@ -1341,7 +1345,7 @@ A function (See PROG HELP FUNCTIONS) can also function as a statement on a line.
 		{
 			sb.AppendLineFormat(actor, "This prog has the following parameters:\n\n{0}",
 				prog.NamedParameters.Select(x => $"\t{x.Item2.Colour(Telnet.VariableCyan)} {"as".Colour(Telnet.KeywordBlue)} {x.Item1.Describe().Colour(Telnet.VariableGreen)}")
-				    .ListToString("\t", "\n", "", "\n")
+					.ListToString("\t", "\n", "", "\n")
 			);
 		}
 
@@ -2011,8 +2015,8 @@ The syntax for setting up register variables is as follows:
 
 To use these variables in your progs, you can use the following two snippets:
 
-    #6GetRegister(@thing, ""variable name"")#0 - retrieves a register variable
-    #6SetRegister @thing ""variable name"" @value#0 - sets a register variable. Note that this is a statement not a function.
+	#6GetRegister(@thing, ""variable name"")#0 - retrieves a register variable
+	#6SetRegister @thing ""variable name"" @value#0 - sets a register variable. Note that this is a statement not a function.
 
 To see a list of types, use #3prog help types#0.
 To see what register values a room, item or character has use the #3sniff#0 command.";
@@ -2057,13 +2061,13 @@ To see what register values a room, item or character has use the #3sniff#0 comm
 		}
 
 		if (type.HasFlag(FutureProgVariableTypes.Collection) ||
-		    type.HasFlag(FutureProgVariableTypes.CollectionItem) ||
-		    type.HasFlag(FutureProgVariableTypes.Perceivable) ||
-		    type.HasFlag(FutureProgVariableTypes.Perceiver) ||
-		    type.HasFlag(FutureProgVariableTypes.MagicResourceHaver) ||
-		    type.HasFlag(FutureProgVariableTypes.CollectionDictionary) ||
-		    type.HasFlag(FutureProgVariableTypes.Dictionary) ||
-		    type.CompatibleWith(FutureProgVariableTypes.ValueType)
+			type.HasFlag(FutureProgVariableTypes.CollectionItem) ||
+			type.HasFlag(FutureProgVariableTypes.Perceivable) ||
+			type.HasFlag(FutureProgVariableTypes.Perceiver) ||
+			type.HasFlag(FutureProgVariableTypes.MagicResourceHaver) ||
+			type.HasFlag(FutureProgVariableTypes.CollectionDictionary) ||
+			type.HasFlag(FutureProgVariableTypes.Dictionary) ||
+			type.CompatibleWith(FutureProgVariableTypes.ValueType)
 		   )
 		{
 			actor.Send("That type cannot have any declared variables.");
@@ -2170,13 +2174,13 @@ To see what register values a room, item or character has use the #3sniff#0 comm
 		}
 
 		if (type.HasFlag(FutureProgVariableTypes.Collection) ||
-		    type.HasFlag(FutureProgVariableTypes.CollectionItem) ||
-		    type.HasFlag(FutureProgVariableTypes.Perceivable) ||
-		    type.HasFlag(FutureProgVariableTypes.Perceiver) ||
-		    type.HasFlag(FutureProgVariableTypes.MagicResourceHaver) ||
-		    type.HasFlag(FutureProgVariableTypes.CollectionDictionary) ||
-		    type.HasFlag(FutureProgVariableTypes.Dictionary) ||
-		    type.CompatibleWith(FutureProgVariableTypes.ValueType)
+			type.HasFlag(FutureProgVariableTypes.CollectionItem) ||
+			type.HasFlag(FutureProgVariableTypes.Perceivable) ||
+			type.HasFlag(FutureProgVariableTypes.Perceiver) ||
+			type.HasFlag(FutureProgVariableTypes.MagicResourceHaver) ||
+			type.HasFlag(FutureProgVariableTypes.CollectionDictionary) ||
+			type.HasFlag(FutureProgVariableTypes.Dictionary) ||
+			type.CompatibleWith(FutureProgVariableTypes.ValueType)
 		   )
 		{
 			actor.Send("That type cannot have any declared variables.");
@@ -2226,7 +2230,7 @@ To see what register values a room, item or character has use the #3sniff#0 comm
 		}
 
 		if (type.HasFlag(FutureProgVariableTypes.Collection) || type.HasFlag(FutureProgVariableTypes.CollectionItem) ||
-		    type.HasFlag(FutureProgVariableTypes.Perceivable) || type.HasFlag(FutureProgVariableTypes.Perceiver))
+			type.HasFlag(FutureProgVariableTypes.Perceivable) || type.HasFlag(FutureProgVariableTypes.Perceiver))
 		{
 			actor.Send("That type cannot have any declared variables.");
 			return;
@@ -2274,7 +2278,7 @@ Once you have a prog that matches the right call signature for an event, you cre
 Note - you may need to restart the game for some hook-related changes to take effect. Generally it's good practice to reboot after doing anything much which these.
 
 The syntax for this command is as follows:
-    
+	
 	#3hook list [<filters>]#0 - lists all of the hooks
 	#3hook create <name> <prog> <event>#0 - creates a new hook for an event
 	#3hook create <name> <prog> CommandInput|SelfCommandInput <command>#0 - creates a new hook for a command input
@@ -2727,7 +2731,7 @@ You can use the following filters with #3hook list#0:
 		}
 
 		if (actor.Gameworld.DefaultHooks.Any(x =>
-			    x.PerceivableType.EqualTo(type) && x.Hook == hook && x.EligibilityProg == prog))
+				x.PerceivableType.EqualTo(type) && x.Hook == hook && x.EligibilityProg == prog))
 		{
 			actor.OutputHandler.Send("There is already a default hook with that combination of parameters.");
 			return;

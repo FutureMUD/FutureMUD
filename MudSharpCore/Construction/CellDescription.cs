@@ -9,6 +9,7 @@ using MudSharp.Celestial;
 using MudSharp.Character;
 using MudSharp.Climate;
 using MudSharp.Economy;
+using MudSharp.Effects.Concrete;
 using MudSharp.Effects.Interfaces;
 using MudSharp.Form.Shape;
 using MudSharp.Framework;
@@ -555,6 +556,11 @@ public partial class Cell
 			}
 
 			descSubSB.AppendLine($"You can use the JOBS and JOB commands here.".ColourIncludingReset(Telnet.Yellow));
+		}
+
+		if (Characters.Any(x => x.AffectedBy<OnTrial>()))
+		{
+			descSubSB.AppendLine("There is a trial taking place here. You can use the TRIAL command to see details.".ColourIncludingReset(Telnet.BoldOrange));
 		}
 
 		sb.Append(descSubSB.ToString().Wrap(character.Account.InnerLineFormatLength));

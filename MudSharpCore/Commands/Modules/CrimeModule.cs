@@ -104,6 +104,7 @@ The syntax is as follows:
 					from crime in combined
 					select new List<string>
 					{
+						crime.Id.ToStringN0(actor),
 						crime.Name,
 						crime.Victim?.HowSeen(actor) ?? "",
 						crime.TimeOfCrime.ToString(CalendarDisplayMode.Short, TimeDisplayTypes.Short),
@@ -113,6 +114,7 @@ The syntax is as follows:
 					},
 					new List<string>
 					{
+						"Id",
 						"Crime",
 						"Victim",
 						"Time",
@@ -198,28 +200,30 @@ The syntax is as follows:
 			combined = combined.OrderBy(x => x.HasBeenFinalised)
 			                     .ThenBy(x => x.RealTimeOfCrime)
 			                     .ToList();
-			
+
 			sb.AppendLine(StringUtilities.GetTextTable(
 				from crime in actor.IsAdministrator() ? combined : known
 				select new List<string>
 				{
-						crime.Name,
-						crime.Victim?.HowSeen(actor) ?? "",
-						crime.TimeOfCrime.ToString(CalendarDisplayMode.Short, TimeDisplayTypes.Short),
-						crime.CrimeLocation?.GetOverlayFor(actor).CellName ?? "",
-						crime.HasBeenEnforced.ToColouredString(),
-						crime.HasBeenFinalised ? (crime.HasBeenConvicted ? "Convicted" : "Acquitted") : "",
-						crime.IsKnownCrime.ToColouredString()
+					crime.Id.ToStringN0(actor),
+					crime.Name,
+					crime.Victim?.HowSeen(actor) ?? "",
+					crime.TimeOfCrime.ToString(CalendarDisplayMode.Short, TimeDisplayTypes.Short),
+					crime.CrimeLocation?.GetOverlayFor(actor).CellName ?? "",
+					crime.HasBeenEnforced.ToColouredString(),
+					crime.HasBeenFinalised ? (crime.HasBeenConvicted ? "Convicted" : "Acquitted") : "",
+					crime.IsKnownCrime.ToColouredString()
 				},
 				new List<string>
 				{
-						"Crime",
-						"Victim",
-						"Time",
-						"Location",
-						"Enforced?",
-						"Outcome",
-						"Known"
+					"Id",
+					"Crime",
+					"Victim",
+					"Time",
+					"Location",
+					"Enforced?",
+					"Outcome",
+					"Known"
 				},
 				actor,
 				Telnet.Red
@@ -311,6 +315,7 @@ The syntax for this command is as follows:
 				from crime in combined
 				select new List<string>
 				{
+					crime.Id.ToStringN0(actor),
 					crime.Name,
 					crime.Victim?.HowSeen(actor) ?? "",
 					crime.TimeOfCrime.ToString(CalendarDisplayMode.Short, TimeDisplayTypes.Short),
@@ -321,6 +326,7 @@ The syntax for this command is as follows:
 				},
 				new List<string>
 				{
+					"Id",
 					"Crime",
 					"Victim",
 					"Time",
@@ -715,6 +721,7 @@ The syntax is #3plead guilty#0 or #3plead innocent#0.", AutoHelp.HelpArgOrNoArg)
 		}
 
 		actor.RemoveEffect(pleaEffect);
+		trialEffect.LastTrialAction = DateTime.MinValue;
 	}
 
 	[PlayerCommand("Argue", "argue")]
@@ -1022,19 +1029,6 @@ The syntax is #3crimeinfo <id>#0.", AutoHelp.HelpArg)]
 			return;
 		}
 
-		var legals = actor.Gameworld.LegalAuthorities
-		                  .Where(x =>
-			                  x.EnforcementZones.Contains(actor.Location.Zone) &&
-			                  (actor.IsAdministrator() || x.GetEnforcementAuthority(actor) is not null)
-		                  )
-		                  .ToList();
-		
-		if (legals.Count == 0)
-		{
-			actor.OutputHandler.Send("You are not in any enforcement zone for a legal authority.");
-			return;
-		}
-
 		var crime = actor.Gameworld.Crimes.GetById(ss.SafeRemainingArgument);
 		if (crime is null || 
 		(
@@ -1309,6 +1303,9 @@ There are the following syntaxes for this command:
 
 	[PlayerCommand("Patrols", "patrols")]
 	[RequiredCharacterState(CharacterState.Able)]
+	[HelpInfo("patrols", @"The #3patrols#0 command allows you to view active patrols for an enforcement zone. This command can only be used by enforcers and admins.
+
+The syntax is either #3patrols#0 or #3patrols <jurisdiction>#0 if you are an enforcer for multiple jurisdictions.", AutoHelp.HelpArg)]
 	protected static void Patrols(ICharacter actor, string input)
 	{
 		var ss = new StringStack(input.RemoveFirstWord());
@@ -1507,6 +1504,15 @@ The syntax for this command is simply #3requesttrial#0.", AutoHelp.HelpArg)]
 
 	[PlayerCommand("BailOut", "bailout")]
 	[RequiredCharacterState(CharacterState.Able)]
+	[HelpInfo("bailout", @"The #3bailout#0 command is used to either request bail for yourself when incarcerated or pay for the bail of someone else.
+
+You must either be in custody yourself or at the prison location of the jurisdiction to use this command.
+
+The syntax is as follows:
+
+	#3bailout#0 - bail yourself out with cash from your confiscated belongings
+	#3bailout me|<target> [<bank account>]#0 - bail yourself or a target with cash or a bank account
+	#3bailout list#0 - shows you a list of people who can be bailed out", AutoHelp.HelpArg)]
 	protected static void BailOut(ICharacter actor, string input)
 	{
 		var ss = new StringStack(input.RemoveFirstWord());
@@ -1546,6 +1552,12 @@ The syntax for this command is simply #3requesttrial#0.", AutoHelp.HelpArg)]
 					if (!account.IsAuthorisedAccountUser(actor))
 					{
 						actor.OutputHandler.Send($"You are not an authorised person for that bank account.");
+						return;
+					}
+					
+					if (account.Currency != authority.Currency)
+					{
+						actor.OutputHandler.Send("That bank account uses the wrong currency to pay bail in this jurisdiction.");
 						return;
 					}
 
@@ -1693,6 +1705,12 @@ The syntax for this command is simply #3requesttrial#0.", AutoHelp.HelpArg)]
 				actor.OutputHandler.Send($"You are not an authorised person for that bank account.");
 				return;
 			}
+			
+			if (account.Currency != jurisdiction.Currency)
+			{
+				actor.OutputHandler.Send("That bank account uses the wrong currency to pay bail in this jurisdiction.");
+				return;
+			}
 
 			var (truth, withdrawError) = account.CanWithdraw(calculatedBail, true);
 			if (!truth)
@@ -1747,6 +1765,11 @@ The syntax for this command is simply #3requesttrial#0.", AutoHelp.HelpArg)]
 
 	[PlayerCommand("ReturnBail", "returnbail")]
 	[RequiredCharacterState(CharacterState.Able)]
+	[HelpInfo("returnbail", @"The #3returnbail#0 command is used to surrender yourself back to the custody of law enforcement when you are out on bail. You must do this before your bail term expires to avoid a criminal charge of skipping bail.
+
+You must use this command from the jurisdiction's prison location.
+
+The syntax is simply #3returnbail#0.", AutoHelp.HelpArg)]
 	protected static void ReturnBail(ICharacter actor, string input)
 	{
 		var jurisdiction = actor.Gameworld.LegalAuthorities.FirstOrDefault(x => x.PrisonLocation == actor.Location);
@@ -1800,11 +1823,22 @@ The syntax for this command is simply #3requesttrial#0.", AutoHelp.HelpArg)]
 
 	[PlayerCommand("EngageLawyer", "engagelawyer")]
 	[RequiredCharacterState(CharacterState.Able)]
+	[HelpInfo("engagelawyer", @"The #3engagelawyer#0 command is used to procure a lawyer to argue for you in a criminal trial. You can also use it to recruit a lawyer for others who are imprisoned.
+
+Once you have engaged a lawyer, they will automatically attend your trial and defend you. The fee paid is taken immediately and cannot be refunded.
+
+You must either be in custody or otherwise at the jurisdiction's prison location to use this command.
+
+The syntax is as follows:
+
+	#3engagelawyer list#0 - see a list of people who could have lawyers engaged
+	#3engagelawyer me|<target>#0 - see a list of lawyers you could hire
+	#3engagelawyer me|<target> <which> [<bank account>] - engage a specific lawyer, paying with either cash or a bank account", AutoHelp.HelpArgOrNoArg)]
 	protected static void EngageLawyer(ICharacter actor, string input)
 	{
 		var ss = new StringStack(input.RemoveFirstWord());
 		var who = actor;
-		var courtLawyers = actor.Gameworld.Characters
+		var courtLawyers = actor.Gameworld.Actors
 		                            .OfType<INPC>()
 		                            .Select(x => (NPC: x, AI: x.AIs.OfType<LawyerAI>().FirstOrDefault()))
 		                            .Where(x => x.AI is not null)
@@ -1868,9 +1902,15 @@ The syntax for this command is simply #3requesttrial#0.", AutoHelp.HelpArg)]
 					$"There is no such prisoner who does not have legal representation currently on remand. Please see {"ENGAGELAWYER LIST".MXPSend("bailout list")} for a list of prisoners needing legal counsel.");
 				return;
 			}
+
+			if (who.AffectedBy<HasLegalCounsel>())
+			{
+				actor.OutputHandler.Send($"{who.HowSeen(actor, true, flags: PerceiveIgnoreFlags.IgnoreCanSee)} already has legal representation.");
+				return;
+			}
 		}
 
-		var availableLawyers = courtLawyers.Where(x => x.AI.AvailableToHire(who, jurisdiction, false)).ToList();
+		var availableLawyers = courtLawyers.Where(x => x.AI.AvailableToHire(x.NPC, jurisdiction, false)).ToList();
 		if (ss.IsFinished || ss.SafeRemainingArgument.EqualTo("list"))
 		{
 			if (availableLawyers.Count == 0)
@@ -1912,7 +1952,7 @@ The syntax for this command is simply #3requesttrial#0.", AutoHelp.HelpArg)]
 		var fee = ai.FeeProg.ExecuteDecimal(who, target);
 		string actionText;
 		var lawyerBankAccount = ai.BankAccountProg?.Execute<IBankAccount>(target);
-		if (ss.IsFinished)
+		if (!ss.IsFinished)
 		{
 			var (account, error) = Bank.FindBankAccount(ss.SafeRemainingArgument, null, actor);
 			if (account is null)
@@ -1924,6 +1964,12 @@ The syntax for this command is simply #3requesttrial#0.", AutoHelp.HelpArg)]
 			if (!account.IsAuthorisedAccountUser(actor))
 			{
 				actor.OutputHandler.Send($"You are not an authorised person for that bank account.");
+				return;
+			}
+
+			if (account.Currency != jurisdiction.Currency)
+			{
+				actor.OutputHandler.Send("That bank account uses the wrong currency to pay legal costs in this jurisdiction.");
 				return;
 			}
 
@@ -1965,5 +2011,147 @@ The syntax for this command is simply #3requesttrial#0.", AutoHelp.HelpArg)]
 
 		target.AddEffect(new Lawyering(target, jurisdiction){EngagedByCharacter = who});
 		who.AddEffect(new HasLegalCounsel(who, target));
+	}
+
+	[PlayerCommand("PayFine", "payfine")]
+	[RequiredCharacterState(CharacterState.Able)]
+	[HelpInfo("payfine", @"The #3payfine#0 command is used to pay fines that you owe in a legal jurisdiction because of crimes you have been convicted of. You must use this command from the prison location of the legal jurisdiction.
+
+The syntax is as follows:
+
+	#3payfine#0 - shows a list of crimes you could pay a fine for
+	#3payfine <crime> [<bank account>]#0 - pays a fine for a crime with either cash or a bank account
+	#3payfine all [<bank account>]#0 - pays a fine for all owing crimes with either cash or a bank account", AutoHelp.HelpArgOrNoArg)]
+	protected static void PayFine(ICharacter actor, string input)
+	{
+		var ss = new StringStack(input.RemoveFirstWord());
+		var jurisdiction = actor.Gameworld.LegalAuthorities.FirstOrDefault(x => x.PrisonLocation == actor.Location);
+		if (jurisdiction is null)
+		{
+			actor.OutputHandler.Send($"You are not at the prison location of any legal jurisdiction.");
+			return;
+		}
+
+		var (fine, _) = jurisdiction.FinesOwed(actor);
+		if (fine <= 0.0M)
+		{
+			actor.OutputHandler.Send("You don't owe any fines in this jurisdiction.");
+			return;
+		}
+
+		var crimesWithFines = jurisdiction.ResolvedCrimesForIndividual(actor).Where(x => x.FineRecorded > 0.0M && !x.FineHasBeenPaid).ToList();
+		var crimes = new List<ICrime>();
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send($"You must either specify a crime to pay a fine for, or use {"all".ColourCommand()} to pay all your fines.\nYou have the following crimes with unpaid fines:\n\n{crimesWithFines.Select(x => $"\t#{x.Id.ToStringN0(actor)} - {x.Name.ColourName()} - {jurisdiction.Currency.Describe(x.FineRecorded, CurrencyDescriptionPatternType.ShortDecimal).ColourValue()}").ListToLines()}");
+			return;
+		}
+
+		if (ss.PeekSpeech().EqualTo("all"))
+		{
+			crimes.AddRange(crimesWithFines);
+		}
+		else
+		{
+			var crime = crimesWithFines.GetByIdOrName(ss.PopSpeech());
+			if (crime is null)
+			{
+				actor.OutputHandler.Send($"You don't owe fines on any crime identified by the text {ss.Last.ColourCommand()}.\nYou have the following crimes with unpaid fines:\n\n{crimesWithFines.Select(x => $"\t#{x.Id.ToStringN0(actor)} - {x.Name.ColourName()} - {jurisdiction.Currency.Describe(x.FineRecorded, CurrencyDescriptionPatternType.ShortDecimal).ColourValue()}").ListToLines()}");
+				return;
+			}
+
+			crimes.Add(crime);
+		}
+
+		string actionText;
+		if (!ss.IsFinished)
+		{
+			var (account, error) = Bank.FindBankAccount(ss.SafeRemainingArgument, null, actor);
+			if (account is null)
+			{
+				actor.OutputHandler.Send(error);
+				return;
+			}
+
+			if (!account.IsAuthorisedAccountUser(actor))
+			{
+				actor.OutputHandler.Send($"You are not an authorised person for that bank account.");
+				return;
+			}
+
+			if (account.Currency != jurisdiction.Currency)
+			{
+				actor.OutputHandler.Send("That bank account uses the wrong currency to pay fines in this jurisdiction.");
+				return;
+			}
+
+			var (truth, withdrawError) = account.CanWithdraw(fine, true);
+			if (!truth)
+			{
+				actor.OutputHandler.Send(withdrawError);
+				return;
+			}
+
+			account.WithdrawFromTransaction(fine, "Paying fines");
+			actionText = $"with funds from the bank account {account.AccountReference.ColourValue()}";
+		}
+		else
+		{
+			var payment = new OtherCashPayment(jurisdiction.Currency, actor);
+			if (payment.AccessibleMoneyForPayment() < fine)
+			{
+				actor.OutputHandler.Send(
+					$"You aren't holding enough money to pay {jurisdiction.Currency.Describe(fine, CurrencyDescriptionPatternType.ShortDecimal).ColourValue()} in legal fees.\nYou are only holding {jurisdiction.Currency.Describe(payment.AccessibleMoneyForPayment(), CurrencyDescriptionPatternType.Short).ColourValue()}.");
+				return;
+			}
+
+			payment.TakePayment(fine);
+			actionText = "with cash";
+		}
+
+		actor.OutputHandler.Handle(new EmoteOutput(new Emote($"@ pay|pays {jurisdiction.Currency.Describe(fine, CurrencyDescriptionPatternType.ShortDecimal).ColourValue()} in fines {actionText}.", actor, actor)));
+		foreach (var crime in crimes)
+		{
+			jurisdiction.PayFine(actor, crime);
+		}
+
+		(fine, var date) = jurisdiction.FinesOwed(actor);
+		if (fine > 0.0M)
+		{
+			actor.OutputHandler.Send($"You still owe {jurisdiction.Currency.Describe(fine, CurrencyDescriptionPatternType.ShortDecimal).ColourValue()} in fines and must pay by {date.ToString().ColourValue()} to avoid further trouble.");
+		}
+	}
+
+	[PlayerCommand("Trial", "trial")]
+	[RequiredCharacterState(CharacterState.Able)]
+	[HelpInfo("trial", @"The #3trial#0 command will show you details about any trial currently taking place in your location.
+
+The syntax is simply #3trial#0.", AutoHelp.HelpArg)]
+	protected static void Trial(ICharacter actor, string input)
+	{
+		var trial = actor.Location.Characters.SelectNotNull(x => x.EffectsOfType<OnTrial>().FirstOrDefault()).FirstOrDefault();
+		if (trial is null)
+		{
+			actor.OutputHandler.Send("There aren't currently any trials going on at your location.");
+			return;
+		}
+
+		var sb = new StringBuilder();
+		sb.AppendLine("Trial in Progress".GetLineWithTitleInner(actor, Telnet.BoldOrange, Telnet.BoldWhite));
+		sb.AppendLine();
+		sb.AppendLine($"Defendant: {trial.Owner.HowSeen(actor)}");
+		var judge = actor.Location.Characters
+		                 .FirstOrDefault(x => 
+			                 x.EffectsOfType<PatrolMemberEffect>()
+			                  .Any(y => 
+				                  y.Patrol.LegalAuthority == trial.LegalAuthority &&
+								  y.Patrol.PatrolStrategy.Name == "Judge"
+				                  )
+			                  );
+		sb.AppendLine($"Judge: {judge?.HowSeen(actor) ?? "Unknown".ColourError()}");
+		sb.AppendLine($"Prosecutor: {trial.Prosecutor?.HowSeen(actor) ?? "Unknown".ColourError()}");
+		sb.AppendLine($"Defense Lawyer: {trial.Defender?.HowSeen(actor) ?? "Unknown".ColourError()}");
+		sb.AppendLine($"Trial Phase: {trial.Phase.DescribeEnum(true).ColourValue()}");
+		actor.OutputHandler.Send(sb.ToString());
 	}
 }

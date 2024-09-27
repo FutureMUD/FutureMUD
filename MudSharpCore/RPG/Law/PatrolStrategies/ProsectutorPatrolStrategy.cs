@@ -89,13 +89,13 @@ public class ProsectutorPatrolStrategy : PatrolStrategyBase
 		}
 
 		// Argue in the trials
-		var trial = patrol.PatrolLeader.Location.Characters.SelectNotNull(x => x.EffectsOfType<OnTrial>().First()).FirstOrDefault();
+		var trial = patrol.PatrolLeader.Location.Characters.SelectNotNull(x => x.EffectsOfType<OnTrial>().FirstOrDefault()).FirstOrDefault();
 		if (trial is null)
 		{
 			return;
 		}
 
-		if (trial.Phase.In(TrialPhase.Case, TrialPhase.ClosingArguments))
+		if (trial.Phase.In(TrialPhase.Case, TrialPhase.ClosingArguments) && Dice.Roll(1, 3) == 1)
 		{
 			trial.HandleArgueCommand(patrol.PatrolLeader, false);
 		}

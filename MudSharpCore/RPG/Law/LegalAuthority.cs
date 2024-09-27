@@ -672,9 +672,40 @@ public partial class LegalAuthority : SaveableItem, ILegalAuthority
 		}
 	}
 
+	public (decimal Fine, MudDateTime DueDate) FinesOwed(ICharacter criminal)
+	{
+		if (_finesOwed[criminal.Id] == 0.0M)
+		{
+			return (0.0M, MudDateTime.Never);
+		}
+
+		return (_finesOwed[criminal.Id], _finePaymentDueDates[criminal.Id]);
+	}
+
+	public void PayFine(ICharacter criminal, ICrime crime)
+	{
+		if (crime.FineRecorded <= 0.0M)
+		{
+			return;
+		}
+
+		if (BankAccount != null)
+		{
+			BankAccount.DepositFromTransaction(crime.FineRecorded, $"Fine paid by {criminal.PersonalName.GetName(NameStyle.FullName)}");
+		}
+
+		crime.FineHasBeenPaid = true;
+		_finesOwed[criminal.Id] -= crime.FineRecorded;
+	}
+
 	public IEnumerable<ICrime> CheckPossibleCrime(ICharacter criminal, CrimeTypes crime, ICharacter victim,
 		IGameItem item, string additionalInformation)
 	{
+		if (criminal.IsAdministrator())
+		{
+			return Enumerable.Empty<ICrime>();
+		}
+
 		if (!EnforcementZones.Contains(criminal.Location.Zone))
 		{
 			return Enumerable.Empty<ICrime>();
@@ -707,7 +738,7 @@ public partial class LegalAuthority : SaveableItem, ILegalAuthority
 
 			var witnesses = criminal.Location.LayerCharacters(criminal.RoomLayer).Except(criminal)
 									.Where(x => x.CanSee(criminal)).ToList();
-			var newCrime = new Crime(criminal, victim, witnesses, law);
+			var newCrime = new Crime(criminal, victim, witnesses, law, item);
 			_unknownCrimes.Add(newCrime);
 			_unknownCrimesLookup.Add(criminal.Id, newCrime);
 			Gameworld.Add(newCrime);

@@ -258,6 +258,16 @@ public class SaveManager : ISaveManager
 					sb.AppendLine($"[PERF] SaveStack has over 200 items in it: {_saveStack.Count}".Colour(Telnet.Orange));
 					foreach (var group in _saveStack.OfType<IFrameworkItem>().GroupBy(x => x.FrameworkItemType))
 					{
+						if (group.Key == "GameItemComponent")
+						{
+							var sub = group.OfType<IGameItemComponent>().GroupBy(x => x.Prototype.TypeDescription);
+							foreach (var subgroup in sub)
+							{
+								sb.AppendLine($"\tGameItemComponent {subgroup.Key}: {subgroup.Count()}".Colour(Telnet.FunctionYellow));
+							}
+
+							continue;
+						}
 						sb.AppendLine($"\t{group.Key}: {group.Count()}".Colour(Telnet.FunctionYellow));
 					}
 					Console.WriteLine(sb.ToString());

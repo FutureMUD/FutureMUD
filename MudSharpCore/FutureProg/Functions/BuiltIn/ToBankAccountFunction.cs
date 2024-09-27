@@ -82,7 +82,7 @@ internal class ToBankAccountFunction : BuiltInFunction
 
 	public override FutureProgVariableTypes ReturnType
 	{
-		get { return FutureProgVariableTypes.Boolean; }
+		get { return FutureProgVariableTypes.BankAccount; }
 		protected set { }
 	}
 

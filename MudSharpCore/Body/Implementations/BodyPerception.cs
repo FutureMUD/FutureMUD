@@ -11,6 +11,7 @@ using MudSharp.Communication.Language;
 using MudSharp.Construction;
 using MudSharp.Construction.Boundary;
 using MudSharp.Effects;
+using MudSharp.Effects.Concrete;
 using MudSharp.Effects.Interfaces;
 using MudSharp.Form.Characteristics;
 using MudSharp.Form.Material;
@@ -230,7 +231,7 @@ public partial class Body
 
 	public override IEnumerable<string> GetKeywordsFor(IPerceiver voyeur)
 	{
-		return GetKeywordsFromSDesc(HowSeen(voyeur, colour: false));
+		return GetKeywordsFromSDesc(HowSeen(voyeur, colour: false, flags: PerceiveIgnoreFlags.IgnoreNamesSetting));
 	}
 
 	public string ProcessDescriptionAdditions(string description, IPerceiver voyeur, bool colour, PerceiveIgnoreFlags flags)
@@ -267,13 +268,24 @@ public partial class Body
 			}
 			else if (vch.IsAdministrator())
 			{
+				string name;
 				switch (vch.Account.CharacterNameOverlaySetting)
 				{
 					case Accounts.CharacterNameOverlaySetting.AppendWithBrackets:
-						description = $"{description} {Actor.PersonalName.GetName(Character.Name.NameStyle.GivenOnly).Parentheses().Colour(Telnet.BoldWhite)}";
+						name = Actor.PersonalName.GetName(Character.Name.NameStyle.GivenOnly);
+						if (!string.IsNullOrWhiteSpace(name))
+						{
+							description = $"{description} {name.Parentheses().Colour(Telnet.BoldWhite)}";
+						}
+
 						break;
 					case Accounts.CharacterNameOverlaySetting.Replace:
-						description = Actor.PersonalName.GetName(Character.Name.NameStyle.FullName);
+						name = Actor.PersonalName.GetName(Character.Name.NameStyle.FullName);
+						if (!string.IsNullOrWhiteSpace(name))
+						{
+							description = name;
+						}
+
 						break;
 				}
 			}
@@ -303,7 +315,29 @@ public partial class Body
 		if (Actor.EffectsOfType<IDoorguardModeEffect>().Any() &&
 		    ((voyeur as ICharacter)?.IsAdministrator() ?? false))
 		{
-			sb.Append(" (doorguard)".Colour(Telnet.Cyan));
+			sb.Append(" (door guard)".Colour(Telnet.Cyan));
+		}
+
+		if (Actor.EffectsOfType<PatrolMemberEffect>().Any() &&
+		    ((voyeur as ICharacter)?.IsAdministrator() ?? false))
+		{
+			var pme = Actor.EffectsOfType<PatrolMemberEffect>().First();
+			if (pme.Patrol.PatrolStrategy.Name == "Judge")
+			{
+				sb.Append(" (judge)".Colour(Telnet.BoldPink));
+			}
+			else if (pme.Patrol.PatrolStrategy.Name == "Prosecutor")
+			{
+				sb.Append(" (prosecutor)".Colour(Telnet.BoldPink));
+			}
+			else if (pme.Patrol.PatrolStrategy.Name == "Sheriff")
+			{
+				sb.Append(" (sheriff)".Colour(Telnet.BoldPink));
+			}
+			else
+			{
+				sb.Append(" (enforcer)".Colour(Telnet.BoldPink));
+			}
 		}
 
 		return sb.ToString();

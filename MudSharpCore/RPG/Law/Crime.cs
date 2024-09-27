@@ -639,11 +639,11 @@ public class Crime : LateInitialisingItem, ICrime
 	public string ShowCrimeInfo(ICharacter enforcer)
 	{
 		var sb = new StringBuilder();
-		sb.AppendLine($"Crime #{Id.ToStringN0(enforcer)}".GetLineWithTitle(enforcer, Telnet.BoldOrange, Telnet.BoldWhite));
+		sb.AppendLine($"Crime #{Id.ToStringN0(enforcer)}".GetLineWithTitleInner(enforcer, Telnet.BoldOrange, Telnet.BoldWhite));
 		sb.AppendLine();
 		sb.AppendLine($"Law: {Law.Name.ColourName()}");
 		sb.AppendLine($"Jurisdiction: {LegalAuthority.Name.ColourValue()}");
-		sb.AppendLine($"Crime Type: {Law.CrimeType.DescribeEnum()}");
+		sb.AppendLine($"Crime Type: {Law.CrimeType.DescribeEnum(true).ColourValue()}");
 		sb.AppendLine();
 		sb.AppendLine("Criminal".GetLineWithTitleInner(enforcer, Telnet.Orange, Telnet.White));
 		sb.AppendLine();
@@ -721,6 +721,10 @@ public class Crime : LateInitialisingItem, ICrime
 			else if (IsKnownCrime)
 			{
 				sb.AppendLine($"Status: {"Wanted".Colour(Telnet.Red)}");
+			}
+			else if ((TimeOfCrime.Calendar.CurrentDateTime - TimeOfCrime) > Law.ActivePeriod)
+			{
+				sb.AppendLine($"Status: {"Stale".Colour(Telnet.BoldPink)}");
 			}
 			else
 			{

@@ -160,7 +160,12 @@ public class OnTrial : Effect, IEffect
 	{
 		return _crimes.IndexOf(crime) + 1;
 	}
-	
+
+	public bool CasesFinishedArguing()
+	{
+		return NextDefenseCrime() is null && NextProsecutionCrime() is null;
+	}
+
 	public void HandleArgueCommand(ICharacter actor, bool defense)
 	{
 		var crime = defense ? NextDefenseCrime() : NextProsecutionCrime();
@@ -172,39 +177,39 @@ public class OnTrial : Effect, IEffect
 
 		var result = defense ? ArgueCaseDefender(actor, crime) : ArgueCaseProsecution(actor, crime);
 		var primary = result[defense ? crime.DefenseDifficulty : crime.ProsecutionDifficulty];
-		string adverb = "";
+		string effectiveness = "";
 		if (primary.IsAbjectFailure)
 		{
-			adverb = "The legal arguments are complete nonsense and utterly ineffective.";
+			effectiveness = "The legal arguments are complete nonsense and utterly ineffective.".Colour(Telnet.BoldMagenta);
 		}
 		else
 		{
 			switch (primary.Outcome)
 			{
 				case Outcome.MajorFail:
-					adverb = "The case put forward is fairly weak.";
+					effectiveness = "The case put forward is fairly weak.".Colour(Telnet.Red);
 					break;
 				case Outcome.Fail:
-					adverb = "The case put forward is weak, but still plausible.";
+					effectiveness = "The case put forward is weak, but still plausible.".Colour(Telnet.Orange);
 					break;
 				case Outcome.MinorFail:
-					adverb = "The case put forward is convincing, but has some minor flaws.";
+					effectiveness = "The case put forward is convincing, but has some minor flaws.".Colour(Telnet.Yellow);
 					break;
 				case Outcome.MinorPass:
-					adverb = "The case put forward is convincing.";
+					effectiveness = "The case put forward is convincing.".Colour(Telnet.Green);
 					break;
 				case Outcome.Pass:
-					adverb = "The case put forward is solid and well supported.";
+					effectiveness = "The case put forward is solid and well supported.".Colour(Telnet.BoldGreen);
 					break;
 				case Outcome.MajorPass:
-					adverb = "The case put forward is extremely robust and almost air-tight.";
+					effectiveness = "The case put forward is extremely robust and almost air-tight.".Colour(Telnet.BoldCyan);
 					break;
 				default:
 					throw new ArgumentOutOfRangeException();
 			}
 		}
 
-		actor.OutputHandler.Handle(new EmoteOutput(new Emote($"@ argue|argues the {(defense ? "defense" : "prosecution")} case for the {ChargeNumber(crime).ToOrdinal()} charge of {crime.Name}. {adverb}", actor, actor, Owner)));
+		actor.OutputHandler.Handle(new EmoteOutput(new Emote($"@ argue|argues the {(defense ? "defense" : "prosecution")} case for the {ChargeNumber(crime).ToOrdinal()} charge of {crime.Name}.\n{effectiveness}", actor, actor, Owner)));
 	}
 
 	#region Static Initialisation

@@ -16,7 +16,8 @@ public static class PunishmentStrategyFactory
 		"bond",
 		"hierarchy",
 		"jail",
-		"execute"
+		"execute",
+		"multi"
 	};
 
 	public static IPunishmentStrategy LoadStrategy(IFuturemud gameworld, string definition, ILegalAuthority authority)
@@ -34,6 +35,8 @@ public static class PunishmentStrategyFactory
 				return new PunishmentStrategyHierarchy(gameworld, root, authority);
 			case "execute":
 				return new PunishmentStrategyExecute(gameworld, root);
+			case "multi":
+				return new PunishmentStrategyMultiple(gameworld, root, authority);
 			default:
 				throw new NotImplementedException(
 					$"Unknown punishment strategy type {root.Attribute("type")!.Value} in PunishmentStrategyFactory.");
@@ -57,6 +60,8 @@ public static class PunishmentStrategyFactory
 				return new PunishmentStrategyJail(gameworld);
 			case "execute":
 				return new PunishmentStrategyExecute(gameworld);
+			case "multi":
+				return new PunishmentStrategyMultiple(gameworld);
 		}
 
 		return null;

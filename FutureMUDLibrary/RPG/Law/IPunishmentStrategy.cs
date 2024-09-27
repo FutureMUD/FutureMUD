@@ -17,5 +17,7 @@ namespace MudSharp.RPG.Law
         bool BuildingCommand(ICharacter actor, ILegalAuthority authority, StringStack command);
         string Show(ICharacter actor);
         PunishmentResult GetResult(ICharacter actor, ICrime crime, double severity = 0.0);
+        PunishmentOptions GetOptions(ICharacter actor, ICrime crime);
+
     }
 }

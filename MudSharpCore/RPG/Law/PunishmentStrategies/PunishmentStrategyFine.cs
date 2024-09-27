@@ -117,6 +117,16 @@ public class PunishmentStrategyFine : PunishmentStrategyBase
 		};
 	}
 
+	/// <inheritdoc />
+	public override PunishmentOptions GetOptions(ICharacter actor, ICrime crime)
+	{
+		return new PunishmentOptions
+		{
+			MinimumFine = FineAmount,
+			MaximumFine = MaximumFineAmount
+		};
+	}
+
 	public override string Show(ICharacter actor)
 	{
 		var sb = new StringBuilder();

@@ -51,6 +51,7 @@ namespace MudSharp.RPG.Law
 		bool CriminalIdentityIsKnown { get; set; }
 		string DescribeCrime(IPerceiver voyeur);
 		string DescribeCrimeAtTrial(IPerceiver voyeur);
+		string ShowCrimeInfo(ICharacter enforcer);
 		void Forgive(ICharacter enforcer, string reason);
 		void Convict(ICharacter? enforcer, PunishmentResult result, string reason);
 		void Acquit(ICharacter enforcer, string reason);

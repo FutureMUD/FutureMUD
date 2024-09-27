@@ -29,7 +29,7 @@ public abstract class PunishmentStrategyBase : IPunishmentStrategy
 
 	public string HelpText => $@"You can use the following options with this punishment strategy:
 
-    onpunish <prog>|none - sets a prog that fires when this punishment is chosen{TypeSpecificHelpText}";
+	onpunish <prog>|none - sets a prog that fires when this punishment is chosen{TypeSpecificHelpText}";
 
 	public virtual bool BuildingCommand(ICharacter actor, ILegalAuthority authority, StringStack command)
 	{
@@ -83,7 +83,7 @@ public abstract class PunishmentStrategyBase : IPunishmentStrategy
 
 	public abstract string Describe(IPerceiver voyeur);
 	public abstract PunishmentResult GetResult(ICharacter actor, ICrime crime, double severity = 0);
-
+	public abstract PunishmentOptions GetOptions(ICharacter actor, ICrime crime);
 	public string SaveResult()
 	{
 		return SaveResultXElement().ToString();
@@ -103,7 +103,7 @@ public abstract class PunishmentStrategyBase : IPunishmentStrategy
 
 	protected void BaseShowText(ICharacter actor, StringBuilder sb)
 	{
-		sb.AppendLine($"OnPunish: {OnPunishProg?.MXPClickableFunctionName() ?? "None".Colour(Telnet.Red)}");
+		sb.AppendLine($"On Punish Prog: {OnPunishProg?.MXPClickableFunctionName() ?? "None".Colour(Telnet.Red)}");
 	}
 
 	public abstract string Show(ICharacter actor);

@@ -26,6 +26,11 @@ using MudSharp.NPC.AI;
 using MudSharp.RPG.Checks;
 using MudSharp.TimeAndDate.Date;
 using MudSharp.TimeAndDate.Time;
+using MudSharp.Accounts;
+using MudSharp.Construction;
+using MudSharp.Effects.Interfaces;
+using MudSharp.TimeAndDate;
+using static Mysqlx.Notice.Warning.Types;
 
 namespace MudSharp.Commands.Modules;
 
@@ -654,18 +659,6 @@ The syntax is as follows:
 		forgivencrime.LegalAuthority.CheckCharacterForCustodyChanges(who);
 	}
 
-	[PlayerCommand("BeginTrial", "begintrial")]
-	[RequiredCharacterState(CharacterState.Able)]
-	[MustBeAnEnforcer]
-	[HelpInfo("begintrial", @"", AutoHelp.HelpArg)]
-	protected static void BeginTrial(ICharacter actor, string input)
-	{
-		var ss = new StringStack(input.RemoveFirstWord());
-		if (ss.IsFinished)
-		{
-		}
-	}
-
 	[PlayerCommand("Plead", "plead")]
 	[RequiredCharacterState(CharacterState.Able)]
 	[HelpInfo("plead", @"The #3plead#0 command is used to register a plea of guilty or not guilty in a trial. The engine will direct you when the appropriate time to use this command is.
@@ -774,19 +767,414 @@ The syntax for this command is simply #3argue defense#0 or #3argue prosecution#0
 	[PlayerCommand("Convict", "convict")]
 	[RequiredCharacterState(CharacterState.Able)]
 	[MustBeAnEnforcer]
-	[HelpInfo("convict", @"", AutoHelp.HelpArg)]
+	[HelpInfo("convict", @"The #3convict#0 command is used to manually record a conviction of guilty and assign a punishment to a criminal who is being held in custody. This would be intended to be used by PC or NPC Enforcers when a trial is being roleplayed, in lieu of using the automated systems for these things.
+
+Typically this command would be used on a prisoner who another enforcer has used the #3takecustody#0 command over. Otherwise, NPC enforcers might drag them back to prison and any convictions for multiple crimes would be applied immediately rather than at a time of your choosing.
+
+Both you and the criminal need to be in the court room of the legal jurisdiction you're convicting them for.
+
+Note also the #3acquit#0 command which is used to register a finding of not guilty.
+
+There are the following syntaxes for this command:
+
+	#3convict <target>#0 - see a list of crimes you could convict a target of
+	#3convict <target> <crime ID>#0 - see what punishments you could apply for a specified crime
+	#3convict <target> <crime ID> <options>#0 - convict them of the crime, and apply the listed punishments
+
+You can use the following options for punishments, can can include multiples in your conviction:
+
+	#6death#0 - sentences them to death
+	#6jail <time>#0 - sentences them to a custodial sentence
+	#6fine <amount>#0 - sentences them to have a fine
+	#6goodbehaviour#0 - sentences them to a good behaviour bond
+	#6nothing#0 - record a conviction, but apply no punishment (must be only argument)", AutoHelp.HelpArgOrNoArg)]
 	protected static void Convict(ICharacter actor, string input)
 	{
 		var ss = new StringStack(input.RemoveFirstWord());
+		var authorities = actor.Gameworld.LegalAuthorities.WhereNotNull(x => x.GetEnforcementAuthority(actor))
+		                       .ToList();
+		var jurisdiction = authorities.FirstOrDefault(x => x.CourtLocation == actor.Location);
+		if (jurisdiction is null)
+		{
+			actor.OutputHandler.Send("You and your target must be in the court room of the legal jurisdiction that you want to convict someone in.");
+			return;
+		}
+
+		var target = actor.TargetActor(ss.PopSpeech());
+		if (target is null)
+		{
+			actor.OutputHandler.Send("You don't see anyone here like that.");
+			return;
+		}
+
+		if (target == actor)
+		{
+			actor.OutputHandler.Send("You cannot convict yourself of crimes.");
+			return;
+		}
+
+		var targetClass = jurisdiction.GetLegalClass(target);
+		var enforcement = jurisdiction.GetEnforcementAuthority(actor);
+		if (enforcement is not null)
+		{
+			if (!enforcement.CanConvict)
+			{
+				actor.OutputHandler.Send($"Your level of enforcement authority in the {jurisdiction.Name.ColourName()} jurisdiction is insufficient to judge people.");
+				return;
+			}
+
+			if (!enforcement.AccusableClasses.Contains(targetClass))
+			{
+				actor.OutputHandler.Send($"Your level of enforcement authority does not allow you to judge members of the {targetClass.Name.ColourName()} legal class.");
+				return;
+			}
+		}
+
+		if (target.AffectedBy<OnTrial>())
+		{
+			actor.OutputHandler.Send("Your target is already on trial, and cannot have manual judgements recorded at this time.");
+			return;
+		}
+
+		var crimes = jurisdiction.KnownCrimesForIndividual(target).ToList();
+		if (crimes.Count == 0)
+		{
+			actor.OutputHandler.Send($"{target.HowSeen(actor, true)} hasn't committed any crimes in this jurisdiction that you're aware of or that they haven't already been punished for.");
+			return;
+		}
+
+		if (ss.IsFinished)
+		{
+			var sb = new StringBuilder();
+			sb.AppendLine($"You can convict {target.HowSeen(actor)} of the following crimes in the {jurisdiction.Name.ColourName()} jurisdiction:");
+			sb.AppendLine();
+			
+			crimes = crimes.OrderBy(x => x.RealTimeOfCrime).ToList();
+
+			sb.AppendLine(StringUtilities.GetTextTable(
+				from crime in crimes
+				select new List<string>
+				{
+					crime.Id.ToStringN0(actor),
+					crime.Name,
+					crime.Victim?.HowSeen(actor) ?? "",
+					crime.TimeOfCrime.ToString(CalendarDisplayMode.Short, TimeDisplayTypes.Short),
+					crime.CrimeLocation?.GetOverlayFor(actor).CellName ?? "",
+					crime.HasBeenEnforced.ToColouredString(),
+				},
+				new List<string>
+				{
+					"Id",
+					"Crime",
+					"Victim",
+					"Time",
+					"Location",
+					"Enforced?"
+				},
+				actor,
+				Telnet.Red
+			));
+			sb.AppendLine();
+			sb.AppendLine("You can use the #3crimeinfo <id>#0 command to see more details about each of the crimes.");
+			actor.OutputHandler.Send(sb.ToString());
+			return;
+		}
+
+		var targetCrime = crimes.GetByIdOrName(ss.PopSpeech());
+		if (targetCrime is null)
+		{
+			actor.OutputHandler.Send($"{target.HowSeen(actor, true)} has not committed any such crime that you know about.");
+			return;
+		}
+
+		var options = targetCrime.Law.PunishmentStrategy.GetOptions(target, targetCrime);
+		if (ss.IsFinished)
+		{
+			var optionTexts = new List<string>();
+			var index = 1;
+			if (options.CanBeExecuted)
+			{
+				optionTexts.Add($"{index++.ToStringN0(actor)}) #1Death#0".SubstituteANSIColour());
+			}
+
+			if (options.GoodBehaviourBondLength > MudTimeSpan.Zero)
+			{
+				optionTexts.Add($"{index++.ToStringN0(actor)}) #BGood Behaviour#0 for #2{options.GoodBehaviourBondLength.Describe(actor)}#0".SubstituteANSIColour());
+			}
+
+			if (options.MaximumFine > 0.0M)
+			{
+				optionTexts.Add($"{index++.ToStringN0(actor)}) A fine of between #2{jurisdiction.Currency.Describe(options.MinimumFine, CurrencyDescriptionPatternType.ShortDecimal)}#0 and #2{jurisdiction.Currency.Describe(options.MaximumFine, CurrencyDescriptionPatternType.ShortDecimal)}#0".SubstituteANSIColour());
+			}
+
+			if (options.MaximumCustodialSentence > MudTimeSpan.Zero)
+			{
+				optionTexts.Add($"{index.ToStringN0(actor)}) Jail for between #2{options.MinimumCustodialSentence.Describe(actor)}#0 and #2{options.MaximumCustodialSentence.Describe()}#0".SubstituteANSIColour());
+			}
+
+			if (optionTexts.Count == 0)
+			{
+				actor.OutputHandler.Send($"There is no punishment for the crime of {targetCrime.DescribeCrimeAtTrial(actor)}, but you can still convict them with a consequence of 'nothing'.");
+				return;
+			}
+
+			actor.OutputHandler.Send($"For the crime of {targetCrime.DescribeCrimeAtTrial(actor)}, you could sentence the offender to any combination of the following options:\n\n{optionTexts.ListToLines(true)}");
+			return;
+		}
+
+		var punishment = new PunishmentResult();
+		while (!ss.IsFinished)
+		{
+			switch (ss.PopForSwitch())
+			{
+				case "nothing":
+					break;
+				case "death":
+				case "execution":
+				case "execute":
+					punishment += new PunishmentResult { Execution = true };
+					break;
+				case "fine":
+					if (ss.IsFinished)
+					{
+						actor.OutputHandler.Send("How much of a fine do you want to levy?");
+						return;
+					}
+
+					var amountText = ss.PopSpeech();
+					if (!jurisdiction.Currency.TryGetBaseCurrency(amountText, out var amount))
+					{
+						actor.OutputHandler.Send($"The text {amountText.ColourCommand()} is not a valid amount of {jurisdiction.Currency.Name.ColourValue()}.");
+						return;
+					}
+
+					punishment += new PunishmentResult { Fine = amount };
+					break;
+				case "behaviour":
+				case "behavior":
+				case "goodbehaviour":
+				case "goodbehavior":
+					punishment += new PunishmentResult { GoodBehaviourBondLength = options.GoodBehaviourBondLength };
+					break;
+				case "jail":
+				case "goal":
+				case "prison":
+				case "imprison":
+				case "imprisonment":
+					if (ss.IsFinished)
+					{
+						actor.OutputHandler.Send("How long do you want to sent them to prison for?");
+						return;
+					}
+
+					if (!MudTimeSpan.TryParse(ss.PopSpeech(), actor, out var ts))
+					{
+						actor.OutputHandler.Send($"The text {ss.Last.ColourCommand()} is not a valid timespan.");
+						return;
+					}
+
+					punishment += new PunishmentResult { CustodialSentence = ts };
+					break;
+				default:
+					actor.OutputHandler.Send($"The text #3{ss.Last}#0 is not a valid punishment. The valid options are #3nothing#0, #3death#0, #3jail#0, #3fine#0 and #3goodbehaviour#0.".SubstituteANSIColour());
+					return;
+			}
+		}
+
+		if (!options.CanBeExecuted && punishment.Execution)
+		{
+			actor.OutputHandler.Send("That crime does not permit the possibility of a death sentence.");
+			return;
+		}
+
+		if (options.MaximumCustodialSentence < punishment.CustodialSentence)
+		{
+			actor.OutputHandler.Send($"That crimes has a maximum custodial sentence length of {options.MaximumCustodialSentence.Describe(actor).ColourValue()}.");
+			return;
+		}
+
+		if (options.MaximumFine < punishment.Fine)
+		{
+			actor.OutputHandler.Send($"The maximum fine for that crime is {jurisdiction.Currency.Describe(options.MaximumFine, CurrencyDescriptionPatternType.ShortDecimal).ColourValue()}.");
+			return;
+		}
+
+		actor.OutputHandler.Handle(new EmoteOutput(new Emote($"@ convict|convicts $1 of the charge that #1 $2, and sentences &1 to $3", actor, 
+			actor, 
+			target, 
+			new DummyPerceivable(x => targetCrime.DescribeCrimeAtTrial(x), customColour: Telnet.White),
+			new DummyPerceivable(x => punishment.Describe(x, jurisdiction), customColour: Telnet.White)
+			)));
+		targetCrime.Convict(actor, punishment, "Manually convicted");
 	}
 
-	[PlayerCommand("Pardon", "pardon")]
+	[PlayerCommand("CrimeInfo", "crimeinfo")]
 	[RequiredCharacterState(CharacterState.Able)]
-	[MustBeAnEnforcer]
-	[HelpInfo("pardon", @"", AutoHelp.HelpArg)]
-	protected static void Pardon(ICharacter actor, string input)
+	[HelpInfo("crimeinfo", @"The #3crimeinfo#0 command allows you to view detailed information about a crime you have committed or a crime you as an enforcer know about.
+
+The syntax is #3crimeinfo <id>#0.", AutoHelp.HelpArg)]
+	protected static void CrimeInfo(ICharacter actor, string input)
 	{
 		var ss = new StringStack(input.RemoveFirstWord());
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send("Which crime do you want to show information for?");
+			return;
+		}
+
+		var legals = actor.Gameworld.LegalAuthorities
+		                  .Where(x =>
+			                  x.EnforcementZones.Contains(actor.Location.Zone) &&
+			                  (actor.IsAdministrator() || x.GetEnforcementAuthority(actor) is not null)
+		                  )
+		                  .ToList();
+		
+		if (legals.Count == 0)
+		{
+			actor.OutputHandler.Send("You are not in any enforcement zone for a legal authority.");
+			return;
+		}
+
+		var crime = actor.Gameworld.Crimes.GetById(ss.SafeRemainingArgument);
+		if (crime is null || 
+		(
+			crime.Criminal != actor &&
+			crime.LegalAuthority.GetEnforcementAuthority(actor) is null &&
+			!actor.IsAdministrator()
+		) ||
+		(
+			crime.Criminal != actor &&
+			!actor.IsAdministrator() &&
+			!crime.IsKnownCrime
+		))
+		{
+			actor.OutputHandler.Send("You aren't aware of any crime like that.");
+			return;
+		}
+
+		actor.OutputHandler.Send(crime.ShowCrimeInfo(actor));
+	}
+
+	[PlayerCommand("Acquit", "acquit")]
+	[RequiredCharacterState(CharacterState.Able)]
+	[MustBeAnEnforcer]
+	[HelpInfo("acquit", @"The #3acquit#0 command is used to manually record a conviction of not guilty to a criminal who is being held in custody. This would be intended to be used by PC or NPC Enforcers when a trial is being roleplayed, in lieu of using the automated systems for these things.
+
+Typically this command would be used on a prisoner who another enforcer has used the #3takecustody#0 command over. Otherwise, NPC enforcers might drag them back to prison before you're done and any convictions for multiple crimes would be applied immediately rather than at a time of your choosing.
+
+Both you and the criminal need to be in the court room of the legal jurisdiction you're acquiting them of.
+
+Note also the #3convict#0 command which is used to register a finding of guilty.
+
+There are the following syntaxes for this command:
+
+	#3acquit <target>#0 - see a list of crimes you could acquit a target of
+	#3acquit <target> <crime ID>#0 - acquit a target of a particular crime", AutoHelp.HelpArg)]
+	protected static void Acquit(ICharacter actor, string input)
+	{
+		var ss = new StringStack(input.RemoveFirstWord());
+		var authorities = actor.Gameworld.LegalAuthorities.WhereNotNull(x => x.GetEnforcementAuthority(actor))
+							   .ToList();
+		var jurisdiction = authorities.FirstOrDefault(x => x.CourtLocation == actor.Location);
+		if (jurisdiction is null)
+		{
+			actor.OutputHandler.Send("You and your target must be in the court room of the legal jurisdiction that you want to acquit someone in.");
+			return;
+		}
+
+		var target = actor.TargetActor(ss.PopSpeech());
+		if (target is null)
+		{
+			actor.OutputHandler.Send("You don't see anyone here like that.");
+			return;
+		}
+
+		if (target == actor)
+		{
+			actor.OutputHandler.Send("You cannot acquit yourself of crimes.");
+			return;
+		}
+
+		var targetClass = jurisdiction.GetLegalClass(target);
+		var enforcement = jurisdiction.GetEnforcementAuthority(actor);
+		if (enforcement is not null)
+		{
+			if (!enforcement.CanConvict)
+			{
+				actor.OutputHandler.Send($"Your level of enforcement authority in the {jurisdiction.Name.ColourName()} jurisdiction is insufficient to judge people.");
+				return;
+			}
+
+			if (!enforcement.AccusableClasses.Contains(targetClass))
+			{
+				actor.OutputHandler.Send($"Your level of enforcement authority does not allow you to judge members of the {targetClass.Name.ColourName()} legal class.");
+				return;
+			}
+		}
+
+		if (target.AffectedBy<OnTrial>())
+		{
+			actor.OutputHandler.Send("Your target is already on trial, and cannot have manual judgements recorded at this time.");
+			return;
+		}
+
+		var crimes = jurisdiction.KnownCrimesForIndividual(target).ToList();
+		if (crimes.Count == 0)
+		{
+			actor.OutputHandler.Send($"{target.HowSeen(actor, true)} hasn't committed any crimes in this jurisdiction that you're aware of or that they haven't already been punished for.");
+			return;
+		}
+
+		if (ss.IsFinished)
+		{
+			var sb = new StringBuilder();
+			sb.AppendLine($"You can acquit {target.HowSeen(actor)} of the following crimes in the {jurisdiction.Name.ColourName()} jurisdiction:");
+			sb.AppendLine();
+
+			crimes = crimes.OrderBy(x => x.RealTimeOfCrime).ToList();
+
+			sb.AppendLine(StringUtilities.GetTextTable(
+				from crime in crimes
+				select new List<string>
+				{
+					crime.Id.ToStringN0(actor),
+					crime.Name,
+					crime.Victim?.HowSeen(actor) ?? "",
+					crime.TimeOfCrime.ToString(CalendarDisplayMode.Short, TimeDisplayTypes.Short),
+					crime.CrimeLocation?.GetOverlayFor(actor).CellName ?? "",
+					crime.HasBeenEnforced.ToColouredString(),
+				},
+				new List<string>
+				{
+					"Id",
+					"Crime",
+					"Victim",
+					"Time",
+					"Location",
+					"Enforced?"
+				},
+				actor,
+				Telnet.Red
+			));
+			sb.AppendLine();
+			sb.AppendLine("You can use the #3crimeinfo <id>#0 command to see more details about each of the crimes.");
+			actor.OutputHandler.Send(sb.ToString());
+			return;
+		}
+
+		var targetCrime = crimes.GetByIdOrName(ss.PopSpeech());
+		if (targetCrime is null)
+		{
+			actor.OutputHandler.Send($"{target.HowSeen(actor, true)} has not committed any such crime that you know about.");
+			return;
+		}
+
+		actor.OutputHandler.Handle(new EmoteOutput(new Emote($"@ acquit|acquits $1 of the charge that #1 $2.", actor,
+			actor,
+			target,
+			new DummyPerceivable(x => targetCrime.DescribeCrimeAtTrial(x), customColour: Telnet.White)
+		)));
+		targetCrime.Acquit(actor, "Manually acquitted");
 	}
 
 	[PlayerCommand("TakeCustody", "takecustody")]
@@ -830,8 +1218,7 @@ The syntax for this command is simply #3argue defense#0 or #3argue prosecution#0
 			return;
 		}
 
-		jurisdictions.RemoveAll(x =>
-			!x.KnownCrimesForIndividual(target).Any() && !target.AffectedBy<ServingCustodialSentence>(x));
+		jurisdictions.RemoveAll(x => !x.KnownCrimesForIndividual(target).Any() && !target.AffectedBy<ServingCustodialSentence>(x));
 		if (!jurisdictions.Any())
 		{
 			actor.OutputHandler.Send(
@@ -845,8 +1232,7 @@ The syntax for this command is simply #3argue defense#0 or #3argue prosecution#0
 			jurisdiction = jurisdictions.GetByNameOrAbbreviation(ss.SafeRemainingArgument);
 			if (jurisdiction == null)
 			{
-				actor.OutputHandler.Send(
-					$"You are not an enforcer in any jurisdiction by the name of {ss.SafeRemainingArgument.ColourCommand()}.");
+				actor.OutputHandler.Send($"You are not an enforcer in any jurisdiction by the name of {ss.SafeRemainingArgument.ColourCommand()}.");
 				return;
 			}
 		}
@@ -860,8 +1246,7 @@ The syntax for this command is simply #3argue defense#0 or #3argue prosecution#0
 		                     .FirstOrDefault(x => x.LegalAuthority == jurisdiction);
 		if (existing != null && existing.Enforcer.ColocatedWith(target))
 		{
-			actor.OutputHandler.Send(
-				$"{target.HowSeen(actor, true)} is already in the custody of {existing.Enforcer.HowSeen(actor)}.\n{"Hint: Ask them to transfer custody to you.".ColourCommand()}");
+			actor.OutputHandler.Send($"{target.HowSeen(actor, true)} is already in the custody of {existing.Enforcer.HowSeen(actor)}.\n{"Hint: Ask them to transfer custody to you.".ColourCommand()}");
 			return;
 		}
 
@@ -1042,6 +1427,83 @@ The syntax for this command is simply #3argue defense#0 or #3argue prosecution#0
 				timespan.Humanize(2, perceiver.Account.Culture, TimeUnit.Year, TimeUnit.Second)))));
 	}
 
+	[PlayerCommand("RequestTrial", "requesttrial")]
+	[RequiredCharacterState(CharacterState.Able)]
+	[HelpInfo("requesttrial", @"The #3requesttrial#0 command is used when you are being held in remand for crimes you have committed, and if possible, begins a trial for you so that you can answer for your crimes. In some cases a trial may commence after you've been waiting for a while regardless of whether you request one.
+
+The syntax for this command is simply #3requesttrial#0.", AutoHelp.HelpArg)]
+	protected static void RequestTrial(ICharacter actor, string input)
+	{
+		var ss = new StringStack(input.RemoveFirstWord());
+		if (!actor.AffectedBy<AwaitingSentencing>())
+		{
+			actor.OutputHandler.Send("You are not awaiting a trial.");
+			return;
+		}
+
+		if (actor.AffectedBy<OnBail>())
+		{
+			actor.OutputHandler.Send("You must return from bail to custody before you are allowed to request a trial.");
+			return;
+		}
+
+		if (actor.AffectedBy<InCustodyOfEnforcer>())
+		{
+			actor.OutputHandler.Send("You cannot request a trial while you are in the custody of an enforcer.");
+			return;
+		}
+
+		var errors = new List<string>();
+		var sentences = actor.EffectsOfType<AwaitingSentencing>();
+		foreach (var effect in sentences)
+		{
+			var jurisdiction = effect.LegalAuthority;
+			if (jurisdiction.CourtLocation is null)
+			{
+				errors.Add($"the {jurisdiction.Name.ColourName()} jurisdiction does not have a courtroom");
+				continue;
+			}
+
+			if (jurisdiction.CourtLocation.Characters.Any(x => x.AffectedBy<OnTrial>(jurisdiction)))
+			{
+				errors.Add($"the {jurisdiction.Name.ColourName()} jurisdiction already has a trial being heard");
+				continue;
+			}
+
+			if (jurisdiction.Patrols.All(x => x.PatrolStrategy.Name != "Judge"))
+			{
+				errors.Add($"the {jurisdiction.Name.ColourName()} jurisdiction does not have any hearings scheduled");
+				continue;
+			}
+
+			if (jurisdiction.Patrols.Where(x => x.PatrolStrategy.Name != "Judge").All(x => x.PatrolLeader.Location != jurisdiction.CourtLocation))
+			{
+				errors.Add($"the {jurisdiction.Name.ColourName()} jurisdiction does not have a judge available");
+				continue;
+			}
+
+			var crimes = jurisdiction.KnownCrimesForIndividual(actor).ToList();
+			actor.RemoveAllEffects<AwaitingSentencing>(x => x.LegalAuthority == jurisdiction, true);
+			actor.AddEffect(new OnTrial(actor, jurisdiction, DateTime.UtcNow, crimes));
+			actor.OutputHandler.Handle(new EmoteOutput(
+				new Emote(actor.Gameworld.GetStaticString("RequestTrialEmoteOrigin"), actor, actor),
+				flags: OutputFlags.SuppressSource));
+			actor.OutputHandler.Send(new EmoteOutput(
+				new Emote(actor.Gameworld.GetStaticString("RequestTrialEmoteSelf"), actor, actor)));
+			actor.Movement?.CancelForMoverOnly(actor);
+			actor.RemoveAllEffects(x => x.IsEffectType<IActionEffect>());
+			actor.Location.Leave(actor);
+			actor.RoomLayer = RoomLayer.GroundLevel;
+			jurisdiction.CourtLocation.Enter(actor);
+			actor.Body.Look(true);
+			actor.OutputHandler.Handle(new EmoteOutput(
+				new Emote(actor.Gameworld.GetStaticString("RequestTrialEmoteCourt"), actor, actor),
+				flags: OutputFlags.SuppressSource));
+			return;
+		}
+
+		actor.OutputHandler.Send($"You cannot have a trial right now because {errors.ListToString()}.");
+	}
 
 	[PlayerCommand("BailOut", "bailout")]
 	[RequiredCharacterState(CharacterState.Able)]

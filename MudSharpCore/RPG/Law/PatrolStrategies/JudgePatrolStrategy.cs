@@ -68,7 +68,7 @@ public class JudgePatrolStrategy : PatrolStrategyBase
 			}
 
 			var path = patrol.PatrolLeader
-			                 .PathBetween(patrol.NextMajorNode, 20,
+			                 .PathBetween(patrol.NextMajorNode, 50,
 				                 PathSearch.PathIncludeUnlockedDoors(patrol.PatrolLeader))
 			                 .ToList();
 			if (!path.Any())

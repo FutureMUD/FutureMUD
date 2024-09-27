@@ -2660,7 +2660,9 @@ The following options are available:
 	[HelpInfo("path",
 		@"This command allows you to calculate a path between yourself and a character (PC or NPC). The command will look for paths up to 50 rooms away, and will return a list of exits that you could follow to get there.
 
-The syntax for this command is #3path <target>#0. Note, you can use names or keywords to do this search, so the following three syntaxes would all be valid:
+The syntax for this command is #3path <target>#0 to path to a character or #3path *<id>#0 to target a room. 
+
+Note, you can use names or keywords to do this search, so the following three syntaxes would all be valid:
 
 #3path amos#0
 #3path tall.strapping.lad#0
@@ -2669,11 +2671,32 @@ The syntax for this command is #3path <target>#0. Note, you can use names or key
 	{
 		var ss = new StringStack(input.RemoveFirstWord());
 		var targetText = ss.SafeRemainingArgument;
-		var target = actor.Gameworld.Actors.GetFromItemListByKeywordIncludingNames(targetText, actor);
-		if (target == null)
+		// Room Target
+		IPerceivable target;
+		if (targetText.Length > 1 && targetText[0] == '*')
 		{
-			actor.OutputHandler.Send("There is no such character for you to path to.");
-			return;
+			if (!long.TryParse(targetText.Substring(1), out var id))
+			{
+				actor.OutputHandler.Send("If you specify a room, you must specify the room's ID.");
+				return;
+			}
+
+			target = actor.Gameworld.Cells.Get(id);
+			if (target is null)
+			{
+				actor.OutputHandler.Send("There is no room with that ID.");
+				return;
+			}
+		}
+		// Character Target
+		else
+		{
+			target = actor.Gameworld.Actors.GetFromItemListByKeywordIncludingNames(targetText, actor);
+			if (target == null)
+			{
+				actor.OutputHandler.Send("There is no such character for you to path to.");
+				return;
+			}
 		}
 
 		var exits1 = actor.ExitsBetween(target, 50).ToList();
@@ -2683,7 +2706,7 @@ The syntax for this command is #3path <target>#0. Note, you can use names or key
 			return;
 		}
 
-		var exits2 = actor.PathBetween(target, 50, true);
+		var exits2 = actor.PathBetween(target, 50, PathSearch.PathIncludeUnlockableDoors(actor));
 
 		var directionStrings1 = exits1.Select(x =>
 		{

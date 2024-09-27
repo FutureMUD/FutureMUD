@@ -134,11 +134,22 @@ public class SheriffPatrolStrategy : PatrolStrategyBase
 			                 .PathBetween(patrol.NextMajorNode, 20,
 				                 PathSearch.PathIncludeUnlockedDoors(patrol.PatrolLeader))
 			                 .ToList();
-			if (!path.Any())
+			// If we can't find a path, try to get closer at least
+			if (path.Count == 0)
 			{
-				// Abort the patrol - no viable routes found
-				patrol.AbortPatrol();
-				return;
+				path = patrol.PatrolLeader.PathBetween(patrol.NextMajorNode, 50,
+					PathSearch.IgnorePresenceOfDoors).ToList();
+				if (path.Count == 0)
+				{
+					if (DateTime.UtcNow - patrol.LastArrivedTime > TimeSpan.FromMinutes(3))
+					{
+						// Abort patrol
+						patrol.AbortPatrol();
+						return;
+					}
+
+					return;
+				}
 			}
 
 			var fp = new FollowingPath(patrol.PatrolLeader, path);

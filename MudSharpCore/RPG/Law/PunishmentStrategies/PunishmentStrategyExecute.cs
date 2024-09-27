@@ -48,6 +48,12 @@ internal class PunishmentStrategyExecute : PunishmentStrategyBase
 		return new PunishmentResult { Execution = true };
 	}
 
+	/// <inheritdoc />
+	public override PunishmentOptions GetOptions(ICharacter actor, ICrime crime)
+	{
+		return new PunishmentOptions { CanBeExecuted = true };
+	}
+
 	protected override void SaveSpecificType(XElement root)
 	{
 		root.Add(new XAttribute("type", "execute"));

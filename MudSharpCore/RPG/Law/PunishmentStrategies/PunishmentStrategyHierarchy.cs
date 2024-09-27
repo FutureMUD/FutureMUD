@@ -7,6 +7,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
+using MudSharp.Commands.Trees;
+using static Mysqlx.Error.Types;
 
 namespace MudSharp.RPG.Law.PunishmentStrategies;
 
@@ -213,14 +215,33 @@ public class PunishmentStrategyHierarchy : PunishmentStrategyBase
 		}
 
 		_strategyHierarchy.Add((prog, strategy));
-		
-		throw new NotImplementedException();
+		authority.Changed = true;
+		actor.OutputHandler.Send($"You add a {strategy.Describe(actor)} punishment to the hierarchy with prog {prog.MXPClickableFunctionName()} as its criteria.");
+		return true;
 	}
 
 	public override string Describe(IPerceiver voyeur)
 	{
-		return
-			$"a hierarchy of {_strategyHierarchy.Count.ToString("N0", voyeur).ColourIncludingReset(Telnet.Green)} different punishments";
+		if (_strategyHierarchy.Count == 0)
+		{
+			return "no punishment";
+		}
+
+		var includeNothing = _strategyHierarchy.Any(x => x.Prog.StaticType == FutureProgStaticType.FullyStatic && x.Prog.ExecuteBool(null));
+		if (_strategyHierarchy.Count == 1)
+		{
+			if (!includeNothing)
+			{
+				return _strategyHierarchy[0].Strategy.Describe(voyeur);
+			}
+		}
+
+		var strategies = _strategyHierarchy.Select(x => x.Strategy.Describe(voyeur)).ToList();
+		if (includeNothing)
+		{
+			strategies.Add("no punishment");
+		}
+		return $"a hierarchy of{(strategies.Count == 2 ? " either" : " one of")} {strategies.ListToString(conjunction: "or ")}";
 	}
 
 	public override PunishmentResult GetResult(ICharacter actor, ICrime crime, double severity = 0)
@@ -234,6 +255,20 @@ public class PunishmentStrategyHierarchy : PunishmentStrategyBase
 		}
 
 		return new PunishmentResult();
+	}
+
+	/// <inheritdoc />
+	public override PunishmentOptions GetOptions(ICharacter actor, ICrime crime)
+	{
+		foreach (var strategy in _strategyHierarchy)
+		{
+			if (strategy.Prog.Execute<bool?>(actor, crime) == true)
+			{
+				return strategy.Strategy.GetOptions(actor, crime);
+			}
+		}
+
+		return new PunishmentOptions();
 	}
 
 	protected override void SaveSpecificType(XElement root)

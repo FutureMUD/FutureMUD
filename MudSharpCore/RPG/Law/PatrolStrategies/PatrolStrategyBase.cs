@@ -246,11 +246,22 @@ public abstract class PatrolStrategyBase : IPatrolStrategy
 			// Move to prison
 			var path = patrol.PatrolLeader.PathBetween(patrol.LegalAuthority.PrisonLocation, 50,
 				PathSearch.PathIncludeUnlockableDoors(patrol.PatrolLeader)).ToList();
-			if (!path.Any())
+			// If we can't find a path, try to get closer at least
+			if (path.Count == 0)
 			{
-				// Abort the patrol - no viable routes found
-				patrol.AbortPatrol();
-				return;
+				path = patrol.PatrolLeader.PathBetween(patrol.NextMajorNode, 50,
+					PathSearch.IgnorePresenceOfDoors).ToList();
+				if (path.Count == 0)
+				{
+					if (DateTime.UtcNow - patrol.LastArrivedTime > TimeSpan.FromMinutes(3))
+					{
+						// Abort patrol
+						patrol.AbortPatrol();
+						return;
+					}
+
+					return;
+				}
 			}
 
 			var fp = new FollowingPath(patrol.PatrolLeader, path)
@@ -383,20 +394,27 @@ public abstract class PatrolStrategyBase : IPatrolStrategy
 		if (patrol.PatrolMembers.All(x => x.Location == patrol.LegalAuthority.MarshallingLocation) &&
 		    !patrol.PatrolLeader.AffectedBy<FollowingPath>())
 		{
-			var path = patrol.PatrolLeader.PathBetween(patrol.NextMajorNode, 25,
-				PathSearch.PathIncludeUnlockableDoors(patrol.PatrolLeader));
-			if (!path.Any())
+			var path = patrol.PatrolLeader.PathBetween(patrol.NextMajorNode, 50,
+				PathSearch.PathIncludeUnlockableDoors(patrol.PatrolLeader)).ToList();
+
+			// If we can't find a path, try to get closer at least
+			if (path.Count == 0)
 			{
-				if (DateTime.UtcNow - patrol.LastArrivedTime > TimeSpan.FromMinutes(3))
+				path = patrol.PatrolLeader.PathBetween(patrol.NextMajorNode, 50,
+					PathSearch.IgnorePresenceOfDoors).ToList();
+				if (path.Count == 0)
 				{
-					// Abort patrol
-					patrol.AbortPatrol();
+					if (DateTime.UtcNow - patrol.LastArrivedTime > TimeSpan.FromMinutes(3))
+					{
+						// Abort patrol
+						patrol.AbortPatrol();
+						return;
+					}
+
 					return;
 				}
-
-				return;
 			}
-
+			
 			var fp = new FollowingPath(patrol.PatrolLeader, path)
 				{ UseDoorguards = true, UseKeys = true, OpenDoors = true };
 			patrol.PatrolLeader.AddEffect(fp);

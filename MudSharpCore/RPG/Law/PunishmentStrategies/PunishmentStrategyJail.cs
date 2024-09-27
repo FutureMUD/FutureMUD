@@ -111,6 +111,16 @@ internal class PunishmentStrategyJail : PunishmentStrategyBase
 		return new PunishmentResult { CustodialSentence = MinimumSentenceLength + MudTimeSpan.FromDays(severity * (MaximumSentenceLength - MinimumSentenceLength).TotalDays)};
 	}
 
+	/// <inheritdoc />
+	public override PunishmentOptions GetOptions(ICharacter actor, ICrime crime)
+	{
+		return new PunishmentOptions
+		{
+			MinimumCustodialSentence = MinimumSentenceLength,
+			MaximumCustodialSentence = MaximumSentenceLength
+		};
+	}
+
 	protected override void SaveSpecificType(XElement root)
 	{
 		root.Add(new XAttribute("type", "jail"));

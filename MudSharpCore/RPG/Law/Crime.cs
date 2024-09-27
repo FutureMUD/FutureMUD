@@ -20,6 +20,8 @@ using MudSharp.RPG.Checks;
 using MudSharp.Accounts;
 using MudSharp.Economy.Currency;
 using MudSharp.Models;
+using MudSharp.TimeAndDate.Date;
+using MudSharp.TimeAndDate.Time;
 
 namespace MudSharp.RPG.Law;
 #nullable enable
@@ -313,6 +315,10 @@ public class Crime : LateInitialisingItem, ICrime
 	public long? ThirdPartyId { get; }
 	public string? ThirdPartyFrameworkItemType { get; }
 
+	public IPerceivable? ThirdParty => ThirdPartyId.HasValue
+		? Gameworld.GetPerceivable(ThirdPartyFrameworkItemType, ThirdPartyId.Value)
+		: null;
+
 	private readonly List<long> _witnessIds = new();
 	private bool _isKnownCrime;
 	private bool _bailPosted;
@@ -414,6 +420,7 @@ public class Crime : LateInitialisingItem, ICrime
 
 	public string? CriminalShortDescription { get; set; }
 	public string? CriminalDescription { get; set; }
+	
 	private readonly Dictionary<ICharacteristicDefinition, ICharacteristicValue> _criminalCharacteristics = new();
 
 	public IReadOnlyDictionary<ICharacteristicDefinition, ICharacteristicValue> CriminalCharacteristics =>
@@ -614,10 +621,7 @@ public class Crime : LateInitialisingItem, ICrime
 			CrimeLocation != null ? 
 				$" at {CrimeLocation.CurrentOverlay.CellName}" : 
 				"";
-		var thirdPartyDesc = ThirdPartyId.HasValue
-			? Gameworld.GetPerceivable(ThirdPartyFrameworkItemType, ThirdPartyId.Value)
-					   .HowSeen(voyeur, colour: false, flags: PerceiveIgnoreFlags.IgnoreCanSee)
-			: "an unidentified thing";
+		var thirdPartyDesc = ThirdParty?.HowSeen(voyeur, colour: false, flags: PerceiveIgnoreFlags.IgnoreCanSee) ?? "an unidentified thing";
 		return 
 			DescribeCrimeInternal(voyeur, victimDesc, locationAddendum, thirdPartyDesc)
 				.Replace("was ", "$1|were|was ");
@@ -628,11 +632,156 @@ public class Crime : LateInitialisingItem, ICrime
 		var victimDesc = Victim?.HowSeen(voyeur, flags: PerceiveIgnoreFlags.IgnoreCanSee) ??
 						 "unnamed victims".ColourCharacter();
 		var locationAddendum = CrimeLocation != null ? $" at {CrimeLocation.CurrentOverlay.CellName.ColourRoom()}" : "";
-		var thirdPartyDesc = ThirdPartyId.HasValue
-			? Gameworld.GetPerceivable(ThirdPartyFrameworkItemType, ThirdPartyId.Value)
-					   .HowSeen(voyeur, flags: PerceiveIgnoreFlags.IgnoreCanSee)
-			: "an unidentified thing".ColourObject();
+		var thirdPartyDesc = ThirdParty?.HowSeen(voyeur, flags: PerceiveIgnoreFlags.IgnoreCanSee) ?? "an unidentified thing".ColourObject();
 		return DescribeCrimeInternal(voyeur, victimDesc, locationAddendum, thirdPartyDesc);
+	}
+
+	public string ShowCrimeInfo(ICharacter enforcer)
+	{
+		var sb = new StringBuilder();
+		sb.AppendLine($"Crime #{Id.ToStringN0(enforcer)}".GetLineWithTitle(enforcer, Telnet.BoldOrange, Telnet.BoldWhite));
+		sb.AppendLine();
+		sb.AppendLine($"Law: {Law.Name.ColourName()}");
+		sb.AppendLine($"Jurisdiction: {LegalAuthority.Name.ColourValue()}");
+		sb.AppendLine($"Crime Type: {Law.CrimeType.DescribeEnum()}");
+		sb.AppendLine();
+		sb.AppendLine("Criminal".GetLineWithTitleInner(enforcer, Telnet.Orange, Telnet.White));
+		sb.AppendLine();
+		if (CriminalIdentityIsKnown)
+		{
+			sb.AppendLine($"Criminal: {Criminal.HowSeen(enforcer, flags: PerceiveIgnoreFlags.TrueDescription)}");
+			sb.AppendLine($"Criminal Name: {Criminal.PersonalName.GetName(NameStyle.FullWithNickname).ColourName()}");
+			sb.AppendLine("Criminal Description:");
+			sb.AppendLine();
+			sb.AppendLine(Criminal.HowSeen(enforcer, type: DescriptionType.Full, flags: PerceiveIgnoreFlags.TrueDescription).Wrap(enforcer.InnerLineFormatLength, "\t"));
+		}
+		else
+		{
+			sb.AppendLine($"Criminal: {CriminalShortDescription.ColourCharacter()}");
+			sb.AppendLine("Criminal Description:");
+			sb.AppendLine();
+			sb.AppendLine(CriminalDescription.Wrap(enforcer.InnerLineFormatLength));
+			sb.AppendLine();
+			sb.AppendLine("Criminal Characteristics:");
+			sb.AppendLine();
+			foreach (var item in _criminalCharacteristics)
+			{
+				sb.AppendLine($"\t{item.Key.Name.ColourName()} = {item.Value.GetValue.ColourValue()}");
+			}
+		}
+
+		sb.AppendLine();
+		sb.AppendLine("Victim".GetLineWithTitleInner(enforcer, Telnet.Orange, Telnet.White));
+		sb.AppendLine();
+		if (Victim is null)
+		{
+			sb.AppendLine("Victim: #6Unknown Persons#0".SubstituteANSIColour());
+		}
+		else
+		{
+			sb.AppendLine($"Victim: {Victim.HowSeen(enforcer, flags: PerceiveIgnoreFlags.TrueDescription)}");
+			sb.AppendLine($"Victim Name: {Victim.PersonalName.GetName(NameStyle.FullWithNickname).ColourName()}");
+		}
+
+		sb.AppendLine();
+		sb.AppendLine("Details".GetLineWithTitleInner(enforcer, Telnet.Orange, Telnet.White));
+		sb.AppendLine();
+		sb.AppendLine($"Time of Crime: {TimeOfCrime.ToString(CalendarDisplayMode.Short, TimeDisplayTypes.Short).ColourValue()}");
+		sb.AppendLine($"Location of Crime: {CrimeLocation?.HowSeen(enforcer, flags: PerceiveIgnoreFlags.IgnoreCanSee) ?? "An Unknown Location".ColourRoom()}");
+		sb.AppendLine($"Third Party / Object: {ThirdParty?.HowSeen(enforcer, flags: PerceiveIgnoreFlags.TrueDescription) ?? "None".ColourError()}");
+		if (enforcer.IsAdministrator())
+		{
+			sb.AppendLine();
+			sb.AppendLine($"Witnesses:");
+			sb.AppendLine();
+			foreach (var id in _witnessIds)
+			{
+				var witness = Gameworld.TryGetCharacter(id, true);
+				if (witness is null)
+				{
+					continue;
+				}
+				sb.AppendLine($"\t{witness.HowSeen(enforcer, flags: PerceiveIgnoreFlags.TrueDescription)} ({witness.PersonalName.GetName(NameStyle.FullWithNickname)}) [#{id.ToStringN0(enforcer)}]");
+			}
+		}
+
+		if (enforcer != Criminal)
+		{
+			sb.AppendLine();
+			sb.AppendLine("Enforcement".GetLineWithTitleInner(enforcer, Telnet.Orange, Telnet.White));
+			sb.AppendLine();
+			if (HasBeenFinalised)
+			{
+				sb.AppendLine($"Status: {"Finalised".Colour(Telnet.Green)}");
+			}
+			else if (HasBeenEnforced)
+			{
+				sb.AppendLine($"Status: {"Enforced".Colour(Telnet.BoldYellow)}");
+			}
+			else if (IsKnownCrime)
+			{
+				sb.AppendLine($"Status: {"Wanted".Colour(Telnet.Red)}");
+			}
+			else
+			{
+				sb.AppendLine($"Status: {"Unreported".Colour(Telnet.Magenta)}");
+			}
+
+			if (!HasBeenEnforced)
+			{
+				sb.AppendLine($"Active For: {Law.ActivePeriod.DescribePreciseBrief(enforcer).ColourValue()}");
+				sb.AppendLine($"Active Until: {(TimeOfCrime+Law.ActivePeriod).ToString(CalendarDisplayMode.Short, TimeDisplayTypes.Short).ColourValue()}");
+			}
+
+			if (IsKnownCrime)
+			{
+				sb.AppendLine($"Time of Report: {TimeOfReport?.ToString(CalendarDisplayMode.Short, TimeDisplayTypes.Short).ColourValue() ?? "Unknown".ColourError()}");
+				if (AccuserId is not null && Gameworld.TryGetCharacter(AccuserId.Value, true) is { } accuser)
+				{
+					sb.AppendLine($"Accuser: {accuser.HowSeen(enforcer, flags: PerceiveIgnoreFlags.TrueDescription)}");
+					sb.AppendLine($"Accuser Name: {accuser.PersonalName.GetName(NameStyle.FullWithNickname).ColourName()}");
+				}
+				else
+				{
+					sb.AppendLine($"Accuser: {"Unknown Persons".ColourCharacter()}");
+				}
+			}
+		}
+
+		if (HasBeenEnforced || HasBeenFinalised)
+		{
+			sb.AppendLine();
+			sb.AppendLine("Outcome".GetLineWithTitleInner(enforcer, Telnet.Orange, Telnet.White));
+			sb.AppendLine();
+			sb.AppendLine($"Bail: {(CalculatedBail > 0.0M).ToColouredString()}");
+			if (CalculatedBail > 0.0M)
+			{
+				sb.AppendLine($"Bail Amount: {LegalAuthority.Currency.Describe(CalculatedBail, CurrencyDescriptionPatternType.ShortDecimal).ColourValue()}");
+				sb.AppendLine($"Bail Posted: {BailPosted.ToColouredString()}");
+			}
+		}
+
+		if (HasBeenFinalised)
+		{
+			sb.AppendLine($"Verdict: {(HasBeenConvicted ? "Guilty".Colour(Telnet.Red) : "Not Guilty".Colour(Telnet.Green))}");
+			if (HasBeenConvicted)
+			{
+				sb.AppendLine();
+				sb.AppendLine("Sentence".GetLineWithTitleInner(enforcer, Telnet.Orange, Telnet.White));
+				sb.AppendLine();
+				sb.AppendLine($"Death: {ExecutionPunishment.ToColouredString()}");
+				sb.AppendLine($"Prison: {(CustodialSentenceLength > TimeSpan.Zero ? CustodialSentenceLength.DescribePreciseBrief(enforcer).ColourValue() : "False".Colour(Telnet.Red))}");
+				sb.AppendLine($"Fine: {LegalAuthority.Currency.Describe(FineRecorded, CurrencyDescriptionPatternType.ShortDecimal).ColourValue()}");
+				sb.AppendLine($"Good Behaviour: {(GoodBehaviourBond > TimeSpan.Zero ? GoodBehaviourBond.DescribePreciseBrief(enforcer).ColourValue() : "False".Colour(Telnet.Red))}");
+				if (FineRecorded > 0.0M)
+				{
+					sb.AppendLine();
+					sb.AppendLine($"Fine Paid: {FineHasBeenPaid.ToColouredString()}");
+				}
+			}
+		}
+		
+		return sb.ToString();
 	}
 
 	public void Forgive(ICharacter forgiver, string reason)

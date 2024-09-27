@@ -56,10 +56,31 @@ public class EnforcementAuthority : SaveableItem, IEnforcementAuthority
 	public IFutureProg FilteringProg { get; private set; }
 
 	private readonly List<ILegalClass> _arrestableClasses = new();
-	public IEnumerable<ILegalClass> ArrestableClasses => _arrestableClasses;
+	public IEnumerable<ILegalClass> ArrestableClasses
+	{
+		get {
+			var classes = new List<ILegalClass>(_arrestableClasses);
+			foreach (var other in IncludedAuthorities)
+			{
+				classes.AddRange(other.ArrestableClasses);
+			}
+			return classes.Distinct();
+		}
+	}
 
 	private readonly List<ILegalClass> _accusableClasses = new();
-	public IEnumerable<ILegalClass> AccusableClasses => _accusableClasses;
+	public IEnumerable<ILegalClass> AccusableClasses
+	{
+		get
+		{
+			var classes = new List<ILegalClass>(_accusableClasses);
+			foreach (var other in IncludedAuthorities)
+			{
+				classes.AddRange(other.AccusableClasses);
+			}
+			return classes.Distinct();
+		}
+	}
 
 	public bool CanAccuse { get; private set; }
 	public bool CanForgive { get; private set; }
@@ -130,7 +151,7 @@ public class EnforcementAuthority : SaveableItem, IEnforcementAuthority
 		dbitem.Priority = Priority;
 		dbitem.FilterProgId = FilteringProg?.Id;
 		FMDB.Context.EnforcementAuthoritiesAccusableClasses.RemoveRange(dbitem.EnforcementAuthoritiesAccusableClasses);
-		foreach (var @class in AccusableClasses)
+		foreach (var @class in _accusableClasses)
 		{
 			dbitem.EnforcementAuthoritiesAccusableClasses.Add(new Models.EnforcementAuthoritiesAccusableClasses
 				{ EnforcementAuthority = dbitem, LegalClassId = @class.Id });
@@ -138,7 +159,7 @@ public class EnforcementAuthority : SaveableItem, IEnforcementAuthority
 
 		FMDB.Context.EnforcementAuthoritiesArrestableClasses.RemoveRange(dbitem
 			.EnforcementAuthoritiesArrestableLegalClasses);
-		foreach (var @class in ArrestableClasses)
+		foreach (var @class in _arrestableClasses)
 		{
 			dbitem.EnforcementAuthoritiesArrestableLegalClasses.Add(
 				new Models.EnforcementAuthoritiesArrestableLegalClasses
@@ -409,15 +430,15 @@ public class EnforcementAuthority : SaveableItem, IEnforcementAuthority
 		sb.AppendLine($"Can Convict: {CanConvict.ToColouredString()}");
 		sb.AppendLine($"Can Forgive: {CanForgive.ToColouredString()}");
 		var extraAccusable = AllIncludedAuthorities.SelectMany(x => x.AccusableClasses).Distinct()
-		                                           .Except(AccusableClasses);
-		var text = AccusableClasses.Select(x => x.Name.Colour(Telnet.Cyan))
+		                                           .Except(_accusableClasses);
+		var text = _accusableClasses.Select(x => x.Name.Colour(Telnet.Cyan))
 		                           .Concat(extraAccusable.Select(x => x.Name.Colour(Telnet.BoldCyan)));
 		sb.AppendLine($"Accusable: {text.ListToString()}");
 
 		var extraArrestable = AllIncludedAuthorities.SelectMany(x => x.ArrestableClasses).Distinct()
-		                                            .Except(ArrestableClasses);
-		text = AccusableClasses.Select(x => x.Name.Colour(Telnet.Cyan))
-		                       .Concat(extraAccusable.Select(x => x.Name.Colour(Telnet.BoldCyan)));
+		                                            .Except(_arrestableClasses);
+		text = _arrestableClasses.Select(x => x.Name.Colour(Telnet.Cyan))
+		                         .Concat(extraArrestable.Select(x => x.Name.Colour(Telnet.BoldCyan)));
 		sb.AppendLine($"Arrestable: {text.ListToString()}");
 
 		sb.AppendLine($"Also Includes: {IncludedAuthorities.Select(x => x.Name.Colour(Telnet.Cyan)).ListToString()}");

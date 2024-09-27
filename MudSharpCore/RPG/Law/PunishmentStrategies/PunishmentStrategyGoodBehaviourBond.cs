@@ -78,6 +78,15 @@ public class PunishmentStrategyGoodBehaviourBond : PunishmentStrategyBase
 		return new PunishmentResult { GoodBehaviourBondLength = GoodBehaviourBondLength };
 	}
 
+	/// <inheritdoc />
+	public override PunishmentOptions GetOptions(ICharacter actor, ICrime crime)
+	{
+		return new PunishmentOptions
+		{
+			GoodBehaviourBondLength = GoodBehaviourBondLength
+		};
+	}
+
 	protected override void SaveSpecificType(XElement root)
 	{
 		root.Add(new XAttribute("type", "bond"));

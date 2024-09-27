@@ -441,7 +441,11 @@ public partial class LegalAuthority : SaveableItem, ILegalAuthority
 		if (result.Fine > 0)
 		{
 			_finesOwed[criminal.Id] += result.Fine;
-			_finePaymentDueDates[criminal.Id] = now + MudTimeSpan.FromMonths(1);
+			if (!_finePaymentDueDates.ContainsKey(criminal.Id))
+			{
+				_finePaymentDueDates[criminal.Id] = now + MudTimeSpan.FromMonths(1);
+			}
+
 			Changed = true;
 		}
 

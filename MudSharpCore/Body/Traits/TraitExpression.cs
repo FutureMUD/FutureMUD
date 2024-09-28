@@ -432,7 +432,7 @@ public partial class TraitExpression : SaveableItem, ITraitExpression
 		}
 
 		dbitem.Name = Name;
-		dbitem.Expression = Formula.OriginalExpression;
+		dbitem.Expression = OriginalFormulaText;
 		FMDB.Context.TraitExpressionParameters.RemoveRange(dbitem.TraitExpressionParameters);
 		foreach (var parameter in Parameters)
 		{
@@ -697,7 +697,7 @@ public partial class TraitExpression : SaveableItem, ITraitExpression
 		Formula = newFormula;
 		OriginalFormulaText = command.SafeRemainingArgument;
 		Changed = true;
-		actor.OutputHandler.Send($"You set the formula for this trait expression to: {expression.ColourCommand()}");
+		actor.OutputHandler.Send($"You set the formula for this trait expression to: {OriginalFormulaText.ColourCommand()}");
 		return true;
 	}
 
@@ -787,7 +787,7 @@ public partial class TraitExpression : SaveableItem, ITraitExpression
 		ProcessLazyLoading();
 		var sb = new StringBuilder();
 		sb.AppendLine($"Trait Expression #{Id.ToString("N0", actor)}: {Name.Colour(Telnet.Cyan)}");
-		sb.AppendLine($"Formula: {Formula.OriginalExpression.ColourCommand()}");
+		sb.AppendLine($"Formula: {OriginalFormulaText.ColourCommand()}");
 		if (Parameters.Any())
 		{
 			sb.AppendLine();

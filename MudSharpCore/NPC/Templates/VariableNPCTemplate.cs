@@ -318,7 +318,7 @@ public class VariableNPCTemplate : NPCTemplateBase
 			errors.Add("You must select a culture.");
 		}
 
-		if (_ethnicity is null && Gameworld.Ethnicities.All(x => !_race.SameRace(x.ParentRace)))
+		if (_race is not null && _ethnicity is null && Gameworld.Ethnicities.All(x => !_race.SameRace(x.ParentRace)))
 		{
 			errors.Add("The selected race doesn't have any ethnicities.");
 		}

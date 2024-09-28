@@ -39,7 +39,7 @@ public class GoodBehaviourBond : Effect, IEffect
 	protected GoodBehaviourBond(XElement effect, IPerceivable owner) : base(effect, owner)
 	{
 		var root = effect.Element("Effect");
-		Authority = Gameworld.LegalAuthorities.Get(long.Parse(root.Element("Authority").Value));
+		Authority = Gameworld.LegalAuthorities.Get(long.Parse(root.Element("LegalAuthority").Value));
 		OriginalLength = MudTimeSpan.Parse(root.Element("OriginalLength").Value);
 		DateUntil = new MudDateTime(root.Element("DateUntil").Value, Gameworld);
 		RegisterListener();

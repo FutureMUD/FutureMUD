@@ -431,6 +431,15 @@ public partial class Character
 	protected double StaminaForMovement(IPositionState movingPosition, IMoveSpeed speed, double staminaMultiplier,
 		bool ignoreTerrainStamina)
 	{
+		if (movingPosition == PositionFlying.Instance)
+		{
+			return
+				FlyStaminaMultiplier() *
+				staminaMultiplier *
+				speed.StaminaMultiplier *
+				(1 + EncumbrancePercentage * Gameworld.GetStaticDouble("StaminaMultiplierPerEncumbrancePercentage"));
+		}
+
 		return
 			(1 + EncumbrancePercentage * Gameworld.GetStaticDouble("StaminaMultiplierPerEncumbrancePercentage")) *
 			(ignoreTerrainStamina ? 1.0 : Location.Terrain(this)?.StaminaCost ?? 0) *
@@ -1404,46 +1413,9 @@ public partial class Character
 		}
 	}
 
-	public double FlyStaminaCost()
+	public double FlyStaminaMultiplier()
 	{
-		return Gameworld.GetStaticDouble("FlyStaminaCost") * (EffectsOfType<Dragging>().Any()
-			? 1.0 + ((IHaveWeight)EffectsOfType<Dragging>().First().Target).Weight / Weight
-			: 1.0);
-		;
-	}
-
-	public void CheckCanFly()
-	{
-		if (PositionState != PositionFlying.Instance)
-		{
-			return;
-		}
-
-		if (!CanFly().Truth)
-		{
-			OutputHandler.Handle(new EmoteOutput(new Emote("@ can no longer fly!", this),
-				flags: OutputFlags.SuppressObscured));
-			PositionState = PositionSprawled.Instance;
-			return;
-		}
-	}
-
-	public void DoFlyHeartbeat()
-	{
-		if (CombinedEffectsOfType<IImmwalkEffect>().Any())
-		{
-			return;
-		}
-
-		if (PositionState != PositionFlying.Instance)
-		{
-			return;
-		}
-
-		var staminaCost = Gameworld.GetStaticDouble("FlyStaminaCostPerTick") * (EffectsOfType<Dragging>().Any()
-			? 1.0 + ((IHaveWeight)EffectsOfType<Dragging>().First().Target).Weight / Weight
-			: 1.0);
-		;
+		var multiplier = 1.0;
 		var check = Gameworld.GetCheck(CheckType.FlyCheck);
 		Difficulty difficulty;
 		switch (Encumbrance)
@@ -1490,7 +1462,67 @@ public partial class Character
 		}
 
 		var outcome = check.Check(this, difficulty);
-		staminaCost *= outcome.TargetNumber / 100.0;
+		if (outcome.TargetNumber <= 0)
+		{
+			return 1000;
+		}
+
+		multiplier /= (outcome.TargetNumber / 100.0);
+		return multiplier;
+	}
+
+	public double FlyStaminaCost()
+	{
+		return
+			FlyStaminaMultiplier() *
+			Gameworld.GetStaticDouble("FlyStaminaCost") * 
+			(
+				EffectsOfType<Dragging>().Any()
+				? 1.0 + ((IHaveWeight)EffectsOfType<Dragging>().First().Target).Weight / Weight
+				: 1.0
+			);
+	}
+
+	public double FlyStaminaCostPerTick()
+	{
+		return FlyStaminaMultiplier() *
+		       Gameworld.GetStaticDouble("FlyStaminaCostPerTick") * 
+		       (
+			       EffectsOfType<Dragging>().Any()
+			       ? 1.0 + ((IHaveWeight)EffectsOfType<Dragging>().First().Target).Weight / Weight
+			       : 1.0
+		       );
+	}
+
+	public void CheckCanFly()
+	{
+		if (PositionState != PositionFlying.Instance)
+		{
+			return;
+		}
+
+		if (!CanFly().Truth)
+		{
+			OutputHandler.Handle(new EmoteOutput(new Emote("@ can no longer fly!", this),
+				flags: OutputFlags.SuppressObscured));
+			PositionState = PositionSprawled.Instance;
+			return;
+		}
+	}
+
+	public void DoFlyHeartbeat()
+	{
+		if (CombinedEffectsOfType<IImmwalkEffect>().Any())
+		{
+			return;
+		}
+
+		if (PositionState != PositionFlying.Instance)
+		{
+			return;
+		}
+
+		var staminaCost = FlyStaminaCostPerTick();
 
 		if (CanSpendStamina(staminaCost))
 		{

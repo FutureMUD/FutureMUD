@@ -451,8 +451,7 @@ public abstract class PerceiverItem : PerceivedItem, IPerceiver
 					var effectiveDistance =
 						cumulativeFallDistance - Gameworld.GetStaticDouble("FallIntoWaterRoomsGrace");
 					OutputHandler.Handle(new EmoteOutput(
-						new Emote(Gameworld.GetStaticString("FallEmoteHitWater"), this, this),
-						style: OutputStyle.NoNewLine));
+						new Emote(Gameworld.GetStaticString("FallEmoteHitWater"), this, this)));
 					DoFallDamage(effectiveDistance);
 					if (ch != null)
 					{
@@ -469,8 +468,7 @@ public abstract class PerceiverItem : PerceivedItem, IPerceiver
 						cumulativeFallDistance -= Gameworld.GetStaticDouble("FallDeeperIntoWaterDistance");
 						RoomLayer = RoomLayer.Underwater;
 						OutputHandler.Handle(new EmoteOutput(
-							new Emote(Gameworld.GetStaticString("FallEnterRoomEmote"), this, this),
-							style: OutputStyle.NoNewLine, flags: OutputFlags.SuppressSource));
+							new Emote(Gameworld.GetStaticString("FallEnterRoomEmote"), this, this), flags: OutputFlags.SuppressSource));
 						return false;
 					}
 
@@ -483,8 +481,7 @@ public abstract class PerceiverItem : PerceivedItem, IPerceiver
 				{
 					cumulativeFallDistance += 0.5;
 					OutputHandler.Handle(new EmoteOutput(
-						new Emote(Gameworld.GetStaticString("FallLeaveRoomEmote"), this, this),
-						style: OutputStyle.NoNewLine));
+						new Emote(Gameworld.GetStaticString("FallLeaveRoomEmote"), this, this)));
 					if (ch != null)
 					{
 						Location.Leave(ch);
@@ -499,14 +496,12 @@ public abstract class PerceiverItem : PerceivedItem, IPerceiver
 					}
 
 					OutputHandler.Handle(new EmoteOutput(
-						new Emote(Gameworld.GetStaticString("FallEnterRoomEmote"), this, this),
-						style: OutputStyle.NoNewLine, flags: OutputFlags.SuppressSource));
+						new Emote(Gameworld.GetStaticString("FallEnterRoomEmote"), this, this), flags: OutputFlags.SuppressSource));
 					return false;
 				}
 
 				OutputHandler.Handle(new EmoteOutput(
-					new Emote(Gameworld.GetStaticString("FallEmoteHitGround"), this, this),
-					style: OutputStyle.NoNewLine));
+					new Emote(Gameworld.GetStaticString("FallEmoteHitGround"), this, this)));
 				cumulativeFallDistance += 0.1;
 				DoFallDamage(cumulativeFallDistance);
 				if (ch != null)
@@ -531,8 +526,7 @@ public abstract class PerceiverItem : PerceivedItem, IPerceiver
 						{
 							cumulativeFallDistance += 0.5;
 							OutputHandler.Handle(new EmoteOutput(
-								new Emote(Gameworld.GetStaticString("FallLeaveRoomEmote"), this, this),
-								style: OutputStyle.NoNewLine));
+								new Emote(Gameworld.GetStaticString("FallLeaveRoomEmote"), this, this)));
 							if (ch != null)
 							{
 								Location.Leave(ch);
@@ -547,14 +541,12 @@ public abstract class PerceiverItem : PerceivedItem, IPerceiver
 							}
 
 							OutputHandler.Handle(new EmoteOutput(
-								new Emote(Gameworld.GetStaticString("FallEnterRoomEmote"), this, this),
-								style: OutputStyle.NoNewLine, flags: OutputFlags.SuppressSource));
+								new Emote(Gameworld.GetStaticString("FallEnterRoomEmote"), this, this), flags: OutputFlags.SuppressSource));
 							return false;
 						}
 
 						OutputHandler.Handle(new EmoteOutput(
-							new Emote(Gameworld.GetStaticString("FallEmoteHitWaterFloor"), this, this),
-							style: OutputStyle.NoNewLine));
+							new Emote(Gameworld.GetStaticString("FallEmoteHitWaterFloor"), this, this)));
 						if (item != null)
 						{
 							item.PositionState = PositionUndefined.Instance;
@@ -565,12 +557,10 @@ public abstract class PerceiverItem : PerceivedItem, IPerceiver
 					}
 
 					OutputHandler.Handle(new EmoteOutput(
-						new Emote(Gameworld.GetStaticString("FallLeaveRoomEmoteUnderwater"), this, this),
-						style: OutputStyle.NoNewLine));
+						new Emote(Gameworld.GetStaticString("FallLeaveRoomEmoteUnderwater"), this, this)));
 					RoomLayer = RoomLayer.DeepUnderwater;
 					OutputHandler.Handle(new EmoteOutput(
-						new Emote(Gameworld.GetStaticString("FallEnterRoomEmoteUnderwater"), this, this),
-						style: OutputStyle.NoNewLine, flags: OutputFlags.SuppressSource));
+						new Emote(Gameworld.GetStaticString("FallEnterRoomEmoteUnderwater"), this, this), flags: OutputFlags.SuppressSource));
 					return false;
 				}
 
@@ -587,8 +577,7 @@ public abstract class PerceiverItem : PerceivedItem, IPerceiver
 						{
 							cumulativeFallDistance += 0.5;
 							OutputHandler.Handle(new EmoteOutput(
-								new Emote(Gameworld.GetStaticString("FallLeaveRoomEmote"), this, this),
-								style: OutputStyle.NoNewLine));
+								new Emote(Gameworld.GetStaticString("FallLeaveRoomEmote"), this, this)));
 							if (ch != null)
 							{
 								Location.Leave(ch);
@@ -603,14 +592,12 @@ public abstract class PerceiverItem : PerceivedItem, IPerceiver
 							}
 
 							OutputHandler.Handle(new EmoteOutput(
-								new Emote(Gameworld.GetStaticString("FallEnterRoomEmote"), this, this),
-								style: OutputStyle.NoNewLine, flags: OutputFlags.SuppressSource));
+								new Emote(Gameworld.GetStaticString("FallEnterRoomEmote"), this, this), flags: OutputFlags.SuppressSource));
 							return false;
 						}
 
 						OutputHandler.Handle(new EmoteOutput(
-							new Emote(Gameworld.GetStaticString("FallEmoteHitWaterFloor"), this, this),
-							style: OutputStyle.NoNewLine));
+							new Emote(Gameworld.GetStaticString("FallEmoteHitWaterFloor"), this, this)));
 						if (item != null)
 						{
 							item.PositionState = PositionUndefined.Instance;
@@ -621,12 +608,10 @@ public abstract class PerceiverItem : PerceivedItem, IPerceiver
 					}
 
 					OutputHandler.Handle(new EmoteOutput(
-						new Emote(Gameworld.GetStaticString("FallLeaveRoomEmoteUnderwater"), this, this),
-						style: OutputStyle.NoNewLine));
+						new Emote(Gameworld.GetStaticString("FallLeaveRoomEmoteUnderwater"), this, this)));
 					RoomLayer = RoomLayer.VeryDeepUnderwater;
 					OutputHandler.Handle(new EmoteOutput(
-						new Emote(Gameworld.GetStaticString("FallEnterRoomEmoteUnderwater"), this, this),
-						style: OutputStyle.NoNewLine, flags: OutputFlags.SuppressSource));
+						new Emote(Gameworld.GetStaticString("FallEnterRoomEmoteUnderwater"), this, this), flags: OutputFlags.SuppressSource));
 					return false;
 				}
 
@@ -640,8 +625,7 @@ public abstract class PerceiverItem : PerceivedItem, IPerceiver
 					{
 						cumulativeFallDistance += 0.5;
 						OutputHandler.Handle(new EmoteOutput(
-							new Emote(Gameworld.GetStaticString("FallLeaveRoomEmote"), this, this),
-							style: OutputStyle.NoNewLine));
+							new Emote(Gameworld.GetStaticString("FallLeaveRoomEmote"), this, this)));
 						if (ch != null)
 						{
 							Location.Leave(ch);
@@ -656,15 +640,13 @@ public abstract class PerceiverItem : PerceivedItem, IPerceiver
 						}
 
 						OutputHandler.Handle(new EmoteOutput(
-							new Emote(Gameworld.GetStaticString("FallEnterRoomEmote"), this, this),
-							style: OutputStyle.NoNewLine, flags: OutputFlags.SuppressSource));
+							new Emote(Gameworld.GetStaticString("FallEnterRoomEmote"), this, this), flags: OutputFlags.SuppressSource));
 						return false;
 					}
 
 					cumulativeFallDistance -= Gameworld.GetStaticDouble("FallDeeperIntoWaterDistance");
 					OutputHandler.Handle(new EmoteOutput(
-						new Emote(Gameworld.GetStaticString("FallEmoteHitWaterFloor"), this, this),
-						style: OutputStyle.NoNewLine));
+						new Emote(Gameworld.GetStaticString("FallEmoteHitWaterFloor"), this, this)));
 					if (item != null)
 					{
 						item.PositionState = PositionUndefined.Instance;
@@ -683,19 +665,16 @@ public abstract class PerceiverItem : PerceivedItem, IPerceiver
 						Gameworld.GetStaticDouble("FallTreesDamageMultiplierMaximum"));
 					var treeFall = cumulativeFallDistance * impactPercent;
 					OutputHandler.Handle(new EmoteOutput(
-						new Emote(Gameworld.GetStaticString("FallEmoteHitTrees"), this, this),
-						style: OutputStyle.NoNewLine));
+						new Emote(Gameworld.GetStaticString("FallEmoteHitTrees"), this, this)));
 					DoFallDamage(treeFall);
 					cumulativeFallDistance -= treeFall;
 				}
 
 				OutputHandler.Handle(new EmoteOutput(
-					new Emote(Gameworld.GetStaticString("FallLeaveRoomEmoteTrees"), this, this),
-					style: OutputStyle.NoNewLine));
+					new Emote(Gameworld.GetStaticString("FallLeaveRoomEmoteTrees"), this, this)));
 				RoomLayer = RoomLayer.GroundLevel;
 				OutputHandler.Handle(new EmoteOutput(
-					new Emote(Gameworld.GetStaticString("FallEnterRoomEmoteFromTrees"), this, this),
-					style: OutputStyle.NoNewLine, flags: OutputFlags.SuppressSource));
+					new Emote(Gameworld.GetStaticString("FallEnterRoomEmoteFromTrees"), this, this), flags: OutputFlags.SuppressSource));
 				cumulativeFallDistance += 0.25;
 				return false;
 			case RoomLayer.HighInTrees:
@@ -707,19 +686,16 @@ public abstract class PerceiverItem : PerceivedItem, IPerceiver
 						Gameworld.GetStaticDouble("FallTreesDamageMultiplierMaximum"));
 					var treeFall = cumulativeFallDistance * impactPercent;
 					OutputHandler.Handle(new EmoteOutput(
-						new Emote(Gameworld.GetStaticString("FallEmoteHitTrees"), this, this),
-						style: OutputStyle.NoNewLine));
+						new Emote(Gameworld.GetStaticString("FallEmoteHitTrees"), this, this)));
 					DoFallDamage(treeFall);
 					cumulativeFallDistance -= treeFall;
 				}
 
 				OutputHandler.Handle(new EmoteOutput(
-					new Emote(Gameworld.GetStaticString("FallLeaveRoomEmoteTrees"), this, this),
-					style: OutputStyle.NoNewLine));
+					new Emote(Gameworld.GetStaticString("FallLeaveRoomEmoteTrees"), this, this)));
 				RoomLayer = RoomLayer.InTrees;
 				OutputHandler.Handle(new EmoteOutput(
-					new Emote(Gameworld.GetStaticString("FallEnterRoomEmoteFromTrees"), this, this),
-					style: OutputStyle.NoNewLine, flags: OutputFlags.SuppressSource));
+					new Emote(Gameworld.GetStaticString("FallEnterRoomEmoteFromTrees"), this, this), flags: OutputFlags.SuppressSource));
 				cumulativeFallDistance += 0.25;
 				return false;
 			case RoomLayer.OnRooftops:
@@ -727,19 +703,16 @@ public abstract class PerceiverItem : PerceivedItem, IPerceiver
 				    Gameworld.GetStaticDouble("FallRooftopsDamageChance"))
 				{
 					OutputHandler.Handle(new EmoteOutput(
-						new Emote(Gameworld.GetStaticString("FallEmoteHitRooftop"), this, this),
-						style: OutputStyle.NoNewLine));
+						new Emote(Gameworld.GetStaticString("FallEmoteHitRooftop"), this, this)));
 					DoFallDamage(cumulativeFallDistance);
 					return true;
 				}
 
 				OutputHandler.Handle(new EmoteOutput(
-					new Emote(Gameworld.GetStaticString("FallLeaveRoomEmoteRooftops"), this, this),
-					style: OutputStyle.NoNewLine));
+					new Emote(Gameworld.GetStaticString("FallLeaveRoomEmoteRooftops"), this, this)));
 				RoomLayer = RoomLayer.GroundLevel;
 				OutputHandler.Handle(new EmoteOutput(
-					new Emote(Gameworld.GetStaticString("FallEnterRoomEmote"), this, this),
-					style: OutputStyle.NoNewLine, flags: OutputFlags.SuppressSource));
+					new Emote(Gameworld.GetStaticString("FallEnterRoomEmote"), this, this), flags: OutputFlags.SuppressSource));
 				cumulativeFallDistance += 0.25;
 				return false;
 			case RoomLayer.InAir:
@@ -765,8 +738,7 @@ public abstract class PerceiverItem : PerceivedItem, IPerceiver
 						}
 
 						OutputHandler.Handle(new EmoteOutput(
-							new Emote(Gameworld.GetStaticString("FallEnterRoomEmote"), this, this),
-							style: OutputStyle.NoNewLine, flags: OutputFlags.SuppressSource));
+							new Emote(Gameworld.GetStaticString("FallEnterRoomEmote"), this, this), flags: OutputFlags.SuppressSource));
 						return false;
 					}
 
@@ -774,24 +746,20 @@ public abstract class PerceiverItem : PerceivedItem, IPerceiver
 				}
 
 				OutputHandler.Handle(new EmoteOutput(
-					new Emote(Gameworld.GetStaticString("FallLeaveRoomEmote"), this, this),
-					style: OutputStyle.NoNewLine));
+					new Emote(Gameworld.GetStaticString("FallLeaveRoomEmote"), this, this)));
 				RoomLayer = Location.Terrain(this).TerrainLayers.Where(x => x.IsLowerThan(RoomLayer.InAir))
 				                    .FirstMax(x => x.LayerHeight());
 				OutputHandler.Handle(new EmoteOutput(
-					new Emote(Gameworld.GetStaticString("FallEnterRoomEmote"), this, this),
-					style: OutputStyle.NoNewLine, flags: OutputFlags.SuppressSource));
+					new Emote(Gameworld.GetStaticString("FallEnterRoomEmote"), this, this), flags: OutputFlags.SuppressSource));
 				cumulativeFallDistance += 0.25;
 				return false;
 			case RoomLayer.HighInAir:
 
 				OutputHandler.Handle(new EmoteOutput(
-					new Emote(Gameworld.GetStaticString("FallLeaveRoomEmote"), this, this),
-					style: OutputStyle.NoNewLine));
+					new Emote(Gameworld.GetStaticString("FallLeaveRoomEmote"), this, this)));
 				RoomLayer = RoomLayer.InAir;
 				OutputHandler.Handle(new EmoteOutput(
-					new Emote(Gameworld.GetStaticString("FallEnterRoomEmote"), this, this),
-					style: OutputStyle.NoNewLine, flags: OutputFlags.SuppressSource));
+					new Emote(Gameworld.GetStaticString("FallEnterRoomEmote"), this, this), flags: OutputFlags.SuppressSource));
 				cumulativeFallDistance += 0.25;
 				return false;
 		}

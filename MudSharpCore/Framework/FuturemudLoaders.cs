@@ -3913,6 +3913,7 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 						Expression = checkType switch
 						{
 							CheckType.WritingComprehendCheck => "variable",
+							CheckType.ClimbTreetoTreeCheck => _checks.FirstOrDefault(x => x.Type == CheckType.ClimbCheck)?.TargetNumberExpression.OriginalFormulaText ?? "50",
 							_ => "50"
 						}
 					}

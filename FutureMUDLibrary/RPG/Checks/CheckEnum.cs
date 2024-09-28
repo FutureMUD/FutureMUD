@@ -170,6 +170,7 @@ namespace MudSharp.RPG.Checks {
 		WritingComprehendCheck = 164,
 		ProsecuteLegalCase = 165,
 		DefendLegalCase = 166,
+		ClimbTreetoTreeCheck = 167
 	}
 
 	public enum FailIfTraitMissingType {
@@ -260,6 +261,7 @@ namespace MudSharp.RPG.Checks {
 				case CheckType.ConfigureImplantInterfaceSurgery:
 				case CheckType.ConfigureImplantPowerSurgery:
 				case CheckType.RescueCheck:
+				case CheckType.DefendLegalCase:
 					return true;
 				default:
 					return false;
@@ -357,6 +359,7 @@ namespace MudSharp.RPG.Checks {
 				case CheckType.TakedownCheck:
 				case CheckType.WrenchAttackCheck:
 				case CheckType.AuxiliaryMoveCheck:
+				case CheckType.ProsecuteLegalCase:
 					return true;
 				default:
 					return false;
@@ -448,6 +451,7 @@ namespace MudSharp.RPG.Checks {
 				case CheckType.SpillLiquidOnPerson:
 				case CheckType.DodgeSpillLiquidOnPerson:
 				case CheckType.DrawingImprovementCheck:
+				case CheckType.ClimbTreetoTreeCheck:
 					return true;
 			}
 

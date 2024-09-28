@@ -52,9 +52,9 @@ internal class GameModule : Module<ICharacter>
 			? actor.Gameworld.Traits.ToList()
 			: actor.Traits.Select(x => x.Definition).ToList();
 		var trait = traits.FirstOrDefault(x => x.Name.EqualTo(traitName)) ??
-		            traits.FirstOrDefault(
-			            x => x.Name.StartsWith(traitName, StringComparison.InvariantCultureIgnoreCase)) ??
-		            traits.OfType<IAttributeDefinition>().FirstOrDefault(x => x.Alias.EqualTo(traitName));
+					traits.FirstOrDefault(
+						x => x.Name.StartsWith(traitName, StringComparison.InvariantCultureIgnoreCase)) ??
+					traits.OfType<IAttributeDefinition>().FirstOrDefault(x => x.Alias.EqualTo(traitName));
 
 		if (trait == null)
 		{
@@ -237,21 +237,21 @@ For a full list of combat flags, see #3SHOW COMBATFLAGS#0", AutoHelp.HelpArg)]
 		{
 			sb.AppendLine($"You are currently able to use the following unarmed attacks:");
 			foreach (var type in actor.Race.UsableNaturalWeaponAttacks(
-				                          actor, null, true, BuiltInCombatMoveType.NaturalWeaponAttack,
-				                          BuiltInCombatMoveType.StaggeringBlowUnarmed,
-				                          BuiltInCombatMoveType.DownedAttackUnarmed,
-				                          BuiltInCombatMoveType.UnbalancingBlowUnarmed,
-				                          BuiltInCombatMoveType.ScreechAttack,
-				                          BuiltInCombatMoveType.WardFreeUnarmedAttack,
-				                          BuiltInCombatMoveType.ClinchUnarmedAttack,
-				                          BuiltInCombatMoveType.UnarmedSmashItem,
-				                          BuiltInCombatMoveType.EnvenomingAttack,
-				                          BuiltInCombatMoveType.EnvenomingAttackClinch,
-				                          BuiltInCombatMoveType.UnbalancingBlowClinch,
-				                          BuiltInCombatMoveType.StaggeringBlowClinch,
-				                          BuiltInCombatMoveType.SwoopAttackUnarmed)
-			                          .Select(x => x.Attack).Distinct().GroupBy(x => x.MoveType).OrderBy(x => x.Key)
-			        )
+										  actor, null, true, BuiltInCombatMoveType.NaturalWeaponAttack,
+										  BuiltInCombatMoveType.StaggeringBlowUnarmed,
+										  BuiltInCombatMoveType.DownedAttackUnarmed,
+										  BuiltInCombatMoveType.UnbalancingBlowUnarmed,
+										  BuiltInCombatMoveType.ScreechAttack,
+										  BuiltInCombatMoveType.WardFreeUnarmedAttack,
+										  BuiltInCombatMoveType.ClinchUnarmedAttack,
+										  BuiltInCombatMoveType.UnarmedSmashItem,
+										  BuiltInCombatMoveType.EnvenomingAttack,
+										  BuiltInCombatMoveType.EnvenomingAttackClinch,
+										  BuiltInCombatMoveType.UnbalancingBlowClinch,
+										  BuiltInCombatMoveType.StaggeringBlowClinch,
+										  BuiltInCombatMoveType.SwoopAttackUnarmed)
+									  .Select(x => x.Attack).Distinct().GroupBy(x => x.MoveType).OrderBy(x => x.Key)
+					)
 			{
 				sb.AppendLine($"\n{type.Key.Describe().Pluralise().ColourName()}:");
 				foreach (var attack in type)
@@ -280,15 +280,15 @@ For a full list of combat flags, see #3SHOW COMBATFLAGS#0", AutoHelp.HelpArg)]
 
 		sb.AppendLine($"You are currently able to use the following attacks with {target.HowSeen(actor)}:");
 		foreach (var type in targetAsWeapon.WeaponType
-		                                   .UsableAttacks(actor, target, null, AttackHandednessOptions.Any, true,
-			                                   BuiltInCombatMoveType.UseWeaponAttack,
-			                                   BuiltInCombatMoveType.UnbalancingBlow,
-			                                   BuiltInCombatMoveType.StaggeringBlow,
-			                                   BuiltInCombatMoveType.WardFreeAttack, BuiltInCombatMoveType.ClinchAttack,
-			                                   BuiltInCombatMoveType.MeleeWeaponSmashItem)
-		                                   .Distinct()
-		                                   .GroupBy(x => x.MoveType)
-		                                   .OrderBy(x => x.Key))
+										   .UsableAttacks(actor, target, null, AttackHandednessOptions.Any, true,
+											   BuiltInCombatMoveType.UseWeaponAttack,
+											   BuiltInCombatMoveType.UnbalancingBlow,
+											   BuiltInCombatMoveType.StaggeringBlow,
+											   BuiltInCombatMoveType.WardFreeAttack, BuiltInCombatMoveType.ClinchAttack,
+											   BuiltInCombatMoveType.MeleeWeaponSmashItem)
+										   .Distinct()
+										   .GroupBy(x => x.MoveType)
+										   .OrderBy(x => x.Key))
 		{
 			sb.AppendLine($"\n{type.Key.Describe()}:");
 			foreach (var attack in type)
@@ -362,7 +362,7 @@ For a full list of combat flags, see #3SHOW COMBATFLAGS#0", AutoHelp.HelpArg)]
 			sb.AppendLine($"The following targets match the supplied keyword in {target.HowSeen(actor)}:");
 			var matchingItems =
 				container.Contents.Where(x => x.HasKeywords(keystrings, actor, true) || actor.HasDubFor(x, keystrings))
-				         .ToList();
+						 .ToList();
 			foreach (var item in matchingItems)
 			{
 				sb.AppendLine($"\t{i++}: {item.HowSeen(actor)}");
@@ -380,15 +380,15 @@ For a full list of combat flags, see #3SHOW COMBATFLAGS#0", AutoHelp.HelpArg)]
 
 		var matchingChars =
 			actor.Location.LayerCharacters(actor.RoomLayer).Except(actor)
-			     .Where(x => x.HasKeywords(keystrings, actor, true) || actor.HasDubFor(x, keystrings))
-			     .ToList();
+				 .Where(x => x.HasKeywords(keystrings, actor, true) || actor.HasDubFor(x, keystrings))
+				 .ToList();
 		var matchingRoomObjects =
 			actor.Location.LayerGameItems(actor.RoomLayer).Where(x =>
-				     x.HasKeywords(keystrings, actor, true) || actor.HasDubFor(x, keystrings))
-			     .ToList();
+					 x.HasKeywords(keystrings, actor, true) || actor.HasDubFor(x, keystrings))
+				 .ToList();
 		var matchingPersonalObjects =
 			actor.Body.ExternalItems
-			     .Where(x => x.HasKeywords(keystrings, actor, true) || actor.HasDubFor(x, keystrings)).ToList();
+				 .Where(x => x.HasKeywords(keystrings, actor, true) || actor.HasDubFor(x, keystrings)).ToList();
 
 		sb.AppendLine("If the target can be either a person or item:".FluentTagMXP("U"));
 		foreach (
@@ -450,7 +450,7 @@ For a full list of combat flags, see #3SHOW COMBATFLAGS#0", AutoHelp.HelpArg)]
 				"The record number of players online at one time was {0}, which was achieved on {1}.",
 				actor.Gameworld.GameStatistics.RecordOnlinePlayers.ToString("N0", actor).Colour(Telnet.Green),
 				actor.Gameworld.GameStatistics.RecordOnlinePlayersDateTime.GetLocalDateString(actor)
-				     .Colour(Telnet.Green)
+					 .Colour(Telnet.Green)
 			));
 		sb.AppendLine(
 			string.Format(actor, "The MUD was last booted on {0}, and took {1}, with a current uptime of {2}.",
@@ -466,8 +466,8 @@ For a full list of combat flags, see #3SHOW COMBATFLAGS#0", AutoHelp.HelpArg)]
 				"There are {0} registered accounts, of which {1} have logged on in the last 60 days.",
 				FMDB.Context.Accounts.Count().ToString("N0", actor).Colour(Telnet.Green),
 				FMDB.Context.Accounts.Count(x => x.LastLoginTime != null && x.LastLoginTime >= sinceTime)
-				    .ToString("N0", actor)
-				    .Colour(Telnet.Green)
+					.ToString("N0", actor)
+					.Colour(Telnet.Green)
 			));
 
 			sb.AppendLine(
@@ -486,7 +486,7 @@ For a full list of combat flags, see #3SHOW COMBATFLAGS#0", AutoHelp.HelpArg)]
 			actor.Gameworld.Cells.Count().ToString("N0", actor).Colour(Telnet.Green),
 			actor.Gameworld.ItemProtos.Select(x => x.Id).Distinct().Count().ToString("N0", actor).Colour(Telnet.Green),
 			actor.Gameworld.NpcTemplates.Select(x => x.Id).Distinct().Count().ToString("N0", actor)
-			     .Colour(Telnet.Green)));
+				 .Colour(Telnet.Green)));
 		sb.AppendLineFormat("There are {0} items and {1} NPCs in the game world.",
 			actor.Gameworld.Items.Count().ToString("N0", actor).Colour(Telnet.Green),
 			actor.Gameworld.NPCs.Count().ToString("N0", actor).Colour(Telnet.Green)
@@ -512,7 +512,7 @@ For a full list of combat flags, see #3SHOW COMBATFLAGS#0", AutoHelp.HelpArg)]
 		{
 			var clanMembers =
 				actor.Gameworld.Characters.Where(x => x.ClanMemberships.Any(y => y.Clan == clan.Clan))
-				     .Concat(actor.Gameworld.NPCs.Where(x => x.EffectsOfType<ICountForWho>().Any())).ToList();
+					 .Concat(actor.Gameworld.NPCs.Where(x => x.EffectsOfType<ICountForWho>().Any())).ToList();
 			extraText.AppendFormat(actor, "\nThere are {0:N0} {1} of {2} online.", clanMembers.Count,
 				clanMembers.Count == 1 ? "member" : "members", clan.Clan.FullName.Colour(Telnet.Green));
 		}
@@ -602,8 +602,8 @@ For a full list of combat flags, see #3SHOW COMBATFLAGS#0", AutoHelp.HelpArg)]
 		{
 			var target =
 				actor.Gameworld.Characters.Where(x => x.AffectedBy<IAdminAvailableEffect>())
-				     .FirstOrDefault(
-					     x => x.Account.Name.Equals(targetText, StringComparison.InvariantCultureIgnoreCase));
+					 .FirstOrDefault(
+						 x => x.Account.Name.Equals(targetText, StringComparison.InvariantCultureIgnoreCase));
 			if (target == null)
 			{
 				actor.OutputHandler.Send(
@@ -660,8 +660,8 @@ For a full list of combat flags, see #3SHOW COMBATFLAGS#0", AutoHelp.HelpArg)]
 		var skilltext = ss.PopSpeech();
 		var skillValue =
 			actor.TraitsOfType(TraitType.Skill)
-			     .FirstOrDefault(
-				     x => x.Definition.Name.StartsWith(skilltext, StringComparison.InvariantCultureIgnoreCase));
+				 .FirstOrDefault(
+					 x => x.Definition.Name.StartsWith(skilltext, StringComparison.InvariantCultureIgnoreCase));
 		ISkillDefinition skill = null;
 		if (skillValue == null || skilltext[0] == '*')
 		{
@@ -817,7 +817,7 @@ For a full list of combat flags, see #3SHOW COMBATFLAGS#0", AutoHelp.HelpArg)]
 		}
 
 		var realAccents = accent?.Accents.Where(x => actor.Languages.Contains(x.Language)).ToList() ??
-		                  new List<IAccent>();
+						  new List<IAccent>();
 		if (realAccents.Any())
 		{
 			sb.AppendLine("You are not gaining any familiarity with the following accents:");
@@ -865,7 +865,7 @@ For a full list of combat flags, see #3SHOW COMBATFLAGS#0", AutoHelp.HelpArg)]
 		if (actor.CombinedEffectsOfType<INoQuitEffect>().Any(x => x.Applies()))
 		{
 			actor.OutputHandler?.Send(actor.CombinedEffectsOfType<INoQuitEffect>().First(x => x.Applies())
-			                               .NoQuitReason);
+										   .NoQuitReason);
 			return;
 		}
 
@@ -883,7 +883,7 @@ For a full list of combat flags, see #3SHOW COMBATFLAGS#0", AutoHelp.HelpArg)]
 
 The syntax to use with this command is as follows:
 
-    forage <yield> [into <container>]
+	forage <yield> [into <container>]
 
 You can also type 'forage' on its own to see what kinds of yields you can search for in the area.", AutoHelp.HelpArg)]
 	protected static void Forage(ICharacter actor, string input)
@@ -897,10 +897,10 @@ You can also type 'forage' on its own to see what kinds of yields you can search
 
 		var forageTypes =
 			profile.Foragables.SelectMany(x => x.ForagableTypes)
-			       .Select(x => x.ToLowerInvariant())
-			       .Where(x => !string.IsNullOrEmpty(x))
-			       .Distinct()
-			       .ToList();
+				   .Select(x => x.ToLowerInvariant())
+				   .Where(x => !string.IsNullOrEmpty(x))
+				   .Distinct()
+				   .ToList();
 		var ss = new StringStack(input.RemoveFirstWord());
 		if (ss.IsFinished)
 		{
@@ -1020,11 +1020,11 @@ You can also type 'forage' on its own to see what kinds of yields you can search
 					actor, actor)));
 
 				if (targetContainer != null &&
-				    (targetContainer.ContainedIn != null ||
-				     (targetContainer.IsItemType<IOpenable>() && !targetContainer.GetItemType<IOpenable>().IsOpen) ||
-				     !targetContainer.TrueLocations.Contains(actor.Location) ||
-				     newItems.Any(x => !x.IsItemType<IHoldable>() || x.GetItemType<IHoldable>()?.IsHoldable == false)
-				    ))
+					(targetContainer.ContainedIn != null ||
+					 (targetContainer.IsItemType<IOpenable>() && !targetContainer.GetItemType<IOpenable>().IsOpen) ||
+					 !targetContainer.TrueLocations.Contains(actor.Location) ||
+					 newItems.Any(x => !x.IsItemType<IHoldable>() || x.GetItemType<IHoldable>()?.IsHoldable == false)
+					))
 				{
 					targetContainer = null;
 				}
@@ -1431,14 +1431,14 @@ You can also type 'forage' on its own to see what kinds of yields you can search
 		{
 			var sb = new StringBuilder();
 			foreach (var group in actor.CommandTree.Commands.ReportCommandsInGroups(
-				         actor.PermissionLevel <= PermissionLevel.Guide
-					         ? actor.PermissionLevel
-					         : PermissionLevel.Guide, actor).OrderBy(x => x.Key, CommandGroupComparer))
+						 actor.PermissionLevel <= PermissionLevel.Guide
+							 ? actor.PermissionLevel
+							 : PermissionLevel.Guide, actor).OrderBy(x => x.Key, CommandGroupComparer))
 			{
 				sb.AppendLine(group.Key.GetLineWithTitle(actor, Telnet.Cyan, Telnet.BoldYellow));
 				sb.AppendLine();
 				sb.AppendLine(group.Select(x => x.ToLowerInvariant()).Distinct().OrderBy(x => x)
-				                   .ArrangeStringsOntoLines(5, (uint)actor.LineFormatLength));
+								   .ArrangeStringsOntoLines(5, (uint)actor.LineFormatLength));
 			}
 
 			actor.OutputHandler.Send(sb.ToString(), nopage: true);
@@ -1461,22 +1461,22 @@ You can also type 'forage' on its own to see what kinds of yields you can search
 		bool CanBeCleaned(ICleanableEffect effect, IPerceivable item)
 		{
 			return item.Effects.Contains(effect) &&
-			       actor.ContextualItems.Contains(item) &&
-			       actor.CanSee(item) &&
-			       (effect.CleaningToolTag != null || effect.LiquidRequired != null) &&
-			       (effect.CleaningToolTag == null ||
-			        actor.Body.HeldOrWieldedItems.Any(x => x.IsA(effect.CleaningToolTag))) &&
-			       (effect.LiquidRequired == null || actor.ContextualItems
-			                                              .SelectNotNull(x => x.GetItemType<ILiquidContainer>()).Any(
-				                                              x => x.LiquidMixture?.CountsAs(effect.LiquidRequired)
-				                                                    .Truth == true && x.IsOpen));
+				   actor.ContextualItems.Contains(item) &&
+				   actor.CanSee(item) &&
+				   (effect.CleaningToolTag != null || effect.LiquidRequired != null) &&
+				   (effect.CleaningToolTag == null ||
+					actor.Body.HeldOrWieldedItems.Any(x => x.IsA(effect.CleaningToolTag))) &&
+				   (effect.LiquidRequired == null || actor.ContextualItems
+														  .SelectNotNull(x => x.GetItemType<ILiquidContainer>()).Any(
+															  x => x.LiquidMixture?.CountsAs(effect.LiquidRequired)
+																	.Truth == true && x.IsOpen));
 		}
 
 		return item =>
 		{
 			ICleanableEffect[] effect = { effectQueue.Dequeue() };
 			while (effect[0] == null || !CanBeCleaned(effect[0], gitem)
-			      )
+				  )
 			{
 				if (!effectQueue.Any())
 				{
@@ -1526,9 +1526,9 @@ You can also type 'forage' on its own to see what kinds of yields you can search
 				//Some cleaning requires a liquid
 				var potentialLiquidItems =
 					actor.ContextualItems.SelectNotNull(y => y.GetItemType<ILiquidContainer>())
-					     .Where(
-						     x => x.LiquidMixture?.CountsAs(effect[0].LiquidRequired).Truth == true && x.IsOpen)
-					     .ToList();
+						 .Where(
+							 x => x.LiquidMixture?.CountsAs(effect[0].LiquidRequired).Truth == true && x.IsOpen)
+						 .ToList();
 				var actualLiquidItems = new Dictionary<ILiquidContainer, double>();
 				var actualLiquids = new Dictionary<LiquidMixture, double>();
 				var targetAmount = effect[0].LiquidAmountConsumed;
@@ -1558,7 +1558,7 @@ You can also type 'forage' on its own to see what kinds of yields you can search
 					}
 
 					var newContamEffect = gitem.EffectsOfType<ILiquidContaminationEffect>()
-					                           .FirstOrDefault(x => x.ContaminatingLiquid.CanMerge(liquidUsed.Key));
+											   .FirstOrDefault(x => x.ContaminatingLiquid.CanMerge(liquidUsed.Key));
 					if (newContamEffect != null)
 					{
 						newContamEffect.ContaminatingLiquid.AddLiquid(liquidUsed.Key);
@@ -1719,10 +1719,10 @@ You can also type 'forage' on its own to see what kinds of yields you can search
 
 		cleanableEffects =
 			cleanableEffects.Where(
-				                x =>
-					                x.LiquidRequired == null ||
-					                actor.ContextualItems.Any(y => IsSuitable(x, y)))
-			                .ToList();
+								x =>
+									x.LiquidRequired == null ||
+									actor.ContextualItems.Any(y => IsSuitable(x, y)))
+							.ToList();
 
 		if (!cleanableEffects.Any())
 		{
@@ -1756,7 +1756,7 @@ You can also type 'forage' on its own to see what kinds of yields you can search
 	private static void CleanAll(ICharacter actor, bool onlyMine)
 	{
 		var localItems = actor.Location.LayerGameItems(actor.RoomLayer)
-		                      .Where(x => x.Effects.Any(y => y is ICleanableEffect)).ToList();
+							  .Where(x => x.Effects.Any(y => y is ICleanableEffect)).ToList();
 		var personalItems = actor.Body.ExternalItems.Where(x => x.Effects.Any(y => y is ICleanableEffect)).ToList();
 		var potentialItems = onlyMine ? personalItems : personalItems.Concat(localItems).ToList();
 		if (!potentialItems.Any())

@@ -1130,7 +1130,23 @@ public partial class Character
 		switch (transition)
 		{
 			case CellMovementTransition.TreesToTrees:
-				// TODO - chance to fall out of trees based on skill
+				if (AffectedBy<Immwalk>())
+				{
+					break;
+				}
+				var check = Gameworld.GetCheck(CheckType.ClimbTreetoTreeCheck);
+				var weather = Location.CurrentWeather(this);
+				var result = check.CheckAgainstAllDifficulties(this, Difficulty.VeryEasy, null,
+					externalBonus: 
+					(weather?.Precipitation.PrecipitationClimbingBonus() ?? 0.0) + 
+					(weather?.Wind.WindClimbingBonus() ?? 0.0));
+				if (result[Difficulty.VeryEasy].Outcome.IsFail())
+				{
+					OutputHandler.Handle(new EmoteOutput(new Emote(Gameworld.GetStaticString("FallFromTreesWhenMovingRoomToRoom"), this, this)));
+					RemoveAllEffects<HideInvis>();
+					FallToGround();
+					Body.Look(true);
+				}
 				break;
 			case CellMovementTransition.FlyOnly:
 				if (!PositionState.SafeFromFalling && CanFly().Truth)
@@ -1599,14 +1615,6 @@ public partial class Character
 				"You would descend into the water if you dive any lower; you must land if you want to do so.");
 		}
 
-		if (!CanSpendStamina(FlyStaminaCost()))
-		{
-			return (false,
-				Gameworld.GetStaticBool("ShowStaminaCostInExhaustedMessage")
-					? $"You are too exhausted to dive ({FlyStaminaCost().ToString("N2", this).ColourValue()} stamina required)."
-					: "You are too exhausted to dive.");
-		}
-
 		return (true, string.Empty);
 	}
 
@@ -1627,6 +1635,7 @@ public partial class Character
 			return;
 		}
 
+		SpendStamina(FlyStaminaCost());
 		var higherLayers = terrain.TerrainLayers.Where(x => x.IsHigherThan(RoomLayer)).ToList();
 		var desired = higherLayers.LowestLayer();
 		var emote = new Emote(Gameworld.GetStaticString("AscendFlyEmote"), this, this);
@@ -2135,6 +2144,11 @@ public partial class Character
 
 	public bool DoClimbMovementCheck(Difficulty difficulty)
 	{
+		if (AffectedBy<Immwalk>())
+		{
+			return true;
+		}
+
 		var staminaCost = Gameworld.GetStaticDouble("ClimbingTickStaminaUsage") * (EffectsOfType<Dragging>().Any()
 			? 1.0 + ((IHaveWeight)EffectsOfType<Dragging>().First().Target).Weight / Weight
 			: 1.0);
@@ -2175,6 +2189,7 @@ public partial class Character
 				OutputHandler.Handle(new EmoteOutput(new Emote("@ lose|loses &0's grip and fall|falls!", this, this),
 					style: OutputStyle.NoNewLine, flags: OutputFlags.SuppressObscured));
 				FallToGround();
+				Body.Look(true);
 				return false;
 			}
 		}
@@ -2305,7 +2320,7 @@ public partial class Character
 			return;
 		}
 
-		var result = DoClimbMovementCheck(climbExit != null ? climbExit.ClimbDifficulty : Difficulty.Easy);
+		var result = DoClimbMovementCheck(climbExit != null ? climbExit.ClimbDifficulty : Difficulty.ExtremelyEasy);
 		if (!AffectedBy<Immwalk>())
 		{
 			AddEffect(new BlockLayerChange(this), ClimbDelay);
@@ -2369,7 +2384,7 @@ public partial class Character
 			return;
 		}
 
-		var result = DoClimbMovementCheck(climbExit != null ? climbExit.ClimbDifficulty : Difficulty.Easy);
+		var result = DoClimbMovementCheck(climbExit != null ? climbExit.ClimbDifficulty : Difficulty.Trivial);
 		if (!AffectedBy<Immwalk>())
 		{
 			AddEffect(new BlockLayerChange(this), ClimbDelay);

@@ -675,6 +675,7 @@ public static class DefaultStaticSettings
 		{ "FallLeaveRoomEmoteItem", "@ fall|falls down from here." },
 		{ "FallEnterRoomEmoteItem", "@ fall|falls in from above." },
 		{ "FallFinalRoomEmoteItem", "@ fall|falls onto the ground." },
+		{ "FallFromTreesWhenMovingRoomToRoom", "@ slip|slips when moving branch to branch and plummet|plummets to the ground!"},
 		{ "FallEmoteHitGround", "@ hit|hits the ground!" },
 		{ "FallEmoteHitWater", "@ hit|hits the surface of the water with a splash!" },
 		{ "FallEmoteHitWaterFloor", "@ smash|smashes into the bottom!" },

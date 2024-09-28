@@ -1655,7 +1655,22 @@ public partial class Race
 
 	private bool BuildingCommandArmourQuality(ICharacter actor, StringStack command)
 	{
-		throw new NotImplementedException();
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("What quality should the natural armour for this race be?");
+			return false;
+		}
+
+		if (!Enum.TryParse<ItemQuality>(command.SafeRemainingArgument, out var quality))
+		{
+			actor.OutputHandler.Send($"The text {command.SafeRemainingArgument.ColourCommand()} is not a valid quality.");
+			return false;
+		}
+
+		NaturalArmourQuality = quality;
+		Changed = true;
+		actor.OutputHandler.Send($"This race now has natural armour with a quality of {quality.Describe().ColourValue()}.");
+		return true;
 	}
 
 	private bool BuildingCommandArmourType(ICharacter actor, StringStack command)

@@ -33,6 +33,7 @@ using MudSharp.TimeAndDate.Intervals;
 using MudSharp.TimeAndDate.Time;
 using System.Numerics;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using MudSharp.Form.Material;
 
 namespace MudSharp.Commands.Modules;
 
@@ -690,6 +691,8 @@ A function (See PROG HELP FUNCTIONS) can also function as a statement on a line.
 				return $"the {((IFrameworkItem)result).Name.ColourValue()} market";
 			case FutureProgVariableTypes.MarketCategory:
 				return $"the {((IFrameworkItem)result).Name.ColourValue()} market category";
+			case FutureProgVariableTypes.LiquidMixture:
+				return $"the {((LiquidMixture)result).ColouredLiquidDescription} liquid mixture";
 			case FutureProgVariableTypes.Perceivable:
 				var perceivable = (IPerceivable)result;
 				return perceivable.HowSeen(actor);
@@ -2717,7 +2720,7 @@ You can use the following filters with #3hook list#0:
 			return;
 		}
 
-		var prog = new FutureProgLookupFromBuilderInput(actor.Gameworld, actor, ss.SafeRemainingArgument,
+		var prog = new ProgLookupFromBuilderInput(actor.Gameworld, actor, ss.SafeRemainingArgument,
 			FutureProgVariableTypes.Boolean, type switch
 			{
 				"Character" => new FutureProgVariableTypes[] { FutureProgVariableTypes.Toon },
@@ -2794,7 +2797,7 @@ You can use the following filters with #3hook list#0:
 			return;
 		}
 
-		var prog = new FutureProgLookupFromBuilderInput(actor.Gameworld, actor, ss.SafeRemainingArgument,
+		var prog = new ProgLookupFromBuilderInput(actor.Gameworld, actor, ss.SafeRemainingArgument,
 			FutureProgVariableTypes.Boolean, type switch
 			{
 				"Character" => new FutureProgVariableTypes[] { FutureProgVariableTypes.Toon },

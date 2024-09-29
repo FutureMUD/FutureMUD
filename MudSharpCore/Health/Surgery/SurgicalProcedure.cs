@@ -1081,7 +1081,7 @@ There are the following special phase actions available for this surgical proced
 			return true;
 		}
 
-		var prog = new FutureProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument,
+		var prog = new ProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument,
 			FutureProgVariableTypes.Void, new[]
 			{
 				FutureProgVariableTypes.Character,
@@ -1379,7 +1379,7 @@ There are the following special phase actions available for this surgical proced
 			return true;
 		}
 
-		var prog = new FutureProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument,
+		var prog = new ProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument,
 			FutureProgVariableTypes.Void,
 			ParametersForCancelProg).LookupProg();
 		if (prog is null)
@@ -1409,7 +1409,7 @@ There are the following special phase actions available for this surgical proced
 			return true;
 		}
 
-		var prog = new FutureProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument,
+		var prog = new ProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument,
 			FutureProgVariableTypes.Void,
 			ParametersForCompletionProg).LookupProg();
 		if (prog is null)
@@ -1431,7 +1431,7 @@ There are the following special phase actions available for this surgical proced
 			return false;
 		}
 
-		var prog = new FutureProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument,
+		var prog = new ProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument,
 			FutureProgVariableTypes.Text,
 			new[]
 			{
@@ -1457,7 +1457,7 @@ There are the following special phase actions available for this surgical proced
 			return false;
 		}
 
-		var prog = new FutureProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument, 
+		var prog = new ProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument, 
 			FutureProgVariableTypes.Boolean, 
 			new[]
 			{

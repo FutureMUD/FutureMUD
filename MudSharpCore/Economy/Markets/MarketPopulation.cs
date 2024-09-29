@@ -259,7 +259,7 @@ internal class MarketPopulation : SaveableItem, IMarketPopulation
 			return true;
 		}
 
-		var prog = new FutureProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument, FutureProgVariableTypes.Void, 
+		var prog = new ProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument, FutureProgVariableTypes.Void, 
 			[
 				[FutureProgVariableTypes.Number],
 				[FutureProgVariableTypes.Number, FutureProgVariableTypes.Boolean],
@@ -295,7 +295,7 @@ internal class MarketPopulation : SaveableItem, IMarketPopulation
 			return true;
 		}
 
-		var prog = new FutureProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument, FutureProgVariableTypes.Void,
+		var prog = new ProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument, FutureProgVariableTypes.Void,
 			[
 				[FutureProgVariableTypes.Number],
 				[FutureProgVariableTypes.Number, FutureProgVariableTypes.Boolean],
@@ -433,7 +433,7 @@ internal class MarketPopulation : SaveableItem, IMarketPopulation
 			var text = command.PopSpeech();
 			if (!text.EqualTo("none"))
 			{
-				var prog = new FutureProgLookupFromBuilderInput(Gameworld, actor, text, FutureProgVariableTypes.Void,
+				var prog = new ProgLookupFromBuilderInput(Gameworld, actor, text, FutureProgVariableTypes.Void,
 				[
 					[FutureProgVariableTypes.Number],
 					[FutureProgVariableTypes.Number, FutureProgVariableTypes.Boolean],
@@ -452,7 +452,7 @@ internal class MarketPopulation : SaveableItem, IMarketPopulation
 				text = command.SafeRemainingArgument;
 				if (!text.EqualTo("none"))
 				{
-					var prog = new FutureProgLookupFromBuilderInput(Gameworld, actor, text, FutureProgVariableTypes.Void,
+					var prog = new ProgLookupFromBuilderInput(Gameworld, actor, text, FutureProgVariableTypes.Void,
 					[
 						[FutureProgVariableTypes.Number],
 						[FutureProgVariableTypes.Number, FutureProgVariableTypes.Boolean],

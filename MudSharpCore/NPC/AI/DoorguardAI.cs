@@ -386,7 +386,7 @@ public class DoorguardAI : ArtificialIntelligenceBase
 			return true;
 		}
 
-		var prog = new FutureProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument,
+		var prog = new ProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument,
 			FutureProgVariableTypes.Void, new[]
 			{
 				new[] { FutureProgVariableTypes.Character, },
@@ -420,7 +420,7 @@ public class DoorguardAI : ArtificialIntelligenceBase
 			return true;
 		}
 
-		var prog = new FutureProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument,
+		var prog = new ProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument,
 			FutureProgVariableTypes.Void, new[]
 			{
 				new[] { FutureProgVariableTypes.Character, },
@@ -454,7 +454,7 @@ public class DoorguardAI : ArtificialIntelligenceBase
 			return true;
 		}
 
-		var prog = new FutureProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument,
+		var prog = new ProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument,
 			FutureProgVariableTypes.Void, new[]
 			{
 				new[] { FutureProgVariableTypes.Character, },
@@ -488,7 +488,7 @@ public class DoorguardAI : ArtificialIntelligenceBase
 			return true;
 		}
 
-		var prog = new FutureProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument,
+		var prog = new ProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument,
 			FutureProgVariableTypes.Void, new[]
 			{
 				new[] { FutureProgVariableTypes.Character, },
@@ -522,7 +522,7 @@ public class DoorguardAI : ArtificialIntelligenceBase
 			return true;
 		}
 
-		var prog = new FutureProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument,
+		var prog = new ProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument,
 			FutureProgVariableTypes.Void, new[]
 			{
 				new[] { FutureProgVariableTypes.Character, },
@@ -548,7 +548,7 @@ public class DoorguardAI : ArtificialIntelligenceBase
 			return false;
 		}
 
-		var prog = new FutureProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument,
+		var prog = new ProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument,
 			FutureProgVariableTypes.Boolean, new[]
 			{
 				new[] { FutureProgVariableTypes.Character, },
@@ -574,7 +574,7 @@ public class DoorguardAI : ArtificialIntelligenceBase
 			return false;
 		}
 
-		var prog = new FutureProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument,
+		var prog = new ProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument,
 			FutureProgVariableTypes.Number, new[]
 			{
 				new[] { FutureProgVariableTypes.Character, },
@@ -600,7 +600,7 @@ public class DoorguardAI : ArtificialIntelligenceBase
 			return false;
 		}
 
-		var prog = new FutureProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument,
+		var prog = new ProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument,
 			FutureProgVariableTypes.Number, new[]
 			{
 				new[] { FutureProgVariableTypes.Character, },

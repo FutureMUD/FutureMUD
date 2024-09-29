@@ -9,6 +9,8 @@ using System.Text;
 using System.Xml.Linq;
 using JetBrains.Annotations;
 using MudSharp.Body.Needs;
+using MudSharp.FutureProg;
+using MudSharp.FutureProg.Variables;
 
 namespace MudSharp.Form.Material
 {
@@ -23,7 +25,7 @@ namespace MudSharp.Form.Material
 		FromContainer
 	}
 
-	public class LiquidMixture
+	public class LiquidMixture : IFutureProgVariable
 	{
 		public XElement SaveToXml()
 		{
@@ -490,6 +492,59 @@ namespace MudSharp.Form.Material
 		}
 
 		public event LiquidMixtureEvent OnLiquidMixtureChanged;
+
+		#region Prog Variable
+
+		/// <inheritdoc />
+		public FutureProgVariableTypes Type => FutureProgVariableTypes.LiquidMixture;
+
+		/// <inheritdoc />
+		public object GetObject => this;
+
+		private static IReadOnlyDictionary<string, FutureProgVariableTypes> DotReferenceHandler()
+		{
+			return new Dictionary<string, FutureProgVariableTypes>(StringComparer.InvariantCultureIgnoreCase)
+			{
+				{ "id", FutureProgVariableTypes.Number },
+				{ "name", FutureProgVariableTypes.Text },
+				{ "roletype", FutureProgVariableTypes.Number }
+			};
+		}
+
+		private new static IReadOnlyDictionary<string, string> DotReferenceHelp()
+		{
+			return new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase)
+			{
+				{ "id", "" },
+				{ "name", "" },
+				{ "roletype", "" }
+			};
+		}
+
+		public static void RegisterFutureProgCompiler()
+		{
+			FutureProgVariable.RegisterDotReferenceCompileInfo(FutureProgVariableTypes.LiquidMixture, DotReferenceHandler(),
+				DotReferenceHelp());
+		}
+
+		/// <inheritdoc />
+		public IFutureProgVariable GetProperty(string property)
+		{
+			switch (property.ToLowerInvariant())
+			{
+				case "empty":
+					return new BooleanVariable(IsEmpty);
+				case "weight":
+					return new NumberVariable(TotalWeight);
+				case "volume":
+					return new NumberVariable(TotalVolume);
+				case "liquids":
+					return new CollectionVariable(_instances.Select(x => x.Liquid).Distinct().ToList(), FutureProgVariableTypes.Liquid);
+
+			}
+			throw new NotImplementedException();
+		}
+		#endregion
 	}
 }
 

@@ -229,6 +229,8 @@ namespace MudSharp.FutureProg {
 
         MarketCategory = 1L << 58,
 
+        LiquidMixture = 1L << 59,
+
         #region Special Flag Combinations
 
         /// <summary>
@@ -239,7 +241,7 @@ namespace MudSharp.FutureProg {
             Shard | Accent | Language | Race | Culture | Trait | Clan | ClanRank | ClanAppointment | ClanPaygrade |
             Currency | Exit | Merit | MudDateTime | Calendar | Clock | Effect | Knowledge | Role | Ethnicity | Drug | 
             WeatherEvent | Shop | Merchandise | Outfit | OutfitItem | OverlayPackage | Terrain | Project |
-            Solid | Liquid | Gas | MagicSchool | MagicCapability | MagicSpell | Bank | BankAccount | BankAccountType | LegalAuthority | Law | Crime | Market | MarketCategory
+            Solid | Liquid | Gas | MagicSchool | MagicCapability | MagicSpell | Bank | BankAccount | BankAccountType | LegalAuthority | Law | Crime | Market | MarketCategory | LiquidMixture
             ,
 
         /// <summary>
@@ -263,9 +265,9 @@ namespace MudSharp.FutureProg {
         /// </summary>
         ReferenceType =
             long.MaxValue ^
-            (Text | Number | DateTime | TimeSpan | Literal | Boolean | Error | Gender | Collection | Dictionary | CollectionDictionary | MudDateTime),
+            (Text | Number | DateTime | TimeSpan | Literal | Boolean | Error | Gender | Collection | Dictionary | CollectionDictionary | MudDateTime | LiquidMixture),
 
-        ValueType = Text | Number | Boolean | DateTime | TimeSpan | Literal | Gender | MudDateTime,
+        ValueType = Text | Number | Boolean | DateTime | TimeSpan | Literal | Gender | MudDateTime | LiquidMixture,
 
         /// <summary>
         ///     Anything that is not an error

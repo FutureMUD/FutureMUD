@@ -748,7 +748,7 @@ Note, the boost cost expression can use the following parameters:
 			return false;
 		}
 
-		var prog = new FutureProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument,
+		var prog = new ProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument,
 			FutureProgVariableTypes.Number, new List<FutureProgVariableTypes>
 			{
 				FutureProgVariableTypes.Chargen
@@ -861,7 +861,7 @@ Note, the boost cost expression can use the following parameters:
 			return false;
 		}
 
-		var prog = new FutureProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument,
+		var prog = new ProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument,
 			FutureProgVariableTypes.Number, new List<FutureProgVariableTypes>
 			{
 				FutureProgVariableTypes.Chargen
@@ -887,7 +887,7 @@ Note, the boost cost expression can use the following parameters:
 			return false;
 		}
 
-		var prog = new FutureProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument,
+		var prog = new ProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument,
 			FutureProgVariableTypes.Collection | FutureProgVariableTypes.Trait, new List<FutureProgVariableTypes>
 			{
 				FutureProgVariableTypes.Chargen

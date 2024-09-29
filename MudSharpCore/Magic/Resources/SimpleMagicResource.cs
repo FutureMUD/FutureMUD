@@ -245,7 +245,7 @@ public class SimpleMagicResource : BaseMagicResource
 			return false;
 		}
 
-		var prog = new FutureProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument, FutureProgVariableTypes.Boolean, new[] { FutureProgVariableTypes.Location }).LookupProg();
+		var prog = new ProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument, FutureProgVariableTypes.Boolean, new[] { FutureProgVariableTypes.Location }).LookupProg();
 		if (prog is null)
 		{
 			return false;
@@ -265,7 +265,7 @@ public class SimpleMagicResource : BaseMagicResource
 			return false;
 		}
 
-		var prog = new FutureProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument, FutureProgVariableTypes.Boolean, new[] { FutureProgVariableTypes.Item }).LookupProg();
+		var prog = new ProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument, FutureProgVariableTypes.Boolean, new[] { FutureProgVariableTypes.Item }).LookupProg();
 		if (prog is null)
 		{
 			return false;
@@ -285,7 +285,7 @@ public class SimpleMagicResource : BaseMagicResource
 			return false;
 		}
 
-		var prog = new FutureProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument, FutureProgVariableTypes.Boolean, new[] { FutureProgVariableTypes.Character }).LookupProg();
+		var prog = new ProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument, FutureProgVariableTypes.Boolean, new[] { FutureProgVariableTypes.Character }).LookupProg();
 		if (prog is null)
 		{
 			return false;
@@ -305,7 +305,7 @@ public class SimpleMagicResource : BaseMagicResource
 			return false;
 		}
 
-		var prog = new FutureProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument, FutureProgVariableTypes.Number, new[] { FutureProgVariableTypes.Location }).LookupProg();
+		var prog = new ProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument, FutureProgVariableTypes.Number, new[] { FutureProgVariableTypes.Location }).LookupProg();
 		if (prog is null)
 		{
 			return false;
@@ -325,7 +325,7 @@ public class SimpleMagicResource : BaseMagicResource
 			return false;
 		}
 
-		var prog = new FutureProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument, FutureProgVariableTypes.Number, new[] { FutureProgVariableTypes.Item }).LookupProg();
+		var prog = new ProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument, FutureProgVariableTypes.Number, new[] { FutureProgVariableTypes.Item }).LookupProg();
 		if (prog is null)
 		{
 			return false;
@@ -345,7 +345,7 @@ public class SimpleMagicResource : BaseMagicResource
 			return false;
 		}
 
-		var prog = new FutureProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument, FutureProgVariableTypes.Number, new[] { FutureProgVariableTypes.Character }).LookupProg();
+		var prog = new ProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument, FutureProgVariableTypes.Number, new[] { FutureProgVariableTypes.Character }).LookupProg();
 		if (prog is null)
 		{
 			return false;
@@ -365,7 +365,7 @@ public class SimpleMagicResource : BaseMagicResource
 			return false;
 		}
 
-		var prog = new FutureProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument, FutureProgVariableTypes.Number, new[] { FutureProgVariableTypes.MagicResourceHaver }).LookupProg();
+		var prog = new ProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument, FutureProgVariableTypes.Number, new[] { FutureProgVariableTypes.MagicResourceHaver }).LookupProg();
 		if (prog is null)
 		{
 			return false;

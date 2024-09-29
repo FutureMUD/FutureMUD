@@ -151,7 +151,7 @@ public class ScaledCheckCategoryBonusMerit : CharacterMeritBase, ICheckBonusMeri
 			return false;
 		}
 
-		var prog = new FutureProgLookupFromBuilderInput(actor, command.SafeRemainingArgument, FutureProgVariableTypes.Number, [
+		var prog = new ProgLookupFromBuilderInput(actor, command.SafeRemainingArgument, FutureProgVariableTypes.Number, [
 			[FutureProgVariableTypes.Character],
 			[FutureProgVariableTypes.Character, FutureProgVariableTypes.Character],
 			[FutureProgVariableTypes.Character, FutureProgVariableTypes.Perceivable],

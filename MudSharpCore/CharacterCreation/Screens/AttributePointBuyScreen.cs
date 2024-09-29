@@ -523,7 +523,7 @@ The following parameters can be used in the cost expression:
 			return false;
 		}
 
-		var prog = new FutureProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument,
+		var prog = new ProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument,
 			FutureProgVariableTypes.Number, new List<IEnumerable<FutureProgVariableTypes>>
 			{
 				new List<FutureProgVariableTypes>
@@ -556,7 +556,7 @@ The following parameters can be used in the cost expression:
 			return false;
 		}
 
-		var prog = new FutureProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument,
+		var prog = new ProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument,
 			FutureProgVariableTypes.Number, new List<IEnumerable<FutureProgVariableTypes>>
 			{
 				new List<FutureProgVariableTypes>
@@ -584,7 +584,7 @@ The following parameters can be used in the cost expression:
 			return false;
 		}
 
-		var prog = new FutureProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument,
+		var prog = new ProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument,
 			FutureProgVariableTypes.Number, new List<IEnumerable<FutureProgVariableTypes>>
 			{
 				new List<FutureProgVariableTypes>
@@ -617,7 +617,7 @@ The following parameters can be used in the cost expression:
 			return false;
 		}
 
-		var prog = new FutureProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument,
+		var prog = new ProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument,
 			FutureProgVariableTypes.Number, new List<IEnumerable<FutureProgVariableTypes>>
 			{
 				new List<FutureProgVariableTypes>
@@ -650,7 +650,7 @@ The following parameters can be used in the cost expression:
 			return false;
 		}
 
-		var prog = new FutureProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument,
+		var prog = new ProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument,
 			FutureProgVariableTypes.Number, new List<IEnumerable<FutureProgVariableTypes>>
 			{
 				new List<FutureProgVariableTypes>

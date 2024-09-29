@@ -82,7 +82,7 @@ public abstract class PathingAIWithProgTargetsBase : PathingAIBase
 			return false;
 		}
 
-		var prog = new FutureProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument, FutureProgVariableTypes.Location | FutureProgVariableTypes.Collection, new[] { FutureProgVariableTypes.Character }).LookupProg();
+		var prog = new ProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument, FutureProgVariableTypes.Location | FutureProgVariableTypes.Collection, new[] { FutureProgVariableTypes.Character }).LookupProg();
 		if (prog is null)
 		{
 			return false;
@@ -102,7 +102,7 @@ public abstract class PathingAIWithProgTargetsBase : PathingAIBase
 			return false;
 		}
 
-		var prog = new FutureProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument, FutureProgVariableTypes.Location, new[] { FutureProgVariableTypes.Character }).LookupProg();
+		var prog = new ProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument, FutureProgVariableTypes.Location, new[] { FutureProgVariableTypes.Character }).LookupProg();
 		if (prog is null)
 		{
 			return false;
@@ -122,7 +122,7 @@ public abstract class PathingAIWithProgTargetsBase : PathingAIBase
 			return false;
 		}
 
-		var prog = new FutureProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument, FutureProgVariableTypes.Location, new[] { FutureProgVariableTypes.Character }).LookupProg();
+		var prog = new ProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument, FutureProgVariableTypes.Location, new[] { FutureProgVariableTypes.Character }).LookupProg();
 		if (prog is null)
 		{
 			return false;
@@ -142,7 +142,7 @@ public abstract class PathingAIWithProgTargetsBase : PathingAIBase
 			return false;
 		}
 
-		var prog = new FutureProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument, FutureProgVariableTypes.Void, new[] { FutureProgVariableTypes.Character, FutureProgVariableTypes.Location, FutureProgVariableTypes.Exit | FutureProgVariableTypes.Collection }).LookupProg();
+		var prog = new ProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument, FutureProgVariableTypes.Void, new[] { FutureProgVariableTypes.Character, FutureProgVariableTypes.Location, FutureProgVariableTypes.Exit | FutureProgVariableTypes.Collection }).LookupProg();
 		if (prog is null)
 		{
 			return false;
@@ -162,7 +162,7 @@ public abstract class PathingAIWithProgTargetsBase : PathingAIBase
 			return false;
 		}
 
-		var prog = new FutureProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument, FutureProgVariableTypes.Boolean, new[] { FutureProgVariableTypes.Character }).LookupProg();
+		var prog = new ProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument, FutureProgVariableTypes.Boolean, new[] { FutureProgVariableTypes.Character }).LookupProg();
 		if (prog is null)
 		{
 			return false;

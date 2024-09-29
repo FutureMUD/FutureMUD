@@ -220,7 +220,7 @@ internal class NPCProduct : BaseProduct
 			return true;
 		}
 
-		var prog = new FutureProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument, FutureProgVariableTypes.Void, [FutureProgVariableTypes.Character]).LookupProg();
+		var prog = new ProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument, FutureProgVariableTypes.Void, [FutureProgVariableTypes.Character]).LookupProg();
 		if (prog is null)
 		{
 			return false;

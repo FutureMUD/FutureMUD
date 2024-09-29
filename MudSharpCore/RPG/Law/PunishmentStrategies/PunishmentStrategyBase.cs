@@ -62,7 +62,7 @@ public abstract class PunishmentStrategyBase : IPunishmentStrategy
 			return true;
 		}
 
-		var prog = new FutureProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument,
+		var prog = new ProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument,
 			FutureProgVariableTypes.Void,
 			new[]
 			{

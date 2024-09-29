@@ -411,7 +411,7 @@ public class CurrencyDescriptionPattern : SaveableItem, ICurrencyDescriptionPatt
 			return false;
 		}
 
-		var prog = new FutureProgLookupFromBuilderInput(actor.Gameworld, actor, command.SafeRemainingArgument,
+		var prog = new ProgLookupFromBuilderInput(actor.Gameworld, actor, command.SafeRemainingArgument,
 			FutureProgVariableTypes.Boolean, new FutureProgVariableTypes[]
 			{
 				FutureProgVariableTypes.Number

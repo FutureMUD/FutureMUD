@@ -989,7 +989,7 @@ The syntax to use this command is as follows:
 			return;
 		}
 
-		var prog = new FutureProgLookupFromBuilderInput(actor.Gameworld, actor, ss.SafeRemainingArgument,
+		var prog = new ProgLookupFromBuilderInput(actor.Gameworld, actor, ss.SafeRemainingArgument,
 			FutureProgVariableTypes.Boolean, new List<FutureProgVariableTypes>
 			{
 				FutureProgVariableTypes.Character
@@ -3887,7 +3887,7 @@ You can also edit the following specific properties:
 		IFutureProg prog = null;
 		if (!ss.IsFinished)
 		{
-			prog = new FutureProgLookupFromBuilderInput(actor.Gameworld, actor, ss.SafeRemainingArgument,
+			prog = new ProgLookupFromBuilderInput(actor.Gameworld, actor, ss.SafeRemainingArgument,
 				FutureProgVariableTypes.Boolean, 
 				new List<IEnumerable<FutureProgVariableTypes>>
 				{

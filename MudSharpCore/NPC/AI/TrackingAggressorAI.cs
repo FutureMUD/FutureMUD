@@ -148,7 +148,7 @@ public class TrackingAggressorAI : PathingAIWithProgTargetsBase
 			return false;
 		}
 
-		var prog = new FutureProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument,
+		var prog = new ProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument,
 			FutureProgVariableTypes.Boolean, new List<FutureProgVariableTypes>
 			{
 				FutureProgVariableTypes.Character,

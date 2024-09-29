@@ -224,7 +224,7 @@ public class LawyerAI : PathingAIBase
 			return false;
 		}
 
-		var prog = new FutureProgLookupFromBuilderInput(actor, command.SafeRemainingArgument, FutureProgVariableTypes.BankAccount, [FutureProgVariableTypes.Character]).LookupProg();
+		var prog = new ProgLookupFromBuilderInput(actor, command.SafeRemainingArgument, FutureProgVariableTypes.BankAccount, [FutureProgVariableTypes.Character]).LookupProg();
 		if (prog is null)
 		{
 			return false;
@@ -252,7 +252,7 @@ public class LawyerAI : PathingAIBase
 			return false;
 		}
 
-		var prog = new FutureProgLookupFromBuilderInput(actor, command.SafeRemainingArgument, FutureProgVariableTypes.Location, [FutureProgVariableTypes.Character]).LookupProg();
+		var prog = new ProgLookupFromBuilderInput(actor, command.SafeRemainingArgument, FutureProgVariableTypes.Location, [FutureProgVariableTypes.Character]).LookupProg();
 		if (prog is null)
 		{
 			return false;
@@ -272,7 +272,7 @@ public class LawyerAI : PathingAIBase
 			return false;
 		}
 
-		var prog = new FutureProgLookupFromBuilderInput(actor, command.SafeRemainingArgument, FutureProgVariableTypes.Boolean, 
+		var prog = new ProgLookupFromBuilderInput(actor, command.SafeRemainingArgument, FutureProgVariableTypes.Boolean, 
 			[
 				[FutureProgVariableTypes.Character],
 				[FutureProgVariableTypes.Character, FutureProgVariableTypes.Character]
@@ -297,7 +297,7 @@ public class LawyerAI : PathingAIBase
 			return false;
 		}
 
-		var prog = new FutureProgLookupFromBuilderInput(actor, command.SafeRemainingArgument, FutureProgVariableTypes.Number,
+		var prog = new ProgLookupFromBuilderInput(actor, command.SafeRemainingArgument, FutureProgVariableTypes.Number,
 			[
 				[FutureProgVariableTypes.Character],
 				[FutureProgVariableTypes.Character, FutureProgVariableTypes.Character]

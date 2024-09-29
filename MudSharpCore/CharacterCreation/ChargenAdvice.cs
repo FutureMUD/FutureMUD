@@ -302,7 +302,7 @@ public class ChargenAdvice : SaveableItem, IChargenAdvice
 			return false;
 		}
 
-		var prog = new FutureProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument,
+		var prog = new ProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument,
 			FutureProgVariableTypes.Boolean, new FutureProgVariableTypes[]
 			{
 				FutureProgVariableTypes.Chargen

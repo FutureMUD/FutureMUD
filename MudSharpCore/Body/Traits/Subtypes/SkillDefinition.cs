@@ -370,7 +370,7 @@ public class SkillDefinition : TraitDefinition, ISkillDefinition
 			return false;
 		}
 
-		var prog = new FutureProgLookupFromBuilderInput(actor.Gameworld, actor, command.SafeRemainingArgument,
+		var prog = new ProgLookupFromBuilderInput(actor.Gameworld, actor, command.SafeRemainingArgument,
 			FutureProgVariableTypes.Boolean, new[]
 			{
 				new List<FutureProgVariableTypes>

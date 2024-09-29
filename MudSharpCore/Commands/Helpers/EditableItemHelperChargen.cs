@@ -66,7 +66,7 @@ public partial class EditableItemHelper
 				return;
 			}
 
-			var prog = new FutureProgLookupFromBuilderInput(actor, input.PopSpeech(), FutureProgVariableTypes.Boolean, [FutureProgVariableTypes.Toon]).LookupProg();
+			var prog = new ProgLookupFromBuilderInput(actor, input.PopSpeech(), FutureProgVariableTypes.Boolean, [FutureProgVariableTypes.Toon]).LookupProg();
 			if (prog is null)
 			{
 				return;

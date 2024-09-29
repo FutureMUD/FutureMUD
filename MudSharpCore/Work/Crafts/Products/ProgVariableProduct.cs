@@ -100,7 +100,7 @@ namespace MudSharp.Work.Crafts.Products
 				}
 			}
 
-			var prog = new FutureProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument, FutureProgVariableTypes.Number, new FutureProgVariableTypes[]
+			var prog = new ProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument, FutureProgVariableTypes.Number, new FutureProgVariableTypes[]
 			{
 				FutureProgVariableTypes.Item | FutureProgVariableTypes.Collection
 			}).LookupProg();

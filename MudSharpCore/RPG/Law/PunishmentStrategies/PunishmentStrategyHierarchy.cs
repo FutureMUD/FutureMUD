@@ -94,7 +94,7 @@ public class PunishmentStrategyHierarchy : PunishmentStrategyBase
 			return false;
 		}
 
-		var prog = new FutureProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument,
+		var prog = new ProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument,
 			FutureProgVariableTypes.Boolean, new[]
 			{
 				new[] { FutureProgVariableTypes.Character },
@@ -206,7 +206,7 @@ public class PunishmentStrategyHierarchy : PunishmentStrategyBase
 			return false;
 		}
 
-		var prog = new FutureProgLookupFromBuilderInput(actor, command.SafeRemainingArgument, FutureProgVariableTypes.Boolean, 
+		var prog = new ProgLookupFromBuilderInput(actor, command.SafeRemainingArgument, FutureProgVariableTypes.Boolean, 
 			[[FutureProgVariableTypes.Character], [FutureProgVariableTypes.Character, FutureProgVariableTypes.Text]]
 			).LookupProg();
 		if (prog is null)

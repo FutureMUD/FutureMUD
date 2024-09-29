@@ -248,7 +248,7 @@ public class MarketInfluenceTemplate : SaveableItem, IMarketInfluenceTemplate
 			return false;
 		}
 
-		var prog = new FutureProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument,
+		var prog = new ProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument,
 			FutureProgVariableTypes.Boolean, [FutureProgVariableTypes.Character]).LookupProg();
 		if (prog is null)
 		{

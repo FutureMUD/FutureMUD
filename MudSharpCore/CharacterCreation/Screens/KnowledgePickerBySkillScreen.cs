@@ -401,7 +401,7 @@ Enter the name or number of the knowledge you would like to select, and #3done#0
 			return false;
 		}
 
-		var prog = new FutureProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument,
+		var prog = new ProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument,
 			FutureProgVariableTypes.Number, new List<IEnumerable<FutureProgVariableTypes>>
 			{
 				new List<FutureProgVariableTypes>
@@ -435,7 +435,7 @@ Enter the name or number of the knowledge you would like to select, and #3done#0
 			return false;
 		}
 
-		var prog = new FutureProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument,
+		var prog = new ProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument,
 			FutureProgVariableTypes.Collection | FutureProgVariableTypes.Knowledge, new List<FutureProgVariableTypes>
 			{
 				FutureProgVariableTypes.Chargen

@@ -498,7 +498,7 @@ public abstract class MagicPowerBase : SaveableItem, IMagicPower
 			return false;
 		}
 
-		var prog = new FutureProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument, FutureProgVariableTypes.Text,
+		var prog = new ProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument, FutureProgVariableTypes.Text,
 			[
 				[FutureProgVariableTypes.Character],
 				[FutureProgVariableTypes.Character, FutureProgVariableTypes.Character],
@@ -523,7 +523,7 @@ public abstract class MagicPowerBase : SaveableItem, IMagicPower
 			return false;
 		}
 
-		var prog = new FutureProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument, FutureProgVariableTypes.Boolean,
+		var prog = new ProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument, FutureProgVariableTypes.Boolean,
 			[
 				[FutureProgVariableTypes.Character],
 				[FutureProgVariableTypes.Character, FutureProgVariableTypes.Character],

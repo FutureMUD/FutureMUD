@@ -403,7 +403,7 @@ Enter your blurb that will be visible in chargen in the editor below:");
 			return false;
 		}
 
-		var prog = new FutureProgLookupFromBuilderInput(actor, command.SafeRemainingArgument, FutureProgVariableTypes.Boolean, AppliesProgValidTypes).LookupProg();
+		var prog = new ProgLookupFromBuilderInput(actor, command.SafeRemainingArgument, FutureProgVariableTypes.Boolean, AppliesProgValidTypes).LookupProg();
 		if (prog is null)
 		{
 			return false;
@@ -423,7 +423,7 @@ Enter your blurb that will be visible in chargen in the editor below:");
 			return false;
 		}
 
-		var prog = new FutureProgLookupFromBuilderInput(actor, command.SafeRemainingArgument, FutureProgVariableTypes.Boolean, [FutureProgVariableTypes.Chargen]).LookupProg();
+		var prog = new ProgLookupFromBuilderInput(actor, command.SafeRemainingArgument, FutureProgVariableTypes.Boolean, [FutureProgVariableTypes.Chargen]).LookupProg();
 		if (prog is null)
 		{
 			return false;

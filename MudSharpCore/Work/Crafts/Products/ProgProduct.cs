@@ -36,7 +36,6 @@ public class ProgProduct : BaseProduct
 
 	protected ProgProduct(ICraft craft, IFuturemud gameworld, bool failproduct) : base(craft, gameworld, failproduct)
 	{
-		
 	}
 
 	/// <inheritdoc />
@@ -121,6 +120,11 @@ public class ProgProduct : BaseProduct
 	public IFutureProg? ItemProg { get; protected set; }
 
 	/// <inheritdoc />
+	protected override string BuildingHelpText => @"You can use the following options with this command:
+
+	#3prog <prog>#0 - sets the prog that controls which item is loaded";
+
+	/// <inheritdoc />
 	public override bool BuildingCommand(ICharacter actor, StringStack command)
 	{
 		switch (command.PopForSwitch())
@@ -139,10 +143,18 @@ public class ProgProduct : BaseProduct
 			return false;
 		}
 
-		var prog = new FutureProgLookupFromBuilderInput(actor, command.SafeRemainingArgument, FutureProgVariableTypes.Item, [
+		var prog = new ProgLookupFromBuilderInputMultipleReturnTypes(actor, command.SafeRemainingArgument, [FutureProgVariableTypes.Item, FutureProgVariableTypes.Collection | FutureProgVariableTypes.Item], [
 			[FutureProgVariableTypes.CollectionDictionary | FutureProgVariableTypes.Item],
 			[FutureProgVariableTypes.CollectionDictionary | FutureProgVariableTypes.Item, FutureProgVariableTypes.CollectionDictionary | FutureProgVariableTypes.Liquid]
-		]);
-		throw new NotImplementedException();
+		]).LookupProg();
+		if (prog is null)
+		{
+			return false;
+		}
+
+		ItemProg = prog;
+		Changed = true;
+		actor.OutputHandler.Send($"This product will now use the {prog.MXPClickableFunctionName()} prog to determine the item it loads.");
+		return true;
 	}
 }

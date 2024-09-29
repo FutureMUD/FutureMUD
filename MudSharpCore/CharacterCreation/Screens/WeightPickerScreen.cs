@@ -214,7 +214,7 @@ internal class WeightPickerScreenStoryboard : ChargenScreenStoryboard
 			return false;
 		}
 
-		var prog = new FutureProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument,
+		var prog = new ProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument,
 			FutureProgVariableTypes.Number, new List<FutureProgVariableTypes>
 			{
 				FutureProgVariableTypes.Chargen
@@ -240,7 +240,7 @@ internal class WeightPickerScreenStoryboard : ChargenScreenStoryboard
 			return false;
 		}
 
-		var prog = new FutureProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument,
+		var prog = new ProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument,
 			FutureProgVariableTypes.Number, new List<FutureProgVariableTypes>
 			{
 				FutureProgVariableTypes.Chargen

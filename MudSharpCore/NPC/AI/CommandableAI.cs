@@ -297,7 +297,7 @@ public class CommandableAI : ArtificialIntelligenceBase
 			return true;
 		}
 
-		var prog = new FutureProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument, 
+		var prog = new ProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument, 
 			FutureProgVariableTypes.Text,
 			new []{ 
 				new[] { FutureProgVariableTypes.Character, FutureProgVariableTypes.Character },
@@ -323,7 +323,7 @@ public class CommandableAI : ArtificialIntelligenceBase
 			return false;
 		}
 
-		var prog = new FutureProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument,
+		var prog = new ProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument,
 			FutureProgVariableTypes.Boolean,
 			new[]{
 				new[] { FutureProgVariableTypes.Character, FutureProgVariableTypes.Character },

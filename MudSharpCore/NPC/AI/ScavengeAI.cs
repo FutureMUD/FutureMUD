@@ -124,7 +124,7 @@ public class ScavengeAI : ArtificialIntelligenceBase
 			return false;
 		}
 
-		var prog = new FutureProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument,
+		var prog = new ProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument,
 			FutureProgVariableTypes.Void, new List<FutureProgVariableTypes>
 			{
 				FutureProgVariableTypes.Character,
@@ -149,7 +149,7 @@ public class ScavengeAI : ArtificialIntelligenceBase
 			return false;
 		}
 
-		var prog = new FutureProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument,
+		var prog = new ProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument,
 			FutureProgVariableTypes.Boolean, new List<FutureProgVariableTypes>
 			{
 				FutureProgVariableTypes.Character,

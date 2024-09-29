@@ -4,6 +4,7 @@ using System.Globalization;
 using System.Linq;
 using System.Xml.Linq;
 using MudSharp.Database;
+using MudSharp.Form.Material;
 using MudSharp.Form.Shape;
 using MudSharp.Framework;
 using MudSharp.Framework.Save;
@@ -574,6 +575,8 @@ internal class VariableRegister : SaveableItem, IVariableRegister
 					return new DateTimeVariable((DateTime)Value);
 				case FutureProgVariableTypes.MudDateTime:
 					return (MudDateTime)Value;
+				case FutureProgVariableTypes.LiquidMixture:
+					return new LiquidMixture(XElement.Parse(Value.ToString()), game);
 			}
 
 			return null;

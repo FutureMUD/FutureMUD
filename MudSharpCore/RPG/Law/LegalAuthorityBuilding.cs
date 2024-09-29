@@ -145,7 +145,7 @@ public partial class LegalAuthority
 			return false;
 		}
 
-		var prog = new FutureProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument,
+		var prog = new ProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument,
 			FutureProgVariableTypes.Number,
 			new[]
 			{
@@ -181,7 +181,7 @@ public partial class LegalAuthority
 			return true;
 		}
 
-		var prog = new FutureProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument,
+		var prog = new ProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument,
 			FutureProgVariableTypes.Void, new[] { FutureProgVariableTypes.Character }).LookupProg();
 		if (prog is null)
 		{

@@ -444,6 +444,20 @@ namespace MudSharp.Framework
 		}
 
 		/// <summary>
+		/// This is a shortcut for doing .Select(x = x.DescribeEnum().Colour()).ListToString(conjunction: "or ")
+		/// </summary>
+		/// <typeparam name="T">Any enum type</typeparam>
+		/// <param name="items">A collection of enums</param>
+		/// <param name="colour">The colour to give the values - else Telnet.Green</param>
+		/// <param name="explodeCamelCase">Whether to explode camel case in enum names</param>
+		/// <returns>The string result</returns>
+		public static string ListToColouredStringOr<T>(this IEnumerable<T> items, ANSIColour colour = null, bool explodeCamelCase = false) where T : Enum
+		{
+			colour ??= Telnet.Green;
+			return items.Select(x => x.DescribeEnum(explodeCamelCase, colour)).ListToString(conjunction: "or ");
+		}
+
+		/// <summary>
 		/// This is a shortcut for doing .Select(x => x.Colour()).ListToString()
 		/// </summary>
 		/// <param name="items">A collection of strings</param>

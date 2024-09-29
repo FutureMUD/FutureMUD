@@ -134,7 +134,7 @@ internal class GPTRequest : BuiltInFunction
 				return StatementResult.Normal;
 			}
 
-			var prog = new FutureProgLookupFromBuilderInput(Gameworld, null, (string)(ParameterFunctions[4].Result?.GetObject ?? ""),
+			var prog = new ProgLookupFromBuilderInput(Gameworld, null, (string)(ParameterFunctions[4].Result?.GetObject ?? ""),
 				FutureProgVariableTypes.Void, new List<IEnumerable<FutureProgVariableTypes>>
 				{
 					new []

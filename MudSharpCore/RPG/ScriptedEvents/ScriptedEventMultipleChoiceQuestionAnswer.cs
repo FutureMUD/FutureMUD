@@ -161,7 +161,7 @@ namespace MudSharp.RPG.ScriptedEvents
 				return true;
 			}
 
-			var prog = new FutureProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument, FutureProgVariableTypes.Void, new List<FutureProgVariableTypes> { FutureProgVariableTypes.Character }).LookupProg();
+			var prog = new ProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument, FutureProgVariableTypes.Void, new List<FutureProgVariableTypes> { FutureProgVariableTypes.Character }).LookupProg();
 			if (prog is null)
 			{
 				return false;
@@ -181,7 +181,7 @@ namespace MudSharp.RPG.ScriptedEvents
 				return false;
 			}
 
-			var prog = new FutureProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument, FutureProgVariableTypes.Boolean, new List<FutureProgVariableTypes> { FutureProgVariableTypes.Character }).LookupProg();
+			var prog = new ProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument, FutureProgVariableTypes.Boolean, new List<FutureProgVariableTypes> { FutureProgVariableTypes.Character }).LookupProg();
 			if (prog is null)
 			{
 				return false;

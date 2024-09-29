@@ -452,7 +452,7 @@ public class StartingLocationPickerScreenStoryboard : ChargenScreenStoryboard
 		IFutureProg prog = null;
 		if (!command.IsFinished)
 		{
-			prog = new FutureProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument,
+			prog = new ProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument,
 				FutureProgVariableTypes.Anything, new List<FutureProgVariableTypes>
 				{
 					FutureProgVariableTypes.Character
@@ -526,7 +526,7 @@ public class StartingLocationPickerScreenStoryboard : ChargenScreenStoryboard
 			return false;
 		}
 
-		var prog = new FutureProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument,
+		var prog = new ProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument,
 			FutureProgVariableTypes.Anything, new List<FutureProgVariableTypes>
 			{
 				FutureProgVariableTypes.Character

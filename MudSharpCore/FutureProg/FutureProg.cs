@@ -919,6 +919,40 @@ public class FutureProg : SaveableItem, IFutureProg
 			return new CollectionVariable(list, underlyingType);
 		}
 
+		if (type.HasFlag(FutureProgVariableTypes.Dictionary))
+		{
+			var underlyingType = type ^ FutureProgVariableTypes.Dictionary;
+			var idict = value as IDictionary;
+			if (idict is null)
+			{
+				return new DictionaryVariable(new Dictionary<string, IFutureProgVariable>(), underlyingType);
+			}
+
+			var ndict = new Dictionary<string, IFutureProgVariable>();
+			foreach (DictionaryEntry entry in idict)
+			{
+				if (entry.Key is string keyString)
+				{
+					ndict[keyString] = GetVariable(underlyingType, entry.Value);
+				}
+			}
+
+			return new DictionaryVariable(new Dictionary<string, IFutureProgVariable>(ndict), underlyingType);
+
+		}
+
+		if (type.HasFlag(FutureProgVariableTypes.CollectionDictionary))
+		{
+			var underlyingType = type ^ FutureProgVariableTypes.CollectionDictionary;
+			if (value is not ICollectionDictionaryWithKey<string> cdString)
+			{
+				return new CollectionDictionaryVariable(new CollectionDictionary<string, IFutureProgVariable>(), underlyingType);
+			}
+
+			var values = cdString.KeysAndValues.Select(x => new KeyValuePair<string, List<IFutureProgVariable>>(x.Key, x.Value.Select(y => GetVariable(underlyingType, y)).ToList()));
+			return new CollectionDictionaryVariable(new CollectionDictionary<string, IFutureProgVariable>(values), underlyingType);
+		}
+
 		switch (type)
 		{
 			case FutureProgVariableTypes.Text:
@@ -967,7 +1001,7 @@ public class FutureProg : SaveableItem, IFutureProg
 				return new TimeSpanVariable((TimeSpan)value);
 
 			default:
-				return (IFutureProgVariable)value;
+				return value as IFutureProgVariable;
 		}
 	}
 

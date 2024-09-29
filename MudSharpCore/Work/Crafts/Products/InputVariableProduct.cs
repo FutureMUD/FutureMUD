@@ -82,10 +82,10 @@ internal class InputVariableProduct : BaseProduct
 			}
 
 			var data = component.ConsumedInputs[ivi].Data as ICraftInputDataWithItems;
-            if (data is null)
-            {
+			if (data is null)
+			{
 				continue;
-            }
+			}
 
 			var targets = VariableSpecifics[definition];
 			foreach (var item in data.ConsumedItems)

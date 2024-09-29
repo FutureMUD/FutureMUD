@@ -45,7 +45,7 @@ public class Tag : SaveableItem, ILoadingTag
 		}
 	}
 
-	public bool IsA(ITag otherTag)
+	public bool IsA(ITag? otherTag)
 	{
 		return otherTag == this || _parent == otherTag || (_parent?.IsA(otherTag) ?? false);
 	}

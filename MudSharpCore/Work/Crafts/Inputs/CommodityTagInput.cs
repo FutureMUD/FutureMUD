@@ -83,6 +83,7 @@ public class CommodityTagInput : BaseInput, ICraftInputConsumesGameItem
 	public override string InputType => "CommodityTag";
 
 	public ITag MaterialTag { get; set; }
+	public ITag? CommodityPileTag { get; set; }
 
 	public double Weight { get; set; }
 
@@ -91,6 +92,7 @@ public class CommodityTagInput : BaseInput, ICraftInputConsumesGameItem
 	{
 		var root = XElement.Parse(input.Definition);
 		MaterialTag = Gameworld.Tags.Get(long.Parse(root.Element("MaterialTag")?.Value ?? "0"));
+		CommodityPileTag = Gameworld.Tags.Get(long.Parse(root.Element("CommodityPileTag")?.Value ?? "0"));
 		Weight = double.Parse(root.Element("Weight").Value);
 	}
 
@@ -110,6 +112,7 @@ public class CommodityTagInput : BaseInput, ICraftInputConsumesGameItem
 	{
 		return new XElement("Definition",
 			new XElement("MaterialTag", MaterialTag?.Id ?? 0),
+			new XElement("CommodityPileTag", CommodityPileTag?.Id ?? 0),
 			new XElement("Weight", Weight)
 		).ToString();
 	}
@@ -159,12 +162,18 @@ public class CommodityTagInput : BaseInput, ICraftInputConsumesGameItem
 			$"{Gameworld.UnitManager.DescribeExact(Weight, Framework.Units.UnitType.Mass, voyeur).Colour(Telnet.Green)} of a material tagged as {MaterialTag.FullName.Colour(Telnet.Cyan)}";
 	}
 
+	private bool MatchesCommodityTag(ICommodity item)
+	{
+		return (CommodityPileTag is null && item.Tag is null) ||
+		       (item.Tag?.IsA(CommodityPileTag) == true);
+	}
+
 	public override IEnumerable<IPerceivable> ScoutInput(ICharacter character)
 	{
 		return character.DeepContextualItems
 		                .Except(character.Body.WornItems)
 		                .SelectNotNull(x => x.GetItemType<ICommodity>())
-		                .Where(x => x.Material.IsA(MaterialTag) && x.Weight >= Weight)
+		                .Where(x => x.Material.IsA(MaterialTag) && x.Weight >= Weight && MatchesCommodityTag(x))
 		                .Select(x => x.Parent)
 		                .ToList();
 	}
@@ -174,6 +183,7 @@ public class CommodityTagInput : BaseInput, ICraftInputConsumesGameItem
 		return item is IGameItem gi &&
 		       gi.GetItemType<ICommodity>() is ICommodity ic &&
 		       ic.Material.IsA(MaterialTag) &&
+			   MatchesCommodityTag(ic) &&
 		       ic.Weight >= Weight;
 	}
 
@@ -198,12 +208,18 @@ public class CommodityTagInput : BaseInput, ICraftInputConsumesGameItem
 	}
 
 	protected override string BuildingHelpString =>
-		"You can use the following options with this input type:\n\t#3material <material>#0 - sets the target material tag\n\t#3weight <weight>#0 - sets the required weight of material";
+		@"You can use the following options with this input type:
+
+	#3material <material>#0 - sets the target material tag
+	#3piletag <tag>|none#0 - sets or clears the commodity tag the pile must have
+	#3weight <weight>#0 - sets the required weight of material";
 
 	public override bool BuildingCommand(ICharacter actor, StringStack command)
 	{
 		switch (command.PopSpeech().ToLowerInvariant())
 		{
+			case "piletag":
+				return BuildingCommandPileTag(actor, command);
 			case "material":
 			case "tag":
 			case "materialtag":
@@ -215,6 +231,46 @@ public class CommodityTagInput : BaseInput, ICraftInputConsumesGameItem
 			default:
 				return base.BuildingCommand(actor, command);
 		}
+	}
+
+	private bool BuildingCommandPileTag(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("Which secondary tag did you want this input to require commodity piles to have?");
+			return false;
+		}
+
+		if (command.SafeRemainingArgument.EqualTo("none"))
+		{
+			CommodityPileTag = null;
+			InputChanged = true;
+			actor.OutputHandler.Send("This craft input will now require un-tagged raw commodity piles.");
+			return true;
+		}
+
+		var matchedtags = actor.Gameworld.Tags.FindMatchingTags(command.SafeRemainingArgument);
+		if (matchedtags.Count == 0)
+		{
+			actor.OutputHandler.Send("There is no such tag.");
+			return false;
+		}
+
+		if (matchedtags.Count > 1)
+		{
+			actor.OutputHandler.Send(
+				$@"Your text matched multiple tags. Please specify one of the following tags:
+
+{matchedtags.Select(x => $"\t[{x.Id.ToString("N0", actor)}] {x.FullName.ColourName()}").ListToLines()}");
+			return false;
+		}
+
+		var tag = matchedtags.Single();
+		CommodityPileTag = tag;
+		InputChanged = true;
+		actor.OutputHandler.Send(
+			$"This input now requires commodities with a secondary tag of {tag.FullName.Colour(Telnet.Cyan)}.");
+		return true;
 	}
 
 	private bool BuildingCommandQuantity(ICharacter actor, StringStack command)
@@ -269,11 +325,10 @@ public class CommodityTagInput : BaseInput, ICraftInputConsumesGameItem
 		}
 
 		var tag = matchedtags.Single();
-
 		MaterialTag = tag;
 		InputChanged = true;
 		actor.OutputHandler.Send(
-			$"This input will now consume commodities tagged as {MaterialTag.FullName.Colour(Telnet.Cyan)}.");
+			$"This input will now consume commodities tagged as {tag.FullName.Colour(Telnet.Cyan)}.");
 		return true;
 	}
 

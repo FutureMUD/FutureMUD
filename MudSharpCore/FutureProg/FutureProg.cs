@@ -18,6 +18,7 @@ using MudSharp.Construction;
 using MudSharp.Construction.Boundary;
 using MudSharp.Database;
 using MudSharp.Effects;
+using MudSharp.Form.Material;
 using MudSharp.Form.Shape;
 using MudSharp.Framework;
 using MudSharp.Framework.Save;
@@ -1373,6 +1374,8 @@ public class FutureProg : SaveableItem, IFutureProg
 				return $"Merchandise {thing.Id} \"{thing.Name}\"";
 			case FutureProgVariableTypes.Outfit:
 				return $"Outfit {thing.Id} \"{thing.Name}\"";
+			case FutureProgVariableTypes.LiquidMixture:
+				return $"Liquid Mixture {((LiquidMixture)variable.GetObject).ColouredLiquidDescription}";
 		}
 
 		return variable.GetObject.ToString();

@@ -505,9 +505,18 @@ namespace MudSharp.Form.Material
 		{
 			return new Dictionary<string, FutureProgVariableTypes>(StringComparer.InvariantCultureIgnoreCase)
 			{
-				{ "id", FutureProgVariableTypes.Number },
-				{ "name", FutureProgVariableTypes.Text },
-				{ "roletype", FutureProgVariableTypes.Number }
+				{ "empty", FutureProgVariableTypes.Boolean },
+				{ "weight", FutureProgVariableTypes.Number },
+				{ "volume", FutureProgVariableTypes.Number },
+				{ "liquids", FutureProgVariableTypes.Collection | FutureProgVariableTypes.Liquid },
+				{ "distinct", FutureProgVariableTypes.Collection | FutureProgVariableTypes.LiquidMixture },
+				{ "issingle", FutureProgVariableTypes.Boolean },
+				{ "liquid", FutureProgVariableTypes.Liquid },
+				{ "isblood", FutureProgVariableTypes.Boolean },
+				{ "bloodcharacter", FutureProgVariableTypes.Character },
+				{ "iscoloured", FutureProgVariableTypes.Boolean },
+				{ "colour", FutureProgVariableTypes.Text },
+				{ "simplecolour", FutureProgVariableTypes.Text },
 			};
 		}
 
@@ -515,9 +524,18 @@ namespace MudSharp.Form.Material
 		{
 			return new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase)
 			{
-				{ "id", "" },
-				{ "name", "" },
-				{ "roletype", "" }
+				{ "empty", "True if the liquid mixture is empty" },
+				{ "weight", "The weight of the liquid in base units (g)" },
+				{ "volume", "The volume of the liquid in base units (L)" },
+				{ "liquids", "A collection of the liquid types contained in this mixture" },
+				{ "distinct", "Each of the liquid instances broken into single liquid mixtures with only one instance" },
+				{ "issingle", "True is this liquid mixture only contains one liquid instance" },
+				{ "liquid", "The liquid of the single instance" },
+				{ "isblood", "True if this is a single instance of blood" },
+				{ "bloodcharacter", "The character who this blood belongs to, or null" },
+				{ "iscoloured", "True if this is a coloured liquid, like ink" },
+				{ "colour", "The text name of the colour that this liquid has"},
+				{ "simplecolour", "The simple colour name of this liquid colour (e.g. black, green, brown etc)" },
 			};
 		}
 
@@ -540,6 +558,22 @@ namespace MudSharp.Form.Material
 					return new NumberVariable(TotalVolume);
 				case "liquids":
 					return new CollectionVariable(_instances.Select(x => x.Liquid).Distinct().ToList(), FutureProgVariableTypes.Liquid);
+				case "distinct":
+					return new CollectionVariable(_instances.Select(x => new LiquidMixture(x.Copy(), Gameworld)).ToList(), FutureProgVariableTypes.LiquidMixture);
+				case "issingle":
+					return new BooleanVariable(_instances.Count == 1);
+				case "liquid":
+					return _instances[0].Liquid;
+				case "isblood":
+					return new BooleanVariable(_instances[0] is BloodLiquidInstance);
+				case "iscoloured":
+					return new BooleanVariable(_instances[0] is ColourLiquidInstance);
+				case "bloodcharacter":
+					return (_instances[0] as BloodLiquidInstance)?.Source;
+				case "colour":
+					return new TextVariable((_instances.First() as ColourLiquidInstance)?.Colour.Name ?? "");
+				case "simplecolour":
+					return new TextVariable((_instances.First() as ColourLiquidInstance)?.Colour.Basic.DescribeEnum(true) ?? "");
 
 			}
 			throw new NotImplementedException();

@@ -145,7 +145,7 @@ public class ProgProduct : BaseProduct
 
 		var prog = new ProgLookupFromBuilderInputMultipleReturnTypes(actor, command.SafeRemainingArgument, [FutureProgVariableTypes.Item, FutureProgVariableTypes.Collection | FutureProgVariableTypes.Item], [
 			[FutureProgVariableTypes.CollectionDictionary | FutureProgVariableTypes.Item],
-			[FutureProgVariableTypes.CollectionDictionary | FutureProgVariableTypes.Item, FutureProgVariableTypes.CollectionDictionary | FutureProgVariableTypes.Liquid]
+			[FutureProgVariableTypes.CollectionDictionary | FutureProgVariableTypes.Item, FutureProgVariableTypes.CollectionDictionary | FutureProgVariableTypes.LiquidMixture]
 		]).LookupProg();
 		if (prog is null)
 		{

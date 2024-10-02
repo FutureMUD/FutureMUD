@@ -77,8 +77,8 @@ public class ForagableProfile : EditableItem, IForagableProfile
 			{
 				Id = Id,
 				RevisionNumber = FMDB.Context.ForagableProfiles.Where(x => x.Id == Id).Select(x => x.RevisionNumber)
-				                     .AsEnumerable().DefaultIfEmpty(0).Max() +
-				                 1,
+									 .AsEnumerable().DefaultIfEmpty(0).Max() +
+								 1,
 				Name = Name
 			};
 
@@ -198,10 +198,10 @@ public class ForagableProfile : EditableItem, IForagableProfile
 			_foragableIds.Add(item.ForagableId);
 		}
 
-		_maximumYieldPoints = profile.ForagableProfilesMaximumYields.ToDictionary(item => item.ForageType,
-			item => item.Yield);
-		_hourlyYieldPoints = profile.ForagableProfilesHourlyYieldGains.ToDictionary(item => item.ForageType,
-			item => item.Yield);
+		_maximumYieldPoints = profile.ForagableProfilesMaximumYields.ToDictionary(item => item.ForageType.ToLowerInvariant(),
+			item => item.Yield, StringComparer.InvariantCultureIgnoreCase);
+		_hourlyYieldPoints = profile.ForagableProfilesHourlyYieldGains.ToDictionary(item => item.ForageType.ToLowerInvariant(),
+			item => item.Yield, StringComparer.InvariantCultureIgnoreCase);
 	}
 
 	public ForagableProfile(IAccount originator) : base(originator)
@@ -223,8 +223,8 @@ public class ForagableProfile : EditableItem, IForagableProfile
 			dbedit.RevisionNumber = 0;
 
 			_name = "Unnamed Foragable Profile";
-			_maximumYieldPoints = new Dictionary<string, double>();
-			_hourlyYieldPoints = new Dictionary<string, double>();
+			_maximumYieldPoints = new Dictionary<string, double>(StringComparer.InvariantCultureIgnoreCase);
+			_hourlyYieldPoints = new Dictionary<string, double>(StringComparer.InvariantCultureIgnoreCase);
 
 			dbitem.Name = _name;
 			FMDB.Context.SaveChanges();
@@ -243,10 +243,10 @@ public class ForagableProfile : EditableItem, IForagableProfile
 
 	private const string BuildingHelpText = @"You can use the following options with this command:
 
-    #3name <name>#0 - renames this foragable profile
-    #3yield <which> <max> <hourly regain>#0 - sets up a yield for this profile
-    #3yield <which> 0#0 - removes a yield from this profile
-    #3foragable <which>#0 - toggles a foragable belonging to this profile";
+	#3name <name>#0 - renames this foragable profile
+	#3yield <which> <max> <hourly regain>#0 - sets up a yield for this profile
+	#3yield <which> 0#0 - removes a yield from this profile
+	#3foragable <which>#0 - toggles a foragable belonging to this profile";
 
 	public override bool BuildingCommand(ICharacter actor, StringStack command)
 	{
@@ -400,11 +400,11 @@ public class ForagableProfile : EditableItem, IForagableProfile
 	{
 		return
 			Foragables.Where(
-				          x =>
-					          x.ForagableTypes.Any(y =>
-						          y.Equals(foragableType, StringComparison.InvariantCultureIgnoreCase)) &&
-					          x.CanForage(character, forageOutcome[x.ForageDifficulty]))
-			          .GetWeightedRandom(x => x.RelativeChance);
+						  x =>
+							  x.ForagableTypes.Any(y =>
+								  y.Equals(foragableType, StringComparison.InvariantCultureIgnoreCase)) &&
+							  x.CanForage(character, forageOutcome[x.ForageDifficulty]))
+					  .GetWeightedRandom(x => x.RelativeChance);
 	}
 
 	#endregion

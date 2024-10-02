@@ -673,7 +673,7 @@ public partial class Race
 		}
 
 		_edibleForagableYields.Add(new EdibleForagableYield { 
-			YieldType = yield,
+			YieldType = yield.ToLowerInvariant(),
 			YieldPerBite = 1.0,
 			HungerPerYield = hunger,
 			ThirstPerYield = thirst,
@@ -683,7 +683,7 @@ public partial class Race
 			EmoteText = emoteText
 		});
 		Changed = true;
-		actor.OutputHandler.Send($"You add an edible foragable type for {yield.ColourValue()} to this race with {hunger.ToString("N2", actor).ColourValue()} hours hunger and {thirst.ToString("N2", actor).ColourValue()} hours thirst and an emote of {emoteText.ColourCommand()}.");
+		actor.OutputHandler.Send($"You add an edible foragable type for {yield.ToLowerInvariant().ColourValue()} to this race with {hunger.ToString("N2", actor).ColourValue()} hours hunger and {thirst.ToString("N2", actor).ColourValue()} hours thirst and an emote of {emoteText.ColourCommand()}.");
 		return true;
 	}
 

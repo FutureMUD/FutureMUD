@@ -66,8 +66,8 @@ public class Foragable : EditableItem, IForagable
 			{
 				Id = Id,
 				RevisionNumber = FMDB.Context.Foragables.Where(x => x.Id == Id).Select(x => x.RevisionNumber)
-				                     .AsEnumerable().DefaultIfEmpty(0).Max() +
-				                 1,
+									 .AsEnumerable().DefaultIfEmpty(0).Max() +
+								 1,
 				Name = Name,
 				CanForageProgId = CanForageProg?.Id,
 				OnForageProgId = OnForageProg?.Id,
@@ -215,17 +215,17 @@ public class Foragable : EditableItem, IForagable
 
 	private const string BuildingCommandHelp = @"You can use the following options with this command:
 
-    #3name <name>#0 - renames this foragable
-    #3proto <which>#0 - sets the proto for this foragable to load
-    #3chance <#>#0 - the relative weight of this option being found
-    #3quanity <# or dice>#0 - a number or dice expression for the quantity found
-    #3difficulty <difficulty>#0 - the difficulty that the result is evaluated against for this item
-    #3outcome <min> <max>#0 - the minimum and maximum check outcome that this item can appear on
-    #3types <type1> [<type2>] ... [<typen>]#0 - sets the yield types that this foragable appears against
-    #3canforage <prog>#0 - sets a prog that controls whether this foragable can be found
-    #3canforage clear#0 - clears the can-forage prog
-    #3onforage <prog>#0 - sets a prog that will run when this item is foraged
-    #3onforage clear#0 - clears the on-forage prog";
+	#3name <name>#0 - renames this foragable
+	#3proto <which>#0 - sets the proto for this foragable to load
+	#3chance <#>#0 - the relative weight of this option being found
+	#3quanity <# or dice>#0 - a number or dice expression for the quantity found
+	#3difficulty <difficulty>#0 - the difficulty that the result is evaluated against for this item
+	#3outcome <min> <max>#0 - the minimum and maximum check outcome that this item can appear on
+	#3types <type1> [<type2>] ... [<typen>]#0 - sets the yield types that this foragable appears against
+	#3canforage <prog>#0 - sets a prog that controls whether this foragable can be found
+	#3canforage clear#0 - clears the can-forage prog
+	#3onforage <prog>#0 - sets a prog that will run when this item is foraged
+	#3onforage clear#0 - clears the on-forage prog";
 
 	public override bool BuildingCommand(ICharacter actor, StringStack command)
 	{
@@ -526,15 +526,15 @@ public class Foragable : EditableItem, IForagable
 
 		command = new StringStack(command.RemainingArgument);
 		command.PopSpeechAll();
-		var choices = command.Memory.ToList();
+		var choices = command.Memory.Select(x => x.ToLowerInvariant()).ToList();
 		actor.Send("This foragable can now be found using the keywords {0}",
 			choices.Select(x => x.Colour(Telnet.Green)).ListToString(conjunction: "or "));
 		var existing =
 			Gameworld.Foragables.SelectMany(x => x.ForagableTypes)
-			         .Select(x => x.ToLowerInvariant())
-			         .Where(x => !string.IsNullOrWhiteSpace(x))
-			         .Distinct()
-			         .ToList();
+					 .Select(x => x.ToLowerInvariant())
+					 .Where(x => !string.IsNullOrWhiteSpace(x))
+					 .Distinct()
+					 .ToList();
 		var newChoices =
 			choices.Where(x => existing.Any(y => y.Equals(x, StringComparison.InvariantCultureIgnoreCase))).ToList();
 		if (newChoices.Any())

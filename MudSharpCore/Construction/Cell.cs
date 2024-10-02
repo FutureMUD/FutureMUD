@@ -1626,7 +1626,7 @@ public partial class Cell : Location, IDisposable, ICell
 		}
 	}
 
-	private readonly Dictionary<string, double> _foragableYields = new();
+	private readonly Dictionary<string, double> _foragableYields = new(StringComparer.InvariantCultureIgnoreCase);
 
 	public double GetForagableYield(string foragableType)
 	{

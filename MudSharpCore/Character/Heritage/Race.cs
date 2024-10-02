@@ -515,7 +515,7 @@ public partial class Race : SaveableItem, IRace
 		{
 			_edibleForagableYields.Add(new EdibleForagableYield
 			{
-				YieldType = yield.YieldType,
+				YieldType = yield.YieldType.ToLowerInvariant(),
 				YieldPerBite = yield.BiteYield,
 				CaloriesPerYield = yield.CaloriesPerYield,
 				HungerPerYield = yield.HungerPerYield,
@@ -921,7 +921,7 @@ public partial class Race : SaveableItem, IRace
 				dbitem.RaceEdibleForagableYields.Add(new RaceEdibleForagableYields
 				{
 					Race = dbitem,
-					YieldType = item.YieldType,
+					YieldType = item.YieldType.ToLowerInvariant(),
 					BiteYield = item.YieldPerBite,
 					AlcoholPerYield = item.AlcoholPerYield,
 					CaloriesPerYield = item.CaloriesPerYield,
@@ -1337,7 +1337,7 @@ public partial class Race : SaveableItem, IRace
 			dbitem.RaceEdibleForagableYields.Add(new RaceEdibleForagableYields
 			{
 				Race = dbitem,
-				YieldType = item.YieldType,
+				YieldType = item.YieldType.ToLowerInvariant(),
 				BiteYield = item.YieldPerBite,
 				AlcoholPerYield = item.AlcoholPerYield,
 				CaloriesPerYield = item.CaloriesPerYield,

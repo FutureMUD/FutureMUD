@@ -125,6 +125,7 @@ public class Liquid : Fluid, ILiquid
 
 	public Liquid(string name, IFuturemud gameworld) : base(name, MaterialBehaviourType.Liquid, gameworld)
 	{
+		Description = "a clear liquid";
 		TasteText = "It doesn't really taste like anything.";
 		VagueTasteText = "It doesn't really taste like anything.";
 		TasteIntensity = 100;

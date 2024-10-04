@@ -111,7 +111,7 @@ These commands all require you to have an open overlay package:
 
 	#3cell new#0 - creates a new cell and transports you to it
 	#3cell dig <direction#0 - creates a new cell and a two-way exit in the specified direction, and transports you to it
-	#3cell ndig <template> <outboundkeyword> <inboundkeyword> ""<outboundname>"" ""<inboundname>""#0 - creates a new cell with a non cardinal exit, and transports you to it
+	#3cell ndig <template> <outboundkeyword> <inboundkeyword> ""<outbounddescription>"" ""<inbounddescription>""#0 - creates a new cell with a non cardinal exit, and transports you to it
 	#3cell exit add <id>#0 - adds an existing exit from another overlay for this cell to this overlay
 	#3cell exit remove <id>#0 - removes an exit from this overlay
 	#3cell exit size <id|direction> <size>#0 - sets the maximum size of creatures that can use the exit
@@ -123,7 +123,7 @@ These commands all require you to have an open overlay package:
 	#3cell exit block <id|direction> <layer>#0 - blocks an exit from appearing in a specified layer
 	#3cell exit unblock <id|direction> <layer>#0 - removes a block on an exit from appearing in a specified layer
 	#3cell link <direction> <cellid**>#0 - creates a new exit in the specified direction to the specified cell
-	#3cell nlink <template> <cellid**> <outboundkeyword> <inboundkeyword> ""<outboundname>"" ""<inboundname>""#0 - creates a non-cardinal exit using a template to a cell
+	#3cell nlink <template> <cellid**> <outboundkeyword> <inboundkeyword> ""<outbounddescription>"" ""<inbounddescription>""#0 - creates a non-cardinal exit using a template to a cell
 	#3cell set name <name>#0 - sets the name of the cell
 	#3cell set desc#0 - drops you into an editor to edit the cell description
 	#3cell set terrain <id|name>#0 - sets the terrain of this cell
@@ -2711,8 +2711,8 @@ You can use the following subcommands:
 		if (!match.Success)
 		{
 			actor.OutputHandler.Send("You must supply an argument in this form: " +
-			                         "cell nlink <template> <cellid> <outbound keyword> <inbound keyword> \"<outbound name>\" \"<inbound name>\""
-				                         .Colour(Telnet.Yellow));
+									 "cell nlink <template> <cellid> <outbound keyword> <inbound keyword> \"<outbound description>\" \"<inbound description>\""
+										 .Colour(Telnet.Yellow));
 			return;
 		}
 

@@ -57,6 +57,9 @@ public abstract class GameItemComponent : LateInitialisingItem, IGameItemCompone
 		protected set { }
 	}
 
+	/// <inheritdoc />
+	public override string Name => Prototype.Name;
+
 	#endregion
 
 	public void PrimeComponentForInsertion(MudSharp.Models.GameItem parent)

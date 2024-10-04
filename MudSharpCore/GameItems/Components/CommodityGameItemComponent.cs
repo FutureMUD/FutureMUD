@@ -228,8 +228,8 @@ public class CommodityGameItemComponent : GameItemComponent, ICommodity
 	public override bool PreventsMerging(IGameItemComponent component)
 	{
 		return component is CommodityGameItemComponent cc &&
-		       cc.Material != Material &&
-		       cc.Tag != Tag;
+		       (cc.Material != Material ||
+		        cc.Tag != Tag);
 	}
 
 	public override bool ExposeToLiquid(LiquidMixture mixture)

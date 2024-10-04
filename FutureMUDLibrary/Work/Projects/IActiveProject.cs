@@ -20,5 +20,6 @@ namespace MudSharp.Work.Projects
         void Leave(ICharacter actor);
         string ProjectsCommandOutput(ICharacter actor);
         void DoProjectsTick();
+        string ShowToPlayer(ICharacter actor);
     }
 }

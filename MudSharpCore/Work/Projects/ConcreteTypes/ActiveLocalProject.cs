@@ -62,7 +62,7 @@ public class ActiveLocalProject : ActiveProject, ILocalProject
 				return true;
 			}
 
-			Location.OutputHandler.Handle(
+			Location.Handle(
 				$"The {ProjectDefinition.Name.Colour(Telnet.Cyan)} local project has been completed.");
 			ProjectDefinition.OnFinishProg?.Execute(this);
 			Location.RemoveProject(this);

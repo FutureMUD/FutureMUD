@@ -91,7 +91,7 @@ public abstract class MaterialRequirementBase : SaveableItem, IProjectMaterialRe
 
 	public abstract bool ItemCounts(IGameItem item);
 
-	public abstract void SupplyItem(ICharacter actor, IGameItem item, IActiveProject project);
+	public abstract double SupplyItem(ICharacter actor, IGameItem item, IActiveProject project);
 
 	public abstract void PeekSupplyItem(ICharacter actor, IGameItem item, IActiveProject project);
 

@@ -422,6 +422,7 @@ public abstract class ProjectLabourBase : SaveableItem, IProjectLabourRequiremen
 			{
 				actor.OutputHandler.Send(
 					$"You delete labour impact {impact.Name.ColourValue()} from the project labour requirement.");
+				_labourImpacts.Remove(impact);
 				impact.Delete();
 			},
 			RejectAction = txt => { actor.OutputHandler.Send("You decide against deleting the labour impact."); },

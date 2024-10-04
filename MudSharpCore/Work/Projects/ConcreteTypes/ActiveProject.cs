@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Text.RegularExpressions;
 using MudSharp.Character;
 using MudSharp.Construction;
@@ -268,6 +269,64 @@ public abstract class ActiveProject : LateInitialisingItem, IActiveProject, ILaz
 				impact.DoAction(labour.Character, this, labour.Labour);
 			}
 		}
+	}
+
+	public virtual string ShowToPlayer(ICharacter actor)
+	{
+		var sb = new StringBuilder();
+		sb.AppendLine($"Project #{Id.ToStringN0(actor)} - {Name}".GetLineWithTitleInner(actor, Telnet.Cyan, Telnet.BoldWhite));
+		sb.AppendLine();
+		sb.AppendLine($"About: {ProjectDefinition.Tagline.ColourCommand()}");
+		sb.AppendLine($"Current Phase: {CurrentPhase.Description.ColourCommand()} ({CurrentPhase.PhaseNumber.ToStringN0(actor)}/{ProjectDefinition.Phases.Count().ToStringN0(actor)})");
+		sb.AppendLine();
+		sb.AppendLine("Phase Labour".GetLineWithTitleInner(actor, Telnet.Cyan, Telnet.BoldWhite));
+		CheckCachedLabour();
+		if (CurrentPhase.LabourRequirements.Any())
+		{
+			foreach (var item in CurrentPhase.LabourRequirements)
+			{
+				sb.AppendLine();
+				sb.AppendLine($"{item.Name.ColourName()} - {item.Description}");
+				sb.AppendLine();
+				sb.AppendLine($"Mandatory: {item.IsMandatoryForProjectCompletion.ToColouredString()}");
+				sb.AppendLine($"Required Skill: {item.RequiredTrait?.Name.ColourValue() ?? "None".ColourError()}");
+				sb.AppendLine($"Person-Hours: {item.TotalProgressRequiredForDisplay.ToStringN2Colour(actor)}");
+				sb.AppendLine($"Current Workers: {_activeLabour.Count(x => x.Labour == item).ToStringN0Colour(actor)}/{item.MaximumSimultaneousWorkers.ToStringN0Colour(actor)}");
+				sb.AppendLine($"You Qualify: {item.CharacterIsQualified(actor).ToColouredString()}");
+				sb.AppendLine($"Impacts: {item.LabourImpacts.Select(x => x.DescriptionForProjectsCommand.SubstituteANSIColour()).ListToString()}");
+				if (_activeLabour.Any(x => x.Labour == item))
+				{
+					sb.AppendLine();
+					sb.AppendLine("Active Workers:");
+					sb.AppendLine();
+					foreach (var labour in _activeLabour.Where(x => x.Labour == item))
+					{
+						sb.AppendLine($"\t{labour.Character.HowSeen(actor, flags: PerceiveIgnoreFlags.IgnoreCanSee | PerceiveIgnoreFlags.IgnoreSelf | PerceiveIgnoreFlags.IgnoreDisguises | PerceiveIgnoreFlags.IgnoreCorpse | PerceiveIgnoreFlags.IgnoreLoadThings)}");
+					}
+				}
+			}
+		}
+		else
+		{
+			sb.AppendLine();
+			sb.AppendLine("\tNone");
+		}
+
+		sb.AppendLine();
+		sb.AppendLine("Phase Material Requirements".GetLineWithTitleInner(actor, Telnet.Cyan, Telnet.BoldWhite));
+		sb.AppendLine();
+		if (CurrentPhase.MaterialRequirements.Any())
+		{
+			foreach (var material in CurrentPhase.MaterialRequirements)
+			{
+				sb.AppendLine($"\t{material.ShowToPlayer(actor)} ({(_materialProgress[material] / material.QuantityRequired).ToStringP2Colour(actor)} complete)");
+			}
+		}
+		else
+		{
+			sb.AppendLine("\tNone");
+		}
+		return sb.ToString();
 	}
 
 	#region Futureprogs

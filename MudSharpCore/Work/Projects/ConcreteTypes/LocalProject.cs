@@ -73,7 +73,6 @@ public class LocalProject : Project
 			new EmoteOutput(new Emote($"@ begin|begins the {Name.Colour(Telnet.Cyan)} local project.", actor, actor)));
 		var project = new ActiveLocalProject(this, actor);
 		Gameworld.Add(project);
-		actor.Location.AddProject(project);
 	}
 
 	public override bool CanCancelProject(ICharacter actor, IActiveProject local)

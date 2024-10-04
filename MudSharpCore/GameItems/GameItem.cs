@@ -1866,13 +1866,41 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable
 
 	public bool CanMerge(IGameItem otherItem)
 	{
-		return
-			!Deleted &&
-			otherItem.Prototype == Prototype &&
-			_components.Any(x => x is IStackable || x is ICurrencyPile || x is ICommodity) &&
-			!Effects.Any(x => x.PreventsItemFromMerging(this, otherItem)) &&
-			!otherItem.Effects.Any(x => x.PreventsItemFromMerging(otherItem, this)) &&
-			!otherItem.Components.Any(x => _components.Any(y => y.PreventsMerging(x)));
+		if (Deleted)
+		{
+			return false;
+		}
+
+		if (otherItem.Prototype != Prototype)
+		{
+			return false;
+		}
+
+		if (!otherItem.IsItemType<IStackable>() && !otherItem.IsItemType<ICurrencyPile>() && !otherItem.IsItemType<ICommodity>())
+		{
+			// We don't need to check this item against these criteria because they are both the same prototype, so have the same component types
+			return false;
+		}
+
+		if (Effects.Any(x => x.PreventsItemFromMerging(this, otherItem)))
+		{
+			return false;
+		}
+
+		if (otherItem.Effects.Any(x => x.PreventsItemFromMerging(otherItem, this)))
+		{
+			return false;
+		}
+
+		foreach (var component in _components)
+		{
+			if (otherItem.Components.Any(x => component.PreventsMerging(x)))
+			{
+				return false;
+			}
+		}
+
+		return true;
 	}
 
 	public void Merge(IGameItem otherItem)
@@ -1896,7 +1924,7 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable
 
 		var thisCommodity = GetItemType<ICommodity>();
 		var thatCommodity = otherItem.GetItemType<ICommodity>();
-		if (thisCommodity != null && thatCommodity != null && thisCommodity.Material == thatCommodity.Material)
+		if (thisCommodity != null && thatCommodity != null && thisCommodity.Material == thatCommodity.Material && thisCommodity.Tag == thatCommodity.Tag)
 		{
 			thisCommodity.Weight += thatCommodity.Weight;
 			return;

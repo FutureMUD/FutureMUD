@@ -297,35 +297,35 @@ The full list of filters for craft list is below:
 				{
 					goto default;
 				}
-				BuilderModule.GenericRevisableList(actor, ss, EditableRevisableItemHelper.CraftHelper);
+				BaseBuilderModule.GenericRevisableList(actor, ss, EditableRevisableItemHelper.CraftHelper);
 				return;
 			case "show":
 				if (!actor.IsAdministrator())
 				{
 					goto default;
 				}
-				BuilderModule.GenericRevisableShow(actor, ss, EditableRevisableItemHelper.CraftHelper);
+				BaseBuilderModule.GenericRevisableShow(actor, ss, EditableRevisableItemHelper.CraftHelper);
 				return;
 			case "edit":
 				if (!actor.IsAdministrator())
 				{
 					goto default;
 				}
-				BuilderModule.GenericRevisableEdit(actor, ss, EditableRevisableItemHelper.CraftHelper);
+				BaseBuilderModule.GenericRevisableEdit(actor, ss, EditableRevisableItemHelper.CraftHelper);
 				return;
 			case "set":
 				if (!actor.IsAdministrator())
 				{
 					goto default;
 				}
-				BuilderModule.GenericRevisableSet(actor, ss, EditableRevisableItemHelper.CraftHelper);
+				BaseBuilderModule.GenericRevisableSet(actor, ss, EditableRevisableItemHelper.CraftHelper);
 				return;
 			case "review":
 				if (!actor.IsAdministrator())
 				{
 					goto default;
 				}
-				BuilderModule.GenericReview(actor, ss, EditableRevisableItemHelper.CraftHelper);
+				BaseBuilderModule.GenericReview(actor, ss, EditableRevisableItemHelper.CraftHelper);
 				return;
 			case "categories":
 				CraftCategories(actor);
@@ -546,16 +546,26 @@ The full list of filters for craft list is below:
 		actor.OutputHandler.Send(sb.ToString());
 	}
 
-	private const string ProjectAdminHelp = @"You can use the following player options with this command:
+	private const string ProjectAdminHelp = @"This command allows you to view, start and join projects. Projects are on-going efforts that come in two flavours.
 
-	#3catalogue#0 - shows all the projects you know about
-	#3view <name>#0 - shows you detailed information about a project
+1) Personal projects are specific to you. Only you can see your personal projects or work on them.
+2) Local projects are tied to a room and multiple people can often work on them.
+
+You can only work on one project at a time, but you're always working on it, even when you're offline. In this manner, it differs from crafts in that it represents what you're doing ""off screen"". 
+
+Some projects, particularly personal projects, have ""impacts"" that have some effect on you. Many of these impacts require you to be working on the same project for some period of time before they kick in, so changing between projects too often is not advisable.
+
+You can use the following player options with this command:
+
+	#3catalog#0 - shows all the projects you know about
+	#3view <name>#0 - shows you detailed information about a catalog project
 	#3start <name>#0 - starts a new project
-	#3join <project>#0 - joins a project already in progress
-	#3quit <name>#0 - quits a project you are working on
-	#3cancel <name>#0 - cancels a project in progress
+	#3join <project>#0 - joins an active project
+	#3quit <project>#0 - quits an active project you are working on
+	#3cancel <project>#0 - cancels an active project
 	#3supply <project> <req>#0 - supplies material for a particular material requirement
-	#3preview <project> <req>#0 - shows you what material you would submit if you did project supply.
+	#3preview <project> <req>#0 - shows you what material you would submit if you did #3project supply#0
+	#3details <project>#0 - shows you details about an active project.
 
 You can use the following admin options with this command:
 
@@ -567,26 +577,31 @@ You can use the following admin options with this command:
 	#3edit submit#0 - submits a project for review
 	#3review all#0 - reviews all submitted projects
 	#3review mine#0 - reviews all your own projects
-	#3set ...#0 - sets some property about the project. See that command for more help.";
+	#3set ...#0 - sets some property about the project. See that command for more help.
+
+Note: See the closely related #3projects#0 command for information about your current projects.";
 
 	private const string ProjectPlayerHelp =
-		@"This command allows you to view, start and join project in place. Projects are on-going efforts that come in two flavours.
+		@"This command allows you to view, start and join projects. Projects are on-going efforts that come in two flavours.
 
-1) Personal projects are specific to you. Only you can see your personal projects or work on them
+1) Personal projects are specific to you. Only you can see your personal projects or work on them.
 2) Local projects are tied to a room and multiple people can often work on them.
 
-You can only work on one project at a time, but you're always working on it, even when you're offline. In this manner, it differs from crafts in that it represents what you're doing ""off screen"". Some projects, particularly personal projects, have ""impacts"" that have some effect on you. Many of these impacts require you to be working on the same project for some period of time before they kick in, so changing between projects too often is not advisable.
+You can only work on one project at a time, but you're always working on it, even when you're offline. In this manner, it differs from crafts in that it represents what you're doing ""off screen"". 
+
+Some projects, particularly personal projects, have ""impacts"" that have some effect on you. Many of these impacts require you to be working on the same project for some period of time before they kick in, so changing between projects too often is not advisable.
 
 You can use the following options with this command:
 
 	#3catalog#0 - shows all the projects you know about
-	#3view <name>#0 - shows you detailed information about a project
+	#3view <name>#0 - shows you detailed information about a catalog project
 	#3start <name>#0 - starts a new project
-	#3join <project>#0 - joins a project already in progress
-	#3quit <name>#0 - quits a project you are working on
-	#3cancel <name>#0 - cancels a project in progress
+	#3join <project>#0 - joins an active project
+	#3quit <project>#0 - quits an active project you are working on
+	#3cancel <project>#0 - cancels an active project
 	#3supply <project> <req>#0 - supplies material for a particular material requirement
-	#3preview <project> <req>#0 - shows you what material you would submit if you did project supply.
+	#3preview <project> <req>#0 - shows you what material you would submit if you did #3project supply#0
+	#3details <project>#0 - shows you details about an active project.
 
 Note: See the closely related #3projects#0 command for information about your current projects.";
 
@@ -600,19 +615,19 @@ Note: See the closely related #3projects#0 command for information about your cu
 			switch (text)
 			{
 				case "list":
-					BuilderModule.GenericRevisableList(actor, ss, EditableRevisableItemHelper.ProjectHelper);
+					BaseBuilderModule.GenericRevisableList(actor, ss, EditableRevisableItemHelper.ProjectHelper);
 					return;
 				case "show":
-					BuilderModule.GenericRevisableShow(actor, ss, EditableRevisableItemHelper.ProjectHelper);
+					BaseBuilderModule.GenericRevisableShow(actor, ss, EditableRevisableItemHelper.ProjectHelper);
 					return;
 				case "edit":
-					BuilderModule.GenericRevisableEdit(actor, ss, EditableRevisableItemHelper.ProjectHelper);
+					BaseBuilderModule.GenericRevisableEdit(actor, ss, EditableRevisableItemHelper.ProjectHelper);
 					return;
 				case "set":
-					BuilderModule.GenericRevisableSet(actor, ss, EditableRevisableItemHelper.ProjectHelper);
+					BaseBuilderModule.GenericRevisableSet(actor, ss, EditableRevisableItemHelper.ProjectHelper);
 					return;
 				case "review":
-					BuilderModule.GenericReview(actor, ss, EditableRevisableItemHelper.ProjectHelper);
+					BaseBuilderModule.GenericReview(actor, ss, EditableRevisableItemHelper.ProjectHelper);
 					return;
 				case "help":
 				case "?":
@@ -640,6 +655,9 @@ Note: See the closely related #3projects#0 command for information about your cu
 			case "view":
 				ProjectView(actor, ss);
 				return;
+			case "details":
+				ProjectDetails(actor, ss);
+				return;
 			case "supply":
 				ProjectSupply(actor, ss);
 				return;
@@ -661,6 +679,25 @@ Note: See the closely related #3projects#0 command for information about your cu
 					.SubstituteANSIColour());
 				return;
 		}
+	}
+
+	private static void ProjectDetails(ICharacter actor, StringStack ss)
+	{
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send("Which active project do you want to see the details of?");
+			return;
+		}
+
+		var projects = actor.PersonalProjects.OfType<IActiveProject>().Concat(actor.Location.LocalProjects).ToList();
+		var project = projects.GetByIdOrName(ss.PopSpeech());
+		if (project == null)
+		{
+			actor.OutputHandler.Send("You are not aware of any such project.");
+			return;
+		}
+
+		actor.OutputHandler.Send(project.ShowToPlayer(actor));
 	}
 
 	#region Project Subcommands
@@ -692,20 +729,9 @@ Note: See the closely related #3projects#0 command for information about your cu
 			return;
 		}
 
-		if (!long.TryParse(ss.PopSpeech(), out var value))
-		{
-			actor.OutputHandler.Send("You must enter the ID of the project you want to cancel.");
-			return;
-		}
-
-		var project = actor.Gameworld.ActiveProjects.Get(value);
+		var projects = actor.PersonalProjects.OfType<IActiveProject>().Concat(actor.Location.LocalProjects).ToList();
+		var project = projects.GetByIdOrName(ss.PopSpeech());
 		if (project == null)
-		{
-			actor.OutputHandler.Send("You are not aware of any such project.");
-			return;
-		}
-
-		if (!actor.PersonalProjects.Contains(project) && !actor.Location.LocalProjects.Contains(project))
 		{
 			actor.OutputHandler.Send("You are not aware of any such project.");
 			return;
@@ -742,24 +768,13 @@ Note: See the closely related #3projects#0 command for information about your cu
 	{
 		if (ss.IsFinished)
 		{
-			actor.OutputHandler.Send("Which project do you want to supply?");
+			actor.OutputHandler.Send("Which project do you want to preview supply?");
 			return;
 		}
 
-		if (!long.TryParse(ss.PopSpeech(), out var value))
-		{
-			actor.OutputHandler.Send("You must enter the ID of the project you want to supply.");
-			return;
-		}
-
-		var project = actor.Gameworld.ActiveProjects.Get(value);
+		var projects = actor.PersonalProjects.OfType<IActiveProject>().Concat(actor.Location.LocalProjects).ToList();
+		var project = projects.GetByIdOrName(ss.PopSpeech());
 		if (project == null)
-		{
-			actor.OutputHandler.Send("You are not aware of any such project.");
-			return;
-		}
-
-		if (!actor.PersonalProjects.Contains(project) && !actor.Location.LocalProjects.Contains(project))
 		{
 			actor.OutputHandler.Send("You are not aware of any such project.");
 			return;
@@ -767,7 +782,7 @@ Note: See the closely related #3projects#0 command for information about your cu
 
 		if (ss.IsFinished)
 		{
-			actor.OutputHandler.Send("Which material requirement of that project do you want to supply?");
+			actor.OutputHandler.Send("Which material requirement of that project do you want to preview supply?");
 			return;
 		}
 
@@ -797,7 +812,7 @@ Note: See the closely related #3projects#0 command for information about your cu
 				return;
 		}
 
-		var target = plan.ScoutAllTargets().First(x => x.OriginalReference.Equals("target")).PrimaryTarget;
+		var target = plan.ScoutAllTargets().First(x => x.OriginalReference?.ToString() == "target").PrimaryTarget;
 		materialRequirement.PeekSupplyItem(actor, target, project);
 		plan.FinalisePlanNoRestore();
 	}
@@ -810,20 +825,9 @@ Note: See the closely related #3projects#0 command for information about your cu
 			return;
 		}
 
-		if (!long.TryParse(ss.PopSpeech(), out var value))
-		{
-			actor.OutputHandler.Send("You must enter the ID of the project you want to supply.");
-			return;
-		}
-
-		var project = actor.Gameworld.ActiveProjects.Get(value);
+		var projects = actor.PersonalProjects.OfType<IActiveProject>().Concat(actor.Location.LocalProjects).ToList();
+		var project = projects.GetByIdOrName(ss.PopSpeech());
 		if (project == null)
-		{
-			actor.OutputHandler.Send("You are not aware of any such project.");
-			return;
-		}
-
-		if (!actor.PersonalProjects.Contains(project) && !actor.Location.LocalProjects.Contains(project))
 		{
 			actor.OutputHandler.Send("You are not aware of any such project.");
 			return;
@@ -831,7 +835,35 @@ Note: See the closely related #3projects#0 command for information about your cu
 
 		if (ss.IsFinished)
 		{
-			actor.OutputHandler.Send("Which material requirement of that project do you want to supply?");
+			if (!project.CurrentPhase.MaterialRequirements.Any())
+			{
+				actor.OutputHandler.Send($"The {project.Name.ColourName()} project doesn't have any material supply requirements.");
+				return;
+			}
+			var sb = new StringBuilder();
+			sb.AppendLine($"Material Supply Requirements for {project.Name.ColourName()}:");
+			sb.AppendLine();
+			sb.AppendLine(StringUtilities.GetTextTable(
+				from item in project.CurrentPhase.MaterialRequirements
+				select
+				new List<string>
+				{
+					item.Name,
+					item.Description,
+					project.MaterialProgress[item].ToString("P0", actor),
+					item.IsMandatoryForProjectCompletion.ToColouredString()
+				},
+				new List<string>
+				{
+					"Name",
+					"Description",
+					"Mandatory",
+					"Progress"
+				},
+				actor,
+				Telnet.Green
+			));
+			actor.OutputHandler.Send(sb.ToString());
 			return;
 		}
 
@@ -861,8 +893,9 @@ Note: See the closely related #3projects#0 command for information about your cu
 				return;
 		}
 
-		var target = plan.ScoutAllTargets().First(x => x.OriginalReference.Equals("target")).PrimaryTarget;
-		materialRequirement.SupplyItem(actor, target, project);
+		var target = plan.ScoutAllTargets().First(x => x.OriginalReference?.ToString() == "target").PrimaryTarget;
+		var progress = materialRequirement.SupplyItem(actor, target, project);
+		project.FulfilMaterial(materialRequirement, progress);
 		plan.FinalisePlanNoRestore();
 	}
 
@@ -899,20 +932,9 @@ Note: See the closely related #3projects#0 command for information about your cu
 			return;
 		}
 
-		if (!long.TryParse(ss.PopSpeech(), out var value))
-		{
-			actor.OutputHandler.Send("You must enter the ID of the project you want to join.");
-			return;
-		}
-
-		var project = actor.Gameworld.ActiveProjects.Get(value);
+		var projects = actor.PersonalProjects.OfType<IActiveProject>().Concat(actor.Location.LocalProjects).ToList();
+		var project = projects.GetByIdOrName(ss.PopSpeech());
 		if (project == null)
-		{
-			actor.OutputHandler.Send("You are not aware of any such project.");
-			return;
-		}
-
-		if (!actor.PersonalProjects.Contains(project) && !actor.Location.LocalProjects.Contains(project))
 		{
 			actor.OutputHandler.Send("You are not aware of any such project.");
 			return;
@@ -981,26 +1003,15 @@ Note: See the closely related #3projects#0 command for information about your cu
 			return;
 		}
 
-		if (!long.TryParse(ss.PopSpeech(), out var value))
-		{
-			actor.OutputHandler.Send("You must enter the ID of the project you want to leave.");
-			return;
-		}
-
-		var project = actor.Gameworld.ActiveProjects.Get(value);
+		var projects = actor.PersonalProjects.OfType<IActiveProject>().Concat(actor.Location.LocalProjects).ToList();
+		var project = projects.GetByIdOrName(ss.PopSpeech());
 		if (project == null)
 		{
 			actor.OutputHandler.Send("You are not aware of any such project.");
 			return;
 		}
 
-		if (!actor.PersonalProjects.Contains(project) && !actor.Location.LocalProjects.Contains(project))
-		{
-			actor.OutputHandler.Send("You are not aware of any such project.");
-			return;
-		}
-
-		if (!project.ActiveLabour.Any(x => x.Character == actor))
+		if (project.ActiveLabour.All(x => x.Character != actor))
 		{
 			actor.OutputHandler.Send("You are not currently contributing any labour to that project.");
 			return;

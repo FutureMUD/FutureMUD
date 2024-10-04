@@ -73,6 +73,8 @@ public class SimpleMeleeCombat : CombatBase
 					LeaveCombat(combatant);
 				}
 			}
+
+			character.AddEffect(new EngageDelay(character), TimeSpan.FromSeconds(Gameworld.GetStaticDouble("PostCombatEngageDelaySeconds")));
 		}
 
 		return CheckForCombatEnd();

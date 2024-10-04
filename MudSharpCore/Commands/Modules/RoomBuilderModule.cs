@@ -54,7 +54,7 @@ internal class RoomBuilderModule : Module<ICharacter>
 		}
 
 		if (cellText[0] == '@' && cellText.Length > 1 && int.TryParse(cellText[1..], out var index) &&
-		    BuiltCells.Count >= index && index > 0)
+			BuiltCells.Count >= index && index > 0)
 		{
 			return BuiltCells[Index.FromEnd(index)];
 		}
@@ -434,8 +434,8 @@ There is also a universal optional argument which must come first in the form of
 					}
 
 					if (!prog.MatchesParameters(new FutureProgVariableTypes[]
-						    { FutureProgVariableTypes.Location | FutureProgVariableTypes.Collection }) &&
-					    !prog.MatchesParameters(new FutureProgVariableTypes[] { FutureProgVariableTypes.Location }))
+							{ FutureProgVariableTypes.Location | FutureProgVariableTypes.Collection }) &&
+						!prog.MatchesParameters(new FutureProgVariableTypes[] { FutureProgVariableTypes.Location }))
 					{
 						actor.OutputHandler.Send(
 							$"Any prog specified as an option must accept only a single location or a collection of locations as a parameter. The {prog.MXPClickableFunctionName()} prog does not.");
@@ -1078,7 +1078,7 @@ See the #3CELL#0 command for more information about #3CELL PACKAGES#0.";
 	protected static void ZoneCreate(ICharacter actor, StringStack command)
 	{
 		if (actor.CurrentOverlayPackage == null ||
-		    actor.CurrentOverlayPackage.Status != RevisionStatus.UnderDesign)
+			actor.CurrentOverlayPackage.Status != RevisionStatus.UnderDesign)
 		{
 			actor.OutputHandler.Send(
 				"You must be editing an Under Design status cell overlay package to create a new zone.");
@@ -1146,7 +1146,7 @@ See the #3CELL#0 command for more information about #3CELL PACKAGES#0.";
 
 #if DEBUG
 #else
-            try {
+			try {
 #endif
 		using (new FMDB())
 		{
@@ -1227,10 +1227,10 @@ See the #3CELL#0 command for more information about #3CELL PACKAGES#0.";
 		}
 #if DEBUG
 #else
-            }
-            catch (Exception e) {
-                Console.WriteLine("Exception in Zone Creation: " + e.Message);
-            }
+			}
+			catch (Exception e) {
+				Console.WriteLine("Exception in Zone Creation: " + e.Message);
+			}
 #endif
 	}
 
@@ -1593,7 +1593,7 @@ You can use the following subcommands:
 				break;
 			default:
 				actor.OutputHandler.Send("That is not a valid option for the " + "cell edit".Colour(Telnet.Cyan) +
-				                         " command.");
+										 " command.");
 				return;
 		}
 	}
@@ -1806,11 +1806,11 @@ You can use the following subcommands:
 
 			var existingNonDoorExit =
 				actor.Gameworld.ExitManager.GetAllExits(actor.Location)
-				     .FirstOrDefault(
-					     x =>
-						     x.Origin == exit.Origin && x.Destination == exit.Destination &&
-						     x.InboundDirection == exit.InboundDirection &&
-						     x.OutboundDirection == exit.OutboundDirection && !x.Exit.AcceptsDoor);
+					 .FirstOrDefault(
+						 x =>
+							 x.Origin == exit.Origin && x.Destination == exit.Destination &&
+							 x.InboundDirection == exit.InboundDirection &&
+							 x.OutboundDirection == exit.OutboundDirection && !x.Exit.AcceptsDoor);
 			if (existingNonDoorExit != null)
 			{
 				newExit = existingNonDoorExit.Exit;
@@ -2048,7 +2048,7 @@ You can use the following subcommands:
 		}
 
 		actor.OutputHandler.Send("You set the Terrain for this cell to \"" +
-		                         terrain.Name.TitleCase().Colour(Telnet.Green) + "\"");
+								 terrain.Name.TitleCase().Colour(Telnet.Green) + "\"");
 	}
 
 	private static void CellEditHearingProfile(ICharacter actor, StringStack input)
@@ -2070,7 +2070,7 @@ You can use the following subcommands:
 		var overlay = actor.Location.GetOrCreateOverlay(actor.CurrentOverlayPackage);
 		overlay.HearingProfile = profile;
 		actor.OutputHandler.Send("You set the Hearing Profile for this cell to \"" +
-		                         profile.Name.TitleCase().Colour(Telnet.Green) + "\"");
+								 profile.Name.TitleCase().Colour(Telnet.Green) + "\"");
 	}
 
 	private static void CellExit(ICharacter actor, StringStack input)
@@ -2085,11 +2085,11 @@ You can use the following subcommands:
 				: "")}:
 
 {(from exit in exits
-				             select exit.BuilderInformationString(actor)
-				                    +
-				                    (overlay != null && overlay.ExitIDs.Contains(exit.Exit.Id)
-					                    ? "[x]"
-					                    : "")
+							 select exit.BuilderInformationString(actor)
+									+
+									(overlay != null && overlay.ExitIDs.Contains(exit.Exit.Id)
+										? "[x]"
+										: "")
 				).ListToString(separator: "\n", conjunction: "")}"
 			);
 			return;
@@ -2249,7 +2249,7 @@ You can use the following subcommands:
 			otherOverlay.RemoveExit(texit);
 
 			actor.OutputHandler.Send("You remove the Exit with ID " + texit.Id +
-			                         " from this Location's Cell Overlay.");
+									 " from this Location's Cell Overlay.");
 		}
 	}
 
@@ -2299,7 +2299,7 @@ You can use the following subcommands:
 		}
 
 		if (!prog.MatchesParameters(new List<FutureProgVariableTypes>
-			    { FutureProgVariableTypes.Location, FutureProgVariableTypes.Character }))
+				{ FutureProgVariableTypes.Location, FutureProgVariableTypes.Character }))
 		{
 			actor.OutputHandler.Send(
 				$"You must specify a prog that can accept a room and a character parameter, whereas {prog.MXPClickableFunctionName()} does not.");
@@ -2667,7 +2667,7 @@ You can use the following subcommands:
 		var overlay = actor.Location.GetOrCreateOverlay(actor.CurrentOverlayPackage);
 		if (
 			actor.Gameworld.ExitManager.GetExitsFor(actor.Location, overlay)
-			     .Any(x => x.OutboundDirection == direction))
+				 .Any(x => x.OutboundDirection == direction))
 		{
 			actor.OutputHandler.Send("This Cell Overlay already contains an exit in that direction.");
 			return;
@@ -2683,7 +2683,7 @@ You can use the following subcommands:
 		var oppositeDirection = direction.Opposite();
 		if (
 			actor.Gameworld.ExitManager.GetExitsFor(cell, otherOverlay)
-			     .Any(x => x.OutboundDirection == oppositeDirection))
+				 .Any(x => x.OutboundDirection == oppositeDirection))
 		{
 			actor.OutputHandler.Send("The target cell already has an exit in the opposite direction.");
 			return;
@@ -2696,7 +2696,7 @@ You can use the following subcommands:
 		actor.Gameworld.ExitManager.UpdateCellOverlayExits(actor.Location, overlay);
 		actor.Gameworld.ExitManager.UpdateCellOverlayExits(cell, otherOverlay);
 		actor.OutputHandler.Send("You create a two-way exit to the " + direction.Describe() + " to cell \"" +
-		                         cell.HowSeen(actor) + "\"");
+								 cell.HowSeen(actor) + "\"");
 	}
 
 	private static readonly Regex CellEditNLinkRegex =
@@ -2789,7 +2789,7 @@ You can use the following subcommands:
 		var overlay = actor.Location.GetOrCreateOverlay(actor.CurrentOverlayPackage);
 		overlay.CellDescription = description;
 		handler.Send("You set the Cell Description to:\n\n" +
-		             overlay.CellDescription.Wrap(actor.InnerLineFormatLength));
+					 overlay.CellDescription.Wrap(actor.InnerLineFormatLength));
 	}
 
 	private static void DoCellDescCancel(IOutputHandler handler, object[] arguments)
@@ -2947,8 +2947,8 @@ You can use the following subcommands:
 
 		var oldname = actor.CurrentOverlayPackage.Name;
 		var packages = actor.Gameworld.CellOverlayPackages
-		                    .Where(x => x.Id == actor.CurrentOverlayPackage.Id)
-		                    .ToList();
+							.Where(x => x.Id == actor.CurrentOverlayPackage.Id)
+							.ToList();
 		foreach (var package in packages)
 		{
 			package.SetName(name);
@@ -3158,8 +3158,8 @@ You can use the following subcommands:
 		}
 
 		if (actor.Gameworld.CellOverlayPackages.Where(x => x.Id == package.Id).Any(x =>
-			    x.RevisionNumber > package.RevisionNumber &&
-			    x.Status.In(RevisionStatus.UnderDesign, RevisionStatus.PendingRevision)))
+				x.RevisionNumber > package.RevisionNumber &&
+				x.Status.In(RevisionStatus.UnderDesign, RevisionStatus.PendingRevision)))
 		{
 			actor.OutputHandler.Send(
 				"There is already another cell overlay package under design or pending review for that ID. You should either OPEN that under design one for editing or REVIEW it to make it the current package, or DELETE it if it's no longer required.");
@@ -3185,14 +3185,14 @@ You can use the following subcommands:
 		if (actor.CurrentOverlayPackage.Status != RevisionStatus.UnderDesign)
 		{
 			actor.OutputHandler.Send("Your Cell Overlay Package is not in the " +
-			                         "Under Design".Colour(Telnet.Yellow) + " status.");
+									 "Under Design".Colour(Telnet.Yellow) + " status.");
 			return;
 		}
 
 		actor.CurrentOverlayPackage.ChangeStatus(RevisionStatus.PendingRevision, input.SafeRemainingArgument,
 			actor.Account);
 		actor.OutputHandler.Send("You submit the Cell Overlay Package \"" + actor.CurrentOverlayPackage.Name +
-		                         "\" for review.");
+								 "\" for review.");
 		actor.CurrentOverlayPackage = null;
 	}
 
@@ -3422,10 +3422,10 @@ You can use the following subcommands:
 		}
 
 		actor.OutputHandler.Send(("You are reviewing " + package.EditHeader()).Colour(Telnet.Red) + "\n\n" +
-		                         package.Show(actor) + "\n\nTo approve this Cell Overlay Package, type " +
-		                         "accept edit <your comments>".Colour(Telnet.Yellow) + " or " +
-		                         "decline edit <your comments>".Colour(Telnet.Yellow) +
-		                         " to reject.\nIf you do not wish to approve or decline, your request will time out in 120 seconds.");
+								 package.Show(actor) + "\n\nTo approve this Cell Overlay Package, type " +
+								 "accept edit <your comments>".Colour(Telnet.Yellow) + " or " +
+								 "decline edit <your comments>".Colour(Telnet.Yellow) +
+								 " to reject.\nIf you do not wish to approve or decline, your request will time out in 120 seconds.");
 		actor.AddEffect(
 			new Accept(actor,
 				new EditableItemReviewProposal<ICellOverlayPackage>(actor, new List<ICellOverlayPackage> { package })),
@@ -3451,10 +3451,10 @@ You can use the following subcommands:
 			actor.Gameworld.SaveManager.Flush();
 			// We must first delete all of the CellOverlays linked to this CellOverlayPackage, because the Overlays have a foreign key constraint of the Package ID.
 			var dboverlayproto = FMDB.Context.CellOverlays
-			                         .Where(x => x.CellOverlayPackageId == actor.CurrentOverlayPackage.Id)
-			                         .Where(x => x.CellOverlayPackageRevisionNumber ==
-			                                     actor.CurrentOverlayPackage.RevisionNumber)
-			                         .ToList();
+									 .Where(x => x.CellOverlayPackageId == actor.CurrentOverlayPackage.Id)
+									 .Where(x => x.CellOverlayPackageRevisionNumber ==
+												 actor.CurrentOverlayPackage.RevisionNumber)
+									 .ToList();
 
 			foreach (var overlay in dboverlayproto)
 			{
@@ -3465,7 +3465,7 @@ You can use the following subcommands:
 			}
 
 			var dbpackageproto = FMDB.Context.CellOverlayPackages
-			                         .Find(actor.CurrentOverlayPackage.Id, actor.CurrentOverlayPackage.RevisionNumber);
+									 .Find(actor.CurrentOverlayPackage.Id, actor.CurrentOverlayPackage.RevisionNumber);
 			if (dbpackageproto != null)
 			{
 				FMDB.Context.CellOverlayPackages.Remove(dbpackageproto);
@@ -3494,7 +3494,7 @@ You can use the following subcommands:
 
 		actor.CurrentOverlayPackage.ChangeStatus(RevisionStatus.Obsolete, input.SafeRemainingArgument, actor.Account);
 		actor.OutputHandler.Send("You mark " + actor.CurrentOverlayPackage.EditHeader() +
-		                         " as an obsolete prototype.");
+								 " as an obsolete prototype.");
 		actor.CurrentOverlayPackage = null;
 	}
 
@@ -3582,7 +3582,7 @@ You can use the following subcommands:
 		actor.Send(
 			"The shard now has the following clocks:\n{0}Note: Don't forget to set up timezones for the new clocks in any zones in this shard.",
 			clocks.Select(x => "\t" + x.Name.TitleCase().ColourValue())
-			      .ListToString(separator: "\n", twoItemJoiner: "\n", conjunction: ""));
+				  .ListToString(separator: "\n", twoItemJoiner: "\n", conjunction: ""));
 	}
 
 	private static void ShardEditCalendars(ICharacter actor, StringStack input, IShard shard)
@@ -3621,7 +3621,7 @@ You can use the following subcommands:
 		actor.Send(
 			"The shard now has the following calendars:\n{0}",
 			calendars.Select(x => "\t" + x.ShortName.TitleCase().ColourValue())
-			         .ListToString(separator: "\n", twoItemJoiner: "\n", conjunction: ""));
+					 .ListToString(separator: "\n", twoItemJoiner: "\n", conjunction: ""));
 	}
 
 	private static void ShardEditCelestials(ICharacter actor, StringStack input, IShard shard)
@@ -3667,7 +3667,7 @@ You can use the following subcommands:
 		shard.Changed = true;
 		actor.Send("The shard now has the following celestials:\n{0}",
 			celestials.Select(x => "\t" + x.Name.TitleCase())
-			          .ListToString(separator: "\n", twoItemJoiner: "\n", conjunction: ""));
+					  .ListToString(separator: "\n", twoItemJoiner: "\n", conjunction: ""));
 	}
 
 	private static void ShardEditLux(ICharacter actor, StringStack input, IShard shard)
@@ -3792,15 +3792,15 @@ You can use the following subcommands:
 
 		actor.OutputHandler.Send(
 			StringUtilities.GetTextTable(from area in areas
-			                             select new[]
-			                             {
-				                             area.Id.ToString("N0", actor),
-				                             area.Name,
-				                             area.Weather?.RegionalClimate.Name.Colour(Telnet.Cyan) ?? "Default",
-				                             area.Zones.Select(x => x.Name)
-				                                 .ListToString(conjunction: "", twoItemJoiner: ", "),
-				                             area.Cells.Count().ToString("N0", actor)
-			                             },
+										 select new[]
+										 {
+											 area.Id.ToString("N0", actor),
+											 area.Name,
+											 area.Weather?.RegionalClimate.Name.Colour(Telnet.Cyan) ?? "Default",
+											 area.Zones.Select(x => x.Name)
+												 .ListToString(conjunction: "", twoItemJoiner: ", "),
+											 area.Cells.Count().ToString("N0", actor)
+										 },
 				new[] { "Id", "Name", "Weather", "Zones", "Cells" },
 				actor.LineFormatLength,
 				colour: Telnet.Green,
@@ -4083,15 +4083,15 @@ The syntax for working with areas is as follows:
 
 The core syntax is as follows:
 
-    #3autoroom list#0 - shows all room templates
-    #3autoroom edit new <name> <school>#0 - creates a new room template
-    #3autoroom clone <old> <new>#0 - clones an existing room template
-    #3autoroom edit <which>#0 - begins editing a room template
-    #3autoroom close#0 - closes an editing room template
-    #3autoroom show <which>#0 - shows builder information about a room
-    #3autoroom show#0 - shows builder information about the currently edited room
-    #3autoroom edit#0 - an alias for room template show (with no args)
-    #3autoroom set <...>#0 - edits the properties of a room template";
+	#3autoroom list#0 - shows all room templates
+	#3autoroom edit new <name> <school>#0 - creates a new room template
+	#3autoroom clone <old> <new>#0 - clones an existing room template
+	#3autoroom edit <which>#0 - begins editing a room template
+	#3autoroom close#0 - closes an editing room template
+	#3autoroom show <which>#0 - shows builder information about a room
+	#3autoroom show#0 - shows builder information about the currently edited room
+	#3autoroom edit#0 - an alias for room template show (with no args)
+	#3autoroom set <...>#0 - edits the properties of a room template";
 
 	[PlayerCommand("AutoRoom", "autoroom")]
 	[CommandPermission(PermissionLevel.Admin)]
@@ -4107,15 +4107,15 @@ The core syntax is as follows:
 
 The core syntax is as follows:
 
-    #3autoarea list#0 - shows all area templates
-    #3autoarea edit new <name> <school>#0 - creates a new area template
-    #3autoarea clone <old> <new>#0 - clones an existing area template
-    #3autoarea edit <which>#0 - begins editing an area template
-    #3autoarea close#0 - closes an editing area template
-    #3autoarea show#0 <which> - shows builder information about a area
-    #3autoarea show#0 - shows builder information about the currently edited area
-    #3autoarea edit#0 - an alias for area template show (with no args)
-    #3autoarea set <...>#0 - edits the properties of an area template";
+	#3autoarea list#0 - shows all area templates
+	#3autoarea edit new <name> <school>#0 - creates a new area template
+	#3autoarea clone <old> <new>#0 - clones an existing area template
+	#3autoarea edit <which>#0 - begins editing an area template
+	#3autoarea close#0 - closes an editing area template
+	#3autoarea show#0 <which> - shows builder information about a area
+	#3autoarea show#0 - shows builder information about the currently edited area
+	#3autoarea edit#0 - an alias for area template show (with no args)
+	#3autoarea set <...>#0 - edits the properties of an area template";
 
 	[PlayerCommand("AutoArea", "autoarea")]
 	[CommandPermission(PermissionLevel.Admin)]

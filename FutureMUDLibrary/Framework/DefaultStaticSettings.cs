@@ -659,6 +659,7 @@ public static class DefaultStaticSettings
 			{"OlfactoryTrackReductionPerTickSleet", "0.0083333333333333300"},
 			{ "TrackingEnabled", "true" },
 			{ "MaximumTrackCount", "10000"},
+			{ "PostCombatEngageDelaySeconds", "10.0"}
 
 		};
 

@@ -232,7 +232,7 @@ public abstract class CombatAction : SaveableItem
 			return false;
 		}
 
-		if (!CheckExtensions.GetDifficulty(command.SafeRemainingArgument, out var success))
+		if (!CheckExtensions.GetDifficulty(command.PopSpeech(), out var success))
 		{
 			actor.OutputHandler.Send(
 				"You must enter a valid difficulty for success. See SHOW DIFFICULTIES for a list.");
@@ -246,7 +246,7 @@ public abstract class CombatAction : SaveableItem
 			return false;
 		}
 
-		if (!CheckExtensions.GetDifficulty(command.SafeRemainingArgument, out var failure))
+		if (!CheckExtensions.GetDifficulty(command.PopSpeech(), out var failure))
 		{
 			actor.OutputHandler.Send(
 				"You must enter a valid difficulty for failure. See SHOW DIFFICULTIES for a list.");

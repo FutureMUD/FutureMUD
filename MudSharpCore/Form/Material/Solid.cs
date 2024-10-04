@@ -605,8 +605,7 @@ public class Solid : Material, ISolid
 
 	private bool BuildingCommandAbsorbency(ICharacter actor, StringStack command)
 	{
-		if (command.IsFinished ||
-		    command.SafeRemainingArgument.TryParsePercentage(actor.Account.Culture, out var value) || value < 0.0)
+		if (command.IsFinished || !command.SafeRemainingArgument.TryParsePercentage(actor.Account.Culture, out var value) || value < 0.0)
 		{
 			actor.OutputHandler.Send("You must enter a valid percentage.");
 			return false;
@@ -667,7 +666,7 @@ public class Solid : Material, ISolid
 		}
 
 		if (command.IsFinished ||
-		    command.SafeRemainingArgument.TryParsePercentage(actor.Account.Culture, out var value) || value < 0.0)
+		    !command.SafeRemainingArgument.TryParsePercentage(actor.Account.Culture, out var value) || value < 0.0)
 		{
 			actor.OutputHandler.Send("You must enter a valid percentage.");
 			return false;

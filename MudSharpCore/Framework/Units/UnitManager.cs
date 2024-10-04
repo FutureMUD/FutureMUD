@@ -134,7 +134,7 @@ public class UnitManager : IUnitManager
 		{
 			var unit =
 				Units.Where(x => x.Type == type)
-				     .FirstOrDefault(x => x.Abbreviations.Contains(match.Groups[2].Value.ToLowerInvariant()));
+				     .FirstOrDefault(x => x.Abbreviations.Contains(match.Groups[2].Value, StringComparer.InvariantCultureIgnoreCase));
 			if (unit == null)
 			{
 				value = 0.0;

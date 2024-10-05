@@ -174,7 +174,7 @@ public abstract class Fluid : Material, IFluid
 		}
 
 		if (command.IsFinished ||
-		    command.SafeRemainingArgument.TryParsePercentage(actor.Account.Culture, out var value) || value < 0.0 ||
+		    !command.SafeRemainingArgument.TryParsePercentage(actor.Account.Culture, out var value) || value < 0.0 ||
 		    value > 1.0)
 		{
 			actor.OutputHandler.Send($"You must enter a valid percentage for the ratio of drug to liquid.");

@@ -504,7 +504,9 @@ public class Liquid : Fluid, ILiquid
 	#3freeze <temp>#0 - sets the freeze temperature of this liquid
 	#3boil <temp>#0 - sets the boil temperature of this liquid
 	#3ignite <temp>#0 - sets the ignite temperature of this liquid
-	#3ignite none#0 - clears the ignite temperature of this liquid";
+	#3ignite none#0 - clears the ignite temperature of this liquid
+	#3gas <which>#0 - sets the gas form of this liquid
+	#3gas none#0 - clears the gas form of this liquid";
 
 	/// <inheritdoc />
 	public override bool BuildingCommand(ICharacter actor, StringStack command)
@@ -577,9 +579,42 @@ public class Liquid : Fluid, ILiquid
 			case "boiling":
 			case "boil":
 				return BuildingCommandBoilingPoint(actor, command);
+			case "gas":
+				return BuildingCommandGas(actor, command);
 		}
 
 		return base.BuildingCommand(actor, command.GetUndo());
+	}
+
+	private bool BuildingCommandGas(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("You must either specify a gas form of this liquid or use #1none#0 to clear it.".SubstituteANSIColour());
+			return false;
+		}
+
+		if (command.SafeRemainingArgument.EqualTo("none"))
+		{
+			_gasForm = null;
+			_gasFormId = null;
+			Changed = true;
+			actor.OutputHandler.Send($"This liquid no longer has a gaseous form.");
+			return true;
+		}
+
+		var gas = Gameworld.Gases.GetByIdOrName(command.SafeRemainingArgument);
+		if (gas is null)
+		{
+			actor.OutputHandler.Send($"There is no such gas identified by the text {command.SafeRemainingArgument.ColourCommand()}.");
+			return false;
+		}
+
+		_gasForm = gas;
+		_gasFormId = gas.Id;
+		Changed = true;
+		actor.OutputHandler.Send($"The gaseous form of this liquid will now be {gas.Name.Colour(gas.DisplayColour)}.");
+		return true;
 	}
 
 	private bool BuildingCommandRelativeEnthalpy(ICharacter actor, StringStack command)

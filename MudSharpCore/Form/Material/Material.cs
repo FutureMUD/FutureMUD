@@ -6,6 +6,7 @@ using MudSharp.Framework;
 using MudSharp.Framework.Save;
 using MudSharp.FutureProg;
 using MudSharp.FutureProg.Variables;
+using Parlot.Fluent;
 
 namespace MudSharp.Form.Material;
 
@@ -297,18 +298,22 @@ public abstract class Material : SaveableItem, IMaterial
 
 	protected virtual string HelpText => $@"You can use the following options with this {MaterialNoun}:
 
+	#3name <name>#0 - renames this material
 	#3organic#0 - toggles counting as organic
 	#3description <description>#0 - sets the description
 	#3density <value>#0 - sets density in kg/m3
 	#3electrical <value>#0 - sets electrical conductivity in siemens
 	#3thermal <value>#0 - sets the thermal conductivity in watts/kelvin
-	#3specificheat <value>#0 - sets the specific heat capacity in J/Kg.Kelvin";
+	#3specificheat <value>#0 - sets the specific heat capacity in J/Kg.Kelvin
+	#3tag <value>#0 - toggles a tag being on this material";
 
 	/// <inheritdoc />
 	public virtual bool BuildingCommand(ICharacter actor, StringStack command)
 	{
 		switch (command.PopForSwitch())
 		{
+			case "name":
+				return BuildingCommandName(actor, command);
 			case "organic":
 				return BuildingCommandOrganic(actor);
 			case "density":
@@ -328,10 +333,80 @@ public abstract class Material : SaveableItem, IMaterial
 			case "specificheatcapacity":
 			case "shc":
 				return BuildingCommandSpecificHeatCapacity(actor, command);
+			case "tag":
+				return BuildingCommandTag(actor, command);
 			default:
 				actor.OutputHandler.Send(HelpText.SubstituteANSIColour());
 				return false;
 		}
+	}
+
+	private bool BuildingCommandName(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("You must supply a new name.");
+			return false;
+		}
+
+		var name = command.SafeRemainingArgument.ToLowerInvariant();
+		switch (this)
+		{
+			case Solid _:
+				if (Gameworld.Materials.Any(x => x.Name.EqualTo(name)))
+				{
+					actor.OutputHandler.Send($"There is already a solid called {name.ColourName()}. Names must be unique.");
+					return false;
+				}
+				break;
+			case Liquid _:
+				if (Gameworld.Liquids.Any(x => x.Name.EqualTo(name)))
+				{
+					actor.OutputHandler.Send($"There is already a liquid called {name.ColourName()}. Names must be unique.");
+					return false;
+				}
+				break;
+			case Gas _:
+				if (Gameworld.Gases.Any(x => x.Name.EqualTo(name)))
+				{
+					actor.OutputHandler.Send($"There is already a gas called {name.ColourName()}. Names must be unique.");
+					return false;
+				}
+				break;
+		}
+
+		actor.OutputHandler.Send($"You rename this {MaterialNoun} from {_name.ColourName()} to {name.ColourName()}.");
+		_name = name;
+		Changed = true;
+		return true;
+	}
+
+	private bool BuildingCommandTag(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send($"Which tag do you want to toggle for this {MaterialNoun}?");
+			return false;
+		}
+
+		var tag = Gameworld.Tags.GetByIdOrName(command.SafeRemainingArgument);
+		if (tag is null)
+		{
+			actor.OutputHandler.Send($"There is no tag identified by the text {command.SafeRemainingArgument.ColourCommand()}.");
+			return false;
+		}
+
+		Changed = true;
+
+		if (_tags.Remove(tag))
+		{
+			actor.OutputHandler.Send($"This {MaterialNoun} is no longer tagged with {tag.FullName.ColourName()}.");
+			return true;
+		}
+
+		_tags.Add(tag);
+		actor.OutputHandler.Send($"This {MaterialNoun} is now tagged with {tag.FullName.ColourName()}.");
+		return true;
 	}
 
 	private bool BuildingCommandSpecificHeatCapacity(ICharacter actor, StringStack command)

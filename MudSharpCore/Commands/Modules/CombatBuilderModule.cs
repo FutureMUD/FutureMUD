@@ -1253,6 +1253,8 @@ You can use the following syntax with this command:
 	#3armour set penetration <outcome>#0 - sets the minimum outcome required for penetration
 	#3armour set difficulty <bonus>#0 - sets the base penalty for wearing this armour
 	#3armour set stacked <bonus>#0 - sets the penalty for wearing this armour when stacked
+	#3armour set transform <from> <to> <severity>#0 - sets a damage type transformation
+	#3armour set transform <type> none#0 - clears a damage type transform
 	#3armour set dissipate damage|stun|pain <damagetype> <formula>#0 - sets the dissipate damage/stun/pain formula for a damage type
 	#3armour set absorb damage|stun|pain <damagetype> <formula>#0 - sets the absorb damage/stun/pain formula for a damage type
 

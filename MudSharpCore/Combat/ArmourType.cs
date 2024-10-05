@@ -916,6 +916,8 @@ public class ArmourType : SaveableItem, IArmourType
 	#3penetration <outcome>#0 - sets the minimum outcome required for penetration
 	#3difficulty <bonus>#0 - sets the base penalty for wearing this armour
 	#3stacked <bonus>#0 - sets the penalty for wearing this armour when stacked
+	#3transform <from> <to> <severity>#0 - sets a damage type transformation
+	#3transform <type> none#0 - clears a damage type transform
 	#3dissipate damage|stun|pain <damagetype> <formula>#0 - sets the dissipate damage/stun/pain formula for a damage type
 	#3absorb damage|stun|pain <damagetype> <formula>#0 - sets the absorb damage/stun/pain formula for a damage type
 
@@ -950,10 +952,70 @@ Additionally, absorb formulas can use the following parameter:
 				return BuildingCommandFormula(actor, ss, false);
 			case "dissipate":
 				return BuildingCommandFormula(actor, ss, true);
+			case "transform":
+				return BuildingCommandTransform(actor, ss);
 			default:
 				actor.OutputHandler.Send(BuildingHelpText.SubstituteANSIColour());
 				return false;
 		}
+	}
+
+	private bool BuildingCommandTransform(ICharacter actor, StringStack ss)
+	{
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send("Which damage type do you want to edit the transformation for?");
+			return false;
+		}
+
+		if (!ss.PopSpeech().TryParseEnum<DamageType>(out var fromDamage))
+		{
+			actor.OutputHandler.Send($"The text {ss.Last.ColourCommand()} is not a valid damage type.");
+			return false;
+		}
+
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send("You must either specify a second damage type to transform the first into, or #3none#0 to remove an existing transform.".SubstituteANSIColour());
+			return false;
+		}
+
+		if (ss.PeekSpeech().EqualTo("none"))
+		{
+			DamageTypeTransformations.Remove(fromDamage);
+			Changed = true;
+			actor.OutputHandler.Send($"This armour type will no longer perform any transformation on {fromDamage.DescribeEnum().ColourValue()} damage.");
+			return true;
+		}
+
+		if (!ss.PopSpeech().TryParseEnum<DamageType>(out var toDamage))
+		{
+			actor.OutputHandler.Send($"The text {ss.Last.ColourCommand()} is not a valid damage type.");
+			return false;
+		}
+
+		if (fromDamage == toDamage)
+		{
+			actor.OutputHandler.Send("You can't transform a damage type into itself.");
+			return false;
+		}
+
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send($"What should be the maximum severity at which this transformation occurs?\nValid values are {Enum.GetValues<WoundSeverity>().ListToColouredString()}.");
+			return false;
+		}
+
+		if (!ss.SafeRemainingArgument.TryParseEnum<WoundSeverity>(out var severity))
+		{
+			actor.OutputHandler.Send($"The text {ss.SafeRemainingArgument.ColourCommand()} is not a valid wound severity.\nValid values are {Enum.GetValues<WoundSeverity>().ListToColouredString()}.");
+			return false;
+		}
+
+		DamageTypeTransformations[fromDamage] = (severity, toDamage);
+		Changed = true;
+		actor.OutputHandler.Send($"This armour type will now transform {fromDamage.DescribeEnum().ColourValue()} damage equal or less than {severity.DescribeEnum().ColourValue()} severity into {toDamage.DescribeEnum().ColourValue()} damage.");
+		return true;
 	}
 
 	internal enum ArmourFormulaType

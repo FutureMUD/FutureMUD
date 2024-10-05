@@ -1798,7 +1798,7 @@ internal class ManipulationModule : Module<ICharacter>
 			}
 		}
 
-		if (amount > targetAsDrink.LiquidMixture.TotalVolume)
+		if (targetAsDrink.LiquidMixture is not null && amount > targetAsDrink.LiquidMixture.TotalVolume)
 		{
 			amount = targetAsDrink.LiquidMixture.TotalVolume;
 		}
@@ -4494,7 +4494,20 @@ The syntax is as follows:
 	}
 
 	private const string LocksmithHelp =
-		@"Command for manipulating locks, subcommands include: set, pair, lock, unlock, inspect";
+		@"The #3locksmith#0 command is used for both legitimate and criminal manipulation of locking mechanisms. 
+
+It may be illegal to do this command in a public place, consider using #3set lawful#0 if you're trying to do legal locksmith work to avoid any accidents.
+
+You typically need a set of locksmithing tools to use this command.
+
+The syntax for this command is as follows:
+
+	#3locksmith inspect [<parent>] <lock/key>#0 - work out the key settings for a given lock or key. Can inspect a lock on a door or container.
+	#3locksmith lock [<parent>] <lock>#0 - set a lock to locked without the key
+	#3locksmith unlock [<parent>] <lock>#0  - set a lock to unlocked without the key
+	#3locksmith set [<parent>] <lock/key> <combination>#0 - set a lock or key to use a specific numeric combination
+	#3locksmith set [<parent>] <lock/key> random#0 - set a lock or key to use a random numeric combination
+	#3locksmith pair [<parent>] <lock> <key>#0 - pairs a lock and key to the same numeric combination";
 
 	[PlayerCommand("Locksmith", "locksmith")]
 	[DelayBlock("general", "You must first stop {0} before you can do that.")]
@@ -4890,6 +4903,12 @@ The syntax is as follows:
 
 	[PlayerCommand("Switch", "switch")]
 	[RequiredCharacterState(CharacterState.Able)]
+	[HelpInfo("switch", @"The #3switch#0 command allows you to activate a switch or dial on an item to change it to a particular setting.
+
+The syntax is as follows:
+
+	#3switch <item>#0 - see a list of possible switch options for an item
+	#3switch <item> <option>#0 - switch an item to the specified option (e.g. on, off, safe, etc.)", AutoHelp.HelpArgOrNoArg)]
 	protected static void Switch(ICharacter actor, string command)
 	{
 		var ss = new StringStack(command.RemoveFirstWord());

@@ -344,21 +344,45 @@ public class EnforcerAI : ArtificialIntelligenceBase
 
 	public override bool HandleEvent(EventType type, params dynamic[] arguments)
 	{
+		ICharacter ch = null;
 		switch (type)
 		{
 			case EventType.CharacterIncapacitatedWitness:
-				return CharacterIncapacitatedWitness((ICharacter)arguments[0], (ICharacter)arguments[1]);
+
+				ch = (ICharacter)arguments[1];
+				break;
 			case EventType.TargetIncapacitated:
-				return TargetIncapacitated((ICharacter)arguments[1], (ICharacter)arguments[0]);
+			case EventType.NoLongerEngagedInMelee:
+			case EventType.TargetSlain:
+			case EventType.TruceOffered:
+			case EventType.FiveSecondTick:
+				ch = (ICharacter)arguments[0];
+				break;
+			case EventType.WitnessedCrime:
+				ch = (ICharacter)arguments[2];
+				break;
+		}
+
+		if (ch is null || ch.State.IsDead() || ch.State.IsInStatis())
+		{
+			return false;
+		}
+
+		switch (type)
+		{
+			case EventType.CharacterIncapacitatedWitness:
+				return CharacterIncapacitatedWitness((ICharacter)arguments[0], ch);
+			case EventType.TargetIncapacitated:
+				return TargetIncapacitated(ch, (ICharacter)arguments[0]);
 			case EventType.NoLongerEngagedInMelee:
 			case EventType.TargetSlain:
 			case EventType.TruceOffered:
 				return false;
 			case EventType.WitnessedCrime:
-				return WitnessedCrime((ICharacter)arguments[0], (ICharacter)arguments[1], (ICharacter)arguments[2],
+				return WitnessedCrime((ICharacter)arguments[0], (ICharacter)arguments[1], ch,
 					(ICrime)arguments[3]);
 			case EventType.FiveSecondTick:
-				return CharacterFiveSecondTick((ICharacter)arguments[0]);
+				return CharacterFiveSecondTick(ch);
 		}
 
 		return false;

@@ -123,9 +123,18 @@ public class AggressorAI : ArtificialIntelligenceBase
 		{
 			case EventType.TenSecondTick:
 				var ch = (ICharacter)arguments[0];
+				if (ch.State.IsDead() || ch.State.IsInStatis())
+				{
+					return false;
+				}
 				return CheckAllTargetsForAttack(ch);
 			case EventType.CharacterEnterCellWitness:
-				return CheckForAttack((ICharacter)arguments[3], (ICharacter)arguments[0]);
+				ch = (ICharacter)arguments[3];
+				if (ch.State.IsDead() || ch.State.IsInStatis())
+				{
+					return false;
+				}
+				return CheckForAttack(ch, (ICharacter)arguments[0]);
 		}
 
 		return false;

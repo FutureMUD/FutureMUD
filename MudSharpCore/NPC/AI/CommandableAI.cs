@@ -67,6 +67,11 @@ public class CommandableAI : ArtificialIntelligenceBase
 		}
 
 		var ch = (ICharacter)arguments[0];
+		if (ch is null || ch.State.IsDead() || ch.State.IsInStatis())
+		{
+			return false;
+		}
+
 		var commandCh = (ICharacter)arguments[1];
 		var commandText = (string)arguments[2];
 

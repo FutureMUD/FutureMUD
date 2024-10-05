@@ -165,15 +165,32 @@ public abstract class PathingAIBase : ArtificialIntelligenceBase
 
 	public override bool HandleEvent(EventType type, params dynamic[] arguments)
 	{
+		ICharacter ch = null;
 		switch (type)
 		{
 			case EventType.FiveSecondTick:
-				var ch = (ICharacter)arguments[0];
+			case EventType.CharacterEnterCellFinish:
+			case EventType.LeaveCombat:
+			case EventType.CharacterStopMovementClosedDoor:
+			case EventType.CommandDelayExpired:
+			case EventType.MinuteTick:
+			case EventType.CharacterEnterCell:
+				ch = (ICharacter)arguments[0];
+				break;
+		}
+
+		if (ch is null || ch.State.IsDead() || ch.State.IsInStatis())
+		{
+			return false;
+		}
+
+		switch (type)
+		{
+			case EventType.FiveSecondTick:
 				FiveSecondTick(ch);
 				return false;
 			case EventType.CharacterEnterCellFinish:
 			case EventType.LeaveCombat:
-				ch = (ICharacter)arguments[0];
 				CheckPathingEffect(ch, true);
 				return false;
 			case EventType.CharacterStopMovementClosedDoor:
@@ -185,7 +202,6 @@ public abstract class PathingAIBase : ArtificialIntelligenceBase
 				CheckCloseDoor((ICharacter)arguments[0], (ICellExit)arguments[2]);
 				return false;
 			case EventType.MinuteTick:
-				ch = (ICharacter)arguments[0];
 				CheckPathingEffect(ch, true);
 				return false;
 		}

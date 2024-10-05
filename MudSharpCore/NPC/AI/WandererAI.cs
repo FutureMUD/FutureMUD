@@ -73,19 +73,19 @@ public class WandererAI : ArtificialIntelligenceBase
 		OpenDoors = element != null && bool.Parse(element.Value);
 	}
 
-    protected override string SaveToXml()
-    {
-        return new XElement("Definition",
-            new XElement("FutureProg", WillWanderIntoCellProg?.Id ?? 0),
-            new XElement("WanderTimeDiceExpression", new XCData(WanderTimeDiceExpression)),
-            new XElement("TargetBody", TargetBodyPrototype?.Id ?? 0),
-            new XElement("TargetSpeed", TargetMoveSpeed?.Id ?? 0),
-            new XElement("OpenDoors", OpenDoors),
-            new XElement("EmoteText", new XCData(EmoteText))
-        ).ToString();
-    }
+	protected override string SaveToXml()
+	{
+		return new XElement("Definition",
+			new XElement("FutureProg", WillWanderIntoCellProg?.Id ?? 0),
+			new XElement("WanderTimeDiceExpression", new XCData(WanderTimeDiceExpression)),
+			new XElement("TargetBody", TargetBodyPrototype?.Id ?? 0),
+			new XElement("TargetSpeed", TargetMoveSpeed?.Id ?? 0),
+			new XElement("OpenDoors", OpenDoors),
+			new XElement("EmoteText", new XCData(EmoteText))
+		).ToString();
+	}
 
-    private void CreateEvaluateAffect(ICharacter character, int seconds = 10)
+	private void CreateEvaluateAffect(ICharacter character, int seconds = 10)
 	{
 		if (character.State.HasFlag(CharacterState.Dead))
 		{
@@ -138,7 +138,7 @@ public class WandererAI : ArtificialIntelligenceBase
 		}
 
 		if (!CharacterState.Able.HasFlag(character.State) || character.Combat != null ||
-		    character.Effects.Any(x => x.IsBlockingEffect("movement")))
+			character.Effects.Any(x => x.IsBlockingEffect("movement")))
 		{
 			CreateEvaluateAffect(character);
 			return;
@@ -151,13 +151,13 @@ public class WandererAI : ArtificialIntelligenceBase
 
 		IEnumerable<ICellExit> options =
 			character.Location.ExitsFor(character)
-			         .Where(
-				         x => (bool?)WillWanderIntoCellProg?.Execute(character, x.Destination, character.Location) !=
-				              false)
-			         .Where(
-				         x =>
-					         x.Exit.Door?.IsOpen != false || (x.Exit.Door.CanOpen(character.Body) && OpenDoors))
-			         .ToList();
+					 .Where(
+						 x => (bool?)WillWanderIntoCellProg?.Execute(character, x.Destination, character.Location) !=
+							  false)
+					 .Where(
+						 x =>
+							 x.Exit.Door?.IsOpen != false || (x.Exit.Door.CanOpen(character.Body) && OpenDoors))
+					 .ToList();
 
 		if (!options.Any())
 		{
@@ -192,6 +192,14 @@ public class WandererAI : ArtificialIntelligenceBase
 
 	public override bool HandleEvent(EventType type, params dynamic[] arguments)
 	{
+		var ch = type == EventType.EngagedInCombat ?
+			(ICharacter)arguments[1] :
+			(ICharacter)arguments[0];
+		if (ch is null || ch.State.IsDead() || ch.State.IsInStatis())
+		{
+			return false;
+		}
+
 		switch (type)
 		{
 			case EventType.CharacterEnterCellFinish:
@@ -398,11 +406,11 @@ public class WandererAI : ArtificialIntelligenceBase
 	{
 		var npcs = Gameworld.NPCs.OfType<INPC>().Where(x => x.AIs.Contains(this)).ToList();
 		var templates = Gameworld.NpcTemplates
-		                         .GetAllApprovedOrMostRecent()
-		                         .Where(x => x.Status.In(RevisionStatus.Current, RevisionStatus.PendingRevision,
-			                         RevisionStatus.UnderDesign))
-		                         .Where(x => x.ArtificialIntelligences.Contains(this))
-		                         .ToList();
+								 .GetAllApprovedOrMostRecent()
+								 .Where(x => x.Status.In(RevisionStatus.Current, RevisionStatus.PendingRevision,
+									 RevisionStatus.UnderDesign))
+								 .Where(x => x.ArtificialIntelligences.Contains(this))
+								 .ToList();
 		if (npcs.Any() || templates.Any())
 		{
 			var sb = new StringBuilder();
@@ -478,8 +486,8 @@ public class WandererAI : ArtificialIntelligenceBase
 		if (!proto.Speeds.Contains(TargetMoveSpeed))
 		{
 			TargetMoveSpeed = proto.Speeds
-			                       .Where(x => x.Position == TargetMoveSpeed?.Position)
-			                       .FirstMin(x => Math.Abs(x.Multiplier - TargetMoveSpeed?.Multiplier ?? 0));
+								   .Where(x => x.Position == TargetMoveSpeed?.Position)
+								   .FirstMin(x => Math.Abs(x.Multiplier - TargetMoveSpeed?.Multiplier ?? 0));
 		}
 
 		actor.OutputHandler.Send($"This AI is now designed to function with the {proto.Name.ColourName()} body prototype.");

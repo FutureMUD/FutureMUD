@@ -128,10 +128,18 @@ public class AggressivePatherAI : PathingAIWithProgTargetsBase
 
 	public override bool HandleEvent(EventType type, params dynamic[] arguments)
 	{
+		var ch = type == EventType.CharacterEnterCellWitness ?
+			(ICharacter)arguments[3] :
+			(ICharacter)arguments[0];
+		if (ch is null || ch.State.IsDead() || ch.State.IsInStatis())
+		{
+			return false;
+		}
+
 		switch (type)
 		{
 			case EventType.TenSecondTick:
-				var ch = (ICharacter)arguments[0];
+				ch = (ICharacter)arguments[0];
 				return CheckAllTargetsForAttack(ch);
 			case EventType.CharacterEnterCellWitness:
 				return CheckForAttack((ICharacter)arguments[0], (ICharacter)arguments[3]);

@@ -227,6 +227,12 @@ public class ScavengeAI : ArtificialIntelligenceBase
 
 	public override bool HandleEvent(EventType type, params dynamic[] arguments)
 	{
+		var ch = (ICharacter)arguments[0];
+		if (ch is null || ch.State.IsDead() || ch.State.IsInStatis())
+		{
+			return false;
+		}
+
 		switch (type)
 		{
 			case EventType.CharacterEntersGame:

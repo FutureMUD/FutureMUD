@@ -71,7 +71,7 @@ public class WildAnimalHerdEmoteReaction : WildAnimalHerdAIReaction
 	public override string Name => "Emote";
 
 	public override XElement SaveReaction(WildAnimalHerdState state)
-    {
+	{
 		return new XElement("Reaction", 
 			new XElement("state", (int)state),
 			new XElement("Role", (int)_targetEmoterRole),
@@ -79,13 +79,13 @@ public class WildAnimalHerdEmoteReaction : WildAnimalHerdAIReaction
 			from emote in _emoteTexts
 			select new XElement("Emote", new XCData(emote))
 		);
-    }
+	}
 
-    public WildAnimalHerdEmoteReaction(XElement root)
+	public WildAnimalHerdEmoteReaction(XElement root)
 	{
 		_targetEmoterRole =
 			(WildAnimalHerdRole)int.Parse(root.Element("Role")?.Value ??
-			                              throw new ApplicationException("Missing Role element"));
+										  throw new ApplicationException("Missing Role element"));
 		_delayDiceExpression = root.Element("Delay")?.Value ?? throw new ApplicationException("Missing Delay element");
 		if (!Dice.IsDiceExpression(_delayDiceExpression))
 		{
@@ -132,17 +132,17 @@ public class WildAnimalHerdFleeReaction : WildAnimalHerdAIReaction
 			new XElement("state", (int)state),
 			new XElement("Role", (int)_targetEmoterRole),
 			new XElement("Delay", _delayDiceExpression),
-            new XElement("ExitProg", _directionEvaluationProg?.Id ?? 0),
-            from emote in _emoteTexts
+			new XElement("ExitProg", _directionEvaluationProg?.Id ?? 0),
+			from emote in _emoteTexts
 			select new XElement("Emote", new XCData(emote))
 		);
 	}
 
-    public WildAnimalHerdFleeReaction(XElement root, IFuturemud gameworld)
+	public WildAnimalHerdFleeReaction(XElement root, IFuturemud gameworld)
 	{
 		_targetEmoterRole =
 			(WildAnimalHerdRole)int.Parse(root.Element("Role")?.Value ??
-			                              throw new ApplicationException("Missing Role element"));
+										  throw new ApplicationException("Missing Role element"));
 		_delayDiceExpression = root.Element("Delay")?.Value ?? throw new ApplicationException("Missing Delay element");
 		if (!Dice.IsDiceExpression(_delayDiceExpression))
 		{
@@ -168,7 +168,7 @@ public class WildAnimalHerdFleeReaction : WildAnimalHerdAIReaction
 		}
 
 		var emoter = herd.Where(x => x.Role == _targetEmoterRole).GetRandomElement().Animal ??
-		             herd.GetRandomElement().Animal;
+					 herd.GetRandomElement().Animal;
 		var delay = Dice.Roll(_delayDiceExpression);
 		if (emoter != null)
 		{
@@ -190,7 +190,7 @@ public class WildAnimalHerdFleeReaction : WildAnimalHerdAIReaction
 		{
 			var exits = mover.Location.ExitsFor(character).ToList();
 			var exit = exits.Where(x => mover.CanMove(x))
-			                .GetWeightedRandom(x => _directionEvaluationProg.ExecuteDouble(0.0, mover, x));
+							.GetWeightedRandom(x => _directionEvaluationProg.ExecuteDouble(0.0, mover, x));
 			if (exit == null)
 			{
 				effect.State = WildAnimalHerdState.Desperate;
@@ -208,16 +208,16 @@ public class WildAnimalAttackReaction : WildAnimalHerdAIReaction
 	public override string Name => "Attack";
 
 	public override XElement SaveReaction(WildAnimalHerdState state)
-    {
-        return new XElement("Reaction",
-            new XElement("state", (int)state),
-            new XElement("Delay", _delayDiceExpression),
-            from emote in _emoteTexts
-            select new XElement("Emote", new XCData(emote))
-        );
-    }
+	{
+		return new XElement("Reaction",
+			new XElement("state", (int)state),
+			new XElement("Delay", _delayDiceExpression),
+			from emote in _emoteTexts
+			select new XElement("Emote", new XCData(emote))
+		);
+	}
 
-    public WildAnimalAttackReaction(XElement root)
+	public WildAnimalAttackReaction(XElement root)
 	{
 		_delayDiceExpression = root.Element("Delay")?.Value ?? throw new ApplicationException("Missing Delay element");
 		if (!Dice.IsDiceExpression(_delayDiceExpression))
@@ -235,17 +235,17 @@ public class WildAnimalAttackReaction : WildAnimalHerdAIReaction
 		List<ICharacter> stressors, ICharacter mostRecentStressor)
 	{
 		var aggressor = herd
-		                .Where(x => x.Animal.Location == character.Location &&
-		                            !x.Role.In(WildAnimalHerdRole.Child, WildAnimalHerdRole.ChildProtector))
-		                .GetRandomElement()
-		                .Animal;
+						.Where(x => x.Animal.Location == character.Location &&
+									!x.Role.In(WildAnimalHerdRole.Child, WildAnimalHerdRole.ChildProtector))
+						.GetRandomElement()
+						.Animal;
 		if (aggressor == null)
 		{
 			return;
 		}
 
 		var target = stressors.Where(x => x.Location == character.Location && aggressor.CanEngage(x))
-		                      .GetRandomElement();
+							  .GetRandomElement();
 		if (target == null)
 		{
 			return;
@@ -353,8 +353,8 @@ public class WildAnimalHerdAI : PathingAIBase
 		RegisterAIType("WildAnimalHerd", (ai, gameworld) => new WildAnimalHerdAI(ai, gameworld));
 	}
 
-    protected override string SaveToXml()
-    {
+	protected override string SaveToXml()
+	{
 		return new XElement("Definition",
 			new XElement("Reactions",
 				from sr in _stateReactionDictionary
@@ -362,41 +362,41 @@ public class WildAnimalHerdAI : PathingAIBase
 			),
 			new XElement("RandomEmotes",
 				from reg in _randomEmoteDictionary
-                select 
+				select 
 					from re in reg.Value
 					select new XElement("Emote", new XAttribute("role", (int)reg.Key.Role), new XAttribute("state", (int)reg.Key.State), new XCData(re))
-            ),
-            new XElement("AttackWhenAttackedEmotes",
-                from awae in _attackWhenAttackedEmotes
-                select new XElement("Emote", new XAttribute("role", (int)awae.Key), new XCData(awae.Value))
-            ),
-            new XElement("MinimumRoleCounts",
-                from mrc in _minimumCountsForEachRole
-                select new XElement("Count", new XAttribute("role", (int)mrc.Key), mrc.Value)
-            ),
-            new XElement("ActiveTimes",
-                from at in _activeTimes
-                select new XElement("ActiveTime", (int)at)
-            ),
+			),
+			new XElement("AttackWhenAttackedEmotes",
+				from awae in _attackWhenAttackedEmotes
+				select new XElement("Emote", new XAttribute("role", (int)awae.Key), new XCData(awae.Value))
+			),
+			new XElement("MinimumRoleCounts",
+				from mrc in _minimumCountsForEachRole
+				select new XElement("Count", new XAttribute("role", (int)mrc.Key), mrc.Value)
+			),
+			new XElement("ActiveTimes",
+				from at in _activeTimes
+				select new XElement("ActiveTime", (int)at)
+			),
 			new XElement("RandomEchoChancePerMinute", _randomEchoChancePerMinute),
-            new XElement("SentryScanChancePerMinute", _sentryScanChancePerMinute),
+			new XElement("SentryScanChancePerMinute", _sentryScanChancePerMinute),
 			new XElement("FleersWillEngageInCombatIfCornered", _fleersWillEngageInCombatIfCornered),
-            new XElement("ThreatAwarenessDistance", _threatAwarenessDistance),
-            new XElement("MinimumDistanceForOutsiders", _minimumDistanceForOutsiders),
-            new XElement("MaximumDistanceForOutsiders", _maximumDistanceForOutsiders),
+			new XElement("ThreatAwarenessDistance", _threatAwarenessDistance),
+			new XElement("MinimumDistanceForOutsiders", _minimumDistanceForOutsiders),
+			new XElement("MaximumDistanceForOutsiders", _maximumDistanceForOutsiders),
 			new XElement("MaximumHerdDispersement", _maximumHerdDispersement),
 			new XElement("PositionStateWhenResting", _positionStateWhenResting.Id),
 			new XElement("WillMoveIntoRoomProg", _willMoveIntoRoomProg?.Id ?? 0),
-            new XElement("EscalateThreatProg", _escalateThreatProg?.Id ?? 0),
-            new XElement("ConsidersThreatProg", _considersThreatProg?.Id ?? 0),
+			new XElement("EscalateThreatProg", _escalateThreatProg?.Id ?? 0),
+			new XElement("ConsidersThreatProg", _considersThreatProg?.Id ?? 0),
 			new XElement("HerdRoleProg", _herdRoleProg?.Id ?? 0),
-            new XElement("FightOrFlightProg", _fightOrFlightProg?.Id ?? 0), 
+			new XElement("FightOrFlightProg", _fightOrFlightProg?.Id ?? 0), 
 			new XElement("WillMoveCalmProg", _willMoveCalmProg?.Id ?? 0),
 			new XElement("WillMoveAgitatedProg", _willMoveAgitatedProg?.Id ?? 0)
-        ).ToString();
-    }
+		).ToString();
+	}
 
-    protected WildAnimalHerdAI(ArtificialIntelligence ai, IFuturemud gameworld) : base(ai, gameworld)
+	protected WildAnimalHerdAI(ArtificialIntelligence ai, IFuturemud gameworld) : base(ai, gameworld)
 	{
 		var root = XElement.Parse(ai.Definition);
 		var element = root.Element("Reactions");
@@ -408,8 +408,8 @@ public class WildAnimalHerdAI : PathingAIBase
 		foreach (var sub in element.Elements())
 		{
 			var state = (WildAnimalHerdState)int.Parse(sub.Attribute("state")?.Value ??
-			                                           throw new ApplicationException(
-				                                           "Expected a state attribute for the Reaction element in WildAnimalHerdAI."));
+													   throw new ApplicationException(
+														   "Expected a state attribute for the Reaction element in WildAnimalHerdAI."));
 			if (!Enum.IsDefined(typeof(WildAnimalHerdState), state))
 			{
 				throw new ApplicationException(
@@ -788,12 +788,12 @@ public class WildAnimalHerdAI : PathingAIBase
 		}
 
 		if (!_willMoveIntoRoomProg.ReturnType.CompatibleWith(FutureProgVariableTypes.Boolean) ||
-		    !_willMoveIntoRoomProg.MatchesParameters(new[]
-		    {
-			    FutureProgVariableTypes.Character,
-			    FutureProgVariableTypes.Location,
-			    FutureProgVariableTypes.Number
-		    }))
+			!_willMoveIntoRoomProg.MatchesParameters(new[]
+			{
+				FutureProgVariableTypes.Character,
+				FutureProgVariableTypes.Location,
+				FutureProgVariableTypes.Number
+			}))
 		{
 			throw new ApplicationException(
 				$"WillMoveIntoRoomProg was not compatible in WildAnimalHerdAI {ai.Id} \"{ai.Name}\". It must return Boolean and accept Character, Location, Number as parameters.");
@@ -815,13 +815,13 @@ public class WildAnimalHerdAI : PathingAIBase
 		}
 
 		if (!_escalateThreatProg.ReturnType.CompatibleWith(FutureProgVariableTypes.Boolean) ||
-		    !_escalateThreatProg.MatchesParameters(new[]
-		    {
-			    FutureProgVariableTypes.Character,
-			    FutureProgVariableTypes.Character | FutureProgVariableTypes.Collection,
-			    FutureProgVariableTypes.Character | FutureProgVariableTypes.Collection,
-			    FutureProgVariableTypes.Number
-		    }))
+			!_escalateThreatProg.MatchesParameters(new[]
+			{
+				FutureProgVariableTypes.Character,
+				FutureProgVariableTypes.Character | FutureProgVariableTypes.Collection,
+				FutureProgVariableTypes.Character | FutureProgVariableTypes.Collection,
+				FutureProgVariableTypes.Number
+			}))
 		{
 			throw new ApplicationException(
 				$"EscalateThreatProg was not compatible in WildAnimalHerdAI {ai.Id} \"{ai.Name}\". It must return Boolean and accept Character, Character Collection, Character Collection, Number as parameters.");
@@ -843,11 +843,11 @@ public class WildAnimalHerdAI : PathingAIBase
 		}
 
 		if (!_considersThreatProg.ReturnType.CompatibleWith(FutureProgVariableTypes.Boolean) ||
-		    !_considersThreatProg.MatchesParameters(new[]
-		    {
-			    FutureProgVariableTypes.Character,
-			    FutureProgVariableTypes.Character
-		    }))
+			!_considersThreatProg.MatchesParameters(new[]
+			{
+				FutureProgVariableTypes.Character,
+				FutureProgVariableTypes.Character
+			}))
 		{
 			throw new ApplicationException(
 				$"ConsidersThreatProg was not compatible in WildAnimalHerdAI {ai.Id} \"{ai.Name}\". It must return Boolean and accept Character, Character as parameters.");
@@ -868,10 +868,10 @@ public class WildAnimalHerdAI : PathingAIBase
 		}
 
 		if (!_herdRoleProg.ReturnType.CompatibleWith(FutureProgVariableTypes.Text) || !_herdRoleProg.MatchesParameters(
-			    new[]
-			    {
-				    FutureProgVariableTypes.Character
-			    }))
+				new[]
+				{
+					FutureProgVariableTypes.Character
+				}))
 		{
 			throw new ApplicationException(
 				$"HerdRoleProg was not compatible in WildAnimalHerdAI {ai.Id} \"{ai.Name}\". It must return Text and accept Character as a parameter.");
@@ -893,14 +893,14 @@ public class WildAnimalHerdAI : PathingAIBase
 		}
 
 		if (!_fightOrFlightProg.ReturnType.CompatibleWith(FutureProgVariableTypes.Boolean) ||
-		    !_fightOrFlightProg.MatchesParameters(new[]
-		    {
-			    FutureProgVariableTypes.Character,
-			    FutureProgVariableTypes.Character,
-			    FutureProgVariableTypes.Character | FutureProgVariableTypes.Collection,
-			    FutureProgVariableTypes.Character | FutureProgVariableTypes.Collection,
-			    FutureProgVariableTypes.Character
-		    }))
+			!_fightOrFlightProg.MatchesParameters(new[]
+			{
+				FutureProgVariableTypes.Character,
+				FutureProgVariableTypes.Character,
+				FutureProgVariableTypes.Character | FutureProgVariableTypes.Collection,
+				FutureProgVariableTypes.Character | FutureProgVariableTypes.Collection,
+				FutureProgVariableTypes.Character
+			}))
 		{
 			throw new ApplicationException(
 				$"FightOrFlightProg was not compatible in WildAnimalHerdAI {ai.Id} \"{ai.Name}\". It must return Boolean and accept Character, Character, Character Collection, Character Collection, Character as parameters.");
@@ -921,11 +921,11 @@ public class WildAnimalHerdAI : PathingAIBase
 		}
 
 		if (!_willMoveCalmProg.ReturnType.CompatibleWith(FutureProgVariableTypes.Boolean) ||
-		    !_willMoveCalmProg.MatchesParameters(new[]
-		    {
-			    FutureProgVariableTypes.Character,
-			    FutureProgVariableTypes.Exit
-		    }))
+			!_willMoveCalmProg.MatchesParameters(new[]
+			{
+				FutureProgVariableTypes.Character,
+				FutureProgVariableTypes.Exit
+			}))
 		{
 			throw new ApplicationException(
 				$"WillMoveCalmProg was not compatible in WildAnimalHerdAI {ai.Id} \"{ai.Name}\". It must return Boolean and accept Character, Exit as parameters.");
@@ -948,11 +948,11 @@ public class WildAnimalHerdAI : PathingAIBase
 		}
 
 		if (!_willMoveAgitatedProg.ReturnType.CompatibleWith(FutureProgVariableTypes.Boolean) ||
-		    !_willMoveAgitatedProg.MatchesParameters(new[]
-		    {
-			    FutureProgVariableTypes.Character,
-			    FutureProgVariableTypes.Exit
-		    }))
+			!_willMoveAgitatedProg.MatchesParameters(new[]
+			{
+				FutureProgVariableTypes.Character,
+				FutureProgVariableTypes.Exit
+			}))
 		{
 			throw new ApplicationException(
 				$"WillMoveAgitatedProg was not compatible in WildAnimalHerdAI {ai.Id} \"{ai.Name}\". It must return Boolean and accept Character, Exit as parameters.");
@@ -972,9 +972,9 @@ public class WildAnimalHerdAI : PathingAIBase
 	private List<ICharacter> GetStressors(ICharacter character, List<INPC> herd)
 	{
 		return character.Location.CellsInVicinity(_threatAwarenessDistance, true, false)
-		                .SelectMany(x => x.Characters)
-		                .Where(x => ConsidersThreat(character, x) && herd.Any(y => y.CanSee(x)))
-		                .ToList();
+						.SelectMany(x => x.Characters)
+						.Where(x => ConsidersThreat(character, x) && herd.Any(y => y.CanSee(x)))
+						.ToList();
 	}
 
 	private List<(ICharacter Character, IEnumerable<ICellExit> Directions)> GetStressorsAndDirections(
@@ -986,9 +986,9 @@ public class WildAnimalHerdAI : PathingAIBase
 		}
 
 		return character
-		       .AcquireAllTargetsAndPaths<ICharacter>(EvaluateFunc, _threatAwarenessDistance,
-			       PathSearch.RespectClosedDoors)
-		       .ToList();
+			   .AcquireAllTargetsAndPaths<ICharacter>(EvaluateFunc, _threatAwarenessDistance,
+				   PathSearch.RespectClosedDoors)
+			   .ToList();
 	}
 
 	private List<(INPC Animal, WildAnimalHerdRole Role)> GetHerdRoles(ICharacter character)
@@ -1022,6 +1022,21 @@ public class WildAnimalHerdAI : PathingAIBase
 
 	public override bool HandleEvent(EventType type, params dynamic[] arguments)
 	{
+		var ch =
+				type switch
+				{
+					EventType.CharacterEnterCellFinishWitness => (ICharacter)arguments[3],
+					EventType.CharacterBeginMovementWitness => (ICharacter)arguments[3],
+					EventType.EngagedInCombatWitness => (ICharacter)arguments[2],
+					EventType.EngagedInCombat => (ICharacter)arguments[1],
+					_ => (ICharacter)arguments[0],
+				}
+			;
+		if (ch is null || ch.State.IsDead() || ch.State.IsInStatis())
+		{
+			return false;
+		}
+
 		switch (type)
 		{
 			case EventType.CharacterEnterCellFinish:
@@ -1060,7 +1075,7 @@ public class WildAnimalHerdAI : PathingAIBase
 		}
 
 		if (character == effect.HerdLeader && witness.CanMove(exit) && witness.Combat == null &&
-		    witness.Movement == null)
+			witness.Movement == null)
 		{
 			witness.Move(exit);
 			return true;
@@ -1073,8 +1088,8 @@ public class WildAnimalHerdAI : PathingAIBase
 		}
 
 		if (((moverEffect.Role == WildAnimalHerdRole.Child && effect.Role == WildAnimalHerdRole.ChildProtector) ||
-		     (moverEffect.Role == WildAnimalHerdRole.ChildProtector && effect.Role == WildAnimalHerdRole.Child))
-		    && witness.CanMove(exit) && witness.Combat == null && witness.Movement == null)
+			 (moverEffect.Role == WildAnimalHerdRole.ChildProtector && effect.Role == WildAnimalHerdRole.Child))
+			&& witness.CanMove(exit) && witness.Combat == null && witness.Movement == null)
 		{
 			witness.Move(exit);
 			return true;
@@ -1090,7 +1105,7 @@ public class WildAnimalHerdAI : PathingAIBase
 		MinuteTickForHerd(effect.HerdLeader, priority, state, herd, effect);
 
 		if (!CharacterState.Able.HasFlag(character.State) || character.Combat != null ||
-		    character.Movement != null)
+			character.Movement != null)
 		{
 			return false;
 		}
@@ -1175,8 +1190,8 @@ public class WildAnimalHerdAI : PathingAIBase
 		}
 
 		if (!character.PositionState.Upright && (state >= WildAnimalHerdState.Alert ||
-		                                         !priority.In(WildAnimalHerdPriority.Rest,
-			                                         WildAnimalHerdPriority.Sleep)))
+												 !priority.In(WildAnimalHerdPriority.Rest,
+													 WildAnimalHerdPriority.Sleep)))
 		{
 			character.MovePosition(PositionStanding.Instance, null, null);
 		}
@@ -1184,14 +1199,14 @@ public class WildAnimalHerdAI : PathingAIBase
 		bool SuitabilityFunction(ICellExit exit)
 		{
 			return _willMoveIntoRoomProg?.Execute<bool?>(character, exit.Destination, state) != false &&
-			       exit.Exit.Door?.IsOpen != false && character.CanMove(exit);
+				   exit.Exit.Door?.IsOpen != false && character.CanMove(exit);
 		}
 
 		var effect = character.EffectsOfType<WildAnimalHerdEffect>().First().HerdLeaderEffectOrSelf;
 		if (effect.HerdLeader.Location != character.Location && role != WildAnimalHerdRole.Outsider)
 		{
 			var pathToLeader = character.PathBetween(effect.HerdLeader, _maximumHerdDispersement, SuitabilityFunction)
-			                            .ToList();
+										.ToList();
 			if (pathToLeader.Any())
 			{
 				var fp = new FollowingPath(character, pathToLeader);
@@ -1208,8 +1223,8 @@ public class WildAnimalHerdAI : PathingAIBase
 			if (character.CanMove())
 			{
 				var pathToLeader = character
-				                   .PathBetween(effect.HerdLeader, _maximumHerdDispersement, SuitabilityFunction)
-				                   .ToList();
+								   .PathBetween(effect.HerdLeader, _maximumHerdDispersement, SuitabilityFunction)
+								   .ToList();
 
 				// Even outsiders join the herd to drink
 				if (priority == WildAnimalHerdPriority.SeekWater && character.Location != effect.HerdLeader.Location)
@@ -1225,17 +1240,17 @@ public class WildAnimalHerdAI : PathingAIBase
 				if (pathToLeader.Count < _minimumDistanceForOutsiders)
 				{
 					var validZone = effect.HerdLeader.Location
-					                      .CellsAndDistancesInVicinity(_maximumDistanceForOutsiders,
-						                      SuitabilityFunction,
-						                      cell => _willMoveIntoRoomProg.Execute<bool?>(character, cell, state) !=
-						                              false)
-					                      .Where(x => x.Item2 >= _minimumDistanceForOutsiders)
-					                      .OrderBy(x => x.Item1.EstimatedDirectDistanceTo(character.Location))
-					                      .ToList();
+										  .CellsAndDistancesInVicinity(_maximumDistanceForOutsiders,
+											  SuitabilityFunction,
+											  cell => _willMoveIntoRoomProg.Execute<bool?>(character, cell, state) !=
+													  false)
+										  .Where(x => x.Item2 >= _minimumDistanceForOutsiders)
+										  .OrderBy(x => x.Item1.EstimatedDirectDistanceTo(character.Location))
+										  .ToList();
 					foreach (var cell in validZone)
 					{
 						var path = character.PathBetween(cell.Cell, _maximumHerdDispersement, SuitabilityFunction)
-						                    .ToList();
+											.ToList();
 						if (path.Any())
 						{
 							var fp = new FollowingPath(character, path);
@@ -1259,14 +1274,14 @@ public class WildAnimalHerdAI : PathingAIBase
 		}
 
 		if (IsFighter(role, state) &&
-		    herd.Any(x => x.Animal.Combat != null && x.Animal.Location == character.Location))
+			herd.Any(x => x.Animal.Combat != null && x.Animal.Location == character.Location))
 		{
 			var herdattacker = herd.Where(x => x.Animal.Location == character.Location)
-			                       .SelectNotNull(x => x.Animal.Combat)
-			                       .SelectMany(x => x.Combatants)
-			                       .Distinct()
-			                       .Where(character.CanEngage)
-			                       .GetRandomElement();
+								   .SelectNotNull(x => x.Animal.Combat)
+								   .SelectMany(x => x.Combatants)
+								   .Distinct()
+								   .Where(character.CanEngage)
+								   .GetRandomElement();
 			if (herdattacker != null)
 			{
 				character.Engage(herdattacker);
@@ -1289,7 +1304,7 @@ public class WildAnimalHerdAI : PathingAIBase
 				}
 
 				if (herd.Where(x => x.Animal.Location == character.Location)
-				        .All(x => !x.Animal.Body.NeedsModel.Status.IsThirsty()))
+						.All(x => !x.Animal.Body.NeedsModel.Status.IsThirsty()))
 				{
 #if DEBUG
 					Gameworld.DebugMessage($"Herd {Name} has finished drinking and is now grazing.");
@@ -1300,11 +1315,11 @@ public class WildAnimalHerdAI : PathingAIBase
 
 				var (path, target) =
 					effect.KnownWater.Select(
-						      x => (Path:
-							      character.PathBetween(
-								               x, _maximumHerdDispersement, SuitabilityFunction)
-							               .ToList(), x))
-					      .FirstOrDefault(x => x.Path.Count > 0);
+							  x => (Path:
+								  character.PathBetween(
+											   x, _maximumHerdDispersement, SuitabilityFunction)
+										   .ToList(), x))
+						  .FirstOrDefault(x => x.Path.Count > 0);
 				if (target != null)
 				{
 #if DEBUG
@@ -1319,8 +1334,8 @@ public class WildAnimalHerdAI : PathingAIBase
 				// No known water sources, wander randomly
 				var recent = character.EffectsOfType<AdjacentToExit>().FirstOrDefault();
 				var random = character.Location.ExitsFor(character)
-				                      .Where(SuitabilityFunction)
-				                      .GetWeightedRandom(x => recent?.Exit == x ? 1.0 : 100.0);
+									  .Where(SuitabilityFunction)
+									  .GetWeightedRandom(x => recent?.Exit == x ? 1.0 : 100.0);
 				if (random != null && character.CanMove(random))
 				{
 #if DEBUG
@@ -1337,7 +1352,7 @@ public class WildAnimalHerdAI : PathingAIBase
 				break;
 			case WildAnimalHerdPriority.Graze:
 				var yields = character.Race.EdibleForagableYields
-				                      .Where(x => character.Location.GetForagableYield(x.YieldType) > 0.0).ToList();
+									  .Where(x => character.Location.GetForagableYield(x.YieldType) > 0.0).ToList();
 				lcons = LocalLiquids(character, character.Location);
 				var lcon = lcons.GetRandomElement();
 				if (lcons.Any() && !effect.KnownWater.Contains(character.Location))
@@ -1388,11 +1403,11 @@ public class WildAnimalHerdAI : PathingAIBase
 						{
 							(path, target) =
 								effect.KnownWater.Select(
-									      x => (Path:
-										      character.PathBetween(
-											               x, _maximumHerdDispersement, SuitabilityFunction)
-										               .ToList(), x))
-								      .FirstOrDefault(x => x.Path.Count > 0);
+										  x => (Path:
+											  character.PathBetween(
+														   x, _maximumHerdDispersement, SuitabilityFunction)
+													   .ToList(), x))
+									  .FirstOrDefault(x => x.Path.Count > 0);
 							if (target != null)
 							{
 								var fp = new FollowingPath(character, path);
@@ -1409,11 +1424,11 @@ public class WildAnimalHerdAI : PathingAIBase
 						Gameworld.DebugMessage($"Herd {Name} is hungry but no food at {character.Location.HowSeen(character)}.");
 #endif
 						random = character.Location.ExitsFor(character)
-						                  .Where(x => character.CanMove(x) && SuitabilityFunction(x))
-						                  .Where(x => character.Race.EdibleForagableYields.Any(
-							                  y => x.Destination.GetForagableYield(
-								                  y.YieldType) > 0.0))
-						                  .GetRandomElement();
+										  .Where(x => character.CanMove(x) && SuitabilityFunction(x))
+										  .Where(x => character.Race.EdibleForagableYields.Any(
+											  y => x.Destination.GetForagableYield(
+												  y.YieldType) > 0.0))
+										  .GetRandomElement();
 						if (random != null && character.CanMove(random))
 						{
 #if DEBUG
@@ -1425,8 +1440,8 @@ public class WildAnimalHerdAI : PathingAIBase
 
 						recent = character.EffectsOfType<AdjacentToExit>().FirstOrDefault();
 						random = character.Location.ExitsFor(character)
-						                  .Where(SuitabilityFunction)
-						                  .GetWeightedRandom(x => recent?.Exit == x ? 1.0 : 100.0);
+										  .Where(SuitabilityFunction)
+										  .GetWeightedRandom(x => recent?.Exit == x ? 1.0 : 100.0);
 						if (random != null && character.CanMove(random))
 						{
 #if DEBUG
@@ -1453,7 +1468,7 @@ public class WildAnimalHerdAI : PathingAIBase
 				if (CharacterState.Able.HasFlag(character.State))
 				{
 					if (character.PositionState.CompareTo(character.Race.MinimumSleepingPosition) ==
-					    PositionHeightComparison.Higher)
+						PositionHeightComparison.Higher)
 					{
 						if (!character.CanMovePosition(character.Race.MinimumSleepingPosition))
 						{
@@ -1540,13 +1555,13 @@ public class WildAnimalHerdAI : PathingAIBase
 			ICellExit exitToMove = null;
 
 			var directions = potentialThreats.Select(x => x.Directions)
-			                                 .CountTotalDirections<IEnumerable<IEnumerable<ICellExit>>,
-				                                 IEnumerable<ICellExit>>()
-			                                 .ContainedDirections();
+											 .CountTotalDirections<IEnumerable<IEnumerable<ICellExit>>,
+												 IEnumerable<ICellExit>>()
+											 .ContainedDirections();
 			var potentialExits = alpha.Location.ExitsFor(alpha)
-			                          .Where(x => _willMoveIntoRoomProg.Execute<bool?>(alpha, x.Destination, state) !=
-			                                      false)
-			                          .ToList();
+									  .Where(x => _willMoveIntoRoomProg.Execute<bool?>(alpha, x.Destination, state) !=
+												  false)
+									  .ToList();
 			var preferredExits = potentialExits.Where(x => directions.Contains(x.OutboundDirection)).ToList();
 			if (preferredExits.Any())
 			{
@@ -1614,8 +1629,8 @@ public class WildAnimalHerdAI : PathingAIBase
 			if (!engagable.Any())
 			{
 				var existing = character.Combat.Combatants
-				                        .Where(x => herd.Any(y => x.CombatTarget == y.Animal) && character.CanEngage(x))
-				                        .ToList();
+										.Where(x => herd.Any(y => x.CombatTarget == y.Animal) && character.CanEngage(x))
+										.ToList();
 				if (existing.Any())
 				{
 					character.Engage(existing.GetRandomElement());
@@ -1705,7 +1720,7 @@ public class WildAnimalHerdAI : PathingAIBase
 		var stressors = GetStressors(character, herd);
 		var roles = GetHerdRoles(character);
 		var escapes = character.Location.ExitsFor(character)
-		                       .Where(x => _willMoveAgitatedProg.Execute<bool?>(character, x) == true).ToList();
+							   .Where(x => _willMoveAgitatedProg.Execute<bool?>(character, x) == true).ToList();
 		var chosenEscape = escapes.GetRandomElement();
 
 		void TryEngageInCombat(ICharacter animal)
@@ -1890,18 +1905,18 @@ public class WildAnimalHerdAI : PathingAIBase
 	private void DoCheckForHerdRoles(ICharacter character)
 	{
 		var herdExtent = character
-		                 .CellsInVicinity(_maximumHerdDispersement, false, false).ToList();
+						 .CellsInVicinity(_maximumHerdDispersement, false, false).ToList();
 		var potentialHerd = herdExtent
-		                    .SelectMany(x => x.Characters.OfType<INPC>().Where(y => y.AIs.Contains(this)))
-		                    .Select(x => (Animal: x, SuggestedRole: StringToRole(_herdRoleProg.Execute<string>(x))))
-		                    .ToList();
+							.SelectMany(x => x.Characters.OfType<INPC>().Where(y => y.AIs.Contains(this)))
+							.Select(x => (Animal: x, SuggestedRole: StringToRole(_herdRoleProg.Execute<string>(x))))
+							.ToList();
 
 		WildAnimalHerdEffect leadereffect;
 
 		if (potentialHerd.Any(x => x.Animal.AffectedBy<WildAnimalHerdEffect>()))
 		{
 			leadereffect = potentialHerd.Select(x => x.Animal.EffectsOfType<WildAnimalHerdEffect>().FirstOrDefault())
-			                            .First(x => x != null);
+										.First(x => x != null);
 			// Join the existing herd instead of creating a new one
 			foreach (var (animal, suggestedRole) in potentialHerd)
 			{
@@ -1963,7 +1978,7 @@ public class WildAnimalHerdAI : PathingAIBase
 			for (var i = 0; i < actual - entry.Value; i++)
 			{
 				var random = potentialHerd.Where(x => x.SuggestedRole == WildAnimalHerdRole.Follower)
-				                          .GetRandomElement();
+										  .GetRandomElement();
 				if (random == default)
 				{
 					break;
@@ -2007,9 +2022,9 @@ public class WildAnimalHerdAI : PathingAIBase
 	private List<ILiquidContainer> LocalLiquids(ICharacter character, ICell location)
 	{
 		return location.LayerGameItems(character.RoomLayer).SelectNotNull(x => x.GetItemType<ILiquidContainer>())
-		               .Where(x => x.LiquidMixture.Instances.Sum(
-			                           y => y.Liquid.DrinkSatiatedHoursPerLitre) > 0 &&
-		                           character.Body.CanDrink(x, null, Sip)).ToList();
+					   .Where(x => x.LiquidMixture.Instances.Sum(
+									   y => y.Liquid.DrinkSatiatedHoursPerLitre) > 0 &&
+								   character.Body.CanDrink(x, null, Sip)).ToList();
 	}
 
 	private double _sip;

@@ -425,6 +425,31 @@ public class SemiAggressiveAI : PathingAIWithProgTargetsBase
 
 	public override bool HandleEvent(EventType type, params dynamic[] arguments)
 	{
+		ICharacter ch = null;
+		switch (type)
+		{
+			case EventType.CharacterEnterCellWitness:
+			case EventType.CharacterLeaveCellWitness:
+			case EventType.CharacterGotItemContainerWitness:
+				ch = (ICharacter)arguments[3];
+				break;
+			case EventType.EngagedInCombat:
+			case EventType.TargetIncapacitated:
+				ch = (ICharacter)arguments[1];
+				break;
+			case EventType.LeaveCombat:
+				ch = (ICharacter)arguments[0];
+				break;
+			case EventType.CharacterGotItemWitness:
+				ch = (ICharacter)arguments[2];
+				break;
+		}
+
+		if (ch is null || ch.State.IsDead() || ch.State.IsInStatis())
+		{
+			return false;
+		}
+
 		switch (type)
 		{
 			case EventType.CharacterEnterCellWitness:

@@ -858,6 +858,30 @@ public class DoorguardAI : ArtificialIntelligenceBase
 
 	public override bool HandleEvent(EventType type, params dynamic[] arguments)
 	{
+		ICharacter ch = null;
+		switch (type)
+		{
+			case EventType.CharacterStopMovementWitness:
+			case EventType.CharacterStopMovementClosedDoorWitness:
+			case EventType.CharacterBeginMovementWitness:
+			case EventType.CharacterLeaveCellWitness:
+			case EventType.CharacterDoorKnockedOtherSide:
+				ch = (ICharacter)arguments[3];
+				break;
+			case EventType.CharacterSocialTarget:
+				ch = (ICharacter)arguments[2];
+				break;
+			case EventType.CharacterSocialWitness:
+				ch = (ICharacter)arguments[4];
+				break;
+			default:
+				return false;
+		}
+		if (ch is null || ch.State.IsDead() || ch.State.IsInStatis())
+		{
+			return false;
+		}
+
 		switch (type)
 		{
 			case EventType.CharacterStopMovementWitness:

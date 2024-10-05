@@ -199,6 +199,24 @@ public class SelfCareAI : ArtificialIntelligenceBase
 
 	public override bool HandleEvent(EventType type, params dynamic[] arguments)
 	{
+		ICharacter ch = null;
+		switch (type)
+		{
+			case EventType.LeaveCombat:
+			case EventType.NoLongerEngagedInMelee:
+			case EventType.BleedTick:
+				ch = (ICharacter)arguments[0];
+				break;
+			case EventType.NoLongerTargettedInCombat:
+				ch = (ICharacter)arguments[1];
+				break;
+		}
+
+		if (ch is null || ch.State.IsDead() || ch.State.IsInStatis())
+		{
+			return false;
+		}
+
 		switch (type)
 		{
 			case EventType.LeaveCombat:

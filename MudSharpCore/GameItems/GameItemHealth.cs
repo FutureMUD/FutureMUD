@@ -116,8 +116,13 @@ public partial class GameItem : IHaveWounds
 		}
 
 		var pile = GetItemType<PileGameItemComponent>();
+		if (pile is not null)
+		{
+			return pile.Contents.GetRandomElement().PassiveSufferDamage(damage);
+		}
+
 		var destroyable = GetItemType<IDestroyable>();
-		if (destroyable == null && pile == null)
+		if (destroyable == null)
 		{
 			return Enumerable.Empty<IWound>();
 		}
@@ -133,11 +138,8 @@ public partial class GameItem : IHaveWounds
 		var newWounds = HealthStrategy.SufferDamage(this, damage, null).ToList();
 		foreach (var newWound in newWounds.ToArray())
 		{
+			_wounds.Add(newWound);
 			wounds.Add(newWound);
-			if (pile != null)
-			{
-				wounds.AddRange(pile.Contents.GetRandomElement().SufferDamage(damage));
-			}
 		}
 
 		return wounds;

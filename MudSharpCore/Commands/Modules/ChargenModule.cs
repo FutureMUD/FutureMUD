@@ -658,7 +658,7 @@ You can use the following commands to work with merits:
 	#3merit edit <which>#0 - begin editing a particular existing merit
 	#3merit edit#0 - an alias for showing your currently edited merit
 	#3merit close#0 - stop editing your current merit
-	#3merit new <type> <name>#0 - creates and begins editing a new merit
+	#3merit edit new <type> <name>#0 - creates and begins editing a new merit
 	#3merit clone <old> <newName>#0 - clones and begins editing a merit
 	#3merit types#0 - shows a list of merit types
 	#3merit typehelp <type>#0 - shows the help text for a merit type

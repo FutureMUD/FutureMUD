@@ -1381,6 +1381,11 @@ public sealed partial class Futuremud : IFuturemud, IDisposable
 		_heightWeightModels.Add(model);
 	}
 
+	public void Add(IShieldType shield)
+	{
+		_shieldTypes.Add(shield);
+	}
+
 	#endregion Special Add Methods
 
 	#region Special Find

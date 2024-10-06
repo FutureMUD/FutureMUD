@@ -166,6 +166,34 @@ For the damage formula you can use the following parameters:
 	}
 	#endregion
 
+	#region Shield Types
+	public const string ShieldTypeHelp = @"The #3Shield#0 command is used to create and edit Shield Types, which are used in the matching game item components to turn an item into a shield.
+
+You will separately need to make the matching item component with the #3Component#0 command.
+
+You can use the following syntax with this command:
+
+	#3shield list#0 - lists all shield types
+	#3shield edit <id|name>#0 - opens the specified shield type for editing
+	#3shield edit new <name> <skill> <armour>#0 - creates a new shield type for editing
+	#3shield edit#0 - equivalent of doing SHOW on your currently editing shield type
+	#3shield close#0 - closes the currently edited shield type
+	#3shield clone <id|name> <new name>#0 - creates a carbon copy of a shield type for editing
+	#3shield show <id|name>#0 - shows a particular shield type
+	#3shield set name <name>#0 - renames the armour type
+	#3shield set trait <which>#0 - sets the trait used for blocking
+	#3shield set bonus <##>#0 - sets the bonus for blocking
+	#3shield set stamina <##>#0 - sets the stamina usage per block
+	#3shield set armour <which>#0 - sets the armour type for reducing damage";
+	[PlayerCommand("ShieldType", "shieldtype")]
+	[CommandPermission(PermissionLevel.SeniorAdmin)]
+	[HelpInfo("ShieldType", ShieldTypeHelp, AutoHelp.HelpArgOrNoArg)]
+	protected static void Shield(ICharacter actor, string command)
+	{
+		GenericBuildingCommand(actor, new StringStack(command.RemoveFirstWord()), EditableItemHelper.ShieldTypeHelper);
+	}
+	#endregion
+
 	#region Weapon Attacks
 
 	public const string WeaponAttackHelp =

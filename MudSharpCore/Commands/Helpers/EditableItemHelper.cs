@@ -420,6 +420,136 @@ public partial class EditableItemHelper
 		DefaultCommandHelp = BuilderModule.BodypartGroupHelp
 	};
 
+	public static EditableItemHelper ShieldTypeHelper { get; } = new()
+	{
+		ItemName = "Shield Type",
+		ItemNamePlural = "Shield Types",
+		SetEditableItemAction = (actor, item) =>
+		{
+			actor.RemoveAllEffects<BuilderEditingEffect<IShieldType>>();
+			if (item == null)
+			{
+				return;
+			}
+
+			actor.AddEffect(new BuilderEditingEffect<IShieldType>(actor) { EditingItem = (IShieldType)item });
+		},
+		GetEditableItemFunc = actor =>
+			actor.CombinedEffectsOfType<BuilderEditingEffect<IShieldType>>().FirstOrDefault()?.EditingItem,
+		GetAllEditableItems = actor => actor.Gameworld.ShieldTypes.ToList(),
+		GetEditableItemByIdFunc = (actor, id) => actor.Gameworld.ShieldTypes.Get(id),
+		GetEditableItemByIdOrNameFunc = (actor, input) => actor.Gameworld.ShieldTypes.GetByIdOrName(input),
+		AddItemToGameWorldAction = item => item.Gameworld.Add((IShieldType)item),
+		CastToType = typeof(IShieldType),
+		EditableNewAction = (actor, input) =>
+		{
+			if (input.IsFinished)
+			{
+				actor.OutputHandler.Send("You must specify a name for your shield type.");
+				return;
+			}
+
+			var name = input.PopSpeech().TitleCase();
+			if (actor.Gameworld.ShieldTypes.Any(x => x.Name.EqualTo(name)))
+			{
+				actor.OutputHandler.Send(
+					$"There is already a shield type called {name.ColourName()}. Names must be unique.");
+				return;
+			}
+
+			if (input.IsFinished)
+			{
+				actor.OutputHandler.Send($"Which skill or trait should this shield use for blocking?");
+				return;
+			}
+
+			var trait = actor.Gameworld.Traits.GetByIdOrName(input.PopSpeech());
+			if (trait is null)
+			{
+				actor.OutputHandler.Send($"The text {input.Last.ColourCommand()} is not a valid skill or trait.");
+				return;
+			}
+
+			if (input.IsFinished)
+			{
+				actor.OutputHandler.Send("Which armour type should this shield use?");
+				return;
+			}
+
+			var armour = actor.Gameworld.ArmourTypes.GetByIdOrName(input.SafeRemainingArgument);
+			if (armour is null)
+			{
+				actor.OutputHandler.Send($"There is no armour type identified by the text {input.SafeRemainingArgument.ColourCommand()}.");
+				return;
+			}
+
+			var shield = new ShieldType(actor.Gameworld, name, trait, armour);
+			actor.Gameworld.Add(shield);
+			actor.RemoveAllEffects<BuilderEditingEffect<IShieldType>>();
+			actor.AddEffect(new BuilderEditingEffect<IShieldType>(actor) { EditingItem = shield });
+			actor.OutputHandler.Send($"You create a new shield type called {name.ColourName()}, which you are now editing.");
+		},
+		EditableCloneAction = (actor, input) =>
+		{
+			if (input.IsFinished)
+			{
+				actor.OutputHandler.Send("Which shield type would you like to clone?");
+				return;
+			}
+
+			var target = actor.Gameworld.ShieldTypes.GetByIdOrName(input.PopSpeech());
+			if (target is null)
+			{
+				actor.OutputHandler.Send("There is no such shield type to clone.");
+				return;
+			}
+
+			if (input.IsFinished)
+			{
+				actor.OutputHandler.Send("What name would you like to give to the cloned shield type?");
+				return;
+			}
+
+			var name = input.SafeRemainingArgument.TitleCase();
+			if (actor.Gameworld.ShieldTypes.Any(x => x.Name.EqualTo(name)))
+			{
+				actor.OutputHandler.Send(
+					$"There is already a shield type called {name.ColourName()}. Names must be unique.");
+				return;
+			}
+
+			var clone = target.Clone(name);
+			actor.Gameworld.Add(clone);
+			actor.RemoveAllEffects<BuilderEditingEffect<IShieldType>>();
+			actor.AddEffect(new BuilderEditingEffect<IShieldType>(actor) { EditingItem = clone });
+			actor.OutputHandler.Send($"You create a cloned shield type from {target.Name.ColourName()} called {name.ColourName()}, which you are now editing.");
+		},
+
+		GetListTableHeaderFunc = character => new List<string>
+		{
+			"Id",
+			"Name",
+			"Trait",
+			"Bonus",
+			"Stamina",
+			"Armour"
+		},
+
+		GetListTableContentsFunc = (character, protos) => from proto in protos.OfType<IShieldType>()
+														  select new List<string>
+														  {
+															  proto.Id.ToString("N0", character),
+															  proto.Name,
+															  proto.BlockTrait.Name,
+															  proto.BlockBonus.ToBonusString(character),
+															  proto.StaminaPerBlock.ToStringN2Colour(character),
+															  proto.EffectiveArmourType?.Name ?? "",
+														  },
+
+		CustomSearch = (protos, keyword, gameworld) => protos,
+		GetEditHeader = item => $"Shield Type #{item.Id:N0} ({item.Name})",
+		DefaultCommandHelp = CombatBuilderModule.ShieldTypeHelp
+	};
 
 	public static EditableItemHelper RangedWeaponTypeHelper { get; } = new()
 	{

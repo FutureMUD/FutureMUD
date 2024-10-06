@@ -44,6 +44,7 @@ using MudSharp.Framework.Units;
 using MudSharp.FutureProg;
 using MudSharp.GameItems;
 using MudSharp.GameItems.Decorators;
+using MudSharp.GameItems.Interfaces;
 using MudSharp.GameItems.Inventory;
 using MudSharp.GameItems.Inventory.Size;
 using MudSharp.Health;
@@ -361,6 +362,7 @@ namespace MudSharp.Framework
 		void DebugMessage(string message);
 
 		void AddGuest(ICharacter character);
+		void Add(IShieldType shield);
 		void Add(IHeightWeightModel model);
 		void Add(ITrack track);
 		void Add(IMoveSpeed speed);

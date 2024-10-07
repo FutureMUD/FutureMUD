@@ -4309,5 +4309,43 @@ You can also use the following filters on the list subcommand:
 	{
 		GenericBuildingCommand(actor, new StringStack(command.RemoveFirstWord()), EditableItemHelper.EntityDescriptionHelper);
 	}
-	#endregion	
+	#endregion
+
+	#region Attributes
+
+	public const string AttributeCommandHelp = @"The #3attribute#0 command allows you to view, edit and create attributes.
+
+The syntax for this command is as follows:
+
+	#3attribute list#0 - lists all of the attributes
+	#3attribute edit <which>#0 - begins editing an attribute
+	#3attribute edit new <type> <name>#0 - creates a new attribute
+	#3attribute close#0 - stops editing an attribute
+	#3attribute show <which>#0 - views information about an attribute
+	#3attribute show#0 - views information about your currently editing attribute
+	#3attribute set name <name>#0 - change the name
+	#3attribute set group <which>#0 - sets the group
+	#3attribute set decorator <which>#0 - sets the trait decorator
+	#3attribute set hidden#0 - toggles whether or not this trait is hidden
+	#3attribute set alias <alias>#0 - changes the alias
+	#3attribute set score#0 - toggles appearing in score command
+	#3attribute set attributes#0 - toggles appearing in attributes command
+	#3attribute set sub#0 - toggles displaying as a sub-attribute
+	#3attribute set blurb#0 - drops you into an editor to change the chargen blurb
+
+This sub-command is only used on derived attributes:
+
+	#3attribute set expression <id|name>#0 - sets the trait expression that controls the value of this attribute
+
+Note - you would ordinarily edit the trait expression with the #3TRAITEXPRESSION#0 command rather than changing it here.";
+
+	[PlayerCommand("Attribute", "attribute")]
+	[CommandPermission(PermissionLevel.Admin)]
+	[HelpInfo("Attribute", AttributeCommandHelp, AutoHelp.HelpArgOrNoArg)]
+	protected static void Attribute(ICharacter actor, string command)
+	{
+		GenericBuildingCommand(actor, new StringStack(command.RemoveFirstWord()), EditableItemHelper.AttributeHelper);
+	}
+
+	#endregion
 }

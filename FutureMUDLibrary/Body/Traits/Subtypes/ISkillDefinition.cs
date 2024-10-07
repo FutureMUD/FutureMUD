@@ -10,12 +10,10 @@ namespace MudSharp.Body.Traits.Subtypes {
         Difficulty LearnDifficulty { get; }
         bool CanTeach(ICharacter character);
         bool CanLearn(ICharacter character);
-        string Show(ICharacter voyeur);
         IImprovementModel Improver { get; }
         IFutureProg AvailabilityProg { get; }
         IFutureProg TeachableProg { get; }
         IFutureProg LearnableProg { get; }
         ITraitExpression Cap { get; }
-        bool BuildingCommand(ICharacter actor, StringStack command);
     }
 }

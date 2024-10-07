@@ -7,5 +7,6 @@
         bool DisplayAsSubAttribute { get; }
         bool ShowInScoreCommand { get; }
         bool ShowInAttributeCommand { get; }
+        IAttributeDefinition Clone(string name, string alias);
     }
 }

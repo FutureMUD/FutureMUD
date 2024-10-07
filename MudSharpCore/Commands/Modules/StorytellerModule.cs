@@ -1706,32 +1706,32 @@ This command is useful when you write-up a bunch of room creation commands in a 
 
 This is the syntax for the storyteller portion of the command:
 
-	skill add <who> <skill> [<level>] - adds a skill to a character
-	skill remove <who> <skill> - removes a skill from a character
-	skill level <who> <skill> <level> - sets a character's skill to the specified amount
+	#3skill add <who> <skill> [<level>]#0 - adds a skill to a character
+	#3skill remove <who> <skill>#0 - removes a skill from a character
+	#3skill level <who> <skill> <level>#0 - sets a character's skill to the specified amount
 
 This is the syntax for editing skills:
 
-	skill edit <skill> - begins editing a particular skill
-	skill edit - synonymous with SKILL VIEW on your currently edited skill
-	skill edit new <name> - creates a new skill
-	skill clone <cloned> <name> - clones an existing skill
-	skill edit close - stops editing a skill
-	skill view <skill> - shows details of a skill
-	skill set name <name> - edits the name of a skill
-	skill set expression <expression> - changes the cap expression for a skill(*)
-	skill set improver <which> - sets the skill improver for a skill
-	skill set describer <which> - sets the skill describer for a skill
-	skill set group <group> - sets the skill group for a skill
-	skill set branch <multiplier%> - sets the branch multiplier for a skill
-	skill set chargen <prog> - sets a prog to determine chargen availability
-	skill set teachable <prog> - sets a prog to determine teachability
-	skill set learnable <prog> - sets a prog to determine learnability
-	skill set teach <difficulty> - sets the difficulty of teaching the skill
-	skill set learn <difficulty> - sets the difficulty of learning the skill
-	skill set hidden - toggles this being a hidden skill
+	#3skill edit <skill>#0 - begins editing a particular skill
+	#3skill edit#0 - synonymous with SKILL VIEW on your currently edited skill
+	#3skill edit new <name>#0 - creates a new skill
+	#3skill clone <cloned> <name>#0 - clones an existing skill
+	#3skill edit close#0 - stops editing a skill
+	#3skill show <skill>#0 - shows details of a skill
+	#3skill set name <name>#0 - edits the name of a skill
+	#3skill set expression <expression>#0 - changes the cap expression for a skill(*)
+	#3skill set improver <which>#0 - sets the skill improver for a skill
+	#3skill set describer <which>#0 - sets the skill describer for a skill
+	#3skill set group <group>#0 - sets the skill group for a skill
+	#3skill set branch <multiplier%>#0 - sets the branch multiplier for a skill
+	#3skill set chargen <prog>#0 - sets a prog to determine chargen availability
+	#3skill set teachable <prog>#0 - sets a prog to determine teachability
+	#3skill set learnable <prog>#0 - sets a prog to determine learnability
+	#3skill set teach <difficulty>#0 - sets the difficulty of teaching the skill
+	#3skill set learn <difficulty>#0 - sets the difficulty of learning the skill
+	#3skill set hidden#0 - toggles this being a hidden skill
 
-	* - most often you will want to use the TRAITEXPRESSION command to edit the existing trait expression rather than changing to a new one";
+Note: most often you will want to use the #3TRAITEXPRESSION#0 command to edit the existing trait expression rather than changing to a new one";
 
 	[PlayerCommand("Skill", "skill")]
 	[CommandPermission(PermissionLevel.Admin)]
@@ -1770,6 +1770,7 @@ This is the syntax for editing skills:
 				SkillClone(actor, ss);
 				return;
 			case "view":
+			case "show":
 				SkillView(actor, ss);
 				return;
 			case "add":
@@ -1779,7 +1780,7 @@ This is the syntax for editing skills:
 			case "unpause":
 				break;
 			default:
-				actor.OutputHandler.Send(SkillCommandHelp);
+				actor.OutputHandler.Send(SkillCommandHelp.SubstituteANSIColour());
 				return;
 		}
 

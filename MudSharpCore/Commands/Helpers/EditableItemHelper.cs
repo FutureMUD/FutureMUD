@@ -7,6 +7,7 @@ using System.Xml.Linq;
 using MudSharp.Body;
 using MudSharp.Body.Grouping;
 using MudSharp.Body.Traits.Improvement;
+using MudSharp.Body.Traits.Subtypes;
 using MudSharp.Character;
 using MudSharp.Character.Heritage;
 using MudSharp.CharacterCreation;
@@ -1167,6 +1168,154 @@ public partial class EditableItemHelper
 		CustomSearch = (protos, keyword, gameworld) => protos,
 		GetEditHeader = item => $"Armour Type #{item.Id:N0} ({item.Name})",
 		DefaultCommandHelp = CombatBuilderModule.ArmourTypeHelp
+	};
+
+	public static EditableItemHelper AttributeHelper { get; } = new()
+	{
+		ItemName = "Attribute",
+		ItemNamePlural = "Attributes",
+		SetEditableItemAction = (actor, item) =>
+		{
+			actor.RemoveAllEffects<BuilderEditingEffect<IAttributeDefinition>>();
+			if (item == null)
+			{
+				return;
+			}
+
+			actor.AddEffect(new BuilderEditingEffect<IAttributeDefinition>(actor) { EditingItem = (IAttributeDefinition)item });
+		},
+		GetEditableItemFunc = actor =>
+			actor.CombinedEffectsOfType<BuilderEditingEffect<IAttributeDefinition>>().FirstOrDefault()?.EditingItem,
+		GetAllEditableItems = actor => actor.Gameworld.Traits.OfType<IAttributeDefinition>().ToList(),
+		GetEditableItemByIdFunc = (actor, id) => actor.Gameworld.Traits.OfType<IAttributeDefinition>().Get(id),
+		GetEditableItemByIdOrNameFunc = (actor, input) => actor.Gameworld.Traits.OfType<IAttributeDefinition>().GetByIdOrName(input),
+		AddItemToGameWorldAction = item => item.Gameworld.Add((IAttributeDefinition)item),
+		CastToType = typeof(IAttributeDefinition),
+		EditableNewAction = (actor, input) =>
+		{
+			var simple = true;
+			switch (input.PopForSwitch())
+			{
+				case "simple":
+					break;
+				case "derived":
+					simple = false;
+					break;
+				default:
+					actor.OutputHandler.Send("You must specify #3simple#0 or #3derived#0 for your attribute type.");
+					return;
+			}
+
+			if (input.IsFinished)
+			{
+				actor.OutputHandler.Send("You must specify a name for your attribute.");
+				return;
+			}
+
+			var name = input.PopSpeech().TitleCase();
+			if (actor.Gameworld.Traits.OfType<IAttributeDefinition>().Any(x => x.Name.EqualTo(name)))
+			{
+				actor.OutputHandler.Send(
+					$"There is already an attribute called {name.ColourName()}. Names must be unique.");
+				return;
+			}
+
+			if (input.IsFinished)
+			{
+				actor.OutputHandler.Send("You must specify an alias for your attribute.");
+				return;
+			}
+
+			var alias = input.PopSpeech().TitleCase();
+			if (actor.Gameworld.Traits.OfType<IAttributeDefinition>().Any(x => x.Alias.EqualTo(alias)))
+			{
+				actor.OutputHandler.Send(
+					$"There is already an attribute with an alias of {alias.ColourName()}. Aliases must be unique.");
+				return;
+			}
+
+			var attribute = simple ? (IAttributeDefinition)new AttributeDefinition(actor.Gameworld, name, alias) : new DerivedAttributeDefinition(actor.Gameworld, name, alias);
+			actor.Gameworld.Add(attribute);
+			actor.RemoveAllEffects<BuilderEditingEffect<IAttributeDefinition>>();
+			actor.AddEffect(new BuilderEditingEffect<IAttributeDefinition>(actor) { EditingItem = attribute });
+			actor.OutputHandler.Send($"You create a new attribute called {name.ColourName()} ({alias.ColourValue()}), which you are now editing.");
+		},
+		EditableCloneAction = (actor, input) =>
+		{
+			if (input.IsFinished)
+			{
+				actor.OutputHandler.Send("Which attribute would you like to clone?");
+				return;
+			}
+
+			var target = actor.Gameworld.Traits.OfType<IAttributeDefinition>().GetByIdOrName(input.PopSpeech());
+			if (target is null)
+			{
+				actor.OutputHandler.Send("There is no such attribute to clone.");
+				return;
+			}
+
+			if (input.IsFinished)
+			{
+				actor.OutputHandler.Send("You must specify a name for your attribute.");
+				return;
+			}
+
+			var name = input.PopSpeech().TitleCase();
+			if (actor.Gameworld.Traits.OfType<IAttributeDefinition>().Any(x => x.Name.EqualTo(name)))
+			{
+				actor.OutputHandler.Send(
+					$"There is already an attribute called {name.ColourName()}. Names must be unique.");
+				return;
+			}
+
+			if (input.IsFinished)
+			{
+				actor.OutputHandler.Send("You must specify an alias for your attribute.");
+				return;
+			}
+
+			var alias = input.PopSpeech().TitleCase();
+			if (actor.Gameworld.Traits.OfType<IAttributeDefinition>().Any(x => x.Alias.EqualTo(alias)))
+			{
+				actor.OutputHandler.Send(
+					$"There is already an attribute with an alias of {alias.ColourName()}. Aliases must be unique.");
+				return;
+			}
+
+			var clone = target.Clone(name, alias);
+			actor.Gameworld.Add(clone);
+			actor.RemoveAllEffects<BuilderEditingEffect<IAttributeDefinition>>();
+			actor.AddEffect(new BuilderEditingEffect<IAttributeDefinition>(actor) { EditingItem = clone });
+			actor.OutputHandler.Send($"You clone the attribute {target.Name.ColourName()} into a new attribute called {name.ColourName()} ({alias.ColourValue()}), which you are now editing.");
+		},
+
+		GetListTableHeaderFunc = character => new List<string>
+		{
+			"Id",
+			"Name",
+			"Alias",
+			"Group",
+			"Sub",
+			"Score",
+			"Attributes"
+		},
+
+		GetListTableContentsFunc = (character, protos) => from proto in protos.OfType<IAttributeDefinition>()
+		                                                  select new List<string>
+		                                                  {
+			                                                  proto.Id.ToString("N0", character),
+			                                                  proto.Name,
+															  proto.Alias,
+															  proto.Group,
+															  proto.DisplayAsSubAttribute.ToColouredString(),
+															  proto.ShowInScoreCommand.ToColouredString(),
+															  proto.ShowInAttributeCommand.ToColouredString()
+		                                                  },
+
+		CustomSearch = (protos, keyword, gameworld) => protos,
+		GetEditHeader = item => $"Attribute #{item.Id:N0} ({item.Name})",
+		DefaultCommandHelp = BuilderModule.AttributeCommandHelp
 	};
 
 	public static EditableItemHelper NPCSpawnerHelper { get; } = new()

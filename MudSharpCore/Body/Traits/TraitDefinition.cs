@@ -4,6 +4,7 @@ using System.Globalization;
 using System.Linq;
 using MudSharp.Body.Traits.Decorators;
 using MudSharp.Body.Traits.Subtypes;
+using MudSharp.Character;
 using MudSharp.CharacterCreation;
 using MudSharp.CharacterCreation.Resources;
 using MudSharp.Database;
@@ -40,7 +41,7 @@ public abstract class TraitDefinition : SaveableItem, ITraitDefinition
 	public abstract TraitType TraitType { get; }
 	public virtual double MaxValue => _maxValue;
 
-	public virtual string MaxValueString => _maxValue.ToString(CultureInfo.InvariantCulture);
+	public virtual string MaxValueString => _maxValue.ToString(System.Globalization.CultureInfo.InvariantCulture);
 
 	public bool Hidden { get; protected set; }
 
@@ -130,6 +131,127 @@ public abstract class TraitDefinition : SaveableItem, ITraitDefinition
 
 	public virtual IEnumerable<(IChargenResource resource, int cost)> ResourceCosts =>
 		Enumerable.Empty<(IChargenResource, int)>();
+
+	public abstract string Show(ICharacter actor);
+
+	public string HelpText => @$"You can use the following options with this command:
+
+	#3name <name>#0 - change the name
+	#3group <which>#0 - sets the group
+	#3decorator <which>#0 - sets the trait decorator
+	#3hidden#0 - toggles whether or not this trait is hidden
+	{SubtypeHelpText}";
+
+	protected abstract string SubtypeHelpText { get; }
+
+	public virtual bool BuildingCommand(ICharacter actor, StringStack command)
+	{
+		switch (command.PopForSwitch())
+		{
+			case "name":
+				return BuildingCommandName(actor, command);
+			case "group":
+				return BuildingCommandGroup(actor, command);
+			case "decorator":
+			case "describer":
+			case "describe":
+			case "decorate":
+				return BuildingCommandDecorator(actor, command);
+			case "hidden":
+				return BuildingCommandHidden(actor, command);
+			default:
+				actor.OutputHandler.Send(HelpText.SubstituteANSIColour());
+				return false;
+		}
+	}
+
+	private bool BuildingCommandName(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("What do you want to rename the trait?");
+			return false;
+		}
+
+		var name = command.PopSpeech().ToLowerInvariant().TitleCase();
+		if (this is ISkillDefinition)
+		{
+			if (Gameworld.Traits.Any(x => x.TraitType == TraitType.Skill && x.Name.EqualTo(name)))
+			{
+				actor.OutputHandler.Send("There is already a skill with that name. Names must be unique.");
+				return false;
+			}
+		}
+		else
+		{
+			if (Gameworld.Traits.Any(x => x.TraitType == TraitType.Attribute && x.Name.EqualTo(name)))
+			{
+				actor.OutputHandler.Send("There is already an attribute with that name. Names must be unique.");
+				return false;
+			}
+		}
+		
+		actor.OutputHandler.Send($"You rename the trait {Name.ColourName()} to {name.ColourName()}.");
+		_name = name;
+		Changed = true;
+		return true;
+	}
+
+	private bool BuildingCommandHidden(ICharacter actor, StringStack command)
+	{
+		Hidden = !Hidden;
+		Changed = true;
+		actor.OutputHandler.Send($"This trait is {(Hidden ? "now" : "no longer")} hidden.");
+		return true;
+	}
+	private bool BuildingCommandDecorator(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("Which trait decorator do you want to use for the trait?");
+			return false;
+		}
+
+		var decorator = long.TryParse(command.SafeRemainingArgument, out var value)
+			? Gameworld.TraitDecorators.Get(value)
+			: Gameworld.TraitDecorators.GetByName(command.SafeRemainingArgument);
+		if (decorator == null)
+		{
+			actor.OutputHandler.Send("There is no such trait decorator.");
+			return false;
+		}
+
+		Decorator = decorator;
+		Changed = true;
+		actor.OutputHandler.Send(
+			$"This trait will now use the {decorator.Name.TitleCase().ColourValue()} trait decorator.");
+		return true;
+	}
+
+	private bool BuildingCommandGroup(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			if (this is ISkillDefinition)
+			{
+				actor.OutputHandler.Send(
+					$"Which group do you want this trait to belong to?\nExisting skills use the following groups: {Gameworld.Traits.OfType<ISkillDefinition>().Select(x => x.Group).Distinct().Select(x => x.TitleCase().ColourValue()).ListToString()}");
+			}
+			else
+			{
+				actor.OutputHandler.Send(
+					$"Which group do you want this trait to belong to?\nExisting attributes use the following groups: {Gameworld.Traits.OfType<IAttributeDefinition>().Select(x => x.Group).Distinct().Select(x => x.TitleCase().ColourValue()).ListToString()}");
+			}
+			
+			return false;
+		}
+
+		Group = command.SafeRemainingArgument.ToLowerInvariant().TitleCase();
+		Changed = true;
+		actor.OutputHandler.Send($"The {Name.ColourName()} trait now belongs to the {Group.ColourValue()} group.");
+		return true;
+	}
+
 
 	#endregion
 

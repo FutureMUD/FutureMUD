@@ -3,6 +3,7 @@ using MudSharp.Body.Traits.Decorators;
 using MudSharp.CharacterCreation;
 using MudSharp.CharacterCreation.Resources;
 using MudSharp.Framework;
+using MudSharp.Framework.Revision;
 using MudSharp.FutureProg;
 
 namespace MudSharp.Body.Traits {
@@ -14,7 +15,7 @@ namespace MudSharp.Body.Traits {
         TheoreticalSkill = 4
     }
 
-    public interface ITraitDefinition : IFrameworkItem, IHaveFuturemud, IFutureProgVariable {
+    public interface ITraitDefinition : IEditableItem, IFutureProgVariable {
         /// <summary>
         ///     The group to which this Trait belongs, within its Type. For example, Attributes may have "Physical", "Mental", etc.
         /// </summary>

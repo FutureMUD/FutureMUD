@@ -11,6 +11,8 @@ public abstract class DerivedTraitDefinition : TraitDefinition
 	{
 	}
 
+	protected DerivedTraitDefinition(IFuturemud gameworld) : base(gameworld) { }
+
 	public override string MaxValueString => Expression.OriginalFormulaText;
 
 	public ITraitExpression Expression { get; protected set; }

@@ -95,7 +95,7 @@ public class DerivedSkillDefinition : DerivedTraitDefinition, ISkillDefinition
 
 	public IFutureProg TeachableProg { get; set; }
 
-	public string Show(ICharacter voyeur)
+	public override string Show(ICharacter voyeur)
 	{
 		var sb = new StringBuilder();
 		sb.AppendLine($"Skill Definition #{Id.ToString("N0", voyeur)} - {Name.ColourName()}");
@@ -141,18 +141,21 @@ public class DerivedSkillDefinition : DerivedTraitDefinition, ISkillDefinition
 	public Difficulty TeachDifficulty { get; set; }
 	public Difficulty LearnDifficulty { get; set; }
 
-	public bool BuildingCommand(ICharacter actor, StringStack command)
+	protected override string SubtypeHelpText => @"#3branch <multiplier%>#0 - sets the branch multiplier for a skill
+	#3chargen <prog>#0 - sets a prog to determine chargen availability
+	#3teachable <prog>#0 - sets a prog to determine teachability
+	#3learnable <prog>#0 - sets a prog to determine learnability
+	#3teach <difficulty>#0 - sets the difficulty of teaching the skill
+	#3learn <difficulty>#0 - sets the difficulty of learning the skill
+	#3improver <which>#0 - sets the trait improver
+	#3expression <expression>#0 - changes the cap expression for a skill
+
+Note: Most often you will want to use the #3TRAITEXPRESSION#0 command to edit the existing trait expression rather than changing to a new one";
+
+	public override bool BuildingCommand(ICharacter actor, StringStack command)
 	{
 		switch (command.PopSpeech().ToLowerInvariant())
 		{
-			case "name":
-				return BuildingCommandName(actor, command);
-			case "group":
-				return BuildingCommandGroup(actor, command);
-			case "decorator":
-				return BuildingCommandDecorator(actor, command);
-			case "hidden":
-				return BuildingCommandHidden(actor, command);
 			case "branch":
 				return BuildingCommandBranch(actor, command);
 			case "chargen":
@@ -167,40 +170,7 @@ public class DerivedSkillDefinition : DerivedTraitDefinition, ISkillDefinition
 				return BuildingCommandLearn(actor, command);
 		}
 
-		actor.OutputHandler.Send(@"You can use the following options with the set command:
-
-    skill set name <name> - edits the name of a skill
-    skill set describer <which> - sets the skill describer for a skill
-    skill set group <group> - sets the skill group for a skill
-    skill set branch <multiplier%> - sets the branch multiplier for a skill
-    skill set chargen <prog> - sets a prog to determine chargen availability
-    skill set teachable <prog> - sets a prog to determine teachability
-    skill set learnable <prog> - sets a prog to determine learnability
-    skill set teach <difficulty> - sets the difficulty of teaching the skill
-    skill set learn <difficulty> - sets the difficulty of learning the skill
-    skill set hidden - toggles this being a hidden skill");
-		return false;
-	}
-
-	private bool BuildingCommandName(ICharacter actor, StringStack command)
-	{
-		if (command.IsFinished)
-		{
-			actor.OutputHandler.Send("What do you want to rename the skill?");
-			return false;
-		}
-
-		var name = command.PopSpeech().ToLowerInvariant().TitleCase();
-		if (Gameworld.Traits.Any(x => x.TraitType == TraitType.Skill && x.Name.EqualTo(name)))
-		{
-			actor.OutputHandler.Send("There is already a skill with that name. Names must be unique.");
-			return false;
-		}
-
-		actor.OutputHandler.Send($"You rename the skill {Name.ColourName()} to {name.ColourName()}.");
-		_name = name;
-		Changed = true;
-		return true;
+		return base.BuildingCommand(actor, command.GetUndo());
 	}
 
 	private bool BuildingCommandLearn(ICharacter actor, StringStack command)
@@ -364,14 +334,6 @@ public class DerivedSkillDefinition : DerivedTraitDefinition, ISkillDefinition
 		return true;
 	}
 
-	private bool BuildingCommandHidden(ICharacter actor, StringStack command)
-	{
-		Hidden = !Hidden;
-		Changed = true;
-		actor.OutputHandler.Send($"This skill is {(Hidden ? "now" : "no longer")} hidden.");
-		return true;
-	}
-
 	private bool BuildingCommandBranch(ICharacter actor, StringStack command)
 	{
 		if (command.IsFinished)
@@ -391,45 +353,6 @@ public class DerivedSkillDefinition : DerivedTraitDefinition, ISkillDefinition
 		Changed = true;
 		actor.OutputHandler.Send(
 			$"This skill is now {value.ToString("P2", actor).ColourValue()} as likely to branch relative to the base chance.");
-		return true;
-	}
-
-	private bool BuildingCommandDecorator(ICharacter actor, StringStack command)
-	{
-		if (command.IsFinished)
-		{
-			actor.OutputHandler.Send("Which trait decorator do you want to use for the skill?");
-			return false;
-		}
-
-		var decorator = long.TryParse(command.SafeRemainingArgument, out var value)
-			? Gameworld.TraitDecorators.Get(value)
-			: Gameworld.TraitDecorators.GetByName(command.SafeRemainingArgument);
-		if (decorator == null)
-		{
-			actor.OutputHandler.Send("There is no such trait decorator.");
-			return false;
-		}
-
-		Decorator = decorator;
-		Changed = true;
-		actor.OutputHandler.Send(
-			$"This skill will now use the {decorator.Name.TitleCase().ColourValue()} trait decorator.");
-		return true;
-	}
-
-	private bool BuildingCommandGroup(ICharacter actor, StringStack command)
-	{
-		if (command.IsFinished)
-		{
-			actor.OutputHandler.Send(
-				$"Which group do you want this skill to belong to? Existing skills use the following groups: {Gameworld.Traits.OfType<ISkillDefinition>().Select(x => x.Group).Distinct().Select(x => x.TitleCase().ColourValue()).ListToString()}");
-			return false;
-		}
-
-		Group = command.SafeRemainingArgument.ToLowerInvariant().TitleCase();
-		Changed = true;
-		actor.OutputHandler.Send($"The {Name.ColourName()} skill now belongs to the {Group.ColourValue()} group.");
 		return true;
 	}
 

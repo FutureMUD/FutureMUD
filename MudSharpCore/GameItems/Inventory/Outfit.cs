@@ -187,7 +187,17 @@ public class Outfit : IOutfit
 				return BuildingCommandSwap(builder, command);
 			default:
 				builder.OutputHandler.Send(
-					"That is not a valid option. Valid options are NAME, DESCRIPTION, EXCLUSIVITY, ADD, ADDWORN, REMOVE, CONTAINER, SWAP.");
+					@"You can use the following options with this command:
+
+	#3name <name>#0 - renames this outfit
+	#3description <desc>#0 - sets a description for the outfit
+	#3exclusivity all|below|none#0 - sets the exclusivity option for the outfit
+	#3add <item> [<wearprofile>] [*<container>]#0 - adds an item to the outfit (with optional container/wear profile)
+	#3addworn [<container>]#0 - adds all your worn items to the outfit (with optional container)
+	#3remove <item>#0 - removes an item from the outfit
+	#3container <item> <container>#0 - changes the preferred container for an item
+	#3container <item> clear#0 - clears a container preference for an item
+	#3swap <item1> <item2>#0 - swaps the outfit order of two items".SubstituteANSIColour());
 				return false;
 		}
 	}
@@ -248,7 +258,7 @@ public class Outfit : IOutfit
 			return false;
 		}
 
-		var name = command.SafeRemainingArgument;
+		var name = command.SafeRemainingArgument.TitleCase();
 		if (Owner.Outfits.Except(this).Any(x => x.Name.EqualTo(name)))
 		{
 			builder.OutputHandler.Send(
@@ -270,7 +280,7 @@ public class Outfit : IOutfit
 			return false;
 		}
 
-		Description = command.SafeRemainingArgument;
+		Description = command.SafeRemainingArgument.ProperSentences();
 		builder.OutputHandler.Send(
 			$"You change the description of outfit {_name.Colour(Telnet.Cyan)} to: {_description.Colour(Telnet.Yellow)}.");
 		Owner.OutfitsChanged = true;

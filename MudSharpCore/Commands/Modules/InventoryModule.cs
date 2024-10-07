@@ -8,6 +8,7 @@ using MudSharp.Body;
 using MudSharp.Character;
 using MudSharp.Effects.Concrete;
 using MudSharp.Framework;
+using MudSharp.FutureProg.Statements;
 using MudSharp.GameItems;
 using MudSharp.GameItems.Interfaces;
 using MudSharp.GameItems.Inventory;
@@ -93,6 +94,13 @@ internal class InventoryModule : Module<ICharacter>
 
 	[PlayerCommand("Swap", "swap")]
 	[RequiredCharacterState(CharacterState.Able)]
+
+	[HelpInfo("swap", @"The #3swap#0 command allows you to swap items you are holding in your hands.
+
+The syntax is either: 
+
+	#3swap#0 to swap between your two hands, or 
+	#3swap <item1> <item2>#0 if you have more than two hands and need to swap.", AutoHelp.HelpArg)]
 	protected static void Swap(ICharacter actor, string input)
 	{
 		var ss = new StringStack(input.RemoveFirstWord());
@@ -119,14 +127,14 @@ internal class InventoryModule : Module<ICharacter>
 			return;
 		}
 
-		var target = actor.TargetHeldItem(ss.Pop());
+		var target = actor.TargetHeldItem(ss.PopSpeech());
 		if (target == null)
 		{
 			actor.Send("You're not holding anything like that to swap.");
 			return;
 		}
 
-		var targetTwo = actor.TargetHeldItem(ss.Pop());
+		var targetTwo = actor.TargetHeldItem(ss.PopSpeech());
 		if (targetTwo == null && !string.IsNullOrEmpty(ss.Last))
 		{
 			actor.Send($"You don't see anything like that to swap with {target.HowSeen(actor)}.");
@@ -140,6 +148,7 @@ internal class InventoryModule : Module<ICharacter>
 	[RequiredCharacterState(CharacterState.Able)]
 	[NoMovementCommand]
 	[NoMeleeCombatCommand]
+	[HelpInfo("restrain", "The #3restrain#0 command lets you restrain a target character. Syntax: #3restrain <target>#0. You must be close to the target to restrain them.", AutoHelp.HelpArg)]
 	protected static void Restrain(ICharacter actor, string input)
 	{
 		var ss = new StringStack(input.RemoveFirstWord());
@@ -1782,6 +1791,115 @@ internal class InventoryModule : Module<ICharacter>
 			flags: manual2hand ? ItemCanWieldFlags.RequireTwoHands : ItemCanWieldFlags.None);
 	}
 
+	[PlayerCommand("WearAll", "wearall")]
+	[RequiredCharacterState(CharacterState.Conscious)]
+	[HelpInfo("wearall", @"The #3wearall#0 command will try to pick up every item in the same room as you and wear, attach, sheath or put it into your containers until it can't anymore. 
+
+It's usually used to quickly outfit an NPC but PCs can use it too. It makes a reasonable effort to determine the correct order but it may get things wrong.
+
+The syntax is simply #3wearall#0.", AutoHelp.HelpArg)]
+	protected static void WearAll(ICharacter actor, string command)
+	{
+		int ScoreItem(IGameItem item)
+		{
+			if (item.GetItemType<IWearable>() is { } wearable)
+			{
+				if (!actor.Body.CanWear(item))
+				{
+					return 100000;
+				}
+
+				if (item.IsItemType<IBelt>())
+				{
+					return 200;
+				}
+
+				if (wearable.Bulky)
+				{
+					return 100;
+				}
+
+				return 1;
+			}
+
+			if (item.GetItemType<IBeltable>() is { } beltable)
+			{
+				return 300;
+			}
+
+			if (item.GetItemType<IWieldable>() is { } wieldable)
+			{
+				return 400;
+			}
+
+			return 1000;
+		}
+
+		var items = actor.Location
+		                 .LayerGameItems(actor.RoomLayer)
+		                 .Where(x => actor.Location.CanGet(x, actor))
+		                 .Where(x => actor.Body.CanGet(x, 0, ItemCanGetIgnore.IgnoreFreeHands))
+		                 .OrderBy(x => ScoreItem(x))
+		                 .ToList();
+		var any = false;
+		foreach (var item in items)
+		{
+			if (!actor.Body.CanGet(item, 0))
+			{
+				if (!any)
+				{
+					actor.OutputHandler.Send("There were no items that you could get.");
+				}
+
+				return;
+			}
+
+			any = true;
+			actor.Body.Get(item);
+			if (actor.Body.CanWear(item))
+			{
+				actor.Body.Wear(item);
+				continue;
+			}
+
+			if (item.GetItemType<IBeltable>() is { } beltable)
+			{
+				var belt = actor.Body.ExternalItems.SelectNotNull(x => x.GetItemType<IBelt>()).FirstOrDefault(x => x.CanAttachBeltable(beltable) == IBeltCanAttachBeltableResult.Success);
+				if (belt is not null)
+				{
+					actor.Body.Take(item);
+					belt.AddConnectedItem(beltable);
+					item.InInventoryOf?.RecalculateItemHelpers();
+					actor.OutputHandler.Handle(
+						new EmoteOutput(new Emote("@ attach|attaches $0 to $1", actor, item, belt.Parent),
+							flags: OutputFlags.SuppressObscured));
+					continue;
+				}
+			}
+
+			if (item.GetItemType<IWieldable>() is { } wieldable)
+			{
+				var sheath = actor.Body.ExternalItems.SelectNotNull(x => x.GetItemType<ISheath>()).FirstOrDefault(x => actor.Body.CanSheathe(item, x.Parent));
+				if (sheath is not null)
+				{
+					actor.Body.Sheathe(item, sheath.Parent);
+					continue;
+				}
+			}
+
+			var containers = actor.Body.ExternalItems.SelectNotNull(x => x.GetItemType<IContainer>()).ToList();
+			foreach (var container in containers)
+			{
+				if (actor.Body.CanPut(item, container.Parent, actor, 0, true))
+				{
+					actor.Body.Put(item, container.Parent, actor);
+					continue;
+				}
+			}
+		}
+	}
+
+	#region Strip
 	[PlayerCommand("Strip", "strip")]
 	[RequiredCharacterState(CharacterState.Able)]
 	[NoMeleeCombatCommand]
@@ -2340,17 +2458,42 @@ The possible syntaxes for this command are:
 			)), TimeSpan.FromSeconds(120));
 		}
 	}
+	#endregion
+
+	#region Outfit
+	public const string OutfitHelpText = @"The outfit command is used to create, edit, view and manage outfits, which are collections of worn items. 
+
+Outfits are specific to a character, but can be taught to other characters as well. 
+
+The valid syntaxes are:
+
+	#3outfit edit <outfit>#0 - opens an outfit for editing
+	#3outfit edit new <name>#0 - creates a new outfit for editing
+	#3outfit close#0 - closes an open outfit
+	#3outfit delete#0 - deletes the open outfit
+	#3outfit show#0 - shows the open outfit
+	#3outfit show <name>#0 - shows the named outfit
+	#3outfit clone <newname>#0 - clones the open outfit to a new outfit
+	#3outfit teach <outfit> <person>#0 - teaches the named outfit to someone else
+	#3outfit wear <name>#0 - wears the specified outfit
+	#3outfit remove <name>#0 - removes the specified outfit
+	#3outfit set name <name>#0 - renames this outfit
+	#3outfit set description <desc>#0 - sets a description for the outfit
+	#3outfit set exclusivity all|below|none#0 - sets the exclusivity option for the outfit
+	#3outfit set add <item> [<wearprofile>] [*<container>]#0 - adds an item to the outfit (with optional container/wear profile)
+	#3outfit set addworn [<container>]#0 - adds all your worn items to the outfit (with optional container)
+	#3outfit set remove <item>#0 - removes an item from the outfit
+	#3outfit set container <item> <container>#0 - changes the preferred container for an item
+	#3outfit set container <item> clear#0 - clears a container preference for an item
+	#3outfit set swap <item1> <item2>#0 - swaps the outfit order of two items";
 
 	[PlayerCommand("Outfit", "outfit")]
 	[RequiredCharacterState(CharacterState.Able)]
 	[NoCombatCommand]
 	[NoMovementCommand]
-	[HelpInfo("outfit",
-		"The outfit command is used to create, edit, view and manage outfits, which are collections of worn items. Outfits are specific to a character, but can be taught to other characters as well. The valid syntaxes are:\n\n\tOUTFIT EDIT <outfit> - opens an outfit for editing\n\tOUTFIT EDIT NEW <name> - creates a new outfit for editing\n\tOUTFIT CLOSE - closes an open outfit\n\tOUTFIT DELETE - deletes the open outfit\n\tOUTFIT SHOW - shows the open outfit\n\tOUTFIT SHOW <name> - shows the named outfit\n\tOUTFIT SET <parameters> - See OUTFIT SET HELP for more info\n\tOUTFIT CLONE <newname> - clones the open outfit to a new outfit\n\tOUTFIT TEACH <outfit> <person> - teaches the named outfit to someone else\n\tOUTFIT WEAR <name> - wears the specified outfit\n\tOUTFIT REMOVE <name> - removes the specified outfit ",
-		AutoHelp.HelpArgOrNoArg)]
+	[HelpInfo("outfit", OutfitHelpText, AutoHelp.HelpArgOrNoArg)]
 	protected static void Outfit(ICharacter actor, string command)
 	{
-		// TODO - finish help command
 		var ss = new StringStack(command.RemoveFirstWord());
 		switch (ss.PopSpeech().ToLowerInvariant())
 		{
@@ -2385,8 +2528,7 @@ The possible syntaxes for this command are:
 				OutfitClone(actor, ss);
 				return;
 			default:
-				actor.OutputHandler.Send(
-					$"That is not a valid option for use with this command. Please see {"OUTFIT HELP".FluentTagMXP("send", "href='outfit help' hint='Show the helpfile for outfit'")} for more info.");
+				actor.OutputHandler.Send(OutfitHelpText.SubstituteANSIColour());
 				return;
 		}
 	}
@@ -2810,4 +2952,5 @@ The possible syntaxes for this command are:
 	{
 		OutfitList(actor, new StringStack(command.RemoveFirstWord()));
 	}
+	#endregion
 }

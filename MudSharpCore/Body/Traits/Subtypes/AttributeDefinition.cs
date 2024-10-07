@@ -186,6 +186,7 @@ public class AttributeDefinition : TraitDefinition, IAttributeDefinition
 			case "desc":
 			case "chargendesc":
 			case "chargendescription":
+			case "blurb":
 				return BuildingCommandChargenDescription(actor, command);
 			case "score":
 				return BuildingCommandScore(actor);

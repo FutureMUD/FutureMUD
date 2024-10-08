@@ -1665,6 +1665,7 @@ There are several different ways you can use this command, as per below:
 	#3goto <roomnumber>#0 - Go to a particular room identified by number
 	#3goto <character name>#0 - Go to the location of a particular named character
 	#3goto <character keywords>#0 - Go to the location of a character by keywords
+	#3goto #<room keywords>#0 - Override for room descriptions when there is a clash with a character
 	#3goto @<number>#0 - Go to a recently created room. See below for explanation:
 
 #6For example, @1 is the most recently created new room, @2 is the 2nd most recently created room etc.
@@ -1673,21 +1674,30 @@ This command is useful when you write-up a bunch of room creation commands in a 
 		AutoHelp.HelpArgOrNoArg)]
 	protected static void Goto(ICharacter actor, string input)
 	{
+		var ss = new StringStack(input.RemoveFirstWord());
+		var cmd = ss.SafeRemainingArgument;
 		var destinationLayer = actor.RoomLayer;
-		var destination = RoomBuilderModule.LookupCell(actor.Gameworld, input.RemoveFirstWord());
-		if (destination == null)
+		var target = actor.Gameworld.Actors
+		                  .Where(x => !x.State.HasFlag(CharacterState.Dead))
+		                  .GetFromItemListByKeywordIncludingNames(cmd, actor);
+		ICell destination;
+		if (target is null)
 		{
-			var ss = new StringStack(input.RemoveFirstWord());
-			var cmd = ss.SafeRemainingArgument;
-			var target = actor.Gameworld.Actors.Where(x => !x.State.HasFlag(CharacterState.Dead))
-							  .GetFromItemListByKeywordIncludingNames(cmd, actor);
-
-			if (target == null)
+			if (cmd.Length > 1 && cmd[0] == '#')
 			{
+				cmd = cmd.Substring(1);
+			}
+
+			destination = RoomBuilderModule.LookupCell(actor.Gameworld, cmd);
+			if (destination == null)
+			{
+
 				actor.OutputHandler.Send("There are no locations and no-one with that name or keyword to go to.");
 				return;
 			}
-
+		}
+		else
+		{
 			destination = target.Location;
 			destinationLayer = target.RoomLayer;
 		}

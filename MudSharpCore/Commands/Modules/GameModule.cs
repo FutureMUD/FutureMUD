@@ -538,7 +538,7 @@ For a full list of combat flags, see #3SHOW COMBATFLAGS#0", AutoHelp.HelpArg)]
 			guestCount > 0
 				? $"\nThere are {guestCount} guest{(guestCount == 1 ? "" : "s")} in the guest lounge."
 				: ""
-		).Wrap(actor.InnerLineFormatLength));
+		).SubstituteANSIColour().Wrap(actor.InnerLineFormatLength));
 	}
 
 	[PlayerCommand("Petition", "petition")]

@@ -518,7 +518,7 @@ You can also use the following options to change the properties of an authority 
 	protected static void ShowPatrols(ICharacter actor, string command)
 	{
 		var ss = new StringStack(command.RemoveFirstWord());
-		var patrols = actor.Gameworld.LegalAuthorities.SelectMany(x => x.Patrols);
+		var legals = actor.Gameworld.LegalAuthorities.ToList();
 		if (!ss.IsFinished)
 		{
 			var legal = actor.Gameworld.LegalAuthorities.GetByIdOrName(ss.SafeRemainingArgument);
@@ -528,38 +528,71 @@ You can also use the following options to change the properties of an authority 
 				return;
 			}
 
-			patrols = patrols.Where(x => x.LegalAuthority == legal);
+			legals.Clear();
+			legals.Add(legal);
 		}
 
 		var sb = new StringBuilder();
-		foreach (var patrol in patrols)
+		foreach (var legal in legals)
 		{
 			if (sb.Length > 0)
 			{
 				sb.AppendLine();
 			}
-
-			sb.AppendLine(
-				$"Patrol \"{patrol.PatrolRoute.Name}\" (#{patrol.Id.ToString("N0", actor)}) in {patrol.LegalAuthority.Name}"
-					.GetLineWithTitle(actor.LineFormatLength, actor.Account.UseUnicode, Telnet.BoldBlue,
-						Telnet.BoldWhite));
+			sb.AppendLine($"Patrol Information for {legal.Name} Authority".GetLineWithTitleInner(actor, Telnet.BoldBlue, Telnet.BoldWhite));
 			sb.AppendLine();
-			sb.AppendLine($"Phase: {patrol.PatrolPhase.DescribeEnum().ColourValue()}");
-			sb.AppendLine($"Strategy: {patrol.PatrolStrategy.Name.ColourValue()}");
-			sb.AppendLine($"Leader: {patrol.PatrolLeader?.HowSeen(actor) ?? "Noone".ColourCharacter()}");
-			sb.AppendLine($"Origin: {patrol.OriginLocation.HowSeen(actor)}");
-			sb.AppendLine(
-				$"Leader Location: {patrol.PatrolLeader?.Location.HowSeen(actor) ?? "Nowhere".Colour(Telnet.Red)}");
-			sb.AppendLine($"Last Node: {patrol.LastMajorNode?.HowSeen(actor) ?? "None".Colour(Telnet.Red)}");
-			sb.AppendLine($"Next Node: {patrol.NextMajorNode?.HowSeen(actor) ?? "None".Colour(Telnet.Red)}");
-			sb.AppendLine(
-				$"Last Arrived: {(DateTime.UtcNow - patrol.LastArrivedTime).Humanize(2, actor.Account.Culture, minUnit: Humanizer.Localisation.TimeUnit.Second).ColourValue()}");
-			sb.AppendLine(
-				$"Active Target: {patrol.ActiveEnforcementTarget?.HowSeen(actor) ?? "Noone".ColourCharacter()}");
-			sb.AppendLine(
-				$"Active Crime: {patrol.ActiveEnforcementCrime?.DescribeCrime(actor).ColourValue() ?? "Nothing".Colour(Telnet.Red)}");
-		}
+			var enforcers =
+			actor.Gameworld.NPCs
+						  .Where(x =>
+							  x.AffectedBy<EnforcerEffect>(legal))
+						  .ToList();
+			var freeEnforcers = enforcers.Where(x => legal.Patrols.All(y => !y.PatrolMembers.Contains(x))).ToList();
+			var enforcerCounts = new CollectionDictionary<IEnforcementAuthority, ICharacter>();
+			foreach (var group in freeEnforcers.GroupBy(x => legal.GetEnforcementAuthority(x)))
+			{
+				enforcerCounts.AddRange(group.Key, group);
+			}
 
+			sb.AppendLine($"Total Enforcers: {enforcers.Count.ToStringN0Colour(actor)}");
+			sb.AppendLine($"Free Enforcers: {freeEnforcers.Count.ToStringN0Colour(actor)}");
+			sb.AppendLine($"Enforcer Counts: {enforcerCounts.Select(x => $"{x.Value.Count.ToStringN0(actor)} {x.Key.Name.Pluralise(x.Value.Count != 1).ColourName()}").ListToString()}");
+			var patrols = legal.Patrols;
+			var inactivePatrols = legal.PatrolRoutes.Where(x => patrols.All(y => y.PatrolRoute != x)).ToList();
+			foreach (var patrol in patrols)
+			{
+				sb.AppendLine();
+				sb.AppendLine(
+					$"Patrol \"{patrol.PatrolRoute.Name}\" (#{patrol.Id.ToString("N0", actor)})".GetLineWithTitleInner(actor, Telnet.BoldBlue, Telnet.BoldWhite));
+				sb.AppendLine();
+				sb.AppendLine($"Phase: {patrol.PatrolPhase.DescribeEnum().ColourValue()}");
+				sb.AppendLine($"Strategy: {patrol.PatrolStrategy.Name.ColourValue()}");
+				sb.AppendLine($"Leader: {patrol.PatrolLeader?.HowSeen(actor) ?? "Noone".ColourCharacter()}");
+				sb.AppendLine($"Members: {patrol.PatrolMembers.Select(x => x.HowSeen(actor)).ListToString()}");
+				sb.AppendLine($"Origin: {patrol.OriginLocation.HowSeen(actor)}");
+				sb.AppendLine(
+					$"Leader Location: {patrol.PatrolLeader?.Location.HowSeen(actor) ?? "Nowhere".Colour(Telnet.Red)}");
+				sb.AppendLine($"Last Node: {patrol.LastMajorNode?.HowSeen(actor) ?? "None".Colour(Telnet.Red)}");
+				sb.AppendLine($"Next Node: {patrol.NextMajorNode?.HowSeen(actor) ?? "None".Colour(Telnet.Red)}");
+				sb.AppendLine(
+					$"Last Arrived: {(DateTime.UtcNow - patrol.LastArrivedTime).Humanize(2, actor.Account.Culture, minUnit: Humanizer.Localisation.TimeUnit.Second).ColourValue()}");
+				sb.AppendLine(
+					$"Active Target: {patrol.ActiveEnforcementTarget?.HowSeen(actor) ?? "Noone".ColourCharacter()}");
+				sb.AppendLine(
+					$"Active Crime: {patrol.ActiveEnforcementCrime?.DescribeCrime(actor).ColourValue() ?? "Nothing".Colour(Telnet.Red)}");
+			}
+
+			foreach (var patrol in inactivePatrols)
+			{
+				sb.AppendLine();
+				sb.AppendLine($"Inactive Patrol Route \"{patrol.Name}\" (#{patrol.Id.ToStringN0(actor)})".GetLineWithTitleInner(actor, Telnet.Magenta, Telnet.BoldWhite));
+				sb.AppendLine();
+				sb.AppendLine($"Strategy: {patrol.PatrolStrategy.Name.ColourValue()}");
+				sb.AppendLine($"Required Enforcers: {patrol.PatrollerNumbers.Select(x => $"{x.Value.ToStringN0(actor)} {x.Key.Name.Pluralise(x.Value != 1).ColourName()}").ListToString()}");
+				sb.AppendLine($"Is Ready: {patrol.IsReady.ToColouredString()}");
+				sb.AppendLine($"Should Begin: {patrol.ShouldBeginPatrol().ToColouredString()}");
+			}
+		}
+		
 		actor.OutputHandler.Send(sb.ToString());
 	}
 }

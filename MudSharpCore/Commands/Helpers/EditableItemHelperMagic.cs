@@ -139,15 +139,46 @@ public partial class EditableItemHelper
 
 The core syntax is as follows:
 
-	magic spell list - shows all magic spells
-	magic spell edit new <name> <school> - creates a new magic spell
-	magic spell clone <old> <new> - clones an existing magic spell
-	magic spell edit <which> - begins editing a magic spell
-	magic spell close - closes an editing magic spell
-	magic spell show <which> - shows builder information about a spell
-	magic spell show - shows builder information about the currently edited spell
-	magic spell edit - an alias for magic spell show (with no args)
-	magic spell set <...> - edits the properties of a magic spell",
+	#3magic spell list#0 - shows all magic spells
+	#3magic spell edit new <name> <school>#0 - creates a new magic spell
+	#3magic spell clone <old> <new>#0 - clones an existing magic spell
+	#3magic spell edit <which>#0 - begins editing a magic spell
+	#3magic spell close#0 - closes an editing magic spell
+	#3magic spell show <which>#0 - shows builder information about a spell
+	#3magic spell show#0 - shows builder information about the currently edited spell
+	#3magic spell edit#0 - an alias for magic spell show (with no args)
+	#3magic spell set name <name>#0 - renames this spell
+	#3magic spell set blurb <text>#0 - the summary text that appears in the SPELLS output
+	#3magic spell set description#0 - drops you into an editor for a more detailed description
+	#3magic spell set school <school>#0 - changes the school of this spell
+	#3magic spell set prog <prog>#0 - sets the prog that controls a character knowing the spell
+	#3magic spell set exclusivedelay <seconds>#0 - sets the post-cast lockout of all spells
+	#3magic spell set nonexclusivedelay <seconds>#0 - sets the post-cast lockout of same school spells
+	#3magic spell set trigger new <type> [...]#0 - changes the trigger for the spell to a new type
+	#3magic spell set trigger set ...#0 - changes properties of the trigger. See individual trigger help.
+	#3magic spell set effect add <type> [...]#0 - adds a new effect to the spell
+	#3magic spell set effect remove <##>#0 - removes an effect from the spell
+	#3magic spell set effect <##> ...#0 - changes the properties of a spell effect
+	#3magic spell set castereffect add <type> [...]#0 - adds a new caster-only effect to the spell
+	#3magic spell set castereffect remove <##>#0 - removes a caster-only effect from the spell
+	#3magic spell set castereffect <##> ...#0 - changes the properties of a caster-only spell effect
+	#3magic spell set material add held|wielded|inroom|consumed|consumedliquid ...#0 - adds a new material requirement to this spell
+	#3magic spell set material delete <#>#0 - deletes a material requirement
+	#3magic spell set cost <resource> <trait expression>#0 - sets the trait expression for casting cost for a resource
+	#3magic spell set cost <resource> remove#0 - removes a casting cost for a resource
+	#3magic spell set castemote <emote>#0 - sets the cast emote. $0 is caster, $1 is target (if any)
+	#3magic spell set targetemote <emote>#0 - sets the target emote. $0 is caster, $1 is target (if any)
+	#3magic spell set failcastemote <emote>#0 - sets the fail cast emote. $0 is caster, $1 is target (if any)
+	#3magic spell set targetresistemote <emote>#0 - sets the target resist emote. $0 is caster, $1 is target (if any)
+	#3magic spell set emoteflags <flags>#0 - changes the output flags for the casting emotes
+	#3magic spell set targetemoteflags <flags>#0 - changes the output flags for the target emotes
+	#3magic spell set trait <skill/attribute>#0 - sets the trait used for casting this spell
+	#3magic spell set difficulty <difficulty>#0 - sets the difficulty of casting this spell
+	#3magic spell set threshold <outcome>#0 - sets the minimum success threshold for casting the spell
+	#3magic spell set resist none#0 - makes this spell not resisted
+	#3magic spell set resist <trait> <difficulty>#0 - makes this spell resisted by a trait check
+	#3magic spell set duration <trait expression>#0 - sets the trait expression that controls effect duration
+	#3magic spell set exclusiveeffect#0 - toggles whether effects are exclusive (and overwrite) or not (and stack)",
 
 		GetEditHeader = item => $"Magic Spell #{item.Id:N0} ({item.Name})"
 	};

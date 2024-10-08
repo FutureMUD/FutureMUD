@@ -248,37 +248,37 @@ public class MagicSpell : SaveableItem, IMagicSpell
 
 	private const string BuildingCommandHelp = @"You can use the following options with this command:
 
-    #3name <name>#0 - renames this spell
-    #3summary <text>#0 - the summary text that appears in the SPELLS output
-    #3description#0 - drops you into an editor for a more detailed description
-    #3school <school>#0 - changes the school of this spell
-    #3prog <prog>#0 - sets the prog that controls a character knowing the spell
-    #3exclusivedelay <seconds>#0 - sets the post-cast lockout of all spells
-    #3nonexclusivedelay <seconds>#0 - sets the post-cast lockout of same school spells
-    #3trigger new <type> [...]#0 - changes the trigger for the spell to a new type
-    #3trigger set ...#0 - changes properties of the trigger. See individual trigger help.
-    #3effect add <type> [...]#0 - adds a new effect to the spell
-    #3effect remove <##>#0 - removes an effect from the spell
-    #3effect <##> ...#0 - changes the properties of a spell effect
+	#3name <name>#0 - renames this spell
+	#3blurb <text>#0 - the summary text that appears in the SPELLS output
+	#3description#0 - drops you into an editor for a more detailed description
+	#3school <school>#0 - changes the school of this spell
+	#3prog <prog>#0 - sets the prog that controls a character knowing the spell
+	#3exclusivedelay <seconds>#0 - sets the post-cast lockout of all spells
+	#3nonexclusivedelay <seconds>#0 - sets the post-cast lockout of same school spells
+	#3trigger new <type> [...]#0 - changes the trigger for the spell to a new type
+	#3trigger set ...#0 - changes properties of the trigger. See individual trigger help.
+	#3effect add <type> [...]#0 - adds a new effect to the spell
+	#3effect remove <##>#0 - removes an effect from the spell
+	#3effect <##> ...#0 - changes the properties of a spell effect
 	#3castereffect add <type> [...]#0 - adds a new caster-only effect to the spell
-    #3castereffect remove <##>#0 - removes a caster-only effect from the spell
-    #3castereffect <##> ...#0 - changes the properties of a caster-only spell effect
-    #3material add held|wielded|inroom|consumed|consumedliquid ...#0 - adds a new material requirement to this spell
-    #3material delete <#>#0 - deletes a material requirement
-    #3cost <resource> <trait expression>#0 - sets the trait expression for casting cost for a resource
-    #3cost <resource> remove#0 - removes a casting cost for a resource
-    #3castemote <emote>#0 - sets the cast emote. $0 is caster, $1 is target (if any)
-    #3targetemote <emote>#0 - sets the target emote. $0 is caster, $1 is target (if any)
-    #3failcastemote <emote>#0 - sets the fail cast emote. $0 is caster, $1 is target (if any)
-    #3targetresistemote <emote>#0 - sets the target resist emote. $0 is caster, $1 is target (if any)
-    #3emoteflags <flags>#0 - changes the output flags for the casting emotes
-    #3targetemoteflags <flags>#0 - changes the output flags for the target emotes
-    #3trait <skill/attribute>#0 - sets the trait used for casting this spell
-    #3difficulty <difficulty>#0 - sets the difficulty of casting this spell
-    #3threshold <outcome>#0 - sets the minimum success threshold for casting the spell
-    #3resist none#0 - makes this spell not resisted
-    #3resist <trait> <difficulty>#0 - makes this spell resisted by a trait check
-    #3duration <trait expression>#0 - sets the trait expression that controls effect duration
+	#3castereffect remove <##>#0 - removes a caster-only effect from the spell
+	#3castereffect <##> ...#0 - changes the properties of a caster-only spell effect
+	#3material add held|wielded|inroom|consumed|consumedliquid ...#0 - adds a new material requirement to this spell
+	#3material delete <#>#0 - deletes a material requirement
+	#3cost <resource> <trait expression>#0 - sets the trait expression for casting cost for a resource
+	#3cost <resource> remove#0 - removes a casting cost for a resource
+	#3castemote <emote>#0 - sets the cast emote. $0 is caster, $1 is target (if any)
+	#3targetemote <emote>#0 - sets the target emote. $0 is caster, $1 is target (if any)
+	#3failcastemote <emote>#0 - sets the fail cast emote. $0 is caster, $1 is target (if any)
+	#3targetresistemote <emote>#0 - sets the target resist emote. $0 is caster, $1 is target (if any)
+	#3emoteflags <flags>#0 - changes the output flags for the casting emotes
+	#3targetemoteflags <flags>#0 - changes the output flags for the target emotes
+	#3trait <skill/attribute>#0 - sets the trait used for casting this spell
+	#3difficulty <difficulty>#0 - sets the difficulty of casting this spell
+	#3threshold <outcome>#0 - sets the minimum success threshold for casting the spell
+	#3resist none#0 - makes this spell not resisted
+	#3resist <trait> <difficulty>#0 - makes this spell resisted by a trait check
+	#3duration <trait expression>#0 - sets the trait expression that controls effect duration
 	#3exclusiveeffect#0 - toggles whether effects are exclusive (and overwrite) or not (and stack)";
 
 	public bool BuildingCommand(ICharacter actor, StringStack command)
@@ -337,7 +337,7 @@ public class MagicSpell : SaveableItem, IMagicSpell
 			case "duration":
 				return BuildingCommandDuration(actor, command);
 			default:
-				actor.OutputHandler.Send(BuildingCommandHelp);
+				actor.OutputHandler.Send(BuildingCommandHelp.SubstituteANSIColour());
 				return false;
 		}
 	}
@@ -464,7 +464,7 @@ public class MagicSpell : SaveableItem, IMagicSpell
 		}
 
 		if (!command.SafeRemainingArgument.TryParseEnum<Outcome>(out var outcome) ||
-		    outcome.In(Outcome.None, Outcome.NotTested))
+			outcome.In(Outcome.None, Outcome.NotTested))
 		{
 			actor.OutputHandler.Send(
 				$"That is not a valid outcome. The valid values are {Enum.GetValues<Outcome>().Except(new List<Outcome> { Outcome.None, Outcome.NotTested }).Select(x => x.DescribeColour()).ListToString()}.");
@@ -1091,8 +1091,8 @@ public class MagicSpell : SaveableItem, IMagicSpell
 		}
 
 		if (!prog.MatchesParameters(new List<FutureProgVariableTypes> { FutureProgVariableTypes.Character }) &&
-		    !prog.MatchesParameters(new List<FutureProgVariableTypes>
-			    { FutureProgVariableTypes.Character, FutureProgVariableTypes.MagicSpell }))
+			!prog.MatchesParameters(new List<FutureProgVariableTypes>
+				{ FutureProgVariableTypes.Character, FutureProgVariableTypes.MagicSpell }))
 		{
 			actor.OutputHandler.Send(
 				$"The prog that you supply must accept a single character parameter, or a character and a spell, whereas {prog.MXPClickableFunctionName()} does not.");
@@ -1155,8 +1155,9 @@ public class MagicSpell : SaveableItem, IMagicSpell
 	public string Show(ICharacter actor)
 	{
 		var sb = new StringBuilder();
-		sb.AppendLine($"Magic Spell #{Id.ToString("N0", actor)} - {Name}");
-		sb.AppendLine($"Summary: {Blurb.ColourCommand()}");
+		sb.AppendLine($"Magic Spell #{Id.ToString("N0", actor)} - {Name}".GetLineWithTitleInner(actor, School.PowerListColour, Telnet.BoldWhite));
+		sb.AppendLine();
+		sb.AppendLine($"Blurb: {Blurb.ColourCommand()}");
 		sb.AppendLine($"School: {School.Name.Colour(School.PowerListColour)}");
 		sb.AppendLine($"Exclusive Delay: {ExclusiveDelay.Describe().ColourValue()}");
 		sb.AppendLine($"Non-Exclusive Delay: {NonExclusiveDelay.Describe().ColourValue()}");
@@ -1167,7 +1168,7 @@ public class MagicSpell : SaveableItem, IMagicSpell
 		sb.AppendLine($"Casting Difficulty: {CastingDifficulty.Describe().ColourValue()}");
 		sb.AppendLine($"Casting Threshold: {MinimumSuccessThreshold.DescribeColour()}");
 		sb.AppendLine($"Resisting Trait: {OpposedTrait?.Name.ColourValue() ?? "None".Colour(Telnet.Red)}");
-		sb.AppendLine($"Resisting Difficulty: {OpposedDifficulty?.Describe().ColourValue() ?? "N/A"}");
+		sb.AppendLine($"Resisting Difficulty: {OpposedDifficulty?.Describe().ColourValue() ?? "N/A".ColourCommand()}");
 		sb.AppendLine();
 		sb.AppendLine($"Casting Emote: {CastingEmote?.ColourCommand() ?? ""}");
 		sb.AppendLine($"Fail Casting Emote: {FailCastingEmote?.ColourCommand() ?? ""}");
@@ -1178,42 +1179,76 @@ public class MagicSpell : SaveableItem, IMagicSpell
 		sb.AppendLine();
 		sb.AppendLine($"Trigger: {Trigger?.Show(actor) ?? "None".Colour(Telnet.Red)}");
 		sb.AppendLine();
-		sb.AppendLine(Description.Wrap(actor.InnerLineFormatLength, "\t"));
+		sb.AppendLine("Description:");
+		sb.AppendLine();
+		sb.AppendLine(Description.SubstituteANSIColour().Wrap(actor.InnerLineFormatLength, "\t"));
 		sb.AppendLine();
 		sb.AppendLine("Effects:");
+		sb.AppendLine();
 		var i = 0;
-		foreach (var effect in SpellEffects)
+		if (SpellEffects.Any())
 		{
-			sb.AppendLine($"\t{(++i).ToString("N0", actor)}) {effect.Show(actor)}");
+			foreach (var effect in SpellEffects)
+			{
+				sb.AppendLine($"\t{(++i).ToString("N0", actor)}) {effect.Show(actor)}");
+			}
+		}
+		else
+		{
+			sb.AppendLine("\tNone");
 		}
 
 		sb.AppendLine();
 		sb.AppendLine("Caster Effects:");
+		sb.AppendLine();
 		i = 0;
-		foreach (var effect in CasterSpellEffects)
+		if (CasterSpellEffects.Any())
 		{
-			sb.AppendLine($"\t{(++i).ToString("N0", actor)}) {effect.Show(actor)}");
+			foreach (var effect in CasterSpellEffects)
+			{
+				sb.AppendLine($"\t{(++i).ToString("N0", actor)}) {effect.Show(actor)}");
+			}
+		}
+		else
+		{
+			sb.AppendLine("\tNone");
 		}
 
 		sb.AppendLine();
 		sb.AppendLine("Casting Costs:");
-		foreach (var (resource, formula) in _castingCosts)
+		sb.AppendLine();
+		if (_castingCosts.Any())
 		{
-			sb.AppendLine($"\t{resource.Name.ColourValue()}: {formula.OriginalFormulaText.ColourCommand()}");
+			foreach (var (resource, formula) in _castingCosts)
+			{
+				sb.AppendLine($"\t{resource.Name.ColourValue()}: {formula.OriginalFormulaText.ColourCommand()}");
+			}
+		}
+		else
+		{
+			sb.AppendLine("\tNone");
 		}
 
 		sb.AppendLine();
 		i = 0;
 		sb.AppendLine("Material Requirements:");
-		foreach (var action in InventoryPlanTemplate.Phases.First().Actions)
+		sb.AppendLine();
+		if (InventoryPlanTemplate.Phases.First().Actions.Any())
 		{
-			sb.AppendLine($"\t{(++i).ToString("N0", actor)}) {action.Describe(actor)}");
+			foreach (var action in InventoryPlanTemplate.Phases.First().Actions)
+			{
+				sb.AppendLine($"\t{(++i).ToString("N0", actor)}) {action.Describe(actor)}");
+			}
+		}
+		else
+		{
+			sb.AppendLine("\tNone");
 		}
 
 		if (!ReadyForGame)
 		{
 			sb.AppendLine();
-			sb.AppendLine($"Building Error: {WhyNotReadyForGame}");
+			sb.AppendLine($"Building Error: {WhyNotReadyForGame.ColourError()}");
 		}
 
 		return sb.ToString();
@@ -1500,7 +1535,7 @@ public class MagicSpell : SaveableItem, IMagicSpell
 			sb.AppendLine();
 			sb.AppendLine("Casting Costs:");
 			foreach (var power in Enum.GetValues<SpellPower>()
-			                          .Where(x => x >= ct.MinimumPower && x <= ct.MaximumPower))
+									  .Where(x => x >= ct.MinimumPower && x <= ct.MaximumPower))
 			{
 				sb.AppendLine(
 					$"\t{power.DescribeEnum().ColourName()}: {_castingCosts.Select(x => $"{x.Value.EvaluateWith(actor, CastingTrait, TraitBonusContext.SpellCost, ("self", 0), ("power", (int)power))} {x.Key.ShortName}".ColourValue()).ListToString()}");

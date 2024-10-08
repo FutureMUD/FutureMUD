@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -15,6 +16,7 @@ using MudSharp.Database;
 using MudSharp.Editor;
 using MudSharp.Effects.Concrete;
 using MudSharp.Effects.Interfaces;
+using MudSharp.Form.Characteristics;
 using MudSharp.Form.Material;
 using MudSharp.Form.Shape;
 using MudSharp.Framework;
@@ -22,13 +24,16 @@ using MudSharp.Framework.Revision;
 using MudSharp.Framework.Units;
 using MudSharp.FutureProg;
 using MudSharp.GameItems;
+using MudSharp.GameItems.Prototypes;
 using MudSharp.Models;
+using MudSharp.OpenAI;
 using MudSharp.PerceptionEngine;
 using MudSharp.PerceptionEngine.Outputs;
 using MudSharp.PerceptionEngine.Parsers;
 using MudSharp.RPG.Checks;
 using MudSharp.TimeAndDate.Date;
 using MudSharp.TimeAndDate.Time;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 using ProgSchedule = MudSharp.FutureProg.ProgSchedule;
 
 namespace MudSharp.Commands.Modules;
@@ -1548,6 +1553,10 @@ You can use the following subcommands:
 			case "description":
 				CellEditDescription(actor, input);
 				break;
+			case "suggestdesc":
+			case "suggestdescription":
+				CellEditSuggestDescription(actor, input);
+				break;
 			case "terrain":
 				CellEditTerrain(actor, input);
 				break;
@@ -1596,6 +1605,110 @@ You can use the following subcommands:
 										 " command.");
 				return;
 		}
+	}
+
+	private static void CellEditSuggestDescription(ICharacter actor, StringStack command)
+	{
+		var descModel = Futuremud.Games.First().GetStaticConfiguration("GPT_DescSuggestion_Model");
+		var overlay = actor.Location.GetOrCreateOverlay(actor.CurrentOverlayPackage);
+		var sb = new StringBuilder();
+		sb.AppendLine(Futuremud.Games.First().GetStaticString("GPT_RoomSuggestionPrompt"));
+		sb.AppendLine();
+		sb.AppendLine($"The room that you are describing has a title of \"{overlay.CellName}\". It has a terrain type of {overlay.Terrain.Name}.");
+		sb.AppendLine();
+		if (actor.Location.ExitsFor(actor, true).Any())
+		{
+			sb.AppendLine($"There are other rooms adjacent to this one, which are as follows:");
+			sb.AppendLine();
+			foreach (var item in actor.Location.ExitsFor(actor, true))
+			{
+				if (item.OutboundDirection == CardinalDirection.Unknown)
+				{
+					sb.AppendLine($"Accessible from here is {item.Destination.GetOverlayFor(actor).CellName}");
+				}
+				else
+				{
+					sb.AppendLine($"To {item.OutboundDirectionDescription} is {item.Destination.GetOverlayFor(actor).CellName}");
+				}
+			}
+		}
+
+		sb.AppendLine();
+		sb.AppendLine("You may refer to these other locations if it adds interesting detail, but do not spend more than a sentence or two on it, and none unless it's to add an interesting detail.");
+		sb.AppendLine();
+		sb.AppendLine($"The engine uses a few special markup formats that you can employ if you choose, which help it dynamically parse for the situation at the time like current weather, literacy of the viewer etc. They are listed below.");
+		sb.AppendLine();
+		sb.AppendLine(@$"Written Text: writing{{language,script,style=...,colour=...,minskill}}{{text if you understand}}{{text if you cant}}
+{(actor.Location.Shop is not null ? "Name of the Shop at this location: @shop\n" : "")}Weather/Light/Time: environment{{conditions,text}}{{optional more conditions up to 8 times,text}}{{fallback if none triggered}}
+
+Conditions for 'environment' include:
+
+Times: day, night, morning, afternoon, dusk, dawn, notnight
+Light: pitch black, almost completely dark, extremely dark, very dark, dark, dim, soft, normal, bright, very bright, extremely bright
+Light: Add a > or < to light levels to check higher than (inclusive) or lower than (exclusive)
+Seasons: the dry season, the cold season, the rainy season, the windy season
+Precipitation: parched, dry, humid, lightrain, rain, heavyrain, torrentialrain, lightsnow, snow, heavysnow, blizzard, sleet
+Precipitation: Add a * to the front of the above to check highest recent precipitation (e.g. *rain to see if it's rained recently)
+Precipitation: Add a > or < to precipitation to check higher than (inclusive) or lower than (exclusive) e.g. >lightrain, <heavyrain
+
+Note: reverse any condition with a ! (e.g. !dawn, !snow, !*rain, !summer)");
+		sb.AppendLine();
+
+		if (command.IsFinished)
+		{
+			sb.AppendLine();
+			sb.AppendLine(command.SafeRemainingArgument);
+		}
+
+		if (!OpenAIHandler.MakeGPTRequest(sb.ToString(), actor.Gameworld.GetStaticString("GPT_RoomSuggestionFinalWord"), text =>
+		{
+			var descriptions = text.Split('#', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+			var sb = new StringBuilder();
+			sb.AppendLine($"Your GPT Model has made the following suggestions for descriptions for room {overlay.CellName.ColourRoom()}:");
+			var i = 1;
+			foreach (var desc in descriptions)
+			{
+				sb.AppendLine();
+				sb.AppendLine($"Suggestion {i++.ToString("N0", actor)}".GetLineWithTitle(actor, Telnet.Cyan, Telnet.BoldWhite));
+				sb.AppendLine();
+				sb.AppendLine(desc.Wrap(actor.InnerLineFormatLength, "\t"));
+			}
+
+			sb.AppendLine();
+			sb.AppendLine($"You can apply one of these by using the syntax {"accept desc <n>".Colour(Telnet.Cyan)}, such as {"accept desc 1".Colour(Telnet.Cyan)}.");
+			actor.OutputHandler.Send(sb.ToString());
+			actor.AddEffect(new Accept(actor, new GenericProposal
+			{
+				DescriptionString = "Applying a GPT Description suggestion",
+				AcceptAction = text =>
+				{
+					if (!int.TryParse(text, out var value) || value < 1 || value > descriptions.Length)
+					{
+						actor.OutputHandler.Send(
+							"You did not specify a valid description. If you still want to use the descriptions, you'll have to copy them in manually.");
+						return;
+					}
+					overlay.CellDescription = descriptions[value - 1];
+					overlay.Changed = true;
+					actor.OutputHandler.Send($"You set the description of the room {overlay.CellName} to the {value.ToOrdinal()} suggestion.");
+				},
+				RejectAction = text =>
+				{
+					actor.OutputHandler.Send("You decide not to use any of the suggestions.");
+				},
+				ExpireAction = () =>
+				{
+					actor.OutputHandler.Send("You decide not to use any of the suggestions.");
+				},
+				Keywords = new List<string> { "description", "suggestion" }
+			}), TimeSpan.FromSeconds(120));
+		}, descModel))
+		{
+			actor.OutputHandler.Send("Your GPT Model is not set up correctly, so you cannot get any suggestions.");
+			return;
+		}
+
+		actor.OutputHandler.Send("You send your request off to the GPT Model.");
 	}
 
 	private static void CellSetSafeQuit(ICharacter actor, StringStack input)

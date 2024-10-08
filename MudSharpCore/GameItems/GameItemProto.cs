@@ -241,7 +241,7 @@ public class GameItemProto : EditableItem, IGameItemProto
 			{
 				sb.AppendLineFormat("\t({0}) {1} = {2}",
 					Gameworld.VariableRegister.GetType(FutureProgVariableTypes.Item, item.Key).Describe()
-					         .Colour(Telnet.Cyan),
+							 .Colour(Telnet.Cyan),
 					item.Key.Colour(Telnet.Yellow),
 					item.Value);
 			}
@@ -262,9 +262,9 @@ public class GameItemProto : EditableItem, IGameItemProto
 				prog.Execute(newItem, loader);
 			}
 			else if (prog.MatchesParameters(new[]
-			         {
-				         FutureProgVariableTypes.Item
-			         }))
+					 {
+						 FutureProgVariableTypes.Item
+					 }))
 			{
 				prog.Execute(newItem);
 			}
@@ -283,42 +283,42 @@ public class GameItemProto : EditableItem, IGameItemProto
 		using (new FMDB())
 		{
 			var dbnew = new Models.GameItemProto
-            {
-                Id = Id,
-                RevisionNumber =
-                    FMDB.Context.GameItemProtos.Where(x => x.Id == Id)
-                        .Select(x => x.RevisionNumber)
-                        .AsEnumerable()
-                        .DefaultIfEmpty(0)
-                        .Max() +
-                    1,
-                Keywords = Keywords.ListToString(separator: " ",
-                    conjunction: ""),
-                MaterialId = Material?.Id ?? 0,
-                EditableItemId = 0,
-                Name = Name.Proper(),
-                Size = (int)Size,
-                Weight = Weight,
-                ReadOnly = false,
-                LongDescription = LongDescription,
-                BaseItemQuality = (int)BaseItemQuality,
-                MorphTimeSeconds = (int)MorphTimeSpan.TotalSeconds,
-                ItemGroupId = ItemGroup?.Id,
-                OnDestroyedGameItemProtoId = _onDestroyedGameItemProto == 0
-                    ? null
-                    : _onDestroyedGameItemProto,
-                HealthStrategyId = HealthStrategy?.Id,
-                FullDescription = FullDescription,
-                ShortDescription = ShortDescription,
-                MorphEmote = MorphEmote,
-                PermitPlayerSkins = PermitPlayerSkins,
-                MorphGameItemProtoId = _onMorphGameItemProto != 0
-                    ? _onMorphGameItemProto
-                    : default(long?),
-                CustomColour = CustomColour?.Name.ToLowerInvariant() ?? "",
-                HighPriority = HighPriority,
-                CostInBaseCurrency = CostInBaseCurrency,
-            };
+			{
+				Id = Id,
+				RevisionNumber =
+					FMDB.Context.GameItemProtos.Where(x => x.Id == Id)
+						.Select(x => x.RevisionNumber)
+						.AsEnumerable()
+						.DefaultIfEmpty(0)
+						.Max() +
+					1,
+				Keywords = Keywords.ListToString(separator: " ",
+					conjunction: ""),
+				MaterialId = Material?.Id ?? 0,
+				EditableItemId = 0,
+				Name = Name.Proper(),
+				Size = (int)Size,
+				Weight = Weight,
+				ReadOnly = false,
+				LongDescription = LongDescription,
+				BaseItemQuality = (int)BaseItemQuality,
+				MorphTimeSeconds = (int)MorphTimeSpan.TotalSeconds,
+				ItemGroupId = ItemGroup?.Id,
+				OnDestroyedGameItemProtoId = _onDestroyedGameItemProto == 0
+					? null
+					: _onDestroyedGameItemProto,
+				HealthStrategyId = HealthStrategy?.Id,
+				FullDescription = FullDescription,
+				ShortDescription = ShortDescription,
+				MorphEmote = MorphEmote,
+				PermitPlayerSkins = PermitPlayerSkins,
+				MorphGameItemProtoId = _onMorphGameItemProto != 0
+					? _onMorphGameItemProto
+					: default(long?),
+				CustomColour = CustomColour?.Name.ToLowerInvariant() ?? "",
+				HighPriority = HighPriority,
+				CostInBaseCurrency = CostInBaseCurrency,
+			};
 
 			foreach (var tag in Tags)
 			{
@@ -336,8 +336,8 @@ public class GameItemProto : EditableItem, IGameItemProto
 			{
 				var dbcomponent = FMDB.Context.GameItemComponentProtos.Find(component.Id, component.RevisionNumber);
 				if (dbnew.GameItemProtosGameItemComponentProtos.Any(x =>
-					    x.GameItemComponentProtoId == component.Id &&
-					    x.GameItemComponentRevision == component.RevisionNumber))
+						x.GameItemComponentProtoId == component.Id &&
+						x.GameItemComponentRevision == component.RevisionNumber))
 				{
 					continue;
 				}
@@ -434,8 +434,8 @@ public class GameItemProto : EditableItem, IGameItemProto
 			foreach (var component in _components)
 			{
 				if (dbnew.GameItemProtosGameItemComponentProtos.Any(x =>
-					    x.GameItemComponentProtoId == component.Id &&
-					    x.GameItemComponentRevision == component.RevisionNumber))
+						x.GameItemComponentProtoId == component.Id &&
+						x.GameItemComponentRevision == component.RevisionNumber))
 				{
 					continue;
 				}
@@ -531,8 +531,8 @@ public class GameItemProto : EditableItem, IGameItemProto
 		CostInBaseCurrency = proto.CostInBaseCurrency;
 		_onDestroyedGameItemProto = proto.OnDestroyedGameItemProtoId ?? 0;
 		_healthStrategy = Gameworld.HealthStrategies.Get(proto.HealthStrategyId ?? 0) ??
-		                  Gameworld.HealthStrategies.FirstOrDefault(
-			                  x => x.OwnerType == HealthStrategyOwnerType.GameItem);
+						  Gameworld.HealthStrategies.FirstOrDefault(
+							  x => x.OwnerType == HealthStrategyOwnerType.GameItem);
 
 		foreach (var tag in proto.GameItemProtosTags)
 		{
@@ -554,8 +554,8 @@ public class GameItemProto : EditableItem, IGameItemProto
 		{
 			var fprog = Gameworld.FutureProgs.Get(prog.FutureProgId);
 			if (fprog == null ||
-			    (!fprog.MatchesParameters(new[] { FutureProgVariableTypes.Item, FutureProgVariableTypes.Character }) &&
-			     !fprog.MatchesParameters(new[] { FutureProgVariableTypes.Item })))
+				(!fprog.MatchesParameters(new[] { FutureProgVariableTypes.Item, FutureProgVariableTypes.Character }) &&
+				 !fprog.MatchesParameters(new[] { FutureProgVariableTypes.Item })))
 			{
 				Console.WriteLine("Warning: OnLoadProg didn't match the right parameters and was skipped over.");
 				continue;
@@ -939,7 +939,7 @@ public class GameItemProto : EditableItem, IGameItemProto
 			case "extra":
 				return BuildingCommandExtra(actor, command);
 			default:
-                actor.OutputHandler.Send(@"You can use the following options with the ITEM SET command:
+				actor.OutputHandler.Send(@"You can use the following options with the ITEM SET command:
 
 	#3add <id|name>#0 - adds the specified component to this item
 	#3remove <id|name>#0 - removes the specified component from this item
@@ -980,8 +980,8 @@ public class GameItemProto : EditableItem, IGameItemProto
 	#3extra <which##> clear desc#0 - clears the full description for the extra description
 	#3extra <which##> addendum <text>#0 - sets an addendum text for the full description
 	#3extra <which##> clear addendum#0 - clears the addendum text for the full description".SubstituteANSIColour());
-                return true;
-        }
+				return true;
+		}
 	}
 
 	private bool BuildingCommandSkinnable(ICharacter actor)
@@ -1081,22 +1081,22 @@ public class GameItemProto : EditableItem, IGameItemProto
 		}
 
 		if (!OpenAIHandler.MakeGPTRequest(sb.ToString(), Gameworld.GetStaticString("GPT_ItemSuggestionFinalWord"), text =>
-		    {
-			    var descriptions = text.Split('#', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
-			    var sb = new StringBuilder();
-			    sb.AppendLine($"Your GPT Model has made the following suggestions for descriptions for item {ShortDescription.ColourObject()}:");
-			    var i = 1;
-			    foreach (var desc in descriptions)
-			    {
-				    sb.AppendLine();
-				    sb.AppendLine($"Suggestion {i++.ToString("N0", actor)}".GetLineWithTitle(actor, Telnet.Cyan, Telnet.BoldWhite));
-				    sb.AppendLine();
-				    sb.AppendLine(desc.Wrap(actor.InnerLineFormatLength, "\t"));
-			    }
+			{
+				var descriptions = text.Split('#', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+				var sb = new StringBuilder();
+				sb.AppendLine($"Your GPT Model has made the following suggestions for descriptions for item {ShortDescription.ColourObject()}:");
+				var i = 1;
+				foreach (var desc in descriptions)
+				{
+					sb.AppendLine();
+					sb.AppendLine($"Suggestion {i++.ToString("N0", actor)}".GetLineWithTitle(actor, Telnet.Cyan, Telnet.BoldWhite));
+					sb.AppendLine();
+					sb.AppendLine(desc.Wrap(actor.InnerLineFormatLength, "\t"));
+				}
 
-			    sb.AppendLine();
-			    sb.AppendLine($"You can apply one of these by using the syntax {"accept desc <n>".Colour(Telnet.Cyan)}, such as {"accept desc 1".Colour(Telnet.Cyan)}.");
-			    actor.OutputHandler.Send(sb.ToString());
+				sb.AppendLine();
+				sb.AppendLine($"You can apply one of these by using the syntax {"accept desc <n>".Colour(Telnet.Cyan)}, such as {"accept desc 1".Colour(Telnet.Cyan)}.");
+				actor.OutputHandler.Send(sb.ToString());
 				actor.AddEffect(new Accept(actor, new GenericProposal
 				{
 					DescriptionString = "Applying a GPT Description suggestion",
@@ -1122,7 +1122,7 @@ public class GameItemProto : EditableItem, IGameItemProto
 					},
 					Keywords = new List<string> {"description", "suggestion"}
 				}), TimeSpan.FromSeconds(120));
-		    }, descModel))
+			}, descModel))
 		{
 			actor.OutputHandler.Send("Your GPT Model is not set up correctly, so you cannot get any suggestions.");
 			return false;
@@ -1153,15 +1153,15 @@ public class GameItemProto : EditableItem, IGameItemProto
 		{
 			actor.OutputHandler.Send(@"The correct syntax for this command is as follows:
 
-    add <prog> - adds a new extra description slot with a specified prog
-    remove <which#> - removes the specified numbered extra description
-    swap <first#> <second#> - swaps the evaluation order of two extra descriptions
-    <which#> sdesc <sdesc> - sets the short description for the extra description
-    <which#> clear sdesc - clears the short description for the extra description
-    <which#> desc <desc> - sets the full description for the extra description
-    <which#> clear desc - clears the full description for the extra description
-    <which#> addendum <text> - sets an addendum text for the full description
-    <which#> clear addenudm - clears the addendum text for the full description");
+	add <prog> - adds a new extra description slot with a specified prog
+	remove <which#> - removes the specified numbered extra description
+	swap <first#> <second#> - swaps the evaluation order of two extra descriptions
+	<which#> sdesc <sdesc> - sets the short description for the extra description
+	<which#> clear sdesc - clears the short description for the extra description
+	<which#> desc <desc> - sets the full description for the extra description
+	<which#> clear desc - clears the full description for the extra description
+	<which#> addendum <text> - sets an addendum text for the full description
+	<which#> clear addenudm - clears the addendum text for the full description");
 			return false;
 		}
 
@@ -1391,7 +1391,7 @@ public class GameItemProto : EditableItem, IGameItemProto
 		}
 
 		if (!int.TryParse(command.SafeRemainingArgument, out var value) || value < 1 ||
-		    value > _extraDescriptions.Count)
+			value > _extraDescriptions.Count)
 		{
 			actor.OutputHandler.Send(
 				$"That is not a valid extra descripion. You must specify a value between {1.ToString("N0", actor).ColourValue()} and {_extraDescriptions.Count.ToString("N0", actor).ColourValue()}.");
@@ -1648,7 +1648,7 @@ public class GameItemProto : EditableItem, IGameItemProto
 		}
 
 		if (!prog.MatchesParameters(new[] { FutureProgVariableTypes.Item, FutureProgVariableTypes.Character }) &&
-		    !prog.MatchesParameters(new[] { FutureProgVariableTypes.Item }))
+			!prog.MatchesParameters(new[] { FutureProgVariableTypes.Item }))
 		{
 			actor.Send(
 				"Only progs that accept a single Item or a Character and and Item as parameters can be used for OnLoad progs.");
@@ -1871,7 +1871,7 @@ public class GameItemProto : EditableItem, IGameItemProto
 			new Lazy<List<string>>(
 				() => (from keyword in command.SafeRemainingArgument.Split(' ') select keyword.Trim()).ToList());
 		actor.OutputHandler.Send("You set the keywords for " + EditHeader() + " to " +
-		                         Keywords.Select(x => x.Colour(Telnet.Cyan)).ListToString() + ".");
+								 Keywords.Select(x => x.Colour(Telnet.Cyan)).ListToString() + ".");
 		Changed = true;
 		return true;
 	}
@@ -1966,7 +1966,7 @@ public class GameItemProto : EditableItem, IGameItemProto
 		{
 			_components.Clear();
 			actor.OutputHandler.Send("You remove all components from Item Prototype #" + Id + " Revision " +
-			                         RevisionNumber + ".");
+									 RevisionNumber + ".");
 			Changed = true;
 			return true;
 		}
@@ -1982,7 +1982,7 @@ public class GameItemProto : EditableItem, IGameItemProto
 
 		_components.Remove(component);
 		actor.OutputHandler.Send("You remove the " + component.Name.Colour(Telnet.Cyan) +
-		                         " component from Item Prototype #" + Id + " Revision " + RevisionNumber + ".");
+								 " component from Item Prototype #" + Id + " Revision " + RevisionNumber + ".");
 		Changed = true;
 		return true;
 	}

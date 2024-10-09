@@ -900,6 +900,7 @@ See also: HELP EVALUATE, HELP SEARCH, HELP SCAN",
 		{
 			var isb = new StringBuilder();
 			isb.AppendLine($"In the same location as you, you see:");
+			isb.AppendLine();
 			DisplayForScan(actor, sameCellCharacters, isb, true);
 			DisplayForScan(actor, sameCellItems, isb, true);
 			actor.OutputHandler.Send(isb.ToString());
@@ -991,6 +992,10 @@ See also: HELP EVALUATE, HELP SEARCH, HELP SCAN",
 
 				                                    if (visibleCharacters.Any() || visibleItems.Any())
 				                                    {
+					                                    if (sb.Length > 0)
+					                                    {
+						                                    sb.AppendLine();
+					                                    }
 					                                    switch (cell.Path.Select(x => x.OutboundDirection)
 					                                                .DistanceAsCrowFlies())
 					                                    {
@@ -1015,6 +1020,8 @@ See also: HELP EVALUATE, HELP SEARCH, HELP SCAN",
 								                                    $"Extremely far to {majorDirection} in {cell.Cell.HowSeen(actor, flags: PerceiveIgnoreFlags.IgnoreLayers)} you can see:");
 							                                    break;
 					                                    }
+
+					                                    sb.AppendLine();
 				                                    }
 				                                    else
 				                                    {
@@ -1142,6 +1149,7 @@ See also: HELP EVALUATE, HELP SEARCH, HELP SCAN",
 		{
 			var isb = new StringBuilder();
 			isb.AppendLine($"In the same location as you, you see:");
+			isb.AppendLine();
 			DisplayForScan(actor, sameCellCharacters, isb, true);
 			DisplayForScan(actor, sameCellItems, isb, true);
 			actor.OutputHandler.Send(isb.ToString());
@@ -1237,7 +1245,11 @@ See also: HELP EVALUATE, HELP SEARCH, HELP SCAN",
 
 				                                    if (visibleCharacters.Any() || visibleItems.Any())
 				                                    {
-					                                    switch (cell.Path.Select(x => x.OutboundDirection)
+					                                    if (sb.Length > 0)
+					                                    {
+						                                    sb.AppendLine();
+					                                    }
+														switch (cell.Path.Select(x => x.OutboundDirection)
 					                                                .DistanceAsCrowFlies())
 					                                    {
 						                                    case 1:
@@ -1261,6 +1273,8 @@ See also: HELP EVALUATE, HELP SEARCH, HELP SCAN",
 								                                    $"Extremely far to {majorDirection} in {cell.Cell.HowSeen(actor, flags: PerceiveIgnoreFlags.IgnoreLayers)} you can see:");
 							                                    break;
 					                                    }
+
+					                                    sb.AppendLine();
 				                                    }
 
 				                                    DisplayForScan(actor, visibleCharacters, sb, true);

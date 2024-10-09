@@ -126,6 +126,11 @@ internal class GameModule : Module<ICharacter>
 	}
 
 	[PlayerCommand("Notify", "notify")]
+	[HelpInfo("notify", @"The #3notify#0 command is used to let other people know that you are online and available for roleplay, and respond to such notifications.
+
+You can either notify all players in a clan with #3notify <clan name>#0, or notify a specific character with #3notify <character name>#0. Anyone online will get a prompt to type #3notify#0 to respond to let you know they're online.
+
+This command exists to let players coordinate between one another, but overuse of this command is discouraged.", AutoHelp.HelpArg)]
 	protected static void Notify(ICharacter actor, string command)
 	{
 		var ss = new StringStack(command.RemoveFirstWord());

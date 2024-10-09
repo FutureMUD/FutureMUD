@@ -77,7 +77,7 @@ internal class StealthAI : ArtificialIntelligenceBase
 				return HandleTenSecondTick(ch);
 		}
 
-		throw new NotImplementedException();
+		return false;
 	}
 
 	private bool HandleTenSecondTick(ICharacter ch)

@@ -141,20 +141,20 @@ public class AutobuilderRoomByTerrain : AutobuilderRoomBase
 	}
 
 	protected override string SubtypeHelpText => @" roomname <name> - the default name of the generated room
-    description - edits the default description of the generated room
-    light <percentage> - sets a default light multiplier for the generated room
-    defaultterrain <terrain> - sets the default terrain used if none is supplied
-    outdoors|cave|indoors|shelter - sets the default outdoor behaviour type
-    fp <which> - sets the foragable profile for the default room
-    fp none - removes the foragable profile from the default room
-    terrain <terrain> - shows any custom information set up for a particular terrain
-    terrain <terrain> name <name> - sets a name for a terrain type
-    terrain <terrain> description - sets the description for a terrain type
-    terrain <terrain> light <percentage> - sets the light multiplier for a terrain type
-    terrain <terrain> outdoors|cave|indoors|shelter - sets the terrain type's outdoor behaviour type
-    terrain <terrain> fp <which> - sets the foragable profile for the terrain
-    terrain <terrain> fp none - removes a foragable profile for the terrain
-    terrain <terrain> remove - removes the terrain-specific overrides";
+	description - edits the default description of the generated room
+	light <percentage> - sets a default light multiplier for the generated room
+	defaultterrain <terrain> - sets the default terrain used if none is supplied
+	outdoors|cave|indoors|shelter - sets the default outdoor behaviour type
+	fp <which> - sets the foragable profile for the default room
+	fp none - removes the foragable profile from the default room
+	terrain <terrain> - shows any custom information set up for a particular terrain
+	terrain <terrain> name <name> - sets a name for a terrain type
+	terrain <terrain> description - sets the description for a terrain type
+	terrain <terrain> light <percentage> - sets the light multiplier for a terrain type
+	terrain <terrain> outdoors|cave|indoors|shelter - sets the terrain type's outdoor behaviour type
+	terrain <terrain> fp <which> - sets the foragable profile for the terrain
+	terrain <terrain> fp none - removes a foragable profile for the terrain
+	terrain <terrain> remove - removes the terrain-specific overrides";
 
 	public override bool BuildingCommand(ICharacter actor, StringStack command)
 	{
@@ -319,13 +319,13 @@ public class AutobuilderRoomByTerrain : AutobuilderRoomBase
 
 		actor.OutputHandler.Send(@"You must enter one of the following sub-commands after the terrain type:
 
-    name <name> - sets the name of the rooms
-    description - sets the room description
-    light <percentage> - sets the light multiplier
-    outdoors|cave|windows|indoors|shelter - changes the outdoors behaviour of the room
-    foragable <which> - sets the foragable profile for the terrain
-    foragable none - removes a foragable profile for the terrain
-    remove - removes a template type for a terrain");
+	name <name> - sets the name of the rooms
+	description - sets the room description
+	light <percentage> - sets the light multiplier
+	outdoors|cave|windows|indoors|shelter - changes the outdoors behaviour of the room
+	foragable <which> - sets the foragable profile for the terrain
+	foragable none - removes a foragable profile for the terrain
+	remove - removes a template type for a terrain");
 		return false;
 	}
 
@@ -459,7 +459,7 @@ public class AutobuilderRoomByTerrain : AutobuilderRoomBase
 		if (!string.IsNullOrEmpty(DefaultInfo.CellDescription))
 		{
 			actor.OutputHandler.Send("Replacing:\n" +
-			                         DefaultInfo.CellDescription.Wrap(actor.InnerLineFormatLength, "\t"));
+									 DefaultInfo.CellDescription.Wrap(actor.InnerLineFormatLength, "\t"));
 		}
 
 		actor.OutputHandler.Send(
@@ -562,7 +562,7 @@ public class AutobuilderRoomByTerrain : AutobuilderRoomBase
 		if (TerrainInfos.ContainsKey(terrain))
 		{
 			actor.OutputHandler.Send("Replacing:\n" +
-			                         TerrainInfos[terrain].CellDescription.Wrap(actor.InnerLineFormatLength, "\t"));
+									 TerrainInfos[terrain].CellDescription.Wrap(actor.InnerLineFormatLength, "\t"));
 		}
 
 		actor.OutputHandler.Send(

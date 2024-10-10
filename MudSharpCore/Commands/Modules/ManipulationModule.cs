@@ -11,6 +11,7 @@ using MudSharp.Combat.Moves;
 using MudSharp.Commands.Trees;
 using MudSharp.Construction;
 using MudSharp.Construction.Boundary;
+using MudSharp.Economy.Currency;
 using MudSharp.Effects.Interfaces;
 using MudSharp.Effects.Concrete;
 using MudSharp.Form.Characteristics;
@@ -79,7 +80,9 @@ internal class ManipulationModule : Module<ICharacter>
 	[NoHideCommand]
 	[NoMovementCommand]
 	[HelpInfo("haul",
-		"This command is used to move something on the ground in your location to a container also in your location, for example if something is too heavy for you to lift. You must still be able to drag the item to do this; if you are currently dragging the item, your helpers will count towards this.\nThe syntax is HAUL <ITEM> <CONTAINER>.\n\nYou can also use this command to remove similarly large items from containers. In this case the syntax is HAUL OUT <ITEM> <CONTAINER>.",
+		@"This command is used to move something on the ground in your location to a container also in your location, for example if something is too heavy for you to lift. You must still be able to drag the item to do this; if you are currently dragging the item, your helpers will count towards this. The syntax is #3haul <item> <container>#0.
+
+You can also use this command to remove similarly large items from containers. In this case the syntax is #3haul out <item> <container>#0.",
 		AutoHelp.HelpArgOrNoArg)]
 	protected static void Haul(ICharacter actor, string command)
 	{
@@ -249,6 +252,17 @@ internal class ManipulationModule : Module<ICharacter>
 	[NoCombatCommand]
 	[NoHideCommand]
 	[NoMovementCommand]
+	[HelpInfo("style", @"The #3style#0 command is used to change a characteristic of yourself or someone else, typically a hairstyle.
+
+The options that you will have available to you will be limited by your relevant skill - you may need to have a higher skill to do certain options. Your target will also need to consider you an ally or consent to you changing their style. You may additionally need specific tools like scissors, combs, or more specialised equipment to do certain kinds of styles.
+
+You should support the use of this command with roleplay showing how you go about doing the change.
+
+The syntax is as follows:
+
+	#3style <person>#0 - see what characteristics that person has available to style
+	#3style <person> <characteristic>#0 - see the options for styling them
+	#3style <person> <characteristic> <new value>#0 - style the person's characteristic.", AutoHelp.HelpArg)]
 	protected static void Style(ICharacter actor, string command)
 	{
 		var ss = new StringStack(command.RemoveFirstWord());
@@ -348,6 +362,15 @@ internal class ManipulationModule : Module<ICharacter>
 	[DelayBlock("general", "You must first stop {0} before you can do that.")]
 	[NoHideCommand]
 	[NoMovementCommand]
+	[HelpInfo("drag", @"The #3drag#0 command is used to move an item that is too heavy for you to lift, or to move a person (either consenting or unable to resist).
+
+The syntax is as follows:
+
+	#3drag <target>#0 - start to drag a person or thing
+	#3drag <target> by <lodged, worn or attached item>#0 - drag with the help of a drag aid
+	#3drag help <who>#0 - begin helping someone else drag, combining your strength with theirs
+
+Note - you can use the #3stop#0 command to stop dragging someone", AutoHelp.HelpArgOrNoArg)]
 	protected static void Drag(ICharacter actor, string command)
 	{
 		var ss = new StringStack(command.RemoveFirstWord());
@@ -583,6 +606,9 @@ internal class ManipulationModule : Module<ICharacter>
 
 	[PlayerCommand("Struggle", "struggle")]
 	[RequiredCharacterState(CharacterState.Able)]
+	[HelpInfo("struggle", @"The #3struggle#0 command is used when you want to try to break free of a grapple or being dragged.
+
+The syntax is simply #3struggle#0, which can be used on a short delay and costs you stamina to attempt.", AutoHelp.HelpArg)]
 	protected static void Struggle(ICharacter actor, string command)
 	{
 		if (!actor.CombinedEffectsOfType<IBeingGrappled>().Any() && !actor.EffectsOfType<DragTarget>().Any())
@@ -639,6 +665,9 @@ internal class ManipulationModule : Module<ICharacter>
 
 	[PlayerCommand("Breakout", "breakout")]
 	[RequiredCharacterState(CharacterState.Able)]
+	[HelpInfo("breakout", @"The #3breakout#0 command is used, typically in combat, to manually direct your combat strategy to try to break free of a grapple when it might not otherwise want to (like if you yourself were grappling your opponent).
+
+The syntax is simply #3breakout#0.", AutoHelp.HelpArg)]
 	protected static void Breakout(ICharacter actor, string command)
 	{
 		if (!actor.CombinedEffectsOfType<IBeingGrappled>().Any())
@@ -672,6 +701,9 @@ internal class ManipulationModule : Module<ICharacter>
 	[RequiredCharacterState(CharacterState.Able)]
 	[DelayBlock("general", "You must first stop {0} before you can do that.")]
 	[NoMeleeCombatCommand]
+	[HelpInfo("flip", @"The #3flip#0 command has two uses; one is to flip something over that can be interacted with in that way, such as furniture that can be flipped over to provide cover. The other use is to flip a coin.
+
+The syntax is #3flip <item>#0 or #3flip coin#0. You must be holding a single coin to use the flip coin version of the command.", AutoHelp.HelpArg)]
 	protected static void Flip(ICharacter actor, string command)
 	{
 		var ss = new StringStack(command.RemoveFirstWord());
@@ -683,7 +715,78 @@ internal class ManipulationModule : Module<ICharacter>
 
 		if (ss.Peek().EqualTo("coin"))
 		{
-			actor.Send("Flipping coins is coming soon.");
+			ss.Pop();
+			var currency = actor.Body.HeldOrWieldedItems
+								.SelectNotNull(x => x.GetItemType<ICurrencyPile>())
+								.FirstOrDefault(x => x.Coins.Count() == 1 && x.Coins.First().Item2 == 1 && x.Coins.First().Item1.GeneralForm.EqualTo("coin")) ??
+						   actor.Body.HeldOrWieldedItems
+								.SelectNotNull(x => x.GetItemType<ICurrencyPile>())
+								.FirstOrDefault();
+			if (currency is null)
+			{
+				actor.OutputHandler.Send("You must be holding a single coin on its own in order to flip a coin.");
+				return;
+			}
+
+			if (currency.Coins.Count() != 1 || currency.Coins.First().Item2 != 1 && !currency.Coins.First().Item1.GeneralForm.EqualTo("coin"))
+			{
+				actor.OutputHandler.Send($"You must be holding a single coin on its own in order to flip a coin, and {currency.Parent.HowSeen(actor)} does not qualify for that.");
+				return;
+			}
+
+			var cheat = false;
+			var wantsHeads = false;
+			if (!ss.IsFinished)
+			{
+				switch (ss.PopForSwitch())
+				{
+					case "heads":
+					case "obverse":
+					case "front":
+						cheat = true;
+						wantsHeads = true;
+						break;
+					case "tails":
+					case "reverse":
+					case "back":
+						cheat = true;
+						break;
+				}
+			}
+
+			bool heads;
+			Dictionary<Difficulty, CheckOutcome> result = [];
+			if (cheat)
+			{
+				var check = actor.Gameworld.GetCheck(CheckType.CheatAtCoinFlip);
+				result = check.CheckAgainstAllDifficulties(actor, Difficulty.Normal, null);
+				if (result[Difficulty.Normal].IsPass())
+				{
+					heads = wantsHeads;
+				}
+				else
+				{
+					heads = Dice.Roll(1, 2) == 1;
+				}
+			}
+			else
+			{
+				heads = Dice.Roll(1, 2) == 1;
+			}
+
+			actor.OutputHandler.Handle(new EmoteOutput(new Emote($"@ flip|flips $1. It lands on the {(heads ? "obverse (front/heads)" : "reverse (back/tails)")} side.", actor, actor, currency.Parent), flags: OutputFlags.PurelyVisual));
+			var noticeCheck = actor.Gameworld.GetCheck(CheckType.NoticeCheck);
+			if (cheat)
+			{
+				foreach (var tch in actor.Location.LayerCharacters(actor.RoomLayer).Except([actor]))
+				{
+					var outcome = new OpposedOutcome(result, noticeCheck.CheckAgainstAllDifficulties(tch, Difficulty.Hard, null), Difficulty.Normal, Difficulty.Hard);
+					if (outcome.Outcome == OpposedOutcomeDirection.Opponent)
+					{
+						tch.OutputHandler.Send($"You are pretty sure that {actor.HowSeen(tch)} was cheating at the coin flip.");
+					}
+				}
+			}
 			return;
 		}
 
@@ -735,6 +838,9 @@ internal class ManipulationModule : Module<ICharacter>
 	[PlayerCommand("Tear", "tear")]
 	[RequiredCharacterState(CharacterState.Able)]
 	[DelayBlock("general", "You must first stop {0} before you can do that.")]
+	[HelpInfo("tear", @"The #3tear#0 command is used to tear things or tera things out of other things. For example, tearing a page out of a book.
+
+The syntax to use this command is #3tear <item>#0.", AutoHelp.HelpArgOrNoArg)]
 	protected static void Tear(ICharacter actor, string command)
 	{
 		var ss = new StringStack(command.RemoveFirstWord());
@@ -794,35 +900,33 @@ internal class ManipulationModule : Module<ICharacter>
 		}
 	}
 
+	public const string TurnHelp = @"The turn command is used to turn things that can be turned. The turnable might be a book, a knob or dial, or some other thing. The specific page or setting to which the thing is being turned is called the 'extent'. 
+
+There are a couple of ways you can use this command:
+
+	#3turn#0 - turns the first turnable that you are holding by the default amount
+	#3turn <turnable>#0 - turns a specific turnable being held or in the room by the default amount
+	#3turn <turnable> <extent>#0 - turns the specified turnable to the specified extent
+	#3turn <turnable> +<increment>#0 - turns the specified turnable by a certain amount from its current value
+	#3turn <turnable> -<increment>#0 - turns the specified turnable back by a certain amount from its current value";
+
 	[PlayerCommand("Turn", "turn")]
 	[RequiredCharacterState(CharacterState.Able)]
 	[DelayBlock("general", "You must first stop {0} before you can do that.")]
+	[HelpInfo("turn", TurnHelp, AutoHelp.HelpArgOrNoArg)]
 	protected static void Turn(ICharacter actor, string command)
 	{
-		void SendTurnHelp()
-		{
-			actor.OutputHandler.Send(
-				$"The turn command is used to turn things that can be turned. The turnable might be a book, a knob or dial, or some other thing. The specific page or setting to which the thing is being turned is called the 'extent'. There are a couple of ways you can use this command:\n\tturn - turns the first turnable that you are holding by the default amount\n\tturn <turnable> - turns a specific turnable being held or in the room by the default amount\n\tturn <turnable> <extent> - turns the specified turnable to the specified extent\n\tturn <turnable> +<increment> - turns the specified turnable by a certain amount from its current value\n\tturn <turnable> -<increment> - turns the specified turnable back by a certain amount from its current value"
-					.Wrap(actor.InnerLineFormatLength));
-		}
-
 		var turnable = actor.Body.HeldOrWieldedItems.SelectNotNull(x => x.GetItemType<ITurnable>()).FirstOrDefault();
 		var ss = new StringStack(command.RemoveFirstWord());
 		if (ss.IsFinished)
 		{
 			if (turnable == null)
 			{
-				SendTurnHelp();
+				actor.OutputHandler.Send(TurnHelp.SubstituteANSIColour());
 				return;
 			}
 
 			turnable.Turn(actor, turnable.CurrentExtent + turnable.DefaultExtentIncrement, null);
-			return;
-		}
-
-		if (ss.Peek().EqualToAny("help", "?"))
-		{
-			SendTurnHelp();
 			return;
 		}
 
@@ -915,6 +1019,13 @@ internal class ManipulationModule : Module<ICharacter>
 	[PlayerCommand("Inject", "inject")]
 	[RequiredCharacterState(CharacterState.Able)]
 	[DelayBlock("general", "You must first stop {0} before you can do that.")]
+	[HelpInfo("inject", @"The #3inject#0 command is used to inject liquids into a person or thing using a syringe or similar. 
+
+You must be holding a syringe full of liquid and the bodypart you're trying to inject into must be accessible. The target must be helpless or consent to the injection.
+
+If you don't specify an amount, you will inject the whole volume of the syringe.
+
+The syntax is #3inject <item> <target> <bodypart> [<amount>]#0.", AutoHelp.HelpArgOrNoArg)]
 	protected static void Inject(ICharacter character, string command)
 	{
 		var ss = new StringStack(command.RemoveFirstWord());

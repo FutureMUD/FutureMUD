@@ -170,7 +170,8 @@ namespace MudSharp.RPG.Checks {
 		WritingComprehendCheck = 164,
 		ProsecuteLegalCase = 165,
 		DefendLegalCase = 166,
-		ClimbTreetoTreeCheck = 167
+		ClimbTreetoTreeCheck = 167,
+		CheatAtCoinFlip = 168
 	}
 
 	public enum FailIfTraitMissingType {

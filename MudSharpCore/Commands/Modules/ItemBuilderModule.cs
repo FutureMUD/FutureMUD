@@ -30,10 +30,7 @@ namespace MudSharp.Commands.Modules
 
 		#region Item Prototypes
 
-		[PlayerCommand("Item", "item")]
-		[CommandPermission(PermissionLevel.JuniorAdmin)]
-		[HelpInfo("item",
-			@"The item command is used to edit, view and load item prototypes. The editing sub-commands are all done on whichever item prototype the builder currently has open for editing. 
+		public const string ItemHelp = @"The item command is used to edit, view and load item prototypes. The editing sub-commands are all done on whichever item prototype the builder currently has open for editing. 
 
 You should also see the related #3component#0 command. Components are what give items their functionality (like being containers, being weapons etc).
 
@@ -104,8 +101,11 @@ The valid sub-commands and their syntaxes are as follows:
 	#3item set extra <which##> desc <desc>#0 - sets the full description for the extra description
 	#3item set extra <which##> clear desc#0 - clears the full description for the extra description
 	#3item set extra <which##> addendum <text>#0 - sets an addendum text for the full description
-	#3item set extra <which##> clear addendum#0 - clears the addendum text for the full description",
-			AutoHelp.HelpArgOrNoArg)]
+	#3item set extra <which##> clear addendum#0 - clears the addendum text for the full description";
+
+		[PlayerCommand("Item", "item")]
+		[CommandPermission(PermissionLevel.JuniorAdmin)]
+		[HelpInfo("item", ItemHelp, AutoHelp.HelpArgOrNoArg)]
 		protected static void Item(ICharacter actor, string input)
 		{
 			var ss = new StringStack(input.RemoveFirstWord());
@@ -133,7 +133,7 @@ The valid sub-commands and their syntaxes are as follows:
 					Item_Clone(actor, ss);
 					break;
 				default:
-					actor.OutputHandler.Send("That is not a valid usage of the item command.");
+					actor.OutputHandler.Send(ItemHelp.SubstituteANSIColour());
 					break;
 			}
 		}

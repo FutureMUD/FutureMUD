@@ -1035,6 +1035,11 @@ If you do not wish to approve or decline, you may type {"abort edit".Colour(Teln
 			}
 			else
 			{
+				if (quantity > 10)
+				{
+					actor.OutputHandler.Send("The most non-stackable items you can load at one time is 10.");
+					return;
+				}
 				IGameItem item = null;
 				for (var i = 0; i < quantity; i++)
 				{

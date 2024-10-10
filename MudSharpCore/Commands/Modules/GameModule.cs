@@ -43,7 +43,7 @@ internal class GameModule : Module<ICharacter>
 
 	[PlayerCommand("SkillLevels", "skilllevels")]
 	[HelpInfo("skilllevels",
-		"This command allows you to see the skill level descriptors for one of your skills or stats, in the order that they appear. The syntax is SKILLELVELS <skill/attribute>.",
+		@"This command allows you to see the skill level descriptors for one of your skills or stats, in the order that they appear. The syntax is SKILLLEVELS <skill/attribute>.",
 		AutoHelp.HelpArgOrNoArg)]
 	protected static void SkillLevels(ICharacter actor, string command)
 	{

@@ -1,6 +1,8 @@
-﻿using MudSharp.Accounts;
+﻿using System.Linq;
+using MudSharp.Accounts;
 using MudSharp.Character;
 using MudSharp.Commands.Modules;
+using MudSharp.Framework;
 
 namespace MudSharp.Commands.Trees;
 
@@ -37,7 +39,7 @@ internal class ActorCommandTree : ICharacterCommandTree
 
 	protected virtual void ProcessCommands()
 	{
-		Commands = new CharacterCommandManager("Wat?", PermissionLevel);
+		Commands = new CharacterCommandManager("", PermissionLevel);
 		Commands.AddFrom(MovementModule.Instance.Commands);
 		Commands.AddFrom(CharacterInformationModule.Instance.Commands);
 		Commands.AddFrom(CommunicationsModule.Instance.Commands);

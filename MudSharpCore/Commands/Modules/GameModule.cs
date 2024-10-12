@@ -1115,7 +1115,7 @@ You can also type 'forage' on its own to see what kinds of yields you can search
 	{
 		if (!actor.Gameworld.GetStaticBool("ImplantCommandEnabled"))
 		{
-			actor.Send("Wat?");
+			actor.Send(actor.Gameworld.GetStaticString("FailedToFindCommand"));
 			return;
 		}
 

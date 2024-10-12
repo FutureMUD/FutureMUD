@@ -45,7 +45,7 @@ internal class HealthModule : Module<ICharacter>
 	{
 		if (!actor.Gameworld.GetStaticBool("CPRAllowed"))
 		{
-			actor.Send("Wat?");
+			actor.Send(actor.Gameworld.GetStaticString("FailedToFindCommand"));
 			return;
 		}
 

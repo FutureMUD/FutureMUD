@@ -1679,27 +1679,41 @@ This command is useful when you write-up a bunch of room creation commands in a 
 		var destinationLayer = actor.RoomLayer;
 		var target = actor.Gameworld.Actors
 		                  .Where(x => !x.State.HasFlag(CharacterState.Dead))
+		                  .OrderByDescending(x => x.IsPlayerCharacter)
 		                  .GetFromItemListByKeywordIncludingNames(cmd, actor);
 		ICell destination;
-		if (target is null)
+		if (long.TryParse(cmd, out var roomid))
 		{
-			if (cmd.Length > 1 && cmd[0] == '#')
-			{
-				cmd = cmd.Substring(1);
-			}
-
-			destination = RoomBuilderModule.LookupCell(actor.Gameworld, cmd);
+			destination = actor.Gameworld.Cells.Get(roomid);
 			if (destination == null)
 			{
 
-				actor.OutputHandler.Send("There are no locations and no-one with that name or keyword to go to.");
+				actor.OutputHandler.Send("There is no location with that ID.");
 				return;
 			}
 		}
 		else
 		{
-			destination = target.Location;
-			destinationLayer = target.RoomLayer;
+			if (target is null)
+			{
+				if (cmd.Length > 1 && cmd[0] == '#')
+				{
+					cmd = cmd.Substring(1);
+				}
+
+				destination = RoomBuilderModule.LookupCell(actor.Gameworld, cmd);
+				if (destination == null)
+				{
+
+					actor.OutputHandler.Send("There are no locations and no-one with that name or keyword to go to.");
+					return;
+				}
+			}
+			else
+			{
+				destination = target.Location;
+				destinationLayer = target.RoomLayer;
+			}
 		}
 
 		if (destination == actor.Location && destinationLayer == actor.RoomLayer)

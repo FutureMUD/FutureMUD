@@ -111,6 +111,15 @@ public abstract class CharacterAction : Effect, IActionEffect, ILDescSuffixEffec
 
 	protected virtual void SetupEventHandlers()
 	{
+		CharacterOwner.OnDeleted -= TargetDeleted;
+		CharacterOwner.OnQuit -= TargetQuit;
+		CharacterOwner.OnDeath -= TargetDied;
+		CharacterOwner.OnEngagedInMelee -= TargetEngagedInMelee;
+		CharacterOwner.OnStateChanged -= TargetStateChanged;
+		CharacterOwner.OnStartMove -= TargetMoved;
+		CharacterOwner.OnMoved -= TargetMoved;
+		CharacterOwner.OnWantsToMove -= TargetWantsToMove;
+
 		CharacterOwner.OnDeleted += TargetDeleted;
 		CharacterOwner.OnQuit += TargetQuit;
 		CharacterOwner.OnDeath += TargetDied;

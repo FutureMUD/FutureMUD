@@ -391,7 +391,7 @@ public class CorpseGameItemComponent : GameItemComponent, ICorpse, ILazyLoadDuri
 		if (productSB.Length > 0)
 		{
 			Parent.OutputHandler.Handle(
-				new EmoteOutput(new Emote(productSB.ToString(), Parent, products.ToArray<IPerceivable>())));
+				new EmoteOutput(new Emote(productSB.ToString(), Parent, products.ToArray<IPerceivable>()), style: OutputStyle.NoNewLine));
 		}
 
 		if (!string.IsNullOrEmpty(subcategory))

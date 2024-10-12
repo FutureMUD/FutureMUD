@@ -130,8 +130,11 @@ public class Butchering : StagedCharacterActionWithTarget, IAffectProximity
 		base.SetupEventHandlers();
 		if (Tool != null)
 		{
+			Tool.OnDeleted -= ToolGone;
 			Tool.OnDeleted += ToolGone;
+			Tool.OnQuit -= ToolGone;
 			Tool.OnQuit += ToolGone;
+			CharacterOwner.Body.OnInventoryChange -= CheckInventoryChange;
 			CharacterOwner.Body.OnInventoryChange += CheckInventoryChange;
 		}
 
@@ -155,7 +158,7 @@ public class Butchering : StagedCharacterActionWithTarget, IAffectProximity
 			return;
 		}
 
-		if (newState != InventoryState.Wielded || newState != InventoryState.Held)
+		if (newState != InventoryState.Wielded && newState != InventoryState.Held)
 		{
 			ToolGone(item);
 		}

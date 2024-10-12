@@ -78,36 +78,46 @@ public class CharacterActionWithTarget : CharacterAction
 
 	protected override void SetupEventHandlers()
 	{
+		Target.OnDeleted -= TargetDeleted;
 		Target.OnDeleted += TargetDeleted;
+		Target.OnQuit -= TargetQuit;
 		Target.OnQuit += TargetQuit;
 		if (TargetMortal != null)
 		{
+			TargetMortal.OnDeath -= TargetDied;
 			TargetMortal.OnDeath += TargetDied;
 		}
 
 		if (TargetCombatant != null)
 		{
+			TargetCombatant.OnEngagedInMelee -= TargetEngagedInMelee;
 			TargetCombatant.OnEngagedInMelee += TargetEngagedInMelee;
 		}
 
 		if (TargetMover != null)
 		{
+			TargetMover.OnStartMove -= TargetMoved;
 			TargetMover.OnStartMove += TargetMoved;
+			TargetMover.OnMoved -= TargetMoved;
 			TargetMover.OnMoved += TargetMoved;
 			if (PreventsTargetFromMoving)
 			{
+				TargetMover.OnWantsToMove -= TargetWantsToMove;
 				TargetMover.OnWantsToMove += TargetWantsToMove;
 			}
 		}
 
 		if (TargetCharacter != null)
 		{
+			TargetCharacter.OnStateChanged -= TargetStateChanged;
 			TargetCharacter.OnStateChanged += TargetStateChanged;
 		}
 
 		if (TargetItem != null)
 		{
+			TargetItem.OnRemovedFromLocation -= TargetRemovedFromLocation;
 			TargetItem.OnRemovedFromLocation += TargetRemovedFromLocation;
+			TargetItem.OnInventoryChange -= TargetInventoryChanged;
 			TargetItem.OnInventoryChange += TargetInventoryChanged;
 		}
 

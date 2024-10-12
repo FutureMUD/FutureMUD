@@ -50,10 +50,13 @@ public class CharacterActionWithTargetAndTool : CharacterActionWithTarget
 	{
 		foreach (var item in AdditionalInventory)
 		{
+			item.Item.OnDeath -= Item_OnDeath;
 			item.Item.OnDeath += Item_OnDeath;
+			item.Item.OnDeleted -= Item_OnDeath;
 			item.Item.OnDeleted += Item_OnDeath;
 			if (item.State == DesiredItemState.InRoom)
 			{
+				item.Item.OnRemovedFromLocation -= Item_OnRemovedFromLocation;
 				item.Item.OnRemovedFromLocation += Item_OnRemovedFromLocation;
 			}
 

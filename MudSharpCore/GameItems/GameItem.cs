@@ -39,6 +39,8 @@ using MudSharp.Economy.Currency;
 using ExpressionEngine;
 using MudSharp.Climate;
 using System.Numerics;
+using MudSharp.RPG.Checks;
+using Org.BouncyCastle.Asn1.X509;
 
 namespace MudSharp.GameItems;
 
@@ -1847,6 +1849,107 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable
 		}
 
 		sb.AppendLine($"It is {percentage.ToString("P0", actor).Colour(colour)} damaged.");
+		if (actor.Currency is not null)
+		{
+			var td = actor.Gameworld.Traits.Get(actor.Gameworld.GetStaticLong("AppraiseCommandSkill"));
+			if (actor.IsAdministrator() ||
+			    !actor.Gameworld.GetStaticBool("AppraiseCommandRequiresSkill") ||
+			    (td is not null &&
+			    actor.TraitValue(td) > 0.0))
+			{
+				var fuzzinessFloor = 1.0M;
+				var fuzzinessCeiling = 1.0M;
+				if (td is not null && !actor.IsAdministrator())
+				{
+					var check = actor.Gameworld.GetCheck(CheckType.AppraiseItemCheck);
+					var difficulty = Difficulty.Easy;
+					var result = check.Check(actor, difficulty, td, this);
+					var skew = 0.0M;
+					switch (result.Outcome)
+					{
+						case Outcome.MajorFail:
+							skew = (decimal)RandomUtilities.DoubleRandom(-0.5, 0.5);
+							fuzzinessCeiling = 1.5M + skew;
+							fuzzinessFloor = 0.5M + skew;
+							break;
+						case Outcome.Fail:
+							skew = (decimal)RandomUtilities.DoubleRandom(-0.3, 0.3);
+							fuzzinessCeiling = 1.3M + skew;
+							fuzzinessFloor = 0.7M + skew;
+							break;
+						case Outcome.MinorFail:
+							skew = (decimal)RandomUtilities.DoubleRandom(-0.2, 0.2);
+							fuzzinessCeiling = 1.2M + skew;
+							fuzzinessFloor = 0.8M + skew;
+							break;
+						case Outcome.MinorPass:
+							skew = (decimal)RandomUtilities.DoubleRandom(-0.1, 0.1);
+							fuzzinessCeiling = 1.1M + skew;
+							fuzzinessFloor = 0.9M + skew;
+							break;
+						case Outcome.Pass:
+							skew = (decimal)RandomUtilities.DoubleRandom(-0.05, 0.05);
+							fuzzinessCeiling = 1.05M + skew;
+							fuzzinessFloor = 0.95M + skew;
+							break;
+						case Outcome.MajorPass:
+							break;
+					}
+				}
+
+				(decimal minimum, decimal maximum) CalculateMinimumMaximum(IGameItem item)
+				{
+					if (item.GetItemType<ICurrencyPile>() is { } cp)
+					{
+						return (
+							cp.TotalValue * cp.Currency.BaseCurrencyToGlobalBaseCurrencyConversion * fuzzinessFloor / actor.Currency.BaseCurrencyToGlobalBaseCurrencyConversion,
+							cp.TotalValue * cp.Currency.BaseCurrencyToGlobalBaseCurrencyConversion * fuzzinessCeiling / actor.Currency.BaseCurrencyToGlobalBaseCurrencyConversion);
+					}
+					return (item.Prototype.CostInBaseCurrency * fuzzinessFloor / actor.Currency.BaseCurrencyToGlobalBaseCurrencyConversion,
+							item.Prototype.CostInBaseCurrency * fuzzinessCeiling / actor.Currency.BaseCurrencyToGlobalBaseCurrencyConversion);
+				}
+
+				string DescribeCurrencyRange(decimal minimum, decimal maximum)
+				{
+					if (minimum == maximum)
+					{
+						return actor.Currency.Describe(minimum, CurrencyDescriptionPatternType.ShortDecimal).ColourValue();
+					}
+
+					return $"{actor.Currency.Describe(minimum, CurrencyDescriptionPatternType.ShortDecimal).ColourValue()} to {actor.Currency.Describe(maximum, CurrencyDescriptionPatternType.ShortDecimal).ColourValue()}";
+				}
+
+				void EvaluateItem(IGameItem item, List<(string ItemDescription, string ValueDescription, int Levels)> list,
+					ref decimal minTotal, ref decimal maxTotal, int level, bool includeContents)
+				{
+					var (min, max) = CalculateMinimumMaximum(item);
+					minTotal += min;
+					maxTotal += max;
+					list.Add((item.HowSeen(actor), DescribeCurrencyRange(min, max), level));
+					if (includeContents &&
+					    item.GetItemType<IContainer>() is { } container &&
+					    (actor.IsAdministrator() ||
+					     container.Transparent ||
+					     (container is IOpenable op && op.IsOpen)
+					    )
+					   )
+					{
+						foreach (var content in container.Contents)
+						{
+							EvaluateItem(content, list, ref minTotal, ref maxTotal, level + 1, true);
+						}
+					}
+				}
+
+				var results = new List<(string ItemDescription, string ValueDescription, int Levels)>();
+				var minTotal = 0.0M;
+				var maxTotal = 0.0M;
+				EvaluateItem(this, results, ref minTotal, ref maxTotal, 0, false);
+				sb.AppendLine($"Estimated Value: {results[0].ValueDescription}");
+			}
+		}
+		
+		
 
 		var tags = Tags.Where(x => x.ShouldSee(actor)).ToList();
 		if (tags.Any())

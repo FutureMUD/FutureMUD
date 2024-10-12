@@ -78,6 +78,8 @@ public class CommodityGameItemComponent : GameItemComponent, ICommodity
 		base(parent, proto, temporary)
 	{
 		_prototype = proto;
+		_material = Gameworld.Materials.First();
+		_weight = 1.0;
 	}
 
 	public CommodityGameItemComponent(MudSharp.Models.GameItemComponent component,
@@ -93,6 +95,10 @@ public class CommodityGameItemComponent : GameItemComponent, ICommodity
 		base(rhs, newParent, temporary)
 	{
 		_prototype = rhs._prototype;
+		_material = rhs._material;
+		_tag = rhs._tag;
+		_useIndirectQuantityDescription = rhs._useIndirectQuantityDescription;
+		_weight = rhs._weight;
 	}
 
 	protected void LoadFromXml(XElement root)

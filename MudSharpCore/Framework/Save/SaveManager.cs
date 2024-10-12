@@ -252,10 +252,10 @@ public class SaveManager : ISaveManager
 			using (new FMDB())
 			{
 #if DEBUG
-				if (_saveStack.Count > 200)
+				if (_saveStack.Count > 500)
 				{
 					var sb = new StringBuilder();
-					sb.AppendLine($"[PERF] SaveStack has over 200 items in it: {_saveStack.Count}".Colour(Telnet.Orange));
+					sb.AppendLine($"[PERF] SaveStack has over 500 items in it: {_saveStack.Count}".Colour(Telnet.Orange));
 					foreach (var group in _saveStack.OfType<IFrameworkItem>().GroupBy(x => x.FrameworkItemType))
 					{
 						if (group.Key == "GameItemComponent")
@@ -273,8 +273,8 @@ public class SaveManager : ISaveManager
 					Console.WriteLine(sb.ToString());
 				}
 #endif
-				var tempStack = _saveStack.Take(200).ToList();
-				_saveStack.RemoveRange(0, Math.Min(_saveStack.Count, 200));
+				var tempStack = _saveStack.ToList();
+				_saveStack.Clear();
 				foreach (var item in tempStack)
 				{
 					item.Save();

@@ -327,6 +327,12 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable
 	public override void Save()
 	{
 		var dbitem = FMDB.Context.GameItems.Find(Id);
+		if (dbitem is null)
+		{
+			Gameworld.DebugMessage($"An item couldn't find itself in the database - {Id:N0} {HowSeen(this, colour: false, flags: PerceiveIgnoreFlags.TrueDescription)} (Proto {Prototype.Id:N0}r{Prototype.RevisionNumber:N0})");
+			Changed = false;
+			return;
+		}
 		dbitem.Quality = (int)_quality;
 		dbitem.MaterialId = _overrideMaterial?.Id ?? 0;
 		dbitem.Size = (int)Size;

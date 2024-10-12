@@ -1363,7 +1363,7 @@ For example, #3?Nickname[ a.k.a ""$Nickname""][]#0";
 			return;
 		}
 
-		actor.RemoveAllEffects<BuilderEditingEffect<NameCulture>>();
+		actor.RemoveAllEffects<BuilderEditingEffect<INameCulture>>();
 		actor.OutputHandler.Send("You are no longer editing any name cultures.");
 	}
 

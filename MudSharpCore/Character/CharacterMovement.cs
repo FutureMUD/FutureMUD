@@ -1143,7 +1143,7 @@ public partial class Character
 				if (result[Difficulty.VeryEasy].Outcome.IsFail())
 				{
 					OutputHandler.Handle(new EmoteOutput(new Emote(Gameworld.GetStaticString("FallFromTreesWhenMovingRoomToRoom"), this, this)));
-					RemoveAllEffects<HideInvis>();
+					RemoveAllEffects<HideInvis>(fireRemovalAction: true);
 					FallToGround();
 					Body.Look(true);
 				}
@@ -1152,7 +1152,7 @@ public partial class Character
 				if (!PositionState.SafeFromFalling && CanFly().Truth)
 				{
 					MovePosition(PositionFlying.Instance, PositionModifier.None, null, null);
-					RemoveAllEffects<HideInvis>();
+					RemoveAllEffects<HideInvis>(fireRemovalAction: true);
 				}
 
 				break;
@@ -1167,7 +1167,7 @@ public partial class Character
 				if (!PositionState.SafeFromFalling && CanFly().Truth)
 				{
 					MovePosition(PositionFlying.Instance, PositionModifier.None, null, null);
-					RemoveAllEffects<HideInvis>();
+					RemoveAllEffects<HideInvis>(fireRemovalAction: true);
 				}
 
 				break;
@@ -1388,7 +1388,7 @@ public partial class Character
 			AddEffect(new BlockLayerChange(this), FlyDelay);
 		}
 
-		RemoveAllEffects<HideInvis>();
+		RemoveAllEffects<HideInvis>(fireRemovalAction: true);
 	}
 
 	public (bool Truth, string Error) CanLand()

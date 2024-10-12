@@ -58,7 +58,26 @@ public partial class Character
 				}
 
 				break;
+			case EventType.CharacterLeaveCell:
+				foreach (var item in Body.ExternalItems)
+				{
+					result = result || item.HandleEvent(EventType.CharacterLeaveCellItems, arguments[0], arguments[1], arguments[2], item);
+				}
+				break;
+			case EventType.CharacterEnterCell:
+				foreach (var item in Body.ExternalItems)
+				{
+					result = result || item.HandleEvent(EventType.CharacterEnterCellItems, arguments[0], arguments[1], arguments[2], item);
+				}
+				break;
+			case EventType.CharacterBeginMovement:
+				foreach (var item in Body.ExternalItems)
+				{
+					result = result || item.HandleEvent(EventType.CharacterBeginMovementItems, arguments[0], arguments[1], arguments[2], item);
+				}
+				break;
 		}
+
 
 		return result || base.HandleEvent(type, arguments);
 	}

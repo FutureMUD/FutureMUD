@@ -57,7 +57,7 @@ internal class NPCOnlyModule : Module<ICharacter>
 	{
 		if (actor.AffectedBy<EnforcerEffect>())
 		{
-			actor.RemoveAllEffects<EnforcerEffect>();
+			actor.RemoveAllEffects<EnforcerEffect>(fireRemovalAction: true);
 			actor.OutputHandler.Send("You are no longer in enforcer mode.");
 			return;
 		}

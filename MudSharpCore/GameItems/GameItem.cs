@@ -503,9 +503,14 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable
 	public override bool HandleEvent(EventType type, params dynamic[] arguments)
 	{
 		var truth = false;
-		foreach (var comp in _components.Where(comp => comp.HandleEvent(type, arguments)))
+		foreach (var comp in _components)
 		{
-			truth = true;
+			truth |= comp.HandleEvent(type, arguments);
+		}
+
+		foreach (var effect in EffectsOfType<IHandleEventsEffect>().ToList())
+		{
+			truth |= effect.HandleEvent(type, arguments);
 		}
 
 		return truth || base.HandleEvent(type, arguments);
@@ -522,8 +527,9 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable
 			Size = (int)Size,
 			PositionId = (int)PositionUndefined.Instance.Id,
 			PositionModifier = (int)PositionModifier.None,
-			EffectData = SaveEffects().ToString()
+			EffectData = SaveEffects().ToString(),
 		};
+		SaveMorphProgress(dbitem);
 		FMDB.Context.GameItems.Add(dbitem);
 
 		foreach (var item in Components)
@@ -1667,11 +1673,19 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable
 			component.Login();
 		}
 
-		ScheduleCachedEffects();
 		if (CachedMorphTime is not null)
 		{
 			StartMorphTimer();
 		}
+
+		// Effects without a duration are already on the item rather than the cache
+		foreach (var effect in Effects)
+		{
+			effect.Login();
+		}
+
+		// Scheduled effects will call Login() when they become scheduled
+		ScheduleCachedEffects();
 	}
 
 	public void Quit()
@@ -2390,7 +2404,7 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable
 			Gameworld.Scheduler.AddSchedule(new RepeatingSchedule<IGameItem>(this, Gameworld,
 				item => item.Changed = true, ScheduleType.MorphSaving, TimeSpan.FromSeconds(30),
 				$"Morph Saver for {HowSeen(this)} #{Id}"));
-			Gameworld.Scheduler.AddSchedule(new Schedule(Morph, ScheduleType.Morph,
+			Gameworld.Scheduler.AddSchedule(new Schedule<IGameItem>(this, Morph, ScheduleType.Morph,
 				MorphTime > DateTime.UtcNow ? MorphTime - DateTime.UtcNow : TimeSpan.FromTicks(1),
 				$"Morph checker for {HowSeen(this)} #{Id}"));
 		}
@@ -2403,10 +2417,11 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable
 			Gameworld.Scheduler.Destroy(this, ScheduleType.Morph);
 			Gameworld.Scheduler.Destroy(this, ScheduleType.MorphSaving);
 			CachedMorphTime = MorphTime - DateTime.UtcNow;
+			MorphTime = DateTime.MinValue;
 		}
 	}
 
-	private void Morph()
+	private void Morph(IGameItem item)
 	{
 		var newItem = Prototype.LoadMorphedItem(this);
 		var location = TrueLocations.FirstOrDefault();
@@ -2441,6 +2456,8 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable
 			{
 				comp.Die(newItem, location);
 			}
+
+			newItem.Login();
 		}
 
 		Delete();

@@ -25,6 +25,7 @@ namespace MudSharp.Models
         public double MinimumConditionToBuy { get; set; }
         public int MaximumStockLevelsToBuy { get; set; }
         public bool IgnoreMarketPricing { get; set; }
+        public bool PermitItemDecayOnStockedItems { get; set; }
 
         public virtual GameItem PreferredDisplayContainer { get; set; }
         public virtual Shop Shop { get; set; }

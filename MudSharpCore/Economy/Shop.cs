@@ -424,7 +424,7 @@ public abstract class Shop : SaveableItem, IShop
 
 	public void DisposeFromStock(ICharacter actor, IGameItem item)
 	{
-		item.RemoveAllEffects<ItemOnDisplayInShop>();
+		item.RemoveAllEffects<ItemOnDisplayInShop>(fireRemovalAction: true);
 		actor?.OutputHandler.Send(
 			$"You dispose of {item.HowSeen(actor)} from the for-sale inventory of {Name.TitleCase().Colour(Telnet.Cyan)}.");
 		var merch =
@@ -729,7 +729,7 @@ public abstract class Shop : SaveableItem, IShop
 		var restockInfo = boughtItems.Select(x => (Item: x, Container: x.ContainedIn)).ToList();
 		foreach (var item in boughtItems)
 		{
-			item.RemoveAllEffects<ItemOnDisplayInShop>();
+			item.RemoveAllEffects<ItemOnDisplayInShop>(fireRemovalAction: true);
 			item.InInventoryOf?.Take(item);
 			item.ContainedIn?.Take(item);
 			item.Location?.Extract(item);

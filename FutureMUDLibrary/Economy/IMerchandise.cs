@@ -32,7 +32,7 @@ namespace MudSharp.Economy
 		int MaximumStockLevelsToBuy { get; }
 		bool IgnoreMarketPricing { get; }
 		bool DefaultMerchandiseForItem { get; }
-
+		bool PermitItemDecayOnStockedItems { get; }
 
 
 		bool IsMerchandiseFor(IGameItem item, bool ignoreDefault = false);

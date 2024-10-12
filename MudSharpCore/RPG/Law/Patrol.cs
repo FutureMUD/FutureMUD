@@ -105,7 +105,7 @@ public class Patrol : SaveableItem, IPatrol
 	{
 		foreach (var member in PatrolMembers.ToList())
 		{
-			member.RemoveAllEffects<PatrolMemberEffect>();
+			member.RemoveAllEffects<PatrolMemberEffect>(fireRemovalAction: true);
 		}
 
 		PatrolLeader.Party?.Disband();
@@ -137,7 +137,7 @@ public class Patrol : SaveableItem, IPatrol
 	{
 		foreach (var member in PatrolMembers.ToList())
 		{
-			member.RemoveAllEffects<PatrolMemberEffect>();
+			member.RemoveAllEffects<PatrolMemberEffect>(fireRemovalAction: true);
 		}
 
 		PatrolLeader.Party?.Disband();

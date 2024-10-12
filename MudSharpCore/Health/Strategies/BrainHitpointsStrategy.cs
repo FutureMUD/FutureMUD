@@ -240,7 +240,7 @@ public class BrainHitpointsStrategy : BaseHealthStrategy
 			}
 			else
 			{
-				character.RemoveAllEffects<CriticalInjureKnockout>();
+				character.RemoveAllEffects<CriticalInjureKnockout>(fireRemovalAction: true);
 			}
 		}
 

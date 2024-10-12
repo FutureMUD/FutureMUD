@@ -98,7 +98,7 @@ public abstract class PerceivedItem : LateKeywordedInitialisingItem, IPerceivabl
 				return HowSeen(voyeur, proper, DescriptionType.Short, colour) + "'s";
 			case DescriptionType.Long:
 				return HowSeen(voyeur, proper, DescriptionType.Short, colour) + " is " +
-				       DescribePosition(voyeur).Fullstop();
+					   DescribePosition(voyeur).Fullstop();
 			case DescriptionType.Full:
 				return cansee
 					? (_fullDescriptionPattern?.Pattern ?? _fullDescription).FluentProper(proper)
@@ -117,7 +117,7 @@ public abstract class PerceivedItem : LateKeywordedInitialisingItem, IPerceivabl
 
 	public virtual double IlluminationProvided => 0;
 
-        public virtual SizeCategory Size => SizeCategory.Normal;
+		public virtual SizeCategory Size => SizeCategory.Normal;
 
 		public abstract void Register(IOutputHandler handler);
 
@@ -216,7 +216,7 @@ public abstract class PerceivedItem : LateKeywordedInitialisingItem, IPerceivabl
 		else
 		{
 			scheduledEffects = Effects.Where(x => Gameworld.EffectScheduler.IsScheduled(x))
-			                          .ToDictionary(x => x, x => Gameworld.EffectScheduler.RemainingDuration(x));
+									  .ToDictionary(x => x, x => Gameworld.EffectScheduler.RemainingDuration(x));
 		}
 
 		return new XElement("Effects",
@@ -429,7 +429,7 @@ public abstract class PerceivedItem : LateKeywordedInitialisingItem, IPerceivabl
 		var outwardsList = new List<IPerceivable>();
 		var inwardsList = new List<IPerceivable>();
 		return InternalInVicinity(this, target, outwardsList, inwardsList) ||
-		       InternalInVicinity(target, this, inwardsList, outwardsList);
+			   InternalInVicinity(target, this, inwardsList, outwardsList);
 	}
 
 	protected virtual bool InternalInVicinity(IPerceivable origin, IPerceivable target,
@@ -450,20 +450,20 @@ public abstract class PerceivedItem : LateKeywordedInitialisingItem, IPerceivabl
 		if (table != null)
 		{
 			return table.Chairs.Any(x => InternalInVicinity(x.Parent, target, currentPath, previous)) ||
-			       (origin.PositionTarget != null &&
-			        InternalInVicinity(origin.PositionTarget, target, currentPath, previous));
+				   (origin.PositionTarget != null &&
+					InternalInVicinity(origin.PositionTarget, target, currentPath, previous));
 		}
 
 		var chair = (origin as IGameItem)?.GetItemType<IChair>();
 		if (chair != null)
 		{
 			return (chair.Table != null && InternalInVicinity(chair.Table.Parent, target, currentPath, previous)) ||
-			       (origin.PositionTarget != null &&
-			        InternalInVicinity(origin.PositionTarget, target, currentPath, previous));
+				   (origin.PositionTarget != null &&
+					InternalInVicinity(origin.PositionTarget, target, currentPath, previous));
 		}
 
 		return origin.PositionTarget != null &&
-		       InternalInVicinity(origin.PositionTarget, target, currentPath, previous);
+			   InternalInVicinity(origin.PositionTarget, target, currentPath, previous);
 	}
 
 	public void SetPosition(IPositionState state, PositionModifier modifier, IPerceivable target, IEmote emote)
@@ -786,7 +786,7 @@ public abstract class PerceivedItem : LateKeywordedInitialisingItem, IPerceivabl
 			}
 
 			if (_installedHooks.Any(x => x.Type == type) ||
-			    ((this as INPC)?.AIs.Any(x => x.HandlesEvent(type)) ?? false))
+				((this as INPC)?.AIs.Any(x => x.HandlesEvent(type)) ?? false))
 			{
 				continue;
 			}

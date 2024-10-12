@@ -6,16 +6,21 @@ using System.Threading.Tasks;
 using System.Xml.Linq;
 using MudSharp.Models;
 using MudSharp.Character;
+using MudSharp.Construction.Boundary;
 using MudSharp.Economy;
 using MudSharp.Economy.Currency;
 using MudSharp.Effects.Interfaces;
+using MudSharp.Events;
 using MudSharp.Framework;
 using MudSharp.FutureProg;
 using MudSharp.GameItems;
+using MudSharp.RPG.Law;
+using Law = MudSharp.RPG.Law.Law;
+using LegalAuthority = MudSharp.RPG.Law.LegalAuthority;
 
 namespace MudSharp.Effects.Concrete;
 
-public class ItemOnDisplayInShop : Effect, IDescriptionAdditionEffect
+public class ItemOnDisplayInShop : Effect, IDescriptionAdditionEffect, IHandleEventsEffect
 {
 	private long _shopId;
 	private IShop _shop;
@@ -127,4 +132,67 @@ public class ItemOnDisplayInShop : Effect, IDescriptionAdditionEffect
 	}
 
 	public bool PlayerSet => false;
+
+	/// <inheritdoc />
+	/// <inheritdoc />
+	public override void RemovalEffect()
+	{
+		if (!Merchandise.PermitItemDecayOnStockedItems)
+		{
+			((IGameItem)Owner).StartMorphTimer();
+		}
+	}
+
+	/// <inheritdoc />
+	public override void InitialEffect()
+	{
+		if (!Merchandise.PermitItemDecayOnStockedItems)
+		{
+			((IGameItem)Owner).EndMorphTimer();
+		}
+	}
+
+	/// <inheritdoc />
+	public override void Login()
+	{
+		base.Login();
+		if (!Merchandise.PermitItemDecayOnStockedItems)
+		{
+			((IGameItem)Owner).EndMorphTimer();
+		}
+	}
+
+	/// <inheritdoc />
+	public bool HandleEvent(EventType type, params dynamic[] arguments)
+	{
+		switch (type)
+		{
+			case EventType.CharacterLeaveCellItems:
+				var ch = (ICharacter)arguments[0];
+				var exit = (ICellExit)arguments[2];
+				if (exit.Origin.Shop == Shop && exit.Destination.Shop != Shop)
+				{
+					if (!Shop.IsEmployee(ch))
+					{
+						CrimeExtensions.CheckPossibleCrimeAllAuthorities(ch, CrimeTypes.Theft, null, (IGameItem)Owner, "shoplifting");
+						Owner.RemoveEffect(this, true);
+					}
+					else
+					{
+						Shop.DisposeFromStock(ch, (IGameItem)Owner);
+					}
+				}
+
+				break;
+
+		}
+
+		return false;
+	}
+
+	/// <inheritdoc />
+	public bool HandlesEvent(params EventType[] types)
+	{
+		return types.Contains(EventType.CharacterLeaveCellItems);
+	}
 }

@@ -41,6 +41,8 @@ public class Merchandise : LateInitialisingItem, IMerchandise
 		MinimumConditionToBuy = rhs.MinimumConditionToBuy;
 		BaseBuyModifier = rhs.BaseBuyModifier;
 		MaximumStockLevelsToBuy = rhs.MaximumStockLevelsToBuy;
+		IgnoreMarketPricing = rhs.IgnoreMarketPricing;
+		PermitItemDecayOnStockedItems = rhs.PermitItemDecayOnStockedItems;
 	}
 
 	public Merchandise(IShop shop, string name, IGameItemProto proto, decimal price, bool isDefault,
@@ -62,6 +64,7 @@ public class Merchandise : LateInitialisingItem, IMerchandise
 		MinimumConditionToBuy = 1.0;
 		BaseBuyModifier = 0.3M;
 		MaximumStockLevelsToBuy = 1;
+		PermitItemDecayOnStockedItems = Gameworld.GetStaticBool("MerchandisePermitsItemDecayByDefault");
 	}
 
 	public Merchandise(MudSharp.Models.Merchandise merch, IShop shop, IFuturemud gameworld)
@@ -86,6 +89,8 @@ public class Merchandise : LateInitialisingItem, IMerchandise
 		MinimumConditionToBuy = merch.MinimumConditionToBuy;
 		BaseBuyModifier = merch.BaseBuyModifier;
 		MaximumStockLevelsToBuy = merch.MaximumStockLevelsToBuy;
+		IgnoreMarketPricing = merch.IgnoreMarketPricing;
+		PermitItemDecayOnStockedItems = merch.PermitItemDecayOnStockedItems;
 	}
 
 	public override void Save()
@@ -109,6 +114,8 @@ public class Merchandise : LateInitialisingItem, IMerchandise
 		dbitem.BaseBuyModifier = BaseBuyModifier;
 		dbitem.MinimumConditionToBuy = MinimumConditionToBuy;
 		dbitem.MaximumStockLevelsToBuy = MaximumStockLevelsToBuy;
+		dbitem.IgnoreMarketPricing = IgnoreMarketPricing;
+		dbitem.PermitItemDecayOnStockedItems = PermitItemDecayOnStockedItems;
 		Changed = false;
 	}
 
@@ -134,6 +141,8 @@ public class Merchandise : LateInitialisingItem, IMerchandise
 		dbitem.BaseBuyModifier = BaseBuyModifier;
 		dbitem.MinimumConditionToBuy = MinimumConditionToBuy;
 		dbitem.MaximumStockLevelsToBuy = MaximumStockLevelsToBuy;
+		dbitem.PermitItemDecayOnStockedItems = PermitItemDecayOnStockedItems;
+		dbitem.IgnoreMarketPricing = IgnoreMarketPricing;
 		return dbitem;
 	}
 
@@ -169,7 +178,8 @@ public class Merchandise : LateInitialisingItem, IMerchandise
 	#3shop merch set container <target>#0 - sets a preferred display container
 	#3shop merch set reorder off#0 - turns auto-reordering off
 	#3shop merch set reorder <price>|<percentage> <quantity> [<weight>]#0 - enables auto-reordering with the specified price, quantity and optional minimum weight
-	#3shop merch set preserve#0 - toggles preservation of item variables when reordering".SubstituteANSIColour());
+	#3shop merch set preserve#0 - toggles preservation of item variables when reordering
+	#3shop merch set decay#0 - toggles morph/decay timers being paused on this item".SubstituteANSIColour());
 			}
 			else
 			{
@@ -244,143 +254,13 @@ public class Merchandise : LateInitialisingItem, IMerchandise
 					return BuildingCommandPreserve(actor, command);
 				case "skin":
 					return BuildingCommandSkin(actor, command);
+				case "decay":
+					return BuildingCommandDecay(actor);
 			}
 		}
 
 		SendHelpText();
 		return false;
-	}
-
-	private bool BuildingCommandMarket(ICharacter actor)
-	{
-		IgnoreMarketPricing = !IgnoreMarketPricing;
-		Changed = true;
-		actor.OutputHandler.Send($"This merchandise will {IgnoreMarketPricing.NowNoLonger()} ignore market effects on its prices.");
-		return true;
-	}
-
-	private bool BuildingCommandMaximumAmount(ICharacter actor, StringStack command)
-	{
-		if (command.IsFinished)
-		{
-			actor.OutputHandler.Send("How many items should be the maximum number that this shop will buy?");
-			return false;
-		}
-
-		if (!int.TryParse(command.SafeRemainingArgument, out var value) || value < 0)
-		{
-			actor.OutputHandler.Send("You must enter a valid number, or 0 to make it unlimited.");
-			return false;
-		}
-
-		MaximumStockLevelsToBuy = value;
-		Changed = true;
-		actor.OutputHandler.Send(
-			value == 0 ? 
-				"The store will now buy an unlimited number of this item." : 
-				$"The store will now buy as many as {value.ToString("N0", actor).ColourValue()} of this item.");
-		return true;
-	}
-
-	private bool BuildingCommandMinimumCondition(ICharacter actor, StringStack command)
-	{
-		if (command.IsFinished || !command.SafeRemainingArgument.TryParsePercentage(actor.Account.Culture, out var value) || value < 0.0 || value > 1.0)
-		{
-			actor.OutputHandler.Send($"You must enter a valid percentage between {0.ToString("P0", actor).ColourValue()} and {1.ToString("P0", actor).ColourValue()}.");
-			return false;
-		}
-
-		MinimumConditionToBuy = value;
-		Changed = true;
-		actor.OutputHandler.Send($"This shop will now require this merchandise to be at a minimum condition of {MinimumConditionToBuy.ToString("P2", actor).ColourValue()} to buy.");
-		return true;
-	}
-
-	private bool BuildingCommandWillSell(ICharacter actor)
-	{
-		WillSell = !WillSell;
-		Changed = true;
-		actor.OutputHandler.Send($"The shop will {WillSell.NowNoLonger()} offer this merchandise for sale.");
-		return true;
-	}
-
-	private bool BuildingCommandWillBuy(ICharacter actor)
-	{
-		WillBuy = !WillBuy;
-		Changed = true;
-		actor.OutputHandler.Send($"The shop will {WillBuy.NowNoLonger()} offer to buy this merchandise.");
-		if (WillBuy)
-		{
-			actor.OutputHandler.Send($"#B[Hint]#0: Don't forget to set the markdown price.".SubstituteANSIColour());
-		}
-		return true;
-	}
-
-	private bool BuildingCommandBuyMarkdown(ICharacter actor, StringStack command)
-	{
-		if (command.IsFinished || !command.SafeRemainingArgument.TryParsePercentageDecimal(actor.Account.Culture, out var value) || value < 0.0M)
-		{
-			actor.OutputHandler.Send("You must enter a valid markdown percentage for buying this merchandise (relative to the sale price).");
-			return false;
-		}
-
-		BaseBuyModifier = value;
-		Changed = true;
-		actor.OutputHandler.Send($"This shop will now buy this merchandise at a {BaseBuyModifier.ToString("P2", actor).ColourValue()} markdown from the sale price.\nThis means it would buy for {Shop.Currency.Describe(value * EffectivePrice, CurrencyDescriptionPatternType.ShortDecimal).ColourValue()} and sell for {Shop.Currency.Describe(EffectivePrice, CurrencyDescriptionPatternType.ShortDecimal).ColourValue()}");
-		return true;
-	}
-
-	private bool BuildingCommandSkin(ICharacter actor, StringStack command)
-	{
-		if (command.IsFinished)
-		{
-			actor.OutputHandler.Send(
-				$"You must either specify a skin to go with this merchandise, or use {"clear".ColourCommand()} to clear it.");
-			return false;
-		}
-
-		if (command.PeekSpeech().EqualToAny("clear", "none", "remove", "delete"))
-		{
-			_skinId = null;
-			Changed = true;
-			actor.OutputHandler.Send($"This merchandise will no longer have a skin associated with it.");
-			return true;
-		}
-
-		IGameItemSkin skin;
-		if (long.TryParse(command.SafeRemainingArgument, out var id))
-		{
-			skin = Gameworld.ItemSkins.Get(id);
-		}
-		else
-		{
-			skin = Gameworld.ItemSkins.Where(x => x.ItemProto == Item)
-			                .GetByNameOrAbbreviation(command.SafeRemainingArgument);
-		}
-
-		if (skin is null)
-		{
-			actor.OutputHandler.Send("There is no such skin.");
-			return false;
-		}
-
-		if (skin.ItemProto != Item)
-		{
-			actor.OutputHandler.Send(
-				$"{skin.EditHeader().ColourName()} was not designed to be used with {Item.EditHeader().ColourObject()}.");
-			return false;
-		}
-
-		if (skin.Status != RevisionStatus.Current)
-		{
-			actor.OutputHandler.Send($"{skin.EditHeader().ColourName()} is not approved for use.");
-			return false;
-		}
-
-		_skinId = skin.Id;
-		Changed = true;
-		actor.OutputHandler.Send($"This merchandise will now use {skin.EditHeader().ColourName()}.");
-		return true;
 	}
 
 	#region Building Sub Commands
@@ -630,6 +510,152 @@ public class Merchandise : LateInitialisingItem, IMerchandise
 		return true;
 	}
 
+	private bool BuildingCommandMaximumAmount(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("How many items should be the maximum number that this shop will buy?");
+			return false;
+		}
+
+		if (!int.TryParse(command.SafeRemainingArgument, out var value) || value < 0)
+		{
+			actor.OutputHandler.Send("You must enter a valid number, or 0 to make it unlimited.");
+			return false;
+		}
+
+		MaximumStockLevelsToBuy = value;
+		Changed = true;
+		actor.OutputHandler.Send(
+			value == 0 ?
+				"The store will now buy an unlimited number of this item." :
+				$"The store will now buy as many as {value.ToString("N0", actor).ColourValue()} of this item.");
+		return true;
+	}
+
+	private bool BuildingCommandMinimumCondition(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished || !command.SafeRemainingArgument.TryParsePercentage(actor.Account.Culture, out var value) || value < 0.0 || value > 1.0)
+		{
+			actor.OutputHandler.Send($"You must enter a valid percentage between {0.ToString("P0", actor).ColourValue()} and {1.ToString("P0", actor).ColourValue()}.");
+			return false;
+		}
+
+		MinimumConditionToBuy = value;
+		Changed = true;
+		actor.OutputHandler.Send($"This shop will now require this merchandise to be at a minimum condition of {MinimumConditionToBuy.ToString("P2", actor).ColourValue()} to buy.");
+		return true;
+	}
+
+	private bool BuildingCommandWillSell(ICharacter actor)
+	{
+		WillSell = !WillSell;
+		Changed = true;
+		actor.OutputHandler.Send($"The shop will {WillSell.NowNoLonger()} offer this merchandise for sale.");
+		return true;
+	}
+
+	private bool BuildingCommandWillBuy(ICharacter actor)
+	{
+		WillBuy = !WillBuy;
+		Changed = true;
+		actor.OutputHandler.Send($"The shop will {WillBuy.NowNoLonger()} offer to buy this merchandise.");
+		if (WillBuy)
+		{
+			actor.OutputHandler.Send($"#B[Hint]#0: Don't forget to set the markdown price.".SubstituteANSIColour());
+		}
+		return true;
+	}
+
+	private bool BuildingCommandBuyMarkdown(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished || !command.SafeRemainingArgument.TryParsePercentageDecimal(actor.Account.Culture, out var value) || value < 0.0M)
+		{
+			actor.OutputHandler.Send("You must enter a valid markdown percentage for buying this merchandise (relative to the sale price).");
+			return false;
+		}
+
+		BaseBuyModifier = value;
+		Changed = true;
+		actor.OutputHandler.Send($"This shop will now buy this merchandise at a {BaseBuyModifier.ToString("P2", actor).ColourValue()} markdown from the sale price.\nThis means it would buy for {Shop.Currency.Describe(value * EffectivePrice, CurrencyDescriptionPatternType.ShortDecimal).ColourValue()} and sell for {Shop.Currency.Describe(EffectivePrice, CurrencyDescriptionPatternType.ShortDecimal).ColourValue()}");
+		return true;
+	}
+
+	private bool BuildingCommandSkin(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send(
+				$"You must either specify a skin to go with this merchandise, or use {"clear".ColourCommand()} to clear it.");
+			return false;
+		}
+
+		if (command.PeekSpeech().EqualToAny("clear", "none", "remove", "delete"))
+		{
+			_skinId = null;
+			Changed = true;
+			actor.OutputHandler.Send($"This merchandise will no longer have a skin associated with it.");
+			return true;
+		}
+
+		IGameItemSkin skin;
+		if (long.TryParse(command.SafeRemainingArgument, out var id))
+		{
+			skin = Gameworld.ItemSkins.Get(id);
+		}
+		else
+		{
+			skin = Gameworld.ItemSkins.Where(x => x.ItemProto == Item)
+							.GetByNameOrAbbreviation(command.SafeRemainingArgument);
+		}
+
+		if (skin is null)
+		{
+			actor.OutputHandler.Send("There is no such skin.");
+			return false;
+		}
+
+		if (skin.ItemProto != Item)
+		{
+			actor.OutputHandler.Send(
+				$"{skin.EditHeader().ColourName()} was not designed to be used with {Item.EditHeader().ColourObject()}.");
+			return false;
+		}
+
+		if (skin.Status != RevisionStatus.Current)
+		{
+			actor.OutputHandler.Send($"{skin.EditHeader().ColourName()} is not approved for use.");
+			return false;
+		}
+
+		_skinId = skin.Id;
+		Changed = true;
+		actor.OutputHandler.Send($"This merchandise will now use {skin.EditHeader().ColourName()}.");
+		return true;
+	}
+	private bool BuildingCommandDecay(ICharacter actor)
+	{
+		PermitItemDecayOnStockedItems = !PermitItemDecayOnStockedItems;
+		if (PermitItemDecayOnStockedItems)
+		{
+			actor.OutputHandler.Send("Item decay will now be enabled for stocked items; items will decay or morph as normal.");
+		}
+		else
+		{
+			actor.OutputHandler.Send("Item decay will is now turned off for stocked items. They will have their morph timers paused while in stock.");
+		}
+		Changed = true;
+		return true;
+	}
+
+	private bool BuildingCommandMarket(ICharacter actor)
+	{
+		IgnoreMarketPricing = !IgnoreMarketPricing;
+		Changed = true;
+		actor.OutputHandler.Send($"This merchandise will {IgnoreMarketPricing.NowNoLonger()} ignore market effects on its prices.");
+		return true;
+	}
+
 	#endregion
 
 	public void ShowToBuilder(ICharacter actor)
@@ -666,6 +692,7 @@ public class Merchandise : LateInitialisingItem, IMerchandise
 		sb.AppendLine($"Minimum Buy Condition: {MinimumConditionToBuy.ToString("P2", actor).ColourValue()}");
 		sb.AppendLine($"Maximum Buy Stock: {(MaximumStockLevelsToBuy == 0 ? "Unlimited".ColourValue() : MaximumStockLevelsToBuy.ToString("N0", actor).ColourValue())}");
 		sb.AppendLine($"Ignore Market Pricing: {IgnoreMarketPricing.ToColouredString()}");
+		sb.AppendLine($"Permit Item Decay When Stocked: {PermitItemDecayOnStockedItems.ToColouredString()}");
 		
 		sb.AppendLine(
 			$"Preferred Display Container: {PreferredDisplayContainer?.HowSeen(actor, flags: PerceiveIgnoreFlags.IgnoreCanSee) ?? "None".Colour(Telnet.Red)}");
@@ -718,6 +745,7 @@ public class Merchandise : LateInitialisingItem, IMerchandise
 	public double MinimumConditionToBuy { get; private set; }
 	public int MaximumStockLevelsToBuy { get; private set; }
 	public bool IgnoreMarketPricing { get; private set; }
+	public bool PermitItemDecayOnStockedItems { get; private set; }
 	public decimal EffectivePrice => 
 		(BasePrice == -1
 		? Item.CostInBaseCurrency / Shop.Currency.BaseCurrencyToGlobalBaseCurrencyConversion

@@ -99,7 +99,7 @@ public abstract class PatrolStrategyBase : IPatrolStrategy
 			patrol.ActiveEnforcementTarget = person;
 			patrol.ActiveEnforcementCrime = targetCrime;
 			patrol.WarnCriminal(person, targetCrime);
-			patrol.PatrolLeader.RemoveAllEffects<FollowingPath>();
+			patrol.PatrolLeader.RemoveAllEffects<FollowingPath>(fireRemovalAction: true);
 			patrol.LegalAuthority.HandleDiscordNotificationOfEnforcement(targetCrime, patrol);
 			return true;
 		}

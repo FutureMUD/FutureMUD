@@ -922,12 +922,12 @@ namespace MudSharp.GameItems.Components
 				Changed = true;
 				if (value)
 				{
-					Parent.RemoveAllEffects<ShopStallNoGetEffect>();
+					Parent.RemoveAllEffects<ShopStallNoGetEffect>(fireRemovalAction: true);
 					Parent.AddEffect(new ShopStallNoGetEffect(Parent));
 				}
 				else
 				{
-					Parent.RemoveAllEffects<ShopStallNoGetEffect>();
+					Parent.RemoveAllEffects<ShopStallNoGetEffect>(fireRemovalAction: true);
 				}
 			}
 		}

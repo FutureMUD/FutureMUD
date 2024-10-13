@@ -209,6 +209,7 @@ The syntax for this command is as follows:
 	#3weaponattack show <id|name>#0 - shows details about a particular weapon attack
 	#3weaponattack close#0 - closes the open weapon attack
 	#3weaponattack natural <race> <attack> <bodypart>#0 - toggles an unarmed attack being enabled for a race
+	#3weaponattack natural <race> <attack> remove#0 - removes all attacks of that type from the race
 	#3weaponattack new <type>#0 - creates a new weapon attack of the specified type
 	#3weaponattack clone <which>#0 - creates a carbon copy of the specified weapon type
 	#3weaponattack set ...#0 - edits the properties of a weapon attack. See that command for more help.
@@ -645,7 +646,7 @@ You can use the following arguments to refine the list command:
 		}
 
 		foreach (var similar in race.NaturalWeaponAttacks
-		                            .Where(x => x.Attack == attack && x.Bodypart == targetbodypart).ToList())
+		                            .Where(x => x.IsSimilarTo(attack, targetbodypart)).ToList())
 		{
 			race.RemoveNaturalAttack(similar);
 		}

@@ -15,6 +15,7 @@ using MudSharp.Framework;
 using MudSharp.FutureProg;
 using MudSharp.GameItems;
 using MudSharp.RPG.Law;
+using Exit = MudSharp.Construction.Boundary.Exit;
 using Law = MudSharp.RPG.Law.Law;
 using LegalAuthority = MudSharp.RPG.Law.LegalAuthority;
 
@@ -170,6 +171,11 @@ public class ItemOnDisplayInShop : Effect, IDescriptionAdditionEffect, IHandleEv
 			case EventType.CharacterLeaveCellItems:
 				var ch = (ICharacter)arguments[0];
 				var exit = (ICellExit)arguments[2];
+				if (exit is null)
+				{
+					return false;
+				}
+
 				if (exit.Origin.Shop == Shop && exit.Destination.Shop != Shop)
 				{
 					if (!Shop.IsEmployee(ch))

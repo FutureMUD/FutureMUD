@@ -8,6 +8,17 @@ namespace MudSharp.Combat;
 
 public class NaturalAttack : INaturalAttack
 {
+	/// <inheritdoc />
+	public override string ToString()
+	{
+		return $"Natural Attack of {Attack.Name} (#{Attack.Id:N0}) with {Bodypart.FullDescription()} @ {Quality.DescribeEnum()}";
+	}
+
+	public bool IsSimilarTo(IWeaponAttack attack, IBodypart part)
+	{
+		return Attack == attack && Bodypart == part;
+	}
+
 	public IWeaponAttack Attack { get; set; }
 	public IBodypart Bodypart { get; set; }
 	public ItemQuality Quality { get; set; }

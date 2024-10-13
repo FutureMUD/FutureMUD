@@ -124,7 +124,7 @@ public partial class Emote
 	{
 #if DEBUG
 #else
-            try {
+			try {
 #endif
 		int[] targetCounter = { 0 };
 		var sourceIncluded = false;
@@ -477,12 +477,12 @@ public partial class Emote
 		return string.IsNullOrEmpty(ErrorMessage);
 #if DEBUG
 #else
-            }
-            catch (Exception e) {
-                var exceptionText =
+			}
+			catch (Exception e) {
+				var exceptionText =
  $"Exception in Emote.ScoutTargets for emote:\n\n{RawText}\n\nTokens:\n\n{(from token in _tokens select (token?.Target?.HowSeen(Source, colour: false, flags: PerceiveIgnoreFlags.IgnoreSelf) ?? "null")).ListToString()}\n\n{e.Message}";
-                throw new ApplicationException(exceptionText);
-            }
+				throw new ApplicationException(exceptionText);
+			}
 #endif
 	}
 
@@ -671,7 +671,7 @@ public partial class Emote
 			return Pronouned
 				? _target.ApparentGender(perceiver).Objective(Proper)
 				: _target.HowSeen(perceiver, Proper, colour: Coloured, flags: PerceiveIgnoreFlags.IgnoreSelf | flags)
-				         .Strip_A_An(StripAAn);
+						 .Strip_A_An(StripAAn);
 		}
 	}
 
@@ -764,7 +764,7 @@ public partial class Emote
 			return Pronouned
 				? _target.ApparentGender(perceiver).Objective(Proper)
 				: _target.HowSeen(perceiver, Proper, colour: Coloured, flags: PerceiveIgnoreFlags.IgnoreLayers | flags)
-				         .Strip_A_An(StripAAn);
+						 .Strip_A_An(StripAAn);
 		}
 	}
 
@@ -1139,7 +1139,7 @@ public partial class Emote
 			_languageInfo = new EmoteSpokenLanguageInfo(language, accent, AudioVolume.Decent, speechText,
 				_permitLanguageOptions == PermitLanguageOptions.PermitLanguage
 					? source.Gameworld.GetCheck(CheckType.SpokenLanguageSpeakCheck)
-					        .Check(_languagePerceiver, Difficulty.Normal, language.LinkedTrait)
+							.Check(_languagePerceiver, Difficulty.Normal, language.LinkedTrait)
 					: Outcome.NotTested, source, null);
 		}
 
@@ -1239,21 +1239,21 @@ public partial class Emote
 				if (_possessive)
 				{
 					return "your own".FluentProper(Proper)
-					                 .FluentColour(Other is ICharacter ? Telnet.Magenta : Telnet.Green, Coloured);
+									 .FluentColour(Other is ICharacter ? Telnet.Magenta : Telnet.Green, Coloured);
 				}
 
 				return "yourself".FluentProper(Proper)
-				                 .FluentColour(Other is ICharacter ? Telnet.Magenta : Telnet.Green, Coloured);
+								 .FluentColour(Other is ICharacter ? Telnet.Magenta : Telnet.Green, Coloured);
 			}
 
 			if (_possessive)
 			{
 				return "your".FluentProper(Proper)
-				             .FluentColour(Other is ICharacter ? Telnet.Magenta : Telnet.Green, Coloured);
+							 .FluentColour(Other is ICharacter ? Telnet.Magenta : Telnet.Green, Coloured);
 			}
 
 			return "you".FluentProper(Proper)
-			            .FluentColour(Other is ICharacter ? Telnet.Magenta : Telnet.Green, Coloured);
+						.FluentColour(Other is ICharacter ? Telnet.Magenta : Telnet.Green, Coloured);
 		}
 
 		public override string DisplayThirdPerson(IPerceiver perceiver, PerceiveIgnoreFlags flags)
@@ -1274,7 +1274,7 @@ public partial class Emote
 			return Other.IsSelf(_target)
 				? _target.ApparentGender(perceiver).Reflexive(Proper)
 				: _target.HowSeen(perceiver, Proper, colour: Coloured, flags: PerceiveIgnoreFlags.IgnoreSelf | flags)
-				         .Strip_A_An(StripAAn);
+						 .Strip_A_An(StripAAn);
 		}
 
 		#endregion

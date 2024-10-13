@@ -385,6 +385,7 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 			}
 			PreloadAccounts();
 			PreloadCharacterNames();
+			EnsureCoreHelpfiles();
 #if DEBUG
 			sqlwriter.Close();
 #endif
@@ -466,6 +467,53 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 		}
 
 		ConsoleUtilities.WriteLine("\n#ECreating listening server thread...#0");
+	}
+
+	private void EnsureCoreHelpfiles()
+	{
+		if (Helpfiles.Any(x => x.Name == "Communication"))
+		{
+			return;
+		}
+
+		var dbhelp = new Models.Helpfile
+		{
+			Category = "Communication",
+			PublicText = @"There are several in-character communication commands that you can use in this game. There are two important things to know about each command - the volume at which it will cause your character to speak, and whether it is a targeted or non-targeted command. You will always use the language and accent set by the #3speak#0 command.
+
+The twelve principle in-character communication commands are (in ascending order of loudness and with non-targeted / targeted versions shown)
+
+#3whisper#0 / #3whisperto#0
+#3talk#0 / #3talkto#0
+#3say#0 / #3tell#0
+#3loudsay#0 / #3loudtell#0
+#3yell#0 / #3yellat#0
+#3shout#0 / #3shoutat#0
+
+There is also #3sing#0 / #3singto#0 outside of this hierarchy.
+
+Each of the commands follows the same syntax, with say/tell used as an example:
+
+#0say <message>#0
+#3tell <target> <message>#0
+
+In addition, you may also include a short emote in your communication commands that clarifies some action that you are taking as you speak, which is done with the following syntax:
+
+#3tell <target> (<emote>) <message>#0
+e.g #3whisperto tall.man (with a conspiratorial glance towards ~short.bald) I suspect that baldy is going to try and make a move for the throne.#0
+
+The targeted versions of the command can be used to target either people or objects, so for instance you may talk directly to an individual, or you could whisper the name of someone you are about to kill to your dagger.
+
+Finally, the yell and shout level of volume is so loud, that it can be heard in nearby rooms (albeit at a lesser volume there).
+
+For information on the syntax to use in emotes (such as those included in brackets after your communication command), see #3help emote#0.",
+			LastEditedBy = "System",
+			LastEditedDate = DateTime.UtcNow,
+			Keywords = "Communication",
+			TagLine = "Information about communication commands"
+		};
+		FMDB.Context.Helpfiles.Add(dbhelp);
+		_helpfiles.Add(new Helpfile(dbhelp, this));
 	}
 
 	void IFuturemudLoader.LoadNewPlayerHints()

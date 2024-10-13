@@ -309,6 +309,35 @@ internal class CommunicationsModule : Module<ICharacter>
 	}
 
 	[PlayerCommand("Emote", "emote", "em", "emo", "emot", ",")]
+	[HelpInfo("emote", @"The #3emote#0 command is used to send an in-character echo to others in your room describing your character's actions. It is one of the main roleplaying tools that you will use and so it is worth understanding what you can do with it.
+
+Many other parts of the engine also accept an emote, such as the communication commands like #3say#0. The emotes in those commands use the same markup syntax as described in this command.
+
+The syntax for using the emote command is #3emote <message>#0. Note that if you do not use the @ token at some point in your emote, it will be prepended to the beginning of your emote automatically. For example, #3emote ducks down#0 is equivalent to #3emote @ ducks down#0.
+
+You can use the following tokens in your emotes:
+
+	#6~target#0 will substitute the short description of the target person or ""you"" to them
+	#6~keyword's#0 - targets a person and displays their short description + 's or ""your"" to them
+	#6~#keyword#0 - targets a person and displays ""he/she/it/they"" or ""you""
+	#6~!keyword#0 - targets a person and displays ""him/her/it/they"" or ""you""
+	#6~!keyword#0 - targets a person and displays ""his/her/its/their"" or ""your""
+	#6~keyword|one|two#0 - displays #3one#0 to the target or #3two#0 to others, use for grammar
+	#6@#0 - equivalent to using ~ and targeting yourself, however it cannot be modified with ! or #.
+	#6*target#0 will substitute the short description of the target item
+
+You can also include speech in your emotes by putting the text in double quotes (#6""#0). This will use whatever language and accent you have set using the #3speak#0 command.
+
+Some examples are below:
+
+	#3emote brushes the hair out of her face with a soft sigh#0
+	#3emote stares angrily at ~brute, his fury palpable#0
+	#3emote Without so much as a single word, @ turns around and leaves the room#0
+
+If you care about getting grammatically correct echoes to yourself (for log purposes etc), consider the difference between the below two examples:
+
+	#3emote smacks his hand with *hammer and says ""Ouch!""
+	#3emote ~me|smack|smacks ~!me hand with *hammer and ~me|say|says ""Ouch!""", AutoHelp.HelpArgOrNoArg)]
 	protected static void Emote(ICharacter actor, string input)
 	{
 		var message = input.RemoveFirstWord();

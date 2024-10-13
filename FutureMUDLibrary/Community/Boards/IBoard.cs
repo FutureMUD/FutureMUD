@@ -10,13 +10,15 @@ using MudSharp.TimeAndDate.Date;
 
 namespace MudSharp.Community.Boards
 {
-    public interface IBoard : IFrameworkItem {
-        bool DisplayOnLogin { get; }
-        ICalendar Calendar { get; }
+	public interface IBoard : IFrameworkItem {
+		bool DisplayOnLogin { get; }
+		ICalendar Calendar { get; }
 
-        void MakeNewPost(IAccount author, string title, string text);
-        void MakeNewPost(ICharacter author, string title, string text);
+		void MakeNewPost(IAccount author, string title, string text);
+		void MakeNewPost(ICharacter author, string title, string text);
+		void DeletePost(IBoardPost post);
 
-        IEnumerable<IBoardPost> Posts { get; }
-    }
+
+		IEnumerable<IBoardPost> Posts { get; }
+	}
 }

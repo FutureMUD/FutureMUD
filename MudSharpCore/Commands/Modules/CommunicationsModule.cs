@@ -830,7 +830,8 @@ The syntax is simply #3OOC <your message>#0 to send a message to everyone in the
 You can use the following syntax with this command:
 
 	#3board read <##>#0 - reads the specified board post
-	#3board write <title>#0 - drops you into an editor to make a post";
+	#3board write <title>#0 - drops you into an editor to make a post
+	#3board delete <##>#0 - deletes a board post you authored";
 
 	private const string BoardHelpAdmin =
 		@"The board command can be used either to interact with a discussion board item in room or to view boards, including ones that have no in-game item presence. See the BOARDS command for a list of board.
@@ -843,6 +844,7 @@ You can use the following syntax with this command:
 	#3board read <board> <##>#0 - views a particular board post
 	#3board read <##>#0 - reads the specified board post from an in-room board
 	#3board write <title>#0 - drops you into an editor to make a post to an in-room board
+	#3board delete <##>#0 - deletes a board post
 	#3board view <##>#0 - views a post for a virtual board
 	#3board create <name> <calendar>#0 - creates a new board";
 
@@ -861,6 +863,12 @@ You can use the following syntax with this command:
 				return;
 			case "write":
 				BoardWrite(actor, ss);
+				return;
+			case "delete":
+			case "del":
+			case "remove":
+			case "rem":
+				BoardDelete(actor, ss);
 				return;
 			case "list":
 			case "posts":
@@ -892,6 +900,51 @@ You can use the following syntax with this command:
 				actor.Send((actor.IsAdministrator() ? BoardHelpAdmin : BoardHelpPlayer).SubstituteANSIColour());
 				return;
 		}
+	}
+
+	private static void BoardDelete(ICharacter actor, StringStack input)
+	{
+		var board = actor.Location.LayerGameItems(actor.RoomLayer)
+		                 .SelectNotNull(x => x.GetItemType<IBoardItem>()).FirstOrDefault();
+		if (board is null)
+		{
+			actor.OutputHandler.Send("There is not a discussion board present in your location.");
+			return;
+		}
+
+		if (board.CanViewBoard.Execute<bool?>(actor) == false)
+		{
+			actor.OutputHandler.Send(board.CantViewBoardEcho.SubstituteANSIColour());
+			return;
+		}
+
+		if (input.IsFinished)
+		{
+			actor.OutputHandler.Send("What number post on the board would you like to delete?");
+			return;
+		}
+
+		if (!int.TryParse(input.SafeRemainingArgument, out var value))
+		{
+			actor.OutputHandler.Send("That is not a valid number.");
+			return;
+		}
+
+		var post = board.Board.Posts.ElementAtOrDefault(value - 1);
+		if (post is null)
+		{
+			actor.OutputHandler.Send("There is no such post on that board.");
+			return;
+		}
+
+		if (!actor.IsAdministrator() || post.AuthorId != actor.Id)
+		{
+			actor.OutputHandler.Send($"The post {post.Title.ColourName()} (#{post.Id.ToStringN0(actor)}) was not authored by you and so you cannot delete it.");
+			return;
+		}
+
+		board.Board.DeletePost(post);
+		actor.OutputHandler.Send($"You delete the post {post.Title.ColourName()} (#{post.Id.ToStringN0(actor)}).");
 	}
 
 	private static void BoardCreate(ICharacter actor, StringStack ss)
@@ -1155,6 +1208,7 @@ You can use the following syntax with this command:
 
 	[PlayerCommand("Boards", "boards")]
 	[CommandPermission(PermissionLevel.JuniorAdmin)]
+	[HelpInfo("boards", @"The #3boards#0 command is used to review which boards exist in the game, which you can interact with and edit with the related #3board#0 command. The syntax is simply #3boards#0.", AutoHelp.HelpArg)]
 	protected static void Boards(ICharacter actor, string input)
 	{
 		var sb = new StringBuilder("There are the following boards available:\n");

@@ -19,5 +19,6 @@ namespace MudSharp.Community.Boards
         [CanBeNull] MudDateTime InGameDateTime { get; }
         string AuthorShortDescription { get; }
         string AuthorFullDescription { get; }
+        void Delete();
     }
 }

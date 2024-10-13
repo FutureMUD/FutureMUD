@@ -52,6 +52,12 @@ public class Board : FrameworkItem, IBoard, IHaveFuturemud
 		_posts.Add(new BoardPost(this, author, title, text, Gameworld));
 	}
 
+	public void DeletePost(IBoardPost post)
+	{
+		_posts.Remove(post);
+		post.Delete();
+	}
+
 	private readonly List<IBoardPost> _posts = new();
 	public IEnumerable<IBoardPost> Posts => _posts;
 

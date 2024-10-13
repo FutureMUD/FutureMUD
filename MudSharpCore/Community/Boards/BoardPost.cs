@@ -125,6 +125,24 @@ public class BoardPost : LateInitialisingItem, IBoardPost
 	public bool AuthorIsCharacter { get; set; }
 	public MudDateTime InGameDateTime { get; set; }
 
+	public void Delete()
+	{
+		Gameworld.SaveManager.Abort(this);
+		if (_id != 0)
+		{
+			using (new FMDB())
+			{
+				Gameworld.SaveManager.Flush();
+				var dbitem = FMDB.Context.BoardPosts.Find(Id);
+				if (dbitem != null)
+				{
+					FMDB.Context.BoardPosts.Remove(dbitem);
+					FMDB.Context.SaveChanges();
+				}
+			}
+		}
+	}
+
 	#endregion
 
 	#region Overrides of LateInitialisingItem

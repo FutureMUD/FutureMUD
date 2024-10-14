@@ -966,7 +966,7 @@ You can use the following syntax with this command:
 			return;
 		}
 
-		if (!actor.IsAdministrator() || post.AuthorId != actor.Id)
+		if (!actor.IsAdministrator() && post.AuthorId != actor.Id)
 		{
 			actor.OutputHandler.Send($"The post {post.Title.ColourName()} (#{post.Id.ToStringN0(actor)}) was not authored by you and so you cannot delete it.");
 			return;

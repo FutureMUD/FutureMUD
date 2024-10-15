@@ -234,6 +234,22 @@ Item 6
 		var ssNonPlainArgs = new StringStack("one \"two three\" (four five six)");
 		var ssNonPlainArgs2 = new StringStack("one \"two three\" (four five six)");
 		var ssTestRemainingArg = new StringStack("one two \"three four five\" six");
+		var ssUnbalanced = new StringStack("this \"stringstack has\" \"unbalanced quotes");
+		var ssSafeRemaining = new StringStack(@"one two ""three four five""");
+
+		Assert.IsFalse(ssSafeRemaining.IsFinished, "SafeRemaining StringStack started with true IsFinished");
+		Assert.AreEqual("one", ssSafeRemaining.PopSpeech(), $"SafeRemaining StringStack expected value \"one\" but instead got \"{ssSafeRemaining.Last}\"");
+		Assert.AreEqual("two", ssSafeRemaining.PopSpeech(), $"SafeRemaining StringStack expected value \"two\" but instead got \"{ssSafeRemaining.Last}\"");
+		Assert.AreEqual("three four five", ssSafeRemaining.SafeRemainingArgument, $"SafeRemaining StringStack expected value \"three four five\" but instead got \"{ssSafeRemaining.Last}\"");
+		Assert.AreEqual("two", ssSafeRemaining.Last, $"SafeRemaining StringStack expected value \"two\" but instead got \"{ssSafeRemaining.Last}\"");
+		Assert.IsFalse(ssSafeRemaining.IsFinished, "SafeRemaining StringStack finished with true IsFinished");
+
+		Assert.IsFalse(ssUnbalanced.IsFinished, "Unbalanced StringStack started with true IsFinished");
+		Assert.AreEqual("this", ssUnbalanced.PopSpeech(), $"Unbalanced StringStack expected value \"this\" but instead got \"{ssUnbalanced.Last}\"");
+		Assert.AreEqual("stringstack has", ssUnbalanced.PopSpeech(), $"Unbalanced StringStack expected value \"stringstack has\" but instead got \"{ssUnbalanced.Last}\"");
+		Assert.AreEqual("\"unbalanced", ssUnbalanced.PopSpeech(), $"Unbalanced StringStack expected value \"\"unbalanced\" but instead got \"{ssUnbalanced.Last}\"");
+		Assert.AreEqual("quotes", ssUnbalanced.PopSpeech(), $"Unbalanced StringStack expected value \"quotes\" but instead got \"{ssUnbalanced.Last}\"");
+		Assert.IsTrue(ssUnbalanced.IsFinished, "Unbalanced StringStack finished with false IsFinished");
 
 		Assert.IsTrue(ssEmpty.IsFinished, "Empty StringStack had false IsFinished.");
 		Assert.AreEqual(string.Empty, ssEmpty.Pop(), $"Empty StringStack had non-empty Pop() result: {ssEmpty.Last}");
@@ -244,6 +260,9 @@ Item 6
 		Assert.AreEqual("two", ssThreePlainArgs.Pop(), $"ThreePlainArgs StringStack expected value \"two\" but instead got \"{ssThreePlainArgs.Last}\".");
 		Assert.AreEqual("three", ssThreePlainArgs.Pop(), $"ThreePlainArgs StringStack expected value \"three\" but instead got \"{ssThreePlainArgs.Last}\".");
 		Assert.IsTrue(ssThreePlainArgs.IsFinished, "ThreePlainArgs StringStack finished with false IsFinished.");
+
+		var undo = ssThreePlainArgs.GetUndo();
+		Assert.AreEqual("\"three\"", undo.Pop(), $"Undo StringStack expected value \"three\" but instead got \"{undo.Last}\".");
 
 		Assert.AreEqual("one", ssThreePlainArgs2.PopSpeech(), $"ThreePlainArgs2 StringStack expected value \"one\" but instead got \"{ssThreePlainArgs2.Last}\".");
 		Assert.AreEqual("two", ssThreePlainArgs2.PopSpeech(), $"ThreePlainArgs2 StringStack expected value \"two\" but instead got \"{ssThreePlainArgs2.Last}\".");

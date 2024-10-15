@@ -379,9 +379,9 @@ public abstract class PatrolStrategyBase : IPatrolStrategy
 		if (leader.Location != patrol.LegalAuthority.MarshallingLocation &&
 		    !leader.CombinedEffectsOfType<FollowingPath>().Any())
 		{
-			var path = leader.PathBetween(patrol.LegalAuthority.MarshallingLocation, 25,
-				PathSearch.PathIncludeUnlockableDoors(leader));
-			if (path != null)
+			var path = leader.PathBetween(patrol.LegalAuthority.MarshallingLocation, 50,
+				PathSearch.PathIncludeUnlockableDoors(leader)).ToList();
+			if (path.Count > 0)
 			{
 				var fp = new FollowingPath(leader, path) { UseDoorguards = true, UseKeys = true, OpenDoors = true };
 				leader.AddEffect(fp);

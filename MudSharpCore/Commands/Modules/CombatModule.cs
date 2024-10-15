@@ -8,6 +8,7 @@ using MudSharp.Body.Position.PositionStates;
 using MudSharp.Character;
 using MudSharp.Combat;
 using MudSharp.Combat.Moves;
+using MudSharp.Construction;
 using MudSharp.Effects.Interfaces;
 using MudSharp.Effects.Concrete;
 using MudSharp.Events;
@@ -22,6 +23,7 @@ using MudSharp.PerceptionEngine.Outputs;
 using MudSharp.PerceptionEngine.Parsers;
 using MudSharp.RPG.Checks;
 using MudSharp.Construction.Boundary;
+using MudSharp.Economy.Currency;
 using MudSharp.Effects;
 using MudSharp.RPG.Law;
 
@@ -2265,7 +2267,7 @@ The syntax is simply #3defend#0 to toggle the setting on or off.", AutoHelp.Help
 		}
 
 		IPerceiver target = null;
-		var path = Enumerable.Empty<ICellExit>();
+		var path = new List<ICellExit>();
 		IRangedWeapon weapon = null;
 		if (ss.IsFinished)
 		{
@@ -2371,12 +2373,40 @@ The syntax is simply #3defend#0 to toggle the setting on or off.", AutoHelp.Help
 				return;
 			}
 
-			path = actor.PathBetween(target, weapon.WeaponType.DefaultRangeInRooms,
-				x => x.Exit.Door?.CanFireThrough != false);
-			if (actor.Location != target.Location && !path.Any())
+			path = actor.PathBetween(target, 20,
+				x => x.Exit.Door?.CanFireThrough != false).ToList();
+			if (actor.Location != target.Location)
 			{
-				actor.OutputHandler.Send($"You're not in range of {target.HowSeen(actor)}.");
-				return;
+				if (!path.Any())
+				{
+					actor.OutputHandler.Send($"You can't target {target.HowSeen(actor)}.");
+					return;
+				}
+
+				int range = 0;
+				switch (actor.Gameworld.GetStaticConfiguration("RangeCountingMode"))
+				{
+					case "exits":
+						range = path.Count;
+						break;
+					case "axial":
+						range = path.MaximumAxialDistance();
+						break;
+					case "pythagoreantruncate":
+						range = path.PythagoreanDistance();
+						break;
+					case "pythagoreanround":
+						range = path.PythagoreanDistance(RoundingMode.Round);
+						break;
+					default:
+						goto case "exits";
+				}
+
+				if (range > weapon.WeaponType.DefaultRangeInRooms)
+				{
+					actor.OutputHandler.Send($"You're not in range of {target.HowSeen(actor)}.");
+					return;
+				}
 			}
 		}
 

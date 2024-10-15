@@ -14,6 +14,7 @@ public static class DefaultStaticSettings
 		new Dictionary<string, string>
 		{
 			{ "CPRAllowed", "true" },
+			{ "RangeCountingMode", "pythagoreanround"},
 			{ "PlayersCanJunk", "true" },
 			{ "WrittenItemSDescStyle", "desc+title" },
 			{ "LogNPCCommands", "false" },

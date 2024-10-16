@@ -1361,6 +1361,12 @@ public class SimpleNPCTemplate : NPCTemplateBase
 
 	private bool BuildingCommandEthnicity(ICharacter actor, StringStack command)
 	{
+		if (SelectedRace is null)
+		{
+			actor.OutputHandler.Send("You must select a race before you can select an ethnicity.");
+			return false;
+		}
+
 		var ethnicity = long.TryParse(command.PopSpeech(), out var value)
 			? Gameworld.Ethnicities.Get(value)
 			: Gameworld.Ethnicities.FirstOrDefault(
@@ -1368,6 +1374,12 @@ public class SimpleNPCTemplate : NPCTemplateBase
 		if (ethnicity == null)
 		{
 			actor.OutputHandler.Send("That is not a valid ethnicity.");
+			return false;
+		}
+
+		if (!SelectedRace.SameRace(ethnicity.ParentRace))
+		{
+			actor.OutputHandler.Send($"The {ethnicity.Name.ColourName()} ethnicity is not valid for the {SelectedRace.Name.ColourName()} race.");
 			return false;
 		}
 
@@ -1589,6 +1601,11 @@ public class SimpleNPCTemplate : NPCTemplateBase
 
 		SelectedRace = race;
 		SelectedAttributes = race.Attributes.Select(x => TraitFactory.LoadAttribute(x, null, 10)).ToList<ITrait>();
+		if (SelectedEthnicity is not null && !SelectedRace.SameRace(SelectedEthnicity.ParentRace))
+		{
+			SelectedEthnicity = null;
+		}
+
 		CheckCharacteristicsCreation();
 		Handedness = SelectedRace.DefaultHandedness;
 		if (SelectedBirthday is null && SelectedCulture is not null)

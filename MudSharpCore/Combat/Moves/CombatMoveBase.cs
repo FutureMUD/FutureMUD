@@ -24,7 +24,7 @@ public abstract class CombatMoveBase : ICombatMove
 		init
 		{
 			_assailant = value;
-			if (value.CombatTarget is ICharacter item)
+			if (value.CombatTarget is ICharacter item && !_characterTargets.Contains(item))
 			{
 				_characterTargets.Add(item);
 			}
@@ -51,7 +51,21 @@ public abstract class CombatMoveBase : ICombatMove
 
 	public IEnumerable<IPerceiver> Targets => _targets;
 
-	public virtual IPerceiver PrimaryTarget => _targets.FirstOrDefault() ?? Assailant.CombatTarget;
+	public virtual IPerceiver PrimaryTarget
+	{
+		get => _targets.FirstOrDefault() ?? 
+		       Assailant.CombatTarget ?? 
+		       Assailant.Combat.Combatants.FirstOrDefault(x => x.CombatTarget == Assailant)
+		       ;
+		set
+		{
+			_targets.Add(value);
+			if (value is ICharacter ch)
+			{
+				_characterTargets.Add(ch);
+			}
+		}
+	}
 
 	public IFuturemud Gameworld => Assailant.Gameworld;
 

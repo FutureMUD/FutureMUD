@@ -55,7 +55,8 @@ public class StandardMeleeStrategy : StrategyBase
 		{
 			return new HelplessDefenseMove
 			{
-				Assailant = defender
+				Assailant = defender,
+				PrimaryTarget = assailant
 			};
 		}
 
@@ -66,7 +67,7 @@ public class StandardMeleeStrategy : StrategyBase
 	protected virtual ICombatMove ResponseToBreakClinch(BreakClinchMove move, ICharacter defender,
 		IPerceiver assailant)
 	{
-		return new HelplessDefenseMove { Assailant = defender };
+		return new HelplessDefenseMove { Assailant = defender, PrimaryTarget = assailant };
 	}
 
 	protected virtual ICombatMove ResponseToInitiateGrapple(InitiateGrappleMove move, ICharacter defender,
@@ -75,11 +76,11 @@ public class StandardMeleeStrategy : StrategyBase
 		switch (defender.CombatSettings.GrappleResponse)
 		{
 			case GrappleResponse.Ignore:
-				return new HelplessDefenseMove { Assailant = defender };
+				return new HelplessDefenseMove { Assailant = defender, PrimaryTarget = assailant };
 			case GrappleResponse.Counter:
-				return new CounterGrappleMove { Assailant = defender };
+				return new CounterGrappleMove { Assailant = defender, PrimaryTarget = assailant };
 			default:
-				return new DodgeMove { Assailant = defender };
+				return new DodgeMove { Assailant = defender, PrimaryTarget = assailant };
 		}
 	}
 
@@ -89,13 +90,13 @@ public class StandardMeleeStrategy : StrategyBase
 		switch (defender.CombatSettings.GrappleResponse)
 		{
 			case GrappleResponse.Ignore:
-				return new HelplessDefenseMove { Assailant = defender };
+				return new HelplessDefenseMove { Assailant = defender, PrimaryTarget = assailant };
 			case GrappleResponse.Counter:
-				return new CounterGrappleMove { Assailant = defender };
+				return new CounterGrappleMove { Assailant = defender, PrimaryTarget = assailant };
 			case GrappleResponse.Throw:
 			// TODO
 			default:
-				return new DodgeMove { Assailant = defender };
+				return new DodgeMove { Assailant = defender, PrimaryTarget = assailant };
 		}
 	}
 
@@ -104,7 +105,7 @@ public class StandardMeleeStrategy : StrategyBase
 	{
 		if (defender.Cover != null)
 		{
-			return new HelplessDefenseMove { Assailant = defender };
+			return new HelplessDefenseMove { Assailant = defender, PrimaryTarget = assailant };
 		}
 
 		var shield =
@@ -121,11 +122,11 @@ public class StandardMeleeStrategy : StrategyBase
 			switch (defender.PreferredDefenseType)
 			{
 				case DefenseType.Block:
-					return new BlockMove { Assailant = defender, Shield = shield };
+					return new BlockMove { Assailant = defender, Shield = shield, PrimaryTarget = assailant };
 				case DefenseType.None:
 					if (finalDodgeDifficulty.Difference(finalBlockDifficulty) > -1)
 					{
-						return new BlockMove { Assailant = defender, Shield = shield };
+						return new BlockMove { Assailant = defender, Shield = shield, PrimaryTarget = assailant };
 					}
 
 					break;
@@ -177,16 +178,16 @@ public class StandardMeleeStrategy : StrategyBase
 			{
 				case DefenseType.Block:
 					return desperate
-						? new DesperateBlock { Assailant = defender, Shield = shield }
-						: new BlockMove { Assailant = defender, Shield = shield };
+						? new DesperateBlock { Assailant = defender, Shield = shield, PrimaryTarget = assailant }
+						: new BlockMove { Assailant = defender, Shield = shield, PrimaryTarget = assailant };
 				case DefenseType.None:
 					if ((parry == null || defender.EffectsOfType<IWardBeatenEffect>().Any() ||
 					     finalParryDifficulty.Difference(finalBlockDifficulty) > -1) &&
 					    finalDodgeDifficulty.Difference(finalBlockDifficulty) > -1)
 					{
 						return desperate
-							? new DesperateBlock { Assailant = defender, Shield = shield }
-							: new BlockMove { Assailant = defender, Shield = shield };
+							? new DesperateBlock { Assailant = defender, Shield = shield, PrimaryTarget = assailant }
+							: new BlockMove { Assailant = defender, Shield = shield, PrimaryTarget = assailant };
 					}
 
 					break;
@@ -199,14 +200,14 @@ public class StandardMeleeStrategy : StrategyBase
 			{
 				case DefenseType.Parry:
 					return desperate
-						? new DesperateParry { Assailant = defender, Weapon = parry }
-						: new ParryMove { Assailant = defender, Weapon = parry };
+						? new DesperateParry { Assailant = defender, Weapon = parry, PrimaryTarget = assailant }
+						: new ParryMove { Assailant = defender, Weapon = parry, PrimaryTarget = assailant };
 				case DefenseType.None:
 					if (finalParryDifficulty.Difference(finalDodgeDifficulty) > -1)
 					{
 						return desperate
-							? new DesperateParry { Assailant = defender, Weapon = parry }
-							: new ParryMove { Assailant = defender, Weapon = parry };
+							? new DesperateParry { Assailant = defender, Weapon = parry, PrimaryTarget = assailant }
+							: new ParryMove { Assailant = defender, Weapon = parry, PrimaryTarget = assailant };
 					}
 
 					break;
@@ -281,16 +282,16 @@ public class StandardMeleeStrategy : StrategyBase
 			{
 				case DefenseType.Block:
 					return desperate
-						? new DesperateBlock { Assailant = defender, Shield = shield }
-						: new BlockMove { Assailant = defender, Shield = shield };
+						? new DesperateBlock { Assailant = defender, Shield = shield, PrimaryTarget = assailant }
+						: new BlockMove { Assailant = defender, Shield = shield, PrimaryTarget = assailant };
 				case DefenseType.None:
 					if ((parry == null || defender.EffectsOfType<IWardBeatenEffect>().Any() ||
 					     finalParryDifficulty.Difference(finalBlockDifficulty) > -1) &&
 					    finalDodgeDifficulty.Difference(finalBlockDifficulty) > -1)
 					{
 						return desperate
-							? new DesperateBlock { Assailant = defender, Shield = shield }
-							: new BlockMove { Assailant = defender, Shield = shield };
+							? new DesperateBlock { Assailant = defender, Shield = shield, PrimaryTarget = assailant }
+							: new BlockMove { Assailant = defender, Shield = shield, PrimaryTarget = assailant };
 					}
 
 					break;
@@ -304,14 +305,14 @@ public class StandardMeleeStrategy : StrategyBase
 			{
 				case DefenseType.Parry:
 					return desperate
-						? new DesperateParry { Assailant = defender, Weapon = parry }
-						: new ParryMove { Assailant = defender, Weapon = parry };
+						? new DesperateParry { Assailant = defender, Weapon = parry, PrimaryTarget = assailant }
+						: new ParryMove { Assailant = defender, Weapon = parry, PrimaryTarget = assailant };
 				case DefenseType.None:
 					if (finalParryDifficulty.Difference(finalDodgeDifficulty) > -1)
 					{
 						return desperate
-							? new DesperateParry { Assailant = defender, Weapon = parry }
-							: new ParryMove { Assailant = defender, Weapon = parry };
+							? new DesperateParry { Assailant = defender, Weapon = parry, PrimaryTarget = assailant }
+							: new ParryMove { Assailant = defender, Weapon = parry, PrimaryTarget = assailant };
 					}
 
 					break;

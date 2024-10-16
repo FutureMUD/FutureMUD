@@ -384,6 +384,7 @@ public partial class Character : PerceiverItem, ICharacter
 		set
 		{
 			_personalName = value;
+			_name = value.GetName(NameStyle.GivenOnly);
 			Changed = true;
 			NamesChanged = true;
 		}
@@ -559,6 +560,7 @@ public partial class Character : PerceiverItem, ICharacter
 		if (NamesChanged)
 		{
 			dbchar.NameInfo = SaveNames().ToString();
+			dbchar.Name = _name;
 			_namesChanged = false;
 		}
 

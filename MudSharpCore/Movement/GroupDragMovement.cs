@@ -320,7 +320,7 @@ public class GroupDragMovement : MovementBase
 				new EmoteOutput(
 					new Emote(
 						"The party stops as " + nonmovers.Select(x => "$" + count++).ListToString() +
-						" cannot move.", Party.Leader, nonmovers.ToArray()));
+						" cannot move.", Party.Leader, nonmovers.ToArray()), flags: OutputFlags.InnerWrap);
 			foreach (var person in CharacterMovers)
 			{
 				person.OutputHandler.Handle(output, OutputRange.Personal);
@@ -336,7 +336,7 @@ public class GroupDragMovement : MovementBase
 			Party.Leader.OutputHandler.Handle(
 				new EmoteOutput(
 					new Emote("@ stop|stops &0's group because #0 can't move.", Party.Leader),
-					flags: OutputFlags.SuppressObscured));
+					flags: OutputFlags.SuppressObscured | OutputFlags.InnerWrap));
 			Cancel();
 			return;
 		}
@@ -361,7 +361,7 @@ public class GroupDragMovement : MovementBase
 				dragLeader.OutputHandler.Handle(
 					new EmoteOutput(
 						new Emote("@ stop|stops dragging $1 because #0 can't move.", dragLeader, dragLeader, target),
-						flags: OutputFlags.SuppressObscured));
+						flags: OutputFlags.SuppressObscured | OutputFlags.InnerWrap));
 				Cancel();
 				return;
 			}
@@ -396,7 +396,7 @@ public class GroupDragMovement : MovementBase
 				TurnaroundTracks();
 				dragLeader.OutputHandler.Handle(new EmoteOutput(new Emote(
 					$"@{(Helpers.Any() ? " and &0's helpers are" : " are|is")} unable to drag $1 {Exit.OutboundMovementSuffix} as #1 is too heavy.",
-					dragLeader, dragLeader, target)));
+					dragLeader, dragLeader, target), flags: OutputFlags.InnerWrap));
 				Cancel();
 				return;
 			}
@@ -522,7 +522,7 @@ public class GroupDragMovement : MovementBase
 
 		foreach (var ch in Exit.Origin.LayerCharacters(Party.Leader.RoomLayer).Where(x => SeenBy(x)))
 		{
-			DescribeBeginMove(ch);
+			ch.OutputHandler.Send(DescribeBeginMove(ch).Wrap(ch.InnerLineFormatLength));
 		}
 
 		foreach (var effect in DragEffects)
@@ -533,17 +533,17 @@ public class GroupDragMovement : MovementBase
 			foreach (var ch in helpers)
 			{
 				ch.OutputHandler.Send(
-					$"You and your party{(helpers.Count > 1 ? " and your fellow helpers" : "")} begin to assist {leader.HowSeen(ch)} with dragging {target.HowSeen(ch)} {Exit.OutboundMovementSuffix}.");
+					$"You and your party{(helpers.Count > 1 ? " and your fellow helpers" : "")} begin to assist {leader.HowSeen(ch)} with dragging {target.HowSeen(ch)} {Exit.OutboundMovementSuffix}.".Wrap(ch.InnerLineFormatLength));
 			}
 
 			leader.OutputHandler.Send(
-				$"You and your party{(helpers.Any() ? " and your helpers" : "")} begin to drag {target.HowSeen(leader)} {Exit.OutboundMovementSuffix}.");
+				$"You and your party{(helpers.Any() ? " and your helpers" : "")} begin to drag {target.HowSeen(leader)} {Exit.OutboundMovementSuffix}.".Wrap(leader.InnerLineFormatLength));
 		}
 
 		foreach (var ch in nonDraggers)
 		{
 			ch.OutputHandler.Send(
-				$"You and your party begin moving {Exit.OutboundMovementSuffix} along with those dragging {Targets.Select(x => x.HowSeen(ch)).ListToString()}.");
+				$"You and your party begin moving {Exit.OutboundMovementSuffix} along with those dragging {Targets.Select(x => x.HowSeen(ch)).ListToString()}.".Wrap(ch.InnerLineFormatLength));
 		}
 
 		foreach (var mover in CharacterMovers)

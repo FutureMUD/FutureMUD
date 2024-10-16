@@ -159,8 +159,7 @@ public class GroupMovement : MovementBase
 				}
 
 				var members = CharacterMovers.Where(x => ch.CanSee(x)).ToList();
-				ch.OutputHandler.Send(members.Select(x => x.HowSeen(ch)).ListToString() + " " +
-				                      (members.Count == 1
+				ch.OutputHandler.Send($"{members.Select(x => x.HowSeen(ch)).ListToString()} {(members.Count == 1
 					                      ? members.Select(x => x.CurrentSpeed)
 					                               .Distinct()
 					                               .Select(x => x.ThirdPersonVerb)
@@ -168,8 +167,7 @@ public class GroupMovement : MovementBase
 					                      : members.Select(x => x.CurrentSpeed)
 					                               .Distinct()
 					                               .Select(x => x.FirstPersonVerb)
-					                               .ListToString())
-				                      + " " + Exit.InboundMovementSuffix + ".");
+					                               .ListToString())} {Exit.InboundMovementSuffix}.".Wrap(ch.InnerLineFormatLength));
 			}
 
 			foreach (var mover in CharacterMovers)
@@ -238,8 +236,7 @@ public class GroupMovement : MovementBase
 			var moveString = movers.Select(x => x.CurrentSpeed).Distinct()
 			                       .Select(y => y.PresentParticiple)
 			                       .ListToString();
-			ch.OutputHandler.Send(members.ListToString() + (members.Count == 1 ? " begins " : " begin ") +
-			                      moveString + " " + Exit.OutboundMovementSuffix + ".");
+			ch.OutputHandler.Send($"{members.ListToString()}{(members.Count == 1 ? " begins " : " begin ")}{moveString} {Exit.OutboundMovementSuffix}.".Wrap(ch.InnerLineFormatLength));
 		}
 
 		foreach (var ch in CharacterMovers)
@@ -247,8 +244,7 @@ public class GroupMovement : MovementBase
 			var moveString = CharacterMovers.Select(x => x.CurrentSpeed).Distinct()
 			                                .Select(y => y.PresentParticiple)
 			                                .ListToString();
-			ch.OutputHandler.Send("You and your party begin " + moveString + " " +
-			                      Exit.OutboundMovementSuffix + ".");
+			ch.OutputHandler.Send($"You and your party begin {moveString} {Exit.OutboundMovementSuffix}.".Wrap(ch.InnerLineFormatLength));
 		}
 
 		foreach (var mover in CharacterMovers)

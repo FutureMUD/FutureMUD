@@ -2373,8 +2373,7 @@ The syntax is simply #3defend#0 to toggle the setting on or off.", AutoHelp.Help
 				return;
 			}
 
-			path = actor.PathBetween(target, 20,
-				x => x.Exit.Door?.CanFireThrough != false).ToList();
+			path = actor.PathBetween(target, 20, PathSearch.IncludeFireableDoors).ToList();
 			if (actor.Location != target.Location)
 			{
 				if (!path.Any())

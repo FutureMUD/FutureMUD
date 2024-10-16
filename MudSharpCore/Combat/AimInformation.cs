@@ -159,8 +159,7 @@ public class AimInformation : IAimInformation
 	private void RecalculatePath()
 	{
 		ReleasePathEvents();
-		Path = Shooter.PathBetween(Target, 20,
-				x => x.Exit.Door?.CanFireThrough != false).ToList();
+		Path = Shooter.PathBetween(Target, 20, PathSearch.IncludeFireableDoors).ToList();
 		if (Shooter.Location != Target.Location)
 		{
 			if (!Path.Any())

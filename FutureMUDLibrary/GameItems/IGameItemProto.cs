@@ -21,6 +21,7 @@ namespace MudSharp.GameItems {
 		bool HighPriority { get; }
 		ANSIColour CustomColour { get; }
 		bool PermitPlayerSkins { get; }
+		bool IsHiddenFromPlayers { get; }
 		string EditHeaderColour(ICharacter voyeur);
 
 

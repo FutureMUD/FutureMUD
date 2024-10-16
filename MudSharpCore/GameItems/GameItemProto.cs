@@ -23,6 +23,7 @@ using MudSharp.OpenAI;
 using MudSharp.PerceptionEngine;
 using EditableItem = MudSharp.Framework.Revision.EditableItem;
 using Material = MudSharp.Form.Material.Material;
+using MudSharp.FutureProg.Statements.Manipulation;
 
 namespace MudSharp.GameItems;
 
@@ -49,7 +50,8 @@ public class GameItemProto : EditableItem, IGameItemProto
 				Keywords = "new object",
 				Name = name,
 				Size = (int)SizeCategory.Normal,
-				Weight = 1.0
+				Weight = 1.0,
+				IsHiddenFromPlayers = false,
 			};
 			dbproto.MaterialId = 0;
 			dbproto.ReadOnly = isReadOnly;
@@ -94,6 +96,7 @@ public class GameItemProto : EditableItem, IGameItemProto
 	public string ShortDescription { get; private set; }
 	public string FullDescription { get; private set; }
 	public decimal CostInBaseCurrency { get; private set; }
+	public bool IsHiddenFromPlayers { get; private set; }
 
 	private readonly
 		List<(IFutureProg Prog, string? ShortDescription, string? FullDescription, string? FullDescriptionAddendum)>
@@ -167,6 +170,7 @@ public class GameItemProto : EditableItem, IGameItemProto
 		sb.AppendLine(
 			$"Material: {(Material != null ? Material.Name.ColourValue() : "None".Colour(Telnet.Red))}");
 		sb.AppendLine($"Permit Player Skins: {PermitPlayerSkins.ToColouredString()}");
+		sb.AppendLine($"Hidden From Players: {IsHiddenFromPlayers.ToColouredString()}");
 
 		sb.AppendLine($"Base Quality: {BaseItemQuality.Describe().Colour(Telnet.Green)}");
 		sb.AppendLine($"Base Cost: {actor.Currency?.Describe(CostInBaseCurrency / actor.Currency.BaseCurrencyToGlobalBaseCurrencyConversion, CurrencyDescriptionPatternType.ShortDecimal).ColourValue() ?? CostInBaseCurrency.ToString("N", actor).ColourValue()}");
@@ -318,6 +322,7 @@ public class GameItemProto : EditableItem, IGameItemProto
 				CustomColour = CustomColour?.Name.ToLowerInvariant() ?? "",
 				HighPriority = HighPriority,
 				CostInBaseCurrency = CostInBaseCurrency,
+				IsHiddenFromPlayers = IsHiddenFromPlayers,
 			};
 
 			foreach (var tag in Tags)
@@ -416,7 +421,8 @@ public class GameItemProto : EditableItem, IGameItemProto
 				HighPriority = HighPriority,
 				ItemGroupId = ItemGroup?.Id,
 				HealthStrategyId = HealthStrategy?.Id,
-				CostInBaseCurrency = CostInBaseCurrency
+				CostInBaseCurrency = CostInBaseCurrency,
+				IsHiddenFromPlayers = IsHiddenFromPlayers
 			};
 
 			foreach (var tag in Tags)
@@ -529,6 +535,7 @@ public class GameItemProto : EditableItem, IGameItemProto
 		HighPriority = proto.HighPriority;
 		CustomColour = Telnet.GetColour(proto.CustomColour ?? string.Empty);
 		CostInBaseCurrency = proto.CostInBaseCurrency;
+		IsHiddenFromPlayers = proto.IsHiddenFromPlayers;
 		_onDestroyedGameItemProto = proto.OnDestroyedGameItemProtoId ?? 0;
 		_healthStrategy = Gameworld.HealthStrategies.Get(proto.HealthStrategyId ?? 0) ??
 						  Gameworld.HealthStrategies.FirstOrDefault(
@@ -592,6 +599,7 @@ public class GameItemProto : EditableItem, IGameItemProto
 			dbproto.HighPriority = HighPriority;
 			dbproto.CustomColour = CustomColour?.Name.ToLowerInvariant() ?? "";
 			dbproto.CostInBaseCurrency = CostInBaseCurrency;
+			dbproto.IsHiddenFromPlayers = IsHiddenFromPlayers;
 			dbproto.OnDestroyedGameItemProtoId = _onDestroyedGameItemProto != 0
 				? _onDestroyedGameItemProto
 				: default;
@@ -874,9 +882,11 @@ public class GameItemProto : EditableItem, IGameItemProto
 
 	public override bool BuildingCommand(ICharacter actor, StringStack command)
 	{
-		var subCommand = command.Pop().ToLowerInvariant();
+		var subCommand = command.PopForSwitch();
 		switch (subCommand)
 		{
+			case "hidden":
+				return BuildingCommandHidden(actor);
 			case "skinnable":
 			case "canskin":
 			case "skin":
@@ -965,6 +975,7 @@ public class GameItemProto : EditableItem, IGameItemProto
 	#3register delete <variable name>#0 - deletes a default value for a register variable
 	#3morph <item##|none> <seconds> [<emote>]#0 - sets item morph information. The 'none' value makes the item disappear.
 	#3morph clear#0 - clears any morph info for this item
+	#3hidden#0 - toggles this item being hidden from players in information/searching commands
 	#3group <id|name>#0 - sets this item's item group (for in-room grouping)
 	#3group none#0 - clears this item's item group
 	#3destroyed <id>#0 - sets an item to load up in-place of this item when it is destroyed
@@ -982,6 +993,13 @@ public class GameItemProto : EditableItem, IGameItemProto
 	#3extra <which##> clear addendum#0 - clears the addendum text for the full description".SubstituteANSIColour());
 				return true;
 		}
+	}
+
+	private bool BuildingCommandHidden(ICharacter actor) {
+		IsHiddenFromPlayers = !IsHiddenFromPlayers;
+		Changed = true;
+		actor.OutputHandler.Send($"This item is {IsHiddenFromPlayers.ToColouredString()} hidden from players in information commands.");
+		return true;
 	}
 
 	private bool BuildingCommandSkinnable(ICharacter actor)

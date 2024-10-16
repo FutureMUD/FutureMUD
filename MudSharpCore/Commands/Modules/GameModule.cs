@@ -631,6 +631,51 @@ For a full list of combat flags, see #3SHOW COMBATFLAGS#0", AutoHelp.HelpArg)]
 		actor.Stop(false);
 	}
 
+	[PlayerCommand("TagSearch", "tagsearch")]
+	[HelpInfo("tagsearch", @"The #3tagsearch#0 command allows you to search for items that have the tag you specify. This might be a tag for an item you need to complete a craft or a project for example.
+
+The syntax is #3tagsearch <tag>#0.", AutoHelp.HelpArgOrNoArg)]
+	protected static void TagSearch(ICharacter actor, string input)
+	{
+		var cmd = input.RemoveFirstWord();
+		var tag = actor.Gameworld.Tags.GetByIdOrName(cmd);
+		if (tag is null || tag.ShouldSeeProg?.ExecuteBool(actor) == false)
+		{
+			actor.OutputHandler.Send("You don't know of any tag like that.");
+			return;
+		}
+
+		var items = actor.Gameworld.ItemProtos.Where(x =>
+			x.Status == Framework.Revision.RevisionStatus.Current &&
+			x.Tags.Any(y => y.IsA(tag)) &&
+			!x.IsHiddenFromPlayers
+		).ToList();
+		if (items.Count == 0)
+		{
+			actor.OutputHandler.Send($"The tag {tag.FullName.ColourName()} does not have any items that you know of.");
+			return;
+		}
+
+		var sb = new StringBuilder();
+		sb.AppendLine($"The tag {tag.FullName.ColourName()} has the following items that you know of:");
+		sb.AppendLine(StringUtilities.GetTextTable(
+			from item in items
+			select new List<string>
+			{
+				item.Name,
+				item.ShortDescription.Colour(item.CustomColour ?? Telnet.Green)
+			},
+			new List<string>
+			{
+				"Name",
+				"Description"
+			},
+			actor,
+			Telnet.Green
+		));
+		actor.OutputHandler.Send(sb.ToString());
+	}
+
 	[PlayerCommand("Teach", "teach")]
 	[CommandPermission(PermissionLevel.Player)]
 	[RequiredCharacterState(CharacterState.Conscious)]

@@ -39,6 +39,7 @@ namespace MudSharp.Models
         public string FullDescription { get; set; }
         public bool PermitPlayerSkins { get; set; }
         public decimal CostInBaseCurrency { get; set; }
+        public bool IsHiddenFromPlayers { get; set; }
 
         public virtual EditableItem EditableItem { get; set; }
         public virtual ItemGroup ItemGroup { get; set; }

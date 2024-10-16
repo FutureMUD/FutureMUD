@@ -81,7 +81,7 @@ public class DoorguardAI : ArtificialIntelligenceBase
 			};
 		}
 
-		if (SocialTargettedOnly)
+		if (SocialTargettedOnly || !string.IsNullOrEmpty(RequiredSocialTrigger))
 		{
 			return new WouldOpenResponse
 			{

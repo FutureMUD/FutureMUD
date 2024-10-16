@@ -32,7 +32,7 @@ public partial class Body
 	public event WoundEvent OnHeal;
 	public event WoundEvent OnRemoveWound;
 
-	private readonly IHealthStrategy _healthStrategy = null;
+	private IHealthStrategy _healthStrategy = null;
 
 	private readonly List<IInfection> _partInfections = new();
 	private readonly List<IWound> _wounds = new();
@@ -66,7 +66,7 @@ public partial class Body
 	public double TotalBloodVolumeLitres { get; set; }
 
 	public double LiverAlcoholRemovalKilogramsPerHour => OrganFunction<LiverProto>() *
-	                                                     BaseLiverAlcoholRemovalKilogramsPerHour;
+														 BaseLiverAlcoholRemovalKilogramsPerHour;
 
 	public double BaseLiverAlcoholRemovalKilogramsPerHour { get; set; }
 	public double WaterLossLitresPerHour { get; set; }
@@ -255,7 +255,7 @@ public partial class Body
 
 		var workingLimbCount = workingLegs.Count;
 		if (workingLimbCount >= Prototype.MinimumLegsToStand ||
-		    (workingLimbCount >= Prototype.MinimumLegsToStand - 1 && workingArms.Count >= 1))
+			(workingLimbCount >= Prototype.MinimumLegsToStand - 1 && workingArms.Count >= 1))
 		{
 			return true;
 		}
@@ -286,7 +286,7 @@ public partial class Body
 
 		workingLimbCount = workingLegs.Count;
 		return workingLimbCount >= targetLimbCount ||
-		       (workingLimbCount >= Prototype.MinimumLegsToStand - 1 && workingArms.Count >= 1);
+			   (workingLimbCount >= Prototype.MinimumLegsToStand - 1 && workingArms.Count >= 1);
 	}
 
 	public bool CanSitUp()
@@ -305,23 +305,23 @@ public partial class Body
 		_cachedOrganFunctionsByOrgan.Clear();
 		_cachedOrganFunctionsByType.Clear();
 		var merits = Actor.Merits.OfType<IOrganFunctionBonusMerit>()
-		                  .Where(x => x.Applies(Actor))
-		                  .SelectMany(x => x.OrganFunctionBonuses(this))
-		                  .ToCollectionDictionary();
+						  .Where(x => x.Applies(Actor))
+						  .SelectMany(x => x.OrganFunctionBonuses(this))
+						  .ToCollectionDictionary();
 		var organs = Organs
-		             .Select(x => (Organ: x, Factor: x.OrganFunctionFactor(this)))
-		             .ToLookup(x => x.Organ, x => x.Factor);
+					 .Select(x => (Organ: x, Factor: x.OrganFunctionFactor(this)))
+					 .ToLookup(x => x.Organ, x => x.Factor);
 		var implantOrgans = Implants
-		                    .OfType<IOrganImplant>()
-		                    .Select(x => (Organ: x.TargetOrgan, Factor: x.FunctionFactor))
-		                    .ToCollectionDictionary();
+							.OfType<IOrganImplant>()
+							.Select(x => (Organ: x.TargetOrgan, Factor: x.FunctionFactor))
+							.ToCollectionDictionary();
 		var external = Implants
-		               .SelectNotNull(x => x.Parent.GetItemType<ICannula>())
-		               .SelectMany(x =>
-			               x.ConnectedItems.SelectNotNull(y => y.Item2.Parent.GetItemType<IExternalOrganFunction>()))
-		               .Distinct()
-		               .SelectMany(x => x.OrganFunctions.Select(y => (Organ: y.Organ, Factor: y.Function)))
-		               .ToCollectionDictionary();
+					   .SelectNotNull(x => x.Parent.GetItemType<ICannula>())
+					   .SelectMany(x =>
+						   x.ConnectedItems.SelectNotNull(y => y.Item2.Parent.GetItemType<IExternalOrganFunction>()))
+					   .Distinct()
+					   .SelectMany(x => x.OrganFunctions.Select(y => (Organ: y.Organ, Factor: y.Function)))
+					   .ToCollectionDictionary();
 
 		// Pre-calculate spinal organs because other organs will depend on it
 		foreach (var organ in Organs.OrderByDescending(x => x is SpineProto))
@@ -381,16 +381,16 @@ public partial class Body
 			if (wound is BoneFracture bf)
 			{
 				if ((examinationType == WoundExaminationType.Glance && wound.Severity < WoundSeverity.VerySevere) ||
-				    (examinationType == WoundExaminationType.Look && wound.Severity < WoundSeverity.Severe) ||
-				    (examinationType == WoundExaminationType.Self && wound.Severity < WoundSeverity.Small) ||
-				    (examinationType == WoundExaminationType.Examination && wound.Severity < WoundSeverity.Minor)
+					(examinationType == WoundExaminationType.Look && wound.Severity < WoundSeverity.Severe) ||
+					(examinationType == WoundExaminationType.Self && wound.Severity < WoundSeverity.Small) ||
+					(examinationType == WoundExaminationType.Examination && wound.Severity < WoundSeverity.Minor)
 				   )
 				{
 					return false;
 				}
 
 				if ((examinationType == WoundExaminationType.Glance || examinationType == WoundExaminationType.Look) &&
-				    bf.HasBeenRelocated)
+					bf.HasBeenRelocated)
 				{
 					return false;
 				}
@@ -683,8 +683,8 @@ public partial class Body
 
 		var damageFactor = 1.0;
 		var score = CurrentContextualSize(SizeContext.ExplosiveDamage) - damage.ExplosionSize + (int)proximity +
-		            ((int?)Cover?.Cover.CoverExtent ?? 0) *
-		            (Cover?.Cover.CoverType == MudSharp.Combat.CoverType.Hard ? 1 : 0);
+					((int?)Cover?.Cover.CoverExtent ?? 0) *
+					(Cover?.Cover.CoverType == MudSharp.Combat.CoverType.Hard ? 1 : 0);
 		var scope = ExplosionDamageExtent.IndividualPart;
 		if (score < 0)
 		{
@@ -861,7 +861,7 @@ public partial class Body
 		}
 
 		if (!Bodyparts.Contains(damage.Bodypart) && !Organs.Contains(damage.Bodypart) &&
-		    !Bones.Contains(damage.Bodypart))
+			!Bones.Contains(damage.Bodypart))
 		{
 			return Enumerable.Empty<IWound>();
 		}
@@ -997,7 +997,7 @@ public partial class Body
 
 
 				if (damage.Bodypart.CanSever && damage.DamageAmount >= Race.ModifiedSeverthreshold(damage.Bodypart) &&
-				    damage.DamageType.CanSever())
+					damage.DamageType.CanSever())
 				{
 					severedPart = damage.Bodypart;
 					damage = new Damage(damage) { Bodypart = damage.Bodypart.UpstreamConnection };
@@ -1042,15 +1042,15 @@ public partial class Body
 	{
 		var organ = organInfo.Key;
 		if (!damageAllOrgans &&
-		    RandomUtilities.Random(0, 100) > organInfo.Value.HitChance * (highChance ? 2.0 : 1.0))
+			RandomUtilities.Random(0, 100) > organInfo.Value.HitChance * (highChance ? 2.0 : 1.0))
 		{
 			return false;
 		}
 
 		if (!damageAllOrgans && !highChance && Actor.Merits.OfType<IOrganHitReductionMerit>()
-		                                            .Where(x => x.Applies(Actor)).Any(x =>
-			                                            x.MissesOrgan(organInfo, internalDamage,
-				                                            HealthStrategy.GetSeverity(internalDamage.DamageAmount))))
+													.Where(x => x.Applies(Actor)).Any(x =>
+														x.MissesOrgan(organInfo, internalDamage,
+															HealthStrategy.GetSeverity(internalDamage.DamageAmount))))
 		{
 			return false;
 		}
@@ -1104,7 +1104,7 @@ public partial class Body
 			{
 				var bone = boneInfo.Key;
 				if (!damageAllBones && Constants.Random.NextDouble() >
-				    BoneHitChance(boneInfo.Value.HitChance / 100.0, internalDamage.DamageType))
+					BoneHitChance(boneInfo.Value.HitChance / 100.0, internalDamage.DamageType))
 				{
 					continue;
 				}
@@ -1112,7 +1112,7 @@ public partial class Body
 				boneWasHit = true;
 				var naturalArmour = bone.NaturalArmourType ?? Race.NaturalArmourType;
 				if (naturalArmour != null &&
-				    boneWounds.Any(x => x.Bodypart == bone && x.Severity >= WoundSeverity.Grievous))
+					boneWounds.Any(x => x.Bodypart == bone && x.Severity >= WoundSeverity.Grievous))
 				{
 					var damages = naturalArmour.AbsorbDamage(internalDamage, Race.NaturalArmourQuality,
 						GetMaterial(bone), Actor,
@@ -1152,8 +1152,8 @@ public partial class Body
 					foreach (var organ in bone.CoveredOrgans.Where(x => Organs.Contains(x.Organ)))
 					{
 						if (CheckOrganDamageSpecific(
-							    new KeyValuePair<IOrganProto, BodypartInternalInfo>(organ.Organ, organ.Info),
-							    organDamage, false, wounds, passive, false))
+								new KeyValuePair<IOrganProto, BodypartInternalInfo>(organ.Organ, organ.Info),
+								organDamage, false, wounds, passive, false))
 						{
 							if (!damageAllBones)
 							{
@@ -1200,7 +1200,7 @@ public partial class Body
 	public IEnumerable<IWound> SufferDamage(IDamage damage)
 	{
 		if (!Bodyparts.Contains(damage.Bodypart) && !Organs.Contains(damage.Bodypart) &&
-		    !Bones.Contains(damage.Bodypart))
+			!Bones.Contains(damage.Bodypart))
 		{
 			return Enumerable.Empty<IWound>();
 		}
@@ -1315,7 +1315,7 @@ public partial class Body
 			}
 
 			if (damage.Bodypart.CanSever && damage.DamageAmount >= Race.ModifiedSeverthreshold(damage.Bodypart) &&
-			    damage.DamageType.CanSever())
+				damage.DamageType.CanSever())
 			{
 				var bodypart = damage.Bodypart;
 				var severedPart = SeverBodypart(bodypart);
@@ -1356,9 +1356,9 @@ public partial class Body
 	{
 		var woundsToRemove =
 			Wounds.Where(
-				      x =>
-					      x.ShouldWoundBeRemoved())
-			      .ToList();
+					  x =>
+						  x.ShouldWoundBeRemoved())
+				  .ToList();
 		foreach (var wound in woundsToRemove)
 		{
 			wound.Delete();
@@ -1369,14 +1369,14 @@ public partial class Body
 		CalculateOrganFunctions();
 
 		if (!Wounds.Any() && CurrentBloodVolumeLitres >= TotalBloodVolumeLitres && !PartInfections.Any() &&
-		    !ActiveDrugDosages.Any() && CanBreathe && _cachedOrganFunctionsByOrgan.All(x => x.Value >= 1.0))
+			!ActiveDrugDosages.Any() && CanBreathe && _cachedOrganFunctionsByOrgan.All(x => x.Value >= 1.0))
 		{
 			EndHealthTick();
 		}
 	}
 
 	public double ImmuneFatigueBonus => PartInfections.Sum(x => x.Intensity) *
-	                                    Gameworld.GetStaticDouble("BonusPerInfectionIntensityForSpread");
+										Gameworld.GetStaticDouble("BonusPerInfectionIntensityForSpread");
 
 	public void EvaluateInfections()
 	{
@@ -1400,15 +1400,15 @@ public partial class Body
 		ReevaluateLimbAndPartDamageEffects();
 		var (floor, ceiling) = TolerableTemperatures(true);
 		if (_healthTickActive ||
-		    (!Wounds.Any() &&
-		     !ActiveDrugDosages.Any() &&
-		     !PartInfections.Any() &&
-		     CurrentBloodVolumeLitres >= TotalBloodVolumeLitres &&
-		     CanBreathe &&
-		     HealthStrategy.CurrentTemperatureStatus(Actor) == BodyTemperatureStatus.NormalTemperature &&
-		     TemperatureExtensions.SubjectiveTemperature(Location.CurrentTemperature(Actor), floor, ceiling) ==
-		     Temperature.Temperate &&
-		     _cachedOrganFunctionsByOrgan.All(x => x.Value >= 1.0))
+			(!Wounds.Any() &&
+			 !ActiveDrugDosages.Any() &&
+			 !PartInfections.Any() &&
+			 CurrentBloodVolumeLitres >= TotalBloodVolumeLitres &&
+			 CanBreathe &&
+			 HealthStrategy.CurrentTemperatureStatus(Actor) == BodyTemperatureStatus.NormalTemperature &&
+			 TemperatureExtensions.SubjectiveTemperature(Location.CurrentTemperature(Actor), floor, ceiling) ==
+			 Temperature.Temperate &&
+			 _cachedOrganFunctionsByOrgan.All(x => x.Value >= 1.0))
 		   )
 		{
 			return;
@@ -1460,12 +1460,12 @@ public partial class Body
 		var healingEffects = CombinedEffectsOfType<IHealingRateEffect>().ToList();
 		var healingMultiplier = healingEffects.Aggregate(1.0, (sum, x) => x.HealingRateMultiplier * sum);
 		var projectMultiplier = Actor.CurrentProject.Labour?.LabourImpacts.Where(x => x.Applies(Actor))
-		                             .OfType<ILabourImpactHealing>()
-		                             .Aggregate(1.0, (sum, x) => x.HealingRateMultiplier * sum) ?? 1.0;
+									 .OfType<ILabourImpactHealing>()
+									 .Aggregate(1.0, (sum, x) => x.HealingRateMultiplier * sum) ?? 1.0;
 		var healingBonuses = healingEffects.Sum(x => x.HealingDifficultyStages) *
-		                     Gameworld.GetStaticDouble("CheckBonusPerDifficultyLevel");
+							 Gameworld.GetStaticDouble("CheckBonusPerDifficultyLevel");
 		var projectBonus = Actor.CurrentProject.Labour?.LabourImpacts.Where(x => x.Applies(Actor))
-		                        .OfType<ILabourImpactHealing>().Sum(x => x.HealingCheckBonus) ?? 0.0;
+								.OfType<ILabourImpactHealing>().Sum(x => x.HealingCheckBonus) ?? 0.0;
 
 		foreach (var wound in _wounds.ToList())
 		{
@@ -1571,12 +1571,12 @@ public partial class Body
 			var healingEffects = CombinedEffectsOfType<IHealingRateEffect>().ToList();
 			var healingMultiplier = healingEffects.Aggregate(1.0, (sum, x) => x.HealingRateMultiplier * sum);
 			var projectMultiplier = Actor.CurrentProject.Labour?.LabourImpacts.Where(x => x.Applies(Actor))
-			                             .OfType<ILabourImpactHealing>()
-			                             .Aggregate(1.0, (sum, x) => x.HealingRateMultiplier * sum) ?? 1.0;
+										 .OfType<ILabourImpactHealing>()
+										 .Aggregate(1.0, (sum, x) => x.HealingRateMultiplier * sum) ?? 1.0;
 			var healingBonuses = healingEffects.Sum(x => x.HealingDifficultyStages) *
-			                     Gameworld.GetStaticDouble("CheckBonusPerDifficultyLevel");
+								 Gameworld.GetStaticDouble("CheckBonusPerDifficultyLevel");
 			var projectBonus = Actor.CurrentProject.Labour?.LabourImpacts.Where(x => x.Applies(Actor))
-			                        .OfType<ILabourImpactHealing>().Sum(x => x.HealingCheckBonus) ?? 0.0;
+									.OfType<ILabourImpactHealing>().Sum(x => x.HealingCheckBonus) ?? 0.0;
 
 			foreach (var wound in Wounds.ToList())
 			{
@@ -1619,7 +1619,7 @@ public partial class Body
 	private void HandleTargetEvent(EventType type)
 	{
 		foreach (var ch in (Actor.Combat?.Combatants.OfType<ICharacter>().Where(x => x.CombatTarget == Actor) ??
-		                    Enumerable.Empty<ICharacter>()).ToList())
+							Enumerable.Empty<ICharacter>()).ToList())
 		{
 			ch.HandleEvent(type, ch, Actor);
 		}
@@ -1798,9 +1798,9 @@ public partial class Body
 
 		foreach (var newPart in Bodyparts.Where(x => !oldParts.Contains(x)).OfType<IWear>().ToList())
 		foreach (var wear in _wornItems.Where(
-			                               x => x.Item.GetItemType<IWearable>()?.CurrentProfile.AllProfiles
-			                                     .ContainsKey(newPart) == true)
-		                               .ToList())
+										   x => x.Item.GetItemType<IWearable>()?.CurrentProfile.AllProfiles
+												 .ContainsKey(newPart) == true)
+									   .ToList())
 		{
 			_wornItems.Add(
 				(wear.Item, newPart, wear.Item.GetItemType<IWearable>()?.CurrentProfile.AllProfiles[newPart]));
@@ -1861,7 +1861,7 @@ public partial class Body
 		get
 		{
 			return Actor.Merits.OfType<IContextualSizeMerit>().Where(x => x.Applies(this))
-			            .Aggregate(Race.SizeStanding, (x, y) => y.ContextualSize(x, SizeContext.None));
+						.Aggregate(Race.SizeStanding, (x, y) => y.ContextualSize(x, SizeContext.None));
 		}
 	}
 
@@ -1871,7 +1871,7 @@ public partial class Body
 		{
 			// TODO - effects and merits that impact on this
 			return Actor.Merits.OfType<IContextualSizeMerit>().Where(x => x.Applies(this))
-			            .Aggregate(Race.SizeProne, (x, y) => y.ContextualSize(x, SizeContext.None));
+						.Aggregate(Race.SizeProne, (x, y) => y.ContextualSize(x, SizeContext.None));
 		}
 	}
 
@@ -1881,33 +1881,33 @@ public partial class Body
 		{
 			// TODO - effects and merits that impact on this
 			return Actor.Merits.OfType<IContextualSizeMerit>().Where(x => x.Applies(this))
-			            .Aggregate(Race.SizeSitting, (x, y) => y.ContextualSize(x, SizeContext.None));
+						.Aggregate(Race.SizeSitting, (x, y) => y.ContextualSize(x, SizeContext.None));
 		}
 	}
 
-        public override SizeCategory Size => CurrentContextualSize(SizeContext.None);
+		public override SizeCategory Size => CurrentContextualSize(SizeContext.None);
 
 		public SizeCategory CurrentContextualSize(SizeContext context)
-        {
-            if (PositionState == PositionSwimming.Instance)
-            {
-                return Actor.Merits.OfType<IContextualSizeMerit>().Where(x => x.Applies(this)).Aggregate(Race.SizeProne, (x, y) => y.ContextualSize(x, context));
-            }
+		{
+			if (PositionState == PositionSwimming.Instance)
+			{
+				return Actor.Merits.OfType<IContextualSizeMerit>().Where(x => x.Applies(this)).Aggregate(Race.SizeProne, (x, y) => y.ContextualSize(x, context));
+			}
 
 		if (PositionState.Upright)
 		{
 			return Actor.Merits.OfType<IContextualSizeMerit>().Where(x => x.Applies(this))
-			            .Aggregate(Race.SizeStanding, (x, y) => y.ContextualSize(x, context));
+						.Aggregate(Race.SizeStanding, (x, y) => y.ContextualSize(x, context));
 		}
 
 		if (PositionState.CompareTo(PositionProne.Instance) == PositionHeightComparison.Higher)
 		{
 			return Actor.Merits.OfType<IContextualSizeMerit>().Where(x => x.Applies(this))
-			            .Aggregate(Race.SizeSitting, (x, y) => y.ContextualSize(x, context));
+						.Aggregate(Race.SizeSitting, (x, y) => y.ContextualSize(x, context));
 		}
 
 		return Actor.Merits.OfType<IContextualSizeMerit>().Where(x => x.Applies(this))
-		            .Aggregate(Race.SizeProne, (x, y) => y.ContextualSize(x, context));
+					.Aggregate(Race.SizeProne, (x, y) => y.ContextualSize(x, context));
 	}
 
 	#endregion
@@ -1919,9 +1919,9 @@ public partial class Body
 		if (includeClothing)
 		{
 			var insulatingItems = _wornItems
-			                      .Select(x => (x.Wearloc, Insulating: x.Item.GetItemType<IInsulating>()))
-			                      .Where(x => x.Insulating != null)
-			                      .ToList();
+								  .Select(x => (x.Wearloc, Insulating: x.Item.GetItemType<IInsulating>()))
+								  .Where(x => x.Insulating != null)
+								  .ToList();
 
 			clothingInsulation = insulatingItems.Sum(x => x.Insulating.InsulatingDegrees);
 			clothingReflection =
@@ -1929,8 +1929,8 @@ public partial class Body
 		}
 
 		var merits = Actor.Merits.OfType<ITemperatureRangeChangingMerit>().Where(x => x.Applies(Actor))
-		                  .Concat(Merits.OfType<ITemperatureRangeChangingMerit>().Where(x => x.Applies(Actor)))
-		                  .ToList();
+						  .Concat(Merits.OfType<ITemperatureRangeChangingMerit>().Where(x => x.Applies(Actor)))
+						  .ToList();
 
 		return (
 			Race.TemperatureRangeFloor + Ethnicity.TolerableTemperatureFloorEffect +

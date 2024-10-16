@@ -230,7 +230,9 @@ public class VariableNPCTemplate : NPCTemplateBase
 	private string SaveDefinition()
 	{
 		return
-			new XElement("Definition", new XElement("OnLoadProg", OnLoadProg?.Id ?? 0),
+			new XElement("Definition", 
+				new XElement("OnLoadProg", OnLoadProg?.Id ?? 0),
+				new XElement("HealthStrategy", HealthStrategy?.Id ?? 0L),
 				new XElement("GenderChances", new object[]
 				{
 					from item in _genderChances
@@ -516,7 +518,7 @@ public class VariableNPCTemplate : NPCTemplateBase
 			{
 				$"Class: {_roles.First(x => x.RoleType == ChargenRoleType.Class).Name.Colour(Telnet.Green)}",
 				$"Subclass: {_roles.FirstOrDefault(x => x.RoleType == ChargenRoleType.Subclass)?.Name.Colour(Telnet.Green) ?? "None".Colour(Telnet.Red)}",
-				""
+				$"Health Strategy: {HealthStrategy?.Name.ColourName() ?? "Default".ColourCommand()}"
 			}.ArrangeStringsOntoLines(3));
 		}
 
@@ -1359,7 +1361,13 @@ public class VariableNPCTemplate : NPCTemplateBase
 	#3merit none#0 - removes all valid merits
 	#3numquirks <##>#0 - sets the number of quirks (either merit or flaw) to give
 	#3nummerits <##>#0 - sets the number of merits to give
-	#3numflaws <##>#0 - sets the number of flaws to give";
+	#3numflaws <##>#0 - sets the number of flaws to give
+	#3onload <prog>#0 - sets a prog to be run on-load of the NPC
+	#3onload none#0 - clears an onload prog
+	#3ai add <which>#0 - adds an AI routine to this NPC
+	#3ai remove <which>#0 - removes an AI routine from this NPC
+	#3healthstrategy <which>#0 - sets an overriding health strategy
+	#3healthstrategy none#0 - resets the health strategy to racial default";
 
 	public override bool BuildingCommand(ICharacter actor, StringStack command)
 	{

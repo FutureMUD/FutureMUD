@@ -14,6 +14,7 @@ using MudSharp.FutureProg;
 using MudSharp.NPC.AI;
 using MudSharp.PerceptionEngine;
 using EditableItem = MudSharp.Framework.Revision.EditableItem;
+using MudSharp.Health;
 
 namespace MudSharp.NPC.Templates;
 
@@ -30,6 +31,12 @@ public abstract class NPCTemplateBase : EditableItem, INPCTemplate
 		if (element != null)
 		{
 			OnLoadProg = gameworld.FutureProgs.Get(long.Parse(element.Value));
+		}
+
+		element = definition.Element("HealthStrategy");
+		if (element != null)
+		{
+			HealthStrategy = gameworld.HealthStrategies.Get(long.Parse(element.Value));
 		}
 
 		foreach (var ai in template.NpctemplatesArtificalIntelligences)
@@ -81,6 +88,9 @@ public abstract class NPCTemplateBase : EditableItem, INPCTemplate
 			case "onload":
 			case "onloadprog":
 				return BuildingCommandOnLoadProg(actor, command);
+			case "healthstrategy":
+			case "health":
+				return BuildingCommandHealthStrategy(actor, command);
 			default:
 				actor.OutputHandler.Send($@"{HelpText}
 	#3onload <prog>#0 - adds an onload prog to this NPC
@@ -89,6 +99,35 @@ public abstract class NPCTemplateBase : EditableItem, INPCTemplate
 	#3ai remove <which>#0 - removes an AI routine from this NPC".SubstituteANSIColour());
 				return false;
 		}
+	}
+
+	private bool BuildingCommandHealthStrategy(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("You can either specify a health strategy, or use #3none#0 to reset to default.");
+			return false;
+		}
+
+		if (command.SafeRemainingArgument.EqualTo("none"))
+		{
+			HealthStrategy = null;
+			Changed = true;
+			actor.OutputHandler.Send($"This NPC Template will now just use the default health strategy for the character.");
+			return true;
+		}
+
+		var strategy = Gameworld.HealthStrategies.GetByIdOrName(command.SafeRemainingArgument);
+		if (strategy is null)
+		{
+			actor.OutputHandler.Send($"There is no health strategy identified by the text {command.SafeRemainingArgument.ColourCommand()}.");
+			return false;
+		}
+
+		HealthStrategy = strategy;
+		Changed = true;
+		actor.OutputHandler.Send($"This NPC Template will now use the {strategy.Name.ColourName()} health strategy instead of its default.");
+		return true;
 	}
 
 	public List<IArtificialIntelligence> ArtificialIntelligences { get; } = new();
@@ -267,7 +306,8 @@ public abstract class NPCTemplateBase : EditableItem, INPCTemplate
 
 	public abstract string NPCTemplateType { get; }
 
-	public IFutureProg OnLoadProg { get; set; }
+	public IFutureProg? OnLoadProg { get; set; }
+	public IHealthStrategy? HealthStrategy { get; set; }
 
 	public abstract INPCTemplate Clone(ICharacter builder);
 

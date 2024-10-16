@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using JetBrains.Annotations;
 
 namespace MudSharp.Models
 {
@@ -41,9 +42,11 @@ namespace MudSharp.Models
         public int HeldBreathLength { get; set; }
         public string EffectData { get; set; }
         public string Scars { get; set; }
+        public long? HealthStrategyId { get; set; }
 
         public virtual Bloodtype Bloodtype { get; set; }
         public virtual Ethnicity Ethnicity { get; set; }
+        public virtual HealthStrategy HealthStrategy { get; set; }
         public virtual EntityDescriptionPattern FullDescriptionPattern { get; set; }
         public virtual Race Race { get; set; }
         public virtual EntityDescriptionPattern ShortDescriptionPattern { get; set; }

@@ -28,6 +28,7 @@ using MudSharp.Framework.Units;
 using MudSharp.FutureProg;
 using MudSharp.FutureProg.Variables;
 using MudSharp.GameItems;
+using MudSharp.Health;
 using MudSharp.Models;
 using MudSharp.PerceptionEngine;
 using MudSharp.PerceptionEngine.Outputs;
@@ -280,6 +281,8 @@ public partial class Chargen : FrameworkItem, IChargen
 	public bool ApplicationLocked { get; protected set; }
 
 	public string NeedsModel => NeedsModelProg != null ? (string)NeedsModelProg.Execute(this) : "NoNeeds";
+
+	public IHealthStrategy? HealthStrategy => null;
 
 	public IAccount Account { get; set; }
 

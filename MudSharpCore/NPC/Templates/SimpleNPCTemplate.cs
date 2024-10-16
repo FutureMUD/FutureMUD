@@ -147,7 +147,8 @@ public class SimpleNPCTemplate : NPCTemplateBase
 			MissingBodyparts = MissingBodyparts,
 			SelectedDisfigurements = new List<(IDisfigurementTemplate Disfigurement, IBodypart Bodypart)>(),
 			SelectedProstheses = new List<IGameItemProto>(),
-			Gameworld = Gameworld
+			Gameworld = Gameworld,
+			HealthStrategy = HealthStrategy
 		};
 	}
 
@@ -178,7 +179,13 @@ public class SimpleNPCTemplate : NPCTemplateBase
 	#3role <which>#0 - toggles this NPC having a particular role
 	#3merit <which>#0 - toggles this NPC having a particular merit
 	#3knowledge <which>#0 - toggles this NPC having a particular knowledge
-	#3randomise#0 - randomises the descriptions, name and characteristics of this NPC";
+	#3randomise#0 - randomises the descriptions, name and characteristics of this NPC
+	#3onload <prog>#0 - sets a prog to be run on-load of the NPC
+	#3onload none#0 - clears an onload prog
+	#3ai add <which>#0 - adds an AI routine to this NPC
+	#3ai remove <which>#0 - removes an AI routine from this NPC
+	#3healthstrategy <which>#0 - sets an overriding health strategy
+	#3healthstrategy none#0 - resets the health strategy to racial default";
 
 	public override bool BuildingCommand(ICharacter actor, StringStack command)
 	{
@@ -247,7 +254,7 @@ public class SimpleNPCTemplate : NPCTemplateBase
 		{
 			var sb = new StringBuilder();
 
-			sb.AppendLine(("Simple NPC #" + Id + " - " + Name).Colour(Telnet.Cyan));
+			sb.AppendLine(($"Simple NPC #{Id.ToStringN0(actor)}r{RevisionNumber.ToStringN0(actor)} - {Name}".GetLineWithTitle(actor, Telnet.Cyan, Telnet.BoldWhite)).Colour(Telnet.Cyan));
 			sb.AppendLine();
 			sb.Append(new[]
 			{
@@ -296,7 +303,7 @@ public class SimpleNPCTemplate : NPCTemplateBase
 				{
 					$"Class: {SelectedRoles.FirstOrDefault(x => x.RoleType == ChargenRoleType.Class).Name.Colour(Telnet.Green)}",
 					$"Subclass: {(SelectedRoles.Any(x => x.RoleType == ChargenRoleType.Subclass) ? SelectedRoles.FirstOrDefault(x => x.RoleType == ChargenRoleType.Subclass).Name.Colour(Telnet.Green) : "None".Colour(Telnet.Red))}",
-					""
+					$"Health Strategy: {HealthStrategy?.Name.ColourName() ?? "Default".ColourCommand()}"
 				}.ArrangeStringsOntoLines(3, (uint)actor.LineFormatLength));
 			}
 
@@ -713,7 +720,9 @@ public class SimpleNPCTemplate : NPCTemplateBase
 	private string SaveDefinition()
 	{
 		return
-			new XElement("Definition", new XElement("OnLoadProg", OnLoadProg?.Id ?? 0),
+			new XElement("Definition", 
+				new XElement("OnLoadProg", OnLoadProg?.Id ?? 0),
+				new XElement("HealthStrategy", HealthStrategy?.Id ?? 0L),
 				new XElement("SelectedSdesc", new XCData(SelectedSdesc ?? "")),
 				new XElement("SelectedFullDesc", new XCData(SelectedFullDesc ?? "")),
 				new XElement("SelectedRace", SelectedRace?.Id ?? -1),

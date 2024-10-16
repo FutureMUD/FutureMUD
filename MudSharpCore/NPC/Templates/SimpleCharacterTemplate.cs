@@ -24,6 +24,7 @@ using MudSharp.TimeAndDate.Date;
 using MudSharp.Body.Traits.Subtypes;
 using MudSharp.TimeAndDate;
 using Org.BouncyCastle.Crypto.Agreement;
+using MudSharp.Health;
 
 namespace MudSharp.NPC.Templates;
 
@@ -126,6 +127,7 @@ public record SimpleCharacterTemplate : ICharacterTemplate
 			where bodypart is not null
 			select bodypart
 		);
+		HealthStrategy = Gameworld.HealthStrategies.Get(long.Parse(definition.Element("HealthStrategy")?.Value ?? "0"));
 	}
 
 	public XElement SaveToXml()
@@ -200,7 +202,8 @@ public record SimpleCharacterTemplate : ICharacterTemplate
 			new XElement("MissingBodyparts", 
 				from item in MissingBodyparts
 				select new XElement("Bodypart", item.Id)
-			)
+			),
+			new XElement("HealthStrategy", HealthStrategy?.Id ?? 0L)
 		); // TODO
 	}
 
@@ -211,6 +214,7 @@ public record SimpleCharacterTemplate : ICharacterTemplate
 	public List<ITrait> SelectedAttributes { get; init; }
 
 	public MudDate SelectedBirthday { get; init; }
+	public IHealthStrategy? HealthStrategy { get; init; }
 
 	public List<(ICharacteristicDefinition, ICharacteristicValue)> SelectedCharacteristics { get; init; }
 

@@ -316,7 +316,8 @@ public partial class Body : PerceiverItem, IBody
 			FullDescriptionPatternId = _fullDescriptionPattern?.Id,
 			EffectData = SaveEffects().ToString(),
 			Tattoos = SaveTattoos(),
-			Scars = SaveScars()
+			Scars = SaveScars(),
+			HealthStrategyId = HealthStrategy?.Id
 		};
 		foreach (var item in _severedRoots)
 		{
@@ -585,6 +586,7 @@ public partial class Body : PerceiverItem, IBody
 		Race = Gameworld.Races.Get(body.RaceId);
 		Ethnicity = Gameworld.Ethnicities.Get(body.EthnicityId);
 		HeldBreathTime = TimeSpan.FromSeconds(body.HeldBreathLength);
+		_healthStrategy = Gameworld.HealthStrategies.Get(body.HealthStrategyId ?? 0);
 		_breathingStrategy = new NonBreather(); // This is set during Login
 		_shortDescription = body.ShortDescription;
 		_fullDescription = body.FullDescription;
@@ -759,6 +761,7 @@ public partial class Body : PerceiverItem, IBody
 			dbentity.ShortDescriptionPatternId = _shortDescriptionPattern?.Id;
 			dbentity.HeldBreathLength = (int)HeldBreathTime.TotalSeconds;
 			dbentity.Gender = (short)Gender.Enum;
+			dbentity.HealthStrategyId = HealthStrategy?.Id;
 
 			if (InventoryChanged)
 			{

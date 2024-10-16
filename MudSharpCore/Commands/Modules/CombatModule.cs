@@ -2383,25 +2383,7 @@ The syntax is simply #3defend#0 to toggle the setting on or off.", AutoHelp.Help
 					return;
 				}
 
-				int range = 0;
-				switch (actor.Gameworld.GetStaticConfiguration("RangeCountingMode"))
-				{
-					case "exits":
-						range = path.Count;
-						break;
-					case "axial":
-						range = path.MaximumAxialDistance();
-						break;
-					case "pythagoreantruncate":
-						range = path.PythagoreanDistance();
-						break;
-					case "pythagoreanround":
-						range = path.PythagoreanDistance(RoundingMode.Round);
-						break;
-					default:
-						goto case "exits";
-				}
-
+				var range = AimInformation.GetEffectiveRange(path);
 				if (range > weapon.WeaponType.DefaultRangeInRooms)
 				{
 					actor.OutputHandler.Send($"You're not in range of {target.HowSeen(actor)}.");

@@ -13,15 +13,31 @@ using MudSharp.RPG.Checks;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using MudSharp.Body.Traits;
-using MudSharp.GameItems.Components;
+using MudSharp.Economy.Currency;
+using MudSharp.Construction;
 
 namespace MudSharp.Combat;
 
 public class AimInformation : IAimInformation
 {
+	public static int GetEffectiveRange(IEnumerable<ICellExit> exits)
+	{
+		switch (Futuremud.Games.First().GetStaticConfiguration("RangeCountingMode"))
+		{
+			case "exits":
+				return exits.Count();
+			case "axial":
+				return exits.MaximumAxialDistance();
+			case "pythagoreantruncate":
+				return exits.PythagoreanDistance();
+			case "pythagoreanround":
+				return exits.PythagoreanDistance(RoundingMode.Round);
+			default:
+				goto case "exits";
+		}
+	}
+
 	public IPerceiver Shooter { get; set; }
 	public IPerceiver Target { get; set; }
 	private double _aimPercentage;
@@ -143,11 +159,23 @@ public class AimInformation : IAimInformation
 	private void RecalculatePath()
 	{
 		ReleasePathEvents();
-		Path = Shooter.PathBetween(Target, Weapon.WeaponType.DefaultRangeInRooms, false, false, true);
-		if (Path.Any())
+		Path = Shooter.PathBetween(Target, 20,
+				x => x.Exit.Door?.CanFireThrough != false).ToList();
+		if (Shooter.Location != Target.Location)
 		{
-			RegisterPathEvents();
+			if (!Path.Any())
+			{
+				return;
+			}
+
+			var range = GetEffectiveRange(Path);
+			if (range > Weapon.WeaponType.DefaultRangeInRooms)
+			{
+				Path = Enumerable.Empty<ICellExit>();
+				return;
+			}
 		}
+		RegisterPathEvents();
 	}
 
 	protected void WeaponDestroyed(IPerceivable perceivable)

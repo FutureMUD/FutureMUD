@@ -259,7 +259,7 @@ public class TheoreticalImprovementModel : ImprovementModel
 		}
 
 		var tts = (trait as TheoreticalSkill);
-		var gain = Dice.Roll(1, (int)Math.Max(1.0, ImprovementExpression.EvaluateWith(person, trait.Definition, TraitBonusContext.None, ("value", (usetype == TraitUseType.Practical ? tts?.PracticalValue : tts?.TheoreticalValue) ?? trait.Value))) * 10) / 10.0;
+		var gain = ImprovementExpression.EvaluateWith(person, trait.Definition, TraitBonusContext.None, ("value", (usetype == TraitUseType.Practical ? tts?.PracticalValue : tts?.TheoreticalValue) ?? trait.Value));
 		trait.Gameworld.LogManager.CustomLogEntry(Logging.LogEntryType.SkillImprovement, $"-- Skill Gain of {gain:N4}");
 		return gain;
 	}

@@ -385,8 +385,7 @@ Note: The formula for the #3amount#0 expression is a trait expression and also h
 			phe.AddEffect(new NoTraitGain((IPerceivable)person, trait.Definition), noGainTimespan);
 		}
 
-		var gain = Dice.Roll(1, (int)Math.Max(1.0, ImprovementExpression.EvaluateWith(person, trait.Definition, TraitBonusContext.None, ("value", trait.RawValue))) * 10) /
-		           10.0;
+		var gain = ImprovementExpression.EvaluateWith(person, trait.Definition, TraitBonusContext.None, ("value", trait.RawValue));
 		trait.Gameworld.LogManager.CustomLogEntry(Logging.LogEntryType.SkillImprovement, $"-- Skill Gain of {gain:N4}");
 		return gain;
 	}

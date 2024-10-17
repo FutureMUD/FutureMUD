@@ -480,6 +480,7 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 		{
 			Name = "Communication",
 			Category = "Communication",
+			Subcategory = "General",
 			PublicText = @"There are several in-character communication commands that you can use in this game. There are two important things to know about each command - the volume at which it will cause your character to speak, and whether it is a targeted or non-targeted command. You will always use the language and accent set by the #3speak#0 command.
 
 The twelve principle in-character communication commands are (in ascending order of loudness and with non-targeted / targeted versions shown)
@@ -507,13 +508,14 @@ The targeted versions of the command can be used to target either people or obje
 
 Finally, the yell and shout level of volume is so loud, that it can be heard in nearby rooms (albeit at a lesser volume there).
 
-For information on the syntax to use in emotes (such as those included in brackets after your communication command), see #3help emote#0.",
+For information on the syntax to use in emotes (such as those included in brackets after your communication command), see #3help emote#0.".SubstituteANSIColour(),
 			LastEditedBy = "System",
 			LastEditedDate = DateTime.UtcNow,
 			Keywords = "Communication",
 			TagLine = "Information about communication commands"
 		};
 		FMDB.Context.Helpfiles.Add(dbhelp);
+		FMDB.Context.SaveChanges();
 		_helpfiles.Add(new Helpfile(dbhelp, this));
 	}
 

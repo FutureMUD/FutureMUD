@@ -51,13 +51,13 @@
       "commandName": "Project",
       "commandLineArgs": "\"MySql.Data.MySqlClient\" \"server=localhost;port=3306;database=ardamarred;uid=futuremud;password=rpiengine2020;Default Command Timeout=300000;\""
     },
-    "Doner": {
-      "commandName": "Project",
-      "commandLineArgs": "\"MySql.Data.MySqlClient\" \"server=localhost;port=3306;database=yourmuddb;uid=futuremud;password=rpiengine2020;Default Command Timeout=300000;\""
-    },
     "MistyIsles": {
       "commandName": "Project",
       "commandLineArgs": "\"MySql.Data.MySqlClient\" \"server=localhost;port=3306;database=mistyisles_dbo;uid=futuremud;password=rpiengine2020;Default Command Timeout=300000;\""
+    },
+    "Rome": {
+      "commandName": "Project",
+      "commandLineArgs": "\"MySql.Data.MySqlClient\" \"server=localhost;port=3306;database=rome_dbo;uid=futuremud;password=rpiengine2020;Default Command Timeout=300000;\""
     }
   }
 }

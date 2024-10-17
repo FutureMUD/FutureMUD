@@ -767,7 +767,7 @@ The syntax is simply #3testansi#0.", AutoHelp.HelpArg)]
 		}
 
 		var existing = new MudDate(actor.Birthday);
-		var existingAge = existing.YearsDifference(existing.Calendar.CurrentDate);
+		var existingAge = existing.Calendar.CurrentDate.YearsDifference(existing);
 		if (existingAge == value)
 		{
 			actor.OutputHandler.Send($"{target.HowSeen(actor, true)} is already {value.ToStringN0Colour(actor)} years old.");
@@ -812,7 +812,7 @@ The syntax is simply #3testansi#0.", AutoHelp.HelpArg)]
 		}
 
 		actor.Birthday = newDate;
-		actor.OutputHandler.Send($"{target.HowSeen(actor, true)} now has a birthday of {newDate.Display(CalendarDisplayMode.Short).ColourValue()}, making them {newDate.Calendar.CurrentDate.YearsDifference(newDate).ToStringN0Colour(actor)} years old..");
+		actor.OutputHandler.Send($"{target.HowSeen(actor, true)} now has a birthday of {newDate.Display(CalendarDisplayMode.Short).ColourValue()}, making them {newDate.Calendar.CurrentDate.YearsDifference(newDate).ToStringN0Colour(actor)} years old.");
 	}
 
 	[PlayerCommand("ALock", "alock")]

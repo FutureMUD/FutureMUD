@@ -48,6 +48,7 @@ public class SystemDateTimeTests
 		{
 				new CultureInfo("en-GB"),
 				new CultureInfo("fr-FR"),
+				new CultureInfo("en-AU"),
 				new CultureInfo("de-DE"),
 				new CultureInfo("es-ES"),
 				new CultureInfo("ru-RU"),

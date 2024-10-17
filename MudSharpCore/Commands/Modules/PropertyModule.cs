@@ -2083,7 +2083,7 @@ The following commands are specific to those who own a property (or who are mana
 				return;
 			}
 
-			if (!ez.FinancialPeriodReferenceCalendar.TryGetDate(ss.SafeRemainingArgument, out var date, out var error))
+			if (!ez.FinancialPeriodReferenceCalendar.TryGetDate(ss.SafeRemainingArgument, actor, out var date, out var error))
 			{
 				actor.OutputHandler.Send(error);
 				return;

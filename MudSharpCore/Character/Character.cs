@@ -2473,7 +2473,17 @@ public partial class Character : PerceiverItem, ICharacter
 		}
 	}
 
-	public MudDate Birthday { get; protected set; }
+	private MudDate _birthday;
+
+	public MudDate Birthday
+	{
+		get => _birthday;
+		set
+		{
+			_birthday = value;
+			Changed = true;
+		}
+	}
 
 	public void MovePosition(IPositionState whichPosition, PositionModifier whichModifier, IPositionable target,
 		string unparsedEmote)

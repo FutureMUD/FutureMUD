@@ -315,7 +315,7 @@ namespace MudSharp.Character {
 
 		bool IsHelpless { get; }
 
-		MudDate Birthday { get; }
+		MudDate Birthday { get; set; }
 
 		int TotalMinutesPlayed { get; }
 		DateTime? PreviousLoginDateTime { get; set; }

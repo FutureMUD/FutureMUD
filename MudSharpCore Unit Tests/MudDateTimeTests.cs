@@ -17,9 +17,9 @@ namespace MudSharp_Unit_Tests
 	/// Summary description for DateTimeTests
 	/// </summary>
 	[TestClass]
-	public class DateTimeTests
+	public class MudDateTimeTests
 	{
-		public DateTimeTests()
+		public MudDateTimeTests()
 		{
 			//
 			// TODO: Add constructor logic here

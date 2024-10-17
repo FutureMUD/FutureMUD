@@ -5,10 +5,12 @@ using System.Text.RegularExpressions;
 using System.Xml;
 using System.Xml.Linq;
 using MudSharp.Database;
+using MudSharp.Economy.Currency;
 using MudSharp.Framework;
 using MudSharp.Framework.Save;
 using MudSharp.FutureProg;
 using MudSharp.FutureProg.Variables;
+using MudSharp.Models;
 using MudSharp.TimeAndDate.Time;
 
 namespace MudSharp.TimeAndDate.Date;
@@ -846,6 +848,166 @@ public class Calendar : SaveableItem, ICalendar
 		}
 
 		return new MudDate(this, setDay, setYear, month, newYear, false);
+	}
+
+	public static string StandardDateParsingHelp => @"You can enter dates in one of several formats:
+
+#3<day>/<month>/<year>#0 or #3<month>/<day>/<year>#0 are both fine if the month is the name or alias of the month, e.g. #312/Jan/2022#0 or #3July-04-1788#0
+
+If you use all numbers, your input will be interpreted using the settings of your account culture - this may mean that it is read as #3day/month/year#0 (e.g. UK/Europe), #3month/day/year#0 (e.g. US) or #3year/month/day#0 (e.g. East Asia).
+
+You can also use #3/#0, #3-#0 or spaces to separate the three parts of your date.";
+
+	public bool TryGetDate(string dateString, IFormatProvider format, out MudDate date, out string error)
+	{
+		char[] splitOptions = { '-', '/', ' ' };
+		var dateStringSplit = dateString.Split('/').ToList();
+		if (dateStringSplit.Count != 3)
+		{
+			dateStringSplit = dateString.Split(splitOptions).ToList();
+			if (dateStringSplit.Count != 3)
+			{
+				error =
+					$"The date string {dateString.ColourCommand()} is not in a valid format.\n{StandardDateParsingHelp.SubstituteANSIColour()}";
+				date = new MudDate(CurrentDate);
+				return false;
+			}
+		}
+
+		int dayNumber;
+		int monthNumber;
+		int yearNumber;
+		Year newYear;
+		Month newMonth;
+
+		// All numerical dates are ambiguous between cultures, let's apply account culture to figure it out
+		if (dateStringSplit[0].GetIntFromOrdinal() is not null && dateStringSplit[1].GetIntFromOrdinal() is not null && dateStringSplit[2].GetIntFromOrdinal() is not null)
+		{
+			var dtformat = format as System.Globalization.CultureInfo ??
+			               format?.GetFormat(typeof(System.Globalization.CultureInfo)) as System.Globalization.CultureInfo ??
+			               System.Globalization.CultureInfo.InvariantCulture;
+			DateUtilities.DateOrder treatment;
+			try
+			{
+				treatment = DateUtilities.GetDateOrder(dtformat);
+			}
+			catch
+			{
+				treatment = DateUtilities.DateOrder.DayFirst;
+			}
+
+			switch (treatment)
+			{
+				case DateUtilities.DateOrder.DayFirst:
+					dayNumber = dateStringSplit[0].GetIntFromOrdinal()!.Value;
+					monthNumber = dateStringSplit[1].GetIntFromOrdinal()!.Value;
+					yearNumber = dateStringSplit[2].GetIntFromOrdinal()!.Value;
+					break;
+				case DateUtilities.DateOrder.MonthFirst:
+					dayNumber = dateStringSplit[1].GetIntFromOrdinal()!.Value;
+					monthNumber = dateStringSplit[0].GetIntFromOrdinal()!.Value;
+					yearNumber = dateStringSplit[2].GetIntFromOrdinal()!.Value;
+					break;
+				case DateUtilities.DateOrder.YearFirst:
+					dayNumber = dateStringSplit[2].GetIntFromOrdinal()!.Value;
+					monthNumber = dateStringSplit[1].GetIntFromOrdinal()!.Value;
+					yearNumber = dateStringSplit[0].GetIntFromOrdinal()!.Value;
+					break;
+				default:
+					goto case DateUtilities.DateOrder.DayFirst;
+			}
+
+			newYear = CreateYear(yearNumber);
+			newMonth = newYear.Months.FirstOrDefault(x => x.TrueOrder == monthNumber);
+			if (newMonth == null)
+			{
+				error = $"There is no {monthNumber.ToOrdinal().ColourValue()} month in the year {yearNumber.ToStringN0Colour(format)}.";
+				date = new MudDate(CurrentDate);
+				return false;
+			}
+		}
+		else
+		{
+			string dayText;
+			string monthText;
+			if (dateStringSplit[0].GetIntFromOrdinal() != null)
+			{
+				dayText = dateStringSplit[0];
+				monthText = dateStringSplit[1];
+			}
+			else
+			{
+				if (dateStringSplit[1].GetIntFromOrdinal() != null)
+				{
+					dayText = dateStringSplit[1];
+					monthText = dateStringSplit[0];
+				}
+				else
+				{
+					error = "The day must be a number.";
+					date = new MudDate(CurrentDate);
+					return false;
+				}
+			}
+
+			dayNumber = dayText.GetIntFromOrdinal() ?? 0;
+
+			if (dayNumber < 1)
+			{
+				error = "The day must be a positive integer.";
+				date = new MudDate(CurrentDate);
+				return false;
+			}
+
+			if (!int.TryParse(dateStringSplit[2], out yearNumber))
+			{
+				error = "The year must be a number.";
+				date = new MudDate(CurrentDate);
+				return false;
+			}
+
+			// Generate the nominated year
+			newYear = CreateYear(yearNumber);
+
+			// Check to see the month exists
+			newMonth =
+				newYear.Months.FirstOrDefault(
+					x => x.Alias.Equals(monthText, StringComparison.InvariantCultureIgnoreCase)) ??
+				newYear.Months.FirstOrDefault(
+					x => x.FullName.Equals(monthText, StringComparison.InvariantCultureIgnoreCase)) ??
+				newYear.Months.FirstOrDefault(
+					x => x.ShortName.Equals(monthText, StringComparison.InvariantCultureIgnoreCase));
+
+			if (newMonth == null)
+			{
+				if (!int.TryParse(monthText, out monthNumber))
+				{
+					error = $"There will be no month with an alias of {monthText.ColourCommand()} in the year {yearNumber.ToStringN0Colour(format)}";
+					date = new MudDate(CurrentDate);
+					return false;
+				}
+
+				newMonth = newYear.Months.FirstOrDefault(x => x.TrueOrder == monthNumber);
+				if (newMonth == null)
+				{
+					error = $"There is no {monthNumber.ToOrdinal().ColourValue()} month in the year {yearNumber.ToStringN0Colour(format)}";
+					date = new MudDate(CurrentDate);
+					return false;
+				}
+			}
+		}
+
+		// Check to see the month contains that many days
+		if (newMonth.Days < dayNumber)
+		{
+			error = $"The month of {newMonth.FullName.ColourName()} in the year {yearNumber.ToStringN0Colour(format)} does not have {dayNumber.ToStringN0Colour(format)} days.";
+			date = new MudDate(CurrentDate);
+			return false;
+		}
+
+		error = string.Empty;
+		date = new MudDate(this, dayNumber, yearNumber, newMonth, newYear, false);
+		return true;
 	}
 
 	public bool TryGetDate(string dateString, out MudDate date, out string error)

@@ -639,7 +639,7 @@ The syntax is simply #3testansi#0.", AutoHelp.HelpArg)]
 
 	[PlayerCommand("GiveTattoo", "givetattoo")]
 	[CommandPermission(PermissionLevel.JuniorAdmin)]
-	[HelpInfo("givetattoo", "Gives someone a tattoo. Syntax: givetattoo <target> <tattoo> <bodypart>",
+	[HelpInfo("givetattoo", "Gives someone a tattoo. #3Syntax: givetattoo <target> <tattoo> <bodypart>#0",
 		AutoHelp.HelpArgOrNoArg)]
 	protected static void GiveTattoo(ICharacter actor, string command)
 	{
@@ -703,7 +703,7 @@ The syntax is simply #3testansi#0.", AutoHelp.HelpArg)]
 
 	[PlayerCommand("SetGender", "setgender")]
 	[CommandPermission(PermissionLevel.JuniorAdmin)]
-	[HelpInfo("setgender", "Sets gender of a target character. Syntax: setgender <target> <gender>",
+	[HelpInfo("setgender", "Sets gender of a target character. Syntax: #3setgender <target> <gender>#0",
 		AutoHelp.HelpArgOrNoArg)]
 	protected static void SetGender(ICharacter actor, string command)
 	{
@@ -738,6 +738,81 @@ The syntax is simply #3testansi#0.", AutoHelp.HelpArg)]
 		var output = new EmoteOutput(new Emote($"@ set|sets $0's gender to {gender.GenderClass()}.", actor, target));
 		actor.OutputHandler.Send(output);
 		target.OutputHandler.Send(output);
+	}
+
+	[PlayerCommand("SetAge", "setage")]
+	[CommandPermission(PermissionLevel.JuniorAdmin)]
+	[HelpInfo("setage", "Sets age of a target character. Maintains existing birthday. Syntax: #3setage <target> <age>#0",
+		AutoHelp.HelpArgOrNoArg)]
+	protected static void SetAge(ICharacter actor, string command)
+	{
+		var ss = new StringStack(command.RemoveFirstWord());
+		var target = actor.TargetActor(ss.PopSpeech());
+		if (target == null)
+		{
+			actor.Send("You don't see anyone like that.");
+			return;
+		}
+
+		if (ss.IsFinished)
+		{
+			actor.Send("How old do you want to make them?");
+			return;
+		}
+
+		if (!int.TryParse(ss.SafeRemainingArgument, out var value) || value < 1)
+		{
+			actor.OutputHandler.Send($"The text {ss.SafeRemainingArgument.ColourCommand()} is not a valid non-zero number.");
+			return;
+		}
+
+		var existing = new MudDate(actor.Birthday);
+		var existingAge = existing.YearsDifference(existing.Calendar.CurrentDate);
+		if (existingAge == value)
+		{
+			actor.OutputHandler.Send($"{target.HowSeen(actor, true)} is already {value.ToStringN0Colour(actor)} years old.");
+			return;
+		}
+
+		existing.AdvanceYears(existingAge - value, true);
+		actor.Birthday = existing;
+		actor.OutputHandler.Send($"{target.HowSeen(actor, true)} is now {value.ToStringN0Colour(actor)} years old, with a birthday of {existing.Display(CalendarDisplayMode.Short).ColourValue()}.");
+	}
+
+	[PlayerCommand("SetBirthday", "setbirthday")]
+	[CommandPermission(PermissionLevel.JuniorAdmin)]
+	[HelpInfo("setbirthday", "Sets the birthday of a target character. Syntax: #3setbirthday <target> <date>#0",
+		AutoHelp.HelpArgOrNoArg)]
+	protected static void SetBirthday(ICharacter actor, string command)
+	{
+		var ss = new StringStack(command.RemoveFirstWord());
+		var target = actor.TargetActor(ss.PopSpeech());
+		if (target == null)
+		{
+			actor.Send("You don't see anyone like that.");
+			return;
+		}
+
+		if (ss.IsFinished)
+		{
+			actor.Send("What date should their birthday be?");
+			return;
+		}
+
+		if (!actor.Birthday.Calendar.TryGetDate(ss.SafeRemainingArgument, actor, out var newDate, out var error))
+		{
+			actor.OutputHandler.Send(error);
+			return;
+		}
+
+		if (newDate > actor.Birthday.Calendar.CurrentDate)
+		{
+			actor.OutputHandler.Send("Characters cannot have birthdays in the future.");
+			return;
+		}
+
+		actor.Birthday = newDate;
+		actor.OutputHandler.Send($"{target.HowSeen(actor, true)} now has a birthday of {newDate.Display(CalendarDisplayMode.Short).ColourValue()}, making them {newDate.Calendar.CurrentDate.YearsDifference(newDate).ToStringN0Colour(actor)} years old..");
 	}
 
 	[PlayerCommand("ALock", "alock")]

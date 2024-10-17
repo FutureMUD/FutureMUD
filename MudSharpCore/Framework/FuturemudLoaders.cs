@@ -478,6 +478,7 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 
 		var dbhelp = new Models.Helpfile
 		{
+			Name = "Communication",
 			Category = "Communication",
 			PublicText = @"There are several in-character communication commands that you can use in this game. There are two important things to know about each command - the volume at which it will cause your character to speak, and whether it is a targeted or non-targeted command. You will always use the language and accent set by the #3speak#0 command.
 

@@ -458,6 +458,18 @@ namespace MudSharp.Framework
 		}
 
 		/// <summary>
+		/// This is a shortcut for doing .Select(x => x.Colour()).ListToString(conjunction: " or")
+		/// </summary>
+		/// <param name="items">A collection of strings</param>
+		/// <param name="colour">The colour to give the values - else Telnet.Green</param>
+		/// <returns>The string result</returns>
+		public static string ListToColouredStringOr(this IEnumerable<string> items, ANSIColour colour = null)
+		{
+			colour ??= Telnet.Green;
+			return items.Select(x => x.Colour(colour)).ListToString(conjunction: " or");
+		}
+
+		/// <summary>
 		/// This is a shortcut for doing .Select(x => x.Colour()).ListToString()
 		/// </summary>
 		/// <param name="items">A collection of strings</param>

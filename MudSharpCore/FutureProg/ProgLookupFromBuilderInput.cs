@@ -84,7 +84,7 @@ internal class ProgLookupFromBuilderInputMultipleReturnTypes
 		if (!match)
 		{
 			Character?.OutputHandler.Send(
-				$"You must specify a prog that returns a {_targetReturnTypes.ListToColouredStringOr(Telnet.Cyan)} value, whereas {prog.MXPClickableFunctionName()} returns {prog.ReturnType.Describe().ColourName()}.");
+				$"You must specify a prog that returns a {_targetReturnTypes.Select(x => x.Describe()).ListToColouredStringOr(Telnet.Cyan)} value, whereas {prog.MXPClickableFunctionName()} returns {prog.ReturnType.Describe().ColourName()}.");
 			return null;
 		}
 
@@ -100,7 +100,9 @@ internal class ProgLookupFromBuilderInputMultipleReturnTypes
 				Character?.OutputHandler.Send(
 					$@"The prog {prog.MXPClickableFunctionName()} does not have the correct parameters.
 The parameters of {prog.MXPClickableFunctionName()} are {prog.Parameters.Select(x => x.Describe().ColourName()).ListToString()}.
-You can select progs with the following combinations of parameters:{_parameters.Select(x => $"\t{x.Select(y => y.Describe().ColourName()).ListToString()}").ListToLines()}");
+You can select progs with one of the following combinations of parameters:
+
+{_parameters.Select(x => $"\t{x.Select(y => y.Describe().ColourName()).ListToString()}").ListToLines()}");
 			}
 
 			return null;

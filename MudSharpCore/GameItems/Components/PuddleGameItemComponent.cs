@@ -25,6 +25,15 @@ namespace MudSharp.GameItems.Components
 {
 	public class PuddleGameItemComponent : GameItemComponent, ILiquidContainer
 	{
+		public static void CreateGlobalHeartbeatEvent()
+		{
+			var gameworld = Futuremud.Games.First();
+			gameworld.HeartbeatManager.FuzzyHourHeartbeat += () =>
+			{
+				// TODO
+			};
+		}
+
 		protected PuddleGameItemComponentProto _prototype;
 		public override IGameItemComponentProto Prototype => _prototype;
 
@@ -176,7 +185,7 @@ namespace MudSharp.GameItems.Components
 			var residueTag = PuddleResidueTag(Gameworld);
 			foreach (var (instance, amount) in ratios)
 			{
-				if (instance.Liquid.DriedResidue is null)
+				if (instance.Liquid.DriedResidue is null || !instance.Liquid.LeaveResiduesInRooms)
 				{
 					continue;
 				}

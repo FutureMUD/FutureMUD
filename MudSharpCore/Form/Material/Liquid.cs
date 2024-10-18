@@ -292,6 +292,8 @@ public class Liquid : Fluid, ILiquid
 		}
 	}
 
+	public bool LeaveResiduesInRooms { get; set; }
+
 	public double ResidueVolumePercentage { get; set; }
 
 	public double RelativeEnthalpy { get; set; }
@@ -435,8 +437,8 @@ public class Liquid : Fluid, ILiquid
 		sb.AppendLineColumns((uint)actor.LineFormatLength, 3, new[]
 		{
 			$"Freezing Temp: {(FreezingPoint is not null ? Gameworld.UnitManager.DescribeDecimal(FreezingPoint.Value, UnitType.Temperature, actor).ColourValue() : "N/A".Colour(Telnet.Yellow))}",
-			$"Solid Form: {DriedResidue?.Name.Colour(DriedResidue.ResidueColour) ?? "None".Colour(Telnet.Red)}",
-			$"Residue Volume: {ResidueVolumePercentage.ToString("P3", actor).ColourValue()}"
+			$"Relative Enthalpy: {RelativeEnthalpy.ToString("N3", actor).ColourValue()}",
+			""
 		});
 		sb.AppendLineColumns((uint)actor.LineFormatLength, 3, new[]
 		{
@@ -446,10 +448,11 @@ public class Liquid : Fluid, ILiquid
 		});
 		sb.AppendLineColumns((uint)actor.LineFormatLength, 3, new[]
 		{
-			$"Relative Enthalpy: {RelativeEnthalpy.ToString("N3", actor).ColourValue()}",
-			"",
-			""
+			$"Solid Form: {DriedResidue?.Name.Colour(DriedResidue.ResidueColour) ?? "None".Colour(Telnet.Red)}",
+			$"Residue Volume: {ResidueVolumePercentage.ToString("P3", actor).ColourValue()}",
+			$"Residue In Rooms: {LeaveResiduesInRooms.ToColouredString()}"
 		});
+		sb.AppendLine();
 		sb.AppendLineFormat(actor, "Taste Intensity: {0}", TasteIntensity.ToString("N1", actor).ColourCommand());
 		sb.AppendLineFormat(actor, "Taste Text: {0}", TasteText.ColourCommand());
 		sb.AppendLineFormat(actor, "Vague Taste Text: {0}", VagueTasteText.ColourCommand());
@@ -497,6 +500,7 @@ public class Liquid : Fluid, ILiquid
 	#3residue <solid>#0 - sets a material to leave behind as a residue when dry
 	#3residue none#0 - dry clean, leave no residue
 	#3residueamount <percentage>#0 - percentage of weight of liquid that is residue
+	#3residueroom#0 - toggles leaving residue in rooms
 	#3relativeenthalpy <percentage>#0 - sets the rate of evaporation relative to water
 	#3countsas <liquid>#0 - sets another liquid that this one counts as
 	#3countsas none#0 - this liquid counts as no other liquid
@@ -549,6 +553,8 @@ public class Liquid : Fluid, ILiquid
 			case "residuevolumepercentage":
 			case "residueratio":
 				return BuildingCommandResidueVolume(actor, command);
+			case "residueroom":
+				return BuildingCommandResidueRoom(actor);
 			case "enthalpy":
 			case "relativeenthalpy":
 			case "relenthalpy":
@@ -584,6 +590,14 @@ public class Liquid : Fluid, ILiquid
 		}
 
 		return base.BuildingCommand(actor, command.GetUndo());
+	}
+
+	private bool BuildingCommandResidueRoom(ICharacter actor)
+	{
+		LeaveResiduesInRooms = !LeaveResiduesInRooms;
+		Changed = true;
+		actor.OutputHandler.Send($"This liquid will {LeaveResiduesInRooms.NowNoLonger()} leave residues on room contamination.");
+		return true;
 	}
 
 	private bool BuildingCommandGas(ICharacter actor, StringStack command)

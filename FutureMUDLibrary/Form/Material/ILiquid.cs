@@ -54,6 +54,7 @@ namespace MudSharp.Form.Material {
         ILiquid Solvent { get; }
         ISolid DriedResidue { get; }
         double ResidueVolumePercentage { get; }
+        bool LeaveResiduesInRooms { get; }
         double RelativeEnthalpy { get; }
         ILiquid CountsAs { get; }
         ItemQuality CountsAsQuality { get; }

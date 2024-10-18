@@ -126,6 +126,7 @@ using RaceButcheryProfile = MudSharp.Work.Butchering.RaceButcheryProfile;
 using TraitExpression = MudSharp.Body.Traits.TraitExpression;
 using MudSharp.RPG.Hints;
 using System.Numerics;
+using MudSharp.GameItems.Components;
 using Track = MudSharp.Movement.Track;
 
 namespace MudSharp.Framework;
@@ -443,6 +444,7 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 		Chargen.SetupChargen(this);
 		HeartbeatManager.StartHeartbeatTick();
 		Track.CreateGlobalHeartbeatEvent();
+		PuddleGameItemComponent.CreateGlobalHeartbeatEvent();
 		EffectScheduler.SetupEffectSaver();
 		Scheduler.AddSchedule(new RepeatingSchedule<IFuturemud>(this, this, fm => {
 			CheckNewPlayerHints();

@@ -81,7 +81,7 @@ public abstract class NPCTemplateBase : EditableItem, INPCTemplate
 
 	public override bool BuildingCommand(ICharacter actor, StringStack command)
 	{
-		switch (command.PeekSpeech().ToLowerInvariant())
+		switch (command.PopForSwitch())
 		{
 			case "ai":
 				return BuildingCommandAI(actor, command);
@@ -147,7 +147,6 @@ public abstract class NPCTemplateBase : EditableItem, INPCTemplate
 
 	private bool BuildingCommandOnLoadProg(ICharacter actor, StringStack command)
 	{
-		command.PopSpeech();
 		if (command.IsFinished)
 		{
 			actor.Send(
@@ -190,7 +189,6 @@ public abstract class NPCTemplateBase : EditableItem, INPCTemplate
 
 	private bool BuildingCommandAI(ICharacter actor, StringStack command)
 	{
-		command.PopSpeech();
 		var add = false;
 		switch (command.PopSpeech())
 		{

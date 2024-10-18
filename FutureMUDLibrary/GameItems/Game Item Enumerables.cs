@@ -156,10 +156,10 @@ namespace MudSharp.GameItems
             this IEnumerable<(ItemQuality Quality, double Weight)> qualitiesAndWeights) {
             var qawList = qualitiesAndWeights.ToList();
             if (qawList.Count == 0) {
-                return ItemQuality.Terrible;
+                return ItemQuality.Standard;
             }
             var result = qawList.Sum(x => (int)x.Quality * x.Weight) /
-                         (qawList.Sum(x => x.Weight) * qawList.Count);
+                         (qawList.Sum(x => x.Weight));
 
             var intResult = (int) result;
             if (intResult < (int)ItemQuality.Terrible) {

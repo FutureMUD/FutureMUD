@@ -520,12 +520,19 @@ public class Craft : Framework.Revision.EditableItem, ICraft
 		var netInputQuality = component.ConsumedInputs
 		                               .Select(x => (x.Value.Data.InputQuality, x.Key.InputQualityWeight))
 		                               .GetNetQuality();
-		return new[]
+		var finalQuality = new[]
 		{
 			(outcomeQuality, CheckQualityWeighting),
 			(netToolQuality, ToolQualityWeighting),
 			(netInputQuality, InputQualityWeighting)
 		}.GetNetQuality();
+		Gameworld.DebugMessage($@"Craft #{Id:N0} ({Name.ColourName()}) Quality Outcome
+
+	Quality Formula: {outcomeQuality.DescribeEnum().ColourValue()}
+	Tool Quality: {netToolQuality.DescribeEnum().ColourValue()}
+	Input Quality: {netInputQuality.DescribeEnum().ColourValue()}
+	Final Quality: {finalQuality.DescribeEnum().ColourValue()}");
+		return finalQuality;
 	}
 
 	private Outcome HandleSkillCheck(ICharacter character, IActiveCraftGameItemComponent component)
@@ -2491,6 +2498,7 @@ public class Craft : Framework.Revision.EditableItem, ICraft
 			$"Interruptable: {Interruptable.ToString(actor).Colour(Telnet.Green)}"
 		);
 		sb.AppendLine($"Check Type: {(IsPracticalCheck ? "Practical" : "Theoretical").ColourValue()}");
+		sb.AppendLine($"Quality Formula: {QualityFormula.OriginalFormulaText.ColourCommand()}");
 		sb.AppendLine();
 		sb.AppendLine("Phases".GetLineWithTitle(actor, Telnet.Cyan, Telnet.BoldWhite));
 		sb.AppendLine();

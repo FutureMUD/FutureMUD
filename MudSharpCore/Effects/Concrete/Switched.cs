@@ -35,6 +35,7 @@ public class Switched : Effect, INoQuitEffect, IPauseAIEffect, ICountForWho, IIg
 		CharacterOwner.OnDeath -= OwnerOnOnDeath;
 		Owner.Send("You return to your original body.");
 		CharacterOwner.Controller.SetContext(OriginalCharacter);
+		Owner.RemoveEffect(this, false);
 	}
 
 	#region Overrides of Effect

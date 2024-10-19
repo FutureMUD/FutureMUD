@@ -127,13 +127,13 @@ internal class RemoveItemIndex : Statement
 
 There are two possible versions of the syntax:
 
-#Hremoveitemindex#0 collectionname #2index#0 - removes the item at the specified index (zero based)
-#Hremoveitemindex#0 @collection #2index#0 - removes the item at the specified index (zero based)
+#Oremoveitemindex#0 collectionname #2index#0 - removes the item at the specified index (zero based)
+#Oremoveitemindex#0 #M@collection#0 #2index#0 - removes the item at the specified index (zero based)
 
 For example, if you had a collection called #3numbers#0, you could do either of the following:
 
-#Hremoveitemindex#0 numbers #22#0
-#Hremoveitemindex#0 #6@numbers#0 #22#0".SubstituteANSIColour());
+#Oremoveitemindex#0 numbers #22#0
+#Oremoveitemindex#0 #M@numbers#0 #22#0".SubstituteANSIColour());
 	}
 
 	public override StatementResult Execute(IVariableSpace variables)

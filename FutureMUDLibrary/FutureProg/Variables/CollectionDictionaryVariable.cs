@@ -39,7 +39,7 @@ namespace MudSharp.FutureProg.Variables
         }
         #endregion
 
-        private static IReadOnlyDictionary<string,FutureProgVariableTypes> DotReferenceHandler()
+        private static IReadOnlyDictionary<string,FutureProgVariableTypes> DotReferenceHandler(FutureProgVariableTypes type)
         {
             return new Dictionary<string, FutureProgVariableTypes>(StringComparer.InvariantCultureIgnoreCase)
             {
@@ -47,7 +47,7 @@ namespace MudSharp.FutureProg.Variables
                 {"longcount", FutureProgVariableTypes.Number},
                 {"any", FutureProgVariableTypes.Boolean},
                 {"empty", FutureProgVariableTypes.Boolean},
-                {"values", FutureProgVariableTypes.Collection | FutureProgVariableTypes.CollectionItem},
+                {"values", FutureProgVariableTypes.Collection | type},
                 {"keys", FutureProgVariableTypes.Collection | FutureProgVariableTypes.Text},
             };
         }
@@ -56,24 +56,24 @@ namespace MudSharp.FutureProg.Variables
         {
             return new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase)
             {
-                {"count", ""},
-                {"longcount", ""},
-                {"any", ""},
-                {"empty", ""},
-                {"values", ""},
-                {"keys", ""},
+                {"count", "The number of keys in the collection dictionary"},
+                {"longcount", "The number of values in all of the sub collections"},
+                {"any", "True if there are any values in this collection dictionary"},
+                {"empty", "True if the collection dictionary is empty"},
+                {"values", "Returns all of the values in all of the collection dictionary collections"},
+                {"keys", "Returns all of the keys in the collection dictionary"},
             };
         }
 
         public static void RegisterFutureProgCompiler() {
-            FutureProgVariable.RegisterDotReferenceCompileInfo(FutureProgVariableTypes.CollectionDictionary, DotReferenceHandler(), DotReferenceHelp());
+            FutureProgVariable.RegisterDotReferenceCompileInfo(FutureProgVariableTypes.CollectionDictionary, DotReferenceHandler(FutureProgVariableTypes.Void), DotReferenceHelp());
             foreach (var flag in FutureProgVariableTypes.CollectionItem.GetAllFlags())
             {
                 if (flag == FutureProgVariableTypes.Void)
                 {
                     continue;
                 }
-                FutureProgVariable.RegisterDotReferenceCompileInfo(FutureProgVariableTypes.CollectionDictionary | flag, DotReferenceHandler(), DotReferenceHelp());
+                FutureProgVariable.RegisterDotReferenceCompileInfo(FutureProgVariableTypes.CollectionDictionary | flag, DotReferenceHandler(flag), DotReferenceHelp());
             }
         }
 

@@ -150,22 +150,22 @@ You can also exit the loop early with a #Hbreak#0 statement, or you can skip to 
 
 The syntax for this statement is:
 
-	#Hforeach#0 (itemvariablename #4in#0 #6collection#0)
+	#Lforeach#0 (itemvariablename #Lin#0 #Mcollection#0)
 		#2// Loop payload
-	#Hend foreach#0
+	#Lend foreach#0
 
 For example:
 
-	#Hforeach#0 (victim #4in#0 #6@potentialTargets#0)
-		#Hif#0(#5@WillAttackVictim#0(#6@ch#0, #6@victim#0))
-			#5AttackVictim#0(#6@ch#0, #6@victim#0)
-			#Hbreak#0
-		#Hend if#0
-	#Hend foreach#0
+	#Lforeach#0 (victim #Lin#0 #M@potentialTargets#0)
+		#Lif#0(#J@WillAttackVictim#0(#M@ch#0, #M@victim#0))
+			#JAttackVictim#0(#M@ch#0, #M@victim#0)
+			#Lbreak#0
+		#Lend if#0
+	#Lend foreach#0
 
-	#Hforeach#0 (item #4in#0 #3ToLocation#0(#2123#0).#6Items#0)
-		@totalweight = @totalweight + @item.Weight
-	#Hend foreach#0
+	#Lforeach#0 (item #Lin#0 #JToLocation#0(#2123#0).#MItems#0)
+		#M@totalweight#0 = #M@totalweight#0 + #M@item#0.#MWeight#0
+	#Lend foreach#0
 
 The scope of the variable declared as the item variable is limited to being used inside the code block of the loop.", 
 			"break, continue, end");

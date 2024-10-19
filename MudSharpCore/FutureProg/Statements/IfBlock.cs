@@ -278,28 +278,28 @@ internal class IfBlock : Statement
 				ColouriseEndStatementDarkMode), true
 		);
 
-		FutureProg.RegisterStatementHelp("if", 
+		FutureProg.RegisterStatementHelp("if",
 			@"The IF statement is used to do different code actions depending on some condition. It takes a boolean function that determines whether the main branch executes or not.
 
 An IF statement block is ended by either an ELSEIF statement, an ELSE statement or an END IF statement. Everything between the IF and the first of these three is the main branch. The ELSEIF and ELSE blocks are optional. There can be more than one ELSEIF branch.
 
 The syntax for this statement is:
 
-	#Hif#0 (#4condition#0)
+	#Oif#0 (#Lcondition#0)
 		#2// Do if true#0
-	#Helseif#0 (#4condition#0)
+	#Oelseif#0 (#Lcondition#0)
 		#2// Do if elseif is true
-	#Helse#0
+	#Oelse#0
 		#2// Do if false#0
-	#Hend if#0
+	#Lend if#0
 
 For example:
 
-	#Hif#0 (#3IsAdmin#0(#6@ch#0))
-		#5@GiveAdminItem#0(#6@ch#0)
-	#Helse#0
-		#3Echo#0(#6@ch#0, #1""Only admins can use this command.""#0)
-	#Hend if#0", 
+	#Oif#0 (#JIsAdmin#0(#L@ch#0))
+		#J@GiveAdminItem#0(#L@ch#0)
+	#Oelse#0
+		#JEcho#0(#L@ch#0, #N""Only admins can use this command.""#0)
+	#Oend if#0", 
 			"else, elseif end");
 
 		FutureProg.RegisterStatementHelp("else",
@@ -319,11 +319,11 @@ See the IF statement for full syntax for the elseif command",
 
 The various forms this can take are as follows:
 
-	#Hend if#0 - closes an #Hif#0 statement block or an #Helse#0 statement block
-	#Hend switch#0 - closes a #Hswitch#0 statement block
-	#Hend for#0 - closes a #Hfor#0 loop statement block
-	#Hend foreach#0 - closes a #Hforeach#0 loop statement block
-	#Hend while#0 - closes a #Hwhile#0 loop statement block
+	#Oend if#0 - closes an #Lif#0 statement block or an #Lelse#0 statement block
+	#Oend switch#0 - closes a #Lswitch#0 statement block
+	#Oend for#0 - closes a #Lfor#0 loop statement block
+	#Oend foreach#0 - closes a #Lforeach#0 loop statement block
+	#Oend while#0 - closes a #Lwhile#0 loop statement block
 
 Execution of the prog resumes from the END statement after the conditional/loop block finishes.",
 			"if, else, elseif, switch, for, foreach, while");

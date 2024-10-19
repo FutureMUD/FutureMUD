@@ -28,7 +28,7 @@ internal class DeclareVariable : Statement
 	{
 		var match = DeclareVariableCompileRegex.Match(lines.First());
 
-		if (variableSpace.ContainsKey(match.Groups["varname"].Value.ToLowerInvariant()))
+		if (match.Groups["varname"].Value.Trim().EqualTo("return"))
 		{
 			return
 				CompileInfo.GetFactory()
@@ -101,12 +101,14 @@ internal class DeclareVariable : Statement
 
 The core syntax is as follows:
 
-	#4var#0 name #4as#0 type
+	#Lvar#0 name #Las#0 #Ktype#0
+	#Lvar#0 name = #J<initial value>#0
 
 For example:
 
-	#4var#0 index #4as#0 number
-	#4var#0 targets #4as#0 character collection
+	#Lvar#0 index #Las#0 number
+	#Lvar#0 targets #Las#0 character collection
+	#Lvar#0 ch = #M@room#0.#MCharacters#0.#MFirst#0
 
 The modifier types that can be used are #3collection#0, #3dictionary#0, and #3collectiondictionary#0. See PROG HELP COLLECTIONS for more info on those.
 

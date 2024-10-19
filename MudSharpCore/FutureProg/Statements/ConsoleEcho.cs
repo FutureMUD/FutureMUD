@@ -76,13 +76,13 @@ internal class ConsoleEcho : Statement
 
 The syntax for this statement is:
 
-	#3console <text>#0
+	#Oconsole <text>#0
 
 For example:
 
-	#4console#0 #6@errortext#0
-	#4console#0 #5@GetSomeErrorTextProg#0(#6@ch#0)
-	#4console#0 #1""Critical Error - the guy didn't have the thing!""#0");
+	#Oconsole#0 #M@errortext#0
+	#Oconsole#0 #J@GetSomeErrorTextProg#0(#M@ch#0)
+	#Oconsole#0 #N""Critical Error - the guy didn't have the thing!""#0");
 	}
 
 	public override StatementResult Execute(IVariableSpace variables)

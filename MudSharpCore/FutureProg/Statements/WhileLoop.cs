@@ -129,24 +129,24 @@ You can also exit the loop early with a #Hbreak#0 statement, or you can skip to 
 
 The syntax for this statement is:
 
-	#Hwhile#0 (#4condition#0)
+	#Owhile#0 (#Lcondition#0)
 		#2// Loop payload
-	#Hend while#0
+	#Oend while#0
 
 For example:
 
-	#Hwhile#0 (#4true#0)
-		#Hif#0(#3not#0(#6@room#0.#6Exits#0.#6Any#0))
-			#Hbreak#0
-		#Hend if#0
+	#Owhile#0 (#Ltrue#0)
+		#Oif#0(#Jnot#0(#M@room#0.#MExits#0.#MAny#0))
+			#Obreak#0
+		#Oend if#0
 		#Cvar#0 north #Cas#0 location
-		north = #6room#0.#6Exits#0.#3First#0(x, #6@x#0.#6Direction#0 == #1""north""#0)
-		#Cif#0(#3IsNull#0(#6@north#0)
-			#Hbreak#0
+		north = #Mroom#0.#MExits#0.#JFirst#0(x, #M@x#0.#MDirection#0 == #1""north""#0)
+		#Cif#0(#JIsNull#0(#M@north#0)
+			#Obreak#0
 		#Cend if#0
-		room = #6@north#0
-		#Hcontinue#0
-	#Hend while#0",
+		room = #M@north#0
+		#Ocontinue#0
+	#Oend while#0",
 			"break, continue, end");
 	}
 

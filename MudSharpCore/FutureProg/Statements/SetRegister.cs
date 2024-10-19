@@ -135,7 +135,7 @@ internal class SetRegister : Statement
 
 The syntax is as follows:
 
-	#Hsetregister#0 #6target#0 #1variablename#0 #6value#0 - sets the nominated register variable on the target");
+	#Osetregister#0 #Mtarget#0 #Nvariablename#0 #Mvalue#0 - sets the nominated register variable on the target");
 	}
 
 	public override StatementResult Execute(IVariableSpace variables)

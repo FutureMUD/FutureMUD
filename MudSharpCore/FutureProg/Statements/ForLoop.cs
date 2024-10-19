@@ -143,18 +143,18 @@ Within each iteration, a variable with the specified name holds the current iter
 
 The syntax for this statement is:
 
-	#Hfor#0 (iterationvariablename : #2numberfunction#0)
+	#Ofor#0 (iterationvariablename : #2numberfunction#0)
 		#2// Loop payload
-	#Hend for#0
+	#Oend for#0
 
 For example:
 
-	#4var#0 sum #4as#0 number
-	sum = 0
-	#Hfor#0 (i : #210#0)
-		sum = @sum + @i
-	#Hend for#0
-	#Hconsole#0 (#1""The sum of all the numbers from 1 to 10 is "" + @sum)
+	#Ovar#0 sum #Las#0 number
+	#Msum#0 = #20#0
+	#Ofor#0 (i : #210#0)
+		#Msum#0 = #M@sum#0 + #M@i#0
+	#Oend for#0
+	#Oconsole#0 (#N""The sum of all the numbers from 1 to 10 is ""#0 + #M@sum#0)
 
 The scope of the variable declared as the iteration variable is limited to being used inside the code block of the loop.",
 			"break, continue, end");

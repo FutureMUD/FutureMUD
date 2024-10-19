@@ -2942,7 +2942,7 @@ Note: reverse any condition with a ! (e.g. !dawn, !snow, !*rain, !summer)");
 		}
 
 		sb.AppendLine(
-			$"{"Weather/Light/Time".ColourName()}: {"environment{conditions,text}{optional more conds up to 8 times,text}{fallback}".ColourCommand()}");
+			$"{"Weather/Light/Time".ColourName()}: {"environment{conditions=text}{optional more conds up to 8 times=text}{fallback}".ColourCommand()}");
 		sb.AppendLine();
 		sb.AppendLine("Conditions for 'environment' include:");
 		sb.AppendLine();

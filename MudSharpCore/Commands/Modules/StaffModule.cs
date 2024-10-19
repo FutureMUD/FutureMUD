@@ -98,6 +98,12 @@ The syntax is simply #3testansi#0.", AutoHelp.HelpArg)]
 		sb.AppendLine($"Bold White (#F):     {"text".Colour(Telnet.BoldWhite)}");
 		sb.AppendLine($"Bold Orange (#G):    {"text".Colour(Telnet.BoldOrange)}");
 		sb.AppendLine($"Bold Pink (#H):      {"text".Colour(Telnet.BoldPink)}");
+		sb.AppendLine($"Function Yellow (#J):      {"text".Colour(Telnet.FunctionYellow)}");
+		sb.AppendLine($"Variable Green (#K):      {"text".Colour(Telnet.VariableGreen)}");
+		sb.AppendLine($"Keyword Blue (#L):      {"text".Colour(Telnet.KeywordBlue)}");
+		sb.AppendLine($"Variable Cyan (#M):      {"text".Colour(Telnet.VariableCyan)}");
+		sb.AppendLine($"Text Red (#N):      {"text".Colour(Telnet.TextRed)}");
+		sb.AppendLine($"Keyword Pink (#O):      {"text".Colour(Telnet.KeywordPink)}");
 		sb.AppendLine($"This text has {"some underlined text".Underline()} in it.");
 		sb.AppendLine($"This text has {"some blinking text".Blink()} in it.");
 		sb.AppendLine($"This text is {"coloured and underlined".Underline().Colour(Telnet.BoldRed)}.");

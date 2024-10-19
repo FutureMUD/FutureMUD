@@ -135,11 +135,11 @@ internal class Delay : Statement
 
 The syntax is as follows:
 
-	#Hdelay#0 #2milliseconds#0 #6character#0 #1text#0
+	#Odelay#0 #2milliseconds#0 #Mcharacter#0 #Ntext#0
 
 For example:
 
-	#Hdelay#0 #25000#0 #6@guard#0 #1""say Golly, the weather sure is nice today!""#0
+	#Odelay#0 #25000#0 #M@guard#0 #N""say Golly, the weather sure is nice today!""#0
 
 If you specify a delay of 0 the command will be executed immediately - this is really an alternative to the FORCE statement in this usage.");
 	}

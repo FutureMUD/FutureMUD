@@ -132,13 +132,13 @@ internal class AddRange : Statement
 
 There are two possible versions of the syntax:
 
-#Haddrange#0 collectionname #6range#0 - adds the ramge to the collection variable so-named
-#Haddrange#0 #6@collection#0 #6range#0 - adds the range to the specific collection (a local variable)
+#Oaddrange#0 collectionname #Mrange#0 - adds the ramge to the collection variable so-named
+#Oaddrange#0 #M@collection#0 #Mrange#0 - adds the range to the specific collection (a local variable)
 
 For example, if you had a collection called #3numbers#0 and a collection called #3bonusnumbers#0, you could do either of the following:
 
-#Haddrange#0 numbers #6@bonusnumbers#0
-#Haddrange#0 #6@numbers#0 #6@bonusnumbers#0".SubstituteANSIColour());
+#Oaddrange#0 numbers #M@bonusnumbers#0
+#Oaddrange#0 #M@numbers#0 #M@bonusnumbers#0".SubstituteANSIColour());
 	}
 
 	public override StatementResult Execute(IVariableSpace variables)

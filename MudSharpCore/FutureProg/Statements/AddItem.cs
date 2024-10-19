@@ -119,13 +119,13 @@ internal class AddItem : Statement
 
 There are two possible versions of the syntax:
 
-#Hadditem#0 collectionname #6item#0 - adds the item collection variable so-named
-#Hadditem#0 #6@collection#0 #6item#0 - adds the item to the specific collection (a local variable)
+#Oadditem#0 collectionname #Mitem#0 - adds the item collection variable so-named
+#Oadditem#0 #M@collection#0 #Mitem#0 - adds the item to the specific collection (a local variable)
 
 For example, if you had a collection called #3numbers#0, you could do either of the following:
 
-#Hadditem#0 numbers #22#0
-#Hadditem#0 #6@numbers#0 #22#0".SubstituteANSIColour());
+#Oadditem#0 numbers #22#0
+#Oadditem#0 #M@numbers#0 #22#0".SubstituteANSIColour());
 
 		FutureProg.RegisterStatementColouriser(
 			new Tuple<Regex, Func<string, string>>(AddItemCompileRegex, ColouriseStatement)

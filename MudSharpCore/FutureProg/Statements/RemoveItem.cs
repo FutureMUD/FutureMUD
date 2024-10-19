@@ -126,13 +126,13 @@ internal class RemoveItem : Statement
 
 There are two possible versions of the syntax:
 
-#Hremoveitem#0 collectionname #6item#0 - removes the item from the collection variable so-named
-#Hremoveitem#0 #6@collection#0 #6item#0 - removes the item from the specific collection (a local variable)
+#Oremoveitem#0 collectionname #Mitem#0 - removes the item from the collection variable so-named
+#Oremoveitem#0 #M@collection#0 #Mitem#0 - removes the item from the specific collection (a local variable)
 
 For example, if you had a collection called #3numbers#0, you could do either of the following:
 
-#Hremoveitem#0 numbers #22#0
-#Hremoveitem#0 #6@numbers#0 #22#0".SubstituteANSIColour());
+#Oremoveitem#0 numbers #22#0
+#Oremoveitem#0 #M@numbers#0 #22#0".SubstituteANSIColour());
 	}
 
 	public override StatementResult Execute(IVariableSpace variables)

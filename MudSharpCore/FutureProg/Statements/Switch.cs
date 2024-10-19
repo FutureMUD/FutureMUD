@@ -254,27 +254,27 @@ The variable supplied to the SWITCH is compared against all of the contained CAS
 
 The syntax for this command is as follows:
 
-	#Hswitch#0(#6switchvalue#0)
-		#Hcase#0(#6casevalue#0)
+	#Oswitch#0(#Mswitchvalue#0)
+		#Ocase#0(#Mcasevalue#0)
 			#2// Code if this case
-		#Hcase#0(#6othervalue#0)
+		#Ocase#0(#Mothervalue#0)
 			#2// Code if other case
 		...as many other cases as you want...
-		#Hdefault#0
+		#Odefault#0
 			#2// Code if default
-	#Hend switch#0", "break, case, default, end");
+	#Oend switch#0", "break, case, default, end");
 		FutureProg.RegisterStatementHelp("case", @"The CASE statement is used to mark a case block within a SWITCH statement. 
 
 Each case is associated with a value, which must be the same type as the switch value. If the case matches the switch variable, the code within the CASE statement block is executed.
 
-A CASE statement block is ended by a #Hbreak#0, #Hdefault#0 or #Hend#0 statement.
+A CASE statement block is ended by a #Obreak#0, #Odefault#0 or #Oend#0 statement.
 
 You can have as many cases as you want for each switch statement. Cases are evaluated in the order that they appear in the prog, in case the logic is at all dependent on the order in which things are executed.", "break, default, end, switch");
 		FutureProg.RegisterStatementHelp("default", @"The DEFAULT statement is used to mark a default case block within a SWITCH statement. The DEFAULT block must be the last block within the SWITCH.
 
 The default block is executed only if none of the other cases match.
 
-A DEFAULT statement block is ended by a #Hbreak#0 or #Hend#0 statement.", "break, case, end, switch");
+A DEFAULT statement block is ended by a #Obreak#0 or #Oend#0 statement.", "break, case, end, switch");
 	}
 
 	public override StatementResult Execute(IVariableSpace variables)

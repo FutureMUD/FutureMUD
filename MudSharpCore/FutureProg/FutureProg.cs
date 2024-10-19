@@ -74,7 +74,7 @@ public class FutureProg : SaveableItem, IFutureProg
 	private static readonly Regex _commentRegex = new(@"^\s*(?:--|//|').*$", RegexOptions.IgnoreCase);
 
 	private static readonly Regex _getTypeCollectionRegex =
-		new(@"(?<base>.+) (?<modifier>collection|dictionary|collectiondictionary)", RegexOptions.IgnoreCase);
+		new(@"^(?<base>.+) (?<modifier>collection dictionary|collection|dictionary|collectiondictionary)$", RegexOptions.IgnoreCase);
 
 	private readonly List<IStatement> _statements = new();
 
@@ -610,7 +610,7 @@ public class FutureProg : SaveableItem, IFutureProg
 		if (_getTypeCollectionRegex.IsMatch(name))
 		{
 			var match = _getTypeCollectionRegex.Match(name);
-			switch (match.Groups["modifier"].Value)
+			switch (match.Groups["modifier"].Value.ToLowerInvariant())
 			{
 				case "collection":
 					returnType |= FutureProgVariableTypes.Collection;
@@ -621,6 +621,7 @@ public class FutureProg : SaveableItem, IFutureProg
 					name = _getTypeCollectionRegex.Match(name).Groups[1].Value;
 					break;
 				case "collectiondictionary":
+				case "collection dictionary":
 					returnType |= FutureProgVariableTypes.CollectionDictionary;
 					name = _getTypeCollectionRegex.Match(name).Groups[1].Value;
 					break;

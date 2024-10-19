@@ -22,27 +22,29 @@ internal class Set : BuiltInFunction
 
 	public static void RegisterFunctionCompiler()
 	{
-		FutureProg.RegisterBuiltInFunctionCompiler(
-			new FunctionCompilerInformation(
-				"set",
-				new[]
-				{
-					FutureProgVariableTypes.Dictionary, FutureProgVariableTypes.Text,
-					FutureProgVariableTypes.CollectionItem
-				},
-				(pars, gameworld) => new Set(pars, gameworld),
-				new List<string> { "dictionary", "key", "item" },
-				new List<string>
-				{
-					"The dictionary you want to set the item in",
-					"The text key at which you want to store that item",
-					"The item that you want to add to the dictionary"
-				},
-				"Sets the specified text key in the dictionary to be the item specified. Returns true if the set succeeded (the types were compatible), and false if not.",
-				"Dictionaries",
-				FutureProgVariableTypes.Boolean
-			)
-		);
+		foreach (var type in FutureProgVariableTypes.CollectionItem.GetSingleFlags())
+		{
+			FutureProg.RegisterBuiltInFunctionCompiler(
+				new FunctionCompilerInformation(
+					"set",
+					[
+						FutureProgVariableTypes.Dictionary, FutureProgVariableTypes.Text, type
+					],
+					(pars, gameworld) => new Set(pars, gameworld),
+					new List<string> { "dictionary", "key", "item" },
+					new List<string>
+					{
+						"The dictionary you want to set the item in",
+						"The text key at which you want to store that item",
+						"The item that you want to add to the dictionary"
+					},
+					"Sets the specified text key in the dictionary to be the item specified. Returns true if the set succeeded (the types were compatible), and false if not.",
+					"Dictionaries",
+					FutureProgVariableTypes.Boolean
+				)
+			);
+		}
+		
 	}
 
 	#endregion

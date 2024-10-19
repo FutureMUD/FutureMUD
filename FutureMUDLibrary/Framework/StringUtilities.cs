@@ -22,7 +22,7 @@ namespace MudSharp.Framework
 		/// <summary>
 		/// Form is #N, e.g. #2, #F, #0
 		/// </summary>
-		private static readonly Regex _substituteANSIColourRegex = new(@"(?<=(?:##){0,})#([0-9A-I#])", RegexOptions.IgnoreCase);
+		private static readonly Regex _substituteANSIColourRegex = new(@"(?<=(?:##){0,})#([0-9A-O#])", RegexOptions.IgnoreCase);
 		/// <summary>
 		/// Form is #`r;g;b; for example #`156;220;254;
 		/// </summary>
@@ -243,6 +243,18 @@ namespace MudSharp.Framework
 						return Telnet.Pink.Bold;
 					case "i":
 						return Telnet.Pink.ToString();
+					case "j":
+						return Telnet.FunctionYellow.ToString();
+					case "k":
+						return Telnet.VariableGreen.ToString();
+					case "l":
+						return Telnet.KeywordBlue.ToString();
+					case "m":
+						return Telnet.VariableCyan.ToString();
+					case "n":
+						return Telnet.TextRed.ToString();
+					case "o":
+						return Telnet.KeywordPink.ToString();
 					case "#":
 						return "#";
 					default:

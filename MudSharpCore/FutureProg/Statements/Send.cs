@@ -220,9 +220,9 @@ internal class Send : Statement, IHaveFuturemud
 
 The syntax for using this statement is as follows:
 
-	#Hsend#0 #6target#0 #1echo#0 - sends a message to a specific character
-	#Hsend#0 range #6target#0 #1echo#0 - sends an echo to all players in the relevant 'range'
-	#Hsend#0 range flags #6target#0 #1echo#0 - sends an echo to all players in the relevant 'range' with some output flags
+	#Osend#0 #Mtarget#0 #Necho#0 - sends a message to a specific character
+	#Osend#0 range #Mtarget#0 #Necho#0 - sends an echo to all players in the relevant 'range'
+	#Osend#0 range flags #Mtarget#0 #Necho#0 - sends an echo to all players in the relevant 'range' with some output flags
 
 The values for the range argument can be as follows:
 

@@ -138,11 +138,11 @@ internal class DelayProg : Statement
 
 The syntax is as follows:
 
-	#Hdelayprog#0 #5progname#0 #2milliseconds#0 (parameters of the function, separated by spaces)
+	#Odelayprog#0 #Jprogname#0 #2milliseconds#0 (parameters of the function, separated by spaces)
 
 For example:
 
-	#Hdelayprog#0 IntroVideo3 #215000#0 (@step + 1)
+	#Odelayprog#0 IntroVideo3 #215000#0 (#M@step#0 + #21#0)
 
 The above example is a real example that recursively calls itself after a 15 second delay with an incremented ""step"" variable. 
 

@@ -1687,7 +1687,7 @@ A function (See PROG HELP FUNCTIONS) can also function as a statement on a line.
 		var type = FutureProg.FutureProg.GetTypeByName(parameterType);
 		if (type == FutureProgVariableTypes.Void || type == FutureProgVariableTypes.Error)
 		{
-			actor.Send("That is not a valid variable type.");
+			actor.Send($"The text {parameterType.ColourCommand()} is not a valid variable type.");
 			return;
 		}
 
@@ -1993,6 +1993,9 @@ A function (See PROG HELP FUNCTIONS) can also function as a statement on a line.
 				return;
 			case "static":
 				ProgSetStatic(actor, prog);
+				return;
+			case "parameter":
+				ProgParameter(actor, command);
 				return;
 			default:
 				actor.OutputHandler.Send(NewProgHelpText.SubstituteANSIColour());

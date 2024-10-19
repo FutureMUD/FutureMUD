@@ -67,6 +67,7 @@ public partial class GameItem
 			{ "layer", FutureProgVariableTypes.Text },
 			{ "isfood", FutureProgVariableTypes.Boolean },
 			{ "isliquidcontainer", FutureProgVariableTypes.Boolean },
+			{ "variables", FutureProgVariableTypes.Dictionary | FutureProgVariableTypes.Text}
 		};
 	}
 
@@ -120,6 +121,7 @@ public partial class GameItem
 			{ "layer", "A text description of the layer this item is currently in" },
 			{ "isfood", "True if the item is food" },
 			{ "isliquidcontainer", "True if the item is a liquid container" },
+			{ "variables", "Returns a dictionary of variable names and variable values"}
 		};
 	}
 
@@ -287,6 +289,17 @@ public partial class GameItem
 				return new BooleanVariable(IsItemType<IEdible>());
 			case "isliquidcontainer":
 				return new BooleanVariable(IsItemType<ILiquidContainer>());
+			case "variables":
+				var dict = new Dictionary<string, IFutureProgVariable>(StringComparer.InvariantCultureIgnoreCase);
+				var variable = GetItemType<IVariable>();
+				if (variable is not null)
+				{
+					foreach (var item in variable.CharacteristicDefinitions)
+					{
+						dict[item.Name.ToLowerInvariant()] = new TextVariable(variable.GetCharacteristic(item).GetValue.ToLowerInvariant());
+					}
+				}
+				return new DictionaryVariable(dict, FutureProgVariableTypes.Text);
 			default:
 				return base.GetProperty(property);
 		}

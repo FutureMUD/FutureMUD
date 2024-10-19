@@ -110,8 +110,8 @@ internal class Return : Statement
 
 There are two versions of the command:
 
-	#Hreturn#0 - exits the program and doesn't return a variable
-	#Hreturn#0 #6somevalue#0 - exits the program and returns the value
+	#Oreturn#0 - exits the program and doesn't return a variable
+	#Oreturn#0 #Msomevalue#0 - exits the program and returns the value
 
 If a prog has been set to have a return type other than VOID, it must use the second form of the syntax, the first would be an error. Progs with VOID return types can only use the first syntax format.");
 	}

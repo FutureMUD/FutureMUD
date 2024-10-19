@@ -121,11 +121,11 @@ internal class Force : Statement
 
 The syntax is as follows:
 
-	#Hforce#0 #6character#0 #1text#0
+	#Lforce#0 #Mcharacter#0 #Ntext#0
 
 For example:
 
-	#Hforce#0 #6@guard#0 #1""say Golly, the weather sure is nice today!""#0");
+	#Lforce#0 #M@guard#0 #N""say Golly, the weather sure is nice today!""#0");
 	}
 
 	public override StatementResult Execute(IVariableSpace variables)

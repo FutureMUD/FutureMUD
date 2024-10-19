@@ -127,6 +127,7 @@ using TraitExpression = MudSharp.Body.Traits.TraitExpression;
 using MudSharp.RPG.Hints;
 using System.Numerics;
 using MudSharp.GameItems.Components;
+using MudSharp.GameItems.Prototypes;
 using Track = MudSharp.Movement.Track;
 
 namespace MudSharp.Framework;
@@ -444,7 +445,7 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 		Chargen.SetupChargen(this);
 		HeartbeatManager.StartHeartbeatTick();
 		Track.CreateGlobalHeartbeatEvent();
-		PuddleGameItemComponent.CreateGlobalHeartbeatEvent();
+		CommodityGameItemComponentProto.CreateGlobalHeartbeatEvent();
 		EffectScheduler.SetupEffectSaver();
 		Scheduler.AddSchedule(new RepeatingSchedule<IFuturemud>(this, this, fm => {
 			CheckNewPlayerHints();

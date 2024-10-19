@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Xml.Linq;
 using MudSharp.Accounts;
 using MudSharp.Character;
+using MudSharp.Construction;
 using MudSharp.Form.Material;
 using MudSharp.Framework;
 using MudSharp.Framework.Revision;
@@ -49,6 +50,37 @@ public class CommodityGameItemComponentProto : GameItemComponentProto
 		commodity.Tag = tag;
 		commodity.UseIndirectQuantityDescription = useIndirect;
 		return newItem;
+	}
+
+	public static void CreateGlobalHeartbeatEvent()
+	{
+		var gameworld = Futuremud.Games.First();
+		gameworld.HeartbeatManager.FuzzyHourHeartbeat += () =>
+		{
+			gameworld.DebugMessage("Commodity Pile (Residue) hourly cleanup routine started.");
+			var residueTag = PuddleGameItemComponent.PuddleResidueTag(gameworld);
+			int affectedCount = 0, deletedCount = 0;
+			foreach (var item in gameworld.Items.SelectNotNull(x => x.GetItemType<CommodityGameItemComponent>()).ToList())
+			{
+				if (item.Tag != residueTag)
+				{
+					continue;
+				}
+
+				if (item.Parent.TrueLocations.First().Terrain(item.Parent).DefaultCellOutdoorsType.In(CellOutdoorsType.Outdoors, CellOutdoorsType.IndoorsClimateExposed))
+				{
+					affectedCount += 1;
+					item.Weight -= Math.Max(10, item.Weight * 0.1);
+					if (item.Weight <= 0.0)
+					{
+						item.Delete();
+						deletedCount += 1;
+					}
+				}
+			}
+
+			gameworld.DebugMessage($"Affected #2{affectedCount:N0}#0 piles and deleted #2{deletedCount:N0}#0.".SubstituteANSIColour());
+		};
 	}
 
 	public override string TypeDescription => "Commodity";

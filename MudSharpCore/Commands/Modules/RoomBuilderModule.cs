@@ -1609,7 +1609,6 @@ You can use the following subcommands:
 
 	private static void CellEditSuggestDescription(ICharacter actor, StringStack command)
 	{
-		var descModel = Futuremud.Games.First().GetStaticConfiguration("GPT_DescSuggestion_Model");
 		var overlay = actor.Location.GetOrCreateOverlay(actor.CurrentOverlayPackage);
 		var sb = new StringBuilder();
 		sb.AppendLine(Futuremud.Games.First().GetStaticString("GPT_RoomSuggestionPrompt"));
@@ -1660,7 +1659,7 @@ Note: reverse any condition with a ! (e.g. !dawn, !snow, !*rain, !summer)");
 			sb.AppendLine(command.SafeRemainingArgument);
 		}
 
-		if (!OpenAIHandler.MakeGPTRequest(sb.ToString(), actor.Gameworld.GetStaticString("GPT_RoomSuggestionFinalWord"), text =>
+		void GPTCallback(string text)
 		{
 			var descriptions = text.Split('#', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
 			var sb = new StringBuilder();
@@ -1684,30 +1683,43 @@ Note: reverse any condition with a ! (e.g. !dawn, !snow, !*rain, !summer)");
 				{
 					if (!int.TryParse(text, out var value) || value < 1 || value > descriptions.Length)
 					{
-						actor.OutputHandler.Send(
-							"You did not specify a valid description. If you still want to use the descriptions, you'll have to copy them in manually.");
+						actor.OutputHandler.Send("You did not specify a valid description. If you still want to use the descriptions, you'll have to copy them in manually.");
 						return;
 					}
+
 					overlay.CellDescription = descriptions[value - 1];
 					overlay.Changed = true;
 					actor.OutputHandler.Send($"You set the description of the room {overlay.CellName} to the {value.ToOrdinal()} suggestion.");
 				},
-				RejectAction = text =>
-				{
-					actor.OutputHandler.Send("You decide not to use any of the suggestions.");
-				},
-				ExpireAction = () =>
-				{
-					actor.OutputHandler.Send("You decide not to use any of the suggestions.");
-				},
+				RejectAction = text => { actor.OutputHandler.Send("You decide not to use any of the suggestions."); },
+				ExpireAction = () => { actor.OutputHandler.Send("You decide not to use any of the suggestions."); },
 				Keywords = new List<string> { "description", "suggestion" }
 			}), TimeSpan.FromSeconds(120));
-		}, descModel))
-		{
-			actor.OutputHandler.Send("Your GPT Model is not set up correctly, so you cannot get any suggestions.");
-			return;
 		}
 
+		switch (actor.Gameworld.GetStaticConfiguration("DescSuggestionAIModel").ToLowerInvariant())
+		{
+			case "openai":
+				var descModel = Futuremud.Games.First().GetStaticConfiguration("GPT_DescSuggestion_Model");
+				if (!OpenAIHandler.MakeGPTRequest(sb.ToString(), actor.Gameworld.GetStaticString("GPT_RoomSuggestionFinalWord"), GPTCallback, descModel))
+				{
+					actor.OutputHandler.Send("Your GPT Model is not set up correctly, so you cannot get any suggestions.");
+					return;
+				}
+				break;
+			case "anthropic":
+				var anthropicModel = Futuremud.Games.First().GetStaticConfiguration("AnthropicDefaultModel");
+				if (!OpenAIHandler.MakeAnthropicRequest(sb.ToString(), actor.Gameworld.GetStaticString("GPT_RoomSuggestionFinalWord"), GPTCallback, anthropicModel))
+				{
+					actor.OutputHandler.Send("Your Anthropic Model is not set up correctly, so you cannot get any suggestions.");
+					return;
+				}
+				break;
+			default:
+				actor.OutputHandler.Send($"The value of the #3DescSuggestionAIModel#0 static configuration must be either #3openai#0 or #3anthropic#0.");
+				return;
+		}
+		
 		actor.OutputHandler.Send("You send your request off to the GPT Model.");
 	}
 

@@ -215,6 +215,52 @@ public class ImplementorModule : Module<ICharacter>
 		}
 	}
 
+	[PlayerCommand("TestAnthropic", "testanthropic")]
+	[CommandPermission(PermissionLevel.Founder)]
+	protected static void TestAnthropic(ICharacter actor, string input)
+	{
+		var ss = new StringStack(input.RemoveFirstWord());
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send("Which GPT Thread shall we test?");
+			return;
+		}
+
+		using (new FMDB())
+		{
+			Models.GPTThread thread;
+			var cmd = ss.PopSpeech();
+			if (long.TryParse(cmd, out var id))
+			{
+				thread = FMDB.Context.GPTThreads.Find(id);
+			}
+			else
+			{
+				thread = FMDB.Context.GPTThreads.Include(x => x.Messages).FirstOrDefault(x => x.Name == cmd);
+			}
+
+			if (thread is null)
+			{
+				actor.OutputHandler.Send("There is no such GPT Thread.");
+				return;
+			}
+
+			if (ss.IsFinished)
+			{
+				actor.OutputHandler.Send("What is your prompt for GPT?");
+				return;
+			}
+
+			var threadName = thread.Name;
+			actor.OutputHandler.Send(
+				$"You send the following request to the {thread.Name.ColourName()} Anthropic thread:\n\n{ss.RemainingArgument}");
+			OpenAI.OpenAIHandler.MakeAnthropicRequest(thread.Prompt, ss.SafeRemainingArgument, text =>
+			{
+				actor.OutputHandler.Send($"#B[Anthropic Response for {threadName}]#0\n\n{text.Wrap(actor.InnerLineFormatLength)}".SubstituteANSIColour());
+			}, actor.Gameworld.GetStaticConfiguration("AnthropicDefaultModel"));
+		}
+	}
+
 	[PlayerCommand("TestGemini", "testgemini")]
 	[CommandPermission(PermissionLevel.Founder)]
 	protected static void TestGemini(ICharacter actor, string input)
@@ -1938,9 +1984,7 @@ The syntax is as follows:
 		}
 
 		var modelText = ss.SafeRemainingArgument;
-		var model = models.FirstOrDefault(x => x.EqualTo(modelText)) ??
-					models.FirstOrDefault(x => x.StartsWith(modelText, StringComparison.InvariantCultureIgnoreCase));
-		if (model is null)
+		if (modelText is null)
 		{
 			actor.OutputHandler.Send($"There is no such model.\nThe valid models are {models.Select(x => x.ColourName()).ListToString()}.");
 			return;
@@ -1951,7 +1995,7 @@ The syntax is as follows:
 		{
 			name,
 			temperature,
-			model,
+			modelText,
 			actor
 		});
 	}

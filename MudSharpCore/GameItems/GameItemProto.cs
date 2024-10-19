@@ -1040,7 +1040,7 @@ public class GameItemProto : EditableItem, IGameItemProto
 
 	private bool BuildingCommandSuggestDesc(ICharacter actor, StringStack command)
 	{
-		var descModel = Futuremud.Games.First().GetStaticConfiguration("GPT_DescSuggestion_Model");
+		
 		var sb = new StringBuilder();
 		sb.AppendLine(Futuremud.Games.First().GetStaticString("GPT_ItemSuggestionPrompt"));
 		sb.AppendLine();
@@ -1098,52 +1098,65 @@ public class GameItemProto : EditableItem, IGameItemProto
 			sb.AppendLine(command.SafeRemainingArgument);
 		}
 
-		if (!OpenAIHandler.MakeGPTRequest(sb.ToString(), Gameworld.GetStaticString("GPT_ItemSuggestionFinalWord"), text =>
-			{
-				var descriptions = text.Split('#', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
-				var sb = new StringBuilder();
-				sb.AppendLine($"Your GPT Model has made the following suggestions for descriptions for item {ShortDescription.ColourObject()}:");
-				var i = 1;
-				foreach (var desc in descriptions)
-				{
-					sb.AppendLine();
-					sb.AppendLine($"Suggestion {i++.ToString("N0", actor)}".GetLineWithTitle(actor, Telnet.Cyan, Telnet.BoldWhite));
-					sb.AppendLine();
-					sb.AppendLine(desc.Wrap(actor.InnerLineFormatLength, "\t"));
-				}
-
-				sb.AppendLine();
-				sb.AppendLine($"You can apply one of these by using the syntax {"accept desc <n>".Colour(Telnet.Cyan)}, such as {"accept desc 1".Colour(Telnet.Cyan)}.");
-				actor.OutputHandler.Send(sb.ToString());
-				actor.AddEffect(new Accept(actor, new GenericProposal
-				{
-					DescriptionString = "Applying a GPT Description suggestion",
-					AcceptAction = text =>
-					{
-						if (!int.TryParse(text, out var value) || value < 1 || value > descriptions.Length)
-						{
-							actor.OutputHandler.Send(
-								"You did not specify a valid description. If you still want to use the descriptions, you'll have to copy them in manually.");
-							return;
-						}
-						FullDescription = descriptions[value-1];
-						Changed = true;
-						actor.OutputHandler.Send($"You set the description of this item based on the {value.ToOrdinal()} suggestion.");
-					},
-					RejectAction = text =>
-					{
-						actor.OutputHandler.Send("You decide not to use any of the suggestions.");
-					},
-					ExpireAction = () =>
-					{
-						actor.OutputHandler.Send("You decide not to use any of the suggestions.");
-					},
-					Keywords = new List<string> {"description", "suggestion"}
-				}), TimeSpan.FromSeconds(120));
-			}, descModel))
+		void GPTCallback(string text)
 		{
-			actor.OutputHandler.Send("Your GPT Model is not set up correctly, so you cannot get any suggestions.");
-			return false;
+			var descriptions = text.Split('#', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+			var sb = new StringBuilder();
+			sb.AppendLine($"Your GPT Model has made the following suggestions for descriptions for item {ShortDescription.ColourObject()}:");
+			var i = 1;
+			foreach (var desc in descriptions)
+			{
+				sb.AppendLine();
+				sb.AppendLine($"Suggestion {i++.ToString("N0", actor)}".GetLineWithTitle(actor, Telnet.Cyan, Telnet.BoldWhite));
+				sb.AppendLine();
+				sb.AppendLine(desc.Wrap(actor.InnerLineFormatLength, "\t"));
+			}
+
+			sb.AppendLine();
+			sb.AppendLine($"You can apply one of these by using the syntax {"accept desc <n>".Colour(Telnet.Cyan)}, such as {"accept desc 1".Colour(Telnet.Cyan)}.");
+			actor.OutputHandler.Send(sb.ToString());
+			actor.AddEffect(new Accept(actor, new GenericProposal
+			{
+				DescriptionString = "Applying a GPT Description suggestion",
+				AcceptAction = text =>
+				{
+					if (!int.TryParse(text, out var value) || value < 1 || value > descriptions.Length)
+					{
+						actor.OutputHandler.Send("You did not specify a valid description. If you still want to use the descriptions, you'll have to copy them in manually.");
+						return;
+					}
+
+					FullDescription = descriptions[value - 1];
+					Changed = true;
+					actor.OutputHandler.Send($"You set the description of this item based on the {value.ToOrdinal()} suggestion.");
+				},
+				RejectAction = text => { actor.OutputHandler.Send("You decide not to use any of the suggestions."); },
+				ExpireAction = () => { actor.OutputHandler.Send("You decide not to use any of the suggestions."); },
+				Keywords = new List<string> { "description", "suggestion" }
+			}), TimeSpan.FromSeconds(120));
+		}
+
+		switch (actor.Gameworld.GetStaticConfiguration("DescSuggestionAIModel").ToLowerInvariant())
+		{
+			case "openai":
+				var descModel = Futuremud.Games.First().GetStaticConfiguration("GPT_DescSuggestion_Model");
+				if (!OpenAIHandler.MakeGPTRequest(sb.ToString(), actor.Gameworld.GetStaticString("GPT_ItemSuggestionFinalWord"), GPTCallback, descModel))
+				{
+					actor.OutputHandler.Send("Your GPT Model is not set up correctly, so you cannot get any suggestions.");
+					return false;
+				}
+				break;
+			case "anthropic":
+				var anthropicModel = Futuremud.Games.First().GetStaticConfiguration("AnthropicDefaultModel");
+				if (!OpenAIHandler.MakeAnthropicRequest(sb.ToString(), actor.Gameworld.GetStaticString("GPT_ItemSuggestionFinalWord"), GPTCallback, anthropicModel))
+				{
+					actor.OutputHandler.Send("Your Anthropic Model is not set up correctly, so you cannot get any suggestions.");
+					return false;
+				}
+				break;
+			default:
+				actor.OutputHandler.Send($"The value of the #3DescSuggestionAIModel#0 static configuration must be either #3openai#0 or #3anthropic#0.");
+				return false;
 		}
 
 		actor.OutputHandler.Send("You send your request off to the GPT Model.");

@@ -996,7 +996,7 @@ public abstract class Shop : SaveableItem, IShop
 	public void PriceAdjustmentForMerchandise(IMerchandise merchandise, decimal oldValue, ICharacter actor)
 	{
 		var stock = _stockedMerchandise[merchandise]
-					.Select(x => Gameworld.TryGetItem(x))
+					.SelectNotNull(x => Gameworld.TryGetItem(x))
 					.ToList();
 
 		var quantity = stock.Sum(x => x.Quantity);

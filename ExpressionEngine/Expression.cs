@@ -81,7 +81,8 @@ namespace ExpressionEngine
 		}
 
 		public string Error => _expression.Error?.Message ?? string.Empty;
-		
+
+		public IEnumerable<string> ParameterNames => _expression.GetParameterNames();
 
 		#region Constructors
 		public Expression(string expression) : this(expression, ExpressionOptions.CaseInsensitiveStringComparer | ExpressionOptions.IgnoreCaseAtBuiltInFunctions | ExpressionOptions.AllowBooleanCalculation)

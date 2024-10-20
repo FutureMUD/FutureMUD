@@ -1643,6 +1643,7 @@ Trait expressions can be edited with the following syntax:
 	#3te close#0 - stops editing a trait expression
 	#3te clone <id>#0 - clones an existing expression and then begins editing the clone
 	#3te new <name>#0 - creates a new trait expression
+	#3te test <which> <who> [<parameters>]#0 - evalute a trait expression for someone to test it
 	#3te set name <name>#0 - edits the name of this trait expression
 	#3te set formula <formula>#0 - edits the formula for the expression
 	#3te set parameter <which> <trait>#0 - adds a new parameter named referring to the specified trait
@@ -1778,9 +1779,69 @@ Here are some examples of plausible trait expressions applying the above:
 			case "view":
 				TraitExpressionView(actor, ss);
 				return;
+			case "test":
+				TraitExpressionTest(actor, ss);
+				return;
 		}
 
 		actor.OutputHandler.Send(TraitExpressionHelp.SubstituteANSIColour());
+	}
+
+	private static void TraitExpressionTest(ICharacter actor, StringStack ss)
+	{
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send("Which trait expression do you want to test?");
+			return;
+		}
+
+		var te = actor.Gameworld.TraitExpressions.GetByIdOrName(ss.PopSpeech());
+		if (te is null)
+		{
+			actor.OutputHandler.Send($"There is no trait expression identified by the text {ss.Last.ColourCommand()}.");
+			return;
+		}
+
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send("Who would you like to test that expression for?");
+			return;
+		}
+
+		var target = actor.TargetActor(ss.PopSpeech());
+		if (target is null)
+		{
+			actor.OutputHandler.Send($"You don't see anyone identified by the keyword {ss.Last.ColourCommand()}.");
+			return;
+		}
+
+
+		var sb = new StringBuilder();
+		sb.AppendLine($"Evaluating Trait Expression #{te.Id.ToStringN0(actor)} ({te.Name.ColourName()}) for {target.HowSeen(actor)}...");
+
+		if (te.NonTraitParameters.Any())
+		{
+			foreach (var item in te.NonTraitParameters)
+			{
+				if (ss.IsFinished)
+				{
+					actor.OutputHandler.Send($"You must supply a value for the {item.ColourName()} parameter.");
+					return;
+				}
+
+				if (!double.TryParse(ss.PopSpeech(), out var value))
+				{
+					actor.OutputHandler.Send($"The text {ss.Last.ColourCommand()} is not a valid number.");
+					return;
+				}
+
+				te.Formula.Parameters[item] = value;
+				sb.AppendLine($"...{item.ColourName()} = {value.ToString("N", actor).ColourValue()}");
+			}
+		}
+
+		sb.AppendLine($"Result: {te.Evaluate(target).ToString("N", actor).ColourValue()}");
+		actor.OutputHandler.Send(sb.ToString());
 	}
 
 	private static void TraitExpressionView(ICharacter actor, StringStack ss)

@@ -286,6 +286,8 @@ public partial class TraitExpression : SaveableItem, ITraitExpression
 		}
 	}
 
+	public IEnumerable<string> NonTraitParameters => Formula.ParameterNames.Except(Parameters.Keys);
+
 	private void ProcessLazyLoading()
 	{
 		if (_parameterIndexes.Any())

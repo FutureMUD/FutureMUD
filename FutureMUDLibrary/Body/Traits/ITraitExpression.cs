@@ -20,5 +20,7 @@ namespace MudSharp.Body.Traits
         bool HasErrors();
         string Error { get; }
         string OriginalFormulaText { get; }
+        IEnumerable<string> NonTraitParameters { get; }
+
     }
 }

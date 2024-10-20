@@ -671,6 +671,7 @@ If you do not wish to approve or decline, you may type {"abort edit".Colour(Teln
 		switch (input.PopSpeech().ToLowerInvariant())
 		{
 			case "edit":
+			case "open":
 				GenericRevisableEdit(actor, input, helper);
 				return;
 			case "close":
@@ -691,6 +692,9 @@ If you do not wish to approve or decline, you may type {"abort edit".Colour(Teln
 				return;
 			case "list":
 				GenericRevisableList(actor, input, helper);
+				return;
+			case "new":
+				GenericRevisableEditNew(actor, input, helper);
 				return;
 			default:
 				actor.OutputHandler.Send(helper.DefaultCommandHelp.SubstituteANSIColour());
@@ -876,6 +880,7 @@ If you do not wish to approve or decline, you may type {"abort edit".Colour(Teln
 		switch (input.PopSpeech().ToLowerInvariant())
 		{
 			case "edit":
+			case "open":
 				GenericEdit(actor, input, helper);
 				return;
 			case "close":
@@ -893,6 +898,9 @@ If you do not wish to approve or decline, you may type {"abort edit".Colour(Teln
 				return;
 			case "list":
 				GenericList(actor, input, helper);
+				return;
+			case "new":
+				GenericEditNew(actor, input, helper);
 				return;
 			default:
 				actor.OutputHandler.Send(helper.DefaultCommandHelp.SubstituteANSIColour());

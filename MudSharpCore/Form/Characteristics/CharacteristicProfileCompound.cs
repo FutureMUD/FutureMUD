@@ -60,9 +60,9 @@ public class CharacteristicProfileCompound : CharacteristicProfile
 
 	public override string HelpText => @"You can use the following options when editing this profile:
 
-	name <name> - changes the name of this profile
-	desc <description> - changes the description of this profile
-	profile <which> - toggles a parent profile for this one";
+	#3name <name>#0 - changes the name of this profile
+	#3desc <description>#0 - changes the description of this profile
+	#3profile <which>#0 - toggles a parent profile for this one";
 
 	public override void BuildingCommand(ICharacter actor, StringStack command)
 	{

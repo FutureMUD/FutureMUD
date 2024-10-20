@@ -63,8 +63,8 @@ public class BodypartSpecificClientCharacteristicDefinition : CharacteristicDefi
 	}
 
 	public override string HelpText => $@"{base.HelpText}
-	shape <shape> - sets the bodypart shape to tie to
-	count <#> - sets the expected number of bodyparts for normal circumstances";
+	#3shape <shape>#0 - sets the bodypart shape to tie to
+	#3count <#>#0 - sets the expected number of bodyparts for normal circumstances";
 
 	public override void BuildingCommand(ICharacter actor, StringStack command)
 	{

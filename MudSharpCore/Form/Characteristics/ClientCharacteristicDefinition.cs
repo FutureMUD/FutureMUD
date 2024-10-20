@@ -32,7 +32,7 @@ public class ClientCharacteristicDefinition : CharacteristicDefinition
 	public override ICharacteristicDefinition Parent => _parent;
 
 	public override string HelpText => $@"{base.HelpText}
-	parent <other> - sets the parent of this definition";
+	#3parent <other>#0 - sets the parent of this definition";
 
 	public override void BuildingCommand(ICharacter actor, StringStack command)
 	{

@@ -123,9 +123,9 @@ public class CharacteristicDefinition : FrameworkItem, ICharacteristicDefinition
 
 	public virtual string HelpText => @"You can use the following options with this command:
 
-	name <name> - renames this characteristic definition
-	desc <desc> - gives a description of this characteristic definition (only seen by admins)
-	pattern <regex> - sets a regex pattern that is used in description markup to match this variable";
+	#3name <name>#0 - renames this characteristic definition
+	#3desc <desc>#0 - gives a description of this characteristic definition (only seen by admins)
+	#3pattern <regex>#0 - sets a regex pattern that is used in description markup to match this variable";
 
 	public virtual void BuildingCommand(ICharacter actor, StringStack command)
 	{
@@ -185,7 +185,7 @@ public class CharacteristicDefinition : FrameworkItem, ICharacteristicDefinition
 				actor.OutputHandler.Send("You cannot change the parent of this type.");
 				return;
 			default:
-				actor.OutputHandler.Send(HelpText);
+				actor.OutputHandler.Send(HelpText.SubstituteANSIColour());
 				return;
 		}
 	}

@@ -80,12 +80,12 @@ public class GrowableCharacteristicValue : CharacteristicValue, IGrowableCharact
 	}
 
 	protected override string HelpText => $@"{base.HelpText}
-    basic <basic form> - the basic form of this variable
-    fancy <fancy form> - the fancy form of this variable
-    tag <which> - the tag required for a tool to apply this style in the STYLE command
-    tag none - only the default styling tool will be required
-    difficulty <difficulty> - the difficulty that controls who can apply the style
-    growth <#> - a numerical value representing the growth stage
+	#3basic <basic form>#0 - the basic form of this variable
+	#3fancy <fancy form>#0 - the fancy form of this variable
+	#3tag <which>#0 - the tag required for a tool to apply this style in the STYLE command
+	#3tag none#0 - only the default styling tool will be required
+	#3difficulty <difficulty>#0 - the difficulty that controls who can apply the style
+	#3growth <#>#0 - a numerical value representing the growth stage
 
 Note: When using the STYLE command people can apply any style with an equal or lesser growth number essentially at will, whereas there is a timer after each style before they can apply a longer style and it must always be a style 1 larger than the current length.";
 

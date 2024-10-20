@@ -56,7 +56,7 @@ public class ColourCharacteristicValue : CharacteristicValue
 	}
 
 	protected override string HelpText => $@"{base.HelpText}
-    colour <colour> - sets the colour that this value represents";
+	#3colour <colour>#0 - sets the colour that this value represents";
 
 	public override void BuildingCommand(ICharacter actor, StringStack command)
 	{

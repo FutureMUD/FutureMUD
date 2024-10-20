@@ -168,9 +168,9 @@ public class CharacteristicProfile : FrameworkItem, ICharacteristicProfile
 
 	public virtual string HelpText => @"You can use the following options when editing this profile:
 
-	name <name> - changes the name of this profile
-	desc <description> - changes the description of this profile
-	value <which> - toggles a value being a part of this profile";
+	#3name <name>#0 - changes the name of this profile
+	#3desc <description>#0 - changes the description of this profile
+	#3value <which>#0 - toggles a value being a part of this profile";
 
 	public virtual void BuildingCommand(ICharacter actor, StringStack command)
 	{
@@ -187,7 +187,7 @@ public class CharacteristicProfile : FrameworkItem, ICharacteristicProfile
 				BuildingCommandValue(actor, command);
 				return;
 			default:
-				actor.OutputHandler.Send(HelpText);
+				actor.OutputHandler.Send(HelpText.SubstituteANSIColour());
 				return;
 		}
 	}

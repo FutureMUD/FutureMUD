@@ -60,8 +60,8 @@ public class MultiformCharacteristicValue : CharacteristicValue
 	}
 
 	protected override string HelpText => $@"{base.HelpText}
-    basic <basic form> - the basic form of this variable
-    fancy <fancy form> - the fancy form of this variable";
+	#3basic <basic form>#0 - the basic form of this variable
+	#3fancy <fancy form>#0 - the fancy form of this variable";
 
 	public override void BuildingCommand(ICharacter actor, StringStack command)
 	{

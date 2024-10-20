@@ -106,10 +106,10 @@ internal class WeightedCharacteristicProfile : CharacteristicProfile
 
 	public override string HelpText => @"You can use the following options when editing this profile:
 
-	name <name> - changes the name of this profile
-	desc <description> - changes the description of this profile
-	value <which> <weight> - adds or edits a value and its weighting
-    value <which> - removes a value from the profile";
+	#3name <name>#0 - changes the name of this profile
+	#3desc <description>#0 - changes the description of this profile
+	#3value <which> <weight>#0 - adds or edits a value and its weighting
+	#3value <which>#0 - removes a value from the profile";
 
 	public override void BuildingCommand(ICharacter actor, StringStack command)
 	{

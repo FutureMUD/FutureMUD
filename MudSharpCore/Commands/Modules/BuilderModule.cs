@@ -48,24 +48,27 @@ internal class BuilderModule : BaseBuilderModule
 	#region Characteristics
 
 	private const string CharacteristicHelp =
-		@"The characteristic command is used to work with characteristic definitions, values and profiles. Characteristics are also sometimes known as 'variables', and are used for both items (where they may represent things like variable colours, shapes, designs or the like) and also characters (where they can represent things like eye colour, hair style, etc).
+		@"The characteristic command is used to work with characteristic definitions, values and profiles. 
 
-Characteristic Definitions are the 'types' of characteristics.
-Characteristic Values are the possible values that may match a characteristic type.
-Characteristic Profiles are curated lists of characteristic values that control permitted values.
+Characteristics are also sometimes known as 'variables', and are used for both items (where they may represent things like variable colours, shapes, designs or the like) and also characters (where they can represent things like eye colour, hair style, etc).
+
+#6Characteristic Definitions#0 are the 'types' of characteristics.
+#6Characteristic Values#0 are the possible values that may match a characteristic type.
+#6Characteristic Profiles#0 are curated lists of characteristic values that control permitted values.
 
 You must use one of the following subcommands of this command:
 
-characteristic definition ... - work with characteristic definitions
-characteristic value ... - work with characteristic values
-characteristic profile ... - work with characteristic profiles";
+	#3characteristic definition ...#0 - work with characteristic definitions
+	#3characteristic value ...#0 - work with characteristic values
+	#3characteristic profile ...#0 - work with characteristic profiles";
 
 	[PlayerCommand("Characteristic", "characteristic", "variable")]
 	[CommandPermission(PermissionLevel.Admin)]
+	[HelpInfo("characteristic", CharacteristicHelp, AutoHelp.HelpArgOrNoArg)]
 	protected static void Characteristic(ICharacter actor, string command)
 	{
 		var ss = new StringStack(command.RemoveFirstWord());
-		switch (ss.Pop().ToLowerInvariant())
+		switch (ss.PopForSwitch())
 		{
 			case "definition":
 			case "def":
@@ -80,7 +83,7 @@ characteristic profile ... - work with characteristic profiles";
 				Characteristic_Profile(actor, ss);
 				break;
 			default:
-				actor.OutputHandler.Send(CharacteristicHelp);
+				actor.OutputHandler.Send(CharacteristicHelp.SubstituteANSIColour());
 				return;
 		}
 	}
@@ -134,18 +137,18 @@ characteristic profile ... - work with characteristic profiles";
 			default:
 				actor.OutputHandler.Send(@"You can use the following options with this command:
 
-	list [<names...>] - lists all of the characteristic definitions
-	show <which> - views detailed information about a characteristic definition
-	add <name> <type> - creates a new characteristic of the specified type
-	addchild <name> <parent> - creates a new child characteristic of another
-	addpart <name> <shape> <type> - creates a new bodypart-linked characteristic of the specified type
-	addpartchild <name> <shape> <parent> - creates a new bodypart-linked characteristic that is a child of another
-	delete <name> - permanently deletes a characteristic type
-	set <which> name <name> - changes the name of a characteristic definition
-	set <which> desc <desc> - changes the description of a characteristic definition
-	set <which> pattern <regex> - changes the regex pattern used to identify in descriptions
-	set <which> parent <parent> - if already a child type, changes the parent
-	set <which> ... - some types may have additional options");
+	#3list [<names...>]#0 - lists all of the characteristic definitions
+	#3show <which>#0 - views detailed information about a characteristic definition
+	#3add <name> <type>#0 - creates a new characteristic of the specified type
+	#3addchild <name> <parent>#0 - creates a new child characteristic of another
+	#3addpart <name> <shape> <type>#0 - creates a new bodypart-linked characteristic of the specified type
+	#3addpartchild <name> <shape> <parent>#0 - creates a new bodypart-linked characteristic that is a child of another
+	#3delete <name>#0 - permanently deletes a characteristic type
+	#3set <which> name <name>#0 - changes the name of a characteristic definition
+	#3set <which> desc <desc>#0 - changes the description of a characteristic definition
+	#3set <which> pattern <regex>#0 - changes the regex pattern used to identify in descriptions
+	#3set <which> parent <parent>#0 - if already a child type, changes the parent
+	#3set <which> ...#0 - some types may have additional options".SubstituteANSIColour());
 				return;
 		}
 	}
@@ -379,12 +382,12 @@ characteristic profile ... - work with characteristic profiles";
 			default:
 				actor.OutputHandler.Send(@"You can use the following options with this command:
 
-	list [<definition>|*<profile>|+<keyword>|-<keyword>] - shows all values meeting the optional filter criteria
-	show <which> - shows detailed information about a characteristic value
-	add <definition> <name> [<type specific extra args>] - creates a new value
-	clone <which> <name> - creates a new value from an existing value
-	remove <name> - permanently deletes a characteristic value
-	set <which> ... - changes properties of a value. See values for more info.");
+	#3list [<definition>|*<profile>|+<keyword>|-<keyword>]#0 - shows all values meeting the optional filter criteria
+	#3show <which>#0 - shows detailed information about a characteristic value
+	#3add <definition> <name> [<type specific extra args>]#0 - creates a new value
+	#3clone <which> <name>#0 - creates a new value from an existing value
+	#3remove <name>#0 - permanently deletes a characteristic value
+	#3set <which> ...#0 - changes properties of a value. See values for more info.".SubstituteANSIColour());
 				return;
 		}
 	}
@@ -486,7 +489,7 @@ characteristic profile ... - work with characteristic profiles";
 					return;
 				}
 
-				values = values.Where(x => x.Definition == definition).ToList();
+				values = values.Where(x => definition.IsValue(x)).ToList();
 			}
 		}
 
@@ -498,15 +501,16 @@ characteristic profile ... - work with characteristic profiles";
 					{
 						value.Id.ToString("N0", actor),
 						value.Name,
-						value.GetValue,
-						value.GetBasicValue,
+						value.GetValue ?? "",
+						value.GetBasicValue ?? "",
 						value.ChargenApplicabilityProg?.MXPClickableFunctionName() ?? "",
 						value.OngoingValidityProg?.MXPClickableFunctionName() ?? "",
 						value.Definition.IsDefaultValue(value) ? "Y" : "N"
 					},
 				new[] { "ID#", "Name", "Value", "Basic Value", "Chargen", "Ongoing", "Default?" },
 				actor.Account.LineFormatLength,
-				colour: Telnet.Green, unicodeTable: actor.Account.UseUnicode
+				colour: Telnet.Green, 
+				unicodeTable: actor.Account.UseUnicode
 			)
 		);
 	}
@@ -652,11 +656,11 @@ characteristic profile ... - work with characteristic profiles";
 			default:
 				actor.OutputHandler.Send(@"You can use the following options to edit characteristic profiles:
 
-	characteristic profile list - lists all of the characteristic profiles
-	characteristic profile show <which> - views detailed information about a profile
-	characteristic profile new <definition> <type> <name> - creates a new profile
-	characteristic profile clone <which> <name> - clones an existing profile to a new one
-	characteristic profile set <which> ... - edits properties of a profile. See individual types for more help");
+	#3characteristic profile list#0 - lists all of the characteristic profiles
+	#3characteristic profile show <which>#0 - views detailed information about a profile
+	#3characteristic profile new <definition> <type> <name>#0 - creates a new profile
+	#3characteristic profile clone <which> <name>#0 - clones an existing profile to a new one
+	#3characteristic profile set <which> ...#0 - edits properties of a profile. See individual types for more help".SubstituteANSIColour());
 				return;
 		}
 	}

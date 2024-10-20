@@ -104,10 +104,10 @@ public class CharacteristicValue : FrameworkItem, ISaveable, ICharacteristicValu
 
 	protected virtual string HelpText => @"You can use the following options to edit this characteristic value:
 
-    name <name> - sets the name of this value
-    default - sets this value as the 'default' value for the definition
-    chargen <prog> - sets a prog that controls if this value can be picked in chargen
-    ongoing <prog> - sets a prog that controls of this value is valid at any time for a character";
+	#3name <name>#0 - sets the name of this value
+	#3default#0 - sets this value as the 'default' value for the definition
+	#3chargen <prog>#0 - sets a prog that controls if this value can be picked in chargen
+	#3ongoing <prog>#0 - sets a prog that controls of this value is valid at any time for a character";
 
 	public virtual void BuildingCommand(ICharacter actor, StringStack command)
 	{
@@ -147,7 +147,7 @@ public class CharacteristicValue : FrameworkItem, ISaveable, ICharacteristicValu
 				BuildingCommandOngoingValidityProg(actor, command);
 				return;
 			default:
-				actor.OutputHandler.Send(HelpText);
+				actor.OutputHandler.Send(HelpText.SubstituteANSIColour());
 				return;
 		}
 	}

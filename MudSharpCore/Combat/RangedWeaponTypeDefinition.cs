@@ -177,6 +177,7 @@ public class RangedWeaponTypeDefinition : SaveableItem, IRangedWeaponType
 
 	private void SaveToDBItem(Models.RangedWeaponTypes dbitem)
 	{
+		dbitem.Name = Name;
 		dbitem.AccuracyBonusExpression = AccuracyBonusExpression.OriginalFormulaText;
 		dbitem.AmmunitionCapacity = AmmunitionCapacity;
 		dbitem.AmmunitionLoadType = (int)AmmunitionLoadType;

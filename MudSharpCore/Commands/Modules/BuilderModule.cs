@@ -1701,12 +1701,13 @@ You can also use the following functions in your formula:
 #3exp(num)#0 - Returns e raised to the specified power
 #3floor(num)#0 - Returns the largest integer less than or equal to the specified number
 #3IEEERemainder(num,div)#0 - Returns the remainder resulting from the division of a specified number by another specified number
-#3log(num)#0 - Returns the logarithm of a specified number
+#3ln(num)#0 - Returns the natural logarithm of a specified number
+#3log(num,base)#0 - Returns the logarithm of a specified number
 #3log10(num)#0 - Returns the base 10 logarithm of a specified number
 #3max(num1,num2)#0 - Returns the larger of two specified numbers
 #3min(num1,num2)#0 - Returns the smaller of two numbers
 #3pow(num,power)#0 - Returns a specified number raised to the specified power
-#3round(num)#0 - Rounds a value to the nearest integer or specified number of decimal places
+#3round(num,figures)#0 - Rounds a value to the nearest integer or specified number of decimal places
 #3sin(num)#0 - Returns the sine of the specified angle
 #3sqrt(num)#0 - Returns the square root of a specified number
 #3tan(num)#0 - Returns the tangent of the specified angle

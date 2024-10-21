@@ -415,7 +415,7 @@ Note: The formula for the #3amount#0 expression is a trait expression and also h
 	{
 		return new XElement("Definition",
 			new XAttribute("Chance", ImprovementChance),
-			new XAttribute("Expression", ImprovementChance),
+			new XAttribute("Expression", ImprovementExpression.OriginalFormulaText),
 			new XAttribute("ImproveOnFail", ImproveOnFail),
 			new XAttribute("ImproveOnSuccess", ImproveOnSuccess),
 			new XAttribute("DifficultyThresholdInterval", DifficultyThresholdInterval),

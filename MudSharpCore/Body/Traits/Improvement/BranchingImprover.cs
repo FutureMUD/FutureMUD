@@ -122,7 +122,7 @@ public class BranchingImprover : ClassicImprovement
 	{
 		return new XElement("Definition",
 			new XAttribute("Chance", ImprovementChance),
-			new XAttribute("Expression", ImprovementChance),
+			new XAttribute("Expression", ImprovementExpression.OriginalFormulaText),
 			new XAttribute("ImproveOnFail", ImproveOnFail),
 			new XAttribute("ImproveOnSuccess", ImproveOnSuccess),
 			new XAttribute("DifficultyThresholdInterval", DifficultyThresholdInterval),

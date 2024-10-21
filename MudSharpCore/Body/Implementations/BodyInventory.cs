@@ -2633,7 +2633,8 @@ public partial class Body
 			return false;
 		}
 
-		return wearable.CanWear(this) && wearable.Profiles.Any(x => CanWear(item, x));
+		return wearable.CanWear(this) && 
+		       wearable.Profiles.Any(x => CanWear(item, x));
 	}
 
 	public IWearProfile WhichProfile(IGameItem item)
@@ -3147,6 +3148,8 @@ public partial class Body
 				return $"You are not of the correct body type to wear {item.HowSeen(this)}";
 			case WhyCannotDrapeReason.NotIDrapeable:
 				return $"{item.HowSeen(this, true)} is not something that can be worn.";
+			case WhyCannotDrapeReason.ProgFailed:
+				return item.GetItemType<IWearable>().WhyCannotWearProgText(this);
 			default:
 				return $"You cannot wear {item.HowSeen(this)}.";
 		}
@@ -3916,7 +3919,7 @@ public static class DrapeableExtensionClass
 			return WhyCannotDrapeReason.NoProfilesMatch;
 		}
 
-		return WhyCannotDrapeReason.Unknown;
+		return wearable.WhyCannotWear(body);
 	}
 
 	public static WhyCannotDrapeReason WhyCannotDrape<T>(this IEnumerable<T> wearlocs, IGameItem item,

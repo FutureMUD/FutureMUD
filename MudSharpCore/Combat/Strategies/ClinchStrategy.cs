@@ -242,7 +242,19 @@ public class ClinchStrategy : StandardMeleeStrategy
 
 		if (ch.EffectsOfType<ClinchEffect>().Any(x => x.Target == ch.CombatTarget))
 		{
-			return AttemptClinchAttack(ch);
+			var roll = Constants.Random.NextDouble();
+			if (ch.CombatSettings.WeaponUsePercentage > 0 &&
+			    roll <= ch.CombatSettings.WeaponUsePercentage)
+			{
+				return AttemptClinchAttack(ch);
+			}
+
+			roll -= ch.CombatSettings.WeaponUsePercentage;
+			if (ch.CombatSettings.NaturalWeaponPercentage > 0.0 &&
+			    roll <= ch.CombatSettings.NaturalWeaponPercentage)
+			{
+				return AttemptUnarmedClinchAttack(ch);
+			}
 		}
 
 		return null;

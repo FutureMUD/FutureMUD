@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Xml.Linq;
@@ -163,6 +164,14 @@ public class BloodTypingProduct : BaseProduct
 	{
 		return new XElement("Definition",
 			new XElement("WhichInputId", WhichInputId),
+			new XElement("BloodModel", Model?.Id ?? 0)
+		).ToString();
+	}
+
+	protected override string SaveDefinitionForRevision(Dictionary<long, long> inputIdMap, Dictionary<long, long> toolIdMap)
+	{
+		return new XElement("Definition",
+			new XElement("WhichInputId", inputIdMap.ContainsKey(WhichInputId) ? inputIdMap[WhichInputId] : 0L),
 			new XElement("BloodModel", Model?.Id ?? 0)
 		).ToString();
 	}

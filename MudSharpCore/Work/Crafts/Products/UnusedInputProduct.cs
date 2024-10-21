@@ -162,6 +162,15 @@ public class UnusedInputProduct : BaseProduct
 		).ToString();
 	}
 
+	/// <inheritdoc />
+	protected override string SaveDefinitionForRevision(Dictionary<long, long> inputIdMap, Dictionary<long, long> toolIdMap)
+	{
+		return new XElement("Definition",
+			new XElement("WhichInputId", inputIdMap.ContainsKey(WhichInputId) ? inputIdMap[WhichInputId] : 0L),
+			new XElement("PercentageRecovered", PercentageRecovered)
+		).ToString();
+	}
+
 	protected override string BuildingHelpText =>
 		"You can use the following options with this product:\n\tinput <#> - specifies that the target input is the one to be returned\n\tpercentage <x%> - specifies the amount returned (rounds down)";
 

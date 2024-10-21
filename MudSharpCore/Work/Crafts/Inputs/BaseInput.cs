@@ -59,7 +59,7 @@ public abstract class BaseInput : LateInitialisingItem, ICraftInput
 
 	public abstract ICraftInputData LoadDataFromXml(XElement root, IFuturemud gameworld);
 
-	public void CreateNewRevision(MudSharp.Models.Craft dbcraft)
+	public Models.CraftInput CreateNewRevision(MudSharp.Models.Craft dbcraft)
 	{
 		var dbinput = new CraftInput();
 		dbcraft.CraftInputs.Add(dbinput);
@@ -67,6 +67,7 @@ public abstract class BaseInput : LateInitialisingItem, ICraftInput
 		dbinput.InputType = InputType;
 		dbinput.OriginalAdditionTime = OriginalAdditionTime;
 		dbinput.Definition = SaveDefinition();
+		return dbinput;
 	}
 
 	protected abstract string BuildingHelpString { get; }

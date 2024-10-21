@@ -234,7 +234,7 @@ public abstract class BaseTool : LateInitialisingItem, ICraftTool
 		return true;
 	}
 
-	public void CreateNewRevision(MudSharp.Models.Craft dbcraft)
+	public Models.CraftTool CreateNewRevision(MudSharp.Models.Craft dbcraft)
 	{
 		var dbtool = new CraftTool();
 		dbcraft.CraftTools.Add(dbtool);
@@ -243,6 +243,7 @@ public abstract class BaseTool : LateInitialisingItem, ICraftTool
 		dbtool.DesiredState = (int)DesiredState;
 		dbtool.OriginalAdditionTime = OriginalAdditionTime;
 		dbtool.Definition = SaveDefinition();
+		return dbtool;
 	}
 
 	public abstract bool IsValid();

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Xml.Linq;
 using MudSharp.Character;
@@ -119,6 +120,14 @@ public class DNATestProduct : BaseProduct
 		return new XElement("Definition",
 			new XElement("WhichInputId1", WhichInputId1),
 			new XElement("WhichInputId2", WhichInputId2)
+		).ToString();
+	}
+
+	protected override string SaveDefinitionForRevision(Dictionary<long, long> inputIdMap, Dictionary<long, long> toolIdMap)
+	{
+		return new XElement("Definition",
+			new XElement("WhichInputId1", inputIdMap.ContainsKey(WhichInputId1) ? inputIdMap[WhichInputId1] : 0L),
+			new XElement("WhichInputId2", inputIdMap.ContainsKey(WhichInputId2) ? inputIdMap[WhichInputId2] : 0L)
 		).ToString();
 	}
 

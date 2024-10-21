@@ -109,24 +109,27 @@ public class Craft : Framework.Revision.EditableItem, ICraft
 				dbphase.PhaseNumber = i + 1;
 			}
 
-			foreach (var input in rhs._orderedInputs)
+			var inputMap = new Dictionary<long, Models.CraftInput>();
+			foreach (var input in _orderedInputs)
 			{
-				input.CreateNewRevision(dbnew);
+				inputMap[input.Id] = input.CreateNewRevision(dbnew);
 			}
 
-			foreach (var tool in rhs._orderedTools)
+			var toolMap = new Dictionary<long, Models.CraftTool>();
+			foreach (var tool in _orderedTools)
 			{
-				tool.CreateNewRevision(dbnew);
+				toolMap[tool.Id] = tool.CreateNewRevision(dbnew);
+			}
+			FMDB.Context.SaveChanges();
+
+			foreach (var product in _orderedProducts)
+			{
+				product.CreateNewRevision(dbnew, false, inputMap.ToDictionary(x => x.Key, x => x.Value.Id), toolMap.ToDictionary(x => x.Key, x => x.Value.Id));
 			}
 
-			foreach (var product in rhs._orderedProducts)
+			foreach (var product in _orderedFailProducts)
 			{
-				product.CreateNewRevision(dbnew, false);
-			}
-
-			foreach (var product in rhs._orderedFailProducts)
-			{
-				product.CreateNewRevision(dbnew, true);
+				product.CreateNewRevision(dbnew, true, inputMap.ToDictionary(x => x.Key, x => x.Value.Id), toolMap.ToDictionary(x => x.Key, x => x.Value.Id));
 			}
 
 			FMDB.Context.SaveChanges();
@@ -315,26 +318,6 @@ public class Craft : Framework.Revision.EditableItem, ICraft
 				dbphase.FailEcho = _failPhaseEchoes[i];
 				dbphase.PhaseLengthInSeconds = _phaseLengths[i].TotalSeconds;
 				dbphase.PhaseNumber = i + 1;
-			}
-
-			foreach (var input in _orderedInputs)
-			{
-				input.CreateNewRevision(dbnew);
-			}
-
-			foreach (var tool in _orderedTools)
-			{
-				tool.CreateNewRevision(dbnew);
-			}
-
-			foreach (var product in _orderedProducts)
-			{
-				product.CreateNewRevision(dbnew, false);
-			}
-
-			foreach (var product in _orderedFailProducts)
-			{
-				product.CreateNewRevision(dbnew, true);
 			}
 
 			FMDB.Context.SaveChanges();
@@ -2729,24 +2712,27 @@ public class Craft : Framework.Revision.EditableItem, ICraft
 				dbphase.PhaseNumber = i + 1;
 			}
 
+			var inputMap = new Dictionary<long, Models.CraftInput>();
 			foreach (var input in _orderedInputs)
 			{
-				input.CreateNewRevision(dbnew);
+				inputMap[input.Id] = input.CreateNewRevision(dbnew);
 			}
 
+			var toolMap = new Dictionary<long, Models.CraftTool>();
 			foreach (var tool in _orderedTools)
 			{
-				tool.CreateNewRevision(dbnew);
+				toolMap[tool.Id] = tool.CreateNewRevision(dbnew);
 			}
+			FMDB.Context.SaveChanges();
 
 			foreach (var product in _orderedProducts)
 			{
-				product.CreateNewRevision(dbnew, false);
+				product.CreateNewRevision(dbnew, false, inputMap.ToDictionary(x => x.Key, x => x.Value.Id), toolMap.ToDictionary(x => x.Key, x => x.Value.Id));
 			}
 
 			foreach (var product in _orderedFailProducts)
 			{
-				product.CreateNewRevision(dbnew, true);
+				product.CreateNewRevision(dbnew, true, inputMap.ToDictionary(x => x.Key, x => x.Value.Id), toolMap.ToDictionary(x => x.Key, x => x.Value.Id));
 			}
 
 			FMDB.Context.SaveChanges();

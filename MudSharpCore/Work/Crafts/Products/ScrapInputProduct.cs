@@ -156,6 +156,15 @@ public class ScrapInputProduct : BaseProduct
 		).ToString();
 	}
 
+	protected override string SaveDefinitionForRevision(Dictionary<long, long> inputIdMap, Dictionary<long, long> toolIdMap)
+	{
+		return new XElement("Definition",
+			new XElement("WhichInputId", inputIdMap.ContainsKey(WhichInputId) ? inputIdMap[WhichInputId] : 0L),
+			new XElement("PercentageRecovered", PercentageRecovered),
+			new XElement("Tag", Tag?.Id ?? 0)
+		).ToString();
+	}
+
 	protected override string BuildingHelpText => @$"{base.BuildingHelpText}
 	#3input <#>#0 - specifies that the target input is the one to be returned
 	#3percentage <x%>#0 - specifies the amount returned (rounds down)

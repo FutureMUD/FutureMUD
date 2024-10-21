@@ -193,6 +193,11 @@ public abstract class BaseProduct : LateInitialisingItem, ICraftProduct
 
 	protected abstract string SaveDefinition();
 
+	protected virtual string SaveDefinitionForRevision(Dictionary<long, long> inputIdMap, Dictionary<long, long> toolIdMap)
+	{
+		return SaveDefinition();
+	}
+
 	protected virtual string BuildingHelpText => @"You can use the following items with this product:
 
 	#3material <input index>#0 - sets a specific input to determine the material of this output";
@@ -256,7 +261,7 @@ public abstract class BaseProduct : LateInitialisingItem, ICraftProduct
 		return true;
 	}
 
-	public void CreateNewRevision(Models.Craft dbcraft, bool failproduct)
+	public void CreateNewRevision(Models.Craft dbcraft, bool failproduct, Dictionary<long, long> inputIdMap, Dictionary<long, long> toolIdMap)
 	{
 		var dbproduct = new CraftProduct();
 		dbcraft.CraftProducts.Add(dbproduct);
@@ -264,7 +269,7 @@ public abstract class BaseProduct : LateInitialisingItem, ICraftProduct
 		dbproduct.OriginalAdditionTime = OriginalAdditionTime;
 		dbproduct.IsFailProduct = failproduct;
 		dbproduct.MaterialDefiningInputIndex = MaterialDefiningInputIndex;
-		dbproduct.Definition = SaveDefinition();
+		dbproduct.Definition = SaveDefinitionForRevision(inputIdMap, toolIdMap);
 	}
 
 	public abstract bool IsValid();

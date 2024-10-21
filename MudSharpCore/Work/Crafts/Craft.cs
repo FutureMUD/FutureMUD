@@ -716,7 +716,7 @@ public class Craft : Framework.Revision.EditableItem, ICraft
 		{
 			if (!_craftProductProducedPhases.ContainsKey(item))
 			{
-				_craftProductProducedPhases[item] = 1;
+				_craftProductProducedPhases[item] = FailPhase;
 			}
 		}
 
@@ -1196,7 +1196,7 @@ public class Craft : Framework.Revision.EditableItem, ICraft
 	{
 		var (success, inputs, plans, missing) = ScoutToolsAndInputs(character, component, phase, phase);
 		var plan = plans.Single().Value;
-		var results = plan.ExecuteWholePlan();
+		var results = plan.ExecuteWholePlan().ToList();
 		var phaseLengthSeconds = _phaseLengths[phase - 1].TotalSeconds;
 		var tools = results
 		            .Select(x => (Item: x.PrimaryTarget, Tool: x.OriginalReference as ICraftTool))

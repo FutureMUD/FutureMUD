@@ -144,8 +144,12 @@ public partial class Emote : IEmote
 							: x.DisplayThirdPerson(perceiver, flags)
 						: string.Empty).ToArray<object>();
 
+		if (FixedFormat)
+		{
+			return string.Format(RawText, parsedTokens);
+		}
 
-		return string.Format(RawText, parsedTokens);
+		return string.Format(RawText, parsedTokens).Fullstop().NormaliseOutputSentences();
 	}
 }
 

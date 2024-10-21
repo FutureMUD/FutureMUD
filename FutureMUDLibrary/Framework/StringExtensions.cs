@@ -693,6 +693,172 @@ namespace MudSharp.Framework {
 			return Telnet.NoWordWrap + text;
 		}
 
+		public static string NormaliseOutputSentences(this string input)
+		{
+			if (string.IsNullOrEmpty(input))
+			{
+				return "";
+			}
+
+			var tokens = TokenizeInput(input);
+			var output = new StringBuilder();
+			bool sentenceEnded = true;
+
+			foreach (var token in tokens)
+			{
+				if (IsAnsiCode(token) || IsMxpCode(token))
+				{
+					// Preserve ANSI and MXP codes as is
+					output.Append(token);
+				}
+				else
+				{
+					// Process normal text
+					var processedText = ProcessText(token, ref sentenceEnded);
+					output.Append(processedText);
+				}
+			}
+
+			return output.ToString();
+		}
+
+		private static List<string> TokenizeInput(string input)
+		{
+			var tokens = new List<string>();
+			int i = 0;
+			while (i < input.Length)
+			{
+				if (input[i] == '\x1B')
+				{
+					// ANSI code
+					int start = i++;
+					if (i < input.Length && input[i] == '[')
+					{
+						i++;
+						while (i < input.Length && input[i] != 'm')
+						{
+							i++;
+						}
+						if (i < input.Length)
+						{
+							i++; // Include 'm'
+						}
+					}
+					tokens.Add(input.Substring(start, i - start));
+				}
+				else if (input[i] == MXP.BeginMXPChar)
+				{
+					// MXP code
+					int start = i++;
+					while (i < input.Length && input[i] != MXP.EndMXPChar)
+					{
+						i++;
+					}
+					if (i < input.Length)
+					{
+						i++; // Include EndMXPChar
+					}
+					tokens.Add(input.Substring(start, i - start));
+				}
+				else
+				{
+					// Normal text
+					int start = i;
+					while (i < input.Length && input[i] != '\x1B' && input[i] != MXP.BeginMXPChar)
+					{
+						i++;
+					}
+					tokens.Add(input.Substring(start, i - start));
+				}
+			}
+			return tokens;
+		}
+
+		private static bool IsAnsiCode(string token)
+		{
+			return token.StartsWith("\x1B[") && token.EndsWith("m");
+		}
+
+		private static bool IsMxpCode(string token)
+		{
+			return token.Length > 2 && token[0] == MXP.BeginMXPChar && token[^1] == MXP.EndMXPChar;
+		}
+
+		private static string ProcessText(string text, ref bool sentenceEnded)
+		{
+			var output = new StringBuilder();
+			int i = 0;
+
+			while (i < text.Length)
+			{
+				var punctuationSequence = new StringBuilder();
+
+				// Accumulate punctuation characters
+				while (i < text.Length && Constants.PunctuationCharacters.Contains(text[i]))
+				{
+					punctuationSequence.Append(text[i]);
+					i++;
+				}
+
+				if (punctuationSequence.Length > 0)
+				{
+					string punctSeq = punctuationSequence.ToString();
+
+					if (punctSeq == "...")
+					{
+						// Preserve ellipsis
+						output.Append("...");
+					}
+					else
+					{
+						// Reduce any other repeated or mixed punctuation to a single character (first in sequence)
+						char firstPunct = punctSeq[0];
+						output.Append(firstPunct);
+
+						// Check if it ends a sentence
+						if (Constants.SentenceEndingCharacters.Contains(firstPunct))
+						{
+							sentenceEnded = true;
+						}
+					}
+				}
+
+				// Accumulate letters and whitespace
+				while (i < text.Length && !Constants.PunctuationCharacters.Contains(text[i]) && text[i] != '\x1B' && text[i] != MXP.BeginMXPChar)
+				{
+					char ch = text[i];
+
+					if (sentenceEnded && char.IsLetter(ch))
+					{
+						output.Append(char.ToUpper(ch));
+						sentenceEnded = false;
+					}
+					else
+					{
+						output.Append(ch);
+					}
+
+					i++;
+
+					// Update sentenceEnded flag
+					if (char.IsWhiteSpace(ch))
+					{
+						// Do nothing
+					}
+					else if (Constants.SentenceEndingCharacters.Contains(ch))
+					{
+						sentenceEnded = true;
+					}
+					else
+					{
+						sentenceEnded = false;
+					}
+				}
+			}
+
+			return output.ToString();
+		}
+
 		public static string ProperSentences(this string input)
 		{
 			if (input.Length == 0)

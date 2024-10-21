@@ -115,6 +115,38 @@ Item 6
 	}
 
 	[TestMethod]
+	public void TestProperSentences()
+	{
+		var noChangeText1 = "This text does not have more than one sentence.";
+		var noChangeText2 = "This text does has more than one sentence. This is the 2nd sentence.";
+		var capitaliseText = "This text does has more than one sentence! this is the 2nd sentence.";
+		var ansiText = "This text \x1B[31mhas colour\x1B[0m. and a second sentence.\x1B[31m Which starts\x1B[0m with colour.";
+		var mxpText = "This text has two sentences. the \x03italic\x04second sentence\x03/italic\x04 has italics in a bit. Third sentence!";
+
+		Assert.AreEqual("This text does not have more than one sentence.", noChangeText1.ProperSentences());
+		Assert.AreEqual("This text does has more than one sentence. This is the 2nd sentence.", noChangeText2.ProperSentences());
+		Assert.AreEqual("This text does has more than one sentence! This is the 2nd sentence.", capitaliseText.ProperSentences());
+		Assert.AreEqual("This text \x1B[31mhas colour\x1B[0m. And a second sentence.\x1B[31m Which starts\x1B[0m with colour.", ansiText.ProperSentences());
+		Assert.AreEqual("This text has two sentences. The \x03italic\x04second sentence\x03/italic\x04 has italics in a bit. Third sentence!", mxpText.ProperSentences());
+	}
+
+	[TestMethod]
+	public void TestNewProperSentences()
+	{
+		var noChangeText1 = "This text does not have more than one sentence.";
+		var noChangeText2 = "This text does has more than one sentence. This is the 2nd sentence.";
+		var capitaliseText = "This text does has more than one sentence!. this is the 2nd sentence.";
+		var ansiText = "This text \x1B[31mhas colour\x1B[0m. and a second sentence...\x1B[31m Which starts\x1B[0m with colour.";
+		var mxpText = "This text has two sentences. the \x03italic\x04second sentence\x03/italic\x04 has italics in a bit. Third sentence!";
+
+		Assert.AreEqual("This text does not have more than one sentence.", noChangeText1.NormaliseOutputSentences());
+		Assert.AreEqual("This text does has more than one sentence. This is the 2nd sentence.", noChangeText2.NormaliseOutputSentences());
+		Assert.AreEqual("This text does has more than one sentence! This is the 2nd sentence.", capitaliseText.NormaliseOutputSentences());
+		Assert.AreEqual("This text \x1B[31mhas colour\x1B[0m. And a second sentence...\x1B[31m Which starts\x1B[0m with colour.", ansiText.NormaliseOutputSentences());
+		Assert.AreEqual("This text has two sentences. The \x03italic\x04second sentence\x03/italic\x04 has italics in a bit. Third sentence!", mxpText.NormaliseOutputSentences());
+	}
+
+	[TestMethod]
 	public void TestStringListFunctions()
 	{
 		var list1 = new List<string> { "badger", "tycoon", "crumpet", "handle" };

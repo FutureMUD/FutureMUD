@@ -374,14 +374,14 @@ You can use the following arguments to refine the list command:
 			if (arg[0] == '+' && arg.Length > 1)
 			{
 				arg = arg.Substring(1);
-				attacks = attacks.Where(x => x.Name.Contains(arg));
+				attacks = attacks.Where(x => x.Name.Contains(arg, StringComparison.InvariantCultureIgnoreCase));
 				continue;
 			}
 
 			if (arg[0] == '-' && arg.Length > 1)
 			{
 				arg = arg.Substring(1);
-				attacks = attacks.Where(x => !x.Name.Contains(arg));
+				attacks = attacks.Where(x => !x.Name.Contains(arg, StringComparison.InvariantCultureIgnoreCase));
 				continue;
 			}
 
@@ -390,7 +390,7 @@ You can use the following arguments to refine the list command:
 				if (!arg.Substring(1).TryParseEnum<BuiltInCombatMoveType>(out var value))
 				{
 					actor.OutputHandler.Send(
-						$"There is no such built-in combat move type as {arg.Substring(1).ColourCommand()}.");
+						$"There is no such built-in combat move type as {arg.Substring(1).ColourCommand()}.\nThe valid types are as follows:\n\n{Enum.GetValues<BuiltInCombatMoveType>().Select(x => x.DescribeEnum(false, Telnet.Cyan)).ListToLines(true)}");
 					return;
 				}
 
@@ -400,7 +400,7 @@ You can use the following arguments to refine the list command:
 
 			if (arg.EqualTo("unarmed"))
 			{
-				attacks = attacks.Where(x => !actor.Gameworld.WeaponTypes.All(y => !y.Attacks.Contains(x)));
+				attacks = attacks.Where(x => actor.Gameworld.WeaponTypes.All(y => !y.Attacks.Contains(x)));
 				continue;
 			}
 

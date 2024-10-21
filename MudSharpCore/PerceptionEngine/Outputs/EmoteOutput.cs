@@ -133,7 +133,7 @@ public class EmoteOutput : Output, IEmoteOutput
 
 		if (!fixedFormat)
 		{
-			returnText = returnText.Fullstop().ProperSentences().NormaliseSpacing();
+			returnText = returnText.Fullstop().NormaliseOutputSentences().NormaliseSpacing();
 		}
 
 		return Flags.HasFlag(OutputFlags.WideWrap)

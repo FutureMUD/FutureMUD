@@ -38,7 +38,12 @@ public class FleeStrategy : StandardMeleeStrategy
 			return null;
 		}
 
-		return new FleeMove { Assailant = ch };
+		if (ch.CanMove())
+		{
+			return new FleeMove { Assailant = ch };
+		}
+
+		return null;
 	}
 
 	protected override ICombatMove ResponseToChargeToMelee(ChargeToMeleeMove move, ICharacter defender,

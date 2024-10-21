@@ -42,7 +42,7 @@ public class MixedEmoteOutput : AppendableEmoteOutput
 				             : "");
 		}
 
-		returnText = returnText.Fullstop().ProperSentences().NormaliseSpacing();
+		returnText = returnText.Fullstop().NormaliseOutputSentences().NormaliseSpacing();
 		return Flags.HasFlag(OutputFlags.WideWrap)
 			? returnText.Wrap(perceiver.LineFormatLength)
 			: returnText.Wrap(perceiver.InnerLineFormatLength);

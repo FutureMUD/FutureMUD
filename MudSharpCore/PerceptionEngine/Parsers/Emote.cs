@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Xml.Linq;
+using MudSharp.Character;
 using MudSharp.Framework;
 using MudSharp.Communication.Language;
 
@@ -149,7 +150,7 @@ public partial class Emote : IEmote
 			return string.Format(RawText, parsedTokens);
 		}
 
-		return string.Format(RawText, parsedTokens).Fullstop().NormaliseOutputSentences();
+		return string.Format(RawText, parsedTokens);
 	}
 }
 

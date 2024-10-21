@@ -4,6 +4,7 @@ using System.Linq;
 using MudSharp.Body.Position;
 using MudSharp.Body.Position.PositionStates;
 using MudSharp.Character;
+using MudSharp.Effects.Concrete;
 using MudSharp.Effects.Interfaces;
 using MudSharp.Framework;
 using MudSharp.PerceptionEngine;
@@ -17,7 +18,7 @@ public class FleeMove : CombatMoveBase
 {
 	public override string Description => "Fleeing from combat";
 
-	public override double BaseDelay => 1.0; // TODO - loaded from config
+	public override double BaseDelay => Gameworld.GetStaticDouble("FleeMoveBaseDelay");
 
 	private bool _calculatedStamina = false;
 	private double _staminaCost = 0.0;
@@ -209,10 +210,12 @@ public class FleeMove : CombatMoveBase
 					style: OutputStyle.CombatMessage, flags: OutputFlags.InnerWrap));
 
 			Assailant.MeleeRange = false;
+			Assailant.RemoveAllEffects<ClinchEffect>();
 			foreach (var opponent in Assailant.Combat.Combatants.Where(x => x.CombatTarget == Assailant && x.MeleeRange)
 			                                  .ToList())
 			{
 				opponent.MeleeRange = false;
+				opponent.RemoveAllEffects<ClinchEffect>(x => x.Target == Assailant);
 			}
 
 			return;
@@ -265,7 +268,7 @@ public class FleeMove : CombatMoveBase
 			? new EmoteOutput(
 				new Emote(
 					$"@ attempt|attempts to flee from melee combat, opposed by {pursuers.Select(x => $"${i++}").ListToString()}, but $1 successfully $1|prevent|prevents &0 from doing so!",
-					Assailant, perceiverArgs.ToArray()), style: OutputStyle.CombatMessage,
+					Assailant, [.. perceiverArgs]), style: OutputStyle.CombatMessage,
 				flags: OutputFlags.InnerWrap)
 			: new EmoteOutput(
 				new Emote($"@ attempt|attempts to flee from melee combat, but somehow manage|manages to fail.",

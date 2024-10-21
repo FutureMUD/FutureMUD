@@ -36,6 +36,6 @@ public class PriorEmoteOutput : AppendableEmoteOutput
 			sb.Append(DefaultEmote.ParseFor(perceiver));
 		}
 
-		return sb.ToString().ProperSentences().Fullstop();
+		return sb.ToString().NormaliseOutputSentences().Fullstop();
 	}
 }

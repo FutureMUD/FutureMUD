@@ -56,7 +56,7 @@ public class CharacteristicAwareOutput : MixedEmoteOutput
 			sb.Append(", " + EmoteToAppend.ParseFor(perceiver, flags));
 		}
 
-		var returnText = sb.ToString().Fullstop().ProperSentences().NormaliseSpacing();
+		var returnText = sb.ToString().Fullstop().NormaliseOutputSentences().NormaliseSpacing();
 		return Flags.HasFlag(OutputFlags.InnerWrap) ? returnText.Wrap(perceiver.InnerLineFormatLength) : returnText;
 	}
 }
@@ -109,7 +109,7 @@ public class CharacteristicAwarePriorOutput : PriorEmoteOutput
 					_owner.ParseCharacteristics(_characteristicText, perceiver), perceiver, _ignoreObscurers),
 				DefaultSource).ParseFor(perceiver, flags));
 
-		var returnText = sb.ToString().Fullstop().ProperSentences().NormaliseSpacing();
+		var returnText = sb.ToString().Fullstop().NormaliseOutputSentences().NormaliseSpacing();
 		return Flags.HasFlag(OutputFlags.WideWrap)
 			? returnText.Wrap(perceiver.LineFormatLength)
 			: returnText.Wrap(perceiver.InnerLineFormatLength);

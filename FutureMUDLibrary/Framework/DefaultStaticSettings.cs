@@ -16,6 +16,7 @@ public static class DefaultStaticSettings
 			{ "CPRAllowed", "true" },
 			{ "RangeCountingMode", "pythagoreanround"},
 			{ "PlayersCanJunk", "true" },
+			{ "FleeMoveBaseDelay", "1.0"},
 			{ "WrittenItemSDescStyle", "desc+title" },
 			{ "LogNPCCommands", "false" },
 			{ "PrependEmotes", "false" },

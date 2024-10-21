@@ -30,7 +30,7 @@ public class SuppliedFunctionOutput : EmoteOutput
 
 	public override string ParseFor(IPerceiver perceiver)
 	{
-		return SuppliedFunction(base.ParseFor(perceiver), perceiver);
+		return SuppliedFunction(base.ParseFor(perceiver), perceiver).NormaliseOutputSentences().NormaliseSpacing().Fullstop();
 	}
 
 	#endregion

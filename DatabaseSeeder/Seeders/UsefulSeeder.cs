@@ -10215,6 +10215,8 @@ end if",
 
 		AddHint(@"You can use the #3help#0 command to get more information about the commands, the world, and many types of information.");
 		AddHint(@"You can use the #3commands#0 command to get a list of all the commands that are available to you. In most cases, you can append #3?#0 to a command to get help about it, for example #3help ?#0 will show you the helpfile for the #3help#0 command.");
+		AddHint(@"When describing command syntax, this engine uses #3<>#0 to show you text that you fill in, e.g. #3<target>#0 would be where you would put the keyword for something you're targeting.");
+		AddHint(@"When describing command syntax, this engine uses #3[]#0 to show you that something is optional, e.g. #3[<target>]#0 would show you that supplying a target is optional, and you can leave it off.");
 		AddHint(@"The #3score#0 command shows you many bits of key information about your character.");
 		AddHint(@"The #3set#0 command allows you to edit both account settings and character settings. Use #3set#0 on its own to see your current settings, or #3set ?#0 to see help for the set command.");
 		AddHint(@"The #3inventory#0 command allows you to see what you are carrying, wearing and wielding.");
@@ -10241,5 +10243,10 @@ The #3longscan#0 command takes longer then scan but can potentially see much fur
 		AddHint("You can use the #3count#0 command to count up the value of any money you are carrying on your person.");
 		AddHint("The #3journal#0 command can be used to write in-character notes and observations for your character. Think of it like their mental diary of things they know and want to remember. Admins can view your journal and may use it to initiate plots for you.");
 		AddHint("The #3plan#0 command allows you to set a short and a long term plan. These can remind you what you were up to between sessions, and staff can view these to help initiate plots.");
+		AddHint("You can use the #3speed#0 command to set the speeds at which you will walk, crawl, swim, climb or even fly (if you're able).");
+		AddHint("The #3socials#0 command will show you a list of special short-cut emotes that you can use to supplement your roleplay. The name of the social is the command to use it, and you can see more detailed information about it by using the #3social <which>#0 command.");
+		AddHint("You can use the #3pmote#0 command to set a 'player emote' that others will see in your room description when they look at the room.");
+		AddHint("You can use the #3omote#0 command to set an 'object emote' that others will see in a target item's room description when they look at the room.");
+		AddHint("You can position yourself and items by using the #3position#0 command or one of its specific implementations (e.g. #3stand#0, #3kneel#0, #3sit#0, etc.). See #3position ?#0 for more information on this.");
 	}
 }

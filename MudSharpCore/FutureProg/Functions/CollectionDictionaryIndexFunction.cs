@@ -18,7 +18,7 @@ internal class CollectionDictionaryIndexFunction : Function
 	{
 		WhichVariable = whichVariable;
 		IndexFunction = indexFunction;
-		ReturnType = returnType & FutureProgVariableTypes.Collection;
+		ReturnType = returnType | FutureProgVariableTypes.Collection;
 	}
 
 	public override StatementResult Execute(IVariableSpace variables)

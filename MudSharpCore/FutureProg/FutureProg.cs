@@ -207,8 +207,11 @@ public class FutureProg : SaveableItem, IFutureProg
 
 	public bool Compile()
 	{
+#if DEBUG
+#else
 		try
 		{
+#endif
 			CompileError = null;
 			_staticReturnValue = null;
 			_staticValueSet = false;
@@ -286,12 +289,15 @@ public class FutureProg : SaveableItem, IFutureProg
 			CompileError = string.Empty;
 			CompileTime = TimeSpan.FromTicks(sw.ElapsedTicks);
 			return true;
+#if DEBUG
+#else
 		}
 		catch (Exception e)
 		{
 			throw new ApplicationException(
 				$"Exception thrown while compiling prog {FunctionName} ID {Id} - {e.Message}", e);
 		}
+#endif
 	}
 
 	public string MXPClickableFunctionName()

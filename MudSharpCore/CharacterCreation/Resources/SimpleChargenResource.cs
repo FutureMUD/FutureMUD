@@ -17,4 +17,7 @@ public class SimpleChargenResource : ChargenResourceBase
 	{
 		// Do nothing
 	}
+
+	/// <inheritdoc />
+	public override bool DisplayChangesOnLogin => true;
 }

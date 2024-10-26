@@ -569,6 +569,7 @@ public partial class Cell : Location, IDisposable, ICell
 			Console.WriteLine("Dead NPC!");
 		}
 #endif
+		var oldLoginTime = loginCharacter.LoginDateTime;
 		loginCharacter.State &= ~CharacterState.Stasis;
 		loginCharacter.LastMinutesUpdate = System.DateTime.UtcNow;
 		loginCharacter.LoginDateTime = System.DateTime.UtcNow;
@@ -580,6 +581,13 @@ public partial class Cell : Location, IDisposable, ICell
 		}
 		else
 		{
+			var sb = new StringBuilder();
+			var displayResourceUpdates = loginCharacter.Account.AccountResources.Where(x => x.Key.DisplayChangesOnLogin && loginCharacter.Account.AccountResourcesLastAwarded[x.Key] >= oldLoginTime).ToList();
+			if (displayResourceUpdates.Count > 0)
+			{
+				sb.AppendLine($"\n\nYou have received awards of {displayResourceUpdates.Select(x => x.Key.PluralName.TitleCase().ColourValue()).ListToString()} since your last login.");
+			}
+
 			if (loginCharacter.IsGuest)
 			{
 				Gameworld.SystemMessage($"Account {loginCharacter.Account.Name} has entered the guest lounge.", true);
@@ -596,7 +604,6 @@ public partial class Cell : Location, IDisposable, ICell
 				if (loginCharacter.IsAdministrator())
 				{
 
-					var sb = new StringBuilder();
 					if (Gameworld.Boards.Any(x => x.DisplayOnLogin))
 					{
 						var counts = new Dictionary<IBoard, int>();
@@ -609,8 +616,7 @@ public partial class Cell : Location, IDisposable, ICell
 
 						if (counts.Any(x => x.Value > 0))
 						{
-							sb.AppendLine();
-							sb.AppendLine("The following boards have new posts since your last login:");
+							sb.AppendLine("\n\nThe following boards have new posts since your last login:");
 							foreach (var count in counts.Where(x => x.Value > 0))
 							{
 								sb.AppendLine(
@@ -632,14 +638,16 @@ public partial class Cell : Location, IDisposable, ICell
 							    .ToList();
 						if (applications.Count > 0)
 						{
-							sb.AppendLine($"\nThere are {applications.Count.ToStringN0Colour(loginCharacter)} new character {"application".Pluralise(applications.Count != 1)} for you to review.");
+							sb.AppendLine($"\n\nThere are {applications.Count.ToStringN0Colour(loginCharacter)} new character {"application".Pluralise(applications.Count != 1)} for you to review.");
 						}
 					}
 
-
-					loginCharacter.Send(sb.ToString());
 				}
 
+				if (sb.Length > 0)
+				{
+					loginCharacter.Send(sb.ToString());
+				}
 				Gameworld.SystemMessage(
 					new EmoteOutput(
 						new Emote(

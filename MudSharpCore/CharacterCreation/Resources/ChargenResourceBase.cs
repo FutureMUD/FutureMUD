@@ -96,5 +96,7 @@ public abstract class ChargenResourceBase : FrameworkItem, IChargenResource
 		return Convert.ToInt32(_maximumResourceExpression.Evaluate());
 	}
 
+	public virtual bool DisplayChangesOnLogin => false;
+
 	#endregion
 }

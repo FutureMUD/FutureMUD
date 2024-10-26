@@ -68,5 +68,6 @@ namespace MudSharp.CharacterCreation.Resources {
         int GetMaximum(IAccount account);
 
         void PerformPostLoadUpdate(ChargenResource resource, IFuturemud gameworld);
+        bool DisplayChangesOnLogin { get; }
     }
 }

@@ -99,7 +99,7 @@ internal class DeclareAndAssignVariable : Statement
 
 		var function = (IFunction)rhsInfo.CompiledStatement;
 
-		var type = function.ReturnType ^ FutureProgVariableTypes.Literal;
+		var type = function.ReturnType & ~FutureProgVariableTypes.Literal;
 
 		var newVar = new DeclareAndAssignVariable(variableName, type, function);
 		variableSpace.Add(newVar.NameToDeclare, newVar.TypeToDeclare);

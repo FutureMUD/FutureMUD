@@ -1613,7 +1613,7 @@ A function (See PROG HELP FUNCTIONS) can also function as a statement on a line.
 			if (!prog.Compile())
 			{
 				actor.OutputHandler.Send(
-					$"Prog {prog.MXPClickableFunctionNameWithId()} failed to compile: {prog.CompileError}"
+					$"Prog {prog.MXPClickableFunctionNameWithId()} failed to compile: \n{prog.CompileError}"
 						.ColourIncludingReset(Telnet.BoldRed));
 			}
 			prog.ColouriseFunctionText();
@@ -1697,7 +1697,7 @@ A function (See PROG HELP FUNCTIONS) can also function as a statement on a line.
 			$"You add a parameter named {parameterName.Colour(Telnet.VariableCyan)} of type {type.Describe().Colour(Telnet.VariableGreen)} to prog {prog.MXPClickableFunctionNameWithId()}.");
 		if (!prog.Compile())
 		{
-			actor.OutputHandler.Send($"Prog did not compile: {prog.CompileError}".ColourBold(Telnet.Red));
+			actor.OutputHandler.Send($"Prog did not compile: \n{prog.CompileError}".ColourBold(Telnet.Red));
 		}
 	}
 

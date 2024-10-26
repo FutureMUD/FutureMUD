@@ -2680,7 +2680,7 @@ For information on the syntax to use in emotes (such as those included in bracke
 		{
 			if (!prog.Compile())
 			{
-				ConsoleUtilities.WriteLine("#9FutureProg {0} ({2}) failed to compile: {1}#0", prog.Id, prog.CompileError, prog.FunctionName);
+				ConsoleUtilities.WriteLine("#9FutureProg {0} ({2}) failed to compile: \n{1}#0", prog.Id, prog.CompileError, prog.FunctionName);
 			}
 		}
 	}

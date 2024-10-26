@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace MudSharp.FutureProg.Variables {
     public abstract class FutureProgVariable : IFutureProgVariable {
@@ -20,7 +21,7 @@ namespace MudSharp.FutureProg.Variables {
             _dotReferenceCompileInfos.Add(type, new FutureProgVariableCompileInfo
             {
                 VariableType = type,
-                PropertyTypeMap = typeDictionary,
+                PropertyTypeMap = typeDictionary.ToDictionary(x => x.Key, x => x.Value, StringComparer.InvariantCultureIgnoreCase),
                 PropertyHelpInfo = helpDictionary
             });
         }

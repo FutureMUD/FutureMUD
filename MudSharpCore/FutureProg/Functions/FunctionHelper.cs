@@ -26,7 +26,7 @@ public static class FunctionHelper
 		new(@"^([a-z][\w\d]*)\(([a-z][\w\d]*), (.+)\)$", RegexOptions.IgnoreCase);
 
 	private static readonly Regex _indexerRegex =
-		new(@"^\s*(?<variable>[a-z][\w]*)\[(?<key>[\""@\w]+)\](?:\s*\=\s* (?<assignment>[^=].+))*",
+		new(@"^\s*@?(?<variable>[a-z][\w]*)\[(?<key>[\""@\w]+)\](?:\s*\=\s* (?<assignment>[^=].+))*",
 			RegexOptions.Multiline | RegexOptions.IgnoreCase);
 
 	public static readonly Regex TimespanRegex =
@@ -283,12 +283,12 @@ public static class FunctionHelper
 			var rhsCompileInfo = CompileFunction(binaryLogicCombiners.RHS, variableSpace, lineNumber, gameworld);
 			if (lhsCompileInfo.IsError)
 			{
-				return compileInfoFactory.CreateError($"LHS Error: {lhsCompileInfo.ErrorMessage}", lineNumber);
+				return compileInfoFactory.CreateError($"Error with LHS of {binaryLogicCombiners.MatchedSplitString}:\n{lhsCompileInfo.ErrorMessage}", lineNumber);
 			}
 
 			if (rhsCompileInfo.IsError)
 			{
-				return compileInfoFactory.CreateError($"RHS Error: {rhsCompileInfo.ErrorMessage}", lineNumber);
+				return compileInfoFactory.CreateError($"Error with RHS of {binaryLogicCombiners.MatchedSplitString}:\n{rhsCompileInfo.ErrorMessage}", lineNumber);
 			}
 
 			// No errors found, create and return logic function
@@ -333,12 +333,12 @@ public static class FunctionHelper
 			var rhsCompileInfo = CompileFunction(binaryLogicComparers.RHS, variableSpace, lineNumber, gameworld);
 			if (lhsCompileInfo.IsError)
 			{
-				return compileInfoFactory.CreateError($"LHS Error: {lhsCompileInfo.ErrorMessage}", lineNumber);
+				return compileInfoFactory.CreateError($"Error with LHS of {binaryLogicComparers.MatchedSplitString}:\n{lhsCompileInfo.ErrorMessage}", lineNumber);
 			}
 
 			if (rhsCompileInfo.IsError)
 			{
-				return compileInfoFactory.CreateError($"RHS Error: {rhsCompileInfo.ErrorMessage}", lineNumber);
+				return compileInfoFactory.CreateError($"Error with RHS of {binaryLogicComparers.MatchedSplitString}:\n{rhsCompileInfo.ErrorMessage}", lineNumber);
 			}
 
 			// Statements Compiled, Determine Functor Type
@@ -540,12 +540,12 @@ public static class FunctionHelper
 			var rhsCompileInfo = CompileFunction(binaryOperators.RHS, variableSpace, lineNumber, gameworld);
 			if (lhsCompileInfo.IsError)
 			{
-				return compileInfoFactory.CreateError($"LHS Error: {lhsCompileInfo.ErrorMessage}", lineNumber);
+				return compileInfoFactory.CreateError($"Error with LHS of {binaryOperators.MatchedSplitString}:\n{lhsCompileInfo.ErrorMessage}", lineNumber);
 			}
 
 			if (rhsCompileInfo.IsError)
 			{
-				return compileInfoFactory.CreateError($"RHS Error: {rhsCompileInfo.ErrorMessage}", lineNumber);
+				return compileInfoFactory.CreateError($"Error with RHS of {binaryOperators.MatchedSplitString}:\n{rhsCompileInfo.ErrorMessage}", lineNumber);
 			}
 
 			// Statements Compiled, Determine Functor Type
@@ -798,7 +798,7 @@ public static class FunctionHelper
 			var lhsCompileInfo = CompileFunction(dotReferences.LHS, variableSpace, lineNumber, gameworld);
 			if (lhsCompileInfo.IsError)
 			{
-				return compileInfoFactory.CreateError($"LHS Error: {lhsCompileInfo.ErrorMessage}", lineNumber);
+				return compileInfoFactory.CreateError($"Error with LHS of dot-reference function:\n{lhsCompileInfo.ErrorMessage}", lineNumber);
 			}
 
 			// Statements Compiled, Determine Functor Type and Return Type
@@ -810,7 +810,7 @@ public static class FunctionHelper
 				var match = _collectionExtensionFunctionRegex.Match(dotReferences.RHS);
 				if (!match.Success)
 				{
-					var drType = FutureProgVariable.DotReferenceReturnTypeFor(FutureProgVariableTypes.Collection,
+					var drType = FutureProgVariable.DotReferenceReturnTypeFor(lhs.ReturnType,
 						dotReferences.RHS);
 					if (drType == FutureProgVariableTypes.Error)
 					{

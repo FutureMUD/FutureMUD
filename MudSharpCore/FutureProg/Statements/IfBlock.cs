@@ -47,7 +47,7 @@ internal class IfBlock : Statement
 		var funcInfo = FunctionHelper.CompileFunction(match.Groups[1].Value, variableSpace, lineNumber, gameworld);
 		if (funcInfo.IsError)
 		{
-			return new CompileInfo(null, null, null, $"Error Message with If Function - {funcInfo.ErrorMessage}");
+			return CompileInfo.GetFactory().CreateError($"Error in If Statement\n{funcInfo.ErrorMessage}", funcInfo.ErrorLineNumber);
 		}
 
 		var function = (IFunction)funcInfo.CompiledStatement;

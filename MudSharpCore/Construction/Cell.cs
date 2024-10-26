@@ -37,12 +37,14 @@ using System.Xml.Linq;
 using MudSharp.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
+using MudSharp.Accounts;
 using MudSharp.Body.Position.PositionStates;
 using MudSharp.Character.Name;
 using MudSharp.Framework.Revision;
 using MudSharp.Work.Foraging;
 using MudSharp.Work.Projects;
 using Track = MudSharp.Models.Track;
+using Parlot;
 
 namespace MudSharp.Construction;
 
@@ -591,30 +593,51 @@ public partial class Cell : Location, IDisposable, ICell
 					                                      loginCharacter.LoginDateTime));
 				}
 
-				if (loginCharacter.IsAdministrator() && Gameworld.Boards.Any(x => x.DisplayOnLogin))
+				if (loginCharacter.IsAdministrator())
 				{
-					var counts = new Dictionary<IBoard, int>();
-					foreach (var board in Gameworld.Boards.Where(x => x.DisplayOnLogin))
-					{
-						counts[board] =
-							board.Posts.Count(x =>
-								x.PostTime > (loginCharacter.PreviousLoginDateTime ?? System.DateTime.MinValue));
-					}
 
-					if (counts.Any(x => x.Value > 0))
+					var sb = new StringBuilder();
+					if (Gameworld.Boards.Any(x => x.DisplayOnLogin))
 					{
-						var sb = new StringBuilder();
-						sb.AppendLine();
-						sb.AppendLine("The following boards have new posts since your last login:");
-						foreach (var count in counts.Where(x => x.Value > 0))
+						var counts = new Dictionary<IBoard, int>();
+						foreach (var board in Gameworld.Boards.Where(x => x.DisplayOnLogin))
 						{
-							sb.AppendLine(
-								$"\t{count.Key.Name.Colour(Telnet.Green)} - {count.Value:N0} new post{(count.Value == 1 ? "" : "s")}.");
+							counts[board] =
+								board.Posts.Count(x =>
+									x.PostTime > (loginCharacter.PreviousLoginDateTime ?? System.DateTime.MinValue));
 						}
 
-						sb.AppendLine();
-						loginCharacter.Send(sb.ToString());
+						if (counts.Any(x => x.Value > 0))
+						{
+							sb.AppendLine();
+							sb.AppendLine("The following boards have new posts since your last login:");
+							foreach (var count in counts.Where(x => x.Value > 0))
+							{
+								sb.AppendLine(
+									$"\t{count.Key.Name.Colour(Telnet.Green)} - {count.Value:N0} new post{(count.Value == 1 ? "" : "s")}.");
+							}
+
+							sb.AppendLine();
+						}
 					}
+
+					using (new FMDB())
+					{
+						var applications =
+							FMDB.Context.Chargens
+							    .Where(x => 
+								    x.Status == (int)CharacterStatus.Submitted &&
+									(PermissionLevel)(x.MinimumApprovalAuthority ?? 0) <= loginCharacter.Account.Authority.Level
+								)
+							    .ToList();
+						if (applications.Count > 0)
+						{
+							sb.AppendLine($"\nThere are {applications.Count.ToStringN0Colour(loginCharacter)} new character {"application".Pluralise(applications.Count != 1)} for you to review.");
+						}
+					}
+
+
+					loginCharacter.Send(sb.ToString());
 				}
 
 				Gameworld.SystemMessage(

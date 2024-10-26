@@ -28,6 +28,7 @@ public class BoardGameItemComponent : GameItemComponent, IBoardItem
 	public string CantViewBoardEcho => _prototype.CantViewBoardEcho;
 	public string CantPostToBoardEcho => _prototype.CantPostToBoardEcho;
 	public bool ShowAuthorName => _prototype.ShowAuthorName;
+	public bool ShowAuthorShortDescription => _prototype.ShowAuthorShortDescription;
 	public bool ShowAuthorDescription => _prototype.ShowAuthorDescription;
 
 	protected override void UpdateComponentNewPrototype(IGameItemComponentProto newProto)

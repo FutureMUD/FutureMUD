@@ -25,6 +25,7 @@ public class BoardGameItemComponentProto : GameItemComponentProto
 	public string CantViewBoardEcho { get; private set; }
 	public string CantPostToBoardEcho { get; private set; }
 	public bool ShowAuthorName { get; private set; }
+	public bool ShowAuthorShortDescription { get; private set; }
 	public bool ShowAuthorDescription { get; private set; }
 	public string StoredAuthorName { get; private set; }
 	public string StoredAuthorShortDescription { get; private set; }
@@ -57,6 +58,7 @@ public class BoardGameItemComponentProto : GameItemComponentProto
 		CantPostToBoardEcho = root.Element("CantPostToBoardEcho").Value;
 		ShowAuthorName = bool.Parse(root.Element("ShowAuthorName")?.Value ?? "false");
 		ShowAuthorDescription = bool.Parse(root.Element("ShowAuthorDescription")?.Value ?? "false");
+		ShowAuthorShortDescription = bool.Parse(root.Element("ShowAuthorShortDescription")?.Value ?? "false");
 		StoredAuthorName = root.Element("StoredAuthorName")?.Value;
 		StoredAuthorShortDescription = root.Element("StoredAuthorShortDescription")?.Value;
 		StoredAuthorFullDescription = root.Element("StoredAuthorFullDescription")?.Value;
@@ -76,6 +78,7 @@ public class BoardGameItemComponentProto : GameItemComponentProto
 			new XElement("CantPostToBoardEcho", new XCData(CantPostToBoardEcho)),
 			new XElement("ShowAuthorName", ShowAuthorName),
 			new XElement("ShowAuthorDescription", ShowAuthorDescription),
+			new XElement("ShowAuthorShortDescription", ShowAuthorShortDescription),
 			new XElement("StoredAuthorName", new XCData(StoredAuthorName ?? string.Empty)),
 			new XElement("StoredAuthorShortDescription", new XCData(StoredAuthorShortDescription ?? string.Empty)),
 			new XElement("StoredAuthorFullDescription", new XCData(StoredAuthorFullDescription ?? string.Empty))
@@ -123,15 +126,16 @@ public class BoardGameItemComponentProto : GameItemComponentProto
 
 	private const string BuildingHelpText = @"You can use the following options with this component:
 
-	name <name> - sets the name of the component
-	desc <desc> - sets the description of the component
-    board <board> - sets the board that this item is tied to
-    view <prog> - sets the prog that controls who can view the board
-    cantview <echo> - sets the echo when someone tries to read the board who can't
-    post <prog> - sets the prog that controls who can post to the board
-    cantpost <echo> - sets the echo when someone tries to post to the board who can't
-	showname - toggles showing the author's name
-	showdesc - toggles showing the author's desc";
+	#3name <name>#0 - sets the name of the component
+	#3desc <desc>#0 - sets the description of the component
+	#3board <board>#0 - sets the board that this item is tied to
+	#3view <prog>#0 - sets the prog that controls who can view the board
+	#3cantview <echo>#0 - sets the echo when someone tries to read the board who can't
+	#3post <prog>#0 - sets the prog that controls who can post to the board
+	#3cantpost <echo>#0 - sets the echo when someone tries to post to the board who can't
+	#3showname#0 - toggles showing the author's name
+	#3showsdesc#0 - toggles showing the author's short desc
+	#3showdesc#0 - toggles showing the author's desc";
 
 	public override string ShowBuildingHelp => BuildingHelpText;
 
@@ -166,9 +170,21 @@ public class BoardGameItemComponentProto : GameItemComponentProto
 			case "showdesc":
 			case "showdescription":
 				return BuildingCommandShowDescription(actor);
+			case "showsdesc":
+			case "showshortdescription":
+				return BuildingCommandShowShortDescription(actor);
 			default:
 				return base.BuildingCommand(actor, command);
 		}
+	}
+
+	private bool BuildingCommandShowShortDescription(ICharacter actor)
+	{
+		ShowAuthorShortDescription = !ShowAuthorShortDescription;
+		Changed = true;
+		actor.OutputHandler.Send(
+			$"This board will {(ShowAuthorShortDescription ? "now" : "no longer")} show the post author's short description.");
+		return true;
 	}
 
 	private bool BuildingCommandShowDescription(ICharacter actor)
@@ -326,7 +342,9 @@ public class BoardGameItemComponentProto : GameItemComponentProto
 		return string.Format(actor, @"{0} (#{1:N0}r{2:N0}, {3})
 
 This turns an item into a bulletin board for the {4} board.
-It {9} show the author's name and {10} show the author's descriptions.
+It {9} show the author's name
+It {11} show the author's short description at the time of posting
+It {10} show the author's full description at the time of posting
 Uses prog {5} to determine who can read it.
 Can't read echo: {7}
 Uses prog {6} to determine who can write to it.
@@ -341,7 +359,8 @@ Can't write echo: {8}",
 			CantViewBoardEcho.ColourCommand(),
 			CantPostToBoardEcho.ColourCommand(),
 			ShowAuthorName ? "will" : "will not",
-			ShowAuthorDescription ? "will" : "will not"
+			ShowAuthorDescription ? "will" : "will not",
+			ShowAuthorShortDescription ? "will" : "will not"
 		);
 	}
 }

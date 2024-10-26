@@ -8,14 +8,15 @@ using MudSharp.FutureProg;
 
 namespace MudSharp.GameItems.Interfaces
 {
-    public interface IBoardItem : IGameItemComponent
-    {
-        IBoard Board { get; }
-        IFutureProg CanViewBoard { get;}
-        IFutureProg CanPostToBoard { get; }
-        string CantViewBoardEcho { get; }
-        string CantPostToBoardEcho { get; }
-        bool ShowAuthorName { get; }
-        bool ShowAuthorDescription { get; }
-    }
+	public interface IBoardItem : IGameItemComponent
+	{
+		IBoard Board { get; }
+		IFutureProg CanViewBoard { get;}
+		IFutureProg CanPostToBoard { get; }
+		string CantViewBoardEcho { get; }
+		string CantPostToBoardEcho { get; }
+		bool ShowAuthorName { get; }
+		bool ShowAuthorShortDescription { get; }
+		bool ShowAuthorDescription { get; }
+	}
 }

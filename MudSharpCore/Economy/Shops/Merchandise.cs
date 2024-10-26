@@ -16,7 +16,7 @@ using MudSharp.Economy.Currency;
 using MudSharp.Framework.Revision;
 using MudSharp.Models;
 
-namespace MudSharp.Economy;
+namespace MudSharp.Economy.Shops;
 
 public class Merchandise : LateInitialisingItem, IMerchandise
 {
@@ -67,7 +67,7 @@ public class Merchandise : LateInitialisingItem, IMerchandise
 		PermitItemDecayOnStockedItems = Gameworld.GetStaticBool("MerchandisePermitsItemDecayByDefault");
 	}
 
-	public Merchandise(MudSharp.Models.Merchandise merch, IShop shop, IFuturemud gameworld)
+	public Merchandise(Models.Merchandise merch, IShop shop, IFuturemud gameworld)
 	{
 		Gameworld = gameworld;
 		Shop = shop;
@@ -148,7 +148,26 @@ public class Merchandise : LateInitialisingItem, IMerchandise
 
 	public override void SetIDFromDatabase(object dbitem)
 	{
-		_id = ((MudSharp.Models.Merchandise)dbitem).Id;
+		_id = ((Models.Merchandise)dbitem).Id;
+	}
+
+	public void Delete()
+	{
+		Gameworld.SaveManager.Abort(this);
+		if (_id != 0)
+		{
+			Gameworld.SaveManager.Flush();
+			using (new FMDB())
+			{
+				var dbitem = FMDB.Context.Merchandises.Find(Id);
+				if (dbitem != null)
+				{
+					FMDB.Context.Merchandises.Remove(dbitem);
+					FMDB.Context.SaveChanges();
+				}
+			}
+		}
+		OnDelete?.Invoke(this, EventArgs.Empty);
 	}
 
 	public bool BuildingCommand(ICharacter actor, StringStack command)
@@ -468,7 +487,7 @@ public class Merchandise : LateInitialisingItem, IMerchandise
 				return false;
 			}
 		}
-		
+
 		if (command.IsFinished)
 		{
 			actor.OutputHandler.Send(
@@ -693,7 +712,7 @@ public class Merchandise : LateInitialisingItem, IMerchandise
 		sb.AppendLine($"Maximum Buy Stock: {(MaximumStockLevelsToBuy == 0 ? "Unlimited".ColourValue() : MaximumStockLevelsToBuy.ToString("N0", actor).ColourValue())}");
 		sb.AppendLine($"Ignore Market Pricing: {IgnoreMarketPricing.ToColouredString()}");
 		sb.AppendLine($"Permit Item Decay When Stocked: {PermitItemDecayOnStockedItems.ToColouredString()}");
-		
+
 		sb.AppendLine(
 			$"Preferred Display Container: {PreferredDisplayContainer?.HowSeen(actor, flags: PerceiveIgnoreFlags.IgnoreCanSee) ?? "None".Colour(Telnet.Red)}");
 
@@ -708,7 +727,7 @@ public class Merchandise : LateInitialisingItem, IMerchandise
 				if (AutoReorderPrice < 0.0M)
 				{
 					sb.AppendLine(
-						$"Auto Reorder Price: {(-1.0M * AutoReorderPrice).ToString("P2", actor).ColourValue()} of Cost = {Shop.Currency.Describe(EffectivePrice * (-1.0M * AutoReorderPrice), CurrencyDescriptionPatternType.ShortDecimal).ColourValue()}");
+						$"Auto Reorder Price: {(-1.0M * AutoReorderPrice).ToString("P2", actor).ColourValue()} of Cost = {Shop.Currency.Describe(EffectivePrice * -1.0M * AutoReorderPrice, CurrencyDescriptionPatternType.ShortDecimal).ColourValue()}");
 				}
 				else
 				{
@@ -727,7 +746,7 @@ public class Merchandise : LateInitialisingItem, IMerchandise
 	public IShop Shop { get; private set; }
 	public bool AutoReordering { get; private set; }
 	public decimal AutoReorderPrice { get; private set; }
-	public decimal EffectiveAutoReorderPrice => AutoReorderPrice < 0.0M ? EffectivePrice * (-1.0M * AutoReorderPrice) : AutoReorderPrice;
+	public decimal EffectiveAutoReorderPrice => AutoReorderPrice < 0.0M ? EffectivePrice * -1.0M * AutoReorderPrice : AutoReorderPrice;
 
 	public bool PreserveVariablesOnReorder { get; private set; }
 	public int MinimumStockLevels { get; private set; }
@@ -746,7 +765,7 @@ public class Merchandise : LateInitialisingItem, IMerchandise
 	public int MaximumStockLevelsToBuy { get; private set; }
 	public bool IgnoreMarketPricing { get; private set; }
 	public bool PermitItemDecayOnStockedItems { get; private set; }
-	public decimal EffectivePrice => 
+	public decimal EffectivePrice =>
 		(BasePrice == -1
 		? Item.CostInBaseCurrency / Shop.Currency.BaseCurrencyToGlobalBaseCurrencyConversion
 		: BasePrice) *
@@ -792,7 +811,7 @@ public class Merchandise : LateInitialisingItem, IMerchandise
 	public bool IsMerchandiseFor(IGameItem item, bool ignoreDefault = false)
 	{
 		return item.EffectsOfType<ItemOnDisplayInShop>().Any(x => x.Merchandise == this) ||
-		       ((ignoreDefault || DefaultMerchandiseForItem) && Item.Id == item.Prototype.Id && (_skinId is null || item.Skin == Skin))
+			   (ignoreDefault || DefaultMerchandiseForItem) && Item.Id == item.Prototype.Id && (_skinId is null || item.Skin == Skin)
 			;
 	}
 
@@ -804,6 +823,8 @@ public class Merchandise : LateInitialisingItem, IMerchandise
 	}
 
 	public IEnumerable<string> Keywords => ListDescription.Strip_A_An().Split(' ', '-', ',');
+
+	public event EventHandler OnDelete;
 
 	#region IFutureProgVariable Implementation
 

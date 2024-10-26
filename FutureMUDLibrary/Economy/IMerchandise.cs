@@ -34,10 +34,12 @@ namespace MudSharp.Economy
 		bool DefaultMerchandiseForItem { get; }
 		bool PermitItemDecayOnStockedItems { get; }
 
+		void Delete();
 
 		bool IsMerchandiseFor(IGameItem item, bool ignoreDefault = false);
 		bool BuildingCommand(ICharacter actor, StringStack command);
 		void ShowToBuilder(ICharacter actor);
 		void ShopCurrencyChanged(ICurrency oldCurrency, ICurrency newCurrency);
+		event EventHandler OnDelete;
 	}
 }

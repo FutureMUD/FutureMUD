@@ -49,6 +49,7 @@ using AuctionBid = MudSharp.Economy.AuctionBid;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 using System.Security.Cryptography;
 using System.Xml.Linq;
+using MudSharp.Economy.Shops;
 
 namespace MudSharp.Commands.Modules;
 

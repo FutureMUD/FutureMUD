@@ -49,6 +49,11 @@ public class ItemOnDisplayInShop : Effect, IDescriptionAdditionEffect, IHandleEv
 			if (_merchandise == null)
 			{
 				_merchandise = Shop.Merchandises.FirstOrDefault(x => x.Id == _merchId);
+				if (_merchandise is not null)
+				{
+					_merchandise.OnDelete -= Merchandise_OnDelete;
+					_merchandise.OnDelete += Merchandise_OnDelete;
+				}
 			}
 
 			return _merchandise;
@@ -66,7 +71,19 @@ public class ItemOnDisplayInShop : Effect, IDescriptionAdditionEffect, IHandleEv
 	{
 		var root = effect.Element("Effect");
 		_shopId = long.Parse(root.Element("Shop").Value);
+		_shop = Gameworld.Shops.Get(_shopId);
 		_merchId = long.Parse(root.Element("Merch").Value);
+		_merchandise = Shop?.Merchandises.FirstOrDefault(x => x.Id == _merchId);
+		if (_merchandise is not null)
+		{
+			_merchandise.OnDelete -= Merchandise_OnDelete;
+			_merchandise.OnDelete += Merchandise_OnDelete;
+		}
+	}
+
+	private void Merchandise_OnDelete(object sender, EventArgs e)
+	{
+		Owner.RemoveEffect(this, true);
 	}
 
 	public override string Describe(IPerceiver voyeur)

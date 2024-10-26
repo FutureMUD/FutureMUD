@@ -29,7 +29,7 @@ using MudSharp.TimeAndDate.Date;
 using MudSharp.TimeAndDate.Time;
 using System.Security.Cryptography;
 
-namespace MudSharp.Economy;
+namespace MudSharp.Economy.Shops;
 
 public abstract class Shop : SaveableItem, IShop
 {
@@ -93,7 +93,8 @@ public abstract class Shop : SaveableItem, IShop
 			dbitem.ShopType = type;
 			dbitem.AutopayTaxes = true;
 			dbitem.EmployeeRecords = "<Employees/>";
-			if (originalShopFront is not null) { 
+			if (originalShopFront is not null)
+			{
 				dbitem.ShopsStoreroomCells.Add(new ShopsStoreroomCell { Shop = dbitem, CellId = originalShopFront.Id });
 			}
 			FMDB.Context.SaveChanges();
@@ -101,7 +102,7 @@ public abstract class Shop : SaveableItem, IShop
 		}
 	}
 
-	protected Shop(MudSharp.Models.Shop shop, IFuturemud gameworld)
+	protected Shop(Models.Shop shop, IFuturemud gameworld)
 	{
 		Gameworld = gameworld;
 		_id = shop.Id;
@@ -115,7 +116,7 @@ public abstract class Shop : SaveableItem, IShop
 		AutoPayTaxes = shop.AutopayTaxes;
 		_canShopProg = gameworld.FutureProgs.Get(shop.CanShopProgId ?? 0);
 		_whyCannotShopProg = gameworld.FutureProgs.Get(shop.WhyCannotShopProgId ?? 0);
-		
+
 		_bankAccountId = shop.BankAccountId;
 		foreach (var item in shop.Merchandises)
 		{
@@ -271,7 +272,7 @@ public abstract class Shop : SaveableItem, IShop
 			Changed = true;
 		}
 	}
-	
+
 
 	protected readonly CollectionDictionary<IMerchandise, long> _stockedMerchandise = new();
 	protected readonly Counter<IMerchandise> _stockedMerchandiseCounts = new();
@@ -401,6 +402,7 @@ public abstract class Shop : SaveableItem, IShop
 		_merchandises.Remove(merchandise);
 		_stockedMerchandise.Remove(merchandise);
 		_stockedMerchandiseCounts.Remove(merchandise);
+		merchandise.Delete();
 		Changed = true;
 	}
 
@@ -537,7 +539,7 @@ public abstract class Shop : SaveableItem, IShop
 
 		var stockedItems = StockedItems(merchandise).ToList();
 		var stockedQuantity = stockedItems.Sum(x => x.Quantity);
-		if (merchandise.MaximumStockLevelsToBuy > 0 && (stockedQuantity + item.Quantity) > merchandise.MaximumStockLevelsToBuy)
+		if (merchandise.MaximumStockLevelsToBuy > 0 && stockedQuantity + item.Quantity > merchandise.MaximumStockLevelsToBuy)
 		{
 			var maxQuantity = merchandise.MaximumStockLevelsToBuy - stockedQuantity;
 			if (maxQuantity <= 0)
@@ -899,14 +901,14 @@ public abstract class Shop : SaveableItem, IShop
 		var stocked = StockedItems(merchandise).ToList();
 		var difference = _stockedMerchandiseCounts.Count(merchandise) - stocked.Sum(x => x.Quantity);
 		if (difference > expectedChange)
-			// Some items were missing
+		// Some items were missing
 		{
 			_transactionRecords.Add(new TransactionRecord(ShopTransactionType.StockLoss, Currency, this,
 				EconomicZone.ZoneForTimePurposes.DateTime(), null, merchandise.EffectiveAutoReorderPrice * (difference - expectedChange),
 				0.0M));
 		}
 		else if (difference < expectedChange)
-			// Extras were located
+		// Extras were located
 		{
 			_transactionRecords.Add(new TransactionRecord(ShopTransactionType.Stock, Currency, this,
 				EconomicZone.ZoneForTimePurposes.DateTime(), null,
@@ -1023,19 +1025,19 @@ public abstract class Shop : SaveableItem, IShop
 		sb.AppendLine($"Merchandise with keyword {keyword.ColourCommand()}:");
 		var stockTake = StocktakeAllMerchandise();
 		var index = 1;
-		var merchIndexes = new Dictionary<IMerchandise,int>();
+		var merchIndexes = new Dictionary<IMerchandise, int>();
 		foreach (var item in stockTake)
 		{
 			merchIndexes[item.Key] = index++;
 		}
-		
+
 		if (Gameworld.GetStaticBool("DisplayTaxInShopList"))
 		{
 			sb.AppendLine(StringUtilities.GetTextTable(
 			from merch in stockTake
 			let priceInfo = GetDetailedPriceInfo(purchaser, merch.Key)
 			where merch.Value.InStockroomCount + merch.Value.OnFloorCount > 0 &&
-				  (merch.Key.ListDescription.Contains(keyword, StringComparison.InvariantCultureIgnoreCase) || 
+				  (merch.Key.ListDescription.Contains(keyword, StringComparison.InvariantCultureIgnoreCase) ||
 				   merch.Key.Name.Contains(keyword, StringComparison.InvariantCultureIgnoreCase))
 			orderby merch.Key.Name
 			select new[]
@@ -1193,7 +1195,7 @@ public abstract class Shop : SaveableItem, IShop
 			));
 			}
 
-			
+
 			if (actor != purchaser)
 			{
 				sb.AppendLine(
@@ -1272,7 +1274,7 @@ public abstract class Shop : SaveableItem, IShop
 			sb.AppendLine();
 			sb.AppendLine("Employees:");
 			sb.AppendLine(StringUtilities.GetTextTable(
-				from ch in EmployeeRecords.OrderBy(x => x.IsProprietor ? 0 : (x.IsManager ? 1 : 2))
+				from ch in EmployeeRecords.OrderBy(x => x.IsProprietor ? 0 : x.IsManager ? 1 : 2)
 				select new List<string>
 				{
 					ch.EmployeeCharacterId.ToString("N0", actor),
@@ -1346,6 +1348,7 @@ public abstract class Shop : SaveableItem, IShop
 		return CanShopProg?.Execute<bool?>(customer, null, new List<string>()) != false;
 	}
 
+	#region  Building Commands
 	public bool BuildingCommand(ICharacter actor, StringStack command)
 	{
 		switch (command.PopSpeech().ToLowerInvariant())
@@ -1539,7 +1542,7 @@ public abstract class Shop : SaveableItem, IShop
 			$"This shop will now use the {_canShopProg.MXPClickableFunctionNameWithId()} prog to determine who can shop here and the {_whyCannotShopProg.MXPClickableFunctionNameWithId()} prog to deliver an error message to those who can't.");
 		return true;
 	}
-
+	#endregion
 	public void Delete()
 	{
 		using (new FMDB())

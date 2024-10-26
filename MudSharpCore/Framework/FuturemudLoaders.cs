@@ -441,7 +441,7 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 				}
 			}, ScheduleType.System, TimeSpan.FromMinutes(60),
 			"Market Population Heartbeats"));
-		Scheduler.AddSchedule(new RepeatingSchedule<IFuturemud>(this, this, MudSharp.Economy.Shop.DoAutopayShopTaxes, ScheduleType.System, TimeSpan.FromMinutes(60), "Shop Autopay Taxes"));
+		Scheduler.AddSchedule(new RepeatingSchedule<IFuturemud>(this, this, Economy.Shops.Shop.DoAutopayShopTaxes, ScheduleType.System, TimeSpan.FromMinutes(60), "Shop Autopay Taxes"));
 		Chargen.SetupChargen(this);
 		HeartbeatManager.StartHeartbeatTick();
 		Track.CreateGlobalHeartbeatEvent();
@@ -885,7 +885,7 @@ For information on the syntax to use in emotes (such as those included in bracke
 		                .ToList();
 		foreach (var shop in shops)
 		{
-			_shops.Add(Economy.Shop.LoadShop(shop, this));
+			_shops.Add(Economy.Shops.Shop.LoadShop(shop, this));
 		}
 #if DEBUG
 		sw.Stop();

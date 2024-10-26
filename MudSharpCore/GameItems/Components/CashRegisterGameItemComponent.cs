@@ -10,6 +10,7 @@ using MudSharp.Character;
 using MudSharp.Construction;
 using MudSharp.Economy;
 using MudSharp.Economy.Currency;
+using MudSharp.Economy.Shops;
 using MudSharp.Effects.Interfaces;
 using MudSharp.Events;
 using MudSharp.Form.Characteristics;

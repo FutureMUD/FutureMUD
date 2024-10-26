@@ -11,6 +11,7 @@ using MudSharp.Framework;
 using MudSharp.FutureProg;
 using MudSharp.FutureProg.Statements.Manipulation;
 using System.Text;
+using MoreLinq.Extensions;
 
 namespace MudSharp.NPC.AI;
 
@@ -874,6 +875,9 @@ public class DoorguardAI : ArtificialIntelligenceBase
 			case EventType.CharacterSocialWitness:
 				ch = (ICharacter)arguments[4];
 				break;
+			case EventType.MinuteTick:
+				ch = (ICharacter)arguments[0];
+				break;
 			default:
 				return false;
 		}
@@ -898,9 +902,34 @@ public class DoorguardAI : ArtificialIntelligenceBase
 				return OnWitnessSocial(arguments[4], arguments[0], arguments[1].Name, false, arguments[3]);
 			case EventType.CharacterDoorKnockedOtherSide:
 				return OnDoorKnock(arguments[3], arguments[0], arguments[2]);
+			case EventType.MinuteTick:
+				return HandleMinuteTick(ch);
 			default:
 				return false;
 		}
+	}
+
+	private bool HandleMinuteTick(ICharacter ch)
+	{
+		if (!ch.AffectedBy<IDoorguardOpeningDoorEffect>())
+		{
+			return false;
+		}
+
+		if (ch.Effects.Any(x => x.IsEffectType<IDoorguardOpeningDoorEffect>() || x.IsEffectType<DoorguardCloseDoor>()))
+		{
+			return false;
+		}
+
+		foreach (var exit in ch.Location.ExitsFor(ch))
+		{
+			if (exit.Exit.Door is not null && exit.Exit.Door.IsOpen)
+			{
+				CloseDoorIfStillOpen(ch, null, exit);
+			}
+		}
+
+		return false;
 	}
 
 	public override bool HandlesEvent(params EventType[] types)
@@ -916,6 +945,7 @@ public class DoorguardAI : ArtificialIntelligenceBase
 				case EventType.CharacterSocialTarget:
 				case EventType.CharacterSocialWitness:
 				case EventType.CharacterDoorKnockedOtherSide:
+				case EventType.MinuteTick:
 					return true;
 			}
 		}

@@ -110,24 +110,24 @@ public class Craft : Framework.Revision.EditableItem, ICraft
 			}
 
 			var inputMap = new Dictionary<long, Models.CraftInput>();
-			foreach (var input in _orderedInputs)
+			foreach (var input in rhs._orderedInputs)
 			{
 				inputMap[input.Id] = input.CreateNewRevision(dbnew);
 			}
 
 			var toolMap = new Dictionary<long, Models.CraftTool>();
-			foreach (var tool in _orderedTools)
+			foreach (var tool in rhs._orderedTools)
 			{
 				toolMap[tool.Id] = tool.CreateNewRevision(dbnew);
 			}
 			FMDB.Context.SaveChanges();
 
-			foreach (var product in _orderedProducts)
+			foreach (var product in rhs._orderedProducts)
 			{
 				product.CreateNewRevision(dbnew, false, inputMap.ToDictionary(x => x.Key, x => x.Value.Id), toolMap.ToDictionary(x => x.Key, x => x.Value.Id));
 			}
 
-			foreach (var product in _orderedFailProducts)
+			foreach (var product in rhs._orderedFailProducts)
 			{
 				product.CreateNewRevision(dbnew, true, inputMap.ToDictionary(x => x.Key, x => x.Value.Id), toolMap.ToDictionary(x => x.Key, x => x.Value.Id));
 			}

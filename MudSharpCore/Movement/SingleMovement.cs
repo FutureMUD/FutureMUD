@@ -80,7 +80,7 @@ public class SingleMovement : MovementBase
 				return;
 			}
 
-			Mover.ExecuteMove();
+			Mover.ExecuteMove(this);
 			// Mover.ExecuteMove() can cause the movement to become cancelled if someone tumbles off a cliff for example
 			if (Cancelled)
 			{

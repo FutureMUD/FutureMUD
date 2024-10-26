@@ -134,7 +134,7 @@ public class GroupMovement : MovementBase
 			var partyMoveSpeed = Party.SlowestSpeed(Exit);
 			foreach (var mover in CharacterMovers.ToList())
 			{
-				mover.ExecuteMove(partyMoveSpeed);
+				mover.ExecuteMove(this, partyMoveSpeed);
 			}
 
 			Exit.Origin.ResolveMovement(this);

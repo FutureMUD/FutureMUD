@@ -1100,19 +1100,19 @@ public partial class Character
 		return true;
 	}
 
-	public void ExecuteMove(IMoveSpeed speedOverride = null)
+	public void ExecuteMove(IMovement movement, IMoveSpeed speedOverride = null)
 	{
 		if (!EffectHandler.AffectedBy<IImmwalkEffect>())
 		{
-			SpendStamina(StaminaForMovement(PositionState, speedOverride ?? CurrentSpeed, Movement.StaminaMultiplier,
-				Movement.IgnoreTerrainStamina));
+			SpendStamina(StaminaForMovement(PositionState, speedOverride ?? CurrentSpeed, movement.StaminaMultiplier,
+				movement.IgnoreTerrainStamina));
 		}
 
-		Movement?.Exit?.Origin?.Leave(this);
+		movement?.Exit?.Origin?.Leave(this);
 		var originalLayer = RoomLayer;
-		var (transition, targetLayer) = Movement?.Exit?.MovementTransition(this) ??
+		var (transition, targetLayer) = movement?.Exit?.MovementTransition(this) ??
 		                                (CellMovementTransition.NoViableTransition, RoomLayer.GroundLevel);
-		var destinationTerrain = Movement?.Exit?.Destination.Terrain(this);
+		var destinationTerrain = movement?.Exit?.Destination.Terrain(this);
 		if (destinationTerrain?.TerrainLayers.Contains(targetLayer) == false)
 		{
 			if (destinationTerrain.TerrainLayers.LowestLayer().IsHigherThan(RoomLayer))
@@ -1125,8 +1125,8 @@ public partial class Character
 			}
 		}
 
-		Moved(Movement);
-		Movement?.Exit?.Destination?.Enter(this, Movement.Exit, roomLayer: targetLayer);
+		Moved(movement);
+		movement?.Exit?.Destination?.Enter(this, movement.Exit, roomLayer: targetLayer);
 		switch (transition)
 		{
 			case CellMovementTransition.TreesToTrees:
@@ -1176,7 +1176,7 @@ public partial class Character
 				break;
 		}
 
-		foreach (var character in Movement?.Exit?.Origin?.Characters.Where(x => x.Movement != Movement) ??
+		foreach (var character in movement?.Exit?.Origin?.Characters.Where(x => x.Movement != movement) ??
 		                          Enumerable.Empty<ICharacter>())
 		{
 			character.RemoveAllEffects(x => x.GetSubtype<ISawHiderEffect>()?.Hider == this);

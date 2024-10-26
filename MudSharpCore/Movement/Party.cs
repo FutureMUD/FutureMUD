@@ -100,12 +100,12 @@ public class Party : PerceiverItem, IParty
 	{
 	}
 
-	public void ExecuteMove(IMoveSpeed overrideSpeed = null)
+	public void ExecuteMove(IMovement movement, IMoveSpeed overrideSpeed = null)
 	{
-		Moved(Movement);
+		Moved(movement);
 		foreach (var member in Members)
 		{
-			member.ExecuteMove(overrideSpeed ?? CurrentSpeed);
+			member.ExecuteMove(movement, overrideSpeed ?? CurrentSpeed);
 		}
 	}
 

@@ -184,7 +184,7 @@ public class DragMovement : MovementBase
 
 		foreach (var mover in Draggers)
 		{
-			mover.ExecuteMove();
+			mover.ExecuteMove(this);
 		}
 
 		if (Target is ICharacter targetCharacter)

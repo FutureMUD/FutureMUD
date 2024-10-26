@@ -423,17 +423,17 @@ public class GroupDragMovement : MovementBase
 
 		foreach (var mover in Draggers)
 		{
-			mover.ExecuteMove();
+			mover.ExecuteMove(this);
 		}
 
 		foreach (var mover in Helpers)
 		{
-			mover.ExecuteMove();
+			mover.ExecuteMove(this);
 		}
 
 		foreach (var mover in NonDraggers)
 		{
-			mover.ExecuteMove();
+			mover.ExecuteMove(this);
 		}
 
 		foreach (var target in Targets)

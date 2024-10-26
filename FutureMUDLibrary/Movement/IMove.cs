@@ -62,7 +62,7 @@ namespace MudSharp.Movement {
         void JoinParty(IParty party);
         void LeaveParty(bool echo = true);
 
-        void ExecuteMove(IMoveSpeed overrideSpeed = null);
+        void ExecuteMove(IMovement movement, IMoveSpeed overrideSpeed = null);
 
         string DisplayInGroup(IPerceiver voyeur, int indent = 0);
         int MoveSpeed(ICellExit exit);

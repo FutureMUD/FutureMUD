@@ -127,7 +127,7 @@ public class SingleStealthMovement : SingleMovement
 			}
 			else
 			{
-				Mover.ExecuteMove();
+				Mover.ExecuteMove(this);
 				Phase = MovementPhase.NewRoom;
 				Exit.Destination.RegisterMovement(this);
 				Exit.Origin.ResolveMovement(this);

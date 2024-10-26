@@ -161,8 +161,8 @@ public class SparPartnerAI : ArtificialIntelligenceBase
 		return new XElement("Definition",
 			new XElement("WillSparProg", WillSparProg?.Id ?? 0L),
 			new XElement("EngageDelayDiceExpression", new XCData(EngageDelayDiceExpression)),
-			new XElement("EngageEmote", new XCData(EngageEmote)),
-			new XElement("RefuseEmote", new XCData(RefuseEmote))
+			new XElement("EngageEmote", new XCData(EngageEmote ?? "")),
+			new XElement("RefuseEmote", new XCData(RefuseEmote ?? ""))
 		).ToString();
 	}
 

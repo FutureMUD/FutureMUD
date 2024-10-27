@@ -36,7 +36,7 @@ internal class LoggedInMenu : Menu
 		CheckedOldPassword,
 		EnteredNewPassword,
 		RegisterAccount,
-		ResendAccountEmail
+		ResendAccountEmail,
 	}
 
 	private Dictionary<LoggedInMenuState, IExecutable> _commands;

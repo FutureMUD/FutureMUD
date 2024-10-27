@@ -710,9 +710,7 @@ The syntax for this is as follows:
 	#3hedit extra add <helpfile> <prog>#0 - drops you into an editor to add a new extra text
 	#3hedit extra remove <helpfile> <##>#0 - removes the specified extra text
 	#3hedit extra text <helpfile> <##>#0 - drops you into an editor to edit the text of an extra text
-	#3hedit extra prog <##> <prog>#0 - changes the prog associated with an extra text
-
-Command for editing helpfiles, subcommands include: new, delete, name, keywords, tagline, subcategory, prog, text, extra, show";
+	#3hedit extra prog <##> <prog>#0 - changes the prog associated with an extra text";
 
 	[PlayerCommand("Hedit", "hedit")]
 	[CommandPermission(PermissionLevel.JuniorAdmin)]
@@ -822,54 +820,71 @@ Command for editing helpfiles, subcommands include: new, delete, name, keywords,
 	protected static void Help(ICharacter actor, string command)
 	{
 		var ss = new StringStack(command.RemoveFirstWord());
-
+		var allHelpfiles = actor.Gameworld.Helpfiles.Where(x => x.CanView(actor)).ToList();
+		var builtInHelp = actor.Gameworld.RetrieveAppropriateCommandTree(actor).Commands.CommandHelpInfos.ToList();
+		var categories = allHelpfiles
+		                 .Select(x => x.Category.TitleCase())
+		                 .Concat(["Commands"])
+		                 .Distinct()
+		                 .OrderBy(x => x)
+		                 .ToList();
 		if (ss.IsFinished)
 		{
 			// TODO - make this something the users could configure
 			actor.OutputHandler.Send(string.Format(
-				"Welcome to the Help System for {0}\n\nThe help system contains information on a variety of topics that may be useful to you as you play the game. You can view a help file by using the " +
-				"help <topic>".Colour(Telnet.Yellow) + " command, for example, " + "help get".Colour(Telnet.Yellow) +
-				", which would show the help file for the " + "get".Colour(Telnet.Yellow) +
-				" command.\n\nYou can also type " + "help on <category>".Colour(Telnet.Yellow) +
-				" to see a list of all help files within that category.\n\nSee " + "help help".Colour(Telnet.Yellow) +
-				" to learn conventions common across help files.\n\nThe following is a list of all of the categories that exist for you to search:\n\n{1}",
-				actor.Gameworld.Name.Colour(Telnet.Cyan),
-				(from category in
-					 actor.Gameworld.Helpfiles.Select(x => x.Category.TitleCase()).Distinct().OrderBy(x => x)
-				 select category).ToList().ArrangeStringsOntoLines()));
+				$@"Welcome to the Help System for {actor.Gameworld.Name.Colour(Telnet.Cyan)}
+
+The help system contains information on a variety of topics that may be useful to you as you play the game. You can view a help file by using the {"help <topic>".Colour(Telnet.Yellow)} command, for example, {"help get".Colour(Telnet.Yellow)}, which would show the help file for the {"get".Colour(Telnet.Yellow)} command.
+
+You can also type {"help on <category>".Colour(Telnet.Yellow)} to see a list of all help files within that category.
+
+See {"help help".Colour(Telnet.Yellow)} to learn conventions common across help files.
+
+The following is a list of all of the categories that exist for you to search:
+
+{categories.ArrangeStringsOntoLines()}"
+
+				));
 			return;
 		}
 
 		var cmd = ss.PeekSpeech();
 
 		//handle the 'help on <category>' syntax.
-		if (cmd.ToLowerInvariant() == "on")
+		if (string.Equals(cmd.ToLowerInvariant(), "on", StringComparison.InvariantCultureIgnoreCase))
 		{
 			ss.PopSpeech(); //Pop the 'on'
 			cmd = ss.PopSpeech();
 			var helpfiles =
-				actor.Gameworld.Helpfiles.Where(
-					x => x.Category.StartsWith(cmd, StringComparison.InvariantCultureIgnoreCase) && x.CanView(actor));
-			if (!helpfiles.Any())
+				allHelpfiles
+					.Where(x => x.Category.StartsWith(cmd, StringComparison.InvariantCultureIgnoreCase))
+					.ToList();
+			if (!cmd.EqualTo("commands") && !helpfiles.Any())
 			{
-				actor.OutputHandler.Send("There are no help files in the " + cmd.TitleCase().Colour(Telnet.Cyan) +
-				                         " category.");
+				actor.OutputHandler.Send($"There are no help files in the {cmd.TitleCase().Colour(Telnet.Cyan)} category.");
 				return;
 			}
 
-			actor.OutputHandler.Send("There are the following help files in the " +
-			                         helpfiles.First().Category.TitleCase().Colour(Telnet.Cyan) + " category:\n\n"
-			                         +
-			                         StringUtilities.GetTextTable(
-				                         helpfiles.Select(
-					                         x =>
-						                         new[]
-						                         {
-							                         x.Name.TitleCase(), x.Subcategory.TitleCase(),
-							                         x.TagLine.Proper(),
-							                         x.Keywords.ListToString(separator: " ", conjunction: "")
-						                         }),
-				                         new[] { "Help File", "Subcategory", "Synopsis", "Keywords" }, 120)
+			var helpOutput = helpfiles
+			                 .Select(x => (Name: x.Name, TagLine: x.TagLine, SubCategory: x.Subcategory, Keywords: x.Keywords.ListToString(separator: " ", conjunction: "")))
+			                 .ToList();
+			if (cmd.EqualTo("commands"))
+			{
+				helpOutput.AddRange(builtInHelp.Select(x => (Name: x.HelpName, $"Automatically generated helpfile for command", "Built-In", x.HelpName)));
+			}
+
+			helpOutput.Sort((x1,x2) => string.Compare(x1.Name, x2.Name, StringComparison.InvariantCultureIgnoreCase));
+			actor.OutputHandler.Send($"There are the following help files in the {cmd.TitleCase().Colour(Telnet.Cyan)} category:\n\n{StringUtilities.GetTextTable(
+				helpfiles.Select(
+					x =>
+						new[]
+						{
+							x.Name.TitleCase(),
+							x.Subcategory.TitleCase(),
+							x.TagLine.Proper(),
+							x.Keywords.ListToString(separator: " ", conjunction: "")
+						}),
+				new[] { "Help File", "Subcategory", "Synopsis", "Keywords" }, actor)}"
 			);
 			return;
 		}

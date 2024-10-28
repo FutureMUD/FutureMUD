@@ -403,7 +403,7 @@ public class CharacterIntroTemplate : SaveableItem, ICharacterIntroTemplate
 			return false;
 		}
 
-		var prog = new ProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument, FutureProgVariableTypes.Boolean, [FutureProgVariableTypes.Toon]).LookupProg();
+		var prog = new ProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument, ProgVariableTypes.Boolean, [ProgVariableTypes.Toon]).LookupProg();
 		if (prog is null)
 		{
 			return false;

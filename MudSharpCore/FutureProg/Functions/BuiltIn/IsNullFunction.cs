@@ -14,9 +14,9 @@ internal class IsNullFunction : BuiltInFunction
 		InnerFunction = parameters.First();
 	}
 
-	public override FutureProgVariableTypes ReturnType
+	public override ProgVariableTypes ReturnType
 	{
-		get => FutureProgVariableTypes.Boolean;
+		get => ProgVariableTypes.Boolean;
 		protected set { }
 	}
 
@@ -37,13 +37,13 @@ internal class IsNullFunction : BuiltInFunction
 		FutureProg.RegisterBuiltInFunctionCompiler(
 			new FunctionCompilerInformation(
 				"isnull",
-				new[] { FutureProgVariableTypes.CollectionItem },
+				new[] { ProgVariableTypes.CollectionItem },
 				(pars, gameworld) => new IsNullFunction(pars),
 				new[] { "item" },
 				new List<string> { "The item that you want to test to see if it is null" },
 				"This function accepts an item of a broad variety of types, and tests to see if it is currently null.",
 				"Null Handling",
-				FutureProgVariableTypes.Boolean
+				ProgVariableTypes.Boolean
 			)
 		);
 	}

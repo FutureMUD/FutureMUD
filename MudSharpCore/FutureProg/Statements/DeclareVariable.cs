@@ -15,16 +15,16 @@ internal class DeclareVariable : Statement
 			RegexOptions.Multiline | RegexOptions.IgnoreCase);
 
 	protected string NameToDeclare;
-	protected FutureProgVariableTypes TypeToDeclare;
+	protected ProgVariableTypes TypeToDeclare;
 
-	public DeclareVariable(string name, FutureProgVariableTypes type)
+	public DeclareVariable(string name, ProgVariableTypes type)
 	{
 		NameToDeclare = name;
 		TypeToDeclare = type;
 	}
 
 	private static ICompileInfo DeclareVariableCompile(IEnumerable<string> lines,
-		IDictionary<string, FutureProgVariableTypes> variableSpace, int lineNumber, IFuturemud gameworld)
+		IDictionary<string, ProgVariableTypes> variableSpace, int lineNumber, IFuturemud gameworld)
 	{
 		var match = DeclareVariableCompileRegex.Match(lines.First());
 
@@ -43,7 +43,7 @@ internal class DeclareVariable : Statement
 
 		var type = FutureProg.GetTypeByName(match.Groups["type"].Value);
 
-		if (type == FutureProgVariableTypes.Error)
+		if (type == ProgVariableTypes.Error)
 		{
 			if (
 				!match.Groups["typemodifier"].Value.EqualToAny("collection", "dictionary", "collectiondictionary"))
@@ -85,7 +85,7 @@ internal class DeclareVariable : Statement
 			new Tuple
 			<Regex,
 				Func
-				<IEnumerable<string>, IDictionary<string, FutureProgVariableTypes>, int, IFuturemud, ICompileInfo>>(
+				<IEnumerable<string>, IDictionary<string, ProgVariableTypes>, int, IFuturemud, ICompileInfo>>(
 				DeclareVariableCompileRegex, DeclareVariableCompile)
 		);
 
@@ -124,23 +124,23 @@ Another important thing to note about variable declarations is that they are lim
 			return StatementResult.Error;
 		}
 
-		if (TypeToDeclare.HasFlag(FutureProgVariableTypes.Collection))
+		if (TypeToDeclare.HasFlag(ProgVariableTypes.Collection))
 		{
 			variables.SetVariable(NameToDeclare,
-				new CollectionVariable(new List<IFutureProgVariable>(),
-					TypeToDeclare ^ FutureProgVariableTypes.Collection));
+				new CollectionVariable(new List<IProgVariable>(),
+					TypeToDeclare ^ ProgVariableTypes.Collection));
 		}
-		else if (TypeToDeclare.HasFlag(FutureProgVariableTypes.Dictionary))
+		else if (TypeToDeclare.HasFlag(ProgVariableTypes.Dictionary))
 		{
 			variables.SetVariable(NameToDeclare,
-				new DictionaryVariable(new Dictionary<string, IFutureProgVariable>(),
-					TypeToDeclare ^ FutureProgVariableTypes.Dictionary));
+				new DictionaryVariable(new Dictionary<string, IProgVariable>(),
+					TypeToDeclare ^ ProgVariableTypes.Dictionary));
 		}
-		else if (TypeToDeclare.HasFlag(FutureProgVariableTypes.CollectionDictionary))
+		else if (TypeToDeclare.HasFlag(ProgVariableTypes.CollectionDictionary))
 		{
 			variables.SetVariable(NameToDeclare,
-				new CollectionDictionaryVariable(new CollectionDictionary<string, IFutureProgVariable>(),
-					TypeToDeclare ^ FutureProgVariableTypes.CollectionDictionary));
+				new CollectionDictionaryVariable(new CollectionDictionary<string, IProgVariable>(),
+					TypeToDeclare ^ ProgVariableTypes.CollectionDictionary));
 		}
 		else
 		{

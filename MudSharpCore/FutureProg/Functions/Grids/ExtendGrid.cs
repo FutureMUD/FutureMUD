@@ -26,7 +26,7 @@ internal class ExtendGrid : BuiltInFunction
 		FutureProg.RegisterBuiltInFunctionCompiler(
 			new FunctionCompilerInformation(
 				"ExtendGrid".ToLowerInvariant(),
-				new[] { FutureProgVariableTypes.Number, FutureProgVariableTypes.Location },
+				new[] { ProgVariableTypes.Number, ProgVariableTypes.Location },
 				(pars, gameworld) => new ExtendGrid(pars, gameworld),
 				new List<string> { "grid", "location" },
 				new List<string>
@@ -51,9 +51,9 @@ internal class ExtendGrid : BuiltInFunction
 
 	#endregion
 
-	public override FutureProgVariableTypes ReturnType
+	public override ProgVariableTypes ReturnType
 	{
-		get => FutureProgVariableTypes.Boolean;
+		get => ProgVariableTypes.Boolean;
 		protected set { }
 	}
 

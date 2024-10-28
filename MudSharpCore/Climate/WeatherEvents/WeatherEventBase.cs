@@ -101,10 +101,10 @@ public abstract class WeatherEventBase : FrameworkItem, IWeatherEvent, IHaveFutu
 
 	#region IFutureProgVariable implementation
 
-	public FutureProgVariableTypes Type => FutureProgVariableTypes.WeatherEvent;
+	public ProgVariableTypes Type => ProgVariableTypes.WeatherEvent;
 	public object GetObject => this;
 
-	public IFutureProgVariable GetProperty(string property)
+	public IProgVariable GetProperty(string property)
 	{
 		switch (property.ToLowerInvariant())
 		{
@@ -189,30 +189,30 @@ public abstract class WeatherEventBase : FrameworkItem, IWeatherEvent, IHaveFutu
 		throw new NotSupportedException($"Unsupported property type {property} in {FrameworkItemType}.GetProperty");
 	}
 
-	private static IReadOnlyDictionary<string, FutureProgVariableTypes> DotReferenceHandler()
+	private static IReadOnlyDictionary<string, ProgVariableTypes> DotReferenceHandler()
 	{
-		return new Dictionary<string, FutureProgVariableTypes>(StringComparer.InvariantCultureIgnoreCase)
+		return new Dictionary<string, ProgVariableTypes>(StringComparer.InvariantCultureIgnoreCase)
 		{
-			{ "id", FutureProgVariableTypes.Number },
-			{ "name", FutureProgVariableTypes.Text },
-			{ "description", FutureProgVariableTypes.Text },
-			{ "windlevel", FutureProgVariableTypes.Number },
-			{ "rainlevel", FutureProgVariableTypes.Number },
-			{ "snowlevel", FutureProgVariableTypes.Number },
-			{ "wind", FutureProgVariableTypes.Text },
-			{ "rain", FutureProgVariableTypes.Text },
-			{ "snow", FutureProgVariableTypes.Text },
-			{ "precipitation", FutureProgVariableTypes.Text },
-			{ "obscuressky", FutureProgVariableTypes.Boolean },
-			{ "lightmultiplier", FutureProgVariableTypes.Number },
-			{ "temperatureeffect", FutureProgVariableTypes.Number },
-			{ "precipitationtemperatureeffect", FutureProgVariableTypes.Number },
-			{ "windtemperatureeffect", FutureProgVariableTypes.Number },
-			{ "permittednight", FutureProgVariableTypes.Boolean },
-			{ "permitteddawn", FutureProgVariableTypes.Boolean },
-			{ "permittedmorning", FutureProgVariableTypes.Boolean },
-			{ "permittedafternoon", FutureProgVariableTypes.Boolean },
-			{ "permitteddusk", FutureProgVariableTypes.Boolean }
+			{ "id", ProgVariableTypes.Number },
+			{ "name", ProgVariableTypes.Text },
+			{ "description", ProgVariableTypes.Text },
+			{ "windlevel", ProgVariableTypes.Number },
+			{ "rainlevel", ProgVariableTypes.Number },
+			{ "snowlevel", ProgVariableTypes.Number },
+			{ "wind", ProgVariableTypes.Text },
+			{ "rain", ProgVariableTypes.Text },
+			{ "snow", ProgVariableTypes.Text },
+			{ "precipitation", ProgVariableTypes.Text },
+			{ "obscuressky", ProgVariableTypes.Boolean },
+			{ "lightmultiplier", ProgVariableTypes.Number },
+			{ "temperatureeffect", ProgVariableTypes.Number },
+			{ "precipitationtemperatureeffect", ProgVariableTypes.Number },
+			{ "windtemperatureeffect", ProgVariableTypes.Number },
+			{ "permittednight", ProgVariableTypes.Boolean },
+			{ "permitteddawn", ProgVariableTypes.Boolean },
+			{ "permittedmorning", ProgVariableTypes.Boolean },
+			{ "permittedafternoon", ProgVariableTypes.Boolean },
+			{ "permitteddusk", ProgVariableTypes.Boolean }
 		};
 	}
 
@@ -245,7 +245,7 @@ public abstract class WeatherEventBase : FrameworkItem, IWeatherEvent, IHaveFutu
 
 	public static void RegisterFutureProgCompiler()
 	{
-		FutureProgVariable.RegisterDotReferenceCompileInfo(FutureProgVariableTypes.WeatherEvent, DotReferenceHandler(),
+		ProgVariable.RegisterDotReferenceCompileInfo(ProgVariableTypes.WeatherEvent, DotReferenceHandler(),
 			DotReferenceHelp());
 	}
 

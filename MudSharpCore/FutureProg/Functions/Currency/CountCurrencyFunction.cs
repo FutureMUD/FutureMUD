@@ -20,9 +20,9 @@ internal class CountCurrencyFunction : BuiltInFunction
 
 	public bool RespectGetRules { get; set; }
 
-	public override FutureProgVariableTypes ReturnType
+	public override ProgVariableTypes ReturnType
 	{
-		get => FutureProgVariableTypes.Number;
+		get => ProgVariableTypes.Number;
 		protected set { }
 	}
 
@@ -93,7 +93,7 @@ internal class CountCurrencyFunction : BuiltInFunction
 		FutureProg.RegisterBuiltInFunctionCompiler(
 			new FunctionCompilerInformation(
 				"countcurrency",
-				new[] { FutureProgVariableTypes.Character, FutureProgVariableTypes.Currency },
+				new[] { ProgVariableTypes.Character, ProgVariableTypes.Currency },
 				(pars, gameworld) => new CountCurrencyFunction(pars, false)
 			)
 		);
@@ -101,7 +101,7 @@ internal class CountCurrencyFunction : BuiltInFunction
 		FutureProg.RegisterBuiltInFunctionCompiler(
 			new FunctionCompilerInformation(
 				"countcurrency",
-				new[] { FutureProgVariableTypes.Item, FutureProgVariableTypes.Currency },
+				new[] { ProgVariableTypes.Item, ProgVariableTypes.Currency },
 				(pars, gameworld) => new CountCurrencyFunction(pars, false)
 			)
 		);
@@ -109,7 +109,7 @@ internal class CountCurrencyFunction : BuiltInFunction
 		FutureProg.RegisterBuiltInFunctionCompiler(
 			new FunctionCompilerInformation(
 				"countcurrency",
-				new[] { FutureProgVariableTypes.Location, FutureProgVariableTypes.Currency },
+				new[] { ProgVariableTypes.Location, ProgVariableTypes.Currency },
 				(pars, gameworld) => new CountCurrencyFunction(pars, false)
 			)
 		);
@@ -117,7 +117,7 @@ internal class CountCurrencyFunction : BuiltInFunction
 		FutureProg.RegisterBuiltInFunctionCompiler(
 			new FunctionCompilerInformation(
 				"countaccessiblecurrency",
-				new[] { FutureProgVariableTypes.Character, FutureProgVariableTypes.Currency },
+				new[] { ProgVariableTypes.Character, ProgVariableTypes.Currency },
 				(pars, gameworld) => new CountCurrencyFunction(pars, true)
 			)
 		);
@@ -125,7 +125,7 @@ internal class CountCurrencyFunction : BuiltInFunction
 		FutureProg.RegisterBuiltInFunctionCompiler(
 			new FunctionCompilerInformation(
 				"countaccessiblecurrency",
-				new[] { FutureProgVariableTypes.Item, FutureProgVariableTypes.Currency },
+				new[] { ProgVariableTypes.Item, ProgVariableTypes.Currency },
 				(pars, gameworld) => new CountCurrencyFunction(pars, true)
 			)
 		);
@@ -133,7 +133,7 @@ internal class CountCurrencyFunction : BuiltInFunction
 		FutureProg.RegisterBuiltInFunctionCompiler(
 			new FunctionCompilerInformation(
 				"countaccessiblecurrency",
-				new[] { FutureProgVariableTypes.Location, FutureProgVariableTypes.Currency },
+				new[] { ProgVariableTypes.Location, ProgVariableTypes.Currency },
 				(pars, gameworld) => new CountCurrencyFunction(pars, true)
 			)
 		);

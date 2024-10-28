@@ -17,9 +17,9 @@ internal class GetCharacteristicFunction : BuiltInFunction
 		IgnorePerceiver = ignoreObscurers;
 	}
 
-	public override FutureProgVariableTypes ReturnType
+	public override ProgVariableTypes ReturnType
 	{
-		get => FutureProgVariableTypes.Text;
+		get => ProgVariableTypes.Text;
 		protected set { }
 	}
 
@@ -36,13 +36,13 @@ internal class GetCharacteristicFunction : BuiltInFunction
 		var target = ParameterFunctions[0].Result;
 		if (target == null)
 		{
-			Result = new NullVariable(FutureProgVariableTypes.Text);
+			Result = new NullVariable(ProgVariableTypes.Text);
 			return StatementResult.Normal;
 		}
 
 		if (target is not IHaveCharacteristics ihc)
 		{
-			Result = new NullVariable(FutureProgVariableTypes.Text);
+			Result = new NullVariable(ProgVariableTypes.Text);
 			return StatementResult.Normal;
 		}
 
@@ -52,7 +52,7 @@ internal class GetCharacteristicFunction : BuiltInFunction
 
 		if (string.IsNullOrEmpty(targetDefinition))
 		{
-			Result = new NullVariable(FutureProgVariableTypes.Text);
+			Result = new NullVariable(ProgVariableTypes.Text);
 			return StatementResult.Normal;
 		}
 
@@ -79,7 +79,7 @@ internal class GetCharacteristicFunction : BuiltInFunction
 					x => x.Item1.Name.Equals(targetDefinition, StringComparison.InvariantCultureIgnoreCase));
 			if (definition.Item1 == null)
 			{
-				Result = new NullVariable(FutureProgVariableTypes.Text);
+				Result = new NullVariable(ProgVariableTypes.Text);
 				return StatementResult.Normal;
 			}
 
@@ -115,8 +115,8 @@ internal class GetCharacteristicFunction : BuiltInFunction
 				"getcharacteristic",
 				new[]
 				{
-					FutureProgVariableTypes.Item | FutureProgVariableTypes.Toon, FutureProgVariableTypes.Text,
-					FutureProgVariableTypes.Perceiver
+					ProgVariableTypes.Item | ProgVariableTypes.Toon, ProgVariableTypes.Text,
+					ProgVariableTypes.Perceiver
 				},
 				(pars, gameworld) => new GetCharacteristicFunction(pars, gameworld, false),
 				new List<string> { "thing", "target", "perceiver" },
@@ -128,13 +128,13 @@ internal class GetCharacteristicFunction : BuiltInFunction
 				},
 				"This function allows you to return the text value of a specified characteristic of a character, chargen or item. It returns the same result as if you had used $name in a description.",
 				"Characteristics",
-				FutureProgVariableTypes.Text
+				ProgVariableTypes.Text
 			)
 		);
 		FutureProg.RegisterBuiltInFunctionCompiler(
 			new FunctionCompilerInformation(
 				"getrealcharacteristic",
-				new[] { FutureProgVariableTypes.Item | FutureProgVariableTypes.Toon, FutureProgVariableTypes.Text },
+				new[] { ProgVariableTypes.Item | ProgVariableTypes.Toon, ProgVariableTypes.Text },
 				(pars, gameworld) => new GetCharacteristicFunction(pars, gameworld, true),
 				new List<string> { "thing", "target" },
 				new List<string>
@@ -144,7 +144,7 @@ internal class GetCharacteristicFunction : BuiltInFunction
 				},
 				"This function allows you to return the text value of a specified characteristic of a character, chargen or item. It returns the same result as if you had used $name in a description. This version returns the true value of a characteristic, unhindered by the lens of a perceiver.",
 				"Characteristics",
-				FutureProgVariableTypes.Text
+				ProgVariableTypes.Text
 			)
 		);
 	}

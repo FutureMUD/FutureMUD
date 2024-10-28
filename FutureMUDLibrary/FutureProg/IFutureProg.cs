@@ -50,23 +50,23 @@ namespace MudSharp.FutureProg {
 		/// <summary>
 		///     An ordered collection of the parameters required to be used to invoke this program
 		/// </summary>
-		IEnumerable<FutureProgVariableTypes> Parameters { get; }
+		IEnumerable<ProgVariableTypes> Parameters { get; }
 
-		List<Tuple<FutureProgVariableTypes, string>> NamedParameters { get; }
+		List<Tuple<ProgVariableTypes, string>> NamedParameters { get; }
 
 		bool AcceptsAnyParameters { get; set; }
 
 		/// <summary>
 		///     The return type of this program
 		/// </summary>
-		FutureProgVariableTypes ReturnType { get; set; }
+		ProgVariableTypes ReturnType { get; set; }
 
 		/// <summary>
 		///     The time that the program took to compile
 		/// </summary>
 		TimeSpan CompileTime { get; }
 
-		bool MatchesParameters(IEnumerable<FutureProgVariableTypes> parameters);
+		bool MatchesParameters(IEnumerable<ProgVariableTypes> parameters);
 
 		/// <summary>
 		///     Executes the program and returns the result
@@ -108,8 +108,8 @@ namespace MudSharp.FutureProg {
 	}
 
 	public static class FutureProgExtensions {
-		public static bool CompatibleWith(this IEnumerable<FutureProgVariableTypes> parameters,
-			IEnumerable<FutureProgVariableTypes> referenceParameters) {
+		public static bool CompatibleWith(this IEnumerable<ProgVariableTypes> parameters,
+			IEnumerable<ProgVariableTypes> referenceParameters) {
 			if (referenceParameters.Count() != parameters.Count()) {
 				return false;
 			}
@@ -127,229 +127,229 @@ namespace MudSharp.FutureProg {
 			return prog.NamedParameters.Select(x => $"{x.Item1.Describe()}").ListToString(conjunction: "");
 		}
 
-		public static string Describe(this FutureProgVariableTypes type) {
+		public static string Describe(this ProgVariableTypes type) {
 			var sb = new StringBuilder();
-			if (type == FutureProgVariableTypes.Anything) {
+			if (type == ProgVariableTypes.Anything) {
 				return "Anything";
 			}
 
-			if (type.HasFlag(FutureProgVariableTypes.Literal)) {
-				type = type ^ FutureProgVariableTypes.Literal;
+			if (type.HasFlag(ProgVariableTypes.Literal)) {
+				type = type ^ ProgVariableTypes.Literal;
 			}
 
-			if (type.HasFlag(FutureProgVariableTypes.Collection))
+			if (type.HasFlag(ProgVariableTypes.Collection))
 			{
 				sb.Append(" Collection");
-				type = type ^ FutureProgVariableTypes.Collection;
+				type = type ^ ProgVariableTypes.Collection;
 			}
-			else if (type.HasFlag(FutureProgVariableTypes.Dictionary))
+			else if (type.HasFlag(ProgVariableTypes.Dictionary))
 			{
 				sb.Append(" Dictionary");
-				type = type ^ FutureProgVariableTypes.Dictionary;
+				type = type ^ ProgVariableTypes.Dictionary;
 			}
-			else if (type.HasFlag(FutureProgVariableTypes.CollectionDictionary))
+			else if (type.HasFlag(ProgVariableTypes.CollectionDictionary))
 			{
 				sb.Append(" CollectionDictionary");
-				type = type ^ FutureProgVariableTypes.CollectionDictionary;
+				type = type ^ ProgVariableTypes.CollectionDictionary;
 			}
 
 			switch (type) {
-				case FutureProgVariableTypes.CollectionItem:
+				case ProgVariableTypes.CollectionItem:
 					sb.Insert(0, "CollectionItem");
 					break;
-				case FutureProgVariableTypes.Boolean:
+				case ProgVariableTypes.Boolean:
 					sb.Insert(0, "Boolean");
 					break;
-				case FutureProgVariableTypes.Character:
+				case ProgVariableTypes.Character:
 					sb.Insert(0, "Character");
 					break;
-				case FutureProgVariableTypes.Error:
+				case ProgVariableTypes.Error:
 					sb.Insert(0, "Error");
 					break;
-				case FutureProgVariableTypes.Gender:
+				case ProgVariableTypes.Gender:
 					sb.Insert(0, "Gender");
 					break;
-				case FutureProgVariableTypes.Item:
+				case ProgVariableTypes.Item:
 					sb.Insert(0, "Item");
 					break;
-				case FutureProgVariableTypes.Location:
+				case ProgVariableTypes.Location:
 					sb.Insert(0, "Location");
 					break;
-				case FutureProgVariableTypes.Number:
+				case ProgVariableTypes.Number:
 					sb.Insert(0, "Number");
 					break;
-				case FutureProgVariableTypes.Shard:
+				case ProgVariableTypes.Shard:
 					sb.Insert(0, "Shard");
 					break;
-				case FutureProgVariableTypes.Text:
+				case ProgVariableTypes.Text:
 					sb.Insert(0, "Text");
 					break;
-				case FutureProgVariableTypes.Void:
+				case ProgVariableTypes.Void:
 					sb.Insert(0, "Void");
 					break;
-				case FutureProgVariableTypes.Zone:
+				case ProgVariableTypes.Zone:
 					sb.Insert(0, "Zone");
 					break;
-				case FutureProgVariableTypes.Race:
+				case ProgVariableTypes.Race:
 					sb.Insert(0, "Race");
 					break;
-				case FutureProgVariableTypes.Culture:
+				case ProgVariableTypes.Culture:
 					sb.Insert(0, "Culture");
 					break;
-				case FutureProgVariableTypes.Chargen:
+				case ProgVariableTypes.Chargen:
 					sb.Insert(0, "Chargen");
 					break;
-				case FutureProgVariableTypes.Trait:
+				case ProgVariableTypes.Trait:
 					sb.Insert(0, "Trait");
 					break;
-				case FutureProgVariableTypes.Clan:
+				case ProgVariableTypes.Clan:
 					sb.Insert(0, "Clan");
 					break;
-				case FutureProgVariableTypes.ClanAppointment:
+				case ProgVariableTypes.ClanAppointment:
 					sb.Insert(0, "Appointment");
 					break;
-				case FutureProgVariableTypes.ClanPaygrade:
+				case ProgVariableTypes.ClanPaygrade:
 					sb.Insert(0, "Paygrade");
 					break;
-				case FutureProgVariableTypes.ClanRank:
+				case ProgVariableTypes.ClanRank:
 					sb.Insert(0, "Rank");
 					break;
-				case FutureProgVariableTypes.Currency:
+				case ProgVariableTypes.Currency:
 					sb.Insert(0, "Currency");
 					break;
-				case FutureProgVariableTypes.Exit:
+				case ProgVariableTypes.Exit:
 					sb.Insert(0, "Exit");
 					break;
-				case FutureProgVariableTypes.Perceiver:
+				case ProgVariableTypes.Perceiver:
 					sb.Insert(0, "Perceiver");
 					break;
-				case FutureProgVariableTypes.Perceivable:
+				case ProgVariableTypes.Perceivable:
 					sb.Insert(0, "Perceivable");
 					break;
-				case FutureProgVariableTypes.MagicResourceHaver:
+				case ProgVariableTypes.MagicResourceHaver:
 					sb.Insert(0, "MagicResourceHaver");
 					break;
-				case FutureProgVariableTypes.Toon:
+				case ProgVariableTypes.Toon:
 					sb.Insert(0, "Toon");
 					break;
-				case FutureProgVariableTypes.Accent:
+				case ProgVariableTypes.Accent:
 					sb.Insert(0, "Accent");
 					break;
-				case FutureProgVariableTypes.Language:
+				case ProgVariableTypes.Language:
 					sb.Insert(0, "Language");
 					break;
-				case FutureProgVariableTypes.DateTime:
+				case ProgVariableTypes.DateTime:
 					sb.Insert(0, "DateTime");
 					break;
-				case FutureProgVariableTypes.TimeSpan:
+				case ProgVariableTypes.TimeSpan:
 					sb.Insert(0, "TimeSpan");
 					break;
-				case FutureProgVariableTypes.Merit:
+				case ProgVariableTypes.Merit:
 					sb.Insert(0, "Merit");
 					break;
-				case FutureProgVariableTypes.MudDateTime:
+				case ProgVariableTypes.MudDateTime:
 					sb.Insert(0, "MudDateTime");
 					break;
-				case FutureProgVariableTypes.Calendar:
+				case ProgVariableTypes.Calendar:
 					sb.Insert(0, "Calendar");
 					break;
-				case FutureProgVariableTypes.Clock:
+				case ProgVariableTypes.Clock:
 					sb.Insert(0, "Clock");
 					break;
-				case FutureProgVariableTypes.Effect:
+				case ProgVariableTypes.Effect:
 					sb.Insert(0, "Effect");
 					break;
-				case FutureProgVariableTypes.Knowledge:
+				case ProgVariableTypes.Knowledge:
 					sb.Insert(0, "Knowledge");
 					break;
-				case FutureProgVariableTypes.Tagged:
+				case ProgVariableTypes.Tagged:
 					sb.Insert(0, "Tagged");
 					break;
-				case FutureProgVariableTypes.Shop:
+				case ProgVariableTypes.Shop:
 					sb.Insert(0, "Shop");
 					break;
-				case FutureProgVariableTypes.Merchandise:
+				case ProgVariableTypes.Merchandise:
 					sb.Insert(0, "Merchandise");
 					break;
-				case FutureProgVariableTypes.Outfit:
+				case ProgVariableTypes.Outfit:
 					sb.Insert(0, "Outfit");
 					break;
-				case FutureProgVariableTypes.OutfitItem:
+				case ProgVariableTypes.OutfitItem:
 					sb.Insert(0, "OutfitItem");
 					break;
-				case FutureProgVariableTypes.Project:
+				case ProgVariableTypes.Project:
 					sb.Insert(0, "Project");
 					break;
-				case FutureProgVariableTypes.OverlayPackage:
+				case ProgVariableTypes.OverlayPackage:
 					sb.Insert(0, "OverlayPackage");
 					break;
-				case FutureProgVariableTypes.Terrain:
+				case ProgVariableTypes.Terrain:
 					sb.Insert(0, "Terrain");
 					break;
-				case FutureProgVariableTypes.Material:
+				case ProgVariableTypes.Material:
 					sb.Insert(0, "Material");
 					break;
-				case FutureProgVariableTypes.Solid:
+				case ProgVariableTypes.Solid:
 					sb.Insert(0, "Solid");
 					break;
-				case FutureProgVariableTypes.Liquid:
+				case ProgVariableTypes.Liquid:
 					sb.Insert(0, "Liquid");
 					break;
-				case FutureProgVariableTypes.Gas:
+				case ProgVariableTypes.Gas:
 					sb.Insert(0, "Gas");
 					break;
-				case FutureProgVariableTypes.MagicSchool:
+				case ProgVariableTypes.MagicSchool:
 					sb.Insert(0, "MagicSchool");
 					break;
-				case FutureProgVariableTypes.MagicCapability:
+				case ProgVariableTypes.MagicCapability:
 					sb.Insert(0, "MagicCapability");
 					break;
-				case FutureProgVariableTypes.MagicSpell:
+				case ProgVariableTypes.MagicSpell:
 					sb.Insert(0, "MagicSpell");
 					break;
-				case FutureProgVariableTypes.Bank:
+				case ProgVariableTypes.Bank:
 					sb.Insert(0, "Bank");
 					break;
-				case FutureProgVariableTypes.BankAccount:
+				case ProgVariableTypes.BankAccount:
 					sb.Insert(0, "BankAccount");
 					break;
-				case FutureProgVariableTypes.BankAccountType:
+				case ProgVariableTypes.BankAccountType:
 					sb.Insert(0, "BankAccountType");
 					break;
-				case FutureProgVariableTypes.Law:
+				case ProgVariableTypes.Law:
 					sb.Insert(0, "Law");
 					break;
-				case FutureProgVariableTypes.LegalAuthority:
+				case ProgVariableTypes.LegalAuthority:
 					sb.Insert(0, "LegalAuthority");
 					break;
-				case FutureProgVariableTypes.Crime:
+				case ProgVariableTypes.Crime:
 					sb.Insert(0, "Crime");
 					break;
-				case FutureProgVariableTypes.Role:
+				case ProgVariableTypes.Role:
 					sb.Insert(0, "Role");
 					break;
-				case FutureProgVariableTypes.Ethnicity:
+				case ProgVariableTypes.Ethnicity:
 					sb.Insert(0, "Ethnicity");
 					break;
-				case FutureProgVariableTypes.Drug:
+				case ProgVariableTypes.Drug:
 					sb.Insert(0, "Drug");
 					break;
-				case FutureProgVariableTypes.WeatherEvent:
+				case ProgVariableTypes.WeatherEvent:
 					sb.Insert(0, "WeatherEvent");
 					break;
-				case FutureProgVariableTypes.Market:
+				case ProgVariableTypes.Market:
 					sb.Insert(0, "Market");
 					break;
-				case FutureProgVariableTypes.MarketCategory:
+				case ProgVariableTypes.MarketCategory:
 					sb.Insert(0, "MarketCategory");
 					break;
-				case FutureProgVariableTypes.LiquidMixture:
+				case ProgVariableTypes.LiquidMixture:
 					sb.Insert(0, "LiquidMixture");
 					break;
-				case FutureProgVariableTypes.ReferenceType:
+				case ProgVariableTypes.ReferenceType:
 					sb.Insert(0, "ReferenceType");
 					break;
-				case FutureProgVariableTypes.ValueType:
+				case ProgVariableTypes.ValueType:
 					sb.Insert(0, "ValueType");
 					break;
 				default:

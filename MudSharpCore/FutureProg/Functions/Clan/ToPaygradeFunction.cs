@@ -16,9 +16,9 @@ internal class ToPaygradeFunction : BuiltInFunction
 		_gameworld = gameworld;
 	}
 
-	public override FutureProgVariableTypes ReturnType
+	public override ProgVariableTypes ReturnType
 	{
-		get => FutureProgVariableTypes.ClanPaygrade;
+		get => ProgVariableTypes.ClanPaygrade;
 		protected set { }
 	}
 
@@ -36,7 +36,7 @@ internal class ToPaygradeFunction : BuiltInFunction
 			return StatementResult.Error;
 		}
 
-		Result = ParameterFunctions[0].ReturnType.CompatibleWith(FutureProgVariableTypes.Text)
+		Result = ParameterFunctions[0].ReturnType.CompatibleWith(ProgVariableTypes.Text)
 			? clan.Paygrades.FirstOrDefault(
 				  x =>
 					  x.Name.Equals((string)ParameterFunctions.ElementAt(1).Result.GetObject,
@@ -55,13 +55,13 @@ internal class ToPaygradeFunction : BuiltInFunction
 	{
 		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
 			"topaygrade",
-			new[] { FutureProgVariableTypes.Clan, FutureProgVariableTypes.Number },
+			new[] { ProgVariableTypes.Clan, ProgVariableTypes.Number },
 			(pars, gameworld) => new ToPaygradeFunction(pars, gameworld)
 		));
 
 		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
 			"topaygrade",
-			new[] { FutureProgVariableTypes.Clan, FutureProgVariableTypes.Text },
+			new[] { ProgVariableTypes.Clan, ProgVariableTypes.Text },
 			(pars, gameworld) => new ToPaygradeFunction(pars, gameworld)
 		));
 	}

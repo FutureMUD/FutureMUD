@@ -14,9 +14,9 @@ internal class ClanInviteFunction : BuiltInFunction
 	{
 	}
 
-	public override FutureProgVariableTypes ReturnType
+	public override ProgVariableTypes ReturnType
 	{
-		get => FutureProgVariableTypes.Boolean;
+		get => ProgVariableTypes.Boolean;
 		protected set { }
 	}
 
@@ -92,8 +92,8 @@ internal class ClanInviteFunction : BuiltInFunction
 				"claninvite",
 				new[]
 				{
-					FutureProgVariableTypes.Character, FutureProgVariableTypes.Clan,
-					FutureProgVariableTypes.ClanRank, FutureProgVariableTypes.Character
+					ProgVariableTypes.Character, ProgVariableTypes.Clan,
+					ProgVariableTypes.ClanRank, ProgVariableTypes.Character
 				},
 				(pars, gameworld) => new ClanInviteFunction(pars),
 				new List<string>
@@ -112,7 +112,7 @@ internal class ClanInviteFunction : BuiltInFunction
 				},
 				"This function adds a character to a clan. It returns false if the character was already in the clan.",
 				"Clans",
-				FutureProgVariableTypes.Boolean
+				ProgVariableTypes.Boolean
 			)
 		);
 
@@ -121,8 +121,8 @@ internal class ClanInviteFunction : BuiltInFunction
 				"claninvite",
 				new[]
 				{
-					FutureProgVariableTypes.Character, FutureProgVariableTypes.Clan,
-					FutureProgVariableTypes.ClanRank
+					ProgVariableTypes.Character, ProgVariableTypes.Clan,
+					ProgVariableTypes.ClanRank
 				},
 				(pars, gameworld) => new ClanInviteFunction(pars),
 				new List<string>
@@ -139,14 +139,14 @@ internal class ClanInviteFunction : BuiltInFunction
 				},
 				"This function adds a character to a clan. It returns false if the character was already in the clan.",
 				"Clans",
-				FutureProgVariableTypes.Boolean
+				ProgVariableTypes.Boolean
 			)
 		);
 
 		FutureProg.RegisterBuiltInFunctionCompiler(
 			new FunctionCompilerInformation(
 				"claninvite",
-				new[] { FutureProgVariableTypes.Character, FutureProgVariableTypes.Clan },
+				new[] { ProgVariableTypes.Character, ProgVariableTypes.Clan },
 				(pars, gameworld) => new ClanInviteFunction(pars),
 				new List<string>
 				{
@@ -160,7 +160,7 @@ internal class ClanInviteFunction : BuiltInFunction
 				},
 				"This function adds a character to a clan at the default rank. It returns false if the character was already in the clan.",
 				"Clans",
-				FutureProgVariableTypes.Boolean
+				ProgVariableTypes.Boolean
 			)
 		);
 	}

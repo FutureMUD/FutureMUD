@@ -14,7 +14,7 @@ internal class Continue : Statement
 	public override StatementResult ExpectedResult => StatementResult.Continue;
 
 	private static ICompileInfo ContinueCompile(IEnumerable<string> lines,
-		IDictionary<string, FutureProgVariableTypes> variableSpace, int lineNumber, IFuturemud gameworld)
+		IDictionary<string, ProgVariableTypes> variableSpace, int lineNumber, IFuturemud gameworld)
 	{
 		return CompileInfo.GetFactory()
 		                  .CreateNew(new Continue(), variableSpace, lines.Skip(1), lineNumber, lineNumber);
@@ -36,7 +36,7 @@ internal class Continue : Statement
 			new Tuple
 			<Regex,
 				Func
-				<IEnumerable<string>, IDictionary<string, FutureProgVariableTypes>, int, IFuturemud, ICompileInfo>>(
+				<IEnumerable<string>, IDictionary<string, ProgVariableTypes>, int, IFuturemud, ICompileInfo>>(
 				ContinueCompileRegex, ContinueCompile)
 		);
 

@@ -28,13 +28,13 @@ internal class StartCombat : BuiltInFunction
 				"startcombat",
 				new[]
 				{
-					FutureProgVariableTypes.Text, FutureProgVariableTypes.Text, FutureProgVariableTypes.Text,
-					FutureProgVariableTypes.Boolean, FutureProgVariableTypes.Character,
-					FutureProgVariableTypes.Character, FutureProgVariableTypes.Text | FutureProgVariableTypes.Literal,
-					FutureProgVariableTypes.Text | FutureProgVariableTypes.Literal,
-					FutureProgVariableTypes.Text | FutureProgVariableTypes.Literal,
-					FutureProgVariableTypes.Text | FutureProgVariableTypes.Literal,
-					FutureProgVariableTypes.Text | FutureProgVariableTypes.Literal
+					ProgVariableTypes.Text, ProgVariableTypes.Text, ProgVariableTypes.Text,
+					ProgVariableTypes.Boolean, ProgVariableTypes.Character,
+					ProgVariableTypes.Character, ProgVariableTypes.Text | ProgVariableTypes.Literal,
+					ProgVariableTypes.Text | ProgVariableTypes.Literal,
+					ProgVariableTypes.Text | ProgVariableTypes.Literal,
+					ProgVariableTypes.Text | ProgVariableTypes.Literal,
+					ProgVariableTypes.Text | ProgVariableTypes.Literal
 				},
 				(pars, gameworld) => new StartCombat(pars, gameworld),
 				new List<string>
@@ -67,7 +67,7 @@ internal class StartCombat : BuiltInFunction
 				},
 				"Starts a combat that executes progs when various things happen.",
 				"Combat",
-				FutureProgVariableTypes.Boolean
+				ProgVariableTypes.Boolean
 			)
 		);
 	}
@@ -83,9 +83,9 @@ internal class StartCombat : BuiltInFunction
 
 	#endregion
 
-	public override FutureProgVariableTypes ReturnType
+	public override ProgVariableTypes ReturnType
 	{
-		get => FutureProgVariableTypes.Boolean;
+		get => ProgVariableTypes.Boolean;
 		protected set { }
 	}
 
@@ -115,18 +115,18 @@ internal class StartCombat : BuiltInFunction
 		var hitprog = Gameworld.FutureProgs.GetByName(progname ?? "");
 
 		if (
-			joinprog?.MatchesParameters(new List<FutureProgVariableTypes>
-				{ FutureProgVariableTypes.Character, FutureProgVariableTypes.Text }) == false ||
-			leaveprog?.MatchesParameters(new List<FutureProgVariableTypes>
-				{ FutureProgVariableTypes.Character, FutureProgVariableTypes.Text }) == false ||
-			endprog?.MatchesParameters(new List<FutureProgVariableTypes> { FutureProgVariableTypes.Text }) == false ||
-			moveprog?.MatchesParameters(new List<FutureProgVariableTypes>
+			joinprog?.MatchesParameters(new List<ProgVariableTypes>
+				{ ProgVariableTypes.Character, ProgVariableTypes.Text }) == false ||
+			leaveprog?.MatchesParameters(new List<ProgVariableTypes>
+				{ ProgVariableTypes.Character, ProgVariableTypes.Text }) == false ||
+			endprog?.MatchesParameters(new List<ProgVariableTypes> { ProgVariableTypes.Text }) == false ||
+			moveprog?.MatchesParameters(new List<ProgVariableTypes>
 			{
-				FutureProgVariableTypes.Character, FutureProgVariableTypes.Character, FutureProgVariableTypes.Text
+				ProgVariableTypes.Character, ProgVariableTypes.Character, ProgVariableTypes.Text
 			}) == false ||
-			hitprog?.MatchesParameters(new List<FutureProgVariableTypes>
+			hitprog?.MatchesParameters(new List<ProgVariableTypes>
 			{
-				FutureProgVariableTypes.Character, FutureProgVariableTypes.Character, FutureProgVariableTypes.Text
+				ProgVariableTypes.Character, ProgVariableTypes.Character, ProgVariableTypes.Text
 			}) == false
 		)
 		{

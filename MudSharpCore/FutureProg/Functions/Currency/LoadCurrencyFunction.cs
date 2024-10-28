@@ -17,9 +17,9 @@ internal class LoadCurrencyFunction : BuiltInFunction
 		_gameworld = gameworld;
 	}
 
-	public override FutureProgVariableTypes ReturnType
+	public override ProgVariableTypes ReturnType
 	{
-		get => FutureProgVariableTypes.Item;
+		get => ProgVariableTypes.Item;
 		protected set { }
 	}
 
@@ -38,7 +38,7 @@ internal class LoadCurrencyFunction : BuiltInFunction
 		}
 
 		var success = true;
-		var amount = ParameterFunctions[1].ReturnType.CompatibleWith(FutureProgVariableTypes.Number)
+		var amount = ParameterFunctions[1].ReturnType.CompatibleWith(ProgVariableTypes.Number)
 			? (decimal)ParameterFunctions[1].Result.GetObject
 			: currency.GetBaseCurrency((string)ParameterFunctions[1].Result.GetObject, out success);
 
@@ -60,13 +60,13 @@ internal class LoadCurrencyFunction : BuiltInFunction
 	{
 		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
 			"loadcurrency",
-			new[] { FutureProgVariableTypes.Currency, FutureProgVariableTypes.Number },
+			new[] { ProgVariableTypes.Currency, ProgVariableTypes.Number },
 			(pars, gameworld) => new LoadCurrencyFunction(pars, gameworld)
 		));
 
 		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
 			"loadcurrency",
-			new[] { FutureProgVariableTypes.Currency, FutureProgVariableTypes.Text },
+			new[] { ProgVariableTypes.Currency, ProgVariableTypes.Text },
 			(pars, gameworld) => new LoadCurrencyFunction(pars, gameworld)
 		));
 	}

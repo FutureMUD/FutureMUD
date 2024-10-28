@@ -99,30 +99,30 @@ public class GroupAITemplate : SaveableItem, IGroupAITemplate
 			return null;
 		}
 
-		if (prog.MatchesParameters(new[] { FutureProgVariableTypes.Location }))
+		if (prog.MatchesParameters(new[] { ProgVariableTypes.Location }))
 		{
 			return (cell, alertness) => _avoidCellProg?.Execute<bool?>(cell) == true;
 		}
 
-		if (prog.MatchesParameters(new[] { FutureProgVariableTypes.Location, FutureProgVariableTypes.Text }))
+		if (prog.MatchesParameters(new[] { ProgVariableTypes.Location, ProgVariableTypes.Text }))
 		{
 			return (cell, alertness) => _avoidCellProg?.Execute<bool?>(cell, alertness.DescribeEnum()) == true;
 		}
 
-		if (prog.MatchesParameters(new[] { FutureProgVariableTypes.Location, FutureProgVariableTypes.Number }))
+		if (prog.MatchesParameters(new[] { ProgVariableTypes.Location, ProgVariableTypes.Number }))
 		{
 			return (cell, alertness) => _avoidCellProg?.Execute<bool?>(cell, (int)alertness) == true;
 		}
 
 		if (prog.MatchesParameters(new[]
-			    { FutureProgVariableTypes.Location, FutureProgVariableTypes.Number, FutureProgVariableTypes.Text }))
+			    { ProgVariableTypes.Location, ProgVariableTypes.Number, ProgVariableTypes.Text }))
 		{
 			return (cell, alertness) =>
 				_avoidCellProg?.Execute<bool?>(cell, (int)alertness, alertness.DescribeEnum()) == true;
 		}
 
 		if (prog.MatchesParameters(new[]
-			    { FutureProgVariableTypes.Location, FutureProgVariableTypes.Text, FutureProgVariableTypes.Number }))
+			    { ProgVariableTypes.Location, ProgVariableTypes.Text, ProgVariableTypes.Number }))
 		{
 			return (cell, alertness) =>
 				_avoidCellProg?.Execute<bool?>(cell, alertness.DescribeEnum(), (int)alertness) == true;
@@ -151,30 +151,30 @@ public class GroupAITemplate : SaveableItem, IGroupAITemplate
 			return null;
 		}
 
-		if (prog.MatchesParameters(new[] { FutureProgVariableTypes.Character }))
+		if (prog.MatchesParameters(new[] { ProgVariableTypes.Character }))
 		{
 			return (ch, alertness) => _considersThreatProg?.Execute<bool?>(ch) == true;
 		}
 
-		if (prog.MatchesParameters(new[] { FutureProgVariableTypes.Character, FutureProgVariableTypes.Text }))
+		if (prog.MatchesParameters(new[] { ProgVariableTypes.Character, ProgVariableTypes.Text }))
 		{
 			return (ch, alertness) => _considersThreatProg?.Execute<bool?>(ch, alertness.DescribeEnum()) == true;
 		}
 
-		if (prog.MatchesParameters(new[] { FutureProgVariableTypes.Character, FutureProgVariableTypes.Number }))
+		if (prog.MatchesParameters(new[] { ProgVariableTypes.Character, ProgVariableTypes.Number }))
 		{
 			return (ch, alertness) => _considersThreatProg?.Execute<bool?>(ch, (int)alertness) == true;
 		}
 
 		if (prog.MatchesParameters(new[]
-			    { FutureProgVariableTypes.Character, FutureProgVariableTypes.Number, FutureProgVariableTypes.Text }))
+			    { ProgVariableTypes.Character, ProgVariableTypes.Number, ProgVariableTypes.Text }))
 		{
 			return (ch, alertness) =>
 				_considersThreatProg?.Execute<bool?>(ch, (int)alertness, alertness.DescribeEnum()) == true;
 		}
 
 		if (prog.MatchesParameters(new[]
-			    { FutureProgVariableTypes.Character, FutureProgVariableTypes.Text, FutureProgVariableTypes.Number }))
+			    { ProgVariableTypes.Character, ProgVariableTypes.Text, ProgVariableTypes.Number }))
 		{
 			return (ch, alertness) =>
 				_considersThreatProg?.Execute<bool?>(ch, alertness.DescribeEnum(), (int)alertness) == true;
@@ -263,7 +263,7 @@ public class GroupAITemplate : SaveableItem, IGroupAITemplate
 			return false;
 		}
 
-		if (!prog.ReturnType.CompatibleWith(FutureProgVariableTypes.Boolean))
+		if (!prog.ReturnType.CompatibleWith(ProgVariableTypes.Boolean))
 		{
 			actor.OutputHandler.Send("You must specify a prog that returns a boolean value.");
 			return false;
@@ -743,7 +743,7 @@ public class GroupAITemplate : SaveableItem, IGroupAITemplate
 			return false;
 		}
 
-		if (!prog.ReturnType.CompatibleWith(FutureProgVariableTypes.Boolean))
+		if (!prog.ReturnType.CompatibleWith(ProgVariableTypes.Boolean))
 		{
 			actor.OutputHandler.Send("You must specify a prog that returns a boolean value.");
 			return false;

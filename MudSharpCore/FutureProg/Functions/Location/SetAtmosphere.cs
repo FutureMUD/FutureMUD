@@ -30,8 +30,8 @@ internal class SetAtmosphere : BuiltInFunction
 				"SetAtmosphere".ToLowerInvariant(),
 				new[]
 				{
-					FutureProgVariableTypes.Location, FutureProgVariableTypes.OverlayPackage,
-					FutureProgVariableTypes.Number
+					ProgVariableTypes.Location, ProgVariableTypes.OverlayPackage,
+					ProgVariableTypes.Number
 				},
 				(pars, gameworld) => new SetAtmosphere(pars, gameworld, true),
 				new List<string>
@@ -48,7 +48,7 @@ internal class SetAtmosphere : BuiltInFunction
 				},
 				"Sets the atmosphere of a room as if you had done CELL SET ATMOSPHERE.",
 				"Rooms",
-				FutureProgVariableTypes.Boolean
+				ProgVariableTypes.Boolean
 			)
 		);
 
@@ -57,8 +57,8 @@ internal class SetAtmosphere : BuiltInFunction
 				"SetAtmosphere".ToLowerInvariant(),
 				new[]
 				{
-					FutureProgVariableTypes.Location, FutureProgVariableTypes.OverlayPackage,
-					FutureProgVariableTypes.Text
+					ProgVariableTypes.Location, ProgVariableTypes.OverlayPackage,
+					ProgVariableTypes.Text
 				},
 				(pars, gameworld) => new SetAtmosphere(pars, gameworld, true),
 				new List<string>
@@ -75,7 +75,7 @@ internal class SetAtmosphere : BuiltInFunction
 				},
 				"Sets the atmosphere of a room as if you had done CELL SET ATMOSPHERE.",
 				"Rooms",
-				FutureProgVariableTypes.Boolean
+				ProgVariableTypes.Boolean
 			)
 		);
 
@@ -84,8 +84,8 @@ internal class SetAtmosphere : BuiltInFunction
 				"SetAtmosphereLiquid".ToLowerInvariant(),
 				new[]
 				{
-					FutureProgVariableTypes.Location, FutureProgVariableTypes.OverlayPackage,
-					FutureProgVariableTypes.Number
+					ProgVariableTypes.Location, ProgVariableTypes.OverlayPackage,
+					ProgVariableTypes.Number
 				},
 				(pars, gameworld) => new SetAtmosphere(pars, gameworld, false),
 				new List<string>
@@ -102,7 +102,7 @@ internal class SetAtmosphere : BuiltInFunction
 				},
 				"Sets the atmosphere of a room as if you had done CELL SET ATMOSPHERE.",
 				"Rooms",
-				FutureProgVariableTypes.Boolean
+				ProgVariableTypes.Boolean
 			)
 		);
 
@@ -111,8 +111,8 @@ internal class SetAtmosphere : BuiltInFunction
 				"SetAtmosphereLiquid".ToLowerInvariant(),
 				new[]
 				{
-					FutureProgVariableTypes.Location, FutureProgVariableTypes.OverlayPackage,
-					FutureProgVariableTypes.Text
+					ProgVariableTypes.Location, ProgVariableTypes.OverlayPackage,
+					ProgVariableTypes.Text
 				},
 				(pars, gameworld) => new SetAtmosphere(pars, gameworld, false),
 				new List<string>
@@ -129,7 +129,7 @@ internal class SetAtmosphere : BuiltInFunction
 				},
 				"Sets the atmosphere of a room as if you had done CELL SET ATMOSPHERE.",
 				"Rooms",
-				FutureProgVariableTypes.Boolean
+				ProgVariableTypes.Boolean
 			)
 		);
 	}
@@ -149,9 +149,9 @@ internal class SetAtmosphere : BuiltInFunction
 
 	public bool Gas { get; set; }
 
-	public override FutureProgVariableTypes ReturnType
+	public override ProgVariableTypes ReturnType
 	{
-		get => FutureProgVariableTypes.Boolean;
+		get => ProgVariableTypes.Boolean;
 		protected set { }
 	}
 
@@ -177,7 +177,7 @@ internal class SetAtmosphere : BuiltInFunction
 		}
 
 		IFluid fluid;
-		if (ParameterFunctions[2].ReturnType.CompatibleWith(FutureProgVariableTypes.Number))
+		if (ParameterFunctions[2].ReturnType.CompatibleWith(ProgVariableTypes.Number))
 		{
 			fluid = Gas
 				? (IFluid)Gameworld.Gases.Get(Convert.ToInt64(ParameterFunctions[2].Result?.GetObject ?? 0))

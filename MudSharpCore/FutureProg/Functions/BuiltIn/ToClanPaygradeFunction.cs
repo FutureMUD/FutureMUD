@@ -16,9 +16,9 @@ internal class ToClanPaygradeFunction : BuiltInFunction
 		_gameworld = gameworld;
 	}
 
-	public override FutureProgVariableTypes ReturnType
+	public override ProgVariableTypes ReturnType
 	{
-		get => FutureProgVariableTypes.ClanPaygrade;
+		get => ProgVariableTypes.ClanPaygrade;
 		protected set { }
 	}
 
@@ -38,14 +38,14 @@ internal class ToClanPaygradeFunction : BuiltInFunction
 		var clan = ParameterFunctions[0].Result?.GetObject as IClan;
 		if (clan is null)
 		{
-			Result = new NullVariable(FutureProgVariableTypes.ClanAppointment);
+			Result = new NullVariable(ProgVariableTypes.ClanAppointment);
 			return StatementResult.Normal;
 		}
 
 		var text = ParameterFunctions[1].Result?.GetObject?.ToString();
 		if (text is null)
 		{
-			Result = new NullVariable(FutureProgVariableTypes.ClanAppointment);
+			Result = new NullVariable(ProgVariableTypes.ClanAppointment);
 			return StatementResult.Normal;
 		}
 
@@ -59,24 +59,24 @@ internal class ToClanPaygradeFunction : BuiltInFunction
 	{
 		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
 			"topaygrade",
-			new[] { FutureProgVariableTypes.Number },
+			new[] { ProgVariableTypes.Number },
 			(pars, gameworld) => new ToClanPaygradeFunction(pars, gameworld),
 			new List<string> { "id" },
 			new List<string> { "The ID to look up" },
 			"Converts an ID number into the specified type, if one exists",
 			"Lookup",
-			FutureProgVariableTypes.ClanPaygrade
+			ProgVariableTypes.ClanPaygrade
 		));
 
 		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
 			"topaygrade",
-			new[] { FutureProgVariableTypes.Clan, FutureProgVariableTypes.Text },
+			new[] { ProgVariableTypes.Clan, ProgVariableTypes.Text },
 			(pars, gameworld) => new ToClanPaygradeFunction(pars, gameworld),
 			new List<string> { "clan", "name" },
 			new List<string> { "The clan in which you want to search", "The name to look up" },
 			"Converts a name into the specified type, if one exists",
 			"Lookup",
-			FutureProgVariableTypes.ClanPaygrade
+			ProgVariableTypes.ClanPaygrade
 		));
 	}
 }

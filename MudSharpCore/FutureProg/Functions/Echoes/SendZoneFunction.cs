@@ -20,9 +20,9 @@ internal class SendZoneFunction : BuiltInFunction
 		Gameworld = gameworld;
 	}
 
-	public override FutureProgVariableTypes ReturnType
+	public override ProgVariableTypes ReturnType
 	{
-		get => FutureProgVariableTypes.Boolean;
+		get => ProgVariableTypes.Boolean;
 		protected set { }
 	}
 
@@ -76,7 +76,7 @@ internal class SendZoneFunction : BuiltInFunction
 		FutureProg.RegisterBuiltInFunctionCompiler(
 			new FunctionCompilerInformation(
 				"sendzone",
-				new[] { FutureProgVariableTypes.Zone, FutureProgVariableTypes.Text },
+				new[] { ProgVariableTypes.Zone, ProgVariableTypes.Text },
 				(pars, gameworld) => new SendZoneFunction(pars, gameworld)
 			)
 		);
@@ -86,19 +86,7 @@ internal class SendZoneFunction : BuiltInFunction
 				"sendzone",
 				new[]
 				{
-					FutureProgVariableTypes.Zone, FutureProgVariableTypes.Text, FutureProgVariableTypes.Perceivable
-				},
-				(pars, gameworld) => new SendZoneFunction(pars, gameworld)
-			)
-		);
-
-		FutureProg.RegisterBuiltInFunctionCompiler(
-			new FunctionCompilerInformation(
-				"sendzone",
-				new[]
-				{
-					FutureProgVariableTypes.Zone, FutureProgVariableTypes.Text, FutureProgVariableTypes.Perceivable,
-					FutureProgVariableTypes.Perceivable
+					ProgVariableTypes.Zone, ProgVariableTypes.Text, ProgVariableTypes.Perceivable
 				},
 				(pars, gameworld) => new SendZoneFunction(pars, gameworld)
 			)
@@ -109,8 +97,8 @@ internal class SendZoneFunction : BuiltInFunction
 				"sendzone",
 				new[]
 				{
-					FutureProgVariableTypes.Zone, FutureProgVariableTypes.Text, FutureProgVariableTypes.Perceivable,
-					FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Perceivable
+					ProgVariableTypes.Zone, ProgVariableTypes.Text, ProgVariableTypes.Perceivable,
+					ProgVariableTypes.Perceivable
 				},
 				(pars, gameworld) => new SendZoneFunction(pars, gameworld)
 			)
@@ -121,9 +109,8 @@ internal class SendZoneFunction : BuiltInFunction
 				"sendzone",
 				new[]
 				{
-					FutureProgVariableTypes.Zone, FutureProgVariableTypes.Text, FutureProgVariableTypes.Perceivable,
-					FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Perceivable,
-					FutureProgVariableTypes.Perceivable
+					ProgVariableTypes.Zone, ProgVariableTypes.Text, ProgVariableTypes.Perceivable,
+					ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable
 				},
 				(pars, gameworld) => new SendZoneFunction(pars, gameworld)
 			)
@@ -134,9 +121,9 @@ internal class SendZoneFunction : BuiltInFunction
 				"sendzone",
 				new[]
 				{
-					FutureProgVariableTypes.Zone, FutureProgVariableTypes.Text, FutureProgVariableTypes.Perceivable,
-					FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Perceivable,
-					FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Perceivable
+					ProgVariableTypes.Zone, ProgVariableTypes.Text, ProgVariableTypes.Perceivable,
+					ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable,
+					ProgVariableTypes.Perceivable
 				},
 				(pars, gameworld) => new SendZoneFunction(pars, gameworld)
 			)
@@ -147,10 +134,9 @@ internal class SendZoneFunction : BuiltInFunction
 				"sendzone",
 				new[]
 				{
-					FutureProgVariableTypes.Zone, FutureProgVariableTypes.Text, FutureProgVariableTypes.Perceivable,
-					FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Perceivable,
-					FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Perceivable,
-					FutureProgVariableTypes.Perceivable
+					ProgVariableTypes.Zone, ProgVariableTypes.Text, ProgVariableTypes.Perceivable,
+					ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable,
+					ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable
 				},
 				(pars, gameworld) => new SendZoneFunction(pars, gameworld)
 			)
@@ -161,10 +147,10 @@ internal class SendZoneFunction : BuiltInFunction
 				"sendzone",
 				new[]
 				{
-					FutureProgVariableTypes.Zone, FutureProgVariableTypes.Text, FutureProgVariableTypes.Perceivable,
-					FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Perceivable,
-					FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Perceivable,
-					FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Perceivable
+					ProgVariableTypes.Zone, ProgVariableTypes.Text, ProgVariableTypes.Perceivable,
+					ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable,
+					ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable,
+					ProgVariableTypes.Perceivable
 				},
 				(pars, gameworld) => new SendZoneFunction(pars, gameworld)
 			)
@@ -175,11 +161,25 @@ internal class SendZoneFunction : BuiltInFunction
 				"sendzone",
 				new[]
 				{
-					FutureProgVariableTypes.Zone, FutureProgVariableTypes.Text, FutureProgVariableTypes.Perceivable,
-					FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Perceivable,
-					FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Perceivable,
-					FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Perceivable,
-					FutureProgVariableTypes.Perceivable
+					ProgVariableTypes.Zone, ProgVariableTypes.Text, ProgVariableTypes.Perceivable,
+					ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable,
+					ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable,
+					ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable
+				},
+				(pars, gameworld) => new SendZoneFunction(pars, gameworld)
+			)
+		);
+
+		FutureProg.RegisterBuiltInFunctionCompiler(
+			new FunctionCompilerInformation(
+				"sendzone",
+				new[]
+				{
+					ProgVariableTypes.Zone, ProgVariableTypes.Text, ProgVariableTypes.Perceivable,
+					ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable,
+					ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable,
+					ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable,
+					ProgVariableTypes.Perceivable
 				},
 				(pars, gameworld) => new SendZoneFunction(pars, gameworld)
 			)
@@ -189,7 +189,7 @@ internal class SendZoneFunction : BuiltInFunction
 		FutureProg.RegisterBuiltInFunctionCompiler(
 			new FunctionCompilerInformation(
 				"sendzonefixed",
-				new[] { FutureProgVariableTypes.Zone, FutureProgVariableTypes.Text },
+				new[] { ProgVariableTypes.Zone, ProgVariableTypes.Text },
 				(pars, gameworld) => new SendZoneFunction(pars, gameworld) { FixedFormat = true }
 			)
 		);
@@ -199,7 +199,7 @@ internal class SendZoneFunction : BuiltInFunction
 				"sendzonefixed",
 				new[]
 				{
-					FutureProgVariableTypes.Zone, FutureProgVariableTypes.Text, FutureProgVariableTypes.Perceivable
+					ProgVariableTypes.Zone, ProgVariableTypes.Text, ProgVariableTypes.Perceivable
 				},
 				(pars, gameworld) => new SendZoneFunction(pars, gameworld) { FixedFormat = true }
 			)
@@ -210,8 +210,8 @@ internal class SendZoneFunction : BuiltInFunction
 				"sendzonefixed",
 				new[]
 				{
-					FutureProgVariableTypes.Zone, FutureProgVariableTypes.Text, FutureProgVariableTypes.Perceivable,
-					FutureProgVariableTypes.Perceivable
+					ProgVariableTypes.Zone, ProgVariableTypes.Text, ProgVariableTypes.Perceivable,
+					ProgVariableTypes.Perceivable
 				},
 				(pars, gameworld) => new SendZoneFunction(pars, gameworld) { FixedFormat = true }
 			)
@@ -222,8 +222,8 @@ internal class SendZoneFunction : BuiltInFunction
 				"sendzonefixed",
 				new[]
 				{
-					FutureProgVariableTypes.Zone, FutureProgVariableTypes.Text, FutureProgVariableTypes.Perceivable,
-					FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Perceivable
+					ProgVariableTypes.Zone, ProgVariableTypes.Text, ProgVariableTypes.Perceivable,
+					ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable
 				},
 				(pars, gameworld) => new SendZoneFunction(pars, gameworld) { FixedFormat = true }
 			)
@@ -234,9 +234,9 @@ internal class SendZoneFunction : BuiltInFunction
 				"sendzonefixed",
 				new[]
 				{
-					FutureProgVariableTypes.Zone, FutureProgVariableTypes.Text, FutureProgVariableTypes.Perceivable,
-					FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Perceivable,
-					FutureProgVariableTypes.Perceivable
+					ProgVariableTypes.Zone, ProgVariableTypes.Text, ProgVariableTypes.Perceivable,
+					ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable,
+					ProgVariableTypes.Perceivable
 				},
 				(pars, gameworld) => new SendZoneFunction(pars, gameworld) { FixedFormat = true }
 			)
@@ -247,9 +247,9 @@ internal class SendZoneFunction : BuiltInFunction
 				"sendzonefixed",
 				new[]
 				{
-					FutureProgVariableTypes.Zone, FutureProgVariableTypes.Text, FutureProgVariableTypes.Perceivable,
-					FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Perceivable,
-					FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Perceivable
+					ProgVariableTypes.Zone, ProgVariableTypes.Text, ProgVariableTypes.Perceivable,
+					ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable,
+					ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable
 				},
 				(pars, gameworld) => new SendZoneFunction(pars, gameworld) { FixedFormat = true }
 			)
@@ -260,10 +260,10 @@ internal class SendZoneFunction : BuiltInFunction
 				"sendzonefixed",
 				new[]
 				{
-					FutureProgVariableTypes.Zone, FutureProgVariableTypes.Text, FutureProgVariableTypes.Perceivable,
-					FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Perceivable,
-					FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Perceivable,
-					FutureProgVariableTypes.Perceivable
+					ProgVariableTypes.Zone, ProgVariableTypes.Text, ProgVariableTypes.Perceivable,
+					ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable,
+					ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable,
+					ProgVariableTypes.Perceivable
 				},
 				(pars, gameworld) => new SendZoneFunction(pars, gameworld) { FixedFormat = true }
 			)
@@ -274,10 +274,10 @@ internal class SendZoneFunction : BuiltInFunction
 				"sendzonefixed",
 				new[]
 				{
-					FutureProgVariableTypes.Zone, FutureProgVariableTypes.Text, FutureProgVariableTypes.Perceivable,
-					FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Perceivable,
-					FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Perceivable,
-					FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Perceivable
+					ProgVariableTypes.Zone, ProgVariableTypes.Text, ProgVariableTypes.Perceivable,
+					ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable,
+					ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable,
+					ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable
 				},
 				(pars, gameworld) => new SendZoneFunction(pars, gameworld) { FixedFormat = true }
 			)
@@ -288,11 +288,11 @@ internal class SendZoneFunction : BuiltInFunction
 				"sendzonefixed",
 				new[]
 				{
-					FutureProgVariableTypes.Zone, FutureProgVariableTypes.Text, FutureProgVariableTypes.Perceivable,
-					FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Perceivable,
-					FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Perceivable,
-					FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Perceivable,
-					FutureProgVariableTypes.Perceivable
+					ProgVariableTypes.Zone, ProgVariableTypes.Text, ProgVariableTypes.Perceivable,
+					ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable,
+					ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable,
+					ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable,
+					ProgVariableTypes.Perceivable
 				},
 				(pars, gameworld) => new SendZoneFunction(pars, gameworld) { FixedFormat = true }
 			)

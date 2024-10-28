@@ -7,20 +7,20 @@ namespace MudSharp.FutureProg {
     ///     The Variable Register tracks persistent prog variables for types and type instances
     /// </summary>
     public interface IVariableRegister : ISaveable {
-        IFutureProgVariable GetValue(IFutureProgVariable item, string variable);
-        IFutureProgVariable GetDefaultValue(FutureProgVariableTypes type, string variable);
-        bool SetValue(IFutureProgVariable item, string variable, IFutureProgVariable value);
-        void SetDefaultValue(FutureProgVariableTypes item, string variable, IFutureProgVariable value);
-        FutureProgVariableTypes GetType(FutureProgVariableTypes type, string variable);
+        IProgVariable GetValue(IProgVariable item, string variable);
+        IProgVariable GetDefaultValue(ProgVariableTypes type, string variable);
+        bool SetValue(IProgVariable item, string variable, IProgVariable value);
+        void SetDefaultValue(ProgVariableTypes item, string variable, IProgVariable value);
+        ProgVariableTypes GetType(ProgVariableTypes type, string variable);
 
-        bool RegisterVariable(FutureProgVariableTypes ownerType, FutureProgVariableTypes variableType, string variable, object defaultValue = null);
-        bool DeregisterVariable(FutureProgVariableTypes ownerType, string variable);
+        bool RegisterVariable(ProgVariableTypes ownerType, ProgVariableTypes variableType, string variable, object defaultValue = null);
+        bool DeregisterVariable(ProgVariableTypes ownerType, string variable);
 
-        IEnumerable<Tuple<string, IFutureProgVariable>> AllVariables(IFutureProgVariable item);
-        IEnumerable<Tuple<string, FutureProgVariableTypes>> AllVariables(FutureProgVariableTypes type);
+        IEnumerable<Tuple<string, IProgVariable>> AllVariables(IProgVariable item);
+        IEnumerable<Tuple<string, ProgVariableTypes>> AllVariables(ProgVariableTypes type);
 
-        bool ValidValueType(FutureProgVariableTypes type, string value);
-        bool ResetValue(IFutureProgVariable item, string variable);
-        bool IsRegistered(FutureProgVariableTypes type, string variable);
+        bool ValidValueType(ProgVariableTypes type, string value);
+        bool ResetValue(IProgVariable item, string variable);
+        bool IsRegistered(ProgVariableTypes type, string variable);
     }
 }

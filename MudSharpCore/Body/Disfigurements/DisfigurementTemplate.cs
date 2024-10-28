@@ -169,13 +169,13 @@ public abstract class DisfigurementTemplate : Framework.Revision.EditableItem, I
 			return false;
 		}
 
-		if (!prog.ReturnType.CompatibleWith(FutureProgVariableTypes.Boolean))
+		if (!prog.ReturnType.CompatibleWith(ProgVariableTypes.Boolean))
 		{
 			actor.OutputHandler.Send("You must specify a prog that returns a boolean value.");
 			return false;
 		}
 
-		if (!prog.MatchesParameters(new[] { FutureProgVariableTypes.Chargen }))
+		if (!prog.MatchesParameters(new[] { ProgVariableTypes.Chargen }))
 		{
 			actor.OutputHandler.Send("You must specify a prog that accepts a single chargen parameter.");
 			return false;

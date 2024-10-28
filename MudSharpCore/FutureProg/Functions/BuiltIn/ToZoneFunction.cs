@@ -14,9 +14,9 @@ internal class ToZoneFunction : BuiltInFunction
 		_gameworld = gameworld;
 	}
 
-	public override FutureProgVariableTypes ReturnType
+	public override ProgVariableTypes ReturnType
 	{
-		get => FutureProgVariableTypes.Zone;
+		get => ProgVariableTypes.Zone;
 		protected set { }
 	}
 
@@ -27,7 +27,7 @@ internal class ToZoneFunction : BuiltInFunction
 			return StatementResult.Error;
 		}
 
-		Result = ParameterFunctions[0].ReturnType.CompatibleWith(FutureProgVariableTypes.Text)
+		Result = ParameterFunctions[0].ReturnType.CompatibleWith(ProgVariableTypes.Text)
 			? _gameworld.Zones.Get((string)ParameterFunctions[0].Result.GetObject).FirstOrDefault()
 			: _gameworld.Zones.Get((long)(decimal)ParameterFunctions[0].Result.GetObject);
 
@@ -38,24 +38,24 @@ internal class ToZoneFunction : BuiltInFunction
 	{
 		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
 			"tozone",
-			new[] { FutureProgVariableTypes.Number },
+			new[] { ProgVariableTypes.Number },
 			(pars, gameworld) => new ToZoneFunction(pars, gameworld),
 			new List<string> { "id" },
 			new List<string> { "The ID to look up" },
 			"Converts an ID number into the specified type, if one exists",
 			"Lookup",
-			FutureProgVariableTypes.Zone
+			ProgVariableTypes.Zone
 		));
 
 		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
 			"tozone",
-			new[] { FutureProgVariableTypes.Text },
+			new[] { ProgVariableTypes.Text },
 			(pars, gameworld) => new ToZoneFunction(pars, gameworld),
 			new List<string> { "name" },
 			new List<string> { "The name to look up" },
 			"Converts a name into the specified type, if one exists",
 			"Lookup",
-			FutureProgVariableTypes.Zone
+			ProgVariableTypes.Zone
 		));
 	}
 }

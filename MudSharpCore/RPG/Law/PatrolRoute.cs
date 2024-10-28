@@ -567,14 +567,14 @@ public class PatrolRoute : SaveableItem, IPatrolRoute, IEditableItem
 			return false;
 		}
 
-		if (!prog.ReturnType.CompatibleWith(FutureProgVariableTypes.Boolean))
+		if (!prog.ReturnType.CompatibleWith(ProgVariableTypes.Boolean))
 		{
 			actor.OutputHandler.Send(
 				$"You must specify a prog that returns a boolean value, whereas {prog.MXPClickableFunctionName()} returns {prog.ReturnType.Describe().ColourValue()}.");
 			return false;
 		}
 
-		if (!prog.MatchesParameters(new List<FutureProgVariableTypes> { }))
+		if (!prog.MatchesParameters(new List<ProgVariableTypes> { }))
 		{
 			actor.OutputHandler.Send(
 				$"You must specify a prog that does not accept any parameters, whereas {prog.MXPClickableFunctionName()} does not meet that criteria.");

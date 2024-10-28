@@ -12,9 +12,9 @@ internal class CanGetFunction : BuiltInFunction
 	{
 	}
 
-	public override FutureProgVariableTypes ReturnType
+	public override ProgVariableTypes ReturnType
 	{
-		get => FutureProgVariableTypes.Boolean;
+		get => ProgVariableTypes.Boolean;
 		protected set { }
 	}
 
@@ -51,7 +51,7 @@ internal class CanGetFunction : BuiltInFunction
 	{
 		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
 			"canget",
-			new[] { FutureProgVariableTypes.Character, FutureProgVariableTypes.Item },
+			new[] { ProgVariableTypes.Character, ProgVariableTypes.Item },
 			(pars, gameworld) => new CanGetFunction(pars),
 			[
 				"who",
@@ -63,12 +63,12 @@ internal class CanGetFunction : BuiltInFunction
 			],
 			"This function tells you if a player could pick up an item into hands/inventory. Returns true if so. Respects all normal inventory rules.",
 			"Manipulation",
-			FutureProgVariableTypes.Boolean
+			ProgVariableTypes.Boolean
 		));
 
 		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
 			"canget",
-			new[] { FutureProgVariableTypes.Character, FutureProgVariableTypes.Item, FutureProgVariableTypes.Number },
+			new[] { ProgVariableTypes.Character, ProgVariableTypes.Item, ProgVariableTypes.Number },
 			(pars, gameworld) => new CanGetFunction(pars),
 			[
 				"who",
@@ -82,7 +82,7 @@ internal class CanGetFunction : BuiltInFunction
 			],
 			"This function tells you if a player could pick up a specified quantity of item into hands/inventory. Returns true if so. Respects all normal inventory rules.",
 			"Manipulation",
-			FutureProgVariableTypes.Boolean
+			ProgVariableTypes.Boolean
 		));
 	}
 }
@@ -94,9 +94,9 @@ internal class CanGetContainerFunction : BuiltInFunction
 	{
 	}
 
-	public override FutureProgVariableTypes ReturnType
+	public override ProgVariableTypes ReturnType
 	{
-		get => FutureProgVariableTypes.Boolean;
+		get => ProgVariableTypes.Boolean;
 		protected set { }
 	}
 
@@ -141,8 +141,8 @@ internal class CanGetContainerFunction : BuiltInFunction
 			"canget",
 			new[]
 			{
-				FutureProgVariableTypes.Character, FutureProgVariableTypes.Item, FutureProgVariableTypes.Item,
-				FutureProgVariableTypes.Text
+				ProgVariableTypes.Character, ProgVariableTypes.Item, ProgVariableTypes.Item,
+				ProgVariableTypes.Text
 			},
 			(pars, gameworld) => new CanGetContainerFunction(pars)
 		));
@@ -151,8 +151,8 @@ internal class CanGetContainerFunction : BuiltInFunction
 			"canget",
 			new[]
 			{
-				FutureProgVariableTypes.Character, FutureProgVariableTypes.Item, FutureProgVariableTypes.Item,
-				FutureProgVariableTypes.Number, FutureProgVariableTypes.Text
+				ProgVariableTypes.Character, ProgVariableTypes.Item, ProgVariableTypes.Item,
+				ProgVariableTypes.Number, ProgVariableTypes.Text
 			},
 			(pars, gameworld) => new CanGetContainerFunction(pars)
 		));

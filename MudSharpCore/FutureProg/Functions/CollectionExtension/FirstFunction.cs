@@ -10,9 +10,9 @@ internal class FirstFunction : CollectionExtensionFunction
 	{
 	}
 
-	public override FutureProgVariableTypes ReturnType
+	public override ProgVariableTypes ReturnType
 	{
-		get => CollectionFunction.ReturnType ^ FutureProgVariableTypes.Collection;
+		get => CollectionFunction.ReturnType ^ ProgVariableTypes.Collection;
 		protected set { }
 	}
 
@@ -26,7 +26,7 @@ internal class FirstFunction : CollectionExtensionFunction
 		}
 
 		var localVariables = new LocalVariableSpace(variables);
-		foreach (IFutureProgVariable item in (IList)CollectionFunction.Result.GetObject)
+		foreach (IProgVariable item in (IList)CollectionFunction.Result.GetObject)
 		{
 			localVariables.SetVariable(VariableName, item);
 			if (CollectionItemFunction.Execute(localVariables) == StatementResult.Error)
@@ -43,7 +43,7 @@ internal class FirstFunction : CollectionExtensionFunction
 			}
 		}
 
-		Result = new NullVariable(CollectionFunction.ReturnType ^ FutureProgVariableTypes.Collection);
+		Result = new NullVariable(CollectionFunction.ReturnType ^ ProgVariableTypes.Collection);
 		return StatementResult.Normal;
 	}
 
@@ -52,7 +52,7 @@ internal class FirstFunction : CollectionExtensionFunction
 		RegisterCollectionExtensionFunctionCompiler(
 			new CollectionExtensionFunctionCompilerInformation(
 				"first",
-				FutureProgVariableTypes.CollectionItem,
+				ProgVariableTypes.CollectionItem,
 				(varName, collectionFunction, innerFunction) =>
 					new FirstFunction(varName, innerFunction, collectionFunction),
 				@"The FIRST function runs the inner function (which must return a boolean) over the collection and returns the first element from that collection that matches the criteria. If it doesn't find anything, it returns NULL, so you must protect against this by checking ISNULL or using IFNULL.

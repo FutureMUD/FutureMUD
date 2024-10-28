@@ -447,13 +447,13 @@ In the market price formula, you can use the following variables:
 	#region FutureProgs
 
 	/// <inheritdoc />
-	public FutureProgVariableTypes Type => FutureProgVariableTypes.Market;
+	public ProgVariableTypes Type => ProgVariableTypes.Market;
 
 	/// <inheritdoc />
 	public object GetObject => this;
 
 	/// <inheritdoc />
-	public IFutureProgVariable GetProperty(string property)
+	public IProgVariable GetProperty(string property)
 	{
 		switch (property.ToLowerInvariant())
 		{
@@ -462,22 +462,22 @@ In the market price formula, you can use the following variables:
 			case "name":
 				return new TextVariable(Name);
 			case "categories":
-				return new CollectionVariable(_marketCategories.ToList(), FutureProgVariableTypes.MarketCategory);
+				return new CollectionVariable(_marketCategories.ToList(), ProgVariableTypes.MarketCategory);
 			case "influences":
-				return new DictionaryVariable(_marketInfluences.ToDictionary<IMarketInfluence, string, IFutureProgVariable>(x => x.Name, x => new NumberVariable(x.Id)), FutureProgVariableTypes.Number);
+				return new DictionaryVariable(_marketInfluences.ToDictionary<IMarketInfluence, string, IProgVariable>(x => x.Name, x => new NumberVariable(x.Id)), ProgVariableTypes.Number);
 		}
 
 		throw new ArgumentOutOfRangeException(nameof(property));
 	}
 
-	private static IReadOnlyDictionary<string, FutureProgVariableTypes> DotReferenceHandler()
+	private static IReadOnlyDictionary<string, ProgVariableTypes> DotReferenceHandler()
 	{
-		return new Dictionary<string, FutureProgVariableTypes>(StringComparer.InvariantCultureIgnoreCase)
+		return new Dictionary<string, ProgVariableTypes>(StringComparer.InvariantCultureIgnoreCase)
 		{
-			{ "name", FutureProgVariableTypes.Text },
-			{ "id", FutureProgVariableTypes.Number },
-			{ "categories", FutureProgVariableTypes.MarketCategory | FutureProgVariableTypes.Collection },
-			{ "influences", FutureProgVariableTypes.Dictionary | FutureProgVariableTypes.Number }
+			{ "name", ProgVariableTypes.Text },
+			{ "id", ProgVariableTypes.Number },
+			{ "categories", ProgVariableTypes.MarketCategory | ProgVariableTypes.Collection },
+			{ "influences", ProgVariableTypes.Dictionary | ProgVariableTypes.Number }
 		};
 	}
 
@@ -494,7 +494,7 @@ In the market price formula, you can use the following variables:
 
 	public static void RegisterFutureProgCompiler()
 	{
-		FutureProgVariable.RegisterDotReferenceCompileInfo(FutureProgVariableTypes.Market, DotReferenceHandler(),
+		ProgVariable.RegisterDotReferenceCompileInfo(ProgVariableTypes.Market, DotReferenceHandler(),
 			DotReferenceHelp());
 	}
 	#endregion

@@ -116,17 +116,17 @@ public class SelectableGameItemComponentProto : GameItemComponentProto
 			return false;
 		}
 
-		if (canSelectProg.ReturnType != FutureProgVariableTypes.Boolean)
+		if (canSelectProg.ReturnType != ProgVariableTypes.Boolean)
 		{
 			actor.Send("The CanSelectProg must return a boolean.");
 			return false;
 		}
 
 		if (
-			!canSelectProg.MatchesParameters(new List<FutureProgVariableTypes>
+			!canSelectProg.MatchesParameters(new List<ProgVariableTypes>
 			{
-				FutureProgVariableTypes.Character,
-				FutureProgVariableTypes.Item
+				ProgVariableTypes.Character,
+				ProgVariableTypes.Item
 			}))
 		{
 			actor.Send("The CanSelectProg must accept a single character and item parameter.");
@@ -149,10 +149,10 @@ public class SelectableGameItemComponentProto : GameItemComponentProto
 		}
 
 		if (
-			!onSelectProg.MatchesParameters(new List<FutureProgVariableTypes>
+			!onSelectProg.MatchesParameters(new List<ProgVariableTypes>
 			{
-				FutureProgVariableTypes.Character,
-				FutureProgVariableTypes.Item
+				ProgVariableTypes.Character,
+				ProgVariableTypes.Item
 			}))
 		{
 			actor.Send("The OnSelectProg must accept a single character and item parameter.");

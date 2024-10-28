@@ -23,9 +23,9 @@ internal class LoadItemFunction : BuiltInFunction
 	public bool UseQuantity { get; set; }
 	public bool UseParamsString { get; set; }
 
-	public override FutureProgVariableTypes ReturnType
+	public override ProgVariableTypes ReturnType
 	{
-		get => FutureProgVariableTypes.Item;
+		get => ProgVariableTypes.Item;
 		protected set { }
 	}
 
@@ -126,18 +126,18 @@ internal class LoadItemFunction : BuiltInFunction
 	{
 		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
 			"loaditem",
-			new[] { FutureProgVariableTypes.Number },
+			new[] { ProgVariableTypes.Number },
 			(pars, gameworld) => new LoadItemFunction(pars, gameworld, false, false),
 			new List<string> { "id" },
 			new List<string> { "The ID of the item prototype that you want to load" },
 			"This function loads a new item into the game based on the ID that you supply. It does not put the item anywhere, so you must then insert it somewhere like in a room or a character's inventory.",
 			"Items",
-			FutureProgVariableTypes.Item
+			ProgVariableTypes.Item
 		));
 
 		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
 			"loaditem",
-			new[] { FutureProgVariableTypes.Number, FutureProgVariableTypes.Number },
+			new[] { ProgVariableTypes.Number, ProgVariableTypes.Number },
 			(pars, gameworld) => new LoadItemFunction(pars, gameworld, true, false),
 			new List<string> { "id", "quantity" },
 			new List<string>
@@ -147,12 +147,12 @@ internal class LoadItemFunction : BuiltInFunction
 			},
 			"This function loads a new item into the game based on the ID that you supply. It does not put the item anywhere, so you must then insert it somewhere like in a room or a character's inventory.",
 			"Items",
-			FutureProgVariableTypes.Item
+			ProgVariableTypes.Item
 		));
 
 		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
 			"loaditem",
-			new[] { FutureProgVariableTypes.Number, FutureProgVariableTypes.Text },
+			new[] { ProgVariableTypes.Number, ProgVariableTypes.Text },
 			(pars, gameworld) => new LoadItemFunction(pars, gameworld, false, true),
 			new List<string> { "id", "variables" },
 			new List<string>
@@ -162,12 +162,12 @@ internal class LoadItemFunction : BuiltInFunction
 			},
 			"This function loads a new item into the game based on the ID that you supply. It does not put the item anywhere, so you must then insert it somewhere like in a room or a character's inventory.",
 			"Items",
-			FutureProgVariableTypes.Item
+			ProgVariableTypes.Item
 		));
 
 		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
 			"loaditem",
-			new[] { FutureProgVariableTypes.Number, FutureProgVariableTypes.Number, FutureProgVariableTypes.Text },
+			new[] { ProgVariableTypes.Number, ProgVariableTypes.Number, ProgVariableTypes.Text },
 			(pars, gameworld) => new LoadItemFunction(pars, gameworld, true, true),
 			new List<string> { "id", "quantity", "variables" },
 			new List<string>
@@ -178,7 +178,7 @@ internal class LoadItemFunction : BuiltInFunction
 			},
 			"This function loads a new item into the game based on the ID that you supply. It does not put the item anywhere, so you must then insert it somewhere like in a room or a character's inventory.",
 			"Items",
-			FutureProgVariableTypes.Item
+			ProgVariableTypes.Item
 		));
 	}
 }

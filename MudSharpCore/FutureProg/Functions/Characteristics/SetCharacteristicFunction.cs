@@ -18,9 +18,9 @@ internal class SetCharacteristicFunction : BuiltInFunction
 		_gameworld = gameworld;
 	}
 
-	public override FutureProgVariableTypes ReturnType
+	public override ProgVariableTypes ReturnType
 	{
-		get => FutureProgVariableTypes.Boolean;
+		get => ProgVariableTypes.Boolean;
 		protected set => base.ReturnType = value;
 	}
 
@@ -31,7 +31,7 @@ internal class SetCharacteristicFunction : BuiltInFunction
 				"setcharacteristic",
 				new[]
 				{
-					FutureProgVariableTypes.Character, FutureProgVariableTypes.Number, FutureProgVariableTypes.Number
+					ProgVariableTypes.Character, ProgVariableTypes.Number, ProgVariableTypes.Number
 				},
 				(pars, gameworld) => new SetCharacteristicFunction(pars, gameworld),
 				new List<string> { "character", "definition", "value" },
@@ -43,7 +43,7 @@ internal class SetCharacteristicFunction : BuiltInFunction
 				},
 				"Sets the intrinsic characteristic value for the characteristic definition on the supplied target. Returns true if successful.",
 				"Characteristics",
-				FutureProgVariableTypes.Boolean
+				ProgVariableTypes.Boolean
 			)
 		);
 
@@ -52,7 +52,7 @@ internal class SetCharacteristicFunction : BuiltInFunction
 				"setcharacteristic",
 				new[]
 				{
-					FutureProgVariableTypes.Character, FutureProgVariableTypes.Text, FutureProgVariableTypes.Number
+					ProgVariableTypes.Character, ProgVariableTypes.Text, ProgVariableTypes.Number
 				},
 				(pars, gameworld) => new SetCharacteristicFunction(pars, gameworld),
 				new List<string> { "character", "definition", "value" },
@@ -64,7 +64,7 @@ internal class SetCharacteristicFunction : BuiltInFunction
 				},
 				"Sets the intrinsic characteristic value for the characteristic definition on the supplied target. Returns true if successful.",
 				"Characteristics",
-				FutureProgVariableTypes.Boolean
+				ProgVariableTypes.Boolean
 			)
 		);
 
@@ -73,7 +73,7 @@ internal class SetCharacteristicFunction : BuiltInFunction
 				"setcharacteristic",
 				new[]
 				{
-					FutureProgVariableTypes.Character, FutureProgVariableTypes.Number, FutureProgVariableTypes.Text
+					ProgVariableTypes.Character, ProgVariableTypes.Number, ProgVariableTypes.Text
 				},
 				(pars, gameworld) => new SetCharacteristicFunction(pars, gameworld),
 				new List<string> { "character", "definition", "value" },
@@ -85,7 +85,7 @@ internal class SetCharacteristicFunction : BuiltInFunction
 				},
 				"Sets the intrinsic characteristic value for the characteristic definition on the supplied target. Returns true if successful.",
 				"Characteristics",
-				FutureProgVariableTypes.Boolean
+				ProgVariableTypes.Boolean
 			)
 		);
 
@@ -94,7 +94,7 @@ internal class SetCharacteristicFunction : BuiltInFunction
 				"setcharacteristic",
 				new[]
 				{
-					FutureProgVariableTypes.Character, FutureProgVariableTypes.Text, FutureProgVariableTypes.Text
+					ProgVariableTypes.Character, ProgVariableTypes.Text, ProgVariableTypes.Text
 				},
 				(pars, gameworld) => new SetCharacteristicFunction(pars, gameworld),
 				new List<string> { "character", "definition", "value" },
@@ -106,7 +106,7 @@ internal class SetCharacteristicFunction : BuiltInFunction
 				},
 				"Sets the intrinsic characteristic value for the characteristic definition on the supplied target. Returns true if successful.",
 				"Characteristics",
-				FutureProgVariableTypes.Boolean
+				ProgVariableTypes.Boolean
 			)
 		);
 
@@ -115,7 +115,7 @@ internal class SetCharacteristicFunction : BuiltInFunction
 				"setcharacteristic",
 				new[]
 				{
-					FutureProgVariableTypes.Item, FutureProgVariableTypes.Number, FutureProgVariableTypes.Number
+					ProgVariableTypes.Item, ProgVariableTypes.Number, ProgVariableTypes.Number
 				},
 				(pars, gameworld) => new SetCharacteristicFunction(pars, gameworld),
 				new List<string> { "item", "definition", "value" },
@@ -127,7 +127,7 @@ internal class SetCharacteristicFunction : BuiltInFunction
 				},
 				"Sets the intrinsic characteristic value for the characteristic definition on the supplied target. Returns true if successful.",
 				"Characteristics",
-				FutureProgVariableTypes.Boolean
+				ProgVariableTypes.Boolean
 			)
 		);
 
@@ -136,7 +136,7 @@ internal class SetCharacteristicFunction : BuiltInFunction
 				"setcharacteristic",
 				new[]
 				{
-					FutureProgVariableTypes.Item, FutureProgVariableTypes.Text, FutureProgVariableTypes.Number
+					ProgVariableTypes.Item, ProgVariableTypes.Text, ProgVariableTypes.Number
 				},
 				(pars, gameworld) => new SetCharacteristicFunction(pars, gameworld),
 				new List<string> { "item", "definition", "value" },
@@ -148,7 +148,7 @@ internal class SetCharacteristicFunction : BuiltInFunction
 				},
 				"Sets the intrinsic characteristic value for the characteristic definition on the supplied target. Returns true if successful.",
 				"Characteristics",
-				FutureProgVariableTypes.Boolean
+				ProgVariableTypes.Boolean
 			)
 		);
 
@@ -157,7 +157,7 @@ internal class SetCharacteristicFunction : BuiltInFunction
 				"setcharacteristic",
 				new[]
 				{
-					FutureProgVariableTypes.Item, FutureProgVariableTypes.Number, FutureProgVariableTypes.Text
+					ProgVariableTypes.Item, ProgVariableTypes.Number, ProgVariableTypes.Text
 				},
 				(pars, gameworld) => new SetCharacteristicFunction(pars, gameworld),
 				new List<string> { "item", "definition", "value" },
@@ -169,7 +169,7 @@ internal class SetCharacteristicFunction : BuiltInFunction
 				},
 				"Sets the intrinsic characteristic value for the characteristic definition on the supplied target. Returns true if successful.",
 				"Characteristics",
-				FutureProgVariableTypes.Boolean
+				ProgVariableTypes.Boolean
 			)
 		);
 
@@ -178,7 +178,7 @@ internal class SetCharacteristicFunction : BuiltInFunction
 				"setcharacteristic",
 				new[]
 				{
-					FutureProgVariableTypes.Item, FutureProgVariableTypes.Text, FutureProgVariableTypes.Text
+					ProgVariableTypes.Item, ProgVariableTypes.Text, ProgVariableTypes.Text
 				},
 				(pars, gameworld) => new SetCharacteristicFunction(pars, gameworld),
 				new List<string> { "item", "definition", "value" },
@@ -190,7 +190,7 @@ internal class SetCharacteristicFunction : BuiltInFunction
 				},
 				"Sets the intrinsic characteristic value for the characteristic definition on the supplied target. Returns true if successful.",
 				"Characteristics",
-				FutureProgVariableTypes.Boolean
+				ProgVariableTypes.Boolean
 			)
 		);
 	}
@@ -208,7 +208,7 @@ internal class SetCharacteristicFunction : BuiltInFunction
 			return StatementResult.Normal;
 		}
 
-		var definition = ParameterFunctions[1].ReturnType.CompatibleWith(FutureProgVariableTypes.Text)
+		var definition = ParameterFunctions[1].ReturnType.CompatibleWith(ProgVariableTypes.Text)
 			? _gameworld.Characteristics.GetByName(ParameterFunctions[1].Result?.GetObject as string ?? "")
 			: _gameworld.Characteristics.Get((long)(ParameterFunctions[1].Result?.GetObject as decimal? ?? 0.0M));
 		if (definition == null)
@@ -217,7 +217,7 @@ internal class SetCharacteristicFunction : BuiltInFunction
 			return StatementResult.Normal;
 		}
 
-		var value = ParameterFunctions[2].ReturnType.CompatibleWith(FutureProgVariableTypes.Text)
+		var value = ParameterFunctions[2].ReturnType.CompatibleWith(ProgVariableTypes.Text)
 			? _gameworld.CharacteristicValues.GetByName(ParameterFunctions[2].Result?.GetObject as string ?? "")
 			: _gameworld.CharacteristicValues.Get((long)(ParameterFunctions[2].Result?.GetObject as decimal? ?? 0.0M));
 		if (value == null || !definition.IsValue(value))

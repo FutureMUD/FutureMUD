@@ -32,7 +32,7 @@ internal class ForLoop : Statement
 	}
 
 	private static ICompileInfo ForLoopCompile(IEnumerable<string> lines,
-		IDictionary<string, FutureProgVariableTypes> variableSpace, int lineNumber, IFuturemud gameworld)
+		IDictionary<string, ProgVariableTypes> variableSpace, int lineNumber, IFuturemud gameworld)
 	{
 		var match = ForLoopCompileRegex.Match(lines.First());
 		var varName = match.Groups[1].Value.ToLowerInvariant();
@@ -44,7 +44,7 @@ internal class ForLoop : Statement
 		}
 
 		var function = (IFunction)functionInfo.CompiledStatement;
-		if (!function.ReturnType.CompatibleWith(FutureProgVariableTypes.Number))
+		if (!function.ReturnType.CompatibleWith(ProgVariableTypes.Number))
 		{
 			return CompileInfo.GetFactory()
 			                  .CreateError($"For Loop's repetitions argument did not return a number.", lineNumber);
@@ -52,16 +52,16 @@ internal class ForLoop : Statement
 		
 		lines = lines.Skip(1);
 		var containedStatements = new List<IStatement>();
-		IDictionary<string, FutureProgVariableTypes> localVariables =
-			new Dictionary<string, FutureProgVariableTypes>(variableSpace);
+		IDictionary<string, ProgVariableTypes> localVariables =
+			new Dictionary<string, ProgVariableTypes>(variableSpace);
 
 		if (!localVariables.ContainsKey(varName))
 		{
-			localVariables[varName] = FutureProgVariableTypes.Number;
+			localVariables[varName] = ProgVariableTypes.Number;
 		}
 
 		if (localVariables.ContainsKey(varName) &&
-		    !localVariables[varName].CompatibleWith(FutureProgVariableTypes.Number))
+		    !localVariables[varName].CompatibleWith(ProgVariableTypes.Number))
 		{
 			return CompileInfo.GetFactory()
 			                  .CreateError("For Loop's variable was already declared as a non-number.", lineNumber);
@@ -120,7 +120,7 @@ internal class ForLoop : Statement
 			new Tuple
 			<Regex,
 				Func
-				<IEnumerable<string>, IDictionary<string, FutureProgVariableTypes>, int, IFuturemud, ICompileInfo>>(
+				<IEnumerable<string>, IDictionary<string, ProgVariableTypes>, int, IFuturemud, ICompileInfo>>(
 				ForLoopCompileRegex, ForLoopCompile)
 		);
 

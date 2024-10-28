@@ -4,7 +4,7 @@ internal class VariableReferenceFunction : Function
 {
 	protected string VariableName;
 
-	public VariableReferenceFunction(string variableName, FutureProgVariableTypes type)
+	public VariableReferenceFunction(string variableName, ProgVariableTypes type)
 	{
 		VariableName = variableName;
 		ReturnType = type;

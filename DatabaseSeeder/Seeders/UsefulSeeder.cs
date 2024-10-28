@@ -8849,7 +8849,7 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
 		#region Smokeables
 		context.VariableDefinitions.Add(new VariableDefinition
 		{
-			ContainedType = (long)FutureProgVariableTypes.DateTime,
+			ContainedType = (long)ProgVariableTypes.DateTime,
 			OwnerType = 8,
 			Property = "nicotineuntil"
 		});
@@ -8878,9 +8878,9 @@ SetRegister @ch ""NicotineUntil"" (@NicotineUntil + 5m)",
 			StaticType = 0
 		};
 		smokeProg.FutureProgsParameters.Add(new FutureProgsParameter
-		{ FutureProg = smokeProg, ParameterIndex = 0, ParameterName = "ch", ParameterType = (long)FutureProgVariableTypes.Character });
+		{ FutureProg = smokeProg, ParameterIndex = 0, ParameterName = "ch", ParameterType = (long)ProgVariableTypes.Character });
 		smokeProg.FutureProgsParameters.Add(new FutureProgsParameter
-		{ FutureProg = smokeProg, ParameterIndex = 1, ParameterName = "item", ParameterType = (long)FutureProgVariableTypes.Item });
+		{ FutureProg = smokeProg, ParameterIndex = 1, ParameterName = "item", ParameterType = (long)ProgVariableTypes.Item });
 		context.FutureProgs.Add(smokeProg);
 
 		context.SaveChanges();
@@ -8935,13 +8935,13 @@ SetRegister @ch ""NicotineUntil"" (@NicotineUntil + 5m)",
 
 		context.VariableDefinitions.Add(new VariableDefinition
 		{
-			ContainedType = (long)FutureProgVariableTypes.Number,
-			OwnerType = (long)FutureProgVariableTypes.Character,
+			ContainedType = (long)ProgVariableTypes.Number,
+			OwnerType = (long)ProgVariableTypes.Character,
 			Property = "npcownerid"
 		});
 		context.VariableDefaults.Add(new VariableDefault
 		{
-			OwnerType = (long)FutureProgVariableTypes.Character,
+			OwnerType = (long)ProgVariableTypes.Character,
 			Property = "npcownerid",
 			DefaultValue = "<var>0</var>"
 		});
@@ -8954,7 +8954,7 @@ return @ownerid == @tch.Id",
 			Category = "AI",
 			Subcategory = "Commands",
 			FunctionComment = "Determines if the character has been set as the owner of an NPC",
-			ReturnType = (long)FutureProgVariableTypes.Boolean,
+			ReturnType = (long)ProgVariableTypes.Boolean,
 			AcceptsAnyParameters = false,
 			Public = true,
 			StaticType = 0
@@ -8964,21 +8964,21 @@ return @ownerid == @tch.Id",
 			FutureProg = ownerProg,
 			ParameterIndex = 0,
 			ParameterName = "ch",
-			ParameterType = (long)FutureProgVariableTypes.Character
+			ParameterType = (long)ProgVariableTypes.Character
 		});
 		ownerProg.FutureProgsParameters.Add(new FutureProgsParameter
 		{
 			FutureProg = ownerProg,
 			ParameterIndex = 1,
 			ParameterName = "tch",
-			ParameterType = (long)FutureProgVariableTypes.Character
+			ParameterType = (long)ProgVariableTypes.Character
 		});
 		ownerProg.FutureProgsParameters.Add(new FutureProgsParameter
 		{
 			FutureProg = ownerProg,
 			ParameterIndex = 2,
 			ParameterName = "cmd",
-			ParameterType = (long)FutureProgVariableTypes.Text
+			ParameterType = (long)ProgVariableTypes.Text
 		});
 		context.FutureProgs.Add(ownerProg);
 
@@ -8990,7 +8990,7 @@ return @ownerid == @tch.Id",
 			Category = "AI",
 			Subcategory = "Commands",
 			FunctionComment = "Returns an error message when a player cannot command an NPC they do not own",
-			ReturnType = (long)FutureProgVariableTypes.Text,
+			ReturnType = (long)ProgVariableTypes.Text,
 			AcceptsAnyParameters = false,
 			Public = true,
 			StaticType = 0
@@ -9000,21 +9000,21 @@ return @ownerid == @tch.Id",
 			FutureProg = cantCommandProg,
 			ParameterIndex = 0,
 			ParameterName = "ch",
-			ParameterType = (long)FutureProgVariableTypes.Character
+			ParameterType = (long)ProgVariableTypes.Character
 		});
 		cantCommandProg.FutureProgsParameters.Add(new FutureProgsParameter
 		{
 			FutureProg = cantCommandProg,
 			ParameterIndex = 1,
 			ParameterName = "tch",
-			ParameterType = (long)FutureProgVariableTypes.Character
+			ParameterType = (long)ProgVariableTypes.Character
 		});
 		cantCommandProg.FutureProgsParameters.Add(new FutureProgsParameter
 		{
 			FutureProg = cantCommandProg,
 			ParameterIndex = 2,
 			ParameterName = "cmd",
-			ParameterType = (long)FutureProgVariableTypes.Text
+			ParameterType = (long)ProgVariableTypes.Text
 		});
 		context.FutureProgs.Add(cantCommandProg);
 		context.SaveChanges();
@@ -9049,7 +9049,7 @@ return false",
 			Subcategory = "Commands",
 			FunctionComment =
 				"Determines if the character outranks the NPC in any clan and can therefore command them.\nNote: When using this AI for real, you might want to restrict it to SPECIFIC clans in your world.",
-			ReturnType = (long)FutureProgVariableTypes.Boolean,
+			ReturnType = (long)ProgVariableTypes.Boolean,
 			AcceptsAnyParameters = false,
 			Public = true,
 			StaticType = 0
@@ -9059,21 +9059,21 @@ return false",
 			FutureProg = isClanBrotherProg,
 			ParameterIndex = 0,
 			ParameterName = "ch",
-			ParameterType = (long)FutureProgVariableTypes.Character
+			ParameterType = (long)ProgVariableTypes.Character
 		});
 		isClanBrotherProg.FutureProgsParameters.Add(new FutureProgsParameter
 		{
 			FutureProg = isClanBrotherProg,
 			ParameterIndex = 1,
 			ParameterName = "tch",
-			ParameterType = (long)FutureProgVariableTypes.Character
+			ParameterType = (long)ProgVariableTypes.Character
 		});
 		isClanBrotherProg.FutureProgsParameters.Add(new FutureProgsParameter
 		{
 			FutureProg = isClanBrotherProg,
 			ParameterIndex = 2,
 			ParameterName = "cmd",
-			ParameterType = (long)FutureProgVariableTypes.Text
+			ParameterType = (long)ProgVariableTypes.Text
 		});
 		context.FutureProgs.Add(isClanBrotherProg);
 
@@ -9084,7 +9084,7 @@ return false",
 			Category = "AI",
 			Subcategory = "Commands",
 			FunctionComment = "Returns an error message when a player cannot command an NPC they do not outrank",
-			ReturnType = (long)FutureProgVariableTypes.Text,
+			ReturnType = (long)ProgVariableTypes.Text,
 			AcceptsAnyParameters = false,
 			Public = true,
 			StaticType = 0
@@ -9094,21 +9094,21 @@ return false",
 			FutureProg = cantCommandProgClanBrother,
 			ParameterIndex = 0,
 			ParameterName = "ch",
-			ParameterType = (long)FutureProgVariableTypes.Character
+			ParameterType = (long)ProgVariableTypes.Character
 		});
 		cantCommandProgClanBrother.FutureProgsParameters.Add(new FutureProgsParameter
 		{
 			FutureProg = cantCommandProgClanBrother,
 			ParameterIndex = 1,
 			ParameterName = "tch",
-			ParameterType = (long)FutureProgVariableTypes.Character
+			ParameterType = (long)ProgVariableTypes.Character
 		});
 		cantCommandProgClanBrother.FutureProgsParameters.Add(new FutureProgsParameter
 		{
 			FutureProg = cantCommandProgClanBrother,
 			ParameterIndex = 2,
 			ParameterName = "cmd",
-			ParameterType = (long)FutureProgVariableTypes.Text
+			ParameterType = (long)ProgVariableTypes.Text
 		});
 		context.FutureProgs.Add(cantCommandProgClanBrother);
 		context.SaveChanges();
@@ -9138,7 +9138,7 @@ return false",
 			Subcategory = "Doorguard",
 			FunctionComment =
 				"Determines whether a doorguard will open a door for a person.\nNote: You may want to restrict this to particular clans when you write your own AIs",
-			ReturnType = (long)FutureProgVariableTypes.Boolean,
+			ReturnType = (long)ProgVariableTypes.Boolean,
 			AcceptsAnyParameters = false,
 			Public = true,
 			StaticType = 0
@@ -9148,21 +9148,21 @@ return false",
 			FutureProg = doorguardWillOpen,
 			ParameterIndex = 0,
 			ParameterName = "guard",
-			ParameterType = (long)FutureProgVariableTypes.Character
+			ParameterType = (long)ProgVariableTypes.Character
 		});
 		doorguardWillOpen.FutureProgsParameters.Add(new FutureProgsParameter
 		{
 			FutureProg = doorguardWillOpen,
 			ParameterIndex = 1,
 			ParameterName = "ch",
-			ParameterType = (long)FutureProgVariableTypes.Character
+			ParameterType = (long)ProgVariableTypes.Character
 		});
 		doorguardWillOpen.FutureProgsParameters.Add(new FutureProgsParameter
 		{
 			FutureProg = doorguardWillOpen,
 			ParameterIndex = 2,
 			ParameterName = "exit",
-			ParameterType = (long)FutureProgVariableTypes.Exit
+			ParameterType = (long)ProgVariableTypes.Exit
 		});
 		context.FutureProgs.Add(doorguardWillOpen);
 
@@ -9174,7 +9174,7 @@ return false",
 			Subcategory = "Doorguard",
 			FunctionComment =
 				"A delay in milliseconds between the action that triggers the doorguard and them taking the action",
-			ReturnType = (long)FutureProgVariableTypes.Number,
+			ReturnType = (long)ProgVariableTypes.Number,
 			AcceptsAnyParameters = false,
 			Public = true,
 			StaticType = 0
@@ -9184,21 +9184,21 @@ return false",
 			FutureProg = doorguardDelay,
 			ParameterIndex = 0,
 			ParameterName = "guard",
-			ParameterType = (long)FutureProgVariableTypes.Character
+			ParameterType = (long)ProgVariableTypes.Character
 		});
 		doorguardDelay.FutureProgsParameters.Add(new FutureProgsParameter
 		{
 			FutureProg = doorguardDelay,
 			ParameterIndex = 1,
 			ParameterName = "ch",
-			ParameterType = (long)FutureProgVariableTypes.Character
+			ParameterType = (long)ProgVariableTypes.Character
 		});
 		doorguardDelay.FutureProgsParameters.Add(new FutureProgsParameter
 		{
 			FutureProg = doorguardDelay,
 			ParameterIndex = 2,
 			ParameterName = "exit",
-			ParameterType = (long)FutureProgVariableTypes.Exit
+			ParameterType = (long)ProgVariableTypes.Exit
 		});
 		context.FutureProgs.Add(doorguardDelay);
 
@@ -9209,7 +9209,7 @@ return false",
 			Category = "AI",
 			Subcategory = "Doorguard",
 			FunctionComment = "A delay in milliseconds between opening the door and closing the door",
-			ReturnType = (long)FutureProgVariableTypes.Number,
+			ReturnType = (long)ProgVariableTypes.Number,
 			AcceptsAnyParameters = false,
 			Public = true,
 			StaticType = 0
@@ -9219,21 +9219,21 @@ return false",
 			FutureProg = doorguardCloseDelay,
 			ParameterIndex = 0,
 			ParameterName = "guard",
-			ParameterType = (long)FutureProgVariableTypes.Character
+			ParameterType = (long)ProgVariableTypes.Character
 		});
 		doorguardCloseDelay.FutureProgsParameters.Add(new FutureProgsParameter
 		{
 			FutureProg = doorguardCloseDelay,
 			ParameterIndex = 1,
 			ParameterName = "ch",
-			ParameterType = (long)FutureProgVariableTypes.Character
+			ParameterType = (long)ProgVariableTypes.Character
 		});
 		doorguardCloseDelay.FutureProgsParameters.Add(new FutureProgsParameter
 		{
 			FutureProg = doorguardCloseDelay,
 			ParameterIndex = 2,
 			ParameterName = "exit",
-			ParameterType = (long)FutureProgVariableTypes.Exit
+			ParameterType = (long)ProgVariableTypes.Exit
 		});
 		context.FutureProgs.Add(doorguardCloseDelay);
 
@@ -9262,21 +9262,21 @@ force @guard (""open "" + @exit.keyword)
 			FutureProg = doorguardOpenDoor,
 			ParameterIndex = 0,
 			ParameterName = "guard",
-			ParameterType = (long)FutureProgVariableTypes.Character
+			ParameterType = (long)ProgVariableTypes.Character
 		});
 		doorguardOpenDoor.FutureProgsParameters.Add(new FutureProgsParameter
 		{
 			FutureProg = doorguardOpenDoor,
 			ParameterIndex = 1,
 			ParameterName = "ch",
-			ParameterType = (long)FutureProgVariableTypes.Character
+			ParameterType = (long)ProgVariableTypes.Character
 		});
 		doorguardOpenDoor.FutureProgsParameters.Add(new FutureProgsParameter
 		{
 			FutureProg = doorguardOpenDoor,
 			ParameterIndex = 2,
 			ParameterName = "exit",
-			ParameterType = (long)FutureProgVariableTypes.Exit
+			ParameterType = (long)ProgVariableTypes.Exit
 		});
 		context.FutureProgs.Add(doorguardOpenDoor);
 
@@ -9305,21 +9305,21 @@ force @guard (""lock "" + @exit.keyword)
 			FutureProg = doorguardCloseDoor,
 			ParameterIndex = 0,
 			ParameterName = "guard",
-			ParameterType = (long)FutureProgVariableTypes.Character
+			ParameterType = (long)ProgVariableTypes.Character
 		});
 		doorguardCloseDoor.FutureProgsParameters.Add(new FutureProgsParameter
 		{
 			FutureProg = doorguardCloseDoor,
 			ParameterIndex = 1,
 			ParameterName = "ch",
-			ParameterType = (long)FutureProgVariableTypes.Character
+			ParameterType = (long)ProgVariableTypes.Character
 		});
 		doorguardCloseDoor.FutureProgsParameters.Add(new FutureProgsParameter
 		{
 			FutureProg = doorguardCloseDoor,
 			ParameterIndex = 2,
 			ParameterName = "exit",
-			ParameterType = (long)FutureProgVariableTypes.Exit
+			ParameterType = (long)ProgVariableTypes.Exit
 		});
 		context.FutureProgs.Add(doorguardCloseDoor);
 
@@ -9345,21 +9345,21 @@ end if",
 			FutureProg = doorGuardWontOpen,
 			ParameterIndex = 0,
 			ParameterName = "guard",
-			ParameterType = (long)FutureProgVariableTypes.Character
+			ParameterType = (long)ProgVariableTypes.Character
 		});
 		doorGuardWontOpen.FutureProgsParameters.Add(new FutureProgsParameter
 		{
 			FutureProg = doorGuardWontOpen,
 			ParameterIndex = 1,
 			ParameterName = "ch",
-			ParameterType = (long)FutureProgVariableTypes.Character
+			ParameterType = (long)ProgVariableTypes.Character
 		});
 		doorGuardWontOpen.FutureProgsParameters.Add(new FutureProgsParameter
 		{
 			FutureProg = doorGuardWontOpen,
 			ParameterIndex = 2,
 			ParameterName = "exit",
-			ParameterType = (long)FutureProgVariableTypes.Exit
+			ParameterType = (long)ProgVariableTypes.Exit
 		});
 		context.FutureProgs.Add(doorGuardWontOpen);
 
@@ -9382,21 +9382,21 @@ end if",
 			FutureProg = doorGuardWitnessStop,
 			ParameterIndex = 0,
 			ParameterName = "guard",
-			ParameterType = (long)FutureProgVariableTypes.Character
+			ParameterType = (long)ProgVariableTypes.Character
 		});
 		doorGuardWitnessStop.FutureProgsParameters.Add(new FutureProgsParameter
 		{
 			FutureProg = doorGuardWitnessStop,
 			ParameterIndex = 1,
 			ParameterName = "ch",
-			ParameterType = (long)FutureProgVariableTypes.Character
+			ParameterType = (long)ProgVariableTypes.Character
 		});
 		doorGuardWitnessStop.FutureProgsParameters.Add(new FutureProgsParameter
 		{
 			FutureProg = doorGuardWitnessStop,
 			ParameterIndex = 2,
 			ParameterName = "exit",
-			ParameterType = (long)FutureProgVariableTypes.Exit
+			ParameterType = (long)ProgVariableTypes.Exit
 		});
 		context.FutureProgs.Add(doorGuardWitnessStop);
 
@@ -9459,7 +9459,7 @@ end if",
 			Category = "AI",
 			Subcategory = "Aggressor",
 			FunctionComment = "Determines whether the aggressor will attack someone",
-			ReturnType = (long)FutureProgVariableTypes.Boolean,
+			ReturnType = (long)ProgVariableTypes.Boolean,
 			AcceptsAnyParameters = false,
 			Public = true,
 			StaticType = 0
@@ -9469,14 +9469,14 @@ end if",
 			FutureProg = aggressorWillAttack,
 			ParameterIndex = 0,
 			ParameterName = "ch",
-			ParameterType = (long)FutureProgVariableTypes.Character
+			ParameterType = (long)ProgVariableTypes.Character
 		});
 		aggressorWillAttack.FutureProgsParameters.Add(new FutureProgsParameter
 		{
 			FutureProg = aggressorWillAttack,
 			ParameterIndex = 1,
 			ParameterName = "tch",
-			ParameterType = (long)FutureProgVariableTypes.Character
+			ParameterType = (long)ProgVariableTypes.Character
 		});
 		context.FutureProgs.Add(aggressorWillAttack);
 
@@ -9512,7 +9512,7 @@ end if",
 			Subcategory = "Combat",
 			FunctionComment =
 				"Determines whether a rescuer will rescue someone who is being attacked",
-			ReturnType = (long)FutureProgVariableTypes.Boolean,
+			ReturnType = (long)ProgVariableTypes.Boolean,
 			AcceptsAnyParameters = false,
 			Public = true,
 			StaticType = 0
@@ -9522,14 +9522,14 @@ end if",
 			FutureProg = rescuerWillRescue,
 			ParameterIndex = 0,
 			ParameterName = "rescuer",
-			ParameterType = (long)FutureProgVariableTypes.Character
+			ParameterType = (long)ProgVariableTypes.Character
 		});
 		rescuerWillRescue.FutureProgsParameters.Add(new FutureProgsParameter
 		{
 			FutureProg = rescuerWillRescue,
 			ParameterIndex = 1,
 			ParameterName = "target",
-			ParameterType = (long)FutureProgVariableTypes.Character
+			ParameterType = (long)ProgVariableTypes.Character
 		});
 		context.FutureProgs.Add(rescuerWillRescue);
 		context.SaveChanges();
@@ -9551,7 +9551,7 @@ end if",
 			Subcategory = "Vermin",
 			FunctionComment =
 				"Determines whether a vermin AI will scavenge an item",
-			ReturnType = (long)FutureProgVariableTypes.Boolean,
+			ReturnType = (long)ProgVariableTypes.Boolean,
 			AcceptsAnyParameters = false,
 			Public = true,
 			StaticType = 0
@@ -9561,14 +9561,14 @@ end if",
 			FutureProg = verminWillScavenge,
 			ParameterIndex = 0,
 			ParameterName = "ch",
-			ParameterType = (long)FutureProgVariableTypes.Character
+			ParameterType = (long)ProgVariableTypes.Character
 		});
 		verminWillScavenge.FutureProgsParameters.Add(new FutureProgsParameter
 		{
 			FutureProg = verminWillScavenge,
 			ParameterIndex = 1,
 			ParameterName = "item",
-			ParameterType = (long)FutureProgVariableTypes.Item
+			ParameterType = (long)ProgVariableTypes.Item
 		});
 		context.FutureProgs.Add(verminWillScavenge);
 
@@ -9580,7 +9580,7 @@ end if",
 			Subcategory = "Vermin",
 			FunctionComment =
 				"Fires when a scavenger AI decides to scavenge an item",
-			ReturnType = (long)FutureProgVariableTypes.Void,
+			ReturnType = (long)ProgVariableTypes.Void,
 			AcceptsAnyParameters = false,
 			Public = true,
 			StaticType = 0
@@ -9590,14 +9590,14 @@ end if",
 			FutureProg = verminOnScavenge,
 			ParameterIndex = 0,
 			ParameterName = "ch",
-			ParameterType = (long)FutureProgVariableTypes.Character
+			ParameterType = (long)ProgVariableTypes.Character
 		});
 		verminOnScavenge.FutureProgsParameters.Add(new FutureProgsParameter
 		{
 			FutureProg = verminOnScavenge,
 			ParameterIndex = 1,
 			ParameterName = "item",
-			ParameterType = (long)FutureProgVariableTypes.Item
+			ParameterType = (long)ProgVariableTypes.Item
 		});
 		context.FutureProgs.Add(verminOnScavenge);
 		context.SaveChanges();

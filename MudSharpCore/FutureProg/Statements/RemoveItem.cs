@@ -23,10 +23,10 @@ internal class RemoveItem : Statement
 	}
 
 	private static ICompileInfo RemoveItemCompile(IEnumerable<string> lines,
-		IDictionary<string, FutureProgVariableTypes> variableSpace, int lineNumber, IFuturemud gameworld)
+		IDictionary<string, ProgVariableTypes> variableSpace, int lineNumber, IFuturemud gameworld)
 	{
 		var match = RemoveItemCompileRegex.Match(lines.First());
-		FutureProgVariableTypes collectionType;
+		ProgVariableTypes collectionType;
 		if (match.Groups["collection"].Value[0] == '@')
 		{
 			var collectionFunctionInfo = FunctionHelper.CompileFunction(match.Groups["collection"].Value.Substring(1),
@@ -59,7 +59,7 @@ internal class RemoveItem : Statement
 			collectionType = variableSpace[match.Groups["collection"].Value.ToLowerInvariant()];
 		}
 		
-		if (!collectionType.HasFlag(FutureProgVariableTypes.Collection))
+		if (!collectionType.HasFlag(ProgVariableTypes.Collection))
 		{
 			return
 				CompileInfo.GetFactory()
@@ -78,7 +78,7 @@ internal class RemoveItem : Statement
 
 		var removeItemFunction = (IFunction)removeItemFunctionInfo.CompiledStatement;
 		if (
-			(collectionType ^ FutureProgVariableTypes.Collection).CompatibleWith(removeItemFunction.ReturnType))
+			(collectionType ^ ProgVariableTypes.Collection).CompatibleWith(removeItemFunction.ReturnType))
 		{
 			return CompileInfo.GetFactory()
 			                  .CreateError("The item is not of the same type as the collection.", lineNumber);
@@ -110,7 +110,7 @@ internal class RemoveItem : Statement
 			new Tuple
 			<Regex,
 				Func
-				<IEnumerable<string>, IDictionary<string, FutureProgVariableTypes>, int, IFuturemud, ICompileInfo>>(
+				<IEnumerable<string>, IDictionary<string, ProgVariableTypes>, int, IFuturemud, ICompileInfo>>(
 				RemoveItemCompileRegex, RemoveItemCompile)
 		);
 
@@ -144,7 +144,7 @@ For example, if you had a collection called #3numbers#0, you could do either of 
 		}
 
 		var collection = variables.GetVariable(CollectionVariable);
-		((IList<IFutureProgVariable>)collection.GetObject).Remove(ItemFunction.Result);
+		((IList<IProgVariable>)collection.GetObject).Remove(ItemFunction.Result);
 		return StatementResult.Normal;
 	}
 }

@@ -13,7 +13,7 @@ using MudSharp.GameItems;
 namespace MudSharp.Economy;
 #nullable enable
 
-public interface IMarket : ISaveable, IEditableItem, IFutureProgVariable
+public interface IMarket : ISaveable, IEditableItem, IProgVariable
 {
 	IEconomicZone EconomicZone { get; }
 	string Description { get; }

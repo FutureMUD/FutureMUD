@@ -11,9 +11,9 @@ internal class CountFunction : CollectionExtensionFunction
 	{
 	}
 
-	public override FutureProgVariableTypes ReturnType
+	public override ProgVariableTypes ReturnType
 	{
-		get => FutureProgVariableTypes.Number;
+		get => ProgVariableTypes.Number;
 		protected set { }
 	}
 
@@ -22,7 +22,7 @@ internal class CountFunction : CollectionExtensionFunction
 		RegisterCollectionExtensionFunctionCompiler(
 			new CollectionExtensionFunctionCompilerInformation(
 				"count",
-				FutureProgVariableTypes.Boolean,
+				ProgVariableTypes.Boolean,
 				(varName, collectionFunction, innerFunction) =>
 					new CountFunction(varName, innerFunction, collectionFunction),
 				@"The COUNT function runs the supplied inner function (which itself returns a boolean value) over all elements of a collection, and counts the total number of elements that return true.
@@ -42,9 +42,9 @@ If you just want to take the count of the number of elements in a collection, us
 			return StatementResult.Error;
 		}
 
-		var resultCollection = new List<IFutureProgVariable>();
+		var resultCollection = new List<IProgVariable>();
 		var localVariables = new LocalVariableSpace(variables);
-		foreach (IFutureProgVariable item in (IList)CollectionFunction.Result.GetObject)
+		foreach (IProgVariable item in (IList)CollectionFunction.Result.GetObject)
 		{
 			localVariables.SetVariable(VariableName, item);
 			if (CollectionItemFunction.Execute(localVariables) == StatementResult.Error)

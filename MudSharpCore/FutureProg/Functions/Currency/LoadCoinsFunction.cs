@@ -17,9 +17,9 @@ internal class LoadCoinsFunction : BuiltInFunction
 		_gameworld = gameworld;
 	}
 
-	public override FutureProgVariableTypes ReturnType
+	public override ProgVariableTypes ReturnType
 	{
-		get => FutureProgVariableTypes.Item;
+		get => ProgVariableTypes.Item;
 		protected set { }
 	}
 
@@ -97,7 +97,7 @@ internal class LoadCoinsFunction : BuiltInFunction
 	{
 		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
 			"loadcoins",
-			new[] { FutureProgVariableTypes.Currency, FutureProgVariableTypes.Text },
+			new[] { ProgVariableTypes.Currency, ProgVariableTypes.Text },
 			(pars, gameworld) => new LoadCoinsFunction(pars, gameworld)
 		));
 	}

@@ -26,7 +26,7 @@ internal class WithdrawGrid : BuiltInFunction
 		FutureProg.RegisterBuiltInFunctionCompiler(
 			new FunctionCompilerInformation(
 				"WithdrawGrid".ToLowerInvariant(),
-				new[] { FutureProgVariableTypes.Number, FutureProgVariableTypes.Location },
+				new[] { ProgVariableTypes.Number, ProgVariableTypes.Location },
 				(pars, gameworld) => new WithdrawGrid(pars, gameworld),
 				new List<string> { "grid", "location" },
 				new List<string>
@@ -51,9 +51,9 @@ internal class WithdrawGrid : BuiltInFunction
 
 	#endregion
 
-	public override FutureProgVariableTypes ReturnType
+	public override ProgVariableTypes ReturnType
 	{
-		get => FutureProgVariableTypes.Boolean;
+		get => ProgVariableTypes.Boolean;
 		protected set { }
 	}
 

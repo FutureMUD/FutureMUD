@@ -27,7 +27,7 @@ using MudSharp.RPG.Merits;
 using MudSharp.TimeAndDate.Date;
 
 namespace MudSharp.CharacterCreation {
-	public interface ICharacterTemplate : IFutureProgVariable, IHaveFuturemud, IHaveTraits, IHaveCharacteristics
+	public interface ICharacterTemplate : IProgVariable, IHaveFuturemud, IHaveTraits, IHaveCharacteristics
 	{
 		List<IAccent> SelectedAccents { get; }
 		List<ITrait> SelectedAttributes { get; }

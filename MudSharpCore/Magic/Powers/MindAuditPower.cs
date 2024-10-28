@@ -315,9 +315,9 @@ public class MindAuditPower : MagicPowerBase
             return false;
         }
 
-        var prog = new ProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument, FutureProgVariableTypes.Boolean, [
-            [FutureProgVariableTypes.Character],
-            [FutureProgVariableTypes.Character, FutureProgVariableTypes.Character]
+        var prog = new ProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument, ProgVariableTypes.Boolean, [
+            [ProgVariableTypes.Character],
+            [ProgVariableTypes.Character, ProgVariableTypes.Character]
         ]).LookupProg();
         if (prog is null)
         {
@@ -358,10 +358,10 @@ public class MindAuditPower : MagicPowerBase
             return false;
         }
 
-        var prog = new ProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument, FutureProgVariableTypes.Text,
+        var prog = new ProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument, ProgVariableTypes.Text,
             [
-                [FutureProgVariableTypes.Character],
-                [FutureProgVariableTypes.Character, FutureProgVariableTypes.Character]
+                [ProgVariableTypes.Character],
+                [ProgVariableTypes.Character, ProgVariableTypes.Character]
             ]
         ).LookupProg();
         if (prog is null)

@@ -10,9 +10,9 @@ internal class AllFunction : CollectionExtensionFunction
 	{
 	}
 
-	public override FutureProgVariableTypes ReturnType
+	public override ProgVariableTypes ReturnType
 	{
-		get => FutureProgVariableTypes.Boolean;
+		get => ProgVariableTypes.Boolean;
 		protected set { }
 	}
 
@@ -21,7 +21,7 @@ internal class AllFunction : CollectionExtensionFunction
 		RegisterCollectionExtensionFunctionCompiler(
 			new CollectionExtensionFunctionCompilerInformation(
 				"all",
-				FutureProgVariableTypes.Boolean,
+				ProgVariableTypes.Boolean,
 				(varName, collectionFunction, innerFunction) =>
 					new AllFunction(varName, innerFunction, collectionFunction),
 				"The ALL function runs the supplied inner function (which itself returns a boolean value) over all elements of a collection, and returns true if all the items return true. Otherwise, returns false. Also returns true if there are no elements.",
@@ -40,7 +40,7 @@ internal class AllFunction : CollectionExtensionFunction
 		}
 
 		var localVariables = new LocalVariableSpace(variables);
-		foreach (IFutureProgVariable item in (IList)CollectionFunction.Result.GetObject)
+		foreach (IProgVariable item in (IList)CollectionFunction.Result.GetObject)
 		{
 			localVariables.SetVariable(VariableName, item);
 			if (CollectionItemFunction.Execute(localVariables) == StatementResult.Error)

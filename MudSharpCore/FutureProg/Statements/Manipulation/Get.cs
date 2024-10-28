@@ -28,7 +28,7 @@ internal class Get : Statement
 	}
 
 	private static ICompileInfo Compile(IEnumerable<string> lines,
-		IDictionary<string, FutureProgVariableTypes> variableSpace, int lineNumber, IFuturemud gameworld)
+		IDictionary<string, ProgVariableTypes> variableSpace, int lineNumber, IFuturemud gameworld)
 	{
 		var match = CompileRegex.Match(lines.First());
 
@@ -58,21 +58,21 @@ internal class Get : Statement
 
 		if (
 			!((IFunction)compiledArgs[0].CompiledStatement).ReturnType.CompatibleWith(
-				FutureProgVariableTypes.Character))
+				ProgVariableTypes.Character))
 		{
 			return
 				CompileInfo.GetFactory()
 				           .CreateError("The first argument of the Get statement must be a character.", lineNumber);
 		}
 
-		if (!((IFunction)compiledArgs[0].CompiledStatement).ReturnType.CompatibleWith(FutureProgVariableTypes.Item))
+		if (!((IFunction)compiledArgs[0].CompiledStatement).ReturnType.CompatibleWith(ProgVariableTypes.Item))
 		{
 			return CompileInfo.GetFactory()
 			                  .CreateError("The second argument of the Get statement must be an item.", lineNumber);
 		}
 
 		if (compiledArgs.Count == 3 &&
-		    !((IFunction)compiledArgs[2].CompiledStatement).ReturnType.CompatibleWith(FutureProgVariableTypes.Text))
+		    !((IFunction)compiledArgs[2].CompiledStatement).ReturnType.CompatibleWith(ProgVariableTypes.Text))
 		{
 			return
 				CompileInfo.GetFactory()
@@ -108,7 +108,7 @@ internal class Get : Statement
 			new Tuple
 			<Regex,
 				Func
-				<IEnumerable<string>, IDictionary<string, FutureProgVariableTypes>, int, IFuturemud, ICompileInfo>>(
+				<IEnumerable<string>, IDictionary<string, ProgVariableTypes>, int, IFuturemud, ICompileInfo>>(
 				CompileRegex, Compile)
 		);
 

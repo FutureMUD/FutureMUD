@@ -25,52 +25,52 @@ internal class ToOverlayPackage : BuiltInFunction
 		FutureProg.RegisterBuiltInFunctionCompiler(
 			new FunctionCompilerInformation(
 				"ToOverlayPackage".ToLowerInvariant(),
-				new[] { FutureProgVariableTypes.Number },
+				new[] { ProgVariableTypes.Number },
 				(pars, gameworld) => new ToOverlayPackage(pars, gameworld),
 				new List<string> { "id" },
 				new List<string> { "The ID to look up" },
 				"Converts an ID number into the specified type, if one exists",
 				"Lookup",
-				FutureProgVariableTypes.OverlayPackage
+				ProgVariableTypes.OverlayPackage
 			)
 		);
 
 		FutureProg.RegisterBuiltInFunctionCompiler(
 			new FunctionCompilerInformation(
 				"ToOverlayPackage".ToLowerInvariant(),
-				new[] { FutureProgVariableTypes.Text },
+				new[] { ProgVariableTypes.Text },
 				(pars, gameworld) => new ToOverlayPackage(pars, gameworld),
 				new List<string> { "name" },
 				new List<string> { "The name to look up" },
 				"Converts a name into the specified type, if one exists",
 				"Lookup",
-				FutureProgVariableTypes.OverlayPackage
+				ProgVariableTypes.OverlayPackage
 			)
 		);
 
 		FutureProg.RegisterBuiltInFunctionCompiler(
 			new FunctionCompilerInformation(
 				"ToOverlayPackage".ToLowerInvariant(),
-				new[] { FutureProgVariableTypes.Number, FutureProgVariableTypes.Number },
+				new[] { ProgVariableTypes.Number, ProgVariableTypes.Number },
 				(pars, gameworld) => new ToOverlayPackage(pars, gameworld),
 				new List<string> { "id", "revision" },
 				new List<string> { "The ID to look up", "The revision number to look up" },
 				"Converts an ID number into the specified type, if one exists",
 				"Lookup",
-				FutureProgVariableTypes.OverlayPackage
+				ProgVariableTypes.OverlayPackage
 			)
 		);
 
 		FutureProg.RegisterBuiltInFunctionCompiler(
 			new FunctionCompilerInformation(
 				"ToOverlayPackage".ToLowerInvariant(),
-				new[] { FutureProgVariableTypes.Text, FutureProgVariableTypes.Number },
+				new[] { ProgVariableTypes.Text, ProgVariableTypes.Number },
 				(pars, gameworld) => new ToOverlayPackage(pars, gameworld),
 				new List<string> { "name", "revision" },
 				new List<string> { "The name to look up", "The revision number to look up" },
 				"Converts a name into the specified type, if one exists",
 				"Lookup",
-				FutureProgVariableTypes.OverlayPackage
+				ProgVariableTypes.OverlayPackage
 			)
 		);
 	}
@@ -86,9 +86,9 @@ internal class ToOverlayPackage : BuiltInFunction
 
 	#endregion
 
-	public override FutureProgVariableTypes ReturnType
+	public override ProgVariableTypes ReturnType
 	{
-		get => FutureProgVariableTypes.OverlayPackage;
+		get => ProgVariableTypes.OverlayPackage;
 		protected set { }
 	}
 
@@ -101,7 +101,7 @@ internal class ToOverlayPackage : BuiltInFunction
 
 		if (ParameterFunctions.Count == 2)
 		{
-			Result = ParameterFunctions[0].ReturnType.CompatibleWith(FutureProgVariableTypes.Text)
+			Result = ParameterFunctions[0].ReturnType.CompatibleWith(ProgVariableTypes.Text)
 				? Gameworld.CellOverlayPackages.GetByName((string)ParameterFunctions[0].Result.GetObject,
 					Convert.ToInt32(ParameterFunctions[0].Result.GetObject))
 				: Gameworld.CellOverlayPackages.Get(Convert.ToInt64(ParameterFunctions[0].Result.GetObject),
@@ -109,7 +109,7 @@ internal class ToOverlayPackage : BuiltInFunction
 		}
 		else
 		{
-			Result = ParameterFunctions[0].ReturnType.CompatibleWith(FutureProgVariableTypes.Text)
+			Result = ParameterFunctions[0].ReturnType.CompatibleWith(ProgVariableTypes.Text)
 				? Gameworld.CellOverlayPackages.GetByName((string)ParameterFunctions[0].Result.GetObject)
 				: Gameworld.CellOverlayPackages.Get(Convert.ToInt64(ParameterFunctions[0].Result.GetObject));
 		}

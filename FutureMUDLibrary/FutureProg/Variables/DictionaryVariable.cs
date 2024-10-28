@@ -10,24 +10,24 @@ namespace MudSharp.FutureProg.Variables
 {
 	public interface IDictionaryVariable
 	{
-		FutureProgVariableTypes UnderlyingType { get; }
-		bool Add(string key, IFutureProgVariable item);
+		ProgVariableTypes UnderlyingType { get; }
+		bool Add(string key, IProgVariable item);
 		bool Remove(string key);
 	}
 
-	public class DictionaryVariable : FutureProgVariable, IEnumerable, IDictionaryVariable
+	public class DictionaryVariable : ProgVariable, IEnumerable, IDictionaryVariable
 	{
-		private readonly Dictionary<string,IFutureProgVariable> _underlyingDictionary;
+		private readonly Dictionary<string,IProgVariable> _underlyingDictionary;
 
-		public FutureProgVariableTypes UnderlyingType { get; }
+		public ProgVariableTypes UnderlyingType { get; }
 
-		public DictionaryVariable(Dictionary<string, IFutureProgVariable> underlyingList, FutureProgVariableTypes underlyingType)
+		public DictionaryVariable(Dictionary<string, IProgVariable> underlyingList, ProgVariableTypes underlyingType)
 		{
 			_underlyingDictionary = underlyingList;
 			UnderlyingType = underlyingType;
 		}
 
-		public override FutureProgVariableTypes Type => FutureProgVariableTypes.Dictionary | UnderlyingType;
+		public override ProgVariableTypes Type => ProgVariableTypes.Dictionary | UnderlyingType;
 
 		public override object GetObject => _underlyingDictionary;
 
@@ -39,15 +39,15 @@ namespace MudSharp.FutureProg.Variables
 		}
 		#endregion
 
-		private static IReadOnlyDictionary<string,FutureProgVariableTypes> DotReferenceHandler(FutureProgVariableTypes type)
+		private static IReadOnlyDictionary<string,ProgVariableTypes> DotReferenceHandler(ProgVariableTypes type)
 		{
-			return new Dictionary<string, FutureProgVariableTypes>(StringComparer.InvariantCultureIgnoreCase)
+			return new Dictionary<string, ProgVariableTypes>(StringComparer.InvariantCultureIgnoreCase)
 			{
-				{"count", FutureProgVariableTypes.Number},
-				{"any", FutureProgVariableTypes.Boolean},
-				{"empty", FutureProgVariableTypes.Boolean},
-				{"values", FutureProgVariableTypes.Collection | type},
-				{"keys", FutureProgVariableTypes.Collection | FutureProgVariableTypes.Text},
+				{"count", ProgVariableTypes.Number},
+				{"any", ProgVariableTypes.Boolean},
+				{"empty", ProgVariableTypes.Boolean},
+				{"values", ProgVariableTypes.Collection | type},
+				{"keys", ProgVariableTypes.Collection | ProgVariableTypes.Text},
 			};
 		}
 
@@ -64,18 +64,18 @@ namespace MudSharp.FutureProg.Variables
 		}
 
 		public static void RegisterFutureProgCompiler() {
-			FutureProgVariable.RegisterDotReferenceCompileInfo(FutureProgVariableTypes.Dictionary, DotReferenceHandler(FutureProgVariableTypes.Void), DotReferenceHelp());
-			foreach (var flag in FutureProgVariableTypes.CollectionItem.GetAllFlags())
+			ProgVariable.RegisterDotReferenceCompileInfo(ProgVariableTypes.Dictionary, DotReferenceHandler(ProgVariableTypes.Void), DotReferenceHelp());
+			foreach (var flag in ProgVariableTypes.CollectionItem.GetAllFlags())
 			{
-				if (flag == FutureProgVariableTypes.Void)
+				if (flag == ProgVariableTypes.Void)
 				{
 					continue;
 				}
-				FutureProgVariable.RegisterDotReferenceCompileInfo(FutureProgVariableTypes.Dictionary | flag, DotReferenceHandler(flag), DotReferenceHelp());
+				ProgVariable.RegisterDotReferenceCompileInfo(ProgVariableTypes.Dictionary | flag, DotReferenceHandler(flag), DotReferenceHelp());
 			}
 		}
 
-		public override IFutureProgVariable GetProperty(string property)
+		public override IProgVariable GetProperty(string property)
 		{
 			switch (property.ToLowerInvariant())
 			{
@@ -88,12 +88,12 @@ namespace MudSharp.FutureProg.Variables
 				case "values":
 					return new CollectionVariable(_underlyingDictionary.Values.ToList(), UnderlyingType);
 				case "keys":
-					return new CollectionVariable(_underlyingDictionary.Keys.ToList(), FutureProgVariableTypes.Text);
+					return new CollectionVariable(_underlyingDictionary.Keys.ToList(), ProgVariableTypes.Text);
 			}
 			throw new NotSupportedException("Invalid property requested in DictionaryVariable.GetProperty");
 		}
 
-		public bool Add(string key, IFutureProgVariable item)
+		public bool Add(string key, IProgVariable item)
 		{
 			if (item?.Type.CompatibleWith(UnderlyingType) != true)
 			{

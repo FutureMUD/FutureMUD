@@ -69,10 +69,10 @@ public class OutfitItem : IOutfitItem
 
 	#region IFutureProgVariable Implementation
 
-	public FutureProgVariableTypes Type => FutureProgVariableTypes.OutfitItem;
+	public ProgVariableTypes Type => ProgVariableTypes.OutfitItem;
 	public object GetObject => this;
 
-	public IFutureProgVariable GetProperty(string property)
+	public IProgVariable GetProperty(string property)
 	{
 		switch (property.ToLowerInvariant())
 		{
@@ -80,8 +80,8 @@ public class OutfitItem : IOutfitItem
 				return new NumberVariable(Id);
 			case "containerid":
 				return PreferredContainerId.HasValue
-					? (IFutureProgVariable)new NumberVariable(PreferredContainerId.Value)
-					: new NullVariable(FutureProgVariableTypes.Number);
+					? (IProgVariable)new NumberVariable(PreferredContainerId.Value)
+					: new NullVariable(ProgVariableTypes.Number);
 			case "order":
 				return new NumberVariable(WearOrder);
 			case "desc":
@@ -92,25 +92,25 @@ public class OutfitItem : IOutfitItem
 				return new TextVariable(PreferredContainerDescription);
 			case "profile":
 				return DesiredProfile != null
-					? (IFutureProgVariable)new TextVariable(DesiredProfile?.Name)
-					: new NullVariable(FutureProgVariableTypes.Text);
+					? (IProgVariable)new TextVariable(DesiredProfile?.Name)
+					: new NullVariable(ProgVariableTypes.Text);
 		}
 
 		throw new NotImplementedException();
 	}
 
-	private static IReadOnlyDictionary<string, FutureProgVariableTypes> DotReferenceHandler()
+	private static IReadOnlyDictionary<string, ProgVariableTypes> DotReferenceHandler()
 	{
-		return new Dictionary<string, FutureProgVariableTypes>(StringComparer.InvariantCultureIgnoreCase)
+		return new Dictionary<string, ProgVariableTypes>(StringComparer.InvariantCultureIgnoreCase)
 		{
-			{ "id", FutureProgVariableTypes.Number },
-			{ "containerid", FutureProgVariableTypes.Number },
-			{ "order", FutureProgVariableTypes.Number },
-			{ "desc", FutureProgVariableTypes.Text },
-			{ "description", FutureProgVariableTypes.Text },
-			{ "containerdesc", FutureProgVariableTypes.Text },
-			{ "containerdescription", FutureProgVariableTypes.Text },
-			{ "profile", FutureProgVariableTypes.Text }
+			{ "id", ProgVariableTypes.Number },
+			{ "containerid", ProgVariableTypes.Number },
+			{ "order", ProgVariableTypes.Number },
+			{ "desc", ProgVariableTypes.Text },
+			{ "description", ProgVariableTypes.Text },
+			{ "containerdesc", ProgVariableTypes.Text },
+			{ "containerdescription", ProgVariableTypes.Text },
+			{ "profile", ProgVariableTypes.Text }
 		};
 	}
 
@@ -131,7 +131,7 @@ public class OutfitItem : IOutfitItem
 
 	public static void RegisterFutureProgCompiler()
 	{
-		FutureProgVariable.RegisterDotReferenceCompileInfo(FutureProgVariableTypes.OutfitItem, DotReferenceHandler(),
+		ProgVariable.RegisterDotReferenceCompileInfo(ProgVariableTypes.OutfitItem, DotReferenceHandler(),
 			DotReferenceHelp());
 	}
 

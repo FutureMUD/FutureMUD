@@ -757,7 +757,7 @@ public sealed class DiscordConnection : IDiscordConnection
 
 				var whichType = ss.SafeRemainingArgument;
 				var type = FutureProg.FutureProg.GetTypeByName(whichType);
-				if (type == FutureProgVariableTypes.Error)
+				if (type == ProgVariableTypes.Error)
 				{
 					SendClientMessage($"request {response} There is no such type.");
 					return;

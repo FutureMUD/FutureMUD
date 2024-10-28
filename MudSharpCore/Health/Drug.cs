@@ -123,10 +123,10 @@ public class Drug : SaveableItem, IDrug
 
 	#region IFutureProgVariable Implementation
 
-	public FutureProgVariableTypes Type => FutureProgVariableTypes.Drug;
+	public ProgVariableTypes Type => ProgVariableTypes.Drug;
 	public object GetObject => this;
 
-	public IFutureProgVariable GetProperty(string property)
+	public IProgVariable GetProperty(string property)
 	{
 		switch (property.ToLowerInvariant())
 		{
@@ -142,30 +142,30 @@ public class Drug : SaveableItem, IDrug
 			case "vectors":
 				return new CollectionVariable(
 					DrugVectors.GetFlags().OfType<DrugVector>().Select(x => new TextVariable(x.Describe())).ToList(),
-					FutureProgVariableTypes.Text);
+					ProgVariableTypes.Text);
 			case "types":
 				return new CollectionVariable(DrugTypes.Select(x => new TextVariable(x.DescribeEnum())).ToList(),
-					FutureProgVariableTypes.Text);
+					ProgVariableTypes.Text);
 			case "itensities":
 				return new CollectionVariable(DrugTypes.Select(x => new NumberVariable(IntensityForType(x))).ToList(),
-					FutureProgVariableTypes.Number);
+					ProgVariableTypes.Number);
 		}
 
 		throw new NotImplementedException();
 	}
 
-	private static IReadOnlyDictionary<string, FutureProgVariableTypes> DotReferenceHandler()
+	private static IReadOnlyDictionary<string, ProgVariableTypes> DotReferenceHandler()
 	{
-		return new Dictionary<string, FutureProgVariableTypes>(StringComparer.InvariantCultureIgnoreCase)
+		return new Dictionary<string, ProgVariableTypes>(StringComparer.InvariantCultureIgnoreCase)
 		{
-			{ "id", FutureProgVariableTypes.Number },
-			{ "name", FutureProgVariableTypes.Text },
-			{ "intensitypergram", FutureProgVariableTypes.Number },
-			{ "metabolisationrate", FutureProgVariableTypes.Text | FutureProgVariableTypes.Collection },
-			{ "metabolizationrate", FutureProgVariableTypes.Number },
-			{ "vectors", FutureProgVariableTypes.Text | FutureProgVariableTypes.Collection },
-			{ "types", FutureProgVariableTypes.Text | FutureProgVariableTypes.Collection },
-			{ "intensities", FutureProgVariableTypes.Number | FutureProgVariableTypes.Collection }
+			{ "id", ProgVariableTypes.Number },
+			{ "name", ProgVariableTypes.Text },
+			{ "intensitypergram", ProgVariableTypes.Number },
+			{ "metabolisationrate", ProgVariableTypes.Text | ProgVariableTypes.Collection },
+			{ "metabolizationrate", ProgVariableTypes.Number },
+			{ "vectors", ProgVariableTypes.Text | ProgVariableTypes.Collection },
+			{ "types", ProgVariableTypes.Text | ProgVariableTypes.Collection },
+			{ "intensities", ProgVariableTypes.Number | ProgVariableTypes.Collection }
 		};
 	}
 
@@ -189,7 +189,7 @@ public class Drug : SaveableItem, IDrug
 
 	public static void RegisterFutureProgCompiler()
 	{
-		FutureProgVariable.RegisterDotReferenceCompileInfo(FutureProgVariableTypes.Drug, DotReferenceHandler(),
+		ProgVariable.RegisterDotReferenceCompileInfo(ProgVariableTypes.Drug, DotReferenceHandler(),
 			DotReferenceHelp());
 	}
 

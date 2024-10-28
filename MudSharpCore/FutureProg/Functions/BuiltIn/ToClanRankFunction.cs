@@ -16,9 +16,9 @@ internal class ToClanRankFunction : BuiltInFunction
 		_gameworld = gameworld;
 	}
 
-	public override FutureProgVariableTypes ReturnType
+	public override ProgVariableTypes ReturnType
 	{
-		get => FutureProgVariableTypes.ClanRank;
+		get => ProgVariableTypes.ClanRank;
 		protected set { }
 	}
 
@@ -38,14 +38,14 @@ internal class ToClanRankFunction : BuiltInFunction
 		var clan = ParameterFunctions[0].Result?.GetObject as IClan;
 		if (clan is null)
 		{
-			Result = new NullVariable(FutureProgVariableTypes.ClanRank);
+			Result = new NullVariable(ProgVariableTypes.ClanRank);
 			return StatementResult.Normal;
 		}
 
 		var text = ParameterFunctions[1].Result?.GetObject?.ToString();
 		if (text is null)
 		{
-			Result = new NullVariable(FutureProgVariableTypes.ClanRank);
+			Result = new NullVariable(ProgVariableTypes.ClanRank);
 			return StatementResult.Normal;
 		}
 
@@ -60,24 +60,24 @@ internal class ToClanRankFunction : BuiltInFunction
 	{
 		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
 			"torank",
-			new[] { FutureProgVariableTypes.Number },
+			new[] { ProgVariableTypes.Number },
 			(pars, gameworld) => new ToClanRankFunction(pars, gameworld),
 			new List<string> { "id" },
 			new List<string> { "The ID to look up" },
 			"Converts an ID number into the specified type, if one exists",
 			"Lookup",
-			FutureProgVariableTypes.ClanRank
+			ProgVariableTypes.ClanRank
 		));
 
 		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
 			"torank",
-			new[] { FutureProgVariableTypes.Clan, FutureProgVariableTypes.Text },
+			new[] { ProgVariableTypes.Clan, ProgVariableTypes.Text },
 			(pars, gameworld) => new ToClanRankFunction(pars, gameworld),
 			new List<string> { "clan", "name" },
 			new List<string> { "The clan in which you want to search", "The name to look up" },
 			"Converts a name into the specified type, if one exists",
 			"Lookup",
-			FutureProgVariableTypes.ClanRank
+			ProgVariableTypes.ClanRank
 		));
 	}
 }

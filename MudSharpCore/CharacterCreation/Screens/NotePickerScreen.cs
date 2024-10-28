@@ -104,9 +104,9 @@ public class NotePickerScreenStoryboard : ChargenScreenStoryboard
 		}
 
 		var prog = new ProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument,
-			FutureProgVariableTypes.Boolean, new List<FutureProgVariableTypes>
+			ProgVariableTypes.Boolean, new List<ProgVariableTypes>
 			{
-				FutureProgVariableTypes.Chargen
+				ProgVariableTypes.Chargen
 			}).LookupProg();
 		if (prog is null)
 		{
@@ -287,9 +287,9 @@ public class NotePickerScreenStoryboard : ChargenScreenStoryboard
 		}
 
 		var prog = new ProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument,
-			FutureProgVariableTypes.Boolean, new List<FutureProgVariableTypes>
+			ProgVariableTypes.Boolean, new List<ProgVariableTypes>
 			{
-				FutureProgVariableTypes.Chargen
+				ProgVariableTypes.Chargen
 			}).LookupProg();
 		if (prog is null)
 		{

@@ -27,7 +27,7 @@ internal class ExitsForOverlay : BuiltInFunction
 		FutureProg.RegisterBuiltInFunctionCompiler(
 			new FunctionCompilerInformation(
 				"ExitsForOverlay".ToLowerInvariant(),
-				new[] { FutureProgVariableTypes.Location, FutureProgVariableTypes.OverlayPackage },
+				new[] { ProgVariableTypes.Location, ProgVariableTypes.OverlayPackage },
 				(pars, gameworld) => new ExitsForOverlay(pars, gameworld),
 				new List<string>
 				{
@@ -41,7 +41,7 @@ internal class ExitsForOverlay : BuiltInFunction
 				},
 				"Returns a collection of the exits for a room, in the specified package.",
 				"Rooms",
-				FutureProgVariableTypes.Collection | FutureProgVariableTypes.Exit
+				ProgVariableTypes.Collection | ProgVariableTypes.Exit
 			)
 		);
 	}
@@ -57,9 +57,9 @@ internal class ExitsForOverlay : BuiltInFunction
 
 	#endregion
 
-	public override FutureProgVariableTypes ReturnType
+	public override ProgVariableTypes ReturnType
 	{
-		get => FutureProgVariableTypes.Exit | FutureProgVariableTypes.Collection;
+		get => ProgVariableTypes.Exit | ProgVariableTypes.Collection;
 		protected set { }
 	}
 
@@ -73,7 +73,7 @@ internal class ExitsForOverlay : BuiltInFunction
 		var cell = (ICell)ParameterFunctions[0].Result?.GetObject;
 		if (cell is null)
 		{
-			Result = new CollectionVariable(new List<ICellExit>(), FutureProgVariableTypes.Exit);
+			Result = new CollectionVariable(new List<ICellExit>(), ProgVariableTypes.Exit);
 			return StatementResult.Normal;
 		}
 
@@ -83,13 +83,13 @@ internal class ExitsForOverlay : BuiltInFunction
 			package = cell.CurrentOverlay.Package;
 			if (package is null)
 			{
-				Result = new CollectionVariable(new List<ICellExit>(), FutureProgVariableTypes.Exit);
+				Result = new CollectionVariable(new List<ICellExit>(), ProgVariableTypes.Exit);
 				return StatementResult.Normal;
 			}
 		}
 
 		Result = new CollectionVariable(Gameworld.ExitManager.GetExitsFor(cell, package).ToList(),
-			FutureProgVariableTypes.Exit);
+			ProgVariableTypes.Exit);
 		return StatementResult.Normal;
 	}
 }

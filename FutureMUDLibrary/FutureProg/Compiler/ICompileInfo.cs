@@ -30,7 +30,7 @@ namespace MudSharp.FutureProg.Compiler {
         /// <summary>
         ///     The VariableSpace at the conclusion of the compilation of this statement
         /// </summary>
-        IDictionary<string, FutureProgVariableTypes> VariableSpace { get; }
+        IDictionary<string, ProgVariableTypes> VariableSpace { get; }
 
         /// <summary>
         ///     The lines remaining at the conclusion of the compilation of this statement

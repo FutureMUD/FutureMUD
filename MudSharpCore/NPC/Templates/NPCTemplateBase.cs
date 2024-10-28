@@ -172,9 +172,9 @@ public abstract class NPCTemplateBase : EditableItem, INPCTemplate
 			return true;
 		}
 
-		if (!prog.MatchesParameters(new List<FutureProgVariableTypes>
+		if (!prog.MatchesParameters(new List<ProgVariableTypes>
 		    {
-			    FutureProgVariableTypes.Character
+			    ProgVariableTypes.Character
 		    }))
 		{
 			actor.Send("The prog must match a single character parameter.");

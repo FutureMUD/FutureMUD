@@ -15,9 +15,9 @@ internal class GetTraitFunction : BuiltInFunction
 	{
 	}
 
-	public override FutureProgVariableTypes ReturnType
+	public override ProgVariableTypes ReturnType
 	{
-		get => FutureProgVariableTypes.Number;
+		get => ProgVariableTypes.Number;
 		protected set { }
 	}
 
@@ -25,14 +25,14 @@ internal class GetTraitFunction : BuiltInFunction
 	{
 		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
 			"gettrait",
-			new[] { FutureProgVariableTypes.Toon, FutureProgVariableTypes.Trait },
+			new[] { ProgVariableTypes.Toon, ProgVariableTypes.Trait },
 			(pars, gameworld) => new GetTraitFunction(pars, gameworld),
 			new List<string> { "who", "trait" },
 			new List<string>
 				{ "The person whose traits you would like to interrogate", "The trait you want to know the value of" },
 			"This function returns the current trait value of the selected trait on the specified person",
 			"Character",
-			FutureProgVariableTypes.Number
+			ProgVariableTypes.Number
 		));
 	}
 
@@ -57,7 +57,7 @@ internal class GetTraitFunction : BuiltInFunction
 			return StatementResult.Error;
 		}
 
-		if (target.Type == FutureProgVariableTypes.Character)
+		if (target.Type == ProgVariableTypes.Character)
 		{
 			var character = (ICharacter)target;
 			Result = new NumberVariable(character.TraitValue(trait));

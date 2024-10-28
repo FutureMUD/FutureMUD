@@ -16,9 +16,9 @@ internal class GetTraitCapFunction : BuiltInFunction
 	{
 	}
 
-	public override FutureProgVariableTypes ReturnType
+	public override ProgVariableTypes ReturnType
 	{
-		get => FutureProgVariableTypes.Number;
+		get => ProgVariableTypes.Number;
 		protected set { }
 	}
 
@@ -26,14 +26,14 @@ internal class GetTraitCapFunction : BuiltInFunction
 	{
 		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
 			"gettraitcap",
-			new[] { FutureProgVariableTypes.Character, FutureProgVariableTypes.Trait },
+			new[] { ProgVariableTypes.Character, ProgVariableTypes.Trait },
 			(pars, gameworld) => new GetTraitCapFunction(pars, gameworld),
 			new List<string> { "who", "trait" },
 			new List<string>
 				{ "The person whose traits you would like to interrogate", "The trait you want to know the cap value of" },
 			"This function returns the trait cap of the selected trait on the specified person",
 			"Character",
-			FutureProgVariableTypes.Number
+			ProgVariableTypes.Number
 		));
 	}
 
@@ -58,7 +58,7 @@ internal class GetTraitCapFunction : BuiltInFunction
 			return StatementResult.Error;
 		}
 
-		if (target.Type == FutureProgVariableTypes.Character)
+		if (target.Type == ProgVariableTypes.Character)
 		{
 			var character = (ICharacter)target;
 			Result = new NumberVariable(character.TraitMaxValue(trait));

@@ -18,9 +18,9 @@ internal class SendDiscordMessageFunction : BuiltInFunction
 		Gameworld = gameworld;
 	}
 
-	public override FutureProgVariableTypes ReturnType
+	public override ProgVariableTypes ReturnType
 	{
-		get => FutureProgVariableTypes.Boolean;
+		get => ProgVariableTypes.Boolean;
 		protected set { }
 	}
 
@@ -29,7 +29,7 @@ internal class SendDiscordMessageFunction : BuiltInFunction
 		FutureProg.RegisterBuiltInFunctionCompiler(
 			new FunctionCompilerInformation(
 				"senddiscord",
-				new[] { FutureProgVariableTypes.Number, FutureProgVariableTypes.Text, FutureProgVariableTypes.Text },
+				new[] { ProgVariableTypes.Number, ProgVariableTypes.Text, ProgVariableTypes.Text },
 				(pars, gameworld) => new SendDiscordMessageFunction(pars, gameworld)
 			)
 		);

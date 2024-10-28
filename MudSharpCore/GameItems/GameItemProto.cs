@@ -244,7 +244,7 @@ public class GameItemProto : EditableItem, IGameItemProto
 			foreach (var item in DefaultVariables)
 			{
 				sb.AppendLineFormat("\t({0}) {1} = {2}",
-					Gameworld.VariableRegister.GetType(FutureProgVariableTypes.Item, item.Key).Describe()
+					Gameworld.VariableRegister.GetType(ProgVariableTypes.Item, item.Key).Describe()
 							 .Colour(Telnet.Cyan),
 					item.Key.Colour(Telnet.Yellow),
 					item.Value);
@@ -261,13 +261,13 @@ public class GameItemProto : EditableItem, IGameItemProto
 		{
 			if (
 				prog.MatchesParameters(new[]
-					{ FutureProgVariableTypes.Item, FutureProgVariableTypes.Character }))
+					{ ProgVariableTypes.Item, ProgVariableTypes.Character }))
 			{
 				prog.Execute(newItem, loader);
 			}
 			else if (prog.MatchesParameters(new[]
 					 {
-						 FutureProgVariableTypes.Item
+						 ProgVariableTypes.Item
 					 }))
 			{
 				prog.Execute(newItem);
@@ -561,8 +561,8 @@ public class GameItemProto : EditableItem, IGameItemProto
 		{
 			var fprog = Gameworld.FutureProgs.Get(prog.FutureProgId);
 			if (fprog == null ||
-				(!fprog.MatchesParameters(new[] { FutureProgVariableTypes.Item, FutureProgVariableTypes.Character }) &&
-				 !fprog.MatchesParameters(new[] { FutureProgVariableTypes.Item })))
+				(!fprog.MatchesParameters(new[] { ProgVariableTypes.Item, ProgVariableTypes.Character }) &&
+				 !fprog.MatchesParameters(new[] { ProgVariableTypes.Item })))
 			{
 				Console.WriteLine("Warning: OnLoadProg didn't match the right parameters and was skipped over.");
 				continue;
@@ -1297,14 +1297,14 @@ public class GameItemProto : EditableItem, IGameItemProto
 					return false;
 				}
 
-				if (!prog.ReturnType.CompatibleWith(FutureProgVariableTypes.Boolean))
+				if (!prog.ReturnType.CompatibleWith(ProgVariableTypes.Boolean))
 				{
 					actor.OutputHandler.Send(
 						$"You must specify a prog that returns a boolean value, whereas {prog.MXPClickableFunctionName()} does not.");
 					return false;
 				}
 
-				if (!prog.MatchesParameters(new List<FutureProgVariableTypes> { FutureProgVariableTypes.Character }))
+				if (!prog.MatchesParameters(new List<ProgVariableTypes> { ProgVariableTypes.Character }))
 				{
 					actor.OutputHandler.Send(
 						$"You must specify a prog that accepts a single character as a parameter, whereas {prog.MXPClickableFunctionName()} does not.");
@@ -1452,14 +1452,14 @@ public class GameItemProto : EditableItem, IGameItemProto
 			return false;
 		}
 
-		if (!prog.ReturnType.CompatibleWith(FutureProgVariableTypes.Boolean))
+		if (!prog.ReturnType.CompatibleWith(ProgVariableTypes.Boolean))
 		{
 			actor.OutputHandler.Send(
 				$"You must specify a prog that returns a boolean value, whereas {prog.MXPClickableFunctionName()} does not.");
 			return false;
 		}
 
-		if (!prog.MatchesParameters(new List<FutureProgVariableTypes> { FutureProgVariableTypes.Character }))
+		if (!prog.MatchesParameters(new List<ProgVariableTypes> { ProgVariableTypes.Character }))
 		{
 			actor.OutputHandler.Send(
 				$"You must specify a prog that accepts a single character as a parameter, whereas {prog.MXPClickableFunctionName()} does not.");
@@ -1678,8 +1678,8 @@ public class GameItemProto : EditableItem, IGameItemProto
 			return false;
 		}
 
-		if (!prog.MatchesParameters(new[] { FutureProgVariableTypes.Item, FutureProgVariableTypes.Character }) &&
-			!prog.MatchesParameters(new[] { FutureProgVariableTypes.Item }))
+		if (!prog.MatchesParameters(new[] { ProgVariableTypes.Item, ProgVariableTypes.Character }) &&
+			!prog.MatchesParameters(new[] { ProgVariableTypes.Item }))
 		{
 			actor.Send(
 				"Only progs that accept a single Item or a Character and and Item as parameters can be used for OnLoad progs.");
@@ -2073,15 +2073,15 @@ public class GameItemProto : EditableItem, IGameItemProto
 		}
 
 		var variableName = command.Pop();
-		var variableType = Gameworld.VariableRegister.GetType(FutureProgVariableTypes.Item, variableName);
-		if (variableType == FutureProgVariableTypes.Error)
+		var variableType = Gameworld.VariableRegister.GetType(ProgVariableTypes.Item, variableName);
+		if (variableType == ProgVariableTypes.Error)
 		{
 			actor.Send("There is no GameItem variable called {0} - you will need to register it first.",
 				variableName);
 			return false;
 		}
 
-		if (!FutureProgVariableTypes.ValueType.CompatibleWith(variableType))
+		if (!ProgVariableTypes.ValueType.CompatibleWith(variableType))
 		{
 			actor.Send("Only value type variables can be given default values for Game Items.");
 			return false;

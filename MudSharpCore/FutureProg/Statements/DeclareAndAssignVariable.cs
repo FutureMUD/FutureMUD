@@ -16,10 +16,10 @@ internal class DeclareAndAssignVariable : Statement
 			RegexOptions.Multiline | RegexOptions.IgnoreCase);
 
 	protected string NameToDeclare;
-	protected FutureProgVariableTypes TypeToDeclare;
+	protected ProgVariableTypes TypeToDeclare;
 	protected IFunction ValueFunction;
 
-	protected DeclareAndAssignVariable(string name, FutureProgVariableTypes type, IFunction valueFunction)
+	protected DeclareAndAssignVariable(string name, ProgVariableTypes type, IFunction valueFunction)
 	{
 		NameToDeclare = name;
 		TypeToDeclare = type;
@@ -35,23 +35,23 @@ internal class DeclareAndAssignVariable : Statement
 			return StatementResult.Error;
 		}
 
-		if (TypeToDeclare.HasFlag(FutureProgVariableTypes.Collection))
+		if (TypeToDeclare.HasFlag(ProgVariableTypes.Collection))
 		{
 			variables.SetVariable(NameToDeclare,
-				new CollectionVariable(new List<IFutureProgVariable>(),
-					TypeToDeclare ^ FutureProgVariableTypes.Collection));
+				new CollectionVariable(new List<IProgVariable>(),
+					TypeToDeclare ^ ProgVariableTypes.Collection));
 		}
-		else if (TypeToDeclare.HasFlag(FutureProgVariableTypes.Dictionary))
+		else if (TypeToDeclare.HasFlag(ProgVariableTypes.Dictionary))
 		{
 			variables.SetVariable(NameToDeclare,
-				new DictionaryVariable(new Dictionary<string, IFutureProgVariable>(),
-					TypeToDeclare ^ FutureProgVariableTypes.Dictionary));
+				new DictionaryVariable(new Dictionary<string, IProgVariable>(),
+					TypeToDeclare ^ ProgVariableTypes.Dictionary));
 		}
-		else if (TypeToDeclare.HasFlag(FutureProgVariableTypes.CollectionDictionary))
+		else if (TypeToDeclare.HasFlag(ProgVariableTypes.CollectionDictionary))
 		{
 			variables.SetVariable(NameToDeclare,
-				new CollectionDictionaryVariable(new CollectionDictionary<string, IFutureProgVariable>(),
-					TypeToDeclare ^ FutureProgVariableTypes.CollectionDictionary));
+				new CollectionDictionaryVariable(new CollectionDictionary<string, IProgVariable>(),
+					TypeToDeclare ^ ProgVariableTypes.CollectionDictionary));
 		}
 		else
 		{
@@ -70,7 +70,7 @@ internal class DeclareAndAssignVariable : Statement
 	}
 
 	private static ICompileInfo DeclareAndAssignVariableCompile(IEnumerable<string> lines,
-		IDictionary<string, FutureProgVariableTypes> variableSpace, int lineNumber, IFuturemud gameworld)
+		IDictionary<string, ProgVariableTypes> variableSpace, int lineNumber, IFuturemud gameworld)
 	{
 		var match = DeclareAndAssignVariableCompileRegex.Match(lines.First());
 		var variableName = match.Groups["varname"].Value.Trim().ToLowerInvariant();
@@ -99,7 +99,7 @@ internal class DeclareAndAssignVariable : Statement
 
 		var function = (IFunction)rhsInfo.CompiledStatement;
 
-		var type = function.ReturnType & ~FutureProgVariableTypes.Literal;
+		var type = function.ReturnType & ~ProgVariableTypes.Literal;
 
 		var newVar = new DeclareAndAssignVariable(variableName, type, function);
 		variableSpace.Add(newVar.NameToDeclare, newVar.TypeToDeclare);
@@ -126,7 +126,7 @@ internal class DeclareAndAssignVariable : Statement
 			new Tuple
 			<Regex,
 				Func
-				<IEnumerable<string>, IDictionary<string, FutureProgVariableTypes>, int, IFuturemud, ICompileInfo>>(
+				<IEnumerable<string>, IDictionary<string, ProgVariableTypes>, int, IFuturemud, ICompileInfo>>(
 				DeclareAndAssignVariableCompileRegex, DeclareAndAssignVariableCompile)
 		);
 

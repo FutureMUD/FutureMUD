@@ -124,7 +124,7 @@ public class ElectricLightGameItemComponentProto : GameItemComponentProto
 			return false;
 		}
 
-		if (!prog.MatchesParameters(new[] { FutureProgVariableTypes.Item }))
+		if (!prog.MatchesParameters(new[] { ProgVariableTypes.Item }))
 		{
 			actor.Send("The prog must take only a single item as a parameter.");
 			return false;
@@ -207,7 +207,7 @@ public class ElectricLightGameItemComponentProto : GameItemComponentProto
 			return false;
 		}
 
-		if (!prog.MatchesParameters(new[] { FutureProgVariableTypes.Item }))
+		if (!prog.MatchesParameters(new[] { ProgVariableTypes.Item }))
 		{
 			actor.Send("The prog must take only a single item as a parameter.");
 			return false;

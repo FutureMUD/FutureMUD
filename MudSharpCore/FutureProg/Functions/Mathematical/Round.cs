@@ -23,7 +23,7 @@ internal class Round : BuiltInFunction
 		FutureProg.RegisterBuiltInFunctionCompiler(
 			new FunctionCompilerInformation(
 				"Round".ToLowerInvariant(),
-				new[] { FutureProgVariableTypes.Number }, // the parameters the function takes
+				new[] { ProgVariableTypes.Number }, // the parameters the function takes
 				(pars, gameworld) => new Round(pars, gameworld),
 				new List<string>
 				{
@@ -37,14 +37,14 @@ internal class Round : BuiltInFunction
 
 				"Numbers", // the category to which this function belongs,
 
-				FutureProgVariableTypes.Number // the return type of the function
+				ProgVariableTypes.Number // the return type of the function
 			)
 		);
 
 		FutureProg.RegisterBuiltInFunctionCompiler(
 			new FunctionCompilerInformation(
 				"Round".ToLowerInvariant(),
-				new[] { FutureProgVariableTypes.Number, FutureProgVariableTypes.Number }, // the parameters the function takes
+				new[] { ProgVariableTypes.Number, ProgVariableTypes.Number }, // the parameters the function takes
 				(pars, gameworld) => new Round(pars, gameworld),
 				new List<string>
 				{
@@ -60,7 +60,7 @@ internal class Round : BuiltInFunction
 
 				"Numbers", // the category to which this function belongs,
 
-				FutureProgVariableTypes.Number // the return type of the function
+				ProgVariableTypes.Number // the return type of the function
 			)
 		);
 	}
@@ -73,9 +73,9 @@ internal class Round : BuiltInFunction
 	}
 	#endregion
 
-	public override FutureProgVariableTypes ReturnType
+	public override ProgVariableTypes ReturnType
 	{
-		get { return FutureProgVariableTypes.Number; }
+		get { return ProgVariableTypes.Number; }
 		protected set { }
 	}
 

@@ -240,7 +240,7 @@ Please answer #3yes#f or #3no#f: ",
 			Category = "Chargen",
 			Subcategory = "Age",
 			FunctionComment = "Used to determine the maximum age for characters in character creation",
-			ReturnType = (int)FutureProgVariableTypes.Number,
+			ReturnType = (int)ProgVariableTypes.Number,
 			AcceptsAnyParameters = false,
 			Public = false,
 			StaticType = 0,
@@ -250,7 +250,7 @@ Please answer #3yes#f or #3no#f: ",
 		prog.FutureProgsParameters.Add(new FutureProgsParameter
 		{
 			FutureProg = prog, ParameterIndex = 0, ParameterName = "ch",
-			ParameterType = (int)FutureProgVariableTypes.Toon
+			ParameterType = (int)ProgVariableTypes.Toon
 		});
 
 		prog = new FutureProg
@@ -259,7 +259,7 @@ Please answer #3yes#f or #3no#f: ",
 			Category = "Chargen",
 			Subcategory = "Age",
 			FunctionComment = "Used to determine the minimum age for characters in character creation",
-			ReturnType = (int)FutureProgVariableTypes.Number,
+			ReturnType = (int)ProgVariableTypes.Number,
 			AcceptsAnyParameters = false,
 			Public = false,
 			StaticType = 0,
@@ -269,7 +269,7 @@ Please answer #3yes#f or #3no#f: ",
 		prog.FutureProgsParameters.Add(new FutureProgsParameter
 		{
 			FutureProg = prog, ParameterIndex = 0, ParameterName = "ch",
-			ParameterType = (int)FutureProgVariableTypes.Toon
+			ParameterType = (int)ProgVariableTypes.Toon
 		});
 
 		prog = new FutureProg
@@ -279,7 +279,7 @@ Please answer #3yes#f or #3no#f: ",
 			Subcategory = "Height",
 			FunctionComment =
 				"Used to determine the maximum height for characters in character creation. Result is in centimetres. Google a conversion if you need to.",
-			ReturnType = (int)FutureProgVariableTypes.Number,
+			ReturnType = (int)ProgVariableTypes.Number,
 			AcceptsAnyParameters = false,
 			Public = false,
 			StaticType = 0,
@@ -300,7 +300,7 @@ return 200"
 		prog.FutureProgsParameters.Add(new FutureProgsParameter
 		{
 			FutureProg = prog, ParameterIndex = 0, ParameterName = "ch",
-			ParameterType = (int)FutureProgVariableTypes.Toon
+			ParameterType = (int)ProgVariableTypes.Toon
 		});
 
 		prog = new FutureProg
@@ -310,7 +310,7 @@ return 200"
 			Subcategory = "Height",
 			FunctionComment =
 				"Used to determine the minimum height for characters in character creation. Result is in centimetres. Google a conversion if you need to.",
-			ReturnType = (int)FutureProgVariableTypes.Number,
+			ReturnType = (int)ProgVariableTypes.Number,
 			AcceptsAnyParameters = false,
 			Public = false,
 			StaticType = 0,
@@ -331,7 +331,7 @@ return 149"
 		prog.FutureProgsParameters.Add(new FutureProgsParameter
 		{
 			FutureProg = prog, ParameterIndex = 0, ParameterName = "ch",
-			ParameterType = (int)FutureProgVariableTypes.Toon
+			ParameterType = (int)ProgVariableTypes.Toon
 		});
 
 		prog = new FutureProg
@@ -341,7 +341,7 @@ return 149"
 			Subcategory = "Weight",
 			FunctionComment =
 				"Used to determine the maximum weight for characters in character creation. Result is in grams. Google a conversion if you need to, or use BMI as presented.",
-			ReturnType = (int)FutureProgVariableTypes.Number,
+			ReturnType = (int)ProgVariableTypes.Number,
 			AcceptsAnyParameters = false,
 			Public = false,
 			StaticType = 0,
@@ -359,7 +359,7 @@ return (((@ch.Height / 100) ^ 2) * @bmi) * 1000"
 		prog.FutureProgsParameters.Add(new FutureProgsParameter
 		{
 			FutureProg = prog, ParameterIndex = 0, ParameterName = "ch",
-			ParameterType = (int)FutureProgVariableTypes.Toon
+			ParameterType = (int)ProgVariableTypes.Toon
 		});
 
 		prog = new FutureProg
@@ -369,7 +369,7 @@ return (((@ch.Height / 100) ^ 2) * @bmi) * 1000"
 			Subcategory = "Weight",
 			FunctionComment =
 				"Used to determine the minimum weight for characters in character creation. Result is in grams. Google a conversion if you need to, or use BMI as presented.",
-			ReturnType = (int)FutureProgVariableTypes.Number,
+			ReturnType = (int)ProgVariableTypes.Number,
 			AcceptsAnyParameters = false,
 			Public = false,
 			StaticType = 0,
@@ -387,7 +387,7 @@ return (((@ch.Height / 100) ^ 2) * @bmi) * 1000"
 		prog.FutureProgsParameters.Add(new FutureProgsParameter
 		{
 			FutureProg = prog, ParameterIndex = 0, ParameterName = "ch",
-			ParameterType = (int)FutureProgVariableTypes.Toon
+			ParameterType = (int)ProgVariableTypes.Toon
 		});
 
 		prog = new FutureProg
@@ -396,7 +396,7 @@ return (((@ch.Height / 100) ^ 2) * @bmi) * 1000"
 			Category = "Chargen",
 			Subcategory = "Skills",
 			FunctionComment = "Returns a list of skills that a character gets for free",
-			ReturnType = (int)(FutureProgVariableTypes.Trait | FutureProgVariableTypes.Collection),
+			ReturnType = (int)(ProgVariableTypes.Trait | ProgVariableTypes.Collection),
 			AcceptsAnyParameters = false,
 			Public = false,
 			StaticType = 0,
@@ -421,7 +421,7 @@ return @skills"
 		prog.FutureProgsParameters.Add(new FutureProgsParameter
 		{
 			FutureProg = prog, ParameterIndex = 0, ParameterName = "ch",
-			ParameterType = (int)FutureProgVariableTypes.Toon
+			ParameterType = (int)ProgVariableTypes.Toon
 		});
 
 		prog = new FutureProg
@@ -430,7 +430,7 @@ return @skills"
 			Category = "Chargen",
 			Subcategory = "Skills",
 			FunctionComment = "Determines the number of skill picks that are given at character creation",
-			ReturnType = (int)FutureProgVariableTypes.Number,
+			ReturnType = (int)ProgVariableTypes.Number,
 			AcceptsAnyParameters = false,
 			Public = false,
 			StaticType = 0,
@@ -440,7 +440,7 @@ return @skills"
 		prog.FutureProgsParameters.Add(new FutureProgsParameter
 		{
 			FutureProg = prog, ParameterIndex = 0, ParameterName = "ch",
-			ParameterType = (int)FutureProgVariableTypes.Toon
+			ParameterType = (int)ProgVariableTypes.Toon
 		});
 
 		prog = new FutureProg
@@ -449,7 +449,7 @@ return @skills"
 			Category = "Chargen",
 			Subcategory = "Knowledges",
 			FunctionComment = "Determines the number of knowledge picks that are given at character creation",
-			ReturnType = (int)FutureProgVariableTypes.Number,
+			ReturnType = (int)ProgVariableTypes.Number,
 			AcceptsAnyParameters = false,
 			Public = false,
 			StaticType = 0,
@@ -459,12 +459,12 @@ return @skills"
 		prog.FutureProgsParameters.Add(new FutureProgsParameter
 		{
 			FutureProg = prog, ParameterIndex = 0, ParameterName = "ch",
-			ParameterType = (int)FutureProgVariableTypes.Toon
+			ParameterType = (int)ProgVariableTypes.Toon
 		});
 		prog.FutureProgsParameters.Add(new FutureProgsParameter
 		{
 			FutureProg = prog, ParameterIndex = 1, ParameterName = "trait",
-			ParameterType = (int)FutureProgVariableTypes.Trait
+			ParameterType = (int)ProgVariableTypes.Trait
 		});
 
 		prog = new FutureProg
@@ -473,7 +473,7 @@ return @skills"
 			Category = "Chargen",
 			Subcategory = "Skills",
 			FunctionComment = "Returns a list of knowledges that a character gets for free",
-			ReturnType = (long)(FutureProgVariableTypes.Knowledge | FutureProgVariableTypes.Collection),
+			ReturnType = (long)(ProgVariableTypes.Knowledge | ProgVariableTypes.Collection),
 			AcceptsAnyParameters = false,
 			Public = false,
 			StaticType = 0,
@@ -497,7 +497,7 @@ return @knowledges"
 		prog.FutureProgsParameters.Add(new FutureProgsParameter
 		{
 			FutureProg = prog, ParameterIndex = 0, ParameterName = "ch",
-			ParameterType = (int)FutureProgVariableTypes.Toon
+			ParameterType = (int)ProgVariableTypes.Toon
 		});
 
 		if (questionAnswers["attributemode"].EqualTo("points"))
@@ -509,7 +509,7 @@ return @knowledges"
 				Subcategory = "Attributes",
 				FunctionComment =
 					"Determines the maximum number of boosts that may be put into a single attribute at character creation time",
-				ReturnType = (int)FutureProgVariableTypes.Number,
+				ReturnType = (int)ProgVariableTypes.Number,
 				AcceptsAnyParameters = false,
 				Public = false,
 				StaticType = 0,
@@ -519,12 +519,12 @@ return @knowledges"
 			prog.FutureProgsParameters.Add(new FutureProgsParameter
 			{
 				FutureProg = prog, ParameterIndex = 0, ParameterName = "ch",
-				ParameterType = (int)FutureProgVariableTypes.Toon
+				ParameterType = (int)ProgVariableTypes.Toon
 			});
 			prog.FutureProgsParameters.Add(new FutureProgsParameter
 			{
 				FutureProg = prog, ParameterIndex = 1, ParameterName = "trait",
-				ParameterType = (int)FutureProgVariableTypes.Trait
+				ParameterType = (int)ProgVariableTypes.Trait
 			});
 
 			prog = new FutureProg
@@ -534,7 +534,7 @@ return @knowledges"
 				Subcategory = "Attributes",
 				FunctionComment =
 					"Determines the maximum number of free boosts that may be put into a single attribute at character creation time without paying any build points",
-				ReturnType = (int)FutureProgVariableTypes.Number,
+				ReturnType = (int)ProgVariableTypes.Number,
 				AcceptsAnyParameters = false,
 				Public = false,
 				StaticType = 0,
@@ -544,12 +544,12 @@ return @knowledges"
 			prog.FutureProgsParameters.Add(new FutureProgsParameter
 			{
 				FutureProg = prog, ParameterIndex = 0, ParameterName = "ch",
-				ParameterType = (int)FutureProgVariableTypes.Toon
+				ParameterType = (int)ProgVariableTypes.Toon
 			});
 			prog.FutureProgsParameters.Add(new FutureProgsParameter
 			{
 				FutureProg = prog, ParameterIndex = 1, ParameterName = "trait",
-				ParameterType = (int)FutureProgVariableTypes.Trait
+				ParameterType = (int)ProgVariableTypes.Trait
 			});
 
 			prog = new FutureProg
@@ -559,7 +559,7 @@ return @knowledges"
 				Subcategory = "Attributes",
 				FunctionComment =
 					"Determines the maximum number of times that a single attribute may be penalised at character creation time",
-				ReturnType = (int)FutureProgVariableTypes.Number,
+				ReturnType = (int)ProgVariableTypes.Number,
 				AcceptsAnyParameters = false,
 				Public = false,
 				StaticType = 0,
@@ -569,12 +569,12 @@ return @knowledges"
 			prog.FutureProgsParameters.Add(new FutureProgsParameter
 			{
 				FutureProg = prog, ParameterIndex = 0, ParameterName = "ch",
-				ParameterType = (int)FutureProgVariableTypes.Toon
+				ParameterType = (int)ProgVariableTypes.Toon
 			});
 			prog.FutureProgsParameters.Add(new FutureProgsParameter
 			{
 				FutureProg = prog, ParameterIndex = 1, ParameterName = "trait",
-				ParameterType = (int)FutureProgVariableTypes.Trait
+				ParameterType = (int)ProgVariableTypes.Trait
 			});
 
 			prog = new FutureProg
@@ -584,7 +584,7 @@ return @knowledges"
 				Subcategory = "Attributes",
 				FunctionComment =
 					"Determines the number of free (no build points) boosts to attributes at character creation time",
-				ReturnType = (int)FutureProgVariableTypes.Number,
+				ReturnType = (int)ProgVariableTypes.Number,
 				AcceptsAnyParameters = false,
 				Public = false,
 				StaticType = 0,
@@ -594,7 +594,7 @@ return @knowledges"
 			prog.FutureProgsParameters.Add(new FutureProgsParameter
 			{
 				FutureProg = prog, ParameterIndex = 0, ParameterName = "ch",
-				ParameterType = (int)FutureProgVariableTypes.Toon
+				ParameterType = (int)ProgVariableTypes.Toon
 			});
 
 			prog = new FutureProg
@@ -604,7 +604,7 @@ return @knowledges"
 				Subcategory = "Attributes",
 				FunctionComment =
 					"Determines the starting value of an attribute before boosts at character creation time, excluding racial bonuses which are added separately",
-				ReturnType = (int)FutureProgVariableTypes.Number,
+				ReturnType = (int)ProgVariableTypes.Number,
 				AcceptsAnyParameters = false,
 				Public = false,
 				StaticType = 0,
@@ -614,12 +614,12 @@ return @knowledges"
 			prog.FutureProgsParameters.Add(new FutureProgsParameter
 			{
 				FutureProg = prog, ParameterIndex = 0, ParameterName = "ch",
-				ParameterType = (int)FutureProgVariableTypes.Toon
+				ParameterType = (int)ProgVariableTypes.Toon
 			});
 			prog.FutureProgsParameters.Add(new FutureProgsParameter
 			{
 				FutureProg = prog, ParameterIndex = 1, ParameterName = "trait",
-				ParameterType = (int)FutureProgVariableTypes.Trait
+				ParameterType = (int)ProgVariableTypes.Trait
 			});
 		}
 
@@ -631,7 +631,7 @@ return @knowledges"
 				Category = "Chargen",
 				Subcategory = "Skills",
 				FunctionComment = "Determines the base cost of boosts to individual skills",
-				ReturnType = (int)FutureProgVariableTypes.Number,
+				ReturnType = (int)ProgVariableTypes.Number,
 				AcceptsAnyParameters = false,
 				Public = false,
 				StaticType = 0,
@@ -649,12 +649,12 @@ return 10"
 			prog.FutureProgsParameters.Add(new FutureProgsParameter
 			{
 				FutureProg = prog, ParameterIndex = 0, ParameterName = "ch",
-				ParameterType = (int)FutureProgVariableTypes.Toon
+				ParameterType = (int)ProgVariableTypes.Toon
 			});
 			prog.FutureProgsParameters.Add(new FutureProgsParameter
 			{
 				FutureProg = prog, ParameterIndex = 1, ParameterName = "skill",
-				ParameterType = (int)FutureProgVariableTypes.Trait
+				ParameterType = (int)ProgVariableTypes.Trait
 			});
 		}
 

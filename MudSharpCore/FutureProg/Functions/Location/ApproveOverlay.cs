@@ -27,7 +27,7 @@ internal class ApproveOverlay : BuiltInFunction
 		FutureProg.RegisterBuiltInFunctionCompiler(
 			new FunctionCompilerInformation(
 				"ApproveOverlay".ToLowerInvariant(),
-				new[] { FutureProgVariableTypes.OverlayPackage, FutureProgVariableTypes.Character },
+				new[] { ProgVariableTypes.OverlayPackage, ProgVariableTypes.Character },
 				(pars, gameworld) => new ApproveOverlay(pars, gameworld),
 				new List<string>
 				{
@@ -41,7 +41,7 @@ internal class ApproveOverlay : BuiltInFunction
 				},
 				"Approves the specified overlay package as ready for use. Returns true if successful",
 				"Rooms",
-				FutureProgVariableTypes.Boolean
+				ProgVariableTypes.Boolean
 			)
 		);
 
@@ -50,8 +50,8 @@ internal class ApproveOverlay : BuiltInFunction
 				"ApproveOverlay".ToLowerInvariant(),
 				new[]
 				{
-					FutureProgVariableTypes.OverlayPackage, FutureProgVariableTypes.Character,
-					FutureProgVariableTypes.Text
+					ProgVariableTypes.OverlayPackage, ProgVariableTypes.Character,
+					ProgVariableTypes.Text
 				},
 				(pars, gameworld) => new ApproveOverlay(pars, gameworld),
 				new List<string>
@@ -68,7 +68,7 @@ internal class ApproveOverlay : BuiltInFunction
 				},
 				"Approves the specified overlay package as ready for use. Returns true if successful",
 				"Rooms",
-				FutureProgVariableTypes.Boolean
+				ProgVariableTypes.Boolean
 			)
 		);
 	}
@@ -84,9 +84,9 @@ internal class ApproveOverlay : BuiltInFunction
 
 	#endregion
 
-	public override FutureProgVariableTypes ReturnType
+	public override ProgVariableTypes ReturnType
 	{
-		get => FutureProgVariableTypes.Boolean;
+		get => ProgVariableTypes.Boolean;
 		protected set { }
 	}
 

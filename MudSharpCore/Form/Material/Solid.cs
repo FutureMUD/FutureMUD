@@ -223,9 +223,9 @@ public class Solid : Material, ISolid
 
 	#region IFutureProgVariable Implementation
 
-	public override FutureProgVariableTypes Type => FutureProgVariableTypes.Solid;
+	public override ProgVariableTypes Type => ProgVariableTypes.Solid;
 
-	public override IFutureProgVariable GetProperty(string property)
+	public override IProgVariable GetProperty(string property)
 	{
 		switch (property.ToLowerInvariant())
 		{
@@ -238,11 +238,11 @@ public class Solid : Material, ISolid
 		return base.GetProperty(property);
 	}
 
-	private new static IReadOnlyDictionary<string, FutureProgVariableTypes> DotReferenceHandler()
+	private new static IReadOnlyDictionary<string, ProgVariableTypes> DotReferenceHandler()
 	{
-		var dict = new Dictionary<string, FutureProgVariableTypes>(Material.DotReferenceHandler());
-		dict.Add("liquidform", FutureProgVariableTypes.Liquid);
-		dict.Add("gasform", FutureProgVariableTypes.Gas);
+		var dict = new Dictionary<string, ProgVariableTypes>(Material.DotReferenceHandler());
+		dict.Add("liquidform", ProgVariableTypes.Liquid);
+		dict.Add("gasform", ProgVariableTypes.Gas);
 		return dict;
 	}
 
@@ -256,7 +256,7 @@ public class Solid : Material, ISolid
 
 	public new static void RegisterFutureProgCompiler()
 	{
-		FutureProgVariable.RegisterDotReferenceCompileInfo(FutureProgVariableTypes.Solid, DotReferenceHandler(),
+		ProgVariable.RegisterDotReferenceCompileInfo(ProgVariableTypes.Solid, DotReferenceHandler(),
 			DotReferenceHelp());
 	}
 

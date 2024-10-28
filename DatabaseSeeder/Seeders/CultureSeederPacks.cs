@@ -53,7 +53,7 @@ public partial class CultureSeeder
 				Category = "Chargen",
 				Subcategory = "Skills",
 				FunctionComment = "Used to determine the opening value for a skill at character creation",
-				ReturnType = (int)FutureProgVariableTypes.Number,
+				ReturnType = (int)ProgVariableTypes.Number,
 				AcceptsAnyParameters = false,
 				Public = false,
 				StaticType = 0,
@@ -65,17 +65,17 @@ public partial class CultureSeeder
 			_skillStartProg.FutureProgsParameters.Add(new FutureProgsParameter
 			{
 				FutureProg = _skillStartProg, ParameterIndex = 0, ParameterName = "ch",
-				ParameterType = (int)FutureProgVariableTypes.Toon
+				ParameterType = (int)ProgVariableTypes.Toon
 			});
 			_skillStartProg.FutureProgsParameters.Add(new FutureProgsParameter
 			{
 				FutureProg = _skillStartProg, ParameterIndex = 1, ParameterName = "trait",
-				ParameterType = (int)FutureProgVariableTypes.Trait
+				ParameterType = (int)ProgVariableTypes.Trait
 			});
 			_skillStartProg.FutureProgsParameters.Add(new FutureProgsParameter
 			{
 				FutureProg = _skillStartProg, ParameterIndex = 2, ParameterName = "boosts",
-				ParameterType = (int)FutureProgVariableTypes.Number
+				ParameterType = (int)ProgVariableTypes.Number
 			});
 			_context.FutureProgs.Add(_skillStartProg);
 			_context.SaveChanges();

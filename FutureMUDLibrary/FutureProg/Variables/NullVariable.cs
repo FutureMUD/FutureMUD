@@ -2,18 +2,18 @@
 using System.Collections.Generic;
 
 namespace MudSharp.FutureProg.Variables {
-    public class NullVariable : FutureProgVariable {
-        public NullVariable(FutureProgVariableTypes type) {
+    public class NullVariable : ProgVariable {
+        public NullVariable(ProgVariableTypes type) {
             Type = type;
         }
 
-        public override FutureProgVariableTypes Type { get; }
+        public override ProgVariableTypes Type { get; }
 
         public override object GetObject => GetDefaultFor(Type);
 
-        private static IReadOnlyDictionary<string,FutureProgVariableTypes> DotReferenceHandler()
+        private static IReadOnlyDictionary<string,ProgVariableTypes> DotReferenceHandler()
         {
-            return new Dictionary<string, FutureProgVariableTypes>(StringComparer.InvariantCultureIgnoreCase)
+            return new Dictionary<string, ProgVariableTypes>(StringComparer.InvariantCultureIgnoreCase)
             {
             };
         }
@@ -26,44 +26,44 @@ namespace MudSharp.FutureProg.Variables {
         }
 
         public static void RegisterFutureProgCompiler() {
-            FutureProgVariable.RegisterDotReferenceCompileInfo(FutureProgVariableTypes.Void, DotReferenceHandler(), DotReferenceHelp());
+            ProgVariable.RegisterDotReferenceCompileInfo(ProgVariableTypes.Void, DotReferenceHandler(), DotReferenceHelp());
         }
 
-        private static Type GetUnderlyingType(FutureProgVariableTypes type) {
+        private static Type GetUnderlyingType(ProgVariableTypes type) {
             switch (type) {
-                case FutureProgVariableTypes.Boolean:
+                case ProgVariableTypes.Boolean:
                     return typeof(bool);
-                case FutureProgVariableTypes.Number:
+                case ProgVariableTypes.Number:
                     return typeof(decimal);
-                case FutureProgVariableTypes.Text:
+                case ProgVariableTypes.Text:
                     return typeof(string);
-                case FutureProgVariableTypes.TimeSpan:
+                case ProgVariableTypes.TimeSpan:
                     return typeof(TimeSpan);
-                case FutureProgVariableTypes.DateTime:
+                case ProgVariableTypes.DateTime:
                     return typeof(DateTime);
                 default:
                     throw new NotImplementedException();
             }
         }
 
-        private static object GetDefaultFor(FutureProgVariableTypes type) {
+        private static object GetDefaultFor(ProgVariableTypes type) {
             switch (type) {
-                case FutureProgVariableTypes.Boolean:
+                case ProgVariableTypes.Boolean:
                     return default(bool);
-                case FutureProgVariableTypes.Number:
+                case ProgVariableTypes.Number:
                     return default(decimal);
-                case FutureProgVariableTypes.Text:
+                case ProgVariableTypes.Text:
                     return default(string);
-                case FutureProgVariableTypes.TimeSpan:
+                case ProgVariableTypes.TimeSpan:
                     return default(TimeSpan);
-                case FutureProgVariableTypes.DateTime:
+                case ProgVariableTypes.DateTime:
                     return default(DateTime);
                 default:
                     return null;
             }
         }
 
-        public override IFutureProgVariable GetProperty(string property) {
+        public override IProgVariable GetProperty(string property) {
             throw new NotSupportedException("Property for a null object sought in FutureProg.");
         }
     }

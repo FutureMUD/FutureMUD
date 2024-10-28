@@ -246,13 +246,13 @@ public abstract class ProjectLabourBase : SaveableItem, IProjectLabourRequiremen
 			return false;
 		}
 
-		if (!prog.ReturnType.CompatibleWith(FutureProgVariableTypes.Boolean))
+		if (!prog.ReturnType.CompatibleWith(ProgVariableTypes.Boolean))
 		{
 			actor.OutputHandler.Send("You must specify a prog that returns a boolean truth value.");
 			return false;
 		}
 
-		if (!prog.MatchesParameters(new[] { FutureProgVariableTypes.Character }))
+		if (!prog.MatchesParameters(new[] { ProgVariableTypes.Character }))
 		{
 			actor.OutputHandler.Send("You must specify a prog that accepts a single character as a parameter.");
 			return false;

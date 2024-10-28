@@ -16,12 +16,12 @@ namespace MudSharp.FutureProg;
 
 internal class VariableRegister : SaveableItem, IVariableRegister
 {
-	private readonly HashSet<Tuple<FutureProgVariableTypes, string>> _changedDefaults =
+	private readonly HashSet<Tuple<ProgVariableTypes, string>> _changedDefaults =
 		new();
 
 	private readonly HashSet<VariableReference> _changedReferences = new();
 
-	private readonly HashSet<Tuple<FutureProgVariableTypes, string>> _changedTypes =
+	private readonly HashSet<Tuple<ProgVariableTypes, string>> _changedTypes =
 		new();
 
 	#region Constructors
@@ -30,28 +30,28 @@ internal class VariableRegister : SaveableItem, IVariableRegister
 	{
 		Gameworld = gameworld;
 
-		_types = new Dictionary<FutureProgVariableTypes, Dictionary<string, FutureProgVariableTypes>>();
+		_types = new Dictionary<ProgVariableTypes, Dictionary<string, ProgVariableTypes>>();
 		using (new FMDB())
 		{
 			foreach (var item in FMDB.Context.VariableDefinitions.AsEnumerable().GroupBy(x => x.OwnerType))
 			{
-				var type = (FutureProgVariableTypes)item.Key;
-				var newDict = new Dictionary<string, FutureProgVariableTypes>();
+				var type = (ProgVariableTypes)item.Key;
+				var newDict = new Dictionary<string, ProgVariableTypes>();
 				foreach (var sub in item)
 				{
-					newDict[sub.Property] = (FutureProgVariableTypes)sub.ContainedType;
+					newDict[sub.Property] = (ProgVariableTypes)sub.ContainedType;
 				}
 
 				_types[type] = newDict;
 			}
 		}
 
-		_defaultValues = new Dictionary<FutureProgVariableTypes, Dictionary<string, IVariableValue>>();
+		_defaultValues = new Dictionary<ProgVariableTypes, Dictionary<string, IVariableValue>>();
 		using (new FMDB())
 		{
 			foreach (var item in FMDB.Context.VariableDefaults.AsEnumerable().GroupBy(x => x.OwnerType))
 			{
-				var type = (FutureProgVariableTypes)item.Key;
+				var type = (ProgVariableTypes)item.Key;
 				var newDict = new Dictionary<string, IVariableValue>();
 				foreach (var sub in item)
 				{
@@ -59,27 +59,27 @@ internal class VariableRegister : SaveableItem, IVariableRegister
 					var valueType = _types[type][sub.Property];
 					switch (valueType)
 					{
-						case FutureProgVariableTypes.Boolean:
-						case FutureProgVariableTypes.Gender:
-						case FutureProgVariableTypes.Text:
-						case FutureProgVariableTypes.Number:
-						case FutureProgVariableTypes.TimeSpan:
-						case FutureProgVariableTypes.DateTime:
-						case FutureProgVariableTypes.MudDateTime:
+						case ProgVariableTypes.Boolean:
+						case ProgVariableTypes.Gender:
+						case ProgVariableTypes.Text:
+						case ProgVariableTypes.Number:
+						case ProgVariableTypes.TimeSpan:
+						case ProgVariableTypes.DateTime:
+						case ProgVariableTypes.MudDateTime:
 							newValue = new ValueVariableValue(XElement.Parse(sub.DefaultValue), valueType, gameworld);
 							break;
 						default:
-							if (valueType.HasFlag(FutureProgVariableTypes.Collection))
+							if (valueType.HasFlag(ProgVariableTypes.Collection))
 							{
 								newValue = new CollectionVariableValue(XElement.Parse(sub.DefaultValue), valueType,
 									gameworld);
 							}
-							else if (valueType.HasFlag(FutureProgVariableTypes.Dictionary))
+							else if (valueType.HasFlag(ProgVariableTypes.Dictionary))
 							{
 								newValue = new DictionaryVariableValue(XElement.Parse(sub.DefaultValue), valueType,
 									gameworld);
 							}
-							else if (valueType.HasFlag(FutureProgVariableTypes.CollectionDictionary))
+							else if (valueType.HasFlag(ProgVariableTypes.CollectionDictionary))
 							{
 								newValue = new CollectionDictionaryVariableValue(XElement.Parse(sub.DefaultValue),
 									valueType, gameworld);
@@ -104,21 +104,21 @@ internal class VariableRegister : SaveableItem, IVariableRegister
 		{
 			foreach (var item in FMDB.Context.VariableValues)
 			{
-				var type = (FutureProgVariableTypes)item.ValueType;
+				var type = (ProgVariableTypes)item.ValueType;
 				IVariableValue newValue;
 				switch (type)
 				{
-					case FutureProgVariableTypes.Boolean:
-					case FutureProgVariableTypes.Gender:
-					case FutureProgVariableTypes.Text:
-					case FutureProgVariableTypes.Number:
-					case FutureProgVariableTypes.DateTime:
-					case FutureProgVariableTypes.TimeSpan:
-					case FutureProgVariableTypes.MudDateTime:
+					case ProgVariableTypes.Boolean:
+					case ProgVariableTypes.Gender:
+					case ProgVariableTypes.Text:
+					case ProgVariableTypes.Number:
+					case ProgVariableTypes.DateTime:
+					case ProgVariableTypes.TimeSpan:
+					case ProgVariableTypes.MudDateTime:
 						newValue = new ValueVariableValue(XElement.Parse(item.ValueDefinition), type, gameworld);
 						break;
 					default:
-						if (type.HasFlag(FutureProgVariableTypes.Collection))
+						if (type.HasFlag(ProgVariableTypes.Collection))
 						{
 							newValue = new CollectionVariableValue(XElement.Parse(item.ValueDefinition), type,
 								gameworld);
@@ -135,7 +135,7 @@ internal class VariableRegister : SaveableItem, IVariableRegister
 					new VariableReference
 					{
 						ID = item.ReferenceId,
-						Type = (FutureProgVariableTypes)item.ReferenceType,
+						Type = (ProgVariableTypes)item.ReferenceType,
 						VariableName = item.ReferenceProperty
 					}] = newValue;
 			}
@@ -208,7 +208,7 @@ internal class VariableRegister : SaveableItem, IVariableRegister
 
 	internal class VariableReference
 	{
-		public FutureProgVariableTypes Type { get; init; }
+		public ProgVariableTypes Type { get; init; }
 		public long ID { get; init; }
 		public string VariableName { get; init; }
 
@@ -228,7 +228,7 @@ internal class VariableRegister : SaveableItem, IVariableRegister
 			return HashCode.Combine(ID, Type);
 		}
 
-		public bool Equals(IFutureProgVariable variable, string property)
+		public bool Equals(IProgVariable variable, string property)
 		{
 			if (!(variable is IFrameworkItem variableAsIItem))
 			{
@@ -239,20 +239,20 @@ internal class VariableRegister : SaveableItem, IVariableRegister
 			       VariableName.Equals(property, StringComparison.InvariantCultureIgnoreCase);
 		}
 
-		public static VariableReference GetReference(IFutureProgVariable variable, string property)
+		public static VariableReference GetReference(IProgVariable variable, string property)
 		{
-			if (variable?.Type.HasFlag(FutureProgVariableTypes.Collection) != false)
+			if (variable?.Type.HasFlag(ProgVariableTypes.Collection) != false)
 			{
 				return null;
 			}
 
 			switch (variable.Type)
 			{
-				case FutureProgVariableTypes.Gender:
-				case FutureProgVariableTypes.Number:
-				case FutureProgVariableTypes.Text:
-				case FutureProgVariableTypes.Boolean:
-				case FutureProgVariableTypes.Error:
+				case ProgVariableTypes.Gender:
+				case ProgVariableTypes.Number:
+				case ProgVariableTypes.Text:
+				case ProgVariableTypes.Boolean:
+				case ProgVariableTypes.Error:
 					return null;
 			}
 
@@ -272,8 +272,8 @@ internal class VariableRegister : SaveableItem, IVariableRegister
 
 	internal interface IVariableValue
 	{
-		FutureProgVariableTypes Type { get; }
-		IFutureProgVariable GetVariable(IFuturemud game);
+		ProgVariableTypes Type { get; }
+		IProgVariable GetVariable(IFuturemud game);
 		XElement SaveToXml();
 	}
 
@@ -283,21 +283,21 @@ internal class VariableRegister : SaveableItem, IVariableRegister
 		{
 		}
 
-		public CollectionVariableValue(XElement root, FutureProgVariableTypes type, IFuturemud gameworld)
+		public CollectionVariableValue(XElement root, ProgVariableTypes type, IFuturemud gameworld)
 		{
 			Collection = new List<IVariableValue>();
-			UnderlyingType = type ^ FutureProgVariableTypes.Collection;
+			UnderlyingType = type ^ ProgVariableTypes.Collection;
 			foreach (var element in root.Elements("var"))
 			{
 				switch (UnderlyingType)
 				{
-					case FutureProgVariableTypes.Number:
-					case FutureProgVariableTypes.Text:
-					case FutureProgVariableTypes.Boolean:
-					case FutureProgVariableTypes.Gender:
-					case FutureProgVariableTypes.DateTime:
-					case FutureProgVariableTypes.TimeSpan:
-					case FutureProgVariableTypes.MudDateTime:
+					case ProgVariableTypes.Number:
+					case ProgVariableTypes.Text:
+					case ProgVariableTypes.Boolean:
+					case ProgVariableTypes.Gender:
+					case ProgVariableTypes.DateTime:
+					case ProgVariableTypes.TimeSpan:
+					case ProgVariableTypes.MudDateTime:
 						Collection.Add(new ValueVariableValue(element, UnderlyingType, gameworld));
 						break;
 					default:
@@ -308,9 +308,9 @@ internal class VariableRegister : SaveableItem, IVariableRegister
 		}
 
 		public List<IVariableValue> Collection { get; init; }
-		public FutureProgVariableTypes UnderlyingType { get; init; }
+		public ProgVariableTypes UnderlyingType { get; init; }
 
-		public FutureProgVariableTypes Type => UnderlyingType | FutureProgVariableTypes.Collection;
+		public ProgVariableTypes Type => UnderlyingType | ProgVariableTypes.Collection;
 
 		#region Overrides of Object
 
@@ -326,7 +326,7 @@ internal class VariableRegister : SaveableItem, IVariableRegister
 
 		#region IVariableValue Members
 
-		public IFutureProgVariable GetVariable(IFuturemud game)
+		public IProgVariable GetVariable(IFuturemud game)
 		{
 			return new CollectionVariable(Collection.Select(x => x.GetVariable(game)).ToList(), UnderlyingType);
 		}
@@ -349,22 +349,22 @@ internal class VariableRegister : SaveableItem, IVariableRegister
 		{
 		}
 
-		public CollectionDictionaryVariableValue(XElement root, FutureProgVariableTypes type, IFuturemud gameworld)
+		public CollectionDictionaryVariableValue(XElement root, ProgVariableTypes type, IFuturemud gameworld)
 		{
 			Dictionary = new CollectionDictionary<string, IVariableValue>();
-			UnderlyingType = type ^ FutureProgVariableTypes.Collection;
+			UnderlyingType = type ^ ProgVariableTypes.Collection;
 			foreach (var element in root.Elements("value"))
 			{
 				var key = element.Element("key").Value;
 				switch (UnderlyingType)
 				{
-					case FutureProgVariableTypes.Number:
-					case FutureProgVariableTypes.Text:
-					case FutureProgVariableTypes.Boolean:
-					case FutureProgVariableTypes.Gender:
-					case FutureProgVariableTypes.DateTime:
-					case FutureProgVariableTypes.TimeSpan:
-					case FutureProgVariableTypes.MudDateTime:
+					case ProgVariableTypes.Number:
+					case ProgVariableTypes.Text:
+					case ProgVariableTypes.Boolean:
+					case ProgVariableTypes.Gender:
+					case ProgVariableTypes.DateTime:
+					case ProgVariableTypes.TimeSpan:
+					case ProgVariableTypes.MudDateTime:
 						foreach (var sub in element.Elements("var"))
 						{
 							Dictionary.Add(key, new ValueVariableValue(sub, UnderlyingType, gameworld));
@@ -383,9 +383,9 @@ internal class VariableRegister : SaveableItem, IVariableRegister
 		}
 
 		public CollectionDictionary<string, IVariableValue> Dictionary { get; init; }
-		public FutureProgVariableTypes UnderlyingType { get; init; }
+		public ProgVariableTypes UnderlyingType { get; init; }
 
-		public FutureProgVariableTypes Type => UnderlyingType | FutureProgVariableTypes.CollectionDictionary;
+		public ProgVariableTypes Type => UnderlyingType | ProgVariableTypes.CollectionDictionary;
 
 		#region Overrides of Object
 
@@ -401,9 +401,9 @@ internal class VariableRegister : SaveableItem, IVariableRegister
 
 		#region IVariableValue Members
 
-		public IFutureProgVariable GetVariable(IFuturemud game)
+		public IProgVariable GetVariable(IFuturemud game)
 		{
-			var collection = new CollectionDictionary<string, IFutureProgVariable>();
+			var collection = new CollectionDictionary<string, IProgVariable>();
 			foreach (var item in Dictionary)
 			foreach (var value in item.Value)
 			{
@@ -433,21 +433,21 @@ internal class VariableRegister : SaveableItem, IVariableRegister
 		{
 		}
 
-		public DictionaryVariableValue(XElement root, FutureProgVariableTypes type, IFuturemud gameworld)
+		public DictionaryVariableValue(XElement root, ProgVariableTypes type, IFuturemud gameworld)
 		{
 			Dictionary = new Dictionary<string, IVariableValue>();
-			UnderlyingType = type ^ FutureProgVariableTypes.Collection;
+			UnderlyingType = type ^ ProgVariableTypes.Collection;
 			foreach (var element in root.Elements("value"))
 			{
 				switch (UnderlyingType)
 				{
-					case FutureProgVariableTypes.Number:
-					case FutureProgVariableTypes.Text:
-					case FutureProgVariableTypes.Boolean:
-					case FutureProgVariableTypes.Gender:
-					case FutureProgVariableTypes.DateTime:
-					case FutureProgVariableTypes.TimeSpan:
-					case FutureProgVariableTypes.MudDateTime:
+					case ProgVariableTypes.Number:
+					case ProgVariableTypes.Text:
+					case ProgVariableTypes.Boolean:
+					case ProgVariableTypes.Gender:
+					case ProgVariableTypes.DateTime:
+					case ProgVariableTypes.TimeSpan:
+					case ProgVariableTypes.MudDateTime:
 						Dictionary.Add(element.Element("key").Value,
 							new ValueVariableValue(element.Element("var"), UnderlyingType, gameworld));
 						break;
@@ -460,9 +460,9 @@ internal class VariableRegister : SaveableItem, IVariableRegister
 		}
 
 		public Dictionary<string, IVariableValue> Dictionary { get; init; }
-		public FutureProgVariableTypes UnderlyingType { get; init; }
+		public ProgVariableTypes UnderlyingType { get; init; }
 
-		public FutureProgVariableTypes Type => UnderlyingType | FutureProgVariableTypes.Dictionary;
+		public ProgVariableTypes Type => UnderlyingType | ProgVariableTypes.Dictionary;
 
 		#region Overrides of Object
 
@@ -478,7 +478,7 @@ internal class VariableRegister : SaveableItem, IVariableRegister
 
 		#region IVariableValue Members
 
-		public IFutureProgVariable GetVariable(IFuturemud game)
+		public IProgVariable GetVariable(IFuturemud game)
 		{
 			return new DictionaryVariable(Dictionary.ToDictionary(x => x.Key, x => x.Value.GetVariable(game)),
 				UnderlyingType);
@@ -502,7 +502,7 @@ internal class VariableRegister : SaveableItem, IVariableRegister
 		{
 		}
 
-		public ValueVariableValue(XElement root, FutureProgVariableTypes type, IFuturemud gameworld)
+		public ValueVariableValue(XElement root, ProgVariableTypes type, IFuturemud gameworld)
 		{
 			Type = type;
 			if (root.HasElements)
@@ -512,32 +512,32 @@ internal class VariableRegister : SaveableItem, IVariableRegister
 
 			switch (type)
 			{
-				case FutureProgVariableTypes.Boolean:
+				case ProgVariableTypes.Boolean:
 					Value = bool.Parse(root.Value);
 					break;
-				case FutureProgVariableTypes.Gender:
+				case ProgVariableTypes.Gender:
 					Value = (Gender)short.Parse(root.Value);
 					break;
-				case FutureProgVariableTypes.Number:
+				case ProgVariableTypes.Number:
 					Value = decimal.Parse(root.Value);
 					break;
-				case FutureProgVariableTypes.Text:
+				case ProgVariableTypes.Text:
 					Value = root.Value;
 					break;
-				case FutureProgVariableTypes.TimeSpan:
+				case ProgVariableTypes.TimeSpan:
 					Value = TimeSpan.Parse(root.Value, CultureInfo.InvariantCulture);
 					break;
-				case FutureProgVariableTypes.DateTime:
+				case ProgVariableTypes.DateTime:
 					Value = DateTime.Parse(root.Value, CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal);
 					break;
-				case FutureProgVariableTypes.MudDateTime:
+				case ProgVariableTypes.MudDateTime:
 					Value = new MudDateTime(root.Value, gameworld);
 					break;
 			}
 		}
 
 		public object Value { get; init; }
-		public FutureProgVariableTypes Type { get; init; }
+		public ProgVariableTypes Type { get; init; }
 
 		#region Overrides of Object
 
@@ -552,7 +552,7 @@ internal class VariableRegister : SaveableItem, IVariableRegister
 
 		#region IVariableValue Members
 
-		public IFutureProgVariable GetVariable(IFuturemud game)
+		public IProgVariable GetVariable(IFuturemud game)
 		{
 			if (Value == null)
 			{
@@ -561,21 +561,21 @@ internal class VariableRegister : SaveableItem, IVariableRegister
 
 			switch (Type)
 			{
-				case FutureProgVariableTypes.Number:
+				case ProgVariableTypes.Number:
 					return new NumberVariable((decimal)Value);
-				case FutureProgVariableTypes.Text:
+				case ProgVariableTypes.Text:
 					return new TextVariable((string)Value);
-				case FutureProgVariableTypes.Boolean:
+				case ProgVariableTypes.Boolean:
 					return new BooleanVariable((bool)Value);
-				case FutureProgVariableTypes.Gender:
+				case ProgVariableTypes.Gender:
 					return new GenderVariable((Gender)Value);
-				case FutureProgVariableTypes.TimeSpan:
+				case ProgVariableTypes.TimeSpan:
 					return new TimeSpanVariable((TimeSpan)Value);
-				case FutureProgVariableTypes.DateTime:
+				case ProgVariableTypes.DateTime:
 					return new DateTimeVariable((DateTime)Value);
-				case FutureProgVariableTypes.MudDateTime:
+				case ProgVariableTypes.MudDateTime:
 					return (MudDateTime)Value;
-				case FutureProgVariableTypes.LiquidMixture:
+				case ProgVariableTypes.LiquidMixture:
 					return new LiquidMixture(XElement.Parse(Value.ToString()), game);
 			}
 
@@ -586,9 +586,9 @@ internal class VariableRegister : SaveableItem, IVariableRegister
 		{
 			switch (Type)
 			{
-				case FutureProgVariableTypes.DateTime:
+				case ProgVariableTypes.DateTime:
 					return new XElement("var", ((DateTime)Value).ToString(CultureInfo.InvariantCulture));
-				case FutureProgVariableTypes.MudDateTime:
+				case ProgVariableTypes.MudDateTime:
 					return new XElement("var", ((MudDateTime)Value).GetDateTimeString());
 			}
 
@@ -604,14 +604,14 @@ internal class VariableRegister : SaveableItem, IVariableRegister
 		{
 		}
 
-		public ReferenceVariableValue(XElement root, FutureProgVariableTypes type)
+		public ReferenceVariableValue(XElement root, ProgVariableTypes type)
 		{
 			Type = type;
 			ID = long.Parse(root.Value);
 		}
 
 		public long ID { get; init; }
-		public FutureProgVariableTypes Type { get; init; }
+		public ProgVariableTypes Type { get; init; }
 
 		#region Overrides of Object
 
@@ -626,89 +626,89 @@ internal class VariableRegister : SaveableItem, IVariableRegister
 
 		#region IVariableValue Members
 
-		public IFutureProgVariable GetVariable(IFuturemud game)
+		public IProgVariable GetVariable(IFuturemud game)
 		{
 			switch (Type)
 			{
-				case FutureProgVariableTypes.Character:
+				case ProgVariableTypes.Character:
 					return game.TryGetCharacter(ID, true);
-				case FutureProgVariableTypes.Item:
+				case ProgVariableTypes.Item:
 					return game.Items.Get(ID);
-				case FutureProgVariableTypes.Location:
+				case ProgVariableTypes.Location:
 					return game.Cells.Get(ID);
-				case FutureProgVariableTypes.Zone:
+				case ProgVariableTypes.Zone:
 					return game.Zones.Get(ID);
-				case FutureProgVariableTypes.Shard:
+				case ProgVariableTypes.Shard:
 					return game.Shards.Get(ID);
-				case FutureProgVariableTypes.Race:
+				case ProgVariableTypes.Race:
 					return game.Races.Get(ID);
-				case FutureProgVariableTypes.Culture:
+				case ProgVariableTypes.Culture:
 					return game.Cultures.Get(ID);
-				case FutureProgVariableTypes.Trait:
+				case ProgVariableTypes.Trait:
 					return game.Traits.Get(ID);
-				case FutureProgVariableTypes.Currency:
+				case ProgVariableTypes.Currency:
 					return game.Currencies.Get(ID);
-				case FutureProgVariableTypes.Clan:
+				case ProgVariableTypes.Clan:
 					return game.Clans.Get(ID);
-				case FutureProgVariableTypes.ClanRank:
+				case ProgVariableTypes.ClanRank:
 					return game.Clans.SelectMany(x => x.Ranks).FirstOrDefault(x => x.Id == ID);
-				case FutureProgVariableTypes.ClanPaygrade:
+				case ProgVariableTypes.ClanPaygrade:
 					return game.Clans.SelectMany(x => x.Paygrades).FirstOrDefault(x => x.Id == ID);
-				case FutureProgVariableTypes.ClanAppointment:
+				case ProgVariableTypes.ClanAppointment:
 					return game.Clans.SelectMany(x => x.Appointments).FirstOrDefault(x => x.Id == ID);
-				case FutureProgVariableTypes.Language:
+				case ProgVariableTypes.Language:
 					return game.Languages.Get(ID);
-				case FutureProgVariableTypes.Accent:
+				case ProgVariableTypes.Accent:
 					return game.Accents.Get(ID);
-				case FutureProgVariableTypes.Merit:
+				case ProgVariableTypes.Merit:
 					return game.Merits.Get(ID);
-				case FutureProgVariableTypes.Calendar:
+				case ProgVariableTypes.Calendar:
 					return game.Calendars.Get(ID);
-				case FutureProgVariableTypes.Clock:
+				case ProgVariableTypes.Clock:
 					return game.Clocks.Get(ID);
-				case FutureProgVariableTypes.Knowledge:
+				case ProgVariableTypes.Knowledge:
 					return game.Knowledges.Get(ID);
-				case FutureProgVariableTypes.Role:
+				case ProgVariableTypes.Role:
 					return game.Roles.Get(ID);
-				case FutureProgVariableTypes.Ethnicity:
+				case ProgVariableTypes.Ethnicity:
 					return game.Ethnicities.Get(ID);
-				case FutureProgVariableTypes.Drug:
+				case ProgVariableTypes.Drug:
 					return game.Drugs.Get(ID);
-				case FutureProgVariableTypes.WeatherEvent:
+				case ProgVariableTypes.WeatherEvent:
 					return game.WeatherEvents.Get(ID);
-				case FutureProgVariableTypes.Shop:
+				case ProgVariableTypes.Shop:
 					return game.Shops.Get(ID);
-				case FutureProgVariableTypes.Merchandise:
+				case ProgVariableTypes.Merchandise:
 					return game.Shops.SelectMany(x => x.Merchandises).FirstOrDefault(x => x.Id == ID);
-				case FutureProgVariableTypes.Project:
+				case ProgVariableTypes.Project:
 					return game.ActiveProjects.Get(ID);
-				case FutureProgVariableTypes.OverlayPackage:
+				case ProgVariableTypes.OverlayPackage:
 					return game.CellOverlayPackages.Get(ID);
-				case FutureProgVariableTypes.Terrain:
+				case ProgVariableTypes.Terrain:
 					return game.Terrains.Get(ID);
-				case FutureProgVariableTypes.Solid:
+				case ProgVariableTypes.Solid:
 					return game.Materials.Get(ID);
-				case FutureProgVariableTypes.Liquid:
+				case ProgVariableTypes.Liquid:
 					return game.Liquids.Get(ID);
-				case FutureProgVariableTypes.Gas:
+				case ProgVariableTypes.Gas:
 					return game.Gases.Get(ID);
-				case FutureProgVariableTypes.MagicCapability:
+				case ProgVariableTypes.MagicCapability:
 					return game.MagicCapabilities.Get(ID);
-				case FutureProgVariableTypes.MagicSchool:
+				case ProgVariableTypes.MagicSchool:
 					return game.MagicSchools.Get(ID);
-				case FutureProgVariableTypes.MagicSpell:
+				case ProgVariableTypes.MagicSpell:
 					return game.MagicSpells.Get(ID);
-				case FutureProgVariableTypes.Bank:
+				case ProgVariableTypes.Bank:
 					return game.Banks.Get(ID);
-				case FutureProgVariableTypes.BankAccount:
+				case ProgVariableTypes.BankAccount:
 					return game.BankAccounts.Get(ID);
-				case FutureProgVariableTypes.BankAccountType:
+				case ProgVariableTypes.BankAccountType:
 					return game.BankAccountTypes.Get(ID);
-				case FutureProgVariableTypes.LegalAuthority:
+				case ProgVariableTypes.LegalAuthority:
 					return game.LegalAuthorities.Get(ID);
-				case FutureProgVariableTypes.Law:
+				case ProgVariableTypes.Law:
 					return game.Laws.Get(ID);
-				case FutureProgVariableTypes.Crime:
+				case ProgVariableTypes.Crime:
 					return game.Crimes.Get(ID);
 				default:
 					return null;
@@ -725,22 +725,22 @@ internal class VariableRegister : SaveableItem, IVariableRegister
 
 	#region Core Variables
 
-	private readonly Dictionary<FutureProgVariableTypes, Dictionary<string, FutureProgVariableTypes>> _types;
+	private readonly Dictionary<ProgVariableTypes, Dictionary<string, ProgVariableTypes>> _types;
 
-	private readonly Dictionary<FutureProgVariableTypes, Dictionary<string, IVariableValue>> _defaultValues;
+	private readonly Dictionary<ProgVariableTypes, Dictionary<string, IVariableValue>> _defaultValues;
 
 	private readonly Dictionary<VariableReference, IVariableValue> _values;
 
-	private FutureProgVariableTypes GetTypeForVariable(VariableReference reference)
+	private ProgVariableTypes GetTypeForVariable(VariableReference reference)
 	{
 		if (!_types.ContainsKey(reference.Type))
 		{
-			return FutureProgVariableTypes.Error;
+			return ProgVariableTypes.Error;
 		}
 
 		if (!_types[reference.Type].ContainsKey(reference.VariableName))
 		{
-			return FutureProgVariableTypes.Error;
+			return ProgVariableTypes.Error;
 		}
 
 		return _types[reference.Type][reference.VariableName];
@@ -750,7 +750,7 @@ internal class VariableRegister : SaveableItem, IVariableRegister
 
 	#region IVariableRegister Members
 
-	public bool ResetValue(IFutureProgVariable item, string variable)
+	public bool ResetValue(IProgVariable item, string variable)
 	{
 		variable = variable.ToLowerInvariant();
 		var defaultValueDictionary = _defaultValues.ValueOrDefault(item.Type, default);
@@ -767,13 +767,13 @@ internal class VariableRegister : SaveableItem, IVariableRegister
 		return true;
 	}
 
-	public IFutureProgVariable GetValue(IFutureProgVariable item, string variable)
+	public IProgVariable GetValue(IProgVariable item, string variable)
 	{
 		variable = variable.ToLowerInvariant();
 		var reference = VariableReference.GetReference(item, variable);
 		if (reference == null)
 		{
-			return new NullVariable(item?.Type ?? FutureProgVariableTypes.Error);
+			return new NullVariable(item?.Type ?? ProgVariableTypes.Error);
 		}
 
 		var value = _values.ValueOrDefault(reference, null);
@@ -781,23 +781,23 @@ internal class VariableRegister : SaveableItem, IVariableRegister
 		{
 			var varType = GetTypeForVariable(reference);
 			// Collections do not have default values, only empty collections
-			if (varType.HasFlag(FutureProgVariableTypes.Collection))
+			if (varType.HasFlag(ProgVariableTypes.Collection))
 			{
-				return new CollectionVariable(new List<IFutureProgVariable>(),
-					varType ^ FutureProgVariableTypes.Collection);
+				return new CollectionVariable(new List<IProgVariable>(),
+					varType ^ ProgVariableTypes.Collection);
 			}
 
-			if (varType.HasFlag(FutureProgVariableTypes.CollectionDictionary))
+			if (varType.HasFlag(ProgVariableTypes.CollectionDictionary))
 			{
-				return new CollectionDictionaryVariable(new CollectionDictionary<string, IFutureProgVariable>(),
-					varType ^ FutureProgVariableTypes.CollectionDictionary);
+				return new CollectionDictionaryVariable(new CollectionDictionary<string, IProgVariable>(),
+					varType ^ ProgVariableTypes.CollectionDictionary);
 			}
 
-			if (varType.HasFlag(FutureProgVariableTypes.Dictionary))
+			if (varType.HasFlag(ProgVariableTypes.Dictionary))
 			{
 				return new DictionaryVariable(
-					new Dictionary<string, IFutureProgVariable>(StringComparer.InvariantCultureIgnoreCase),
-					varType ^ FutureProgVariableTypes.Dictionary);
+					new Dictionary<string, IProgVariable>(StringComparer.InvariantCultureIgnoreCase),
+					varType ^ ProgVariableTypes.Dictionary);
 			}
 
 			var defaultValueDictionary = _defaultValues.ValueOrDefault(item.Type, default);
@@ -808,7 +808,7 @@ internal class VariableRegister : SaveableItem, IVariableRegister
 		return value.GetVariable(Gameworld);
 	}
 
-	public IFutureProgVariable GetDefaultValue(FutureProgVariableTypes type, string variable)
+	public IProgVariable GetDefaultValue(ProgVariableTypes type, string variable)
 	{
 		variable = variable.ToLowerInvariant();
 		var lookupType = _defaultValues.ValueOrDefault(type, default);
@@ -824,23 +824,23 @@ internal class VariableRegister : SaveableItem, IVariableRegister
 			return new NullVariable(variableType);
 		}
 
-		if (variableType.HasFlag(FutureProgVariableTypes.Collection))
+		if (variableType.HasFlag(ProgVariableTypes.Collection))
 		{
-			return new CollectionVariable(new List<IFutureProgVariable>(),
-				variableType ^ FutureProgVariableTypes.Collection);
+			return new CollectionVariable(new List<IProgVariable>(),
+				variableType ^ ProgVariableTypes.Collection);
 		}
 
-		if (variableType.HasFlag(FutureProgVariableTypes.CollectionDictionary))
+		if (variableType.HasFlag(ProgVariableTypes.CollectionDictionary))
 		{
-			return new CollectionDictionaryVariable(new CollectionDictionary<string, IFutureProgVariable>(),
-				variableType ^ FutureProgVariableTypes.CollectionDictionary);
+			return new CollectionDictionaryVariable(new CollectionDictionary<string, IProgVariable>(),
+				variableType ^ ProgVariableTypes.CollectionDictionary);
 		}
 
-		if (variableType.HasFlag(FutureProgVariableTypes.Dictionary))
+		if (variableType.HasFlag(ProgVariableTypes.Dictionary))
 		{
 			return new DictionaryVariable(
-				new Dictionary<string, IFutureProgVariable>(StringComparer.InvariantCultureIgnoreCase),
-				variableType ^ FutureProgVariableTypes.Dictionary);
+				new Dictionary<string, IProgVariable>(StringComparer.InvariantCultureIgnoreCase),
+				variableType ^ ProgVariableTypes.Dictionary);
 		}
 
 		var reference = _defaultValues[type][variable];
@@ -852,9 +852,9 @@ internal class VariableRegister : SaveableItem, IVariableRegister
 		return reference.GetVariable(Gameworld);
 	}
 
-	private IVariableValue GetValue(FutureProgVariableTypes type, IFutureProgVariable value)
+	private IVariableValue GetValue(ProgVariableTypes type, IProgVariable value)
 	{
-		if (type.HasFlag(FutureProgVariableTypes.Collection))
+		if (type.HasFlag(ProgVariableTypes.Collection))
 		{
 			if (value == null)
 			{
@@ -864,13 +864,13 @@ internal class VariableRegister : SaveableItem, IVariableRegister
 			return new CollectionVariableValue
 			{
 				Collection =
-					((IList<IFutureProgVariable>)value.GetObject).Select(
-						x => GetValue(type ^ FutureProgVariableTypes.Collection, x)).ToList(),
-				UnderlyingType = type ^ FutureProgVariableTypes.Collection
+					((IList<IProgVariable>)value.GetObject).Select(
+						x => GetValue(type ^ ProgVariableTypes.Collection, x)).ToList(),
+				UnderlyingType = type ^ ProgVariableTypes.Collection
 			};
 		}
 
-		if (type.HasFlag(FutureProgVariableTypes.Dictionary))
+		if (type.HasFlag(ProgVariableTypes.Dictionary))
 		{
 			if (value == null)
 			{
@@ -879,13 +879,13 @@ internal class VariableRegister : SaveableItem, IVariableRegister
 
 			return new DictionaryVariableValue
 			{
-				Dictionary = ((Dictionary<string, IFutureProgVariable>)value.GetObject).ToDictionary(x => x.Key,
-					x => GetValue(type ^ FutureProgVariableTypes.Dictionary, x.Value)),
-				UnderlyingType = type ^ FutureProgVariableTypes.Dictionary
+				Dictionary = ((Dictionary<string, IProgVariable>)value.GetObject).ToDictionary(x => x.Key,
+					x => GetValue(type ^ ProgVariableTypes.Dictionary, x.Value)),
+				UnderlyingType = type ^ ProgVariableTypes.Dictionary
 			};
 		}
 
-		if (type.HasFlag(FutureProgVariableTypes.CollectionDictionary))
+		if (type.HasFlag(ProgVariableTypes.CollectionDictionary))
 		{
 			if (value == null)
 			{
@@ -893,8 +893,8 @@ internal class VariableRegister : SaveableItem, IVariableRegister
 			}
 
 			var collection = new CollectionDictionary<string, IVariableValue>();
-			var underlying = type ^ FutureProgVariableTypes.CollectionDictionary;
-			foreach (var item in (CollectionDictionary<string, IFutureProgVariable>)value.GetObject)
+			var underlying = type ^ ProgVariableTypes.CollectionDictionary;
+			foreach (var item in (CollectionDictionary<string, IProgVariable>)value.GetObject)
 			foreach (var sub in item.Value)
 			{
 				collection.Add(item.Key, GetValue(underlying, sub));
@@ -905,18 +905,18 @@ internal class VariableRegister : SaveableItem, IVariableRegister
 
 		switch (type)
 		{
-			case FutureProgVariableTypes.Error:
-			case FutureProgVariableTypes.Exit:
-			case FutureProgVariableTypes.Chargen:
-			case FutureProgVariableTypes.Effect:
+			case ProgVariableTypes.Error:
+			case ProgVariableTypes.Exit:
+			case ProgVariableTypes.Chargen:
+			case ProgVariableTypes.Effect:
 				return null;
-			case FutureProgVariableTypes.Boolean:
-			case FutureProgVariableTypes.Gender:
-			case FutureProgVariableTypes.Number:
-			case FutureProgVariableTypes.Text:
-			case FutureProgVariableTypes.TimeSpan:
-			case FutureProgVariableTypes.DateTime:
-			case FutureProgVariableTypes.MudDateTime:
+			case ProgVariableTypes.Boolean:
+			case ProgVariableTypes.Gender:
+			case ProgVariableTypes.Number:
+			case ProgVariableTypes.Text:
+			case ProgVariableTypes.TimeSpan:
+			case ProgVariableTypes.DateTime:
+			case ProgVariableTypes.MudDateTime:
 				return new ValueVariableValue { Type = type, Value = value.GetObject };
 			default:
 				return new ReferenceVariableValue
@@ -927,7 +927,7 @@ internal class VariableRegister : SaveableItem, IVariableRegister
 		}
 	}
 
-	public bool SetValue(IFutureProgVariable item, string variable, IFutureProgVariable value)
+	public bool SetValue(IProgVariable item, string variable, IProgVariable value)
 	{
 		variable = variable.ToLowerInvariant();
 		var reference = VariableReference.GetReference(item, variable);
@@ -949,7 +949,7 @@ internal class VariableRegister : SaveableItem, IVariableRegister
 		return true;
 	}
 
-	public void SetDefaultValue(FutureProgVariableTypes type, string variable, IFutureProgVariable value)
+	public void SetDefaultValue(ProgVariableTypes type, string variable, IProgVariable value)
 	{
 		variable = variable.ToLowerInvariant();
 		var lookupType = _defaultValues.ValueOrDefault(type, default);
@@ -963,7 +963,7 @@ internal class VariableRegister : SaveableItem, IVariableRegister
 		_changedDefaults.Add(Tuple.Create(type, variable));
 	}
 
-	public bool IsRegistered(FutureProgVariableTypes type, string variable)
+	public bool IsRegistered(ProgVariableTypes type, string variable)
 	{
 		variable = variable.ToLowerInvariant();
 		var lookupType = _types.ValueOrDefault(type, default);
@@ -975,22 +975,22 @@ internal class VariableRegister : SaveableItem, IVariableRegister
 		return lookupType.ContainsKey(variable);
 	}
 
-	public FutureProgVariableTypes GetType(FutureProgVariableTypes type, string variable)
+	public ProgVariableTypes GetType(ProgVariableTypes type, string variable)
 	{
 		variable = variable.ToLowerInvariant();
 		var lookupType = _types.ValueOrDefault(type, default);
 		if (lookupType == null)
 		{
-			return FutureProgVariableTypes.Error;
+			return ProgVariableTypes.Error;
 		}
 
-		return lookupType.ContainsKey(variable) ? lookupType[variable] : FutureProgVariableTypes.Error;
+		return lookupType.ContainsKey(variable) ? lookupType[variable] : ProgVariableTypes.Error;
 	}
 
-	public bool RegisterVariable(FutureProgVariableTypes ownerType, FutureProgVariableTypes variableType,
+	public bool RegisterVariable(ProgVariableTypes ownerType, ProgVariableTypes variableType,
 		string variable, object defaultValue = null)
 	{
-		var dictionary = _types.ValueOrDefault(ownerType, default) ?? new Dictionary<string, FutureProgVariableTypes>();
+		var dictionary = _types.ValueOrDefault(ownerType, default) ?? new Dictionary<string, ProgVariableTypes>();
 
 		if (dictionary.ContainsKey(variable.ToLowerInvariant()))
 		{
@@ -1010,52 +1010,52 @@ internal class VariableRegister : SaveableItem, IVariableRegister
 			_defaultValues[ownerType] = defaultDictionary;
 		}
 
-		_changedDefaults.Add(new Tuple<FutureProgVariableTypes, string>(ownerType, variable.ToLowerInvariant()));
+		_changedDefaults.Add(new Tuple<ProgVariableTypes, string>(ownerType, variable.ToLowerInvariant()));
 
-		if (FutureProgVariableTypes.ValueType.HasFlag(variableType))
+		if (ProgVariableTypes.ValueType.HasFlag(variableType))
 		{
 			switch (variableType)
 			{
-				case FutureProgVariableTypes.Boolean:
+				case ProgVariableTypes.Boolean:
 					defaultDictionary[variable.ToLowerInvariant()] =
 						new ValueVariableValue { Type = variableType, Value = defaultValue is bool bv && bv };
 					break;
-				case FutureProgVariableTypes.Text:
+				case ProgVariableTypes.Text:
 					defaultDictionary[variable.ToLowerInvariant()] = new ValueVariableValue
 					{
 						Type = variableType,
 						Value = defaultValue is string sv ? sv : ""
 					};
 					break;
-				case FutureProgVariableTypes.Number:
+				case ProgVariableTypes.Number:
 					defaultDictionary[variable.ToLowerInvariant()] = new ValueVariableValue
 					{
 						Type = variableType,
 						Value = defaultValue is double dv ? dv : defaultValue is int iv ? iv : 0.0
 					};
 					break;
-				case FutureProgVariableTypes.Gender:
+				case ProgVariableTypes.Gender:
 					defaultDictionary[variable.ToLowerInvariant()] = new ValueVariableValue
 					{
 						Type = variableType,
 						Value = defaultValue is Gender gv ? gv : Gender.Indeterminate
 					};
 					break;
-				case FutureProgVariableTypes.TimeSpan:
+				case ProgVariableTypes.TimeSpan:
 					defaultDictionary[variable.ToLowerInvariant()] = new ValueVariableValue
 					{
 						Type = variableType,
 						Value = defaultValue is TimeSpan tsv ? tsv : TimeSpan.FromTicks(0)
 					};
 					break;
-				case FutureProgVariableTypes.DateTime:
+				case ProgVariableTypes.DateTime:
 					defaultDictionary[variable.ToLowerInvariant()] = new ValueVariableValue
 					{
 						Type = variableType,
 						Value = defaultValue is DateTime dtv ? dtv : DateTime.MinValue
 					};
 					break;
-				case FutureProgVariableTypes.MudDateTime:
+				case ProgVariableTypes.MudDateTime:
 					defaultDictionary[variable.ToLowerInvariant()] =
 						new ValueVariableValue { Type = variableType, Value = defaultValue };
 					break;
@@ -1063,34 +1063,34 @@ internal class VariableRegister : SaveableItem, IVariableRegister
 		}
 		else
 		{
-			if (variableType.HasFlag(FutureProgVariableTypes.Collection))
+			if (variableType.HasFlag(ProgVariableTypes.Collection))
 			{
 				defaultDictionary[variable.ToLowerInvariant()] = new CollectionVariableValue
 				{
 					Collection = new List<IVariableValue>(),
-					UnderlyingType = variableType ^ FutureProgVariableTypes.Collection
+					UnderlyingType = variableType ^ ProgVariableTypes.Collection
 				};
 			}
-			else if (variableType.HasFlag(FutureProgVariableTypes.Dictionary))
+			else if (variableType.HasFlag(ProgVariableTypes.Dictionary))
 			{
 				defaultDictionary[variable.ToLowerInvariant()] = new DictionaryVariableValue
 				{
 					Dictionary = new Dictionary<string, IVariableValue>(),
-					UnderlyingType = variableType ^ FutureProgVariableTypes.Dictionary
+					UnderlyingType = variableType ^ ProgVariableTypes.Dictionary
 				};
 			}
-			else if (variableType.HasFlag(FutureProgVariableTypes.CollectionDictionary))
+			else if (variableType.HasFlag(ProgVariableTypes.CollectionDictionary))
 			{
 				defaultDictionary[variable.ToLowerInvariant()] = new CollectionDictionaryVariableValue
 				{
 					Dictionary = new CollectionDictionary<string, IVariableValue>(),
-					UnderlyingType = variableType ^ FutureProgVariableTypes.CollectionDictionary
+					UnderlyingType = variableType ^ ProgVariableTypes.CollectionDictionary
 				};
 			}
 			else
 			{
 				defaultDictionary[variable.ToLowerInvariant()] =
-					GetValue(variableType, defaultValue as IFutureProgVariable);
+					GetValue(variableType, defaultValue as IProgVariable);
 			}
 		}
 
@@ -1099,9 +1099,9 @@ internal class VariableRegister : SaveableItem, IVariableRegister
 		return true;
 	}
 
-	public bool DeregisterVariable(FutureProgVariableTypes ownerType, string variable)
+	public bool DeregisterVariable(ProgVariableTypes ownerType, string variable)
 	{
-		var dictionary = _types.ValueOrDefault(ownerType, default) ?? new Dictionary<string, FutureProgVariableTypes>();
+		var dictionary = _types.ValueOrDefault(ownerType, default) ?? new Dictionary<string, ProgVariableTypes>();
 
 		if (!dictionary.ContainsKey(variable.ToLowerInvariant()))
 		{
@@ -1119,7 +1119,7 @@ internal class VariableRegister : SaveableItem, IVariableRegister
 		return first != null && second != null && first.ID == second.ID && first.Type == second.Type;
 	}
 
-	public IEnumerable<Tuple<string, IFutureProgVariable>> AllVariables(IFutureProgVariable item)
+	public IEnumerable<Tuple<string, IProgVariable>> AllVariables(IProgVariable item)
 	{
 		var reference = VariableReference.GetReference(item, null);
 		return
@@ -1128,7 +1128,7 @@ internal class VariableRegister : SaveableItem, IVariableRegister
 			       .ToList();
 	}
 
-	public IEnumerable<Tuple<string, FutureProgVariableTypes>> AllVariables(FutureProgVariableTypes type)
+	public IEnumerable<Tuple<string, ProgVariableTypes>> AllVariables(ProgVariableTypes type)
 	{
 		return
 			_types.Where(x => x.Key == type)
@@ -1137,31 +1137,31 @@ internal class VariableRegister : SaveableItem, IVariableRegister
 			      .ToList();
 	}
 
-	public bool ValidValueType(FutureProgVariableTypes type, string value)
+	public bool ValidValueType(ProgVariableTypes type, string value)
 	{
-		if (!type.CompatibleWith(FutureProgVariableTypes.ValueType))
+		if (!type.CompatibleWith(ProgVariableTypes.ValueType))
 		{
 			return false;
 		}
 
-		switch (type ^ FutureProgVariableTypes.Literal)
+		switch (type ^ ProgVariableTypes.Literal)
 		{
-			case FutureProgVariableTypes.Text:
+			case ProgVariableTypes.Text:
 				// All string values are valid
 				return true;
-			case FutureProgVariableTypes.TimeSpan:
+			case ProgVariableTypes.TimeSpan:
 				// Timespans use a regex rather than the built in tryparse
 				return FunctionHelper.TimespanRegex.IsMatch(value);
-			case FutureProgVariableTypes.DateTime:
+			case ProgVariableTypes.DateTime:
 				return DateTime.TryParse(value, CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal,
 					out var dtValue);
-			case FutureProgVariableTypes.Number:
+			case ProgVariableTypes.Number:
 				return double.TryParse(value, out var dValue);
-			case FutureProgVariableTypes.Gender:
+			case ProgVariableTypes.Gender:
 				return Enum.TryParse(value, true, out Gender gValue);
-			case FutureProgVariableTypes.Boolean:
+			case ProgVariableTypes.Boolean:
 				return bool.TryParse(value, out var bValue);
-			case FutureProgVariableTypes.MudDateTime:
+			case ProgVariableTypes.MudDateTime:
 				return MudDateTime.TryParse(value, Gameworld, out var mdtValue);
 		}
 

@@ -566,7 +566,7 @@ public partial class Body : PerceiverItem, IBody
 
 	#region IFutureProgVariable Implementation
 
-	public override FutureProgVariableTypes Type => FutureProgVariableTypes.Error;
+	public override ProgVariableTypes Type => ProgVariableTypes.Error;
 
 	#endregion
 

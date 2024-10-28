@@ -23,10 +23,10 @@ internal class AddItem : Statement
 	}
 
 	private static ICompileInfo AddItemCompile(IEnumerable<string> lines,
-		IDictionary<string, FutureProgVariableTypes> variableSpace, int lineNumber, IFuturemud gameworld)
+		IDictionary<string, ProgVariableTypes> variableSpace, int lineNumber, IFuturemud gameworld)
 	{
 		var match = AddItemCompileRegex.Match(lines.First());
-		FutureProgVariableTypes collectionType;
+		ProgVariableTypes collectionType;
 		if (match.Groups["collection"].Value[0] == '@')
 		{
 			var collectionFunctionInfo = FunctionHelper.CompileFunction(match.Groups["collection"].Value.Substring(1),
@@ -59,7 +59,7 @@ internal class AddItem : Statement
 			collectionType = variableSpace[match.Groups["collection"].Value.ToLowerInvariant()];
 		}
 
-		if (!collectionType.HasFlag(FutureProgVariableTypes.Collection))
+		if (!collectionType.HasFlag(ProgVariableTypes.Collection))
 		{
 			return
 				CompileInfo.GetFactory()
@@ -79,7 +79,7 @@ internal class AddItem : Statement
 
 		var addItemFunction = (IFunction)addItemFunctionInfo.CompiledStatement;
 		if (
-			!(collectionType ^ FutureProgVariableTypes.Collection).CompatibleWith(addItemFunction.ReturnType))
+			!(collectionType ^ ProgVariableTypes.Collection).CompatibleWith(addItemFunction.ReturnType))
 		{
 			return CompileInfo.GetFactory()
 			                  .CreateError("The item is not of the same type as the collection.", lineNumber);
@@ -111,7 +111,7 @@ internal class AddItem : Statement
 			new Tuple
 			<Regex,
 				Func
-				<IEnumerable<string>, IDictionary<string, FutureProgVariableTypes>, int, IFuturemud, ICompileInfo>>(
+				<IEnumerable<string>, IDictionary<string, ProgVariableTypes>, int, IFuturemud, ICompileInfo>>(
 				AddItemCompileRegex, AddItemCompile)
 		);
 
@@ -145,7 +145,7 @@ For example, if you had a collection called #3numbers#0, you could do either of 
 		}
 
 		var collection = variables.GetVariable(CollectionVariable);
-		((IList<IFutureProgVariable>)collection.GetObject).Add(ItemFunction.Result);
+		((IList<IProgVariable>)collection.GetObject).Add(ItemFunction.Result);
 		return StatementResult.Normal;
 	}
 }

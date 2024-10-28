@@ -11,9 +11,9 @@ internal class ToTextFunction : BuiltInFunction
 	{
 	}
 
-	public override FutureProgVariableTypes ReturnType
+	public override ProgVariableTypes ReturnType
 	{
-		get => FutureProgVariableTypes.Text;
+		get => ProgVariableTypes.Text;
 		protected set { }
 	}
 
@@ -32,13 +32,13 @@ internal class ToTextFunction : BuiltInFunction
 	{
 		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
 			"totext",
-			new[] { FutureProgVariableTypes.Number },
+			new[] { ProgVariableTypes.Number },
 			(pars, gameworld) => new ToTextFunction(pars)
 		));
 
 		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
 			"totext",
-			new[] { FutureProgVariableTypes.Boolean },
+			new[] { ProgVariableTypes.Boolean },
 			(pars, gameworld) => new ToTextFunction(pars)
 		));
 	}

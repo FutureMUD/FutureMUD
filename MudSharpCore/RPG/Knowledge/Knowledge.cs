@@ -211,7 +211,7 @@ public class Knowledge : SaveableItem, IKnowledge
 		}
 	}
 
-	public FutureProgVariableTypes Type => FutureProgVariableTypes.Knowledge;
+	public ProgVariableTypes Type => ProgVariableTypes.Knowledge;
 
 	public object GetObject => this;
 
@@ -220,9 +220,9 @@ public class Knowledge : SaveableItem, IKnowledge
 		return _resourceCosts.ValueOrDefault(resource, 0);
 	}
 
-	public IFutureProgVariable GetProperty(string property)
+	public IProgVariable GetProperty(string property)
 	{
-		IFutureProgVariable returnVar = null;
+		IProgVariable returnVar = null;
 		switch (property.ToLowerInvariant())
 		{
 			case "id":
@@ -250,52 +250,52 @@ public class Knowledge : SaveableItem, IKnowledge
 		return returnVar;
 	}
 
-	private static FutureProgVariableTypes DotReferenceHandler(string property)
+	private static ProgVariableTypes DotReferenceHandler(string property)
 	{
-		var returnVar = FutureProgVariableTypes.Error;
+		var returnVar = ProgVariableTypes.Error;
 		switch (property.ToLowerInvariant())
 		{
 			case "id":
-				returnVar = FutureProgVariableTypes.Number;
+				returnVar = ProgVariableTypes.Number;
 				break;
 			case "name":
-				returnVar = FutureProgVariableTypes.Text;
+				returnVar = ProgVariableTypes.Text;
 				break;
 			case "desc":
-				returnVar = FutureProgVariableTypes.Text;
+				returnVar = ProgVariableTypes.Text;
 				break;
 			case "description":
-				returnVar = FutureProgVariableTypes.Text;
+				returnVar = ProgVariableTypes.Text;
 				break;
 			case "ldesc":
-				returnVar = FutureProgVariableTypes.Text;
+				returnVar = ProgVariableTypes.Text;
 				break;
 			case "longdescription":
-				returnVar = FutureProgVariableTypes.Text;
+				returnVar = ProgVariableTypes.Text;
 				break;
 			case "type":
-				returnVar = FutureProgVariableTypes.Text;
+				returnVar = ProgVariableTypes.Text;
 				break;
 			case "subtype":
-				returnVar = FutureProgVariableTypes.Text;
+				returnVar = ProgVariableTypes.Text;
 				break;
 		}
 
 		return returnVar;
 	}
 
-	private static IReadOnlyDictionary<string, FutureProgVariableTypes> DotReferenceHandler()
+	private static IReadOnlyDictionary<string, ProgVariableTypes> DotReferenceHandler()
 	{
-		return new Dictionary<string, FutureProgVariableTypes>(StringComparer.InvariantCultureIgnoreCase)
+		return new Dictionary<string, ProgVariableTypes>(StringComparer.InvariantCultureIgnoreCase)
 		{
-			{ "id", FutureProgVariableTypes.Number },
-			{ "name", FutureProgVariableTypes.Text },
-			{ "desc", FutureProgVariableTypes.Text },
-			{ "description", FutureProgVariableTypes.Text },
-			{ "ldesc", FutureProgVariableTypes.Text },
-			{ "longdescription", FutureProgVariableTypes.Text },
-			{ "type", FutureProgVariableTypes.Text },
-			{ "subtype", FutureProgVariableTypes.Text }
+			{ "id", ProgVariableTypes.Number },
+			{ "name", ProgVariableTypes.Text },
+			{ "desc", ProgVariableTypes.Text },
+			{ "description", ProgVariableTypes.Text },
+			{ "ldesc", ProgVariableTypes.Text },
+			{ "longdescription", ProgVariableTypes.Text },
+			{ "type", ProgVariableTypes.Text },
+			{ "subtype", ProgVariableTypes.Text }
 		};
 	}
 
@@ -316,7 +316,7 @@ public class Knowledge : SaveableItem, IKnowledge
 
 	public static void RegisterFutureProgCompiler()
 	{
-		FutureProgVariable.RegisterDotReferenceCompileInfo(FutureProgVariableTypes.Knowledge, DotReferenceHandler(),
+		ProgVariable.RegisterDotReferenceCompileInfo(ProgVariableTypes.Knowledge, DotReferenceHandler(),
 			DotReferenceHelp());
 	}
 
@@ -556,14 +556,14 @@ public class Knowledge : SaveableItem, IKnowledge
 			return false;
 		}
 
-		if (!prog.ReturnType.CompatibleWith(FutureProgVariableTypes.Boolean))
+		if (!prog.ReturnType.CompatibleWith(ProgVariableTypes.Boolean))
 		{
 			actor.OutputHandler.Send(
 				$"You must specify a prog that returns a boolean value, whereas {prog.MXPClickableFunctionName()} returns {prog.ReturnType.Describe().ColourValue()}");
 			return false;
 		}
 
-		if (!prog.MatchesParameters(new List<FutureProgVariableTypes> { FutureProgVariableTypes.Character }))
+		if (!prog.MatchesParameters(new List<ProgVariableTypes> { ProgVariableTypes.Character }))
 		{
 			actor.OutputHandler.Send(
 				$"You must specify a prog that accepts a single character as a parameter, whereas {prog.MXPClickableFunctionName()} does not.");
@@ -615,15 +615,15 @@ public class Knowledge : SaveableItem, IKnowledge
 			return false;
 		}
 
-		if (!prog.ReturnType.CompatibleWith(FutureProgVariableTypes.Boolean))
+		if (!prog.ReturnType.CompatibleWith(ProgVariableTypes.Boolean))
 		{
 			actor.OutputHandler.Send(
 				$"You must specify a prog that returns a boolean value, whereas {prog.MXPClickableFunctionName()} returns {prog.ReturnType.Describe().ColourValue()}");
 			return false;
 		}
 
-		if (!prog.MatchesParameters(new List<FutureProgVariableTypes>
-			    { FutureProgVariableTypes.Toon, FutureProgVariableTypes.Trait }))
+		if (!prog.MatchesParameters(new List<ProgVariableTypes>
+			    { ProgVariableTypes.Toon, ProgVariableTypes.Trait }))
 		{
 			actor.OutputHandler.Send(
 				$"You must specify a prog that accepts a toon and a trait as a parameter, whereas {prog.MXPClickableFunctionName()} does not.");

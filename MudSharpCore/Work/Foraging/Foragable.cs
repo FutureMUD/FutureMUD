@@ -345,7 +345,7 @@ public class Foragable : EditableItem, IForagable
 			return false;
 		}
 
-		if (prog.ReturnType != FutureProgVariableTypes.Boolean)
+		if (prog.ReturnType != ProgVariableTypes.Boolean)
 		{
 			actor.Send("Only progs that return a boolean can be used for the CanForage prog. {0} returns {1}.",
 				prog.FunctionName.Colour(Telnet.Yellow), prog.ReturnType.Describe().Colour(Telnet.Cyan));
@@ -353,10 +353,10 @@ public class Foragable : EditableItem, IForagable
 		}
 
 		if (
-			!prog.MatchesParameters(new List<FutureProgVariableTypes>
+			!prog.MatchesParameters(new List<ProgVariableTypes>
 			{
-				FutureProgVariableTypes.Character,
-				FutureProgVariableTypes.Number
+				ProgVariableTypes.Character,
+				ProgVariableTypes.Number
 			}))
 		{
 			actor.Send(
@@ -403,12 +403,12 @@ public class Foragable : EditableItem, IForagable
 		}
 
 		if (
-			!prog.MatchesParameters(new List<FutureProgVariableTypes>
+			!prog.MatchesParameters(new List<ProgVariableTypes>
 			{
-				FutureProgVariableTypes.Character,
-				FutureProgVariableTypes.Number,
-				FutureProgVariableTypes.Item,
-				FutureProgVariableTypes.Number
+				ProgVariableTypes.Character,
+				ProgVariableTypes.Number,
+				ProgVariableTypes.Item,
+				ProgVariableTypes.Number
 			}))
 		{
 			actor.Send(

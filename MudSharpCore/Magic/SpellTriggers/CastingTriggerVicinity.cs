@@ -142,16 +142,16 @@ public class CastingTriggerVicinity : CastingTriggerBase
 			return false;
 		}
 
-		if (!prog.ReturnType.CompatibleWith(FutureProgVariableTypes.Boolean))
+		if (!prog.ReturnType.CompatibleWith(ProgVariableTypes.Boolean))
 		{
 			actor.OutputHandler.Send(
 				$"You must specify a prog that returns a boolean value, whereas {prog.MXPClickableFunctionName()} returns {prog.ReturnType.Describe().ColourName()}.");
 			return false;
 		}
 
-		if (!prog.MatchesParameters(new List<FutureProgVariableTypes>
-			    { FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Character }) &&
-		    !prog.MatchesParameters(new List<FutureProgVariableTypes> { FutureProgVariableTypes.Perceivable }))
+		if (!prog.MatchesParameters(new List<ProgVariableTypes>
+			    { ProgVariableTypes.Perceivable, ProgVariableTypes.Character }) &&
+		    !prog.MatchesParameters(new List<ProgVariableTypes> { ProgVariableTypes.Perceivable }))
 		{
 			actor.OutputHandler.Send(
 				$"You must specify a prog that accepts either a single perceivable (the target), or a perceivable and a character (the target and the caster), whereas {prog.MXPClickableFunctionName()} does not.");

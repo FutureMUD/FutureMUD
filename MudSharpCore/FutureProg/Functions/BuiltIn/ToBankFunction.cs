@@ -22,7 +22,7 @@ internal class ToBankFunction : BuiltInFunction
 		FutureProg.RegisterBuiltInFunctionCompiler(
 			new FunctionCompilerInformation(
 				"tobank",
-				[FutureProgVariableTypes.Number], // the parameters the function takes
+				[ProgVariableTypes.Number], // the parameters the function takes
 				(pars, gameworld) => new ToBankFunction(pars, gameworld),
 			new List<string>
 			{
@@ -34,13 +34,13 @@ internal class ToBankFunction : BuiltInFunction
 			}, // parameter help text
 			"Returns the bank referenced by the ID, or null if not found", // help text for the function,
 			"Lookup", // the category to which this function belongs,
-			FutureProgVariableTypes.Bank // the return type of the function
+			ProgVariableTypes.Bank // the return type of the function
 			)
 		);
 		FutureProg.RegisterBuiltInFunctionCompiler(
 			new FunctionCompilerInformation(
 				"tobank",
-				[FutureProgVariableTypes.Text], // the parameters the function takes
+				[ProgVariableTypes.Text], // the parameters the function takes
 				(pars, gameworld) => new ToBankFunction(pars, gameworld),
 				new List<string>
 				{
@@ -52,7 +52,7 @@ internal class ToBankFunction : BuiltInFunction
 				}, // parameter help text
 				"Returns the bank referenced by the name, or null if not found", // help text for the function,
 				"Lookup", // the category to which this function belongs,
-				FutureProgVariableTypes.Bank // the return type of the function
+				ProgVariableTypes.Bank // the return type of the function
 			)
 		);
 	}
@@ -65,9 +65,9 @@ internal class ToBankFunction : BuiltInFunction
 	}
 	#endregion
 
-	public override FutureProgVariableTypes ReturnType
+	public override ProgVariableTypes ReturnType
 	{
-		get { return FutureProgVariableTypes.Bank; }
+		get { return ProgVariableTypes.Bank; }
 		protected set { }
 	}
 
@@ -78,7 +78,7 @@ internal class ToBankFunction : BuiltInFunction
 			return StatementResult.Error;
 		}
 
-		Result = ParameterFunctions[0].ReturnType.CompatibleWith(FutureProgVariableTypes.Text)
+		Result = ParameterFunctions[0].ReturnType.CompatibleWith(ProgVariableTypes.Text)
 		? Gameworld.Banks.GetByName((string)ParameterFunctions[0].Result.GetObject)
 		: Gameworld.Banks.Get((long)(decimal)ParameterFunctions[0].Result.GetObject);
 

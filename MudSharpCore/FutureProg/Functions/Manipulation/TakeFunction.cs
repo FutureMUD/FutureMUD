@@ -20,9 +20,9 @@ internal class TakeFunction : BuiltInFunction
 		Delete = delete;
 	}
 
-	public override FutureProgVariableTypes ReturnType
+	public override ProgVariableTypes ReturnType
 	{
-		get => FutureProgVariableTypes.Item;
+		get => ProgVariableTypes.Item;
 		protected set { }
 	}
 
@@ -35,7 +35,7 @@ internal class TakeFunction : BuiltInFunction
 
 		if (ParameterFunctions[0].Result?.GetObject is not IGameItem item)
 		{
-			Result = new NullVariable(FutureProgVariableTypes.Item);
+			Result = new NullVariable(ProgVariableTypes.Item);
 			return StatementResult.Normal;
 		}
 
@@ -50,7 +50,7 @@ internal class TakeFunction : BuiltInFunction
 			if (Delete)
 			{
 				item.Delete();
-				Result = new NullVariable(FutureProgVariableTypes.Item);
+				Result = new NullVariable(ProgVariableTypes.Item);
 				return StatementResult.Normal;
 			}
 
@@ -64,7 +64,7 @@ internal class TakeFunction : BuiltInFunction
 		{
 			var stack = item.GetItemType<IStackable>();
 			stack.Quantity -= quantity;
-			Result = new NullVariable(FutureProgVariableTypes.Item);
+			Result = new NullVariable(ProgVariableTypes.Item);
 			return StatementResult.Normal;
 		}
 
@@ -79,7 +79,7 @@ internal class TakeFunction : BuiltInFunction
 			"take",
 			new[]
 			{
-				FutureProgVariableTypes.Item
+				ProgVariableTypes.Item
 			},
 			(pars, gameworld) => new TakeFunction(pars, false, false),
 			new List<string>
@@ -98,7 +98,7 @@ internal class TakeFunction : BuiltInFunction
 			"takedelete",
 			new[]
 			{
-				FutureProgVariableTypes.Item
+				ProgVariableTypes.Item
 			},
 			(pars, gameworld) => new TakeFunction(pars, false, true),
 			new List<string>
@@ -117,7 +117,7 @@ internal class TakeFunction : BuiltInFunction
 			"take",
 			new[]
 			{
-				FutureProgVariableTypes.Item, FutureProgVariableTypes.Number
+				ProgVariableTypes.Item, ProgVariableTypes.Number
 			},
 			(pars, gameworld) => new TakeFunction(pars, true, false),
 			new List<string>
@@ -138,7 +138,7 @@ internal class TakeFunction : BuiltInFunction
 			"takedelete",
 			new[]
 			{
-				FutureProgVariableTypes.Item, FutureProgVariableTypes.Number
+				ProgVariableTypes.Item, ProgVariableTypes.Number
 			},
 			(pars, gameworld) => new TakeFunction(pars, true, false),
 			new List<string>

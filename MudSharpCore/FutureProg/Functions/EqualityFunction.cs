@@ -11,9 +11,9 @@ internal class EqualityFunction : BinaryFunction
 	{
 	}
 
-	public override FutureProgVariableTypes ReturnType
+	public override ProgVariableTypes ReturnType
 	{
-		get => FutureProgVariableTypes.Boolean;
+		get => ProgVariableTypes.Boolean;
 		protected set { }
 	}
 
@@ -24,33 +24,33 @@ internal class EqualityFunction : BinaryFunction
 			return StatementResult.Error;
 		}
 
-		switch (LHS.ReturnType & ~FutureProgVariableTypes.Literal)
+		switch (LHS.ReturnType & ~ProgVariableTypes.Literal)
 		{
-			case FutureProgVariableTypes.Boolean:
+			case ProgVariableTypes.Boolean:
 				Result =
 					new BooleanVariable((bool)(LHS?.Result?.GetObject ?? false) ==
 					                    (bool)(RHS?.Result?.GetObject ?? false));
 				break;
-			case FutureProgVariableTypes.Number:
+			case ProgVariableTypes.Number:
 				Result = new BooleanVariable((decimal)(LHS?.Result?.GetObject ?? decimal.MinValue) ==
 				                             (decimal)(RHS?.Result?.GetObject ?? decimal.MinValue));
 				break;
-			case FutureProgVariableTypes.Text:
+			case ProgVariableTypes.Text:
 				Result =
 					new BooleanVariable(string.Equals((string)LHS?.Result?.GetObject,
 						(string)RHS?.Result?.GetObject, StringComparison.InvariantCultureIgnoreCase));
 				break;
-			case FutureProgVariableTypes.Gender:
+			case ProgVariableTypes.Gender:
 				Result = new BooleanVariable((Gender)(LHS?.Result?.GetObject ?? Gender.Indeterminate) ==
 				                             (Gender)(RHS?.Result?.GetObject ?? Gender.Indeterminate));
 				break;
-			case FutureProgVariableTypes.DateTime:
+			case ProgVariableTypes.DateTime:
 				Result =
 					new BooleanVariable(
 						((System.DateTime)(LHS?.Result?.GetObject ?? System.DateTime.MinValue)).Equals(
 							(System.DateTime)(RHS?.Result?.GetObject ?? System.DateTime.MinValue)));
 				break;
-			case FutureProgVariableTypes.TimeSpan:
+			case ProgVariableTypes.TimeSpan:
 				Result =
 					new BooleanVariable(((TimeSpan)LHS.Result.GetObject).Equals((TimeSpan)RHS.Result.GetObject));
 				break;

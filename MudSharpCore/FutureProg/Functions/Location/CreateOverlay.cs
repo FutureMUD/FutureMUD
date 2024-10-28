@@ -26,7 +26,7 @@ internal class CreateOverlay : BuiltInFunction
 		FutureProg.RegisterBuiltInFunctionCompiler(
 			new FunctionCompilerInformation(
 				"CreateOverlay".ToLowerInvariant(),
-				new[] { FutureProgVariableTypes.Character, FutureProgVariableTypes.Text },
+				new[] { ProgVariableTypes.Character, ProgVariableTypes.Text },
 				(pars, gameworld) => new CreateOverlay(pars, gameworld),
 				new List<string>
 				{
@@ -40,7 +40,7 @@ internal class CreateOverlay : BuiltInFunction
 				},
 				"Creates a new cell overlay package with the specified name and builder, as if you had done CELL PACKAGE NEW. Can return null if the name is already taken so be sure to check for that.",
 				"Rooms",
-				FutureProgVariableTypes.OverlayPackage
+				ProgVariableTypes.OverlayPackage
 			)
 		);
 	}
@@ -56,9 +56,9 @@ internal class CreateOverlay : BuiltInFunction
 
 	#endregion
 
-	public override FutureProgVariableTypes ReturnType
+	public override ProgVariableTypes ReturnType
 	{
-		get => FutureProgVariableTypes.OverlayPackage;
+		get => ProgVariableTypes.OverlayPackage;
 		protected set { }
 	}
 

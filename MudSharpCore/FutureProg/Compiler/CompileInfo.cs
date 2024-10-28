@@ -12,7 +12,7 @@ internal class CompileInfo : ICompileInfo
 
 
 	public CompileInfo(IStatement compiledStatement,
-		IDictionary<string, FutureProgVariableTypes> variableSpace = null, IEnumerable<string> remainingLines = null,
+		IDictionary<string, ProgVariableTypes> variableSpace = null, IEnumerable<string> remainingLines = null,
 		string errorMessage = "", int beginningLineNumber = 0, int endingLineNumber = 0, int errorLineNumber = 0)
 	{
 		IsError = !string.IsNullOrEmpty(errorMessage);
@@ -32,13 +32,13 @@ internal class CompileInfo : ICompileInfo
 
 	public interface ICompileInfoFactory
 	{
-		ICompileInfo CreateNew(IStatement statement, IDictionary<string, FutureProgVariableTypes> variableSpace,
+		ICompileInfo CreateNew(IStatement statement, IDictionary<string, ProgVariableTypes> variableSpace,
 			IEnumerable<string> remainingLines, int startLineNumber, int endLineNumber);
 
 		ICompileInfo CreateNew(IFunction function, int lineNumber);
 		ICompileInfo CreateError(string errorMessage, int errorLineNumber);
 
-		ICompileInfo CreateComment(IDictionary<string, FutureProgVariableTypes> variableSpace,
+		ICompileInfo CreateComment(IDictionary<string, ProgVariableTypes> variableSpace,
 			IEnumerable<string> remainingLines, int lineNumber);
 	}
 
@@ -49,7 +49,7 @@ internal class CompileInfo : ICompileInfo
 		}
 
 		public ICompileInfo CreateNew(IStatement statement,
-			IDictionary<string, FutureProgVariableTypes> variableSpace, IEnumerable<string> remainingLines,
+			IDictionary<string, ProgVariableTypes> variableSpace, IEnumerable<string> remainingLines,
 			int startLineNumber, int endLineNumber)
 		{
 			return new CompileInfo(statement, variableSpace, remainingLines, beginningLineNumber: startLineNumber,
@@ -67,7 +67,7 @@ internal class CompileInfo : ICompileInfo
 			return new CompileInfo(null, errorMessage: errorMessage, errorLineNumber: errorLineNumber);
 		}
 
-		public ICompileInfo CreateComment(IDictionary<string, FutureProgVariableTypes> variableSpace,
+		public ICompileInfo CreateComment(IDictionary<string, ProgVariableTypes> variableSpace,
 			IEnumerable<string> remainingLines, int lineNumber)
 		{
 			return new CompileInfo(null, variableSpace, remainingLines, beginningLineNumber: lineNumber,
@@ -91,7 +91,7 @@ internal class CompileInfo : ICompileInfo
 
 	public IStatement CompiledStatement { get; protected set; }
 
-	public IDictionary<string, FutureProgVariableTypes> VariableSpace { get; protected set; }
+	public IDictionary<string, ProgVariableTypes> VariableSpace { get; protected set; }
 
 	public IEnumerable<string> RemainingLines { get; protected set; }
 

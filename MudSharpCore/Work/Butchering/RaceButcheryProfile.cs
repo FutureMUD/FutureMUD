@@ -591,15 +591,15 @@ For all of the below phase emote echoes, you can use #6$0#0 for the actor, #6$1#
 			return false;
 		}
 
-		if (!prog.ReturnType.CompatibleWith(FutureProgVariableTypes.Boolean))
+		if (!prog.ReturnType.CompatibleWith(ProgVariableTypes.Boolean))
 		{
 			actor.OutputHandler.Send(
 				$"You must specify a prog that returns a boolean value, whereas {prog.MXPClickableFunctionName()} returns {prog.ReturnType.Describe().ColourValue()}.");
 			return false;
 		}
 
-		if (!prog.MatchesParameters(new List<FutureProgVariableTypes>
-			    { FutureProgVariableTypes.Character, FutureProgVariableTypes.Item }))
+		if (!prog.MatchesParameters(new List<ProgVariableTypes>
+			    { ProgVariableTypes.Character, ProgVariableTypes.Item }))
 		{
 			actor.OutputHandler.Send(
 				$"You must specify a prog that accepts a character and an item as arguments, and {prog.MXPClickableFunctionName()} does not.");
@@ -631,15 +631,15 @@ For all of the below phase emote echoes, you can use #6$0#0 for the actor, #6$1#
 			return false;
 		}
 
-		if (!prog.ReturnType.CompatibleWith(FutureProgVariableTypes.Text))
+		if (!prog.ReturnType.CompatibleWith(ProgVariableTypes.Text))
 		{
 			actor.OutputHandler.Send(
 				$"You must specify a prog that returns a text value, whereas {prog.MXPClickableFunctionName()} returns {prog.ReturnType.Describe().ColourValue()}.");
 			return false;
 		}
 
-		if (!prog.MatchesParameters(new List<FutureProgVariableTypes>
-			    { FutureProgVariableTypes.Character, FutureProgVariableTypes.Item }))
+		if (!prog.MatchesParameters(new List<ProgVariableTypes>
+			    { ProgVariableTypes.Character, ProgVariableTypes.Item }))
 		{
 			actor.OutputHandler.Send(
 				$"You must specify a prog that accepts a character and an item as arguments, and {prog.MXPClickableFunctionName()} does not.");

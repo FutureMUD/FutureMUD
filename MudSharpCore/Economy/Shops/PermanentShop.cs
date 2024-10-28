@@ -479,18 +479,18 @@ public class PermanentShop : Shop, IPermanentShop
         return (true, string.Empty);
     }
 
-    public override IFutureProgVariable GetProperty(string property)
+    public override IProgVariable GetProperty(string property)
     {
         switch (property.ToLowerInvariant())
         {
             case "shopfront":
-                return new CollectionVariable(ShopfrontCells.ToList(), FutureProgVariableTypes.Location);
+                return new CollectionVariable(ShopfrontCells.ToList(), ProgVariableTypes.Location);
             case "storeroom":
                 return StockroomCell;
             case "workshop":
                 return WorkshopCell;
             case "tills":
-                return new CollectionVariable(TillItems.ToList(), FutureProgVariableTypes.Item);
+                return new CollectionVariable(TillItems.ToList(), ProgVariableTypes.Item);
             default:
                 return base.GetProperty(property);
         }

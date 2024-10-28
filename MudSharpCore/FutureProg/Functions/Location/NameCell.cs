@@ -29,8 +29,8 @@ internal class NameCell : BuiltInFunction
 				"NameCell".ToLowerInvariant(),
 				new[]
 				{
-					FutureProgVariableTypes.Location, FutureProgVariableTypes.OverlayPackage,
-					FutureProgVariableTypes.Text
+					ProgVariableTypes.Location, ProgVariableTypes.OverlayPackage,
+					ProgVariableTypes.Text
 				},
 				(pars, gameworld) => new NameCell(pars, gameworld),
 				new List<string>
@@ -47,7 +47,7 @@ internal class NameCell : BuiltInFunction
 				},
 				"Sets the name of a room as if you had done CELL SET NAME.",
 				"Rooms",
-				FutureProgVariableTypes.Boolean
+				ProgVariableTypes.Boolean
 			)
 		);
 
@@ -56,8 +56,8 @@ internal class NameCell : BuiltInFunction
 				"NameRoom".ToLowerInvariant(),
 				new[]
 				{
-					FutureProgVariableTypes.Location, FutureProgVariableTypes.OverlayPackage,
-					FutureProgVariableTypes.Text
+					ProgVariableTypes.Location, ProgVariableTypes.OverlayPackage,
+					ProgVariableTypes.Text
 				},
 				(pars, gameworld) => new NameCell(pars, gameworld),
 				new List<string>
@@ -74,7 +74,7 @@ internal class NameCell : BuiltInFunction
 				},
 				"Sets the name of a room as if you had done CELL SET NAME. Alias for NameCell.",
 				"Rooms",
-				FutureProgVariableTypes.Boolean
+				ProgVariableTypes.Boolean
 			)
 		);
 	}
@@ -90,9 +90,9 @@ internal class NameCell : BuiltInFunction
 
 	#endregion
 
-	public override FutureProgVariableTypes ReturnType
+	public override ProgVariableTypes ReturnType
 	{
-		get => FutureProgVariableTypes.Boolean;
+		get => ProgVariableTypes.Boolean;
 		protected set { }
 	}
 

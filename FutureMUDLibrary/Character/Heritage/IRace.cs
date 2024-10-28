@@ -23,7 +23,7 @@ using MudSharp.Strategies.BodyStratagies;
 using MudSharp.Work.Butchering;
 
 namespace MudSharp.Character.Heritage {
-    public interface IRace : IEditableItem, IFutureProgVariable, IHaveContextualSizeCategory, IHavePositionalSizes {
+    public interface IRace : IEditableItem, IProgVariable, IHaveContextualSizeCategory, IHavePositionalSizes {
         string Description { get; }
 
         /// <summary>

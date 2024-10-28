@@ -22,13 +22,13 @@ internal class Set : BuiltInFunction
 
 	public static void RegisterFunctionCompiler()
 	{
-		foreach (var type in FutureProgVariableTypes.CollectionItem.GetSingleFlags())
+		foreach (var type in ProgVariableTypes.CollectionItem.GetSingleFlags())
 		{
 			FutureProg.RegisterBuiltInFunctionCompiler(
 				new FunctionCompilerInformation(
 					"set",
 					[
-						FutureProgVariableTypes.Dictionary, FutureProgVariableTypes.Text, type
+						ProgVariableTypes.Dictionary, ProgVariableTypes.Text, type
 					],
 					(pars, gameworld) => new Set(pars, gameworld),
 					new List<string> { "dictionary", "key", "item" },
@@ -40,7 +40,7 @@ internal class Set : BuiltInFunction
 					},
 					"Sets the specified text key in the dictionary to be the item specified. Returns true if the set succeeded (the types were compatible), and false if not.",
 					"Dictionaries",
-					FutureProgVariableTypes.Boolean
+					ProgVariableTypes.Boolean
 				)
 			);
 		}
@@ -58,9 +58,9 @@ internal class Set : BuiltInFunction
 
 	#endregion
 
-	public override FutureProgVariableTypes ReturnType
+	public override ProgVariableTypes ReturnType
 	{
-		get => FutureProgVariableTypes.Boolean;
+		get => ProgVariableTypes.Boolean;
 		protected set { }
 	}
 
@@ -78,7 +78,7 @@ internal class Set : BuiltInFunction
 			return StatementResult.Normal;
 		}
 
-		var dictionary = (Dictionary<string, IFutureProgVariable>)ParameterFunctions[0].Result?.GetObject;
+		var dictionary = (Dictionary<string, IProgVariable>)ParameterFunctions[0].Result?.GetObject;
 		if (dictionary == null)
 		{
 			Result = new BooleanVariable(false);

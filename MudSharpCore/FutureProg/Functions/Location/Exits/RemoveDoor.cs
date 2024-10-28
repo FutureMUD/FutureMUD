@@ -27,7 +27,7 @@ internal class RemoveDoor : BuiltInFunction
 		FutureProg.RegisterBuiltInFunctionCompiler(
 			new FunctionCompilerInformation(
 				"RemoveDoor".ToLowerInvariant(),
-				new[] { FutureProgVariableTypes.Exit },
+				new[] { ProgVariableTypes.Exit },
 				(pars, gameworld) => new RemoveDoor(pars, gameworld)
 			)
 		);
@@ -44,9 +44,9 @@ internal class RemoveDoor : BuiltInFunction
 
 	#endregion
 
-	public override FutureProgVariableTypes ReturnType
+	public override ProgVariableTypes ReturnType
 	{
-		get => FutureProgVariableTypes.Item;
+		get => ProgVariableTypes.Item;
 		protected set { }
 	}
 

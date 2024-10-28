@@ -24,7 +24,7 @@ namespace MudSharp.Construction
 
 	public delegate void CellProposedForDeletionDelegate(ICell cell, ProposalRejectionResponse response);
 
-	public interface ICell : ILocation, IFutureProgVariable, IHaveMagicResource, IHaveTags
+	public interface ICell : ILocation, IProgVariable, IHaveMagicResource, IHaveTags
 	{
 		/// <summary>
 		/// If a cell is temporary, it may disappear at any time.

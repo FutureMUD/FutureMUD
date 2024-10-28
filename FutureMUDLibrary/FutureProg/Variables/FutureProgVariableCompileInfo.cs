@@ -6,8 +6,8 @@ namespace MudSharp.FutureProg.Variables
 {
     public class FutureProgVariableCompileInfo
     {
-        public FutureProgVariableTypes VariableType { get; set; }
-        public IReadOnlyDictionary<string, FutureProgVariableTypes> PropertyTypeMap { get; init; }
+        public ProgVariableTypes VariableType { get; set; }
+        public IReadOnlyDictionary<string, ProgVariableTypes> PropertyTypeMap { get; init; }
         public IReadOnlyDictionary<string,string> PropertyHelpInfo { get; init; }
     }
 }

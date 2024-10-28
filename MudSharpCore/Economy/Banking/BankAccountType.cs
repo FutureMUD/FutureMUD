@@ -224,14 +224,14 @@ public class BankAccountType : SaveableItem, IBankAccountType
 			return false;
 		}
 
-		if (!prog.ReturnType.CompatibleWith(FutureProgVariableTypes.Boolean))
+		if (!prog.ReturnType.CompatibleWith(ProgVariableTypes.Boolean))
 		{
 			actor.OutputHandler.Send(
 				$"The prog must return a boolean value, whereas {prog.MXPClickableFunctionName()} returns {prog.ReturnType.Describe().ColourName()}.");
 			return false;
 		}
 
-		if (!prog.MatchesParameters(new[] { FutureProgVariableTypes.Character }))
+		if (!prog.MatchesParameters(new[] { ProgVariableTypes.Character }))
 		{
 			actor.OutputHandler.Send(
 				$"The prog must accept a single character parameter, whereas {prog.MXPClickableFunctionName()} does not.");
@@ -286,24 +286,24 @@ public class BankAccountType : SaveableItem, IBankAccountType
 			return false;
 		}
 
-		if (!prog.ReturnType.CompatibleWith(FutureProgVariableTypes.Boolean))
+		if (!prog.ReturnType.CompatibleWith(ProgVariableTypes.Boolean))
 		{
 			actor.OutputHandler.Send(
 				$"You must specify a prog that returns a boolean value, whereas {prog.MXPClickableFunctionName()} does not.");
 			return false;
 		}
 
-		if ((prog.AcceptsAnyParameters || prog.MatchesParameters(new[] { FutureProgVariableTypes.CollectionItem }) ||
-		     prog.MatchesParameters(new[] { FutureProgVariableTypes.ReferenceType })) && string.IsNullOrEmpty(arg2))
+		if ((prog.AcceptsAnyParameters || prog.MatchesParameters(new[] { ProgVariableTypes.CollectionItem }) ||
+		     prog.MatchesParameters(new[] { ProgVariableTypes.ReferenceType })) && string.IsNullOrEmpty(arg2))
 		{
 			actor.OutputHandler.Send(
 				$"The prog {prog.MXPClickableFunctionName()} is ambiguous as to whether it applies to characters, shops or clans, so you must specify.");
 			return false;
 		}
 
-		if (!prog.MatchesParameters(new[] { FutureProgVariableTypes.Character }) &&
-		    !prog.MatchesParameters(new[] { FutureProgVariableTypes.Clan }) &&
-		    !prog.MatchesParameters(new[] { FutureProgVariableTypes.Shop }))
+		if (!prog.MatchesParameters(new[] { ProgVariableTypes.Character }) &&
+		    !prog.MatchesParameters(new[] { ProgVariableTypes.Clan }) &&
+		    !prog.MatchesParameters(new[] { ProgVariableTypes.Shop }))
 		{
 			actor.OutputHandler.Send(
 				$"The prog {prog.MXPClickableFunctionName()} does not take a character, shop or clan as an argument.");
@@ -334,12 +334,12 @@ public class BankAccountType : SaveableItem, IBankAccountType
 		}
 		else
 		{
-			if (prog.MatchesParameters(new[] { FutureProgVariableTypes.Character }))
+			if (prog.MatchesParameters(new[] { ProgVariableTypes.Character }))
 			{
 				CanOpenAccountProgCharacter = prog;
 				whatFor = "characters";
 			}
-			else if (prog.MatchesParameters(new[] { FutureProgVariableTypes.Shop }))
+			else if (prog.MatchesParameters(new[] { ProgVariableTypes.Shop }))
 			{
 				CanOpenAccountProgShop = prog;
 				whatFor = "shops";
@@ -1163,10 +1163,10 @@ public class BankAccountType : SaveableItem, IBankAccountType
 
 	#region FutureProgs
 
-	public FutureProgVariableTypes Type => FutureProgVariableTypes.BankAccountType;
+	public ProgVariableTypes Type => ProgVariableTypes.BankAccountType;
 	public object GetObject => this;
 
-	public IFutureProgVariable GetProperty(string property)
+	public IProgVariable GetProperty(string property)
 	{
 		switch (property.ToLowerInvariant())
 		{
@@ -1181,13 +1181,13 @@ public class BankAccountType : SaveableItem, IBankAccountType
 		}
 	}
 
-	private static IReadOnlyDictionary<string, FutureProgVariableTypes> DotReferenceHandler()
+	private static IReadOnlyDictionary<string, ProgVariableTypes> DotReferenceHandler()
 	{
-		return new Dictionary<string, FutureProgVariableTypes>(StringComparer.InvariantCultureIgnoreCase)
+		return new Dictionary<string, ProgVariableTypes>(StringComparer.InvariantCultureIgnoreCase)
 		{
-			{ "id", FutureProgVariableTypes.Number },
-			{ "name", FutureProgVariableTypes.Text },
-			{ "bank", FutureProgVariableTypes.Bank }
+			{ "id", ProgVariableTypes.Number },
+			{ "name", ProgVariableTypes.Text },
+			{ "bank", ProgVariableTypes.Bank }
 		};
 	}
 
@@ -1203,7 +1203,7 @@ public class BankAccountType : SaveableItem, IBankAccountType
 
 	public new static void RegisterFutureProgCompiler()
 	{
-		FutureProgVariable.RegisterDotReferenceCompileInfo(FutureProgVariableTypes.BankAccountType,
+		ProgVariable.RegisterDotReferenceCompileInfo(ProgVariableTypes.BankAccountType,
 			DotReferenceHandler(), DotReferenceHelp());
 	}
 

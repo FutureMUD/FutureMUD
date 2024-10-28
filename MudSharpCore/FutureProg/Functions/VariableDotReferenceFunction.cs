@@ -7,7 +7,7 @@ internal class VariableDotReferenceFunction : UnaryFunction
 {
 	protected string TargetProperty;
 
-	public VariableDotReferenceFunction(IFunction lhs, string targetProperty, FutureProgVariableTypes returnType)
+	public VariableDotReferenceFunction(IFunction lhs, string targetProperty, ProgVariableTypes returnType)
 		: base(lhs)
 	{
 		TargetProperty = targetProperty;

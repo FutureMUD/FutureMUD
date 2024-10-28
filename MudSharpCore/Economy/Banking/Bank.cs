@@ -1120,10 +1120,10 @@ public class Bank : SaveableItem, IBank, ILazyLoadDuringIdleTime
 
 	#region FutureProgs
 
-	public FutureProgVariableTypes Type => FutureProgVariableTypes.Bank;
+	public ProgVariableTypes Type => ProgVariableTypes.Bank;
 	public object GetObject => this;
 
-	public IFutureProgVariable GetProperty(string property)
+	public IProgVariable GetProperty(string property)
 	{
 		switch (property.ToLowerInvariant())
 		{
@@ -1134,11 +1134,11 @@ public class Bank : SaveableItem, IBank, ILazyLoadDuringIdleTime
 			case "code":
 				return new TextVariable(Code);
 			case "accounttypes":
-				return new CollectionVariable(BankAccountTypes.ToList(), FutureProgVariableTypes.BankAccountType);
+				return new CollectionVariable(BankAccountTypes.ToList(), ProgVariableTypes.BankAccountType);
 			case "accounts":
-				return new CollectionVariable(BankAccounts.ToList(), FutureProgVariableTypes.BankAccount);
+				return new CollectionVariable(BankAccounts.ToList(), ProgVariableTypes.BankAccount);
 			case "branches":
-				return new CollectionVariable(BranchLocations.ToList(), FutureProgVariableTypes.Location);
+				return new CollectionVariable(BranchLocations.ToList(), ProgVariableTypes.Location);
 			case "currency":
 				return PrimaryCurrency;
 			default:
@@ -1146,17 +1146,17 @@ public class Bank : SaveableItem, IBank, ILazyLoadDuringIdleTime
 		}
 	}
 
-	private static IReadOnlyDictionary<string, FutureProgVariableTypes> DotReferenceHandler()
+	private static IReadOnlyDictionary<string, ProgVariableTypes> DotReferenceHandler()
 	{
-		return new Dictionary<string, FutureProgVariableTypes>(StringComparer.InvariantCultureIgnoreCase)
+		return new Dictionary<string, ProgVariableTypes>(StringComparer.InvariantCultureIgnoreCase)
 		{
-			{ "id", FutureProgVariableTypes.Number },
-			{ "name", FutureProgVariableTypes.Text },
-			{ "code", FutureProgVariableTypes.Text },
-			{ "accounttypes", FutureProgVariableTypes.BankAccountType | FutureProgVariableTypes.Collection },
-			{ "accounts", FutureProgVariableTypes.BankAccount | FutureProgVariableTypes.Collection },
-			{ "branches", FutureProgVariableTypes.Location | FutureProgVariableTypes.Collection },
-			{ "currency", FutureProgVariableTypes.Currency }
+			{ "id", ProgVariableTypes.Number },
+			{ "name", ProgVariableTypes.Text },
+			{ "code", ProgVariableTypes.Text },
+			{ "accounttypes", ProgVariableTypes.BankAccountType | ProgVariableTypes.Collection },
+			{ "accounts", ProgVariableTypes.BankAccount | ProgVariableTypes.Collection },
+			{ "branches", ProgVariableTypes.Location | ProgVariableTypes.Collection },
+			{ "currency", ProgVariableTypes.Currency }
 		};
 	}
 
@@ -1176,7 +1176,7 @@ public class Bank : SaveableItem, IBank, ILazyLoadDuringIdleTime
 
 	public new static void RegisterFutureProgCompiler()
 	{
-		FutureProgVariable.RegisterDotReferenceCompileInfo(FutureProgVariableTypes.Bank, DotReferenceHandler(),
+		ProgVariable.RegisterDotReferenceCompileInfo(ProgVariableTypes.Bank, DotReferenceHandler(),
 			DotReferenceHelp());
 	}
 

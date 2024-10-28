@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 namespace MudSharp.Climate
 {
 
-    public interface IWeatherEvent : IFrameworkItem, IFutureProgVariable
+    public interface IWeatherEvent : IFrameworkItem, IProgVariable
     {
         PrecipitationLevel Precipitation { get; }
         WindLevel Wind { get; }

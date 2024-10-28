@@ -28,7 +28,7 @@ internal class WhileLoop : Statement
 	}
 
 	private static ICompileInfo WhileLoopCompile(IEnumerable<string> lines,
-		IDictionary<string, FutureProgVariableTypes> variableSpace, int lineNumber, IFuturemud gameworld)
+		IDictionary<string, ProgVariableTypes> variableSpace, int lineNumber, IFuturemud gameworld)
 	{
 		var match = WhileLoopCompileRegex.Match(lines.First());
 		var functionText = match.Groups[1].Value;
@@ -44,7 +44,7 @@ internal class WhileLoop : Statement
 		}
 
 		var compiledFunction = (IFunction)functionCompileInfo.CompiledStatement;
-		if (!compiledFunction.ReturnType.CompatibleWith(FutureProgVariableTypes.Boolean))
+		if (!compiledFunction.ReturnType.CompatibleWith(ProgVariableTypes.Boolean))
 		{
 			return CompileInfo.GetFactory()
 			                  .CreateError("While Loop's logic block must return a boolean.", lineNumber);
@@ -52,8 +52,8 @@ internal class WhileLoop : Statement
 
 		lines = lines.Skip(1);
 		var containedStatements = new List<IStatement>();
-		IDictionary<string, FutureProgVariableTypes> localVariables =
-			new Dictionary<string, FutureProgVariableTypes>(variableSpace);
+		IDictionary<string, ProgVariableTypes> localVariables =
+			new Dictionary<string, ProgVariableTypes>(variableSpace);
 		var currentLine = lineNumber;
 		while (lines.Any())
 		{
@@ -108,7 +108,7 @@ internal class WhileLoop : Statement
 			new Tuple
 			<Regex,
 				Func
-				<IEnumerable<string>, IDictionary<string, FutureProgVariableTypes>, int, IFuturemud, ICompileInfo>>(
+				<IEnumerable<string>, IDictionary<string, ProgVariableTypes>, int, IFuturemud, ICompileInfo>>(
 				WhileLoopCompileRegex, WhileLoopCompile)
 		);
 

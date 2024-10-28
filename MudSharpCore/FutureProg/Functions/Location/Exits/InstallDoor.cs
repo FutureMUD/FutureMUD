@@ -31,8 +31,8 @@ internal class InstallDoor : BuiltInFunction
 				"InstallDoor".ToLowerInvariant(),
 				new[]
 				{
-					FutureProgVariableTypes.Exit, FutureProgVariableTypes.Item, FutureProgVariableTypes.Location,
-					FutureProgVariableTypes.Location
+					ProgVariableTypes.Exit, ProgVariableTypes.Item, ProgVariableTypes.Location,
+					ProgVariableTypes.Location
 				},
 				(pars, gameworld) => new InstallDoor(pars, gameworld)
 			)
@@ -50,9 +50,9 @@ internal class InstallDoor : BuiltInFunction
 
 	#endregion
 
-	public override FutureProgVariableTypes ReturnType
+	public override ProgVariableTypes ReturnType
 	{
-		get => FutureProgVariableTypes.Boolean;
+		get => ProgVariableTypes.Boolean;
 		protected set { }
 	}
 

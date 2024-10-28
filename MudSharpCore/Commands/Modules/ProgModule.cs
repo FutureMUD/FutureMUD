@@ -425,11 +425,11 @@ A function (See PROG HELP FUNCTIONS) can also function as a statement on a line.
 		actor.OutputHandler.Send(GetTextProgHelpStatements(actor.LineFormatLength, actor.Account.UseUnicode, true));
 	}
 
-	public static string GetProgTypeHelpText(FutureProgVariableTypes type, int linewidth, bool unicode, bool colour)
+	public static string GetProgTypeHelpText(ProgVariableTypes type, int linewidth, bool unicode, bool colour)
 	{
 		var sb = new StringBuilder();
 		sb.AppendLine($"Showing properties for the type {type.Describe().ColourName(colour)}:");
-		var info = FutureProgVariable.DotReferenceCompileInfos.GetValueOrDefault(type, null);
+		var info = ProgVariable.DotReferenceCompileInfos.GetValueOrDefault(type, null);
 		if (info == null)
 		{
 			return null;
@@ -465,7 +465,7 @@ A function (See PROG HELP FUNCTIONS) can also function as a statement on a line.
 
 		var which = ss.SafeRemainingArgument;
 		var type = FutureProg.FutureProg.GetTypeByName(which);
-		if (type == FutureProgVariableTypes.Error)
+		if (type == ProgVariableTypes.Error)
 		{
 			actor.OutputHandler.Send("There is no such type.");
 			return;
@@ -485,17 +485,17 @@ A function (See PROG HELP FUNCTIONS) can also function as a statement on a line.
 	{
 		var sb = new StringBuilder();
 		sb.AppendLine("There are the following types:");
-		foreach (var type in FutureProgVariableTypes.Anything.GetAllFlags().OrderBy(x => x.DescribeEnum()))
+		foreach (var type in ProgVariableTypes.Anything.GetAllFlags().OrderBy(x => x.DescribeEnum()))
 		{
-			if (type == FutureProgVariableTypes.Collection)
+			if (type == ProgVariableTypes.Collection)
 			{
 				sb.AppendLine($"\t<OtherType> Collection".FluentColour(Telnet.VariableGreen, colour));
 			}
-			else if (type == FutureProgVariableTypes.CollectionDictionary)
+			else if (type == ProgVariableTypes.CollectionDictionary)
 			{
 				sb.AppendLine($"\t<OtherType> CollectionDictionary".FluentColour(Telnet.VariableGreen, colour));
 			}
-			else if (type == FutureProgVariableTypes.Dictionary)
+			else if (type == ProgVariableTypes.Dictionary)
 			{
 				sb.AppendLine($"\t<OtherType> Dictionary".FluentColour(Telnet.VariableGreen, colour));
 			}
@@ -538,7 +538,7 @@ A function (See PROG HELP FUNCTIONS) can also function as a statement on a line.
 
 	#region Prog Sub Commands
 
-	public static string DescribeProgVariable(ICharacter actor, FutureProgVariableTypes returnType, object result)
+	public static string DescribeProgVariable(ICharacter actor, ProgVariableTypes returnType, object result)
 	{
 		if (result is null)
 		{
@@ -547,16 +547,16 @@ A function (See PROG HELP FUNCTIONS) can also function as a statement on a line.
 
 		switch (returnType)
 		{
-			case FutureProgVariableTypes.Boolean:
+			case ProgVariableTypes.Boolean:
 				return ((bool)result).ToColouredString();
-			case FutureProgVariableTypes.Character:
+			case ProgVariableTypes.Character:
 				var ch = result as ICharacter;
 				return ch?.HowSeen(actor) ?? "null".Colour(Telnet.Red);
-			case FutureProgVariableTypes.Gender:
+			case ProgVariableTypes.Gender:
 				return Gendering.Get((Gender)result).GenderClass(true).Colour(Telnet.Cyan);
-			case FutureProgVariableTypes.Item:
+			case ProgVariableTypes.Item:
 				return (result as IGameItem)?.HowSeen(actor) ?? "null".Colour(Telnet.Red);
-			case FutureProgVariableTypes.Location:
+			case ProgVariableTypes.Location:
 				if (result is ICell cell)
 				{
 					return cell.GetFriendlyReference(actor).ColourName();
@@ -565,9 +565,9 @@ A function (See PROG HELP FUNCTIONS) can also function as a statement on a line.
 				{
 					return "a null location";
 				}
-			case FutureProgVariableTypes.Number:
+			case ProgVariableTypes.Number:
 				return ((decimal)result).ToString("N", actor).ColourValue();
-			case FutureProgVariableTypes.Shard:
+			case ProgVariableTypes.Shard:
 				if (result is IShard shard)
 				{
 					return $"{shard.Name.ColourName()} (#{shard.Id.ToString("N0", actor)})".ColourName();
@@ -576,9 +576,9 @@ A function (See PROG HELP FUNCTIONS) can also function as a statement on a line.
 				{
 					return "a null shard";
 				}
-			case FutureProgVariableTypes.Text:
+			case ProgVariableTypes.Text:
 				return (string)result;
-			case FutureProgVariableTypes.Zone:
+			case ProgVariableTypes.Zone:
 				if (result is IZone zone)
 				{
 					return $"{zone.Name.ColourName()} (#{zone.Id.ToString("N0", actor)})".ColourName();
@@ -587,20 +587,20 @@ A function (See PROG HELP FUNCTIONS) can also function as a statement on a line.
 				{
 					return "a null zone";
 				}
-			case FutureProgVariableTypes.TimeSpan:
+			case ProgVariableTypes.TimeSpan:
 				return ((TimeSpan)result).Describe(actor).ColourValue();
-			case FutureProgVariableTypes.DateTime:
+			case ProgVariableTypes.DateTime:
 				return ((DateTime)result).ToString("G").ColourValue();
-			case FutureProgVariableTypes.MudDateTime:
+			case ProgVariableTypes.MudDateTime:
 				return ((MudDateTime)result).ToString(CalendarDisplayMode.Short, TimeDisplayTypes.Short).ColourValue();
-			case FutureProgVariableTypes.Toon:
+			case ProgVariableTypes.Toon:
 				if (result is ICharacter)
 				{
-					goto case FutureProgVariableTypes.Character;
+					goto case ProgVariableTypes.Character;
 				}
 
-				goto case FutureProgVariableTypes.Chargen;
-			case FutureProgVariableTypes.Chargen:
+				goto case ProgVariableTypes.Chargen;
+			case ProgVariableTypes.Chargen:
 				if (result is INPCTemplate npcTemplate)
 				{
 					return $" the NPC Template {npcTemplate.EditHeader().ColourCharacter()}";
@@ -608,98 +608,98 @@ A function (See PROG HELP FUNCTIONS) can also function as a statement on a line.
 
 				var chargen = (IChargen)result;
 				return $" chargen {$"{chargen.SelectedName?.GetName(NameStyle.FullName) ?? "Unnamed"} (#{chargen.Id.ToString("N0", actor)})".ColourCharacter()}.";
-			case FutureProgVariableTypes.Race:
+			case ProgVariableTypes.Race:
 				return $"the {((IFrameworkItem)result).Name.ColourValue()} race";
-			case FutureProgVariableTypes.Culture:
+			case ProgVariableTypes.Culture:
 				return $"the {((IFrameworkItem)result).Name.ColourValue()} culture";
-			case FutureProgVariableTypes.Trait:
+			case ProgVariableTypes.Trait:
 				return $"the {((IFrameworkItem)result).Name.ColourValue()} trait";
-			case FutureProgVariableTypes.Clan:
+			case ProgVariableTypes.Clan:
 				return $"the {((IFrameworkItem)result).Name.ColourName()} clan";
-			case FutureProgVariableTypes.ClanRank:
+			case ProgVariableTypes.ClanRank:
 				var rank = (IRank)result;
 				return $"the {rank.Name.ColourValue()} rank in the {rank.Clan.FullName.ColourName()} clan";
-			case FutureProgVariableTypes.ClanAppointment:
+			case ProgVariableTypes.ClanAppointment:
 				var appointment = (IAppointment)result;
 				return $"the {appointment.Name.ColourValue()} appointment in the {appointment.Clan.FullName.ColourName()} clan";
-			case FutureProgVariableTypes.ClanPaygrade:
+			case ProgVariableTypes.ClanPaygrade:
 				var paygrade = (IPaygrade)result;
 				return $"the {paygrade.Name.ColourValue()} paygrade in the {paygrade.Clan.FullName.ColourName()} clan";
-			case FutureProgVariableTypes.Currency:
+			case ProgVariableTypes.Currency:
 				return $"the {((IFrameworkItem)result).Name.ColourValue()} currency";
-			case FutureProgVariableTypes.Exit:
+			case ProgVariableTypes.Exit:
 				break;
-			case FutureProgVariableTypes.Language:
+			case ProgVariableTypes.Language:
 				return $"the {((IFrameworkItem)result).Name.ColourValue()} language";
-			case FutureProgVariableTypes.Accent:
+			case ProgVariableTypes.Accent:
 				var accent = (IAccent)result;
 				return $"the {accent.Name.ColourValue()} accent for the {accent.Language.Name.ColourValue()} language";
-			case FutureProgVariableTypes.Merit:
+			case ProgVariableTypes.Merit:
 				return $"the {((IFrameworkItem)result).Name.ColourValue()} merit";
-			case FutureProgVariableTypes.Calendar:
+			case ProgVariableTypes.Calendar:
 				return $"the {((IFrameworkItem)result).Name.ColourValue()} calendar";
-			case FutureProgVariableTypes.Clock:
+			case ProgVariableTypes.Clock:
 				return $"the {((IFrameworkItem)result).Name.ColourValue()} clock";
-			case FutureProgVariableTypes.Knowledge:
+			case ProgVariableTypes.Knowledge:
 				return $"the {((IFrameworkItem)result).Name.ColourValue()} knowledge";
-			case FutureProgVariableTypes.Role:
+			case ProgVariableTypes.Role:
 				return $"the {((IFrameworkItem)result).Name.ColourValue()} chargen role";
-			case FutureProgVariableTypes.Ethnicity:
+			case ProgVariableTypes.Ethnicity:
 				return $"the {((IFrameworkItem)result).Name.ColourValue()} ethnicity";
-			case FutureProgVariableTypes.WeatherEvent:
+			case ProgVariableTypes.WeatherEvent:
 				return $"the {((IFrameworkItem)result).Name.ColourValue()} weather event";
-			case FutureProgVariableTypes.Shop:
+			case ProgVariableTypes.Shop:
 				return $"the {((IFrameworkItem)result).Name.ColourValue()} shop";
-			case FutureProgVariableTypes.Merchandise:
+			case ProgVariableTypes.Merchandise:
 				return $"the {((IFrameworkItem)result).Name.ColourValue()} merchandise";
-			case FutureProgVariableTypes.Outfit:
+			case ProgVariableTypes.Outfit:
 				break;
-			case FutureProgVariableTypes.OutfitItem:
+			case ProgVariableTypes.OutfitItem:
 				break;
-			case FutureProgVariableTypes.Project:
+			case ProgVariableTypes.Project:
 				return $"the {((IFrameworkItem)result).Name.ColourValue()} project";
-			case FutureProgVariableTypes.OverlayPackage:
+			case ProgVariableTypes.OverlayPackage:
 				return $"the {((IFrameworkItem)result).Name.ColourValue()} overlay package";
-			case FutureProgVariableTypes.Terrain:
+			case ProgVariableTypes.Terrain:
 				return $"the {((IFrameworkItem)result).Name.ColourValue()} terrain";
-			case FutureProgVariableTypes.Solid:
+			case ProgVariableTypes.Solid:
 				return $"the {((IFrameworkItem)result).Name.ColourValue()} solid material";
-			case FutureProgVariableTypes.Liquid:
+			case ProgVariableTypes.Liquid:
 				return $"the {((IFrameworkItem)result).Name.ColourValue()} liquid";
-			case FutureProgVariableTypes.Gas:
+			case ProgVariableTypes.Gas:
 				return $"the {((IFrameworkItem)result).Name.ColourValue()} gas";
-			case FutureProgVariableTypes.MagicSpell:
+			case ProgVariableTypes.MagicSpell:
 				return $"the {((IFrameworkItem)result).Name.ColourValue()} spell";
-			case FutureProgVariableTypes.MagicSchool:
+			case ProgVariableTypes.MagicSchool:
 				return $"the {((IFrameworkItem)result).Name.ColourValue()} magic school";
-			case FutureProgVariableTypes.MagicCapability:
+			case ProgVariableTypes.MagicCapability:
 				return $"the {((IFrameworkItem)result).Name.ColourValue()} magic capability";
-			case FutureProgVariableTypes.Bank:
+			case ProgVariableTypes.Bank:
 				return $"the {((IFrameworkItem)result).Name.ColourValue()} bank";
-			case FutureProgVariableTypes.BankAccount:
+			case ProgVariableTypes.BankAccount:
 				return $"the {((IFrameworkItem)result).Name.ColourValue()} bank account";
-			case FutureProgVariableTypes.BankAccountType:
+			case ProgVariableTypes.BankAccountType:
 				return $"the {((IFrameworkItem)result).Name.ColourValue()} bank account type";
-			case FutureProgVariableTypes.LegalAuthority:
+			case ProgVariableTypes.LegalAuthority:
 				return $"the {((IFrameworkItem)result).Name.ColourValue()} legal authority";
 
-			case FutureProgVariableTypes.Law:
+			case ProgVariableTypes.Law:
 				return $"the {((IFrameworkItem)result).Name.ColourValue()} law";
-			case FutureProgVariableTypes.Crime:
+			case ProgVariableTypes.Crime:
 				return $"the #{((IFrameworkItem)result).Id.ToString("N0", actor).ColourValue()} crime";
-			case FutureProgVariableTypes.Market:
+			case ProgVariableTypes.Market:
 				return $"the {((IFrameworkItem)result).Name.ColourValue()} market";
-			case FutureProgVariableTypes.MarketCategory:
+			case ProgVariableTypes.MarketCategory:
 				return $"the {((IFrameworkItem)result).Name.ColourValue()} market category";
-			case FutureProgVariableTypes.LiquidMixture:
+			case ProgVariableTypes.LiquidMixture:
 				return $"the {((LiquidMixture)result).ColouredLiquidDescription} liquid mixture";
-			case FutureProgVariableTypes.Perceivable:
+			case ProgVariableTypes.Perceivable:
 				var perceivable = (IPerceivable)result;
 				return perceivable.HowSeen(actor);
-			case FutureProgVariableTypes.Perceiver:
-				goto case FutureProgVariableTypes.Perceivable;
-			case FutureProgVariableTypes.MagicResourceHaver:
-				goto case FutureProgVariableTypes.Perceivable;
+			case ProgVariableTypes.Perceiver:
+				goto case ProgVariableTypes.Perceivable;
+			case ProgVariableTypes.MagicResourceHaver:
+				goto case ProgVariableTypes.Perceivable;
 		}
 
 		return "an undisplayable result";
@@ -762,16 +762,16 @@ A function (See PROG HELP FUNCTIONS) can also function as a statement on a line.
 		actor.OutputHandler.Send(sb.ToString());
 	}
 
-	public static (object result, bool success) GetArgument(FutureProgVariableTypes type, string parText,
+	public static (object result, bool success) GetArgument(ProgVariableTypes type, string parText,
 		int parNumber, ICharacter actor)
 	{
-		if (type.HasFlag(FutureProgVariableTypes.Collection))
+		if (type.HasFlag(ProgVariableTypes.Collection))
 		{
 			var sss = new StringStack(parText);
 			var collection = new List<object>();
 			while (!sss.IsFinished)
 			{
-				var outcome = GetArgument(type ^ FutureProgVariableTypes.Collection, sss.PopSpeech(), parNumber, actor);
+				var outcome = GetArgument(type ^ ProgVariableTypes.Collection, sss.PopSpeech(), parNumber, actor);
 				if (!outcome.success)
 				{
 					return (null, false);
@@ -783,7 +783,7 @@ A function (See PROG HELP FUNCTIONS) can also function as a statement on a line.
 			return (collection, true);
 		}
 
-		if (FutureProgVariableTypes.ReferenceType.HasFlag(type) && parText.EqualTo("null"))
+		if (ProgVariableTypes.ReferenceType.HasFlag(type) && parText.EqualTo("null"))
 		{
 			return (null, true);
 		}
@@ -792,7 +792,7 @@ A function (See PROG HELP FUNCTIONS) can also function as a statement on a line.
 
 		switch (type)
 		{
-			case FutureProgVariableTypes.Boolean:
+			case ProgVariableTypes.Boolean:
 				if (bool.TryParse(parText, out var bValue))
 				{
 					return (bValue, true);
@@ -800,7 +800,7 @@ A function (See PROG HELP FUNCTIONS) can also function as a statement on a line.
 
 				actor.OutputHandler.Send($"That is not a valid boolean argument to use {parameterArgument}.");
 				return (null, false);
-			case FutureProgVariableTypes.Chargen:
+			case ProgVariableTypes.Chargen:
 				if (!long.TryParse(parText, out var id))
 				{
 					actor.OutputHandler.Send($"You must supply an ID number for the chargen you wish to use.");
@@ -818,15 +818,15 @@ A function (See PROG HELP FUNCTIONS) can also function as a statement on a line.
 
 					return (new CharacterCreation.Chargen(dbitem, actor.Gameworld,dbitem.Account), true);
 				}
-			case FutureProgVariableTypes.Toon:
+			case ProgVariableTypes.Toon:
 				if (parText[0] == '*')
 				{
 					parText = parText.Substring(1);
-					goto case FutureProgVariableTypes.Chargen;
+					goto case ProgVariableTypes.Chargen;
 				}
 
-				goto case FutureProgVariableTypes.Character;
-			case FutureProgVariableTypes.Character:
+				goto case ProgVariableTypes.Character;
+			case ProgVariableTypes.Character:
 				var targetActor = actor.TargetActor(parText);
 				if (targetActor == null)
 				{
@@ -835,7 +835,7 @@ A function (See PROG HELP FUNCTIONS) can also function as a statement on a line.
 				}
 
 				return (targetActor, true);
-			case FutureProgVariableTypes.Gender:
+			case ProgVariableTypes.Gender:
 				switch (parText.ToLowerInvariant())
 				{
 					case "male":
@@ -854,7 +854,7 @@ A function (See PROG HELP FUNCTIONS) can also function as a statement on a line.
 						actor.OutputHandler.Send($"That is not a valid gender to use{parameterArgument}.");
 						return (null, false);
 				}
-			case FutureProgVariableTypes.TimeSpan:
+			case ProgVariableTypes.TimeSpan:
 				if (!TimeSpan.TryParse(parText, out var tsValue))
 				{
 					actor.OutputHandler.Send($"That is not a valid timespan to use{parameterArgument}.");
@@ -862,7 +862,7 @@ A function (See PROG HELP FUNCTIONS) can also function as a statement on a line.
 				}
 
 				return (tsValue, true);
-			case FutureProgVariableTypes.DateTime:
+			case ProgVariableTypes.DateTime:
 				if (!DateTime.TryParse(parText, out var dtValue))
 				{
 					actor.OutputHandler.Send($"That is not a valid datetime to use{parameterArgument}.");
@@ -870,7 +870,7 @@ A function (See PROG HELP FUNCTIONS) can also function as a statement on a line.
 				}
 
 				return (dtValue, true);
-			case FutureProgVariableTypes.MudDateTime:
+			case ProgVariableTypes.MudDateTime:
 				if (!MudDateTime.TryParse(parText, actor.Gameworld, out var mdtValue))
 				{
 					actor.OutputHandler.Send($"That is not a valid mud datetime to use{parameterArgument}.");
@@ -878,7 +878,7 @@ A function (See PROG HELP FUNCTIONS) can also function as a statement on a line.
 				}
 
 				return (mdtValue, true);
-			case FutureProgVariableTypes.Item:
+			case ProgVariableTypes.Item:
 				var targetItem = actor.TargetItem(parText);
 				if (targetItem == null)
 				{
@@ -887,7 +887,7 @@ A function (See PROG HELP FUNCTIONS) can also function as a statement on a line.
 				}
 
 				return (targetItem, true);
-			case FutureProgVariableTypes.Location:
+			case ProgVariableTypes.Location:
 				if (parText.Equals("here", StringComparison.InvariantCultureIgnoreCase))
 				{
 					return (actor.Location, true);
@@ -911,7 +911,7 @@ A function (See PROG HELP FUNCTIONS) can also function as a statement on a line.
 					return (targetCell, true);
 				}
 
-			case FutureProgVariableTypes.Number:
+			case ProgVariableTypes.Number:
 				if (decimal.TryParse(parText, out var dValue))
 				{
 					return (dValue, true);
@@ -919,7 +919,7 @@ A function (See PROG HELP FUNCTIONS) can also function as a statement on a line.
 
 				actor.OutputHandler.Send($"That is not a valid number argument to use{parameterArgument}.");
 				return (null, false);
-			case FutureProgVariableTypes.Shard:
+			case ProgVariableTypes.Shard:
 				if (long.TryParse(parText, out iValue))
 				{
 					var targetShard = actor.Gameworld.Shards.Get(iValue);
@@ -928,9 +928,9 @@ A function (See PROG HELP FUNCTIONS) can also function as a statement on a line.
 
 				actor.OutputHandler.Send($"You must specify the ID number of the shard to use{parameterArgument}.");
 				return (null, false);
-			case FutureProgVariableTypes.Text:
+			case ProgVariableTypes.Text:
 				return (parText, true);
-			case FutureProgVariableTypes.Zone:
+			case ProgVariableTypes.Zone:
 				if (long.TryParse(parText, out iValue))
 				{
 					var targetZone = actor.Gameworld.Zones.Get(iValue);
@@ -939,7 +939,7 @@ A function (See PROG HELP FUNCTIONS) can also function as a statement on a line.
 
 				actor.OutputHandler.Send($"You must specify the ID number of the zone to use{parameterArgument}.");
 				return (null, false);
-			case FutureProgVariableTypes.Clan:
+			case ProgVariableTypes.Clan:
 				var targetClan = long.TryParse(parText, out iValue)
 					? actor.Gameworld.Clans.Get(iValue)
 					: actor.Gameworld.Clans.FirstOrDefault(
@@ -953,7 +953,7 @@ A function (See PROG HELP FUNCTIONS) can also function as a statement on a line.
 				}
 
 				return (targetClan, true);
-			case FutureProgVariableTypes.ClanRank:
+			case ProgVariableTypes.ClanRank:
 				var rank = actor.Gameworld.Clans.SelectMany(x => x.Ranks).GetByIdOrName(parText);
 				if (rank is null)
 				{
@@ -962,7 +962,7 @@ A function (See PROG HELP FUNCTIONS) can also function as a statement on a line.
 				}
 
 				return (rank, true);
-			case FutureProgVariableTypes.ClanPaygrade:
+			case ProgVariableTypes.ClanPaygrade:
 				var paygrade = actor.Gameworld.Clans.SelectMany(x => x.Paygrades).GetByIdOrName(parText);
 				if (paygrade is null)
 				{
@@ -971,7 +971,7 @@ A function (See PROG HELP FUNCTIONS) can also function as a statement on a line.
 				}
 
 				return (paygrade, true);
-			case FutureProgVariableTypes.ClanAppointment:
+			case ProgVariableTypes.ClanAppointment:
 				var appointment = actor.Gameworld.Clans.SelectMany(x => x.Appointments).GetByIdOrName(parText);
 				if (appointment is null)
 				{
@@ -980,7 +980,7 @@ A function (See PROG HELP FUNCTIONS) can also function as a statement on a line.
 				}
 
 				return (appointment, true);
-			case FutureProgVariableTypes.Currency:
+			case ProgVariableTypes.Currency:
 				var targetCurrency = long.TryParse(parText, out iValue)
 					? actor.Gameworld.Currencies.Get(iValue)
 					: actor.Gameworld.Currencies.FirstOrDefault(
@@ -992,7 +992,7 @@ A function (See PROG HELP FUNCTIONS) can also function as a statement on a line.
 				}
 
 				return (targetCurrency, true);
-			case FutureProgVariableTypes.Language:
+			case ProgVariableTypes.Language:
 				var targetLanguages = long.TryParse(parText, out iValue)
 					? actor.Gameworld.Languages.Get(iValue)
 					: actor.Gameworld.Languages.GetByName(parText);
@@ -1003,7 +1003,7 @@ A function (See PROG HELP FUNCTIONS) can also function as a statement on a line.
 				}
 
 				return (targetLanguages, true);
-			case FutureProgVariableTypes.Accent:
+			case ProgVariableTypes.Accent:
 				var targetAccent = long.TryParse(parText, out iValue)
 					? actor.Gameworld.Accents.Get(iValue)
 					: actor.Gameworld.Accents.GetByName(parText);
@@ -1014,8 +1014,8 @@ A function (See PROG HELP FUNCTIONS) can also function as a statement on a line.
 				}
 
 				return (targetAccent, true);
-			case FutureProgVariableTypes.Perceiver:
-			case FutureProgVariableTypes.Perceivable:
+			case ProgVariableTypes.Perceiver:
+			case ProgVariableTypes.Perceivable:
 				var targetPerceiver = actor.Target(parText);
 				if (targetPerceiver == null)
 				{
@@ -1024,7 +1024,7 @@ A function (See PROG HELP FUNCTIONS) can also function as a statement on a line.
 				}
 
 				return (targetPerceiver, true);
-			case FutureProgVariableTypes.Exit:
+			case ProgVariableTypes.Exit:
 				var exit = actor.Location.GetExitKeyword(parText, actor);
 				if (exit == null)
 				{
@@ -1033,7 +1033,7 @@ A function (See PROG HELP FUNCTIONS) can also function as a statement on a line.
 				}
 
 				return (exit, true);
-			case FutureProgVariableTypes.Trait:
+			case ProgVariableTypes.Trait:
 				var trait = actor.Gameworld.Traits.GetByIdOrName(parText);
 				if (trait is null)
 				{
@@ -1042,7 +1042,7 @@ A function (See PROG HELP FUNCTIONS) can also function as a statement on a line.
 				}
 
 				return (trait, true);
-			case FutureProgVariableTypes.Race:
+			case ProgVariableTypes.Race:
 				var race = actor.Gameworld.Races.GetByIdOrName(parText);
 				if (race is null)
 				{
@@ -1051,7 +1051,7 @@ A function (See PROG HELP FUNCTIONS) can also function as a statement on a line.
 				}
 
 				return (race, true);
-			case FutureProgVariableTypes.Culture:
+			case ProgVariableTypes.Culture:
 				var culture = actor.Gameworld.Cultures.GetByIdOrName(parText);
 				if (culture is null)
 				{
@@ -1060,7 +1060,7 @@ A function (See PROG HELP FUNCTIONS) can also function as a statement on a line.
 				}
 
 				return (culture, true);
-			case FutureProgVariableTypes.Ethnicity:
+			case ProgVariableTypes.Ethnicity:
 				var ethnicity = actor.Gameworld.Ethnicities.GetByIdOrName(parText);
 				if (ethnicity is null)
 				{
@@ -1069,7 +1069,7 @@ A function (See PROG HELP FUNCTIONS) can also function as a statement on a line.
 				}
 
 				return (ethnicity, true);
-			case FutureProgVariableTypes.Merit:
+			case ProgVariableTypes.Merit:
 				var merit = actor.Gameworld.Merits.GetByIdOrName(parText);
 				if (merit is null)
 				{
@@ -1078,7 +1078,7 @@ A function (See PROG HELP FUNCTIONS) can also function as a statement on a line.
 				}
 
 				return (merit, true);
-			case FutureProgVariableTypes.Calendar:
+			case ProgVariableTypes.Calendar:
 				var calendar = actor.Gameworld.Calendars.GetByIdOrNames(parText);
 				if (calendar is null)
 				{
@@ -1087,7 +1087,7 @@ A function (See PROG HELP FUNCTIONS) can also function as a statement on a line.
 				}
 
 				return (calendar, true);
-			case FutureProgVariableTypes.Clock:
+			case ProgVariableTypes.Clock:
 				var clock = actor.Gameworld.Clocks.GetByIdOrNames(parText);
 				if (clock is null)
 				{
@@ -1096,7 +1096,7 @@ A function (See PROG HELP FUNCTIONS) can also function as a statement on a line.
 				}
 
 				return (clock, true);
-			case FutureProgVariableTypes.Knowledge:
+			case ProgVariableTypes.Knowledge:
 				var knowledge = actor.Gameworld.Knowledges.GetByIdOrName(parText);
 				if (knowledge is null)
 				{
@@ -1105,7 +1105,7 @@ A function (See PROG HELP FUNCTIONS) can also function as a statement on a line.
 				}
 
 				return (knowledge, true);
-			case FutureProgVariableTypes.Role:
+			case ProgVariableTypes.Role:
 				var role = actor.Gameworld.Roles.GetByIdOrName(parText);
 				if (role is null)
 				{
@@ -1114,7 +1114,7 @@ A function (See PROG HELP FUNCTIONS) can also function as a statement on a line.
 				}
 
 				return (role, true);
-			case FutureProgVariableTypes.Drug:
+			case ProgVariableTypes.Drug:
 				var drug = actor.Gameworld.Drugs.GetByIdOrName(parText);
 				if (drug is null)
 				{
@@ -1123,7 +1123,7 @@ A function (See PROG HELP FUNCTIONS) can also function as a statement on a line.
 				}
 
 				return (drug, true);
-			case FutureProgVariableTypes.WeatherEvent:
+			case ProgVariableTypes.WeatherEvent:
 				var weather = actor.Gameworld.WeatherEvents.GetByIdOrName(parText);
 				if (weather is null)
 				{
@@ -1132,7 +1132,7 @@ A function (See PROG HELP FUNCTIONS) can also function as a statement on a line.
 				}
 
 				return (weather, true);
-			case FutureProgVariableTypes.Shop:
+			case ProgVariableTypes.Shop:
 				var shop = actor.Gameworld.Shops.GetByIdOrName(parText);
 				if (shop is null)
 				{
@@ -1141,7 +1141,7 @@ A function (See PROG HELP FUNCTIONS) can also function as a statement on a line.
 				}
 
 				return (shop, true);
-			case FutureProgVariableTypes.Merchandise:
+			case ProgVariableTypes.Merchandise:
 				var merch = actor.Gameworld.Shops.SelectMany(x => x.Merchandises).GetByIdOrName(parText);
 				if (merch is null)
 				{
@@ -1150,7 +1150,7 @@ A function (See PROG HELP FUNCTIONS) can also function as a statement on a line.
 				}
 
 				return (merch, true);
-			case FutureProgVariableTypes.OverlayPackage:
+			case ProgVariableTypes.OverlayPackage:
 				var overlay = actor.Gameworld.CellOverlayPackages.GetByIdOrName(parText);
 				if (overlay is null)
 				{
@@ -1159,7 +1159,7 @@ A function (See PROG HELP FUNCTIONS) can also function as a statement on a line.
 				}
 
 				return (overlay, true);
-			case FutureProgVariableTypes.Terrain:
+			case ProgVariableTypes.Terrain:
 				var terrain = actor.Gameworld.Terrains.GetByIdOrName(parText);
 				if (terrain is null)
 				{
@@ -1168,7 +1168,7 @@ A function (See PROG HELP FUNCTIONS) can also function as a statement on a line.
 				}
 
 				return (terrain, true);
-			case FutureProgVariableTypes.Solid:
+			case ProgVariableTypes.Solid:
 				var material = actor.Gameworld.Materials.GetByIdOrName(parText);
 				if (material is null)
 				{
@@ -1177,7 +1177,7 @@ A function (See PROG HELP FUNCTIONS) can also function as a statement on a line.
 				}
 
 				return (material, true);
-			case FutureProgVariableTypes.Liquid:
+			case ProgVariableTypes.Liquid:
 				var liquid = actor.Gameworld.Liquids.GetByIdOrName(parText);
 				if (liquid is null)
 				{
@@ -1186,7 +1186,7 @@ A function (See PROG HELP FUNCTIONS) can also function as a statement on a line.
 				}
 
 				return (liquid, true);
-			case FutureProgVariableTypes.Gas:
+			case ProgVariableTypes.Gas:
 				var gas = actor.Gameworld.Gases.GetByIdOrName(parText);
 				if (gas is null)
 				{
@@ -1195,7 +1195,7 @@ A function (See PROG HELP FUNCTIONS) can also function as a statement on a line.
 				}
 
 				return (gas, true);
-			case FutureProgVariableTypes.LegalAuthority:
+			case ProgVariableTypes.LegalAuthority:
 				var legal = actor.Gameworld.CellOverlayPackages.GetByIdOrName(parText);
 				if (legal is null)
 				{
@@ -1204,7 +1204,7 @@ A function (See PROG HELP FUNCTIONS) can also function as a statement on a line.
 				}
 
 				return (legal, true);
-			case FutureProgVariableTypes.MagicCapability:
+			case ProgVariableTypes.MagicCapability:
 				var capability = actor.Gameworld.MagicCapabilities.GetByIdOrName(parText);
 				if (capability is null)
 				{
@@ -1213,7 +1213,7 @@ A function (See PROG HELP FUNCTIONS) can also function as a statement on a line.
 				}
 
 				return (capability, true);
-			case FutureProgVariableTypes.MagicSchool:
+			case ProgVariableTypes.MagicSchool:
 				var school = actor.Gameworld.MagicSchools.GetByIdOrName(parText);
 				if (school is null)
 				{
@@ -1222,7 +1222,7 @@ A function (See PROG HELP FUNCTIONS) can also function as a statement on a line.
 				}
 
 				return (school, true);
-			case FutureProgVariableTypes.MagicSpell:
+			case ProgVariableTypes.MagicSpell:
 				var spell = actor.Gameworld.MagicSpells.GetByIdOrName(parText);
 				if (spell is null)
 				{
@@ -1231,7 +1231,7 @@ A function (See PROG HELP FUNCTIONS) can also function as a statement on a line.
 				}
 
 				return (spell, true);
-			case FutureProgVariableTypes.Bank:
+			case ProgVariableTypes.Bank:
 				var bank = actor.Gameworld.Banks.GetByIdOrName(parText);
 				if (bank is null)
 				{
@@ -1240,7 +1240,7 @@ A function (See PROG HELP FUNCTIONS) can also function as a statement on a line.
 				}
 
 				return (bank, true);
-			case FutureProgVariableTypes.BankAccountType:
+			case ProgVariableTypes.BankAccountType:
 				var accountType = actor.Gameworld.BankAccountTypes.GetByIdOrName(parText);
 				if (accountType is null)
 				{
@@ -1249,7 +1249,7 @@ A function (See PROG HELP FUNCTIONS) can also function as a statement on a line.
 				}
 
 				return (accountType, true);
-			case FutureProgVariableTypes.BankAccount:
+			case ProgVariableTypes.BankAccount:
 				var (account, error) = Economy.Banking.Bank.FindBankAccount(parText, null, actor);
 				if (account is null)
 				{
@@ -1258,7 +1258,7 @@ A function (See PROG HELP FUNCTIONS) can also function as a statement on a line.
 				}
 
 				return (account, true);
-			case FutureProgVariableTypes.Project:
+			case ProgVariableTypes.Project:
 				var project = actor.Gameworld.ActiveProjects.GetByIdOrName(parText);
 				if (project is null)
 				{
@@ -1267,7 +1267,7 @@ A function (See PROG HELP FUNCTIONS) can also function as a statement on a line.
 				}
 
 				return (project, true);
-			case FutureProgVariableTypes.Law:
+			case ProgVariableTypes.Law:
 				var law = actor.Gameworld.Laws.GetByIdOrName(parText);
 				if (law is null)
 				{
@@ -1276,7 +1276,7 @@ A function (See PROG HELP FUNCTIONS) can also function as a statement on a line.
 				}
 
 				return (law, true);
-			case FutureProgVariableTypes.Market:
+			case ProgVariableTypes.Market:
 				var market = actor.Gameworld.Markets.GetByIdOrName(parText);
 				if (market is null)
 				{
@@ -1285,7 +1285,7 @@ A function (See PROG HELP FUNCTIONS) can also function as a statement on a line.
 				}
 
 				return (market, true);
-			case FutureProgVariableTypes.MarketCategory:
+			case ProgVariableTypes.MarketCategory:
 				var category = actor.Gameworld.MarketCategories.GetByIdOrName(parText);
 				if (category is null)
 				{
@@ -1294,7 +1294,7 @@ A function (See PROG HELP FUNCTIONS) can also function as a statement on a line.
 				}
 
 				return (category, true);
-			case FutureProgVariableTypes.Crime:
+			case ProgVariableTypes.Crime:
 				var crime = actor.Gameworld.Crimes.GetByIdOrName(parText);
 				if (crime is null)
 				{
@@ -1302,10 +1302,10 @@ A function (See PROG HELP FUNCTIONS) can also function as a statement on a line.
 					return (null, false);
 				}
 				return (crime, true);
-			case FutureProgVariableTypes.Effect:
-			case FutureProgVariableTypes.Outfit:
-			case FutureProgVariableTypes.OutfitItem:
-			case FutureProgVariableTypes.Material:
+			case ProgVariableTypes.Effect:
+			case ProgVariableTypes.Outfit:
+			case ProgVariableTypes.OutfitItem:
+			case ProgVariableTypes.Material:
 			default:
 				actor.Send(
 					$"The variable type {type.Describe().Colour(Telnet.VariableCyan)} is not yet supported in this command. Sorry.");
@@ -1326,7 +1326,7 @@ A function (See PROG HELP FUNCTIONS) can also function as a statement on a line.
 			sb.AppendLine();
 		}
 
-		if (prog.ReturnType == FutureProgVariableTypes.Void)
+		if (prog.ReturnType == ProgVariableTypes.Void)
 		{
 			sb.AppendLine("This prog does not have any return value.");
 		}
@@ -1524,7 +1524,7 @@ A function (See PROG HELP FUNCTIONS) can also function as a statement on a line.
 			dbitem.FunctionComment = "Comment this function";
 			dbitem.Category = "Uncategorised";
 			dbitem.Subcategory = "New";
-			dbitem.ReturnType = (long)FutureProgVariableTypes.Void;
+			dbitem.ReturnType = (long)ProgVariableTypes.Void;
 			FMDB.Context.SaveChanges();
 			var prog = new FutureProg.FutureProg(dbitem, actor.Gameworld);
 			actor.Gameworld.Add(prog);
@@ -1582,7 +1582,7 @@ A function (See PROG HELP FUNCTIONS) can also function as a statement on a line.
 			dbitem.FunctionComment = "Comment this function";
 			dbitem.Category = "Uncategorised";
 			dbitem.Subcategory = "New";
-			dbitem.ReturnType = (long)FutureProgVariableTypes.Void;
+			dbitem.ReturnType = (long)ProgVariableTypes.Void;
 			var targetCount = eventInfo.ProgTypes.Count();
 			for (var i = 0; i < targetCount; i++)
 			{
@@ -1685,7 +1685,7 @@ A function (See PROG HELP FUNCTIONS) can also function as a statement on a line.
 
 		var parameterType = command.SafeRemainingArgument;
 		var type = FutureProg.FutureProg.GetTypeByName(parameterType);
-		if (type == FutureProgVariableTypes.Void || type == FutureProgVariableTypes.Error)
+		if (type == ProgVariableTypes.Void || type == ProgVariableTypes.Error)
 		{
 			actor.Send($"The text {parameterType.ColourCommand()} is not a valid variable type.");
 			return;
@@ -1907,7 +1907,7 @@ A function (See PROG HELP FUNCTIONS) can also function as a statement on a line.
 
 		if (command.SafeRemainingArgument.Equals("void", StringComparison.InvariantCultureIgnoreCase))
 		{
-			prog.ReturnType = FutureProgVariableTypes.Void;
+			prog.ReturnType = ProgVariableTypes.Void;
 			prog.StaticType = FutureProgStaticType.NotStatic;
 			prog.Changed = true;
 			actor.OutputHandler.Send($"Prog {prog.MXPClickableFunctionNameWithId()} no longer returns a type.");
@@ -1915,7 +1915,7 @@ A function (See PROG HELP FUNCTIONS) can also function as a statement on a line.
 		}
 
 		var type = FutureProg.FutureProg.GetTypeByName(command.SafeRemainingArgument);
-		if (type == FutureProgVariableTypes.Error)
+		if (type == ProgVariableTypes.Error)
 		{
 			actor.Send("That is not a valid variable type.");
 			return;
@@ -1940,7 +1940,7 @@ A function (See PROG HELP FUNCTIONS) can also function as a statement on a line.
 			return;
 		}
 
-		if (prog.ReturnType == FutureProgVariableTypes.Void)
+		if (prog.ReturnType == ProgVariableTypes.Void)
 		{
 			actor.OutputHandler.Send("Void-returning functions can't be static.");
 			return;
@@ -2060,20 +2060,20 @@ To see what register values a room, item or character has use the #3sniff#0 comm
 		}
 
 		var type = FutureProg.FutureProg.GetTypeByName(ss.Last);
-		if (type == FutureProgVariableTypes.Error)
+		if (type == ProgVariableTypes.Error)
 		{
 			actor.Send("That is not a valid type.");
 			return;
 		}
 
-		if (type.HasFlag(FutureProgVariableTypes.Collection) ||
-			type.HasFlag(FutureProgVariableTypes.CollectionItem) ||
-			type.HasFlag(FutureProgVariableTypes.Perceivable) ||
-			type.HasFlag(FutureProgVariableTypes.Perceiver) ||
-			type.HasFlag(FutureProgVariableTypes.MagicResourceHaver) ||
-			type.HasFlag(FutureProgVariableTypes.CollectionDictionary) ||
-			type.HasFlag(FutureProgVariableTypes.Dictionary) ||
-			type.CompatibleWith(FutureProgVariableTypes.ValueType)
+		if (type.HasFlag(ProgVariableTypes.Collection) ||
+			type.HasFlag(ProgVariableTypes.CollectionItem) ||
+			type.HasFlag(ProgVariableTypes.Perceivable) ||
+			type.HasFlag(ProgVariableTypes.Perceiver) ||
+			type.HasFlag(ProgVariableTypes.MagicResourceHaver) ||
+			type.HasFlag(ProgVariableTypes.CollectionDictionary) ||
+			type.HasFlag(ProgVariableTypes.Dictionary) ||
+			type.CompatibleWith(ProgVariableTypes.ValueType)
 		   )
 		{
 			actor.Send("That type cannot have any declared variables.");
@@ -2095,7 +2095,7 @@ To see what register values a room, item or character has use the #3sniff#0 comm
 		}
 
 		var varType = FutureProg.FutureProg.GetTypeByName(ss.SafeRemainingArgument);
-		if (varType == FutureProgVariableTypes.Error)
+		if (varType == ProgVariableTypes.Error)
 		{
 			actor.Send("That is not a valid variable type.");
 			return;
@@ -2135,7 +2135,7 @@ To see what register values a room, item or character has use the #3sniff#0 comm
 		}
 
 		var type = FutureProg.FutureProg.GetTypeByName(input.PopSpeech());
-		if (type == FutureProgVariableTypes.Error)
+		if (type == ProgVariableTypes.Error)
 		{
 			actor.Send("There is no such type.");
 			return;
@@ -2173,20 +2173,20 @@ To see what register values a room, item or character has use the #3sniff#0 comm
 		}
 
 		var type = FutureProg.FutureProg.GetTypeByName(input.PopSpeech());
-		if (type == FutureProgVariableTypes.Error)
+		if (type == ProgVariableTypes.Error)
 		{
 			actor.Send("There is no such type.");
 			return;
 		}
 
-		if (type.HasFlag(FutureProgVariableTypes.Collection) ||
-			type.HasFlag(FutureProgVariableTypes.CollectionItem) ||
-			type.HasFlag(FutureProgVariableTypes.Perceivable) ||
-			type.HasFlag(FutureProgVariableTypes.Perceiver) ||
-			type.HasFlag(FutureProgVariableTypes.MagicResourceHaver) ||
-			type.HasFlag(FutureProgVariableTypes.CollectionDictionary) ||
-			type.HasFlag(FutureProgVariableTypes.Dictionary) ||
-			type.CompatibleWith(FutureProgVariableTypes.ValueType)
+		if (type.HasFlag(ProgVariableTypes.Collection) ||
+			type.HasFlag(ProgVariableTypes.CollectionItem) ||
+			type.HasFlag(ProgVariableTypes.Perceivable) ||
+			type.HasFlag(ProgVariableTypes.Perceiver) ||
+			type.HasFlag(ProgVariableTypes.MagicResourceHaver) ||
+			type.HasFlag(ProgVariableTypes.CollectionDictionary) ||
+			type.HasFlag(ProgVariableTypes.Dictionary) ||
+			type.CompatibleWith(ProgVariableTypes.ValueType)
 		   )
 		{
 			actor.Send("That type cannot have any declared variables.");
@@ -2229,14 +2229,14 @@ To see what register values a room, item or character has use the #3sniff#0 comm
 	private static void RegisterRemove(ICharacter actor, StringStack ss)
 	{
 		var type = FutureProg.FutureProg.GetTypeByName(ss.Last);
-		if (type == FutureProgVariableTypes.Error)
+		if (type == ProgVariableTypes.Error)
 		{
 			actor.Send("That is not a valid type.");
 			return;
 		}
 
-		if (type.HasFlag(FutureProgVariableTypes.Collection) || type.HasFlag(FutureProgVariableTypes.CollectionItem) ||
-			type.HasFlag(FutureProgVariableTypes.Perceivable) || type.HasFlag(FutureProgVariableTypes.Perceiver))
+		if (type.HasFlag(ProgVariableTypes.Collection) || type.HasFlag(ProgVariableTypes.CollectionItem) ||
+			type.HasFlag(ProgVariableTypes.Perceivable) || type.HasFlag(ProgVariableTypes.Perceiver))
 		{
 			actor.Send("That type cannot have any declared variables.");
 			return;
@@ -2724,12 +2724,12 @@ You can use the following filters with #3hook list#0:
 		}
 
 		var prog = new ProgLookupFromBuilderInput(actor.Gameworld, actor, ss.SafeRemainingArgument,
-			FutureProgVariableTypes.Boolean, type switch
+			ProgVariableTypes.Boolean, type switch
 			{
-				"Character" => new FutureProgVariableTypes[] { FutureProgVariableTypes.Toon },
-				"GameItem" => new FutureProgVariableTypes[] { FutureProgVariableTypes.Item },
-				"Cell" => new FutureProgVariableTypes[] { FutureProgVariableTypes.Location },
-				_ => new FutureProgVariableTypes[] { FutureProgVariableTypes.Error }
+				"Character" => new ProgVariableTypes[] { ProgVariableTypes.Toon },
+				"GameItem" => new ProgVariableTypes[] { ProgVariableTypes.Item },
+				"Cell" => new ProgVariableTypes[] { ProgVariableTypes.Location },
+				_ => new ProgVariableTypes[] { ProgVariableTypes.Error }
 			}).LookupProg();
 		if (prog is null)
 		{
@@ -2801,12 +2801,12 @@ You can use the following filters with #3hook list#0:
 		}
 
 		var prog = new ProgLookupFromBuilderInput(actor.Gameworld, actor, ss.SafeRemainingArgument,
-			FutureProgVariableTypes.Boolean, type switch
+			ProgVariableTypes.Boolean, type switch
 			{
-				"Character" => new FutureProgVariableTypes[] { FutureProgVariableTypes.Toon },
-				"GameItem" => new FutureProgVariableTypes[] { FutureProgVariableTypes.Item },
-				"Cell" => new FutureProgVariableTypes[] { FutureProgVariableTypes.Location },
-				_ => new FutureProgVariableTypes[] { FutureProgVariableTypes.Error }
+				"Character" => new ProgVariableTypes[] { ProgVariableTypes.Toon },
+				"GameItem" => new ProgVariableTypes[] { ProgVariableTypes.Item },
+				"Cell" => new ProgVariableTypes[] { ProgVariableTypes.Location },
+				_ => new ProgVariableTypes[] { ProgVariableTypes.Error }
 			}).LookupProg();
 		if (prog is null)
 		{

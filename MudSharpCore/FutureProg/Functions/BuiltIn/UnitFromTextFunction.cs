@@ -17,9 +17,9 @@ internal class UnitFromTextFunction : BuiltInFunction, IHaveFuturemud
 		Type = type;
 	}
 
-	public override FutureProgVariableTypes ReturnType
+	public override ProgVariableTypes ReturnType
 	{
-		get => FutureProgVariableTypes.Number;
+		get => ProgVariableTypes.Number;
 		protected set { }
 	}
 
@@ -55,37 +55,37 @@ internal class UnitFromTextFunction : BuiltInFunction, IHaveFuturemud
 	{
 		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
 			"lengthfromtext",
-			new[] { FutureProgVariableTypes.Text },
+			new[] { ProgVariableTypes.Text },
 			(pars, gameworld) => new UnitFromTextFunction(pars, gameworld, UnitType.Length)
 		));
 
 		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
 			"massfromtext",
-			new[] { FutureProgVariableTypes.Text },
+			new[] { ProgVariableTypes.Text },
 			(pars, gameworld) => new UnitFromTextFunction(pars, gameworld, UnitType.Mass)
 		));
 
 		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
 			"fluidfromtext",
-			new[] { FutureProgVariableTypes.Text },
+			new[] { ProgVariableTypes.Text },
 			(pars, gameworld) => new UnitFromTextFunction(pars, gameworld, UnitType.FluidVolume)
 		));
 
 		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
 			"areafromtext",
-			new[] { FutureProgVariableTypes.Text },
+			new[] { ProgVariableTypes.Text },
 			(pars, gameworld) => new UnitFromTextFunction(pars, gameworld, UnitType.Area)
 		));
 
 		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
 			"volumefromtext",
-			new[] { FutureProgVariableTypes.Text },
+			new[] { ProgVariableTypes.Text },
 			(pars, gameworld) => new UnitFromTextFunction(pars, gameworld, UnitType.Volume)
 		));
 
 		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
 			"tempfromtext",
-			new[] { FutureProgVariableTypes.Text },
+			new[] { ProgVariableTypes.Text },
 			(pars, gameworld) => new UnitFromTextFunction(pars, gameworld, UnitType.Temperature)
 		));
 	}

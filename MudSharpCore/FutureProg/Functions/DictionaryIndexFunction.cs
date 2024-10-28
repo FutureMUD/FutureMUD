@@ -12,7 +12,7 @@ internal class DictionaryIndexFunction : Function
 	public string WhichVariable { get; }
 	public IFunction IndexFunction { get; }
 
-	public DictionaryIndexFunction(string whichVariable, IFunction indexFunction, FutureProgVariableTypes returnType)
+	public DictionaryIndexFunction(string whichVariable, IFunction indexFunction, ProgVariableTypes returnType)
 	{
 		WhichVariable = whichVariable;
 		IndexFunction = indexFunction;
@@ -21,7 +21,7 @@ internal class DictionaryIndexFunction : Function
 
 	public override StatementResult Execute(IVariableSpace variables)
 	{
-		var dictionary = (Dictionary<string, IFutureProgVariable>)variables.GetVariable(WhichVariable)?.GetObject;
+		var dictionary = (Dictionary<string, IProgVariable>)variables.GetVariable(WhichVariable)?.GetObject;
 		if (dictionary == null)
 		{
 			ErrorMessage = "Dictionary was null";

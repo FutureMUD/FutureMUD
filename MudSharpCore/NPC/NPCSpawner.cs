@@ -330,9 +330,9 @@ Note that the #6Multi#0 strategy has additional building commands:
 		}
 
 		var prog = new ProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument,
-			FutureProgVariableTypes.Boolean, new[]
+			ProgVariableTypes.Boolean, new[]
 			{
-				FutureProgVariableTypes.Character
+				ProgVariableTypes.Character
 			}).LookupProg();
 		if (prog is null)
 		{
@@ -364,9 +364,9 @@ Note that the #6Multi#0 strategy has additional building commands:
 		}
 
 		var prog = new ProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument,
-			FutureProgVariableTypes.Void, new[]
+			ProgVariableTypes.Void, new[]
 			{
-				FutureProgVariableTypes.Character
+				ProgVariableTypes.Character
 			}).LookupProg();
 		if (prog is null)
 		{
@@ -506,7 +506,7 @@ Note that the #6Multi#0 strategy has additional building commands:
 		}
 
 		var prog = new ProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument,
-			FutureProgVariableTypes.Boolean, new FutureProgVariableTypes[]
+			ProgVariableTypes.Boolean, new ProgVariableTypes[]
 			{
 			}).LookupProg();
 		if (prog is null)

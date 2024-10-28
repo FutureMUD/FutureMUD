@@ -15,45 +15,45 @@ public partial class Cell
 {
 	#region IFutureProgVariable Implementation
 
-	private static IReadOnlyDictionary<string, FutureProgVariableTypes> DotReferenceHandler()
+	private static IReadOnlyDictionary<string, ProgVariableTypes> DotReferenceHandler()
 	{
-		return new Dictionary<string, FutureProgVariableTypes>(StringComparer.InvariantCultureIgnoreCase)
+		return new Dictionary<string, ProgVariableTypes>(StringComparer.InvariantCultureIgnoreCase)
 		{
-			{ "id", FutureProgVariableTypes.Number },
-			{ "characters", FutureProgVariableTypes.Collection | FutureProgVariableTypes.Character },
-			{ "items", FutureProgVariableTypes.Collection | FutureProgVariableTypes.Item },
-			{ "surrounds", FutureProgVariableTypes.Collection | FutureProgVariableTypes.Location },
-			{ "exits", FutureProgVariableTypes.Collection | FutureProgVariableTypes.Exit },
-			{ "zone", FutureProgVariableTypes.Zone },
-			{ "shard", FutureProgVariableTypes.Shard },
-			{ "terrain", FutureProgVariableTypes.Terrain },
-			{ "windlevel", FutureProgVariableTypes.Number },
-			{ "rainlevel", FutureProgVariableTypes.Number },
-			{ "snowlevel", FutureProgVariableTypes.Number },
-			{ "temperature", FutureProgVariableTypes.Number },
-			{ "temperaturec", FutureProgVariableTypes.Number },
-			{ "temperaturef", FutureProgVariableTypes.Number },
-			{ "temperaturek", FutureProgVariableTypes.Number },
-			{ "wind", FutureProgVariableTypes.Text },
-			{ "rain", FutureProgVariableTypes.Text },
-			{ "snow", FutureProgVariableTypes.Text },
-			{ "precipitation", FutureProgVariableTypes.Text },
-			{ "weather", FutureProgVariableTypes.WeatherEvent },
-			{ "tags", FutureProgVariableTypes.Text | FutureProgVariableTypes.Collection },
-			{ "addedlight", FutureProgVariableTypes.Number },
-			{ "addedlightfactor", FutureProgVariableTypes.Number },
-			{ "atmosphereid", FutureProgVariableTypes.Number },
-			{ "atmospheretype", FutureProgVariableTypes.Text },
-			{ "atmospherename", FutureProgVariableTypes.Text },
-			{ "outdoors", FutureProgVariableTypes.Number },
-			{ "overlay", FutureProgVariableTypes.OverlayPackage },
-			{ "overlays", FutureProgVariableTypes.OverlayPackage | FutureProgVariableTypes.Collection },
-			{ "grids", FutureProgVariableTypes.Number | FutureProgVariableTypes.Collection },
-			{ "electricgrids", FutureProgVariableTypes.Number | FutureProgVariableTypes.Collection },
-			{ "name", FutureProgVariableTypes.Text },
-			{ "type", FutureProgVariableTypes.Text },
-			{ "effects", FutureProgVariableTypes.Effect | FutureProgVariableTypes.Collection },
-			{ "light", FutureProgVariableTypes.Number }
+			{ "id", ProgVariableTypes.Number },
+			{ "characters", ProgVariableTypes.Collection | ProgVariableTypes.Character },
+			{ "items", ProgVariableTypes.Collection | ProgVariableTypes.Item },
+			{ "surrounds", ProgVariableTypes.Collection | ProgVariableTypes.Location },
+			{ "exits", ProgVariableTypes.Collection | ProgVariableTypes.Exit },
+			{ "zone", ProgVariableTypes.Zone },
+			{ "shard", ProgVariableTypes.Shard },
+			{ "terrain", ProgVariableTypes.Terrain },
+			{ "windlevel", ProgVariableTypes.Number },
+			{ "rainlevel", ProgVariableTypes.Number },
+			{ "snowlevel", ProgVariableTypes.Number },
+			{ "temperature", ProgVariableTypes.Number },
+			{ "temperaturec", ProgVariableTypes.Number },
+			{ "temperaturef", ProgVariableTypes.Number },
+			{ "temperaturek", ProgVariableTypes.Number },
+			{ "wind", ProgVariableTypes.Text },
+			{ "rain", ProgVariableTypes.Text },
+			{ "snow", ProgVariableTypes.Text },
+			{ "precipitation", ProgVariableTypes.Text },
+			{ "weather", ProgVariableTypes.WeatherEvent },
+			{ "tags", ProgVariableTypes.Text | ProgVariableTypes.Collection },
+			{ "addedlight", ProgVariableTypes.Number },
+			{ "addedlightfactor", ProgVariableTypes.Number },
+			{ "atmosphereid", ProgVariableTypes.Number },
+			{ "atmospheretype", ProgVariableTypes.Text },
+			{ "atmospherename", ProgVariableTypes.Text },
+			{ "outdoors", ProgVariableTypes.Number },
+			{ "overlay", ProgVariableTypes.OverlayPackage },
+			{ "overlays", ProgVariableTypes.OverlayPackage | ProgVariableTypes.Collection },
+			{ "grids", ProgVariableTypes.Number | ProgVariableTypes.Collection },
+			{ "electricgrids", ProgVariableTypes.Number | ProgVariableTypes.Collection },
+			{ "name", ProgVariableTypes.Text },
+			{ "type", ProgVariableTypes.Text },
+			{ "effects", ProgVariableTypes.Effect | ProgVariableTypes.Collection },
+			{ "light", ProgVariableTypes.Number }
 		};
 	}
 
@@ -125,30 +125,30 @@ public partial class Cell
 
 	public new static void RegisterFutureProgCompiler()
 	{
-		FutureProgVariable.RegisterDotReferenceCompileInfo(FutureProgVariableTypes.Location, DotReferenceHandler(),
+		ProgVariable.RegisterDotReferenceCompileInfo(ProgVariableTypes.Location, DotReferenceHandler(),
 			DotReferenceHelp());
 	}
 
-	public override IFutureProgVariable GetProperty(string property)
+	public override IProgVariable GetProperty(string property)
 	{
-		IFutureProgVariable returnVar = null;
+		IProgVariable returnVar = null;
 		switch (property.ToLowerInvariant())
 		{
 			case "id":
 				returnVar = new NumberVariable(Id);
 				break;
 			case "characters":
-				returnVar = new CollectionVariable(Characters.ToList(), FutureProgVariableTypes.Character);
+				returnVar = new CollectionVariable(Characters.ToList(), ProgVariableTypes.Character);
 				break;
 			case "items":
-				returnVar = new CollectionVariable(GameItems.ToList(), FutureProgVariableTypes.Item);
+				returnVar = new CollectionVariable(GameItems.ToList(), ProgVariableTypes.Item);
 				break;
 			case "surrounds":
-				returnVar = new CollectionVariable(Surrounds.ToList(), FutureProgVariableTypes.Location);
+				returnVar = new CollectionVariable(Surrounds.ToList(), ProgVariableTypes.Location);
 				break;
 			case "exits":
 				returnVar = new CollectionVariable(
-					Gameworld.ExitManager.GetExitsFor(this, CurrentOverlay).ToList(), FutureProgVariableTypes.Exit);
+					Gameworld.ExitManager.GetExitsFor(this, CurrentOverlay).ToList(), ProgVariableTypes.Exit);
 				break;
 			case "zone":
 				returnVar = Room.Zone;
@@ -220,7 +220,7 @@ public partial class Cell
 				return CurrentWeather(null);
 			case "tags":
 				return new CollectionVariable(Tags.Select(x => new TextVariable(x.Name)).ToList(),
-					FutureProgVariableTypes.Text);
+					ProgVariableTypes.Text);
 			case "addedlight":
 				return new NumberVariable(CurrentOverlay.AddedLight);
 			case "addedlightfactor":
@@ -237,15 +237,15 @@ public partial class Cell
 				return CurrentOverlay.Package;
 			case "overlays":
 				return new CollectionVariable(Overlays.Select(x => x.Package).Distinct().ToList(),
-					FutureProgVariableTypes.OverlayPackage);
+					ProgVariableTypes.OverlayPackage);
 			case "grids":
 				return new CollectionVariable(
 					Gameworld.Grids.Where(x => x.Locations.Contains(this)).Select(x => new NumberVariable(x.Id))
-					         .ToList(), FutureProgVariableTypes.Number);
+					         .ToList(), ProgVariableTypes.Number);
 			case "electricgrids":
 				return new CollectionVariable(
 					Gameworld.Grids.Where(x => x is IElectricalGrid && x.Locations.Contains(this))
-					         .Select(x => new NumberVariable(x.Id)).ToList(), FutureProgVariableTypes.Number);
+					         .Select(x => new NumberVariable(x.Id)).ToList(), ProgVariableTypes.Number);
 			case "light":
 				return new NumberVariable(CurrentIllumination(null));
 			default:
@@ -255,7 +255,7 @@ public partial class Cell
 		return returnVar;
 	}
 
-	public override FutureProgVariableTypes Type => FutureProgVariableTypes.Location;
+	public override ProgVariableTypes Type => ProgVariableTypes.Location;
 
 	#endregion
 }

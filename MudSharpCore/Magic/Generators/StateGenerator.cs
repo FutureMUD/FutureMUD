@@ -113,13 +113,13 @@ public class StateGenerator : BaseMagicResourceGenerator
 					$"StateGenerator #{Id} ({Name}) specified an incorrect StateProg element.");
 			}
 
-			if (!whichProg.ReturnType.CompatibleWith(FutureProgVariableTypes.Boolean))
+			if (!whichProg.ReturnType.CompatibleWith(ProgVariableTypes.Boolean))
 			{
 				throw new ApplicationException(
 					$"StateGenerator #{Id} ({Name}) specified a StateProg that doesn't return a boolean.");
 			}
 
-			if (!whichProg.MatchesParameters(new[] { FutureProgVariableTypes.MagicResourceHaver }))
+			if (!whichProg.MatchesParameters(new[] { ProgVariableTypes.MagicResourceHaver }))
 			{
 				throw new ApplicationException(
 					$"StateGenerator #{Id} ({Name}) specified a StateProg that doesn't accept a MagicResourceHaver argument.");
@@ -337,7 +337,7 @@ public class StateGenerator : BaseMagicResourceGenerator
 			return false;
 		}
 
-		var prog = new ProgLookupFromBuilderInput(actor, command.PopSpeech(), FutureProgVariableTypes.Boolean, [FutureProgVariableTypes.MagicResourceHaver]).LookupProg();
+		var prog = new ProgLookupFromBuilderInput(actor, command.PopSpeech(), ProgVariableTypes.Boolean, [ProgVariableTypes.MagicResourceHaver]).LookupProg();
 		if (prog is null)
 		{
 			return false;

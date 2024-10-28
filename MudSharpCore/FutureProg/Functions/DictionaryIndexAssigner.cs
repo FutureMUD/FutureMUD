@@ -22,7 +22,7 @@ internal class DictionaryIndexAssigner : Function
 
 	public override StatementResult Execute(IVariableSpace variables)
 	{
-		var dictionary = (Dictionary<string, IFutureProgVariable>)variables.GetVariable(WhichVariable)?.GetObject;
+		var dictionary = (Dictionary<string, IProgVariable>)variables.GetVariable(WhichVariable)?.GetObject;
 		if (dictionary == null)
 		{
 			ErrorMessage = "Dictionary was null";

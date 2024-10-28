@@ -14,9 +14,9 @@ internal class ConcatStringCollectionFunction : BuiltInFunction
 
 	#region Overrides of Function
 
-	public override FutureProgVariableTypes ReturnType
+	public override ProgVariableTypes ReturnType
 	{
-		get => FutureProgVariableTypes.Text;
+		get => ProgVariableTypes.Text;
 		protected set { }
 	}
 
@@ -46,9 +46,9 @@ internal class ConcatStringCollectionFunction : BuiltInFunction
 			"concat",
 			new[]
 			{
-				FutureProgVariableTypes.Text |
-				FutureProgVariableTypes.Collection,
-				FutureProgVariableTypes.Text
+				ProgVariableTypes.Text |
+				ProgVariableTypes.Collection,
+				ProgVariableTypes.Text
 			},
 			(pars, gameworld) =>
 				new ConcatStringCollectionFunction(pars),
@@ -60,7 +60,7 @@ internal class ConcatStringCollectionFunction : BuiltInFunction
 			},
 			"This function takes a collection of text values and joins them together with a specified joiner (which can be blank)",
 			"Text",
-			FutureProgVariableTypes.Text
+			ProgVariableTypes.Text
 		));
 	}
 }

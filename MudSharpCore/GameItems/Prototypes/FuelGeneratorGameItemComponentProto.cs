@@ -175,7 +175,7 @@ public class FuelGeneratorGameItemComponentProto : GameItemComponentProto
 			return false;
 		}
 
-		if (!prog.MatchesParameters(new[] { FutureProgVariableTypes.Item }))
+		if (!prog.MatchesParameters(new[] { ProgVariableTypes.Item }))
 		{
 			actor.Send("The prog must take only a single item as a parameter.");
 			return false;
@@ -262,7 +262,7 @@ public class FuelGeneratorGameItemComponentProto : GameItemComponentProto
 			return false;
 		}
 
-		if (!prog.MatchesParameters(new[] { FutureProgVariableTypes.Character, FutureProgVariableTypes.Item }))
+		if (!prog.MatchesParameters(new[] { ProgVariableTypes.Character, ProgVariableTypes.Item }))
 		{
 			actor.Send("The prog must take only a single character and item as a parameter.");
 			return false;
@@ -322,7 +322,7 @@ public class FuelGeneratorGameItemComponentProto : GameItemComponentProto
 			return false;
 		}
 
-		if (!prog.MatchesParameters(new[] { FutureProgVariableTypes.Character, FutureProgVariableTypes.Item }))
+		if (!prog.MatchesParameters(new[] { ProgVariableTypes.Character, ProgVariableTypes.Item }))
 		{
 			actor.Send("The prog must take only a single character and item as a parameter.");
 			return false;

@@ -17,9 +17,9 @@ public partial class Character
 {
 	#region IFutureProgVariable Implementation
 
-	IFutureProgVariable IFutureProgVariable.GetProperty(string property)
+	IProgVariable IProgVariable.GetProperty(string property)
 	{
-		IFutureProgVariable returnVar;
+		IProgVariable returnVar;
 		switch (property.ToLowerInvariant())
 		{
 			case "name":
@@ -86,37 +86,37 @@ public partial class Character
 				returnVar = Location.Shard;
 				break;
 			case "inventory":
-				returnVar = new CollectionVariable(Body.ExternalItems.ToList(), FutureProgVariableTypes.Item);
+				returnVar = new CollectionVariable(Body.ExternalItems.ToList(), ProgVariableTypes.Item);
 				break;
 			case "helditems":
-				returnVar = new CollectionVariable(Body.HeldItems.ToList(), FutureProgVariableTypes.Item);
+				returnVar = new CollectionVariable(Body.HeldItems.ToList(), ProgVariableTypes.Item);
 				break;
 			case "wieldeditems":
-				returnVar = new CollectionVariable(Body.WieldedItems.ToList(), FutureProgVariableTypes.Item);
+				returnVar = new CollectionVariable(Body.WieldedItems.ToList(), ProgVariableTypes.Item);
 				break;
 			case "wornitems":
-				returnVar = new CollectionVariable(Body.WornItems.ToList(), FutureProgVariableTypes.Item);
+				returnVar = new CollectionVariable(Body.WornItems.ToList(), ProgVariableTypes.Item);
 				break;
 			case "visiblewornitems":
 				returnVar =
 					new CollectionVariable(
 						Body.WornItems.Where(
 							    x => Body.CoverInformation(x).All(y => y.Item1 != WearableItemCoverStatus.Covered))
-						    .ToList(), FutureProgVariableTypes.Item);
+						    .ToList(), ProgVariableTypes.Item);
 				break;
 			case "clans":
 				returnVar = new CollectionVariable(ClanMemberships.Select(x => x.Clan).ToList(),
-					FutureProgVariableTypes.Clan);
+					ProgVariableTypes.Clan);
 				break;
 			case "skills":
 				returnVar = new CollectionVariable(
-					TraitsOfType(TraitType.Skill).Select(x => x.Definition).ToList(), FutureProgVariableTypes.Trait);
+					TraitsOfType(TraitType.Skill).Select(x => x.Definition).ToList(), ProgVariableTypes.Trait);
 				break;
 			case "accents":
-				returnVar = new CollectionVariable(Accents.ToList(), FutureProgVariableTypes.Accent);
+				returnVar = new CollectionVariable(Accents.ToList(), ProgVariableTypes.Accent);
 				break;
 			case "languages":
-				returnVar = new CollectionVariable(Languages.ToList(), FutureProgVariableTypes.Language);
+				returnVar = new CollectionVariable(Languages.ToList(), ProgVariableTypes.Language);
 				break;
 			case "class":
 				returnVar =
@@ -141,7 +141,7 @@ public partial class Character
 				returnVar =
 					new CollectionVariable(
 						Party?.CharacterMembers.ToList() ?? new List<ICharacter>().ToList(),
-						FutureProgVariableTypes.Character);
+						ProgVariableTypes.Character);
 				break;
 			case "npc":
 				return new BooleanVariable(!IsPlayerCharacter);
@@ -160,12 +160,12 @@ public partial class Character
 			case "accent":
 				return CurrentAccent;
 			case "merits":
-				return new CollectionVariable(Merits.ToList(), FutureProgVariableTypes.Merit);
+				return new CollectionVariable(Merits.ToList(), ProgVariableTypes.Merit);
 			case "applicablemerits":
 				return new CollectionVariable(Merits.Where(x => x.Applies(this)).ToList(),
-					FutureProgVariableTypes.Merit);
+					ProgVariableTypes.Merit);
 			case "roles":
-				return new CollectionVariable(Roles.ToList(), FutureProgVariableTypes.Role);
+				return new CollectionVariable(Roles.ToList(), ProgVariableTypes.Role);
 			case "playtime":
 				return new NumberVariable(TotalMinutesPlayed);
 			case "incombat":
@@ -178,35 +178,35 @@ public partial class Character
 				return new CollectionVariable(
 					new List<TextVariable>(CombatSettings.PreferredIntentions.GetFlags().OfType<CombatMoveIntentions>()
 					                                     .Select(x => new TextVariable(x.Describe()))),
-					FutureProgVariableTypes.Text);
+					ProgVariableTypes.Text);
 			case "requiredintentions":
 				return new CollectionVariable(
 					new List<TextVariable>(CombatSettings.RequiredIntentions.GetFlags().OfType<CombatMoveIntentions>()
 					                                     .Select(x => new TextVariable(x.Describe()))),
-					FutureProgVariableTypes.Text);
+					ProgVariableTypes.Text);
 			case "forbiddenintentions":
 				return new CollectionVariable(
 					new List<TextVariable>(CombatSettings.ForbiddenIntentions.GetFlags().OfType<CombatMoveIntentions>()
 					                                     .Select(x => new TextVariable(x.Describe()))),
-					FutureProgVariableTypes.Text);
+					ProgVariableTypes.Text);
 			case "drugs":
 				return new CollectionVariable(Body.ActiveDrugDosages.Select(x => x.Drug).Distinct().ToList(),
-					FutureProgVariableTypes.Drug);
+					ProgVariableTypes.Drug);
 			case "drugamounts":
 				return new CollectionVariable(
 					Body.ActiveDrugDosages.Select(x => x.Drug).Distinct().Select(x =>
 						new NumberVariable(Body.ActiveDrugDosages.Where(y => y.Drug == x).Sum(y => y.Grams))).ToList(),
-					FutureProgVariableTypes.Number);
+					ProgVariableTypes.Number);
 			case "latentdrugs":
 				return new CollectionVariable(Body.LatentDrugDosages.Select(x => x.Drug).Distinct().ToList(),
-					FutureProgVariableTypes.Drug);
+					ProgVariableTypes.Drug);
 			case "latentdrugamounts":
 				return new CollectionVariable(
 					Body.LatentDrugDosages.Select(x => x.Drug).Distinct().Select(x =>
 						new NumberVariable(Body.ActiveDrugDosages.Where(y => y.Drug == x).Sum(y => y.Grams))).ToList(),
-					FutureProgVariableTypes.Number);
+					ProgVariableTypes.Number);
 			case "outfits":
-				return new CollectionVariable(Outfits.ToList(), FutureProgVariableTypes.Outfit);
+				return new CollectionVariable(Outfits.ToList(), ProgVariableTypes.Outfit);
 			case "layer":
 				return new TextVariable(RoomLayer.DescribeEnum());
 			case "special":
@@ -220,72 +220,72 @@ public partial class Character
 		return returnVar;
 	}
 
-	public override FutureProgVariableTypes Type => FutureProgVariableTypes.Character;
+	public override ProgVariableTypes Type => ProgVariableTypes.Character;
 
-	private static IReadOnlyDictionary<string, FutureProgVariableTypes> DotReferenceHandler()
+	private static IReadOnlyDictionary<string, ProgVariableTypes> DotReferenceHandler()
 	{
-		return new Dictionary<string, FutureProgVariableTypes>(StringComparer.InvariantCultureIgnoreCase)
+		return new Dictionary<string, ProgVariableTypes>(StringComparer.InvariantCultureIgnoreCase)
 		{
-			{ "id", FutureProgVariableTypes.Number },
-			{ "effects", FutureProgVariableTypes.Collection | FutureProgVariableTypes.Effect },
-			{ "name", FutureProgVariableTypes.Text },
-			{ "type", FutureProgVariableTypes.Text },
-			{ "simplefullname", FutureProgVariableTypes.Text },
-			{ "fullname", FutureProgVariableTypes.Text },
-			{ "surname", FutureProgVariableTypes.Text },
-			{ "csimplefullname", FutureProgVariableTypes.Text },
-			{ "cfullname", FutureProgVariableTypes.Text },
-			{ "csurname", FutureProgVariableTypes.Text },
-			{ "cname", FutureProgVariableTypes.Text },
-			{ "gender", FutureProgVariableTypes.Gender },
-			{ "height", FutureProgVariableTypes.Number },
-			{ "weight", FutureProgVariableTypes.Number },
-			{ "location", FutureProgVariableTypes.Location },
-			{ "age", FutureProgVariableTypes.Number },
-			{ "agecategory", FutureProgVariableTypes.Text },
-			{ "race", FutureProgVariableTypes.Race },
-			{ "culture", FutureProgVariableTypes.Culture },
-			{ "currency", FutureProgVariableTypes.Currency },
-			{ "ethnicity", FutureProgVariableTypes.Ethnicity },
-			{ "zone", FutureProgVariableTypes.Zone },
-			{ "shard", FutureProgVariableTypes.Shard },
-			{ "inventory", FutureProgVariableTypes.Collection | FutureProgVariableTypes.Item },
-			{ "helditems", FutureProgVariableTypes.Collection | FutureProgVariableTypes.Item },
-			{ "wieldeditems", FutureProgVariableTypes.Collection | FutureProgVariableTypes.Item },
-			{ "wornitems", FutureProgVariableTypes.Collection | FutureProgVariableTypes.Item },
-			{ "visiblewornitems", FutureProgVariableTypes.Collection | FutureProgVariableTypes.Item },
-			{ "clans", FutureProgVariableTypes.Collection | FutureProgVariableTypes.Clan },
-			{ "skills", FutureProgVariableTypes.Trait | FutureProgVariableTypes.Collection },
-			{ "class", FutureProgVariableTypes.Text },
-			{ "subclass", FutureProgVariableTypes.Text },
-			{ "ingroup", FutureProgVariableTypes.Boolean },
-			{ "groupmembers", FutureProgVariableTypes.Collection | FutureProgVariableTypes.Character },
-			{ "npc", FutureProgVariableTypes.Boolean },
-			{ "pc", FutureProgVariableTypes.Boolean },
-			{ "accents", FutureProgVariableTypes.Accent | FutureProgVariableTypes.Collection },
-			{ "languages", FutureProgVariableTypes.Language | FutureProgVariableTypes.Collection },
-			{ "guest", FutureProgVariableTypes.Boolean },
-			{ "linewidth", FutureProgVariableTypes.Number },
-			{ "innerlinewidth", FutureProgVariableTypes.Number },
-			{ "language", FutureProgVariableTypes.Language },
-			{ "accent", FutureProgVariableTypes.Accent },
-			{ "merits", FutureProgVariableTypes.Merit | FutureProgVariableTypes.Collection },
-			{ "applicablemerits", FutureProgVariableTypes.Merit | FutureProgVariableTypes.Collection },
-			{ "roles", FutureProgVariableTypes.Role | FutureProgVariableTypes.Collection },
-			{ "playtime", FutureProgVariableTypes.Number },
-			{ "incombat", FutureProgVariableTypes.Boolean },
-			{ "combattarget", FutureProgVariableTypes.Perceiver },
-			{ "combattargetchar", FutureProgVariableTypes.Character },
-			{ "preferredintentions", FutureProgVariableTypes.Text | FutureProgVariableTypes.Collection },
-			{ "requiredintentions", FutureProgVariableTypes.Text | FutureProgVariableTypes.Collection },
-			{ "forbiddenintentions", FutureProgVariableTypes.Text | FutureProgVariableTypes.Collection },
-			{ "drugs", FutureProgVariableTypes.Drug | FutureProgVariableTypes.Collection },
-			{ "drugamounts", FutureProgVariableTypes.Number | FutureProgVariableTypes.Collection },
-			{ "latentdrugs", FutureProgVariableTypes.Drug | FutureProgVariableTypes.Collection },
-			{ "latentdrugamounts", FutureProgVariableTypes.Number | FutureProgVariableTypes.Collection },
-			{ "outfits", FutureProgVariableTypes.Outfit | FutureProgVariableTypes.Collection },
-			{ "layer", FutureProgVariableTypes.Text },
-			{ "isnewplayer", FutureProgVariableTypes.Boolean }
+			{ "id", ProgVariableTypes.Number },
+			{ "effects", ProgVariableTypes.Collection | ProgVariableTypes.Effect },
+			{ "name", ProgVariableTypes.Text },
+			{ "type", ProgVariableTypes.Text },
+			{ "simplefullname", ProgVariableTypes.Text },
+			{ "fullname", ProgVariableTypes.Text },
+			{ "surname", ProgVariableTypes.Text },
+			{ "csimplefullname", ProgVariableTypes.Text },
+			{ "cfullname", ProgVariableTypes.Text },
+			{ "csurname", ProgVariableTypes.Text },
+			{ "cname", ProgVariableTypes.Text },
+			{ "gender", ProgVariableTypes.Gender },
+			{ "height", ProgVariableTypes.Number },
+			{ "weight", ProgVariableTypes.Number },
+			{ "location", ProgVariableTypes.Location },
+			{ "age", ProgVariableTypes.Number },
+			{ "agecategory", ProgVariableTypes.Text },
+			{ "race", ProgVariableTypes.Race },
+			{ "culture", ProgVariableTypes.Culture },
+			{ "currency", ProgVariableTypes.Currency },
+			{ "ethnicity", ProgVariableTypes.Ethnicity },
+			{ "zone", ProgVariableTypes.Zone },
+			{ "shard", ProgVariableTypes.Shard },
+			{ "inventory", ProgVariableTypes.Collection | ProgVariableTypes.Item },
+			{ "helditems", ProgVariableTypes.Collection | ProgVariableTypes.Item },
+			{ "wieldeditems", ProgVariableTypes.Collection | ProgVariableTypes.Item },
+			{ "wornitems", ProgVariableTypes.Collection | ProgVariableTypes.Item },
+			{ "visiblewornitems", ProgVariableTypes.Collection | ProgVariableTypes.Item },
+			{ "clans", ProgVariableTypes.Collection | ProgVariableTypes.Clan },
+			{ "skills", ProgVariableTypes.Trait | ProgVariableTypes.Collection },
+			{ "class", ProgVariableTypes.Text },
+			{ "subclass", ProgVariableTypes.Text },
+			{ "ingroup", ProgVariableTypes.Boolean },
+			{ "groupmembers", ProgVariableTypes.Collection | ProgVariableTypes.Character },
+			{ "npc", ProgVariableTypes.Boolean },
+			{ "pc", ProgVariableTypes.Boolean },
+			{ "accents", ProgVariableTypes.Accent | ProgVariableTypes.Collection },
+			{ "languages", ProgVariableTypes.Language | ProgVariableTypes.Collection },
+			{ "guest", ProgVariableTypes.Boolean },
+			{ "linewidth", ProgVariableTypes.Number },
+			{ "innerlinewidth", ProgVariableTypes.Number },
+			{ "language", ProgVariableTypes.Language },
+			{ "accent", ProgVariableTypes.Accent },
+			{ "merits", ProgVariableTypes.Merit | ProgVariableTypes.Collection },
+			{ "applicablemerits", ProgVariableTypes.Merit | ProgVariableTypes.Collection },
+			{ "roles", ProgVariableTypes.Role | ProgVariableTypes.Collection },
+			{ "playtime", ProgVariableTypes.Number },
+			{ "incombat", ProgVariableTypes.Boolean },
+			{ "combattarget", ProgVariableTypes.Perceiver },
+			{ "combattargetchar", ProgVariableTypes.Character },
+			{ "preferredintentions", ProgVariableTypes.Text | ProgVariableTypes.Collection },
+			{ "requiredintentions", ProgVariableTypes.Text | ProgVariableTypes.Collection },
+			{ "forbiddenintentions", ProgVariableTypes.Text | ProgVariableTypes.Collection },
+			{ "drugs", ProgVariableTypes.Drug | ProgVariableTypes.Collection },
+			{ "drugamounts", ProgVariableTypes.Number | ProgVariableTypes.Collection },
+			{ "latentdrugs", ProgVariableTypes.Drug | ProgVariableTypes.Collection },
+			{ "latentdrugamounts", ProgVariableTypes.Number | ProgVariableTypes.Collection },
+			{ "outfits", ProgVariableTypes.Outfit | ProgVariableTypes.Collection },
+			{ "layer", ProgVariableTypes.Text },
+			{ "isnewplayer", ProgVariableTypes.Boolean }
 		};
 	}
 
@@ -357,7 +357,7 @@ public partial class Character
 
 	public new static void RegisterFutureProgCompiler()
 	{
-		FutureProgVariable.RegisterDotReferenceCompileInfo(FutureProgVariableTypes.Character, DotReferenceHandler(),
+		ProgVariable.RegisterDotReferenceCompileInfo(ProgVariableTypes.Character, DotReferenceHandler(),
 			DotReferenceHelp());
 	}
 

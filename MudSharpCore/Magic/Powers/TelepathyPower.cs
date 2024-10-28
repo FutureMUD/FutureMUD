@@ -353,9 +353,9 @@ public partial class TelepathyPower : SustainedMagicPower
             return false;
         }
 
-        var prog = new ProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument, FutureProgVariableTypes.Boolean, [
-            [FutureProgVariableTypes.Character],
-            [FutureProgVariableTypes.Character, FutureProgVariableTypes.Character]
+        var prog = new ProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument, ProgVariableTypes.Boolean, [
+            [ProgVariableTypes.Character],
+            [ProgVariableTypes.Character, ProgVariableTypes.Character]
         ]).LookupProg();
         if (prog is null)
         {

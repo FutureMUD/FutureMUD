@@ -25,26 +25,26 @@ internal class ToTerrain : BuiltInFunction
 		FutureProg.RegisterBuiltInFunctionCompiler(
 			new FunctionCompilerInformation(
 				"ToTerrain".ToLowerInvariant(),
-				new[] { FutureProgVariableTypes.Number },
+				new[] { ProgVariableTypes.Number },
 				(pars, gameworld) => new ToTerrain(pars, gameworld),
 				new List<string> { "id" },
 				new List<string> { "The ID to look up" },
 				"Converts an ID number into the specified type, if one exists",
 				"Lookup",
-				FutureProgVariableTypes.Terrain
+				ProgVariableTypes.Terrain
 			)
 		);
 
 		FutureProg.RegisterBuiltInFunctionCompiler(
 			new FunctionCompilerInformation(
 				"ToTerrain".ToLowerInvariant(),
-				new[] { FutureProgVariableTypes.Text },
+				new[] { ProgVariableTypes.Text },
 				(pars, gameworld) => new ToTerrain(pars, gameworld),
 				new List<string> { "name" },
 				new List<string> { "The name to look up" },
 				"Converts a name into the specified type, if one exists",
 				"Lookup",
-				FutureProgVariableTypes.Terrain
+				ProgVariableTypes.Terrain
 			)
 		);
 	}
@@ -60,9 +60,9 @@ internal class ToTerrain : BuiltInFunction
 
 	#endregion
 
-	public override FutureProgVariableTypes ReturnType
+	public override ProgVariableTypes ReturnType
 	{
-		get => FutureProgVariableTypes.Terrain;
+		get => ProgVariableTypes.Terrain;
 		protected set { }
 	}
 
@@ -73,7 +73,7 @@ internal class ToTerrain : BuiltInFunction
 			return StatementResult.Error;
 		}
 
-		Result = ParameterFunctions[0].ReturnType.CompatibleWith(FutureProgVariableTypes.Text)
+		Result = ParameterFunctions[0].ReturnType.CompatibleWith(ProgVariableTypes.Text)
 			? Gameworld.Terrains.Get((string)ParameterFunctions[0].Result.GetObject).FirstOrDefault()
 			: Gameworld.Terrains.Get((long)(decimal)ParameterFunctions[0].Result.GetObject);
 

@@ -3,7 +3,7 @@ using MudSharp.Framework.Revision;
 using MudSharp.FutureProg;
 
 namespace MudSharp.RPG.Merits {
-    public interface IMerit : IEditableItem, IFutureProgVariable {
+    public interface IMerit : IEditableItem, IProgVariable {
         MeritScope MeritScope { get; }
         MeritType MeritType { get; }
         string DatabaseType { get; }

@@ -16,9 +16,9 @@ internal class WordyNumberFunction : BuiltInFunction
 		_wordyNumberFunction = wordyNumberFunction;
 	}
 
-	public override FutureProgVariableTypes ReturnType
+	public override ProgVariableTypes ReturnType
 	{
-		get => FutureProgVariableTypes.Text;
+		get => ProgVariableTypes.Text;
 		protected set { }
 	}
 
@@ -44,19 +44,19 @@ internal class WordyNumberFunction : BuiltInFunction
 	{
 		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
 			"tonumberwords",
-			new[] { FutureProgVariableTypes.Number },
+			new[] { ProgVariableTypes.Number },
 			(pars, gameworld) => new WordyNumberFunction(pars, NumberUtilities.ToWordyNumber)
 		));
 
 		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
 			"toordinalwords",
-			new[] { FutureProgVariableTypes.Number },
+			new[] { ProgVariableTypes.Number },
 			(pars, gameworld) => new WordyNumberFunction(pars, NumberUtilities.ToWordyOrdinal)
 		));
 
 		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
 			"toordinal",
-			new[] { FutureProgVariableTypes.Number },
+			new[] { ProgVariableTypes.Number },
 			(pars, gameworld) => new WordyNumberFunction(pars, NumberUtilities.ToOrdinal)
 		));
 	}

@@ -20,9 +20,9 @@ internal class SendShardFunction : BuiltInFunction
 		Gameworld = gameworld;
 	}
 
-	public override FutureProgVariableTypes ReturnType
+	public override ProgVariableTypes ReturnType
 	{
-		get => FutureProgVariableTypes.Boolean;
+		get => ProgVariableTypes.Boolean;
 		protected set { }
 	}
 
@@ -76,7 +76,7 @@ internal class SendShardFunction : BuiltInFunction
 		FutureProg.RegisterBuiltInFunctionCompiler(
 			new FunctionCompilerInformation(
 				"sendshard",
-				new[] { FutureProgVariableTypes.Shard, FutureProgVariableTypes.Text },
+				new[] { ProgVariableTypes.Shard, ProgVariableTypes.Text },
 				(pars, gameworld) => new SendShardFunction(pars, gameworld)
 			)
 		);
@@ -86,19 +86,7 @@ internal class SendShardFunction : BuiltInFunction
 				"sendshard",
 				new[]
 				{
-					FutureProgVariableTypes.Shard, FutureProgVariableTypes.Text, FutureProgVariableTypes.Perceivable
-				},
-				(pars, gameworld) => new SendShardFunction(pars, gameworld)
-			)
-		);
-
-		FutureProg.RegisterBuiltInFunctionCompiler(
-			new FunctionCompilerInformation(
-				"sendshard",
-				new[]
-				{
-					FutureProgVariableTypes.Shard, FutureProgVariableTypes.Text, FutureProgVariableTypes.Perceivable,
-					FutureProgVariableTypes.Perceivable
+					ProgVariableTypes.Shard, ProgVariableTypes.Text, ProgVariableTypes.Perceivable
 				},
 				(pars, gameworld) => new SendShardFunction(pars, gameworld)
 			)
@@ -109,8 +97,8 @@ internal class SendShardFunction : BuiltInFunction
 				"sendshard",
 				new[]
 				{
-					FutureProgVariableTypes.Shard, FutureProgVariableTypes.Text, FutureProgVariableTypes.Perceivable,
-					FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Perceivable
+					ProgVariableTypes.Shard, ProgVariableTypes.Text, ProgVariableTypes.Perceivable,
+					ProgVariableTypes.Perceivable
 				},
 				(pars, gameworld) => new SendShardFunction(pars, gameworld)
 			)
@@ -121,9 +109,8 @@ internal class SendShardFunction : BuiltInFunction
 				"sendshard",
 				new[]
 				{
-					FutureProgVariableTypes.Shard, FutureProgVariableTypes.Text, FutureProgVariableTypes.Perceivable,
-					FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Perceivable,
-					FutureProgVariableTypes.Perceivable
+					ProgVariableTypes.Shard, ProgVariableTypes.Text, ProgVariableTypes.Perceivable,
+					ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable
 				},
 				(pars, gameworld) => new SendShardFunction(pars, gameworld)
 			)
@@ -134,9 +121,9 @@ internal class SendShardFunction : BuiltInFunction
 				"sendshard",
 				new[]
 				{
-					FutureProgVariableTypes.Shard, FutureProgVariableTypes.Text, FutureProgVariableTypes.Perceivable,
-					FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Perceivable,
-					FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Perceivable
+					ProgVariableTypes.Shard, ProgVariableTypes.Text, ProgVariableTypes.Perceivable,
+					ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable,
+					ProgVariableTypes.Perceivable
 				},
 				(pars, gameworld) => new SendShardFunction(pars, gameworld)
 			)
@@ -147,10 +134,9 @@ internal class SendShardFunction : BuiltInFunction
 				"sendshard",
 				new[]
 				{
-					FutureProgVariableTypes.Shard, FutureProgVariableTypes.Text, FutureProgVariableTypes.Perceivable,
-					FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Perceivable,
-					FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Perceivable,
-					FutureProgVariableTypes.Perceivable
+					ProgVariableTypes.Shard, ProgVariableTypes.Text, ProgVariableTypes.Perceivable,
+					ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable,
+					ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable
 				},
 				(pars, gameworld) => new SendShardFunction(pars, gameworld)
 			)
@@ -161,10 +147,10 @@ internal class SendShardFunction : BuiltInFunction
 				"sendshard",
 				new[]
 				{
-					FutureProgVariableTypes.Shard, FutureProgVariableTypes.Text, FutureProgVariableTypes.Perceivable,
-					FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Perceivable,
-					FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Perceivable,
-					FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Perceivable
+					ProgVariableTypes.Shard, ProgVariableTypes.Text, ProgVariableTypes.Perceivable,
+					ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable,
+					ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable,
+					ProgVariableTypes.Perceivable
 				},
 				(pars, gameworld) => new SendShardFunction(pars, gameworld)
 			)
@@ -175,11 +161,25 @@ internal class SendShardFunction : BuiltInFunction
 				"sendshard",
 				new[]
 				{
-					FutureProgVariableTypes.Shard, FutureProgVariableTypes.Text, FutureProgVariableTypes.Perceivable,
-					FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Perceivable,
-					FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Perceivable,
-					FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Perceivable,
-					FutureProgVariableTypes.Perceivable
+					ProgVariableTypes.Shard, ProgVariableTypes.Text, ProgVariableTypes.Perceivable,
+					ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable,
+					ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable,
+					ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable
+				},
+				(pars, gameworld) => new SendShardFunction(pars, gameworld)
+			)
+		);
+
+		FutureProg.RegisterBuiltInFunctionCompiler(
+			new FunctionCompilerInformation(
+				"sendshard",
+				new[]
+				{
+					ProgVariableTypes.Shard, ProgVariableTypes.Text, ProgVariableTypes.Perceivable,
+					ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable,
+					ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable,
+					ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable,
+					ProgVariableTypes.Perceivable
 				},
 				(pars, gameworld) => new SendShardFunction(pars, gameworld)
 			)
@@ -189,7 +189,7 @@ internal class SendShardFunction : BuiltInFunction
 		FutureProg.RegisterBuiltInFunctionCompiler(
 			new FunctionCompilerInformation(
 				"sendshardfixed",
-				new[] { FutureProgVariableTypes.Shard, FutureProgVariableTypes.Text },
+				new[] { ProgVariableTypes.Shard, ProgVariableTypes.Text },
 				(pars, gameworld) => new SendShardFunction(pars, gameworld) { FixedFormat = true }
 			)
 		);
@@ -199,7 +199,7 @@ internal class SendShardFunction : BuiltInFunction
 				"sendshardfixed",
 				new[]
 				{
-					FutureProgVariableTypes.Shard, FutureProgVariableTypes.Text, FutureProgVariableTypes.Perceivable
+					ProgVariableTypes.Shard, ProgVariableTypes.Text, ProgVariableTypes.Perceivable
 				},
 				(pars, gameworld) => new SendShardFunction(pars, gameworld) { FixedFormat = true }
 			)
@@ -210,8 +210,8 @@ internal class SendShardFunction : BuiltInFunction
 				"sendshardfixed",
 				new[]
 				{
-					FutureProgVariableTypes.Shard, FutureProgVariableTypes.Text, FutureProgVariableTypes.Perceivable,
-					FutureProgVariableTypes.Perceivable
+					ProgVariableTypes.Shard, ProgVariableTypes.Text, ProgVariableTypes.Perceivable,
+					ProgVariableTypes.Perceivable
 				},
 				(pars, gameworld) => new SendShardFunction(pars, gameworld) { FixedFormat = true }
 			)
@@ -222,8 +222,8 @@ internal class SendShardFunction : BuiltInFunction
 				"sendshardfixed",
 				new[]
 				{
-					FutureProgVariableTypes.Shard, FutureProgVariableTypes.Text, FutureProgVariableTypes.Perceivable,
-					FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Perceivable
+					ProgVariableTypes.Shard, ProgVariableTypes.Text, ProgVariableTypes.Perceivable,
+					ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable
 				},
 				(pars, gameworld) => new SendShardFunction(pars, gameworld) { FixedFormat = true }
 			)
@@ -234,9 +234,9 @@ internal class SendShardFunction : BuiltInFunction
 				"sendshardfixed",
 				new[]
 				{
-					FutureProgVariableTypes.Shard, FutureProgVariableTypes.Text, FutureProgVariableTypes.Perceivable,
-					FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Perceivable,
-					FutureProgVariableTypes.Perceivable
+					ProgVariableTypes.Shard, ProgVariableTypes.Text, ProgVariableTypes.Perceivable,
+					ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable,
+					ProgVariableTypes.Perceivable
 				},
 				(pars, gameworld) => new SendShardFunction(pars, gameworld) { FixedFormat = true }
 			)
@@ -247,9 +247,9 @@ internal class SendShardFunction : BuiltInFunction
 				"sendshardfixed",
 				new[]
 				{
-					FutureProgVariableTypes.Shard, FutureProgVariableTypes.Text, FutureProgVariableTypes.Perceivable,
-					FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Perceivable,
-					FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Perceivable
+					ProgVariableTypes.Shard, ProgVariableTypes.Text, ProgVariableTypes.Perceivable,
+					ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable,
+					ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable
 				},
 				(pars, gameworld) => new SendShardFunction(pars, gameworld) { FixedFormat = true }
 			)
@@ -260,10 +260,10 @@ internal class SendShardFunction : BuiltInFunction
 				"sendshardfixed",
 				new[]
 				{
-					FutureProgVariableTypes.Shard, FutureProgVariableTypes.Text, FutureProgVariableTypes.Perceivable,
-					FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Perceivable,
-					FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Perceivable,
-					FutureProgVariableTypes.Perceivable
+					ProgVariableTypes.Shard, ProgVariableTypes.Text, ProgVariableTypes.Perceivable,
+					ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable,
+					ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable,
+					ProgVariableTypes.Perceivable
 				},
 				(pars, gameworld) => new SendShardFunction(pars, gameworld) { FixedFormat = true }
 			)
@@ -274,10 +274,10 @@ internal class SendShardFunction : BuiltInFunction
 				"sendshardfixed",
 				new[]
 				{
-					FutureProgVariableTypes.Shard, FutureProgVariableTypes.Text, FutureProgVariableTypes.Perceivable,
-					FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Perceivable,
-					FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Perceivable,
-					FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Perceivable
+					ProgVariableTypes.Shard, ProgVariableTypes.Text, ProgVariableTypes.Perceivable,
+					ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable,
+					ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable,
+					ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable
 				},
 				(pars, gameworld) => new SendShardFunction(pars, gameworld) { FixedFormat = true }
 			)
@@ -288,11 +288,11 @@ internal class SendShardFunction : BuiltInFunction
 				"sendshardfixed",
 				new[]
 				{
-					FutureProgVariableTypes.Shard, FutureProgVariableTypes.Text, FutureProgVariableTypes.Perceivable,
-					FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Perceivable,
-					FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Perceivable,
-					FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Perceivable,
-					FutureProgVariableTypes.Perceivable
+					ProgVariableTypes.Shard, ProgVariableTypes.Text, ProgVariableTypes.Perceivable,
+					ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable,
+					ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable,
+					ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable,
+					ProgVariableTypes.Perceivable
 				},
 				(pars, gameworld) => new SendShardFunction(pars, gameworld) { FixedFormat = true }
 			)

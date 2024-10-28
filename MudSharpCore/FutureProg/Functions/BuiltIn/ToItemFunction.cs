@@ -10,9 +10,9 @@ internal class ToItemFunction : BuiltInFunction
 	{
 	}
 
-	public override FutureProgVariableTypes ReturnType
+	public override ProgVariableTypes ReturnType
 	{
-		get => FutureProgVariableTypes.Item;
+		get => ProgVariableTypes.Item;
 		protected set { }
 	}
 
@@ -31,19 +31,19 @@ internal class ToItemFunction : BuiltInFunction
 	{
 		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
 			"toitem",
-			new[] { FutureProgVariableTypes.Perceiver },
+			new[] { ProgVariableTypes.Perceiver },
 			(pars, gameworld) => new ToItemFunction(pars)
 		));
 
 		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
 			"toitem",
-			new[] { FutureProgVariableTypes.Perceivable },
+			new[] { ProgVariableTypes.Perceivable },
 			(pars, gameworld) => new ToItemFunction(pars)
 		));
 
 		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
 			"toitem",
-			new[] { FutureProgVariableTypes.CollectionItem },
+			new[] { ProgVariableTypes.CollectionItem },
 			(pars, gameworld) => new ToItemFunction(pars)
 		));
 	}

@@ -18,9 +18,9 @@ internal class WearFunction : BuiltInFunction
 	public bool Silent { get; set; }
 	public string Profile { get; set; }
 
-	public override FutureProgVariableTypes ReturnType
+	public override ProgVariableTypes ReturnType
 	{
-		get => FutureProgVariableTypes.Boolean;
+		get => ProgVariableTypes.Boolean;
 		protected set { }
 	}
 
@@ -84,13 +84,13 @@ internal class WearFunction : BuiltInFunction
 	{
 		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
 			"wear",
-			new[] { FutureProgVariableTypes.Character, FutureProgVariableTypes.Item, FutureProgVariableTypes.Text },
+			new[] { ProgVariableTypes.Character, ProgVariableTypes.Item, ProgVariableTypes.Text },
 			(pars, gameworld) => new WearFunction(pars, false)
 		));
 
 		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
 			"silentwear",
-			new[] { FutureProgVariableTypes.Character, FutureProgVariableTypes.Item },
+			new[] { ProgVariableTypes.Character, ProgVariableTypes.Item },
 			(pars, gameworld) => new WearFunction(pars, true)
 		));
 	}

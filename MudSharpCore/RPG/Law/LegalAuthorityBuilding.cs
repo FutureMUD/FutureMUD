@@ -146,11 +146,11 @@ public partial class LegalAuthority
 		}
 
 		var prog = new ProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument,
-			FutureProgVariableTypes.Number,
+			ProgVariableTypes.Number,
 			new[]
 			{
-				new[] { FutureProgVariableTypes.Character },
-				new[] { FutureProgVariableTypes.Character, FutureProgVariableTypes.Crime }
+				new[] { ProgVariableTypes.Character },
+				new[] { ProgVariableTypes.Character, ProgVariableTypes.Crime }
 			}).LookupProg();
 		if (prog is null)
 		{
@@ -182,7 +182,7 @@ public partial class LegalAuthority
 		}
 
 		var prog = new ProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument,
-			FutureProgVariableTypes.Void, new[] { FutureProgVariableTypes.Character }).LookupProg();
+			ProgVariableTypes.Void, new[] { ProgVariableTypes.Character }).LookupProg();
 		if (prog is null)
 		{
 			return false;
@@ -459,7 +459,7 @@ public partial class LegalAuthority
 			return false;
 		}
 
-		if (!prog.MatchesParameters(new List<FutureProgVariableTypes> { FutureProgVariableTypes.Character }))
+		if (!prog.MatchesParameters(new List<ProgVariableTypes> { ProgVariableTypes.Character }))
 		{
 			actor.OutputHandler.Send(
 				$"You must specify a prog that accepts a single character as a parameter, whereas {prog.MXPClickableFunctionName()} does not.");
@@ -498,7 +498,7 @@ public partial class LegalAuthority
 			return false;
 		}
 
-		if (!prog.MatchesParameters(new List<FutureProgVariableTypes> { FutureProgVariableTypes.Character }))
+		if (!prog.MatchesParameters(new List<ProgVariableTypes> { ProgVariableTypes.Character }))
 		{
 			actor.OutputHandler.Send(
 				$"You must specify a prog that accepts a single character as a parameter, whereas {prog.MXPClickableFunctionName()} does not.");
@@ -901,13 +901,13 @@ public partial class LegalAuthority
 				return false;
 			}
 
-			if (!prog.ReturnType.CompatibleWith(FutureProgVariableTypes.Boolean))
+			if (!prog.ReturnType.CompatibleWith(ProgVariableTypes.Boolean))
 			{
 				actor.OutputHandler.Send("You must supply a prog that returns a boolean.");
 				return false;
 			}
 
-			if (!prog.MatchesParameters(new[] { FutureProgVariableTypes.Character }))
+			if (!prog.MatchesParameters(new[] { ProgVariableTypes.Character }))
 			{
 				actor.OutputHandler.Send("You must supply a prog that accepts a single character parameter.");
 				return false;

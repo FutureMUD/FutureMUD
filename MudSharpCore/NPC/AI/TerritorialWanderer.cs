@@ -143,8 +143,8 @@ public class TerritorialWanderer : PathingAIBase
 		}
 
 		var prog = new ProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument, 
-			FutureProgVariableTypes.Number, 
-			new[] { FutureProgVariableTypes.Character }
+			ProgVariableTypes.Number, 
+			new[] { ProgVariableTypes.Character }
 			).LookupProg();
 		if (prog is null)
 		{
@@ -166,11 +166,11 @@ public class TerritorialWanderer : PathingAIBase
 		}
 
 		var prog = new ProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument,
-			FutureProgVariableTypes.Boolean,
+			ProgVariableTypes.Boolean,
 			new []
 			{
-				new[] { FutureProgVariableTypes.Location },
-				new[] { FutureProgVariableTypes.Location, FutureProgVariableTypes.Character },
+				new[] { ProgVariableTypes.Location },
+				new[] { ProgVariableTypes.Location, ProgVariableTypes.Character },
 			}
 		).LookupProg();
 		if (prog is null)
@@ -247,7 +247,7 @@ public class TerritorialWanderer : PathingAIBase
 					$"TerritorialWanderer #{Id} ({Name}) specified a null SuitableTerritoryProg.");
 			}
 
-			if (SuitableTerritoryProg.ReturnType != FutureProgVariableTypes.Boolean)
+			if (SuitableTerritoryProg.ReturnType != ProgVariableTypes.Boolean)
 			{
 				throw new ApplicationException(
 					$"TerritorialWanderer #{Id} ({Name}) specified a SuitableTerritoryProg with a return type of {SuitableTerritoryProg.ReturnType.Describe()} (expected boolean).");
@@ -255,16 +255,16 @@ public class TerritorialWanderer : PathingAIBase
 
 			if (!SuitableTerritoryProg.MatchesParameters(new[]
 				{
-					FutureProgVariableTypes.Location,
-					FutureProgVariableTypes.Character
+					ProgVariableTypes.Location,
+					ProgVariableTypes.Character
 				}) && !SuitableTerritoryProg.MatchesParameters(new[]
 				{
-					FutureProgVariableTypes.Location,
-					FutureProgVariableTypes.Toon
+					ProgVariableTypes.Location,
+					ProgVariableTypes.Toon
 				}) &&
 				!SuitableTerritoryProg.MatchesParameters(new[]
 				{
-					FutureProgVariableTypes.Location
+					ProgVariableTypes.Location
 				})
 			   )
 			{
@@ -290,7 +290,7 @@ public class TerritorialWanderer : PathingAIBase
 					$"TerritorialWanderer #{Id} ({Name}) specified a null DesiredTerritorySizeProg.");
 			}
 
-			if (DesiredTerritorySizeProg.ReturnType != FutureProgVariableTypes.Number)
+			if (DesiredTerritorySizeProg.ReturnType != ProgVariableTypes.Number)
 			{
 				throw new ApplicationException(
 					$"TerritorialWanderer #{Id} ({Name}) specified a DesiredTerritorySizeProg with a return type of {DesiredTerritorySizeProg.ReturnType.Describe()} (expected number).");
@@ -298,7 +298,7 @@ public class TerritorialWanderer : PathingAIBase
 
 			if (!DesiredTerritorySizeProg.MatchesParameters(new[]
 				{
-					FutureProgVariableTypes.Character
+					ProgVariableTypes.Character
 				})
 			   )
 			{
@@ -350,12 +350,12 @@ public class TerritorialWanderer : PathingAIBase
 	{
 		if (!SuitableTerritoryProg.MatchesParameters(new[]
 			{
-				FutureProgVariableTypes.Location
+				ProgVariableTypes.Location
 			}) &&
 			!SuitableTerritoryProg.MatchesParameters(new[]
 			{
-				FutureProgVariableTypes.Location,
-				FutureProgVariableTypes.Toon
+				ProgVariableTypes.Location,
+				ProgVariableTypes.Toon
 			}))
 		{
 			return Enumerable.Empty<ICell>();

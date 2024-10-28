@@ -10,9 +10,9 @@ internal class TimeSpanAdditionFunction : BinaryFunction
 	{
 	}
 
-	public override FutureProgVariableTypes ReturnType
+	public override ProgVariableTypes ReturnType
 	{
-		get => FutureProgVariableTypes.TimeSpan;
+		get => ProgVariableTypes.TimeSpan;
 		protected set { }
 	}
 

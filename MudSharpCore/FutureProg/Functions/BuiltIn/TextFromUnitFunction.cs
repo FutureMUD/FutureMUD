@@ -17,9 +17,9 @@ internal class TextFromUnitFunction : BuiltInFunction, IHaveFuturemud
 		Type = type;
 	}
 
-	public override FutureProgVariableTypes ReturnType
+	public override ProgVariableTypes ReturnType
 	{
-		get => FutureProgVariableTypes.Text;
+		get => ProgVariableTypes.Text;
 		protected set { }
 	}
 
@@ -48,36 +48,36 @@ internal class TextFromUnitFunction : BuiltInFunction, IHaveFuturemud
 	{
 		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
 			"textfromlength",
-			new[] { FutureProgVariableTypes.Number },
+			new[] { ProgVariableTypes.Number },
 			(pars, gameworld) => new TextFromUnitFunction(pars, gameworld, UnitType.Length)
 		));
 
 		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
 			"textfrommass",
-			new[] { FutureProgVariableTypes.Number },
+			new[] { ProgVariableTypes.Number },
 			(pars, gameworld) => new TextFromUnitFunction(pars, gameworld, UnitType.Mass)
 		));
 
 		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
 			"textfromfluid",
-			new[] { FutureProgVariableTypes.Number },
+			new[] { ProgVariableTypes.Number },
 			(pars, gameworld) => new TextFromUnitFunction(pars, gameworld, UnitType.FluidVolume)
 		));
 
 		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
 			"textfromarea",
-			new[] { FutureProgVariableTypes.Number },
+			new[] { ProgVariableTypes.Number },
 			(pars, gameworld) => new TextFromUnitFunction(pars, gameworld, UnitType.Area)
 		));
 
 		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
 			"textfromvolume",
-			new[] { FutureProgVariableTypes.Number },
+			new[] { ProgVariableTypes.Number },
 			(pars, gameworld) => new TextFromUnitFunction(pars, gameworld, UnitType.Volume)
 		));
 		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
 			"textfromtemp",
-			new[] { FutureProgVariableTypes.Number },
+			new[] { ProgVariableTypes.Number },
 			(pars, gameworld) => new TextFromUnitFunction(pars, gameworld, UnitType.Temperature)
 		));
 	}

@@ -12,9 +12,9 @@ internal class ToNumberFunction : BuiltInFunction
 	{
 	}
 
-	public override FutureProgVariableTypes ReturnType
+	public override ProgVariableTypes ReturnType
 	{
-		get => FutureProgVariableTypes.Number;
+		get => ProgVariableTypes.Number;
 		protected set { }
 	}
 
@@ -36,7 +36,7 @@ internal class ToNumberFunction : BuiltInFunction
 	{
 		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
 			"tonumber",
-			new[] { FutureProgVariableTypes.Text },
+			new[] { ProgVariableTypes.Text },
 			(pars, gameworld) =>
 				new ToNumberFunction(
 					pars.Concat(new IFunction[] { new ConstantFunction(new NumberVariable(0)) }).ToList())
@@ -44,7 +44,7 @@ internal class ToNumberFunction : BuiltInFunction
 
 		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
 			"tonumber",
-			new[] { FutureProgVariableTypes.Text, FutureProgVariableTypes.Number },
+			new[] { ProgVariableTypes.Text, ProgVariableTypes.Number },
 			(pars, gameworld) => new ToNumberFunction(pars)
 		));
 	}

@@ -611,8 +611,8 @@ internal class ChargenRole : SaveableItem, IChargenRole
 			return false;
 		}
 
-		if (prog.ReturnType != FutureProgVariableTypes.Boolean ||
-			!prog.MatchesParameters(new[] { FutureProgVariableTypes.Chargen }))
+		if (prog.ReturnType != ProgVariableTypes.Boolean ||
+			!prog.MatchesParameters(new[] { ProgVariableTypes.Chargen }))
 		{
 			actor.Send(
 				"The prog must return a boolean and accept a single chargen parameter, whereas {1} (#{2:N0}) does not.",
@@ -1198,17 +1198,17 @@ internal class ChargenRole : SaveableItem, IChargenRole
 
 	#region IFutureProgVariableType Implementation
 
-	FutureProgVariableTypes IFutureProgVariable.Type => FutureProgVariableTypes.Role;
+	ProgVariableTypes IProgVariable.Type => ProgVariableTypes.Role;
 
 	public object GetObject => this;
 
-	private static IReadOnlyDictionary<string, FutureProgVariableTypes> DotReferenceHandler()
+	private static IReadOnlyDictionary<string, ProgVariableTypes> DotReferenceHandler()
 	{
-		return new Dictionary<string, FutureProgVariableTypes>(StringComparer.InvariantCultureIgnoreCase)
+		return new Dictionary<string, ProgVariableTypes>(StringComparer.InvariantCultureIgnoreCase)
 		{
-			{ "id", FutureProgVariableTypes.Number },
-			{ "name", FutureProgVariableTypes.Text },
-			{ "roletype", FutureProgVariableTypes.Number }
+			{ "id", ProgVariableTypes.Number },
+			{ "name", ProgVariableTypes.Text },
+			{ "roletype", ProgVariableTypes.Number }
 		};
 	}
 
@@ -1224,11 +1224,11 @@ internal class ChargenRole : SaveableItem, IChargenRole
 
 	public static void RegisterFutureProgCompiler()
 	{
-		FutureProgVariable.RegisterDotReferenceCompileInfo(FutureProgVariableTypes.Role, DotReferenceHandler(),
+		ProgVariable.RegisterDotReferenceCompileInfo(ProgVariableTypes.Role, DotReferenceHandler(),
 			DotReferenceHelp());
 	}
 
-	public IFutureProgVariable GetProperty(string property)
+	public IProgVariable GetProperty(string property)
 	{
 		switch (property.ToLowerInvariant())
 		{

@@ -12,7 +12,7 @@ namespace MudSharp.Events.Hooks {
         /// <param name="item">The item to check against</param>
         /// <param name="type">The FrameworkItemType of the item.</param>
         /// <returns>True if the Default Hook should be hooked</returns>
-        bool Applies(IFutureProgVariable item, string type);
+        bool Applies(IProgVariable item, string type);
 
         void Delete();
     }

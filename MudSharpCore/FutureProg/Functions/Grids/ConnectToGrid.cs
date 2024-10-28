@@ -27,7 +27,7 @@ internal class ConnectToGrid : BuiltInFunction
 		FutureProg.RegisterBuiltInFunctionCompiler(
 			new FunctionCompilerInformation(
 				"ConnectToGrid".ToLowerInvariant(),
-				new[] { FutureProgVariableTypes.Number, FutureProgVariableTypes.Item },
+				new[] { ProgVariableTypes.Number, ProgVariableTypes.Item },
 				(pars, gameworld) => new ConnectToGrid(pars, gameworld),
 				new List<string> { "grid", "item" },
 				new List<string>
@@ -52,9 +52,9 @@ internal class ConnectToGrid : BuiltInFunction
 
 	#endregion
 
-	public override FutureProgVariableTypes ReturnType
+	public override ProgVariableTypes ReturnType
 	{
-		get => FutureProgVariableTypes.Boolean;
+		get => ProgVariableTypes.Boolean;
 		protected set { }
 	}
 

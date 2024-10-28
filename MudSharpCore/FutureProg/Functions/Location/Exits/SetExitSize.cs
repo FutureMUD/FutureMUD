@@ -31,8 +31,8 @@ internal class SetExitSize : BuiltInFunction
 				"SetExitSize".ToLowerInvariant(),
 				new[]
 				{
-					FutureProgVariableTypes.Exit, FutureProgVariableTypes.OverlayPackage,
-					FutureProgVariableTypes.Number, FutureProgVariableTypes.Number
+					ProgVariableTypes.Exit, ProgVariableTypes.OverlayPackage,
+					ProgVariableTypes.Number, ProgVariableTypes.Number
 				},
 				(pars, gameworld) => new SetExitSize(pars, gameworld)
 			)
@@ -50,9 +50,9 @@ internal class SetExitSize : BuiltInFunction
 
 	#endregion
 
-	public override FutureProgVariableTypes ReturnType
+	public override ProgVariableTypes ReturnType
 	{
-		get => FutureProgVariableTypes.Exit;
+		get => ProgVariableTypes.Exit;
 		protected set { }
 	}
 

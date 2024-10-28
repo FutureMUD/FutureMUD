@@ -29,7 +29,7 @@ internal class DelayProg : Statement
 	}
 
 	private static ICompileInfo Compile(IEnumerable<string> lines,
-		IDictionary<string, FutureProgVariableTypes> variableSpace, int lineNumber, IFuturemud gameworld)
+		IDictionary<string, ProgVariableTypes> variableSpace, int lineNumber, IFuturemud gameworld)
 	{
 		var match = CompileRegex.Match(lines.First());
 
@@ -58,7 +58,7 @@ internal class DelayProg : Statement
 
 		if (
 			!((IFunction)compiledArgs[0].CompiledStatement).ReturnType.CompatibleWith(
-				FutureProgVariableTypes.Number))
+				ProgVariableTypes.Number))
 		{
 			return
 				CompileInfo.GetFactory()
@@ -122,7 +122,7 @@ internal class DelayProg : Statement
 			new Tuple
 			<Regex,
 				Func
-				<IEnumerable<string>, IDictionary<string, FutureProgVariableTypes>, int, IFuturemud, ICompileInfo>>(
+				<IEnumerable<string>, IDictionary<string, ProgVariableTypes>, int, IFuturemud, ICompileInfo>>(
 				CompileRegex, Compile)
 		);
 

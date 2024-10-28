@@ -337,7 +337,7 @@ public class Appointment : SaveableItem, IAppointment
 
 	#region IFutureProgVariable Members
 
-	public IFutureProgVariable GetProperty(string property)
+	public IProgVariable GetProperty(string property)
 	{
 		switch (property.ToLowerInvariant())
 		{
@@ -362,29 +362,29 @@ public class Appointment : SaveableItem, IAppointment
 					new CollectionVariable(
 						Gameworld.Characters.Where(
 							         x => x.ClanMemberships.Any(y => y.Clan == Clan && y.Appointments.Contains(this)))
-						         .ToList(), FutureProgVariableTypes.Character);
+						         .ToList(), ProgVariableTypes.Character);
 			default:
 				throw new NotSupportedException("Invalid IFutureProgVariable request in Rank.GetProperty");
 		}
 	}
 
-	public FutureProgVariableTypes Type => FutureProgVariableTypes.ClanAppointment;
+	public ProgVariableTypes Type => ProgVariableTypes.ClanAppointment;
 
 	public object GetObject => this;
 
-	private static IReadOnlyDictionary<string, FutureProgVariableTypes> DotReferenceHandler()
+	private static IReadOnlyDictionary<string, ProgVariableTypes> DotReferenceHandler()
 	{
-		return new Dictionary<string, FutureProgVariableTypes>(StringComparer.InvariantCultureIgnoreCase)
+		return new Dictionary<string, ProgVariableTypes>(StringComparer.InvariantCultureIgnoreCase)
 		{
-			{ "id", FutureProgVariableTypes.Number },
-			{ "name", FutureProgVariableTypes.Text },
-			{ "paygrade", FutureProgVariableTypes.ClanPaygrade },
-			{ "minrank", FutureProgVariableTypes.ClanRank },
-			{ "minappointer", FutureProgVariableTypes.ClanRank },
-			{ "parent", FutureProgVariableTypes.ClanAppointment },
-			{ "holders", FutureProgVariableTypes.Number },
-			{ "maxholders", FutureProgVariableTypes.Number },
-			{ "onlinemembers", FutureProgVariableTypes.Collection | FutureProgVariableTypes.Character }
+			{ "id", ProgVariableTypes.Number },
+			{ "name", ProgVariableTypes.Text },
+			{ "paygrade", ProgVariableTypes.ClanPaygrade },
+			{ "minrank", ProgVariableTypes.ClanRank },
+			{ "minappointer", ProgVariableTypes.ClanRank },
+			{ "parent", ProgVariableTypes.ClanAppointment },
+			{ "holders", ProgVariableTypes.Number },
+			{ "maxholders", ProgVariableTypes.Number },
+			{ "onlinemembers", ProgVariableTypes.Collection | ProgVariableTypes.Character }
 		};
 	}
 
@@ -406,7 +406,7 @@ public class Appointment : SaveableItem, IAppointment
 
 	public static void RegisterFutureProgCompiler()
 	{
-		FutureProgVariable.RegisterDotReferenceCompileInfo(FutureProgVariableTypes.ClanAppointment,
+		ProgVariable.RegisterDotReferenceCompileInfo(ProgVariableTypes.ClanAppointment,
 			DotReferenceHandler(), DotReferenceHelp());
 	}
 

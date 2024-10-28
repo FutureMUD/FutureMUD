@@ -13,9 +13,9 @@ internal class IsClanBrotherFunction : BuiltInFunction
 	{
 	}
 
-	public override FutureProgVariableTypes ReturnType
+	public override ProgVariableTypes ReturnType
 	{
-		get => FutureProgVariableTypes.Boolean;
+		get => ProgVariableTypes.Boolean;
 		protected set { }
 	}
 
@@ -49,7 +49,7 @@ internal class IsClanBrotherFunction : BuiltInFunction
 		var excludedClans = new List<IClan>();
 		if (thirdFunction != null)
 		{
-			if (thirdFunction.ReturnType == FutureProgVariableTypes.Clan)
+			if (thirdFunction.ReturnType == ProgVariableTypes.Clan)
 			{
 				excludedClans.Add((IClan)thirdFunction.Result);
 			}
@@ -82,8 +82,8 @@ internal class IsClanBrotherFunction : BuiltInFunction
 				"isclanbrother",
 				new[]
 				{
-					FutureProgVariableTypes.Character, FutureProgVariableTypes.Character,
-					FutureProgVariableTypes.Clan
+					ProgVariableTypes.Character, ProgVariableTypes.Character,
+					ProgVariableTypes.Clan
 				},
 				(pars, gameworld) => new IsClanBrotherFunction(pars)
 			)
@@ -92,7 +92,7 @@ internal class IsClanBrotherFunction : BuiltInFunction
 		FutureProg.RegisterBuiltInFunctionCompiler(
 			new FunctionCompilerInformation(
 				"isclanbrother",
-				new[] { FutureProgVariableTypes.Character, FutureProgVariableTypes.Character },
+				new[] { ProgVariableTypes.Character, ProgVariableTypes.Character },
 				(pars, gameworld) => new IsClanBrotherFunction(pars)
 			)
 		);
@@ -102,8 +102,8 @@ internal class IsClanBrotherFunction : BuiltInFunction
 				"isclanbrother",
 				new[]
 				{
-					FutureProgVariableTypes.Character, FutureProgVariableTypes.Character,
-					FutureProgVariableTypes.Collection | FutureProgVariableTypes.Clan
+					ProgVariableTypes.Character, ProgVariableTypes.Character,
+					ProgVariableTypes.Collection | ProgVariableTypes.Clan
 				},
 				(pars, gameworld) => new IsClanBrotherFunction(pars)
 			)

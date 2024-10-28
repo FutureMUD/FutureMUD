@@ -15,7 +15,7 @@ namespace MudSharp.RPG.Knowledge {
         LearnableFromTeacher = 1 << 2
     }
 
-    public interface IKnowledge : IEditableItem, IFutureProgVariable {
+    public interface IKnowledge : IEditableItem, IProgVariable {
         string Description { get; set; }
         string LongDescription { get; set; }
         string KnowledgeType { get; set; }

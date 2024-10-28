@@ -514,7 +514,7 @@ public class Clan : SaveableItem, IClan
 
 	#region IFutureProgVariable Members
 
-	public IFutureProgVariable GetProperty(string property)
+	public IProgVariable GetProperty(string property)
 	{
 		switch (property.ToLowerInvariant())
 		{
@@ -527,41 +527,41 @@ public class Clan : SaveableItem, IClan
 			case "description":
 				return new TextVariable(Description);
 			case "ranks":
-				return new CollectionVariable(new List<IRank>(Ranks), FutureProgVariableTypes.ClanRank);
+				return new CollectionVariable(new List<IRank>(Ranks), ProgVariableTypes.ClanRank);
 			case "paygrades":
-				return new CollectionVariable(new List<IPaygrade>(Paygrades), FutureProgVariableTypes.ClanPaygrade);
+				return new CollectionVariable(new List<IPaygrade>(Paygrades), ProgVariableTypes.ClanPaygrade);
 			case "appointments":
 				return new CollectionVariable(new List<IAppointment>(Appointments),
-					FutureProgVariableTypes.ClanAppointment);
+					ProgVariableTypes.ClanAppointment);
 			case "bankaccount":
 				return ClanBankAccount;
 			case "onlinemembers":
 				return
 					new CollectionVariable(
 						Gameworld.Characters.Where(x => x.ClanMemberships.Any(y => y.Clan == this)).ToList(),
-						FutureProgVariableTypes.Character);
+						ProgVariableTypes.Character);
 			default:
 				return null;
 		}
 	}
 
-	public FutureProgVariableTypes Type => FutureProgVariableTypes.Clan;
+	public ProgVariableTypes Type => ProgVariableTypes.Clan;
 
 	public object GetObject => this;
 
-	private static IReadOnlyDictionary<string, FutureProgVariableTypes> DotReferenceHandler()
+	private static IReadOnlyDictionary<string, ProgVariableTypes> DotReferenceHandler()
 	{
-		return new Dictionary<string, FutureProgVariableTypes>(StringComparer.InvariantCultureIgnoreCase)
+		return new Dictionary<string, ProgVariableTypes>(StringComparer.InvariantCultureIgnoreCase)
 		{
-			{ "id", FutureProgVariableTypes.Number },
-			{ "name", FutureProgVariableTypes.Text },
-			{ "alias", FutureProgVariableTypes.Text },
-			{ "description", FutureProgVariableTypes.Text },
-			{ "ranks", FutureProgVariableTypes.Collection | FutureProgVariableTypes.ClanRank },
-			{ "paygrades", FutureProgVariableTypes.Collection | FutureProgVariableTypes.ClanPaygrade },
-			{ "appointments", FutureProgVariableTypes.Collection | FutureProgVariableTypes.ClanAppointment },
-			{ "onlinemembers", FutureProgVariableTypes.Collection | FutureProgVariableTypes.Character },
-			{ "bankaccount", FutureProgVariableTypes.BankAccount }
+			{ "id", ProgVariableTypes.Number },
+			{ "name", ProgVariableTypes.Text },
+			{ "alias", ProgVariableTypes.Text },
+			{ "description", ProgVariableTypes.Text },
+			{ "ranks", ProgVariableTypes.Collection | ProgVariableTypes.ClanRank },
+			{ "paygrades", ProgVariableTypes.Collection | ProgVariableTypes.ClanPaygrade },
+			{ "appointments", ProgVariableTypes.Collection | ProgVariableTypes.ClanAppointment },
+			{ "onlinemembers", ProgVariableTypes.Collection | ProgVariableTypes.Character },
+			{ "bankaccount", ProgVariableTypes.BankAccount }
 		};
 	}
 
@@ -583,7 +583,7 @@ public class Clan : SaveableItem, IClan
 
 	public static void RegisterFutureProgCompiler()
 	{
-		FutureProgVariable.RegisterDotReferenceCompileInfo(FutureProgVariableTypes.Clan, DotReferenceHandler(),
+		ProgVariable.RegisterDotReferenceCompileInfo(ProgVariableTypes.Clan, DotReferenceHandler(),
 			DotReferenceHelp());
 	}
 

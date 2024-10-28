@@ -3,7 +3,7 @@ using MudSharp.Framework.Revision;
 using MudSharp.FutureProg;
 
 namespace MudSharp.Form.Material {
-    public interface IMaterial : IHaveTags, IFutureProgVariable, IEditableItem
+    public interface IMaterial : IHaveTags, IProgVariable, IEditableItem
     {
         /// <summary>
         ///     Density of the material in kg/m3

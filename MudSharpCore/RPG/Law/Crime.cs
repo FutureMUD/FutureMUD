@@ -921,10 +921,10 @@ public class Crime : LateInitialisingItem, ICrime
 
 	#region FutureProg Implementations
 
-	public FutureProgVariableTypes Type => FutureProgVariableTypes.Crime;
+	public ProgVariableTypes Type => ProgVariableTypes.Crime;
 	public object GetObject => this;
 
-	public IFutureProgVariable GetProperty(string property)
+	public IProgVariable GetProperty(string property)
 	{
 		switch (property.ToLowerInvariant())
 		{
@@ -955,21 +955,21 @@ public class Crime : LateInitialisingItem, ICrime
 		}
 	}
 
-	private static IReadOnlyDictionary<string, FutureProgVariableTypes> DotReferenceHandler()
+	private static IReadOnlyDictionary<string, ProgVariableTypes> DotReferenceHandler()
 	{
-		return new Dictionary<string, FutureProgVariableTypes>(StringComparer.InvariantCultureIgnoreCase)
+		return new Dictionary<string, ProgVariableTypes>(StringComparer.InvariantCultureIgnoreCase)
 		{
-			{ "id", FutureProgVariableTypes.Number },
-			{ "name", FutureProgVariableTypes.Text },
-			{ "law", FutureProgVariableTypes.Law },
-			{ "authority", FutureProgVariableTypes.LegalAuthority },
-			{ "crimename", FutureProgVariableTypes.Text },
-			{ "crimetype", FutureProgVariableTypes.Number },
-			{ "isviolentcrime", FutureProgVariableTypes.Boolean },
-			{ "ismoralcrime", FutureProgVariableTypes.Boolean },
-			{ "ismajorcrime", FutureProgVariableTypes.Boolean },
-			{ "isarrestable", FutureProgVariableTypes.Boolean },
-			{ "iskillable", FutureProgVariableTypes.Boolean }
+			{ "id", ProgVariableTypes.Number },
+			{ "name", ProgVariableTypes.Text },
+			{ "law", ProgVariableTypes.Law },
+			{ "authority", ProgVariableTypes.LegalAuthority },
+			{ "crimename", ProgVariableTypes.Text },
+			{ "crimetype", ProgVariableTypes.Number },
+			{ "isviolentcrime", ProgVariableTypes.Boolean },
+			{ "ismoralcrime", ProgVariableTypes.Boolean },
+			{ "ismajorcrime", ProgVariableTypes.Boolean },
+			{ "isarrestable", ProgVariableTypes.Boolean },
+			{ "iskillable", ProgVariableTypes.Boolean }
 		};
 	}
 
@@ -993,7 +993,7 @@ public class Crime : LateInitialisingItem, ICrime
 
 	public static void RegisterFutureProgCompiler()
 	{
-		FutureProgVariable.RegisterDotReferenceCompileInfo(FutureProgVariableTypes.Crime, DotReferenceHandler(),
+		ProgVariable.RegisterDotReferenceCompileInfo(ProgVariableTypes.Crime, DotReferenceHandler(),
 			DotReferenceHelp());
 	}
 

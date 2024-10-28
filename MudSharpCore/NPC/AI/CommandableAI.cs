@@ -303,10 +303,10 @@ public class CommandableAI : ArtificialIntelligenceBase
 		}
 
 		var prog = new ProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument, 
-			FutureProgVariableTypes.Text,
+			ProgVariableTypes.Text,
 			new []{ 
-				new[] { FutureProgVariableTypes.Character, FutureProgVariableTypes.Character },
-				new[] { FutureProgVariableTypes.Character, FutureProgVariableTypes.Character, FutureProgVariableTypes.Text }
+				new[] { ProgVariableTypes.Character, ProgVariableTypes.Character },
+				new[] { ProgVariableTypes.Character, ProgVariableTypes.Character, ProgVariableTypes.Text }
 			}
 			).LookupProg();
 		if (prog is null)
@@ -329,10 +329,10 @@ public class CommandableAI : ArtificialIntelligenceBase
 		}
 
 		var prog = new ProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument,
-			FutureProgVariableTypes.Boolean,
+			ProgVariableTypes.Boolean,
 			new[]{
-				new[] { FutureProgVariableTypes.Character, FutureProgVariableTypes.Character },
-				new[] { FutureProgVariableTypes.Character, FutureProgVariableTypes.Character, FutureProgVariableTypes.Text }
+				new[] { ProgVariableTypes.Character, ProgVariableTypes.Character },
+				new[] { ProgVariableTypes.Character, ProgVariableTypes.Character, ProgVariableTypes.Text }
 			}
 		).LookupProg();
 		if (prog is null)

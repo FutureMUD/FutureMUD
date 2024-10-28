@@ -255,7 +255,7 @@ public class SkillCostPickerScreenStoryboard : ChargenScreenStoryboard
 			Chargen.SelectedSkillBoostCosts.Clear();
 			Chargen.SelectedSkillBoosts.Clear();
 			FreeSkills =
-				((IList<IFutureProgVariable>)Storyboard.FreeSkillsProg.Execute(chargen)).Cast<ITraitDefinition>();
+				((IList<IProgVariable>)Storyboard.FreeSkillsProg.Execute(chargen)).Cast<ITraitDefinition>();
 			Chargen.SelectedSkills.AddRange(FreeSkills);
 			SetCurrentSelectables();
 			LastCurrentSelectables = CurrentSelectables;
@@ -749,9 +749,9 @@ Note, the boost cost expression can use the following parameters:
 		}
 
 		var prog = new ProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument,
-			FutureProgVariableTypes.Number, new List<FutureProgVariableTypes>
+			ProgVariableTypes.Number, new List<ProgVariableTypes>
 			{
-				FutureProgVariableTypes.Chargen
+				ProgVariableTypes.Chargen
 			}).LookupProg();
 		if (prog is null)
 		{
@@ -862,9 +862,9 @@ Note, the boost cost expression can use the following parameters:
 		}
 
 		var prog = new ProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument,
-			FutureProgVariableTypes.Number, new List<FutureProgVariableTypes>
+			ProgVariableTypes.Number, new List<ProgVariableTypes>
 			{
-				FutureProgVariableTypes.Chargen
+				ProgVariableTypes.Chargen
 			}).LookupProg();
 		if (prog is null)
 		{
@@ -888,9 +888,9 @@ Note, the boost cost expression can use the following parameters:
 		}
 
 		var prog = new ProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument,
-			FutureProgVariableTypes.Collection | FutureProgVariableTypes.Trait, new List<FutureProgVariableTypes>
+			ProgVariableTypes.Collection | ProgVariableTypes.Trait, new List<ProgVariableTypes>
 			{
-				FutureProgVariableTypes.Chargen
+				ProgVariableTypes.Chargen
 			}).LookupProg();
 		if (prog is null)
 		{

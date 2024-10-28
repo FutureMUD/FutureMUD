@@ -2107,7 +2107,7 @@ public class Craft : Framework.Revision.EditableItem, ICraft
 			return false;
 		}
 
-		if (!prog.MatchesParameters(new[] { FutureProgVariableTypes.Character }))
+		if (!prog.MatchesParameters(new[] { ProgVariableTypes.Character }))
 		{
 			actor.OutputHandler.Send(
 				$"You must specify a prog that accepts a single character as a parameter. The prog {$"{prog.FunctionName}".FluentTagMXP("send", $"href='show futureprog {prog.Id}'")} does not comply.");
@@ -2146,7 +2146,7 @@ public class Craft : Framework.Revision.EditableItem, ICraft
 			return false;
 		}
 
-		if (!prog.MatchesParameters(new[] { FutureProgVariableTypes.Character }))
+		if (!prog.MatchesParameters(new[] { ProgVariableTypes.Character }))
 		{
 			actor.OutputHandler.Send(
 				$"You must specify a prog that accepts a single character as a parameter. The prog {$"{prog.FunctionName}".FluentTagMXP("send", $"href='show futureprog {prog.Id}'")} does not comply.");
@@ -2185,7 +2185,7 @@ public class Craft : Framework.Revision.EditableItem, ICraft
 			return false;
 		}
 
-		if (!prog.MatchesParameters(new[] { FutureProgVariableTypes.Character }))
+		if (!prog.MatchesParameters(new[] { ProgVariableTypes.Character }))
 		{
 			actor.OutputHandler.Send(
 				$"You must specify a prog that accepts a single character as a parameter. The prog {$"{prog.FunctionName}".FluentTagMXP("send", $"href='show futureprog {prog.Id}'")} does not comply.");
@@ -2217,14 +2217,14 @@ public class Craft : Framework.Revision.EditableItem, ICraft
 			return false;
 		}
 
-		if (prog.ReturnType != FutureProgVariableTypes.Text)
+		if (prog.ReturnType != ProgVariableTypes.Text)
 		{
 			actor.OutputHandler.Send(
 				$"You must specify a prog that returns text. The prog {$"{prog.FunctionName}".FluentTagMXP("send", $"href='show futureprog {prog.Id}'")} instead returns {prog.ReturnType.Describe().Colour(Telnet.Cyan)}.");
 			return false;
 		}
 
-		if (!prog.MatchesParameters(new[] { FutureProgVariableTypes.Character }))
+		if (!prog.MatchesParameters(new[] { ProgVariableTypes.Character }))
 		{
 			actor.OutputHandler.Send(
 				$"You must specify a prog that accepts a single character as a parameter. The prog {$"{prog.FunctionName}".FluentTagMXP("send", $"href='show futureprog {prog.Id}'")} does not comply.");
@@ -2256,14 +2256,14 @@ public class Craft : Framework.Revision.EditableItem, ICraft
 			return false;
 		}
 
-		if (prog.ReturnType != FutureProgVariableTypes.Boolean)
+		if (prog.ReturnType != ProgVariableTypes.Boolean)
 		{
 			actor.OutputHandler.Send(
 				$"You must specify a prog that returns boolean. The prog {$"{prog.FunctionName}".FluentTagMXP("send", $"href='show futureprog {prog.Id}'")} instead returns {prog.ReturnType.Describe().Colour(Telnet.Cyan)}.");
 			return false;
 		}
 
-		if (!prog.MatchesParameters(new[] { FutureProgVariableTypes.Character }))
+		if (!prog.MatchesParameters(new[] { ProgVariableTypes.Character }))
 		{
 			actor.OutputHandler.Send(
 				$"You must specify a prog that accepts a single character as a parameter. The prog {$"{prog.FunctionName}".FluentTagMXP("send", $"href='show futureprog {prog.Id}'")} does not comply.");
@@ -2295,14 +2295,14 @@ public class Craft : Framework.Revision.EditableItem, ICraft
 			return false;
 		}
 
-		if (prog.ReturnType != FutureProgVariableTypes.Boolean)
+		if (prog.ReturnType != ProgVariableTypes.Boolean)
 		{
 			actor.OutputHandler.Send(
 				$"You must specify a prog that returns boolean. The prog {$"{prog.FunctionName}".FluentTagMXP("send", $"href='show futureprog {prog.Id}'")} instead returns {prog.ReturnType.Describe().Colour(Telnet.Cyan)}.");
 			return false;
 		}
 
-		if (!prog.MatchesParameters(new[] { FutureProgVariableTypes.Character }))
+		if (!prog.MatchesParameters(new[] { ProgVariableTypes.Character }))
 		{
 			actor.OutputHandler.Send(
 				$"You must specify a prog that accepts a single character as a parameter. The prog {$"{prog.FunctionName}".FluentTagMXP("send", $"href='show futureprog {prog.Id}'")} does not comply.");

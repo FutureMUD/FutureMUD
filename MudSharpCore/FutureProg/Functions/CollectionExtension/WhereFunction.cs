@@ -11,7 +11,7 @@ internal class WhereFunction : CollectionExtensionFunction
 	{
 	}
 
-	public override FutureProgVariableTypes ReturnType
+	public override ProgVariableTypes ReturnType
 	{
 		get => CollectionFunction.ReturnType;
 		protected set { }
@@ -26,9 +26,9 @@ internal class WhereFunction : CollectionExtensionFunction
 			return StatementResult.Error;
 		}
 
-		var resultCollection = new List<IFutureProgVariable>();
+		var resultCollection = new List<IProgVariable>();
 		var localVariables = new LocalVariableSpace(variables);
-		foreach (IFutureProgVariable item in (IList)CollectionFunction.Result.GetObject)
+		foreach (IProgVariable item in (IList)CollectionFunction.Result.GetObject)
 		{
 			localVariables.SetVariable(VariableName, item);
 			if (CollectionItemFunction.Execute(localVariables) == StatementResult.Error)
@@ -45,7 +45,7 @@ internal class WhereFunction : CollectionExtensionFunction
 		}
 
 		Result = new CollectionVariable(resultCollection,
-			CollectionFunction.ReturnType ^ FutureProgVariableTypes.Collection);
+			CollectionFunction.ReturnType ^ ProgVariableTypes.Collection);
 		return StatementResult.Normal;
 	}
 
@@ -54,7 +54,7 @@ internal class WhereFunction : CollectionExtensionFunction
 		RegisterCollectionExtensionFunctionCompiler(
 			new CollectionExtensionFunctionCompilerInformation(
 				"where",
-				FutureProgVariableTypes.Boolean,
+				ProgVariableTypes.Boolean,
 				(varName, collectionFunction, innerFunction) =>
 					new WhereFunction(varName, innerFunction, collectionFunction),
 				@"The WHERE function runs the inner function (which must return a boolean) over all items in the collection, and returns a new collection that only contain whichever items were TRUE from the inner function.

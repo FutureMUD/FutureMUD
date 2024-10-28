@@ -317,9 +317,9 @@ public class LiquidContainerGameItemComponentProto : GameItemComponentProto
 
 		if (!prog.MatchesParameters(new[]
 		    {
-			    FutureProgVariableTypes.Item, FutureProgVariableTypes.Number,
-			    FutureProgVariableTypes.Number, FutureProgVariableTypes.Character,
-			    FutureProgVariableTypes.Text
+			    ProgVariableTypes.Item, ProgVariableTypes.Number,
+			    ProgVariableTypes.Number, ProgVariableTypes.Character,
+			    ProgVariableTypes.Text
 		    }))
 		{
 			actor.Send(

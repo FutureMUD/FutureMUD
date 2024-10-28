@@ -17,7 +17,7 @@ namespace MudSharp.Magic
         public string ParameterName { get; init; }
         public object Item { get; init; }
     }
-    public interface IMagicSpell : ISaveable, IEditableItem, IFutureProgVariable
+    public interface IMagicSpell : ISaveable, IEditableItem, IProgVariable
     {
         IFutureProg SpellKnownProg { get; }
         IMagicSchool School { get; }

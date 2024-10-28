@@ -5,7 +5,7 @@ using MudSharp.GameItems;
 
 namespace MudSharp.Economy;
 #nullable enable
-public interface IMarketCategory : ISaveable, IEditableItem, IFutureProgVariable
+public interface IMarketCategory : ISaveable, IEditableItem, IProgVariable
 {
 	string Description { get; }
 	bool BelongsToCategory(IGameItem item);

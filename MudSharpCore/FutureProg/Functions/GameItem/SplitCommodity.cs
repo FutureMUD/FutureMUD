@@ -27,7 +27,7 @@ internal class SplitCommodity : BuiltInFunction
 		FutureProg.RegisterBuiltInFunctionCompiler(
 			new FunctionCompilerInformation(
 				"SplitCommodity".ToLowerInvariant(),
-				new[] { FutureProgVariableTypes.Item, FutureProgVariableTypes.Number },
+				new[] { ProgVariableTypes.Item, ProgVariableTypes.Number },
 				(pars, gameworld) => new SplitCommodity(pars, gameworld),
 				new List<string> { "item", "weight" },
 				new List<string>
@@ -37,14 +37,14 @@ internal class SplitCommodity : BuiltInFunction
 				},
 				"This function takes weight from one commodity pile and creates a new commodity pile item with the taken weight, which it then returns. It does not put the item anywhere, so you must then insert it somewhere like in a room or a character's inventory. If the quantity is the whole weight of the original item or larger, it will just return the original item and no new item will be created.",
 				"Items",
-				FutureProgVariableTypes.Item
+				ProgVariableTypes.Item
 			)
 		);
 
 		FutureProg.RegisterBuiltInFunctionCompiler(
 			new FunctionCompilerInformation(
 				"SplitCommodity".ToLowerInvariant(),
-				new[] { FutureProgVariableTypes.Item, FutureProgVariableTypes.Text },
+				new[] { ProgVariableTypes.Item, ProgVariableTypes.Text },
 				(pars, gameworld) => new SplitCommodity(pars, gameworld),
 				new List<string> { "item", "weight" },
 				new List<string>
@@ -54,7 +54,7 @@ internal class SplitCommodity : BuiltInFunction
 				},
 				"This function takes weight from one commodity pile and creates a new commodity pile item with the taken weight, which it then returns. It does not put the item anywhere, so you must then insert it somewhere like in a room or a character's inventory. If the quantity is the whole weight of the original item or larger, it will just return the original item and no new item will be created.",
 				"Items",
-				FutureProgVariableTypes.Item
+				ProgVariableTypes.Item
 			)
 		);
 	}
@@ -70,9 +70,9 @@ internal class SplitCommodity : BuiltInFunction
 
 	#endregion
 
-	public override FutureProgVariableTypes ReturnType
+	public override ProgVariableTypes ReturnType
 	{
-		get => FutureProgVariableTypes.Item;
+		get => ProgVariableTypes.Item;
 		protected set { }
 	}
 

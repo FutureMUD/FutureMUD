@@ -534,9 +534,9 @@ public class Dream : SaveableItem, IDream
 			return false;
 		}
 
-		if (!prog.MatchesParameters(new List<FutureProgVariableTypes> { FutureProgVariableTypes.Character }) &&
-		    !prog.MatchesParameters(new List<FutureProgVariableTypes>
-			    { FutureProgVariableTypes.Character, FutureProgVariableTypes.Number }))
+		if (!prog.MatchesParameters(new List<ProgVariableTypes> { ProgVariableTypes.Character }) &&
+		    !prog.MatchesParameters(new List<ProgVariableTypes>
+			    { ProgVariableTypes.Character, ProgVariableTypes.Number }))
 		{
 			actor.OutputHandler.Send(
 				$"You must specify a prog that takes either a single character or a character and a number as a parameter, whereas {prog.MXPClickableFunctionName()} does not.");
@@ -575,9 +575,9 @@ public class Dream : SaveableItem, IDream
 			return false;
 		}
 
-		if (!prog.MatchesParameters(new List<FutureProgVariableTypes> { FutureProgVariableTypes.Character }) &&
-		    !prog.MatchesParameters(new List<FutureProgVariableTypes>
-			    { FutureProgVariableTypes.Character, FutureProgVariableTypes.Number }))
+		if (!prog.MatchesParameters(new List<ProgVariableTypes> { ProgVariableTypes.Character }) &&
+		    !prog.MatchesParameters(new List<ProgVariableTypes>
+			    { ProgVariableTypes.Character, ProgVariableTypes.Number }))
 		{
 			actor.OutputHandler.Send(
 				$"You must specify a prog that takes either a single character or a character and a number as a parameter, whereas {prog.MXPClickableFunctionName()} does not.");
@@ -616,7 +616,7 @@ public class Dream : SaveableItem, IDream
 			return false;
 		}
 
-		if (!prog.MatchesParameters(new List<FutureProgVariableTypes> { FutureProgVariableTypes.Character }))
+		if (!prog.MatchesParameters(new List<ProgVariableTypes> { ProgVariableTypes.Character }))
 		{
 			actor.OutputHandler.Send(
 				$"You must specify a prog that takes a single character as a parameter, whereas {prog.MXPClickableFunctionName()} does not.");

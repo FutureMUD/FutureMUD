@@ -48,7 +48,7 @@ internal class CollectionIndexAssigner : Function
 
 		try
 		{
-			((IList<IFutureProgVariable>)collection).Insert(index, AssignmentFunction.Result);
+			((IList<IProgVariable>)collection).Insert(index, AssignmentFunction.Result);
 		}
 		catch (IndexOutOfRangeException)
 		{

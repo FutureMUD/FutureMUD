@@ -146,6 +146,6 @@ public class Area : Location, IEditableArea
 		Changed = true;
 	}
 
-	public override FutureProgVariableTypes Type { get; } = FutureProgVariableTypes.Error;
+	public override ProgVariableTypes Type { get; } = ProgVariableTypes.Error;
 	public override string FrameworkItemType => "Area";
 }

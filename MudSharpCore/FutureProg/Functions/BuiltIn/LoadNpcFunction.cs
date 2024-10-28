@@ -15,9 +15,9 @@ internal class LoadNpcFunction : BuiltInFunction
 		_gameworld = gameworld;
 	}
 
-	public override FutureProgVariableTypes ReturnType
+	public override ProgVariableTypes ReturnType
 	{
-		get => FutureProgVariableTypes.Character;
+		get => ProgVariableTypes.Character;
 		protected set { }
 	}
 
@@ -77,18 +77,18 @@ internal class LoadNpcFunction : BuiltInFunction
 	{
 		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
 			"loadnpc",
-			new[] { FutureProgVariableTypes.Number, FutureProgVariableTypes.Location },
+			new[] { ProgVariableTypes.Number, ProgVariableTypes.Location },
 			(pars, gameworld) => new LoadNpcFunction(pars, gameworld),
 			new List<string> { "Id", "Location" },
 			new List<string> { "The Id of the NPC template to load", "The location into which they will be loaded" },
 			"This function loads an NPC from a specified template into a location.",
 			"NPCs",
-			FutureProgVariableTypes.Character
+			ProgVariableTypes.Character
 		));
 
 		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
 			"loadnpc",
-			new[] { FutureProgVariableTypes.Number, FutureProgVariableTypes.Location, FutureProgVariableTypes.Text },
+			new[] { ProgVariableTypes.Number, ProgVariableTypes.Location, ProgVariableTypes.Text },
 			(pars, gameworld) => new LoadNpcFunction(pars, gameworld),
 			new List<string> { "Id", "Location", "Layer" },
 			new List<string>
@@ -98,7 +98,7 @@ internal class LoadNpcFunction : BuiltInFunction
 			},
 			"This function loads an NPC from a specified template into a location.",
 			"NPCs",
-			FutureProgVariableTypes.Character
+			ProgVariableTypes.Character
 		));
 	}
 }

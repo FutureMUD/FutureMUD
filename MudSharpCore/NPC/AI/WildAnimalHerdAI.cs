@@ -787,12 +787,12 @@ public class WildAnimalHerdAI : PathingAIBase
 				$"WillMoveIntoRoomProg was not found in WildAnimalHerdAI {ai.Id} \"{ai.Name}\"");
 		}
 
-		if (!_willMoveIntoRoomProg.ReturnType.CompatibleWith(FutureProgVariableTypes.Boolean) ||
+		if (!_willMoveIntoRoomProg.ReturnType.CompatibleWith(ProgVariableTypes.Boolean) ||
 			!_willMoveIntoRoomProg.MatchesParameters(new[]
 			{
-				FutureProgVariableTypes.Character,
-				FutureProgVariableTypes.Location,
-				FutureProgVariableTypes.Number
+				ProgVariableTypes.Character,
+				ProgVariableTypes.Location,
+				ProgVariableTypes.Number
 			}))
 		{
 			throw new ApplicationException(
@@ -814,13 +814,13 @@ public class WildAnimalHerdAI : PathingAIBase
 				$"EscalateThreatProg was not found in WildAnimalHerdAI {ai.Id} \"{ai.Name}\"");
 		}
 
-		if (!_escalateThreatProg.ReturnType.CompatibleWith(FutureProgVariableTypes.Boolean) ||
+		if (!_escalateThreatProg.ReturnType.CompatibleWith(ProgVariableTypes.Boolean) ||
 			!_escalateThreatProg.MatchesParameters(new[]
 			{
-				FutureProgVariableTypes.Character,
-				FutureProgVariableTypes.Character | FutureProgVariableTypes.Collection,
-				FutureProgVariableTypes.Character | FutureProgVariableTypes.Collection,
-				FutureProgVariableTypes.Number
+				ProgVariableTypes.Character,
+				ProgVariableTypes.Character | ProgVariableTypes.Collection,
+				ProgVariableTypes.Character | ProgVariableTypes.Collection,
+				ProgVariableTypes.Number
 			}))
 		{
 			throw new ApplicationException(
@@ -842,11 +842,11 @@ public class WildAnimalHerdAI : PathingAIBase
 				$"ConsidersThreatProg was not found in WildAnimalHerdAI {ai.Id} \"{ai.Name}\"");
 		}
 
-		if (!_considersThreatProg.ReturnType.CompatibleWith(FutureProgVariableTypes.Boolean) ||
+		if (!_considersThreatProg.ReturnType.CompatibleWith(ProgVariableTypes.Boolean) ||
 			!_considersThreatProg.MatchesParameters(new[]
 			{
-				FutureProgVariableTypes.Character,
-				FutureProgVariableTypes.Character
+				ProgVariableTypes.Character,
+				ProgVariableTypes.Character
 			}))
 		{
 			throw new ApplicationException(
@@ -867,10 +867,10 @@ public class WildAnimalHerdAI : PathingAIBase
 			throw new ApplicationException($"HerdRoleProg was not found in WildAnimalHerdAI {ai.Id} \"{ai.Name}\"");
 		}
 
-		if (!_herdRoleProg.ReturnType.CompatibleWith(FutureProgVariableTypes.Text) || !_herdRoleProg.MatchesParameters(
+		if (!_herdRoleProg.ReturnType.CompatibleWith(ProgVariableTypes.Text) || !_herdRoleProg.MatchesParameters(
 				new[]
 				{
-					FutureProgVariableTypes.Character
+					ProgVariableTypes.Character
 				}))
 		{
 			throw new ApplicationException(
@@ -892,14 +892,14 @@ public class WildAnimalHerdAI : PathingAIBase
 				$"FightOrFlightProg was not found in WildAnimalHerdAI {ai.Id} \"{ai.Name}\"");
 		}
 
-		if (!_fightOrFlightProg.ReturnType.CompatibleWith(FutureProgVariableTypes.Boolean) ||
+		if (!_fightOrFlightProg.ReturnType.CompatibleWith(ProgVariableTypes.Boolean) ||
 			!_fightOrFlightProg.MatchesParameters(new[]
 			{
-				FutureProgVariableTypes.Character,
-				FutureProgVariableTypes.Character,
-				FutureProgVariableTypes.Character | FutureProgVariableTypes.Collection,
-				FutureProgVariableTypes.Character | FutureProgVariableTypes.Collection,
-				FutureProgVariableTypes.Character
+				ProgVariableTypes.Character,
+				ProgVariableTypes.Character,
+				ProgVariableTypes.Character | ProgVariableTypes.Collection,
+				ProgVariableTypes.Character | ProgVariableTypes.Collection,
+				ProgVariableTypes.Character
 			}))
 		{
 			throw new ApplicationException(
@@ -920,11 +920,11 @@ public class WildAnimalHerdAI : PathingAIBase
 			throw new ApplicationException($"WillMoveCalmProg was not found in WildAnimalHerdAI {ai.Id} \"{ai.Name}\"");
 		}
 
-		if (!_willMoveCalmProg.ReturnType.CompatibleWith(FutureProgVariableTypes.Boolean) ||
+		if (!_willMoveCalmProg.ReturnType.CompatibleWith(ProgVariableTypes.Boolean) ||
 			!_willMoveCalmProg.MatchesParameters(new[]
 			{
-				FutureProgVariableTypes.Character,
-				FutureProgVariableTypes.Exit
+				ProgVariableTypes.Character,
+				ProgVariableTypes.Exit
 			}))
 		{
 			throw new ApplicationException(
@@ -947,11 +947,11 @@ public class WildAnimalHerdAI : PathingAIBase
 				$"WillMoveAgitatedProg was not found in WildAnimalHerdAI {ai.Id} \"{ai.Name}\"");
 		}
 
-		if (!_willMoveAgitatedProg.ReturnType.CompatibleWith(FutureProgVariableTypes.Boolean) ||
+		if (!_willMoveAgitatedProg.ReturnType.CompatibleWith(ProgVariableTypes.Boolean) ||
 			!_willMoveAgitatedProg.MatchesParameters(new[]
 			{
-				FutureProgVariableTypes.Character,
-				FutureProgVariableTypes.Exit
+				ProgVariableTypes.Character,
+				ProgVariableTypes.Exit
 			}))
 		{
 			throw new ApplicationException(

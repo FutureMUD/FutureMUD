@@ -16,7 +16,7 @@ using MudSharp.TimeAndDate;
 
 namespace MudSharp.RPG.Law
 {
-	public interface ILegalAuthority : IFrameworkItem, ISaveable, IEditableItem, IFutureProgVariable
+	public interface ILegalAuthority : IFrameworkItem, ISaveable, IEditableItem, IProgVariable
 	{
 		void Delete();
 		ICurrency Currency { get; }

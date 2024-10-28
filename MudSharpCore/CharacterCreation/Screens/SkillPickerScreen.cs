@@ -369,9 +369,9 @@ Type the name of the skill you would like to select, or type {"done".Colour(Teln
 		}
 
 		var prog = new ProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument,
-			FutureProgVariableTypes.Number, new List<FutureProgVariableTypes>
+			ProgVariableTypes.Number, new List<ProgVariableTypes>
 			{
-				FutureProgVariableTypes.Chargen
+				ProgVariableTypes.Chargen
 			}).LookupProg();
 		if (prog is null)
 		{
@@ -395,9 +395,9 @@ Type the name of the skill you would like to select, or type {"done".Colour(Teln
 		}
 
 		var prog = new ProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument,
-			FutureProgVariableTypes.Collection | FutureProgVariableTypes.Trait, new List<FutureProgVariableTypes>
+			ProgVariableTypes.Collection | ProgVariableTypes.Trait, new List<ProgVariableTypes>
 			{
-				FutureProgVariableTypes.Chargen
+				ProgVariableTypes.Chargen
 			}).LookupProg();
 		if (prog is null)
 		{

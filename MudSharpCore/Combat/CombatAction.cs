@@ -182,7 +182,7 @@ public abstract class CombatAction : SaveableItem
 			return false;
 		}
 
-		if (prog.ReturnType != FutureProgVariableTypes.Boolean)
+		if (prog.ReturnType != ProgVariableTypes.Boolean)
 		{
 			actor.OutputHandler.Send(
 				$"You must specify a prog that returns a boolean (truth) value. The selected prog ({prog.FunctionName}) returns {prog.ReturnType.Describe().Colour(Telnet.Cyan)}.");
@@ -190,7 +190,7 @@ public abstract class CombatAction : SaveableItem
 		}
 
 		if (!prog.MatchesParameters(new[]
-				{ FutureProgVariableTypes.Character, FutureProgVariableTypes.Item, FutureProgVariableTypes.Character }))
+				{ ProgVariableTypes.Character, ProgVariableTypes.Item, ProgVariableTypes.Character }))
 		{
 			actor.OutputHandler.Send(
 				$"You must specify a prog that accepts parameters character (attacker), item (weapon), character (target).");

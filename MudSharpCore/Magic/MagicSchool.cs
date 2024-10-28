@@ -124,10 +124,10 @@ public class MagicSchool : SaveableItem, IMagicSchool
 
 	#region Implementation of IFutureProgVariable
 
-	public FutureProgVariableTypes Type => FutureProgVariableTypes.MagicSchool;
+	public ProgVariableTypes Type => ProgVariableTypes.MagicSchool;
 	public object GetObject => this;
 
-	public IFutureProgVariable GetProperty(string property)
+	public IProgVariable GetProperty(string property)
 	{
 		switch (property.ToLowerInvariant())
 		{
@@ -147,32 +147,32 @@ public class MagicSchool : SaveableItem, IMagicSchool
 			case "powers":
 				return new CollectionVariable(
 					Gameworld.MagicPowers.Where(x => x.School == this).Select(x => x.Name).ToList(),
-					FutureProgVariableTypes.Text);
+					ProgVariableTypes.Text);
 			case "spells":
 				return new CollectionVariable(Gameworld.MagicSpells.Where(x => x.School == this).ToList(),
-					FutureProgVariableTypes.MagicSpell);
+					ProgVariableTypes.MagicSpell);
 			case "capabilities":
 				return new CollectionVariable(Gameworld.MagicCapabilities.Where(x => x.School == this).ToList(),
-					FutureProgVariableTypes.MagicCapability);
+					ProgVariableTypes.MagicCapability);
 		}
 
 		throw new ApplicationException("Invalid property requested in MagicSchool.GetProperty");
 	}
 
-	private static IReadOnlyDictionary<string, FutureProgVariableTypes> DotReferenceHandler()
+	private static IReadOnlyDictionary<string, ProgVariableTypes> DotReferenceHandler()
 	{
-		return new Dictionary<string, FutureProgVariableTypes>(StringComparer.InvariantCultureIgnoreCase)
+		return new Dictionary<string, ProgVariableTypes>(StringComparer.InvariantCultureIgnoreCase)
 		{
-			{ "name", FutureProgVariableTypes.Text },
-			{ "id", FutureProgVariableTypes.Number },
-			{ "verb", FutureProgVariableTypes.Text },
-			{ "adjective", FutureProgVariableTypes.Text },
-			{ "color", FutureProgVariableTypes.Text },
-			{ "colour", FutureProgVariableTypes.Text },
-			{ "parent", FutureProgVariableTypes.MagicSchool },
-			{ "powers", FutureProgVariableTypes.Text | FutureProgVariableTypes.Collection },
-			{ "spells", FutureProgVariableTypes.MagicSpell | FutureProgVariableTypes.Collection },
-			{ "capabilities", FutureProgVariableTypes.MagicCapability | FutureProgVariableTypes.Collection }
+			{ "name", ProgVariableTypes.Text },
+			{ "id", ProgVariableTypes.Number },
+			{ "verb", ProgVariableTypes.Text },
+			{ "adjective", ProgVariableTypes.Text },
+			{ "color", ProgVariableTypes.Text },
+			{ "colour", ProgVariableTypes.Text },
+			{ "parent", ProgVariableTypes.MagicSchool },
+			{ "powers", ProgVariableTypes.Text | ProgVariableTypes.Collection },
+			{ "spells", ProgVariableTypes.MagicSpell | ProgVariableTypes.Collection },
+			{ "capabilities", ProgVariableTypes.MagicCapability | ProgVariableTypes.Collection }
 		};
 	}
 
@@ -195,7 +195,7 @@ public class MagicSchool : SaveableItem, IMagicSchool
 
 	public static void RegisterFutureProgCompiler()
 	{
-		FutureProgVariable.RegisterDotReferenceCompileInfo(FutureProgVariableTypes.MagicSchool, DotReferenceHandler(),
+		ProgVariable.RegisterDotReferenceCompileInfo(ProgVariableTypes.MagicSchool, DotReferenceHandler(),
 			DotReferenceHelp());
 	}
 

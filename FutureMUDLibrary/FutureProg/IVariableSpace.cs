@@ -1,7 +1,7 @@
 ﻿namespace MudSharp.FutureProg {
     public interface IVariableSpace {
-        IFutureProgVariable GetVariable(string variable);
+        IProgVariable GetVariable(string variable);
         bool HasVariable(string variable);
-        void SetVariable(string variable, IFutureProgVariable value);
+        void SetVariable(string variable, IProgVariable value);
     }
 }

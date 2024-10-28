@@ -19,9 +19,9 @@ internal class AddHealingEffectFunction : BuiltInFunction
 		_gameworld = gameworld;
 	}
 
-	public override FutureProgVariableTypes ReturnType
+	public override ProgVariableTypes ReturnType
 	{
-		get => FutureProgVariableTypes.Boolean;
+		get => ProgVariableTypes.Boolean;
 		protected set { }
 	}
 
@@ -39,13 +39,13 @@ internal class AddHealingEffectFunction : BuiltInFunction
 			return StatementResult.Normal;
 		}
 
-		var prog = ParameterFunctions[3].ReturnType.CompatibleWith(FutureProgVariableTypes.Number)
+		var prog = ParameterFunctions[3].ReturnType.CompatibleWith(ProgVariableTypes.Number)
 			? _gameworld.FutureProgs.Get(Convert.ToInt64(ParameterFunctions[3].Result?.GetObject ?? 0))
 			: _gameworld.FutureProgs.GetByName((string)ParameterFunctions[3].Result?.GetObject ?? "");
 		if (prog != null)
 		{
-			if (prog.ReturnType != FutureProgVariableTypes.Boolean ||
-			    !prog.MatchesParameters(new[] { FutureProgVariableTypes.Character })
+			if (prog.ReturnType != ProgVariableTypes.Boolean ||
+			    !prog.MatchesParameters(new[] { ProgVariableTypes.Character })
 			   )
 			{
 				Result = new BooleanVariable(false);
@@ -72,11 +72,11 @@ internal class AddHealingEffectFunction : BuiltInFunction
 			"addhealingeffect",
 			new[]
 			{
-				FutureProgVariableTypes.Perceivable,
-				FutureProgVariableTypes.Number,
-				FutureProgVariableTypes.Number,
-				FutureProgVariableTypes.Number,
-				FutureProgVariableTypes.TimeSpan
+				ProgVariableTypes.Perceivable,
+				ProgVariableTypes.Number,
+				ProgVariableTypes.Number,
+				ProgVariableTypes.Number,
+				ProgVariableTypes.TimeSpan
 			},
 			(pars, gameworld) => new AddHealingEffectFunction(pars, gameworld),
 			new List<string> { "Perceivable", "Multiplier", "Stages", "ProgId", "Duration" },
@@ -90,17 +90,17 @@ internal class AddHealingEffectFunction : BuiltInFunction
 			},
 			"",
 			"Effects",
-			FutureProgVariableTypes.Boolean
+			ProgVariableTypes.Boolean
 		));
 		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
 			"addhealingeffect",
 			new[]
 			{
-				FutureProgVariableTypes.Perceivable,
-				FutureProgVariableTypes.Number,
-				FutureProgVariableTypes.Number,
-				FutureProgVariableTypes.Text,
-				FutureProgVariableTypes.TimeSpan
+				ProgVariableTypes.Perceivable,
+				ProgVariableTypes.Number,
+				ProgVariableTypes.Number,
+				ProgVariableTypes.Text,
+				ProgVariableTypes.TimeSpan
 			},
 			(pars, gameworld) => new AddHealingEffectFunction(pars, gameworld)
 		));

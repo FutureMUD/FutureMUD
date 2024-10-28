@@ -30,8 +30,8 @@ internal class LinkCells : BuiltInFunction
 				"LinkCells".ToLowerInvariant(),
 				new[]
 				{
-					FutureProgVariableTypes.Location, FutureProgVariableTypes.Location,
-					FutureProgVariableTypes.OverlayPackage, FutureProgVariableTypes.Number
+					ProgVariableTypes.Location, ProgVariableTypes.Location,
+					ProgVariableTypes.OverlayPackage, ProgVariableTypes.Number
 				},
 				(pars, gameworld) => new LinkCells(pars, gameworld)
 			)
@@ -42,8 +42,8 @@ internal class LinkCells : BuiltInFunction
 				"LinkCells".ToLowerInvariant(),
 				new[]
 				{
-					FutureProgVariableTypes.Location, FutureProgVariableTypes.Location,
-					FutureProgVariableTypes.OverlayPackage, FutureProgVariableTypes.Text
+					ProgVariableTypes.Location, ProgVariableTypes.Location,
+					ProgVariableTypes.OverlayPackage, ProgVariableTypes.Text
 				},
 				(pars, gameworld) => new LinkCells(pars, gameworld)
 			)
@@ -61,9 +61,9 @@ internal class LinkCells : BuiltInFunction
 
 	#endregion
 
-	public override FutureProgVariableTypes ReturnType
+	public override ProgVariableTypes ReturnType
 	{
-		get => FutureProgVariableTypes.Exit;
+		get => ProgVariableTypes.Exit;
 		protected set { }
 	}
 
@@ -102,7 +102,7 @@ internal class LinkCells : BuiltInFunction
 		}
 
 		CardinalDirection direction;
-		if (ParameterFunctions[3].ReturnType.CompatibleWith(FutureProgVariableTypes.Number))
+		if (ParameterFunctions[3].ReturnType.CompatibleWith(ProgVariableTypes.Number))
 		{
 			direction = (CardinalDirection)Convert.ToInt32(
 				ParameterFunctions[3].Result?.GetObject ?? (int)CardinalDirection.Unknown);

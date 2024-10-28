@@ -119,13 +119,13 @@ public class MindAnesthesiaPower : SustainedMagicPower
 					$"There was an invalid ApplicabilityProg in the definition XML for power {Id} ({Name}).");
 			}
 
-			if (!prog.ReturnType.CompatibleWith(FutureProgVariableTypes.Boolean))
+			if (!prog.ReturnType.CompatibleWith(ProgVariableTypes.Boolean))
 			{
 				throw new ApplicationException(
 					$"The ApplicabilityProg in the definition XML for power {Id} ({Name}) did not return boolean.");
 			}
 
-			if (!prog.MatchesParameters(new[] { FutureProgVariableTypes.Character }))
+			if (!prog.MatchesParameters(new[] { ProgVariableTypes.Character }))
 			{
 				throw new ApplicationException(
 					$"The ApplicabilityProg in the definition XML for power {Id} ({Name}) was not compatible with a single character parameter.");

@@ -1860,10 +1860,10 @@ Note: The prog used with #3peace permanent#0 takes the following parameters and 
 				if (
 					!prog.MatchesParameters(new[]
 					{
-						FutureProgVariableTypes.Location, FutureProgVariableTypes.Perceiver,
-						FutureProgVariableTypes.Perceiver
+						ProgVariableTypes.Location, ProgVariableTypes.Perceiver,
+						ProgVariableTypes.Perceiver
 					}) ||
-					!prog.ReturnType.CompatibleWith(FutureProgVariableTypes.Boolean))
+					!prog.ReturnType.CompatibleWith(ProgVariableTypes.Boolean))
 				{
 					actor.Send(
 						"The prog that you specify for permanent peace must accept a location, perceiver and perceiver and return a boolean.");
@@ -3760,7 +3760,7 @@ The following options refer to flags listed in the SHOW COMBATFLAGS list:
 			return;
 		}
 
-		if (!prog.MatchesParameters(new[] { FutureProgVariableTypes.Character }))
+		if (!prog.MatchesParameters(new[] { ProgVariableTypes.Character }))
 		{
 			actor.Send(StringUtilities.HMark +
 					   "Only progs that accept a single character parameter are eligible for Availability Progs.");

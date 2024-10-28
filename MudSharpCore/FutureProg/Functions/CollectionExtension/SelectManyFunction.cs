@@ -12,7 +12,7 @@ internal class SelectManyFunction : CollectionExtensionFunction
 	{
 	}
 
-	public override FutureProgVariableTypes ReturnType
+	public override ProgVariableTypes ReturnType
 	{
 		get => CollectionItemFunction.ReturnType;
 		protected set { }
@@ -27,9 +27,9 @@ internal class SelectManyFunction : CollectionExtensionFunction
 			return StatementResult.Error;
 		}
 
-		var resultCollection = new List<IFutureProgVariable>();
+		var resultCollection = new List<IProgVariable>();
 		var localVariables = new LocalVariableSpace(variables);
-		foreach (IFutureProgVariable item in (IEnumerable)CollectionFunction.Result)
+		foreach (IProgVariable item in (IEnumerable)CollectionFunction.Result)
 		{
 			localVariables.SetVariable(VariableName, item);
 			if (CollectionItemFunction.Execute(localVariables) == StatementResult.Error)
@@ -39,11 +39,11 @@ internal class SelectManyFunction : CollectionExtensionFunction
 				return StatementResult.Error;
 			}
 
-			resultCollection.AddRange(((IEnumerable)CollectionItemFunction.Result).Cast<IFutureProgVariable>());
+			resultCollection.AddRange(((IEnumerable)CollectionItemFunction.Result).Cast<IProgVariable>());
 		}
 
 		Result = new CollectionVariable(resultCollection,
-			CollectionFunction.ReturnType ^ FutureProgVariableTypes.Collection);
+			CollectionFunction.ReturnType ^ ProgVariableTypes.Collection);
 		return StatementResult.Normal;
 	}
 
@@ -52,7 +52,7 @@ internal class SelectManyFunction : CollectionExtensionFunction
 		RegisterCollectionExtensionFunctionCompiler(
 			new CollectionExtensionFunctionCompilerInformation(
 				"selectmany",
-				FutureProgVariableTypes.Collection,
+				ProgVariableTypes.Collection,
 				(varName, collectionFunction, innerFunction) =>
 					new SelectManyFunction(varName, innerFunction, collectionFunction),
 				@"The SELECTMANY function is used when you have a collection of things that themselves contain another collection, and you want to aggregate them all together.

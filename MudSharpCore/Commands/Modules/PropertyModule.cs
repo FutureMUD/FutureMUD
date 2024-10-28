@@ -1336,22 +1336,22 @@ The following commands are specific to those who own a property (or who are mana
 			return;
 		}
 
-		if (!prog.ReturnType.CompatibleWith(FutureProgVariableTypes.Boolean))
+		if (!prog.ReturnType.CompatibleWith(ProgVariableTypes.Boolean))
 		{
 			actor.OutputHandler.Send(
 				$"You must specify a prog that returns a boolean value, and {prog.MXPClickableFunctionName()} returns {prog.ReturnType.Describe().ColourName()}.");
 			return;
 		}
 
-		if (!prog.MatchesParameters(new List<FutureProgVariableTypes> { FutureProgVariableTypes.Character }) &&
-		    !prog.MatchesParameters(new List<FutureProgVariableTypes> { FutureProgVariableTypes.Clan }))
+		if (!prog.MatchesParameters(new List<ProgVariableTypes> { ProgVariableTypes.Character }) &&
+		    !prog.MatchesParameters(new List<ProgVariableTypes> { ProgVariableTypes.Clan }))
 		{
 			actor.OutputHandler.Send(
 				$"You must specify a prog that takes either a single character or clan, and {prog.MXPClickableFunctionName()} does not.");
 			return;
 		}
 
-		if (prog.MatchesParameters(new List<FutureProgVariableTypes> { FutureProgVariableTypes.Character }))
+		if (prog.MatchesParameters(new List<ProgVariableTypes> { ProgVariableTypes.Character }))
 		{
 			property.LeaseOrder!.CanLeaseProgCharacter = prog;
 			actor.OutputHandler.Send(

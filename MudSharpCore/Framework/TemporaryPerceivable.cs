@@ -331,11 +331,11 @@ public abstract class TemporaryPerceivable : FrameworkItem, IPerceivable
 		return false;
 	}
 
-	public FutureProgVariableTypes Type => FutureProgVariableTypes.Perceivable;
+	public ProgVariableTypes Type => ProgVariableTypes.Perceivable;
 
 	public object GetObject => this;
 
-	public IFutureProgVariable GetProperty(string property)
+	public IProgVariable GetProperty(string property)
 	{
 		switch (property.ToLowerInvariant())
 		{
@@ -347,7 +347,7 @@ public abstract class TemporaryPerceivable : FrameworkItem, IPerceivable
 				return new TextVariable(FrameworkItemType);
 			case "effects":
 				return new CollectionVariable(Enumerable.Empty<IEffect>().ToList(),
-					FutureProgVariableTypes.Effect);
+					ProgVariableTypes.Effect);
 			default:
 				throw new NotSupportedException(
 					$"Unsupported property type {property} in {FrameworkItemType}.GetProperty");

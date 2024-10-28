@@ -69,7 +69,7 @@ public class ProgProduct : BaseProduct
 		}
 
 		var loadedItems = new List<IGameItem>();
-		if (ItemProg.ReturnType.CompatibleWith(FutureProgVariableTypes.Collection | FutureProgVariableTypes.Item))
+		if (ItemProg.ReturnType.CompatibleWith(ProgVariableTypes.Collection | ProgVariableTypes.Item))
 		{
 			loadedItems.AddRange(ItemProg.ExecuteCollection<IGameItem>(items, liquids) ?? []);
 		}
@@ -143,9 +143,9 @@ public class ProgProduct : BaseProduct
 			return false;
 		}
 
-		var prog = new ProgLookupFromBuilderInputMultipleReturnTypes(actor, command.SafeRemainingArgument, [FutureProgVariableTypes.Item, FutureProgVariableTypes.Collection | FutureProgVariableTypes.Item], [
-			[FutureProgVariableTypes.CollectionDictionary | FutureProgVariableTypes.Item],
-			[FutureProgVariableTypes.CollectionDictionary | FutureProgVariableTypes.Item, FutureProgVariableTypes.CollectionDictionary | FutureProgVariableTypes.LiquidMixture]
+		var prog = new ProgLookupFromBuilderInputMultipleReturnTypes(actor, command.SafeRemainingArgument, [ProgVariableTypes.Item, ProgVariableTypes.Collection | ProgVariableTypes.Item], [
+			[ProgVariableTypes.CollectionDictionary | ProgVariableTypes.Item],
+			[ProgVariableTypes.CollectionDictionary | ProgVariableTypes.Item, ProgVariableTypes.CollectionDictionary | ProgVariableTypes.LiquidMixture]
 		]).LookupProg();
 		if (prog is null)
 		{

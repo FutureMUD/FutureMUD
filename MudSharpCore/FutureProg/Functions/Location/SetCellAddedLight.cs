@@ -29,8 +29,8 @@ internal class SetCellAddedLight : BuiltInFunction
 				"SetCellAddedLight".ToLowerInvariant(),
 				new[]
 				{
-					FutureProgVariableTypes.Location, FutureProgVariableTypes.OverlayPackage,
-					FutureProgVariableTypes.Number
+					ProgVariableTypes.Location, ProgVariableTypes.OverlayPackage,
+					ProgVariableTypes.Number
 				},
 				(pars, gameworld) => new SetCellAddedLight(pars, gameworld),
 				new List<string>
@@ -47,7 +47,7 @@ internal class SetCellAddedLight : BuiltInFunction
 				},
 				"Sets the added light level of a room as if you had done CELL SET LIGHTLEVEL.",
 				"Rooms",
-				FutureProgVariableTypes.Boolean
+				ProgVariableTypes.Boolean
 			)
 		);
 	}
@@ -63,9 +63,9 @@ internal class SetCellAddedLight : BuiltInFunction
 
 	#endregion
 
-	public override FutureProgVariableTypes ReturnType
+	public override ProgVariableTypes ReturnType
 	{
-		get => FutureProgVariableTypes.Boolean;
+		get => ProgVariableTypes.Boolean;
 		protected set { }
 	}
 

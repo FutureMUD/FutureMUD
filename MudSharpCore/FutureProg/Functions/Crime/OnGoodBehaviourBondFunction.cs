@@ -27,7 +27,7 @@ internal class OnGoodBehaviourBondFunction : BuiltInFunction
 		FutureProg.RegisterBuiltInFunctionCompiler(
 			new FunctionCompilerInformation(
 				"OnGoodBehaviourBond".ToLowerInvariant(),
-				new[] { FutureProgVariableTypes.Character, FutureProgVariableTypes.LegalAuthority }, // the parameters the function takes
+				new[] { ProgVariableTypes.Character, ProgVariableTypes.LegalAuthority }, // the parameters the function takes
 				(pars, gameworld) => new OnGoodBehaviourBondFunction(pars, gameworld),
 				new List<string> { "character", "authority" }, // parameter names
 				new List<string>
@@ -35,7 +35,7 @@ internal class OnGoodBehaviourBondFunction : BuiltInFunction
 						"The legal authority to check in, or null for all" }, // parameter help text
 				"This function checks if the character is currently on a good behaviour bond for a previous crime", // help text for the function,
 				"Crime", // the category to which this function belongs,
-				FutureProgVariableTypes.Boolean // the return type of the function
+				ProgVariableTypes.Boolean // the return type of the function
 			)
 		);
 
@@ -44,7 +44,7 @@ internal class OnGoodBehaviourBondFunction : BuiltInFunction
 				"OnGoodBehaviorBond".ToLowerInvariant(),
 				new[]
 				{
-					FutureProgVariableTypes.Character, FutureProgVariableTypes.LegalAuthority
+					ProgVariableTypes.Character, ProgVariableTypes.LegalAuthority
 				}, // the parameters the function takes
 				(pars, gameworld) => new OnGoodBehaviourBondFunction(pars, gameworld),
 				new List<string> { "character", "authority" }, // parameter names
@@ -55,7 +55,7 @@ internal class OnGoodBehaviourBondFunction : BuiltInFunction
 				}, // parameter help text
 				"This function checks if the character is currently on a good behavior bond for a previous crime. Alternate spelling version for US English proggers.", // help text for the function,
 				"Crime", // the category to which this function belongs,
-				FutureProgVariableTypes.Boolean // the return type of the function
+				ProgVariableTypes.Boolean // the return type of the function
 			)
 		);
 	}
@@ -72,9 +72,9 @@ internal class OnGoodBehaviourBondFunction : BuiltInFunction
 
 	#endregion
 
-	public override FutureProgVariableTypes ReturnType
+	public override ProgVariableTypes ReturnType
 	{
-		get => FutureProgVariableTypes.Boolean;
+		get => ProgVariableTypes.Boolean;
 		protected set { }
 	}
 

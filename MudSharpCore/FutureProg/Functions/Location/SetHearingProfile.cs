@@ -30,8 +30,8 @@ internal class SetHearingProfile : BuiltInFunction
 				"SetHearingProfile".ToLowerInvariant(),
 				new[]
 				{
-					FutureProgVariableTypes.Location, FutureProgVariableTypes.OverlayPackage,
-					FutureProgVariableTypes.Number
+					ProgVariableTypes.Location, ProgVariableTypes.OverlayPackage,
+					ProgVariableTypes.Number
 				},
 				(pars, gameworld) => new SetHearingProfile(pars, gameworld),
 				new List<string>
@@ -48,7 +48,7 @@ internal class SetHearingProfile : BuiltInFunction
 				},
 				"Sets the hearing profile of the room as if you had done CELL SET HEARING.",
 				"Rooms",
-				FutureProgVariableTypes.Boolean
+				ProgVariableTypes.Boolean
 			)
 		);
 
@@ -57,8 +57,8 @@ internal class SetHearingProfile : BuiltInFunction
 				"SetHearingProfile".ToLowerInvariant(),
 				new[]
 				{
-					FutureProgVariableTypes.Location, FutureProgVariableTypes.OverlayPackage,
-					FutureProgVariableTypes.Text
+					ProgVariableTypes.Location, ProgVariableTypes.OverlayPackage,
+					ProgVariableTypes.Text
 				},
 				(pars, gameworld) => new SetHearingProfile(pars, gameworld),
 				new List<string>
@@ -75,7 +75,7 @@ internal class SetHearingProfile : BuiltInFunction
 				},
 				"Sets the hearing profile of the room as if you had done CELL SET HEARING.",
 				"Rooms",
-				FutureProgVariableTypes.Boolean
+				ProgVariableTypes.Boolean
 			)
 		);
 	}
@@ -91,9 +91,9 @@ internal class SetHearingProfile : BuiltInFunction
 
 	#endregion
 
-	public override FutureProgVariableTypes ReturnType
+	public override ProgVariableTypes ReturnType
 	{
-		get => FutureProgVariableTypes.Boolean;
+		get => ProgVariableTypes.Boolean;
 		protected set { }
 	}
 
@@ -119,7 +119,7 @@ internal class SetHearingProfile : BuiltInFunction
 		}
 
 		IHearingProfile profile;
-		if (ParameterFunctions[2].ReturnType.CompatibleWith(FutureProgVariableTypes.Number))
+		if (ParameterFunctions[2].ReturnType.CompatibleWith(ProgVariableTypes.Number))
 		{
 			profile = Gameworld.HearingProfiles.Get(Convert.ToInt64(ParameterFunctions[2].Result?.GetObject ?? 0));
 		}

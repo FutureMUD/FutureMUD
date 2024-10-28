@@ -12,9 +12,9 @@ internal class AddHookFunction : BuiltInFunction
 		Gameworld = gameworld;
 	}
 
-	public override FutureProgVariableTypes ReturnType
+	public override ProgVariableTypes ReturnType
 	{
-		get => FutureProgVariableTypes.Boolean;
+		get => ProgVariableTypes.Boolean;
 		protected set { }
 	}
 
@@ -41,7 +41,7 @@ internal class AddHookFunction : BuiltInFunction
 			return StatementResult.Normal;
 		}
 
-		var hook = hookResult.Type == FutureProgVariableTypes.Number
+		var hook = hookResult.Type == ProgVariableTypes.Number
 			? Gameworld.Hooks.Get((long)(double)hookResult.GetObject)
 			: Gameworld.Hooks.GetByName(hookResult.GetObject.ToString());
 
@@ -66,7 +66,7 @@ internal class AddHookFunction : BuiltInFunction
 		FutureProg.RegisterBuiltInFunctionCompiler(
 			new FunctionCompilerInformation(
 				"addhook",
-				new[] { FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Number },
+				new[] { ProgVariableTypes.Perceivable, ProgVariableTypes.Number },
 				(pars, gameworld) => new AddHookFunction(pars, gameworld),
 				new List<string> { "perceivable", "hookid" },
 				new List<string>
@@ -76,14 +76,14 @@ internal class AddHookFunction : BuiltInFunction
 				},
 				"This function installs a 'hook' on a perceivable. See in game help for hooks for more info.",
 				"Hooks",
-				FutureProgVariableTypes.Boolean
+				ProgVariableTypes.Boolean
 			)
 		);
 
 		FutureProg.RegisterBuiltInFunctionCompiler(
 			new FunctionCompilerInformation(
 				"addhook",
-				new[] { FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Text },
+				new[] { ProgVariableTypes.Perceivable, ProgVariableTypes.Text },
 				(pars, gameworld) => new AddHookFunction(pars, gameworld),
 				new List<string> { "perceivable", "hookname" },
 				new List<string>
@@ -93,7 +93,7 @@ internal class AddHookFunction : BuiltInFunction
 				},
 				"This function installs a 'hook' on a perceivable. See in game help for hooks for more info.",
 				"Hooks",
-				FutureProgVariableTypes.Boolean
+				ProgVariableTypes.Boolean
 			)
 		);
 	}

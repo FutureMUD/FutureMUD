@@ -26,7 +26,7 @@ internal class ConvertFunction : BuiltInFunction
 		FutureProg.RegisterBuiltInFunctionCompiler(
 			new FunctionCompilerInformation(
 				"convert",
-				new[] { FutureProgVariableTypes.MagicResourceHaver, FutureProgVariableTypes.Character },
+				new[] { ProgVariableTypes.MagicResourceHaver, ProgVariableTypes.Character },
 				(pars, gameworld) => new ConvertFunction(pars, gameworld),
 				new[] { "from", "to" },
 				new[]
@@ -36,13 +36,13 @@ internal class ConvertFunction : BuiltInFunction
 				},
 				"This function allows you to convert a variable from one type to another type.",
 				"Conversion",
-				FutureProgVariableTypes.Character
+				ProgVariableTypes.Character
 			)
 		);
 		FutureProg.RegisterBuiltInFunctionCompiler(
 			new FunctionCompilerInformation(
 				"convert",
-				new[] { FutureProgVariableTypes.MagicResourceHaver, FutureProgVariableTypes.Toon },
+				new[] { ProgVariableTypes.MagicResourceHaver, ProgVariableTypes.Toon },
 				(pars, gameworld) => new ConvertFunction(pars, gameworld),
 				new[] { "from", "to" },
 				new[]
@@ -52,13 +52,13 @@ internal class ConvertFunction : BuiltInFunction
 				},
 				"This function allows you to convert a variable from one type to another type.",
 				"Conversion",
-				FutureProgVariableTypes.Toon
+				ProgVariableTypes.Toon
 			)
 		);
 		FutureProg.RegisterBuiltInFunctionCompiler(
 			new FunctionCompilerInformation(
 				"convert",
-				new[] { FutureProgVariableTypes.MagicResourceHaver, FutureProgVariableTypes.Item },
+				new[] { ProgVariableTypes.MagicResourceHaver, ProgVariableTypes.Item },
 				(pars, gameworld) => new ConvertFunction(pars, gameworld),
 				new[] { "from", "to" },
 				new[]
@@ -68,13 +68,13 @@ internal class ConvertFunction : BuiltInFunction
 				},
 				"This function allows you to convert a variable from one type to another type.",
 				"Conversion",
-				FutureProgVariableTypes.Item
+				ProgVariableTypes.Item
 			)
 		);
 		FutureProg.RegisterBuiltInFunctionCompiler(
 			new FunctionCompilerInformation(
 				"convert",
-				new[] { FutureProgVariableTypes.MagicResourceHaver, FutureProgVariableTypes.Location },
+				new[] { ProgVariableTypes.MagicResourceHaver, ProgVariableTypes.Location },
 				(pars, gameworld) => new ConvertFunction(pars, gameworld),
 				new[] { "from", "to" },
 				new[]
@@ -84,7 +84,7 @@ internal class ConvertFunction : BuiltInFunction
 				},
 				"This function allows you to convert a variable from one type to another type.",
 				"Conversion",
-				FutureProgVariableTypes.Location
+				ProgVariableTypes.Location
 			)
 		);
 
@@ -92,7 +92,7 @@ internal class ConvertFunction : BuiltInFunction
 		FutureProg.RegisterBuiltInFunctionCompiler(
 			new FunctionCompilerInformation(
 				"convert",
-				new[] { FutureProgVariableTypes.Perceiver, FutureProgVariableTypes.Character },
+				new[] { ProgVariableTypes.Perceiver, ProgVariableTypes.Character },
 				(pars, gameworld) => new ConvertFunction(pars, gameworld),
 				new[] { "from", "to" },
 				new[]
@@ -102,13 +102,13 @@ internal class ConvertFunction : BuiltInFunction
 				},
 				"This function allows you to convert a variable from one type to another type.",
 				"Conversion",
-				FutureProgVariableTypes.Character
+				ProgVariableTypes.Character
 			)
 		);
 		FutureProg.RegisterBuiltInFunctionCompiler(
 			new FunctionCompilerInformation(
 				"convert",
-				new[] { FutureProgVariableTypes.Perceiver, FutureProgVariableTypes.Item },
+				new[] { ProgVariableTypes.Perceiver, ProgVariableTypes.Item },
 				(pars, gameworld) => new ConvertFunction(pars, gameworld),
 				new[] { "from", "to" },
 				new[]
@@ -118,7 +118,7 @@ internal class ConvertFunction : BuiltInFunction
 				},
 				"This function allows you to convert a variable from one type to another type.",
 				"Conversion",
-				FutureProgVariableTypes.Item
+				ProgVariableTypes.Item
 			)
 		);
 
@@ -126,7 +126,7 @@ internal class ConvertFunction : BuiltInFunction
 		FutureProg.RegisterBuiltInFunctionCompiler(
 			new FunctionCompilerInformation(
 				"convert",
-				new[] { FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Character },
+				new[] { ProgVariableTypes.Perceivable, ProgVariableTypes.Character },
 				(pars, gameworld) => new ConvertFunction(pars, gameworld),
 				new[] { "from", "to" },
 				new[]
@@ -136,13 +136,13 @@ internal class ConvertFunction : BuiltInFunction
 				},
 				"This function allows you to convert a variable from one type to another type.",
 				"Conversion",
-				FutureProgVariableTypes.Character
+				ProgVariableTypes.Character
 			)
 		);
 		FutureProg.RegisterBuiltInFunctionCompiler(
 			new FunctionCompilerInformation(
 				"convert",
-				new[] { FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Item },
+				new[] { ProgVariableTypes.Perceivable, ProgVariableTypes.Item },
 				(pars, gameworld) => new ConvertFunction(pars, gameworld),
 				new[] { "from", "to" },
 				new[]
@@ -152,13 +152,13 @@ internal class ConvertFunction : BuiltInFunction
 				},
 				"This function allows you to convert a variable from one type to another type.",
 				"Conversion",
-				FutureProgVariableTypes.Item
+				ProgVariableTypes.Item
 			)
 		);
 		FutureProg.RegisterBuiltInFunctionCompiler(
 			new FunctionCompilerInformation(
 				"convert",
-				new[] { FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Location },
+				new[] { ProgVariableTypes.Perceivable, ProgVariableTypes.Location },
 				(pars, gameworld) => new ConvertFunction(pars, gameworld),
 				new[] { "from", "to" },
 				new[]
@@ -168,13 +168,13 @@ internal class ConvertFunction : BuiltInFunction
 				},
 				"This function allows you to convert a variable from one type to another type.",
 				"Conversion",
-				FutureProgVariableTypes.Location
+				ProgVariableTypes.Location
 			)
 		);
 		FutureProg.RegisterBuiltInFunctionCompiler(
 			new FunctionCompilerInformation(
 				"convert",
-				new[] { FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Zone },
+				new[] { ProgVariableTypes.Perceivable, ProgVariableTypes.Zone },
 				(pars, gameworld) => new ConvertFunction(pars, gameworld),
 				new[] { "from", "to" },
 				new[]
@@ -184,13 +184,13 @@ internal class ConvertFunction : BuiltInFunction
 				},
 				"This function allows you to convert a variable from one type to another type.",
 				"Conversion",
-				FutureProgVariableTypes.Zone
+				ProgVariableTypes.Zone
 			)
 		);
 		FutureProg.RegisterBuiltInFunctionCompiler(
 			new FunctionCompilerInformation(
 				"convert",
-				new[] { FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Shard },
+				new[] { ProgVariableTypes.Perceivable, ProgVariableTypes.Shard },
 				(pars, gameworld) => new ConvertFunction(pars, gameworld),
 				new[] { "from", "to" },
 				new[]
@@ -200,17 +200,17 @@ internal class ConvertFunction : BuiltInFunction
 				},
 				"This function allows you to convert a variable from one type to another type.",
 				"Conversion",
-				FutureProgVariableTypes.Shard
+				ProgVariableTypes.Shard
 			)
 		);
 
 		// Reference Types
-		foreach (var type in FutureProgVariableTypes.ReferenceType.GetSingleFlags())
+		foreach (var type in ProgVariableTypes.ReferenceType.GetSingleFlags())
 		{
 			FutureProg.RegisterBuiltInFunctionCompiler(
 				new FunctionCompilerInformation(
 					"convert",
-					new[] { FutureProgVariableTypes.ReferenceType, type },
+					new[] { ProgVariableTypes.ReferenceType, type },
 					(pars, gameworld) => new ConvertFunction(pars, gameworld),
 					new[] { "from", "to" },
 					new[]
@@ -228,7 +228,7 @@ internal class ConvertFunction : BuiltInFunction
 		FutureProg.RegisterBuiltInFunctionCompiler(
 			new FunctionCompilerInformation(
 				"convert",
-				new[] { FutureProgVariableTypes.ReferenceType, FutureProgVariableTypes.Perceivable },
+				new[] { ProgVariableTypes.ReferenceType, ProgVariableTypes.Perceivable },
 				(pars, gameworld) => new ConvertFunction(pars, gameworld),
 				new[] { "from", "to" },
 				new[]
@@ -238,14 +238,14 @@ internal class ConvertFunction : BuiltInFunction
 				},
 				"This function allows you to convert a variable from one type to another type.",
 				"Conversion",
-				FutureProgVariableTypes.Perceivable
+				ProgVariableTypes.Perceivable
 			)
 		);
 
 		FutureProg.RegisterBuiltInFunctionCompiler(
 			new FunctionCompilerInformation(
 				"convert",
-				new[] { FutureProgVariableTypes.ReferenceType, FutureProgVariableTypes.Perceiver },
+				new[] { ProgVariableTypes.ReferenceType, ProgVariableTypes.Perceiver },
 				(pars, gameworld) => new ConvertFunction(pars, gameworld),
 				new[] { "from", "to" },
 				new[]
@@ -255,14 +255,14 @@ internal class ConvertFunction : BuiltInFunction
 				},
 				"This function allows you to convert a variable from one type to another type.",
 				"Conversion",
-				FutureProgVariableTypes.Perceiver
+				ProgVariableTypes.Perceiver
 			)
 		);
 
 		FutureProg.RegisterBuiltInFunctionCompiler(
 			new FunctionCompilerInformation(
 				"convert",
-				new[] { FutureProgVariableTypes.ReferenceType, FutureProgVariableTypes.Toon },
+				new[] { ProgVariableTypes.ReferenceType, ProgVariableTypes.Toon },
 				(pars, gameworld) => new ConvertFunction(pars, gameworld),
 				new[] { "from", "to" },
 				new[]
@@ -272,14 +272,14 @@ internal class ConvertFunction : BuiltInFunction
 				},
 				"This function allows you to convert a variable from one type to another type.",
 				"Conversion",
-				FutureProgVariableTypes.Toon
+				ProgVariableTypes.Toon
 			)
 		);
 
 		FutureProg.RegisterBuiltInFunctionCompiler(
 			new FunctionCompilerInformation(
 				"convert",
-				new[] { FutureProgVariableTypes.ReferenceType, FutureProgVariableTypes.MagicResourceHaver },
+				new[] { ProgVariableTypes.ReferenceType, ProgVariableTypes.MagicResourceHaver },
 				(pars, gameworld) => new ConvertFunction(pars, gameworld),
 				new[] { "from", "to" },
 				new[]
@@ -289,17 +289,17 @@ internal class ConvertFunction : BuiltInFunction
 				},
 				"This function allows you to convert a variable from one type to another type.",
 				"Conversion",
-				FutureProgVariableTypes.MagicResourceHaver
+				ProgVariableTypes.MagicResourceHaver
 			)
 		);
 
 		// All Types
-		foreach (var type in FutureProgVariableTypes.Anything.GetSingleFlags())
+		foreach (var type in ProgVariableTypes.Anything.GetSingleFlags())
 		{
 			FutureProg.RegisterBuiltInFunctionCompiler(
 				new FunctionCompilerInformation(
 					"convert",
-					new[] { FutureProgVariableTypes.Anything, type },
+					new[] { ProgVariableTypes.Anything, type },
 					(pars, gameworld) => new ConvertFunction(pars, gameworld),
 					new[] { "from", "to" },
 					new[]
@@ -326,9 +326,9 @@ internal class ConvertFunction : BuiltInFunction
 
 	#endregion
 
-	public override FutureProgVariableTypes ReturnType
+	public override ProgVariableTypes ReturnType
 	{
-		get => ParameterFunctions.ElementAtOrDefault(1)?.ReturnType ?? FutureProgVariableTypes.Anything;
+		get => ParameterFunctions.ElementAtOrDefault(1)?.ReturnType ?? ProgVariableTypes.Anything;
 		protected set { }
 	}
 
@@ -349,11 +349,11 @@ internal class ConvertFunction : BuiltInFunction
 
 		switch (ParameterFunctions[0].ReturnType)
 		{
-			case FutureProgVariableTypes.MagicResourceHaver:
-			case FutureProgVariableTypes.Perceivable:
-			case FutureProgVariableTypes.Perceiver:
-			case FutureProgVariableTypes.Anything:
-			case FutureProgVariableTypes.ReferenceType:
+			case ProgVariableTypes.MagicResourceHaver:
+			case ProgVariableTypes.Perceivable:
+			case ProgVariableTypes.Perceiver:
+			case ProgVariableTypes.Anything:
+			case ProgVariableTypes.ReferenceType:
 				Result = result;
 				return StatementResult.Normal;
 		}

@@ -16,9 +16,9 @@ internal class ToAppointmentFunction : BuiltInFunction
 		_gameworld = gameworld;
 	}
 
-	public override FutureProgVariableTypes ReturnType
+	public override ProgVariableTypes ReturnType
 	{
-		get => FutureProgVariableTypes.ClanAppointment;
+		get => ProgVariableTypes.ClanAppointment;
 		protected set { }
 	}
 
@@ -36,7 +36,7 @@ internal class ToAppointmentFunction : BuiltInFunction
 			return StatementResult.Error;
 		}
 
-		Result = ParameterFunctions[0].ReturnType.CompatibleWith(FutureProgVariableTypes.Text)
+		Result = ParameterFunctions[0].ReturnType.CompatibleWith(ProgVariableTypes.Text)
 			? clan.Appointments.FirstOrDefault(
 				x =>
 					x.Name.Equals((string)ParameterFunctions.ElementAt(1).Result.GetObject,
@@ -51,13 +51,13 @@ internal class ToAppointmentFunction : BuiltInFunction
 	{
 		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
 			"toappointment",
-			new[] { FutureProgVariableTypes.Clan, FutureProgVariableTypes.Number },
+			new[] { ProgVariableTypes.Clan, ProgVariableTypes.Number },
 			(pars, gameworld) => new ToAppointmentFunction(pars, gameworld)
 		));
 
 		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
 			"toappointment",
-			new[] { FutureProgVariableTypes.Clan, FutureProgVariableTypes.Text },
+			new[] { ProgVariableTypes.Clan, ProgVariableTypes.Text },
 			(pars, gameworld) => new ToAppointmentFunction(pars, gameworld)
 		));
 	}

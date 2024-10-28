@@ -27,7 +27,7 @@ internal class ReviseOverlay : BuiltInFunction
 		FutureProg.RegisterBuiltInFunctionCompiler(
 			new FunctionCompilerInformation(
 				"ReviseOverlay".ToLowerInvariant(),
-				new[] { FutureProgVariableTypes.OverlayPackage, FutureProgVariableTypes.Character },
+				new[] { ProgVariableTypes.OverlayPackage, ProgVariableTypes.Character },
 				(pars, gameworld) => new ReviseOverlay(pars, gameworld),
 				new List<string>
 				{
@@ -41,7 +41,7 @@ internal class ReviseOverlay : BuiltInFunction
 				},
 				"Creates a new revision for an overlay package.",
 				"Rooms",
-				FutureProgVariableTypes.OverlayPackage
+				ProgVariableTypes.OverlayPackage
 			)
 		);
 	}
@@ -57,9 +57,9 @@ internal class ReviseOverlay : BuiltInFunction
 
 	#endregion
 
-	public override FutureProgVariableTypes ReturnType
+	public override ProgVariableTypes ReturnType
 	{
-		get => FutureProgVariableTypes.OverlayPackage;
+		get => ProgVariableTypes.OverlayPackage;
 		protected set { }
 	}
 

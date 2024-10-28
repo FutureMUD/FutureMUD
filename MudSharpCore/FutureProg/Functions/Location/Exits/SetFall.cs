@@ -30,8 +30,8 @@ internal class SetFall : BuiltInFunction
 				"SetFall".ToLowerInvariant(),
 				new[]
 				{
-					FutureProgVariableTypes.Exit, FutureProgVariableTypes.OverlayPackage,
-					FutureProgVariableTypes.Location
+					ProgVariableTypes.Exit, ProgVariableTypes.OverlayPackage,
+					ProgVariableTypes.Location
 				},
 				(pars, gameworld) => new SetFall(pars, gameworld)
 			)
@@ -49,9 +49,9 @@ internal class SetFall : BuiltInFunction
 
 	#endregion
 
-	public override FutureProgVariableTypes ReturnType
+	public override ProgVariableTypes ReturnType
 	{
-		get => FutureProgVariableTypes.Exit;
+		get => ProgVariableTypes.Exit;
 		protected set { }
 	}
 

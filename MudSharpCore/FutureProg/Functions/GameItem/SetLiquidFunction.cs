@@ -16,9 +16,9 @@ internal class SetLiquidFunction : BuiltInFunction
 		_gameworld = gameworld;
 	}
 
-	public override FutureProgVariableTypes ReturnType
+	public override ProgVariableTypes ReturnType
 	{
-		get => FutureProgVariableTypes.Boolean;
+		get => ProgVariableTypes.Boolean;
 		protected set { }
 	}
 
@@ -60,7 +60,7 @@ internal class SetLiquidFunction : BuiltInFunction
 	{
 		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
 			"setliquid",
-			new[] { FutureProgVariableTypes.Item, FutureProgVariableTypes.Number },
+			new[] { ProgVariableTypes.Item, ProgVariableTypes.Number },
 			(pars, gameworld) => new SetLiquidFunction(pars, gameworld)
 		));
 	}

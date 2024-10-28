@@ -20,9 +20,9 @@ internal class SendLangFunction : BuiltInFunction
 		Gameworld = gameworld;
 	}
 
-	public override FutureProgVariableTypes ReturnType
+	public override ProgVariableTypes ReturnType
 	{
-		get => FutureProgVariableTypes.Boolean;
+		get => ProgVariableTypes.Boolean;
 		protected set { }
 	}
 
@@ -87,8 +87,8 @@ internal class SendLangFunction : BuiltInFunction
 				"sendlang",
 				new[]
 				{
-					FutureProgVariableTypes.Perceiver, FutureProgVariableTypes.Text, FutureProgVariableTypes.Language,
-					FutureProgVariableTypes.Accent
+					ProgVariableTypes.Perceiver, ProgVariableTypes.Text, ProgVariableTypes.Language,
+					ProgVariableTypes.Accent
 				},
 				(pars, gameworld) => new SendLangFunction(pars, gameworld)
 			)
@@ -99,8 +99,8 @@ internal class SendLangFunction : BuiltInFunction
 				"sendlang",
 				new[]
 				{
-					FutureProgVariableTypes.Perceiver, FutureProgVariableTypes.Text, FutureProgVariableTypes.Language,
-					FutureProgVariableTypes.Accent, FutureProgVariableTypes.Perceivable
+					ProgVariableTypes.Perceiver, ProgVariableTypes.Text, ProgVariableTypes.Language,
+					ProgVariableTypes.Accent, ProgVariableTypes.Perceivable
 				},
 				(pars, gameworld) => new SendLangFunction(pars, gameworld)
 			)
@@ -111,9 +111,9 @@ internal class SendLangFunction : BuiltInFunction
 				"sendlang",
 				new[]
 				{
-					FutureProgVariableTypes.Perceiver, FutureProgVariableTypes.Text, FutureProgVariableTypes.Language,
-					FutureProgVariableTypes.Accent, FutureProgVariableTypes.Perceivable,
-					FutureProgVariableTypes.Perceivable
+					ProgVariableTypes.Perceiver, ProgVariableTypes.Text, ProgVariableTypes.Language,
+					ProgVariableTypes.Accent, ProgVariableTypes.Perceivable,
+					ProgVariableTypes.Perceivable
 				},
 				(pars, gameworld) => new SendLangFunction(pars, gameworld)
 			)
@@ -124,9 +124,9 @@ internal class SendLangFunction : BuiltInFunction
 				"sendlang",
 				new[]
 				{
-					FutureProgVariableTypes.Perceiver, FutureProgVariableTypes.Text, FutureProgVariableTypes.Language,
-					FutureProgVariableTypes.Accent, FutureProgVariableTypes.Perceivable,
-					FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Perceivable
+					ProgVariableTypes.Perceiver, ProgVariableTypes.Text, ProgVariableTypes.Language,
+					ProgVariableTypes.Accent, ProgVariableTypes.Perceivable,
+					ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable
 				},
 				(pars, gameworld) => new SendLangFunction(pars, gameworld)
 			)
@@ -137,10 +137,10 @@ internal class SendLangFunction : BuiltInFunction
 				"sendlang",
 				new[]
 				{
-					FutureProgVariableTypes.Perceiver, FutureProgVariableTypes.Text, FutureProgVariableTypes.Language,
-					FutureProgVariableTypes.Accent, FutureProgVariableTypes.Perceivable,
-					FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Perceivable,
-					FutureProgVariableTypes.Perceivable
+					ProgVariableTypes.Perceiver, ProgVariableTypes.Text, ProgVariableTypes.Language,
+					ProgVariableTypes.Accent, ProgVariableTypes.Perceivable,
+					ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable,
+					ProgVariableTypes.Perceivable
 				},
 				(pars, gameworld) => new SendLangFunction(pars, gameworld)
 			)
@@ -151,10 +151,10 @@ internal class SendLangFunction : BuiltInFunction
 				"sendlang",
 				new[]
 				{
-					FutureProgVariableTypes.Perceiver, FutureProgVariableTypes.Text, FutureProgVariableTypes.Language,
-					FutureProgVariableTypes.Accent, FutureProgVariableTypes.Perceivable,
-					FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Perceivable,
-					FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Perceivable
+					ProgVariableTypes.Perceiver, ProgVariableTypes.Text, ProgVariableTypes.Language,
+					ProgVariableTypes.Accent, ProgVariableTypes.Perceivable,
+					ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable,
+					ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable
 				},
 				(pars, gameworld) => new SendLangFunction(pars, gameworld)
 			)
@@ -165,11 +165,11 @@ internal class SendLangFunction : BuiltInFunction
 				"sendlang",
 				new[]
 				{
-					FutureProgVariableTypes.Perceiver, FutureProgVariableTypes.Text, FutureProgVariableTypes.Language,
-					FutureProgVariableTypes.Accent, FutureProgVariableTypes.Perceivable,
-					FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Perceivable,
-					FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Perceivable,
-					FutureProgVariableTypes.Perceivable
+					ProgVariableTypes.Perceiver, ProgVariableTypes.Text, ProgVariableTypes.Language,
+					ProgVariableTypes.Accent, ProgVariableTypes.Perceivable,
+					ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable,
+					ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable,
+					ProgVariableTypes.Perceivable
 				},
 				(pars, gameworld) => new SendLangFunction(pars, gameworld)
 			)
@@ -180,11 +180,11 @@ internal class SendLangFunction : BuiltInFunction
 				"sendlang",
 				new[]
 				{
-					FutureProgVariableTypes.Perceiver, FutureProgVariableTypes.Text, FutureProgVariableTypes.Language,
-					FutureProgVariableTypes.Accent, FutureProgVariableTypes.Perceivable,
-					FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Perceivable,
-					FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Perceivable,
-					FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Perceivable
+					ProgVariableTypes.Perceiver, ProgVariableTypes.Text, ProgVariableTypes.Language,
+					ProgVariableTypes.Accent, ProgVariableTypes.Perceivable,
+					ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable,
+					ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable,
+					ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable
 				},
 				(pars, gameworld) => new SendLangFunction(pars, gameworld)
 			)
@@ -195,12 +195,12 @@ internal class SendLangFunction : BuiltInFunction
 				"sendlang",
 				new[]
 				{
-					FutureProgVariableTypes.Perceiver, FutureProgVariableTypes.Text, FutureProgVariableTypes.Language,
-					FutureProgVariableTypes.Accent, FutureProgVariableTypes.Perceivable,
-					FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Perceivable,
-					FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Perceivable,
-					FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Perceivable,
-					FutureProgVariableTypes.Perceivable
+					ProgVariableTypes.Perceiver, ProgVariableTypes.Text, ProgVariableTypes.Language,
+					ProgVariableTypes.Accent, ProgVariableTypes.Perceivable,
+					ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable,
+					ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable,
+					ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable,
+					ProgVariableTypes.Perceivable
 				},
 				(pars, gameworld) => new SendLangFunction(pars, gameworld)
 			)

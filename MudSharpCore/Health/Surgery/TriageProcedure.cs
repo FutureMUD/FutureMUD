@@ -38,18 +38,18 @@ public class TriageProcedure : SurgicalProcedure
 		return Difficulty.Normal;
 	}
 
-	protected override IEnumerable<IEnumerable<FutureProgVariableTypes>> ParametersForCancelProg => new[] {
+	protected override IEnumerable<IEnumerable<ProgVariableTypes>> ParametersForCancelProg => new[] {
 		new[]
 		{
-			FutureProgVariableTypes.Character,
-			FutureProgVariableTypes.Character,
-			FutureProgVariableTypes.Number
+			ProgVariableTypes.Character,
+			ProgVariableTypes.Character,
+			ProgVariableTypes.Number
 		},
 		new[]
 		{
-			FutureProgVariableTypes.Character,
-			FutureProgVariableTypes.Character,
-			FutureProgVariableTypes.Text
+			ProgVariableTypes.Character,
+			ProgVariableTypes.Character,
+			ProgVariableTypes.Text
 		},
 	};
 
@@ -69,18 +69,18 @@ public class TriageProcedure : SurgicalProcedure
 		AbortProg?.Execute(surgeon, patient, result);
 	}
 
-	protected override IEnumerable<IEnumerable<FutureProgVariableTypes>> ParametersForCompletionProg => new[] {
+	protected override IEnumerable<IEnumerable<ProgVariableTypes>> ParametersForCompletionProg => new[] {
 		new[]
 		{
-			FutureProgVariableTypes.Character,
-			FutureProgVariableTypes.Character,
-			FutureProgVariableTypes.Number
+			ProgVariableTypes.Character,
+			ProgVariableTypes.Character,
+			ProgVariableTypes.Number
 		},
 		new[]
 		{
-			FutureProgVariableTypes.Character,
-			FutureProgVariableTypes.Character,
-			FutureProgVariableTypes.Text
+			ProgVariableTypes.Character,
+			ProgVariableTypes.Character,
+			ProgVariableTypes.Text
 		},
 	};
 

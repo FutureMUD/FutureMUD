@@ -10,9 +10,9 @@ internal class ToCharacterFunction : BuiltInFunction
 	{
 	}
 
-	public override FutureProgVariableTypes ReturnType
+	public override ProgVariableTypes ReturnType
 	{
-		get => FutureProgVariableTypes.Character;
+		get => ProgVariableTypes.Character;
 		protected set { }
 	}
 
@@ -31,25 +31,25 @@ internal class ToCharacterFunction : BuiltInFunction
 	{
 		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
 			"tocharacter",
-			new[] { FutureProgVariableTypes.Perceiver },
+			new[] { ProgVariableTypes.Perceiver },
 			(pars, gameworld) => new ToCharacterFunction(pars)
 		));
 
 		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
 			"tocharacter",
-			new[] { FutureProgVariableTypes.Perceivable },
+			new[] { ProgVariableTypes.Perceivable },
 			(pars, gameworld) => new ToCharacterFunction(pars)
 		));
 
 		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
 			"tocharacter",
-			new[] { FutureProgVariableTypes.Toon },
+			new[] { ProgVariableTypes.Toon },
 			(pars, gameworld) => new ToCharacterFunction(pars)
 		));
 
 		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
 			"tocharacter",
-			new[] { FutureProgVariableTypes.CollectionItem },
+			new[] { ProgVariableTypes.CollectionItem },
 			(pars, gameworld) => new ToCharacterFunction(pars)
 		));
 	}

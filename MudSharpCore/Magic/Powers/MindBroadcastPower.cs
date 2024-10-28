@@ -155,13 +155,13 @@ public class MindBroadcastPower : MagicPowerBase
 					$"The TargetIncluded specified an invalid prog in the definition XML for power {Id} ({Name}).");
 			}
 
-			if (TargetIncluded.ReturnType != FutureProgVariableTypes.Boolean)
+			if (TargetIncluded.ReturnType != ProgVariableTypes.Boolean)
 			{
 				throw new ApplicationException(
 					$"The TargetIncluded specified a prog that doesn't return boolean in the definition XML for power {Id} ({Name}).");
 			}
 
-			if (!TargetIncluded.MatchesParameters(new[] { FutureProgVariableTypes.Character }))
+			if (!TargetIncluded.MatchesParameters(new[] { ProgVariableTypes.Character }))
 			{
 				throw new ApplicationException(
 					$"The TargetIncluded specified  a prog that does not match the required parameter pattern of a single character in the definition XML for power {Id} ({Name}).");

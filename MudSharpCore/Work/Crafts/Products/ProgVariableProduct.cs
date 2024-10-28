@@ -100,9 +100,9 @@ namespace MudSharp.Work.Crafts.Products
 				}
 			}
 
-			var prog = new ProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument, FutureProgVariableTypes.Number, new FutureProgVariableTypes[]
+			var prog = new ProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument, ProgVariableTypes.Number, new ProgVariableTypes[]
 			{
-				FutureProgVariableTypes.Item | FutureProgVariableTypes.Collection
+				ProgVariableTypes.Item | ProgVariableTypes.Collection
 			}).LookupProg();
 			if (prog is null)
 			{
@@ -126,10 +126,10 @@ namespace MudSharp.Work.Crafts.Products
 			return base.IsValid() && 
 				Characteristics.All(x => 
 					string.IsNullOrWhiteSpace(x.Prog.CompileError) &&
-					x.Prog.ReturnType.CompatibleWith(FutureProgVariableTypes.Boolean) &&
-					x.Prog.MatchesParameters(new FutureProgVariableTypes[]
+					x.Prog.ReturnType.CompatibleWith(ProgVariableTypes.Boolean) &&
+					x.Prog.MatchesParameters(new ProgVariableTypes[]
 					{
-						FutureProgVariableTypes.Item | FutureProgVariableTypes.Collection
+						ProgVariableTypes.Item | ProgVariableTypes.Collection
 					})
 				);
 		}
@@ -144,14 +144,14 @@ namespace MudSharp.Work.Crafts.Products
 					sb.AppendLine($"Variable Product Prog {prog.MXPClickableFunctionName()} is not compiled");
 				}
 
-				if (!prog.ReturnType.CompatibleWith(FutureProgVariableTypes.Boolean))
+				if (!prog.ReturnType.CompatibleWith(ProgVariableTypes.Boolean))
 				{
 					sb.AppendLine($"Variable Product Prog {prog.MXPClickableFunctionName()} does not return a number");
 				}
 
-				if (!prog.MatchesParameters(new FutureProgVariableTypes[]
+				if (!prog.MatchesParameters(new ProgVariableTypes[]
 					{
-						FutureProgVariableTypes.Perceivable | FutureProgVariableTypes.Collection
+						ProgVariableTypes.Perceivable | ProgVariableTypes.Collection
 					}))
 				{
 					sb.AppendLine($"Variable Product Prog {prog.MXPClickableFunctionName()} does not accept the right parameters");

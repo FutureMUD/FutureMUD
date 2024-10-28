@@ -289,13 +289,13 @@ internal class HelpModule : Module<ICharacter>
 			return;
 		}
 
-		if (!prog.MatchesParameters(new[] { FutureProgVariableTypes.Toon }))
+		if (!prog.MatchesParameters(new[] { ProgVariableTypes.Toon }))
 		{
 			actor.Send("You may only use progs that take a single toon parameter.");
 			return;
 		}
 
-		if (prog.ReturnType != FutureProgVariableTypes.Boolean)
+		if (prog.ReturnType != ProgVariableTypes.Boolean)
 		{
 			actor.Send("You may only use progs that return a boolean.");
 			return;
@@ -396,13 +396,13 @@ internal class HelpModule : Module<ICharacter>
 			return;
 		}
 
-		if (!prog.MatchesParameters(new[] { FutureProgVariableTypes.Character }))
+		if (!prog.MatchesParameters(new[] { ProgVariableTypes.Character }))
 		{
 			actor.Send("You may only use progs that take a single character parameter.");
 			return;
 		}
 
-		if (prog.ReturnType != FutureProgVariableTypes.Boolean)
+		if (prog.ReturnType != ProgVariableTypes.Boolean)
 		{
 			actor.Send("You may only use progs that return a boolean.");
 			return;
@@ -565,13 +565,13 @@ internal class HelpModule : Module<ICharacter>
 			return;
 		}
 
-		if (!prog.MatchesParameters(new[] { FutureProgVariableTypes.Character }))
+		if (!prog.MatchesParameters(new[] { ProgVariableTypes.Character }))
 		{
 			actor.Send("You may only use progs that take a single character parameter.");
 			return;
 		}
 
-		if (prog.ReturnType != FutureProgVariableTypes.Boolean)
+		if (prog.ReturnType != ProgVariableTypes.Boolean)
 		{
 			actor.Send("You may only use progs that return a boolean.");
 			return;

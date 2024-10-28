@@ -453,10 +453,10 @@ The following options have some more complex inputs:
 
 	#region Implementation of IFutureProgVariable
 
-	public FutureProgVariableTypes Type => FutureProgVariableTypes.MagicCapability;
+	public ProgVariableTypes Type => ProgVariableTypes.MagicCapability;
 	public object GetObject => this;
 
-	public IFutureProgVariable GetProperty(string property)
+	public IProgVariable GetProperty(string property)
 	{
 		switch (property.ToLowerInvariant())
 		{
@@ -475,15 +475,15 @@ The following options have some more complex inputs:
 		throw new ApplicationException("Invalid property requested in MagicCapability.GetProperty");
 	}
 
-	private static IReadOnlyDictionary<string, FutureProgVariableTypes> DotReferenceHandler()
+	private static IReadOnlyDictionary<string, ProgVariableTypes> DotReferenceHandler()
 	{
-		return new Dictionary<string, FutureProgVariableTypes>(StringComparer.InvariantCultureIgnoreCase)
+		return new Dictionary<string, ProgVariableTypes>(StringComparer.InvariantCultureIgnoreCase)
 		{
-			{ "name", FutureProgVariableTypes.Text },
-			{ "id", FutureProgVariableTypes.Number },
-			{ "school", FutureProgVariableTypes.MagicSchool },
-			{ "powerlevel", FutureProgVariableTypes.Number },
-			{ "concentrationtrait", FutureProgVariableTypes.Trait }
+			{ "name", ProgVariableTypes.Text },
+			{ "id", ProgVariableTypes.Number },
+			{ "school", ProgVariableTypes.MagicSchool },
+			{ "powerlevel", ProgVariableTypes.Number },
+			{ "concentrationtrait", ProgVariableTypes.Trait }
 		};
 	}
 
@@ -501,7 +501,7 @@ The following options have some more complex inputs:
 
 	public static void RegisterFutureProgCompiler()
 	{
-		FutureProgVariable.RegisterDotReferenceCompileInfo(FutureProgVariableTypes.MagicCapability,
+		ProgVariable.RegisterDotReferenceCompileInfo(ProgVariableTypes.MagicCapability,
 			DotReferenceHandler(), DotReferenceHelp());
 	}
 

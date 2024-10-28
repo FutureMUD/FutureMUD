@@ -27,7 +27,7 @@ internal class SetVendingBalance : BuiltInFunction
 		FutureProg.RegisterBuiltInFunctionCompiler(
 			new FunctionCompilerInformation(
 				"SetVendingBalance".ToLowerInvariant(),
-				new[] { FutureProgVariableTypes.Item, FutureProgVariableTypes.Number },
+				new[] { ProgVariableTypes.Item, ProgVariableTypes.Number },
 				(pars, gameworld) => new SetVendingBalance(pars, gameworld)
 			)
 		);
@@ -44,9 +44,9 @@ internal class SetVendingBalance : BuiltInFunction
 
 	#endregion
 
-	public override FutureProgVariableTypes ReturnType
+	public override ProgVariableTypes ReturnType
 	{
-		get => FutureProgVariableTypes.Boolean;
+		get => ProgVariableTypes.Boolean;
 		protected set { }
 	}
 

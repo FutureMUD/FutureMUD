@@ -12,9 +12,9 @@ internal class SetOnFunction : BuiltInFunction
 	{
 	}
 
-	public override FutureProgVariableTypes ReturnType
+	public override ProgVariableTypes ReturnType
 	{
-		get => FutureProgVariableTypes.Boolean;
+		get => ProgVariableTypes.Boolean;
 		protected set { }
 	}
 
@@ -55,7 +55,7 @@ internal class SetOnFunction : BuiltInFunction
 	{
 		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
 			"seton",
-			new[] { FutureProgVariableTypes.Item, FutureProgVariableTypes.Boolean, FutureProgVariableTypes.Boolean },
+			new[] { ProgVariableTypes.Item, ProgVariableTypes.Boolean, ProgVariableTypes.Boolean },
 			(pars, gameworld) => new SetOnFunction(pars)
 		));
 	}

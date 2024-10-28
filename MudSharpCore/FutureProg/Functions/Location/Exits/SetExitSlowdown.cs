@@ -30,7 +30,7 @@ internal class SetExitSlowdown : BuiltInFunction
 				"SetExitSlowdown".ToLowerInvariant(),
 				new[]
 				{
-					FutureProgVariableTypes.Exit, FutureProgVariableTypes.OverlayPackage, FutureProgVariableTypes.Number
+					ProgVariableTypes.Exit, ProgVariableTypes.OverlayPackage, ProgVariableTypes.Number
 				},
 				(pars, gameworld) => new SetExitSlowdown(pars, gameworld)
 			)
@@ -48,9 +48,9 @@ internal class SetExitSlowdown : BuiltInFunction
 
 	#endregion
 
-	public override FutureProgVariableTypes ReturnType
+	public override ProgVariableTypes ReturnType
 	{
-		get => FutureProgVariableTypes.Exit;
+		get => ProgVariableTypes.Exit;
 		protected set { }
 	}
 

@@ -225,7 +225,7 @@ public class EntityDescriptionPattern : SaveableItem, IEntityDescriptionPattern
 			return false;
 		}
 
-		var prog = new ProgLookupFromBuilderInput(actor, command.SafeRemainingArgument, FutureProgVariableTypes.Boolean, [FutureProgVariableTypes.Toon]).LookupProg();
+		var prog = new ProgLookupFromBuilderInput(actor, command.SafeRemainingArgument, ProgVariableTypes.Boolean, [ProgVariableTypes.Toon]).LookupProg();
 		if (prog is null)
 		{
 			return false;

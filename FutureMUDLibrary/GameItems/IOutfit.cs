@@ -19,7 +19,7 @@ namespace MudSharp.GameItems
         ExcludeAllItems
     }
 
-    public interface IOutfit : IFutureProgVariable
+    public interface IOutfit : IProgVariable
     {
         ICharacter Owner { get; }
         string Name { get; set; }
@@ -36,7 +36,7 @@ namespace MudSharp.GameItems
         void SwapItems(IOutfitItem item1, IOutfitItem item2);
     }
 
-    public interface IOutfitItem : IKeyworded, IFutureProgVariable
+    public interface IOutfitItem : IKeyworded, IProgVariable
     {
         long Id { get; }
         string ItemDescription { get; set; }

@@ -462,14 +462,14 @@ public class WitnessProfile : SaveableItem, IWitnessProfile
 			return false;
 		}
 
-		if (!prog.ReturnType.CompatibleWith(FutureProgVariableTypes.Boolean))
+		if (!prog.ReturnType.CompatibleWith(ProgVariableTypes.Boolean))
 		{
 			actor.OutputHandler.Send(
 				"The specified prog does not return a boolean value, as required by this command.");
 			return false;
 		}
 
-		if (!prog.MatchesParameters(new[] { FutureProgVariableTypes.Character }))
+		if (!prog.MatchesParameters(new[] { ProgVariableTypes.Character }))
 		{
 			actor.OutputHandler.Send(
 				"The specified prog does not accept just a single character as an argument, as required by this command.");
@@ -523,14 +523,14 @@ public class WitnessProfile : SaveableItem, IWitnessProfile
 			return false;
 		}
 
-		if (!prog.ReturnType.CompatibleWith(FutureProgVariableTypes.Number))
+		if (!prog.ReturnType.CompatibleWith(ProgVariableTypes.Number))
 		{
 			actor.OutputHandler.Send(
 				"The specified prog does not return a number value, as required by this command.");
 			return false;
 		}
 
-		if (!prog.MatchesParameters(new[] { FutureProgVariableTypes.Character }))
+		if (!prog.MatchesParameters(new[] { ProgVariableTypes.Character }))
 		{
 			actor.OutputHandler.Send(
 				"The specified prog does not accept just a single character as an argument, as required by this command.");

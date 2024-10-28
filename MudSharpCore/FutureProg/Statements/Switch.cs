@@ -38,7 +38,7 @@ internal class Switch : Statement
 	}
 
 	private static ICompileInfo SwitchCompile(IEnumerable<string> lines,
-		IDictionary<string, FutureProgVariableTypes> variableSpace, int lineNumber, IFuturemud gameworld)
+		IDictionary<string, ProgVariableTypes> variableSpace, int lineNumber, IFuturemud gameworld)
 	{
 		var match = SwitchCompileRegex.Match(lines.First());
 		var switchFunctionTest = match.Groups[1].Value;
@@ -61,8 +61,8 @@ internal class Switch : Statement
 
 		lines = lines.Skip(1);
 		var containedStatements = new List<IStatement>();
-		IDictionary<string, FutureProgVariableTypes> localVariables =
-			new Dictionary<string, FutureProgVariableTypes>(variableSpace);
+		IDictionary<string, ProgVariableTypes> localVariables =
+			new Dictionary<string, ProgVariableTypes>(variableSpace);
 		var inDefaultMode = false;
 
 		var currentLine = lineNumber;
@@ -109,7 +109,7 @@ internal class Switch : Statement
 				{
 					cases.Add(Tuple.Create(currentCaseFunction, (IEnumerable<IStatement>)containedStatements));
 					containedStatements = new List<IStatement>();
-					localVariables = new Dictionary<string, FutureProgVariableTypes>(variableSpace);
+					localVariables = new Dictionary<string, ProgVariableTypes>(variableSpace);
 				}
 
 				currentCaseFunction = (IFunction)caseFunctionCompileInfo.CompiledStatement;
@@ -139,7 +139,7 @@ internal class Switch : Statement
 				{
 					cases.Add(Tuple.Create(currentCaseFunction, (IEnumerable<IStatement>)containedStatements));
 					containedStatements = new List<IStatement>();
-					localVariables = new Dictionary<string, FutureProgVariableTypes>(variableSpace);
+					localVariables = new Dictionary<string, ProgVariableTypes>(variableSpace);
 				}
 
 				inDefaultMode = true;
@@ -220,7 +220,7 @@ internal class Switch : Statement
 	{
 		FutureProg.RegisterStatementCompiler(new Tuple
 		<Regex,
-			Func<IEnumerable<string>, IDictionary<string, FutureProgVariableTypes>, int, IFuturemud, ICompileInfo>>(
+			Func<IEnumerable<string>, IDictionary<string, ProgVariableTypes>, int, IFuturemud, ICompileInfo>>(
 			SwitchCompileRegex, SwitchCompile
 		));
 

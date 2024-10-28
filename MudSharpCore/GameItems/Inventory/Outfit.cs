@@ -542,10 +542,10 @@ public class Outfit : IOutfit
 
 	#region IFutureProgVariable Implementation
 
-	public FutureProgVariableTypes Type => FutureProgVariableTypes.Outfit;
+	public ProgVariableTypes Type => ProgVariableTypes.Outfit;
 	public object GetObject => this;
 
-	public IFutureProgVariable GetProperty(string property)
+	public IProgVariable GetProperty(string property)
 	{
 		switch (property.ToLowerInvariant())
 		{
@@ -557,40 +557,40 @@ public class Outfit : IOutfit
 			case "description":
 				return new TextVariable(Description);
 			case "items":
-				return new CollectionVariable(_items.ToList(), FutureProgVariableTypes.OutfitItem);
+				return new CollectionVariable(_items.ToList(), ProgVariableTypes.OutfitItem);
 		}
 
 		throw new NotImplementedException();
 	}
 
-	private static FutureProgVariableTypes DotReferenceHandler(string property)
+	private static ProgVariableTypes DotReferenceHandler(string property)
 	{
 		switch (property.ToLowerInvariant())
 		{
 			case "owner":
-				return FutureProgVariableTypes.Character;
+				return ProgVariableTypes.Character;
 			case "name":
-				return FutureProgVariableTypes.Text;
+				return ProgVariableTypes.Text;
 			case "desc":
-				return FutureProgVariableTypes.Text;
+				return ProgVariableTypes.Text;
 			case "description":
-				return FutureProgVariableTypes.Text;
+				return ProgVariableTypes.Text;
 			case "items":
-				return FutureProgVariableTypes.OutfitItem | FutureProgVariableTypes.Collection;
+				return ProgVariableTypes.OutfitItem | ProgVariableTypes.Collection;
 			default:
-				return FutureProgVariableTypes.Error;
+				return ProgVariableTypes.Error;
 		}
 	}
 
-	private static IReadOnlyDictionary<string, FutureProgVariableTypes> DotReferenceHandler()
+	private static IReadOnlyDictionary<string, ProgVariableTypes> DotReferenceHandler()
 	{
-		return new Dictionary<string, FutureProgVariableTypes>(StringComparer.InvariantCultureIgnoreCase)
+		return new Dictionary<string, ProgVariableTypes>(StringComparer.InvariantCultureIgnoreCase)
 		{
-			{ "owner", FutureProgVariableTypes.Character },
-			{ "name", FutureProgVariableTypes.Text },
-			{ "desc", FutureProgVariableTypes.Text },
-			{ "description", FutureProgVariableTypes.Text },
-			{ "items", FutureProgVariableTypes.OutfitItem | FutureProgVariableTypes.Collection }
+			{ "owner", ProgVariableTypes.Character },
+			{ "name", ProgVariableTypes.Text },
+			{ "desc", ProgVariableTypes.Text },
+			{ "description", ProgVariableTypes.Text },
+			{ "items", ProgVariableTypes.OutfitItem | ProgVariableTypes.Collection }
 		};
 	}
 
@@ -608,7 +608,7 @@ public class Outfit : IOutfit
 
 	public static void RegisterFutureProgCompiler()
 	{
-		FutureProgVariable.RegisterDotReferenceCompileInfo(FutureProgVariableTypes.Outfit, DotReferenceHandler(),
+		ProgVariable.RegisterDotReferenceCompileInfo(ProgVariableTypes.Outfit, DotReferenceHandler(),
 			DotReferenceHelp());
 	}
 

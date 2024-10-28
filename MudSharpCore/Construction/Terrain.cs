@@ -606,7 +606,7 @@ public class Terrain : SaveableItem, ITerrain
 	/// <summary>
 	///     The FutureProgVariableType that represents this IFutureProgVariable
 	/// </summary>
-	public FutureProgVariableTypes Type => FutureProgVariableTypes.Terrain;
+	public ProgVariableTypes Type => ProgVariableTypes.Terrain;
 
 	/// <summary>
 	///     Returns an object representing the underlying variable wrapped in this IFutureProgVariable
@@ -618,7 +618,7 @@ public class Terrain : SaveableItem, ITerrain
 	/// </summary>
 	/// <param name="property">A string representing the property to be retrieved</param>
 	/// <returns>An IFutureProgVariable representing the desired property</returns>
-	public IFutureProgVariable GetProperty(string property)
+	public IProgVariable GetProperty(string property)
 	{
 		switch (property.ToLowerInvariant())
 		{
@@ -638,7 +638,7 @@ public class Terrain : SaveableItem, ITerrain
 				return new NumberVariable(_foragableProfileId);
 			case "atmosphereid":
 				return Atmosphere == null
-					? (IFutureProgVariable)new NullVariable(FutureProgVariableTypes.Number)
+					? (IProgVariable)new NullVariable(ProgVariableTypes.Number)
 					: new NumberVariable(Atmosphere.Id);
 			case "default":
 				return new BooleanVariable(DefaultTerrain);
@@ -651,21 +651,21 @@ public class Terrain : SaveableItem, ITerrain
 		throw new NotSupportedException($"Unsupported property type {property} in {FrameworkItemType}.GetProperty");
 	}
 
-	private static IReadOnlyDictionary<string, FutureProgVariableTypes> DotReferenceHandler()
+	private static IReadOnlyDictionary<string, ProgVariableTypes> DotReferenceHandler()
 	{
-		return new Dictionary<string, FutureProgVariableTypes>(StringComparer.InvariantCultureIgnoreCase)
+		return new Dictionary<string, ProgVariableTypes>(StringComparer.InvariantCultureIgnoreCase)
 		{
-			{ "id", FutureProgVariableTypes.Number },
-			{ "name", FutureProgVariableTypes.Text },
-			{ "staminacost", FutureProgVariableTypes.Number },
-			{ "infectionmultiplier", FutureProgVariableTypes.Number },
-			{ "primaryinfection", FutureProgVariableTypes.Text },
-			{ "infectionvirulence", FutureProgVariableTypes.Number },
-			{ "foragableprofile", FutureProgVariableTypes.Number },
-			{ "atmosphereid", FutureProgVariableTypes.Number },
-			{ "default", FutureProgVariableTypes.Boolean },
-			{ "hidedifficulty", FutureProgVariableTypes.Number },
-			{ "spotdifficulty", FutureProgVariableTypes.Number }
+			{ "id", ProgVariableTypes.Number },
+			{ "name", ProgVariableTypes.Text },
+			{ "staminacost", ProgVariableTypes.Number },
+			{ "infectionmultiplier", ProgVariableTypes.Number },
+			{ "primaryinfection", ProgVariableTypes.Text },
+			{ "infectionvirulence", ProgVariableTypes.Number },
+			{ "foragableprofile", ProgVariableTypes.Number },
+			{ "atmosphereid", ProgVariableTypes.Number },
+			{ "default", ProgVariableTypes.Boolean },
+			{ "hidedifficulty", ProgVariableTypes.Number },
+			{ "spotdifficulty", ProgVariableTypes.Number }
 		};
 	}
 
@@ -689,7 +689,7 @@ public class Terrain : SaveableItem, ITerrain
 
 	public static void RegisterFutureProgCompiler()
 	{
-		FutureProgVariable.RegisterDotReferenceCompileInfo(FutureProgVariableTypes.Terrain, DotReferenceHandler(),
+		ProgVariable.RegisterDotReferenceCompileInfo(ProgVariableTypes.Terrain, DotReferenceHandler(),
 			DotReferenceHelp());
 	}
 

@@ -1490,7 +1490,7 @@ public abstract class Shop : SaveableItem, IShop
 			return false;
 		}
 
-		if (!prog.ReturnType.CompatibleWith(FutureProgVariableTypes.Boolean))
+		if (!prog.ReturnType.CompatibleWith(ProgVariableTypes.Boolean))
 		{
 			actor.OutputHandler.Send("You must specify a prog that returns a boolean value.");
 			return false;
@@ -1498,8 +1498,8 @@ public abstract class Shop : SaveableItem, IShop
 
 		if (!prog.MatchesParameters(new[]
 			{
-				FutureProgVariableTypes.Character, FutureProgVariableTypes.Number,
-				FutureProgVariableTypes.Text | FutureProgVariableTypes.Collection
+				ProgVariableTypes.Character, ProgVariableTypes.Number,
+				ProgVariableTypes.Text | ProgVariableTypes.Collection
 			}))
 		{
 			actor.OutputHandler.Send(
@@ -1523,7 +1523,7 @@ public abstract class Shop : SaveableItem, IShop
 			return false;
 		}
 
-		if (!why.ReturnType.CompatibleWith(FutureProgVariableTypes.Text))
+		if (!why.ReturnType.CompatibleWith(ProgVariableTypes.Text))
 		{
 			actor.OutputHandler.Send("You must specify a 'why' prog that returns a text value.");
 			return false;
@@ -1531,8 +1531,8 @@ public abstract class Shop : SaveableItem, IShop
 
 		if (!why.MatchesParameters(new[]
 			{
-				FutureProgVariableTypes.Character, FutureProgVariableTypes.Number,
-				FutureProgVariableTypes.Text | FutureProgVariableTypes.Collection
+				ProgVariableTypes.Character, ProgVariableTypes.Number,
+				ProgVariableTypes.Text | ProgVariableTypes.Collection
 			}))
 		{
 			actor.OutputHandler.Send(
@@ -1570,10 +1570,10 @@ public abstract class Shop : SaveableItem, IShop
 
 	#region IFutureProgVariable Implementation
 
-	public FutureProgVariableTypes Type => FutureProgVariableTypes.Shop;
+	public ProgVariableTypes Type => ProgVariableTypes.Shop;
 	public object GetObject => this;
 
-	public virtual IFutureProgVariable GetProperty(string property)
+	public virtual IProgVariable GetProperty(string property)
 	{
 		switch (property.ToLowerInvariant())
 		{
@@ -1582,85 +1582,85 @@ public abstract class Shop : SaveableItem, IShop
 			case "name":
 				return new TextVariable(Name);
 			case "merchandise":
-				return new CollectionVariable(Merchandises.ToList(), FutureProgVariableTypes.Merchandise);
+				return new CollectionVariable(Merchandises.ToList(), ProgVariableTypes.Merchandise);
 			case "shopfront":
-				return new CollectionVariable(new List<ICell>(), FutureProgVariableTypes.Location);
+				return new CollectionVariable(new List<ICell>(), ProgVariableTypes.Location);
 			case "storeroom":
-				return new NullVariable(FutureProgVariableTypes.Location);
+				return new NullVariable(ProgVariableTypes.Location);
 			case "workshop":
-				return new NullVariable(FutureProgVariableTypes.Location);
+				return new NullVariable(ProgVariableTypes.Location);
 			case "tills":
-				return new CollectionVariable(new List<IGameItem>(), FutureProgVariableTypes.Item);
+				return new CollectionVariable(new List<IGameItem>(), ProgVariableTypes.Item);
 			case "employees":
 				return new CollectionVariable(_employeeRecords.Select(x => x.EmployeeCharacterId).ToList(),
-					FutureProgVariableTypes.Number);
+					ProgVariableTypes.Number);
 			case "employeesonduty":
-				return new CollectionVariable(EmployeesOnDuty.ToList(), FutureProgVariableTypes.Character);
+				return new CollectionVariable(EmployeesOnDuty.ToList(), ProgVariableTypes.Character);
 			case "managers":
 				return new CollectionVariable(
 					_employeeRecords.Where(x => x.IsManager).Select(x => x.EmployeeCharacterId).ToList(),
-					FutureProgVariableTypes.Number);
+					ProgVariableTypes.Number);
 			case "proprietors":
 				return new CollectionVariable(
 					_employeeRecords.Where(x => x.IsProprietor).Select(x => x.EmployeeCharacterId).ToList(),
-					FutureProgVariableTypes.Number);
+					ProgVariableTypes.Number);
 			case "stock":
 				return new CollectionVariable(Merchandises.SelectMany(x => StockedItems(x)).ToList(),
-					FutureProgVariableTypes.Item);
+					ProgVariableTypes.Item);
 		}
 
 		throw new ApplicationException("Invalid property in Shop.GetProperty");
 	}
 
-	private static FutureProgVariableTypes DotReferenceHandler(string property)
+	private static ProgVariableTypes DotReferenceHandler(string property)
 	{
 		switch (property.ToLowerInvariant())
 		{
 			case "id":
-				return FutureProgVariableTypes.Number;
+				return ProgVariableTypes.Number;
 			case "name":
-				return FutureProgVariableTypes.Text;
+				return ProgVariableTypes.Text;
 			case "merchandise":
-				return FutureProgVariableTypes.Collection | FutureProgVariableTypes.Merchandise;
+				return ProgVariableTypes.Collection | ProgVariableTypes.Merchandise;
 			case "shopfront":
-				return FutureProgVariableTypes.Collection | FutureProgVariableTypes.Location;
+				return ProgVariableTypes.Collection | ProgVariableTypes.Location;
 			case "storeroom":
-				return FutureProgVariableTypes.Location;
+				return ProgVariableTypes.Location;
 			case "workshop":
-				return FutureProgVariableTypes.Location;
+				return ProgVariableTypes.Location;
 			case "tills":
-				return FutureProgVariableTypes.Collection | FutureProgVariableTypes.Item;
+				return ProgVariableTypes.Collection | ProgVariableTypes.Item;
 			case "employees":
-				return FutureProgVariableTypes.Collection | FutureProgVariableTypes.Number;
+				return ProgVariableTypes.Collection | ProgVariableTypes.Number;
 			case "employeesonduty":
-				return FutureProgVariableTypes.Collection | FutureProgVariableTypes.Character;
+				return ProgVariableTypes.Collection | ProgVariableTypes.Character;
 			case "managers":
-				return FutureProgVariableTypes.Collection | FutureProgVariableTypes.Number;
+				return ProgVariableTypes.Collection | ProgVariableTypes.Number;
 			case "proprietors":
-				return FutureProgVariableTypes.Collection | FutureProgVariableTypes.Number;
+				return ProgVariableTypes.Collection | ProgVariableTypes.Number;
 			case "stock":
-				return FutureProgVariableTypes.Collection | FutureProgVariableTypes.Item;
+				return ProgVariableTypes.Collection | ProgVariableTypes.Item;
 		}
 
-		return FutureProgVariableTypes.Error;
+		return ProgVariableTypes.Error;
 	}
 
-	private static IReadOnlyDictionary<string, FutureProgVariableTypes> DotReferenceHandler()
+	private static IReadOnlyDictionary<string, ProgVariableTypes> DotReferenceHandler()
 	{
-		return new Dictionary<string, FutureProgVariableTypes>(StringComparer.InvariantCultureIgnoreCase)
+		return new Dictionary<string, ProgVariableTypes>(StringComparer.InvariantCultureIgnoreCase)
 		{
-			{ "id", FutureProgVariableTypes.Number },
-			{ "name", FutureProgVariableTypes.Text },
-			{ "merchandise", FutureProgVariableTypes.Collection | FutureProgVariableTypes.Merchandise },
-			{ "shopfront", FutureProgVariableTypes.Collection | FutureProgVariableTypes.Location },
-			{ "storeroom", FutureProgVariableTypes.Location },
-			{ "workshop", FutureProgVariableTypes.Location },
-			{ "tills", FutureProgVariableTypes.Collection | FutureProgVariableTypes.Item },
-			{ "employees", FutureProgVariableTypes.Collection | FutureProgVariableTypes.Number },
-			{ "employeesonduty", FutureProgVariableTypes.Collection | FutureProgVariableTypes.Character },
-			{ "managers", FutureProgVariableTypes.Collection | FutureProgVariableTypes.Number },
-			{ "proprietors", FutureProgVariableTypes.Collection | FutureProgVariableTypes.Number },
-			{ "stock", FutureProgVariableTypes.Collection | FutureProgVariableTypes.Item }
+			{ "id", ProgVariableTypes.Number },
+			{ "name", ProgVariableTypes.Text },
+			{ "merchandise", ProgVariableTypes.Collection | ProgVariableTypes.Merchandise },
+			{ "shopfront", ProgVariableTypes.Collection | ProgVariableTypes.Location },
+			{ "storeroom", ProgVariableTypes.Location },
+			{ "workshop", ProgVariableTypes.Location },
+			{ "tills", ProgVariableTypes.Collection | ProgVariableTypes.Item },
+			{ "employees", ProgVariableTypes.Collection | ProgVariableTypes.Number },
+			{ "employeesonduty", ProgVariableTypes.Collection | ProgVariableTypes.Character },
+			{ "managers", ProgVariableTypes.Collection | ProgVariableTypes.Number },
+			{ "proprietors", ProgVariableTypes.Collection | ProgVariableTypes.Number },
+			{ "stock", ProgVariableTypes.Collection | ProgVariableTypes.Item }
 		};
 	}
 
@@ -1685,7 +1685,7 @@ public abstract class Shop : SaveableItem, IShop
 
 	public static void RegisterFutureProgCompiler()
 	{
-		FutureProgVariable.RegisterDotReferenceCompileInfo(FutureProgVariableTypes.Shop, DotReferenceHandler(),
+		ProgVariable.RegisterDotReferenceCompileInfo(ProgVariableTypes.Shop, DotReferenceHandler(),
 			DotReferenceHelp());
 	}
 

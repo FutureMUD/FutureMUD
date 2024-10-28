@@ -10,9 +10,9 @@ internal class AnyFunction : CollectionExtensionFunction
 	{
 	}
 
-	public override FutureProgVariableTypes ReturnType
+	public override ProgVariableTypes ReturnType
 	{
-		get => FutureProgVariableTypes.Boolean;
+		get => ProgVariableTypes.Boolean;
 		protected set { }
 	}
 
@@ -21,7 +21,7 @@ internal class AnyFunction : CollectionExtensionFunction
 		RegisterCollectionExtensionFunctionCompiler(
 			new CollectionExtensionFunctionCompilerInformation(
 				"any",
-				FutureProgVariableTypes.Boolean,
+				ProgVariableTypes.Boolean,
 				(varName, collectionFunction, innerFunction) =>
 					new AnyFunction(varName, innerFunction, collectionFunction),
 				"The ANY function runs the supplied inner function (which itself returns a boolean value) over all elements of a collection, and returns true if any of the items return true. Otherwise, returns false. Returns false if there are no elements.",
@@ -40,7 +40,7 @@ internal class AnyFunction : CollectionExtensionFunction
 		}
 
 		var localVariables = new LocalVariableSpace(variables);
-		foreach (IFutureProgVariable item in (IList)CollectionFunction.Result.GetObject)
+		foreach (IProgVariable item in (IList)CollectionFunction.Result.GetObject)
 		{
 			localVariables.SetVariable(VariableName, item);
 			if (CollectionItemFunction.Execute(localVariables) == StatementResult.Error)

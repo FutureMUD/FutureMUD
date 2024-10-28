@@ -25,10 +25,10 @@ internal class AddRange : Statement
 	}
 
 	private static ICompileInfo AddRangeCompile(IEnumerable<string> lines,
-		IDictionary<string, FutureProgVariableTypes> variableSpace, int lineNumber, IFuturemud gameworld)
+		IDictionary<string, ProgVariableTypes> variableSpace, int lineNumber, IFuturemud gameworld)
 	{
 		var match = AddRangeCompileRegex.Match(lines.First());
-		FutureProgVariableTypes collectionType;
+		ProgVariableTypes collectionType;
 		if (match.Groups["collection"].Value[0] == '@')
 		{
 			var collectionFunctionInfo = FunctionHelper.CompileFunction(match.Groups["collection"].Value.Substring(1),
@@ -65,7 +65,7 @@ internal class AddRange : Statement
 			collectionType = variableSpace[match.Groups["collection"].Value.ToLowerInvariant()];
 		}
 
-		if (!collectionType.HasFlag(FutureProgVariableTypes.Collection))
+		if (!collectionType.HasFlag(ProgVariableTypes.Collection))
 		{
 			return
 				CompileInfo.GetFactory()
@@ -83,7 +83,7 @@ internal class AddRange : Statement
 		}
 
 		var addRangeFunction = (IFunction)addRangeFunctionInfo.CompiledStatement;
-		if (!collectionType.CompatibleWith(addRangeFunction.ReturnType ^ FutureProgVariableTypes.Collection))
+		if (!collectionType.CompatibleWith(addRangeFunction.ReturnType ^ ProgVariableTypes.Collection))
 		{
 			return CompileInfo.GetFactory()
 			                  .CreateError("The range is not of the same type as the collection.", lineNumber);
@@ -116,7 +116,7 @@ internal class AddRange : Statement
 			new Tuple
 			<Regex,
 				Func
-				<IEnumerable<string>, IDictionary<string, FutureProgVariableTypes>, int, IFuturemud, ICompileInfo>>(
+				<IEnumerable<string>, IDictionary<string, ProgVariableTypes>, int, IFuturemud, ICompileInfo>>(
 				AddRangeCompileRegex, AddRangeCompile)
 		);
 
@@ -150,9 +150,9 @@ For example, if you had a collection called #3numbers#0 and a collection called 
 		}
 
 		var collection = variables.GetVariable(CollectionVariable);
-		foreach (IFutureProgVariable item in (IList)CollectionFunction.Result.GetObject)
+		foreach (IProgVariable item in (IList)CollectionFunction.Result.GetObject)
 		{
-			((IList<IFutureProgVariable>)collection.GetObject).Add(item);
+			((IList<IProgVariable>)collection.GetObject).Add(item);
 		}
 
 		return StatementResult.Normal;

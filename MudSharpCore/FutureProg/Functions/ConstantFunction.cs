@@ -4,14 +4,14 @@ namespace MudSharp.FutureProg.Functions;
 
 internal class ConstantFunction : IFunction
 {
-	public ConstantFunction(IFutureProgVariable variable)
+	public ConstantFunction(IProgVariable variable)
 	{
 		Result = variable;
 	}
 
-	public IFutureProgVariable Result { get; protected set; }
+	public IProgVariable Result { get; protected set; }
 
-	public FutureProgVariableTypes ReturnType => Result.Type | FutureProgVariableTypes.Literal;
+	public ProgVariableTypes ReturnType => Result.Type | ProgVariableTypes.Literal;
 
 	public StatementResult ExpectedResult => StatementResult.Normal;
 

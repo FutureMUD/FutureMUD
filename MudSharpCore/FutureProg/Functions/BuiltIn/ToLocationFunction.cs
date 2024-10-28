@@ -17,9 +17,9 @@ internal class ToLocationFunction : BuiltInFunction
 		_useId = useId;
 	}
 
-	public override FutureProgVariableTypes ReturnType
+	public override ProgVariableTypes ReturnType
 	{
-		get => FutureProgVariableTypes.Location;
+		get => ProgVariableTypes.Location;
 		protected set { }
 	}
 
@@ -47,24 +47,24 @@ internal class ToLocationFunction : BuiltInFunction
 	{
 		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
 			"tolocation",
-			new[] { FutureProgVariableTypes.Number },
+			new[] { ProgVariableTypes.Number },
 			(pars, gameworld) => new ToLocationFunction(pars, gameworld, true),
 			new List<string> { "id" },
 			new List<string> { "The ID to look up" },
 			"Converts an ID number into the specified type, if one exists",
 			"Lookup",
-			FutureProgVariableTypes.Location
+			ProgVariableTypes.Location
 		));
 
 		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
 			"tolocation",
-			new[] { FutureProgVariableTypes.Text },
+			new[] { ProgVariableTypes.Text },
 			(pars, gameworld) => new ToLocationFunction(pars, gameworld, false),
 			new List<string> { "name" },
 			new List<string> { "The name to look up" },
 			"Converts a name into the specified type, if one exists",
 			"Lookup",
-			FutureProgVariableTypes.Location
+			ProgVariableTypes.Location
 		));
 	}
 }

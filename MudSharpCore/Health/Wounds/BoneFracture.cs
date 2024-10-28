@@ -422,7 +422,7 @@ public class BoneFracture : PerceivedItem, IImmobilisableWound
 	}
 
 	/// <summary>The FutureProgVariableType that represents this IFutureProgVariable</summary>
-	public override FutureProgVariableTypes Type => FutureProgVariableTypes.Error;
+	public override ProgVariableTypes Type => ProgVariableTypes.Error;
 
 	#endregion
 

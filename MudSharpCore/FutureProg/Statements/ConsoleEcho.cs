@@ -21,7 +21,7 @@ internal class ConsoleEcho : Statement
 	}
 
 	private static ICompileInfo ConsoleCompile(IEnumerable<string> lines,
-		IDictionary<string, FutureProgVariableTypes> variableSpace, int lineNumber, IFuturemud gameworld)
+		IDictionary<string, ProgVariableTypes> variableSpace, int lineNumber, IFuturemud gameworld)
 	{
 		var match = ConsoleCompileRegex.Match(lines.First());
 		var messageInfo = FunctionHelper.CompileFunction(match.Groups[1].Value, variableSpace, lineNumber, gameworld);
@@ -31,7 +31,7 @@ internal class ConsoleEcho : Statement
 		}
 
 		var function = (IFunction)messageInfo.CompiledStatement;
-		if (!function.ReturnType.CompatibleWith(FutureProgVariableTypes.Text))
+		if (!function.ReturnType.CompatibleWith(ProgVariableTypes.Text))
 		{
 			return CompileInfo.GetFactory().CreateError("Message Function is not a Text Type", lineNumber);
 		}
@@ -60,7 +60,7 @@ internal class ConsoleEcho : Statement
 			new Tuple
 			<Regex,
 				Func
-				<IEnumerable<string>, IDictionary<string, FutureProgVariableTypes>, int, IFuturemud, ICompileInfo>>(
+				<IEnumerable<string>, IDictionary<string, ProgVariableTypes>, int, IFuturemud, ICompileInfo>>(
 				ConsoleCompileRegex, ConsoleCompile)
 		);
 

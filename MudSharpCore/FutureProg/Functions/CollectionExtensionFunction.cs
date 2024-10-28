@@ -28,7 +28,7 @@ internal abstract class CollectionExtensionFunction : Function
 	}
 
 	public static FunctionCompilerResult GetCollectionExtensionFunctionCompiler(string functionName,
-		string variableName, string functionText, IDictionary<string, FutureProgVariableTypes> variableSpace,
+		string variableName, string functionText, IDictionary<string, ProgVariableTypes> variableSpace,
 		IFunction collectionFunction, int lineNumber, IFuturemud gameworld)
 	{
 		var compiler = _functionCompilers.FirstOrDefault(x => x.FunctionName == functionName.ToLowerInvariant());

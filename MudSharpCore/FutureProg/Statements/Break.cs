@@ -14,7 +14,7 @@ internal class Break : Statement
 	public override StatementResult ExpectedResult => StatementResult.Break;
 
 	private static ICompileInfo BreakCompile(IEnumerable<string> lines,
-		IDictionary<string, FutureProgVariableTypes> variableSpace, int lineNumber, IFuturemud gameworld)
+		IDictionary<string, ProgVariableTypes> variableSpace, int lineNumber, IFuturemud gameworld)
 	{
 		return CompileInfo.GetFactory().CreateNew(new Break(), variableSpace, lines.Skip(1), lineNumber, lineNumber);
 	}
@@ -35,7 +35,7 @@ internal class Break : Statement
 			new Tuple
 			<Regex,
 				Func
-				<IEnumerable<string>, IDictionary<string, FutureProgVariableTypes>, int, IFuturemud, ICompileInfo>>(
+				<IEnumerable<string>, IDictionary<string, ProgVariableTypes>, int, IFuturemud, ICompileInfo>>(
 				BreakCompileRegex, BreakCompile)
 		);
 

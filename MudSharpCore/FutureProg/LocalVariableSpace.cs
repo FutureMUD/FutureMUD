@@ -7,7 +7,7 @@ internal class LocalVariableSpace : VariableSpace
 	protected IVariableSpace Parent;
 
 	public LocalVariableSpace(IVariableSpace parent)
-		: base(new Dictionary<string, IFutureProgVariable>())
+		: base(new Dictionary<string, IProgVariable>())
 	{
 		Parent = parent;
 	}
@@ -17,12 +17,12 @@ internal class LocalVariableSpace : VariableSpace
 		return Parent.HasVariable(variable) || base.HasVariable(variable);
 	}
 
-	public override IFutureProgVariable GetVariable(string variable)
+	public override IProgVariable GetVariable(string variable)
 	{
 		return Parent.HasVariable(variable) ? Parent.GetVariable(variable) : base.GetVariable(variable);
 	}
 
-	public override void SetVariable(string variable, IFutureProgVariable value)
+	public override void SetVariable(string variable, IProgVariable value)
 	{
 		if (Parent.HasVariable(variable))
 		{

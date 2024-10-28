@@ -23,8 +23,8 @@ internal class TextTableFunction : BuiltInFunction
 			"texttable",
 			new[]
 			{
-				FutureProgVariableTypes.Collection | FutureProgVariableTypes.Text,
-				FutureProgVariableTypes.Collection | FutureProgVariableTypes.Text, FutureProgVariableTypes.Number
+				ProgVariableTypes.Collection | ProgVariableTypes.Text,
+				ProgVariableTypes.Collection | ProgVariableTypes.Text, ProgVariableTypes.Number
 			},
 			(pars, gameworld) =>
 				new TextTableFunction(pars, false),
@@ -37,15 +37,15 @@ internal class TextTableFunction : BuiltInFunction
 			},
 			"This function displays a coloured 'text table', essentially an ASCII representation of a table. The number of columns in the header MUST match the number of columns in each row.",
 			"Text",
-			FutureProgVariableTypes.Text
+			ProgVariableTypes.Text
 		));
 
 		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
 			"texttable",
 			new[]
 			{
-				FutureProgVariableTypes.Text, FutureProgVariableTypes.Collection | FutureProgVariableTypes.Text,
-				FutureProgVariableTypes.Number
+				ProgVariableTypes.Text, ProgVariableTypes.Collection | ProgVariableTypes.Text,
+				ProgVariableTypes.Number
 			},
 			(pars, gameworld) =>
 				new TextTableFunction(pars, false),
@@ -58,15 +58,15 @@ internal class TextTableFunction : BuiltInFunction
 			},
 			"This function displays a coloured 'text table', essentially an ASCII representation of a table. The number of columns in the header MUST match the number of columns in each row.",
 			"Text",
-			FutureProgVariableTypes.Text
+			ProgVariableTypes.Text
 		));
 
 		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
 			"bwtexttable",
 			new[]
 			{
-				FutureProgVariableTypes.Collection | FutureProgVariableTypes.Text,
-				FutureProgVariableTypes.Collection | FutureProgVariableTypes.Text, FutureProgVariableTypes.Number
+				ProgVariableTypes.Collection | ProgVariableTypes.Text,
+				ProgVariableTypes.Collection | ProgVariableTypes.Text, ProgVariableTypes.Number
 			},
 			(pars, gameworld) =>
 				new TextTableFunction(pars, true),
@@ -79,15 +79,15 @@ internal class TextTableFunction : BuiltInFunction
 			},
 			"This function displays a plain 'text table', essentially an ASCII representation of a table. The number of columns in the header MUST match the number of columns in each row.",
 			"Text",
-			FutureProgVariableTypes.Text
+			ProgVariableTypes.Text
 		));
 
 		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
 			"bwtexttable",
 			new[]
 			{
-				FutureProgVariableTypes.Text, FutureProgVariableTypes.Collection | FutureProgVariableTypes.Text,
-				FutureProgVariableTypes.Number
+				ProgVariableTypes.Text, ProgVariableTypes.Collection | ProgVariableTypes.Text,
+				ProgVariableTypes.Number
 			},
 			(pars, gameworld) =>
 				new TextTableFunction(pars, true),
@@ -100,15 +100,15 @@ internal class TextTableFunction : BuiltInFunction
 			},
 			"This function displays a plain 'text table', essentially an ASCII representation of a table. The number of columns in the header MUST match the number of columns in each row.",
 			"Text",
-			FutureProgVariableTypes.Text
+			ProgVariableTypes.Text
 		));
 	}
 
 	#region Overrides of Function
 
-	public override FutureProgVariableTypes ReturnType
+	public override ProgVariableTypes ReturnType
 	{
-		get => FutureProgVariableTypes.Text;
+		get => ProgVariableTypes.Text;
 		protected set { }
 	}
 
@@ -122,7 +122,7 @@ internal class TextTableFunction : BuiltInFunction
 		}
 
 		List<string> headers;
-		if (ParameterFunctions[0].ReturnType == (FutureProgVariableTypes.Collection | FutureProgVariableTypes.Text))
+		if (ParameterFunctions[0].ReturnType == (ProgVariableTypes.Collection | ProgVariableTypes.Text))
 		{
 			headers =
 				((IList)ParameterFunctions[0].Result.GetObject).OfType<object>().Select(x => x.ToString()).ToList();

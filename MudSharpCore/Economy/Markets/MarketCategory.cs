@@ -304,13 +304,13 @@ public class MarketCategory : SaveableItem, IMarketCategory
 	#region FutureProgs
 
 	/// <inheritdoc />
-	public FutureProgVariableTypes Type => FutureProgVariableTypes.MarketCategory;
+	public ProgVariableTypes Type => ProgVariableTypes.MarketCategory;
 
 	/// <inheritdoc />
 	public object GetObject => this;
 
 	/// <inheritdoc />
-	public IFutureProgVariable GetProperty(string property)
+	public IProgVariable GetProperty(string property)
 	{
 		switch (property.ToLowerInvariant())
 		{
@@ -323,12 +323,12 @@ public class MarketCategory : SaveableItem, IMarketCategory
 		throw new ArgumentOutOfRangeException(nameof(property));
 	}
 
-	private static IReadOnlyDictionary<string, FutureProgVariableTypes> DotReferenceHandler()
+	private static IReadOnlyDictionary<string, ProgVariableTypes> DotReferenceHandler()
 	{
-		return new Dictionary<string, FutureProgVariableTypes>(StringComparer.InvariantCultureIgnoreCase)
+		return new Dictionary<string, ProgVariableTypes>(StringComparer.InvariantCultureIgnoreCase)
 		{
-			{ "name", FutureProgVariableTypes.Text },
-			{ "id", FutureProgVariableTypes.Number },
+			{ "name", ProgVariableTypes.Text },
+			{ "id", ProgVariableTypes.Number },
 		};
 	}
 
@@ -343,7 +343,7 @@ public class MarketCategory : SaveableItem, IMarketCategory
 
 	public static void RegisterFutureProgCompiler()
 	{
-		FutureProgVariable.RegisterDotReferenceCompileInfo(FutureProgVariableTypes.MarketCategory, DotReferenceHandler(),
+		ProgVariable.RegisterDotReferenceCompileInfo(ProgVariableTypes.MarketCategory, DotReferenceHandler(),
 			DotReferenceHelp());
 	}
 	#endregion

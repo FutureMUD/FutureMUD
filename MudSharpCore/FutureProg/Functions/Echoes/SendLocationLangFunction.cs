@@ -24,9 +24,9 @@ internal class SendLocationLangFunction : BuiltInFunction
 		UseLayerArgument = useLayerArgument;
 	}
 
-	public override FutureProgVariableTypes ReturnType
+	public override ProgVariableTypes ReturnType
 	{
-		get => FutureProgVariableTypes.Boolean;
+		get => ProgVariableTypes.Boolean;
 		protected set { }
 	}
 
@@ -117,8 +117,8 @@ internal class SendLocationLangFunction : BuiltInFunction
 				"sendloclang",
 				new[]
 				{
-					FutureProgVariableTypes.Location, FutureProgVariableTypes.Text, FutureProgVariableTypes.Language,
-					FutureProgVariableTypes.Accent
+					ProgVariableTypes.Location, ProgVariableTypes.Text, ProgVariableTypes.Language,
+					ProgVariableTypes.Accent
 				},
 				(pars, gameworld) => new SendLocationLangFunction(pars, false, gameworld),
 				new List<string> { "Location", "Text", "Language", "Accent" },
@@ -131,7 +131,7 @@ internal class SendLocationLangFunction : BuiltInFunction
 				},
 				"This function sends a specified message (including potentially language/accent bound spoken information) to every perceiver in the location. You can use the colour tags (#0, #1 etc) in this echo. Anything inside double quotes will be interpreted as language.",
 				"Echoes",
-				FutureProgVariableTypes.Boolean
+				ProgVariableTypes.Boolean
 			)
 		);
 
@@ -140,8 +140,8 @@ internal class SendLocationLangFunction : BuiltInFunction
 				"sendloclang",
 				new[]
 				{
-					FutureProgVariableTypes.Location, FutureProgVariableTypes.Text, FutureProgVariableTypes.Language,
-					FutureProgVariableTypes.Accent, FutureProgVariableTypes.Perceivable
+					ProgVariableTypes.Location, ProgVariableTypes.Text, ProgVariableTypes.Language,
+					ProgVariableTypes.Accent, ProgVariableTypes.Perceivable
 				},
 				(pars, gameworld) => new SendLocationLangFunction(pars, false, gameworld),
 				new List<string> { "Location", "Text", "Language", "Accent", "Perceivable1" },
@@ -155,7 +155,7 @@ internal class SendLocationLangFunction : BuiltInFunction
 				},
 				"This function sends a specified message (including potentially language/accent bound spoken information) to every perceiver in the location. You can use the colour tags (#0, #1 etc) in this echo. Anything inside double quotes will be interpreted as language.",
 				"Echoes",
-				FutureProgVariableTypes.Boolean
+				ProgVariableTypes.Boolean
 			)
 		);
 
@@ -164,9 +164,9 @@ internal class SendLocationLangFunction : BuiltInFunction
 				"sendloclang",
 				new[]
 				{
-					FutureProgVariableTypes.Location, FutureProgVariableTypes.Text, FutureProgVariableTypes.Language,
-					FutureProgVariableTypes.Accent, FutureProgVariableTypes.Perceivable,
-					FutureProgVariableTypes.Perceivable
+					ProgVariableTypes.Location, ProgVariableTypes.Text, ProgVariableTypes.Language,
+					ProgVariableTypes.Accent, ProgVariableTypes.Perceivable,
+					ProgVariableTypes.Perceivable
 				},
 				(pars, gameworld) => new SendLocationLangFunction(pars, false, gameworld),
 				new List<string> { "Location", "Text", "Language", "Accent", "Perceivable1", "Perceivable2" },
@@ -181,7 +181,7 @@ internal class SendLocationLangFunction : BuiltInFunction
 				},
 				"This function sends a specified message (including potentially language/accent bound spoken information) to every perceiver in the location. You can use the colour tags (#0, #1 etc) in this echo. Anything inside double quotes will be interpreted as language.",
 				"Echoes",
-				FutureProgVariableTypes.Boolean
+				ProgVariableTypes.Boolean
 			)
 		);
 
@@ -190,9 +190,9 @@ internal class SendLocationLangFunction : BuiltInFunction
 				"sendloclang",
 				new[]
 				{
-					FutureProgVariableTypes.Location, FutureProgVariableTypes.Text, FutureProgVariableTypes.Language,
-					FutureProgVariableTypes.Accent, FutureProgVariableTypes.Perceivable,
-					FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Perceivable
+					ProgVariableTypes.Location, ProgVariableTypes.Text, ProgVariableTypes.Language,
+					ProgVariableTypes.Accent, ProgVariableTypes.Perceivable,
+					ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable
 				},
 				(pars, gameworld) => new SendLocationLangFunction(pars, false, gameworld),
 				new List<string>
@@ -209,7 +209,7 @@ internal class SendLocationLangFunction : BuiltInFunction
 				},
 				"This function sends a specified message (including potentially language/accent bound spoken information) to every perceiver in the location. You can use the colour tags (#0, #1 etc) in this echo. Anything inside double quotes will be interpreted as language.",
 				"Echoes",
-				FutureProgVariableTypes.Boolean
+				ProgVariableTypes.Boolean
 			)
 		);
 
@@ -218,10 +218,10 @@ internal class SendLocationLangFunction : BuiltInFunction
 				"sendloclang",
 				new[]
 				{
-					FutureProgVariableTypes.Location, FutureProgVariableTypes.Text, FutureProgVariableTypes.Language,
-					FutureProgVariableTypes.Accent, FutureProgVariableTypes.Perceivable,
-					FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Perceivable,
-					FutureProgVariableTypes.Perceivable
+					ProgVariableTypes.Location, ProgVariableTypes.Text, ProgVariableTypes.Language,
+					ProgVariableTypes.Accent, ProgVariableTypes.Perceivable,
+					ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable,
+					ProgVariableTypes.Perceivable
 				},
 				(pars, gameworld) => new SendLocationLangFunction(pars, false, gameworld),
 				new List<string>
@@ -242,7 +242,7 @@ internal class SendLocationLangFunction : BuiltInFunction
 				},
 				"This function sends a specified message (including potentially language/accent bound spoken information) to every perceiver in the location. You can use the colour tags (#0, #1 etc) in this echo. Anything inside double quotes will be interpreted as language.",
 				"Echoes",
-				FutureProgVariableTypes.Boolean
+				ProgVariableTypes.Boolean
 			)
 		);
 
@@ -251,10 +251,10 @@ internal class SendLocationLangFunction : BuiltInFunction
 				"sendloclang",
 				new[]
 				{
-					FutureProgVariableTypes.Location, FutureProgVariableTypes.Text, FutureProgVariableTypes.Language,
-					FutureProgVariableTypes.Accent, FutureProgVariableTypes.Perceivable,
-					FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Perceivable,
-					FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Perceivable
+					ProgVariableTypes.Location, ProgVariableTypes.Text, ProgVariableTypes.Language,
+					ProgVariableTypes.Accent, ProgVariableTypes.Perceivable,
+					ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable,
+					ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable
 				},
 				(pars, gameworld) => new SendLocationLangFunction(pars, false, gameworld),
 				new List<string>
@@ -276,7 +276,7 @@ internal class SendLocationLangFunction : BuiltInFunction
 				},
 				"This function sends a specified message (including potentially language/accent bound spoken information) to every perceiver in the location. You can use the colour tags (#0, #1 etc) in this echo. Anything inside double quotes will be interpreted as language.",
 				"Echoes",
-				FutureProgVariableTypes.Boolean
+				ProgVariableTypes.Boolean
 			)
 		);
 
@@ -285,11 +285,11 @@ internal class SendLocationLangFunction : BuiltInFunction
 				"sendloclang",
 				new[]
 				{
-					FutureProgVariableTypes.Location, FutureProgVariableTypes.Text, FutureProgVariableTypes.Language,
-					FutureProgVariableTypes.Accent, FutureProgVariableTypes.Perceivable,
-					FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Perceivable,
-					FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Perceivable,
-					FutureProgVariableTypes.Perceivable
+					ProgVariableTypes.Location, ProgVariableTypes.Text, ProgVariableTypes.Language,
+					ProgVariableTypes.Accent, ProgVariableTypes.Perceivable,
+					ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable,
+					ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable,
+					ProgVariableTypes.Perceivable
 				},
 				(pars, gameworld) => new SendLocationLangFunction(pars, false, gameworld),
 				new List<string>
@@ -312,7 +312,7 @@ internal class SendLocationLangFunction : BuiltInFunction
 				},
 				"This function sends a specified message (including potentially language/accent bound spoken information) to every perceiver in the location. You can use the colour tags (#0, #1 etc) in this echo. Anything inside double quotes will be interpreted as language.",
 				"Echoes",
-				FutureProgVariableTypes.Boolean
+				ProgVariableTypes.Boolean
 			)
 		);
 
@@ -321,11 +321,11 @@ internal class SendLocationLangFunction : BuiltInFunction
 				"sendloclang",
 				new[]
 				{
-					FutureProgVariableTypes.Location, FutureProgVariableTypes.Text, FutureProgVariableTypes.Language,
-					FutureProgVariableTypes.Accent, FutureProgVariableTypes.Perceivable,
-					FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Perceivable,
-					FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Perceivable,
-					FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Perceivable
+					ProgVariableTypes.Location, ProgVariableTypes.Text, ProgVariableTypes.Language,
+					ProgVariableTypes.Accent, ProgVariableTypes.Perceivable,
+					ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable,
+					ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable,
+					ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable
 				},
 				(pars, gameworld) => new SendLocationLangFunction(pars, false, gameworld),
 				new List<string>
@@ -349,7 +349,7 @@ internal class SendLocationLangFunction : BuiltInFunction
 				},
 				"This function sends a specified message (including potentially language/accent bound spoken information) to every perceiver in the location. You can use the colour tags (#0, #1 etc) in this echo. Anything inside double quotes will be interpreted as language.",
 				"Echoes",
-				FutureProgVariableTypes.Boolean
+				ProgVariableTypes.Boolean
 			)
 		);
 
@@ -358,12 +358,12 @@ internal class SendLocationLangFunction : BuiltInFunction
 				"sendloclang",
 				new[]
 				{
-					FutureProgVariableTypes.Location, FutureProgVariableTypes.Text, FutureProgVariableTypes.Language,
-					FutureProgVariableTypes.Accent, FutureProgVariableTypes.Perceivable,
-					FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Perceivable,
-					FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Perceivable,
-					FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Perceivable,
-					FutureProgVariableTypes.Perceivable
+					ProgVariableTypes.Location, ProgVariableTypes.Text, ProgVariableTypes.Language,
+					ProgVariableTypes.Accent, ProgVariableTypes.Perceivable,
+					ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable,
+					ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable,
+					ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable,
+					ProgVariableTypes.Perceivable
 				},
 				(pars, gameworld) => new SendLocationLangFunction(pars, false, gameworld)
 				,
@@ -389,7 +389,7 @@ internal class SendLocationLangFunction : BuiltInFunction
 				},
 				"This function sends a specified message (including potentially language/accent bound spoken information) to every perceiver in the location. You can use the colour tags (#0, #1 etc) in this echo. Anything inside double quotes will be interpreted as language.",
 				"Echoes",
-				FutureProgVariableTypes.Boolean
+				ProgVariableTypes.Boolean
 			)
 		);
 
@@ -399,8 +399,8 @@ internal class SendLocationLangFunction : BuiltInFunction
 				"sendloclanglayer",
 				new[]
 				{
-					FutureProgVariableTypes.Location, FutureProgVariableTypes.Text, FutureProgVariableTypes.Text,
-					FutureProgVariableTypes.Language, FutureProgVariableTypes.Accent
+					ProgVariableTypes.Location, ProgVariableTypes.Text, ProgVariableTypes.Text,
+					ProgVariableTypes.Language, ProgVariableTypes.Accent
 				},
 				(pars, gameworld) => new SendLocationLangFunction(pars, true, gameworld),
 				new List<string> { "Location", "Layer", "Text", "Language", "Accent" },
@@ -414,7 +414,7 @@ internal class SendLocationLangFunction : BuiltInFunction
 				},
 				"This function sends a specified message (including potentially language/accent bound spoken information) to every perceiver in the location. You can use the colour tags (#0, #1 etc) in this echo. Anything inside double quotes will be interpreted as language.",
 				"Echoes",
-				FutureProgVariableTypes.Boolean
+				ProgVariableTypes.Boolean
 			)
 		);
 
@@ -423,9 +423,9 @@ internal class SendLocationLangFunction : BuiltInFunction
 				"sendloclanglayer",
 				new[]
 				{
-					FutureProgVariableTypes.Location, FutureProgVariableTypes.Text, FutureProgVariableTypes.Text,
-					FutureProgVariableTypes.Language, FutureProgVariableTypes.Accent,
-					FutureProgVariableTypes.Perceivable
+					ProgVariableTypes.Location, ProgVariableTypes.Text, ProgVariableTypes.Text,
+					ProgVariableTypes.Language, ProgVariableTypes.Accent,
+					ProgVariableTypes.Perceivable
 				},
 				(pars, gameworld) => new SendLocationLangFunction(pars, true, gameworld),
 				new List<string> { "Location", "Layer", "Text", "Language", "Accent", "Perceivable1" },
@@ -440,7 +440,7 @@ internal class SendLocationLangFunction : BuiltInFunction
 				},
 				"This function sends a specified message (including potentially language/accent bound spoken information) to every perceiver in the location. You can use the colour tags (#0, #1 etc) in this echo. Anything inside double quotes will be interpreted as language.",
 				"Echoes",
-				FutureProgVariableTypes.Boolean
+				ProgVariableTypes.Boolean
 			)
 		);
 
@@ -449,9 +449,9 @@ internal class SendLocationLangFunction : BuiltInFunction
 				"sendloclanglayer",
 				new[]
 				{
-					FutureProgVariableTypes.Location, FutureProgVariableTypes.Text, FutureProgVariableTypes.Text,
-					FutureProgVariableTypes.Language, FutureProgVariableTypes.Accent,
-					FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Perceivable
+					ProgVariableTypes.Location, ProgVariableTypes.Text, ProgVariableTypes.Text,
+					ProgVariableTypes.Language, ProgVariableTypes.Accent,
+					ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable
 				},
 				(pars, gameworld) => new SendLocationLangFunction(pars, true, gameworld),
 				new List<string> { "Location", "Layer", "Text", "Language", "Accent", "Perceivable1", "Perceivable2" },
@@ -467,7 +467,7 @@ internal class SendLocationLangFunction : BuiltInFunction
 				},
 				"This function sends a specified message (including potentially language/accent bound spoken information) to every perceiver in the location. You can use the colour tags (#0, #1 etc) in this echo. Anything inside double quotes will be interpreted as language.",
 				"Echoes",
-				FutureProgVariableTypes.Boolean
+				ProgVariableTypes.Boolean
 			)
 		);
 
@@ -476,10 +476,10 @@ internal class SendLocationLangFunction : BuiltInFunction
 				"sendloclanglayer",
 				new[]
 				{
-					FutureProgVariableTypes.Location, FutureProgVariableTypes.Text, FutureProgVariableTypes.Text,
-					FutureProgVariableTypes.Language, FutureProgVariableTypes.Accent,
-					FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Perceivable,
-					FutureProgVariableTypes.Perceivable
+					ProgVariableTypes.Location, ProgVariableTypes.Text, ProgVariableTypes.Text,
+					ProgVariableTypes.Language, ProgVariableTypes.Accent,
+					ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable,
+					ProgVariableTypes.Perceivable
 				},
 				(pars, gameworld) => new SendLocationLangFunction(pars, true, gameworld),
 				new List<string>
@@ -499,7 +499,7 @@ internal class SendLocationLangFunction : BuiltInFunction
 				},
 				"This function sends a specified message (including potentially language/accent bound spoken information) to every perceiver in the location. You can use the colour tags (#0, #1 etc) in this echo. Anything inside double quotes will be interpreted as language.",
 				"Echoes",
-				FutureProgVariableTypes.Boolean
+				ProgVariableTypes.Boolean
 			)
 		);
 
@@ -508,10 +508,10 @@ internal class SendLocationLangFunction : BuiltInFunction
 				"sendloclanglayer",
 				new[]
 				{
-					FutureProgVariableTypes.Location, FutureProgVariableTypes.Text, FutureProgVariableTypes.Text,
-					FutureProgVariableTypes.Language, FutureProgVariableTypes.Accent,
-					FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Perceivable,
-					FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Perceivable
+					ProgVariableTypes.Location, ProgVariableTypes.Text, ProgVariableTypes.Text,
+					ProgVariableTypes.Language, ProgVariableTypes.Accent,
+					ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable,
+					ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable
 				},
 				(pars, gameworld) => new SendLocationLangFunction(pars, true, gameworld),
 				new List<string>
@@ -533,7 +533,7 @@ internal class SendLocationLangFunction : BuiltInFunction
 				},
 				"This function sends a specified message (including potentially language/accent bound spoken information) to every perceiver in the location. You can use the colour tags (#0, #1 etc) in this echo. Anything inside double quotes will be interpreted as language.",
 				"Echoes",
-				FutureProgVariableTypes.Boolean
+				ProgVariableTypes.Boolean
 			)
 		);
 
@@ -542,11 +542,11 @@ internal class SendLocationLangFunction : BuiltInFunction
 				"sendloclanglayer",
 				new[]
 				{
-					FutureProgVariableTypes.Location, FutureProgVariableTypes.Text, FutureProgVariableTypes.Text,
-					FutureProgVariableTypes.Language, FutureProgVariableTypes.Accent,
-					FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Perceivable,
-					FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Perceivable,
-					FutureProgVariableTypes.Perceivable
+					ProgVariableTypes.Location, ProgVariableTypes.Text, ProgVariableTypes.Text,
+					ProgVariableTypes.Language, ProgVariableTypes.Accent,
+					ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable,
+					ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable,
+					ProgVariableTypes.Perceivable
 				},
 				(pars, gameworld) => new SendLocationLangFunction(pars, true, gameworld),
 				new List<string>
@@ -569,7 +569,7 @@ internal class SendLocationLangFunction : BuiltInFunction
 				},
 				"This function sends a specified message (including potentially language/accent bound spoken information) to every perceiver in the location. You can use the colour tags (#0, #1 etc) in this echo. Anything inside double quotes will be interpreted as language.",
 				"Echoes",
-				FutureProgVariableTypes.Boolean
+				ProgVariableTypes.Boolean
 			)
 		);
 
@@ -578,11 +578,11 @@ internal class SendLocationLangFunction : BuiltInFunction
 				"sendloclanglayer",
 				new[]
 				{
-					FutureProgVariableTypes.Location, FutureProgVariableTypes.Text, FutureProgVariableTypes.Text,
-					FutureProgVariableTypes.Language, FutureProgVariableTypes.Accent,
-					FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Perceivable,
-					FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Perceivable,
-					FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Perceivable
+					ProgVariableTypes.Location, ProgVariableTypes.Text, ProgVariableTypes.Text,
+					ProgVariableTypes.Language, ProgVariableTypes.Accent,
+					ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable,
+					ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable,
+					ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable
 				},
 				(pars, gameworld) => new SendLocationLangFunction(pars, true, gameworld),
 				new List<string>
@@ -605,7 +605,7 @@ internal class SendLocationLangFunction : BuiltInFunction
 				},
 				"This function sends a specified message (including potentially language/accent bound spoken information) to every perceiver in the location. You can use the colour tags (#0, #1 etc) in this echo. Anything inside double quotes will be interpreted as language.",
 				"Echoes",
-				FutureProgVariableTypes.Boolean
+				ProgVariableTypes.Boolean
 			)
 		);
 
@@ -614,12 +614,12 @@ internal class SendLocationLangFunction : BuiltInFunction
 				"sendloclanglayer",
 				new[]
 				{
-					FutureProgVariableTypes.Location, FutureProgVariableTypes.Text, FutureProgVariableTypes.Text,
-					FutureProgVariableTypes.Language, FutureProgVariableTypes.Accent,
-					FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Perceivable,
-					FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Perceivable,
-					FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Perceivable,
-					FutureProgVariableTypes.Perceivable
+					ProgVariableTypes.Location, ProgVariableTypes.Text, ProgVariableTypes.Text,
+					ProgVariableTypes.Language, ProgVariableTypes.Accent,
+					ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable,
+					ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable,
+					ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable,
+					ProgVariableTypes.Perceivable
 				},
 				(pars, gameworld) => new SendLocationLangFunction(pars, true, gameworld),
 				new List<string>
@@ -644,7 +644,7 @@ internal class SendLocationLangFunction : BuiltInFunction
 				},
 				"This function sends a specified message (including potentially language/accent bound spoken information) to every perceiver in the location. You can use the colour tags (#0, #1 etc) in this echo. Anything inside double quotes will be interpreted as language.",
 				"Echoes",
-				FutureProgVariableTypes.Boolean
+				ProgVariableTypes.Boolean
 			)
 		);
 
@@ -653,12 +653,12 @@ internal class SendLocationLangFunction : BuiltInFunction
 				"sendloclanglayer",
 				new[]
 				{
-					FutureProgVariableTypes.Location, FutureProgVariableTypes.Text, FutureProgVariableTypes.Text,
-					FutureProgVariableTypes.Language, FutureProgVariableTypes.Accent,
-					FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Perceivable,
-					FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Perceivable,
-					FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Perceivable,
-					FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Perceivable
+					ProgVariableTypes.Location, ProgVariableTypes.Text, ProgVariableTypes.Text,
+					ProgVariableTypes.Language, ProgVariableTypes.Accent,
+					ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable,
+					ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable,
+					ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable,
+					ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable
 				},
 				(pars, gameworld) => new SendLocationLangFunction(pars, true, gameworld)
 				,
@@ -685,7 +685,7 @@ internal class SendLocationLangFunction : BuiltInFunction
 				},
 				"This function sends a specified message (including potentially language/accent bound spoken information) to every perceiver in the location. You can use the colour tags (#0, #1 etc) in this echo. Anything inside double quotes will be interpreted as language.",
 				"Echoes",
-				FutureProgVariableTypes.Boolean
+				ProgVariableTypes.Boolean
 			)
 		);
 	}

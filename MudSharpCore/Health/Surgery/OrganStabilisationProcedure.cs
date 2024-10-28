@@ -77,23 +77,23 @@ public class OrganStabilisationProcedure : OrganViaBodypartProcedure
 		       .StageUp(organDifficultyModifier).Lowest(Difficulty.Insane);
 	}
 
-	protected override IEnumerable<IEnumerable<FutureProgVariableTypes>> ParametersForCancelProg => new[]
+	protected override IEnumerable<IEnumerable<ProgVariableTypes>> ParametersForCancelProg => new[]
 	{
 		new[]
 		{
-			FutureProgVariableTypes.Character,
-			FutureProgVariableTypes.Character,
-			FutureProgVariableTypes.Number,
-			FutureProgVariableTypes.Text,
-			FutureProgVariableTypes.Text
+			ProgVariableTypes.Character,
+			ProgVariableTypes.Character,
+			ProgVariableTypes.Number,
+			ProgVariableTypes.Text,
+			ProgVariableTypes.Text
 		},
 		new[]
 		{
-			FutureProgVariableTypes.Character,
-			FutureProgVariableTypes.Character,
-			FutureProgVariableTypes.Text,
-			FutureProgVariableTypes.Text,
-			FutureProgVariableTypes.Text
+			ProgVariableTypes.Character,
+			ProgVariableTypes.Character,
+			ProgVariableTypes.Text,
+			ProgVariableTypes.Text,
+			ProgVariableTypes.Text
 		},
 	};
 
@@ -121,22 +121,22 @@ public class OrganStabilisationProcedure : OrganViaBodypartProcedure
 		AbortProg?.Execute(surgeon, patient, result, bodypart.Name, organ.Name);
 	}
 
-	protected override IEnumerable<IEnumerable<FutureProgVariableTypes>> ParametersForCompletionProg => new[] {
+	protected override IEnumerable<IEnumerable<ProgVariableTypes>> ParametersForCompletionProg => new[] {
 				new[]
 				{
-					FutureProgVariableTypes.Character,
-					FutureProgVariableTypes.Character,
-					FutureProgVariableTypes.Number,
-					FutureProgVariableTypes.Text,
-					FutureProgVariableTypes.Text,
+					ProgVariableTypes.Character,
+					ProgVariableTypes.Character,
+					ProgVariableTypes.Number,
+					ProgVariableTypes.Text,
+					ProgVariableTypes.Text,
 				},
 				new[]
 				{
-					FutureProgVariableTypes.Character,
-					FutureProgVariableTypes.Character,
-					FutureProgVariableTypes.Text,
-					FutureProgVariableTypes.Text,
-					FutureProgVariableTypes.Text,
+					ProgVariableTypes.Character,
+					ProgVariableTypes.Character,
+					ProgVariableTypes.Text,
+					ProgVariableTypes.Text,
+					ProgVariableTypes.Text,
 				},
 			};
 

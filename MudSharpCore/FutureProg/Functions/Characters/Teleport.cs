@@ -30,7 +30,7 @@ internal class Teleport : BuiltInFunction
 				"teleport",
 				new[]
 				{
-					FutureProgVariableTypes.Character, FutureProgVariableTypes.Location
+					ProgVariableTypes.Character, ProgVariableTypes.Location
 				}, // the parameters the function takes
 				(pars, gameworld) => new Teleport(pars, gameworld, false),
 				new List<string>
@@ -45,7 +45,7 @@ internal class Teleport : BuiltInFunction
 				}, // parameter help text
 				"Teleports a character to the ground level (or closest layer) in a new room. Returns false if the teleportation fails (if invalid character, room, or layer is specified).", // help text for the function,
 				"Character", // the category to which this function belongs,
-				FutureProgVariableTypes.Boolean // the return type of the function
+				ProgVariableTypes.Boolean // the return type of the function
 			)
 		);
 
@@ -54,7 +54,7 @@ internal class Teleport : BuiltInFunction
 				"teleportnoecho",
 				new[]
 				{
-					FutureProgVariableTypes.Character, FutureProgVariableTypes.Location
+					ProgVariableTypes.Character, ProgVariableTypes.Location
 				}, // the parameters the function takes
 				(pars, gameworld) => new Teleport(pars, gameworld, true),
 				new List<string>
@@ -69,7 +69,7 @@ internal class Teleport : BuiltInFunction
 				}, // parameter help text
 				"Teleports a character to the ground level (or closest layer) in a new room, with no echoes. Returns false if the teleportation fails (if invalid character, room, or layer is specified).", // help text for the function,
 				"Character", // the category to which this function belongs,
-				FutureProgVariableTypes.Boolean // the return type of the function
+				ProgVariableTypes.Boolean // the return type of the function
 			)
 		);
 
@@ -78,7 +78,7 @@ internal class Teleport : BuiltInFunction
 				"teleport",
 				new[]
 				{
-					FutureProgVariableTypes.Character, FutureProgVariableTypes.Location, FutureProgVariableTypes.Text
+					ProgVariableTypes.Character, ProgVariableTypes.Location, ProgVariableTypes.Text
 				}, // the parameters the function takes
 				(pars, gameworld) => new Teleport(pars, gameworld, false),
 				new List<string>
@@ -95,7 +95,7 @@ internal class Teleport : BuiltInFunction
 				}, // parameter help text
 				"Teleports a character to the specified layer in a new room. Returns false if the teleportation fails (if invalid character, room, or layer is specified).", // help text for the function,
 				"Character", // the category to which this function belongs,
-				FutureProgVariableTypes.Boolean // the return type of the function
+				ProgVariableTypes.Boolean // the return type of the function
 			)
 		);
 
@@ -104,7 +104,7 @@ internal class Teleport : BuiltInFunction
 				"teleportnoecho",
 				new[]
 				{
-					FutureProgVariableTypes.Character, FutureProgVariableTypes.Location, FutureProgVariableTypes.Text
+					ProgVariableTypes.Character, ProgVariableTypes.Location, ProgVariableTypes.Text
 				}, // the parameters the function takes
 				(pars, gameworld) => new Teleport(pars, gameworld, true),
 				new List<string>
@@ -121,7 +121,7 @@ internal class Teleport : BuiltInFunction
 				}, // parameter help text
 				"Teleports a character to the specified layer in a new room, with no echoes. Returns false if the teleportation fails (if invalid character, room, or layer is specified).", // help text for the function,
 				"Character", // the category to which this function belongs,
-				FutureProgVariableTypes.Boolean // the return type of the function
+				ProgVariableTypes.Boolean // the return type of the function
 			)
 		);
 	}
@@ -141,9 +141,9 @@ internal class Teleport : BuiltInFunction
 
 	#endregion
 
-	public override FutureProgVariableTypes ReturnType
+	public override ProgVariableTypes ReturnType
 	{
-		get => FutureProgVariableTypes.Boolean;
+		get => ProgVariableTypes.Boolean;
 		protected set { }
 	}
 

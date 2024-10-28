@@ -2886,7 +2886,7 @@ This package can be run multiple times as I add more options.";
 			Subcategory = "Constabulary",
 			FunctionComment =
 				"True if the character holds the appointment of Detective. You should clone and update this for any clan using this template",
-			ReturnType = (long)FutureProgVariableTypes.Boolean,
+			ReturnType = (long)ProgVariableTypes.Boolean,
 			StaticType = 0,
 			FunctionText = $"return IsClanMember(@ch, ToClan({clan.Id}), ToAppointment({detective.Id}))"
 		};
@@ -3392,7 +3392,7 @@ This package can be run multiple times as I add more options.";
 		{
 			FunctionName = "IsPatricianRomanCityTemplate",
 			FunctionComment = "True if the individual is one of the patrician class in the Roman City Template clan",
-			ReturnType = (long)FutureProgVariableTypes.Boolean,
+			ReturnType = (long)ProgVariableTypes.Boolean,
 			AcceptsAnyParameters = false,
 			StaticType = (int)FutureProgStaticType.NotStatic,
 			Category = "Character",
@@ -3409,7 +3409,7 @@ This package can be run multiple times as I add more options.";
 			FunctionName = "IsPatricianMaleRomanCityTemplate",
 			FunctionComment =
 				"True if the individual is a male and one of the patrician class in the Roman City Template clan",
-			ReturnType = (long)FutureProgVariableTypes.Boolean,
+			ReturnType = (long)ProgVariableTypes.Boolean,
 			AcceptsAnyParameters = false,
 			StaticType = (int)FutureProgStaticType.NotStatic,
 			Category = "Character",
@@ -3426,7 +3426,7 @@ This package can be run multiple times as I add more options.";
 			FunctionName = "IsNotPatricianRomanCityTemplate",
 			FunctionComment =
 				"True if the individual is not one of the patrician class in the Roman City Template clan",
-			ReturnType = (long)FutureProgVariableTypes.Boolean,
+			ReturnType = (long)ProgVariableTypes.Boolean,
 			AcceptsAnyParameters = false,
 			StaticType = (int)FutureProgStaticType.NotStatic,
 			Category = "Character",

@@ -22,7 +22,7 @@ namespace MudSharp.Health
         public DrugVector OriginalVector { get; init; }
     }
 
-    public interface IDrug : IFrameworkItem, IFutureProgVariable {
+    public interface IDrug : IFrameworkItem, IProgVariable {
         DrugVector DrugVectors { get; }
         IEnumerable<DrugType> DrugTypes { get; }
         string ExtraInfoFor(DrugType type);

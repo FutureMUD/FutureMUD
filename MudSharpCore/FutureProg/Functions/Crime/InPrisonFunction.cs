@@ -27,7 +27,7 @@ internal class InPrisonFunction : BuiltInFunction
 		FutureProg.RegisterBuiltInFunctionCompiler(
 			new FunctionCompilerInformation(
 				"InPrison".ToLowerInvariant(),
-				new[] { FutureProgVariableTypes.Character, FutureProgVariableTypes.LegalAuthority }, // the parameters the function takes
+				new[] { ProgVariableTypes.Character, ProgVariableTypes.LegalAuthority }, // the parameters the function takes
 				(pars, gameworld) => new InPrisonFunction(pars, gameworld),
 				new List<string> { "character", "authority" }, // parameter names
 				new List<string>
@@ -37,7 +37,7 @@ internal class InPrisonFunction : BuiltInFunction
 				}, // parameter help text
 				"This function checks if the character is currently serving a prison sentence", // help text for the function,
 				"Crime", // the category to which this function belongs,
-				FutureProgVariableTypes.Boolean // the return type of the function
+				ProgVariableTypes.Boolean // the return type of the function
 			)
 		);
 	}
@@ -53,9 +53,9 @@ internal class InPrisonFunction : BuiltInFunction
 
 	#endregion
 
-	public override FutureProgVariableTypes ReturnType
+	public override ProgVariableTypes ReturnType
 	{
-		get => FutureProgVariableTypes.Boolean;
+		get => ProgVariableTypes.Boolean;
 		protected set { }
 	}
 

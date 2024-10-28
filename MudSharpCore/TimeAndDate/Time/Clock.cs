@@ -747,7 +747,7 @@ public class Clock : SaveableItem, IClock
 
 	#region IFutureProgVariable implementation
 
-	public IFutureProgVariable GetProperty(string property)
+	public IProgVariable GetProperty(string property)
 	{
 		switch (property.ToLowerInvariant())
 		{
@@ -760,16 +760,16 @@ public class Clock : SaveableItem, IClock
 		}
 	}
 
-	public FutureProgVariableTypes Type => FutureProgVariableTypes.Clock;
+	public ProgVariableTypes Type => ProgVariableTypes.Clock;
 
 	public object GetObject => this;
 
-	private static IReadOnlyDictionary<string, FutureProgVariableTypes> DotReferenceHandler()
+	private static IReadOnlyDictionary<string, ProgVariableTypes> DotReferenceHandler()
 	{
-		return new Dictionary<string, FutureProgVariableTypes>(StringComparer.InvariantCultureIgnoreCase)
+		return new Dictionary<string, ProgVariableTypes>(StringComparer.InvariantCultureIgnoreCase)
 		{
-			{ "id", FutureProgVariableTypes.Number },
-			{ "name", FutureProgVariableTypes.Text }
+			{ "id", ProgVariableTypes.Number },
+			{ "name", ProgVariableTypes.Text }
 		};
 	}
 
@@ -784,7 +784,7 @@ public class Clock : SaveableItem, IClock
 
 	public static void RegisterFutureProgCompiler()
 	{
-		FutureProgVariable.RegisterDotReferenceCompileInfo(FutureProgVariableTypes.Clock, DotReferenceHandler(),
+		ProgVariable.RegisterDotReferenceCompileInfo(ProgVariableTypes.Clock, DotReferenceHandler(),
 			DotReferenceHelp());
 	}
 

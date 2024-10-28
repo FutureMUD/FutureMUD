@@ -22,9 +22,9 @@ internal class CheckFunction : BuiltInFunction
         Gameworld = gameworld;
     }
 
-    public override FutureProgVariableTypes ReturnType
+    public override ProgVariableTypes ReturnType
     {
-        get => FutureProgVariableTypes.Number;
+        get => ProgVariableTypes.Number;
         protected set { }
     }
 
@@ -32,7 +32,7 @@ internal class CheckFunction : BuiltInFunction
     {
         if (base.Execute(variables) == StatementResult.Error)
         {
-            Result = new NullVariable(FutureProgVariableTypes.Number);
+            Result = new NullVariable(ProgVariableTypes.Number);
             return StatementResult.Error;
         }
 
@@ -71,7 +71,7 @@ internal class CheckFunction : BuiltInFunction
                 "check",
                 new[]
                 {
-                    FutureProgVariableTypes.Character, FutureProgVariableTypes.Trait, FutureProgVariableTypes.Number
+                    ProgVariableTypes.Character, ProgVariableTypes.Trait, ProgVariableTypes.Number
                 },
                 (pars, gameworld) => new CheckFunction(pars, gameworld),
                 new List<string> { "character", "trait", "difficulty" },
@@ -82,7 +82,7 @@ internal class CheckFunction : BuiltInFunction
                 },
                 "This function allows you to roll a check against a trait at a defined difficulty for a character, and see the result. The return values are -3 = Major Fail, -2 = Fail, -1 = Minor Fail, 1 = Minor Pass, 2 = Pass, 3 = Major Pass",
                 "Character",
-                FutureProgVariableTypes.Number
+                ProgVariableTypes.Number
             )
         );
     }

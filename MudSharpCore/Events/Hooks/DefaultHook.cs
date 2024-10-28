@@ -38,7 +38,7 @@ public class DefaultHook : IDefaultHook
 
 	#region IDefaultHook Members
 
-	public bool Applies(IFutureProgVariable item, string type)
+	public bool Applies(IProgVariable item, string type)
 	{
 		// Note: The main reason for splitting off this parameter is for creating a character from a Character Template, where the character itself is not loaded at that point and so you want to be able to check against the Character Template in your progs, but hook the Character that is generated.
 		return item != null && type.Equals(PerceivableType, StringComparison.InvariantCultureIgnoreCase) &&

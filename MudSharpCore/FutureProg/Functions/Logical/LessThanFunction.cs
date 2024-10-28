@@ -11,9 +11,9 @@ internal class LessThanFunction : BinaryFunction
 	{
 	}
 
-	public override FutureProgVariableTypes ReturnType
+	public override ProgVariableTypes ReturnType
 	{
-		get => FutureProgVariableTypes.Boolean;
+		get => ProgVariableTypes.Boolean;
 		protected set { }
 	}
 
@@ -24,20 +24,20 @@ internal class LessThanFunction : BinaryFunction
 			return StatementResult.Error;
 		}
 
-		switch (LHS.ReturnType & ~FutureProgVariableTypes.Literal)
+		switch (LHS.ReturnType & ~ProgVariableTypes.Literal)
 		{
-			case FutureProgVariableTypes.Number:
+			case ProgVariableTypes.Number:
 				Result = new BooleanVariable((decimal)LHS.Result.GetObject < (decimal)RHS.Result.GetObject);
 				break;
-			case FutureProgVariableTypes.TimeSpan:
+			case ProgVariableTypes.TimeSpan:
 				Result = new BooleanVariable((TimeSpan)LHS.Result.GetObject < (TimeSpan)RHS.Result.GetObject);
 				break;
-			case FutureProgVariableTypes.DateTime:
+			case ProgVariableTypes.DateTime:
 				Result =
 					new BooleanVariable((System.DateTime)LHS.Result.GetObject <
 					                    (System.DateTime)RHS.Result.GetObject);
 				break;
-			case FutureProgVariableTypes.MudDateTime:
+			case ProgVariableTypes.MudDateTime:
 				Result = new BooleanVariable((MudDateTime)LHS.Result.GetObject < (MudDateTime)RHS.Result.GetObject);
 				break;
 		}

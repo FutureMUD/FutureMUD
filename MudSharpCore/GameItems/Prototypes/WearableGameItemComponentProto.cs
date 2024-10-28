@@ -320,13 +320,13 @@ public class WearableGameItemComponentProto : GameItemComponentProto
 			return false;
 		}
 
-		if (prog.ReturnType != FutureProgVariableTypes.Text)
+		if (prog.ReturnType != ProgVariableTypes.Text)
 		{
 			actor.Send("You may only use a prog that returns a text value.");
 			return false;
 		}
 
-		if (!prog.MatchesParameters(new[] { FutureProgVariableTypes.Character, FutureProgVariableTypes.Item }))
+		if (!prog.MatchesParameters(new[] { ProgVariableTypes.Character, ProgVariableTypes.Item }))
 		{
 			actor.Send(
 				"The wearable prog you specify must be compatible with a single character and item parameter.");
@@ -375,13 +375,13 @@ public class WearableGameItemComponentProto : GameItemComponentProto
 			return false;
 		}
 
-		if (prog.ReturnType != FutureProgVariableTypes.Boolean)
+		if (prog.ReturnType != ProgVariableTypes.Boolean)
 		{
 			actor.Send("You may only use a prog that returns a boolean value.");
 			return false;
 		}
 
-		if (!prog.MatchesParameters(new[] { FutureProgVariableTypes.Character, FutureProgVariableTypes.Item }))
+		if (!prog.MatchesParameters(new[] { ProgVariableTypes.Character, ProgVariableTypes.Item }))
 		{
 			actor.Send(
 				"The wearable prog you specify must be compatible with a single character and item parameter.");

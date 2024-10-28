@@ -93,7 +93,7 @@ public class RescuerAI : ArtificialIntelligenceBase
 		}
 
 		ICharacter friendlyCombatant;
-		if (IsFriendProg.MatchesParameters(new[] { FutureProgVariableTypes.Character, FutureProgVariableTypes.Character }))
+		if (IsFriendProg.MatchesParameters(new[] { ProgVariableTypes.Character, ProgVariableTypes.Character }))
 		{
 			friendlyCombatant = character.Location
 										 .LayerCharacters(character.RoomLayer)
@@ -186,10 +186,10 @@ public class RescuerAI : ArtificialIntelligenceBase
 		}
 
 		var prog = new ProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument,
-			FutureProgVariableTypes.Boolean, new List<FutureProgVariableTypes>
+			ProgVariableTypes.Boolean, new List<ProgVariableTypes>
 			{
-				FutureProgVariableTypes.Character,
-				FutureProgVariableTypes.Character
+				ProgVariableTypes.Character,
+				ProgVariableTypes.Character
 			}).LookupProg();
 		if (prog is null)
 		{

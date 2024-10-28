@@ -412,9 +412,9 @@ public class CurrencyDescriptionPattern : SaveableItem, ICurrencyDescriptionPatt
 		}
 
 		var prog = new ProgLookupFromBuilderInput(actor.Gameworld, actor, command.SafeRemainingArgument,
-			FutureProgVariableTypes.Boolean, new FutureProgVariableTypes[]
+			ProgVariableTypes.Boolean, new ProgVariableTypes[]
 			{
-				FutureProgVariableTypes.Number
+				ProgVariableTypes.Number
 			}).LookupProg();
 		if (prog is null)
 		{

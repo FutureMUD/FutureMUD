@@ -7,7 +7,7 @@ using MudSharp.FutureProg;
 using MudSharp.GameItems;
 
 namespace MudSharp.Effects {
-    public interface IEffect : IFrameworkItem, IFutureProgVariable {
+    public interface IEffect : IFrameworkItem, IProgVariable {
         XElement SaveToXml(Dictionary<IEffect, TimeSpan> scheduledEffects);
         bool LoadErrors { get; }
         IPerceivable Owner { get; }

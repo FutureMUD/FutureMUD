@@ -531,13 +531,13 @@ public class TattooTemplate : DisfigurementTemplate, ITattooTemplate
 			return false;
 		}
 
-		if (!prog.ReturnType.CompatibleWith(FutureProgVariableTypes.Boolean))
+		if (!prog.ReturnType.CompatibleWith(ProgVariableTypes.Boolean))
 		{
 			actor.OutputHandler.Send("You must specify a prog that returns a boolean value.");
 			return false;
 		}
 
-		if (!prog.MatchesParameters(new[] { FutureProgVariableTypes.Chargen }))
+		if (!prog.MatchesParameters(new[] { ProgVariableTypes.Chargen }))
 		{
 			actor.OutputHandler.Send("You must specify a prog that accepts a single Chargen as a parameter.");
 			return false;

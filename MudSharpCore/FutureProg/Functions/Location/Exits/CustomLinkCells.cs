@@ -30,10 +30,10 @@ internal class CustomLinkCells : BuiltInFunction
 				"CustomLinkCells".ToLowerInvariant(),
 				new[]
 				{
-					FutureProgVariableTypes.Location, FutureProgVariableTypes.Location,
-					FutureProgVariableTypes.OverlayPackage, FutureProgVariableTypes.Number,
-					FutureProgVariableTypes.Text, FutureProgVariableTypes.Text, FutureProgVariableTypes.Text,
-					FutureProgVariableTypes.Text
+					ProgVariableTypes.Location, ProgVariableTypes.Location,
+					ProgVariableTypes.OverlayPackage, ProgVariableTypes.Number,
+					ProgVariableTypes.Text, ProgVariableTypes.Text, ProgVariableTypes.Text,
+					ProgVariableTypes.Text
 				},
 				(pars, gameworld) => new CustomLinkCells(pars, gameworld)
 			)
@@ -44,9 +44,9 @@ internal class CustomLinkCells : BuiltInFunction
 				"CustomLinkCells".ToLowerInvariant(),
 				new[]
 				{
-					FutureProgVariableTypes.Location, FutureProgVariableTypes.Location,
-					FutureProgVariableTypes.OverlayPackage, FutureProgVariableTypes.Text, FutureProgVariableTypes.Text,
-					FutureProgVariableTypes.Text, FutureProgVariableTypes.Text, FutureProgVariableTypes.Text
+					ProgVariableTypes.Location, ProgVariableTypes.Location,
+					ProgVariableTypes.OverlayPackage, ProgVariableTypes.Text, ProgVariableTypes.Text,
+					ProgVariableTypes.Text, ProgVariableTypes.Text, ProgVariableTypes.Text
 				},
 				(pars, gameworld) => new CustomLinkCells(pars, gameworld)
 			)
@@ -64,9 +64,9 @@ internal class CustomLinkCells : BuiltInFunction
 
 	#endregion
 
-	public override FutureProgVariableTypes ReturnType
+	public override ProgVariableTypes ReturnType
 	{
-		get => FutureProgVariableTypes.Exit;
+		get => ProgVariableTypes.Exit;
 		protected set { }
 	}
 
@@ -111,7 +111,7 @@ internal class CustomLinkCells : BuiltInFunction
 		}
 
 		INonCardinalExitTemplate template;
-		if (ParameterFunctions[3].ReturnType.CompatibleWith(FutureProgVariableTypes.Number))
+		if (ParameterFunctions[3].ReturnType.CompatibleWith(ProgVariableTypes.Number))
 		{
 			template = Gameworld.NonCardinalExitTemplates.Get(
 				Convert.ToInt64(ParameterFunctions[3].Result?.GetObject ?? 0));

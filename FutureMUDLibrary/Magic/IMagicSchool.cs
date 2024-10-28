@@ -9,7 +9,7 @@ using MudSharp.FutureProg;
 
 namespace MudSharp.Magic
 {
-    public interface IMagicSchool : IFrameworkItem, IFutureProgVariable, IHaveFuturemud, IEditableItem
+    public interface IMagicSchool : IFrameworkItem, IProgVariable, IHaveFuturemud, IEditableItem
     {
         IMagicSchool ParentSchool { get; }
 

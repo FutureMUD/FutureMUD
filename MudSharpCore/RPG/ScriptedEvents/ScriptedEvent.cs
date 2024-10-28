@@ -724,7 +724,7 @@ internal class ScriptedEvent : SaveableItem, IScriptedEvent
 			return false;
 		}
 
-		var prog = new ProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument, FutureProgVariableTypes.Boolean, new List<FutureProgVariableTypes> { FutureProgVariableTypes.Character }).LookupProg();
+		var prog = new ProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument, ProgVariableTypes.Boolean, new List<ProgVariableTypes> { ProgVariableTypes.Character }).LookupProg();
 		if (prog is null)
 		{
 			return false;

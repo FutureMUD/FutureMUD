@@ -1717,14 +1717,14 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
 				AcceptsAnyParameters = false,
 				Category = "Character",
 				Subcategory = "Descriptions",
-				ReturnType = (long)FutureProgVariableTypes.Boolean,
+				ReturnType = (long)ProgVariableTypes.Boolean,
 				FunctionText =
 					$"return @ch.Race == ToRace(\"{race.Name}\") and @ch.Ethnicity == ToEthnicity({ethnicity.Id})"
 			};
 			prog.FutureProgsParameters.Add(new FutureProgsParameter
 			{
 				FutureProg = prog, ParameterIndex = 0, ParameterName = "ch",
-				ParameterType = (long)FutureProgVariableTypes.Toon
+				ParameterType = (long)ProgVariableTypes.Toon
 			});
 			_context.FutureProgs.Add(prog);
 
@@ -1770,7 +1770,7 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
 			AcceptsAnyParameters = false,
 			Category = "Character",
 			Subcategory = "Descriptions",
-			ReturnType = (long)FutureProgVariableTypes.Boolean,
+			ReturnType = (long)ProgVariableTypes.Boolean,
 			FunctionText = $"return @ch.Race == ToRace(\"{race.Name}\")"
 		};
 		isRaceProg.FutureProgsParameters.Add(new FutureProgsParameter
@@ -1778,7 +1778,7 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
 			FutureProg = isRaceProg,
 			ParameterIndex = 0,
 			ParameterName = "ch",
-			ParameterType = (long)FutureProgVariableTypes.Toon
+			ParameterType = (long)ProgVariableTypes.Toon
 		});
 		_context.FutureProgs.Add(isRaceProg);
 
@@ -1789,7 +1789,7 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
 			AcceptsAnyParameters = false,
 			Category = "Character",
 			Subcategory = "Descriptions",
-			ReturnType = (long)FutureProgVariableTypes.Boolean,
+			ReturnType = (long)ProgVariableTypes.Boolean,
 			FunctionText =
 				$"return @ch.Race == ToRace(\"{race.Name}\") and @ch.Gender == ToGender(\"Male\") and In(@ch.AgeCategory, \"YoungAdult\", \"Adult\", \"Elder\", \"Venerable\")"
 		};
@@ -1798,7 +1798,7 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
 			FutureProg = isAdultMaleRaceProg,
 			ParameterIndex = 0,
 			ParameterName = "ch",
-			ParameterType = (long)FutureProgVariableTypes.Toon
+			ParameterType = (long)ProgVariableTypes.Toon
 		});
 		_context.FutureProgs.Add(isAdultMaleRaceProg);
 
@@ -1810,7 +1810,7 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
 			AcceptsAnyParameters = false,
 			Category = "Character",
 			Subcategory = "Descriptions",
-			ReturnType = (long)FutureProgVariableTypes.Boolean,
+			ReturnType = (long)ProgVariableTypes.Boolean,
 			FunctionText =
 				$"return @ch.Race == ToRace(\"{race.Name}\") and @ch.Gender == ToGender(\"Female\") and In(@ch.AgeCategory, \"YoungAdult\", \"Adult\", \"Elder\", \"Venerable\")"
 		};
@@ -1819,7 +1819,7 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
 			FutureProg = isAdultFemaleRaceProg,
 			ParameterIndex = 0,
 			ParameterName = "ch",
-			ParameterType = (long)FutureProgVariableTypes.Toon
+			ParameterType = (long)ProgVariableTypes.Toon
 		});
 		_context.FutureProgs.Add(isAdultFemaleRaceProg);
 
@@ -1831,7 +1831,7 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
 			AcceptsAnyParameters = false,
 			Category = "Character",
 			Subcategory = "Descriptions",
-			ReturnType = (long)FutureProgVariableTypes.Boolean,
+			ReturnType = (long)ProgVariableTypes.Boolean,
 			FunctionText =
 				$"return @ch.Race == ToRace(\"{race.Name}\") and @ch.Gender == ToGender(\"Male\") and In(@ch.AgeCategory, \"Child\", \"Youth\")"
 		};
@@ -1840,7 +1840,7 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
 			FutureProg = isJuvenileMaleRaceProg,
 			ParameterIndex = 0,
 			ParameterName = "ch",
-			ParameterType = (long)FutureProgVariableTypes.Toon
+			ParameterType = (long)ProgVariableTypes.Toon
 		});
 		_context.FutureProgs.Add(isJuvenileMaleRaceProg);
 
@@ -1852,7 +1852,7 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
 			AcceptsAnyParameters = false,
 			Category = "Character",
 			Subcategory = "Descriptions",
-			ReturnType = (long)FutureProgVariableTypes.Boolean,
+			ReturnType = (long)ProgVariableTypes.Boolean,
 			FunctionText =
 				$"return @ch.Race == ToRace(\"{race.Name}\") and @ch.Gender == ToGender(\"Female\") and In(@ch.AgeCategory, \"Child\", \"Youth\")"
 		};
@@ -1861,7 +1861,7 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
 			FutureProg = isJuvenileFemaleRaceProg,
 			ParameterIndex = 0,
 			ParameterName = "ch",
-			ParameterType = (long)FutureProgVariableTypes.Toon
+			ParameterType = (long)ProgVariableTypes.Toon
 		});
 		_context.FutureProgs.Add(isJuvenileFemaleRaceProg);
 
@@ -1872,7 +1872,7 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
 			AcceptsAnyParameters = false,
 			Category = "Character",
 			Subcategory = "Descriptions",
-			ReturnType = (long)FutureProgVariableTypes.Boolean,
+			ReturnType = (long)ProgVariableTypes.Boolean,
 			FunctionText =
 				$"return @ch.Race == ToRace(\"{race.Name}\") and @ch.Gender == ToGender(\"Male\") and @ch.AgeCategory == \"Baby\""
 		};
@@ -1881,7 +1881,7 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
 			FutureProg = isBabyMaleRaceProg,
 			ParameterIndex = 0,
 			ParameterName = "ch",
-			ParameterType = (long)FutureProgVariableTypes.Toon
+			ParameterType = (long)ProgVariableTypes.Toon
 		});
 		_context.FutureProgs.Add(isBabyMaleRaceProg);
 
@@ -1892,7 +1892,7 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
 			AcceptsAnyParameters = false,
 			Category = "Character",
 			Subcategory = "Descriptions",
-			ReturnType = (long)FutureProgVariableTypes.Boolean,
+			ReturnType = (long)ProgVariableTypes.Boolean,
 			FunctionText =
 				$"return @ch.Race == ToRace(\"{race.Name}\") and @ch.Gender == ToGender(\"Female\") and @ch.AgeCategory == \"Baby\""
 		};
@@ -1901,7 +1901,7 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
 			FutureProg = isBabyFemaleRaceProg,
 			ParameterIndex = 0,
 			ParameterName = "ch",
-			ParameterType = (long)FutureProgVariableTypes.Toon
+			ParameterType = (long)ProgVariableTypes.Toon
 		});
 		_context.FutureProgs.Add(isBabyFemaleRaceProg);
 
@@ -2960,7 +2960,7 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
 			AcceptsAnyParameters = false,
 			Category = "Character",
 			Subcategory = "Attributes",
-			ReturnType = (long)FutureProgVariableTypes.Number,
+			ReturnType = (long)ProgVariableTypes.Number,
 			FunctionText = progText
 		};
 		attributeBonusProg.FutureProgsParameters.Add(new FutureProgsParameter
@@ -2968,7 +2968,7 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
 			FutureProg = attributeBonusProg,
 			ParameterIndex = 0,
 			ParameterName = "trait",
-			ParameterType = (long)FutureProgVariableTypes.Trait
+			ParameterType = (long)ProgVariableTypes.Trait
 		});
 		_context.FutureProgs.Add(attributeBonusProg);
 

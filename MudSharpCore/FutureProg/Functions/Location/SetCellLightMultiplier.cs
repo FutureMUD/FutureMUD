@@ -29,8 +29,8 @@ internal class SetCellLightMultiplier : BuiltInFunction
 				"SetCellLightMultiplier".ToLowerInvariant(),
 				new[]
 				{
-					FutureProgVariableTypes.Location, FutureProgVariableTypes.OverlayPackage,
-					FutureProgVariableTypes.Number
+					ProgVariableTypes.Location, ProgVariableTypes.OverlayPackage,
+					ProgVariableTypes.Number
 				},
 				(pars, gameworld) => new SetCellLightMultiplier(pars, gameworld),
 				new List<string>
@@ -47,7 +47,7 @@ internal class SetCellLightMultiplier : BuiltInFunction
 				},
 				"Sets the light level multiplier of a room as if you had done CELL SET LIGHTMULTIPLIER.",
 				"Rooms",
-				FutureProgVariableTypes.Boolean
+				ProgVariableTypes.Boolean
 			)
 		);
 	}
@@ -64,9 +64,9 @@ internal class SetCellLightMultiplier : BuiltInFunction
 
 	#endregion
 
-	public override FutureProgVariableTypes ReturnType
+	public override ProgVariableTypes ReturnType
 	{
-		get => FutureProgVariableTypes.Boolean;
+		get => ProgVariableTypes.Boolean;
 		protected set { }
 	}
 

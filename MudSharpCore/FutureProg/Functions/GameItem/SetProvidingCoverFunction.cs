@@ -12,9 +12,9 @@ internal class SetProvidingCoverFunction : BuiltInFunction
 	{
 	}
 
-	public override FutureProgVariableTypes ReturnType
+	public override ProgVariableTypes ReturnType
 	{
-		get => FutureProgVariableTypes.Boolean;
+		get => ProgVariableTypes.Boolean;
 		protected set { }
 	}
 
@@ -54,7 +54,7 @@ internal class SetProvidingCoverFunction : BuiltInFunction
 	{
 		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
 			"setprovidingcover",
-			new[] { FutureProgVariableTypes.Item, FutureProgVariableTypes.Boolean },
+			new[] { ProgVariableTypes.Item, ProgVariableTypes.Boolean },
 			(pars, gameworld) => new SetProvidingCoverFunction(pars)
 		));
 	}

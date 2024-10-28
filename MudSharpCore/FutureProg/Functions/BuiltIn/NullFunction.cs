@@ -13,7 +13,7 @@ internal class NullFunction : BuiltInFunction
 
 	public override StatementResult Execute(IVariableSpace variables)
 	{
-		Result = FutureProgVariableTypes.ValueType.HasFlag(ReturnType) ? new NullVariable(ReturnType) : null;
+		Result = ProgVariableTypes.ValueType.HasFlag(ReturnType) ? new NullVariable(ReturnType) : null;
 		return StatementResult.Normal;
 	}
 
@@ -21,13 +21,13 @@ internal class NullFunction : BuiltInFunction
 	{
 		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
 			"null",
-			new[] { FutureProgVariableTypes.Text | FutureProgVariableTypes.Literal },
+			new[] { ProgVariableTypes.Text | ProgVariableTypes.Literal },
 			(pars, gameworld) => new NullFunction(pars),
 			new List<string> { "type" },
 			new List<string> { "A text literal specifying the type of null variable." },
 			"Returns a null variable of the type specified.",
 			"Null Handling",
-			FutureProgVariableTypes.Anything
+			ProgVariableTypes.Anything
 		));
 	}
 }

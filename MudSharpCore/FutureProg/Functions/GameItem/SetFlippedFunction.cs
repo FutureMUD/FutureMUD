@@ -12,9 +12,9 @@ internal class SetFlippedFunction : BuiltInFunction
 	{
 	}
 
-	public override FutureProgVariableTypes ReturnType
+	public override ProgVariableTypes ReturnType
 	{
-		get => FutureProgVariableTypes.Boolean;
+		get => ProgVariableTypes.Boolean;
 		protected set { }
 	}
 
@@ -55,7 +55,7 @@ internal class SetFlippedFunction : BuiltInFunction
 	{
 		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
 			"setflipped",
-			new[] { FutureProgVariableTypes.Item, FutureProgVariableTypes.Boolean },
+			new[] { ProgVariableTypes.Item, ProgVariableTypes.Boolean },
 			(pars, gameworld) => new SetFlippedFunction(pars),
 			new List<string> { "item", "flipped" },
 			new List<string>
@@ -64,7 +64,7 @@ internal class SetFlippedFunction : BuiltInFunction
 			},
 			"If an item is a flippable (e.g. a table), this command sets the flipped state according to an argument you pass in. Returns true if the item was changed, false if it was already in the desired state or wasn't a flippable.",
 			"Items",
-			FutureProgVariableTypes.Boolean
+			ProgVariableTypes.Boolean
 		));
 	}
 }

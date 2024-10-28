@@ -38,14 +38,14 @@ internal class KnowledgePickerBySkillScreenStoryboard : ChargenScreenStoryboard
 				"KnowledgePickerBySkillScreenStoryboard definition error - NumberOfPicksProg was not a valid prog or was missing.");
 		}
 
-		if (NumberOfPicksProg.ReturnType != FutureProgVariableTypes.Number)
+		if (NumberOfPicksProg.ReturnType != ProgVariableTypes.Number)
 		{
 			throw new ApplicationException(
 				$"KnowledgePickerBySkillScreenStoryboard definition error - NumberOfPicksProg was prog #{NumberOfPicksProg.Id} ({NumberOfPicksProg.FunctionName}), which does not return a number.");
 		}
 
 		if (
-			!NumberOfPicksProg.MatchesParameters(new[] { FutureProgVariableTypes.Toon, FutureProgVariableTypes.Trait }))
+			!NumberOfPicksProg.MatchesParameters(new[] { ProgVariableTypes.Toon, ProgVariableTypes.Trait }))
 		{
 			throw new ApplicationException(
 				$"KnowledgePickerBySkillScreenStoryboard definition error - NumberOfPicksProg was prog #{NumberOfPicksProg.Id} ({NumberOfPicksProg.FunctionName}), which does not match input parameter types of toon, trait.");
@@ -62,14 +62,14 @@ internal class KnowledgePickerBySkillScreenStoryboard : ChargenScreenStoryboard
 				"KnowledgePickerBySkillScreenStoryboard definition error - FreeKnowledgesProg was not a valid prog or was missing.");
 		}
 
-		if (!FreeKnowledgesProg.ReturnType.CompatibleWith(FutureProgVariableTypes.Collection |
-		                                                  FutureProgVariableTypes.Knowledge))
+		if (!FreeKnowledgesProg.ReturnType.CompatibleWith(ProgVariableTypes.Collection |
+		                                                  ProgVariableTypes.Knowledge))
 		{
 			throw new ApplicationException(
 				$"KnowledgePickerBySkillScreenStoryboard definition error - FreeKnowledgesProg was prog #{FreeKnowledgesProg.Id} ({FreeKnowledgesProg.FunctionName}), which does not return a collection of knowledges.");
 		}
 
-		if (!FreeKnowledgesProg.MatchesParameters(new[] { FutureProgVariableTypes.Chargen }))
+		if (!FreeKnowledgesProg.MatchesParameters(new[] { ProgVariableTypes.Chargen }))
 		{
 			throw new ApplicationException(
 				$"KnowledgePickerBySkillScreenStoryboard definition error - FreeKnowledgesProg was prog #{FreeKnowledgesProg.Id} ({FreeKnowledgesProg.FunctionName}), which does not match input parameter types of chargen.");
@@ -104,7 +104,7 @@ internal class KnowledgePickerBySkillScreenStoryboard : ChargenScreenStoryboard
 
 	public override IEnumerable<(IChargenResource Resource, int Cost)> ChargenCosts(IChargen chargen)
 	{
-		var freeKnowledges = ((IList<IFutureProgVariable>)FreeKnowledgesProg.Execute(chargen)).OfType<IKnowledge>()
+		var freeKnowledges = ((IList<IProgVariable>)FreeKnowledgesProg.Execute(chargen)).OfType<IKnowledge>()
 			.ToList();
 		foreach (var resource in Gameworld.ChargenResources)
 		{
@@ -178,7 +178,7 @@ internal class KnowledgePickerBySkillScreenStoryboard : ChargenScreenStoryboard
 			CurrentPicks.Clear();
 			ShownIntroduction = false;
 			WarnedAboutFewerPicks = false;
-			FreeKnowledges = ((IList<IFutureProgVariable>)Storyboard.FreeKnowledgesProg.Execute(Chargen))
+			FreeKnowledges = ((IList<IProgVariable>)Storyboard.FreeKnowledgesProg.Execute(Chargen))
 			                 .OfType<IKnowledge>().ToList();
 			Chargen.SelectedKnowledges.AddRange(FreeKnowledges);
 			SkillEnumerator =
@@ -402,16 +402,16 @@ Enter the name or number of the knowledge you would like to select, and #3done#0
 		}
 
 		var prog = new ProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument,
-			FutureProgVariableTypes.Number, new List<IEnumerable<FutureProgVariableTypes>>
+			ProgVariableTypes.Number, new List<IEnumerable<ProgVariableTypes>>
 			{
-				new List<FutureProgVariableTypes>
+				new List<ProgVariableTypes>
 				{
-					FutureProgVariableTypes.Chargen,
-					FutureProgVariableTypes.Trait
+					ProgVariableTypes.Chargen,
+					ProgVariableTypes.Trait
 				},
-				new List<FutureProgVariableTypes>
+				new List<ProgVariableTypes>
 				{
-					FutureProgVariableTypes.Chargen
+					ProgVariableTypes.Chargen
 				}
 			}).LookupProg();
 		if (prog is null)
@@ -436,9 +436,9 @@ Enter the name or number of the knowledge you would like to select, and #3done#0
 		}
 
 		var prog = new ProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument,
-			FutureProgVariableTypes.Collection | FutureProgVariableTypes.Knowledge, new List<FutureProgVariableTypes>
+			ProgVariableTypes.Collection | ProgVariableTypes.Knowledge, new List<ProgVariableTypes>
 			{
-				FutureProgVariableTypes.Chargen
+				ProgVariableTypes.Chargen
 			}).LookupProg();
 		if (prog is null)
 		{

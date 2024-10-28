@@ -15,7 +15,7 @@ namespace MudSharp.Body.Traits {
         TheoreticalSkill = 4
     }
 
-    public interface ITraitDefinition : IEditableItem, IFutureProgVariable {
+    public interface ITraitDefinition : IEditableItem, IProgVariable {
         /// <summary>
         ///     The group to which this Trait belongs, within its Type. For example, Attributes may have "Physical", "Mental", etc.
         /// </summary>

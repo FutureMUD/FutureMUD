@@ -303,9 +303,9 @@ public class ChargenAdvice : SaveableItem, IChargenAdvice
 		}
 
 		var prog = new ProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument,
-			FutureProgVariableTypes.Boolean, new FutureProgVariableTypes[]
+			ProgVariableTypes.Boolean, new ProgVariableTypes[]
 			{
-				FutureProgVariableTypes.Chargen
+				ProgVariableTypes.Chargen
 			}).LookupProg();
 		if (prog is null)
 		{

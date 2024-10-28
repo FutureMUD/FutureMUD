@@ -23,7 +23,7 @@ namespace MudSharp.FutureProg.Functions.Textual
 			FutureProg.RegisterBuiltInFunctionCompiler(
 				new FunctionCompilerInformation(
 					"ToRoman".ToLowerInvariant(),
-					new[] { FutureProgVariableTypes.Number }, // the parameters the function takes
+					new[] { ProgVariableTypes.Number }, // the parameters the function takes
 					(pars, gameworld) => new ToRoman(pars, gameworld),
 					new List<string> { 
 						"number"
@@ -35,7 +35,7 @@ namespace MudSharp.FutureProg.Functions.Textual
 
 					"Text", // the category to which this function belongs,
 
-					FutureProgVariableTypes.Text // the return type of the function
+					ProgVariableTypes.Text // the return type of the function
 				)
 			);
 		}
@@ -48,9 +48,9 @@ namespace MudSharp.FutureProg.Functions.Textual
 		}
 		#endregion
 
-		public override FutureProgVariableTypes ReturnType
+		public override ProgVariableTypes ReturnType
 		{
-			get { return FutureProgVariableTypes.Boolean; }
+			get { return ProgVariableTypes.Boolean; }
 			protected set { }
 		}
 

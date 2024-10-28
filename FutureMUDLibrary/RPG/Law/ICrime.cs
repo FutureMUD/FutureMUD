@@ -15,7 +15,7 @@ using MudSharp.RPG.Checks;
 namespace MudSharp.RPG.Law
 {
 #nullable enable
-	public interface ICrime : IFrameworkItem, ISaveable, ILazyLoadDuringIdleTime, IFutureProgVariable
+	public interface ICrime : IFrameworkItem, ISaveable, ILazyLoadDuringIdleTime, IProgVariable
 	{
 		ILaw Law { get; }
 		ILegalAuthority LegalAuthority { get; }

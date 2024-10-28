@@ -792,7 +792,7 @@ public sealed partial class Futuremud : IDisposable
 						{
 							FunctionName = "UniversalErrorText",
 							AcceptsAnyParameters = true,
-							ReturnType = (long)FutureProgVariableTypes.Text,
+							ReturnType = (long)ProgVariableTypes.Text,
 							Category = "Core",
 							Subcategory = "Universal",
 							Public = true,

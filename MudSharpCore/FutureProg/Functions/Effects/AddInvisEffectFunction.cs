@@ -22,9 +22,9 @@ internal class AddInvisEffectFunction : BuiltInFunction
 		_gameworld = gameworld;
 	}
 
-	public override FutureProgVariableTypes ReturnType
+	public override ProgVariableTypes ReturnType
 	{
-		get => FutureProgVariableTypes.Boolean;
+		get => ProgVariableTypes.Boolean;
 		protected set { }
 	}
 
@@ -42,12 +42,12 @@ internal class AddInvisEffectFunction : BuiltInFunction
 			return StatementResult.Normal;
 		}
 
-		var prog = ParameterFunctions[1].ReturnType.CompatibleWith(FutureProgVariableTypes.Number)
+		var prog = ParameterFunctions[1].ReturnType.CompatibleWith(ProgVariableTypes.Number)
 			? _gameworld.FutureProgs.Get(Convert.ToInt64(ParameterFunctions[1].Result?.GetObject ?? 0))
 			: _gameworld.FutureProgs.GetByName((string)ParameterFunctions[1].Result?.GetObject ?? "");
 		if (prog == null ||
-		    prog.ReturnType != FutureProgVariableTypes.Boolean ||
-		    !prog.MatchesParameters(new[] { FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Perceivable })
+		    prog.ReturnType != ProgVariableTypes.Boolean ||
+		    !prog.MatchesParameters(new[] { ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable })
 		   )
 		{
 			Result = new BooleanVariable(false);
@@ -65,8 +65,8 @@ internal class AddInvisEffectFunction : BuiltInFunction
 			"addinviseffect",
 			new[]
 			{
-				FutureProgVariableTypes.Perceivable,
-				FutureProgVariableTypes.Number
+				ProgVariableTypes.Perceivable,
+				ProgVariableTypes.Number
 			},
 			(pars, gameworld) => new AddInvisEffectFunction(pars, gameworld)
 		));
@@ -74,8 +74,8 @@ internal class AddInvisEffectFunction : BuiltInFunction
 			"addinviseffect",
 			new[]
 			{
-				FutureProgVariableTypes.Perceivable,
-				FutureProgVariableTypes.Text
+				ProgVariableTypes.Perceivable,
+				ProgVariableTypes.Text
 			},
 			(pars, gameworld) => new AddInvisEffectFunction(pars, gameworld)
 		));

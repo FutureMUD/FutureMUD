@@ -226,7 +226,7 @@ public class CellOverlayPackage : Framework.Revision.EditableItem, ICellOverlayP
 	/// <summary>
 	///     The FutureProgVariableType that represents this IFutureProgVariable
 	/// </summary>
-	public FutureProgVariableTypes Type => FutureProgVariableTypes.OverlayPackage;
+	public ProgVariableTypes Type => ProgVariableTypes.OverlayPackage;
 
 	/// <summary>
 	///     Returns an object representing the underlying variable wrapped in this IFutureProgVariable
@@ -238,7 +238,7 @@ public class CellOverlayPackage : Framework.Revision.EditableItem, ICellOverlayP
 	/// </summary>
 	/// <param name="property">A string representing the property to be retrieved</param>
 	/// <returns>An IFutureProgVariable representing the desired property</returns>
-	public IFutureProgVariable GetProperty(string property)
+	public IProgVariable GetProperty(string property)
 	{
 		switch (property.ToLowerInvariant())
 		{
@@ -256,15 +256,15 @@ public class CellOverlayPackage : Framework.Revision.EditableItem, ICellOverlayP
 		throw new NotSupportedException($"Unsupported property type {property} in {FrameworkItemType}.GetProperty");
 	}
 
-	private static IReadOnlyDictionary<string, FutureProgVariableTypes> DotReferenceHandler()
+	private static IReadOnlyDictionary<string, ProgVariableTypes> DotReferenceHandler()
 	{
-		return new Dictionary<string, FutureProgVariableTypes>(StringComparer.InvariantCultureIgnoreCase)
+		return new Dictionary<string, ProgVariableTypes>(StringComparer.InvariantCultureIgnoreCase)
 		{
-			{ "id", FutureProgVariableTypes.Number },
-			{ "name", FutureProgVariableTypes.Text },
-			{ "revnum", FutureProgVariableTypes.Number },
-			{ "revision", FutureProgVariableTypes.Number },
-			{ "status", FutureProgVariableTypes.Text }
+			{ "id", ProgVariableTypes.Number },
+			{ "name", ProgVariableTypes.Text },
+			{ "revnum", ProgVariableTypes.Number },
+			{ "revision", ProgVariableTypes.Number },
+			{ "status", ProgVariableTypes.Text }
 		};
 	}
 
@@ -282,7 +282,7 @@ public class CellOverlayPackage : Framework.Revision.EditableItem, ICellOverlayP
 
 	public static void RegisterFutureProgCompiler()
 	{
-		FutureProgVariable.RegisterDotReferenceCompileInfo(FutureProgVariableTypes.OverlayPackage,
+		ProgVariable.RegisterDotReferenceCompileInfo(ProgVariableTypes.OverlayPackage,
 			DotReferenceHandler(), DotReferenceHelp());
 	}
 

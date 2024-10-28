@@ -18,9 +18,9 @@ internal class SetOpenFunction : BuiltInFunction
 		_forceOpen = forceOpen;
 	}
 
-	public override FutureProgVariableTypes ReturnType
+	public override ProgVariableTypes ReturnType
 	{
-		get => FutureProgVariableTypes.Boolean;
+		get => ProgVariableTypes.Boolean;
 		protected set { }
 	}
 
@@ -92,7 +92,7 @@ internal class SetOpenFunction : BuiltInFunction
 	{
 		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
 			"setopen",
-			new[] { FutureProgVariableTypes.Item, FutureProgVariableTypes.Boolean, FutureProgVariableTypes.Boolean },
+			new[] { ProgVariableTypes.Item, ProgVariableTypes.Boolean, ProgVariableTypes.Boolean },
 			(pars, gameworld) => new SetOpenFunction(pars, false),
 			new List<string>
 			{
@@ -108,11 +108,11 @@ internal class SetOpenFunction : BuiltInFunction
 			},
 			"Changes an openable item from open to closed or the reverse. True if the change was successfully applied. Respects game rules about whether something can be opened.",
 			"Items",
-			FutureProgVariableTypes.Boolean
+			ProgVariableTypes.Boolean
 		));
 		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
 			"forceopen",
-			new[] { FutureProgVariableTypes.Item, FutureProgVariableTypes.Boolean, FutureProgVariableTypes.Boolean },
+			new[] { ProgVariableTypes.Item, ProgVariableTypes.Boolean, ProgVariableTypes.Boolean },
 			(pars, gameworld) => new SetOpenFunction(pars, true),
 			new List<string>
 			{
@@ -128,7 +128,7 @@ internal class SetOpenFunction : BuiltInFunction
 			},
 			"Changes an openable item from open to closed or the reverse. True if the change was successfully applied. Ignores game rules about whether something can be opened.",
 			"Items",
-			FutureProgVariableTypes.Boolean
+			ProgVariableTypes.Boolean
 		));
 	}
 }

@@ -2436,7 +2436,7 @@ Note: most often you will want to use the #3TRAITEXPRESSION#0 command to edit th
 			return;
 		}
 
-		if (prog.ReturnType != FutureProgVariableTypes.Boolean)
+		if (prog.ReturnType != ProgVariableTypes.Boolean)
 		{
 			actor.Send("The prog you select must return boolean.");
 			return;
@@ -2444,7 +2444,7 @@ Note: most often you will want to use the #3TRAITEXPRESSION#0 command to edit th
 
 		if (!prog.MatchesParameters(new[]
 			{
-				FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Perceivable
+				ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable
 			}))
 		{
 			actor.Send("The prog must accept two perceivable parameters.");
@@ -2949,7 +2949,7 @@ The syntax is as follows:
 
 		sb.AppendLine();
 		sb.AppendLine("Variables:");
-		foreach (var variable in actor.Gameworld.VariableRegister.AllVariables(FutureProgVariableTypes.Item))
+		foreach (var variable in actor.Gameworld.VariableRegister.AllVariables(ProgVariableTypes.Item))
 		{
 			var value = actor.Gameworld.VariableRegister.GetValue(gi, variable.Item1);
 			sb.AppendLine(
@@ -3006,7 +3006,7 @@ The syntax is as follows:
 
 		sb.AppendLine();
 		sb.AppendLine("Variables:");
-		foreach (var variable in actor.Gameworld.VariableRegister.AllVariables(FutureProgVariableTypes.Character))
+		foreach (var variable in actor.Gameworld.VariableRegister.AllVariables(ProgVariableTypes.Character))
 		{
 			var value = actor.Gameworld.VariableRegister.GetValue(ch, variable.Item1);
 			sb.AppendLine(
@@ -3054,7 +3054,7 @@ The syntax is as follows:
 
 		sb.AppendLine();
 		sb.AppendLine("Variables:");
-		foreach (var variable in actor.Gameworld.VariableRegister.AllVariables(FutureProgVariableTypes.Exit))
+		foreach (var variable in actor.Gameworld.VariableRegister.AllVariables(ProgVariableTypes.Exit))
 		{
 			var value = actor.Gameworld.VariableRegister.GetValue(exit, variable.Item1);
 			sb.AppendLine(
@@ -3123,7 +3123,7 @@ The syntax is as follows:
 
 		sb.AppendLine();
 		sb.AppendLine("Variables:");
-		foreach (var variable in actor.Gameworld.VariableRegister.AllVariables(FutureProgVariableTypes.Location))
+		foreach (var variable in actor.Gameworld.VariableRegister.AllVariables(ProgVariableTypes.Location))
 		{
 			var value = actor.Gameworld.VariableRegister.GetValue(cell, variable.Item1);
 			sb.AppendLine(

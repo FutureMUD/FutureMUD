@@ -27,7 +27,7 @@ internal class AddItemToOutfit : BuiltInFunction
 		FutureProg.RegisterBuiltInFunctionCompiler(
 			new FunctionCompilerInformation(
 				"additemtooutfit",
-				new[] { FutureProgVariableTypes.Outfit, FutureProgVariableTypes.Item },
+				new[] { ProgVariableTypes.Outfit, ProgVariableTypes.Item },
 				(pars, gameworld) => new AddItemToOutfit(pars, gameworld)
 			)
 		);
@@ -35,7 +35,7 @@ internal class AddItemToOutfit : BuiltInFunction
 		FutureProg.RegisterBuiltInFunctionCompiler(
 			new FunctionCompilerInformation(
 				"additemtooutfit",
-				new[] { FutureProgVariableTypes.Outfit, FutureProgVariableTypes.Item, FutureProgVariableTypes.Item },
+				new[] { ProgVariableTypes.Outfit, ProgVariableTypes.Item, ProgVariableTypes.Item },
 				(pars, gameworld) => new AddItemToOutfit(pars, gameworld)
 			)
 		);
@@ -45,8 +45,8 @@ internal class AddItemToOutfit : BuiltInFunction
 				"additemtooutfit",
 				new[]
 				{
-					FutureProgVariableTypes.Outfit, FutureProgVariableTypes.Item, FutureProgVariableTypes.Item,
-					FutureProgVariableTypes.Text
+					ProgVariableTypes.Outfit, ProgVariableTypes.Item, ProgVariableTypes.Item,
+					ProgVariableTypes.Text
 				},
 				(pars, gameworld) => new AddItemToOutfit(pars, gameworld)
 			)
@@ -55,7 +55,7 @@ internal class AddItemToOutfit : BuiltInFunction
 		FutureProg.RegisterBuiltInFunctionCompiler(
 			new FunctionCompilerInformation(
 				"additemtooutfit",
-				new[] { FutureProgVariableTypes.Outfit, FutureProgVariableTypes.Item, FutureProgVariableTypes.Text },
+				new[] { ProgVariableTypes.Outfit, ProgVariableTypes.Item, ProgVariableTypes.Text },
 				(pars, gameworld) => new AddItemToOutfit(pars, gameworld)
 			)
 		);
@@ -72,9 +72,9 @@ internal class AddItemToOutfit : BuiltInFunction
 
 	#endregion
 
-	public override FutureProgVariableTypes ReturnType
+	public override ProgVariableTypes ReturnType
 	{
-		get => FutureProgVariableTypes.Boolean;
+		get => ProgVariableTypes.Boolean;
 		protected set { }
 	}
 
@@ -122,7 +122,7 @@ internal class AddItemToOutfit : BuiltInFunction
 			return StatementResult.Normal;
 		}
 
-		if (ParameterFunctions[2].ReturnType == FutureProgVariableTypes.Text)
+		if (ParameterFunctions[2].ReturnType == ProgVariableTypes.Text)
 		{
 			var profileText = ParameterFunctions[2].Result?.ToString();
 			var profile = string.IsNullOrEmpty(profileText)

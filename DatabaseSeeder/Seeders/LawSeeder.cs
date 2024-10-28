@@ -333,7 +333,7 @@ return 0"
 			FutureProg = bailprog,
 			ParameterIndex = 1,
 			ParameterName = "crime",
-			ParameterType = (long)FutureProgVariableTypes.Crime
+			ParameterType = (long)ProgVariableTypes.Crime
 		});
 		context.FutureProgs.Add(bailprog);
 		authority.BailCalculationProg = bailprog;
@@ -346,7 +346,7 @@ return 0"
 			Category = "Law",
 			Subcategory = AuthorityName.CollapseString(),
 			FunctionComment = "True if a character has a good behaviour bond",
-			ReturnType = (long)FutureProgVariableTypes.Boolean,
+			ReturnType = (long)ProgVariableTypes.Boolean,
 			AcceptsAnyParameters = false,
 			Public = false,
 			StaticType = 0,
@@ -358,7 +358,7 @@ return 0"
 			FutureProg = isongoodbehaviourprog,
 			ParameterIndex = 0,
 			ParameterName = "ch",
-			ParameterType = (long)FutureProgVariableTypes.Character
+			ParameterType = (long)ProgVariableTypes.Character
 		});
 		context.FutureProgs.Add(isongoodbehaviourprog);
 		ProgLookup["isgood"] = isongoodbehaviourprog;
@@ -440,7 +440,7 @@ return 0"
 		var knownProg = new FutureProg
 		{
 			FunctionName = $"{name.CollapseString()}KnowsIdentity",
-			ReturnType = (long)FutureProgVariableTypes.Boolean,
+			ReturnType = (long)ProgVariableTypes.Boolean,
 			Category = "Law",
 			Subcategory = AuthorityName.CollapseString(),
 			FunctionComment =
@@ -456,14 +456,14 @@ return true"
 		knownProg.FutureProgsParameters.Add(new FutureProgsParameter
 		{
 			FutureProg = knownProg, ParameterIndex = 0, ParameterName = "criminal",
-			ParameterType = (long)FutureProgVariableTypes.Character
+			ParameterType = (long)ProgVariableTypes.Character
 		});
 		profile.IdentityKnownProg = knownProg;
 
 		var multiplierProg = new FutureProg
 		{
 			FunctionName = $"{name.CollapseString()}ReportMultiplier",
-			ReturnType = (long)FutureProgVariableTypes.Number,
+			ReturnType = (long)ProgVariableTypes.Number,
 			Category = "Law",
 			Subcategory = AuthorityName.CollapseString(),
 			FunctionComment = "A multiplier to the base reporting chance for an individual",
@@ -478,17 +478,17 @@ return 1.0"
 		multiplierProg.FutureProgsParameters.Add(new FutureProgsParameter
 		{
 			FutureProg = multiplierProg, ParameterIndex = 0, ParameterName = "criminal",
-			ParameterType = (long)FutureProgVariableTypes.Character
+			ParameterType = (long)ProgVariableTypes.Character
 		});
 		multiplierProg.FutureProgsParameters.Add(new FutureProgsParameter
 		{
 			FutureProg = multiplierProg, ParameterIndex = 1, ParameterName = "victim",
-			ParameterType = (long)FutureProgVariableTypes.Character
+			ParameterType = (long)ProgVariableTypes.Character
 		});
 		multiplierProg.FutureProgsParameters.Add(new FutureProgsParameter
 		{
 			FutureProg = multiplierProg, ParameterIndex = 2, ParameterName = "crime",
-			ParameterType = (long)FutureProgVariableTypes.Crime
+			ParameterType = (long)ProgVariableTypes.Crime
 		});
 		profile.ReportingMultiplierProg = multiplierProg;
 	}
@@ -600,7 +600,7 @@ return 1.0"
 			Category = "AI",
 			Subcategory = "Law",
 			FunctionComment = "Determines whether an enforcer can tell a character's identity",
-			ReturnType = (long)FutureProgVariableTypes.Boolean,
+			ReturnType = (long)ProgVariableTypes.Boolean,
 			AcceptsAnyParameters = false,
 			Public = false,
 			StaticType = 0,
@@ -613,14 +613,14 @@ return true"
 			FutureProg = identifyProg,
 			ParameterIndex = 0,
 			ParameterName = "enforcer",
-			ParameterType = (long)FutureProgVariableTypes.Character
+			ParameterType = (long)ProgVariableTypes.Character
 		});
 		identifyProg.FutureProgsParameters.Add(new FutureProgsParameter
 		{
 			FutureProg = identifyProg,
 			ParameterIndex = 1,
 			ParameterName = "criminal",
-			ParameterType = (long)FutureProgVariableTypes.Character
+			ParameterType = (long)ProgVariableTypes.Character
 		});
 		Context.FutureProgs.Add(identifyProg);
 
@@ -630,7 +630,7 @@ return true"
 			Category = "AI",
 			Subcategory = "Law",
 			FunctionComment = "A prog that is executed when the enforcer needs to warn someone to surrender",
-			ReturnType = (long)FutureProgVariableTypes.Text,
+			ReturnType = (long)ProgVariableTypes.Text,
 			AcceptsAnyParameters = false,
 			Public = false,
 			StaticType = 0,
@@ -643,21 +643,21 @@ return true"
 			FutureProg = warnEchoProg,
 			ParameterIndex = 0,
 			ParameterName = "enforcer",
-			ParameterType = (long)FutureProgVariableTypes.Character
+			ParameterType = (long)ProgVariableTypes.Character
 		});
 		warnEchoProg.FutureProgsParameters.Add(new FutureProgsParameter
 		{
 			FutureProg = warnEchoProg,
 			ParameterIndex = 1,
 			ParameterName = "criminal",
-			ParameterType = (long)FutureProgVariableTypes.Character
+			ParameterType = (long)ProgVariableTypes.Character
 		});
 		warnEchoProg.FutureProgsParameters.Add(new FutureProgsParameter
 		{
 			FutureProg = warnEchoProg,
 			ParameterIndex = 2,
 			ParameterName = "crime",
-			ParameterType = (long)FutureProgVariableTypes.Crime
+			ParameterType = (long)ProgVariableTypes.Crime
 		});
 		Context.FutureProgs.Add(warnEchoProg);
 
@@ -668,7 +668,7 @@ return true"
 			Subcategory = "Law",
 			FunctionComment =
 				"A prog that is executed when the enforcer needs to warn someone not to move away from the area",
-			ReturnType = (long)FutureProgVariableTypes.Text,
+			ReturnType = (long)ProgVariableTypes.Text,
 			AcceptsAnyParameters = false,
 			Public = false,
 			StaticType = 0,
@@ -681,21 +681,21 @@ return true"
 			FutureProg = warnMoveProg,
 			ParameterIndex = 0,
 			ParameterName = "enforcer",
-			ParameterType = (long)FutureProgVariableTypes.Character
+			ParameterType = (long)ProgVariableTypes.Character
 		});
 		warnMoveProg.FutureProgsParameters.Add(new FutureProgsParameter
 		{
 			FutureProg = warnMoveProg,
 			ParameterIndex = 1,
 			ParameterName = "criminal",
-			ParameterType = (long)FutureProgVariableTypes.Character
+			ParameterType = (long)ProgVariableTypes.Character
 		});
 		warnMoveProg.FutureProgsParameters.Add(new FutureProgsParameter
 		{
 			FutureProg = warnMoveProg,
 			ParameterIndex = 2,
 			ParameterName = "crime",
-			ParameterType = (long)FutureProgVariableTypes.Crime
+			ParameterType = (long)ProgVariableTypes.Crime
 		});
 		Context.FutureProgs.Add(warnMoveProg);
 
@@ -705,7 +705,7 @@ return true"
 			Category = "AI",
 			Subcategory = "Law",
 			FunctionComment = "A prog that is executed when someone fails to comply with an enforcer",
-			ReturnType = (long)FutureProgVariableTypes.Text,
+			ReturnType = (long)ProgVariableTypes.Text,
 			AcceptsAnyParameters = false,
 			Public = false,
 			StaticType = 0,
@@ -718,21 +718,21 @@ return true"
 			FutureProg = failToCompyProg,
 			ParameterIndex = 0,
 			ParameterName = "enforcer",
-			ParameterType = (long)FutureProgVariableTypes.Character
+			ParameterType = (long)ProgVariableTypes.Character
 		});
 		failToCompyProg.FutureProgsParameters.Add(new FutureProgsParameter
 		{
 			FutureProg = failToCompyProg,
 			ParameterIndex = 1,
 			ParameterName = "criminal",
-			ParameterType = (long)FutureProgVariableTypes.Character
+			ParameterType = (long)ProgVariableTypes.Character
 		});
 		failToCompyProg.FutureProgsParameters.Add(new FutureProgsParameter
 		{
 			FutureProg = failToCompyProg,
 			ParameterIndex = 2,
 			ParameterName = "crime",
-			ParameterType = (long)FutureProgVariableTypes.Crime
+			ParameterType = (long)ProgVariableTypes.Crime
 		});
 		Context.FutureProgs.Add(failToCompyProg);
 
@@ -742,7 +742,7 @@ return true"
 			Category = "AI",
 			Subcategory = "Law",
 			FunctionComment = "A prog that is executed when the enforcer throws someone in a cell",
-			ReturnType = (long)FutureProgVariableTypes.Text,
+			ReturnType = (long)ProgVariableTypes.Text,
 			AcceptsAnyParameters = false,
 			Public = false,
 			StaticType = 0,
@@ -755,21 +755,21 @@ return true"
 			FutureProg = throwInCellProg,
 			ParameterIndex = 0,
 			ParameterName = "enforcer",
-			ParameterType = (long)FutureProgVariableTypes.Character
+			ParameterType = (long)ProgVariableTypes.Character
 		});
 		throwInCellProg.FutureProgsParameters.Add(new FutureProgsParameter
 		{
 			FutureProg = throwInCellProg,
 			ParameterIndex = 1,
 			ParameterName = "criminal",
-			ParameterType = (long)FutureProgVariableTypes.Character
+			ParameterType = (long)ProgVariableTypes.Character
 		});
 		throwInCellProg.FutureProgsParameters.Add(new FutureProgsParameter
 		{
 			FutureProg = throwInCellProg,
 			ParameterIndex = 2,
 			ParameterName = "crime",
-			ParameterType = (long)FutureProgVariableTypes.Crime
+			ParameterType = (long)ProgVariableTypes.Crime
 		});
 		Context.FutureProgs.Add(throwInCellProg);
 
@@ -810,7 +810,7 @@ return true"
 			FutureProg = enforcerProg,
 			ParameterIndex = 0,
 			ParameterName = "ch",
-			ParameterType = (long)FutureProgVariableTypes.Character
+			ParameterType = (long)ProgVariableTypes.Character
 		});
 		Context.FutureProgs.Add(enforcerProg);
 
@@ -873,7 +873,7 @@ return true"
 				FutureProg = enforcerProg,
 				ParameterIndex = 0,
 				ParameterName = "ch",
-				ParameterType = (long)FutureProgVariableTypes.Character
+				ParameterType = (long)ProgVariableTypes.Character
 			});
 			Context.FutureProgs.Add(enforcerProg);
 
@@ -940,7 +940,7 @@ return true"
 				FutureProg = enforcerProg,
 				ParameterIndex = 0,
 				ParameterName = "ch",
-				ParameterType = (long)FutureProgVariableTypes.Character
+				ParameterType = (long)ProgVariableTypes.Character
 			});
 			Context.FutureProgs.Add(enforcerProg);
 
@@ -993,7 +993,7 @@ return true"
 					FutureProg = enforcerProg,
 					ParameterIndex = 0,
 					ParameterName = "ch",
-					ParameterType = (long)FutureProgVariableTypes.Character
+					ParameterType = (long)ProgVariableTypes.Character
 				});
 				Context.FutureProgs.Add(enforcerProg);
 
@@ -1050,7 +1050,7 @@ return true"
 				FutureProg = enforcerProg,
 				ParameterIndex = 0,
 				ParameterName = "ch",
-				ParameterType = (long)FutureProgVariableTypes.Character
+				ParameterType = (long)ProgVariableTypes.Character
 			});
 			Context.FutureProgs.Add(enforcerProg);
 
@@ -1115,7 +1115,7 @@ return true"
 					FutureProg = enforcerProg,
 					ParameterIndex = 0,
 					ParameterName = "ch",
-					ParameterType = (long)FutureProgVariableTypes.Character
+					ParameterType = (long)ProgVariableTypes.Character
 				});
 				Context.FutureProgs.Add(enforcerProg);
 
@@ -1195,7 +1195,7 @@ return true"
 						FutureProg = classProg,
 						ParameterIndex = 0,
 						ParameterName = "ch",
-						ParameterType = (long)FutureProgVariableTypes.Character
+						ParameterType = (long)ProgVariableTypes.Character
 					});
 					legalClass = new LegalClass
 					{
@@ -1224,7 +1224,7 @@ return true"
 						FutureProg = classProg,
 						ParameterIndex = 0,
 						ParameterName = "ch",
-						ParameterType = (long)FutureProgVariableTypes.Character
+						ParameterType = (long)ProgVariableTypes.Character
 					});
 					legalClass = new LegalClass
 					{
@@ -1253,7 +1253,7 @@ return true"
 						FutureProg = classProg,
 						ParameterIndex = 0,
 						ParameterName = "ch",
-						ParameterType = (long)FutureProgVariableTypes.Character
+						ParameterType = (long)ProgVariableTypes.Character
 					});
 					legalClass = new LegalClass
 					{
@@ -1283,7 +1283,7 @@ return true"
 						FutureProg = classProg,
 						ParameterIndex = 0,
 						ParameterName = "ch",
-						ParameterType = (long)FutureProgVariableTypes.Character
+						ParameterType = (long)ProgVariableTypes.Character
 					});
 					legalClass = new LegalClass
 					{
@@ -1312,7 +1312,7 @@ return true"
 						FutureProg = classProg,
 						ParameterIndex = 0,
 						ParameterName = "ch",
-						ParameterType = (long)FutureProgVariableTypes.Character
+						ParameterType = (long)ProgVariableTypes.Character
 					});
 					legalClass = new LegalClass
 					{
@@ -1341,7 +1341,7 @@ return true"
 						FutureProg = classProg,
 						ParameterIndex = 0,
 						ParameterName = "ch",
-						ParameterType = (long)FutureProgVariableTypes.Character
+						ParameterType = (long)ProgVariableTypes.Character
 					});
 					legalClass = new LegalClass
 					{
@@ -1370,7 +1370,7 @@ return true"
 						FutureProg = classProg,
 						ParameterIndex = 0,
 						ParameterName = "ch",
-						ParameterType = (long)FutureProgVariableTypes.Character
+						ParameterType = (long)ProgVariableTypes.Character
 					});
 					legalClass = new LegalClass
 					{
@@ -1400,7 +1400,7 @@ return true"
 						FutureProg = classProg,
 						ParameterIndex = 0,
 						ParameterName = "ch",
-						ParameterType = (long)FutureProgVariableTypes.Character
+						ParameterType = (long)ProgVariableTypes.Character
 					});
 					legalClass = new LegalClass
 					{
@@ -1429,7 +1429,7 @@ return true"
 						FutureProg = classProg,
 						ParameterIndex = 0,
 						ParameterName = "ch",
-						ParameterType = (long)FutureProgVariableTypes.Character
+						ParameterType = (long)ProgVariableTypes.Character
 					});
 					legalClass = new LegalClass
 					{
@@ -1458,7 +1458,7 @@ return true"
 						FutureProg = classProg,
 						ParameterIndex = 0,
 						ParameterName = "ch",
-						ParameterType = (long)FutureProgVariableTypes.Character
+						ParameterType = (long)ProgVariableTypes.Character
 					});
 					legalClass = new LegalClass
 					{
@@ -1488,7 +1488,7 @@ return true"
 						FutureProg = classProg,
 						ParameterIndex = 0,
 						ParameterName = "ch",
-						ParameterType = (long)FutureProgVariableTypes.Character
+						ParameterType = (long)ProgVariableTypes.Character
 					});
 					legalClass = new LegalClass
 					{
@@ -1517,7 +1517,7 @@ return true"
 						FutureProg = classProg,
 						ParameterIndex = 0,
 						ParameterName = "ch",
-						ParameterType = (long)FutureProgVariableTypes.Character
+						ParameterType = (long)ProgVariableTypes.Character
 					});
 					legalClass = new LegalClass
 					{
@@ -1546,7 +1546,7 @@ return true"
 						FutureProg = classProg,
 						ParameterIndex = 0,
 						ParameterName = "ch",
-						ParameterType = (long)FutureProgVariableTypes.Character
+						ParameterType = (long)ProgVariableTypes.Character
 					});
 					legalClass = new LegalClass
 					{

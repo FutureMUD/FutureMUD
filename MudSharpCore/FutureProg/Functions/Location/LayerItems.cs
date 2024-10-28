@@ -27,7 +27,7 @@ internal class LayerItems : BuiltInFunction
 		FutureProg.RegisterBuiltInFunctionCompiler(
 			new FunctionCompilerInformation(
 				"LayerItems".ToLowerInvariant(),
-				new[] { FutureProgVariableTypes.Location, FutureProgVariableTypes.Text },
+				new[] { ProgVariableTypes.Location, ProgVariableTypes.Text },
 				(pars, gameworld) => new LayerItems(pars, gameworld),
 				new List<string> { "Location", "Layer" },
 				new List<string>
@@ -37,7 +37,7 @@ internal class LayerItems : BuiltInFunction
 				},
 				"This function returns the items that are present at a specified layer in a room. See the ROOMLAYERS function for information on how to determine what layers are present.",
 				"Rooms",
-				FutureProgVariableTypes.Item | FutureProgVariableTypes.Collection
+				ProgVariableTypes.Item | ProgVariableTypes.Collection
 			)
 		);
 	}
@@ -53,9 +53,9 @@ internal class LayerItems : BuiltInFunction
 
 	#endregion
 
-	public override FutureProgVariableTypes ReturnType
+	public override ProgVariableTypes ReturnType
 	{
-		get => FutureProgVariableTypes.Item | FutureProgVariableTypes.Collection;
+		get => ProgVariableTypes.Item | ProgVariableTypes.Collection;
 		protected set { }
 	}
 
@@ -68,24 +68,24 @@ internal class LayerItems : BuiltInFunction
 
 		if (ParameterFunctions[0].Result is not ICell location)
 		{
-			Result = new CollectionVariable(new List<IGameItem>(), FutureProgVariableTypes.Item);
+			Result = new CollectionVariable(new List<IGameItem>(), ProgVariableTypes.Item);
 			return StatementResult.Normal;
 		}
 
 		var layerText = ParameterFunctions[1].Result?.GetObject?.ToString();
 		if (string.IsNullOrEmpty(layerText))
 		{
-			Result = new CollectionVariable(new List<IGameItem>(), FutureProgVariableTypes.Item);
+			Result = new CollectionVariable(new List<IGameItem>(), ProgVariableTypes.Item);
 			return StatementResult.Normal;
 		}
 
 		if (!Utilities.TryParseEnum<RoomLayer>(layerText, out var layer))
 		{
-			Result = new CollectionVariable(new List<IGameItem>(), FutureProgVariableTypes.Item);
+			Result = new CollectionVariable(new List<IGameItem>(), ProgVariableTypes.Item);
 			return StatementResult.Normal;
 		}
 
-		Result = new CollectionVariable(location.LayerGameItems(layer).ToList(), FutureProgVariableTypes.Item);
+		Result = new CollectionVariable(location.LayerGameItems(layer).ToList(), ProgVariableTypes.Item);
 		return StatementResult.Normal;
 	}
 }

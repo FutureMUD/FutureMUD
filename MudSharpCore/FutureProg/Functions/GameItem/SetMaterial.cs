@@ -27,7 +27,7 @@ internal class SetMaterial : BuiltInFunction
 		FutureProg.RegisterBuiltInFunctionCompiler(
 			new FunctionCompilerInformation(
 				"SetMaterial".ToLowerInvariant(),
-				new[] { FutureProgVariableTypes.Item, FutureProgVariableTypes.Solid },
+				new[] { ProgVariableTypes.Item, ProgVariableTypes.Solid },
 				(pars, gameworld) => new SetMaterial(pars, gameworld),
 				new List<string> { "item", "material" },
 				new List<string>
@@ -37,14 +37,14 @@ internal class SetMaterial : BuiltInFunction
 				},
 				"This function sets the primary material of an item to the specified material. It returns true if this succeeds.",
 				"Items",
-				FutureProgVariableTypes.Boolean
+				ProgVariableTypes.Boolean
 			)
 		);
 
 		FutureProg.RegisterBuiltInFunctionCompiler(
 			new FunctionCompilerInformation(
 				"SetMaterial".ToLowerInvariant(),
-				new[] { FutureProgVariableTypes.Item, FutureProgVariableTypes.Number },
+				new[] { ProgVariableTypes.Item, ProgVariableTypes.Number },
 				(pars, gameworld) => new SetMaterial(pars, gameworld),
 				new List<string> { "item", "material" },
 				new List<string>
@@ -54,14 +54,14 @@ internal class SetMaterial : BuiltInFunction
 				},
 				"This function sets the primary material of an item to the specified material. It returns true if this succeeds.",
 				"Items",
-				FutureProgVariableTypes.Boolean
+				ProgVariableTypes.Boolean
 			)
 		);
 
 		FutureProg.RegisterBuiltInFunctionCompiler(
 			new FunctionCompilerInformation(
 				"SetMaterial".ToLowerInvariant(),
-				new[] { FutureProgVariableTypes.Item, FutureProgVariableTypes.Text },
+				new[] { ProgVariableTypes.Item, ProgVariableTypes.Text },
 				(pars, gameworld) => new SetMaterial(pars, gameworld),
 				new List<string> { "item", "material" },
 				new List<string>
@@ -71,7 +71,7 @@ internal class SetMaterial : BuiltInFunction
 				},
 				"This function sets the primary material of an item to the specified material. It returns true if this succeeds.",
 				"Items",
-				FutureProgVariableTypes.Boolean
+				ProgVariableTypes.Boolean
 			)
 		);
 	}
@@ -87,9 +87,9 @@ internal class SetMaterial : BuiltInFunction
 
 	#endregion
 
-	public override FutureProgVariableTypes ReturnType
+	public override ProgVariableTypes ReturnType
 	{
-		get => FutureProgVariableTypes.Boolean;
+		get => ProgVariableTypes.Boolean;
 		protected set { }
 	}
 
@@ -108,11 +108,11 @@ internal class SetMaterial : BuiltInFunction
 		}
 
 		ISolid material;
-		if (ParameterFunctions[1].ReturnType.CompatibleWith(FutureProgVariableTypes.Solid))
+		if (ParameterFunctions[1].ReturnType.CompatibleWith(ProgVariableTypes.Solid))
 		{
 			material = (ISolid)ParameterFunctions[1].Result?.GetObject;
 		}
-		else if (ParameterFunctions[1].ReturnType.CompatibleWith(FutureProgVariableTypes.Number))
+		else if (ParameterFunctions[1].ReturnType.CompatibleWith(ProgVariableTypes.Number))
 		{
 			material = Gameworld.Materials.Get(Convert.ToInt64(ParameterFunctions[1].Result?.GetObject ?? 0));
 		}

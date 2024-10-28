@@ -73,23 +73,23 @@ public class CannulationProcedure : BodypartSpecificSurgicalProcedure
 	#3{1}#0 - the description of the bodypart being cannulated
 ".SubstituteANSIColour();
 
-	protected override IEnumerable<IEnumerable<FutureProgVariableTypes>> ParametersForCancelProg => new[]
+	protected override IEnumerable<IEnumerable<ProgVariableTypes>> ParametersForCancelProg => new[]
 	{
 		new[]
 		{
-			FutureProgVariableTypes.Character,
-			FutureProgVariableTypes.Character,
-			FutureProgVariableTypes.Number,
-			FutureProgVariableTypes.Text,
-			FutureProgVariableTypes.Item
+			ProgVariableTypes.Character,
+			ProgVariableTypes.Character,
+			ProgVariableTypes.Number,
+			ProgVariableTypes.Text,
+			ProgVariableTypes.Item
 		},
 		new[]
 		{
-			FutureProgVariableTypes.Character,
-			FutureProgVariableTypes.Character,
-			FutureProgVariableTypes.Text,
-			FutureProgVariableTypes.Text,
-			FutureProgVariableTypes.Item
+			ProgVariableTypes.Character,
+			ProgVariableTypes.Character,
+			ProgVariableTypes.Text,
+			ProgVariableTypes.Text,
+			ProgVariableTypes.Item
 		},
 	};
 

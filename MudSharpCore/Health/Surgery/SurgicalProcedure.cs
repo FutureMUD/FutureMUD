@@ -675,39 +675,39 @@ public abstract class SurgicalProcedure : SaveableItem, ISurgicalProcedure
 		}
 	}
 
-	protected virtual IEnumerable<IEnumerable<FutureProgVariableTypes>> ParametersForCompletionProg => new[] {
+	protected virtual IEnumerable<IEnumerable<ProgVariableTypes>> ParametersForCompletionProg => new[] {
 				new[]
 				{
-					FutureProgVariableTypes.Character,
-					FutureProgVariableTypes.Character,
-					FutureProgVariableTypes.Number,
-					FutureProgVariableTypes.Text,
-					FutureProgVariableTypes.Item
+					ProgVariableTypes.Character,
+					ProgVariableTypes.Character,
+					ProgVariableTypes.Number,
+					ProgVariableTypes.Text,
+					ProgVariableTypes.Item
 				},
 				new[]
 				{
-					FutureProgVariableTypes.Character,
-					FutureProgVariableTypes.Character,
-					FutureProgVariableTypes.Text,
-					FutureProgVariableTypes.Text,
-					FutureProgVariableTypes.Item
+					ProgVariableTypes.Character,
+					ProgVariableTypes.Character,
+					ProgVariableTypes.Text,
+					ProgVariableTypes.Text,
+					ProgVariableTypes.Item
 				},
 			};
 
-	protected virtual IEnumerable<IEnumerable<FutureProgVariableTypes>> ParametersForCancelProg => new[] {
+	protected virtual IEnumerable<IEnumerable<ProgVariableTypes>> ParametersForCancelProg => new[] {
 		new[]
 		{
-			FutureProgVariableTypes.Character,
-			FutureProgVariableTypes.Character,
-			FutureProgVariableTypes.Number,
-			FutureProgVariableTypes.Text
+			ProgVariableTypes.Character,
+			ProgVariableTypes.Character,
+			ProgVariableTypes.Number,
+			ProgVariableTypes.Text
 		},
 		new[]
 		{
-			FutureProgVariableTypes.Character,
-			FutureProgVariableTypes.Character,
-			FutureProgVariableTypes.Text,
-			FutureProgVariableTypes.Text
+			ProgVariableTypes.Character,
+			ProgVariableTypes.Character,
+			ProgVariableTypes.Text,
+			ProgVariableTypes.Text
 		},
 	};
 
@@ -1082,10 +1082,10 @@ There are the following special phase actions available for this surgical proced
 		}
 
 		var prog = new ProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument,
-			FutureProgVariableTypes.Void, new[]
+			ProgVariableTypes.Void, new[]
 			{
-				FutureProgVariableTypes.Character,
-				FutureProgVariableTypes.Character
+				ProgVariableTypes.Character,
+				ProgVariableTypes.Character
 			}).LookupProg();
 
 		if (prog is null)
@@ -1380,7 +1380,7 @@ There are the following special phase actions available for this surgical proced
 		}
 
 		var prog = new ProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument,
-			FutureProgVariableTypes.Void,
+			ProgVariableTypes.Void,
 			ParametersForCancelProg).LookupProg();
 		if (prog is null)
 		{
@@ -1410,7 +1410,7 @@ There are the following special phase actions available for this surgical proced
 		}
 
 		var prog = new ProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument,
-			FutureProgVariableTypes.Void,
+			ProgVariableTypes.Void,
 			ParametersForCompletionProg).LookupProg();
 		if (prog is null)
 		{
@@ -1432,11 +1432,11 @@ There are the following special phase actions available for this surgical proced
 		}
 
 		var prog = new ProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument,
-			FutureProgVariableTypes.Text,
+			ProgVariableTypes.Text,
 			new[]
 			{
-				FutureProgVariableTypes.Character,
-				FutureProgVariableTypes.Character
+				ProgVariableTypes.Character,
+				ProgVariableTypes.Character
 			}).LookupProg();
 		if (prog is null)
 		{
@@ -1458,11 +1458,11 @@ There are the following special phase actions available for this surgical proced
 		}
 
 		var prog = new ProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument, 
-			FutureProgVariableTypes.Boolean, 
+			ProgVariableTypes.Boolean, 
 			new[]
 			{
-				FutureProgVariableTypes.Character,
-				FutureProgVariableTypes.Character
+				ProgVariableTypes.Character,
+				ProgVariableTypes.Character
 			}).LookupProg();
 		if (prog is null)
 		{

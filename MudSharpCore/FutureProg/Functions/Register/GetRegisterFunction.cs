@@ -43,8 +43,8 @@ internal class GetRegisterFunction : BuiltInFunction, IHaveFuturemud
 				"getregister",
 				new[]
 				{
-					FutureProgVariableTypes.CollectionItem,
-					FutureProgVariableTypes.Text | FutureProgVariableTypes.Literal
+					ProgVariableTypes.CollectionItem,
+					ProgVariableTypes.Text | ProgVariableTypes.Literal
 				},
 				(pars, gameworld) => new GetRegisterFunction(pars, gameworld),
 				new[] { "thing", "variable" },
@@ -55,7 +55,7 @@ internal class GetRegisterFunction : BuiltInFunction, IHaveFuturemud
 				},
 				"This function retrieves the 'register variable' specified for a thing that you specify. Which register variables are available are defined on a per-type basis. See the REGISTER command in game for more information. The return type is as it appears in the register command, not actually a CollectionItem.",
 				"Register",
-				FutureProgVariableTypes.CollectionItem
+				ProgVariableTypes.CollectionItem
 			)
 		);
 	}

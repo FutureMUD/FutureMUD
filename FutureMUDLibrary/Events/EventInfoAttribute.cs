@@ -12,9 +12,9 @@ namespace MudSharp.Events
         public string Description { get; }
         public IEnumerable<(string type,string name)> Parameters { get; }
 
-        public IEnumerable<FutureProgVariableTypes> ProgTypes { get; }
+        public IEnumerable<ProgVariableTypes> ProgTypes { get; }
 
-        public EventInfoAttribute(string description, string[] parameterTypes, string[] parameterNames, FutureProgVariableTypes[] progTypes) {
+        public EventInfoAttribute(string description, string[] parameterTypes, string[] parameterNames, ProgVariableTypes[] progTypes) {
             Description = description;
             Parameters = parameterTypes.Zip(parameterNames, (type, name) => (type, name)).ToList();
             ProgTypes = progTypes;

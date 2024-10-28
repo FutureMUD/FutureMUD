@@ -13,9 +13,9 @@ internal class OutranksFunction : BuiltInFunction
 	{
 	}
 
-	public override FutureProgVariableTypes ReturnType
+	public override ProgVariableTypes ReturnType
 	{
-		get => FutureProgVariableTypes.Boolean;
+		get => ProgVariableTypes.Boolean;
 		protected set { }
 	}
 
@@ -87,8 +87,8 @@ internal class OutranksFunction : BuiltInFunction
 				"outranks",
 				new[]
 				{
-					FutureProgVariableTypes.Character, FutureProgVariableTypes.Character,
-					FutureProgVariableTypes.Clan
+					ProgVariableTypes.Character, ProgVariableTypes.Character,
+					ProgVariableTypes.Clan
 				},
 				(pars, gameworld) => new IsClanMemberFunction(pars)
 			)

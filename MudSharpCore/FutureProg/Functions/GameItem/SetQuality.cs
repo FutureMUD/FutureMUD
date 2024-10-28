@@ -26,7 +26,7 @@ internal class SetQuality : BuiltInFunction
 		FutureProg.RegisterBuiltInFunctionCompiler(
 			new FunctionCompilerInformation(
 				"setquality",
-				new[] { FutureProgVariableTypes.Item, FutureProgVariableTypes.Number },
+				new[] { ProgVariableTypes.Item, ProgVariableTypes.Number },
 				(pars, gameworld) => new SetQuality(pars, gameworld),
 				new List<string> { "item", "quality" },
 				new List<string>
@@ -35,14 +35,14 @@ internal class SetQuality : BuiltInFunction
 				},
 				"This function sets the quality of an item to whatever quality you specify.",
 				"Items",
-				FutureProgVariableTypes.Boolean
+				ProgVariableTypes.Boolean
 			)
 		);
 
 		FutureProg.RegisterBuiltInFunctionCompiler(
 			new FunctionCompilerInformation(
 				"setquality",
-				new[] { FutureProgVariableTypes.Item, FutureProgVariableTypes.Text },
+				new[] { ProgVariableTypes.Item, ProgVariableTypes.Text },
 				(pars, gameworld) => new SetQuality(pars, gameworld),
 				new List<string> { "item", "quality" },
 				new List<string>
@@ -52,7 +52,7 @@ internal class SetQuality : BuiltInFunction
 				},
 				"This function sets the quality of an item to whatever quality you specify.",
 				"Items",
-				FutureProgVariableTypes.Boolean
+				ProgVariableTypes.Boolean
 			)
 		);
 	}
@@ -68,9 +68,9 @@ internal class SetQuality : BuiltInFunction
 
 	#endregion
 
-	public override FutureProgVariableTypes ReturnType
+	public override ProgVariableTypes ReturnType
 	{
-		get => FutureProgVariableTypes.Boolean;
+		get => ProgVariableTypes.Boolean;
 		protected set { }
 	}
 
@@ -89,7 +89,7 @@ internal class SetQuality : BuiltInFunction
 		}
 
 		ItemQuality quality;
-		if (ParameterFunctions[1].ReturnType.CompatibleWith(FutureProgVariableTypes.Number))
+		if (ParameterFunctions[1].ReturnType.CompatibleWith(ProgVariableTypes.Number))
 		{
 			quality = (ItemQuality)Convert.ToInt32(ParameterFunctions[1].Result?.GetObject ?? 0);
 			if (!Enum.IsDefined(typeof(ItemQuality), quality))

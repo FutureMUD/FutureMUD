@@ -21,9 +21,9 @@ internal class BestKeywordFunction : BuiltInFunction
 		ConsiderRoomContents = considerRoomContents;
 	}
 
-	public override FutureProgVariableTypes ReturnType
+	public override ProgVariableTypes ReturnType
 	{
-		get => FutureProgVariableTypes.Text;
+		get => ProgVariableTypes.Text;
 		protected set { }
 	}
 
@@ -44,7 +44,7 @@ internal class BestKeywordFunction : BuiltInFunction
 			return StatementResult.Error;
 		}
 
-		if (ParameterFunctions[1].ReturnType.CompatibleWith(FutureProgVariableTypes.Character))
+		if (ParameterFunctions[1].ReturnType.CompatibleWith(ProgVariableTypes.Character))
 		{
 			var target = (ICharacter)ParameterFunctions[1].Result;
 			if (target == null)
@@ -73,7 +73,7 @@ internal class BestKeywordFunction : BuiltInFunction
 			return StatementResult.Normal;
 		}
 
-		if (ParameterFunctions[1].ReturnType.CompatibleWith(FutureProgVariableTypes.Item))
+		if (ParameterFunctions[1].ReturnType.CompatibleWith(ProgVariableTypes.Item))
 		{
 			var target = (IGameItem)ParameterFunctions[1].Result;
 			if (target == null)
@@ -133,8 +133,8 @@ internal class BestKeywordFunction : BuiltInFunction
 			"bestkeyword",
 			new[]
 			{
-				FutureProgVariableTypes.Character,
-				FutureProgVariableTypes.Character
+				ProgVariableTypes.Character,
+				ProgVariableTypes.Character
 			},
 			(pars, gameworld) =>
 				new BestKeywordFunction(pars, gameworld, false, false),
@@ -146,15 +146,15 @@ internal class BestKeywordFunction : BuiltInFunction
 			},
 			"This function allows you to determine what the 'best' keyword is for a target from a source. In this case, best implies a unique keyword that will allow the source to target the target through all regular commands.",
 			"Utilities",
-			FutureProgVariableTypes.Text
+			ProgVariableTypes.Text
 		));
 
 		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
 			"bestkeyword",
 			new[]
 			{
-				FutureProgVariableTypes.Character,
-				FutureProgVariableTypes.Item
+				ProgVariableTypes.Character,
+				ProgVariableTypes.Item
 			},
 			(pars, gameworld) =>
 				new BestKeywordFunction(pars, gameworld, true, true),
@@ -166,15 +166,15 @@ internal class BestKeywordFunction : BuiltInFunction
 			},
 			"This function allows you to determine what the 'best' keyword is for a target from a source. In this case, best implies a unique keyword that will allow the source to target the target through all regular commands. This version of the command considers both the player's inventory and the room contents.",
 			"Utilities",
-			FutureProgVariableTypes.Text
+			ProgVariableTypes.Text
 		));
 
 		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
 			"bestkeywordinventory",
 			new[]
 			{
-				FutureProgVariableTypes.Character,
-				FutureProgVariableTypes.Item
+				ProgVariableTypes.Character,
+				ProgVariableTypes.Item
 			},
 			(pars, gameworld) =>
 				new BestKeywordFunction(pars, gameworld, true, false),
@@ -186,15 +186,15 @@ internal class BestKeywordFunction : BuiltInFunction
 			},
 			"This function allows you to determine what the 'best' keyword is for a target from a source. In this case, best implies a unique keyword that will allow the source to target the target through all regular commands. This version of the command considers only the player's inventory and not the room contents.",
 			"Utilities",
-			FutureProgVariableTypes.Text
+			ProgVariableTypes.Text
 		));
 
 		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
 			"bestkeywordroom",
 			new[]
 			{
-				FutureProgVariableTypes.Character,
-				FutureProgVariableTypes.Item
+				ProgVariableTypes.Character,
+				ProgVariableTypes.Item
 			},
 			(pars, gameworld) =>
 				new BestKeywordFunction(pars, gameworld, false, true),
@@ -206,7 +206,7 @@ internal class BestKeywordFunction : BuiltInFunction
 			},
 			"This function allows you to determine what the 'best' keyword is for a target from a source. In this case, best implies a unique keyword that will allow the source to target the target through all regular commands. This version of the command considers only the room contents and not the player's inventory.",
 			"Utilities",
-			FutureProgVariableTypes.Text
+			ProgVariableTypes.Text
 		));
 	}
 }

@@ -5,15 +5,15 @@ using MudSharp.FutureProg.Variables;
 
 namespace MudSharp.Effects;
 
-public partial class Effect : IFutureProgVariable
+public partial class Effect : IProgVariable
 {
 	#region IFutureProgVariable Implementation
 
-	public FutureProgVariableTypes Type => FutureProgVariableTypes.Effect;
+	public ProgVariableTypes Type => ProgVariableTypes.Effect;
 
 	public object GetObject => this;
 
-	public IFutureProgVariable GetProperty(string property)
+	public IProgVariable GetProperty(string property)
 	{
 		switch (property.ToLowerInvariant())
 		{
@@ -30,31 +30,31 @@ public partial class Effect : IFutureProgVariable
 		}
 	}
 
-	private static FutureProgVariableTypes DotReferenceHandler(string property)
+	private static ProgVariableTypes DotReferenceHandler(string property)
 	{
 		switch (property.ToLowerInvariant())
 		{
 			case "id":
-				return FutureProgVariableTypes.Number;
+				return ProgVariableTypes.Number;
 			case "name":
-				return FutureProgVariableTypes.Text;
+				return ProgVariableTypes.Text;
 			case "type":
-				return FutureProgVariableTypes.Text;
+				return ProgVariableTypes.Text;
 			case "owner":
-				return FutureProgVariableTypes.Perceivable;
+				return ProgVariableTypes.Perceivable;
 			default:
-				return FutureProgVariableTypes.Error;
+				return ProgVariableTypes.Error;
 		}
 	}
 
-	private static IReadOnlyDictionary<string, FutureProgVariableTypes> DotReferenceHandler()
+	private static IReadOnlyDictionary<string, ProgVariableTypes> DotReferenceHandler()
 	{
-		return new Dictionary<string, FutureProgVariableTypes>(StringComparer.InvariantCultureIgnoreCase)
+		return new Dictionary<string, ProgVariableTypes>(StringComparer.InvariantCultureIgnoreCase)
 		{
-			{ "id", FutureProgVariableTypes.Number },
-			{ "name", FutureProgVariableTypes.Text },
-			{ "type", FutureProgVariableTypes.Text },
-			{ "owner", FutureProgVariableTypes.Perceivable }
+			{ "id", ProgVariableTypes.Number },
+			{ "name", ProgVariableTypes.Text },
+			{ "type", ProgVariableTypes.Text },
+			{ "owner", ProgVariableTypes.Perceivable }
 		};
 	}
 
@@ -71,7 +71,7 @@ public partial class Effect : IFutureProgVariable
 
 	public static void RegisterFutureProgCompiler()
 	{
-		FutureProgVariable.RegisterDotReferenceCompileInfo(FutureProgVariableTypes.Effect, DotReferenceHandler(),
+		ProgVariable.RegisterDotReferenceCompileInfo(ProgVariableTypes.Effect, DotReferenceHandler(),
 			DotReferenceHelp());
 	}
 

@@ -28,7 +28,7 @@ internal class Return : Statement
 	public override bool IsReturnOrContainsReturnOnAllBranches() => true;
 
 	private static ICompileInfo ReturnCompile(IEnumerable<string> lines,
-		IDictionary<string, FutureProgVariableTypes> variableSpace, int lineNumber, IFuturemud gameworld)
+		IDictionary<string, ProgVariableTypes> variableSpace, int lineNumber, IFuturemud gameworld)
 	{
 		var match = ReturnCompileRegex.Match(lines.First());
 
@@ -94,7 +94,7 @@ internal class Return : Statement
 			new Tuple
 			<Regex,
 				Func
-				<IEnumerable<string>, IDictionary<string, FutureProgVariableTypes>, int, IFuturemud, ICompileInfo>>(
+				<IEnumerable<string>, IDictionary<string, ProgVariableTypes>, int, IFuturemud, ICompileInfo>>(
 				ReturnCompileRegex, ReturnCompile)
 		);
 

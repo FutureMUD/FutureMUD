@@ -275,44 +275,44 @@ public class Ethnicity : SaveableItem, IEthnicity
 
 	#region IFutureProgVariable Members
 
-	private static FutureProgVariableTypes DotReferenceHandler(string property)
+	private static ProgVariableTypes DotReferenceHandler(string property)
 	{
-		var returnVar = FutureProgVariableTypes.Error;
+		var returnVar = ProgVariableTypes.Error;
 		switch (property.ToLowerInvariant())
 		{
 			case "id":
-				returnVar = FutureProgVariableTypes.Number;
+				returnVar = ProgVariableTypes.Number;
 				break;
 			case "name":
-				returnVar = FutureProgVariableTypes.Text;
+				returnVar = ProgVariableTypes.Text;
 				break;
 			case "ethnicgroup":
 			case "group":
-				returnVar = FutureProgVariableTypes.Text;
+				returnVar = ProgVariableTypes.Text;
 				break;
 			case "ethnicsubgroup":
 			case "subgroup":
-				returnVar = FutureProgVariableTypes.Text;
+				returnVar = ProgVariableTypes.Text;
 				break;
 			case "parentrace":
-				returnVar = FutureProgVariableTypes.Race;
+				returnVar = ProgVariableTypes.Race;
 				break;
 		}
 
 		return returnVar;
 	}
 
-	private static IReadOnlyDictionary<string, FutureProgVariableTypes> DotReferenceHandler()
+	private static IReadOnlyDictionary<string, ProgVariableTypes> DotReferenceHandler()
 	{
-		return new Dictionary<string, FutureProgVariableTypes>(StringComparer.InvariantCultureIgnoreCase)
+		return new Dictionary<string, ProgVariableTypes>(StringComparer.InvariantCultureIgnoreCase)
 		{
-			{ "id", FutureProgVariableTypes.Number },
-			{ "name", FutureProgVariableTypes.Text },
-			{ "group", FutureProgVariableTypes.Text },
-			{ "subgroup", FutureProgVariableTypes.Text },
-			{ "ethnicgroup", FutureProgVariableTypes.Text },
-			{ "ethnicsubgroup", FutureProgVariableTypes.Text },
-			{ "parentrace", FutureProgVariableTypes.Race }
+			{ "id", ProgVariableTypes.Number },
+			{ "name", ProgVariableTypes.Text },
+			{ "group", ProgVariableTypes.Text },
+			{ "subgroup", ProgVariableTypes.Text },
+			{ "ethnicgroup", ProgVariableTypes.Text },
+			{ "ethnicsubgroup", ProgVariableTypes.Text },
+			{ "parentrace", ProgVariableTypes.Race }
 		};
 	}
 
@@ -332,13 +332,13 @@ public class Ethnicity : SaveableItem, IEthnicity
 
 	public static void RegisterFutureProgCompiler()
 	{
-		FutureProgVariable.RegisterDotReferenceCompileInfo(FutureProgVariableTypes.Ethnicity, DotReferenceHandler(),
+		ProgVariable.RegisterDotReferenceCompileInfo(ProgVariableTypes.Ethnicity, DotReferenceHandler(),
 			DotReferenceHelp());
 	}
 
-	public IFutureProgVariable GetProperty(string property)
+	public IProgVariable GetProperty(string property)
 	{
-		IFutureProgVariable returnVar = null;
+		IProgVariable returnVar = null;
 		switch (property.ToLowerInvariant())
 		{
 			case "id":
@@ -363,7 +363,7 @@ public class Ethnicity : SaveableItem, IEthnicity
 		return returnVar;
 	}
 
-	public FutureProgVariableTypes Type => FutureProgVariableTypes.Ethnicity;
+	public ProgVariableTypes Type => ProgVariableTypes.Ethnicity;
 
 	public object GetObject => this;
 
@@ -727,14 +727,14 @@ public class Ethnicity : SaveableItem, IEthnicity
 			return false;
 		}
 
-		if (!prog.ReturnType.CompatibleWith(FutureProgVariableTypes.Boolean))
+		if (!prog.ReturnType.CompatibleWith(ProgVariableTypes.Boolean))
 		{
 			actor.OutputHandler.Send(
 				$"You must specify a prog that returns a boolean value, whereas {prog.MXPClickableFunctionName()} returns {prog.ReturnType.Describe().ColourName()}.");
 			return false;
 		}
 
-		if (!prog.MatchesParameters(new List<FutureProgVariableTypes> { FutureProgVariableTypes.Chargen }))
+		if (!prog.MatchesParameters(new List<ProgVariableTypes> { ProgVariableTypes.Chargen }))
 		{
 			actor.OutputHandler.Send(
 				$"You must specify a prog that accepts one parameter: a Chargen, whereas {prog.MXPClickableFunctionNameWithId()} does not.");

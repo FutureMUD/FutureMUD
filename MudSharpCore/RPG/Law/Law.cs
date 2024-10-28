@@ -306,7 +306,7 @@ public class Law : SaveableItem, ILaw
 
 	private bool CalculateLawAppliesInvoker(IFutureProg prog)
 	{
-		if (prog.MatchesParameters(new[] { FutureProgVariableTypes.Character, FutureProgVariableTypes.Character }))
+		if (prog.MatchesParameters(new[] { ProgVariableTypes.Character, ProgVariableTypes.Character }))
 		{
 			LawAppliesInvoker = (criminal, victim, item, id, crime) =>
 				LawAppliesProg.Execute<bool?>(criminal, victim) == true;
@@ -314,7 +314,7 @@ public class Law : SaveableItem, ILaw
 		}
 
 		if (prog.MatchesParameters(new[]
-			    { FutureProgVariableTypes.Character, FutureProgVariableTypes.Character, FutureProgVariableTypes.Item }))
+			    { ProgVariableTypes.Character, ProgVariableTypes.Character, ProgVariableTypes.Item }))
 		{
 			LawAppliesInvoker = (criminal, victim, item, id, crime) =>
 				LawAppliesProg.Execute<bool?>(criminal, victim, item) == true;
@@ -323,7 +323,7 @@ public class Law : SaveableItem, ILaw
 
 		if (prog.MatchesParameters(new[]
 		    {
-			    FutureProgVariableTypes.Character, FutureProgVariableTypes.Character, FutureProgVariableTypes.Number
+			    ProgVariableTypes.Character, ProgVariableTypes.Character, ProgVariableTypes.Number
 		    }))
 		{
 			LawAppliesInvoker = (criminal, victim, item, id, crime) =>
@@ -333,8 +333,8 @@ public class Law : SaveableItem, ILaw
 
 		if (prog.MatchesParameters(new[]
 		    {
-			    FutureProgVariableTypes.Character, FutureProgVariableTypes.Character, FutureProgVariableTypes.Item,
-			    FutureProgVariableTypes.Number
+			    ProgVariableTypes.Character, ProgVariableTypes.Character, ProgVariableTypes.Item,
+			    ProgVariableTypes.Number
 		    }))
 		{
 			LawAppliesInvoker = (criminal, victim, item, id, crime) =>
@@ -344,8 +344,8 @@ public class Law : SaveableItem, ILaw
 
 		if (prog.MatchesParameters(new[]
 		    {
-			    FutureProgVariableTypes.Character, FutureProgVariableTypes.Character, FutureProgVariableTypes.Number,
-			    FutureProgVariableTypes.Text
+			    ProgVariableTypes.Character, ProgVariableTypes.Character, ProgVariableTypes.Number,
+			    ProgVariableTypes.Text
 		    }))
 		{
 			LawAppliesInvoker = (criminal, victim, item, id, crime) =>
@@ -355,8 +355,8 @@ public class Law : SaveableItem, ILaw
 
 		if (prog.MatchesParameters(new[]
 		    {
-			    FutureProgVariableTypes.Character, FutureProgVariableTypes.Character, FutureProgVariableTypes.Item,
-			    FutureProgVariableTypes.Number, FutureProgVariableTypes.Text
+			    ProgVariableTypes.Character, ProgVariableTypes.Character, ProgVariableTypes.Item,
+			    ProgVariableTypes.Number, ProgVariableTypes.Text
 		    }))
 		{
 			LawAppliesInvoker = (criminal, victim, item, id, crime) =>
@@ -365,7 +365,7 @@ public class Law : SaveableItem, ILaw
 		}
 
 		if (prog.MatchesParameters(new[]
-			    { FutureProgVariableTypes.Character, FutureProgVariableTypes.Character, FutureProgVariableTypes.Text }))
+			    { ProgVariableTypes.Character, ProgVariableTypes.Character, ProgVariableTypes.Text }))
 		{
 			LawAppliesInvoker = (criminal, victim, item, id, crime) =>
 				LawAppliesProg.Execute<bool?>(criminal, victim, crime) == true;
@@ -374,8 +374,8 @@ public class Law : SaveableItem, ILaw
 
 		if (prog.MatchesParameters(new[]
 		    {
-			    FutureProgVariableTypes.Character, FutureProgVariableTypes.Character, FutureProgVariableTypes.Item,
-			    FutureProgVariableTypes.Text
+			    ProgVariableTypes.Character, ProgVariableTypes.Character, ProgVariableTypes.Item,
+			    ProgVariableTypes.Text
 		    }))
 		{
 			LawAppliesInvoker = (criminal, victim, item, id, crime) =>
@@ -422,7 +422,7 @@ public class Law : SaveableItem, ILaw
 			return false;
 		}
 
-		if (!prog.ReturnType.CompatibleWith(FutureProgVariableTypes.Boolean))
+		if (!prog.ReturnType.CompatibleWith(ProgVariableTypes.Boolean))
 		{
 			actor.OutputHandler.Send("You must specify a prog that returns a boolean value.");
 			return false;
@@ -717,10 +717,10 @@ public class Law : SaveableItem, ILaw
 
 	#region FutureProg Implementation
 
-	public FutureProgVariableTypes Type => FutureProgVariableTypes.Law;
+	public ProgVariableTypes Type => ProgVariableTypes.Law;
 	public object GetObject => this;
 
-	public IFutureProgVariable GetProperty(string property)
+	public IProgVariable GetProperty(string property)
 	{
 		switch (property.ToLowerInvariant())
 		{
@@ -749,20 +749,20 @@ public class Law : SaveableItem, ILaw
 		}
 	}
 
-	private static IReadOnlyDictionary<string, FutureProgVariableTypes> DotReferenceHandler()
+	private static IReadOnlyDictionary<string, ProgVariableTypes> DotReferenceHandler()
 	{
-		return new Dictionary<string, FutureProgVariableTypes>(StringComparer.InvariantCultureIgnoreCase)
+		return new Dictionary<string, ProgVariableTypes>(StringComparer.InvariantCultureIgnoreCase)
 		{
-			{ "id", FutureProgVariableTypes.Number },
-			{ "name", FutureProgVariableTypes.Text },
-			{ "authority", FutureProgVariableTypes.LegalAuthority },
-			{ "crimename", FutureProgVariableTypes.Text },
-			{ "crimetype", FutureProgVariableTypes.Number },
-			{ "isviolentcrime", FutureProgVariableTypes.Boolean },
-			{ "ismoralcrime", FutureProgVariableTypes.Boolean },
-			{ "ismajorcrime", FutureProgVariableTypes.Boolean },
-			{ "isarrestable", FutureProgVariableTypes.Boolean },
-			{ "iskillable", FutureProgVariableTypes.Boolean }
+			{ "id", ProgVariableTypes.Number },
+			{ "name", ProgVariableTypes.Text },
+			{ "authority", ProgVariableTypes.LegalAuthority },
+			{ "crimename", ProgVariableTypes.Text },
+			{ "crimetype", ProgVariableTypes.Number },
+			{ "isviolentcrime", ProgVariableTypes.Boolean },
+			{ "ismoralcrime", ProgVariableTypes.Boolean },
+			{ "ismajorcrime", ProgVariableTypes.Boolean },
+			{ "isarrestable", ProgVariableTypes.Boolean },
+			{ "iskillable", ProgVariableTypes.Boolean }
 		};
 	}
 
@@ -785,7 +785,7 @@ public class Law : SaveableItem, ILaw
 
 	public static void RegisterFutureProgCompiler()
 	{
-		FutureProgVariable.RegisterDotReferenceCompileInfo(FutureProgVariableTypes.Law, DotReferenceHandler(),
+		ProgVariable.RegisterDotReferenceCompileInfo(ProgVariableTypes.Law, DotReferenceHandler(),
 			DotReferenceHelp());
 	}
 

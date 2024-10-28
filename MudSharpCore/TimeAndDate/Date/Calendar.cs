@@ -1365,7 +1365,7 @@ You can also use #3/#0, #3-#0 or spaces to separate the three parts of your date
 
 	#region IFutureProgVariable implementation
 
-	public IFutureProgVariable GetProperty(string property)
+	public IProgVariable GetProperty(string property)
 	{
 		switch (property.ToLowerInvariant())
 		{
@@ -1382,35 +1382,35 @@ You can also use #3/#0, #3-#0 or spaces to separate the three parts of your date
 		}
 	}
 
-	public FutureProgVariableTypes Type => FutureProgVariableTypes.Calendar;
+	public ProgVariableTypes Type => ProgVariableTypes.Calendar;
 
 	public object GetObject => this;
 
-	private static FutureProgVariableTypes DotReferenceHandler(string property)
+	private static ProgVariableTypes DotReferenceHandler(string property)
 	{
 		switch (property.ToLowerInvariant())
 		{
 			case "id":
-				return FutureProgVariableTypes.Number;
+				return ProgVariableTypes.Number;
 			case "name":
-				return FutureProgVariableTypes.Text;
+				return ProgVariableTypes.Text;
 			case "date":
-				return FutureProgVariableTypes.MudDateTime;
+				return ProgVariableTypes.MudDateTime;
 			case "clock":
-				return FutureProgVariableTypes.Clock;
+				return ProgVariableTypes.Clock;
 			default:
-				return FutureProgVariableTypes.Error;
+				return ProgVariableTypes.Error;
 		}
 	}
 
-	private static IReadOnlyDictionary<string, FutureProgVariableTypes> DotReferenceHandler()
+	private static IReadOnlyDictionary<string, ProgVariableTypes> DotReferenceHandler()
 	{
-		return new Dictionary<string, FutureProgVariableTypes>(StringComparer.InvariantCultureIgnoreCase)
+		return new Dictionary<string, ProgVariableTypes>(StringComparer.InvariantCultureIgnoreCase)
 		{
-			{ "id", FutureProgVariableTypes.Number },
-			{ "name", FutureProgVariableTypes.Text },
-			{ "date", FutureProgVariableTypes.MudDateTime },
-			{ "clock", FutureProgVariableTypes.Clock }
+			{ "id", ProgVariableTypes.Number },
+			{ "name", ProgVariableTypes.Text },
+			{ "date", ProgVariableTypes.MudDateTime },
+			{ "clock", ProgVariableTypes.Clock }
 		};
 	}
 
@@ -1427,7 +1427,7 @@ You can also use #3/#0, #3-#0 or spaces to separate the three parts of your date
 
 	public static void RegisterFutureProgCompiler()
 	{
-		FutureProgVariable.RegisterDotReferenceCompileInfo(FutureProgVariableTypes.Calendar, DotReferenceHandler(),
+		ProgVariable.RegisterDotReferenceCompileInfo(ProgVariableTypes.Calendar, DotReferenceHandler(),
 			DotReferenceHelp());
 	}
 

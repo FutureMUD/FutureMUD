@@ -26,7 +26,7 @@ internal class SetLayer : BuiltInFunction
 		FutureProg.RegisterBuiltInFunctionCompiler(
 			new FunctionCompilerInformation(
 				"SetLayer".ToLowerInvariant(),
-				new[] { FutureProgVariableTypes.Character, FutureProgVariableTypes.Text },
+				new[] { ProgVariableTypes.Character, ProgVariableTypes.Text },
 				(pars, gameworld) => new SetLayer(pars, gameworld),
 				new List<string> { "Character", "Layer" },
 				new List<string>
@@ -36,14 +36,14 @@ internal class SetLayer : BuiltInFunction
 				},
 				"This function changes the layer a character is currently at. Returns true if successful. See the ROOMLAYERS function for information on how to determine what layers are present.",
 				"Rooms",
-				FutureProgVariableTypes.Boolean
+				ProgVariableTypes.Boolean
 			)
 		);
 
 		FutureProg.RegisterBuiltInFunctionCompiler(
 			new FunctionCompilerInformation(
 				"SetLayer".ToLowerInvariant(),
-				new[] { FutureProgVariableTypes.Item, FutureProgVariableTypes.Text },
+				new[] { ProgVariableTypes.Item, ProgVariableTypes.Text },
 				(pars, gameworld) => new SetLayer(pars, gameworld),
 				new List<string> { "Item", "Layer" },
 				new List<string>
@@ -53,7 +53,7 @@ internal class SetLayer : BuiltInFunction
 				},
 				"This function changes the layer an item is currently at. Returns true if successful. See the ROOMLAYERS function for information on how to determine what layers are present.",
 				"Rooms",
-				FutureProgVariableTypes.Boolean
+				ProgVariableTypes.Boolean
 			)
 		);
 	}
@@ -69,9 +69,9 @@ internal class SetLayer : BuiltInFunction
 
 	#endregion
 
-	public override FutureProgVariableTypes ReturnType
+	public override ProgVariableTypes ReturnType
 	{
-		get => FutureProgVariableTypes.Boolean;
+		get => ProgVariableTypes.Boolean;
 		protected set { }
 	}
 

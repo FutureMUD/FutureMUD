@@ -98,7 +98,7 @@ public class Accent : SaveableItem, IAccent
 
 	#region IFutureProgVariable Members
 
-	public IFutureProgVariable GetProperty(string property)
+	public IProgVariable GetProperty(string property)
 	{
 		switch (property.ToLowerInvariant())
 		{
@@ -123,58 +123,58 @@ public class Accent : SaveableItem, IAccent
 		}
 	}
 
-	public FutureProgVariableTypes Type => FutureProgVariableTypes.Accent;
+	public ProgVariableTypes Type => ProgVariableTypes.Accent;
 
 	public object GetObject => this;
 
-	private static FutureProgVariableTypes DotReferenceHandler(string property)
+	private static ProgVariableTypes DotReferenceHandler(string property)
 	{
-		FutureProgVariableTypes returnVar;
+		ProgVariableTypes returnVar;
 		switch (property.ToLowerInvariant())
 		{
 			case "id":
-				returnVar = FutureProgVariableTypes.Number;
+				returnVar = ProgVariableTypes.Number;
 				break;
 			case "name":
-				returnVar = FutureProgVariableTypes.Text;
+				returnVar = ProgVariableTypes.Text;
 				break;
 			case "language":
-				returnVar = FutureProgVariableTypes.Language;
+				returnVar = ProgVariableTypes.Language;
 				break;
 			case "suffix":
-				returnVar = FutureProgVariableTypes.Text;
+				returnVar = ProgVariableTypes.Text;
 				break;
 			case "vague":
-				returnVar = FutureProgVariableTypes.Text;
+				returnVar = ProgVariableTypes.Text;
 				break;
 			case "difficulty":
-				returnVar = FutureProgVariableTypes.Number;
+				returnVar = ProgVariableTypes.Number;
 				break;
 			case "group":
-				returnVar = FutureProgVariableTypes.Text;
+				returnVar = ProgVariableTypes.Text;
 				break;
 			case "description":
-				returnVar = FutureProgVariableTypes.Text;
+				returnVar = ProgVariableTypes.Text;
 				break;
 			default:
-				return FutureProgVariableTypes.Error;
+				return ProgVariableTypes.Error;
 		}
 
 		return returnVar;
 	}
 
-	private static IReadOnlyDictionary<string, FutureProgVariableTypes> DotReferenceHandler()
+	private static IReadOnlyDictionary<string, ProgVariableTypes> DotReferenceHandler()
 	{
-		return new Dictionary<string, FutureProgVariableTypes>(StringComparer.InvariantCultureIgnoreCase)
+		return new Dictionary<string, ProgVariableTypes>(StringComparer.InvariantCultureIgnoreCase)
 		{
-			{ "id", FutureProgVariableTypes.Number },
-			{ "name", FutureProgVariableTypes.Text },
-			{ "language", FutureProgVariableTypes.Language },
-			{ "suffix", FutureProgVariableTypes.Text },
-			{ "vague", FutureProgVariableTypes.Text },
-			{ "difficulty", FutureProgVariableTypes.Number },
-			{ "group", FutureProgVariableTypes.Text },
-			{ "description", FutureProgVariableTypes.Text }
+			{ "id", ProgVariableTypes.Number },
+			{ "name", ProgVariableTypes.Text },
+			{ "language", ProgVariableTypes.Language },
+			{ "suffix", ProgVariableTypes.Text },
+			{ "vague", ProgVariableTypes.Text },
+			{ "difficulty", ProgVariableTypes.Number },
+			{ "group", ProgVariableTypes.Text },
+			{ "description", ProgVariableTypes.Text }
 		};
 	}
 
@@ -195,7 +195,7 @@ public class Accent : SaveableItem, IAccent
 
 	public static void RegisterFutureProgCompiler()
 	{
-		FutureProgVariable.RegisterDotReferenceCompileInfo(FutureProgVariableTypes.Accent, DotReferenceHandler(),
+		ProgVariable.RegisterDotReferenceCompileInfo(ProgVariableTypes.Accent, DotReferenceHandler(),
 			DotReferenceHelp());
 	}
 
@@ -376,14 +376,14 @@ public class Accent : SaveableItem, IAccent
 			return false;
 		}
 
-		if (!prog.ReturnType.CompatibleWith(FutureProgVariableTypes.Boolean))
+		if (!prog.ReturnType.CompatibleWith(ProgVariableTypes.Boolean))
 		{
 			actor.OutputHandler.Send(
 				$"You must specify a prog that returns a boolean, whereas {prog.MXPClickableFunctionName()} returns {prog.ReturnType.Describe().ColourName()}.");
 			return false;
 		}
 
-		if (!prog.MatchesParameters(new List<FutureProgVariableTypes> { FutureProgVariableTypes.Chargen }))
+		if (!prog.MatchesParameters(new List<ProgVariableTypes> { ProgVariableTypes.Chargen }))
 		{
 			actor.OutputHandler.Send(
 				$"You must specify a prog that takes a single chargen parameter, whereas {prog.MXPClickableFunctionName()} does not.");

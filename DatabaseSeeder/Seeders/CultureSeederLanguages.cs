@@ -197,7 +197,7 @@ public partial class CultureSeeder
 			Category = "Chargen",
 			Subcategory = "Skills",
 			FunctionComment = "Used to determine which languages a character can pick at character creation",
-			ReturnType = (int)FutureProgVariableTypes.Boolean,
+			ReturnType = (int)ProgVariableTypes.Boolean,
 			AcceptsAnyParameters = false,
 			Public = false,
 			StaticType = 0,
@@ -307,14 +307,14 @@ return false"
 		{
 			FutureProg = canSelectMiddleEarthLanguageProg,
 			ParameterIndex = 0,
-			ParameterType = (long)FutureProgVariableTypes.Chargen,
+			ParameterType = (long)ProgVariableTypes.Chargen,
 			ParameterName = "ch"
 		});
 		canSelectMiddleEarthLanguageProg.FutureProgsParameters.Add(new FutureProgsParameter
 		{
 			FutureProg = canSelectMiddleEarthLanguageProg,
 			ParameterIndex = 1,
-			ParameterType = (long)FutureProgVariableTypes.Trait,
+			ParameterType = (long)ProgVariableTypes.Trait,
 			ParameterName = "trait"
 		});
 		_context.FutureProgs.Add(canSelectMiddleEarthLanguageProg);

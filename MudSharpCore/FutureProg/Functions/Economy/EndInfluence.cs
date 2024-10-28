@@ -24,7 +24,7 @@ namespace MudSharp.FutureProg.Functions.Economy
 			FutureProg.RegisterBuiltInFunctionCompiler(
 				new FunctionCompilerInformation(
 					"EndInfluence".ToLowerInvariant(),
-					new[] { FutureProgVariableTypes.Number }, // the parameters the function takes
+					new[] { ProgVariableTypes.Number }, // the parameters the function takes
 					(pars, gameworld) => new EndInfluence(pars, gameworld),
 					new List<string>
 					{
@@ -38,7 +38,7 @@ namespace MudSharp.FutureProg.Functions.Economy
 
 					"Markets", // the category to which this function belongs,
 
-					FutureProgVariableTypes.Boolean // the return type of the function
+					ProgVariableTypes.Boolean // the return type of the function
 				)
 			);
 		}
@@ -51,9 +51,9 @@ namespace MudSharp.FutureProg.Functions.Economy
 		}
 		#endregion
 
-		public override FutureProgVariableTypes ReturnType
+		public override ProgVariableTypes ReturnType
 		{
-			get { return FutureProgVariableTypes.Boolean; }
+			get { return ProgVariableTypes.Boolean; }
 			protected set { }
 		}
 

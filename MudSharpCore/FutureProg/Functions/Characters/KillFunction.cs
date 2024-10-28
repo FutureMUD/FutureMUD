@@ -25,7 +25,7 @@ internal class KillFunction : BuiltInFunction
 		FutureProg.RegisterBuiltInFunctionCompiler(
 			new FunctionCompilerInformation(
 				"Kill".ToLowerInvariant(),
-				new[] { FutureProgVariableTypes.Character, FutureProgVariableTypes.Boolean },
+				new[] { ProgVariableTypes.Character, ProgVariableTypes.Boolean },
 				(pars, gameworld) => new KillFunction(pars, gameworld),
 				new List<string> { "Victim", "MakeCorpse" },
 				new List<string>
@@ -35,7 +35,7 @@ internal class KillFunction : BuiltInFunction
 				},
 				"Kills the specified character, and optionally leaves a corpse. Returns the corpse as an item.",
 				"Characters",
-				FutureProgVariableTypes.Item
+				ProgVariableTypes.Item
 			)
 		);
 	}
@@ -51,9 +51,9 @@ internal class KillFunction : BuiltInFunction
 
 	#endregion
 
-	public override FutureProgVariableTypes ReturnType
+	public override ProgVariableTypes ReturnType
 	{
-		get => FutureProgVariableTypes.Item;
+		get => ProgVariableTypes.Item;
 		protected set { }
 	}
 

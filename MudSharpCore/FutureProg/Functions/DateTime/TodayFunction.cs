@@ -10,9 +10,9 @@ internal class TodayFunction : BuiltInFunction
 	{
 	}
 
-	public override FutureProgVariableTypes ReturnType
+	public override ProgVariableTypes ReturnType
 	{
-		get => FutureProgVariableTypes.DateTime;
+		get => ProgVariableTypes.DateTime;
 		protected set { }
 	}
 
@@ -26,7 +26,7 @@ internal class TodayFunction : BuiltInFunction
 	{
 		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
 			"today",
-			new FutureProgVariableTypes[] { },
+			new ProgVariableTypes[] { },
 			(pars, gameworld) => new TodayFunction(pars)
 		));
 	}

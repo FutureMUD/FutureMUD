@@ -27,7 +27,7 @@ internal class CreateCell : BuiltInFunction
 		FutureProg.RegisterBuiltInFunctionCompiler(
 			new FunctionCompilerInformation(
 				"CreateCell".ToLowerInvariant(),
-				new[] { FutureProgVariableTypes.OverlayPackage, FutureProgVariableTypes.Zone },
+				new[] { ProgVariableTypes.OverlayPackage, ProgVariableTypes.Zone },
 				(pars, gameworld) => new CreateCell(pars, gameworld),
 				new List<string>
 				{
@@ -41,7 +41,7 @@ internal class CreateCell : BuiltInFunction
 				},
 				"Creates a new blank room in the specified package and zone",
 				"Rooms",
-				FutureProgVariableTypes.Location
+				ProgVariableTypes.Location
 			)
 		);
 
@@ -50,8 +50,8 @@ internal class CreateCell : BuiltInFunction
 				"CreateCell".ToLowerInvariant(),
 				new[]
 				{
-					FutureProgVariableTypes.OverlayPackage, FutureProgVariableTypes.Zone,
-					FutureProgVariableTypes.Location
+					ProgVariableTypes.OverlayPackage, ProgVariableTypes.Zone,
+					ProgVariableTypes.Location
 				},
 				(pars, gameworld) => new CreateCell(pars, gameworld),
 				new List<string>
@@ -68,14 +68,14 @@ internal class CreateCell : BuiltInFunction
 				},
 				"Creates a new room based on the template room in the specified package and zone",
 				"Rooms",
-				FutureProgVariableTypes.Location
+				ProgVariableTypes.Location
 			)
 		);
 
 		FutureProg.RegisterBuiltInFunctionCompiler(
 			new FunctionCompilerInformation(
 				"CreateRoom".ToLowerInvariant(),
-				new[] { FutureProgVariableTypes.OverlayPackage, FutureProgVariableTypes.Zone },
+				new[] { ProgVariableTypes.OverlayPackage, ProgVariableTypes.Zone },
 				(pars, gameworld) => new CreateCell(pars, gameworld),
 				new List<string>
 				{
@@ -89,7 +89,7 @@ internal class CreateCell : BuiltInFunction
 				},
 				"Creates a new blank room in the specified package and zone. Alias for CreateCell.",
 				"Rooms",
-				FutureProgVariableTypes.Location
+				ProgVariableTypes.Location
 			)
 		);
 
@@ -98,8 +98,8 @@ internal class CreateCell : BuiltInFunction
 				"CreateRoom".ToLowerInvariant(),
 				new[]
 				{
-					FutureProgVariableTypes.OverlayPackage, FutureProgVariableTypes.Zone,
-					FutureProgVariableTypes.Location
+					ProgVariableTypes.OverlayPackage, ProgVariableTypes.Zone,
+					ProgVariableTypes.Location
 				},
 				(pars, gameworld) => new CreateCell(pars, gameworld),
 				new List<string>
@@ -116,7 +116,7 @@ internal class CreateCell : BuiltInFunction
 				},
 				"Creates a new room based on the template room in the specified package and zone. Alias for CreateCell.",
 				"Rooms",
-				FutureProgVariableTypes.Location
+				ProgVariableTypes.Location
 			)
 		);
 	}
@@ -132,9 +132,9 @@ internal class CreateCell : BuiltInFunction
 
 	#endregion
 
-	public override FutureProgVariableTypes ReturnType
+	public override ProgVariableTypes ReturnType
 	{
-		get => FutureProgVariableTypes.Location;
+		get => ProgVariableTypes.Location;
 		protected set { }
 	}
 

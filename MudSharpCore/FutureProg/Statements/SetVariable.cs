@@ -14,10 +14,10 @@ internal class SetVariable : Statement
 		RegexOptions.Multiline | RegexOptions.IgnoreCase);
 
 	protected string NameToSet;
-	protected FutureProgVariableTypes TypeToSet;
+	protected ProgVariableTypes TypeToSet;
 	protected IFunction ValueFunction;
 
-	public SetVariable(string nameToSet, FutureProgVariableTypes typeToSet, IFunction valueFunction)
+	public SetVariable(string nameToSet, ProgVariableTypes typeToSet, IFunction valueFunction)
 	{
 		NameToSet = nameToSet;
 		TypeToSet = typeToSet;
@@ -25,7 +25,7 @@ internal class SetVariable : Statement
 	}
 
 	private static ICompileInfo SetVariableCompile(IEnumerable<string> lines,
-		IDictionary<string, FutureProgVariableTypes> variableSpace, int lineNumber, IFuturemud gameworld)
+		IDictionary<string, ProgVariableTypes> variableSpace, int lineNumber, IFuturemud gameworld)
 	{
 		var match = SetVariableCompileRegex.Match(lines.First());
 
@@ -78,7 +78,7 @@ internal class SetVariable : Statement
 			new Tuple
 			<Regex,
 				Func
-				<IEnumerable<string>, IDictionary<string, FutureProgVariableTypes>, int, IFuturemud, ICompileInfo>>(
+				<IEnumerable<string>, IDictionary<string, ProgVariableTypes>, int, IFuturemud, ICompileInfo>>(
 				SetVariableCompileRegex, SetVariableCompile)
 		);
 

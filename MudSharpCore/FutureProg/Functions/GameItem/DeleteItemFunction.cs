@@ -11,9 +11,9 @@ internal class DeleteItemFunction : BuiltInFunction
 	{
 	}
 
-	public override FutureProgVariableTypes ReturnType
+	public override ProgVariableTypes ReturnType
 	{
-		get => FutureProgVariableTypes.Boolean;
+		get => ProgVariableTypes.Boolean;
 		protected set { }
 	}
 
@@ -39,13 +39,13 @@ internal class DeleteItemFunction : BuiltInFunction
 	{
 		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
 			"deleteitem",
-			new[] { FutureProgVariableTypes.Item },
+			new[] { ProgVariableTypes.Item },
 			(pars, gameworld) => new DeleteItemFunction(pars),
 			new List<string> { "item" },
 			new List<string> { "The item that you want to delete" },
 			"Permanently deletes the specified item. Warning: this is unrecoverable. Returns true if the delete is successful.",
 			"Items",
-			FutureProgVariableTypes.Boolean
+			ProgVariableTypes.Boolean
 		));
 	}
 }

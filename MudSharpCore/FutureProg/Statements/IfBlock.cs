@@ -41,7 +41,7 @@ internal class IfBlock : Statement
 	}
 
 	private static ICompileInfo IfBlockCompile(IEnumerable<string> lines,
-		IDictionary<string, FutureProgVariableTypes> variableSpace, int lineNumber, IFuturemud gameworld)
+		IDictionary<string, ProgVariableTypes> variableSpace, int lineNumber, IFuturemud gameworld)
 	{
 		var match = IfBlockCompileRegex.Match(lines.First());
 		var funcInfo = FunctionHelper.CompileFunction(match.Groups[1].Value, variableSpace, lineNumber, gameworld);
@@ -51,7 +51,7 @@ internal class IfBlock : Statement
 		}
 
 		var function = (IFunction)funcInfo.CompiledStatement;
-		if (!function.ReturnType.CompatibleWith(FutureProgVariableTypes.Boolean))
+		if (!function.ReturnType.CompatibleWith(ProgVariableTypes.Boolean))
 		{
 			return CompileInfo.GetFactory()
 			                  .CreateError("If Block's logic statement returned a non boolean value.", lineNumber);
@@ -61,16 +61,16 @@ internal class IfBlock : Statement
 		var trueStatements = new List<IStatement>();
 		var falseStatements = new List<IStatement>();
 		var elseIfBlocks = new List<(IFunction ElseLogic, IEnumerable<IStatement> Statements)>();
-		IDictionary<string, FutureProgVariableTypes> localVariablesTrue =
-			new Dictionary<string, FutureProgVariableTypes>(variableSpace);
-		IDictionary<string, FutureProgVariableTypes> localVariablesFalse =
-			new Dictionary<string, FutureProgVariableTypes>(variableSpace);
+		IDictionary<string, ProgVariableTypes> localVariablesTrue =
+			new Dictionary<string, ProgVariableTypes>(variableSpace);
+		IDictionary<string, ProgVariableTypes> localVariablesFalse =
+			new Dictionary<string, ProgVariableTypes>(variableSpace);
 		var inFalseBlock = false;
 
 		var inElseIfBlock = false;
 		IFunction elseIfLogic = null;
 		List<IStatement> elseIfStatements = null;
-		IDictionary<string, FutureProgVariableTypes> localVariablesElseIf = new Dictionary<string, FutureProgVariableTypes>(variableSpace);
+		IDictionary<string, ProgVariableTypes> localVariablesElseIf = new Dictionary<string, ProgVariableTypes>(variableSpace);
 
 		var currentLine = lineNumber;
 		while (lines.Any())
@@ -124,14 +124,14 @@ internal class IfBlock : Statement
 				}
 
 				var elseiffunction = (IFunction)elseiffuncInfo.CompiledStatement;
-				if (!elseiffunction.ReturnType.CompatibleWith(FutureProgVariableTypes.Boolean))
+				if (!elseiffunction.ReturnType.CompatibleWith(ProgVariableTypes.Boolean))
 				{
 					return CompileInfo.GetFactory()
 					                  .CreateError("Else If Block's logic statement returned a non boolean value.", lineNumber);
 				}
 
 				elseIfLogic = elseiffunction;
-				localVariablesElseIf = new Dictionary<string, FutureProgVariableTypes>(variableSpace);
+				localVariablesElseIf = new Dictionary<string, ProgVariableTypes>(variableSpace);
 				lines = lines.Skip(1);
 				elseIfStatements = new();
 				continue;
@@ -240,7 +240,7 @@ internal class IfBlock : Statement
 			new Tuple
 			<Regex,
 				Func
-				<IEnumerable<string>, IDictionary<string, FutureProgVariableTypes>, int, IFuturemud, ICompileInfo>>(
+				<IEnumerable<string>, IDictionary<string, ProgVariableTypes>, int, IFuturemud, ICompileInfo>>(
 				IfBlockCompileRegex, IfBlockCompile)
 		);
 

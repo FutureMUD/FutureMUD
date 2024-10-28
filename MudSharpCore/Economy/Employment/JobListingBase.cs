@@ -341,9 +341,9 @@ public abstract class JobListingBase : SaveableItem, IJobListing
 		}
 
 		var prog = new ProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument,
-			FutureProgVariableTypes.Boolean, new FutureProgVariableTypes[]
+			ProgVariableTypes.Boolean, new ProgVariableTypes[]
 			{
-				FutureProgVariableTypes.Character
+				ProgVariableTypes.Character
 			}).LookupProg();
 		if (prog is null)
 		{

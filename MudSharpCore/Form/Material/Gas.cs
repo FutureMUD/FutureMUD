@@ -175,9 +175,9 @@ public class Gas : Fluid, IGas
 
 	#region IFutureProgVariable Implementation
 
-	public override FutureProgVariableTypes Type => FutureProgVariableTypes.Gas;
+	public override ProgVariableTypes Type => ProgVariableTypes.Gas;
 
-	public override IFutureProgVariable GetProperty(string property)
+	public override IProgVariable GetProperty(string property)
 	{
 		switch (property.ToLowerInvariant())
 		{
@@ -186,9 +186,9 @@ public class Gas : Fluid, IGas
 		return base.GetProperty(property);
 	}
 
-	private new static IReadOnlyDictionary<string, FutureProgVariableTypes> DotReferenceHandler()
+	private new static IReadOnlyDictionary<string, ProgVariableTypes> DotReferenceHandler()
 	{
-		var dict = new Dictionary<string, FutureProgVariableTypes>(Material.DotReferenceHandler());
+		var dict = new Dictionary<string, ProgVariableTypes>(Material.DotReferenceHandler());
 		return dict;
 	}
 
@@ -200,7 +200,7 @@ public class Gas : Fluid, IGas
 
 	public new static void RegisterFutureProgCompiler()
 	{
-		FutureProgVariable.RegisterDotReferenceCompileInfo(FutureProgVariableTypes.Gas, DotReferenceHandler(),
+		ProgVariable.RegisterDotReferenceCompileInfo(ProgVariableTypes.Gas, DotReferenceHandler(),
 			DotReferenceHelp());
 	}
 

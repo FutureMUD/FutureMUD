@@ -26,7 +26,7 @@ internal class LayerCharacters : BuiltInFunction
 		FutureProg.RegisterBuiltInFunctionCompiler(
 			new FunctionCompilerInformation(
 				"LayerCharacters".ToLowerInvariant(),
-				new[] { FutureProgVariableTypes.Location, FutureProgVariableTypes.Text },
+				new[] { ProgVariableTypes.Location, ProgVariableTypes.Text },
 				(pars, gameworld) => new LayerCharacters(pars, gameworld),
 				new List<string> { "Location", "Layer" },
 				new List<string>
@@ -36,7 +36,7 @@ internal class LayerCharacters : BuiltInFunction
 				},
 				"This function returns the characters that are present at a specified layer in a room. See the ROOMLAYERS function for information on how to determine what layers are present.",
 				"Rooms",
-				FutureProgVariableTypes.Character | FutureProgVariableTypes.Collection
+				ProgVariableTypes.Character | ProgVariableTypes.Collection
 			)
 		);
 	}
@@ -52,9 +52,9 @@ internal class LayerCharacters : BuiltInFunction
 
 	#endregion
 
-	public override FutureProgVariableTypes ReturnType
+	public override ProgVariableTypes ReturnType
 	{
-		get => FutureProgVariableTypes.Character | FutureProgVariableTypes.Collection;
+		get => ProgVariableTypes.Character | ProgVariableTypes.Collection;
 		protected set { }
 	}
 
@@ -67,24 +67,24 @@ internal class LayerCharacters : BuiltInFunction
 
 		if (ParameterFunctions[0].Result is not ICell location)
 		{
-			Result = new CollectionVariable(new List<ICharacter>(), FutureProgVariableTypes.Character);
+			Result = new CollectionVariable(new List<ICharacter>(), ProgVariableTypes.Character);
 			return StatementResult.Normal;
 		}
 
 		var layerText = ParameterFunctions[1].Result?.GetObject?.ToString();
 		if (string.IsNullOrEmpty(layerText))
 		{
-			Result = new CollectionVariable(new List<ICharacter>(), FutureProgVariableTypes.Character);
+			Result = new CollectionVariable(new List<ICharacter>(), ProgVariableTypes.Character);
 			return StatementResult.Normal;
 		}
 
 		if (!Utilities.TryParseEnum<RoomLayer>(layerText, out var layer))
 		{
-			Result = new CollectionVariable(new List<ICharacter>(), FutureProgVariableTypes.Character);
+			Result = new CollectionVariable(new List<ICharacter>(), ProgVariableTypes.Character);
 			return StatementResult.Normal;
 		}
 
-		Result = new CollectionVariable(location.LayerCharacters(layer).ToList(), FutureProgVariableTypes.Character);
+		Result = new CollectionVariable(location.LayerCharacters(layer).ToList(), ProgVariableTypes.Character);
 		return StatementResult.Normal;
 	}
 }

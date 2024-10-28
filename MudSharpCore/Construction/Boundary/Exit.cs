@@ -279,7 +279,7 @@ public class Exit : PerceivedItem, IExit
 
 	#region IFutureProgVariable Implementation
 
-	public override FutureProgVariableTypes Type => FutureProgVariableTypes.Error;
+	public override ProgVariableTypes Type => ProgVariableTypes.Error;
 
 	#endregion
 

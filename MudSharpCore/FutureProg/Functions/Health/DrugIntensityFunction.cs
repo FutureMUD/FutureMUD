@@ -20,9 +20,9 @@ internal class DrugIntensityFunction : BuiltInFunction
 		_gameworld = gameworld;
 	}
 
-	public override FutureProgVariableTypes ReturnType
+	public override ProgVariableTypes ReturnType
 	{
-		get => FutureProgVariableTypes.Number;
+		get => ProgVariableTypes.Number;
 		protected set { }
 	}
 
@@ -56,7 +56,7 @@ internal class DrugIntensityFunction : BuiltInFunction
 	{
 		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
 			"drugintensity",
-			new[] { FutureProgVariableTypes.Character, FutureProgVariableTypes.Drug },
+			new[] { ProgVariableTypes.Character, ProgVariableTypes.Drug },
 			(pars, gameworld) => new DrugIntensityFunction(pars, gameworld)
 		));
 	}

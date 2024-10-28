@@ -13,10 +13,10 @@ internal class GetIndexFunction : BuiltInFunction
 
 	private IFunction CollectionFunction { get; }
 
-	public override FutureProgVariableTypes ReturnType
+	public override ProgVariableTypes ReturnType
 	{
-		get => (CollectionFunction?.ReturnType ?? FutureProgVariableTypes.CollectionItem) ^
-		       FutureProgVariableTypes.Collection;
+		get => (CollectionFunction?.ReturnType ?? ProgVariableTypes.CollectionItem) ^
+		       ProgVariableTypes.Collection;
 		protected set { }
 	}
 
@@ -38,7 +38,7 @@ internal class GetIndexFunction : BuiltInFunction
 		}
 
 		Result =
-			((IList<IFutureProgVariable>)CollectionFunction.Result.GetObject).ElementAtOrDefault(
+			((IList<IProgVariable>)CollectionFunction.Result.GetObject).ElementAtOrDefault(
 				(int)(decimal)itemFunction.Result.GetObject);
 		return StatementResult.Normal;
 	}
@@ -48,7 +48,7 @@ internal class GetIndexFunction : BuiltInFunction
 		FutureProg.RegisterBuiltInFunctionCompiler(
 			new FunctionCompilerInformation(
 				"getindex",
-				new[] { FutureProgVariableTypes.Collection, FutureProgVariableTypes.Number },
+				new[] { ProgVariableTypes.Collection, ProgVariableTypes.Number },
 				(pars, gameworld) => new GetIndexFunction(pars),
 				new[] { "collection", "index" },
 				new[]
@@ -58,7 +58,7 @@ internal class GetIndexFunction : BuiltInFunction
 				},
 				"This function returns the element at the specified index of a collection, or null if an incorrect index is specified. The return type depends on the return type of the collection. You may need to convert the result. See CONVERT function.",
 				"Collections",
-				FutureProgVariableTypes.CollectionItem
+				ProgVariableTypes.CollectionItem
 			)
 		);
 	}

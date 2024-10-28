@@ -48,7 +48,7 @@ public class SemiAggressiveAI : PathingAIWithProgTargetsBase
 				throw new ApplicationException($"SemiAggressive #{Id} ({Name}) specified a null WillAttackProg.");
 			}
 
-			if (WillAttackProg.ReturnType != FutureProgVariableTypes.Boolean)
+			if (WillAttackProg.ReturnType != ProgVariableTypes.Boolean)
 			{
 				throw new ApplicationException(
 					$"SemiAggressive #{Id} ({Name}) specified a WillAttackProg with a return type of {WillAttackProg.ReturnType.Describe()} (expected boolean).");
@@ -56,11 +56,11 @@ public class SemiAggressiveAI : PathingAIWithProgTargetsBase
 
 			if (!WillAttackProg.MatchesParameters(new[]
 			    {
-				    FutureProgVariableTypes.Character,
-				    FutureProgVariableTypes.Location,
-				    FutureProgVariableTypes.Character,
-				    FutureProgVariableTypes.Character | FutureProgVariableTypes.Collection,
-				    FutureProgVariableTypes.Number
+				    ProgVariableTypes.Character,
+				    ProgVariableTypes.Location,
+				    ProgVariableTypes.Character,
+				    ProgVariableTypes.Character | ProgVariableTypes.Collection,
+				    ProgVariableTypes.Number
 			    }))
 			{
 				throw new ApplicationException(
@@ -83,7 +83,7 @@ public class SemiAggressiveAI : PathingAIWithProgTargetsBase
 				throw new ApplicationException($"SemiAggressive #{Id} ({Name}) specified a null WillPostureProg.");
 			}
 
-			if (WillPostureProg.ReturnType != FutureProgVariableTypes.Boolean)
+			if (WillPostureProg.ReturnType != ProgVariableTypes.Boolean)
 			{
 				throw new ApplicationException(
 					$"SemiAggressive #{Id} ({Name}) specified a WillPostureProg with a return type of {WillPostureProg.ReturnType.Describe()} (expected boolean).");
@@ -91,11 +91,11 @@ public class SemiAggressiveAI : PathingAIWithProgTargetsBase
 
 			if (!WillPostureProg.MatchesParameters(new[]
 			    {
-				    FutureProgVariableTypes.Character,
-				    FutureProgVariableTypes.Location,
-				    FutureProgVariableTypes.Character,
-				    FutureProgVariableTypes.Character | FutureProgVariableTypes.Collection,
-				    FutureProgVariableTypes.Number
+				    ProgVariableTypes.Character,
+				    ProgVariableTypes.Location,
+				    ProgVariableTypes.Character,
+				    ProgVariableTypes.Character | ProgVariableTypes.Collection,
+				    ProgVariableTypes.Number
 			    }))
 			{
 				throw new ApplicationException(
@@ -118,7 +118,7 @@ public class SemiAggressiveAI : PathingAIWithProgTargetsBase
 				throw new ApplicationException($"SemiAggressive #{Id} ({Name}) specified a null WillFleeProg.");
 			}
 
-			if (WillFleeProg.ReturnType != FutureProgVariableTypes.Boolean)
+			if (WillFleeProg.ReturnType != ProgVariableTypes.Boolean)
 			{
 				throw new ApplicationException(
 					$"SemiAggressive #{Id} ({Name}) specified a WillFleeProg with a return type of {WillFleeProg.ReturnType.Describe()} (expected boolean).");
@@ -126,10 +126,10 @@ public class SemiAggressiveAI : PathingAIWithProgTargetsBase
 
 			if (!WillFleeProg.MatchesParameters(new[]
 			    {
-				    FutureProgVariableTypes.Character,
-				    FutureProgVariableTypes.Location,
-				    FutureProgVariableTypes.Character | FutureProgVariableTypes.Collection,
-				    FutureProgVariableTypes.Number
+				    ProgVariableTypes.Character,
+				    ProgVariableTypes.Location,
+				    ProgVariableTypes.Character | ProgVariableTypes.Collection,
+				    ProgVariableTypes.Number
 			    }))
 			{
 				throw new ApplicationException(
@@ -153,7 +153,7 @@ public class SemiAggressiveAI : PathingAIWithProgTargetsBase
 					$"SemiAggressive #{Id} ({Name}) specified a null WillAttackPostureEscalationProg.");
 			}
 
-			if (WillAttackPostureEscalationProg.ReturnType != FutureProgVariableTypes.Boolean)
+			if (WillAttackPostureEscalationProg.ReturnType != ProgVariableTypes.Boolean)
 			{
 				throw new ApplicationException(
 					$"SemiAggressive #{Id} ({Name}) specified a WillAttackPostureEscalationProg with a return type of {WillAttackPostureEscalationProg.ReturnType.Describe()} (expected boolean).");
@@ -161,9 +161,9 @@ public class SemiAggressiveAI : PathingAIWithProgTargetsBase
 
 			if (!WillAttackPostureEscalationProg.MatchesParameters(new[]
 			    {
-				    FutureProgVariableTypes.Character,
-				    FutureProgVariableTypes.Character | FutureProgVariableTypes.Collection,
-				    FutureProgVariableTypes.Number
+				    ProgVariableTypes.Character,
+				    ProgVariableTypes.Character | ProgVariableTypes.Collection,
+				    ProgVariableTypes.Number
 			    }))
 			{
 				throw new ApplicationException(
@@ -187,7 +187,7 @@ public class SemiAggressiveAI : PathingAIWithProgTargetsBase
 				throw new ApplicationException($"SemiAggressive #{Id} ({Name}) specified a null PostureEmoteProg.");
 			}
 
-			if (PostureEmoteProg.ReturnType != FutureProgVariableTypes.Text)
+			if (PostureEmoteProg.ReturnType != ProgVariableTypes.Text)
 			{
 				throw new ApplicationException(
 					$"SemiAggressive #{Id} ({Name}) specified a PostureEmoteProg with a return type of {PostureEmoteProg.ReturnType.Describe()} (expected text).");
@@ -195,9 +195,9 @@ public class SemiAggressiveAI : PathingAIWithProgTargetsBase
 
 			if (!PostureEmoteProg.MatchesParameters(new[]
 			    {
-				    FutureProgVariableTypes.Character,
-				    FutureProgVariableTypes.Character | FutureProgVariableTypes.Collection,
-				    FutureProgVariableTypes.Number
+				    ProgVariableTypes.Character,
+				    ProgVariableTypes.Character | ProgVariableTypes.Collection,
+				    ProgVariableTypes.Number
 			    }))
 			{
 				throw new ApplicationException(
@@ -220,7 +220,7 @@ public class SemiAggressiveAI : PathingAIWithProgTargetsBase
 				throw new ApplicationException($"SemiAggressive #{Id} ({Name}) specified a null AttackEmoteProg.");
 			}
 
-			if (AttackEmoteProg.ReturnType != FutureProgVariableTypes.Text)
+			if (AttackEmoteProg.ReturnType != ProgVariableTypes.Text)
 			{
 				throw new ApplicationException(
 					$"SemiAggressive #{Id} ({Name}) specified a AttackEmoteProg with a return type of {AttackEmoteProg.ReturnType.Describe()} (expected text).");
@@ -228,9 +228,9 @@ public class SemiAggressiveAI : PathingAIWithProgTargetsBase
 
 			if (!AttackEmoteProg.MatchesParameters(new[]
 			    {
-				    FutureProgVariableTypes.Character,
-				    FutureProgVariableTypes.Character | FutureProgVariableTypes.Collection,
-				    FutureProgVariableTypes.Number
+				    ProgVariableTypes.Character,
+				    ProgVariableTypes.Character | ProgVariableTypes.Collection,
+				    ProgVariableTypes.Number
 			    }))
 			{
 				throw new ApplicationException(
@@ -253,7 +253,7 @@ public class SemiAggressiveAI : PathingAIWithProgTargetsBase
 				throw new ApplicationException($"SemiAggressive #{Id} ({Name}) specified a null FleeEmoteProg.");
 			}
 
-			if (FleeEmoteProg.ReturnType != FutureProgVariableTypes.Text)
+			if (FleeEmoteProg.ReturnType != ProgVariableTypes.Text)
 			{
 				throw new ApplicationException(
 					$"SemiAggressive #{Id} ({Name}) specified a FleeEmoteProg with a return type of {FleeEmoteProg.ReturnType.Describe()} (expected text).");
@@ -261,9 +261,9 @@ public class SemiAggressiveAI : PathingAIWithProgTargetsBase
 
 			if (!FleeEmoteProg.MatchesParameters(new[]
 			    {
-				    FutureProgVariableTypes.Character,
-				    FutureProgVariableTypes.Character | FutureProgVariableTypes.Collection,
-				    FutureProgVariableTypes.Number
+				    ProgVariableTypes.Character,
+				    ProgVariableTypes.Character | ProgVariableTypes.Collection,
+				    ProgVariableTypes.Number
 			    }))
 			{
 				throw new ApplicationException(
@@ -286,7 +286,7 @@ public class SemiAggressiveAI : PathingAIWithProgTargetsBase
 				throw new ApplicationException($"SemiAggressive #{Id} ({Name}) specified a null FleeLocationsProg.");
 			}
 
-			if (FleeLocationsProg.ReturnType != (FutureProgVariableTypes.Location | FutureProgVariableTypes.Collection))
+			if (FleeLocationsProg.ReturnType != (ProgVariableTypes.Location | ProgVariableTypes.Collection))
 			{
 				throw new ApplicationException(
 					$"SemiAggressive #{Id} ({Name}) specified a FleeLocationsProg with a return type of {FleeLocationsProg.ReturnType.Describe()} (expected location collection).");
@@ -294,7 +294,7 @@ public class SemiAggressiveAI : PathingAIWithProgTargetsBase
 
 			if (!FleeLocationsProg.MatchesParameters(new[]
 			    {
-				    FutureProgVariableTypes.Character
+				    ProgVariableTypes.Character
 			    }))
 			{
 				throw new ApplicationException(

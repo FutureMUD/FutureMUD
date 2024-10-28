@@ -26,7 +26,7 @@ namespace MudSharp.FutureProg.Functions.Chargen
 			FutureProg.RegisterBuiltInFunctionCompiler(
 				new FunctionCompilerInformation(
 					"GiveResource".ToLowerInvariant(),
-					new[] { FutureProgVariableTypes.Toon, FutureProgVariableTypes.Text, FutureProgVariableTypes.Number }, // the parameters the function takes
+					new[] { ProgVariableTypes.Toon, ProgVariableTypes.Text, ProgVariableTypes.Number }, // the parameters the function takes
 					(pars, gameworld) => new GiveResource(pars, gameworld),
 					new List<string> {
 						"character", 
@@ -42,7 +42,7 @@ namespace MudSharp.FutureProg.Functions.Chargen
 
 					"Chargen", // the category to which this function belongs,
 
-					FutureProgVariableTypes.Number // the return type of the function
+					ProgVariableTypes.Number // the return type of the function
 				)
 			);
 		}
@@ -55,9 +55,9 @@ namespace MudSharp.FutureProg.Functions.Chargen
 		}
 		#endregion
 
-		public override FutureProgVariableTypes ReturnType
+		public override ProgVariableTypes ReturnType
 		{
-			get { return FutureProgVariableTypes.Boolean; }
+			get { return ProgVariableTypes.Boolean; }
 			protected set { }
 		}
 

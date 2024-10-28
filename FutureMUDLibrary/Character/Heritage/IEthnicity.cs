@@ -8,7 +8,7 @@ using MudSharp.FutureProg;
 using MudSharp.Health;
 
 namespace MudSharp.Character.Heritage {
-    public interface IEthnicity : IEditableItem, IFutureProgVariable {
+    public interface IEthnicity : IEditableItem, IProgVariable {
         string ChargenBlurb { get; }
         IDictionary<ICharacteristicDefinition, ICharacteristicProfile> CharacteristicChoices { get; }
         IRace ParentRace { get; }

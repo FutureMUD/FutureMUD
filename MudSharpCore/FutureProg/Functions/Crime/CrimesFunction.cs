@@ -37,7 +37,7 @@ internal class CrimesFunction : BuiltInFunction
 				"allcrimes",
 				new[]
 				{
-					FutureProgVariableTypes.Character, FutureProgVariableTypes.LegalAuthority
+					ProgVariableTypes.Character, ProgVariableTypes.LegalAuthority
 				}, // the parameters the function takes
 				(pars, gameworld) => new CrimesFunction(pars, gameworld, CrimesFunctionMode.All),
 				new List<string> { "character", "authority" }, // parameter names
@@ -47,7 +47,7 @@ internal class CrimesFunction : BuiltInFunction
 				}, // parameter help text
 				"Returns a list of all the crimes a character has committed in the specified authority (or authorities)", // help text for the function,
 				"Crime", // the category to which this function belongs,
-				FutureProgVariableTypes.Crime | FutureProgVariableTypes.Collection // the return type of the function
+				ProgVariableTypes.Crime | ProgVariableTypes.Collection // the return type of the function
 			)
 		);
 
@@ -56,7 +56,7 @@ internal class CrimesFunction : BuiltInFunction
 				"knowncrimes",
 				new[]
 				{
-					FutureProgVariableTypes.Character, FutureProgVariableTypes.LegalAuthority
+					ProgVariableTypes.Character, ProgVariableTypes.LegalAuthority
 				}, // the parameters the function takes
 				(pars, gameworld) => new CrimesFunction(pars, gameworld, CrimesFunctionMode.Known),
 				new List<string> { "character", "authority" }, // parameter names
@@ -66,7 +66,7 @@ internal class CrimesFunction : BuiltInFunction
 				}, // parameter help text
 				"Returns a list of all the unresolved crimes known to authorities in the specified authority (or authorities)", // help text for the function,
 				"Crime", // the category to which this function belongs,
-				FutureProgVariableTypes.Crime | FutureProgVariableTypes.Collection // the return type of the function
+				ProgVariableTypes.Crime | ProgVariableTypes.Collection // the return type of the function
 			)
 		);
 
@@ -75,7 +75,7 @@ internal class CrimesFunction : BuiltInFunction
 				"unknowncrimes",
 				new[]
 				{
-					FutureProgVariableTypes.Character, FutureProgVariableTypes.LegalAuthority
+					ProgVariableTypes.Character, ProgVariableTypes.LegalAuthority
 				}, // the parameters the function takes
 				(pars, gameworld) => new CrimesFunction(pars, gameworld, CrimesFunctionMode.Unknown),
 				new List<string> { "character", "authority" }, // parameter names
@@ -85,7 +85,7 @@ internal class CrimesFunction : BuiltInFunction
 				}, // parameter help text
 				"Returns a list of all the unresolved crimes unknown to authorities in the specified authority (or authorities)", // help text for the function,
 				"Crime", // the category to which this function belongs,
-				FutureProgVariableTypes.Crime | FutureProgVariableTypes.Collection // the return type of the function
+				ProgVariableTypes.Crime | ProgVariableTypes.Collection // the return type of the function
 			)
 		);
 
@@ -94,7 +94,7 @@ internal class CrimesFunction : BuiltInFunction
 				"resolvedcrimes",
 				new[]
 				{
-					FutureProgVariableTypes.Character, FutureProgVariableTypes.LegalAuthority
+					ProgVariableTypes.Character, ProgVariableTypes.LegalAuthority
 				}, // the parameters the function takes
 				(pars, gameworld) => new CrimesFunction(pars, gameworld, CrimesFunctionMode.Known),
 				new List<string> { "character", "authority" }, // parameter names
@@ -104,7 +104,7 @@ internal class CrimesFunction : BuiltInFunction
 				}, // parameter help text
 				"Returns a list of all the resolved crimes in the specified authority (or authorities)", // help text for the function,
 				"Crime", // the category to which this function belongs,
-				FutureProgVariableTypes.Crime | FutureProgVariableTypes.Collection // the return type of the function
+				ProgVariableTypes.Crime | ProgVariableTypes.Collection // the return type of the function
 			)
 		);
 	}
@@ -122,9 +122,9 @@ internal class CrimesFunction : BuiltInFunction
 
 	#endregion
 
-	public override FutureProgVariableTypes ReturnType
+	public override ProgVariableTypes ReturnType
 	{
-		get => FutureProgVariableTypes.Crime | FutureProgVariableTypes.Collection;
+		get => ProgVariableTypes.Crime | ProgVariableTypes.Collection;
 		protected set { }
 	}
 
@@ -187,7 +187,7 @@ internal class CrimesFunction : BuiltInFunction
 				break;
 		}
 
-		Result = new CollectionVariable(crimes, FutureProgVariableTypes.Crime);
+		Result = new CollectionVariable(crimes, ProgVariableTypes.Crime);
 		return StatementResult.Normal;
 	}
 }

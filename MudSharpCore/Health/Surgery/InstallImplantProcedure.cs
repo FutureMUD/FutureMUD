@@ -250,23 +250,23 @@ public class InstallImplantProcedure : BodypartSpecificSurgicalProcedure
 		patient.Body.InstallImplant(implant);
 	}
 
-	protected override IEnumerable<IEnumerable<FutureProgVariableTypes>> ParametersForCancelProg => new[]
+	protected override IEnumerable<IEnumerable<ProgVariableTypes>> ParametersForCancelProg => new[]
 	{
 		new[]
 		{
-			FutureProgVariableTypes.Character,
-			FutureProgVariableTypes.Character,
-			FutureProgVariableTypes.Number,
-			FutureProgVariableTypes.Text,
-			FutureProgVariableTypes.Item
+			ProgVariableTypes.Character,
+			ProgVariableTypes.Character,
+			ProgVariableTypes.Number,
+			ProgVariableTypes.Text,
+			ProgVariableTypes.Item
 		},
 		new[]
 		{
-			FutureProgVariableTypes.Character,
-			FutureProgVariableTypes.Character,
-			FutureProgVariableTypes.Text,
-			FutureProgVariableTypes.Text,
-			FutureProgVariableTypes.Item
+			ProgVariableTypes.Character,
+			ProgVariableTypes.Character,
+			ProgVariableTypes.Text,
+			ProgVariableTypes.Text,
+			ProgVariableTypes.Item
 		},
 	};
 

@@ -19,9 +19,9 @@ internal class SendFunction : BuiltInFunction
 		Gameworld = gameworld;
 	}
 
-	public override FutureProgVariableTypes ReturnType
+	public override ProgVariableTypes ReturnType
 	{
-		get => FutureProgVariableTypes.Boolean;
+		get => ProgVariableTypes.Boolean;
 		protected set { }
 	}
 
@@ -76,7 +76,7 @@ internal class SendFunction : BuiltInFunction
 		FutureProg.RegisterBuiltInFunctionCompiler(
 			new FunctionCompilerInformation(
 				"send",
-				new[] { FutureProgVariableTypes.Perceiver, FutureProgVariableTypes.Text },
+				new[] { ProgVariableTypes.Perceiver, ProgVariableTypes.Text },
 				(pars, gameworld) => new SendFunction(pars, gameworld)
 			)
 		);
@@ -86,19 +86,7 @@ internal class SendFunction : BuiltInFunction
 				"send",
 				new[]
 				{
-					FutureProgVariableTypes.Perceiver, FutureProgVariableTypes.Text, FutureProgVariableTypes.Perceivable
-				},
-				(pars, gameworld) => new SendFunction(pars, gameworld)
-			)
-		);
-
-		FutureProg.RegisterBuiltInFunctionCompiler(
-			new FunctionCompilerInformation(
-				"send",
-				new[]
-				{
-					FutureProgVariableTypes.Perceiver, FutureProgVariableTypes.Text,
-					FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Perceivable
+					ProgVariableTypes.Perceiver, ProgVariableTypes.Text, ProgVariableTypes.Perceivable
 				},
 				(pars, gameworld) => new SendFunction(pars, gameworld)
 			)
@@ -109,9 +97,8 @@ internal class SendFunction : BuiltInFunction
 				"send",
 				new[]
 				{
-					FutureProgVariableTypes.Perceiver, FutureProgVariableTypes.Text,
-					FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Perceivable,
-					FutureProgVariableTypes.Perceivable
+					ProgVariableTypes.Perceiver, ProgVariableTypes.Text,
+					ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable
 				},
 				(pars, gameworld) => new SendFunction(pars, gameworld)
 			)
@@ -122,9 +109,9 @@ internal class SendFunction : BuiltInFunction
 				"send",
 				new[]
 				{
-					FutureProgVariableTypes.Perceiver, FutureProgVariableTypes.Text,
-					FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Perceivable,
-					FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Perceivable
+					ProgVariableTypes.Perceiver, ProgVariableTypes.Text,
+					ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable,
+					ProgVariableTypes.Perceivable
 				},
 				(pars, gameworld) => new SendFunction(pars, gameworld)
 			)
@@ -135,10 +122,9 @@ internal class SendFunction : BuiltInFunction
 				"send",
 				new[]
 				{
-					FutureProgVariableTypes.Perceiver, FutureProgVariableTypes.Text,
-					FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Perceivable,
-					FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Perceivable,
-					FutureProgVariableTypes.Perceivable
+					ProgVariableTypes.Perceiver, ProgVariableTypes.Text,
+					ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable,
+					ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable
 				},
 				(pars, gameworld) => new SendFunction(pars, gameworld)
 			)
@@ -149,10 +135,10 @@ internal class SendFunction : BuiltInFunction
 				"send",
 				new[]
 				{
-					FutureProgVariableTypes.Perceiver, FutureProgVariableTypes.Text,
-					FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Perceivable,
-					FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Perceivable,
-					FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Perceivable
+					ProgVariableTypes.Perceiver, ProgVariableTypes.Text,
+					ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable,
+					ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable,
+					ProgVariableTypes.Perceivable
 				},
 				(pars, gameworld) => new SendFunction(pars, gameworld)
 			)
@@ -163,11 +149,10 @@ internal class SendFunction : BuiltInFunction
 				"send",
 				new[]
 				{
-					FutureProgVariableTypes.Perceiver, FutureProgVariableTypes.Text,
-					FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Perceivable,
-					FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Perceivable,
-					FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Perceivable,
-					FutureProgVariableTypes.Perceivable
+					ProgVariableTypes.Perceiver, ProgVariableTypes.Text,
+					ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable,
+					ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable,
+					ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable
 				},
 				(pars, gameworld) => new SendFunction(pars, gameworld)
 			)
@@ -178,11 +163,26 @@ internal class SendFunction : BuiltInFunction
 				"send",
 				new[]
 				{
-					FutureProgVariableTypes.Perceiver, FutureProgVariableTypes.Text,
-					FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Perceivable,
-					FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Perceivable,
-					FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Perceivable,
-					FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Perceivable
+					ProgVariableTypes.Perceiver, ProgVariableTypes.Text,
+					ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable,
+					ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable,
+					ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable,
+					ProgVariableTypes.Perceivable
+				},
+				(pars, gameworld) => new SendFunction(pars, gameworld)
+			)
+		);
+
+		FutureProg.RegisterBuiltInFunctionCompiler(
+			new FunctionCompilerInformation(
+				"send",
+				new[]
+				{
+					ProgVariableTypes.Perceiver, ProgVariableTypes.Text,
+					ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable,
+					ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable,
+					ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable,
+					ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable
 				},
 				(pars, gameworld) => new SendFunction(pars, gameworld)
 			)
@@ -192,7 +192,7 @@ internal class SendFunction : BuiltInFunction
 		FutureProg.RegisterBuiltInFunctionCompiler(
 			new FunctionCompilerInformation(
 				"sendfixed",
-				new[] { FutureProgVariableTypes.Perceiver, FutureProgVariableTypes.Text },
+				new[] { ProgVariableTypes.Perceiver, ProgVariableTypes.Text },
 				(pars, gameworld) => new SendFunction(pars, gameworld) { FixedFormat = true }
 			)
 		);
@@ -202,7 +202,7 @@ internal class SendFunction : BuiltInFunction
 				"sendfixed",
 				new[]
 				{
-					FutureProgVariableTypes.Perceiver, FutureProgVariableTypes.Text, FutureProgVariableTypes.Perceivable
+					ProgVariableTypes.Perceiver, ProgVariableTypes.Text, ProgVariableTypes.Perceivable
 				},
 				(pars, gameworld) => new SendFunction(pars, gameworld) { FixedFormat = true }
 			)
@@ -213,8 +213,8 @@ internal class SendFunction : BuiltInFunction
 				"sendfixed",
 				new[]
 				{
-					FutureProgVariableTypes.Perceiver, FutureProgVariableTypes.Text,
-					FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Perceivable
+					ProgVariableTypes.Perceiver, ProgVariableTypes.Text,
+					ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable
 				},
 				(pars, gameworld) => new SendFunction(pars, gameworld) { FixedFormat = true }
 			)
@@ -225,9 +225,9 @@ internal class SendFunction : BuiltInFunction
 				"sendfixed",
 				new[]
 				{
-					FutureProgVariableTypes.Perceiver, FutureProgVariableTypes.Text,
-					FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Perceivable,
-					FutureProgVariableTypes.Perceivable
+					ProgVariableTypes.Perceiver, ProgVariableTypes.Text,
+					ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable,
+					ProgVariableTypes.Perceivable
 				},
 				(pars, gameworld) => new SendFunction(pars, gameworld) { FixedFormat = true }
 			)
@@ -238,9 +238,9 @@ internal class SendFunction : BuiltInFunction
 				"sendfixed",
 				new[]
 				{
-					FutureProgVariableTypes.Perceiver, FutureProgVariableTypes.Text,
-					FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Perceivable,
-					FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Perceivable
+					ProgVariableTypes.Perceiver, ProgVariableTypes.Text,
+					ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable,
+					ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable
 				},
 				(pars, gameworld) => new SendFunction(pars, gameworld) { FixedFormat = true }
 			)
@@ -251,10 +251,10 @@ internal class SendFunction : BuiltInFunction
 				"sendfixed",
 				new[]
 				{
-					FutureProgVariableTypes.Perceiver, FutureProgVariableTypes.Text,
-					FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Perceivable,
-					FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Perceivable,
-					FutureProgVariableTypes.Perceivable
+					ProgVariableTypes.Perceiver, ProgVariableTypes.Text,
+					ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable,
+					ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable,
+					ProgVariableTypes.Perceivable
 				},
 				(pars, gameworld) => new SendFunction(pars, gameworld) { FixedFormat = true }
 			)
@@ -265,10 +265,10 @@ internal class SendFunction : BuiltInFunction
 				"sendfixed",
 				new[]
 				{
-					FutureProgVariableTypes.Perceiver, FutureProgVariableTypes.Text,
-					FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Perceivable,
-					FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Perceivable,
-					FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Perceivable
+					ProgVariableTypes.Perceiver, ProgVariableTypes.Text,
+					ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable,
+					ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable,
+					ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable
 				},
 				(pars, gameworld) => new SendFunction(pars, gameworld) { FixedFormat = true }
 			)
@@ -279,11 +279,11 @@ internal class SendFunction : BuiltInFunction
 				"sendfixed",
 				new[]
 				{
-					FutureProgVariableTypes.Perceiver, FutureProgVariableTypes.Text,
-					FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Perceivable,
-					FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Perceivable,
-					FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Perceivable,
-					FutureProgVariableTypes.Perceivable
+					ProgVariableTypes.Perceiver, ProgVariableTypes.Text,
+					ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable,
+					ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable,
+					ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable,
+					ProgVariableTypes.Perceivable
 				},
 				(pars, gameworld) => new SendFunction(pars, gameworld) { FixedFormat = true }
 			)
@@ -294,11 +294,11 @@ internal class SendFunction : BuiltInFunction
 				"sendfixed",
 				new[]
 				{
-					FutureProgVariableTypes.Perceiver, FutureProgVariableTypes.Text,
-					FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Perceivable,
-					FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Perceivable,
-					FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Perceivable,
-					FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Perceivable
+					ProgVariableTypes.Perceiver, ProgVariableTypes.Text,
+					ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable,
+					ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable,
+					ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable,
+					ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable
 				},
 				(pars, gameworld) => new SendFunction(pars, gameworld) { FixedFormat = true }
 			)

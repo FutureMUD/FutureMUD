@@ -42,13 +42,13 @@ public abstract class Project : EditableItem, IProject
 				: Gameworld.FutureProgs.GetByName(root.Element("AppearInProjectListProg").Value);
 		if (AppearInProjectListProg != null)
 		{
-			if (!AppearInProjectListProg.ReturnType.CompatibleWith(FutureProgVariableTypes.Boolean))
+			if (!AppearInProjectListProg.ReturnType.CompatibleWith(ProgVariableTypes.Boolean))
 			{
 				throw new ApplicationException(
 					$"Project definition {Id} specified an AppearInProjectListProg that does not return a boolean.");
 			}
 
-			if (!AppearInProjectListProg.MatchesParameters(new[] { FutureProgVariableTypes.Character }))
+			if (!AppearInProjectListProg.MatchesParameters(new[] { ProgVariableTypes.Character }))
 			{
 				throw new ApplicationException(
 					$"Project definition {Id} specified an AppearInProjectListProg that does not accept only a single character as a parameter.");
@@ -64,13 +64,13 @@ public abstract class Project : EditableItem, IProject
 				: Gameworld.FutureProgs.GetByName(root.Element("CanInitiateProg").Value);
 		if (CanInitiateProg != null)
 		{
-			if (!CanInitiateProg.ReturnType.CompatibleWith(FutureProgVariableTypes.Boolean))
+			if (!CanInitiateProg.ReturnType.CompatibleWith(ProgVariableTypes.Boolean))
 			{
 				throw new ApplicationException(
 					$"Project definition {Id} specified a CanInitiateProg that does not return a boolean.");
 			}
 
-			if (!CanInitiateProg.MatchesParameters(new[] { FutureProgVariableTypes.Character }))
+			if (!CanInitiateProg.MatchesParameters(new[] { ProgVariableTypes.Character }))
 			{
 				throw new ApplicationException(
 					$"Project definition {Id} specified a CanInitiateProg that does not accept only a single character as a parameter.");
@@ -86,13 +86,13 @@ public abstract class Project : EditableItem, IProject
 				: Gameworld.FutureProgs.GetByName(root.Element("WhyCannotInitiateProg").Value);
 		if (WhyCannotInitiateProg != null)
 		{
-			if (!WhyCannotInitiateProg.ReturnType.CompatibleWith(FutureProgVariableTypes.Text))
+			if (!WhyCannotInitiateProg.ReturnType.CompatibleWith(ProgVariableTypes.Text))
 			{
 				throw new ApplicationException(
 					$"Project definition {Id} specified a WhyCannotInitiateProg that does not return text.");
 			}
 
-			if (!WhyCannotInitiateProg.MatchesParameters(new[] { FutureProgVariableTypes.Character }))
+			if (!WhyCannotInitiateProg.MatchesParameters(new[] { ProgVariableTypes.Character }))
 			{
 				throw new ApplicationException(
 					$"Project definition {Id} specified a WhyCannotInitiateProg that does not accept only a single character as a parameter.");
@@ -104,7 +104,7 @@ public abstract class Project : EditableItem, IProject
 			: Gameworld.FutureProgs.GetByName(root.Element("OnStartProg").Value);
 		if (OnStartProg != null)
 		{
-			if (!OnStartProg.MatchesParameters(new[] { FutureProgVariableTypes.Project }))
+			if (!OnStartProg.MatchesParameters(new[] { ProgVariableTypes.Project }))
 			{
 				throw new ApplicationException(
 					$"Project definition {Id} specified a OnStartProg that does not accept only a single project as a parameter.");
@@ -116,7 +116,7 @@ public abstract class Project : EditableItem, IProject
 			: Gameworld.FutureProgs.GetByName(root.Element("OnFinishProg").Value);
 		if (OnFinishProg != null)
 		{
-			if (!OnFinishProg.MatchesParameters(new[] { FutureProgVariableTypes.Project }))
+			if (!OnFinishProg.MatchesParameters(new[] { ProgVariableTypes.Project }))
 			{
 				throw new ApplicationException(
 					$"Project definition {Id} specified a OnFinishProg that does not accept only a single project as a parameter.");
@@ -128,7 +128,7 @@ public abstract class Project : EditableItem, IProject
 			: Gameworld.FutureProgs.GetByName(root.Element("OnCancelProg").Value);
 		if (OnCancelProg != null)
 		{
-			if (!OnCancelProg.MatchesParameters(new[] { FutureProgVariableTypes.Project }))
+			if (!OnCancelProg.MatchesParameters(new[] { ProgVariableTypes.Project }))
 			{
 				throw new ApplicationException(
 					$"Project definition {Id} specified a OnCancelProg that does not accept only a single project as a parameter.");
@@ -397,7 +397,7 @@ Editing Actions:
 			return false;
 		}
 
-		if (!prog.MatchesParameters(new[] { FutureProgVariableTypes.Project }))
+		if (!prog.MatchesParameters(new[] { ProgVariableTypes.Project }))
 		{
 			actor.OutputHandler.Send("The prog you specify must have only a single project as a parameter.");
 			return false;
@@ -435,7 +435,7 @@ Editing Actions:
 			return false;
 		}
 
-		if (!prog.MatchesParameters(new[] { FutureProgVariableTypes.Project }))
+		if (!prog.MatchesParameters(new[] { ProgVariableTypes.Project }))
 		{
 			actor.OutputHandler.Send("The prog you specify must have only a single project as a parameter.");
 			return false;
@@ -473,7 +473,7 @@ Editing Actions:
 			return false;
 		}
 
-		if (!prog.MatchesParameters(new[] { FutureProgVariableTypes.Project }))
+		if (!prog.MatchesParameters(new[] { ProgVariableTypes.Project }))
 		{
 			actor.OutputHandler.Send("The prog you specify must have only a single project as a parameter.");
 			return false;
@@ -504,13 +504,13 @@ Editing Actions:
 			return false;
 		}
 
-		if (prog.ReturnType != FutureProgVariableTypes.Text)
+		if (prog.ReturnType != ProgVariableTypes.Text)
 		{
 			actor.OutputHandler.Send("The WhyCannotInitiateProg must return a text value.");
 			return false;
 		}
 
-		if (!prog.MatchesParameters(new[] { FutureProgVariableTypes.Character }))
+		if (!prog.MatchesParameters(new[] { ProgVariableTypes.Character }))
 		{
 			actor.OutputHandler.Send("The WhyCannotInitiateProg must be compatible with a single character parameter.");
 			return false;
@@ -541,13 +541,13 @@ Editing Actions:
 			return false;
 		}
 
-		if (prog.ReturnType != FutureProgVariableTypes.Boolean)
+		if (prog.ReturnType != ProgVariableTypes.Boolean)
 		{
 			actor.OutputHandler.Send("The InitiateProg must return a boolean value.");
 			return false;
 		}
 
-		if (!prog.MatchesParameters(new[] { FutureProgVariableTypes.Character }))
+		if (!prog.MatchesParameters(new[] { ProgVariableTypes.Character }))
 		{
 			actor.OutputHandler.Send("The InitiateProg must be compatible with a single character parameter.");
 			return false;
@@ -578,13 +578,13 @@ Editing Actions:
 			return false;
 		}
 
-		if (prog.ReturnType != FutureProgVariableTypes.Boolean)
+		if (prog.ReturnType != ProgVariableTypes.Boolean)
 		{
 			actor.OutputHandler.Send("The AppearProg must return a boolean value.");
 			return false;
 		}
 
-		if (!prog.MatchesParameters(new[] { FutureProgVariableTypes.Character }))
+		if (!prog.MatchesParameters(new[] { ProgVariableTypes.Character }))
 		{
 			actor.OutputHandler.Send("The AppearProg must be compatible with a single character parameter.");
 			return false;

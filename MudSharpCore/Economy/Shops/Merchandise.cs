@@ -828,10 +828,10 @@ public class Merchandise : LateInitialisingItem, IMerchandise
 
 	#region IFutureProgVariable Implementation
 
-	public FutureProgVariableTypes Type => FutureProgVariableTypes.Merchandise;
+	public ProgVariableTypes Type => ProgVariableTypes.Merchandise;
 	public object GetObject => this;
 
-	public IFutureProgVariable GetProperty(string property)
+	public IProgVariable GetProperty(string property)
 	{
 		switch (property.ToLowerInvariant())
 		{
@@ -858,19 +858,19 @@ public class Merchandise : LateInitialisingItem, IMerchandise
 		throw new ApplicationException("Unknown property in Merchandise.GetProperty");
 	}
 
-	private static IReadOnlyDictionary<string, FutureProgVariableTypes> DotReferenceHandler()
+	private static IReadOnlyDictionary<string, ProgVariableTypes> DotReferenceHandler()
 	{
-		return new Dictionary<string, FutureProgVariableTypes>(StringComparer.InvariantCultureIgnoreCase)
+		return new Dictionary<string, ProgVariableTypes>(StringComparer.InvariantCultureIgnoreCase)
 		{
-			{ "name", FutureProgVariableTypes.Text },
-			{ "id", FutureProgVariableTypes.Number },
-			{ "price", FutureProgVariableTypes.Number },
-			{ "description", FutureProgVariableTypes.Text },
-			{ "shop", FutureProgVariableTypes.Shop },
-			{ "willbuy", FutureProgVariableTypes.Boolean},
-			{ "willsell", FutureProgVariableTypes.Boolean},
-			{ "mincond", FutureProgVariableTypes.Number},
-			{ "markdown", FutureProgVariableTypes.Number},
+			{ "name", ProgVariableTypes.Text },
+			{ "id", ProgVariableTypes.Number },
+			{ "price", ProgVariableTypes.Number },
+			{ "description", ProgVariableTypes.Text },
+			{ "shop", ProgVariableTypes.Shop },
+			{ "willbuy", ProgVariableTypes.Boolean},
+			{ "willsell", ProgVariableTypes.Boolean},
+			{ "mincond", ProgVariableTypes.Number},
+			{ "markdown", ProgVariableTypes.Number},
 		};
 	}
 
@@ -892,7 +892,7 @@ public class Merchandise : LateInitialisingItem, IMerchandise
 
 	public static void RegisterFutureProgCompiler()
 	{
-		FutureProgVariable.RegisterDotReferenceCompileInfo(FutureProgVariableTypes.Merchandise, DotReferenceHandler(),
+		ProgVariable.RegisterDotReferenceCompileInfo(ProgVariableTypes.Merchandise, DotReferenceHandler(),
 			DotReferenceHelp());
 	}
 

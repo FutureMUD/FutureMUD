@@ -13,9 +13,9 @@ internal class NowFunction : BuiltInFunction
 	{
 	}
 
-	public override FutureProgVariableTypes ReturnType
+	public override ProgVariableTypes ReturnType
 	{
-		get => FutureProgVariableTypes.DateTime;
+		get => ProgVariableTypes.DateTime;
 		protected set { }
 	}
 
@@ -29,7 +29,7 @@ internal class NowFunction : BuiltInFunction
 	{
 		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
 			"now",
-			new FutureProgVariableTypes[] { },
+			new ProgVariableTypes[] { },
 			(pars, gameworld) => new NowFunction(pars)
 		));
 	}
@@ -42,9 +42,9 @@ internal class MudNowFunction : BuiltInFunction
 	{
 	}
 
-	public override FutureProgVariableTypes ReturnType
+	public override ProgVariableTypes ReturnType
 	{
-		get => FutureProgVariableTypes.MudDateTime;
+		get => ProgVariableTypes.MudDateTime;
 		protected set { }
 	}
 
@@ -92,19 +92,19 @@ internal class MudNowFunction : BuiltInFunction
 	{
 		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
 			"now",
-			new[] { FutureProgVariableTypes.Calendar },
+			new[] { ProgVariableTypes.Calendar },
 			(pars, gameworld) => new MudNowFunction(pars)
 		));
 
 		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
 			"now",
-			new[] { FutureProgVariableTypes.Calendar, FutureProgVariableTypes.Clock },
+			new[] { ProgVariableTypes.Calendar, ProgVariableTypes.Clock },
 			(pars, gameworld) => new MudNowFunction(pars)
 		));
 
 		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
 			"now",
-			new[] { FutureProgVariableTypes.Calendar, FutureProgVariableTypes.Clock, FutureProgVariableTypes.Text },
+			new[] { ProgVariableTypes.Calendar, ProgVariableTypes.Clock, ProgVariableTypes.Text },
 			(pars, gameworld) => new MudNowFunction(pars)
 		));
 	}

@@ -280,7 +280,7 @@ public class CellExit : ICellExit
 
 	#region IFutureProgVariable Members
 
-	public IFutureProgVariable GetProperty(string property)
+	public IProgVariable GetProperty(string property)
 	{
 		switch (property.ToLowerInvariant())
 		{
@@ -334,34 +334,34 @@ public class CellExit : ICellExit
 		throw new NotSupportedException("Invalid Property in CellExit.GetProperty");
 	}
 
-	public FutureProgVariableTypes Type => FutureProgVariableTypes.Exit;
+	public ProgVariableTypes Type => ProgVariableTypes.Exit;
 
 	public object GetObject => this;
 
-	private static IReadOnlyDictionary<string, FutureProgVariableTypes> DotReferenceHandler()
+	private static IReadOnlyDictionary<string, ProgVariableTypes> DotReferenceHandler()
 	{
-		return new Dictionary<string, FutureProgVariableTypes>(StringComparer.InvariantCultureIgnoreCase)
+		return new Dictionary<string, ProgVariableTypes>(StringComparer.InvariantCultureIgnoreCase)
 		{
-			{ "origin", FutureProgVariableTypes.Location },
-			{ "destination", FutureProgVariableTypes.Location },
-			{ "keyword", FutureProgVariableTypes.Text },
-			{ "direction", FutureProgVariableTypes.Text },
-			{ "opposite", FutureProgVariableTypes.Exit },
-			{ "door", FutureProgVariableTypes.Item },
-			{ "acceptsdoor", FutureProgVariableTypes.Boolean },
-			{ "isclimbexit", FutureProgVariableTypes.Boolean },
-			{ "isfallexit", FutureProgVariableTypes.Boolean },
-			{ "isflyexit", FutureProgVariableTypes.Boolean },
-			{ "climbdifficulty", FutureProgVariableTypes.Number },
-			{ "outboundmovementsuffix", FutureProgVariableTypes.Text },
-			{ "inboundmovementsuffix", FutureProgVariableTypes.Text },
-			{ "outbounddirectionsuffix", FutureProgVariableTypes.Text },
-			{ "inbounddirectionsuffix", FutureProgVariableTypes.Text },
-			{ "outbounddirectiondescription", FutureProgVariableTypes.Text },
-			{ "doorsize", FutureProgVariableTypes.Number },
-			{ "maximumsize", FutureProgVariableTypes.Number },
-			{ "maximumsizeupright", FutureProgVariableTypes.Number },
-			{ "slowdown", FutureProgVariableTypes.Number }
+			{ "origin", ProgVariableTypes.Location },
+			{ "destination", ProgVariableTypes.Location },
+			{ "keyword", ProgVariableTypes.Text },
+			{ "direction", ProgVariableTypes.Text },
+			{ "opposite", ProgVariableTypes.Exit },
+			{ "door", ProgVariableTypes.Item },
+			{ "acceptsdoor", ProgVariableTypes.Boolean },
+			{ "isclimbexit", ProgVariableTypes.Boolean },
+			{ "isfallexit", ProgVariableTypes.Boolean },
+			{ "isflyexit", ProgVariableTypes.Boolean },
+			{ "climbdifficulty", ProgVariableTypes.Number },
+			{ "outboundmovementsuffix", ProgVariableTypes.Text },
+			{ "inboundmovementsuffix", ProgVariableTypes.Text },
+			{ "outbounddirectionsuffix", ProgVariableTypes.Text },
+			{ "inbounddirectionsuffix", ProgVariableTypes.Text },
+			{ "outbounddirectiondescription", ProgVariableTypes.Text },
+			{ "doorsize", ProgVariableTypes.Number },
+			{ "maximumsize", ProgVariableTypes.Number },
+			{ "maximumsizeupright", ProgVariableTypes.Number },
+			{ "slowdown", ProgVariableTypes.Number }
 		};
 	}
 
@@ -400,7 +400,7 @@ public class CellExit : ICellExit
 
 	public static void RegisterFutureProgCompiler()
 	{
-		FutureProgVariable.RegisterDotReferenceCompileInfo(FutureProgVariableTypes.Exit, DotReferenceHandler(),
+		ProgVariable.RegisterDotReferenceCompileInfo(ProgVariableTypes.Exit, DotReferenceHandler(),
 			DotReferenceHelp());
 	}
 

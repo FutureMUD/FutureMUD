@@ -17,9 +17,9 @@ internal class WieldFunction : BuiltInFunction
 
 	public bool Silent { get; set; }
 
-	public override FutureProgVariableTypes ReturnType
+	public override ProgVariableTypes ReturnType
 	{
-		get => FutureProgVariableTypes.Boolean;
+		get => ProgVariableTypes.Boolean;
 		protected set { }
 	}
 
@@ -83,13 +83,13 @@ internal class WieldFunction : BuiltInFunction
 	{
 		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
 			"wield",
-			new[] { FutureProgVariableTypes.Character, FutureProgVariableTypes.Item, FutureProgVariableTypes.Text },
+			new[] { ProgVariableTypes.Character, ProgVariableTypes.Item, ProgVariableTypes.Text },
 			(pars, gameworld) => new WieldFunction(pars, false)
 		));
 
 		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
 			"silentwield",
-			new[] { FutureProgVariableTypes.Character, FutureProgVariableTypes.Item },
+			new[] { ProgVariableTypes.Character, ProgVariableTypes.Item },
 			(pars, gameworld) => new WieldFunction(pars, true)
 		));
 	}

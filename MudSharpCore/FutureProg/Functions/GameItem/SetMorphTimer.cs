@@ -26,7 +26,7 @@ internal class SetMorphTimer : BuiltInFunction
 		FutureProg.RegisterBuiltInFunctionCompiler(
 			new FunctionCompilerInformation(
 				"SetMorphTimer".ToLowerInvariant(),
-				new[] { FutureProgVariableTypes.Item, FutureProgVariableTypes.TimeSpan },
+				new[] { ProgVariableTypes.Item, ProgVariableTypes.TimeSpan },
 				(pars, gameworld) => new SetMorphTimer(pars, gameworld, true),
 				new List<string> { "item", "timer" },
 				new List<string>
@@ -36,14 +36,14 @@ internal class SetMorphTimer : BuiltInFunction
 				},
 				"This function allows you to set the morph timer on an item, overwriting whatever it currently is and setting it if it doesn't have one. What happens depends on the prototype. If an item is not set to morph normally, this can still make it morph but most likely morph to nothing. Returns false if anything went wrong like passed a null item.",
 				"Items",
-				FutureProgVariableTypes.Boolean
+				ProgVariableTypes.Boolean
 			)
 		);
 
 		FutureProg.RegisterBuiltInFunctionCompiler(
 			new FunctionCompilerInformation(
 				"SetMorphTimer".ToLowerInvariant(),
-				new[] { FutureProgVariableTypes.Item, FutureProgVariableTypes.Number },
+				new[] { ProgVariableTypes.Item, ProgVariableTypes.Number },
 				(pars, gameworld) => new SetMorphTimer(pars, gameworld, false),
 				new List<string> { "item", "timer" },
 				new List<string>
@@ -53,7 +53,7 @@ internal class SetMorphTimer : BuiltInFunction
 				},
 				"This function allows you to set the morph timer on an item, overwriting whatever it currently is and setting it if it doesn't have one. What happens depends on the prototype. If an item is not set to morph normally, this can still make it morph but most likely morph to nothing. Returns false if anything went wrong like passed a null item.",
 				"Items",
-				FutureProgVariableTypes.Boolean
+				ProgVariableTypes.Boolean
 			)
 		);
 	}
@@ -73,9 +73,9 @@ internal class SetMorphTimer : BuiltInFunction
 
 	#endregion
 
-	public override FutureProgVariableTypes ReturnType
+	public override ProgVariableTypes ReturnType
 	{
-		get => FutureProgVariableTypes.Boolean;
+		get => ProgVariableTypes.Boolean;
 		protected set { }
 	}
 

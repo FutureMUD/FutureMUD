@@ -13,10 +13,10 @@ internal class ProgLookupFromBuilderInputMultipleReturnTypes
 	public IFuturemud Gameworld { get; }
 	public ICharacter? Character { get; }
 	public string BuilderInput { get; }
-	private readonly List<FutureProgVariableTypes> _targetReturnTypes = new();
-	private readonly List<IEnumerable<FutureProgVariableTypes>> _parameters = new();
+	private readonly List<ProgVariableTypes> _targetReturnTypes = new();
+	private readonly List<IEnumerable<ProgVariableTypes>> _parameters = new();
 
-	public ProgLookupFromBuilderInputMultipleReturnTypes(ICharacter character, string builderInput, FutureProgVariableTypes targetReturnType, IEnumerable<FutureProgVariableTypes> parameters)
+	public ProgLookupFromBuilderInputMultipleReturnTypes(ICharacter character, string builderInput, ProgVariableTypes targetReturnType, IEnumerable<ProgVariableTypes> parameters)
 	{
 		Gameworld = character.Gameworld;
 		BuilderInput = builderInput;
@@ -25,7 +25,7 @@ internal class ProgLookupFromBuilderInputMultipleReturnTypes
 		Character = character;
 	}
 
-	public ProgLookupFromBuilderInputMultipleReturnTypes(ICharacter character, string builderInput, FutureProgVariableTypes targetReturnType, IEnumerable<IEnumerable<FutureProgVariableTypes>> parameters)
+	public ProgLookupFromBuilderInputMultipleReturnTypes(ICharacter character, string builderInput, ProgVariableTypes targetReturnType, IEnumerable<IEnumerable<ProgVariableTypes>> parameters)
 	{
 		Gameworld = character.Gameworld;
 		BuilderInput = builderInput;
@@ -34,7 +34,7 @@ internal class ProgLookupFromBuilderInputMultipleReturnTypes
 		Character = character;
 	}
 
-	public ProgLookupFromBuilderInputMultipleReturnTypes(ICharacter character, string builderInput, IEnumerable<FutureProgVariableTypes> targetReturnTypes, IEnumerable<FutureProgVariableTypes> parameters)
+	public ProgLookupFromBuilderInputMultipleReturnTypes(ICharacter character, string builderInput, IEnumerable<ProgVariableTypes> targetReturnTypes, IEnumerable<ProgVariableTypes> parameters)
 	{
 		Gameworld = character.Gameworld;
 		BuilderInput = builderInput;
@@ -43,7 +43,7 @@ internal class ProgLookupFromBuilderInputMultipleReturnTypes
 		Character = character;
 	}
 
-	public ProgLookupFromBuilderInputMultipleReturnTypes(ICharacter character, string builderInput, IEnumerable<FutureProgVariableTypes> targetReturnTypes, IEnumerable<IEnumerable<FutureProgVariableTypes>> parameters)
+	public ProgLookupFromBuilderInputMultipleReturnTypes(ICharacter character, string builderInput, IEnumerable<ProgVariableTypes> targetReturnTypes, IEnumerable<IEnumerable<ProgVariableTypes>> parameters)
 	{
 		Gameworld = character.Gameworld;
 		BuilderInput = builderInput;
@@ -117,11 +117,11 @@ internal class ProgLookupFromBuilderInput
 	public IFuturemud Gameworld { get; }
 	public ICharacter? Character { get; }
 	public string BuilderInput { get; }
-	public FutureProgVariableTypes TargetReturnType { get; }
-	private readonly List<IEnumerable<FutureProgVariableTypes>> _parameters = new();
+	public ProgVariableTypes TargetReturnType { get; }
+	private readonly List<IEnumerable<ProgVariableTypes>> _parameters = new();
 
 	public ProgLookupFromBuilderInput(IFuturemud gameworld, ICharacter? character, string builderInput,
-		FutureProgVariableTypes targetReturnType, IEnumerable<IEnumerable<FutureProgVariableTypes>> parameters)
+		ProgVariableTypes targetReturnType, IEnumerable<IEnumerable<ProgVariableTypes>> parameters)
 	{
 		Gameworld = gameworld;
 		BuilderInput = builderInput;
@@ -131,7 +131,7 @@ internal class ProgLookupFromBuilderInput
 	}
 
 	public ProgLookupFromBuilderInput(IFuturemud gameworld, ICharacter character, string builderInput,
-		FutureProgVariableTypes targetReturnType, IEnumerable<FutureProgVariableTypes> parameters)
+		ProgVariableTypes targetReturnType, IEnumerable<ProgVariableTypes> parameters)
 	{
 		Gameworld = gameworld;
 		BuilderInput = builderInput;
@@ -140,12 +140,12 @@ internal class ProgLookupFromBuilderInput
 		Character = character;
 	}
 
-	public ProgLookupFromBuilderInput(ICharacter character, string builderInput, FutureProgVariableTypes targetReturnType, IEnumerable<FutureProgVariableTypes> parameters) :
+	public ProgLookupFromBuilderInput(ICharacter character, string builderInput, ProgVariableTypes targetReturnType, IEnumerable<ProgVariableTypes> parameters) :
 		this(character.Gameworld, character, builderInput, targetReturnType, parameters)
 	{
 	}
 
-	public ProgLookupFromBuilderInput(ICharacter character, string builderInput, FutureProgVariableTypes targetReturnType, IEnumerable<IEnumerable<FutureProgVariableTypes>> parameters) :
+	public ProgLookupFromBuilderInput(ICharacter character, string builderInput, ProgVariableTypes targetReturnType, IEnumerable<IEnumerable<ProgVariableTypes>> parameters) :
 		this(character.Gameworld, character, builderInput, targetReturnType, parameters)
 	{
 	}

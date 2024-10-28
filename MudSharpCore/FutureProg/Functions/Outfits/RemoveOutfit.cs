@@ -28,7 +28,7 @@ internal class RemoveOutfit : BuiltInFunction
 		FutureProg.RegisterBuiltInFunctionCompiler(
 			new FunctionCompilerInformation(
 				"removeoutfit",
-				new[] { FutureProgVariableTypes.Character, FutureProgVariableTypes.Outfit },
+				new[] { ProgVariableTypes.Character, ProgVariableTypes.Outfit },
 				(pars, gameworld) => new RemoveOutfit(pars, gameworld, false)
 			)
 		);
@@ -38,7 +38,7 @@ internal class RemoveOutfit : BuiltInFunction
 				"removeoutfit",
 				new[]
 				{
-					FutureProgVariableTypes.Character, FutureProgVariableTypes.Outfit, FutureProgVariableTypes.Item
+					ProgVariableTypes.Character, ProgVariableTypes.Outfit, ProgVariableTypes.Item
 				},
 				(pars, gameworld) => new RemoveOutfit(pars, gameworld, false)
 			)
@@ -47,7 +47,7 @@ internal class RemoveOutfit : BuiltInFunction
 		FutureProg.RegisterBuiltInFunctionCompiler(
 			new FunctionCompilerInformation(
 				"removeoutfitforce",
-				new[] { FutureProgVariableTypes.Character, FutureProgVariableTypes.Outfit },
+				new[] { ProgVariableTypes.Character, ProgVariableTypes.Outfit },
 				(pars, gameworld) => new RemoveOutfit(pars, gameworld, true)
 			)
 		);
@@ -57,7 +57,7 @@ internal class RemoveOutfit : BuiltInFunction
 				"removeoutfitforce",
 				new[]
 				{
-					FutureProgVariableTypes.Character, FutureProgVariableTypes.Outfit, FutureProgVariableTypes.Item
+					ProgVariableTypes.Character, ProgVariableTypes.Outfit, ProgVariableTypes.Item
 				},
 				(pars, gameworld) => new RemoveOutfit(pars, gameworld, true)
 			)
@@ -77,9 +77,9 @@ internal class RemoveOutfit : BuiltInFunction
 
 	#endregion
 
-	public override FutureProgVariableTypes ReturnType
+	public override ProgVariableTypes ReturnType
 	{
-		get => FutureProgVariableTypes.Boolean;
+		get => ProgVariableTypes.Boolean;
 		protected set { }
 	}
 

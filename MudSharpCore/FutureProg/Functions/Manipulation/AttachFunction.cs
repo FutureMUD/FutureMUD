@@ -11,9 +11,9 @@ internal class AttachFunction : BuiltInFunction
 	{
 	}
 
-	public override FutureProgVariableTypes ReturnType
+	public override ProgVariableTypes ReturnType
 	{
-		get => FutureProgVariableTypes.Boolean;
+		get => ProgVariableTypes.Boolean;
 		protected set { }
 	}
 
@@ -94,7 +94,7 @@ internal class AttachFunction : BuiltInFunction
 	{
 		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
 			"attach",
-			new[] { FutureProgVariableTypes.Item, FutureProgVariableTypes.Item },
+			new[] { ProgVariableTypes.Item, ProgVariableTypes.Item },
 			(pars, gameworld) => new AttachFunction(pars)
 		));
 	}

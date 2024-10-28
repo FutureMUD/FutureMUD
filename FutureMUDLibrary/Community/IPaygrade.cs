@@ -4,7 +4,7 @@ using MudSharp.Framework.Save;
 using MudSharp.FutureProg;
 
 namespace MudSharp.Community {
-    public interface IPaygrade : IFrameworkItem, ISaveable, IFutureProgVariable {
+    public interface IPaygrade : IFrameworkItem, ISaveable, IProgVariable {
         string Abbreviation { get; set; }
         ICurrency PayCurrency { get; set; }
         decimal PayAmount { get; set; }

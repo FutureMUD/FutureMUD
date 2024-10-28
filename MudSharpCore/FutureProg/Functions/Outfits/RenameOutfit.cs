@@ -26,7 +26,7 @@ internal class RenameOutfit : BuiltInFunction
 		FutureProg.RegisterBuiltInFunctionCompiler(
 			new FunctionCompilerInformation(
 				"renameoutfit",
-				new[] { FutureProgVariableTypes.Outfit, FutureProgVariableTypes.Text },
+				new[] { ProgVariableTypes.Outfit, ProgVariableTypes.Text },
 				(pars, gameworld) => new RenameOutfit(pars, gameworld)
 			)
 		);
@@ -43,9 +43,9 @@ internal class RenameOutfit : BuiltInFunction
 
 	#endregion
 
-	public override FutureProgVariableTypes ReturnType
+	public override ProgVariableTypes ReturnType
 	{
-		get => FutureProgVariableTypes.Boolean;
+		get => ProgVariableTypes.Boolean;
 		protected set { }
 	}
 

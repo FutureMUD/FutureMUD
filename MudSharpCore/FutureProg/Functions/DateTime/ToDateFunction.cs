@@ -14,9 +14,9 @@ internal class ToDateFunction : BuiltInFunction
 	{
 	}
 
-	public override FutureProgVariableTypes ReturnType
+	public override ProgVariableTypes ReturnType
 	{
-		get => FutureProgVariableTypes.DateTime;
+		get => ProgVariableTypes.DateTime;
 		protected set { }
 	}
 
@@ -46,7 +46,7 @@ internal class ToDateFunction : BuiltInFunction
 	{
 		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
 			"todate",
-			new[] { FutureProgVariableTypes.Text, FutureProgVariableTypes.Text },
+			new[] { ProgVariableTypes.Text, ProgVariableTypes.Text },
 			(pars, gameworld) => new ToDateFunction(pars)
 		));
 	}
@@ -59,9 +59,9 @@ internal class ToMudDateFunction : BuiltInFunction
 	{
 	}
 
-	public override FutureProgVariableTypes ReturnType
+	public override ProgVariableTypes ReturnType
 	{
-		get => FutureProgVariableTypes.MudDateTime;
+		get => ProgVariableTypes.MudDateTime;
 		protected set { }
 	}
 
@@ -96,7 +96,7 @@ internal class ToMudDateFunction : BuiltInFunction
 	{
 		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
 			"todate",
-			new[] { FutureProgVariableTypes.Calendar, FutureProgVariableTypes.Clock, FutureProgVariableTypes.Text },
+			new[] { ProgVariableTypes.Calendar, ProgVariableTypes.Clock, ProgVariableTypes.Text },
 			(pars, gameworld) => new ToMudDateFunction(pars)
 		));
 	}

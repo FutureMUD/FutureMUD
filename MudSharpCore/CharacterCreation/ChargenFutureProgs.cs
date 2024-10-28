@@ -17,19 +17,19 @@ public partial class Chargen
 
 	public object GetObject => this;
 
-	public FutureProgVariableTypes Type => FutureProgVariableTypes.Chargen;
+	public ProgVariableTypes Type => ProgVariableTypes.Chargen;
 
 	public static void RegisterFutureProgCompiler()
 	{
-		FutureProgVariable.RegisterDotReferenceCompileInfo(FutureProgVariableTypes.Chargen, DotReferenceHandler(),
+		ProgVariable.RegisterDotReferenceCompileInfo(ProgVariableTypes.Chargen, DotReferenceHandler(),
 			DotReferenceHelp());
-		FutureProgVariable.RegisterDotReferenceCompileInfo(FutureProgVariableTypes.Toon, ToonDotReferenceHandler(),
+		ProgVariable.RegisterDotReferenceCompileInfo(ProgVariableTypes.Toon, ToonDotReferenceHandler(),
 			ToonDotReferenceHelp());
 	}
 
-	public IFutureProgVariable GetProperty(string property)
+	public IProgVariable GetProperty(string property)
 	{
-		IFutureProgVariable returnVar = null;
+		IProgVariable returnVar = null;
 		switch (property.ToLowerInvariant())
 		{
 			case "id":
@@ -90,11 +90,11 @@ public partial class Chargen
 				break;
 
 			case "skills":
-				returnVar = new CollectionVariable(SelectedSkills, FutureProgVariableTypes.Trait);
+				returnVar = new CollectionVariable(SelectedSkills, ProgVariableTypes.Trait);
 				break;
 
 			case "accents":
-				returnVar = new CollectionVariable(SelectedAccents, FutureProgVariableTypes.Accent);
+				returnVar = new CollectionVariable(SelectedAccents, ProgVariableTypes.Accent);
 				break;
 			case "class":
 				returnVar =
@@ -128,11 +128,11 @@ public partial class Chargen
 			case "applicablemerits":
 				// Chargen Merits always apply
 				returnVar = new CollectionVariable(SelectedMerits.WhereNotNull(x => x).ToList(),
-					FutureProgVariableTypes.Merit);
+					ProgVariableTypes.Merit);
 				break;
 			case "roles":
 				returnVar = new CollectionVariable(SelectedRoles.WhereNotNull(x => x).ToList(),
-					FutureProgVariableTypes.Role);
+					ProgVariableTypes.Role);
 				break;
 			case "special":
 				returnVar = new BooleanVariable(ApplicationType == ApplicationType.Special);
@@ -145,35 +145,35 @@ public partial class Chargen
 		return returnVar;
 	}
 
-	private static IReadOnlyDictionary<string, FutureProgVariableTypes> ToonDotReferenceHandler()
+	private static IReadOnlyDictionary<string, ProgVariableTypes> ToonDotReferenceHandler()
 	{
-		return new Dictionary<string, FutureProgVariableTypes>(StringComparer.InvariantCultureIgnoreCase)
+		return new Dictionary<string, ProgVariableTypes>(StringComparer.InvariantCultureIgnoreCase)
 		{
-			{ "id", FutureProgVariableTypes.Number },
-			{ "name", FutureProgVariableTypes.Text },
-			{ "simplefullname", FutureProgVariableTypes.Text },
-			{ "fullname", FutureProgVariableTypes.Text },
-			{ "surname", FutureProgVariableTypes.Text },
-			{ "race", FutureProgVariableTypes.Race },
-			{ "culture", FutureProgVariableTypes.Culture },
-			{ "ethnicity", FutureProgVariableTypes.Ethnicity },
-			{ "age", FutureProgVariableTypes.Number },
-			{ "agecategory", FutureProgVariableTypes.Text },
-			{ "height", FutureProgVariableTypes.Number },
-			{ "weight", FutureProgVariableTypes.Number },
-			{ "gender", FutureProgVariableTypes.Gender },
-			{ "skills", FutureProgVariableTypes.Trait | FutureProgVariableTypes.Collection },
-			{ "accents", FutureProgVariableTypes.Accent | FutureProgVariableTypes.Collection },
-			{ "class", FutureProgVariableTypes.Text },
-			{ "subclass", FutureProgVariableTypes.Text },
-			{ "npc", FutureProgVariableTypes.Boolean },
-			{ "guest", FutureProgVariableTypes.Boolean },
-			{ "pc", FutureProgVariableTypes.Boolean },
-			{ "merits", FutureProgVariableTypes.Merit | FutureProgVariableTypes.Collection },
-			{ "applicablemerits", FutureProgVariableTypes.Merit | FutureProgVariableTypes.Collection },
-			{ "roles", FutureProgVariableTypes.Role | FutureProgVariableTypes.Collection },
-			{ "special", FutureProgVariableTypes.Boolean },
-			{ "simple", FutureProgVariableTypes.Boolean }
+			{ "id", ProgVariableTypes.Number },
+			{ "name", ProgVariableTypes.Text },
+			{ "simplefullname", ProgVariableTypes.Text },
+			{ "fullname", ProgVariableTypes.Text },
+			{ "surname", ProgVariableTypes.Text },
+			{ "race", ProgVariableTypes.Race },
+			{ "culture", ProgVariableTypes.Culture },
+			{ "ethnicity", ProgVariableTypes.Ethnicity },
+			{ "age", ProgVariableTypes.Number },
+			{ "agecategory", ProgVariableTypes.Text },
+			{ "height", ProgVariableTypes.Number },
+			{ "weight", ProgVariableTypes.Number },
+			{ "gender", ProgVariableTypes.Gender },
+			{ "skills", ProgVariableTypes.Trait | ProgVariableTypes.Collection },
+			{ "accents", ProgVariableTypes.Accent | ProgVariableTypes.Collection },
+			{ "class", ProgVariableTypes.Text },
+			{ "subclass", ProgVariableTypes.Text },
+			{ "npc", ProgVariableTypes.Boolean },
+			{ "guest", ProgVariableTypes.Boolean },
+			{ "pc", ProgVariableTypes.Boolean },
+			{ "merits", ProgVariableTypes.Merit | ProgVariableTypes.Collection },
+			{ "applicablemerits", ProgVariableTypes.Merit | ProgVariableTypes.Collection },
+			{ "roles", ProgVariableTypes.Role | ProgVariableTypes.Collection },
+			{ "special", ProgVariableTypes.Boolean },
+			{ "simple", ProgVariableTypes.Boolean }
 		};
 	}
 
@@ -209,35 +209,35 @@ public partial class Chargen
 		};
 	}
 
-	private static IReadOnlyDictionary<string, FutureProgVariableTypes> DotReferenceHandler()
+	private static IReadOnlyDictionary<string, ProgVariableTypes> DotReferenceHandler()
 	{
-		return new Dictionary<string, FutureProgVariableTypes>(StringComparer.InvariantCultureIgnoreCase)
+		return new Dictionary<string, ProgVariableTypes>(StringComparer.InvariantCultureIgnoreCase)
 		{
-			{ "id", FutureProgVariableTypes.Number },
-			{ "name", FutureProgVariableTypes.Text },
-			{ "simplefullname", FutureProgVariableTypes.Text },
-			{ "fullname", FutureProgVariableTypes.Text },
-			{ "surname", FutureProgVariableTypes.Text },
-			{ "race", FutureProgVariableTypes.Race },
-			{ "culture", FutureProgVariableTypes.Culture },
-			{ "ethnicity", FutureProgVariableTypes.Ethnicity },
-			{ "age", FutureProgVariableTypes.Number },
-			{ "agecategory", FutureProgVariableTypes.Text },
-			{ "height", FutureProgVariableTypes.Number },
-			{ "weight", FutureProgVariableTypes.Number },
-			{ "gender", FutureProgVariableTypes.Gender },
-			{ "skills", FutureProgVariableTypes.Trait | FutureProgVariableTypes.Collection },
-			{ "accents", FutureProgVariableTypes.Accent | FutureProgVariableTypes.Collection },
-			{ "class", FutureProgVariableTypes.Text },
-			{ "subclass", FutureProgVariableTypes.Text },
-			{ "npc", FutureProgVariableTypes.Boolean },
-			{ "guest", FutureProgVariableTypes.Boolean },
-			{ "pc", FutureProgVariableTypes.Boolean },
-			{ "merits", FutureProgVariableTypes.Merit | FutureProgVariableTypes.Collection },
-			{ "applicablemerits", FutureProgVariableTypes.Merit | FutureProgVariableTypes.Collection },
-			{ "roles", FutureProgVariableTypes.Role | FutureProgVariableTypes.Collection },
-			{ "special", FutureProgVariableTypes.Boolean },
-			{ "simple", FutureProgVariableTypes.Boolean }
+			{ "id", ProgVariableTypes.Number },
+			{ "name", ProgVariableTypes.Text },
+			{ "simplefullname", ProgVariableTypes.Text },
+			{ "fullname", ProgVariableTypes.Text },
+			{ "surname", ProgVariableTypes.Text },
+			{ "race", ProgVariableTypes.Race },
+			{ "culture", ProgVariableTypes.Culture },
+			{ "ethnicity", ProgVariableTypes.Ethnicity },
+			{ "age", ProgVariableTypes.Number },
+			{ "agecategory", ProgVariableTypes.Text },
+			{ "height", ProgVariableTypes.Number },
+			{ "weight", ProgVariableTypes.Number },
+			{ "gender", ProgVariableTypes.Gender },
+			{ "skills", ProgVariableTypes.Trait | ProgVariableTypes.Collection },
+			{ "accents", ProgVariableTypes.Accent | ProgVariableTypes.Collection },
+			{ "class", ProgVariableTypes.Text },
+			{ "subclass", ProgVariableTypes.Text },
+			{ "npc", ProgVariableTypes.Boolean },
+			{ "guest", ProgVariableTypes.Boolean },
+			{ "pc", ProgVariableTypes.Boolean },
+			{ "merits", ProgVariableTypes.Merit | ProgVariableTypes.Collection },
+			{ "applicablemerits", ProgVariableTypes.Merit | ProgVariableTypes.Collection },
+			{ "roles", ProgVariableTypes.Role | ProgVariableTypes.Collection },
+			{ "special", ProgVariableTypes.Boolean },
+			{ "simple", ProgVariableTypes.Boolean }
 		};
 	}
 

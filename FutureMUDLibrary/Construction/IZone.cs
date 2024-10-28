@@ -7,7 +7,7 @@ using MudSharp.TimeAndDate.Time;
 using MudSharp.Work.Foraging;
 
 namespace MudSharp.Construction {
-    public interface IZone : ILocation, IFutureProgVariable {
+    public interface IZone : ILocation, IProgVariable {
         IShard Shard { get; }
         ICell DefaultCell { get; }
         IEnumerable<IRoom> Rooms { get; }

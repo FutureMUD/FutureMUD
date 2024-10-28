@@ -23,7 +23,7 @@ internal class Force : Statement
 	}
 
 	private static ICompileInfo Compile(IEnumerable<string> lines,
-		IDictionary<string, FutureProgVariableTypes> variableSpace, int lineNumber, IFuturemud gameworld)
+		IDictionary<string, ProgVariableTypes> variableSpace, int lineNumber, IFuturemud gameworld)
 	{
 		var match = CompileRegex.Match(lines.First());
 
@@ -52,14 +52,14 @@ internal class Force : Statement
 
 		if (
 			!((IFunction)compiledArgs[0].CompiledStatement).ReturnType.CompatibleWith(
-				FutureProgVariableTypes.Character))
+				ProgVariableTypes.Character))
 		{
 			return
 				CompileInfo.GetFactory()
 				           .CreateError("The first argument of the force statement must be a character.", lineNumber);
 		}
 
-		if (!((IFunction)compiledArgs[1].CompiledStatement).ReturnType.CompatibleWith(FutureProgVariableTypes.Text))
+		if (!((IFunction)compiledArgs[1].CompiledStatement).ReturnType.CompatibleWith(ProgVariableTypes.Text))
 		{
 			return CompileInfo.GetFactory()
 			                  .CreateError("The second argument of the force statement must be text.", lineNumber);
@@ -105,7 +105,7 @@ internal class Force : Statement
 			new Tuple
 			<Regex,
 				Func
-				<IEnumerable<string>, IDictionary<string, FutureProgVariableTypes>, int, IFuturemud, ICompileInfo>>(
+				<IEnumerable<string>, IDictionary<string, ProgVariableTypes>, int, IFuturemud, ICompileInfo>>(
 				CompileRegex, Compile)
 		);
 

@@ -11,7 +11,7 @@ using MudSharp.RPG.Checks;
 
 namespace MudSharp.Magic
 {
-    public interface IMagicCapability : IFrameworkItem, IFutureProgVariable, IEditableItem
+    public interface IMagicCapability : IFrameworkItem, IProgVariable, IEditableItem
     {
         IMagicSchool School { get; }
         int PowerLevel { get; }

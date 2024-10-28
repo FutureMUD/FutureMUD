@@ -12,7 +12,7 @@ using MudSharp.Economy.Currency;
 
 namespace MudSharp.Economy
 {
-	public interface IMerchandise : ISaveable, IKeywordedItem, IFutureProgVariable
+	public interface IMerchandise : ISaveable, IKeywordedItem, IProgVariable
 	{
 		IShop Shop { get; }
 		bool AutoReordering { get; }

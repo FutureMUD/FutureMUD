@@ -16,9 +16,9 @@ internal class TimeOfDayFunction : BuiltInFunction
 	{
 	}
 
-	public override FutureProgVariableTypes ReturnType
+	public override ProgVariableTypes ReturnType
 	{
-		get => FutureProgVariableTypes.Text;
+		get => ProgVariableTypes.Text;
 		protected set { }
 	}
 
@@ -61,13 +61,13 @@ internal class TimeOfDayFunction : BuiltInFunction
 	{
 		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
 			"timeofday",
-			new[] { FutureProgVariableTypes.Location },
+			new[] { ProgVariableTypes.Location },
 			(pars, gameworld) => new TimeOfDayFunction(pars)
 		));
 
 		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
 			"timeofday",
-			new[] { FutureProgVariableTypes.Zone },
+			new[] { ProgVariableTypes.Zone },
 			(pars, gameworld) => new TimeOfDayFunction(pars)
 		));
 	}

@@ -12,9 +12,9 @@ internal class SetLitFunction : BuiltInFunction
 	{
 	}
 
-	public override FutureProgVariableTypes ReturnType
+	public override ProgVariableTypes ReturnType
 	{
-		get => FutureProgVariableTypes.Boolean;
+		get => ProgVariableTypes.Boolean;
 		protected set { }
 	}
 
@@ -47,7 +47,7 @@ internal class SetLitFunction : BuiltInFunction
 	{
 		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
 			"setlit",
-			new[] { FutureProgVariableTypes.Item, FutureProgVariableTypes.Boolean },
+			new[] { ProgVariableTypes.Item, ProgVariableTypes.Boolean },
 			(pars, gameworld) => new SetLitFunction(pars)
 		));
 	}

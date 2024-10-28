@@ -20,9 +20,9 @@ internal class CharacteristicValueFunction : BuiltInFunction
 		_gameworld = gameworld;
 	}
 
-	public override FutureProgVariableTypes ReturnType
+	public override ProgVariableTypes ReturnType
 	{
-		get => _returnIdOfCharacteristic ? FutureProgVariableTypes.Number : FutureProgVariableTypes.Text;
+		get => _returnIdOfCharacteristic ? ProgVariableTypes.Number : ProgVariableTypes.Text;
 		protected set => base.ReturnType = value;
 	}
 
@@ -33,7 +33,7 @@ internal class CharacteristicValueFunction : BuiltInFunction
 				"characteristicvalue",
 				new[]
 				{
-					FutureProgVariableTypes.Character, FutureProgVariableTypes.Number
+					ProgVariableTypes.Character, ProgVariableTypes.Number
 				},
 				(pars, gameworld) => new CharacteristicValueFunction(pars, false, gameworld),
 				new List<string> { "character", "characteristic" },
@@ -44,7 +44,7 @@ internal class CharacteristicValueFunction : BuiltInFunction
 				},
 				"This function returns the name of the supplied character's intrinsic characteristic for the supplied definition. E.g. If you supplied the ID number of the eyecolour characteristic, you might get the 'emerald green' as a return value.",
 				"Characteristics",
-				FutureProgVariableTypes.Text
+				ProgVariableTypes.Text
 			)
 		);
 
@@ -53,7 +53,7 @@ internal class CharacteristicValueFunction : BuiltInFunction
 				"characteristicvalue",
 				new[]
 				{
-					FutureProgVariableTypes.Item, FutureProgVariableTypes.Number
+					ProgVariableTypes.Item, ProgVariableTypes.Number
 				},
 				(pars, gameworld) => new CharacteristicValueFunction(pars, false, gameworld),
 				new List<string> { "item", "characteristic" },
@@ -64,7 +64,7 @@ internal class CharacteristicValueFunction : BuiltInFunction
 				},
 				"This function returns the name of the supplied items's intrinsic characteristic for the supplied definition. E.g. If you supplied the ID number of the colour characteristic, you might get the 'hot pink' as a return value.",
 				"Characteristics",
-				FutureProgVariableTypes.Text
+				ProgVariableTypes.Text
 			)
 		);
 
@@ -73,7 +73,7 @@ internal class CharacteristicValueFunction : BuiltInFunction
 				"characteristicvalue",
 				new[]
 				{
-					FutureProgVariableTypes.Character, FutureProgVariableTypes.Text
+					ProgVariableTypes.Character, ProgVariableTypes.Text
 				},
 				(pars, gameworld) => new CharacteristicValueFunction(pars, false, gameworld),
 				new List<string> { "character", "characteristic" },
@@ -84,7 +84,7 @@ internal class CharacteristicValueFunction : BuiltInFunction
 				},
 				"This function returns the name of the supplied character's intrinsic characteristic for the supplied definition. E.g. If you supplied the ID number of the eyecolour characteristic, you might get the 'emerald green' as a return value.",
 				"Characteristics",
-				FutureProgVariableTypes.Text
+				ProgVariableTypes.Text
 			)
 		);
 
@@ -93,7 +93,7 @@ internal class CharacteristicValueFunction : BuiltInFunction
 				"characteristicvalue",
 				new[]
 				{
-					FutureProgVariableTypes.Item, FutureProgVariableTypes.Text
+					ProgVariableTypes.Item, ProgVariableTypes.Text
 				},
 				(pars, gameworld) => new CharacteristicValueFunction(pars, false, gameworld),
 				new List<string> { "item", "characteristic" },
@@ -104,7 +104,7 @@ internal class CharacteristicValueFunction : BuiltInFunction
 				},
 				"This function returns the name of the supplied items's intrinsic characteristic for the supplied definition. E.g. If you supplied the ID number of the colour characteristic, you might get the 'hot pink' as a return value.",
 				"Characteristics",
-				FutureProgVariableTypes.Text
+				ProgVariableTypes.Text
 			)
 		);
 
@@ -113,7 +113,7 @@ internal class CharacteristicValueFunction : BuiltInFunction
 				"characteristicid",
 				new[]
 				{
-					FutureProgVariableTypes.Character, FutureProgVariableTypes.Number
+					ProgVariableTypes.Character, ProgVariableTypes.Number
 				},
 				(pars, gameworld) => new CharacteristicValueFunction(pars, true, gameworld),
 				new List<string> { "character", "characteristic" },
@@ -124,7 +124,7 @@ internal class CharacteristicValueFunction : BuiltInFunction
 				},
 				"This function returns the ID of the supplied character's intrinsic characteristic for the supplied definition. E.g. If you supplied the ID number of the colour characteristic, you might get the ID 435 as a return value.",
 				"Characteristics",
-				FutureProgVariableTypes.Text
+				ProgVariableTypes.Text
 			)
 		);
 
@@ -133,7 +133,7 @@ internal class CharacteristicValueFunction : BuiltInFunction
 				"characteristicid",
 				new[]
 				{
-					FutureProgVariableTypes.Item, FutureProgVariableTypes.Number
+					ProgVariableTypes.Item, ProgVariableTypes.Number
 				},
 				(pars, gameworld) => new CharacteristicValueFunction(pars, true, gameworld),
 				new List<string> { "item", "characteristic" },
@@ -144,7 +144,7 @@ internal class CharacteristicValueFunction : BuiltInFunction
 				},
 				"This function returns the ID of the supplied items's intrinsic characteristic for the supplied definition. E.g. If you supplied the ID number of the colour characteristic, you might get the ID 435 as a return value.",
 				"Characteristics",
-				FutureProgVariableTypes.Text
+				ProgVariableTypes.Text
 			)
 		);
 
@@ -153,7 +153,7 @@ internal class CharacteristicValueFunction : BuiltInFunction
 				"characteristicid",
 				new[]
 				{
-					FutureProgVariableTypes.Character, FutureProgVariableTypes.Text
+					ProgVariableTypes.Character, ProgVariableTypes.Text
 				},
 				(pars, gameworld) => new CharacteristicValueFunction(pars, true, gameworld),
 				new List<string> { "character", "characteristic" },
@@ -164,7 +164,7 @@ internal class CharacteristicValueFunction : BuiltInFunction
 				},
 				"This function returns the ID of the supplied character's intrinsic characteristic for the supplied definition. E.g. If you supplied the ID number of the colour characteristic, you might get the ID 435 as a return value.",
 				"Characteristics",
-				FutureProgVariableTypes.Text
+				ProgVariableTypes.Text
 			)
 		);
 
@@ -173,7 +173,7 @@ internal class CharacteristicValueFunction : BuiltInFunction
 				"characteristicid",
 				new[]
 				{
-					FutureProgVariableTypes.Item, FutureProgVariableTypes.Text
+					ProgVariableTypes.Item, ProgVariableTypes.Text
 				},
 				(pars, gameworld) => new CharacteristicValueFunction(pars, true, gameworld),
 				new List<string> { "item", "characteristic" },
@@ -184,7 +184,7 @@ internal class CharacteristicValueFunction : BuiltInFunction
 				},
 				"This function returns the ID of the supplied items's intrinsic characteristic for the supplied definition. E.g. If you supplied the ID number of the colour characteristic, you might get the ID 435 as a return value.",
 				"Characteristics",
-				FutureProgVariableTypes.Text
+				ProgVariableTypes.Text
 			)
 		);
 	}
@@ -198,22 +198,22 @@ internal class CharacteristicValueFunction : BuiltInFunction
 
 		if (ParameterFunctions[0]?.Result is not IHaveCharacteristics target)
 		{
-			Result = _returnIdOfCharacteristic ? (IFutureProgVariable)new NumberVariable(0) : new TextVariable("");
+			Result = _returnIdOfCharacteristic ? (IProgVariable)new NumberVariable(0) : new TextVariable("");
 			return StatementResult.Normal;
 		}
 
-		var definition = ParameterFunctions[1].ReturnType.CompatibleWith(FutureProgVariableTypes.Text)
+		var definition = ParameterFunctions[1].ReturnType.CompatibleWith(ProgVariableTypes.Text)
 			? _gameworld.Characteristics.GetByName(ParameterFunctions[1].Result?.GetObject as string ?? "")
 			: _gameworld.Characteristics.Get((long)(ParameterFunctions[1].Result?.GetObject as decimal? ?? 0.0M));
 		if (definition == null)
 		{
-			Result = _returnIdOfCharacteristic ? (IFutureProgVariable)new NumberVariable(0) : new TextVariable("");
+			Result = _returnIdOfCharacteristic ? (IProgVariable)new NumberVariable(0) : new TextVariable("");
 			return StatementResult.Normal;
 		}
 
 		var value = target.GetCharacteristic(definition, null);
 		Result = _returnIdOfCharacteristic
-			? (IFutureProgVariable)new NumberVariable(value?.Id ?? 0L)
+			? (IProgVariable)new NumberVariable(value?.Id ?? 0L)
 			: new TextVariable(value?.Name ?? "");
 		return StatementResult.Normal;
 	}

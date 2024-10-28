@@ -28,7 +28,7 @@ internal class IsFelonFunction : BuiltInFunction
 				"IsFelon".ToLowerInvariant(),
 				new[]
 				{
-					FutureProgVariableTypes.Character, FutureProgVariableTypes.LegalAuthority
+					ProgVariableTypes.Character, ProgVariableTypes.LegalAuthority
 				}, // the parameters the function takes
 				(pars, gameworld) => new IsFelonFunction(pars, gameworld),
 				new List<string> { "character", "authority" }, // parameter names
@@ -38,7 +38,7 @@ internal class IsFelonFunction : BuiltInFunction
 				}, // parameter help text
 				"This function checks to see if the character has ever had a serious crime (one that incurred jail time or capital punishment) recorded against them", // help text for the function,
 				"Crime", // the category to which this function belongs,
-				FutureProgVariableTypes.Boolean // the return type of the function
+				ProgVariableTypes.Boolean // the return type of the function
 			)
 		);
 
@@ -47,7 +47,7 @@ internal class IsFelonFunction : BuiltInFunction
 				"IsFelon".ToLowerInvariant(),
 				new[]
 				{
-					FutureProgVariableTypes.Character,
+					ProgVariableTypes.Character,
 				}, // the parameters the function takes
 				(pars, gameworld) => new IsFelonFunction(pars, gameworld),
 				new List<string> { "character", }, // parameter names
@@ -57,7 +57,7 @@ internal class IsFelonFunction : BuiltInFunction
 				}, // parameter help text
 				"This function checks to see if the character has ever had a serious crime (one that incurred jail time or capital punishment) recorded against them", // help text for the function,
 				"Crime", // the category to which this function belongs,
-				FutureProgVariableTypes.Boolean // the return type of the function
+				ProgVariableTypes.Boolean // the return type of the function
 			)
 		);
 	}
@@ -73,9 +73,9 @@ internal class IsFelonFunction : BuiltInFunction
 
 	#endregion
 
-	public override FutureProgVariableTypes ReturnType
+	public override ProgVariableTypes ReturnType
 	{
-		get => FutureProgVariableTypes.Boolean;
+		get => ProgVariableTypes.Boolean;
 		protected set { }
 	}
 

@@ -15,7 +15,7 @@
     }
 
     public interface IFunction : IStatement {
-        IFutureProgVariable Result { get; }
-        FutureProgVariableTypes ReturnType { get; }
+        IProgVariable Result { get; }
+        ProgVariableTypes ReturnType { get; }
     }
 }

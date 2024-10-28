@@ -121,7 +121,7 @@ public class PoweredPropGameItemComponentProto : PoweredMachineBaseGameItemCompo
 			return false;
 		}
 
-		if (!prog.MatchesParameters(new List<FutureProgVariableTypes> { FutureProgVariableTypes.Item }))
+		if (!prog.MatchesParameters(new List<ProgVariableTypes> { ProgVariableTypes.Item }))
 		{
 			actor.OutputHandler.Send("The prog you specify must accept a single item parameter.");
 			return false;

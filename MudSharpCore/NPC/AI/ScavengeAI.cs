@@ -125,10 +125,10 @@ public class ScavengeAI : ArtificialIntelligenceBase
 		}
 
 		var prog = new ProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument,
-			FutureProgVariableTypes.Void, new List<FutureProgVariableTypes>
+			ProgVariableTypes.Void, new List<ProgVariableTypes>
 			{
-				FutureProgVariableTypes.Character,
-				FutureProgVariableTypes.Item
+				ProgVariableTypes.Character,
+				ProgVariableTypes.Item
 			}).LookupProg();
 		if (prog is null)
 		{
@@ -150,10 +150,10 @@ public class ScavengeAI : ArtificialIntelligenceBase
 		}
 
 		var prog = new ProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument,
-			FutureProgVariableTypes.Boolean, new List<FutureProgVariableTypes>
+			ProgVariableTypes.Boolean, new List<ProgVariableTypes>
 			{
-				FutureProgVariableTypes.Character,
-				FutureProgVariableTypes.Item
+				ProgVariableTypes.Character,
+				ProgVariableTypes.Item
 			}).LookupProg();
 		if (prog is null)
 		{
@@ -179,17 +179,17 @@ public class ScavengeAI : ArtificialIntelligenceBase
 				$"AI {Id} pointed to a WillScavengeItem Prog that was not correct - {root.Element("WillScavengeItemProg").Value}.");
 		}
 
-		if (WillScavengeItemProg.ReturnType != FutureProgVariableTypes.Boolean)
+		if (WillScavengeItemProg.ReturnType != ProgVariableTypes.Boolean)
 		{
 			throw new ApplicationException(
 				$"AI {Id} WillScavengeItem prog returns {WillScavengeItemProg.ReturnType.Describe()} - expected Boolean");
 		}
 
 		if (
-			!WillScavengeItemProg.MatchesParameters(new List<FutureProgVariableTypes>
+			!WillScavengeItemProg.MatchesParameters(new List<ProgVariableTypes>
 			{
-				FutureProgVariableTypes.Character,
-				FutureProgVariableTypes.Item
+				ProgVariableTypes.Character,
+				ProgVariableTypes.Item
 			}))
 		{
 			throw new ApplicationException(
@@ -208,10 +208,10 @@ public class ScavengeAI : ArtificialIntelligenceBase
 		}
 
 		if (
-			!WillScavengeItemProg.MatchesParameters(new List<FutureProgVariableTypes>
+			!WillScavengeItemProg.MatchesParameters(new List<ProgVariableTypes>
 			{
-				FutureProgVariableTypes.Character,
-				FutureProgVariableTypes.Item
+				ProgVariableTypes.Character,
+				ProgVariableTypes.Item
 			}))
 		{
 			throw new ApplicationException(

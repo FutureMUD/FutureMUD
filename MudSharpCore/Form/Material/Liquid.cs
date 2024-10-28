@@ -363,10 +363,10 @@ public class Liquid : Fluid, ILiquid
 
 	#region IFutureProgVariable Implementation
 
-	public override FutureProgVariableTypes Type => FutureProgVariableTypes.Liquid;
+	public override ProgVariableTypes Type => ProgVariableTypes.Liquid;
 
 
-	public override IFutureProgVariable GetProperty(string property)
+	public override IProgVariable GetProperty(string property)
 	{
 		switch (property.ToLowerInvariant())
 		{
@@ -375,9 +375,9 @@ public class Liquid : Fluid, ILiquid
 		return base.GetProperty(property);
 	}
 
-	private new static IReadOnlyDictionary<string, FutureProgVariableTypes> DotReferenceHandler()
+	private new static IReadOnlyDictionary<string, ProgVariableTypes> DotReferenceHandler()
 	{
-		var dict = new Dictionary<string, FutureProgVariableTypes>(Material.DotReferenceHandler());
+		var dict = new Dictionary<string, ProgVariableTypes>(Material.DotReferenceHandler());
 		return dict;
 	}
 
@@ -389,7 +389,7 @@ public class Liquid : Fluid, ILiquid
 
 	public new static void RegisterFutureProgCompiler()
 	{
-		FutureProgVariable.RegisterDotReferenceCompileInfo(FutureProgVariableTypes.Liquid, DotReferenceHandler(),
+		ProgVariable.RegisterDotReferenceCompileInfo(ProgVariableTypes.Liquid, DotReferenceHandler(),
 			DotReferenceHelp());
 	}
 
@@ -938,11 +938,11 @@ public class Liquid : Fluid, ILiquid
 		}
 
 		var prog = new ProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument,
-			FutureProgVariableTypes.Void, new List<FutureProgVariableTypes>
+			ProgVariableTypes.Void, new List<ProgVariableTypes>
 			{
-				FutureProgVariableTypes.Character,
-				FutureProgVariableTypes.Item,
-				FutureProgVariableTypes.Number
+				ProgVariableTypes.Character,
+				ProgVariableTypes.Item,
+				ProgVariableTypes.Number
 			}).LookupProg();
 		if (prog is null)
 		{

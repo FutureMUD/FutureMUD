@@ -674,10 +674,10 @@ public class ButcheryProduct : SaveableItem, IButcheryProduct
 		}
 
 		var prog = new ProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument,
-			FutureProgVariableTypes.Boolean, new List<FutureProgVariableTypes>
+			ProgVariableTypes.Boolean, new List<ProgVariableTypes>
 			{
-				FutureProgVariableTypes.Character,
-				FutureProgVariableTypes.Item
+				ProgVariableTypes.Character,
+				ProgVariableTypes.Item
 			}).LookupProg();
 		if (prog is null)
 		{

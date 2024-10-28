@@ -18,9 +18,9 @@ internal class IsTerritoryFunction : BuiltInFunction
 		FlagCount = flagCount;
 	}
 
-	public override FutureProgVariableTypes ReturnType
+	public override ProgVariableTypes ReturnType
 	{
-		get => FutureProgVariableTypes.Boolean;
+		get => ProgVariableTypes.Boolean;
 		protected set { }
 	}
 
@@ -71,13 +71,13 @@ internal class IsTerritoryFunction : BuiltInFunction
 	{
 		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
 			"isterritory",
-			new[] { FutureProgVariableTypes.Character, FutureProgVariableTypes.Location },
+			new[] { ProgVariableTypes.Character, ProgVariableTypes.Location },
 			(pars, gameworld) => new IsTerritoryFunction(pars)
 		));
 
 		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
 			"isterritory",
-			new[] { FutureProgVariableTypes.Character, FutureProgVariableTypes.Location, FutureProgVariableTypes.Text },
+			new[] { ProgVariableTypes.Character, ProgVariableTypes.Location, ProgVariableTypes.Text },
 			(pars, gameworld) => new IsTerritoryFunction(pars, 1)
 		));
 
@@ -85,8 +85,8 @@ internal class IsTerritoryFunction : BuiltInFunction
 			"isterritory",
 			new[]
 			{
-				FutureProgVariableTypes.Character, FutureProgVariableTypes.Location, FutureProgVariableTypes.Text,
-				FutureProgVariableTypes.Text
+				ProgVariableTypes.Character, ProgVariableTypes.Location, ProgVariableTypes.Text,
+				ProgVariableTypes.Text
 			},
 			(pars, gameworld) => new IsTerritoryFunction(pars, 2)
 		));
@@ -95,8 +95,8 @@ internal class IsTerritoryFunction : BuiltInFunction
 			"isterritory",
 			new[]
 			{
-				FutureProgVariableTypes.Character, FutureProgVariableTypes.Location, FutureProgVariableTypes.Text,
-				FutureProgVariableTypes.Text, FutureProgVariableTypes.Text
+				ProgVariableTypes.Character, ProgVariableTypes.Location, ProgVariableTypes.Text,
+				ProgVariableTypes.Text, ProgVariableTypes.Text
 			},
 			(pars, gameworld) => new IsTerritoryFunction(pars, 3)
 		));

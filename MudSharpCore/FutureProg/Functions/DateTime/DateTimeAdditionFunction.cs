@@ -11,9 +11,9 @@ internal class DateTimeAdditionFunction : BinaryFunction
 	{
 	}
 
-	public override FutureProgVariableTypes ReturnType
+	public override ProgVariableTypes ReturnType
 	{
-		get => FutureProgVariableTypes.DateTime;
+		get => ProgVariableTypes.DateTime;
 		protected set { }
 	}
 
@@ -42,9 +42,9 @@ internal class MudDateTimeAdditionFunction : BinaryFunction
 	{
 	}
 
-	public override FutureProgVariableTypes ReturnType
+	public override ProgVariableTypes ReturnType
 	{
-		get => FutureProgVariableTypes.MudDateTime;
+		get => ProgVariableTypes.MudDateTime;
 		protected set { }
 	}
 

@@ -46,7 +46,7 @@ internal class GetOrCopyExit : BuiltInFunction
 		FutureProg.RegisterBuiltInFunctionCompiler(
 			new FunctionCompilerInformation(
 				"GetOrCopyExit".ToLowerInvariant(),
-				new[] { FutureProgVariableTypes.Exit, FutureProgVariableTypes.OverlayPackage },
+				new[] { ProgVariableTypes.Exit, ProgVariableTypes.OverlayPackage },
 				(pars, gameworld) => new GetOrCopyExit(pars, gameworld)
 			)
 		);
@@ -63,9 +63,9 @@ internal class GetOrCopyExit : BuiltInFunction
 
 	#endregion
 
-	public override FutureProgVariableTypes ReturnType
+	public override ProgVariableTypes ReturnType
 	{
-		get => FutureProgVariableTypes.Exit;
+		get => ProgVariableTypes.Exit;
 		protected set { }
 	}
 

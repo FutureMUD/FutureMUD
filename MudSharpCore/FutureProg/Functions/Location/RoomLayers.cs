@@ -26,20 +26,20 @@ internal class RoomLayers : BuiltInFunction
 		FutureProg.RegisterBuiltInFunctionCompiler(
 			new FunctionCompilerInformation(
 				"RoomLayers".ToLowerInvariant(),
-				new[] { FutureProgVariableTypes.Location },
+				new[] { ProgVariableTypes.Location },
 				(pars, gameworld) => new RoomLayers(pars, gameworld),
 				new List<string> { "Location" },
 				new List<string> { "The location whose layers you want to determine" },
 				"This function returns a collection of text values representing all the layers in the specified cell. Possible values for layers are VeryDeepUnderwater, DeepUnderwater, Underwater, GroundLevel, OnRooftops, InTrees, HighInTrees, InAir, HighInAir.",
 				"Rooms",
-				FutureProgVariableTypes.Text | FutureProgVariableTypes.Collection
+				ProgVariableTypes.Text | ProgVariableTypes.Collection
 			)
 		);
 
 		FutureProg.RegisterBuiltInFunctionCompiler(
 			new FunctionCompilerInformation(
 				"RoomLayers".ToLowerInvariant(),
-				new[] { FutureProgVariableTypes.Location, FutureProgVariableTypes.OverlayPackage },
+				new[] { ProgVariableTypes.Location, ProgVariableTypes.OverlayPackage },
 				(pars, gameworld) => new RoomLayers(pars, gameworld),
 				new List<string> { "Location", "Package" },
 				new List<string>
@@ -49,7 +49,7 @@ internal class RoomLayers : BuiltInFunction
 				},
 				"This function returns a collection of text values representing all the layers in the specified cell. Possible values for layers are VeryDeepUnderwater, DeepUnderwater, Underwater, GroundLevel, OnRooftops, InTrees, HighInTrees, InAir, HighInAir.",
 				"Rooms",
-				FutureProgVariableTypes.Text | FutureProgVariableTypes.Collection
+				ProgVariableTypes.Text | ProgVariableTypes.Collection
 			)
 		);
 	}
@@ -65,9 +65,9 @@ internal class RoomLayers : BuiltInFunction
 
 	#endregion
 
-	public override FutureProgVariableTypes ReturnType
+	public override ProgVariableTypes ReturnType
 	{
-		get => FutureProgVariableTypes.Text | FutureProgVariableTypes.Collection;
+		get => ProgVariableTypes.Text | ProgVariableTypes.Collection;
 		protected set { }
 	}
 
@@ -80,7 +80,7 @@ internal class RoomLayers : BuiltInFunction
 
 		if (ParameterFunctions[0].Result is not ICell location)
 		{
-			Result = new CollectionVariable(new List<TextVariable>(), FutureProgVariableTypes.Text);
+			Result = new CollectionVariable(new List<TextVariable>(), ProgVariableTypes.Text);
 			return StatementResult.Normal;
 		}
 
@@ -90,14 +90,14 @@ internal class RoomLayers : BuiltInFunction
 			var package = (ICellOverlayPackage)ParameterFunctions[1].Result?.GetObject;
 			if (package == null)
 			{
-				Result = new CollectionVariable(new List<TextVariable>(), FutureProgVariableTypes.Text);
+				Result = new CollectionVariable(new List<TextVariable>(), ProgVariableTypes.Text);
 				return StatementResult.Normal;
 			}
 
 			var overlay = location.GetOverlay(package);
 			if (overlay == null)
 			{
-				Result = new CollectionVariable(new List<TextVariable>(), FutureProgVariableTypes.Text);
+				Result = new CollectionVariable(new List<TextVariable>(), ProgVariableTypes.Text);
 				return StatementResult.Normal;
 			}
 
@@ -109,7 +109,7 @@ internal class RoomLayers : BuiltInFunction
 		}
 
 		Result = new CollectionVariable(terrain.TerrainLayers.Select(x => new TextVariable(x.DescribeEnum())).ToList(),
-			FutureProgVariableTypes.Text);
+			ProgVariableTypes.Text);
 		return StatementResult.Normal;
 	}
 }

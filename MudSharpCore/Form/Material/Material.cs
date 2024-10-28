@@ -236,10 +236,10 @@ public abstract class Material : SaveableItem, IMaterial
 
 	#region IFutureProgVariable Members
 
-	public abstract FutureProgVariableTypes Type { get; }
+	public abstract ProgVariableTypes Type { get; }
 	public object GetObject => this;
 
-	public virtual IFutureProgVariable GetProperty(string property)
+	public virtual IProgVariable GetProperty(string property)
 	{
 		switch (property.ToLowerInvariant())
 		{
@@ -252,7 +252,7 @@ public abstract class Material : SaveableItem, IMaterial
 			case "organic":
 				return new BooleanVariable(Organic);
 			case "tags":
-				return new CollectionVariable(Tags.Select(x => x.Name).ToList(), FutureProgVariableTypes.Text);
+				return new CollectionVariable(Tags.Select(x => x.Name).ToList(), ProgVariableTypes.Text);
 			case "description":
 				return new TextVariable(MaterialDescription);
 		}
@@ -260,16 +260,16 @@ public abstract class Material : SaveableItem, IMaterial
 		throw new ApplicationException("Invalid property requested in Material.GetProperty");
 	}
 
-	protected static IReadOnlyDictionary<string, FutureProgVariableTypes> DotReferenceHandler()
+	protected static IReadOnlyDictionary<string, ProgVariableTypes> DotReferenceHandler()
 	{
-		return new Dictionary<string, FutureProgVariableTypes>(StringComparer.InvariantCultureIgnoreCase)
+		return new Dictionary<string, ProgVariableTypes>(StringComparer.InvariantCultureIgnoreCase)
 		{
-			{ "name", FutureProgVariableTypes.Text },
-			{ "id", FutureProgVariableTypes.Number },
-			{ "density", FutureProgVariableTypes.Number },
-			{ "organic", FutureProgVariableTypes.Boolean },
-			{ "tags", FutureProgVariableTypes.Collection | FutureProgVariableTypes.Text },
-			{ "description", FutureProgVariableTypes.Text }
+			{ "name", ProgVariableTypes.Text },
+			{ "id", ProgVariableTypes.Number },
+			{ "density", ProgVariableTypes.Number },
+			{ "organic", ProgVariableTypes.Boolean },
+			{ "tags", ProgVariableTypes.Collection | ProgVariableTypes.Text },
+			{ "description", ProgVariableTypes.Text }
 		};
 	}
 
@@ -288,7 +288,7 @@ public abstract class Material : SaveableItem, IMaterial
 
 	public static void RegisterFutureProgCompiler()
 	{
-		FutureProgVariable.RegisterDotReferenceCompileInfo(FutureProgVariableTypes.Material, DotReferenceHandler(),
+		ProgVariable.RegisterDotReferenceCompileInfo(ProgVariableTypes.Material, DotReferenceHandler(),
 			DotReferenceHelp());
 	}
 

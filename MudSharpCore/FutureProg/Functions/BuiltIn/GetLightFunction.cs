@@ -17,9 +17,9 @@ internal class GetLightFunction : BuiltInFunction
 	{
 	}
 
-	public override FutureProgVariableTypes ReturnType
+	public override ProgVariableTypes ReturnType
 	{
-		get => FutureProgVariableTypes.Number;
+		get => ProgVariableTypes.Number;
 		protected set { }
 	}
 
@@ -49,13 +49,13 @@ internal class GetLightFunction : BuiltInFunction
 	{
 		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
 			"getlight",
-			new[] { FutureProgVariableTypes.Perceiver },
+			new[] { ProgVariableTypes.Perceiver },
 			(pars, gameworld) => new GetLightFunction(pars),
 			new List<string> { "perceiver" },
 			new List<string> { "The perceiver for whom you would like to know the current light levels" },
 			"This function returns the current light level that a specified perceiver is exposed to. For characters, this would be the light levels in their room. For items, it is the maximum light levels in any room they are part of.",
 			"Perception",
-			FutureProgVariableTypes.Number
+			ProgVariableTypes.Number
 		));
 	}
 }

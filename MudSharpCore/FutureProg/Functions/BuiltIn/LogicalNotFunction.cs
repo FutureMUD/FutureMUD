@@ -14,13 +14,13 @@ internal class LogicalNotFunction : BuiltInFunction
 		InnerFunction = parameters.First();
 	}
 
-	public override IFutureProgVariable Result
+	public override IProgVariable Result
 	{
 		get
 		{
 			if (InnerFunction.Result.GetObject == null)
 			{
-				return new NullVariable(FutureProgVariableTypes.Boolean);
+				return new NullVariable(ProgVariableTypes.Boolean);
 			}
 
 			return new BooleanVariable(!(bool)InnerFunction.Result.GetObject);
@@ -28,9 +28,9 @@ internal class LogicalNotFunction : BuiltInFunction
 		protected set { }
 	}
 
-	public override FutureProgVariableTypes ReturnType
+	public override ProgVariableTypes ReturnType
 	{
-		get => FutureProgVariableTypes.Boolean;
+		get => ProgVariableTypes.Boolean;
 		protected set { }
 	}
 
@@ -50,13 +50,13 @@ internal class LogicalNotFunction : BuiltInFunction
 		FutureProg.RegisterBuiltInFunctionCompiler(
 			new FunctionCompilerInformation(
 				"not",
-				new[] { FutureProgVariableTypes.Boolean },
+				new[] { ProgVariableTypes.Boolean },
 				(pars, gameworld) => new LogicalNotFunction(pars),
 				new List<string> { "item" },
 				new List<string> { "The boolean you want to change" },
 				"This function takes a boolean and transforms it into the opposite value - e.g. True becomes False, False becomes True.",
 				"Logical",
-				FutureProgVariableTypes.Boolean
+				ProgVariableTypes.Boolean
 			)
 		);
 	}

@@ -107,7 +107,7 @@ public class SpecificCheckBonusMerit : CharacterMeritBase, ICheckBonusMerit
 	#3type <check>#0 - sets which check this merit applies to";
 
 	#region Implementation of ICheckBonusMerit
-	protected override IEnumerable<IEnumerable<FutureProgVariableTypes>> AppliesProgValidTypes => [[FutureProgVariableTypes.Character], [FutureProgVariableTypes.Character, FutureProgVariableTypes.Perceivable], [FutureProgVariableTypes.Character, FutureProgVariableTypes.Character]];
+	protected override IEnumerable<IEnumerable<ProgVariableTypes>> AppliesProgValidTypes => [[ProgVariableTypes.Character], [ProgVariableTypes.Character, ProgVariableTypes.Perceivable], [ProgVariableTypes.Character, ProgVariableTypes.Character]];
 	public double CheckBonus(ICharacter ch, IPerceivable target, CheckType type)
 	{
 		return type == CheckType ? SpecificBonus : 0.0;

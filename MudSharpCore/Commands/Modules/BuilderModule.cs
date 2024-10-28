@@ -994,9 +994,9 @@ The syntax to use this command is as follows:
 		}
 
 		var prog = new ProgLookupFromBuilderInput(actor.Gameworld, actor, ss.SafeRemainingArgument,
-			FutureProgVariableTypes.Boolean, new List<FutureProgVariableTypes>
+			ProgVariableTypes.Boolean, new List<ProgVariableTypes>
 			{
-				FutureProgVariableTypes.Character
+				ProgVariableTypes.Character
 			}).LookupProg();
 		if (prog is null)
 		{
@@ -3954,11 +3954,11 @@ You can also edit the following specific properties:
 		if (!ss.IsFinished)
 		{
 			prog = new ProgLookupFromBuilderInput(actor.Gameworld, actor, ss.SafeRemainingArgument,
-				FutureProgVariableTypes.Boolean, 
-				new List<IEnumerable<FutureProgVariableTypes>>
+				ProgVariableTypes.Boolean, 
+				new List<IEnumerable<ProgVariableTypes>>
 				{
-					new FutureProgVariableTypes[] { },
-					new FutureProgVariableTypes[] { FutureProgVariableTypes.Location }
+					new ProgVariableTypes[] { },
+					new ProgVariableTypes[] { ProgVariableTypes.Location }
 				}
 				).LookupProg();
 			if (prog is null)

@@ -924,14 +924,14 @@ public abstract class PerceivedItem : LateKeywordedInitialisingItem, IPerceivabl
 
 	#region IFutureProgVariable Implementation
 
-	private static IReadOnlyDictionary<string, FutureProgVariableTypes> DotReferenceHandler()
+	private static IReadOnlyDictionary<string, ProgVariableTypes> DotReferenceHandler()
 	{
-		return new Dictionary<string, FutureProgVariableTypes>(StringComparer.InvariantCultureIgnoreCase)
+		return new Dictionary<string, ProgVariableTypes>(StringComparer.InvariantCultureIgnoreCase)
 		{
-			{ "id", FutureProgVariableTypes.Number },
-			{ "name", FutureProgVariableTypes.Text },
-			{ "type", FutureProgVariableTypes.Text },
-			{ "effects", FutureProgVariableTypes.Effect | FutureProgVariableTypes.Collection }
+			{ "id", ProgVariableTypes.Number },
+			{ "name", ProgVariableTypes.Text },
+			{ "type", ProgVariableTypes.Text },
+			{ "effects", ProgVariableTypes.Effect | ProgVariableTypes.Collection }
 		};
 	}
 
@@ -948,15 +948,15 @@ public abstract class PerceivedItem : LateKeywordedInitialisingItem, IPerceivabl
 
 	public static void RegisterFutureProgCompiler()
 	{
-		FutureProgVariable.RegisterDotReferenceCompileInfo(FutureProgVariableTypes.Perceivable, DotReferenceHandler(),
+		ProgVariable.RegisterDotReferenceCompileInfo(ProgVariableTypes.Perceivable, DotReferenceHandler(),
 			DotReferenceHelp());
-		FutureProgVariable.RegisterDotReferenceCompileInfo(FutureProgVariableTypes.Perceiver, DotReferenceHandler(),
+		ProgVariable.RegisterDotReferenceCompileInfo(ProgVariableTypes.Perceiver, DotReferenceHandler(),
 			DotReferenceHelp());
-		FutureProgVariable.RegisterDotReferenceCompileInfo(FutureProgVariableTypes.MagicResourceHaver,
+		ProgVariable.RegisterDotReferenceCompileInfo(ProgVariableTypes.MagicResourceHaver,
 			DotReferenceHandler(), DotReferenceHelp());
 	}
 
-	public virtual IFutureProgVariable GetProperty(string property)
+	public virtual IProgVariable GetProperty(string property)
 	{
 		switch (property.ToLowerInvariant())
 		{
@@ -968,14 +968,14 @@ public abstract class PerceivedItem : LateKeywordedInitialisingItem, IPerceivabl
 				return new TextVariable(FrameworkItemType);
 			case "effects":
 				return new CollectionVariable(EffectHandler.Effects.Where(x => x.Applies()).ToList(),
-					FutureProgVariableTypes.Effect);
+					ProgVariableTypes.Effect);
 			default:
 				throw new NotSupportedException(
 					$"Unsupported property type {property} in {FrameworkItemType}.GetProperty");
 		}
 	}
 
-	public abstract FutureProgVariableTypes Type { get; }
+	public abstract ProgVariableTypes Type { get; }
 
 	public object GetObject => this;
 

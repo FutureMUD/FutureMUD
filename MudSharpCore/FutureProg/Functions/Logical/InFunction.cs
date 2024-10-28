@@ -20,7 +20,7 @@ internal class InFunction : BuiltInFunction
 		FutureProg.RegisterBuiltInFunctionCompiler(
 			new FunctionCompilerInformation(
 				"in",
-				new[] { FutureProgVariableTypes.Text, FutureProgVariableTypes.Text, FutureProgVariableTypes.Text },
+				new[] { ProgVariableTypes.Text, ProgVariableTypes.Text, ProgVariableTypes.Text },
 				(pars, gameworld) => new InFunction(pars),
 				new List<string>
 				{
@@ -36,7 +36,7 @@ internal class InFunction : BuiltInFunction
 				},
 				"This function determines whether the first supplied argument is 'in' the list of other arguments. It will return true if any of the other supplied text items match the first.",
 				"Logical",
-				FutureProgVariableTypes.Boolean
+				ProgVariableTypes.Boolean
 			)
 		);
 
@@ -45,8 +45,8 @@ internal class InFunction : BuiltInFunction
 				"in",
 				new[]
 				{
-					FutureProgVariableTypes.Text, FutureProgVariableTypes.Text, FutureProgVariableTypes.Text,
-					FutureProgVariableTypes.Text
+					ProgVariableTypes.Text, ProgVariableTypes.Text, ProgVariableTypes.Text,
+					ProgVariableTypes.Text
 				},
 				(pars, gameworld) => new InFunction(pars),
 				new List<string>
@@ -65,7 +65,7 @@ internal class InFunction : BuiltInFunction
 				},
 				"This function determines whether the first supplied argument is 'in' the list of other arguments. It will return true if any of the other supplied text items match the first.",
 				"Logical",
-				FutureProgVariableTypes.Boolean
+				ProgVariableTypes.Boolean
 			)
 		);
 
@@ -74,8 +74,8 @@ internal class InFunction : BuiltInFunction
 				"in",
 				new[]
 				{
-					FutureProgVariableTypes.Text, FutureProgVariableTypes.Text, FutureProgVariableTypes.Text,
-					FutureProgVariableTypes.Text, FutureProgVariableTypes.Text
+					ProgVariableTypes.Text, ProgVariableTypes.Text, ProgVariableTypes.Text,
+					ProgVariableTypes.Text, ProgVariableTypes.Text
 				},
 				(pars, gameworld) => new InFunction(pars),
 				new List<string>
@@ -96,7 +96,7 @@ internal class InFunction : BuiltInFunction
 				},
 				"This function determines whether the first supplied argument is 'in' the list of other arguments. It will return true if any of the other supplied text items match the first.",
 				"Logical",
-				FutureProgVariableTypes.Boolean
+				ProgVariableTypes.Boolean
 			)
 		);
 
@@ -105,8 +105,8 @@ internal class InFunction : BuiltInFunction
 				"in",
 				new[]
 				{
-					FutureProgVariableTypes.Text, FutureProgVariableTypes.Text, FutureProgVariableTypes.Text,
-					FutureProgVariableTypes.Text, FutureProgVariableTypes.Text, FutureProgVariableTypes.Text
+					ProgVariableTypes.Text, ProgVariableTypes.Text, ProgVariableTypes.Text,
+					ProgVariableTypes.Text, ProgVariableTypes.Text, ProgVariableTypes.Text
 				},
 				(pars, gameworld) => new InFunction(pars),
 				new List<string>
@@ -129,7 +129,7 @@ internal class InFunction : BuiltInFunction
 				},
 				"This function determines whether the first supplied argument is 'in' the list of other arguments. It will return true if any of the other supplied text items match the first.",
 				"Logical",
-				FutureProgVariableTypes.Boolean
+				ProgVariableTypes.Boolean
 			)
 		);
 
@@ -138,9 +138,9 @@ internal class InFunction : BuiltInFunction
 				"in",
 				new[]
 				{
-					FutureProgVariableTypes.Text, FutureProgVariableTypes.Text, FutureProgVariableTypes.Text,
-					FutureProgVariableTypes.Text, FutureProgVariableTypes.Text, FutureProgVariableTypes.Text,
-					FutureProgVariableTypes.Text
+					ProgVariableTypes.Text, ProgVariableTypes.Text, ProgVariableTypes.Text,
+					ProgVariableTypes.Text, ProgVariableTypes.Text, ProgVariableTypes.Text,
+					ProgVariableTypes.Text
 				},
 				(pars, gameworld) => new InFunction(pars),
 				new List<string>
@@ -165,7 +165,7 @@ internal class InFunction : BuiltInFunction
 				},
 				"This function determines whether the first supplied argument is 'in' the list of other arguments. It will return true if any of the other supplied text items match the first.",
 				"Logical",
-				FutureProgVariableTypes.Boolean
+				ProgVariableTypes.Boolean
 			)
 		);
 
@@ -174,9 +174,9 @@ internal class InFunction : BuiltInFunction
 				"in",
 				new[]
 				{
-					FutureProgVariableTypes.Text, FutureProgVariableTypes.Text, FutureProgVariableTypes.Text,
-					FutureProgVariableTypes.Text, FutureProgVariableTypes.Text, FutureProgVariableTypes.Text,
-					FutureProgVariableTypes.Text, FutureProgVariableTypes.Text
+					ProgVariableTypes.Text, ProgVariableTypes.Text, ProgVariableTypes.Text,
+					ProgVariableTypes.Text, ProgVariableTypes.Text, ProgVariableTypes.Text,
+					ProgVariableTypes.Text, ProgVariableTypes.Text
 				},
 				(pars, gameworld) => new InFunction(pars),
 				new List<string>
@@ -203,7 +203,7 @@ internal class InFunction : BuiltInFunction
 				},
 				"This function determines whether the first supplied argument is 'in' the list of other arguments. It will return true if any of the other supplied text items match the first.",
 				"Logical",
-				FutureProgVariableTypes.Boolean
+				ProgVariableTypes.Boolean
 			)
 		);
 
@@ -212,9 +212,9 @@ internal class InFunction : BuiltInFunction
 				"in",
 				new[]
 				{
-					FutureProgVariableTypes.Text, FutureProgVariableTypes.Text, FutureProgVariableTypes.Text,
-					FutureProgVariableTypes.Text, FutureProgVariableTypes.Text, FutureProgVariableTypes.Text,
-					FutureProgVariableTypes.Text, FutureProgVariableTypes.Text, FutureProgVariableTypes.Text
+					ProgVariableTypes.Text, ProgVariableTypes.Text, ProgVariableTypes.Text,
+					ProgVariableTypes.Text, ProgVariableTypes.Text, ProgVariableTypes.Text,
+					ProgVariableTypes.Text, ProgVariableTypes.Text, ProgVariableTypes.Text
 				},
 				(pars, gameworld) => new InFunction(pars),
 				new List<string>
@@ -243,7 +243,7 @@ internal class InFunction : BuiltInFunction
 				},
 				"This function determines whether the first supplied argument is 'in' the list of other arguments. It will return true if any of the other supplied text items match the first.",
 				"Logical",
-				FutureProgVariableTypes.Boolean
+				ProgVariableTypes.Boolean
 			)
 		);
 
@@ -252,10 +252,10 @@ internal class InFunction : BuiltInFunction
 				"in",
 				new[]
 				{
-					FutureProgVariableTypes.Text, FutureProgVariableTypes.Text, FutureProgVariableTypes.Text,
-					FutureProgVariableTypes.Text, FutureProgVariableTypes.Text, FutureProgVariableTypes.Text,
-					FutureProgVariableTypes.Text, FutureProgVariableTypes.Text, FutureProgVariableTypes.Text,
-					FutureProgVariableTypes.Text
+					ProgVariableTypes.Text, ProgVariableTypes.Text, ProgVariableTypes.Text,
+					ProgVariableTypes.Text, ProgVariableTypes.Text, ProgVariableTypes.Text,
+					ProgVariableTypes.Text, ProgVariableTypes.Text, ProgVariableTypes.Text,
+					ProgVariableTypes.Text
 				},
 				(pars, gameworld) => new InFunction(pars),
 				new List<string>
@@ -286,7 +286,7 @@ internal class InFunction : BuiltInFunction
 				},
 				"This function determines whether the first supplied argument is 'in' the list of other arguments. It will return true if any of the other supplied text items match the first.",
 				"Logical",
-				FutureProgVariableTypes.Boolean
+				ProgVariableTypes.Boolean
 			)
 		);
 
@@ -295,10 +295,10 @@ internal class InFunction : BuiltInFunction
 				"in",
 				new[]
 				{
-					FutureProgVariableTypes.Text, FutureProgVariableTypes.Text, FutureProgVariableTypes.Text,
-					FutureProgVariableTypes.Text, FutureProgVariableTypes.Text, FutureProgVariableTypes.Text,
-					FutureProgVariableTypes.Text, FutureProgVariableTypes.Text, FutureProgVariableTypes.Text,
-					FutureProgVariableTypes.Text, FutureProgVariableTypes.Text
+					ProgVariableTypes.Text, ProgVariableTypes.Text, ProgVariableTypes.Text,
+					ProgVariableTypes.Text, ProgVariableTypes.Text, ProgVariableTypes.Text,
+					ProgVariableTypes.Text, ProgVariableTypes.Text, ProgVariableTypes.Text,
+					ProgVariableTypes.Text, ProgVariableTypes.Text
 				},
 				(pars, gameworld) => new InFunction(pars),
 				new List<string>
@@ -331,7 +331,7 @@ internal class InFunction : BuiltInFunction
 				},
 				"This function determines whether the first supplied argument is 'in' the list of other arguments. It will return true if any of the other supplied text items match the first.",
 				"Logical",
-				FutureProgVariableTypes.Boolean
+				ProgVariableTypes.Boolean
 			)
 		);
 
@@ -340,10 +340,10 @@ internal class InFunction : BuiltInFunction
 				"in",
 				new[]
 				{
-					FutureProgVariableTypes.Text, FutureProgVariableTypes.Text, FutureProgVariableTypes.Text,
-					FutureProgVariableTypes.Text, FutureProgVariableTypes.Text, FutureProgVariableTypes.Text,
-					FutureProgVariableTypes.Text, FutureProgVariableTypes.Text, FutureProgVariableTypes.Text,
-					FutureProgVariableTypes.Text, FutureProgVariableTypes.Text, FutureProgVariableTypes.Text
+					ProgVariableTypes.Text, ProgVariableTypes.Text, ProgVariableTypes.Text,
+					ProgVariableTypes.Text, ProgVariableTypes.Text, ProgVariableTypes.Text,
+					ProgVariableTypes.Text, ProgVariableTypes.Text, ProgVariableTypes.Text,
+					ProgVariableTypes.Text, ProgVariableTypes.Text, ProgVariableTypes.Text
 				},
 				(pars, gameworld) => new InFunction(pars),
 				new List<string>
@@ -378,14 +378,14 @@ internal class InFunction : BuiltInFunction
 				},
 				"This function determines whether the first supplied argument is 'in' the list of other arguments. It will return true if any of the other supplied text items match the first.",
 				"Logical",
-				FutureProgVariableTypes.Boolean
+				ProgVariableTypes.Boolean
 			)
 		);
 	}
 
-	public override FutureProgVariableTypes ReturnType
+	public override ProgVariableTypes ReturnType
 	{
-		get => FutureProgVariableTypes.Boolean;
+		get => ProgVariableTypes.Boolean;
 		protected set { }
 	}
 

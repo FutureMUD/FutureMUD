@@ -13,9 +13,9 @@ internal class StdDevFunction : CollectionExtensionFunction
 	{
 	}
 
-	public override FutureProgVariableTypes ReturnType
+	public override ProgVariableTypes ReturnType
 	{
-		get => FutureProgVariableTypes.Number;
+		get => ProgVariableTypes.Number;
 		protected set { }
 	}
 
@@ -24,7 +24,7 @@ internal class StdDevFunction : CollectionExtensionFunction
 		RegisterCollectionExtensionFunctionCompiler(
 			new CollectionExtensionFunctionCompilerInformation(
 				"stddev",
-				FutureProgVariableTypes.Number,
+				ProgVariableTypes.Number,
 				(varName, collectionFunction, innerFunction) =>
 					new StdDevFunction(varName, innerFunction, collectionFunction),
 				@"The STDDEV function runs the inner function (which itself returns a number) over all elements of the collection, and then returns the standard deviation of the results. Will return 0 if the collection is empty.
@@ -46,7 +46,7 @@ Note: If the collection itself is a collection of numbers, you can use the patte
 
 		var localVariables = new LocalVariableSpace(variables);
 		var resultCollection = new List<double>();
-		foreach (IFutureProgVariable item in (IList)CollectionFunction.Result.GetObject)
+		foreach (IProgVariable item in (IList)CollectionFunction.Result.GetObject)
 		{
 			localVariables.SetVariable(VariableName, item);
 			if (CollectionItemFunction.Execute(localVariables) == StatementResult.Error)

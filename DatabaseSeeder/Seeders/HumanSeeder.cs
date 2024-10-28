@@ -408,7 +408,7 @@ return @ch.Weight / 20000"
 			Category = "Character",
 			Subcategory = "Biology",
 			FunctionComment = "Determines the needs model to use for a character",
-			ReturnType = (long)FutureProgVariableTypes.Text,
+			ReturnType = (long)ProgVariableTypes.Text,
 			AcceptsAnyParameters = false,
 			Public = true,
 			StaticType = 0,
@@ -433,12 +433,12 @@ end if"
 
 		_context.VariableDefinitions.Add(new VariableDefinition
 		{
-			OwnerType = (long)FutureProgVariableTypes.Race, ContainedType = (long)FutureProgVariableTypes.Boolean,
+			OwnerType = (long)ProgVariableTypes.Race, ContainedType = (long)ProgVariableTypes.Boolean,
 			Property = "useactiveneeds"
 		});
 		_context.VariableDefaults.Add(new VariableDefault
 		{
-			OwnerType = (long)FutureProgVariableTypes.Race, Property = "useactiveneeds",
+			OwnerType = (long)ProgVariableTypes.Race, Property = "useactiveneeds",
 			DefaultValue = "<var>False</var>"
 		});
 

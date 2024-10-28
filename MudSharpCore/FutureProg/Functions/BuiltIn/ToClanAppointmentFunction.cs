@@ -16,9 +16,9 @@ internal class ToClanAppointmentFunction : BuiltInFunction
 		_gameworld = gameworld;
 	}
 
-	public override FutureProgVariableTypes ReturnType
+	public override ProgVariableTypes ReturnType
 	{
-		get => FutureProgVariableTypes.ClanAppointment;
+		get => ProgVariableTypes.ClanAppointment;
 		protected set { }
 	}
 
@@ -38,14 +38,14 @@ internal class ToClanAppointmentFunction : BuiltInFunction
 		var clan = ParameterFunctions[0].Result?.GetObject as IClan;
 		if (clan is null)
 		{
-			Result = new NullVariable(FutureProgVariableTypes.ClanAppointment);
+			Result = new NullVariable(ProgVariableTypes.ClanAppointment);
 			return StatementResult.Normal;
 		}
 
 		var text = ParameterFunctions[1].Result?.GetObject?.ToString();
 		if (text is null)
 		{
-			Result = new NullVariable(FutureProgVariableTypes.ClanAppointment);
+			Result = new NullVariable(ProgVariableTypes.ClanAppointment);
 			return StatementResult.Normal;
 		}
 
@@ -60,24 +60,24 @@ internal class ToClanAppointmentFunction : BuiltInFunction
 	{
 		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
 			"toappointment",
-			new[] { FutureProgVariableTypes.Number },
+			new[] { ProgVariableTypes.Number },
 			(pars, gameworld) => new ToClanAppointmentFunction(pars, gameworld),
 			new List<string> { "id" },
 			new List<string> { "The ID to look up" },
 			"Converts an ID number into the specified type, if one exists",
 			"Lookup",
-			FutureProgVariableTypes.ClanAppointment
+			ProgVariableTypes.ClanAppointment
 		));
 
 		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
 			"toappointment",
-			new[] { FutureProgVariableTypes.Clan, FutureProgVariableTypes.Text },
+			new[] { ProgVariableTypes.Clan, ProgVariableTypes.Text },
 			(pars, gameworld) => new ToClanAppointmentFunction(pars, gameworld),
 			new List<string> { "clan", "name" },
 			new List<string> { "The clan in which you want to search", "The name to look up" },
 			"Converts a name into the specified type, if one exists",
 			"Lookup",
-			FutureProgVariableTypes.ClanAppointment
+			ProgVariableTypes.ClanAppointment
 		));
 	}
 }

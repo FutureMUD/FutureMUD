@@ -88,7 +88,7 @@ internal class Send : Statement, IHaveFuturemud
 	public IFuturemud Gameworld { get; protected set; }
 
 	private static ICompileInfo SendCompile(IEnumerable<string> lines,
-		IDictionary<string, FutureProgVariableTypes> variableSpace, int lineNumber, IFuturemud gameworld)
+		IDictionary<string, ProgVariableTypes> variableSpace, int lineNumber, IFuturemud gameworld)
 	{
 		var match = SendCompileRegex.Match(lines.First());
 		var splitArgs = FunctionHelper.ParameterStringSplit(match.Groups[3].Value, ' ');
@@ -117,7 +117,7 @@ internal class Send : Statement, IHaveFuturemud
 		}
 
 		var textArg = (IFunction)compiledArgs.First().CompiledStatement;
-		if (!textArg.ReturnType.CompatibleWith(FutureProgVariableTypes.Text))
+		if (!textArg.ReturnType.CompatibleWith(ProgVariableTypes.Text))
 		{
 			return
 				CompileInfo.GetFactory()
@@ -125,30 +125,30 @@ internal class Send : Statement, IHaveFuturemud
 		}
 
 		var targetArg = sendAll ? null : (IFunction)compiledArgs.Skip(1).FirstOrDefault().CompiledStatement;
-		FutureProgVariableTypes targetArgType;
+		ProgVariableTypes targetArgType;
 		switch (match.Groups[1].Value.ToLowerInvariant())
 		{
 			case "":
-				targetArgType = FutureProgVariableTypes.Character | FutureProgVariableTypes.Item;
+				targetArgType = ProgVariableTypes.Character | ProgVariableTypes.Item;
 				break;
 			case "local":
-				targetArgType = FutureProgVariableTypes.Character | FutureProgVariableTypes.Item;
+				targetArgType = ProgVariableTypes.Character | ProgVariableTypes.Item;
 				break;
 			case "room":
 			case "location":
-				targetArgType = FutureProgVariableTypes.Location;
+				targetArgType = ProgVariableTypes.Location;
 				break;
 			case "zone":
-				targetArgType = FutureProgVariableTypes.Zone;
+				targetArgType = ProgVariableTypes.Zone;
 				break;
 			case "shard":
-				targetArgType = FutureProgVariableTypes.Shard;
+				targetArgType = ProgVariableTypes.Shard;
 				break;
 			case "surrounds":
-				targetArgType = FutureProgVariableTypes.Location;
+				targetArgType = ProgVariableTypes.Location;
 				break;
 			case "all":
-				targetArgType = FutureProgVariableTypes.Anything;
+				targetArgType = ProgVariableTypes.Anything;
 				break;
 			default:
 				throw new NotSupportedException();
@@ -163,7 +163,7 @@ internal class Send : Statement, IHaveFuturemud
 		}
 
 		var perceivableArgs = compiledArgs.Skip(sendAll ? 1 : 2).Select(x => (IFunction)x.CompiledStatement);
-		if (perceivableArgs.Any(x => !x.ReturnType.CompatibleWith(FutureProgVariableTypes.Perceiver)))
+		if (perceivableArgs.Any(x => !x.ReturnType.CompatibleWith(ProgVariableTypes.Perceiver)))
 		{
 			return
 				CompileInfo.GetFactory()
@@ -202,7 +202,7 @@ internal class Send : Statement, IHaveFuturemud
 			new Tuple
 			<Regex,
 				Func
-				<IEnumerable<string>, IDictionary<string, FutureProgVariableTypes>, int, IFuturemud, ICompileInfo>>(
+				<IEnumerable<string>, IDictionary<string, ProgVariableTypes>, int, IFuturemud, ICompileInfo>>(
 				SendCompileRegex, SendCompile)
 		);
 
@@ -283,8 +283,8 @@ The text that is sent will parse ANSI colour codes using ##s (e.g. ##5a tall man
 		{
 			switch (TargetFunction.ReturnType)
 			{
-				case FutureProgVariableTypes.Character:
-				case FutureProgVariableTypes.Item:
+				case ProgVariableTypes.Character:
+				case ProgVariableTypes.Item:
 					switch (Range)
 					{
 						case OutputRange.Personal:
@@ -296,7 +296,7 @@ The text that is sent will parse ANSI colour codes using ##s (e.g. ##5a tall man
 					}
 
 					break;
-				case FutureProgVariableTypes.Location:
+				case ProgVariableTypes.Location:
 					if (Range == OutputRange.Local)
 					{
 						((ILocation)TargetFunction.Result.GetObject).Handle(output);
@@ -314,8 +314,8 @@ The text that is sent will parse ANSI colour codes using ##s (e.g. ##5a tall man
 					}
 
 					throw new NotSupportedException();
-				case FutureProgVariableTypes.Shard:
-				case FutureProgVariableTypes.Zone:
+				case ProgVariableTypes.Shard:
+				case ProgVariableTypes.Zone:
 					((ILocation)TargetFunction.Result.GetObject).Handle(output);
 					break;
 				default:

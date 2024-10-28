@@ -12,7 +12,7 @@ internal class CollectionIndexFunction : Function
 	public string WhichVariable { get; }
 	public IFunction IndexFunction { get; }
 
-	public CollectionIndexFunction(string whichVariable, IFunction indexFunction, FutureProgVariableTypes returnType)
+	public CollectionIndexFunction(string whichVariable, IFunction indexFunction, ProgVariableTypes returnType)
 	{
 		WhichVariable = whichVariable;
 		IndexFunction = indexFunction;
@@ -36,7 +36,7 @@ internal class CollectionIndexFunction : Function
 		}
 
 		var index = Convert.ToInt32(IndexFunction.Result?.GetObject ?? 0);
-		Result = collection.OfType<IFutureProgVariable>().ElementAtOrDefault(index);
+		Result = collection.OfType<IProgVariable>().ElementAtOrDefault(index);
 		return StatementResult.Normal;
 	}
 }

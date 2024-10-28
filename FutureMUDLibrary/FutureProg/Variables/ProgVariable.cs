@@ -3,17 +3,17 @@ using System.Collections.Generic;
 using System.Linq;
 
 namespace MudSharp.FutureProg.Variables {
-    public abstract class FutureProgVariable : IFutureProgVariable {
-        private static readonly Dictionary<FutureProgVariableTypes, FutureProgVariableCompileInfo> _dotReferenceCompileInfos = new();
+    public abstract class ProgVariable : IProgVariable {
+        private static readonly Dictionary<ProgVariableTypes, FutureProgVariableCompileInfo> _dotReferenceCompileInfos = new();
 
-        public abstract IFutureProgVariable GetProperty(string property);
+        public abstract IProgVariable GetProperty(string property);
 
-        public abstract FutureProgVariableTypes Type { get; }
+        public abstract ProgVariableTypes Type { get; }
 
         public abstract object GetObject { get; }
 
-        public static void RegisterDotReferenceCompileInfo(FutureProgVariableTypes type,
-            IReadOnlyDictionary<string,FutureProgVariableTypes> typeDictionary, IReadOnlyDictionary<string,string> helpDictionary) {
+        public static void RegisterDotReferenceCompileInfo(ProgVariableTypes type,
+            IReadOnlyDictionary<string,ProgVariableTypes> typeDictionary, IReadOnlyDictionary<string,string> helpDictionary) {
             if (_dotReferenceCompileInfos.ContainsKey(type)) {
                 throw new NotSupportedException();
             }
@@ -26,11 +26,11 @@ namespace MudSharp.FutureProg.Variables {
             });
         }
 
-        public static FutureProgVariableTypes DotReferenceReturnTypeFor(FutureProgVariableTypes type, string property) {
+        public static ProgVariableTypes DotReferenceReturnTypeFor(ProgVariableTypes type, string property) {
             if (_dotReferenceCompileInfos.ContainsKey(type)) {
                 if (!_dotReferenceCompileInfos[type].PropertyTypeMap.ContainsKey(property))
                 {
-                    return FutureProgVariableTypes.Error;
+                    return ProgVariableTypes.Error;
                 }
                 return _dotReferenceCompileInfos[type].PropertyTypeMap[property];
             }
@@ -38,7 +38,7 @@ namespace MudSharp.FutureProg.Variables {
                 $"There was no DotReferenceCompileInfo for type {type.Describe()} {(long) type} property {property}");
         }
 
-        public static IReadOnlyDictionary<FutureProgVariableTypes, FutureProgVariableCompileInfo> DotReferenceCompileInfos =>
+        public static IReadOnlyDictionary<ProgVariableTypes, FutureProgVariableCompileInfo> DotReferenceCompileInfos =>
             _dotReferenceCompileInfos;
     }
 }

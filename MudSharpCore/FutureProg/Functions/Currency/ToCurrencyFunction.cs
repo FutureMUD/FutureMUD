@@ -14,9 +14,9 @@ internal class ToCurrencyFunction : BuiltInFunction
 		_gameworld = gameworld;
 	}
 
-	public override FutureProgVariableTypes ReturnType
+	public override ProgVariableTypes ReturnType
 	{
-		get => FutureProgVariableTypes.Currency;
+		get => ProgVariableTypes.Currency;
 		protected set { }
 	}
 
@@ -27,7 +27,7 @@ internal class ToCurrencyFunction : BuiltInFunction
 			return StatementResult.Error;
 		}
 
-		Result = ParameterFunctions[0].ReturnType.CompatibleWith(FutureProgVariableTypes.Text)
+		Result = ParameterFunctions[0].ReturnType.CompatibleWith(ProgVariableTypes.Text)
 			? _gameworld.Currencies.Get((string)ParameterFunctions[0].Result.GetObject).FirstOrDefault()
 			: _gameworld.Currencies.Get((long)(decimal)ParameterFunctions[0].Result.GetObject);
 
@@ -38,13 +38,13 @@ internal class ToCurrencyFunction : BuiltInFunction
 	{
 		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
 			"tocurrency",
-			new[] { FutureProgVariableTypes.Number },
+			new[] { ProgVariableTypes.Number },
 			(pars, gameworld) => new ToCurrencyFunction(pars, gameworld)
 		));
 
 		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
 			"tocurrency",
-			new[] { FutureProgVariableTypes.Text },
+			new[] { ProgVariableTypes.Text },
 			(pars, gameworld) => new ToCurrencyFunction(pars, gameworld)
 		));
 	}

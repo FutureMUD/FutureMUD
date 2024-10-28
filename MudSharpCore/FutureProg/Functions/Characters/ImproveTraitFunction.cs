@@ -25,7 +25,7 @@ namespace MudSharp.FutureProg.Functions.Characters
 			FutureProg.RegisterBuiltInFunctionCompiler(
 				new FunctionCompilerInformation(
 					"improvetrait",
-					new[] { FutureProgVariableTypes.Character, FutureProgVariableTypes.Trait }, // the parameters the function takes
+					new[] { ProgVariableTypes.Character, ProgVariableTypes.Trait }, // the parameters the function takes
 					(pars, gameworld) => new ImproveTraitFunction(pars, gameworld),
 					new List<string> {
 						"who",
@@ -37,7 +37,7 @@ namespace MudSharp.FutureProg.Functions.Characters
 					}, // parameter help text
 					"Gives a trait improvement tick to a trait. This is as if the player had rolled an improvement naturally. Returns the new value.", // help text for the function,
 					"Character",// the category to which this function belongs,
-					FutureProgVariableTypes.Number // the return type of the function
+					ProgVariableTypes.Number // the return type of the function
 				)
 			);
 		}
@@ -50,9 +50,9 @@ namespace MudSharp.FutureProg.Functions.Characters
 		}
 		#endregion
 
-		public override FutureProgVariableTypes ReturnType
+		public override ProgVariableTypes ReturnType
 		{
-			get { return FutureProgVariableTypes.Number; }
+			get { return ProgVariableTypes.Number; }
 			protected set { }
 		}
 

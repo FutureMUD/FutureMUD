@@ -3,26 +3,26 @@ using System.Collections.Generic;
 using MudSharp.Framework;
 
 namespace MudSharp.FutureProg.Variables {
-    public class TextVariable : FutureProgVariable {
+    public class TextVariable : ProgVariable {
         public TextVariable(string theString) {
             UnderlyingString = theString;
         }
 
         public string UnderlyingString { get; set; }
 
-        public override FutureProgVariableTypes Type => FutureProgVariableTypes.Text;
+        public override ProgVariableTypes Type => ProgVariableTypes.Text;
 
         public override object GetObject => UnderlyingString;
 
-        private static IReadOnlyDictionary<string,FutureProgVariableTypes> DotReferenceHandler()
+        private static IReadOnlyDictionary<string,ProgVariableTypes> DotReferenceHandler()
         {
-            return new Dictionary<string, FutureProgVariableTypes>(StringComparer.InvariantCultureIgnoreCase)
+            return new Dictionary<string, ProgVariableTypes>(StringComparer.InvariantCultureIgnoreCase)
             {
-                {"length", FutureProgVariableTypes.Number},
-                {"upper", FutureProgVariableTypes.Text},
-                {"lower", FutureProgVariableTypes.Text},
-                {"proper", FutureProgVariableTypes.Text},
-                {"title", FutureProgVariableTypes.Text},
+                {"length", ProgVariableTypes.Number},
+                {"upper", ProgVariableTypes.Text},
+                {"lower", ProgVariableTypes.Text},
+                {"proper", ProgVariableTypes.Text},
+                {"title", ProgVariableTypes.Text},
             };
         }
 
@@ -39,10 +39,10 @@ namespace MudSharp.FutureProg.Variables {
         }
 
         public static void RegisterFutureProgCompiler() {
-            FutureProgVariable.RegisterDotReferenceCompileInfo(FutureProgVariableTypes.Text, DotReferenceHandler(), DotReferenceHelp());
+            ProgVariable.RegisterDotReferenceCompileInfo(ProgVariableTypes.Text, DotReferenceHandler(), DotReferenceHelp());
         }
 
-        public override IFutureProgVariable GetProperty(string property) {
+        public override IProgVariable GetProperty(string property) {
             switch (property.ToLowerInvariant()) {
                 case "length":
                     return new NumberVariable(UnderlyingString.Length);

@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace MudSharp.RPG.Law
 {
-    public interface ILaw : IFrameworkItem, ISaveable, IEditableItem, IFutureProgVariable
+    public interface ILaw : IFrameworkItem, ISaveable, IEditableItem, IProgVariable
     {
         ILegalAuthority Authority { get; }
         CrimeTypes CrimeType { get; }

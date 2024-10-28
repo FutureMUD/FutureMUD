@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace MudSharp.FutureProg {
     [Flags]
-    public enum FutureProgVariableTypes : long {
+    public enum ProgVariableTypes : long {
         /// <summary>
         ///     Used as a return type for programs that do not return anything. Will always evaluate to null.
         /// </summary>
@@ -299,52 +299,52 @@ namespace MudSharp.FutureProg {
         /// <param name="type1">The variable type whose Compatability is in question</param>
         /// <param name="type2">The variable type to which type1 is desired to be evaluated</param>
         /// <returns>True if the types are compatible</returns>
-        public static bool CompatibleWith(this FutureProgVariableTypes type1, FutureProgVariableTypes type2) {
+        public static bool CompatibleWith(this ProgVariableTypes type1, ProgVariableTypes type2) {
             return FutureProgVariableComparer.Instance.Equals(type2, type1);
         }
     }
 
-    public class FutureProgVariableComparer : EqualityComparer<FutureProgVariableTypes> {
+    public class FutureProgVariableComparer : EqualityComparer<ProgVariableTypes> {
         private FutureProgVariableComparer() {
         }
 
         public static FutureProgVariableComparer Instance { get; } = new();
 
-        public override bool Equals(FutureProgVariableTypes x, FutureProgVariableTypes y) {
-            if (x.HasFlag(FutureProgVariableTypes.Collection) != y.HasFlag(FutureProgVariableTypes.Collection))
+        public override bool Equals(ProgVariableTypes x, ProgVariableTypes y) {
+            if (x.HasFlag(ProgVariableTypes.Collection) != y.HasFlag(ProgVariableTypes.Collection))
             {
                 return false;
             }
 
-            if (x.HasFlag(FutureProgVariableTypes.Collection))
+            if (x.HasFlag(ProgVariableTypes.Collection))
             {
-                return Equals(x & ~FutureProgVariableTypes.Collection, y & ~FutureProgVariableTypes.Collection) || x == FutureProgVariableTypes.Collection;
+                return Equals(x & ~ProgVariableTypes.Collection, y & ~ProgVariableTypes.Collection) || x == ProgVariableTypes.Collection;
             }
 
-            if (x.HasFlag(FutureProgVariableTypes.Dictionary) != y.HasFlag(FutureProgVariableTypes.Dictionary))
-            {
-                return false;
-            }
-
-            if (x.HasFlag(FutureProgVariableTypes.Dictionary))
-            {
-                return Equals(x & ~FutureProgVariableTypes.Dictionary, y & ~FutureProgVariableTypes.Dictionary) || x == FutureProgVariableTypes.Dictionary;
-            }
-
-            if (x.HasFlag(FutureProgVariableTypes.CollectionDictionary) != y.HasFlag(FutureProgVariableTypes.CollectionDictionary))
+            if (x.HasFlag(ProgVariableTypes.Dictionary) != y.HasFlag(ProgVariableTypes.Dictionary))
             {
                 return false;
             }
 
-            if (x.HasFlag(FutureProgVariableTypes.CollectionDictionary))
+            if (x.HasFlag(ProgVariableTypes.Dictionary))
             {
-                return Equals(x & ~FutureProgVariableTypes.CollectionDictionary, y & ~FutureProgVariableTypes.CollectionDictionary) || x == FutureProgVariableTypes.CollectionDictionary;
+                return Equals(x & ~ProgVariableTypes.Dictionary, y & ~ProgVariableTypes.Dictionary) || x == ProgVariableTypes.Dictionary;
             }
 
-            return x.HasFlag(FutureProgVariableTypes.Literal) ? x.HasFlag(y) : x.HasFlag(y & ~FutureProgVariableTypes.Literal);
+            if (x.HasFlag(ProgVariableTypes.CollectionDictionary) != y.HasFlag(ProgVariableTypes.CollectionDictionary))
+            {
+                return false;
+            }
+
+            if (x.HasFlag(ProgVariableTypes.CollectionDictionary))
+            {
+                return Equals(x & ~ProgVariableTypes.CollectionDictionary, y & ~ProgVariableTypes.CollectionDictionary) || x == ProgVariableTypes.CollectionDictionary;
+            }
+
+            return x.HasFlag(ProgVariableTypes.Literal) ? x.HasFlag(y) : x.HasFlag(y & ~ProgVariableTypes.Literal);
         }
 
-        public override int GetHashCode(FutureProgVariableTypes obj) {
+        public override int GetHashCode(ProgVariableTypes obj) {
             return (int) obj;
         }
     }
@@ -353,11 +353,11 @@ namespace MudSharp.FutureProg {
     ///     A class implementing the IFutureProgVariable interface can be used as a variable in a FutureProg. If it is the
     ///     "Owner" class of its FutureProgVariableType, it must also implement a compiler-registerer.
     /// </summary>
-    public interface IFutureProgVariable {
+    public interface IProgVariable {
         /// <summary>
         ///     The FutureProgVariableType that represents this IFutureProgVariable
         /// </summary>
-        FutureProgVariableTypes Type { get; }
+        ProgVariableTypes Type { get; }
 
         /// <summary>
         ///     Returns an object representing the underlying variable wrapped in this IFutureProgVariable
@@ -369,6 +369,6 @@ namespace MudSharp.FutureProg {
         /// </summary>
         /// <param name="property">A string representing the property to be retrieved</param>
         /// <returns>An IFutureProgVariable representing the desired property</returns>
-        IFutureProgVariable GetProperty(string property);
+        IProgVariable GetProperty(string property);
     }
 }

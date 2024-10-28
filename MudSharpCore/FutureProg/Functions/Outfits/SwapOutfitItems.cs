@@ -28,8 +28,8 @@ internal class SwapOutfitItems : BuiltInFunction
 				"swapoutfititems".ToLowerInvariant(),
 				new[]
 				{
-					FutureProgVariableTypes.Outfit, FutureProgVariableTypes.OutfitItem,
-					FutureProgVariableTypes.OutfitItem
+					ProgVariableTypes.Outfit, ProgVariableTypes.OutfitItem,
+					ProgVariableTypes.OutfitItem
 				},
 				(pars, gameworld) => new SwapOutfitItems(pars, gameworld)
 			)
@@ -47,9 +47,9 @@ internal class SwapOutfitItems : BuiltInFunction
 
 	#endregion
 
-	public override FutureProgVariableTypes ReturnType
+	public override ProgVariableTypes ReturnType
 	{
-		get => FutureProgVariableTypes.Boolean;
+		get => ProgVariableTypes.Boolean;
 		protected set { }
 	}
 

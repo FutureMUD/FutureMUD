@@ -20,9 +20,9 @@ internal class SetCharacteristicRandomFunction : BuiltInFunction
 		_gameworld = gameworld;
 	}
 
-	public override FutureProgVariableTypes ReturnType
+	public override ProgVariableTypes ReturnType
 	{
-		get => FutureProgVariableTypes.Boolean;
+		get => ProgVariableTypes.Boolean;
 		protected set => base.ReturnType = value;
 	}
 
@@ -33,8 +33,8 @@ internal class SetCharacteristicRandomFunction : BuiltInFunction
 				"setcharacteristicrandom",
 				new[]
 				{
-					FutureProgVariableTypes.Character, FutureProgVariableTypes.Number, FutureProgVariableTypes.Number,
-					FutureProgVariableTypes.Boolean
+					ProgVariableTypes.Character, ProgVariableTypes.Number, ProgVariableTypes.Number,
+					ProgVariableTypes.Boolean
 				},
 				(pars, gameworld) => new SetCharacteristicRandomFunction(pars, gameworld),
 				new List<string> { "character", "definition", "profile", "forcenew" },
@@ -47,7 +47,7 @@ internal class SetCharacteristicRandomFunction : BuiltInFunction
 				},
 				"Sets the intrinsic characteristic value for the characteristic definition on the supplied target to a random value selected from the profile you supply. Returns true if successful.",
 				"Characteristics",
-				FutureProgVariableTypes.Boolean
+				ProgVariableTypes.Boolean
 			)
 		);
 
@@ -56,8 +56,8 @@ internal class SetCharacteristicRandomFunction : BuiltInFunction
 				"setcharacteristicrandom",
 				new[]
 				{
-					FutureProgVariableTypes.Character, FutureProgVariableTypes.Text, FutureProgVariableTypes.Number,
-					FutureProgVariableTypes.Boolean
+					ProgVariableTypes.Character, ProgVariableTypes.Text, ProgVariableTypes.Number,
+					ProgVariableTypes.Boolean
 				},
 				(pars, gameworld) => new SetCharacteristicRandomFunction(pars, gameworld),
 				new List<string> { "character", "definition", "profile", "forcenew" },
@@ -70,7 +70,7 @@ internal class SetCharacteristicRandomFunction : BuiltInFunction
 				},
 				"Sets the intrinsic characteristic value for the characteristic definition on the supplied target to a random value selected from the profile you supply. Returns true if successful.",
 				"Characteristics",
-				FutureProgVariableTypes.Boolean
+				ProgVariableTypes.Boolean
 			)
 		);
 
@@ -79,8 +79,8 @@ internal class SetCharacteristicRandomFunction : BuiltInFunction
 				"setcharacteristicrandom",
 				new[]
 				{
-					FutureProgVariableTypes.Character, FutureProgVariableTypes.Number, FutureProgVariableTypes.Text,
-					FutureProgVariableTypes.Boolean
+					ProgVariableTypes.Character, ProgVariableTypes.Number, ProgVariableTypes.Text,
+					ProgVariableTypes.Boolean
 				},
 				(pars, gameworld) => new SetCharacteristicRandomFunction(pars, gameworld),
 				new List<string> { "character", "definition", "profile", "forcenew" },
@@ -93,7 +93,7 @@ internal class SetCharacteristicRandomFunction : BuiltInFunction
 				},
 				"Sets the intrinsic characteristic value for the characteristic definition on the supplied target to a random value selected from the profile you supply. Returns true if successful.",
 				"Characteristics",
-				FutureProgVariableTypes.Boolean
+				ProgVariableTypes.Boolean
 			)
 		);
 
@@ -102,8 +102,8 @@ internal class SetCharacteristicRandomFunction : BuiltInFunction
 				"setcharacteristicrandom",
 				new[]
 				{
-					FutureProgVariableTypes.Character, FutureProgVariableTypes.Text, FutureProgVariableTypes.Text,
-					FutureProgVariableTypes.Boolean
+					ProgVariableTypes.Character, ProgVariableTypes.Text, ProgVariableTypes.Text,
+					ProgVariableTypes.Boolean
 				},
 				(pars, gameworld) => new SetCharacteristicRandomFunction(pars, gameworld),
 				new List<string> { "character", "definition", "profile", "forcenew" },
@@ -116,7 +116,7 @@ internal class SetCharacteristicRandomFunction : BuiltInFunction
 				},
 				"Sets the intrinsic characteristic value for the characteristic definition on the supplied target to a random value selected from the profile you supply. Returns true if successful.",
 				"Characteristics",
-				FutureProgVariableTypes.Boolean
+				ProgVariableTypes.Boolean
 			)
 		);
 
@@ -125,8 +125,8 @@ internal class SetCharacteristicRandomFunction : BuiltInFunction
 				"setcharacteristicrandom",
 				new[]
 				{
-					FutureProgVariableTypes.Item, FutureProgVariableTypes.Number, FutureProgVariableTypes.Number,
-					FutureProgVariableTypes.Boolean
+					ProgVariableTypes.Item, ProgVariableTypes.Number, ProgVariableTypes.Number,
+					ProgVariableTypes.Boolean
 				},
 				(pars, gameworld) => new SetCharacteristicRandomFunction(pars, gameworld),
 				new List<string> { "item", "definition", "profile", "forcenew" },
@@ -139,7 +139,7 @@ internal class SetCharacteristicRandomFunction : BuiltInFunction
 				},
 				"Sets the intrinsic characteristic value for the characteristic definition on the supplied target to a random value selected from the profile you supply. Returns true if successful.",
 				"Characteristics",
-				FutureProgVariableTypes.Boolean
+				ProgVariableTypes.Boolean
 			)
 		);
 
@@ -148,8 +148,8 @@ internal class SetCharacteristicRandomFunction : BuiltInFunction
 				"setcharacteristicrandom",
 				new[]
 				{
-					FutureProgVariableTypes.Item, FutureProgVariableTypes.Text, FutureProgVariableTypes.Number,
-					FutureProgVariableTypes.Boolean
+					ProgVariableTypes.Item, ProgVariableTypes.Text, ProgVariableTypes.Number,
+					ProgVariableTypes.Boolean
 				},
 				(pars, gameworld) => new SetCharacteristicRandomFunction(pars, gameworld),
 				new List<string> { "item", "definition", "profile", "forcenew" },
@@ -162,7 +162,7 @@ internal class SetCharacteristicRandomFunction : BuiltInFunction
 				},
 				"Sets the intrinsic characteristic value for the characteristic definition on the supplied target to a random value selected from the profile you supply. Returns true if successful.",
 				"Characteristics",
-				FutureProgVariableTypes.Boolean
+				ProgVariableTypes.Boolean
 			)
 		);
 
@@ -171,8 +171,8 @@ internal class SetCharacteristicRandomFunction : BuiltInFunction
 				"setcharacteristicrandom",
 				new[]
 				{
-					FutureProgVariableTypes.Item, FutureProgVariableTypes.Number, FutureProgVariableTypes.Text,
-					FutureProgVariableTypes.Boolean
+					ProgVariableTypes.Item, ProgVariableTypes.Number, ProgVariableTypes.Text,
+					ProgVariableTypes.Boolean
 				},
 				(pars, gameworld) => new SetCharacteristicRandomFunction(pars, gameworld),
 				new List<string> { "item", "definition", "profile", "forcenew" },
@@ -185,7 +185,7 @@ internal class SetCharacteristicRandomFunction : BuiltInFunction
 				},
 				"Sets the intrinsic characteristic value for the characteristic definition on the supplied target to a random value selected from the profile you supply. Returns true if successful.",
 				"Characteristics",
-				FutureProgVariableTypes.Boolean
+				ProgVariableTypes.Boolean
 			)
 		);
 
@@ -194,8 +194,8 @@ internal class SetCharacteristicRandomFunction : BuiltInFunction
 				"setcharacteristicrandom",
 				new[]
 				{
-					FutureProgVariableTypes.Item, FutureProgVariableTypes.Text, FutureProgVariableTypes.Text,
-					FutureProgVariableTypes.Boolean
+					ProgVariableTypes.Item, ProgVariableTypes.Text, ProgVariableTypes.Text,
+					ProgVariableTypes.Boolean
 				},
 				(pars, gameworld) => new SetCharacteristicRandomFunction(pars, gameworld),
 				new List<string> { "item", "definition", "profile", "forcenew" },
@@ -208,7 +208,7 @@ internal class SetCharacteristicRandomFunction : BuiltInFunction
 				},
 				"Sets the intrinsic characteristic value for the characteristic definition on the supplied target to a random value selected from the profile you supply. Returns true if successful.",
 				"Characteristics",
-				FutureProgVariableTypes.Boolean
+				ProgVariableTypes.Boolean
 			)
 		);
 	}
@@ -226,7 +226,7 @@ internal class SetCharacteristicRandomFunction : BuiltInFunction
 			return StatementResult.Normal;
 		}
 
-		var definition = ParameterFunctions[1].ReturnType.CompatibleWith(FutureProgVariableTypes.Text)
+		var definition = ParameterFunctions[1].ReturnType.CompatibleWith(ProgVariableTypes.Text)
 			? _gameworld.Characteristics.GetByName(ParameterFunctions[1].Result?.GetObject as string ?? "")
 			: _gameworld.Characteristics.Get((long)(ParameterFunctions[1].Result?.GetObject as decimal? ?? 0.0M));
 		if (definition == null)
@@ -235,7 +235,7 @@ internal class SetCharacteristicRandomFunction : BuiltInFunction
 			return StatementResult.Normal;
 		}
 
-		var profile = ParameterFunctions[2].ReturnType.CompatibleWith(FutureProgVariableTypes.Text)
+		var profile = ParameterFunctions[2].ReturnType.CompatibleWith(ProgVariableTypes.Text)
 			? _gameworld.CharacteristicProfiles.GetByName(ParameterFunctions[2].Result?.GetObject as string ?? "")
 			: _gameworld.CharacteristicProfiles.Get((long)(ParameterFunctions[2].Result?.GetObject as decimal? ??
 			                                               0.0M));

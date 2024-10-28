@@ -10,9 +10,9 @@ internal class FindFunction : CollectionExtensionFunction
 	{
 	}
 
-	public override FutureProgVariableTypes ReturnType
+	public override ProgVariableTypes ReturnType
 	{
-		get => FutureProgVariableTypes.Number;
+		get => ProgVariableTypes.Number;
 		protected set { }
 	}
 
@@ -21,7 +21,7 @@ internal class FindFunction : CollectionExtensionFunction
 		RegisterCollectionExtensionFunctionCompiler(
 			new CollectionExtensionFunctionCompilerInformation(
 				"find",
-				FutureProgVariableTypes.Number,
+				ProgVariableTypes.Number,
 				(varName, collectionFunction, innerFunction) =>
 					new FindFunction(varName, innerFunction, collectionFunction),
 				@"The FIND function accepts an inner function (which must return a boolean) and returns the index position of the first item in the collection that is TRUE for the inner function. If it finds no matches, it will return -1.
@@ -43,7 +43,7 @@ For example if you had a CHARACTER COLLECTION, .Find(x, @x.Age > 50) would retur
 
 		var localVariables = new LocalVariableSpace(variables);
 		var count = 0;
-		foreach (IFutureProgVariable item in (IList)CollectionFunction.Result.GetObject)
+		foreach (IProgVariable item in (IList)CollectionFunction.Result.GetObject)
 		{
 			localVariables.SetVariable(VariableName, item);
 			if (CollectionItemFunction.Execute(localVariables) == StatementResult.Error)

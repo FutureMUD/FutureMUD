@@ -260,12 +260,12 @@ public class Culture : SaveableItem, ICulture
 
 	#region IFutureProgVariable Members
 
-	private static IReadOnlyDictionary<string, FutureProgVariableTypes> DotReferenceHandler()
+	private static IReadOnlyDictionary<string, ProgVariableTypes> DotReferenceHandler()
 	{
-		return new Dictionary<string, FutureProgVariableTypes>(StringComparer.InvariantCultureIgnoreCase)
+		return new Dictionary<string, ProgVariableTypes>(StringComparer.InvariantCultureIgnoreCase)
 		{
-			{ "id", FutureProgVariableTypes.Number },
-			{ "name", FutureProgVariableTypes.Text }
+			{ "id", ProgVariableTypes.Number },
+			{ "name", ProgVariableTypes.Text }
 		};
 	}
 
@@ -280,11 +280,11 @@ public class Culture : SaveableItem, ICulture
 
 	public static void RegisterFutureProgCompiler()
 	{
-		FutureProgVariable.RegisterDotReferenceCompileInfo(FutureProgVariableTypes.Culture, DotReferenceHandler(),
+		ProgVariable.RegisterDotReferenceCompileInfo(ProgVariableTypes.Culture, DotReferenceHandler(),
 			DotReferenceHelp());
 	}
 
-	public IFutureProgVariable GetProperty(string property)
+	public IProgVariable GetProperty(string property)
 	{
 		switch (property.ToLowerInvariant())
 		{
@@ -297,7 +297,7 @@ public class Culture : SaveableItem, ICulture
 		}
 	}
 
-	public FutureProgVariableTypes Type => FutureProgVariableTypes.Culture;
+	public ProgVariableTypes Type => ProgVariableTypes.Culture;
 
 	public object GetObject => this;
 
@@ -543,15 +543,15 @@ public class Culture : SaveableItem, ICulture
 			return false;
 		}
 
-		if (!prog.ReturnType.CompatibleWith(FutureProgVariableTypes.Number))
+		if (!prog.ReturnType.CompatibleWith(ProgVariableTypes.Number))
 		{
 			actor.OutputHandler.Send(
 				$"You must specify a prog that returns a number value, whereas {prog.MXPClickableFunctionName()} returns {prog.ReturnType.Describe().ColourName()}.");
 			return false;
 		}
 
-		if (!prog.MatchesParameters(new List<FutureProgVariableTypes>
-			    { FutureProgVariableTypes.Chargen, FutureProgVariableTypes.Trait, FutureProgVariableTypes.Number }))
+		if (!prog.MatchesParameters(new List<ProgVariableTypes>
+			    { ProgVariableTypes.Chargen, ProgVariableTypes.Trait, ProgVariableTypes.Number }))
 		{
 			actor.OutputHandler.Send(
 				$"You must specify a prog that accepts three parameters: a Chargen, a Trait and a Number, whereas {prog.MXPClickableFunctionNameWithId()} does not.");
@@ -633,14 +633,14 @@ public class Culture : SaveableItem, ICulture
 			return false;
 		}
 
-		if (!prog.ReturnType.CompatibleWith(FutureProgVariableTypes.Boolean))
+		if (!prog.ReturnType.CompatibleWith(ProgVariableTypes.Boolean))
 		{
 			actor.OutputHandler.Send(
 				$"You must specify a prog that returns a boolean value, whereas {prog.MXPClickableFunctionName()} returns {prog.ReturnType.Describe().ColourName()}.");
 			return false;
 		}
 
-		if (!prog.MatchesParameters(new List<FutureProgVariableTypes> { FutureProgVariableTypes.Chargen }))
+		if (!prog.MatchesParameters(new List<ProgVariableTypes> { ProgVariableTypes.Chargen }))
 		{
 			actor.OutputHandler.Send(
 				$"You must specify a prog that accepts one parameter: a Chargen, whereas {prog.MXPClickableFunctionNameWithId()} does not.");

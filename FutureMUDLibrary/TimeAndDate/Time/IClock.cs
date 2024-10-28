@@ -20,7 +20,7 @@ namespace MudSharp.TimeAndDate.Time
 
     public delegate void ClockAdvanceDaysEventHandler(int arg);
 
-    public interface IClock : IHaveMultipleNames, IXmlSavable, IXmlLoadable, IFutureProgVariable, ISaveable
+    public interface IClock : IHaveMultipleNames, IXmlSavable, IXmlLoadable, IProgVariable, ISaveable
     {
         event ClockEventHandler SecondsUpdated;
         event ClockEventHandler MinutesUpdated;

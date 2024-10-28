@@ -11,9 +11,9 @@ internal class SameRaceFunction : BuiltInFunction
 	{
 	}
 
-	public override FutureProgVariableTypes ReturnType
+	public override ProgVariableTypes ReturnType
 	{
-		get => FutureProgVariableTypes.Boolean;
+		get => ProgVariableTypes.Boolean;
 		protected set { }
 	}
 
@@ -41,7 +41,7 @@ internal class SameRaceFunction : BuiltInFunction
 		FutureProg.RegisterBuiltInFunctionCompiler(
 			new FunctionCompilerInformation(
 				"samerace",
-				new[] { FutureProgVariableTypes.Race, FutureProgVariableTypes.Race },
+				new[] { ProgVariableTypes.Race, ProgVariableTypes.Race },
 				(pars, gameworld) => new SameRaceFunction(pars)
 			)
 		);

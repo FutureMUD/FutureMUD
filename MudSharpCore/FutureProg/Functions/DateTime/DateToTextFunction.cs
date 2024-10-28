@@ -15,9 +15,9 @@ internal class DateToTextFunction : BuiltInFunction
 	{
 	}
 
-	public override FutureProgVariableTypes ReturnType
+	public override ProgVariableTypes ReturnType
 	{
-		get => FutureProgVariableTypes.Text;
+		get => ProgVariableTypes.Text;
 		protected set { }
 	}
 
@@ -51,19 +51,19 @@ internal class DateToTextFunction : BuiltInFunction
 	{
 		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
 			"totext",
-			new[] { FutureProgVariableTypes.DateTime },
+			new[] { ProgVariableTypes.DateTime },
 			(pars, gameworld) => new DateToTextFunction(pars)
 		));
 
 		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
 			"totext",
-			new[] { FutureProgVariableTypes.DateTime, FutureProgVariableTypes.Toon },
+			new[] { ProgVariableTypes.DateTime, ProgVariableTypes.Toon },
 			(pars, gameworld) => new DateToTextFunction(pars)
 		));
 
 		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
 			"totext",
-			new[] { FutureProgVariableTypes.DateTime, FutureProgVariableTypes.Text, FutureProgVariableTypes.Toon },
+			new[] { ProgVariableTypes.DateTime, ProgVariableTypes.Text, ProgVariableTypes.Toon },
 			(pars, gameworld) => new DateToTextFunction(pars)
 		));
 	}
@@ -78,9 +78,9 @@ internal class MudDateToTextFunction : BuiltInFunction
 		_type = type;
 	}
 
-	public override FutureProgVariableTypes ReturnType
+	public override ProgVariableTypes ReturnType
 	{
-		get => FutureProgVariableTypes.Text;
+		get => ProgVariableTypes.Text;
 		protected set { }
 	}
 
@@ -103,31 +103,31 @@ internal class MudDateToTextFunction : BuiltInFunction
 	{
 		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
 			"totext",
-			new[] { FutureProgVariableTypes.MudDateTime },
+			new[] { ProgVariableTypes.MudDateTime },
 			(pars, gameworld) => new MudDateToTextFunction(pars, CalendarDisplayMode.Long, TimeDisplayTypes.Long)
 		));
 
 		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
 			"totextshort",
-			new[] { FutureProgVariableTypes.MudDateTime },
+			new[] { ProgVariableTypes.MudDateTime },
 			(pars, gameworld) => new MudDateToTextFunction(pars, CalendarDisplayMode.Short, TimeDisplayTypes.Short)
 		));
 
 		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
 			"totextwordy",
-			new[] { FutureProgVariableTypes.MudDateTime },
+			new[] { ProgVariableTypes.MudDateTime },
 			(pars, gameworld) => new MudDateToTextFunction(pars, CalendarDisplayMode.Wordy, TimeDisplayTypes.Long)
 		));
 
 		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
 			"totextcrude",
-			new[] { FutureProgVariableTypes.MudDateTime },
+			new[] { ProgVariableTypes.MudDateTime },
 			(pars, gameworld) => new MudDateToTextFunction(pars, CalendarDisplayMode.Long, TimeDisplayTypes.Crude)
 		));
 
 		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
 			"totextvague",
-			new[] { FutureProgVariableTypes.MudDateTime },
+			new[] { ProgVariableTypes.MudDateTime },
 			(pars, gameworld) => new MudDateToTextFunction(pars, CalendarDisplayMode.Long, TimeDisplayTypes.Vague)
 		));
 	}

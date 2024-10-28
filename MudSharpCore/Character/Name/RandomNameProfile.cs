@@ -291,9 +291,9 @@ public class RandomNameProfile : SaveableItem, IEditableItem, IRandomNameProfile
 		}
 
 		var prog = new ProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument,
-			FutureProgVariableTypes.Boolean, new FutureProgVariableTypes[]
+			ProgVariableTypes.Boolean, new ProgVariableTypes[]
 			{
-				FutureProgVariableTypes.Chargen
+				ProgVariableTypes.Chargen
 			}).LookupProg();
 		if (prog is null)
 		{

@@ -13,9 +13,9 @@ internal class TimeSpanToTextFunction : BuiltInFunction
 	{
 	}
 
-	public override FutureProgVariableTypes ReturnType
+	public override ProgVariableTypes ReturnType
 	{
-		get => FutureProgVariableTypes.Text;
+		get => ProgVariableTypes.Text;
 		protected set { }
 	}
 
@@ -38,13 +38,13 @@ internal class TimeSpanToTextFunction : BuiltInFunction
 	{
 		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
 			"totext",
-			new[] { FutureProgVariableTypes.TimeSpan },
+			new[] { ProgVariableTypes.TimeSpan },
 			(pars, gameworld) => new TimeSpanToTextFunction(pars)
 		));
 
 		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
 			"totext",
-			new[] { FutureProgVariableTypes.TimeSpan, FutureProgVariableTypes.Toon },
+			new[] { ProgVariableTypes.TimeSpan, ProgVariableTypes.Toon },
 			(pars, gameworld) => new TimeSpanToTextFunction(pars)
 		));
 	}

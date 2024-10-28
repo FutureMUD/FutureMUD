@@ -10,10 +10,10 @@ namespace MudSharp.RPG.Law;
 
 public partial class LegalAuthority
 {
-	public FutureProgVariableTypes Type => FutureProgVariableTypes.LegalAuthority;
+	public ProgVariableTypes Type => ProgVariableTypes.LegalAuthority;
 	public object GetObject => this;
 
-	public IFutureProgVariable GetProperty(string property)
+	public IProgVariable GetProperty(string property)
 	{
 		switch (property.ToLowerInvariant())
 		{
@@ -22,7 +22,7 @@ public partial class LegalAuthority
 			case "name":
 				return new TextVariable(Name);
 			case "zones":
-				return new CollectionVariable(EnforcementZones.ToList(), FutureProgVariableTypes.Zone);
+				return new CollectionVariable(EnforcementZones.ToList(), ProgVariableTypes.Zone);
 			case "preparinglocation":
 				return PreparingLocation;
 			case "marshallinglocation":
@@ -38,33 +38,33 @@ public partial class LegalAuthority
 			case "jaillocation":
 				return JailLocation;
 			case "celllocations":
-				return new CollectionVariable(CellLocations.ToList(), FutureProgVariableTypes.Location);
+				return new CollectionVariable(CellLocations.ToList(), ProgVariableTypes.Location);
 			case "jaillocations":
-				return new CollectionVariable(JailLocations.ToList(), FutureProgVariableTypes.Location);
+				return new CollectionVariable(JailLocations.ToList(), ProgVariableTypes.Location);
 			case "laws":
-				return new CollectionVariable(Laws.ToList(), FutureProgVariableTypes.Law);
+				return new CollectionVariable(Laws.ToList(), ProgVariableTypes.Law);
 			default:
 				throw new ApplicationException($"Invalid property {property} requested in LegalAuthority.GetProperty");
 		}
 	}
 
-	private static IReadOnlyDictionary<string, FutureProgVariableTypes> DotReferenceHandler()
+	private static IReadOnlyDictionary<string, ProgVariableTypes> DotReferenceHandler()
 	{
-		return new Dictionary<string, FutureProgVariableTypes>(StringComparer.InvariantCultureIgnoreCase)
+		return new Dictionary<string, ProgVariableTypes>(StringComparer.InvariantCultureIgnoreCase)
 		{
-			{ "id", FutureProgVariableTypes.Number },
-			{ "name", FutureProgVariableTypes.Text },
-			{ "zones", FutureProgVariableTypes.Zone | FutureProgVariableTypes.Collection },
-			{ "preparinglocation", FutureProgVariableTypes.Location },
-			{ "marshallinglocation", FutureProgVariableTypes.Location },
-			{ "enforcerstowinglocation", FutureProgVariableTypes.Location },
-			{ "prisonlocation", FutureProgVariableTypes.Location },
-			{ "prisonreleaselocation", FutureProgVariableTypes.Location },
-			{ "prisonerbelongingsstoragelocation", FutureProgVariableTypes.Location },
-			{ "jaillocation", FutureProgVariableTypes.Location },
-			{ "celllocations", FutureProgVariableTypes.Location | FutureProgVariableTypes.Collection },
-			{ "jaillocations", FutureProgVariableTypes.Location | FutureProgVariableTypes.Collection },
-			{ "laws", FutureProgVariableTypes.Law | FutureProgVariableTypes.Collection }
+			{ "id", ProgVariableTypes.Number },
+			{ "name", ProgVariableTypes.Text },
+			{ "zones", ProgVariableTypes.Zone | ProgVariableTypes.Collection },
+			{ "preparinglocation", ProgVariableTypes.Location },
+			{ "marshallinglocation", ProgVariableTypes.Location },
+			{ "enforcerstowinglocation", ProgVariableTypes.Location },
+			{ "prisonlocation", ProgVariableTypes.Location },
+			{ "prisonreleaselocation", ProgVariableTypes.Location },
+			{ "prisonerbelongingsstoragelocation", ProgVariableTypes.Location },
+			{ "jaillocation", ProgVariableTypes.Location },
+			{ "celllocations", ProgVariableTypes.Location | ProgVariableTypes.Collection },
+			{ "jaillocations", ProgVariableTypes.Location | ProgVariableTypes.Collection },
+			{ "laws", ProgVariableTypes.Law | ProgVariableTypes.Collection }
 		};
 	}
 
@@ -90,7 +90,7 @@ public partial class LegalAuthority
 
 	public static void RegisterFutureProgCompiler()
 	{
-		FutureProgVariable.RegisterDotReferenceCompileInfo(FutureProgVariableTypes.LegalAuthority,
+		ProgVariable.RegisterDotReferenceCompileInfo(ProgVariableTypes.LegalAuthority,
 			DotReferenceHandler(), DotReferenceHelp());
 	}
 }

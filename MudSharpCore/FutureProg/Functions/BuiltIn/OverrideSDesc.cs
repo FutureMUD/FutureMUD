@@ -23,7 +23,7 @@ internal class OverrideSDesc : BuiltInFunction
         FutureProg.RegisterBuiltInFunctionCompiler(
             new FunctionCompilerInformation(
                 "OverrideSDesc".ToLowerInvariant(),
-                new[] { FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Text, FutureProgVariableTypes.Text}, // the parameters the function takes
+                new[] { ProgVariableTypes.Perceivable, ProgVariableTypes.Text, ProgVariableTypes.Text}, // the parameters the function takes
                 (pars, gameworld) => new OverrideSDesc(pars, gameworld),
                 new List<string> {
                     "Perceivable",
@@ -37,14 +37,14 @@ internal class OverrideSDesc : BuiltInFunction
                 }, // parameter help text
                 "This function adds an override to the target's short description, which applies to all perceivers. Lasts until the ClearSDesc function is used on this perceivable.", // help text for the function,
                 "Perception", // the category to which this function belongs,
-                FutureProgVariableTypes.Boolean // the return type of the function
+                ProgVariableTypes.Boolean // the return type of the function
             )
         );
 
         FutureProg.RegisterBuiltInFunctionCompiler(
             new FunctionCompilerInformation(
                 "OverrideSDesc".ToLowerInvariant(),
-                new[] { FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Text, FutureProgVariableTypes.Text, FutureProgVariableTypes.TimeSpan }, // the parameters the function takes
+                new[] { ProgVariableTypes.Perceivable, ProgVariableTypes.Text, ProgVariableTypes.Text, ProgVariableTypes.TimeSpan }, // the parameters the function takes
                 (pars, gameworld) => new OverrideSDesc(pars, gameworld),
                 new List<string> {
                     "Perceivable",
@@ -60,14 +60,14 @@ internal class OverrideSDesc : BuiltInFunction
                 }, // parameter help text
                 "This function adds an override to the target's short description, which applies to all perceivers. Lasts until the specified duration, or until ClearSDesc called if null.", // help text for the function,
 				"Perception", // the category to which this function belongs,
-                FutureProgVariableTypes.Boolean // the return type of the function
+                ProgVariableTypes.Boolean // the return type of the function
             )
         );
 
         FutureProg.RegisterBuiltInFunctionCompiler(
             new FunctionCompilerInformation(
                 "OverrideSDesc".ToLowerInvariant(),
-                new[] { FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Text, FutureProgVariableTypes.Text, FutureProgVariableTypes.TimeSpan, FutureProgVariableTypes.Perceiver }, // the parameters the function takes
+                new[] { ProgVariableTypes.Perceivable, ProgVariableTypes.Text, ProgVariableTypes.Text, ProgVariableTypes.TimeSpan, ProgVariableTypes.Perceiver }, // the parameters the function takes
                 (pars, gameworld) => new OverrideSDesc(pars, gameworld),
                 new List<string> {
                     "Perceivable",
@@ -85,14 +85,14 @@ internal class OverrideSDesc : BuiltInFunction
                 }, // parameter help text
 				"This function adds an override to the target's short description, which applies to the specified perceiver only (or all perceivers if null). Lasts until the specified duration, or until ClearSDesc called if null.", // help text for the function,
 				"Perception", // the category to which this function belongs,
-                FutureProgVariableTypes.Boolean // the return type of the function
+                ProgVariableTypes.Boolean // the return type of the function
             )
         );
 
 		FutureProg.RegisterBuiltInFunctionCompiler(
 			new FunctionCompilerInformation(
 				"OverrideSDesc".ToLowerInvariant(),
-				new[] { FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Text, FutureProgVariableTypes.Text, FutureProgVariableTypes.TimeSpan, FutureProgVariableTypes.Perceiver, FutureProgVariableTypes.Text }, // the parameters the function takes
+				new[] { ProgVariableTypes.Perceivable, ProgVariableTypes.Text, ProgVariableTypes.Text, ProgVariableTypes.TimeSpan, ProgVariableTypes.Perceiver, ProgVariableTypes.Text }, // the parameters the function takes
 				(pars, gameworld) => new OverrideSDesc(pars, gameworld),
 				new List<string> {
 					"Perceivable",
@@ -112,14 +112,14 @@ internal class OverrideSDesc : BuiltInFunction
 				}, // parameter help text
 				"This function adds an override to the target's short description, which applies to the specified perceiver only (or all perceivers if null) and only when the filter prog applies. Lasts until the specified duration, or until ClearSDesc called if null.", // help text for the function,
 				"Perception", // the category to which this function belongs,
-				FutureProgVariableTypes.Boolean // the return type of the function
+				ProgVariableTypes.Boolean // the return type of the function
 			)
 		);
 
 		FutureProg.RegisterBuiltInFunctionCompiler(
 			new FunctionCompilerInformation(
 				"OverrideSDesc".ToLowerInvariant(),
-				new[] { FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Text, FutureProgVariableTypes.Text, FutureProgVariableTypes.TimeSpan, FutureProgVariableTypes.Perceiver, FutureProgVariableTypes.Number }, // the parameters the function takes
+				new[] { ProgVariableTypes.Perceivable, ProgVariableTypes.Text, ProgVariableTypes.Text, ProgVariableTypes.TimeSpan, ProgVariableTypes.Perceiver, ProgVariableTypes.Number }, // the parameters the function takes
 				(pars, gameworld) => new OverrideSDesc(pars, gameworld),
 				new List<string> {
 					"Perceivable",
@@ -139,7 +139,7 @@ internal class OverrideSDesc : BuiltInFunction
 				}, // parameter help text
 				"This function adds an override to the target's short description, which applies to the specified perceiver only (or all perceivers if null) and only when the filter prog applies. Lasts until the specified duration, or until ClearSDesc called if null.", // help text for the function,
 				"Perception", // the category to which this function belongs,
-				FutureProgVariableTypes.Boolean // the return type of the function
+				ProgVariableTypes.Boolean // the return type of the function
 			)
 		);
 	}
@@ -152,9 +152,9 @@ internal class OverrideSDesc : BuiltInFunction
     }
     #endregion
 
-    public override FutureProgVariableTypes ReturnType
+    public override ProgVariableTypes ReturnType
     {
-        get { return FutureProgVariableTypes.Boolean; }
+        get { return ProgVariableTypes.Boolean; }
         protected set { }
     }
 
@@ -191,7 +191,7 @@ internal class OverrideSDesc : BuiltInFunction
         IFutureProg prog = null;
         if (ParameterFunctions.Count > 5)
         {
-            if (ParameterFunctions[5].ReturnType.CompatibleWith(FutureProgVariableTypes.Text))
+            if (ParameterFunctions[5].ReturnType.CompatibleWith(ProgVariableTypes.Text))
             {
                 prog = Gameworld.FutureProgs.GetByName(ParameterFunctions[5].Result?.GetObject?.ToString() ?? "");
             }
@@ -202,12 +202,12 @@ internal class OverrideSDesc : BuiltInFunction
 
             if (prog is not null)
             {
-                if (!prog.Parameters.CompatibleWith(new[] { FutureProgVariableTypes.Perceivable }) && !prog.Parameters.CompatibleWith(new[] { FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Perceiver }))
+                if (!prog.Parameters.CompatibleWith(new[] { ProgVariableTypes.Perceivable }) && !prog.Parameters.CompatibleWith(new[] { ProgVariableTypes.Perceivable, ProgVariableTypes.Perceiver }))
                 {
                     prog = null;
                 }
 
-                if (!prog.ReturnType.CompatibleWith(FutureProgVariableTypes.Boolean))
+                if (!prog.ReturnType.CompatibleWith(ProgVariableTypes.Boolean))
                 {
                     prog = null;
                 }

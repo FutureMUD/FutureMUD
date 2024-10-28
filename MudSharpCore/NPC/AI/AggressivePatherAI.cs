@@ -451,10 +451,10 @@ public class AggressivePatherAI : PathingAIWithProgTargetsBase
 		}
 
 		var prog = new ProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument,
-			FutureProgVariableTypes.Boolean, new List<FutureProgVariableTypes>
+			ProgVariableTypes.Boolean, new List<ProgVariableTypes>
 			{
-				FutureProgVariableTypes.Character,
-				FutureProgVariableTypes.Character
+				ProgVariableTypes.Character,
+				ProgVariableTypes.Character
 			}).LookupProg();
 		if (prog is null)
 		{

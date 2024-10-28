@@ -27,7 +27,7 @@ namespace MudSharp.Framework
     public delegate void PerceivableResponseEvent(IPerceivable owner, PerceivableRejectionResponse response);
 
     public interface IPerceivable : IKeywordedItem, IDescribable, ILocateable, IHaveEffects, IPositionable,
-        IHandleOutput, IHaveFuturemud, IHandleEvents, ISaveable, IEquatable<IPerceivable>, IFutureProgVariable {
+        IHandleOutput, IHaveFuturemud, IHandleEvents, ISaveable, IEquatable<IPerceivable>, IProgVariable {
         /// <summary>
         /// True if this perceivable is a single entity as opposed to a group of entities
         /// </summary>

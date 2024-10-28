@@ -63,20 +63,20 @@ public class InvasiveProcedureFinalisation : BodypartSpecificSurgicalProcedure
 		AbortProg?.Execute(surgeon, patient, result, bodypart.Name);
 	}
 
-	protected override IEnumerable<IEnumerable<FutureProgVariableTypes>> ParametersForCompletionProg => new[] {
+	protected override IEnumerable<IEnumerable<ProgVariableTypes>> ParametersForCompletionProg => new[] {
 				new[]
 				{
-					FutureProgVariableTypes.Character,
-					FutureProgVariableTypes.Character,
-					FutureProgVariableTypes.Number,
-					FutureProgVariableTypes.Text,
+					ProgVariableTypes.Character,
+					ProgVariableTypes.Character,
+					ProgVariableTypes.Number,
+					ProgVariableTypes.Text,
 				},
 				new[]
 				{
-					FutureProgVariableTypes.Character,
-					FutureProgVariableTypes.Character,
-					FutureProgVariableTypes.Text,
-					FutureProgVariableTypes.Text,
+					ProgVariableTypes.Character,
+					ProgVariableTypes.Character,
+					ProgVariableTypes.Text,
+					ProgVariableTypes.Text,
 				},
 			};
 

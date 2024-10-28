@@ -28,7 +28,7 @@ internal class CloneOutfit : BuiltInFunction
 				"cloneoutfit",
 				new[]
 				{
-					FutureProgVariableTypes.Outfit, FutureProgVariableTypes.Character, FutureProgVariableTypes.Text
+					ProgVariableTypes.Outfit, ProgVariableTypes.Character, ProgVariableTypes.Text
 				},
 				(pars, gameworld) => new CloneOutfit(pars, gameworld)
 			)
@@ -46,9 +46,9 @@ internal class CloneOutfit : BuiltInFunction
 
 	#endregion
 
-	public override FutureProgVariableTypes ReturnType
+	public override ProgVariableTypes ReturnType
 	{
-		get => FutureProgVariableTypes.Outfit;
+		get => ProgVariableTypes.Outfit;
 		protected set { }
 	}
 

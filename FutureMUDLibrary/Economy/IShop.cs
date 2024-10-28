@@ -14,7 +14,7 @@ using MudSharp.Economy.Currency;
 
 namespace MudSharp.Economy;
 
-public interface IShop : IFrameworkItem, ISaveable, IFutureProgVariable
+public interface IShop : IFrameworkItem, ISaveable, IProgVariable
 {
 	decimal CashBalance { get; set; }
 	IEconomicZone EconomicZone { get; set; }

@@ -5,14 +5,14 @@ namespace MudSharp.FutureProg;
 
 internal class VariableSpace : IVariableSpace
 {
-	protected Dictionary<string, IFutureProgVariable> _variables;
+	protected Dictionary<string, IProgVariable> _variables;
 
-	public VariableSpace(Dictionary<string, IFutureProgVariable> variables)
+	public VariableSpace(Dictionary<string, IProgVariable> variables)
 	{
 		_variables = variables;
 	}
 
-	public virtual IFutureProgVariable GetVariable(string variable)
+	public virtual IProgVariable GetVariable(string variable)
 	{
 		if (_variables.ContainsKey(variable))
 		{
@@ -27,7 +27,7 @@ internal class VariableSpace : IVariableSpace
 		return _variables.ContainsKey(variable);
 	}
 
-	public virtual void SetVariable(string variable, IFutureProgVariable value)
+	public virtual void SetVariable(string variable, IProgVariable value)
 	{
 		_variables[variable] = value;
 	}

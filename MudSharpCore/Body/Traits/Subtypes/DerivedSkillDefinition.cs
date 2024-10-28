@@ -232,16 +232,16 @@ Note: Most often you will want to use the #3TRAITEXPRESSION#0 command to edit th
 			return false;
 		}
 
-		if (!prog.ReturnType.CompatibleWith(FutureProgVariableTypes.Boolean))
+		if (!prog.ReturnType.CompatibleWith(ProgVariableTypes.Boolean))
 		{
 			actor.OutputHandler.Send(
 				$"The specified prog must return a boolean value. {prog.MXPClickableFunctionName()} returns {prog.ReturnType.Describe().ColourValue()}.");
 			return false;
 		}
 
-		if (!prog.MatchesParameters(new List<FutureProgVariableTypes> { FutureProgVariableTypes.Character }) &&
-		    !prog.MatchesParameters(new List<FutureProgVariableTypes>
-			    { FutureProgVariableTypes.Character, FutureProgVariableTypes.Trait }))
+		if (!prog.MatchesParameters(new List<ProgVariableTypes> { ProgVariableTypes.Character }) &&
+		    !prog.MatchesParameters(new List<ProgVariableTypes>
+			    { ProgVariableTypes.Character, ProgVariableTypes.Trait }))
 		{
 			actor.OutputHandler.Send(
 				$"The specified prog must either accept a single character parameter, or a character and trait parameter, whereas {prog.MXPClickableFunctionName()} does not.");
@@ -272,16 +272,16 @@ Note: Most often you will want to use the #3TRAITEXPRESSION#0 command to edit th
 			return false;
 		}
 
-		if (!prog.ReturnType.CompatibleWith(FutureProgVariableTypes.Boolean))
+		if (!prog.ReturnType.CompatibleWith(ProgVariableTypes.Boolean))
 		{
 			actor.OutputHandler.Send(
 				$"The specified prog must return a boolean value. {prog.MXPClickableFunctionName()} returns {prog.ReturnType.Describe().ColourValue()}.");
 			return false;
 		}
 
-		if (!prog.MatchesParameters(new List<FutureProgVariableTypes> { FutureProgVariableTypes.Character }) &&
-		    !prog.MatchesParameters(new List<FutureProgVariableTypes>
-			    { FutureProgVariableTypes.Character, FutureProgVariableTypes.Trait }))
+		if (!prog.MatchesParameters(new List<ProgVariableTypes> { ProgVariableTypes.Character }) &&
+		    !prog.MatchesParameters(new List<ProgVariableTypes>
+			    { ProgVariableTypes.Character, ProgVariableTypes.Trait }))
 		{
 			actor.OutputHandler.Send(
 				$"The specified prog must either accept a single character parameter, or a character and trait parameter, whereas {prog.MXPClickableFunctionName()} does not.");
@@ -313,14 +313,14 @@ Note: Most often you will want to use the #3TRAITEXPRESSION#0 command to edit th
 			return false;
 		}
 
-		if (!prog.ReturnType.CompatibleWith(FutureProgVariableTypes.Boolean))
+		if (!prog.ReturnType.CompatibleWith(ProgVariableTypes.Boolean))
 		{
 			actor.OutputHandler.Send(
 				$"The specified prog must return a boolean value. {prog.MXPClickableFunctionName()} returns {prog.ReturnType.Describe().ColourValue()}.");
 			return false;
 		}
 
-		if (!prog.MatchesParameters(new List<FutureProgVariableTypes> { FutureProgVariableTypes.Toon }))
+		if (!prog.MatchesParameters(new List<ProgVariableTypes> { ProgVariableTypes.Toon }))
 		{
 			actor.OutputHandler.Send(
 				$"The specified prog must accept a single toon parameter, whereas {prog.MXPClickableFunctionName()} does not.");

@@ -376,10 +376,10 @@ public class CombatMessage : SaveableItem, ICombatMessage
 		}
 
 		var prog = new ProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument,
-			FutureProgVariableTypes.Boolean, new[]
+			ProgVariableTypes.Boolean, new[]
 			{
-				FutureProgVariableTypes.Character,
-				FutureProgVariableTypes.Perceivable
+				ProgVariableTypes.Character,
+				ProgVariableTypes.Perceivable
 			}).LookupProg();
 		if (prog is null)
 		{
@@ -934,20 +934,20 @@ public class CombatMessage : SaveableItem, ICombatMessage
 			return false;
 		}
 
-		if (!prog.ReturnType.CompatibleWith(FutureProgVariableTypes.Boolean))
+		if (!prog.ReturnType.CompatibleWith(ProgVariableTypes.Boolean))
 		{
 			actor.OutputHandler.Send("You must specify a prog that returns boolean.");
 			return false;
 		}
 
-		if (!prog.MatchesParameters(new List<FutureProgVariableTypes>
+		if (!prog.MatchesParameters(new List<ProgVariableTypes>
 		    {
-			    FutureProgVariableTypes.Character,
-			    FutureProgVariableTypes.Perceiver,
-			    FutureProgVariableTypes.Item,
-			    FutureProgVariableTypes.Number,
-			    FutureProgVariableTypes.Text,
-			    FutureProgVariableTypes.Text
+			    ProgVariableTypes.Character,
+			    ProgVariableTypes.Perceiver,
+			    ProgVariableTypes.Item,
+			    ProgVariableTypes.Number,
+			    ProgVariableTypes.Text,
+			    ProgVariableTypes.Text
 		    }))
 		{
 			actor.OutputHandler.Send(

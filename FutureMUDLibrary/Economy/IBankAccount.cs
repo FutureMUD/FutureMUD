@@ -12,7 +12,7 @@ using MudSharp.TimeAndDate;
 
 namespace MudSharp.Economy;
 
-public interface IBankAccount : IFrameworkItem, ISaveable, IFutureProgVariable
+public interface IBankAccount : IFrameworkItem, ISaveable, IProgVariable
 {
 	IBank Bank { get; }
 	int AccountNumber { get; }

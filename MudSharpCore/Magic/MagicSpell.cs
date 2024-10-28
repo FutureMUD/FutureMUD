@@ -1083,16 +1083,16 @@ public class MagicSpell : SaveableItem, IMagicSpell
 			return false;
 		}
 
-		if (!prog.ReturnType.CompatibleWith(FutureProgVariableTypes.Boolean))
+		if (!prog.ReturnType.CompatibleWith(ProgVariableTypes.Boolean))
 		{
 			actor.OutputHandler.Send(
-				$"The prog that you supply must have a return type of {FutureProgVariableTypes.Boolean.Describe().ColourName()}, whereas {prog.MXPClickableFunctionName()} returns {prog.ReturnType.Describe().ColourName()}.");
+				$"The prog that you supply must have a return type of {ProgVariableTypes.Boolean.Describe().ColourName()}, whereas {prog.MXPClickableFunctionName()} returns {prog.ReturnType.Describe().ColourName()}.");
 			return false;
 		}
 
-		if (!prog.MatchesParameters(new List<FutureProgVariableTypes> { FutureProgVariableTypes.Character }) &&
-			!prog.MatchesParameters(new List<FutureProgVariableTypes>
-				{ FutureProgVariableTypes.Character, FutureProgVariableTypes.MagicSpell }))
+		if (!prog.MatchesParameters(new List<ProgVariableTypes> { ProgVariableTypes.Character }) &&
+			!prog.MatchesParameters(new List<ProgVariableTypes>
+				{ ProgVariableTypes.Character, ProgVariableTypes.MagicSpell }))
 		{
 			actor.OutputHandler.Send(
 				$"The prog that you supply must accept a single character parameter, or a character and a spell, whereas {prog.MXPClickableFunctionName()} does not.");
@@ -1561,10 +1561,10 @@ public class MagicSpell : SaveableItem, IMagicSpell
 
 	#region Implementation of IFutureProgVariable
 
-	public FutureProgVariableTypes Type => FutureProgVariableTypes.MagicSpell;
+	public ProgVariableTypes Type => ProgVariableTypes.MagicSpell;
 	public object GetObject => this;
 
-	public IFutureProgVariable GetProperty(string property)
+	public IProgVariable GetProperty(string property)
 	{
 		switch (property.ToLowerInvariant())
 		{
@@ -1589,18 +1589,18 @@ public class MagicSpell : SaveableItem, IMagicSpell
 		throw new ApplicationException("Invalid property requested in MagicSpell.GetProperty");
 	}
 
-	private static IReadOnlyDictionary<string, FutureProgVariableTypes> DotReferenceHandler()
+	private static IReadOnlyDictionary<string, ProgVariableTypes> DotReferenceHandler()
 	{
-		return new Dictionary<string, FutureProgVariableTypes>(StringComparer.InvariantCultureIgnoreCase)
+		return new Dictionary<string, ProgVariableTypes>(StringComparer.InvariantCultureIgnoreCase)
 		{
-			{ "name", FutureProgVariableTypes.Text },
-			{ "id", FutureProgVariableTypes.Number },
-			{ "description", FutureProgVariableTypes.Text },
-			{ "school", FutureProgVariableTypes.MagicSchool },
-			{ "exclusivedelay", FutureProgVariableTypes.TimeSpan },
-			{ "nonexclusivedelay", FutureProgVariableTypes.TimeSpan },
-			{ "castingtrait", FutureProgVariableTypes.Trait },
-			{ "opposedtrait", FutureProgVariableTypes.Trait }
+			{ "name", ProgVariableTypes.Text },
+			{ "id", ProgVariableTypes.Number },
+			{ "description", ProgVariableTypes.Text },
+			{ "school", ProgVariableTypes.MagicSchool },
+			{ "exclusivedelay", ProgVariableTypes.TimeSpan },
+			{ "nonexclusivedelay", ProgVariableTypes.TimeSpan },
+			{ "castingtrait", ProgVariableTypes.Trait },
+			{ "opposedtrait", ProgVariableTypes.Trait }
 		};
 	}
 
@@ -1621,7 +1621,7 @@ public class MagicSpell : SaveableItem, IMagicSpell
 
 	public static void RegisterFutureProgCompiler()
 	{
-		FutureProgVariable.RegisterDotReferenceCompileInfo(FutureProgVariableTypes.MagicSpell, DotReferenceHandler(),
+		ProgVariable.RegisterDotReferenceCompileInfo(ProgVariableTypes.MagicSpell, DotReferenceHandler(),
 			DotReferenceHelp());
 	}
 

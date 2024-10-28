@@ -24,9 +24,9 @@ internal class TakeCurrencyFunction : BuiltInFunction
 			"takecurrency",
 			new[]
 			{
-				FutureProgVariableTypes.Currency, FutureProgVariableTypes.Number | FutureProgVariableTypes.Text,
-				FutureProgVariableTypes.Location | FutureProgVariableTypes.Character | FutureProgVariableTypes.Item,
-				FutureProgVariableTypes.Boolean, FutureProgVariableTypes.Boolean
+				ProgVariableTypes.Currency, ProgVariableTypes.Number | ProgVariableTypes.Text,
+				ProgVariableTypes.Location | ProgVariableTypes.Character | ProgVariableTypes.Item,
+				ProgVariableTypes.Boolean, ProgVariableTypes.Boolean
 			},
 			(pars, gameworld) => new TakeCurrencyFunction(pars)
 		));
@@ -34,9 +34,9 @@ internal class TakeCurrencyFunction : BuiltInFunction
 
 	#region Overrides of Function
 
-	public override FutureProgVariableTypes ReturnType
+	public override ProgVariableTypes ReturnType
 	{
-		get => FutureProgVariableTypes.Boolean;
+		get => ProgVariableTypes.Boolean;
 		protected set { }
 	}
 
@@ -60,7 +60,7 @@ internal class TakeCurrencyFunction : BuiltInFunction
 		var giveChange = (bool?)ParameterFunctions[4].Result.GetObject ?? false;
 
 		var success = true;
-		var amount = ParameterFunctions[1].ReturnType.CompatibleWith(FutureProgVariableTypes.Number)
+		var amount = ParameterFunctions[1].ReturnType.CompatibleWith(ProgVariableTypes.Number)
 			? (decimal)ParameterFunctions[1].Result.GetObject
 			: currency.GetBaseCurrency((string)ParameterFunctions[1].Result.GetObject, out success);
 

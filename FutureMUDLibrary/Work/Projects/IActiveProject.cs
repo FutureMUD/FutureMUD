@@ -5,7 +5,7 @@ using MudSharp.FutureProg;
 
 namespace MudSharp.Work.Projects
 {
-    public interface IActiveProject : IFrameworkItem, IFutureProgVariable
+    public interface IActiveProject : IFrameworkItem, IProgVariable
     {
         ICharacter CharacterOwner { get; }
         IProject ProjectDefinition { get; }

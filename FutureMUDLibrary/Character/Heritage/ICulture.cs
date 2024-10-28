@@ -9,7 +9,7 @@ using MudSharp.FutureProg;
 using MudSharp.TimeAndDate.Date;
 
 namespace MudSharp.Character.Heritage {
-    public interface ICulture : IEditableItem, IFutureProgVariable {
+    public interface ICulture : IEditableItem, IProgVariable {
         string Description { get; }
         IEnumerable<INameCulture> NameCultures { get; }
         INameCulture NameCultureForGender(Gender gender);

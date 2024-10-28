@@ -2,46 +2,46 @@
 using System.Collections.Generic;
 
 namespace MudSharp.FutureProg.Variables {
-    public class DateTimeVariable : FutureProgVariable {
+    public class DateTimeVariable : ProgVariable {
         public DateTimeVariable(DateTime dt) {
             UnderlyingDateTime = dt;
         }
 
         public DateTime UnderlyingDateTime { get; set; }
 
-        public override FutureProgVariableTypes Type => FutureProgVariableTypes.DateTime;
+        public override ProgVariableTypes Type => ProgVariableTypes.DateTime;
 
         public override object GetObject => UnderlyingDateTime;
 
-        private static FutureProgVariableTypes DotReferenceHandler(string property) {
+        private static ProgVariableTypes DotReferenceHandler(string property) {
             switch (property.ToLowerInvariant()) {
                 case "year":
-                    return FutureProgVariableTypes.Number;
+                    return ProgVariableTypes.Number;
                 case "month":
-                    return FutureProgVariableTypes.Number;
+                    return ProgVariableTypes.Number;
                 case "day":
-                    return FutureProgVariableTypes.Number;
+                    return ProgVariableTypes.Number;
                 case "hour":
-                    return FutureProgVariableTypes.Number;
+                    return ProgVariableTypes.Number;
                 case "minute":
-                    return FutureProgVariableTypes.Number;
+                    return ProgVariableTypes.Number;
                 case "second":
-                    return FutureProgVariableTypes.Number;
+                    return ProgVariableTypes.Number;
                 default:
-                    return FutureProgVariableTypes.Error;
+                    return ProgVariableTypes.Error;
             }
         }
 
-        private static IReadOnlyDictionary<string,FutureProgVariableTypes> DotReferenceHandler()
+        private static IReadOnlyDictionary<string,ProgVariableTypes> DotReferenceHandler()
         {
-            return new Dictionary<string, FutureProgVariableTypes>(StringComparer.InvariantCultureIgnoreCase)
+            return new Dictionary<string, ProgVariableTypes>(StringComparer.InvariantCultureIgnoreCase)
             {
-                {"year", FutureProgVariableTypes.Number},
-                {"month", FutureProgVariableTypes.Number},
-                {"day", FutureProgVariableTypes.Number},
-                {"hour", FutureProgVariableTypes.Number},
-                {"minute", FutureProgVariableTypes.Number},
-                {"second", FutureProgVariableTypes.Number},
+                {"year", ProgVariableTypes.Number},
+                {"month", ProgVariableTypes.Number},
+                {"day", ProgVariableTypes.Number},
+                {"hour", ProgVariableTypes.Number},
+                {"minute", ProgVariableTypes.Number},
+                {"second", ProgVariableTypes.Number},
             };
         }
 
@@ -59,10 +59,10 @@ namespace MudSharp.FutureProg.Variables {
         }
 
         public static void RegisterFutureProgCompiler() {
-            FutureProgVariable.RegisterDotReferenceCompileInfo(FutureProgVariableTypes.DateTime, DotReferenceHandler(), DotReferenceHelp());
+            ProgVariable.RegisterDotReferenceCompileInfo(ProgVariableTypes.DateTime, DotReferenceHandler(), DotReferenceHelp());
         }
 
-        public override IFutureProgVariable GetProperty(string property) {
+        public override IProgVariable GetProperty(string property) {
             switch (property.ToLowerInvariant()) {
                 case "year":
                     return new NumberVariable(UnderlyingDateTime.Year);

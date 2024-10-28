@@ -21,9 +21,9 @@ internal class PutFunction : BuiltInFunction
 	public bool Silent { get; set; }
 	public int Quantity { get; set; }
 
-	public override FutureProgVariableTypes ReturnType
+	public override ProgVariableTypes ReturnType
 	{
-		get => FutureProgVariableTypes.Boolean;
+		get => ProgVariableTypes.Boolean;
 		protected set { }
 	}
 
@@ -96,8 +96,8 @@ internal class PutFunction : BuiltInFunction
 			"put",
 			new[]
 			{
-				FutureProgVariableTypes.Character, FutureProgVariableTypes.Item, FutureProgVariableTypes.Item,
-				FutureProgVariableTypes.Text
+				ProgVariableTypes.Character, ProgVariableTypes.Item, ProgVariableTypes.Item,
+				ProgVariableTypes.Text
 			},
 			(pars, gameworld) => new PutFunction(pars, 0, false),
 			[ 
@@ -114,12 +114,12 @@ internal class PutFunction : BuiltInFunction
 			],
 			"This function causes a player to put an item into a container using the ordinary inventory code. It echoes to all, and returns true if successful.",
 			"Manipulation",
-			FutureProgVariableTypes.Boolean
+			ProgVariableTypes.Boolean
 		));
 
 		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
 			"silentput",
-			new[] { FutureProgVariableTypes.Character, FutureProgVariableTypes.Item, FutureProgVariableTypes.Item },
+			new[] { ProgVariableTypes.Character, ProgVariableTypes.Item, ProgVariableTypes.Item },
 			(pars, gameworld) => new PutFunction(pars, 0, true),
 			[
 				"who",
@@ -133,7 +133,7 @@ internal class PutFunction : BuiltInFunction
 			],
 			"This function causes a player to put an item into a container using the ordinary inventory code. It does not echo to anyone, and returns true if successful.",
 			"Manipulation",
-			FutureProgVariableTypes.Boolean
+			ProgVariableTypes.Boolean
 		));
 	}
 }
@@ -151,9 +151,9 @@ internal class PutContainerFunction : BuiltInFunction
 	/// </summary>
 	public bool ForcePut { get; set; }
 
-	public override FutureProgVariableTypes ReturnType
+	public override ProgVariableTypes ReturnType
 	{
-		get => FutureProgVariableTypes.Boolean;
+		get => ProgVariableTypes.Boolean;
 		protected set { }
 	}
 
@@ -212,7 +212,7 @@ internal class PutContainerFunction : BuiltInFunction
 	{
 		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
 			"put",
-			new[] { FutureProgVariableTypes.Item, FutureProgVariableTypes.Item },
+			new[] { ProgVariableTypes.Item, ProgVariableTypes.Item },
 			(pars, gameworld) => new PutContainerFunction(pars, false),
 			[
 				"thing",
@@ -224,12 +224,12 @@ internal class PutContainerFunction : BuiltInFunction
 			],
 			"This function puts an item into a container (respecting normal inventory rules), does not echo anything, and returns true if successful.",
 			"Manipulation",
-			FutureProgVariableTypes.Boolean
+			ProgVariableTypes.Boolean
 		));
 
 		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
 			"forceput",
-			new[] { FutureProgVariableTypes.Item, FutureProgVariableTypes.Item },
+			new[] { ProgVariableTypes.Item, ProgVariableTypes.Item },
 			(pars, gameworld) => new PutContainerFunction(pars, true),
 			[
 				"thing",
@@ -241,7 +241,7 @@ internal class PutContainerFunction : BuiltInFunction
 			],
 			"This function puts an item into a container (ignoring normal inventory rules), does not echo anything, and returns true if successful.",
 			"Manipulation",
-			FutureProgVariableTypes.Boolean
+			ProgVariableTypes.Boolean
 		));
 	}
 }
@@ -253,9 +253,9 @@ internal class PutLocationFunction : BuiltInFunction
 	{
 	}
 
-	public override FutureProgVariableTypes ReturnType
+	public override ProgVariableTypes ReturnType
 	{
-		get => FutureProgVariableTypes.Boolean;
+		get => ProgVariableTypes.Boolean;
 		protected set { }
 	}
 
@@ -312,7 +312,7 @@ internal class PutLocationFunction : BuiltInFunction
 	{
 		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
 			"put",
-			new[] { FutureProgVariableTypes.Item, FutureProgVariableTypes.Location },
+			new[] { ProgVariableTypes.Item, ProgVariableTypes.Location },
 			(pars, gameworld) => new PutLocationFunction(pars),
 			new List<string> { "Item", "Location" },
 			new List<string>
@@ -322,12 +322,12 @@ internal class PutLocationFunction : BuiltInFunction
 			},
 			"This function puts an item in a room, using the GroundLevel (or closest layer to).",
 			"Manipulation",
-			FutureProgVariableTypes.Boolean
+			ProgVariableTypes.Boolean
 		));
 
 		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
 			"put",
-			new[] { FutureProgVariableTypes.Item, FutureProgVariableTypes.Location, FutureProgVariableTypes.Text },
+			new[] { ProgVariableTypes.Item, ProgVariableTypes.Location, ProgVariableTypes.Text },
 			(pars, gameworld) => new PutLocationFunction(pars),
 			new List<string> { "Item", "Location", "Layer" },
 			new List<string>
@@ -338,7 +338,7 @@ internal class PutLocationFunction : BuiltInFunction
 			},
 			"This function puts an item in a room in the specified layer. Possible values for layers are VeryDeepUnderwater, DeepUnderwater, Underwater, GroundLevel, OnRooftops, InTrees, HighInTrees, InAir, HighInAir. See function ROOMLAYERS for how to obtain the list of room layers for a location.",
 			"Manipulation",
-			FutureProgVariableTypes.Boolean
+			ProgVariableTypes.Boolean
 		));
 	}
 }

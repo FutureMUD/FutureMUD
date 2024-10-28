@@ -259,11 +259,11 @@ internal class MarketPopulation : SaveableItem, IMarketPopulation
 			return true;
 		}
 
-		var prog = new ProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument, FutureProgVariableTypes.Void, 
+		var prog = new ProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument, ProgVariableTypes.Void, 
 			[
-				[FutureProgVariableTypes.Number],
-				[FutureProgVariableTypes.Number, FutureProgVariableTypes.Boolean],
-				[FutureProgVariableTypes.Number, FutureProgVariableTypes.Boolean, FutureProgVariableTypes.Market]
+				[ProgVariableTypes.Number],
+				[ProgVariableTypes.Number, ProgVariableTypes.Boolean],
+				[ProgVariableTypes.Number, ProgVariableTypes.Boolean, ProgVariableTypes.Market]
 			]
 			).LookupProg();
 		if (prog is null)
@@ -295,11 +295,11 @@ internal class MarketPopulation : SaveableItem, IMarketPopulation
 			return true;
 		}
 
-		var prog = new ProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument, FutureProgVariableTypes.Void,
+		var prog = new ProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument, ProgVariableTypes.Void,
 			[
-				[FutureProgVariableTypes.Number],
-				[FutureProgVariableTypes.Number, FutureProgVariableTypes.Boolean],
-				[FutureProgVariableTypes.Number, FutureProgVariableTypes.Boolean, FutureProgVariableTypes.Market]
+				[ProgVariableTypes.Number],
+				[ProgVariableTypes.Number, ProgVariableTypes.Boolean],
+				[ProgVariableTypes.Number, ProgVariableTypes.Boolean, ProgVariableTypes.Market]
 			]
 		).LookupProg();
 		if (prog is null)
@@ -433,11 +433,11 @@ internal class MarketPopulation : SaveableItem, IMarketPopulation
 			var text = command.PopSpeech();
 			if (!text.EqualTo("none"))
 			{
-				var prog = new ProgLookupFromBuilderInput(Gameworld, actor, text, FutureProgVariableTypes.Void,
+				var prog = new ProgLookupFromBuilderInput(Gameworld, actor, text, ProgVariableTypes.Void,
 				[
-					[FutureProgVariableTypes.Number],
-					[FutureProgVariableTypes.Number, FutureProgVariableTypes.Boolean],
-					[FutureProgVariableTypes.Number, FutureProgVariableTypes.Boolean, FutureProgVariableTypes.Market]
+					[ProgVariableTypes.Number],
+					[ProgVariableTypes.Number, ProgVariableTypes.Boolean],
+					[ProgVariableTypes.Number, ProgVariableTypes.Boolean, ProgVariableTypes.Market]
 				]).LookupProg();
 				if (prog is null)
 				{
@@ -452,11 +452,11 @@ internal class MarketPopulation : SaveableItem, IMarketPopulation
 				text = command.SafeRemainingArgument;
 				if (!text.EqualTo("none"))
 				{
-					var prog = new ProgLookupFromBuilderInput(Gameworld, actor, text, FutureProgVariableTypes.Void,
+					var prog = new ProgLookupFromBuilderInput(Gameworld, actor, text, ProgVariableTypes.Void,
 					[
-						[FutureProgVariableTypes.Number],
-						[FutureProgVariableTypes.Number, FutureProgVariableTypes.Boolean],
-						[FutureProgVariableTypes.Number, FutureProgVariableTypes.Boolean, FutureProgVariableTypes.Market]
+						[ProgVariableTypes.Number],
+						[ProgVariableTypes.Number, ProgVariableTypes.Boolean],
+						[ProgVariableTypes.Number, ProgVariableTypes.Boolean, ProgVariableTypes.Market]
 					]).LookupProg();
 					if (prog is null)
 					{

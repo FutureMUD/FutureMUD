@@ -26,13 +26,13 @@ internal class InCustodyOfEnforcerFunction : BuiltInFunction
 		FutureProg.RegisterBuiltInFunctionCompiler(
 			new FunctionCompilerInformation(
 				"InCustodyOfEnforcer".ToLowerInvariant(),
-				new[] { FutureProgVariableTypes.Character }, // the parameters the function takes
+				new[] { ProgVariableTypes.Character }, // the parameters the function takes
 				(pars, gameworld) => new InCustodyOfEnforcerFunction(pars, gameworld),
 				new List<string> { "character" }, // parameter names
 				new List<string> { "The character who you want to check for being in custody" }, // parameter help text
 				"This function checks if the character is currently in the physical custody of any enforcers", // help text for the function,
 				"Crime", // the category to which this function belongs,
-				FutureProgVariableTypes.Boolean // the return type of the function
+				ProgVariableTypes.Boolean // the return type of the function
 			)
 		);
 	}
@@ -49,9 +49,9 @@ internal class InCustodyOfEnforcerFunction : BuiltInFunction
 
 	#endregion
 
-	public override FutureProgVariableTypes ReturnType
+	public override ProgVariableTypes ReturnType
 	{
-		get => FutureProgVariableTypes.Boolean;
+		get => ProgVariableTypes.Boolean;
 		protected set { }
 	}
 

@@ -246,9 +246,9 @@ public class AgePickerScreenStoryboard : ChargenScreenStoryboard
 		}
 
 		var prog = new ProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument,
-			FutureProgVariableTypes.Number, new List<FutureProgVariableTypes>
+			ProgVariableTypes.Number, new List<ProgVariableTypes>
 			{
-				FutureProgVariableTypes.Chargen
+				ProgVariableTypes.Chargen
 			}).LookupProg();
 		if (prog is null)
 		{
@@ -271,9 +271,9 @@ public class AgePickerScreenStoryboard : ChargenScreenStoryboard
 		}
 
 		var prog = new ProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument,
-			FutureProgVariableTypes.Number, new List<FutureProgVariableTypes>
+			ProgVariableTypes.Number, new List<ProgVariableTypes>
 			{
-				FutureProgVariableTypes.Chargen
+				ProgVariableTypes.Chargen
 			}).LookupProg();
 		if (prog is null)
 		{

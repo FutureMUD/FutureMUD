@@ -5,7 +5,7 @@ using MudSharp.TimeAndDate.Date;
 using MudSharp.TimeAndDate.Time;
 
 namespace MudSharp.Construction {
-    public interface IShard : ILocation, IFutureProgVariable {
+    public interface IShard : ILocation, IProgVariable {
         double MinimumTerrestrialLux { get; }
         IEditableShard GetEditableShard { get; }
         double SphericalRadiusMetres { get; }

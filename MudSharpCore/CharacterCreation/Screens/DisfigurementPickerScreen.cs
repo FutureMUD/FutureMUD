@@ -116,13 +116,13 @@ public class DisfigurementPickerScreenStoryboard : ChargenScreenStoryboard
 					$"ChargenStoryboard for ProstheticItem {item.Id}r{item.RevisionNumber} specified an invalid CanSelectProg.");
 			}
 
-			if (!prog.ReturnType.CompatibleWith(FutureProgVariableTypes.Boolean))
+			if (!prog.ReturnType.CompatibleWith(ProgVariableTypes.Boolean))
 			{
 				throw new ApplicationException(
 					$"ChargenStoryboard for ProstheticItem {item.Id}r{item.RevisionNumber} specified a CanSelectProg that did not return boolean.");
 			}
 
-			if (!prog.MatchesParameters(new[] { FutureProgVariableTypes.Chargen }))
+			if (!prog.MatchesParameters(new[] { ProgVariableTypes.Chargen }))
 			{
 				throw new ApplicationException(
 					$"ChargenStoryboard for ProstheticItem {item.Id}r{item.RevisionNumber} specified a CanSelectProg that did not take a single chargen parameter.");
@@ -260,9 +260,9 @@ public class DisfigurementPickerScreenStoryboard : ChargenScreenStoryboard
 		}
 
 		var prog = new ProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument,
-			FutureProgVariableTypes.Boolean, new List<FutureProgVariableTypes>
+			ProgVariableTypes.Boolean, new List<ProgVariableTypes>
 			{
-				FutureProgVariableTypes.Chargen
+				ProgVariableTypes.Chargen
 			}).LookupProg();
 		if (prog is null)
 		{
@@ -443,9 +443,9 @@ public class DisfigurementPickerScreenStoryboard : ChargenScreenStoryboard
 		}
 
 		var prog = new ProgLookupFromBuilderInput(Gameworld, actor, command.PopSpeech(),
-			FutureProgVariableTypes.Boolean, new List<FutureProgVariableTypes>
+			ProgVariableTypes.Boolean, new List<ProgVariableTypes>
 			{
-				FutureProgVariableTypes.Chargen
+				ProgVariableTypes.Chargen
 			}).LookupProg();
 		if (prog is null)
 		{

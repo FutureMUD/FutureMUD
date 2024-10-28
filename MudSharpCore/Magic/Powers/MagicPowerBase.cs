@@ -498,10 +498,10 @@ public abstract class MagicPowerBase : SaveableItem, IMagicPower
 			return false;
 		}
 
-		var prog = new ProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument, FutureProgVariableTypes.Text,
+		var prog = new ProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument, ProgVariableTypes.Text,
 			[
-				[FutureProgVariableTypes.Character],
-				[FutureProgVariableTypes.Character, FutureProgVariableTypes.Character],
+				[ProgVariableTypes.Character],
+				[ProgVariableTypes.Character, ProgVariableTypes.Character],
 			]
 		).LookupProg();
 		if (prog is null)
@@ -523,10 +523,10 @@ public abstract class MagicPowerBase : SaveableItem, IMagicPower
 			return false;
 		}
 
-		var prog = new ProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument, FutureProgVariableTypes.Boolean,
+		var prog = new ProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument, ProgVariableTypes.Boolean,
 			[
-				[FutureProgVariableTypes.Character],
-				[FutureProgVariableTypes.Character, FutureProgVariableTypes.Character],
+				[ProgVariableTypes.Character],
+				[ProgVariableTypes.Character, ProgVariableTypes.Character],
 			]
 		).LookupProg();
 		if (prog is null)

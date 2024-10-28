@@ -28,7 +28,7 @@ namespace MudSharp.Construction.Boundary {
     /// <summary>
     ///     A cell exit is the one-sided implementation of a particular IExit
     /// </summary>
-    public interface ICellExit : IKeyworded, IFutureProgVariable {
+    public interface ICellExit : IKeyworded, IProgVariable {
         IExit Exit { get; }
         ICell Origin { get; }
         ICell Destination { get; }

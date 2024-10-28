@@ -12,9 +12,9 @@ internal class SetLockedFunction : BuiltInFunction
 	{
 	}
 
-	public override FutureProgVariableTypes ReturnType
+	public override ProgVariableTypes ReturnType
 	{
-		get => FutureProgVariableTypes.Boolean;
+		get => ProgVariableTypes.Boolean;
 		protected set { }
 	}
 
@@ -60,7 +60,7 @@ internal class SetLockedFunction : BuiltInFunction
 	{
 		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
 			"setlocked",
-			new[] { FutureProgVariableTypes.Item, FutureProgVariableTypes.Boolean, FutureProgVariableTypes.Boolean },
+			new[] { ProgVariableTypes.Item, ProgVariableTypes.Boolean, ProgVariableTypes.Boolean },
 			(pars, gameworld) => new SetLockedFunction(pars),
 			new List<string>
 			{
@@ -76,7 +76,7 @@ internal class SetLockedFunction : BuiltInFunction
 			},
 			"Changes a lock or lockable item from locked to unlocked if specified. True if the change was successfully applied.",
 			"Items",
-			FutureProgVariableTypes.Boolean
+			ProgVariableTypes.Boolean
 		));
 	}
 }

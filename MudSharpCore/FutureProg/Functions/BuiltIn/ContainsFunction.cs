@@ -15,9 +15,9 @@ internal class ContainsFunction : BuiltInFunction
 	{
 	}
 
-	public override FutureProgVariableTypes ReturnType
+	public override ProgVariableTypes ReturnType
 	{
-		get => FutureProgVariableTypes.Boolean;
+		get => ProgVariableTypes.Boolean;
 		protected set { }
 	}
 
@@ -40,7 +40,7 @@ internal class ContainsFunction : BuiltInFunction
 		}
 
 		if (!itemFunction.ReturnType.CompatibleWith(collectionFunction.ReturnType ^
-		                                            FutureProgVariableTypes.Collection))
+		                                            ProgVariableTypes.Collection))
 		{
 			Result = new BooleanVariable(false);
 			return StatementResult.Normal;
@@ -53,46 +53,46 @@ internal class ContainsFunction : BuiltInFunction
 		}
 
 		var iResult = itemFunction.Result;
-		switch (itemFunction.ReturnType & ~FutureProgVariableTypes.Literal)
+		switch (itemFunction.ReturnType & ~ProgVariableTypes.Literal)
 		{
-			case FutureProgVariableTypes.Boolean:
+			case ProgVariableTypes.Boolean:
 				var targetBool = (bool?)iResult?.GetObject;
-				Result = new BooleanVariable(((IList)collectionFunction.Result.GetObject).OfType<IFutureProgVariable>()
+				Result = new BooleanVariable(((IList)collectionFunction.Result.GetObject).OfType<IProgVariable>()
 					.Any(x => x.GetObject as bool? == targetBool));
 				break;
-			case FutureProgVariableTypes.Number:
+			case ProgVariableTypes.Number:
 				var targetNumber = (decimal?)iResult?.GetObject;
-				Result = new BooleanVariable(((IList)collectionFunction.Result.GetObject).OfType<IFutureProgVariable>()
+				Result = new BooleanVariable(((IList)collectionFunction.Result.GetObject).OfType<IProgVariable>()
 					.Any(x => x.GetObject as decimal? == targetNumber));
 				break;
-			case FutureProgVariableTypes.Text:
+			case ProgVariableTypes.Text:
 				var targetText = (string)iResult?.GetObject;
-				Result = new BooleanVariable(((IList)collectionFunction.Result.GetObject).OfType<IFutureProgVariable>()
+				Result = new BooleanVariable(((IList)collectionFunction.Result.GetObject).OfType<IProgVariable>()
 					.Any(x => string.Equals(x.GetObject as string, targetText,
 						StringComparison.InvariantCultureIgnoreCase)));
 				break;
-			case FutureProgVariableTypes.Gender:
+			case ProgVariableTypes.Gender:
 				var targetGender = (Gender?)iResult?.GetObject;
-				Result = new BooleanVariable(((IList)collectionFunction.Result.GetObject).OfType<IFutureProgVariable>()
+				Result = new BooleanVariable(((IList)collectionFunction.Result.GetObject).OfType<IProgVariable>()
 					.Any(x => x.GetObject as Gender? == targetGender));
 				break;
-			case FutureProgVariableTypes.DateTime:
+			case ProgVariableTypes.DateTime:
 				var targetDateTime = (System.DateTime?)iResult?.GetObject;
-				Result = new BooleanVariable(((IList)collectionFunction.Result.GetObject).OfType<IFutureProgVariable>()
+				Result = new BooleanVariable(((IList)collectionFunction.Result.GetObject).OfType<IProgVariable>()
 					.Any(x => (x.GetObject as System.DateTime?)?.Equals(targetDateTime) ?? false));
 				break;
-			case FutureProgVariableTypes.TimeSpan:
+			case ProgVariableTypes.TimeSpan:
 				var targetTimeSpan = (TimeSpan?)iResult?.GetObject;
-				Result = new BooleanVariable(((IList)collectionFunction.Result.GetObject).OfType<IFutureProgVariable>()
+				Result = new BooleanVariable(((IList)collectionFunction.Result.GetObject).OfType<IProgVariable>()
 					.Any(x => (x.GetObject as TimeSpan?)?.Equals(targetTimeSpan) ?? false));
 				break;
-			case FutureProgVariableTypes.MudDateTime:
+			case ProgVariableTypes.MudDateTime:
 				var targetMudDateTime = (MudDateTime)iResult?.GetObject;
-				Result = new BooleanVariable(((IList)collectionFunction.Result.GetObject).OfType<IFutureProgVariable>()
+				Result = new BooleanVariable(((IList)collectionFunction.Result.GetObject).OfType<IProgVariable>()
 					.Any(x => (x.GetObject as MudDateTime)?.Equals(targetMudDateTime) ?? false));
 				break;
 			default:
-				Result = new BooleanVariable(((IList)collectionFunction.Result.GetObject).OfType<IFutureProgVariable>()
+				Result = new BooleanVariable(((IList)collectionFunction.Result.GetObject).OfType<IProgVariable>()
 					.Any(x => x.GetObject == iResult?.GetObject));
 				break;
 		}
@@ -105,14 +105,14 @@ internal class ContainsFunction : BuiltInFunction
 		FutureProg.RegisterBuiltInFunctionCompiler(
 			new FunctionCompilerInformation(
 				"contains",
-				new[] { FutureProgVariableTypes.Collection, FutureProgVariableTypes.CollectionItem },
+				new[] { ProgVariableTypes.Collection, ProgVariableTypes.CollectionItem },
 				(pars, gameworld) => new ContainsFunction(pars),
 				new List<string> { "collection", "item" },
 				new List<string>
 					{ "The collection you want to check", "The item you are looking for in the collection" },
 				"This function allows you to test whether a given item is in a collection. True if the collection contains the item.",
 				"Collections",
-				FutureProgVariableTypes.Boolean
+				ProgVariableTypes.Boolean
 			)
 		);
 	}

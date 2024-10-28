@@ -7,7 +7,7 @@ using MudSharp.FutureProg;
 using MudSharp.GameItems;
 
 namespace MudSharp.Community {
-    public interface IRank : IFrameworkItem, ISaveable, IFutureProgVariable {
+    public interface IRank : IFrameworkItem, ISaveable, IProgVariable {
         IClan Clan { get; }
 
         IEnumerable<string> Abbreviations { get; }

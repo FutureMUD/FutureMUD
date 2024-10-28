@@ -331,10 +331,10 @@ public abstract class ActiveProject : LateInitialisingItem, IActiveProject, ILaz
 
 	#region Futureprogs
 
-	public FutureProgVariableTypes Type => FutureProgVariableTypes.Project;
+	public ProgVariableTypes Type => ProgVariableTypes.Project;
 	public object GetObject => this;
 
-	public virtual IFutureProgVariable GetProperty(string property)
+	public virtual IProgVariable GetProperty(string property)
 	{
 		switch (property.ToLowerInvariant())
 		{
@@ -348,22 +348,22 @@ public abstract class ActiveProject : LateInitialisingItem, IActiveProject, ILaz
 				return CharacterOwner;
 			case "workers":
 				return new CollectionVariable(ActiveLabour.Select(x => x.Character).ToList(),
-					FutureProgVariableTypes.Character);
+					ProgVariableTypes.Character);
 		}
 
 		throw new ApplicationException("There was an invalid property requested in ActiveProject.GetProperty: " +
 		                               property);
 	}
 
-	private static IReadOnlyDictionary<string, FutureProgVariableTypes> DotReferenceHandler()
+	private static IReadOnlyDictionary<string, ProgVariableTypes> DotReferenceHandler()
 	{
-		return new Dictionary<string, FutureProgVariableTypes>(StringComparer.InvariantCultureIgnoreCase)
+		return new Dictionary<string, ProgVariableTypes>(StringComparer.InvariantCultureIgnoreCase)
 		{
-			{ "id", FutureProgVariableTypes.Number },
-			{ "name", FutureProgVariableTypes.Text },
-			{ "location", FutureProgVariableTypes.Location },
-			{ "owner", FutureProgVariableTypes.Character },
-			{ "workers", FutureProgVariableTypes.Character | FutureProgVariableTypes.Collection }
+			{ "id", ProgVariableTypes.Number },
+			{ "name", ProgVariableTypes.Text },
+			{ "location", ProgVariableTypes.Location },
+			{ "owner", ProgVariableTypes.Character },
+			{ "workers", ProgVariableTypes.Character | ProgVariableTypes.Collection }
 		};
 	}
 
@@ -381,7 +381,7 @@ public abstract class ActiveProject : LateInitialisingItem, IActiveProject, ILaz
 
 	public static void RegisterFutureProgCompiler()
 	{
-		FutureProgVariable.RegisterDotReferenceCompileInfo(FutureProgVariableTypes.Project, DotReferenceHandler(),
+		ProgVariable.RegisterDotReferenceCompileInfo(ProgVariableTypes.Project, DotReferenceHandler(),
 			DotReferenceHelp());
 	}
 

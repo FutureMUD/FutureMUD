@@ -28,8 +28,8 @@ internal class AddTattoo : BuiltInFunction
 				"AddTattoo".ToLowerInvariant(),
 				new[]
 				{
-					FutureProgVariableTypes.Character, FutureProgVariableTypes.Number, FutureProgVariableTypes.Text,
-					FutureProgVariableTypes.Character, FutureProgVariableTypes.Number, FutureProgVariableTypes.Number
+					ProgVariableTypes.Character, ProgVariableTypes.Number, ProgVariableTypes.Text,
+					ProgVariableTypes.Character, ProgVariableTypes.Number, ProgVariableTypes.Number
 				},
 				(pars, gameworld) => new AddTattoo(pars, gameworld),
 				new List<string> { "Character", "TattooID", "Bodypart", "Tattooist", "TattooistSkill", "Completion" },
@@ -44,7 +44,7 @@ internal class AddTattoo : BuiltInFunction
 				},
 				"This command attempts to add the specified tattoo to a character. Returns true if it was successful.",
 				"Disfigurements",
-				FutureProgVariableTypes.Boolean
+				ProgVariableTypes.Boolean
 			)
 		);
 	}
@@ -60,9 +60,9 @@ internal class AddTattoo : BuiltInFunction
 
 	#endregion
 
-	public override FutureProgVariableTypes ReturnType
+	public override ProgVariableTypes ReturnType
 	{
-		get => FutureProgVariableTypes.Boolean;
+		get => ProgVariableTypes.Boolean;
 		protected set { }
 	}
 

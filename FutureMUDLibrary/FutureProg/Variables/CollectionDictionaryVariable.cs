@@ -10,24 +10,24 @@ namespace MudSharp.FutureProg.Variables
 {
     public interface ICollectionDictionaryVariable
     {
-        FutureProgVariableTypes UnderlyingType { get; }
-        bool Add(string key, IFutureProgVariable item);
-        bool Remove(string key, IFutureProgVariable item);
+        ProgVariableTypes UnderlyingType { get; }
+        bool Add(string key, IProgVariable item);
+        bool Remove(string key, IProgVariable item);
     }
 
-    public class CollectionDictionaryVariable : FutureProgVariable, IEnumerable, ICollectionDictionaryVariable
+    public class CollectionDictionaryVariable : ProgVariable, IEnumerable, ICollectionDictionaryVariable
     {
-        private readonly CollectionDictionary<string, IFutureProgVariable> _underlyingDictionary;
+        private readonly CollectionDictionary<string, IProgVariable> _underlyingDictionary;
 
-        public FutureProgVariableTypes UnderlyingType { get; }
+        public ProgVariableTypes UnderlyingType { get; }
 
-        public CollectionDictionaryVariable(CollectionDictionary<string, IFutureProgVariable> underlyingList, FutureProgVariableTypes underlyingType)
+        public CollectionDictionaryVariable(CollectionDictionary<string, IProgVariable> underlyingList, ProgVariableTypes underlyingType)
         {
             _underlyingDictionary = underlyingList;
             UnderlyingType = underlyingType;
         }
 
-        public override FutureProgVariableTypes Type => FutureProgVariableTypes.CollectionDictionary | UnderlyingType;
+        public override ProgVariableTypes Type => ProgVariableTypes.CollectionDictionary | UnderlyingType;
 
         public override object GetObject => _underlyingDictionary;
 
@@ -39,16 +39,16 @@ namespace MudSharp.FutureProg.Variables
         }
         #endregion
 
-        private static IReadOnlyDictionary<string,FutureProgVariableTypes> DotReferenceHandler(FutureProgVariableTypes type)
+        private static IReadOnlyDictionary<string,ProgVariableTypes> DotReferenceHandler(ProgVariableTypes type)
         {
-            return new Dictionary<string, FutureProgVariableTypes>(StringComparer.InvariantCultureIgnoreCase)
+            return new Dictionary<string, ProgVariableTypes>(StringComparer.InvariantCultureIgnoreCase)
             {
-                {"count", FutureProgVariableTypes.Number},
-                {"longcount", FutureProgVariableTypes.Number},
-                {"any", FutureProgVariableTypes.Boolean},
-                {"empty", FutureProgVariableTypes.Boolean},
-                {"values", FutureProgVariableTypes.Collection | type},
-                {"keys", FutureProgVariableTypes.Collection | FutureProgVariableTypes.Text},
+                {"count", ProgVariableTypes.Number},
+                {"longcount", ProgVariableTypes.Number},
+                {"any", ProgVariableTypes.Boolean},
+                {"empty", ProgVariableTypes.Boolean},
+                {"values", ProgVariableTypes.Collection | type},
+                {"keys", ProgVariableTypes.Collection | ProgVariableTypes.Text},
             };
         }
 
@@ -66,18 +66,18 @@ namespace MudSharp.FutureProg.Variables
         }
 
         public static void RegisterFutureProgCompiler() {
-            FutureProgVariable.RegisterDotReferenceCompileInfo(FutureProgVariableTypes.CollectionDictionary, DotReferenceHandler(FutureProgVariableTypes.Void), DotReferenceHelp());
-            foreach (var flag in FutureProgVariableTypes.CollectionItem.GetAllFlags())
+            ProgVariable.RegisterDotReferenceCompileInfo(ProgVariableTypes.CollectionDictionary, DotReferenceHandler(ProgVariableTypes.Void), DotReferenceHelp());
+            foreach (var flag in ProgVariableTypes.CollectionItem.GetAllFlags())
             {
-                if (flag == FutureProgVariableTypes.Void)
+                if (flag == ProgVariableTypes.Void)
                 {
                     continue;
                 }
-                FutureProgVariable.RegisterDotReferenceCompileInfo(FutureProgVariableTypes.CollectionDictionary | flag, DotReferenceHandler(flag), DotReferenceHelp());
+                ProgVariable.RegisterDotReferenceCompileInfo(ProgVariableTypes.CollectionDictionary | flag, DotReferenceHandler(flag), DotReferenceHelp());
             }
         }
 
-        public override IFutureProgVariable GetProperty(string property)
+        public override IProgVariable GetProperty(string property)
         {
             switch (property.ToLowerInvariant())
             {
@@ -90,14 +90,14 @@ namespace MudSharp.FutureProg.Variables
                 case "empty":
                     return new BooleanVariable(!_underlyingDictionary.Any());
                 case "values":
-                    return new CollectionVariable(_underlyingDictionary.SelectMany(x => x.Value).ToList(), FutureProgVariableTypes.CollectionItem);
+                    return new CollectionVariable(_underlyingDictionary.SelectMany(x => x.Value).ToList(), ProgVariableTypes.CollectionItem);
                 case "keys":
-                    return new CollectionVariable(_underlyingDictionary.Keys.ToList(), FutureProgVariableTypes.Text);
+                    return new CollectionVariable(_underlyingDictionary.Keys.ToList(), ProgVariableTypes.Text);
             }
             throw new NotSupportedException("Invalid property requested in DictionaryVariable.GetProperty");
         }
 
-        public bool Add(string key, IFutureProgVariable item)
+        public bool Add(string key, IProgVariable item)
         {
             if (item?.Type.CompatibleWith(UnderlyingType) != true)
             {
@@ -107,7 +107,7 @@ namespace MudSharp.FutureProg.Variables
             return true;
         }
 
-        public bool Remove(string key, IFutureProgVariable item)
+        public bool Remove(string key, IProgVariable item)
         {
             _underlyingDictionary.Remove(key, item);
             return true;

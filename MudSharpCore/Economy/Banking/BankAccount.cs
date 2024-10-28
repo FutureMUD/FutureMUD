@@ -590,10 +590,10 @@ public class BankAccount : SaveableItem, IBankAccount, ILazyLoadDuringIdleTime
 
 	#region FutureProgs
 
-	public FutureProgVariableTypes Type => FutureProgVariableTypes.BankAccount;
+	public ProgVariableTypes Type => ProgVariableTypes.BankAccount;
 	public object GetObject => this;
 
-	public IFutureProgVariable GetProperty(string property)
+	public IProgVariable GetProperty(string property)
 	{
 		switch (property.ToLowerInvariant())
 		{
@@ -616,17 +616,17 @@ public class BankAccount : SaveableItem, IBankAccount, ILazyLoadDuringIdleTime
 		}
 	}
 
-	private static IReadOnlyDictionary<string, FutureProgVariableTypes> DotReferenceHandler()
+	private static IReadOnlyDictionary<string, ProgVariableTypes> DotReferenceHandler()
 	{
-		return new Dictionary<string, FutureProgVariableTypes>(StringComparer.InvariantCultureIgnoreCase)
+		return new Dictionary<string, ProgVariableTypes>(StringComparer.InvariantCultureIgnoreCase)
 		{
-			{ "id", FutureProgVariableTypes.Number },
-			{ "name", FutureProgVariableTypes.Text },
-			{ "status", FutureProgVariableTypes.Text },
-			{ "bank", FutureProgVariableTypes.Bank },
-			{ "balance", FutureProgVariableTypes.Number },
-			{ "accounttype", FutureProgVariableTypes.BankAccountType },
-			{ "accountnumber", FutureProgVariableTypes.Number }
+			{ "id", ProgVariableTypes.Number },
+			{ "name", ProgVariableTypes.Text },
+			{ "status", ProgVariableTypes.Text },
+			{ "bank", ProgVariableTypes.Bank },
+			{ "balance", ProgVariableTypes.Number },
+			{ "accounttype", ProgVariableTypes.BankAccountType },
+			{ "accountnumber", ProgVariableTypes.Number }
 		};
 	}
 
@@ -646,7 +646,7 @@ public class BankAccount : SaveableItem, IBankAccount, ILazyLoadDuringIdleTime
 
 	public new static void RegisterFutureProgCompiler()
 	{
-		FutureProgVariable.RegisterDotReferenceCompileInfo(FutureProgVariableTypes.BankAccount, DotReferenceHandler(),
+		ProgVariable.RegisterDotReferenceCompileInfo(ProgVariableTypes.BankAccount, DotReferenceHandler(),
 			DotReferenceHelp());
 	}
 

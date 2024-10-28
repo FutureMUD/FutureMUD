@@ -224,7 +224,7 @@ public class LawyerAI : PathingAIBase
 			return false;
 		}
 
-		var prog = new ProgLookupFromBuilderInput(actor, command.SafeRemainingArgument, FutureProgVariableTypes.BankAccount, [FutureProgVariableTypes.Character]).LookupProg();
+		var prog = new ProgLookupFromBuilderInput(actor, command.SafeRemainingArgument, ProgVariableTypes.BankAccount, [ProgVariableTypes.Character]).LookupProg();
 		if (prog is null)
 		{
 			return false;
@@ -252,7 +252,7 @@ public class LawyerAI : PathingAIBase
 			return false;
 		}
 
-		var prog = new ProgLookupFromBuilderInput(actor, command.SafeRemainingArgument, FutureProgVariableTypes.Location, [FutureProgVariableTypes.Character]).LookupProg();
+		var prog = new ProgLookupFromBuilderInput(actor, command.SafeRemainingArgument, ProgVariableTypes.Location, [ProgVariableTypes.Character]).LookupProg();
 		if (prog is null)
 		{
 			return false;
@@ -272,10 +272,10 @@ public class LawyerAI : PathingAIBase
 			return false;
 		}
 
-		var prog = new ProgLookupFromBuilderInput(actor, command.SafeRemainingArgument, FutureProgVariableTypes.Boolean, 
+		var prog = new ProgLookupFromBuilderInput(actor, command.SafeRemainingArgument, ProgVariableTypes.Boolean, 
 			[
-				[FutureProgVariableTypes.Character],
-				[FutureProgVariableTypes.Character, FutureProgVariableTypes.Character]
+				[ProgVariableTypes.Character],
+				[ProgVariableTypes.Character, ProgVariableTypes.Character]
 			]
 			).LookupProg();
 		if (prog is null)
@@ -297,10 +297,10 @@ public class LawyerAI : PathingAIBase
 			return false;
 		}
 
-		var prog = new ProgLookupFromBuilderInput(actor, command.SafeRemainingArgument, FutureProgVariableTypes.Number,
+		var prog = new ProgLookupFromBuilderInput(actor, command.SafeRemainingArgument, ProgVariableTypes.Number,
 			[
-				[FutureProgVariableTypes.Character],
-				[FutureProgVariableTypes.Character, FutureProgVariableTypes.Character]
+				[ProgVariableTypes.Character],
+				[ProgVariableTypes.Character, ProgVariableTypes.Character]
 			]
 		).LookupProg();
 		if (prog is null)

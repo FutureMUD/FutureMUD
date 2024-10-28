@@ -29,8 +29,8 @@ internal class SetTerrain : BuiltInFunction
 				"SetTerrain".ToLowerInvariant(),
 				new[]
 				{
-					FutureProgVariableTypes.Location, FutureProgVariableTypes.OverlayPackage,
-					FutureProgVariableTypes.Terrain
+					ProgVariableTypes.Location, ProgVariableTypes.OverlayPackage,
+					ProgVariableTypes.Terrain
 				},
 				(pars, gameworld) => new SetTerrain(pars, gameworld),
 				new List<string>
@@ -47,7 +47,7 @@ internal class SetTerrain : BuiltInFunction
 				},
 				"Sets the terrain type of a room as if you had done CELL SET TERRAIN.",
 				"Rooms",
-				FutureProgVariableTypes.Boolean
+				ProgVariableTypes.Boolean
 			)
 		);
 	}
@@ -63,9 +63,9 @@ internal class SetTerrain : BuiltInFunction
 
 	#endregion
 
-	public override FutureProgVariableTypes ReturnType
+	public override ProgVariableTypes ReturnType
 	{
-		get => FutureProgVariableTypes.Boolean;
+		get => ProgVariableTypes.Boolean;
 		protected set { }
 	}
 

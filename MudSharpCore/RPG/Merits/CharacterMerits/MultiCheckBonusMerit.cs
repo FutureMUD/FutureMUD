@@ -47,7 +47,7 @@ public class MultiCheckBonusMerit : CharacterMeritBase, ICheckBonusMerit
 	public double SpecificBonus { get; set; }
 
 	#region Implementation of ICheckBonusMerit
-	protected override IEnumerable<IEnumerable<FutureProgVariableTypes>> AppliesProgValidTypes => [[FutureProgVariableTypes.Character], [FutureProgVariableTypes.Character, FutureProgVariableTypes.Perceivable], [FutureProgVariableTypes.Character, FutureProgVariableTypes.Character]];
+	protected override IEnumerable<IEnumerable<ProgVariableTypes>> AppliesProgValidTypes => [[ProgVariableTypes.Character], [ProgVariableTypes.Character, ProgVariableTypes.Perceivable], [ProgVariableTypes.Character, ProgVariableTypes.Character]];
 	public double CheckBonus(ICharacter ch, IPerceivable target, CheckType type)
 	{
 		return CheckTypes.Contains(type) ? SpecificBonus : 0.0;

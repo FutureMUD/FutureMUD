@@ -382,10 +382,10 @@ public class GameItemSkin : EditableItem, IGameItemSkin
 	private bool BuildingCommandProg(ICharacter actor, StringStack command)
 	{
 		var prog = new ProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument,
-			FutureProgVariableTypes.Boolean, new[]
+			ProgVariableTypes.Boolean, new[]
 			{
-				new List<FutureProgVariableTypes> { FutureProgVariableTypes.Character },
-				new List<FutureProgVariableTypes> { FutureProgVariableTypes.Character, FutureProgVariableTypes.Text }
+				new List<ProgVariableTypes> { ProgVariableTypes.Character },
+				new List<ProgVariableTypes> { ProgVariableTypes.Character, ProgVariableTypes.Text }
 			}).LookupProg();
 		if (prog is null)
 		{

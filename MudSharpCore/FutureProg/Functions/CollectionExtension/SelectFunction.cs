@@ -11,9 +11,9 @@ internal class SelectFunction : CollectionExtensionFunction
 	{
 	}
 
-	public override FutureProgVariableTypes ReturnType
+	public override ProgVariableTypes ReturnType
 	{
-		get => CollectionItemFunction.ReturnType | FutureProgVariableTypes.Collection;
+		get => CollectionItemFunction.ReturnType | ProgVariableTypes.Collection;
 		protected set { }
 	}
 
@@ -26,9 +26,9 @@ internal class SelectFunction : CollectionExtensionFunction
 			return StatementResult.Error;
 		}
 
-		var resultCollection = new List<IFutureProgVariable>();
+		var resultCollection = new List<IProgVariable>();
 		var localVariables = new LocalVariableSpace(variables);
-		foreach (IFutureProgVariable item in (IList)CollectionFunction.Result.GetObject)
+		foreach (IProgVariable item in (IList)CollectionFunction.Result.GetObject)
 		{
 			localVariables.SetVariable(VariableName, item);
 			if (CollectionItemFunction.Execute(localVariables) == StatementResult.Error)
@@ -42,7 +42,7 @@ internal class SelectFunction : CollectionExtensionFunction
 		}
 
 		Result = new CollectionVariable(resultCollection,
-			CollectionFunction.ReturnType ^ FutureProgVariableTypes.Collection);
+			CollectionFunction.ReturnType ^ ProgVariableTypes.Collection);
 		return StatementResult.Normal;
 	}
 
@@ -51,7 +51,7 @@ internal class SelectFunction : CollectionExtensionFunction
 		RegisterCollectionExtensionFunctionCompiler(
 			new CollectionExtensionFunctionCompilerInformation(
 				"select",
-				FutureProgVariableTypes.CollectionItem,
+				ProgVariableTypes.CollectionItem,
 				(varName, collectionFunction, innerFunction) =>
 					new SelectFunction(varName, innerFunction, collectionFunction),
 				@"The SELECT function is used to transform a collection of one type of thing into a collection of something else. It will run the inner function over each item in the collection and return a collection of those items.

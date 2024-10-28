@@ -21,9 +21,9 @@ internal class SendLocationFunction : BuiltInFunction
 		UseLayerArgument = useLayerArgument;
 	}
 
-	public override FutureProgVariableTypes ReturnType
+	public override ProgVariableTypes ReturnType
 	{
-		get => FutureProgVariableTypes.Boolean;
+		get => ProgVariableTypes.Boolean;
 		protected set { }
 	}
 
@@ -106,7 +106,7 @@ internal class SendLocationFunction : BuiltInFunction
 		FutureProg.RegisterBuiltInFunctionCompiler(
 			new FunctionCompilerInformation(
 				"sendloc",
-				new[] { FutureProgVariableTypes.Location, FutureProgVariableTypes.Text },
+				new[] { ProgVariableTypes.Location, ProgVariableTypes.Text },
 				(pars, gameworld) => new SendLocationFunction(pars, false, gameworld),
 				new List<string> { "Location", "Text" },
 				new List<string>
@@ -116,7 +116,7 @@ internal class SendLocationFunction : BuiltInFunction
 				},
 				"This function sends a specified message to every perceiver in the location. You can use the colour tags (#0, #1 etc) in this echo.",
 				"Echoes",
-				FutureProgVariableTypes.Boolean
+				ProgVariableTypes.Boolean
 			)
 		);
 
@@ -125,7 +125,7 @@ internal class SendLocationFunction : BuiltInFunction
 				"sendloc",
 				new[]
 				{
-					FutureProgVariableTypes.Location, FutureProgVariableTypes.Text, FutureProgVariableTypes.Perceivable
+					ProgVariableTypes.Location, ProgVariableTypes.Text, ProgVariableTypes.Perceivable
 				},
 				(pars, gameworld) => new SendLocationFunction(pars, false, gameworld),
 				new List<string> { "Location", "Text", "Perceivable1" },
@@ -137,7 +137,7 @@ internal class SendLocationFunction : BuiltInFunction
 				},
 				"This function sends a specified message to every perceiver in the location. You can use the colour tags (#0, #1 etc) in this echo.",
 				"Echoes",
-				FutureProgVariableTypes.Boolean
+				ProgVariableTypes.Boolean
 			)
 		);
 
@@ -146,8 +146,8 @@ internal class SendLocationFunction : BuiltInFunction
 				"sendloc",
 				new[]
 				{
-					FutureProgVariableTypes.Location, FutureProgVariableTypes.Text, FutureProgVariableTypes.Perceivable,
-					FutureProgVariableTypes.Perceivable
+					ProgVariableTypes.Location, ProgVariableTypes.Text, ProgVariableTypes.Perceivable,
+					ProgVariableTypes.Perceivable
 				},
 				(pars, gameworld) => new SendLocationFunction(pars, false, gameworld),
 				new List<string> { "Location", "Text", "Perceivable1", "Perceivable2" },
@@ -160,7 +160,7 @@ internal class SendLocationFunction : BuiltInFunction
 				},
 				"This function sends a specified message to every perceiver in the location. You can use the colour tags (#0, #1 etc) in this echo.",
 				"Echoes",
-				FutureProgVariableTypes.Boolean
+				ProgVariableTypes.Boolean
 			)
 		);
 
@@ -169,8 +169,8 @@ internal class SendLocationFunction : BuiltInFunction
 				"sendloc",
 				new[]
 				{
-					FutureProgVariableTypes.Location, FutureProgVariableTypes.Text, FutureProgVariableTypes.Perceivable,
-					FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Perceivable
+					ProgVariableTypes.Location, ProgVariableTypes.Text, ProgVariableTypes.Perceivable,
+					ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable
 				},
 				(pars, gameworld) => new SendLocationFunction(pars, false, gameworld),
 				new List<string> { "Location", "Text", "Perceivable1", "Perceivable2", "Perceivable3" },
@@ -184,7 +184,7 @@ internal class SendLocationFunction : BuiltInFunction
 				},
 				"This function sends a specified message to every perceiver in the location. You can use the colour tags (#0, #1 etc) in this echo.",
 				"Echoes",
-				FutureProgVariableTypes.Boolean
+				ProgVariableTypes.Boolean
 			)
 		);
 
@@ -193,9 +193,9 @@ internal class SendLocationFunction : BuiltInFunction
 				"sendloc",
 				new[]
 				{
-					FutureProgVariableTypes.Location, FutureProgVariableTypes.Text, FutureProgVariableTypes.Perceivable,
-					FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Perceivable,
-					FutureProgVariableTypes.Perceivable
+					ProgVariableTypes.Location, ProgVariableTypes.Text, ProgVariableTypes.Perceivable,
+					ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable,
+					ProgVariableTypes.Perceivable
 				},
 				(pars, gameworld) => new SendLocationFunction(pars, false, gameworld),
 				new List<string> { "Location", "Text", "Perceivable1", "Perceivable2", "Perceivable3", "Perceivable4" },
@@ -210,7 +210,7 @@ internal class SendLocationFunction : BuiltInFunction
 				},
 				"This function sends a specified message to every perceiver in the location. You can use the colour tags (#0, #1 etc) in this echo.",
 				"Echoes",
-				FutureProgVariableTypes.Boolean
+				ProgVariableTypes.Boolean
 			)
 		);
 
@@ -219,9 +219,9 @@ internal class SendLocationFunction : BuiltInFunction
 				"sendloc",
 				new[]
 				{
-					FutureProgVariableTypes.Location, FutureProgVariableTypes.Text, FutureProgVariableTypes.Perceivable,
-					FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Perceivable,
-					FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Perceivable
+					ProgVariableTypes.Location, ProgVariableTypes.Text, ProgVariableTypes.Perceivable,
+					ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable,
+					ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable
 				},
 				(pars, gameworld) => new SendLocationFunction(pars, false, gameworld),
 				new List<string>
@@ -240,7 +240,7 @@ internal class SendLocationFunction : BuiltInFunction
 				},
 				"This function sends a specified message to every perceiver in the location. You can use the colour tags (#0, #1 etc) in this echo.",
 				"Echoes",
-				FutureProgVariableTypes.Boolean
+				ProgVariableTypes.Boolean
 			)
 		);
 
@@ -249,10 +249,10 @@ internal class SendLocationFunction : BuiltInFunction
 				"sendloc",
 				new[]
 				{
-					FutureProgVariableTypes.Location, FutureProgVariableTypes.Text, FutureProgVariableTypes.Perceivable,
-					FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Perceivable,
-					FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Perceivable,
-					FutureProgVariableTypes.Perceivable
+					ProgVariableTypes.Location, ProgVariableTypes.Text, ProgVariableTypes.Perceivable,
+					ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable,
+					ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable,
+					ProgVariableTypes.Perceivable
 				},
 				(pars, gameworld) => new SendLocationFunction(pars, false, gameworld),
 				new List<string>
@@ -273,7 +273,7 @@ internal class SendLocationFunction : BuiltInFunction
 				},
 				"This function sends a specified message to every perceiver in the location. You can use the colour tags (#0, #1 etc) in this echo.",
 				"Echoes",
-				FutureProgVariableTypes.Boolean
+				ProgVariableTypes.Boolean
 			)
 		);
 
@@ -282,10 +282,10 @@ internal class SendLocationFunction : BuiltInFunction
 				"sendloc",
 				new[]
 				{
-					FutureProgVariableTypes.Location, FutureProgVariableTypes.Text, FutureProgVariableTypes.Perceivable,
-					FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Perceivable,
-					FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Perceivable,
-					FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Perceivable
+					ProgVariableTypes.Location, ProgVariableTypes.Text, ProgVariableTypes.Perceivable,
+					ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable,
+					ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable,
+					ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable
 				},
 				(pars, gameworld) => new SendLocationFunction(pars, false, gameworld),
 				new List<string>
@@ -307,7 +307,7 @@ internal class SendLocationFunction : BuiltInFunction
 				},
 				"This function sends a specified message to every perceiver in the location. You can use the colour tags (#0, #1 etc) in this echo.",
 				"Echoes",
-				FutureProgVariableTypes.Boolean
+				ProgVariableTypes.Boolean
 			)
 		);
 
@@ -316,11 +316,11 @@ internal class SendLocationFunction : BuiltInFunction
 				"sendloc",
 				new[]
 				{
-					FutureProgVariableTypes.Location, FutureProgVariableTypes.Text, FutureProgVariableTypes.Perceivable,
-					FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Perceivable,
-					FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Perceivable,
-					FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Perceivable,
-					FutureProgVariableTypes.Perceivable
+					ProgVariableTypes.Location, ProgVariableTypes.Text, ProgVariableTypes.Perceivable,
+					ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable,
+					ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable,
+					ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable,
+					ProgVariableTypes.Perceivable
 				},
 				(pars, gameworld) => new SendLocationFunction(pars, false, gameworld),
 				new List<string>
@@ -343,7 +343,7 @@ internal class SendLocationFunction : BuiltInFunction
 				},
 				"This function sends a specified message to every perceiver in the location. You can use the colour tags (#0, #1 etc) in this echo.",
 				"Echoes",
-				FutureProgVariableTypes.Boolean
+				ProgVariableTypes.Boolean
 			)
 		);
 
@@ -351,7 +351,7 @@ internal class SendLocationFunction : BuiltInFunction
 		FutureProg.RegisterBuiltInFunctionCompiler(
 			new FunctionCompilerInformation(
 				"sendloc",
-				new[] { FutureProgVariableTypes.Location, FutureProgVariableTypes.Text, FutureProgVariableTypes.Text },
+				new[] { ProgVariableTypes.Location, ProgVariableTypes.Text, ProgVariableTypes.Text },
 				(pars, gameworld) => new SendLocationFunction(pars, true, gameworld),
 				new List<string> { "Location", "Layer", "Text" },
 				new List<string>
@@ -361,7 +361,7 @@ internal class SendLocationFunction : BuiltInFunction
 				},
 				"This function sends a specified message to every perceiver in the location. You can use the colour tags (#0, #1 etc) in this echo.",
 				"Echoes",
-				FutureProgVariableTypes.Boolean
+				ProgVariableTypes.Boolean
 			)
 		);
 
@@ -370,8 +370,8 @@ internal class SendLocationFunction : BuiltInFunction
 				"sendloc",
 				new[]
 				{
-					FutureProgVariableTypes.Location, FutureProgVariableTypes.Text, FutureProgVariableTypes.Text,
-					FutureProgVariableTypes.Perceivable
+					ProgVariableTypes.Location, ProgVariableTypes.Text, ProgVariableTypes.Text,
+					ProgVariableTypes.Perceivable
 				},
 				(pars, gameworld) => new SendLocationFunction(pars, true, gameworld),
 				new List<string> { "Location", "Layer", "Text", "Perceivable1" },
@@ -383,7 +383,7 @@ internal class SendLocationFunction : BuiltInFunction
 				},
 				"This function sends a specified message to every perceiver in the location. You can use the colour tags (#0, #1 etc) in this echo.",
 				"Echoes",
-				FutureProgVariableTypes.Boolean
+				ProgVariableTypes.Boolean
 			)
 		);
 
@@ -392,8 +392,8 @@ internal class SendLocationFunction : BuiltInFunction
 				"sendloc",
 				new[]
 				{
-					FutureProgVariableTypes.Location, FutureProgVariableTypes.Text, FutureProgVariableTypes.Text,
-					FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Perceivable
+					ProgVariableTypes.Location, ProgVariableTypes.Text, ProgVariableTypes.Text,
+					ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable
 				},
 				(pars, gameworld) => new SendLocationFunction(pars, true, gameworld),
 				new List<string> { "Location", "Layer", "Text", "Perceivable1", "Perceivable2" },
@@ -406,7 +406,7 @@ internal class SendLocationFunction : BuiltInFunction
 				},
 				"This function sends a specified message to every perceiver in the location. You can use the colour tags (#0, #1 etc) in this echo.",
 				"Echoes",
-				FutureProgVariableTypes.Boolean
+				ProgVariableTypes.Boolean
 			)
 		);
 
@@ -415,9 +415,9 @@ internal class SendLocationFunction : BuiltInFunction
 				"sendloc",
 				new[]
 				{
-					FutureProgVariableTypes.Location, FutureProgVariableTypes.Text, FutureProgVariableTypes.Text,
-					FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Perceivable,
-					FutureProgVariableTypes.Perceivable
+					ProgVariableTypes.Location, ProgVariableTypes.Text, ProgVariableTypes.Text,
+					ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable,
+					ProgVariableTypes.Perceivable
 				},
 				(pars, gameworld) => new SendLocationFunction(pars, true, gameworld),
 				new List<string> { "Location", "Layer", "Text", "Perceivable1", "Perceivable2", "Perceivable3" },
@@ -431,7 +431,7 @@ internal class SendLocationFunction : BuiltInFunction
 				},
 				"This function sends a specified message to every perceiver in the location. You can use the colour tags (#0, #1 etc) in this echo.",
 				"Echoes",
-				FutureProgVariableTypes.Boolean
+				ProgVariableTypes.Boolean
 			)
 		);
 
@@ -440,9 +440,9 @@ internal class SendLocationFunction : BuiltInFunction
 				"sendloc",
 				new[]
 				{
-					FutureProgVariableTypes.Location, FutureProgVariableTypes.Text, FutureProgVariableTypes.Text,
-					FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Perceivable,
-					FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Perceivable
+					ProgVariableTypes.Location, ProgVariableTypes.Text, ProgVariableTypes.Text,
+					ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable,
+					ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable
 				},
 				(pars, gameworld) => new SendLocationFunction(pars, true, gameworld),
 				new List<string>
@@ -458,7 +458,7 @@ internal class SendLocationFunction : BuiltInFunction
 				},
 				"This function sends a specified message to every perceiver in the location. You can use the colour tags (#0, #1 etc) in this echo.",
 				"Echoes",
-				FutureProgVariableTypes.Boolean
+				ProgVariableTypes.Boolean
 			)
 		);
 
@@ -467,10 +467,10 @@ internal class SendLocationFunction : BuiltInFunction
 				"sendloc",
 				new[]
 				{
-					FutureProgVariableTypes.Location, FutureProgVariableTypes.Text, FutureProgVariableTypes.Text,
-					FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Perceivable,
-					FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Perceivable,
-					FutureProgVariableTypes.Perceivable
+					ProgVariableTypes.Location, ProgVariableTypes.Text, ProgVariableTypes.Text,
+					ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable,
+					ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable,
+					ProgVariableTypes.Perceivable
 				},
 				(pars, gameworld) => new SendLocationFunction(pars, true, gameworld),
 				new List<string>
@@ -490,7 +490,7 @@ internal class SendLocationFunction : BuiltInFunction
 				},
 				"This function sends a specified message to every perceiver in the location. You can use the colour tags (#0, #1 etc) in this echo.",
 				"Echoes",
-				FutureProgVariableTypes.Boolean
+				ProgVariableTypes.Boolean
 			)
 		);
 
@@ -499,10 +499,10 @@ internal class SendLocationFunction : BuiltInFunction
 				"sendloc",
 				new[]
 				{
-					FutureProgVariableTypes.Location, FutureProgVariableTypes.Text, FutureProgVariableTypes.Text,
-					FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Perceivable,
-					FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Perceivable,
-					FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Perceivable
+					ProgVariableTypes.Location, ProgVariableTypes.Text, ProgVariableTypes.Text,
+					ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable,
+					ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable,
+					ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable
 				},
 				(pars, gameworld) => new SendLocationFunction(pars, true, gameworld),
 				new List<string>
@@ -523,7 +523,7 @@ internal class SendLocationFunction : BuiltInFunction
 				},
 				"This function sends a specified message to every perceiver in the location. You can use the colour tags (#0, #1 etc) in this echo.",
 				"Echoes",
-				FutureProgVariableTypes.Boolean
+				ProgVariableTypes.Boolean
 			)
 		);
 
@@ -532,11 +532,11 @@ internal class SendLocationFunction : BuiltInFunction
 				"sendloc",
 				new[]
 				{
-					FutureProgVariableTypes.Location, FutureProgVariableTypes.Text, FutureProgVariableTypes.Text,
-					FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Perceivable,
-					FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Perceivable,
-					FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Perceivable,
-					FutureProgVariableTypes.Perceivable
+					ProgVariableTypes.Location, ProgVariableTypes.Text, ProgVariableTypes.Text,
+					ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable,
+					ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable,
+					ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable,
+					ProgVariableTypes.Perceivable
 				},
 				(pars, gameworld) => new SendLocationFunction(pars, true, gameworld),
 				new List<string>
@@ -558,7 +558,7 @@ internal class SendLocationFunction : BuiltInFunction
 				},
 				"This function sends a specified message to every perceiver in the location. You can use the colour tags (#0, #1 etc) in this echo.",
 				"Echoes",
-				FutureProgVariableTypes.Boolean
+				ProgVariableTypes.Boolean
 			)
 		);
 
@@ -567,11 +567,11 @@ internal class SendLocationFunction : BuiltInFunction
 				"sendloc",
 				new[]
 				{
-					FutureProgVariableTypes.Location, FutureProgVariableTypes.Text, FutureProgVariableTypes.Text,
-					FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Perceivable,
-					FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Perceivable,
-					FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Perceivable,
-					FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Perceivable
+					ProgVariableTypes.Location, ProgVariableTypes.Text, ProgVariableTypes.Text,
+					ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable,
+					ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable,
+					ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable,
+					ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable
 				},
 				(pars, gameworld) => new SendLocationFunction(pars, true, gameworld),
 				new List<string>
@@ -594,7 +594,7 @@ internal class SendLocationFunction : BuiltInFunction
 				},
 				"This function sends a specified message to every perceiver in the location. You can use the colour tags (#0, #1 etc) in this echo.",
 				"Echoes",
-				FutureProgVariableTypes.Boolean
+				ProgVariableTypes.Boolean
 			)
 		);
 
@@ -602,7 +602,7 @@ internal class SendLocationFunction : BuiltInFunction
 		FutureProg.RegisterBuiltInFunctionCompiler(
 			new FunctionCompilerInformation(
 				"sendlocfixed",
-				new[] { FutureProgVariableTypes.Location, FutureProgVariableTypes.Text },
+				new[] { ProgVariableTypes.Location, ProgVariableTypes.Text },
 				(pars, gameworld) => new SendLocationFunction(pars, false, gameworld) { FixedFormat = true },
 				new List<string> { "Location", "Text" },
 				new List<string>
@@ -612,7 +612,7 @@ internal class SendLocationFunction : BuiltInFunction
 				},
 				"This function sends a specified message to every perceiver in the location - the format is fixed, it does not wrap / process in any way. You can use the colour tags (#0, #1 etc) in this echo.",
 				"Echoes",
-				FutureProgVariableTypes.Boolean
+				ProgVariableTypes.Boolean
 			)
 		);
 
@@ -621,7 +621,7 @@ internal class SendLocationFunction : BuiltInFunction
 				"sendlocfixed",
 				new[]
 				{
-					FutureProgVariableTypes.Location, FutureProgVariableTypes.Text, FutureProgVariableTypes.Perceivable
+					ProgVariableTypes.Location, ProgVariableTypes.Text, ProgVariableTypes.Perceivable
 				},
 				(pars, gameworld) => new SendLocationFunction(pars, false, gameworld) { FixedFormat = true },
 				new List<string> { "Location", "Text", "Perceivable1" },
@@ -633,7 +633,7 @@ internal class SendLocationFunction : BuiltInFunction
 				},
 				"This function sends a specified message to every perceiver in the location - the format is fixed, it does not wrap / process in any way. You can use the colour tags (#0, #1 etc) in this echo.",
 				"Echoes",
-				FutureProgVariableTypes.Boolean
+				ProgVariableTypes.Boolean
 			)
 		);
 
@@ -642,8 +642,8 @@ internal class SendLocationFunction : BuiltInFunction
 				"sendlocfixed",
 				new[]
 				{
-					FutureProgVariableTypes.Location, FutureProgVariableTypes.Text, FutureProgVariableTypes.Perceivable,
-					FutureProgVariableTypes.Perceivable
+					ProgVariableTypes.Location, ProgVariableTypes.Text, ProgVariableTypes.Perceivable,
+					ProgVariableTypes.Perceivable
 				},
 				(pars, gameworld) => new SendLocationFunction(pars, false, gameworld) { FixedFormat = true },
 				new List<string> { "Location", "Text", "Perceivable1", "Perceivable2" },
@@ -656,7 +656,7 @@ internal class SendLocationFunction : BuiltInFunction
 				},
 				"This function sends a specified message to every perceiver in the location - the format is fixed, it does not wrap / process in any way. You can use the colour tags (#0, #1 etc) in this echo.",
 				"Echoes",
-				FutureProgVariableTypes.Boolean
+				ProgVariableTypes.Boolean
 			)
 		);
 
@@ -665,8 +665,8 @@ internal class SendLocationFunction : BuiltInFunction
 				"sendlocfixed",
 				new[]
 				{
-					FutureProgVariableTypes.Location, FutureProgVariableTypes.Text, FutureProgVariableTypes.Perceivable,
-					FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Perceivable
+					ProgVariableTypes.Location, ProgVariableTypes.Text, ProgVariableTypes.Perceivable,
+					ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable
 				},
 				(pars, gameworld) => new SendLocationFunction(pars, false, gameworld) { FixedFormat = true },
 				new List<string> { "Location", "Text", "Perceivable1", "Perceivable2", "Perceivable3" },
@@ -680,7 +680,7 @@ internal class SendLocationFunction : BuiltInFunction
 				},
 				"This function sends a specified message to every perceiver in the location - the format is fixed, it does not wrap / process in any way. You can use the colour tags (#0, #1 etc) in this echo.",
 				"Echoes",
-				FutureProgVariableTypes.Boolean
+				ProgVariableTypes.Boolean
 			)
 		);
 
@@ -689,9 +689,9 @@ internal class SendLocationFunction : BuiltInFunction
 				"sendlocfixed",
 				new[]
 				{
-					FutureProgVariableTypes.Location, FutureProgVariableTypes.Text, FutureProgVariableTypes.Perceivable,
-					FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Perceivable,
-					FutureProgVariableTypes.Perceivable
+					ProgVariableTypes.Location, ProgVariableTypes.Text, ProgVariableTypes.Perceivable,
+					ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable,
+					ProgVariableTypes.Perceivable
 				},
 				(pars, gameworld) => new SendLocationFunction(pars, false, gameworld) { FixedFormat = true },
 				new List<string> { "Location", "Text", "Perceivable1", "Perceivable2", "Perceivable3", "Perceivable4" },
@@ -706,7 +706,7 @@ internal class SendLocationFunction : BuiltInFunction
 				},
 				"This function sends a specified message to every perceiver in the location - the format is fixed, it does not wrap / process in any way. You can use the colour tags (#0, #1 etc) in this echo.",
 				"Echoes",
-				FutureProgVariableTypes.Boolean
+				ProgVariableTypes.Boolean
 			)
 		);
 
@@ -715,9 +715,9 @@ internal class SendLocationFunction : BuiltInFunction
 				"sendlocfixed",
 				new[]
 				{
-					FutureProgVariableTypes.Location, FutureProgVariableTypes.Text, FutureProgVariableTypes.Perceivable,
-					FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Perceivable,
-					FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Perceivable
+					ProgVariableTypes.Location, ProgVariableTypes.Text, ProgVariableTypes.Perceivable,
+					ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable,
+					ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable
 				},
 				(pars, gameworld) => new SendLocationFunction(pars, false, gameworld) { FixedFormat = true },
 				new List<string>
@@ -736,7 +736,7 @@ internal class SendLocationFunction : BuiltInFunction
 				},
 				"This function sends a specified message to every perceiver in the location - the format is fixed, it does not wrap / process in any way. You can use the colour tags (#0, #1 etc) in this echo.",
 				"Echoes",
-				FutureProgVariableTypes.Boolean
+				ProgVariableTypes.Boolean
 			)
 		);
 
@@ -745,10 +745,10 @@ internal class SendLocationFunction : BuiltInFunction
 				"sendlocfixed",
 				new[]
 				{
-					FutureProgVariableTypes.Location, FutureProgVariableTypes.Text, FutureProgVariableTypes.Perceivable,
-					FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Perceivable,
-					FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Perceivable,
-					FutureProgVariableTypes.Perceivable
+					ProgVariableTypes.Location, ProgVariableTypes.Text, ProgVariableTypes.Perceivable,
+					ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable,
+					ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable,
+					ProgVariableTypes.Perceivable
 				},
 				(pars, gameworld) => new SendLocationFunction(pars, false, gameworld) { FixedFormat = true },
 				new List<string>
@@ -769,7 +769,7 @@ internal class SendLocationFunction : BuiltInFunction
 				},
 				"This function sends a specified message to every perceiver in the location - the format is fixed, it does not wrap / process in any way. You can use the colour tags (#0, #1 etc) in this echo.",
 				"Echoes",
-				FutureProgVariableTypes.Boolean
+				ProgVariableTypes.Boolean
 			)
 		);
 
@@ -778,10 +778,10 @@ internal class SendLocationFunction : BuiltInFunction
 				"sendlocfixed",
 				new[]
 				{
-					FutureProgVariableTypes.Location, FutureProgVariableTypes.Text, FutureProgVariableTypes.Perceivable,
-					FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Perceivable,
-					FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Perceivable,
-					FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Perceivable
+					ProgVariableTypes.Location, ProgVariableTypes.Text, ProgVariableTypes.Perceivable,
+					ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable,
+					ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable,
+					ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable
 				},
 				(pars, gameworld) => new SendLocationFunction(pars, false, gameworld) { FixedFormat = true },
 				new List<string>
@@ -803,7 +803,7 @@ internal class SendLocationFunction : BuiltInFunction
 				},
 				"This function sends a specified message to every perceiver in the location - the format is fixed, it does not wrap / process in any way. You can use the colour tags (#0, #1 etc) in this echo.",
 				"Echoes",
-				FutureProgVariableTypes.Boolean
+				ProgVariableTypes.Boolean
 			)
 		);
 
@@ -812,11 +812,11 @@ internal class SendLocationFunction : BuiltInFunction
 				"sendlocfixed",
 				new[]
 				{
-					FutureProgVariableTypes.Location, FutureProgVariableTypes.Text, FutureProgVariableTypes.Perceivable,
-					FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Perceivable,
-					FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Perceivable,
-					FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Perceivable,
-					FutureProgVariableTypes.Perceivable
+					ProgVariableTypes.Location, ProgVariableTypes.Text, ProgVariableTypes.Perceivable,
+					ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable,
+					ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable,
+					ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable,
+					ProgVariableTypes.Perceivable
 				},
 				(pars, gameworld) => new SendLocationFunction(pars, false, gameworld) { FixedFormat = true },
 				new List<string>
@@ -839,7 +839,7 @@ internal class SendLocationFunction : BuiltInFunction
 				},
 				"This function sends a specified message to every perceiver in the location - the format is fixed, it does not wrap / process in any way. You can use the colour tags (#0, #1 etc) in this echo.",
 				"Echoes",
-				FutureProgVariableTypes.Boolean
+				ProgVariableTypes.Boolean
 			)
 		);
 	}

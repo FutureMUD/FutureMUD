@@ -250,7 +250,7 @@ Note: Calories/Water is mostly obsolete and may be removed in future, so don't s
 		}
 
 		if (!prog.MatchesParameters(new[]
-			    { FutureProgVariableTypes.Character, FutureProgVariableTypes.Item, FutureProgVariableTypes.Number }))
+			    { ProgVariableTypes.Character, ProgVariableTypes.Item, ProgVariableTypes.Number }))
 		{
 			actor.Send("The prog should accept a character, item and number.");
 			return false;

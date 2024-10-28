@@ -14,9 +14,9 @@ internal class ClanAppointFunction : BuiltInFunction
 	{
 	}
 
-	public override FutureProgVariableTypes ReturnType
+	public override ProgVariableTypes ReturnType
 	{
-		get => FutureProgVariableTypes.Boolean;
+		get => ProgVariableTypes.Boolean;
 		protected set { }
 	}
 
@@ -73,8 +73,8 @@ internal class ClanAppointFunction : BuiltInFunction
 				"clanappoint",
 				new[]
 				{
-					FutureProgVariableTypes.Character, FutureProgVariableTypes.Clan,
-					FutureProgVariableTypes.ClanAppointment
+					ProgVariableTypes.Character, ProgVariableTypes.Clan,
+					ProgVariableTypes.ClanAppointment
 				},
 				(pars, gameworld) => new ClanAppointFunction(pars),
 				new List<string>
@@ -91,7 +91,7 @@ internal class ClanAppointFunction : BuiltInFunction
 				},
 				"This function appoints a character to a position in a clan they're already in. It returns false if the character was not in the clan.",
 				"Clans",
-				FutureProgVariableTypes.Boolean
+				ProgVariableTypes.Boolean
 			)
 		);
 	}

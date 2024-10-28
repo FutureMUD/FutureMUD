@@ -11,9 +11,9 @@ internal class IndexOfFunction : BuiltInFunction
 	{
 	}
 
-	public override FutureProgVariableTypes ReturnType
+	public override ProgVariableTypes ReturnType
 	{
-		get => FutureProgVariableTypes.Number;
+		get => ProgVariableTypes.Number;
 		protected set { }
 	}
 
@@ -38,8 +38,8 @@ internal class IndexOfFunction : BuiltInFunction
 
 		Result =
 			new NumberVariable(
-				((IList<IFutureProgVariable>)collectionFunction.Result.GetObject).IndexOf(
-					(IFutureProgVariable)itemFunction.Result.GetObject));
+				((IList<IProgVariable>)collectionFunction.Result.GetObject).IndexOf(
+					(IProgVariable)itemFunction.Result.GetObject));
 		return StatementResult.Normal;
 	}
 
@@ -48,13 +48,13 @@ internal class IndexOfFunction : BuiltInFunction
 		FutureProg.RegisterBuiltInFunctionCompiler(
 			new FunctionCompilerInformation(
 				"indexof",
-				new[] { FutureProgVariableTypes.Collection, FutureProgVariableTypes.CollectionItem },
+				new[] { ProgVariableTypes.Collection, ProgVariableTypes.CollectionItem },
 				(pars, gameworld) => new IndexOfFunction(pars),
 				new[] { "collection", "item" },
 				new[] { "A collection of anything", "The item whose position in the collection you want to know" },
 				"This function returns the zero-based index of a specified item in the collection, if present. If not present it returns -1.",
 				"Collections",
-				FutureProgVariableTypes.Number
+				ProgVariableTypes.Number
 			)
 		);
 	}

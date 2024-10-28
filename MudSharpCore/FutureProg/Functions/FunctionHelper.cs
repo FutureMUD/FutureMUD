@@ -202,7 +202,7 @@ public static class FunctionHelper
 	}
 
 	public static ICompileInfo CompileFunction(string line,
-		IDictionary<string, FutureProgVariableTypes> variableSpace, int lineNumber, IFuturemud gameworld)
+		IDictionary<string, ProgVariableTypes> variableSpace, int lineNumber, IFuturemud gameworld)
 	{
 		// Create Factory Class for Return Information
 		var compileInfoFactory = CompileInfo.GetFactory();
@@ -345,25 +345,25 @@ public static class FunctionHelper
 			var lhs = (IFunction)lhsCompileInfo.CompiledStatement;
 			var rhs = (IFunction)rhsCompileInfo.CompiledStatement;
 
-			FutureProgVariableTypes functorType;
+			ProgVariableTypes functorType;
 			switch (binaryLogicComparers.MatchedSplitString)
 			{
 				case "==":
 				case "!=":
 				case "<>":
-					functorType = FutureProgVariableTypes.CollectionItem;
+					functorType = ProgVariableTypes.CollectionItem;
 					break;
 
 				case "~=":
-					functorType = FutureProgVariableTypes.Text;
+					functorType = ProgVariableTypes.Text;
 					break;
 
 				case ">":
 				case ">=":
 				case "<":
 				case "<=":
-					functorType = FutureProgVariableTypes.Number | FutureProgVariableTypes.DateTime |
-					              FutureProgVariableTypes.TimeSpan | FutureProgVariableTypes.MudDateTime;
+					functorType = ProgVariableTypes.Number | ProgVariableTypes.DateTime |
+					              ProgVariableTypes.TimeSpan | ProgVariableTypes.MudDateTime;
 					break;
 
 				default:
@@ -381,8 +381,8 @@ public static class FunctionHelper
 				return compileInfoFactory.CreateError("RHS is not correct return type.", lineNumber);
 			}
 
-			if ((lhs.ReturnType & ~FutureProgVariableTypes.Literal) !=
-			    (rhs.ReturnType & ~FutureProgVariableTypes.Literal))
+			if ((lhs.ReturnType & ~ProgVariableTypes.Literal) !=
+			    (rhs.ReturnType & ~ProgVariableTypes.Literal))
 			{
 				return compileInfoFactory.CreateError("LHS and RHS do not compare the same values.", lineNumber);
 			}
@@ -454,9 +454,9 @@ public static class FunctionHelper
 			}
 
 			var variableType = variableSpace[variable];
-			if (variableType.HasFlag(FutureProgVariableTypes.Collection))
+			if (variableType.HasFlag(ProgVariableTypes.Collection))
 			{
-				if (!((IFunction)indexFunction.CompiledStatement).ReturnType.CompatibleWith(FutureProgVariableTypes
+				if (!((IFunction)indexFunction.CompiledStatement).ReturnType.CompatibleWith(ProgVariableTypes
 					    .Number))
 				{
 					return compileInfoFactory.CreateError($"Index key in indexer was not a number", lineNumber);
@@ -466,7 +466,7 @@ public static class FunctionHelper
 				{
 					return compileInfoFactory.CreateNew(
 						new CollectionIndexFunction(variable, (IFunction)indexFunction.CompiledStatement,
-							variableType & ~FutureProgVariableTypes.Collection), lineNumber);
+							variableType & ~ProgVariableTypes.Collection), lineNumber);
 				}
 
 				return compileInfoFactory.CreateNew(
@@ -474,11 +474,11 @@ public static class FunctionHelper
 						(IFunction)assignmentFunction.CompiledStatement), lineNumber);
 			}
 
-			if (variableType.HasFlag(FutureProgVariableTypes.Dictionary))
+			if (variableType.HasFlag(ProgVariableTypes.Dictionary))
 			{
 				var indexType = ((IFunction)indexFunction.CompiledStatement).ReturnType;
-				if (!indexType.CompatibleWith(FutureProgVariableTypes.Number) &&
-				    !indexType.CompatibleWith(FutureProgVariableTypes.Text))
+				if (!indexType.CompatibleWith(ProgVariableTypes.Number) &&
+				    !indexType.CompatibleWith(ProgVariableTypes.Text))
 				{
 					return compileInfoFactory.CreateError($"Index key in indexer was not a text or number", lineNumber);
 				}
@@ -487,7 +487,7 @@ public static class FunctionHelper
 				{
 					return compileInfoFactory.CreateNew(
 						new DictionaryIndexFunction(variable, (IFunction)indexFunction.CompiledStatement,
-							variableType & ~FutureProgVariableTypes.Dictionary), lineNumber);
+							variableType & ~ProgVariableTypes.Dictionary), lineNumber);
 				}
 
 				return compileInfoFactory.CreateNew(
@@ -495,11 +495,11 @@ public static class FunctionHelper
 						(IFunction)assignmentFunction.CompiledStatement), lineNumber);
 			}
 
-			if (variableType.HasFlag(FutureProgVariableTypes.CollectionDictionary))
+			if (variableType.HasFlag(ProgVariableTypes.CollectionDictionary))
 			{
 				var indexType = ((IFunction)indexFunction.CompiledStatement).ReturnType;
-				if (!indexType.CompatibleWith(FutureProgVariableTypes.Number) &&
-				    !indexType.CompatibleWith(FutureProgVariableTypes.Text))
+				if (!indexType.CompatibleWith(ProgVariableTypes.Number) &&
+				    !indexType.CompatibleWith(ProgVariableTypes.Text))
 				{
 					return compileInfoFactory.CreateError($"Index key in indexer was not a text or number", lineNumber);
 				}
@@ -508,7 +508,7 @@ public static class FunctionHelper
 				{
 					return compileInfoFactory.CreateNew(
 						new CollectionDictionaryIndexFunction(variable, (IFunction)indexFunction.CompiledStatement,
-							variableType & ~FutureProgVariableTypes.CollectionDictionary), lineNumber);
+							variableType & ~ProgVariableTypes.CollectionDictionary), lineNumber);
 				}
 
 				return compileInfoFactory.CreateError(
@@ -552,11 +552,11 @@ public static class FunctionHelper
 			var lhs = (IFunction)lhsCompileInfo.CompiledStatement;
 			var rhs = (IFunction)rhsCompileInfo.CompiledStatement;
 
-			switch (lhs.ReturnType & ~FutureProgVariableTypes.Literal)
+			switch (lhs.ReturnType & ~ProgVariableTypes.Literal)
 			{
-				case FutureProgVariableTypes.Number:
-					if (!rhs.ReturnType.CompatibleWith(FutureProgVariableTypes.Number) &&
-					    !rhs.ReturnType.CompatibleWith(FutureProgVariableTypes.Text))
+				case ProgVariableTypes.Number:
+					if (!rhs.ReturnType.CompatibleWith(ProgVariableTypes.Number) &&
+					    !rhs.ReturnType.CompatibleWith(ProgVariableTypes.Text))
 					{
 						return
 							compileInfoFactory.CreateError(
@@ -568,7 +568,7 @@ public static class FunctionHelper
 					switch (binaryOperators.MatchedSplitString)
 					{
 						case "+":
-							return rhs.ReturnType.CompatibleWith(FutureProgVariableTypes.Text)
+							return rhs.ReturnType.CompatibleWith(ProgVariableTypes.Text)
 								? compileInfoFactory.CreateNew(
 									new StringConcatenationFunction(new ToTextFunction(new List<IFunction> { lhs }),
 										rhs), lineNumber)
@@ -593,19 +593,19 @@ public static class FunctionHelper
 							throw new NotSupportedException();
 					}
 
-				case FutureProgVariableTypes.Text:
+				case ProgVariableTypes.Text:
 					if (binaryOperators.MatchedSplitString != "+")
 					{
 						return compileInfoFactory.CreateError("Text functions can only use the + binary operator.",
 							lineNumber);
 					}
 
-					var rhsCoreType = rhs.ReturnType & ~FutureProgVariableTypes.Literal;
-					if (rhsCoreType != FutureProgVariableTypes.Text &&
-					    rhsCoreType != FutureProgVariableTypes.Number &&
-					    rhsCoreType != FutureProgVariableTypes.Boolean &&
-					    rhsCoreType != FutureProgVariableTypes.DateTime &&
-					    rhsCoreType != FutureProgVariableTypes.TimeSpan)
+					var rhsCoreType = rhs.ReturnType & ~ProgVariableTypes.Literal;
+					if (rhsCoreType != ProgVariableTypes.Text &&
+					    rhsCoreType != ProgVariableTypes.Number &&
+					    rhsCoreType != ProgVariableTypes.Boolean &&
+					    rhsCoreType != ProgVariableTypes.DateTime &&
+					    rhsCoreType != ProgVariableTypes.TimeSpan)
 					{
 						return
 							compileInfoFactory.CreateError(
@@ -616,11 +616,11 @@ public static class FunctionHelper
 					return
 						compileInfoFactory.CreateNew(
 							new StringConcatenationFunction(lhs,
-								rhs.ReturnType.CompatibleWith(FutureProgVariableTypes.Text)
+								rhs.ReturnType.CompatibleWith(ProgVariableTypes.Text)
 									? rhs
 									: new ToTextFunction(new List<IFunction> { rhs })), lineNumber);
 
-				case FutureProgVariableTypes.DateTime:
+				case ProgVariableTypes.DateTime:
 					if (binaryOperators.MatchedSplitString != "+" && binaryOperators.MatchedSplitString != "-")
 					{
 						return
@@ -630,7 +630,7 @@ public static class FunctionHelper
 					}
 
 					if (binaryOperators.MatchedSplitString == "+" &&
-					    !rhs.ReturnType.CompatibleWith(FutureProgVariableTypes.TimeSpan))
+					    !rhs.ReturnType.CompatibleWith(ProgVariableTypes.TimeSpan))
 					{
 						return
 							compileInfoFactory.CreateError(
@@ -638,8 +638,8 @@ public static class FunctionHelper
 					}
 
 					if (binaryOperators.MatchedSplitString == "-" &&
-					    !rhs.ReturnType.CompatibleWith(FutureProgVariableTypes.TimeSpan) &&
-					    !rhs.ReturnType.CompatibleWith(FutureProgVariableTypes.DateTime))
+					    !rhs.ReturnType.CompatibleWith(ProgVariableTypes.TimeSpan) &&
+					    !rhs.ReturnType.CompatibleWith(ProgVariableTypes.DateTime))
 					{
 						return
 							compileInfoFactory.CreateError(
@@ -652,7 +652,7 @@ public static class FunctionHelper
 						case "+":
 							return compileInfoFactory.CreateNew(new DateTimeAdditionFunction(lhs, rhs), lineNumber);
 						case "-":
-							if (rhs.ReturnType.CompatibleWith(FutureProgVariableTypes.DateTime))
+							if (rhs.ReturnType.CompatibleWith(ProgVariableTypes.DateTime))
 							{
 								return compileInfoFactory.CreateNew(new DateTimeDifferenceFunction(lhs, rhs),
 									lineNumber);
@@ -665,7 +665,7 @@ public static class FunctionHelper
 							throw new NotSupportedException();
 					}
 
-				case FutureProgVariableTypes.MudDateTime:
+				case ProgVariableTypes.MudDateTime:
 					if (binaryOperators.MatchedSplitString != "+" && binaryOperators.MatchedSplitString != "-")
 					{
 						return
@@ -675,7 +675,7 @@ public static class FunctionHelper
 					}
 
 					if (binaryOperators.MatchedSplitString == "+" &&
-					    !rhs.ReturnType.CompatibleWith(FutureProgVariableTypes.TimeSpan))
+					    !rhs.ReturnType.CompatibleWith(ProgVariableTypes.TimeSpan))
 					{
 						return
 							compileInfoFactory.CreateError(
@@ -683,8 +683,8 @@ public static class FunctionHelper
 					}
 
 					if (binaryOperators.MatchedSplitString == "-" &&
-					    !rhs.ReturnType.CompatibleWith(FutureProgVariableTypes.TimeSpan) &&
-					    !rhs.ReturnType.CompatibleWith(FutureProgVariableTypes.MudDateTime))
+					    !rhs.ReturnType.CompatibleWith(ProgVariableTypes.TimeSpan) &&
+					    !rhs.ReturnType.CompatibleWith(ProgVariableTypes.MudDateTime))
 					{
 						return
 							compileInfoFactory.CreateError(
@@ -698,7 +698,7 @@ public static class FunctionHelper
 							return compileInfoFactory.CreateNew(new MudDateTimeAdditionFunction(lhs, rhs),
 								lineNumber);
 						case "-":
-							if (rhs.ReturnType.CompatibleWith(FutureProgVariableTypes.MudDateTime))
+							if (rhs.ReturnType.CompatibleWith(ProgVariableTypes.MudDateTime))
 							{
 								return compileInfoFactory.CreateNew(new MudDateTimeDifferenceFunction(lhs, rhs),
 									lineNumber);
@@ -711,12 +711,12 @@ public static class FunctionHelper
 							throw new NotSupportedException();
 					}
 
-				case FutureProgVariableTypes.TimeSpan:
+				case ProgVariableTypes.TimeSpan:
 
 					switch (binaryOperators.MatchedSplitString)
 					{
 						case "+":
-							if (!rhs.ReturnType.CompatibleWith(FutureProgVariableTypes.TimeSpan))
+							if (!rhs.ReturnType.CompatibleWith(ProgVariableTypes.TimeSpan))
 							{
 								return
 									compileInfoFactory.CreateError(
@@ -726,7 +726,7 @@ public static class FunctionHelper
 							return compileInfoFactory.CreateNew(new TimeSpanAdditionFunction(lhs, rhs), lineNumber);
 
 						case "-":
-							if (!rhs.ReturnType.CompatibleWith(FutureProgVariableTypes.TimeSpan))
+							if (!rhs.ReturnType.CompatibleWith(ProgVariableTypes.TimeSpan))
 							{
 								return
 									compileInfoFactory.CreateError(
@@ -738,7 +738,7 @@ public static class FunctionHelper
 								lineNumber);
 
 						case "*":
-							if (!rhs.ReturnType.CompatibleWith(FutureProgVariableTypes.Number))
+							if (!rhs.ReturnType.CompatibleWith(ProgVariableTypes.Number))
 							{
 								return
 									compileInfoFactory.CreateError(
@@ -749,8 +749,8 @@ public static class FunctionHelper
 								new TimeSpanMultiplicationByNumberFunction(lhs, rhs), lineNumber);
 
 						case "/":
-							if (!rhs.ReturnType.CompatibleWith(FutureProgVariableTypes.Number) &&
-							    !rhs.ReturnType.CompatibleWith(FutureProgVariableTypes.TimeSpan))
+							if (!rhs.ReturnType.CompatibleWith(ProgVariableTypes.Number) &&
+							    !rhs.ReturnType.CompatibleWith(ProgVariableTypes.TimeSpan))
 							{
 								return
 									compileInfoFactory.CreateError(
@@ -758,7 +758,7 @@ public static class FunctionHelper
 										lineNumber);
 							}
 
-							if (rhs.ReturnType.CompatibleWith(FutureProgVariableTypes.Number))
+							if (rhs.ReturnType.CompatibleWith(ProgVariableTypes.Number))
 							{
 								return compileInfoFactory.CreateNew(new TimeSpanDivisionByNumberFunction(lhs, rhs),
 									lineNumber);
@@ -805,14 +805,14 @@ public static class FunctionHelper
 			var lhs = (IFunction)lhsCompileInfo.CompiledStatement;
 
 			// If the LHS is a collection, check for Collection Extensions first
-			if (lhs.ReturnType.HasFlag(FutureProgVariableTypes.Collection))
+			if (lhs.ReturnType.HasFlag(ProgVariableTypes.Collection))
 			{
 				var match = _collectionExtensionFunctionRegex.Match(dotReferences.RHS);
 				if (!match.Success)
 				{
-					var drType = FutureProgVariable.DotReferenceReturnTypeFor(lhs.ReturnType,
+					var drType = ProgVariable.DotReferenceReturnTypeFor(lhs.ReturnType,
 						dotReferences.RHS);
-					if (drType == FutureProgVariableTypes.Error)
+					if (drType == ProgVariableTypes.Error)
 					{
 						return
 							compileInfoFactory.CreateError(
@@ -833,13 +833,13 @@ public static class FunctionHelper
 					: compileInfoFactory.CreateError(result.ErrorMessage, lineNumber);
 			}
 
-			var returnType = FutureProgVariable.DotReferenceReturnTypeFor(lhs.ReturnType, dotReferences.RHS);
+			var returnType = ProgVariable.DotReferenceReturnTypeFor(lhs.ReturnType, dotReferences.RHS);
 
 			switch (returnType)
 			{
-				case FutureProgVariableTypes.Error:
+				case ProgVariableTypes.Error:
 					return compileInfoFactory.CreateError($"Property was not valid: {dotReferences.RHS}", lineNumber);
-				case FutureProgVariableTypes.Void:
+				case ProgVariableTypes.Void:
 					return compileInfoFactory.CreateError("Functions cannot return void.", lineNumber);
 			}
 

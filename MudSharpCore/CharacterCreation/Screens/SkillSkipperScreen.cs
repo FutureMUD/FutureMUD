@@ -123,9 +123,9 @@ public class SkillSkipperScreenStoryboard : ChargenScreenStoryboard
 		}
 
 		var prog = new ProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument,
-			FutureProgVariableTypes.Collection | FutureProgVariableTypes.Trait, new List<FutureProgVariableTypes>
+			ProgVariableTypes.Collection | ProgVariableTypes.Trait, new List<ProgVariableTypes>
 			{
-				FutureProgVariableTypes.Chargen
+				ProgVariableTypes.Chargen
 			}).LookupProg();
 		if (prog is null)
 		{

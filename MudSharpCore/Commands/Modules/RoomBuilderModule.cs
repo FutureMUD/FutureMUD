@@ -438,9 +438,9 @@ There is also a universal optional argument which must come first in the form of
 						return;
 					}
 
-					if (!prog.MatchesParameters(new FutureProgVariableTypes[]
-							{ FutureProgVariableTypes.Location | FutureProgVariableTypes.Collection }) &&
-						!prog.MatchesParameters(new FutureProgVariableTypes[] { FutureProgVariableTypes.Location }))
+					if (!prog.MatchesParameters(new ProgVariableTypes[]
+							{ ProgVariableTypes.Location | ProgVariableTypes.Collection }) &&
+						!prog.MatchesParameters(new ProgVariableTypes[] { ProgVariableTypes.Location }))
 					{
 						actor.OutputHandler.Send(
 							$"Any prog specified as an option must accept only a single location or a collection of locations as a parameter. The {prog.MXPClickableFunctionName()} prog does not.");
@@ -471,7 +471,7 @@ There is also a universal optional argument which must come first in the form of
 		{
 			actor.OutputHandler.PrioritySend(
 				$"Executing the prog {prog.MXPClickableFunctionNameWithId()} on the results.");
-			if (prog.MatchesParameters(new[] { FutureProgVariableTypes.Location }))
+			if (prog.MatchesParameters(new[] { ProgVariableTypes.Location }))
 			{
 				foreach (var cell in results)
 				{
@@ -1846,8 +1846,8 @@ Note: reverse any condition with a ! (e.g. !dawn, !snow, !*rain, !summer)");
 		}
 
 		var variableName = command.Pop();
-		var variableType = actor.Gameworld.VariableRegister.GetType(FutureProgVariableTypes.Location, variableName);
-		if (variableType == FutureProgVariableTypes.Error)
+		var variableType = actor.Gameworld.VariableRegister.GetType(ProgVariableTypes.Location, variableName);
+		if (variableType == ProgVariableTypes.Error)
 		{
 			actor.OutputHandler.Send($"There is no cell variable called {variableName.ColourName()} - you will need to register it first.");
 			return;
@@ -1878,8 +1878,8 @@ Note: reverse any condition with a ! (e.g. !dawn, !snow, !*rain, !summer)");
 		}
 
 		var whichVariable = command.Pop().ToLowerInvariant();
-		var type = actor.Gameworld.VariableRegister.GetType(FutureProgVariableTypes.Location, whichVariable);
-		if (type == FutureProgVariableTypes.Error)
+		var type = actor.Gameworld.VariableRegister.GetType(ProgVariableTypes.Location, whichVariable);
+		if (type == ProgVariableTypes.Error)
 		{
 			actor.Send("This cell does not have a register value of {0}.", whichVariable);
 			return;
@@ -2416,15 +2416,15 @@ Note: reverse any condition with a ! (e.g. !dawn, !snow, !*rain, !summer)");
 			return;
 		}
 
-		if (!prog.ReturnType.CompatibleWith(FutureProgVariableTypes.Boolean))
+		if (!prog.ReturnType.CompatibleWith(ProgVariableTypes.Boolean))
 		{
 			actor.OutputHandler.Send(
 				$"You must specify a prog that returns a boolean value, whereas {prog.MXPClickableFunctionName()} returns {prog.ReturnType.Describe().ColourName()}.");
 			return;
 		}
 
-		if (!prog.MatchesParameters(new List<FutureProgVariableTypes>
-				{ FutureProgVariableTypes.Location, FutureProgVariableTypes.Character }))
+		if (!prog.MatchesParameters(new List<ProgVariableTypes>
+				{ ProgVariableTypes.Location, ProgVariableTypes.Character }))
 		{
 			actor.OutputHandler.Send(
 				$"You must specify a prog that can accept a room and a character parameter, whereas {prog.MXPClickableFunctionName()} does not.");

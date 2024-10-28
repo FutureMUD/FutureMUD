@@ -11,9 +11,9 @@ internal class MinFunction : BuiltInFunction
 	{
 	}
 
-	public override FutureProgVariableTypes ReturnType
+	public override ProgVariableTypes ReturnType
 	{
-		get => FutureProgVariableTypes.Number;
+		get => ProgVariableTypes.Number;
 		protected set { }
 	}
 
@@ -34,7 +34,7 @@ internal class MinFunction : BuiltInFunction
 	{
 		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
 			"min",
-			new[] { FutureProgVariableTypes.Number, FutureProgVariableTypes.Number },
+			new[] { ProgVariableTypes.Number, ProgVariableTypes.Number },
 			(pars, gameworld) => new MinFunction(pars)
 		));
 	}

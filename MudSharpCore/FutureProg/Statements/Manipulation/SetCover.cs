@@ -25,7 +25,7 @@ internal class SetCover : Statement
 	}
 
 	private static ICompileInfo Compile(IEnumerable<string> lines,
-		IDictionary<string, FutureProgVariableTypes> variableSpace, int lineNumber, IFuturemud gameworld)
+		IDictionary<string, ProgVariableTypes> variableSpace, int lineNumber, IFuturemud gameworld)
 	{
 		var match = CompileRegex.Match(lines.First());
 
@@ -52,7 +52,7 @@ internal class SetCover : Statement
 					           $"Compile error with SetCover statement arguments: {compiledArgs.First(x => x.IsError).ErrorMessage}", lineNumber);
 		}
 
-		if (!((IFunction)compiledArgs[0].CompiledStatement).ReturnType.CompatibleWith(FutureProgVariableTypes.Item))
+		if (!((IFunction)compiledArgs[0].CompiledStatement).ReturnType.CompatibleWith(ProgVariableTypes.Item))
 		{
 			return
 				CompileInfo.GetFactory()
@@ -61,7 +61,7 @@ internal class SetCover : Statement
 
 		if (
 			!((IFunction)compiledArgs[1].CompiledStatement).ReturnType.CompatibleWith(
-				FutureProgVariableTypes.Boolean))
+				ProgVariableTypes.Boolean))
 		{
 			return
 				CompileInfo.GetFactory()
@@ -95,7 +95,7 @@ internal class SetCover : Statement
 			new Tuple
 			<Regex,
 				Func
-				<IEnumerable<string>, IDictionary<string, FutureProgVariableTypes>, int, IFuturemud, ICompileInfo>>(
+				<IEnumerable<string>, IDictionary<string, ProgVariableTypes>, int, IFuturemud, ICompileInfo>>(
 				CompileRegex, Compile)
 		);
 

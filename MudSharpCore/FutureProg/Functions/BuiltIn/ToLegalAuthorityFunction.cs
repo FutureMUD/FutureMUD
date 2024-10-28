@@ -17,9 +17,9 @@ internal class ToLegalAuthorityFunction : BuiltInFunction
 		_gameworld = gameworld;
 	}
 
-	public override FutureProgVariableTypes ReturnType
+	public override ProgVariableTypes ReturnType
 	{
-		get => FutureProgVariableTypes.LegalAuthority;
+		get => ProgVariableTypes.LegalAuthority;
 		protected set { }
 	}
 
@@ -30,7 +30,7 @@ internal class ToLegalAuthorityFunction : BuiltInFunction
 			return StatementResult.Error;
 		}
 
-		Result = ParameterFunctions[0].ReturnType.CompatibleWith(FutureProgVariableTypes.Text)
+		Result = ParameterFunctions[0].ReturnType.CompatibleWith(ProgVariableTypes.Text)
 			? _gameworld.LegalAuthorities.Get((string)ParameterFunctions[0].Result.GetObject).FirstOrDefault()
 			: _gameworld.LegalAuthorities.Get((long)(decimal)ParameterFunctions[0].Result.GetObject);
 
@@ -41,24 +41,24 @@ internal class ToLegalAuthorityFunction : BuiltInFunction
 	{
 		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
 			"tolegalauthority",
-			new[] { FutureProgVariableTypes.Number },
+			new[] { ProgVariableTypes.Number },
 			(pars, gameworld) => new ToLegalAuthorityFunction(pars, gameworld),
 			new List<string> { "id" },
 			new List<string> { "The ID to look up" },
 			"Converts an ID number into the specified type, if one exists",
 			"Lookup",
-			FutureProgVariableTypes.LegalAuthority
+			ProgVariableTypes.LegalAuthority
 		));
 
 		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
 			"tolegalauthority",
-			new[] { FutureProgVariableTypes.Text },
+			new[] { ProgVariableTypes.Text },
 			(pars, gameworld) => new ToLegalAuthorityFunction(pars, gameworld),
 			new List<string> { "name" },
 			new List<string> { "The name to look up" },
 			"Converts a name into the specified type, if one exists",
 			"Lookup",
-			FutureProgVariableTypes.LegalAuthority
+			ProgVariableTypes.LegalAuthority
 		));
 	}
 }

@@ -15,9 +15,9 @@ internal class GameSecondsPerRealSecondsFunction : BuiltInFunction
 		_gameworld = gameworld;
 	}
 
-	public override FutureProgVariableTypes ReturnType
+	public override ProgVariableTypes ReturnType
 	{
-		get => FutureProgVariableTypes.Number;
+		get => ProgVariableTypes.Number;
 		protected set { }
 	}
 
@@ -53,7 +53,7 @@ internal class GameSecondsPerRealSecondsFunction : BuiltInFunction
 	{
 		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
 			"gamesecondsperrealseconds",
-			new[] { FutureProgVariableTypes.Text },
+			new[] { ProgVariableTypes.Text },
 			(pars, gameworld) => new GameSecondsPerRealSecondsFunction(pars, gameworld)
 		));
 	}

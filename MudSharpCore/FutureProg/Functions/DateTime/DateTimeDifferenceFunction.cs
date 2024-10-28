@@ -10,9 +10,9 @@ internal class DateTimeDifferenceFunction : BinaryFunction
 	{
 	}
 
-	public override FutureProgVariableTypes ReturnType
+	public override ProgVariableTypes ReturnType
 	{
-		get => FutureProgVariableTypes.TimeSpan;
+		get => ProgVariableTypes.TimeSpan;
 		protected set { }
 	}
 
@@ -42,9 +42,9 @@ internal class MudDateTimeDifferenceFunction : BinaryFunction
 	{
 	}
 
-	public override FutureProgVariableTypes ReturnType
+	public override ProgVariableTypes ReturnType
 	{
-		get => FutureProgVariableTypes.TimeSpan;
+		get => ProgVariableTypes.TimeSpan;
 		protected set { }
 	}
 

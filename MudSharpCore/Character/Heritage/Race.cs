@@ -1359,18 +1359,18 @@ public partial class Race : SaveableItem, IRace
 
 	#region IFutureProgVariable Members
 
-	private static IReadOnlyDictionary<string, FutureProgVariableTypes> DotReferenceHandler()
+	private static IReadOnlyDictionary<string, ProgVariableTypes> DotReferenceHandler()
 	{
-		return new Dictionary<string, FutureProgVariableTypes>(StringComparer.InvariantCultureIgnoreCase)
+		return new Dictionary<string, ProgVariableTypes>(StringComparer.InvariantCultureIgnoreCase)
 		{
-			{ "id", FutureProgVariableTypes.Number },
-			{ "name", FutureProgVariableTypes.Text },
-			{ "childage", FutureProgVariableTypes.Number },
-			{ "youthage", FutureProgVariableTypes.Number },
-			{ "youngadultage", FutureProgVariableTypes.Number },
-			{ "adultage", FutureProgVariableTypes.Number },
-			{ "elderage", FutureProgVariableTypes.Number },
-			{ "venerableage", FutureProgVariableTypes.Number }
+			{ "id", ProgVariableTypes.Number },
+			{ "name", ProgVariableTypes.Text },
+			{ "childage", ProgVariableTypes.Number },
+			{ "youthage", ProgVariableTypes.Number },
+			{ "youngadultage", ProgVariableTypes.Number },
+			{ "adultage", ProgVariableTypes.Number },
+			{ "elderage", ProgVariableTypes.Number },
+			{ "venerableage", ProgVariableTypes.Number }
 		};
 	}
 
@@ -1391,14 +1391,14 @@ public partial class Race : SaveableItem, IRace
 
 	public static void RegisterFutureProgCompiler()
 	{
-		FutureProgVariable.RegisterDotReferenceCompileInfo(FutureProgVariableTypes.Race, DotReferenceHandler(),
+		ProgVariable.RegisterDotReferenceCompileInfo(ProgVariableTypes.Race, DotReferenceHandler(),
 			DotReferenceHelp());
 	}
 
 
-	public IFutureProgVariable GetProperty(string property)
+	public IProgVariable GetProperty(string property)
 	{
-		IFutureProgVariable returnVar = null;
+		IProgVariable returnVar = null;
 		switch (property.ToLowerInvariant())
 		{
 			case "id":
@@ -1430,7 +1430,7 @@ public partial class Race : SaveableItem, IRace
 		return returnVar;
 	}
 
-	public FutureProgVariableTypes Type => FutureProgVariableTypes.Race;
+	public ProgVariableTypes Type => ProgVariableTypes.Race;
 
 	public object GetObject => this;
 

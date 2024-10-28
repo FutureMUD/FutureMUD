@@ -27,7 +27,7 @@ internal class LayerExits : BuiltInFunction
 		FutureProg.RegisterBuiltInFunctionCompiler(
 			new FunctionCompilerInformation(
 				"LayerExits".ToLowerInvariant(),
-				new[] { FutureProgVariableTypes.Location, FutureProgVariableTypes.Text },
+				new[] { ProgVariableTypes.Location, ProgVariableTypes.Text },
 				(pars, gameworld) => new LayerExits(pars, gameworld),
 				new List<string> { "Location", "Layer" },
 				new List<string>
@@ -37,14 +37,14 @@ internal class LayerExits : BuiltInFunction
 				},
 				"This function returns the exits that exist at a particular layer in a location you specify. See the ROOMLAYERS function for information on how to determine what layers are present.",
 				"Rooms",
-				FutureProgVariableTypes.Exit | FutureProgVariableTypes.Collection
+				ProgVariableTypes.Exit | ProgVariableTypes.Collection
 			)
 		);
 
 		FutureProg.RegisterBuiltInFunctionCompiler(
 			new FunctionCompilerInformation(
 				"LayerExits".ToLowerInvariant(),
-				new[] { FutureProgVariableTypes.Location, FutureProgVariableTypes.Character },
+				new[] { ProgVariableTypes.Location, ProgVariableTypes.Character },
 				(pars, gameworld) => new LayerExits(pars, gameworld),
 				new List<string> { "Location", "Character" },
 				new List<string>
@@ -54,14 +54,14 @@ internal class LayerExits : BuiltInFunction
 				},
 				"This function returns the exits that exist at a particular layer in a location you specify. See the ROOMLAYERS function for information on how to determine what layers are present.",
 				"Rooms",
-				FutureProgVariableTypes.Exit | FutureProgVariableTypes.Collection
+				ProgVariableTypes.Exit | ProgVariableTypes.Collection
 			)
 		);
 
 		FutureProg.RegisterBuiltInFunctionCompiler(
 			new FunctionCompilerInformation(
 				"LayerExits".ToLowerInvariant(),
-				new[] { FutureProgVariableTypes.Location, FutureProgVariableTypes.Item },
+				new[] { ProgVariableTypes.Location, ProgVariableTypes.Item },
 				(pars, gameworld) => new LayerExits(pars, gameworld),
 				new List<string> { "Location", "Item" },
 				new List<string>
@@ -71,7 +71,7 @@ internal class LayerExits : BuiltInFunction
 				},
 				"This function returns the exits that exist at a particular layer in a location you specify. See the ROOMLAYERS function for information on how to determine what layers are present.",
 				"Rooms",
-				FutureProgVariableTypes.Exit | FutureProgVariableTypes.Collection
+				ProgVariableTypes.Exit | ProgVariableTypes.Collection
 			)
 		);
 	}
@@ -87,9 +87,9 @@ internal class LayerExits : BuiltInFunction
 
 	#endregion
 
-	public override FutureProgVariableTypes ReturnType
+	public override ProgVariableTypes ReturnType
 	{
-		get => FutureProgVariableTypes.Exit | FutureProgVariableTypes.Collection;
+		get => ProgVariableTypes.Exit | ProgVariableTypes.Collection;
 		protected set { }
 	}
 
@@ -102,31 +102,31 @@ internal class LayerExits : BuiltInFunction
 
 		if (ParameterFunctions[0].Result is not ICell location)
 		{
-			Result = new CollectionVariable(new List<ICellExit>(), FutureProgVariableTypes.Exit);
+			Result = new CollectionVariable(new List<ICellExit>(), ProgVariableTypes.Exit);
 			return StatementResult.Normal;
 		}
 
 		if (ParameterFunctions[0].Result?.GetObject is IPerceiver voyeur)
 		{
-			Result = new CollectionVariable(location.ExitsFor(voyeur).ToList(), FutureProgVariableTypes.Exit);
+			Result = new CollectionVariable(location.ExitsFor(voyeur).ToList(), ProgVariableTypes.Exit);
 		}
 
 		var layerText = ParameterFunctions[1].Result?.GetObject?.ToString();
 		if (string.IsNullOrEmpty(layerText))
 		{
-			Result = new CollectionVariable(new List<ICellExit>(), FutureProgVariableTypes.Exit);
+			Result = new CollectionVariable(new List<ICellExit>(), ProgVariableTypes.Exit);
 			return StatementResult.Normal;
 		}
 
 		if (!Utilities.TryParseEnum<RoomLayer>(layerText, out var layer))
 		{
-			Result = new CollectionVariable(new List<ICellExit>(), FutureProgVariableTypes.Exit);
+			Result = new CollectionVariable(new List<ICellExit>(), ProgVariableTypes.Exit);
 			return StatementResult.Normal;
 		}
 
 		Result = new CollectionVariable(
 			location.ExitsFor(null, true).Where(x => x.WhichLayersExitAppears().Contains(layer)).ToList(),
-			FutureProgVariableTypes.Exit);
+			ProgVariableTypes.Exit);
 		return StatementResult.Normal;
 	}
 }

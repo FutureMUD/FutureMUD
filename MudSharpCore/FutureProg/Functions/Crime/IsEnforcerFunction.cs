@@ -28,7 +28,7 @@ internal class IsEnforcerFunction : BuiltInFunction
 				"IsEnforcer".ToLowerInvariant(),
 				new[]
 				{
-					FutureProgVariableTypes.Character, FutureProgVariableTypes.LegalAuthority
+					ProgVariableTypes.Character, ProgVariableTypes.LegalAuthority
 				}, // the parameters the function takes
 				(pars, gameworld) => new IsEnforcerFunction(pars, gameworld),
 				new List<string> { "character", "authority" }, // parameter names
@@ -39,7 +39,7 @@ internal class IsEnforcerFunction : BuiltInFunction
 				}, // parameter help text
 				"Returns true if the character is an enforcer in the specified legal authority or authorities", // help text for the function,
 				"Crime", // the category to which this function belongs,
-				FutureProgVariableTypes.Boolean // the return type of the function
+				ProgVariableTypes.Boolean // the return type of the function
 			)
 		);
 	}
@@ -55,9 +55,9 @@ internal class IsEnforcerFunction : BuiltInFunction
 
 	#endregion
 
-	public override FutureProgVariableTypes ReturnType
+	public override ProgVariableTypes ReturnType
 	{
-		get => FutureProgVariableTypes.Boolean;
+		get => ProgVariableTypes.Boolean;
 		protected set { }
 	}
 

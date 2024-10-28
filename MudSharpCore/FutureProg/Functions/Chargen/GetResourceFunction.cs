@@ -15,9 +15,9 @@ internal class GetResourceFunction : BuiltInFunction, IHaveFuturemud
 		Gameworld = gameworld;
 	}
 
-	public override FutureProgVariableTypes ReturnType
+	public override ProgVariableTypes ReturnType
 	{
-		get => FutureProgVariableTypes.Number;
+		get => ProgVariableTypes.Number;
 		protected set { }
 	}
 
@@ -57,13 +57,13 @@ internal class GetResourceFunction : BuiltInFunction, IHaveFuturemud
 		FutureProg.RegisterBuiltInFunctionCompiler(
 			new FunctionCompilerInformation(
 				"getresource",
-				new[] { FutureProgVariableTypes.Toon, FutureProgVariableTypes.Text },
+				new[] { ProgVariableTypes.Toon, ProgVariableTypes.Text },
 				(pars, gameworld) => new GetResourceFunction(pars, gameworld),
 				new List<string> { "character", "resource" },
 				new List<string> { "The character whose account you want to look up", "The name of the resource you want to look up" },
 				"Returns the amount of the specified chargen resources (karma, RPP, BP, etc) that an account has",
 				"Chargen",
-				FutureProgVariableTypes.Number
+				ProgVariableTypes.Number
 				)
 		);
 	}

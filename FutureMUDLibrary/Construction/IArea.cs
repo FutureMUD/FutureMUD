@@ -13,7 +13,7 @@ namespace MudSharp.Construction
     /// <summary>
     /// An area is an alternative hierarchy for room grouping - an area has a number of rooms in it, but doesn't necessarily just belong to one zone
     /// </summary>
-    public interface IArea : ILocation, IFutureProgVariable
+    public interface IArea : ILocation, IProgVariable
     {
         IEnumerable<IRoom> Rooms { get; }
         IEnumerable<ICell> Cells { get; }

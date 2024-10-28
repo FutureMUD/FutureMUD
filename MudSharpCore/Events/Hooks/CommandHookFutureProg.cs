@@ -25,7 +25,7 @@ public class CommandHookFutureProg : CommandHook, IHookWithProgs, IExecuteProgHo
 	protected override void LoadFromXml(XElement root)
 	{
 		_commandProg = Gameworld.FutureProgs.Get(long.Parse(root.Element("FutureProg").Value));
-		if (_commandProg?.ReturnType != FutureProgVariableTypes.Text)
+		if (_commandProg?.ReturnType != ProgVariableTypes.Text)
 		{
 			Console.WriteLine("Warning: CommandHookFutureProg " + Id + " has a non-text prog.");
 		}

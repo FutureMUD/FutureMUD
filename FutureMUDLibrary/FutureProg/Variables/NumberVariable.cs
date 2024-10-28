@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 
 namespace MudSharp.FutureProg.Variables {
-    public class NumberVariable : FutureProgVariable {
+    public class NumberVariable : ProgVariable {
         protected decimal UnderlyingNumber;
 
         public NumberVariable(decimal number) {
@@ -22,13 +22,13 @@ namespace MudSharp.FutureProg.Variables {
             UnderlyingNumber = number;
         }
 
-        public override FutureProgVariableTypes Type => FutureProgVariableTypes.Number;
+        public override ProgVariableTypes Type => ProgVariableTypes.Number;
 
         public override object GetObject => UnderlyingNumber;
 
-        private static IReadOnlyDictionary<string,FutureProgVariableTypes> DotReferenceHandler()
+        private static IReadOnlyDictionary<string,ProgVariableTypes> DotReferenceHandler()
         {
-            return new Dictionary<string, FutureProgVariableTypes>(StringComparer.InvariantCultureIgnoreCase)
+            return new Dictionary<string, ProgVariableTypes>(StringComparer.InvariantCultureIgnoreCase)
             {
             };
         }
@@ -41,10 +41,10 @@ namespace MudSharp.FutureProg.Variables {
         }
 
         public static void RegisterFutureProgCompiler() {
-            FutureProgVariable.RegisterDotReferenceCompileInfo(FutureProgVariableTypes.Number, DotReferenceHandler(), DotReferenceHelp());
+            ProgVariable.RegisterDotReferenceCompileInfo(ProgVariableTypes.Number, DotReferenceHandler(), DotReferenceHelp());
         }
 
-        public override IFutureProgVariable GetProperty(string property) {
+        public override IProgVariable GetProperty(string property) {
             throw new NotSupportedException();
         }
 

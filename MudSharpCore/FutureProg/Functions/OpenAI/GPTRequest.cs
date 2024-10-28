@@ -31,8 +31,8 @@ internal class GPTRequest : BuiltInFunction
 				"GPTRequest".ToLowerInvariant(),
 				new[]
 				{
-					FutureProgVariableTypes.Text, FutureProgVariableTypes.Text, FutureProgVariableTypes.Character,
-					FutureProgVariableTypes.Number, FutureProgVariableTypes.Text
+					ProgVariableTypes.Text, ProgVariableTypes.Text, ProgVariableTypes.Character,
+					ProgVariableTypes.Number, ProgVariableTypes.Text
 				}, // the parameters the function takes
 				(pars, gameworld) => new GPTRequest(pars, gameworld),
 				new List<string>
@@ -53,7 +53,7 @@ internal class GPTRequest : BuiltInFunction
 				}, // parameter help text
 				"This function will schedule a call to GPT including a thread history, and call the specified prog with the outcome. Returns true if successfully queued.", // help text for the function,
 				"OpenAI", // the category to which this function belongs,
-				FutureProgVariableTypes.Boolean // the return type of the function
+				ProgVariableTypes.Boolean // the return type of the function
 			)
 		);
 
@@ -62,8 +62,8 @@ internal class GPTRequest : BuiltInFunction
 				"GPTRequest".ToLowerInvariant(),
 				new[]
 				{
-					FutureProgVariableTypes.Number, FutureProgVariableTypes.Text, FutureProgVariableTypes.Character,
-					FutureProgVariableTypes.Number, FutureProgVariableTypes.Text
+					ProgVariableTypes.Number, ProgVariableTypes.Text, ProgVariableTypes.Character,
+					ProgVariableTypes.Number, ProgVariableTypes.Text
 				}, // the parameters the function takes
 				(pars, gameworld) => new GPTRequest(pars, gameworld),
 				new List<string>
@@ -84,7 +84,7 @@ internal class GPTRequest : BuiltInFunction
 				}, // parameter help text
 				"This function will schedule a call to GPT including a thread history, and call the specified prog with the outcome. Returns true if successfully queued.", // help text for the function,
 				"OpenAI", // the category to which this function belongs,
-				FutureProgVariableTypes.Boolean // the return type of the function
+				ProgVariableTypes.Boolean // the return type of the function
 			)
 		);
 	}
@@ -100,9 +100,9 @@ internal class GPTRequest : BuiltInFunction
 
 	#endregion
 
-	public override FutureProgVariableTypes ReturnType
+	public override ProgVariableTypes ReturnType
 	{
-		get { return FutureProgVariableTypes.Text; }
+		get { return ProgVariableTypes.Text; }
 		protected set { }
 	}
 
@@ -118,7 +118,7 @@ internal class GPTRequest : BuiltInFunction
 		using (new FMDB())
 		{
 			Models.GPTThread? thread;
-			if (ParameterFunctions[0].ReturnType.CompatibleWith(FutureProgVariableTypes.Number))
+			if (ParameterFunctions[0].ReturnType.CompatibleWith(ProgVariableTypes.Number))
 			{
 				thread = FMDB.Context.GPTThreads.Find((long)(decimal)(ParameterFunctions[0].Result?.GetObject ?? 0M));
 			}
@@ -135,16 +135,16 @@ internal class GPTRequest : BuiltInFunction
 			}
 
 			var prog = new ProgLookupFromBuilderInput(Gameworld, null, (string)(ParameterFunctions[4].Result?.GetObject ?? ""),
-				FutureProgVariableTypes.Void, new List<IEnumerable<FutureProgVariableTypes>>
+				ProgVariableTypes.Void, new List<IEnumerable<ProgVariableTypes>>
 				{
 					new []
 					{
-						FutureProgVariableTypes.Text,
-						FutureProgVariableTypes.Character
+						ProgVariableTypes.Text,
+						ProgVariableTypes.Character
 					},
 					new []
 					{
-						FutureProgVariableTypes.Text,
+						ProgVariableTypes.Text,
 					},
 				}).LookupProg();
 			if (prog is null)

@@ -48,7 +48,7 @@ public class FutureProg : SaveableItem, IFutureProg
 			Tuple
 			<Regex,
 				Func
-				<IEnumerable<string>, IDictionary<string, FutureProgVariableTypes>, int, IFuturemud, ICompileInfo>>>
+				<IEnumerable<string>, IDictionary<string, ProgVariableTypes>, int, IFuturemud, ICompileInfo>>>
 		StatementCompilers =
 			new();
 
@@ -80,8 +80,8 @@ public class FutureProg : SaveableItem, IFutureProg
 
 	private string _functionText;
 
-	public FutureProg(IFuturemud gameworld, string functionName, FutureProgVariableTypes returnType,
-		IEnumerable<Tuple<FutureProgVariableTypes, string>> parameters, string text)
+	public FutureProg(IFuturemud gameworld, string functionName, ProgVariableTypes returnType,
+		IEnumerable<Tuple<ProgVariableTypes, string>> parameters, string text)
 	{
 		Gameworld = gameworld;
 		_noSave = true;
@@ -105,10 +105,10 @@ public class FutureProg : SaveableItem, IFutureProg
 		CompileError = string.Empty;
 		Category = prog.Category;
 		Subcategory = prog.Subcategory;
-		ReturnType = (FutureProgVariableTypes)prog.ReturnType;
+		ReturnType = (ProgVariableTypes)prog.ReturnType;
 		NamedParameters =
 			prog.FutureProgsParameters.OrderBy(x => x.ParameterIndex)
-				.Select(x => Tuple.Create((FutureProgVariableTypes)x.ParameterType, x.ParameterName))
+				.Select(x => Tuple.Create((ProgVariableTypes)x.ParameterType, x.ParameterName))
 				.ToList();
 		Public = prog.Public;
 		ColouriseFunctionText();
@@ -159,14 +159,14 @@ public class FutureProg : SaveableItem, IFutureProg
 
 	public bool Public { get; set; }
 
-	public List<Tuple<FutureProgVariableTypes, string>> NamedParameters { get; }
+	public List<Tuple<ProgVariableTypes, string>> NamedParameters { get; }
 
-	public IEnumerable<FutureProgVariableTypes> Parameters
+	public IEnumerable<ProgVariableTypes> Parameters
 	{
 		get { return NamedParameters.Select(x => x.Item1); }
 	}
 
-	public FutureProgVariableTypes ReturnType { get; set; }
+	public ProgVariableTypes ReturnType { get; set; }
 
 	public bool AcceptsAnyParameters { get; set; }
 
@@ -182,7 +182,7 @@ public class FutureProg : SaveableItem, IFutureProg
 		}
 	}
 
-	public bool MatchesParameters(IEnumerable<FutureProgVariableTypes> parameters)
+	public bool MatchesParameters(IEnumerable<ProgVariableTypes> parameters)
 	{
 		if (AcceptsAnyParameters)
 		{
@@ -231,7 +231,7 @@ public class FutureProg : SaveableItem, IFutureProg
 			var variableSpace = NamedParameters.ToDictionary(x => x.Item2, x => x.Item1);
 
 			// If the program has a non-void return type, create the return variable
-			if (ReturnType != FutureProgVariableTypes.Void)
+			if (ReturnType != ProgVariableTypes.Void)
 			{
 				variableSpace.Add("return", ReturnType);
 			}
@@ -272,7 +272,7 @@ public class FutureProg : SaveableItem, IFutureProg
 			}
 
 			// Check for a final return statement if there is one
-			if (ReturnType != FutureProgVariableTypes.Void)
+			if (ReturnType != ProgVariableTypes.Void)
 			{
 				if (!_statements.Any() ||
 					!_statements.Last().IsReturnOrContainsReturnOnAllBranches()
@@ -317,9 +317,9 @@ public class FutureProg : SaveableItem, IFutureProg
 
 	public IReadOnlyCollectionDictionary<string, T> ExecuteCollectionDictionary<T>(params object[] variables)
 	{
-		if (ReturnType.HasFlag(FutureProgVariableTypes.CollectionDictionary))
+		if (ReturnType.HasFlag(ProgVariableTypes.CollectionDictionary))
 		{
-			var result = Execute(variables) as CollectionDictionary<string, IFutureProgVariable>;
+			var result = Execute(variables) as CollectionDictionary<string, IProgVariable>;
 			if (result is null)
 			{
 				return new CollectionDictionary<string, T>().AsReadOnlyCollectionDictionary();
@@ -338,9 +338,9 @@ public class FutureProg : SaveableItem, IFutureProg
 
 	public IReadOnlyDictionary<string, T> ExecuteDictionary<T>(params object[] variables)
 	{
-		if (ReturnType.HasFlag(FutureProgVariableTypes.Dictionary))
+		if (ReturnType.HasFlag(ProgVariableTypes.Dictionary))
 		{
-			var result = Execute(variables) as Dictionary<string, IFutureProgVariable>;
+			var result = Execute(variables) as Dictionary<string, IProgVariable>;
 			if (result is null)
 			{
 				return new Dictionary<string, T>();
@@ -364,7 +364,7 @@ public class FutureProg : SaveableItem, IFutureProg
 
 	public IEnumerable<T> ExecuteCollection<T>(params object[] variables)
 	{
-		if (ReturnType.HasFlag(FutureProgVariableTypes.Collection))
+		if (ReturnType.HasFlag(ProgVariableTypes.Collection))
 		{
 			var result = Execute(variables) as IList;
 			if (result is null)
@@ -375,9 +375,9 @@ public class FutureProg : SaveableItem, IFutureProg
 			return result.OfType<T>();
 		}
 
-		if (ReturnType.HasFlag(FutureProgVariableTypes.CollectionDictionary))
+		if (ReturnType.HasFlag(ProgVariableTypes.CollectionDictionary))
 		{
-			var result = Execute(variables) as CollectionDictionary<string, IFutureProgVariable>;
+			var result = Execute(variables) as CollectionDictionary<string, IProgVariable>;
 			if (result is null)
 			{
 				return Enumerable.Empty<T>();
@@ -386,9 +386,9 @@ public class FutureProg : SaveableItem, IFutureProg
 			return result.SelectMany(x => x.Value).OfType<T>();
 		}
 
-		if (ReturnType.HasFlag(FutureProgVariableTypes.Dictionary))
+		if (ReturnType.HasFlag(ProgVariableTypes.Dictionary))
 		{
-			var result = Execute(variables) as Dictionary<string, IFutureProgVariable>;
+			var result = Execute(variables) as Dictionary<string, IProgVariable>;
 			if (result is null)
 			{
 				return Enumerable.Empty<T>();
@@ -413,7 +413,7 @@ public class FutureProg : SaveableItem, IFutureProg
 
 	public double ExecuteDouble(params object[] variables)
 	{
-		if (ReturnType != FutureProgVariableTypes.Number)
+		if (ReturnType != ProgVariableTypes.Number)
 		{
 			return 0.0;
 		}
@@ -423,7 +423,7 @@ public class FutureProg : SaveableItem, IFutureProg
 
 	public double ExecuteDouble(double defaultIfNull, params object[] variables)
 	{
-		if (ReturnType != FutureProgVariableTypes.Number)
+		if (ReturnType != ProgVariableTypes.Number)
 		{
 			return defaultIfNull;
 		}
@@ -433,7 +433,7 @@ public class FutureProg : SaveableItem, IFutureProg
 
 	public decimal ExecuteDecimal(params object[] variables)
 	{
-		if (ReturnType != FutureProgVariableTypes.Number)
+		if (ReturnType != ProgVariableTypes.Number)
 		{
 			return 0.0M;
 		}
@@ -443,7 +443,7 @@ public class FutureProg : SaveableItem, IFutureProg
 
 	public decimal ExecuteDecimal(decimal defaultIfNull, params object[] variables)
 	{
-		if (ReturnType != FutureProgVariableTypes.Number)
+		if (ReturnType != ProgVariableTypes.Number)
 		{
 			return defaultIfNull;
 		}
@@ -453,7 +453,7 @@ public class FutureProg : SaveableItem, IFutureProg
 
 	public int ExecuteInt(params object[] variables)
 	{
-		if (ReturnType != FutureProgVariableTypes.Number)
+		if (ReturnType != ProgVariableTypes.Number)
 		{
 			return 0;
 		}
@@ -463,7 +463,7 @@ public class FutureProg : SaveableItem, IFutureProg
 
 	public int ExecuteInt(int defaultIfNull, params object[] variables)
 	{
-		if (ReturnType != FutureProgVariableTypes.Number)
+		if (ReturnType != ProgVariableTypes.Number)
 		{
 			return defaultIfNull;
 		}
@@ -473,7 +473,7 @@ public class FutureProg : SaveableItem, IFutureProg
 
 	public long ExecuteLong(params object[] variables)
 	{
-		if (ReturnType != FutureProgVariableTypes.Number)
+		if (ReturnType != ProgVariableTypes.Number)
 		{
 			return 0L;
 		}
@@ -483,7 +483,7 @@ public class FutureProg : SaveableItem, IFutureProg
 
 	public long ExecuteLong(long defaultIfNull, params object[] variables)
 	{
-		if (ReturnType != FutureProgVariableTypes.Number)
+		if (ReturnType != ProgVariableTypes.Number)
 		{
 			return defaultIfNull;
 		}
@@ -493,7 +493,7 @@ public class FutureProg : SaveableItem, IFutureProg
 
 	public bool ExecuteBool(params object[] variables)
 	{
-		if (ReturnType != FutureProgVariableTypes.Boolean)
+		if (ReturnType != ProgVariableTypes.Boolean)
 		{
 			return false;
 		}
@@ -502,7 +502,7 @@ public class FutureProg : SaveableItem, IFutureProg
 	}
 	public bool ExecuteBool(bool defaultIfNull, params object[] variables)
 	{
-		if (ReturnType != FutureProgVariableTypes.Boolean)
+		if (ReturnType != ProgVariableTypes.Boolean)
 		{
 			return defaultIfNull;
 		}
@@ -520,7 +520,7 @@ public class FutureProg : SaveableItem, IFutureProg
 			return _staticReturnValue;
 		}
 
-		var variableSpaceDict = new Dictionary<string, IFutureProgVariable>();
+		var variableSpaceDict = new Dictionary<string, IProgVariable>();
 		for (var i = 0; i < NamedParameters.Count; i++)
 		{
 			try
@@ -536,7 +536,7 @@ public class FutureProg : SaveableItem, IFutureProg
 		}
 
 		var variableSpace = new VariableSpace(variableSpaceDict);
-		if (ReturnType != FutureProgVariableTypes.Void)
+		if (ReturnType != ProgVariableTypes.Void)
 		{
 			variableSpace.SetVariable("return", new NullVariable(ReturnType));
 		}
@@ -552,7 +552,7 @@ public class FutureProg : SaveableItem, IFutureProg
 				switch (result)
 				{
 					case StatementResult.Return:
-						return ReturnType != FutureProgVariableTypes.Void
+						return ReturnType != ProgVariableTypes.Void
 							? variableSpace.GetVariable("return")?.GetObject
 							: null;
 					case StatementResult.Error:
@@ -577,7 +577,7 @@ public class FutureProg : SaveableItem, IFutureProg
 			return _staticReturnValue;
 		}
 
-		return ReturnType != FutureProgVariableTypes.Void ? variableSpace.GetVariable("return")?.GetObject : null;
+		return ReturnType != ProgVariableTypes.Void ? variableSpace.GetVariable("return")?.GetObject : null;
 	}
 
 	public override void Save()
@@ -609,9 +609,9 @@ public class FutureProg : SaveableItem, IFutureProg
 		Changed = false;
 	}
 
-	public static FutureProgVariableTypes GetTypeByName(string name)
+	public static ProgVariableTypes GetTypeByName(string name)
 	{
-		var returnType = FutureProgVariableTypes.Void;
+		var returnType = ProgVariableTypes.Void;
 
 		if (_getTypeCollectionRegex.IsMatch(name))
 		{
@@ -619,16 +619,16 @@ public class FutureProg : SaveableItem, IFutureProg
 			switch (match.Groups["modifier"].Value.ToLowerInvariant())
 			{
 				case "collection":
-					returnType |= FutureProgVariableTypes.Collection;
+					returnType |= ProgVariableTypes.Collection;
 					name = _getTypeCollectionRegex.Match(name).Groups[1].Value;
 					break;
 				case "dictionary":
-					returnType |= FutureProgVariableTypes.Dictionary;
+					returnType |= ProgVariableTypes.Dictionary;
 					name = _getTypeCollectionRegex.Match(name).Groups[1].Value;
 					break;
 				case "collectiondictionary":
 				case "collection dictionary":
-					returnType |= FutureProgVariableTypes.CollectionDictionary;
+					returnType |= ProgVariableTypes.CollectionDictionary;
 					name = _getTypeCollectionRegex.Match(name).Groups[1].Value;
 					break;
 			}
@@ -637,193 +637,193 @@ public class FutureProg : SaveableItem, IFutureProg
 		switch (name.ToLowerInvariant())
 		{
 			case "text":
-				returnType |= FutureProgVariableTypes.Text;
+				returnType |= ProgVariableTypes.Text;
 				break;
 			case "number":
-				returnType |= FutureProgVariableTypes.Number;
+				returnType |= ProgVariableTypes.Number;
 				break;
 			case "bool":
 			case "boolean":
-				returnType |= FutureProgVariableTypes.Boolean;
+				returnType |= ProgVariableTypes.Boolean;
 				break;
 			case "character":
-				returnType |= FutureProgVariableTypes.Character;
+				returnType |= ProgVariableTypes.Character;
 				break;
 			case "location":
 			case "cell":
-				returnType |= FutureProgVariableTypes.Location;
+				returnType |= ProgVariableTypes.Location;
 				break;
 			case "zone":
-				returnType |= FutureProgVariableTypes.Zone;
+				returnType |= ProgVariableTypes.Zone;
 				break;
 			case "shard":
-				returnType |= FutureProgVariableTypes.Shard;
+				returnType |= ProgVariableTypes.Shard;
 				break;
 			case "item":
-				returnType |= FutureProgVariableTypes.Item;
+				returnType |= ProgVariableTypes.Item;
 				break;
 			case "gender":
-				returnType |= FutureProgVariableTypes.Gender;
+				returnType |= ProgVariableTypes.Gender;
 				break;
 			case "race":
-				returnType |= FutureProgVariableTypes.Race;
+				returnType |= ProgVariableTypes.Race;
 				break;
 			case "culture":
-				returnType |= FutureProgVariableTypes.Culture;
+				returnType |= ProgVariableTypes.Culture;
 				break;
 			case "chargen":
-				returnType |= FutureProgVariableTypes.Chargen;
+				returnType |= ProgVariableTypes.Chargen;
 				break;
 			case "trait":
-				returnType |= FutureProgVariableTypes.Trait;
+				returnType |= ProgVariableTypes.Trait;
 				break;
 			case "clan":
-				returnType |= FutureProgVariableTypes.Clan;
+				returnType |= ProgVariableTypes.Clan;
 				break;
 			case "rank":
-				returnType |= FutureProgVariableTypes.ClanRank;
+				returnType |= ProgVariableTypes.ClanRank;
 				break;
 			case "paygrade":
-				returnType |= FutureProgVariableTypes.ClanPaygrade;
+				returnType |= ProgVariableTypes.ClanPaygrade;
 				break;
 			case "appointment":
-				returnType |= FutureProgVariableTypes.ClanAppointment;
+				returnType |= ProgVariableTypes.ClanAppointment;
 				break;
 			case "currency":
-				returnType |= FutureProgVariableTypes.Currency;
+				returnType |= ProgVariableTypes.Currency;
 				break;
 			case "exit":
-				returnType |= FutureProgVariableTypes.Exit;
+				returnType |= ProgVariableTypes.Exit;
 				break;
 			case "perceivable":
-				returnType |= FutureProgVariableTypes.Perceivable;
+				returnType |= ProgVariableTypes.Perceivable;
 				break;
 			case "perceiver":
-				returnType |= FutureProgVariableTypes.Perceiver;
+				returnType |= ProgVariableTypes.Perceiver;
 				break;
 			case "collectionitem":
-				returnType |= FutureProgVariableTypes.CollectionItem;
+				returnType |= ProgVariableTypes.CollectionItem;
 				break;
 			case "toon":
-				returnType |= FutureProgVariableTypes.Toon;
+				returnType |= ProgVariableTypes.Toon;
 				break;
 			case "datetime":
-				returnType |= FutureProgVariableTypes.DateTime;
+				returnType |= ProgVariableTypes.DateTime;
 				break;
 			case "timespan":
-				returnType |= FutureProgVariableTypes.TimeSpan;
+				returnType |= ProgVariableTypes.TimeSpan;
 				break;
 			case "language":
-				returnType |= FutureProgVariableTypes.Language;
+				returnType |= ProgVariableTypes.Language;
 				break;
 			case "accent":
-				returnType |= FutureProgVariableTypes.Accent;
+				returnType |= ProgVariableTypes.Accent;
 				break;
 			case "merit":
-				returnType |= FutureProgVariableTypes.Merit;
+				returnType |= ProgVariableTypes.Merit;
 				break;
 			case "muddatetime":
 			case "muddate":
 			case "mudtime":
-				returnType |= FutureProgVariableTypes.MudDateTime;
+				returnType |= ProgVariableTypes.MudDateTime;
 				break;
 			case "calendar":
-				returnType |= FutureProgVariableTypes.Calendar;
+				returnType |= ProgVariableTypes.Calendar;
 				break;
 			case "clock":
-				returnType |= FutureProgVariableTypes.Clock;
+				returnType |= ProgVariableTypes.Clock;
 				break;
 			case "effect":
-				returnType |= FutureProgVariableTypes.Effect;
+				returnType |= ProgVariableTypes.Effect;
 				break;
 			case "knowledge":
-				returnType |= FutureProgVariableTypes.Knowledge;
+				returnType |= ProgVariableTypes.Knowledge;
 				break;
 			case "role":
-				returnType |= FutureProgVariableTypes.Role;
+				returnType |= ProgVariableTypes.Role;
 				break;
 			case "ethnicity":
-				returnType |= FutureProgVariableTypes.Ethnicity;
+				returnType |= ProgVariableTypes.Ethnicity;
 				break;
 			case "drug":
-				returnType |= FutureProgVariableTypes.Drug;
+				returnType |= ProgVariableTypes.Drug;
 				break;
 			case "weatherevent":
-				returnType |= FutureProgVariableTypes.WeatherEvent;
+				returnType |= ProgVariableTypes.WeatherEvent;
 				break;
 			case "tagged":
-				returnType |= FutureProgVariableTypes.Tagged;
+				returnType |= ProgVariableTypes.Tagged;
 				break;
 			case "shop":
-				returnType |= FutureProgVariableTypes.Shop;
+				returnType |= ProgVariableTypes.Shop;
 				break;
 			case "merchandise":
 			case "merch":
-				returnType |= FutureProgVariableTypes.Merchandise;
+				returnType |= ProgVariableTypes.Merchandise;
 				break;
 			case "magicresourcehaver":
 			case "mrh":
-				returnType |= FutureProgVariableTypes.MagicResourceHaver;
+				returnType |= ProgVariableTypes.MagicResourceHaver;
 				break;
 			case "outfit":
-				returnType |= FutureProgVariableTypes.Outfit;
+				returnType |= ProgVariableTypes.Outfit;
 				break;
 			case "outfititem":
-				returnType |= FutureProgVariableTypes.OutfitItem;
+				returnType |= ProgVariableTypes.OutfitItem;
 				break;
 			case "project":
-				returnType |= FutureProgVariableTypes.Project;
+				returnType |= ProgVariableTypes.Project;
 				break;
 			case "overlaypackage":
-				returnType |= FutureProgVariableTypes.OverlayPackage;
+				returnType |= ProgVariableTypes.OverlayPackage;
 				break;
 			case "terrain":
-				returnType |= FutureProgVariableTypes.Terrain;
+				returnType |= ProgVariableTypes.Terrain;
 				break;
 			case "material":
-				returnType |= FutureProgVariableTypes.Material;
+				returnType |= ProgVariableTypes.Material;
 				break;
 			case "solid":
-				returnType |= FutureProgVariableTypes.Solid;
+				returnType |= ProgVariableTypes.Solid;
 				break;
 			case "liquid":
-				returnType |= FutureProgVariableTypes.Liquid;
+				returnType |= ProgVariableTypes.Liquid;
 				break;
 			case "gas":
-				returnType |= FutureProgVariableTypes.Gas;
+				returnType |= ProgVariableTypes.Gas;
 				break;
 			case "magicschool":
 			case "school":
-				returnType |= FutureProgVariableTypes.MagicSchool;
+				returnType |= ProgVariableTypes.MagicSchool;
 				break;
 			case "magicspell":
 			case "spell":
-				returnType |= FutureProgVariableTypes.MagicSpell;
+				returnType |= ProgVariableTypes.MagicSpell;
 				break;
 			case "magiccapability":
 			case "capability":
-				returnType |= FutureProgVariableTypes.MagicCapability;
+				returnType |= ProgVariableTypes.MagicCapability;
 				break;
 			case "bank":
-				returnType |= FutureProgVariableTypes.Bank;
+				returnType |= ProgVariableTypes.Bank;
 				break;
 			case "bankaccount":
-				returnType |= FutureProgVariableTypes.BankAccount;
+				returnType |= ProgVariableTypes.BankAccount;
 				break;
 			case "bankaccounttype":
-				returnType |= FutureProgVariableTypes.BankAccountType;
+				returnType |= ProgVariableTypes.BankAccountType;
 				break;
 			case "legalauthority":
-				returnType |= FutureProgVariableTypes.LegalAuthority;
+				returnType |= ProgVariableTypes.LegalAuthority;
 				break;
 			case "law":
-				returnType |= FutureProgVariableTypes.Law;
+				returnType |= ProgVariableTypes.Law;
 				break;
 			case "crime":
-				returnType |= FutureProgVariableTypes.Crime;
+				returnType |= ProgVariableTypes.Crime;
 				break;
 			default:
-				returnType = FutureProgVariableTypes.Error;
+				returnType = ProgVariableTypes.Error;
 				break;
 		}
 
@@ -831,7 +831,7 @@ public class FutureProg : SaveableItem, IFutureProg
 	}
 
 	public static ICompileInfo CompileNextStatement(IEnumerable<string> lines,
-		IDictionary<string, FutureProgVariableTypes> variableSpace, int lineNumber, IFuturemud gameworld)
+		IDictionary<string, ProgVariableTypes> variableSpace, int lineNumber, IFuturemud gameworld)
 	{
 		var line = lines.First().Trim();
 		if (string.IsNullOrWhiteSpace(line))
@@ -906,37 +906,37 @@ public class FutureProg : SaveableItem, IFutureProg
 				: $"\"{functionName}\" is not a valid built in function", null);
 	}
 
-	public static IFutureProgVariable GetVariable(FutureProgVariableTypes type, object value)
+	public static IProgVariable GetVariable(ProgVariableTypes type, object value)
 	{
 		if (value == null)
 		{
 			return new NullVariable(type);
 		}
 
-		if (type.HasFlag(FutureProgVariableTypes.Collection))
+		if (type.HasFlag(ProgVariableTypes.Collection))
 		{
-			if (value is StringStack stack && type.CompatibleWith(FutureProgVariableTypes.Text))
+			if (value is StringStack stack && type.CompatibleWith(ProgVariableTypes.Text))
 			{
 				stack.PopSpeechAll();
-				return new CollectionVariable(stack.Memory.ToList(), FutureProgVariableTypes.Text);
+				return new CollectionVariable(stack.Memory.ToList(), ProgVariableTypes.Text);
 			}
 
-			var underlyingType = type ^ FutureProgVariableTypes.Collection;
+			var underlyingType = type ^ ProgVariableTypes.Collection;
 			var list = (from object item in value as IEnumerable ?? Enumerable.Empty<object>()
 						select GetVariable(underlyingType, item)).ToList();
 			return new CollectionVariable(list, underlyingType);
 		}
 
-		if (type.HasFlag(FutureProgVariableTypes.Dictionary))
+		if (type.HasFlag(ProgVariableTypes.Dictionary))
 		{
-			var underlyingType = type ^ FutureProgVariableTypes.Dictionary;
+			var underlyingType = type ^ ProgVariableTypes.Dictionary;
 			var idict = value as IDictionary;
 			if (idict is null)
 			{
-				return new DictionaryVariable(new Dictionary<string, IFutureProgVariable>(), underlyingType);
+				return new DictionaryVariable(new Dictionary<string, IProgVariable>(), underlyingType);
 			}
 
-			var ndict = new Dictionary<string, IFutureProgVariable>();
+			var ndict = new Dictionary<string, IProgVariable>();
 			foreach (DictionaryEntry entry in idict)
 			{
 				if (entry.Key is string keyString)
@@ -945,25 +945,25 @@ public class FutureProg : SaveableItem, IFutureProg
 				}
 			}
 
-			return new DictionaryVariable(new Dictionary<string, IFutureProgVariable>(ndict), underlyingType);
+			return new DictionaryVariable(new Dictionary<string, IProgVariable>(ndict), underlyingType);
 
 		}
 
-		if (type.HasFlag(FutureProgVariableTypes.CollectionDictionary))
+		if (type.HasFlag(ProgVariableTypes.CollectionDictionary))
 		{
-			var underlyingType = type ^ FutureProgVariableTypes.CollectionDictionary;
+			var underlyingType = type ^ ProgVariableTypes.CollectionDictionary;
 			if (value is not ICollectionDictionaryWithKey<string> cdString)
 			{
-				return new CollectionDictionaryVariable(new CollectionDictionary<string, IFutureProgVariable>(), underlyingType);
+				return new CollectionDictionaryVariable(new CollectionDictionary<string, IProgVariable>(), underlyingType);
 			}
 
-			var values = cdString.KeysAndValues.Select(x => new KeyValuePair<string, List<IFutureProgVariable>>(x.Key, x.Value.Select(y => GetVariable(underlyingType, y)).ToList()));
-			return new CollectionDictionaryVariable(new CollectionDictionary<string, IFutureProgVariable>(values), underlyingType);
+			var values = cdString.KeysAndValues.Select(x => new KeyValuePair<string, List<IProgVariable>>(x.Key, x.Value.Select(y => GetVariable(underlyingType, y)).ToList()));
+			return new CollectionDictionaryVariable(new CollectionDictionary<string, IProgVariable>(values), underlyingType);
 		}
 
 		switch (type)
 		{
-			case FutureProgVariableTypes.Text:
+			case ProgVariableTypes.Text:
 				if (value is Enum evalue)
 				{
 					return new TextVariable(evalue.DescribeEnum(true));
@@ -981,7 +981,7 @@ public class FutureProg : SaveableItem, IFutureProg
 
 				return new TextVariable(value.ToString());
 
-			case FutureProgVariableTypes.Number:
+			case ProgVariableTypes.Number:
 				if (value is Enum)
 				{
 					try
@@ -996,20 +996,20 @@ public class FutureProg : SaveableItem, IFutureProg
 
 				return new NumberVariable(Convert.ToDecimal(value));
 
-			case FutureProgVariableTypes.Boolean:
+			case ProgVariableTypes.Boolean:
 				return new BooleanVariable(Convert.ToBoolean(value));
 
-			case FutureProgVariableTypes.Gender:
+			case ProgVariableTypes.Gender:
 				return new GenderVariable((Gender)(value as short? ?? 0));
 
-			case FutureProgVariableTypes.DateTime:
+			case ProgVariableTypes.DateTime:
 				return new DateTimeVariable((DateTime)value);
 
-			case FutureProgVariableTypes.TimeSpan:
+			case ProgVariableTypes.TimeSpan:
 				return new TimeSpanVariable((TimeSpan)value);
 
 			default:
-				return value as IFutureProgVariable;
+				return value as IProgVariable;
 		}
 	}
 
@@ -1038,7 +1038,7 @@ public class FutureProg : SaveableItem, IFutureProg
 	public static void RegisterStatementCompiler(
 		Tuple
 			<Regex,
-				Func<IEnumerable<string>, IDictionary<string, FutureProgVariableTypes>, int, IFuturemud, ICompileInfo>>
+				Func<IEnumerable<string>, IDictionary<string, ProgVariableTypes>, int, IFuturemud, ICompileInfo>>
 			compiler)
 	{
 		StatementCompilers.Add(compiler);
@@ -1077,7 +1077,7 @@ public class FutureProg : SaveableItem, IFutureProg
 		 *
 		 * If you add a new type of FutureProgVariableType, you must implement such a handler
 		 */
-		var fpType = typeof(IFutureProgVariable);
+		var fpType = typeof(IProgVariable);
 		foreach (
 			var type in Futuremud.GetAllTypes().Where(x => x.GetInterfaces().Contains(fpType)))
 		{
@@ -1184,7 +1184,7 @@ public class FutureProg : SaveableItem, IFutureProg
 		
 	}
 
-	public static string VariableValueToText(IFutureProgVariable variable, IPerceiver voyeur,
+	public static string VariableValueToText(IProgVariable variable, IPerceiver voyeur,
 		bool newLineCollectionItems = false)
 	{
 		if (variable?.GetObject == null)
@@ -1192,10 +1192,10 @@ public class FutureProg : SaveableItem, IFutureProg
 			return "null";
 		}
 
-		if (variable.Type.HasFlag(FutureProgVariableTypes.Collection))
+		if (variable.Type.HasFlag(ProgVariableTypes.Collection))
 		{
 			var sb = new StringBuilder();
-			var items = ((IList)variable.GetObject).OfType<IFutureProgVariable>().ToList();
+			var items = ((IList)variable.GetObject).OfType<IProgVariable>().ToList();
 			if (!items.Any())
 			{
 				sb.Append(" {Empty}");
@@ -1222,10 +1222,10 @@ public class FutureProg : SaveableItem, IFutureProg
 			return sb.ToString();
 		}
 
-		if (variable.Type.HasFlag(FutureProgVariableTypes.Dictionary))
+		if (variable.Type.HasFlag(ProgVariableTypes.Dictionary))
 		{
 			var sb = new StringBuilder();
-			var items = (Dictionary<string, IFutureProgVariable>)variable.GetObject;
+			var items = (Dictionary<string, IProgVariable>)variable.GetObject;
 			if (!items.Any())
 			{
 				sb.Append(" {Empty}");
@@ -1252,10 +1252,10 @@ public class FutureProg : SaveableItem, IFutureProg
 			return sb.ToString();
 		}
 
-		if (variable.Type.HasFlag(FutureProgVariableTypes.CollectionDictionary))
+		if (variable.Type.HasFlag(ProgVariableTypes.CollectionDictionary))
 		{
 			var sb = new StringBuilder();
-			var items = (CollectionDictionary<string, IFutureProgVariable>)variable.GetObject;
+			var items = (CollectionDictionary<string, IProgVariable>)variable.GetObject;
 			if (!items.Any())
 			{
 				sb.Append(" {Empty}");
@@ -1288,116 +1288,116 @@ public class FutureProg : SaveableItem, IFutureProg
 			return sb.ToString();
 		}
 
-		var type = variable.Type & ~FutureProgVariableTypes.Literal;
+		var type = variable.Type & ~ProgVariableTypes.Literal;
 		var thing = variable.GetObject as IFrameworkItem;
 		switch (type)
 		{
-			case FutureProgVariableTypes.Text:
+			case ProgVariableTypes.Text:
 				return $"\"{variable.GetObject}\"";
-			case FutureProgVariableTypes.Number:
+			case ProgVariableTypes.Number:
 				return ((decimal)variable.GetObject).ToString("N", voyeur);
-			case FutureProgVariableTypes.Boolean:
+			case ProgVariableTypes.Boolean:
 				return ((bool)variable.GetObject).ToString(voyeur);
-			case FutureProgVariableTypes.Character:
+			case ProgVariableTypes.Character:
 				var ch = (ICharacter)variable;
 				return
 					$"Character #{ch.Id.ToString("N0", voyeur)} ({ch.PersonalName.GetName(NameStyle.FullWithNickname)}) - {ch.HowSeen(voyeur)}";
-			case FutureProgVariableTypes.Location:
+			case ProgVariableTypes.Location:
 				var cell = (ICell)variable;
 				return $"Cell #{cell.Id.ToString("N0", voyeur)}: {cell.CurrentOverlay.CellName}";
-			case FutureProgVariableTypes.Item:
+			case ProgVariableTypes.Item:
 				var item = (IGameItem)variable;
 				return
 					$"Item #{item.Id.ToString("N0", voyeur)} Proto {item.Prototype.Id.ToString("N0", voyeur)}r{item.Prototype.RevisionNumber.ToString("N0", voyeur)} - {item.HowSeen(voyeur)}";
-			case FutureProgVariableTypes.Gender:
+			case ProgVariableTypes.Gender:
 				return Gendering.Get((Gender)variable.GetObject).GenderClass();
-			case FutureProgVariableTypes.Shard:
+			case ProgVariableTypes.Shard:
 				return $"Shard #{thing.Id} - {thing.Name}";
-			case FutureProgVariableTypes.Zone:
+			case ProgVariableTypes.Zone:
 				return $"Zone #{thing.Id} - {thing.Name}";
-			case FutureProgVariableTypes.Race:
+			case ProgVariableTypes.Race:
 				return $"Race #{thing.Id} - {thing.Name}";
-			case FutureProgVariableTypes.Culture:
+			case ProgVariableTypes.Culture:
 				return $"Culture #{thing.Id} - {thing.Name}";
-			case FutureProgVariableTypes.Chargen:
+			case ProgVariableTypes.Chargen:
 				var chargen = (Chargen)variable.GetObject;
 				return
 					$"Chargen #{chargen.Id} - {chargen.SelectedName?.GetName(NameStyle.FullWithNickname) ?? "Unnamed"}";
-			case FutureProgVariableTypes.Trait:
+			case ProgVariableTypes.Trait:
 				return $"Trait #{thing.Id} - {thing.Name}";
-			case FutureProgVariableTypes.Clan:
+			case ProgVariableTypes.Clan:
 				return $"Clan #{thing.Id} - {thing.Name}";
-			case FutureProgVariableTypes.ClanRank:
+			case ProgVariableTypes.ClanRank:
 				return $"Clan Rank #{thing.Id} - {thing.Name}";
-			case FutureProgVariableTypes.ClanAppointment:
+			case ProgVariableTypes.ClanAppointment:
 				return $"Clan Appointment #{thing.Id} - {thing.Name}";
-			case FutureProgVariableTypes.ClanPaygrade:
+			case ProgVariableTypes.ClanPaygrade:
 				return $"Clan Paygrade #{thing.Id} - {thing.Name}";
-			case FutureProgVariableTypes.Currency:
+			case ProgVariableTypes.Currency:
 				return $"Currency #{thing.Id} - {thing.Name}";
-			case FutureProgVariableTypes.Exit:
+			case ProgVariableTypes.Exit:
 				var exit = (ICellExit)variable.GetObject;
 				return
 					$"Exit #{exit.Exit.Id} - {exit.OutboundMovementSuffix} from {exit.Origin.CurrentOverlay.CellName} to {exit.Destination.CurrentOverlay.CellName}";
-			case FutureProgVariableTypes.DateTime:
+			case ProgVariableTypes.DateTime:
 				return ((DateTime)variable.GetObject).GetLocalDateString(voyeur?.Account ?? DummyAccount.Instance);
-			case FutureProgVariableTypes.TimeSpan:
+			case ProgVariableTypes.TimeSpan:
 				return ((TimeSpan)variable.GetObject).Describe(voyeur);
-			case FutureProgVariableTypes.Language:
+			case ProgVariableTypes.Language:
 				return $"Language #{thing.Id} - {thing.Name}";
-			case FutureProgVariableTypes.Accent:
+			case ProgVariableTypes.Accent:
 				return $"Accent #{thing.Id} - {thing.Name}";
-			case FutureProgVariableTypes.Merit:
+			case ProgVariableTypes.Merit:
 				return $"Merit #{thing.Id} - {thing.Name}";
-			case FutureProgVariableTypes.MudDateTime:
+			case ProgVariableTypes.MudDateTime:
 				var mdt = (MudDateTime)variable.GetObject;
 				return mdt.GetDateTimeString();
-			case FutureProgVariableTypes.Calendar:
+			case ProgVariableTypes.Calendar:
 				return $"Calendar #{thing.Id} - {thing.Name}";
-			case FutureProgVariableTypes.Clock:
+			case ProgVariableTypes.Clock:
 				return $"Clock #{thing.Id} - {thing.Name}";
-			case FutureProgVariableTypes.Effect:
+			case ProgVariableTypes.Effect:
 				var effect = (IEffectSubtype)variable.GetObject;
 				return $"Effect #{effect.Id} - {effect.Describe(voyeur)}";
-			case FutureProgVariableTypes.Knowledge:
+			case ProgVariableTypes.Knowledge:
 				return $"Knowledge #{thing.Id} - {thing.Name}";
-			case FutureProgVariableTypes.Role:
+			case ProgVariableTypes.Role:
 				return $"Role #{thing.Id} - {thing.Name}";
-			case FutureProgVariableTypes.Ethnicity:
+			case ProgVariableTypes.Ethnicity:
 				return $"Ethnicity #{thing.Id} - {thing.Name}";
-			case FutureProgVariableTypes.Drug:
+			case ProgVariableTypes.Drug:
 				return $"Drug #{thing.Id} - {thing.Name}";
-			case FutureProgVariableTypes.WeatherEvent:
+			case ProgVariableTypes.WeatherEvent:
 				return $"WeatherEvent #{thing.Id} - {thing.Name}";
-			case FutureProgVariableTypes.Perceivable:
+			case ProgVariableTypes.Perceivable:
 				return $"Perceivable {thing.Id} type {thing.FrameworkItemType}";
-			case FutureProgVariableTypes.Perceiver:
+			case ProgVariableTypes.Perceiver:
 				return $"Perceiver {thing.Id} type {thing.FrameworkItemType}";
-			case FutureProgVariableTypes.MagicResourceHaver:
+			case ProgVariableTypes.MagicResourceHaver:
 				return $"MagicResourceHaver {thing.Id} type {thing.FrameworkItemType}";
-			case FutureProgVariableTypes.Shop:
+			case ProgVariableTypes.Shop:
 				return $"Shop {thing.Id} \"{thing.Name}\"";
-			case FutureProgVariableTypes.Merchandise:
+			case ProgVariableTypes.Merchandise:
 				return $"Merchandise {thing.Id} \"{thing.Name}\"";
-			case FutureProgVariableTypes.Outfit:
+			case ProgVariableTypes.Outfit:
 				return $"Outfit {thing.Id} \"{thing.Name}\"";
-			case FutureProgVariableTypes.LiquidMixture:
+			case ProgVariableTypes.LiquidMixture:
 				return $"Liquid Mixture {((LiquidMixture)variable.GetObject).ColouredLiquidDescription}";
 		}
 
 		return variable.GetObject.ToString();
 	}
 
-	private static IEnumerable<FutureProgVariableTypes> _allreferenceTypes;
+	private static IEnumerable<ProgVariableTypes> _allreferenceTypes;
 	private FutureProgStaticType _staticType = FutureProgStaticType.NotStatic;
 
-	public static IEnumerable<FutureProgVariableTypes> AllReferenceTypes
+	public static IEnumerable<ProgVariableTypes> AllReferenceTypes
 	{
 		get
 		{
 			if (_allreferenceTypes == null)
 			{
-				_allreferenceTypes = FutureProgVariableTypes.ReferenceType.GetFlags().Cast<FutureProgVariableTypes>()
+				_allreferenceTypes = ProgVariableTypes.ReferenceType.GetFlags().Cast<ProgVariableTypes>()
 															.ToList();
 			}
 

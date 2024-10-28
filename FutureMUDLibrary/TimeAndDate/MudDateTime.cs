@@ -13,7 +13,7 @@ using MudSharp.TimeAndDate.Time;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace MudSharp.TimeAndDate {
-	public class MudDateTime : IFutureProgVariable, IComparable, IComparable<MudDateTime> {
+	public class MudDateTime : IProgVariable, IComparable, IComparable<MudDateTime> {
 		private static readonly Regex PlayerParseRegex = new(@"^(?<date>\d+[/-][a-z]+[/-]\d+) (?:(?<timezone>\w+)\s+){0,1}(?<time>\d+:\d+:\d+(?:\s*\w+)*)$", RegexOptions.IgnoreCase);
 
 		private static readonly Regex ParseRegex =
@@ -403,7 +403,7 @@ You can also enter the special values #3never#0 and #3now#0.";
 
 		#region IFutureProgVariable implementation
 
-		public IFutureProgVariable GetProperty(string property) {
+		public IProgVariable GetProperty(string property) {
 			switch (property.ToLowerInvariant()) {
 				case "second":
 					return new NumberVariable(Time?.Seconds ?? 0);
@@ -432,54 +432,54 @@ You can also enter the special values #3never#0 and #3now#0.";
 			throw new NotSupportedException($"Unsupported property type {property} in MudDateTime.GetProperty");
 		}
 
-		public FutureProgVariableTypes Type => FutureProgVariableTypes.MudDateTime;
+		public ProgVariableTypes Type => ProgVariableTypes.MudDateTime;
 
 		public object GetObject => this;
 
-		private static FutureProgVariableTypes DotReferenceHandler(string property) {
+		private static ProgVariableTypes DotReferenceHandler(string property) {
 			switch (property.ToLowerInvariant()) {
 				case "second":
-					return FutureProgVariableTypes.Number;
+					return ProgVariableTypes.Number;
 				case "minute":
-					return FutureProgVariableTypes.Number;
+					return ProgVariableTypes.Number;
 				case "hour":
-					return FutureProgVariableTypes.Number;
+					return ProgVariableTypes.Number;
 				case "day":
-					return FutureProgVariableTypes.Number;
+					return ProgVariableTypes.Number;
 				case "month":
-					return FutureProgVariableTypes.Text;
+					return ProgVariableTypes.Text;
 				case "year":
-					return FutureProgVariableTypes.Number;
+					return ProgVariableTypes.Number;
 				case "isnever":
-					return FutureProgVariableTypes.Boolean;
+					return ProgVariableTypes.Boolean;
 				case "midnight":
-					return FutureProgVariableTypes.MudDateTime;
+					return ProgVariableTypes.MudDateTime;
 				case "calendar":
-					return FutureProgVariableTypes.Calendar;
+					return ProgVariableTypes.Calendar;
 				case "clock":
-					return FutureProgVariableTypes.Clock;
+					return ProgVariableTypes.Clock;
 				case "timezone":
-					return FutureProgVariableTypes.Text;
+					return ProgVariableTypes.Text;
 				default:
-					return FutureProgVariableTypes.Error;
+					return ProgVariableTypes.Error;
 			}
 		}
 
-		private static IReadOnlyDictionary<string,FutureProgVariableTypes> DotReferenceHandler()
+		private static IReadOnlyDictionary<string,ProgVariableTypes> DotReferenceHandler()
 		{
-			return new Dictionary<string, FutureProgVariableTypes>(StringComparer.InvariantCultureIgnoreCase)
+			return new Dictionary<string, ProgVariableTypes>(StringComparer.InvariantCultureIgnoreCase)
 			{
-				{"second", FutureProgVariableTypes.Number},
-				{"minute", FutureProgVariableTypes.Number},
-				{"hour", FutureProgVariableTypes.Number},
-				{"day", FutureProgVariableTypes.Number},
-				{"month", FutureProgVariableTypes.Text},
-				{"year", FutureProgVariableTypes.Number},
-				{"isnever", FutureProgVariableTypes.Boolean},
-				{"midnight", FutureProgVariableTypes.MudDateTime},
-				{"calendar", FutureProgVariableTypes.Calendar},
-				{"clock", FutureProgVariableTypes.Clock},
-				{"timezone", FutureProgVariableTypes.Text},
+				{"second", ProgVariableTypes.Number},
+				{"minute", ProgVariableTypes.Number},
+				{"hour", ProgVariableTypes.Number},
+				{"day", ProgVariableTypes.Number},
+				{"month", ProgVariableTypes.Text},
+				{"year", ProgVariableTypes.Number},
+				{"isnever", ProgVariableTypes.Boolean},
+				{"midnight", ProgVariableTypes.MudDateTime},
+				{"calendar", ProgVariableTypes.Calendar},
+				{"clock", ProgVariableTypes.Clock},
+				{"timezone", ProgVariableTypes.Text},
 			};
 		}
 
@@ -502,7 +502,7 @@ You can also enter the special values #3never#0 and #3now#0.";
 		}
 
 		public static void RegisterFutureProgCompiler() {
-			FutureProgVariable.RegisterDotReferenceCompileInfo(FutureProgVariableTypes.MudDateTime, DotReferenceHandler(), DotReferenceHelp());
+			ProgVariable.RegisterDotReferenceCompileInfo(ProgVariableTypes.MudDateTime, DotReferenceHandler(), DotReferenceHelp());
 		}
 
 		#endregion

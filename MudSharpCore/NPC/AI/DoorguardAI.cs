@@ -388,11 +388,11 @@ public class DoorguardAI : ArtificialIntelligenceBase
 		}
 
 		var prog = new ProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument,
-			FutureProgVariableTypes.Void, new[]
+			ProgVariableTypes.Void, new[]
 			{
-				new[] { FutureProgVariableTypes.Character, },
-				new[] { FutureProgVariableTypes.Character, FutureProgVariableTypes.Character },
-				new[] { FutureProgVariableTypes.Character, FutureProgVariableTypes.Character, FutureProgVariableTypes.Exit }
+				new[] { ProgVariableTypes.Character, },
+				new[] { ProgVariableTypes.Character, ProgVariableTypes.Character },
+				new[] { ProgVariableTypes.Character, ProgVariableTypes.Character, ProgVariableTypes.Exit }
 			}).LookupProg();
 		if (prog is null)
 		{
@@ -422,11 +422,11 @@ public class DoorguardAI : ArtificialIntelligenceBase
 		}
 
 		var prog = new ProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument,
-			FutureProgVariableTypes.Void, new[]
+			ProgVariableTypes.Void, new[]
 			{
-				new[] { FutureProgVariableTypes.Character, },
-				new[] { FutureProgVariableTypes.Character, FutureProgVariableTypes.Character },
-				new[] { FutureProgVariableTypes.Character, FutureProgVariableTypes.Character, FutureProgVariableTypes.Exit }
+				new[] { ProgVariableTypes.Character, },
+				new[] { ProgVariableTypes.Character, ProgVariableTypes.Character },
+				new[] { ProgVariableTypes.Character, ProgVariableTypes.Character, ProgVariableTypes.Exit }
 			}).LookupProg();
 		if (prog is null)
 		{
@@ -456,11 +456,11 @@ public class DoorguardAI : ArtificialIntelligenceBase
 		}
 
 		var prog = new ProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument,
-			FutureProgVariableTypes.Void, new[]
+			ProgVariableTypes.Void, new[]
 			{
-				new[] { FutureProgVariableTypes.Character, },
-				new[] { FutureProgVariableTypes.Character, FutureProgVariableTypes.Character },
-				new[] { FutureProgVariableTypes.Character, FutureProgVariableTypes.Character, FutureProgVariableTypes.Exit }
+				new[] { ProgVariableTypes.Character, },
+				new[] { ProgVariableTypes.Character, ProgVariableTypes.Character },
+				new[] { ProgVariableTypes.Character, ProgVariableTypes.Character, ProgVariableTypes.Exit }
 			}).LookupProg();
 		if (prog is null)
 		{
@@ -490,11 +490,11 @@ public class DoorguardAI : ArtificialIntelligenceBase
 		}
 
 		var prog = new ProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument,
-			FutureProgVariableTypes.Void, new[]
+			ProgVariableTypes.Void, new[]
 			{
-				new[] { FutureProgVariableTypes.Character, },
-				new[] { FutureProgVariableTypes.Character, FutureProgVariableTypes.Character },
-				new[] { FutureProgVariableTypes.Character, FutureProgVariableTypes.Character, FutureProgVariableTypes.Exit }
+				new[] { ProgVariableTypes.Character, },
+				new[] { ProgVariableTypes.Character, ProgVariableTypes.Character },
+				new[] { ProgVariableTypes.Character, ProgVariableTypes.Character, ProgVariableTypes.Exit }
 			}).LookupProg();
 		if (prog is null)
 		{
@@ -524,11 +524,11 @@ public class DoorguardAI : ArtificialIntelligenceBase
 		}
 
 		var prog = new ProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument,
-			FutureProgVariableTypes.Void, new[]
+			ProgVariableTypes.Void, new[]
 			{
-				new[] { FutureProgVariableTypes.Character, },
-				new[] { FutureProgVariableTypes.Character, FutureProgVariableTypes.Character },
-				new[] { FutureProgVariableTypes.Character, FutureProgVariableTypes.Character, FutureProgVariableTypes.Exit }
+				new[] { ProgVariableTypes.Character, },
+				new[] { ProgVariableTypes.Character, ProgVariableTypes.Character },
+				new[] { ProgVariableTypes.Character, ProgVariableTypes.Character, ProgVariableTypes.Exit }
 			}).LookupProg();
 		if (prog is null)
 		{
@@ -550,11 +550,11 @@ public class DoorguardAI : ArtificialIntelligenceBase
 		}
 
 		var prog = new ProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument,
-			FutureProgVariableTypes.Boolean, new[]
+			ProgVariableTypes.Boolean, new[]
 			{
-				new[] { FutureProgVariableTypes.Character, },
-				new[] { FutureProgVariableTypes.Character, FutureProgVariableTypes.Character },
-				new[] { FutureProgVariableTypes.Character, FutureProgVariableTypes.Character, FutureProgVariableTypes.Exit }
+				new[] { ProgVariableTypes.Character, },
+				new[] { ProgVariableTypes.Character, ProgVariableTypes.Character },
+				new[] { ProgVariableTypes.Character, ProgVariableTypes.Character, ProgVariableTypes.Exit }
 			}).LookupProg();
 		if (prog is null)
 		{
@@ -576,11 +576,11 @@ public class DoorguardAI : ArtificialIntelligenceBase
 		}
 
 		var prog = new ProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument,
-			FutureProgVariableTypes.Number, new[]
+			ProgVariableTypes.Number, new[]
 			{
-				new[] { FutureProgVariableTypes.Character, },
-				new[] { FutureProgVariableTypes.Character, FutureProgVariableTypes.Character },
-				new[] { FutureProgVariableTypes.Character, FutureProgVariableTypes.Character, FutureProgVariableTypes.Exit }
+				new[] { ProgVariableTypes.Character, },
+				new[] { ProgVariableTypes.Character, ProgVariableTypes.Character },
+				new[] { ProgVariableTypes.Character, ProgVariableTypes.Character, ProgVariableTypes.Exit }
 			}).LookupProg();
 		if (prog is null)
 		{
@@ -602,11 +602,11 @@ public class DoorguardAI : ArtificialIntelligenceBase
 		}
 
 		var prog = new ProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument,
-			FutureProgVariableTypes.Number, new[]
+			ProgVariableTypes.Number, new[]
 			{
-				new[] { FutureProgVariableTypes.Character, },
-				new[] { FutureProgVariableTypes.Character, FutureProgVariableTypes.Character },
-				new[] { FutureProgVariableTypes.Character, FutureProgVariableTypes.Character, FutureProgVariableTypes.Exit }
+				new[] { ProgVariableTypes.Character, },
+				new[] { ProgVariableTypes.Character, ProgVariableTypes.Character },
+				new[] { ProgVariableTypes.Character, ProgVariableTypes.Character, ProgVariableTypes.Exit }
 			}).LookupProg();
 		if (prog is null)
 		{

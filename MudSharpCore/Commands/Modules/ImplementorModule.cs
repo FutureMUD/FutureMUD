@@ -909,13 +909,13 @@ div.function-generalhelp {
 </style></head>");
 		html.WriteLine("<body>\n<h1>FutureMUD Type Help Reference</h1>");
 
-		foreach (var type in FutureProgVariableTypes.Anything
+		foreach (var type in ProgVariableTypes.Anything
 													.GetAllFlags()
-													.OrderBy(x => x is FutureProgVariableTypes.Collection or FutureProgVariableTypes.CollectionDictionary or FutureProgVariableTypes.Dictionary)
+													.OrderBy(x => x is ProgVariableTypes.Collection or ProgVariableTypes.CollectionDictionary or ProgVariableTypes.Dictionary)
 													.ThenBy(x => x.Describe())
 													.ToList())
 		{
-			var info = FutureProgVariable.DotReferenceCompileInfos.GetValueOrDefault(type, null);
+			var info = ProgVariable.DotReferenceCompileInfos.GetValueOrDefault(type, null);
 			if (info is null)
 			{
 				continue;
@@ -986,8 +986,8 @@ div.function-generalhelp {
 				parameterNames = list;
 			}
 
-			FutureProgVariableTypes returnType;
-			if (function.ReturnType != FutureProgVariableTypes.Error)
+			ProgVariableTypes returnType;
+			if (function.ReturnType != ProgVariableTypes.Error)
 			{
 				returnType = function.ReturnType;
 			}
@@ -1107,8 +1107,8 @@ div.function-generalhelp {
 					parameterNames = list;
 				}
 
-				FutureProgVariableTypes returnType;
-				if (function.ReturnType != FutureProgVariableTypes.Error)
+				ProgVariableTypes returnType;
+				if (function.ReturnType != ProgVariableTypes.Error)
 				{
 					returnType = function.ReturnType;
 				}

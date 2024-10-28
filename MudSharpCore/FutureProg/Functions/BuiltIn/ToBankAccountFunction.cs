@@ -14,7 +14,7 @@ internal class ToBankAccountFunction : BuiltInFunction
 		FutureProg.RegisterBuiltInFunctionCompiler(
 			new FunctionCompilerInformation(
 				"tobankaccount",
-				[FutureProgVariableTypes.Number], // the parameters the function takes
+				[ProgVariableTypes.Number], // the parameters the function takes
 				(pars, gameworld) => new ToBankAccountFunction(pars, gameworld),
 				new List<string>
 				{
@@ -26,13 +26,13 @@ internal class ToBankAccountFunction : BuiltInFunction
 				}, // parameter help text
 				"Returns the bank account referenced by the ID, or null if not found", // help text for the function,
 				"Lookup", // the category to which this function belongs,
-				FutureProgVariableTypes.BankAccount // the return type of the function
+				ProgVariableTypes.BankAccount // the return type of the function
 			)
 		);
 		FutureProg.RegisterBuiltInFunctionCompiler(
 			new FunctionCompilerInformation(
 				"tobankaccount",
-				[FutureProgVariableTypes.Text], // the parameters the function takes
+				[ProgVariableTypes.Text], // the parameters the function takes
 				(pars, gameworld) => new ToBankAccountFunction(pars, gameworld),
 				new List<string>
 				{
@@ -44,15 +44,15 @@ internal class ToBankAccountFunction : BuiltInFunction
 				}, // parameter help text
 				"Returns the bank account referenced by the code, or null if not found", // help text for the function,
 				"Lookup", // the category to which this function belongs,
-				FutureProgVariableTypes.BankAccount // the return type of the function
+				ProgVariableTypes.BankAccount // the return type of the function
 			)
 		);
 		FutureProg.RegisterBuiltInFunctionCompiler(
 			new FunctionCompilerInformation(
 				"tobankaccount",
 				[
-					FutureProgVariableTypes.Bank,
-					FutureProgVariableTypes.Text
+					ProgVariableTypes.Bank,
+					ProgVariableTypes.Text
 				], // the parameters the function takes
 				(pars, gameworld) => new ToBankAccountFunction(pars, gameworld),
 				new List<string>
@@ -67,7 +67,7 @@ internal class ToBankAccountFunction : BuiltInFunction
 				}, // parameter help text
 				"Returns the bank account referenced by the code, or null if not found", // help text for the function,
 				"Lookup", // the category to which this function belongs,
-				FutureProgVariableTypes.BankAccount // the return type of the function
+				ProgVariableTypes.BankAccount // the return type of the function
 			)
 		);
 	}
@@ -80,9 +80,9 @@ internal class ToBankAccountFunction : BuiltInFunction
 	}
 	#endregion
 
-	public override FutureProgVariableTypes ReturnType
+	public override ProgVariableTypes ReturnType
 	{
-		get { return FutureProgVariableTypes.BankAccount; }
+		get { return ProgVariableTypes.BankAccount; }
 		protected set { }
 	}
 
@@ -93,7 +93,7 @@ internal class ToBankAccountFunction : BuiltInFunction
 			return StatementResult.Error;
 		}
 
-		if (ParameterFunctions[0].ReturnType.CompatibleWith(FutureProgVariableTypes.Number))
+		if (ParameterFunctions[0].ReturnType.CompatibleWith(ProgVariableTypes.Number))
 		{
 			var id = (long)(decimal)ParameterFunctions[0].Result.GetObject;
 			Result = Gameworld.BankAccounts.Get(id);

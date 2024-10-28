@@ -8,7 +8,7 @@ using MudSharp.FutureProg;
 
 namespace MudSharp.Economy;
 
-public interface IBankAccountType : IFrameworkItem, IEditableItem, ISaveable, IFutureProgVariable
+public interface IBankAccountType : IFrameworkItem, IEditableItem, ISaveable, IProgVariable
 {
 	(bool Truth, string Reason) CanOpenAccount(ICharacter actor);
 	(bool Truth, string Reason) CanOpenAccount(IClan clan);

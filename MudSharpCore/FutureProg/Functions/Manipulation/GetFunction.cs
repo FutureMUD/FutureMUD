@@ -17,9 +17,9 @@ internal class GetFunction : BuiltInFunction
 
 	public bool Silent { get; set; }
 
-	public override FutureProgVariableTypes ReturnType
+	public override ProgVariableTypes ReturnType
 	{
-		get => FutureProgVariableTypes.Boolean;
+		get => ProgVariableTypes.Boolean;
 		protected set { }
 	}
 
@@ -48,11 +48,11 @@ internal class GetFunction : BuiltInFunction
 		var emoteText = "";
 		if (ParameterFunctions.Count > 2)
 		{
-			quantity = ParameterFunctions[2].ReturnType.CompatibleWith(FutureProgVariableTypes.Number)
+			quantity = ParameterFunctions[2].ReturnType.CompatibleWith(ProgVariableTypes.Number)
 				? (int)(decimal)ParameterFunctions[2].Result.GetObject
 				: 0;
 
-			emoteText = ParameterFunctions[2].ReturnType.CompatibleWith(FutureProgVariableTypes.Number)
+			emoteText = ParameterFunctions[2].ReturnType.CompatibleWith(ProgVariableTypes.Number)
 				? (string)ParameterFunctions[3].Result.GetObject
 				: (string)ParameterFunctions[2].Result.GetObject;
 		}
@@ -96,7 +96,7 @@ internal class GetFunction : BuiltInFunction
 	{
 		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
 			"get",
-			new[] { FutureProgVariableTypes.Character, FutureProgVariableTypes.Item, FutureProgVariableTypes.Text },
+			new[] { ProgVariableTypes.Character, ProgVariableTypes.Item, ProgVariableTypes.Text },
 			(pars, gameworld) => new GetFunction(pars, false)
 		));
 
@@ -104,21 +104,21 @@ internal class GetFunction : BuiltInFunction
 			"get",
 			new[]
 			{
-				FutureProgVariableTypes.Character, FutureProgVariableTypes.Item, FutureProgVariableTypes.Number,
-				FutureProgVariableTypes.Text
+				ProgVariableTypes.Character, ProgVariableTypes.Item, ProgVariableTypes.Number,
+				ProgVariableTypes.Text
 			},
 			(pars, gameworld) => new GetFunction(pars, false)
 		));
 
 		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
 			"silentget",
-			new[] { FutureProgVariableTypes.Character, FutureProgVariableTypes.Item },
+			new[] { ProgVariableTypes.Character, ProgVariableTypes.Item },
 			(pars, gameworld) => new GetFunction(pars, true)
 		));
 
 		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
 			"silentget",
-			new[] { FutureProgVariableTypes.Character, FutureProgVariableTypes.Item, FutureProgVariableTypes.Number },
+			new[] { ProgVariableTypes.Character, ProgVariableTypes.Item, ProgVariableTypes.Number },
 			(pars, gameworld) => new GetFunction(pars, true)
 		));
 	}
@@ -134,9 +134,9 @@ internal class GetContainerFunction : BuiltInFunction
 
 	public bool Silent { get; set; }
 
-	public override FutureProgVariableTypes ReturnType
+	public override ProgVariableTypes ReturnType
 	{
-		get => FutureProgVariableTypes.Boolean;
+		get => ProgVariableTypes.Boolean;
 		protected set { }
 	}
 
@@ -168,11 +168,11 @@ internal class GetContainerFunction : BuiltInFunction
 			return StatementResult.Error;
 		}
 
-		var quantity = ParameterFunctions[3].ReturnType.CompatibleWith(FutureProgVariableTypes.Number)
+		var quantity = ParameterFunctions[3].ReturnType.CompatibleWith(ProgVariableTypes.Number)
 			? ((int?)(decimal?)ParameterFunctions[3].Result.GetObject ?? 0)
 			: 0;
 
-		var emoteText = ParameterFunctions[3].ReturnType.CompatibleWith(FutureProgVariableTypes.Number)
+		var emoteText = ParameterFunctions[3].ReturnType.CompatibleWith(ProgVariableTypes.Number)
 			? (string)ParameterFunctions[4].Result.GetObject
 			: (string)ParameterFunctions[3].Result.GetObject;
 
@@ -216,8 +216,8 @@ internal class GetContainerFunction : BuiltInFunction
 			"get",
 			new[]
 			{
-				FutureProgVariableTypes.Character, FutureProgVariableTypes.Item, FutureProgVariableTypes.Item,
-				FutureProgVariableTypes.Text
+				ProgVariableTypes.Character, ProgVariableTypes.Item, ProgVariableTypes.Item,
+				ProgVariableTypes.Text
 			},
 			(pars, gameworld) => new GetContainerFunction(pars, false)
 		));
@@ -226,15 +226,15 @@ internal class GetContainerFunction : BuiltInFunction
 			"get",
 			new[]
 			{
-				FutureProgVariableTypes.Character, FutureProgVariableTypes.Item, FutureProgVariableTypes.Item,
-				FutureProgVariableTypes.Number, FutureProgVariableTypes.Text
+				ProgVariableTypes.Character, ProgVariableTypes.Item, ProgVariableTypes.Item,
+				ProgVariableTypes.Number, ProgVariableTypes.Text
 			},
 			(pars, gameworld) => new GetContainerFunction(pars, false)
 		));
 
 		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
 			"silentget",
-			new[] { FutureProgVariableTypes.Character, FutureProgVariableTypes.Item, FutureProgVariableTypes.Item },
+			new[] { ProgVariableTypes.Character, ProgVariableTypes.Item, ProgVariableTypes.Item },
 			(pars, gameworld) => new GetContainerFunction(pars, true)
 		));
 
@@ -242,8 +242,8 @@ internal class GetContainerFunction : BuiltInFunction
 			"silentget",
 			new[]
 			{
-				FutureProgVariableTypes.Character, FutureProgVariableTypes.Item, FutureProgVariableTypes.Item,
-				FutureProgVariableTypes.Number
+				ProgVariableTypes.Character, ProgVariableTypes.Item, ProgVariableTypes.Item,
+				ProgVariableTypes.Number
 			},
 			(pars, gameworld) => new GetContainerFunction(pars, true)
 		));

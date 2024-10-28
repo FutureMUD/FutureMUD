@@ -167,14 +167,14 @@ public class CharacteristicValue : FrameworkItem, ISaveable, ICharacteristicValu
 			return;
 		}
 
-		if (!prog.ReturnType.CompatibleWith(FutureProgVariableTypes.Boolean))
+		if (!prog.ReturnType.CompatibleWith(ProgVariableTypes.Boolean))
 		{
 			actor.OutputHandler.Send(
 				$"You must specify a prog that returns a boolean value, whereas {prog.MXPClickableFunctionName()} returns {prog.ReturnType.Describe().ColourName()}.");
 			return;
 		}
 
-		if (!prog.MatchesParameters(new[] { FutureProgVariableTypes.Character }))
+		if (!prog.MatchesParameters(new[] { ProgVariableTypes.Character }))
 		{
 			actor.OutputHandler.Send(
 				$"You must specify a prog that is compatible with a single Character parameter, whereas {prog.MXPClickableFunctionName()} does not.");
@@ -201,14 +201,14 @@ public class CharacteristicValue : FrameworkItem, ISaveable, ICharacteristicValu
 			return;
 		}
 
-		if (!prog.ReturnType.CompatibleWith(FutureProgVariableTypes.Boolean))
+		if (!prog.ReturnType.CompatibleWith(ProgVariableTypes.Boolean))
 		{
 			actor.OutputHandler.Send(
 				$"You must specify a prog that returns a boolean value, whereas {prog.MXPClickableFunctionName()} returns {prog.ReturnType.Describe().ColourName()}.");
 			return;
 		}
 
-		if (!prog.MatchesParameters(new[] { FutureProgVariableTypes.Chargen }))
+		if (!prog.MatchesParameters(new[] { ProgVariableTypes.Chargen }))
 		{
 			actor.OutputHandler.Send(
 				$"You must specify a prog that is compatible with a single Chargen parameter, whereas {prog.MXPClickableFunctionName()} does not.");

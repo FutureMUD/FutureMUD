@@ -11,7 +11,7 @@ using MudSharp.RPG.Checks;
 
 namespace MudSharp.Communication.Language
 {
-    public interface IAccent : IEditableItem, IFutureProgVariable
+    public interface IAccent : IEditableItem, IProgVariable
     {
         string AccentSuffix { get; }
 

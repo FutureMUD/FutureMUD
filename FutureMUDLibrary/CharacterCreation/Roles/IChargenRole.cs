@@ -11,7 +11,7 @@ using MudSharp.FutureProg;
 using MudSharp.RPG.Merits;
 
 namespace MudSharp.CharacterCreation.Roles {
-    public interface IChargenRole : IFrameworkItem, ISaveable, IFutureProgVariable, IEditableItem {
+    public interface IChargenRole : IFrameworkItem, ISaveable, IProgVariable, IEditableItem {
         /// <summary>
         ///     An enumerable representing the type of role in question
         /// </summary>

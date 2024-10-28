@@ -27,7 +27,7 @@ internal class TakeCommodity : BuiltInFunction
 		FutureProg.RegisterBuiltInFunctionCompiler(
 			new FunctionCompilerInformation(
 				"TakeCommodity".ToLowerInvariant(),
-				new[] { FutureProgVariableTypes.Item, FutureProgVariableTypes.Number },
+				new[] { ProgVariableTypes.Item, ProgVariableTypes.Number },
 				(pars, gameworld) => new TakeCommodity(pars, gameworld),
 				new List<string> { "item", "weight" },
 				new List<string>
@@ -37,14 +37,14 @@ internal class TakeCommodity : BuiltInFunction
 				},
 				"This function takes a certain weight off of a commodity pile. If the weight is equal to or higher than the weight of the commodity pile, it deletes the pile. Returns true if it succeeded at taking the weight.",
 				"Items",
-				FutureProgVariableTypes.Boolean
+				ProgVariableTypes.Boolean
 			)
 		);
 
 		FutureProg.RegisterBuiltInFunctionCompiler(
 			new FunctionCompilerInformation(
 				"TakeCommodity".ToLowerInvariant(),
-				new[] { FutureProgVariableTypes.Item, FutureProgVariableTypes.Text },
+				new[] { ProgVariableTypes.Item, ProgVariableTypes.Text },
 				(pars, gameworld) => new TakeCommodity(pars, gameworld),
 				new List<string> { "item", "weight" },
 				new List<string>
@@ -54,7 +54,7 @@ internal class TakeCommodity : BuiltInFunction
 				},
 				"This function takes a certain weight off of a commodity pile. If the weight is equal to or higher than the weight of the commodity pile, it deletes the pile. Returns true if it succeeded at taking the weight.",
 				"Items",
-				FutureProgVariableTypes.Boolean
+				ProgVariableTypes.Boolean
 			)
 		);
 	}
@@ -70,9 +70,9 @@ internal class TakeCommodity : BuiltInFunction
 
 	#endregion
 
-	public override FutureProgVariableTypes ReturnType
+	public override ProgVariableTypes ReturnType
 	{
-		get => FutureProgVariableTypes.Boolean;
+		get => ProgVariableTypes.Boolean;
 		protected set { }
 	}
 

@@ -14,17 +14,17 @@ internal class CollectionDictionaryIndexFunction : Function
 	public IFunction IndexFunction { get; }
 
 	public CollectionDictionaryIndexFunction(string whichVariable, IFunction indexFunction,
-		FutureProgVariableTypes returnType)
+		ProgVariableTypes returnType)
 	{
 		WhichVariable = whichVariable;
 		IndexFunction = indexFunction;
-		ReturnType = returnType | FutureProgVariableTypes.Collection;
+		ReturnType = returnType | ProgVariableTypes.Collection;
 	}
 
 	public override StatementResult Execute(IVariableSpace variables)
 	{
 		var dictionary =
-			(CollectionDictionary<string, IFutureProgVariable>)variables.GetVariable(WhichVariable)?.GetObject;
+			(CollectionDictionary<string, IProgVariable>)variables.GetVariable(WhichVariable)?.GetObject;
 		if (dictionary == null)
 		{
 			ErrorMessage = "Dictionary was null";
@@ -42,8 +42,8 @@ internal class CollectionDictionaryIndexFunction : Function
 		var valueType = dictionary.ValueType;
 		;
 		Result = index != null && dictionary.ContainsKey(index)
-			? new CollectionVariable(dictionary[index], ReturnType & ~FutureProgVariableTypes.Collection)
-			: new CollectionVariable(Utilities.CreateList(valueType), ReturnType & ~FutureProgVariableTypes.Collection);
+			? new CollectionVariable(dictionary[index], ReturnType & ~ProgVariableTypes.Collection)
+			: new CollectionVariable(Utilities.CreateList(valueType), ReturnType & ~ProgVariableTypes.Collection);
 		return StatementResult.Normal;
 	}
 }

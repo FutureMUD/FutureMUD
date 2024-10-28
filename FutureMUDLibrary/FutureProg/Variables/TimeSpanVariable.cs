@@ -2,26 +2,26 @@
 using System.Collections.Generic;
 
 namespace MudSharp.FutureProg.Variables {
-    public class TimeSpanVariable : FutureProgVariable {
+    public class TimeSpanVariable : ProgVariable {
         public TimeSpanVariable(TimeSpan span) {
             UnderlyingTimeSpan = span;
         }
 
         public TimeSpan UnderlyingTimeSpan { get; set; }
 
-        public override FutureProgVariableTypes Type => FutureProgVariableTypes.TimeSpan;
+        public override ProgVariableTypes Type => ProgVariableTypes.TimeSpan;
 
         public override object GetObject => UnderlyingTimeSpan;
 
-        private static IReadOnlyDictionary<string,FutureProgVariableTypes> DotReferenceHandler()
+        private static IReadOnlyDictionary<string,ProgVariableTypes> DotReferenceHandler()
         {
-            return new Dictionary<string, FutureProgVariableTypes>(StringComparer.InvariantCultureIgnoreCase)
+            return new Dictionary<string, ProgVariableTypes>(StringComparer.InvariantCultureIgnoreCase)
             {
-                {"days", FutureProgVariableTypes.Number},
-                {"hours", FutureProgVariableTypes.Number},
-                {"minutes", FutureProgVariableTypes.Number},
-                {"seconds", FutureProgVariableTypes.Number},
-                {"milliseconds", FutureProgVariableTypes.Number},
+                {"days", ProgVariableTypes.Number},
+                {"hours", ProgVariableTypes.Number},
+                {"minutes", ProgVariableTypes.Number},
+                {"seconds", ProgVariableTypes.Number},
+                {"milliseconds", ProgVariableTypes.Number},
             };
         }
 
@@ -38,10 +38,10 @@ namespace MudSharp.FutureProg.Variables {
         }
 
         public static void RegisterFutureProgCompiler() {
-            FutureProgVariable.RegisterDotReferenceCompileInfo(FutureProgVariableTypes.TimeSpan, DotReferenceHandler(), DotReferenceHelp());
+            ProgVariable.RegisterDotReferenceCompileInfo(ProgVariableTypes.TimeSpan, DotReferenceHandler(), DotReferenceHelp());
         }
 
-        public override IFutureProgVariable GetProperty(string property) {
+        public override IProgVariable GetProperty(string property) {
             switch (property.ToLowerInvariant()) {
                 case "days":
                     return new NumberVariable(UnderlyingTimeSpan.Days);

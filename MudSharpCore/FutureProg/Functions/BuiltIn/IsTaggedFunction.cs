@@ -21,9 +21,9 @@ internal class IsTaggedFunction : BuiltInFunction
 		Gameworld = gameworld;
 	}
 
-	public override FutureProgVariableTypes ReturnType
+	public override ProgVariableTypes ReturnType
 	{
-		get => FutureProgVariableTypes.Boolean;
+		get => ProgVariableTypes.Boolean;
 		protected set { }
 	}
 
@@ -86,28 +86,28 @@ internal class IsTaggedFunction : BuiltInFunction
 		FutureProg.RegisterBuiltInFunctionCompiler(
 			new FunctionCompilerInformation(
 				"istagged",
-				new[] { FutureProgVariableTypes.Tagged, FutureProgVariableTypes.Text },
+				new[] { ProgVariableTypes.Tagged, ProgVariableTypes.Text },
 				(pars, gameworld) => new IsTaggedFunction(pars, false, gameworld),
 				new List<string> { "thing", "tag" },
 				new List<string>
 					{ "The thing whose tags you want to interrogate", "The name of the tag you want to test for" },
 				"Returns whether or not the thing has or counts as the specified tag. For example, if you specify the tag 'Cutting Implement' and thing is tagged with the 'Knife' tag, and Knife is a Cutting Implement, then thing is a cutting implement.",
 				"Tags",
-				FutureProgVariableTypes.Boolean
+				ProgVariableTypes.Boolean
 			)
 		);
 
 		FutureProg.RegisterBuiltInFunctionCompiler(
 			new FunctionCompilerInformation(
 				"istagged",
-				new[] { FutureProgVariableTypes.Tagged, FutureProgVariableTypes.Number },
+				new[] { ProgVariableTypes.Tagged, ProgVariableTypes.Number },
 				(pars, gameworld) => new IsTaggedFunction(pars, true, gameworld),
 				new List<string> { "thing", "tag" },
 				new List<string>
 					{ "The thing whose tags you want to interrogate", "The id of the tag you want to test for" },
 				"Returns whether or not the thing has or counts as the specified tag. For example, if you specify the tag 'Cutting Implement' and thing is tagged with the 'Knife' tag, and Knife is a Cutting Implement, then thing is a cutting implement.",
 				"Tags",
-				FutureProgVariableTypes.Boolean
+				ProgVariableTypes.Boolean
 			)
 		);
 	}

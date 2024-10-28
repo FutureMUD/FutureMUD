@@ -26,13 +26,13 @@ internal class ClearMorphTimer : BuiltInFunction
 		FutureProg.RegisterBuiltInFunctionCompiler(
 			new FunctionCompilerInformation(
 				"ClearMorphTimer".ToLowerInvariant(),
-				new[] { FutureProgVariableTypes.Item },
+				new[] { ProgVariableTypes.Item },
 				(pars, gameworld) => new ClearMorphTimer(pars, gameworld),
 				new List<string> { "item" },
 				new List<string> { "The item who's morph timer you want to clear" },
 				"This function stops an item from morphing. Its timer will not resume unless specifically made to do so via SetMorphTimer. This function returns true unless there was a problem, e.g. item was null.",
 				"Items",
-				FutureProgVariableTypes.Boolean
+				ProgVariableTypes.Boolean
 			)
 		);
 	}
@@ -48,9 +48,9 @@ internal class ClearMorphTimer : BuiltInFunction
 
 	#endregion
 
-	public override FutureProgVariableTypes ReturnType
+	public override ProgVariableTypes ReturnType
 	{
-		get => FutureProgVariableTypes.Boolean;
+		get => ProgVariableTypes.Boolean;
 		protected set { }
 	}
 

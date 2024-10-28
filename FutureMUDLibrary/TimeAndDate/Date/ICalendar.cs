@@ -15,7 +15,7 @@ namespace MudSharp.TimeAndDate.Date
 
 	public delegate void CalendarEventHandler();
 	
-	public interface ICalendar : ISaveable, IXmlSavable, IXmlLoadable, IFutureProgVariable, IHaveMultipleNames
+	public interface ICalendar : ISaveable, IXmlSavable, IXmlLoadable, IProgVariable, IHaveMultipleNames
 	{
 		event CalendarEventHandler DaysUpdated;
 		event CalendarEventHandler MonthsUpdated;

@@ -403,7 +403,7 @@ public class Language : SaveableItem, ILanguage
 
 	#region IFutureProgVariable Members
 
-	public IFutureProgVariable GetProperty(string property)
+	public IProgVariable GetProperty(string property)
 	{
 		switch (property.ToLowerInvariant())
 		{
@@ -414,7 +414,7 @@ public class Language : SaveableItem, ILanguage
 			case "trait":
 				return LinkedTrait;
 			case "accents":
-				return new CollectionVariable(Accents.ToList(), FutureProgVariableTypes.Accent);
+				return new CollectionVariable(Accents.ToList(), ProgVariableTypes.Accent);
 			case "defaultaccent":
 				return DefaultLearnerAccent;
 			case "unknown":
@@ -424,20 +424,20 @@ public class Language : SaveableItem, ILanguage
 		}
 	}
 
-	public FutureProgVariableTypes Type => FutureProgVariableTypes.Language;
+	public ProgVariableTypes Type => ProgVariableTypes.Language;
 
 	public object GetObject => this;
 
-	private static IReadOnlyDictionary<string, FutureProgVariableTypes> DotReferenceHandler()
+	private static IReadOnlyDictionary<string, ProgVariableTypes> DotReferenceHandler()
 	{
-		return new Dictionary<string, FutureProgVariableTypes>(StringComparer.InvariantCultureIgnoreCase)
+		return new Dictionary<string, ProgVariableTypes>(StringComparer.InvariantCultureIgnoreCase)
 		{
-			{ "id", FutureProgVariableTypes.Number },
-			{ "name", FutureProgVariableTypes.Text },
-			{ "trait", FutureProgVariableTypes.Trait },
-			{ "accents", FutureProgVariableTypes.Accent | FutureProgVariableTypes.Collection },
-			{ "defaultaccent", FutureProgVariableTypes.Text },
-			{ "unknown", FutureProgVariableTypes.Text }
+			{ "id", ProgVariableTypes.Number },
+			{ "name", ProgVariableTypes.Text },
+			{ "trait", ProgVariableTypes.Trait },
+			{ "accents", ProgVariableTypes.Accent | ProgVariableTypes.Collection },
+			{ "defaultaccent", ProgVariableTypes.Text },
+			{ "unknown", ProgVariableTypes.Text }
 		};
 	}
 
@@ -456,7 +456,7 @@ public class Language : SaveableItem, ILanguage
 
 	public new static void RegisterFutureProgCompiler()
 	{
-		FutureProgVariable.RegisterDotReferenceCompileInfo(FutureProgVariableTypes.Language, DotReferenceHandler(),
+		ProgVariable.RegisterDotReferenceCompileInfo(ProgVariableTypes.Language, DotReferenceHandler(),
 			DotReferenceHelp());
 	}
 

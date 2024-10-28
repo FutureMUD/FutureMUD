@@ -16,7 +16,7 @@ using MudSharp.Work.Foraging;
 
 namespace MudSharp.Construction
 {
-    public interface ITerrain : IFrameworkItem, ISaveable, IHaveFuturemud, IFutureProgVariable
+    public interface ITerrain : IFrameworkItem, ISaveable, IHaveFuturemud, IProgVariable
     {
         double MovementRate { get; }
         double StaminaCost { get; }

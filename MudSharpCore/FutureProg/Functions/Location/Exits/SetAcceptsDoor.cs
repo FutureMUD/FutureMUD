@@ -31,8 +31,8 @@ internal class SetAcceptsDoor : BuiltInFunction
 				"SetAcceptsDoor".ToLowerInvariant(),
 				new[]
 				{
-					FutureProgVariableTypes.Exit, FutureProgVariableTypes.OverlayPackage,
-					FutureProgVariableTypes.Boolean, FutureProgVariableTypes.Number
+					ProgVariableTypes.Exit, ProgVariableTypes.OverlayPackage,
+					ProgVariableTypes.Boolean, ProgVariableTypes.Number
 				},
 				(pars, gameworld) => new SetAcceptsDoor(pars, gameworld)
 			)
@@ -50,9 +50,9 @@ internal class SetAcceptsDoor : BuiltInFunction
 
 	#endregion
 
-	public override FutureProgVariableTypes ReturnType
+	public override ProgVariableTypes ReturnType
 	{
-		get => FutureProgVariableTypes.Exit;
+		get => ProgVariableTypes.Exit;
 		protected set { }
 	}
 

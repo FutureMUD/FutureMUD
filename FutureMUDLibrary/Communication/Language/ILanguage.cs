@@ -13,7 +13,7 @@ using MudSharp.RPG.Checks;
 
 namespace MudSharp.Communication.Language
 {
-    public interface ILanguage : IEditableItem, IFutureProgVariable
+    public interface ILanguage : IEditableItem, IProgVariable
     {
         IEnumerable<IAccent> Accents { get; }
         ILanguageDifficultyModel Model { get; }

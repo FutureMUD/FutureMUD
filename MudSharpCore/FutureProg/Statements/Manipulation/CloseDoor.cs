@@ -28,7 +28,7 @@ internal class CloseDoor : Statement
 	}
 
 	private static ICompileInfo Compile(IEnumerable<string> lines,
-		IDictionary<string, FutureProgVariableTypes> variableSpace, int lineNumber, IFuturemud gameworld)
+		IDictionary<string, ProgVariableTypes> variableSpace, int lineNumber, IFuturemud gameworld)
 	{
 		var match = CompileRegex.Match(lines.First());
 
@@ -59,7 +59,7 @@ internal class CloseDoor : Statement
 
 		if (
 			!((IFunction)compiledArgs[0].CompiledStatement).ReturnType.CompatibleWith(
-				FutureProgVariableTypes.Character))
+				ProgVariableTypes.Character))
 		{
 			return
 				CompileInfo.GetFactory()
@@ -67,7 +67,7 @@ internal class CloseDoor : Statement
 					           lineNumber);
 		}
 
-		if (!((IFunction)compiledArgs[1].CompiledStatement).ReturnType.CompatibleWith(FutureProgVariableTypes.Exit))
+		if (!((IFunction)compiledArgs[1].CompiledStatement).ReturnType.CompatibleWith(ProgVariableTypes.Exit))
 		{
 			return
 				CompileInfo.GetFactory()
@@ -75,7 +75,7 @@ internal class CloseDoor : Statement
 		}
 
 		if (compiledArgs.Count == 3 &&
-		    !((IFunction)compiledArgs[2].CompiledStatement).ReturnType.CompatibleWith(FutureProgVariableTypes.Text))
+		    !((IFunction)compiledArgs[2].CompiledStatement).ReturnType.CompatibleWith(ProgVariableTypes.Text))
 		{
 			return
 				CompileInfo.GetFactory()
@@ -112,7 +112,7 @@ internal class CloseDoor : Statement
 			new Tuple
 			<Regex,
 				Func
-				<IEnumerable<string>, IDictionary<string, FutureProgVariableTypes>, int, IFuturemud, ICompileInfo>>(
+				<IEnumerable<string>, IDictionary<string, ProgVariableTypes>, int, IFuturemud, ICompileInfo>>(
 				CompileRegex, Compile)
 		);
 

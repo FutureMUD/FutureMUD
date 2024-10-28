@@ -23,7 +23,7 @@ namespace MudSharp.FutureProg.Functions.Economy
 			FutureProg.RegisterBuiltInFunctionCompiler(
 				new FunctionCompilerInformation(
 					"EndInfluenceByTemplate".ToLowerInvariant(),
-					new[] { FutureProgVariableTypes.Number }, // the parameters the function takes
+					new[] { ProgVariableTypes.Number }, // the parameters the function takes
 					(pars, gameworld) => new EndInfluenceByTemplate(pars, gameworld),
 					new List<string> { }, // parameter names
 					new List<string> { }, // parameter help text
@@ -31,7 +31,7 @@ namespace MudSharp.FutureProg.Functions.Economy
 
 					"", // the category to which this function belongs,
 
-					FutureProgVariableTypes.Boolean // the return type of the function
+					ProgVariableTypes.Boolean // the return type of the function
 				)
 			);
 		}
@@ -44,9 +44,9 @@ namespace MudSharp.FutureProg.Functions.Economy
 		}
 		#endregion
 
-		public override FutureProgVariableTypes ReturnType
+		public override ProgVariableTypes ReturnType
 		{
-			get { return FutureProgVariableTypes.Boolean; }
+			get { return ProgVariableTypes.Boolean; }
 			protected set { }
 		}
 
@@ -64,7 +64,7 @@ namespace MudSharp.FutureProg.Functions.Economy
 				return StatementResult.Normal;
 			}
 
-			var template = ParameterFunctions[1].ReturnType.CompatibleWith(FutureProgVariableTypes.Text)
+			var template = ParameterFunctions[1].ReturnType.CompatibleWith(ProgVariableTypes.Text)
 				? Gameworld.MarketInfluenceTemplates.Get((string)ParameterFunctions[1].Result?.GetObject ?? "").FirstOrDefault()
 				: Gameworld.MarketInfluenceTemplates.Get((long?)(decimal?)ParameterFunctions[1].Result?.GetObject ?? 0L);
 			if (template is null)

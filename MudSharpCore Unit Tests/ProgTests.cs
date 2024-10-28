@@ -62,13 +62,13 @@ namespace MudSharp_Unit_Tests
         [TestMethod]
         public void TestCompatibleWith()
         {
-            var type1 = FutureProgVariableTypes.Accent;
-            var type2 = FutureProgVariableTypes.Text;
-            var type3 = FutureProgVariableTypes.Text | FutureProgVariableTypes.Literal;
-            var type4 = FutureProgVariableTypes.Character;
-            var type5 = FutureProgVariableTypes.Toon;
-            var type6 = FutureProgVariableTypes.Character | FutureProgVariableTypes.Collection;
-            var type7 = FutureProgVariableTypes.Toon | FutureProgVariableTypes.Collection;
+            var type1 = ProgVariableTypes.Accent;
+            var type2 = ProgVariableTypes.Text;
+            var type3 = ProgVariableTypes.Text | ProgVariableTypes.Literal;
+            var type4 = ProgVariableTypes.Character;
+            var type5 = ProgVariableTypes.Toon;
+            var type6 = ProgVariableTypes.Character | ProgVariableTypes.Collection;
+            var type7 = ProgVariableTypes.Toon | ProgVariableTypes.Collection;
 
             Assert.AreEqual(type1.CompatibleWith(type2), false, "Accent and Text were considered equal to one another.");
             Assert.AreEqual(type2.CompatibleWith(type3), true, "Text should be able to be assigned to a text literal.");
@@ -80,7 +80,7 @@ namespace MudSharp_Unit_Tests
             Assert.AreEqual(type6.CompatibleWith(type7), true, "Character collections should be able to be assigned to toon collections.");
             Assert.AreEqual(type6.CompatibleWith(type6), true, "Character collections should be able to be assigned to other character collections.");
             Assert.AreEqual(type7.CompatibleWith(type6), false, "Toon collections should not be able to be assigned to character colletions.");
-            Assert.AreEqual(FutureProgVariableTypes.Gender.CompatibleWith(FutureProgVariableTypes.CollectionItem), true, "Gender was not compatible with collection item.");
+            Assert.AreEqual(ProgVariableTypes.Gender.CompatibleWith(ProgVariableTypes.CollectionItem), true, "Gender was not compatible with collection item.");
         }
 
         [TestMethod]
@@ -96,10 +96,10 @@ namespace MudSharp_Unit_Tests
 		{
 			var gameworld = new GameworldStub().ToMock();
             FutureProg.Initialise();
-			var prog1 = new FutureProg(gameworld, "AddNumbers", FutureProgVariableTypes.Number, new[]
+			var prog1 = new FutureProg(gameworld, "AddNumbers", ProgVariableTypes.Number, new[]
 				{
-					Tuple.Create(FutureProgVariableTypes.Number, "number1"),
-					Tuple.Create(FutureProgVariableTypes.Number, "number2")
+					Tuple.Create(ProgVariableTypes.Number, "number1"),
+					Tuple.Create(ProgVariableTypes.Number, "number2")
 				},
 				@"return @number1 + @number2");
 			prog1.Compile();
@@ -108,10 +108,10 @@ namespace MudSharp_Unit_Tests
             Assert.AreEqual(650, prog1.ExecuteInt(0, 600, 50), "600+50 did not equal 650");
             Assert.AreEqual(8.0, prog1.ExecuteDouble(0.0, 2.0, 6.0), "2.0+6.0 did not equal 8.0");
 
-            var prog2 = new FutureProg(gameworld, "AddNumbersNull", FutureProgVariableTypes.Number, new[]
+            var prog2 = new FutureProg(gameworld, "AddNumbersNull", ProgVariableTypes.Number, new[]
 	            {
-		            Tuple.Create(FutureProgVariableTypes.Number, "number1"),
-		            Tuple.Create(FutureProgVariableTypes.Number, "number2")
+		            Tuple.Create(ProgVariableTypes.Number, "number1"),
+		            Tuple.Create(ProgVariableTypes.Number, "number2")
 	            },
 	            @"return null(""number"")");
             prog2.Compile();
@@ -119,7 +119,7 @@ namespace MudSharp_Unit_Tests
             Assert.AreEqual(0, prog2.ExecuteInt(0, 2, 6), "AddNumbersNull: Default value was not 0");
             Assert.AreEqual(0.0M, prog2.Execute(2, 6), "AddNumbersNull: Returned value was not 0.0M");
 
-            var prog3 = new FutureProg(gameworld, "ReturnNullCh", FutureProgVariableTypes.Character, new List<Tuple<FutureProgVariableTypes, string>>(),
+            var prog3 = new FutureProg(gameworld, "ReturnNullCh", ProgVariableTypes.Character, new List<Tuple<ProgVariableTypes, string>>(),
 	            @"return null(""character"")");
             prog3.Compile();
             Assert.IsTrue(string.IsNullOrEmpty(prog3.CompileError), $"The ReturnNullCh prog did not compile: {prog3.CompileError}");

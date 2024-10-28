@@ -4,7 +4,7 @@ using MudSharp.Framework.Revision;
 using MudSharp.FutureProg;
 
 namespace MudSharp.Economy.Currency {
-    public interface ICurrency : IEditableItem, IFutureProgVariable {
+    public interface ICurrency : IEditableItem, IProgVariable {
         /// <summary>
         ///     All Currency Divisions belonging to this Currency
         /// </summary>

@@ -393,7 +393,7 @@ Enter your blurb that will be visible in chargen in the editor below:");
 		return true;
 	}
 
-	protected virtual IEnumerable<IEnumerable<FutureProgVariableTypes>> AppliesProgValidTypes => [[FutureProgVariableTypes.Character]];
+	protected virtual IEnumerable<IEnumerable<ProgVariableTypes>> AppliesProgValidTypes => [[ProgVariableTypes.Character]];
 
 	private bool BuildingCommandAppliesProg(ICharacter actor, StringStack command)
 	{
@@ -403,7 +403,7 @@ Enter your blurb that will be visible in chargen in the editor below:");
 			return false;
 		}
 
-		var prog = new ProgLookupFromBuilderInput(actor, command.SafeRemainingArgument, FutureProgVariableTypes.Boolean, AppliesProgValidTypes).LookupProg();
+		var prog = new ProgLookupFromBuilderInput(actor, command.SafeRemainingArgument, ProgVariableTypes.Boolean, AppliesProgValidTypes).LookupProg();
 		if (prog is null)
 		{
 			return false;
@@ -423,7 +423,7 @@ Enter your blurb that will be visible in chargen in the editor below:");
 			return false;
 		}
 
-		var prog = new ProgLookupFromBuilderInput(actor, command.SafeRemainingArgument, FutureProgVariableTypes.Boolean, [FutureProgVariableTypes.Chargen]).LookupProg();
+		var prog = new ProgLookupFromBuilderInput(actor, command.SafeRemainingArgument, ProgVariableTypes.Boolean, [ProgVariableTypes.Chargen]).LookupProg();
 		if (prog is null)
 		{
 			return false;

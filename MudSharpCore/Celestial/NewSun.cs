@@ -220,7 +220,7 @@ public class NewSun : PerceivedItem, ICelestialObject
 		// Do nothing
 	}
 
-	public override FutureProgVariableTypes Type => FutureProgVariableTypes.Error;
+	public override ProgVariableTypes Type => ProgVariableTypes.Error;
 
 	public override object DatabaseInsert()
 	{

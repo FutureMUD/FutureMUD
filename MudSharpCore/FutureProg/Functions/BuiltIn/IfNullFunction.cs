@@ -36,7 +36,7 @@ internal class IfNullFunction : BuiltInFunction
 		return StatementResult.Normal;
 	}
 
-	public override FutureProgVariableTypes ReturnType
+	public override ProgVariableTypes ReturnType
 	{
 		get => ParameterFunctions[1].ReturnType;
 		protected set => base.ReturnType = value;
@@ -47,7 +47,7 @@ internal class IfNullFunction : BuiltInFunction
 		FutureProg.RegisterBuiltInFunctionCompiler(
 			new FunctionCompilerInformation(
 				"ifnull",
-				new[] { FutureProgVariableTypes.CollectionItem, FutureProgVariableTypes.CollectionItem },
+				new[] { ProgVariableTypes.CollectionItem, ProgVariableTypes.CollectionItem },
 				(pars, gameworld) => new IfNullFunction(pars),
 				new[] { "item", "fallback" },
 				new List<string>
@@ -57,7 +57,7 @@ internal class IfNullFunction : BuiltInFunction
 				},
 				"This function accepts an item of a broad variety of types, and tests to see if it is currently null. If it is not null, it returns the item you supplied in the first parameter. If it is null, it returns the item specified in the second parameter.",
 				"Null Handling",
-				FutureProgVariableTypes.CollectionItem,
+				ProgVariableTypes.CollectionItem,
 				(x, y) =>
 					x.Count() == 2 &&
 					FutureProgVariableComparer.Instance.Equals(x.ElementAt(0), x.ElementAt(1))

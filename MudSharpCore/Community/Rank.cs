@@ -171,7 +171,7 @@ public class Rank : SaveableItem, IRank
 
 	#region IFutureProgVariable Members
 
-	public IFutureProgVariable GetProperty(string property)
+	public IProgVariable GetProperty(string property)
 	{
 		switch (property.ToLowerInvariant())
 		{
@@ -182,7 +182,7 @@ public class Rank : SaveableItem, IRank
 			case "ranknumber":
 				return new NumberVariable(RankNumber);
 			case "paygrades":
-				return new CollectionVariable(new List<IPaygrade>(Paygrades), FutureProgVariableTypes.ClanPaygrade);
+				return new CollectionVariable(new List<IPaygrade>(Paygrades), ProgVariableTypes.ClanPaygrade);
 			case "path":
 				return new TextVariable(RankPath);
 			default:
@@ -190,19 +190,19 @@ public class Rank : SaveableItem, IRank
 		}
 	}
 
-	public FutureProgVariableTypes Type => FutureProgVariableTypes.ClanRank;
+	public ProgVariableTypes Type => ProgVariableTypes.ClanRank;
 
 	public object GetObject => this;
 
-	private static IReadOnlyDictionary<string, FutureProgVariableTypes> DotReferenceHandler()
+	private static IReadOnlyDictionary<string, ProgVariableTypes> DotReferenceHandler()
 	{
-		return new Dictionary<string, FutureProgVariableTypes>(StringComparer.InvariantCultureIgnoreCase)
+		return new Dictionary<string, ProgVariableTypes>(StringComparer.InvariantCultureIgnoreCase)
 		{
-			{ "id", FutureProgVariableTypes.Number },
-			{ "name", FutureProgVariableTypes.Text },
-			{ "ranknumber", FutureProgVariableTypes.Text },
-			{ "path", FutureProgVariableTypes.Text },
-			{ "paygrades", FutureProgVariableTypes.Collection | FutureProgVariableTypes.ClanPaygrade }
+			{ "id", ProgVariableTypes.Number },
+			{ "name", ProgVariableTypes.Text },
+			{ "ranknumber", ProgVariableTypes.Text },
+			{ "path", ProgVariableTypes.Text },
+			{ "paygrades", ProgVariableTypes.Collection | ProgVariableTypes.ClanPaygrade }
 		};
 	}
 
@@ -220,7 +220,7 @@ public class Rank : SaveableItem, IRank
 
 	public static void RegisterFutureProgCompiler()
 	{
-		FutureProgVariable.RegisterDotReferenceCompileInfo(FutureProgVariableTypes.ClanRank, DotReferenceHandler(),
+		ProgVariable.RegisterDotReferenceCompileInfo(ProgVariableTypes.ClanRank, DotReferenceHandler(),
 			DotReferenceHelp());
 	}
 

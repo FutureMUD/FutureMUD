@@ -15,9 +15,9 @@ internal class IsClanMemberFunction : BuiltInFunction
 	{
 	}
 
-	public override FutureProgVariableTypes ReturnType
+	public override ProgVariableTypes ReturnType
 	{
-		get => FutureProgVariableTypes.Boolean;
+		get => ProgVariableTypes.Boolean;
 		protected set { }
 	}
 
@@ -31,11 +31,11 @@ internal class IsClanMemberFunction : BuiltInFunction
 		{
 			switch (thirdFunction.ReturnType)
 			{
-				case FutureProgVariableTypes.ClanRank:
+				case ProgVariableTypes.ClanRank:
 					rankFunction = thirdFunction;
 					paygradeFunction = ParameterFunctions.ElementAtOrDefault(3);
 					break;
-				case FutureProgVariableTypes.ClanAppointment:
+				case ProgVariableTypes.ClanAppointment:
 					appointmentFunction = thirdFunction;
 					break;
 			}
@@ -131,7 +131,7 @@ internal class IsClanMemberFunction : BuiltInFunction
 		FutureProg.RegisterBuiltInFunctionCompiler(
 			new FunctionCompilerInformation(
 				"isclanmember",
-				new[] { FutureProgVariableTypes.Character, FutureProgVariableTypes.Clan },
+				new[] { ProgVariableTypes.Character, ProgVariableTypes.Clan },
 				(pars, gameworld) => new IsClanMemberFunction(pars)
 			)
 		);
@@ -141,8 +141,8 @@ internal class IsClanMemberFunction : BuiltInFunction
 				"isclanmember",
 				new[]
 				{
-					FutureProgVariableTypes.Character, FutureProgVariableTypes.Clan,
-					FutureProgVariableTypes.ClanRank
+					ProgVariableTypes.Character, ProgVariableTypes.Clan,
+					ProgVariableTypes.ClanRank
 				},
 				(pars, gameworld) => new IsClanMemberFunction(pars)
 			)
@@ -153,8 +153,8 @@ internal class IsClanMemberFunction : BuiltInFunction
 				"isclanmember",
 				new[]
 				{
-					FutureProgVariableTypes.Character, FutureProgVariableTypes.Clan,
-					FutureProgVariableTypes.ClanAppointment
+					ProgVariableTypes.Character, ProgVariableTypes.Clan,
+					ProgVariableTypes.ClanAppointment
 				},
 				(pars, gameworld) => new IsClanMemberFunction(pars)
 			)
@@ -165,8 +165,8 @@ internal class IsClanMemberFunction : BuiltInFunction
 				"isclanmember",
 				new[]
 				{
-					FutureProgVariableTypes.Character, FutureProgVariableTypes.Clan,
-					FutureProgVariableTypes.ClanRank, FutureProgVariableTypes.ClanPaygrade
+					ProgVariableTypes.Character, ProgVariableTypes.Clan,
+					ProgVariableTypes.ClanRank, ProgVariableTypes.ClanPaygrade
 				},
 				(pars, gameworld) => new IsClanMemberFunction(pars)
 			)

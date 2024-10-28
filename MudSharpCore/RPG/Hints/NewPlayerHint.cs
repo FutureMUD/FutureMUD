@@ -119,7 +119,7 @@ namespace MudSharp.RPG.Hints
 				return false;
 			}
 
-			var prog = new ProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument, FutureProgVariableTypes.Boolean, new[] { FutureProgVariableTypes.Character }).LookupProg();
+			var prog = new ProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument, ProgVariableTypes.Boolean, new[] { ProgVariableTypes.Character }).LookupProg();
 			if (prog is null)
 			{
 				return false;

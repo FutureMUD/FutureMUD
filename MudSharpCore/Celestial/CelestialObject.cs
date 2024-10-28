@@ -83,7 +83,7 @@ public abstract class CelestialObject : PerceivedItem, ICelestialObject
 
 	#region IFutureProgVariable Implementation
 
-	public override FutureProgVariableTypes Type => FutureProgVariableTypes.Error;
+	public override ProgVariableTypes Type => ProgVariableTypes.Error;
 
 	#endregion
 

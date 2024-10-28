@@ -271,11 +271,11 @@ public record SimpleCharacterTemplate : ICharacterTemplate
 
 	public object GetObject => this;
 
-	public FutureProgVariableTypes Type => FutureProgVariableTypes.Chargen;
+	public ProgVariableTypes Type => ProgVariableTypes.Chargen;
 
-	public IFutureProgVariable GetProperty(string property)
+	public IProgVariable GetProperty(string property)
 	{
-		IFutureProgVariable returnVar = null;
+		IProgVariable returnVar = null;
 		switch (property.ToLowerInvariant())
 		{
 			case "id":
@@ -324,11 +324,11 @@ public record SimpleCharacterTemplate : ICharacterTemplate
 				break;
 
 			case "skills":
-				returnVar = new CollectionVariable(SelectedSkills, FutureProgVariableTypes.Trait);
+				returnVar = new CollectionVariable(SelectedSkills, ProgVariableTypes.Trait);
 				break;
 
 			case "accents":
-				returnVar = new CollectionVariable(SelectedAccents, FutureProgVariableTypes.Accent);
+				returnVar = new CollectionVariable(SelectedAccents, ProgVariableTypes.Accent);
 				break;
 			case "class":
 				returnVar =
@@ -361,7 +361,7 @@ public record SimpleCharacterTemplate : ICharacterTemplate
 			case "merits":
 			case "applicablemerits":
 				// Chargen Merits always apply
-				returnVar = new CollectionVariable(SelectedMerits.ToList(), FutureProgVariableTypes.Merit);
+				returnVar = new CollectionVariable(SelectedMerits.ToList(), ProgVariableTypes.Merit);
 				break;
 
 			case "ethnicity":
@@ -377,7 +377,7 @@ public record SimpleCharacterTemplate : ICharacterTemplate
 				break;
 			case "roles":
 				returnVar = new CollectionVariable(SelectedRoles.WhereNotNull(x => x).ToList(),
-					FutureProgVariableTypes.Role);
+					ProgVariableTypes.Role);
 				break;
 			case "special":
 				returnVar = new BooleanVariable(false);

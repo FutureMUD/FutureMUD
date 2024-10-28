@@ -130,16 +130,16 @@ public abstract class SalesTaxBase : SaveableItem, ISalesTax
 			return false;
 		}
 
-		if (!prog.ReturnType.CompatibleWith(FutureProgVariableTypes.Boolean))
+		if (!prog.ReturnType.CompatibleWith(ProgVariableTypes.Boolean))
 		{
 			actor.OutputHandler.Send(
 				$"You must supply a prog that returns boolean whereas {prog.MXPClickableFunctionName()} returns {prog.ReturnType.Describe().ColourValue()}.");
 			return false;
 		}
 
-		if (!prog.MatchesParameters(new List<FutureProgVariableTypes> { FutureProgVariableTypes.Merchandise }) &&
-		    !prog.MatchesParameters(new List<FutureProgVariableTypes>
-			    { FutureProgVariableTypes.Merchandise, FutureProgVariableTypes.Character }))
+		if (!prog.MatchesParameters(new List<ProgVariableTypes> { ProgVariableTypes.Merchandise }) &&
+		    !prog.MatchesParameters(new List<ProgVariableTypes>
+			    { ProgVariableTypes.Merchandise, ProgVariableTypes.Character }))
 		{
 			actor.OutputHandler.Send(
 				$"You must supply a prog that accepts either a single merchandise parameter or a merchandise and a character parameter, while {prog.MXPClickableFunctionName()} does not.");

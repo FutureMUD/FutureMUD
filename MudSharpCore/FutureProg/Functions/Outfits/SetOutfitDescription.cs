@@ -26,7 +26,7 @@ internal class SetOutfitDescription : BuiltInFunction
 		FutureProg.RegisterBuiltInFunctionCompiler(
 			new FunctionCompilerInformation(
 				"setoutfitdescription",
-				new[] { FutureProgVariableTypes.Outfit, FutureProgVariableTypes.Text },
+				new[] { ProgVariableTypes.Outfit, ProgVariableTypes.Text },
 				(pars, gameworld) => new SetOutfitDescription(pars, gameworld)
 			)
 		);
@@ -43,9 +43,9 @@ internal class SetOutfitDescription : BuiltInFunction
 
 	#endregion
 
-	public override FutureProgVariableTypes ReturnType
+	public override ProgVariableTypes ReturnType
 	{
-		get => FutureProgVariableTypes.Outfit;
+		get => ProgVariableTypes.Outfit;
 		protected set { }
 	}
 

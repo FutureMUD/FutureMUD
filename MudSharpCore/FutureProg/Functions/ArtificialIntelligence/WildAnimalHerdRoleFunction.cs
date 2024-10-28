@@ -16,9 +16,9 @@ internal class WildAnimalHerdRoleFunction : BuiltInFunction
 	{
 	}
 
-	public override FutureProgVariableTypes ReturnType
+	public override ProgVariableTypes ReturnType
 	{
-		get => FutureProgVariableTypes.Text;
+		get => ProgVariableTypes.Text;
 		protected set { }
 	}
 
@@ -45,7 +45,7 @@ internal class WildAnimalHerdRoleFunction : BuiltInFunction
 	{
 		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
 			"wildanimalherdrole",
-			new[] { FutureProgVariableTypes.Character },
+			new[] { ProgVariableTypes.Character },
 			(pars, gameworld) => new WildAnimalHerdRoleFunction(pars)
 		));
 	}

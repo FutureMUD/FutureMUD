@@ -244,7 +244,7 @@ public class SimpleOrganicWound : PerceivedItem, IWound
 
 	#region IFutureProgVariable Implementation
 
-	public override FutureProgVariableTypes Type => FutureProgVariableTypes.Error;
+	public override ProgVariableTypes Type => ProgVariableTypes.Error;
 
 	#endregion
 

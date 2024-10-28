@@ -95,10 +95,10 @@ public class PunishmentStrategyHierarchy : PunishmentStrategyBase
 		}
 
 		var prog = new ProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument,
-			FutureProgVariableTypes.Boolean, new[]
+			ProgVariableTypes.Boolean, new[]
 			{
-				new[] { FutureProgVariableTypes.Character },
-				new[] { FutureProgVariableTypes.Character, FutureProgVariableTypes.Text }
+				new[] { ProgVariableTypes.Character },
+				new[] { ProgVariableTypes.Character, ProgVariableTypes.Text }
 			}).LookupProg();
 		if (prog is null)
 		{
@@ -206,8 +206,8 @@ public class PunishmentStrategyHierarchy : PunishmentStrategyBase
 			return false;
 		}
 
-		var prog = new ProgLookupFromBuilderInput(actor, command.SafeRemainingArgument, FutureProgVariableTypes.Boolean, 
-			[[FutureProgVariableTypes.Character], [FutureProgVariableTypes.Character, FutureProgVariableTypes.Text]]
+		var prog = new ProgLookupFromBuilderInput(actor, command.SafeRemainingArgument, ProgVariableTypes.Boolean, 
+			[[ProgVariableTypes.Character], [ProgVariableTypes.Character, ProgVariableTypes.Text]]
 			).LookupProg();
 		if (prog is null)
 		{

@@ -3,25 +3,25 @@ using System.Collections.Generic;
 using MudSharp.Form.Shape;
 
 namespace MudSharp.FutureProg.Variables {
-    public class GenderVariable : FutureProgVariable {
+    public class GenderVariable : ProgVariable {
         protected Gender UnderlyingGender;
 
         public GenderVariable(Gender gender) {
             UnderlyingGender = gender;
         }
 
-        public override FutureProgVariableTypes Type => FutureProgVariableTypes.Gender;
+        public override ProgVariableTypes Type => ProgVariableTypes.Gender;
 
         public override object GetObject => UnderlyingGender;
 
-        private static IReadOnlyDictionary<string,FutureProgVariableTypes> DotReferenceHandler()
+        private static IReadOnlyDictionary<string,ProgVariableTypes> DotReferenceHandler()
         {
-            return new Dictionary<string, FutureProgVariableTypes>(StringComparer.InvariantCultureIgnoreCase)
+            return new Dictionary<string, ProgVariableTypes>(StringComparer.InvariantCultureIgnoreCase)
             {
-                {"he", FutureProgVariableTypes.Text},
-                {"him", FutureProgVariableTypes.Text},
-                {"his", FutureProgVariableTypes.Text},
-                {"himself", FutureProgVariableTypes.Text},
+                {"he", ProgVariableTypes.Text},
+                {"him", ProgVariableTypes.Text},
+                {"his", ProgVariableTypes.Text},
+                {"himself", ProgVariableTypes.Text},
             };
         }
 
@@ -37,10 +37,10 @@ namespace MudSharp.FutureProg.Variables {
         }
 
         public static void RegisterFutureProgCompiler() {
-            FutureProgVariable.RegisterDotReferenceCompileInfo(FutureProgVariableTypes.Gender, DotReferenceHandler(), DotReferenceHelp());
+            ProgVariable.RegisterDotReferenceCompileInfo(ProgVariableTypes.Gender, DotReferenceHandler(), DotReferenceHelp());
         }
 
-        public override IFutureProgVariable GetProperty(string property) {
+        public override IProgVariable GetProperty(string property) {
             var gender = Gendering.Get(UnderlyingGender);
             switch (property.ToLowerInvariant()) {
                 case "he":

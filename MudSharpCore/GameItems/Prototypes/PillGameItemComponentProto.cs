@@ -204,7 +204,7 @@ public class PillGameItemComponentProto : GameItemComponentProto
 		}
 
 		if (!prog.MatchesParameters(new[]
-			    { FutureProgVariableTypes.Character, FutureProgVariableTypes.Item }))
+			    { ProgVariableTypes.Character, ProgVariableTypes.Item }))
 		{
 			actor.Send("The OnSwallow prog must have a single character and item parameter.");
 			return false;

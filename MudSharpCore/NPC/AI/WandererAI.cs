@@ -327,9 +327,9 @@ public class WandererAI : ArtificialIntelligenceBase
 		}
 
 		var prog = new ProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument,
-			FutureProgVariableTypes.Boolean, new List<FutureProgVariableTypes>
+			ProgVariableTypes.Boolean, new List<ProgVariableTypes>
 			{
-				FutureProgVariableTypes.Character
+				ProgVariableTypes.Character
 			}).LookupProg();
 		if (prog is null)
 		{
@@ -351,17 +351,17 @@ public class WandererAI : ArtificialIntelligenceBase
 		}
 
 		var prog = new ProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument,
-			FutureProgVariableTypes.Boolean, new []{
-				new List<FutureProgVariableTypes>
+			ProgVariableTypes.Boolean, new []{
+				new List<ProgVariableTypes>
 				{
-					FutureProgVariableTypes.Character,
-					FutureProgVariableTypes.Location,
+					ProgVariableTypes.Character,
+					ProgVariableTypes.Location,
 				},
-				new List<FutureProgVariableTypes>
+				new List<ProgVariableTypes>
 				{
-					FutureProgVariableTypes.Character,
-					FutureProgVariableTypes.Location,
-					FutureProgVariableTypes.Location,
+					ProgVariableTypes.Character,
+					ProgVariableTypes.Location,
+					ProgVariableTypes.Location,
 				}
 			}).LookupProg();
 		if (prog is null)

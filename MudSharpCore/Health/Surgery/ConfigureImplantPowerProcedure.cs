@@ -243,26 +243,26 @@ public class ConfigureImplantPowerProcedure : BodypartSpecificSurgicalProcedure
 		return base.WhyCannotPerformProcedure(surgeon, patient, additionalArguments);
 	}
 
-	protected override IEnumerable<IEnumerable<FutureProgVariableTypes>> ParametersForCompletionProg => new[] {
+	protected override IEnumerable<IEnumerable<ProgVariableTypes>> ParametersForCompletionProg => new[] {
 				new[]
 				{
-					FutureProgVariableTypes.Character,
-					FutureProgVariableTypes.Character,
-					FutureProgVariableTypes.Number,
-					FutureProgVariableTypes.Text,
-					FutureProgVariableTypes.Item,
-					FutureProgVariableTypes.Text,
-					FutureProgVariableTypes.Item
+					ProgVariableTypes.Character,
+					ProgVariableTypes.Character,
+					ProgVariableTypes.Number,
+					ProgVariableTypes.Text,
+					ProgVariableTypes.Item,
+					ProgVariableTypes.Text,
+					ProgVariableTypes.Item
 				},
 				new[]
 				{
-					FutureProgVariableTypes.Character,
-					FutureProgVariableTypes.Character,
-					FutureProgVariableTypes.Text,
-					FutureProgVariableTypes.Text,
-					FutureProgVariableTypes.Item,
-					FutureProgVariableTypes.Text,
-					FutureProgVariableTypes.Item
+					ProgVariableTypes.Character,
+					ProgVariableTypes.Character,
+					ProgVariableTypes.Text,
+					ProgVariableTypes.Text,
+					ProgVariableTypes.Item,
+					ProgVariableTypes.Text,
+					ProgVariableTypes.Item
 				},
 			};
 
@@ -319,23 +319,23 @@ public class ConfigureImplantPowerProcedure : BodypartSpecificSurgicalProcedure
 		powersupply.PowerPlant = powerplant;
 	}
 
-	protected override IEnumerable<IEnumerable<FutureProgVariableTypes>> ParametersForCancelProg => new[]
+	protected override IEnumerable<IEnumerable<ProgVariableTypes>> ParametersForCancelProg => new[]
 	{
 		new[]
 		{
-			FutureProgVariableTypes.Character,
-			FutureProgVariableTypes.Character,
-			FutureProgVariableTypes.Number,
-			FutureProgVariableTypes.Text,
-			FutureProgVariableTypes.Item
+			ProgVariableTypes.Character,
+			ProgVariableTypes.Character,
+			ProgVariableTypes.Number,
+			ProgVariableTypes.Text,
+			ProgVariableTypes.Item
 		},
 		new[]
 		{
-			FutureProgVariableTypes.Character,
-			FutureProgVariableTypes.Character,
-			FutureProgVariableTypes.Text,
-			FutureProgVariableTypes.Text,
-			FutureProgVariableTypes.Item
+			ProgVariableTypes.Character,
+			ProgVariableTypes.Character,
+			ProgVariableTypes.Text,
+			ProgVariableTypes.Text,
+			ProgVariableTypes.Item
 		},
 	};
 

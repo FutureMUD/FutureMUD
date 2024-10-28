@@ -302,14 +302,14 @@ public class WaterSourceGameItemComponentProto : GameItemComponentProto
 			return false;
 		}
 
-		if (!prog.ReturnType.CompatibleWith(FutureProgVariableTypes.Boolean))
+		if (!prog.ReturnType.CompatibleWith(ProgVariableTypes.Boolean))
 		{
 			actor.OutputHandler.Send(
 				$"You must specify a prog that returns a boolean value, whereas {prog.MXPClickableFunctionName()} returns {prog.ReturnType.Describe().ColourName()}.");
 			return false;
 		}
 
-		if (!prog.MatchesParameters(new List<FutureProgVariableTypes> { FutureProgVariableTypes.Item }))
+		if (!prog.MatchesParameters(new List<ProgVariableTypes> { ProgVariableTypes.Item }))
 		{
 			actor.OutputHandler.Send(
 				$"You must specify a prog that accepts a single item as a parameter, whereas {prog.MXPClickableFunctionName()} does not.");

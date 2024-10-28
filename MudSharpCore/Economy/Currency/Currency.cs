@@ -431,7 +431,7 @@ public class Currency : SaveableItem, ICurrency
 
 	#region IFutureProgVariable Members
 
-	public IFutureProgVariable GetProperty(string property)
+	public IProgVariable GetProperty(string property)
 	{
 		switch (property.ToLowerInvariant())
 		{
@@ -446,17 +446,17 @@ public class Currency : SaveableItem, ICurrency
 		}
 	}
 
-	public FutureProgVariableTypes Type => FutureProgVariableTypes.Currency;
+	public ProgVariableTypes Type => ProgVariableTypes.Currency;
 
 	public object GetObject => this;
 
-	private static IReadOnlyDictionary<string, FutureProgVariableTypes> DotReferenceHandler()
+	private static IReadOnlyDictionary<string, ProgVariableTypes> DotReferenceHandler()
 	{
-		return new Dictionary<string, FutureProgVariableTypes>(StringComparer.InvariantCultureIgnoreCase)
+		return new Dictionary<string, ProgVariableTypes>(StringComparer.InvariantCultureIgnoreCase)
 		{
-			{ "id", FutureProgVariableTypes.Number },
-			{ "name", FutureProgVariableTypes.Text },
-			{ "conversion", FutureProgVariableTypes.Number }
+			{ "id", ProgVariableTypes.Number },
+			{ "name", ProgVariableTypes.Text },
+			{ "conversion", ProgVariableTypes.Number }
 		};
 	}
 
@@ -472,7 +472,7 @@ public class Currency : SaveableItem, ICurrency
 
 	public static void RegisterFutureProgCompiler()
 	{
-		FutureProgVariable.RegisterDotReferenceCompileInfo(FutureProgVariableTypes.Currency, DotReferenceHandler(),
+		ProgVariable.RegisterDotReferenceCompileInfo(ProgVariableTypes.Currency, DotReferenceHandler(),
 			DotReferenceHelp());
 	}
 

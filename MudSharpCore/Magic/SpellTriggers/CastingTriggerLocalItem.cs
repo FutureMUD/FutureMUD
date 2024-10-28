@@ -95,16 +95,16 @@ public class CastingTriggerLocalItem : CastingTriggerBase
 			return false;
 		}
 
-		if (!prog.ReturnType.CompatibleWith(FutureProgVariableTypes.Boolean))
+		if (!prog.ReturnType.CompatibleWith(ProgVariableTypes.Boolean))
 		{
 			actor.OutputHandler.Send(
 				$"You must specify a prog that returns a boolean value, whereas {prog.MXPClickableFunctionName()} returns {prog.ReturnType.Describe().ColourName()}.");
 			return false;
 		}
 
-		if (!prog.MatchesParameters(new List<FutureProgVariableTypes>
-			    { FutureProgVariableTypes.Item, FutureProgVariableTypes.Character }) &&
-		    !prog.MatchesParameters(new List<FutureProgVariableTypes> { FutureProgVariableTypes.Item }))
+		if (!prog.MatchesParameters(new List<ProgVariableTypes>
+			    { ProgVariableTypes.Item, ProgVariableTypes.Character }) &&
+		    !prog.MatchesParameters(new List<ProgVariableTypes> { ProgVariableTypes.Item }))
 		{
 			actor.OutputHandler.Send(
 				$"You must specify a prog that accepts either a single item (the target), or and item and a character (the target and the caster), whereas {prog.MXPClickableFunctionName()} does not.");

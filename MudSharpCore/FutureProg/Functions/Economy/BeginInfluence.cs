@@ -25,7 +25,7 @@ namespace MudSharp.FutureProg.Functions.Economy
 			FutureProg.RegisterBuiltInFunctionCompiler(
 				new FunctionCompilerInformation(
 					"BeginInfluence".ToLowerInvariant(),
-					new[] { FutureProgVariableTypes.Number, FutureProgVariableTypes.Number, FutureProgVariableTypes.MudDateTime, FutureProgVariableTypes.MudDateTime }, // the parameters the function takes
+					new[] { ProgVariableTypes.Number, ProgVariableTypes.Number, ProgVariableTypes.MudDateTime, ProgVariableTypes.MudDateTime }, // the parameters the function takes
 					(pars, gameworld) => new BeginInfluence(pars, gameworld),
 					new List<string>
 					{
@@ -45,14 +45,14 @@ namespace MudSharp.FutureProg.Functions.Economy
 
 					"Markets", // the category to which this function belongs,
 
-					FutureProgVariableTypes.Number // the return type of the function
+					ProgVariableTypes.Number // the return type of the function
 				)
 			);
 
 			FutureProg.RegisterBuiltInFunctionCompiler(
 				new FunctionCompilerInformation(
 					"BeginInfluence".ToLowerInvariant(),
-					new[] { FutureProgVariableTypes.Number, FutureProgVariableTypes.Number, FutureProgVariableTypes.MudDateTime, FutureProgVariableTypes.TimeSpan }, // the parameters the function takes
+					new[] { ProgVariableTypes.Number, ProgVariableTypes.Number, ProgVariableTypes.MudDateTime, ProgVariableTypes.TimeSpan }, // the parameters the function takes
 					(pars, gameworld) => new BeginInfluence(pars, gameworld),
 					new List<string>
 					{
@@ -72,14 +72,14 @@ namespace MudSharp.FutureProg.Functions.Economy
 
 					"Markets", // the category to which this function belongs,
 
-					FutureProgVariableTypes.Number // the return type of the function
+					ProgVariableTypes.Number // the return type of the function
 				)
 			);
 
 			FutureProg.RegisterBuiltInFunctionCompiler(
 				new FunctionCompilerInformation(
 					"BeginInfluence".ToLowerInvariant(),
-					new[] { FutureProgVariableTypes.Number, FutureProgVariableTypes.Number, FutureProgVariableTypes.MudDateTime }, // the parameters the function takes
+					new[] { ProgVariableTypes.Number, ProgVariableTypes.Number, ProgVariableTypes.MudDateTime }, // the parameters the function takes
 					(pars, gameworld) => new BeginInfluence(pars, gameworld),
 					new List<string>
 					{
@@ -97,14 +97,14 @@ namespace MudSharp.FutureProg.Functions.Economy
 
 					"Markets", // the category to which this function belongs,
 
-					FutureProgVariableTypes.Number // the return type of the function
+					ProgVariableTypes.Number // the return type of the function
 				)
 			);
 
 			FutureProg.RegisterBuiltInFunctionCompiler(
 				new FunctionCompilerInformation(
 					"BeginInfluence".ToLowerInvariant(),
-					new[] { FutureProgVariableTypes.Number, FutureProgVariableTypes.Number }, // the parameters the function takes
+					new[] { ProgVariableTypes.Number, ProgVariableTypes.Number }, // the parameters the function takes
 					(pars, gameworld) => new BeginInfluence(pars, gameworld),
 					new List<string>
 					{
@@ -120,14 +120,14 @@ namespace MudSharp.FutureProg.Functions.Economy
 
 					"Markets", // the category to which this function belongs,
 
-					FutureProgVariableTypes.Number // the return type of the function
+					ProgVariableTypes.Number // the return type of the function
 				)
 			);
 
 			FutureProg.RegisterBuiltInFunctionCompiler(
 				new FunctionCompilerInformation(
 					"BeginInfluence".ToLowerInvariant(),
-					new[] { FutureProgVariableTypes.Number, FutureProgVariableTypes.Text, FutureProgVariableTypes.MudDateTime, FutureProgVariableTypes.MudDateTime }, // the parameters the function takes
+					new[] { ProgVariableTypes.Number, ProgVariableTypes.Text, ProgVariableTypes.MudDateTime, ProgVariableTypes.MudDateTime }, // the parameters the function takes
 					(pars, gameworld) => new BeginInfluence(pars, gameworld),
 					new List<string>
 					{
@@ -147,14 +147,14 @@ namespace MudSharp.FutureProg.Functions.Economy
 
 					"Markets", // the category to which this function belongs,
 
-					FutureProgVariableTypes.Number // the return type of the function
+					ProgVariableTypes.Number // the return type of the function
 				)
 			);
 
 			FutureProg.RegisterBuiltInFunctionCompiler(
 				new FunctionCompilerInformation(
 					"BeginInfluence".ToLowerInvariant(),
-					new[] { FutureProgVariableTypes.Number, FutureProgVariableTypes.Text, FutureProgVariableTypes.MudDateTime, FutureProgVariableTypes.TimeSpan }, // the parameters the function takes
+					new[] { ProgVariableTypes.Number, ProgVariableTypes.Text, ProgVariableTypes.MudDateTime, ProgVariableTypes.TimeSpan }, // the parameters the function takes
 					(pars, gameworld) => new BeginInfluence(pars, gameworld),
 					new List<string>
 					{
@@ -174,14 +174,14 @@ namespace MudSharp.FutureProg.Functions.Economy
 
 					"Markets", // the category to which this function belongs,
 
-					FutureProgVariableTypes.Number // the return type of the function
+					ProgVariableTypes.Number // the return type of the function
 				)
 			);
 
 			FutureProg.RegisterBuiltInFunctionCompiler(
 				new FunctionCompilerInformation(
 					"BeginInfluence".ToLowerInvariant(),
-					new[] { FutureProgVariableTypes.Number, FutureProgVariableTypes.Text, FutureProgVariableTypes.MudDateTime }, // the parameters the function takes
+					new[] { ProgVariableTypes.Number, ProgVariableTypes.Text, ProgVariableTypes.MudDateTime }, // the parameters the function takes
 					(pars, gameworld) => new BeginInfluence(pars, gameworld),
 					new List<string>
 					{
@@ -199,14 +199,14 @@ namespace MudSharp.FutureProg.Functions.Economy
 
 					"Markets", // the category to which this function belongs,
 
-					FutureProgVariableTypes.Number // the return type of the function
+					ProgVariableTypes.Number // the return type of the function
 				)
 			);
 
 			FutureProg.RegisterBuiltInFunctionCompiler(
 				new FunctionCompilerInformation(
 					"BeginInfluence".ToLowerInvariant(),
-					new[] { FutureProgVariableTypes.Number, FutureProgVariableTypes.Text }, // the parameters the function takes
+					new[] { ProgVariableTypes.Number, ProgVariableTypes.Text }, // the parameters the function takes
 					(pars, gameworld) => new BeginInfluence(pars, gameworld),
 					new List<string>
 					{
@@ -222,7 +222,7 @@ namespace MudSharp.FutureProg.Functions.Economy
 
 					"Markets", // the category to which this function belongs,
 
-					FutureProgVariableTypes.Number // the return type of the function
+					ProgVariableTypes.Number // the return type of the function
 				)
 			);
 		}
@@ -235,9 +235,9 @@ namespace MudSharp.FutureProg.Functions.Economy
 		}
 		#endregion
 
-		public override FutureProgVariableTypes ReturnType
+		public override ProgVariableTypes ReturnType
 		{
-			get { return FutureProgVariableTypes.Number; }
+			get { return ProgVariableTypes.Number; }
 			protected set { }
 		}
 
@@ -255,7 +255,7 @@ namespace MudSharp.FutureProg.Functions.Economy
 				return StatementResult.Normal;
 			}
 
-			var template = ParameterFunctions[1].ReturnType.CompatibleWith(FutureProgVariableTypes.Text)
+			var template = ParameterFunctions[1].ReturnType.CompatibleWith(ProgVariableTypes.Text)
 				? Gameworld.MarketInfluenceTemplates.Get((string)ParameterFunctions[1].Result?.GetObject ?? "").FirstOrDefault()
 				: Gameworld.MarketInfluenceTemplates.Get((long?)(decimal?)ParameterFunctions[1].Result?.GetObject ?? 0L);
 			if (template is null)
@@ -279,11 +279,11 @@ namespace MudSharp.FutureProg.Functions.Economy
 
 				if (ParameterFunctions.Count > 3)
 				{
-					if (ParameterFunctions[3].ReturnType.CompatibleWith(FutureProgVariableTypes.MudDateTime) && ParameterFunctions[2].Result?.GetObject is MudDateTime mdte)
+					if (ParameterFunctions[3].ReturnType.CompatibleWith(ProgVariableTypes.MudDateTime) && ParameterFunctions[2].Result?.GetObject is MudDateTime mdte)
 					{
 						end = mdte;
 					}
-					else if (ParameterFunctions[3].ReturnType.CompatibleWith(FutureProgVariableTypes.TimeSpan) && ParameterFunctions[2].Result?.GetObject is TimeSpan ts)
+					else if (ParameterFunctions[3].ReturnType.CompatibleWith(ProgVariableTypes.TimeSpan) && ParameterFunctions[2].Result?.GetObject is TimeSpan ts)
 					{
 						end = start + ts;
 					}

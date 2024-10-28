@@ -97,9 +97,9 @@ internal class GiveCurrencyFunction : BuiltInFunction
 		return true;
 	}
 
-	public override FutureProgVariableTypes ReturnType
+	public override ProgVariableTypes ReturnType
 	{
-		get => FutureProgVariableTypes.Boolean;
+		get => ProgVariableTypes.Boolean;
 		protected set { }
 	}
 
@@ -120,7 +120,7 @@ internal class GiveCurrencyFunction : BuiltInFunction
 		var respectGetRules = (bool?)ParameterFunctions[3].Result.GetObject ?? false;
 
 		var success = true;
-		var amount = ParameterFunctions[1].ReturnType == FutureProgVariableTypes.Number
+		var amount = ParameterFunctions[1].ReturnType == ProgVariableTypes.Number
 			? (decimal)ParameterFunctions[1].Result.GetObject
 			: currency.GetBaseCurrency((string)ParameterFunctions[1].Result.GetObject, out success);
 
@@ -231,11 +231,11 @@ internal class GiveCurrencyFunction : BuiltInFunction
 	{
 		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
 			"givecurrency",
-			new FutureProgVariableTypes[]
+			new ProgVariableTypes[]
 			{
-				FutureProgVariableTypes.Currency, FutureProgVariableTypes.Number | FutureProgVariableTypes.Text,
-				FutureProgVariableTypes.Location | FutureProgVariableTypes.Character | FutureProgVariableTypes.Item,
-				FutureProgVariableTypes.Boolean
+				ProgVariableTypes.Currency, ProgVariableTypes.Number | ProgVariableTypes.Text,
+				ProgVariableTypes.Location | ProgVariableTypes.Character | ProgVariableTypes.Item,
+				ProgVariableTypes.Boolean
 			},
 			(IList<IFunction> pars, IFuturemud gameworld) => new GiveCurrencyFunction(pars, gameworld)
 		));

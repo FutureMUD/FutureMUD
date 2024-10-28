@@ -43,7 +43,7 @@ namespace MudSharp.Economy
 		WithdrawalFromTransfer,
 	}
 
-	public interface IBank : IFrameworkItem, ISaveable, IEditableItem, IFutureProgVariable
+	public interface IBank : IFrameworkItem, ISaveable, IEditableItem, IProgVariable
 	{
 		string Code { get; }
 		IEconomicZone EconomicZone { get; }

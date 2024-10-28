@@ -51,7 +51,7 @@ public partial class CultureSeeder
 			FunctionName = $"IsEthnicity{name.CollapseString()}",
 			FunctionComment = $"Determines whether someone is the {name} ethnicity",
 			FunctionText = $"return @ch.Ethnicity == ToEthnicity({ethnicity.Id})",
-			ReturnType = (long)FutureProgVariableTypes.Boolean,
+			ReturnType = (long)ProgVariableTypes.Boolean,
 			Category = "Character",
 			Subcategory = "Ethnicity",
 			Public = true,
@@ -63,7 +63,7 @@ public partial class CultureSeeder
 			FutureProg = prog,
 			ParameterIndex = 0,
 			ParameterName = "ch",
-			ParameterType = (long)FutureProgVariableTypes.Toon
+			ParameterType = (long)ProgVariableTypes.Toon
 		});
 		_context.FutureProgs.Add(prog);
 		_context.SaveChanges();
@@ -145,7 +145,7 @@ public partial class CultureSeeder
 			FunctionName = $"IsCulture{name.CollapseString()}",
 			FunctionComment = $"Determines whether someone is the {name} culture",
 			FunctionText = $"return @ch.Culture == ToCulture({culture.Id})",
-			ReturnType = (long)FutureProgVariableTypes.Boolean,
+			ReturnType = (long)ProgVariableTypes.Boolean,
 			Category = "Character",
 			Subcategory = "Culture",
 			Public = true,
@@ -157,7 +157,7 @@ public partial class CultureSeeder
 			FutureProg = prog,
 			ParameterIndex = 0,
 			ParameterName = "ch",
-			ParameterType = (long)FutureProgVariableTypes.Toon
+			ParameterType = (long)ProgVariableTypes.Toon
 		});
 		_context.FutureProgs.Add(prog);
 		_context.SaveChanges();
@@ -204,7 +204,7 @@ public partial class CultureSeeder
 			FunctionName = $"IsCulture{name.CollapseString()}",
 			FunctionComment = $"Determines whether someone is the {name} culture",
 			FunctionText = $"return @ch.Culture == ToCulture({culture.Id})",
-			ReturnType = (long)FutureProgVariableTypes.Boolean,
+			ReturnType = (long)ProgVariableTypes.Boolean,
 			Category = "Character",
 			Subcategory = "Culture",
 			Public = true,
@@ -216,7 +216,7 @@ public partial class CultureSeeder
 			FutureProg = prog,
 			ParameterIndex = 0,
 			ParameterName = "ch",
-			ParameterType = (long)FutureProgVariableTypes.Toon
+			ParameterType = (long)ProgVariableTypes.Toon
 		});
 		_context.FutureProgs.Add(prog);
 		_context.SaveChanges();
@@ -2178,7 +2178,7 @@ return (((@ch.Height / 100) ^ 2) * @bmi) * 1000";
 			Category = "Character",
 			Subcategory = "Race",
 			FunctionComment = "Determines if the character select the elf race in chargen.",
-			ReturnType = (long)FutureProgVariableTypes.Boolean,
+			ReturnType = (long)ProgVariableTypes.Boolean,
 			StaticType = 0,
 			FunctionText = @"// You might consider checking RPP
 return true"
@@ -2198,7 +2198,7 @@ return true"
 			Subcategory = "Attributes",
 			FunctionComment =
 				"This prog is called for each attribute for elves at chargen time and the resulting value is applied as a modifier to that attribute.",
-			ReturnType = (long)FutureProgVariableTypes.Number,
+			ReturnType = (long)ProgVariableTypes.Number,
 			StaticType = 0,
 			FunctionText = @"// You might consider a switch on attributes like so:
 //
@@ -2313,7 +2313,7 @@ Elves are divided into several different clans, each with their own distinct cul
 			FunctionName = "IsRaceElf",
 			FunctionComment = "Determines whether someone is the Elf race",
 			FunctionText = $"return @ch.Race == ToRace({elfRace.Id})",
-			ReturnType = (long)FutureProgVariableTypes.Boolean,
+			ReturnType = (long)ProgVariableTypes.Boolean,
 			Category = "Character",
 			Subcategory = "Race",
 			Public = true,
@@ -2325,7 +2325,7 @@ Elves are divided into several different clans, each with their own distinct cul
 			FutureProg = isElfProg,
 			ParameterIndex = 0,
 			ParameterName = "ch",
-			ParameterType = (long)FutureProgVariableTypes.Toon
+			ParameterType = (long)ProgVariableTypes.Toon
 		});
 		_context.FutureProgs.Add(isElfProg);
 		_context.SaveChanges();
@@ -2469,7 +2469,7 @@ Elves are divided into several different clans, each with their own distinct cul
 			Category = "Chargen",
 			Subcategory = "Skills",
 			FunctionComment = "Used to determine the opening value for a skill for elves at character creation",
-			ReturnType = (int)FutureProgVariableTypes.Number,
+			ReturnType = (int)ProgVariableTypes.Number,
 			AcceptsAnyParameters = false,
 			Public = false,
 			StaticType = 0,
@@ -2481,17 +2481,17 @@ Elves are divided into several different clans, each with their own distinct cul
 		elfSkillProg.FutureProgsParameters.Add(new FutureProgsParameter
 		{
 			FutureProg = elfSkillProg, ParameterIndex = 0, ParameterName = "ch",
-			ParameterType = (int)FutureProgVariableTypes.Toon
+			ParameterType = (int)ProgVariableTypes.Toon
 		});
 		elfSkillProg.FutureProgsParameters.Add(new FutureProgsParameter
 		{
 			FutureProg = elfSkillProg, ParameterIndex = 1, ParameterName = "trait",
-			ParameterType = (int)FutureProgVariableTypes.Trait
+			ParameterType = (int)ProgVariableTypes.Trait
 		});
 		elfSkillProg.FutureProgsParameters.Add(new FutureProgsParameter
 		{
 			FutureProg = elfSkillProg, ParameterIndex = 2, ParameterName = "boosts",
-			ParameterType = (int)FutureProgVariableTypes.Number
+			ParameterType = (int)ProgVariableTypes.Number
 		});
 		_context.FutureProgs.Add(elfSkillProg);
 		_context.SaveChanges();
@@ -2507,7 +2507,7 @@ Elves are divided into several different clans, each with their own distinct cul
 				Category = "Chargen",
 				Subcategory = "Culture",
 				FunctionComment = $"Used to determine whether you can pick the {name} culture in Chargen.",
-				ReturnType = (int)FutureProgVariableTypes.Boolean,
+				ReturnType = (int)ProgVariableTypes.Boolean,
 				AcceptsAnyParameters = false,
 				Public = false,
 				StaticType = 0,
@@ -2518,7 +2518,7 @@ Elves are divided into several different clans, each with their own distinct cul
 				FutureProg = prog,
 				ParameterIndex = 0,
 				ParameterName = "ch",
-				ParameterType = (long)FutureProgVariableTypes.Toon
+				ParameterType = (long)ProgVariableTypes.Toon
 			});
 			_context.FutureProgs.Add(prog);
 			AddCulture(name, "Eldarin", description, _alwaysTrueProg, elfSkillProg,
@@ -2568,7 +2568,7 @@ Lindon was a region of western Middle-earth. Initially populated by Laiquendi, i
 			FunctionName = "IsRaceHuman",
 			FunctionComment = "Determines whether someone is the Human race",
 			FunctionText = $"return @ch.Race == ToRace({_context.Races.First(x => x.Name == "Human").Id})",
-			ReturnType = (long)FutureProgVariableTypes.Boolean,
+			ReturnType = (long)ProgVariableTypes.Boolean,
 			Category = "Character",
 			Subcategory = "Race",
 			Public = true,
@@ -2580,7 +2580,7 @@ Lindon was a region of western Middle-earth. Initially populated by Laiquendi, i
 			FutureProg = isHumanProg,
 			ParameterIndex = 0,
 			ParameterName = "ch",
-			ParameterType = (long)FutureProgVariableTypes.Toon
+			ParameterType = (long)ProgVariableTypes.Toon
 		});
 		_context.FutureProgs.Add(isHumanProg);
 		_context.SaveChanges();
@@ -2673,7 +2673,7 @@ Black Numenoreans are very similar in physical and cultural character to the Dun
 				Category = "Chargen",
 				Subcategory = "Culture",
 				FunctionComment = $"Used to determine whether you can pick the {name} culture in Chargen.",
-				ReturnType = (int)FutureProgVariableTypes.Boolean,
+				ReturnType = (int)ProgVariableTypes.Boolean,
 				AcceptsAnyParameters = false,
 				Public = false,
 				StaticType = 0,
@@ -2684,7 +2684,7 @@ Black Numenoreans are very similar in physical and cultural character to the Dun
 				FutureProg = prog,
 				ParameterIndex = 0,
 				ParameterName = "ch",
-				ParameterType = (long)FutureProgVariableTypes.Toon
+				ParameterType = (long)ProgVariableTypes.Toon
 			});
 			_context.FutureProgs.Add(prog);
 			_context.SaveChanges();
@@ -2862,7 +2862,7 @@ return true");
 			Category = "Character",
 			Subcategory = "Race",
 			FunctionComment = "Determines if the character select the hobbit race in chargen.",
-			ReturnType = (long)FutureProgVariableTypes.Boolean,
+			ReturnType = (long)ProgVariableTypes.Boolean,
 			StaticType = 0,
 			FunctionText = @"// You might consider checking RPP
 return true"
@@ -2882,7 +2882,7 @@ return true"
 			Subcategory = "Attributes",
 			FunctionComment =
 				"This prog is called for each attribute for hobbits at chargen time and the resulting value is applied as a modifier to that attribute.",
-			ReturnType = (long)FutureProgVariableTypes.Number,
+			ReturnType = (long)ProgVariableTypes.Number,
 			StaticType = 0,
 			FunctionText = @"// You might consider a switch on attributes like so:
 //
@@ -2998,7 +2998,7 @@ Hobbits are divided into several different clans, each with its own distinct cul
 			FunctionName = "IsRaceHobbit",
 			FunctionComment = "Determines whether someone is the Hobbit race",
 			FunctionText = $"return @ch.Race == ToRace({hobbitRace.Id})",
-			ReturnType = (long)FutureProgVariableTypes.Boolean,
+			ReturnType = (long)ProgVariableTypes.Boolean,
 			Category = "Character",
 			Subcategory = "Race",
 			Public = true,
@@ -3010,7 +3010,7 @@ Hobbits are divided into several different clans, each with its own distinct cul
 			FutureProg = isHobbitProg,
 			ParameterIndex = 0,
 			ParameterName = "ch",
-			ParameterType = (long)FutureProgVariableTypes.Toon
+			ParameterType = (long)ProgVariableTypes.Toon
 		});
 		_context.FutureProgs.Add(isHobbitProg);
 		_context.SaveChanges();
@@ -3161,7 +3161,7 @@ After this, the Fallohides mixed more and more with the Harfoots and later the S
 			Category = "Chargen",
 			Subcategory = "Skills",
 			FunctionComment = "Used to determine the opening value for a skill for hobbits at character creation",
-			ReturnType = (int)FutureProgVariableTypes.Number,
+			ReturnType = (int)ProgVariableTypes.Number,
 			AcceptsAnyParameters = false,
 			Public = false,
 			StaticType = 0,
@@ -3173,17 +3173,17 @@ After this, the Fallohides mixed more and more with the Harfoots and later the S
 		hobbitSkillProg.FutureProgsParameters.Add(new FutureProgsParameter
 		{
 			FutureProg = hobbitSkillProg, ParameterIndex = 0, ParameterName = "ch",
-			ParameterType = (int)FutureProgVariableTypes.Toon
+			ParameterType = (int)ProgVariableTypes.Toon
 		});
 		hobbitSkillProg.FutureProgsParameters.Add(new FutureProgsParameter
 		{
 			FutureProg = hobbitSkillProg, ParameterIndex = 1, ParameterName = "trait",
-			ParameterType = (int)FutureProgVariableTypes.Trait
+			ParameterType = (int)ProgVariableTypes.Trait
 		});
 		hobbitSkillProg.FutureProgsParameters.Add(new FutureProgsParameter
 		{
 			FutureProg = hobbitSkillProg, ParameterIndex = 2, ParameterName = "boosts",
-			ParameterType = (int)FutureProgVariableTypes.Number
+			ParameterType = (int)ProgVariableTypes.Number
 		});
 		_context.FutureProgs.Add(hobbitSkillProg);
 		_context.SaveChanges();
@@ -3198,7 +3198,7 @@ After this, the Fallohides mixed more and more with the Harfoots and later the S
 				Category = "Chargen",
 				Subcategory = "Culture",
 				FunctionComment = $"Used to determine whether you can pick the {name} culture in Chargen.",
-				ReturnType = (int)FutureProgVariableTypes.Boolean,
+				ReturnType = (int)ProgVariableTypes.Boolean,
 				AcceptsAnyParameters = false,
 				Public = false,
 				StaticType = 0,
@@ -3209,7 +3209,7 @@ After this, the Fallohides mixed more and more with the Harfoots and later the S
 				FutureProg = prog,
 				ParameterIndex = 0,
 				ParameterName = "ch",
-				ParameterType = (long)FutureProgVariableTypes.Toon
+				ParameterType = (long)ProgVariableTypes.Toon
 			});
 			_context.FutureProgs.Add(prog);
 			AddCulture(name, "Hobbit", description, prog, hobbitSkillProg, shireCalendar);
@@ -3242,7 +3242,7 @@ These Hobbits tend to be more worldly than their kin, and have close ties to the
 			Category = "Character",
 			Subcategory = "Race",
 			FunctionComment = "Determines if the character select the dwarf race in chargen.",
-			ReturnType = (long)FutureProgVariableTypes.Boolean,
+			ReturnType = (long)ProgVariableTypes.Boolean,
 			StaticType = 0,
 			FunctionText = @"// You might consider checking RPP
 return true"
@@ -3262,7 +3262,7 @@ return true"
 			Subcategory = "Attributes",
 			FunctionComment =
 				"This prog is called for each attribute for dwarves at chargen time and the resulting value is applied as a modifier to that attribute.",
-			ReturnType = (long)FutureProgVariableTypes.Number,
+			ReturnType = (long)ProgVariableTypes.Number,
 			StaticType = 0,
 			FunctionText = @"// You might consider a switch on attributes like so:
 //
@@ -3378,7 +3378,7 @@ Dwarves are divided into several different clans, each with its own distinct cul
 			FunctionName = "IsDwarfRace",
 			FunctionComment = "Determines whether someone is the Dwarf race",
 			FunctionText = $"return @ch.Race == ToRace({dwarfRace.Id})",
-			ReturnType = (long)FutureProgVariableTypes.Boolean,
+			ReturnType = (long)ProgVariableTypes.Boolean,
 			Category = "Character",
 			Subcategory = "Race",
 			Public = true,
@@ -3390,7 +3390,7 @@ Dwarves are divided into several different clans, each with its own distinct cul
 			FutureProg = isDwarfProg,
 			ParameterIndex = 0,
 			ParameterName = "ch",
-			ParameterType = (long)FutureProgVariableTypes.Toon
+			ParameterType = (long)ProgVariableTypes.Toon
 		});
 		_context.FutureProgs.Add(isDwarfProg);
 		_context.SaveChanges();
@@ -3558,7 +3558,7 @@ Late in the Third Age, when war and terror grew in the East itself, considerable
 			Category = "Chargen",
 			Subcategory = "Skills",
 			FunctionComment = "Used to determine the opening value for a skill for dwarves at character creation",
-			ReturnType = (int)FutureProgVariableTypes.Number,
+			ReturnType = (int)ProgVariableTypes.Number,
 			AcceptsAnyParameters = false,
 			Public = false,
 			StaticType = 0,
@@ -3570,17 +3570,17 @@ Late in the Third Age, when war and terror grew in the East itself, considerable
 		dwarfSkillProg.FutureProgsParameters.Add(new FutureProgsParameter
 		{
 			FutureProg = dwarfSkillProg, ParameterIndex = 0, ParameterName = "ch",
-			ParameterType = (int)FutureProgVariableTypes.Toon
+			ParameterType = (int)ProgVariableTypes.Toon
 		});
 		dwarfSkillProg.FutureProgsParameters.Add(new FutureProgsParameter
 		{
 			FutureProg = dwarfSkillProg, ParameterIndex = 1, ParameterName = "trait",
-			ParameterType = (int)FutureProgVariableTypes.Trait
+			ParameterType = (int)ProgVariableTypes.Trait
 		});
 		dwarfSkillProg.FutureProgsParameters.Add(new FutureProgsParameter
 		{
 			FutureProg = dwarfSkillProg, ParameterIndex = 2, ParameterName = "boosts",
-			ParameterType = (int)FutureProgVariableTypes.Number
+			ParameterType = (int)ProgVariableTypes.Number
 		});
 		_context.FutureProgs.Add(dwarfSkillProg);
 		_context.SaveChanges();
@@ -3595,7 +3595,7 @@ Late in the Third Age, when war and terror grew in the East itself, considerable
 				Category = "Chargen",
 				Subcategory = "Culture",
 				FunctionComment = $"Used to determine whether you can pick the {name} culture in Chargen.",
-				ReturnType = (int)FutureProgVariableTypes.Boolean,
+				ReturnType = (int)ProgVariableTypes.Boolean,
 				AcceptsAnyParameters = false,
 				Public = false,
 				StaticType = 0,
@@ -3606,7 +3606,7 @@ Late in the Third Age, when war and terror grew in the East itself, considerable
 				FutureProg = prog,
 				ParameterIndex = 0,
 				ParameterName = "ch",
-				ParameterType = (long)FutureProgVariableTypes.Toon
+				ParameterType = (long)ProgVariableTypes.Toon
 			});
 			_context.FutureProgs.Add(prog);
 			AddCulture(name, "Dwarven", description, prog, dwarfSkillProg, sindarinCalendar);
@@ -3671,7 +3671,7 @@ After the Battle of Azanulbizar, provoked by the Orcs' brutal slaying of Thrór,
 			Category = "Character",
 			Subcategory = "Race",
 			FunctionComment = "Determines if the character select the orc race in chargen.",
-			ReturnType = (long)FutureProgVariableTypes.Boolean,
+			ReturnType = (long)ProgVariableTypes.Boolean,
 			StaticType = 0,
 			FunctionText = @"// You might consider checking RPP
 return true"
@@ -3691,7 +3691,7 @@ return true"
 			Subcategory = "Attributes",
 			FunctionComment =
 				"This prog is called for each attribute for orcs at chargen time and the resulting value is applied as a modifier to that attribute.",
-			ReturnType = (long)FutureProgVariableTypes.Number,
+			ReturnType = (long)ProgVariableTypes.Number,
 			StaticType = 0,
 			FunctionText = @"// You might consider a switch on attributes like so:
 //
@@ -3807,7 +3807,7 @@ Orcish cultural practices are centered around warfare and domination. Orcs are c
 			FunctionName = "IsOrcRace",
 			FunctionComment = "Determines whether someone is the Orc race",
 			FunctionText = $"return @ch.Race == ToRace({orcRace.Id})",
-			ReturnType = (long)FutureProgVariableTypes.Boolean,
+			ReturnType = (long)ProgVariableTypes.Boolean,
 			Category = "Character",
 			Subcategory = "Race",
 			Public = true,
@@ -3819,7 +3819,7 @@ Orcish cultural practices are centered around warfare and domination. Orcs are c
 			FutureProg = isOrcProg,
 			ParameterIndex = 0,
 			ParameterName = "ch",
-			ParameterType = (long)FutureProgVariableTypes.Toon
+			ParameterType = (long)ProgVariableTypes.Toon
 		});
 		_context.FutureProgs.Add(isOrcProg);
 		_context.SaveChanges();
@@ -3955,7 +3955,7 @@ Uruk-hai were later bred by the Wizard Saruman the White late in the Third Age, 
 			Category = "Chargen",
 			Subcategory = "Skills",
 			FunctionComment = "Used to determine the opening value for a skill for orcs at character creation",
-			ReturnType = (int)FutureProgVariableTypes.Number,
+			ReturnType = (int)ProgVariableTypes.Number,
 			AcceptsAnyParameters = false,
 			Public = false,
 			StaticType = 0,
@@ -3967,17 +3967,17 @@ Uruk-hai were later bred by the Wizard Saruman the White late in the Third Age, 
 		orcSkillProg.FutureProgsParameters.Add(new FutureProgsParameter
 		{
 			FutureProg = orcSkillProg, ParameterIndex = 0, ParameterName = "ch",
-			ParameterType = (int)FutureProgVariableTypes.Toon
+			ParameterType = (int)ProgVariableTypes.Toon
 		});
 		orcSkillProg.FutureProgsParameters.Add(new FutureProgsParameter
 		{
 			FutureProg = orcSkillProg, ParameterIndex = 1, ParameterName = "trait",
-			ParameterType = (int)FutureProgVariableTypes.Trait
+			ParameterType = (int)ProgVariableTypes.Trait
 		});
 		orcSkillProg.FutureProgsParameters.Add(new FutureProgsParameter
 		{
 			FutureProg = orcSkillProg, ParameterIndex = 2, ParameterName = "boosts",
-			ParameterType = (int)FutureProgVariableTypes.Number
+			ParameterType = (int)ProgVariableTypes.Number
 		});
 		_context.FutureProgs.Add(orcSkillProg);
 		_context.SaveChanges();
@@ -3990,7 +3990,7 @@ Uruk-hai were later bred by the Wizard Saruman the White late in the Third Age, 
 				Category = "Chargen",
 				Subcategory = "Culture",
 				FunctionComment = $"Used to determine whether you can pick the {name} culture in Chargen.",
-				ReturnType = (int)FutureProgVariableTypes.Boolean,
+				ReturnType = (int)ProgVariableTypes.Boolean,
 				AcceptsAnyParameters = false,
 				Public = false,
 				StaticType = 0,
@@ -4001,7 +4001,7 @@ Uruk-hai were later bred by the Wizard Saruman the White late in the Third Age, 
 				FutureProg = prog,
 				ParameterIndex = 0,
 				ParameterName = "ch",
-				ParameterType = (long)FutureProgVariableTypes.Toon
+				ParameterType = (long)ProgVariableTypes.Toon
 			});
 			_context.FutureProgs.Add(prog);
 			AddCulture(name, "Orc", description, prog, orcSkillProg, sindarinCalendar);
@@ -4034,7 +4034,7 @@ The Dwarves of Durin's Folk considered the Ered Mithrin as part of their land as
 			Category = "Character",
 			Subcategory = "Race",
 			FunctionComment = "Determines if the character select the troll race in chargen.",
-			ReturnType = (long)FutureProgVariableTypes.Boolean,
+			ReturnType = (long)ProgVariableTypes.Boolean,
 			StaticType = 0,
 			FunctionText = @"// You might consider checking RPP
 return true"
@@ -4054,7 +4054,7 @@ return true"
 			Subcategory = "Attributes",
 			FunctionComment =
 				"This prog is called for each attribute for trolls at chargen time and the resulting value is applied as a modifier to that attribute.",
-			ReturnType = (long)FutureProgVariableTypes.Number,
+			ReturnType = (long)ProgVariableTypes.Number,
 			StaticType = 0,
 			FunctionText = @"// You might consider a switch on attributes like so:
 //
@@ -4170,7 +4170,7 @@ Trolls are primarily scavengers and predators, and will eat anything they can ca
 			FunctionName = "IsTrollRace",
 			FunctionComment = "Determines whether someone is the Troll race",
 			FunctionText = $"return @ch.Race == ToRace({trollRace.Id})",
-			ReturnType = (long)FutureProgVariableTypes.Boolean,
+			ReturnType = (long)ProgVariableTypes.Boolean,
 			Category = "Character",
 			Subcategory = "Race",
 			Public = true,
@@ -4182,7 +4182,7 @@ Trolls are primarily scavengers and predators, and will eat anything they can ca
 			FutureProg = isTrollProg,
 			ParameterIndex = 0,
 			ParameterName = "ch",
-			ParameterType = (long)FutureProgVariableTypes.Toon
+			ParameterType = (long)ProgVariableTypes.Toon
 		});
 		_context.FutureProgs.Add(isTrollProg);
 		_context.SaveChanges();
@@ -4292,7 +4292,7 @@ Olog-hai are also called Black Trolls by some, for they have black scaly hides a
 			Category = "Chargen",
 			Subcategory = "Skills",
 			FunctionComment = "Used to determine the opening value for a skill for trolls at character creation",
-			ReturnType = (int)FutureProgVariableTypes.Number,
+			ReturnType = (int)ProgVariableTypes.Number,
 			AcceptsAnyParameters = false,
 			Public = false,
 			StaticType = 0,
@@ -4304,17 +4304,17 @@ Olog-hai are also called Black Trolls by some, for they have black scaly hides a
 		trollSkillProg.FutureProgsParameters.Add(new FutureProgsParameter
 		{
 			FutureProg = trollSkillProg, ParameterIndex = 0, ParameterName = "ch",
-			ParameterType = (int)FutureProgVariableTypes.Toon
+			ParameterType = (int)ProgVariableTypes.Toon
 		});
 		trollSkillProg.FutureProgsParameters.Add(new FutureProgsParameter
 		{
 			FutureProg = trollSkillProg, ParameterIndex = 1, ParameterName = "trait",
-			ParameterType = (int)FutureProgVariableTypes.Trait
+			ParameterType = (int)ProgVariableTypes.Trait
 		});
 		trollSkillProg.FutureProgsParameters.Add(new FutureProgsParameter
 		{
 			FutureProg = trollSkillProg, ParameterIndex = 2, ParameterName = "boosts",
-			ParameterType = (int)FutureProgVariableTypes.Number
+			ParameterType = (int)ProgVariableTypes.Number
 		});
 		_context.FutureProgs.Add(trollSkillProg);
 		_context.SaveChanges();

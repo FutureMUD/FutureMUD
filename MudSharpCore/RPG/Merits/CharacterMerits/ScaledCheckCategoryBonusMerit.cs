@@ -151,10 +151,10 @@ public class ScaledCheckCategoryBonusMerit : CharacterMeritBase, ICheckBonusMeri
 			return false;
 		}
 
-		var prog = new ProgLookupFromBuilderInput(actor, command.SafeRemainingArgument, FutureProgVariableTypes.Number, [
-			[FutureProgVariableTypes.Character],
-			[FutureProgVariableTypes.Character, FutureProgVariableTypes.Character],
-			[FutureProgVariableTypes.Character, FutureProgVariableTypes.Perceivable],
+		var prog = new ProgLookupFromBuilderInput(actor, command.SafeRemainingArgument, ProgVariableTypes.Number, [
+			[ProgVariableTypes.Character],
+			[ProgVariableTypes.Character, ProgVariableTypes.Character],
+			[ProgVariableTypes.Character, ProgVariableTypes.Perceivable],
 		]).LookupProg();
 		if (prog is null)
 		{
@@ -178,7 +178,7 @@ public class ScaledCheckCategoryBonusMerit : CharacterMeritBase, ICheckBonusMeri
 	#3perception#0 - toggles applying to perception checks";
 
 	#region Implementation of ICheckBonusMerit
-	protected override IEnumerable<IEnumerable<FutureProgVariableTypes>> AppliesProgValidTypes => [[FutureProgVariableTypes.Character], [FutureProgVariableTypes.Character, FutureProgVariableTypes.Perceivable], [FutureProgVariableTypes.Character, FutureProgVariableTypes.Character]];
+	protected override IEnumerable<IEnumerable<ProgVariableTypes>> AppliesProgValidTypes => [[ProgVariableTypes.Character], [ProgVariableTypes.Character, ProgVariableTypes.Perceivable], [ProgVariableTypes.Character, ProgVariableTypes.Character]];
 	public double CheckBonus(ICharacter ch, IPerceivable target, CheckType type)
 	{
 		if ((AppliesToHealingChecks && type.IsHealingCheck()) ||

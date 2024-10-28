@@ -63,11 +63,11 @@ public abstract class PunishmentStrategyBase : IPunishmentStrategy
 		}
 
 		var prog = new ProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument,
-			FutureProgVariableTypes.Void,
+			ProgVariableTypes.Void,
 			new[]
 			{
-				new[] { FutureProgVariableTypes.Character },
-				new[] { FutureProgVariableTypes.Character, FutureProgVariableTypes.Text }
+				new[] { ProgVariableTypes.Character },
+				new[] { ProgVariableTypes.Character, ProgVariableTypes.Text }
 			}).LookupProg();
 
 		if (prog is null)

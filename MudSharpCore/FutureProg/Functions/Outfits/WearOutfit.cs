@@ -29,7 +29,7 @@ internal class WearOutfit : BuiltInFunction
 		FutureProg.RegisterBuiltInFunctionCompiler(
 			new FunctionCompilerInformation(
 				"wearoutfit",
-				new[] { FutureProgVariableTypes.Character, FutureProgVariableTypes.Outfit },
+				new[] { ProgVariableTypes.Character, ProgVariableTypes.Outfit },
 				(pars, gameworld) => new WearOutfit(pars, gameworld, false)
 			)
 		);
@@ -37,7 +37,7 @@ internal class WearOutfit : BuiltInFunction
 		FutureProg.RegisterBuiltInFunctionCompiler(
 			new FunctionCompilerInformation(
 				"wearoutfitforce",
-				new[] { FutureProgVariableTypes.Character, FutureProgVariableTypes.Outfit },
+				new[] { ProgVariableTypes.Character, ProgVariableTypes.Outfit },
 				(pars, gameworld) => new WearOutfit(pars, gameworld, true)
 			)
 		);
@@ -56,9 +56,9 @@ internal class WearOutfit : BuiltInFunction
 
 	#endregion
 
-	public override FutureProgVariableTypes ReturnType
+	public override ProgVariableTypes ReturnType
 	{
-		get => FutureProgVariableTypes.Boolean;
+		get => ProgVariableTypes.Boolean;
 		protected set { }
 	}
 

@@ -7,7 +7,7 @@ using MudSharp.FutureProg;
 using MudSharp.GameItems;
 
 namespace MudSharp.Community {
-    public interface IAppointment : IFrameworkItem, ISaveable, IFutureProgVariable {
+    public interface IAppointment : IFrameworkItem, ISaveable, IProgVariable {
         void LoadElections(IEnumerable<Models.Election> elections);
         IEnumerable<string> Abbreviations { get; }
 

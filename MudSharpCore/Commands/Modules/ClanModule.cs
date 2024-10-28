@@ -6417,14 +6417,14 @@ Your next payday is {3}.
 					return;
 				}
 
-				if (!prog.ReturnType.CompatibleWith(FutureProgVariableTypes.Boolean))
+				if (!prog.ReturnType.CompatibleWith(ProgVariableTypes.Boolean))
 				{
 					actor.OutputHandler.Send(
 						"The prog must return a boolean, and the prog that you specified does not.");
 					return;
 				}
 
-				if (!prog.MatchesParameters(new[] { FutureProgVariableTypes.Character }))
+				if (!prog.MatchesParameters(new[] { ProgVariableTypes.Character }))
 				{
 					actor.OutputHandler.Send(
 						"The prog must be compatible with a single character parameter, and the prog that you specified is not.");
@@ -6447,14 +6447,14 @@ Your next payday is {3}.
 					return;
 				}
 
-				if (!whyprog.ReturnType.CompatibleWith(FutureProgVariableTypes.Text))
+				if (!whyprog.ReturnType.CompatibleWith(ProgVariableTypes.Text))
 				{
 					actor.OutputHandler.Send(
 						"The why prog must return text, and the prog that you specified does not.");
 					return;
 				}
 
-				if (!whyprog.MatchesParameters(new[] { FutureProgVariableTypes.Character }))
+				if (!whyprog.MatchesParameters(new[] { ProgVariableTypes.Character }))
 				{
 					actor.OutputHandler.Send(
 						"The why prog must be compatible with a single character parameter, and the prog that you specified is not.");
@@ -6490,14 +6490,14 @@ Your next payday is {3}.
 					return;
 				}
 
-				if (!prog.ReturnType.CompatibleWith(FutureProgVariableTypes.Number))
+				if (!prog.ReturnType.CompatibleWith(ProgVariableTypes.Number))
 				{
 					actor.OutputHandler.Send(
 						"The prog must return a number, and the prog that you specified does not.");
 					return;
 				}
 
-				if (!prog.MatchesParameters(new[] { FutureProgVariableTypes.Character }))
+				if (!prog.MatchesParameters(new[] { ProgVariableTypes.Character }))
 				{
 					actor.OutputHandler.Send(
 						"The prog must be compatible with a single character parameter, and the prog that you specified is not.");

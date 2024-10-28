@@ -94,16 +94,16 @@ namespace MudSharp.Magic.SpellTriggers
 				return false;
 			}
 
-			if (!prog.ReturnType.CompatibleWith(FutureProgVariableTypes.Boolean))
+			if (!prog.ReturnType.CompatibleWith(ProgVariableTypes.Boolean))
 			{
 				actor.OutputHandler.Send(
 					$"You must specify a prog that returns a boolean value, whereas {prog.MXPClickableFunctionName()} returns {prog.ReturnType.Describe().ColourName()}.");
 				return false;
 			}
 
-			if (!prog.MatchesParameters(new List<FutureProgVariableTypes>
-				{ FutureProgVariableTypes.Character, FutureProgVariableTypes.Character }) &&
-				!prog.MatchesParameters(new List<FutureProgVariableTypes> { FutureProgVariableTypes.Character }))
+			if (!prog.MatchesParameters(new List<ProgVariableTypes>
+				{ ProgVariableTypes.Character, ProgVariableTypes.Character }) &&
+				!prog.MatchesParameters(new List<ProgVariableTypes> { ProgVariableTypes.Character }))
 			{
 				actor.OutputHandler.Send(
 					$"You must specify a prog that accepts either a single character (the target), or two characters (the target and the caster), whereas {prog.MXPClickableFunctionName()} does not.");

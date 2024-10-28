@@ -92,7 +92,7 @@ public class ProgAction : BaseAction
 			return false;
 		}
 
-		if (!prog.MatchesParameters(new[] { FutureProgVariableTypes.Project }))
+		if (!prog.MatchesParameters(new[] { ProgVariableTypes.Project }))
 		{
 			actor.OutputHandler.Send("You must specify a prog that accepts a single project as a parameter.");
 			return false;

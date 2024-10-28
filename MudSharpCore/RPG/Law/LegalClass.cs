@@ -155,14 +155,14 @@ public class LegalClass : SaveableItem, ILegalClass
 			return false;
 		}
 
-		if (!prog.ReturnType.CompatibleWith(FutureProgVariableTypes.Boolean))
+		if (!prog.ReturnType.CompatibleWith(ProgVariableTypes.Boolean))
 		{
 			actor.OutputHandler.Send(
 				$"The {prog.MXPClickableFunctionName()} prog does not return a boolean value, which is a requirement for a membership prog.");
 			return false;
 		}
 
-		if (!prog.MatchesParameters(new[] { FutureProgVariableTypes.Character }))
+		if (!prog.MatchesParameters(new[] { ProgVariableTypes.Character }))
 		{
 			actor.OutputHandler.Send(
 				$"The {prog.MXPClickableFunctionName()} prog does not accept a character as a parameter, which is a requirement for a membership prog.");

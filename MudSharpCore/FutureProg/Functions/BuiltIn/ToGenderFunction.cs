@@ -15,7 +15,7 @@ internal class ToGenderFunction : BuiltInFunction
 		InnerFunction = parameters.First();
 	}
 
-	public override IFutureProgVariable Result
+	public override IProgVariable Result
 	{
 		get
 		{
@@ -38,9 +38,9 @@ internal class ToGenderFunction : BuiltInFunction
 		protected set { }
 	}
 
-	public override FutureProgVariableTypes ReturnType
+	public override ProgVariableTypes ReturnType
 	{
-		get => FutureProgVariableTypes.Gender;
+		get => ProgVariableTypes.Gender;
 		protected set { }
 	}
 
@@ -60,13 +60,13 @@ internal class ToGenderFunction : BuiltInFunction
 		FutureProg.RegisterBuiltInFunctionCompiler(
 			new FunctionCompilerInformation(
 				"togender",
-				new[] { FutureProgVariableTypes.Text },
+				new[] { ProgVariableTypes.Text },
 				(pars, gameworld) => new ToGenderFunction(pars),
 				new List<string> { "gender" },
 				new List<string> { "The textual representation of the gender you want to load." },
 				"This function takes some text and returns a gender based on the text. The valid genders are male, female, neuter, non-binary and indeterminate.",
 				"Lookup",
-				FutureProgVariableTypes.Gender
+				ProgVariableTypes.Gender
 			)
 		);
 	}

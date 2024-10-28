@@ -13,61 +13,61 @@ public partial class GameItem
 {
 	#region IFutureProgVariable Members
 
-	private static IReadOnlyDictionary<string, FutureProgVariableTypes> DotReferenceHandler()
+	private static IReadOnlyDictionary<string, ProgVariableTypes> DotReferenceHandler()
 	{
-		return new Dictionary<string, FutureProgVariableTypes>(StringComparer.InvariantCultureIgnoreCase)
+		return new Dictionary<string, ProgVariableTypes>(StringComparer.InvariantCultureIgnoreCase)
 		{
-			{ "id", FutureProgVariableTypes.Number },
-			{ "effects", FutureProgVariableTypes.Collection | FutureProgVariableTypes.Effect },
-			{ "name", FutureProgVariableTypes.Text },
-			{ "type", FutureProgVariableTypes.Text },
-			{ "proto", FutureProgVariableTypes.Number },
-			{ "quantity", FutureProgVariableTypes.Number },
-			{ "holder", FutureProgVariableTypes.Character },
-			{ "wearer", FutureProgVariableTypes.Character },
-			{ "weight", FutureProgVariableTypes.Number },
-			{ "contents", FutureProgVariableTypes.Collection | FutureProgVariableTypes.Item },
-			{ "container", FutureProgVariableTypes.Item },
-			{ "iscontainer", FutureProgVariableTypes.Boolean },
-			{ "isopenable", FutureProgVariableTypes.Boolean },
-			{ "iscurrency", FutureProgVariableTypes.Boolean },
-			{ "islock", FutureProgVariableTypes.Boolean },
-			{ "islockable", FutureProgVariableTypes.Boolean },
-			{ "iskey", FutureProgVariableTypes.Boolean },
-			{ "istable", FutureProgVariableTypes.Boolean },
-			{ "ischair", FutureProgVariableTypes.Boolean },
-			{ "isdoor", FutureProgVariableTypes.Boolean },
-			{ "isbelt", FutureProgVariableTypes.Boolean },
-			{ "isbeltable", FutureProgVariableTypes.Boolean },
-			{ "iswearable", FutureProgVariableTypes.Boolean },
-			{ "iswieldable", FutureProgVariableTypes.Boolean },
-			{ "isholdable", FutureProgVariableTypes.Boolean },
-			{ "issheath", FutureProgVariableTypes.Boolean },
-			{ "islightable", FutureProgVariableTypes.Boolean },
-			{ "ispowered", FutureProgVariableTypes.Boolean },
-			{ "ison", FutureProgVariableTypes.Boolean },
-			{ "iscover", FutureProgVariableTypes.Boolean },
-			{ "iscorpse", FutureProgVariableTypes.Boolean },
-			{ "isweapon", FutureProgVariableTypes.Boolean },
-			{ "ismeleeweapon", FutureProgVariableTypes.Boolean },
-			{ "israngedweapon", FutureProgVariableTypes.Boolean },
-			{ "providingcover", FutureProgVariableTypes.Boolean },
-			{ "lit", FutureProgVariableTypes.Boolean },
-			{ "open", FutureProgVariableTypes.Boolean },
-			{ "locked", FutureProgVariableTypes.Boolean },
-			{ "locks", FutureProgVariableTypes.Collection | FutureProgVariableTypes.Item },
-			{ "corpsecharacter", FutureProgVariableTypes.Character },
-			{ "location", FutureProgVariableTypes.Location },
-			{ "tags", FutureProgVariableTypes.Collection | FutureProgVariableTypes.Text },
-			{ "iscommodity", FutureProgVariableTypes.Boolean },
-			{ "material", FutureProgVariableTypes.Material },
-			{ "isgridconnectable", FutureProgVariableTypes.Boolean },
-			{ "iselectricgridconnectable", FutureProgVariableTypes.Boolean },
-			{ "grid", FutureProgVariableTypes.Number },
-			{ "layer", FutureProgVariableTypes.Text },
-			{ "isfood", FutureProgVariableTypes.Boolean },
-			{ "isliquidcontainer", FutureProgVariableTypes.Boolean },
-			{ "variables", FutureProgVariableTypes.Dictionary | FutureProgVariableTypes.Text}
+			{ "id", ProgVariableTypes.Number },
+			{ "effects", ProgVariableTypes.Collection | ProgVariableTypes.Effect },
+			{ "name", ProgVariableTypes.Text },
+			{ "type", ProgVariableTypes.Text },
+			{ "proto", ProgVariableTypes.Number },
+			{ "quantity", ProgVariableTypes.Number },
+			{ "holder", ProgVariableTypes.Character },
+			{ "wearer", ProgVariableTypes.Character },
+			{ "weight", ProgVariableTypes.Number },
+			{ "contents", ProgVariableTypes.Collection | ProgVariableTypes.Item },
+			{ "container", ProgVariableTypes.Item },
+			{ "iscontainer", ProgVariableTypes.Boolean },
+			{ "isopenable", ProgVariableTypes.Boolean },
+			{ "iscurrency", ProgVariableTypes.Boolean },
+			{ "islock", ProgVariableTypes.Boolean },
+			{ "islockable", ProgVariableTypes.Boolean },
+			{ "iskey", ProgVariableTypes.Boolean },
+			{ "istable", ProgVariableTypes.Boolean },
+			{ "ischair", ProgVariableTypes.Boolean },
+			{ "isdoor", ProgVariableTypes.Boolean },
+			{ "isbelt", ProgVariableTypes.Boolean },
+			{ "isbeltable", ProgVariableTypes.Boolean },
+			{ "iswearable", ProgVariableTypes.Boolean },
+			{ "iswieldable", ProgVariableTypes.Boolean },
+			{ "isholdable", ProgVariableTypes.Boolean },
+			{ "issheath", ProgVariableTypes.Boolean },
+			{ "islightable", ProgVariableTypes.Boolean },
+			{ "ispowered", ProgVariableTypes.Boolean },
+			{ "ison", ProgVariableTypes.Boolean },
+			{ "iscover", ProgVariableTypes.Boolean },
+			{ "iscorpse", ProgVariableTypes.Boolean },
+			{ "isweapon", ProgVariableTypes.Boolean },
+			{ "ismeleeweapon", ProgVariableTypes.Boolean },
+			{ "israngedweapon", ProgVariableTypes.Boolean },
+			{ "providingcover", ProgVariableTypes.Boolean },
+			{ "lit", ProgVariableTypes.Boolean },
+			{ "open", ProgVariableTypes.Boolean },
+			{ "locked", ProgVariableTypes.Boolean },
+			{ "locks", ProgVariableTypes.Collection | ProgVariableTypes.Item },
+			{ "corpsecharacter", ProgVariableTypes.Character },
+			{ "location", ProgVariableTypes.Location },
+			{ "tags", ProgVariableTypes.Collection | ProgVariableTypes.Text },
+			{ "iscommodity", ProgVariableTypes.Boolean },
+			{ "material", ProgVariableTypes.Material },
+			{ "isgridconnectable", ProgVariableTypes.Boolean },
+			{ "iselectricgridconnectable", ProgVariableTypes.Boolean },
+			{ "grid", ProgVariableTypes.Number },
+			{ "layer", ProgVariableTypes.Text },
+			{ "isfood", ProgVariableTypes.Boolean },
+			{ "isliquidcontainer", ProgVariableTypes.Boolean },
+			{ "variables", ProgVariableTypes.Dictionary | ProgVariableTypes.Text}
 		};
 	}
 
@@ -125,11 +125,11 @@ public partial class GameItem
 		};
 	}
 
-	private static IReadOnlyDictionary<string, FutureProgVariableTypes> TaggedDotReferenceHandler()
+	private static IReadOnlyDictionary<string, ProgVariableTypes> TaggedDotReferenceHandler()
 	{
-		return new Dictionary<string, FutureProgVariableTypes>(StringComparer.InvariantCultureIgnoreCase)
+		return new Dictionary<string, ProgVariableTypes>(StringComparer.InvariantCultureIgnoreCase)
 		{
-			{ "tags", FutureProgVariableTypes.Collection | FutureProgVariableTypes.Text }
+			{ "tags", ProgVariableTypes.Collection | ProgVariableTypes.Text }
 		};
 	}
 
@@ -143,13 +143,13 @@ public partial class GameItem
 
 	public new static void RegisterFutureProgCompiler()
 	{
-		FutureProgVariable.RegisterDotReferenceCompileInfo(FutureProgVariableTypes.Item, DotReferenceHandler(),
+		ProgVariable.RegisterDotReferenceCompileInfo(ProgVariableTypes.Item, DotReferenceHandler(),
 			DotReferenceHelp());
-		FutureProgVariable.RegisterDotReferenceCompileInfo(FutureProgVariableTypes.Tagged, TaggedDotReferenceHandler(),
+		ProgVariable.RegisterDotReferenceCompileInfo(ProgVariableTypes.Tagged, TaggedDotReferenceHandler(),
 			TaggedDotReferenceHelp());
 	}
 
-	public override IFutureProgVariable GetProperty(string property)
+	public override IProgVariable GetProperty(string property)
 	{
 		switch (property.ToLowerInvariant())
 		{
@@ -173,7 +173,7 @@ public partial class GameItem
 			case "contents":
 				return new CollectionVariable(
 					IsItemType<IContainer>() ? GetItemType<IContainer>().Contents.ToList() : new List<IGameItem>(),
-					FutureProgVariableTypes.Item
+					ProgVariableTypes.Item
 				);
 
 			case "container":
@@ -266,13 +266,13 @@ public partial class GameItem
 			case "locks":
 				lockable = GetItemType<ILockable>();
 				return new CollectionVariable(lockable?.Locks.ToList() ?? new List<ILock>(),
-					FutureProgVariableTypes.Item);
+					ProgVariableTypes.Item);
 			case "corpsecharacter":
 				return GetItemType<ICorpse>()?.OriginalCharacter;
 			case "location":
 				return Location;
 			case "tags":
-				return new CollectionVariable(Tags.Select(x => x.Name).ToList(), FutureProgVariableTypes.Text);
+				return new CollectionVariable(Tags.Select(x => x.Name).ToList(), ProgVariableTypes.Text);
 			case "iscommodity":
 				return new BooleanVariable(IsItemType<ICommodity>());
 			case "material":
@@ -290,7 +290,7 @@ public partial class GameItem
 			case "isliquidcontainer":
 				return new BooleanVariable(IsItemType<ILiquidContainer>());
 			case "variables":
-				var dict = new Dictionary<string, IFutureProgVariable>(StringComparer.InvariantCultureIgnoreCase);
+				var dict = new Dictionary<string, IProgVariable>(StringComparer.InvariantCultureIgnoreCase);
 				var variable = GetItemType<IVariable>();
 				if (variable is not null)
 				{
@@ -299,13 +299,13 @@ public partial class GameItem
 						dict[item.Name.ToLowerInvariant()] = new TextVariable(variable.GetCharacteristic(item).GetValue.ToLowerInvariant());
 					}
 				}
-				return new DictionaryVariable(dict, FutureProgVariableTypes.Text);
+				return new DictionaryVariable(dict, ProgVariableTypes.Text);
 			default:
 				return base.GetProperty(property);
 		}
 	}
 
-	public override FutureProgVariableTypes Type => FutureProgVariableTypes.Item;
+	public override ProgVariableTypes Type => ProgVariableTypes.Item;
 
 	#endregion
 }

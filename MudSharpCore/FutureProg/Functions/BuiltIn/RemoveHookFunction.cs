@@ -12,9 +12,9 @@ internal class RemoveHookFunction : BuiltInFunction
 		Gameworld = gameworld;
 	}
 
-	public override FutureProgVariableTypes ReturnType
+	public override ProgVariableTypes ReturnType
 	{
-		get => FutureProgVariableTypes.Boolean;
+		get => ProgVariableTypes.Boolean;
 		protected set { }
 	}
 
@@ -41,7 +41,7 @@ internal class RemoveHookFunction : BuiltInFunction
 			return StatementResult.Normal;
 		}
 
-		var hook = hookResult.Type == FutureProgVariableTypes.Number
+		var hook = hookResult.Type == ProgVariableTypes.Number
 			? Gameworld.Hooks.Get((long)(double)hookResult.GetObject)
 			: Gameworld.Hooks.GetByName(hookResult.GetObject.ToString());
 
@@ -66,7 +66,7 @@ internal class RemoveHookFunction : BuiltInFunction
 		FutureProg.RegisterBuiltInFunctionCompiler(
 			new FunctionCompilerInformation(
 				"removehook",
-				new[] { FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Number },
+				new[] { ProgVariableTypes.Perceivable, ProgVariableTypes.Number },
 				(pars, gameworld) => new RemoveHookFunction(pars, gameworld)
 			)
 		);
@@ -74,7 +74,7 @@ internal class RemoveHookFunction : BuiltInFunction
 		FutureProg.RegisterBuiltInFunctionCompiler(
 			new FunctionCompilerInformation(
 				"removehook",
-				new[] { FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Text },
+				new[] { ProgVariableTypes.Perceivable, ProgVariableTypes.Text },
 				(pars, gameworld) => new RemoveHookFunction(pars, gameworld)
 			)
 		);

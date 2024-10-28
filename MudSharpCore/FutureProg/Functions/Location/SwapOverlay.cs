@@ -20,9 +20,9 @@ internal class SwapOverlay : BuiltInFunction
         _package = package;
     }
 
-    public override FutureProgVariableTypes ReturnType
+    public override ProgVariableTypes ReturnType
     {
-        get => FutureProgVariableTypes.Boolean;
+        get => ProgVariableTypes.Boolean;
         protected set { }
     }
 
@@ -35,12 +35,12 @@ internal class SwapOverlay : BuiltInFunction
 
         ICellOverlayPackage package = null;
 
-        if (ParameterFunctions[0].ReturnType.CompatibleWith(FutureProgVariableTypes.Text))
+        if (ParameterFunctions[0].ReturnType.CompatibleWith(ProgVariableTypes.Text))
         {
             package = _gameworld.CellOverlayPackages.GetByName(
                 ParameterFunctions[0].Result?.GetObject?.ToString() ?? "");
         }
-        else if (ParameterFunctions[0].ReturnType.CompatibleWith(FutureProgVariableTypes.OverlayPackage))
+        else if (ParameterFunctions[0].ReturnType.CompatibleWith(ProgVariableTypes.OverlayPackage))
         {
             package = (ICellOverlayPackage)ParameterFunctions[0].Result?.GetObject;
         }
@@ -90,7 +90,7 @@ internal class SwapOverlay : BuiltInFunction
     {
         FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
             "swapoverlay",
-            new[] { FutureProgVariableTypes.Number },
+            new[] { ProgVariableTypes.Number },
             (pars, gameworld) => new SwapOverlay(pars, gameworld, true),
             new List<string>
             {
@@ -102,12 +102,12 @@ internal class SwapOverlay : BuiltInFunction
             },
             "Swaps an approved overlay into the worldfile as if you had run the CELL SWAP command. Returns true if successful.",
             "Rooms",
-            FutureProgVariableTypes.Boolean
+            ProgVariableTypes.Boolean
         ));
 
         FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
             "swapoverlay",
-            new[] { FutureProgVariableTypes.Text },
+            new[] { ProgVariableTypes.Text },
             (pars, gameworld) => new SwapOverlay(pars, gameworld, true),
             new List<string>
             {
@@ -119,12 +119,12 @@ internal class SwapOverlay : BuiltInFunction
             },
             "Swaps an approved overlay into the worldfile as if you had run the CELL SWAP command. Returns true if successful.",
             "Rooms",
-            FutureProgVariableTypes.Boolean
+            ProgVariableTypes.Boolean
         ));
 
         FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
             "swapoverlay",
-            new[] { FutureProgVariableTypes.Number, FutureProgVariableTypes.Location },
+            new[] { ProgVariableTypes.Number, ProgVariableTypes.Location },
             (pars, gameworld) => new SwapOverlay(pars, gameworld, false),
             new List<string>
             {
@@ -138,12 +138,12 @@ internal class SwapOverlay : BuiltInFunction
             },
             "Swaps an approved overlay for one room only into the worldfile as if you had run the CELL SWAP command. Returns true if successful. This use case is only recommended for advanced scenarios - in most cases you should swap the entire overlay in at once",
             "Rooms",
-            FutureProgVariableTypes.Boolean
+            ProgVariableTypes.Boolean
         ));
 
         FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
             "swapoverlay",
-            new[] { FutureProgVariableTypes.Text, FutureProgVariableTypes.Location },
+            new[] { ProgVariableTypes.Text, ProgVariableTypes.Location },
             (pars, gameworld) => new SwapOverlay(pars, gameworld, false),
             new List<string>
             {
@@ -157,12 +157,12 @@ internal class SwapOverlay : BuiltInFunction
             },
             "Swaps an approved overlay for one room only into the worldfile as if you had run the CELL SWAP command. Returns true if successful. This use case is only recommended for advanced scenarios - in most cases you should swap the entire overlay in at once",
             "Rooms",
-            FutureProgVariableTypes.Boolean
+            ProgVariableTypes.Boolean
         ));
 
         FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
             "swapoverlay",
-            new[] { FutureProgVariableTypes.OverlayPackage },
+            new[] { ProgVariableTypes.OverlayPackage },
             (pars, gameworld) => new SwapOverlay(pars, gameworld, true),
             new List<string>
             {
@@ -174,12 +174,12 @@ internal class SwapOverlay : BuiltInFunction
             },
             "Swaps an approved overlay into the worldfile as if you had run the CELL SWAP command. Returns true if successful.",
             "Rooms",
-            FutureProgVariableTypes.Boolean
+            ProgVariableTypes.Boolean
         ));
 
         FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
             "swapoverlay",
-            new[] { FutureProgVariableTypes.OverlayPackage, FutureProgVariableTypes.Location },
+            new[] { ProgVariableTypes.OverlayPackage, ProgVariableTypes.Location },
             (pars, gameworld) => new SwapOverlay(pars, gameworld, false),
             new List<string>
             {
@@ -193,7 +193,7 @@ internal class SwapOverlay : BuiltInFunction
             },
             "Swaps an approved overlay for one room only into the worldfile as if you had run the CELL SWAP command. Returns true if successful. This use case is only recommended for advanced scenarios - in most cases you should swap the entire overlay in at once",
             "Rooms",
-            FutureProgVariableTypes.Boolean
+            ProgVariableTypes.Boolean
         ));
     }
 }

@@ -16,9 +16,9 @@ internal class ToRankFunction : BuiltInFunction
 		_gameworld = gameworld;
 	}
 
-	public override FutureProgVariableTypes ReturnType
+	public override ProgVariableTypes ReturnType
 	{
-		get => FutureProgVariableTypes.ClanRank;
+		get => ProgVariableTypes.ClanRank;
 		protected set { }
 	}
 
@@ -36,7 +36,7 @@ internal class ToRankFunction : BuiltInFunction
 			return StatementResult.Error;
 		}
 
-		Result = ParameterFunctions[1].ReturnType.CompatibleWith(FutureProgVariableTypes.Text)
+		Result = ParameterFunctions[1].ReturnType.CompatibleWith(ProgVariableTypes.Text)
 			? clan.Ranks.FirstOrDefault(
 				x =>
 					x.Name.Equals((string)ParameterFunctions.ElementAt(1).Result.GetObject,
@@ -50,13 +50,13 @@ internal class ToRankFunction : BuiltInFunction
 	{
 		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
 			"torank",
-			new[] { FutureProgVariableTypes.Clan, FutureProgVariableTypes.Number },
+			new[] { ProgVariableTypes.Clan, ProgVariableTypes.Number },
 			(pars, gameworld) => new ToRankFunction(pars, gameworld)
 		));
 
 		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
 			"torank",
-			new[] { FutureProgVariableTypes.Clan, FutureProgVariableTypes.Text },
+			new[] { ProgVariableTypes.Clan, ProgVariableTypes.Text },
 			(pars, gameworld) => new ToRankFunction(pars, gameworld)
 		));
 	}

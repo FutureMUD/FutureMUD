@@ -21,9 +21,9 @@ internal class SendShardLangFunction : BuiltInFunction
 		Gameworld = gameworld;
 	}
 
-	public override FutureProgVariableTypes ReturnType
+	public override ProgVariableTypes ReturnType
 	{
-		get => FutureProgVariableTypes.Boolean;
+		get => ProgVariableTypes.Boolean;
 		protected set { }
 	}
 
@@ -88,8 +88,8 @@ internal class SendShardLangFunction : BuiltInFunction
 				"sendshardlang",
 				new[]
 				{
-					FutureProgVariableTypes.Shard, FutureProgVariableTypes.Text, FutureProgVariableTypes.Language,
-					FutureProgVariableTypes.Accent
+					ProgVariableTypes.Shard, ProgVariableTypes.Text, ProgVariableTypes.Language,
+					ProgVariableTypes.Accent
 				},
 				(pars, gameworld) => new SendShardLangFunction(pars, gameworld)
 			)
@@ -100,8 +100,8 @@ internal class SendShardLangFunction : BuiltInFunction
 				"sendshardlang",
 				new[]
 				{
-					FutureProgVariableTypes.Shard, FutureProgVariableTypes.Text, FutureProgVariableTypes.Language,
-					FutureProgVariableTypes.Accent, FutureProgVariableTypes.Perceivable
+					ProgVariableTypes.Shard, ProgVariableTypes.Text, ProgVariableTypes.Language,
+					ProgVariableTypes.Accent, ProgVariableTypes.Perceivable
 				},
 				(pars, gameworld) => new SendShardLangFunction(pars, gameworld)
 			)
@@ -112,9 +112,9 @@ internal class SendShardLangFunction : BuiltInFunction
 				"sendshardlang",
 				new[]
 				{
-					FutureProgVariableTypes.Shard, FutureProgVariableTypes.Text, FutureProgVariableTypes.Language,
-					FutureProgVariableTypes.Accent, FutureProgVariableTypes.Perceivable,
-					FutureProgVariableTypes.Perceivable
+					ProgVariableTypes.Shard, ProgVariableTypes.Text, ProgVariableTypes.Language,
+					ProgVariableTypes.Accent, ProgVariableTypes.Perceivable,
+					ProgVariableTypes.Perceivable
 				},
 				(pars, gameworld) => new SendShardLangFunction(pars, gameworld)
 			)
@@ -125,9 +125,9 @@ internal class SendShardLangFunction : BuiltInFunction
 				"sendshardlang",
 				new[]
 				{
-					FutureProgVariableTypes.Shard, FutureProgVariableTypes.Text, FutureProgVariableTypes.Language,
-					FutureProgVariableTypes.Accent, FutureProgVariableTypes.Perceivable,
-					FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Perceivable
+					ProgVariableTypes.Shard, ProgVariableTypes.Text, ProgVariableTypes.Language,
+					ProgVariableTypes.Accent, ProgVariableTypes.Perceivable,
+					ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable
 				},
 				(pars, gameworld) => new SendShardLangFunction(pars, gameworld)
 			)
@@ -138,10 +138,10 @@ internal class SendShardLangFunction : BuiltInFunction
 				"sendshardlang",
 				new[]
 				{
-					FutureProgVariableTypes.Shard, FutureProgVariableTypes.Text, FutureProgVariableTypes.Language,
-					FutureProgVariableTypes.Accent, FutureProgVariableTypes.Perceivable,
-					FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Perceivable,
-					FutureProgVariableTypes.Perceivable
+					ProgVariableTypes.Shard, ProgVariableTypes.Text, ProgVariableTypes.Language,
+					ProgVariableTypes.Accent, ProgVariableTypes.Perceivable,
+					ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable,
+					ProgVariableTypes.Perceivable
 				},
 				(pars, gameworld) => new SendShardLangFunction(pars, gameworld)
 			)
@@ -152,10 +152,10 @@ internal class SendShardLangFunction : BuiltInFunction
 				"sendshardlang",
 				new[]
 				{
-					FutureProgVariableTypes.Shard, FutureProgVariableTypes.Text, FutureProgVariableTypes.Language,
-					FutureProgVariableTypes.Accent, FutureProgVariableTypes.Perceivable,
-					FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Perceivable,
-					FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Perceivable
+					ProgVariableTypes.Shard, ProgVariableTypes.Text, ProgVariableTypes.Language,
+					ProgVariableTypes.Accent, ProgVariableTypes.Perceivable,
+					ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable,
+					ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable
 				},
 				(pars, gameworld) => new SendShardLangFunction(pars, gameworld)
 			)
@@ -166,11 +166,11 @@ internal class SendShardLangFunction : BuiltInFunction
 				"sendshardlang",
 				new[]
 				{
-					FutureProgVariableTypes.Shard, FutureProgVariableTypes.Text, FutureProgVariableTypes.Language,
-					FutureProgVariableTypes.Accent, FutureProgVariableTypes.Perceivable,
-					FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Perceivable,
-					FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Perceivable,
-					FutureProgVariableTypes.Perceivable
+					ProgVariableTypes.Shard, ProgVariableTypes.Text, ProgVariableTypes.Language,
+					ProgVariableTypes.Accent, ProgVariableTypes.Perceivable,
+					ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable,
+					ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable,
+					ProgVariableTypes.Perceivable
 				},
 				(pars, gameworld) => new SendShardLangFunction(pars, gameworld)
 			)
@@ -181,11 +181,11 @@ internal class SendShardLangFunction : BuiltInFunction
 				"sendshardlang",
 				new[]
 				{
-					FutureProgVariableTypes.Shard, FutureProgVariableTypes.Text, FutureProgVariableTypes.Language,
-					FutureProgVariableTypes.Accent, FutureProgVariableTypes.Perceivable,
-					FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Perceivable,
-					FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Perceivable,
-					FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Perceivable
+					ProgVariableTypes.Shard, ProgVariableTypes.Text, ProgVariableTypes.Language,
+					ProgVariableTypes.Accent, ProgVariableTypes.Perceivable,
+					ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable,
+					ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable,
+					ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable
 				},
 				(pars, gameworld) => new SendShardLangFunction(pars, gameworld)
 			)
@@ -196,12 +196,12 @@ internal class SendShardLangFunction : BuiltInFunction
 				"sendshardlang",
 				new[]
 				{
-					FutureProgVariableTypes.Shard, FutureProgVariableTypes.Text, FutureProgVariableTypes.Language,
-					FutureProgVariableTypes.Accent, FutureProgVariableTypes.Perceivable,
-					FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Perceivable,
-					FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Perceivable,
-					FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Perceivable,
-					FutureProgVariableTypes.Perceivable
+					ProgVariableTypes.Shard, ProgVariableTypes.Text, ProgVariableTypes.Language,
+					ProgVariableTypes.Accent, ProgVariableTypes.Perceivable,
+					ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable,
+					ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable,
+					ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable,
+					ProgVariableTypes.Perceivable
 				},
 				(pars, gameworld) => new SendShardLangFunction(pars, gameworld)
 			)

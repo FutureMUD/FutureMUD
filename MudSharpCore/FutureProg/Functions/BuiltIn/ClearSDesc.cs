@@ -24,7 +24,7 @@ internal class ClearSDesc : BuiltInFunction
 		FutureProg.RegisterBuiltInFunctionCompiler(
 			new FunctionCompilerInformation(
 				"ClearSDesc".ToLowerInvariant(),
-				new[] { FutureProgVariableTypes.Perceivable }, // the parameters the function takes
+				new[] { ProgVariableTypes.Perceivable }, // the parameters the function takes
 				(pars, gameworld) => new ClearSDesc(pars, gameworld),
 				new List<string> {
 					"perceivable",
@@ -34,14 +34,14 @@ internal class ClearSDesc : BuiltInFunction
 				}, // parameter help text
 				"Clears all custom SDesc overrides set by progs from this perceivable", // help text for the function,
 				"Perception", // the category to which this function belongs,
-				FutureProgVariableTypes.Boolean // the return type of the function
+				ProgVariableTypes.Boolean // the return type of the function
 			)
 		);
 
 		FutureProg.RegisterBuiltInFunctionCompiler(
 			new FunctionCompilerInformation(
 				"ClearSDesc".ToLowerInvariant(),
-				new[] { FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Text }, // the parameters the function takes
+				new[] { ProgVariableTypes.Perceivable, ProgVariableTypes.Text }, // the parameters the function takes
 				(pars, gameworld) => new ClearSDesc(pars, gameworld),
 				new List<string> {
 					"perceivable",
@@ -53,7 +53,7 @@ internal class ClearSDesc : BuiltInFunction
 				}, // parameter help text
 				"Clears a custom SDesc override with the specified tag set by progs from this perceivable", // help text for the function,
 				"Perception", // the category to which this function belongs,
-				FutureProgVariableTypes.Boolean // the return type of the function
+				ProgVariableTypes.Boolean // the return type of the function
 			)
 		);
 	}
@@ -66,9 +66,9 @@ internal class ClearSDesc : BuiltInFunction
 	}
 	#endregion
 
-	public override FutureProgVariableTypes ReturnType
+	public override ProgVariableTypes ReturnType
 	{
-		get { return FutureProgVariableTypes.Boolean; }
+		get { return ProgVariableTypes.Boolean; }
 		protected set { }
 	}
 

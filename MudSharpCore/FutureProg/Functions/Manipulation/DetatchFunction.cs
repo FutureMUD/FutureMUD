@@ -12,9 +12,9 @@ internal class DetatchFunction : BuiltInFunction
 	{
 	}
 
-	public override FutureProgVariableTypes ReturnType
+	public override ProgVariableTypes ReturnType
 	{
-		get => FutureProgVariableTypes.Boolean;
+		get => ProgVariableTypes.Boolean;
 		protected set { }
 	}
 
@@ -69,7 +69,7 @@ internal class DetatchFunction : BuiltInFunction
 	{
 		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
 			"detatch",
-			new[] { FutureProgVariableTypes.Item, FutureProgVariableTypes.Item },
+			new[] { ProgVariableTypes.Item, ProgVariableTypes.Item },
 			(pars, gameworld) => new DetatchFunction(pars)
 		));
 	}

@@ -28,7 +28,7 @@ internal class SetRegister : Statement
 	}
 
 	private static ICompileInfo SetRegisterCompile(IEnumerable<string> lines,
-		IDictionary<string, FutureProgVariableTypes> variableSpace, int lineNumber, IFuturemud gameworld)
+		IDictionary<string, ProgVariableTypes> variableSpace, int lineNumber, IFuturemud gameworld)
 	{
 		var match = SetRegisterCompileRegex.Match(lines.First());
 		var splitArgs = FunctionHelper.ParameterStringSplit(match.Groups[1].Value, ' ');
@@ -56,7 +56,7 @@ internal class SetRegister : Statement
 		}
 
 		var typeParameter = (IFunction)compiledArgs.ElementAt(0).CompiledStatement;
-		if (!typeParameter.ReturnType.CompatibleWith(FutureProgVariableTypes.ReferenceType))
+		if (!typeParameter.ReturnType.CompatibleWith(ProgVariableTypes.ReferenceType))
 		{
 			return
 				CompileInfo.GetFactory()
@@ -64,7 +64,7 @@ internal class SetRegister : Statement
 		}
 
 		var nameParameter = (IFunction)compiledArgs.ElementAt(1).CompiledStatement;
-		if (!nameParameter.ReturnType.CompatibleWith(FutureProgVariableTypes.Text | FutureProgVariableTypes.Literal))
+		if (!nameParameter.ReturnType.CompatibleWith(ProgVariableTypes.Text | ProgVariableTypes.Literal))
 		{
 			return CompileInfo.GetFactory()
 			                  .CreateError("The second argument of SetRegister must be a text literal.", lineNumber);
@@ -72,7 +72,7 @@ internal class SetRegister : Statement
 
 		var registeredType = gameworld.VariableRegister.GetType(typeParameter.ReturnType,
 			(string)nameParameter.Result.GetObject);
-		if (registeredType == FutureProgVariableTypes.Error)
+		if (registeredType == ProgVariableTypes.Error)
 		{
 			return
 				CompileInfo.GetFactory()
@@ -118,7 +118,7 @@ internal class SetRegister : Statement
 			new Tuple
 			<Regex,
 				Func
-				<IEnumerable<string>, IDictionary<string, FutureProgVariableTypes>, int, IFuturemud, ICompileInfo>>(
+				<IEnumerable<string>, IDictionary<string, ProgVariableTypes>, int, IFuturemud, ICompileInfo>>(
 				SetRegisterCompileRegex, SetRegisterCompile)
 		);
 

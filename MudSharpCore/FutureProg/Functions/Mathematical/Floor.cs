@@ -14,7 +14,7 @@ internal class Floor : BuiltInFunction
 		FutureProg.RegisterBuiltInFunctionCompiler(
 			new FunctionCompilerInformation(
 				"Floor".ToLowerInvariant(),
-				new[] { FutureProgVariableTypes.Number }, // the parameters the function takes
+				new[] { ProgVariableTypes.Number }, // the parameters the function takes
 				(pars, gameworld) => new Floor(pars, gameworld),
 				new List<string>
 				{
@@ -28,7 +28,7 @@ internal class Floor : BuiltInFunction
 
 				"Numbers", // the category to which this function belongs,
 
-				FutureProgVariableTypes.Number // the return type of the function
+				ProgVariableTypes.Number // the return type of the function
 			)
 		);
 	}
@@ -41,9 +41,9 @@ internal class Floor : BuiltInFunction
 	}
 	#endregion
 
-	public override FutureProgVariableTypes ReturnType
+	public override ProgVariableTypes ReturnType
 	{
-		get { return FutureProgVariableTypes.Number; }
+		get { return ProgVariableTypes.Number; }
 		protected set { }
 	}
 

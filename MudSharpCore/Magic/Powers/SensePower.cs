@@ -68,7 +68,7 @@ public class SensePower : MagicPowerBase
 
 		PowerDistance = powerDistance;
 
-		if (!Utilities.TryParseEnum<FutureProgVariableTypes>(
+		if (!Utilities.TryParseEnum<ProgVariableTypes>(
 			    definition.Element("SenseType")?.Value ??
 			    throw new ApplicationException($"Missing SenseType element in SensePower definition {Id}"),
 			    out var senseType))
@@ -111,7 +111,7 @@ public class SensePower : MagicPowerBase
 			throw new ApplicationException($"SenseTargetFilterProg not found in SensePower definition {Id}");
 		}
 
-		if (!targetFilterProg.ReturnType.CompatibleWith(FutureProgVariableTypes.Boolean))
+		if (!targetFilterProg.ReturnType.CompatibleWith(ProgVariableTypes.Boolean))
 		{
 			throw new ApplicationException(
 				$"SenseTargetFilterProg ({targetFilterProg.Name} #{targetFilterProg.Id}) did not return boolean in SensePower definition {Id}");
@@ -131,7 +131,7 @@ public class SensePower : MagicPowerBase
 			throw new ApplicationException($"TargetDifficultyProg not found in SensePower definition {Id}");
 		}
 
-		if (!targetDifficultyProg.ReturnType.CompatibleWith(FutureProgVariableTypes.Number))
+		if (!targetDifficultyProg.ReturnType.CompatibleWith(ProgVariableTypes.Number))
 		{
 			throw new ApplicationException(
 				$"TargetDifficultyProg ({targetFilterProg.Name} #{targetFilterProg.Id}) did not return number in SensePower definition {Id}");
@@ -141,56 +141,56 @@ public class SensePower : MagicPowerBase
 
 		switch (senseType)
 		{
-			case FutureProgVariableTypes.Perceivable:
-				if (!targetFilterProg.MatchesParameters(new[] { FutureProgVariableTypes.Perceivable }))
+			case ProgVariableTypes.Perceivable:
+				if (!targetFilterProg.MatchesParameters(new[] { ProgVariableTypes.Perceivable }))
 				{
 					throw new ApplicationException(
 						$"SenseTargetFilterProg ({targetFilterProg.FunctionName} #{targetFilterProg.Id}) did not accept a Perceivable parameter as specified by the SenseType in SensePower {Id}.");
 				}
 
-				if (!targetDifficultyProg.MatchesParameters(new[] { FutureProgVariableTypes.Perceivable }))
+				if (!targetDifficultyProg.MatchesParameters(new[] { ProgVariableTypes.Perceivable }))
 				{
 					throw new ApplicationException(
 						$"TargetDifficultyProg ({targetFilterProg.FunctionName} #{targetFilterProg.Id}) did not accept a Perceivable parameter as specified by the SenseType in SensePower {Id}.");
 				}
 
 				break;
-			case FutureProgVariableTypes.Perceiver:
-				if (!targetFilterProg.MatchesParameters(new[] { FutureProgVariableTypes.Perceiver }))
+			case ProgVariableTypes.Perceiver:
+				if (!targetFilterProg.MatchesParameters(new[] { ProgVariableTypes.Perceiver }))
 				{
 					throw new ApplicationException(
 						$"SenseTargetFilterProg ({targetFilterProg.FunctionName} #{targetFilterProg.Id}) did not accept a Perceiver parameter as specified by the SenseType in SensePower {Id}.");
 				}
 
-				if (!targetDifficultyProg.MatchesParameters(new[] { FutureProgVariableTypes.Perceiver }))
+				if (!targetDifficultyProg.MatchesParameters(new[] { ProgVariableTypes.Perceiver }))
 				{
 					throw new ApplicationException(
 						$"TargetDifficultyProg ({targetFilterProg.FunctionName} #{targetFilterProg.Id}) did not accept a Perceiver parameter as specified by the SenseType in SensePower {Id}.");
 				}
 
 				break;
-			case FutureProgVariableTypes.Character:
-				if (!targetFilterProg.MatchesParameters(new[] { FutureProgVariableTypes.Character }))
+			case ProgVariableTypes.Character:
+				if (!targetFilterProg.MatchesParameters(new[] { ProgVariableTypes.Character }))
 				{
 					throw new ApplicationException(
 						$"SenseTargetFilterProg ({targetFilterProg.FunctionName} #{targetFilterProg.Id}) did not accept a Character parameter as specified by the SenseType in SensePower {Id}.");
 				}
 
-				if (!targetDifficultyProg.MatchesParameters(new[] { FutureProgVariableTypes.Character }))
+				if (!targetDifficultyProg.MatchesParameters(new[] { ProgVariableTypes.Character }))
 				{
 					throw new ApplicationException(
 						$"TargetDifficultyProg ({targetFilterProg.FunctionName} #{targetFilterProg.Id}) did not accept a Character parameter as specified by the SenseType in SensePower {Id}.");
 				}
 
 				break;
-			case FutureProgVariableTypes.Item:
-				if (!targetFilterProg.MatchesParameters(new[] { FutureProgVariableTypes.Item }))
+			case ProgVariableTypes.Item:
+				if (!targetFilterProg.MatchesParameters(new[] { ProgVariableTypes.Item }))
 				{
 					throw new ApplicationException(
 						$"SenseTargetFilterProg ({targetFilterProg.FunctionName} #{targetFilterProg.Id}) did not accept an Item parameter as specified by the SenseType in SensePower {Id}.");
 				}
 
-				if (!targetDifficultyProg.MatchesParameters(new[] { FutureProgVariableTypes.Item }))
+				if (!targetDifficultyProg.MatchesParameters(new[] { ProgVariableTypes.Item }))
 				{
 					throw new ApplicationException(
 						$"TargetDifficultyProg ({targetFilterProg.FunctionName} #{targetFilterProg.Id}) did not accept an Item parameter as specified by the SenseType in SensePower {Id}.");
@@ -218,7 +218,7 @@ public class SensePower : MagicPowerBase
 
 	public IFutureProg TargetDifficultyProg { get; protected set; }
 
-	public FutureProgVariableTypes SenseType { get; protected set; }
+	public ProgVariableTypes SenseType { get; protected set; }
 
 	public IFutureProg SenseTargetFilterProg { get; protected set; }
 
@@ -261,8 +261,8 @@ public class SensePower : MagicPowerBase
 
 		switch (SenseType)
 		{
-			case FutureProgVariableTypes.Perceivable:
-			case FutureProgVariableTypes.Perceiver:
+			case ProgVariableTypes.Perceivable:
+			case ProgVariableTypes.Perceiver:
 				switch (PowerDistance)
 				{
 					case MagicPowerDistance.SameLocationOnly:
@@ -323,7 +323,7 @@ public class SensePower : MagicPowerBase
 				}
 
 				break;
-			case FutureProgVariableTypes.Character:
+			case ProgVariableTypes.Character:
 				switch (PowerDistance)
 				{
 					case MagicPowerDistance.SameLocationOnly:
@@ -367,7 +367,7 @@ public class SensePower : MagicPowerBase
 				}
 
 				break;
-			case FutureProgVariableTypes.Item:
+			case ProgVariableTypes.Item:
 				switch (PowerDistance)
 				{
 					case MagicPowerDistance.SameLocationOnly:
@@ -554,9 +554,9 @@ public class SensePower : MagicPowerBase
             case "character":
             case "characters":
             case "ch":
-                SenseType = FutureProgVariableTypes.Character;
+                SenseType = ProgVariableTypes.Character;
                 actor.OutputHandler.Send("This power will now detect characters.");
-                if (!SenseTargetFilterProg.MatchesParameters([FutureProgVariableTypes.Character]))
+                if (!SenseTargetFilterProg.MatchesParameters([ProgVariableTypes.Character]))
                 {
                     SenseTargetFilterProg = Gameworld.AlwaysTrueProg;
                     actor.OutputHandler.Send($"Note: The Sense Target Prog was no longer valid and has been set back to default.".ColourError());
@@ -569,9 +569,9 @@ public class SensePower : MagicPowerBase
             case "items":
             case "gameitem":
             case "gameitems":
-                SenseType = FutureProgVariableTypes.Item;
+                SenseType = ProgVariableTypes.Item;
                 actor.OutputHandler.Send("This power will now detect items.");
-                if (!SenseTargetFilterProg.MatchesParameters([FutureProgVariableTypes.Item]))
+                if (!SenseTargetFilterProg.MatchesParameters([ProgVariableTypes.Item]))
                 {
                     SenseTargetFilterProg = Gameworld.AlwaysTrueProg;
                     actor.OutputHandler.Send($"Note: The Sense Target Prog was no longer valid and has been set back to default.".ColourError());
@@ -581,9 +581,9 @@ public class SensePower : MagicPowerBase
             case "perceivable":
             case "thing":
             case "both":
-                SenseType = FutureProgVariableTypes.Perceivable;
+                SenseType = ProgVariableTypes.Perceivable;
                 actor.OutputHandler.Send("This power will now detect both items and characters.");
-                if (!SenseTargetFilterProg.MatchesParameters([FutureProgVariableTypes.Perceivable]))
+                if (!SenseTargetFilterProg.MatchesParameters([ProgVariableTypes.Perceivable]))
                 {
                     SenseTargetFilterProg = Gameworld.AlwaysTrueProg;
                     actor.OutputHandler.Send($"Note: The Sense Target Prog was no longer valid and has been set back to default.".ColourError());
@@ -606,11 +606,11 @@ public class SensePower : MagicPowerBase
             return false;
         }
 
-        var prog = new ProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument, FutureProgVariableTypes.Boolean, [
-            [FutureProgVariableTypes.Character],
-            [FutureProgVariableTypes.Item],
-            [FutureProgVariableTypes.Perceivable],
-            [FutureProgVariableTypes.Perceiver],
+        var prog = new ProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument, ProgVariableTypes.Boolean, [
+            [ProgVariableTypes.Character],
+            [ProgVariableTypes.Item],
+            [ProgVariableTypes.Perceivable],
+            [ProgVariableTypes.Perceiver],
         ]).LookupProg();
         if (prog is null)
         {
@@ -619,17 +619,17 @@ public class SensePower : MagicPowerBase
 
         SenseTargetFilterProg = prog;
         Changed = true;
-        if (prog.MatchesParameters([FutureProgVariableTypes.Perceivable]))
+        if (prog.MatchesParameters([ProgVariableTypes.Perceivable]))
         {
-            SenseType = FutureProgVariableTypes.Perceivable;
+            SenseType = ProgVariableTypes.Perceivable;
         }
-        else if (prog.MatchesParameters([FutureProgVariableTypes.Character]))
+        else if (prog.MatchesParameters([ProgVariableTypes.Character]))
         {
-            SenseType = FutureProgVariableTypes.Character;
+            SenseType = ProgVariableTypes.Character;
         }
         else
         {
-            SenseType = FutureProgVariableTypes.Item;
+            SenseType = ProgVariableTypes.Item;
         }
 
         actor.OutputHandler.Send($"This power will now use the {prog.MXPClickableFunctionName()} prog to filter targets.");
@@ -779,10 +779,10 @@ public class SensePower : MagicPowerBase
             return false;
         }
 
-        var prog = new ProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument, FutureProgVariableTypes.Text,
+        var prog = new ProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument, ProgVariableTypes.Text,
             [
-                [FutureProgVariableTypes.Character],
-                [FutureProgVariableTypes.Character, FutureProgVariableTypes.Character]
+                [ProgVariableTypes.Character],
+                [ProgVariableTypes.Character, ProgVariableTypes.Character]
             ]
         ).LookupProg();
         if (prog is null)

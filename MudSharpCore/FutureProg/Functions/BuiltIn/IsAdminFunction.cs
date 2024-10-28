@@ -16,9 +16,9 @@ internal class IsAdminFunction : BuiltInFunction
 		InnerFunction = parameters.First();
 	}
 
-	public override FutureProgVariableTypes ReturnType
+	public override ProgVariableTypes ReturnType
 	{
-		get => FutureProgVariableTypes.Boolean;
+		get => ProgVariableTypes.Boolean;
 		protected set { }
 	}
 
@@ -53,13 +53,13 @@ internal class IsAdminFunction : BuiltInFunction
 		FutureProg.RegisterBuiltInFunctionCompiler(
 			new FunctionCompilerInformation(
 				"isadmin",
-				new[] { FutureProgVariableTypes.Toon },
+				new[] { ProgVariableTypes.Toon },
 				(pars, gameworld) => new IsAdminFunction(pars),
 				new[] { "toon" },
 				new[] { "The character or toon whose status as an admin you want to test" },
 				"This function tells you if the person you specify, which can be a character, chargen or NPC template, is an admin",
 				"Character",
-				FutureProgVariableTypes.Boolean
+				ProgVariableTypes.Boolean
 			)
 		);
 	}

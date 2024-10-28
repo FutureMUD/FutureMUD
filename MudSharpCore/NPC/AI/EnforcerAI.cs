@@ -150,19 +150,19 @@ public class EnforcerAI : ArtificialIntelligenceBase
 		}
 
 		var prog = new ProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument,
-			FutureProgVariableTypes.Text,
+			ProgVariableTypes.Text,
 			new[]
 			{
-				new List<FutureProgVariableTypes>
+				new List<ProgVariableTypes>
 				{
-					FutureProgVariableTypes.Character,
-					FutureProgVariableTypes.Character
+					ProgVariableTypes.Character,
+					ProgVariableTypes.Character
 				},
-				new List<FutureProgVariableTypes>
+				new List<ProgVariableTypes>
 				{
-					FutureProgVariableTypes.Character,
-					FutureProgVariableTypes.Character,
-					FutureProgVariableTypes.Crime
+					ProgVariableTypes.Character,
+					ProgVariableTypes.Character,
+					ProgVariableTypes.Crime
 				}
 			}
 		).LookupProg();
@@ -194,19 +194,19 @@ public class EnforcerAI : ArtificialIntelligenceBase
 		}
 
 		var prog = new ProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument,
-			FutureProgVariableTypes.Text,
+			ProgVariableTypes.Text,
 			new []
 			{
-				new List<FutureProgVariableTypes>
+				new List<ProgVariableTypes>
 				{
-					FutureProgVariableTypes.Character,
-					FutureProgVariableTypes.Character
+					ProgVariableTypes.Character,
+					ProgVariableTypes.Character
 				},
-				new List<FutureProgVariableTypes>
+				new List<ProgVariableTypes>
 				{
-					FutureProgVariableTypes.Character,
-					FutureProgVariableTypes.Character,
-					FutureProgVariableTypes.Crime
+					ProgVariableTypes.Character,
+					ProgVariableTypes.Character,
+					ProgVariableTypes.Crime
 				}
 			}
 			).LookupProg();
@@ -238,19 +238,19 @@ public class EnforcerAI : ArtificialIntelligenceBase
 		}
 
 		var prog = new ProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument,
-			FutureProgVariableTypes.Text,
+			ProgVariableTypes.Text,
 			new[]
 			{
-				new List<FutureProgVariableTypes>
+				new List<ProgVariableTypes>
 				{
-					FutureProgVariableTypes.Character,
-					FutureProgVariableTypes.Character
+					ProgVariableTypes.Character,
+					ProgVariableTypes.Character
 				},
-				new List<FutureProgVariableTypes>
+				new List<ProgVariableTypes>
 				{
-					FutureProgVariableTypes.Character,
-					FutureProgVariableTypes.Character,
-					FutureProgVariableTypes.Crime
+					ProgVariableTypes.Character,
+					ProgVariableTypes.Character,
+					ProgVariableTypes.Crime
 				}
 			}
 		).LookupProg();
@@ -282,19 +282,19 @@ public class EnforcerAI : ArtificialIntelligenceBase
 		}
 
 		var prog = new ProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument,
-			FutureProgVariableTypes.Text,
+			ProgVariableTypes.Text,
 			new[]
 			{
-				new List<FutureProgVariableTypes>
+				new List<ProgVariableTypes>
 				{
-					FutureProgVariableTypes.Character,
-					FutureProgVariableTypes.Character
+					ProgVariableTypes.Character,
+					ProgVariableTypes.Character
 				},
-				new List<FutureProgVariableTypes>
+				new List<ProgVariableTypes>
 				{
-					FutureProgVariableTypes.Character,
-					FutureProgVariableTypes.Character,
-					FutureProgVariableTypes.Crime
+					ProgVariableTypes.Character,
+					ProgVariableTypes.Character,
+					ProgVariableTypes.Crime
 				}
 			}
 		).LookupProg();
@@ -326,10 +326,10 @@ public class EnforcerAI : ArtificialIntelligenceBase
 		}
 
 		var prog = new ProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument,
-			FutureProgVariableTypes.Boolean, new List<FutureProgVariableTypes>
+			ProgVariableTypes.Boolean, new List<ProgVariableTypes>
 			{
-				FutureProgVariableTypes.Character,
-				FutureProgVariableTypes.Character
+				ProgVariableTypes.Character,
+				ProgVariableTypes.Character
 			}).LookupProg();
 		if (prog is null)
 		{

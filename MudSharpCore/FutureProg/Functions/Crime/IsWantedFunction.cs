@@ -28,7 +28,7 @@ internal class IsWantedFunction : BuiltInFunction
 				"IsWanted".ToLowerInvariant(),
 				new[]
 				{
-					FutureProgVariableTypes.Character, FutureProgVariableTypes.LegalAuthority
+					ProgVariableTypes.Character, ProgVariableTypes.LegalAuthority
 				}, // the parameters the function takes
 				(pars, gameworld) => new IsWantedFunction(pars, gameworld),
 				new List<string> { "character", "legalauthority" }, // parameter names
@@ -39,7 +39,7 @@ internal class IsWantedFunction : BuiltInFunction
 				}, // parameter help text
 				"This function determines if the supplied character is wanted for arrest in the specified legal authority", // help text for the function,
 				"Crime", // the category to which this function belongs,
-				FutureProgVariableTypes.Boolean // the return type of the function
+				ProgVariableTypes.Boolean // the return type of the function
 			)
 		);
 	}
@@ -55,9 +55,9 @@ internal class IsWantedFunction : BuiltInFunction
 
 	#endregion
 
-	public override FutureProgVariableTypes ReturnType
+	public override ProgVariableTypes ReturnType
 	{
-		get => FutureProgVariableTypes.Boolean;
+		get => ProgVariableTypes.Boolean;
 		protected set { }
 	}
 

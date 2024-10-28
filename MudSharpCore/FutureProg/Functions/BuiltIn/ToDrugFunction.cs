@@ -17,9 +17,9 @@ internal class ToDrugFunction : BuiltInFunction
 		_gameworld = gameworld;
 	}
 
-	public override FutureProgVariableTypes ReturnType
+	public override ProgVariableTypes ReturnType
 	{
-		get => FutureProgVariableTypes.Drug;
+		get => ProgVariableTypes.Drug;
 		protected set { }
 	}
 
@@ -30,7 +30,7 @@ internal class ToDrugFunction : BuiltInFunction
 			return StatementResult.Error;
 		}
 
-		Result = ParameterFunctions[0].ReturnType.CompatibleWith(FutureProgVariableTypes.Text)
+		Result = ParameterFunctions[0].ReturnType.CompatibleWith(ProgVariableTypes.Text)
 			? _gameworld.Drugs.Get((string)ParameterFunctions[0].Result.GetObject).FirstOrDefault()
 			: _gameworld.Drugs.Get((long)(decimal)ParameterFunctions[0].Result.GetObject);
 
@@ -41,24 +41,24 @@ internal class ToDrugFunction : BuiltInFunction
 	{
 		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
 			"todrug",
-			new[] { FutureProgVariableTypes.Number },
+			new[] { ProgVariableTypes.Number },
 			(pars, gameworld) => new ToDrugFunction(pars, gameworld),
 			new List<string> { "id" },
 			new List<string> { "The ID to look up" },
 			"Converts an ID number into the specified type, if one exists",
 			"Lookup",
-			FutureProgVariableTypes.Drug
+			ProgVariableTypes.Drug
 		));
 
 		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
 			"todrug",
-			new[] { FutureProgVariableTypes.Text },
+			new[] { ProgVariableTypes.Text },
 			(pars, gameworld) => new ToDrugFunction(pars, gameworld),
 			new List<string> { "name" },
 			new List<string> { "The name to look up" },
 			"Converts a name into the specified type, if one exists",
 			"Lookup",
-			FutureProgVariableTypes.Drug
+			ProgVariableTypes.Drug
 		));
 	}
 }

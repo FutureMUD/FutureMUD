@@ -524,16 +524,16 @@ The following parameters can be used in the cost expression:
 		}
 
 		var prog = new ProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument,
-			FutureProgVariableTypes.Number, new List<IEnumerable<FutureProgVariableTypes>>
+			ProgVariableTypes.Number, new List<IEnumerable<ProgVariableTypes>>
 			{
-				new List<FutureProgVariableTypes>
+				new List<ProgVariableTypes>
 				{
-					FutureProgVariableTypes.Chargen,
-					FutureProgVariableTypes.Trait
+					ProgVariableTypes.Chargen,
+					ProgVariableTypes.Trait
 				},
-				new List<FutureProgVariableTypes>
+				new List<ProgVariableTypes>
 				{
-					FutureProgVariableTypes.Chargen
+					ProgVariableTypes.Chargen
 				}
 			}).LookupProg();
 		if (prog is null)
@@ -557,11 +557,11 @@ The following parameters can be used in the cost expression:
 		}
 
 		var prog = new ProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument,
-			FutureProgVariableTypes.Number, new List<IEnumerable<FutureProgVariableTypes>>
+			ProgVariableTypes.Number, new List<IEnumerable<ProgVariableTypes>>
 			{
-				new List<FutureProgVariableTypes>
+				new List<ProgVariableTypes>
 				{
-					FutureProgVariableTypes.Chargen
+					ProgVariableTypes.Chargen
 				}
 			}).LookupProg();
 		if (prog is null)
@@ -585,16 +585,16 @@ The following parameters can be used in the cost expression:
 		}
 
 		var prog = new ProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument,
-			FutureProgVariableTypes.Number, new List<IEnumerable<FutureProgVariableTypes>>
+			ProgVariableTypes.Number, new List<IEnumerable<ProgVariableTypes>>
 			{
-				new List<FutureProgVariableTypes>
+				new List<ProgVariableTypes>
 				{
-					FutureProgVariableTypes.Chargen,
-					FutureProgVariableTypes.Trait
+					ProgVariableTypes.Chargen,
+					ProgVariableTypes.Trait
 				},
-				new List<FutureProgVariableTypes>
+				new List<ProgVariableTypes>
 				{
-					FutureProgVariableTypes.Chargen
+					ProgVariableTypes.Chargen
 				}
 			}).LookupProg();
 		if (prog is null)
@@ -618,16 +618,16 @@ The following parameters can be used in the cost expression:
 		}
 
 		var prog = new ProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument,
-			FutureProgVariableTypes.Number, new List<IEnumerable<FutureProgVariableTypes>>
+			ProgVariableTypes.Number, new List<IEnumerable<ProgVariableTypes>>
 			{
-				new List<FutureProgVariableTypes>
+				new List<ProgVariableTypes>
 				{
-					FutureProgVariableTypes.Chargen,
-					FutureProgVariableTypes.Trait
+					ProgVariableTypes.Chargen,
+					ProgVariableTypes.Trait
 				},
-				new List<FutureProgVariableTypes>
+				new List<ProgVariableTypes>
 				{
-					FutureProgVariableTypes.Chargen
+					ProgVariableTypes.Chargen
 				}
 			}).LookupProg();
 		if (prog is null)
@@ -651,16 +651,16 @@ The following parameters can be used in the cost expression:
 		}
 
 		var prog = new ProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument,
-			FutureProgVariableTypes.Number, new List<IEnumerable<FutureProgVariableTypes>>
+			ProgVariableTypes.Number, new List<IEnumerable<ProgVariableTypes>>
 			{
-				new List<FutureProgVariableTypes>
+				new List<ProgVariableTypes>
 				{
-					FutureProgVariableTypes.Chargen,
-					FutureProgVariableTypes.Trait
+					ProgVariableTypes.Chargen,
+					ProgVariableTypes.Trait
 				},
-				new List<FutureProgVariableTypes>
+				new List<ProgVariableTypes>
 				{
-					FutureProgVariableTypes.Chargen
+					ProgVariableTypes.Chargen
 				}
 			}).LookupProg();
 		if (prog is null)

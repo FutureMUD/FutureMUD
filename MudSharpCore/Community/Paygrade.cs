@@ -57,7 +57,7 @@ public class Paygrade : SaveableItem, IPaygrade
 
 	#region IFutureProgVariable Members
 
-	public IFutureProgVariable GetProperty(string property)
+	public IProgVariable GetProperty(string property)
 	{
 		switch (property.ToLowerInvariant())
 		{
@@ -76,19 +76,19 @@ public class Paygrade : SaveableItem, IPaygrade
 		}
 	}
 
-	public FutureProgVariableTypes Type => FutureProgVariableTypes.ClanPaygrade;
+	public ProgVariableTypes Type => ProgVariableTypes.ClanPaygrade;
 
 	public object GetObject => this;
 
-	private static IReadOnlyDictionary<string, FutureProgVariableTypes> DotReferenceHandler()
+	private static IReadOnlyDictionary<string, ProgVariableTypes> DotReferenceHandler()
 	{
-		return new Dictionary<string, FutureProgVariableTypes>(StringComparer.InvariantCultureIgnoreCase)
+		return new Dictionary<string, ProgVariableTypes>(StringComparer.InvariantCultureIgnoreCase)
 		{
-			{ "id", FutureProgVariableTypes.Number },
-			{ "name", FutureProgVariableTypes.Text },
-			{ "abbreviation", FutureProgVariableTypes.Text },
-			{ "currency", FutureProgVariableTypes.Currency },
-			{ "amount", FutureProgVariableTypes.Number }
+			{ "id", ProgVariableTypes.Number },
+			{ "name", ProgVariableTypes.Text },
+			{ "abbreviation", ProgVariableTypes.Text },
+			{ "currency", ProgVariableTypes.Currency },
+			{ "amount", ProgVariableTypes.Number }
 		};
 	}
 
@@ -106,7 +106,7 @@ public class Paygrade : SaveableItem, IPaygrade
 
 	public static void RegisterFutureProgCompiler()
 	{
-		FutureProgVariable.RegisterDotReferenceCompileInfo(FutureProgVariableTypes.ClanPaygrade, DotReferenceHandler(),
+		ProgVariable.RegisterDotReferenceCompileInfo(ProgVariableTypes.ClanPaygrade, DotReferenceHandler(),
 			DotReferenceHelp());
 	}
 

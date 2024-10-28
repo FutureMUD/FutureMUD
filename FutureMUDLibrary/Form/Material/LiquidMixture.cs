@@ -25,7 +25,7 @@ namespace MudSharp.Form.Material
 		FromContainer
 	}
 
-	public class LiquidMixture : IFutureProgVariable
+	public class LiquidMixture : IProgVariable
 	{
 		public XElement SaveToXml()
 		{
@@ -496,27 +496,27 @@ namespace MudSharp.Form.Material
 		#region Prog Variable
 
 		/// <inheritdoc />
-		public FutureProgVariableTypes Type => FutureProgVariableTypes.LiquidMixture;
+		public ProgVariableTypes Type => ProgVariableTypes.LiquidMixture;
 
 		/// <inheritdoc />
 		public object GetObject => this;
 
-		private static IReadOnlyDictionary<string, FutureProgVariableTypes> DotReferenceHandler()
+		private static IReadOnlyDictionary<string, ProgVariableTypes> DotReferenceHandler()
 		{
-			return new Dictionary<string, FutureProgVariableTypes>(StringComparer.InvariantCultureIgnoreCase)
+			return new Dictionary<string, ProgVariableTypes>(StringComparer.InvariantCultureIgnoreCase)
 			{
-				{ "empty", FutureProgVariableTypes.Boolean },
-				{ "weight", FutureProgVariableTypes.Number },
-				{ "volume", FutureProgVariableTypes.Number },
-				{ "liquids", FutureProgVariableTypes.Collection | FutureProgVariableTypes.Liquid },
-				{ "distinct", FutureProgVariableTypes.Collection | FutureProgVariableTypes.LiquidMixture },
-				{ "issingle", FutureProgVariableTypes.Boolean },
-				{ "liquid", FutureProgVariableTypes.Liquid },
-				{ "isblood", FutureProgVariableTypes.Boolean },
-				{ "bloodcharacter", FutureProgVariableTypes.Character },
-				{ "iscoloured", FutureProgVariableTypes.Boolean },
-				{ "colour", FutureProgVariableTypes.Text },
-				{ "simplecolour", FutureProgVariableTypes.Text },
+				{ "empty", ProgVariableTypes.Boolean },
+				{ "weight", ProgVariableTypes.Number },
+				{ "volume", ProgVariableTypes.Number },
+				{ "liquids", ProgVariableTypes.Collection | ProgVariableTypes.Liquid },
+				{ "distinct", ProgVariableTypes.Collection | ProgVariableTypes.LiquidMixture },
+				{ "issingle", ProgVariableTypes.Boolean },
+				{ "liquid", ProgVariableTypes.Liquid },
+				{ "isblood", ProgVariableTypes.Boolean },
+				{ "bloodcharacter", ProgVariableTypes.Character },
+				{ "iscoloured", ProgVariableTypes.Boolean },
+				{ "colour", ProgVariableTypes.Text },
+				{ "simplecolour", ProgVariableTypes.Text },
 			};
 		}
 
@@ -541,12 +541,12 @@ namespace MudSharp.Form.Material
 
 		public static void RegisterFutureProgCompiler()
 		{
-			FutureProgVariable.RegisterDotReferenceCompileInfo(FutureProgVariableTypes.LiquidMixture, DotReferenceHandler(),
+			ProgVariable.RegisterDotReferenceCompileInfo(ProgVariableTypes.LiquidMixture, DotReferenceHandler(),
 				DotReferenceHelp());
 		}
 
 		/// <inheritdoc />
-		public IFutureProgVariable GetProperty(string property)
+		public IProgVariable GetProperty(string property)
 		{
 			switch (property.ToLowerInvariant())
 			{
@@ -557,9 +557,9 @@ namespace MudSharp.Form.Material
 				case "volume":
 					return new NumberVariable(TotalVolume);
 				case "liquids":
-					return new CollectionVariable(_instances.Select(x => x.Liquid).Distinct().ToList(), FutureProgVariableTypes.Liquid);
+					return new CollectionVariable(_instances.Select(x => x.Liquid).Distinct().ToList(), ProgVariableTypes.Liquid);
 				case "distinct":
-					return new CollectionVariable(_instances.Select(x => new LiquidMixture(x.Copy(), Gameworld)).ToList(), FutureProgVariableTypes.LiquidMixture);
+					return new CollectionVariable(_instances.Select(x => new LiquidMixture(x.Copy(), Gameworld)).ToList(), ProgVariableTypes.LiquidMixture);
 				case "issingle":
 					return new BooleanVariable(_instances.Count == 1);
 				case "liquid":

@@ -400,22 +400,22 @@ public class Zone : Location, IEditableZone
 
 	#region IFutureProgVariable Members
 
-	private static IReadOnlyDictionary<string, FutureProgVariableTypes> DotReferenceHandler()
+	private static IReadOnlyDictionary<string, ProgVariableTypes> DotReferenceHandler()
 	{
-		return new Dictionary<string, FutureProgVariableTypes>(StringComparer.InvariantCultureIgnoreCase)
+		return new Dictionary<string, ProgVariableTypes>(StringComparer.InvariantCultureIgnoreCase)
 		{
-			{ "id", FutureProgVariableTypes.Number },
-			{ "name", FutureProgVariableTypes.Text },
-			{ "type", FutureProgVariableTypes.Text },
-			{ "effects", FutureProgVariableTypes.Effect | FutureProgVariableTypes.Collection },
-			{ "rooms", FutureProgVariableTypes.Collection | FutureProgVariableTypes.Location },
-			{ "latitude", FutureProgVariableTypes.Number },
-			{ "longitude", FutureProgVariableTypes.Number },
-			{ "elevation", FutureProgVariableTypes.Number },
-			{ "now", FutureProgVariableTypes.MudDateTime },
-			{ "characters", FutureProgVariableTypes.Character | FutureProgVariableTypes.Collection },
-			{ "items", FutureProgVariableTypes.Item | FutureProgVariableTypes.Collection },
-			{ "timeofday", FutureProgVariableTypes.Text }
+			{ "id", ProgVariableTypes.Number },
+			{ "name", ProgVariableTypes.Text },
+			{ "type", ProgVariableTypes.Text },
+			{ "effects", ProgVariableTypes.Effect | ProgVariableTypes.Collection },
+			{ "rooms", ProgVariableTypes.Collection | ProgVariableTypes.Location },
+			{ "latitude", ProgVariableTypes.Number },
+			{ "longitude", ProgVariableTypes.Number },
+			{ "elevation", ProgVariableTypes.Number },
+			{ "now", ProgVariableTypes.MudDateTime },
+			{ "characters", ProgVariableTypes.Character | ProgVariableTypes.Collection },
+			{ "items", ProgVariableTypes.Item | ProgVariableTypes.Collection },
+			{ "timeofday", ProgVariableTypes.Text }
 		};
 	}
 
@@ -440,17 +440,17 @@ public class Zone : Location, IEditableZone
 
 	public new static void RegisterFutureProgCompiler()
 	{
-		FutureProgVariable.RegisterDotReferenceCompileInfo(FutureProgVariableTypes.Zone, DotReferenceHandler(),
+		ProgVariable.RegisterDotReferenceCompileInfo(ProgVariableTypes.Zone, DotReferenceHandler(),
 			DotReferenceHelp());
 	}
 
-	public override IFutureProgVariable GetProperty(string property)
+	public override IProgVariable GetProperty(string property)
 	{
 		switch (property.ToLowerInvariant())
 		{
 			case "rooms":
 				return new CollectionVariable(_rooms.SelectMany(x => x.Cells).ToList(),
-					FutureProgVariableTypes.Location);
+					ProgVariableTypes.Location);
 			case "latitude":
 				return new NumberVariable(Geography.Latitude.RadiansToDegrees());
 			case "longitude":
@@ -461,9 +461,9 @@ public class Zone : Location, IEditableZone
 				return new MudDateTime(Calendars.First().CurrentDate, Calendars.First().FeedClock.CurrentTime,
 					Calendars.First().FeedClock.PrimaryTimezone);
 			case "characters":
-				return new CollectionVariable(Characters.ToList(), FutureProgVariableTypes.Character);
+				return new CollectionVariable(Characters.ToList(), ProgVariableTypes.Character);
 			case "items":
-				return new CollectionVariable(GameItems.ToList(), FutureProgVariableTypes.Character);
+				return new CollectionVariable(GameItems.ToList(), ProgVariableTypes.Character);
 			case "timeofday":
 				return new TextVariable(CurrentTimeOfDay.DescribeEnum());
 			default:
@@ -471,7 +471,7 @@ public class Zone : Location, IEditableZone
 		}
 	}
 
-	public override FutureProgVariableTypes Type => FutureProgVariableTypes.Zone;
+	public override ProgVariableTypes Type => ProgVariableTypes.Zone;
 
 	#endregion
 

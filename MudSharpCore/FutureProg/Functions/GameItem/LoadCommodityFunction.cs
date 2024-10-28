@@ -18,9 +18,9 @@ internal class LoadCommodityFunction : BuiltInFunction
 		_gameworld = gameworld;
 	}
 
-	public override FutureProgVariableTypes ReturnType
+	public override ProgVariableTypes ReturnType
 	{
-		get => FutureProgVariableTypes.Item;
+		get => ProgVariableTypes.Item;
 		protected set { }
 	}
 
@@ -32,7 +32,7 @@ internal class LoadCommodityFunction : BuiltInFunction
 		}
 
 		ISolid material;
-		if (ParameterFunctions[0].ReturnType.CompatibleWith(FutureProgVariableTypes.Solid))
+		if (ParameterFunctions[0].ReturnType.CompatibleWith(ProgVariableTypes.Solid))
 		{
 			material = (ISolid)ParameterFunctions[0].Result?.GetObject;
 		}
@@ -91,7 +91,7 @@ internal class LoadCommodityFunction : BuiltInFunction
 	{
 		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
 			"loadcommodity",
-			new[] { FutureProgVariableTypes.Number, FutureProgVariableTypes.Number },
+			new[] { ProgVariableTypes.Number, ProgVariableTypes.Number },
 			(pars, gameworld) => new LoadCommodityFunction(pars, gameworld),
 			new List<string> { "material", "weight" },
 			new List<string>
@@ -101,12 +101,12 @@ internal class LoadCommodityFunction : BuiltInFunction
 			},
 			"This function loads a new commodity item into the game. It does not put the item anywhere, so you must then insert it somewhere like in a room or a character's inventory.",
 			"Items",
-			FutureProgVariableTypes.Item
+			ProgVariableTypes.Item
 		));
 
 		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
 			"loadcommodity",
-			new[] { FutureProgVariableTypes.Text, FutureProgVariableTypes.Number },
+			new[] { ProgVariableTypes.Text, ProgVariableTypes.Number },
 			(pars, gameworld) => new LoadCommodityFunction(pars, gameworld),
 			new List<string> { "material", "weight" },
 			new List<string>
@@ -116,12 +116,12 @@ internal class LoadCommodityFunction : BuiltInFunction
 			},
 			"This function loads a new commodity item into the game. It does not put the item anywhere, so you must then insert it somewhere like in a room or a character's inventory.",
 			"Items",
-			FutureProgVariableTypes.Item
+			ProgVariableTypes.Item
 		));
 
 		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
 			"loadcommodity",
-			new[] { FutureProgVariableTypes.Number, FutureProgVariableTypes.Text },
+			new[] { ProgVariableTypes.Number, ProgVariableTypes.Text },
 			(pars, gameworld) => new LoadCommodityFunction(pars, gameworld),
 			new List<string> { "material", "weight" },
 			new List<string>
@@ -131,12 +131,12 @@ internal class LoadCommodityFunction : BuiltInFunction
 			},
 			"This function loads a new commodity item into the game. It does not put the item anywhere, so you must then insert it somewhere like in a room or a character's inventory.",
 			"Items",
-			FutureProgVariableTypes.Item
+			ProgVariableTypes.Item
 		));
 
 		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
 			"loadcommodity",
-			new[] { FutureProgVariableTypes.Text, FutureProgVariableTypes.Text },
+			new[] { ProgVariableTypes.Text, ProgVariableTypes.Text },
 			(pars, gameworld) => new LoadCommodityFunction(pars, gameworld),
 			new List<string> { "material", "weight" },
 			new List<string>
@@ -146,12 +146,12 @@ internal class LoadCommodityFunction : BuiltInFunction
 			},
 			"This function loads a new commodity item into the game. It does not put the item anywhere, so you must then insert it somewhere like in a room or a character's inventory.",
 			"Items",
-			FutureProgVariableTypes.Item
+			ProgVariableTypes.Item
 		));
 
 		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
 			"loadcommodity",
-			new[] { FutureProgVariableTypes.Solid, FutureProgVariableTypes.Number },
+			new[] { ProgVariableTypes.Solid, ProgVariableTypes.Number },
 			(pars, gameworld) => new LoadCommodityFunction(pars, gameworld),
 			new List<string> { "material", "weight" },
 			new List<string>
@@ -161,12 +161,12 @@ internal class LoadCommodityFunction : BuiltInFunction
 			},
 			"This function loads a new commodity item into the game. It does not put the item anywhere, so you must then insert it somewhere like in a room or a character's inventory.",
 			"Items",
-			FutureProgVariableTypes.Item
+			ProgVariableTypes.Item
 		));
 
 		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
 			"loadcommodity",
-			new[] { FutureProgVariableTypes.Solid, FutureProgVariableTypes.Text },
+			new[] { ProgVariableTypes.Solid, ProgVariableTypes.Text },
 			(pars, gameworld) => new LoadCommodityFunction(pars, gameworld),
 			new List<string> { "material", "weight" },
 			new List<string>
@@ -176,12 +176,12 @@ internal class LoadCommodityFunction : BuiltInFunction
 			},
 			"This function loads a new commodity item into the game. It does not put the item anywhere, so you must then insert it somewhere like in a room or a character's inventory.",
 			"Items",
-			FutureProgVariableTypes.Item
+			ProgVariableTypes.Item
 		));
 
 		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
 			"loadcommodity",
-			new[] { FutureProgVariableTypes.Number, FutureProgVariableTypes.Number, FutureProgVariableTypes.Number },
+			new[] { ProgVariableTypes.Number, ProgVariableTypes.Number, ProgVariableTypes.Number },
 			(pars, gameworld) => new LoadCommodityFunction(pars, gameworld),
 			new List<string> { "material", "weight", "tag" },
 			new List<string>
@@ -192,12 +192,12 @@ internal class LoadCommodityFunction : BuiltInFunction
 			},
 			"This function loads a new commodity item into the game. It does not put the item anywhere, so you must then insert it somewhere like in a room or a character's inventory.",
 			"Items",
-			FutureProgVariableTypes.Item
+			ProgVariableTypes.Item
 		));
 
 		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
 			"loadcommodity",
-			new[] { FutureProgVariableTypes.Text, FutureProgVariableTypes.Number, FutureProgVariableTypes.Number },
+			new[] { ProgVariableTypes.Text, ProgVariableTypes.Number, ProgVariableTypes.Number },
 			(pars, gameworld) => new LoadCommodityFunction(pars, gameworld),
 			new List<string> { "material", "weight", "tag" },
 			new List<string>
@@ -208,12 +208,12 @@ internal class LoadCommodityFunction : BuiltInFunction
 			},
 			"This function loads a new commodity item into the game. It does not put the item anywhere, so you must then insert it somewhere like in a room or a character's inventory.",
 			"Items",
-			FutureProgVariableTypes.Item
+			ProgVariableTypes.Item
 		));
 
 		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
 			"loadcommodity",
-			new[] { FutureProgVariableTypes.Number, FutureProgVariableTypes.Text, FutureProgVariableTypes.Number },
+			new[] { ProgVariableTypes.Number, ProgVariableTypes.Text, ProgVariableTypes.Number },
 			(pars, gameworld) => new LoadCommodityFunction(pars, gameworld),
 			new List<string> { "material", "weight", "tag" },
 			new List<string>
@@ -224,12 +224,12 @@ internal class LoadCommodityFunction : BuiltInFunction
 			},
 			"This function loads a new commodity item into the game. It does not put the item anywhere, so you must then insert it somewhere like in a room or a character's inventory.",
 			"Items",
-			FutureProgVariableTypes.Item
+			ProgVariableTypes.Item
 		));
 
 		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
 			"loadcommodity",
-			new[] { FutureProgVariableTypes.Text, FutureProgVariableTypes.Text, FutureProgVariableTypes.Number },
+			new[] { ProgVariableTypes.Text, ProgVariableTypes.Text, ProgVariableTypes.Number },
 			(pars, gameworld) => new LoadCommodityFunction(pars, gameworld),
 			new List<string> { "material", "weight", "tag" },
 			new List<string>
@@ -240,12 +240,12 @@ internal class LoadCommodityFunction : BuiltInFunction
 			},
 			"This function loads a new commodity item into the game. It does not put the item anywhere, so you must then insert it somewhere like in a room or a character's inventory.",
 			"Items",
-			FutureProgVariableTypes.Item
+			ProgVariableTypes.Item
 		));
 
 		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
 			"loadcommodity",
-			new[] { FutureProgVariableTypes.Solid, FutureProgVariableTypes.Number, FutureProgVariableTypes.Number },
+			new[] { ProgVariableTypes.Solid, ProgVariableTypes.Number, ProgVariableTypes.Number },
 			(pars, gameworld) => new LoadCommodityFunction(pars, gameworld),
 			new List<string> { "material", "weight", "tag" },
 			new List<string>
@@ -256,12 +256,12 @@ internal class LoadCommodityFunction : BuiltInFunction
 			},
 			"This function loads a new commodity item into the game. It does not put the item anywhere, so you must then insert it somewhere like in a room or a character's inventory.",
 			"Items",
-			FutureProgVariableTypes.Item
+			ProgVariableTypes.Item
 		));
 
 		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
 			"loadcommodity",
-			new[] { FutureProgVariableTypes.Solid, FutureProgVariableTypes.Text, FutureProgVariableTypes.Number },
+			new[] { ProgVariableTypes.Solid, ProgVariableTypes.Text, ProgVariableTypes.Number },
 			(pars, gameworld) => new LoadCommodityFunction(pars, gameworld),
 			new List<string> { "material", "weight", "tag" },
 			new List<string>
@@ -272,12 +272,12 @@ internal class LoadCommodityFunction : BuiltInFunction
 			},
 			"This function loads a new commodity item into the game. It does not put the item anywhere, so you must then insert it somewhere like in a room or a character's inventory.",
 			"Items",
-			FutureProgVariableTypes.Item
+			ProgVariableTypes.Item
 		));
 
 		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
 			"loadcommodity",
-			new[] { FutureProgVariableTypes.Number, FutureProgVariableTypes.Number, FutureProgVariableTypes.Text },
+			new[] { ProgVariableTypes.Number, ProgVariableTypes.Number, ProgVariableTypes.Text },
 			(pars, gameworld) => new LoadCommodityFunction(pars, gameworld),
 			new List<string> { "material", "weight", "tag" },
 			new List<string>
@@ -288,12 +288,12 @@ internal class LoadCommodityFunction : BuiltInFunction
 			},
 			"This function loads a new commodity item into the game. It does not put the item anywhere, so you must then insert it somewhere like in a room or a character's inventory.",
 			"Items",
-			FutureProgVariableTypes.Item
+			ProgVariableTypes.Item
 		));
 
 		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
 			"loadcommodity",
-			new[] { FutureProgVariableTypes.Text, FutureProgVariableTypes.Number, FutureProgVariableTypes.Text },
+			new[] { ProgVariableTypes.Text, ProgVariableTypes.Number, ProgVariableTypes.Text },
 			(pars, gameworld) => new LoadCommodityFunction(pars, gameworld),
 			new List<string> { "material", "weight", "tag" },
 			new List<string>
@@ -304,12 +304,12 @@ internal class LoadCommodityFunction : BuiltInFunction
 			},
 			"This function loads a new commodity item into the game. It does not put the item anywhere, so you must then insert it somewhere like in a room or a character's inventory.",
 			"Items",
-			FutureProgVariableTypes.Item
+			ProgVariableTypes.Item
 		));
 
 		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
 			"loadcommodity",
-			new[] { FutureProgVariableTypes.Number, FutureProgVariableTypes.Text, FutureProgVariableTypes.Text },
+			new[] { ProgVariableTypes.Number, ProgVariableTypes.Text, ProgVariableTypes.Text },
 			(pars, gameworld) => new LoadCommodityFunction(pars, gameworld),
 			new List<string> { "material", "weight", "tag" },
 			new List<string>
@@ -320,12 +320,12 @@ internal class LoadCommodityFunction : BuiltInFunction
 			},
 			"This function loads a new commodity item into the game. It does not put the item anywhere, so you must then insert it somewhere like in a room or a character's inventory.",
 			"Items",
-			FutureProgVariableTypes.Item
+			ProgVariableTypes.Item
 		));
 
 		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
 			"loadcommodity",
-			new[] { FutureProgVariableTypes.Text, FutureProgVariableTypes.Text, FutureProgVariableTypes.Text },
+			new[] { ProgVariableTypes.Text, ProgVariableTypes.Text, ProgVariableTypes.Text },
 			(pars, gameworld) => new LoadCommodityFunction(pars, gameworld),
 			new List<string> { "material", "weight", "tag" },
 			new List<string>
@@ -336,12 +336,12 @@ internal class LoadCommodityFunction : BuiltInFunction
 			},
 			"This function loads a new commodity item into the game. It does not put the item anywhere, so you must then insert it somewhere like in a room or a character's inventory.",
 			"Items",
-			FutureProgVariableTypes.Item
+			ProgVariableTypes.Item
 		));
 
 		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
 			"loadcommodity",
-			new[] { FutureProgVariableTypes.Solid, FutureProgVariableTypes.Number, FutureProgVariableTypes.Text },
+			new[] { ProgVariableTypes.Solid, ProgVariableTypes.Number, ProgVariableTypes.Text },
 			(pars, gameworld) => new LoadCommodityFunction(pars, gameworld),
 			new List<string> { "material", "weight", "tag" },
 			new List<string>
@@ -352,12 +352,12 @@ internal class LoadCommodityFunction : BuiltInFunction
 			},
 			"This function loads a new commodity item into the game. It does not put the item anywhere, so you must then insert it somewhere like in a room or a character's inventory.",
 			"Items",
-			FutureProgVariableTypes.Item
+			ProgVariableTypes.Item
 		));
 
 		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
 			"loadcommodity",
-			new[] { FutureProgVariableTypes.Solid, FutureProgVariableTypes.Text, FutureProgVariableTypes.Text },
+			new[] { ProgVariableTypes.Solid, ProgVariableTypes.Text, ProgVariableTypes.Text },
 			(pars, gameworld) => new LoadCommodityFunction(pars, gameworld),
 			new List<string> { "material", "weight", "tag" },
 			new List<string>
@@ -368,7 +368,7 @@ internal class LoadCommodityFunction : BuiltInFunction
 			},
 			"This function loads a new commodity item into the game. It does not put the item anywhere, so you must then insert it somewhere like in a room or a character's inventory.",
 			"Items",
-			FutureProgVariableTypes.Item
+			ProgVariableTypes.Item
 		));
 	}
 }

@@ -257,40 +257,40 @@ public abstract class TraitDefinition : SaveableItem, ITraitDefinition
 
 	#region IFutureProgVariable Members
 
-	private static FutureProgVariableTypes DotReferenceHandler(string property)
+	private static ProgVariableTypes DotReferenceHandler(string property)
 	{
-		var returnVar = FutureProgVariableTypes.Error;
+		var returnVar = ProgVariableTypes.Error;
 		switch (property.ToLowerInvariant())
 		{
 			case "id":
-				returnVar = FutureProgVariableTypes.Number;
+				returnVar = ProgVariableTypes.Number;
 				break;
 			case "name":
-				returnVar = FutureProgVariableTypes.Text;
+				returnVar = ProgVariableTypes.Text;
 				break;
 			case "group":
-				returnVar = FutureProgVariableTypes.Text;
+				returnVar = ProgVariableTypes.Text;
 				break;
 			case "isskill":
-				returnVar = FutureProgVariableTypes.Boolean;
+				returnVar = ProgVariableTypes.Boolean;
 				break;
 			case "isattribute":
-				returnVar = FutureProgVariableTypes.Boolean;
+				returnVar = ProgVariableTypes.Boolean;
 				break;
 		}
 
 		return returnVar;
 	}
 
-	private static IReadOnlyDictionary<string, FutureProgVariableTypes> DotReferenceHandler()
+	private static IReadOnlyDictionary<string, ProgVariableTypes> DotReferenceHandler()
 	{
-		return new Dictionary<string, FutureProgVariableTypes>(StringComparer.InvariantCultureIgnoreCase)
+		return new Dictionary<string, ProgVariableTypes>(StringComparer.InvariantCultureIgnoreCase)
 		{
-			{ "id", FutureProgVariableTypes.Number },
-			{ "name", FutureProgVariableTypes.Text },
-			{ "group", FutureProgVariableTypes.Text },
-			{ "isskill", FutureProgVariableTypes.Boolean},
-			{ "isattribute", FutureProgVariableTypes.Boolean},
+			{ "id", ProgVariableTypes.Number },
+			{ "name", ProgVariableTypes.Text },
+			{ "group", ProgVariableTypes.Text },
+			{ "isskill", ProgVariableTypes.Boolean},
+			{ "isattribute", ProgVariableTypes.Boolean},
 		};
 	}
 
@@ -308,13 +308,13 @@ public abstract class TraitDefinition : SaveableItem, ITraitDefinition
 
 	public static void RegisterFutureProgCompiler()
 	{
-		FutureProgVariable.RegisterDotReferenceCompileInfo(FutureProgVariableTypes.Trait, DotReferenceHandler(),
+		ProgVariable.RegisterDotReferenceCompileInfo(ProgVariableTypes.Trait, DotReferenceHandler(),
 			DotReferenceHelp());
 	}
 
-	public IFutureProgVariable GetProperty(string property)
+	public IProgVariable GetProperty(string property)
 	{
-		IFutureProgVariable returnVar = null;
+		IProgVariable returnVar = null;
 		switch (property.ToLowerInvariant())
 		{
 			case "id":
@@ -337,7 +337,7 @@ public abstract class TraitDefinition : SaveableItem, ITraitDefinition
 		return returnVar;
 	}
 
-	FutureProgVariableTypes IFutureProgVariable.Type => FutureProgVariableTypes.Trait;
+	ProgVariableTypes IProgVariable.Type => ProgVariableTypes.Trait;
 
 	public object GetObject => this;
 

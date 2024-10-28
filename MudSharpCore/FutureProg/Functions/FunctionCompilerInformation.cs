@@ -24,14 +24,14 @@ public class FunctionCompilerInformation
 {
 	public Func<IList<IFunction>, IFuturemud, IFunction> CompilerFunction { get; protected set; }
 
-	public FunctionCompilerInformation(string functionName, IEnumerable<FutureProgVariableTypes> parameters,
+	public FunctionCompilerInformation(string functionName, IEnumerable<ProgVariableTypes> parameters,
 		Func<IList<IFunction>, IFuturemud, IFunction> compilerFunction,
 		IEnumerable<string> parameterNames = null,
 		IEnumerable<string> parameterHelp = null,
 		string functionHelp = null,
 		string category = "Uncategorised",
-		FutureProgVariableTypes returnType = FutureProgVariableTypes.Error,
-		Func<IEnumerable<FutureProgVariableTypes>, IFuturemud, bool> filterFunction = null)
+		ProgVariableTypes returnType = ProgVariableTypes.Error,
+		Func<IEnumerable<ProgVariableTypes>, IFuturemud, bool> filterFunction = null)
 	{
 		FunctionName = functionName;
 		Parameters = parameters;
@@ -52,19 +52,19 @@ public class FunctionCompilerInformation
 	}
 
 	public string FunctionName { get; protected set; }
-	public IEnumerable<FutureProgVariableTypes> Parameters { get; protected set; }
+	public IEnumerable<ProgVariableTypes> Parameters { get; protected set; }
 	public IEnumerable<string> ParameterNames { get; protected set; }
 	public IEnumerable<string> ParameterHelp { get; protected set; }
 	public string FunctionHelp { get; protected set; }
 	public string Category { get; protected set; }
-	public FutureProgVariableTypes ReturnType { get; protected set; }
+	public ProgVariableTypes ReturnType { get; protected set; }
 
 	public string FunctionDisplayForm
 	{
 		get
 		{
 			var sb = new StringBuilder();
-			if (string.IsNullOrEmpty(FunctionHelp) || ReturnType == FutureProgVariableTypes.Error)
+			if (string.IsNullOrEmpty(FunctionHelp) || ReturnType == ProgVariableTypes.Error)
 			{
 				sb.Append("Unknown ".Colour(Telnet.Cyan));
 				sb.Append(FunctionName.ToUpperInvariant().Colour(Telnet.Yellow));
@@ -107,7 +107,7 @@ public class FunctionCompilerInformation
 	/// <summary>
 	///     Used to specify more advanced constraints on arguments
 	/// </summary>
-	public Func<IEnumerable<FutureProgVariableTypes>, IFuturemud, bool> CompilerFilterFunction { get; protected set; }
+	public Func<IEnumerable<ProgVariableTypes>, IFuturemud, bool> CompilerFilterFunction { get; protected set; }
 
 	public FunctionCompilerResult Compile(IList<IFunction> parameterFunctions, IFuturemud gameworld)
 	{
@@ -128,12 +128,12 @@ public class CollectionExtensionFunctionCompilerInformation
 {
 	protected Func<string, IFunction, IFunction, IFunction> CompilerFunction { get; init; }
 	public string FunctionName { get; init; }
-	public FutureProgVariableTypes InnerFunctionReturnType { get; init; }
+	public ProgVariableTypes InnerFunctionReturnType { get; init; }
 	public string FunctionReturnInfo { get; init; }
 	public string FunctionHelp { get; init; }
 
 	public CollectionExtensionFunctionCompilerInformation(string functionName,
-		FutureProgVariableTypes innerFunctionReturnType,
+		ProgVariableTypes innerFunctionReturnType,
 		Func<string, IFunction, IFunction, IFunction> compilerFunction,
 		string functionHelp,
 		string functionReturnInfo)
@@ -146,18 +146,18 @@ public class CollectionExtensionFunctionCompilerInformation
 	}
 
 	public FunctionCompilerResult Compile(string variableName, string functionText,
-		IDictionary<string, FutureProgVariableTypes> variableSpace, IFunction collectionFunction, int lineNumber,
+		IDictionary<string, ProgVariableTypes> variableSpace, IFunction collectionFunction, int lineNumber,
 		IFuturemud gameworld)
 	{
-		IDictionary<string, FutureProgVariableTypes> localVariables =
-			new Dictionary<string, FutureProgVariableTypes>(variableSpace);
+		IDictionary<string, ProgVariableTypes> localVariables =
+			new Dictionary<string, ProgVariableTypes>(variableSpace);
 		if (localVariables.ContainsKey(variableName))
 		{
 			return new FunctionCompilerResult(false,
 				"The Collection Item Variable was already declared in the " + FunctionName + " function.", null);
 		}
 
-		localVariables.Add(variableName, collectionFunction.ReturnType ^ FutureProgVariableTypes.Collection);
+		localVariables.Add(variableName, collectionFunction.ReturnType ^ ProgVariableTypes.Collection);
 
 		var innerFunction = FunctionHelper.CompileFunction(functionText, localVariables, lineNumber, gameworld);
 		if (innerFunction.IsError)

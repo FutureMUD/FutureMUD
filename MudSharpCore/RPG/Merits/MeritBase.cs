@@ -96,12 +96,12 @@ public abstract class MeritBase : SaveableItem, IMerit
 
 	#region IFutureProgVariable Members
 
-	private static IReadOnlyDictionary<string, FutureProgVariableTypes> DotReferenceHandler()
+	private static IReadOnlyDictionary<string, ProgVariableTypes> DotReferenceHandler()
 	{
-		return new Dictionary<string, FutureProgVariableTypes>(StringComparer.InvariantCultureIgnoreCase)
+		return new Dictionary<string, ProgVariableTypes>(StringComparer.InvariantCultureIgnoreCase)
 		{
-			{ "id", FutureProgVariableTypes.Number },
-			{ "name", FutureProgVariableTypes.Text }
+			{ "id", ProgVariableTypes.Number },
+			{ "name", ProgVariableTypes.Text }
 		};
 	}
 
@@ -116,12 +116,12 @@ public abstract class MeritBase : SaveableItem, IMerit
 
 	public static void RegisterFutureProgCompiler()
 	{
-		FutureProgVariable.RegisterDotReferenceCompileInfo(FutureProgVariableTypes.Merit, DotReferenceHandler(),
+		ProgVariable.RegisterDotReferenceCompileInfo(ProgVariableTypes.Merit, DotReferenceHandler(),
 			DotReferenceHelp());
 	}
 
 
-	public IFutureProgVariable GetProperty(string property)
+	public IProgVariable GetProperty(string property)
 	{
 		switch (property.ToLowerInvariant())
 		{
@@ -134,7 +134,7 @@ public abstract class MeritBase : SaveableItem, IMerit
 		}
 	}
 
-	public FutureProgVariableTypes Type => FutureProgVariableTypes.Merit;
+	public ProgVariableTypes Type => ProgVariableTypes.Merit;
 
 	public object GetObject => this;
 

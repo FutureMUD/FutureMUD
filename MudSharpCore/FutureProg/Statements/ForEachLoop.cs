@@ -28,7 +28,7 @@ internal class ForEachLoop : Statement
 	}
 
 	private static ICompileInfo ForEachLoopCompile(IEnumerable<string> lines,
-		IDictionary<string, FutureProgVariableTypes> variableSpace, int lineNumber, IFuturemud gameworld)
+		IDictionary<string, ProgVariableTypes> variableSpace, int lineNumber, IFuturemud gameworld)
 	{
 		var match = ForEachLoopCompileRegex.Match(lines.First());
 		var varName = match.Groups[1].Value.ToLowerInvariant();
@@ -36,8 +36,8 @@ internal class ForEachLoop : Statement
 
 		lines = lines.Skip(1);
 		var containedStatements = new List<IStatement>();
-		IDictionary<string, FutureProgVariableTypes> localVariables =
-			new Dictionary<string, FutureProgVariableTypes>(variableSpace);
+		IDictionary<string, ProgVariableTypes> localVariables =
+			new Dictionary<string, ProgVariableTypes>(variableSpace);
 
 		var collectionFunctionInfo = FunctionHelper.CompileFunction(collectionExpression, variableSpace, lineNumber,
 			gameworld);
@@ -51,7 +51,7 @@ internal class ForEachLoop : Statement
 
 		var collectionFunction = (IFunction)collectionFunctionInfo.CompiledStatement;
 
-		if (!collectionFunction.ReturnType.HasFlag(FutureProgVariableTypes.Collection))
+		if (!collectionFunction.ReturnType.HasFlag(ProgVariableTypes.Collection))
 		{
 			return
 				CompileInfo.GetFactory()
@@ -62,12 +62,12 @@ internal class ForEachLoop : Statement
 
 		if (!localVariables.ContainsKey(varName))
 		{
-			localVariables[varName] = collectionFunction.ReturnType ^ FutureProgVariableTypes.Collection;
+			localVariables[varName] = collectionFunction.ReturnType ^ ProgVariableTypes.Collection;
 		}
 
 		if (localVariables.ContainsKey(varName) &&
 		    !localVariables[varName].CompatibleWith(collectionFunction.ReturnType ^
-		                                            FutureProgVariableTypes.Collection))
+		                                            ProgVariableTypes.Collection))
 		{
 			return
 				CompileInfo.GetFactory()
@@ -129,7 +129,7 @@ internal class ForEachLoop : Statement
 			new Tuple
 			<Regex,
 				Func
-				<IEnumerable<string>, IDictionary<string, FutureProgVariableTypes>, int, IFuturemud, ICompileInfo>>(
+				<IEnumerable<string>, IDictionary<string, ProgVariableTypes>, int, IFuturemud, ICompileInfo>>(
 				ForEachLoopCompileRegex, ForEachLoopCompile)
 		);
 
@@ -183,7 +183,7 @@ The scope of the variable declared as the item variable is limited to being used
 		foreach (var item in (IList)CollectionFunction.Result.GetObject)
 		{
 			var localVariables = new LocalVariableSpace(variables);
-			localVariables.SetVariable(VarName, (IFutureProgVariable)item);
+			localVariables.SetVariable(VarName, (IProgVariable)item);
 			foreach (var statement in ContainedBlock)
 			{
 				var result = statement.Execute(localVariables);

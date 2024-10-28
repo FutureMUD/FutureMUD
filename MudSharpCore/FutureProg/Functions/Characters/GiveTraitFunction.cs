@@ -25,7 +25,7 @@ namespace MudSharp.FutureProg.Functions.Characters
 			FutureProg.RegisterBuiltInFunctionCompiler(
 				new FunctionCompilerInformation(
 					"givetrait",
-					new[] { FutureProgVariableTypes.Character, FutureProgVariableTypes.Trait }, // the parameters the function takes
+					new[] { ProgVariableTypes.Character, ProgVariableTypes.Trait }, // the parameters the function takes
 					(pars, gameworld) => new GiveTraitFunction(pars, gameworld),
 					new List<string> { 
 						"who",
@@ -37,14 +37,14 @@ namespace MudSharp.FutureProg.Functions.Characters
 					}, // parameter help text
 					"Gives a trait (skill or attribute) to a player. Uses the opening value as if the trait had branched (for skills) or minimum value (for attributes). Returns the value of the trait", // help text for the function,
 					"Character",// the category to which this function belongs,
-					FutureProgVariableTypes.Number // the return type of the function
+					ProgVariableTypes.Number // the return type of the function
 				)
 			);
 
 			FutureProg.RegisterBuiltInFunctionCompiler(
 				new FunctionCompilerInformation(
 					"givetrait",
-					new[] { FutureProgVariableTypes.Character, FutureProgVariableTypes.Trait, FutureProgVariableTypes.Number }, // the parameters the function takes
+					new[] { ProgVariableTypes.Character, ProgVariableTypes.Trait, ProgVariableTypes.Number }, // the parameters the function takes
 					(pars, gameworld) => new GiveTraitFunction(pars, gameworld),
 					new List<string> {
 						"who",
@@ -58,7 +58,7 @@ namespace MudSharp.FutureProg.Functions.Characters
 					}, // parameter help text
 					"Gives a trait (skill or attribute) to a player with the specified value. If they already have the trait, sets the value if it is higher. Returns the value of the trait", // help text for the function,
 					"Character",// the category to which this function belongs,
-					FutureProgVariableTypes.Number // the return type of the function
+					ProgVariableTypes.Number // the return type of the function
 				)
 			);
 		}
@@ -71,9 +71,9 @@ namespace MudSharp.FutureProg.Functions.Characters
 		}
 		#endregion
 
-		public override FutureProgVariableTypes ReturnType
+		public override ProgVariableTypes ReturnType
 		{
-			get { return FutureProgVariableTypes.Number; }
+			get { return ProgVariableTypes.Number; }
 			protected set { }
 		}
 

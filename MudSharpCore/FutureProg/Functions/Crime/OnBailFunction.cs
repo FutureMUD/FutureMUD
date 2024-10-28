@@ -22,7 +22,7 @@ internal class OnBailFunction : BuiltInFunction
 		FutureProg.RegisterBuiltInFunctionCompiler(
 			new FunctionCompilerInformation(
 				"OnBail".ToLowerInvariant(),
-				new[] { FutureProgVariableTypes.Character, FutureProgVariableTypes.LegalAuthority }, // the parameters the function takes
+				new[] { ProgVariableTypes.Character, ProgVariableTypes.LegalAuthority }, // the parameters the function takes
 				(pars, gameworld) => new OnBailFunction(pars, gameworld),
 				new List<string> { "character", "authority" }, // parameter names
 				new List<string>
@@ -32,7 +32,7 @@ internal class OnBailFunction : BuiltInFunction
 				}, // parameter help text
 				"This function checks if the character is currently on bail for any crimes", // help text for the function,
 				"Crime", // the category to which this function belongs,
-				FutureProgVariableTypes.Boolean // the return type of the function
+				ProgVariableTypes.Boolean // the return type of the function
 			)
 		);
 	}
@@ -48,9 +48,9 @@ internal class OnBailFunction : BuiltInFunction
 
 	#endregion
 
-	public override FutureProgVariableTypes ReturnType
+	public override ProgVariableTypes ReturnType
 	{
-		get => FutureProgVariableTypes.Boolean;
+		get => ProgVariableTypes.Boolean;
 		protected set { }
 	}
 

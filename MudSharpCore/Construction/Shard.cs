@@ -243,15 +243,15 @@ public class Shard : Location, IEditableShard
 
 	#region IFutureProgVariable Members
 
-	private static IReadOnlyDictionary<string, FutureProgVariableTypes> DotReferenceHandler()
+	private static IReadOnlyDictionary<string, ProgVariableTypes> DotReferenceHandler()
 	{
-		return new Dictionary<string, FutureProgVariableTypes>(StringComparer.InvariantCultureIgnoreCase)
+		return new Dictionary<string, ProgVariableTypes>(StringComparer.InvariantCultureIgnoreCase)
 		{
-			{ "id", FutureProgVariableTypes.Number },
-			{ "name", FutureProgVariableTypes.Text },
-			{ "type", FutureProgVariableTypes.Text },
-			{ "effects", FutureProgVariableTypes.Effect | FutureProgVariableTypes.Collection },
-			{ "zones", FutureProgVariableTypes.Zone | FutureProgVariableTypes.Collection }
+			{ "id", ProgVariableTypes.Number },
+			{ "name", ProgVariableTypes.Text },
+			{ "type", ProgVariableTypes.Text },
+			{ "effects", ProgVariableTypes.Effect | ProgVariableTypes.Collection },
+			{ "zones", ProgVariableTypes.Zone | ProgVariableTypes.Collection }
 		};
 	}
 
@@ -269,16 +269,16 @@ public class Shard : Location, IEditableShard
 
 	public new static void RegisterFutureProgCompiler()
 	{
-		FutureProgVariable.RegisterDotReferenceCompileInfo(FutureProgVariableTypes.Shard, DotReferenceHandler(),
+		ProgVariable.RegisterDotReferenceCompileInfo(ProgVariableTypes.Shard, DotReferenceHandler(),
 			DotReferenceHelp());
 	}
 
-	public override IFutureProgVariable GetProperty(string property)
+	public override IProgVariable GetProperty(string property)
 	{
 		switch (property.ToLowerInvariant())
 		{
 			case "zones":
-				return new CollectionVariable(_zones.ToList(), FutureProgVariableTypes.Zone);
+				return new CollectionVariable(_zones.ToList(), ProgVariableTypes.Zone);
 			case "id":
 				return new NumberVariable(Id);
 			case "name":
@@ -287,13 +287,13 @@ public class Shard : Location, IEditableShard
 				return new TextVariable(FrameworkItemType);
 			case "effects":
 				return new CollectionVariable(EffectHandler.Effects.Where(x => x.Applies()).ToList(),
-					FutureProgVariableTypes.Effect);
+					ProgVariableTypes.Effect);
 			default:
 				return base.GetProperty(property);
 		}
 	}
 
-	public override FutureProgVariableTypes Type => FutureProgVariableTypes.Shard;
+	public override ProgVariableTypes Type => ProgVariableTypes.Shard;
 
 	#endregion
 

@@ -16,9 +16,9 @@ internal class HowSeenFunction : BuiltInFunction
 		DescriptionType = type;
 	}
 
-	public override FutureProgVariableTypes ReturnType
+	public override ProgVariableTypes ReturnType
 	{
-		get => FutureProgVariableTypes.Text;
+		get => ProgVariableTypes.Text;
 		protected set { }
 	}
 
@@ -49,8 +49,8 @@ internal class HowSeenFunction : BuiltInFunction
 				"howseensdesc",
 				new[]
 				{
-					FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Perceiver,
-					FutureProgVariableTypes.Boolean, FutureProgVariableTypes.Boolean
+					ProgVariableTypes.Perceivable, ProgVariableTypes.Perceiver,
+					ProgVariableTypes.Boolean, ProgVariableTypes.Boolean
 				},
 				(pars, gameworld) => new HowSeenFunction(pars, DescriptionType.Short),
 				new List<string> { "thing", "perceiver", "proper", "coloured" },
@@ -63,7 +63,7 @@ internal class HowSeenFunction : BuiltInFunction
 				},
 				"This function gets the short description of something as if it was seen in the engine by the specified perceiver.",
 				"Perception",
-				FutureProgVariableTypes.Text
+				ProgVariableTypes.Text
 			)
 		);
 
@@ -72,8 +72,8 @@ internal class HowSeenFunction : BuiltInFunction
 				"howseen",
 				new[]
 				{
-					FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Perceiver,
-					FutureProgVariableTypes.Boolean, FutureProgVariableTypes.Boolean
+					ProgVariableTypes.Perceivable, ProgVariableTypes.Perceiver,
+					ProgVariableTypes.Boolean, ProgVariableTypes.Boolean
 				},
 				(pars, gameworld) => new HowSeenFunction(pars, DescriptionType.Short),
 				new List<string> { "thing", "perceiver", "proper", "coloured" },
@@ -86,7 +86,7 @@ internal class HowSeenFunction : BuiltInFunction
 				},
 				"This function gets the short description of something as if it was seen in the engine by the specified perceiver.",
 				"Perception",
-				FutureProgVariableTypes.Text
+				ProgVariableTypes.Text
 			)
 		);
 
@@ -95,8 +95,8 @@ internal class HowSeenFunction : BuiltInFunction
 				"howseenfull",
 				new[]
 				{
-					FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Perceiver,
-					FutureProgVariableTypes.Boolean, FutureProgVariableTypes.Boolean
+					ProgVariableTypes.Perceivable, ProgVariableTypes.Perceiver,
+					ProgVariableTypes.Boolean, ProgVariableTypes.Boolean
 				},
 				(pars, gameworld) => new HowSeenFunction(pars, DescriptionType.Full),
 				new List<string> { "thing", "perceiver", "proper", "coloured" },
@@ -109,7 +109,7 @@ internal class HowSeenFunction : BuiltInFunction
 				},
 				"This function gets the full (i.e. look) description of something as if it was seen in the engine by the specified perceiver.",
 				"Perception",
-				FutureProgVariableTypes.Text
+				ProgVariableTypes.Text
 			)
 		);
 
@@ -118,8 +118,8 @@ internal class HowSeenFunction : BuiltInFunction
 				"howseenlong",
 				new[]
 				{
-					FutureProgVariableTypes.Perceivable, FutureProgVariableTypes.Perceiver,
-					FutureProgVariableTypes.Boolean, FutureProgVariableTypes.Boolean
+					ProgVariableTypes.Perceivable, ProgVariableTypes.Perceiver,
+					ProgVariableTypes.Boolean, ProgVariableTypes.Boolean
 				},
 				(pars, gameworld) => new HowSeenFunction(pars, DescriptionType.Long),
 				new List<string> { "thing", "perceiver", "proper", "coloured" },
@@ -132,7 +132,7 @@ internal class HowSeenFunction : BuiltInFunction
 				},
 				"This function gets the long (i.e. room) description of something as if it was seen in the engine by the specified perceiver.",
 				"Perception",
-				FutureProgVariableTypes.Text
+				ProgVariableTypes.Text
 			)
 		);
 	}

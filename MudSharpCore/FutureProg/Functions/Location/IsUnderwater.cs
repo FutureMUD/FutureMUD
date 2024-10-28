@@ -26,7 +26,7 @@ internal class IsUnderwater : BuiltInFunction
 		FutureProg.RegisterBuiltInFunctionCompiler(
 			new FunctionCompilerInformation(
 				"IsUnderwater".ToLowerInvariant(),
-				new[] { FutureProgVariableTypes.Location, FutureProgVariableTypes.Text },
+				new[] { ProgVariableTypes.Location, ProgVariableTypes.Text },
 				(pars, gameworld) => new IsUnderwater(pars, gameworld),
 				new List<string> { "Location", "Layer" },
 				new List<string>
@@ -36,7 +36,7 @@ internal class IsUnderwater : BuiltInFunction
 				},
 				"This function allows you to test whether a particular room layer in a location is currently underwater. Possible values for layers are VeryDeepUnderwater, DeepUnderwater, Underwater, GroundLevel, OnRooftops, InTrees, HighInTrees, InAir, HighInAir. See function ROOMLAYERS for how to obtain the list of room layers for a location.",
 				"Rooms",
-				FutureProgVariableTypes.Boolean
+				ProgVariableTypes.Boolean
 			)
 		);
 	}
@@ -52,9 +52,9 @@ internal class IsUnderwater : BuiltInFunction
 
 	#endregion
 
-	public override FutureProgVariableTypes ReturnType
+	public override ProgVariableTypes ReturnType
 	{
-		get => FutureProgVariableTypes.Boolean;
+		get => ProgVariableTypes.Boolean;
 		protected set { }
 	}
 

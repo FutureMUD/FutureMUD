@@ -511,6 +511,10 @@ public class Knowledge : SaveableItem, IKnowledge
 		{
 			_learnable &= ~value;
 		}
+		else
+		{
+			_learnable |= value;
+		}
 
 		actor.OutputHandler.Send(
 			$"This knowledge now has the following learnability types: {_learnable.GetSingleFlags().Select(x => x.DescribeEnum().ColourValue()).ListToString()}");

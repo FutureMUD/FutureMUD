@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
+using System.Security.Principal;
 using System.Text;
 using MudSharp.Character;
 using MudSharp.CharacterCreation;
@@ -60,6 +62,8 @@ public class Helpfile : SaveableItem, IEditableHelpfile
 
 	public override string FrameworkItemType => "NuHelpfile";
 
+	string IHelpInformation.HelpName => Name;
+	
 	/// <summary>
 	///     Public property accessor for all Tags related to this helpfile
 	/// </summary>
@@ -182,14 +186,16 @@ public class Helpfile : SaveableItem, IEditableHelpfile
 	public string DisplayHelpFile(ICharacter actor)
 	{
 		var sb = new StringBuilder();
-		sb.AppendLine(
-			$"{"Helpfile".Colour(Telnet.Cyan)}: {Name.TitleCase()} {"Category".Colour(Telnet.Cyan)}: {Category.TitleCase()} {"Subcategory".Colour(Telnet.Cyan)}: {Subcategory.TitleCase()}");
-		sb.AppendLine($"{"Keywords".Colour(Telnet.Cyan)}: {Keywords.ListToString(conjunction: "")}");
-		sb.AppendLine($"{"Tagline".Colour(Telnet.Cyan)}: {TagLine.ProperSentences()}");
+		sb.AppendLine($"Help on {Name.TitleCase()}".GetLineWithTitleInner(actor, Telnet.Cyan, Telnet.BoldWhite));
+		sb.AppendLine();
+		sb.AppendLine($"Category: {Category.TitleCase().ColourValue()}");
+		sb.AppendLine($"Subcategory: {Subcategory.TitleCase().ColourValue()}");
+		sb.AppendLine($"Keywords: {Keywords.ListToColouredStringOr()}");
+		sb.AppendLine($"Tagline: {TagLine.ProperSentences().ColourCommand()}");
 		sb.AppendLine();
 		sb.AppendLine(PublicText.Wrap(actor.InnerLineFormatLength));
 
-		foreach (var addition in AdditionalTexts.Where(x => (bool?)x.Item1.Execute(actor) ?? false))
+		foreach (var addition in AdditionalTexts.Where(x => x.Item1?.ExecuteBool(actor) == true))
 		{
 			sb.AppendLine();
 			sb.AppendLine(addition.Item2.Wrap(actor.InnerLineFormatLength));
@@ -205,13 +211,14 @@ public class Helpfile : SaveableItem, IEditableHelpfile
 	public string DisplayHelpFile(IChargen chargen)
 	{
 		var sb = new StringBuilder();
-		sb.AppendLine(
-			$"{"Helpfile".Colour(Telnet.Cyan)}: {Name.TitleCase()} {"Category".Colour(Telnet.Cyan)}: {Category.TitleCase()} {"Subcategory".Colour(Telnet.Cyan)}: {Subcategory.TitleCase()}");
-		sb.AppendLine($"{"Keywords".Colour(Telnet.Cyan)}: {Keywords.ListToString(conjunction: "")}");
-		sb.AppendLine($"{"Tagline".Colour(Telnet.Cyan)}: {TagLine.ProperSentences()}");
+		sb.AppendLine($"Help on {Name.TitleCase()}".GetLineWithTitleInner(chargen, Telnet.Cyan, Telnet.BoldWhite));
+		sb.AppendLine();
+		sb.AppendLine($"Category: {Category.TitleCase().ColourValue()}");
+		sb.AppendLine($"Subcategory: {Subcategory.TitleCase().ColourValue()}");
+		sb.AppendLine($"Keywords: {Keywords.ListToColouredStringOr()}");
+		sb.AppendLine($"Tagline: {TagLine.ProperSentences().ColourCommand()}");
 		sb.AppendLine();
 		sb.AppendLine(PublicText.Wrap(chargen.Account.InnerLineFormatLength));
-
 		sb.AppendLine();
 		sb.AppendLine(
 			$"Lasted edited by {LastEditedBy.Proper().Colour(Telnet.Green)} on {LastEditedDate.GetLocalDateString(chargen.Account).Colour(Telnet.Green)}.");

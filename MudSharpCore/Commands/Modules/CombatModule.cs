@@ -1648,7 +1648,7 @@ The syntax for this command is #3spar <target>#0.", AutoHelp.HelpArgOrNoArg)]
 	[RequiredCharacterState(CharacterState.Able)]
 	[CommandPermission(PermissionLevel.Any)]
 	[DelayBlock("general", "You must first stop {0} before you can fight.")]
-	[HelpInfo("", @"The #3Support#0 command is used to join another character in combat, by joining in to their combat and targeting their current target. 
+	[HelpInfo("support", @"The #3Support#0 command is used to join another character in combat, by joining in to their combat and targeting their current target. 
 
 This command is functionally equivalent to having typed #3hit <target's target>#0. 
 

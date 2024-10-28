@@ -821,7 +821,15 @@ The syntax for this is as follows:
 	{
 		var ss = new StringStack(command.RemoveFirstWord());
 		var allHelpfiles = actor.Gameworld.Helpfiles.Where(x => x.CanView(actor)).ToList();
-		var builtInHelp = actor.Gameworld.RetrieveAppropriateCommandTree(actor).Commands.CommandHelpInfos.ToList();
+		var isAdmin = actor.IsAdministrator();
+		var builtInHelp = actor.Gameworld
+		                       .RetrieveAppropriateCommandTree(actor)
+		                       .Commands
+		                       .CommandHelpInfos
+		                       .DistinctBy(x => x.HelpName)
+		                       .Where(x => !x.AdminOnly || isAdmin)
+		                       .ToList();
+		var combined = allHelpfiles.OfType<IHelpInformation>().Concat(builtInHelp).ToList();
 		var categories = allHelpfiles
 		                 .Select(x => x.Category.TitleCase())
 		                 .Concat(["Commands"])
@@ -853,39 +861,11 @@ The following is a list of all of the categories that exist for you to search:
 		//handle the 'help on <category>' syntax.
 		if (string.Equals(cmd.ToLowerInvariant(), "on", StringComparison.InvariantCultureIgnoreCase))
 		{
-			ss.PopSpeech(); //Pop the 'on'
-			cmd = ss.PopSpeech();
-			var helpfiles =
-				allHelpfiles
-					.Where(x => x.Category.StartsWith(cmd, StringComparison.InvariantCultureIgnoreCase))
-					.ToList();
-			if (!cmd.EqualTo("commands") && !helpfiles.Any())
+			if (HandleHelpOnCommand(actor, ss, cmd, allHelpfiles, builtInHelp))
 			{
-				actor.OutputHandler.Send($"There are no help files in the {cmd.TitleCase().Colour(Telnet.Cyan)} category.");
 				return;
 			}
 
-			var helpOutput = helpfiles
-			                 .Select(x => (Name: x.Name, TagLine: x.TagLine, SubCategory: x.Subcategory, Keywords: x.Keywords.ListToString(separator: " ", conjunction: "")))
-			                 .ToList();
-			if (cmd.EqualTo("commands"))
-			{
-				helpOutput.AddRange(builtInHelp.Select(x => (Name: x.HelpName, $"Automatically generated helpfile for command", "Built-In", x.HelpName)));
-			}
-
-			helpOutput.Sort((x1,x2) => string.Compare(x1.Name, x2.Name, StringComparison.InvariantCultureIgnoreCase));
-			actor.OutputHandler.Send($"There are the following help files in the {cmd.TitleCase().Colour(Telnet.Cyan)} category:\n\n{StringUtilities.GetTextTable(
-				helpfiles.Select(
-					x =>
-						new[]
-						{
-							x.Name.TitleCase(),
-							x.Subcategory.TitleCase(),
-							x.TagLine.Proper(),
-							x.Keywords.ListToString(separator: " ", conjunction: "")
-						}),
-				new[] { "Help File", "Subcategory", "Synopsis", "Keywords" }, actor)}"
-			);
 			return;
 		}
 
@@ -913,28 +893,27 @@ The following is a list of all of the categories that exist for you to search:
 			helpfileName = ss.SafeRemainingArgument;
 		}
 
-		var exactMatch = actor.Gameworld.Helpfiles.FirstOrDefault(x => x.CanView(actor) &&
+		var exactMatch = combined.FirstOrDefault(x => x.CanView(actor) &&
 		                                                               (string.IsNullOrEmpty(categoryName) ||
 		                                                                x.Category.StartsWith(categoryName,
 			                                                                StringComparison
 				                                                                .InvariantCultureIgnoreCase)) &&
-		                                                               x.Name.EqualTo(helpfileName));
+		                                                               x.HelpName.EqualTo(helpfileName));
 
 		var helpfilesMatched = exactMatch != null
 			? new[] { exactMatch }.ToList()
-			: actor.Gameworld.Helpfiles.Where(
-				x => x.CanView(actor) &&
+			: combined.Where(
+				x => 
 				     (string.IsNullOrEmpty(categoryName) ||
 				      x.Category.StartsWith(categoryName, StringComparison.InvariantCultureIgnoreCase)) &&
-				     x.Name.StartsWith(helpfileName, StringComparison.InvariantCultureIgnoreCase)
+				     x.HelpName.StartsWith(helpfileName, StringComparison.InvariantCultureIgnoreCase)
 			).ToList();
 
 		if (!helpfilesMatched.Any())
 		{
 			helpfilesMatched =
-				actor.Gameworld.Helpfiles.Where(
-					     x => x.Keywords.Any(y =>
-						     y.StartsWith(helpfileName, StringComparison.Ordinal) && x.CanView(actor)))
+				combined.Where(
+					     x => x.Keywords.Any(y => y.StartsWith(helpfileName, StringComparison.Ordinal) && x.CanView(actor)))
 				     .ToList();
 			if (!helpfilesMatched.Any())
 			{
@@ -947,11 +926,54 @@ The following is a list of all of the categories that exist for you to search:
 		{
 			actor.OutputHandler.Send("Your query matched multiple help files:\n\n" +
 			                         (from hf in helpfilesMatched
-			                          select hf.Category + " - " + hf.Subcategory + " - " + hf.Name).ListToString
+			                          select hf.Category + " - " + hf.Subcategory + " - " + hf.HelpName).ListToString
 				                         (separator: "\n", conjunction: ""));
 			return;
 		}
 
 		actor.OutputHandler.Send(helpfilesMatched.First().DisplayHelpFile(actor));
+	}
+
+	private static bool HandleHelpOnCommand(ICharacter actor, StringStack ss, string cmd, List<IHelpfile> allHelpfiles, List<ICommandHelpInfo> builtInHelp)
+	{
+		ss.PopSpeech(); //Pop the 'on'
+		cmd = ss.PopSpeech();
+		var helpfiles =
+			allHelpfiles
+				.Where(x => x.Category.StartsWith(cmd, StringComparison.InvariantCultureIgnoreCase))
+				.ToList();
+		if (!cmd.EqualTo("commands") && !helpfiles.Any())
+		{
+			actor.OutputHandler.Send($"There are no help files in the {cmd.TitleCase().Colour(Telnet.Cyan)} category.");
+			return true;
+		}
+
+		var helpOutput = helpfiles
+		                 .Select(x => (Name: x.Name, TagLine: x.TagLine, SubCategory: x.Subcategory, Keywords: x.Keywords.ListToString(separator: " ", conjunction: "")))
+		                 .ToList();
+		if (cmd.EqualTo("commands"))
+		{
+			helpOutput.AddRange(builtInHelp
+			                    .Where(x => helpfiles.All(y => !y.Name.EqualTo(x.HelpName)))
+			                    .Select(x => (Name: x.HelpName, $"Automatically generated helpfile for command", "Built-In", x.HelpName))
+			                    );
+		}
+
+		helpOutput.Sort((x1,x2) => string.Compare(x1.Name, x2.Name, StringComparison.InvariantCultureIgnoreCase));
+		actor.OutputHandler.Send($"There are the following help files in the {cmd.TitleCase().Colour(Telnet.Cyan)} category:\n\n{StringUtilities.GetTextTable(
+			helpOutput.Select(
+				x =>
+					new[]
+					{
+						x.Name.TitleCase(),
+						x.SubCategory.TitleCase(),
+						x.TagLine.Proper(),
+						x.Keywords.ToLowerInvariant()
+					}),
+			new[] { "Help File", "Subcategory", "Synopsis", "Keywords" }, 
+			actor,
+			Telnet.Cyan)}"
+		);
+		return false;
 	}
 }

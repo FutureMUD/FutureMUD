@@ -233,8 +233,13 @@ public abstract class Module<T> : IModule
 		CommandHelpInfo helpInfo = null;
 		if (helpInfoData != null)
 		{
-			helpInfo = new CommandHelpInfo(helpInfoData.HelpFile, helpInfoData.DefaultHelp,
-				helpInfoData.AutoHelpSetting, helpInfoData.AdminHelp);
+			helpInfo = new CommandHelpInfo(
+				helpInfoData.HelpFile, 
+				helpInfoData.DefaultHelp,
+				helpInfoData.AutoHelpSetting, 
+				helpInfoData.AdminHelp,
+				commandPermission?.PermissionLevel >= PermissionLevel.JuniorAdmin
+				);
 		}
 
 		var displayOptions =

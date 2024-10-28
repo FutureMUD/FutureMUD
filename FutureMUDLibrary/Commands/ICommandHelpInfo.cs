@@ -1,4 +1,5 @@
 ﻿using MudSharp.Character;
+using MudSharp.Help;
 using MudSharp.PerceptionEngine;
 
 namespace MudSharp.Commands
@@ -12,12 +13,13 @@ namespace MudSharp.Commands
         HelpArgOrNoArg,     // If the user enters 'help' or '?' or no argument, show the help then exit
     }
 
-    public interface ICommandHelpInfo
+    public interface ICommandHelpInfo : IHelpInformation
     {
         string HelpName { get; }
         string DefaultHelp { get; }
         string AdminHelp { get; }
         AutoHelp AutoHelpSetting { get; }
+        bool AdminOnly { get; }
         bool CheckHelp(ICharacter argument, string playerInput, IOutputHandler outputHandler);
     }
 }

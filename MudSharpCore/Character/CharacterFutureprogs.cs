@@ -213,6 +213,8 @@ public partial class Character
 				return new BooleanVariable(false);
 			case "simple":
 				return new BooleanVariable(false);
+			case "knowledges":
+				return new CollectionVariable(Knowledges.ToList(), ProgVariableTypes.Knowledge);
 			default:
 				return base.GetProperty(property);
 		}
@@ -285,7 +287,8 @@ public partial class Character
 			{ "latentdrugamounts", ProgVariableTypes.Number | ProgVariableTypes.Collection },
 			{ "outfits", ProgVariableTypes.Outfit | ProgVariableTypes.Collection },
 			{ "layer", ProgVariableTypes.Text },
-			{ "isnewplayer", ProgVariableTypes.Boolean }
+			{ "isnewplayer", ProgVariableTypes.Boolean },
+			{ "knowledges", ProgVariableTypes.Knowledge | ProgVariableTypes.Collection}
 		};
 	}
 
@@ -351,7 +354,8 @@ public partial class Character
 			{ "latentdrugamounts", "A collection of the grams of each latent drug. Items match order of latentdrugs property" },
 			{ "outfits", "A collection of outfits associated with this character" },
 			{ "layer", "A text representation of the current layer this character is in" },
-			{ "isnewplayer", "True if character has the (New Player) tag" }
+			{ "isnewplayer", "True if character has the (New Player) tag" },
+			{ "knowledges", "Returns a collection of knowledges the character has"}
 		};
 	}
 

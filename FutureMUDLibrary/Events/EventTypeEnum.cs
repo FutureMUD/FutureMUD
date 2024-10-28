@@ -345,12 +345,6 @@ namespace MudSharp.Events {
 		ItemSwallowed = 63,
 
 		/// <summary>
-		///     Hooks to being invited to join a spar. Parameters are inviter, invitee
-		/// </summary>
-		[EventInfo("Hooks to a character being invited to join a spar", new[] { "character", "character" }, new[] { "inviter", "invitee" }, new[] { ProgVariableTypes.Character, ProgVariableTypes.Character })]
-		SparInvitation = 45,
-
-		/// <summary>
 		///     Hooks to engaging an opponent in combat. Parameters are aggressor, target
 		/// </summary>
 		[EventInfo("Hooks to a character engaging an opponent in combat", new[] { "character", "perceiver" }, new[] { "aggressor", "target" }, new[] { ProgVariableTypes.Character, ProgVariableTypes.Perceiver })]
@@ -579,5 +573,11 @@ namespace MudSharp.Events {
 		/// </summary>
 		[EventInfo("Hooks to a character when they move into a room, but fires on their inventory items", new[] { "character", "location", "exit", "item" }, new[] { "mover", "destination", "exit", "item" }, new[] { ProgVariableTypes.Character, ProgVariableTypes.Location, ProgVariableTypes.Exit, ProgVariableTypes.Item })]
 		CharacterEnterCellItems = 91,
+
+		/// <summary>
+		///     Hooks to being invited to join a spar. Parameters are inviter, invitee
+		/// </summary>
+		[EventInfo("Hooks to a character being invited to join a spar", new[] { "character", "character" }, new[] { "inviter", "invitee" }, new[] { ProgVariableTypes.Character, ProgVariableTypes.Character })]
+		SparInvitation = 92,
 	}
 }

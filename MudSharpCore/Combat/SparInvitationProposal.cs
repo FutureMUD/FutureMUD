@@ -114,6 +114,8 @@ public class SparInvitationProposal : Proposal
 					Supplicant, Supplicant, Applicant)));
 		}
 
+		Applicant.CombatTarget = Supplicant;
+		Supplicant.CombatTarget = Applicant;
 		Supplicant.Engage(Applicant);
 	}
 

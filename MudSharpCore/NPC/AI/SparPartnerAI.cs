@@ -32,7 +32,7 @@ public class SparPartnerAI : ArtificialIntelligenceBase
 	private SparPartnerAI(IFuturemud gameworld, string name) : base(gameworld, name, "Spar Partner")
 	{
 		WillSparProg = Gameworld.AlwaysTrueProg;
-		EngageDelayDiceExpression = "1000+1d2000";
+		EngageDelayDiceExpression = "1d2000+1000";
 		DatabaseInitialise();
 	}
 
@@ -49,7 +49,7 @@ public class SparPartnerAI : ArtificialIntelligenceBase
 		sb.AppendLine($"Type: {AIType.ColourValue()}");
 		sb.AppendLine();
 		sb.AppendLine($"Will Spar Prog: {WillSparProg?.MXPClickableFunctionName() ?? "None".ColourError()}");
-		sb.AppendLine($"Engage Delay: {EngageDelayDiceExpression.ColourValue()} seconds");
+		sb.AppendLine($"Engage Delay: {EngageDelayDiceExpression.ColourValue()} milliseconds");
 		sb.AppendLine($"Engage Emote: {EngageEmote?.ColourCommand() ?? ""}");
 		sb.AppendLine($"Refuse Emote: {RefuseEmote?.ColourCommand() ?? ""}");
 		return sb.ToString();
@@ -182,7 +182,12 @@ public class SparPartnerAI : ArtificialIntelligenceBase
 
 	public override bool HandleEvent(EventType type, params dynamic[] arguments)
 	{
-		var ch = (ICharacter)arguments[0];
+		if (!HandlesEvent([type]))
+		{
+			return false;
+		}
+
+		var ch = (ICharacter)arguments[1];
 		if (ch is null || ch.State.IsDead() || ch.State.IsInStatis())
 		{
 			return false;
@@ -191,7 +196,7 @@ public class SparPartnerAI : ArtificialIntelligenceBase
 		switch (type)
 		{
 			case EventType.SparInvitation:
-				return CheckForSpar((ICharacter)arguments[0], (ICharacter)arguments[1]);
+				return CheckForSpar((ICharacter)arguments[1], (ICharacter)arguments[0]);
 		}
 
 		return false;
@@ -211,9 +216,9 @@ public class SparPartnerAI : ArtificialIntelligenceBase
 		return false;
 	}
 
-	public bool CanAccept(ICharacter npc, ICharacter invitee)
+	public bool CanAccept(ICharacter npc, ICharacter invitee, bool ignoreBlocking = false)
 	{
-		if (!npc.Combat?.Friendly ?? false)
+		if (npc.Combat?.Friendly == false)
 		{
 			return false;
 		}
@@ -228,7 +233,7 @@ public class SparPartnerAI : ArtificialIntelligenceBase
 			return false;
 		}
 
-		if (npc.Effects.Any(x => x.IsBlockingEffect("combat-engage")))
+		if (npc.Effects.Any(x => x.IsBlockingEffect("combat-engage")) && !ignoreBlocking)
 		{
 			return false;
 		}
@@ -255,8 +260,12 @@ public class SparPartnerAI : ArtificialIntelligenceBase
 
 		npc.AddEffect(new BlockingDelayedAction(npc, perceiver =>
 			{
-				if (!CanAccept(npc, invitee))
+				if (!CanAccept(npc, invitee, true))
 				{
+					if (!string.IsNullOrWhiteSpace(RefuseEmote))
+					{
+						npc.OutputHandler.Handle(new EmoteOutput(new Emote(RefuseEmote, npc, npc, invitee)));
+					}
 					return;
 				}
 

@@ -8,7 +8,7 @@ using MudSharp.Accounts;
 
 namespace MudSharp.Framework {
 	public static partial class StringExtensions {
-		private static readonly Regex SpecialCharacterRegex = new("(\\\\\"|\\\\n|\\\\t|\\\\\\\\)",
+		private static readonly Regex SpecialCharacterRegex = new(@"(\\""|\\n|\\t|\\\\)",
 			RegexOptions.IgnoreCase);
 
 		private static readonly Regex ProperCaseRegex = new("(?<=\x1B\\[[^m]+m|^)([a-z])");

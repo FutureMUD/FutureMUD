@@ -12,7 +12,7 @@ namespace MudSharp.FutureProg.Statements;
 internal class DeclareAndAssignVariable : Statement
 {
 	private static readonly Regex DeclareAndAssignVariableCompileRegex =
-		new(@"^\s*var (?<varname>.+)\s*=\s*(?<function>.+)\s*$",
+		new(@"^\s*var (?<varname>[a-z0-9_]+)\s*=\s*(?<function>.+)\s*$",
 			RegexOptions.Multiline | RegexOptions.IgnoreCase);
 
 	protected string NameToDeclare;

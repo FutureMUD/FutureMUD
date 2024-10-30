@@ -554,6 +554,25 @@ public class Clock : SaveableItem, IClock
 		;
 	}
 
+	public Clock(XElement loadfile, IFuturemud gameworld, MudTimeZone primaryTimeZone, int hours = 0, int minutes = 0, int seconds = 0)
+	{
+		Gameworld = gameworld;
+		LoadFromXml(loadfile);
+		_name = Alias;
+		PrimaryTimezone = primaryTimeZone;
+		CurrentTime = new MudTime(seconds, minutes, hours, PrimaryTimezone, this, true);
+		;
+	}
+
+	public Clock(XElement loadfile, IFuturemud gameworld)
+	{
+		Gameworld = gameworld;
+		LoadFromXml(loadfile);
+		_name = Alias;
+		PrimaryTimezone = _timezones.FirstOrDefault();
+		CurrentTime = new MudTime(0, 0, 0, PrimaryTimezone, this, true);
+	}
+
 	public Clock(MudSharp.Models.Clock clock, IFuturemud game)
 	{
 		_id = clock.Id;

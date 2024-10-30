@@ -503,6 +503,12 @@ public class Calendar : SaveableItem, ICalendar
 		LoadFromXml(file);
 	}
 
+	public Calendar(XElement file, IFuturemud game)
+	{
+		Gameworld = game;
+		LoadFromXml(file);
+	}
+
 	public Calendar(int id, IFuturemud game)
 	{
 		_id = id;

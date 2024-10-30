@@ -126,21 +126,21 @@ public class WandererAI : ArtificialIntelligenceBase
 
 		if (character.Movement != null)
 		{
-			CreateEvaluateAffect(character);
+			CreateEvaluateAffect(character, Dice.Roll(WanderTimeDiceExpression));
 			return;
 		}
 
 		if (character.EffectsOfType<FollowingPath>().Any())
 		{
 			// Don't wander while following a path from other AI
-			CreateEvaluateAffect(character);
+			CreateEvaluateAffect(character, Dice.Roll(WanderTimeDiceExpression));
 			return;
 		}
 
 		if (!CharacterState.Able.HasFlag(character.State) || character.Combat != null ||
 			character.Effects.Any(x => x.IsBlockingEffect("movement")))
 		{
-			CreateEvaluateAffect(character);
+			CreateEvaluateAffect(character, Dice.Roll(WanderTimeDiceExpression));
 			return;
 		}
 
@@ -161,7 +161,7 @@ public class WandererAI : ArtificialIntelligenceBase
 
 		if (!options.Any())
 		{
-			CreateEvaluateAffect(character);
+			CreateEvaluateAffect(character, Dice.Roll(WanderTimeDiceExpression));
 			return;
 		}
 

@@ -105,8 +105,8 @@ The following clan sub-commands are used to interact with clans:
 	#3clan reportdead <clan> <person>#0 - reports a person as dead or long-term missing
 	#3clan pay <person> <clan> <how much>#0 - manually adds backpay owing to a person
 	#3clan maxpay <clan> <max multiple backpay>#0 - sets the maximum backpay permissable for a clan
-	#3clan payinterval <every x days|weeks|months|years>#0 - sets the pay interval
-	#3clan payinterval <every x days|weeks|months|years> <date time>#0 - sets the pay interval and the reference date time
+	#3clan payinterval <clan> ""<every x days|weeks|months|years>""#0 - sets the pay interval
+	#3clan payinterval <clan> ""<every x days|weeks|months|years>"" [<date time>]#0 - sets the pay interval and the reference date time
 	#3clan view <clan>#0 - views information about a clan
 	#3clan members <clan>#0 - views the member list for a clan
 	#3clan treasury <clan>#0 - sets your current location as a treasury cell for a clan (ADMIN ONLY)
@@ -332,14 +332,14 @@ All of the following commands must happen with an edited clan selected:
 
 		if (ss.IsFinished)
 		{
-			actor.OutputHandler.Send($"What should the pay interval be for this clan?\n{"Use the following form: every <x> hours|days|weekdays|weeks|months|years <offset>".ColourCommand()}");
+			actor.OutputHandler.Send($"What should the pay interval be for this clan?\n{"Use the following form: every <x> hours|days|weekdays|weeks|months|years [<from time>]".ColourCommand()}");
 			return;
 		}
 
-		if (!RecurringInterval.TryParse(ss.SafeRemainingArgument, out var interval))
+		if (!RecurringInterval.TryParse(ss.PopSpeech(), out var interval))
 		{
 			actor.OutputHandler.Send(
-				$"That is not a valid interval.\n{"Use the following form: every <x> hours|days|weekdays|weeks|months|years <offset>".ColourCommand()}");
+				$"That is not a valid interval.\n{"Use the following form: every <x> hours|days|weekdays|weeks|months|years [<from time>]".ColourCommand()}");
 			return;
 		}
 

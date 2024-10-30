@@ -44,7 +44,7 @@ public class PathToLocationAI : PathingAIWithProgTargetsBase
 			new XElement("OnStartToPathProg", OnStartToPathProg?.Id ?? 0L),
 			new XElement("TargetLocationProg", TargetLocationProg?.Id ?? 0L),
 			new XElement("FallbackLocationProg", FallbackLocationProg?.Id ?? 0L),
-			new XElement("WayPointsProg", WayPointsProg.Id),
+			new XElement("WayPointsProg", WayPointsProg?.Id ?? 0L),
 			new XElement("OpenDoors", OpenDoors),
 			new XElement("UseKeys", UseKeys),
 			new XElement("SmashLockedDoors", SmashLockedDoors),

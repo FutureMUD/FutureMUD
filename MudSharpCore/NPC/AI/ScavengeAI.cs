@@ -221,7 +221,7 @@ public class ScavengeAI : ArtificialIntelligenceBase
 		ScavengeDelayDiceExpression = root.Element("ScavengeDelayDiceExpression").Value;
 		if (!Dice.IsDiceExpression(ScavengeDelayDiceExpression))
 		{
-			throw new ApplicationException($"AI {Id} had an illegal dice expression.");
+			($"AI {Id} had an illegal dice expression.").WriteLineConsole();
 		}
 	}
 

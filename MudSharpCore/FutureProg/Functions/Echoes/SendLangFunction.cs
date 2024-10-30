@@ -74,7 +74,7 @@ internal class SendLangFunction : BuiltInFunction
 			perceivables.Add(perceivable);
 		}
 
-		target.OutputHandler.Handle(
+		target.OutputHandler.Send(
 			new EmoteOutput(new FixedLanguageEmote(text, target, language, accent, perceivables.ToArray())));
 		Result = new BooleanVariable(true);
 		return StatementResult.Normal;

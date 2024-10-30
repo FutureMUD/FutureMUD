@@ -63,7 +63,7 @@ internal class SendFunction : BuiltInFunction
 			perceivables.Add(perceivable);
 		}
 
-		target.OutputHandler.Handle(FixedFormat
+		target.OutputHandler.Send(FixedFormat
 			? new EmoteOutput(new NoFormatEmote(text, target, perceivables.ToArray()))
 			: new EmoteOutput(new Emote(text, target, perceivables.ToArray())));
 

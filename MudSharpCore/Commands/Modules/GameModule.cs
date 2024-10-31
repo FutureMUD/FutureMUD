@@ -148,7 +148,7 @@ This command exists to let players coordinate between one another, but overuse o
 			actor.OutputHandler.Send(
 				$"You notify {effect.NotifyTarget.HowSeen(actor, true, flags: PerceiveIgnoreFlags.IgnoreCanSee)} that you are online and available to roleplay.");
 			effect.NotifyTarget.OutputHandler.Send(
-				$"{actor.HowSeen(effect.NotifyTarget, true, flags: PerceiveIgnoreFlags.IgnoreCanSee)} is online.");
+				$"[{actor.HowSeen(effect.NotifyTarget, true, flags: PerceiveIgnoreFlags.IgnoreCanSee)} is online.]".ColourIncludingReset(Telnet.Yellow));
 			actor.RemoveEffect(effect);
 			return;
 		}
@@ -168,10 +168,10 @@ This command exists to let players coordinate between one another, but overuse o
 					new EmoteOutput(
 						new Emote(
 							string.Format(
-								"[{1} is online (notified you as {0}). Use notify to reply in kind.]".Colour(
+								"[{1} is online (notified you as {0}). Use notify to reply in kind.]".ColourIncludingReset(
 									Telnet.Yellow),
 								ss.Last.TitleCase(),
-								actor.HowSeen(character, true, colour: false, flags: PerceiveIgnoreFlags.IgnoreCanSee)
+								actor.HowSeen(character, true, colour: true, flags: PerceiveIgnoreFlags.IgnoreCanSee)
 							), character, actor)));
 			}
 

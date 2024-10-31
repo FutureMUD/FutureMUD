@@ -57,6 +57,7 @@ public class CharacteristicValue : FrameworkItem, ISaveable, ICharacteristicValu
 
 	protected CharacteristicValue(CharacteristicValue rhs, string newName, string value, string additional)
 	{
+		Gameworld = rhs.Gameworld;
 		using (new FMDB())
 		{
 			var dbitem = new Models.CharacteristicValue

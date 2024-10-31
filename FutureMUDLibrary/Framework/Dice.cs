@@ -8,18 +8,26 @@ namespace MudSharp.Framework;
 
 public static class Dice {
 	// TODO: improve regex to avoid false positive.
-	private static readonly Regex _regex = new(@"^(?<sign>\+|\-){0,1}(?:(?<numdice>\d+)d(?<sides>\d+))*\s*(?:(?<bonustype>[+-]){0,1}\s*(?<bonus>\d+))*(?:\s*(?<mod1>m|M|k|K|e|r|R|l)(?<val1>\d+)){0,1}(?:\s*(?<mod2>m|M|k|K|e|r|R|l)(?<val2>\d+)){0,1}(?:\s*(?<mod3>m|M|k|K|e|r|R|l)(?<val3>\d+)){0,1}$", RegexOptions.IgnoreCase);
+	private static readonly Regex _regex = new(@"(?<sign>\+|\-){0,1}(?<numdice>\d+){1}(?:d(?<sides>\d+))*(?:\s*(?<mod1>m|M|k|K|e|r|R|l)(?<val1>\d+)){0,1}(?:\s*(?<mod2>m|M|k|K|e|r|R|l)(?<val2>\d+)){0,1}(?:\s*(?<mod3>m|M|k|K|e|r|R|l)(?<val3>\d+)){0,1}", RegexOptions.IgnoreCase);
 
 	public static bool IsDiceExpression(string input) {
-		var match = _regex.Match(input.ToLowerInvariant());
-		return match.Success;
+		var strings = input.Split([';']);
+		foreach (var text in strings)
+		{
+			if (_regex.Replace(text, "").Length > 0)
+			{
+				return false;
+			}
+		}
+
+		return true;
 	}
 
 	/// <summary>Returns the roll of a string dice. Accepts multiple rolls and addition, e.g. 4d2d2 + 2 should work.</summary>
 	/// <param name="expression">string to be evaluated</param>
 	/// <returns>result of evaluated string</returns>
 	public static int Roll(string expression) {
-		var strings = expression.Split(';');
+		var strings = expression.Split([';']);
 		var sum = 0;
 		foreach (var s in strings)
 		{
@@ -29,206 +37,203 @@ public static class Dice {
 				continue;
 			}
 
-			var match = _regex.Match(s);
-			if (!match.Success)
+			foreach (Match match in _regex.Matches(s))
 			{
-				continue;
-			}
+				var sides = match.Groups["sides"].Length > 0 ? int.Parse(match.Groups["sides"].Value) : 1;
+				var numdice = match.Groups["numdice"].Length > 0 ? int.Parse(match.Groups["numdice"].Value) : 0;
+				var bonus = match.Groups["bonus"].Length > 0
+					? (match.Groups["bonustype"].Value != "-" ? 1 : -1) * int.Parse(match.Groups["bonus"].Value)
+					: 0;
+				var sign = match.Groups["sign"].Length == 0 || match.Groups["sign"].Value == "+" ? 1 : -1;
 
-			var sides = match.Groups["sides"].Length > 0 ? int.Parse(match.Groups["sides"].Value) : 0;
-			var numdice = match.Groups["numdice"].Length > 0 ? int.Parse(match.Groups["numdice"].Value) : 0;
-			var bonus = match.Groups["bonus"].Length > 0
-				? (match.Groups["bonustype"].Value != "-" ? 1 : -1) * int.Parse(match.Groups["bonus"].Value)
-				: 0;
-			var sign = match.Groups["sign"].Length == 0 || match.Groups["sides"].Value == "+" ? 1 : -1;
+				var opt1 = match.Groups["mod1"].Value;
+				var opt2 = match.Groups["mod2"].Value;
+				var opt3 = match.Groups["mod3"].Value;
 
-			var opt1 = match.Groups["mod1"].Value;
-			var opt2 = match.Groups["mod2"].Value;
-			var opt3 = match.Groups["mod3"].Value;
+				bool isMin = false, isMax = false, isKeep = false, isKeepLowest = false, isRerollOnce = false, isRerollUntil = false, isExplodes = false;
+				var minMaxReference = 0;
+				var keepReference = 0;
+				var rerollReference = 0;
+				var explodesReference = 0;
 
-			bool isMin = false, isMax = false, isKeep = false, isKeepLowest = false, isRerollOnce = false, isRerollUntil = false, isExplodes = false;
-			var minMaxReference = 0;
-			var keepReference = 0;
-			var rerollReference = 0;
-			var explodesReference = 0;
-
-			// Process options
-			switch (opt1)
-			{
-				case "m":
-					isMax = false;
-					isMin = true;
-					minMaxReference = int.Parse(match.Groups["val1"].Value);
-					break;
-				case "M":
-					isMin = false;
-					isMax = true;
-					minMaxReference = int.Parse(match.Groups["val1"].Value);
-					break;
-				case "k":
-				case "K":
-					isKeep = true;
-					isKeepLowest = false;
-					keepReference = int.Parse(match.Groups["val1"].Value);
-					break;
-				case "e":
-				case "E":
-					isExplodes = true;
-					explodesReference = int.Parse(match.Groups["val1"].Value);
-					break;
-				case "l":
-				case "L":
-					isKeepLowest = true;
-					isKeep = false;
-					keepReference = int.Parse(match.Groups["val1"].Value);
-					break;
-				case "r":
-					isRerollOnce = true;
-					isRerollUntil = false;
-					rerollReference = int.Parse(match.Groups["val1"].Value);
-					break;
-				case "R":
-					isRerollOnce = false;
-					isRerollUntil = true;
-					rerollReference = int.Parse(match.Groups["val1"].Value);
-					break;
-			}
-			switch (opt2)
-			{
-				case "m":
-					isMax = false;
-					isMin = true;
-					minMaxReference = int.Parse(match.Groups["val2"].Value);
-					break;
-				case "M":
-					isMin = false;
-					isMax = true;
-					minMaxReference = int.Parse(match.Groups["val2"].Value);
-					break;
-				case "k":
-				case "K":
-					isKeep = true;
-					isKeepLowest = false;
-					keepReference = int.Parse(match.Groups["val2"].Value);
-					break;
-				case "e":
-				case "E":
-					isExplodes = true;
-					explodesReference = int.Parse(match.Groups["val2"].Value);
-					break;
-				case "l":
-				case "L":
-					isKeepLowest = true;
-					isKeep = false;
-					keepReference = int.Parse(match.Groups["val2"].Value);
-					break;
-				case "r":
-					isRerollOnce = true;
-					isRerollUntil = false;
-					rerollReference = int.Parse(match.Groups["val2"].Value);
-					break;
-				case "R":
-					isRerollOnce = false;
-					isRerollUntil = true;
-					rerollReference = int.Parse(match.Groups["val2"].Value);
-					break;
-			}
-			switch (opt3)
-			{
-				case "m":
-					isMax = false;
-					isMin = true;
-					minMaxReference = int.Parse(match.Groups["val3"].Value);
-					break;
-				case "M":
-					isMin = false;
-					isMax = true;
-					minMaxReference = int.Parse(match.Groups["val3"].Value);
-					break;
-				case "k":
-				case "K":
-					isKeep = true;
-					isKeepLowest = false;
-					keepReference = int.Parse(match.Groups["val3"].Value);
-					break;
-				case "e":
-				case "E":
-					isExplodes = true;
-					explodesReference = int.Parse(match.Groups["val3"].Value);
-					break;
-				case "l":
-				case "L":
-					isKeepLowest = true;
-					isKeep = false;
-					keepReference = int.Parse(match.Groups["val3"].Value);
-					break;
-				case "r":
-					isRerollOnce = true;
-					isRerollUntil = false;
-					rerollReference = int.Parse(match.Groups["val3"].Value);
-					break;
-				case "R":
-					isRerollOnce = false;
-					isRerollUntil = true;
-					rerollReference = int.Parse(match.Groups["val3"].Value);
-					break;
-			}
-
-			if (rerollReference == sides)
-			{
-				return 0;
-			}
-
-
-			var rolls = new List<int>(sides);
-			for (var i = 0; i < numdice; i++)
-			{
-				var roll = Constants.Random.Next(1, sides + 1);
-				if (isRerollOnce && roll <= rerollReference)
+				// Process options
+				switch (opt1)
 				{
-					roll = Constants.Random.Next(1, sides + 1);
+					case "m":
+						isMax = false;
+						isMin = true;
+						minMaxReference = int.Parse(match.Groups["val1"].Value);
+						break;
+					case "M":
+						isMin = false;
+						isMax = true;
+						minMaxReference = int.Parse(match.Groups["val1"].Value);
+						break;
+					case "k":
+					case "K":
+						isKeep = true;
+						isKeepLowest = false;
+						keepReference = int.Parse(match.Groups["val1"].Value);
+						break;
+					case "e":
+					case "E":
+						isExplodes = true;
+						explodesReference = int.Parse(match.Groups["val1"].Value);
+						break;
+					case "l":
+					case "L":
+						isKeepLowest = true;
+						isKeep = false;
+						keepReference = int.Parse(match.Groups["val1"].Value);
+						break;
+					case "r":
+						isRerollOnce = true;
+						isRerollUntil = false;
+						rerollReference = int.Parse(match.Groups["val1"].Value);
+						break;
+					case "R":
+						isRerollOnce = false;
+						isRerollUntil = true;
+						rerollReference = int.Parse(match.Groups["val1"].Value);
+						break;
 				}
-				else if (isRerollUntil && roll <= rerollReference)
+				switch (opt2)
 				{
-					i--;
-					continue;
+					case "m":
+						isMax = false;
+						isMin = true;
+						minMaxReference = int.Parse(match.Groups["val2"].Value);
+						break;
+					case "M":
+						isMin = false;
+						isMax = true;
+						minMaxReference = int.Parse(match.Groups["val2"].Value);
+						break;
+					case "k":
+					case "K":
+						isKeep = true;
+						isKeepLowest = false;
+						keepReference = int.Parse(match.Groups["val2"].Value);
+						break;
+					case "e":
+					case "E":
+						isExplodes = true;
+						explodesReference = int.Parse(match.Groups["val2"].Value);
+						break;
+					case "l":
+					case "L":
+						isKeepLowest = true;
+						isKeep = false;
+						keepReference = int.Parse(match.Groups["val2"].Value);
+						break;
+					case "r":
+						isRerollOnce = true;
+						isRerollUntil = false;
+						rerollReference = int.Parse(match.Groups["val2"].Value);
+						break;
+					case "R":
+						isRerollOnce = false;
+						isRerollUntil = true;
+						rerollReference = int.Parse(match.Groups["val2"].Value);
+						break;
+				}
+				switch (opt3)
+				{
+					case "m":
+						isMax = false;
+						isMin = true;
+						minMaxReference = int.Parse(match.Groups["val3"].Value);
+						break;
+					case "M":
+						isMin = false;
+						isMax = true;
+						minMaxReference = int.Parse(match.Groups["val3"].Value);
+						break;
+					case "k":
+					case "K":
+						isKeep = true;
+						isKeepLowest = false;
+						keepReference = int.Parse(match.Groups["val3"].Value);
+						break;
+					case "e":
+					case "E":
+						isExplodes = true;
+						explodesReference = int.Parse(match.Groups["val3"].Value);
+						break;
+					case "l":
+					case "L":
+						isKeepLowest = true;
+						isKeep = false;
+						keepReference = int.Parse(match.Groups["val3"].Value);
+						break;
+					case "r":
+						isRerollOnce = true;
+						isRerollUntil = false;
+						rerollReference = int.Parse(match.Groups["val3"].Value);
+						break;
+					case "R":
+						isRerollOnce = false;
+						isRerollUntil = true;
+						rerollReference = int.Parse(match.Groups["val3"].Value);
+						break;
 				}
 
-				rolls.Add(roll);
-
-				if (isExplodes && explodesReference <= roll)
+				if (rerollReference == sides)
 				{
-					i--;
+					return 0;
 				}
-			}
 
-			var tempSum = 0;
-			if (isKeep)
-			{
-				tempSum = rolls.OrderByDescending(x => x).Take(keepReference).Sum();
-			}
-			else if (isKeepLowest)
-			{
-				tempSum = rolls.OrderBy(x => x).Take(keepReference).Sum();
-			}
-			else
-			{
-				tempSum = rolls.Sum();
-			}
 
-			tempSum += bonus;
+				var rolls = new List<int>(sides);
+				for (var i = 0; i < numdice; i++)
+				{
+					var roll = Constants.Random.Next(1, sides + 1);
+					if (isRerollOnce && roll <= rerollReference)
+					{
+						roll = Constants.Random.Next(1, sides + 1);
+					}
+					else if (isRerollUntil && roll <= rerollReference)
+					{
+						i--;
+						continue;
+					}
 
-			if (isMax && tempSum > minMaxReference)
-			{
-				tempSum = minMaxReference;
-			}
-			else if (isMin && tempSum < minMaxReference)
-			{
-				tempSum = minMaxReference;
-			}
+					rolls.Add(roll);
 
-			tempSum *= sign;
-			sum += tempSum;
+					if (isExplodes && explodesReference <= roll)
+					{
+						i--;
+					}
+				}
+
+				var tempSum = 0;
+				if (isKeep)
+				{
+					tempSum = rolls.OrderByDescending(x => x).Take(keepReference).Sum();
+				}
+				else if (isKeepLowest)
+				{
+					tempSum = rolls.OrderBy(x => x).Take(keepReference).Sum();
+				}
+				else
+				{
+					tempSum = rolls.Sum();
+				}
+
+				tempSum += bonus;
+
+				if (isMax && tempSum > minMaxReference)
+				{
+					tempSum = minMaxReference;
+				}
+				else if (isMin && tempSum < minMaxReference)
+				{
+					tempSum = minMaxReference;
+				}
+
+				tempSum *= sign;
+				sum += tempSum;
+			}
 		}
 
 		return sum;

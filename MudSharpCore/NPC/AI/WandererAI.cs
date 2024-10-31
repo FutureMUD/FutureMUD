@@ -85,7 +85,7 @@ public class WandererAI : ArtificialIntelligenceBase
 		).ToString();
 	}
 
-	private void CreateEvaluateAffect(ICharacter character, int seconds = 10)
+	private void CreateEvaluateAffect(ICharacter character)
 	{
 		if (character.State.HasFlag(CharacterState.Dead))
 		{
@@ -103,7 +103,7 @@ public class WandererAI : ArtificialIntelligenceBase
 		}
 
 		character.AddEffect(new WandererWaiting(character, actor => EvaluateWander(character)),
-			TimeSpan.FromSeconds(seconds));
+			TimeSpan.FromSeconds(Dice.Roll(WanderTimeDiceExpression)));
 	}
 
 	private void CancelEvaluateAffect(ICharacter character)
@@ -126,21 +126,21 @@ public class WandererAI : ArtificialIntelligenceBase
 
 		if (character.Movement != null)
 		{
-			CreateEvaluateAffect(character, Dice.Roll(WanderTimeDiceExpression));
+			CreateEvaluateAffect(character);
 			return;
 		}
 
 		if (character.EffectsOfType<FollowingPath>().Any())
 		{
 			// Don't wander while following a path from other AI
-			CreateEvaluateAffect(character, Dice.Roll(WanderTimeDiceExpression));
+			CreateEvaluateAffect(character);
 			return;
 		}
 
 		if (!CharacterState.Able.HasFlag(character.State) || character.Combat != null ||
 			character.Effects.Any(x => x.IsBlockingEffect("movement")))
 		{
-			CreateEvaluateAffect(character, Dice.Roll(WanderTimeDiceExpression));
+			CreateEvaluateAffect(character);
 			return;
 		}
 
@@ -161,7 +161,7 @@ public class WandererAI : ArtificialIntelligenceBase
 
 		if (!options.Any())
 		{
-			CreateEvaluateAffect(character, Dice.Roll(WanderTimeDiceExpression));
+			CreateEvaluateAffect(character);
 			return;
 		}
 
@@ -206,7 +206,7 @@ public class WandererAI : ArtificialIntelligenceBase
 			case EventType.CharacterStopMovement:
 			case EventType.CharacterStopMovementClosedDoor:
 			case EventType.CharacterCannotMove:
-				CreateEvaluateAffect(arguments[0], Dice.Roll(WanderTimeDiceExpression));
+				CreateEvaluateAffect(arguments[0]);
 				return false;
 
 			case EventType.EngagedInCombat:
@@ -224,7 +224,7 @@ public class WandererAI : ArtificialIntelligenceBase
 					character.CurrentSpeeds[PositionStanding.Instance] = TargetMoveSpeed;
 				}
 
-				CreateEvaluateAffect(arguments[0], Dice.Roll(WanderTimeDiceExpression));
+				CreateEvaluateAffect(arguments[0]);
 				return false;
 
 			case EventType.FiveSecondTick:

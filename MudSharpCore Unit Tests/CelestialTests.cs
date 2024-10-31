@@ -13,56 +13,56 @@ using MudSharp.Models;
 using MudSharp.TimeAndDate.Date;
 using MudSharp.TimeAndDate.Time;
 
-namespace MudSharp_Unit_Tests
+namespace MudSharp_Unit_Tests;
+
+[TestClass]
+public class CelestialTests
 {
-	[TestClass]
-	public class CelestialTests
+	private static NewSun _newSun;		
+	private static IFuturemud _gameworld;
+	private static MudSharp.TimeAndDate.Date.Calendar _testCalendar;
+	private static MudSharp.TimeAndDate.Time.Clock _testClock;
+
+	[ClassInitialize]
+	public static void MyClassInitialize(TestContext testContext)
 	{
-		private static NewSun _newSun;		
-		private static IFuturemud _gameworld;
-		private static MudSharp.TimeAndDate.Date.Calendar _testCalendar;
-		private static MudSharp.TimeAndDate.Time.Clock _testClock;
+		var saveManagerMock = new Mock<ISaveManager>();
+		saveManagerMock.Setup(x => x.Add(It.IsAny<ISaveable>()));
 
-		[ClassInitialize]
-		public static void MyClassInitialize(TestContext testContext)
-		{
-			var saveManagerMock = new Mock<ISaveManager>();
-			saveManagerMock.Setup(x => x.Add(It.IsAny<ISaveable>()));
+		var clocks = new All<IClock>();
 
-			var clocks = new All<IClock>();
+		var calendars = new All<ICalendar>();
 
-			var calendars = new All<ICalendar>();
+		var mock = new Mock<IFuturemud>();
+		mock.SetupGet(t => t.Clocks).Returns(clocks);
+		mock.SetupGet(t => t.Calendars).Returns(calendars);
+		mock.SetupGet(t => t.SaveManager).Returns(saveManagerMock.Object);
+		_gameworld = mock.Object;
 
-			var mock = new Mock<IFuturemud>();
-			mock.SetupGet(t => t.Clocks).Returns(clocks);
-			mock.SetupGet(t => t.Calendars).Returns(calendars);
-			mock.SetupGet(t => t.SaveManager).Returns(saveManagerMock.Object);
-			_gameworld = mock.Object;
-
-			_testCalendar = new MudSharp.TimeAndDate.Date.Calendar(XElement.Parse(
-											 @"<calendar><alias>labmud</alias><shortname>The LabMUD Calendar</shortname><fullname>The LabMUD Calendar</fullname><description><![CDATA[The calendar used by test subjects in the Lab, and by which all dates of importance to test subjects are communicated.]]></description><shortstring>$dd/$mo/$yy $ee</shortstring><longstring>$nz$ww the $dt of $mf, year $yy $EE</longstring><wordystring>$nz$ww the $dt of $mf, year $yy $EE</wordystring><plane>earth</plane><feedclock>0</feedclock><epochyear>1</epochyear><weekdayatepoch>5</weekdayatepoch><ancienterashortstring>B.T</ancienterashortstring><ancienteralongstring>before Tranquility</ancienteralongstring><modernerashortstring>A.T</modernerashortstring><moderneralongstring>after Tranquility</moderneralongstring><weekdays><weekday>Work Day</weekday><weekday>Sports Day</weekday><weekday>Science Day</weekday><weekday>Hump Day</weekday><weekday>Garbage Day</weekday><weekday>Laundry Day</weekday><weekday>Lazy Day</weekday></weekdays><months><month><alias>archimedes</alias><shortname>arc</shortname><fullname>Archimedes</fullname><nominalorder>1</nominalorder><normaldays>28</normaldays><intercalarydays /><specialdays></specialdays><nonweekdays /></month><month><alias>brahe</alias><shortname>bra</shortname><fullname>Brahe</fullname><nominalorder>2</nominalorder><normaldays>28</normaldays><intercalarydays/><specialdays /><nonweekdays /></month><month><alias>copernicus</alias><shortname>cop</shortname><fullname>Copernicus</fullname><nominalorder>3</nominalorder><normaldays>28</normaldays><intercalarydays /><specialdays /><nonweekdays /></month><month><alias>darwin</alias><shortname>dar</shortname><fullname>Darwin</fullname><nominalorder>4</nominalorder><normaldays>28</normaldays><intercalarydays /><specialdays /><nonweekdays /></month><month><alias>einstein</alias><shortname>ein</shortname><fullname>Einstein</fullname><nominalorder>5</nominalorder><normaldays>28</normaldays><intercalarydays /><specialdays /><nonweekdays /></month><month><alias>faraday</alias><shortname>far</shortname><fullname>Faraday</fullname><nominalorder>6</nominalorder><normaldays>28</normaldays><intercalarydays /><specialdays /><nonweekdays /></month><month><alias>galileo</alias><shortname>gal</shortname><fullname>Galileo</fullname><nominalorder>7</nominalorder><normaldays>28</normaldays><intercalarydays /><specialdays /><nonweekdays /></month><month><alias>hippocrates</alias><shortname>hip</shortname><fullname>Hippocrates</fullname><nominalorder>8</nominalorder><normaldays>28</normaldays><specialdays /><intercalarydays><intercalary><insertdays>1</insertdays><specialdays><specialday day=""29"" short=""Aldrin Day"" long=""Aldrin Day"" /></specialdays><nonweekdays><nonweekday>29</nonweekday></nonweekdays><removenonweekdays /><removespecialdays /><intercalaryrule><offset>-31</offset><divisor>4</divisor><exceptions><intercalaryrule><offset>-31</offset><divisor>100</divisor><exceptions><intercalaryrule><offset>-31</offset><divisor>400</divisor><exceptions /><ands /><ors /></intercalaryrule></exceptions><ands /><ors /></intercalaryrule></exceptions><ands /><ors /></intercalaryrule></intercalary></intercalarydays><nonweekdays /></month><month><alias>imhotep</alias><shortname>imh</shortname><fullname>Imhotep</fullname><nominalorder>9</nominalorder><normaldays>28</normaldays><intercalarydays /><specialdays /><nonweekdays /></month><month><alias>jung</alias><shortname>jun</shortname><fullname>Jung</fullname><nominalorder>10</nominalorder><normaldays>28</normaldays><intercalarydays /><specialdays /><nonweekdays /></month><month><alias>kepler</alias><shortname>kep</shortname><fullname>Kepler</fullname><nominalorder>11</nominalorder><normaldays>28</normaldays><intercalarydays /><specialdays /><nonweekdays /></month><month><alias>lavoisier</alias><shortname>lav</shortname><fullname>Lavoisier</fullname><nominalorder>12</nominalorder><normaldays>28</normaldays><intercalarydays /><specialdays /><nonweekdays /></month><month><alias>mendel</alias><shortname>men</shortname><fullname>Mendel</fullname><nominalorder>13</nominalorder><normaldays>28</normaldays><intercalarydays></intercalarydays><specialdays /><nonweekdays /></month></months><intercalarymonths><intercalarymonth><position>14</position><month><alias>tranquility</alias><shortname>tra</shortname><fullname>Tranquility</fullname><nominalorder>0</nominalorder><normaldays>1</normaldays><intercalarydays/><specialdays><specialday day=""1"" short=""Armstrong Day"" long=""Armstrong Day"" /></specialdays><nonweekdays><nonweekday>1</nonweekday></nonweekdays></month><intercalaryrule><offset>0</offset><divisor>1</divisor><exceptions/><ands /><ors /></intercalaryrule></intercalarymonth></intercalarymonths></calendar>")
+		_testCalendar = new MudSharp.TimeAndDate.Date.Calendar(XElement.Parse(
+				@"<calendar><alias>labmud</alias><shortname>The LabMUD Calendar</shortname><fullname>The LabMUD Calendar</fullname><description><![CDATA[The calendar used by test subjects in the Lab, and by which all dates of importance to test subjects are communicated.]]></description><shortstring>$dd/$mo/$yy $ee</shortstring><longstring>$nz$ww the $dt of $mf, year $yy $EE</longstring><wordystring>$nz$ww the $dt of $mf, year $yy $EE</wordystring><plane>earth</plane><feedclock>0</feedclock><epochyear>1</epochyear><weekdayatepoch>5</weekdayatepoch><ancienterashortstring>B.T</ancienterashortstring><ancienteralongstring>before Tranquility</ancienteralongstring><modernerashortstring>A.T</modernerashortstring><moderneralongstring>after Tranquility</moderneralongstring><weekdays><weekday>Work Day</weekday><weekday>Sports Day</weekday><weekday>Science Day</weekday><weekday>Hump Day</weekday><weekday>Garbage Day</weekday><weekday>Laundry Day</weekday><weekday>Lazy Day</weekday></weekdays><months><month><alias>archimedes</alias><shortname>arc</shortname><fullname>Archimedes</fullname><nominalorder>1</nominalorder><normaldays>28</normaldays><intercalarydays /><specialdays></specialdays><nonweekdays /></month><month><alias>brahe</alias><shortname>bra</shortname><fullname>Brahe</fullname><nominalorder>2</nominalorder><normaldays>28</normaldays><intercalarydays/><specialdays /><nonweekdays /></month><month><alias>copernicus</alias><shortname>cop</shortname><fullname>Copernicus</fullname><nominalorder>3</nominalorder><normaldays>28</normaldays><intercalarydays /><specialdays /><nonweekdays /></month><month><alias>darwin</alias><shortname>dar</shortname><fullname>Darwin</fullname><nominalorder>4</nominalorder><normaldays>28</normaldays><intercalarydays /><specialdays /><nonweekdays /></month><month><alias>einstein</alias><shortname>ein</shortname><fullname>Einstein</fullname><nominalorder>5</nominalorder><normaldays>28</normaldays><intercalarydays /><specialdays /><nonweekdays /></month><month><alias>faraday</alias><shortname>far</shortname><fullname>Faraday</fullname><nominalorder>6</nominalorder><normaldays>28</normaldays><intercalarydays /><specialdays /><nonweekdays /></month><month><alias>galileo</alias><shortname>gal</shortname><fullname>Galileo</fullname><nominalorder>7</nominalorder><normaldays>28</normaldays><intercalarydays /><specialdays /><nonweekdays /></month><month><alias>hippocrates</alias><shortname>hip</shortname><fullname>Hippocrates</fullname><nominalorder>8</nominalorder><normaldays>28</normaldays><specialdays /><intercalarydays><intercalary><insertdays>1</insertdays><specialdays><specialday day=""29"" short=""Aldrin Day"" long=""Aldrin Day"" /></specialdays><nonweekdays><nonweekday>29</nonweekday></nonweekdays><removenonweekdays /><removespecialdays /><intercalaryrule><offset>-31</offset><divisor>4</divisor><exceptions><intercalaryrule><offset>-31</offset><divisor>100</divisor><exceptions><intercalaryrule><offset>-31</offset><divisor>400</divisor><exceptions /><ands /><ors /></intercalaryrule></exceptions><ands /><ors /></intercalaryrule></exceptions><ands /><ors /></intercalaryrule></intercalary></intercalarydays><nonweekdays /></month><month><alias>imhotep</alias><shortname>imh</shortname><fullname>Imhotep</fullname><nominalorder>9</nominalorder><normaldays>28</normaldays><intercalarydays /><specialdays /><nonweekdays /></month><month><alias>jung</alias><shortname>jun</shortname><fullname>Jung</fullname><nominalorder>10</nominalorder><normaldays>28</normaldays><intercalarydays /><specialdays /><nonweekdays /></month><month><alias>kepler</alias><shortname>kep</shortname><fullname>Kepler</fullname><nominalorder>11</nominalorder><normaldays>28</normaldays><intercalarydays /><specialdays /><nonweekdays /></month><month><alias>lavoisier</alias><shortname>lav</shortname><fullname>Lavoisier</fullname><nominalorder>12</nominalorder><normaldays>28</normaldays><intercalarydays /><specialdays /><nonweekdays /></month><month><alias>mendel</alias><shortname>men</shortname><fullname>Mendel</fullname><nominalorder>13</nominalorder><normaldays>28</normaldays><intercalarydays></intercalarydays><specialdays /><nonweekdays /></month></months><intercalarymonths><intercalarymonth><position>14</position><month><alias>tranquility</alias><shortname>tra</shortname><fullname>Tranquility</fullname><nominalorder>0</nominalorder><normaldays>1</normaldays><intercalarydays/><specialdays><specialday day=""1"" short=""Armstrong Day"" long=""Armstrong Day"" /></specialdays><nonweekdays><nonweekday>1</nonweekday></nonweekdays></month><intercalaryrule><offset>0</offset><divisor>1</divisor><exceptions/><ands /><ors /></intercalaryrule></intercalarymonth></intercalarymonths></calendar>")
 			, _gameworld)
-			{
-				Id = 1
-			};
-			_testCalendar.SetDate("3/jun/35");
+		{
+			Id = 1
+		};
+		_testCalendar.SetDate("3/jun/35");
 
-			_testClock = new MudSharp.TimeAndDate.Time.Clock(XElement.Parse(@"<Clock>  <Alias>UTC</Alias>  <Description>Universal Time Clock</Description>  <ShortDisplayString>$j:$m:$s $i</ShortDisplayString>  <SuperDisplayString>$j:$m:$s $i $t</SuperDisplayString>  <LongDisplayString>$c $i</LongDisplayString>  <SecondsPerMinute>60</SecondsPerMinute>  <MinutesPerHour>60</MinutesPerHour>  <HoursPerDay>24</HoursPerDay>  <InGameSecondsPerRealSecond>2</InGameSecondsPerRealSecond>  <SecondFixedDigits>2</SecondFixedDigits>  <MinuteFixedDigits>2</MinuteFixedDigits>  <HourFixedDigits>0</HourFixedDigits>  <NoZeroHour>true</NoZeroHour>  <NumberOfHourIntervals>2</NumberOfHourIntervals>  <HourIntervalNames>    <HourIntervalName>a.m</HourIntervalName>    <HourIntervalName>p.m</HourIntervalName>  </HourIntervalNames>  <HourIntervalLongNames>    <HourIntervalLongName>in the morning</HourIntervalLongName>    <HourIntervalLongName>in the afternoon</HourIntervalLongName>  </HourIntervalLongNames>  <CrudeTimeIntervals>    <CrudeTimeInterval text=""night"" Lower=""-2"" Upper=""4""/>    <CrudeTimeInterval text=""morning"" Lower=""4"" Upper=""12""/>    <CrudeTimeInterval text=""afternoon"" Lower=""12"" Upper=""18""/>    <CrudeTimeInterval text=""evening"" Lower=""18"" Upper=""22""/>  </CrudeTimeIntervals></Clock>"), 
-				_gameworld,
-				new MudTimeZone(1, 0, 0, "UTC+0", "utc"), 
-				12,
-				0,
-				0
-				) { Id = 1 };
+		_testClock = new MudSharp.TimeAndDate.Time.Clock(XElement.Parse(@"<Clock>  <Alias>UTC</Alias>  <Description>Universal Time Clock</Description>  <ShortDisplayString>$j:$m:$s $i</ShortDisplayString>  <SuperDisplayString>$j:$m:$s $i $t</SuperDisplayString>  <LongDisplayString>$c $i</LongDisplayString>  <SecondsPerMinute>60</SecondsPerMinute>  <MinutesPerHour>60</MinutesPerHour>  <HoursPerDay>24</HoursPerDay>  <InGameSecondsPerRealSecond>2</InGameSecondsPerRealSecond>  <SecondFixedDigits>2</SecondFixedDigits>  <MinuteFixedDigits>2</MinuteFixedDigits>  <HourFixedDigits>0</HourFixedDigits>  <NoZeroHour>true</NoZeroHour>  <NumberOfHourIntervals>2</NumberOfHourIntervals>  <HourIntervalNames>    <HourIntervalName>a.m</HourIntervalName>    <HourIntervalName>p.m</HourIntervalName>  </HourIntervalNames>  <HourIntervalLongNames>    <HourIntervalLongName>in the morning</HourIntervalLongName>    <HourIntervalLongName>in the afternoon</HourIntervalLongName>  </HourIntervalLongNames>  <CrudeTimeIntervals>    <CrudeTimeInterval text=""night"" Lower=""-2"" Upper=""4""/>    <CrudeTimeInterval text=""morning"" Lower=""4"" Upper=""12""/>    <CrudeTimeInterval text=""afternoon"" Lower=""12"" Upper=""18""/>    <CrudeTimeInterval text=""evening"" Lower=""18"" Upper=""22""/>  </CrudeTimeIntervals></Clock>"), 
+			_gameworld,
+			new MudTimeZone(1, 0, 0, "UTC+0", "utc"), 
+			12,
+			0,
+			0
+		) { Id = 1 };
 
-			_testCalendar.FeedClock = _testClock;
+		_testCalendar.FeedClock = _testClock;
 
 			
 
-			clocks.Add(_testClock);
-			calendars.Add(_testCalendar);
+		clocks.Add(_testClock);
+		calendars.Add(_testCalendar);
 
-			_newSun = new NewSun(new Celestial
+		_newSun = new NewSun(new Celestial
 			{
 				Id = 1,
 				CelestialYear = 0,
@@ -139,63 +139,62 @@ namespace MudSharp_Unit_Tests
    </AzimuthDescriptions>
  </Sun>"
 			},
-				_gameworld
-			);
-		}
+			_gameworld
+		);
+	}
 
-		[TestMethod]
-		public void TestOrbitalMathematics()
-		{
-			Assert.AreEqual(2453097, _newSun.CurrentDayNumber, 0.005, "Day Number");
-			Assert.AreEqual(1.521591, _newSun.MeanAnomaly(_newSun.CurrentDayNumber), 0.005);
-			Assert.AreEqual(1.555004855, _newSun.TrueAnomaly(_newSun.CurrentDayNumber), 0.005);
-			var geography = new GeographicCoordinate(0.907571, 0.08727, 0.0, 0.0);
-			var currentInfo = _newSun.CurrentPosition(geography);
-			Assert.AreEqual(0.744438, currentInfo.LastAscensionAngle, 0.005, "Ascension Angle");
-			Assert.AreEqual(0.089199, currentInfo.LastAzimuthAngle, 0.005, "Azimuth");
+	[TestMethod]
+	public void TestOrbitalMathematics()
+	{
+		Assert.AreEqual(2453097, _newSun.CurrentDayNumber, 0.005, "Day Number");
+		Assert.AreEqual(1.521591, _newSun.MeanAnomaly(_newSun.CurrentDayNumber), 0.005);
+		Assert.AreEqual(1.555004855, _newSun.TrueAnomaly(_newSun.CurrentDayNumber), 0.005);
+		var geography = new GeographicCoordinate(0.907571, 0.08727, 0.0, 0.0);
+		var currentInfo = _newSun.CurrentPosition(geography);
+		Assert.AreEqual(0.744438, currentInfo.LastAscensionAngle, 0.005, "Ascension Angle");
+		Assert.AreEqual(0.089199, currentInfo.LastAzimuthAngle, 0.005, "Azimuth");
 
-			geography = new GeographicCoordinate(0, 0, 0.0, 0.0);
-			_testClock.CurrentTime.SetTime(18, 59, 17);
-			var dn1 = _newSun.CurrentDayNumber;
-			var ha1 = _newSun.HourAngle(dn1, geography);
-			var st1 = _newSun.SiderealTime(dn1, geography);
-			var ra1 = _newSun.RightAscension(dn1);
-			var aa1 = _newSun.Altitude(dn1, geography);
+		geography = new GeographicCoordinate(0, 0, 0.0, 0.0);
+		_testClock.CurrentTime.SetTime(18, 59, 17);
+		var dn1 = _newSun.CurrentDayNumber;
+		var ha1 = _newSun.HourAngle(dn1, geography);
+		var st1 = _newSun.SiderealTime(dn1, geography);
+		var ra1 = _newSun.RightAscension(dn1);
+		var aa1 = _newSun.Altitude(dn1, geography);
 
-			_testClock.CurrentTime.SetTime(19, 0, 0);
-			var dn2 = _newSun.CurrentDayNumber;
-			var ha2 = _newSun.HourAngle(dn2, geography);
-			var st2 = _newSun.SiderealTime(dn2, geography);
-			var ra2 = _newSun.RightAscension(dn2);
-			var aa2 = _newSun.Altitude(dn2, geography);
+		_testClock.CurrentTime.SetTime(19, 0, 0);
+		var dn2 = _newSun.CurrentDayNumber;
+		var ha2 = _newSun.HourAngle(dn2, geography);
+		var st2 = _newSun.SiderealTime(dn2, geography);
+		var ra2 = _newSun.RightAscension(dn2);
+		var aa2 = _newSun.Altitude(dn2, geography);
 
-			_testClock.CurrentTime.SetTime(19, 1, 0);
-			var dn3 = _newSun.CurrentDayNumber;
-			var ha3 = _newSun.HourAngle(dn3, geography);
-			var st3 = _newSun.SiderealTime(dn3, geography);
-			var ra3 = _newSun.RightAscension(dn3);
-			var aa3 = _newSun.Altitude(dn3, geography);
+		_testClock.CurrentTime.SetTime(19, 1, 0);
+		var dn3 = _newSun.CurrentDayNumber;
+		var ha3 = _newSun.HourAngle(dn3, geography);
+		var st3 = _newSun.SiderealTime(dn3, geography);
+		var ra3 = _newSun.RightAscension(dn3);
+		var aa3 = _newSun.Altitude(dn3, geography);
 
-			_testClock.CurrentTime.SetTime(19, 2, 0);
-			var dn4 = _newSun.CurrentDayNumber;
-			var ha4 = _newSun.HourAngle(dn4, geography);
-			var st4 = _newSun.SiderealTime(dn4, geography);
-			var ra4 = _newSun.RightAscension(dn4);
-			var aa4 = _newSun.Altitude(dn4, geography);
+		_testClock.CurrentTime.SetTime(19, 2, 0);
+		var dn4 = _newSun.CurrentDayNumber;
+		var ha4 = _newSun.HourAngle(dn4, geography);
+		var st4 = _newSun.SiderealTime(dn4, geography);
+		var ra4 = _newSun.RightAscension(dn4);
+		var aa4 = _newSun.Altitude(dn4, geography);
 
-			_testClock.CurrentTime.SetTime(19, 3, 0);
-			var dn5 = _newSun.CurrentDayNumber;
-			var ha5 = _newSun.HourAngle(dn5, geography);
-			var st5 = _newSun.SiderealTime(dn5, geography);
-			var ra5 = _newSun.RightAscension(dn5);
-			var aa5 = _newSun.Altitude(dn5, geography);
+		_testClock.CurrentTime.SetTime(19, 3, 0);
+		var dn5 = _newSun.CurrentDayNumber;
+		var ha5 = _newSun.HourAngle(dn5, geography);
+		var st5 = _newSun.SiderealTime(dn5, geography);
+		var ra5 = _newSun.RightAscension(dn5);
+		var aa5 = _newSun.Altitude(dn5, geography);
 
-			_testClock.CurrentTime.SetTime(19, 4, 0);
-			var dn6 = _newSun.CurrentDayNumber;
-			var ha6 = _newSun.HourAngle(dn6, geography);
-			var st6 = _newSun.SiderealTime(dn6, geography);
-			var ra6 = _newSun.RightAscension(dn6);
-			var aa6 = _newSun.Altitude(dn6, geography);
-		}
+		_testClock.CurrentTime.SetTime(19, 4, 0);
+		var dn6 = _newSun.CurrentDayNumber;
+		var ha6 = _newSun.HourAngle(dn6, geography);
+		var st6 = _newSun.SiderealTime(dn6, geography);
+		var ra6 = _newSun.RightAscension(dn6);
+		var aa6 = _newSun.Altitude(dn6, geography);
 	}
 }

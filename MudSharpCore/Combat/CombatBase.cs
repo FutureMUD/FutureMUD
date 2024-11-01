@@ -143,17 +143,17 @@ public abstract class CombatBase : ICombat
 		}
 
 		if (character.State.HasFlag(CharacterState.Sleeping) || character.State.HasFlag(CharacterState.Unconscious) ||
-		    character.State.HasFlag(CharacterState.Paralysed) ||
-		    character.CombatStrategyMode == CombatStrategyMode.Flee)
+			character.State.HasFlag(CharacterState.Paralysed) ||
+			character.CombatStrategyMode == CombatStrategyMode.Flee)
 		{
 			return true;
 		}
 
 		var maxRangedDistance = character.Body.WieldedItems
-		                                 .SelectNotNull(y => y.GetItemType<IRangedWeapon>())
-		                                 .Select(y => (int)y.WeaponType.DefaultRangeInRooms)
-		                                 .DefaultIfEmpty(0)
-		                                 .Max();
+										 .SelectNotNull(y => y.GetItemType<IRangedWeapon>())
+										 .Select(y => (int)y.WeaponType.DefaultRangeInRooms)
+										 .DefaultIfEmpty(0)
+										 .Max();
 
 		var distance = character.DistanceBetween(who, 5);
 		if (distance == -1)
@@ -167,7 +167,7 @@ public abstract class CombatBase : ICombat
 		}
 
 		if (maxRangedDistance == 0 && who.Location == opponent.Location && !who.ColocatedWith(opponent) &&
-		    !opponent.CouldTransitionToLayer(who.RoomLayer))
+			!opponent.CouldTransitionToLayer(who.RoomLayer))
 		{
 			return true;
 		}
@@ -337,7 +337,7 @@ public abstract class CombatBase : ICombat
 			$"Combat Delay {perceiver.HowSeen(perceiver, colour: false, flags: PerceiveIgnoreFlags.IgnoreSelf)}: {time}");
 		return time;
 #else
-            return TimeSpan.FromSeconds(baseTime*RecoveryTimeExpression.Evaluate(haveTraits)*CombatSpeedMultiplier);
+			return TimeSpan.FromSeconds(baseTime*RecoveryTimeExpression.Evaluate(haveTraits)*CombatSpeedMultiplier);
 #endif
 	}
 
@@ -376,7 +376,7 @@ public abstract class CombatBase : ICombat
 		}
 
 		if (perceiver.CombatTarget is ICharacter tcharacter && tcharacter.Race.RaceUsesStamina &&
-		    (targetResponse?.UsesStaminaWithResult(result) ?? false))
+			(targetResponse?.UsesStaminaWithResult(result) ?? false))
 		{
 #if DEBUG
 			Console.WriteLine(
@@ -385,7 +385,7 @@ public abstract class CombatBase : ICombat
 			tcharacter.SpendStamina(targetResponse.StaminaCost);
 		}
 
-		if (!perceiver.CombatTarget?.CheckCombatStatus() ?? false)
+		if (perceiver.CombatTarget?.CheckCombatStatus() == false)
 		{
 			LeaveCombat(perceiver.CombatTarget);
 			return;
@@ -443,7 +443,7 @@ public abstract class CombatBase : ICombat
 	private void CheckCombatEndingConditions(ICharacter combatant)
 	{
 		if (combatant.State.HasFlag(CharacterState.Unconscious) || combatant.State.HasFlag(CharacterState.Sleeping) ||
-		    combatant.CombatStrategyMode == CombatStrategyMode.Flee)
+			combatant.CombatStrategyMode == CombatStrategyMode.Flee)
 		{
 			if (CanFreelyLeaveCombat(combatant))
 			{
@@ -467,7 +467,7 @@ public abstract class CombatBase : ICombat
 				}
 
 				if (results.Any(x =>
-					    (x.CombatTarget == other && x.MeleeRange) || (other.CombatTarget == x && other.MeleeRange)))
+						(x.CombatTarget == other && x.MeleeRange) || (other.CombatTarget == x && other.MeleeRange)))
 				{
 					found = true;
 					results.Add(other);

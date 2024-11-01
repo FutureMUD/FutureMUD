@@ -17,6 +17,11 @@ public class DiceTests
 		Assert.IsTrue(Dice.IsDiceExpression("4d6k3;5;-2;1d6"));
 		Assert.IsFalse(Dice.IsDiceExpression("text"));
 		Assert.IsFalse(Dice.IsDiceExpression("1/2"));
+	}
+
+	[TestMethod]
+	public void TestDiceRoll()
+	{
 
 		for (var i = 0; i < 1000; i++)
 		{

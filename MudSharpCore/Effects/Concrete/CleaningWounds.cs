@@ -69,6 +69,11 @@ public class CleaningWounds : CharacterActionWithTarget, IAffectProximity
 		var antisepticWounds = wounds.Where(x => x.CanBeTreated(TreatmentType.Antiseptic) != Difficulty.Impossible)
 		                             .ToList();
 		var worstWound = antisepticWounds.FirstMax(x => x.Severity);
+		if (worstWound is null)
+		{
+			CharacterOwner.OutputHandler.Send(new EmoteOutput(new Emote("@ $0|have|has no more wounds that can be treated with antiseptic, but still $0|have|has wounds that could benefit from regular cleaning.", TargetCharacter, TargetCharacter)));
+			return;
+		}
 		worstWound.Treat(CharacterOwner, TreatmentType.Antiseptic, treatmentItem,
 			check.Check(CharacterOwner, worstWound.CanBeTreated(TreatmentType.Antiseptic)), false);
 	}
@@ -78,6 +83,11 @@ public class CleaningWounds : CharacterActionWithTarget, IAffectProximity
 		var cleanWounds = wounds.Where(x => x.CanBeTreated(TreatmentType.Clean) != Difficulty.Impossible)
 		                        .ToList();
 		var worstWound = cleanWounds.FirstMax(x => x.Severity);
+		if (worstWound is null)
+		{
+			CharacterOwner.OutputHandler.Send(new EmoteOutput(new Emote("@ $0|have|has no more wounds that can benefit from cleaning, but still $0|have|has wounds that could benefit from antiseptic treatment.", TargetCharacter, TargetCharacter)));
+			return;
+		}
 		worstWound.Treat(CharacterOwner, TreatmentType.Clean, treatmentItem,
 			check.Check(CharacterOwner, worstWound.CanBeTreated(TreatmentType.Clean)), false);
 	}

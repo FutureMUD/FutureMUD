@@ -1477,7 +1477,7 @@ You can use the following subcommands:
 				ShardEdit(actor, ss);
 				break;
 			default:
-				actor.OutputHandler.Send(ShardHelpText);
+				actor.OutputHandler.Send(ShardHelpText.SubstituteANSIColour());
 				return;
 		}
 	}

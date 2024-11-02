@@ -163,7 +163,7 @@ public class ExploratorySurgery : BodypartSpecificSurgicalProcedure
 		if (wounds.Any())
 		{
 			sb.AppendLine(
-				$"{apparentGender.Subjective(true)} has the following internal injuries in {apparentGender.Possessive(true)} {bodypart.FullDescription()}:");
+				$"{apparentGender.Subjective(true)} has the following internal injuries in {apparentGender.Possessive()} {bodypart.FullDescription()}:");
 			foreach (var organ in wounds.GroupBy(x => x.Bodypart as IOrganProto))
 			{
 				sb.AppendLine($"\tOn {organ.Key?.FullDescription().TitleCase() ?? "Unknown"}:");
@@ -176,7 +176,7 @@ public class ExploratorySurgery : BodypartSpecificSurgicalProcedure
 		else
 		{
 			sb.AppendLine(
-				$"{apparentGender.Subjective(true)} has no internal injuries in {apparentGender.Possessive(true)} {bodypart.FullDescription()}.");
+				$"{apparentGender.Subjective(true)} has no internal injuries in {apparentGender.Possessive()} {bodypart.FullDescription()}.");
 		}
 
 		var bleeding =
@@ -196,7 +196,7 @@ public class ExploratorySurgery : BodypartSpecificSurgicalProcedure
 		else
 		{
 			sb.AppendLine(
-				$"{apparentGender.Subjective(true)} is not bleeding internally in {apparentGender.Possessive(true)} {bodypart.FullDescription()}.");
+				$"{apparentGender.Subjective(true)} is not bleeding internally in {apparentGender.Possessive()} {bodypart.FullDescription()}.");
 		}
 
 		var infections = patient.Body.PartInfections
@@ -205,7 +205,7 @@ public class ExploratorySurgery : BodypartSpecificSurgicalProcedure
 		if (infections.Any())
 		{
 			sb.AppendLine
-				($"{apparentGender.Subjective(true)} has the following internal infections in {apparentGender.Possessive(false)} {bodypart.FullDescription()}.");
+				($"{apparentGender.Subjective(true)} has the following internal infections in {apparentGender.Possessive()} {bodypart.FullDescription()}.");
 			foreach (var infection in infections)
 			{
 				sb.AppendLine(

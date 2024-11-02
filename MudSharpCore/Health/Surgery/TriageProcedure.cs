@@ -30,7 +30,7 @@ public class TriageProcedure : SurgicalProcedure
 
 	public override CheckType Check => CheckType.TriageCheck;
 
-	public override SurgicalProcedureType Procedure => SurgicalProcedureType.DetailedExamination;
+	public override SurgicalProcedureType Procedure => SurgicalProcedureType.Triage;
 
 	public override Difficulty GetProcedureDifficulty(ICharacter surgeon, ICharacter patient,
 		params object[] additionalArguments)

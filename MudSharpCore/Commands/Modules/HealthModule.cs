@@ -1327,7 +1327,7 @@ The syntax is as follows:
 	#3surgery edit <which>#0 - begins editing a surgery
 	#3surgery edit#0 - an alias for #3surgery show#0 on your edited surgery
 	#3surgery close#0 - stops editing a surgery
-	#3surgery new <type> <name> <school> <knowledge>#0 - creates a new surgical procedure
+	#3surgery edit new <type> <bodytype> <knowledge> <school> <name> <gerund>#0 - creates a new surgical procedure
 	#3surgery set ...#0 - edits the parameters of the surgery";
 
 	[PlayerCommand("Surgery", "surgery")]
@@ -1445,6 +1445,8 @@ The syntax is as follows:
 			{
 				actor.OutputHandler.Send("Which medical school should this surgery belong to?");
 			}
+
+			return;
 		}
 
 		var school = ss.PopSpeech();

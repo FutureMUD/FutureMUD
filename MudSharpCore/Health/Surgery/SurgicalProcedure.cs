@@ -410,8 +410,7 @@ public abstract class SurgicalProcedure : SaveableItem, ISurgicalProcedure
 								surgeon,
 								patient)));
 						Gameworld.GetCheck(Check).Check(surgeon,
-							GetProcedureDifficulty(surgeon, patient, CheckTrait,
-								additionalArguments),
+							GetProcedureDifficulty(surgeon, patient, additionalArguments),
 							patient);
 						phase.OnPhaseProg?.Execute(surgeon, patient);
 					}),

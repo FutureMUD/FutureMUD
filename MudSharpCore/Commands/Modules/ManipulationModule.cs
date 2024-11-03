@@ -37,7 +37,7 @@ internal class ManipulationModule : Module<ICharacter>
 {
 	private static readonly Regex EatRegex =
 		new(
-			"^(?:(?:(?<all>all)|(?<bites>\\d+))\\s+)*(?<yield>yield\\s+)*(?<food>[a-z0-9.]+)(?: from (?<container>[a-z0-9.]+))*(?: on (?<table>[a-z0-9.]+))*(?: \\((?<emote>.+)\\))*$",
+			@"^(?:(?:(?<all>all)|(?<bites>\d+))\s+)*(?<yield>yield\s+)*(?<food>[a-z0-9.]+)(?: from (?<container>[a-z0-9.]+))*(?: on (?<table>[a-z0-9.]+))*(?: \((?<emote>.+)\))*$",
 			RegexOptions.IgnoreCase);
 
 	private static readonly Regex DrinkCommandRegex =
@@ -1211,17 +1211,19 @@ The syntax is #3inject <item> <target> <bodypart> [<amount>]#0.", AutoHelp.HelpA
 	[NoMovementCommand]
 	[NoMeleeCombatCommand]
 	[NoHideCommand]
+	[HelpInfo("feed", @"The #3feed#0 command is used to give food, drink or medicine to someone else (either willing or unable to object). 
+
+If the target is able to object, they will have to accept your help. You must be holding the food, medicine or liquid container.
+
+You can use the following syntaxes with this command:
+
+	#3feed <target> <food/medicine>#0 - give food or medicine to a target
+	#3feed <target> from <liquid container>#0 - give a drink to the target", AutoHelp.HelpArgOrNoArg)]
 	protected static void Feed(ICharacter character, string command)
 	{
 		var ss = new StringStack(command.RemoveFirstWord());
-		if (ss.IsFinished || ss.Peek().EqualTo("help") || ss.Peek().EqualTo("?"))
-		{
-			character.Send(
-				$"The syntax is {"feed <target> <food/pill>".Colour(Telnet.Yellow)} or {"feed <target> from <liquidcontainer>".Colour(Telnet.Yellow)}.");
-			return;
-		}
-
-		var target = character.TargetActor(ss.Pop());
+		
+		var target = character.TargetActor(ss.PopSpeech());
 		if (target == null)
 		{
 			character.Send("You don't see anyone like that to feed.");
@@ -1235,16 +1237,16 @@ The syntax is #3inject <item> <target> <bodypart> [<amount>]#0.", AutoHelp.HelpA
 		}
 
 		PlayerEmote emote = null;
-		if (ss.Peek().EqualTo("from"))
+		if (ss.PeekSpeech().EqualTo("from"))
 		{
-			ss.Pop();
+			ss.PopSpeech();
 			if (ss.IsFinished)
 			{
 				character.Send("Force them to drink from what?");
 				return;
 			}
 
-			var container = character.TargetHeldItem(ss.Pop());
+			var container = character.TargetHeldItem(ss.PopSpeech());
 			if (container == null)
 			{
 				character.Send("You aren't holding anything like that to force someone to drink from.");
@@ -1279,7 +1281,7 @@ The syntax is #3inject <item> <target> <bodypart> [<amount>]#0.", AutoHelp.HelpA
 
 			void ExecuteForceLiquid()
 			{
-				if (target.Location != character.Location)
+				if (target.Location != character.Location || target.RoomLayer != character.RoomLayer)
 				{
 					target.Send("You are no longer in the same location as the person who was going to feed you.");
 					return;
@@ -1366,7 +1368,7 @@ The syntax is #3inject <item> <target> <bodypart> [<amount>]#0.", AutoHelp.HelpA
 			return;
 		}
 
-		var item = character.TargetHeldItem(ss.Pop());
+		var item = character.TargetHeldItem(ss.PopSpeech());
 		if (item == null)
 		{
 			character.Send("You don't have anything like that to feed to them.");
@@ -1491,6 +1493,16 @@ The syntax is #3inject <item> <target> <bodypart> [<amount>]#0.", AutoHelp.HelpA
 	[PlayerCommand("Swallow", "swallow")]
 	[RequiredCharacterState(CharacterState.Able)]
 	[DelayBlock("general", "You must first stop {0} before you can do that.")]
+	[HelpInfo("swallow", @"The #3swallow#0 command is used to swallow a pill or other solid medicine.
+
+You can swallow pills directly out of containers, including containers on tables.
+
+The syntax is as follows:
+
+	#3swallow <pill>#0 - swallow a pill that you are holding
+	#3swallow <pill> from <container>#0 - swallow a pill from a container you're holding
+	#3swallow <pill> on <table>#0 - swallow a pill that is sitting on a table
+	#3swallow <pill> from <container> on <table>#0 - swallow a pill from a container on a table", AutoHelp.HelpArgOrNoArg)]
 	protected static void Swallow(ICharacter character, string command)
 	{
 		var ss = new StringStack(command.RemoveFirstWord());
@@ -1649,9 +1661,29 @@ The syntax is #3inject <item> <target> <bodypart> [<amount>]#0.", AutoHelp.HelpA
 		character.Eat(yield, bites, emote);
 	}
 
+	public const string EatHelpText = @"The #3eat#0 command is used to make your character eat food.
+
+You can eat food directly from containers, including containers on tables (e.g. a dinner plate). Some characters might be able to eat ""yield"" directly from the room, like vegetation.
+
+The core syntax for this command is as follows:
+
+	#3eat <food>#0 - eat a bite of some food
+	#3eat all <food>#0 - eat all bites of a particular food item
+	#3eat <##bites> <food>#0 - eat a certain number of bites of a food item
+	#3eat [all|<##bites>] <food> from <container>#0 - eats food (as above) from a container
+	#3eat [all|<##bites>] <food> on <table>#0 - eats food (as above) from a table
+	#3eat [all|<##bites>] <food> from <container> on <table>#0 - eats food (as above) from a container on a table
+
+Additionally, if you can eat foragable yields, the syntax is as per below:
+
+	#3eat yield <which>#0 - eats a bite of a yield directly from a room (if permitted)
+	#3eat all yield <which>#0 - eats all bites of a yield directly from a room
+	#3eat <##bites> yield <which>#0 - eats a certain number of bites of yield from a room";
+
 	[PlayerCommand("Eat", "eat")]
 	[RequiredCharacterState(CharacterState.Able)]
 	[DelayBlock("general", "You must first stop {0} before you can do that.")]
+	[HelpInfo("eat", EatHelpText, AutoHelp.HelpArgOrNoArg)]
 	protected static void Eat(ICharacter character, string command)
 	{
 		var ss = new StringStack(command.RemoveFirstWord());
@@ -1664,10 +1696,7 @@ The syntax is #3inject <item> <target> <bodypart> [<amount>]#0.", AutoHelp.HelpA
 		var match = EatRegex.Match(command.RemoveFirstWord());
 		if (!match.Success)
 		{
-			character.Send("The correct syntax is {0} or {1}.",
-				"eat all|[<bites>] <food> [from <container>] [on <table>]".ColourCommand(),
-				"eat all|[<bites>] yield <yield type>".ColourCommand()
-			);
+			character.OutputHandler.Send(EatHelpText.SubstituteANSIColour());
 			return;
 		}
 
@@ -1819,9 +1848,21 @@ The syntax is #3inject <item> <target> <bodypart> [<amount>]#0.", AutoHelp.HelpA
 		}
 	}
 
+	public const string DrinkHelpText = @"The #3drink#0 command is used to make your character drink a liquid. You can drink directly from beverage containers that are on tables. If you don't specify a quantity to drink, you will drink approximately 30ml/1oz.
+
+The core syntax for this command is as follows:
+
+	#3drink <container>#0 - drink a sip from a liquid container
+	#3drink <amount> <container>#0 - drink an amount from a liquid container
+	#3drink <container> on <table>#0 - drink a sip from a liquid container on a table
+	#3drink <amount> <container> on <table>#0 - drink an amount from a liquid container on a table
+
+#6Note - for the amount, you can either use a quantity with units (e.g. 30ml/1oz) or if you use a number, it's a multiplier of the default sip amount.#0";
+
 	[PlayerCommand("Drink", "drink")]
 	[RequiredCharacterState(CharacterState.Able)]
 	[DelayBlock("general", "You must first stop {0} before you can do that.")]
+	[HelpInfo("drink", DrinkHelpText, AutoHelp.HelpArgOrNoArg)]
 	protected static void Drink(ICharacter character, string command)
 	{
 		var text = command.RemoveFirstWord();
@@ -1834,8 +1875,7 @@ The syntax is #3inject <item> <target> <bodypart> [<amount>]#0.", AutoHelp.HelpA
 		var match = DrinkCommandRegex.Match(text);
 		if (!match.Success)
 		{
-			character.Send("There correct syntax is {0}.",
-				"drink <liquid container> [<amount>] [on <table>]".Colour(Telnet.Yellow));
+			character.OutputHandler.Send(DrinkHelpText.SubstituteANSIColour());
 			return;
 		}
 
@@ -1900,12 +1940,19 @@ The syntax is #3inject <item> <target> <bodypart> [<amount>]#0.", AutoHelp.HelpA
 		var amount = character.Gameworld.GetStaticDouble("DefaultSipAmount");
 		if (!string.IsNullOrEmpty(match.Groups["amount"].Value))
 		{
-			amount = character.Gameworld.UnitManager.GetBaseUnits(match.Groups["amount"].Value.Trim(),
-				UnitType.FluidVolume, out var success);
-			if (!success || amount <= 0.0)
+			if (double.TryParse(match.Groups["amount"].Value, out var multiplier) && multiplier > 0.0)
 			{
-				character.Send("That is not a valid amount to drink.");
-				return;
+				amount *= multiplier;
+			}
+			else
+			{
+				amount = character.Gameworld.UnitManager.GetBaseUnits(match.Groups["amount"].Value.Trim(),
+					UnitType.FluidVolume, out var success);
+				if (!success || amount <= 0.0)
+				{
+					character.Send($"The text {match.Groups["amount"].Value.ColourCommand()} is not a valid amount to drink.");
+					return;
+				}
 			}
 		}
 
@@ -1935,11 +1982,21 @@ The syntax is #3inject <item> <target> <bodypart> [<amount>]#0.", AutoHelp.HelpA
 		character.Drink(targetAsDrink, targetTable?.GetItemType<ITable>(), amount, emote);
 	}
 
+	public const string FillHelpText = @"The #3fill#0 command allows you fill up one liquid container from another, or some other source of liquid like a river or puddle.
+
+The syntax to use this command is as follows:
+
+	#3fill <vessel> <from vessel>#0 - fills as much liquid as possible into the vessel from another
+	#3fill <vessel> <from vessel> <amount>#0 - fills a specific amount of liquid from one vessel to another
+	#3fill <vessel> <character> <from vessel>#0 - fills as much liquid as possible into the vessel from another held by someone else
+	#3fill <vessel> <character> <from vessel> <amount>#0 - fills a specific amount of liquid from one vessel held by someone else to another";
+
 	[PlayerCommand("Fill", "fill")]
 	[RequiredCharacterState(CharacterState.Able)]
 	[DelayBlock("general", "You must first stop {0} before you can do that.")]
 	[NoHideCommand]
 	[NoCombatCommand]
+	[HelpInfo("fill", FillHelpText, AutoHelp.HelpArgOrNoArg)]
 	protected static void Fill(ICharacter character, string command)
 	{
 		var text = command.RemoveFirstWord();
@@ -1952,8 +2009,7 @@ The syntax is #3inject <item> <target> <bodypart> [<amount>]#0.", AutoHelp.HelpA
 		var match = FillCommandRegex.Match(text);
 		if (!match.Success)
 		{
-			character.Send("The correct syntax is {0}.",
-				"fill <vessel> [<from owner>] <from> [<amount>]".Colour(Telnet.Yellow));
+			character.OutputHandler.Send(FillHelpText.SubstituteANSIColour());
 			return;
 		}
 
@@ -2114,7 +2170,12 @@ The syntax is #3inject <item> <target> <bodypart> [<amount>]#0.", AutoHelp.HelpA
 	[DelayBlock("general", "You must first stop {0} before you can do that.")]
 	[NoHideCommand]
 	[HelpInfo("empty",
-		"This command allows you to empty out the contents of a container, or pour liquid out of a liquid container. The syntax is empty <container> [<other container>] to empty the contents of a container (optionally into another container or another person's container), or empty <liquid container> [<amount>] to tip liquid from a liquid container onto the ground.",
+		@"The #3empty#0 command allows you to empty out the contents of a container, or pour liquid out of a liquid container. 
+
+The syntax is as follows:
+
+	#3empty <container> [<other container>]#0 - empty the contents of a container (optionally into another container or another person's container)
+	#3empty <liquid container> [<amount>]#0 - tip liquid from a liquid container onto the ground.",
 		AutoHelp.HelpArgOrNoArg)]
 	protected static void Empty(ICharacter actor, string command)
 	{
@@ -2272,7 +2333,11 @@ The syntax is #3inject <item> <target> <bodypart> [<amount>]#0.", AutoHelp.HelpA
 	[DelayBlock("general", "You must first stop {0} before you can do that.")]
 	[NoHideCommand]
 	[HelpInfo("pour",
-		"This command allows you to pour liquid from one vessel to another. The syntax is POUR [<amount>] <container> INTO <other>.",
+		@"The #3pour#0 command allows you to pour liquid from one vessel to another. You must be holding the container you want to pour from.
+
+The syntax is as follows:
+
+	#3pour [<amount>] <container> into <other>#0 - pour liquid from one container to another",
 		AutoHelp.HelpArgOrNoArg)]
 	protected static void Pour(ICharacter actor, string command)
 	{
@@ -2405,17 +2470,24 @@ The syntax is #3inject <item> <target> <bodypart> [<amount>]#0.", AutoHelp.HelpA
 		intoItemContainer.MergeLiquid(fromItemContainer.RemoveLiquidAmount(amount, actor, "pour"), actor, "pour");
 	}
 
+	public const string SpillHelpText = @"The #3spill#0 command allows you to spill liquid from a container onto a person or object. You must be holding the container that you wish to spill.
+
+The syntax is as follows:
+
+	#3spill <vessel> <target> [<amount>]#0 - spill all (or some amount) of liquid onto a target";
+
 	[PlayerCommand("Spill", "spill")]
 	[RequiredCharacterState(CharacterState.Able)]
 	[DelayBlock("general", "You must first stop {0} before you can do that.")]
 	[NoMovementCommand]
 	[NoCombatCommand]
+	[HelpInfo("spill", SpillHelpText, AutoHelp.HelpArgOrNoArg)]
 	protected static void Spill(ICharacter character, string command)
 	{
 		var match = SpillCommandRegex.Match(command.RemoveFirstWord());
 		if (!match.Success)
 		{
-			character.Send($"The correct syntax is {"spill <vessel> <target> [<amount>]".Colour(Telnet.Yellow)}.");
+			character.OutputHandler.Send(SpillHelpText.SubstituteANSIColour());
 			return;
 		}
 

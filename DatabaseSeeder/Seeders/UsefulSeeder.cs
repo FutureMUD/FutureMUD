@@ -10200,7 +10200,7 @@ end if",
 			return;
 		}
 
-		var index = 1;
+		var index = 10000;
 
 		void AddHint(string text, long? filterProgId = null, bool canRepeat = false)
 		{
@@ -10208,7 +10208,7 @@ end if",
 			{
 				Text = text,
 				FilterProgId = filterProgId,
-				Priority = index++,
+				Priority = index--,
 				CanRepeat = canRepeat
 			});
 		}

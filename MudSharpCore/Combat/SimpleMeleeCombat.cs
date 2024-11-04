@@ -49,6 +49,11 @@ public class SimpleMeleeCombat : CombatBase
 
 	public override bool LeaveCombat(IPerceiver character)
 	{
+		if (character is null)
+		{
+			return CheckForCombatEnd();
+		}
+
 		_combatants.Remove(character);
 		if (character.Combat == this)
 		{

@@ -960,6 +960,29 @@ The syntax is as follows:
 			sb.AppendLine(items.First().Evaluate(actor));
 		}
 
+		var citem = items.First();
+		var crafts = (actor.IsAdministrator()
+						 ? actor.Gameworld.Crafts
+						 : actor.Gameworld.Crafts.Where(x => x.AppearInCraftsList(actor)))
+					 .Where(x => x.Status == RevisionStatus.Current)
+					 .Where(x =>
+						 x.Inputs.Any(y => y.IsInput(citem)) ||
+						 x.Products.Any(y => y.IsItem(citem)) ||
+						 x.FailProducts.Any(y => y.IsItem(citem)) ||
+						 x.Tools.Any(y => y.IsTool(citem))
+					 )
+					 .OrderBy(x => x.Category)
+					 .ThenBy(x => x.Name)
+					 .ToList();
+		if (crafts.Any())
+		{
+			sb.AppendLine($"\nYou know the following crafts that can use or produce this item:\n");
+			foreach (var craft in crafts)
+			{
+				sb.AppendLine($"\t{craft.Name.ColourName()} {craft.Category.SquareBrackets().ColourValue()}");
+			}
+		}
+
 		actor.OutputHandler.Send(sb.ToString());
 	}
 

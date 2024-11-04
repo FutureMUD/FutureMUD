@@ -163,7 +163,7 @@ public class MeleeWeaponAttack : WeaponAttackMove
 		IReadOnlyDictionary<Difficulty, CheckOutcome> attackRoll, IHaveWounds defenderHaveWounds,
 		string attackEmote, WardResult wardResult)
 	{
-		var blockBonus = BlockMove.GetBlockBonus(this, defenderMove.Alignment);
+		var blockBonus = BlockMove.GetBlockBonus(this, defenderMove.Alignment, defenderMove.Shield);
 		var targetBonus = Assailant.GetBonusForDefendersFromTargeting();
 		var defenderDifficulty = Attack.Profile.BaseBlockDifficulty.StageUp(defenderMove.DifficultStageUps);
 		var blockCheck = Gameworld.GetCheck(defenderMove.Check)

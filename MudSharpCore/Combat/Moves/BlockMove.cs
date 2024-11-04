@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Linq;
+using Google.Protobuf.WellKnownTypes;
 using MudSharp.Body;
 using MudSharp.Character;
 using MudSharp.Form.Shape;
 using MudSharp.Framework;
+using MudSharp.GameItems;
 using MudSharp.GameItems.Interfaces;
 using MudSharp.RPG.Checks;
 
@@ -40,10 +42,13 @@ public class BlockMove : CombatMoveBase, IDefenseMove
 		}
 	}
 
-	public static double MoveStaminaCost(ICharacter attacker, ICharacter defender, IShield shield)
+	public static double MoveStaminaCost(IPerceiver attacker, ICharacter defender, IShield shield)
 	{
-		return shield.ShieldType.StaminaPerBlock * CombatBase.PowerMoveStaminaMultiplier(defender) *
-		       CombatBase.RelativeStrengthDefenseStaminaMultiplier(attacker, defender);
+		return
+			shield.ShieldType.StaminaPerBlock *
+			CombatBase.PowerMoveStaminaMultiplier(defender) *
+			(attacker is ICharacter ach ? CombatBase.RelativeStrengthDefenseStaminaMultiplier(ach, defender) : 1.0)
+			;
 	}
 
 	public Alignment Alignment => Assailant.Body.WieldedHand(Shield.Parent).Alignment.LeftRightOnly();
@@ -51,55 +56,47 @@ public class BlockMove : CombatMoveBase, IDefenseMove
 	public override CheckType Check => CheckType.BlockCheck;
 
 
-	protected static double GetBlockBonus(IBodypart part, Alignment shieldAlignment)
+	protected static double GetBlockBonus(IBodypart part, Alignment shieldAlignment, IShield shield)
 	{
 		var blockBonus = 0.0;
 		// blocking is much easier against attacks on the side it is wielded on, as well as attacks on the arms or centre
 		if (part?.Alignment == shieldAlignment)
 		{
-			blockBonus += 4.0;
+			blockBonus += shield.Gameworld.GetStaticDouble("ShieldSameSideBlockBonus");
 		}
 		else
 		{
-			blockBonus -= 4.0;
+			blockBonus += shield.Gameworld.GetStaticDouble("ShieldOppositeSideBlockBonus");
 		}
 
 		switch (part?.Orientation)
 		{
 			case Orientation.Appendage:
-			case Orientation.Centre:
-				blockBonus += 4.0;
-				break;
-			case Orientation.High:
-				blockBonus += 2.0;
-				break;
-			case Orientation.Highest:
-				blockBonus += 1.0;
-				break;
-			case Orientation.Low:
-				blockBonus -= 2.0;
-				break;
-			case Orientation.Lowest:
-				blockBonus -= 4.0;
+				blockBonus += shield.Gameworld.GetStaticDouble("ShieldAppendageTargetedBlockBonus");
 				break;
 		}
+
+		blockBonus += shield.Parent.Wounds.SelectNotNull(x => x.Lodged)
+							 .Where(x => x.Size >= shield.Parent.Size)
+							 .Sum(x => Math.Max(0, ((int)x.Size - (int)shield.Parent.Size))) *
+							 shield.Parent.Gameworld.GetStaticDouble("ShieldPenaltyPerLodgedItemSizeDifference");
 
 		return blockBonus;
 	}
 
-	public static double GetBlockBonus(MagicPowerAttackMove move, Alignment shieldAlignment)
+	public static double GetBlockBonus(MagicPowerAttackMove move, Alignment shieldAlignment, IShield shield)
 	{
-		return GetBlockBonus(move.TargetBodypart, shieldAlignment);
+		return GetBlockBonus(move.TargetBodypart, shieldAlignment, shield);
 	}
 
-	public static double GetBlockBonus(IWeaponAttackMove move, Alignment shieldAlignment)
+	public static double GetBlockBonus(IWeaponAttackMove move, Alignment shieldAlignment, IShield shield)
 	{
-		return GetBlockBonus(move?.TargetBodypart, shieldAlignment);
+		return GetBlockBonus(move?.TargetBodypart, shieldAlignment, shield);
 	}
 
-	public static double GetBlockBonus(IRangedWeaponAttackMove move, Alignment shieldAlignment)
+	public static double GetBlockBonus(IRangedWeaponAttackMove move, Alignment shieldAlignment, IShield shield)
 	{
-		return GetBlockBonus(move?.TargetBodypart, shieldAlignment);
+		return GetBlockBonus(move?.TargetBodypart, shieldAlignment, shield);
 	}
 
 	public override CombatMoveResult ResolveMove(ICombatMove defenderMove)

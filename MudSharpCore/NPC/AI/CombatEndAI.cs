@@ -85,12 +85,12 @@ public class CombatEndAI : ArtificialIntelligenceBase
 			actor.CombatTarget = actor.Combat.Combatants.Where(x => x.CombatTarget == actor)
 			                          .Except(target)
 			                          .GetRandomElement();
-			if (actor.Combat.CanFreelyLeaveCombat(actor))
+			if (actor.Combat?.CanFreelyLeaveCombat(actor) == true)
 			{
 				actor.Combat.LeaveCombat(actor);
 			}
 
-			if (target.Combat.CanFreelyLeaveCombat(target))
+			if (target.Combat?.CanFreelyLeaveCombat(target) == true)
 			{
 				target.Combat.LeaveCombat(target);
 			}

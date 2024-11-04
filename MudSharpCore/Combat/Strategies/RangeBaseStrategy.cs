@@ -68,37 +68,69 @@ public abstract class RangeBaseStrategy : StrategyBase
 			return new HelplessDefenseMove { Assailant = defender };
 		}
 
+		var assailant = move.Assailant;
+
 		var shield =
 			defender.Body.WieldedItems.SelectNotNull(x => x.GetItemType<IShield>())
-			        .FirstOrDefault(x => defender.CanSpendStamina(x.ShieldType.StaminaPerBlock));
+					.FirstMax(x => x.ShieldType.BlockBonus);
 		var shieldBonus = shield != null
-			? BlockMove.GetBlockBonus(move, defender.Body.AlignmentOf(shield.Parent))
+			? BlockMove.GetBlockBonus(move, defender.Body.AlignmentOf(shield.Parent), shield)
 			: 0;
 		var finalBlockDifficulty = move.Weapon.BaseBlockDifficulty.ApplyBonus(shieldBonus);
 		var finalDodgeDifficulty = move.Weapon.BaseDodgeDifficulty;
 
-		if (shield != null)
+		var finalBlockTargetNumber = defender.Gameworld.GetCheck(CheckType.BlockCheck).TargetNumber(defender, finalBlockDifficulty, shield?.ShieldType.BlockTrait, assailant);
+		var finalDodgeTargetNumber = defender.Gameworld.GetCheck(CheckType.DodgeCheck).TargetNumber(defender, finalDodgeDifficulty, null, assailant);
+
+		var canBlock = shield is not null && move.Weapon.BaseBlockDifficulty != Difficulty.Impossible && defender.CanSpendStamina(BlockMove.MoveStaminaCost(assailant, defender, shield));
+		var canDodge = move.Weapon.BaseDodgeDifficulty != Difficulty.Impossible && defender.CanSpendStamina(DodgeRangeMove.MoveStaminaCost(defender));
+
+		switch (defender.PreferredDefenseType)
 		{
-			switch (defender.PreferredDefenseType)
+			case DefenseType.Block:
+				if (canBlock)
+				{
+					return new BlockMove { Assailant = defender, Shield = shield, PrimaryTarget = assailant };
+				}
+				break;
+			case DefenseType.Dodge:
+				if (canDodge)
+				{
+					return new DodgeRangeMove { Assailant = defender };
+				}
+				break;
+		}
+
+		// Otherwise fall back to default handling
+		// Calculate the success chance of the various defense types
+		var availableDefenses = new List<(DefenseType Defense, double Chance)>(3);
+		if (canBlock)
+		{
+			availableDefenses.Add((DefenseType.Block, finalBlockTargetNumber));
+		}
+		if (canDodge)
+		{
+			availableDefenses.Add((DefenseType.Dodge, finalDodgeTargetNumber));
+		}
+
+		if (availableDefenses.Count == 0)
+		{
+			return new HelplessDefenseMove
 			{
-				case DefenseType.Block:
-					return new BlockMove { Assailant = defender, Shield = shield };
-				case DefenseType.None:
-					if (finalDodgeDifficulty.Difference(finalBlockDifficulty) > -1)
-					{
-						return new BlockMove { Assailant = defender, Shield = shield };
-					}
-
-					break;
-			}
+				Assailant = defender
+			};
 		}
 
-		if (defender.CanSpendStamina(DodgeRangeMove.MoveStaminaCost(defender)))
+		// Act based on the best one
+		switch (availableDefenses.OrderByDescending(x => x.Chance).First().Defense)
 		{
-			return new DodgeRangeMove { Assailant = defender };
+			case DefenseType.Block:
+				return new BlockMove { Assailant = defender, Shield = shield, PrimaryTarget = assailant };
+			case DefenseType.Dodge:
+				return new DodgeRangeMove { Assailant = defender };
 		}
 
-		return new TooExhaustedMove
+		return new HelplessDefenseMove
 		{
 			Assailant = defender
 		};

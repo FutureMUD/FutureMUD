@@ -71,6 +71,10 @@ public class ProgCombat : CombatBase
 	/// <returns>True if combat ended entirely because of this action</returns>
 	public override bool LeaveCombat(IPerceiver character)
 	{
+		if (character is null)
+		{
+			return CheckForCombatEnd();
+		}
 		_combatants.Remove(character);
 		character.CombatStrategyMode = CombatStrategyMode.StandardMelee;
 		character.DefensiveAdvantage = 0;

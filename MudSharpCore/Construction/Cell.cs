@@ -894,6 +894,10 @@ public partial class Cell : Location, IDisposable, ICell
 			FMDB.Context.CellsGameItems.RemoveRange(dbcell.CellsGameItems);
 			foreach (var item in GameItems)
 			{
+				if (item.Id == 0)
+				{
+					continue;
+				}
 				dbcell.CellsGameItems.Add(new CellsGameItems { Cell = dbcell, GameItemId = item.Id });
 			}
 

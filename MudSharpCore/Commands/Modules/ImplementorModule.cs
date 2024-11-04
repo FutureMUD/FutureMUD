@@ -49,6 +49,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using MySql.Data.MySqlClient;
 using Castle.Components.DictionaryAdapter.Xml;
+using Dapper;
 
 namespace MudSharp.Commands.Modules;
 
@@ -374,6 +375,9 @@ public class ImplementorModule : Module<ICharacter>
 			case "heartbeat":
 				Debug_Heartbeat(actor, ss);
 				return;
+			case "sql":
+				DebugSql(actor, ss);
+				return;
 			case "crash":
 				Debug_Crash(actor);
 				return;
@@ -531,6 +535,17 @@ public class ImplementorModule : Module<ICharacter>
 		}
 	}
 
+	private static void DebugSql(ICharacter actor, StringStack ss)
+	{
+		using (new FMDB())
+		{
+			FMDB.Connection.Execute(ss.RemainingArgument);
+		}
+
+		actor.OutputHandler.Send($@"You execute the following SQL command:
+
+{ss.RemainingArgument.ColourCommand()}");
+	}
 
 	private static void Debug_Heartbeat(ICharacter actor, StringStack ss)
 	{

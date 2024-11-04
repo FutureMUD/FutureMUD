@@ -1098,8 +1098,8 @@ public partial class HumanSeeder
 		AddOrgan("lspinalcord", "lower spinal cord", BodypartTypeEnum.Spine, 1.0, 15, 0.2, 1.0, 0.05, organicHumanoid,
 			stunModifier: 1.0,
 			painModifier: 2.0);
-		AddOrgan("rinnerear", "lower spinal cord", BodypartTypeEnum.Ear, 1.0, 15, 0.2, 1.0, 0.05, organicHumanoid);
-		AddOrgan("linnerear", "lower spinal cord", BodypartTypeEnum.Ear, 1.0, 15, 0.2, 1.0, 0.05, organicHumanoid);
+		AddOrgan("rinnerear", "right inner ear", BodypartTypeEnum.Ear, 1.0, 15, 0.2, 1.0, 0.05, organicHumanoid);
+		AddOrgan("linnerear", "left inner ear", BodypartTypeEnum.Ear, 1.0, 15, 0.2, 1.0, 0.05, organicHumanoid);
 
 		AddOrganCoverage("brain", "scalp", 100, true);
 		AddOrganCoverage("brain", "face", 100);

@@ -171,7 +171,7 @@ public class Liquid : Fluid, ILiquid
 				SolventId = _solventId,
 				CountAsId = _countsAsId,
 				CountAsQuality = (int)CountsAsQuality,
-				DisplayColour = DisplayColour.Name,
+				DisplayColour = DisplayColour?.Name,
 				DampDescription = DampDescription,
 				WetDescription = WetDescription,
 				DrenchedDescription = DrenchedDescription,

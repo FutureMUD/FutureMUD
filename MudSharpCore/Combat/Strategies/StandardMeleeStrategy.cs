@@ -112,7 +112,7 @@ public class StandardMeleeStrategy : StrategyBase
 			defender.Body.WieldedItems.SelectNotNull(x => x.GetItemType<IShield>())
 			        .FirstOrDefault(x => defender.CanSpendStamina(x.ShieldType.StaminaPerBlock));
 		var shieldBonus = shield != null
-			? BlockMove.GetBlockBonus(move, defender.Body.AlignmentOf(shield.Parent))
+			? BlockMove.GetBlockBonus(move, defender.Body.AlignmentOf(shield.Parent), shield)
 			: 0;
 		var finalBlockDifficulty = move.Weapon.BaseBlockDifficulty.ApplyBonus(shieldBonus);
 		var finalDodgeDifficulty = move.Weapon.BaseDodgeDifficulty;
@@ -152,77 +152,98 @@ public class StandardMeleeStrategy : StrategyBase
 		                        .Any(x => x.Clincher == defender.CombatTarget && x.Target == assailant);
 		var shield =
 			defender.Body.WieldedItems.SelectNotNull(x => x.GetItemType<IShield>())
-			        .FirstOrDefault(x => defender.CanSpendStamina(x.ShieldType.StaminaPerBlock));
+			        .FirstMax(x => x.ShieldType.BlockBonus);
 		var parry =
 			defender.Body.WieldedItems.Where(x => !x.IsItemType<IShield>())
 			        .SelectNotNull(x => x.GetItemType<IMeleeWeapon>())
-			        .FirstOrDefault(x => defender.CanSpendStamina(x.WeaponType.StaminaPerParry));
+			        .FirstMax(x => x.WeaponType.ParryBonus);
 		var shieldBonus = shield != null
-			? BlockMove.GetBlockBonus(move, defender.Body.AlignmentOf(shield.Parent))
+			? BlockMove.GetBlockBonus(move, defender.Body.AlignmentOf(shield.Parent), shield)
 			: 0;
-
-		shieldBonus = (shield?.Parent.Wounds.SelectNotNull(x => x.Lodged)
-		                     .Where(x => x.Size >= shield.Parent.Size) ?? Enumerable.Empty<IGameItem>()).ToList()
-			.Aggregate(shieldBonus,
-				(current, lodged) => current - (1 - (int)(shield?.Parent.Size ?? 0) + (int)lodged.Size) *
-					defender.Gameworld.GetStaticDouble("ShieldPenaltyPerLodgedItemSizeDifference"));
 
 		var finalBlockDifficulty = move.Attack.Profile.BaseBlockDifficulty.ApplyBonus(shieldBonus);
 		var finalParryDifficulty =
 			move.Attack.Profile.BaseParryDifficulty.ApplyBonus(parry?.WeaponType.ParryBonus ?? 0.0);
 		var finalDodgeDifficulty = move.Attack.Profile.BaseDodgeDifficulty;
 
-		if (shield != null && !clinching)
+		var finalBlockTargetNumber = defender.Gameworld.GetCheck(CheckType.BlockCheck).TargetNumber(defender, finalBlockDifficulty, shield?.ShieldType.BlockTrait, assailant);
+		var finalParryTargetNumber = defender.Gameworld.GetCheck(CheckType.ParryCheck).TargetNumber(defender, finalParryDifficulty, parry?.WeaponType.ParryTrait, assailant);
+		var finalDodgeTargetNumber = defender.Gameworld.GetCheck(CheckType.DodgeCheck).TargetNumber(defender, finalDodgeDifficulty, null, assailant);
+
+		var canBlock = shield is not null && !clinching && move.Attack.Profile.BaseBlockDifficulty != Difficulty.Impossible && defender.CanSpendStamina(BlockMove.MoveStaminaCost(assailant, defender, shield));
+		var canParry = parry is not null && !defender.EffectsOfType<IWardBeatenEffect>().Any() && !clinching && move.Attack.Profile.BaseParryDifficulty != Difficulty.Impossible && defender.CanSpendStamina(ParryMove.MoveStaminaCost(assailant, defender, parry));
+		var canDodge = move.Attack.Profile.BaseDodgeDifficulty != Difficulty.Impossible && defender.CanSpendStamina(DodgeMove.MoveStaminaCost(defender));
+
+		// If they have a preference for a defense type, use that if possible
+		switch (defender.PreferredDefenseType)
 		{
-			switch (defender.PreferredDefenseType)
-			{
-				case DefenseType.Block:
+			case DefenseType.Block:
+				if (canBlock)
+				{
 					return desperate
 						? new DesperateBlock { Assailant = defender, Shield = shield, PrimaryTarget = assailant }
 						: new BlockMove { Assailant = defender, Shield = shield, PrimaryTarget = assailant };
-				case DefenseType.None:
-					if ((parry == null || defender.EffectsOfType<IWardBeatenEffect>().Any() ||
-					     finalParryDifficulty.Difference(finalBlockDifficulty) > -1) &&
-					    finalDodgeDifficulty.Difference(finalBlockDifficulty) > -1)
-					{
-						return desperate
-							? new DesperateBlock { Assailant = defender, Shield = shield, PrimaryTarget = assailant }
-							: new BlockMove { Assailant = defender, Shield = shield, PrimaryTarget = assailant };
-					}
-
-					break;
-			}
-		}
-
-		if (parry != null && !defender.EffectsOfType<IWardBeatenEffect>().Any() && !clinching)
-		{
-			switch (defender.PreferredDefenseType)
-			{
-				case DefenseType.Parry:
+				}
+				break;
+			case DefenseType.Parry:
+				if (canParry)
+				{
 					return desperate
 						? new DesperateParry { Assailant = defender, Weapon = parry, PrimaryTarget = assailant }
 						: new ParryMove { Assailant = defender, Weapon = parry, PrimaryTarget = assailant };
-				case DefenseType.None:
-					if (finalParryDifficulty.Difference(finalDodgeDifficulty) > -1)
-					{
-						return desperate
-							? new DesperateParry { Assailant = defender, Weapon = parry, PrimaryTarget = assailant }
-							: new ParryMove { Assailant = defender, Weapon = parry, PrimaryTarget = assailant };
-					}
-
-					break;
-			}
+				}
+				break;
+			case DefenseType.Dodge:
+				if (canDodge)
+				{
+					return desperate || clinching
+						? new DesperateDodge { Assailant = defender }
+						: new DodgeMove { Assailant = defender };
+				}
+				break;
 		}
 
-		if (defender.CanSpendStamina(DodgeMove.MoveStaminaCost(defender)) ||
-		    defender.EffectsOfType<IWardBeatenEffect>().Any())
+
+		// Otherwise fall back to default handling
+		// Calculate the success chance of the various defense types
+		var availableDefenses = new List<(DefenseType Defense, double Chance)>(3);
+		if (canBlock) {
+			availableDefenses.Add((DefenseType.Block, finalBlockTargetNumber));
+		}
+		if (canParry)
 		{
-			return desperate || clinching
+			availableDefenses.Add((DefenseType.Parry, finalParryTargetNumber));
+		}
+		if (canDodge)
+		{
+			availableDefenses.Add((DefenseType.Dodge, finalDodgeTargetNumber));
+		}
+
+        if (availableDefenses.Count == 0)
+        {
+			return new HelplessDefenseMove
+			{
+				Assailant = defender
+			};
+		}
+
+		// Act based on the best one
+		switch (availableDefenses.OrderByDescending(x => x.Chance).First().Defense)
+		{
+			case DefenseType.Block:
+				return desperate
+						? new DesperateBlock { Assailant = defender, Shield = shield, PrimaryTarget = assailant }
+						: new BlockMove { Assailant = defender, Shield = shield, PrimaryTarget = assailant };
+			case DefenseType.Parry:
+				return desperate
+						? new DesperateParry { Assailant = defender, Weapon = parry, PrimaryTarget = assailant }
+						: new ParryMove { Assailant = defender, Weapon = parry, PrimaryTarget = assailant };
+			case DefenseType.Dodge:
+				return desperate || clinching
 				? new DesperateDodge { Assailant = defender }
 				: new DodgeMove { Assailant = defender };
 		}
 
-		// TODO - specific "Exhausted Defense?"
 		return new HelplessDefenseMove
 		{
 			Assailant = defender
@@ -253,82 +274,101 @@ public class StandardMeleeStrategy : StrategyBase
 	{
 		var desperate = !defender.PositionState.Upright;
 		var clinching = defender.EffectsOfType<ClinchEffect>()
-		                        .Any(x => x.Clincher == defender.CombatTarget && x.Target == assailant);
+								.Any(x => x.Clincher == defender.CombatTarget && x.Target == assailant);
 		var shield =
 			defender.Body.WieldedItems.SelectNotNull(x => x.GetItemType<IShield>())
-			        .FirstOrDefault(x => defender.CanSpendStamina(x.ShieldType.StaminaPerBlock));
+					.FirstMax(x => x.ShieldType.BlockBonus);
 		var parry =
 			defender.Body.WieldedItems.Where(x => !x.IsItemType<IShield>())
-			        .SelectNotNull(x => x.GetItemType<IMeleeWeapon>())
-			        .FirstOrDefault(x => defender.CanSpendStamina(x.WeaponType.StaminaPerParry));
+					.SelectNotNull(x => x.GetItemType<IMeleeWeapon>())
+					.FirstMax(x => x.WeaponType.ParryBonus);
 		var shieldBonus = shield != null
-			? BlockMove.GetBlockBonus(move, defender.Body.AlignmentOf(shield.Parent))
+			? BlockMove.GetBlockBonus(move, defender.Body.AlignmentOf(shield.Parent), shield)
 			: 0;
 
-		shieldBonus = (shield?.Parent.Wounds.SelectNotNull(x => x.Lodged)
-		                     .Where(x => x.Size >= shield.Parent.Size) ?? Enumerable.Empty<IGameItem>()).ToList()
-			.Aggregate(shieldBonus,
-				(current, lodged) => current - (1 - (int)(shield?.Parent.Size ?? 0) + (int)lodged.Size) *
-					defender.Gameworld.GetStaticDouble("ShieldPenaltyPerLodgedItemSizeDifference"));
-
-		var finalBlockDifficulty = move.AttackPower.BaseBlockDifficulty.ApplyBonus(shieldBonus);
+		var finalBlockDifficulty = move.Attack.Profile.BaseBlockDifficulty.ApplyBonus(shieldBonus);
 		var finalParryDifficulty =
-			move.AttackPower.BaseParryDifficulty.ApplyBonus(parry?.WeaponType.ParryBonus ?? 0.0);
-		var finalDodgeDifficulty = move.AttackPower.BaseDodgeDifficulty;
+			move.Attack.Profile.BaseParryDifficulty.ApplyBonus(parry?.WeaponType.ParryBonus ?? 0.0);
+		var finalDodgeDifficulty = move.Attack.Profile.BaseDodgeDifficulty;
 
-		if (shield != null && !clinching && move.AttackPower.ValidDefenseTypes.Contains(DefenseType.Block))
+		var finalBlockTargetNumber = defender.Gameworld.GetCheck(CheckType.BlockCheck).TargetNumber(defender, finalBlockDifficulty, shield?.ShieldType.BlockTrait, assailant);
+		var finalParryTargetNumber = defender.Gameworld.GetCheck(CheckType.ParryCheck).TargetNumber(defender, finalParryDifficulty, parry?.WeaponType.ParryTrait, assailant);
+		var finalDodgeTargetNumber = defender.Gameworld.GetCheck(CheckType.DodgeCheck).TargetNumber(defender, finalDodgeDifficulty, null, assailant);
+
+		var canBlock = shield is not null && !clinching && move.AttackPower.ValidDefenseTypes.Contains(DefenseType.Block) && move.Attack.Profile.BaseBlockDifficulty != Difficulty.Impossible && defender.CanSpendStamina(BlockMove.MoveStaminaCost(assailant, defender, shield));
+		var canParry = parry is not null && !defender.EffectsOfType<IWardBeatenEffect>().Any() && !clinching && move.AttackPower.ValidDefenseTypes.Contains(DefenseType.Parry) && move.Attack.Profile.BaseParryDifficulty != Difficulty.Impossible && defender.CanSpendStamina(ParryMove.MoveStaminaCost(assailant, defender, parry));
+		var canDodge = move.Attack.Profile.BaseDodgeDifficulty != Difficulty.Impossible && move.AttackPower.ValidDefenseTypes.Contains(DefenseType.Dodge) && defender.CanSpendStamina(DodgeMove.MoveStaminaCost(defender));
+		
+		// If they have a preference for a defense type, use that if possible
+		switch (defender.PreferredDefenseType)
 		{
-			switch (defender.PreferredDefenseType)
-			{
-				case DefenseType.Block:
+			case DefenseType.Block:
+				if (canBlock)
+				{
 					return desperate
 						? new DesperateBlock { Assailant = defender, Shield = shield, PrimaryTarget = assailant }
 						: new BlockMove { Assailant = defender, Shield = shield, PrimaryTarget = assailant };
-				case DefenseType.None:
-					if ((parry == null || defender.EffectsOfType<IWardBeatenEffect>().Any() ||
-					     finalParryDifficulty.Difference(finalBlockDifficulty) > -1) &&
-					    finalDodgeDifficulty.Difference(finalBlockDifficulty) > -1)
-					{
-						return desperate
-							? new DesperateBlock { Assailant = defender, Shield = shield, PrimaryTarget = assailant }
-							: new BlockMove { Assailant = defender, Shield = shield, PrimaryTarget = assailant };
-					}
-
-					break;
-			}
-		}
-
-		if (parry != null && !defender.EffectsOfType<IWardBeatenEffect>().Any() && !clinching &&
-		    move.AttackPower.ValidDefenseTypes.Contains(DefenseType.Parry))
-		{
-			switch (defender.PreferredDefenseType)
-			{
-				case DefenseType.Parry:
+				}
+				break;
+			case DefenseType.Parry:
+				if (canParry)
+				{
 					return desperate
 						? new DesperateParry { Assailant = defender, Weapon = parry, PrimaryTarget = assailant }
 						: new ParryMove { Assailant = defender, Weapon = parry, PrimaryTarget = assailant };
-				case DefenseType.None:
-					if (finalParryDifficulty.Difference(finalDodgeDifficulty) > -1)
-					{
-						return desperate
-							? new DesperateParry { Assailant = defender, Weapon = parry, PrimaryTarget = assailant }
-							: new ParryMove { Assailant = defender, Weapon = parry, PrimaryTarget = assailant };
-					}
-
-					break;
-			}
+				}
+				break;
+			case DefenseType.Dodge:
+				if (canDodge)
+				{
+					return desperate || clinching
+						? new DesperateDodge { Assailant = defender }
+						: new DodgeMove { Assailant = defender };
+				}
+				break;
 		}
 
-		if (defender.CanSpendStamina(DodgeMove.MoveStaminaCost(defender)) ||
-		    (defender.EffectsOfType<IWardBeatenEffect>().Any() &&
-		     move.AttackPower.ValidDefenseTypes.Contains(DefenseType.Dodge)))
+		// Otherwise fall back to default handling
+		// Calculate the success chance of the various defense types
+		var availableDefenses = new List<(DefenseType Defense, double Chance)>(3);
+		if (canBlock)
 		{
-			return desperate || clinching
+			availableDefenses.Add((DefenseType.Block, finalBlockTargetNumber));
+		}
+		if (canParry)
+		{
+			availableDefenses.Add((DefenseType.Parry, finalParryTargetNumber));
+		}
+		if (canDodge)
+		{
+			availableDefenses.Add((DefenseType.Dodge, finalDodgeTargetNumber));
+		}
+
+		if (availableDefenses.Count == 0)
+		{
+			return new HelplessDefenseMove
+			{
+				Assailant = defender
+			};
+		}
+
+		// Act based on the best one
+		switch (availableDefenses.OrderByDescending(x => x.Chance).First().Defense)
+		{
+			case DefenseType.Block:
+				return desperate
+						? new DesperateBlock { Assailant = defender, Shield = shield, PrimaryTarget = assailant }
+						: new BlockMove { Assailant = defender, Shield = shield, PrimaryTarget = assailant };
+			case DefenseType.Parry:
+				return desperate
+						? new DesperateParry { Assailant = defender, Weapon = parry, PrimaryTarget = assailant }
+						: new ParryMove { Assailant = defender, Weapon = parry, PrimaryTarget = assailant };
+			case DefenseType.Dodge:
+				return desperate || clinching
 				? new DesperateDodge { Assailant = defender }
 				: new DodgeMove { Assailant = defender };
 		}
 
-		// TODO - specific "Exhausted Defense?"
 		return new HelplessDefenseMove
 		{
 			Assailant = defender

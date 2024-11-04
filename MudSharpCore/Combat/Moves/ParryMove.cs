@@ -40,10 +40,13 @@ public class ParryMove : CombatMoveBase, IDefenseMove
 		}
 	}
 
-	public static double MoveStaminaCost(ICharacter attacker, ICharacter defender, IMeleeWeapon Weapon)
+	public static double MoveStaminaCost(IPerceiver attacker, ICharacter defender, IMeleeWeapon Weapon)
 	{
-		return Weapon.WeaponType.StaminaPerParry * CombatBase.PowerMoveStaminaMultiplier(defender) *
-		       CombatBase.RelativeStrengthDefenseStaminaMultiplier(attacker, defender);
+		return 
+			Weapon.WeaponType.StaminaPerParry * 
+			CombatBase.PowerMoveStaminaMultiplier(defender) *
+			(attacker is ICharacter ach ? CombatBase.RelativeStrengthDefenseStaminaMultiplier(ach, defender) : 1.0)
+			;
 		;
 	}
 

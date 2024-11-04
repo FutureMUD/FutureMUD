@@ -44,10 +44,15 @@ public abstract class CombatBase : ICombat
 		return GraceMoveStaminaCost.Evaluate(assailant, null, TraitBonusContext.CombatGraceMoveStamina);
 	}
 
-	public static double RelativeStrengthDefenseStaminaMultiplier(ICharacter attacker, ICharacter defender)
+	public static double RelativeStrengthDefenseStaminaMultiplier(IPerceiver attacker, ICharacter defender)
 	{
+		if (attacker is not ICharacter ach)
+		{
+			return 1.0;
+		}
+
 		RelativeStrengthDefenseStaminaCost.Parameters["attacker"] =
-			StrengthForRelativeStrengthCheck.Evaluate(attacker, null,
+			StrengthForRelativeStrengthCheck.Evaluate(ach, null,
 				TraitBonusContext.CombatRelativeStrengthDefenseStamina);
 		RelativeStrengthDefenseStaminaCost.Parameters["defender"] =
 			StrengthForRelativeStrengthCheck.Evaluate(defender, null,

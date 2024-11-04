@@ -80,7 +80,10 @@ public static class DefaultStaticSettings
 			{ "PostToDeathsProg", "0" },
 			{ "DefaultLaserClipType", "Lasgun Standard" },
 			{ "StaggeringBlowStaggerEffectLength", "15000" },
-			{ "ShieldPenaltyPerLodgedItemSizeDifference", "2.5" },
+			{ "ShieldPenaltyPerLodgedItemSizeDifference", "2.0" },
+			{ "ShieldSameSideBlockBonus", "1.0" },
+			{ "ShieldOppositeSideBlockBonus", "-1.0" },
+			{ "ShieldAppendageTargetedBlockBonus", "2.0" },
 			{ "DefaultBookPaperProto", "0" },
 			{ "DefaultBookPageCount", "0" },
 			{

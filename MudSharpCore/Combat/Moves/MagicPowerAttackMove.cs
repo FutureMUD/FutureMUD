@@ -133,7 +133,7 @@ public class MagicPowerAttackMove : WeaponAttackMove, IMagicPowerAttackMove
 		IHaveWounds defenderHaveWounds,
 		string attackEmote, WardResult wardResult)
 	{
-		var blockBonus = BlockMove.GetBlockBonus(this, defenderMove.Alignment);
+		var blockBonus = BlockMove.GetBlockBonus(this, defenderMove.Alignment, defenderMove.Shield);
 		var targetBonus = Assailant.GetBonusForDefendersFromTargeting();
 		var blockCheck = Gameworld.GetCheck(defenderMove.Check)
 		                          .Check(defenderMove.Assailant,

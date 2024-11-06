@@ -470,4 +470,400 @@ public class MudDateTimeTests
 		Assert.IsFalse(new MudDateTime("2/kep/22 UTC 8:22:17", _testCalendar, _testClock).CompareTo(new MudDateTime("2/kep/22 CST 3:22:17", _testCalendar, _testClock)) == 0);
 		Assert.IsTrue(new MudDateTime("2/kep/22 UTC 9:22:17", _testCalendar, _testClock).CompareTo(new MudDateTime("2/kep/22 CST 3:22:17", _testCalendar, _testClock)) == 0);
 	}
+
+	[TestMethod]
+	public void TestConversionBetweenCalendars()
+	{
+		var calendar1 = new Calendar(XElement.Parse(@"<calendar>
+   <alias>eldarin-sindarin</alias>
+   <shortname>Eldarin Calendar (Sindarin)</shortname>
+   <fullname>The Eldarin Calendar, in Sindarin</fullname>
+   <description><![CDATA[The Eldarin Calendar of the Sindarin elves, with Sindarin month and holiday names]]></description>
+   <shortstring>$dd/$mo/$yy</shortstring>
+   <longstring>$nz$ww the $dt of $mf, $ee $yy</longstring>
+   <wordystring>$NZ$ww on this $DT day of the month of $mf, in the $YO $EE</wordystring>
+   <plane>arda</plane>
+   <feedclock>0</feedclock>
+   <epochyear>0</epochyear>
+   <weekdayatepoch>1</weekdayatepoch>
+   <ancienterashortstring>bef.</ancienterashortstring>
+   <ancienteralongstring>Before the Third Age</ancienteralongstring>
+   <modernerashortstring>T.A.</modernerashortstring>
+   <moderneralongstring>Third Age</moderneralongstring>
+   <weekdays>
+	 <weekday>Orgilion</weekday>
+	 <weekday>Oranor</weekday>
+	 <weekday>Orithil</weekday>
+	 <weekday>Orgaladhad</weekday>
+	 <weekday>Ormenel</weekday>
+	 <weekday>Orbelain</weekday>
+   </weekdays>
+   <months>
+	<month>
+	   <alias>yestare</alias>
+	   <shortname>yes</shortname>
+	   <fullname>Yestarë</fullname>
+	   <nominalorder>1</nominalorder>
+	   <normaldays>1</normaldays>
+	   <intercalarydays />
+	   <specialdays>
+	  </specialdays>
+	   <nonweekdays />
+	 </month>
+	 <month>
+	   <alias>ethuil</alias>
+	   <shortname>eth</shortname>
+	   <fullname>Ethuil</fullname>
+	   <nominalorder>2</nominalorder>
+	   <normaldays>54</normaldays>
+	   <intercalarydays />
+	   <specialdays>
+	  </specialdays>
+	   <nonweekdays />
+	 </month>
+	 <month>
+	   <alias>laer</alias>
+	   <shortname>lae</shortname>
+	   <fullname>Laer</fullname>
+	   <nominalorder>3</nominalorder>
+	   <normaldays>72</normaldays>
+	   <intercalarydays />
+	   <specialdays>
+	  </specialdays>
+	   <nonweekdays />
+	 </month>
+	 <month>
+	   <alias>iavas</alias>
+	   <shortname>iav</shortname>
+	   <fullname>Iavas</fullname>
+	   <nominalorder>4</nominalorder>
+	   <normaldays>54</normaldays>
+	   <intercalarydays />
+	   <specialdays>
+	  </specialdays>
+	   <nonweekdays />
+	 </month>
+	 <month>
+	   <alias>enedhin</alias>
+	   <shortname>ene</shortname>
+	   <fullname>Enedhin</fullname>
+	   <nominalorder>5</nominalorder>
+	   <normaldays>3</normaldays>
+	   <intercalarydays>
+		<intercalary>
+		  <insertdays>3</insertdays>
+		  <specialdays>
+			</specialdays>
+		  <nonweekdays/>
+			  <removenonweekdays />
+			  <removespecialdays />
+			  <intercalaryrule>
+				<offset>0</offset>
+				<divisor>12</divisor>
+				<exceptions>
+				  <intercalaryrule>
+					<offset>0</offset>
+					<divisor>144</divisor>
+					<exceptions>
+					</exceptions>
+					<ands />
+					<ors />
+				  </intercalaryrule>
+				</exceptions>
+				<ands />
+				<ors />
+			  </intercalaryrule>
+		</intercalary>
+	  </intercalarydays>
+	   <specialdays>
+	  </specialdays>
+	   <nonweekdays />
+	 </month>
+	 <month>
+	   <alias>firith</alias>
+	   <shortname>fir</shortname>
+	   <fullname>Firith</fullname>
+	   <nominalorder>6</nominalorder>
+	   <normaldays>54</normaldays>
+	   <intercalarydays />
+	   <specialdays>
+	  </specialdays>
+	   <nonweekdays />
+	 </month>
+	 <month>
+	   <alias>rhiw</alias>
+	   <shortname>rhi</shortname>
+	   <fullname>Rhîw</fullname>
+	   <nominalorder>7</nominalorder>
+	   <normaldays>72</normaldays>
+	   <intercalarydays />
+	   <specialdays>
+	  </specialdays>
+	   <nonweekdays />
+	 </month>
+	 <month>
+	   <alias>echuir</alias>
+	   <shortname>ech</shortname>
+	   <fullname>Echuir</fullname>
+	   <nominalorder>8</nominalorder>
+	   <normaldays>54</normaldays>
+	   <intercalarydays />
+	   <specialdays>
+	  </specialdays>
+	   <nonweekdays />
+	 </month>
+	 <month>
+	   <alias>penninor</alias>
+	   <shortname>pen</shortname>
+	   <fullname>Penninor</fullname>
+	   <nominalorder>9</nominalorder>
+	   <normaldays>1</normaldays>
+	   <intercalarydays />
+	   <specialdays>
+	  </specialdays>
+	   <nonweekdays />
+	 </month>
+   </months>
+   <intercalarymonths>
+   </intercalarymonths>
+ </calendar>"), _gameworld)
+		{
+			Id = 1,
+			FeedClock = _testClock
+		};
+		calendar1.SetDate("47/iavas/2481");
+
+		var calendar2 = new Calendar(XElement.Parse(@"<calendar>
+   <alias>kings-reckoning-sindarin</alias>
+   <shortname>King's Reckoning Calendar (Sindarin)</shortname>
+   <fullname>The King's Reckoning Calendar, in Sindarin</fullname>
+   <description><![CDATA[The King's Reckoning Calendar of the 2nd Age Numenoreans, with Sindarin month and holiday names]]></description>
+   <shortstring>$dd/$mo/$yy</shortstring>
+   <longstring>$nz$ww the $dt of $mf, $ee $yy</longstring>
+   <wordystring>$NZ$ww on this $DT day of the month of $mf, in the $YO $EE</wordystring>
+   <plane>arda</plane>
+   <feedclock>0</feedclock>
+   <epochyear>0</epochyear>
+   <weekdayatepoch>1</weekdayatepoch>
+   <ancienterashortstring>bef.</ancienterashortstring>
+   <ancienteralongstring>Before the Third Age</ancienteralongstring>
+   <modernerashortstring>T.A.</modernerashortstring>
+   <moderneralongstring>Third Age</moderneralongstring>
+   <weekdays>
+	 <weekday>Orgilion</weekday>
+	 <weekday>Oranor</weekday>
+	 <weekday>Orithil</weekday>
+	 <weekday>Orgaladh</weekday>
+	 <weekday>Ormenel</weekday>
+	 <weekday>Orbelain</weekday>
+	<weekday>Oraearon</weekday>
+   </weekdays>
+   <months>
+	<month>
+	   <alias>yestare</alias>
+	   <shortname>yes</shortname>
+	   <fullname>Yestarë</fullname>
+	   <nominalorder>1</nominalorder>
+	   <normaldays>1</normaldays>
+	   <intercalarydays />
+	   <specialdays>
+	  </specialdays>
+	   <nonweekdays />
+	 </month>
+	 <month>
+	   <alias>narwain</alias>
+	   <shortname>nar</shortname>
+	   <fullname>Narwain</fullname>
+	   <nominalorder>2</nominalorder>
+	   <normaldays>30</normaldays>
+	   <intercalarydays />
+	   <specialdays>
+	  </specialdays>
+	   <nonweekdays />
+	 </month>
+	 <month>
+	   <alias>ninui</alias>
+	   <shortname>nin</shortname>
+	   <fullname>Nínui</fullname>
+	   <nominalorder>3</nominalorder>
+	   <normaldays>30</normaldays>
+	   <intercalarydays />
+	   <specialdays>
+	  </specialdays>
+	   <nonweekdays />
+	 </month>
+	 <month>
+	   <alias>gwaeron</alias>
+	   <shortname>gwa</shortname>
+	   <fullname>Gwaeron</fullname>
+	   <nominalorder>4</nominalorder>
+	   <normaldays>30</normaldays>
+	   <intercalarydays />
+	   <specialdays>
+	  </specialdays>
+	   <nonweekdays />
+	 </month>
+	 <month>
+	   <alias>gwirith</alias>
+	   <shortname>gwi</shortname>
+	   <fullname>Gwirith</fullname>
+	   <nominalorder>5</nominalorder>
+	   <normaldays>30</normaldays>
+	   <intercalarydays>
+	  </intercalarydays>
+	   <specialdays>
+	  </specialdays>
+	   <nonweekdays />
+	 </month>
+	 <month>
+	   <alias>lothron</alias>
+	   <shortname>lot</shortname>
+	   <fullname>Lothron</fullname>
+	   <nominalorder>6</nominalorder>
+	   <normaldays>30</normaldays>
+	   <intercalarydays />
+	   <specialdays>
+	  </specialdays>
+	   <nonweekdays />
+	 </month>
+	 <month>
+	   <alias>norui</alias>
+	   <shortname>nor</shortname>
+	   <fullname>Nórui</fullname>
+	   <nominalorder>7</nominalorder>
+	   <normaldays>31</normaldays>
+	   <intercalarydays />
+	   <specialdays>
+	  </specialdays>
+	   <nonweekdays />
+	 </month>
+	 <month>
+	   <alias>enedhin</alias>
+	   <shortname>ene</shortname>
+	   <fullname>Enedhin</fullname>
+	   <nominalorder>8</nominalorder>
+	   <normaldays>1</normaldays>
+	   <intercalarydays>
+	  <intercalary>
+		  <insertdays>1</insertdays>
+		  <specialdays>
+			</specialdays>
+			<nonweekdays>
+			  </nonweekdays>
+			  <removenonweekdays />
+			  <removespecialdays />
+			  <intercalaryrule>
+				<offset>0</offset>
+				<divisor>4</divisor>
+				<exceptions>
+				  <intercalaryrule>
+					<offset>0</offset>
+					<divisor>100</divisor>
+					<exceptions>
+					</exceptions>
+					<ands />
+					<ors />
+				  </intercalaryrule>
+				</exceptions>
+				<ands />
+				<ors />
+			  </intercalaryrule>
+		</intercalary>
+	  </intercalarydays>
+	   <specialdays>
+	  </specialdays>
+	   <nonweekdays />
+	 </month>
+	 <month>
+	   <alias>cerveth</alias>
+	   <shortname>cer</shortname>
+	   <fullname>Cerveth</fullname>
+	   <nominalorder>9</nominalorder>
+	   <normaldays>31</normaldays>
+	   <intercalarydays />
+	   <specialdays>
+	  </specialdays>
+	   <nonweekdays />
+	 </month>
+	<month>
+	   <alias>urui</alias>
+	   <shortname>uru</shortname>
+	   <fullname>Urui</fullname>
+	   <nominalorder>10</nominalorder>
+	   <normaldays>30</normaldays>
+	   <intercalarydays />
+	   <specialdays>
+	  </specialdays>
+	   <nonweekdays />
+	 </month>
+	<month>
+	   <alias>ivanneth</alias>
+	   <shortname>iva</shortname>
+	   <fullname>Ivanneth</fullname>
+	   <nominalorder>10</nominalorder>
+	   <normaldays>30</normaldays>
+	   <intercalarydays />
+	   <specialdays>
+	  </specialdays>
+	   <nonweekdays />
+	 </month>
+	<month>
+	   <alias>narbeleth</alias>
+	   <shortname>nar</shortname>
+	   <fullname>Narbeleth</fullname>
+	   <nominalorder>11</nominalorder>
+	   <normaldays>30</normaldays>
+	   <intercalarydays />
+	   <specialdays>
+	  </specialdays>
+	   <nonweekdays />
+	 </month>
+	<month>
+	   <alias>hithui</alias>
+	   <shortname>hit</shortname>
+	   <fullname>Hithui</fullname>
+	   <nominalorder>12</nominalorder>
+	   <normaldays>30</normaldays>
+	   <intercalarydays />
+	   <specialdays>
+	  </specialdays>
+	   <nonweekdays />
+	 </month>
+	<month>
+	   <alias>Girithron</alias>
+	   <shortname>gir</shortname>
+	   <fullname>Girithron</fullname>
+	   <nominalorder>13</nominalorder>
+	   <normaldays>30</normaldays>
+	   <intercalarydays />
+	   <specialdays>
+	  </specialdays>
+	   <nonweekdays />
+	 </month>
+	<month>
+	   <alias>penninor</alias>
+	   <shortname>pen</shortname>
+	   <fullname>Penninor</fullname>
+	   <nominalorder>14</nominalorder>
+	   <normaldays>1</normaldays>
+	   <intercalarydays />
+	   <specialdays>
+	  </specialdays>
+	   <nonweekdays />
+	 </month>
+   </months>
+   <intercalarymonths>
+   </intercalarymonths>
+ </calendar>"), _gameworld)
+		{
+			Id = 2,
+			FeedClock = _testClock
+		};
+		calendar2.SetDate("23/norui/2481");
+
+		Assert.IsTrue(calendar1.CurrentDate.DayNumberInYear() == calendar2.CurrentDate.DayNumberInYear(), $"1st Calendar was day #{calendar1.CurrentDate.DayNumberInYear()} and 2nd was {calendar2.CurrentDate.DayNumberInYear()}");
+		var date1to2 = calendar1.CurrentDate.ConvertToOtherCalendar(calendar2);
+		Assert.IsTrue(date1to2.Equals(calendar2.CurrentDate));
+
+	}
 }

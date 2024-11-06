@@ -2,6 +2,7 @@
 using System.Linq;
 using MudSharp.Framework;
 using MudSharp.TimeAndDate.Time;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace MudSharp.TimeAndDate.Date;
 public class MUDDateException : Exception
@@ -476,6 +477,20 @@ public class MudDate : IComparable
 			(Calendar.Id == compareDate.Calendar.Id);
 	}
 
+	public MudDate ConvertToOtherCalendar(ICalendar convert)
+	{
+		if (convert == Calendar)
+		{
+			return this;
+		}
+
+		var isFuture = this > Calendar.CurrentDate;
+		var currentDaysDifference = DaysDifference(this, Calendar.CurrentDate);
+		var newDate = new MudDate(convert.CurrentDate);
+		newDate.AdvanceDays((isFuture ? 1 : -1) * currentDaysDifference);
+		return newDate;
+	}
+
 	private static int DaysDifference(MudDate date1, MudDate date2)
 	{
 		if (date1 < date2)
@@ -485,9 +500,8 @@ public class MudDate : IComparable
 
 		if (date1.Calendar == date2.Calendar)
 		{
-			var daysThisYear = date1.Day + date1.ThisYear.Months.Where(x => x.TrueOrder < date1.Month.TrueOrder).Sum(x => x.Days);
-			var daysCompareYear = date2.Day + date2.ThisYear.Months
-				.Where(x => x.TrueOrder < date2.Month.TrueOrder).Sum(x => x.Days);
+			var daysThisYear = date1.DayNumberInYear();
+			var daysCompareYear = date2.DayNumberInYear();
 			var daysBetweenYears = date1.Calendar.CountDaysBetweenYears(date1.Year, date2.Year);
 			return daysThisYear - daysCompareYear + daysBetweenYears;
 		}
@@ -499,6 +513,10 @@ public class MudDate : IComparable
 	public int DaysDifference(MudDate compareDate)
 	{
 		return DaysDifference(this, compareDate);
+	}
+	public int DayNumberInYear()
+	{
+		return Day + ThisYear.Months.Where(x => x.TrueOrder < Month.TrueOrder).Sum(x => x.Days);
 	}
 
 	private static int YearsDifference(MudDate date1, MudDate date2)

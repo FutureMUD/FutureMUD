@@ -404,7 +404,39 @@ public class Clan : SaveableItem, IClan
 
 	public int? MaximumPeriodsOfUncollectedBackPay { get; set; }
 
-	public ICalendar Calendar { get; set; }
+	private ICalendar _calendar;
+
+	public ICalendar Calendar
+	{
+		get => _calendar;
+		set
+		{
+			if (_calendar is not null && _calendar != value && value is not null)
+			{
+				Changed = true;
+				_calendar = value;
+				NextPay = NextPay.ConvertToOtherCalendar(value);
+				foreach (var membership in Memberships)
+				{
+					membership.JoinDate = membership.JoinDate.ConvertToOtherCalendar(value);
+					membership.Changed = true;
+				}
+
+				foreach (var election in Appointments.SelectMany(x => x.Elections))
+				{
+					election.NominationStartDate = election.NominationStartDate?.ConvertToOtherCalendar(value);
+					election.ResultsInEffectDate = election.ResultsInEffectDate?.ConvertToOtherCalendar(value);
+					election.VotingEndDate = election.VotingEndDate?.ConvertToOtherCalendar(value);
+					election.VotingStartDate = election.VotingStartDate?.ConvertToOtherCalendar(value);
+					election.Changed = true;
+				}
+
+				return;
+			}
+			_calendar = value;
+			Changed = true;
+		}
+	}
 
 	public virtual void FinaliseLoad(MudSharp.Models.Clan clan, IEnumerable<Models.ClanMembership> memberships)
 	{

@@ -125,10 +125,10 @@ public class Election : SaveableItem, IElection
 	public bool IsByElection { get; protected set; }
 	public bool IsFinalised { get; protected set; }
 	public int NumberOfAppointments { get; protected set; }
-	public MudDateTime NominationStartDate { get; protected set; }
-	public MudDateTime VotingStartDate { get; protected set; }
-	public MudDateTime VotingEndDate { get; protected set; }
-	public MudDateTime ResultsInEffectDate { get; protected set; }
+	public MudDateTime NominationStartDate { get; set; }
+	public MudDateTime VotingStartDate { get; set; }
+	public MudDateTime VotingEndDate { get; set; }
+	public MudDateTime ResultsInEffectDate { get; set; }
 	public ElectionStage ElectionStage { get; protected set; }
 
 	private readonly List<IClanMembership> _nominees = new();

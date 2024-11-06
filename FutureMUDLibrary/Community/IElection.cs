@@ -2,6 +2,7 @@
 using MudSharp.Framework;
 using MudSharp.TimeAndDate;
 using System.Collections.Generic;
+using MudSharp.Framework.Save;
 
 namespace MudSharp.Community
 {
@@ -14,18 +15,18 @@ namespace MudSharp.Community
         Finalised
     }
 
-    public interface IElection : IFrameworkItem
+    public interface IElection : IFrameworkItem, ISaveable
     {
         IAppointment Appointment { get; }
         bool IsByElection { get; }
         bool IsFinalised { get; }
-        MudDateTime NominationStartDate { get; }
+        MudDateTime NominationStartDate { get; set; }
         IEnumerable<IClanMembership> Nominees { get; }
         int NumberOfAppointments { get; }
-        MudDateTime ResultsInEffectDate { get; }
+        MudDateTime ResultsInEffectDate { get; set; }
         IEnumerable<(IClanMembership Voter, IClanMembership Nominee, int Votes)> Votes { get; }
-        MudDateTime VotingEndDate { get; }
-        MudDateTime VotingStartDate { get; }
+        MudDateTime VotingEndDate { get; set; }
+        MudDateTime VotingStartDate { get; set; }
         ElectionStage ElectionStage { get; }
         Counter<IClanMembership> VotesByNominee { get; }
         IEnumerable<IClanMembership> Victors { get; }

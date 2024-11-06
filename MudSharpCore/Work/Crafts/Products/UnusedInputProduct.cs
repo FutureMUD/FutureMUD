@@ -62,7 +62,7 @@ public class UnusedInputProduct : BaseProduct
 			foreach (var item in Products)
 			{
 				item.RoomLayer = layer;
-				location.Insert(item, true);
+				location.Insert(item);
 				item.HandleEvent(EventType.ItemFinishedLoading, item);
 				item.Login();
 			}

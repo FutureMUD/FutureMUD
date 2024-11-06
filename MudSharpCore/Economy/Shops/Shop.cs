@@ -1026,9 +1026,9 @@ public abstract class Shop : SaveableItem, IShop
 		var stockTake = StocktakeAllMerchandise();
 		var index = 1;
 		var merchIndexes = new Dictionary<IMerchandise, int>();
-		foreach (var item in stockTake)
+		foreach (var item in StockedMerchandise.OrderBy(x => x.Name))
 		{
-			merchIndexes[item.Key] = index++;
+			merchIndexes[item] = index++;
 		}
 
 		if (Gameworld.GetStaticBool("DisplayTaxInShopList"))

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using ExpressionEngine;
 using MudSharp.Character;
 using MudSharp.Database;
 using MudSharp.Framework;
@@ -12,13 +13,19 @@ namespace MudSharp.CharacterCreation.Resources;
 
 internal class TotalPlaytimeResource : ChargenResourceBase
 {
-	public TimeSpan AwardInterval { get; set; }
-	public double AwardAmount { get; set; }
+	public TimeSpan AwardInterval => MinimumTimeBetweenAwards;
+	public double AwardAmount => MaximumNumberAwardedPerAward;
 
 	public TotalPlaytimeResource(IFuturemud gameworld, ChargenResource resource) : base(gameworld, resource)
 	{
-		AwardInterval = TimeSpan.FromMinutes(resource.MinimumTimeBetweenAwards);
-		AwardAmount = MaximumNumberAwardedPerAward;
+	}
+
+	public TotalPlaytimeResource(IFuturemud gameworld, string name, string plural, string alias) : base(gameworld, name, plural, alias)
+	{
+		MaximumNumberAwardedPerAward = 5;
+		MinimumTimeBetweenAwards = TimeSpan.FromMinutes(15);
+		MaximumResourceExpression = new Expression("1000");
+		DoDatabaseInsert("Playtime");
 	}
 
 	public override void UpdateOnSave(ICharacter character, int oldMinutes, int newMinutes)
@@ -60,4 +67,7 @@ internal class TotalPlaytimeResource : ChargenResourceBase
 			dbaccountresource.LastAwardDate = character.Account.AccountResourcesLastAwarded[this].Value;
 		}
 	}
+
+	/// <inheritdoc />
+	public override string TypeName => "Total Playtime";
 }

@@ -362,6 +362,7 @@ namespace MudSharp.Framework
 		void DebugMessage(string message);
 
 		void AddGuest(ICharacter character);
+		void Add(IChargenResource resource);
 		void Add(IShieldType shield);
 		void Add(IHeightWeightModel model);
 		void Add(ITrack track);

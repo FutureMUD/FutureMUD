@@ -13,13 +13,19 @@ namespace MudSharp.CharacterCreation.Resources;
 
 public class RegeneratingChargenResource : ChargenResourceBase
 {
-	public TimeSpan AwardInterval { get; set; }
-	public double AwardAmount { get; set; }
+	public TimeSpan AwardInterval => MinimumTimeBetweenAwards;
+	public double AwardAmount => MaximumNumberAwardedPerAward;
 
 	public RegeneratingChargenResource(IFuturemud gameworld, ChargenResource resource) : base(gameworld, resource)
 	{
-		AwardInterval = TimeSpan.FromMinutes(resource.MinimumTimeBetweenAwards);
-		AwardAmount = MaximumNumberAwardedPerAward;
+	}
+
+	public RegeneratingChargenResource(IFuturemud gameworld, string name, string plural, string alias) : base(gameworld, name, plural, alias)
+	{
+		MaximumNumberAwardedPerAward = 5;
+		MinimumTimeBetweenAwards = TimeSpan.FromMinutes(15);
+		MaximumResourceExpression = new Expression("1000");
+		DoDatabaseInsert("Regenerating");
 	}
 
 	public override void UpdateOnSave(ICharacter character, int oldMinutes, int newMinutes)
@@ -65,4 +71,7 @@ public class RegeneratingChargenResource : ChargenResourceBase
 			dbaccountresource.LastAwardDate = character.Account.AccountResourcesLastAwarded[this].Value;
 		}
 	}
+
+	/// <inheritdoc />
+	public override string TypeName => "Regenerating";
 }

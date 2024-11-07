@@ -11,6 +11,7 @@ using MudSharp.Body.Traits.Subtypes;
 using MudSharp.Character;
 using MudSharp.Character.Heritage;
 using MudSharp.CharacterCreation;
+using MudSharp.CharacterCreation.Resources;
 using MudSharp.Combat;
 using MudSharp.Commands.Modules;
 using MudSharp.Commands.Trees;
@@ -1863,6 +1864,122 @@ public partial class EditableItemHelper
 		DefaultCommandHelp = NPCBuilderModule.AIHelp,
 
 		GetEditHeader = item => $"Artificial Intelligence #{item.Id:N0} ({item.Name})"
+	};
+
+	public static EditableItemHelper ChargenResourceHelper { get; } = new()
+	{
+		ItemName = "Chargen Resource",
+		ItemNamePlural = "Chargen Resources",
+		SetEditableItemAction = (actor, item) =>
+		{
+			actor.RemoveAllEffects<BuilderEditingEffect<IChargenResource>>();
+			if (item == null)
+			{
+				return;
+			}
+
+			actor.AddEffect(new BuilderEditingEffect<IChargenResource>(actor) { EditingItem = (IChargenResource)item });
+		},
+		GetEditableItemFunc = actor =>
+			actor.CombinedEffectsOfType<BuilderEditingEffect<IChargenResource>>().FirstOrDefault()?.EditingItem,
+		GetAllEditableItems = actor => actor.Gameworld.ChargenResources.ToList(),
+		GetEditableItemByIdFunc = (actor, id) => actor.Gameworld.ChargenResources.Get(id),
+		GetEditableItemByIdOrNameFunc = (actor, input) => actor.Gameworld.ChargenResources.GetByIdOrName(input),
+		AddItemToGameWorldAction = item => item.Gameworld.Add((IChargenResource)item),
+		CastToType = typeof(IChargenResource),
+		EditableNewAction = (actor, input) =>
+		{
+			if (input.IsFinished)
+			{
+				actor.OutputHandler.Send($"Which type of chargen resource do you want to make? The valid choices are {ChargenResourceBase.BuilderTypesAvailable.ListToColouredString()}.");
+				return;
+			}
+
+			var type = input.PopSpeech().ToLowerInvariant();
+			if (!ChargenResourceBase.BuilderTypesAvailable.Contains(type))
+			{
+				actor.OutputHandler.Send($"The text {type.ColourCommand()} is not a valid chargen resource type. The valid choices are {ChargenResourceBase.BuilderTypesAvailable.ListToColouredString()}.");
+				return;
+			}
+
+			if (input.IsFinished)
+			{
+				actor.OutputHandler.Send("What name do you want to give to this resource?");
+				return;
+			}
+
+			var name = input.PopSpeech().TitleCase();
+			if (actor.Gameworld.ChargenResources.Any(x => x.Name.EqualTo(name)))
+			{
+				actor.OutputHandler.Send($"There is already a chargen resource called {name.ColourValue()}. Names must be unique.");
+				return;
+			}
+
+			if (input.IsFinished)
+			{
+				actor.OutputHandler.Send("What plural name do you want to give to the resource?");
+				return;
+			}
+
+			var plural = input.PopSpeech().TitleCase();
+
+			if (input.IsFinished)
+			{
+				actor.OutputHandler.Send("What alias do you want to give to the resource?");
+				return;
+			}
+
+			var alias = input.PopSpeech().ToLowerInvariant();
+			if (actor.Gameworld.ChargenResources.Any(x => x.Alias.EqualTo(alias)))
+			{
+				actor.OutputHandler.Send($"There is already a chargen resource with an alias of {alias.ColourValue()}. Aliases must be unique.");
+				return;
+			}
+
+			var newItem = ChargenResourceBase.LoadFromBuilderInput(actor.Gameworld, type, name, plural, alias);
+			if (newItem is null)
+			{
+				return;
+			}
+
+			actor.Gameworld.Add(newItem);
+			actor.RemoveAllEffects<BuilderEditingEffect<IChargenResource>>();
+			actor.AddEffect(new BuilderEditingEffect<IChargenResource>(actor) { EditingItem = newItem });
+			actor.OutputHandler.Send($"You create a new chargen resource of type {type.ColourCommand()} called {newItem.Name.ColourName()} with ID #{newItem.Id.ToString("N0", actor).ColourValue()}, which you are now editing.");
+		},
+		EditableCloneAction = (actor, input) =>
+		{
+			actor.OutputHandler.Send("Cloning is not supported for chargen resources.");
+		},
+
+		GetListTableHeaderFunc = character => new List<string>
+		{
+			"Id",
+			"Name",
+			"Plural",
+			"Alias",
+			"Type",
+			"Permission",
+			"Time Between"
+		},
+
+		GetListTableContentsFunc = (character, protos) => from proto in protos.OfType<IChargenResource>()
+														  select new List<string>
+														  {
+															  proto.Id.ToString("N0", character),
+															  proto.Name,
+															  proto.PluralName,
+															  proto.Alias,
+															  proto.TypeName,
+															  proto.PermissionLevelRequiredToAward.DescribeEnum(),
+															  proto.MinimumTimeBetweenAwards.DescribePreciseBrief(character)
+														  },
+
+		CustomSearch = (protos, keyword, gameworld) => protos,
+
+		DefaultCommandHelp = ChargenModule.ChargenResourceHelp,
+
+		GetEditHeader = item => $"Chargen Resource #{item.Id:N0} ({item.Name})"
 	};
 
 	public static EditableItemHelper ImproverHelper = new()

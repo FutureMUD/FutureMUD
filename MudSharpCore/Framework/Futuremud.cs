@@ -76,6 +76,7 @@ using System.Numerics;
 using MudSharp.Body.Traits.Improvement;
 using MudSharp.Economy.Currency;
 using MudSharp.Movement;
+using MudSharp.CharacterCreation.Resources;
 
 namespace MudSharp.Framework;
 
@@ -1384,6 +1385,11 @@ public sealed partial class Futuremud : IFuturemud, IDisposable
 	public void Add(IShieldType shield)
 	{
 		_shieldTypes.Add(shield);
+	}
+
+	public void Add(IChargenResource resource)
+	{
+		_chargenResources.Add(resource);
 	}
 
 	#endregion Special Add Methods

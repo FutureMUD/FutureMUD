@@ -117,6 +117,7 @@ public class BodyPrototype : SaveableItem, IBodyPrototype
 			}
 		}
 
+		// TODO - make this configurable
 		foreach (var state in _speeds.Select(x => x.Position).Distinct())
 		{
 			DefaultSpeeds[state] = _speeds.First(x => x.Position == state);

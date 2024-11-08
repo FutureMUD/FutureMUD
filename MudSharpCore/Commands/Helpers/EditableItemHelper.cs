@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
@@ -23,6 +24,7 @@ using MudSharp.Economy.Currency;
 using MudSharp.Economy.Property;
 using MudSharp.Effects;
 using MudSharp.Effects.Concrete;
+using MudSharp.Form.Colour;
 using MudSharp.Form.Shape;
 using MudSharp.Framework;
 using MudSharp.Framework.Revision;
@@ -2116,6 +2118,128 @@ public partial class EditableItemHelper
 		DefaultCommandHelp = BuilderModule.ImproverHelpText,
 
 		GetEditHeader = item => $"Improver #{item.Id:N0} ({item.Name})"
+	};
+
+	public static EditableItemHelper ColourHelper = new()
+	{
+		ItemName = "Colour",
+		ItemNamePlural = "Colours",
+		SetEditableItemAction = (actor, item) =>
+		{
+			actor.RemoveAllEffects<BuilderEditingEffect<IColour>>();
+			if (item == null)
+			{
+				return;
+			}
+
+			actor.AddEffect(new BuilderEditingEffect<IColour>(actor) { EditingItem = (IColour)item });
+		},
+		GetEditableItemFunc = actor =>
+			actor.CombinedEffectsOfType<BuilderEditingEffect<IColour>>().FirstOrDefault()?.EditingItem,
+		GetAllEditableItems = actor => actor.Gameworld.Colours.ToList(),
+		GetEditableItemByIdFunc = (actor, id) => actor.Gameworld.Colours.Get(id),
+		GetEditableItemByIdOrNameFunc = (actor, input) => actor.Gameworld.Colours.GetByIdOrName(input),
+		AddItemToGameWorldAction = item => item.Gameworld.Add((IColour)item),
+		CastToType = typeof(IColour),
+		EditableNewAction = (actor, input) =>
+		{
+			if (input.IsFinished)
+			{
+				actor.OutputHandler.Send("You must specify a name for your new colour.");
+				return;
+			}
+
+			var name = input.PopSpeech().ToLowerInvariant();
+			if (actor.Gameworld.Colours.Any(x => x.Name.EqualTo(name)))
+			{
+				actor.OutputHandler.Send($"There is already a colour called {name.ColourValue()}. Names must be unique.");
+				return;
+			}
+
+			if (input.IsFinished)
+			{
+				actor.OutputHandler.Send($"Which basic colour should represent this colour? The choices are {Enum.GetValues<BasicColour>().ListToColouredString()}.");
+				return;
+			}
+
+			if (!input.SafeRemainingArgument.TryParseEnum<BasicColour>(out var value))
+			{
+				actor.OutputHandler.Send($"The text {input.SafeRemainingArgument.ColourCommand()} is not a valid colour. The choices are {Enum.GetValues<BasicColour>().ListToColouredString()}.");
+				return;
+			}
+
+			var colour = new Colour(actor.Gameworld, name, value);
+			actor.Gameworld.Add(colour);
+			actor.RemoveAllEffects<BuilderEditingEffect<IColour>>();
+			actor.AddEffect(new BuilderEditingEffect<IColour>(actor) { EditingItem = colour });
+			actor.OutputHandler.Send($"You create a new colour called {name.ColourValue()}, which you are now editing.");
+		},
+		EditableCloneAction = (actor, input) =>
+		{
+			if (input.IsFinished)
+			{
+				actor.OutputHandler.Send("Which colour do you want to clone?");
+				return;
+			}
+
+			var colour = actor.Gameworld.Colours.GetByIdOrName(input.PopSpeech());
+			if (colour == null)
+			{
+				actor.OutputHandler.Send("There is no such colour model.");
+				return;
+			}
+
+			if (input.IsFinished)
+			{
+				actor.OutputHandler.Send("You must specify a name for your new colour.");
+				return;
+			}
+
+			var name = input.PopSpeech().ToLowerInvariant();
+			if (actor.Gameworld.Colours.Any(x => x.Name.EqualTo(name)))
+			{
+				actor.OutputHandler.Send($"There is already a colour called {name.ColourValue()}. Names must be unique.");
+				return;
+			}
+
+			var clone = colour.Clone(name);
+
+			actor.Gameworld.Add(clone);
+			actor.RemoveAllEffects<BuilderEditingEffect<IColour>>();
+			actor.AddEffect(new BuilderEditingEffect<IColour>(actor) { EditingItem = clone });
+			actor.OutputHandler.Send($"You clone the colour {colour.Name.ColourValue()} to a new one called {clone.Name.ColourValue()}, which you are now editing.");
+		},
+
+		GetListTableHeaderFunc = character => new List<string>
+		{
+			"Id",
+			"Name",
+			"Basic",
+			"Red",
+			"Green",
+			"Blue",
+			"ANSI",
+			"Fancy"
+		},
+
+		GetListTableContentsFunc = (character, protos) => from proto in protos.OfType<IColour>()
+														  select new List<string>
+														  {
+															  proto.Id.ToString("N0", character),
+															  proto.Name,
+															  proto.Basic.Describe(),
+															  proto.Red.ToStringN0(character),
+															  proto.Green.ToStringN0(character),
+															  proto.Blue.ToStringN0(character),
+															  proto.Name.Colour(proto.Red, proto.Green, proto.Blue),
+															  proto.Fancy
+														  },
+
+		CustomSearch = (protos, keyword, gameworld) => protos,
+
+		DefaultCommandHelp = BuilderModule.ColourCommandHelp,
+
+		GetEditHeader = item => $"Colour #{item.Id:N0} ({item.Name})"
 	};
 
 	public static EditableItemHelper UnitOfMeasureHelper = new()

@@ -3399,7 +3399,7 @@ For information on the syntax to use in emotes (such as those included in bracke
 		var colours = FMDB.Context.Colours.AsNoTracking().ToList();
 		foreach (var colour in colours)
 		{
-			_colours.Add(new Colour(colour));
+			_colours.Add(new Colour(colour, this));
 		}
 #if DEBUG
 		sw.Stop();

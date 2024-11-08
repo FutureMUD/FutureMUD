@@ -655,21 +655,21 @@ public class CoreDataSeeder : IDatabaseSeeder
 			SurveyDescription = "The noise level is generally low and otherwise unremarkable.",
 			Definition = @"<Definition>
    <Difficulties>
-     <Difficulty Volume=""0"" Proximity=""0"">2</Difficulty>
-     <Difficulty Volume=""1"" Proximity=""0"">1</Difficulty>
-     <Difficulty Volume=""0"" Proximity=""1"">3</Difficulty>
-     <Difficulty Volume=""1"" Proximity=""1"">2</Difficulty>
-     <Difficulty Volume=""2"" Proximity=""1"">1</Difficulty>
-     <Difficulty Volume=""0"" Proximity=""2"">4</Difficulty>
-     <Difficulty Volume=""1"" Proximity=""2"">3</Difficulty>
-     <Difficulty Volume=""2"" Proximity=""2"">2</Difficulty>
-     <Difficulty Volume=""0"" Proximity=""3"">7</Difficulty>
-     <Difficulty Volume=""1"" Proximity=""3"">6</Difficulty>
-     <Difficulty Volume=""2"" Proximity=""3"">5</Difficulty>
-     <Difficulty Volume=""3"" Proximity=""3"">4</Difficulty>
-     <Difficulty Volume=""4"" Proximity=""3"">3</Difficulty>
-     <Difficulty Volume=""5"" Proximity=""3"">2</Difficulty>
-     <Difficulty Volume=""6"" Proximity=""3"">1</Difficulty>
+	 <Difficulty Volume=""0"" Proximity=""0"">2</Difficulty>
+	 <Difficulty Volume=""1"" Proximity=""0"">1</Difficulty>
+	 <Difficulty Volume=""0"" Proximity=""1"">3</Difficulty>
+	 <Difficulty Volume=""1"" Proximity=""1"">2</Difficulty>
+	 <Difficulty Volume=""2"" Proximity=""1"">1</Difficulty>
+	 <Difficulty Volume=""0"" Proximity=""2"">4</Difficulty>
+	 <Difficulty Volume=""1"" Proximity=""2"">3</Difficulty>
+	 <Difficulty Volume=""2"" Proximity=""2"">2</Difficulty>
+	 <Difficulty Volume=""0"" Proximity=""3"">7</Difficulty>
+	 <Difficulty Volume=""1"" Proximity=""3"">6</Difficulty>
+	 <Difficulty Volume=""2"" Proximity=""3"">5</Difficulty>
+	 <Difficulty Volume=""3"" Proximity=""3"">4</Difficulty>
+	 <Difficulty Volume=""4"" Proximity=""3"">3</Difficulty>
+	 <Difficulty Volume=""5"" Proximity=""3"">2</Difficulty>
+	 <Difficulty Volume=""6"" Proximity=""3"">1</Difficulty>
    </Difficulties>
  </Definition>"
 		};
@@ -1087,15 +1087,15 @@ public class CoreDataSeeder : IDatabaseSeeder
 			Definition = @"<Definition>
    <LodgeDamageExpression>(damage - 10) / 2</LodgeDamageExpression>
    <SeverityRanges>
-     <Severity value=""0"" lower=""-1"" upper=""0""/>
-     <Severity value=""1"" lower=""0"" upper=""2""/>
-     <Severity value=""2"" lower=""2"" upper=""4""/>
-     <Severity value=""3"" lower=""4"" upper=""7""/>
-     <Severity value=""4"" lower=""7"" upper=""12""/>
-     <Severity value=""5"" lower=""12"" upper=""18""/>
-     <Severity value=""6"" lower=""18"" upper=""27""/>
-     <Severity value=""7"" lower=""27"" upper=""40""/>
-     <Severity value=""8"" lower=""40"" upper=""100""/>
+	 <Severity value=""0"" lower=""-1"" upper=""0""/>
+	 <Severity value=""1"" lower=""0"" upper=""2""/>
+	 <Severity value=""2"" lower=""2"" upper=""4""/>
+	 <Severity value=""3"" lower=""4"" upper=""7""/>
+	 <Severity value=""4"" lower=""7"" upper=""12""/>
+	 <Severity value=""5"" lower=""12"" upper=""18""/>
+	 <Severity value=""6"" lower=""18"" upper=""27""/>
+	 <Severity value=""7"" lower=""27"" upper=""40""/>
+	 <Severity value=""8"" lower=""40"" upper=""100""/>
    </SeverityRanges>
  </Definition>"
 		};
@@ -1701,7 +1701,7 @@ The engine will automatically convert any real-world time you encounter in game 
 
 Please note that this game uses timezones from the following list: 
 #6http://en.wikipedia.org/wiki/List_of_tz_database_time_zones#0
-            
+			
 Please select your GMT Offset: "
 		});
 		context.StaticStrings.Add(new StaticString
@@ -1797,15 +1797,15 @@ X) Disconnect from the game"
 		context.StaticStrings.Add(new StaticString
 		{
 			Id = "LoggedInMenuBanned", Text = @"
-           .-......-.                Your account has been banned.
-         .'          '.              You may not log in to the game.
-        /   O      O   \
-       :           `    :
-       |                |            X) Disconnect
-       :    .------.    :
-        \  '        '  /
-         '.          .'
-           '-......-'"
+		   .-......-.                Your account has been banned.
+		 .'          '.              You may not log in to the game.
+		/   O      O   \
+	   :           `    :
+	   |                |            X) Disconnect
+	   :    .------.    :
+		\  '        '  /
+		 '.          .'
+		   '-......-'"
 		});
 		context.StaticStrings.Add(new StaticString
 		{
@@ -1814,7 +1814,7 @@ X) Disconnect from the game"
 ========== Options ===========
 
 C) Connect to a character
-         and/or
+		 and/or
    Resume an application
 G) Login as a guest
 W) Withdraw an application
@@ -1928,7 +1928,7 @@ X) Disconnect from the game"
 ========== Options ===========
 
 C) Connect to a character
-           or
+		   or
    Resume an application
 G) Login as a guest
 N) Create a new character
@@ -1980,15 +1980,15 @@ R) Recover a lost account"
 		context.StaticStrings.Add(new StaticString
 		{
 			Id = "MainMenuSiteBanned", Text = @"
-           .-......-.                Your IP address has been banned.
-         .'          '.              You may not log in to the game.
-        /   O      O   \
-       :           `    :
-       |                |            X) Disconnect
-       :    .------.    :
-        \  '        '  /
-         '.          .'
-           '-......-'"
+		   .-......-.                Your IP address has been banned.
+		 .'          '.              You may not log in to the game.
+		/   O      O   \
+	   :           `    :
+	   |                |            X) Disconnect
+	   :    .------.    :
+		\  '        '  /
+		 '.          .'
+		   '-......-'"
 		});
 		context.StaticStrings.Add(new StaticString { Id = "MudName", Text = gameName });
 		context.StaticStrings.Add(new StaticString

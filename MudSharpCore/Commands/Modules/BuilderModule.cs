@@ -4414,4 +4414,32 @@ Note - you would ordinarily edit the trait expression with the #3TRAITEXPRESSION
 	}
 
 	#endregion
+
+	#region Colours
+
+	public const string ColourCommandHelp = @"The #3colour#0 command is used to edit definitions of colours, which are used in a few places in code like characteristic values for example.
+
+The syntax is as follows:
+
+	#3colour list#0 - lists all of the colours
+	#3colour edit <which>#0 - begins editing an colour
+	#3colour edit new <type> <name>#0 - creates a new colour
+	#3colour close#0 - stops editing an colour
+	#3colour show <which>#0 - views information about an colour
+	#3colour show#0 - views information about your currently editing colour
+	#3colour set name <name>#0 - renames the colour
+	#3colour set basic <colour>#0 - sets the equivalent basic colour (red, green, yellow, etc)
+	#3colour set fancy <fancy>#0 - sets the fancy description of this colour
+	#3colour set red <0-255>#0 - sets the red value of this colour
+	#3colour set green <0-255>#0 - sets the green value of this colour
+	#3colour set blue <0-255>#0 - sets the blue value of this colour";
+
+	[PlayerCommand("colour", "colour", "color")]
+	[CommandPermission(PermissionLevel.Admin)]
+	[HelpInfo("colour", ColourCommandHelp, AutoHelp.HelpArgOrNoArg)]
+	protected static void Colour(ICharacter actor, string command)
+	{
+		GenericBuildingCommand(actor, new StringStack(command.RemoveFirstWord()), EditableItemHelper.ColourHelper);
+	}
+	#endregion
 }

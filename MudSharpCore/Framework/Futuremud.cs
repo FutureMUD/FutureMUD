@@ -1392,6 +1392,11 @@ public sealed partial class Futuremud : IFuturemud, IDisposable
 		_chargenResources.Add(resource);
 	}
 
+	public void Add(IColour colour)
+	{
+		_colours.Add(colour);
+	}
+
 	#endregion Special Add Methods
 
 	#region Special Find

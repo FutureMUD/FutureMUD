@@ -260,25 +260,32 @@ public partial class Character
 			return false;
 		}
 
-		if (CombatSettings.AttackHelpless)
-		{
-			return true;
-		}
 
 		var charTarget = CombatTarget as ICharacter;
-		if ((charTarget?.Race.CombatSettings.CanUseWeapons ?? false) &&
-		    charTarget.Body.HeldOrWieldedItems.Any(
-			    x => x.IsItemType<IMeleeWeapon>() || x.IsItemType<IRangedWeapon>()))
+		if (!CombatSettings.AttackDisarmed)
+		{
+			if ((charTarget?.Race.CombatSettings.CanUseWeapons ?? false) &&
+			    charTarget.Body.HeldOrWieldedItems.All(
+				    x => !x.IsItemType<IMeleeWeapon>() && !x.IsItemType<IRangedWeapon>()))
+			{
+				return false;
+			}
+		}
+
+		if (!CombatSettings.AttackHelpless)
+		{
+			if (charTarget?.IsHelpless == true || charTarget?.PositionState.Upright == false)
+			{
+				return false;
+			}
+		}
+
+		if (!CombatSettings.AttackCriticallyInjured && charTarget?.HealthStrategy.IsCriticallyInjured(charTarget) == true)
 		{
 			return false;
 		}
-
-		if (!(charTarget?.PositionState.Upright ?? true))
-		{
-			return false;
-		}
-
-		return CharacterState.Able.HasFlag(charTarget?.State ?? CharacterState.Able);
+		
+		return true;
 	}
 
 	public override bool CanTruce()

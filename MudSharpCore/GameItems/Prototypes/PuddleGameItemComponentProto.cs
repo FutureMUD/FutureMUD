@@ -34,7 +34,7 @@ namespace MudSharp.GameItems.Prototypes
 
 		public static void InitialiseItemType(IFuturemud gameworld)
 		{
-			ItemPrototype = gameworld.ItemProtos.SingleOrDefault(x => x.IsItemType<PuddleGameItemComponentProto>());
+			ItemPrototype = gameworld.ItemProtos.LastOrDefault(x => x.IsItemType<PuddleGameItemComponentProto>());
 			if (ItemPrototype == null)
 			{
 				var comp = new PuddleGameItemComponentProto(gameworld, null);

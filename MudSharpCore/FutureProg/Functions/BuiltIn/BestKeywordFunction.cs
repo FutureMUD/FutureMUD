@@ -61,11 +61,8 @@ internal class BestKeywordFunction : BuiltInFunction
 			var index = targets.IndexOf(target);
 			if (index == -1)
 			{
-				ErrorMessage = "Unable to find suitable target in BestKeyword function.";
-				// DEBUG
-				Console.WriteLine("Unable to find suitable target in BestKeyword function.");
-				// END DEBUG
-				return StatementResult.Error;
+				Result = new NullVariable(ProgVariableTypes.Text);
+				return StatementResult.Normal;
 			}
 
 			Result = new TextVariable(
@@ -111,11 +108,8 @@ internal class BestKeywordFunction : BuiltInFunction
 			var index = targets.IndexOf(target);
 			if (index == -1)
 			{
-				ErrorMessage = "Unable to find suitable target in BestKeyword function.";
-				// DEBUG
-				Console.WriteLine("Unable to find suitable target in BestKeyword function.");
-				// END DEBUG
-				return StatementResult.Error;
+				Result = new NullVariable(ProgVariableTypes.Text);
+				return StatementResult.Normal;
 			}
 
 			Result = new TextVariable(
@@ -144,7 +138,7 @@ internal class BestKeywordFunction : BuiltInFunction
 				"The source for whom you want to identify the keyword",
 				"The target whose keyword you want to identify"
 			},
-			"This function allows you to determine what the 'best' keyword is for a target from a source. In this case, best implies a unique keyword that will allow the source to target the target through all regular commands.",
+			@"This function allows you to determine what the 'best' keyword is for a target from a source. In this case, best implies a unique keyword that will allow the source to target the target through all regular commands. If there is no best keyword, i.e. if this thing can't be targeted, then the returned text will be null.",
 			"Utilities",
 			ProgVariableTypes.Text
 		));
@@ -164,7 +158,7 @@ internal class BestKeywordFunction : BuiltInFunction
 				"The source for whom you want to identify the keyword",
 				"The target whose keyword you want to identify"
 			},
-			"This function allows you to determine what the 'best' keyword is for a target from a source. In this case, best implies a unique keyword that will allow the source to target the target through all regular commands. This version of the command considers both the player's inventory and the room contents.",
+			"This function allows you to determine what the 'best' keyword is for a target from a source. In this case, best implies a unique keyword that will allow the source to target the target through all regular commands. This version of the command considers both the player's inventory and the room contents. If there is no best keyword, i.e. if this thing can't be targeted, then the returned text will be null.",
 			"Utilities",
 			ProgVariableTypes.Text
 		));
@@ -184,7 +178,7 @@ internal class BestKeywordFunction : BuiltInFunction
 				"The source for whom you want to identify the keyword",
 				"The target whose keyword you want to identify"
 			},
-			"This function allows you to determine what the 'best' keyword is for a target from a source. In this case, best implies a unique keyword that will allow the source to target the target through all regular commands. This version of the command considers only the player's inventory and not the room contents.",
+			"This function allows you to determine what the 'best' keyword is for a target from a source. In this case, best implies a unique keyword that will allow the source to target the target through all regular commands. This version of the command considers only the player's inventory and not the room contents. If there is no best keyword, i.e. if this thing can't be targeted, then the returned text will be null.",
 			"Utilities",
 			ProgVariableTypes.Text
 		));
@@ -204,7 +198,7 @@ internal class BestKeywordFunction : BuiltInFunction
 				"The source for whom you want to identify the keyword",
 				"The target whose keyword you want to identify"
 			},
-			"This function allows you to determine what the 'best' keyword is for a target from a source. In this case, best implies a unique keyword that will allow the source to target the target through all regular commands. This version of the command considers only the room contents and not the player's inventory.",
+			"This function allows you to determine what the 'best' keyword is for a target from a source. In this case, best implies a unique keyword that will allow the source to target the target through all regular commands. This version of the command considers only the room contents and not the player's inventory. If there is no best keyword, i.e. if this thing can't be targeted, then the returned text will be null.",
 			"Utilities",
 			ProgVariableTypes.Text
 		));

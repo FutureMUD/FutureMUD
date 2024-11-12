@@ -646,7 +646,9 @@ See also: HELP EVALUATE, HELP SEARCH, HELP SCAN",
 		var layers = actor.Location.Terrain(actor).TerrainLayers.ToList();
 		if (ss.IsFinished)
 		{
-			exits = actor.Location.ExitsFor(actor).ToList();
+			exits = actor.Location
+			             .ExitsFor(actor)
+						 .ToList();
 		}
 		else
 		{
@@ -673,6 +675,8 @@ See also: HELP EVALUATE, HELP SEARCH, HELP SCAN",
 				exits = actor.Location.ExitsFor(actor).ToList();
 			}
 		}
+
+		exits = exits.Where(x => actor.CanSee(actor.Location, x)).ToList();
 
 		if ((!exits.Any() && layers.Count <= 1) || exits.Any(x => x == null))
 		{
@@ -842,6 +846,8 @@ See also: HELP EVALUATE, HELP SEARCH, HELP SCAN",
 				exits = actor.Location.ExitsFor(actor).ToList();
 			}
 		}
+
+		exits = exits.Where(x => actor.CanSee(actor.Location, x)).ToList();
 
 		if (exits.Any(x => x == null))
 		{
@@ -1089,6 +1095,8 @@ See also: HELP EVALUATE, HELP SEARCH, HELP SCAN",
 				exits = actor.Location.ExitsFor(actor).ToList();
 			}
 		}
+
+		exits = exits.Where(x => actor.CanSee(actor.Location, x)).ToList();
 
 		if (exits.Any(x => x == null))
 		{

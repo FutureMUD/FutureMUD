@@ -3348,9 +3348,13 @@ public class ShowModule : Module<ICharacter>
 				select
 					new[]
 					{
-						colour.Id.ToString(), colour.Name.Proper(), colour.Basic.ToString(), colour.Fancy,
+						colour.Id.ToString(), 
+						colour.Name.Proper(), 
+						colour.Basic.ToString(), 
+						colour.Fancy,
 						colour.Red.ToString(),
-						colour.Green.ToString(), colour.Blue.ToString()
+						colour.Green.ToString(), 
+						colour.Blue.ToString()
 					},
 				new[] { "ID#", "Colour", "Basic Colour", "Fancy", "Red", "Green", "Blue" },
 				actor.Account.LineFormatLength,

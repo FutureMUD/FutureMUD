@@ -1063,7 +1063,7 @@ You can use the following syntax with this command:
 			sb.AppendLine($"Author: {post.AuthorName.ColourName()}");
 			if (!string.IsNullOrEmpty(post.AuthorShortDescription))
 			{
-				sb.AppendLine($"SDesc: {post.AuthorShortDescription}");
+				sb.AppendLine($"SDesc: {post.AuthorShortDescription.ColourCharacter()}");
 			}
 		}
 		else

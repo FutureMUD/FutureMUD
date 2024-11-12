@@ -128,6 +128,11 @@ You can also enter the special values #3never#0 and #3now#0.";
 			return new MudDateTime(newDate, newTime, timezone);
 		}
 
+		public MudDateTime ConvertToOtherCalendar(ICalendar convert)
+		{
+			return new MudDateTime(Date.ConvertToOtherCalendar(convert), new MudTime(Time), TimeZone);
+		}
+
 		public string ToString(CalendarDisplayMode calendarMode, TimeDisplayTypes clockMode) {
 			return Date == null
 				? "Never"

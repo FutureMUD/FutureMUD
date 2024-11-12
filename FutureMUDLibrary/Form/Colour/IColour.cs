@@ -1,4 +1,6 @@
 ﻿using MudSharp.Framework;
+using MudSharp.Framework.Revision;
+using MudSharp.Framework.Save;
 
 namespace MudSharp.Form.Colour
 {
@@ -57,7 +59,7 @@ namespace MudSharp.Form.Colour
         }
     }
 
-    public interface IColour : IFrameworkItem
+    public interface IColour : IEditableItem, ISaveable
     {
         /// <summary>
         ///     Returns the Red component of the RGB value of this colour
@@ -84,5 +86,8 @@ namespace MudSharp.Form.Colour
         ///     midnight sky" as its Fancy.
         /// </summary>
         string Fancy { get; }
+
+        IColour Clone(string newName);
+
     }
 }

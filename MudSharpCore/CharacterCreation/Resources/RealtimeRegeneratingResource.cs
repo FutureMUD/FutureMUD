@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using ExpressionEngine;
 using Microsoft.EntityFrameworkCore;
 using MudSharp.Character;
 using MudSharp.Database;
@@ -10,12 +11,18 @@ namespace MudSharp.CharacterCreation.Resources;
 
 public class RealtimeRegeneratingResource : ChargenResourceBase
 {
-	public double AwardAmount { get; set; }
-
+	public double AwardAmount => MaximumNumberAwardedPerAward;
 	/// <inheritdoc />
 	public RealtimeRegeneratingResource(IFuturemud gameworld, ChargenResource resource) : base(gameworld, resource)
 	{
-		AwardAmount = MaximumNumberAwardedPerAward;
+	}
+
+	public RealtimeRegeneratingResource(IFuturemud gameworld, string name, string plural, string alias) : base(gameworld, name, plural, alias)
+	{
+		MaximumNumberAwardedPerAward = 1;
+		MinimumTimeBetweenAwards = TimeSpan.FromMinutes(15);
+		MaximumResourceExpression = new Expression("1000");
+		DoDatabaseInsert("Realtime");
 	}
 
 	/// <inheritdoc />
@@ -70,4 +77,7 @@ public class RealtimeRegeneratingResource : ChargenResourceBase
 			FMDB.Context.SaveChanges();
 		}
 	}
+
+	/// <inheritdoc />
+	public override string TypeName => "Realtime Regenerating";
 }

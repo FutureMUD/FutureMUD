@@ -161,7 +161,8 @@ All of the following commands must happen with an edited clan selected:
 	#3clan set template#0 - toggles this clan being a template clan (admin only)
 	#3clan set notable#0 - toggles this clan appearing in WHO (admin only)
 	#3clan set notablemembers#0 - toggles the famous members of this clan appearing in NOTABLES (admin only)
-	#3clan set bankaccount <account>#0 - sets a bank account for this clan";
+	#3clan set bankaccount <account>#0 - sets a bank account for this clan
+	#3clan set calendar <which>#0 - changes the calendar that the clan uses";
 
 	[PlayerCommand("Clan", "clan")]
 	[RequiredCharacterState(CharacterState.Conscious)]
@@ -3090,13 +3091,10 @@ Your next payday is {3}.
 		var canViewFinances = actor.IsAdministrator() ||
 		                      actorMembership.NetPrivileges.HasFlag(ClanPrivilegeType.CanViewTreasury);
 		var sb = new StringBuilder();
-		sb.AppendLine(clan.FullName.TitleCase().Colour(Telnet.Cyan));
+		sb.AppendLine(clan.FullName.TitleCase().GetLineWithTitleInner(actor, Telnet.Cyan, Telnet.BoldWhite));
 		sb.AppendLine();
-		sb.Append(new[]
-		{
-			$"Alias: {clan.Alias.Colour(Telnet.Green)}",
-			$"Name: {clan.Name.TitleCase().Colour(Telnet.Green)}"
-		}.ArrangeStringsOntoLines(2, (uint)actor.Account.LineFormatLength));
+		sb.AppendLine($"Alias: {clan.Alias.Colour(Telnet.Green)}");
+		sb.AppendLine($"Name: {clan.Name.TitleCase().Colour(Telnet.Green)}");
 		sb.AppendLine("Description:");
 		sb.AppendLine();
 		sb.AppendLine(clan.Description.Wrap(80, "\t").NoWrap());
@@ -3459,6 +3457,7 @@ Your next payday is {3}.
 				$"Total Commitment Salary Per Payday: {clan.Paygrades.Select(x => x.PayCurrency).Distinct().Select(x => x.Describe(clan.Paygrades.Where(y => y.PayCurrency == x).Sum(y => y.PayAmount * (clan.Memberships.Count(z => !z.IsArchivedMembership && z.Paygrade == y) + clan.Memberships.Sum(z => z.Appointments.Count(v => !z.IsArchivedMembership && v.Paygrade == y)))), CurrencyDescriptionPatternType.Short)).Select(x => x.Colour(Telnet.Green)).ListToString()}");
 		}
 
+		sb.AppendLine($"Clan Calendar: {clan.Calendar.ShortName.TitleCase().ColourValue()}");
 		sb.AppendLine($"Payday Interval: {clan.PayInterval.Describe(clan.Calendar).ColourValue()}");
 		sb.AppendLine($"Next Payday: {clan.Calendar.DisplayDate(clan.NextPay.Date, CalendarDisplayMode.Short).Colour(Telnet.Green)} at {clan.Calendar.FeedClock.DisplayTime(clan.NextPay.Time, TimeDisplayTypes.Immortal).Colour(Telnet.Green)}");
 		actor.OutputHandler.Send(sb.ToString());
@@ -4597,7 +4596,35 @@ Your next payday is {3}.
 			case "discord":
 				ClanEditDiscord(actor, command, clan);
 				return;
+			case "calendar":
+				ClanEditCalendar(actor, command, clan);
+				return;
 		}
+	}
+
+	private static void ClanEditCalendar(ICharacter actor, StringStack command, IClan clan)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("Which calendar do you want this clan to use?");
+			return;
+		}
+
+		var calendar = actor.Gameworld.Calendars.GetByIdOrName(command.SafeRemainingArgument);
+		if (calendar is null)
+		{
+			actor.OutputHandler.Send("There is no such calendar.");
+			return;
+		}
+
+		if (calendar == clan.Calendar)
+		{
+			actor.OutputHandler.Send($"The {clan.FullName.TitleCase().ColourName()} clan already uses the {calendar.ShortName.ColourValue()} calendar.");
+			return;
+		}
+
+		clan.Calendar = calendar;
+		actor.OutputHandler.Send($"The {clan.FullName.TitleCase().ColourName()} clan now uses the {calendar.ShortName.ColourValue()} calendar.");
 	}
 
 	private static void ClanEditBankAccount(ICharacter actor, StringStack command, IClan clan)
@@ -6864,6 +6891,7 @@ Your next payday is {3}.
 			case "notablemembers":
 			case "bankaccount":
 			case "discord":
+			case "calendar":
 				ClanEditProperty(actor, command, text);
 				return;
 		}
@@ -6881,7 +6909,8 @@ Your next payday is {3}.
 	#3notable#0 - toggles this clan appearing in WHO (admin only)
 	#3notablemembers#0 - toggles the famous members of this clan appearing in NOTABLES (admin only)
 	#3bankaccount <account>#0 - sets a bank account for this clan
-	#3discord <none>|<id>#0 - sets a discord channel for the clan".SubstituteANSIColour());
+	#3discord <none>|<id>#0 - sets a discord channel for the clan
+	#3calendar <which>#0 - changes the calendar that the clan uses".SubstituteANSIColour());
 	}
 
 	private static void ClanSubmit(ICharacter actor, StringStack command)

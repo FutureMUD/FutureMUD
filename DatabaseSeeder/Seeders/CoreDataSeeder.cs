@@ -655,21 +655,21 @@ public class CoreDataSeeder : IDatabaseSeeder
 			SurveyDescription = "The noise level is generally low and otherwise unremarkable.",
 			Definition = @"<Definition>
    <Difficulties>
-     <Difficulty Volume=""0"" Proximity=""0"">2</Difficulty>
-     <Difficulty Volume=""1"" Proximity=""0"">1</Difficulty>
-     <Difficulty Volume=""0"" Proximity=""1"">3</Difficulty>
-     <Difficulty Volume=""1"" Proximity=""1"">2</Difficulty>
-     <Difficulty Volume=""2"" Proximity=""1"">1</Difficulty>
-     <Difficulty Volume=""0"" Proximity=""2"">4</Difficulty>
-     <Difficulty Volume=""1"" Proximity=""2"">3</Difficulty>
-     <Difficulty Volume=""2"" Proximity=""2"">2</Difficulty>
-     <Difficulty Volume=""0"" Proximity=""3"">7</Difficulty>
-     <Difficulty Volume=""1"" Proximity=""3"">6</Difficulty>
-     <Difficulty Volume=""2"" Proximity=""3"">5</Difficulty>
-     <Difficulty Volume=""3"" Proximity=""3"">4</Difficulty>
-     <Difficulty Volume=""4"" Proximity=""3"">3</Difficulty>
-     <Difficulty Volume=""5"" Proximity=""3"">2</Difficulty>
-     <Difficulty Volume=""6"" Proximity=""3"">1</Difficulty>
+	 <Difficulty Volume=""0"" Proximity=""0"">2</Difficulty>
+	 <Difficulty Volume=""1"" Proximity=""0"">1</Difficulty>
+	 <Difficulty Volume=""0"" Proximity=""1"">3</Difficulty>
+	 <Difficulty Volume=""1"" Proximity=""1"">2</Difficulty>
+	 <Difficulty Volume=""2"" Proximity=""1"">1</Difficulty>
+	 <Difficulty Volume=""0"" Proximity=""2"">4</Difficulty>
+	 <Difficulty Volume=""1"" Proximity=""2"">3</Difficulty>
+	 <Difficulty Volume=""2"" Proximity=""2"">2</Difficulty>
+	 <Difficulty Volume=""0"" Proximity=""3"">7</Difficulty>
+	 <Difficulty Volume=""1"" Proximity=""3"">6</Difficulty>
+	 <Difficulty Volume=""2"" Proximity=""3"">5</Difficulty>
+	 <Difficulty Volume=""3"" Proximity=""3"">4</Difficulty>
+	 <Difficulty Volume=""4"" Proximity=""3"">3</Difficulty>
+	 <Difficulty Volume=""5"" Proximity=""3"">2</Difficulty>
+	 <Difficulty Volume=""6"" Proximity=""3"">1</Difficulty>
    </Difficulties>
  </Definition>"
 		};
@@ -1087,15 +1087,15 @@ public class CoreDataSeeder : IDatabaseSeeder
 			Definition = @"<Definition>
    <LodgeDamageExpression>(damage - 10) / 2</LodgeDamageExpression>
    <SeverityRanges>
-     <Severity value=""0"" lower=""-1"" upper=""0""/>
-     <Severity value=""1"" lower=""0"" upper=""2""/>
-     <Severity value=""2"" lower=""2"" upper=""4""/>
-     <Severity value=""3"" lower=""4"" upper=""7""/>
-     <Severity value=""4"" lower=""7"" upper=""12""/>
-     <Severity value=""5"" lower=""12"" upper=""18""/>
-     <Severity value=""6"" lower=""18"" upper=""27""/>
-     <Severity value=""7"" lower=""27"" upper=""40""/>
-     <Severity value=""8"" lower=""40"" upper=""100""/>
+	 <Severity value=""0"" lower=""-1"" upper=""0""/>
+	 <Severity value=""1"" lower=""0"" upper=""2""/>
+	 <Severity value=""2"" lower=""2"" upper=""4""/>
+	 <Severity value=""3"" lower=""4"" upper=""7""/>
+	 <Severity value=""4"" lower=""7"" upper=""12""/>
+	 <Severity value=""5"" lower=""12"" upper=""18""/>
+	 <Severity value=""6"" lower=""18"" upper=""27""/>
+	 <Severity value=""7"" lower=""27"" upper=""40""/>
+	 <Severity value=""8"" lower=""40"" upper=""100""/>
    </SeverityRanges>
  </Definition>"
 		};
@@ -1701,7 +1701,7 @@ The engine will automatically convert any real-world time you encounter in game 
 
 Please note that this game uses timezones from the following list: 
 #6http://en.wikipedia.org/wiki/List_of_tz_database_time_zones#0
-            
+			
 Please select your GMT Offset: "
 		});
 		context.StaticStrings.Add(new StaticString
@@ -1797,15 +1797,15 @@ X) Disconnect from the game"
 		context.StaticStrings.Add(new StaticString
 		{
 			Id = "LoggedInMenuBanned", Text = @"
-           .-......-.                Your account has been banned.
-         .'          '.              You may not log in to the game.
-        /   O      O   \
-       :           `    :
-       |                |            X) Disconnect
-       :    .------.    :
-        \  '        '  /
-         '.          .'
-           '-......-'"
+		   .-......-.                Your account has been banned.
+		 .'          '.              You may not log in to the game.
+		/   O      O   \
+	   :           `    :
+	   |                |            X) Disconnect
+	   :    .------.    :
+		\  '        '  /
+		 '.          .'
+		   '-......-'"
 		});
 		context.StaticStrings.Add(new StaticString
 		{
@@ -1814,7 +1814,7 @@ X) Disconnect from the game"
 ========== Options ===========
 
 C) Connect to a character
-         and/or
+		 and/or
    Resume an application
 G) Login as a guest
 W) Withdraw an application
@@ -1928,7 +1928,7 @@ X) Disconnect from the game"
 ========== Options ===========
 
 C) Connect to a character
-           or
+		   or
    Resume an application
 G) Login as a guest
 N) Create a new character
@@ -1980,15 +1980,15 @@ R) Recover a lost account"
 		context.StaticStrings.Add(new StaticString
 		{
 			Id = "MainMenuSiteBanned", Text = @"
-           .-......-.                Your IP address has been banned.
-         .'          '.              You may not log in to the game.
-        /   O      O   \
-       :           `    :
-       |                |            X) Disconnect
-       :    .------.    :
-        \  '        '  /
-         '.          .'
-           '-......-'"
+		   .-......-.                Your IP address has been banned.
+		 .'          '.              You may not log in to the game.
+		/   O      O   \
+	   :           `    :
+	   |                |            X) Disconnect
+	   :    .------.    :
+		\  '        '  /
+		 '.          .'
+		   '-......-'"
 		});
 		context.StaticStrings.Add(new StaticString { Id = "MudName", Text = gameName });
 		context.StaticStrings.Add(new StaticString
@@ -3147,31 +3147,31 @@ return IsAdmin(@ch)",
 		});
 		context.Colours.Add(new Colour
 		{
-			Id = 62, Name = "goldenrod", Basic = 6, Red = 0, Green = 255, Blue = 255,
+			Id = 62, Name = "goldenrod", Basic = 6, Red = 255, Green = 255, Blue = 0,
 			Fancy = "the yellow of the goldenrod flower"
 		});
 		context.Colours.Add(new Colour
 		{
-			Id = 63, Name = "pale yellow", Basic = 6, Red = 0, Green = 255, Blue = 255, Fancy = "a gentle, pale yellow"
+			Id = 63, Name = "pale yellow", Basic = 6, Red = 255, Green = 255, Blue = 0, Fancy = "a gentle, pale yellow"
 		});
 		context.Colours.Add(new Colour
 		{
-			Id = 64, Name = "golden yellow", Basic = 6, Red = 0, Green = 255, Blue = 255,
+			Id = 64, Name = "golden yellow", Basic = 6, Red = 255, Green = 255, Blue = 0,
 			Fancy = "a rich, golden yellow"
 		});
 		context.Colours.Add(new Colour
 		{
-			Id = 65, Name = "sand yellow", Basic = 6, Red = 0, Green = 255, Blue = 255,
+			Id = 65, Name = "sand yellow", Basic = 6, Red = 255, Green = 255, Blue = 0,
 			Fancy = "the light brownish-yellow of beach sand"
 		});
 		context.Colours.Add(new Colour
 		{
-			Id = 66, Name = "topaz hued", Basic = 6, Red = 0, Green = 255, Blue = 255,
+			Id = 66, Name = "topaz hued", Basic = 6, Red = 255, Green = 255, Blue = 0,
 			Fancy = "the colour of the topaz gemstone"
 		});
 		context.Colours.Add(new Colour
 		{
-			Id = 67, Name = "gold-coloured", Basic = 6, Red = 0, Green = 255, Blue = 255,
+			Id = 67, Name = "gold-coloured", Basic = 6, Red = 255, Green = 255, Blue = 0,
 			Fancy = "a full-bodied gold hue"
 		});
 		context.Colours.Add(new Colour
@@ -3220,7 +3220,7 @@ return IsAdmin(@ch)",
 			{ Id = 78, Name = "forest green", Basic = 5, Red = 0, Green = 255, Blue = 0, Fancy = "a forest green" });
 		context.Colours.Add(new Colour
 		{
-			Id = 79, Name = "chartreuse", Basic = 6, Red = 0, Green = 255, Blue = 255,
+			Id = 79, Name = "chartreuse", Basic = 6, Red = 255, Green = 255, Blue = 0,
 			Fancy = "the slight greenish-yellow colour of chartreuse"
 		});
 		context.Colours.Add(new Colour
@@ -3385,7 +3385,7 @@ return IsAdmin(@ch)",
 		context.Colours.Add(new Colour
 			{ Id = 118, Name = "dull orange", Basic = 7, Red = 255, Green = 165, Blue = 0, Fancy = "" });
 		context.Colours.Add(new Colour
-			{ Id = 119, Name = "bland yellow", Basic = 6, Red = 0, Green = 255, Blue = 255, Fancy = "" });
+			{ Id = 119, Name = "bland yellow", Basic = 6, Red = 255, Green = 255, Blue = 0, Fancy = "" });
 		context.Colours.Add(new Colour
 			{ Id = 120, Name = "faded green", Basic = 5, Red = 0, Green = 255, Blue = 0, Fancy = "" });
 		context.Colours.Add(new Colour
@@ -3423,17 +3423,17 @@ return IsAdmin(@ch)",
 		context.Colours.Add(new Colour
 			{ Id = 137, Name = "stained ivory", Basic = 1, Red = 255, Green = 255, Blue = 255, Fancy = "" });
 		context.Colours.Add(new Colour
-			{ Id = 138, Name = "shabby sallow-coloured", Basic = 6, Red = 0, Green = 255, Blue = 255, Fancy = "" });
+			{ Id = 138, Name = "shabby sallow-coloured", Basic = 6, Red = 255, Green = 255, Blue = 0, Fancy = "" });
 		context.Colours.Add(new Colour
-			{ Id = 139, Name = "lurid pale yellow", Basic = 6, Red = 0, Green = 255, Blue = 255, Fancy = "" });
+			{ Id = 139, Name = "lurid pale yellow", Basic = 6, Red = 255, Green = 255, Blue = 0, Fancy = "" });
 		context.Colours.Add(new Colour
-			{ Id = 140, Name = "dingy yellow", Basic = 6, Red = 0, Green = 255, Blue = 255, Fancy = "" });
+			{ Id = 140, Name = "dingy yellow", Basic = 6, Red = 255, Green = 255, Blue = 0, Fancy = "" });
 		context.Colours.Add(new Colour
-			{ Id = 141, Name = "gaudy mustard yellow", Basic = 6, Red = 0, Green = 255, Blue = 255, Fancy = "" });
+			{ Id = 141, Name = "gaudy mustard yellow", Basic = 6, Red = 255, Green = 255, Blue = 0, Fancy = "" });
 		context.Colours.Add(new Colour
-			{ Id = 142, Name = "sickly pale yellow", Basic = 6, Red = 0, Green = 255, Blue = 255, Fancy = "" });
+			{ Id = 142, Name = "sickly pale yellow", Basic = 6, Red = 255, Green = 255, Blue = 0, Fancy = "" });
 		context.Colours.Add(new Colour
-			{ Id = 143, Name = "shabby pale yellow", Basic = 6, Red = 0, Green = 255, Blue = 255, Fancy = "" });
+			{ Id = 143, Name = "shabby pale yellow", Basic = 6, Red = 255, Green = 255, Blue = 0, Fancy = "" });
 		context.Colours.Add(new Colour
 			{ Id = 144, Name = "murky brown", Basic = 10, Red = 175, Green = 175, Blue = 0, Fancy = "" });
 		context.Colours.Add(new Colour
@@ -3457,7 +3457,7 @@ return IsAdmin(@ch)",
 		context.Colours.Add(new Colour
 			{ Id = 154, Name = "tattered beige", Basic = 10, Red = 175, Green = 175, Blue = 0, Fancy = "" });
 		context.Colours.Add(new Colour
-			{ Id = 155, Name = "bland wheat-coloured", Basic = 6, Red = 0, Green = 255, Blue = 255, Fancy = "" });
+			{ Id = 155, Name = "bland wheat-coloured", Basic = 6, Red = 255, Green = 255, Blue = 0, Fancy = "" });
 		context.Colours.Add(new Colour
 			{ Id = 156, Name = "drab olive", Basic = 5, Red = 0, Green = 255, Blue = 0, Fancy = "" });
 		context.Colours.Add(new Colour
@@ -3602,7 +3602,7 @@ return IsAdmin(@ch)",
 		});
 		context.Colours.Add(new Colour
 		{
-			Id = 213, Name = "yellow", Basic = 6, Red = 0, Green = 255, Blue = 255, Fancy = "a pure shade of yellow"
+			Id = 213, Name = "yellow", Basic = 6, Red = 255, Green = 255, Blue = 0, Fancy = "a pure shade of yellow"
 		});
 		context.Colours.Add(new Colour
 			{ Id = 214, Name = "cyan", Basic = 11, Red = 0, Green = 75, Blue = 255, Fancy = "a light, greenish blue" });
@@ -3708,7 +3708,7 @@ return IsAdmin(@ch)",
 		});
 		context.Colours.Add(new Colour
 		{
-			Id = 237, Name = "goldenrod yellow", Basic = 6, Red = 0, Green = 255, Blue = 255,
+			Id = 237, Name = "goldenrod yellow", Basic = 6, Red = 255, Green = 255, Blue = 0,
 			Fancy = "the colour of goldenrod yellow"
 		});
 		context.Colours.Add(new Colour
@@ -3718,7 +3718,7 @@ return IsAdmin(@ch)",
 		});
 		context.Colours.Add(new Colour
 		{
-			Id = 239, Name = "banana yellow", Basic = 6, Red = 0, Green = 255, Blue = 255,
+			Id = 239, Name = "banana yellow", Basic = 6, Red = 255, Green = 255, Blue = 0,
 			Fancy = "the colour of banana yellow"
 		});
 		context.Colours.Add(new Colour
@@ -3732,7 +3732,7 @@ return IsAdmin(@ch)",
 		});
 		context.Colours.Add(new Colour
 		{
-			Id = 242, Name = "tan yellow", Basic = 6, Red = 0, Green = 255, Blue = 255,
+			Id = 242, Name = "tan yellow", Basic = 6, Red = 255, Green = 255, Blue = 0,
 			Fancy = "the colour of tan yellow"
 		});
 		context.Colours.Add(new Colour
@@ -3906,12 +3906,12 @@ return IsAdmin(@ch)",
 		});
 		context.Colours.Add(new Colour
 		{
-			Id = 279, Name = "light yellow", Basic = 6, Red = 0, Green = 255, Blue = 255,
+			Id = 279, Name = "light yellow", Basic = 6, Red = 255, Green = 255, Blue = 0,
 			Fancy = "the colour of light yellow"
 		});
 		context.Colours.Add(new Colour
 		{
-			Id = 280, Name = "goldenrod yellow", Basic = 6, Red = 0, Green = 255, Blue = 255,
+			Id = 280, Name = "goldenrod yellow", Basic = 6, Red = 255, Green = 255, Blue = 0,
 			Fancy = "the colour of goldenrod yellow"
 		});
 		context.Colours.Add(new Colour
@@ -3922,15 +3922,15 @@ return IsAdmin(@ch)",
 			Fancy = "the colour of dark khaki"
 		});
 		context.Colours.Add(new Colour
-			{ Id = 283, Name = "gold", Basic = 6, Red = 0, Green = 255, Blue = 255, Fancy = "the colour of gold" });
+			{ Id = 283, Name = "gold", Basic = 6, Red = 255, Green = 255, Blue = 0, Fancy = "the colour of gold" });
 		context.Colours.Add(new Colour
 		{
-			Id = 284, Name = "banana yellow", Basic = 6, Red = 0, Green = 255, Blue = 255,
+			Id = 284, Name = "banana yellow", Basic = 6, Red = 255, Green = 255, Blue = 0,
 			Fancy = "the colour of banana yellow"
 		});
 		context.Colours.Add(new Colour
 		{
-			Id = 285, Name = "cornsilk yellow", Basic = 6, Red = 0, Green = 255, Blue = 255,
+			Id = 285, Name = "cornsilk yellow", Basic = 6, Red = 255, Green = 255, Blue = 0,
 			Fancy = "the colour of cornsilk yellow"
 		});
 		context.Colours.Add(new Colour
@@ -3939,7 +3939,7 @@ return IsAdmin(@ch)",
 		});
 		context.Colours.Add(new Colour
 		{
-			Id = 287, Name = "wheat yellow", Basic = 6, Red = 0, Green = 255, Blue = 255,
+			Id = 287, Name = "wheat yellow", Basic = 6, Red = 255, Green = 255, Blue = 0,
 			Fancy = "the colour of wheat yellow"
 		});
 		context.Colours.Add(new Colour
@@ -3954,7 +3954,7 @@ return IsAdmin(@ch)",
 		});
 		context.Colours.Add(new Colour
 		{
-			Id = 290, Name = "tan yellow", Basic = 6, Red = 0, Green = 255, Blue = 255,
+			Id = 290, Name = "tan yellow", Basic = 6, Red = 255, Green = 255, Blue = 0,
 			Fancy = "the colour of tan yellow"
 		});
 		context.Colours.Add(new Colour

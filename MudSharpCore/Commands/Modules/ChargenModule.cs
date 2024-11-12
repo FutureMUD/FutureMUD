@@ -29,6 +29,7 @@ internal class ChargenModule : Module<ICharacter>
 
 	public static ChargenModule Instance { get; } = new();
 
+	#region Chargen
 	public const string ChargenHelpText =
 		@"The chargen command is used to show and view character applications, as well as editing the character creation experience. Note that this command isn't the correct one for reviewing applications - instead see the #3APPLICATIONS#0 command for this functionality.
 
@@ -614,7 +615,9 @@ Description: {type.Description.ColourValue()}
 
 		actor.OutputHandler.Send(sb.ToString());
 	}
+#endregion
 
+	#region Intro Templates
 	public const string IntroTemplateHelp = @"This command is used to edit #6Character Intro Templates#0, which are a series of echoes that are shown to characters when they log in for the first time after character creation.
 
 Each character will be shown a maximum of one introduction, and they will be shown the first valid one with the highest priority (numerically).
@@ -647,7 +650,9 @@ You can use the following syntax with this command:
 	{
 		BaseBuilderModule.GenericBuildingCommand(actor, new StringStack(command.RemoveFirstWord()), EditableItemHelper.CharacterIntroTemplateHelper);
 	}
+	#endregion
 
+	#region Merits
 	public const string MeritHelpText = @"This command is used to create and edit merits (also known as flaws or quirks). These can be added to items and characters to give them various effects.
 
 You can use the following commands to work with merits:
@@ -733,4 +738,39 @@ You can use the following commands to work with merits:
 		));
 		actor.OutputHandler.Send(sb.ToString());
 	}
+	#endregion
+
+	#region Chargen Resources
+
+	public const string ChargenResourceHelp = @"The #3chargenresource#0 command is used to edit and create chargen resources, which are quantities that accrue or are awarded at an account level and would typically be used to unlock options during character creation (hence the name).
+
+You can use the follow syntax with this command:
+
+	#3cg list#0 - lists all chargen resources
+	#3cg show <id|name>#0 - shows a chargen resource
+	#3cg show#0 - an alias for showing your currently edited chargen resource
+	#3cg edit <which>#0 - begin editing a particular existing chargen resource
+	#3cg edit#0 - an alias for showing your currently edited chargen resource
+	#3cg close#0 - stop editing your current chargen resource
+	#3cg edit new <type> <name> <plural> <alias>#0 - creates and begins editing a new chargen resource
+	#3cg set name <name>#0 - renames the resource
+	#3cg set plural <name>#0 - sets the plural name
+	#3cg set alias <alias>#0 - sets the alias
+	#3cg set score#0 - toggles the resource showing in player scores
+	#3cg set permission <level>#0 - sets the permission level required to award
+	#3cg set permissiontime <level>#0 - sets the permission level required to skip the wait time
+	#3cg set time <timespan>#0 - sets the time between awards
+	#3cg set max <amount>#0 - sets the maximum amount that's awarded each award
+	#3cg set control <prog>#0 - sets the prog that determines eligibility for automatic awards
+	#3cg set resource <which>#0 - sets another resource that is used as a variable in the cap formula
+	#3cg set formula <formula>#0 - sets the formula used to control the cap on amount";
+
+	[PlayerCommand("ChargenResource", "chargenresource", "cr")]
+	[HelpInfo("chargenresource", ChargenResourceHelp, AutoHelp.HelpArgOrNoArg)]
+	[CommandPermission(PermissionLevel.SeniorAdmin)]
+	protected static void ChargenResource(ICharacter actor, string command)
+	{
+		BaseBuilderModule.GenericBuildingCommand(actor, new StringStack(command.RemoveFirstWord()), EditableItemHelper.ChargenResourceHelper);
+	}
+	#endregion
 }

@@ -10,6 +10,7 @@ using MudSharp.PerceptionEngine;
 using MudSharp.PerceptionEngine.Parsers;
 using MudSharp.Construction;
 using MudSharp.PerceptionEngine.Outputs;
+using C5;
 
 namespace MudSharp.Commands.Modules;
 
@@ -130,7 +131,8 @@ The syntax for this command is as follows:
 	#3party leave#0 - leaves your current party
 	#3party eject <target>#0 - as the leader, eject someone from your party
 	#3party disband#0 - as the leader, disband your party
-	#3party promote <target>#0 - as the leader, promote someone else to leader (you will no longer be the leader)";
+	#3party promote <target>#0 - as the leader, promote someone else to leader (you will no longer be the leader)
+	#3party speed <speed>#0 - as the leader, sets a speed that everyone in the party should follow";
 
 	[PlayerCommand("Party", "party")]
 	[RequiredCharacterState(CharacterState.Awake)]
@@ -159,9 +161,84 @@ The syntax for this command is as follows:
 			return;
 		}
 
+		switch (cmd)
+		{
+			case "speed":
+			case "merge":
+			case "eject":
+			case "promote":
+			case "disband":
+				if (actor.Party == null)
+				{
+					actor.OutputHandler.Send("You are not in a party.");
+					return;
+				}
+
+				if (actor.Party.Leader != actor)
+				{
+					actor.OutputHandler.Send("You are not the leader of your party.");
+					return;
+				}
+
+				break;
+		}
+
 		ICharacter target = null;
 		switch (cmd)
 		{
+			case "speed":
+				cmd = ss.Pop().ToLowerInvariant();
+				if (cmd.Length == 0)
+				{
+					actor.OutputHandler.Send("Which speed would you like to set for the party?");
+					return;
+				}
+
+				var speed = actor.Speeds.GetByIdOrName(cmd);
+				if (speed is null)
+				{
+					actor.OutputHandler.Send($"The text {cmd.ColourCommand()} is not a valid speed for you.");
+					return;
+				}
+
+				actor.OutputHandler.Send($"You order your party to begin moving at {speed.PresentParticiple.ToLowerInvariant().ColourValue()} speed.");
+				actor.CurrentSpeeds[speed.Position] = speed;
+				foreach (var ch in actor.Party.CharacterMembers)
+				{
+					if (ch == actor)
+					{
+						continue;
+					}
+
+					ch.OutputHandler.Send(new EmoteOutput(new Emote($"@ orders your party to begin moving at {speed.PresentParticiple.ToLowerInvariant().ColourCommand()} speed.", ch, ch)));
+					if (ch.Speeds.Contains(speed))
+					{
+						ch.CurrentSpeeds[speed.Position] = speed;
+						ch.OutputHandler.Send($"When you move while you are {speed.Position.DescribeLocationMovementParticiple.ColourValue()}, you will now {speed.FirstPersonVerb.ToLowerInvariant().ColourCommand()}");
+					}
+					else
+					{
+						var chspeed = ch.Speeds
+						                .Where(x => x.Position == speed.Position)
+						                .FirstOrDefault(x => x.Multiplier == speed.Multiplier) ??
+						              ch.Speeds
+						                .Where(x => x.Position == speed.Position)
+						                .Where(x => x.Multiplier >= speed.Multiplier)
+						                .FirstMin(x => x.Multiplier)
+							;
+						if (chspeed is null)
+						{
+							ch.OutputHandler.Send("You were unable to comply with a valid matching speed.");
+							actor.OutputHandler.Send($"{ch.HowSeen(actor, true)} was unable to comply with a matching speed.");
+							continue;
+						}
+
+						ch.CurrentSpeeds[chspeed.Position] = chspeed;
+						ch.OutputHandler.Send($"When you move while you are {chspeed.Position.DescribeLocationMovementParticiple.ColourValue()}, you will now {chspeed.FirstPersonVerb.ToLowerInvariant().ColourCommand()}");
+					}
+				}
+
+				break;
 			case "join":
 				cmd = ss.Pop().ToLowerInvariant();
 				if (cmd.Length == 0)
@@ -454,6 +531,6 @@ The syntax for this command is as follows:
 
 		actor.CurrentSpeeds[speed.Position] = speed;
 		actor.OutputHandler.Send(
-			$"When you move while you are {speed.Position.DescribeLocationMovementParticiple.ColourValue()}, you will now {speed.FirstPersonVerb.TitleCase().ColourCommand()}");
+			$"When you move while you are {speed.Position.DescribeLocationMovementParticiple.ColourValue()}, you will now {speed.FirstPersonVerb.ToLowerInvariant().ColourCommand()}");
 	}
 }

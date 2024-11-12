@@ -197,6 +197,15 @@ Additionally, admins can use the following options:
 
 				actor.OutputHandler.Send("The valid options are none, brackets and replace.");
 				return;
+			case "hints":
+				actor.Account.HintsEnabled = !actor.Account.HintsEnabled;
+				actor.OutputHandler.Send($"You will {actor.Account.HintsEnabled.NowNoLonger()} see hint echoes.");
+				return;
+			case "autoreaquire":
+			case "autotarget":
+				actor.Account.AutoReacquireTargets = !actor.Account.AutoReacquireTargets;
+				actor.OutputHandler.Send($"You will {actor.Account.AutoReacquireTargets.NowNoLonger()} automatically acquire new targets when your current target is incapacitated.");
+				return;
 			case "prompt":
 				switch (ss.Pop().ToLowerInvariant())
 				{
@@ -291,15 +300,6 @@ Additionally, admins can use the following options:
 							actor.OutputHandler.Send("You will now see magic resources in the prompt.");
 						}
 
-						return;
-					case "hints":
-						actor.Account.HintsEnabled = !actor.Account.HintsEnabled;
-						actor.OutputHandler.Send($"You will {actor.Account.HintsEnabled.NowNoLonger()} see hint echoes.");
-						return;
-					case "autoreaquire":
-					case "autotarget":
-						actor.Account.AutoReacquireTargets = !actor.Account.AutoReacquireTargets;
-						actor.OutputHandler.Send($"You will {actor.Account.AutoReacquireTargets.NowNoLonger()} automatically acquire new targets when your current target is incapacitated.");
 						return;
 					default:
 						if (ss.IsFinished)

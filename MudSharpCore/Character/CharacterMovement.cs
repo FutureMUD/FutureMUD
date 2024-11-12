@@ -995,7 +995,7 @@ public partial class Character
 
 	public string WhyCannotMove()
 	{
-		return Party == null ? _cannotMoveReason : Party.WhyCannotMove();
+		return Party == null || Party.Leader != this ? _cannotMoveReason : Party.WhyCannotMove();
 	}
 
 	protected void TargetMoved(object sender, MoveEventArgs args)

@@ -103,7 +103,7 @@ public class Party : PerceiverItem, IParty
 	public void ExecuteMove(IMovement movement, IMoveSpeed overrideSpeed = null)
 	{
 		Moved(movement);
-		foreach (var member in Members)
+		foreach (var member in ActiveMembers.ToList())
 		{
 			member.ExecuteMove(movement, overrideSpeed ?? CurrentSpeed);
 		}
@@ -135,7 +135,7 @@ public class Party : PerceiverItem, IParty
 
 	public override (bool, IEmoteOutput) CanCross(ICellExit exit)
 	{
-		foreach (var member in Members)
+		foreach (var member in ActiveMembers)
 		{
 			var (canMove, whyNot) = member.CanCross(exit);
 			if (!canMove)
@@ -247,7 +247,7 @@ public class Party : PerceiverItem, IParty
 		get
 		{
 			return CharacterMembers.Where(x =>
-				x.Location == Leader.Location && x.CanMove() && !x.EffectsOfType<IDragParticipant>().Any()).ToList();
+				x.InRoomLocation == Leader.InRoomLocation && x.CanMove()).ToList();
 		}
 	}
 
@@ -365,14 +365,34 @@ public class Party : PerceiverItem, IParty
 
 	public bool CanMove(ICellExit exit, bool ignoreBlockers = false, bool ignoreSafeMovement = false)
 	{
-		if (Members.All(x => x.CanMove(exit, ignoreBlockers, ignoreSafeMovement)))
+		var cannotMoveReasons = new List<string>();
+		foreach (var member in CharacterMembers)
 		{
+			if (member.InRoomLocation != Leader.InRoomLocation)
+			{
+				continue;
+			}
+
+			if (member.Movement != null)
+			{
+				continue;
+			}
+
+			if (member.CanMove(exit, ignoreBlockers, ignoreSafeMovement))
+			{
+				continue;
+			}
+
+			cannotMoveReasons.Add(member.HowSeen(Leader));
+		}
+
+		if (cannotMoveReasons.Count == 0)
+		{
+			_cannotMoveReason = string.Empty;
 			return true;
 		}
 
-		_cannotMoveReason = Members.Where(x => !x.CanMove(exit, ignoreBlockers, ignoreSafeMovement))
-		                           .Select(x => x.HowSeen(Leader)).ListToString() +
-		                    " cannot move.";
+		_cannotMoveReason = $"{cannotMoveReasons.ListToString()} cannot move.".ProperSentences();
 		return false;
 	}
 
@@ -383,10 +403,26 @@ public class Party : PerceiverItem, IParty
 
 	public bool Move(ICellExit exit, IEmote emote = null, bool ignoreSafeMovement = false)
 	{
+		var movers = new List<ICharacter>();
 		if (CanMove(exit, ignoreSafeMovement: ignoreSafeMovement))
 		{
-			foreach (var member in ActiveCharacterMembers)
+			foreach (var member in CharacterMembers)
 			{
+				if (member.InRoomLocation != Leader.InRoomLocation)
+				{
+					continue;
+				}
+
+				if (member.Movement != null)
+				{
+					continue;
+				}
+
+				if (!member.CanMove(exit, false, ignoreSafeMovement))
+				{
+					continue;
+				}
+
 				if (member.PositionState.TransitionOnMovement != null)
 				{
 					member.SetState(member.PositionState.TransitionOnMovement);
@@ -394,19 +430,20 @@ public class Party : PerceiverItem, IParty
 
 				member.SetModifier(PositionModifier.None);
 				member.SetTarget(null);
+				movers.Add(member);
 			}
 
 			var timespan = TimeSpan.Zero;
 			if (!Leader.AffectedBy<IImmwalkEffect>())
 			{
-				timespan = TimeSpan.FromMilliseconds(MoveSpeed(exit));
+				timespan = TimeSpan.FromMilliseconds(MoveSpeed(exit, movers));
 			}
 
 			IMovement movement;
-			if (ActiveCharacterMembers.Any(x => x.AffectedBy<IDragParticipant>()))
+			if (movers.Any(x => x.AffectedBy<IDragParticipant>()))
 			{
-				var effects = ActiveCharacterMembers
-				              .SelectMany(x => x.EffectsOfType<Dragging>())
+				var effects = movers
+							  .SelectMany(x => x.EffectsOfType<Dragging>())
 				              .Distinct()
 				              .Select(x => (x, x.CharacterOwner, x.CharacterDraggers.Except(x.CharacterOwner),
 					              x.Target))
@@ -456,12 +493,21 @@ public class Party : PerceiverItem, IParty
 
 	public int MoveSpeed(ICellExit exit)
 	{
-		return Members.Max(x => x.MoveSpeed(exit));
+		return CharacterMembers
+			.Where(x => x.Movement == Movement)
+			.Max(x => x.MoveSpeed(exit));
+	}
+
+	public int MoveSpeed(ICellExit exit, IEnumerable<ICharacter> movers)
+	{
+		return movers.Max(x => x.MoveSpeed(exit));
 	}
 
 	public IMoveSpeed SlowestSpeed(ICellExit exit)
 	{
-		var partyMembers = Members.OrderByDescending(x => x.MoveSpeed(exit));
+		var partyMembers = CharacterMembers
+			.Where(x => x.Movement == Movement)
+			.OrderByDescending(x => x.MoveSpeed(exit));
 		var slowest = partyMembers.FirstOrDefault();
 		return slowest?.CurrentSpeed;
 	}

@@ -51,7 +51,12 @@ public class GroupDragMovement : MovementBase
 			}
 		}
 
-		foreach (var ch in Party.ActiveCharacterMembers)
+		foreach (var ch in Party.CharacterMembers
+			.Where(x =>
+				x.InRoomLocation == Party.Leader.InRoomLocation &&
+				x.Movement is null &&
+				x.CanMove())
+		)
 		{
 			if (!_characterMovers.Contains(ch))
 			{
@@ -61,6 +66,7 @@ public class GroupDragMovement : MovementBase
 
 		foreach (var mover in _characterMovers)
 		{
+			mover.Movement?.CancelForMoverOnly(mover);
 			mover.Movement = this;
 		}
 

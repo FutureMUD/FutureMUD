@@ -210,7 +210,7 @@ The syntax for this command is as follows:
 						continue;
 					}
 
-					ch.OutputHandler.Send(new EmoteOutput(new Emote($"@ orders your party to begin moving at {speed.PresentParticiple.ToLowerInvariant().ColourCommand()} speed.", ch, ch)));
+					ch.OutputHandler.Send(new EmoteOutput(new Emote($"@ orders your party to begin moving at {speed.PresentParticiple.ToLowerInvariant().ColourCommand()} speed.", actor, actor)));
 					if (ch.Speeds.Contains(speed))
 					{
 						ch.CurrentSpeeds[speed.Position] = speed;

@@ -1972,14 +1972,13 @@ The possible syntaxes for this command are:
 		if (actor.Body.CanRemoveItem(item, ItemCanGetIgnore.IgnoreFreeHands))
 		{
 			actor.Body.RemoveItem(item, null, ignoreFlags: ItemCanGetIgnore.IgnoreFreeHands);
-			if (intoContainer?.CanPut(item) == true)
+			if (intoContainer is not null && actor.Body.CanPut(item, intoContainer.Parent, null, 0, false))
 			{
-				intoContainer.Put(actor, item);
+				actor.Body.Put(item, intoContainer.Parent, null, silent: true);
 			}
 			else
 			{
-				item.RoomLayer = actor.RoomLayer;
-				actor.Location.Insert(item);
+				actor.Body.Drop(item, silent: true);
 			}
 
 			problemItem = null;

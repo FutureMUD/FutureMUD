@@ -1628,6 +1628,7 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable
 		PerceivableDeleted();
 		ContainedIn?.Take(this);
 		InInventoryOf?.Take(this);
+		Location?.Extract(this);
 		Get(null);
 
 		foreach (var component in Components)

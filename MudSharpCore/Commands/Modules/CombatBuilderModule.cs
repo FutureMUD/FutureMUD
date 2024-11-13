@@ -155,7 +155,7 @@ For the damage formula you can use the following parameters:
 	#6range#0 - the range in rooms
 	#6inmelee#0 - 1 if being fired in melee, or 0 otherwise
 	#6pointblank#0 - 1 if fired point blank, or 0 otherwise
-	#6degree#0 - the opposed outcome degree between 0 (marginal) and 5 (total)
+	#6degrees#0 - the opposed outcome degree between 0 (marginal) and 5 (total)
 	#6variable#0 - the character's current value of the fire skill";
 	[PlayerCommand("RangedWeaponType", "rangedweapontype", "rwt")]
 	[CommandPermission(PermissionLevel.SeniorAdmin)]

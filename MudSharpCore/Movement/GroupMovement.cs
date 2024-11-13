@@ -24,9 +24,16 @@ public class GroupMovement : MovementBase
 		Party = movers;
 		Party.Movement = this;
 		// todo - consider this next step handled in the Party.Movement setter
-		_characterMovers = Party.ActiveCharacterMembers.ToList();
+		_characterMovers = Party
+			.CharacterMembers
+			.Where(x => 
+				x.InRoomLocation == Party.Leader.InRoomLocation &&
+				x.Movement is null &&
+				x.CanMove())
+			.ToList();
 		foreach (var mover in _characterMovers)
 		{
+			mover.Movement?.CancelForMoverOnly(mover);
 			mover.Movement = this;
 		}
 

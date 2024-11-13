@@ -410,6 +410,15 @@ public abstract class CombatBase : ICombat
 
 	public virtual void CombatAction(IPerceiver perceiver)
 	{
+		if (perceiver is ICharacter ch)
+		{
+			CheckCombatEndingConditions(ch);
+			if (ch.Combat is null)
+			{
+				return;
+			}
+		}
+
 		if (perceiver.CombatTarget == null)
 		{
 			perceiver.AcquireTarget();

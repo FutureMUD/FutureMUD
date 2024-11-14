@@ -643,7 +643,15 @@ public class CharacterCommandManager : CommandManager<ICharacter>, ICharacterCom
 			return Execute(argument, command, playerInput, state, permissionLevel, outputHandler);
 		}
 
-		outputHandler?.Send(FailedToFindCommand);
+		if (!string.IsNullOrWhiteSpace(playerInput))
+		{
+			outputHandler?.Send(FailedToFindCommand);
+		}
+		else
+		{
+			outputHandler?.Send("");
+		}
+		
 		return false;
 	}
 }

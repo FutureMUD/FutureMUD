@@ -221,7 +221,7 @@ public abstract class TemporaryPerceivable : FrameworkItem, IPerceivable
 
 	public IEnumerable<IPositionState> ValidPositions => Enumerable.Empty<IPositionState>();
 
-	public string DescribePosition(IPerceiver voyeur)
+	public string DescribePosition(IPerceiver voyeur, bool useHere = true)
 	{
 		return HowSeen(voyeur);
 	}

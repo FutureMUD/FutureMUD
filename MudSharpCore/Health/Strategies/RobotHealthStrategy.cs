@@ -327,25 +327,30 @@ public class RobotHealthStrategy : BaseHealthStrategy
 		double breathRatio, bool brief)
 	{
 		var sb = new StringBuilder();
+		sb.Append("<");
 		var power = charOwner.Body.OrganFunction<PowerCore>();
 		if (power < 0.3)
 		{
-			sb.AppendLine("*** YOUR POWER CORE IS CRITICAL! ***".Colour(Telnet.BoldRed));
+			sb.Append("*** YOUR POWER CORE IS CRITICAL! ***".Colour(Telnet.BoldRed));
+			sb.Append(">\n<");
 		}
 
 		if (charOwner.NeedsToBreathe && !charOwner.CanBreathe)
 		{
 			if (breathRatio > 0.0)
 			{
-				sb.AppendLine("*** YOU ARE HOLDING YOUR BREATH! ***".Colour(Telnet.BoldBlue));
+				sb.Append("*** YOU ARE HOLDING YOUR BREATH! ***".Colour(Telnet.BoldBlue));
+				sb.Append(">\n<");
 			}
 			else if (charOwner.BreathingFluid is ILiquid)
 			{
-				sb.AppendLine("*** YOU ARE DROWNING! ***".Colour(Telnet.BoldCyan));
+				sb.Append("*** YOU ARE DROWNING! ***".Colour(Telnet.BoldCyan));
+				sb.Append(">\n<");
 			}
 			else
 			{
-				sb.AppendLine("*** YOU ARE SUFFOCATING! ***".Colour(Telnet.BoldYellow));
+				sb.Append("*** YOU ARE SUFFOCATING! ***".Colour(Telnet.BoldYellow));
+				sb.Append(">\n<");
 			}
 		}
 
@@ -419,6 +424,7 @@ public class RobotHealthStrategy : BaseHealthStrategy
 			sb.Append($"{"hyper-critical hydraulic fluid loss".Colour(Telnet.Red)}");
 		}
 
+		sb.Append(">");
 		return sb.ToString();
 	}
 

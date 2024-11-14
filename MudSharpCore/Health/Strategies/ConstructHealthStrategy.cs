@@ -128,11 +128,11 @@ public class ConstructHealthStrategy : BaseHealthStrategy
 	{
 		if (owner is not ICharacter character)
 		{
-			return "Fine";
+			return "<Fine>";
 		}
 
 		var totalWounds = MaximumHitPointsExpression.Evaluate(character);
-		return string.Format(character, "Hp: {0:N0}/{1:N0}",
+		return string.Format(character, "<HP: {0:N0}/{1:N0}>",
 			totalWounds - owner.Wounds.Sum(x => x.CurrentDamage * x.Bodypart?.DamageModifier), totalWounds);
 	}
 }

@@ -2733,17 +2733,17 @@ public partial class Character : PerceiverItem, ICharacter
 			var stealthString = "";
 			if (EffectsOfType<IHideEffect>().Any())
 			{
-				stealthString = "Hiding";
+				stealthString = "Hiding".Colour(Telnet.Magenta);
 			}
 
 			if (EffectsOfType<ISneakEffect>().Any())
 			{
-				stealthString += (stealthString.Length > 0 ? " & " : "") + "Sneaking";
+				stealthString += (stealthString.Length > 0 ? " & " : "") + "Sneaking".Colour(Telnet.Magenta);
 			}
 
 			if (EffectsOfType<IAdminInvisEffect>().Any())
 			{
-				stealthString += (stealthString.Length > 0 ? " & " : "") + "WizInvis";
+				stealthString += (stealthString.Length > 0 ? " & " : "") + "WizInvis".Colour(Telnet.BoldMagenta);
 			}
 
 			var staminaRatio = CurrentStamina / MaximumStamina;
@@ -2778,32 +2778,114 @@ public partial class Character : PerceiverItem, ICharacter
 
 			if (Account.PromptType.HasFlag(PromptType.Full))
 			{
-				return
-					string.Format(this, "\n<{2}>\n<Stamina: {4}{0}/{1}{5}{10} | Exertion: {3}{9}{7}{8}{6}>\n\n",
-						currentstaminaString,
-						maxstaminaString,
-						HealthStrategy.ReportConditionPrompt(this, PromptType.Full),
-						(CurrentExertion > LongtermExertion ? CurrentExertion.Describe() : LongtermExertion.Describe())
-						.Colour(Telnet.Green),
-						boldColour ? staminaColour.Bold : staminaColour.Colour,
-						Telnet.RESETALL,
-						Account.PromptType.HasFlag(PromptType.PositionInfo)
-							? $" | {Body.GetPositionDescription(this, true, false, PerceiveIgnoreFlags.IgnoreHiding)}"
-							: "",
-						Account.PromptType.HasFlag(PromptType.SpeakInfo)
-							? $" | Speaking: {CurrentLanguage.Name.Colour(Telnet.Green)}"
-							: "",
-						Account.PromptType.HasFlag(PromptType.StealthInfo) && !string.IsNullOrEmpty(stealthString)
-							? $" | {stealthString}"
-							: "",
-						!NeedsToBreathe || CanBreathe
-							? ""
-							: $" | Breath: {HeldBreathPercentage.ToString("P0", this).ColourValue()}",
-						Account.PromptType.HasFlag(PromptType.IncludeMagic) &&
-						Capabilities.Any(x => x.ShowMagicResourcesInPrompt)
-							? $" | {MagicResourceAmounts.Select(x => $"{x.Key.ShortName}: {(x.Value / x.Key.ResourceCap(this)).ToString("P0", this)}").ListToString(separator: " ", conjunction: "", twoItemJoiner: " ")}"
-							: ""
-					);
+				var fpsb = new StringBuilder();
+				fpsb.Append("\n");
+				fpsb.Append(HealthStrategy.ReportConditionPrompt(this, PromptType.Full));
+				fpsb.Append("\n<Stamina: ");
+				fpsb.Append(boldColour ? staminaColour.Bold : staminaColour.Colour);
+				fpsb.Append(currentstaminaString);
+				fpsb.Append("/");
+				fpsb.Append(maxstaminaString);
+				fpsb.Append(Telnet.RESETALL);
+				fpsb.Append(" | Exertion: ");
+				fpsb.Append((CurrentExertion > LongtermExertion ? CurrentExertion.Describe() : LongtermExertion.Describe())
+					.Colour(Telnet.Green));
+				fpsb.Append(" | Status: ");
+				fpsb.Append(State.DescribeColour());
+
+				if (NeedsToBreathe && !CanBreathe)
+				{
+					fpsb.Append(" | Breath: ");
+					fpsb.Append(HeldBreathPercentage.ToString("P0", this).ColourValue());
+				}
+
+				if (Account.PromptType.HasFlag(PromptType.IncludeMagic) &&
+				    Capabilities.Any(x => x.ShowMagicResourcesInPrompt))
+				{
+					foreach (var amount in MagicResourceAmounts)
+					{
+						var cap = amount.Key.ResourceCap(this);
+						if (cap == 0)
+						{
+							continue;
+						}
+						fpsb.Append(" | ");
+						fpsb.Append(amount.Key.ShortName);
+						fpsb.Append(": ");
+						fpsb.Append((amount.Value / cap).ToString("P0", this));
+					}
+				}
+
+				if (Account.PromptType.HasFlag(PromptType.PositionInfo) ||
+				    (Account.PromptType.HasFlag(PromptType.SpeakInfo) && CurrentLanguage is not null && CurrentAccent is not null) ||
+				    (Account.PromptType.HasFlag(PromptType.StealthInfo) && !string.IsNullOrEmpty(stealthString))
+				   )
+				{
+					fpsb.Append(">\n<");
+					var included = false;
+					if (Account.PromptType.HasFlag(PromptType.SpeakInfo) && CurrentLanguage is not null && CurrentAccent is not null)
+					{
+						fpsb.Append("Speaking: ");
+						fpsb.Append(Telnet.Green.Colour);
+						fpsb.Append(CurrentLanguage.Name);
+						fpsb.Append(" (");
+						fpsb.Append(CurrentAccent.Name);
+						fpsb.Append(")");
+						fpsb.Append(Telnet.RESETALL);
+						included = true;
+					}
+
+					if (Account.PromptType.HasFlag(PromptType.StealthInfo) && !string.IsNullOrEmpty(stealthString))
+					{
+						if (included)
+						{
+							fpsb.Append(" | ");
+						}
+
+						fpsb.Append(stealthString);
+						included = true;
+					}
+
+					if (Account.PromptType.HasFlag(PromptType.PositionInfo))
+					{
+						if (included)
+						{
+							fpsb.Append(" | ");
+						}
+
+						fpsb.Append(Body.GetPositionDescription(this, true, false, PerceiveIgnoreFlags.IgnoreHiding));
+					}
+				}
+
+				fpsb.Append(">\n\n");
+				return fpsb.ToString();
+
+				//return
+				//	string.Format(this, "\n<{2}>\n<Stamina: {4}{0}/{1}{5}{10} | Exertion: {3}{9}{7}{8}{6}>\n\n",
+				//		currentstaminaString,
+				//		maxstaminaString,
+				//		HealthStrategy.ReportConditionPrompt(this, PromptType.Full),
+				//		(CurrentExertion > LongtermExertion ? CurrentExertion.Describe() : LongtermExertion.Describe())
+				//		.Colour(Telnet.Green),
+				//		boldColour ? staminaColour.Bold : staminaColour.Colour,
+				//		Telnet.RESETALL,
+				//		Account.PromptType.HasFlag(PromptType.PositionInfo)
+				//			? $" | {Body.GetPositionDescription(this, true, false, PerceiveIgnoreFlags.IgnoreHiding)}"
+				//			: "",
+				//		Account.PromptType.HasFlag(PromptType.SpeakInfo)
+				//			? $" | Speaking: {CurrentLanguage.Name.Colour(Telnet.Green)}"
+				//			: "",
+				//		Account.PromptType.HasFlag(PromptType.StealthInfo) && !string.IsNullOrEmpty(stealthString)
+				//			? $" | {stealthString}"
+				//			: "",
+				//		!NeedsToBreathe || CanBreathe
+				//			? ""
+				//			: $" | Breath: {HeldBreathPercentage.ToString("P0", this).ColourValue()}",
+				//		Account.PromptType.HasFlag(PromptType.IncludeMagic) &&
+				//		Capabilities.Any(x => x.ShowMagicResourcesInPrompt)
+				//			? $" | {MagicResourceAmounts.Select(x => $"{x.Key.ShortName}: {(x.Value / x.Key.ResourceCap(this)).ToString("P0", this)}").ListToString(separator: " ", conjunction: "", twoItemJoiner: " ")}"
+				//			: ""
+				//	);
 			}
 
 			//Otherwise, build a brief prompt

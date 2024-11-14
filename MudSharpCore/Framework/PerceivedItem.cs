@@ -402,9 +402,9 @@ public abstract class PerceivedItem : LateKeywordedInitialisingItem, IPerceivabl
 		_targetedBy.Remove(targeter);
 	}
 
-	public string DescribePosition(IPerceiver voyeur)
+	public string DescribePosition(IPerceiver voyeur, bool useHere = true)
 	{
-		return PositionState?.Describe(voyeur, PositionTarget, PositionModifier, PositionEmote) ?? "here";
+		return PositionState?.Describe(voyeur, PositionTarget, PositionModifier, PositionEmote, useHere) ?? (useHere ? "here" : "");
 	}
 
 	public event PerceivableEvent OnPositionChanged;

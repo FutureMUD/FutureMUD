@@ -568,14 +568,14 @@ public class SimpleLivingHealthStrategy : BaseHealthStrategy
 			}
 		}
 
-		return string.Format(charOwner, "{0} {1} {2}{3}",
-			ColourRatio("Hp: {0}",
+		return string.Format(charOwner, "<{0} {1} {2}{3}>",
+			ColourRatio("HP: {0}",
 				(maxHp - owner.Wounds.Sum(x => x.CurrentDamage)) / maxHp,
 				string.Format(charOwner, "{0:N0}/{1:N0}", maxHp - owner.Wounds.Sum(x => x.CurrentDamage), maxHp)),
-			ColourRatio("St: {0}",
+			ColourRatio("ST: {0}",
 				(maxStun - owner.Wounds.Sum(x => x.CurrentStun)) / maxStun,
 				string.Format(charOwner, "{0:N0}/{1:N0}", maxStun - owner.Wounds.Sum(x => x.CurrentStun), maxStun)),
-			ColourRatio("Pn: {0}",
+			ColourRatio("PN: {0}",
 				(maxPain - owner.Wounds.Sum(x => x.CurrentPain)) / maxPain,
 				string.Format(charOwner, "{0:N0}/{1:N0}", maxPain - owner.Wounds.Sum(x => x.CurrentPain), maxPain)),
 			$" - {extraStatusDescription}"

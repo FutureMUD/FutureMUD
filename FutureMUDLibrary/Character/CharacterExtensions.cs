@@ -54,6 +54,33 @@ namespace MudSharp.Character {
 			return !state.HasFlag(CharacterState.Stasis);
 		}
 
+		private static string InternalDescribeColour(CharacterState state)
+		{
+			switch (state)
+			{
+				case CharacterState.Awake:
+					return "Awake".Colour(Telnet.Green);
+				case CharacterState.Sleeping:
+					return "Sleeping".Colour(Telnet.Cyan);
+				case CharacterState.Unconscious:
+					return "Unconscious".Colour(Telnet.Magenta);
+				case CharacterState.Paralysed:
+					return "Paralysed".Colour(Telnet.Yellow);
+				case CharacterState.Dead:
+					return "Dead".Colour(Telnet.Red);
+				case CharacterState.Stasis:
+					return "In Stasis".Colour(Telnet.BoldGreen);
+			}
+
+			return "Unknown".Colour(Telnet.BoldYellow);
+		}
+
+		public static string DescribeColour(this CharacterState state)
+		{
+			var states = state.GetSingleFlags().Distinct();
+			return states.Select(InternalDescribeColour).ListToString();
+		}
+
 		public static string Describe(this CharacterState state) {
 			switch (state) {
 				case CharacterState.Awake:

@@ -20,7 +20,7 @@ namespace MudSharp.Body.Position {
         /// </summary>
         IEnumerable<IPositionState> ValidPositions { get; }
 
-        string DescribePosition(IPerceiver voyeur);
+        string DescribePosition(IPerceiver voyeur, bool useHere = true);
 
         bool InVicinity(IPerceivable target);
         IEnumerable<(IPerceivable Thing, Proximity Proximity)> LocalThingsAndProximities();

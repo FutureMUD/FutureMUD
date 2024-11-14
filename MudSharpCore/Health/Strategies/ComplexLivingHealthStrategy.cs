@@ -671,15 +671,18 @@ public class ComplexLivingHealthStrategy : BaseHealthStrategy
 		double breathRatio, bool brief)
 	{
 		var sb = new StringBuilder();
+		sb.Append("<");
 		var heartFactor =
 			charOwner.Body.OrganFunction<HeartProto>();
 		if (heartFactor <= 0)
 		{
-			sb.AppendLine("*** YOU ARE IN CARDIAC ARREST! ***".Colour(Telnet.BoldRed));
+			sb.Append("*** YOU ARE IN CARDIAC ARREST! ***".Colour(Telnet.BoldRed));
+			sb.Append(">\n<");
 		}
 		else if (heartFactor < 0.3)
 		{
-			sb.AppendLine("*** YOU ARE HAVING A HEART ATTACK! ***".Colour(Telnet.BoldRed));
+			sb.Append("*** YOU ARE HAVING A HEART ATTACK! ***".Colour(Telnet.BoldRed));
+			sb.Append(">\n<");
 		}
 		else
 		{
@@ -687,15 +690,18 @@ public class ComplexLivingHealthStrategy : BaseHealthStrategy
 			{
 				if (breathRatio > 0.0 && breathRatio < 1.0)
 				{
-					sb.AppendLine("*** YOU ARE HOLDING YOUR BREATH! ***".Colour(Telnet.BoldBlue));
+					sb.Append("*** YOU ARE HOLDING YOUR BREATH! ***".Colour(Telnet.KeywordBlue));
+					sb.Append(">\n<");
 				}
 				else if (charOwner.BreathingFluid is ILiquid)
 				{
-					sb.AppendLine("*** YOU ARE DROWNING! ***".Colour(Telnet.BoldCyan));
+					sb.Append("*** YOU ARE DROWNING! ***".Colour(Telnet.BoldCyan));
+					sb.Append(">\n<");
 				}
 				else
 				{
-					sb.AppendLine("*** YOU ARE SUFFOCATING! ***".Colour(Telnet.BoldYellow));
+					sb.Append("*** YOU ARE SUFFOCATING! ***".Colour(Telnet.BoldYellow));
+					sb.Append(">\n<");
 				}
 			}
 		}
@@ -794,6 +800,8 @@ public class ComplexLivingHealthStrategy : BaseHealthStrategy
 				sb.Append($"{"life-threatening blood loss".Colour(Telnet.Red)}");
 				break;
 		}
+
+		sb.Append(">");
 
 		return sb.ToString();
 	}

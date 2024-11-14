@@ -102,7 +102,7 @@ public class GameItemHealthStrategy : BaseHealthStrategy
 	public override string ReportConditionPrompt(IHaveWounds owner, PromptType type)
 	{
 		// TODO - should this be possible? Should an exception be thrown?
-		return "Fine";
+		return "<Fine>";
 	}
 
 	public override HealthStrategyOwnerType OwnerType => HealthStrategyOwnerType.GameItem;

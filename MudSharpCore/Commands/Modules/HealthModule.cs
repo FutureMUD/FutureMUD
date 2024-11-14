@@ -2790,6 +2790,12 @@ The syntax is either of the following:
 				target.Body.Bodyparts.FirstOrDefault(
 					x =>
 						x.FullDescription()
+						 .Equals(targetBodypartText, StringComparison.InvariantCultureIgnoreCase)) ??
+				target.Body.Bodyparts.FirstOrDefault(
+					x => x.Name.Equals(targetBodypartText, StringComparison.InvariantCultureIgnoreCase)) ??
+				target.Body.Bodyparts.FirstOrDefault(
+					x =>
+						x.FullDescription()
 						 .StartsWith(targetBodypartText, StringComparison.InvariantCultureIgnoreCase)) ??
 				target.Body.Bodyparts.FirstOrDefault(
 					x => x.Name.StartsWith(targetBodypartText, StringComparison.InvariantCultureIgnoreCase)) ??
@@ -2884,6 +2890,12 @@ The syntax is either of the following:
 		}
 
 		var targetBodypart =
+				target.Body.SeveredRoots.FirstOrDefault(
+					x =>
+						x.FullDescription()
+						 .Equals(targetBodypartText, StringComparison.InvariantCultureIgnoreCase)) ??
+				target.Body.SeveredRoots.FirstOrDefault(
+					x => x.Name.Equals(targetBodypartText, StringComparison.InvariantCultureIgnoreCase)) ??
 				target.Body.SeveredRoots.FirstOrDefault(
 					x =>
 						x.FullDescription()

@@ -2055,7 +2055,11 @@ The following options are available:
 	#3debug mode#0 - toggles opting in to receiving debug messages from the engine
 	#3debug update#0 - downloads and applies the latest patch for FutureMUD (only use if you're using a Binaries folder swap, like the autoseeder sets up)
 	#3debug coordinates#0 - recalculates all the x,y,z coordinates for all zones
-	#3debug hitchance <target> [<weapon attack>] [front|back|rflank|lflank]#0 - shows hit chances (optionally for attack)", AutoHelp.HelpArgOrNoArg)]
+	#3debug hitchance <target> [<weapon attack>] [front|back|rflank|lflank]#0 - shows hit chances (optionally for attack)
+	#3debug healing#0 - attaches the healing logger (writes to file)
+	#3debug skills#0 - attaches the skill check logger (writes to file)
+	#3debug scheduler#0 - shows all things in the scheduler
+	#3debug listeners#0 - shows all listeners", AutoHelp.HelpArgOrNoArg)]
 	protected static void Debug(ICharacter actor, string input)
 	{
 		var ss = new StringStack(input.RemoveFirstWord());
@@ -2068,12 +2072,26 @@ The following options are available:
 			case "save":
 				DebugSaveQueue(actor);
 				return;
+			case "scheduler":
+			case "schedules":
+				DebugScheduler(actor);
+				return;
+
+			case "listeners":
+				DebugListeners(actor);
+				return;
 			case "char":
 			case "character":
 				DebugCharacter(actor, ss);
 				return;
 			case "dream":
 				DebugDream(actor, ss);
+				return;
+			case "healing":
+				DebugHealing(actor, ss);
+				return;
+			case "skills":
+				DebugSkills(actor);
 				return;
 			case "mode":
 				if (actor.AffectedBy<DebugMode>())
@@ -2099,6 +2117,30 @@ The following options are available:
 				actor.Send("That's not a known debug routine.");
 				return;
 		}
+	}
+
+	#region Debug Sub-Routines
+	private static void DebugScheduler(ICharacter actor)
+	{
+		var sb = new StringBuilder();
+		sb.AppendLine($"Main Scheduler:");
+		actor.Gameworld.Scheduler.DebugOutputForScheduler(sb);
+		sb.AppendLine();
+		sb.AppendLine("Effect Scheduler:");
+		actor.Gameworld.EffectScheduler.DebugOutputForScheduler(sb);
+		actor.OutputHandler.Send(sb.ToString());
+	}
+
+	private static void DebugListeners(ICharacter actor)
+	{
+		var sb = new StringBuilder();
+		sb.AppendLine("The following listeners are registered to the gameworld:");
+		foreach (var listener in actor.Gameworld.Listeners)
+		{
+			sb.AppendLine($"\t{listener}");
+		}
+
+		actor.Send(sb.ToString());
 	}
 
 	private static void Debug_Update(ICharacter actor)
@@ -2186,6 +2228,25 @@ The following options are available:
 
 		actor.Send(ch.DebugInfo());
 	}
+
+	private static void DebugHealing(ICharacter actor, StringStack ss)
+	{
+		var filename = $"Healing Audit {DateTime.UtcNow:yyyy MMMM dd hh mm ss}.csv";
+		actor.Gameworld.LogManager.InstallLogger(new HealingLogger
+			{ FileName = filename });
+		actor.Send($"Healing Audit commenced - saved as {filename.ColourName()}.");
+	}
+
+	private static void DebugSkills(ICharacter actor)
+	{
+		var filename = $"Skill Audit {DateTime.UtcNow:yyyy MMMM dd hh mm ss}.txt";
+		actor.Gameworld.LogManager.InstallLogger(new CustomSkillLogger
+		{
+			FileName = filename
+		});
+		actor.Send($"Attached the skill logger - saved as {filename.ColourName()}.");
+	}
+
 
 	private static void DebugDream(ICharacter actor, StringStack ss)
 	{
@@ -2419,6 +2480,8 @@ The following options are available:
 
 		actor.OutputHandler.Send(sb.ToString());
 	}
+
+	#endregion
 
 	[PlayerCommand("RegisterAccount", "registeraccount")]
 	[CommandPermission(PermissionLevel.SeniorAdmin)]

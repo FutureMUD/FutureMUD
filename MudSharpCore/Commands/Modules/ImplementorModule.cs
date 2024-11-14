@@ -316,16 +316,7 @@ public class ImplementorModule : Module<ICharacter>
 		actor.OutputHandler.Send("ส็็็็็็็็็็็็็็็็็็็็็็็็็༼ ຈل͜ຈ༽ส้้้้้้้้้้้้้้้้้้้้้้้");
 		actor.OutputHandler.Send("(╯°□°）╯︵ ┻━┻");
 	}
-
-	protected static void Debug_Skills(ICharacter actor)
-	{
-		actor.Gameworld.LogManager.InstallLogger(new CustomSkillLogger
-		{
-			FileName = $"Skill Audit {DateTime.UtcNow:yyyy MMMM dd hh mm ss}.txt"
-		});
-		actor.Send("Attached the skill logger.");
-	}
-
+	
 	protected static void Debug_Flare(ICharacter actor)
 	{
 		actor.Location.Zone.AddEffect(new FlareEffect(actor.Location.Zone, 1000,
@@ -339,11 +330,7 @@ public class ImplementorModule : Module<ICharacter>
 		@"This command runs various routines that should generally only be done by an implementor in the course of debugging and/or maintenance. There are the following routines to choose from:
 
 	#3cleanupitems#0 - deletes all 'orphaned' items that have become disconnected from the game world
-	#3scheduler#0 - shows all things in the scheduler
-	#3listeners#0 - shows all listeners
 	#3sun <sun> <minutes>#0 - adds the specified number of minutes to a sun
-	#3healing#0 - attaches the healing logger (writes to file)
-	#3skills#0 - attaches the skill check logger (writes to file)
 	#3save#0 - shows debug info about the save queue
 	#3character <id>#0 - shows debug info about a character
 	#3duplication#0 - checks for duplicated items and characters
@@ -398,25 +385,11 @@ public class ImplementorModule : Module<ICharacter>
 			case "cleanupitems":
 				// DebugCleanupOrphanedItems(actor);
 				return;
-			case "scheduler":
-			case "schedules":
-				DebugScheduler(actor);
-				return;
-			
-			case "listeners":
-				DebugListeners(actor);
-				return;
 			case "sun":
 				DebugSun(actor, ss);
 				return;
 			case "dead":
 				DebugDead(actor);
-				return;
-			case "healing":
-				DebugHealing(actor, ss);
-				return;
-			case "skills":
-				Debug_Skills(actor);
 				return;
 			case "save":
 				DebugSaveQueue(actor);
@@ -628,17 +601,7 @@ public class ImplementorModule : Module<ICharacter>
 			$"Advanced all clocks by {timespan.Describe().ColourValue()}.\nOld time was {oldTime.ColourValue()} and new time is {actor.Location.DateTime().ToString(CalendarDisplayMode.Short, TimeDisplayTypes.Short).ColourValue()}.");
 	}
 
-	private static void DebugScheduler(ICharacter actor)
-	{
-		var sb = new StringBuilder();
-		sb.AppendLine($"Main Scheduler:");
-		actor.Gameworld.Scheduler.DebugOutputForScheduler(sb);
-		sb.AppendLine();
-		sb.AppendLine("Effect Scheduler:");
-		actor.Gameworld.EffectScheduler.DebugOutputForScheduler(sb);
-		actor.OutputHandler.Send(sb.ToString());
-	}
-
+	
 	private static void DebugCleanupOrphanedItems(ICharacter actor)
 	{
 		// WARNING - this command is making some serious false positives, such as items stored in crafts
@@ -753,18 +716,6 @@ public class ImplementorModule : Module<ICharacter>
 			"cleanup",
 			"items"
 		)), TimeSpan.FromSeconds(120));
-	}
-
-	private static void DebugListeners(ICharacter actor)
-	{
-		var sb = new StringBuilder();
-		sb.AppendLine("The following listeners are registered to the gameworld:");
-		foreach (var listener in actor.Gameworld.Listeners)
-		{
-			sb.AppendLine($"\t{listener}");
-		}
-
-		actor.Send(sb.ToString());
 	}
 
 	private static void DebugDead(ICharacter actor)
@@ -1372,13 +1323,6 @@ div.function-generalhelp {
 		}
 
 		actor.Send("Generated {0} new guests from template {1} (#{2})", number, template.Name, template.Id);
-	}
-
-	private static void DebugHealing(ICharacter actor, StringStack ss)
-	{
-		actor.Gameworld.LogManager.InstallLogger(new HealingLogger
-			{ FileName = $"Healing Audit {DateTime.UtcNow:yyyy MMMM dd hh mm ss}.csv" });
-		actor.Send("Healing Audit commenced.");
 	}
 
 	private static void DebugSun(ICharacter actor, StringStack ss)

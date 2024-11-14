@@ -1672,6 +1672,11 @@ The syntax for this command is:
 
 	[PlayerCommand("SetCharacters", "setcharacters")]
 	[CommandPermission(PermissionLevel.HighAdmin)]
+	[HelpInfo("setcharacters", @"The #3setcharacters#0 command allows you to set the maximum number of active characters an account can have at one time. 
+
+The default amount is obviously 1 - an account only having one character at a time. A common example of when you might want to increase this is to permit a character to make an admin avatar while still having an active player character.
+
+The syntax is #3setcharacters <account> <##characters>#0.", AutoHelp.HelpArgOrNoArg)]
 	protected static void SetCharacters(ICharacter actor, string input)
 	{
 		using (new FMDB())
@@ -1692,7 +1697,7 @@ The syntax for this command is:
 				return;
 			}
 
-			if (!uint.TryParse(ss.Pop(), out var value))
+			if (!uint.TryParse(ss.SafeRemainingArgument, out var value))
 			{
 				actor.OutputHandler.Send("You must enter a number of allowed active characters for this account.");
 				return;
@@ -1713,7 +1718,11 @@ The syntax for this command is:
 	[PlayerCommand("Shutdown", "shutdown")]
 	[CommandPermission(PermissionLevel.SeniorAdmin)]
 	[HelpInfo("shutdown",
-		"This command is used to shut down the game. There are two versions: 'shutdown reboot' and 'shutdown stop'. 'shutdown' with no arguments is equivalent to the reboot version.\n\nShutdown reboot means that the engine will immediately reboot. This is often used when an update needs to happen for example.\n\nShutdown stop means that the engine will not attempt to reboot. You might use this version if you need to restart your server or you have some other reason to take the game down and not have it immediately come back up.",
+		@"This command is used to shut down the game. There are two versions: #3shutdown reboot#0 and #3shutdown stop#0. Using the command #3shutdown#0 with no arguments is equivalent to the reboot version.
+
+#3Shutdown reboot#0 means that the engine will immediately reboot. This is often used when an update needs to happen for example.
+
+#3Shutdown stop#0 means that the engine will not attempt to reboot. You might use this version if you need to restart your server or you have some other reason to take the game down and not have it immediately come back up.",
 		AutoHelp.HelpArg)]
 	protected static void Shutdown(ICharacter actor, string input)
 	{
@@ -1786,6 +1795,9 @@ The syntax for this command is:
 
 	[PlayerCommand("Where", "where")]
 	[CommandPermission(PermissionLevel.JuniorAdmin)]
+	[HelpInfo("where", @"The #3where#0 command shows all characters who are logged in to the game and their whereabouts. It is one of the ways that you as an admin can keep an eye on where people are and what they're up to.
+
+The syntax is simply #3where#0.", AutoHelp.HelpArg)]
 	protected static void Where(ICharacter actor, string command)
 	{
 		actor.OutputHandler.Send(
@@ -1811,6 +1823,9 @@ The syntax for this command is:
 
 	[PlayerCommand("Users", "users")]
 	[CommandPermission(PermissionLevel.HighAdmin)]
+	[HelpInfo("users", @"The #3users#0 command shows all telnet connections that are connected to the MUD.
+
+The syntax is simply #3users#0.", AutoHelp.HelpArg)]
 	protected static void Users(ICharacter actor, string command)
 	{
 		try
@@ -1847,6 +1862,9 @@ The syntax for this command is:
 
 	[PlayerCommand("Broadcast", "broadcast")]
 	[CommandPermission(PermissionLevel.Admin)]
+	[HelpInfo("broadcast", @"The #3broadcast#0 command is used to send a system message to all players logged in to the MUD, as well as the discord server.
+
+The syntax is simply #3broadcast <message>#0.", AutoHelp.HelpArgOrNoArg)]
 	protected static void Broadcast(ICharacter actor, string command)
 	{
 		var output = command.RemoveFirstWord();
@@ -1856,10 +1874,9 @@ The syntax for this command is:
 			return;
 		}
 
-		actor.Gameworld.SystemMessage(output.ProperSentences().Fullstop());
-		actor.OutputHandler.Send("You broadcast the following message to all players:\n\t" +
-		                         output.ProperSentences().Fullstop());
-		actor.Gameworld.DiscordConnection.HandleBroadcast(output.ProperSentences().Fullstop());
+		output = output.ProperSentences().Fullstop();
+		actor.Gameworld.SystemMessage(output);
+		actor.Gameworld.DiscordConnection.HandleBroadcast(output);
 	}
 
 	[PlayerCommand("Wizlock", "wizlock")]
@@ -1955,6 +1972,15 @@ The syntax for this command is:
 
 	[PlayerCommand("Purge", "purge")]
 	[CommandPermission(PermissionLevel.JuniorAdmin)]
+	[HelpInfo("purge", @"The #3purge#0 command is used to delete all of the items in the current room that you're in. This is irreversible and has no confirmation in many circumstances, so be sure you don't have anything you want to keep in the room before you use this command.
+
+Some types of items will require you to #3accept#0 before the purge will go through; including for example corpses, non-empty containers and certain other critical items.
+
+There are three forms for this command:
+
+	#3purge#0 - purges all items in the room
+	#3purge <item>#0 - purges a single specific item from the room
+	#3purge all <keyword>#0 - purges all items in the room that match the keyword", AutoHelp.HelpArg)]
 	protected static void Purge(ICharacter actor, string command)
 	{
 		var ss = new StringStack(command);
@@ -2485,6 +2511,11 @@ The following options are available:
 
 	[PlayerCommand("RegisterAccount", "registeraccount")]
 	[CommandPermission(PermissionLevel.SeniorAdmin)]
+	[HelpInfo("registeraccount", @"This command is used to manually register an account when for whatever reason the email-based system is not functioning or you have some other reason to manually register an account.
+
+The syntax for this command is as follows:
+
+	#3registeraccount <account>#0 - sets the account to a registered account", AutoHelp.HelpArgOrNoArg)]
 	protected static void RegisterAccount(ICharacter actor, string command)
 	{
 		var ss = new StringStack(command.RemoveFirstWord());
@@ -2522,7 +2553,24 @@ The following options are available:
 	[PlayerCommand("SetLayer", "setlayer", "sl")]
 	[CommandPermission(PermissionLevel.JuniorAdmin)]
 	[HelpInfo("setlayer",
-		"This command allows you to set the layer of a target to whatever you specify. Syntax is SETLAYER <target> <layer>",
+		@"This command allows you to set the layer of a target (characters and items) in the room to whatever you specify. 
+
+The syntax is as follows: 
+
+	#3setlayer <target> <layer>#0 - sets the layer of an item or character
+	#3setlayer <target>#0 - shows the possible layers you could set the target to
+
+The options for layers in general are as followed (but not all rooms will have all layers):
+
+	#6GroundLevel
+	Underwater
+	DeepUnderwater
+	VeryDeepUnderwater
+	InTrees
+	HighInTrees
+	InAir
+	HighInAir
+	OnRooftops#0",
 		AutoHelp.HelpArgOrNoArg)]
 	protected static void SetLayer(ICharacter actor, string command)
 	{
@@ -2554,36 +2602,72 @@ The following options are available:
 
 	[PlayerCommand("Plans", "plans")]
 	[CommandPermission(PermissionLevel.JuniorAdmin)]
+	[HelpInfo("plans", @"This command is used to view short and long term plans that players have set using the #3plan#0 command.
+
+There are three ways to use this command:
+
+	#3plans#0 - shows the plans of all online characters who have updated it within the last 14 days
+	#3plans <name>#0 - shows the plans of a specific online character
+	#3plans <id>#0 - shows the plans of a specific character, including offline characters", AutoHelp.HelpArg)]
 	protected static void Plans(ICharacter actor, string command)
 	{
-		var plans = actor.Gameworld.Characters
-		                 .Where(x => x.AffectedBy<RecentlyUpdatedPlan>())
-		                 .Select(x => (Character: x,
-			                 Length: TimeSpan.FromDays(14) -
-			                         x.ScheduledDuration(x.EffectsOfType<RecentlyUpdatedPlan>().First())))
-		                 .OrderBy(x => x.Length)
-		                 .ToList();
-		if (!plans.Any())
+		var sb = new StringBuilder();
+		var ss = new StringStack(command.RemoveFirstWord());
+		if (ss.IsFinished)
 		{
-			actor.OutputHandler.Send("Nobody currently in the game has updated their plans within the last 14 days.");
+			var plans = actor.Gameworld.Characters
+			                 .Where(x => x.AffectedBy<RecentlyUpdatedPlan>())
+			                 .Select(x => (Character: x,
+				                 Length: TimeSpan.FromDays(90) -
+				                         x.ScheduledDuration(x.EffectsOfType<RecentlyUpdatedPlan>().First())))
+			                 .OrderBy(x => x.Length)
+			                 .ToList();
+			if (!plans.Any())
+			{
+				actor.OutputHandler.Send("Nobody currently in the game has updated their plans within the last 90 days.");
+				return;
+			}
+
+			sb.AppendLine("The following recent updates to character plans have been made:");
+			foreach (var plan in plans)
+			{
+				sb.AppendLine(
+					$"\n{plan.Character.PersonalName.GetName(NameStyle.FullName).ColourName()} ({plan.Character.HowSeen(actor, flags: PerceiveIgnoreFlags.TrueDescription)})");
+				sb.AppendLine($"Short: {plan.Character.ShortTermPlan?.Colour(Telnet.Green) ?? "None".Colour(Telnet.Red)}");
+				sb.AppendLine($"Long: {plan.Character.LongTermPlan?.Colour(Telnet.Green) ?? "None".Colour(Telnet.Red)}");
+			}
+
+			actor.OutputHandler.Send(sb.ToString());
+		}
+
+		var target = actor.Gameworld.Characters.GetByIdOrName(ss.SafeRemainingArgument);
+		if (target is null ||
+		    !long.TryParse(ss.SafeRemainingArgument, out var id) ||
+			(target = actor.Gameworld.TryGetCharacter(id, true)) is null
+		)
+		{
+			actor.OutputHandler.Send($"There is no character identified by the text {ss.SafeRemainingArgument.ColourCommand()}.");
 			return;
 		}
 
-		var sb = new StringBuilder();
-		sb.AppendLine("The following recent updates to character plans have been made:");
-		foreach (var plan in plans)
-		{
-			sb.AppendLine(
-				$"\n{plan.Character.PersonalName.GetName(NameStyle.FullName)} ({plan.Character.HowSeen(actor, flags: PerceiveIgnoreFlags.IgnoreSelf)})");
-			sb.AppendLine($"Short: {plan.Character.ShortTermPlan?.Colour(Telnet.Green) ?? "None".Colour(Telnet.Red)}");
-			sb.AppendLine($"Long: {plan.Character.LongTermPlan?.Colour(Telnet.Green) ?? "None".Colour(Telnet.Red)}");
-		}
-
+		sb.AppendLine($"Plans for {target.PersonalName.GetName(NameStyle.FullName).ColourName()} ({target.HowSeen(actor, flags: PerceiveIgnoreFlags.TrueDescription)})");
+		sb.AppendLine($"Short: {target.ShortTermPlan?.Colour(Telnet.Green) ?? "None".Colour(Telnet.Red)}");
+		sb.AppendLine($"Long: {target.LongTermPlan?.Colour(Telnet.Green) ?? "None".Colour(Telnet.Red)}");
 		actor.OutputHandler.Send(sb.ToString());
 	}
 
 	private static string GridHelpText =>
-		"You can use the following subcommands with the grid command:\n\taudit - shows all grids\n\tstatus <grid#> - shows a particular grid\n\texpand <grid#> <direction> - expands a grid in a direction\n\twithdraw <grid#> removes the current location from the specified grid\n\tconnect <thing> <grid#> - connects a grid-interfacing item to a grid";
+		@"The #3grid#0 command is used to view, edit and create grids, which are ways in which certain resources (like electricity or water) are shared across multiple rooms with different inputs and outputs pulling dynamically from it.
+
+A room can only have one of each kind of grid at a time, and the grids must be added to rooms to apply there. Other items (like electrical sockets) can be connected to the grid once it's there.
+
+You can use the following subcommands with the grid command:
+
+	#3grid audit#0 - shows all grids
+	#3grid status <grid#>#0 - shows a particular grid
+	#3grid expand <grid#> <direction>#0 - expands a grid in a direction
+	#3grid withdraw <grid#>#0 removes the current location from the specified grid
+	#3grid connect <thing> <grid#>#0 - connects a grid-interfacing item to a grid";
 
 	[PlayerCommand("Grid", "grid")]
 	[CommandPermission(PermissionLevel.Admin)]

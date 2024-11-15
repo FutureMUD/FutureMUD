@@ -1092,7 +1092,7 @@ public class GameItemProto : EditableItem, IGameItemProto
 			sb.AppendLine("You should use each variable at least once in the description.");
 		}
 
-		if (command.IsFinished)
+		if (!command.IsFinished)
 		{
 			sb.AppendLine();
 			sb.AppendLine(command.SafeRemainingArgument);

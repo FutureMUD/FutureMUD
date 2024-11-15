@@ -1985,7 +1985,7 @@ Precipitation: Add a > or < to precipitation to check higher than (inclusive) or
 Note: reverse any condition with a ! (e.g. !dawn, !snow, !*rain, !summer)");
 		sb.AppendLine();
 
-		if (command.IsFinished)
+		if (!command.IsFinished)
 		{
 			sb.AppendLine();
 			sb.AppendLine(command.SafeRemainingArgument);

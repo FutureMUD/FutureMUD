@@ -1687,8 +1687,8 @@ The syntax is as follows:
 			return;
 		}
 
-		var calculatedBail = jurisdiction.KnownCrimesForIndividual(who)
-		                                 .Sum(x => jurisdiction.BailCalculationProg?.Execute<decimal?>(who, x) ?? 0.0M);
+		var calculatedBail = Math.Truncate(jurisdiction.KnownCrimesForIndividual(who)
+		                         .Sum(x => jurisdiction.BailCalculationProg?.Execute<decimal?>(who, x) ?? 0.0M));
 
 		string bailActionText;
 		if (ss.IsFinished)
@@ -1949,7 +1949,7 @@ The syntax is as follows:
 		}
 
 		var (_, ai) = availableLawyers.First(x => x.NPC == target);
-		var fee = ai.FeeProg.ExecuteDecimal(who, target);
+		var fee = Math.Truncate(ai.FeeProg.ExecuteDecimal(who, target));
 		string actionText;
 		var lawyerBankAccount = ai.BankAccountProg?.Execute<IBankAccount>(target);
 		if (!ss.IsFinished)
@@ -2033,6 +2033,7 @@ The syntax is as follows:
 		}
 
 		var (fine, _) = jurisdiction.FinesOwed(actor);
+		fine = Math.Truncate(fine);
 		if (fine <= 0.0M)
 		{
 			actor.OutputHandler.Send("You don't owe any fines in this jurisdiction.");

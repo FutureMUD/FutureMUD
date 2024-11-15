@@ -1910,8 +1910,8 @@ Additionally, you can use the following shop admin subcommands:
 			return;
 		}
 
-		var amount = shop.Currency.GetBaseCurrency(command.SafeRemainingArgument, out var success);
-		if (!success)
+		var amount = Math.Truncate(shop.Currency.GetBaseCurrency(command.SafeRemainingArgument, out var success));
+		if (!success || amount <= 0.0M)
 		{
 			actor.OutputHandler.Send($"That is not a valid amount of the {shop.Currency.Name.ColourName()} currency.");
 			return;

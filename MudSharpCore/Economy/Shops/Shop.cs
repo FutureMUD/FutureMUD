@@ -982,7 +982,7 @@ public abstract class Shop : SaveableItem, IShop
 		var tax = Math.Round(
 			EconomicZone.SalesTaxes.Where(x => x.Applies(merchandise, actor)).Sum(x => x.TaxValue(merchandise, actor)),
 			0, MidpointRounding.AwayFromZero);
-		return ((merchandise.EffectivePrice + tax) * quantity, tax * quantity);
+		return (Math.Truncate((merchandise.EffectivePrice + tax) * quantity), Math.Truncate(tax * quantity));
 	}
 
 	public (decimal TotalPrice, decimal IncludedTax, bool VolumeDealsExist) GetDetailedPriceInfo(ICharacter actor,

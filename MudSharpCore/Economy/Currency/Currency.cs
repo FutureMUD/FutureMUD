@@ -346,6 +346,7 @@ public class Currency : SaveableItem, ICurrency
 				division.BaseUnitConversionRate;
 		}
 
+		amount = Math.Truncate(amount);
 		return found;
 	}
 

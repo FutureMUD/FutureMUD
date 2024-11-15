@@ -1677,7 +1677,7 @@ The following commands are specific to those who own a property (or who are mana
 			return;
 		}
 
-		var amount = property.LeaseOrder!.BondRequired + 2.0M * property.LeaseOrder.PricePerInterval;
+		var amount = Math.Truncate(property.LeaseOrder!.BondRequired + 2.0M * property.LeaseOrder.PricePerInterval);
 		// Cash payment
 		if (ss.IsFinished)
 		{
@@ -1884,7 +1884,7 @@ The following commands are specific to those who own a property (or who are mana
 			return;
 		}
 
-		var amount = property.SaleOrder!.ReservePrice;
+		var amount = Math.Truncate(property.SaleOrder!.ReservePrice);
 		// Cash payment
 		if (ss.IsFinished)
 		{

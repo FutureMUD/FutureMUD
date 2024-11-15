@@ -11,7 +11,7 @@ public class PeacefulEffect : Effect, IPeacefulEffect
 	{
 	}
 
-	public PeacefulEffect(XElement effect, IPerceivable owner) : base(effect, owner)
+	private PeacefulEffect(XElement effect, IPerceivable owner) : base(effect, owner)
 	{
 	}
 

@@ -548,7 +548,7 @@ namespace MudSharp.Framework {
 		}
 
 		/// <summary>
-		///     Swaps two elements in a list
+		///     Swaps two elements in a list. While it supports fluent syntax use, it has side effects for the source list.
 		/// </summary>
 		/// <typeparam name="T">The type of the parameters</typeparam>
 		/// <param name="list">The list containing the items to swap</param>

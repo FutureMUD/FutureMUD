@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using MudSharp.Body;
@@ -26,6 +27,9 @@ using MudSharp.Accounts;
 using MudSharp.Body.Traits;
 using MudSharp.Body.Traits.Subtypes;
 using MudSharp.Character.Name;
+using MudSharp.Construction;
+using MudSharp.Construction.Boundary;
+using MudSharp.Form.Shape;
 using MudSharp.Work.Foraging;
 
 namespace MudSharp.Commands.Modules;
@@ -506,26 +510,66 @@ For a full list of combat flags, see #3SHOW COMBATFLAGS#0", AutoHelp.HelpArg)]
 	[PlayerCommand("Who", "who")]
 	protected static void Who(ICharacter actor, string input)
 	{
-		var count =
-			actor.Gameworld.Characters.Count(
-				x => !x.IsAdministrator() && !x.IsGuest) +
-			actor.Gameworld.NPCs.Count(x => x.EffectsOfType<ICountForWho>().Any());
+		var whocharacters =
+			actor.Gameworld.Characters
+			     .Where(x => !x.IsAdministrator() && !x.IsGuest)
+			     .Concat(
+				     actor.Gameworld.NPCs.Where(x => x.EffectsOfType<ICountForWho>().Any())
+			     )
+			     .ToList();
+		var count = whocharacters.Count;
 		var guestCount = actor.Gameworld.Characters.Count(x => x.IsGuest);
-		var availableAdmins = actor.Gameworld.Characters.Where(x => x.AffectedBy<IAdminAvailableEffect>()).ToList();
+		
+		var sphere = actor.Gameworld.FutureProgs.Get(actor.Gameworld.GetStaticLong("CharacterSphereProgId"))?.ExecuteString(actor) ?? string.Empty;
 		var extraText = new StringBuilder();
 		foreach (var clan in actor.ClanMemberships.Where(x => x.Clan.ShowClanMembersInWho))
 		{
-			var clanMembers =
-				actor.Gameworld.Characters.Where(x => x.ClanMemberships.Any(y => y.Clan == clan.Clan))
-					 .Concat(actor.Gameworld.NPCs.Where(x => x.EffectsOfType<ICountForWho>().Any())).ToList();
-			extraText.AppendFormat(actor, "\nThere are {0:N0} {1} of {2} online.", clanMembers.Count,
-				clanMembers.Count == 1 ? "member" : "members", clan.Clan.FullName.Colour(Telnet.Green));
+			if (!string.IsNullOrEmpty(sphere) && !clan.Clan.Sphere.EqualTo(sphere))
+			{
+				continue;
+			}
+
+			var clanMembers = whocharacters.Where(x => x.ClanMemberships.Any(y => y.Clan == clan.Clan)).ToList();
+			extraText.AppendFormat(actor, "\nThere are {0} {1} of {2} online.", 
+				clanMembers.Count.ToStringN0Colour(actor),
+				clanMembers.Count == 1 ? "member" : "members", 
+				clan.Clan.FullName.Colour(Telnet.Green));
 		}
 
+		var meetingPlaces = actor.Gameworld.Cells
+		                         .SelectNotNull(x => x.EffectsOfType<LandmarkEffect>().FirstOrDefault())
+		                         .Where(x => 
+			                         x.IsMeetingPlace &&
+									 x.ApplicabilityProg?.ExecuteBool(false, x.Owner, actor) != false &&
+									 (string.IsNullOrEmpty(sphere) || x.Sphere.EqualTo(sphere))
+			                      )
+		                         .ToList()
+		                         ;
+		foreach (var place in meetingPlaces)
+		{
+			var cellPlace = (ICell)place.Owner;
+			var locationCount = whocharacters.Count(x => x.Location == cellPlace);
+			if (locationCount == 0)
+			{
+				continue;
+			}
+
+			if (locationCount == 1)
+			{
+				extraText.AppendLine();
+				extraText.Append(string.Format(actor, actor.Gameworld.GetStaticString("WhoTextMeetingPlaceOnePerson"), 1, cellPlace.HowSeen(actor, flags: PerceiveIgnoreFlags.IgnoreCanSee)));
+				continue;
+			}
+
+			extraText.AppendLine();
+			extraText.Append(string.Format(actor, actor.Gameworld.GetStaticString("WhoTextMeetingPlaceMultiplePersons"), locationCount, cellPlace.HowSeen(actor, flags: PerceiveIgnoreFlags.IgnoreCanSee)));
+		}
+
+		var availableAdmins = actor.Gameworld.Characters.Where(x => x.AffectedBy<IAdminAvailableEffect>()).ToList();
 		if (availableAdmins.Any())
 		{
 			extraText.Append(
-				$"\n\nThe following members of staff are available:\n{availableAdmins.Select(x => "\t" + x.Account.Name.TitleCase()).ListToString(separator: "\n", twoItemJoiner: "\n", conjunction: "")}");
+				$"\n\nThe following members of staff are available:\n{availableAdmins.Select(x => "\t" + x.Account.Name.TitleCase().ColourName()).ListToString(separator: "\n", twoItemJoiner: "\n", conjunction: "")}");
 		}
 
 		actor.OutputHandler.Send(string.Format(actor,
@@ -534,14 +578,14 @@ For a full list of combat flags, see #3SHOW COMBATFLAGS#0", AutoHelp.HelpArg)]
 				: count == 1
 					? "WhoTextOneOnline"
 					: "WhoText"),
-			count,
-			actor.Gameworld.GameStatistics.RecordOnlinePlayers,
-			actor.Gameworld.GameStatistics.RecordOnlinePlayersDateTime.GetLocalDateString(actor),
+			count.ToStringN0Colour(actor),
+			actor.Gameworld.GameStatistics.RecordOnlinePlayers.ToStringN0Colour(actor),
+			actor.Gameworld.GameStatistics.RecordOnlinePlayersDateTime.GetLocalDateString(actor).ColourValue(),
 			extraText.Length > 0
 				? extraText.ToString()
 				: "",
 			guestCount > 0
-				? $"\nThere are {guestCount} guest{(guestCount == 1 ? "" : "s")} in the guest lounge."
+				? $"\nThere are {guestCount.ToStringN0Colour(actor)} guest{(guestCount == 1 ? "" : "s")} in the guest lounge."
 				: ""
 		).SubstituteANSIColour().Wrap(actor.InnerLineFormatLength));
 	}
@@ -629,6 +673,130 @@ For a full list of combat flags, see #3SHOW COMBATFLAGS#0", AutoHelp.HelpArg)]
 	protected static void Stop(ICharacter actor, string input)
 	{
 		actor.Stop(false);
+	}
+
+	[PlayerCommand("Landmarks", "landmarks")]
+	[RequiredCharacterState(CharacterState.Conscious)]
+	[HelpInfo("landmarks", @"The #3landmarks#0 command is used to view landmarks, which are locations that are commonly known to people in the game world.
+
+You can use the #3landmarks#0 syntax to see all landmarks that you know, and #3landmarks <which>#0 to see detailed information about a landmark, including directions to get there from where you are.", AutoHelp.HelpArg)]
+	protected static void Landmarks(ICharacter actor, string input)
+	{
+		var sphere = actor.Gameworld.FutureProgs.Get(actor.Gameworld.GetStaticLong("CharacterSphereProgId"))?.ExecuteString(actor) ?? string.Empty;
+		var landmarks = actor.Gameworld.Cells
+		                         .SelectNotNull(x => x.EffectsOfType<LandmarkEffect>().FirstOrDefault())
+		                         .Where(x =>
+			                         x.ApplicabilityProg?.ExecuteBool(false, x.Owner, actor) != false &&
+			                         (string.IsNullOrEmpty(sphere) || x.Sphere.EqualTo(sphere))
+		                         )
+		                         .ToList()
+			;
+
+		var sb = new StringBuilder();
+
+		var ss = new StringStack(input.RemoveFirstWord());
+		if (ss.IsFinished)
+		{
+			sb.AppendLine("You know about the following landmarks:");
+			sb.AppendLine();
+			sb.AppendLine(StringUtilities.GetTextTable(
+				from item in landmarks
+				let cell = (ICell)item.Owner
+				let distance = actor.Location == cell ? -1 : actor.DistanceBetween(cell, 50)
+				select new List<string>
+				{
+					cell.HowSeen(actor, flags: PerceiveIgnoreFlags.IgnoreCanSee),
+					cell.CurrentOverlay.Terrain.Name,
+					item.IsMeetingPlace.ToColouredString(),
+					cell.SafeQuit.ToColouredString()
+				},
+				new List<string>
+				{
+					"Landmark",
+					"Terrain",
+					"Meeting Place",
+					"Safe Quit"
+				},
+				actor,
+				Telnet.Yellow
+			));
+			actor.OutputHandler.Send(sb.ToString());
+			actor.AddEffect(new CommandDelay(actor, ["Landmarks", "Navigate"]), TimeSpan.FromSeconds(5));
+			return;
+		}
+
+		var cells = landmarks.Select(x => (ICell)x.Owner).ToList();
+		var targetText = ss.SafeRemainingArgument;
+		var target = cells.FirstOrDefault(x => x.Name.EqualTo(targetText)) ??
+		             cells.FirstOrDefault(x => x.Name.StartsWith(targetText, StringComparison.InvariantCultureIgnoreCase)) ??
+		             cells.FirstOrDefault(x => x.Name.Contains(targetText, StringComparison.InvariantCultureIgnoreCase));
+		if (target is null)
+		{
+			actor.OutputHandler.Send($"You're not aware of any landmark with the keyword {ss.SafeRemainingArgument.ColourCommand()}.");
+			return;
+		}
+
+		var landmark = landmarks.First(x => x.Owner == target);
+		sb.AppendLine("Known Landmark".GetLineWithTitleInner(actor, Telnet.Cyan, Telnet.BoldWhite));
+		sb.AppendLine();
+		sb.AppendLine($"Location: {target.HowSeen(actor, flags: PerceiveIgnoreFlags.IgnoreCanSee)}");
+		sb.AppendLine();
+		sb.AppendLine($"Description:");
+		sb.AppendLine();
+		sb.AppendLine(target.ProcessedFullDescription(actor, PerceiveIgnoreFlags.IgnoreCanSee, target.CurrentOverlay).Wrap(actor.InnerLineFormatLength, "\t"));
+		sb.AppendLine();
+		sb.AppendLine($"Terrain: {target.CurrentOverlay.Terrain.Name.ColourValue()}");
+		sb.AppendLine($"Meeting Place: {landmark.IsMeetingPlace.ToColouredString()}");
+		sb.AppendLine($"Safe Quit: {target.SafeQuit.ToColouredString()}");
+		sb.AppendLine();
+		
+		var path = actor.ExitsBetween(target, 100).ToList();
+		string pathDescription = "";
+		if (path.Count == 0)
+		{
+			if (target == actor.Location)
+			{
+				pathDescription = "";
+			}
+			else
+			{
+				pathDescription = "no viable path".ColourError();
+			}
+		}
+		else
+		{
+			if (path.Count > actor.Gameworld.GetStaticInt("MaximumLandmarkDirectionsDistance"))
+			{
+				pathDescription = $"very far away to {path.DescribeDirection()}";
+			}
+			else
+			{
+				pathDescription = path
+								  .Select(x =>
+									{
+										if (x.OutboundDirection != CardinalDirection.Unknown)
+										{
+											return x.OutboundDirection.DescribeBrief();
+										}
+
+										return x is NonCardinalCellExit nc ? $"'{nc.Verb} {nc.PrimaryKeyword}'".ToLowerInvariant() : "??";
+									})
+									  .ListToString(separator: " ", conjunction: "");
+			}
+		}
+		
+		sb.AppendLine($"Path: {pathDescription.ColourCommand()}".Wrap(actor.InnerLineFormatLength));
+		var index = 1;
+		foreach (var text in landmark.LandmarkDescriptionTexts.Where(x => x.Prog.ExecuteBool(actor)))
+		{
+			sb.AppendLine();
+			sb.AppendLine($"About #{index++.ToStringN0(actor)}".GetLineWithTitleInner(actor, Telnet.Cyan, Telnet.BoldWhite));
+			sb.AppendLine();
+			sb.AppendLine(text.Text.SubstituteANSIColour().Wrap(actor.InnerLineFormatLength));
+		}
+		actor.OutputHandler.Send(sb.ToString());
+		actor.AddEffect(new CommandDelay(actor, ["Landmarks", "Navigate"]), TimeSpan.FromSeconds(5));
+
 	}
 
 	[PlayerCommand("TagSearch", "tagsearch")]

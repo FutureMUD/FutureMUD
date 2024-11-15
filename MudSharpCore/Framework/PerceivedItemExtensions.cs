@@ -100,46 +100,6 @@ public static class PathSearch
 
 public static class PerceivedItemExtensions
 {
-	[Obsolete]
-	public static int DistanceBetweenObsolete(this IPerceivable source, IPerceivable target, uint maximumDistance)
-	{
-		if (source == null || target == null || source.Location == null || target.Location == null)
-		{
-			return -1;
-		}
-
-		if (source.Location == target.Location)
-		{
-			return 0;
-		}
-
-		var locationsConsidered = new HashSet<ICell> { source.Location };
-		var generationCells = new List<ICell> { source.Location };
-		var generation = 0;
-		while (generation++ < maximumDistance)
-		{
-			var thisGeneration = generationCells.ToList();
-			generationCells.Clear();
-			foreach (var cell in thisGeneration)
-			foreach (var exit in cell.ExitsFor(null))
-			{
-				if (locationsConsidered.Contains(exit.Destination))
-				{
-					continue;
-				}
-
-				if (exit.Destination == target.Location)
-				{
-					return generation;
-				}
-
-				generationCells.Add(exit.Destination);
-				locationsConsidered.Add(exit.Destination);
-			}
-		}
-
-		return -1;
-	}
 
 	/// <summary>
 	///     Determines the minimum number of exits between source's location and target's location using A* search
@@ -163,6 +123,12 @@ public static class PerceivedItemExtensions
 		var queue = new RandomAccessPriorityQueue<double, Node<ICellExit>>();
 		foreach (var item in source.Location.ExitsFor(null))
 		{
+			// Special short circuit if exactly 1
+			if (item.Destination == target?.Location)
+			{
+				return 1;
+			}
+
 			queue.Enqueue(
 				Hypotenuse(source.Location.Room.X, item.Destination.Room.X, source.Location.Room.Y,
 					item.Destination.Room.Y, source.Location.Room.Z, item.Destination.Room.Z),
@@ -343,6 +309,10 @@ public static class PerceivedItemExtensions
 		var queue = new RandomAccessPriorityQueue<double, Node<ICellExit>>();
 		foreach (var item in source.Location.ExitsFor(null))
 		{
+			if (item.Destination == target?.Location)
+			{
+				return Enumerable.Empty<ICell>();
+			}
 			queue.Enqueue(Hypotenuse(source.Location.Room, target.Location.Room), new Node<ICellExit>(item));
 		}
 
@@ -386,60 +356,6 @@ public static class PerceivedItemExtensions
 		return Enumerable.Empty<ICell>();
 	}
 
-	/// <summary>
-	///     Returns all Cell Exits which lie between two perceivables, using the A* algorithm
-	/// </summary>
-	/// <param name="source">The source IPerceivable</param>
-	/// <param name="target">The target IPerceivable</param>
-	/// <param name="maximumDistance">The maximum distance traversed before the algorithm gives up</param>
-	/// <returns>A collection of ICellExits between the two targets</returns>
-	[Obsolete]
-	public static IEnumerable<ICellExit> ExitsBetweenObsolete(this IPerceivable source, IPerceivable target,
-		uint maximumDistance)
-	{
-		if (source?.Location == target?.Location)
-		{
-			return Enumerable.Empty<ICellExit>();
-		}
-
-		if (source == null || target == null || source.Location == null || target.Location == null)
-		{
-			return Enumerable.Empty<ICellExit>();
-		}
-
-		var locationsConsidered = new HashSet<ICell> { source.Location };
-		var generationExits =
-			new List<Node<ICellExit>>(source.Location.ExitsFor(null).Select(x => new Node<ICellExit>(x)));
-		var generation = 0;
-		while (generation++ < maximumDistance)
-		{
-			var thisGeneration = generationExits.ToList();
-			generationExits.Clear();
-			foreach (var exit in thisGeneration)
-			{
-				if (locationsConsidered.Contains(exit.Value.Destination))
-				{
-					continue;
-				}
-
-				if (exit.Value.Destination == target.Location)
-				{
-					return exit.SelfAndAncestors.Values().Reverse().ToList();
-				}
-
-				locationsConsidered.Add(exit.Value.Destination);
-				foreach (var otherExit in exit.Value.Destination.ExitsFor(null))
-				{
-					var newNode = new Node<ICellExit>(otherExit);
-					exit.Add(newNode);
-					generationExits.Add(newNode);
-				}
-			}
-		}
-
-		return Enumerable.Empty<ICellExit>();
-	}
-
 	private static double Hypotenuse(double x1, double x2, double y1, double y2, double z1, double z2)
 	{
 		return Math.Sqrt((x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1) + (z2 - z1) * (z2 - z1));
@@ -467,6 +383,10 @@ public static class PerceivedItemExtensions
 		var queue = new RandomAccessPriorityQueue<double, Node<ICellExit>>();
 		foreach (var item in source.Location.ExitsFor(null))
 		{
+			if (item.Destination == target?.Location)
+			{
+				return [item];
+			}
 			queue.Enqueue(Hypotenuse(source.Location.Room, target.Location.Room), new Node<ICellExit>(item));
 		}
 
@@ -920,6 +840,11 @@ public static class PerceivedItemExtensions
 				continue;
 			}
 
+			if (exit.Destination == target?.Location)
+			{
+				return [exit];
+			}
+
 			var gScore = initialGScore + 1; // Assuming uniform cost
 			var hScore = Hypotenuse(exit.Destination.Room, target.Location.Room);
 			var fScore = gScore + hScore;
@@ -996,6 +921,11 @@ public static class PerceivedItemExtensions
 			if (!suitabilityFunction(exit))
 				continue;
 
+			if (exit.Destination == target?.Location)
+			{
+				return [exit];
+			}
+
 			var gScore = initialGScore + 1; // Assuming uniform cost
 			var hScore = Hypotenuse(exit.Destination.Room, target.Location.Room);
 			var fScore = gScore + hScore;
@@ -1065,6 +995,10 @@ public static class PerceivedItemExtensions
 		var queue = new RandomAccessPriorityQueue<double, Node<ICellExit>>();
 		foreach (var item in source.Location.ExitsFor(null, true))
 		{
+			if (targets.Any(x => x.Location == item.Destination))
+			{
+				return [item];
+			}
 			queue.Enqueue(targets.Min(x => Hypotenuse(source.Location.Room, x.Location.Room)),
 				new Node<ICellExit>(item));
 		}

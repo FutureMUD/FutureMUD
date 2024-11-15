@@ -101,7 +101,8 @@ public class All<T> : IAll<T>, IUneditableAll<T> where T : class, IFrameworkItem
 
 	public T? GetByName(string name)
 	{
-		return _iterlist.FirstOrDefault(x => x.Name?.Equals(name, StringComparison.InvariantCultureIgnoreCase) == true);
+		return _iterlist.FirstOrDefault(x => x.Name?.Equals(name, StringComparison.InvariantCultureIgnoreCase) == true) ??
+		       _iterlist.FirstOrDefault(x => x.Name?.StartsWith(name, StringComparison.InvariantCultureIgnoreCase) == true);
 	}
 
 	public T? GetByIdOrName(string value, bool permitAbbreviations = true)

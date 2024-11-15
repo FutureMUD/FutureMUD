@@ -14,6 +14,7 @@ public static class DefaultStaticSettings
 		new Dictionary<string, string>
 		{
 			{ "CPRAllowed", "true" },
+			{ "MaximumLandmarkDirectionsDistance", "20"},
 			{ "RangeCountingMode", "pythagoreanround"},
 			{ "PlayersCanJunk", "true" },
 			{ "FleeMoveBaseDelay", "1.0"},
@@ -673,6 +674,8 @@ public static class DefaultStaticSettings
 
 	public static readonly IReadOnlyDictionary<string, string> DefaultStaticStrings = new Dictionary<string, string>
 	{
+		{"WhoTextMeetingPlaceOnePerson", "There is {0} person at {1}."},
+		{"WhoTextMeetingPlaceMultiplePersons", "There are {0} people at {1}."},
 		{ "PassiveInterdictionEmote", "$0 move|moves to place &0's body between $1 and any would-be ranged attackers, trying to shield &1 from harm." },
 		{ "FallLeaveRoomEmote", "@ fall|falls down from here." },
 		{ "FallEnterRoomEmote", "@ fall|falls in from above." },

@@ -388,7 +388,7 @@ public partial class Cell
 
 		var addedAdditionalLines = false;
 		// Here is the room description itself (comment added to help see through the clutter)
-		descSubSB.Append(SubstituteDescriptionVariables(overlay.CellDescription, voyeur, flags));
+		descSubSB.Append(ProcessedFullDescription(voyeur, flags, overlay));
 		if (character?.Account.CodedRoomDescriptionAdditionsOnNewLine == true)
 		{
 			descSubSB.AppendLine();
@@ -565,6 +565,11 @@ public partial class Cell
 
 		sb.Append(descSubSB.ToString().Wrap(character.Account.InnerLineFormatLength));
 		return sb.ToString().Wrap(character?.Account.LineFormatLength ?? 120);
+	}
+
+	public string ProcessedFullDescription(IPerceiver voyeur, PerceiveIgnoreFlags flags, ICellOverlay overlay)
+	{
+		return SubstituteDescriptionVariables(overlay.CellDescription, voyeur, flags);
 	}
 
 	private string AdminInfoStrings(IPerceiver perceiver)

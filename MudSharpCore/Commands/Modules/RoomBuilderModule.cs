@@ -95,6 +95,16 @@ The following commands do not require you to have adopted an overlay package:
 	#3cell exit unhide <exit>#0 - unhides a cell exit
 	#3cell set register <varname> <value>#0 - sets the specified prog variable for the current cell to the specified value
 	#3cell set register delete <varname>#0 - resets the specified prog variable to its default value for the current cell
+	#3cell landmark [<prog>] [<sphere>]#0 - sets your current location as a landmark (with optional applicability prog and sphere)
+	#3cell landmark#0 - toggles being a landmark off
+	#3cell meeting [<prog>] [<sphere>]#0 - sets your current location as a meeting place landmark (with optional applicability prog and sphere)
+	#3cell meeting#0 - toggles being a meeting place off
+	#3cell landmarktext#0 - shows all extra texts for a landmark cell
+	#3cell landmarktext add <prog>#0 - drops into an editor to create a new extra text
+	#3cell landmarktext prog <##> <prog>#0 - replaces the prog of a specific extra text
+	#3cell landmarktext text <##>#0 - drops into an editor to replace an extra text
+	#3cell landmarktext swap <##> <##>#0 - swaps the order of two extra texts
+	#3cell landmarktext delete <##>#0 - deletes a landmark text
 
 These are the commands used to work with overlay packages:
 
@@ -207,11 +217,333 @@ There is also a universal optional argument which must come first in the form of
 			case "delete":
 				CellDelete(actor, ss);
 				break;
+			case "meetingplace":
+			case "meeting":
+				CellMeetingPlace(actor, ss);
+				break;
+			case "landmark":
+				CellLandmark(actor, ss);
+				break;
+			case "landmarktext":
+				CellLandmarkText(actor, ss);
+				break;
 			default:
 				actor.OutputHandler.Send(
 					$"That is not a valid option to use with the {"cell".Colour(Telnet.Yellow)} command. See {"CELL HELP".FluentTagMXP("send", "href='cell help' hint='display cell help'")} for more info.");
 				return;
 		}
+	}
+
+	private static void CellLandmarkText(ICharacter actor, StringStack ss)
+	{
+		var cell = actor.Location;
+		var existing = cell.EffectsOfType<LandmarkEffect>().FirstOrDefault();
+		if (existing is null)
+		{
+			actor.OutputHandler.Send("You current location is not a landmark.");
+			return;
+		}
+
+		var sb = new StringBuilder();
+		if (ss.IsFinished)
+		{
+			if (existing.LandmarkDescriptionTexts.Count == 0)
+			{
+				actor.OutputHandler.Send("This landmark does not have any extra texts.");
+				return;
+			}
+
+			sb.AppendLine($"Extra Texts for this landmark:");
+			var i = 1;
+			foreach (var text in existing.LandmarkDescriptionTexts)
+			{
+				sb.AppendLine();
+				sb.AppendLine($"#{i++.ToStringN0(actor)} - Prog: {text.Prog.MXPClickableFunctionName()}");
+				sb.AppendLine();
+				sb.AppendLine(text.Text.SubstituteANSIColour().Wrap(actor.InnerLineFormatLength));
+			}
+			actor.OutputHandler.Send(sb.ToString());
+			return;
+		}
+
+		void PostAction(string text, IOutputHandler handler, object[] args)
+		{
+			if (args[0] is int index)
+			{
+				if (existing.LandmarkDescriptionTexts.Count <= index)
+				{
+					handler.Send("Unfortunately some of the texts have been deleted while you were editing.");
+					return;
+				}
+
+				existing.LandmarkDescriptionTexts[index] = (existing.LandmarkDescriptionTexts[index].Prog, text);
+				existing.Changed = true;
+				handler.Send($"You change the text of the {(index + 1).ToOrdinal()} extra text for this landmark to:\n\n{text.SubstituteANSIColour().Wrap(actor.InnerLineFormatLength)}");
+			}
+			else if (args[0] is IFutureProg prog)
+			{
+				existing.LandmarkDescriptionTexts.Add((prog, text));
+				existing.Changed = true;
+				handler.Send($"You add a new extra text for this landmark with the prog {prog.MXPClickableFunctionName()} and text as follows:\n\n{text.SubstituteANSIColour().Wrap(actor.InnerLineFormatLength)}");
+			}
+			else
+			{
+				throw new ApplicationException("Unsupported post action in CELL LANDMARKTEXT");
+			}
+		}
+
+
+		switch (ss.PopForSwitch())
+		{
+			case "add":
+			case "new":
+				if (ss.IsFinished)
+				{
+					actor.OutputHandler.Send("Which prog do you want to set for that extra text?");
+					return;
+				}
+
+				var prog = new ProgLookupFromBuilderInput(actor, ss.SafeRemainingArgument, ProgVariableTypes.Boolean, [ProgVariableTypes.Character]).LookupProg();
+				if (prog is null)
+				{
+					return;
+				}
+
+				actor.OutputHandler.Send("Enter your text below:");
+				actor.EditorMode(postAction: PostAction, cancelAction: (handler, objects) => handler.Send("You decide not to create a new text."), suppliedArguments: [prog]);
+				return;
+			case "edit":
+			case "text":
+				if (ss.IsFinished)
+				{
+					actor.OutputHandler.Send("Which number extra text do you want to edit?");
+					return;
+				}
+
+				if (!int.TryParse(ss.PopSpeech(), actor, out var value) || value < 1 || value > existing.LandmarkDescriptionTexts.Count)
+				{
+					actor.OutputHandler.Send($"The text {ss.Last.ColourCommand()} is not a valid number between {1.ToStringN0Colour(actor)} and {existing.LandmarkDescriptionTexts.Count.ToStringN0Colour(actor)}.");
+					return;
+				}
+
+				actor.OutputHandler.Send($@"Replacing:
+
+{existing.LandmarkDescriptionTexts[value - 1].Text.SubstituteANSIColour().Wrap(actor.InnerLineFormatLength, "\t")}
+
+Enter your text below:");
+				actor.EditorMode(postAction: PostAction, cancelAction: (handler, objects) => handler.Send("You decide not to edit the text."), suppliedArguments: [value-1]);
+				return;
+			case "prog":
+				if (ss.IsFinished)
+				{
+					actor.OutputHandler.Send("Which number extra text do you want to change the prog for?");
+					return;
+				}
+
+				if (!int.TryParse(ss.PopSpeech(), actor, out value) || value < 1 || value > existing.LandmarkDescriptionTexts.Count)
+				{
+					actor.OutputHandler.Send($"The text {ss.Last.ColourCommand()} is not a valid number between {1.ToStringN0Colour(actor)} and {existing.LandmarkDescriptionTexts.Count.ToStringN0Colour(actor)}.");
+					return;
+				}
+
+				if (ss.IsFinished)
+				{
+					actor.OutputHandler.Send("Which prog do you want to set for that extra text?");
+					return;
+				}
+
+				prog = new ProgLookupFromBuilderInput(actor, ss.SafeRemainingArgument, ProgVariableTypes.Boolean, [ProgVariableTypes.Character]).LookupProg();
+				if (prog is null)
+				{
+					return;
+				}
+
+				existing.LandmarkDescriptionTexts[value - 1] = (prog, existing.LandmarkDescriptionTexts[value - 1].Text);
+				existing.Changed = true;
+				actor.OutputHandler.Send($"The {value.ToOrdinal()} extra description for this landmark now uses the prog {prog.MXPClickableFunctionName()}.");
+				return;
+			case "swap":
+				if (ss.IsFinished)
+				{
+					actor.OutputHandler.Send("What is the first number of the extra text do you want to remove?");
+					return;
+				}
+
+				if (!int.TryParse(ss.PopSpeech(), actor, out var value1) || value1 < 1 || value1 > existing.LandmarkDescriptionTexts.Count)
+				{
+					actor.OutputHandler.Send($"The text {ss.Last.ColourCommand()} is not a valid number between {1.ToStringN0Colour(actor)} and {existing.LandmarkDescriptionTexts.Count.ToStringN0Colour(actor)}.");
+					return;
+				}
+
+				if (ss.IsFinished)
+				{
+					actor.OutputHandler.Send("What is the second number of the extra text do you want to remove?");
+					return;
+				}
+
+				if (!int.TryParse(ss.PopSpeech(), actor, out var value2) || value2 < 1 || value2 > existing.LandmarkDescriptionTexts.Count)
+				{
+					actor.OutputHandler.Send($"The text {ss.Last.ColourCommand()} is not a valid number between {1.ToStringN0Colour(actor)} and {existing.LandmarkDescriptionTexts.Count.ToStringN0Colour(actor)}.");
+					return;
+				}
+
+				if (value1 == value2)
+				{
+					actor.OutputHandler.Send("You can't swap something with itself.");
+					return;
+				}
+
+				existing.LandmarkDescriptionTexts.Swap(value1, value2);
+				existing.Changed = true;
+				actor.OutputHandler.Send($"You swap the ordering of the {value1.ToOrdinal()} and {value2.ToOrdinal()} extra texts for this landmark.");
+				return;
+			case "delete":
+			case "del":
+			case "remove":
+			case "rem":
+				if (ss.IsFinished)
+				{
+					actor.OutputHandler.Send("Which number extra text do you want to remove?");
+					return;
+				}
+
+				if (!int.TryParse(ss.PopSpeech(), actor, out value) || value < 1 || value > existing.LandmarkDescriptionTexts.Count)
+				{
+					actor.OutputHandler.Send($"The text {ss.Last.ColourCommand()} is not a valid number between {1.ToStringN0Colour(actor)} and {existing.LandmarkDescriptionTexts.Count.ToStringN0Colour(actor)}.");
+					return;
+				}
+
+				var old = existing.LandmarkDescriptionTexts.ElementAt(value - 1);
+				existing.LandmarkDescriptionTexts.Remove(old);
+				existing.Changed = true;
+				actor.OutputHandler.Send($"You remove the {value.ToOrdinal()} landmark description, which was:\n\n{old.Text.SubstituteANSIColour().Wrap(actor.InnerLineFormatLength)}");
+				return;
+			default:
+				actor.OutputHandler.Send("The valid subcommands are #3add#0, #3remove#0, #3swap#0, #3edit#0, and #3prog#0.".SubstituteANSIColour());
+				return;
+		}
+	}
+
+	private static void CellMeetingPlace(ICharacter actor, StringStack ss)
+	{
+		var cell = actor.Location;
+		var existing = cell.EffectsOfType<LandmarkEffect>().FirstOrDefault();
+		var sphere = string.Empty;
+		var prog = default(IFutureProg);
+		if (ss.IsFinished)
+		{
+			if (existing is not null)
+			{
+				if (existing.IsMeetingPlace)
+				{
+					cell.RemoveEffect(existing);
+					actor.OutputHandler.Send($"Your current location ({cell.GetFriendlyReference(actor)}) is no longer considered a meeting place.");
+					return;
+				}
+
+				existing.IsMeetingPlace = true;
+				existing.Changed = true;
+				actor.OutputHandler.Send($"Your current location ({cell.GetFriendlyReference(actor)}) is no longer only a landmark, but is now also a meeting place.");
+				return;
+			}
+		}
+		else
+		{
+			prog = new ProgLookupFromBuilderInput(
+				actor, 
+				ss.PopSpeech(), 
+				ProgVariableTypes.Boolean, 
+				[
+					[ProgVariableTypes.Location],
+					[ProgVariableTypes.Location, ProgVariableTypes.Character]
+				]
+			).LookupProg();
+			if (prog is null)
+			{
+				return;
+			}
+
+			if (!ss.IsFinished)
+			{
+				sphere = ss.SafeRemainingArgument.TitleCase();
+			}
+		}
+
+		if (existing is not null)
+		{
+			existing.IsMeetingPlace = true;
+			existing.Sphere = sphere;
+			existing.ApplicabilityProg = prog;
+			existing.Changed = true;
+		}
+		else
+		{
+			existing = new LandmarkEffect(cell, true, sphere, prog);
+			cell.AddEffect(existing);
+		}
+
+		actor.OutputHandler.Send($"Your current location ({cell.GetFriendlyReference(actor)}) is now a meeting place landmark{(string.IsNullOrEmpty(sphere) ? "" : $" in the {sphere.ColourName()} sphere")} {(prog is not null ? $"that applies when the prog {prog.MXPClickableFunctionName()} is true" : "that always applies")}.");
+	}
+
+	private static void CellLandmark(ICharacter actor, StringStack ss)
+	{
+		var cell = actor.Location;
+		var existing = cell.EffectsOfType<LandmarkEffect>().FirstOrDefault();
+		var sphere = string.Empty;
+		var prog = default(IFutureProg);
+		if (ss.IsFinished)
+		{
+			if (existing is not null)
+			{
+				if (!existing.IsMeetingPlace)
+				{
+					cell.RemoveEffect(existing);
+					actor.OutputHandler.Send($"Your current location ({cell.GetFriendlyReference(actor)}) is no longer considered a landmark.");
+					return;
+				}
+
+				existing.IsMeetingPlace = false;
+				existing.Changed = true;
+				actor.OutputHandler.Send($"Your current location ({cell.GetFriendlyReference(actor)}) is now only a landmark, instead of also being a meeting place.");
+				return;
+			}
+		}
+		else
+		{
+			prog = new ProgLookupFromBuilderInput(
+				actor,
+				ss.PopSpeech(),
+				ProgVariableTypes.Boolean,
+				[
+					[ProgVariableTypes.Location],
+					[ProgVariableTypes.Location, ProgVariableTypes.Character]
+				]
+			).LookupProg();
+			if (prog is null)
+			{
+				return;
+			}
+
+			if (!ss.IsFinished)
+			{
+				sphere = ss.SafeRemainingArgument.TitleCase();
+			}
+		}
+
+		if (existing is not null)
+		{
+			existing.IsMeetingPlace = false;
+			existing.Sphere = sphere;
+			existing.ApplicabilityProg = prog;
+			existing.Changed = true;
+		}
+		else
+		{
+			existing = new LandmarkEffect(cell, false, sphere, prog);
+			cell.AddEffect(existing);
+		}
+
+		actor.OutputHandler.Send($"Your current location ({cell.GetFriendlyReference(actor)}) is now a landmark{(string.IsNullOrEmpty(sphere) ? "" : $" in the {sphere.ColourName()} sphere")} {(prog is not null ? $"that applies when the prog {prog.MXPClickableFunctionName()} is true" : "that always applies")}.");
 	}
 
 	private static void CellDelete(ICharacter actor, StringStack ss)

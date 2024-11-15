@@ -61,6 +61,7 @@ namespace MudSharp.Construction
 		ICellExit GetExitTo(ICell otherCell, IPerceiver voyeur, bool ignoreLayers = false);
 		void ResolveMovement(IMovement move);
 		void RegisterMovement(IMovement move);
+		string ProcessedFullDescription(IPerceiver voyeur, PerceiveIgnoreFlags flags, ICellOverlay overlay);
 		IHearingProfile HearingProfile(IPerceiver voyeur);
 		IEditableCellOverlay GetOrCreateOverlay(ICellOverlayPackage package);
 		ICellOverlay GetOverlay(ICellOverlayPackage package);

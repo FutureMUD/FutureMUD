@@ -530,7 +530,7 @@ The syntax for this command is as follows:
 		}
 
 		actor.CurrentSpeeds[speed.Position] = speed;
-		actor.OutputHandler.Send(
-			$"When you move while you are {speed.Position.DescribeLocationMovementParticiple.ColourValue()}, you will now {speed.FirstPersonVerb.ToLowerInvariant().ColourCommand()}");
+		actor.OutputHandler.Send($"When you move while you are {speed.Position.DescribeLocationMovementParticiple.ColourValue()}, you will now {speed.FirstPersonVerb.ToLowerInvariant().ColourCommand()}");
+		actor.RemoveAllEffects(x => x.IsEffectType<PreFleeSpeed>(), false);
 	}
 }

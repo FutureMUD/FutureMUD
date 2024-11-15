@@ -142,13 +142,19 @@ public class FleeMove : CombatMoveBase
 			};
 		}
 
-		// TODO - effect to remember old speed and reset on leaving combat
-		Assailant.CurrentSpeeds[Assailant.PositionState] =
-			Assailant.Speeds.Where(x => x.Position == Assailant.PositionState).FirstMin(x => x.Multiplier);
+		if (!Assailant.EffectsOfType<PreFleeSpeed>().Any())
+		{
+			Assailant.AddEffect(new PreFleeSpeed(Assailant, Assailant.CurrentSpeeds.Values));
+		}
+
+		Assailant.CurrentSpeeds[Assailant.PositionState] = Assailant.Speeds.Where(x => x.Position == Assailant.PositionState).FirstMin(x => x.Multiplier);
 		foreach (var pursuer in pursuers)
 		{
-			pursuer.CurrentSpeeds[pursuer.PositionState] =
-				pursuer.Speeds.Where(x => x.Position == pursuer.PositionState).FirstMin(x => x.Multiplier);
+			if (!pursuer.EffectsOfType<PreFleeSpeed>().Any())
+			{
+				pursuer.AddEffect(new PreFleeSpeed(pursuer, pursuer.CurrentSpeeds.Values));
+			}
+			pursuer.CurrentSpeeds[pursuer.PositionState] = pursuer.Speeds.Where(x => x.Position == pursuer.PositionState).FirstMin(x => x.Multiplier);
 		}
 
 		var assailantSpeed = Assailant.MoveSpeed(null);

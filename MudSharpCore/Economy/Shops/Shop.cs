@@ -1272,7 +1272,10 @@ public abstract class Shop : SaveableItem, IShop
 				$"The WhyCannotShopProg is set to {(WhyCannotShopProg != null ? $"#{WhyCannotShopProg.Id.ToString("N0", actor)} {WhyCannotShopProg.FunctionName}".FluentTagMXP("send", $"href='show prog {CanShopProg.Id}'") : "None".Colour(Telnet.Red))}.");
 		}
 
-
+		if (IsManager(actor) || actor.IsAdministrator())
+		{
+			sb.AppendLine($"Total Taxes Owing: {EconomicZone.Currency.Describe(EconomicZone.OutstandingTaxesForShop(this), CurrencyDescriptionPatternType.ShortDecimal).ColourValue()}");
+		}
 
 		if (actor.IsAdministrator())
 		{

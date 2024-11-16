@@ -2,8 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Microsoft.EntityFrameworkCore.Internal;
-using Microsoft.EntityFrameworkCore.Metadata.Conventions;
+using System.Threading.Tasks;
 using MudSharp.Character;
 using MudSharp.Database;
 using MudSharp.Framework;
@@ -11,12 +10,15 @@ using MudSharp.Framework.Save;
 using MudSharp.FutureProg;
 
 namespace MudSharp.Economy.Tax;
-
-public abstract class SalesTaxBase : SaveableItem, ISalesTax
+public abstract class ProfitTaxBase : SaveableItem, IProfitTax
 {
-	protected IEconomicZone EconomicZone { get; set; }
+	#region Overrides of FrameworkItem
 
-	protected SalesTaxBase(Models.EconomicZoneTax tax, IEconomicZone zone)
+	public sealed override string FrameworkItemType => "Tax";
+
+	#endregion
+
+	protected ProfitTaxBase(Models.EconomicZoneTax tax, IEconomicZone zone)
 	{
 		Gameworld = zone.Gameworld;
 		EconomicZone = zone;
@@ -26,7 +28,7 @@ public abstract class SalesTaxBase : SaveableItem, ISalesTax
 		MerchantDescription = tax.MerchantDescription;
 	}
 
-	protected SalesTaxBase(string name, IEconomicZone zone, string defaultDefinition, string type)
+	protected ProfitTaxBase(string name, IEconomicZone zone, string defaultDefinition, string type)
 	{
 		Gameworld = zone.Gameworld;
 		EconomicZone = zone;
@@ -48,20 +50,37 @@ public abstract class SalesTaxBase : SaveableItem, ISalesTax
 		}
 	}
 
-	#region Overrides of FrameworkItem
+	public void Delete()
+	{
+		Gameworld.SaveManager.Abort(this);
+		if (_id != 0)
+		{
+			using (new FMDB())
+			{
+				Gameworld.SaveManager.Flush();
+				var dbitem = FMDB.Context.EconomicZoneTaxes.Find(Id);
+				if (dbitem != null)
+				{
+					FMDB.Context.EconomicZoneTaxes.Remove(dbitem);
+					FMDB.Context.SaveChanges();
+				}
+			}
+		}
+	}
 
-	public sealed override string FrameworkItemType => "Tax";
+	protected IEconomicZone EconomicZone { get; set; }
 
-	#endregion
-
-	#region Implementation of IEditableItem
-
-	protected virtual string HelpText =>
-		@"You can use the following options with this building command:
+	protected string HelpText =>
+		$@"You can use the following options with this building command:
 
 	#3name <name>#0 - sets the name of the tax
 	#3description <description>#0 - sets the description of the tax
-	#3prog <which>#0 - sets the prog that controls whether this tax applies";
+	#3prog <which>#0 - sets the prog that controls whether this tax applies
+	{SubtypeHelp}
+
+Note - the available parameters for the applicability prog are #6Shop#0, #6Gross Revenue#0, #6Net Profit#0";
+
+	protected abstract string SubtypeHelp { get; }
 
 	public virtual bool BuildingCommand(ICharacter actor, StringStack command)
 	{
@@ -104,14 +123,14 @@ public abstract class SalesTaxBase : SaveableItem, ISalesTax
 		}
 
 		var name = command.SafeRemainingArgument;
-		if (EconomicZone.SalesTaxes.Any(x => x.Name.EqualTo(name)))
+		if (EconomicZone.ProfitTaxes.Any(x => x.Name.EqualTo(name)))
 		{
 			actor.OutputHandler.Send(
-				$"The {EconomicZone.Name.ColourName()} economic zone already has a sales tax with that name. Names must be unique.");
+				$"The {EconomicZone.Name.ColourName()} economic zone already has a profit tax with that name. Names must be unique.");
 			return false;
 		}
 
-		actor.OutputHandler.Send($"You rename the sales tax from {_name.ColourName()} to {name.ColourName()}.");
+		actor.OutputHandler.Send($"You rename the profit tax from {_name.ColourName()} to {name.ColourName()}.");
 		_name = name;
 		Changed = true;
 		return true;
@@ -125,66 +144,37 @@ public abstract class SalesTaxBase : SaveableItem, ISalesTax
 			return false;
 		}
 
-		var prog = long.TryParse(command.SafeRemainingArgument, out var value)
-			? Gameworld.FutureProgs.Get(value)
-			: Gameworld.FutureProgs.GetByName(command.SafeRemainingArgument);
+		var prog = new ProgLookupFromBuilderInput(actor, command.SafeRemainingArgument, ProgVariableTypes.Boolean,
+			[
+				[ProgVariableTypes.Shop],
+				[ProgVariableTypes.Shop, ProgVariableTypes.Number],
+				[ProgVariableTypes.Shop, ProgVariableTypes.Number, ProgVariableTypes.Number],
+			]
+			).LookupProg();
 		if (prog == null)
 		{
-			actor.OutputHandler.Send("There is no such prog.");
-			return false;
-		}
-
-		if (!prog.ReturnType.CompatibleWith(ProgVariableTypes.Boolean))
-		{
-			actor.OutputHandler.Send(
-				$"You must supply a prog that returns boolean whereas {prog.MXPClickableFunctionName()} returns {prog.ReturnType.Describe().ColourValue()}.");
-			return false;
-		}
-
-		if (!prog.MatchesParameters(new List<ProgVariableTypes> { ProgVariableTypes.Merchandise }) &&
-		    !prog.MatchesParameters(new List<ProgVariableTypes>
-			    { ProgVariableTypes.Merchandise, ProgVariableTypes.Character }))
-		{
-			actor.OutputHandler.Send(
-				$"You must supply a prog that accepts either a single merchandise parameter or a merchandise and a character parameter, while {prog.MXPClickableFunctionName()} does not.");
 			return false;
 		}
 
 		ApplicabilityProg = prog;
 		Changed = true;
 		actor.OutputHandler.Send(
-			$"The {Name.ColourName()} sales tax will now use the {prog.MXPClickableFunctionNameWithId()} prog to deteremine its applicability at point of sale.");
+			$"The {Name.ColourName()} profit tax will now use the {prog.MXPClickableFunctionNameWithId()} prog to determine its applicability at financial period end.");
 		return true;
 	}
 
+	/// <inheritdoc />
 	public abstract string Show(ICharacter actor);
-
-	#endregion
-
-	#region Implementation of ISalesTax
 
 	public string MerchantDescription { get; private set; }
 	public IFutureProg ApplicabilityProg { get; private set; }
-	public abstract bool Applies(IMerchandise merchandise, ICharacter purchaser);
-	public abstract decimal TaxValue(IMerchandise merchandise, ICharacter purchaser);
 
-	public void Delete()
+	/// <inheritdoc />
+	public bool Applies(IShop shop, decimal grossProfit, decimal netProfit)
 	{
-		Gameworld.SaveManager.Abort(this);
-		if (_id != 0)
-		{
-			using (new FMDB())
-			{
-				Gameworld.SaveManager.Flush();
-				var dbitem = FMDB.Context.EconomicZoneTaxes.Find(Id);
-				if (dbitem != null)
-				{
-					FMDB.Context.EconomicZoneTaxes.Remove(dbitem);
-					FMDB.Context.SaveChanges();
-				}
-			}
-		}
+		return ApplicabilityProg?.ExecuteBool(false, shop, grossProfit, netProfit) ?? false;
 	}
 
-	#endregion
+	/// <inheritdoc />
+	public abstract decimal TaxValue(IShop shop, decimal grossProfit, decimal netProfit);
 }

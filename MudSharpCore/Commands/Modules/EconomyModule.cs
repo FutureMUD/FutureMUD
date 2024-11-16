@@ -2874,6 +2874,14 @@ Additionally, you can use the following shop admin subcommands:
 			$"Total Net for Period: {shop.Currency.Describe(records.Sum(x => x.NetValue), CurrencyDescriptionPatternType.ShortDecimal)}");
 		sb.AppendLine(
 			$"Total Tax Collected for Period: {shop.Currency.Describe(records.Sum(x => x.Tax), CurrencyDescriptionPatternType.ShortDecimal)}");
+		var result = shop.EconomicZone.FinancialPeriodResultForShop(shop, period);
+		if (result is not null)
+		{
+			sb.AppendLine($"Gross Revenue for Period: {shop.Currency.Describe(result.GrossRevenue, CurrencyDescriptionPatternType.ShortDecimal).ColourValue()}");
+			sb.AppendLine($"Net Revenue for Period: {shop.Currency.Describe(result.NetRevenue, CurrencyDescriptionPatternType.ShortDecimal).ColourValue()}");
+			sb.AppendLine($"Profit Tax for Period: {shop.Currency.Describe(result.ProfitsTax, CurrencyDescriptionPatternType.ShortDecimal).ColourValue()}");
+		}
+		
 		sb.AppendLine();
 		sb.AppendLine(StringUtilities.GetTextTable(
 			from transaction in records

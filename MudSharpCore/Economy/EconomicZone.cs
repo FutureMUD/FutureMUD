@@ -428,6 +428,11 @@ public class EconomicZone : SaveableItem, IEconomicZone
 
 	private readonly CollectionDictionary<long, FinancialPeriodResult> _shopsPreviousFinancialPeriodResults = new();
 
+	public FinancialPeriodResult FinancialPeriodResultForShop(IShop shop, IFinancialPeriod period)
+	{
+		return _shopsPreviousFinancialPeriodResults[shop.Id].FirstOrDefault(x => x.Period.Equals(period));
+	}
+
 	public void CloseCurrentFinancialPeriod()
 	{
 		var oldPeriod = CurrentFinancialPeriod;

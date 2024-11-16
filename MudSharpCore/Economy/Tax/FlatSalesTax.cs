@@ -1,28 +1,23 @@
-﻿using MudSharp.Character;
-using MudSharp.Framework;
-using MudSharp.Framework.Save;
-using MudSharp.FutureProg;
-using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using System.Xml.Linq;
-using MoreLinq.Extensions;
+using MudSharp.Character;
 using MudSharp.Database;
-using Google.Protobuf.WellKnownTypes;
+using MudSharp.Economy.Currency;
+using MudSharp.Framework;
 
 namespace MudSharp.Economy.Tax;
 
-public class ValueAddedTax : SalesTaxBase
+public class FlatSalesTax : SalesTaxBase
 {
 	public static void RegisterFactory()
 	{
-		TaxFactory.RegisterSalesTax("vat", (tax, zone) => new ValueAddedTax(tax, zone),
-			(name, zone) => new ValueAddedTax(name, zone));
+		TaxFactory.RegisterSalesTax("flat", (tax, zone) => new FlatSalesTax(tax, zone),
+			(name, zone) => new FlatSalesTax(name, zone));
 	}
 
-	protected ValueAddedTax(Models.EconomicZoneTax tax, IEconomicZone economicZone) : base(tax, economicZone)
+	protected FlatSalesTax(Models.EconomicZoneTax tax, IEconomicZone economicZone) : base(tax, economicZone)
 	{
 		var definition = XElement.Parse(tax.Definition);
 		Rate = decimal.Parse(definition.Element("Rate").Value);
@@ -32,10 +27,10 @@ public class ValueAddedTax : SalesTaxBase
 		}
 	}
 
-	protected ValueAddedTax(string name, IEconomicZone economicZone) : base(name, economicZone,
-		"<Tax><Rate>0.1</Rate><ExemptTags></ExemptTags></Tax>", "vat")
+	protected FlatSalesTax(string name, IEconomicZone economicZone) : base(name, economicZone,
+		"<Tax><Rate>1.0</Rate><ExemptTags></ExemptTags></Tax>", "flat")
 	{
-		Rate = 0.1M;
+		Rate = 1M;
 	}
 
 	public decimal Rate { get; protected set; }
@@ -44,12 +39,13 @@ public class ValueAddedTax : SalesTaxBase
 	public override bool Applies(IMerchandise merchandise, ICharacter purchaser)
 	{
 		return merchandise.Item.Tags.All(x => !ExemptTags.Contains(x)) &&
-		       (bool?)ApplicabilityProg?.Execute(purchaser, merchandise.Item.Id) != false;
+		       ApplicabilityProg?.ExecuteBool(false, purchaser, merchandise.Item.Id) != false
+			;
 	}
 
 	public override decimal TaxValue(IMerchandise merchandise, ICharacter purchaser)
 	{
-		return merchandise.EffectivePrice * Rate;
+		return Rate;
 	}
 
 	public override void Save()
@@ -67,7 +63,7 @@ public class ValueAddedTax : SalesTaxBase
 
 	protected override string HelpText =>
 		$@"{base.HelpText}
-	#3rate <%>#0 - the percentage tax rate of the sale value
+	#3rate <amount>#0 - the flat tax added to the sale value
 	#3tag <tag(s)>#0 - toggles item tags the item must possess for this tax to apply";
 
 	public override bool BuildingCommand(ICharacter actor, StringStack command)
@@ -87,20 +83,20 @@ public class ValueAddedTax : SalesTaxBase
 	{
 		if (command.IsFinished)
 		{
-			actor.OutputHandler.Send("What percentage rate of the base sale price should this tax be?");
+			actor.OutputHandler.Send("What flat tax per transaction should this tax be?");
 			return false;
 		}
 
-		if (!command.SafeRemainingArgument.TryParsePercentageDecimal(out var value))
+		if (!EconomicZone.Currency.TryGetBaseCurrency(command.SafeRemainingArgument, out var value))
 		{
-			actor.OutputHandler.Send("That is not a valid percentage.");
+			actor.OutputHandler.Send($"That is not a valid amount of {EconomicZone.Currency.Name.ColourValue()}.");
 			return false;
 		}
 
 		Rate = value;
 		Changed = true;
 		actor.OutputHandler.Send(
-			$"The {Name.ColourName()} sales tax will now be imposed at a rate of {value.ToString("P2", actor).ColourValue()} of the base sale price.");
+			$"The {Name.ColourName()} sales tax will now be imposed at a value of {EconomicZone.Currency.Describe(value, CurrencyDescriptionPatternType.ShortDecimal).ColourValue()} per transaction.");
 		return true;
 	}
 
@@ -157,11 +153,11 @@ public class ValueAddedTax : SalesTaxBase
 	public override string Show(ICharacter actor)
 	{
 		var sb = new StringBuilder();
-		sb.AppendLine($"Value Added Tax [{Name}] (#{Id.ToString("N0", actor)})".GetLineWithTitleInner(actor, Telnet.FunctionYellow, Telnet.BoldWhite));
+		sb.AppendLine($"Flat Sales Tax [{Name}] (#{Id.ToString("N0", actor)})".GetLineWithTitleInner(actor, Telnet.FunctionYellow, Telnet.BoldWhite));
 		sb.AppendLine();
 		sb.AppendLine(
 			$"Filter Prog: {ApplicabilityProg?.MXPClickableFunctionNameWithId() ?? "None".Colour(Telnet.Red)}");
-		sb.AppendLine($"Rate: {Rate.ToString("P", actor).ColourValue()}");
+		sb.AppendLine($"Rate: {EconomicZone.Currency.Describe(Rate, CurrencyDescriptionPatternType.ShortDecimal).ColourValue()}");
 		sb.AppendLine($"Description: {MerchantDescription.ColourCommand()}");
 		sb.AppendLine($"Exempt Tags:");
 		foreach (var tag in ExemptTags)

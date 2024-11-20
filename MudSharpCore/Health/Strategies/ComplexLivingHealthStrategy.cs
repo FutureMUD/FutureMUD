@@ -170,7 +170,7 @@ public class ComplexLivingHealthStrategy : BaseHealthStrategy
 		IGameItem lodgedItem = null;
 		LodgeDamageExpression.Parameters["damage"] = damage.DamageAmount;
 		LodgeDamageExpression.Parameters["type"] = (int)damage.DamageType;
-		if (damage.DamageType.CanLodge() && Dice.Roll(0, 100) < Convert.ToDouble(LodgeDamageExpression.Evaluate()))
+		if (damage.DamageType.CanLodge() && Dice.Roll(1, 100) < Convert.ToDouble(LodgeDamageExpression.Evaluate()))
 		{
 			lodgedItem = damage.LodgableItem;
 		}

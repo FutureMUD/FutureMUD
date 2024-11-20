@@ -1127,7 +1127,7 @@ internal class HealthModule : Module<ICharacter>
 
 		void RemoveLodged()
 		{
-			if (targetWound.Wound.Lodged != targetLodged)
+			if (targetWound.Wound.Lodged != targetLodged || targetLodged.Deleted)
 			{
 				actor.Send(
 					"You cancel your dislodgement process because the item you were targeting is no longer lodged in that wound.");

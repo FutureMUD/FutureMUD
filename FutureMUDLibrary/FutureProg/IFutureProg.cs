@@ -74,6 +74,7 @@ namespace MudSharp.FutureProg {
 		/// <param name="variables">The parameters to be passed in to execute the program</param>
 		/// <returns>An object of the ReturnType of the program, or null in the case of an error</returns>
 		object Execute(params object[] variables);
+		object ExecuteWithRecursionProtection(params object[] variables);
 		T Execute<T>(params object[] variables);
 
 		double ExecuteDouble(params object[] variables);

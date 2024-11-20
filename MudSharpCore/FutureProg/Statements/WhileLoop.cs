@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
+using Anthropic.SDK.Messaging;
 using MudSharp.Framework;
 using MudSharp.FutureProg.Compiler;
 using MudSharp.FutureProg.Functions;
@@ -152,9 +153,15 @@ For example:
 
 	public override StatementResult Execute(IVariableSpace variables)
 	{
+		var iterationCount = 0;
 		while (WhileFunction.Execute(variables) != StatementResult.Error &&
 		       ((bool?)WhileFunction.Result.GetObject ?? false))
 		{
+			if (iterationCount++ > 10000)
+			{
+				ErrorMessage = "While loop of greater than 10,000 iterations detected, aborting...";
+				return StatementResult.Error;
+			}
 			var localVariables = new LocalVariableSpace(variables);
 			foreach (var statement in ContainedBlock)
 			{

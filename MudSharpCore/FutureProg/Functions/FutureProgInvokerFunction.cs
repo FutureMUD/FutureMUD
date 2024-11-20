@@ -23,7 +23,7 @@ internal class FutureProgInvokerFunction : Function
 			return StatementResult.Error;
 		}
 
-		var resultObject = TargetProg.Execute(ParameterFunctions.Select(x => x.Result.GetObject).ToArray());
+		var resultObject = TargetProg.ExecuteWithRecursionProtection(ParameterFunctions.Select(x => x.Result.GetObject).ToArray());
 		Result = FutureProg.GetVariable(ReturnType, resultObject);
 		return StatementResult.Normal;
 	}

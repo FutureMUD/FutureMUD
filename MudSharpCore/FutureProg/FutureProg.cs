@@ -28,6 +28,7 @@ using MudSharp.FutureProg.Statements;
 using MudSharp.FutureProg.Variables;
 using MudSharp.GameItems;
 using MudSharp.TimeAndDate;
+using Org.BouncyCastle.Asn1.X509.Qualified;
 
 namespace MudSharp.FutureProg;
 
@@ -513,6 +514,45 @@ public class FutureProg : SaveableItem, IFutureProg
 	private object _staticReturnValue;
 	private bool _staticValueSet;
 
+	private static int RecursionDepth { get; set; }
+
+	public object ExecuteWithRecursionProtection(params object[] variables)
+	{
+		if (StaticType == FutureProgStaticType.FullyStatic && _staticValueSet)
+		{
+			return _staticReturnValue;
+		}
+
+		var variableSpaceDict = new Dictionary<string, IProgVariable>();
+		for (var i = 0; i < NamedParameters.Count; i++)
+		{
+			try
+			{
+				variableSpaceDict.Add(NamedParameters[i].Item2, GetVariable(NamedParameters[i].Item1, variables.ElementAtOrDefault(i)));
+			}
+			catch (Exception e)
+			{
+				Gameworld.DiscordConnection.NotifyProgError(Id, FunctionName, $"There was an exception while assigning parameter #{i} ({NamedParameters[i].Item2}) in prog {Id} ({FunctionName}).\nParameters:\n{NamedParameters.Select(x => $"{x.Item2}: {variables.ElementAtOrDefault(NamedParameters.IndexOf(x))?.ToString() ?? "null"}").ArrangeStringsOntoLines(1, 120)}\n\nException:\n\n{e.ToString()}");
+				variableSpaceDict.Add(NamedParameters[i].Item2, new NullVariable(NamedParameters[i].Item1));
+			}
+
+		}
+
+		var variableSpace = new VariableSpace(variableSpaceDict);
+		if (ReturnType != ProgVariableTypes.Void)
+		{
+			variableSpace.SetVariable("return", new NullVariable(ReturnType));
+		}
+
+		if (RecursionDepth++ > 250)
+		{
+			Gameworld.DiscordConnection.NotifyProgError(Id, FunctionName, $"There was a termination due to excessive recursion in prog {Id} ({FunctionName}).\nParameters:\n{NamedParameters.Select(x => $"{x.Item2}: {variables.ElementAtOrDefault(NamedParameters.IndexOf(x))?.ToString() ?? "null"}").ArrangeStringsOntoLines(1, 120)}");
+			return null;
+		}
+
+		return InternalExecute(variables, variableSpace);
+	}
+
 	public object Execute(params object[] variables)
 	{
 		if (StaticType == FutureProgStaticType.FullyStatic && _staticValueSet)
@@ -541,25 +581,32 @@ public class FutureProg : SaveableItem, IFutureProg
 			variableSpace.SetVariable("return", new NullVariable(ReturnType));
 		}
 
+		RecursionDepth = 0;
+
+		return InternalExecute(variables, variableSpace);
+	}
+
+	private object InternalExecute(object[] variables, VariableSpace variableSpace)
+	{
 #if DEBUG
 #else
 		try
 		{
 #endif
-			foreach (var statement in _statements)
+		foreach (var statement in _statements)
+		{
+			var result = statement.Execute(variableSpace);
+			switch (result)
 			{
-				var result = statement.Execute(variableSpace);
-				switch (result)
-				{
-					case StatementResult.Return:
-						return ReturnType != ProgVariableTypes.Void
-							? variableSpace.GetVariable("return")?.GetObject
-							: null;
-					case StatementResult.Error:
-						Gameworld.DiscordConnection.NotifyProgError(Id, FunctionName, $"There was a prog error in prog {Id} ({FunctionName}).\nParameters:\n{NamedParameters.Select(x => $"{x.Item2}: {variables.ElementAtOrDefault(NamedParameters.IndexOf(x))?.ToString() ?? "null"}").ArrangeStringsOntoLines(1, 120)}\n\nError:\n\n{statement.ErrorMessage}");
-						return null;
-				}
+				case StatementResult.Return:
+					return ReturnType != ProgVariableTypes.Void
+						? variableSpace.GetVariable("return")?.GetObject
+						: null;
+				case StatementResult.Error:
+					Gameworld.DiscordConnection.NotifyProgError(Id, FunctionName, $"There was a prog error in prog {Id} ({FunctionName}).\nParameters:\n{NamedParameters.Select(x => $"{x.Item2}: {variables.ElementAtOrDefault(NamedParameters.IndexOf(x))?.ToString() ?? "null"}").ArrangeStringsOntoLines(1, 120)}\n\nError:\n\n{statement.ErrorMessage}");
+					return null;
 			}
+		}
 #if DEBUG
 #else
 		}

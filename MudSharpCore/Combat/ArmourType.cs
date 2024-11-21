@@ -339,7 +339,7 @@ public class ArmourType : SaveableItem, IArmourType
 	/// <param name="owner"></param>
 	/// <param name="wounds"></param>
 	/// <returns></returns>
-	public (IDamage partDamage, IDamage organDamge) AbsorbDamage(IDamage damage, ItemQuality quality,
+	public (IDamage SufferedDamage, IDamage PassThroughDamage) AbsorbDamage(IDamage damage, ItemQuality quality,
 		IMaterial material, IHaveWounds owner,
 		ref List<IWound> wounds)
 	{

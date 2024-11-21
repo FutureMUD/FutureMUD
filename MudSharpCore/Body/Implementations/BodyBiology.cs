@@ -955,14 +955,23 @@ public partial class Body
 				}
 			}
 
-			var internalDamage = damage;
-			var naturalArmour = damage.Bodypart?.NaturalArmourType ?? Race.NaturalArmourType;
-			if (naturalArmour != null)
+			if (Race.NaturalArmourType is not null)
 			{
-				var damages = naturalArmour.AbsorbDamage(damage, Race.NaturalArmourQuality,
+				damage = Race.NaturalArmourType.AbsorbDamage(damage, Race.NaturalArmourQuality, Race.NaturalArmourMaterial, Actor, ref wounds).PassThroughDamage;
+				if (damage == null)
+				{
+					return wounds;
+				}
+			}
+
+			var internalDamage = damage;
+			var bodypartNaturalArmourType = damage.Bodypart?.NaturalArmourType;
+			if (bodypartNaturalArmourType != null)
+			{
+				var damages = bodypartNaturalArmourType.AbsorbDamage(damage, Race.NaturalArmourQuality,
 					GetMaterial(damage.Bodypart), Actor, ref wounds);
-				damage = damages.partDamage;
-				internalDamage = damages.organDamge;
+				damage = damages.SufferedDamage;
+				internalDamage = damages.PassThroughDamage;
 #if DEBUG
 				sb.AppendLine(
 					$"Natural Armour: Final {damage?.DamageAmount.ToString("N2") ?? "Nothing"}, Passed on: {(internalDamage == null ? "Nothing" : $"{internalDamage.DamageAmount:N2} {internalDamage.DamageType.Describe()}")}");
@@ -1117,12 +1126,12 @@ public partial class Body
 					var damages = naturalArmour.AbsorbDamage(internalDamage, Race.NaturalArmourQuality,
 						GetMaterial(bone), Actor,
 						ref wounds);
-					if (damages.partDamage == null)
+					if (damages.SufferedDamage == null)
 					{
 						return true;
 					}
 
-					organDamage = damages.organDamge;
+					organDamage = damages.PassThroughDamage;
 				}
 				else
 				{
@@ -1199,145 +1208,8 @@ public partial class Body
 
 	public IEnumerable<IWound> SufferDamage(IDamage damage)
 	{
-		if (!Bodyparts.Contains(damage.Bodypart) && !Organs.Contains(damage.Bodypart) &&
-			!Bones.Contains(damage.Bodypart))
-		{
-			return Enumerable.Empty<IWound>();
-		}
-
-		if (damage.DamageType == DamageType.Cellular || damage.DamageType == DamageType.Hypoxia)
-		{
-			var existingWound =
-				Wounds.FirstOrDefault(x => x.Bodypart == damage.Bodypart && damage.DamageType == x.DamageType);
-			if (existingWound == null)
-			{
-				existingWound = HealthStrategy.SufferDamage(Actor, damage, damage.Bodypart).FirstOrDefault();
-				if (existingWound == null)
-				{
-					return Enumerable.Empty<IWound>();
-				}
-
-				if (!_wounds.Contains(existingWound))
-				{
-					_wounds.Add(existingWound);
-				}
-
-				OnWounded?.Invoke(this, existingWound);
-				StartHealthTick();
-				return new[] { existingWound };
-			}
-
-			existingWound.OriginalDamage += damage.DamageAmount;
-			existingWound.CurrentDamage += damage.DamageAmount;
-			existingWound.CurrentPain += damage.PainAmount;
-			OnWounded?.Invoke(this, existingWound);
-			return new[] { existingWound };
-		}
-
-		var wounds = new List<IWound>();
-		var isplainbodypart = !(damage.Bodypart is IOrganProto) && !(damage.Bodypart is IBone);
-		if (isplainbodypart)
-		{
-			var armour =
-				WornItemsProfilesFor(damage.Bodypart)
-					.Where(x => !x.Item2.NoArmour)
-					.SelectNotNull(x => x.Item1.GetItemType<IArmour>())
-					.Reverse() // Last items worn are the first hit
-					.ToList();
-			var originalDamage = damage;
-			foreach (var item in armour)
-			{
-				damage = item.SufferDamage(damage, ref wounds);
-				if (damage == null)
-				{
-					return wounds;
-				}
-			}
-
-			if (damage.LodgableItem != null && wounds.Any(x => x.Lodged == damage.LodgableItem))
-			{
-				damage = new Damage(damage) { LodgableItem = null };
-			}
-
-			var targetProsthetic = Prosthetics.FirstOrDefault(
-				x => damage.Bodypart == x.TargetBodypart || damage.Bodypart.DownstreamOfPart(x.TargetBodypart));
-			if (targetProsthetic != null)
-			{
-				wounds.AddRange(targetProsthetic.Parent.SufferDamage(damage));
-				return wounds;
-			}
-		}
-
-		foreach (var magicarmour in CombinedEffectsOfType<IMagicArmour>())
-		{
-			if (!magicarmour.Applies() || !magicarmour.AppliesToPart(damage.Bodypart))
-			{
-				continue;
-			}
-
-			damage = magicarmour.PassiveSufferDamage(damage, ref wounds);
-			if (damage == null)
-			{
-				return wounds;
-			}
-		}
-
-		var internalDamage = damage;
-		var naturalArmour = damage.Bodypart?.NaturalArmourType ?? Race.NaturalArmourType;
-		if (naturalArmour != null)
-		{
-			var damages = naturalArmour.AbsorbDamage(damage, Race.NaturalArmourQuality,
-				GetMaterial(damage.Bodypart), Actor, ref wounds);
-			damage = damages.partDamage;
-			internalDamage = damages.organDamge;
-		}
-
-		if (damage == null)
-		{
-			return wounds;
-		}
-
-		if (damage.LodgableItem != null && wounds.Any(x => x.Lodged == damage.LodgableItem))
-		{
-			damage = new Damage(damage) { LodgableItem = null };
-		}
-
-		if (isplainbodypart)
-		{
-			if (!CheckBoneDamage(ref damage, ref wounds, ref internalDamage, false))
-			{
-				CheckOrganDamage(ref damage, wounds, ref internalDamage, false);
-			}
-
-			if (damage.DamageAmount <= 0 && damage.StunAmount <= 0 && damage.PainAmount <= 0)
-			{
-				return wounds;
-			}
-
-			if (damage.Bodypart.CanSever && damage.DamageAmount >= Race.ModifiedSeverthreshold(damage.Bodypart) &&
-				damage.DamageType.CanSever())
-			{
-				var bodypart = damage.Bodypart;
-				var severedPart = SeverBodypart(bodypart);
-				severedPart.RoomLayer = RoomLayer;
-				Location.Insert(severedPart);
-				damage = new Damage(damage) { Bodypart = bodypart.UpstreamConnection };
-			}
-		}
-
-		var newWounds = HealthStrategy.SufferDamage(Actor, damage, damage.Bodypart).ToArray();
-		foreach (var newWound in newWounds)
-		{
-			if (!_wounds.Contains(newWound))
-			{
-				_wounds.Add(newWound);
-				OnWounded?.Invoke(this, newWound);
-				newWound.OnWoundSuffered();
-				wounds.Add(newWound);
-			}
-		}
-		
-		// Note - you specifically don't want to EvaluateWounds in here otherwise people may die before combat messages
+		var wounds = PassiveSufferDamage(damage).ToArray();
+		wounds.ProcessPassiveWounds();
 		StartHealthTick();
 		return wounds;
 	}

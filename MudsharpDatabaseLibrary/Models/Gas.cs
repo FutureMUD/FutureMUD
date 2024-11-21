@@ -10,6 +10,7 @@ namespace MudSharp.Models
             GasesTags = new HashSet<GasesTags>();
             InverseCountAs = new HashSet<Gas>();
             RacesBreathableGases = new HashSet<RacesBreathableGases>();
+            RacesRemoveBreathableGases = new HashSet<RacesRemoveBreathableGases>();
         }
 
         public long Id { get; set; }
@@ -38,5 +39,6 @@ namespace MudSharp.Models
         public virtual ICollection<GasesTags> GasesTags { get; set; }
         public virtual ICollection<Gas> InverseCountAs { get; set; }
         public virtual ICollection<RacesBreathableGases> RacesBreathableGases { get; set; }
+        public virtual ICollection<RacesRemoveBreathableGases> RacesRemoveBreathableGases { get; set; }
     }
 }

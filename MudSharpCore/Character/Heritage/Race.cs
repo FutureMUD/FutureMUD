@@ -478,6 +478,16 @@ public partial class Race : SaveableItem, IRace
 			_breathableFluids.Add(Gameworld.Gases.Get(item.GasId));
 			_fluidBreathingMultipliers.Add(Gameworld.Gases.Get(item.GasId), item.Multiplier);
 		}
+		
+		foreach (var item in race.RacesRemoveBreathableLiquids)
+		{
+			_removeBreathableFluids.Add(Gameworld.Liquids.Get(item.LiquidId));
+		}
+
+		foreach (var item in race.RacesRemoveBreathableGases)
+		{
+			_removeBreathableFluids.Add(Gameworld.Gases.Get(item.GasId));
+		}
 
 		BreathingVolumeExpression = new TraitExpression(race.BreathingVolumeExpression, Gameworld);
 		HoldBreathLengthExpression = new TraitExpression(race.HoldBreathLengthExpression, Gameworld);
@@ -693,10 +703,11 @@ public partial class Race : SaveableItem, IRace
 		_naturalWeaponAttacks.AddRange(rhs._naturalWeaponAttacks);
 		_auxiliaryCombatActions.AddRange(rhs._auxiliaryCombatActions);
 		_breathableFluids.AddRange(rhs._breathableFluids);
+		_fluidBreathingMultipliers = rhs._fluidBreathingMultipliers.ToDictionary();
+		_removeBreathableFluids.AddRange(rhs._removeBreathableFluids);
 		_edibleForagableYields.AddRange(rhs._edibleForagableYields);
 		_costs.AddRange(rhs._costs);
 		_edibleMaterials.AddRange(rhs._edibleMaterials);
-		_fluidBreathingMultipliers = rhs._fluidBreathingMultipliers.ToDictionary();
 		_healthTraits.AddRange(rhs._healthTraits);
 
 		using (new FMDB())
@@ -868,6 +879,25 @@ public partial class Race : SaveableItem, IRace
 				{
 					Race = dbitem,
 					Multiplier = _fluidBreathingMultipliers[item],
+					GasId = item.Id
+				});
+			}
+
+			foreach (var item in _removeBreathableFluids)
+			{
+				if (item is ILiquid)
+				{
+					dbitem.RacesRemoveBreathableLiquids.Add(new RacesRemoveBreathableLiquids
+					{
+						Race = dbitem,
+						LiquidId = item.Id
+					});
+					continue;
+				}
+
+				dbitem.RacesRemoveBreathableGases.Add(new RacesRemoveBreathableGases
+				{
+					Race = dbitem,
 					GasId = item.Id
 				});
 			}
@@ -1282,6 +1312,27 @@ public partial class Race : SaveableItem, IRace
 			});
 		}
 
+		FMDB.Context.RacesRemoveBreathableGases.RemoveRange(dbitem.RacesRemoveBreathableGases);
+		FMDB.Context.RacesRemoveBreathableLiquids.RemoveRange(dbitem.RacesRemoveBreathableLiquids);
+		foreach (var item in _removeBreathableFluids)
+		{
+			if (item is ILiquid)
+			{
+				dbitem.RacesRemoveBreathableLiquids.Add(new RacesRemoveBreathableLiquids
+				{
+					Race = dbitem,
+					LiquidId = item.Id
+				});
+				continue;
+			}
+
+			dbitem.RacesRemoveBreathableGases.Add(new RacesRemoveBreathableGases
+			{
+				Race = dbitem,
+				GasId = item.Id
+			});
+		}
+
 		FMDB.Context.RacesEdibleMaterials.RemoveRange(dbitem.RacesEdibleMaterials);
 		foreach (var item in _edibleMaterials)
 		{
@@ -1655,13 +1706,25 @@ public partial class Race : SaveableItem, IRace
 
 	private readonly List<IFluid> _breathableFluids = new();
 
+	private readonly List<IFluid> _removeBreathableFluids = new();
+
 	public IEnumerable<IFluid> BreathableFluids =>
-		ParentRace?.BreathableFluids.Concat(_breathableFluids).Distinct() ?? _breathableFluids;
+		ParentRace?
+			.BreathableFluids
+			.Except(_removeBreathableFluids)
+			.Concat(_breathableFluids)
+			.Distinct() 
+		?? _breathableFluids;
 
 	private readonly Dictionary<IFluid, double> _fluidBreathingMultipliers = new();
 
 	public (bool Truth, double RateMultiplier) CanBreatheFluid(IFluid fluid)
 	{
+		if (_removeBreathableFluids.Contains(fluid))
+		{
+			return (false, 0.0);
+		}
+
 		if (_fluidBreathingMultipliers.ContainsKey(fluid))
 		{
 			return (true, _fluidBreathingMultipliers[fluid]);

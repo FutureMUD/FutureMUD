@@ -81,6 +81,8 @@ public partial class Race
 	#3breathing nonbreather|simple|lung|gill|blowhole#0 - sets the breathing model
 	#3breathingrate <volume per minute>#0 - sets the volume of breathing per minute
 	#3holdbreath <seconds expression>#0 - sets the formula for breathe-holding length
+	#3breathable liquid|gas <which> <%>#0 - sets a race's breathable fluids
+	#3breathable liquid|gas <which> 0%#0 - removes a breathable and overrides getting it from a parent race (if applicable)
 	#3sweat <liquid>#0 - sets the race's sweat liquid
 	#3sweat none#0 - disables sweating for this race
 	#3sweatrate <volume per minute>#0 - sets the volume of sweating per minute
@@ -282,10 +284,93 @@ public partial class Race
 			case "trackingabilitysmell":
 			case "trackingsmell":
 				return BuildingCommandTrackingOlfactory(actor, command);
+			case "breathable":
+				return BuildingCommandBreathable(actor, command);
 			default:
 				actor.OutputHandler.Send(HelpText.SubstituteANSIColour());
 				return false;
 		}
+	}
+
+	private bool BuildingCommandBreathable(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("Do you want to edit the breathability of a #3liquid#0 or a #3gas#0?".SubstituteANSIColour());
+			return false;
+		}
+
+		var liquid = false;
+		switch (command.PopForSwitch())
+		{
+			case "liquid":
+				liquid = true;
+				break;
+			case "gas":
+				break;
+			default:
+				actor.OutputHandler.Send("You must specify either #3liquid#0 or #3gas#0?".SubstituteANSIColour());
+				return false;
+		}
+
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send($"Which {command.Last.ToLowerInvariant()} do you want to set as a breathable fluid?");
+			return false;
+		}
+
+		IFluid fluid = liquid ? actor.Gameworld.Liquids.GetByIdOrName(command.PopSpeech()) : actor.Gameworld.Gases.GetByIdOrName(command.PopSpeech());
+		if (fluid is null)
+		{
+			actor.OutputHandler.Send($"There is no {(liquid ? "liquid" : "gas")} identified by the text {command.Last.ColourCommand()}.");
+			return false;
+		}
+
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send($"What percentage of ordinary respiratory need will this fluid fulfil?\nUse {1.ToStringP2Colour(actor)} for their ordinary breathable atmosphere or {0.ToStringP2Colour(actor)} to make the fluid unbreathable.");
+			return false;
+		}
+
+		if (!command.SafeRemainingArgument.TryParsePercentage(actor.Account.Culture, out var value))
+		{
+			actor.OutputHandler.Send($"The text {command.SafeRemainingArgument.ColourCommand()} is not a valid percentage.");
+			return false;
+		}
+
+		if (value <= 0.0)
+		{
+			if (!_breathableFluids.Contains(fluid))
+			{
+				if (ParentRace.CanBreatheFluid(fluid).Truth)
+				{
+					_removeBreathableFluids.Add(fluid);
+					Changed = true;
+					actor.OutputHandler.Send($"This race is now overriding its parent race's ability to breathe {fluid.Name.Colour(fluid.DisplayColour)}.");
+					return true;
+				}
+
+				actor.OutputHandler.Send($"This race already cannot breathe {fluid.Name.Colour(fluid.DisplayColour)}.");
+				return true;
+			}
+
+			_breathableFluids.Remove(fluid);
+			_fluidBreathingMultipliers.Remove(fluid);
+			Changed = true;
+			actor.OutputHandler.Send($"This race can no longer breathe the {fluid.Name.Colour(fluid.DisplayColour)} fluid.");
+			return true;
+		}
+
+		if (!_breathableFluids.Contains(fluid))
+		{
+			_breathableFluids.Add(fluid);
+		}
+
+		_fluidBreathingMultipliers[fluid] = value;
+		_removeBreathableFluids.Remove(fluid);
+		Changed = true;
+		actor.OutputHandler.Send($"This race can now breathe the {fluid.Name.Colour(fluid.DisplayColour)} fluid at {value.ToStringP2Colour(actor)} normal capacity.");
+		return true;
 	}
 
 	private bool BuildingCommandTrackingOlfactory(ICharacter actor, StringStack command)
@@ -2373,11 +2458,11 @@ public partial class Race
 	public string Show(ICharacter actor)
 	{
 		var sb = new StringBuilder();
-		sb.AppendLine($"Race #{Id.ToString("N0", actor)} - {Name.ColourName()}");
+		sb.AppendLine($"Race #{Id.ToString("N0", actor)} - {Name}".GetLineWithTitle(actor, Telnet.Cyan, Telnet.BoldWhite));
 		sb.AppendLine();
 		sb.AppendLine($"\t{Description.Wrap(actor.InnerLineFormatLength, "\t")}");
 		sb.AppendLine();
-		sb.AppendLine("Core Properties".GetLineWithTitle(actor, Telnet.Blue, Telnet.BoldWhite));
+		sb.AppendLine("Core Properties".GetLineWithTitleInner(actor, Telnet.Blue, Telnet.BoldWhite));
 		sb.AppendLine();
 		sb.AppendLineColumns((uint)actor.LineFormatLength, 3,
 			$"Parent Race: {ParentRace?.Name.ColourValue() ?? "None".ColourError()}",
@@ -2446,10 +2531,36 @@ public partial class Race
 			$"Can Defend: {CombatSettings.CanDefend.ToString().Colour(Telnet.Green)}",
 			$"Use Weapons: {CombatSettings.CanUseWeapons.ToString().Colour(Telnet.Green)}"
 		);
-		sb.AppendLine(
-			$"Breathable Fluids: {BreathableFluids.Select(x => x.Name.Colour(x.DisplayColour)).ListToCommaSeparatedValues(", ")}");
 		sb.AppendLine();
-		sb.AppendLine("Ages".GetLineWithTitle(actor, Telnet.Blue, Telnet.BoldWhite));
+		sb.AppendLine("Breathable Fluids".GetLineWithTitleInner(actor, Telnet.Blue, Telnet.BoldWhite));
+		sb.AppendLine();
+		foreach (var item in _breathableFluids)
+		{
+			sb.AppendLine($"\t{item.Name.Colour(item.DisplayColour)} @ {CanBreatheFluid(item).RateMultiplier.ToStringP2Colour(actor)}");
+		}
+
+		foreach (var item in ParentRace?.BreathableFluids ?? Enumerable.Empty<IFluid>())
+		{
+			if (_breathableFluids.Contains(item))
+			{
+				continue;
+			}
+
+			if (_removeBreathableFluids.Contains(item))
+			{
+				continue;
+			}
+
+			sb.AppendLine($"\t{item.Name.Colour(item.DisplayColour)} @ {CanBreatheFluid(item).RateMultiplier.ToStringP2Colour(actor)} {"[From Parent]".Colour(Telnet.BoldMagenta)}");
+		}
+
+		foreach (var item in _removeBreathableFluids)
+		{
+			sb.AppendLine($"\t{item.Name.Colour(item.DisplayColour)} is removed from any parent race.");
+		}
+
+		sb.AppendLine();
+		sb.AppendLine("Ages".GetLineWithTitleInner(actor, Telnet.Blue, Telnet.BoldWhite));
 		sb.AppendLine();
 		sb.AppendLine(
 			$"Baby: {0.ToString("N0", actor).ColourValue()} to {MinimumAgeForCategory(Heritage.AgeCategory.Child).ToString("N0", actor).ColourValue()}");
@@ -2467,7 +2578,7 @@ public partial class Race
 			$"Venerable: {$"{MinimumAgeForCategory(Heritage.AgeCategory.Venerable).ToString("N0", actor)}+".ColourValue()}");
 
 		sb.AppendLine();
-		sb.AppendLine("Characteristics".GetLineWithTitle(actor, Telnet.Blue, Telnet.BoldWhite));
+		sb.AppendLine("Characteristics".GetLineWithTitleInner(actor, Telnet.Blue, Telnet.BoldWhite));
 		sb.AppendLine();
 		var allCharacteristics = Characteristics(Gender.Indeterminate).ToList();
 		var maleCharacteristics = Characteristics(Gender.Male).ToList();
@@ -2503,7 +2614,7 @@ public partial class Race
 		}
 
 		sb.AppendLine();
-		sb.AppendLine("Attributes".GetLineWithTitle(actor, Telnet.Blue, Telnet.BoldWhite));
+		sb.AppendLine("Attributes".GetLineWithTitleInner(actor, Telnet.Blue, Telnet.BoldWhite));
 		sb.AppendLine();
 		sb.AppendLineColumns((uint)actor.LineFormatLength, 3,
 			$"Attribute Roll: {DiceExpression.Colour(Telnet.Green)}",
@@ -2528,7 +2639,7 @@ public partial class Race
 		}
 
 		sb.AppendLine();
-		sb.AppendLine("Nourishment".GetLineWithTitle(actor, Telnet.Blue, Telnet.BoldWhite));
+		sb.AppendLine("Nourishment".GetLineWithTitleInner(actor, Telnet.Blue, Telnet.BoldWhite));
 		sb.AppendLine();
 		sb.AppendLineColumns((uint)actor.LineFormatLength, 3,
 			$"Hunger Rate: {HungerRate.ToString("P2", actor).ColourValue()}",
@@ -2608,7 +2719,7 @@ public partial class Race
 			truncatableColumnIndex: 7
 		));
 		sb.AppendLine();
-		sb.AppendLine("Chargen Costs".GetLineWithTitle(actor, Telnet.Blue, Telnet.BoldWhite));
+		sb.AppendLine("Chargen Costs".GetLineWithTitleInner(actor, Telnet.Blue, Telnet.BoldWhite));
 		sb.AppendLine();
 		if (_costs.Any())
 		{
@@ -2624,7 +2735,7 @@ public partial class Race
 		}
 
 		sb.AppendLine();
-		sb.AppendLine("Chargen Advices".GetLineWithTitle(actor, Telnet.Blue, Telnet.BoldWhite));
+		sb.AppendLine("Chargen Advices".GetLineWithTitleInner(actor, Telnet.Blue, Telnet.BoldWhite));
 		sb.AppendLine();
 		if (_chargenAdvices.Any())
 		{
@@ -2643,7 +2754,7 @@ public partial class Race
 		}
 
 		sb.AppendLine();
-		sb.AppendLine("Natural Weapon Attacks".GetLineWithTitle(actor, Telnet.Blue, Telnet.BoldWhite));
+		sb.AppendLine("Natural Weapon Attacks".GetLineWithTitleInner(actor, Telnet.Blue, Telnet.BoldWhite));
 		sb.AppendLine();
 		if (NaturalWeaponAttacks.Any())
 		{
@@ -2677,7 +2788,7 @@ public partial class Race
 		}
 
 		sb.AppendLine();
-		sb.AppendLine("Auxiliary Actions".GetLineWithTitle(actor, Telnet.Blue, Telnet.BoldWhite));
+		sb.AppendLine("Auxiliary Actions".GetLineWithTitleInner(actor, Telnet.Blue, Telnet.BoldWhite));
 		sb.AppendLine();
 		if (AuxiliaryActions.Any())
 		{

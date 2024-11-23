@@ -164,6 +164,12 @@ public class ItemOnDisplayInShop : Effect, IDescriptionAdditionEffect, IHandleEv
 	/// <inheritdoc />
 	public override void InitialEffect()
 	{
+		if (Merchandise is null)
+		{
+			Owner.RemoveEffect(this, false);
+			return;
+		}
+
 		if (!Merchandise.PermitItemDecayOnStockedItems)
 		{
 			((IGameItem)Owner).EndMorphTimer();

@@ -110,7 +110,12 @@ internal class InputVariableProduct : BaseProduct
 			newItem.RoomLayer = component.Parent.RoomLayer;
 			Gameworld.Add(newItem);
 			newItem.GetItemType<IStackable>().Quantity = Quantity;
-			newItem.Quality = referenceQuality;
+
+			if (!Gameworld.GetStaticBool("DisableCraftQualityCalculation"))
+			{
+				newItem.Quality = referenceQuality;
+			}
+
 			if (material != null)
 			{
 				newItem.Material = material;
@@ -135,7 +140,12 @@ internal class InputVariableProduct : BaseProduct
 			item.Skin = Skin;
 			item.RoomLayer = component.Parent.RoomLayer;
 			Gameworld.Add(item);
-			item.Quality = referenceQuality;
+
+			if (!Gameworld.GetStaticBool("DisableCraftQualityCalculation"))
+			{
+				item.Quality = referenceQuality;
+			}
+
 			if (material != null)
 			{
 				item.Material = material;

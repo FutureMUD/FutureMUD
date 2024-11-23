@@ -134,7 +134,12 @@ public class UnusedInputProduct : BaseProduct
 			var newItem = referenceItem.Prototype.CreateNew();
 			newItem.RoomLayer = component.Parent.RoomLayer;
 			Gameworld.Add(newItem);
-			newItem.Quality = referenceQuality;
+
+			if (!Gameworld.GetStaticBool("DisableCraftQualityCalculation"))
+			{
+				newItem.Quality = referenceQuality;
+			}
+
 			newItem.GetItemType<IStackable>().Quantity = quantity;
 			return new UnusedInputProductData(new[] { newItem });
 		}
@@ -145,7 +150,12 @@ public class UnusedInputProduct : BaseProduct
 			var item = referenceItem.Prototype.CreateNew();
 			item.RoomLayer = component.Parent.RoomLayer;
 			Gameworld.Add(item);
-			item.Quality = referenceQuality;
+
+			if (!Gameworld.GetStaticBool("DisableCraftQualityCalculation"))
+			{
+				item.Quality = referenceQuality;
+			}
+
 			items.Add(item);
 		}
 

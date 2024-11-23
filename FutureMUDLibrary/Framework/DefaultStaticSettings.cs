@@ -14,6 +14,7 @@ public static class DefaultStaticSettings
 		new Dictionary<string, string>
 		{
 			{ "CPRAllowed", "true" },
+			{ "DisableCraftQualityCalculation", "false"},
 			{ "MaximumLandmarkDirectionsDistance", "20"},
 			{ "RangeCountingMode", "pythagoreanround"},
 			{ "PlayersCanJunk", "true" },

@@ -73,6 +73,11 @@ public abstract class EditableItem : SavableKeywordedItem, IEditableRevisableIte
 
 	public int RevisionNumber { get; protected init; }
 
+	public string IdAndRevisionFor(IPerceiver voyeur)
+	{
+		return $"{Id.ToStringN0(voyeur)}r{RevisionNumber.ToStringN0(voyeur)}";
+	}
+
 	public RevisionStatus Status { get; protected set; }
 
 	public long BuilderAccountID { get; protected set; }

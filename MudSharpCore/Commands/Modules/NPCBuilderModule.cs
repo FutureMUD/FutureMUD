@@ -14,6 +14,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using MudSharp.Commands.Trees;
 using MudSharp.NPC.AI.Groups;
 using MudSharp.NPC;
 using MudSharp.NPC.AI;
@@ -52,6 +53,7 @@ namespace MudSharp.Commands.Modules
 			}
 
 			var newCharacter = template.CreateNewCharacter(character.Location);
+			character.Gameworld.Add(newCharacter, true);
 			newCharacter.RoomLayer = character.RoomLayer;
 			template.OnLoadProg?.Execute(newCharacter);
 

@@ -429,12 +429,12 @@ Note that the #6Multi#0 strategy has additional building commands:
 			return false;
 		}
 
-        var template = Gameworld.NpcTemplates.GetByIdOrName(command.SafeRemainingArgument);
-        if (template is null)
-        {
-            actor.OutputHandler.Send("There is no NPC Template like that.");
-            return false;
-        }
+		var template = Gameworld.NpcTemplates.GetByIdOrName(command.SafeRemainingArgument);
+		if (template is null)
+		{
+			actor.OutputHandler.Send("There is no NPC Template like that.");
+			return false;
+		}
 
 		if (command.IsFinished)
 		{
@@ -465,15 +465,15 @@ Note that the #6Multi#0 strategy has additional building commands:
 		{
 			_targetTemplates[_targetTemplates.FindIndex(x => x.TemplateId == template.Id)] = (template.Id, weighting);
 			actor.OutputHandler.Send($"You change the weighting of {template.EditHeader().ColourName()} Template to {weighting.ToString("N2", actor).ColourValue()} ({(weighting/_targetTemplates.Sum(x => x.Weighting)).ToString("P1", actor).ColourValue()} chance to spawn).");
-            Changed = true;
-            return true;
+			Changed = true;
+			return true;
 		}
 
 		_targetTemplates.Add((template.Id, weighting));
-        Changed = true;
-        actor.OutputHandler.Send($"You add {template.EditHeader().ColourName()} Template at weighting {weighting.ToString("N2", actor).ColourValue()} ({(weighting / _targetTemplates.Sum(x => x.Weighting)).ToString("P1", actor).ColourValue()} chance to spawn).");
+		Changed = true;
+		actor.OutputHandler.Send($"You add {template.EditHeader().ColourName()} Template at weighting {weighting.ToString("N2", actor).ColourValue()} ({(weighting / _targetTemplates.Sum(x => x.Weighting)).ToString("P1", actor).ColourValue()} chance to spawn).");
 		return true;
-    }
+	}
 
 	private bool BuildingCommandTemplate(ICharacter actor, StringStack command)
 	{
@@ -571,15 +571,15 @@ Note that the #6Multi#0 strategy has additional building commands:
 			case SpawnStrategy.Multi:
 				var templates = _targetTemplates.Select(x => (Template: Gameworld.NpcTemplates.Get(x.TemplateId), x.Weighting)).Where(x => x.Template is not null).ToList();
 				var totalWeight = templates.Sum(x => x.Weighting);
-                sb.AppendLine($"NPC Templates:");
+				sb.AppendLine($"NPC Templates:");
 				foreach (var (template, weighting) in templates)
 				{
 					sb.AppendLine($"\t{template.EditHeader()} x{weighting.ToString("N3", actor)} ({(weighting/totalWeight).ToString("P1", actor).ColourValue()})");
 				}
-                break;
-            default:
-                sb.AppendLine($"NPC Template: {TargetTemplate?.EditHeader() ?? "None".ColourError()}");
-                break;
+				break;
+			default:
+				sb.AppendLine($"NPC Template: {TargetTemplate?.EditHeader() ?? "None".ColourError()}");
+				break;
 		}
 		
 		sb.AppendLine($"Is Active Prog: {IsActiveProg?.MXPClickableFunctionName() ?? "None".ColourError()}");
@@ -587,8 +587,8 @@ Note that the #6Multi#0 strategy has additional building commands:
 		sb.AppendLine($"Counts As Prog: {CountAsNPCProg?.MXPClickableFunctionName() ?? "None".ColourError()}");
 		sb.AppendLine($"Minimum Count For Spawn: {_minimumCount.ToString("N0", actor).ColourValue()}");
 		sb.AppendLine($"Target Count After Spawn: {_targetCount.ToString("N0", actor).ColourValue()}");
-        sb.AppendLine($"Current Count: {CountCurrentNPCs().ToString("N0", actor).ColourValue()}");
-        sb.AppendLine();
+		sb.AppendLine($"Current Count: {CountCurrentNPCs().ToString("N0", actor).ColourValue()}");
+		sb.AppendLine();
 		sb.AppendLine($"Monitored Zones:");
 		foreach (var zone in MonitoredZones)
 		{
@@ -633,6 +633,7 @@ Note that the #6Multi#0 strategy has additional building commands:
 	{
 		chTemplate = ((SimpleCharacterTemplate)chTemplate) with { SelectedStartingLocation = location };
 		var newCharacter = new NPC(Gameworld, chTemplate, npcTemplate);
+		Gameworld.Add(newCharacter, true);
 		OnSpawnProg?.Execute(newCharacter);
 		npcTemplate.OnLoadProg?.Execute(newCharacter);
 
@@ -654,18 +655,18 @@ Note that the #6Multi#0 strategy has additional building commands:
 		switch (SpawnStrategy)
 		{
 			case SpawnStrategy.Simple:
-            case SpawnStrategy.Multi:
-                if (!_spawnLocations.Any())
+			case SpawnStrategy.Multi:
+				if (!_spawnLocations.Any())
 				{
 					return false;
 				}
 
 				DoSpawnNPC(npcTemplate, chTemplate, SpawnLocations.GetRandomElement());
 				return true;
-            case SpawnStrategy.OpenTerritory:
+			case SpawnStrategy.OpenTerritory:
 				var territorialAI = npcTemplate.ArtificialIntelligences
-				                               .OfType<TerritorialWanderer>()
-				                               .FirstOrDefault();
+											   .OfType<TerritorialWanderer>()
+											   .FirstOrDefault();
 				if (territorialAI is null)
 				{
 					return false;
@@ -703,23 +704,23 @@ Note that the #6Multi#0 strategy has additional building commands:
 	public int CountCurrentNPCs(INPCTemplate npcTemplate)
 	{
 		return MonitoredZones
-		       .SelectMany(x => x.Characters)
-		       .OfType<INPC>()
-		       .Where(x => x.Template.Id == npcTemplate.Id)
-		       .Count(x => CountAsNPCProg?.Execute<bool?>(x) ?? true);
+			   .SelectMany(x => x.Characters)
+			   .OfType<INPC>()
+			   .Where(x => x.Template.Id == npcTemplate.Id)
+			   .Count(x => CountAsNPCProg?.Execute<bool?>(x) ?? true);
 	}
 
 	private void CheckSpawnMulti()
 	{
-        if (!IsActive)
-        {
-            return;
-        }
+		if (!IsActive)
+		{
+			return;
+		}
 
-        if (!_monitoredZones.Any())
-        {
-            return;
-        }
+		if (!_monitoredZones.Any())
+		{
+			return;
+		}
 
 		var npcs = _targetTemplates.Select(x => (Template: Gameworld.NpcTemplates.Get(x.TemplateId), x.Weighting)).ToList();
 		if (!npcs.Any())
@@ -727,27 +728,27 @@ Note that the #6Multi#0 strategy has additional building commands:
 			return;
 		}
 
-        var count = CountCurrentNPCs();
-        if (count >= _minimumCount)
-        {
-            return;
-        }
+		var count = CountCurrentNPCs();
+		if (count >= _minimumCount)
+		{
+			return;
+		}
 
-        
-        var numberToSpawn = _targetCount - count;
-        while (numberToSpawn > 0)
-        {
+		
+		var numberToSpawn = _targetCount - count;
+		while (numberToSpawn > 0)
+		{
 			var npcTemplate = npcs.GetWeightedRandom();
 			var chTemplate = npcTemplate.GetCharacterTemplate();
-            if (TrySpawn(npcTemplate, chTemplate))
-            {
-                numberToSpawn--;
-                continue;
-            }
+			if (TrySpawn(npcTemplate, chTemplate))
+			{
+				numberToSpawn--;
+				continue;
+			}
 
-            break;
-        }
-    }
+			break;
+		}
+	}
 
 	/// <inheritdoc />
 	public void CheckSpawn()

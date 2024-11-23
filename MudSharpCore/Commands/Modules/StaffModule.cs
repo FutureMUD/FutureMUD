@@ -3919,6 +3919,13 @@ The filters that can be used are as follows:
 
 	[PlayerCommand("LocateItem", "locateitem", "li")]
 	[CommandPermission(PermissionLevel.JuniorAdmin)]
+	[HelpInfo("locateitem", @"The #3locateitem#0 command is used to find where in the world an item or type of item is. You can use this to find particular items, find things allegedly missing or stolen, or just to get a sense of where certain items are.
+
+The syntax is as follows:
+
+	#3locateitem <keyword>#0 - finds all items with the specified keyword(s)
+	#3locateitem *<id>#0 - finds all items with the specified item prototype ID
+	#3locateitem !<id>#0 - finds a particular item by its ID", AutoHelp.HelpArgOrNoArg)]
 	protected static void LocateItem(ICharacter actor, string command)
 	{
 		var ss = new StringStack(command.RemoveFirstWord());
@@ -3966,28 +3973,30 @@ The filters that can be used are as follows:
 		}
 
 		items = items.OrderBy(x => x.TrueLocations.FirstOrDefault()?.Id ?? 0).ToList();
-
-		var sb = new StringBuilder();
-		foreach (var item in items)
-		{
-			var location = item.TrueLocations.FirstOrDefault();
-			if (item.ContainedIn != null)
+		actor.OutputHandler.Send(StringUtilities.GetTextTable(
+			from item in items
+			let location = item.TrueLocations.FirstOrDefault()
+			select new List<string>
 			{
-				sb.AppendLine(
-					$"[#{item.Id.ToString("N0", actor)}] {{{item.Prototype.Id.ToString("N0", actor)}r{item.Prototype.RevisionNumber.ToString("N0", actor)}}} {item.HowSeen(actor, flags: PerceiveIgnoreFlags.IgnoreCanSee)} - {location?.HowSeen(actor) ?? "Nowhere".Colour(Telnet.Red)}{(location != null ? $" ({location.Id})" : "")} [contained: {item.ContainedIn.HowSeen(actor, flags: PerceiveIgnoreFlags.IgnoreCanSee)}]");
-			}
-			else if (item.InInventoryOf != null)
+				item.Id.ToStringN0(actor),
+				item.Prototype.IdAndRevisionFor(actor),
+				item.HowSeen(actor, flags: PerceiveIgnoreFlags.TrueDescription),
+				location?.GetFriendlyReference(actor),
+				item.ContainedIn is not null ?
+					$"{item.ContainedIn.HowSeen(actor, flags: PerceiveIgnoreFlags.TrueDescription)} (#{item.ContainedIn.Id.ToStringN0(actor)})" :
+					item.InInventoryOf is not null ?
+						$"{item.InInventoryOf.HowSeen(actor, flags: PerceiveIgnoreFlags.TrueDescription)} (#{item.InInventoryOf.Actor.Id.ToStringN0(actor)})" :
+						""
+			},
+			new List<string>
 			{
-				sb.AppendLine(
-					$"[#{item.Id.ToString("N0", actor)}] {{{item.Prototype.Id.ToString("N0", actor)}r{item.Prototype.RevisionNumber.ToString("N0", actor)}}} {item.HowSeen(actor, flags: PerceiveIgnoreFlags.IgnoreCanSee)} - {location?.HowSeen(actor) ?? "Nowhere".Colour(Telnet.Red)}{(location != null ? $" ({location.Id})" : "")} [inventory: {item.InInventoryOf.HowSeen(actor, flags: PerceiveIgnoreFlags.IgnoreCanSee)}]");
-			}
-			else
-			{
-				sb.AppendLine(
-					$"[#{item.Id.ToString("N0", actor)}] {{{item.Prototype.Id.ToString("N0", actor)}r{item.Prototype.RevisionNumber.ToString("N0", actor)}}} {item.HowSeen(actor, flags: PerceiveIgnoreFlags.IgnoreCanSee)} - {location?.HowSeen(actor) ?? "Nowhere".Colour(Telnet.Red)}{(location != null ? $" ({location.Id})" : "")}");
-			}
-		}
-
-		actor.OutputHandler.Send(sb.ToString());
+				"Id",
+				"Prototype",
+				"Description",
+				"Location",
+				"Contained In"
+			},
+			actor,
+			Telnet.Green));
 	}
 }

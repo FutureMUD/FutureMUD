@@ -110,8 +110,7 @@ internal class CraftModule : Module<ICharacter>
 
 		var crafts = actor.Gameworld.Crafts.Where(x => x.AppearInCraftsList(actor)).ToList();
 		var craftName = ss.SafeRemainingArgument.Trim();
-		var craft = crafts.FirstOrDefault(x => x.Name.EqualTo(craftName)) ?? crafts.FirstOrDefault(x =>
-			x.Name.Contains(craftName, StringComparison.InvariantCultureIgnoreCase));
+		var craft = crafts.GetByNameOrAbbreviation(craftName);
 
 		if (craft == null)
 		{
@@ -191,10 +190,7 @@ internal class CraftModule : Module<ICharacter>
 
 		var crafts = actor.Gameworld.Crafts.Where(x => x.AppearInCraftsList(actor)).ToList();
 		var craftName = ss.SafeRemainingArgument.Trim();
-		var craft = long.TryParse(craftName, out var value)
-			? crafts.FirstOrDefault(x => x.Id == value)
-			: crafts.FirstOrDefault(x => x.Name.EqualTo(craftName)) ?? crafts.FirstOrDefault(x =>
-				x.Name.Contains(craftName, StringComparison.InvariantCultureIgnoreCase));
+		var craft = crafts.GetByIdOrName(craftName);
 
 		if (craft == null)
 		{
@@ -215,8 +211,7 @@ internal class CraftModule : Module<ICharacter>
 
 		var crafts = actor.Gameworld.Crafts.Where(x => x.AppearInCraftsList(actor)).ToList();
 		var craftName = ss.SafeRemainingArgument;
-		var craft = crafts.FirstOrDefault(x => x.Name.EqualTo(craftName)) ?? crafts.FirstOrDefault(x =>
-			x.Name.Contains(craftName, StringComparison.InvariantCultureIgnoreCase));
+		var craft = crafts.GetByNameOrAbbreviation(craftName);
 
 		if (craft == null)
 		{

@@ -847,8 +847,7 @@ namespace MudSharp.Framework {
 		{
 			var itemList = items.ToList();
 			return itemList.FirstOrDefault(x => x.Name.EqualTo(targetText)) ??
-				   itemList.FirstOrDefault(x =>
-					   x.Name.StartsWith(targetText, StringComparison.InvariantCultureIgnoreCase));
+				   itemList.FirstOrDefault(x => x.Name.StartsWith(targetText, StringComparison.InvariantCultureIgnoreCase));
 		}
 
 		public static T? Get<T>(this IEnumerable<T> items, long id) where T : IFrameworkItem
@@ -865,8 +864,7 @@ namespace MudSharp.Framework {
 
 			var itemList = items.ToList();
 			return itemList.FirstOrDefault(x => x.Name.EqualTo(text)) ??
-				   itemList.FirstOrDefault(x =>
-					   x.Name.StartsWith(text, StringComparison.InvariantCultureIgnoreCase));
+				   itemList.FirstOrDefault(x => x.Name.StartsWith(text, StringComparison.InvariantCultureIgnoreCase));
 		}
 
 		public static T? GetByRevisableId<T>(this IEnumerable<T> items, string text) where T : IRevisableItem

@@ -47,37 +47,37 @@ public class HealingLogger : ICustomLogger
 		{
 			case WoundHealingTickResult.NoHealBleeding:
 				_pendingLogEntries.AppendLine(
-					$"{owner.Id},{owner.PersonalName.GetName(NameStyle.FullName)},{severity.Describe()},{damageType.Describe()},{originalDamage:N3},{currentDamage:N3},{currentPain:N3},{currentStun:N3},no heal bleeding");
+					$"{owner.Id},\"{owner.PersonalName.GetName(NameStyle.FullName)}\",{severity.Describe()},{damageType.Describe()},{originalDamage:N3},{currentDamage:N3},{currentPain:N3},{currentStun:N3},no heal bleeding");
 				break;
 			case WoundHealingTickResult.NoHealInCombat:
 				_pendingLogEntries.AppendLine(
-					$"{owner.Id},{owner.PersonalName.GetName(NameStyle.FullName)},{severity.Describe()},{damageType.Describe()},{originalDamage:N3},{currentDamage:N3},{currentPain:N3},{currentStun:N3},no heal in combat");
+					$"{owner.Id},\"{owner.PersonalName.GetName(NameStyle.FullName)}\",{severity.Describe()},{damageType.Describe()},{originalDamage:N3},{currentDamage:N3},{currentPain:N3},{currentStun:N3},no heal in combat");
 				break;
 			case WoundHealingTickResult.NoHealLodged:
 				_pendingLogEntries.AppendLine(
-					$"{owner.Id},{owner.PersonalName.GetName(NameStyle.FullName)},{severity.Describe()},{damageType.Describe()},{originalDamage:N3},{currentDamage:N3},{currentPain:N3},{currentStun:N3},no heal lodged");
+					$"{owner.Id},\"{owner.PersonalName.GetName(NameStyle.FullName)}\",{severity.Describe()},{damageType.Describe()},{originalDamage:N3},{currentDamage:N3},{currentPain:N3},{currentStun:N3},no heal lodged");
 				break;
 			case WoundHealingTickResult.NoHealCantBreathe:
 				_pendingLogEntries.AppendLine(
-					$"{owner.Id},{owner.PersonalName.GetName(NameStyle.FullName)},{severity.Describe()},{damageType.Describe()},{originalDamage:N3},{currentDamage:N3},{currentPain:N3},{currentStun:N3},no heal can't breathe");
+					$"{owner.Id},\"{owner.PersonalName.GetName(NameStyle.FullName)}\",{severity.Describe()},{damageType.Describe()},{originalDamage:N3},{currentDamage:N3},{currentPain:N3},{currentStun:N3},no heal can't breathe");
 				break;
 			case WoundHealingTickResult.NoHealInfected:
 				_pendingLogEntries.AppendLine(
-					$"{owner.Id},{owner.PersonalName.GetName(NameStyle.FullName)},{severity.Describe()},{damageType.Describe()},{originalDamage:N3},{currentDamage:N3},{currentPain:N3},{currentStun:N3},no heal infection");
+					$"{owner.Id},\"{owner.PersonalName.GetName(NameStyle.FullName)}\",{severity.Describe()},{damageType.Describe()},{originalDamage:N3},{currentDamage:N3},{currentPain:N3},{currentStun:N3},no heal infection");
 				break;
 			case WoundHealingTickResult.NoHealNotSutured:
 				_pendingLogEntries.AppendLine(
-					$"{owner.Id},{owner.PersonalName.GetName(NameStyle.FullName)},{severity.Describe()},{damageType.Describe()},{originalDamage:N3},{currentDamage:N3},{currentPain:N3},{currentStun:N3},no heal not sutured");
+					$"{owner.Id},\"{owner.PersonalName.GetName(NameStyle.FullName)}\",{severity.Describe()},{damageType.Describe()},{originalDamage:N3},{currentDamage:N3},{currentPain:N3},{currentStun:N3},no heal not sutured");
 				break;
 			case WoundHealingTickResult.NoHealNotSuturedAutoClosed:
 				_pendingLogEntries.AppendLine(
-					$"{owner.Id},{owner.PersonalName.GetName(NameStyle.FullName)},{severity.Describe()},{damageType.Describe()},{originalDamage:N3},{currentDamage:N3},{currentPain:N3},{currentStun:N3},no heal not sutured (auto closed)");
+					$"{owner.Id},\"{owner.PersonalName.GetName(NameStyle.FullName)}\",{severity.Describe()},{damageType.Describe()},{originalDamage:N3},{currentDamage:N3},{currentPain:N3},{currentStun:N3},no heal not sutured (auto closed)");
 				break;
 			case WoundHealingTickResult.Healed:
 				var result = (Outcome)data[8];
 				var healing = (double)data[9];
 				_pendingLogEntries.AppendLine(
-					$"{owner.Id},{owner.PersonalName.GetName(NameStyle.FullName)},{severity.Describe()},{damageType.Describe()},{originalDamage:N3},{currentDamage:N3},{currentPain:N3},{currentStun:N3},healed,{result.Describe()},{healing:N3}");
+					$"{owner.Id},\"{owner.PersonalName.GetName(NameStyle.FullName)}\",{severity.Describe()},{damageType.Describe()},{originalDamage:N3},{currentDamage:N3},{currentPain:N3},{currentStun:N3},healed,{result.Describe()},{healing:N3}");
 				break;
 			default:
 				throw new ArgumentOutOfRangeException();

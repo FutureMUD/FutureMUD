@@ -564,6 +564,30 @@ public partial class Body : PerceiverItem, IBody
 			;
 	}
 
+	public double GetPhysicalBonusLevel()
+	{
+		var bonus = 0.0;
+		var cover = GetAllItemsCoverStatus(true);
+		foreach (var item in _wornItems)
+		{
+			var armour = item.Item.GetItemType<IArmour>();
+			if (armour is null || !armour.ApplyArmourPenalties)
+			{
+				continue;
+			}
+
+			if (!cover.ContainsKey(item.Item) || cover[item.Item] == WearableItemCoverStatus.Uncovered)
+			{
+				bonus += armour.ArmourType.BaseDifficultyBonus;
+				continue;
+			}
+
+			bonus += armour.ArmourType.StackedDifficultyBonus;
+		}
+
+		return bonus;
+	}
+
 	#region IFutureProgVariable Implementation
 
 	public override ProgVariableTypes Type => ProgVariableTypes.Error;

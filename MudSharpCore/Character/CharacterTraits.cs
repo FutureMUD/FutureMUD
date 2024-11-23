@@ -71,6 +71,13 @@ public partial class Character
 			;
 	}
 
+	public double GetPhysicalBonusLevel()
+	{
+		return Body.GetPhysicalBonusLevel()
+			// TODO - what else?
+			;
+	}
+
 	#endregion IPerceivableHaveTraits Members
 
 	#region IHaveMerits Members

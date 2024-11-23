@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using MudSharp.Models;
@@ -102,7 +104,7 @@ public class StandardCheck : FrameworkItem, ICheck
 
 	protected CheckOutcome HandleStandardCheck(IPerceivableHaveTraits checkee, IPerceivable target, Outcome outcome,
 		Difficulty difficulty, ITraitDefinition trait, bool permitBranchingAndImprovement = true,
-		TraitUseType traitUseType = TraitUseType.Practical)
+		TraitUseType traitUseType = TraitUseType.Practical, IEnumerable<Tuple<string, double>> bonuses = null)
 	{
 		var abject = false;
 		// Handle checks that specify traits must be possessed by the owner
@@ -136,14 +138,14 @@ public class StandardCheck : FrameworkItem, ICheck
 				var tr in TargetNumberExpression.Parameters.Values.Where(x => x.CanImprove)
 				                                .Select(x => checkee.GetTrait(x.Trait)).Where(tr => tr != null))
 			{
-				if (tr.TraitUsed(checkee, outcome, difficulty.Lowest(MaximumDifficultyForImprovement), traitUseType))
+				if (tr.TraitUsed(checkee, outcome, difficulty.Lowest(MaximumDifficultyForImprovement), traitUseType, bonuses))
 				{
 					improvedTraits.Add(tr.Definition);
 				}
 			}
 
 			if (chTrait?.TraitUsed(checkee, outcome, difficulty.Lowest(MaximumDifficultyForImprovement),
-				    traitUseType) ?? false)
+				    traitUseType, bonuses) ?? false)
 			{
 				improvedTraits.Add(chTrait.Definition);
 			}
@@ -400,7 +402,7 @@ public class StandardCheck : FrameworkItem, ICheck
 			var successes = RandomUtilities.EvaluateConsecutiveSuccesses(rolls, targetNumber + difficultyModifier);
 			var outcome = GetOutcome(successes);
 			var result = HandleStandardCheck(checkee, target, outcome, difficulty, trait,
-				evaluatedDifficulty == referenceDifficulty, traitUseType);
+				evaluatedDifficulty == referenceDifficulty, traitUseType, bonuses);
 
 			result.CheckTemplateName = CheckTemplateName;
 			result.CheckType = Type;
@@ -622,7 +624,7 @@ public class StandardCheck : FrameworkItem, ICheck
 		                        .Where(x => x.Applies(checkee, target))
 		                        .Select(x => Tuple.Create(x.ToString(), x.CheckBonus(checkeeAsCharacter, target, Type))));
 
-		if (Type.IsVisionInfluencedCheck())
+		if (Type.IsVisionInfluencedCheck() && checkeeAsCharacter is not null)
 		{
 			var visionPercentage = checkeeAsCharacter.VisionPercentage;
 			if (visionPercentage < 1.0)
@@ -630,6 +632,11 @@ public class StandardCheck : FrameworkItem, ICheck
 				bonuses.Add(Tuple.Create("vision",
 					Gameworld.GetStaticDouble("BlindnessCheckBonus") * (1.0 - visionPercentage)));
 			}
+		}
+
+		if (Type.IsPhysicalActivityCheck() && checkeeAsCharacter is not null)
+		{
+			bonuses.Add(Tuple.Create("physical", checkeeAsCharacter.GetPhysicalBonusLevel()));
 		}
 
 		var bonus = bonuses.Sum(x => x.Item2);
@@ -659,7 +666,7 @@ public class StandardCheck : FrameworkItem, ICheck
 		var difficultyModifier = Modifiers[difficultyplusburden];
 		var outcome = RollAgainst(targetNumber + difficultyModifier, out var rolls);
 
-		var result = HandleStandardCheck(checkee, target, outcome, difficulty, trait, true, traitUseType);
+		var result = HandleStandardCheck(checkee, target, outcome, difficulty, trait, true, traitUseType, bonuses);
 
 		result.CheckTemplateName = CheckTemplateName;
 		result.CheckType = Type;

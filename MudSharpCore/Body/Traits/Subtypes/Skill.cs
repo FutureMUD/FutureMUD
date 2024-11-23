@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using MudSharp.Body.Traits.Improvement;
 using MudSharp.Logging;
 using MudSharp.RPG.Checks;
@@ -32,9 +33,9 @@ public class Skill : Trait, ISkill
 	protected IImprovementModel Improver => _definition.Improver;
 	public override ITraitDefinition Definition => _definition;
 
-	public override bool TraitUsed(IHaveTraits user, Outcome result, Difficulty difficulty, TraitUseType usetype)
+	public override bool TraitUsed(IHaveTraits user, Outcome result, Difficulty difficulty, TraitUseType usetype, IEnumerable<Tuple<string, double>> bonuses)
 	{
-		Gameworld.LogManager.CustomLogEntry(LogEntryType.SkillUse, user, Definition, result, difficulty, usetype);
+		Gameworld.LogManager.CustomLogEntry(LogEntryType.SkillUse, user, Definition, result, difficulty, usetype, bonuses);
 		var improvement = Improver.GetImprovement(user, this, difficulty, result, usetype);
 		var oldValue = _value;
 		Value += improvement;

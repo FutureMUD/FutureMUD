@@ -22,6 +22,8 @@ public class ArmourGameItemComponentProto : GameItemComponentProto
 	}
 
 	public IArmourType ArmourType { get; set; }
+	public bool ApplyArmourPenalties { get; set; } = true;
+
 	public override string TypeDescription => "Armour";
 
 	protected override void LoadFromXml(XElement root)
@@ -31,16 +33,23 @@ public class ArmourGameItemComponentProto : GameItemComponentProto
 		{
 			ArmourType = Gameworld.ArmourTypes.Get(long.Parse(element.Value));
 		}
+
+		element = root.Element("ApplyArmourPenalties");
+		ApplyArmourPenalties = element is null || bool.Parse(element.Value);
 	}
 
 	public override string ComponentDescriptionOLC(ICharacter actor)
 	{
-		return string.Format(actor, "{0} (#{1:N0}r{2:N0}, {3})\n\nThis item is armour of type {4}.",
+		return string.Format(actor, @"{0} (#{1:N0}r{2:N0}, {3})
+
+This item is armour of type {4}.
+It {5} apply armour type penalties for stacking.",
 			"Armour Game Item Component".Colour(Telnet.Cyan),
 			Id,
 			RevisionNumber,
 			Name,
-			ArmourType?.Name.TitleCase().Colour(Telnet.Green) ?? "None".Colour(Telnet.Red)
+			ArmourType?.Name.TitleCase().Colour(Telnet.Green) ?? "None".Colour(Telnet.Red),
+			ApplyArmourPenalties ? "does".ColourValue() : "does not".ColourError()
 		);
 	}
 
@@ -48,7 +57,8 @@ public class ArmourGameItemComponentProto : GameItemComponentProto
 	{
 		return
 			new XElement("Definition",
-				new XElement("ArmourType", ArmourType?.Id ?? 0)
+				new XElement("ArmourType", ArmourType?.Id ?? 0),
+				new XElement("ApplyArmourPenalties", ApplyArmourPenalties)
 			).ToString();
 	}
 
@@ -62,7 +72,11 @@ public class ArmourGameItemComponentProto : GameItemComponentProto
 		manager.AddTypeHelpInfo(
 			"Armour",
 			$"Turns an item into {"[armour]".Colour(Telnet.Cyan)}. Must be paired with separate a {"[wearable]".Colour(Telnet.BoldYellow)}",
-			$"You can use the following options:\n\tname <name> - sets the name of the component\n\tdesc <desc> - sets the description of the component\n\ttype <armour type> - sets the armour type for this component. See {"show armours".FluentTagMXP("send", "href='show armours'")} for a list."
+			$@"You can use the following options:
+
+	#3name <name>#0 - sets the name of the component
+	#3desc <desc>#0 - sets the description of the component
+	#3type <armour type>#0 - sets the armour type for this component. See {"show armours".FluentTagMXP("send", "href='show armours'")} for a list."
 		);
 	}
 
@@ -84,7 +98,12 @@ public class ArmourGameItemComponentProto : GameItemComponentProto
 	#region Building Commands
 
 	public override string ShowBuildingHelp =>
-		$"You can use the following options:\n\tname <name> - sets the name of the component\n\tdesc <desc> - sets the description of the component\n\ttype <armour type> - sets the armour type for this component. See {"show armours".FluentTagMXP("send", "href='show armours'")} for a list.";
+		$@"You can use the following options:
+	
+	#3name <name>#0 - sets the name of the component
+	#3desc <desc>#0 - sets the description of the component
+	#3type <armour type>#0 - sets the armour type for this component. See {"show armours".FluentTagMXP("send", "href='show armours'")} for a list.
+	#3penalties#0 - toggles applying armour skill penalties for this armour";
 
 	public override bool BuildingCommand(ICharacter actor, StringStack command)
 	{
@@ -92,9 +111,20 @@ public class ArmourGameItemComponentProto : GameItemComponentProto
 		{
 			case "type":
 				return BuildingCommand_Type(actor, command);
+			case "penalties":
+				return BuildingCommandPenalties(actor);
 			default:
 				return base.BuildingCommand(actor, command);
 		}
+	}
+
+	private bool BuildingCommandPenalties(ICharacter actor)
+	{
+
+		ApplyArmourPenalties = !ApplyArmourPenalties;
+		Changed = true;
+		actor.OutputHandler.Send($"This armour type will {ApplyArmourPenalties.NowNoLonger()} apply worn penalties on its wearer for the armour type.");
+		return true;
 	}
 
 	private bool BuildingCommand_Type(ICharacter actor, StringStack command)

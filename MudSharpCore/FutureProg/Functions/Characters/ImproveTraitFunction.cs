@@ -84,7 +84,7 @@ namespace MudSharp.FutureProg.Functions.Characters
 			}
 
 			var chTrait = target.GetTrait(trait);
-			chTrait.TraitUsed(target, RPG.Checks.Outcome.MajorPass, RPG.Checks.Difficulty.Impossible, TraitUseType.Practical);
+			chTrait.TraitUsed(target, RPG.Checks.Outcome.MajorPass, RPG.Checks.Difficulty.Impossible, TraitUseType.Practical, null);
 			Result = new NumberVariable(chTrait.RawValue);
 			return StatementResult.Normal;
 		}

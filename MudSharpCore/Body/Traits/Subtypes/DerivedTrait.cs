@@ -1,4 +1,6 @@
-﻿using MudSharp.RPG.Checks;
+﻿using System.Collections.Generic;
+using System;
+using MudSharp.RPG.Checks;
 
 namespace MudSharp.Body.Traits.Subtypes;
 
@@ -27,7 +29,7 @@ public abstract class DerivedTrait : Trait
 
 	public override double MaxValue => _definition.Expression.EvaluateMax(_owner);
 
-	public override bool TraitUsed(IHaveTraits user, Outcome result, Difficulty difficulty, TraitUseType usetype)
+	public override bool TraitUsed(IHaveTraits user, Outcome result, Difficulty difficulty, TraitUseType usetype, IEnumerable<Tuple<string, double>> bonuses)
 	{
 		return false;
 	}

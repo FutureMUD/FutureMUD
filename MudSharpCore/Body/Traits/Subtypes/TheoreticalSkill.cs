@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using MudSharp.Body.Traits.Improvement;
 using MudSharp.Database;
+using MudSharp.Logging;
 using MudSharp.RPG.Checks;
 
 namespace MudSharp.Body.Traits.Subtypes;
@@ -48,8 +50,9 @@ public class TheoreticalSkill : Trait
 		}
 	}
 
-	public override bool TraitUsed(IHaveTraits user, Outcome result, Difficulty difficulty, TraitUseType usetype)
+	public override bool TraitUsed(IHaveTraits user, Outcome result, Difficulty difficulty, TraitUseType usetype, IEnumerable<Tuple<string, double>> bonuses)
 	{
+		Gameworld.LogManager.CustomLogEntry(LogEntryType.SkillUse, user, Definition, result, difficulty, usetype, bonuses);
 		var oldValue = Value;
 		switch (usetype)
 		{

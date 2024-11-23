@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using MudSharp.Framework;
 using MudSharp.RPG.Checks;
 
@@ -13,7 +14,7 @@ namespace MudSharp.Body.Traits
         public bool Hidden => Definition.Hidden;
         public double MaxValue => Definition.MaxValue;
 
-		public bool TraitUsed(IHaveTraits user, Outcome result, Difficulty difficulty, TraitUseType usetype)
+		public bool TraitUsed(IHaveTraits user, Outcome result, Difficulty difficulty, TraitUseType usetype, IEnumerable<Tuple<string, double>> bonuses)
 		{
             return false;
 		}

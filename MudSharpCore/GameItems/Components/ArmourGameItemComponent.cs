@@ -31,6 +31,8 @@ public class ArmourGameItemComponent : GameItemComponent, IArmour
 
 	public IArmourType ArmourType => _prototype.ArmourType;
 
+	public bool ApplyArmourPenalties => _prototype.ApplyArmourPenalties;
+
 	#endregion
 
 	#region Implementation of IAbsorbDamage

@@ -50,8 +50,9 @@ public class CustomSkillLogger : ICustomLogger
 	private void HandleSkillUse(object[] data)
 	{
 		var character = data[0] is IBody b ? b.Actor : (ICharacter)data[0];
+		var bonuses = (IEnumerable<Tuple<string, double>>)data[5] ?? Enumerable.Empty<Tuple<string,double>>();
 		_pendingLogEntries.AppendLine(
-			$"{DateTime.UtcNow:G} : Character #{character.Id} ({character.PersonalName.GetName(NameStyle.SimpleFull)}) used skill {((ISkillDefinition)data[1]).Name} ({((TraitUseType)data[4]).Describe()} @ {((Difficulty)data[3]).Describe()} - {((Outcome)data[2]).Describe()}");
+			$"{DateTime.UtcNow:G} : Character #{character.Id} ({character.PersonalName.GetName(NameStyle.SimpleFull)}) used skill {((ISkillDefinition)data[1]).Name} ({((TraitUseType)data[4]).Describe()} @ {((Difficulty)data[3]).Describe()} - {((Outcome)data[2]).Describe()} - bonuses: {bonuses.Select(x => $"{x.Item1}: {x.Item2.ToBonusString(colour: false)}").ListToString()}");
 	}
 
 	private void HandleSkillImprovement(object[] data)

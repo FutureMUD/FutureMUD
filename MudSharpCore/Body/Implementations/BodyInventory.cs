@@ -3300,7 +3300,65 @@ public partial class Body
 
 	public IEnumerable<Tuple<WearableItemCoverStatus, IGameItem>> CoverInformation(IGameItem item)
 	{
-		return _wornItems.Where(x => x.Item == item).Select(x => x.Wearloc.CoverInformation(item, this)).ToList();
+		return _wornItems
+		       .Where(x => x.Item == item)
+		       .Select(x => x.Wearloc.CoverInformation(item, this))
+		       .ToList();
+	}
+
+	public Dictionary<IGameItem, WearableItemCoverStatus> GetAllItemsCoverStatus(bool useIgnoreArmour)
+	{
+		var itemCoverageData = new Dictionary<IGameItem, (int totalWearlocs, int coveredWearlocs)>();
+		var currentlyCoveredLocations = new HashSet<IWear>();
+
+		// Process the worn items in reverse order to account for covering items
+		for (int i = _wornItems.Count - 1; i >= 0; i--)
+		{
+			var wornItem = _wornItems[i];
+			var item = wornItem.Item;
+			var wearloc = wornItem.Wearloc;
+			var profile = wornItem.Profile;
+
+			// Initialize coverage data for the item if not already present
+			if (!itemCoverageData.TryGetValue(item, out var data))
+			{
+				data = (0, 0);
+			}
+
+			data.totalWearlocs += 1;
+
+			// Check if the wear location is currently covered
+			if (currentlyCoveredLocations.Contains(wearloc))
+			{
+				data.coveredWearlocs += 1;
+			}
+
+			itemCoverageData[item] = data;
+
+			// Determine if the current item covers the wear location
+			if (!(profile.NoArmour && useIgnoreArmour))
+			{
+				currentlyCoveredLocations.Add(wearloc);
+			}
+		}
+
+		// Compile the final cover status for each item
+		var result = new Dictionary<IGameItem, WearableItemCoverStatus>();
+		foreach (var kvp in itemCoverageData)
+		{
+			var item = kvp.Key;
+			var (totalWearlocs, coveredWearlocs) = kvp.Value;
+
+			WearableItemCoverStatus status = coveredWearlocs == 0
+				? WearableItemCoverStatus.Uncovered
+				: coveredWearlocs == totalWearlocs
+					? WearableItemCoverStatus.Covered
+					: WearableItemCoverStatus.TransparentlyCovered;
+
+			result[item] = status;
+		}
+
+		return result;
 	}
 
 	public bool SwapInPlace(IGameItem existingItem, IGameItem newItem)

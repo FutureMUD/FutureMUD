@@ -359,6 +359,9 @@ public class ImplementorModule : Module<ICharacter>
 		var ss = new StringStack(input.RemoveFirstWord());
 		switch (ss.PopSpeech().CollapseString().ToLowerInvariant())
 		{
+			case "testcover":
+				DebugTestCover(actor, ss);
+				return;
 			case "heartbeat":
 				Debug_Heartbeat(actor, ss);
 				return;
@@ -461,6 +464,45 @@ public class ImplementorModule : Module<ICharacter>
 				actor.Send("That's not a known debug routine.");
 				return;
 		}
+	}
+
+	private static void DebugTestCover(ICharacter actor, StringStack ss)
+	{
+		var covers = actor.Body.GetAllItemsCoverStatus(true);
+		foreach (var item in actor.Body.WornItems)
+		{
+			var cover = actor.Body.CoverInformation(item).ToList();
+			if (cover.All(x => x.Item1 == WearableItemCoverStatus.Covered))
+			{
+				if (covers[item] != WearableItemCoverStatus.Covered)
+				{
+					actor.OutputHandler.Send($"The item {item.HowSeen(actor)} was {covers[item].DescribeEnum()} instead of covered.");
+				}
+				continue;
+			}
+
+			if (cover.All(x => x.Item1 == WearableItemCoverStatus.Uncovered))
+			{
+				if (covers[item] != WearableItemCoverStatus.Uncovered)
+				{
+					actor.OutputHandler.Send($"The item {item.HowSeen(actor)} was {covers[item].DescribeEnum()} instead of uncovered.");
+				}
+
+				continue;
+			}
+
+			if (cover.All(x => x.Item1 != WearableItemCoverStatus.Uncovered))
+			{
+				if (covers[item] != WearableItemCoverStatus.TransparentlyCovered)
+				{
+					actor.OutputHandler.Send($"The item {item.HowSeen(actor)} was {covers[item].DescribeEnum()} instead of partially covered.");
+				}
+
+				continue;
+			}
+		}
+
+		actor.OutputHandler.Send("Done");
 	}
 
 	private static void DebugBackup(ICharacter actor)

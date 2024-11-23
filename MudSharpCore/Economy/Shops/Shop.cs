@@ -1038,7 +1038,8 @@ public abstract class Shop : SaveableItem, IShop
 			let priceInfo = GetDetailedPriceInfo(purchaser, merch.Key)
 			where merch.Value.InStockroomCount + merch.Value.OnFloorCount > 0 &&
 				  (merch.Key.ListDescription.Contains(keyword, StringComparison.InvariantCultureIgnoreCase) ||
-				   merch.Key.Name.Contains(keyword, StringComparison.InvariantCultureIgnoreCase))
+				   merch.Key.Name.Contains(keyword, StringComparison.InvariantCultureIgnoreCase)) &&
+				  merchIndexes.ContainsKey(merch.Key)
 			orderby merch.Key.Name
 			select new[]
 			{
@@ -1073,7 +1074,8 @@ public abstract class Shop : SaveableItem, IShop
 			sb.AppendLine(StringUtilities.GetTextTable(
 			from merch in stockTake
 			let priceInfo = GetDetailedPriceInfo(purchaser, merch.Key)
-			where merch.Value.InStockroomCount + merch.Value.OnFloorCount > 0
+			where merch.Value.InStockroomCount + merch.Value.OnFloorCount > 0 &&
+			      merchIndexes.ContainsKey(merch.Key)
 			orderby merch.Key.Name
 			select new[]
 			{
@@ -1136,7 +1138,8 @@ public abstract class Shop : SaveableItem, IShop
 				sb.AppendLine(StringUtilities.GetTextTable(
 				from merch in stockTake
 				let priceInfo = GetDetailedPriceInfo(purchaser, merch.Key)
-				where merch.Value.InStockroomCount + merch.Value.OnFloorCount > 0
+				where merch.Value.InStockroomCount + merch.Value.OnFloorCount > 0 
+				      && merchIndexes.ContainsKey(merch.Key)
 				orderby merch.Key.Name
 				select new[]
 				{
@@ -1171,7 +1174,8 @@ public abstract class Shop : SaveableItem, IShop
 				sb.AppendLine(StringUtilities.GetTextTable(
 				from merch in stockTake
 				let priceInfo = GetDetailedPriceInfo(purchaser, merch.Key)
-				where merch.Value.InStockroomCount + merch.Value.OnFloorCount > 0
+				where merch.Value.InStockroomCount + merch.Value.OnFloorCount > 0 &&
+				      merchIndexes.ContainsKey(merch.Key)
 				orderby merch.Key.Name
 				select new[]
 				{

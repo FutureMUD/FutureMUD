@@ -935,6 +935,11 @@ public partial class Body
 					$"You would require {hands} {(hands == 1 ? WielderDescriptionSingular : WielderDescriptionPlural)} to wield this."
 						.Colour(Telnet.Yellow));
 			}
+
+			foreach (var attached in gi.AttachedItems)
+			{
+				sb.AppendLine($"It has {attached.HowSeen(Actor)} attached to it.");
+			}
 		}
 
 		return sb.ToString();

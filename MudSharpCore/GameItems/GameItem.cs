@@ -1275,10 +1275,16 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable
 		{
 			return (GetItemType<IConnectable>()?.ConnectedItems.Select(x => x.Item2.Parent) ??
 					Enumerable.Empty<IGameItem>())
-				   .Concat(GetItemType<IBelt>()?.ConnectedItems.Select(x => x.Parent) ?? Enumerable.Empty<IGameItem>())
+				   .Concat(GetItemType<IBelt>()?.ConnectedItems.Select(x => x.Parent) ?? [])
 				   .Concat(Wounds.SelectNotNull(x => x.Lodged));
 		}
 	}
+
+	public IEnumerable<IGameItem> LodgedItems => Wounds.SelectNotNull(x => x.Lodged).ToArray();
+	public IEnumerable<IGameItem> AttachedItems => (GetItemType<IBelt>()?.ConnectedItems.Select(x => x.Parent) ?? []).ToArray();
+	public IEnumerable<ConnectorType> Connections => GetItemType<IConnectable>()?.Connections.ToArray() ?? [];
+	public IEnumerable<Tuple<ConnectorType, IConnectable>> ConnectedItems => GetItemType<IConnectable>()?.ConnectedItems ?? [];
+	public IEnumerable<ConnectorType> FreeConnections => GetItemType<IConnectable>()?.FreeConnections ?? [];
 
 	public bool DesignedForOffhandUse
 	{

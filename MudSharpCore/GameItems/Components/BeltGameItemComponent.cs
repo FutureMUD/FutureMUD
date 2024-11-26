@@ -82,8 +82,6 @@ public class BeltGameItemComponent : GameItemComponent, IBelt
 					item.Delete();
 				}
 			}
-
-			_connectedItems.Clear();
 		}
 		else
 		{
@@ -103,10 +101,9 @@ public class BeltGameItemComponent : GameItemComponent, IBelt
 					item.Delete();
 				}
 			}
-
-			_connectedItems.Clear();
 		}
 
+		_connectedItems.Clear();
 		return false;
 	}
 

@@ -138,7 +138,11 @@ public partial class GameItem : IHaveWounds
 		var newWounds = HealthStrategy.SufferDamage(this, damage, null).ToList();
 		foreach (var newWound in newWounds.ToArray())
 		{
-			_wounds.Add(newWound);
+			if (!_wounds.Contains(newWound))
+			{
+				_wounds.Add(newWound);
+			}
+
 			wounds.Add(newWound);
 		}
 
@@ -356,52 +360,9 @@ public partial class GameItem : IHaveWounds
 
 	public IEnumerable<IWound> SufferDamage(IDamage damage)
 	{
-		if (damage == null)
-		{
-			return Enumerable.Empty<IWound>();
-		}
-
-		if (_overridingWoundBehaviourComponent != null)
-		{
-			return _overridingWoundBehaviourComponent.SufferDamage(damage);
-		}
-
-		var pile = GetItemType<PileGameItemComponent>();
-		if (pile != null)
-		{
-			var contents = pile.Contents.ToList();
-			OutputHandler.Handle(
-				new EmoteOutput(new Emote("The cohesion of @ is disrupted by being damaged, and it separates.", this)));
-			Die();
-			return contents.GetRandomElement().SufferDamage(damage);
-		}
-
-		var destroyable = GetItemType<IDestroyable>();
-		if (destroyable == null)
-		{
-			return Enumerable.Empty<IWound>();
-		}
-
-		var resistance = GetItemType<INaturalResistance>();
-		if (resistance != null)
-		{
-			damage = resistance.SufferDamage(damage, new List<IWound>());
-		}
-
-		damage = destroyable.GetActualDamage(damage);
-		var wounds = new List<IWound>();
-		var newWounds = HealthStrategy.SufferDamage(this, damage, null).ToArray();
-		foreach (var newWound in newWounds)
-		{
-			if (!_wounds.Contains(newWound))
-			{
-				_wounds.Add(newWound);
-				wounds.Add(newWound);
-				OnWounded?.Invoke(this, newWound);
-				StartHealthTick();
-			}
-		}
-
+		var wounds = PassiveSufferDamage(damage).ToArray();
+		wounds.ProcessPassiveWounds();
+		StartHealthTick();
 		return wounds;
 	}
 

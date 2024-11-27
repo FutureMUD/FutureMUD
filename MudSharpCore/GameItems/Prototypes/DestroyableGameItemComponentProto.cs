@@ -40,13 +40,13 @@ public class DestroyableGameItemComponentProto : GameItemComponentProto
 	public override string ComponentDescriptionOLC(ICharacter actor)
 	{
 		return string.Format(actor,
-			"{0} (#{1:N0}r{2:N0}, {3})\n\nHP expression: {4}.\n\nIt has the following damage type multipliers:\n{5}",
+			"{0} (#{1:N0}r{2:N0}, {3})\n\nHP expression: {4}.\n\nIt has the following damage type multipliers:\n\n{5}",
 			"Destroyable Game Item Component".Colour(Telnet.Cyan),
 			Id,
 			RevisionNumber,
 			Name,
-			HpExpression?.OriginalExpression ?? "None Set".Colour(Telnet.Red),
-			DamageTypeMultipliers.Select(x => $"{x.Key.Describe()}: {x.Value.ToString("N3", actor)}")
+			HpExpression?.OriginalExpression.ColourCommand() ?? "None Set".Colour(Telnet.Red),
+			DamageTypeMultipliers.Select(x => $"{x.Key.Describe().ColourName()}: {x.Value.ToStringP2Colour(actor)}")
 			                     .ListToString(separator: "\n", conjunction: "", twoItemJoiner: "\n", article: "\t")
 		);
 	}

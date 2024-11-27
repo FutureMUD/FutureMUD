@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using MailKit;
 using MudSharp.Accounts;
 using MudSharp.Body;
 using MudSharp.Body.PartProtos;
@@ -2190,7 +2191,7 @@ The syntax is either of the following:
 	{
 		if (!actor.IsAdministrator())
 		{
-			actor.Send("Only adminstrators may do that.");
+			actor.Send("Only administrators may do that.");
 			return;
 		}
 
@@ -2211,7 +2212,9 @@ The syntax is either of the following:
 
 		if (ss.IsFinished)
 		{
-			actor.OutputHandler.Send("What body part do you want to wound?\nYour options are to name the specific bodypart, #3random#0 for a random part, #3all#0 to hit all their external bodyparts, #3*limb#0 to hit all bodyparts on a particular limb, or #3none#0 if you're targeting an item.".SubstituteANSIColour().Wrap(actor.InnerLineFormatLength));
+			actor.OutputHandler.Send(@"What body part do you want to wound?
+
+Your options are to name the specific bodypart, #3random#0 for a random part, #3all#0 to hit all their external bodyparts, #3*limb#0 to hit all bodyparts on a particular limb, or #3none#0 if you're targeting an item.".SubstituteANSIColour().Wrap(actor.InnerLineFormatLength));
 			return;
 		}
 
@@ -2392,14 +2395,14 @@ The syntax is either of the following:
 			}
 
 			var wounds = new List<IWound>();
-			foreach (var bodypart in targetBodyparts)
+			if (targetBodyparts.Count == 0)
 			{
 				finalDamage = new Damage
 				{
 					ActorOrigin = actor,
 					LodgableItem = lodged,
 					DamageType = damageType,
-					Bodypart = bodypart,
+					Bodypart = null,
 					DamageAmount = Dice.Roll(damage),
 					PainAmount = Dice.Roll(pain),
 					ShockAmount = 0,
@@ -2409,6 +2412,27 @@ The syntax is either of the following:
 
 				wounds.AddRange(woundable.SufferDamage(finalDamage));
 			}
+			else
+			{
+				foreach (var bodypart in targetBodyparts)
+				{
+					finalDamage = new Damage
+					{
+						ActorOrigin = actor,
+						LodgableItem = lodged,
+						DamageType = damageType,
+						Bodypart = bodypart,
+						DamageAmount = Dice.Roll(damage),
+						PainAmount = Dice.Roll(pain),
+						ShockAmount = 0,
+						StunAmount = Dice.Roll(stun),
+						AngleOfIncidentRadians = Math.PI / 2
+					};
+
+					wounds.AddRange(woundable.SufferDamage(finalDamage));
+				}
+			}
+			
 
 			var sb = new StringBuilder();
 			sb.Append($"@ wound|wounds $0 for {damage.Colour(Telnet.Red)}d|{stun.Colour(Telnet.BoldCyan)}s|{pain.Colour(Telnet.Magenta)}p {damageType.Describe().ColourValue()}");
@@ -2487,7 +2511,7 @@ The syntax is either of the following:
 
 			var angle = RandomUtilities.DoubleRandom(Math.PI * 0.1, Math.PI);
 			var wounds = new List<IWound>();
-			foreach (var bodypart in targetBodyparts)
+			if (targetBodyparts.Count == 0)
 			{
 				finalDamage = new Damage
 				{
@@ -2495,7 +2519,7 @@ The syntax is either of the following:
 					LodgableItem = null,
 					ToolOrigin = targetItem,
 					AngleOfIncidentRadians = angle,
-					Bodypart = bodypart,
+					Bodypart = null,
 					DamageAmount = attack.Profile.DamageExpression.Evaluate(actor) * 2 * angle / Math.PI,
 					DamageType = attack.Profile.DamageType,
 					PainAmount = attack.Profile.PainExpression.Evaluate(actor) * 2 * angle / Math.PI,
@@ -2506,6 +2530,29 @@ The syntax is either of the following:
 
 				wounds.AddRange(woundable.SufferDamage(finalDamage));
 			}
+			else
+			{
+				foreach (var bodypart in targetBodyparts)
+				{
+					finalDamage = new Damage
+					{
+						ActorOrigin = actor,
+						LodgableItem = null,
+						ToolOrigin = targetItem,
+						AngleOfIncidentRadians = angle,
+						Bodypart = bodypart,
+						DamageAmount = attack.Profile.DamageExpression.Evaluate(actor) * 2 * angle / Math.PI,
+						DamageType = attack.Profile.DamageType,
+						PainAmount = attack.Profile.PainExpression.Evaluate(actor) * 2 * angle / Math.PI,
+						PenetrationOutcome = outcome,
+						ShockAmount = 0,
+						StunAmount = attack.Profile.DamageExpression.Evaluate(actor) * 2 * angle / Math.PI
+					};
+
+					wounds.AddRange(woundable.SufferDamage(finalDamage));
+				}
+			}
+				
 
 			woundable.CheckHealthStatus();
 			var sb = new StringBuilder();

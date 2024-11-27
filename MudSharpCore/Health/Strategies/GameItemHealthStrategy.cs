@@ -52,7 +52,7 @@ public class GameItemHealthStrategy : BaseHealthStrategy
 		}
 
 		var existing = owner.Wounds.FirstOrDefault(x => x.DamageType == damage.DamageType);
-		if (existing != null)
+		if (existing != null && Dice.Roll(1,6) == 1)
 		{
 			existing.SufferAdditionalDamage(damage);
 			return new[] { existing };

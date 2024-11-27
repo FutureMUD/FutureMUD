@@ -916,6 +916,15 @@ public partial class Body
 
 		if (thing is IGameItem gi && fromLookCommand)
 		{
+
+			if (Actor.IsAdministrator() && gi.GetItemType<IDestroyable>() is {} id)
+			{
+				var damage = gi.Wounds.Sum(x => x.CurrentDamage);
+				var hp = id.MaximumDamage;
+				var currentHP = hp - damage;
+				sb.AppendLine($"HP: {currentHP.ToStringN2Colour(Actor)}/{hp.ToStringN2Colour(Actor)}");
+			}
+
 			if (gi.EffectsOfType<IGraffitiEffect>().Any())
 			{
 				sb.AppendLine($"This item has graffiti. Use LOOK <item> GRAFFITI to view it.".Colour(Telnet.BoldCyan));

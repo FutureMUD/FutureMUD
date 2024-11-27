@@ -49,13 +49,12 @@ public abstract class Infection : LateInitialisingItem, IInfection
 
 	public void Delete()
 	{
+		Changed = false;
 		using (new FMDB())
 		{
 			if (_id != 0)
 			{
-				Changed = false;
 				Gameworld.SaveManager.Abort(this);
-				Gameworld.SaveManager.Flush();
 				var infection = FMDB.Context.Infections.Find(Id);
 				if (infection != null)
 				{
@@ -194,7 +193,7 @@ public abstract class Infection : LateInitialisingItem, IInfection
 		FMDB.Context.Infections.Add(dbitem);
 		dbitem.OwnerId = Owner.Id;
 		dbitem.BodypartId = Bodypart?.Id;
-		dbitem.WoundId = Wound?.Id;
+		dbitem.Wound = FMDB.Context.Wounds.Find(Wound?.Id ?? 0);
 		dbitem.Virulence = (int)VirulenceDifficulty;
 		dbitem.Intensity = Intensity;
 		dbitem.InfectionType = (int)InfectionType;

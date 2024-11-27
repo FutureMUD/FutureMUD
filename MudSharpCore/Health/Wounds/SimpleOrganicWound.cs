@@ -198,7 +198,9 @@ public class SimpleOrganicWound : PerceivedItem, IWound
 		Changed = false;
 		Gameworld.SaveManager.Abort(this);
 		Lodged?.Delete();
+		_lodged = null;
 		Infection?.Delete();
+		_infection = null;
 		if (!IdInitialised || ignoreDatabaseDeletion)
 		{
 			return;

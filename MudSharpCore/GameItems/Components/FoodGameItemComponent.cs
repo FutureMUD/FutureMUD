@@ -48,7 +48,7 @@ public class FoodGameItemComponent : GameItemComponent, IEdible
 
 	public override bool PreventsMerging(IGameItemComponent component)
 	{
-		return BitesRemaining == TotalBites;
+		return BitesRemaining != TotalBites;
 	}
 
 	public override double ComponentWeightMultiplier

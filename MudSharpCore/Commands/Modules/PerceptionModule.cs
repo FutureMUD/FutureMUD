@@ -637,13 +637,25 @@ See also: HELP EVALUATE, HELP SEARCH, HELP SCAN",
 
 	[PlayerCommand("QuickScan", "quickscan", "qscan", "qs")]
 	[RequiredCharacterState(CharacterState.Able)]
-	[HelpInfo("quickscan", "Quickly scan adjacent rooms. Syntax: qs [<minsize>] [<specific exit>]", AutoHelp.HelpArg)]
+	[HelpInfo("quickscan", @"The #3quickscan#0 command is used to quickly scan your surroundings, seeing into adjacent rooms and other room layers and potentially acquiring ranged targets.
+
+Quickscan is instant and doesn't echo, but only sees a single room away and has a lower chance to spot than other scan methods.
+
+There are several syntaxes you can use with this command:
+
+	#3qs#0 - quickly scan all of the exits and other layers in your current location
+	#3qs <size>#0 - show only items and people equal or larger than a particular size
+	#3qs <exit>#0 - show only a particular exit
+	#3qs <size> <exit>#0 - combination of the previous two options.
+
+See also the #3scan#0, #3longscan#0 and #3search#0 commands.", AutoHelp.HelpArg)]
 	protected static void QuickScan(ICharacter actor, string input)
 	{
 		var ss = new StringStack(input.RemoveFirstWord());
 		List<ICellExit> exits = null;
 		var userSetSize = SizeCategory.Nanoscopic;
 		var layers = actor.Location.Terrain(actor).TerrainLayers.ToList();
+		string exitArg = string.Empty;
 		if (ss.IsFinished)
 		{
 			exits = actor.Location
@@ -653,11 +665,9 @@ See also: HELP EVALUATE, HELP SEARCH, HELP SCAN",
 		else
 		{
 			var sizeArg = ss.PopSpeech();
-			var exitArg = ss.IsFinished ? "" : ss.SafeRemainingArgument;
-			var sizes = Enum.GetValues(typeof(SizeCategory)).OfType<SizeCategory>();
-			var setSize = sizes.FirstOrDefault(x =>
-				x.Describe().Equals(sizeArg, StringComparison.InvariantCultureIgnoreCase));
-			if (setSize != SizeCategory.Nanoscopic)
+			exitArg = ss.IsFinished ? "" : ss.SafeRemainingArgument;
+
+			if (sizeArg.TryParseEnum<SizeCategory>(out var setSize))
 			{
 				userSetSize = setSize;
 			}
@@ -668,7 +678,14 @@ See also: HELP EVALUATE, HELP SEARCH, HELP SCAN",
 
 			if (!exitArg.Equals(string.Empty))
 			{
-				exits = new[] { actor.Location.GetExitKeyword(exitArg, actor) }.ToList();
+				var exit = actor.Location.GetExitKeyword(exitArg, actor);
+				if (exit is null)
+				{
+					actor.OutputHandler.Send($"There is no exit identified by the keyword {exitArg.ColourCommand()}.");
+					return;
+				}
+
+				exits = [exit];
 			}
 			else
 			{
@@ -680,9 +697,9 @@ See also: HELP EVALUATE, HELP SEARCH, HELP SCAN",
 
 		if ((!exits.Any() && layers.Count <= 1) || exits.Any(x => x == null))
 		{
-			actor.Send(string.IsNullOrEmpty(ss.Last)
+			actor.Send(string.IsNullOrEmpty(exitArg)
 				? "There are no visible exits or other layers for you to scan."
-				: "There is no such exit for you to scan.");
+				: $"There is no exit identified by the keyword {exitArg.ColourCommand()}.");
 			return;
 		}
 
@@ -809,26 +826,39 @@ See also: HELP EVALUATE, HELP SEARCH, HELP SCAN",
 
 	[PlayerCommand("Scan", "scan", "sca")]
 	[RequiredCharacterState(CharacterState.Able)]
-	[HelpInfo("scan", "Quickly scan a range of rooms. Syntax: scan [<minsize>] [<specific exit>]", AutoHelp.HelpArg)]
+	[HelpInfo("scan", @"The #3scan#0 command is used to scan your surroundings, seeing into adjacent rooms and other room layers and potentially acquiring ranged targets.
+
+Scan takes a little bit of time and does echo to others, but can be used while moving and has some bonuses compared to quick scanning. Scan can see up to 2 rooms away.
+
+There are several syntaxes you can use with this command:
+
+	#3scan#0 - scan all of the exits and other layers in your current location
+	#3scan <size>#0 - show only items and people equal or larger than a particular size
+	#3scan <exit>#0 - show only a particular exit
+	#3scan <size> <exit>#0 - combination of the previous two options.
+
+See also the #3quickscan#0, #3longscan#0 and #3search#0 commands.", AutoHelp.HelpArg)]
 	[DelayBlock("general", "You must first stop {0} before you can do that.")]
 	[NoMeleeCombatCommand]
 	protected static void Scan(ICharacter actor, string input)
 	{
 		var ss = new StringStack(input.RemoveFirstWord());
 		List<ICellExit> exits = null;
+		var layers = actor.Location.Terrain(actor).TerrainLayers.ToList();
 		var userSetSize = SizeCategory.Nanoscopic;
+		string exitArg = string.Empty;
 		if (ss.IsFinished)
 		{
-			exits = actor.Location.ExitsFor(actor).ToList();
+			exits = actor.Location
+			             .ExitsFor(actor)
+			             .ToList();
 		}
 		else
 		{
 			var sizeArg = ss.PopSpeech();
-			var exitArg = ss.IsFinished ? "" : ss.SafeRemainingArgument;
-			var sizes = Enum.GetValues(typeof(SizeCategory)).OfType<SizeCategory>();
-			var setSize = sizes.FirstOrDefault(x =>
-				x.Describe().Equals(sizeArg, StringComparison.InvariantCultureIgnoreCase));
-			if (setSize != SizeCategory.Nanoscopic)
+			exitArg = ss.IsFinished ? "" : ss.SafeRemainingArgument;
+
+			if (sizeArg.TryParseEnum<SizeCategory>(out var setSize))
 			{
 				userSetSize = setSize;
 			}
@@ -839,7 +869,14 @@ See also: HELP EVALUATE, HELP SEARCH, HELP SCAN",
 
 			if (!exitArg.Equals(string.Empty))
 			{
-				exits = new[] { actor.Location.GetExitKeyword(exitArg, actor) }.ToList();
+				var exit = actor.Location.GetExitKeyword(exitArg, actor);
+				if (exit is null)
+				{
+					actor.OutputHandler.Send($"There is no exit identified by the keyword {exitArg.ColourCommand()}.");
+					return;
+				}
+
+				exits = [exit];
 			}
 			else
 			{
@@ -849,19 +886,13 @@ See also: HELP EVALUATE, HELP SEARCH, HELP SCAN",
 
 		exits = exits.Where(x => actor.CanSee(actor.Location, x)).ToList();
 
-		if (exits.Any(x => x == null))
+		if ((!exits.Any() && layers.Count <= 1) || exits.Any(x => x == null))
 		{
-			actor.OutputHandler.Send("There is no such exit for you to scan.");
+			actor.Send(string.IsNullOrEmpty(exitArg)
+				? "There are no visible exits or other layers for you to scan."
+				: $"There is no exit identified by the keyword {exitArg.ColourCommand()}.");
 			return;
 		}
-
-		if (!exits.Any() && actor.Location.Terrain(actor).TerrainLayers.Except(actor.RoomLayer)
-		                         .All(x => !x.CanBeSeenFromLayer(actor.RoomLayer)))
-		{
-			actor.OutputHandler.Send("There are no visible exits or visible layers for you to scan.");
-			return;
-		}
-
 
 		actor.OutputHandler.Handle(new EmoteOutput(new Emote("@ begin|begins to scan the horizon.", actor),
 			flags: OutputFlags.Insigificant));
@@ -1057,27 +1088,41 @@ See also: HELP EVALUATE, HELP SEARCH, HELP SCAN",
 
 	[PlayerCommand("Longscan", "longscan", "lscan", "ls")]
 	[RequiredCharacterState(CharacterState.Able)]
-	[HelpInfo("longscan", "Take time to scan around you thoroughly. Syntax: ls [<minsize>] [<specific exit>]",
+	[HelpInfo("longscan", @"The #3longscan#0 command is used to thoroughly scan your surroundings, seeing into adjacent rooms and other room layers and potentially acquiring ranged targets.
+
+Long scan takes a longer time than other scna methods and does echo to others, and can not be used while moving. It has major bonuses however, has the best ""visibility arc"" with adjacent room layers and can potentially see longer distances, usually 5 rooms away.
+
+There are several syntaxes you can use with this command:
+
+	#3ls#0 - thoroughly scan all of the exits and other layers in your current location
+	#3ls <size>#0 - show only items and people equal or larger than a particular size
+	#3ls <exit>#0 - show only a particular exit
+	#3ls <size> <exit>#0 - combination of the previous two options.
+
+See also the #3quickscan#0, #3scan#0 and #3search#0 commands.",
 		AutoHelp.HelpArg)]
 	[DelayBlock("general", "You must first stop {0} before you can do that.")]
 	[NoMeleeCombatCommand]
+	[NoMovementCommand]
 	protected static void LongScan(ICharacter actor, string input)
 	{
 		var ss = new StringStack(input.RemoveFirstWord());
 		List<ICellExit> exits = null;
+		var layers = actor.Location.Terrain(actor).TerrainLayers.ToList();
 		var userSetSize = SizeCategory.Nanoscopic;
+		string exitArg = string.Empty;
 		if (ss.IsFinished)
 		{
-			exits = actor.Location.ExitsFor(actor).ToList();
+			exits = actor.Location
+			             .ExitsFor(actor)
+			             .ToList();
 		}
 		else
 		{
-			var sizeArg = ss.Pop();
-			var exitArg = ss.IsFinished ? "" : ss.SafeRemainingArgument;
-			var sizes = Enum.GetValues(typeof(SizeCategory)).OfType<SizeCategory>();
-			var setSize = sizes.FirstOrDefault(x =>
-				x.Describe().Equals(sizeArg, StringComparison.InvariantCultureIgnoreCase));
-			if (setSize != SizeCategory.Nanoscopic)
+			var sizeArg = ss.PopSpeech();
+			exitArg = ss.IsFinished ? "" : ss.SafeRemainingArgument;
+
+			if (sizeArg.TryParseEnum<SizeCategory>(out var setSize))
 			{
 				userSetSize = setSize;
 			}
@@ -1088,7 +1133,14 @@ See also: HELP EVALUATE, HELP SEARCH, HELP SCAN",
 
 			if (!exitArg.Equals(string.Empty))
 			{
-				exits = new[] { actor.Location.GetExitKeyword(exitArg, actor) }.ToList();
+				var exit = actor.Location.GetExitKeyword(exitArg, actor);
+				if (exit is null)
+				{
+					actor.OutputHandler.Send($"There is no exit identified by the keyword {exitArg.ColourCommand()}.");
+					return;
+				}
+
+				exits = [exit];
 			}
 			else
 			{
@@ -1098,16 +1150,11 @@ See also: HELP EVALUATE, HELP SEARCH, HELP SCAN",
 
 		exits = exits.Where(x => actor.CanSee(actor.Location, x)).ToList();
 
-		if (exits.Any(x => x == null))
+		if ((!exits.Any() && layers.Count <= 1) || exits.Any(x => x == null))
 		{
-			actor.OutputHandler.Send("There is no such exit for you to scan.");
-			return;
-		}
-
-		if (!exits.Any() && actor.Location.Terrain(actor).TerrainLayers.Except(actor.RoomLayer)
-		                         .All(x => !x.CanBeSeenFromLayer(actor.RoomLayer)))
-		{
-			actor.OutputHandler.Send("There are no visible exits or visible layers for you to scan.");
+			actor.Send(string.IsNullOrEmpty(exitArg)
+				? "There are no visible exits or other layers for you to scan."
+				: $"There is no exit identified by the keyword {exitArg.ColourCommand()}.");
 			return;
 		}
 
@@ -1309,6 +1356,15 @@ See also: HELP EVALUATE, HELP SEARCH, HELP SCAN",
 	[PlayerCommand("Watch", "watch")]
 	[RequiredCharacterState(CharacterState.Conscious)]
 	[NoMeleeCombatCommand]
+	[HelpInfo("watch", @"The #3watch#0 command is used to watch for movement and activity in adjacent locations to where you are, and be alerted when it occurs.
+
+You can watch any or all rooms adjacent to you, however if you move, enter combat or lose consciousness you will stop watching.
+
+The syntax is as follows:
+
+	#3watch <direction>#0 - watch only the room to the direction
+	#3watch all#0 - watch all rooms adjacent to you
+	#3watch none#0 - stop watching any rooms", AutoHelp.HelpArgOrNoArg)]
 	protected static void Watch(ICharacter actor, string input)
 	{
 		var ss = new StringStack(input.RemoveFirstWord());
@@ -1376,7 +1432,11 @@ See also: HELP EVALUATE, HELP SEARCH, HELP SCAN",
 	[PlayerCommand("Point", "point")]
 	[RequiredCharacterState(CharacterState.Able)]
 	[HelpInfo("point",
-		"This command allows you to point out targets that you have sighted to everyone in the same location as you. The syntax is POINT <target> or POINT CURRENT to point at somebody you're targeting in combat. The targets are ordered in the same order that they appear in the TARGETS command for the purposes of working out the best keywords.",
+		@"This command allows you to point out targets that you have sighted (see #3targets#0) to everyone in the same location as you. 
+
+The syntax is #3point <target>#0 or #3point current#0 to point at somebody you're targeting in combat.
+
+Note: The targets are ordered in the same order that they appear in the #3targets#0 command for the purposes of working out the best keywords.",
 		AutoHelp.HelpArgOrNoArg)]
 	protected static void Point(ICharacter actor, string input)
 	{

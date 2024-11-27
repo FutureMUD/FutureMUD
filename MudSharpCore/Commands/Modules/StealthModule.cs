@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using MoreLinq.Extensions;
 using MudSharp.Accounts;
 using MudSharp.Character;
 using MudSharp.Effects.Interfaces;
@@ -10,6 +11,7 @@ using MudSharp.PerceptionEngine;
 using MudSharp.PerceptionEngine.Outputs;
 using MudSharp.PerceptionEngine.Parsers;
 using MudSharp.RPG.Checks;
+using Org.BouncyCastle.Asn1.X509;
 
 namespace MudSharp.Commands.Modules;
 
@@ -28,6 +30,14 @@ public class StealthModule : Module<ICharacter>
 	[RequiredCharacterState(CharacterState.Able)]
 	[NoCombatCommand]
 	[NoMovementCommand]
+	[HelpInfo("hide", @"The #3hide#0 command is used to perform two functions; one is to begin hiding, trying to keep out of sight of everyone. The second is to hide an item.
+
+The syntax is as follows:
+
+	#3hide#0 - begin hiding yourself
+	#3hide <item>#0 - hide an item
+
+Note - anyone in the room at the time you hide yourself or an item will be able to see through your stealth as long as you all remain there", AutoHelp.HelpArg)]
 	protected static void Hide(ICharacter actor, string command)
 	{
 		var ss = new StringStack(command.RemoveFirstWord());
@@ -65,15 +75,8 @@ public class StealthModule : Module<ICharacter>
 			return;
 		}
 
-		// Hide from a specific target
-		if (ss.Pop().Equals("from", StringComparison.InvariantCultureIgnoreCase))
-		{
-			actor.OutputHandler.Send("Coming soon.");
-			return;
-		}
-
 		// Hide an item
-		var targetText = ss.Last;
+		var targetText = ss.SafeRemainingArgument;
 		var target = actor.TargetLocalOrHeldItem(targetText);
 		if (target == null)
 		{
@@ -126,9 +129,53 @@ public class StealthModule : Module<ICharacter>
 		), TimeSpan.FromSeconds(10));
 	}
 
-	[PlayerCommand("Reveal", "reveal", "unhide")]
+	[PlayerCommand("Unhide", "unhide")]
 	[DelayBlock("general", "You must first stop {0} before you can reveal yourself.")]
 	[RequiredCharacterState(CharacterState.Able)]
+	[HelpInfo("unhide", @"The #3unhide#0 command is used to stop hiding. This command simply toggles your hiding off.
+
+The syntax is as follows:
+
+	#3unhide#0 - reveal yourself to everyone in the room", AutoHelp.HelpArg)]
+	protected static void Unhide(ICharacter actor, string command)
+	{
+		if (!actor.AffectedBy<IHideEffect>())
+		{
+			actor.OutputHandler.Send("You are not hidden, and so do not need to stop hiding.");
+			return;
+		}
+
+		var ss = new StringStack(command.RemoveFirstWord());
+		var emoteText = ss.PopParentheses();
+		var output = new MixedEmoteOutput(new Emote("@ reveal|reveals %0", actor, actor),
+			flags: OutputFlags.SuppressObscured);
+		if (!string.IsNullOrWhiteSpace(emoteText))
+		{
+			var emote = new PlayerEmote(emoteText, actor);
+			if (!emote.Valid)
+			{
+				actor.OutputHandler.Send(emote.ErrorMessage);
+				return;
+			}
+
+			output.Append(emote);
+		}
+
+		actor.RemoveAllEffects(x => x.IsEffectType<IHideEffect>());
+		actor.OutputHandler.Handle(output);
+	}
+
+	[PlayerCommand("Reveal", "reveal")]
+	[DelayBlock("general", "You must first stop {0} before you can reveal yourself.")]
+	[RequiredCharacterState(CharacterState.Able)]
+	[HelpInfo("reveal", @"The #3reveal#0 command is used to reveal yourself to people in your room when you are hiding, without stopping the fact that you are hiding.
+
+People to whom you reveal yourself will be able to see you while you remain hidden and in this location.
+
+The syntax is as follows:
+
+	#3reveal#0 - reveal yourself to everyone in the room
+	#3reveal <target>#0 - reveal yourself only to a particular person", AutoHelp.HelpArg)]
 	protected static void Reveal(ICharacter actor, string command)
 	{
 		if (!actor.AffectedBy<IHideEffect>())
@@ -138,21 +185,26 @@ public class StealthModule : Module<ICharacter>
 		}
 
 		var ss = new StringStack(command.RemoveFirstWord());
-
 		var emoteText = ss.PopParentheses();
+
 		MixedEmoteOutput output;
 		Action successAction;
 
-		if (ss.IsFinished &&
-		    "reveal".StartsWith(new StringStack(command).Pop(), StringComparison.InvariantCultureIgnoreCase))
+		if (ss.IsFinished)
 		{
-			successAction = () => actor.RemoveAllEffects(x => x.IsEffectType<IHideEffect>());
-			output = new MixedEmoteOutput(new Emote("@ reveal|reveals %0", actor, actor),
+			successAction = () =>
+			{
+				foreach (var person in actor.Location.LayerCharacters(actor.RoomLayer).Except(actor).AsEnumerable())
+				{
+					person.AddEffect(new SawHider(person, actor), TimeSpan.FromSeconds(600));
+				}
+			};
+			output = new MixedEmoteOutput(new Emote("@ reveal|reveals %0 to everyone present", actor, actor),
 				flags: OutputFlags.SuppressObscured);
 		}
 		else
 		{
-			var targetText = ss.Pop();
+			var targetText = ss.PopSpeech();
 			var target = actor.TargetActor(targetText);
 			if (target == null)
 			{
@@ -187,6 +239,14 @@ public class StealthModule : Module<ICharacter>
 	[PlayerCommand("Sneak", "sneak")]
 	[RequiredCharacterState(CharacterState.Conscious)]
 	[NoMovementCommand]
+	[HelpInfo("sneak", @"The #3sneak#0 command is used to toggle whether you want to sneak when you move, and try to hide the fact that you have moved to others around you.
+
+If someone notices you sneaking it is obvious that you were trying to sneak, unless you use the subtle sneak option; if they notice you with subtle sneaking, they will just see a regular movement message. However, subtle sneaking is easier to notice on the whole.
+
+The syntax is as follows:
+
+	#3sneak#0 - toggles sneaking on or off
+	#3sneak subtle#0 - toggles subtle sneaking on or off", AutoHelp.HelpArgOrNoArg)]
 	protected static void Sneak(ICharacter actor, string command)
 	{
 		var ss = new StringStack(command.RemoveFirstWord());
@@ -252,6 +312,9 @@ public class StealthModule : Module<ICharacter>
 	[RequiredCharacterState(CharacterState.Able)]
 	[NoMovementCommand]
 	[NoMeleeCombatCommand]
+	[HelpInfo("search", @"The #3search#0 command is used to search your surroundings for hidden things and people. This is a continuous action, and you will do it until you cancel it with the #3stop#0 command.
+
+The syntax is simply #3search#0.", AutoHelp.HelpArg)]
 	protected static void Search(ICharacter actor, string command)
 	{
 		actor.OutputHandler.Handle(new EmoteOutput(new Emote("@ begin|begins searching the area.", actor)));

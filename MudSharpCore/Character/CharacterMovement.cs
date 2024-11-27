@@ -418,8 +418,7 @@ public partial class Character
 					movement = new SingleMovement(exit, this, timespan, emote);
 				}
 			}
-
-
+			
 			movement.InitialAction();
 			return true;
 		}

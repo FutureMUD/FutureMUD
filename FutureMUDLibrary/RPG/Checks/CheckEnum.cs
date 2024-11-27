@@ -171,7 +171,9 @@ namespace MudSharp.RPG.Checks {
 		ProsecuteLegalCase = 165,
 		DefendLegalCase = 166,
 		ClimbTreetoTreeCheck = 167,
-		CheatAtCoinFlip = 168
+		CheatAtCoinFlip = 168,
+		SearchForTracksCheck = 169,
+		SearchForTracksByScentScheck = 170
 	}
 
 	public enum FailIfTraitMissingType {
@@ -200,7 +202,105 @@ namespace MudSharp.RPG.Checks {
 			switch (type)
 			{
 
-				case CheckType.HideCheck:				case CheckType.SneakCheck:				case CheckType.PalmCheck:				case CheckType.HideItemCheck:				case CheckType.UninstallDoorCheck:				case CheckType.ForageCheck:				case CheckType.ForageSpecificCheck:				case CheckType.ForageTimeCheck:				case CheckType.WoundCloseCheck:				case CheckType.BindWoundCheck:				case CheckType.SutureWoundCheck:				case CheckType.CleanWoundCheck:				case CheckType.RemoveLodgedObjectCheck:				case CheckType.MendCheck:				case CheckType.MeleeWeaponPenetrateCheck:				case CheckType.RangedWeaponPenetrateCheck:				case CheckType.PenetrationDefenseCheck:				case CheckType.CombatMoveCheck:				case CheckType.CombatRecoveryCheck:				case CheckType.MedicalExaminationCheck:				case CheckType.LocksmithingCheck:				case CheckType.NaturalWeaponAttack:				case CheckType.DodgeCheck:				case CheckType.ParryCheck:				case CheckType.BlockCheck:				case CheckType.FleeMeleeCheck:				case CheckType.OpposeFleeMeleeCheck:				case CheckType.Ward:				case CheckType.WardDefense:				case CheckType.StartClinch:				case CheckType.ResistClinch:				case CheckType.BreakClinch:				case CheckType.ResistBreakClinch:				case CheckType.MeleeWeaponCheck:				case CheckType.ExploratorySurgeryCheck:				case CheckType.TriageCheck:				case CheckType.AmputationCheck:				case CheckType.ReplantationCheck:				case CheckType.InvasiveProcedureFinalisation:				case CheckType.TraumaControlSurgery:				case CheckType.ThrownWeaponCheck:				case CheckType.AimRangedWeapon:				case CheckType.RescueCheck:				case CheckType.OpposeRescueCheck:				case CheckType.Defibrillate:				case CheckType.PerformCPR:				case CheckType.StaggeringBlowDefense:				case CheckType.FireBow:				case CheckType.FireCrossbow:				case CheckType.FireFirearm:				case CheckType.FireSling:				case CheckType.StruggleFreeFromDrag:				case CheckType.OpposeStruggleFreeFromDrag:				case CheckType.CounterGrappleCheck:				case CheckType.StruggleFreeFromGrapple:				case CheckType.OpposeStruggleFreeFromGrapple:				case CheckType.ExtendGrappleCheck:				case CheckType.InitiateGrapple:				case CheckType.StyleCharacteristicCheck:				case CheckType.CrutchWalking:				case CheckType.OrganExtractionCheck:				case CheckType.OrganTransplantCheck:				case CheckType.CannulationProcedure:				case CheckType.DecannulationProcedure:				case CheckType.StrangleCheck:				case CheckType.WrenchAttackCheck:				case CheckType.OrganStabilisationCheck:				case CheckType.CraftOutcomeCheck:				case CheckType.CraftQualityCheck:				case CheckType.TendWoundCheck:				case CheckType.RelocateBoneCheck:				case CheckType.SurgicalSetCheck:				case CheckType.RepairItemCheck:				case CheckType.InstallImplantSurgery:				case CheckType.RemoveImplantSurgery:				case CheckType.ConfigureImplantPowerSurgery:				case CheckType.ButcheryCheck:				case CheckType.SkinningCheck:				case CheckType.TossItemCheck:				case CheckType.ActiveSearchCheck:				case CheckType.ClimbCheck:				case CheckType.ConfigureImplantInterfaceSurgery:				case CheckType.InkTattooCheck:				case CheckType.FallingImpactCheck:				case CheckType.SwimmingCheck:				case CheckType.AvoidFallDueToWind:				case CheckType.SwimStayAfloatCheck:				case CheckType.FlyCheck:				case CheckType.CheatAtDiceCheck:				case CheckType.SpillLiquidOnPerson:				case CheckType.DodgeSpillLiquidOnPerson:				case CheckType.TakedownCheck:				case CheckType.BreakoutCheck:				case CheckType.OpposeBreakoutCheck:				case CheckType.AuxiliaryMoveCheck:				case CheckType.ClimbTreetoTreeCheck:				case CheckType.CheatAtCoinFlip:
+				case CheckType.HideCheck:
+				case CheckType.SneakCheck:
+				case CheckType.PalmCheck:
+				case CheckType.HideItemCheck:
+				case CheckType.UninstallDoorCheck:
+				case CheckType.ForageCheck:
+				case CheckType.ForageSpecificCheck:
+				case CheckType.ForageTimeCheck:
+				case CheckType.WoundCloseCheck:
+				case CheckType.BindWoundCheck:
+				case CheckType.SutureWoundCheck:
+				case CheckType.CleanWoundCheck:
+				case CheckType.RemoveLodgedObjectCheck:
+				case CheckType.MendCheck:
+				case CheckType.MeleeWeaponPenetrateCheck:
+				case CheckType.RangedWeaponPenetrateCheck:
+				case CheckType.PenetrationDefenseCheck:
+				case CheckType.CombatMoveCheck:
+				case CheckType.CombatRecoveryCheck:
+				case CheckType.MedicalExaminationCheck:
+				case CheckType.LocksmithingCheck:
+				case CheckType.NaturalWeaponAttack:
+				case CheckType.DodgeCheck:
+				case CheckType.ParryCheck:
+				case CheckType.BlockCheck:
+				case CheckType.FleeMeleeCheck:
+				case CheckType.OpposeFleeMeleeCheck:
+				case CheckType.Ward:
+				case CheckType.WardDefense:
+				case CheckType.StartClinch:
+				case CheckType.ResistClinch:
+				case CheckType.BreakClinch:
+				case CheckType.ResistBreakClinch:
+				case CheckType.MeleeWeaponCheck:
+				case CheckType.ExploratorySurgeryCheck:
+				case CheckType.TriageCheck:
+				case CheckType.AmputationCheck:
+				case CheckType.ReplantationCheck:
+				case CheckType.InvasiveProcedureFinalisation:
+				case CheckType.TraumaControlSurgery:
+				case CheckType.ThrownWeaponCheck:
+				case CheckType.AimRangedWeapon:
+				case CheckType.RescueCheck:
+				case CheckType.OpposeRescueCheck:
+				case CheckType.Defibrillate:
+				case CheckType.PerformCPR:
+				case CheckType.StaggeringBlowDefense:
+				case CheckType.FireBow:
+				case CheckType.FireCrossbow:
+				case CheckType.FireFirearm:
+				case CheckType.FireSling:
+				case CheckType.StruggleFreeFromDrag:
+				case CheckType.OpposeStruggleFreeFromDrag:
+				case CheckType.CounterGrappleCheck:
+				case CheckType.StruggleFreeFromGrapple:
+				case CheckType.OpposeStruggleFreeFromGrapple:
+				case CheckType.ExtendGrappleCheck:
+				case CheckType.InitiateGrapple:
+				case CheckType.StyleCharacteristicCheck:
+				case CheckType.CrutchWalking:
+				case CheckType.OrganExtractionCheck:
+				case CheckType.OrganTransplantCheck:
+				case CheckType.CannulationProcedure:
+				case CheckType.DecannulationProcedure:
+				case CheckType.StrangleCheck:
+				case CheckType.WrenchAttackCheck:
+				case CheckType.OrganStabilisationCheck:
+				case CheckType.CraftOutcomeCheck:
+				case CheckType.CraftQualityCheck:
+				case CheckType.TendWoundCheck:
+				case CheckType.RelocateBoneCheck:
+				case CheckType.SurgicalSetCheck:
+				case CheckType.RepairItemCheck:
+				case CheckType.InstallImplantSurgery:
+				case CheckType.RemoveImplantSurgery:
+				case CheckType.ConfigureImplantPowerSurgery:
+				case CheckType.ButcheryCheck:
+				case CheckType.SkinningCheck:
+				case CheckType.TossItemCheck:
+				case CheckType.ActiveSearchCheck:
+				case CheckType.ClimbCheck:
+				case CheckType.ConfigureImplantInterfaceSurgery:
+				case CheckType.InkTattooCheck:
+				case CheckType.FallingImpactCheck:
+				case CheckType.SwimmingCheck:
+				case CheckType.AvoidFallDueToWind:
+				case CheckType.SwimStayAfloatCheck:
+				case CheckType.FlyCheck:
+				case CheckType.CheatAtDiceCheck:
+				case CheckType.SpillLiquidOnPerson:
+				case CheckType.DodgeSpillLiquidOnPerson:
+				case CheckType.TakedownCheck:
+				case CheckType.BreakoutCheck:
+				case CheckType.OpposeBreakoutCheck:
+				case CheckType.AuxiliaryMoveCheck:
+				case CheckType.ClimbTreetoTreeCheck:
+				case CheckType.CheatAtCoinFlip:
+				case CheckType.SearchForTracksByScentScheck:
+				case CheckType.SearchForTracksCheck:
 					return true;
 			}
 			return false;
@@ -464,6 +564,7 @@ namespace MudSharp.RPG.Checks {
 				case CheckType.DodgeSpillLiquidOnPerson:
 				case CheckType.DrawingImprovementCheck:
 				case CheckType.ClimbTreetoTreeCheck:
+				case CheckType.SearchForTracksCheck:
 					return true;
 			}
 
@@ -488,6 +589,8 @@ namespace MudSharp.RPG.Checks {
 				case CheckType.ActiveSearchCheck:
 				case CheckType.EvaluateDiceFairnessCheck:
 				case CheckType.KeepAimTargetMoved:
+				case CheckType.SearchForTracksByScentScheck:
+				case CheckType.SearchForTracksCheck:
 					return true;
 				default:
 					return false;

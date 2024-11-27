@@ -1520,10 +1520,30 @@ Note: The targets are ordered in the same order that they appear in the #3target
 	}
 
 	[PlayerCommand("Tracks", "tracks")]
-	[CommandPermission(PermissionLevel.Admin)]
+	[DelayBlock("general", "You must first stop {0} before you can do that.")]
+	[NoMeleeCombatCommand]
+	[NoMovementCommand]
+	[RequiredCharacterState(CharacterState.Able)]
+	[HelpInfo("tracks", @"The #3tracks#0 command is used to begin searching the area for tracks from movement. You will continue to look for tracks until you use the #3stop#0 command. You can never be totally sure whether you have found all the tracks or whether you just aren't good enough to find the hardest ones.
+
+Depending on your racial abilities you may be able to use both visual and smell-based tracking. You don't need to do anything to specify these, it will be automatically applied if it applies.
+
+The syntax is simply #3tracks#0.", AutoHelp.HelpArg)]
 	protected static void Tracks(ICharacter actor, string input)
 	{
-		// TODO - for debug only
+		if (actor.IsAdministrator())
+		{
+			AdminTracks(actor);
+			return;
+		}
+
+		var ss = new StringStack(input.RemoveFirstWord());
+		actor.OutputHandler.Handle(new EmoteOutput(new Emote("@ begin|begins searching the location for tracks.", actor, actor), flags: OutputFlags.SuppressObscured));
+		actor.AddEffect(new LookingForTracks(actor), LookingForTracks.GetLookingForTracksTime(actor));
+	}
+
+	private static void AdminTracks(ICharacter actor)
+	{
 		var tracks = actor.Location.Tracks.Where(x => x.RoomLayer == actor.RoomLayer).ToList();
 		if (tracks.Count == 0)
 		{

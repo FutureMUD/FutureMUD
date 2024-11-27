@@ -9,6 +9,7 @@ using MudSharp.Construction;
 using MudSharp.Construction.Boundary;
 using MudSharp.Framework;
 using MudSharp.Framework.Save;
+using MudSharp.RPG.Checks;
 using MudSharp.TimeAndDate;
 
 namespace MudSharp.Movement;
@@ -32,6 +33,8 @@ public interface ITrack : IFrameworkItem, ISaveable
 	RoomLayer RoomLayer { get; }
 	IExit? FromExit { get; }
 	IExit? ToExit { get; }
+	ICellExit? FromCellExit { get; }
+	ICellExit? ToCellExit { get; }
 	IMoveSpeed? FromSpeed { get; }
 	IMoveSpeed? ToSpeed { get; }
 	TrackCircumstances TrackCircumstances { get; }
@@ -42,4 +45,7 @@ public interface ITrack : IFrameworkItem, ISaveable
 	bool TurnedAround { get; set; }
 	string DescribeForTracksCommand(ICharacter actor);
 	bool Deleted { get; set; }
+
+	Difficulty VisualTrackDifficulty(ICharacter actor);
+	Difficulty OlfactoryTrackDifficulty(ICharacter actor);
 }

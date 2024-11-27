@@ -46,6 +46,10 @@ public partial class Character
 	public int CombatBurdenOffense { get; set; }
 	public int CombatBurdenDefense { get; set; }
 
+	// TODO - anything other than race factoring in here (effects, magic, etc)
+	public double TrackingAbilityVisual => Race.TrackingAbilityVisual;
+	public double TrackingAbilityOlfactory => Race.TrackingAbilityOlfactory;
+
 	protected bool HandleCombatEvent(EventType type, params dynamic[] arguments)
 	{
 		if (type == EventType.CharacterEnterCellFinish && Combat != null &&

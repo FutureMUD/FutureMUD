@@ -15,6 +15,7 @@ public static class DefaultStaticSettings
 		{
 			{ "CPRAllowed", "true" },
 			{ "DisableCraftQualityCalculation", "false"},
+			{ "LookingForTracksTimeExpression", "10"},
 			{ "MaximumLandmarkDirectionsDistance", "20"},
 			{ "RangeCountingMode", "pythagoreanround"},
 			{ "PlayersCanJunk", "true" },

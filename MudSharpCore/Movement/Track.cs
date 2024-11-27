@@ -13,6 +13,7 @@ using MudSharp.Database;
 using MudSharp.Framework;
 using MudSharp.Framework.Save;
 using MudSharp.FutureProg.Functions.DateTime;
+using MudSharp.RPG.Checks;
 using MudSharp.TimeAndDate;
 
 #nullable enable
@@ -261,6 +262,52 @@ public class Track : LateInitialisingItem, ITrack
 	public double TrackIntensityOlfactory { get; set; }
 	public bool TurnedAround { get; set; }
 
+	public Difficulty VisualTrackDifficulty(ICharacter actor)
+	{
+		var ability = actor.TrackingAbilityVisual;
+		if (ability <= 0.0)
+		{
+			return Difficulty.Impossible;
+		}
+
+		return (ability / TrackIntensityVisual) switch
+		{
+			< 0.1 => Difficulty.Insane,
+			< 0.3 => Difficulty.ExtremelyHard,
+			< 0.5 => Difficulty.VeryHard,
+			< 0.8 => Difficulty.Hard,
+			< 1.2 => Difficulty.Normal,
+			< 1.5 => Difficulty.Easy,
+			< 2.0 => Difficulty.VeryEasy,
+			< 3.0 => Difficulty.ExtremelyEasy,
+			< 5.0 => Difficulty.Trivial,
+			_ => Difficulty.Automatic
+		};
+	}
+
+	public Difficulty OlfactoryTrackDifficulty(ICharacter actor)
+	{
+		var ability = actor.TrackingAbilityOlfactory;
+		if (ability <= 0.0)
+		{
+			return Difficulty.Impossible;
+		}
+
+		return (ability / TrackIntensityOlfactory) switch
+		{
+			< 0.1 => Difficulty.Insane,
+			< 0.3 => Difficulty.ExtremelyHard,
+			< 0.5 => Difficulty.VeryHard,
+			< 0.8 => Difficulty.Hard,
+			< 1.2 => Difficulty.Normal,
+			< 1.5 => Difficulty.Easy,
+			< 2.0 => Difficulty.VeryEasy,
+			< 3.0 => Difficulty.ExtremelyEasy,
+			< 5.0 => Difficulty.Trivial,
+			_ => Difficulty.Automatic
+		};
+	}
+
 	public bool Deleted { get; set; }
 
 	public string DescribeForTracksCommand(ICharacter actor)
@@ -284,13 +331,17 @@ public class Track : LateInitialisingItem, ITrack
 		{
 			sb.Append(" and looped back");
 		}
-		// TODO _ how to display intensity
 		var since = Cell.DateTime() - MudDateTime;
 		sb.Append(" ");
 		sb.Append(Telnet.Green.Colour);
 		sb.Append(since.Describe(actor));
 		sb.Append(" ago");
 		sb.Append(Telnet.RESETALL);
+		sb.Append(" (");
+		sb.Append(TrackIntensityVisual.ToStringP2Colour(actor));
+		sb.Append(" V / ");
+		sb.Append(TrackIntensityOlfactory.ToStringP2Colour(actor));
+		sb.Append(" O)");
 		return sb.ToString();
 	}
 }

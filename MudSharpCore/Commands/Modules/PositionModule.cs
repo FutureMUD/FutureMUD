@@ -446,6 +446,9 @@ The syntax can be either of the following:
 			case "lounge":
 				desiredState = PositionLounging.Instance;
 				break;
+			case "sprawl":
+				desiredState = PositionSprawled.Instance;
+				break;
 			default:
 				throw new NotSupportedException();
 		}

@@ -36,5 +36,6 @@ namespace MudSharp.RPG.Knowledge {
         Difficulty LearnDifficulty { get; set; }
         int LearnerSessionsRequired { get; set; }
         int ResourceCost(IChargenResource resource);
+        bool HasResourceCosts { get; }
     }
 }

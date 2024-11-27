@@ -220,6 +220,8 @@ public class Knowledge : SaveableItem, IKnowledge
 		return _resourceCosts.ValueOrDefault(resource, 0);
 	}
 
+	public bool HasResourceCosts => _resourceCosts.Any(x => x.Value != 0);
+
 	public IProgVariable GetProperty(string property)
 	{
 		IProgVariable returnVar = null;

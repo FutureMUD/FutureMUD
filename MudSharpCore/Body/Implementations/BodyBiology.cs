@@ -1374,9 +1374,13 @@ public partial class Body
 				return (true, true, false);
 			case DamageType.Crushing:
 			case DamageType.Falling:
+			case DamageType.Chopping:
 				return (true, false, true);
 			case DamageType.Ballistic:
 			case DamageType.Piercing:
+			case DamageType.Slashing:
+			case DamageType.Claw:
+			case DamageType.Shrapnel:
 			case DamageType.ArmourPiercing:
 			case DamageType.Bite:
 			case DamageType.Shearing:

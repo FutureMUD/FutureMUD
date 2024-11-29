@@ -15,5 +15,6 @@ namespace MudSharp.Character
         bool WasIdentityConcealed { get; set; }
         string IntroducedName { get; set; }
         new IList<string> Keywords { get; }
+        string HowSeen(ICharacter actor);
     }
 }

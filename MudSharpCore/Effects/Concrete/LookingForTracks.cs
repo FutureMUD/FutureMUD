@@ -126,9 +126,10 @@ public class LookingForTracks : Effect, IActionEffect, ILDescSuffixEffect, IRemo
 			sb.AppendLine($"...You can smell that its exertion level was {track.Track.ExertionLevel.DescribeEnum()} at the time.");
 			if (visionResult[track.Olfactory].Outcome == Outcome.MajorPass)
 			{
-				if (actor.Dubs.Any(x => x.Owner == track.Track.Character))
+				var dub = actor.Dubs.FirstOrDefault(x => x.Owner == track.Track.Character);
+				if (dub is not null)
 				{
-
+					sb.AppendLine($"...It smells like {dub.HowSeen(actor).ColourIncludingReset(Telnet.Magenta)}.");
 				}
 			}
 		}

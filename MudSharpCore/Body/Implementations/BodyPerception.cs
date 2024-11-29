@@ -241,30 +241,7 @@ public partial class Body
 			var dub = vch.Dubs.FirstOrDefault(x => x.TargetId == Actor.Id && x.TargetType == Actor.FrameworkItemType);
 			if (dub is not null)
 			{
-				if (!string.IsNullOrEmpty(dub.IntroducedName))
-				{
-					switch (vch.Account.CharacterNameOverlaySetting)
-					{
-						case Accounts.CharacterNameOverlaySetting.AppendWithBrackets:
-							description = $"{description} {dub.IntroducedName.Parentheses().Colour(Telnet.BoldWhite)}";
-							break;
-						case Accounts.CharacterNameOverlaySetting.Replace:
-							description = dub.IntroducedName;
-							break;
-					}
-				}
-				else
-				{
-					switch (vch.Account.CharacterNameOverlaySetting)
-					{
-						case Accounts.CharacterNameOverlaySetting.AppendWithBrackets:
-							description = $"{description} {dub.Name.TitleCase().Parentheses().Colour(Telnet.BoldWhite)}";
-							break;
-						case Accounts.CharacterNameOverlaySetting.Replace:
-							description = dub.Name.TitleCase();
-							break;
-					}
-				}
+				description = dub.HowSeen(vch);
 			}
 			else if (vch.IsAdministrator())
 			{

@@ -4,6 +4,7 @@ using System.Linq;
 using MudSharp.Database;
 using MudSharp.Framework;
 using MudSharp.Framework.Save;
+using MudSharp.Models;
 
 namespace MudSharp.Character;
 
@@ -57,5 +58,33 @@ public class Dub : SaveableItem, IDub
 		dbitem.LastDescription = LastDescription;
 		dbitem.IntroducedName = IntroducedName;
 		Changed = false;
+	}
+
+	public string HowSeen(ICharacter actor)
+	{
+		LastUsage = DateTime.UtcNow;
+		Changed = true;
+		if (!string.IsNullOrEmpty(IntroducedName))
+		{
+			switch (actor.Account.CharacterNameOverlaySetting)
+			{
+				case Accounts.CharacterNameOverlaySetting.AppendWithBrackets:
+					return $"{LastDescription} {IntroducedName.Parentheses().Colour(Telnet.BoldWhite)}";
+				case Accounts.CharacterNameOverlaySetting.Replace:
+					return IntroducedName;
+			}
+		}
+		else
+		{
+			switch (actor.Account.CharacterNameOverlaySetting)
+			{
+				case Accounts.CharacterNameOverlaySetting.AppendWithBrackets:
+					return $"{LastDescription} {Name.TitleCase().Parentheses().Colour(Telnet.BoldWhite)}";
+				case Accounts.CharacterNameOverlaySetting.Replace:
+					return Name.TitleCase();
+			}
+		}
+
+		return LastDescription;
 	}
 }

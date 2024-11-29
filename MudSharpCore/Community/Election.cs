@@ -436,10 +436,10 @@ public class Election : SaveableItem, IElection
 					sb.AppendLine("Nominees:");
 					foreach (var nominee in _nominees)
 					{
-						var desc = actor.IsAdministrator()
+						var desc = (actor.IsAdministrator()
 							? (Gameworld.Actors.FirstOrDefault(x => x.Id == nominee.MemberId) ??
-							   Gameworld.CachedActors.FirstOrDefault(x => x.Id == nominee.MemberId))?.HowSeen(actor)
-							: null ??
+							   Gameworld.CachedActors.FirstOrDefault(x => x.Id == nominee.MemberId))?.HowSeen(actor, flags: PerceiveIgnoreFlags.TrueDescription)
+							: null) ??
 							  actor.Dubs
 							       .FirstOrDefault(x =>
 								       x.TargetType == "Character" && x.TargetId == nominee.MemberId &&

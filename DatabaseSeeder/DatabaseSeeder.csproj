@@ -1,27 +1,31 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <OutputType>Exe</OutputType>
-    <TargetFramework>net8.0</TargetFramework>
-    <Nullable>enable</Nullable>
-    <Version>1.7.1</Version>
-    <AssemblyVersion>1.7.1</AssemblyVersion>
-    <FileVersion>1.7.1</FileVersion>
+	<OutputType>Exe</OutputType>
+	<TargetFramework>net9.0</TargetFramework>
+	<Nullable>enable</Nullable>
+	<Version>1.7.1</Version>
+	<AssemblyVersion>1.7.1</AssemblyVersion>
+	<FileVersion>1.7.1</FileVersion>
   </PropertyGroup>
 
+	<PropertyGroup>
+		<RollForward>Major</RollForward>
+	</PropertyGroup>
+
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <GenerateSerializationAssemblies>Off</GenerateSerializationAssemblies>
+	<GenerateSerializationAssemblies>Off</GenerateSerializationAssemblies>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.7" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="8.0.7" />
-    <PackageReference Include="TimeZoneConverter" Version="6.1.0" />
+	<PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.7" />
+	<PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="8.0.7" />
+	<PackageReference Include="TimeZoneConverter" Version="6.1.0" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\FutureMUDLibrary\FutureMUDLibrary.csproj" />
-    <ProjectReference Include="..\MudsharpDatabaseLibrary\MudsharpDatabaseLibrary.csproj" />
+	<ProjectReference Include="..\FutureMUDLibrary\FutureMUDLibrary.csproj" />
+	<ProjectReference Include="..\MudsharpDatabaseLibrary\MudsharpDatabaseLibrary.csproj" />
   </ItemGroup>
 
 </Project>

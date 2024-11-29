@@ -997,13 +997,13 @@ namespace MudSharp.Database
 
 				entity.Property(e => e.CriminalCharacteristics)
 					.IsRequired()
-					.HasColumnType("varchar(500)")
+					.HasColumnType("text")
 					.HasCharSet("utf8")
 					.UseCollation("utf8_general_ci");
 
 				entity.Property(e => e.CriminalFullDescription)
 					.IsRequired()
-					.HasColumnType("varchar(1000)")
+					.HasColumnType("text")
 					.HasCharSet("utf8")
 					.UseCollation("utf8_general_ci");
 
@@ -1011,7 +1011,7 @@ namespace MudSharp.Database
 
 				entity.Property(e => e.CriminalShortDescription)
 					.IsRequired()
-					.HasColumnType("varchar(200)")
+					.HasColumnType("varchar(500)")
 					.HasCharSet("utf8")
 					.UseCollation("utf8_general_ci");
 

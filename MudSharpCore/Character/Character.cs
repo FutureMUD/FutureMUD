@@ -3013,7 +3013,7 @@ public partial class Character : PerceiverItem, ICharacter
 		}
 
 		dub.LastUsage = DateTime.UtcNow;
-		dub.LastDescription = perceivable.HowSeen(this, colour: false);
+		dub.LastDescription = perceivable.HowSeen(this, colour: false, flags: PerceiveIgnoreFlags.IgnoreNamesSetting);
 		dub.Changed = true;
 		return true;
 	}
@@ -3037,7 +3037,7 @@ public partial class Character : PerceiverItem, ICharacter
 		}
 
 		dub.LastUsage = DateTime.UtcNow;
-		dub.LastDescription = perceivable.HowSeen(this, colour: false);
+		dub.LastDescription = perceivable.HowSeen(this, colour: false, flags: PerceiveIgnoreFlags.IgnoreNamesSetting);
 		dub.Changed = true;
 		return true;
 	}

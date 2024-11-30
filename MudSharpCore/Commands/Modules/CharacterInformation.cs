@@ -1772,7 +1772,7 @@ You can also use this command to test against someone else. This always echoes.
 				var dbdub = new Models.Dub();
 				FMDB.Context.Dubs.Add(dbdub);
 				dbdub.CharacterId = actor.Id;
-				dbdub.LastDescription = target.HowSeen(actor, colour: false);
+				dbdub.LastDescription = target.HowSeen(actor, colour: false, flags: PerceiveIgnoreFlags.IgnoreNamesSetting);
 				dbdub.LastUsage = DateTime.UtcNow;
 				dbdub.Keywords = keywordText;
 				dbdub.TargetId = target.Id;

@@ -246,7 +246,7 @@ If someone notices you sneaking it is obvious that you were trying to sneak, unl
 The syntax is as follows:
 
 	#3sneak#0 - toggles sneaking on or off
-	#3sneak subtle#0 - toggles subtle sneaking on or off", AutoHelp.HelpArgOrNoArg)]
+	#3sneak subtle#0 - toggles subtle sneaking on or off", AutoHelp.HelpArg)]
 	protected static void Sneak(ICharacter actor, string command)
 	{
 		var ss = new StringStack(command.RemoveFirstWord());

@@ -574,7 +574,7 @@ You can also use the following options to change the properties of an authority 
 				sb.AppendLine($"Last Node: {patrol.LastMajorNode?.HowSeen(actor) ?? "None".Colour(Telnet.Red)}");
 				sb.AppendLine($"Next Node: {patrol.NextMajorNode?.HowSeen(actor) ?? "None".Colour(Telnet.Red)}");
 				sb.AppendLine(
-					$"Last Arrived: {(DateTime.UtcNow - patrol.LastArrivedTime).Humanize(2, actor.Account.Culture, minUnit: Humanizer.Localisation.TimeUnit.Second).ColourValue()}");
+					$"Last Arrived: {(DateTime.UtcNow - patrol.LastArrivedTime).Humanize(2, actor.Account.Culture, minUnit: Humanizer.TimeUnit.Second).ColourValue()}");
 				sb.AppendLine(
 					$"Active Target: {patrol.ActiveEnforcementTarget?.HowSeen(actor) ?? "Noone".ColourCharacter()}");
 				sb.AppendLine(

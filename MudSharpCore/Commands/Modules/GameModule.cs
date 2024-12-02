@@ -220,21 +220,9 @@ This command exists to let players coordinate between one another, but overuse o
 
 	[PlayerCommand("Attacks", "attacks")]
 	[HelpInfo("Attacks",
-		@"This command is used to list the available attacks that you have, either from weapons or otherwise any other source. The basic syntax is either #3ATTACKS#0 on its own to see unarmed attacks, or #3ATTACKS <weapon>#0 to view attacks with a weapon that you're holding.
+		@"This command is used to list the available attacks that you have, either from weapons or otherwise any other source.
 
-The information that the command gives you will be useful in planning your combat settings. The information will be presented in the following form, based on a fictional example:
-
-#6Sword Swing #F[1h-only]#0 (#3Front Right High#0) #2Attack|Wound|Aggressive 4.50#0st #21.3#0s #3NO#0 vs b: #BHA#0 d: #3NO#0 p: #2EA#0
-
-The explanation of each piece of the above is below:
-
-#6Sword Swing#0 - this is the name of the attack
-#F[1h-only]#0 - this tag says the attack can only be used when the weapon is wielded 1-handed. It is also possible to see #f[2h-only] [dual]#0 and #f[with shield]#0
-(#3Front Right High#0) - this means that when attacking face-to-face with the weapon in the right hand, it will hit bodyparts on the ""Front Right"" of the target at a height of ""High""
-#2Attack|Wound|Aggressive#0 - these are ""combat flags"", which you can require/prefer/forbid in combat settings to control which attacks you use
-#24.50#0st - the attack takes a base of 4.5 stamina (though will be modified by other factors)
-#21.3#0s - the attack's base delay before attacking again is 1.3 seconds (final delay modified by other factors)
-#3NO#0 vs b: #BHA#0 d: #3NO#0 p: #2EA#0 - this attack is difficulty #3NO#0rmal to the attacker, and #BHA#0rd to block, #3NO#0rmal to dodge, #2EA#0sy to parry
+The syntax is either #3attacks#0 to see all attacks (unarmed, weapons, implants or magic) or #3attacks <weapon>#0 to see just attacks with a particular weapon.
 
 For a full list of difficulties, see #3SHOW DIFFICULTIES#0.
 For a full list of combat flags, see #3SHOW COMBATFLAGS#0", AutoHelp.HelpArg)]
@@ -242,31 +230,116 @@ For a full list of combat flags, see #3SHOW COMBATFLAGS#0", AutoHelp.HelpArg)]
 	{
 		var ss = new StringStack(input.RemoveFirstWord());
 		var sb = new StringBuilder();
+
+		void AddAttacksForWeapon(IMeleeWeapon targetWeapon)
+		{
+			if (sb.Length > 0)
+			{
+				sb.AppendLine();
+				sb.AppendLine();
+			}
+			sb.AppendLine($"You are currently able to use the following attacks with {targetWeapon.Parent.HowSeen(actor)}:\n");
+			sb.AppendLine(StringUtilities.GetTextTable(
+				from attack in targetWeapon.WeaponType
+				                           .UsableAttacks(actor, targetWeapon.Parent, null, AttackHandednessOptions.Any, true,
+					                           BuiltInCombatMoveType.UseWeaponAttack,
+					                           BuiltInCombatMoveType.UnbalancingBlow,
+					                           BuiltInCombatMoveType.StaggeringBlow,
+					                           BuiltInCombatMoveType.WardFreeAttack,
+					                           BuiltInCombatMoveType.ClinchAttack,
+					                           BuiltInCombatMoveType.MeleeWeaponSmashItem)
+				                           .Distinct()
+				select new List<string>
+				{
+					attack.Name,
+					$"{attack.Orientation.Describe()} {attack.Alignment.Describe()}",
+					attack.MoveType.Describe(),
+					attack.Intentions.DescribeBrief(),
+					attack.StaminaCost.ToStringN2Colour(actor),
+					TimeSpan.FromSeconds(attack.BaseDelay).DescribePreciseBrief(actor),
+					attack.Profile.BaseAttackerDifficulty.DescribeBrief(true),
+					attack.Profile.BaseBlockDifficulty.DescribeBrief(true),
+					attack.Profile.BaseParryDifficulty.DescribeBrief(true),
+					attack.Profile.BaseDodgeDifficulty.DescribeBrief(true),
+					attack.SpecialListText
+				},
+				new List<string>
+				{
+					"Name",
+					"Orientation",
+					"Type",
+					"Intentions",
+					"Stamina",
+					"Delay",
+					"Difficulty",
+					"Block",
+					"Parry",
+					"Dodge",
+					"Special"
+				},
+				actor,
+				Telnet.Red
+			));
+		}
+
 		if (ss.IsFinished)
 		{
-			sb.AppendLine($"You are currently able to use the following unarmed attacks:");
-			foreach (var type in actor.Race.UsableNaturalWeaponAttacks(
-										  actor, null, true, BuiltInCombatMoveType.NaturalWeaponAttack,
-										  BuiltInCombatMoveType.StaggeringBlowUnarmed,
-										  BuiltInCombatMoveType.DownedAttackUnarmed,
-										  BuiltInCombatMoveType.UnbalancingBlowUnarmed,
-										  BuiltInCombatMoveType.ScreechAttack,
-										  BuiltInCombatMoveType.WardFreeUnarmedAttack,
-										  BuiltInCombatMoveType.ClinchUnarmedAttack,
-										  BuiltInCombatMoveType.UnarmedSmashItem,
-										  BuiltInCombatMoveType.EnvenomingAttack,
-										  BuiltInCombatMoveType.EnvenomingAttackClinch,
-										  BuiltInCombatMoveType.UnbalancingBlowClinch,
-										  BuiltInCombatMoveType.StaggeringBlowClinch,
-										  BuiltInCombatMoveType.SwoopAttackUnarmed)
-									  .Select(x => x.Attack).Distinct().GroupBy(x => x.MoveType).OrderBy(x => x.Key)
-					)
-			{
-				sb.AppendLine($"\n{type.Key.Describe().Pluralise().ColourName()}:");
-				foreach (var attack in type)
+			sb.AppendLine($"You are currently able to use the following unarmed attacks:\n");
+			sb.AppendLine(StringUtilities.GetTextTable(
+				from attack in actor.Race.UsableNaturalWeaponAttacks(actor, null, true, BuiltInCombatMoveType.NaturalWeaponAttack,
+					BuiltInCombatMoveType.StaggeringBlowUnarmed,
+					BuiltInCombatMoveType.DownedAttackUnarmed,
+					BuiltInCombatMoveType.UnbalancingBlowUnarmed,
+					BuiltInCombatMoveType.ScreechAttack,
+					BuiltInCombatMoveType.WardFreeUnarmedAttack,
+					BuiltInCombatMoveType.ClinchUnarmedAttack,
+					BuiltInCombatMoveType.UnarmedSmashItem,
+					BuiltInCombatMoveType.EnvenomingAttack,
+					BuiltInCombatMoveType.EnvenomingAttackClinch,
+					BuiltInCombatMoveType.UnbalancingBlowClinch,
+					BuiltInCombatMoveType.StaggeringBlowClinch,
+					BuiltInCombatMoveType.SwoopAttackUnarmed).Select(x => x.Attack).Distinct()
+				select new List<string>
 				{
-					sb.AppendLine(attack.DescribeForAttacksCommand(actor));
-				}
+					attack.Name,
+					$"{attack.Orientation.Describe()} {attack.Alignment.Describe()}",
+					attack.MoveType.Describe(),
+					attack.Intentions.DescribeBrief(),
+					attack.StaminaCost.ToStringN2Colour(actor),
+					TimeSpan.FromSeconds(attack.BaseDelay).DescribePreciseBrief(actor),
+					attack.Profile.BaseAttackerDifficulty.DescribeBrief(true),
+					attack.Profile.BaseBlockDifficulty.DescribeBrief(true),
+					attack.Profile.BaseParryDifficulty.DescribeBrief(true),
+					attack.Profile.BaseDodgeDifficulty.DescribeBrief(true),
+					attack.SpecialListText
+
+				},
+				new List<string>
+				{
+					"Name",
+					"Orientation",
+					"Type",
+					"Intentions",
+					"Stamina",
+					"Delay",
+					"Difficulty",
+					"Block",
+					"Parry",
+					"Dodge",
+					"Special"
+				},
+				actor,
+				Telnet.Red
+			));
+
+			foreach (var weapon in actor.Body.WieldedItems.SelectNotNull(x => x.GetItemType<IMeleeWeapon>()))
+			{
+				AddAttacksForWeapon(weapon);
+			}
+
+			foreach (var weapon in actor.Body.Implants.OfType<IImplantMeleeWeapon>())
+			{
+				AddAttacksForWeapon(weapon);
 			}
 
 			actor.OutputHandler.Send(sb.ToString());
@@ -287,25 +360,7 @@ For a full list of combat flags, see #3SHOW COMBATFLAGS#0", AutoHelp.HelpArg)]
 			return;
 		}
 
-		sb.AppendLine($"You are currently able to use the following attacks with {target.HowSeen(actor)}:");
-		foreach (var type in targetAsWeapon.WeaponType
-										   .UsableAttacks(actor, target, null, AttackHandednessOptions.Any, true,
-											   BuiltInCombatMoveType.UseWeaponAttack,
-											   BuiltInCombatMoveType.UnbalancingBlow,
-											   BuiltInCombatMoveType.StaggeringBlow,
-											   BuiltInCombatMoveType.WardFreeAttack, BuiltInCombatMoveType.ClinchAttack,
-											   BuiltInCombatMoveType.MeleeWeaponSmashItem)
-										   .Distinct()
-										   .GroupBy(x => x.MoveType)
-										   .OrderBy(x => x.Key))
-		{
-			sb.AppendLine($"\n{type.Key.Describe()}:");
-			foreach (var attack in type)
-			{
-				sb.AppendLine(attack.DescribeForAttacksCommand(actor));
-			}
-		}
-
+		AddAttacksForWeapon(targetAsWeapon);
 		actor.Send(sb.ToString());
 	}
 

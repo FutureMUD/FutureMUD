@@ -190,7 +190,7 @@ public class NamePickerScreenStoryboard : ChargenScreenStoryboard
 			}
 
 			var names = nce.MaximumCount == 1 ?
-				[ss.SafeRemainingArgument.ToLowerInvariant()] :
+				[ss.SafeRemainingArgument.ToTitleCaseAP()] :
 				ss.PopSpeechAll().Select(x => x.ToLowerInvariant()).ToList();
 			if (names.Count > nce.MaximumCount || names.Count < nce.MinimumCount)
 			{

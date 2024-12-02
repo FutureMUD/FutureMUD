@@ -1238,5 +1238,107 @@ namespace MudSharp.Framework {
 			// Convert to ascii - any non-ascii character will be converted to '?'
 			return Encoding.ASCII.GetString(Encoding.ASCII.GetBytes(stringBuilder.ToString()));
 		}
+
+		public static string ToTitleCaseAP(this string input)
+		{
+			if (string.IsNullOrEmpty(input))
+				return input;
+
+			// Define the set of lowercase words
+			var lowercaseWords = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+			{
+				"a", "an", "and", "at", "but", "by", "for", "in", "nor", "of", "on",
+				"or", "so", "the", "to", "up", "yet", "as", "if", "than", "per", "via",
+				"off", "out"
+			};
+
+			// Use Regex to split the input into words and non-word characters, including apostrophes
+			var regex = new Regex(@"([\w\-]+('\w+)*|\W+)");
+			var matches = regex.Matches(input);
+
+			var tokens = new List<string>();
+			var wordIndices = new List<int>();
+
+			for (var i = 0; i < matches.Count; i++)
+			{
+				var value = matches[i].Value;
+				tokens.Add(value);
+
+				if (char.IsLetterOrDigit(value[0]))
+				{
+					wordIndices.Add(i);
+				}
+			}
+
+			var totalWords = wordIndices.Count;
+
+			for (var i = 0; i < wordIndices.Count; i++)
+			{
+				var index = wordIndices[i];
+				var word = tokens[index];
+
+				// Handle hyphenated words
+				if (word.Contains('-'))
+				{
+					var hyphenatedWords = word.Split('-');
+
+					for (var j = 0; j < hyphenatedWords.Length; j++)
+					{
+						var subword = hyphenatedWords[j];
+
+						if (ShouldCapitalize(subword, j, hyphenatedWords.Length, lowercaseWords))
+						{
+							hyphenatedWords[j] = CapitalizeWord(subword);
+						}
+						else
+						{
+							hyphenatedWords[j] = subword.ToLower();
+						}
+					}
+
+					tokens[index] = string.Join("-", hyphenatedWords);
+				}
+				else
+				{
+					if (ShouldCapitalize(word, i, totalWords, lowercaseWords))
+					{
+						tokens[index] = CapitalizeWord(word);
+					}
+					else
+					{
+						tokens[index] = word.ToLower();
+					}
+				}
+			}
+
+			var result = string.Concat(tokens);
+			return result;
+		}
+
+		private static bool ShouldCapitalize(string word, int wordIndex, int totalWords, HashSet<string> lowercaseWords)
+		{
+			if (wordIndex == 0 || wordIndex == totalWords - 1)
+			{
+				// Always capitalize the first and last word
+				return true;
+			}
+			else
+			{
+				// Capitalize if not in the list of lowercase words
+				return !lowercaseWords.Contains(word);
+			}
+		}
+
+		private static string CapitalizeWord(string word)
+		{
+			if (string.IsNullOrEmpty(word))
+				return word;
+
+			// Preserve words that are all uppercase (e.g., NASA) or have internal uppercase letters (e.g., iPhone)
+			if (word.ToUpper() == word || word.Substring(1).Any(char.IsUpper))
+				return word;
+
+			return char.ToUpper(word[0]) + word.Substring(1).ToLower();
+		}
 	}
 }

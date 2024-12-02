@@ -1017,7 +1017,8 @@ The syntax for this command is as follows:
 				item.RandomNames
 					.Select(x =>
 						$"{x.Value.Count.ToString("N0", actor)} {x.Key.DescribeEnum().Pluralise()}".ColourValue())
-					.ListToCommaSeparatedValues(", ")
+					.ListToCommaSeparatedValues(", "),
+				item.UseForChargenSuggestionsProg?.MXPClickableFunctionName() ?? ""
 			},
 			new List<string>
 			{
@@ -1025,7 +1026,8 @@ The syntax for this command is as follows:
 				"Name",
 				"Gender",
 				"Name Culture",
-				"No. Elements"
+				"No. Elements",
+				"Chargen Suggestions"
 			},
 			actor.LineFormatLength,
 			colour: Telnet.Cyan,

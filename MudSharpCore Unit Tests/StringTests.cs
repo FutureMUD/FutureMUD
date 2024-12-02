@@ -479,4 +479,121 @@ Item 6
 		Assert.AreEqual("|V|CDXXXII", 5432.ToRomanNumeral());
 		Assert.AreEqual("|X|", 10000.ToRomanNumeral());
 	}
+
+	[TestMethod]
+	public void Test_SimpleSentence()
+	{
+		string input = "an in-depth look at the problem";
+		string expected = "An In-Depth Look at the Problem";
+		string actual = input.ToTitleCaseAP();
+		Assert.AreEqual(expected, actual);
+	}
+
+	[TestMethod]
+	public void Test_FirstAndLastWordsCapitalized()
+	{
+		string input = "the quick brown fox jumps over the lazy dog";
+		string expected = "The Quick Brown Fox Jumps Over the Lazy Dog";
+		string actual = input.ToTitleCaseAP();
+		Assert.AreEqual(expected, actual);
+	}
+
+	[TestMethod]
+	public void Test_LowercaseWordsNotCapitalized()
+	{
+		string input = "this is a test of the emergency broadcast system";
+		string expected = "This Is a Test of the Emergency Broadcast System";
+		string actual = input.ToTitleCaseAP();
+		Assert.AreEqual(expected, actual);
+	}
+
+	[TestMethod]
+	public void Test_AllUppercaseWordPreserved()
+	{
+		string input = "NASA launches new satellite";
+		string expected = "NASA Launches New Satellite";
+		string actual = input.ToTitleCaseAP();
+		Assert.AreEqual(expected, actual);
+	}
+
+	[TestMethod]
+	public void Test_InternalUppercaseLettersPreserved()
+	{
+		string input = "apple introduces new iPhone model";
+		string expected = "Apple Introduces New iPhone Model";
+		string actual = input.ToTitleCaseAP();
+		Assert.AreEqual(expected, actual);
+	}
+
+	[TestMethod]
+	public void Test_Apostrophes()
+	{
+		string input = "it's a dog's life";
+		string expected = "It's a Dog's Life";
+		string actual = input.ToTitleCaseAP();
+		Assert.AreEqual(expected, actual);
+	}
+
+	[TestMethod]
+	public void Test_HyphenatedWords()
+	{
+		string input = "the state-of-the-art equipment";
+		string expected = "The State-of-the-Art Equipment";
+		string actual = input.ToTitleCaseAP();
+		Assert.AreEqual(expected, actual);
+	}
+
+	[TestMethod]
+	public void Test_EmptyString()
+	{
+		string input = "";
+		string expected = "";
+		string actual = input.ToTitleCaseAP();
+		Assert.AreEqual(expected, actual);
+	}
+
+	[TestMethod]
+	public void Test_NullString()
+	{
+		string input = null;
+		string expected = null;
+		string actual = input.ToTitleCaseAP();
+		Assert.AreEqual(expected, actual);
+	}
+
+	[TestMethod]
+	public void Test_SingleWord()
+	{
+		string input = "hello";
+		string expected = "Hello";
+		string actual = input.ToTitleCaseAP();
+		Assert.AreEqual(expected, actual);
+	}
+
+	[TestMethod]
+	public void Test_HyphenatedLowercaseWords()
+	{
+		string input = "checking out-of-the-box solutions";
+		string expected = "Checking Out-of-the-Box Solutions";
+		string actual = input.ToTitleCaseAP();
+		Assert.AreEqual(expected, actual);
+	}
+
+	[TestMethod]
+	public void Test_SpecialCharacters()
+	{
+		string input = "hello, world! welcome to c# programming.";
+		string expected = "Hello, World! Welcome to C# Programming.";
+		string actual = input.ToTitleCaseAP();
+		Assert.AreEqual(expected, actual);
+	}
+
+	[TestMethod]
+	public void Test_NumericValues()
+	{
+		string input = "top 10 reasons to learn c# in 2023";
+		string expected = "Top 10 Reasons to Learn C# in 2023";
+		string actual = input.ToTitleCaseAP();
+		Assert.AreEqual(expected, actual);
+	}
 }

@@ -34,7 +34,7 @@ public class RandomNameProfile : SaveableItem, IEditableItem, IRandomNameProfile
 		Culture = culture;
 		Gender = (Gender)profile.Gender;
 		_useForChargenSuggestionsProg = Gameworld.FutureProgs.Get(profile.UseForChargenSuggestionsProgId ?? 0) ??
-		                                Gameworld.AlwaysFalseProg;
+										Gameworld.AlwaysFalseProg;
 		foreach (var item in profile.RandomNameProfilesDiceExpressions)
 		{
 			_nameUsageDiceExpressionsDictionary.Add((NameUsage)item.NameUsage, item.DiceExpression);
@@ -159,10 +159,12 @@ public class RandomNameProfile : SaveableItem, IEditableItem, IRandomNameProfile
 
 	private IFutureProg _useForChargenSuggestionsProg;
 
+	public IFutureProg UseForChargenSuggestionsProg => _useForChargenSuggestionsProg;
+
 	public bool UseForChargenNameSuggestions(ICharacterTemplate template)
 	{
 		return _useForChargenSuggestionsProg is null ||
-		       _useForChargenSuggestionsProg.Execute<bool?>(template) == true;
+			   _useForChargenSuggestionsProg.Execute<bool?>(template) == true;
 	}
 
 	public string GetRandomNameElement(NameUsage usage)
@@ -237,13 +239,13 @@ public class RandomNameProfile : SaveableItem, IEditableItem, IRandomNameProfile
 
 	private const string BuildingCommandHelp = @"You can use the following options with this subcommand:
 
-    name <name> - renames the random name profile
-    gender <gender> - changes the gender of the random name profile
-    chargen <prog> - sets a prog to control using this random name profile for suggestions in chargen
-    dice <element> <dice expression> - sets the number of elements that get generated with each name using a dice expression
-    <element> add <name> [<weight>] - adds a new name of a specified name element type
-    <element> remove <name> - removes a name of a specified name element type
-    <element> weight <name> <weight> - changes the weighting of a particular name of a specified name element type";
+	name <name> - renames the random name profile
+	gender <gender> - changes the gender of the random name profile
+	chargen <prog> - sets a prog to control using this random name profile for suggestions in chargen
+	dice <element> <dice expression> - sets the number of elements that get generated with each name using a dice expression
+	<element> add <name> [<weight>] - adds a new name of a specified name element type
+	<element> remove <name> - removes a name of a specified name element type
+	<element> weight <name> <weight> - changes the weighting of a particular name of a specified name element type";
 
 	public bool BuildingCommand(ICharacter actor, StringStack command)
 	{
@@ -268,9 +270,9 @@ public class RandomNameProfile : SaveableItem, IEditableItem, IRandomNameProfile
 
 		var name = command.Last;
 		var element = Culture.NameCultureElements.FirstOrDefault(x => x.Name.EqualTo(name)) ??
-		              (name.TryParseEnum<NameUsage>(out var usage)
-			              ? Culture.NameCultureElements.FirstOrDefault(x => x.Usage == usage)
-			              : null);
+					  (name.TryParseEnum<NameUsage>(out var usage)
+						  ? Culture.NameCultureElements.FirstOrDefault(x => x.Usage == usage)
+						  : null);
 		if (element == null)
 		{
 			actor.OutputHandler.Send(
@@ -464,9 +466,9 @@ public class RandomNameProfile : SaveableItem, IEditableItem, IRandomNameProfile
 
 		var name = command.SafeRemainingArgument;
 		var element = Culture.NameCultureElements.FirstOrDefault(x => x.Name.EqualTo(name)) ??
-		              (name.TryParseEnum<NameUsage>(out var theEnum)
-			              ? Culture.NameCultureElements.FirstOrDefault(x => x.Usage == theEnum)
-			              : null);
+					  (name.TryParseEnum<NameUsage>(out var theEnum)
+						  ? Culture.NameCultureElements.FirstOrDefault(x => x.Usage == theEnum)
+						  : null);
 		if (element == null)
 		{
 			actor.OutputHandler.Send(

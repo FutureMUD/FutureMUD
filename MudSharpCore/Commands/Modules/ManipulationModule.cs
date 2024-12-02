@@ -157,6 +157,9 @@ You can also use this command to remove similarly large items from containers. I
 				case WhyCannotPutReason.CantPutContainerInItself:
 					actor.Send("You cannot put a container inside itself.");
 					return;
+				case WhyCannotPutReason.ContainerFullButCouldAcceptLesserQuantity:
+					actor.Send($"{targetItem.HowSeen(actor, true)} will not fit in {targetContainer.HowSeen(actor)}, but could fit a lesser quantity of that item.");
+					return;
 				default:
 					throw new ArgumentOutOfRangeException();
 			}

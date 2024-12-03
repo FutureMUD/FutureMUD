@@ -141,55 +141,55 @@ public partial class HumanSeeder
 		Damage Types:
 		
 		Slashing = 0
-        Chopping = 1
-        Crushing = 2
-        Piercing = 3
-        Ballistic = 4
-        Burning = 5
-        Freezing = 6
-        Chemical = 7
-        Shockwave = 8
-        Bite = 9
-        Claw = 10
-        Electrical = 11
-        Hypoxia = 12
-        Cellular = 13
-        Sonic = 14
-        Shearing = 15
-        ArmourPiercing = 16
-        Wrenching = 17
-        Shrapnel = 18
-        Necrotic = 19
-        Falling = 20
-        Eldritch = 21
-        Arcane = 22
+		Chopping = 1
+		Crushing = 2
+		Piercing = 3
+		Ballistic = 4
+		Burning = 5
+		Freezing = 6
+		Chemical = 7
+		Shockwave = 8
+		Bite = 9
+		Claw = 10
+		Electrical = 11
+		Hypoxia = 12
+		Cellular = 13
+		Sonic = 14
+		Shearing = 15
+		ArmourPiercing = 16
+		Wrenching = 17
+		Shrapnel = 18
+		Necrotic = 19
+		Falling = 20
+		Eldritch = 21
+		Arcane = 22
 		
 		Severity Values:
 		
 		None = 0
-        Superficial = 1
-        Minor = 2
-        Small = 3
-        Moderate = 4
-        Severe = 5
-        VerySevere = 6
-        Grievous = 7
-        Horrifying = 8
+		Superficial = 1
+		Minor = 2
+		Small = 3
+		Moderate = 4
+		Severe = 5
+		VerySevere = 6
+		Grievous = 7
+		Horrifying = 8
 	-->
 	<DamageTransformations>
- 		<Transform fromtype=""0"" totype=""2"" severity=""5""></Transform> <!-- Slashing to Crushing when <= Severe -->
- 		<Transform fromtype=""1"" totype=""2"" severity=""5""></Transform> <!-- Chopping to Crushing when <= Severe -->
- 		<Transform fromtype=""3"" totype=""2"" severity=""4""></Transform> <!-- Piercing to Crushing when <= Moderate -->
- 		<Transform fromtype=""4"" totype=""2"" severity=""4""></Transform> <!-- Ballistic to Crushing when <= Moderate -->
- 		<Transform fromtype=""9"" totype=""2"" severity=""5""></Transform> <!-- Bite to Crushing when <= Severe -->
- 		<Transform fromtype=""10"" totype=""2"" severity=""5""></Transform> <!-- Claw to Crushing when <= Severe -->
- 		<Transform fromtype=""15"" totype=""2"" severity=""5""></Transform> <!-- Shearing to Crushing when <= Severe -->
- 		<Transform fromtype=""16"" totype=""2"" severity=""3""></Transform> <!-- ArmourPiercing to Crushing when <= Small -->
- 		<Transform fromtype=""17"" totype=""2"" severity=""5""></Transform> <!-- Wrenching to Crushing when <= Severe -->
- 	</DamageTransformations>
-    <!-- 
+		<Transform fromtype=""0"" totype=""2"" severity=""5""></Transform> <!-- Slashing to Crushing when <= Severe -->
+		<Transform fromtype=""1"" totype=""2"" severity=""5""></Transform> <!-- Chopping to Crushing when <= Severe -->
+		<Transform fromtype=""3"" totype=""2"" severity=""4""></Transform> <!-- Piercing to Crushing when <= Moderate -->
+		<Transform fromtype=""4"" totype=""2"" severity=""4""></Transform> <!-- Ballistic to Crushing when <= Moderate -->
+		<Transform fromtype=""9"" totype=""2"" severity=""5""></Transform> <!-- Bite to Crushing when <= Severe -->
+		<Transform fromtype=""10"" totype=""2"" severity=""5""></Transform> <!-- Claw to Crushing when <= Severe -->
+		<Transform fromtype=""15"" totype=""2"" severity=""5""></Transform> <!-- Shearing to Crushing when <= Severe -->
+		<Transform fromtype=""16"" totype=""2"" severity=""3""></Transform> <!-- ArmourPiercing to Crushing when <= Small -->
+		<Transform fromtype=""17"" totype=""2"" severity=""5""></Transform> <!-- Wrenching to Crushing when <= Severe -->
+	</DamageTransformations>
+	<!-- 
 	
-	    Dissipate expressions are applied before the item/part takes damage. 
+		Dissipate expressions are applied before the item/part takes damage. 
 		If they reduce the damage to zero, it neither suffers nor passes on any damage. 
 		
 		Parameters: 
@@ -204,87 +204,87 @@ public partial class HumanSeeder
 		
 		Hint: 25000 can be considered ""base"" ShearYield and 10000 can be considered ""base"" ImpactYield
 	-->
-    <DissipateExpressions>
-        <Expression damagetype=""0"">damage - (quality * strength/25000 * 0.75)</Expression>    <!-- Slashing -->
- 		<Expression damagetype=""1"">damage - (quality * strength/25000 * 0.75)</Expression>    <!-- Chopping -->  
- 		<Expression damagetype=""2"">damage - (quality * strength/10000 * 0.75)</Expression>    <!-- Crushing -->  
- 		<Expression damagetype=""3"">damage - (quality * strength/25000 * 0.75)</Expression>    <!-- Piercing -->  
- 		<Expression damagetype=""4"">damage - (quality * strength/25000 * 0.75)</Expression>    <!-- Ballistic -->  
- 		<Expression damagetype=""5"">damage - (quality * 0.75)</Expression>    			      <!-- Burning -->
- 		<Expression damagetype=""6"">damage - (quality * 0.75)</Expression>                     <!-- Freezing -->
- 		<Expression damagetype=""7"">damage - (quality * 0.75)</Expression>                     <!-- Chemical -->
- 		<Expression damagetype=""8"">damage - (quality * strength/10000 * 0.75)</Expression>    <!-- Shockwave -->
- 		<Expression damagetype=""9"">damage - (quality * strength/25000 * 0.75)</Expression>    <!-- Bite -->
- 		<Expression damagetype=""10"">damage - (quality * strength/25000 * 0.75)</Expression>   <!-- Claw -->
- 		<Expression damagetype=""11"">damage - (quality * 0.75)</Expression>                    <!-- Electrical -->
- 		<Expression damagetype=""12"">damage - (quality * 0.75)</Expression>                    <!-- Hypoxia -->
- 		<Expression damagetype=""13"">damage - (quality * 0.75)</Expression>                    <!-- Cellular -->
+	<DissipateExpressions>
+		<Expression damagetype=""0"">damage - (quality * strength/25000 * 0.75)</Expression>    <!-- Slashing -->
+		<Expression damagetype=""1"">damage - (quality * strength/25000 * 0.75)</Expression>    <!-- Chopping -->  
+		<Expression damagetype=""2"">damage - (quality * strength/10000 * 0.75)</Expression>    <!-- Crushing -->  
+		<Expression damagetype=""3"">damage - (quality * strength/25000 * 0.75)</Expression>    <!-- Piercing -->  
+		<Expression damagetype=""4"">damage - (quality * strength/25000 * 0.75)</Expression>    <!-- Ballistic -->  
+		<Expression damagetype=""5"">damage - (quality * 0.75)</Expression>    			      <!-- Burning -->
+		<Expression damagetype=""6"">damage - (quality * 0.75)</Expression>                     <!-- Freezing -->
+		<Expression damagetype=""7"">damage - (quality * 0.75)</Expression>                     <!-- Chemical -->
+		<Expression damagetype=""8"">damage - (quality * strength/10000 * 0.75)</Expression>    <!-- Shockwave -->
+		<Expression damagetype=""9"">damage - (quality * strength/25000 * 0.75)</Expression>    <!-- Bite -->
+		<Expression damagetype=""10"">damage - (quality * strength/25000 * 0.75)</Expression>   <!-- Claw -->
+		<Expression damagetype=""11"">damage - (quality * 0.75)</Expression>                    <!-- Electrical -->
+		<Expression damagetype=""12"">damage - (quality * 0.75)</Expression>                    <!-- Hypoxia -->
+		<Expression damagetype=""13"">damage - (quality * 0.75)</Expression>                    <!-- Cellular -->
 		<Expression damagetype=""14"">damage - (quality * strength/10000 * 0.75)</Expression>   <!-- Sonic -->
- 		<Expression damagetype=""15"">damage - (quality * strength/25000 * 0.75)</Expression>   <!-- Shearing --> 
+		<Expression damagetype=""15"">damage - (quality * strength/25000 * 0.75)</Expression>   <!-- Shearing --> 
 		<Expression damagetype=""16"">damage - (quality * strength/25000 * 0.75)</Expression>   <!-- ArmourPiercing -->
 		<Expression damagetype=""17"">damage - (quality * strength/10000 * 0.75)</Expression>   <!-- Wrenching -->
- 		<Expression damagetype=""18"">damage - (quality * strength/25000 * 0.75)</Expression>   <!-- Shrapnel -->   
+		<Expression damagetype=""18"">damage - (quality * strength/25000 * 0.75)</Expression>   <!-- Shrapnel -->   
 		<Expression damagetype=""19"">damage - (quality * 0.75)</Expression>                    <!-- Necrotic -->   
- 		<Expression damagetype=""20"">damage - (quality * strength/10000 * 0.75)</Expression>   <!-- Falling -->   
+		<Expression damagetype=""20"">damage - (quality * strength/10000 * 0.75)</Expression>   <!-- Falling -->   
 		<Expression damagetype=""21"">damage - (quality * 0.75)</Expression>                    <!-- Eldritch -->   
 		<Expression damagetype=""22"">damage - (quality * 0.75)</Expression>                    <!-- Arcane -->   
- 	</DissipateExpressions>  
- 	<DissipateExpressionsPain>
-        <Expression damagetype=""0"">pain - (quality * strength/25000 * 0.75)</Expression>    <!-- Slashing -->
- 		<Expression damagetype=""1"">pain - (quality * strength/25000 * 0.75)</Expression>    <!-- Chopping -->  
- 		<Expression damagetype=""2"">pain - (quality * strength/10000 * 0.75)</Expression>    <!-- Crushing -->  
- 		<Expression damagetype=""3"">pain - (quality * strength/25000 * 0.75)</Expression>    <!-- Piercing -->  
- 		<Expression damagetype=""4"">pain - (quality * strength/25000 * 0.75)</Expression>    <!-- Ballistic -->  
- 		<Expression damagetype=""5"">pain - (quality * 0.75)</Expression>    			        <!-- Burning -->
- 		<Expression damagetype=""6"">pain - (quality * 0.75)</Expression>                     <!-- Freezing -->
- 		<Expression damagetype=""7"">pain - (quality * 0.75)</Expression>                     <!-- Chemical -->
- 		<Expression damagetype=""8"">pain - (quality * strength/10000 * 0.75)</Expression>    <!-- Shockwave -->
- 		<Expression damagetype=""9"">pain - (quality * strength/25000 * 0.75)</Expression>    <!-- Bite -->
- 		<Expression damagetype=""10"">pain - (quality * strength/25000 * 0.75)</Expression>   <!-- Claw -->
- 		<Expression damagetype=""11"">pain - (quality * 0.75)</Expression>                    <!-- Electrical -->
- 		<Expression damagetype=""12"">pain - (quality * 0.75)</Expression>                    <!-- Hypoxia -->
- 		<Expression damagetype=""13"">pain - (quality * 0.75)</Expression>                    <!-- Cellular -->
+	</DissipateExpressions>  
+	<DissipateExpressionsPain>
+		<Expression damagetype=""0"">pain - (quality * strength/25000 * 0.75)</Expression>    <!-- Slashing -->
+		<Expression damagetype=""1"">pain - (quality * strength/25000 * 0.75)</Expression>    <!-- Chopping -->  
+		<Expression damagetype=""2"">pain - (quality * strength/10000 * 0.75)</Expression>    <!-- Crushing -->  
+		<Expression damagetype=""3"">pain - (quality * strength/25000 * 0.75)</Expression>    <!-- Piercing -->  
+		<Expression damagetype=""4"">pain - (quality * strength/25000 * 0.75)</Expression>    <!-- Ballistic -->  
+		<Expression damagetype=""5"">pain - (quality * 0.75)</Expression>    			        <!-- Burning -->
+		<Expression damagetype=""6"">pain - (quality * 0.75)</Expression>                     <!-- Freezing -->
+		<Expression damagetype=""7"">pain - (quality * 0.75)</Expression>                     <!-- Chemical -->
+		<Expression damagetype=""8"">pain - (quality * strength/10000 * 0.75)</Expression>    <!-- Shockwave -->
+		<Expression damagetype=""9"">pain - (quality * strength/25000 * 0.75)</Expression>    <!-- Bite -->
+		<Expression damagetype=""10"">pain - (quality * strength/25000 * 0.75)</Expression>   <!-- Claw -->
+		<Expression damagetype=""11"">pain - (quality * 0.75)</Expression>                    <!-- Electrical -->
+		<Expression damagetype=""12"">pain - (quality * 0.75)</Expression>                    <!-- Hypoxia -->
+		<Expression damagetype=""13"">pain - (quality * 0.75)</Expression>                    <!-- Cellular -->
 		<Expression damagetype=""14"">pain - (quality * strength/10000 * 0.75)</Expression>   <!-- Sonic -->
- 		<Expression damagetype=""15"">pain - (quality * strength/25000 * 0.75)</Expression>   <!-- Shearing --> 
+		<Expression damagetype=""15"">pain - (quality * strength/25000 * 0.75)</Expression>   <!-- Shearing --> 
 		<Expression damagetype=""16"">pain - (quality * strength/25000 * 0.75)</Expression>   <!-- ArmourPiercing -->
 		<Expression damagetype=""17"">pain - (quality * strength/10000 * 0.75)</Expression>   <!-- Wrenching -->
- 		<Expression damagetype=""18"">pain - (quality * strength/25000 * 0.75)</Expression>   <!-- Shrapnel -->   
+		<Expression damagetype=""18"">pain - (quality * strength/25000 * 0.75)</Expression>   <!-- Shrapnel -->   
 		<Expression damagetype=""19"">pain - (quality * 0.75)</Expression>                    <!-- Necrotic -->   
- 		<Expression damagetype=""20"">pain - (quality * strength/10000 * 0.75)</Expression>   <!-- Falling -->   
+		<Expression damagetype=""20"">pain - (quality * strength/10000 * 0.75)</Expression>   <!-- Falling -->   
 		<Expression damagetype=""21"">pain - (quality * 0.75)</Expression>                    <!-- Eldritch -->   
 		<Expression damagetype=""22"">pain - (quality * 0.75)</Expression>                    <!-- Arcane -->   
- 	</DissipateExpressionsPain>  
- 	<DissipateExpressionsStun>
-        <Expression damagetype=""0"">stun - (quality * strength/25000 * 0.75)</Expression>    <!-- Slashing -->
- 		<Expression damagetype=""1"">stun - (quality * strength/25000 * 0.75)</Expression>    <!-- Chopping -->  
- 		<Expression damagetype=""2"">stun - (quality * strength/10000 * 0.75)</Expression>    <!-- Crushing -->  
- 		<Expression damagetype=""3"">stun - (quality * strength/25000 * 0.75)</Expression>    <!-- Piercing -->  
- 		<Expression damagetype=""4"">stun - (quality * strength/25000 * 0.75)</Expression>    <!-- Ballistic -->  
- 		<Expression damagetype=""5"">stun - (quality * 0.75)</Expression>    			        <!-- Burning -->
- 		<Expression damagetype=""6"">stun - (quality * 0.75)</Expression>                     <!-- Freezing -->
- 		<Expression damagetype=""7"">stun - (quality * 0.75)</Expression>                     <!-- Chemical -->
- 		<Expression damagetype=""8"">stun - (quality * strength/10000 * 0.75)</Expression>    <!-- Shockwave -->
- 		<Expression damagetype=""9"">stun - (quality * strength/25000 * 0.75)</Expression>    <!-- Bite -->
- 		<Expression damagetype=""10"">stun - (quality * strength/25000 * 0.75)</Expression>   <!-- Claw -->
- 		<Expression damagetype=""11"">stun - (quality * 0.75)</Expression>                    <!-- Electrical -->
- 		<Expression damagetype=""12"">stun - (quality * 0.75)</Expression>                    <!-- Hypoxia -->
- 		<Expression damagetype=""13"">stun - (quality * 0.75)</Expression>                    <!-- Cellular -->
+	</DissipateExpressionsPain>  
+	<DissipateExpressionsStun>
+		<Expression damagetype=""0"">stun - (quality * strength/25000 * 0.75)</Expression>    <!-- Slashing -->
+		<Expression damagetype=""1"">stun - (quality * strength/25000 * 0.75)</Expression>    <!-- Chopping -->  
+		<Expression damagetype=""2"">stun - (quality * strength/10000 * 0.75)</Expression>    <!-- Crushing -->  
+		<Expression damagetype=""3"">stun - (quality * strength/25000 * 0.75)</Expression>    <!-- Piercing -->  
+		<Expression damagetype=""4"">stun - (quality * strength/25000 * 0.75)</Expression>    <!-- Ballistic -->  
+		<Expression damagetype=""5"">stun - (quality * 0.75)</Expression>    			        <!-- Burning -->
+		<Expression damagetype=""6"">stun - (quality * 0.75)</Expression>                     <!-- Freezing -->
+		<Expression damagetype=""7"">stun - (quality * 0.75)</Expression>                     <!-- Chemical -->
+		<Expression damagetype=""8"">stun - (quality * strength/10000 * 0.75)</Expression>    <!-- Shockwave -->
+		<Expression damagetype=""9"">stun - (quality * strength/25000 * 0.75)</Expression>    <!-- Bite -->
+		<Expression damagetype=""10"">stun - (quality * strength/25000 * 0.75)</Expression>   <!-- Claw -->
+		<Expression damagetype=""11"">stun - (quality * 0.75)</Expression>                    <!-- Electrical -->
+		<Expression damagetype=""12"">stun - (quality * 0.75)</Expression>                    <!-- Hypoxia -->
+		<Expression damagetype=""13"">stun - (quality * 0.75)</Expression>                    <!-- Cellular -->
 		<Expression damagetype=""14"">stun - (quality * strength/10000 * 0.75)</Expression>   <!-- Sonic -->
- 		<Expression damagetype=""15"">stun - (quality * strength/25000 * 0.75)</Expression>   <!-- Shearing --> 
+		<Expression damagetype=""15"">stun - (quality * strength/25000 * 0.75)</Expression>   <!-- Shearing --> 
 		<Expression damagetype=""16"">stun - (quality * strength/25000 * 0.75)</Expression>   <!-- ArmourPiercing -->
 		<Expression damagetype=""17"">stun - (quality * strength/10000 * 0.75)</Expression>   <!-- Wrenching -->
- 		<Expression damagetype=""18"">stun - (quality * strength/25000 * 0.75)</Expression>   <!-- Shrapnel -->   
+		<Expression damagetype=""18"">stun - (quality * strength/25000 * 0.75)</Expression>   <!-- Shrapnel -->   
 		<Expression damagetype=""19"">stun - (quality * 0.75)</Expression>                    <!-- Necrotic -->   
- 		<Expression damagetype=""20"">stun - (quality * strength/10000 * 0.75)</Expression>   <!-- Falling -->   
+		<Expression damagetype=""20"">stun - (quality * strength/10000 * 0.75)</Expression>   <!-- Falling -->   
 		<Expression damagetype=""21"">stun - (quality * 0.75)</Expression>                    <!-- Eldritch -->   
 		<Expression damagetype=""22"">stun - (quality * 0.75)</Expression>                    <!-- Arcane -->   
- 	</DissipateExpressionsStun>  
+	</DissipateExpressionsStun>  
 	<!-- 
 	
-	    Absorb expressions are applied after dissipate expressions and item/part damage. 
-	    The after-absorb values are what is passed on to anything ""below"" e.g. bones, organs, parts worn under armour, etc 
+		Absorb expressions are applied after dissipate expressions and item/part damage. 
+		The after-absorb values are what is passed on to anything ""below"" e.g. bones, organs, parts worn under armour, etc 
 		
-	    Parameters: 
+		Parameters: 
 		* damage, pain or stun (as appropriate) = the residual damage/pain/stun after dissipate step
 		* quality = the quality of the armour, rated 0 (Abysmal) to 11 (Legendary)
 		* angle = the angle in radians of the attack (e.g. 1.5708rad = 90 degrees)
@@ -297,81 +297,81 @@ public partial class HumanSeeder
 		Hint: 25000 can be considered ""base"" ShearYield and 10000 can be considered ""base"" ImpactYield
 		
 		-->
- 	<AbsorbExpressions>
-	 	<Expression damagetype=""0"">damage*0.8</Expression>    <!-- Slashing -->
- 		<Expression damagetype=""1"">damage*0.8</Expression>    <!-- Chopping -->  
- 		<Expression damagetype=""2"">damage*0.8</Expression>    <!-- Crushing -->  
- 		<Expression damagetype=""3"">damage*0.8</Expression>    <!-- Piercing -->  
- 		<Expression damagetype=""4"">damage*0.8</Expression>    <!-- Ballistic -->  
- 		<Expression damagetype=""5"">damage*0.8</Expression>    <!-- Burning -->
- 		<Expression damagetype=""6"">damage*0.8</Expression>    <!-- Freezing -->
- 		<Expression damagetype=""7"">damage*0.8</Expression>    <!-- Chemical -->
- 		<Expression damagetype=""8"">damage*0.8</Expression>    <!-- Shockwave -->
- 		<Expression damagetype=""9"">damage*0.8</Expression>    <!-- Bite -->
- 		<Expression damagetype=""10"">damage*0.8</Expression>   <!-- Claw -->
- 		<Expression damagetype=""11"">damage*0.8</Expression>   <!-- Electrical -->
- 		<Expression damagetype=""12"">0</Expression>        <!-- Hypoxia -->
- 		<Expression damagetype=""13"">0</Expression>        <!-- Cellular -->
+	<AbsorbExpressions>
+		<Expression damagetype=""0"">damage*0.8</Expression>    <!-- Slashing -->
+		<Expression damagetype=""1"">damage*0.8</Expression>    <!-- Chopping -->  
+		<Expression damagetype=""2"">damage*0.8</Expression>    <!-- Crushing -->  
+		<Expression damagetype=""3"">damage*0.8</Expression>    <!-- Piercing -->  
+		<Expression damagetype=""4"">damage*0.8</Expression>    <!-- Ballistic -->  
+		<Expression damagetype=""5"">damage*0.8</Expression>    <!-- Burning -->
+		<Expression damagetype=""6"">damage*0.8</Expression>    <!-- Freezing -->
+		<Expression damagetype=""7"">damage*0.8</Expression>    <!-- Chemical -->
+		<Expression damagetype=""8"">damage*0.8</Expression>    <!-- Shockwave -->
+		<Expression damagetype=""9"">damage*0.8</Expression>    <!-- Bite -->
+		<Expression damagetype=""10"">damage*0.8</Expression>   <!-- Claw -->
+		<Expression damagetype=""11"">damage*0.8</Expression>   <!-- Electrical -->
+		<Expression damagetype=""12"">0</Expression>        <!-- Hypoxia -->
+		<Expression damagetype=""13"">0</Expression>        <!-- Cellular -->
 		<Expression damagetype=""14"">damage*0.8</Expression>   <!-- Sonic -->
- 		<Expression damagetype=""15"">damage*0.8</Expression>   <!-- Shearing --> 
+		<Expression damagetype=""15"">damage*0.8</Expression>   <!-- Shearing --> 
 		<Expression damagetype=""16"">damage*0.8</Expression>   <!-- ArmourPiercing -->
 		<Expression damagetype=""17"">damage*0.8</Expression>   <!-- Wrenching -->
- 		<Expression damagetype=""18"">damage*0.8</Expression>   <!-- Shrapnel -->   
+		<Expression damagetype=""18"">damage*0.8</Expression>   <!-- Shrapnel -->   
 		<Expression damagetype=""19"">damage*0.8</Expression>   <!-- Necrotic -->   
- 		<Expression damagetype=""20"">damage*0.8</Expression>   <!-- Falling -->   
+		<Expression damagetype=""20"">damage*0.8</Expression>   <!-- Falling -->   
 		<Expression damagetype=""21"">damage*0.8</Expression>   <!-- Eldritch -->   
 		<Expression damagetype=""22"">damage*0.8</Expression>   <!-- Arcane -->   
- 	</AbsorbExpressions>  
- 	<AbsorbExpressionsPain>
-        <Expression damagetype=""0"">pain*0.8</Expression>    <!-- Slashing -->
- 		<Expression damagetype=""1"">pain*0.8</Expression>    <!-- Chopping -->  
- 		<Expression damagetype=""2"">pain*0.8</Expression>    <!-- Crushing -->  
- 		<Expression damagetype=""3"">pain*0.8</Expression>    <!-- Piercing -->  
- 		<Expression damagetype=""4"">pain*0.8</Expression>    <!-- Ballistic -->  
- 		<Expression damagetype=""5"">pain*0.8</Expression>    <!-- Burning -->
- 		<Expression damagetype=""6"">pain*0.8</Expression>    <!-- Freezing -->
- 		<Expression damagetype=""7"">pain*0.8</Expression>    <!-- Chemical -->
- 		<Expression damagetype=""8"">pain*0.8</Expression>    <!-- Shockwave -->
- 		<Expression damagetype=""9"">pain*0.8</Expression>    <!-- Bite -->
- 		<Expression damagetype=""10"">pain*0.8</Expression>   <!-- Claw -->
- 		<Expression damagetype=""11"">pain*0.8</Expression>   <!-- Electrical -->
- 		<Expression damagetype=""12"">0</Expression>        <!-- Hypoxia -->
- 		<Expression damagetype=""13"">0</Expression>        <!-- Cellular -->
+	</AbsorbExpressions>  
+	<AbsorbExpressionsPain>
+		<Expression damagetype=""0"">pain*0.8</Expression>    <!-- Slashing -->
+		<Expression damagetype=""1"">pain*0.8</Expression>    <!-- Chopping -->  
+		<Expression damagetype=""2"">pain*0.8</Expression>    <!-- Crushing -->  
+		<Expression damagetype=""3"">pain*0.8</Expression>    <!-- Piercing -->  
+		<Expression damagetype=""4"">pain*0.8</Expression>    <!-- Ballistic -->  
+		<Expression damagetype=""5"">pain*0.8</Expression>    <!-- Burning -->
+		<Expression damagetype=""6"">pain*0.8</Expression>    <!-- Freezing -->
+		<Expression damagetype=""7"">pain*0.8</Expression>    <!-- Chemical -->
+		<Expression damagetype=""8"">pain*0.8</Expression>    <!-- Shockwave -->
+		<Expression damagetype=""9"">pain*0.8</Expression>    <!-- Bite -->
+		<Expression damagetype=""10"">pain*0.8</Expression>   <!-- Claw -->
+		<Expression damagetype=""11"">pain*0.8</Expression>   <!-- Electrical -->
+		<Expression damagetype=""12"">0</Expression>        <!-- Hypoxia -->
+		<Expression damagetype=""13"">0</Expression>        <!-- Cellular -->
 		<Expression damagetype=""14"">pain*0.8</Expression>   <!-- Sonic -->
- 		<Expression damagetype=""15"">pain*0.8</Expression>   <!-- Shearing --> 
+		<Expression damagetype=""15"">pain*0.8</Expression>   <!-- Shearing --> 
 		<Expression damagetype=""16"">pain*0.8</Expression>   <!-- ArmourPiercing -->
 		<Expression damagetype=""17"">pain*0.8</Expression>   <!-- Wrenching -->
- 		<Expression damagetype=""18"">pain*0.8</Expression>   <!-- Shrapnel -->   
+		<Expression damagetype=""18"">pain*0.8</Expression>   <!-- Shrapnel -->   
 		<Expression damagetype=""19"">pain*0.8</Expression>   <!-- Necrotic -->   
- 		<Expression damagetype=""20"">pain*0.8</Expression>   <!-- Falling -->   
+		<Expression damagetype=""20"">pain*0.8</Expression>   <!-- Falling -->   
 		<Expression damagetype=""21"">pain*0.8</Expression>   <!-- Eldritch -->   
 		<Expression damagetype=""22"">pain*0.8</Expression>   <!-- Arcane -->   
- 	</AbsorbExpressionsPain>  
- 	<AbsorbExpressionsStun>
-        <Expression damagetype=""0"">stun</Expression>    <!-- Slashing -->
- 		<Expression damagetype=""1"">stun</Expression>    <!-- Chopping -->  
- 		<Expression damagetype=""2"">stun</Expression>    <!-- Crushing -->  
- 		<Expression damagetype=""3"">stun</Expression>    <!-- Piercing -->  
- 		<Expression damagetype=""4"">stun</Expression>    <!-- Ballistic -->  
- 		<Expression damagetype=""5"">stun</Expression>    <!-- Burning -->
- 		<Expression damagetype=""6"">stun</Expression>    <!-- Freezing -->
- 		<Expression damagetype=""7"">stun</Expression>    <!-- Chemical -->
- 		<Expression damagetype=""8"">stun</Expression>    <!-- Shockwave -->
- 		<Expression damagetype=""9"">stun</Expression>    <!-- Bite -->
- 		<Expression damagetype=""10"">stun</Expression>   <!-- Claw -->
- 		<Expression damagetype=""11"">stun</Expression>   <!-- Electrical -->
- 		<Expression damagetype=""12"">0</Expression>        <!-- Hypoxia -->
- 		<Expression damagetype=""13"">0</Expression>        <!-- Cellular -->
+	</AbsorbExpressionsPain>  
+	<AbsorbExpressionsStun>
+		<Expression damagetype=""0"">stun</Expression>    <!-- Slashing -->
+		<Expression damagetype=""1"">stun</Expression>    <!-- Chopping -->  
+		<Expression damagetype=""2"">stun</Expression>    <!-- Crushing -->  
+		<Expression damagetype=""3"">stun</Expression>    <!-- Piercing -->  
+		<Expression damagetype=""4"">stun</Expression>    <!-- Ballistic -->  
+		<Expression damagetype=""5"">stun</Expression>    <!-- Burning -->
+		<Expression damagetype=""6"">stun</Expression>    <!-- Freezing -->
+		<Expression damagetype=""7"">stun</Expression>    <!-- Chemical -->
+		<Expression damagetype=""8"">stun</Expression>    <!-- Shockwave -->
+		<Expression damagetype=""9"">stun</Expression>    <!-- Bite -->
+		<Expression damagetype=""10"">stun</Expression>   <!-- Claw -->
+		<Expression damagetype=""11"">stun</Expression>   <!-- Electrical -->
+		<Expression damagetype=""12"">0</Expression>        <!-- Hypoxia -->
+		<Expression damagetype=""13"">0</Expression>        <!-- Cellular -->
 		<Expression damagetype=""14"">stun</Expression>   <!-- Sonic -->
- 		<Expression damagetype=""15"">stun</Expression>   <!-- Shearing --> 
+		<Expression damagetype=""15"">stun</Expression>   <!-- Shearing --> 
 		<Expression damagetype=""16"">stun</Expression>   <!-- ArmourPiercing -->
 		<Expression damagetype=""17"">stun</Expression>   <!-- Wrenching -->
- 		<Expression damagetype=""18"">stun</Expression>   <!-- Shrapnel -->   
+		<Expression damagetype=""18"">stun</Expression>   <!-- Shrapnel -->   
 		<Expression damagetype=""19"">stun</Expression>   <!-- Necrotic -->   
- 		<Expression damagetype=""20"">stun</Expression>   <!-- Falling -->   
+		<Expression damagetype=""20"">stun</Expression>   <!-- Falling -->   
 		<Expression damagetype=""21"">stun</Expression>   <!-- Eldritch -->   
 		<Expression damagetype=""22"">stun</Expression>   <!-- Arcane -->   
- 	</AbsorbExpressionsStun>
+	</AbsorbExpressionsStun>
  </ArmourType>"
 		};
 		_context.ArmourTypes.Add(naturalArmour);
@@ -385,9 +385,9 @@ public partial class HumanSeeder
 			StackedDifficultyDegrees = 0,
 			Definition = @"<ArmourType>
 
-    <!-- 
+	<!-- 
 	
-	    Dissipate expressions are applied before the item/part takes damage. 
+		Dissipate expressions are applied before the item/part takes damage. 
 		If they reduce the damage to zero, it neither suffers nor passes on any damage. 
 		
 		Parameters: 
@@ -402,81 +402,81 @@ public partial class HumanSeeder
 		
 		Hint: 25000 can be considered ""base"" ShearYield and 10000 can be considered ""base"" ImpactYield
 	-->
-    <DissipateExpressions>
-        <Expression damagetype=""0"">damage-(1.0*quality)</Expression>         <!-- Slashing -->
- 		<Expression damagetype=""1"">damage-(1.0*quality)</Expression>         <!-- Chopping -->  
- 		<Expression damagetype=""2"">damage-(1.0*quality)</Expression>         <!-- Crushing -->  
- 		<Expression damagetype=""3"">damage-(1.0*quality)</Expression>         <!-- Piercing -->  
- 		<Expression damagetype=""4"">damage*1.15-(1.0*quality)</Expression>    <!-- Ballistic -->  
- 		<Expression damagetype=""5"">damage-(1.0*quality)</Expression>    	 <!-- Burning -->
- 		<Expression damagetype=""6"">damage-(1.0*quality)</Expression>         <!-- Freezing -->
- 		<Expression damagetype=""7"">damage-(1.0*quality)</Expression>         <!-- Chemical -->
- 		<Expression damagetype=""8"">damage*1.15-(1.0*quality)</Expression>    <!-- Shockwave -->
- 		<Expression damagetype=""9"">damage-(1.0*quality)</Expression>         <!-- Bite -->
- 		<Expression damagetype=""10"">damage-(1.0*quality)</Expression>        <!-- Claw -->
- 		<Expression damagetype=""11"">damage-(1.0*quality)</Expression>        <!-- Electrical -->
- 		<Expression damagetype=""12"">damage-(quality*0.75)</Expression>       <!-- Hypoxia -->
- 		<Expression damagetype=""13"">damage-(quality*0.75)</Expression>       <!-- Cellular -->
+	<DissipateExpressions>
+		<Expression damagetype=""0"">damage-(1.0*quality)</Expression>         <!-- Slashing -->
+		<Expression damagetype=""1"">damage-(1.0*quality)</Expression>         <!-- Chopping -->  
+		<Expression damagetype=""2"">damage-(1.0*quality)</Expression>         <!-- Crushing -->  
+		<Expression damagetype=""3"">damage-(1.0*quality)</Expression>         <!-- Piercing -->  
+		<Expression damagetype=""4"">damage*1.15-(1.0*quality)</Expression>    <!-- Ballistic -->  
+		<Expression damagetype=""5"">damage-(1.0*quality)</Expression>    	 <!-- Burning -->
+		<Expression damagetype=""6"">damage-(1.0*quality)</Expression>         <!-- Freezing -->
+		<Expression damagetype=""7"">damage-(1.0*quality)</Expression>         <!-- Chemical -->
+		<Expression damagetype=""8"">damage*1.15-(1.0*quality)</Expression>    <!-- Shockwave -->
+		<Expression damagetype=""9"">damage-(1.0*quality)</Expression>         <!-- Bite -->
+		<Expression damagetype=""10"">damage-(1.0*quality)</Expression>        <!-- Claw -->
+		<Expression damagetype=""11"">damage-(1.0*quality)</Expression>        <!-- Electrical -->
+		<Expression damagetype=""12"">damage-(quality*0.75)</Expression>       <!-- Hypoxia -->
+		<Expression damagetype=""13"">damage-(quality*0.75)</Expression>       <!-- Cellular -->
 		<Expression damagetype=""14"">damage-(1.0*quality)</Expression>        <!-- Sonic -->
- 		<Expression damagetype=""15"">damage-(1.0*quality)</Expression>        <!-- Shearing --> 
+		<Expression damagetype=""15"">damage-(1.0*quality)</Expression>        <!-- Shearing --> 
 		<Expression damagetype=""16"">damage-(1.0*quality)</Expression>        <!-- ArmourPiercing -->
 		<Expression damagetype=""17"">damage-(1.0*quality)</Expression>        <!-- Wrenching -->
- 		<Expression damagetype=""18"">damage*1.15-(1.0*quality)</Expression>   <!-- Shrapnel -->   
+		<Expression damagetype=""18"">damage*1.15-(1.0*quality)</Expression>   <!-- Shrapnel -->   
 		<Expression damagetype=""19"">damage-(1.0*quality)</Expression>        <!-- Necrotic -->   
- 		<Expression damagetype=""20"">damage-(1.0*quality)</Expression>        <!-- Falling -->   
+		<Expression damagetype=""20"">damage-(1.0*quality)</Expression>        <!-- Falling -->   
 		<Expression damagetype=""21"">damage-(1.0*quality)</Expression>        <!-- Eldritch -->   
 		<Expression damagetype=""22"">damage-(1.0*quality)</Expression>        <!-- Arcane -->   
- 	</DissipateExpressions>  
- 	<DissipateExpressionsPain>
-        <Expression damagetype=""0"">pain-(1.0*quality)</Expression>         <!-- Slashing -->
- 		<Expression damagetype=""1"">pain-(1.0*quality)</Expression>         <!-- Chopping -->  
- 		<Expression damagetype=""2"">pain-(1.0*quality)</Expression>         <!-- Crushing -->  
- 		<Expression damagetype=""3"">pain-(1.0*quality)</Expression>         <!-- Piercing -->  
- 		<Expression damagetype=""4"">pain*1.15-(1.0*quality)</Expression>    <!-- Ballistic -->  
- 		<Expression damagetype=""5"">pain-(1.0*quality)</Expression>    	 <!-- Burning -->
- 		<Expression damagetype=""6"">pain-(1.0*quality)</Expression>         <!-- Freezing -->
- 		<Expression damagetype=""7"">pain-(1.0*quality)</Expression>         <!-- Chemical -->
- 		<Expression damagetype=""8"">pain*1.15-(1.0*quality)</Expression>    <!-- Shockwave -->
- 		<Expression damagetype=""9"">pain-(1.0*quality)</Expression>         <!-- Bite -->
- 		<Expression damagetype=""10"">pain-(1.0*quality)</Expression>        <!-- Claw -->
- 		<Expression damagetype=""11"">pain-(1.0*quality)</Expression>        <!-- Electrical -->
- 		<Expression damagetype=""12"">pain-(quality*0.75)</Expression>       <!-- Hypoxia -->
- 		<Expression damagetype=""13"">pain-(quality*0.75)</Expression>       <!-- Cellular -->
+	</DissipateExpressions>  
+	<DissipateExpressionsPain>
+		<Expression damagetype=""0"">pain-(1.0*quality)</Expression>         <!-- Slashing -->
+		<Expression damagetype=""1"">pain-(1.0*quality)</Expression>         <!-- Chopping -->  
+		<Expression damagetype=""2"">pain-(1.0*quality)</Expression>         <!-- Crushing -->  
+		<Expression damagetype=""3"">pain-(1.0*quality)</Expression>         <!-- Piercing -->  
+		<Expression damagetype=""4"">pain*1.15-(1.0*quality)</Expression>    <!-- Ballistic -->  
+		<Expression damagetype=""5"">pain-(1.0*quality)</Expression>    	 <!-- Burning -->
+		<Expression damagetype=""6"">pain-(1.0*quality)</Expression>         <!-- Freezing -->
+		<Expression damagetype=""7"">pain-(1.0*quality)</Expression>         <!-- Chemical -->
+		<Expression damagetype=""8"">pain*1.15-(1.0*quality)</Expression>    <!-- Shockwave -->
+		<Expression damagetype=""9"">pain-(1.0*quality)</Expression>         <!-- Bite -->
+		<Expression damagetype=""10"">pain-(1.0*quality)</Expression>        <!-- Claw -->
+		<Expression damagetype=""11"">pain-(1.0*quality)</Expression>        <!-- Electrical -->
+		<Expression damagetype=""12"">pain-(quality*0.75)</Expression>       <!-- Hypoxia -->
+		<Expression damagetype=""13"">pain-(quality*0.75)</Expression>       <!-- Cellular -->
 		<Expression damagetype=""14"">pain-(1.0*quality)</Expression>        <!-- Sonic -->
- 		<Expression damagetype=""15"">pain-(1.0*quality)</Expression>        <!-- Shearing --> 
+		<Expression damagetype=""15"">pain-(1.0*quality)</Expression>        <!-- Shearing --> 
 		<Expression damagetype=""16"">pain-(1.0*quality)</Expression>        <!-- ArmourPiercing -->
 		<Expression damagetype=""17"">pain-(1.0*quality)</Expression>        <!-- Wrenching -->
- 		<Expression damagetype=""18"">pain*1.15-(1.0*quality)</Expression>   <!-- Shrapnel -->   
+		<Expression damagetype=""18"">pain*1.15-(1.0*quality)</Expression>   <!-- Shrapnel -->   
 		<Expression damagetype=""19"">pain-(1.0*quality)</Expression>        <!-- Necrotic -->   
- 		<Expression damagetype=""20"">pain-(1.0*quality)</Expression>        <!-- Falling -->   
+		<Expression damagetype=""20"">pain-(1.0*quality)</Expression>        <!-- Falling -->   
 		<Expression damagetype=""21"">pain-(1.0*quality)</Expression>        <!-- Eldritch -->   
 		<Expression damagetype=""22"">pain-(1.0*quality)</Expression>        <!-- Arcane -->   
- 	</DissipateExpressionsPain>  
- 	<DissipateExpressionsStun>
-        <Expression damagetype=""0"">stun-(1.0*quality)</Expression>         <!-- Slashing -->
- 		<Expression damagetype=""1"">stun-(1.0*quality)</Expression>         <!-- Chopping -->  
- 		<Expression damagetype=""2"">stun-(1.0*quality)</Expression>         <!-- Crushing -->  
- 		<Expression damagetype=""3"">stun-(1.0*quality)</Expression>         <!-- Piercing -->  
- 		<Expression damagetype=""4"">stun*1.15-(1.0*quality)</Expression>    <!-- Ballistic -->  
- 		<Expression damagetype=""5"">stun-(1.0*quality)</Expression>    	 <!-- Burning -->
- 		<Expression damagetype=""6"">stun-(1.0*quality)</Expression>         <!-- Freezing -->
- 		<Expression damagetype=""7"">stun-(1.0*quality)</Expression>         <!-- Chemical -->
- 		<Expression damagetype=""8"">stun*1.15-(1.0*quality)</Expression>    <!-- Shockwave -->
- 		<Expression damagetype=""9"">stun-(1.0*quality)</Expression>         <!-- Bite -->
- 		<Expression damagetype=""10"">stun-(1.0*quality)</Expression>        <!-- Claw -->
- 		<Expression damagetype=""11"">stun-(1.0*quality)</Expression>        <!-- Electrical -->
- 		<Expression damagetype=""12"">stun-(quality*0.75)</Expression>       <!-- Hypoxia -->
- 		<Expression damagetype=""13"">stun-(quality*0.75)</Expression>       <!-- Cellular -->
+	</DissipateExpressionsPain>  
+	<DissipateExpressionsStun>
+		<Expression damagetype=""0"">stun-(1.0*quality)</Expression>         <!-- Slashing -->
+		<Expression damagetype=""1"">stun-(1.0*quality)</Expression>         <!-- Chopping -->  
+		<Expression damagetype=""2"">stun-(1.0*quality)</Expression>         <!-- Crushing -->  
+		<Expression damagetype=""3"">stun-(1.0*quality)</Expression>         <!-- Piercing -->  
+		<Expression damagetype=""4"">stun*1.15-(1.0*quality)</Expression>    <!-- Ballistic -->  
+		<Expression damagetype=""5"">stun-(1.0*quality)</Expression>    	 <!-- Burning -->
+		<Expression damagetype=""6"">stun-(1.0*quality)</Expression>         <!-- Freezing -->
+		<Expression damagetype=""7"">stun-(1.0*quality)</Expression>         <!-- Chemical -->
+		<Expression damagetype=""8"">stun*1.15-(1.0*quality)</Expression>    <!-- Shockwave -->
+		<Expression damagetype=""9"">stun-(1.0*quality)</Expression>         <!-- Bite -->
+		<Expression damagetype=""10"">stun-(1.0*quality)</Expression>        <!-- Claw -->
+		<Expression damagetype=""11"">stun-(1.0*quality)</Expression>        <!-- Electrical -->
+		<Expression damagetype=""12"">stun-(quality*0.75)</Expression>       <!-- Hypoxia -->
+		<Expression damagetype=""13"">stun-(quality*0.75)</Expression>       <!-- Cellular -->
 		<Expression damagetype=""14"">stun-(1.0*quality)</Expression>        <!-- Sonic -->
- 		<Expression damagetype=""15"">stun-(1.0*quality)</Expression>        <!-- Shearing --> 
+		<Expression damagetype=""15"">stun-(1.0*quality)</Expression>        <!-- Shearing --> 
 		<Expression damagetype=""16"">stun-(1.0*quality)</Expression>        <!-- ArmourPiercing -->
 		<Expression damagetype=""17"">stun-(1.0*quality)</Expression>        <!-- Wrenching -->
- 		<Expression damagetype=""18"">stun*1.15-(1.0*quality)</Expression>   <!-- Shrapnel -->   
+		<Expression damagetype=""18"">stun*1.15-(1.0*quality)</Expression>   <!-- Shrapnel -->   
 		<Expression damagetype=""19"">stun-(1.0*quality)</Expression>        <!-- Necrotic -->   
- 		<Expression damagetype=""20"">stun-(1.0*quality)</Expression>        <!-- Falling -->   
+		<Expression damagetype=""20"">stun-(1.0*quality)</Expression>        <!-- Falling -->   
 		<Expression damagetype=""21"">stun-(1.0*quality)</Expression>        <!-- Eldritch -->   
 		<Expression damagetype=""22"">stun-(1.0*quality)</Expression>        <!-- Arcane -->    
- 	</DissipateExpressionsStun>  
+	</DissipateExpressionsStun>  
 	
 	<!-- Note: Organ Damage is final - there's no ""lower layer"" to pass on to, therefore there is no need for Absorb expressions -->
  </ArmourType>"
@@ -755,7 +755,7 @@ public partial class HumanSeeder
 		#region Bodyparts
 
 		var sever = _questionAnswers.ContainsKey("sever") &&
-		            _questionAnswers["sever"].ToLowerInvariant().In("yes", "y");
+					_questionAnswers["sever"].ToLowerInvariant().In("yes", "y");
 		nextId = _context.BodypartProtos.Select(x => x.Id).AsEnumerable().DefaultIfEmpty(0).Max() + 1;
 
 		var drapeableType = _questionAnswers.ContainsKey("bones") && !_questionAnswers["bones"].Equals("implied") ?
@@ -769,7 +769,7 @@ public partial class HumanSeeder
 			BodypartTypeEnum.BonyGrabbingWielding;
 
 		// TORSO
-		CreateBodypart(baseHumanoid, "abdomen", "abdomen", "abdomen", BodypartTypeEnum.Drapeable, null, Alignment.Front,
+		CreateBodypart(baseHumanoid, "abdomen", "abdomen", "abdomen", BodypartTypeEnum.Wear, null, Alignment.Front,
 			Orientation.Centre, 80, -1, 150, 50, flesh, SizeCategory.Normal, "Torso", isVital: true, implantSpace: 5,
 			stunMultiplier: 0.2);
 		CreateBodypart(baseHumanoid, "rbreast", "right breast", "breast", niDrapeableType, "abdomen",
@@ -787,7 +787,7 @@ public partial class HumanSeeder
 		CreateBodypart(baseHumanoid, "uback", "upper back", "upper back", niDrapeableType, "abdomen",
 			Alignment.Rear, Orientation.Centre, 80, -1, 150, 51, fattyFlesh, SizeCategory.Normal, "Torso",
 			isVital: true, implantSpace: 5, stunMultiplier: 0.2);
-		CreateBodypart(baseHumanoid, "belly", "belly", "belly", BodypartTypeEnum.Drapeable, "abdomen", Alignment.Front,
+		CreateBodypart(baseHumanoid, "belly", "belly", "belly", BodypartTypeEnum.Wear, "abdomen", Alignment.Front,
 			Orientation.Centre, 80, -1, 150, 51, fattyFlesh, SizeCategory.Normal, "Torso", isVital: true,
 			implantSpace: 5, stunMultiplier: 0.2);
 		CreateBodypart(baseHumanoid, "lback", "lower back", "lower back", niDrapeableType, "belly",
@@ -823,7 +823,7 @@ public partial class HumanSeeder
 		CreateBodypart(baseHumanoid, "bneck", "back of neck", "neck back", drapeableType, "neck",
 			Alignment.Rear, Orientation.Highest, 80, 100, 50, 50, flesh, SizeCategory.Normal, "Head", isVital: true,
 			implantSpace: 5, stunMultiplier: 0.4);
-		CreateBodypart(baseHumanoid, "throat", "throat", "throat", BodypartTypeEnum.Drapeable, "neck", Alignment.Front,
+		CreateBodypart(baseHumanoid, "throat", "throat", "throat", BodypartTypeEnum.Wear, "neck", Alignment.Front,
 			Orientation.Highest, 40, 100, 25, 50, flesh, SizeCategory.Normal, "Head", isVital: true, implantSpace: 5,
 			stunMultiplier: 0.4);
 		CreateBodypart(baseHumanoid, "face", "face", "face", niDrapeableType, "neck", Alignment.Front,
@@ -1185,55 +1185,55 @@ public partial class HumanSeeder
 		Damage Types:
 		
 		Slashing = 0
-        Chopping = 1
-        Crushing = 2
-        Piercing = 3
-        Ballistic = 4
-        Burning = 5
-        Freezing = 6
-        Chemical = 7
-        Shockwave = 8
-        Bite = 9
-        Claw = 10
-        Electrical = 11
-        Hypoxia = 12
-        Cellular = 13
-        Sonic = 14
-        Shearing = 15
-        ArmourPiercing = 16
-        Wrenching = 17
-        Shrapnel = 18
-        Necrotic = 19
-        Falling = 20
-        Eldritch = 21
-        Arcane = 22
+		Chopping = 1
+		Crushing = 2
+		Piercing = 3
+		Ballistic = 4
+		Burning = 5
+		Freezing = 6
+		Chemical = 7
+		Shockwave = 8
+		Bite = 9
+		Claw = 10
+		Electrical = 11
+		Hypoxia = 12
+		Cellular = 13
+		Sonic = 14
+		Shearing = 15
+		ArmourPiercing = 16
+		Wrenching = 17
+		Shrapnel = 18
+		Necrotic = 19
+		Falling = 20
+		Eldritch = 21
+		Arcane = 22
 		
 		Severity Values:
 		
 		None = 0
-        Superficial = 1
-        Minor = 2
-        Small = 3
-        Moderate = 4
-        Severe = 5
-        VerySevere = 6
-        Grievous = 7
-        Horrifying = 8
+		Superficial = 1
+		Minor = 2
+		Small = 3
+		Moderate = 4
+		Severe = 5
+		VerySevere = 6
+		Grievous = 7
+		Horrifying = 8
 	-->
 	<DamageTransformations>
- 		<Transform fromtype=""0"" totype=""2"" severity=""5""></Transform> <!-- Slashing to Crushing when <= Severe -->
- 		<Transform fromtype=""1"" totype=""2"" severity=""5""></Transform> <!-- Chopping to Crushing when <= Severe -->
- 		<Transform fromtype=""3"" totype=""2"" severity=""4""></Transform> <!-- Piercing to Crushing when <= Moderate -->
- 		<Transform fromtype=""4"" totype=""2"" severity=""4""></Transform> <!-- Ballistic to Crushing when <= Moderate -->
- 		<Transform fromtype=""9"" totype=""2"" severity=""5""></Transform> <!-- Bite to Crushing when <= Severe -->
- 		<Transform fromtype=""10"" totype=""2"" severity=""5""></Transform> <!-- Claw to Crushing when <= Severe -->
- 		<Transform fromtype=""15"" totype=""2"" severity=""5""></Transform> <!-- Shearing to Crushing when <= Severe -->
- 		<Transform fromtype=""16"" totype=""2"" severity=""3""></Transform> <!-- ArmourPiercing to Crushing when <= Small -->
- 		<Transform fromtype=""17"" totype=""2"" severity=""5""></Transform> <!-- Wrenching to Crushing when <= Severe -->
- 	</DamageTransformations>
-    <!-- 
+		<Transform fromtype=""0"" totype=""2"" severity=""5""></Transform> <!-- Slashing to Crushing when <= Severe -->
+		<Transform fromtype=""1"" totype=""2"" severity=""5""></Transform> <!-- Chopping to Crushing when <= Severe -->
+		<Transform fromtype=""3"" totype=""2"" severity=""4""></Transform> <!-- Piercing to Crushing when <= Moderate -->
+		<Transform fromtype=""4"" totype=""2"" severity=""4""></Transform> <!-- Ballistic to Crushing when <= Moderate -->
+		<Transform fromtype=""9"" totype=""2"" severity=""5""></Transform> <!-- Bite to Crushing when <= Severe -->
+		<Transform fromtype=""10"" totype=""2"" severity=""5""></Transform> <!-- Claw to Crushing when <= Severe -->
+		<Transform fromtype=""15"" totype=""2"" severity=""5""></Transform> <!-- Shearing to Crushing when <= Severe -->
+		<Transform fromtype=""16"" totype=""2"" severity=""3""></Transform> <!-- ArmourPiercing to Crushing when <= Small -->
+		<Transform fromtype=""17"" totype=""2"" severity=""5""></Transform> <!-- Wrenching to Crushing when <= Severe -->
+	</DamageTransformations>
+	<!-- 
 	
-	    Dissipate expressions are applied before the item/part takes damage. 
+		Dissipate expressions are applied before the item/part takes damage. 
 		If they reduce the damage to zero, it neither suffers nor passes on any damage. 
 		
 		Parameters: 
@@ -1248,87 +1248,87 @@ public partial class HumanSeeder
 		
 		Hint: 25000 can be considered ""base"" ShearYield and 10000 can be considered ""base"" ImpactYield
 	-->
-    <DissipateExpressions>
-        <Expression damagetype=""0"">max(damage*0.1,damage-(quality * 2 * strength/115000))</Expression>    <!-- Slashing -->
- 		<Expression damagetype=""1"">max(damage*0.1,damage-(quality * 2 * strength/115000)))</Expression>    <!-- Chopping -->  
- 		<Expression damagetype=""2"">max(damage*0.1,damage-(quality * 2 * strength/200000))</Expression>    <!-- Crushing -->  
- 		<Expression damagetype=""3"">max(damage*0.1,damage-(quality * 2 * strength/115000))</Expression>    <!-- Piercing -->  
- 		<Expression damagetype=""4"">max(damage*0.1,damage-(quality * 2 * strength/115000))</Expression>    <!-- Ballistic -->  
- 		<Expression damagetype=""5"">damage - (quality * 2)</Expression>    			      <!-- Burning -->
- 		<Expression damagetype=""6"">damage - (quality * 2)</Expression>                     <!-- Freezing -->
- 		<Expression damagetype=""7"">damage - (quality * 2)</Expression>                     <!-- Chemical -->
- 		<Expression damagetype=""8"">max(damage*0.1,damage-(quality * 2 * strength/200000))</Expression>    <!-- Shockwave -->
- 		<Expression damagetype=""9"">max(damage*0.1,damage-(quality * 2 * strength/115000))</Expression>    <!-- Bite -->
- 		<Expression damagetype=""10"">max(damage*0.1,damage-(quality * 2 * strength/115000))</Expression>   <!-- Claw -->
- 		<Expression damagetype=""11"">damage - (quality * 2)</Expression>                    <!-- Electrical -->
- 		<Expression damagetype=""12"">0</Expression>                    <!-- Hypoxia -->
- 		<Expression damagetype=""13"">damage - (quality * 2)</Expression>                    <!-- Cellular -->
+	<DissipateExpressions>
+		<Expression damagetype=""0"">max(damage*0.1,damage-(quality * 2 * strength/115000))</Expression>    <!-- Slashing -->
+		<Expression damagetype=""1"">max(damage*0.1,damage-(quality * 2 * strength/115000)))</Expression>    <!-- Chopping -->  
+		<Expression damagetype=""2"">max(damage*0.1,damage-(quality * 2 * strength/200000))</Expression>    <!-- Crushing -->  
+		<Expression damagetype=""3"">max(damage*0.1,damage-(quality * 2 * strength/115000))</Expression>    <!-- Piercing -->  
+		<Expression damagetype=""4"">max(damage*0.1,damage-(quality * 2 * strength/115000))</Expression>    <!-- Ballistic -->  
+		<Expression damagetype=""5"">damage - (quality * 2)</Expression>    			      <!-- Burning -->
+		<Expression damagetype=""6"">damage - (quality * 2)</Expression>                     <!-- Freezing -->
+		<Expression damagetype=""7"">damage - (quality * 2)</Expression>                     <!-- Chemical -->
+		<Expression damagetype=""8"">max(damage*0.1,damage-(quality * 2 * strength/200000))</Expression>    <!-- Shockwave -->
+		<Expression damagetype=""9"">max(damage*0.1,damage-(quality * 2 * strength/115000))</Expression>    <!-- Bite -->
+		<Expression damagetype=""10"">max(damage*0.1,damage-(quality * 2 * strength/115000))</Expression>   <!-- Claw -->
+		<Expression damagetype=""11"">damage - (quality * 2)</Expression>                    <!-- Electrical -->
+		<Expression damagetype=""12"">0</Expression>                    <!-- Hypoxia -->
+		<Expression damagetype=""13"">damage - (quality * 2)</Expression>                    <!-- Cellular -->
 		<Expression damagetype=""14"">max(damage*0.1,damage-(quality * 2 * strength/200000))</Expression>   <!-- Sonic -->
- 		<Expression damagetype=""15"">max(damage*0.1,damage-(quality * 2 * strength/115000))</Expression>   <!-- Shearing --> 
+		<Expression damagetype=""15"">max(damage*0.1,damage-(quality * 2 * strength/115000))</Expression>   <!-- Shearing --> 
 		<Expression damagetype=""16"">max(damage*0.1,damage-(quality * 2 * strength/115000))</Expression>   <!-- ArmourPiercing -->
 		<Expression damagetype=""17"">max(damage*0.1,damage-(quality * 2 * strength/200000))</Expression>   <!-- Wrenching -->
- 		<Expression damagetype=""18"">max(damage*0.1,damage-(quality * 2 * strength/115000))</Expression>   <!-- Shrapnel -->   
+		<Expression damagetype=""18"">max(damage*0.1,damage-(quality * 2 * strength/115000))</Expression>   <!-- Shrapnel -->   
 		<Expression damagetype=""19"">damage - (quality * 2)</Expression>                    <!-- Necrotic -->   
- 		<Expression damagetype=""20"">max(damage*0.1,damage-(quality * 2 * strength/200000))</Expression>   <!-- Falling -->   
+		<Expression damagetype=""20"">max(damage*0.1,damage-(quality * 2 * strength/200000))</Expression>   <!-- Falling -->   
 		<Expression damagetype=""21"">damage - (quality * 2)</Expression>                    <!-- Eldritch -->   
 		<Expression damagetype=""22"">damage - (quality * 2)</Expression>                    <!-- Arcane -->   
- 	</DissipateExpressions>  
- 	<DissipateExpressionsPain>
-        <Expression damagetype=""0"">pain - (quality * strength/25000 * 0.75)</Expression>    <!-- Slashing -->
- 		<Expression damagetype=""1"">pain - (quality * strength/25000 * 0.75)</Expression>    <!-- Chopping -->  
- 		<Expression damagetype=""2"">pain - (quality * strength/10000 * 0.75)</Expression>    <!-- Crushing -->  
- 		<Expression damagetype=""3"">pain - (quality * strength/25000 * 0.75)</Expression>    <!-- Piercing -->  
- 		<Expression damagetype=""4"">pain - (quality * strength/25000 * 0.75)</Expression>    <!-- Ballistic -->  
- 		<Expression damagetype=""5"">pain - (quality * 0.75)</Expression>    			        <!-- Burning -->
- 		<Expression damagetype=""6"">pain - (quality * 0.75)</Expression>                     <!-- Freezing -->
- 		<Expression damagetype=""7"">pain - (quality * 0.75)</Expression>                     <!-- Chemical -->
- 		<Expression damagetype=""8"">pain - (quality * strength/10000 * 0.75)</Expression>    <!-- Shockwave -->
- 		<Expression damagetype=""9"">pain - (quality * strength/25000 * 0.75)</Expression>    <!-- Bite -->
- 		<Expression damagetype=""10"">pain - (quality * strength/25000 * 0.75)</Expression>   <!-- Claw -->
- 		<Expression damagetype=""11"">pain - (quality * 0.75)</Expression>                    <!-- Electrical -->
- 		<Expression damagetype=""12"">pain - (quality * 0.75)</Expression>                    <!-- Hypoxia -->
- 		<Expression damagetype=""13"">pain - (quality * 0.75)</Expression>                    <!-- Cellular -->
+	</DissipateExpressions>  
+	<DissipateExpressionsPain>
+		<Expression damagetype=""0"">pain - (quality * strength/25000 * 0.75)</Expression>    <!-- Slashing -->
+		<Expression damagetype=""1"">pain - (quality * strength/25000 * 0.75)</Expression>    <!-- Chopping -->  
+		<Expression damagetype=""2"">pain - (quality * strength/10000 * 0.75)</Expression>    <!-- Crushing -->  
+		<Expression damagetype=""3"">pain - (quality * strength/25000 * 0.75)</Expression>    <!-- Piercing -->  
+		<Expression damagetype=""4"">pain - (quality * strength/25000 * 0.75)</Expression>    <!-- Ballistic -->  
+		<Expression damagetype=""5"">pain - (quality * 0.75)</Expression>    			        <!-- Burning -->
+		<Expression damagetype=""6"">pain - (quality * 0.75)</Expression>                     <!-- Freezing -->
+		<Expression damagetype=""7"">pain - (quality * 0.75)</Expression>                     <!-- Chemical -->
+		<Expression damagetype=""8"">pain - (quality * strength/10000 * 0.75)</Expression>    <!-- Shockwave -->
+		<Expression damagetype=""9"">pain - (quality * strength/25000 * 0.75)</Expression>    <!-- Bite -->
+		<Expression damagetype=""10"">pain - (quality * strength/25000 * 0.75)</Expression>   <!-- Claw -->
+		<Expression damagetype=""11"">pain - (quality * 0.75)</Expression>                    <!-- Electrical -->
+		<Expression damagetype=""12"">pain - (quality * 0.75)</Expression>                    <!-- Hypoxia -->
+		<Expression damagetype=""13"">pain - (quality * 0.75)</Expression>                    <!-- Cellular -->
 		<Expression damagetype=""14"">pain - (quality * strength/10000 * 0.75)</Expression>   <!-- Sonic -->
- 		<Expression damagetype=""15"">pain - (quality * strength/25000 * 0.75)</Expression>   <!-- Shearing --> 
+		<Expression damagetype=""15"">pain - (quality * strength/25000 * 0.75)</Expression>   <!-- Shearing --> 
 		<Expression damagetype=""16"">pain - (quality * strength/25000 * 0.75)</Expression>   <!-- ArmourPiercing -->
 		<Expression damagetype=""17"">pain - (quality * strength/10000 * 0.75)</Expression>   <!-- Wrenching -->
- 		<Expression damagetype=""18"">pain - (quality * strength/25000 * 0.75)</Expression>   <!-- Shrapnel -->   
+		<Expression damagetype=""18"">pain - (quality * strength/25000 * 0.75)</Expression>   <!-- Shrapnel -->   
 		<Expression damagetype=""19"">pain - (quality * 0.75)</Expression>                    <!-- Necrotic -->   
- 		<Expression damagetype=""20"">pain - (quality * strength/10000 * 0.75)</Expression>   <!-- Falling -->   
+		<Expression damagetype=""20"">pain - (quality * strength/10000 * 0.75)</Expression>   <!-- Falling -->   
 		<Expression damagetype=""21"">pain - (quality * 0.75)</Expression>                    <!-- Eldritch -->   
 		<Expression damagetype=""22"">pain - (quality * 0.75)</Expression>                    <!-- Arcane -->   
- 	</DissipateExpressionsPain>  
- 	<DissipateExpressionsStun>
-        <Expression damagetype=""0"">stun - (quality * strength/25000 * 0.75)</Expression>    <!-- Slashing -->
- 		<Expression damagetype=""1"">stun - (quality * strength/25000 * 0.75)</Expression>    <!-- Chopping -->  
- 		<Expression damagetype=""2"">stun - (quality * strength/10000 * 0.75)</Expression>    <!-- Crushing -->  
- 		<Expression damagetype=""3"">stun - (quality * strength/25000 * 0.75)</Expression>    <!-- Piercing -->  
- 		<Expression damagetype=""4"">stun - (quality * strength/25000 * 0.75)</Expression>    <!-- Ballistic -->  
- 		<Expression damagetype=""5"">stun - (quality * 0.75)</Expression>    			        <!-- Burning -->
- 		<Expression damagetype=""6"">stun - (quality * 0.75)</Expression>                     <!-- Freezing -->
- 		<Expression damagetype=""7"">stun - (quality * 0.75)</Expression>                     <!-- Chemical -->
- 		<Expression damagetype=""8"">stun - (quality * strength/10000 * 0.75)</Expression>    <!-- Shockwave -->
- 		<Expression damagetype=""9"">stun - (quality * strength/25000 * 0.75)</Expression>    <!-- Bite -->
- 		<Expression damagetype=""10"">stun - (quality * strength/25000 * 0.75)</Expression>   <!-- Claw -->
- 		<Expression damagetype=""11"">stun - (quality * 0.75)</Expression>                    <!-- Electrical -->
- 		<Expression damagetype=""12"">stun - (quality * 0.75)</Expression>                    <!-- Hypoxia -->
- 		<Expression damagetype=""13"">stun - (quality * 0.75)</Expression>                    <!-- Cellular -->
+	</DissipateExpressionsPain>  
+	<DissipateExpressionsStun>
+		<Expression damagetype=""0"">stun - (quality * strength/25000 * 0.75)</Expression>    <!-- Slashing -->
+		<Expression damagetype=""1"">stun - (quality * strength/25000 * 0.75)</Expression>    <!-- Chopping -->  
+		<Expression damagetype=""2"">stun - (quality * strength/10000 * 0.75)</Expression>    <!-- Crushing -->  
+		<Expression damagetype=""3"">stun - (quality * strength/25000 * 0.75)</Expression>    <!-- Piercing -->  
+		<Expression damagetype=""4"">stun - (quality * strength/25000 * 0.75)</Expression>    <!-- Ballistic -->  
+		<Expression damagetype=""5"">stun - (quality * 0.75)</Expression>    			        <!-- Burning -->
+		<Expression damagetype=""6"">stun - (quality * 0.75)</Expression>                     <!-- Freezing -->
+		<Expression damagetype=""7"">stun - (quality * 0.75)</Expression>                     <!-- Chemical -->
+		<Expression damagetype=""8"">stun - (quality * strength/10000 * 0.75)</Expression>    <!-- Shockwave -->
+		<Expression damagetype=""9"">stun - (quality * strength/25000 * 0.75)</Expression>    <!-- Bite -->
+		<Expression damagetype=""10"">stun - (quality * strength/25000 * 0.75)</Expression>   <!-- Claw -->
+		<Expression damagetype=""11"">stun - (quality * 0.75)</Expression>                    <!-- Electrical -->
+		<Expression damagetype=""12"">stun - (quality * 0.75)</Expression>                    <!-- Hypoxia -->
+		<Expression damagetype=""13"">stun - (quality * 0.75)</Expression>                    <!-- Cellular -->
 		<Expression damagetype=""14"">stun - (quality * strength/10000 * 0.75)</Expression>   <!-- Sonic -->
- 		<Expression damagetype=""15"">stun - (quality * strength/25000 * 0.75)</Expression>   <!-- Shearing --> 
+		<Expression damagetype=""15"">stun - (quality * strength/25000 * 0.75)</Expression>   <!-- Shearing --> 
 		<Expression damagetype=""16"">stun - (quality * strength/25000 * 0.75)</Expression>   <!-- ArmourPiercing -->
 		<Expression damagetype=""17"">stun - (quality * strength/10000 * 0.75)</Expression>   <!-- Wrenching -->
- 		<Expression damagetype=""18"">stun - (quality * strength/25000 * 0.75)</Expression>   <!-- Shrapnel -->   
+		<Expression damagetype=""18"">stun - (quality * strength/25000 * 0.75)</Expression>   <!-- Shrapnel -->   
 		<Expression damagetype=""19"">stun - (quality * 0.75)</Expression>                    <!-- Necrotic -->   
- 		<Expression damagetype=""20"">stun - (quality * strength/10000 * 0.75)</Expression>   <!-- Falling -->   
+		<Expression damagetype=""20"">stun - (quality * strength/10000 * 0.75)</Expression>   <!-- Falling -->   
 		<Expression damagetype=""21"">stun - (quality * 0.75)</Expression>                    <!-- Eldritch -->   
 		<Expression damagetype=""22"">stun - (quality * 0.75)</Expression>                    <!-- Arcane -->   
- 	</DissipateExpressionsStun>  
+	</DissipateExpressionsStun>  
 	<!-- 
 	
-	    Absorb expressions are applied after dissipate expressions and item/part damage. 
-	    The after-absorb values are what is passed on to anything ""below"" e.g. bones, organs, parts worn under armour, etc 
+		Absorb expressions are applied after dissipate expressions and item/part damage. 
+		The after-absorb values are what is passed on to anything ""below"" e.g. bones, organs, parts worn under armour, etc 
 		
-	    Parameters: 
+		Parameters: 
 		* damage, pain or stun (as appropriate) = the residual damage/pain/stun after dissipate step
 		* quality = the quality of the armour, rated 0 (Abysmal) to 11 (Legendary)
 		* angle = the angle in radians of the attack (e.g. 1.5708rad = 90 degrees)
@@ -1341,81 +1341,81 @@ public partial class HumanSeeder
 		Hint: 25000 can be considered ""base"" ShearYield and 10000 can be considered ""base"" ImpactYield
 		
 		-->
- 	<AbsorbExpressions>
-	 	<Expression damagetype=""0"">damage*(0.8-(quality*0.02))</Expression>    <!-- Slashing -->
- 		<Expression damagetype=""1"">damage*(0.8-(quality*0.02))</Expression>    <!-- Chopping -->  
- 		<Expression damagetype=""2"">damage*(0.8-(quality*0.02))</Expression>    <!-- Crushing -->  
- 		<Expression damagetype=""3"">damage*(0.8-(quality*0.02))</Expression>    <!-- Piercing -->  
- 		<Expression damagetype=""4"">damage*(0.9-(quality*0.02))</Expression>    <!-- Ballistic -->  
- 		<Expression damagetype=""5"">damage*(0.5-(quality*0.02))</Expression>    <!-- Burning -->
- 		<Expression damagetype=""6"">damage*(0.5-(quality*0.02))</Expression>    <!-- Freezing -->
- 		<Expression damagetype=""7"">damage*(0.5-(quality*0.02))</Expression>    <!-- Chemical -->
- 		<Expression damagetype=""8"">damage*(0.8-(quality*0.02))</Expression>    <!-- Shockwave -->
- 		<Expression damagetype=""9"">damage*(0.8-(quality*0.02))</Expression>    <!-- Bite -->
- 		<Expression damagetype=""10"">damage*(0.8-(quality*0.02))</Expression>   <!-- Claw -->
- 		<Expression damagetype=""11"">damage*(0.5-(quality*0.02))</Expression>   <!-- Electrical -->
- 		<Expression damagetype=""12"">0</Expression>                             <!-- Hypoxia -->
- 		<Expression damagetype=""13"">0</Expression>                             <!-- Cellular -->
+	<AbsorbExpressions>
+		<Expression damagetype=""0"">damage*(0.8-(quality*0.02))</Expression>    <!-- Slashing -->
+		<Expression damagetype=""1"">damage*(0.8-(quality*0.02))</Expression>    <!-- Chopping -->  
+		<Expression damagetype=""2"">damage*(0.8-(quality*0.02))</Expression>    <!-- Crushing -->  
+		<Expression damagetype=""3"">damage*(0.8-(quality*0.02))</Expression>    <!-- Piercing -->  
+		<Expression damagetype=""4"">damage*(0.9-(quality*0.02))</Expression>    <!-- Ballistic -->  
+		<Expression damagetype=""5"">damage*(0.5-(quality*0.02))</Expression>    <!-- Burning -->
+		<Expression damagetype=""6"">damage*(0.5-(quality*0.02))</Expression>    <!-- Freezing -->
+		<Expression damagetype=""7"">damage*(0.5-(quality*0.02))</Expression>    <!-- Chemical -->
+		<Expression damagetype=""8"">damage*(0.8-(quality*0.02))</Expression>    <!-- Shockwave -->
+		<Expression damagetype=""9"">damage*(0.8-(quality*0.02))</Expression>    <!-- Bite -->
+		<Expression damagetype=""10"">damage*(0.8-(quality*0.02))</Expression>   <!-- Claw -->
+		<Expression damagetype=""11"">damage*(0.5-(quality*0.02))</Expression>   <!-- Electrical -->
+		<Expression damagetype=""12"">0</Expression>                             <!-- Hypoxia -->
+		<Expression damagetype=""13"">0</Expression>                             <!-- Cellular -->
 		<Expression damagetype=""14"">damage*(0.8-(quality*0.02))</Expression>   <!-- Sonic -->
- 		<Expression damagetype=""15"">damage*(0.8-(quality*0.02))</Expression>   <!-- Shearing --> 
+		<Expression damagetype=""15"">damage*(0.8-(quality*0.02))</Expression>   <!-- Shearing --> 
 		<Expression damagetype=""16"">damage*(1.0-(quality*0.02))</Expression>   <!-- ArmourPiercing -->
 		<Expression damagetype=""17"">damage*(0.8-(quality*0.02))</Expression>   <!-- Wrenching -->
- 		<Expression damagetype=""18"">damage*(0.8-(quality*0.02))</Expression>   <!-- Shrapnel -->   
+		<Expression damagetype=""18"">damage*(0.8-(quality*0.02))</Expression>   <!-- Shrapnel -->   
 		<Expression damagetype=""19"">damage*(0.8-(quality*0.02))</Expression>   <!-- Necrotic -->   
- 		<Expression damagetype=""20"">damage*(0.8-(quality*0.02))</Expression>   <!-- Falling -->   
+		<Expression damagetype=""20"">damage*(0.8-(quality*0.02))</Expression>   <!-- Falling -->   
 		<Expression damagetype=""21"">damage*(0.8-(quality*0.02))</Expression>   <!-- Eldritch -->   
 		<Expression damagetype=""22"">damage*(0.8-(quality*0.02))</Expression>   <!-- Arcane -->   
- 	</AbsorbExpressions>  
- 	<AbsorbExpressionsPain>
-        <Expression damagetype=""0"">pain*(0.8-(quality*0.02))</Expression>    <!-- Slashing -->
- 		<Expression damagetype=""1"">pain*(0.8-(quality*0.02))</Expression>    <!-- Chopping -->  
- 		<Expression damagetype=""2"">pain*(0.8-(quality*0.02))</Expression>    <!-- Crushing -->  
- 		<Expression damagetype=""3"">pain*(0.8-(quality*0.02))</Expression>    <!-- Piercing -->  
- 		<Expression damagetype=""4"">pain*(0.9-(quality*0.02))</Expression>    <!-- Ballistic -->  
- 		<Expression damagetype=""5"">pain*(0.5-(quality*0.02))</Expression>    <!-- Burning -->
- 		<Expression damagetype=""6"">pain*(0.5-(quality*0.02))</Expression>    <!-- Freezing -->
- 		<Expression damagetype=""7"">pain*(0.5-(quality*0.02))</Expression>    <!-- Chemical -->
- 		<Expression damagetype=""8"">pain*(0.8-(quality*0.02))</Expression>    <!-- Shockwave -->
- 		<Expression damagetype=""9"">pain*(0.8-(quality*0.02))</Expression>    <!-- Bite -->
- 		<Expression damagetype=""10"">pain*(0.8-(quality*0.02))</Expression>   <!-- Claw -->
- 		<Expression damagetype=""11"">pain*(0.5-(quality*0.02))</Expression>   <!-- Electrical -->
- 		<Expression damagetype=""12"">0</Expression>                             <!-- Hypoxia -->
- 		<Expression damagetype=""13"">0</Expression>                             <!-- Cellular -->
+	</AbsorbExpressions>  
+	<AbsorbExpressionsPain>
+		<Expression damagetype=""0"">pain*(0.8-(quality*0.02))</Expression>    <!-- Slashing -->
+		<Expression damagetype=""1"">pain*(0.8-(quality*0.02))</Expression>    <!-- Chopping -->  
+		<Expression damagetype=""2"">pain*(0.8-(quality*0.02))</Expression>    <!-- Crushing -->  
+		<Expression damagetype=""3"">pain*(0.8-(quality*0.02))</Expression>    <!-- Piercing -->  
+		<Expression damagetype=""4"">pain*(0.9-(quality*0.02))</Expression>    <!-- Ballistic -->  
+		<Expression damagetype=""5"">pain*(0.5-(quality*0.02))</Expression>    <!-- Burning -->
+		<Expression damagetype=""6"">pain*(0.5-(quality*0.02))</Expression>    <!-- Freezing -->
+		<Expression damagetype=""7"">pain*(0.5-(quality*0.02))</Expression>    <!-- Chemical -->
+		<Expression damagetype=""8"">pain*(0.8-(quality*0.02))</Expression>    <!-- Shockwave -->
+		<Expression damagetype=""9"">pain*(0.8-(quality*0.02))</Expression>    <!-- Bite -->
+		<Expression damagetype=""10"">pain*(0.8-(quality*0.02))</Expression>   <!-- Claw -->
+		<Expression damagetype=""11"">pain*(0.5-(quality*0.02))</Expression>   <!-- Electrical -->
+		<Expression damagetype=""12"">0</Expression>                             <!-- Hypoxia -->
+		<Expression damagetype=""13"">0</Expression>                             <!-- Cellular -->
 		<Expression damagetype=""14"">pain*(0.8-(quality*0.02))</Expression>   <!-- Sonic -->
- 		<Expression damagetype=""15"">pain*(0.8-(quality*0.02))</Expression>   <!-- Shearing --> 
+		<Expression damagetype=""15"">pain*(0.8-(quality*0.02))</Expression>   <!-- Shearing --> 
 		<Expression damagetype=""16"">pain*(1.0-(quality*0.02))</Expression>   <!-- ArmourPiercing -->
 		<Expression damagetype=""17"">pain*(0.8-(quality*0.02))</Expression>   <!-- Wrenching -->
- 		<Expression damagetype=""18"">pain*(0.8-(quality*0.02))</Expression>   <!-- Shrapnel -->   
+		<Expression damagetype=""18"">pain*(0.8-(quality*0.02))</Expression>   <!-- Shrapnel -->   
 		<Expression damagetype=""19"">pain*(0.8-(quality*0.02))</Expression>   <!-- Necrotic -->   
- 		<Expression damagetype=""20"">pain*(0.8-(quality*0.02))</Expression>   <!-- Falling -->   
+		<Expression damagetype=""20"">pain*(0.8-(quality*0.02))</Expression>   <!-- Falling -->   
 		<Expression damagetype=""21"">pain*(0.8-(quality*0.02))</Expression>   <!-- Eldritch -->   
 		<Expression damagetype=""22"">pain*(0.8-(quality*0.02))</Expression>   <!-- Arcane -->   
- 	</AbsorbExpressionsPain>  
- 	<AbsorbExpressionsStun>
-        <Expression damagetype=""0"">stun*(0.8-(quality*0.02))</Expression>    <!-- Slashing -->
- 		<Expression damagetype=""1"">stun*(0.8-(quality*0.02))</Expression>    <!-- Chopping -->  
- 		<Expression damagetype=""2"">stun*(0.8-(quality*0.02))</Expression>    <!-- Crushing -->  
- 		<Expression damagetype=""3"">stun*(0.8-(quality*0.02))</Expression>    <!-- Piercing -->  
- 		<Expression damagetype=""4"">stun*(0.9-(quality*0.02))</Expression>    <!-- Ballistic -->  
- 		<Expression damagetype=""5"">stun*(0.5-(quality*0.02))</Expression>    <!-- Burning -->
- 		<Expression damagetype=""6"">stun*(0.5-(quality*0.02))</Expression>    <!-- Freezing -->
- 		<Expression damagetype=""7"">stun*(0.5-(quality*0.02))</Expression>    <!-- Chemical -->
- 		<Expression damagetype=""8"">stun*(0.8-(quality*0.02))</Expression>    <!-- Shockwave -->
- 		<Expression damagetype=""9"">stun*(0.8-(quality*0.02))</Expression>    <!-- Bite -->
- 		<Expression damagetype=""10"">stun*(0.8-(quality*0.02))</Expression>   <!-- Claw -->
- 		<Expression damagetype=""11"">stun*(0.5-(quality*0.02))</Expression>   <!-- Electrical -->
- 		<Expression damagetype=""12"">0</Expression>                             <!-- Hypoxia -->
- 		<Expression damagetype=""13"">0</Expression>                             <!-- Cellular -->
+	</AbsorbExpressionsPain>  
+	<AbsorbExpressionsStun>
+		<Expression damagetype=""0"">stun*(0.8-(quality*0.02))</Expression>    <!-- Slashing -->
+		<Expression damagetype=""1"">stun*(0.8-(quality*0.02))</Expression>    <!-- Chopping -->  
+		<Expression damagetype=""2"">stun*(0.8-(quality*0.02))</Expression>    <!-- Crushing -->  
+		<Expression damagetype=""3"">stun*(0.8-(quality*0.02))</Expression>    <!-- Piercing -->  
+		<Expression damagetype=""4"">stun*(0.9-(quality*0.02))</Expression>    <!-- Ballistic -->  
+		<Expression damagetype=""5"">stun*(0.5-(quality*0.02))</Expression>    <!-- Burning -->
+		<Expression damagetype=""6"">stun*(0.5-(quality*0.02))</Expression>    <!-- Freezing -->
+		<Expression damagetype=""7"">stun*(0.5-(quality*0.02))</Expression>    <!-- Chemical -->
+		<Expression damagetype=""8"">stun*(0.8-(quality*0.02))</Expression>    <!-- Shockwave -->
+		<Expression damagetype=""9"">stun*(0.8-(quality*0.02))</Expression>    <!-- Bite -->
+		<Expression damagetype=""10"">stun*(0.8-(quality*0.02))</Expression>   <!-- Claw -->
+		<Expression damagetype=""11"">stun*(0.5-(quality*0.02))</Expression>   <!-- Electrical -->
+		<Expression damagetype=""12"">0</Expression>                             <!-- Hypoxia -->
+		<Expression damagetype=""13"">0</Expression>                             <!-- Cellular -->
 		<Expression damagetype=""14"">stun*(0.8-(quality*0.02))</Expression>   <!-- Sonic -->
- 		<Expression damagetype=""15"">stun*(0.8-(quality*0.02))</Expression>   <!-- Shearing --> 
+		<Expression damagetype=""15"">stun*(0.8-(quality*0.02))</Expression>   <!-- Shearing --> 
 		<Expression damagetype=""16"">stun*(1.0-(quality*0.02))</Expression>   <!-- ArmourPiercing -->
 		<Expression damagetype=""17"">stun*(0.8-(quality*0.02))</Expression>   <!-- Wrenching -->
- 		<Expression damagetype=""18"">stun*(0.8-(quality*0.02))</Expression>   <!-- Shrapnel -->   
+		<Expression damagetype=""18"">stun*(0.8-(quality*0.02))</Expression>   <!-- Shrapnel -->   
 		<Expression damagetype=""19"">stun*(0.8-(quality*0.02))</Expression>   <!-- Necrotic -->   
- 		<Expression damagetype=""20"">stun*(0.8-(quality*0.02))</Expression>   <!-- Falling -->   
+		<Expression damagetype=""20"">stun*(0.8-(quality*0.02))</Expression>   <!-- Falling -->   
 		<Expression damagetype=""21"">stun*(0.8-(quality*0.02))</Expression>   <!-- Eldritch -->   
 		<Expression damagetype=""22"">stun*(0.8-(quality*0.02))</Expression>   <!-- Arcane -->   
- 	</AbsorbExpressionsStun>
+	</AbsorbExpressionsStun>
  </ArmourType>"
 			};
 			_context.ArmourTypes.Add(_boneArmour);
@@ -4747,11 +4747,11 @@ public partial class HumanSeeder
 				HidesSevered: false),
 			("ltemple", 1, Mandatory: true, NoArmour: false, Transparent: false, PreventsRemoval: true,
 				HidesSevered: false),
-            ("rbrow", 1, Mandatory: false, NoArmour: false, Transparent: true, PreventsRemoval: true,
-                HidesSevered: false),
-            ("lbrow", 1, Mandatory: false, NoArmour: false, Transparent: true, PreventsRemoval: true,
-                HidesSevered: false)
-        );
+			("rbrow", 1, Mandatory: false, NoArmour: false, Transparent: true, PreventsRemoval: true,
+				HidesSevered: false),
+			("lbrow", 1, Mandatory: false, NoArmour: false, Transparent: true, PreventsRemoval: true,
+				HidesSevered: false)
+		);
 		AddWearProfileDirect("Half Helmet", "worn on", "put", "puts", "on",
 			"Worn as a helmet covering the vital parts of the head and the ears (e.g. roman cavalry helmet)", false,
 			true,
@@ -4769,15 +4769,15 @@ public partial class HumanSeeder
 				HidesSevered: false),
 			("lear", 1, Mandatory: false, NoArmour: false, Transparent: false, PreventsRemoval: true,
 				HidesSevered: false),
-            ("rbrow", 1, Mandatory: false, NoArmour: false, Transparent: true, PreventsRemoval: true,
-                HidesSevered: false),
-            ("lbrow", 1, Mandatory: false, NoArmour: false, Transparent: true, PreventsRemoval: true,
-                HidesSevered: false),
+			("rbrow", 1, Mandatory: false, NoArmour: false, Transparent: true, PreventsRemoval: true,
+				HidesSevered: false),
+			("lbrow", 1, Mandatory: false, NoArmour: false, Transparent: true, PreventsRemoval: true,
+				HidesSevered: false),
 			("rcheek", 1, Mandatory: false, NoArmour: false, Transparent: false, PreventsRemoval: true,
 				HidesSevered:false),
-            ("lcheek", 1, Mandatory: false, NoArmour: false, Transparent: false, PreventsRemoval: true,
-                HidesSevered: false)
-        );
+			("lcheek", 1, Mandatory: false, NoArmour: false, Transparent: false, PreventsRemoval: true,
+				HidesSevered: false)
+		);
 		AddWearProfileDirect("Spangenhelm", "worn on", "put", "puts", "on",
 			"Worn as a helmet covering the vital parts of the head, ears and cheeks (e.g. a spangenhelm, open face motorcycle helmet)",
 			false, true,
@@ -4799,11 +4799,11 @@ public partial class HumanSeeder
 				HidesSevered: true),
 			("lear", 1, Mandatory: false, NoArmour: false, Transparent: false, PreventsRemoval: true,
 				HidesSevered: true),
-            ("rbrow", 1, Mandatory: false, NoArmour: false, Transparent: true, PreventsRemoval: true,
-                HidesSevered: false),
-            ("lbrow", 1, Mandatory: false, NoArmour: false, Transparent: true, PreventsRemoval: true,
-                HidesSevered: false)
-        );
+			("rbrow", 1, Mandatory: false, NoArmour: false, Transparent: true, PreventsRemoval: true,
+				HidesSevered: false),
+			("lbrow", 1, Mandatory: false, NoArmour: false, Transparent: true, PreventsRemoval: true,
+				HidesSevered: false)
+		);
 		AddWearProfileDirect("Nasal Helm", "worn on", "put", "puts", "on",
 			"Worn as a helmet covering the vital parts of the head and nose (e.g. a phyrgian helmets, roman ridge helmet)",
 			false, true,
@@ -4819,17 +4819,17 @@ public partial class HumanSeeder
 				HidesSevered: false),
 			("nose", 1, Mandatory: false, NoArmour: false, Transparent: false, PreventsRemoval: true,
 				HidesSevered: false),
-            ("rbrow", 1, Mandatory: false, NoArmour: false, Transparent: true, PreventsRemoval: true,
-                HidesSevered: false),
-            ("lbrow", 1, Mandatory: false, NoArmour: false, Transparent: true, PreventsRemoval: true,
-                HidesSevered: false),
-            ("face", 1, Mandatory: true, NoArmour: false, Transparent: true, PreventsRemoval: true,
-                HidesSevered: false),
-            ("reyesocket", 1, Mandatory: true, NoArmour: false, Transparent: true, PreventsRemoval: true,
-                HidesSevered: false),
-            ("leyesocket", 1, Mandatory: true, NoArmour: false, Transparent: true, PreventsRemoval: true,
-                HidesSevered: false)
-        );
+			("rbrow", 1, Mandatory: false, NoArmour: false, Transparent: true, PreventsRemoval: true,
+				HidesSevered: false),
+			("lbrow", 1, Mandatory: false, NoArmour: false, Transparent: true, PreventsRemoval: true,
+				HidesSevered: false),
+			("face", 1, Mandatory: true, NoArmour: false, Transparent: true, PreventsRemoval: true,
+				HidesSevered: false),
+			("reyesocket", 1, Mandatory: true, NoArmour: false, Transparent: true, PreventsRemoval: true,
+				HidesSevered: false),
+			("leyesocket", 1, Mandatory: true, NoArmour: false, Transparent: true, PreventsRemoval: true,
+				HidesSevered: false)
+		);
 		AddWearProfileDirect("Nasal Spangenhelm", "worn on", "put", "puts", "on",
 			"Worn as a helmet covering the vital parts of the head, ears, cheeks and nose", false, true,
 			("scalp", 1, Mandatory: true, NoArmour: false, Transparent: false, PreventsRemoval: true,
@@ -4853,16 +4853,16 @@ public partial class HumanSeeder
 			("lear", 1, Mandatory: false, NoArmour: false, Transparent: false, PreventsRemoval: true,
 				HidesSevered: true),
 			("rbrow", 1, Mandatory: false, NoArmour: false, Transparent: true, PreventsRemoval: true,
-                HidesSevered: false),
-            ("lbrow", 1, Mandatory: false, NoArmour: false, Transparent: true, PreventsRemoval: true,
-                HidesSevered: false),
+				HidesSevered: false),
+			("lbrow", 1, Mandatory: false, NoArmour: false, Transparent: true, PreventsRemoval: true,
+				HidesSevered: false),
 			("face", 1, Mandatory: true, NoArmour: false, Transparent: true, PreventsRemoval: true,
-                HidesSevered: false),
-            ("reyesocket", 1, Mandatory: true, NoArmour: false, Transparent: true, PreventsRemoval: true,
-                HidesSevered: false),
-            ("leyesocket", 1, Mandatory: true, NoArmour: false, Transparent: true, PreventsRemoval: true,
-                HidesSevered: false)
-        );
+				HidesSevered: false),
+			("reyesocket", 1, Mandatory: true, NoArmour: false, Transparent: true, PreventsRemoval: true,
+				HidesSevered: false),
+			("leyesocket", 1, Mandatory: true, NoArmour: false, Transparent: true, PreventsRemoval: true,
+				HidesSevered: false)
+		);
 		AddWearProfileDirect("Greathelm", "worn on", "put", "puts", "on",
 			"Worn as a helmet that covers the entire head", false, true,
 			("scalp", 1, Mandatory: true, NoArmour: false, Transparent: false, PreventsRemoval: true,
@@ -4901,12 +4901,12 @@ public partial class HumanSeeder
 				HidesSevered: false),
 			("lbrow", 1, Mandatory: false, NoArmour: false, Transparent: true, PreventsRemoval: true,
 				HidesSevered: false),
-            ("mouth", 1, Mandatory: false, NoArmour: false, Transparent: true, PreventsRemoval: true,
-                HidesSevered: true),
-            ("tongue", 1, Mandatory: false, NoArmour: false, Transparent: true, PreventsRemoval: true,
-                HidesSevered: true)
+			("mouth", 1, Mandatory: false, NoArmour: false, Transparent: true, PreventsRemoval: true,
+				HidesSevered: true),
+			("tongue", 1, Mandatory: false, NoArmour: false, Transparent: true, PreventsRemoval: true,
+				HidesSevered: true)
 
-        );
+		);
 		AddWearProfileDirect("Armet", "worn on", "put", "puts", "on",
 			"Worn as a helmet that covers the entire head and neck", false, true,
 			("scalp", 1, Mandatory: true, NoArmour: false, Transparent: false, PreventsRemoval: true,
@@ -4949,42 +4949,42 @@ public partial class HumanSeeder
 				HidesSevered: false),
 			("bneck", 1, Mandatory: false, NoArmour: false, Transparent: true, PreventsRemoval: true,
 				HidesSevered: false),
-            ("mouth", 1, Mandatory: false, NoArmour: false, Transparent: true, PreventsRemoval: true,
-                HidesSevered: true),
-            ("tongue", 1, Mandatory: false, NoArmour: false, Transparent: true, PreventsRemoval: true,
-                HidesSevered: true),
-            ("throat", 1, Mandatory: false, NoArmour: false, Transparent: true, PreventsRemoval: true,
+			("mouth", 1, Mandatory: false, NoArmour: false, Transparent: true, PreventsRemoval: true,
+				HidesSevered: true),
+			("tongue", 1, Mandatory: false, NoArmour: false, Transparent: true, PreventsRemoval: true,
+				HidesSevered: true),
+			("throat", 1, Mandatory: false, NoArmour: false, Transparent: true, PreventsRemoval: true,
 				HidesSevered: false)
 		);
-        AddWearProfileDirect("Open Armet", "worn on", "put", "puts", "on",
-            "Worn as a helmet that covers the entire head and neck", false, true,
-            ("scalp", 1, Mandatory: true, NoArmour: false, Transparent: false, PreventsRemoval: true,
-                HidesSevered: false),        
-            ("bhead", 1, Mandatory: true, NoArmour: false, Transparent: false, PreventsRemoval: true,
-                HidesSevered: false),
-            ("forehead", 1, Mandatory: true, NoArmour: false, Transparent: false, PreventsRemoval: true,
-                HidesSevered: false),
-            ("rtemple", 1, Mandatory: true, NoArmour: false, Transparent: false, PreventsRemoval: true,
-                HidesSevered: false),
-            ("ltemple", 1, Mandatory: true, NoArmour: false, Transparent: false, PreventsRemoval: true,
-                HidesSevered: false),
-            ("rear", 1, Mandatory: false, NoArmour: false, Transparent: false, PreventsRemoval: true,
-                HidesSevered: true),
-            ("lear", 1, Mandatory: false, NoArmour: false, Transparent: false, PreventsRemoval: true,
-                HidesSevered: true),            
-            ("rbrow", 1, Mandatory: false, NoArmour: false, Transparent: true, PreventsRemoval: true,
-                HidesSevered: false),
-            ("lbrow", 1, Mandatory: false, NoArmour: false, Transparent: true, PreventsRemoval: true,
-                HidesSevered: false),
-            ("neck", 1, Mandatory: false, NoArmour: false, Transparent: true, PreventsRemoval: true,
-                HidesSevered: false),
-            ("bneck", 1, Mandatory: false, NoArmour: false, Transparent: true, PreventsRemoval: true,
-                HidesSevered: false),
-            ("throat", 1, Mandatory: false, NoArmour: false, Transparent: true, PreventsRemoval: true,
-                HidesSevered: false)
-		):
+		AddWearProfileDirect("Open Armet", "worn on", "put", "puts", "on",
+			"Worn as a helmet that covers the entire head and neck", false, true,
+			("scalp", 1, Mandatory: true, NoArmour: false, Transparent: false, PreventsRemoval: true,
+				HidesSevered: false),
+			("bhead", 1, Mandatory: true, NoArmour: false, Transparent: false, PreventsRemoval: true,
+				HidesSevered: false),
+			("forehead", 1, Mandatory: true, NoArmour: false, Transparent: false, PreventsRemoval: true,
+				HidesSevered: false),
+			("rtemple", 1, Mandatory: true, NoArmour: false, Transparent: false, PreventsRemoval: true,
+				HidesSevered: false),
+			("ltemple", 1, Mandatory: true, NoArmour: false, Transparent: false, PreventsRemoval: true,
+				HidesSevered: false),
+			("rear", 1, Mandatory: false, NoArmour: false, Transparent: false, PreventsRemoval: true,
+				HidesSevered: true),
+			("lear", 1, Mandatory: false, NoArmour: false, Transparent: false, PreventsRemoval: true,
+				HidesSevered: true),
+			("rbrow", 1, Mandatory: false, NoArmour: false, Transparent: true, PreventsRemoval: true,
+				HidesSevered: false),
+			("lbrow", 1, Mandatory: false, NoArmour: false, Transparent: true, PreventsRemoval: true,
+				HidesSevered: false),
+			("neck", 1, Mandatory: false, NoArmour: false, Transparent: true, PreventsRemoval: true,
+				HidesSevered: false),
+			("bneck", 1, Mandatory: false, NoArmour: false, Transparent: true, PreventsRemoval: true,
+				HidesSevered: false),
+			("throat", 1, Mandatory: false, NoArmour: false, Transparent: true, PreventsRemoval: true,
+				HidesSevered: false)
+		);
 
-        AddWearProfileDirect("Corinthian Helmet", "worn on", "put", "puts", "on",
+		AddWearProfileDirect("Corinthian Helmet", "worn on", "put", "puts", "on",
 			"Worn as a helmet that covers the entire head and front of neck, but leaves eyes and back of neck exposed",
 			false, true,
 			("scalp", 1, Mandatory: true, NoArmour: false, Transparent: false, PreventsRemoval: true,
@@ -5021,11 +5021,11 @@ public partial class HumanSeeder
 				HidesSevered: false),
 			("neck", 1, Mandatory: false, NoArmour: false, Transparent: true, PreventsRemoval: true,
 				HidesSevered: false),
-            ("mouth", 1, Mandatory: false, NoArmour: false, Transparent: true, PreventsRemoval: true,
-                HidesSevered: true),
-            ("tongue", 1, Mandatory: false, NoArmour: false, Transparent: true, PreventsRemoval: true,
-                HidesSevered: true)
-        );
+			("mouth", 1, Mandatory: false, NoArmour: false, Transparent: true, PreventsRemoval: true,
+				HidesSevered: true),
+			("tongue", 1, Mandatory: false, NoArmour: false, Transparent: true, PreventsRemoval: true,
+				HidesSevered: true)
+		);
 		AddWearProfileDirect("Coif", "worn on", "put", "puts", "on",
 			"Worn as a coif that covers the head, neck and ears but leaves the face exposed", false, false,
 			("scalp", 1, Mandatory: true, NoArmour: false, Transparent: false, PreventsRemoval: true,
@@ -5048,11 +5048,11 @@ public partial class HumanSeeder
 				HidesSevered: false),
 			("throat", 1, Mandatory: false, NoArmour: false, Transparent: true, PreventsRemoval: true,
 				HidesSevered: false),
-            ("rbrow", 1, Mandatory: false, NoArmour: false, Transparent: true, PreventsRemoval: true,
-                HidesSevered: false),
-            ("lbrow", 1, Mandatory: false, NoArmour: false, Transparent: true, PreventsRemoval: true,
-                HidesSevered: false)
-        );
+			("rbrow", 1, Mandatory: false, NoArmour: false, Transparent: true, PreventsRemoval: true,
+				HidesSevered: false),
+			("lbrow", 1, Mandatory: false, NoArmour: false, Transparent: true, PreventsRemoval: true,
+				HidesSevered: false)
+		);
 		AddWearProfileDirect("Aventail Spangenhelm", "worn on", "put", "puts", "on",
 			"Worn as a helmet covering the vital parts of the head, ears and cheeks with an aventail attachment", false,
 			true,
@@ -5080,13 +5080,13 @@ public partial class HumanSeeder
 				HidesSevered: false),
 			("throat", 1, Mandatory: false, NoArmour: false, Transparent: true, PreventsRemoval: true,
 				HidesSevered: false),
-            ("rbrow", 1, Mandatory: false, NoArmour: false, Transparent: true, PreventsRemoval: true,
-                HidesSevered: false),
-            ("lbrow", 1, Mandatory: false, NoArmour: false, Transparent: true, PreventsRemoval: true,
-                HidesSevered: false)
+			("rbrow", 1, Mandatory: false, NoArmour: false, Transparent: true, PreventsRemoval: true,
+				HidesSevered: false),
+			("lbrow", 1, Mandatory: false, NoArmour: false, Transparent: true, PreventsRemoval: true,
+				HidesSevered: false)
 
-        );
-		AddWearProfileDirect("Sallet Helmet", "worn on", "put on", "on", "Worn as a helmet covering the upper half of the head", false,
+		);
+		AddWearProfileDirect("Sallet Helmet", "worn on", "put", "puts", "on", "Worn as a helmet covering the upper half of the head", false,
 			true,
 			("scalp", 1, Mandatory: true, NoArmour: false, Transparent: false, PreventsRemoval: true,
 				HidesSevered: false),
@@ -5116,13 +5116,13 @@ public partial class HumanSeeder
 				HidesSevered: false),
 			("leyesocket", 1, Mandatory: true, NoArmour: false, Transparent: true, PreventsRemoval: true,
 				HidesSevered: false),
-            ("face", 1, Mandatory: true, NoArmour: false, Transparent: true, PreventsRemoval: true,
-                HidesSevered: false),
-            ("nose", 1, Mandatory: false, NoArmour: false, Transparent: true, PreventsRemoval: true,
-                HidesSevered: false)
+			("face", 1, Mandatory: true, NoArmour: false, Transparent: true, PreventsRemoval: true,
+				HidesSevered: false),
+			("nose", 1, Mandatory: false, NoArmour: false, Transparent: true, PreventsRemoval: true,
+				HidesSevered: false)
 
-        );
-		AddWearProfileDirect("Open Sallet Helmet", "worn on", "put on", "on", "Worn as a helmet covering the upper half of the head", false,
+		);
+		AddWearProfileDirect("Open Sallet Helmet", "worn on", "put", "puts", "on", "Worn as a helmet covering the upper half of the head", false,
 			true,
 			("scalp", 1, Mandatory: true, NoArmour: false, Transparent: false, PreventsRemoval: true,
 				HidesSevered: false),
@@ -5145,7 +5145,7 @@ public partial class HumanSeeder
 			("lbrow", 1, Mandatory: false, NoArmour: false, Transparent: false, PreventsRemoval: true,
 				HidesSevered: false)
 		);
-		AddWearProfileDirect("Barbute Helmet", "worn on", "put on", "on", "Worn as a helmet covering the upper half of the head", false,
+		AddWearProfileDirect("Barbute Helmet", "worn on", "put", "puts", "on", "Worn as a helmet covering the upper half of the head", false,
 			true,
 			("scalp", 1, Mandatory: true, NoArmour: false, Transparent: false, PreventsRemoval: true,
 				HidesSevered: false),
@@ -5178,7 +5178,7 @@ public partial class HumanSeeder
 			("face", 1, Mandatory: true, NoArmour: false, Transparent: true, PreventsRemoval: true,
 				HidesSevered: false)			
 		);
-		AddWearProfileDirect("Visored Barbute Helmet", "worn on", "put on", "on", "Worn as a helmet covering the upper half of the head", false,
+		AddWearProfileDirect("Visored Barbute Helmet", "worn on", "put", "puts", "on", "Worn as a helmet covering the upper half of the head", false,
 			true,
 			("scalp", 1, Mandatory: true, NoArmour: false, Transparent: false, PreventsRemoval: true,
 				HidesSevered: false),
@@ -5209,17 +5209,17 @@ public partial class HumanSeeder
 			("leyesocket", 1, Mandatory: true, NoArmour: false, Transparent: true, PreventsRemoval: true,
 				HidesSevered: false),
 			("face", 1, Mandatory: true, NoArmour: false, Transparent: false, PreventsRemoval: true,
+				HidesSevered: false),
+			("mouth", 1, Mandatory: false, NoArmour: false, Transparent: false, PreventsRemoval: true,
+				HidesSevered: true),
+			("tongue", 1, Mandatory: false, NoArmour: false, Transparent: false, PreventsRemoval: true,
+				HidesSevered: true),
+			("nose", 1, Mandatory: false, NoArmour: false, Transparent: true, PreventsRemoval: true,
+				HidesSevered: false),
+			("chin", 1, Mandatory: false, NoArmour: false, Transparent: true, PreventsRemoval: true,
 				HidesSevered: false)
-            ("mouth", 1, Mandatory: false, NoArmour: false, Transparent: false, PreventsRemoval: true,
-                HidesSevered: true),
-            ("tongue", 1, Mandatory: false, NoArmour: false, Transparent: false, PreventsRemoval: true,
-                HidesSevered: true),
-            ("nose", 1, Mandatory: false, NoArmour: false, Transparent: true, PreventsRemoval: true,
-                HidesSevered: false),
-            ("chin", 1, Mandatory: false, NoArmour: false, Transparent: true, PreventsRemoval: true,
-                HidesSevered: false)
 
-        );
+		);
 		AddWearProfileDirect("Breastplate", "worn on", "put", "puts", "on", "Worn as a breastplate covering the chest", false, true,
 			("belly", 1, Mandatory: true, NoArmour: false, Transparent: false, PreventsRemoval: true,
 				HidesSevered: false),
@@ -5235,10 +5235,10 @@ public partial class HumanSeeder
 				HidesSevered: true),
 			("rshoulder", 1, Mandatory: true, NoArmour: false, Transparent: false, PreventsRemoval: true,
 				HidesSevered: true),
-            ("lshoulder", 1, Mandatory: true, NoArmour: false, Transparent: false, PreventsRemoval: true,
-                HidesSevered: false)
+			("lshoulder", 1, Mandatory: true, NoArmour: false, Transparent: false, PreventsRemoval: true,
+				HidesSevered: false)
 
-         );
+		 );
 		AddWearProfileDirect("Plackart", "worn on", "put", "puts", "on", "Worn as a plackart covering the back", false, true,
 			("lback", 1, Mandatory: true, NoArmour: false, Transparent: false, PreventsRemoval: true,
 				HidesSevered: false),
@@ -5249,7 +5249,7 @@ public partial class HumanSeeder
 			("lshoulderblade", 1, Mandatory: true, NoArmour: false, Transparent: false, PreventsRemoval: true,
 				HidesSevered: false)
 		);
-        AddWearProfileDirect("Doublet", "worn on", "put", "puts", "on", "Worn as a doublet", false, true,
+		AddWearProfileDirect("Doublet", "worn on", "put", "puts", "on", "Worn as a doublet", false, true,
 			("lback", 1, Mandatory: true, NoArmour: false, Transparent: false, PreventsRemoval: true,
 				HidesSevered: false),
 			("uback", 1, Mandatory: true, NoArmour: false, Transparent: false, PreventsRemoval: true,
@@ -5562,12 +5562,12 @@ public partial class HumanSeeder
 			("chin", 1, Mandatory: false, NoArmour: false, Transparent: false, PreventsRemoval: true,
 				HidesSevered: false),
 			("bneck", 1, Mandatory: true, NoArmour: false, Transparent: false, PreventsRemoval: true,
-				HidesSevered: false)
-            ("mouth", 1, Mandatory: false, NoArmour: false, Transparent: true, PreventsRemoval: true,
-                HidesSevered: true),
-            ("tongue", 1, Mandatory: false, NoArmour: false, Transparent: true, PreventsRemoval: true,
-                HidesSevered: true)
-        );
+				HidesSevered: false),
+			("mouth", 1, Mandatory: false, NoArmour: false, Transparent: true, PreventsRemoval: true,
+				HidesSevered: true),
+			("tongue", 1, Mandatory: false, NoArmour: false, Transparent: true, PreventsRemoval: true,
+				HidesSevered: true)
+		);
 		AddWearProfileDirect("Gorget", "worn on", "put", "puts", "on", "Armour that covers neck and throat", false,
 			true,
 			("neck", 1, Mandatory: true, NoArmour: false, Transparent: false, PreventsRemoval: true,

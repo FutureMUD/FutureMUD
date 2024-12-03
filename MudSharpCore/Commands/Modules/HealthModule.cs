@@ -792,7 +792,14 @@ internal class HealthModule : Module<ICharacter>
 	[NoMeleeCombatCommand]
 	[NoMovementCommand]
 	[HelpInfo("repair",
-		"This command is used to repair damage to items or mechanical persons. This requires the use of an appropriate repair kit, which must be held. The syntaxes available include:\n\trepair <target> with <kit> - repairs all applicable damage with the specified kit, starting with the easiest damage.\n\trepair <target> with <kit> worst - repairs all applicable damage with the specified kit, starting with the hardest damage.\n\trepair <target> why <kit> - shows the error list as to why repairs can't be completed.\n\trepair <target> <bodypart> with <kit> - repairs all wounds on a target bodypart with the kit.",
+		@"This command is used to repair damage to items or mechanical persons. This requires the use of an appropriate repair kit, which must be held. 
+
+The syntaxes available include:
+
+	#3repair <target> with <kit>#0 - repairs all applicable damage with the specified kit, starting with the easiest damage.
+	#3repair <target> with <kit> worst#0 - repairs all applicable damage with the specified kit, starting with the hardest damage.
+	#3repair <target> why <kit>#0 - shows the error list as to why repairs can't be completed.
+	#3repair <target> <bodypart> with <kit>#0 - repairs all wounds on a target bodypart with the kit.",
 		AutoHelp.HelpArgOrNoArg)]
 	protected static void Repair(ICharacter actor, string command)
 	{
@@ -898,7 +905,7 @@ internal class HealthModule : Module<ICharacter>
 		}
 		else
 		{
-			if (!(target is ICharacter ch))
+			if (target is not ICharacter ch)
 			{
 				actor.OutputHandler.Send("You can only specify target bodyparts for character targets.");
 				return;
@@ -950,6 +957,7 @@ internal class HealthModule : Module<ICharacter>
 				? tch.Body.VisibleWounds(actor,
 					actor == target ? WoundExaminationType.Self : WoundExaminationType.Examination)
 				: ((IGameItem)target).Wounds).Where(x => x.Repairable).ToList();
+
 		if (!twounds.Any())
 		{
 			actor.OutputHandler.Send(new EmoteOutput(new Emote("$0 have|has no damage.", actor, target)));

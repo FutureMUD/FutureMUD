@@ -440,6 +440,12 @@ public class EnforcerAI : ArtificialIntelligenceBase
 			return true;
 		}
 
+		if (patrolMember?.Patrol.PatrolLeader is null)
+		{
+			patrolMember?.Patrol.AbortPatrol();
+			return true;
+		}
+
 		// Try to wake up if somehow put to sleep
 		if (enforcer.State.IsAsleep())
 		{

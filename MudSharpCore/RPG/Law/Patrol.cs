@@ -64,8 +64,8 @@ public class Patrol : SaveableItem, IPatrol
 		LastArrivedTime = DateTime.UtcNow;
 		LastMajorNode = Gameworld.Cells.Get(patrol.LastMajorNodeId ?? 0);
 		NextMajorNode = Gameworld.Cells.Get(patrol.NextMajorNodeId ?? 0);
-		PatrolLeader = Gameworld.NPCs.Get(patrol.PatrolLeaderId ?? 0);
-		_members.AddRange(patrol.PatrolMembers.Select(x => Gameworld.NPCs.Get(x.CharacterId)));
+		_members.AddRange(patrol.PatrolMembers.SelectNotNull(x => Gameworld.NPCs.Get(x.CharacterId)));
+		PatrolLeader = Gameworld.NPCs.Get(patrol.PatrolLeaderId ?? 0) ?? PatrolMembers.GetRandomElement();
 		Gameworld.HeartbeatManager.FuzzyFiveSecondHeartbeat += HandlePatrolTick;
 		Gameworld.Add(this);
 	}

@@ -216,6 +216,13 @@ internal class CommunicationsModule : Module<ICharacter>
 	}
 
 	[PlayerCommand("Speak", "speak")]
+	[HelpInfo("speak", @"The #3speak#0 command allows you to select which language and which accent or dialect you will use when you use commands that make you speak. You can also use it to view what language and accent you are currently using.
+
+The syntax is as follows:
+
+	#3speak#0 - see what accents you are currently speaking
+	#3speak <language>#0 - start speaking a language with your preferred or otherwise best known accent
+	#3speak <language> <accent>#0 - start speaking a language with a specific accent", AutoHelp.HelpArg)]
 	protected static void Speak(ICharacter actor, string input)
 	{
 		if (!actor.Languages.Any())
@@ -228,8 +235,22 @@ internal class CommunicationsModule : Module<ICharacter>
 		var lang = ss.PopSpeech();
 		if (lang.Length == 0)
 		{
-			actor.OutputHandler.Send("You are currently speaking " + actor.CurrentLanguage.Name.Proper() + " " +
-															 actor.CurrentAccent.AccentSuffix + ".");
+			if (actor.CurrentLanguage is null)
+			{
+				actor.OutputHandler.Send("You are not currently speaking any languages.");
+				return;
+			}
+
+			if (actor.CurrentAccent is null)
+			{
+				actor.CurrentAccent = actor.Accents.Where(x => x.Language == actor.CurrentLanguage).FirstMin(x => actor.AccentDifficulty(x, false));
+				if (actor.CurrentAccent is null)
+				{
+					actor.LearnAccent(actor.CurrentLanguage.DefaultLearnerAccent, Difficulty.Automatic);
+					actor.CurrentAccent = actor.CurrentLanguage.DefaultLearnerAccent;
+				}
+			}
+			actor.OutputHandler.Send($"You are currently speaking {actor.CurrentLanguage.Name.Proper().ColourValue()} {actor.CurrentAccent.AccentSuffix}.");
 			return;
 		}
 
@@ -258,21 +279,20 @@ internal class CommunicationsModule : Module<ICharacter>
 
 		if (accent == null)
 		{
-			actor.OutputHandler.Send("You do not know that accent of " + language.Name.Proper() + ".");
+			actor.OutputHandler.Send($"You do not know that accent of {language.Name.Proper().ColourValue()}.");
 			return;
 		}
 
 		if (actor.AccentDifficulty(accent, false) > Difficulty.Easy && !actor.IsAdministrator() &&
 				actor.Accents.Count(x => x.Language == language) > 1)
 		{
-			actor.OutputHandler.Send("You do not have sufficient command over " + accent.Description +
-															 " to speak it.");
+			actor.OutputHandler.Send($"You do not have sufficient command over {accent.Description.ColourValue()} to speak it.");
 			return;
 		}
 
 		actor.CurrentLanguage = language;
 		actor.CurrentAccent = accent;
-		actor.OutputHandler.Send("You will now speak in " + language.Name.Proper() + " " + accent.AccentSuffix + ".");
+		actor.OutputHandler.Send($"You will now speak in {language.Name.Proper().ColourValue()} {accent.AccentSuffix}.");
 	}
 
 	[PlayerCommand("Semote", "semote")]

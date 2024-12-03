@@ -114,23 +114,23 @@ Combat messages can be presented in a number of different styles. Fundamentally,
 
 #BCompact#F
 
-    A tall, bearded man swings a steel longsword at a pudgy, brown-haired codger, who tries to dodge but gets hit on the head!
+	A tall, bearded man swings a steel longsword at a pudgy, brown-haired codger, who tries to dodge but gets hit on the head!
 
 #BSentences#F
 
-    A tall, bearded man swings a steel longsword at a pudgy, brown-haired codger. He tries to dodge out of the way but is unsuccessful. He is hit on the head.
+	A tall, bearded man swings a steel longsword at a pudgy, brown-haired codger. He tries to dodge out of the way but is unsuccessful. He is hit on the head.
 
 #BSparse#F
 
-    A tall, bearded man swings a steel longsword at a pudgy, brown-haired codger.
-    He tries to dodge out of the way but is unsuccessful.
-    He is hit on the head!
+	A tall, bearded man swings a steel longsword at a pudgy, brown-haired codger.
+	He tries to dodge out of the way but is unsuccessful.
+	He is hit on the head!
 
 You can change your decision later, you're just going to have to go and edit your combat messages (mostly the defenses) to match the style you want. One advantage to doing Sentences or Sparse is that you can easily colour whole elements if you prefer (some people prefer not to of course).
 
 You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
 				(context, answers) => answers["installunarmed"].EqualToAny("y", "yes") ||
-				                      answers["installweapons"].EqualToAny("y", "yes"),
+									  answers["installweapons"].EqualToAny("y", "yes"),
 				(answer, context) =>
 				{
 					return (answer.EqualToAny("compact", "sentences", "sparse"),
@@ -265,55 +265,55 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
 		Damage Types:
 		
 		Slashing = 0
-        Chopping = 1
-        Crushing = 2
-        Piercing = 3
-        Ballistic = 4
-        Burning = 5
-        Freezing = 6
-        Chemical = 7
-        Shockwave = 8
-        Bite = 9
-        Claw = 10
-        Electrical = 11
-        Hypoxia = 12
-        Cellular = 13
-        Sonic = 14
-        Shearing = 15
-        ArmourPiercing = 16
-        Wrenching = 17
-        Shrapnel = 18
-        Necrotic = 19
-        Falling = 20
-        Eldritch = 21
-        Arcane = 22
+		Chopping = 1
+		Crushing = 2
+		Piercing = 3
+		Ballistic = 4
+		Burning = 5
+		Freezing = 6
+		Chemical = 7
+		Shockwave = 8
+		Bite = 9
+		Claw = 10
+		Electrical = 11
+		Hypoxia = 12
+		Cellular = 13
+		Sonic = 14
+		Shearing = 15
+		ArmourPiercing = 16
+		Wrenching = 17
+		Shrapnel = 18
+		Necrotic = 19
+		Falling = 20
+		Eldritch = 21
+		Arcane = 22
 		
 		Severity Values:
 		
 		None = 0
-        Superficial = 1
-        Minor = 2
-        Small = 3
-        Moderate = 4
-        Severe = 5
-        VerySevere = 6
-        Grievous = 7
-        Horrifying = 8
+		Superficial = 1
+		Minor = 2
+		Small = 3
+		Moderate = 4
+		Severe = 5
+		VerySevere = 6
+		Grievous = 7
+		Horrifying = 8
 	-->
 	<DamageTransformations>
- 		<Transform fromtype=""0"" totype=""2"" severity=""5""></Transform> <!-- Slashing to Crushing when <= Severe -->
- 		<Transform fromtype=""1"" totype=""2"" severity=""5""></Transform> <!-- Chopping to Crushing when <= Severe -->
- 		<Transform fromtype=""3"" totype=""2"" severity=""4""></Transform> <!-- Piercing to Crushing when <= Moderate -->
- 		<Transform fromtype=""4"" totype=""2"" severity=""4""></Transform> <!-- Ballistic to Crushing when <= Moderate -->
- 		<Transform fromtype=""9"" totype=""2"" severity=""5""></Transform> <!-- Bite to Crushing when <= Severe -->
- 		<Transform fromtype=""10"" totype=""2"" severity=""5""></Transform> <!-- Claw to Crushing when <= Severe -->
- 		<Transform fromtype=""15"" totype=""2"" severity=""5""></Transform> <!-- Shearing to Crushing when <= Severe -->
- 		<Transform fromtype=""16"" totype=""2"" severity=""3""></Transform> <!-- ArmourPiercing to Crushing when <= Small -->
- 		<Transform fromtype=""17"" totype=""2"" severity=""5""></Transform> <!-- Wrenching to Crushing when <= Severe -->
- 	</DamageTransformations>
-    <!-- 
+		<Transform fromtype=""0"" totype=""2"" severity=""5""></Transform> <!-- Slashing to Crushing when <= Severe -->
+		<Transform fromtype=""1"" totype=""2"" severity=""5""></Transform> <!-- Chopping to Crushing when <= Severe -->
+		<Transform fromtype=""3"" totype=""2"" severity=""4""></Transform> <!-- Piercing to Crushing when <= Moderate -->
+		<Transform fromtype=""4"" totype=""2"" severity=""4""></Transform> <!-- Ballistic to Crushing when <= Moderate -->
+		<Transform fromtype=""9"" totype=""2"" severity=""5""></Transform> <!-- Bite to Crushing when <= Severe -->
+		<Transform fromtype=""10"" totype=""2"" severity=""5""></Transform> <!-- Claw to Crushing when <= Severe -->
+		<Transform fromtype=""15"" totype=""2"" severity=""5""></Transform> <!-- Shearing to Crushing when <= Severe -->
+		<Transform fromtype=""16"" totype=""2"" severity=""3""></Transform> <!-- ArmourPiercing to Crushing when <= Small -->
+		<Transform fromtype=""17"" totype=""2"" severity=""5""></Transform> <!-- Wrenching to Crushing when <= Severe -->
+	</DamageTransformations>
+	<!-- 
 	
-	    Dissipate expressions are applied before the item/part takes damage. 
+		Dissipate expressions are applied before the item/part takes damage. 
 		If they reduce the damage to zero, it neither suffers nor passes on any damage. 
 		
 		Parameters: 
@@ -328,87 +328,87 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
 		
 		Hint: 25000 can be considered ""base"" ShearYield and 10000 can be considered ""base"" ImpactYield
 	-->
-    <DissipateExpressions>
-        <Expression damagetype=""0"">damage{ArmourDissipateModifier(DamageType.Slashing, powerDamage, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>    <!-- Slashing -->
- 		<Expression damagetype=""1"">damage{ArmourDissipateModifier(DamageType.Chopping, powerDamage, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>    <!-- Chopping -->  
- 		<Expression damagetype=""2"">damage{ArmourDissipateModifier(DamageType.Crushing, powerDamage, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>    <!-- Crushing -->  
- 		<Expression damagetype=""3"">damage{ArmourDissipateModifier(DamageType.Piercing, powerDamage, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>    <!-- Piercing -->  
- 		<Expression damagetype=""4"">damage{ArmourDissipateModifier(DamageType.Ballistic, powerDamage, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>    <!-- Ballistic -->  
- 		<Expression damagetype=""5"">damage{ArmourDissipateModifier(DamageType.Burning, powerDamage, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>    			      <!-- Burning -->
- 		<Expression damagetype=""6"">damage{ArmourDissipateModifier(DamageType.Freezing, powerDamage, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>                     <!-- Freezing -->
- 		<Expression damagetype=""7"">damage{ArmourDissipateModifier(DamageType.Chemical, powerDamage, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>                     <!-- Chemical -->
- 		<Expression damagetype=""8"">damage{ArmourDissipateModifier(DamageType.Shockwave, powerDamage, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>    <!-- Shockwave -->
- 		<Expression damagetype=""9"">damage{ArmourDissipateModifier(DamageType.Bite, powerDamage, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>    <!-- Bite -->
- 		<Expression damagetype=""10"">damage{ArmourDissipateModifier(DamageType.Claw, powerDamage, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>   <!-- Claw -->
- 		<Expression damagetype=""11"">damage{ArmourDissipateModifier(DamageType.Electrical, powerDamage, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>                    <!-- Electrical -->
- 		<Expression damagetype=""12"">damage</Expression>                    <!-- Hypoxia -->
- 		<Expression damagetype=""13"">damage</Expression>                    <!-- Cellular -->
+	<DissipateExpressions>
+		<Expression damagetype=""0"">damage{ArmourDissipateModifier(DamageType.Slashing, powerDamage, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>    <!-- Slashing -->
+		<Expression damagetype=""1"">damage{ArmourDissipateModifier(DamageType.Chopping, powerDamage, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>    <!-- Chopping -->  
+		<Expression damagetype=""2"">damage{ArmourDissipateModifier(DamageType.Crushing, powerDamage, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>    <!-- Crushing -->  
+		<Expression damagetype=""3"">damage{ArmourDissipateModifier(DamageType.Piercing, powerDamage, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>    <!-- Piercing -->  
+		<Expression damagetype=""4"">damage{ArmourDissipateModifier(DamageType.Ballistic, powerDamage, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>    <!-- Ballistic -->  
+		<Expression damagetype=""5"">damage{ArmourDissipateModifier(DamageType.Burning, powerDamage, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>    			      <!-- Burning -->
+		<Expression damagetype=""6"">damage{ArmourDissipateModifier(DamageType.Freezing, powerDamage, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>                     <!-- Freezing -->
+		<Expression damagetype=""7"">damage{ArmourDissipateModifier(DamageType.Chemical, powerDamage, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>                     <!-- Chemical -->
+		<Expression damagetype=""8"">damage{ArmourDissipateModifier(DamageType.Shockwave, powerDamage, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>    <!-- Shockwave -->
+		<Expression damagetype=""9"">damage{ArmourDissipateModifier(DamageType.Bite, powerDamage, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>    <!-- Bite -->
+		<Expression damagetype=""10"">damage{ArmourDissipateModifier(DamageType.Claw, powerDamage, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>   <!-- Claw -->
+		<Expression damagetype=""11"">damage{ArmourDissipateModifier(DamageType.Electrical, powerDamage, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>                    <!-- Electrical -->
+		<Expression damagetype=""12"">damage</Expression>                    <!-- Hypoxia -->
+		<Expression damagetype=""13"">damage</Expression>                    <!-- Cellular -->
 		<Expression damagetype=""14"">damage{ArmourDissipateModifier(DamageType.Sonic, powerDamage, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>   <!-- Sonic -->
- 		<Expression damagetype=""15"">damage{ArmourDissipateModifier(DamageType.Shearing, powerDamage, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>   <!-- Shearing --> 
+		<Expression damagetype=""15"">damage{ArmourDissipateModifier(DamageType.Shearing, powerDamage, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>   <!-- Shearing --> 
 		<Expression damagetype=""16"">damage{ArmourDissipateModifier(DamageType.ArmourPiercing, powerDamage, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>   <!-- ArmourPiercing -->
 		<Expression damagetype=""17"">damage{ArmourDissipateModifier(DamageType.Wrenching, powerDamage, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>   <!-- Wrenching -->
- 		<Expression damagetype=""18"">damage{ArmourDissipateModifier(DamageType.Shrapnel, powerDamage, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>   <!-- Shrapnel -->   
+		<Expression damagetype=""18"">damage{ArmourDissipateModifier(DamageType.Shrapnel, powerDamage, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>   <!-- Shrapnel -->   
 		<Expression damagetype=""19"">damage{ArmourDissipateModifier(DamageType.Necrotic, powerDamage, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>                    <!-- Necrotic -->   
- 		<Expression damagetype=""20"">damage{ArmourDissipateModifier(DamageType.Falling, powerDamage, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>   <!-- Falling -->   
+		<Expression damagetype=""20"">damage{ArmourDissipateModifier(DamageType.Falling, powerDamage, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>   <!-- Falling -->   
 		<Expression damagetype=""21"">damage{ArmourDissipateModifier(DamageType.Eldritch, powerDamage, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>                    <!-- Eldritch -->   
 		<Expression damagetype=""22"">damage{ArmourDissipateModifier(DamageType.Arcane, powerDamage, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>                    <!-- Arcane -->   
- 	</DissipateExpressions>
- 	<DissipateExpressionsPain>
-        <Expression damagetype=""0"">pain{ArmourDissipateModifier(DamageType.Slashing, powerPain, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>    <!-- Slashing -->
- 		<Expression damagetype=""1"">pain{ArmourDissipateModifier(DamageType.Chopping, powerPain, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>    <!-- Chopping -->  
- 		<Expression damagetype=""2"">pain{ArmourDissipateModifier(DamageType.Crushing, powerPain, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>    <!-- Crushing -->  
- 		<Expression damagetype=""3"">pain{ArmourDissipateModifier(DamageType.Piercing, powerPain, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>    <!-- Piercing -->  
- 		<Expression damagetype=""4"">pain{ArmourDissipateModifier(DamageType.Ballistic, powerPain, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>    <!-- Ballistic -->  
- 		<Expression damagetype=""5"">pain{ArmourDissipateModifier(DamageType.Burning, powerPain, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>    			      <!-- Burning -->
- 		<Expression damagetype=""6"">pain{ArmourDissipateModifier(DamageType.Freezing, powerPain, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>                     <!-- Freezing -->
- 		<Expression damagetype=""7"">pain{ArmourDissipateModifier(DamageType.Chemical, powerPain, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>                     <!-- Chemical -->
- 		<Expression damagetype=""8"">pain{ArmourDissipateModifier(DamageType.Shockwave, powerPain, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>    <!-- Shockwave -->
- 		<Expression damagetype=""9"">pain{ArmourDissipateModifier(DamageType.Bite, powerPain, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>    <!-- Bite -->
- 		<Expression damagetype=""10"">pain{ArmourDissipateModifier(DamageType.Claw, powerPain, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>   <!-- Claw -->
- 		<Expression damagetype=""11"">pain{ArmourDissipateModifier(DamageType.Electrical, powerPain, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>                    <!-- Electrical -->
- 		<Expression damagetype=""12"">pain</Expression>                    <!-- Hypoxia -->
- 		<Expression damagetype=""13"">pain</Expression>                    <!-- Cellular -->
+	</DissipateExpressions>
+	<DissipateExpressionsPain>
+		<Expression damagetype=""0"">pain{ArmourDissipateModifier(DamageType.Slashing, powerPain, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>    <!-- Slashing -->
+		<Expression damagetype=""1"">pain{ArmourDissipateModifier(DamageType.Chopping, powerPain, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>    <!-- Chopping -->  
+		<Expression damagetype=""2"">pain{ArmourDissipateModifier(DamageType.Crushing, powerPain, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>    <!-- Crushing -->  
+		<Expression damagetype=""3"">pain{ArmourDissipateModifier(DamageType.Piercing, powerPain, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>    <!-- Piercing -->  
+		<Expression damagetype=""4"">pain{ArmourDissipateModifier(DamageType.Ballistic, powerPain, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>    <!-- Ballistic -->  
+		<Expression damagetype=""5"">pain{ArmourDissipateModifier(DamageType.Burning, powerPain, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>    			      <!-- Burning -->
+		<Expression damagetype=""6"">pain{ArmourDissipateModifier(DamageType.Freezing, powerPain, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>                     <!-- Freezing -->
+		<Expression damagetype=""7"">pain{ArmourDissipateModifier(DamageType.Chemical, powerPain, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>                     <!-- Chemical -->
+		<Expression damagetype=""8"">pain{ArmourDissipateModifier(DamageType.Shockwave, powerPain, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>    <!-- Shockwave -->
+		<Expression damagetype=""9"">pain{ArmourDissipateModifier(DamageType.Bite, powerPain, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>    <!-- Bite -->
+		<Expression damagetype=""10"">pain{ArmourDissipateModifier(DamageType.Claw, powerPain, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>   <!-- Claw -->
+		<Expression damagetype=""11"">pain{ArmourDissipateModifier(DamageType.Electrical, powerPain, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>                    <!-- Electrical -->
+		<Expression damagetype=""12"">pain</Expression>                    <!-- Hypoxia -->
+		<Expression damagetype=""13"">pain</Expression>                    <!-- Cellular -->
 		<Expression damagetype=""14"">pain{ArmourDissipateModifier(DamageType.Sonic, powerPain, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>   <!-- Sonic -->
- 		<Expression damagetype=""15"">pain{ArmourDissipateModifier(DamageType.Shearing, powerPain, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>   <!-- Shearing --> 
+		<Expression damagetype=""15"">pain{ArmourDissipateModifier(DamageType.Shearing, powerPain, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>   <!-- Shearing --> 
 		<Expression damagetype=""16"">pain{ArmourDissipateModifier(DamageType.ArmourPiercing, powerPain, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>   <!-- ArmourPiercing -->
 		<Expression damagetype=""17"">pain{ArmourDissipateModifier(DamageType.Wrenching, powerPain, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>   <!-- Wrenching -->
- 		<Expression damagetype=""18"">pain{ArmourDissipateModifier(DamageType.Shrapnel, powerPain, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>   <!-- Shrapnel -->   
+		<Expression damagetype=""18"">pain{ArmourDissipateModifier(DamageType.Shrapnel, powerPain, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>   <!-- Shrapnel -->   
 		<Expression damagetype=""19"">pain{ArmourDissipateModifier(DamageType.Necrotic, powerPain, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>                    <!-- Necrotic -->   
- 		<Expression damagetype=""20"">pain{ArmourDissipateModifier(DamageType.Falling, powerPain, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>   <!-- Falling -->   
+		<Expression damagetype=""20"">pain{ArmourDissipateModifier(DamageType.Falling, powerPain, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>   <!-- Falling -->   
 		<Expression damagetype=""21"">pain{ArmourDissipateModifier(DamageType.Eldritch, powerPain, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>                    <!-- Eldritch -->   
 		<Expression damagetype=""22"">pain{ArmourDissipateModifier(DamageType.Arcane, powerPain, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>                    <!-- Arcane -->   
- 	</DissipateExpressionsPain>  
- 	<DissipateExpressionsStun>
-        <Expression damagetype=""0"">stun{ArmourDissipateModifier(DamageType.Slashing, powerStun, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>    <!-- Slashing -->
- 		<Expression damagetype=""1"">stun{ArmourDissipateModifier(DamageType.Chopping, powerStun, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>    <!-- Chopping -->  
- 		<Expression damagetype=""2"">stun{ArmourDissipateModifier(DamageType.Crushing, powerStun, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>    <!-- Crushing -->  
- 		<Expression damagetype=""3"">stun{ArmourDissipateModifier(DamageType.Piercing, powerStun, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>    <!-- Piercing -->  
- 		<Expression damagetype=""4"">stun{ArmourDissipateModifier(DamageType.Ballistic, powerStun, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>    <!-- Ballistic -->  
- 		<Expression damagetype=""5"">stun{ArmourDissipateModifier(DamageType.Burning, powerStun, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>    			      <!-- Burning -->
- 		<Expression damagetype=""6"">stun{ArmourDissipateModifier(DamageType.Freezing, powerStun, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>                     <!-- Freezing -->
- 		<Expression damagetype=""7"">stun{ArmourDissipateModifier(DamageType.Chemical, powerStun, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>                     <!-- Chemical -->
- 		<Expression damagetype=""8"">stun{ArmourDissipateModifier(DamageType.Shockwave, powerStun, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>    <!-- Shockwave -->
- 		<Expression damagetype=""9"">stun{ArmourDissipateModifier(DamageType.Bite, powerStun, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>    <!-- Bite -->
- 		<Expression damagetype=""10"">stun{ArmourDissipateModifier(DamageType.Claw, powerStun, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>   <!-- Claw -->
- 		<Expression damagetype=""11"">stun{ArmourDissipateModifier(DamageType.Electrical, powerStun, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>                    <!-- Electrical -->
- 		<Expression damagetype=""12"">stun</Expression>                    <!-- Hypoxia -->
- 		<Expression damagetype=""13"">stun</Expression>                    <!-- Cellular -->
+	</DissipateExpressionsPain>  
+	<DissipateExpressionsStun>
+		<Expression damagetype=""0"">stun{ArmourDissipateModifier(DamageType.Slashing, powerStun, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>    <!-- Slashing -->
+		<Expression damagetype=""1"">stun{ArmourDissipateModifier(DamageType.Chopping, powerStun, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>    <!-- Chopping -->  
+		<Expression damagetype=""2"">stun{ArmourDissipateModifier(DamageType.Crushing, powerStun, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>    <!-- Crushing -->  
+		<Expression damagetype=""3"">stun{ArmourDissipateModifier(DamageType.Piercing, powerStun, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>    <!-- Piercing -->  
+		<Expression damagetype=""4"">stun{ArmourDissipateModifier(DamageType.Ballistic, powerStun, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>    <!-- Ballistic -->  
+		<Expression damagetype=""5"">stun{ArmourDissipateModifier(DamageType.Burning, powerStun, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>    			      <!-- Burning -->
+		<Expression damagetype=""6"">stun{ArmourDissipateModifier(DamageType.Freezing, powerStun, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>                     <!-- Freezing -->
+		<Expression damagetype=""7"">stun{ArmourDissipateModifier(DamageType.Chemical, powerStun, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>                     <!-- Chemical -->
+		<Expression damagetype=""8"">stun{ArmourDissipateModifier(DamageType.Shockwave, powerStun, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>    <!-- Shockwave -->
+		<Expression damagetype=""9"">stun{ArmourDissipateModifier(DamageType.Bite, powerStun, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>    <!-- Bite -->
+		<Expression damagetype=""10"">stun{ArmourDissipateModifier(DamageType.Claw, powerStun, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>   <!-- Claw -->
+		<Expression damagetype=""11"">stun{ArmourDissipateModifier(DamageType.Electrical, powerStun, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>                    <!-- Electrical -->
+		<Expression damagetype=""12"">stun</Expression>                    <!-- Hypoxia -->
+		<Expression damagetype=""13"">stun</Expression>                    <!-- Cellular -->
 		<Expression damagetype=""14"">stun{ArmourDissipateModifier(DamageType.Sonic, powerStun, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>   <!-- Sonic -->
- 		<Expression damagetype=""15"">stun{ArmourDissipateModifier(DamageType.Shearing, powerStun, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>   <!-- Shearing --> 
+		<Expression damagetype=""15"">stun{ArmourDissipateModifier(DamageType.Shearing, powerStun, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>   <!-- Shearing --> 
 		<Expression damagetype=""16"">stun{ArmourDissipateModifier(DamageType.ArmourPiercing, powerStun, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>   <!-- ArmourPiercing -->
 		<Expression damagetype=""17"">stun{ArmourDissipateModifier(DamageType.Wrenching, powerStun, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>   <!-- Wrenching -->
- 		<Expression damagetype=""18"">stun{ArmourDissipateModifier(DamageType.Shrapnel, powerStun, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>   <!-- Shrapnel -->   
+		<Expression damagetype=""18"">stun{ArmourDissipateModifier(DamageType.Shrapnel, powerStun, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>   <!-- Shrapnel -->   
 		<Expression damagetype=""19"">stun{ArmourDissipateModifier(DamageType.Necrotic, powerStun, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>                    <!-- Necrotic -->   
- 		<Expression damagetype=""20"">stun{ArmourDissipateModifier(DamageType.Falling, powerStun, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>   <!-- Falling -->   
+		<Expression damagetype=""20"">stun{ArmourDissipateModifier(DamageType.Falling, powerStun, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>   <!-- Falling -->   
 		<Expression damagetype=""21"">stun{ArmourDissipateModifier(DamageType.Eldritch, powerStun, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>                    <!-- Eldritch -->   
 		<Expression damagetype=""22"">stun{ArmourDissipateModifier(DamageType.Arcane, powerStun, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>                    <!-- Arcane -->   
- 	</DissipateExpressionsStun>  
+	</DissipateExpressionsStun>  
 	<!-- 
 	
-	    Absorb expressions are applied after dissipate expressions and item/part damage. 
-	    The after-absorb values are what is passed on to anything ""below"" e.g. bones, organs, parts worn under armour, etc 
+		Absorb expressions are applied after dissipate expressions and item/part damage. 
+		The after-absorb values are what is passed on to anything ""below"" e.g. bones, organs, parts worn under armour, etc 
 		
-	    Parameters: 
+		Parameters: 
 		* damage, pain or stun (as appropriate) = the residual damage/pain/stun after dissipate step
 		* quality = the quality of the armour, rated 0 (Abysmal) to 11 (Legendary)
 		* angle = the angle in radians of the attack (e.g. 1.5708rad = 90 degrees)
@@ -421,81 +421,81 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
 		Hint: 25000 can be considered ""base"" ShearYield and 10000 can be considered ""base"" ImpactYield
 		
 		-->
- 	<AbsorbExpressions>
-	 	<Expression damagetype=""0"">damage{ArmourAbsorbModifier(DamageType.Slashing, powerDamage, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>    <!-- Slashing -->
- 		<Expression damagetype=""1"">damage{ArmourAbsorbModifier(DamageType.Chopping, powerDamage, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>    <!-- Chopping -->  
- 		<Expression damagetype=""2"">damage{ArmourAbsorbModifier(DamageType.Crushing, powerDamage, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>    <!-- Crushing -->  
- 		<Expression damagetype=""3"">damage{ArmourAbsorbModifier(DamageType.Piercing, powerDamage, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>    <!-- Piercing -->  
- 		<Expression damagetype=""4"">damage{ArmourAbsorbModifier(DamageType.Ballistic, powerDamage, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>    <!-- Ballistic -->  
- 		<Expression damagetype=""5"">damage{ArmourAbsorbModifier(DamageType.Burning, powerDamage, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>    <!-- Burning -->
- 		<Expression damagetype=""6"">damage{ArmourAbsorbModifier(DamageType.Freezing, powerDamage, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>    <!-- Freezing -->
- 		<Expression damagetype=""7"">damage{ArmourAbsorbModifier(DamageType.Chemical, powerDamage, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>    <!-- Chemical -->
- 		<Expression damagetype=""8"">damage{ArmourAbsorbModifier(DamageType.Shockwave, powerDamage, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>    <!-- Shockwave -->
- 		<Expression damagetype=""9"">damage{ArmourAbsorbModifier(DamageType.Bite, powerDamage, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>    <!-- Bite -->
- 		<Expression damagetype=""10"">damage{ArmourAbsorbModifier(DamageType.Claw, powerDamage, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>   <!-- Claw -->
- 		<Expression damagetype=""11"">damage{ArmourAbsorbModifier(DamageType.Electrical, powerDamage, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>   <!-- Electrical -->
- 		<Expression damagetype=""12"">0</Expression>        <!-- Hypoxia -->
- 		<Expression damagetype=""13"">0</Expression>        <!-- Cellular -->
+	<AbsorbExpressions>
+		<Expression damagetype=""0"">damage{ArmourAbsorbModifier(DamageType.Slashing, powerDamage, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>    <!-- Slashing -->
+		<Expression damagetype=""1"">damage{ArmourAbsorbModifier(DamageType.Chopping, powerDamage, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>    <!-- Chopping -->  
+		<Expression damagetype=""2"">damage{ArmourAbsorbModifier(DamageType.Crushing, powerDamage, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>    <!-- Crushing -->  
+		<Expression damagetype=""3"">damage{ArmourAbsorbModifier(DamageType.Piercing, powerDamage, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>    <!-- Piercing -->  
+		<Expression damagetype=""4"">damage{ArmourAbsorbModifier(DamageType.Ballistic, powerDamage, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>    <!-- Ballistic -->  
+		<Expression damagetype=""5"">damage{ArmourAbsorbModifier(DamageType.Burning, powerDamage, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>    <!-- Burning -->
+		<Expression damagetype=""6"">damage{ArmourAbsorbModifier(DamageType.Freezing, powerDamage, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>    <!-- Freezing -->
+		<Expression damagetype=""7"">damage{ArmourAbsorbModifier(DamageType.Chemical, powerDamage, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>    <!-- Chemical -->
+		<Expression damagetype=""8"">damage{ArmourAbsorbModifier(DamageType.Shockwave, powerDamage, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>    <!-- Shockwave -->
+		<Expression damagetype=""9"">damage{ArmourAbsorbModifier(DamageType.Bite, powerDamage, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>    <!-- Bite -->
+		<Expression damagetype=""10"">damage{ArmourAbsorbModifier(DamageType.Claw, powerDamage, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>   <!-- Claw -->
+		<Expression damagetype=""11"">damage{ArmourAbsorbModifier(DamageType.Electrical, powerDamage, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>   <!-- Electrical -->
+		<Expression damagetype=""12"">0</Expression>        <!-- Hypoxia -->
+		<Expression damagetype=""13"">0</Expression>        <!-- Cellular -->
 		<Expression damagetype=""14"">damage{ArmourAbsorbModifier(DamageType.Sonic, powerDamage, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>   <!-- Sonic -->
- 		<Expression damagetype=""15"">damage{ArmourAbsorbModifier(DamageType.Shearing, powerDamage, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>   <!-- Shearing --> 
+		<Expression damagetype=""15"">damage{ArmourAbsorbModifier(DamageType.Shearing, powerDamage, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>   <!-- Shearing --> 
 		<Expression damagetype=""16"">damage{ArmourAbsorbModifier(DamageType.ArmourPiercing, powerDamage, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>   <!-- ArmourPiercing -->
 		<Expression damagetype=""17"">damage{ArmourAbsorbModifier(DamageType.Wrenching, powerDamage, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>   <!-- Wrenching -->
- 		<Expression damagetype=""18"">damage{ArmourAbsorbModifier(DamageType.Shrapnel, powerDamage, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>   <!-- Shrapnel -->   
+		<Expression damagetype=""18"">damage{ArmourAbsorbModifier(DamageType.Shrapnel, powerDamage, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>   <!-- Shrapnel -->   
 		<Expression damagetype=""19"">damage{ArmourAbsorbModifier(DamageType.Necrotic, powerDamage, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>   <!-- Necrotic -->   
- 		<Expression damagetype=""20"">damage{ArmourAbsorbModifier(DamageType.Falling, powerDamage, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>   <!-- Falling -->   
+		<Expression damagetype=""20"">damage{ArmourAbsorbModifier(DamageType.Falling, powerDamage, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>   <!-- Falling -->   
 		<Expression damagetype=""21"">damage{ArmourAbsorbModifier(DamageType.Eldritch, powerDamage, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>   <!-- Eldritch -->   
 		<Expression damagetype=""22"">damage{ArmourAbsorbModifier(DamageType.Arcane, powerDamage, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>   <!-- Arcane -->   
- 	</AbsorbExpressions>  
- 	<AbsorbExpressionsPain>
-        <Expression damagetype=""0"">pain{ArmourAbsorbModifier(DamageType.Slashing, powerPain, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>    <!-- Slashing -->
- 		<Expression damagetype=""1"">pain{ArmourAbsorbModifier(DamageType.Chopping, powerPain, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>    <!-- Chopping -->  
- 		<Expression damagetype=""2"">pain{ArmourAbsorbModifier(DamageType.Crushing, powerPain, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>    <!-- Crushing -->  
- 		<Expression damagetype=""3"">pain{ArmourAbsorbModifier(DamageType.Piercing, powerPain, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>    <!-- Piercing -->  
- 		<Expression damagetype=""4"">pain{ArmourAbsorbModifier(DamageType.Ballistic, powerPain, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>    <!-- Ballistic -->  
- 		<Expression damagetype=""5"">pain{ArmourAbsorbModifier(DamageType.Burning, powerPain, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>    <!-- Burning -->
- 		<Expression damagetype=""6"">pain{ArmourAbsorbModifier(DamageType.Freezing, powerPain, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>    <!-- Freezing -->
- 		<Expression damagetype=""7"">pain{ArmourAbsorbModifier(DamageType.Chemical, powerPain, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>    <!-- Chemical -->
- 		<Expression damagetype=""8"">pain{ArmourAbsorbModifier(DamageType.Shockwave, powerPain, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>    <!-- Shockwave -->
- 		<Expression damagetype=""9"">pain{ArmourAbsorbModifier(DamageType.Bite, powerPain, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>    <!-- Bite -->
- 		<Expression damagetype=""10"">pain{ArmourAbsorbModifier(DamageType.Claw, powerPain, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>   <!-- Claw -->
- 		<Expression damagetype=""11"">pain{ArmourAbsorbModifier(DamageType.Electrical, powerPain, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>   <!-- Electrical -->
- 		<Expression damagetype=""12"">0</Expression>        <!-- Hypoxia -->
- 		<Expression damagetype=""13"">0</Expression>        <!-- Cellular -->
+	</AbsorbExpressions>  
+	<AbsorbExpressionsPain>
+		<Expression damagetype=""0"">pain{ArmourAbsorbModifier(DamageType.Slashing, powerPain, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>    <!-- Slashing -->
+		<Expression damagetype=""1"">pain{ArmourAbsorbModifier(DamageType.Chopping, powerPain, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>    <!-- Chopping -->  
+		<Expression damagetype=""2"">pain{ArmourAbsorbModifier(DamageType.Crushing, powerPain, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>    <!-- Crushing -->  
+		<Expression damagetype=""3"">pain{ArmourAbsorbModifier(DamageType.Piercing, powerPain, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>    <!-- Piercing -->  
+		<Expression damagetype=""4"">pain{ArmourAbsorbModifier(DamageType.Ballistic, powerPain, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>    <!-- Ballistic -->  
+		<Expression damagetype=""5"">pain{ArmourAbsorbModifier(DamageType.Burning, powerPain, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>    <!-- Burning -->
+		<Expression damagetype=""6"">pain{ArmourAbsorbModifier(DamageType.Freezing, powerPain, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>    <!-- Freezing -->
+		<Expression damagetype=""7"">pain{ArmourAbsorbModifier(DamageType.Chemical, powerPain, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>    <!-- Chemical -->
+		<Expression damagetype=""8"">pain{ArmourAbsorbModifier(DamageType.Shockwave, powerPain, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>    <!-- Shockwave -->
+		<Expression damagetype=""9"">pain{ArmourAbsorbModifier(DamageType.Bite, powerPain, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>    <!-- Bite -->
+		<Expression damagetype=""10"">pain{ArmourAbsorbModifier(DamageType.Claw, powerPain, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>   <!-- Claw -->
+		<Expression damagetype=""11"">pain{ArmourAbsorbModifier(DamageType.Electrical, powerPain, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>   <!-- Electrical -->
+		<Expression damagetype=""12"">0</Expression>        <!-- Hypoxia -->
+		<Expression damagetype=""13"">0</Expression>        <!-- Cellular -->
 		<Expression damagetype=""14"">pain{ArmourAbsorbModifier(DamageType.Sonic, powerPain, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>   <!-- Sonic -->
- 		<Expression damagetype=""15"">pain{ArmourAbsorbModifier(DamageType.Shearing, powerPain, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>   <!-- Shearing --> 
+		<Expression damagetype=""15"">pain{ArmourAbsorbModifier(DamageType.Shearing, powerPain, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>   <!-- Shearing --> 
 		<Expression damagetype=""16"">pain{ArmourAbsorbModifier(DamageType.ArmourPiercing, powerPain, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>   <!-- ArmourPiercing -->
 		<Expression damagetype=""17"">pain{ArmourAbsorbModifier(DamageType.Wrenching, powerPain, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>   <!-- Wrenching -->
- 		<Expression damagetype=""18"">pain{ArmourAbsorbModifier(DamageType.Shrapnel, powerPain, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>   <!-- Shrapnel -->   
+		<Expression damagetype=""18"">pain{ArmourAbsorbModifier(DamageType.Shrapnel, powerPain, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>   <!-- Shrapnel -->   
 		<Expression damagetype=""19"">pain{ArmourAbsorbModifier(DamageType.Necrotic, powerPain, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>   <!-- Necrotic -->   
- 		<Expression damagetype=""20"">pain{ArmourAbsorbModifier(DamageType.Falling, powerPain, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>   <!-- Falling -->   
+		<Expression damagetype=""20"">pain{ArmourAbsorbModifier(DamageType.Falling, powerPain, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>   <!-- Falling -->   
 		<Expression damagetype=""21"">pain{ArmourAbsorbModifier(DamageType.Eldritch, powerPain, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>   <!-- Eldritch -->   
 		<Expression damagetype=""22"">pain{ArmourAbsorbModifier(DamageType.Arcane, powerPain, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>   <!-- Arcane -->   
- 	</AbsorbExpressionsPain>  
- 	<AbsorbExpressionsStun>
-        <Expression damagetype=""0"">stun{ArmourAbsorbModifier(DamageType.Slashing, powerStun, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>    <!-- Slashing -->
- 		<Expression damagetype=""1"">stun{ArmourAbsorbModifier(DamageType.Chopping, powerStun, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>    <!-- Chopping -->  
- 		<Expression damagetype=""2"">stun{ArmourAbsorbModifier(DamageType.Crushing, powerStun, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>    <!-- Crushing -->  
- 		<Expression damagetype=""3"">stun{ArmourAbsorbModifier(DamageType.Piercing, powerStun, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>    <!-- Piercing -->  
- 		<Expression damagetype=""4"">stun{ArmourAbsorbModifier(DamageType.Ballistic, powerStun, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>    <!-- Ballistic -->  
- 		<Expression damagetype=""5"">stun{ArmourAbsorbModifier(DamageType.Burning, powerStun, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>    <!-- Burning -->
- 		<Expression damagetype=""6"">stun{ArmourAbsorbModifier(DamageType.Freezing, powerStun, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>    <!-- Freezing -->
- 		<Expression damagetype=""7"">stun{ArmourAbsorbModifier(DamageType.Chemical, powerStun, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>    <!-- Chemical -->
- 		<Expression damagetype=""8"">stun{ArmourAbsorbModifier(DamageType.Shockwave, powerStun, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>    <!-- Shockwave -->
- 		<Expression damagetype=""9"">stun{ArmourAbsorbModifier(DamageType.Bite, powerStun, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>    <!-- Bite -->
- 		<Expression damagetype=""10"">stun{ArmourAbsorbModifier(DamageType.Claw, powerStun, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>   <!-- Claw -->
- 		<Expression damagetype=""11"">stun{ArmourAbsorbModifier(DamageType.Electrical, powerStun, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>   <!-- Electrical -->
- 		<Expression damagetype=""12"">0</Expression>        <!-- Hypoxia -->
- 		<Expression damagetype=""13"">0</Expression>        <!-- Cellular -->
+	</AbsorbExpressionsPain>  
+	<AbsorbExpressionsStun>
+		<Expression damagetype=""0"">stun{ArmourAbsorbModifier(DamageType.Slashing, powerStun, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>    <!-- Slashing -->
+		<Expression damagetype=""1"">stun{ArmourAbsorbModifier(DamageType.Chopping, powerStun, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>    <!-- Chopping -->  
+		<Expression damagetype=""2"">stun{ArmourAbsorbModifier(DamageType.Crushing, powerStun, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>    <!-- Crushing -->  
+		<Expression damagetype=""3"">stun{ArmourAbsorbModifier(DamageType.Piercing, powerStun, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>    <!-- Piercing -->  
+		<Expression damagetype=""4"">stun{ArmourAbsorbModifier(DamageType.Ballistic, powerStun, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>    <!-- Ballistic -->  
+		<Expression damagetype=""5"">stun{ArmourAbsorbModifier(DamageType.Burning, powerStun, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>    <!-- Burning -->
+		<Expression damagetype=""6"">stun{ArmourAbsorbModifier(DamageType.Freezing, powerStun, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>    <!-- Freezing -->
+		<Expression damagetype=""7"">stun{ArmourAbsorbModifier(DamageType.Chemical, powerStun, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>    <!-- Chemical -->
+		<Expression damagetype=""8"">stun{ArmourAbsorbModifier(DamageType.Shockwave, powerStun, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>    <!-- Shockwave -->
+		<Expression damagetype=""9"">stun{ArmourAbsorbModifier(DamageType.Bite, powerStun, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>    <!-- Bite -->
+		<Expression damagetype=""10"">stun{ArmourAbsorbModifier(DamageType.Claw, powerStun, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>   <!-- Claw -->
+		<Expression damagetype=""11"">stun{ArmourAbsorbModifier(DamageType.Electrical, powerStun, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>   <!-- Electrical -->
+		<Expression damagetype=""12"">0</Expression>        <!-- Hypoxia -->
+		<Expression damagetype=""13"">0</Expression>        <!-- Cellular -->
 		<Expression damagetype=""14"">stun{ArmourAbsorbModifier(DamageType.Sonic, powerStun, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>   <!-- Sonic -->
- 		<Expression damagetype=""15"">stun{ArmourAbsorbModifier(DamageType.Shearing, powerStun, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>   <!-- Shearing --> 
+		<Expression damagetype=""15"">stun{ArmourAbsorbModifier(DamageType.Shearing, powerStun, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>   <!-- Shearing --> 
 		<Expression damagetype=""16"">stun{ArmourAbsorbModifier(DamageType.ArmourPiercing, powerStun, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>   <!-- ArmourPiercing -->
 		<Expression damagetype=""17"">stun{ArmourAbsorbModifier(DamageType.Wrenching, powerStun, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>   <!-- Wrenching -->
- 		<Expression damagetype=""18"">stun{ArmourAbsorbModifier(DamageType.Shrapnel, powerStun, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>   <!-- Shrapnel -->   
+		<Expression damagetype=""18"">stun{ArmourAbsorbModifier(DamageType.Shrapnel, powerStun, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>   <!-- Shrapnel -->   
 		<Expression damagetype=""19"">stun{ArmourAbsorbModifier(DamageType.Necrotic, powerStun, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>   <!-- Necrotic -->   
- 		<Expression damagetype=""20"">stun{ArmourAbsorbModifier(DamageType.Falling, powerStun, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>   <!-- Falling -->   
+		<Expression damagetype=""20"">stun{ArmourAbsorbModifier(DamageType.Falling, powerStun, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>   <!-- Falling -->   
 		<Expression damagetype=""21"">stun{ArmourAbsorbModifier(DamageType.Eldritch, powerStun, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>   <!-- Eldritch -->   
 		<Expression damagetype=""22"">stun{ArmourAbsorbModifier(DamageType.Arcane, powerStun, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>   <!-- Arcane -->   
- 	</AbsorbExpressionsStun>
+	</AbsorbExpressionsStun>
  </ArmourType>"
 			};
 			context.ArmourTypes.Add(armour);
@@ -1055,26 +1055,7 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
 			}
 		);
 
-		AddSpecialArmourType("Hearing Protection", 0, 0, 0, @"<ArmourType>
-  <DissipateExpressions>
-    <Expression damagetype=""14"">damage-quality</Expression>
-  </DissipateExpressions>
-  <DissipateExpressionsPain>
-    <Expression damagetype=""14"">pain-quality</Expression>
-  </DissipateExpressionsPain>
-  <DissipateExpressionsStun>
-    <Expression damagetype=""14"">stun-quality</Expression>
-  </DissipateExpressionsStun>
-  <AbsorbExpressions>
-    <Expression damagetype=""14"">damage*(1 - quality*0.1)</Expression>
-  </AbsorbExpressions>
-  <AbsorbExpressionsPain>
-    <Expression damagetype=""14"">pain*(1 - quality*0.1)</Expression>
-  </AbsorbExpressionsPain>
-  <AbsorbExpressionsStun>
-    <Expression damagetype=""14"">stun*(1 - quality*0.1)</Expression>
-  </AbsorbExpressionsStun>
- </ArmourType>");
+		AddSpecialArmourType("Hearing Protection", 0, 0, 0, @"<ArmourType>  <DissipateExpressions>	<Expression damagetype=""14"">damage-quality</Expression>  </DissipateExpressions>  <DissipateExpressionsPain>	<Expression damagetype=""14"">pain-quality</Expression>  </DissipateExpressionsPain>  <DissipateExpressionsStun>	<Expression damagetype=""14"">stun-quality</Expression>  </DissipateExpressionsStun>  <AbsorbExpressions>	<Expression damagetype=""14"">damage*(1 - quality*0.1)</Expression>  </AbsorbExpressions>  <AbsorbExpressionsPain>	<Expression damagetype=""14"">pain*(1 - quality*0.1)</Expression>  </AbsorbExpressionsPain>  <AbsorbExpressionsStun>	<Expression damagetype=""14"">stun*(1 - quality*0.1)</Expression>  </AbsorbExpressionsStun> </ArmourType>");
 	}
 
 	private void SeedDataGuns(FuturemudDatabaseContext context, IReadOnlyDictionary<string, string> questionAnswers)
@@ -1122,7 +1103,7 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
 			OperateTrait = pistols,
 			FireableInMelee = true,
 			DefaultRangeInRooms = 2,
-			AccuracyBonusExpression = "(-2.0*range)+(pow(1-aim,2)*4.0)",
+			AccuracyBonusExpression = "(-2.0*range)-(pow(1-aim,2)*4.0)",
 			DamageBonusExpression = "-10*range",
 			AmmunitionLoadType = (int)AmmunitionLoadType.Magazine,
 			SpecificAmmunitionGrade = "9x19mm Parabellum",
@@ -1183,7 +1164,7 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
 			OperateTrait = pistols,
 			FireableInMelee = true,
 			DefaultRangeInRooms = 2,
-			AccuracyBonusExpression = "(-2.3*range)+(pow(1-aim,2)*4.0)",
+			AccuracyBonusExpression = "(-2.3*range)-(pow(1-aim,2)*4.0)",
 			DamageBonusExpression = "-10*range",
 			AmmunitionLoadType = (int)AmmunitionLoadType.Magazine,
 			SpecificAmmunitionGrade = ".25 ACP",
@@ -1244,7 +1225,7 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
 			OperateTrait = pistols,
 			FireableInMelee = true,
 			DefaultRangeInRooms = 2,
-			AccuracyBonusExpression = "(-2.0*range)+(pow(1-aim,2)*4.0)",
+			AccuracyBonusExpression = "(-2.0*range)-(pow(1-aim,2)*4.0)",
 			DamageBonusExpression = "-10*range",
 			AmmunitionLoadType = (int)AmmunitionLoadType.Magazine,
 			SpecificAmmunitionGrade = ".32 ACP",
@@ -1305,7 +1286,7 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
 			OperateTrait = pistols,
 			FireableInMelee = true,
 			DefaultRangeInRooms = 2,
-			AccuracyBonusExpression = "(-2.0*range)+(pow(1-aim,2)*4.0)",
+			AccuracyBonusExpression = "(-2.0*range)-(pow(1-aim,2)*4.0)",
 			DamageBonusExpression = "-8*range",
 			AmmunitionLoadType = (int)AmmunitionLoadType.Magazine,
 			SpecificAmmunitionGrade = ".38 ACP",
@@ -1366,7 +1347,7 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
 			OperateTrait = pistols,
 			FireableInMelee = true,
 			DefaultRangeInRooms = 2,
-			AccuracyBonusExpression = "(-2.0*range)+(pow(1-aim,2)*4.0)",
+			AccuracyBonusExpression = "(-2.0*range)-(pow(1-aim,2)*4.0)",
 			DamageBonusExpression = "-8*range",
 			AmmunitionLoadType = (int)AmmunitionLoadType.Magazine,
 			SpecificAmmunitionGrade = ".38 Super ACP",
@@ -1427,7 +1408,7 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
 			OperateTrait = pistols,
 			FireableInMelee = true,
 			DefaultRangeInRooms = 2,
-			AccuracyBonusExpression = "(-2.0*range)+(pow(1-aim,2)*4.0)",
+			AccuracyBonusExpression = "(-2.0*range)-(pow(1-aim,2)*4.0)",
 			DamageBonusExpression = "-7*range",
 			AmmunitionLoadType = (int)AmmunitionLoadType.Magazine,
 			SpecificAmmunitionGrade = ".45 ACP",
@@ -1726,7 +1707,7 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
 			OperateTrait = bows,
 			FireableInMelee = false,
 			DefaultRangeInRooms = 2,
-			AccuracyBonusExpression = "(-1.0*range)+(pow(1-aim,2)*3.0)",
+			AccuracyBonusExpression = "(-1.0*range)-(pow(1-aim,2)*3.0)",
 			DamageBonusExpression = $"quality - (4.0*range) - (({strength.Alias}:{strength.Id}-10)*1.5)",
 			AmmunitionLoadType = (int)AmmunitionLoadType.Direct,
 			SpecificAmmunitionGrade = "Arrow",
@@ -1778,7 +1759,7 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
 			OperateTrait = bows,
 			FireableInMelee = false,
 			DefaultRangeInRooms = 4,
-			AccuracyBonusExpression = "(-1.0*range)+(pow(1-aim,2)*2.0)",
+			AccuracyBonusExpression = "(-1.0*range)-(pow(1-aim,2)*2.0)",
 			DamageBonusExpression = $"2*quality - (4.0*range) - (({strength.Alias}:{strength.Id}-10)*2.5)",
 			AmmunitionLoadType = (int)AmmunitionLoadType.Direct,
 			SpecificAmmunitionGrade = "Arrow",
@@ -1856,7 +1837,7 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
 			OperateTrait = crossbows,
 			FireableInMelee = false,
 			DefaultRangeInRooms = 2,
-			AccuracyBonusExpression = "(-1.5*range)+(pow(1-aim,2)*5.0)",
+			AccuracyBonusExpression = "(-1.5*range)-(pow(1-aim,2)*5.0)",
 			DamageBonusExpression = "quality - (4.0*range)",
 			AmmunitionLoadType = (int)AmmunitionLoadType.Direct,
 			SpecificAmmunitionGrade = "Bolt",
@@ -1908,7 +1889,7 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
 			OperateTrait = crossbows,
 			FireableInMelee = false,
 			DefaultRangeInRooms = 4,
-			AccuracyBonusExpression = "(-1.0*range)+(pow(1-aim,2)*5.0)",
+			AccuracyBonusExpression = "(-1.0*range)-(pow(1-aim,2)*5.0)",
 			DamageBonusExpression = "2*quality - (4.0*range)",
 			AmmunitionLoadType = (int)AmmunitionLoadType.Direct,
 			SpecificAmmunitionGrade = "Bolt",
@@ -2009,15 +1990,15 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
 			Difficulty.VeryHard, DamageType.Piercing, "quality * 0.75 * degree");
 		AddAmmoType("Padded Arrow", "Arrow", RangedWeaponType.Bow, 0.0, AudioVolume.Quiet, 0.1, 0.2, Difficulty.Easy,
 			Difficulty.VeryHard, DamageType.Crushing, "10-quality");
-		AddAmmoType("Field Point Bolt", "Crossbow Bolt", RangedWeaponType.Crossbow, 0.0, AudioVolume.Quiet, 0.5, 0.3,
+		AddAmmoType("Field Point Bolt", "Bolt", RangedWeaponType.Crossbow, 0.0, AudioVolume.Quiet, 0.5, 0.3,
 			Difficulty.Easy, Difficulty.VeryHard, DamageType.ArmourPiercing, "15 + quality * 0.75 * degree");
-		AddAmmoType("Broadhead Bolt", "Crossbow Bolt", RangedWeaponType.Crossbow, 0.0, AudioVolume.Quiet, 0.5, 0.3,
+		AddAmmoType("Broadhead Bolt", "Bolt", RangedWeaponType.Crossbow, 0.0, AudioVolume.Quiet, 0.5, 0.3,
 			Difficulty.Easy, Difficulty.VeryHard, DamageType.Piercing, "30 + quality * 0.75 * degree");
-		AddAmmoType("Concussive Bolt", "Crossbow Bolt", RangedWeaponType.Crossbow, 0.0, AudioVolume.Quiet, 0.6, 0.4,
+		AddAmmoType("Concussive Bolt", "Bolt", RangedWeaponType.Crossbow, 0.0, AudioVolume.Quiet, 0.6, 0.4,
 			Difficulty.Easy, Difficulty.VeryHard, DamageType.Crushing, "20 + quality * 0.75 * degree");
-		AddAmmoType("Target Bolt", "Crossbow Bolt", RangedWeaponType.Crossbow, 1.0, AudioVolume.Quiet, 0.05, 0.2,
+		AddAmmoType("Target Bolt", "Bolt", RangedWeaponType.Crossbow, 1.0, AudioVolume.Quiet, 0.05, 0.2,
 			Difficulty.Easy, Difficulty.VeryHard, DamageType.Piercing, "quality * 0.75 * degree");
-		AddAmmoType("Padded Bolt", "Crossbow Bolt", RangedWeaponType.Crossbow, 0.0, AudioVolume.Quiet, 0.1, 0.2,
+		AddAmmoType("Padded Bolt", "Bolt", RangedWeaponType.Crossbow, 0.0, AudioVolume.Quiet, 0.1, 0.2,
 			Difficulty.Easy, Difficulty.VeryHard, DamageType.Crushing, "10-quality");
 		AddAmmoType("Sling Bullet", "Sling Bullet", RangedWeaponType.Sling, 0.0, AudioVolume.Quiet, 0.2, 0.2,
 			Difficulty.Easy, Difficulty.Hard, DamageType.Crushing, "quality * 0.75 * degree");
@@ -2034,7 +2015,7 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
 				OperateTrait = throwing,
 				FireableInMelee = false,
 				DefaultRangeInRooms = 0,
-				AccuracyBonusExpression = "(-1.5*range)+(pow(1-aim,2)*5.0)",
+				AccuracyBonusExpression = "(-1.5*range)-(pow(1-aim,2)*5.0)",
 				DamageBonusExpression = $"quality/2 * ({strength.Alias}:{strength.Id}/2)",
 				AmmunitionLoadType = (int)AmmunitionLoadType.Direct,
 				SpecificAmmunitionGrade = "Throwing",
@@ -2086,7 +2067,7 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
 				OperateTrait = throwing,
 				FireableInMelee = false,
 				DefaultRangeInRooms = 0,
-				AccuracyBonusExpression = "(-1.5*range)+(pow(1-aim,2)*5.0)",
+				AccuracyBonusExpression = "(-1.5*range)-(pow(1-aim,2)*5.0)",
 				DamageBonusExpression = $"quality/2 * ({strength.Alias}:{strength.Id})",
 				AmmunitionLoadType = (int)AmmunitionLoadType.Direct,
 				SpecificAmmunitionGrade = "Throwing",
@@ -2138,7 +2119,7 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
 				OperateTrait = throwing,
 				FireableInMelee = false,
 				DefaultRangeInRooms = 1,
-				AccuracyBonusExpression = "(-3.0*range)+(pow(1-aim,2)*5.0)",
+				AccuracyBonusExpression = "(-3.0*range)-(pow(1-aim,2)*5.0)",
 				DamageBonusExpression = $"quality * ({strength.Alias}:{strength.Id})",
 				AmmunitionLoadType = (int)AmmunitionLoadType.Direct,
 				SpecificAmmunitionGrade = "Throwing",
@@ -2579,27 +2560,27 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
 			Difficulty.VeryEasy, Difficulty.Easy, Difficulty.ExtremelyEasy, Alignment.Front, Orientation.High, 3.0, 0.6,
 			dagger, terribleDamage, "@ lash|lashes out with a quick jab of $2 at $1", DamageType.Piercing,
 			intentions: CombatMoveIntentions.Attack | CombatMoveIntentions.Wound | CombatMoveIntentions.Kill |
-			            CombatMoveIntentions.Fast);
+						CombatMoveIntentions.Fast);
 		AddAttack("Dagger Stab", BuiltInCombatMoveType.ClinchAttack, MeleeWeaponVerb.Stab, Difficulty.VeryEasy,
 			Difficulty.VeryHard, Difficulty.Insane, Difficulty.Easy, Alignment.FrontRight, Orientation.High, 3.0, 0.4,
 			dagger, badDamage, "@ stab|stabs $1 with $2", DamageType.Piercing,
 			intentions: CombatMoveIntentions.Attack | CombatMoveIntentions.Wound | CombatMoveIntentions.Kill |
-			            CombatMoveIntentions.Fast);
+						CombatMoveIntentions.Fast);
 		AddAttack("Dagger Low Stab", BuiltInCombatMoveType.ClinchAttack, MeleeWeaponVerb.Stab, Difficulty.VeryEasy,
 			Difficulty.VeryHard, Difficulty.Insane, Difficulty.Easy, Alignment.FrontRight, Orientation.Centre, 3.0, 0.4,
 			dagger, badDamage, "@ stab|stabs $1 with $2", DamageType.Piercing,
 			intentions: CombatMoveIntentions.Attack | CombatMoveIntentions.Wound | CombatMoveIntentions.Kill |
-			            CombatMoveIntentions.Fast);
+						CombatMoveIntentions.Fast);
 		AddAttack("Dagger Leg Stab", BuiltInCombatMoveType.ClinchAttack, MeleeWeaponVerb.Stab, Difficulty.VeryEasy,
 			Difficulty.VeryHard, Difficulty.Insane, Difficulty.Normal, Alignment.FrontRight, Orientation.Low, 3.0, 0.4,
 			dagger, badDamage, "@ stab|stabs down at $1's leg with $2", DamageType.Piercing,
 			intentions: CombatMoveIntentions.Attack | CombatMoveIntentions.Wound | CombatMoveIntentions.Kill |
-			            CombatMoveIntentions.Fast | CombatMoveIntentions.Hinder);
+						CombatMoveIntentions.Fast | CombatMoveIntentions.Hinder);
 		AddAttack("Dagger Arm Stab", BuiltInCombatMoveType.ClinchAttack, MeleeWeaponVerb.Stab, Difficulty.Normal,
 			Difficulty.VeryHard, Difficulty.Insane, Difficulty.Normal, Alignment.FrontRight, Orientation.Appendage, 3.0,
 			0.4, dagger, badDamage, "@ stab|stabs out at $1's arm with $2", DamageType.Piercing,
 			intentions: CombatMoveIntentions.Attack | CombatMoveIntentions.Wound | CombatMoveIntentions.Kill |
-			            CombatMoveIntentions.Fast | CombatMoveIntentions.Disarm);
+						CombatMoveIntentions.Fast | CombatMoveIntentions.Disarm);
 
 		AddAttack("Dagger Throat Cut", BuiltInCombatMoveType.CoupDeGrace, MeleeWeaponVerb.Stab, Difficulty.Normal,
 			Difficulty.Easy, Difficulty.Easy, Difficulty.VeryEasy, Alignment.Front, Orientation.High, 4.0, 1.0, dagger,
@@ -2657,13 +2638,13 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
 			Orientation.Low, 3.0, 0.4, trainingDagger, trainingDamage, "@ stab|stabs down at $1's leg with $2",
 			DamageType.Crushing,
 			intentions: CombatMoveIntentions.Attack | CombatMoveIntentions.Training | CombatMoveIntentions.Fast |
-			            CombatMoveIntentions.Hinder);
+						CombatMoveIntentions.Hinder);
 		AddAttack("Training Dagger Arm Stab", BuiltInCombatMoveType.ClinchAttack, MeleeWeaponVerb.Stab,
 			Difficulty.VeryEasy, Difficulty.VeryHard, Difficulty.Insane, Difficulty.Normal, Alignment.FrontRight,
 			Orientation.Appendage, 3.0, 0.4, trainingDagger, trainingDamage, "@ stab|stabs out at $1's arm with $2",
 			DamageType.Crushing,
 			intentions: CombatMoveIntentions.Attack | CombatMoveIntentions.Training | CombatMoveIntentions.Fast |
-			            CombatMoveIntentions.Disarm);
+						CombatMoveIntentions.Disarm);
 
 		#endregion
 
@@ -3044,27 +3025,27 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
 			Difficulty.VeryEasy, Difficulty.Easy, Difficulty.ExtremelyEasy, Alignment.Front, Orientation.High, 4.2, 0.8,
 			shortsword, badDamage, "@ lash|lashes out with a quick jab of $2 at $1", DamageType.Piercing,
 			intentions: CombatMoveIntentions.Attack | CombatMoveIntentions.Wound | CombatMoveIntentions.Kill |
-			            CombatMoveIntentions.Fast);
+						CombatMoveIntentions.Fast);
 		AddAttack("Shortsword Stab", BuiltInCombatMoveType.ClinchAttack, MeleeWeaponVerb.Stab, Difficulty.Normal,
 			Difficulty.VeryHard, Difficulty.Insane, Difficulty.Easy, Alignment.FrontRight, Orientation.High, 4.2, 0.7,
 			shortsword, poorDamage, "@ stab|stabs $1 with $2", DamageType.Piercing,
 			intentions: CombatMoveIntentions.Attack | CombatMoveIntentions.Wound | CombatMoveIntentions.Kill |
-			            CombatMoveIntentions.Fast);
+						CombatMoveIntentions.Fast);
 		AddAttack("Shortsword Low Stab", BuiltInCombatMoveType.ClinchAttack, MeleeWeaponVerb.Stab, Difficulty.Normal,
 			Difficulty.VeryHard, Difficulty.Insane, Difficulty.Easy, Alignment.FrontRight, Orientation.Centre, 4.2, 0.7,
 			shortsword, poorDamage, "@ stab|stabs $1 with $2", DamageType.Piercing,
 			intentions: CombatMoveIntentions.Attack | CombatMoveIntentions.Wound | CombatMoveIntentions.Kill |
-			            CombatMoveIntentions.Fast);
+						CombatMoveIntentions.Fast);
 		AddAttack("Shortsword Leg Stab", BuiltInCombatMoveType.ClinchAttack, MeleeWeaponVerb.Stab, Difficulty.Normal,
 			Difficulty.VeryHard, Difficulty.Insane, Difficulty.Normal, Alignment.FrontRight, Orientation.Low, 4.2, 0.7,
 			shortsword, poorDamage, "@ stab|stabs down at $1's leg with $2", DamageType.Piercing,
 			intentions: CombatMoveIntentions.Attack | CombatMoveIntentions.Wound | CombatMoveIntentions.Kill |
-			            CombatMoveIntentions.Fast | CombatMoveIntentions.Hinder);
+						CombatMoveIntentions.Fast | CombatMoveIntentions.Hinder);
 		AddAttack("Shortsword Arm Stab", BuiltInCombatMoveType.ClinchAttack, MeleeWeaponVerb.Stab, Difficulty.Hard,
 			Difficulty.VeryHard, Difficulty.Insane, Difficulty.Normal, Alignment.FrontRight, Orientation.Appendage, 4.2,
 			0.7, shortsword, poorDamage, "@ stab|stabs out at $1's arm with $2", DamageType.Piercing,
 			intentions: CombatMoveIntentions.Attack | CombatMoveIntentions.Wound | CombatMoveIntentions.Kill |
-			            CombatMoveIntentions.Fast | CombatMoveIntentions.Disarm);
+						CombatMoveIntentions.Fast | CombatMoveIntentions.Disarm);
 
 		AddAttack("Shortsword Throat Cut", BuiltInCombatMoveType.CoupDeGrace, MeleeWeaponVerb.Stab, Difficulty.Hard,
 			Difficulty.Easy, Difficulty.Easy, Difficulty.VeryEasy, Alignment.Front, Orientation.High, 5.0, 1.0,
@@ -3122,13 +3103,13 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
 			Orientation.Low, 4.2, 0.7, trainingshortsword, trainingDamage, "@ stab|stabs down at $1's leg with $2",
 			DamageType.Crushing,
 			intentions: CombatMoveIntentions.Attack | CombatMoveIntentions.Training | CombatMoveIntentions.Fast |
-			            CombatMoveIntentions.Hinder);
+						CombatMoveIntentions.Hinder);
 		AddAttack("Training Shortsword Arm Stab", BuiltInCombatMoveType.ClinchAttack, MeleeWeaponVerb.Stab,
 			Difficulty.VeryEasy, Difficulty.VeryHard, Difficulty.Insane, Difficulty.Normal, Alignment.FrontRight,
 			Orientation.Appendage, 4.2, 0.7, trainingshortsword, trainingDamage, "@ stab|stabs out at $1's arm with $2",
 			DamageType.Crushing,
 			intentions: CombatMoveIntentions.Attack | CombatMoveIntentions.Training | CombatMoveIntentions.Fast |
-			            CombatMoveIntentions.Disarm);
+						CombatMoveIntentions.Disarm);
 
 		#endregion
 
@@ -3231,24 +3212,24 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
 			"@ lunge|lunges forward and stab|stabs $2 at $1's feet", DamageType.Piercing,
 			handedness: AttackHandednessOptions.OneHandedOnly,
 			intentions: CombatMoveIntentions.Attack | CombatMoveIntentions.Kill | CombatMoveIntentions.Wound |
-			            CombatMoveIntentions.Hinder);
+						CombatMoveIntentions.Hinder);
 		AddAttack("Longsword 1-Handed Jab", BuiltInCombatMoveType.UseWeaponAttack, MeleeWeaponVerb.Jab, Difficulty.Easy,
 			Difficulty.Normal, Difficulty.Normal, Difficulty.Easy, Alignment.FrontRight, Orientation.High, 5.0, 0.8,
 			longsword, badDamage, "@ quickly jab|jabs $2 at $1", DamageType.Piercing,
 			intentions: CombatMoveIntentions.Attack | CombatMoveIntentions.Kill | CombatMoveIntentions.Wound |
-			            CombatMoveIntentions.Fast, handedness: AttackHandednessOptions.OneHandedOnly);
+						CombatMoveIntentions.Fast, handedness: AttackHandednessOptions.OneHandedOnly);
 		AddAttack("Longsword 1-Handed Counter Jab", BuiltInCombatMoveType.WardFreeAttack, MeleeWeaponVerb.Jab,
 			Difficulty.Easy, Difficulty.Normal, Difficulty.Normal, Difficulty.Easy, Alignment.FrontRight,
 			Orientation.High, 5.0, 0.8, longsword, badDamage, "@ quickly counter jab|jabs $2 at $1",
 			DamageType.Piercing,
 			intentions: CombatMoveIntentions.Attack | CombatMoveIntentions.Kill | CombatMoveIntentions.Wound |
-			            CombatMoveIntentions.Fast, handedness: AttackHandednessOptions.OneHandedOnly);
+						CombatMoveIntentions.Fast, handedness: AttackHandednessOptions.OneHandedOnly);
 		AddAttack("Longsword 1-Handed Low Counter Jab", BuiltInCombatMoveType.WardFreeAttack, MeleeWeaponVerb.Jab,
 			Difficulty.Easy, Difficulty.Normal, Difficulty.Normal, Difficulty.Easy, Alignment.FrontRight,
 			Orientation.Centre, 5.0, 0.8, longsword, badDamage, "@ quickly counter jab|jabs $2 at $1",
 			DamageType.Piercing,
 			intentions: CombatMoveIntentions.Attack | CombatMoveIntentions.Kill | CombatMoveIntentions.Wound |
-			            CombatMoveIntentions.Fast, handedness: AttackHandednessOptions.OneHandedOnly);
+						CombatMoveIntentions.Fast, handedness: AttackHandednessOptions.OneHandedOnly);
 
 		AddAttack("Longsword Smash", BuiltInCombatMoveType.MeleeWeaponSmashItem, MeleeWeaponVerb.Swing, Difficulty.Easy,
 			Difficulty.Easy, Difficulty.VeryHard, Difficulty.Easy, Alignment.Front, Orientation.Highest, 6.0, 1.3,
@@ -3338,24 +3319,24 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
 			"@ lunge|lunges forward and stab|stabs $2 at $1's feet", DamageType.Piercing,
 			handedness: AttackHandednessOptions.TwoHandedOnly,
 			intentions: CombatMoveIntentions.Attack | CombatMoveIntentions.Kill | CombatMoveIntentions.Wound |
-			            CombatMoveIntentions.Hinder);
+						CombatMoveIntentions.Hinder);
 		AddAttack("Longsword 2-Handed Jab", BuiltInCombatMoveType.UseWeaponAttack, MeleeWeaponVerb.Jab, Difficulty.Easy,
 			Difficulty.Normal, Difficulty.Normal, Difficulty.Easy, Alignment.FrontRight, Orientation.High, 5.0, 0.7,
 			longsword, badDamage, "@ quickly jab|jabs $2 at $1", DamageType.Piercing,
 			intentions: CombatMoveIntentions.Attack | CombatMoveIntentions.Kill | CombatMoveIntentions.Wound |
-			            CombatMoveIntentions.Fast, handedness: AttackHandednessOptions.TwoHandedOnly);
+						CombatMoveIntentions.Fast, handedness: AttackHandednessOptions.TwoHandedOnly);
 		AddAttack("Longsword 2-Handed Counter Jab", BuiltInCombatMoveType.WardFreeAttack, MeleeWeaponVerb.Jab,
 			Difficulty.Easy, Difficulty.Normal, Difficulty.Normal, Difficulty.Easy, Alignment.FrontRight,
 			Orientation.High, 5.0, 0.7, longsword, badDamage, "@ quickly counter jab|jabs $2 at $1",
 			DamageType.Piercing,
 			intentions: CombatMoveIntentions.Attack | CombatMoveIntentions.Kill | CombatMoveIntentions.Wound |
-			            CombatMoveIntentions.Fast, handedness: AttackHandednessOptions.TwoHandedOnly);
+						CombatMoveIntentions.Fast, handedness: AttackHandednessOptions.TwoHandedOnly);
 		AddAttack("Longsword 2-Handed Low Counter Jab", BuiltInCombatMoveType.WardFreeAttack, MeleeWeaponVerb.Jab,
 			Difficulty.Easy, Difficulty.Normal, Difficulty.Normal, Difficulty.Easy, Alignment.FrontRight,
 			Orientation.Centre, 5.0, 0.7, longsword, badDamage, "@ quickly counter jab|jabs $2 at $1",
 			DamageType.Piercing,
 			intentions: CombatMoveIntentions.Attack | CombatMoveIntentions.Kill | CombatMoveIntentions.Wound |
-			            CombatMoveIntentions.Fast, handedness: AttackHandednessOptions.TwoHandedOnly);
+						CombatMoveIntentions.Fast, handedness: AttackHandednessOptions.TwoHandedOnly);
 
 
 		AddAttack("Training Longsword 1-Handed Swing", BuiltInCombatMoveType.UseWeaponAttack, MeleeWeaponVerb.Swing,
@@ -3550,24 +3531,24 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
 			"@ lunge|lunges forward and stab|stabs $2 at $1's feet", DamageType.Piercing,
 			handedness: AttackHandednessOptions.OneHandedOnly,
 			intentions: CombatMoveIntentions.Attack | CombatMoveIntentions.Kill | CombatMoveIntentions.Wound |
-			            CombatMoveIntentions.Hinder);
+						CombatMoveIntentions.Hinder);
 		AddAttack("Zweihander 1-Handed Jab", BuiltInCombatMoveType.UseWeaponAttack, MeleeWeaponVerb.Jab,
 			Difficulty.Easy, Difficulty.Normal, Difficulty.Normal, Difficulty.Easy, Alignment.FrontRight,
 			Orientation.High, 5.0, 1.0, zweihander, badDamage, "@ quickly jab|jabs $2 at $1", DamageType.Piercing,
 			intentions: CombatMoveIntentions.Attack | CombatMoveIntentions.Kill | CombatMoveIntentions.Wound |
-			            CombatMoveIntentions.Fast, handedness: AttackHandednessOptions.OneHandedOnly);
+						CombatMoveIntentions.Fast, handedness: AttackHandednessOptions.OneHandedOnly);
 		AddAttack("Zweihander 1-Handed Counter Jab", BuiltInCombatMoveType.WardFreeAttack, MeleeWeaponVerb.Jab,
 			Difficulty.Easy, Difficulty.Normal, Difficulty.Normal, Difficulty.Easy, Alignment.FrontRight,
 			Orientation.High, 5.0, 1.0, zweihander, badDamage, "@ quickly counter jab|jabs $2 at $1",
 			DamageType.Piercing,
 			intentions: CombatMoveIntentions.Attack | CombatMoveIntentions.Kill | CombatMoveIntentions.Wound |
-			            CombatMoveIntentions.Fast, handedness: AttackHandednessOptions.OneHandedOnly);
+						CombatMoveIntentions.Fast, handedness: AttackHandednessOptions.OneHandedOnly);
 		AddAttack("Zweihander 1-Handed Low Counter Jab", BuiltInCombatMoveType.WardFreeAttack, MeleeWeaponVerb.Jab,
 			Difficulty.Easy, Difficulty.Normal, Difficulty.Normal, Difficulty.Easy, Alignment.FrontRight,
 			Orientation.Centre, 5.0, 1.0, zweihander, badDamage, "@ quickly counter jab|jabs $2 at $1",
 			DamageType.Piercing,
 			intentions: CombatMoveIntentions.Attack | CombatMoveIntentions.Kill | CombatMoveIntentions.Wound |
-			            CombatMoveIntentions.Fast, handedness: AttackHandednessOptions.OneHandedOnly);
+						CombatMoveIntentions.Fast, handedness: AttackHandednessOptions.OneHandedOnly);
 
 		AddAttack("Zweihander Smash", BuiltInCombatMoveType.MeleeWeaponSmashItem, MeleeWeaponVerb.Swing,
 			Difficulty.Easy, Difficulty.Easy, Difficulty.VeryHard, Difficulty.Easy, Alignment.Front,
@@ -3656,24 +3637,24 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
 			"@ lunge|lunges forward and stab|stabs $2 at $1's feet", DamageType.Piercing,
 			handedness: AttackHandednessOptions.TwoHandedOnly,
 			intentions: CombatMoveIntentions.Attack | CombatMoveIntentions.Kill | CombatMoveIntentions.Wound |
-			            CombatMoveIntentions.Hinder);
+						CombatMoveIntentions.Hinder);
 		AddAttack("Zweihander 2-Handed Jab", BuiltInCombatMoveType.UseWeaponAttack, MeleeWeaponVerb.Jab,
 			Difficulty.Easy, Difficulty.Normal, Difficulty.Normal, Difficulty.Easy, Alignment.FrontRight,
 			Orientation.High, 5.0, 0.9, zweihander, poorDamage, "@ quickly jab|jabs $2 at $1", DamageType.Piercing,
 			intentions: CombatMoveIntentions.Attack | CombatMoveIntentions.Kill | CombatMoveIntentions.Wound |
-			            CombatMoveIntentions.Fast, handedness: AttackHandednessOptions.TwoHandedOnly);
+						CombatMoveIntentions.Fast, handedness: AttackHandednessOptions.TwoHandedOnly);
 		AddAttack("Zweihander 2-Handed Counter Jab", BuiltInCombatMoveType.WardFreeAttack, MeleeWeaponVerb.Jab,
 			Difficulty.Hard, Difficulty.Normal, Difficulty.Normal, Difficulty.Easy, Alignment.FrontRight,
 			Orientation.High, 5.0, 0.9, zweihander, poorDamage, "@ quickly counter jab|jabs $2 at $1",
 			DamageType.Piercing,
 			intentions: CombatMoveIntentions.Attack | CombatMoveIntentions.Kill | CombatMoveIntentions.Wound |
-			            CombatMoveIntentions.Fast, handedness: AttackHandednessOptions.TwoHandedOnly);
+						CombatMoveIntentions.Fast, handedness: AttackHandednessOptions.TwoHandedOnly);
 		AddAttack("Zweihander 2-Handed Low Counter Jab", BuiltInCombatMoveType.WardFreeAttack, MeleeWeaponVerb.Jab,
 			Difficulty.Hard, Difficulty.Normal, Difficulty.Normal, Difficulty.Easy, Alignment.FrontRight,
 			Orientation.Centre, 5.0, 0.9, zweihander, poorDamage, "@ quickly counter jab|jabs $2 at $1",
 			DamageType.Piercing,
 			intentions: CombatMoveIntentions.Attack | CombatMoveIntentions.Kill | CombatMoveIntentions.Wound |
-			            CombatMoveIntentions.Fast, handedness: AttackHandednessOptions.TwoHandedOnly);
+						CombatMoveIntentions.Fast, handedness: AttackHandednessOptions.TwoHandedOnly);
 
 		#endregion
 
@@ -3723,7 +3704,7 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
 			Orientation.Lowest, 5.0, 0.9, rapier, normalDamage, "@ lunge|lunges forward and stab|stabs $2 at $1's feet",
 			DamageType.Piercing, handedness: AttackHandednessOptions.OneHandedOnly,
 			intentions: CombatMoveIntentions.Attack | CombatMoveIntentions.Kill | CombatMoveIntentions.Wound |
-			            CombatMoveIntentions.Hinder);
+						CombatMoveIntentions.Hinder);
 		AddAttack("Rapier 1-Handed Cross Stab", BuiltInCombatMoveType.UseWeaponAttack, MeleeWeaponVerb.Stab,
 			Difficulty.Normal, Difficulty.Normal, Difficulty.Normal, Difficulty.Easy, Alignment.Front, Orientation.High,
 			5.0, 0.9, rapier, normalDamage, "@ lunge|lunges forward and stab|stabs $2 across the body at $1",
@@ -3732,18 +3713,18 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
 			Difficulty.Normal, Difficulty.Normal, Difficulty.Easy, Alignment.FrontRight, Orientation.High, 5.0, 0.7,
 			rapier, poorDamage, "@ quickly jab|jabs $2 at $1", DamageType.Piercing,
 			intentions: CombatMoveIntentions.Attack | CombatMoveIntentions.Kill | CombatMoveIntentions.Wound |
-			            CombatMoveIntentions.Fast, handedness: AttackHandednessOptions.OneHandedOnly);
+						CombatMoveIntentions.Fast, handedness: AttackHandednessOptions.OneHandedOnly);
 		AddAttack("Rapier 1-Handed Counter Jab", BuiltInCombatMoveType.WardFreeAttack, MeleeWeaponVerb.Jab,
 			Difficulty.Easy, Difficulty.Normal, Difficulty.Normal, Difficulty.Easy, Alignment.FrontRight,
 			Orientation.High, 5.0, 0.7, rapier, poorDamage, "@ quickly counter jab|jabs $2 at $1", DamageType.Piercing,
 			intentions: CombatMoveIntentions.Attack | CombatMoveIntentions.Kill | CombatMoveIntentions.Wound |
-			            CombatMoveIntentions.Fast, handedness: AttackHandednessOptions.OneHandedOnly);
+						CombatMoveIntentions.Fast, handedness: AttackHandednessOptions.OneHandedOnly);
 		AddAttack("Rapier 1-Handed Low Counter Jab", BuiltInCombatMoveType.WardFreeAttack, MeleeWeaponVerb.Jab,
 			Difficulty.Easy, Difficulty.Normal, Difficulty.Normal, Difficulty.Easy, Alignment.FrontRight,
 			Orientation.Centre, 5.0, 0.7, rapier, poorDamage, "@ quickly counter jab|jabs $2 at $1",
 			DamageType.Piercing,
 			intentions: CombatMoveIntentions.Attack | CombatMoveIntentions.Kill | CombatMoveIntentions.Wound |
-			            CombatMoveIntentions.Fast, handedness: AttackHandednessOptions.OneHandedOnly);
+						CombatMoveIntentions.Fast, handedness: AttackHandednessOptions.OneHandedOnly);
 
 		AddAttack("Training Rapier 1-Handed Stab", BuiltInCombatMoveType.UseWeaponAttack, MeleeWeaponVerb.Stab,
 			Difficulty.VeryEasy, Difficulty.Hard, Difficulty.Normal, Difficulty.Easy, Alignment.FrontRight,
@@ -4033,19 +4014,19 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
 			5.0, 1.0, spear, normalDamage, "@ lunge|lunges forward and stab|stabs $2 at $1's leg", DamageType.Piercing,
 			handedness: AttackHandednessOptions.OneHandedOnly,
 			intentions: CombatMoveIntentions.Attack | CombatMoveIntentions.Wound | CombatMoveIntentions.Kill |
-			            CombatMoveIntentions.Hinder);
+						CombatMoveIntentions.Hinder);
 		AddAttack("Spear 1-Handed Foot Stab", BuiltInCombatMoveType.UseWeaponAttack, MeleeWeaponVerb.Stab,
 			Difficulty.Normal, Difficulty.Easy, Difficulty.VeryEasy, Difficulty.VeryHard, Alignment.FrontRight,
 			Orientation.Lowest, 5.0, 1.0, spear, normalDamage, "@ lunge|lunges forward and stab|stabs $2 at $1's foot",
 			DamageType.Piercing, handedness: AttackHandednessOptions.OneHandedOnly,
 			intentions: CombatMoveIntentions.Attack | CombatMoveIntentions.Wound | CombatMoveIntentions.Kill |
-			            CombatMoveIntentions.Hinder);
+						CombatMoveIntentions.Hinder);
 		AddAttack("Spear 1-Handed Trip", BuiltInCombatMoveType.UnbalancingBlow, MeleeWeaponVerb.Sweep, Difficulty.Hard,
 			Difficulty.Easy, Difficulty.Easy, Difficulty.VeryHard, Alignment.FrontRight, Orientation.Lowest, 3.0, 0.6,
 			spear, terribleDamage, "@ knock|knocks at $1's legs and feet with $2 in an attempt to trip &1 up",
 			DamageType.Crushing, handedness: AttackHandednessOptions.OneHandedOnly,
 			intentions: CombatMoveIntentions.Attack | CombatMoveIntentions.Wound | CombatMoveIntentions.Trip |
-			            CombatMoveIntentions.Hinder, additionalInfo: ((int)Difficulty.Normal).ToString());
+						CombatMoveIntentions.Hinder, additionalInfo: ((int)Difficulty.Normal).ToString());
 		AddAttack("Spear 1-Handed Counter Jab", BuiltInCombatMoveType.WardFreeAttack, MeleeWeaponVerb.Jab,
 			Difficulty.VeryHard, Difficulty.Normal, Difficulty.Normal, Difficulty.Easy, Alignment.FrontRight,
 			Orientation.High, 5.0, 1.0, spear, poorDamage, "@ lunge|lunges forward and stab|stabs $2 at $1",
@@ -4072,25 +4053,25 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
 			5.0, 1.0, spear, goodDamage, "@ lunge|lunges forward and stab|stabs $2 at $1's leg", DamageType.Piercing,
 			handedness: AttackHandednessOptions.TwoHandedOnly,
 			intentions: CombatMoveIntentions.Attack | CombatMoveIntentions.Wound | CombatMoveIntentions.Kill |
-			            CombatMoveIntentions.Hinder);
+						CombatMoveIntentions.Hinder);
 		AddAttack("Spear 2-Handed Foot Stab", BuiltInCombatMoveType.UseWeaponAttack, MeleeWeaponVerb.Stab,
 			Difficulty.Normal, Difficulty.Easy, Difficulty.VeryEasy, Difficulty.VeryHard, Alignment.FrontRight,
 			Orientation.Lowest, 5.0, 1.0, spear, goodDamage, "@ lunge|lunges forward and stab|stabs $2 at $1's foot",
 			DamageType.Piercing, handedness: AttackHandednessOptions.TwoHandedOnly,
 			intentions: CombatMoveIntentions.Attack | CombatMoveIntentions.Wound | CombatMoveIntentions.Kill |
-			            CombatMoveIntentions.Hinder);
+						CombatMoveIntentions.Hinder);
 		AddAttack("Spear 2-Handed Leg Sweep", BuiltInCombatMoveType.UnbalancingBlow, MeleeWeaponVerb.Sweep,
 			Difficulty.Hard, Difficulty.Easy, Difficulty.Easy, Difficulty.Hard, Alignment.FrontRight, Orientation.Low,
 			5.0, 1.0, spear, badDamage, "@ sweep|sweeps $2 around at $1's legs in an attempt to knock &1 off balance",
 			DamageType.Crushing, handedness: AttackHandednessOptions.TwoHandedOnly,
 			intentions: CombatMoveIntentions.Attack | CombatMoveIntentions.Wound | CombatMoveIntentions.Trip |
-			            CombatMoveIntentions.Hinder, additionalInfo: ((int)Difficulty.Normal).ToString());
+						CombatMoveIntentions.Hinder, additionalInfo: ((int)Difficulty.Normal).ToString());
 		AddAttack("Spear 2-Handed Trip", BuiltInCombatMoveType.UnbalancingBlow, MeleeWeaponVerb.Sweep, Difficulty.Hard,
 			Difficulty.Easy, Difficulty.Easy, Difficulty.VeryHard, Alignment.FrontRight, Orientation.Lowest, 3.0, 0.6,
 			spear, terribleDamage, "@ knock|knocks at $1's legs and feet with $2 in an attempt to trip &1 up",
 			DamageType.Crushing, handedness: AttackHandednessOptions.TwoHandedOnly,
 			intentions: CombatMoveIntentions.Attack | CombatMoveIntentions.Wound | CombatMoveIntentions.Trip |
-			            CombatMoveIntentions.Hinder, additionalInfo: ((int)Difficulty.Hard).ToString());
+						CombatMoveIntentions.Hinder, additionalInfo: ((int)Difficulty.Hard).ToString());
 		AddAttack("Spear 2-Handed Counter Stab", BuiltInCombatMoveType.WardFreeAttack, MeleeWeaponVerb.Stab,
 			Difficulty.Hard, Difficulty.VeryHard, Difficulty.Normal, Difficulty.Easy, Alignment.Front, Orientation.High,
 			5.0, 1.0, spear, goodDamage,
@@ -4144,14 +4125,14 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
 			5.0, 1.0, longspear, normalDamage, "@ lunge|lunges forward and stab|stabs $2 at $1's leg",
 			DamageType.Piercing, handedness: AttackHandednessOptions.OneHandedOnly,
 			intentions: CombatMoveIntentions.Attack | CombatMoveIntentions.Wound | CombatMoveIntentions.Kill |
-			            CombatMoveIntentions.Hinder);
+						CombatMoveIntentions.Hinder);
 		AddAttack("Spear 1-Handed Foot Stab", BuiltInCombatMoveType.UseWeaponAttack, MeleeWeaponVerb.Stab,
 			Difficulty.Normal, Difficulty.Easy, Difficulty.VeryEasy, Difficulty.VeryHard, Alignment.FrontRight,
 			Orientation.Lowest, 5.0, 1.0, longspear, normalDamage,
 			"@ lunge|lunges forward and stab|stabs $2 at $1's foot", DamageType.Piercing,
 			handedness: AttackHandednessOptions.OneHandedOnly,
 			intentions: CombatMoveIntentions.Attack | CombatMoveIntentions.Wound | CombatMoveIntentions.Kill |
-			            CombatMoveIntentions.Hinder);
+						CombatMoveIntentions.Hinder);
 		AddAttack("Spear 1-Handed Counter Jab", BuiltInCombatMoveType.WardFreeAttack, MeleeWeaponVerb.Jab,
 			Difficulty.VeryHard, Difficulty.Normal, Difficulty.Normal, Difficulty.Easy, Alignment.FrontRight,
 			Orientation.High, 5.0, 1.0, longspear, poorDamage, "@ lunge|lunges forward and stab|stabs $2 at $1",
@@ -4178,27 +4159,27 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
 			5.0, 1.0, longspear, goodDamage, "@ lunge|lunges forward and stab|stabs $2 at $1's leg",
 			DamageType.Piercing, handedness: AttackHandednessOptions.TwoHandedOnly,
 			intentions: CombatMoveIntentions.Attack | CombatMoveIntentions.Wound | CombatMoveIntentions.Kill |
-			            CombatMoveIntentions.Hinder);
+						CombatMoveIntentions.Hinder);
 		AddAttack("Spear 2-Handed Foot Stab", BuiltInCombatMoveType.UseWeaponAttack, MeleeWeaponVerb.Stab,
 			Difficulty.Normal, Difficulty.Easy, Difficulty.VeryEasy, Difficulty.VeryHard, Alignment.FrontRight,
 			Orientation.Lowest, 5.0, 1.0, longspear, goodDamage,
 			"@ lunge|lunges forward and stab|stabs $2 at $1's foot", DamageType.Piercing,
 			handedness: AttackHandednessOptions.TwoHandedOnly,
 			intentions: CombatMoveIntentions.Attack | CombatMoveIntentions.Wound | CombatMoveIntentions.Kill |
-			            CombatMoveIntentions.Hinder);
+						CombatMoveIntentions.Hinder);
 		AddAttack("Spear 2-Handed Leg Sweep", BuiltInCombatMoveType.UnbalancingBlow, MeleeWeaponVerb.Sweep,
 			Difficulty.Hard, Difficulty.Easy, Difficulty.Easy, Difficulty.Hard, Alignment.FrontRight, Orientation.Low,
 			5.0, 1.0, longspear, badDamage,
 			"@ sweep|sweeps $2 around at $1's legs in an attempt to knock &1 off balance", DamageType.Crushing,
 			handedness: AttackHandednessOptions.TwoHandedOnly,
 			intentions: CombatMoveIntentions.Attack | CombatMoveIntentions.Wound | CombatMoveIntentions.Trip |
-			            CombatMoveIntentions.Hinder, additionalInfo: ((int)Difficulty.Normal).ToString());
+						CombatMoveIntentions.Hinder, additionalInfo: ((int)Difficulty.Normal).ToString());
 		AddAttack("Spear 2-Handed Trip", BuiltInCombatMoveType.UnbalancingBlow, MeleeWeaponVerb.Sweep, Difficulty.Hard,
 			Difficulty.Easy, Difficulty.Easy, Difficulty.VeryHard, Alignment.FrontRight, Orientation.Lowest, 3.0, 0.6,
 			longspear, terribleDamage, "@ knock|knocks at $1's legs and feet with $2 in an attempt to trip &1 up",
 			DamageType.Crushing, handedness: AttackHandednessOptions.TwoHandedOnly,
 			intentions: CombatMoveIntentions.Attack | CombatMoveIntentions.Wound | CombatMoveIntentions.Trip |
-			            CombatMoveIntentions.Hinder, additionalInfo: ((int)Difficulty.Hard).ToString());
+						CombatMoveIntentions.Hinder, additionalInfo: ((int)Difficulty.Hard).ToString());
 		AddAttack("Spear 2-Handed Counter Stab", BuiltInCombatMoveType.WardFreeAttack, MeleeWeaponVerb.Stab,
 			Difficulty.Hard, Difficulty.VeryHard, Difficulty.Normal, Difficulty.Easy, Alignment.Front, Orientation.High,
 			5.0, 1.0, longspear, goodDamage,
@@ -4596,7 +4577,7 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
 			shield, poorDamage, "@ slam|slams $2 downward towards $1's legs", DamageType.Crushing,
 			additionalInfo: ((int)Difficulty.Easy).ToString(),
 			intentions: CombatMoveIntentions.Attack | CombatMoveIntentions.Wound | CombatMoveIntentions.Shield |
-			            CombatMoveIntentions.Cripple);
+						CombatMoveIntentions.Cripple);
 		AddAttack("Shield Smash Head", BuiltInCombatMoveType.CoupDeGrace, MeleeWeaponVerb.Swing, Difficulty.Hard,
 			Difficulty.Easy, Difficulty.VeryHard, Difficulty.Easy, Alignment.Front, Orientation.Highest, 8.0, 1.5,
 			shield, coupdegraceDamage,
@@ -5317,7 +5298,7 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
 
 		var shieldArmour = new ArmourType
 		{
-			Name = "Human Natural Armour",
+			Name = "Shield Armour",
 			MinimumPenetrationDegree = 1,
 			BaseDifficultyDegrees = 0,
 			StackedDifficultyDegrees = 0,
@@ -5328,55 +5309,55 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
 		Damage Types:
 		
 		Slashing = 0
-        Chopping = 1
-        Crushing = 2
-        Piercing = 3
-        Ballistic = 4
-        Burning = 5
-        Freezing = 6
-        Chemical = 7
-        Shockwave = 8
-        Bite = 9
-        Claw = 10
-        Electrical = 11
-        Hypoxia = 12
-        Cellular = 13
-        Sonic = 14
-        Shearing = 15
-        ArmourPiercing = 16
-        Wrenching = 17
-        Shrapnel = 18
-        Necrotic = 19
-        Falling = 20
-        Eldritch = 21
-        Arcane = 22
+		Chopping = 1
+		Crushing = 2
+		Piercing = 3
+		Ballistic = 4
+		Burning = 5
+		Freezing = 6
+		Chemical = 7
+		Shockwave = 8
+		Bite = 9
+		Claw = 10
+		Electrical = 11
+		Hypoxia = 12
+		Cellular = 13
+		Sonic = 14
+		Shearing = 15
+		ArmourPiercing = 16
+		Wrenching = 17
+		Shrapnel = 18
+		Necrotic = 19
+		Falling = 20
+		Eldritch = 21
+		Arcane = 22
 		
 		Severity Values:
 		
 		None = 0
-        Superficial = 1
-        Minor = 2
-        Small = 3
-        Moderate = 4
-        Severe = 5
-        VerySevere = 6
-        Grievous = 7
-        Horrifying = 8
+		Superficial = 1
+		Minor = 2
+		Small = 3
+		Moderate = 4
+		Severe = 5
+		VerySevere = 6
+		Grievous = 7
+		Horrifying = 8
 	-->
 	<DamageTransformations>
- 		<Transform fromtype=""0"" totype=""2"" severity=""6""></Transform> <!-- Slashing to Crushing when <= VerySevere -->
- 		<Transform fromtype=""1"" totype=""2"" severity=""6""></Transform> <!-- Chopping to Crushing when <= VerySevere -->
- 		<Transform fromtype=""3"" totype=""2"" severity=""5""></Transform> <!-- Piercing to Crushing when <= Severe -->
- 		<Transform fromtype=""4"" totype=""2"" severity=""5""></Transform> <!-- Ballistic to Crushing when <= Severe -->
- 		<Transform fromtype=""9"" totype=""2"" severity=""6""></Transform> <!-- Bite to Crushing when <= VerySevere -->
- 		<Transform fromtype=""10"" totype=""2"" severity=""6""></Transform> <!-- Claw to Crushing when <= VerySevere -->
- 		<Transform fromtype=""15"" totype=""2"" severity=""6""></Transform> <!-- Shearing to Crushing when <= VerySevere -->
- 		<Transform fromtype=""16"" totype=""2"" severity=""3""></Transform> <!-- ArmourPiercing to Crushing when <= Small -->
- 		<Transform fromtype=""17"" totype=""2"" severity=""5""></Transform> <!-- Wrenching to Crushing when <= Severe -->
- 	</DamageTransformations>
-    <!-- 
+		<Transform fromtype=""0"" totype=""2"" severity=""6""></Transform> <!-- Slashing to Crushing when <= VerySevere -->
+		<Transform fromtype=""1"" totype=""2"" severity=""6""></Transform> <!-- Chopping to Crushing when <= VerySevere -->
+		<Transform fromtype=""3"" totype=""2"" severity=""5""></Transform> <!-- Piercing to Crushing when <= Severe -->
+		<Transform fromtype=""4"" totype=""2"" severity=""5""></Transform> <!-- Ballistic to Crushing when <= Severe -->
+		<Transform fromtype=""9"" totype=""2"" severity=""6""></Transform> <!-- Bite to Crushing when <= VerySevere -->
+		<Transform fromtype=""10"" totype=""2"" severity=""6""></Transform> <!-- Claw to Crushing when <= VerySevere -->
+		<Transform fromtype=""15"" totype=""2"" severity=""6""></Transform> <!-- Shearing to Crushing when <= VerySevere -->
+		<Transform fromtype=""16"" totype=""2"" severity=""3""></Transform> <!-- ArmourPiercing to Crushing when <= Small -->
+		<Transform fromtype=""17"" totype=""2"" severity=""5""></Transform> <!-- Wrenching to Crushing when <= Severe -->
+	</DamageTransformations>
+	<!-- 
 	
-	    Dissipate expressions are applied before the item/part takes damage. 
+		Dissipate expressions are applied before the item/part takes damage. 
 		If they reduce the damage to zero, it neither suffers nor passes on any damage. 
 		
 		Parameters: 
@@ -5391,87 +5372,87 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
 		
 		Hint: 25000 can be considered ""base"" ShearYield and 10000 can be considered ""base"" ImpactYield
 	-->
-    <DissipateExpressions>
-        <Expression damagetype=""0"">damage - (quality * strength/25000 * 0.25)</Expression>    <!-- Slashing -->
- 		<Expression damagetype=""1"">damage - (quality * strength/25000 * 0.25)</Expression>    <!-- Chopping -->  
- 		<Expression damagetype=""2"">damage - (quality * strength/10000 * 0.25)</Expression>    <!-- Crushing -->  
- 		<Expression damagetype=""3"">damage - (quality * strength/25000 * 0.25)</Expression>    <!-- Piercing -->  
- 		<Expression damagetype=""4"">damage - (quality * strength/25000 * 0.25)</Expression>    <!-- Ballistic -->  
- 		<Expression damagetype=""5"">damage - (quality * 0.25)</Expression>    			      <!-- Burning -->
- 		<Expression damagetype=""6"">damage - (quality * 0.25)</Expression>                     <!-- Freezing -->
- 		<Expression damagetype=""7"">damage - (quality * 0.25)</Expression>                     <!-- Chemical -->
- 		<Expression damagetype=""8"">damage - (quality * strength/10000 * 0.25)</Expression>    <!-- Shockwave -->
- 		<Expression damagetype=""9"">damage - (quality * strength/25000 * 0.25)</Expression>    <!-- Bite -->
- 		<Expression damagetype=""10"">damage - (quality * strength/25000 * 0.25)</Expression>   <!-- Claw -->
- 		<Expression damagetype=""11"">damage - (quality * 0.25)</Expression>                    <!-- Electrical -->
- 		<Expression damagetype=""12"">damage - (quality * 0.25)</Expression>                    <!-- Hypoxia -->
- 		<Expression damagetype=""13"">damage - (quality * 0.25)</Expression>                    <!-- Cellular -->
+	<DissipateExpressions>
+		<Expression damagetype=""0"">damage - (quality * strength/25000 * 0.25)</Expression>    <!-- Slashing -->
+		<Expression damagetype=""1"">damage - (quality * strength/25000 * 0.25)</Expression>    <!-- Chopping -->  
+		<Expression damagetype=""2"">damage - (quality * strength/10000 * 0.25)</Expression>    <!-- Crushing -->  
+		<Expression damagetype=""3"">damage - (quality * strength/25000 * 0.25)</Expression>    <!-- Piercing -->  
+		<Expression damagetype=""4"">damage - (quality * strength/25000 * 0.25)</Expression>    <!-- Ballistic -->  
+		<Expression damagetype=""5"">damage - (quality * 0.25)</Expression>    			      <!-- Burning -->
+		<Expression damagetype=""6"">damage - (quality * 0.25)</Expression>                     <!-- Freezing -->
+		<Expression damagetype=""7"">damage - (quality * 0.25)</Expression>                     <!-- Chemical -->
+		<Expression damagetype=""8"">damage - (quality * strength/10000 * 0.25)</Expression>    <!-- Shockwave -->
+		<Expression damagetype=""9"">damage - (quality * strength/25000 * 0.25)</Expression>    <!-- Bite -->
+		<Expression damagetype=""10"">damage - (quality * strength/25000 * 0.25)</Expression>   <!-- Claw -->
+		<Expression damagetype=""11"">damage - (quality * 0.25)</Expression>                    <!-- Electrical -->
+		<Expression damagetype=""12"">damage - (quality * 0.25)</Expression>                    <!-- Hypoxia -->
+		<Expression damagetype=""13"">damage - (quality * 0.25)</Expression>                    <!-- Cellular -->
 		<Expression damagetype=""14"">damage - (quality * strength/10000 * 0.25)</Expression>   <!-- Sonic -->
- 		<Expression damagetype=""15"">damage - (quality * strength/25000 * 0.25)</Expression>   <!-- Shearing --> 
+		<Expression damagetype=""15"">damage - (quality * strength/25000 * 0.25)</Expression>   <!-- Shearing --> 
 		<Expression damagetype=""16"">damage - (quality * strength/25000 * 0.25)</Expression>   <!-- ArmourPiercing -->
 		<Expression damagetype=""17"">damage - (quality * strength/10000 * 0.25)</Expression>   <!-- Wrenching -->
- 		<Expression damagetype=""18"">damage - (quality * strength/25000 * 0.25)</Expression>   <!-- Shrapnel -->   
+		<Expression damagetype=""18"">damage - (quality * strength/25000 * 0.25)</Expression>   <!-- Shrapnel -->   
 		<Expression damagetype=""19"">damage - (quality * 0.25)</Expression>                    <!-- Necrotic -->   
- 		<Expression damagetype=""20"">damage - (quality * strength/10000 * 0.25)</Expression>   <!-- Falling -->   
+		<Expression damagetype=""20"">damage - (quality * strength/10000 * 0.25)</Expression>   <!-- Falling -->   
 		<Expression damagetype=""21"">damage - (quality * 0.25)</Expression>                    <!-- Eldritch -->   
 		<Expression damagetype=""22"">damage - (quality * 0.25)</Expression>                    <!-- Arcane -->   
- 	</DissipateExpressions>  
- 	<DissipateExpressionsPain>
-        <Expression damagetype=""0"">pain - (quality * strength/25000 * 0.25)</Expression>    <!-- Slashing -->
- 		<Expression damagetype=""1"">pain - (quality * strength/25000 * 0.25)</Expression>    <!-- Chopping -->  
- 		<Expression damagetype=""2"">pain - (quality * strength/10000 * 0.25)</Expression>    <!-- Crushing -->  
- 		<Expression damagetype=""3"">pain - (quality * strength/25000 * 0.25)</Expression>    <!-- Piercing -->  
- 		<Expression damagetype=""4"">pain - (quality * strength/25000 * 0.25)</Expression>    <!-- Ballistic -->  
- 		<Expression damagetype=""5"">pain - (quality * 0.25)</Expression>    			        <!-- Burning -->
- 		<Expression damagetype=""6"">pain - (quality * 0.25)</Expression>                     <!-- Freezing -->
- 		<Expression damagetype=""7"">pain - (quality * 0.25)</Expression>                     <!-- Chemical -->
- 		<Expression damagetype=""8"">pain - (quality * strength/10000 * 0.25)</Expression>    <!-- Shockwave -->
- 		<Expression damagetype=""9"">pain - (quality * strength/25000 * 0.25)</Expression>    <!-- Bite -->
- 		<Expression damagetype=""10"">pain - (quality * strength/25000 * 0.25)</Expression>   <!-- Claw -->
- 		<Expression damagetype=""11"">pain - (quality * 0.25)</Expression>                    <!-- Electrical -->
- 		<Expression damagetype=""12"">pain - (quality * 0.25)</Expression>                    <!-- Hypoxia -->
- 		<Expression damagetype=""13"">pain - (quality * 0.25)</Expression>                    <!-- Cellular -->
+	</DissipateExpressions>  
+	<DissipateExpressionsPain>
+		<Expression damagetype=""0"">pain - (quality * strength/25000 * 0.25)</Expression>    <!-- Slashing -->
+		<Expression damagetype=""1"">pain - (quality * strength/25000 * 0.25)</Expression>    <!-- Chopping -->  
+		<Expression damagetype=""2"">pain - (quality * strength/10000 * 0.25)</Expression>    <!-- Crushing -->  
+		<Expression damagetype=""3"">pain - (quality * strength/25000 * 0.25)</Expression>    <!-- Piercing -->  
+		<Expression damagetype=""4"">pain - (quality * strength/25000 * 0.25)</Expression>    <!-- Ballistic -->  
+		<Expression damagetype=""5"">pain - (quality * 0.25)</Expression>    			        <!-- Burning -->
+		<Expression damagetype=""6"">pain - (quality * 0.25)</Expression>                     <!-- Freezing -->
+		<Expression damagetype=""7"">pain - (quality * 0.25)</Expression>                     <!-- Chemical -->
+		<Expression damagetype=""8"">pain - (quality * strength/10000 * 0.25)</Expression>    <!-- Shockwave -->
+		<Expression damagetype=""9"">pain - (quality * strength/25000 * 0.25)</Expression>    <!-- Bite -->
+		<Expression damagetype=""10"">pain - (quality * strength/25000 * 0.25)</Expression>   <!-- Claw -->
+		<Expression damagetype=""11"">pain - (quality * 0.25)</Expression>                    <!-- Electrical -->
+		<Expression damagetype=""12"">pain - (quality * 0.25)</Expression>                    <!-- Hypoxia -->
+		<Expression damagetype=""13"">pain - (quality * 0.25)</Expression>                    <!-- Cellular -->
 		<Expression damagetype=""14"">pain - (quality * strength/10000 * 0.25)</Expression>   <!-- Sonic -->
- 		<Expression damagetype=""15"">pain - (quality * strength/25000 * 0.25)</Expression>   <!-- Shearing --> 
+		<Expression damagetype=""15"">pain - (quality * strength/25000 * 0.25)</Expression>   <!-- Shearing --> 
 		<Expression damagetype=""16"">pain - (quality * strength/25000 * 0.25)</Expression>   <!-- ArmourPiercing -->
 		<Expression damagetype=""17"">pain - (quality * strength/10000 * 0.25)</Expression>   <!-- Wrenching -->
- 		<Expression damagetype=""18"">pain - (quality * strength/25000 * 0.25)</Expression>   <!-- Shrapnel -->   
+		<Expression damagetype=""18"">pain - (quality * strength/25000 * 0.25)</Expression>   <!-- Shrapnel -->   
 		<Expression damagetype=""19"">pain - (quality * 0.25)</Expression>                    <!-- Necrotic -->   
- 		<Expression damagetype=""20"">pain - (quality * strength/10000 * 0.25)</Expression>   <!-- Falling -->   
+		<Expression damagetype=""20"">pain - (quality * strength/10000 * 0.25)</Expression>   <!-- Falling -->   
 		<Expression damagetype=""21"">pain - (quality * 0.25)</Expression>                    <!-- Eldritch -->   
 		<Expression damagetype=""22"">pain - (quality * 0.25)</Expression>                    <!-- Arcane -->   
- 	</DissipateExpressionsPain>  
- 	<DissipateExpressionsStun>
-        <Expression damagetype=""0"">stun - (quality * strength/25000 * 0.25)</Expression>    <!-- Slashing -->
- 		<Expression damagetype=""1"">stun - (quality * strength/25000 * 0.25)</Expression>    <!-- Chopping -->  
- 		<Expression damagetype=""2"">stun - (quality * strength/10000 * 0.25)</Expression>    <!-- Crushing -->  
- 		<Expression damagetype=""3"">stun - (quality * strength/25000 * 0.25)</Expression>    <!-- Piercing -->  
- 		<Expression damagetype=""4"">stun - (quality * strength/25000 * 0.25)</Expression>    <!-- Ballistic -->  
- 		<Expression damagetype=""5"">stun - (quality * 0.25)</Expression>    			        <!-- Burning -->
- 		<Expression damagetype=""6"">stun - (quality * 0.25)</Expression>                     <!-- Freezing -->
- 		<Expression damagetype=""7"">stun - (quality * 0.25)</Expression>                     <!-- Chemical -->
- 		<Expression damagetype=""8"">stun - (quality * strength/10000 * 0.25)</Expression>    <!-- Shockwave -->
- 		<Expression damagetype=""9"">stun - (quality * strength/25000 * 0.25)</Expression>    <!-- Bite -->
- 		<Expression damagetype=""10"">stun - (quality * strength/25000 * 0.25)</Expression>   <!-- Claw -->
- 		<Expression damagetype=""11"">stun - (quality * 0.25)</Expression>                    <!-- Electrical -->
- 		<Expression damagetype=""12"">stun - (quality * 0.25)</Expression>                    <!-- Hypoxia -->
- 		<Expression damagetype=""13"">stun - (quality * 0.25)</Expression>                    <!-- Cellular -->
+	</DissipateExpressionsPain>  
+	<DissipateExpressionsStun>
+		<Expression damagetype=""0"">stun - (quality * strength/25000 * 0.25)</Expression>    <!-- Slashing -->
+		<Expression damagetype=""1"">stun - (quality * strength/25000 * 0.25)</Expression>    <!-- Chopping -->  
+		<Expression damagetype=""2"">stun - (quality * strength/10000 * 0.25)</Expression>    <!-- Crushing -->  
+		<Expression damagetype=""3"">stun - (quality * strength/25000 * 0.25)</Expression>    <!-- Piercing -->  
+		<Expression damagetype=""4"">stun - (quality * strength/25000 * 0.25)</Expression>    <!-- Ballistic -->  
+		<Expression damagetype=""5"">stun - (quality * 0.25)</Expression>    			        <!-- Burning -->
+		<Expression damagetype=""6"">stun - (quality * 0.25)</Expression>                     <!-- Freezing -->
+		<Expression damagetype=""7"">stun - (quality * 0.25)</Expression>                     <!-- Chemical -->
+		<Expression damagetype=""8"">stun - (quality * strength/10000 * 0.25)</Expression>    <!-- Shockwave -->
+		<Expression damagetype=""9"">stun - (quality * strength/25000 * 0.25)</Expression>    <!-- Bite -->
+		<Expression damagetype=""10"">stun - (quality * strength/25000 * 0.25)</Expression>   <!-- Claw -->
+		<Expression damagetype=""11"">stun - (quality * 0.25)</Expression>                    <!-- Electrical -->
+		<Expression damagetype=""12"">stun - (quality * 0.25)</Expression>                    <!-- Hypoxia -->
+		<Expression damagetype=""13"">stun - (quality * 0.25)</Expression>                    <!-- Cellular -->
 		<Expression damagetype=""14"">stun - (quality * strength/10000 * 0.25)</Expression>   <!-- Sonic -->
- 		<Expression damagetype=""15"">stun - (quality * strength/25000 * 0.25)</Expression>   <!-- Shearing --> 
+		<Expression damagetype=""15"">stun - (quality * strength/25000 * 0.25)</Expression>   <!-- Shearing --> 
 		<Expression damagetype=""16"">stun - (quality * strength/25000 * 0.25)</Expression>   <!-- ArmourPiercing -->
 		<Expression damagetype=""17"">stun - (quality * strength/10000 * 0.25)</Expression>   <!-- Wrenching -->
- 		<Expression damagetype=""18"">stun - (quality * strength/25000 * 0.25)</Expression>   <!-- Shrapnel -->   
+		<Expression damagetype=""18"">stun - (quality * strength/25000 * 0.25)</Expression>   <!-- Shrapnel -->   
 		<Expression damagetype=""19"">stun - (quality * 0.25)</Expression>                    <!-- Necrotic -->   
- 		<Expression damagetype=""20"">stun - (quality * strength/10000 * 0.25)</Expression>   <!-- Falling -->   
+		<Expression damagetype=""20"">stun - (quality * strength/10000 * 0.25)</Expression>   <!-- Falling -->   
 		<Expression damagetype=""21"">stun - (quality * 0.25)</Expression>                    <!-- Eldritch -->   
 		<Expression damagetype=""22"">stun - (quality * 0.25)</Expression>                    <!-- Arcane -->   
- 	</DissipateExpressionsStun>  
+	</DissipateExpressionsStun>  
 	<!-- 
 	
-	    Absorb expressions are applied after dissipate expressions and item/part damage. 
-	    The after-absorb values are what is passed on to anything ""below"" e.g. bones, organs, parts worn under armour, etc 
+		Absorb expressions are applied after dissipate expressions and item/part damage. 
+		The after-absorb values are what is passed on to anything ""below"" e.g. bones, organs, parts worn under armour, etc 
 		
-	    Parameters: 
+		Parameters: 
 		* damage, pain or stun (as appropriate) = the residual damage/pain/stun after dissipate step
 		* quality = the quality of the armour, rated 0 (Abysmal) to 11 (Legendary)
 		* angle = the angle in radians of the attack (e.g. 1.5708rad = 90 degrees)
@@ -5484,81 +5465,81 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
 		Hint: 25000 can be considered ""base"" ShearYield and 10000 can be considered ""base"" ImpactYield
 		
 		-->
- 	<AbsorbExpressions>
-	 	<Expression damagetype=""0"">damage*0.2</Expression>    <!-- Slashing -->
- 		<Expression damagetype=""1"">damage*0.2</Expression>    <!-- Chopping -->  
- 		<Expression damagetype=""2"">damage*0.2</Expression>    <!-- Crushing -->  
- 		<Expression damagetype=""3"">damage*0.2</Expression>    <!-- Piercing -->  
- 		<Expression damagetype=""4"">damage*0.2</Expression>    <!-- Ballistic -->  
- 		<Expression damagetype=""5"">damage*0.2</Expression>    <!-- Burning -->
- 		<Expression damagetype=""6"">damage*0.2</Expression>    <!-- Freezing -->
- 		<Expression damagetype=""7"">damage*0.2</Expression>    <!-- Chemical -->
- 		<Expression damagetype=""8"">damage*0.2</Expression>    <!-- Shockwave -->
- 		<Expression damagetype=""9"">damage*0.2</Expression>    <!-- Bite -->
- 		<Expression damagetype=""10"">damage*0.2</Expression>   <!-- Claw -->
- 		<Expression damagetype=""11"">damage*0.2</Expression>   <!-- Electrical -->
- 		<Expression damagetype=""12"">0</Expression>        <!-- Hypoxia -->
- 		<Expression damagetype=""13"">0</Expression>        <!-- Cellular -->
+	<AbsorbExpressions>
+		<Expression damagetype=""0"">damage*0.2</Expression>    <!-- Slashing -->
+		<Expression damagetype=""1"">damage*0.2</Expression>    <!-- Chopping -->  
+		<Expression damagetype=""2"">damage*0.2</Expression>    <!-- Crushing -->  
+		<Expression damagetype=""3"">damage*0.2</Expression>    <!-- Piercing -->  
+		<Expression damagetype=""4"">damage*0.2</Expression>    <!-- Ballistic -->  
+		<Expression damagetype=""5"">damage*0.2</Expression>    <!-- Burning -->
+		<Expression damagetype=""6"">damage*0.2</Expression>    <!-- Freezing -->
+		<Expression damagetype=""7"">damage*0.2</Expression>    <!-- Chemical -->
+		<Expression damagetype=""8"">damage*0.2</Expression>    <!-- Shockwave -->
+		<Expression damagetype=""9"">damage*0.2</Expression>    <!-- Bite -->
+		<Expression damagetype=""10"">damage*0.2</Expression>   <!-- Claw -->
+		<Expression damagetype=""11"">damage*0.2</Expression>   <!-- Electrical -->
+		<Expression damagetype=""12"">0</Expression>        <!-- Hypoxia -->
+		<Expression damagetype=""13"">0</Expression>        <!-- Cellular -->
 		<Expression damagetype=""14"">damage*0.2</Expression>   <!-- Sonic -->
- 		<Expression damagetype=""15"">damage*0.2</Expression>   <!-- Shearing --> 
+		<Expression damagetype=""15"">damage*0.2</Expression>   <!-- Shearing --> 
 		<Expression damagetype=""16"">damage*0.2</Expression>   <!-- ArmourPiercing -->
 		<Expression damagetype=""17"">damage*0.2</Expression>   <!-- Wrenching -->
- 		<Expression damagetype=""18"">damage*0.2</Expression>   <!-- Shrapnel -->   
+		<Expression damagetype=""18"">damage*0.2</Expression>   <!-- Shrapnel -->   
 		<Expression damagetype=""19"">damage*0.2</Expression>   <!-- Necrotic -->   
- 		<Expression damagetype=""20"">damage*0.2</Expression>   <!-- Falling -->   
+		<Expression damagetype=""20"">damage*0.2</Expression>   <!-- Falling -->   
 		<Expression damagetype=""21"">damage*0.2</Expression>   <!-- Eldritch -->   
 		<Expression damagetype=""22"">damage*0.2</Expression>   <!-- Arcane -->   
- 	</AbsorbExpressions>  
- 	<AbsorbExpressionsPain>
-        <Expression damagetype=""0"">pain*0.2</Expression>    <!-- Slashing -->
- 		<Expression damagetype=""1"">pain*0.2</Expression>    <!-- Chopping -->  
- 		<Expression damagetype=""2"">pain*0.2</Expression>    <!-- Crushing -->  
- 		<Expression damagetype=""3"">pain*0.2</Expression>    <!-- Piercing -->  
- 		<Expression damagetype=""4"">pain*0.2</Expression>    <!-- Ballistic -->  
- 		<Expression damagetype=""5"">pain*0.2</Expression>    <!-- Burning -->
- 		<Expression damagetype=""6"">pain*0.2</Expression>    <!-- Freezing -->
- 		<Expression damagetype=""7"">pain*0.2</Expression>    <!-- Chemical -->
- 		<Expression damagetype=""8"">pain*0.2</Expression>    <!-- Shockwave -->
- 		<Expression damagetype=""9"">pain*0.2</Expression>    <!-- Bite -->
- 		<Expression damagetype=""10"">pain*0.2</Expression>   <!-- Claw -->
- 		<Expression damagetype=""11"">pain*0.2</Expression>   <!-- Electrical -->
- 		<Expression damagetype=""12"">0</Expression>        <!-- Hypoxia -->
- 		<Expression damagetype=""13"">0</Expression>        <!-- Cellular -->
+	</AbsorbExpressions>  
+	<AbsorbExpressionsPain>
+		<Expression damagetype=""0"">pain*0.2</Expression>    <!-- Slashing -->
+		<Expression damagetype=""1"">pain*0.2</Expression>    <!-- Chopping -->  
+		<Expression damagetype=""2"">pain*0.2</Expression>    <!-- Crushing -->  
+		<Expression damagetype=""3"">pain*0.2</Expression>    <!-- Piercing -->  
+		<Expression damagetype=""4"">pain*0.2</Expression>    <!-- Ballistic -->  
+		<Expression damagetype=""5"">pain*0.2</Expression>    <!-- Burning -->
+		<Expression damagetype=""6"">pain*0.2</Expression>    <!-- Freezing -->
+		<Expression damagetype=""7"">pain*0.2</Expression>    <!-- Chemical -->
+		<Expression damagetype=""8"">pain*0.2</Expression>    <!-- Shockwave -->
+		<Expression damagetype=""9"">pain*0.2</Expression>    <!-- Bite -->
+		<Expression damagetype=""10"">pain*0.2</Expression>   <!-- Claw -->
+		<Expression damagetype=""11"">pain*0.2</Expression>   <!-- Electrical -->
+		<Expression damagetype=""12"">0</Expression>        <!-- Hypoxia -->
+		<Expression damagetype=""13"">0</Expression>        <!-- Cellular -->
 		<Expression damagetype=""14"">pain*0.2</Expression>   <!-- Sonic -->
- 		<Expression damagetype=""15"">pain*0.2</Expression>   <!-- Shearing --> 
+		<Expression damagetype=""15"">pain*0.2</Expression>   <!-- Shearing --> 
 		<Expression damagetype=""16"">pain*0.2</Expression>   <!-- ArmourPiercing -->
 		<Expression damagetype=""17"">pain*0.2</Expression>   <!-- Wrenching -->
- 		<Expression damagetype=""18"">pain*0.2</Expression>   <!-- Shrapnel -->   
+		<Expression damagetype=""18"">pain*0.2</Expression>   <!-- Shrapnel -->   
 		<Expression damagetype=""19"">pain*0.2</Expression>   <!-- Necrotic -->   
- 		<Expression damagetype=""20"">pain*0.2</Expression>   <!-- Falling -->   
+		<Expression damagetype=""20"">pain*0.2</Expression>   <!-- Falling -->   
 		<Expression damagetype=""21"">pain*0.2</Expression>   <!-- Eldritch -->   
 		<Expression damagetype=""22"">pain*0.2</Expression>   <!-- Arcane -->   
- 	</AbsorbExpressionsPain>  
- 	<AbsorbExpressionsStun>
-        <Expression damagetype=""0"">stun</Expression>    <!-- Slashing -->
- 		<Expression damagetype=""1"">stun</Expression>    <!-- Chopping -->  
- 		<Expression damagetype=""2"">stun</Expression>    <!-- Crushing -->  
- 		<Expression damagetype=""3"">stun</Expression>    <!-- Piercing -->  
- 		<Expression damagetype=""4"">stun</Expression>    <!-- Ballistic -->  
- 		<Expression damagetype=""5"">stun</Expression>    <!-- Burning -->
- 		<Expression damagetype=""6"">stun</Expression>    <!-- Freezing -->
- 		<Expression damagetype=""7"">stun</Expression>    <!-- Chemical -->
- 		<Expression damagetype=""8"">stun</Expression>    <!-- Shockwave -->
- 		<Expression damagetype=""9"">stun</Expression>    <!-- Bite -->
- 		<Expression damagetype=""10"">stun</Expression>   <!-- Claw -->
- 		<Expression damagetype=""11"">stun</Expression>   <!-- Electrical -->
- 		<Expression damagetype=""12"">0</Expression>        <!-- Hypoxia -->
- 		<Expression damagetype=""13"">0</Expression>        <!-- Cellular -->
+	</AbsorbExpressionsPain>  
+	<AbsorbExpressionsStun>
+		<Expression damagetype=""0"">stun</Expression>    <!-- Slashing -->
+		<Expression damagetype=""1"">stun</Expression>    <!-- Chopping -->  
+		<Expression damagetype=""2"">stun</Expression>    <!-- Crushing -->  
+		<Expression damagetype=""3"">stun</Expression>    <!-- Piercing -->  
+		<Expression damagetype=""4"">stun</Expression>    <!-- Ballistic -->  
+		<Expression damagetype=""5"">stun</Expression>    <!-- Burning -->
+		<Expression damagetype=""6"">stun</Expression>    <!-- Freezing -->
+		<Expression damagetype=""7"">stun</Expression>    <!-- Chemical -->
+		<Expression damagetype=""8"">stun</Expression>    <!-- Shockwave -->
+		<Expression damagetype=""9"">stun</Expression>    <!-- Bite -->
+		<Expression damagetype=""10"">stun</Expression>   <!-- Claw -->
+		<Expression damagetype=""11"">stun</Expression>   <!-- Electrical -->
+		<Expression damagetype=""12"">0</Expression>        <!-- Hypoxia -->
+		<Expression damagetype=""13"">0</Expression>        <!-- Cellular -->
 		<Expression damagetype=""14"">stun</Expression>   <!-- Sonic -->
- 		<Expression damagetype=""15"">stun</Expression>   <!-- Shearing --> 
+		<Expression damagetype=""15"">stun</Expression>   <!-- Shearing --> 
 		<Expression damagetype=""16"">stun</Expression>   <!-- ArmourPiercing -->
 		<Expression damagetype=""17"">stun</Expression>   <!-- Wrenching -->
- 		<Expression damagetype=""18"">stun</Expression>   <!-- Shrapnel -->   
+		<Expression damagetype=""18"">stun</Expression>   <!-- Shrapnel -->   
 		<Expression damagetype=""19"">stun</Expression>   <!-- Necrotic -->   
- 		<Expression damagetype=""20"">stun</Expression>   <!-- Falling -->   
+		<Expression damagetype=""20"">stun</Expression>   <!-- Falling -->   
 		<Expression damagetype=""21"">stun</Expression>   <!-- Eldritch -->   
 		<Expression damagetype=""22"">stun</Expression>   <!-- Arcane -->   
- 	</AbsorbExpressionsStun>
+	</AbsorbExpressionsStun>
  </ArmourType>"
 		};
 		context.ArmourTypes.Add(shieldArmour);
@@ -5582,7 +5563,7 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
 		{
 			Name = "Buckler",
 			EffectiveArmourType = shieldArmour,
-			BlockBonus = 1.0,
+			BlockBonus = -1.0,
 			BlockTrait = skill,
 			StaminaPerBlock = 5.0
 		};
@@ -6023,7 +6004,7 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
 			Difficulty.Hard, Difficulty.Hard, Difficulty.Normal, Alignment.FrontRight, Orientation.Highest, 3.0, 0.8,
 			handshape, badDamage, $"@ throw|throws a high @hand-hand jab at $1{attackAddendum}",
 			intentions: CombatMoveIntentions.Attack | CombatMoveIntentions.Wound | CombatMoveIntentions.Fast |
-			            CombatMoveIntentions.Stun);
+						CombatMoveIntentions.Stun);
 		AddAttack("Low Jab", BuiltInCombatMoveType.NaturalWeaponAttack, MeleeWeaponVerb.Jab, Difficulty.Normal,
 			Difficulty.Hard, Difficulty.Hard, Difficulty.Normal, Alignment.FrontRight, Orientation.Centre, 3.0, 0.8,
 			handshape, badDamage, $"@ throw|throws a low @hand-hand jab at $1{attackAddendum}",
@@ -6060,7 +6041,7 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
 			Difficulty.Easy, Difficulty.Easy, Difficulty.Normal, Alignment.FrontRight, Orientation.Highest, 6.0, 1.3,
 			handshape, goodDamage, $"@ throw|throws a high @hand-hand haymaker punch at $1{attackAddendum}",
 			intentions: CombatMoveIntentions.Attack | CombatMoveIntentions.Wound | CombatMoveIntentions.Slow |
-			            CombatMoveIntentions.Stun, additionalInfo: "4");
+						CombatMoveIntentions.Stun, additionalInfo: "4");
 		AddAttack("Low Haymaker", BuiltInCombatMoveType.StaggeringBlowUnarmed, MeleeWeaponVerb.Jab, Difficulty.Normal,
 			Difficulty.Easy, Difficulty.Easy, Difficulty.VeryEasy, Alignment.FrontRight, Orientation.Centre, 6.0, 1.3,
 			handshape, goodDamage, $"@ throw|throws a low @hand-hand haymaker punch at $1{attackAddendum}",
@@ -6071,17 +6052,17 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
 			Difficulty.Easy, Difficulty.Easy, Difficulty.VeryEasy, Alignment.Front, Orientation.High, 6.0, 1.25,
 			handshape, greatDamage, $"@ throw|throws a @hand-hand uppercut at $1{attackAddendum}",
 			intentions: CombatMoveIntentions.Attack | CombatMoveIntentions.Wound | CombatMoveIntentions.Slow |
-			            CombatMoveIntentions.Hard);
+						CombatMoveIntentions.Hard);
 		AddAttack("High Uppercut", BuiltInCombatMoveType.NaturalWeaponAttack, MeleeWeaponVerb.Strike, Difficulty.Hard,
 			Difficulty.Easy, Difficulty.Easy, Difficulty.Normal, Alignment.Front, Orientation.Highest, 6.0, 1.3,
 			handshape, greatDamage, $"@ throw|throws a high @hand-hand uppercut at $1{attackAddendum}",
 			intentions: CombatMoveIntentions.Attack | CombatMoveIntentions.Wound | CombatMoveIntentions.Slow |
-			            CombatMoveIntentions.Stun | CombatMoveIntentions.Hard);
+						CombatMoveIntentions.Stun | CombatMoveIntentions.Hard);
 		AddAttack("Low Uppercut", BuiltInCombatMoveType.NaturalWeaponAttack, MeleeWeaponVerb.Strike, Difficulty.Hard,
 			Difficulty.Easy, Difficulty.Easy, Difficulty.VeryEasy, Alignment.Front, Orientation.Centre, 6.0, 1.3,
 			handshape, greatDamage, $"@ throw|throws a low @hand-hand uppercut at $1{attackAddendum}",
 			intentions: CombatMoveIntentions.Attack | CombatMoveIntentions.Wound | CombatMoveIntentions.Slow |
-			            CombatMoveIntentions.Hard);
+						CombatMoveIntentions.Hard);
 
 		AddAttack("Check Hook", BuiltInCombatMoveType.WardFreeUnarmedAttack, MeleeWeaponVerb.Swing, Difficulty.Hard,
 			Difficulty.VeryHard, Difficulty.Normal, Difficulty.Easy, Alignment.FrontRight, Orientation.High, 5.0, 1.0,
@@ -6107,7 +6088,7 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
 			Orientation.Highest, 2.0, 0.5, handshape, badDamage,
 			$"@ step|steps back and throw|throws a high @hand-hand jab counter-punch at $1{attackAddendum}",
 			intentions: CombatMoveIntentions.Fast | CombatMoveIntentions.Attack | CombatMoveIntentions.Wound |
-			            CombatMoveIntentions.Stun);
+						CombatMoveIntentions.Stun);
 		AddAttack("Low Stepback Jab", BuiltInCombatMoveType.WardFreeUnarmedAttack, MeleeWeaponVerb.Jab, Difficulty.Easy,
 			Difficulty.Hard, Difficulty.Normal, Difficulty.Easy, Alignment.FrontRight, Orientation.Centre, 2.0, 0.5,
 			handshape, badDamage,
@@ -6124,7 +6105,7 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
 			Orientation.Highest, 7.0, 1.0, footshape, greatDamage,
 			$"@ step|steps back and throw|throws a high @hand-leg roundhouse counter-kick at $1{attackAddendum}",
 			intentions: CombatMoveIntentions.Hard | CombatMoveIntentions.Attack | CombatMoveIntentions.Wound |
-			            CombatMoveIntentions.Stun);
+						CombatMoveIntentions.Stun);
 		AddAttack("Low Stepback Roundhouse", BuiltInCombatMoveType.WardFreeUnarmedAttack, MeleeWeaponVerb.Kick,
 			Difficulty.VeryHard, Difficulty.Hard, Difficulty.Hard, Difficulty.Hard, Alignment.Right, Orientation.Centre,
 			7.0, 1.0, footshape, greatDamage,
@@ -6141,7 +6122,7 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
 			Orientation.Highest, 7.0, 1.0, footshape, goodDamage,
 			$"@ step|steps back and throw|throws a high  @hand-leg snap counter-kick at $1{attackAddendum}",
 			intentions: CombatMoveIntentions.Hard | CombatMoveIntentions.Attack | CombatMoveIntentions.Wound |
-			            CombatMoveIntentions.Stun);
+						CombatMoveIntentions.Stun);
 		AddAttack("Low Stepback Snap Kick", BuiltInCombatMoveType.WardFreeUnarmedAttack, MeleeWeaponVerb.Kick,
 			Difficulty.Hard, Difficulty.Hard, Difficulty.Normal, Difficulty.Easy, Alignment.Right, Orientation.Centre,
 			7.0, 1.0, footshape, goodDamage,
@@ -6158,7 +6139,7 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
 			Orientation.Highest, 7.0, 1.5, footshape, greatDamage,
 			$"@ throw|throws a high @hand-leg roundhouse kick at $1{attackAddendum}",
 			intentions: CombatMoveIntentions.Hard | CombatMoveIntentions.Attack | CombatMoveIntentions.Wound |
-			            CombatMoveIntentions.Stun, additionalInfo: "6");
+						CombatMoveIntentions.Stun, additionalInfo: "6");
 		AddAttack("Low Roundhouse", BuiltInCombatMoveType.StaggeringBlowUnarmed, MeleeWeaponVerb.Kick,
 			Difficulty.VeryHard, Difficulty.Hard, Difficulty.Hard, Difficulty.Hard, Alignment.Right, Orientation.Centre,
 			7.0, 1.5, footshape, greatDamage, $"@ throw|throws a low @hand-leg roundhouse kick at $1{attackAddendum}",
@@ -6173,7 +6154,7 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
 			Difficulty.Hard, Difficulty.Normal, Difficulty.Normal, Alignment.Right, Orientation.Highest, 7.0, 1.0,
 			footshape, goodDamage, $"@ throw|throws a high  @hand-leg snap kick at $1{attackAddendum}",
 			intentions: CombatMoveIntentions.Hard | CombatMoveIntentions.Attack | CombatMoveIntentions.Wound |
-			            CombatMoveIntentions.Stun);
+						CombatMoveIntentions.Stun);
 		AddAttack("Low Snap Kick", BuiltInCombatMoveType.NaturalWeaponAttack, MeleeWeaponVerb.Kick, Difficulty.Hard,
 			Difficulty.Hard, Difficulty.Normal, Difficulty.Easy, Alignment.Right, Orientation.Centre, 7.0, 1.0,
 			footshape, goodDamage, $"@ throw|throws a low @hand-leg snap kick at $1{attackAddendum}",
@@ -6195,30 +6176,30 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
 			Orientation.Centre, 4.0, 1.2, footshape, normalDamage,
 			$"@ throw|throws a cruel @hand-leg kick at $1's prone body{attackAddendum}",
 			intentions: CombatMoveIntentions.Easy | CombatMoveIntentions.Attack | CombatMoveIntentions.Wound |
-			            CombatMoveIntentions.Cruel | CombatMoveIntentions.Kill, additionalInfo: "6");
+						CombatMoveIntentions.Cruel | CombatMoveIntentions.Kill, additionalInfo: "6");
 		AddAttack("Prone Back Kick", BuiltInCombatMoveType.DownedAttackUnarmed, MeleeWeaponVerb.Kick,
 			Difficulty.VeryEasy, Difficulty.Hard, Difficulty.Hard, Difficulty.VeryHard, Alignment.Rear,
 			Orientation.Centre, 4.0, 1.2, footshape, normalDamage,
 			$"@ throw|throws a cruel @hand-leg kick at $1's prone back{attackAddendum}",
 			intentions: CombatMoveIntentions.Easy | CombatMoveIntentions.Attack | CombatMoveIntentions.Wound |
-			            CombatMoveIntentions.Cruel | CombatMoveIntentions.Kill, additionalInfo: "6");
+						CombatMoveIntentions.Cruel | CombatMoveIntentions.Kill, additionalInfo: "6");
 		AddAttack("Prone Head Kick", BuiltInCombatMoveType.DownedAttackUnarmed, MeleeWeaponVerb.Kick, Difficulty.Easy,
 			Difficulty.Hard, Difficulty.Hard, Difficulty.VeryHard, Alignment.Front, Orientation.Highest, 4.0, 1.2,
 			footshape, normalDamage, $"@ throw|throws a cruel @hand-leg kick at $1's head{attackAddendum}",
 			intentions: CombatMoveIntentions.Easy | CombatMoveIntentions.Attack | CombatMoveIntentions.Wound |
-			            CombatMoveIntentions.Cruel | CombatMoveIntentions.Kill, additionalInfo: "6");
+						CombatMoveIntentions.Cruel | CombatMoveIntentions.Kill, additionalInfo: "6");
 		AddAttack("Prone Leg Kick", BuiltInCombatMoveType.DownedAttackUnarmed, MeleeWeaponVerb.Kick,
 			Difficulty.ExtremelyEasy, Difficulty.Hard, Difficulty.Hard, Difficulty.VeryHard, Alignment.Front,
 			Orientation.Low, 4.0, 1.2, footshape, normalDamage,
 			$"@ throw|throws a cruel @hand-leg kick at $1's prone legs{attackAddendum}",
 			intentions: CombatMoveIntentions.Easy | CombatMoveIntentions.Attack | CombatMoveIntentions.Wound |
-			            CombatMoveIntentions.Cruel | CombatMoveIntentions.Hinder, additionalInfo: "2");
+						CombatMoveIntentions.Cruel | CombatMoveIntentions.Hinder, additionalInfo: "2");
 		AddAttack("Prone Arm Kick", BuiltInCombatMoveType.DownedAttackUnarmed, MeleeWeaponVerb.Kick,
 			Difficulty.ExtremelyEasy, Difficulty.Hard, Difficulty.Hard, Difficulty.VeryHard, Alignment.Front,
 			Orientation.Appendage, 4.0, 1.2, footshape, normalDamage,
 			$"@ throw|throws a cruel @hand-leg kick at $1's prone arms{attackAddendum}",
 			intentions: CombatMoveIntentions.Easy | CombatMoveIntentions.Attack | CombatMoveIntentions.Wound |
-			            CombatMoveIntentions.Cruel | CombatMoveIntentions.Hinder, additionalInfo: "2");
+						CombatMoveIntentions.Cruel | CombatMoveIntentions.Hinder, additionalInfo: "2");
 
 		AddAttack("Body Punch", BuiltInCombatMoveType.ClinchUnarmedAttack, MeleeWeaponVerb.Punch, Difficulty.Easy,
 			Difficulty.ExtremelyHard, Difficulty.ExtremelyHard, Difficulty.Easy, Alignment.Right, Orientation.Centre,
@@ -6232,29 +6213,29 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
 			Difficulty.Hard, Difficulty.ExtremelyHard, Difficulty.Easy, Alignment.FrontRight, Orientation.High, 5.0,
 			0.7, handshape, goodDamage, $"@ throw|throws a @hand-handed drop punch at $1{attackAddendum}",
 			intentions: CombatMoveIntentions.Attack | CombatMoveIntentions.Wound | CombatMoveIntentions.Stun |
-			            CombatMoveIntentions.Hard);
+						CombatMoveIntentions.Hard);
 		AddAttack("Headbutt", BuiltInCombatMoveType.StaggeringBlowClinch, MeleeWeaponVerb.Strike, Difficulty.VeryHard,
 			Difficulty.VeryHard, Difficulty.ExtremelyHard, Difficulty.VeryHard, Alignment.Front, Orientation.Highest,
 			5.0, 1.0, foreheadshape, greatDamage,
 			$"@ lunge|lunges forward and throw|throws a headbutt at $1{attackAddendum}",
 			intentions: CombatMoveIntentions.Attack | CombatMoveIntentions.Wound | CombatMoveIntentions.Stun |
-			            CombatMoveIntentions.Hard | CombatMoveIntentions.SelfDamaging | CombatMoveIntentions.Risky |
-			            CombatMoveIntentions.Savage, additionalInfo: "6");
+						CombatMoveIntentions.Hard | CombatMoveIntentions.SelfDamaging | CombatMoveIntentions.Risky |
+						CombatMoveIntentions.Savage, additionalInfo: "6");
 		AddAttack("Bite", BuiltInCombatMoveType.ClinchUnarmedAttack, MeleeWeaponVerb.Bite, Difficulty.VeryHard,
 			Difficulty.Normal, Difficulty.ExtremelyHard, Difficulty.VeryHard, Alignment.Front, Orientation.High, 3.0,
 			1.4, mouthshape, normalDamage, $"@ lean|leans in and try|tries to bite $1{attackAddendum}",
 			intentions: CombatMoveIntentions.Attack | CombatMoveIntentions.Wound | CombatMoveIntentions.Stun |
-			            CombatMoveIntentions.Hard | CombatMoveIntentions.Risky | CombatMoveIntentions.Savage);
+						CombatMoveIntentions.Hard | CombatMoveIntentions.Risky | CombatMoveIntentions.Savage);
 		AddAttack("Elbow", BuiltInCombatMoveType.ClinchUnarmedAttack, MeleeWeaponVerb.Strike, Difficulty.Hard,
 			Difficulty.Easy, Difficulty.ExtremelyHard, Difficulty.Easy, Alignment.FrontRight, Orientation.Highest, 5.0,
 			1.0, elbowshape, greatDamage, $"@ try|tries to strike $1 with &0's {{0}}{attackAddendum}",
 			intentions: CombatMoveIntentions.Attack | CombatMoveIntentions.Wound | CombatMoveIntentions.Stun |
-			            CombatMoveIntentions.Risky | CombatMoveIntentions.Hard);
+						CombatMoveIntentions.Risky | CombatMoveIntentions.Hard);
 		AddAttack("Foot Stomp", BuiltInCombatMoveType.ClinchUnarmedAttack, MeleeWeaponVerb.Kick, Difficulty.Hard,
 			Difficulty.Easy, Difficulty.ExtremelyHard, Difficulty.Easy, Alignment.FrontRight, Orientation.Lowest, 2.0,
 			0.8, footshape, goodDamage, $"@ try|tries to stomp on $1 with &0's {{0}}{attackAddendum}",
 			intentions: CombatMoveIntentions.Attack | CombatMoveIntentions.Wound | CombatMoveIntentions.Stun |
-			            CombatMoveIntentions.Risky | CombatMoveIntentions.Hard);
+						CombatMoveIntentions.Risky | CombatMoveIntentions.Hard);
 		AddAttack("Roundhouse Knee", BuiltInCombatMoveType.ClinchUnarmedAttack, MeleeWeaponVerb.Kick, Difficulty.Hard,
 			Difficulty.Hard, Difficulty.ExtremelyHard, Difficulty.Easy, Alignment.Right, Orientation.Centre, 6.0, 0.8,
 			kneeshape, greatDamage, $"@ swing|swings &0's @hand leg in a roundhouse knee strike at $1{attackAddendum}",

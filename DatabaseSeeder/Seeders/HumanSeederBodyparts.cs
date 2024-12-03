@@ -769,14 +769,14 @@ public partial class HumanSeeder
 			BodypartTypeEnum.BonyGrabbingWielding;
 
 		// TORSO
-		CreateBodypart(baseHumanoid, "abdomen", "abdomen", "abdomen", BodypartTypeEnum.Wear, null, Alignment.Front,
-			Orientation.Centre, 80, -1, 100, 50, flesh, SizeCategory.Normal, "Torso", isVital: true, implantSpace: 5,
+		CreateBodypart(baseHumanoid, "abdomen", "abdomen", "abdomen", BodypartTypeEnum.Drapeable, null, Alignment.Front,
+			Orientation.Centre, 80, -1, 150, 50, flesh, SizeCategory.Normal, "Torso", isVital: true, implantSpace: 5,
 			stunMultiplier: 0.2);
 		CreateBodypart(baseHumanoid, "rbreast", "right breast", "breast", niDrapeableType, "abdomen",
-			Alignment.FrontRight, Orientation.High, 80, -1, 50, 50, flesh, SizeCategory.Normal, "Torso", isVital: true,
+			Alignment.FrontRight, Orientation.High, 80, -1, 100, 50, flesh, SizeCategory.Normal, "Torso", isVital: true,
 			implantSpace: 5, stunMultiplier: 0.2);
 		CreateBodypart(baseHumanoid, "lbreast", "left breast", "breast", niDrapeableType, "abdomen",
-			Alignment.FrontLeft, Orientation.High, 80, -1, 50, 50, flesh, SizeCategory.Normal, "Torso", isVital: true,
+			Alignment.FrontLeft, Orientation.High, 80, -1, 100, 50, flesh, SizeCategory.Normal, "Torso", isVital: true,
 			implantSpace: 5, stunMultiplier: 0.2);
 		CreateBodypart(baseHumanoid, "rnipple", "right nipple", "nipple", BodypartTypeEnum.Wear, "rbreast",
 			Alignment.FrontRight, Orientation.High, 80, -1, 5, 50, flesh, SizeCategory.VerySmall, "Torso",
@@ -785,13 +785,13 @@ public partial class HumanSeeder
 			Alignment.FrontLeft, Orientation.High, 80, -1, 5, 50, flesh, SizeCategory.VerySmall, "Torso",
 			false, isVital: false, implantSpace: 0, stunMultiplier: 0.2);
 		CreateBodypart(baseHumanoid, "uback", "upper back", "upper back", niDrapeableType, "abdomen",
-			Alignment.Rear, Orientation.Centre, 80, -1, 100, 51, fattyFlesh, SizeCategory.Normal, "Torso",
+			Alignment.Rear, Orientation.Centre, 80, -1, 150, 51, fattyFlesh, SizeCategory.Normal, "Torso",
 			isVital: true, implantSpace: 5, stunMultiplier: 0.2);
-		CreateBodypart(baseHumanoid, "belly", "belly", "belly", BodypartTypeEnum.Wear, "abdomen", Alignment.Front,
-			Orientation.Centre, 80, -1, 100, 51, fattyFlesh, SizeCategory.Normal, "Torso", isVital: true,
+		CreateBodypart(baseHumanoid, "belly", "belly", "belly", BodypartTypeEnum.Drapeable, "abdomen", Alignment.Front,
+			Orientation.Centre, 80, -1, 150, 51, fattyFlesh, SizeCategory.Normal, "Torso", isVital: true,
 			implantSpace: 5, stunMultiplier: 0.2);
 		CreateBodypart(baseHumanoid, "lback", "lower back", "lower back", niDrapeableType, "belly",
-			Alignment.Rear, Orientation.Centre, 80, -1, 100, 51, fattyFlesh, SizeCategory.Normal, "Torso",
+			Alignment.Rear, Orientation.Centre, 80, -1, 150, 51, fattyFlesh, SizeCategory.Normal, "Torso",
 			isVital: true, implantSpace: 5, stunMultiplier: 0.2);
 		CreateBodypart(baseHumanoid, "rbuttock", "right buttock", "buttock", niDrapeableType, "lback",
 			Alignment.RearRight, Orientation.Centre, 40, -1, 50, 52, flesh, SizeCategory.Normal, "Torso",
@@ -800,16 +800,16 @@ public partial class HumanSeeder
 			Alignment.RearLeft, Orientation.Centre, 40, -1, 50, 52, flesh, SizeCategory.Normal, "Torso", isVital: false,
 			implantSpace: 5, stunMultiplier: 0.2);
 		CreateBodypart(baseHumanoid, "rshoulder", "right shoulder", "shoulder", niDrapeableType, "rbreast",
-			Alignment.FrontRight, Orientation.High, 80, -1, 50, 50, flesh, SizeCategory.Normal, "Torso", isVital: false,
+			Alignment.FrontRight, Orientation.High, 80, -1, 75, 50, flesh, SizeCategory.Normal, "Torso", isVital: false,
 			implantSpace: 5, stunMultiplier: 0.2);
 		CreateBodypart(baseHumanoid, "lshoulder", "left shoulder", "shoulder", niDrapeableType, "lbreast",
-			Alignment.FrontLeft, Orientation.High, 80, -1, 50, 50, flesh, SizeCategory.Normal, "Torso", isVital: false,
+			Alignment.FrontLeft, Orientation.High, 80, -1, 75, 50, flesh, SizeCategory.Normal, "Torso", isVital: false,
 			implantSpace: 5, stunMultiplier: 0.2);
 		CreateBodypart(baseHumanoid, "rshoulderblade", "right shoulder blade", "shoulder blade",
-			niDrapeableType, "rshoulder", Alignment.RearRight, Orientation.High, 80, -1, 50, 50, flesh,
+			niDrapeableType, "rshoulder", Alignment.RearRight, Orientation.High, 80, -1, 75, 50, flesh,
 			SizeCategory.Normal, "Torso", isVital: false, implantSpace: 5, stunMultiplier: 0.2);
 		CreateBodypart(baseHumanoid, "lshoulderblade", "left shoulder blade", "shoulder blade",
-			niDrapeableType, "lshoulder", Alignment.RearLeft, Orientation.High, 80, -1, 50, 50, flesh,
+			niDrapeableType, "lshoulder", Alignment.RearLeft, Orientation.High, 80, -1, 75, 50, flesh,
 			SizeCategory.Normal, "Torso", isVital: false, implantSpace: 5, stunMultiplier: 0.2);
 		if (!_questionAnswers["inventory"].EqualTo("hands"))
 			CreateBodypart(baseHumanoid, "inventory", "inventory", "inventory", BodypartTypeEnum.Grabbing, null,
@@ -823,14 +823,14 @@ public partial class HumanSeeder
 		CreateBodypart(baseHumanoid, "bneck", "back of neck", "neck back", drapeableType, "neck",
 			Alignment.Rear, Orientation.Highest, 80, 100, 50, 50, flesh, SizeCategory.Normal, "Head", isVital: true,
 			implantSpace: 5, stunMultiplier: 0.4);
-		CreateBodypart(baseHumanoid, "throat", "throat", "throat", BodypartTypeEnum.Wear, "neck", Alignment.Front,
-			Orientation.Highest, 40, 100, 50, 50, flesh, SizeCategory.Normal, "Head", isVital: true, implantSpace: 5,
+		CreateBodypart(baseHumanoid, "throat", "throat", "throat", BodypartTypeEnum.Drapeable, "neck", Alignment.Front,
+			Orientation.Highest, 40, 100, 25, 50, flesh, SizeCategory.Normal, "Head", isVital: true, implantSpace: 5,
 			stunMultiplier: 0.4);
 		CreateBodypart(baseHumanoid, "face", "face", "face", niDrapeableType, "neck", Alignment.Front,
-			Orientation.Highest, 40, -1, 50, 50, flesh, SizeCategory.Normal, "Head", isVital: true, implantSpace: 5,
+			Orientation.Highest, 40, -1, 75, 50, flesh, SizeCategory.Normal, "Head", isVital: true, implantSpace: 5,
 			stunMultiplier: 1.0);
 		CreateBodypart(baseHumanoid, "chin", "chin", "chin", niDrapeableType, "face", Alignment.Front,
-			Orientation.Highest, 40, -1, 50, 50, flesh, SizeCategory.Normal, "Head", isVital: true, implantSpace: 5,
+			Orientation.Highest, 40, -1, 25, 50, flesh, SizeCategory.Normal, "Head", isVital: true, implantSpace: 5,
 			stunMultiplier: 0.4);
 		CreateBodypart(baseHumanoid, "rcheek", "right cheek", "cheek", niDrapeableType, "face",
 			Alignment.FrontRight, Orientation.Highest, 40, -1, 50, 50, flesh, SizeCategory.Normal, "Head",
@@ -839,28 +839,28 @@ public partial class HumanSeeder
 			Alignment.FrontLeft, Orientation.Highest, 40, -1, 50, 50, flesh, SizeCategory.Normal, "Head", isVital: true,
 			implantSpace: 5, stunMultiplier: 0.4);
 		CreateBodypart(baseHumanoid, "mouth", "mouth", "mouth", BodypartTypeEnum.Mouth, "face", Alignment.Front,
-			Orientation.Highest, 40, -1, 50, 50, flesh, SizeCategory.Normal, "Head", isVital: true, implantSpace: 5,
+			Orientation.Highest, 40, -1, 25, 50, flesh, SizeCategory.Normal, "Head", isVital: true, implantSpace: 5,
 			stunMultiplier: 0.4);
 		CreateBodypart(baseHumanoid, "tongue", "tongue", "tongue", BodypartTypeEnum.Tongue, "mouth", Alignment.Front,
 			Orientation.Highest, 20, -1, 5, 50, flesh, SizeCategory.Small, "Head", isVital: false, implantSpace: 5,
 			stunMultiplier: 0.4);
 		CreateBodypart(baseHumanoid, "nose", "nose", "nose", niDrapeableType, "face", Alignment.Front,
-			Orientation.Highest, 40, -1, 50, 50, flesh, SizeCategory.Normal, "Head", isVital: true, implantSpace: 5,
+			Orientation.Highest, 40, -1, 25, 50, flesh, SizeCategory.Normal, "Head", isVital: true, implantSpace: 5,
 			stunMultiplier: 0.4);
 		CreateBodypart(baseHumanoid, "forehead", "forehead", "forehead", niDrapeableType, "face",
 			Alignment.Front, Orientation.Highest, 40, -1, 50, 50, flesh, SizeCategory.Normal, "Head", isVital: true,
 			implantSpace: 5, stunMultiplier: 1.0);
 		CreateBodypart(baseHumanoid, "reyesocket", "right eye socket", "eye socket", niDrapeableType, "face",
-			Alignment.FrontRight, Orientation.Highest, 40, -1, 50, 50, flesh, SizeCategory.Normal, "Head",
+			Alignment.FrontRight, Orientation.Highest, 40, -1, 25, 50, flesh, SizeCategory.Normal, "Head",
 			isVital: true, implantSpace: 5, stunMultiplier: 1.0);
 		CreateBodypart(baseHumanoid, "leyesocket", "left eye socket", "eye socket", niDrapeableType, "face",
-			Alignment.FrontLeft, Orientation.Highest, 40, -1, 50, 50, flesh, SizeCategory.Normal, "Head", isVital: true,
+			Alignment.FrontLeft, Orientation.Highest, 40, -1, 25, 50, flesh, SizeCategory.Normal, "Head", isVital: true,
 			implantSpace: 5, stunMultiplier: 1.0);
 		CreateBodypart(baseHumanoid, "reye", "right eye", "eye", BodypartTypeEnum.Eye, "reyesocket",
-			Alignment.FrontRight, Orientation.Highest, 10, 30, 50, 50, flesh, SizeCategory.Small, "Head", isVital: true,
+			Alignment.FrontRight, Orientation.Highest, 10, 30, 15, 50, flesh, SizeCategory.Small, "Head", isVital: true,
 			implantSpace: 5, stunMultiplier: 0.4);
 		CreateBodypart(baseHumanoid, "leye", "left eye", "eye", BodypartTypeEnum.Eye, "leyesocket", Alignment.FrontLeft,
-			Orientation.Highest, 10, 30, 50, 50, flesh, SizeCategory.Small, "Head", isVital: true, implantSpace: 5,
+			Orientation.Highest, 10, 30, 15, 50, flesh, SizeCategory.Small, "Head", isVital: true, implantSpace: 5,
 			stunMultiplier: 0.4);
 		CreateBodypart(baseHumanoid, "rear", "right ear", "ear", BodypartTypeEnum.Wear, "rcheek", Alignment.Right,
 			Orientation.Highest, 10, 30, 50, 50, flesh, SizeCategory.Small, "Head", isVital: false, implantSpace: 5,
@@ -889,10 +889,10 @@ public partial class HumanSeeder
 
 		// ARMS
 		CreateBodypart(baseHumanoid, "rupperarm", "right upper arm", "upper arm", drapeableType,
-			"rshoulder", Alignment.Right, Orientation.Appendage, 80, 100, 50, 50, flesh, SizeCategory.Normal,
+			"rshoulder", Alignment.Right, Orientation.Appendage, 80, 100, 75, 50, flesh, SizeCategory.Normal,
 			"Right Arm", isVital: false, implantSpace: 1, stunMultiplier: 0);
 		CreateBodypart(baseHumanoid, "lupperarm", "left upper arm", "upper arm", drapeableType,
-			"lshoulder", Alignment.Left, Orientation.Appendage, 80, 100, 50, 50, flesh, SizeCategory.Normal, "Left Arm",
+			"lshoulder", Alignment.Left, Orientation.Appendage, 80, 100, 75, 50, flesh, SizeCategory.Normal, "Left Arm",
 			isVital: false, implantSpace: 1, stunMultiplier: 0);
 		CreateBodypart(baseHumanoid, "relbow", "right elbow", "elbow", drapeableType, "rupperarm",
 			Alignment.Right, Orientation.Appendage, 80, 100, 25, 50, flesh, SizeCategory.Normal, "Right Arm",
@@ -955,22 +955,22 @@ public partial class HumanSeeder
 
 		// LEGS
 		CreateBodypart(baseHumanoid, "rhip", "right hip", "hip", niDrapeableType, "abdomen", Alignment.Right,
-			Orientation.Centre, 80, -1, 50, 50, bonyFlesh, SizeCategory.Normal, "Right Leg", isVital: false,
+			Orientation.Centre, 80, -1, 75, 50, bonyFlesh, SizeCategory.Normal, "Right Leg", isVital: false,
 			implantSpace: 1, stunMultiplier: 0);
 		CreateBodypart(baseHumanoid, "lhip", "left hip", "hip", niDrapeableType, "abdomen", Alignment.Left,
-			Orientation.Centre, 80, -1, 50, 50, bonyFlesh, SizeCategory.Normal, "Left Leg", isVital: false,
+			Orientation.Centre, 80, -1, 75, 50, bonyFlesh, SizeCategory.Normal, "Left Leg", isVital: false,
 			implantSpace: 1, stunMultiplier: 0);
 		CreateBodypart(baseHumanoid, "rthigh", "right thigh", "thigh", drapeableType, "rhip",
-			Alignment.FrontRight, Orientation.Low, 80, 100, 50, 50, bonyFlesh, SizeCategory.Normal, "Right Leg",
+			Alignment.FrontRight, Orientation.Low, 80, 100, 75, 50, bonyFlesh, SizeCategory.Normal, "Right Leg",
 			isVital: false, implantSpace: 1, stunMultiplier: 0);
 		CreateBodypart(baseHumanoid, "lthigh", "left thigh", "thigh", drapeableType, "lhip",
-			Alignment.FrontLeft, Orientation.Low, 80, 100, 50, 50, bonyFlesh, SizeCategory.Normal, "Left Leg",
+			Alignment.FrontLeft, Orientation.Low, 80, 100, 75, 50, bonyFlesh, SizeCategory.Normal, "Left Leg",
 			isVital: false, implantSpace: 1, stunMultiplier: 0);
 		CreateBodypart(baseHumanoid, "rthighback", "right thigh back", "thigh back", drapeableType, "rhip",
-			Alignment.RearRight, Orientation.Low, 80, 100, 50, 50, bonyFlesh, SizeCategory.Normal, "Right Leg",
+			Alignment.RearRight, Orientation.Low, 80, 100, 75, 50, bonyFlesh, SizeCategory.Normal, "Right Leg",
 			isVital: false, implantSpace: 1, stunMultiplier: 0);
 		CreateBodypart(baseHumanoid, "lthighback", "left thigh back", "thigh back", drapeableType, "lhip",
-			Alignment.RearLeft, Orientation.Low, 80, 100, 50, 50, bonyFlesh, SizeCategory.Normal, "Left Leg",
+			Alignment.RearLeft, Orientation.Low, 80, 100, 75, 50, bonyFlesh, SizeCategory.Normal, "Left Leg",
 			isVital: false, implantSpace: 1, stunMultiplier: 0);
 		CreateBodypart(baseHumanoid, "rknee", "right knee", "knee", drapeableType, "rthigh",
 			Alignment.FrontRight, Orientation.Low, 40, 100, 50, 50, bonyFlesh, SizeCategory.Normal, "Right Leg",
@@ -4746,8 +4746,12 @@ public partial class HumanSeeder
 			("rtemple", 1, Mandatory: true, NoArmour: false, Transparent: false, PreventsRemoval: true,
 				HidesSevered: false),
 			("ltemple", 1, Mandatory: true, NoArmour: false, Transparent: false, PreventsRemoval: true,
-				HidesSevered: false)
-		);
+				HidesSevered: false),
+            ("rbrow", 1, Mandatory: false, NoArmour: false, Transparent: true, PreventsRemoval: true,
+                HidesSevered: false),
+            ("lbrow", 1, Mandatory: false, NoArmour: false, Transparent: true, PreventsRemoval: true,
+                HidesSevered: false)
+        );
 		AddWearProfileDirect("Half Helmet", "worn on", "put", "puts", "on",
 			"Worn as a helmet covering the vital parts of the head and the ears (e.g. roman cavalry helmet)", false,
 			true,
@@ -4764,8 +4768,16 @@ public partial class HumanSeeder
 			("rear", 1, Mandatory: false, NoArmour: false, Transparent: false, PreventsRemoval: true,
 				HidesSevered: false),
 			("lear", 1, Mandatory: false, NoArmour: false, Transparent: false, PreventsRemoval: true,
-				HidesSevered: false)
-		);
+				HidesSevered: false),
+            ("rbrow", 1, Mandatory: false, NoArmour: false, Transparent: true, PreventsRemoval: true,
+                HidesSevered: false),
+            ("lbrow", 1, Mandatory: false, NoArmour: false, Transparent: true, PreventsRemoval: true,
+                HidesSevered: false),
+			("rcheek", 1, Mandatory: false, NoArmour: false, Transparent: false, PreventsRemoval: true,
+				HidesSevered:false),
+            ("lcheek", 1, Mandatory: false, NoArmour: false, Transparent: false, PreventsRemoval: true,
+                HidesSevered: false)
+        );
 		AddWearProfileDirect("Spangenhelm", "worn on", "put", "puts", "on",
 			"Worn as a helmet covering the vital parts of the head, ears and cheeks (e.g. a spangenhelm, open face motorcycle helmet)",
 			false, true,
@@ -4786,8 +4798,12 @@ public partial class HumanSeeder
 			("rear", 1, Mandatory: false, NoArmour: false, Transparent: false, PreventsRemoval: true,
 				HidesSevered: true),
 			("lear", 1, Mandatory: false, NoArmour: false, Transparent: false, PreventsRemoval: true,
-				HidesSevered: true)
-		);
+				HidesSevered: true),
+            ("rbrow", 1, Mandatory: false, NoArmour: false, Transparent: true, PreventsRemoval: true,
+                HidesSevered: false),
+            ("lbrow", 1, Mandatory: false, NoArmour: false, Transparent: true, PreventsRemoval: true,
+                HidesSevered: false)
+        );
 		AddWearProfileDirect("Nasal Helm", "worn on", "put", "puts", "on",
 			"Worn as a helmet covering the vital parts of the head and nose (e.g. a phyrgian helmets, roman ridge helmet)",
 			false, true,
@@ -4802,8 +4818,18 @@ public partial class HumanSeeder
 			("ltemple", 1, Mandatory: true, NoArmour: false, Transparent: false, PreventsRemoval: true,
 				HidesSevered: false),
 			("nose", 1, Mandatory: false, NoArmour: false, Transparent: false, PreventsRemoval: true,
-				HidesSevered: false)
-		);
+				HidesSevered: false),
+            ("rbrow", 1, Mandatory: false, NoArmour: false, Transparent: true, PreventsRemoval: true,
+                HidesSevered: false),
+            ("lbrow", 1, Mandatory: false, NoArmour: false, Transparent: true, PreventsRemoval: true,
+                HidesSevered: false),
+            ("face", 1, Mandatory: true, NoArmour: false, Transparent: true, PreventsRemoval: true,
+                HidesSevered: false),
+            ("reyesocket", 1, Mandatory: true, NoArmour: false, Transparent: true, PreventsRemoval: true,
+                HidesSevered: false),
+            ("leyesocket", 1, Mandatory: true, NoArmour: false, Transparent: true, PreventsRemoval: true,
+                HidesSevered: false)
+        );
 		AddWearProfileDirect("Nasal Spangenhelm", "worn on", "put", "puts", "on",
 			"Worn as a helmet covering the vital parts of the head, ears, cheeks and nose", false, true,
 			("scalp", 1, Mandatory: true, NoArmour: false, Transparent: false, PreventsRemoval: true,
@@ -4825,8 +4851,18 @@ public partial class HumanSeeder
 			("rear", 1, Mandatory: false, NoArmour: false, Transparent: false, PreventsRemoval: true,
 				HidesSevered: true),
 			("lear", 1, Mandatory: false, NoArmour: false, Transparent: false, PreventsRemoval: true,
-				HidesSevered: true)
-		);
+				HidesSevered: true),
+			("rbrow", 1, Mandatory: false, NoArmour: false, Transparent: true, PreventsRemoval: true,
+                HidesSevered: false),
+            ("lbrow", 1, Mandatory: false, NoArmour: false, Transparent: true, PreventsRemoval: true,
+                HidesSevered: false),
+			("face", 1, Mandatory: true, NoArmour: false, Transparent: true, PreventsRemoval: true,
+                HidesSevered: false),
+            ("reyesocket", 1, Mandatory: true, NoArmour: false, Transparent: true, PreventsRemoval: true,
+                HidesSevered: false),
+            ("leyesocket", 1, Mandatory: true, NoArmour: false, Transparent: true, PreventsRemoval: true,
+                HidesSevered: false)
+        );
 		AddWearProfileDirect("Greathelm", "worn on", "put", "puts", "on",
 			"Worn as a helmet that covers the entire head", false, true,
 			("scalp", 1, Mandatory: true, NoArmour: false, Transparent: false, PreventsRemoval: true,
@@ -4864,8 +4900,13 @@ public partial class HumanSeeder
 			("rbrow", 1, Mandatory: false, NoArmour: false, Transparent: true, PreventsRemoval: true,
 				HidesSevered: false),
 			("lbrow", 1, Mandatory: false, NoArmour: false, Transparent: true, PreventsRemoval: true,
-				HidesSevered: false)
-		);
+				HidesSevered: false),
+            ("mouth", 1, Mandatory: false, NoArmour: false, Transparent: true, PreventsRemoval: true,
+                HidesSevered: true),
+            ("tongue", 1, Mandatory: false, NoArmour: false, Transparent: true, PreventsRemoval: true,
+                HidesSevered: true)
+
+        );
 		AddWearProfileDirect("Armet", "worn on", "put", "puts", "on",
 			"Worn as a helmet that covers the entire head and neck", false, true,
 			("scalp", 1, Mandatory: true, NoArmour: false, Transparent: false, PreventsRemoval: true,
@@ -4908,10 +4949,42 @@ public partial class HumanSeeder
 				HidesSevered: false),
 			("bneck", 1, Mandatory: false, NoArmour: false, Transparent: true, PreventsRemoval: true,
 				HidesSevered: false),
-			("throat", 1, Mandatory: false, NoArmour: false, Transparent: true, PreventsRemoval: true,
+            ("mouth", 1, Mandatory: false, NoArmour: false, Transparent: true, PreventsRemoval: true,
+                HidesSevered: true),
+            ("tongue", 1, Mandatory: false, NoArmour: false, Transparent: true, PreventsRemoval: true,
+                HidesSevered: true),
+            ("throat", 1, Mandatory: false, NoArmour: false, Transparent: true, PreventsRemoval: true,
 				HidesSevered: false)
 		);
-		AddWearProfileDirect("Corinthian Helmet", "worn on", "put", "puts", "on",
+        AddWearProfileDirect("Open Armet", "worn on", "put", "puts", "on",
+            "Worn as a helmet that covers the entire head and neck", false, true,
+            ("scalp", 1, Mandatory: true, NoArmour: false, Transparent: false, PreventsRemoval: true,
+                HidesSevered: false),        
+            ("bhead", 1, Mandatory: true, NoArmour: false, Transparent: false, PreventsRemoval: true,
+                HidesSevered: false),
+            ("forehead", 1, Mandatory: true, NoArmour: false, Transparent: false, PreventsRemoval: true,
+                HidesSevered: false),
+            ("rtemple", 1, Mandatory: true, NoArmour: false, Transparent: false, PreventsRemoval: true,
+                HidesSevered: false),
+            ("ltemple", 1, Mandatory: true, NoArmour: false, Transparent: false, PreventsRemoval: true,
+                HidesSevered: false),
+            ("rear", 1, Mandatory: false, NoArmour: false, Transparent: false, PreventsRemoval: true,
+                HidesSevered: true),
+            ("lear", 1, Mandatory: false, NoArmour: false, Transparent: false, PreventsRemoval: true,
+                HidesSevered: true),            
+            ("rbrow", 1, Mandatory: false, NoArmour: false, Transparent: true, PreventsRemoval: true,
+                HidesSevered: false),
+            ("lbrow", 1, Mandatory: false, NoArmour: false, Transparent: true, PreventsRemoval: true,
+                HidesSevered: false),
+            ("neck", 1, Mandatory: false, NoArmour: false, Transparent: true, PreventsRemoval: true,
+                HidesSevered: false),
+            ("bneck", 1, Mandatory: false, NoArmour: false, Transparent: true, PreventsRemoval: true,
+                HidesSevered: false),
+            ("throat", 1, Mandatory: false, NoArmour: false, Transparent: true, PreventsRemoval: true,
+                HidesSevered: false)
+		):
+
+        AddWearProfileDirect("Corinthian Helmet", "worn on", "put", "puts", "on",
 			"Worn as a helmet that covers the entire head and front of neck, but leaves eyes and back of neck exposed",
 			false, true,
 			("scalp", 1, Mandatory: true, NoArmour: false, Transparent: false, PreventsRemoval: true,
@@ -4947,8 +5020,12 @@ public partial class HumanSeeder
 			("lbrow", 1, Mandatory: false, NoArmour: false, Transparent: true, PreventsRemoval: true,
 				HidesSevered: false),
 			("neck", 1, Mandatory: false, NoArmour: false, Transparent: true, PreventsRemoval: true,
-				HidesSevered: false)
-		);
+				HidesSevered: false),
+            ("mouth", 1, Mandatory: false, NoArmour: false, Transparent: true, PreventsRemoval: true,
+                HidesSevered: true),
+            ("tongue", 1, Mandatory: false, NoArmour: false, Transparent: true, PreventsRemoval: true,
+                HidesSevered: true)
+        );
 		AddWearProfileDirect("Coif", "worn on", "put", "puts", "on",
 			"Worn as a coif that covers the head, neck and ears but leaves the face exposed", false, false,
 			("scalp", 1, Mandatory: true, NoArmour: false, Transparent: false, PreventsRemoval: true,
@@ -4970,8 +5047,12 @@ public partial class HumanSeeder
 			("bneck", 1, Mandatory: false, NoArmour: false, Transparent: true, PreventsRemoval: true,
 				HidesSevered: false),
 			("throat", 1, Mandatory: false, NoArmour: false, Transparent: true, PreventsRemoval: true,
-				HidesSevered: false)
-		);
+				HidesSevered: false),
+            ("rbrow", 1, Mandatory: false, NoArmour: false, Transparent: true, PreventsRemoval: true,
+                HidesSevered: false),
+            ("lbrow", 1, Mandatory: false, NoArmour: false, Transparent: true, PreventsRemoval: true,
+                HidesSevered: false)
+        );
 		AddWearProfileDirect("Aventail Spangenhelm", "worn on", "put", "puts", "on",
 			"Worn as a helmet covering the vital parts of the head, ears and cheeks with an aventail attachment", false,
 			true,
@@ -4998,9 +5079,177 @@ public partial class HumanSeeder
 			("bneck", 1, Mandatory: false, NoArmour: false, Transparent: true, PreventsRemoval: true,
 				HidesSevered: false),
 			("throat", 1, Mandatory: false, NoArmour: false, Transparent: true, PreventsRemoval: true,
+				HidesSevered: false),
+            ("rbrow", 1, Mandatory: false, NoArmour: false, Transparent: true, PreventsRemoval: true,
+                HidesSevered: false),
+            ("lbrow", 1, Mandatory: false, NoArmour: false, Transparent: true, PreventsRemoval: true,
+                HidesSevered: false)
+
+        );
+		AddWearProfileDirect("Sallet Helmet", "worn on", "put on", "on", "Worn as a helmet covering the upper half of the head", false,
+			true,
+			("scalp", 1, Mandatory: true, NoArmour: false, Transparent: false, PreventsRemoval: true,
+				HidesSevered: false),
+			("bhead", 1, Mandatory: true, NoArmour: false, Transparent: false, PreventsRemoval: true,
+				HidesSevered: false),
+			("forehead", 1, Mandatory: true, NoArmour: false, Transparent: false, PreventsRemoval: true,
+				HidesSevered: false),
+			("rtemple", 1, Mandatory: true, NoArmour: false, Transparent: false, PreventsRemoval: true,
+				HidesSevered: false),
+			("ltemple", 1, Mandatory: true, NoArmour: false, Transparent: false, PreventsRemoval: true,
+				HidesSevered: false),
+			("rcheek", 1, Mandatory: false, NoArmour: false, Transparent: false, PreventsRemoval: true,
+				HidesSevered: false),
+			("lcheek", 1, Mandatory: false, NoArmour: false, Transparent: false, PreventsRemoval: true,
+				HidesSevered: false),
+			("rear", 1, Mandatory: false, NoArmour: false, Transparent: false, PreventsRemoval: true,
+				HidesSevered: true),
+			("lear", 1, Mandatory: false, NoArmour: false, Transparent: false, PreventsRemoval: true,
+				HidesSevered: true),
+			("bneck", 1, Mandatory: false, NoArmour: false, Transparent: true, PreventsRemoval: true,
+				HidesSevered: false),
+			("rbrow", 1, Mandatory: false, NoArmour: false, Transparent: false, PreventsRemoval: true,
+				HidesSevered: false),
+			("lbrow", 1, Mandatory: false, NoArmour: false, Transparent: false, PreventsRemoval: true,
+				HidesSevered: false),
+			("reyesocket", 1, Mandatory: true, NoArmour: false, Transparent: true, PreventsRemoval: true,
+				HidesSevered: false),
+			("leyesocket", 1, Mandatory: true, NoArmour: false, Transparent: true, PreventsRemoval: true,
+				HidesSevered: false),
+            ("face", 1, Mandatory: true, NoArmour: false, Transparent: true, PreventsRemoval: true,
+                HidesSevered: false),
+            ("nose", 1, Mandatory: false, NoArmour: false, Transparent: true, PreventsRemoval: true,
+                HidesSevered: false)
+
+        );
+		AddWearProfileDirect("Open Sallet Helmet", "worn on", "put on", "on", "Worn as a helmet covering the upper half of the head", false,
+			true,
+			("scalp", 1, Mandatory: true, NoArmour: false, Transparent: false, PreventsRemoval: true,
+				HidesSevered: false),
+			("bhead", 1, Mandatory: true, NoArmour: false, Transparent: false, PreventsRemoval: true,
+				HidesSevered: false),
+			("forehead", 1, Mandatory: true, NoArmour: false, Transparent: false, PreventsRemoval: true,
+				HidesSevered: false),
+			("rtemple", 1, Mandatory: true, NoArmour: false, Transparent: false, PreventsRemoval: true,
+				HidesSevered: false),
+			("ltemple", 1, Mandatory: true, NoArmour: false, Transparent: false, PreventsRemoval: true,
+				HidesSevered: false),
+			("rear", 1, Mandatory: false, NoArmour: false, Transparent: false, PreventsRemoval: true,
+				HidesSevered: true),
+			("lear", 1, Mandatory: false, NoArmour: false, Transparent: false, PreventsRemoval: true,
+				HidesSevered: true),
+			("bneck", 1, Mandatory: false, NoArmour: false, Transparent: true, PreventsRemoval: true,
+				HidesSevered: false),
+			("rbrow", 1, Mandatory: false, NoArmour: false, Transparent: false, PreventsRemoval: true,
+				HidesSevered: false),
+			("lbrow", 1, Mandatory: false, NoArmour: false, Transparent: false, PreventsRemoval: true,
 				HidesSevered: false)
 		);
-		AddWearProfileDirect("Doublet", "worn on", "put", "puts", "on", "Worn as a doublet", false, true,
+		AddWearProfileDirect("Barbute Helmet", "worn on", "put on", "on", "Worn as a helmet covering the upper half of the head", false,
+			true,
+			("scalp", 1, Mandatory: true, NoArmour: false, Transparent: false, PreventsRemoval: true,
+				HidesSevered: false),
+			("bhead", 1, Mandatory: true, NoArmour: false, Transparent: false, PreventsRemoval: true,
+				HidesSevered: false),
+			("forehead", 1, Mandatory: true, NoArmour: false, Transparent: false, PreventsRemoval: true,
+				HidesSevered: false),
+			("rtemple", 1, Mandatory: true, NoArmour: false, Transparent: false, PreventsRemoval: true,
+				HidesSevered: false),
+			("ltemple", 1, Mandatory: true, NoArmour: false, Transparent: false, PreventsRemoval: true,
+				HidesSevered: false),
+			("rcheek", 1, Mandatory: false, NoArmour: false, Transparent: false, PreventsRemoval: true,
+				HidesSevered: false),
+			("lcheek", 1, Mandatory: false, NoArmour: false, Transparent: false, PreventsRemoval: true,
+				HidesSevered: false),
+			("rear", 1, Mandatory: false, NoArmour: false, Transparent: false, PreventsRemoval: true,
+				HidesSevered: true),
+			("lear", 1, Mandatory: false, NoArmour: false, Transparent: false, PreventsRemoval: true,
+				HidesSevered: true),
+			("bneck", 1, Mandatory: false, NoArmour: false, Transparent: true, PreventsRemoval: true,
+				HidesSevered: false),
+			("rbrow", 1, Mandatory: false, NoArmour: false, Transparent: false, PreventsRemoval: true,
+				HidesSevered: false),
+			("lbrow", 1, Mandatory: false, NoArmour: false, Transparent: false, PreventsRemoval: true,
+				HidesSevered: false),
+			("reyesocket", 1, Mandatory: true, NoArmour: false, Transparent: true, PreventsRemoval: true,
+				HidesSevered: false),
+			("leyesocket", 1, Mandatory: true, NoArmour: false, Transparent: true, PreventsRemoval: true,
+				HidesSevered: false),
+			("face", 1, Mandatory: true, NoArmour: false, Transparent: true, PreventsRemoval: true,
+				HidesSevered: false)			
+		);
+		AddWearProfileDirect("Visored Barbute Helmet", "worn on", "put on", "on", "Worn as a helmet covering the upper half of the head", false,
+			true,
+			("scalp", 1, Mandatory: true, NoArmour: false, Transparent: false, PreventsRemoval: true,
+				HidesSevered: false),
+			("bhead", 1, Mandatory: true, NoArmour: false, Transparent: false, PreventsRemoval: true,
+				HidesSevered: false),
+			("forehead", 1, Mandatory: true, NoArmour: false, Transparent: false, PreventsRemoval: true,
+				HidesSevered: false),
+			("rtemple", 1, Mandatory: true, NoArmour: false, Transparent: false, PreventsRemoval: true,
+				HidesSevered: false),
+			("ltemple", 1, Mandatory: true, NoArmour: false, Transparent: false, PreventsRemoval: true,
+				HidesSevered: false),
+			("rcheek", 1, Mandatory: false, NoArmour: false, Transparent: false, PreventsRemoval: true,
+				HidesSevered: false),
+			("lcheek", 1, Mandatory: false, NoArmour: false, Transparent: false, PreventsRemoval: true,
+				HidesSevered: false),
+			("rear", 1, Mandatory: false, NoArmour: false, Transparent: false, PreventsRemoval: true,
+				HidesSevered: true),
+			("lear", 1, Mandatory: false, NoArmour: false, Transparent: false, PreventsRemoval: true,
+				HidesSevered: true),
+			("bneck", 1, Mandatory: false, NoArmour: false, Transparent: true, PreventsRemoval: true,
+				HidesSevered: false),
+			("rbrow", 1, Mandatory: false, NoArmour: false, Transparent: false, PreventsRemoval: true,
+				HidesSevered: false),
+			("lbrow", 1, Mandatory: false, NoArmour: false, Transparent: false, PreventsRemoval: true,
+				HidesSevered: false),
+			("reyesocket", 1, Mandatory: true, NoArmour: false, Transparent: true, PreventsRemoval: true,
+				HidesSevered: false),
+			("leyesocket", 1, Mandatory: true, NoArmour: false, Transparent: true, PreventsRemoval: true,
+				HidesSevered: false),
+			("face", 1, Mandatory: true, NoArmour: false, Transparent: false, PreventsRemoval: true,
+				HidesSevered: false)
+            ("mouth", 1, Mandatory: false, NoArmour: false, Transparent: false, PreventsRemoval: true,
+                HidesSevered: true),
+            ("tongue", 1, Mandatory: false, NoArmour: false, Transparent: false, PreventsRemoval: true,
+                HidesSevered: true),
+            ("nose", 1, Mandatory: false, NoArmour: false, Transparent: true, PreventsRemoval: true,
+                HidesSevered: false),
+            ("chin", 1, Mandatory: false, NoArmour: false, Transparent: true, PreventsRemoval: true,
+                HidesSevered: false)
+
+        );
+		AddWearProfileDirect("Breastplate", "worn on", "put", "puts", "on", "Worn as a breastplate covering the chest", false, true,
+			("belly", 1, Mandatory: true, NoArmour: false, Transparent: false, PreventsRemoval: true,
+				HidesSevered: false),
+			("abdomen", 1, Mandatory: true, NoArmour: false, Transparent: false, PreventsRemoval: true,
+				HidesSevered: false),
+			("rbreast", 1, Mandatory: true, NoArmour: false, Transparent: false, PreventsRemoval: true,
+				HidesSevered: false),
+			("lbreast", 1, Mandatory: true, NoArmour: false, Transparent: false, PreventsRemoval: true,
+				HidesSevered: false),
+			("rnipple", 1, Mandatory: false, NoArmour: false, Transparent: false, PreventsRemoval: true,
+				HidesSevered: false),
+			("lnipple", 1, Mandatory: false, NoArmour: false, Transparent: false, PreventsRemoval: true,
+				HidesSevered: true),
+			("rshoulder", 1, Mandatory: true, NoArmour: false, Transparent: false, PreventsRemoval: true,
+				HidesSevered: true),
+            ("lshoulder", 1, Mandatory: true, NoArmour: false, Transparent: false, PreventsRemoval: true,
+                HidesSevered: false)
+
+         );
+		AddWearProfileDirect("Plackart", "worn on", "put", "puts", "on", "Worn as a plackart covering the back", false, true,
+			("lback", 1, Mandatory: true, NoArmour: false, Transparent: false, PreventsRemoval: true,
+				HidesSevered: false),
+			("uback", 1, Mandatory: true, NoArmour: false, Transparent: false, PreventsRemoval: true,
+				HidesSevered: false),
+			("rshoulderblade", 1, Mandatory: true, NoArmour: false, Transparent: false, PreventsRemoval: true,
+				HidesSevered: false),
+			("lshoulderblade", 1, Mandatory: true, NoArmour: false, Transparent: false, PreventsRemoval: true,
+				HidesSevered: false)
+		);
+        AddWearProfileDirect("Doublet", "worn on", "put", "puts", "on", "Worn as a doublet", false, true,
 			("lback", 1, Mandatory: true, NoArmour: false, Transparent: false, PreventsRemoval: true,
 				HidesSevered: false),
 			("uback", 1, Mandatory: true, NoArmour: false, Transparent: false, PreventsRemoval: true,
@@ -5314,7 +5563,11 @@ public partial class HumanSeeder
 				HidesSevered: false),
 			("bneck", 1, Mandatory: true, NoArmour: false, Transparent: false, PreventsRemoval: true,
 				HidesSevered: false)
-		);
+            ("mouth", 1, Mandatory: false, NoArmour: false, Transparent: true, PreventsRemoval: true,
+                HidesSevered: true),
+            ("tongue", 1, Mandatory: false, NoArmour: false, Transparent: true, PreventsRemoval: true,
+                HidesSevered: true)
+        );
 		AddWearProfileDirect("Gorget", "worn on", "put", "puts", "on", "Armour that covers neck and throat", false,
 			true,
 			("neck", 1, Mandatory: true, NoArmour: false, Transparent: false, PreventsRemoval: true,

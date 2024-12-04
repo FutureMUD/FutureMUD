@@ -20,6 +20,7 @@ using MudSharp.Effects.Concrete;
 using MudSharp.GameItems;
 using MudSharp.Body.Traits;
 using MailKit;
+using Humanizer;
 
 namespace MudSharp.Combat;
 
@@ -219,7 +220,7 @@ internal class AuxiliaryCombatAction : CombatAction, IAuxiliaryCombatAction
 		sb.AppendLine($"Move Type: {MoveType.Describe().Colour(Telnet.Green)}");
 		sb.AppendLine($"Position States: {RequiredPositionStates.Select(x => x.DescribeLocationMovementParticiple.TitleCase().ColourValue()).ListToCommaSeparatedValues(", ")}");
 		sb.AppendLineColumns((uint)actor.LineFormatLength, 3,
-			$"Base Delay: {BaseDelay.ToString("N2", actor)}s".ColourValue(),
+			$"Base Delay: #2{BaseDelay.ToString("N2", actor)}s#0".SubstituteANSIColour(),
 			$"Base Stamina: {StaminaCost.ToString("N3", actor).Colour(Telnet.Green)}",
 			$"Weighting: {Weighting.ToString("N2", actor).Colour(Telnet.Green)}"
 		);

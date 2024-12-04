@@ -23,6 +23,7 @@ using MudSharp.RPG.Knowledge;
 using MudSharp.Form.Material;
 using MudSharp.NPC;
 using System.Reflection;
+using Humanizer;
 using MudSharp.Accounts;
 using MudSharp.Body.Traits;
 using MudSharp.Body.Traits.Subtypes;
@@ -256,7 +257,7 @@ For a full list of combat flags, see #3SHOW COMBATFLAGS#0", AutoHelp.HelpArg)]
 					attack.MoveType.Describe(),
 					attack.Intentions.DescribeBrief(),
 					attack.StaminaCost.ToStringN2Colour(actor),
-					TimeSpan.FromSeconds(attack.BaseDelay).DescribePreciseBrief(actor),
+					TimeSpan.FromSeconds(attack.BaseDelay).Humanize(1, actor.Account.Culture, TimeUnit.Millisecond),
 					attack.Profile.BaseAttackerDifficulty.DescribeBrief(true),
 					attack.Profile.BaseBlockDifficulty.DescribeBrief(true),
 					attack.Profile.BaseParryDifficulty.DescribeBrief(true),
@@ -306,7 +307,7 @@ For a full list of combat flags, see #3SHOW COMBATFLAGS#0", AutoHelp.HelpArg)]
 					attack.MoveType.Describe(),
 					attack.Intentions.DescribeBrief(),
 					attack.StaminaCost.ToStringN2Colour(actor),
-					TimeSpan.FromSeconds(attack.BaseDelay).DescribePreciseBrief(actor),
+					TimeSpan.FromSeconds(attack.BaseDelay).Humanize(1, actor.Account.Culture, TimeUnit.Millisecond),
 					attack.Profile.BaseAttackerDifficulty.DescribeBrief(true),
 					attack.Profile.BaseBlockDifficulty.DescribeBrief(true),
 					attack.Profile.BaseParryDifficulty.DescribeBrief(true),

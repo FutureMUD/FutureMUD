@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Humanizer;
 using MudSharp.Body.Position;
 using MudSharp.Body;
 using MudSharp.Framework;
@@ -118,7 +119,7 @@ public abstract class CombatAction : SaveableItem
 		BaseDelay = delay;
 		Changed = true;
 		actor.OutputHandler.Send(
-			$"This {ActionTypeName} will now be delayed by {delay.ToString("N2", actor).Colour(Telnet.Green)} seconds as a base.");
+			$"This {ActionTypeName} will now be delayed by #2{BaseDelay.ToString("N2", actor)}s#0 as a base.".SubstituteANSIColour());
 		return true;
 	}
 

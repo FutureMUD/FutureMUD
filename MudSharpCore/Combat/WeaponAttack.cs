@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Humanizer;
 using JetBrains.Annotations;
 using MudSharp.Body;
 using MudSharp.Body.Position;
@@ -786,7 +787,7 @@ public class WeaponAttack : CombatAction, IWeaponAttack
 			$"Position States: {RequiredPositionStates.Select(x => x.DescribeLocationMovementParticiple.TitleCase().ColourValue()).ListToCommaSeparatedValues(", ")}");
 		
 		sb.AppendLineColumns((uint)actor.LineFormatLength, 3,
-			$"Base Delay: {BaseDelay.ToString("N2", actor)}s".ColourValue(),
+			$"Base Delay: #2{BaseDelay.ToString("N2", actor)}s#0".SubstituteANSIColour(),
 			$"Alignment: {Alignment.Describe().Colour(Telnet.Green)}",
 			$"Orientation: {Orientation.Describe().Colour(Telnet.Green)}"
 		);

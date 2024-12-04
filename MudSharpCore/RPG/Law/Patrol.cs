@@ -113,7 +113,7 @@ public class Patrol : SaveableItem, IPatrol
 		Delete();
 	}
 
-	private void EnsureLeader()
+	private bool EnsureLeader()
 	{
 		if (PatrolLeader == null || PatrolLeader.State.IsDead())
 		{
@@ -124,12 +124,18 @@ public class Patrol : SaveableItem, IPatrol
 		if (PatrolLeader == null)
 		{
 			AbortPatrol();
+			return false;
 		}
+
+		return true;
 	}
 
 	private void HandlePatrolTick()
 	{
-		EnsureLeader();
+		if (!EnsureLeader())
+		{
+			return;
+		}
 		PatrolStrategy.HandlePatrolTick(this);
 	}
 
@@ -140,7 +146,7 @@ public class Patrol : SaveableItem, IPatrol
 			member.RemoveAllEffects<PatrolMemberEffect>(fireRemovalAction: true);
 		}
 
-		PatrolLeader.Party?.Disband();
+		PatrolLeader?.Party?.Disband();
 		LegalAuthority.PatrolController.ReportPatrolAborted(this);
 		Delete();
 	}
@@ -229,5 +235,11 @@ public class Patrol : SaveableItem, IPatrol
 		ActiveEnforcementTarget.RemoveAllEffects<WarnedByEnforcer>(x => x.WhichCrime == ActiveEnforcementCrime, true);
 		ActiveEnforcementTarget = null;
 		ActiveEnforcementCrime = null;
+	}
+
+	public void RemovePatrolMember(ICharacter character)
+	{
+		_members.Remove(character);
+		PatrolLeader?.Party.Leave(character);
 	}
 }

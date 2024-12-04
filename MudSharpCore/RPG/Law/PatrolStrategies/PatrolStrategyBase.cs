@@ -67,6 +67,12 @@ public abstract class PatrolStrategyBase : IPatrolStrategy
 	protected virtual bool PatrolTickGeneral(IPatrol patrol)
 	{
 		var authority = patrol.LegalAuthority;
+		patrol.PatrolLeader ??= patrol.PatrolMembers.GetRandomElement();
+		if (patrol.PatrolLeader is null)
+		{
+			patrol.AbortPatrol();
+			return true;
+		}
 
 		// Check for presence of criminals
 		foreach (var person in patrol.PatrolLeader.Location.LayerCharacters(patrol.PatrolLeader.RoomLayer))

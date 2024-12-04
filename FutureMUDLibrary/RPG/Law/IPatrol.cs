@@ -40,5 +40,6 @@ namespace MudSharp.RPG.Law
         void CriminalStartedMoving(ICharacter criminal, ICrime crime);
         void WarnCriminal(ICharacter criminal, ICrime crime);
         void InvalidateActiveCrime();
+        void RemovePatrolMember(ICharacter character);
     }
 }

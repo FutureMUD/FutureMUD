@@ -5,13 +5,14 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 using MudSharp.Character;
+using MudSharp.Effects.Interfaces;
 using MudSharp.Framework;
 using MudSharp.FutureProg;
 using MudSharp.RPG.Law;
 
 namespace MudSharp.Effects.Concrete;
 
-public class PatrolMemberEffect : Effect
+public class PatrolMemberEffect : Effect, IRemoveOnStateChange
 {
 	public static void InitialiseEffectType()
 	{
@@ -53,8 +54,20 @@ public class PatrolMemberEffect : Effect
 		return $"A member of the {Patrol.PatrolRoute.Name.ColourName()} patrol";
 	}
 
+	/// <inheritdoc />
+	public bool ShouldRemove(CharacterState newState)
+	{
+		return newState.HasFlag(CharacterState.Dead);
+	}
+
+	/// <inheritdoc />
+	public override void RemovalEffect()
+	{
+		Patrol?.RemovePatrolMember(CharacterOwner);
+	}
+
 	protected override string SpecificEffectType => "PatrolMember";
-	public override bool SavingEffect => true;
+	public override bool SavingEffect => Patrol is not null;
 
 	protected override XElement SaveDefinition()
 	{

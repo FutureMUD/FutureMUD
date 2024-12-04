@@ -1935,8 +1935,8 @@ public partial class Character : PerceiverItem, ICharacter
 			{
 				_state = value;
 				OnStateChanged?.Invoke(this);
-				EffectHandler.RemoveAllEffects(x => x.GetSubtype<IRemoveOnStateChange>()?.ShouldRemove(value) == true);
-				Body.RemoveAllEffects(x => x.GetSubtype<IRemoveOnStateChange>()?.ShouldRemove(value) == true);
+				EffectHandler.RemoveAllEffects(x => x.GetSubtype<IRemoveOnStateChange>()?.ShouldRemove(value) == true, true);
+				Body.RemoveAllEffects(x => x.GetSubtype<IRemoveOnStateChange>()?.ShouldRemove(value) == true, true);
 				Changed = true;
 				if (_status == CharacterStatus.Deceased && State != CharacterState.Dead)
 				{

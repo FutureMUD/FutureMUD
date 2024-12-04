@@ -304,5 +304,25 @@ namespace MudSharp.Combat {
         Shield = 2147483648,
 
         Desperate = 4294967296
+
+        Slashing = 8589934592
+
+        Crushing = 17179869184
+
+        Piercing = 34359738368
+
+        Chopping = 68719476736
+
+        Burning = 137438953472
+
+        Bite = 274877906944
+
+        Claw = 549755813888
+
+        Freezing = 1099511627776
+
+        Chemical = 2199023255552
+
+        ArmourPiercing = 4398046511104
     }
 }

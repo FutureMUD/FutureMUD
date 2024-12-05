@@ -231,12 +231,12 @@ public class SimpleProjectMaterial : MaterialRequirementBase
 	public override string Show(ICharacter actor)
 	{
 		return
-			$"{QuantityRequired.ToString("N0", actor)} of item tagged {RequiredTag.FullName.Colour(Telnet.Cyan)} (>={MinimumQuality.Describe().Colour(Telnet.Green)})";
+			$"{QuantityRequired.ToString("N0", actor)} of item tagged {RequiredTag?.FullName.Colour(Telnet.Cyan) ?? "Unknown Tag".ColourError()} (>={MinimumQuality.Describe().Colour(Telnet.Green)})";
 	}
 
 	public override string ShowToPlayer(ICharacter actor)
 	{
 		return
-			$"{QuantityRequired.ToString("N0", actor)} of item tagged {RequiredTag.FullName.Colour(Telnet.Cyan)} (>={MinimumQuality.Describe().Colour(Telnet.Green)})";
+			$"{QuantityRequired.ToString("N0", actor)} of item tagged {RequiredTag?.FullName.Colour(Telnet.Cyan) ?? "Unknown Tag".ColourError()} (>={MinimumQuality.Describe().Colour(Telnet.Green)})";
 	}
 }

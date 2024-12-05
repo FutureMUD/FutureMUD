@@ -7,7 +7,6 @@ using MudSharp.Economy.Banking;
 using MudSharp.Economy.Currency;
 using MudSharp.Framework;
 using MudSharp.Framework.Save;
-using MudSharp.TimeAndDate;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,102 +14,6 @@ using System.Text;
 using System.Threading.Tasks;
 #nullable enable
 namespace MudSharp.Combat.Arenas;
-
-internal class ArenaMatch : SaveableItem, IArenaMatch
-{
-	public ArenaMatch(ICombatArena arena, IArenaMatchType type)
-	{
-		Gameworld = arena.Gameworld;
-		Arena = arena;
-		MatchType = type;
-		Stage = ArenaMatchStage.OpenForRegistration;
-		MatchStart = DateTime.UtcNow;
-		MatchStartMDT = Arena.EconomicZone.FinancialPeriodReferenceCalendar.CurrentDateTime;
-		CurrentIntervalEndTime = MatchStart + type.SignUpTime;
-		if (Stage < ArenaMatchStage.MatchFinished)
-		{
-			Gameworld.HeartbeatManager.FuzzyFiveSecondHeartbeat += HeartbeatManager_FuzzyFiveSecondHeartbeat;
-		}
-	}
-
-	private void HeartbeatManager_FuzzyFiveSecondHeartbeat()
-	{
-		switch (Stage)
-		{
-			case ArenaMatchStage.OpenForRegistration:
-				Heartbeat_OpenForRegistration();
-				return;
-			case ArenaMatchStage.PreparingMatch:
-				Heartbeat_PreparingMatch();
-				return;
-			case ArenaMatchStage.MatchUnderway:
-				Heartbeat_MatchUnderway();
-				return;
-			case ArenaMatchStage.MatchFinished:
-				Heartbeat_MatchFinished();
-				return;
-		}
-	}
-
-	private void Heartbeat_MatchFinished()
-	{
-		// Finalise bets
-
-		// Deregister heartbeat
-		Gameworld.HeartbeatManager.FuzzyFiveSecondHeartbeat -= HeartbeatManager_FuzzyFiveSecondHeartbeat;
-	}
-
-	private void Heartbeat_MatchUnderway()
-	{
-		throw new NotImplementedException();
-	}
-
-	private void Heartbeat_PreparingMatch()
-	{
-		throw new NotImplementedException();
-	}
-
-	private void Heartbeat_OpenForRegistration()
-	{
-		if (DateTime.UtcNow >= CurrentIntervalEndTime)
-		{
-			Stage = ArenaMatchStage.PreparingMatch;
-		}
-		throw new NotImplementedException();
-	}
-
-	public ICombatArena Arena { get; private set; }
-	public IArenaMatchType MatchType { get; private set; }
-	public ArenaMatchStage Stage { get; private set; }
-	public DateTime MatchStart { get; private set; }
-	public MudDateTime MatchStartMDT { get; private set; }
-	private readonly CollectionDictionary<int, IArenaCombatantProfile> _combatants = new();
-	public IReadOnlyCollectionDictionary<int, IArenaCombatantProfile> CombatantsByTeam => _combatants.AsReadOnlyCollectionDictionary();
-
-	private readonly List<IArenaMatchBet> _bets = new();
-	public IEnumerable<IArenaMatchBet> Bets => _bets;
-	public int CurrentRound { get; private set; }
-	public DateTime? CurrentRoundEndTime { get; private set; }
-	public DateTime? CurrentIntervalEndTime { get; private set; }
-
-	public void AddCombatant(IArenaCombatantProfile combatant, int team)
-	{
-		_combatants[team].Add(combatant);
-	}
-
-	public void WithdrawCombatant(IArenaCombatantProfile combatant)
-	{
-		_combatants.RemoveAll(x => x == combatant);
-	}
-
-	public override void Save()
-	{
-		// TODO
-		Changed = false;
-	}
-
-	public override string FrameworkItemType => "CombatArena";
-}
 
 internal class CombatArena : SaveableItem, ICombatArena
 {
@@ -368,17 +271,109 @@ internal class CombatArena : SaveableItem, ICombatArena
 
 	private bool BuildingCommandSpectator(ICharacter actor)
 	{
-		throw new NotImplementedException();
+		if (ActiveMatch is not null)
+		{
+			actor.OutputHandler.Send("You can't edit this property of an arena while there is an active match.");
+			return false;
+		}
+
+		var cell = actor.Location;
+		if (_spectatorCells.Contains(cell))
+		{
+			_spectatorCells.Remove(cell);
+			Changed = true;
+			actor.OutputHandler.Send("This location is no longer part of the spectator area.");
+			return false;
+		}
+
+		if (_stagingCells.Contains(cell))
+		{
+			actor.OutputHandler.Send("A cell cannot be a spectator cell and an staging cell at the same time.");
+			return false;
+		}
+
+		if (_stableCells.Contains(cell))
+		{
+			actor.OutputHandler.Send("A cell cannot be a spectator cell and an stable cell at the same time.");
+			return false;
+		}
+
+		if (_arenaCells.Contains(cell))
+		{
+			actor.OutputHandler.Send("A cell cannot be a spectator cell and an arena cell at the same time.");
+			return false;
+		}
+
+		_spectatorCells.Add(cell);
+		Changed = true;
+		actor.OutputHandler.Send($"This location is now part of the spectator area.");
+		return true;
 	}
 
 	private bool BuildingCommandEconomicZone(ICharacter actor, StringStack command)
 	{
-		throw new NotImplementedException();
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("Which economic zone should this combat arena belong to?");
+			return false;
+		}
+
+		var ez = Gameworld.EconomicZones.GetByIdOrName(command.SafeRemainingArgument);
+		if (ez is null)
+		{
+			actor.OutputHandler.Send($"There is no economic zone identified by the text {command.SafeRemainingArgument.ColourCommand()}.");
+			return false;
+		}
+
+		EconomicZone = ez;
+		if (BankAccount is not null && ez.Currency != BankAccount.Currency)
+		{
+			BankAccount = null;
+		}
+		Changed = true;
+		actor.OutputHandler.Send($"This combat arena is now part of the {ez.Name.ColourName()} economic zone.");
+		return true;
 	}
 
 	private bool BuildingCommandManager(ICharacter actor, StringStack command)
 	{
-		throw new NotImplementedException();
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("Who would you like to toggle being a manager for this combat arena?");
+			return false;
+		}
+
+		var target = actor.TargetActor(command.SafeRemainingArgument);
+		if (target == null)
+		{
+			if (!long.TryParse(command.SafeRemainingArgument, out var id))
+			{
+				actor.OutputHandler.Send("You don't see anyone like that.");
+				return false;
+			}
+
+			target = Gameworld.TryGetCharacter(id, true);
+			if (target == null)
+			{
+				actor.OutputHandler.Send("There is no character with that Id.");
+				return false;
+			}
+		}
+
+		if (_managerIDs.Contains(target.Id))
+		{
+			_managerIDs.Remove(target.Id);
+			Changed = true;
+			actor.OutputHandler.Send(
+				$"{target.HowSeen(actor, true, flags: PerceiveIgnoreFlags.IgnoreSelf)} will no longer be a manager for {Name.ColourName()}.");
+			return true;
+		}
+
+		_managerIDs.Add(target.Id);
+		Changed = true;
+		actor.OutputHandler.Send(
+			$"{target.HowSeen(actor, true, flags: PerceiveIgnoreFlags.IgnoreSelf)} is now a manager for {Name.ColourName()}.");
+		return true;
 	}
 
 	private bool BuildingCommandBankAccount(ICharacter actor, StringStack command)
@@ -437,6 +432,12 @@ internal class CombatArena : SaveableItem, ICombatArena
 	{
 		var sb = new StringBuilder();
 		sb.AppendLine($"Combat Arena #{Id.ToString("N0", actor)} - {Name}".GetLineWithTitle(actor, Telnet.BoldRed, Telnet.BoldWhite));
+		sb.AppendLine();
+		sb.AppendLine($"Economic Zone: {EconomicZone.Name.ColourValue()}");
+		sb.AppendLine($"Bank Account: {BankAccount?.Name.ColourValue() ?? "None".ColourError()}");
+		sb.AppendLine($"Cash on Hand: {Currency.Describe(CashBalance, CurrencyDescriptionPatternType.ShortDecimal).ColourValue()}");
+		sb.AppendLine($"Time Between Matches: {TimeBetweenMatches.DescribePrecise(actor).ColourValue()}");
+		sb.AppendLine($"Last Match: {LastArenaMatch?.GetLocalDateString(actor, true).ColourValue() ?? "None".ColourError()}");
 		return sb.ToString();
 	}
 	#endregion

@@ -173,156 +173,156 @@ namespace MudSharp.Combat {
     /// These enum flags determine what the core intention of a combat move is, for use in preferencing
     /// </summary>
     public enum CombatMoveIntentions : long {
-        None = 0,
+        None = 0b_0,
 
         /// <summary>
         ///     An attack is a combat move that is considered hostile to a target
         /// </summary>
-        Attack = 1,
+        Attack = 0b_1,
 
         /// <summary>
         ///     A disarm is a combat move that attempts to remove or damage an opponent's weapon
         /// </summary>
-        Disarm = 2,
+        Disarm = 0b_10,
 
         /// <summary>
         ///     A wound is a combat move that attempts to cause a wound (or has the significant potential to)
         /// </summary>
-        Wound = 4,
+        Wound = 0b_100,
 
         /// <summary>
         ///     A kill is a combat move that attempts to cause the death of the opponent (or has the significant potential to)
         /// </summary>
-        Kill = 8,
+        Kill = 0b_1000,
 
         /// <summary>
         ///     A submit is a combat move that attempts to place its opponent in a position of surrender
         /// </summary>
-        Submit = 16,
+        Submit = 0b_10000,
 
         /// <summary>
         ///     A grapple is a combat move that attempts to restrict the movement of an opponent
         /// </summary>
-        Grapple = 32,
+        Grapple = 0b_100000,
 
         /// <summary>
         ///     A disadvantage is a combat move that attempts to cause disadvantage to the foe, so that their actions are harder
         /// </summary>
-        Disadvantage = 64,
+        Disadvantage = 0b_1000000,
 
         /// <summary>
         ///     An advantage is a combat move that attempts to give advantage to the assailant, so that their actions are easier
         /// </summary>
-        Advantage = 128,
+        Advantage = 0b_10000000,
 
         /// <summary>
         ///     An attention is a combat move that attempts to make it harder for the foe to focus on anyone but the assailant
         /// </summary>
-        Attention = 256,
+        Attention = 0b_1_00000000,
 
         /// <summary>
         ///     A flank is a combat move that attempts to circumvent frontal defenses of the target
         /// </summary>
-        Flank = 512,
+        Flank = 0b_10_00000000,
 
         /// <summary>
         ///     A trip is a combat move that attempts to knock an opponent to the ground
         /// </summary>
-        Trip = 1024,
+        Trip = 0b_100_00000000,
 
         /// <summary>
         ///     A stun is a combat move that is substantially about stunning the target
         /// </summary>
-        Stun = 2048,
+        Stun = 0b_1000_00000000,
 
         /// <summary>
         ///     A pain is a combat move that is substantially about causing the target to be in pain
         /// </summary>
-        Pain = 4096,
+        Pain = 0b_10000_00000000,
 
         /// <summary>
         ///     A Coup-de-Grace is a combat move designed to be used against a helpless opponent
         /// </summary>
-        CoupDeGrace = 8192,
+        CoupDeGrace = 0b_100000_00000000,
 
         /// <summary>
         ///     A dirty is a combat move that would be considered dishonourable
         /// </summary>
-        Dirty = 16384,
+        Dirty = 0b_1000000_00000000,
 
         /// <summary>
         ///     A savage attack is a combat move that would be seen as wild or savage
         /// </summary>
-        Savage = 32768,
+        Savage = 0b_10000000_00000000,
 
         /// <summary>
         ///     A training attack is a combat move specifically intended to be used in a training environment
         /// </summary>
-        Training = 65536,
+        Training = 0b_1_00000000_00000000,
 
         /// <summary>
         ///     A flashy attack is a combat move which is inherently sylish or over the top
         /// </summary>
-        Flashy = 131072,
+        Flashy = 0b_10_00000000_00000000,
 
         /// <summary>
         ///     A distraction attack is a combat move which is designed to draw attention away from the assailant and make them
         ///     more difficult to hit
         /// </summary>
-        Distraction = 262144,
+        Distraction = 0b_100_00000000_00000000,
 
         /// <summary>
         ///     A hinder attack is an attack that is designed to prevent an opponent from running away or moving
         /// </summary>
-        Hinder = 524288,
+        Hinder = 0b_1000_00000000_00000000,
 
         /// <summary>
         ///     A cripple attack is focused on injuries that incapacitate the foe
         /// </summary>
-        Cripple = 1048576,
+        Cripple = 0b_10000_00000000_00000000,
 
-        Risky = 2097152,
+        Risky = 0b_100000_00000000_00000000,
 
-        Fast = 4194304,
+        Fast = 0b_1000000_00000000_00000000,
 
-        Slow = 8388608,
+        Slow = 0b_10000000_00000000_00000000,
 
-        Aggressive = 16777216,
+        Aggressive = 0b_1_00000000_00000000_00000000,
 
-        Defensive = 33554432,
+        Defensive = 0b_10_00000000_00000000_00000000,
 
-        Cautious = 67108864,
+        Cautious = 0b_100_00000000_00000000_00000000,
 
-        Cruel = 134217728,
+        Cruel = 0b_1000_00000000_00000000_00000000,
 
-        SelfDamaging = 268435456,
+        SelfDamaging = 0b_10000_00000000_00000000_00000000,
 
-        Hard = 536870912,
+        Hard = 0b_100000_00000000_00000000_00000000,
 
-        Easy = 1073741824,
+        Easy = 0b_1000000_00000000_00000000_00000000,
 
-        Shield = 2147483648,
+        Shield = 0b_10000000_00000000_00000000_00000000,
 
-        Desperate = 4294967296
+        Desperate = 0b_1_00000000_00000000_00000000_00000000,
 
-        Slashing = 8589934592
+        Slashing = 0b_10_00000000_00000000_00000000_00000000,
 
-        Crushing = 17179869184
+        Crushing = 0b_100_00000000_00000000_00000000_00000000,
 
-        Piercing = 34359738368
+        Piercing = 0b_1000_00000000_00000000_00000000_00000000,
 
-        Chopping = 68719476736
+        Chopping = 0b_10000_00000000_00000000_00000000_00000000,
 
-        Burning = 137438953472
+        Burning = 0b_100000_00000000_00000000_00000000_00000000,
 
-        Bite = 274877906944
+        Bite = 0b_1000000_00000000_00000000_00000000_00000000,
 
-        Claw = 549755813888
+        Claw = 0b_10000000_00000000_00000000_00000000_00000000,
 
-        Freezing = 1099511627776
+        Freezing = 0b_1_00000000_00000000_00000000_00000000_00000000,
 
-        Chemical = 2199023255552
+        Chemical = 0b_10_00000000_00000000_00000000_00000000_00000000,
 
-        ArmourPiercing = 4398046511104
+        ArmourPiercing = 0b_100_00000000_00000000_00000000_00000000_00000000,
     }
 }

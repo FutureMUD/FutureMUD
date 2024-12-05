@@ -220,10 +220,165 @@ internal class CombatArena : SaveableItem, ICombatArena
 			case "bankaccount":
 			case "account":
 				return BuildingCommandBankAccount(actor, command);
+			case "manager":
+				return BuildingCommandManager(actor, command);
+			case "economiczone":
+			case "ez":
+				return BuildingCommandEconomicZone(actor, command);
+			case "arena":
+				return BuildingCommandArena(actor, command);
+			case "staging":
+			case "stage":
+				return BuildingCommandStagingArea(actor);
+			case "stable":
+			case "stables":
+				return BuildingCommandStables(actor);
+			case "spectator":
+				return BuildingCommandSpectator(actor);
 		}
 
 		actor.OutputHandler.Send(BuildingHelp.SubstituteANSIColour());
 		return false;
+	}
+
+	private bool BuildingCommandArena(ICharacter actor, StringStack command)
+	{
+		if (ActiveMatch is not null)
+		{
+			actor.OutputHandler.Send("You can't edit this property of an arena while there is an active match.");
+			return false;
+		}
+
+		var cell = actor.Location;
+		if (_arenaCells.Contains(cell))
+		{
+			_arenaCells.Remove(cell);
+			Changed = true;
+			actor.OutputHandler.Send("This location is no longer part of the arena area.");
+			// TODO - remove arena effect
+			return false;
+		}
+
+		if (_stableCells.Contains(cell))
+		{
+			actor.OutputHandler.Send("A cell cannot be a stable cell and an arena cell at the same time.");
+			return false;
+		}
+
+		if (_spectatorCells.Contains(cell))
+		{
+			actor.OutputHandler.Send("A cell cannot be a spectator cell and an arena cell at the same time.");
+			return false;
+		}
+
+		if (_stagingCells.Contains(cell))
+		{
+			actor.OutputHandler.Send("A cell cannot be a staging cell and an arena cell at the same time.");
+			return false;
+		}
+
+		_arenaCells.Add(cell);
+		Changed = true;
+		actor.OutputHandler.Send($"This location is now part of the arena area.");
+		// TODO - add arena effect
+		return true;
+	}
+
+	private bool BuildingCommandStagingArea(ICharacter actor)
+	{
+		if (ActiveMatch is not null)
+		{
+			actor.OutputHandler.Send("You can't edit this property of an arena while there is an active match.");
+			return false;
+		}
+
+		var cell = actor.Location;
+		if (_stagingCells.Contains(cell))
+		{
+			_stagingCells.Remove(cell);
+			Changed = true;
+			actor.OutputHandler.Send("This location is no longer part of the staging area.");
+			return false;
+		}
+
+		if (_stableCells.Contains(cell))
+		{
+			actor.OutputHandler.Send("A cell cannot be a stable cell and  a staging cell at the same time.");
+			return false;
+		}
+
+		if (_spectatorCells.Contains(cell))
+		{
+			actor.OutputHandler.Send("A cell cannot be a spectator cell and a staging cell at the same time.");
+			return false;
+		}
+
+		if (_arenaCells.Contains(cell))
+		{
+			actor.OutputHandler.Send("A cell cannot be a staging cell and an arena cell at the same time.");
+			return false;
+		}
+
+		_stagingCells.Add(cell);
+		Changed = true;
+		actor.OutputHandler.Send($"This location is now part of the staging area.");
+		return true;
+	}
+
+	private bool BuildingCommandStables(ICharacter actor)
+	{
+		if (ActiveMatch is not null)
+		{
+			actor.OutputHandler.Send("You can't edit this property of an arena while there is an active match.");
+			return false;
+		}
+
+		var cell = actor.Location;
+		if (_stableCells.Contains(cell))
+		{
+			_stableCells.Remove(cell);
+			Changed = true;
+			actor.OutputHandler.Send("This location is no longer part of the stables area.");
+			return false;
+		}
+
+		if (_stagingCells.Contains(cell))
+		{
+			actor.OutputHandler.Send("A cell cannot be a stable cell and an staging cell at the same time.");
+			return false;
+		}
+
+		if (_spectatorCells.Contains(cell))
+		{
+			actor.OutputHandler.Send("A cell cannot be a spectator cell and an stable cell at the same time.");
+			return false;
+		}
+
+		if (_arenaCells.Contains(cell))
+		{
+			actor.OutputHandler.Send("A cell cannot be a stable cell and an arena cell at the same time.");
+			return false;
+		}
+
+		_stableCells.Add(cell);
+		Changed = true;
+		actor.OutputHandler.Send($"This location is now part of the stables area.");
+		return true;
+	}
+
+	private bool BuildingCommandSpectator(ICharacter actor)
+	{
+		throw new NotImplementedException();
+	}
+
+	private bool BuildingCommandEconomicZone(ICharacter actor, StringStack command)
+	{
+		throw new NotImplementedException();
+	}
+
+	private bool BuildingCommandManager(ICharacter actor, StringStack command)
+	{
+		throw new NotImplementedException();
 	}
 
 	private bool BuildingCommandBankAccount(ICharacter actor, StringStack command)

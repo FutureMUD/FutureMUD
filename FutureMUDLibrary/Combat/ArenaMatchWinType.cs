@@ -7,5 +7,6 @@ public enum ArenaMatchWinType
 	KnockedOver,
 	FirstBlood,
 	Unconscious,
+	Surrender,
 	Death
 }

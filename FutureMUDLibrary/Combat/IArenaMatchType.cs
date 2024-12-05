@@ -12,11 +12,12 @@ public interface IArenaMatchType : IFrameworkItem, ISaveable, IEditableItem
 	Counter<IArenaCombatantType> CombatantCountsTeam2 { get; }
 	Counter<IArenaCombatantType> CombatantCountsTeam3 { get; }
 	Counter<IArenaCombatantType> CombatantCountsTeam4 { get; }
-	IFutureProg? CombatantEligilityProg { get; }
+	IFutureProg? CombatantEligibilityProg { get; }
 	IFutureProg? OddsProg { get; }
 	IFutureProg? OnMatchBeginsProg { get; }
 	IFutureProg? OnMatchEndsProg { get; }
 	IFutureProg MatchCanBeginProg { get; }
+	IFutureProg OutfitCombatantProg { get; }
 	bool CombatantsCanSurrender { get; }
 	bool NPCsJoinBeforeRegistrationClosed { get; }
 	bool FillWithNPCsIfEmpty { get; }
@@ -26,4 +27,7 @@ public interface IArenaMatchType : IFrameworkItem, ISaveable, IEditableItem
 	TimeSpan PrepareTime { get; }
 	ArenaMatchWinType WinType { get; }
 	double RelativePriorityForMatchType { get; }
+	bool PermitOwnWeapons { get; }
+	bool PermitOwnArmour { get; }
+	bool PermitOwnClothes { get; }
 }

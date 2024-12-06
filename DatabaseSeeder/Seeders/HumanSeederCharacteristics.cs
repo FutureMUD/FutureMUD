@@ -1940,7 +1940,7 @@ return @bmi > 24 and @bmi < 35"
 		{
 			Id = nextId++, Definition = frameDef, Name = "monstrous", Value = "monstrous",
 			AdditionalValue =
-				"a monstrously large lump of humanity, of bizarre, malformed proportions, with an oversized head, a barrel of a torso, and stumpy limbs ending in even more oversized hands and somewhat stubby feet, &his massive frame laden thickly with strong muscle and r...",
+				"a monstrously large lump of humanity, of bizarre, malformed proportions, with an oversized head, a barrel of a torso, and stumpy limbs ending in even more oversized hands and somewhat stubby feet, &his massive frame laden thickly with strong muscle and rolls of fat",
 			Default = false, Pluralisation = 0, FutureProg = overweightProg
 		});
 		_context.CharacteristicValues.Add(new CharacteristicValue

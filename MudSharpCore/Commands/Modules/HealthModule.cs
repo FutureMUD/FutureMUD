@@ -1651,8 +1651,9 @@ The syntax is as follows:
 				}, $"proposing to {procedure.ProcedureName}", "surgery",
 				procedure.ProcedureName)), TimeSpan.FromSeconds(120));
 			actor.OutputHandler.Handle(
-				new EmoteOutput(new Emote($"@ propose|proposes that #0 {procedure.ProcedureName} $1", actor, actor,
+				new EmoteOutput(new Emote($"@ propose|proposes that #0 perform the {procedure.ProcedureName.ToLowerInvariant().ColourName()} procedure $1", actor, actor,
 					target)));
+			target.OutputHandler.Send(Accept.StandardAcceptPhrasing);
 			return;
 		}
 
@@ -1939,7 +1940,7 @@ The syntax is as follows:
 				procedure.ProcedureName)), TimeSpan.FromSeconds(120));
 			actor.OutputHandler.Handle(
 				new EmoteOutput(new Emote(
-					$"@ propose|proposes that #0 perform the {procedure.ProcedureName.ColourName()} surgical procedure on $1",
+					$"@ propose|proposes that #0 perform the {procedure.ProcedureName.ToLowerInvariant().ColourName()} surgical procedure on $1",
 					actor, actor,
 					target)));
 			target.Send(

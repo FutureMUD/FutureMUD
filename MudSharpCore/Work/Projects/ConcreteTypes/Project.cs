@@ -1046,6 +1046,7 @@ Editing Actions:
 			{
 				actor.OutputHandler.Send(
 					$"You delete project labour requirement {labour.Name.ColourValue()} from the project phase.");
+				phase.RemoveLabour(labour);
 				labour.Delete();
 			},
 			RejectAction = txt =>

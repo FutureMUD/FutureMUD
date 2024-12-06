@@ -154,4 +154,63 @@ return @item");
 		prog4.Compile();
 		Assert.IsTrue(string.IsNullOrEmpty(prog4.CompileError), $"The LoadItem prog did not compile: {prog4.CompileError}");
 	}
+
+	[TestMethod]
+	public void TestLiterals()
+	{
+		var resultNumberLiteral = FunctionHelper.NonFunctionStringSplit("14");
+		var resultNumberLiteralDecimal = FunctionHelper.NonFunctionStringSplit("14.7");
+		var resultNumberLiteralError = FunctionHelper.NonFunctionStringSplit("14.7.7");
+		var resultTextLiteral = FunctionHelper.NonFunctionStringSplit(@"""This is some text""");
+		var resultEmptyTextLiteral = FunctionHelper.NonFunctionStringSplit(@"""""");
+		var resultTextLiteralWithQuotes = FunctionHelper.NonFunctionStringSplit(@"""This text has \""some quotes\"".""");
+		var resultVariableReference = FunctionHelper.NonFunctionStringSplit("@input");
+		var resultTimeSpan1 = FunctionHelper.NonFunctionStringSplit("3d");
+		var resultTimeSpan2 = FunctionHelper.NonFunctionStringSplit("12m 7s");
+		var resultTimeSpan3 = FunctionHelper.NonFunctionStringSplit("3d 51m 12s 9f");
+
+		Assert.IsTrue(resultNumberLiteral.IsFound, "Number Literal was not found");
+		Assert.IsTrue(!resultNumberLiteral.IsError, "Number Literal was an error");
+		Assert.IsTrue(resultNumberLiteral.Type == FunctionHelper.NonFunctionType.NumberLiteral, "Number Literal was not identified as a Number Literal");
+
+		Assert.IsTrue(resultNumberLiteralDecimal.IsFound, "Number Literal Decimal was not found");
+		Assert.IsTrue(!resultNumberLiteralDecimal.IsError, "Number Literal Decimal was an error");
+		Assert.IsTrue(resultNumberLiteralDecimal.Type == FunctionHelper.NonFunctionType.NumberLiteral, "Number Literal Decimal was not identified as a Number Literal");
+
+		Assert.IsTrue(!resultNumberLiteralError.IsFound, "Number Literal Error was found");
+		Assert.IsTrue(resultNumberLiteralError.IsError, "Number Literal was not an error");
+		Assert.IsTrue(resultNumberLiteralError.Type == FunctionHelper.NonFunctionType.None, "Number Literal Error was not identified as a None Type");
+
+		Assert.IsTrue(resultTextLiteral.IsFound, "Text Literal was not found");
+		Assert.IsTrue(!resultTextLiteral.IsError, "Text Literal was an error");
+		Assert.IsTrue(resultTextLiteral.Type == FunctionHelper.NonFunctionType.TextLiteral, "Text Literal was not identified as a Text Literal");
+		Assert.AreEqual("This is some text", resultTextLiteral.StringValue, "Text Literal had mismatching string value");
+
+		Assert.IsTrue(resultEmptyTextLiteral.IsFound, "Text Literal Empty was not found");
+		Assert.IsTrue(!resultEmptyTextLiteral.IsError, "Text Literal Empty was an error");
+		Assert.IsTrue(resultEmptyTextLiteral.Type == FunctionHelper.NonFunctionType.TextLiteral, "Text Literal Empty was not identified as a Text Literal");
+		Assert.AreEqual("", resultEmptyTextLiteral.StringValue, "Text Literal Empty had mismatching string value");
+
+		Assert.IsTrue(resultTextLiteralWithQuotes.IsFound, "Text Literal Quotes was not found");
+		Assert.IsTrue(!resultTextLiteralWithQuotes.IsError, "Text Literal Quotes was an error");
+		Assert.IsTrue(resultTextLiteralWithQuotes.Type == FunctionHelper.NonFunctionType.TextLiteral, "Text Literal Quotes was not identified as a Text Literal");
+		Assert.AreEqual(@"This text has ""some quotes"".", resultTextLiteralWithQuotes.StringValue, "Text Literal Quotes had mismatching string value");
+
+		Assert.IsTrue(resultVariableReference.IsFound, "Variable Reference Literal was not found");
+		Assert.IsTrue(!resultVariableReference.IsError, "Variable Reference Literal was an error");
+		Assert.IsTrue(resultVariableReference.Type == FunctionHelper.NonFunctionType.VariableReference, "Variable Reference Literal was not identified as a Variable Reference Literal");
+		Assert.AreEqual("input", resultVariableReference.StringValue, "Variable Reference Literal had mismatching string value");
+
+		Assert.IsTrue(resultTimeSpan1.IsFound, "TimeSpan 1 Literal was not found");
+		Assert.IsTrue(!resultTimeSpan1.IsError, "TimeSpan 1e Literal was an error");
+		Assert.IsTrue(resultTimeSpan1.Type == FunctionHelper.NonFunctionType.TimeSpanLiteral, "TimeSpan 1 Literal was not identified as a Time Span Literal");
+
+		Assert.IsTrue(resultTimeSpan2.IsFound, "TimeSpan 2 Literal was not found");
+		Assert.IsTrue(!resultTimeSpan2.IsError, "TimeSpan 2 Literal was an error");
+		Assert.IsTrue(resultTimeSpan2.Type == FunctionHelper.NonFunctionType.TimeSpanLiteral, "TimeSpan 2 Literal was not identified as a Time Span Literal");
+
+		Assert.IsTrue(resultTimeSpan3.IsFound, "TimeSpan 3 Literal was not found");
+		Assert.IsTrue(!resultTimeSpan3.IsError, "TimeSpan 3 Literal was an error");
+		Assert.IsTrue(resultTimeSpan3.Type == FunctionHelper.NonFunctionType.TimeSpanLiteral, "TimeSpan 3 Literal was not identified as a Time Span Literal");
+	}
 }

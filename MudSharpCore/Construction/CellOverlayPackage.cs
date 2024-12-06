@@ -134,7 +134,16 @@ public class CellOverlayPackage : Framework.Revision.EditableItem, ICellOverlayP
 				RevisionStatus = (int)RevisionStatus.UnderDesign
 			};
 			var dbold = FMDB.Context.CellOverlayPackages
-			                .Find(Id, RevisionNumber);
+			                .Include(x => x.CellOverlays)
+			                .ThenInclude(x => x.CellOverlaysExits)
+			                .ThenInclude(cellOverlayExit => cellOverlayExit.Exit)
+			                .Include(cellOverlayPackage => cellOverlayPackage.CellOverlays)
+			                .ThenInclude(cellOverlay => cellOverlay.Cell)
+			                .Include(cellOverlayPackage => cellOverlayPackage.CellOverlays)
+			                .ThenInclude(cellOverlay => cellOverlay.HearingProfile)
+			                .Include(cellOverlayPackage => cellOverlayPackage.CellOverlays)
+			                .ThenInclude(cellOverlay => cellOverlay.Terrain)
+			                .First(x => x.Id == Id && x.RevisionNumber == RevisionNumber);
 			foreach (var overlay in dbold.CellOverlays)
 			{
 				var newOverlay = new Models.CellOverlay
@@ -174,6 +183,10 @@ public class CellOverlayPackage : Framework.Revision.EditableItem, ICellOverlayP
 			foreach (var overlay in dbnew.CellOverlays)
 			{
 				var cell = Gameworld.Cells.Get(overlay.CellId);
+				if (cell is null)
+				{
+					continue;
+				}
 				cell.AddOverlay(new CellOverlay(overlay, cell, Gameworld));
 			}
 

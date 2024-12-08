@@ -15,5 +15,6 @@ namespace MudSharp.Effects.Interfaces
         IArmourType ArmourType { get; }
         ItemQuality Quality { get; }
         bool AppliesToPart(IBodypart bodypart);
+        string MagicArmourOriginDescription { get; }
     }
 }

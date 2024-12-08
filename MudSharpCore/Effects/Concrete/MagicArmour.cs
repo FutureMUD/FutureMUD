@@ -78,6 +78,7 @@ public class MagicArmour : ConcentrationConsumingEffect, IMagicEffect, ICheckBon
 	}
 
 	public MagicArmourPower Power { get; protected set; }
+	public string MagicArmourOriginDescription => $"{Power.Name.Colour(Power.School.PowerListColour)} Power";
 
 	public IMagicPower PowerOrigin => Power;
 	public Difficulty DetectMagicDifficulty => Power.DetectableWithDetectMagic;
@@ -111,7 +112,7 @@ public class MagicArmour : ConcentrationConsumingEffect, IMagicEffect, ICheckBon
 	public bool AppliesToCheck(CheckType type)
 	{
 		return type.IsDefensiveCombatAction() || type.IsOffensiveCombatAction() || type.IsGeneralActivityCheck() ||
-		       type.IsTargettedFriendlyCheck() || type.IsTargettedHostileCheck();
+			   type.IsTargettedFriendlyCheck() || type.IsTargettedHostileCheck();
 	}
 
 	public double CheckBonus => Power.SustainPenalty;
@@ -128,14 +129,14 @@ public class MagicArmour : ConcentrationConsumingEffect, IMagicEffect, ICheckBon
 	public double TotalDamageAbsorbed { get; protected set; }
 
 	private void CheckDamageAbsorbed()
-    {
-        var max = Power.MaximumDamageAbsorbed.Evaluate(CharacterOwner);
-        if (max <= 0.0)
-        {
-            return;
-        }
+	{
+		var max = Power.MaximumDamageAbsorbed.Evaluate(CharacterOwner);
+		if (max <= 0.0)
+		{
+			return;
+		}
 
-        if (TotalDamageAbsorbed >= max)
+		if (TotalDamageAbsorbed >= max)
 		{
 			CharacterOwner.RemoveEffect(this, true);
 		}
@@ -185,7 +186,7 @@ public class MagicArmour : ConcentrationConsumingEffect, IMagicEffect, ICheckBon
 		if (!string.IsNullOrEmpty(Power.FullDescriptionAddendum))
 		{
 			if (!Power.ArmourCanBeObscuredByInventory ||
-			    CharacterOwner.Body.ExposedBodyparts.All(x => !AppliesToPart(x)))
+				CharacterOwner.Body.ExposedBodyparts.All(x => !AppliesToPart(x)))
 			{
 				return new EmoteOutput(new Emote(Power.FullDescriptionAddendum, CharacterOwner, CharacterOwner))
 					.ParseFor(voyeur);

@@ -11,7 +11,9 @@ namespace MudSharp.Logging
         SkillUse,
         SkillBranch,
         HealingTick,
-        SkillImprovement
+        SkillImprovement,
+        SufferHypoxiaCellularDamage,
+        SufferDamage
     }
 
     public interface ICustomLogger {

@@ -226,7 +226,7 @@ public partial class Character
 			combatant.MeleeRange = false;
 		}
 
-		if (CombatTarget == null || !WillAttackTarget())
+		if (CombatTarget == null || !WillAttackTarget(true))
 		{
 			if (CombatTarget == null && Combat.Combatants.All(x => x.CombatTarget != this))
 			{
@@ -252,7 +252,7 @@ public partial class Character
 			      .Aggregate(attack.Quality, (x, y) => y.GetQuality(x));
 	}
 
-	private bool WillAttackTarget()
+	private bool WillAttackTarget(bool ignoreTemporary)
 	{
 		if (CombatTarget == null)
 		{
@@ -278,7 +278,12 @@ public partial class Character
 
 		if (!CombatSettings.AttackHelpless)
 		{
-			if (charTarget?.IsHelpless == true || charTarget?.PositionState.Upright == false)
+			if (charTarget?.IsHelpless == true)
+			{
+				return false;
+			}
+
+			if (charTarget?.PositionState.Upright == false && !ignoreTemporary)
 			{
 				return false;
 			}

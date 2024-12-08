@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using MudSharp.Models;
 using MudSharp.Character;
 using MudSharp.Database;
@@ -123,8 +124,10 @@ public abstract class BaseBoneProto : BodypartPrototype, IBone
 			case "primary":
 				return BuildingCommandPrimary(builder, command);
 			case "inside":
+			case "internal":
 				return BuildingCommandInside(builder, command);
 			case "removeinside":
+			case "removeinternal":
 				return BuildingCommandRemoveInside(builder, command);
 			case "cover":
 				return BuildingCommandCover(builder, command);
@@ -301,11 +304,13 @@ public abstract class BaseBoneProto : BodypartPrototype, IBone
 			return false;
 		}
 
-		if (!double.TryParse(command.PopSpeech(), out var hitchance) || hitchance <= 0.0)
+		if (!command.PopSpeech().TryParsePercentage(builder.Account.Culture, out var hitchance) || hitchance <= 0.0)
 		{
-			builder.OutputHandler.Send("The hit chance must be a number greater than 0.");
+			builder.OutputHandler.Send("The hit chance must be a percentage greater than 0.");
 			return false;
 		}
+
+		hitchance *= 100.0;
 
 		var group = default(string);
 		if (!command.IsFinished)
@@ -313,14 +318,18 @@ public abstract class BaseBoneProto : BodypartPrototype, IBone
 			group = command.PopSpeech();
 		}
 
+		Gameworld.SaveManager.Flush();
 		if (part.BoneInfo.ContainsKey(this))
 		{
 			var primary = part.BoneInfo[this].IsPrimaryInternalLocation;
 			part.BoneInfo[this] = new BodypartInternalInfo(hitchance, primary, group);
 			using (new FMDB())
 			{
-				var dbtarget = FMDB.Context.BodypartProtos.Find(part.Id);
-				var dbinternal = dbtarget.BodypartInternalInfosInternalPart.First(x => x.InternalPartId == Id);
+				var dbtarget = FMDB.Context
+				                   .BodypartProtos
+				                   .Include(x => x.BodypartInternalInfosBodypartProto)
+				                   .First(x => x.Id == part.Id);
+				var dbinternal = dbtarget.BodypartInternalInfosBodypartProto.First(x => x.InternalPartId == Id);
 				dbinternal.HitChance = hitchance;
 				dbinternal.ProximityGroup = group;
 				dbinternal.IsPrimaryOrganLocation = primary;
@@ -328,7 +337,7 @@ public abstract class BaseBoneProto : BodypartPrototype, IBone
 			}
 
 			builder.OutputHandler.Send(
-				$"You update the {FullDescription().Colour(Telnet.Yellow)} bone to be inside the {part.FullDescription().Colour(Telnet.Yellow)} bodypart with a hit chance of {hitchance.ToString("P3", builder).ColourValue()}, proximity group of {group?.ColourValue() ?? "None".Colour(Telnet.Red)}.");
+				$"You update the {FullDescription().Colour(Telnet.Yellow)} bone to be inside the {part.FullDescription().Colour(Telnet.Yellow)} bodypart with a hit chance of {(100.0 * hitchance).ToString("P3", builder).ColourValue()}, proximity group of {group?.ColourValue() ?? "None".Colour(Telnet.Red)}.");
 			return true;
 		}
 
@@ -346,7 +355,7 @@ public abstract class BaseBoneProto : BodypartPrototype, IBone
 		}
 
 		builder.OutputHandler.Send(
-			$"You set the {FullDescription().Colour(Telnet.Yellow)} bone to be inside the {part.FullDescription().Colour(Telnet.Yellow)} bodypart with a hit chance of {hitchance.ToString("P3", builder).ColourValue()}, proximity group of {group?.ColourValue() ?? "None".Colour(Telnet.Red)}.");
+			$"You set the {FullDescription().Colour(Telnet.Yellow)} bone to be inside the {part.FullDescription().Colour(Telnet.Yellow)} bodypart with a hit chance of {(100.0 * hitchance).ToString("P3", builder).ColourValue()}, proximity group of {group?.ColourValue() ?? "None".Colour(Telnet.Red)}.");
 		return true;
 	}
 

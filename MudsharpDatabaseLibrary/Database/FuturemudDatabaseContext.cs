@@ -25,6 +25,7 @@ namespace MudSharp.Database
 				optionsBuilder.UseLazyLoadingProxies();
 				optionsBuilder.UseMySql(ConnectionString, ServerVersion.AutoDetect(ConnectionString));
 				optionsBuilder.LogTo(Console.WriteLine, new[] {DbLoggerCategory.Migrations.Name});
+				optionsBuilder.EnableSensitiveDataLogging();
 			}
 		}
 

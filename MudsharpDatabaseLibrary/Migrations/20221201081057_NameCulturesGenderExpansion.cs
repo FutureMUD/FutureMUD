@@ -53,19 +53,19 @@ namespace MudSharp.Migrations
 
             migrationBuilder.Sql(@"INSERT INTO CulturesNameCultures (CultureId, NameCultureId, Gender)
 SELECT Id, NameCultureId, 0
-FROM cultures");
+FROM Cultures");
             migrationBuilder.Sql(@"INSERT INTO CulturesNameCultures (CultureId, NameCultureId, Gender)
 SELECT Id, NameCultureId, 1
-FROM cultures");
+FROM Cultures");
             migrationBuilder.Sql(@"INSERT INTO CulturesNameCultures (CultureId, NameCultureId, Gender)
 SELECT Id, NameCultureId, 2
-FROM cultures");
+FROM Cultures");
             migrationBuilder.Sql(@"INSERT INTO CulturesNameCultures (CultureId, NameCultureId, Gender)
 SELECT Id, NameCultureId, 3
-FROM cultures");
+FROM Cultures");
             migrationBuilder.Sql(@"INSERT INTO CulturesNameCultures (CultureId, NameCultureId, Gender)
 SELECT Id, NameCultureId, 4
-FROM cultures");
+FROM Cultures");
 
 			migrationBuilder.AddForeignKey(
                 name: "FK_ActiveProjects_Characters",

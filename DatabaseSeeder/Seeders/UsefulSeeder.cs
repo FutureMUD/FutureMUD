@@ -9668,6 +9668,30 @@ end if",
 	{
 		AddTag(context, "Functions", "");
 
+
+		// Clothing
+		AddTag(context, "Worn Items", "Functions");
+		AddTag(context, "Footwear", "Worn Items");
+		AddTag(context, "Socks", "Worn Items");
+		AddTag(context, "Legwear", "Worn Items");
+		AddTag(context, "Bodywear", "Worn Items");
+		AddTag(context, "Underwear", "Worn Items");
+		AddTag(context, "Belts", "Worn Items");
+		AddTag(context, "Gloves", "Worn Items");
+		AddTag(context, "Hats", "Worn Items");
+		AddTag(context, "Spectacles", "Worn Items");
+		AddTag(context, "Goggles", "Worn Items");
+		AddTag(context, "Scarves", "Worn Items");
+		AddTag(context, "Headwear", "Worn Items");
+		AddTag(context, "Fashion Accessories", "Worn Items");
+		AddTag(context, "Jewellery", "Worn Items");
+		AddTag(context, "Rings", "Jewellery");
+		AddTag(context, "Necklaces", "Jewellery");
+		AddTag(context, "Bracelets", "Jewellery");
+		AddTag(context, "Anklets", "Jewellery");
+		AddTag(context, "Earrings", "Jewellery");
+		AddTag(context, "Piercings", "Jewellery");
+
 		// Separation
 		AddTag(context, "Separation", "Functions");
 		AddTag(context, "Cutting", "Separation");
@@ -10188,6 +10212,9 @@ end if",
 		AddTag(context, "Lead", "Raw Materials");
 
 		AddTag(context, "Lighting", "Market");
+		AddTag(context, "Candles", "Lighting");
+		AddTag(context, "Torches", "Lighting");
+		AddTag(context, "Lamps", "Lighting");
 
 		context.SaveChanges();
 	}

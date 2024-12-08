@@ -29,6 +29,24 @@ public abstract class GameItemComponentProto : EditableItem, IGameItemComponentP
 		_noSave = false;
 	}
 
+	/// <summary>
+	/// Use this constructor if you're calling DoDatabaseInsert manually
+	/// </summary>
+	/// <param name="gameworld"></param>
+	/// <param name="name"></param>
+	/// <param name="originator"></param>
+	protected GameItemComponentProto(IFuturemud gameworld, string name, IAccount originator) : base(originator)
+	{
+		Gameworld = gameworld;
+		_name = name;
+	}
+
+	/// <summary>
+	/// This constructor inserts into the database
+	/// </summary>
+	/// <param name="gameworld"></param>
+	/// <param name="originator"></param>
+	/// <param name="type"></param>
 	protected GameItemComponentProto(IFuturemud gameworld, IAccount originator, string type)
 		: base(originator)
 	{
@@ -60,6 +78,32 @@ public abstract class GameItemComponentProto : EditableItem, IGameItemComponentP
 		}
 
 		Changed = true;
+	}
+
+	protected void DoDatabaseInsert(string type)
+	{
+		_id = Gameworld.ItemComponentProtos.NextID();
+		using (new FMDB())
+		{
+			var dbproto = new Models.GameItemComponentProto
+			{
+				Id = Id,
+				RevisionNumber = RevisionNumber,
+				EditableItem = new Models.EditableItem
+				{
+					BuilderAccountId = BuilderAccountID,
+					BuilderDate = BuilderDate,
+					RevisionStatus = (int)Status
+				},
+				Description = Description,
+				Name = Name,
+				Type = type,
+				Definition = SaveToXml().ToString()
+			};
+			FMDB.Context.GameItemComponentProtos.Add(dbproto);
+			FMDB.Context.EditableItems.Add(dbproto.EditableItem);
+			FMDB.Context.SaveChanges();
+		}
 	}
 
 	public override string FrameworkItemType => "GameItemComponentProto";
@@ -110,8 +154,8 @@ public abstract class GameItemComponentProto : EditableItem, IGameItemComponentP
 			case "keywords":
 				return BuildingCommand_Keywords(actor, command);
 			default:
-                return BuildingCommand_Help(actor);
-        }
+				return BuildingCommand_Help(actor);
+		}
 	}
 
 	public virtual string ShowBuildingHelp => "This component does not yet have specific help.";
@@ -193,10 +237,10 @@ public abstract class GameItemComponentProto : EditableItem, IGameItemComponentP
 			{
 				Id = Id,
 				RevisionNumber = FMDB.Context.GameItemComponentProtos.Where(x => x.Id == Id)
-				                     .Select(x => x.RevisionNumber)
-				                     .AsEnumerable()
-				                     .DefaultIfEmpty(0)
-				                     .Max() + 1,
+									 .Select(x => x.RevisionNumber)
+									 .AsEnumerable()
+									 .DefaultIfEmpty(0)
+									 .Max() + 1,
 				EditableItem = new Models.EditableItem()
 			};
 			FMDB.Context.EditableItems.Add(dbnew.EditableItem);

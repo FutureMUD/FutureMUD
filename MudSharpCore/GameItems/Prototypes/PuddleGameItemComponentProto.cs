@@ -37,7 +37,7 @@ namespace MudSharp.GameItems.Prototypes
 			ItemPrototype = gameworld.ItemProtos.LastOrDefault(x => x.IsItemType<PuddleGameItemComponentProto>());
 			if (ItemPrototype == null)
 			{
-				var comp = new PuddleGameItemComponentProto(gameworld, null);
+				var comp = new PuddleGameItemComponentProto(gameworld, "Puddle", null);
 				gameworld.Add(comp);
 				comp.ChangeStatus(RevisionStatus.Current, "Automatically generated", null);
 				var proto = new GameItemProto(gameworld, null);
@@ -151,8 +151,11 @@ namespace MudSharp.GameItems.Prototypes
 		}
 
 		#region Constructors
-		protected PuddleGameItemComponentProto(IFuturemud gameworld, IAccount originator) : base(gameworld, originator, "Puddle")
+
+		private PuddleGameItemComponentProto(IFuturemud gameworld, string name, IAccount originator) : base(gameworld, name, originator)
 		{
+			Description = "Turns an item into a puddle";
+			DoDatabaseInsert("Puddle");
 		}
 
 		protected PuddleGameItemComponentProto(Models.GameItemComponentProto proto, IFuturemud gameworld) : base(proto, gameworld)

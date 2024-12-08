@@ -122,6 +122,7 @@ public partial class CultureSeeder
 		// TODO
 		if (questionAnswers["seednames"].EqualToAny("y", "yes"))
 		{
+			SeedMedievalEuropeNames();
 		}
 
 		if (questionAnswers["seedlanguages"].EqualToAny("y", "yes")) SeedMedievalEuropeLanguages();

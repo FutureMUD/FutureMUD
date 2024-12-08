@@ -73,7 +73,7 @@ public partial class CultureSeeder
 	public void AddEthnicityVariable(string ethnicity, string feature, string profile)
 	{
 		if (feature.Equals("Humanoid Frame", StringComparison.InvariantCultureIgnoreCase) &&
-		    !_definitions.ContainsKey("Humanoid Frame"))
+			!_definitions.ContainsKey("Humanoid Frame"))
 			feature = "Frame";
 
 		if (!_definitions.Any(x => x.Key.Equals(feature, StringComparison.OrdinalIgnoreCase)))
@@ -85,7 +85,7 @@ public partial class CultureSeeder
 		}
 
 		if (profile.Equals("All Eye Shapes", StringComparison.OrdinalIgnoreCase) &&
-		    _profiles.ContainsKey("all eye sapes")) profile = "All Eye Sapes";
+			_profiles.ContainsKey("all eye sapes")) profile = "All Eye Sapes";
 
 		if (!_profiles.ContainsKey(profile))
 		{
@@ -98,7 +98,7 @@ public partial class CultureSeeder
 		var foundProfile = _profiles[profile];
 
 		if (_ethnicities[ethnicity].EthnicitiesCharacteristics
-		    .Any(x => x.CharacteristicDefinition == _definitions[feature])) return;
+			.Any(x => x.CharacteristicDefinition == _definitions[feature])) return;
 		_context.EthnicitiesCharacteristics.Add(new EthnicitiesCharacteristics
 		{
 			Ethnicity = _ethnicities[ethnicity],
@@ -830,6 +830,299 @@ public partial class CultureSeeder
 
 	public void SeedMedievalHeritage()
 	{
+		AddEthnicity(_humanRace, "German", "Germanic", "O-A High Negative", 0, 0,
+			description:
+			"The German peoples are a people found in many parts of Central Europe. They are typically characteristised by fair skin, fair hair and light eyes.");
+		AddEthnicity(_humanRace, "Austrian", "Germanic", "O-A High Negative", 0, 0,
+			description:
+			"The Austrian peoples are a Germanic people found all over the Holy Roman Empire, starting to emerge as a distinct identity from other Germans. They are typically characteristised by fair skin, fair hair and light eyes.");
+		AddEthnicity(_humanRace, "Dutch", "Germanic", "O-A High Negative", 0, 0,
+			description:
+			"The Dutch peoples are a people found in the low countries of the northern coast of Central Europe. They are typically characteristised by fair skin, fair hair and light eyes.");
+		AddEthnicity(_humanRace, "French", "Germanic", "O-A High Negative", 0, 0,
+			description:
+			"The French peoples are a people found in many areas of France and surrounding Central and Western Europe. They are typically characteristised by fair skin, fair hair and light eyes.");
+		AddEthnicity(_humanRace, "Occitan", "Germanic", "O-A High Negative", 0, 0,
+			description:
+			"The Occitan peoples are a people found in the Southern parts of the Kingdom of France. They are typically characteristised by fair skin, fair hair and light eyes.");
+
+
+		AddEthnicity(_humanRace, "Venetian", "Italic", "O-A High Negative", 0, 0,
+			description:
+			"The Venetian peoples are a group of Italian peoples from Northeast of the Italian peninsula. They are typically characterised by olive skin, dark hair and dark eyes.");
+		AddEthnicity(_humanRace, "Florentine", "Italic", "O-A High Negative", 0, 0,
+			description:
+			"The Florentine peoples are a group of Italian peoples from North of the Italian peninsula. They are typically characterised by olive skin, dark hair and dark eyes.");
+		AddEthnicity(_humanRace, "Neapolitan", "Italic", "O-A High Negative", 0, 0,
+			description:
+			"The Neapolitan peoples are a group of Italian peoples from south of the Italian peninsula. They are typically characterised by olive skin, dark hair and dark eyes.");
+		AddEthnicity(_humanRace, "Milanese", "Italic", "O-A High Negative", 0, 0,
+			description:
+			"The Milanese (or sometimes Lombard) peoples are a group of Italian peoples from Northwest of the Italian peninsula. They are typically characterised by olive skin, dark hair and dark eyes.");
+		AddEthnicity(_humanRace, "Sicilian", "Italic", "O-A High Negative", 0, 0,
+			description:
+			"The Sicilian peoples are a group of Italian peoples from the island of Sicily. They are typically characterised by olive skin, dark hair and dark eyes.");
+		AddEthnicity(_humanRace, "Corsican", "Italic", "O-A High Negative", 0, 0,
+			description:
+			"The Corsican peoples are a group of Italian peoples from the island of Corsica. They are typically characterised by olive skin, dark hair and dark eyes.");
+		AddEthnicity(_humanRace, "Sardinian", "Italic", "O-A High Negative", 0, 0,
+			description:
+			"The SiciSardinianlian peoples are a group of Italian peoples from the island of Sardinia. They are typically characterised by olive skin, dark hair and dark eyes.");
+
+		AddEthnicity(_humanRace, "Castilian", "Iberian", "O-A High Negative", 0, 0,
+			description:
+			"The Castilian peoples are an Iberian people from the Kingdom of Castille in central Iberia. They are typically characterised by olive skin, dark hair and dark eyes.");
+		AddEthnicity(_humanRace, "Catalan", "Iberian", "O-A High Negative", 0, 0,
+			description:
+			"The Catalan peoples are an Iberian people from the Kingdom of Aragon in eastern Iberia. They are typically characterised by olive skin, dark hair and dark eyes.");
+		AddEthnicity(_humanRace, "Galicians", "Iberian", "O-A High Negative", 0, 0,
+			description:
+			"The Galicians peoples are an Iberian people from the Kingdom of Galicia, in northwest Iberia. They are typically characterised by olive skin, dark hair and dark eyes.");
+		AddEthnicity(_humanRace, "Portugese", "Iberian", "O-A High Negative", 0, 0,
+			description:
+			"The Portugese peoples are an Iberian people from the Kingdom of Portugal, in western Iberia. They are typically characterised by olive skin, dark hair and dark eyes.");
+		AddEthnicity(_humanRace, "Basque", "Iberian", "O-A High Negative", 0, 0,
+			description:
+			"The Basque peoples are a unique ethno-linguistic group in northern Iberia and southern France. They are typically characterised by olive skin, dark hair and dark eyes.");
+		
+		
+		
+		AddEthnicity(_humanRace, "Gaelic", "Celtic", "Majority O Minor A", 0, 0,
+			description:
+			"The Gaelic peoples are a Celtic people found in Scotland and Ireland. They are typically characterised by fair skin, fair hair (particularly red or brown hair) and light eyes.");
+		AddEthnicity(_humanRace, "Welsh", "Celtic", "Majority O Minor A", 0, 0,
+			description:
+			"The Welsh peoples are a Celtic people found in Wales. They are typically characterised by fair skin, fair hair (particularly red or brown hair) and light eyes.");
+		AddEthnicity(_humanRace, "Breton", "Celtic", "Majority O Minor A", 0, 0,
+			description:
+			"The Breton peoples are a Celtic people found in Northwestern France. They are typically characterised by fair skin, fair hair (particularly red or brown hair) and light eyes.");
+
+
+		AddEthnicity(_humanRace, "Polish", "Slavic", "O-A High Negative", 0, 0,
+			description:
+			"The Polish peoples are a Slavic people found in Central and Eastern Europe. They are typically characterised by fair skin, fair hair and either light or dark eyes.");
+		AddEthnicity(_humanRace, "Czech", "Slavic", "O-A High Negative", 0, 0,
+			description:
+			"The Czech peoples are a the people of Bohemia and many surrounding areas. They are typically characterised by fair skin, fair hair and either light or dark eyes.");
+		AddEthnicity(_humanRace, "Slovak", "Slavic", "O-A High Negative", 0, 0,
+			description:
+			"The Slovak peoples are a Slavic people found mostly in Moravia, under the rule of Hungary. They are typically characterised by fair skin, fair hair and either light or dark eyes.");
+		AddEthnicity(_humanRace, "Ruthenian", "Slavic", "O-A High Negative", 0, 0,
+			description:
+			"The Ruthenian peoples are a Slavic people of Eastern Europe, in the Grand Duchy of Lithuania. They are typically characterised by fair skin, fair hair and either light or dark eyes.");
+
+		
+		AddEthnicity(_humanRace, "Lithuanian", "Baltic", "O-A High Negative", 0, 0,
+			description:
+			"The Lithuanian peoples are a Baltic people of Eastern Europe. They are typically characterised by fair skin, fair hair and either light or dark eyes.");
+		AddEthnicity(_humanRace, "Estonian", "Baltic", "O-A High Negative", 0, 0,
+			description:
+			"The Estonian peoples are a Baltic people of Eastern Europe. They are typically characterised by fair skin, fair hair and either light or dark eyes.");
+		AddEthnicity(_humanRace, "Latvian", "Baltic", "O-A High Negative", 0, 0,
+			description:
+			"The Latvian peoples are a Baltic people of Eastern Europe. They are typically characterised by fair skin, fair hair and either light or dark eyes.");
+
+
+		AddEthnicity(_humanRace, "Greek", "Mediterranian", "O-A High Negative", 0, 0,
+			description:
+			"The Greek peoples are an Indo-European ethno-linguistic group found to some extent most everywhere in the eastern Mediterranian (though predominantly Greece, Anatolia and Southern Italy). They are typically characterised by fair to olive skin, dark hair and dark eyes.");
+		AddEthnicity(_humanRace, "Turkish", "Middle Eastern", "A Dominant", 0, 0,
+			description:
+			"The Turkish peoples are an Indo-European ethno-linguistic group found predominantly in Turkey and Central Asia. They are typically characterised by dark olive skin, dark hair and dark eyes.");
+		AddEthnicity(_humanRace, "Arabic", "Middle Eastern", "Majority O Minor A", 0, 0,
+			description:
+			"The Arabic peoples are an Indo-European ethno-linguistic group found predominantly in the Arabian Peninsula, North Africa and the Horn of Africa. They are typically characterised by olive or light brown skin, dark hair and dark eyes.");
+		AddEthnicity(_humanRace, "Persian", "Middle Eastern", "Majority O Minor A", 0, 0,
+			description:
+			"The Persian peoples are an Indo-European ethno-linguistic group found in Central Asia and the Middle East. They are typically characterised by olive skin, dark hair and dark eyes.");
+		AddEthnicity(_humanRace, "Nordic", "Western European", "A Dominant", 0, 0,
+			description:
+			"The Nordic peoples are an Indo-European ethno-linguistic group found in Northern Europe. They are typically characterised by very fair skin, fair hair and light eyes.");
+		AddEthnicity(_humanRace, "Moorish", "African", "Majority O", 0, 0,
+			description:
+			"The Moorish peoples are a fusion of Afro-Asiatic, Hispanic and Arabic ethno-linguistic group found in Southern Iberia. They are characterised by olive or light brown skin, dark hair and dark eyes.");
+		AddEthnicity(_humanRace, "North African", "African", "Majority O", 0, 0,
+			description:
+			"The North African peoples are an Afro-Asiatic ethno-linguistic group found in North Africa. They are characterised by olive or light brown skin, dark hair and dark eyes.");
+		AddEthnicity(_humanRace, "Anglo-Saxon", "Western European", "Majority O Minor A", 0, 0,
+			description:
+			"The Anglo-Saxon peoples are an Indo-European ethno-linguistic group found in the British Isles. They are typically characteristised by fair skin, fair hair and light eyes.");
+
+		
+		AddEthnicityVariable("Anglo-Saxon", "Distinctive Feature", "All Distinctive Features");
+		AddEthnicityVariable("Anglo-Saxon", "Eye Colour", "brown_green_blue_eyes");
+		AddEthnicityVariable("Anglo-Saxon", "Eye Shape", "All Eye Shapes");
+		AddEthnicityVariable("Anglo-Saxon", "Facial Hair Colour", "brown_blonde_grey_hair");
+		AddEthnicityVariable("Anglo-Saxon", "Facial Hair Style", "All Facial Hair Styles");
+		AddEthnicityVariable("Anglo-Saxon", "Hair Colour", "brown_blonde_grey_hair");
+		AddEthnicityVariable("Anglo-Saxon", "Hair Style", "All Hair Styles");
+		AddEthnicityVariable("Anglo-Saxon", "Humanoid Frame", "All Frames");
+		AddEthnicityVariable("Anglo-Saxon", "Nose", "All Noses");
+		AddEthnicityVariable("Anglo-Saxon", "Person Word", "Weighted Person Words");
+		AddEthnicityVariable("Anglo-Saxon", "Skin Colour", "fair_skin");
+		AddEthnicityVariable("Arabic", "Distinctive Feature", "All Distinctive Features");
+		AddEthnicityVariable("Arabic", "Eye Colour", "brown_blue_eyes");
+		AddEthnicityVariable("Arabic", "Eye Shape", "All Eye Shapes");
+		AddEthnicityVariable("Arabic", "Ears", "All Ears");
+		AddEthnicityVariable("Arabic", "Facial Hair Colour", "black_brown_grey_hair");
+		AddEthnicityVariable("Arabic", "Facial Hair Style", "All Facial Hair Styles");
+		AddEthnicityVariable("Arabic", "Hair Colour", "black_brown_grey_hair");
+		AddEthnicityVariable("Arabic", "Hair Style", "All Hair Styles");
+		AddEthnicityVariable("Arabic", "Humanoid Frame", "All Frames");
+		AddEthnicityVariable("Arabic", "Nose", "All Noses");
+		AddEthnicityVariable("Arabic", "Ears", "All Ears");
+		AddEthnicityVariable("Arabic", "Person Word", "Weighted Person Words");
+		AddEthnicityVariable("Arabic", "Skin Colour", "swarthy_skin");
+		
+		AddEthnicityVariable("Celtic", "Distinctive Feature", "All Distinctive Features");
+		AddEthnicityVariable("Celtic", "Eye Colour", "brown_green_blue_eyes");
+		AddEthnicityVariable("Celtic", "Eye Shape", "All Eye Shapes");
+		AddEthnicityVariable("Celtic", "Ears", "All Ears");
+		AddEthnicityVariable("Celtic", "Facial Hair Colour", "brown_blonde_red_grey_hair");
+		AddEthnicityVariable("Celtic", "Facial Hair Style", "All Facial Hair Styles");
+		AddEthnicityVariable("Celtic", "Hair Colour", "brown_blonde_red_grey_hair");
+		AddEthnicityVariable("Celtic", "Hair Style", "All Hair Styles");
+		AddEthnicityVariable("Celtic", "Humanoid Frame", "All Frames");
+		AddEthnicityVariable("Celtic", "Nose", "All Noses");
+		AddEthnicityVariable("Celtic", "Ears", "All Ears");
+		AddEthnicityVariable("Celtic", "Person Word", "Weighted Person Words");
+		AddEthnicityVariable("Celtic", "Skin Colour", "fair_skin");
+		
+		AddEthnicityVariable("German", "Distinctive Feature", "All Distinctive Features");
+		AddEthnicityVariable("German", "Eye Colour", "brown_green_blue_eyes");
+		AddEthnicityVariable("German", "Eye Shape", "All Eye Shapes");
+		AddEthnicityVariable("German", "Ears", "All Ears");
+		AddEthnicityVariable("German", "Facial Hair Colour", "brown_blonde_grey_hair");
+		AddEthnicityVariable("German", "Facial Hair Style", "All Facial Hair Styles");
+		AddEthnicityVariable("German", "Hair Colour", "brown_blonde_grey_hair");
+		AddEthnicityVariable("German", "Hair Style", "All Hair Styles");
+		AddEthnicityVariable("German", "Humanoid Frame", "All Frames");
+		AddEthnicityVariable("German", "Nose", "All Noses");
+		AddEthnicityVariable("German", "Ears", "All Ears");
+		AddEthnicityVariable("German", "Person Word", "Weighted Person Words");
+		AddEthnicityVariable("German", "Skin Colour", "fair_skin");
+		AddEthnicityVariable("Greek", "Distinctive Feature", "All Distinctive Features");
+		AddEthnicityVariable("Greek", "Eye Colour", "brown_green_eyes");
+		AddEthnicityVariable("Greek", "Eye Shape", "All Eye Shapes");
+		AddEthnicityVariable("Greek", "Ears", "All Ears");
+		AddEthnicityVariable("Greek", "Facial Hair Colour", "black_brown_grey_hair");
+		AddEthnicityVariable("Greek", "Facial Hair Style", "All Facial Hair Styles");
+		AddEthnicityVariable("Greek", "Hair Colour", "black_brown_grey_hair");
+		AddEthnicityVariable("Greek", "Hair Style", "All Hair Styles");
+		AddEthnicityVariable("Greek", "Humanoid Frame", "All Frames");
+		AddEthnicityVariable("Greek", "Nose", "All Noses");
+		AddEthnicityVariable("Greek", "Ears", "All Ears");
+		AddEthnicityVariable("Greek", "Person Word", "Weighted Person Words");
+		AddEthnicityVariable("Greek", "Skin Colour", "fair_olive_skin");
+		
+		AddEthnicityVariable("Hispanic", "Distinctive Feature", "All Distinctive Features");
+		AddEthnicityVariable("Hispanic", "Eye Colour", "brown_green_eyes");
+		AddEthnicityVariable("Hispanic", "Eye Shape", "All Eye Shapes");
+		AddEthnicityVariable("Hispanic", "Ears", "All Ears");
+		AddEthnicityVariable("Hispanic", "Facial Hair Colour", "black_brown_grey_hair");
+		AddEthnicityVariable("Hispanic", "Facial Hair Style", "All Facial Hair Styles");
+		AddEthnicityVariable("Hispanic", "Hair Colour", "black_brown_grey_hair");
+		AddEthnicityVariable("Hispanic", "Hair Style", "All Hair Styles");
+		AddEthnicityVariable("Hispanic", "Humanoid Frame", "All Frames");
+		AddEthnicityVariable("Hispanic", "Nose", "All Noses");
+		AddEthnicityVariable("Hispanic", "Ears", "All Ears");
+		AddEthnicityVariable("Hispanic", "Person Word", "Weighted Person Words");
+		AddEthnicityVariable("Hispanic", "Skin Colour", "fair_olive_skin");
+		
+		AddEthnicityVariable("Italic", "Distinctive Feature", "All Distinctive Features");
+		AddEthnicityVariable("Italic", "Eye Colour", "brown_green_eyes");
+		AddEthnicityVariable("Italic", "Eye Shape", "All Eye Shapes");
+		AddEthnicityVariable("Italic", "Ears", "All Ears");
+		AddEthnicityVariable("Italic", "Facial Hair Colour", "black_brown_grey_hair");
+		AddEthnicityVariable("Italic", "Facial Hair Style", "All Facial Hair Styles");
+		AddEthnicityVariable("Italic", "Hair Colour", "black_brown_grey_hair");
+		AddEthnicityVariable("Italic", "Hair Style", "All Hair Styles");
+		AddEthnicityVariable("Italic", "Humanoid Frame", "All Frames");
+		AddEthnicityVariable("Italic", "Nose", "All Noses");
+		AddEthnicityVariable("Italic", "Ears", "All Ears");
+		AddEthnicityVariable("Italic", "Person Word", "Weighted Person Words");
+		AddEthnicityVariable("Italic", "Skin Colour", "fair_olive_skin");
+		
+		AddEthnicityVariable("North African", "Distinctive Feature", "All Distinctive Features");
+		AddEthnicityVariable("North African", "Eye Colour", "brown_blue_eyes");
+		AddEthnicityVariable("North African", "Eye Shape", "All Eye Shapes");
+		AddEthnicityVariable("North African", "Ears", "All Ears");
+		AddEthnicityVariable("North African", "Facial Hair Colour", "black_brown_grey_hair");
+		AddEthnicityVariable("North African", "Facial Hair Style", "All Facial Hair Styles");
+		AddEthnicityVariable("North African", "Hair Colour", "black_brown_grey_hair");
+		AddEthnicityVariable("North African", "Hair Style", "All Hair Styles");
+		AddEthnicityVariable("North African", "Humanoid Frame", "All Frames");
+		AddEthnicityVariable("North African", "Nose", "All Noses");
+		AddEthnicityVariable("North African", "Person Word", "Weighted Person Words");
+		AddEthnicityVariable("North African", "Skin Colour", "swarthy_skin");
+		AddEthnicityVariable("Moorish", "Distinctive Feature", "All Distinctive Features");
+		AddEthnicityVariable("Moorish", "Eye Colour", "brown_blue_eyes");
+		AddEthnicityVariable("Moorish", "Eye Shape", "All Eye Shapes");
+		AddEthnicityVariable("Moorish", "Ears", "All Ears");
+		AddEthnicityVariable("Moorish", "Facial Hair Colour", "black_brown_grey_hair");
+		AddEthnicityVariable("Moorish", "Facial Hair Style", "All Facial Hair Styles");
+		AddEthnicityVariable("Moorish", "Hair Colour", "black_brown_grey_hair");
+		AddEthnicityVariable("Moorish", "Hair Style", "All Hair Styles");
+		AddEthnicityVariable("Moorish", "Humanoid Frame", "All Frames");
+		AddEthnicityVariable("Moorish", "Nose", "All Noses");
+		AddEthnicityVariable("Moorish", "Person Word", "Weighted Person Words");
+		AddEthnicityVariable("Moorish", "Skin Colour", "swarthy_skin");
+		AddEthnicityVariable("Persian", "Distinctive Feature", "All Distinctive Features");
+		AddEthnicityVariable("Persian", "Eye Colour", "brown_green_eyes");
+		AddEthnicityVariable("Persian", "Eye Shape", "All Eye Shapes");
+		AddEthnicityVariable("Persian", "Ears", "All Ears");
+		AddEthnicityVariable("Persian", "Facial Hair Colour", "black_brown_grey_hair");
+		AddEthnicityVariable("Persian", "Facial Hair Style", "All Facial Hair Styles");
+		AddEthnicityVariable("Persian", "Hair Colour", "black_brown_grey_hair");
+		AddEthnicityVariable("Persian", "Hair Style", "All Hair Styles");
+		AddEthnicityVariable("Persian", "Humanoid Frame", "All Frames");
+		AddEthnicityVariable("Persian", "Nose", "All Noses");
+		AddEthnicityVariable("Persian", "Ears", "All Ears");
+		AddEthnicityVariable("Persian", "Person Word", "Weighted Person Words");
+		AddEthnicityVariable("Persian", "Skin Colour", "fair_olive_skin");
+		
+		AddEthnicityVariable("Nordic", "Distinctive Feature", "All Distinctive Features");
+		AddEthnicityVariable("Nordic", "Eye Colour", "brown_green_blue_eyes");
+		AddEthnicityVariable("Nordic", "Eye Shape", "All Eye Shapes");
+		AddEthnicityVariable("Nordic", "Ears", "All Ears");
+		AddEthnicityVariable("Nordic", "Facial Hair Colour", "blonde_red_grey_hair");
+		AddEthnicityVariable("Nordic", "Facial Hair Style", "All Facial Hair Styles");
+		AddEthnicityVariable("Nordic", "Hair Colour", "blonde_red_grey_hair");
+		AddEthnicityVariable("Nordic", "Hair Style", "All Hair Styles");
+		AddEthnicityVariable("Nordic", "Humanoid Frame", "All Frames");
+		AddEthnicityVariable("Nordic", "Nose", "All Noses");
+		AddEthnicityVariable("Nordic", "Ears", "All Ears");
+		AddEthnicityVariable("Nordic", "Person Word", "Weighted Person Words");
+		AddEthnicityVariable("Nordic", "Skin Colour", "fair_skin");
+		AddEthnicityVariable("Slavic", "Distinctive Feature", "All Distinctive Features");
+		AddEthnicityVariable("Slavic", "Eye Colour", "brown_green_blue_eyes");
+		AddEthnicityVariable("Slavic", "Eye Shape", "All Eye Shapes");
+		AddEthnicityVariable("Slavic", "Ears", "All Ears");
+		AddEthnicityVariable("Slavic", "Facial Hair Colour", "brown_blonde_grey_hair");
+		AddEthnicityVariable("Slavic", "Facial Hair Style", "All Facial Hair Styles");
+		AddEthnicityVariable("Slavic", "Hair Colour", "brown_blonde_grey_hair");
+		AddEthnicityVariable("Slavic", "Hair Style", "All Hair Styles");
+		AddEthnicityVariable("Slavic", "Humanoid Frame", "All Frames");
+		AddEthnicityVariable("Slavic", "Nose", "All Noses");
+		AddEthnicityVariable("Slavic", "Ears", "All Ears");
+		AddEthnicityVariable("Slavic", "Person Word", "Weighted Person Words");
+		AddEthnicityVariable("Slavic", "Skin Colour", "fair_olive_skin");
+		
+		AddEthnicityVariable("Turkish", "Distinctive Feature", "All Distinctive Features");
+		AddEthnicityVariable("Turkish", "Eye Colour", "brown_green_eyes");
+		AddEthnicityVariable("Turkish", "Eye Shape", "All Eye Shapes");
+		AddEthnicityVariable("Turkish", "Ears", "All Ears");
+		AddEthnicityVariable("Turkish", "Facial Hair Colour", "black_brown_grey_hair");
+		AddEthnicityVariable("Turkish", "Facial Hair Style", "All Facial Hair Styles");
+		AddEthnicityVariable("Turkish", "Hair Colour", "black_brown_grey_hair");
+		AddEthnicityVariable("Turkish", "Hair Style", "All Hair Styles");
+		AddEthnicityVariable("Turkish", "Humanoid Frame", "All Frames");
+		AddEthnicityVariable("Turkish", "Nose", "All Noses");
+		AddEthnicityVariable("Turkish", "Ears", "All Ears");
+		AddEthnicityVariable("Turkish", "Person Word", "Weighted Person Words");
+		AddEthnicityVariable("Turkish", "Skin Colour", "olive_skin");
+		
+		_context.SaveChanges();
 	}
 
 	public void SeedRomanHeritage()
@@ -1969,62 +2262,62 @@ Romanised Barbarians adopt Roman names and depending on the era they may be able
 			@"// You will need to expand this as you add new playable races
 switch (@ch.Race)
   case (ToRace(""Human""))
-    if (@ch.Ethnicity.Group == ""Edain"")
-      if (@ch.Gender == ToGender(""Male""))
-        // 7'2""
-        return 218.5
-      else
-        // 6'11""
-        return 211
-      end if
-    end if
-    if (@ch.Gender == ToGender(""Male""))
-      // 6'9""
-      return 205.75
-    else
-      // 6'7""
-      return 200.5
-    end if
+	if (@ch.Ethnicity.Group == ""Edain"")
+	  if (@ch.Gender == ToGender(""Male""))
+		// 7'2""
+		return 218.5
+	  else
+		// 6'11""
+		return 211
+	  end if
+	end if
+	if (@ch.Gender == ToGender(""Male""))
+	  // 6'9""
+	  return 205.75
+	else
+	  // 6'7""
+	  return 200.5
+	end if
   case (ToRace(""Elf""))
-    if (@ch.Gender == ToGender(""Male""))
-      // 6'9""
-      return 205.75
-    else
-      // 6'7""
-      return 200.5
-    end if
+	if (@ch.Gender == ToGender(""Male""))
+	  // 6'9""
+	  return 205.75
+	else
+	  // 6'7""
+	  return 200.5
+	end if
   case (ToRace(""Dwarf""))
-    if (@ch.Gender == ToGender(""Male""))
-      // 4'0""
-      return 121
-    else
-      // 3'11""
-      return 119
-    end if
+	if (@ch.Gender == ToGender(""Male""))
+	  // 4'0""
+	  return 121
+	else
+	  // 3'11""
+	  return 119
+	end if
   case (ToRace(""Hobbit""))
-    if (@ch.Gender == ToGender(""Male""))
-      // 4'0""
-      return 121
-    else
-      // 3'11""
-      return 119
-    end if
+	if (@ch.Gender == ToGender(""Male""))
+	  // 4'0""
+	  return 121
+	else
+	  // 3'11""
+	  return 119
+	end if
   case (ToRace(""Orc""))
-    if (@ch.Gender == ToGender(""Male""))
-      // 6'0""
-      return 181
-    else
-      // 6'0""
-      return 181
-    end if
+	if (@ch.Gender == ToGender(""Male""))
+	  // 6'0""
+	  return 181
+	else
+	  // 6'0""
+	  return 181
+	end if
   case (ToRace(""Troll""))
-    if (@ch.Gender == ToGender(""Male""))
-      // 15'
-      return 510
-    else
-      // 15'
-      return 510
-    end if
+	if (@ch.Gender == ToGender(""Male""))
+	  // 15'
+	  return 510
+	else
+	  // 15'
+	  return 510
+	end if
 end switch
 return 200";
 		_context.FutureProgs.First(x => x.FunctionName == "MaximumWeightChargen").FunctionText =
@@ -2032,81 +2325,81 @@ return 200";
 var bmi as number
 switch (@ch.Race)
   case (ToRace(""Human""))
-    bmi = 50
+	bmi = 50
   case (ToRace(""Elf""))
-    bmi = 30
+	bmi = 30
   case (ToRace(""Hobbit""))
-    bmi = 60
+	bmi = 60
   case (ToRace(""Dwarf""))
-    bmi = 55
+	bmi = 55
   case (ToRace(""Orc""))
-    bmi = 60
+	bmi = 60
   case (ToRace(""Troll""))
-    bmi = 60
+	bmi = 60
   default
-    bmi = 50
+	bmi = 50
 end switch
 return (((@ch.Height / 100) ^ 2) * @bmi) * 1000";
 		_context.FutureProgs.First(x => x.FunctionName == "MinimumHeightChargen").FunctionText =
 			@"// You will need to expand this as you add new playable races
 switch (@ch.Race)
   case (ToRace(""Human""))
-    if (@ch.Ethnicity.Group == ""Edain"")
-      if (@ch.Gender == ToGender(""Male""))
-        // 5'10""
-        return 178
-      else
-        // 5'8""
-        return 173
-      end if
-    end if
-    if (@ch.Gender == ToGender(""Male""))
-      // 5'0""
-      return 152
-    else
-      // 4'10""
-      return 147
-    end if
+	if (@ch.Ethnicity.Group == ""Edain"")
+	  if (@ch.Gender == ToGender(""Male""))
+		// 5'10""
+		return 178
+	  else
+		// 5'8""
+		return 173
+	  end if
+	end if
+	if (@ch.Gender == ToGender(""Male""))
+	  // 5'0""
+	  return 152
+	else
+	  // 4'10""
+	  return 147
+	end if
   case (ToRace(""Elf""))
-    if (@ch.Gender == ToGender(""Male""))
-      // 5'10""
-      return 178
-    else
-      // 5'8""
-      return 173
-    end if
+	if (@ch.Gender == ToGender(""Male""))
+	  // 5'10""
+	  return 178
+	else
+	  // 5'8""
+	  return 173
+	end if
   case (ToRace(""Dwarf""))
-    if (@ch.Gender == ToGender(""Male""))
-      // 3'2""
-      return 97
-    else
-      // 3'1""
-      return 94
-    end if
+	if (@ch.Gender == ToGender(""Male""))
+	  // 3'2""
+	  return 97
+	else
+	  // 3'1""
+	  return 94
+	end if
   case (ToRace(""Hobbit""))
-    if (@ch.Gender == ToGender(""Male""))
-      // 3'0""
-      return 91
-    else
-      // 3'0""
-      return 89
-    end if
+	if (@ch.Gender == ToGender(""Male""))
+	  // 3'0""
+	  return 91
+	else
+	  // 3'0""
+	  return 89
+	end if
   case (ToRace(""Orc""))
-    if (@ch.Gender == ToGender(""Male""))
-      // 4'6""
-      return 137
-    else
-      // 4'6""
-      return 137
-    end if
+	if (@ch.Gender == ToGender(""Male""))
+	  // 4'6""
+	  return 137
+	else
+	  // 4'6""
+	  return 137
+	end if
   case (ToRace(""Troll""))
-    if (@ch.Gender == ToGender(""Male""))
-      // 10'
-      return 300
-    else
-      // 10'
-      return 300
-    end if
+	if (@ch.Gender == ToGender(""Male""))
+	  // 10'
+	  return 300
+	else
+	  // 10'
+	  return 300
+	end if
 end switch
 return 100";
 		_context.FutureProgs.First(x => x.FunctionName == "MinimumWeightChargen").FunctionText =
@@ -2114,19 +2407,19 @@ return 100";
 var bmi as number
 switch (@ch.Race)
   case (ToRace(""Human""))
-    bmi = 16
+	bmi = 16
   case (ToRace(""Elf""))
-    bmi = 12
+	bmi = 12
   case (ToRace(""Hobbit""))
-    bmi = 18
+	bmi = 18
   case (ToRace(""Dwarf""))
-    bmi = 20
+	bmi = 20
   case (ToRace(""Orc""))
-    bmi = 15
+	bmi = 15
   case (ToRace(""Troll""))
-    bmi = 20
+	bmi = 20
   default
-    bmi = 16
+	bmi = 16
 end switch
 return (((@ch.Height / 100) ^ 2) * @bmi) * 1000";
 
@@ -2722,13 +3015,13 @@ if (@ch.Race != ToRace(""Human""))
 end if
 switch (@ch.Ethnicity.Name)
   case (""Gondorian"")
-    return true
+	return true
   case (""Gondorian Dunedain"")
-    return true
+	return true
   case (""Haradrim"")
-    return true
+	return true
   case (""Rohirrim"")
-    return true
+	return true
 end switch
 return true");
 		AddHumanCulture("Rohirrim", "Rohirrim", @"", @"if (@ch.Special)
@@ -2739,13 +3032,13 @@ if (@ch.Race != ToRace(""Human""))
 end if
 switch (@ch.Ethnicity.Name)
   case (""Gondorian"")
-    return true
+	return true
   case (""Gondorian Dunedain"")
-    return true
+	return true
   case (""Dunlending"")
-    return true
+	return true
   case (""Rohirrim"")
-    return true
+	return true
 end switch
 return true");
 		AddHumanCulture("Dunlending", "Dunlending", @"", @"if (@ch.Special)
@@ -2756,11 +3049,11 @@ if (@ch.Race != ToRace(""Human""))
 end if
 switch (@ch.Ethnicity.Name)
   case (""Eriadoran"")
-    return true
+	return true
   case (""Dunlending"")
-    return true
+	return true
   case (""Rohirrim"")
-    return true
+	return true
 end switch
 return true");
 		AddHumanCulture("Dorwinian", "Mannish Sindarin", @"", @"if (@ch.Special)
@@ -2771,11 +3064,11 @@ if (@ch.Race != ToRace(""Human""))
 end if
 switch (@ch.Ethnicity.Name)
   case (""Dorwinrim"")
-    return true
+	return true
   case (""Rhovanion"")
-    return true
+	return true
   case (""Easterling"")
-    return true
+	return true
 end switch
 return true");
 		AddHumanCulture("Dale Folk", "Dalish", @"", @"if (@ch.Special)
@@ -2786,9 +3079,9 @@ if (@ch.Race != ToRace(""Human""))
 end if
 switch (@ch.Ethnicity.Name)
   case (""Dorwinrim"")
-    return true
+	return true
   case (""Rhovanion"")
-    return true
+	return true
 end switch
 return true");
 		AddHumanCulture("Easterling", "Easterling", @"", @"if (@ch.Special)
@@ -2799,9 +3092,9 @@ if (@ch.Race != ToRace(""Human""))
 end if
 switch (@ch.Ethnicity.Name)
   case (""Dorwinrim"")
-    return true
+	return true
   case (""Easterling"")
-    return true
+	return true
 end switch
 return true");
 		AddHumanCulture("Variag", "Variag", @"", @"if (@ch.Special)
@@ -2812,7 +3105,7 @@ if (@ch.Race != ToRace(""Human""))
 end if
 switch (@ch.Ethnicity.Name)
   case (""Variag"")
-    return true
+	return true
 end switch
 return true");
 		AddHumanCulture("Haradrim", "Haradrim", @"", @"if (@ch.Special)
@@ -2823,15 +3116,15 @@ if (@ch.Race != ToRace(""Human""))
 end if
 switch (@ch.Ethnicity.Name)
   case (""Variag"")
-    return true
+	return true
   case (""Haradrim"")
-    return true
+	return true
   case (""Gondorian"")
-    return true
+	return true
   case (""Black Numenorean"")
-    return true
+	return true
   case (""Umbaric"")
-    return true
+	return true
 end switch
 return true");
 		AddHumanCulture("Corsair", "Corsair", @"", @"if (@ch.Special)
@@ -2842,13 +3135,13 @@ if (@ch.Race != ToRace(""Human""))
 end if
 switch (@ch.Ethnicity.Name)
   case (""Haradrim"")
-    return true
+	return true
   case (""Gondorian"")
-    return true
+	return true
   case (""Black Numenorean"")
-    return true
+	return true
   case (""Umbaric"")
-    return true
+	return true
 end switch
 return true");
 

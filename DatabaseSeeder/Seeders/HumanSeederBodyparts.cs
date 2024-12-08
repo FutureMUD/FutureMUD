@@ -770,7 +770,7 @@ public partial class HumanSeeder
 
 		// TORSO
 		CreateBodypart(baseHumanoid, "abdomen", "abdomen", "abdomen", BodypartTypeEnum.Wear, null, Alignment.Front,
-			Orientation.Centre, 80, -1, 150, 50, flesh, SizeCategory.Normal, "Torso", isVital: true, implantSpace: 5,
+			Orientation.Centre, 80, -1, 150, 51, flesh, SizeCategory.Normal, "Torso", isVital: true, implantSpace: 5,
 			stunMultiplier: 0.2);
 		CreateBodypart(baseHumanoid, "rbreast", "right breast", "breast", niDrapeableType, "abdomen",
 			Alignment.FrontRight, Orientation.High, 80, -1, 100, 50, flesh, SizeCategory.Normal, "Torso", isVital: true,
@@ -800,16 +800,16 @@ public partial class HumanSeeder
 			Alignment.RearLeft, Orientation.Centre, 40, -1, 50, 52, flesh, SizeCategory.Normal, "Torso", isVital: false,
 			implantSpace: 5, stunMultiplier: 0.2);
 		CreateBodypart(baseHumanoid, "rshoulder", "right shoulder", "shoulder", niDrapeableType, "rbreast",
-			Alignment.FrontRight, Orientation.High, 80, -1, 75, 50, flesh, SizeCategory.Normal, "Torso", isVital: false,
+			Alignment.FrontRight, Orientation.High, 80, -1, 75, 30, flesh, SizeCategory.Normal, "Torso", isVital: false,
 			implantSpace: 5, stunMultiplier: 0.2);
 		CreateBodypart(baseHumanoid, "lshoulder", "left shoulder", "shoulder", niDrapeableType, "lbreast",
-			Alignment.FrontLeft, Orientation.High, 80, -1, 75, 50, flesh, SizeCategory.Normal, "Torso", isVital: false,
+			Alignment.FrontLeft, Orientation.High, 80, -1, 75, 30, flesh, SizeCategory.Normal, "Torso", isVital: false,
 			implantSpace: 5, stunMultiplier: 0.2);
 		CreateBodypart(baseHumanoid, "rshoulderblade", "right shoulder blade", "shoulder blade",
-			niDrapeableType, "rshoulder", Alignment.RearRight, Orientation.High, 80, -1, 75, 50, flesh,
+			niDrapeableType, "rshoulder", Alignment.RearRight, Orientation.High, 80, -1, 75, 30, flesh,
 			SizeCategory.Normal, "Torso", isVital: false, implantSpace: 5, stunMultiplier: 0.2);
 		CreateBodypart(baseHumanoid, "lshoulderblade", "left shoulder blade", "shoulder blade",
-			niDrapeableType, "lshoulder", Alignment.RearLeft, Orientation.High, 80, -1, 75, 50, flesh,
+			niDrapeableType, "lshoulder", Alignment.RearLeft, Orientation.High, 80, -1, 75, 30, flesh,
 			SizeCategory.Normal, "Torso", isVital: false, implantSpace: 5, stunMultiplier: 0.2);
 		if (!_questionAnswers["inventory"].EqualTo("hands"))
 			CreateBodypart(baseHumanoid, "inventory", "inventory", "inventory", BodypartTypeEnum.Grabbing, null,
@@ -818,242 +818,242 @@ public partial class HumanSeeder
 
 		// HEAD
 		CreateBodypart(baseHumanoid, "neck", "neck", "neck", drapeableType, "uback", Alignment.Front,
-			Orientation.Highest, 80, 100, 50, 50, flesh, SizeCategory.Normal, "Head", isVital: true, implantSpace: 5,
+			Orientation.Highest, 80, 100, 50, 10, flesh, SizeCategory.Normal, "Head", isVital: true, implantSpace: 5,
 			stunMultiplier: 0.4);
 		CreateBodypart(baseHumanoid, "bneck", "back of neck", "neck back", drapeableType, "neck",
-			Alignment.Rear, Orientation.Highest, 80, 100, 50, 50, flesh, SizeCategory.Normal, "Head", isVital: true,
+			Alignment.Rear, Orientation.Highest, 80, 100, 50, 10, flesh, SizeCategory.Normal, "Head", isVital: true,
 			implantSpace: 5, stunMultiplier: 0.4);
 		CreateBodypart(baseHumanoid, "throat", "throat", "throat", BodypartTypeEnum.Wear, "neck", Alignment.Front,
-			Orientation.Highest, 40, 100, 25, 50, flesh, SizeCategory.Normal, "Head", isVital: true, implantSpace: 5,
+			Orientation.Highest, 40, 100, 25, 10, flesh, SizeCategory.Normal, "Head", isVital: true, implantSpace: 5,
 			stunMultiplier: 0.4);
 		CreateBodypart(baseHumanoid, "face", "face", "face", niDrapeableType, "neck", Alignment.Front,
-			Orientation.Highest, 40, -1, 75, 50, flesh, SizeCategory.Normal, "Head", isVital: true, implantSpace: 5,
+			Orientation.Highest, 40, -1, 75, 9, flesh, SizeCategory.Normal, "Head", isVital: true, implantSpace: 5,
 			stunMultiplier: 1.0);
 		CreateBodypart(baseHumanoid, "chin", "chin", "chin", niDrapeableType, "face", Alignment.Front,
-			Orientation.Highest, 40, -1, 25, 50, flesh, SizeCategory.Normal, "Head", isVital: true, implantSpace: 5,
+			Orientation.Highest, 40, -1, 25, 9, flesh, SizeCategory.Normal, "Head", isVital: true, implantSpace: 5,
 			stunMultiplier: 0.4);
 		CreateBodypart(baseHumanoid, "rcheek", "right cheek", "cheek", niDrapeableType, "face",
-			Alignment.FrontRight, Orientation.Highest, 40, -1, 50, 50, flesh, SizeCategory.Normal, "Head",
+			Alignment.FrontRight, Orientation.Highest, 40, -1, 50, 9, flesh, SizeCategory.Normal, "Head",
 			isVital: true, implantSpace: 5, stunMultiplier: 0.4);
 		CreateBodypart(baseHumanoid, "lcheek", "left cheek", "cheek", niDrapeableType, "face",
-			Alignment.FrontLeft, Orientation.Highest, 40, -1, 50, 50, flesh, SizeCategory.Normal, "Head", isVital: true,
+			Alignment.FrontLeft, Orientation.Highest, 40, -1, 50, 9, flesh, SizeCategory.Normal, "Head", isVital: true,
 			implantSpace: 5, stunMultiplier: 0.4);
 		CreateBodypart(baseHumanoid, "mouth", "mouth", "mouth", BodypartTypeEnum.Mouth, "face", Alignment.Front,
-			Orientation.Highest, 40, -1, 25, 50, flesh, SizeCategory.Normal, "Head", isVital: true, implantSpace: 5,
+			Orientation.Highest, 40, -1, 25, 9, flesh, SizeCategory.Normal, "Head", isVital: true, implantSpace: 5,
 			stunMultiplier: 0.4);
 		CreateBodypart(baseHumanoid, "tongue", "tongue", "tongue", BodypartTypeEnum.Tongue, "mouth", Alignment.Front,
-			Orientation.Highest, 20, -1, 5, 50, flesh, SizeCategory.Small, "Head", isVital: false, implantSpace: 5,
+			Orientation.Highest, 20, -1, 5, 9, flesh, SizeCategory.Small, "Head", isVital: false, implantSpace: 5,
 			stunMultiplier: 0.4);
 		CreateBodypart(baseHumanoid, "nose", "nose", "nose", niDrapeableType, "face", Alignment.Front,
-			Orientation.Highest, 40, -1, 25, 50, flesh, SizeCategory.Normal, "Head", isVital: true, implantSpace: 5,
+			Orientation.Highest, 40, -1, 25, 9, flesh, SizeCategory.Normal, "Head", isVital: true, implantSpace: 5,
 			stunMultiplier: 0.4);
 		CreateBodypart(baseHumanoid, "forehead", "forehead", "forehead", niDrapeableType, "face",
-			Alignment.Front, Orientation.Highest, 40, -1, 50, 50, flesh, SizeCategory.Normal, "Head", isVital: true,
+			Alignment.Front, Orientation.Highest, 40, -1, 50, 5, flesh, SizeCategory.Normal, "Head", isVital: true,
 			implantSpace: 5, stunMultiplier: 1.0);
 		CreateBodypart(baseHumanoid, "reyesocket", "right eye socket", "eye socket", niDrapeableType, "face",
-			Alignment.FrontRight, Orientation.Highest, 40, -1, 25, 50, flesh, SizeCategory.Normal, "Head",
+			Alignment.FrontRight, Orientation.Highest, 40, -1, 25, 6, flesh, SizeCategory.Normal, "Head",
 			isVital: true, implantSpace: 5, stunMultiplier: 1.0);
 		CreateBodypart(baseHumanoid, "leyesocket", "left eye socket", "eye socket", niDrapeableType, "face",
-			Alignment.FrontLeft, Orientation.Highest, 40, -1, 25, 50, flesh, SizeCategory.Normal, "Head", isVital: true,
+			Alignment.FrontLeft, Orientation.Highest, 40, -1, 25, 6, flesh, SizeCategory.Normal, "Head", isVital: true,
 			implantSpace: 5, stunMultiplier: 1.0);
 		CreateBodypart(baseHumanoid, "reye", "right eye", "eye", BodypartTypeEnum.Eye, "reyesocket",
-			Alignment.FrontRight, Orientation.Highest, 10, 30, 15, 50, flesh, SizeCategory.Small, "Head", isVital: true,
+			Alignment.FrontRight, Orientation.Highest, 10, 30, 15, 6, flesh, SizeCategory.Small, "Head", isVital: true,
 			implantSpace: 5, stunMultiplier: 0.4);
 		CreateBodypart(baseHumanoid, "leye", "left eye", "eye", BodypartTypeEnum.Eye, "leyesocket", Alignment.FrontLeft,
-			Orientation.Highest, 10, 30, 15, 50, flesh, SizeCategory.Small, "Head", isVital: true, implantSpace: 5,
+			Orientation.Highest, 10, 30, 15, 6, flesh, SizeCategory.Small, "Head", isVital: true, implantSpace: 5,
 			stunMultiplier: 0.4);
 		CreateBodypart(baseHumanoid, "rear", "right ear", "ear", BodypartTypeEnum.Wear, "rcheek", Alignment.Right,
-			Orientation.Highest, 10, 30, 50, 50, flesh, SizeCategory.Small, "Head", isVital: false, implantSpace: 5,
+			Orientation.Highest, 10, 30, 50, 6, flesh, SizeCategory.Small, "Head", isVital: false, implantSpace: 5,
 			stunMultiplier: 0.4);
 		CreateBodypart(baseHumanoid, "lear", "left ear", "ear", BodypartTypeEnum.Wear, "lcheek", Alignment.Left,
-			Orientation.Highest, 10, 30, 50, 50, flesh, SizeCategory.Small, "Head", isVital: false, implantSpace: 5,
+			Orientation.Highest, 10, 30, 50, 6, flesh, SizeCategory.Small, "Head", isVital: false, implantSpace: 5,
 			stunMultiplier: 0.4);
 		CreateBodypart(baseHumanoid, "bhead", "back of head", "head back", niDrapeableType, "neck",
-			Alignment.Rear, Orientation.Highest, 40, -1, 50, 50, flesh, SizeCategory.Normal, "Head", isVital: true,
+			Alignment.Rear, Orientation.Highest, 40, -1, 50, 5, flesh, SizeCategory.Normal, "Head", isVital: true,
 			implantSpace: 5, stunMultiplier: 1.5);
 		CreateBodypart(baseHumanoid, "scalp", "scalp", "scalp", niDrapeableType, "bhead", Alignment.Rear,
-			Orientation.Highest, 40, -1, 50, 50, flesh, SizeCategory.Normal, "Head", isVital: true, implantSpace: 5,
+			Orientation.Highest, 40, -1, 50, 5, flesh, SizeCategory.Normal, "Head", isVital: true, implantSpace: 5,
 			stunMultiplier: 1.0);
 		CreateBodypart(baseHumanoid, "rbrow", "right brow", "eyebrow", niDrapeableType, "face",
-			Alignment.FrontRight, Orientation.Highest, 40, -1, 50, 50, flesh, SizeCategory.Small, "Head", isVital: true,
+			Alignment.FrontRight, Orientation.Highest, 40, -1, 50, 6, flesh, SizeCategory.Small, "Head", isVital: true,
 			implantSpace: 5, stunMultiplier: 1.0);
 		CreateBodypart(baseHumanoid, "lbrow", "left brow", "eyebrow", niDrapeableType, "face",
-			Alignment.FrontLeft, Orientation.Highest, 40, -1, 50, 50, flesh, SizeCategory.Small, "Head", isVital: true,
+			Alignment.FrontLeft, Orientation.Highest, 40, -1, 50, 6, flesh, SizeCategory.Small, "Head", isVital: true,
 			implantSpace: 5, stunMultiplier: 1.0);
 		CreateBodypart(baseHumanoid, "rtemple", "right temple", "temple", niDrapeableType, "rcheek",
-			Alignment.Right, Orientation.Highest, 10, 30, 50, 50, flesh, SizeCategory.Small, "Head", isVital: true,
+			Alignment.Right, Orientation.Highest, 10, 30, 50, 6, flesh, SizeCategory.Small, "Head", isVital: true,
 			implantSpace: 5, stunMultiplier: 1.0);
 		CreateBodypart(baseHumanoid, "ltemple", "left temple", "temple", niDrapeableType, "lcheek",
-			Alignment.Left, Orientation.Highest, 10, 30, 50, 50, flesh, SizeCategory.Small, "Head", isVital: true,
+			Alignment.Left, Orientation.Highest, 10, 30, 50, 6, flesh, SizeCategory.Small, "Head", isVital: true,
 			implantSpace: 5, stunMultiplier: 1.0);
 
 		// ARMS
 		CreateBodypart(baseHumanoid, "rupperarm", "right upper arm", "upper arm", drapeableType,
-			"rshoulder", Alignment.Right, Orientation.Appendage, 80, 100, 75, 50, flesh, SizeCategory.Normal,
+			"rshoulder", Alignment.Right, Orientation.Appendage, 80, 100, 75, 60, flesh, SizeCategory.Normal,
 			"Right Arm", isVital: false, implantSpace: 1, stunMultiplier: 0);
 		CreateBodypart(baseHumanoid, "lupperarm", "left upper arm", "upper arm", drapeableType,
-			"lshoulder", Alignment.Left, Orientation.Appendage, 80, 100, 75, 50, flesh, SizeCategory.Normal, "Left Arm",
+			"lshoulder", Alignment.Left, Orientation.Appendage, 80, 100, 75, 60, flesh, SizeCategory.Normal, "Left Arm",
 			isVital: false, implantSpace: 1, stunMultiplier: 0);
 		CreateBodypart(baseHumanoid, "relbow", "right elbow", "elbow", drapeableType, "rupperarm",
-			Alignment.Right, Orientation.Appendage, 80, 100, 25, 50, flesh, SizeCategory.Normal, "Right Arm",
+			Alignment.Right, Orientation.Appendage, 80, 100, 25, 61, flesh, SizeCategory.Normal, "Right Arm",
 			isVital: false, implantSpace: 1, stunMultiplier: 0);
 		CreateBodypart(baseHumanoid, "lelbow", "left elbow", "elbow", drapeableType, "lupperarm",
-			Alignment.Left, Orientation.Appendage, 80, 100, 25, 50, flesh, SizeCategory.Normal, "Left Arm",
+			Alignment.Left, Orientation.Appendage, 80, 100, 25, 61, flesh, SizeCategory.Normal, "Left Arm",
 			isVital: false, implantSpace: 1, stunMultiplier: 0);
 		CreateBodypart(baseHumanoid, "rforearm", "right forearm", "forearm", drapeableType, "relbow",
-			Alignment.Right, Orientation.Appendage, 80, 100, 50, 50, flesh, SizeCategory.Normal, "Right Arm",
+			Alignment.Right, Orientation.Appendage, 80, 100, 50, 62, flesh, SizeCategory.Normal, "Right Arm",
 			isVital: false, implantSpace: 1, stunMultiplier: 0);
 		CreateBodypart(baseHumanoid, "lforearm", "left forearm", "forearm", drapeableType, "lelbow",
-			Alignment.Left, Orientation.Appendage, 80, 100, 50, 50, flesh, SizeCategory.Normal, "Left Arm",
+			Alignment.Left, Orientation.Appendage, 80, 100, 50, 62, flesh, SizeCategory.Normal, "Left Arm",
 			isVital: false, implantSpace: 1, stunMultiplier: 0);
 		CreateBodypart(baseHumanoid, "rwrist", "right wrist", "wrist", drapeableType, "rforearm",
-			Alignment.Right, Orientation.Appendage, 80, 100, 25, 50, flesh, SizeCategory.Normal, "Right Arm",
+			Alignment.Right, Orientation.Appendage, 80, 100, 25, 63, flesh, SizeCategory.Normal, "Right Arm",
 			isVital: false, implantSpace: 1, stunMultiplier: 0);
 		CreateBodypart(baseHumanoid, "lwrist", "left wrist", "wrist", drapeableType, "lforearm",
-			Alignment.Left, Orientation.Appendage, 80, 100, 25, 50, flesh, SizeCategory.Normal, "Left Arm",
+			Alignment.Left, Orientation.Appendage, 80, 100, 25, 63, flesh, SizeCategory.Normal, "Left Arm",
 			isVital: false, implantSpace: 1, stunMultiplier: 0);
 		CreateBodypart(baseHumanoid, "rhand", "right hand", "hand",
 			_questionAnswers["inventory"].ToLowerInvariant().Equals("hands")
 				? gwType
-				: BodypartTypeEnum.Wielding, "rwrist", Alignment.Right, Orientation.Appendage, 20, 100, 25, 50, flesh,
+				: BodypartTypeEnum.Wielding, "rwrist", Alignment.Right, Orientation.Appendage, 20, 100, 25, 64, flesh,
 			SizeCategory.Small, "Right Arm", isVital: false, implantSpace: 1, stunMultiplier: 0);
 		CreateBodypart(baseHumanoid, "lhand", "left hand", "hand",
 			_questionAnswers["inventory"].ToLowerInvariant().Equals("hands")
 				? gwType
-				: BodypartTypeEnum.Wielding, "lwrist", Alignment.Left, Orientation.Appendage, 20, 100, 25, 50, flesh,
+				: BodypartTypeEnum.Wielding, "lwrist", Alignment.Left, Orientation.Appendage, 20, 100, 25, 64, flesh,
 			SizeCategory.Small, "Left Arm", isVital: false, implantSpace: 1, stunMultiplier: 0);
 		CreateBodypart(baseHumanoid, "rthumb", "right thumb", "thumb", drapeableType, "rhand",
-			Alignment.Right, Orientation.Appendage, 5, 100, 5, 50, flesh, SizeCategory.VerySmall, "Right Arm",
+			Alignment.Right, Orientation.Appendage, 5, 100, 5, 65, flesh, SizeCategory.VerySmall, "Right Arm",
 			false, isVital: false, implantSpace: 0, stunMultiplier: 0);
 		CreateBodypart(baseHumanoid, "lthumb", "left thumb", "thumb", drapeableType, "lhand",
-			Alignment.Left, Orientation.Appendage, 5, 100, 5, 50, flesh, SizeCategory.VerySmall, "Left Arm",
+			Alignment.Left, Orientation.Appendage, 5, 100, 5, 65, flesh, SizeCategory.VerySmall, "Left Arm",
 			false, isVital: false, implantSpace: 0, stunMultiplier: 0);
 		CreateBodypart(baseHumanoid, "rindexfinger", "right index finger", "finger", drapeableType,
-			"rhand", Alignment.Right, Orientation.Appendage, 5, 100, 5, 50, bonyFlesh, SizeCategory.VerySmall,
+			"rhand", Alignment.Right, Orientation.Appendage, 5, 100, 5, 66, bonyFlesh, SizeCategory.VerySmall,
 			"Right Arm", false, isVital: false, implantSpace: 0, stunMultiplier: 0);
 		CreateBodypart(baseHumanoid, "lindexfinger", "left index finger", "finger", drapeableType, "lhand",
-			Alignment.Left, Orientation.Appendage, 5, 100, 5, 50, bonyFlesh, SizeCategory.VerySmall, "Left Arm",
+			Alignment.Left, Orientation.Appendage, 5, 100, 5, 66, bonyFlesh, SizeCategory.VerySmall, "Left Arm",
 			false, isVital: false, implantSpace: 0, stunMultiplier: 0);
 		CreateBodypart(baseHumanoid, "rmiddlefinger", "right middle finger", "finger", drapeableType,
-			"rhand", Alignment.Right, Orientation.Appendage, 5, 100, 5, 50, bonyFlesh, SizeCategory.VerySmall,
+			"rhand", Alignment.Right, Orientation.Appendage, 5, 100, 5, 67, bonyFlesh, SizeCategory.VerySmall,
 			"Right Arm", false, isVital: false, implantSpace: 0, stunMultiplier: 0);
 		CreateBodypart(baseHumanoid, "lmiddlefinger", "left middle finger", "finger", drapeableType,
-			"lhand", Alignment.Left, Orientation.Appendage, 5, 100, 5, 50, bonyFlesh, SizeCategory.VerySmall,
+			"lhand", Alignment.Left, Orientation.Appendage, 5, 100, 5, 67, bonyFlesh, SizeCategory.VerySmall,
 			"Left Arm", false, isVital: false, implantSpace: 0, stunMultiplier: 0);
 		CreateBodypart(baseHumanoid, "rringfinger", "right ring finger", "finger", drapeableType, "rhand",
-			Alignment.Right, Orientation.Appendage, 5, 100, 5, 50, bonyFlesh, SizeCategory.VerySmall, "Right Arm",
+			Alignment.Right, Orientation.Appendage, 5, 100, 5, 68, bonyFlesh, SizeCategory.VerySmall, "Right Arm",
 			false, isVital: false, implantSpace: 0, stunMultiplier: 0);
 		CreateBodypart(baseHumanoid, "lringfinger", "left ring finger", "finger", drapeableType, "lhand",
-			Alignment.Left, Orientation.Appendage, 5, 100, 5, 50, bonyFlesh, SizeCategory.VerySmall, "Left Arm",
+			Alignment.Left, Orientation.Appendage, 5, 100, 5, 68, bonyFlesh, SizeCategory.VerySmall, "Left Arm",
 			false, isVital: false, implantSpace: 0, stunMultiplier: 0);
 		CreateBodypart(baseHumanoid, "rpinkyfinger", "right pinky finger", "finger", drapeableType,
-			"rhand", Alignment.Right, Orientation.Appendage, 5, 100, 5, 50, bonyFlesh, SizeCategory.VerySmall,
+			"rhand", Alignment.Right, Orientation.Appendage, 5, 100, 5, 69, bonyFlesh, SizeCategory.VerySmall,
 			"Right Arm", false, isVital: false, implantSpace: 0, stunMultiplier: 0);
 		CreateBodypart(baseHumanoid, "lpinkyfinger", "left pinky finger", "finger", drapeableType, "lhand",
-			Alignment.Left, Orientation.Appendage, 5, 100, 5, 50, bonyFlesh, SizeCategory.VerySmall, "Left Arm",
+			Alignment.Left, Orientation.Appendage, 5, 100, 5, 69, bonyFlesh, SizeCategory.VerySmall, "Left Arm",
 			false, isVital: false, implantSpace: 0, stunMultiplier: 0);
 
 		// LEGS
 		CreateBodypart(baseHumanoid, "rhip", "right hip", "hip", niDrapeableType, "abdomen", Alignment.Right,
-			Orientation.Centre, 80, -1, 75, 50, bonyFlesh, SizeCategory.Normal, "Right Leg", isVital: false,
+			Orientation.Centre, 80, -1, 75, 70, bonyFlesh, SizeCategory.Normal, "Right Leg", isVital: false,
 			implantSpace: 1, stunMultiplier: 0);
 		CreateBodypart(baseHumanoid, "lhip", "left hip", "hip", niDrapeableType, "abdomen", Alignment.Left,
-			Orientation.Centre, 80, -1, 75, 50, bonyFlesh, SizeCategory.Normal, "Left Leg", isVital: false,
+			Orientation.Centre, 80, -1, 75, 70, bonyFlesh, SizeCategory.Normal, "Left Leg", isVital: false,
 			implantSpace: 1, stunMultiplier: 0);
 		CreateBodypart(baseHumanoid, "rthigh", "right thigh", "thigh", drapeableType, "rhip",
-			Alignment.FrontRight, Orientation.Low, 80, 100, 75, 50, bonyFlesh, SizeCategory.Normal, "Right Leg",
+			Alignment.FrontRight, Orientation.Low, 80, 100, 75, 71, bonyFlesh, SizeCategory.Normal, "Right Leg",
 			isVital: false, implantSpace: 1, stunMultiplier: 0);
 		CreateBodypart(baseHumanoid, "lthigh", "left thigh", "thigh", drapeableType, "lhip",
-			Alignment.FrontLeft, Orientation.Low, 80, 100, 75, 50, bonyFlesh, SizeCategory.Normal, "Left Leg",
+			Alignment.FrontLeft, Orientation.Low, 80, 100, 75, 71, bonyFlesh, SizeCategory.Normal, "Left Leg",
 			isVital: false, implantSpace: 1, stunMultiplier: 0);
 		CreateBodypart(baseHumanoid, "rthighback", "right thigh back", "thigh back", drapeableType, "rhip",
-			Alignment.RearRight, Orientation.Low, 80, 100, 75, 50, bonyFlesh, SizeCategory.Normal, "Right Leg",
+			Alignment.RearRight, Orientation.Low, 80, 100, 75, 71, bonyFlesh, SizeCategory.Normal, "Right Leg",
 			isVital: false, implantSpace: 1, stunMultiplier: 0);
 		CreateBodypart(baseHumanoid, "lthighback", "left thigh back", "thigh back", drapeableType, "lhip",
-			Alignment.RearLeft, Orientation.Low, 80, 100, 75, 50, bonyFlesh, SizeCategory.Normal, "Left Leg",
+			Alignment.RearLeft, Orientation.Low, 80, 100, 75, 71, bonyFlesh, SizeCategory.Normal, "Left Leg",
 			isVital: false, implantSpace: 1, stunMultiplier: 0);
 		CreateBodypart(baseHumanoid, "rknee", "right knee", "knee", drapeableType, "rthigh",
-			Alignment.FrontRight, Orientation.Low, 40, 100, 50, 50, bonyFlesh, SizeCategory.Normal, "Right Leg",
+			Alignment.FrontRight, Orientation.Low, 40, 100, 50, 72, bonyFlesh, SizeCategory.Normal, "Right Leg",
 			isVital: false, implantSpace: 1, stunMultiplier: 0);
 		CreateBodypart(baseHumanoid, "lknee", "left knee", "knee", drapeableType, "lthigh",
-			Alignment.FrontLeft, Orientation.Low, 40, 100, 50, 50, bonyFlesh, SizeCategory.Normal, "Left Leg",
+			Alignment.FrontLeft, Orientation.Low, 40, 100, 50, 72, bonyFlesh, SizeCategory.Normal, "Left Leg",
 			isVital: false, implantSpace: 1, stunMultiplier: 0);
 		CreateBodypart(baseHumanoid, "rkneeback", "right knee back", "knee back", drapeableType, "rthigh",
-			Alignment.RearRight, Orientation.Low, 40, 100, 50, 50, bonyFlesh, SizeCategory.Normal, "Right Leg",
+			Alignment.RearRight, Orientation.Low, 40, 100, 50, 72, bonyFlesh, SizeCategory.Normal, "Right Leg",
 			isVital: false, implantSpace: 1, stunMultiplier: 0);
 		CreateBodypart(baseHumanoid, "lkneeback", "left knee back", "knee back", drapeableType, "lthigh",
-			Alignment.RearLeft, Orientation.Low, 40, 100, 50, 50, bonyFlesh, SizeCategory.Normal, "Left Leg",
+			Alignment.RearLeft, Orientation.Low, 40, 100, 50, 72, bonyFlesh, SizeCategory.Normal, "Left Leg",
 			isVital: false, implantSpace: 1, stunMultiplier: 0);
 		CreateBodypart(baseHumanoid, "rshin", "right shin", "shin", drapeableType, "rknee",
-			Alignment.FrontRight, Orientation.Lowest, 40, 100, 50, 50, bonyFlesh, SizeCategory.Normal, "Right Leg",
+			Alignment.FrontRight, Orientation.Lowest, 40, 100, 50, 73, bonyFlesh, SizeCategory.Normal, "Right Leg",
 			isVital: false, implantSpace: 1, stunMultiplier: 0);
 		CreateBodypart(baseHumanoid, "lshin", "left shin", "shin", drapeableType, "lknee",
-			Alignment.FrontLeft, Orientation.Lowest, 40, 100, 50, 50, bonyFlesh, SizeCategory.Normal, "Left Leg",
+			Alignment.FrontLeft, Orientation.Lowest, 40, 100, 50, 73, bonyFlesh, SizeCategory.Normal, "Left Leg",
 			isVital: false, implantSpace: 1, stunMultiplier: 0);
 		CreateBodypart(baseHumanoid, "rcalf", "right calf", "calf", drapeableType, "rknee",
-			Alignment.RearRight, Orientation.Lowest, 40, 100, 50, 50, bonyFlesh, SizeCategory.Normal, "Right Leg",
+			Alignment.RearRight, Orientation.Lowest, 40, 100, 50, 73, bonyFlesh, SizeCategory.Normal, "Right Leg",
 			isVital: false, implantSpace: 1, stunMultiplier: 0);
 		CreateBodypart(baseHumanoid, "lcalf", "left calf", "calf", drapeableType, "lknee",
-			Alignment.RearLeft, Orientation.Lowest, 40, 100, 50, 50, bonyFlesh, SizeCategory.Normal, "Left Leg",
+			Alignment.RearLeft, Orientation.Lowest, 40, 100, 50, 73, bonyFlesh, SizeCategory.Normal, "Left Leg",
 			isVital: false, implantSpace: 1, stunMultiplier: 0);
 		CreateBodypart(baseHumanoid, "rankle", "right ankle", "ankle", drapeableType, "rshin",
-			Alignment.Right, Orientation.Lowest, 40, 100, 25, 50, bonyFlesh, SizeCategory.Normal, "Right Leg",
+			Alignment.Right, Orientation.Lowest, 40, 100, 25, 74, bonyFlesh, SizeCategory.Normal, "Right Leg",
 			isVital: false, implantSpace: 1, stunMultiplier: 0);
 		CreateBodypart(baseHumanoid, "lankle", "left ankle", "ankle", drapeableType, "lshin",
-			Alignment.Left, Orientation.Lowest, 40, 100, 25, 50, bonyFlesh, SizeCategory.Normal, "Left Leg",
+			Alignment.Left, Orientation.Lowest, 40, 100, 25, 74, bonyFlesh, SizeCategory.Normal, "Left Leg",
 			isVital: false, implantSpace: 1, stunMultiplier: 0);
 		CreateBodypart(baseHumanoid, "rheel", "right heel", "heel", drapeableType, "rankle",
-			Alignment.RearRight, Orientation.Lowest, 40, 100, 25, 50, bonyFlesh, SizeCategory.Normal, "Right Leg",
+			Alignment.RearRight, Orientation.Lowest, 40, 100, 25, 75, bonyFlesh, SizeCategory.Normal, "Right Leg",
 			isVital: false, implantSpace: 1, stunMultiplier: 0);
 		CreateBodypart(baseHumanoid, "lheel", "left heel", "heel", drapeableType, "lankle",
-			Alignment.RearLeft, Orientation.Lowest, 40, 100, 25, 50, bonyFlesh, SizeCategory.Normal, "Left Leg",
+			Alignment.RearLeft, Orientation.Lowest, 40, 100, 25, 75, bonyFlesh, SizeCategory.Normal, "Left Leg",
 			isVital: false, implantSpace: 1, stunMultiplier: 0);
 		CreateBodypart(baseHumanoid, "rfoot", "right foot", "foot", BodypartTypeEnum.Standing, "rankle",
-			Alignment.FrontRight, Orientation.Lowest, 40, 100, 25, 50, bonyFlesh, SizeCategory.Normal, "Right Leg",
+			Alignment.FrontRight, Orientation.Lowest, 40, 100, 25, 75, bonyFlesh, SizeCategory.Normal, "Right Leg",
 			isVital: false, implantSpace: 1, stunMultiplier: 0);
 		CreateBodypart(baseHumanoid, "lfoot", "left foot", "foot", BodypartTypeEnum.Standing, "lankle",
-			Alignment.FrontLeft, Orientation.Lowest, 40, 100, 25, 50, bonyFlesh, SizeCategory.Normal, "Left Leg",
+			Alignment.FrontLeft, Orientation.Lowest, 40, 100, 25, 75, bonyFlesh, SizeCategory.Normal, "Left Leg",
 			isVital: false, implantSpace: 1, stunMultiplier: 0);
 		CreateBodypart(baseHumanoid, "rbigtoe", "right big toe", "toe", drapeableType, "rfoot",
-			Alignment.FrontRight, Orientation.Lowest, 20, 100, 5, 50, bonyFlesh, SizeCategory.VerySmall, "Right Leg",
+			Alignment.FrontRight, Orientation.Lowest, 20, 100, 5, 76, bonyFlesh, SizeCategory.VerySmall, "Right Leg",
 			isVital: false, implantSpace: 1, stunMultiplier: 0);
 		CreateBodypart(baseHumanoid, "lbigtoe", "left big toe", "toe", drapeableType, "lfoot",
-			Alignment.FrontLeft, Orientation.Lowest, 20, 100, 5, 50, bonyFlesh, SizeCategory.VerySmall, "Left Leg",
+			Alignment.FrontLeft, Orientation.Lowest, 20, 100, 5, 76, bonyFlesh, SizeCategory.VerySmall, "Left Leg",
 			isVital: false, implantSpace: 1, stunMultiplier: 0);
 		CreateBodypart(baseHumanoid, "rindextoe", "right index toe", "toe", drapeableType, "rfoot",
-			Alignment.FrontRight, Orientation.Lowest, 20, 100, 5, 50, bonyFlesh, SizeCategory.VerySmall, "Right Leg",
+			Alignment.FrontRight, Orientation.Lowest, 20, 100, 5, 77, bonyFlesh, SizeCategory.VerySmall, "Right Leg",
 			isVital: false, implantSpace: 1, stunMultiplier: 0);
 		CreateBodypart(baseHumanoid, "lindextoe", "left index toe", "toe", drapeableType, "lfoot",
-			Alignment.FrontLeft, Orientation.Lowest, 20, 100, 5, 50, bonyFlesh, SizeCategory.VerySmall, "Left Leg",
+			Alignment.FrontLeft, Orientation.Lowest, 20, 100, 5, 77, bonyFlesh, SizeCategory.VerySmall, "Left Leg",
 			isVital: false, implantSpace: 1, stunMultiplier: 0);
 		CreateBodypart(baseHumanoid, "rmiddletoe", "right middle toe", "toe", drapeableType, "rfoot",
-			Alignment.FrontRight, Orientation.Lowest, 20, 100, 5, 50, bonyFlesh, SizeCategory.VerySmall, "Right Leg",
+			Alignment.FrontRight, Orientation.Lowest, 20, 100, 5, 78, bonyFlesh, SizeCategory.VerySmall, "Right Leg",
 			isVital: false, implantSpace: 1, stunMultiplier: 0);
 		CreateBodypart(baseHumanoid, "lmiddletoe", "left middle toe", "toe", drapeableType, "lfoot",
-			Alignment.FrontLeft, Orientation.Lowest, 20, 100, 5, 50, bonyFlesh, SizeCategory.VerySmall, "Left Leg",
+			Alignment.FrontLeft, Orientation.Lowest, 20, 100, 5, 78, bonyFlesh, SizeCategory.VerySmall, "Left Leg",
 			isVital: false, implantSpace: 1, stunMultiplier: 0);
 		CreateBodypart(baseHumanoid, "rringtoe", "right ring toe", "toe", drapeableType, "rfoot",
-			Alignment.FrontRight, Orientation.Lowest, 20, 100, 5, 50, bonyFlesh, SizeCategory.VerySmall, "Right Leg",
+			Alignment.FrontRight, Orientation.Lowest, 20, 100, 5, 79, bonyFlesh, SizeCategory.VerySmall, "Right Leg",
 			isVital: false, implantSpace: 1, stunMultiplier: 0);
 		CreateBodypart(baseHumanoid, "lringtoe", "left ring toe", "toe", drapeableType, "lfoot",
-			Alignment.FrontLeft, Orientation.Lowest, 20, 100, 5, 50, bonyFlesh, SizeCategory.VerySmall, "Left Leg",
+			Alignment.FrontLeft, Orientation.Lowest, 20, 100, 5, 79, bonyFlesh, SizeCategory.VerySmall, "Left Leg",
 			isVital: false, implantSpace: 1, stunMultiplier: 0);
 		CreateBodypart(baseHumanoid, "rpinkytoe", "right pinky toe", "toe", drapeableType, "rfoot",
-			Alignment.FrontRight, Orientation.Lowest, 20, 100, 5, 50, bonyFlesh, SizeCategory.VerySmall, "Right Leg",
+			Alignment.FrontRight, Orientation.Lowest, 20, 100, 5, 80, bonyFlesh, SizeCategory.VerySmall, "Right Leg",
 			isVital: false, implantSpace: 1, stunMultiplier: 0);
 		CreateBodypart(baseHumanoid, "lpinkytoe", "left pinky toe", "toe", drapeableType, "lfoot",
-			Alignment.FrontLeft, Orientation.Lowest, 20, 100, 5, 50, bonyFlesh, SizeCategory.VerySmall, "Left Leg",
+			Alignment.FrontLeft, Orientation.Lowest, 20, 100, 5, 80, bonyFlesh, SizeCategory.VerySmall, "Left Leg",
 			isVital: false, implantSpace: 1, stunMultiplier: 0);
 
 		// GENITALS
 		CreateBodypart(baseHumanoid, "groin", "groin", "groin", niDrapeableType, "belly", Alignment.Front,
-			Orientation.Centre, 40, -1, 75, 52, flesh, SizeCategory.Small, "Genitals", implantSpace: 2,
+			Orientation.Centre, 40, -1, 75, 55, flesh, SizeCategory.Small, "Genitals", implantSpace: 2,
 			stunMultiplier: 0.2);
 		CreateBodypart(baseHumanoid, "testicles", "testicles", "testicles", BodypartTypeEnum.Wear, "groin",
-			Alignment.Front, Orientation.Centre, 10, 50, 5, 52, flesh, SizeCategory.Small, "Genitals", implantSpace: 2,
+			Alignment.Front, Orientation.Centre, 10, 50, 5, 53, flesh, SizeCategory.Small, "Genitals", implantSpace: 2,
 			stunMultiplier: 0.2, isCore: false);
 		CreateBodypart(baseHumanoid, "penis", "penis", "penis", BodypartTypeEnum.Wear, "groin", Alignment.Front,
-			Orientation.Centre, 10, 50, 5, 52, flesh, SizeCategory.Small, "Genitals", implantSpace: 2,
+			Orientation.Centre, 10, 50, 5, 54, flesh, SizeCategory.Small, "Genitals", implantSpace: 2,
 			stunMultiplier: 0.2, isCore: false);
 		_context.BodyProtosAdditionalBodyparts.Add(new BodyProtosAdditionalBodyparts
 		{

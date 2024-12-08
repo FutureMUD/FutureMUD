@@ -51,7 +51,7 @@ public class StandardMeleeStrategy : StrategyBase
 		IPerceiver assailant)
 	{
 		if (defender.PositionState.CompareTo(PositionStanding.Instance) != PositionHeightComparison.Equivalent ||
-		    defender.CanSpendStamina(DodgeMove.MoveStaminaCost(defender)))
+			defender.CanSpendStamina(DodgeMove.MoveStaminaCost(defender)))
 		{
 			return new HelplessDefenseMove
 			{
@@ -110,7 +110,7 @@ public class StandardMeleeStrategy : StrategyBase
 
 		var shield =
 			defender.Body.WieldedItems.SelectNotNull(x => x.GetItemType<IShield>())
-			        .FirstOrDefault(x => defender.CanSpendStamina(x.ShieldType.StaminaPerBlock));
+					.FirstOrDefault(x => defender.CanSpendStamina(x.ShieldType.StaminaPerBlock));
 		var shieldBonus = shield != null
 			? BlockMove.GetBlockBonus(move, defender.Body.AlignmentOf(shield.Parent), shield)
 			: 0;
@@ -149,14 +149,14 @@ public class StandardMeleeStrategy : StrategyBase
 	{
 		var desperate = !defender.PositionState.Upright;
 		var clinching = defender.EffectsOfType<ClinchEffect>()
-		                        .Any(x => x.Clincher == defender.CombatTarget && x.Target == assailant);
+								.Any(x => x.Clincher == defender.CombatTarget && x.Target == assailant);
 		var shield =
 			defender.Body.WieldedItems.SelectNotNull(x => x.GetItemType<IShield>())
-			        .FirstMax(x => x.ShieldType.BlockBonus);
+					.FirstMax(x => x.ShieldType.BlockBonus);
 		var parry =
 			defender.Body.WieldedItems.Where(x => !x.IsItemType<IShield>())
-			        .SelectNotNull(x => x.GetItemType<IMeleeWeapon>())
-			        .FirstMax(x => x.WeaponType.ParryBonus);
+					.SelectNotNull(x => x.GetItemType<IMeleeWeapon>())
+					.FirstMax(x => x.WeaponType.ParryBonus);
 		var shieldBonus = shield != null
 			? BlockMove.GetBlockBonus(move, defender.Body.AlignmentOf(shield.Parent), shield)
 			: 0;
@@ -219,8 +219,8 @@ public class StandardMeleeStrategy : StrategyBase
 			availableDefenses.Add((DefenseType.Dodge, finalDodgeTargetNumber));
 		}
 
-        if (availableDefenses.Count == 0)
-        {
+		if (availableDefenses.Count == 0)
+		{
 			return new HelplessDefenseMove
 			{
 				Assailant = defender
@@ -398,8 +398,8 @@ public class StandardMeleeStrategy : StrategyBase
 		}
 
 		if (defenseCharacter.State.HasFlag(CharacterState.Sleeping) ||
-		    defenseCharacter.State.HasFlag(CharacterState.Unconscious) ||
-		    defenseCharacter.State.HasFlag(CharacterState.Paralysed))
+			defenseCharacter.State.HasFlag(CharacterState.Unconscious) ||
+			defenseCharacter.State.HasFlag(CharacterState.Paralysed))
 		{
 			return moveAsWeaponAttack != null || moveAsRangedAttack != null
 				? new HelplessDefenseMove { Assailant = defenseCharacter }
@@ -482,16 +482,16 @@ public class StandardMeleeStrategy : StrategyBase
 
 		var weapons = ch.Body.WieldedItems.SelectNotNull(x => x.GetItemType<IMeleeWeapon>()).ToList();
 		var implants = ch.Body.Implants
-		                 .OfType<IImplantMeleeWeapon>()
-		                 .Where(x => x.WeaponIsActive)
-		                 .ToList();
+						 .OfType<IImplantMeleeWeapon>()
+						 .Where(x => x.WeaponIsActive)
+						 .ToList();
 		var prosthetics = ch.Body.Prosthetics
-		                    .OfType<IProstheticMeleeWeapon>()
-		                    .Where(x => x.WeaponIsActive)
-		                    .ToList();
+							.OfType<IProstheticMeleeWeapon>()
+							.Where(x => x.WeaponIsActive)
+							.ToList();
 		if (!ch.Combat.Friendly &&
-		    !CharacterState.Able.HasFlag((ch.CombatTarget as ICharacter)?.State ?? CharacterState.Unable) &&
-		    ch.Combat.Combatants.Except(ch.CombatTarget).All(x => x.CombatTarget != ch))
+			!CharacterState.Able.HasFlag((ch.CombatTarget as ICharacter)?.State ?? CharacterState.Unable) &&
+			ch.Combat.Combatants.Except(ch.CombatTarget).All(x => x.CombatTarget != ch))
 		{
 			foreach (var preference in ch.CombatSettings.MeleeAttackOrderPreferences)
 			{
@@ -533,7 +533,7 @@ public class StandardMeleeStrategy : StrategyBase
 						foreach (var prosthetic in prosthetics)
 						{
 							var cdge = ch.EffectsOfType<CombatCoupDeGrace>()
-							             .FirstOrDefault(x => x.Weapon == prosthetic);
+										 .FirstOrDefault(x => x.Weapon == prosthetic);
 							if (cdge != null)
 							{
 								return new CoupDeGrace(cdge.Attack, (ICharacter)ch.CombatTarget)
@@ -563,32 +563,32 @@ public class StandardMeleeStrategy : StrategyBase
 		}
 
 		var weaponAttacks = weapons.Select(x => Tuple.Create(x,
-			                           x.WeaponType
-			                            .UsableAttacks(ch, x.Parent, ch.CombatTarget, x.HandednessForWeapon(ch), false,
-				                            effect.FixedTypes.ToArray())
-			                            .Where(y => ch.CanSpendStamina(MeleeWeaponAttack.MoveStaminaCost(ch, y)))
-			                            .ToList()))
-		                           .Where(x => x.Item2.Any()).ToList();
+									   x.WeaponType
+										.UsableAttacks(ch, x.Parent, ch.CombatTarget, x.HandednessForWeapon(ch), false,
+											effect.FixedTypes.ToArray())
+										.Where(y => ch.CanSpendStamina(MeleeWeaponAttack.MoveStaminaCost(ch, y)))
+										.ToList()))
+								   .Where(x => x.Item2.Any()).ToList();
 		var implantAttacks = implants.Select(x => Tuple.Create(x,
-			                             x.WeaponType
-			                              .UsableAttacks(ch, x.Parent, ch.CombatTarget, x.HandednessForWeapon(ch),
-				                              false,
-				                              effect.FixedTypes.ToArray())
-			                              .Where(y => ch.CanSpendStamina(MeleeWeaponAttack.MoveStaminaCost(ch, y)))
-			                              .ToList()))
-		                             .Where(x => x.Item2.Any()).ToList();
+										 x.WeaponType
+										  .UsableAttacks(ch, x.Parent, ch.CombatTarget, x.HandednessForWeapon(ch),
+											  false,
+											  effect.FixedTypes.ToArray())
+										  .Where(y => ch.CanSpendStamina(MeleeWeaponAttack.MoveStaminaCost(ch, y)))
+										  .ToList()))
+									 .Where(x => x.Item2.Any()).ToList();
 		var prostheticAttacks = prosthetics.Select(x => Tuple.Create(x,
-			                                   x.WeaponType
-			                                    .UsableAttacks(ch, x.Parent, ch.CombatTarget, x.HandednessForWeapon(ch),
-				                                    false,
-				                                    effect.FixedTypes.ToArray())
-			                                    .Where(
-				                                    y => ch.CanSpendStamina(MeleeWeaponAttack.MoveStaminaCost(ch, y)))
-			                                    .ToList()))
-		                                   .Where(x => x.Item2.Any()).ToList();
+											   x.WeaponType
+												.UsableAttacks(ch, x.Parent, ch.CombatTarget, x.HandednessForWeapon(ch),
+													false,
+													effect.FixedTypes.ToArray())
+												.Where(
+													y => ch.CanSpendStamina(MeleeWeaponAttack.MoveStaminaCost(ch, y)))
+												.ToList()))
+										   .Where(x => x.Item2.Any()).ToList();
 		var unarmedAttacks = ch.Race.UsableNaturalWeaponAttacks(ch, ch.CombatTarget, false, effect.FixedTypes.ToArray())
-		                       .Where(x => ch.CanSpendStamina(NaturalAttackMove.MoveStaminaCost(ch, x.Attack)))
-		                       .ToList();
+							   .Where(x => ch.CanSpendStamina(NaturalAttackMove.MoveStaminaCost(ch, x.Attack)))
+							   .ToList();
 		var charTarget = ch.CombatTarget as ICharacter;
 		var itemTarget = ch.CombatTarget as IGameItem;
 
@@ -816,11 +816,11 @@ public class StandardMeleeStrategy : StrategyBase
 	{
 		var tch = combatant.CombatTarget as ICharacter;
 		if (!combatant.Combat.Friendly && tch != null &&
-		    !CharacterState.Able.HasFlag(tch.State) &&
-		    combatant.Combat.Combatants.Except(tch).All(x => x.CombatTarget != combatant))
+			!CharacterState.Able.HasFlag(tch.State) &&
+			combatant.Combat.Combatants.Except(tch).All(x => x.CombatTarget != combatant))
 		{
 			if (combatant.CombatSettings.AttackCriticallyInjured &&
-			    !combatant.CombatSettings.ForbiddenIntentions.HasFlag(CombatMoveIntentions.CoupDeGrace))
+				!combatant.CombatSettings.ForbiddenIntentions.HasFlag(CombatMoveIntentions.CoupDeGrace))
 			{
 				var cdgeAttacks = weapon.WeaponType.UsableAttacks(combatant, weapon.Parent, combatant.CombatTarget,
 					weapon.HandednessForWeapon(combatant), false,
@@ -848,7 +848,7 @@ public class StandardMeleeStrategy : StrategyBase
 		}
 
 		return possibleAttacks.Where(x => combatant.CanSpendStamina(MeleeWeaponAttack.MoveStaminaCost(combatant, x)))
-		                      .ToList();
+							  .ToList();
 	}
 
 	protected virtual ICombatMove AttemptUseWeapon(ICharacter combatant)
@@ -865,21 +865,21 @@ public class StandardMeleeStrategy : StrategyBase
 			{
 				case MeleeAttackOrderPreference.Weapon:
 					weaponsForThisIteration = combatant.Body.WieldedItems
-					                                   .SelectNotNull(x => x.GetItemType<IMeleeWeapon>()).ToList();
+													   .SelectNotNull(x => x.GetItemType<IMeleeWeapon>()).ToList();
 					break;
 				case MeleeAttackOrderPreference.Implant:
 					weaponsForThisIteration = combatant.Body.Implants
-					                                   .OfType<IImplantMeleeWeapon>()
-					                                   .Where(x => x.WeaponIsActive)
-					                                   .Cast<IMeleeWeapon>()
-					                                   .ToList();
+													   .OfType<IImplantMeleeWeapon>()
+													   .Where(x => x.WeaponIsActive)
+													   .Cast<IMeleeWeapon>()
+													   .ToList();
 					break;
 				case MeleeAttackOrderPreference.Prosthetic:
 					weaponsForThisIteration = combatant.Body.Prosthetics
-					                                   .OfType<IProstheticMeleeWeapon>()
-					                                   .Where(x => x.WeaponIsActive)
-					                                   .Cast<IMeleeWeapon>()
-					                                   .ToList();
+													   .OfType<IProstheticMeleeWeapon>()
+													   .Where(x => x.WeaponIsActive)
+													   .Cast<IMeleeWeapon>()
+													   .ToList();
 					break;
 				case MeleeAttackOrderPreference.Magic:
 					continue;
@@ -892,17 +892,17 @@ public class StandardMeleeStrategy : StrategyBase
 			iterations++;
 			var multiplier = iterations; // TODO - straight up multiplier or more complex?
 			var possibleAttacksThisIteration = weaponsForThisIteration
-			                                   .Select(x => (Weapon: x,
-				                                   Attacks: PossibleAttacksForWeapon(combatant, x, true)))
-			                                   .SelectMany(x =>
-				                                   x.Attacks.Select(y => (Weapon: x.Weapon, Attack: y,
-					                                   Weighting: y.Weighting * multiplier)))
-			                                   .ToList();
+											   .Select(x => (Weapon: x,
+												   Attacks: PossibleAttacksForWeapon(combatant, x, true)))
+											   .SelectMany(x =>
+												   x.Attacks.Select(y => (Weapon: x.Weapon, Attack: y,
+													   Weighting: y.Weighting * multiplier)))
+											   .ToList();
 			var staminaAttacksThisIteration = possibleAttacksThisIteration
-			                                  .Where(x =>
-				                                  combatant.CanSpendStamina(
-					                                  MeleeWeaponAttack.MoveStaminaCost(combatant, x.Attack)))
-			                                  .ToList();
+											  .Where(x =>
+												  combatant.CanSpendStamina(
+													  MeleeWeaponAttack.MoveStaminaCost(combatant, x.Attack)))
+											  .ToList();
 
 			possibleWeaponsAndAttacks.AddRange(possibleAttacksThisIteration);
 			weaponsAndAttacks.AddRange(staminaAttacksThisIteration);
@@ -916,11 +916,11 @@ public class StandardMeleeStrategy : StrategyBase
 		if (combatant.TargettedBodypart != null)
 		{
 			var onTargetAttacks = weaponsAndAttacks.Where(x =>
-				                                       x.Attack.Alignment.WithinOffset(
-					                                       combatant.TargettedBodypart.Alignment, 1) &&
-				                                       x.Attack.Orientation.WithinOffset(
-					                                       combatant.TargettedBodypart.Orientation, 1))
-			                                       .ToList();
+													   x.Attack.Alignment.WithinOffset(
+														   combatant.TargettedBodypart.Alignment, 1) &&
+													   x.Attack.Orientation.WithinOffset(
+														   combatant.TargettedBodypart.Orientation, 1))
+												   .ToList();
 			if (onTargetAttacks.Any())
 			{
 				weaponsAndAttacks = onTargetAttacks;
@@ -929,7 +929,7 @@ public class StandardMeleeStrategy : StrategyBase
 
 		var preferredAttacks =
 			weaponsAndAttacks.Where(x => x.Attack.Intentions.HasFlag(combatant.CombatSettings.PreferredIntentions))
-			                 .ToList();
+							 .ToList();
 		if (preferredAttacks.Any() && Dice.Roll(1, 2) == 1)
 		{
 			weaponsAndAttacks = preferredAttacks;
@@ -953,7 +953,7 @@ public class StandardMeleeStrategy : StrategyBase
 		}
 
 		throw new NotImplementedException("Unimplemented Combatant type in StandardMeleeStrategy.AttemptUseWeapon - " +
-		                                  combatant.CombatTarget.GetType().FullName);
+										  combatant.CombatTarget.GetType().FullName);
 	}
 
 	protected virtual ICombatMove AttemptUseNaturalAttack(ICharacter combatant)
@@ -977,11 +977,11 @@ public class StandardMeleeStrategy : StrategyBase
 		}
 
 		var possibleAttacks = combatant.Race
-		                               .UsableNaturalWeaponAttacks(combatant, combatant.CombatTarget, false,
-			                               attackTypes).ToList();
+									   .UsableNaturalWeaponAttacks(combatant, combatant.CombatTarget, false,
+										   attackTypes).ToList();
 		var attacks = possibleAttacks
-		              .Where(x => combatant.CanSpendStamina(NaturalAttackMove.MoveStaminaCost(combatant, x.Attack)))
-		              .ToList();
+					  .Where(x => combatant.CanSpendStamina(NaturalAttackMove.MoveStaminaCost(combatant, x.Attack)))
+					  .ToList();
 		if (!attacks.Any())
 		{
 			return possibleAttacks.Any() ? new TooExhaustedMove { Assailant = combatant } : null;
@@ -1031,7 +1031,7 @@ public class StandardMeleeStrategy : StrategyBase
 		}
 
 		var preferredMoves = usableMoves.Where(x => x.Intentions.HasFlag(combatant.CombatSettings.PreferredIntentions))
-		                                .ToList();
+										.ToList();
 		if (preferredMoves.Any() && Dice.Roll(1, 2) == 1)
 		{
 			usableMoves = preferredMoves;
@@ -1066,14 +1066,14 @@ public class StandardMeleeStrategy : StrategyBase
 	{
 		var roll = Constants.Random.NextDouble();
 		if (combatant.CombatSettings.WeaponUsePercentage > 0 &&
-		    roll <= combatant.CombatSettings.WeaponUsePercentage)
+			roll <= combatant.CombatSettings.WeaponUsePercentage)
 		{
 			return HandleWeaponAttackRolled(combatant);
 		}
 
 		roll -= combatant.CombatSettings.WeaponUsePercentage;
 		if (combatant.CombatSettings.NaturalWeaponPercentage > 0.0 &&
-		    roll <= combatant.CombatSettings.NaturalWeaponPercentage)
+			roll <= combatant.CombatSettings.NaturalWeaponPercentage)
 		{
 			if (combatant.PositionState.Upright)
 			{

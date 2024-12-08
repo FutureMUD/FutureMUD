@@ -23,7 +23,7 @@ public class PreFleeSpeed : Effect, IRemoveOnCombatEnd
 	/// <inheritdoc />
 	public override string Describe(IPerceiver voyeur)
 	{
-		return $"Remembering to go back to {Speeds.Select(x => x.PresentParticiple).ListToColouredString()} at combat end.";
+		return $"Remembering to go back to {Speeds.SelectNotNull(x => x?.PresentParticiple).ListToColouredString()} at combat end.";
 	}
 
 	/// <inheritdoc />
@@ -37,6 +37,10 @@ public class PreFleeSpeed : Effect, IRemoveOnCombatEnd
 		var ch = (ICharacter)Owner;
 		foreach (var speed in Speeds)
 		{
+			if (speed is null)
+			{
+				continue;
+			}
 			ch.CurrentSpeeds[speed.Position] = speed;
 		}
 	}

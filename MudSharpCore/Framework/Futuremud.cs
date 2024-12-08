@@ -132,6 +132,13 @@ public sealed partial class Futuremud : IFuturemud, IDisposable
 		HeartbeatManager = new HeartbeatManager(this);
 
 		server?.Bind(_connections, AddConnection);
+
+		ExpressionEngine.Expression.ExpressionError += Expression_ExpressionError;
+	}
+
+	private void Expression_ExpressionError(object sender, string e)
+	{
+		SystemMessage(e, true);
 	}
 
 	public string Name => GetStaticString("MudName");

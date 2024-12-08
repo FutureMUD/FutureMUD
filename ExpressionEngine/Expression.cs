@@ -3,12 +3,14 @@ using System.Collections.Generic;
 using System.Net.Http.Headers;
 using System.Text.RegularExpressions;
 using NCalc;
+using NCalc.Exceptions;
 using NCalc.Handlers;
 
 namespace ExpressionEngine
 {
 	public class Expression
 	{
+		public static event EventHandler<string> ExpressionError;
 		public static Random RandomInstance { get; } = new();
 
 		private NCalc.Expression _expression;
@@ -36,8 +38,35 @@ namespace ExpressionEngine
 				}
 				_expression.Parameters[parameter.Key] = parameter.Value;
 			}
-			
-			return _expression.Evaluate();
+
+			try
+			{
+				return _expression.Evaluate();
+			}
+			catch (NCalcFunctionNotFoundException e)
+			{
+				Console.WriteLine($"Exception in expression {OriginalExpression}:\n\nFunction Not Found: {e.FunctionName}\n\n{e.ToString()}");
+				ExpressionError?.Invoke(this, $"Exception in expression {OriginalExpression}:\n\nFunction Not Found: {e.FunctionName}\n\n{e.ToString()}");
+				return 0.0;
+			}
+			catch (NCalcParameterNotDefinedException e)
+			{
+				Console.WriteLine($"Exception in expression {OriginalExpression}:\n\nParameter Not Defined: {e.ParameterName}\n\n{e.ToString()}");
+				ExpressionError?.Invoke(this, $"Exception in expression {OriginalExpression}:\n\nParameter Not Defined: {e.ParameterName}\n\n{e.ToString()}");
+				return 0.0;
+			}
+			catch (NCalcParserException e)
+			{
+				Console.WriteLine($"Exception in expression {OriginalExpression}:\n\n{e.ToString()}");
+				ExpressionError?.Invoke(this, $"Exception in expression {OriginalExpression}:\n\n{e.ToString()}");
+				return 0.0;
+			}
+			catch (NCalcEvaluationException e)
+			{
+				Console.WriteLine($"Exception in expression {OriginalExpression}:\n\n{e.ToString()}");
+				ExpressionError?.Invoke(this, $"Exception in expression {OriginalExpression}:\n\n{e.ToString()}");
+				return 0.0;
+			}
 		}
 
 		public double EvaluateDouble()
@@ -62,7 +91,34 @@ namespace ExpressionEngine
 				_expression.Parameters[parameter.Name] = parameter.Value;
 			}
 
-			return _expression.Evaluate();
+			try
+			{
+				return _expression.Evaluate();
+			}
+			catch (NCalcFunctionNotFoundException e)
+			{
+				Console.WriteLine($"Exception in expression {OriginalExpression}:\n\nFunction Not Found: {e.FunctionName}\n\n{e.ToString()}");
+				ExpressionError?.Invoke(this, $"Exception in expression {OriginalExpression}:\n\nFunction Not Found: {e.FunctionName}\n\n{e.ToString()}");
+				return 0.0;
+			}
+			catch (NCalcParameterNotDefinedException e)
+			{
+				Console.WriteLine($"Exception in expression {OriginalExpression}:\n\nParameter Not Defined: {e.ParameterName}\n\n{e.ToString()}");
+				ExpressionError?.Invoke(this, $"Exception in expression {OriginalExpression}:\n\nParameter Not Defined: {e.ParameterName}\n\n{e.ToString()}");
+				return 0.0;
+			}
+			catch (NCalcParserException e)
+			{
+				Console.WriteLine($"Exception in expression {OriginalExpression}:\n\n{e.ToString()}");
+				ExpressionError?.Invoke(this, $"Exception in expression {OriginalExpression}:\n\n{e.ToString()}");
+				return 0.0;
+			}
+			catch (NCalcEvaluationException e)
+			{
+				Console.WriteLine($"Exception in expression {OriginalExpression}:\n\n{e.ToString()}");
+				ExpressionError?.Invoke(this, $"Exception in expression {OriginalExpression}:\n\n{e.ToString()}");
+				return 0.0;
+			}
 		}
 
 		public double EvaluateDoubleWith(params (string Name, object Value)[] values)

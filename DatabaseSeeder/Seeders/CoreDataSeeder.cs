@@ -7493,6 +7493,8 @@ return IsAdmin(@ch)",
 			"Natural Materials", "Animal Product");
 		AddMaterial("beeswax", MaterialBehaviourType.Wax, 0.2, true, 1000, 1000, 0.0, 0.14, 0.0001, 500, null,
 			"Natural Materials", "Animal Product");
+		AddMaterial("guano", MaterialBehaviourType.Wax, 0.2, true, 1000, 1000, 0.0, 0.14, 0.0001, 500, null,
+			"Natural Materials", "Animal Product");
 		AddMaterial("paraffin wax", MaterialBehaviourType.Wax, 0.2, false, 1000, 1000, 0.0, 0.14, 0.0001, 500, null,
 			"Natural Materials");
 		AddMaterial("cream", MaterialBehaviourType.Cream, 0.2, false, 1000, 1000, 0.0, 0.14, 0.0001, 500, null,
@@ -7506,6 +7508,12 @@ return IsAdmin(@ch)",
 		AddMaterial("lard", MaterialBehaviourType.Grease, 0.2, true, 1000, 1000, 0.0, 0.14, 0.0001, 500, null,
 			"Manufactured Materials");
 		AddMaterial("paste", MaterialBehaviourType.Cream, 0.2, false, 1000, 1000, 0.0, 0.14, 0.0001, 500, null,
+			"Manufactured Materials");
+		AddMaterial("glue", MaterialBehaviourType.Paste, 0.2, false, 1000, 1000, 0.0, 0.14, 0.0001, 500, null,
+			"Manufactured Materials");
+		AddMaterial("dried adhesive", MaterialBehaviourType.Paste, 0.2, false, 1000, 1000, 0.0, 0.14, 0.0001, 500, null,
+			"Manufactured Materials");
+		AddMaterial("gunpowder", MaterialBehaviourType.Powder, 0.975, false, 1000, 1000, 0.0, 0.14, 0.0001, 500, null,
 			"Manufactured Materials");
 
 		AddMaterial("flame", MaterialBehaviourType.Mana, 1.0, false, 1, 1, 0.0, 0, 0, 0, null, "Elemental Materials");

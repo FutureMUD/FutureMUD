@@ -1503,7 +1503,7 @@ public partial class CultureSeeder
 		#endregion
 
 		#region Levantine
-		var levantine = AddNameCulture("Levantine", "^(?<birthname>[\\w'-]{2,}) (?<patronym>Ibnat|Bin|Ibn|Bint [\\w'-]{2,}) (?<surname>[\\w'- ]{2,})",
+		var levantine = AddNameCulture("Levantine", "^(?<birthname>[\\w'-]{2,}) (?<patronym>Ibnat|Bin|Ibn|Bint [\\w'-]{2,}) (?<surname>[\\w'-]{2,})",
 			new[]{
 				("Given Name", 1, 1, "Every person has a given name. This is the name given to the child by their parents.", NameUsage.BirthName),
 				("Patronym", 1, 1, "Patronym is a name derived from the person's father, and is preceded by Ibn or Bin (for males), and Ibnat or Bint (for females), however ", NameUsage.Patronym),
@@ -2134,7 +2134,7 @@ public partial class CultureSeeder
 		#endregion
 
 		#region Morrocan
-		var morrocan = AddNameCulture("Morrocan", "^(?<birthname>[\\w'-]{2,}) (?<patronym>Ibnat|Bin|Ibn|Bint [\\w'-]{2,}) (?<surname>[\\w'- ]{2,})",
+		var morrocan = AddNameCulture("Morrocan", "^(?<birthname>[\\w'-]{2,}) (?<patronym>Ibnat|Bin|Ibn|Bint [\\w'-]{2,}) (?<surname>[\\w'-]{2,})",
 			new[]{
 				("Given Name", 1, 1, "Every person has a given name. This is the name given to the child by their parents.", NameUsage.BirthName),
 				("Patronym", 1, 1, "Patronym is a name derived from the person's father, and is preceded by Ibn or Bin (for males), and Ibnat or Bint (for females), however ", NameUsage.Patronym),
@@ -2764,7 +2764,7 @@ public partial class CultureSeeder
 		#endregion
 
 		#region Albanian
-		var albanian = AddNameCulture("Albanian", "^(?<birthname>[\\w'-]{2,}) (?<patronym>[\\w'-]{2,}) (?<surname>[\\w'- ]{2,})",
+		var albanian = AddNameCulture("Albanian", "^(?<birthname>[\\w'-]{2,}) (?<patronym>[\\w'-]{2,}) (?<surname>[\\w'-]{2,})",
 			new[]{
 				("Given Name", 1, 1, "Every person has a given name. This is the name given to the child by their parents.", NameUsage.BirthName),
 				("Patronym", 1, 1, "Patronym is a name derived from the person's father, and is formed with the father's name +i for males, or +a for females.", NameUsage.Patronym),

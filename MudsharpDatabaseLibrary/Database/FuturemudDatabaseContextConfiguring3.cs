@@ -2292,7 +2292,7 @@ namespace MudSharp.Database
 				entity.Property(e => e.Name)
 					.HasColumnType("varchar(100)")
 					.HasCharSet("utf8")
-					.UseCollation("utf8_general_ci");
+					.UseCollation("utf8_bin");
 
 				entity.Property(e => e.Weighting).HasColumnType("int(11)");
 

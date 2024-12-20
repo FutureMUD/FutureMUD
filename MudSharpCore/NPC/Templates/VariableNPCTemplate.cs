@@ -771,10 +771,11 @@ public class VariableNPCTemplate : NPCTemplateBase
 			}
 		}
 
-		if (_culture.NameCultureForGender(gender) != profile.Culture)
+		var nc = _ethnicity?.NameCultureForGender(gender) ?? _culture.NameCultureForGender(gender);
+		if (nc != profile.Culture)
 		{
 			actor.OutputHandler.Send(
-				$"The Name Profile {profile.Name.ColourName()} is designed for the Name Culture {profile.Culture.Name.ColourName()}, whereas it needs to match {_culture.NameCultureForGender(gender).Name.ColourName()}.");
+				$"The Name Profile {profile.Name.ColourName()} is designed for the Name Culture {profile.Culture.Name.ColourName()}, whereas it needs to match {nc.Name.ColourName()}.");
 			return false;
 		}
 
@@ -880,6 +881,14 @@ public class VariableNPCTemplate : NPCTemplateBase
 		_nameProfiles.Clear();
 		foreach (var gender in _genderChances)
 		{
+			var nc = 
+				_ethnicity.NameCultureForGender(gender.Value) ??
+				_culture.NameCultureForGender(gender.Value);
+			if (nc == _nameProfiles[gender.Value].Culture)
+			{
+				continue;
+			}
+
 			var profile =
 				_culture.NameCultureForGender(gender.Value).RandomNameProfiles
 				        .Where(x => x.IsReady && x.IsCompatibleGender(gender.Value)).GetRandomElement();

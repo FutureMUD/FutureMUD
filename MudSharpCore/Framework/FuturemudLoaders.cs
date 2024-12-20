@@ -301,8 +301,9 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 
 			game.LoadForagables(); // Depends on LoadGameItemProtos
 
-			game.LoadEthnicities(); // depends on LoadCharacteristics
-			game.LoadCultures();
+			game.LoadNameCultures();
+			game.LoadEthnicities(); // depends on LoadCharacteristics and LoadNameCultures
+			game.LoadCultures(); // depends on LoadNameCultures
 
 			game.LoadClans(); // Needs to come after LoadCalendars, LoadFutureProgs, LoadCultures and LoadCurrencies
 
@@ -3652,6 +3653,7 @@ For information on the syntax to use in emotes (such as those included in bracke
 		var ethnicities = (from ethnicity in FMDB.Context.Ethnicities
 		                                         .Include(x => x.EthnicitiesCharacteristics)
 		                                         .Include(x => x.EthnicitiesChargenResources)
+		                                         .Include(x => x.EthnicitiesNameCultures)
 		                                         .Include(x => x.ChargenAdvicesEthnicities)
 		                                         .Include(x => x.PopulationBloodModel)
 		                                         .AsNoTracking()
@@ -3669,9 +3671,9 @@ For information on the syntax to use in emotes (such as those included in bracke
 		ConsoleUtilities.WriteLine("Loaded #2{0}#0 Ethnicit{1}", count, count == 1 ? "y" : "ies");
 	}
 
-	void IFuturemudLoader.LoadCultures()
+	void IFuturemudLoader.LoadNameCultures()
 	{
-		ConsoleUtilities.WriteLine("\nLoading #5Cultures and Name Cultures, and Names#0...");
+		ConsoleUtilities.WriteLine("\nLoading #Name Cultures#0...");
 #if DEBUG
 		var sw = new Stopwatch();
 		sw.Start();
@@ -3683,7 +3685,7 @@ For information on the syntax to use in emotes (such as those included in bracke
 			                         .Include(x => x.RandomNameProfiles)
 			                         .ThenInclude(x => x.RandomNameProfilesElements)
 			                         .AsSplitQuery()
-									 .AsNoTracking()
+			                         .AsNoTracking()
 			 select nameculture).ToList();
 		foreach (var nameculture in namecultures)
 		{
@@ -3692,6 +3694,15 @@ For information on the syntax to use in emotes (such as those included in bracke
 
 		var count = namecultures.Count;
 		ConsoleUtilities.WriteLine("Loaded #2{0}#0 Name Culture{1}", count, count == 1 ? "" : "s");
+	}
+
+	void IFuturemudLoader.LoadCultures()
+	{
+		ConsoleUtilities.WriteLine("\nLoading #5Cultures#0...");
+#if DEBUG
+		var sw = new Stopwatch();
+		sw.Start();
+#endif
 
 		var cultures = (from culture in FMDB.Context.Cultures
 		                                    .Include(x => x.CulturesChargenResources)
@@ -3703,7 +3714,7 @@ For information on the syntax to use in emotes (such as those included in bracke
 			_cultures.Add(new Culture(culture, this));
 		}
 
-		count = cultures.Count;
+		var count = cultures.Count;
 		ConsoleUtilities.WriteLine("Loaded #2{0}#0 Culture{1}", count, count == 1 ? "" : "s");
 	}
 

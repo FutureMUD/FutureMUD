@@ -1,7 +1,6 @@
 ﻿using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
-using MudSharp.Migrations;
 using MudSharp.Models;
 
 namespace MudSharp.Database
@@ -205,6 +204,7 @@ namespace MudSharp.Database
 		public virtual DbSet<Ethnicity> Ethnicities { get; set; }
 		public virtual DbSet<EthnicitiesCharacteristics> EthnicitiesCharacteristics { get; set; }
 		public virtual DbSet<EthnicitiesChargenResources> EthnicitiesChargenResources { get; set; }
+		public virtual DbSet<EthnicitiesNameCultures> EthnicitiesNameCultures { get; set; }
 		public virtual DbSet<Exit> Exits { get; set; }
 		public virtual DbSet<ExternalClanControl> ExternalClanControls { get; set; }
 		public virtual DbSet<ExternalClanControlsAppointment> ExternalClanControlsAppointments { get; set; }

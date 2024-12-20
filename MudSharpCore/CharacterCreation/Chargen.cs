@@ -1190,9 +1190,10 @@ public partial class Chargen : FrameworkItem, IChargen
 			{
 				SelectedName =
 					new PersonalName(
-						Gameworld.NameCultures.Get(long.Parse(snElement.Element("Name")?.Attribute("culture")?.Value ??
-						                                      "0")) ?? SelectedCulture.NameCultureForGender(
-							SelectedGender), snElement.Element("Name"));
+						Gameworld.NameCultures.Get(long.Parse(snElement.Element("Name")?.Attribute("culture")?.Value ?? "0")) ??
+						SelectedEthnicity?.NameCultureForGender(SelectedGender) ??
+						SelectedCulture.NameCultureForGender(SelectedGender), 
+						snElement.Element("Name"));
 			}
 
 			try

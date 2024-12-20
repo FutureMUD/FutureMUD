@@ -2773,8 +2773,8 @@ public class ShowModule : Module<ICharacter>
 					else
 					{
 						var nameCulture =
-							actor.Gameworld.Cultures.Get(long.Parse(definition.Element("SelectedCulture").Value))
-							     .NameCultureForGender(gender);
+							actor.Gameworld.Ethnicities.Get(long.Parse(definition.Element("SelectedEthnicity")?.Value ?? "0"))?.NameCultureForGender(gender) ??
+							actor.Gameworld.Cultures.Get(long.Parse(definition.Element("SelectedCulture").Value)).NameCultureForGender(gender);
 						var name = new PersonalName(nameCulture, nameElement.Element("Name"));
 						sb.AppendLine(
 							$"\t{name.GetName(NameStyle.FullWithNickname)} - {(item.Status == 0 ? "In Creation" : "Awaiting Approval").Colour(Telnet.Magenta)}");

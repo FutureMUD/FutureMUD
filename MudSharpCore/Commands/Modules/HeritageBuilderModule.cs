@@ -1439,13 +1439,26 @@ For example, #3?Nickname[ a.k.a ""$Nickname""][]#0";
 						 x.NameCultureForGender(Gender.Indeterminate) == culture
 					 )
 					 .Select(x => x.Name)
-					 .ListToString()
+					 .ListToString(),
+				actor.Gameworld.Ethnicities
+				     .Where(x =>
+					     x.NameCultureForGender(Gender.Male) == culture ||
+					     x.NameCultureForGender(Gender.Female) == culture ||
+					     x.NameCultureForGender(Gender.NonBinary) == culture ||
+					     x.NameCultureForGender(Gender.Neuter) == culture ||
+					     x.NameCultureForGender(Gender.Indeterminate) == culture
+				     )
+				     .Select(x => x.Name)
+				     .ListToString(),
+				actor.Gameworld.RandomNameProfiles.Count(x => x.Culture == culture).ToStringN0(actor)
 			},
 			new List<string>
 			{
 				"Id",
 				"Name",
-				"Cultures"
+				"Cultures",
+				"Ethnicities",
+				"# Profiles"
 			},
 			actor.LineFormatLength,
 			colour: Telnet.Green,
@@ -1470,7 +1483,18 @@ The correct syntax for this command is as follows:
 	#3culture close#0 - stops editing a culture
 	#3culture show <which>#0 - views information about a culture
 	#3culture show#0 - views information about your currently editing culture
-	#3culture set ...#0 - edits properties of a culture";
+	#3culture set name <name>#0 - renames this culture
+	#3culture set calendar <which>#0 - changes the calender used by this culture
+	#3culture set nameculture <which> [all|male|female|neuter|nb|indeterminate]#0 - changes the name culture used by this culture
+	#3culture set male|female|neuter|indeterminate <word>#0 - changes the gendered words for someone of this culture
+	#3culture set desc#0 - drops you into an editor for the culture description
+	#3culture set availability <prog>#0 - sets a prog that controls appearance in character creation
+	#3culture set tempfloor <amount>#0 - sets the tolerable temperature floor modifier
+	#3culture set tempceiling <amount>#0 - sets the tolerable temperature ceiling modifier
+	#3culture set advice <which>#0 - toggles a chargen advice applying to this culture
+	#3culture set cost <resource> <amount>#0 - sets a cost for character creation
+	#3culture set require <resource> <amount>#0 - sets a non-cost requirement for character creation
+	#3culture set cost <resource> clear#0 - clears a resource cost for character creation";
 
 	[PlayerCommand("Culture", "culture")]
 	[CommandPermission(PermissionLevel.JuniorAdmin)]
@@ -1703,7 +1727,23 @@ The correct syntax for this command is as follows:
 	#3ethnicity close#0 - stops editing a ethnicity
 	#3ethnicity show <which>#0 - views information about a ethnicity
 	#3ethnicity show#0 - views information about your currently editing ethnicity
-	#3ethnicity set#0 ... - edits properties of a ethnicity";
+	#3ethnicity set name <name>#0 - renames this ethnicity
+	#3ethnicity set group <group>#0 - sets an ethnic group
+	#3ethnicity set group clear#0 - clears an ethnic group
+	#3ethnicity set subgroup <group>#0 - sets an ethnic subgroup
+	#3ethnicity set subgroup clear#0 - clears an ethnic subgroup
+	#3ethnicity set desc#0 - drops you into an editor for the ethnicity description
+	#3ethnicity set nameculture <which> [all|male|female|neuter|nb|indeterminate]#0 - changes the name culture used by this ethnicity
+	#3ethnicity set nameculture none [all|male|female|neuter|nb|indeterminate]#0 - resets the name to not override its culture
+	#3ethnicity set availability <prog>#0 - sets a prog that controls appearance in character creation
+	#3ethnicity set bloodmodel <model>#0 - sets the population blood model for this ethnicity
+	#3ethnicity set tempfloor <amount>#0 - sets the tolerable temperature floor modifier
+	#3ethnicity set tempceiling <amount>#0 - sets the tolerable temperature ceiling modifier
+	#3ethnicity set characteristic <which> <profile>#0 - sets the characteristic profile for this ethnicity
+	#3ethnicity set advice <which>#0 - toggles a chargen advice applying to this ethnicity
+	#3ethnicity set cost <resource> <amount>#0 - sets a cost for character creation
+	#3ethnicity set require <resource> <amount>#0 - sets a non-cost requirement for character creation
+	#3ethnicity set cost <resource> clear#0 - clears a resource cost for character creation";
 
 	[PlayerCommand("Ethnicity", "ethnicity")]
 	[CommandPermission(PermissionLevel.JuniorAdmin)]
@@ -1926,7 +1966,8 @@ The correct syntax for this command is as follows:
 				ethnicity.EthnicGroup ?? "",
 				ethnicity.EthnicSubgroup ?? "",
 				ethnicity.PopulationBloodModel?.Name ?? "",
-				ethnicity.AvailabilityProg?.MXPClickableFunctionName() ?? "None"
+				ethnicity.AvailabilityProg?.MXPClickableFunctionName() ?? "None",
+				ethnicity.NameCultures.Distinct().Where(x => x is not null).Select(x => x.Name).ListToString()
 			},
 			new List<string>
 			{
@@ -1936,7 +1977,8 @@ The correct syntax for this command is as follows:
 				"Group",
 				"Subgroup",
 				"Blood Model",
-				"Availability"
+				"Availability",
+				"Name Cultures"
 			},
 			actor.LineFormatLength,
 			colour: Telnet.Green,

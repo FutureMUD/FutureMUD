@@ -2385,6 +2385,28 @@ namespace MudSharp.Database
 				//    .HasConstraintName("FK_Ethnicities_ChargenResources_Ethnicities");
 			});
 
+			modelBuilder.Entity<EthnicitiesNameCultures>(entity =>
+			{
+				entity.HasKey(e => new { e.EthnicityId, e.NameCultureId, e.Gender })
+				      .HasName("PRIMARY");
+
+				entity.Property(e => e.EthnicityId).HasColumnType("bigint(20)");
+				entity.Property(e => e.NameCultureId).HasColumnType("bigint(20)");
+				entity.Property(e => e.Gender).HasColumnType("smallint(6)");
+
+				entity.HasOne(e => e.Ethnicity)
+				      .WithMany(e => e.EthnicitiesNameCultures)
+				      .HasForeignKey(e => e.EthnicityId)
+				      .OnDelete(DeleteBehavior.Cascade)
+				      .HasConstraintName("FK_EthnicitiesNameCultures_Ethnicities");
+
+				entity.HasOne(e => e.NameCulture)
+				      .WithMany(e => e.EthnicitiesNameCultures)
+				      .HasForeignKey(e => e.NameCultureId)
+				      .OnDelete(DeleteBehavior.Cascade)
+				      .HasConstraintName("FK_EthnicitiesNameCultures_NameCultures");
+			});
+
 			modelBuilder.Entity<Exit>(entity =>
 			{
 				entity.Property(e => e.Id).HasColumnType("bigint(20)");

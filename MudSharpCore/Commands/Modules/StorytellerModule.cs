@@ -2742,11 +2742,11 @@ The syntax is as follows:
 			return;
 		}
 
-		var newName = target.Culture.NameCultureForGender(target.Gender.Enum)
-							.GetPersonalName(ss.SafeRemainingArgument, true);
+		var nc = target.Ethnicity.NameCultureForGender(target.Gender.Enum) ?? target.Culture.NameCultureForGender(target.Gender.Enum);
+		var newName = nc.GetPersonalName(ss.SafeRemainingArgument, true);
 		if (newName == null)
 		{
-			actor.OutputHandler.Send("That is not a valid name for their naming culture.");
+			actor.OutputHandler.Send($"That is not a valid name for their naming culture ({nc.Name.ColourValue()}).");
 			return;
 		}
 

@@ -2646,6 +2646,22 @@ public partial class Character : PerceiverItem, ICharacter
 
 	public IEthnicity Ethnicity => Body.Ethnicity;
 
+	public IEnumerable<INameCulture> NameCultures
+	{
+		get
+		{
+			foreach (var gender in Enum.GetValues<Gender>())
+			{
+				yield return Ethnicity.NameCultureForGender(gender) ?? Culture.NameCultureForGender(gender) ??  Gameworld.NameCultures.First();
+			}
+		}
+	}
+
+	public INameCulture NameCultureForGender(Gender gender)
+	{
+		return Ethnicity.NameCultureForGender(gender) ?? Culture.NameCultureForGender(gender) ?? Gameworld.NameCultures.First();
+	}
+
 	#endregion
 
 	#region IHaveABody Members

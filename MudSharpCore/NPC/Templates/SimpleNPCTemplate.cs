@@ -570,7 +570,9 @@ public class SimpleNPCTemplate : NPCTemplateBase
 				}
 				else if (long.TryParse(element.Value, out _))
 				{
-					SelectedName = SelectedCulture?.NameCultureForGender(SelectedGender).GetPersonalName(Name);
+					SelectedName =
+						SelectedEthnicity?.NameCultureForGender(SelectedGender).GetPersonalName(Name) ??
+						SelectedCulture?.NameCultureForGender(SelectedGender).GetPersonalName(Name);
 					Changed = true;
 				}
 				else
@@ -1244,9 +1246,11 @@ public class SimpleNPCTemplate : NPCTemplateBase
 			cgwp.MaximumWeightProg.ExecuteDouble(template));
 		template = GetCharacterTemplate();
 
-		SelectedName = SelectedCulture.NameCultureForGender(SelectedGender).RandomNameProfiles
-		                              .Where(x => x.IsCompatibleGender(SelectedGender)).GetRandomElement()
-		                              ?.GetRandomPersonalName(true);
+		SelectedName = (SelectedEthnicity.NameCultureForGender(SelectedGender) ?? SelectedCulture.NameCultureForGender(SelectedGender))
+		               .RandomNameProfiles
+		               .Where(x => x.IsCompatibleGender(SelectedGender))
+		               .GetRandomElement()
+		               ?.GetRandomPersonalName(true);
 		SelectedCharacteristics.Clear();
 
 		var characteristicChoices = SelectedRace.Characteristics(SelectedGender);
@@ -1572,10 +1576,11 @@ public class SimpleNPCTemplate : NPCTemplateBase
 			return false;
 		}
 
-		var name = SelectedCulture.NameCultureForGender(SelectedGender).GetPersonalName(command.SafeRemainingArgument);
+		var nc = SelectedEthnicity?.NameCultureForGender(SelectedGender) ?? SelectedCulture.NameCultureForGender(SelectedGender);
+		var name = nc.GetPersonalName(command.SafeRemainingArgument);
 		if (name == null)
 		{
-			actor.OutputHandler.Send("That is not a valid name for that culture.");
+			actor.OutputHandler.Send($"That is not a valid name for that culture ({nc.Name.ColourValue()}).");
 			return false;
 		}
 

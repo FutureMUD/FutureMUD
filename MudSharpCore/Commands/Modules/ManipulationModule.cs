@@ -6121,6 +6121,12 @@ The syntax is as follows:
 			}
 		}
 
+		if (exit?.Exit.Door is not null && !exit.Exit.Door.IsOpen && !exit.Exit.Door.CanFireThrough)
+		{
+			actor.OutputHandler.Send($"You can't lob anything through {exit.Exit.Door.Parent.HowSeen(actor)}.");
+			return;
+		}
+
 		IPerceiver target = null;
 		var targetText = ss.PopSafe();
 		if (!string.IsNullOrEmpty(targetText))

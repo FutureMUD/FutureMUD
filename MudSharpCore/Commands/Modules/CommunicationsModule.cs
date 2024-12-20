@@ -878,6 +878,7 @@ The syntax is simply #3OOC <your message>#0 to send a message to everyone in the
 
 You can use the following syntax with this command:
 
+	#3board look [<board>]#0 - shows a list of posts on a particular board
 	#3board read <##>#0 - reads the specified board post
 	#3board write <title>#0 - drops you into an editor to make a post
 	#3board delete <##>#0 - deletes a board post you authored";
@@ -889,6 +890,7 @@ You can use the following syntax with this command:
 
 You can use the following syntax with this command:
 
+	#3board look <board>#0 - shows a list of posts on a particular board
 	#3board posts <board>#0 - view all posts on a specified board
 	#3board read <board> <##>#0 - views a particular board post
 	#3board read <##>#0 - reads the specified board post from an in-room board
@@ -918,6 +920,9 @@ You can use the following syntax with this command:
 			case "remove":
 			case "rem":
 				BoardDelete(actor, ss);
+				return;
+			case "look":
+				BoardLook(actor, ss);
 				return;
 			case "list":
 			case "posts":
@@ -949,6 +954,71 @@ You can use the following syntax with this command:
 				actor.Send((actor.IsAdministrator() ? BoardHelpAdmin : BoardHelpPlayer).SubstituteANSIColour());
 				return;
 		}
+	}
+
+	private static void BoardLook(ICharacter actor, StringStack input)
+	{
+		IBoardItem boardItem = null;
+		if (input.IsFinished)
+		{
+			var boards = actor.Location
+			                  .LayerGameItems(actor.RoomLayer)
+			                  .Where(x => actor.CanSee(x))
+			                  .SelectNotNull(x => x.GetItemType<IBoardItem>())
+			                  .ToList();
+			if (boards.Count == 0)
+			{
+				actor.OutputHandler.Send("There are no boards here.");
+				return;
+			}
+
+			if (boards.Count > 1)
+			{
+				actor.OutputHandler.Send($"There are the following boards here that you could look at:\n\n{boards.Select(x => $"\t{x.Parent.HowSeen(actor)}")}");
+				return;
+			}
+
+			boardItem = boards[0];
+		}
+		else
+		{
+			var target = actor.TargetLocalItem(input.SafeRemainingArgument);
+			if (target is null)
+			{
+				actor.OutputHandler.Send("You don't see anything like that here.");
+				return;
+			}
+
+			boardItem = target.GetItemType<IBoardItem>();
+			if (boardItem is null)
+			{
+				actor.OutputHandler.Send($"Unfortunately, {target.HowSeen(actor)} is not a board that you can look at.");
+				return;
+			}
+		}
+
+		if (boardItem.CanViewBoard.Execute<bool?>(actor) == false)
+		{
+			actor.OutputHandler.Send(boardItem.CantViewBoardEcho.SubstituteANSIColour());
+			return;
+		}
+
+		if (!boardItem.Board.Posts.Any())
+		{
+			actor.OutputHandler.Send($"That board does not currently have any posts.");
+			return;
+		}
+
+		var sb = new StringBuilder();
+		sb.AppendLine($"Showing posts for {boardItem.Parent.HowSeen(actor)}:\n");
+		var i = 1;
+		foreach (var post in boardItem.Board.Posts.OrderBy(x => x.PostTime)
+		                               .ThenBy(x => x.Id))
+		{
+			sb.AppendLine($"\t{i++.ToString("N0", actor)}) {post.Title.SubstituteANSIColour().ColourIfNotColoured(Telnet.BoldWhite)}");
+		}
+
+		actor.OutputHandler.Send(sb.ToString());
 	}
 
 	private static void BoardDelete(ICharacter actor, StringStack input)

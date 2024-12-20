@@ -144,6 +144,11 @@ Item 6
 		Assert.AreEqual("This text does has more than one sentence! This is the 2nd sentence.", capitaliseText.NormaliseOutputSentences());
 		Assert.AreEqual("This text \x1B[31mhas colour\x1B[0m. And a second sentence...\x1B[31m Which starts\x1B[0m with colour.", ansiText.NormaliseOutputSentences());
 		Assert.AreEqual("This text has two sentences. The \x03italic\x04second sentence\x03/italic\x04 has italics in a bit. Third sentence!", mxpText.NormaliseOutputSentences());
+
+		Assert.AreEqual("Here is some text...with some ellipses", "Here is some text...with some ellipses".NormaliseOutputSentences());
+		Assert.AreEqual("Here is some text.With some ellipses", "Here is some text..with some ellipses".NormaliseOutputSentences());
+		Assert.AreEqual("Here is some text--with some dashes", "Here is some text--with some dashes".NormaliseOutputSentences());
+		Assert.AreEqual("Here is some text?! With an interrobang.", "Here is some text?! with an interrobang.".NormaliseOutputSentences());
 	}
 
 	[TestMethod]

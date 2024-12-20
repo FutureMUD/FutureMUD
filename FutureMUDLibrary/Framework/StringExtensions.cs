@@ -784,6 +784,23 @@ namespace MudSharp.Framework {
 			return token.Length > 2 && token[0] == MXP.BeginMXPChar && token[^1] == MXP.EndMXPChar;
 		}
 
+		private static readonly string[] PermittedPunctuationSequences = new[]
+		{
+			"...",
+			"....",
+			".....",
+			"--",
+			"---",
+			"!?",
+			"?!",
+		};
+
+		private static readonly string[] SentenceEndingPermittedPunctuationSequences = new[]
+		{
+			"!?",
+			"?!",
+		};
+
 		private static string ProcessText(string text, ref bool sentenceEnded)
 		{
 			var output = new StringBuilder();
@@ -804,10 +821,15 @@ namespace MudSharp.Framework {
 				{
 					string punctSeq = punctuationSequence.ToString();
 
-					if (punctSeq == "...")
+					if (PermittedPunctuationSequences.Any(x => x == punctSeq))
 					{
-						// Preserve ellipsis
-						output.Append("...");
+						// Preserve ellipsis etc
+						output.Append(punctSeq);
+						// Check if it ends a sentence
+						if (SentenceEndingPermittedPunctuationSequences.Contains(punctSeq))
+						{
+							sentenceEnded = true;
+						}
 					}
 					else
 					{

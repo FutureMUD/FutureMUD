@@ -99,7 +99,7 @@ public class SimpleOrganicWound : PerceivedItem, IWound
 		effect.BloodlossPerTick = BaseFluidOrganBloodlossPerWoundSeverity * (int)Severity * organ.BleedModifier;
 	}
 
-	public SimpleOrganicWound(IFuturemud gameworld, IHaveWounds owner, double damage, double pain, double stun,
+	public SimpleOrganicWound(IFuturemud gameworld, ICharacter owner, double damage, double pain, double stun,
 		DamageType damageType, IBodypart bodypart, IGameItem lodged, IGameItem toolOrigin,
 		ICharacter actorOrigin)
 	{
@@ -129,6 +129,10 @@ public class SimpleOrganicWound : PerceivedItem, IWound
 		if (Bodypart is IOrganProto organ)
 		{
 			CheckForOrganBleeding();
+		}
+		else if (owner.Race.BloodLiquid is null)
+		{
+			_bleedStatus = BleedStatus.NeverBled;
 		}
 		else
 		{

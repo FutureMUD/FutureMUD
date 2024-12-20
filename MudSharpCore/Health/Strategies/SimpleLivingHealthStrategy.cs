@@ -166,7 +166,7 @@ public class SimpleLivingHealthStrategy : BaseHealthStrategy
 
 		return new[]
 		{
-			new SimpleOrganicWound(owner.Gameworld, owner, damage.DamageAmount, damage.PainAmount,
+			new SimpleOrganicWound(owner.Gameworld, (ICharacter)owner, damage.DamageAmount, damage.PainAmount,
 				damage.StunAmount, damage.DamageType, damage.Bodypart, lodgedItem, damage.ToolOrigin,
 				damage.ActorOrigin)
 		};

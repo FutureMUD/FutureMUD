@@ -151,4 +151,14 @@ public class TagVariableInput : TagInput, IVariableInput
 		return
 			$"{Quantity}x an item with the {TargetTag.FullName.Colour(Telnet.Cyan)} tag [vars: {Characteristics.Select(x => x.Name).ListToString()}]";
 	}
+
+	protected override string SaveDefinition()
+	{
+		return new XElement("Definition",
+			new XElement("TargetTagId", TargetTag?.Id ?? 0),
+			new XElement("Quantity", Quantity),
+			from item in Characteristics
+			select new XElement("Variable", item.Id)
+		).ToString();
+	}
 }

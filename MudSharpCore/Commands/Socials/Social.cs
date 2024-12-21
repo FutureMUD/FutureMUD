@@ -37,7 +37,7 @@ public class Social : ISocial
 	public bool Applies(object actor, string command, bool abbreviations)
 	{
 		return
-			((bool?)ApplicabilityProg?.Execute(actor) ?? true) &&
+			(ApplicabilityProg?.ExecuteBool(actor) ?? true) &&
 			abbreviations
 				? Name.IndexOf(command, StringComparison.InvariantCultureIgnoreCase) >= 0
 				: Name.Equals(command, StringComparison.InvariantCultureIgnoreCase);

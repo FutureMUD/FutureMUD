@@ -49,7 +49,7 @@ public class KnowledgeLessonProposal : LessonProposal, IProposal
 		}
 
 		if (Knowledge.CanLearnProg != null &&
-		    !((bool?)Knowledge.CanLearnProg.Execute(Student, Knowledge) ?? false))
+		    !(Knowledge.CanLearnProg.ExecuteBool(Student, Knowledge)))
 		{
 			learnDifficulty = Difficulty.Impossible;
 		}

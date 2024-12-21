@@ -199,7 +199,7 @@ public class Channel : SaveableItem, IChannel
 		}
 
 		if (ss.Peek().Equals("leave", StringComparison.InvariantCultureIgnoreCase) ||
-		    ss.Peek().Equals("ignore", StringComparison.InvariantCultureIgnoreCase))
+			ss.Peek().Equals("ignore", StringComparison.InvariantCultureIgnoreCase))
 		{
 			if (!channel.Ignore(character))
 			{
@@ -210,7 +210,7 @@ public class Channel : SaveableItem, IChannel
 		}
 
 		if (ss.Peek().Equals("join", StringComparison.InvariantCultureIgnoreCase) ||
-		    ss.Peek().Equals("acknowledge", StringComparison.InvariantCultureIgnoreCase))
+			ss.Peek().Equals("acknowledge", StringComparison.InvariantCultureIgnoreCase))
 		{
 			if (!channel.Acknowledge(character))
 			{
@@ -232,11 +232,11 @@ public class Channel : SaveableItem, IChannel
 	private static void ChannelCommandSet(ICharacter actor, StringStack ss)
 	{
 		var effect = actor.CombinedEffectsOfType<BuilderEditingEffect<IChannel>>().FirstOrDefault();
-        if (effect is null)
-        {
+		if (effect is null)
+		{
 			actor.OutputHandler.Send("You are not editing any channels.");
 			return;
-        }
+		}
 
 		effect.EditingItem.BuildingCommand(actor, ss);
 	}
@@ -396,7 +396,7 @@ public class Channel : SaveableItem, IChannel
 			}
 
 			message = message.Fullstop().ProperSentences();
-			foreach (var tch in Gameworld.Characters.Where(x => (bool?)_channelListenerProg.Execute(x, character) ?? true))
+			foreach (var tch in Gameworld.Characters.Where(x => _channelListenerProg.ExecuteBool(x, character)))
 			{
 				if (_announceMissedListeners)
 				{
@@ -429,7 +429,7 @@ public class Channel : SaveableItem, IChannel
 	{
 		if (source != null)
 		{
-			if (!((bool?)_channelSpeakerProg.Execute(source) ?? true))
+			if (!(_channelSpeakerProg.ExecuteBool(source)))
 			{
 				source.OutputHandler.Send("Huh?");
 				return;
@@ -450,7 +450,7 @@ public class Channel : SaveableItem, IChannel
 
 		message = message.Fullstop().ProperSentences();
 		var sb = new StringBuilder();
-		foreach (var character in Gameworld.Characters.Where(x => (bool?)_channelListenerProg.Execute(x, source) ?? true))
+		foreach (var character in Gameworld.Characters.Where(x => _channelListenerProg.ExecuteBool(x, source)))
 		{
 			if (_announceMissedListeners)
 			{
@@ -497,7 +497,7 @@ public class Channel : SaveableItem, IChannel
 			Gameworld.SystemMessage(output,
 				x =>
 					!_ignoringAccountIDs.Contains(x.Account.Id) &&
-					((bool?)_channelListenerProg.Execute(x, null) ?? true));
+					(_channelListenerProg.ExecuteBool(x, null)));
 		}
 
 		Changed = true;
@@ -520,7 +520,7 @@ public class Channel : SaveableItem, IChannel
 			Gameworld.SystemMessage(output,
 				x =>
 					!_ignoringAccountIDs.Contains(x.Account.Id) &&
-					((bool?)_channelListenerProg.Execute(x, null) ?? true));
+					(_channelListenerProg.ExecuteBool(x, null)));
 		}
 
 		Changed = true;
@@ -754,7 +754,7 @@ For you, this would look like the following:
 		}
 
 		var name = command.SafeRemainingArgument.TitleCase();
-        if (Gameworld.Channels.Any(x => x.Name.EqualTo(name)))
+		if (Gameworld.Channels.Any(x => x.Name.EqualTo(name)))
 		{
 			actor.OutputHandler.Send("There is already a channel with that name. Names must be unique.");
 			return false;

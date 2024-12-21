@@ -72,14 +72,14 @@ public class WardStrategy : StandardMeleeStrategy
 						        x.WeaponType.Attacks.Any(
 							        y =>
 								        y.MoveType == BuiltInCombatMoveType.WardFreeAttack &&
-								        ((bool?)y.UsabilityProg?.Execute(defender, x.Parent) ?? true)))
+								        (y.UsabilityProg?.ExecuteBool(defender, x.Parent) ?? true)))
 				        .FirstMax(x => x.WeaponType.Reach);
 			if (wardWeapon != null ||
 			    (defender.CombatSettings.FallbackToUnarmedIfNoWeapon &&
 			     defender.Race.NaturalWeaponAttacks.Any(
 				     x =>
 					     x.Attack.MoveType == BuiltInCombatMoveType.WardFreeUnarmedAttack &&
-					     ((bool?)x.Attack.UsabilityProg?.Execute(defender) ?? true))))
+					     (x.Attack.UsabilityProg?.ExecuteBool(defender) ?? true))))
 			{
 				return new WardDefenseMove
 				{
@@ -107,14 +107,14 @@ public class WardStrategy : StandardMeleeStrategy
 						        x.WeaponType.Attacks.Any(
 							        y =>
 								        y.MoveType == BuiltInCombatMoveType.WardFreeAttack &&
-								        ((bool?)y.UsabilityProg?.Execute(defender, x.Parent) ?? true)))
+								        (y.UsabilityProg?.ExecuteBool(defender, x.Parent) ?? true)))
 				        .FirstMax(x => x.WeaponType.Reach);
 			if (wardWeapon != null ||
 			    (defender.CombatSettings.FallbackToUnarmedIfNoWeapon &&
 			     defender.Race.NaturalWeaponAttacks.Any(
 				     x =>
 					     x.Attack.MoveType == BuiltInCombatMoveType.WardFreeUnarmedAttack &&
-					     ((bool?)x.Attack.UsabilityProg?.Execute(defender) ?? true))))
+					     (x.Attack.UsabilityProg?.ExecuteBool(defender) ?? true))))
 			{
 				return new WardDefenseMove
 				{

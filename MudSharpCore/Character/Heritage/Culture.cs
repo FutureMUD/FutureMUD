@@ -323,7 +323,7 @@ public class Culture : SaveableItem, ICulture
 	{
 		return _costs.Where(x => x.RequirementOnly)
 					 .All(x => template.Account.AccountResources[x.Resource] >= x.Amount) &&
-			   ((bool?)AvailabilityProg?.Execute(template) ?? true);
+			   (AvailabilityProg?.ExecuteBool(template) ?? true);
 	}
 
 	public double TolerableTemperatureFloorEffect { get; protected set; }

@@ -258,7 +258,7 @@ public class MindLookPower : MagicPowerBase
 
 		;
 
-		if ((bool?)CanInvokePowerProg.Execute(actor, effect.TargetCharacter) == false)
+		if (CanInvokePowerProg.ExecuteBool(actor, effect.TargetCharacter) == false)
 		{
 			actor.OutputHandler.Send(string.Format(
 				WhyCantInvokePowerProg.Execute(actor, effect.TargetCharacter)?.ToString() ??

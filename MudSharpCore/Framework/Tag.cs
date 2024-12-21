@@ -67,7 +67,7 @@ public class Tag : SaveableItem, ILoadingTag
 
 	public bool ShouldSee(ICharacter actor)
 	{
-		return (bool?)ShouldSeeProg?.Execute(actor) != false;
+		return ShouldSeeProg?.ExecuteBool(actor) != false;
 	}
 
 	public IEditableTag GetEditable => this;

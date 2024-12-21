@@ -3250,7 +3250,7 @@ public partial class Character : PerceiverItem, ICharacter
 	public IEnumerable<IGrowableCharacteristicValue> PossibleStyles(ICharacteristicDefinition definition)
 	{
 		var selectables = Gameworld.CharacteristicValues.OfType<IGrowableCharacteristicValue>().Where(x =>
-			x.Definition == definition && ((bool?)x.ChargenApplicabilityProg?.Execute(this) ?? true));
+			x.Definition == definition && (x.ChargenApplicabilityProg?.ExecuteBool(this) ?? true));
 		if (!(Body.GetCharacteristic(definition, null) is IGrowableCharacteristicValue current))
 		{
 			return Enumerable.Empty<IGrowableCharacteristicValue>();

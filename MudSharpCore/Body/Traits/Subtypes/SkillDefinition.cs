@@ -96,7 +96,7 @@ public class SkillDefinition : TraitDefinition, ISkillDefinition
 		return
 			_costs.Where(x => x.RequirementOnly).All(x =>
 				template.Account.AccountResources[x.Resource] >= x.Amount) &&
-			((bool?)AvailabilityProg?.Execute(template, this) ?? true);
+			(AvailabilityProg?.ExecuteBool(template, this) ?? true);
 	}
 
 	public override int ResourceCost(IChargenResource resource)
@@ -154,14 +154,14 @@ public class SkillDefinition : TraitDefinition, ISkillDefinition
 
 	public bool CanTeach(ICharacter character)
 	{
-		return (bool?)TeachableProg?.Execute(character, this) ?? true;
+		return TeachableProg?.ExecuteBool(character, this) ?? true;
 	}
 
 	public IFutureProg LearnableProg { get; set; }
 
 	public bool CanLearn(ICharacter character)
 	{
-		return (bool?)LearnableProg?.Execute(character, this) ?? true;
+		return LearnableProg?.ExecuteBool(character, this) ?? true;
 	}
 
 	public Difficulty TeachDifficulty { get; set; }

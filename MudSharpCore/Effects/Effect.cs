@@ -99,22 +99,22 @@ public abstract partial class Effect : FrameworkItem, IEffect
 
 	public virtual bool Applies()
 	{
-		return (bool?)ApplicabilityProg?.Execute(Owner, null, null) ?? true;
+		return ApplicabilityProg?.ExecuteBool(Owner, null, null) ?? true;
 	}
 
 	public virtual bool Applies(object target)
 	{
-		return (bool?)ApplicabilityProg?.Execute(Owner, target as IPerceivable, null) ?? true;
+		return ApplicabilityProg?.ExecuteBool(Owner, target as IPerceivable, null) ?? true;
 	}
 
 	public virtual bool Applies(object target, object thirdparty)
 	{
-		return (bool?)ApplicabilityProg?.Execute(Owner, target as IPerceivable, thirdparty as IPerceivable) ?? true;
+		return ApplicabilityProg?.ExecuteBool(Owner, target as IPerceivable, thirdparty as IPerceivable) ?? true;
 	}
 
 	public virtual bool Applies(object target, PerceiveIgnoreFlags flags = PerceiveIgnoreFlags.None)
 	{
-		return (bool?)ApplicabilityProg?.Execute(Owner, target as IPerceivable, flags) ?? true;
+		return ApplicabilityProg?.ExecuteBool(Owner, target as IPerceivable, flags) ?? true;
 	}
 
 	public virtual bool IsEffectType<T>() where T : class, IEffect

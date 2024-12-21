@@ -287,8 +287,8 @@ public class Currency : SaveableItem, ICurrency
 		return
 			PatternDictionary[type].FirstOrDefault(
 				                       x => x.ApplicabilityProg == null ||
-				                            ((bool?)x.ApplicabilityProg.Execute(value) ?? true))
-			                       .Describe(value);
+				                            (x.ApplicabilityProg.ExecuteBool(value)))
+			                       ?.Describe(value) ?? "unknown";
 	}
 
 	public CollectionDictionary<CurrencyDescriptionPatternType, ICurrencyDescriptionPattern> PatternDictionary { get; } =

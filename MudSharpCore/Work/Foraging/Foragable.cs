@@ -672,7 +672,7 @@ public class Foragable : EditableItem, IForagable
 		return
 			(MaximumOutcome == Outcome.None || outcome <= MaximumOutcome) &&
 			(MinimumOutcome == Outcome.None || outcome >= MinimumOutcome) &&
-			(CanForageProg == null || ((bool?)CanForageProg.Execute(character, Id) ?? false));
+			(CanForageProg == null || (CanForageProg.ExecuteBool(character, Id)));
 	}
 
 	#endregion

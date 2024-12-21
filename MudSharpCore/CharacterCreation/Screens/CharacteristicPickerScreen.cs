@@ -115,7 +115,7 @@ public class CharacteristicPickerScreenStoryboard : ChargenScreenStoryboard
 				Chargen.SelectedEthnicity.CharacteristicChoices[definition].Values.Where(
 					x =>
 						x.ChargenApplicabilityProg == null ||
-						((bool?)x.ChargenApplicabilityProg.Execute(Chargen) ?? false)).Distinct();
+						(x.ChargenApplicabilityProg.ExecuteBool(Chargen))).Distinct();
 		}
 
 		public override string Display()

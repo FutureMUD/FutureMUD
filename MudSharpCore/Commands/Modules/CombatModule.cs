@@ -2847,7 +2847,7 @@ The syntax for this command is as follows:
 		return argument.Equals("mine", StringComparison.InvariantCultureIgnoreCase)
 			? actor.Gameworld.CharacterCombatSettings.Where(x => x.CharacterOwnerId == actor.Id).ToList()
 			: actor.Gameworld.CharacterCombatSettings.Where(
-				x => ((bool?)x.AvailabilityProg?.Execute(actor) ?? true) &&
+				x => (x.AvailabilityProg?.ExecuteBool(actor) ?? true) &&
 					 (x.GlobalTemplate || x.CharacterOwnerId == actor.Id)
 			).ToList();
 	}
@@ -2892,7 +2892,7 @@ The syntax for this command is as follows:
 			}
 
 			if (!actor.IsAdministrator(PermissionLevel.Admin) && setting.CharacterOwnerId != actor.Id &&
-				(!setting.GlobalTemplate || ((bool?)setting.AvailabilityProg?.Execute(actor) ?? true)))
+				(!setting.GlobalTemplate || (setting.AvailabilityProg?.ExecuteBool(actor) ?? true)))
 			{
 				actor.Send("You do not have permission to view that combat setting.");
 				return;

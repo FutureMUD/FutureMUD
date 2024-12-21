@@ -517,20 +517,18 @@ public class SemiAggressiveAI : PathingAIWithProgTargetsBase
 	protected virtual bool WillPosture(ICharacter character, ICell cell, ICharacter specific,
 		params ICharacter[] targets)
 	{
-		return (bool?)WillPostureProg.Execute(character, cell, specific, targets, ExistingThreatLevel(character)) ??
-		       false;
+		return WillPostureProg.ExecuteBool(character, cell, specific, targets, ExistingThreatLevel(character));
 	}
 
 	protected virtual bool WillAttack(ICharacter character, ICell cell, ICharacter specific,
 		params ICharacter[] targets)
 	{
-		return (bool?)WillAttackProg.Execute(character, cell, specific, targets, ExistingThreatLevel(character)) ??
-		       false;
+		return WillAttackProg.ExecuteBool(character, cell, specific, targets, ExistingThreatLevel(character));
 	}
 
 	protected virtual bool WillFlee(ICharacter character, ICell cell, params ICharacter[] targets)
 	{
-		return (bool?)WillFleeProg.Execute(character, cell, targets, ExistingThreatLevel(character)) ?? false;
+		return WillFleeProg.ExecuteBool(character, cell, targets, ExistingThreatLevel(character));
 	}
 
 	protected virtual (ICell Target, IEnumerable<ICellExit>) FleeRouteForCharacter(ICharacter character)
@@ -610,7 +608,7 @@ public class SemiAggressiveAI : PathingAIWithProgTargetsBase
 		{
 			var newThreat = currentThreat + ThreatPerEscalationTick;
 			var targetList = targets.ToList();
-			if ((bool?)WillAttackPostureEscalationProg.Execute(character, targetList, newThreat) == true)
+			if (WillAttackPostureEscalationProg.ExecuteBool(character, targetList, newThreat))
 			{
 				return (0, false, TimeSpan.Zero);
 			}

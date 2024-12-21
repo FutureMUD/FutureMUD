@@ -216,7 +216,7 @@ public class StartingLocationPickerScreenStoryboard : ChargenScreenStoryboard
 		{
 			return
 				Storyboard.Locations.OrderBy(x => x.Name)
-				          .Where(x => (bool?)x.FutureProg?.Execute(Chargen) ?? true)
+				          .Where(x => x.FutureProg?.ExecuteBool(Chargen) ?? true)
 				          .ToList();
 		}
 	}

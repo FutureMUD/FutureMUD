@@ -87,16 +87,16 @@ public abstract class ChargenScreenStoryboard : SaveableItem, IChargenScreenStor
 		protected bool HasChargenAdvice()
 		{
 			return Chargen.SelectedRace?.ChargenAdvices.Any(x =>
-				       x.TargetStage == AssociatedStage && (bool?)x.ShouldShowAdviceProg?.Execute(Chargen) != false) ==
+				       x.TargetStage == AssociatedStage && x.ShouldShowAdviceProg?.ExecuteBool(Chargen) != false) ==
 			       true ||
 			       Chargen.SelectedEthnicity?.ChargenAdvices.Any(x =>
-				       x.TargetStage == AssociatedStage && (bool?)x.ShouldShowAdviceProg?.Execute(Chargen) != false) ==
+				       x.TargetStage == AssociatedStage && x.ShouldShowAdviceProg?.ExecuteBool(Chargen) != false) ==
 			       true ||
 			       Chargen.SelectedCulture?.ChargenAdvices.Any(x =>
-				       x.TargetStage == AssociatedStage && (bool?)x.ShouldShowAdviceProg?.Execute(Chargen) != false) ==
+				       x.TargetStage == AssociatedStage && x.ShouldShowAdviceProg?.ExecuteBool(Chargen) != false) ==
 			       true ||
 			       Chargen.SelectedRoles.Any(x => x.ChargenAdvices.Any(y =>
-				       y.TargetStage == AssociatedStage && (bool?)y.ShouldShowAdviceProg?.Execute(Chargen) != false));
+				       y.TargetStage == AssociatedStage && y.ShouldShowAdviceProg?.ExecuteBool(Chargen) != false));
 		}
 
 		protected bool ShownChargenAdvice;
@@ -118,7 +118,7 @@ public abstract class ChargenScreenStoryboard : SaveableItem, IChargenScreenStor
 				$"You have Chargen Advice for the {AssociatedStage.Describe()} Stage:\n".Colour(Telnet.BoldWhite));
 			foreach (var advice in Chargen.SelectedRace?.ChargenAdvices.Where(x =>
 				         x.TargetStage == AssociatedStage &&
-				         (bool?)x.ShouldShowAdviceProg?.Execute(Chargen) != false) ?? Enumerable.Empty<ChargenAdvice>())
+				         x.ShouldShowAdviceProg?.ExecuteBool(Chargen) != false) ?? Enumerable.Empty<ChargenAdvice>())
 			{
 				sb.AppendLine();
 				sb.AppendLine(advice.AdviceTitle.GetLineWithTitle(Chargen.Account.LineFormatLength,
@@ -132,7 +132,7 @@ public abstract class ChargenScreenStoryboard : SaveableItem, IChargenScreenStor
 
 			foreach (var advice in Chargen.SelectedEthnicity?.ChargenAdvices.Where(x =>
 				         x.TargetStage == AssociatedStage &&
-				         (bool?)x.ShouldShowAdviceProg?.Execute(Chargen) != false) ?? Enumerable.Empty<ChargenAdvice>())
+				         x.ShouldShowAdviceProg?.ExecuteBool(Chargen) != false) ?? Enumerable.Empty<ChargenAdvice>())
 			{
 				sb.AppendLine();
 				sb.AppendLine(advice.AdviceTitle.GetLineWithTitle(Chargen.Account.LineFormatLength,
@@ -146,7 +146,7 @@ public abstract class ChargenScreenStoryboard : SaveableItem, IChargenScreenStor
 
 			foreach (var advice in Chargen.SelectedCulture?.ChargenAdvices.Where(x =>
 				         x.TargetStage == AssociatedStage &&
-				         (bool?)x.ShouldShowAdviceProg?.Execute(Chargen) != false) ?? Enumerable.Empty<ChargenAdvice>())
+				         x.ShouldShowAdviceProg?.ExecuteBool(Chargen) != false) ?? Enumerable.Empty<ChargenAdvice>())
 			{
 				sb.AppendLine();
 				sb.AppendLine(advice.AdviceTitle.GetLineWithTitle(Chargen.Account.LineFormatLength,
@@ -159,7 +159,7 @@ public abstract class ChargenScreenStoryboard : SaveableItem, IChargenScreenStor
 			}
 
 			foreach (var advice in Chargen.SelectedRoles.SelectMany(x => x.ChargenAdvices).Distinct().Where(x =>
-				         x.TargetStage == AssociatedStage && (bool?)x.ShouldShowAdviceProg?.Execute(Chargen) != false))
+				         x.TargetStage == AssociatedStage && x.ShouldShowAdviceProg?.ExecuteBool(Chargen) != false))
 			{
 				sb.AppendLine();
 				sb.AppendLine(advice.AdviceTitle.GetLineWithTitle(Chargen.Account.LineFormatLength,

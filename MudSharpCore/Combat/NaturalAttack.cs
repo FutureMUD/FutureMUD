@@ -33,6 +33,6 @@ public class NaturalAttack : INaturalAttack
 		       Attack.Intentions.HasFlag(attacker.CombatSettings.RequiredIntentions) &&
 		       (Attack.Intentions & attacker.CombatSettings.ForbiddenIntentions) == 0 &&
 		       (ignorePosition || Attack.RequiredPositionStates.Contains(attacker.PositionState)) &&
-		       ((bool?)Attack.UsabilityProg?.Execute(attacker, null, target) ?? true);
+		       (Attack.UsabilityProg?.ExecuteBool(attacker, null, target) ?? true);
 	}
 }

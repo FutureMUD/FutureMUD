@@ -189,7 +189,7 @@ internal class KnowledgePickerBySkillScreenStoryboard : ChargenScreenStoryboard
 								                 y =>
 									                 y.Learnable.HasFlag(LearnableType.LearnableAtChargen) &&
 									                 !Chargen.SelectedKnowledges.Contains(y) &&
-									                 ((bool?)y.CanPickChargenProg?.Execute(Chargen, x) ?? false))
+									                 (y.CanPickChargenProg?.ExecuteBool(Chargen, x) ?? false))
 							                 .ToList()
 							                 .AsEnumerable()))
 				       .Where(x => x.Item2.Any())

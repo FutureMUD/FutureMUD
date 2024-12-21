@@ -137,7 +137,7 @@ public class CombatMessage : SaveableItem, ICombatMessage
 			}
 		}
 
-		if ((bool?)AuxiliaryProg?.Execute(character, target) == false)
+		if (AuxiliaryProg?.ExecuteBool(character, target) == false)
 		{
 			return false;
 		}
@@ -172,7 +172,7 @@ public class CombatMessage : SaveableItem, ICombatMessage
 			return false;
 		}
 
-		if ((bool?)WeaponAttackProg?.Execute(character, target, weapon, attack?.Id ?? 0, attack?.Verb.Describe(),
+		if (WeaponAttackProg?.ExecuteBool(character, target, weapon, attack?.Id ?? 0, attack?.Verb.Describe(),
 			    bodypart?.Shape.Name ?? "") == false)
 		{
 			return false;

@@ -131,7 +131,7 @@ public class Rank : SaveableItem, IRank
 	public string Abbreviation(ICharacter character)
 	{
 		return character != null
-			? AbbreviationsAndProgs.First(x => (bool?)x.Item1?.Execute(character) ?? true)
+			? AbbreviationsAndProgs.First(x => x.Item1?.ExecuteBool(character) ?? true)
 			                       .Item2
 			: (AbbreviationsAndProgs.FirstOrDefault(x => x.Item1 == null) ?? AbbreviationsAndProgs.First()).Item2;
 	}
@@ -146,7 +146,7 @@ public class Rank : SaveableItem, IRank
 	public string Title(ICharacter character)
 	{
 		return character != null
-			? TitlesAndProgs.First(x => (bool?)x.Item1?.Execute(character) ?? true).Item2
+			? TitlesAndProgs.First(x => x.Item1?.ExecuteBool(character) ?? true).Item2
 			: (TitlesAndProgs.FirstOrDefault(x => x.Item1 == null) ?? TitlesAndProgs.First()).Item2;
 	}
 

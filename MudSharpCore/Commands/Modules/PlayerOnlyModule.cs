@@ -701,7 +701,7 @@ The syntax is #3INTRODUCE ME#0 or #3INTRODUCE <person>#0. You can append a brack
 			StringUtilities.GetTextTable(
 				from social in actor.CommandTree.Commands.Socials
 				where
-					(bool?)social.ApplicabilityProg?.Execute(actor) ?? true
+					social.ApplicabilityProg?.ExecuteBool(actor) ?? true
 				orderby social.Name
 				select new[]
 				{

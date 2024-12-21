@@ -227,7 +227,7 @@ public class Appointment : SaveableItem, IAppointment
 	public string Abbreviation(ICharacter character)
 	{
 		return
-			AbbreviationsAndProgs.First(x => (bool?)x.Item1?.Execute(character) ?? true)
+			AbbreviationsAndProgs.First(x => x.Item1?.ExecuteBool(character) ?? true)
 			                     .Item2;
 	}
 
@@ -295,7 +295,7 @@ public class Appointment : SaveableItem, IAppointment
 
 	public string Title(ICharacter character)
 	{
-		return TitlesAndProgs.First(x => (bool?)x.Item1?.Execute(character) ?? true).Item2;
+		return TitlesAndProgs.First(x => x.Item1?.ExecuteBool(character) ?? true).Item2;
 	}
 
 	IEnumerable<string> IAppointment.Titles

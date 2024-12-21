@@ -42,7 +42,7 @@ public class DefaultHook : IDefaultHook
 	{
 		// Note: The main reason for splitting off this parameter is for creating a character from a Character Template, where the character itself is not loaded at that point and so you want to be able to check against the Character Template in your progs, but hook the Character that is generated.
 		return item != null && type.Equals(PerceivableType, StringComparison.InvariantCultureIgnoreCase) &&
-		       ((bool?)EligibilityProg.Execute(item) ?? false);
+		       (EligibilityProg.ExecuteBool(item));
 	}
 
 	public IHook Hook { get; protected set; }

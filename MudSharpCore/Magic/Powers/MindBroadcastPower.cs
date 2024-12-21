@@ -25,24 +25,24 @@ public class MindBroadcastPower : MagicPowerBase
 			(power, gameworld) => new MindBroadcastPower(power, gameworld));
 	}
 	protected override XElement SaveDefinition()
-    {
-        var definition = new XElement("Definition",
-            new XElement("Verb", Verb),
-            new XElement("EmoteText", new XCData(EmoteText)),
-            new XElement("FailEmoteText", new XCData(FailEmoteText)),
-            new XElement("TargetEmoteText", new XCData(TargetEmoteText)),
-            new XElement("UnknownIdentityDescription", new XCData(UnknownIdentityDescription)),
-            new XElement("MinimumSuccessThreshold", (int)MinimumSuccessThreshold),
+	{
+		var definition = new XElement("Definition",
+			new XElement("Verb", Verb),
+			new XElement("EmoteText", new XCData(EmoteText)),
+			new XElement("FailEmoteText", new XCData(FailEmoteText)),
+			new XElement("TargetEmoteText", new XCData(TargetEmoteText)),
+			new XElement("UnknownIdentityDescription", new XCData(UnknownIdentityDescription)),
+			new XElement("MinimumSuccessThreshold", (int)MinimumSuccessThreshold),
 			new XElement("UseAccent", UseAccent),
-            new XElement("UseLanguage", UseLanguage),
-            new XElement("TargetCanSeeIdentityProg", TargetCanSeeIdentityProg.Id),
-            new XElement("TargetIncluded", TargetIncluded.Id),
-            new XElement("SkillCheckTrait", SkillCheckTrait.Id)
-        );
-        return definition;
-    }
+			new XElement("UseLanguage", UseLanguage),
+			new XElement("TargetCanSeeIdentityProg", TargetCanSeeIdentityProg.Id),
+			new XElement("TargetIncluded", TargetIncluded.Id),
+			new XElement("SkillCheckTrait", SkillCheckTrait.Id)
+		);
+		return definition;
+	}
 
-    protected MindBroadcastPower(MagicPower power, IFuturemud gameworld) : base(power, gameworld)
+	protected MindBroadcastPower(MagicPower power, IFuturemud gameworld) : base(power, gameworld)
 	{
 		var root = XElement.Parse(power.Definition);
 		var element = root.Element("UnknownIdentityDescription");
@@ -179,10 +179,10 @@ public class MindBroadcastPower : MagicPowerBase
 			return;
 		}
 
-		if ((bool?)CanInvokePowerProg.Execute(actor) == false)
+		if (CanInvokePowerProg.ExecuteBool(actor) == false)
 		{
 			actor.OutputHandler.Send(WhyCantInvokePowerProg.Execute(actor)?.ToString() ??
-			                         "You cannot send any broadcasts.");
+									 "You cannot send any broadcasts.");
 			return;
 		}
 
@@ -255,28 +255,28 @@ public class MindBroadcastPower : MagicPowerBase
 	public bool UseAccent { get; protected set; }
 	public IFutureProg TargetIncluded { get; protected set; }
 
-    protected override void ShowSubtype(ICharacter actor, StringBuilder sb)
-    {
-        sb.AppendLine($"Power Verb: {Verb.ColourCommand()}");
-        sb.AppendLine($"Skill Check Trait: {SkillCheckTrait.Name.ColourValue()}");
-        sb.AppendLine($"Skill Check Difficulty: {SkillCheckDifficulty.DescribeColoured()}");
-        sb.AppendLine($"Minimum Success Threshold: {MinimumSuccessThreshold.DescribeColour()}");
-        sb.AppendLine($"Target Can See Identity Prog: {TargetCanSeeIdentityProg.MXPClickableFunctionName()}");
-        sb.AppendLine($"Target Included Prog: {TargetIncluded.MXPClickableFunctionName()}");
-        sb.AppendLine($"Unknown Identity Desc: {UnknownIdentityDescription.ColourCharacter()}");
-        sb.AppendLine($"Use Language: {UseLanguage.ToColouredString()}");
-        sb.AppendLine($"Use Accent: {UseAccent.ToColouredString()}");
-        sb.AppendLine();
-        sb.AppendLine("Emotes:");
-        sb.AppendLine();
-        sb.AppendLine($"Emote: {EmoteText.ColourCommand()}");
-        sb.AppendLine($"Self Emote: {FailEmoteText.ColourCommand()}");
-        sb.AppendLine($"Detected Target Emote: {TargetEmoteText.ColourCommand()}");
-    }
-
-    public string GetAppropriateHowSeen(ICharacter connecter, ICharacter connectee)
+	protected override void ShowSubtype(ICharacter actor, StringBuilder sb)
 	{
-		if ((bool?)TargetCanSeeIdentityProg.Execute(connecter, connectee) == true)
+		sb.AppendLine($"Power Verb: {Verb.ColourCommand()}");
+		sb.AppendLine($"Skill Check Trait: {SkillCheckTrait.Name.ColourValue()}");
+		sb.AppendLine($"Skill Check Difficulty: {SkillCheckDifficulty.DescribeColoured()}");
+		sb.AppendLine($"Minimum Success Threshold: {MinimumSuccessThreshold.DescribeColour()}");
+		sb.AppendLine($"Target Can See Identity Prog: {TargetCanSeeIdentityProg.MXPClickableFunctionName()}");
+		sb.AppendLine($"Target Included Prog: {TargetIncluded.MXPClickableFunctionName()}");
+		sb.AppendLine($"Unknown Identity Desc: {UnknownIdentityDescription.ColourCharacter()}");
+		sb.AppendLine($"Use Language: {UseLanguage.ToColouredString()}");
+		sb.AppendLine($"Use Accent: {UseAccent.ToColouredString()}");
+		sb.AppendLine();
+		sb.AppendLine("Emotes:");
+		sb.AppendLine();
+		sb.AppendLine($"Emote: {EmoteText.ColourCommand()}");
+		sb.AppendLine($"Self Emote: {FailEmoteText.ColourCommand()}");
+		sb.AppendLine($"Detected Target Emote: {TargetEmoteText.ColourCommand()}");
+	}
+
+	public string GetAppropriateHowSeen(ICharacter connecter, ICharacter connectee)
+	{
+		if (TargetCanSeeIdentityProg.ExecuteBool(connecter, connectee))
 		{
 			return connecter.HowSeen(connectee, flags: PerceiveIgnoreFlags.IgnoreConsciousness);
 		}
@@ -286,7 +286,7 @@ public class MindBroadcastPower : MagicPowerBase
 
 	public string GetAppropriateTargetEmote(ICharacter connecter, ICharacter connectee)
 	{
-		if ((bool?)TargetCanSeeIdentityProg.Execute(connecter, connectee) == true)
+		if (TargetCanSeeIdentityProg.ExecuteBool(connecter, connectee))
 		{
 			return string.Format(TargetEmoteText, "$0");
 		}
@@ -294,118 +294,118 @@ public class MindBroadcastPower : MagicPowerBase
 		return string.Format(TargetEmoteText, UnknownIdentityDescription.ColourCharacter());
 	}
 
-    #region Building Commands
-    /// <inheritdoc />
-    protected override string SubtypeHelpText => @"	#3begin <verb>#0 - sets the verb to activate this power
-    #3end <verb>#0 - sets the verb to end this power
-    #3skill <which>#0 - sets the skill used in the skill check
-    #3difficulty <difficulty>#0 - sets the difficulty of the skill check
-    #3threshold <outcome>#0 - sets the minimum outcome for skill success
-    #3distance <distance>#0 - sets the distance that this power can be used at";
+	#region Building Commands
+	/// <inheritdoc />
+	protected override string SubtypeHelpText => @"	#3begin <verb>#0 - sets the verb to activate this power
+	#3end <verb>#0 - sets the verb to end this power
+	#3skill <which>#0 - sets the skill used in the skill check
+	#3difficulty <difficulty>#0 - sets the difficulty of the skill check
+	#3threshold <outcome>#0 - sets the minimum outcome for skill success
+	#3distance <distance>#0 - sets the distance that this power can be used at";
 
-    /// <inheritdoc />
-    public override bool BuildingCommand(ICharacter actor, StringStack command)
-    {
-        switch (command.PopForSwitch())
-        {
-            case "beginverb":
-            case "begin":
-            case "startverb":
-            case "start":
+	/// <inheritdoc />
+	public override bool BuildingCommand(ICharacter actor, StringStack command)
+	{
+		switch (command.PopForSwitch())
+		{
+			case "beginverb":
+			case "begin":
+			case "startverb":
+			case "start":
 			case "verb":
-                return BuildingCommandBeginVerb(actor, command);
-            case "skill":
-            case "trait":
-                return BuildingCommandSkill(actor, command);
-            case "difficulty":
-                return BuildingCommandDifficulty(actor, command);
-            case "threshold":
-                return BuildingCommandThreshold(actor, command);
-        }
-        return base.BuildingCommand(actor, command.GetUndo());
-    }
+				return BuildingCommandBeginVerb(actor, command);
+			case "skill":
+			case "trait":
+				return BuildingCommandSkill(actor, command);
+			case "difficulty":
+				return BuildingCommandDifficulty(actor, command);
+			case "threshold":
+				return BuildingCommandThreshold(actor, command);
+		}
+		return base.BuildingCommand(actor, command.GetUndo());
+	}
 
-    #region Building Subcommands
+	#region Building Subcommands
 
-    private bool BuildingCommandThreshold(ICharacter actor, StringStack command)
-    {
-        if (command.IsFinished)
-        {
-            actor.OutputHandler.Send($"What is the minimum success threshold for this power to work? See {"show outcomes".MXPSend("show outcomes")} for a list of valid values.");
-            return false;
-        }
+	private bool BuildingCommandThreshold(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send($"What is the minimum success threshold for this power to work? See {"show outcomes".MXPSend("show outcomes")} for a list of valid values.");
+			return false;
+		}
 
-        if (!command.SafeRemainingArgument.TryParseEnum(out Outcome value))
-        {
-            actor.OutputHandler.Send($"That is not a valid outcome. See {"show outcomes".MXPSend("show outcomes")} for a list of valid values.");
-            return false;
-        }
+		if (!command.SafeRemainingArgument.TryParseEnum(out Outcome value))
+		{
+			actor.OutputHandler.Send($"That is not a valid outcome. See {"show outcomes".MXPSend("show outcomes")} for a list of valid values.");
+			return false;
+		}
 
-        MinimumSuccessThreshold = value;
-        Changed = true;
-        actor.OutputHandler.Send($"The power user will now need to achieve a {value.DescribeColour()} in order to activate this power.");
-        return true;
-    }
+		MinimumSuccessThreshold = value;
+		Changed = true;
+		actor.OutputHandler.Send($"The power user will now need to achieve a {value.DescribeColour()} in order to activate this power.");
+		return true;
+	}
 
-    private bool BuildingCommandDifficulty(ICharacter actor, StringStack command)
-    {
-        if (command.IsFinished)
-        {
-            actor.OutputHandler.Send($"What difficulty should the skill check for this power be? See {"show difficulties".MXPSend("show difficulties")} for a list of values.");
-            return false;
-        }
+	private bool BuildingCommandDifficulty(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send($"What difficulty should the skill check for this power be? See {"show difficulties".MXPSend("show difficulties")} for a list of values.");
+			return false;
+		}
 
-        if (!command.SafeRemainingArgument.TryParseEnum(out Difficulty value))
-        {
-            actor.OutputHandler.Send($"That is not a valid difficulty. See {"show difficulties".MXPSend("show difficulties")} for a list of values.");
-            return false;
-        }
+		if (!command.SafeRemainingArgument.TryParseEnum(out Difficulty value))
+		{
+			actor.OutputHandler.Send($"That is not a valid difficulty. See {"show difficulties".MXPSend("show difficulties")} for a list of values.");
+			return false;
+		}
 
-        SkillCheckDifficulty = value;
-        Changed = true;
-        actor.OutputHandler.Send($"This power's skill check will now be at a difficulty of {value.DescribeColoured()}.");
-        return true;
-    }
+		SkillCheckDifficulty = value;
+		Changed = true;
+		actor.OutputHandler.Send($"This power's skill check will now be at a difficulty of {value.DescribeColoured()}.");
+		return true;
+	}
 
-    private bool BuildingCommandSkill(ICharacter actor, StringStack command)
-    {
-        if (command.IsFinished)
-        {
-            actor.OutputHandler.Send("Which skill or trait should be used for this power's skill check?");
-            return false;
-        }
+	private bool BuildingCommandSkill(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("Which skill or trait should be used for this power's skill check?");
+			return false;
+		}
 
-        var skill = Gameworld.Traits.GetByIdOrName(command.SafeRemainingArgument);
-        if (skill is null)
-        {
-            actor.OutputHandler.Send("That is not a valid skill or trait.");
-            return false;
-        }
+		var skill = Gameworld.Traits.GetByIdOrName(command.SafeRemainingArgument);
+		if (skill is null)
+		{
+			actor.OutputHandler.Send("That is not a valid skill or trait.");
+			return false;
+		}
 
-        SkillCheckTrait = skill;
-        Changed = true;
-        actor.OutputHandler.Send($"This magic power will now use the {skill.Name.ColourName()} skill for its skill check.");
-        return true;
-    }
+		SkillCheckTrait = skill;
+		Changed = true;
+		actor.OutputHandler.Send($"This magic power will now use the {skill.Name.ColourName()} skill for its skill check.");
+		return true;
+	}
 
-    private bool BuildingCommandBeginVerb(ICharacter actor, StringStack command)
-    {
-        if (command.IsFinished)
-        {
-            actor.OutputHandler.Send("Which verb should be used to activate this power?");
-            return false;
-        }
+	private bool BuildingCommandBeginVerb(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("Which verb should be used to activate this power?");
+			return false;
+		}
 
-        var verb = command.SafeRemainingArgument.ToLowerInvariant();
+		var verb = command.SafeRemainingArgument.ToLowerInvariant();
 
-        var costs = InvocationCosts[Verb].ToList();
-        InvocationCosts[verb] = costs;
-        InvocationCosts.Remove(Verb);
-        Verb = verb;
-        Changed = true;
-        actor.OutputHandler.Send($"This magic power will now use the verb {verb.ColourCommand()} to invoke the power.");
-        return true;
-    }
-    #endregion Building Subcommands
-    #endregion Building Commands
+		var costs = InvocationCosts[Verb].ToList();
+		InvocationCosts[verb] = costs;
+		InvocationCosts.Remove(Verb);
+		Verb = verb;
+		Changed = true;
+		actor.OutputHandler.Send($"This magic power will now use the verb {verb.ColourCommand()} to invoke the power.");
+		return true;
+	}
+	#endregion Building Subcommands
+	#endregion Building Commands
 }

@@ -84,12 +84,12 @@ public class CharacterIntroTemplate : SaveableItem, ICharacterIntroTemplate
 	public bool AppliesToCharacter(ICharacterTemplate template)
 	{
 		return 
-			Echoes.Count > 0 && (bool?)AppliesToCharacterProg.Execute(template) == true;
+			Echoes.Count > 0 && AppliesToCharacterProg.ExecuteBool(template);
 	}
 
 	public bool AppliesToCharacter(ICharacter character)
 	{
-		return Echoes.Count > 0 && (bool?)AppliesToCharacterProg.Execute(character) == true;
+		return Echoes.Count > 0 && AppliesToCharacterProg.ExecuteBool(character);
 	}
 
 	public IFutureProg AppliesToCharacterProg { get; private set; }

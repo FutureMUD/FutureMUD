@@ -205,12 +205,12 @@ public class ScaledCheckCategoryBonusMerit : CharacterMeritBase, ICheckBonusMeri
 	{
 		if (owner is ICharacter ownerAsCharacter)
 		{
-			return (bool?)ApplicabilityProg?.Execute(ownerAsCharacter, target) ?? true;
+			return ApplicabilityProg?.ExecuteBool(ownerAsCharacter, target) ?? true;
 		}
 
 		if (owner is IBody ownerAsBody)
 		{
-			return (bool?)ApplicabilityProg?.Execute(ownerAsBody.Actor, target) ?? true;
+			return ApplicabilityProg?.ExecuteBool(ownerAsBody.Actor, target) ?? true;
 		}
 
 		return owner is Chargen ownerAsChargen;

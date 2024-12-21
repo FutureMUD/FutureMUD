@@ -190,7 +190,7 @@ public class Clan : SaveableItem, IClan
 
 	public static bool CanCreateClan(ICharacter character)
 	{
-		return (bool?)CanCreateClanProg?.Execute(character) ?? true;
+		return CanCreateClanProg?.ExecuteBool(character) ?? true;
 	}
 
 	public static void SetupClans(IFuturemud gameworld)

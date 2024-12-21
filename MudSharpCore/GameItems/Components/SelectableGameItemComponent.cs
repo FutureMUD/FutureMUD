@@ -31,7 +31,7 @@ public class SelectableGameItemComponent : GameItemComponent, ISelectable
 		bool colour, PerceiveIgnoreFlags flags)
 	{
 		var options =
-			_prototype.Options.Where(x => (bool?)x.CanSelectProg.Execute(voyeur, Parent) ?? true).ToList();
+			_prototype.Options.Where(x => x.CanSelectProg.ExecuteBool(voyeur, Parent)).ToList();
 		return !options.Any()
 			? description
 			: $"{description}\n\nIt has the following selections available (see {"help select".FluentTagMXP("send", "href='help select' hint='show the helpfile for the select command'")} for more info):\n{options.Select(x => $"{x.Description} [{x.Keyword.Proper().Colour(Telnet.Yellow)}]").ListToString(separator: "\n", conjunction: "", twoItemJoiner: "\n", article: "\t")}";
@@ -83,14 +83,14 @@ public class SelectableGameItemComponent : GameItemComponent, ISelectable
 	public bool CanSelect(ICharacter character, string argument)
 	{
 		return
-			_prototype.Options.Where(x => (bool?)x.CanSelectProg.Execute(character, Parent) ?? true)
+			_prototype.Options.Where(x => x.CanSelectProg.ExecuteBool(character, Parent))
 			          .Any(x => x.Keyword.StartsWith(argument, StringComparison.InvariantCultureIgnoreCase));
 	}
 
 	public bool Select(ICharacter character, string argument, IEmote playerEmote, bool silent = false)
 	{
 		var options =
-			_prototype.Options.Where(x => (bool?)x.CanSelectProg.Execute(character, Parent) ?? true).ToList();
+			_prototype.Options.Where(x => x.CanSelectProg.ExecuteBool(character, Parent)).ToList();
 		var option =
 			options.FirstOrDefault(x => x.Keyword.Equals(argument, StringComparison.InvariantCultureIgnoreCase)) ??
 			options.FirstOrDefault(x => x.Keyword.StartsWith(argument, StringComparison.InvariantCultureIgnoreCase));

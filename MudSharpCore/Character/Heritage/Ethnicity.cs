@@ -275,7 +275,7 @@ public class Ethnicity : SaveableItem, IEthnicity
 	{
 		return _costs.Where(x => x.RequirementOnly)
 					 .All(x => template.Account.AccountResources[x.Resource] >= x.Amount) &&
-			   ((bool?)AvailabilityProg?.Execute(template) ?? true);
+			   (AvailabilityProg?.ExecuteBool(template) ?? true);
 	}
 
 	private readonly List<ChargenResourceCost> _costs = new();

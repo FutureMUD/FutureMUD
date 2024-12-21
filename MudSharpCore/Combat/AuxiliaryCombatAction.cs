@@ -210,7 +210,7 @@ internal class AuxiliaryCombatAction : CombatAction, IAuxiliaryCombatAction
 		return Intentions.HasFlag(attacker.CombatSettings.RequiredIntentions) &&
 		       (Intentions & attacker.CombatSettings.ForbiddenIntentions) == 0 &&
 		       (ignorePosition || RequiredPositionStates.Contains(attacker.PositionState)) &&
-		       ((bool?)UsabilityProg?.Execute(attacker, null, target) ?? true);
+		       (UsabilityProg?.ExecuteBool(attacker, null, target) ?? true);
 	}
 
 	public string ShowBuilder(ICharacter actor)

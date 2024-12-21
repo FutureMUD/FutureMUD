@@ -316,7 +316,7 @@ internal class ChargenRole : SaveableItem, IChargenRole
 	{
 		return _costs.Where(x => x.RequirementOnly)
 					 .All(x => template.Account.AccountResources[x.Resource] >= x.Amount) &&
-			   ((bool?)AvailabilityProg?.Execute(template) ?? true);
+			   (AvailabilityProg?.ExecuteBool(template) ?? true);
 	}
 
 	public Dictionary<ITraitDefinition, (double amount, bool giveIfMissing)> TraitAdjustments { get; set; }

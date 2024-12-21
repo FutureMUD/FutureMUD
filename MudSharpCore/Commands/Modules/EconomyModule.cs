@@ -956,8 +956,22 @@ The syntax is as follows:
 
 		if (quantity <= 1)
 		{
+			var item = items[0];
 			sb.AppendLine();
-			sb.AppendLine(items.First().Evaluate(actor));
+			sb.AppendLine(item.HowSeen(actor, type: DescriptionType.Full));
+			sb.AppendLine();
+			sb.AppendLine(item.Evaluate(actor));
+			var container = item.GetItemType<IContainer>();
+			if (container is not null && container.Contents.Any())
+			{
+				sb.AppendLine();
+				sb.AppendLine("It also contains the following items:\n");
+				foreach (var content in container.Contents)
+				{
+					sb.AppendLine($"\t{content.HowSeen(actor)}");
+				}
+			}
+
 		}
 
 		var citem = items.First();

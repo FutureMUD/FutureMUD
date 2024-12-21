@@ -9668,6 +9668,22 @@ end if",
 	{
 		AddTag(context, "Functions", "");
 
+		AddTag(context, "Material Functions", "Functions");
+		AddTag(context, "Kindling", "Material Functions");
+		AddTag(context, "Firewood", "Material Functions");
+		AddTag(context, "Meltable", "Material Functions");
+		AddTag(context, "Salvagable Fabric", "Material Functions");
+		AddTag(context, "Commoditisable", "Material Functions");
+		AddTag(context, "Padding", "Material Functions");
+		AddTag(context, "Hot Fire", "Material Functions");
+		AddTag(context, "String", "Material Functions");
+		AddTag(context, "Debris", "Material Functions");
+		AddTag(context, "Tanning Agent", "Material Functions");
+		AddTag(context, "Ore Deposit", "Material Functions");
+		AddTag(context, "Ignition Source", "Material Functions");
+
+		AddTag(context, "Repairing", "Functions");
+		AddTag(context, "Sharpening", "Functions");
 
 		// Clothing
 		AddTag(context, "Worn Items", "Functions");
@@ -9910,6 +9926,7 @@ end if",
 		AddTag(context, "Shifter Spanner", "Construction Tools");
 		AddTag(context, "Screwdriver", "Construction Tools");
 		AddTag(context, "Hammer", "Construction Tools");
+		AddTag(context, "Riveter", "Construction Tools");
 		AddTag(context, "Rivet Gun", "Construction Tools");
 		AddTag(context, "Construction Stapler", "Construction Tools");
 		AddTag(context, "Mallet", "Construction Tools");
@@ -9917,6 +9934,7 @@ end if",
 		AddTag(context, "Torque Wrench", "Wrench");
 		AddTag(context, "Saw", "Construction Tools");
 		AddTag(context, "Chisel", "Construction Tools");
+		AddTag(context, "Pliers", "Construction Tools");
 		AddTag(context, "Trowel", "Construction Tools");
 		AddTag(context, "Stringline", "Construction Tools");
 		AddTag(context, "Spirit Level", "Construction Tools");
@@ -9929,6 +9947,66 @@ end if",
 		AddTag(context, "A-Frame Ladder", "Ladder");
 		AddTag(context, "Cement Mixer", "Construction Tools");
 		AddTag(context, "Wheelbarrow", "Construction Tools");
+
+		// Metalworking Tools
+		AddTag(context, "Metalworking Tools", "Tools");
+		AddTag(context, "Anvil", "Metalworking Tools");
+		AddTag(context, "Forge", "Metalworking Tools");
+		AddTag(context, "Bellows", "Metalworking Tools");
+		AddTag(context, "Crucible", "Metalworking Tools");
+		AddTag(context, "Forge Tongs", "Metalworking Tools");
+		AddTag(context, "Forge Hammer", "Metalworking Tools");
+
+		// Textilecraft Tools
+		AddTag(context, "Textilecraft Tools", "Tools");
+		AddTag(context, "Awl", "Textilecraft Tools");
+		AddTag(context, "Burnisher", "Textilecraft Tools");
+		AddTag(context, "Creaser", "Textilecraft Tools");
+		AddTag(context, "Thread", "Textilecraft Tools");
+		AddTag(context, "Sewing Needle", "Textilecraft Tools");
+		AddTag(context, "Beading Needle", "Textilecraft Tools");
+		AddTag(context, "Seam Ripper", "Textilecraft Tools");
+		AddTag(context, "Fabric Pin", "Textilecraft Tools");
+		AddTag(context, "Pinking Shears", "Textilecraft Tools");
+		AddTag(context, "Tracer Wheel", "Textilecraft Tools");
+		AddTag(context, "Sewing Machine", "Textilecraft Tools");
+		AddTag(context, "Loom", "Textilecraft Tools");
+		AddTag(context, "Knitting Needle", "Textilecraft Tools");
+		AddTag(context, "Dress Form", "Textilecraft Tools");
+
+		// Woodcrafting Tools
+		AddTag(context, "Woodcrafting Tools", "Tools");
+		AddTag(context, "Splitting Axe", "Woodcrafting Tools");
+		AddTag(context, "Felling Axe", "Woodcrafting Tools");
+		AddTag(context, "Tomahawk Axe", "Woodcrafting Tools");
+		AddTag(context, "Lathe", "Woodcrafting Tools");
+		AddTag(context, "Wood Chisel", "Woodcrafting Tools");
+		AddTag(context, "Planer", "Woodcrafting Tools");
+		AddTag(context, "Splitting Awl", "Woodcrafting Tools");
+		AddTag(context, "Adze", "Woodcrafting Tools");
+		AddTag(context, "Wood Auger", "Woodcrafting Tools");
+		AddTag(context, "Saws", "Woodcrafting Tools");
+		AddTag(context, "Bow Saw", "Saws");
+		AddTag(context, "Hack Saw", "Saws");
+		AddTag(context, "Hand Saw", "Saws");
+		AddTag(context, "Fine Saw", "Saws");
+		AddTag(context, "Crosscut Saw", "Saws");
+		AddTag(context, "Pruning Saw", "Saws");
+		AddTag(context, "Forest Saw", "Saws");
+		AddTag(context, "Circular Saw", "Saws");
+		AddTag(context, "Jig Saw", "Saws");
+		AddTag(context, "Chain Saw", "Saws");
+		AddTag(context, "Wood Clamp", "Woodcrafting Tools");
+		AddTag(context, "Carving Drum Gauge", "Woodcrafting Tools");
+		AddTag(context, "Carving Spoon", "Woodcrafting Tools");
+		AddTag(context, "Wood File", "Woodcrafting Tools");
+		AddTag(context, "Sandpaper", "Woodcrafting Tools");
+		AddTag(context, "Rasp", "Woodcrafting Tools");
+		AddTag(context, "Trammel", "Woodcrafting Tools");
+
+		// Tattoos
+		AddTag(context, "Tattooing Tools", "Tools");
+		AddTag(context, "Tattooing Needle", "Tattooing Tools");
 
 		// Medical Tools
 		AddTag(context, "Medical Tools", "Tools");
@@ -10153,6 +10231,9 @@ end if",
 		AddTag(context, "Simple Decorations", "Household Goods");
 		AddTag(context, "Standard Decorations", "Household Goods");
 		AddTag(context, "Luxury Decorations", "Household Goods");
+		AddTag(context, "Simple Wares", "Household Goods");
+		AddTag(context, "Standard Wares", "Household Goods");
+		AddTag(context, "Luxury Wares", "Household Goods");
 
 		AddTag(context, "Military Goods", "Market");
 		AddTag(context, "Weapons", "Military Goods");
@@ -10161,7 +10242,17 @@ end if",
 		AddTag(context, "Clubs", "Weapons");
 		AddTag(context, "Axes", "Weapons");
 		AddTag(context, "Daggers", "Weapons");
-
+		AddTag(context, "Crossbows", "Weapons");
+		AddTag(context, "Bows", "Weapons");
+		AddTag(context, "Guns", "Weapons");
+		AddTag(context, "Hammers", "Weapons");
+		AddTag(context, "Polearms", "Weapons");
+		AddTag(context, "Other Weapons", "Weapons");
+		AddTag(context, "Ammunition", "Military Goods");
+		AddTag(context, "Arrows", "Ammunition");
+		AddTag(context, "Bolts", "Ammunition");
+		AddTag(context, "Bullets", "Ammunition");
+		AddTag(context, "Blackpowder", "Ammunition");
 		AddTag(context, "Armour", "Military Goods");
 		AddTag(context, "Leather Armour", "Armour");
 		AddTag(context, "Mail Armour", "Armour");

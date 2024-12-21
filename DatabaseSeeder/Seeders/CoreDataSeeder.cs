@@ -6334,6 +6334,9 @@ return IsAdmin(@ch)",
 		AddTag("Renaissance Age", "Manufactured Metal");
 		AddTag("Industrial Age", "Manufactured Metal");
 		AddTag("Modern Age", "Manufactured Metal");
+		AddTag("Cast Metal", "Manufactured Metal");
+		AddTag("Forged Metal", "Manufactured Metal");
+		AddTag("Precious Metal", "Manufactured Metal");
 		AddTag("Soil", "Natural Materials");
 		AddTag("Wood", "Natural Materials");
 		AddTag("Hardwood", "Wood");
@@ -6352,6 +6355,7 @@ return IsAdmin(@ch)",
 		AddTag("Fiber Crop", "Agricultural Crop");
 		AddTag("Oil Crop", "Agricultural Crop");
 		AddTag("Animal Skin", "Natural Materials");
+		AddTag("Thick Animal Skin", "Animal Skin");
 		AddTag("Leather", "Natural Materials");
 		AddTag("Fabric", "Manufactured Materials");
 		AddTag("Natural Fiber Fabric", "Fabric");
@@ -6434,7 +6438,7 @@ return IsAdmin(@ch)",
 		AddMaterial("arsenical bronze", MaterialBehaviourType.Metal, 7.85, false, 250000, 0, 0.0, 17.9, 14500000, 500,
 			materialTags: "Bronze Age");
 		AddMaterial("bell bronze", MaterialBehaviourType.Metal, 8.5, false, 250000, 0, 0.0, 17.9, 14500000, 500,
-			materialTags: "Bronze Age");
+			materialTags: ["Bronze Age", "Cast Metal"]);
 		AddMaterial("beryllium", MaterialBehaviourType.Metal, 1.85, false, 10500, 0, 0.0, 17.9, 14500000, 500,
 			materialTags: "Industrial Age");
 		AddMaterial("bismuth bronze", MaterialBehaviourType.Metal, 7.85, false, 314000, 0, 0.0, 17.9, 14500000, 500,
@@ -6454,7 +6458,7 @@ return IsAdmin(@ch)",
 		AddMaterial("carbon steel", MaterialBehaviourType.Metal, 7.85, false, 240000, 0, 0.0, 17.9, 14500000, 500,
 			materialTags: "Modern Age");
 		AddMaterial("cast iron", MaterialBehaviourType.Metal, 7.1, false, 40000, 0, 0.0, 17.9, 14500000, 500,
-			materialTags: "Iron Age");
+			materialTags: ["Iron Age", "Cast Metal"]);
 		AddMaterial("cesium", MaterialBehaviourType.Metal, 1.93, false, 10500, 0, 0.0, 17.9, 14500000, 500,
 			materialTags: "Industrial Age");
 		AddMaterial("chromium", MaterialBehaviourType.Metal, 7.15, false, 10500, 0, 0.0, 17.9, 14500000, 500,
@@ -6474,13 +6478,15 @@ return IsAdmin(@ch)",
 		AddMaterial("germanium", MaterialBehaviourType.Metal, 5.5, false, 10500, 0, 0.0, 17.9, 14500000, 500,
 			materialTags: "Industrial Age");
 		AddMaterial("gold", MaterialBehaviourType.Metal, 19.3, false, 120000, 0, 0.0, 17.9, 14500000, 500,
-			materialTags: "Bronze Age");
+			materialTags: ["Bronze Age", "Precious Metal"]);
 		AddMaterial("hafnium", MaterialBehaviourType.Metal, 13.3, false, 10500, 0, 0.0, 17.9, 14500000, 500,
 			materialTags: "Industrial Age");
 		AddMaterial("high tensile steel", MaterialBehaviourType.Metal, 7.85, false, 240000, 0, 0.0, 17.9, 14500000, 500,
 			materialTags: "Modern Age");
 		AddMaterial("indium", MaterialBehaviourType.Metal, 7.31, false, 10500, 0, 0.0, 17.9, 14500000, 500,
 			materialTags: "Industrial Age");
+		AddMaterial("iridium", MaterialBehaviourType.Metal, 22.562, false, 10500, 0, 0.0, 17.9, 14500000, 500,
+			materialTags: ["Industrial Age", "Precious Metal"]);
 		AddMaterial("lead", MaterialBehaviourType.Metal, 11.3, false, 131000, 0, 0.0, 17.9, 14500000, 500,
 			materialTags: "Bronze Age");
 		AddMaterial("magnesium", MaterialBehaviourType.Metal, 1.74, false, 10500, 0, 0.0, 17.9, 14500000, 500,
@@ -6508,9 +6514,9 @@ return IsAdmin(@ch)",
 		AddMaterial("orichalcum", MaterialBehaviourType.Metal, 8.4, false, 207000, 0, 0.0, 17.9, 14500000, 500,
 			materialTags: "Bronze Age");
 		AddMaterial("osmium", MaterialBehaviourType.Metal, 22.59, false, 10500, 0, 0.0, 17.9, 14500000, 500,
-			materialTags: "Industrial Age");
+			materialTags: ["Industrial Age", "Precious Metal"]);
 		AddMaterial("palladium", MaterialBehaviourType.Metal, 12.0, false, 180000, 0, 0.0, 17.9, 14500000, 500,
-			materialTags: "Industrial Age");
+			materialTags: ["Industrial Age", "Precious Metal"]);
 		AddMaterial("pewter", MaterialBehaviourType.Metal, 7.25, false, 30000, 0, 0.0, 17.9, 14500000, 500,
 			materialTags: "Bronze Age");
 		AddMaterial("phosphorus", MaterialBehaviourType.Metal, 1.82, false, 10500, 0, 0.0, 17.9, 14500000, 500,
@@ -6518,7 +6524,7 @@ return IsAdmin(@ch)",
 		AddMaterial("pig iron", MaterialBehaviourType.Metal, 7.1, false, 75000, 0, 0.0, 17.9, 14500000, 500,
 			materialTags: "Industrial Age");
 		AddMaterial("platinum", MaterialBehaviourType.Metal, 21.5, false, 165000, 0, 0.0, 17.9, 14500000, 500,
-			materialTags: "Iron Age");
+			materialTags: ["Iron Age", "Precious Metal"]);
 		AddMaterial("potassium", MaterialBehaviourType.Metal, 0.89, false, 10500, 0, 0.0, 17.9, 14500000, 500,
 			materialTags: "Industrial Age");
 		AddMaterial("powder-coated steel", MaterialBehaviourType.Metal, 8.0, false, 320000, 0, 0.0, 17.9, 14500000, 500,
@@ -6528,17 +6534,17 @@ return IsAdmin(@ch)",
 		AddMaterial("rhenium", MaterialBehaviourType.Metal, 20.8, false, 10500, 0, 0.0, 17.9, 14500000, 500,
 			materialTags: "Industrial Age");
 		AddMaterial("rhodium", MaterialBehaviourType.Metal, 12.4, false, 700000, 0, 0.0, 17.9, 14500000, 500,
-			materialTags: "Industrial Age");
+			materialTags: ["Industrial Age", "Precious Metal"]);
 		AddMaterial("rubidium", MaterialBehaviourType.Metal, 1.53, false, 10500, 0, 0.0, 17.9, 14500000, 500,
 			materialTags: "Industrial Age");
 		AddMaterial("ruthenium", MaterialBehaviourType.Metal, 12.2, false, 10500, 0, 0.0, 17.9, 14500000, 500,
-			materialTags: "Industrial Age");
+			materialTags: ["Industrial Age", "Precious Metal"]);
 		AddMaterial("selenium", MaterialBehaviourType.Metal, 4.81, false, 10500, 0, 0.0, 17.9, 14500000, 500,
 			materialTags: "Industrial Age");
 		AddMaterial("silicon", MaterialBehaviourType.Metal, 2.33, false, 10500, 0, 0.0, 17.9, 14500000, 500,
 			materialTags: "Industrial Age");
 		AddMaterial("silver", MaterialBehaviourType.Metal, 10.5, false, 55700, 0, 0.0, 17.9, 14500000, 500,
-			materialTags: "Bronze Age");
+			materialTags: ["Bronze Age", "Precious Metal"]);
 		AddMaterial("sodium", MaterialBehaviourType.Metal, 0.97, false, 10500, 0, 0.0, 17.9, 14500000, 500,
 			materialTags: "Industrial Age");
 		AddMaterial("spelter", MaterialBehaviourType.Metal, 7.85, false, 25000, 0, 0.0, 17.9, 14500000, 500,
@@ -6548,7 +6554,7 @@ return IsAdmin(@ch)",
 		AddMaterial("stainless steel", MaterialBehaviourType.Metal, 7.9, false, 516000, 0, 0.0, 17.9, 14500000, 500,
 			materialTags: "Modern Age");
 		AddMaterial("sterling silver", MaterialBehaviourType.Metal, 7.85, false, 55700, 0, 0.0, 17.9, 14500000, 500,
-			materialTags: "Renaissance Age");
+			materialTags: ["Renaissance Age", "Precious Metal"]);
 		AddMaterial("strontium", MaterialBehaviourType.Metal, 2.64, false, 10500, 0, 0.0, 17.9, 14500000, 500,
 			materialTags: "Industrial Age");
 		AddMaterial("sulfur", MaterialBehaviourType.Metal, 2, false, 10500, 0, 0.0, 17.9, 14500000, 500,
@@ -7251,7 +7257,7 @@ return IsAdmin(@ch)",
 		AddMaterial("deer hide", MaterialBehaviourType.Skin, 1.4, true, 15000, 10000, 0.2, 0.14, 0.0001, 500, null,
 			"Animal Skin");
 		AddMaterial("bear hide", MaterialBehaviourType.Skin, 1.4, true, 17500, 10000, 0.2, 0.14, 0.0001, 500, null,
-			"Animal Skin");
+			"Thick Animal Skin");
 		AddMaterial("dog hide", MaterialBehaviourType.Skin, 1.4, true, 15000, 10000, 0.2, 0.14, 0.0001, 500, null,
 			"Animal Skin");
 		AddMaterial("cat hide", MaterialBehaviourType.Skin, 1.4, true, 15000, 10000, 0.2, 0.14, 0.0001, 500, null,
@@ -7265,13 +7271,17 @@ return IsAdmin(@ch)",
 		AddMaterial("snake hide", MaterialBehaviourType.Skin, 1.4, true, 15000, 10000, 0.2, 0.14, 0.0001, 500, null,
 			"Animal Skin");
 		AddMaterial("alligator hide", MaterialBehaviourType.Skin, 1.4, true, 15000, 10000, 0.2, 0.14, 0.0001, 500, null,
-			"Animal Skin");
+			"Thick Animal Skin");
 		AddMaterial("crocodile hide", MaterialBehaviourType.Skin, 1.4, true, 20000, 10000, 0.2, 0.14, 0.0001, 500, null,
-			"Animal Skin");
+			"Thick Animal Skin");
 		AddMaterial("lion hide", MaterialBehaviourType.Skin, 1.4, true, 17500, 10000, 0.2, 0.14, 0.0001, 500, null,
-			"Animal Skin");
+			"Thick Animal Skin");
 		AddMaterial("tiger hide", MaterialBehaviourType.Skin, 1.4, true, 17500, 10000, 0.2, 0.14, 0.0001, 500, null,
-			"Animal Skin");
+			"Thick Animal Skin");
+		AddMaterial("elephant hide", MaterialBehaviourType.Skin, 1.4, true, 17500, 10000, 0.2, 0.14, 0.0001, 500, null,
+			"Thick Animal Skin");
+		AddMaterial("rhino hide", MaterialBehaviourType.Skin, 1.4, true, 17500, 10000, 0.2, 0.14, 0.0001, 500, null,
+			"Thick Animal Skin");
 		AddMaterial("rabbit hide", MaterialBehaviourType.Skin, 1.4, true, 12000, 10000, 0.2, 0.14, 0.0001, 500, null,
 			"Animal Skin");
 		AddMaterial("small mammal hide", MaterialBehaviourType.Skin, 1.4, true, 12000, 10000, 0.2, 0.14, 0.0001, 500,
@@ -7304,6 +7314,10 @@ return IsAdmin(@ch)",
 		AddMaterial("lion leather", MaterialBehaviourType.Leather, 1.4, true, 28000, 10000, 0.2, 0.14, 0.0001, 500,
 			null, "Leather");
 		AddMaterial("tiger leather", MaterialBehaviourType.Leather, 1.4, true, 28000, 10000, 0.2, 0.14, 0.0001, 500,
+			null, "Leather");
+		AddMaterial("elephant leather", MaterialBehaviourType.Leather, 1.4, true, 28000, 10000, 0.2, 0.14, 0.0001, 500,
+			null, "Leather");
+		AddMaterial("rhino leather", MaterialBehaviourType.Leather, 1.4, true, 28000, 10000, 0.2, 0.14, 0.0001, 500,
 			null, "Leather");
 		AddMaterial("rabbit leather", MaterialBehaviourType.Leather, 1.4, true, 25000, 10000, 0.2, 0.14, 0.0001, 500,
 			null, "Leather");
@@ -7467,6 +7481,8 @@ return IsAdmin(@ch)",
 			"Animal Product");
 		AddMaterial("ivory", MaterialBehaviourType.Tooth, 1.52, true, 20000, 50000, 2.0, 0.14, 0.0001, 500, null,
 			"Animal Product");
+		AddMaterial("vegetation", MaterialBehaviourType.Plant, 1.0, true, 1000, 1000, 0.0, 0.14, 0.0001, 500, null,
+			"Natural Materials");
 		AddMaterial("grass", MaterialBehaviourType.Plant, 1.0, true, 1000, 1000, 0.0, 0.14, 0.0001, 500, null,
 			"Natural Materials");
 		AddMaterial("leaf", MaterialBehaviourType.Plant, 1.0, true, 1000, 1000, 0.0, 0.14, 0.0001, 500, null,

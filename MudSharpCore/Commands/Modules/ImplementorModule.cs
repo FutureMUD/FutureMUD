@@ -359,6 +359,9 @@ public class ImplementorModule : Module<ICharacter>
 		var ss = new StringStack(input.RemoveFirstWord());
 		switch (ss.PopSpeech().CollapseString().ToLowerInvariant())
 		{
+			case "exportcrafts":
+				DebugExportCrafts(actor, ss);
+				return;
 			case "testcover":
 				DebugTestCover(actor, ss);
 				return;
@@ -464,6 +467,115 @@ public class ImplementorModule : Module<ICharacter>
 				actor.Send("That's not a known debug routine.");
 				return;
 		}
+	}
+
+	private static void DebugExportCrafts(ICharacter actor, StringStack ss)
+	{
+		var sb = new StringBuilder();
+		sb.AppendLine("Id,Revision,Name,Category,Blurb,Status,Action,Item SDesc,Appear Prog,CanUse Prog,WhyCantUse Prog,OnStart Prog,OnCancel Prog,OnFinishProg,Trait,Difficulty,Threshold,FreeChecks,FailPhase,Interruptable,PhaseLength1,PhaseLength2,PhaseLength3,PhaseLength4,PhaseLength5,PhaseLength6,PhaseLength7,PhaseLength8,PhaseLength9,PhaseLength10,PhaseEcho1,PhaseEcho2,PhaseEcho3,PhaseEcho4,PhaseEcho5,PhaseEcho6,PhaseEcho7,PhaseEcho8,PhaseEcho9,PhaseEcho10,PhaseFailEcho1,PhaseFailEcho2,PhaseFailEcho3,PhaseFailEcho4,PhaseFailEcho5,PhaseFailEcho6,PhaseFailEcho7,PhaseFailEcho8,PhaseFailEcho9,PhaseFailEcho10,Input1,Input2,Input3,Input4,Input5,Input6,Input7,Input8,Input9,Input10,Tool1,Tool2,Tool3,Tool4,Tool5,Tool6,Tool7,Tool8,Tool9,Tool10,Product1,Product2,Product3,Product4,Product5,Product6,Product7,Product8,Product9,Product10,FailProduct1,FailProduct2,FailProduct3,FailProduct4,FailProduct5,FailProduct6,FailProduct7,FailProduct8,FailProduct9,FailProduct10");
+		foreach (var craft in actor.Gameworld.Crafts)
+		{
+			sb.Append($"{craft.Id},{craft.RevisionNumber},\"{craft.Name}\",\"{craft.Category}\",\"{craft.Blurb}\",{craft.Status.DescribeEnum()},\"{craft.ActionDescription}\",\"{craft.ActiveCraftItemSDesc}\",");
+			sb.Append($"{craft.AppearInCraftsListProg?.Name ?? ""},{craft.CanUseProg?.Name ?? ""},{craft.WhyCannotUseProg?.Name ?? ""},{craft.OnUseProgStart?.Name ?? ""},{craft.OnUseProgCancel?.Name ?? ""},{craft.OnUseProgComplete?.Name ?? ""},");
+			sb.Append($"{craft.CheckTrait?.Name ?? ""},{craft.CheckDifficulty.DescribeEnum()},{craft.FailThreshold.DescribeEnum()},{craft.FreeSkillChecks},{craft.FailPhase},{craft.Interruptable}");
+			var lengths = craft.PhaseLengths.ToList();
+			for (var i = 0; i < 10; i++)
+			{
+				if (i < lengths.Count)
+				{
+					sb.Append($",{lengths[i].TotalSeconds}");
+					continue;
+				}
+
+				sb.Append(",");
+			}
+
+			var echoes = craft.PhaseEchoes.ToList();
+			for (var i = 0; i < 10; i++)
+			{
+				if (i < echoes.Count)
+				{
+					sb.Append($",\"{echoes[i]}\"");
+					continue;
+				}
+
+				sb.Append(",");
+			}
+
+			var failEchoes = craft.FailPhaseEchoes.ToList();
+			for (var i = 0; i < 10; i++)
+			{
+				if (i < failEchoes.Count)
+				{
+					sb.Append($",\"{failEchoes[i]}\"");
+					continue;
+				}
+
+				sb.Append(",");
+			}
+
+			var inputs = craft.Inputs.ToList();
+			for (var i = 0; i < 10; i++)
+			{
+				if (i < inputs.Count)
+				{
+					var input = inputs[i];
+					sb.Append($",\"{input.InputType} - {input.HowSeen(actor).StripANSIColour()}\"");
+					continue;
+				}
+
+				sb.Append(",");
+			}
+
+			var tools = craft.Tools.ToList();
+			for (var i = 0; i < 10; i++)
+			{
+				if (i < tools.Count)
+				{
+					var tool = tools[i];
+					sb.Append($",\"{tool.ToolType} - {tool.DesiredState.DescribeEnum()} - {tool.HowSeen(actor).StripANSIColour()}\"");
+					continue;
+				}
+
+				sb.Append(",");
+			}
+
+			var products = craft.Products.ToList();
+			for (var i = 0; i < 10; i++)
+			{
+				if (i < products.Count)
+				{
+					var product = products[i];
+					sb.Append($",\"{product.ProductType} - {product.HowSeen(actor).StripANSIColour()}\"");
+					continue;
+				}
+
+				sb.Append(",");
+			}
+
+			var failProducts = craft.FailProducts.ToList();
+			for (var i = 0; i < 10; i++)
+			{
+				if (i < failProducts.Count)
+				{
+					var product = failProducts[i];
+					sb.Append($",\"{product.ProductType} - {product.HowSeen(actor).StripANSIColour()}\"");
+					continue;
+				}
+
+				sb.Append(",");
+			}
+
+			sb.AppendLine();
+		}
+
+		using var fs = new FileStream($"CraftsExport{DateTime.UtcNow.ToFileTimeUtc()}.csv", FileMode.Create);
+		using var writer = new StreamWriter(fs);
+		writer.Write(sb);
+		writer.Flush();
+		writer.Close();
+		actor.OutputHandler.Send($"Successfully exported crafts list to {fs.Name.ColourCommand()}");
+		fs.Close();
 	}
 
 	private static void DebugTestCover(ICharacter actor, StringStack ss)

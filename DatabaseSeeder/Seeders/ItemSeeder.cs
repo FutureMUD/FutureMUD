@@ -74,6 +74,11 @@ public class ItemSeeder : IDatabaseSeeder
 		};
 		foreach (var item in tags)
 		{
+			if (string.IsNullOrEmpty(item))
+			{
+				continue;
+			}
+
 			dbitem.GameItemProtosTags.Add(new GameItemProtosTags
 			{
 				GameItemProto = dbitem,
@@ -83,6 +88,11 @@ public class ItemSeeder : IDatabaseSeeder
 
 		foreach (var item in components)
 		{
+			if (string.IsNullOrEmpty(item))
+			{
+				continue;
+			}
+
 			dbitem.GameItemProtosGameItemComponentProtos.Add(new GameItemProtosGameItemComponentProtos
 			{
 				GameItemProto = dbitem,
@@ -101,11 +111,7 @@ public class ItemSeeder : IDatabaseSeeder
 		_questionAnswers = questionAnswers;
 		InitialiseDependencies();
 
-		#region Core Clothing items
 
-		CreateItem("belt", "a simple leather belt", null, @"This leather belt is fashioned from thick, carefully tanned hide, bearing only the natural texture of the material. Its surface shows no embroidery or tooling, relying solely on the quality of its workmanship for appeal. A simple buckle of wrought iron secures it, its shape designed with function over flourish in mind.", SizeCategory.Small, ItemQuality.Standard, 150, 0.0M, true, false, "cow leather", ["Standard Clothing", "Belts"], ["Holdable", "Wear_Waist", "Belt_2", "Destroyable_Clothing"]);
-
-		#endregion
 
 		return "The operation completed successfully.";
 	}

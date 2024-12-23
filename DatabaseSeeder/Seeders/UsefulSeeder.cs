@@ -10008,6 +10008,55 @@ end if",
 		AddTag(context, "Tattooing Tools", "Tools");
 		AddTag(context, "Tattooing Needle", "Tattooing Tools");
 
+		AddTag(context, "Leatherworking Tools", "Tools");
+		AddTag(context, "Awl Punch", "Leatherworking Tools");
+		AddTag(context, "Leather Stitching Pony", "Leatherworking Tools");
+		AddTag(context, "Edge Beveller", "Leatherworking Tools");
+		AddTag(context, "Leather Gouge", "Leatherworking Tools");
+		AddTag(context, "Leather Creaser", "Leatherworking Tools");
+
+		AddTag(context, "Stoneworking Tools", "Tools");
+		AddTag(context, "Stone Chisel", "Stoneworking Tools");
+		AddTag(context, "Stone Mallet", "Stoneworking Tools");
+		AddTag(context, "Plug and Feathers", "Stoneworking Tools");
+		AddTag(context, "Bush Hammer", "Stoneworking Tools");
+
+		AddTag(context, "Spinning Tools", "Textilecraft Tools");
+		AddTag(context, "Distaff", "Spinning Tools");
+		AddTag(context, "Spindle", "Spinning Tools");
+		AddTag(context, "Drop Spindle", "Spinning Tools");
+		AddTag(context, "Spinner's Weights", "Spinning Tools");
+
+		AddTag(context, "Weaving Tools", "Textilecraft Tools");
+		AddTag(context, "Hand Loom", "Weaving Tools");
+		AddTag(context, "Tablet Weaving Cards", "Weaving Tools");
+		AddTag(context, "Weaver's Sword", "Weaving Tools");
+		AddTag(context, "Warping Board", "Weaving Tools");
+
+		AddTag(context, "Fletching Tools", "Woodcrafting Tools");
+		AddTag(context, "Arrow Jig", "Fletching Tools");
+		AddTag(context, "Fletching Clamp", "Fletching Tools");
+		AddTag(context, "Shaft Straightener", "Fletching Tools");
+
+		AddTag(context, "Bowyer Tools", "Woodcrafting Tools");
+		AddTag(context, "Bow Press", "Bowyer Tools");
+		AddTag(context, "Tillering Stick", "Bowyer Tools");
+		AddTag(context, "Bow Scale", "Bowyer Tools");
+
+		AddTag(context, "Papermaking Tools", "Tools");
+		AddTag(context, "Mould and Deckle", "Papermaking Tools");
+		AddTag(context, "Press Felt", "Papermaking Tools");
+		AddTag(context, "Hollander Beater", "Papermaking Tools");
+
+		AddTag(context, "Glassblowing Tools", "Tools");
+		AddTag(context, "Blowpipe", "Glassblowing Tools");
+		AddTag(context, "Pontil Rod", "Glassblowing Tools");
+		AddTag(context, "Marver Table", "Glassblowing Tools");
+		AddTag(context, "Jacks", "Glassblowing Tools");
+		AddTag(context, "Paper Pads", "Glassblowing Tools");
+		AddTag(context, "Blocks", "Glassblowing Tools");
+
+
 		// Medical Tools
 		AddTag(context, "Medical Tools", "Tools");
 		AddTag(context, "Stethoscope", "Medical Tools");

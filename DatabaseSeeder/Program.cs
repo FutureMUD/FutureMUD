@@ -35,12 +35,12 @@ internal class Program
 
 		Console.ForegroundColor = ConsoleColor.Cyan;
 		Console.WriteLine(@"
-             ______     _                 ___  ____   _______ 
-             |  ___|   | |                |  \/  | | | |  _  \
-             | |_ _   _| |_ _   _ _ __ ___| .  . | | | | | | |
-             |  _| | | | __| | | | '__/ _ \ |\/| | | | | | | |
-             | | | |_| | |_| |_| | | |  __/ |  | | |_| | |/ / 
-             \_|  \__,_|\__|\__,_|_|  \___\_|  |_/\___/|___/  ");
+			 ______     _                 ___  ____   _______ 
+			 |  ___|   | |                |  \/  | | | |  _  \
+			 | |_ _   _| |_ _   _ _ __ ___| .  . | | | | | | |
+			 |  _| | | | __| | | | '__/ _ \ |\/| | | | | | | |
+			 | | | |_| | |_| |_| | | |  __/ |  | | |_| | |/ / 
+			 \_|  \__,_|\__|\__,_|_|  \___\_|  |_/\___/|___/  ");
 
 		Console.ForegroundColor = ConsoleColor.Magenta;
 		Console.WriteLine(@"                                                 
@@ -64,15 +64,15 @@ Please press enter to begin.".WriteLineConsole();
 		ConnectionString =
 			"server=localhost;port=3306;database=demo_dbo;uid=futuremud;password=rpiengine2020;Default Command Timeout=300000;";
 #else
-            Console.WriteLine("Please enter the connection string for your database: ");
-            Console.Write("This is very likely to be in the following format: ");
-            Console.ForegroundColor = ConsoleColor.DarkYellow;
-            Console.Write("server=localhost;port=3306;database=YOURMUDDB;uid=YOURUSERNAME;password=YOURPASSWORD;Default Command Timeout=300000");
-            Console.WriteLine();
-            Console.ResetColor();
-            Console.WriteLine();
-            Console.Write("> ");
-            ConnectionString = Console.ReadLine();
+			Console.WriteLine("Please enter the connection string for your database: ");
+			Console.Write("This is very likely to be in the following format: ");
+			Console.ForegroundColor = ConsoleColor.DarkYellow;
+			Console.Write("server=localhost;port=3306;database=YOURMUDDB;uid=YOURUSERNAME;password=YOURPASSWORD;Default Command Timeout=300000");
+			Console.WriteLine();
+			Console.ResetColor();
+			Console.WriteLine();
+			Console.Write("> ");
+			ConnectionString = Console.ReadLine();
 #endif
 		try
 		{
@@ -196,14 +196,14 @@ do
   
   if [ -f ""$SERVER_PORT_BASEDIR/BOOTING"" ]
   then
-    echo ""Server quit during boot sequence.""
-    break;
+	echo ""Server quit during boot sequence.""
+	break;
   fi
   
   if [ -f ""$SERVER_PORT_BASEDIR/STOP-REBOOTING"" ]
   then
-    echo ""Server was shut down with a request to end the boot loop.""
-    break;
+	echo ""Server was shut down with a request to end the boot loop.""
+	break;
   fi
 wait
 done
@@ -218,30 +218,30 @@ echo ""The game engine has shut down.""");
 
 #if DEBUG
 #else
-            try
-            {
+			try
+			{
 #endif
 
 		EnsureDatabaseCreated();
 		ShowMainMenu();
 #if DEBUG
 #else
-            }
-            catch (Exception e)
-            {
-                using var writer =
+			}
+			catch (Exception e)
+			{
+				using var writer =
  new StreamWriter(new FileStream($"Database Seeder Exception {Assembly.GetCallingAssembly().GetName().Version} {DateTime.UtcNow:yyyyMMddHHmmss}.txt", FileMode.OpenOrCreate, FileAccess.Write));
-                writer.Write(e.ToString());
-                writer.Close();
+				writer.Write(e.ToString());
+				writer.Close();
 
-                Console.Clear();
-                Console.WriteLine(@$"Unfortunately, the database seeder has crashed. It will have written out a crash log to the directory from which you ran the program. It would be much appreciated if you could pass this crash log, along with some contextual information about what you were doing to Japheth on the Discord server.
-                
+				Console.Clear();
+				Console.WriteLine(@$"Unfortunately, the database seeder has crashed. It will have written out a crash log to the directory from which you ran the program. It would be much appreciated if you could pass this crash log, along with some contextual information about what you were doing to Japheth on the Discord server.
+				
 The exception details were as follows:
 
 {e}");
-                Console.ReadLine();
-            }
+				Console.ReadLine();
+			}
 #endif
 	}
 
@@ -299,8 +299,8 @@ The exception details were as follows:
 
 			var i = 1;
 			using (var context = new FuturemudDatabaseContext(
-				       new DbContextOptionsBuilder<FuturemudDatabaseContext>().UseLazyLoadingProxies()
-					       .UseMySql(ConnectionString!, ServerVersion.AutoDetect(ConnectionString)).Options))
+					   new DbContextOptionsBuilder<FuturemudDatabaseContext>().UseLazyLoadingProxies()
+						   .UseMySql(ConnectionString!, ServerVersion.AutoDetect(ConnectionString)).Options))
 			{
 				seeders.First().ShouldSeedData(context);
 				Console.Clear();

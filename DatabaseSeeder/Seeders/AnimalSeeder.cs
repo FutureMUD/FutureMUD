@@ -558,12 +558,12 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
 		_freshWaters.Add(_context.Liquids.First(x => x.Name == "tap water"));
 		_freshWaters.Add(_context.Liquids.First(x => x.Name == "rain water"));
 		_freshWaters.Add(_context.Liquids.First(x => x.Name == "water"));
-		_bloodLiquid = _context.Liquids.FirstOrDefault(x => x.Name == "Blood");
+		_bloodLiquid = _context.Liquids.FirstOrDefault(x => x.Name == "blood");
 		if (_bloodLiquid is null)
 		{
 			var driedBlood = new Material
 			{
-				Name = "Dried Blood",
+				Name = "dried Blood",
 				MaterialDescription = "dried blood",
 				Density = 1520,
 				Organic = true,
@@ -629,12 +629,12 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
 			_bloodLiquid = blood;
 		}
 
-		_sweatLiquid = _context.Liquids.FirstOrDefault(x => x.Name == "Sweat");
+		_sweatLiquid = _context.Liquids.FirstOrDefault(x => x.Name == "sweat");
 		if (_sweatLiquid is null)
 		{
 			var driedSweat = new Material
 			{
-				Name = "Dried Sweat",
+				Name = "dried Sweat",
 				MaterialDescription = "dried sweat",
 				Density = 1520,
 				Organic = true,
@@ -2974,7 +2974,7 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
 
 		var driedBlood = new Material
 		{
-			Name = $"Dried {adjective} Blood",
+			Name = $"dried {adjective.ToLowerInvariant()} blood",
 			MaterialDescription = "dried blood",
 			Density = 1520,
 			Organic = true,
@@ -3045,7 +3045,7 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
 		{
 			var driedSweat = new Material
 			{
-				Name = $"Dried {adjective} Sweat",
+				Name = $"dried {adjective.ToLowerInvariant()} sweat",
 				MaterialDescription = "dried sweat",
 				Density = 1520,
 				Organic = true,

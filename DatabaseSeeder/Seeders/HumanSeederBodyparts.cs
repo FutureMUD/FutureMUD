@@ -2186,7 +2186,7 @@ public partial class HumanSeeder
 		);
 
 		AddBodypartGroupDescriberShape("head", "Head and all related",
-			("scalp", 1, 1),
+			("scalp", 0, 1),
 			("face", 0, 1),
 			("chin", 0, 1),
 			("cheek", 0, 2),
@@ -5672,6 +5672,33 @@ public partial class HumanSeeder
 				HidesSevered: true),
 			("lpinkyfinger", 1, Mandatory: false, NoArmour: false, Transparent: false, PreventsRemoval: true,
 				HidesSevered: true)
+		);
+		AddWearProfileDirect("Gloves", "worn on", "put", "puts", "on", "Hand covering", false,
+			true,
+			("rhand", 1, Mandatory: true, NoArmour: false, Transparent: false, PreventsRemoval: true,
+				HidesSevered: false),
+			("lhand", 1, Mandatory: true, NoArmour: false, Transparent: false, PreventsRemoval: true,
+				HidesSevered: false),
+			("rthumb", 1, Mandatory: false, NoArmour: false, Transparent: false, PreventsRemoval: true,
+				HidesSevered: false),
+			("lthumb", 1, Mandatory: false, NoArmour: false, Transparent: false, PreventsRemoval: true,
+				HidesSevered: false),
+			("rindexfinger", 1, Mandatory: false, NoArmour: false, Transparent: false, PreventsRemoval: true,
+				HidesSevered: false),
+			("lindexfinger", 1, Mandatory: false, NoArmour: false, Transparent: false, PreventsRemoval: true,
+				HidesSevered: false),
+			("rmiddlefinger", 1, Mandatory: false, NoArmour: false, Transparent: false, PreventsRemoval: true,
+				HidesSevered: false),
+			("lmiddlefinger", 1, Mandatory: false, NoArmour: false, Transparent: false, PreventsRemoval: true,
+				HidesSevered: false),
+			("rringfinger", 1, Mandatory: false, NoArmour: false, Transparent: false, PreventsRemoval: true,
+				HidesSevered: false),
+			("lringfinger", 1, Mandatory: false, NoArmour: false, Transparent: false, PreventsRemoval: true,
+				HidesSevered: false),
+			("rpinkyfinger", 1, Mandatory: false, NoArmour: false, Transparent: false, PreventsRemoval: true,
+				HidesSevered: false),
+			("lpinkyfinger", 1, Mandatory: false, NoArmour: false, Transparent: false, PreventsRemoval: true,
+				HidesSevered: false)
 		);
 
 		AddWearProfileDirect("Chausses", "worn on", "slip", "slips", "on", "Worn as chausses, armoured trousers", false,

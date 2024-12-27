@@ -13,8 +13,6 @@ using MudSharp.Framework;
 
 namespace DatabaseSeeder;
 
-
-
 internal class Program
 {
 	private static string? ConnectionString { get; set; }
@@ -26,7 +24,7 @@ internal class Program
 			Console.WindowWidth = (int)(Console.LargestWindowWidth * 0.75);
 			Console.WindowHeight = (int)(Console.LargestWindowHeight * 0.75);
 		}
-
+		string password = "", user = "", database = "";
 		var version = Assembly.GetCallingAssembly().GetName().Version ?? new Version(1, 0, 0);
 
 		Console.ForegroundColor = ConsoleColor.Magenta;
@@ -127,7 +125,6 @@ echo Mud was shut down and requested boot loop to end.
 				Directory.CreateDirectory(Path.GetDirectoryName(
 					Assembly.GetEntryAssembly()!.Location) + "\\Backups");
 				var regex = new Regex(@"(?<option>[^;=]+)=(?<value>[^;=]+)");
-				string password = "", user = "", database = "";
 				foreach (Match match in regex.Matches(ConnectionString))
 				{
 					switch (match.Groups["option"].Value.ToLowerInvariant())
@@ -222,7 +219,7 @@ echo ""The game engine has shut down.""");
 			{
 #endif
 
-		EnsureDatabaseCreated();
+		EnsureDatabaseCreated(database);
 		ShowMainMenu();
 #if DEBUG
 #else
@@ -245,13 +242,26 @@ The exception details were as follows:
 #endif
 	}
 
-	private static void EnsureDatabaseCreated()
+	private static void EnsureDatabaseCreated(string database)
 	{
+		
 		Console.WriteLine("Ensuring that Database migrations are applied...");
 		using var context = new FuturemudDatabaseContext(new DbContextOptionsBuilder<FuturemudDatabaseContext>()
 			.UseMySql(ConnectionString, ServerVersion.AutoDetect(ConnectionString)).Options);
 		var migrator = context.GetService<IMigrator>();
 		var migrations = context.Database.GetPendingMigrations().ToList();
+
+		// Try to create the database via script to save time
+		//if (migrations.Count > 0 && migrations[0] == "20200626070704_InitialDatabase")
+		//{
+			
+		//	"No database detected, attempting to create...".WriteLineConsole();
+		//	var dbSQL = DatabaseConstant.DatabaseSQL.Replace("demo_dbo", database);
+		//	context.Database.ExecuteSqlRaw(dbSQL);
+		//	"...created, detecting migrations...".WriteLineConsole();
+		//	migrations = context.Database.GetPendingMigrations().ToList();
+		//}
+
 		var i = 1;
 		foreach (var migration in migrations)
 		{

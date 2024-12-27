@@ -3672,7 +3672,7 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
 		CreateWeaponComponent(mace);
 		var trainingmace = new WeaponType
 		{
-			Name = "Mace",
+			Name = "Training Mace",
 			Classification = (int)WeaponClassification.NonLethal,
 			AttackTrait = skills["Mace"],
 			ParryTrait = parrySkills["Mace"],
@@ -4655,7 +4655,7 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
 		CreateWeaponComponent(rapier);
 		var trainingrapier = new WeaponType
 		{
-			Name = "Training Longsword",
+			Name = "Training Rapier",
 			Classification = (int)WeaponClassification.Training,
 			AttackTrait = skills["Rapier"],
 			ParryTrait = parrySkills["Rapier"],

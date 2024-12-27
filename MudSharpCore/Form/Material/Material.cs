@@ -129,6 +129,10 @@ public abstract class Material : SaveableItem, IMaterial
 				Organic = true;
 				break;
 			case MaterialBehaviourType.Shell:
+			case MaterialBehaviourType.Horn:
+			case MaterialBehaviourType.Claw:
+			case MaterialBehaviourType.Scale:
+			case MaterialBehaviourType.Beak:
 				Organic = true;
 				break;
 			case MaterialBehaviourType.Mana:
@@ -178,6 +182,7 @@ public abstract class Material : SaveableItem, IMaterial
 			case MaterialBehaviourType.Soil:
 				Density = 2000;
 				break;
+
 		}
 	}
 

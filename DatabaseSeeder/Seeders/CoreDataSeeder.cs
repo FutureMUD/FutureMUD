@@ -6878,8 +6878,6 @@ return IsAdmin(@ch)",
 			null, "Gemstone");
 		AddMaterial("opal", MaterialBehaviourType.Stone, 3.5, false, 60000000, 200000, 0.0, 0.14, 0.0001, 500, null,
 			"Gemstone");
-		AddMaterial("diamond", MaterialBehaviourType.Stone, 3.5, false, 60000000, 200000, 0.0, 0.14, 0.0001, 500, null,
-			"Gemstone");
 		AddMaterial("jade", MaterialBehaviourType.Stone, 3.5, false, 60000000, 200000, 0.0, 0.14, 0.0001, 500, null,
 			"Gemstone");
 		AddMaterial("emerald", MaterialBehaviourType.Stone, 3.5, false, 60000000, 200000, 0.0, 0.14, 0.0001, 500, null,
@@ -7042,7 +7040,7 @@ return IsAdmin(@ch)",
 		#endregion
 
 		#region Food
-
+		AddMaterial("food", MaterialBehaviourType.Food, 1.0, true, 1000, 1000, 0.0, 0.14, 0.0001, 500, null, "Food");
 		AddMaterial("beef", MaterialBehaviourType.Meat, 1.3, true, 10000, 10000, 0.0, 0.14, 0.0001, 500, null, "Meat");
 		AddMaterial("pork", MaterialBehaviourType.Meat, 1.3, true, 10000, 10000, 0.0, 0.14, 0.0001, 500, null, "Meat");
 		AddMaterial("lamb", MaterialBehaviourType.Meat, 1.3, true, 10000, 10000, 0.0, 0.14, 0.0001, 500, null, "Meat");
@@ -7082,7 +7080,7 @@ return IsAdmin(@ch)",
 			"Meat");
 		AddMaterial("snail", MaterialBehaviourType.Meat, 1.3, true, 10000, 10000, 0.0, 0.14, 0.0001, 500, null, "Meat");
 
-		AddMaterial("food", MaterialBehaviourType.Food, 1.0, true, 1000, 1000, 0.0, 0.14, 0.0001, 500, null, "Food");
+		AddMaterial("fruit", MaterialBehaviourType.Food, 1.0, true, 1000, 1000, 0.0, 0.14, 0.0001, 500, null, "Fruit");
 		AddMaterial("apple", MaterialBehaviourType.Food, 1.0, true, 1000, 1000, 0.0, 0.14, 0.0001, 500, null, "Fruit");
 		AddMaterial("banana", MaterialBehaviourType.Food, 1.0, true, 1000, 1000, 0.0, 0.14, 0.0001, 500, null, "Fruit");
 		AddMaterial("pear", MaterialBehaviourType.Food, 1.0, true, 1000, 1000, 0.0, 0.14, 0.0001, 500, null, "Fruit");
@@ -7105,8 +7103,9 @@ return IsAdmin(@ch)",
 		AddMaterial("lemon", MaterialBehaviourType.Food, 1.0, true, 1000, 1000, 0.0, 0.14, 0.0001, 500, null, "Fruit");
 		AddMaterial("lime", MaterialBehaviourType.Food, 1.0, true, 1000, 1000, 0.0, 0.14, 0.0001, 500, null, "Fruit");
 		AddMaterial("orange", MaterialBehaviourType.Food, 1.0, true, 1000, 1000, 0.0, 0.14, 0.0001, 500, null, "Fruit");
-		AddMaterial("fruit", MaterialBehaviourType.Food, 1.0, true, 1000, 1000, 0.0, 0.14, 0.0001, 500, null, "Fruit");
 
+		AddMaterial("vegetable", MaterialBehaviourType.Food, 1.0, true, 1000, 1000, 0.0, 0.14, 0.0001, 500, null,
+			"Vegetable");
 		AddMaterial("potato", MaterialBehaviourType.Food, 1.0, true, 1000, 1000, 0.0, 0.14, 0.0001, 500, null,
 			"Vegetable");
 		AddMaterial("tomato", MaterialBehaviourType.Food, 1.0, true, 1000, 1000, 0.0, 0.14, 0.0001, 500, null,
@@ -7123,11 +7122,17 @@ return IsAdmin(@ch)",
 			"Vegetable");
 		AddMaterial("bean", MaterialBehaviourType.Food, 1.0, true, 1000, 1000, 0.0, 0.14, 0.0001, 500, null,
 			"Vegetable");
+		AddMaterial("legume", MaterialBehaviourType.Food, 1.0, true, 1000, 1000, 0.0, 0.14, 0.0001, 500, null,
+			"Vegetable");
+		AddMaterial("lentil", MaterialBehaviourType.Food, 1.0, true, 1000, 1000, 0.0, 0.14, 0.0001, 500, null,
+			"Vegetable");
 		AddMaterial("corn", MaterialBehaviourType.Food, 1.0, true, 1000, 1000, 0.0, 0.14, 0.0001, 500, null,
 			"Vegetable");
 		AddMaterial("onion", MaterialBehaviourType.Food, 1.0, true, 1000, 1000, 0.0, 0.14, 0.0001, 500, null,
 			"Vegetable");
-		AddMaterial("potato", MaterialBehaviourType.Food, 1.0, true, 1000, 1000, 0.0, 0.14, 0.0001, 500, null,
+		AddMaterial("garlic", MaterialBehaviourType.Food, 1.0, true, 1000, 1000, 0.0, 0.14, 0.0001, 500, null,
+			"Vegetable");
+		AddMaterial("leek", MaterialBehaviourType.Food, 1.0, true, 1000, 1000, 0.0, 0.14, 0.0001, 500, null,
 			"Vegetable");
 		AddMaterial("carrot", MaterialBehaviourType.Food, 1.0, true, 1000, 1000, 0.0, 0.14, 0.0001, 500, null,
 			"Vegetable");
@@ -7159,9 +7164,6 @@ return IsAdmin(@ch)",
 			"Vegetable");
 		AddMaterial("turnip", MaterialBehaviourType.Food, 1.0, true, 1000, 1000, 0.0, 0.14, 0.0001, 500, null,
 			"Vegetable");
-		AddMaterial("greens", MaterialBehaviourType.Food, 1.0, true, 1000, 1000, 0.0, 0.14, 0.0001, 500, null,
-			"Vegetable");
-
 		AddMaterial("greens", MaterialBehaviourType.Food, 1.0, true, 1000, 1000, 0.0, 0.14, 0.0001, 500, null,
 			"Vegetable");
 
@@ -7485,18 +7487,26 @@ return IsAdmin(@ch)",
 			"Writing Product");
 		AddMaterial("parchment", MaterialBehaviourType.Fabric, 1.52, true, 2000, 25000, 2.0, 0.14, 0.0001, 500, null,
 			"Writing Product", "Animal Product");
-		AddMaterial("shell", MaterialBehaviourType.Shell, 1.52, true, 20000, 50000, 2.0, 0.14, 0.0001, 500, null,
+		AddMaterial("shell", MaterialBehaviourType.Shell, 1.2, true, 20000, 50000, 2.0, 0.14, 0.0001, 500, null,
 			"Animal Product");
-		AddMaterial("chitin", MaterialBehaviourType.Shell, 1.52, true, 20000, 50000, 2.0, 0.14, 0.0001, 500, null,
+		AddMaterial("chitin", MaterialBehaviourType.Shell, 1.2, true, 20000, 50000, 2.0, 0.14, 0.0001, 500, null,
 			"Animal Product");
-		AddMaterial("tooth", MaterialBehaviourType.Tooth, 1.52, true, 20000, 50000, 2.0, 0.14, 0.0001, 500, null,
+		AddMaterial("keratin", MaterialBehaviourType.Shell, 1.2, true, 20000, 50000, 2.0, 0.14, 0.0001, 500, null,
 			"Animal Product");
-		AddMaterial("tusk", MaterialBehaviourType.Tooth, 1.52, true, 20000, 50000, 2.0, 0.14, 0.0001, 500, null,
+		AddMaterial("scale", MaterialBehaviourType.Scale, 1.2, true, 20000, 50000, 2.0, 0.14, 0.0001, 500, null,
 			"Animal Product");
-		AddMaterial("ivory", MaterialBehaviourType.Tooth, 1.52, true, 20000, 50000, 2.0, 0.14, 0.0001, 500, null,
+		AddMaterial("tooth", MaterialBehaviourType.Tooth, 1.0, true, 20000, 50000, 2.0, 0.14, 0.0001, 500, null,
 			"Animal Product");
-		AddMaterial("vegetation", MaterialBehaviourType.Plant, 1.0, true, 1000, 1000, 0.0, 0.14, 0.0001, 500, null,
-			"Natural Materials");
+		AddMaterial("tusk", MaterialBehaviourType.Tooth, 1.2, true, 20000, 50000, 2.0, 0.14, 0.0001, 500, null,
+			"Animal Product");
+		AddMaterial("antler", MaterialBehaviourType.Horn, 1.2, true, 20000, 50000, 2.0, 0.14, 0.0001, 500, null,
+			"Animal Product");
+		AddMaterial("horn", MaterialBehaviourType.Horn, 1.2, true, 20000, 50000, 2.0, 0.14, 0.0001, 500, null,
+			"Animal Product");
+		AddMaterial("ivory", MaterialBehaviourType.Tooth, 1.2, true, 20000, 50000, 2.0, 0.14, 0.0001, 500, null,
+			"Animal Product");
+		AddMaterial("fin", MaterialBehaviourType.Flesh, 1.0, true, 10000, 25000, 2.0, 0.14, 0.0001, 500, null,
+			"Animal Product");
 		AddMaterial("grass", MaterialBehaviourType.Plant, 1.0, true, 1000, 1000, 0.0, 0.14, 0.0001, 500, null,
 			"Natural Materials");
 		AddMaterial("leaf", MaterialBehaviourType.Plant, 1.0, true, 1000, 1000, 0.0, 0.14, 0.0001, 500, null,
@@ -7512,8 +7522,6 @@ return IsAdmin(@ch)",
 		AddMaterial("compost", MaterialBehaviourType.Plant, 1.0, true, 1000, 1000, 0.0, 0.14, 0.0001, 500, null,
 			"Natural Materials");
 		AddMaterial("mulch", MaterialBehaviourType.Plant, 1.0, true, 1000, 1000, 0.0, 0.14, 0.0001, 500, null,
-			"Natural Materials");
-		AddMaterial("vine", MaterialBehaviourType.Plant, 1.0, true, 1000, 1000, 0.0, 0.14, 0.0001, 500, null,
 			"Natural Materials");
 		AddMaterial("feces", MaterialBehaviourType.Feces, 1.0, true, 1000, 1000, 0.0, 0.14, 0.0001, 500, null,
 			"Natural Materials", "Animal Product");
@@ -8028,15 +8036,15 @@ return IsAdmin(@ch)",
 			"It has little taste beyond that of the very strong alcohol", "It smells strongly of alcohol",
 			"It smells strongly of alcohol", 500, 500, 1.0, 5.4, 390, -0.1, -3.0, 1.0, 1.0, true, "yellow",
 			"It is damp with alcohol", "It is wet with alcohol", "It is soaking wet with alcohol", "(damp)",
-			"(liquor-wet)", "(liquor-soaked)", 5.0, null, 0.05, LiquidInjectionConsequence.Deadly, null,
-			solvent: "water", materialTags: ["Alcoholic", "Disgusting"]);
+			"(liquor-wet)", "(liquor-soaked)", 5.0, null, 0.05, LiquidInjectionConsequence.Deadly, ("fuel", ItemQuality.VeryGood),
+			solvent: "water", materialTags: ["Alcoholic", "Disgusting", "Fuel"]);
 		AddLiquid("methanol", "a clear liquid", "a crystal clear liquid smelling strongly of alcohol",
 			"It has little taste beyond that of the very strong alcohol",
 			"It has little taste beyond that of the very strong alcohol", "It smells strongly of alcohol",
 			"It smells strongly of alcohol", 500, 500, 1.0, 5.4, 390, -0.1, -3.0, 1.0, 1.0, true, "yellow",
 			"It is damp with alcohol", "It is wet with alcohol", "It is soaking wet with alcohol", "(damp)",
-			"(liquor-wet)", "(liquor-soaked)", 5.0, null, 0.05, LiquidInjectionConsequence.Deadly, null,
-			solvent: "water", materialTags: ["Alcoholic", "Disgusting"]);
+			"(liquor-wet)", "(liquor-soaked)", 5.0, null, 0.05, LiquidInjectionConsequence.Deadly, ("fuel", ItemQuality.VeryGood),
+			solvent: "water", materialTags: ["Alcoholic", "Disgusting", "Fuel"]);
 
 		AddLiquid("orange juice", "orange juice", "a translucent orange liquid with fruit pulp",
 			"It tastes like orange juice", "It tastes like orange juice", "It smells of oranges",
@@ -8159,28 +8167,6 @@ return IsAdmin(@ch)",
 			wetSdesc: "(liquor-soaked)", drenchedSdesc: "(liquor-drenched)", solventVolumeRatio: 1.0, dried: null,
 			residueVolumePercentage: 0.029,
 			injectionConsequence: LiquidInjectionConsequence.Harmful, countsAs: null, materialTags: ["Fuel"]);
-		AddLiquid(name: "ethanol", description: "a clear liquid", longDescription: "a clear, translucent liquid",
-			taste: "It has little taste beyond that of the very strong alcohol",
-			vagueTaste: "It has little taste beyond that of the very strong alcohol",
-			smell: "It smells strongly of pure alcohol",
-			vagueSmell: "It smells strongly of alcohol", tasteIntensity: 1000, smellIntensity: 100, alcohol: 1.0,
-			food: 5.4, calories: 390, water: -0.5, satiated: -6.0, viscosity: 1.0, density: 1.029, organic: true,
-			displayColour: "yellow", dampDesc: "It is damp with alcohol",
-			wetDesc: "It is soaking wet with alcohol", drenchedDesc: "It is drenched with alcohol", dampSdesc: "(damp)",
-			wetSdesc: "(liquor-soaked)", drenchedSdesc: "(liquor-drenched)", solventVolumeRatio: 1.0, dried: null,
-			residueVolumePercentage: 0.029,
-			injectionConsequence: LiquidInjectionConsequence.Harmful, countsAs: ("fuel", ItemQuality.VeryGood), materialTags: ["Fuel"]);
-		AddLiquid(name: "methanol", description: "a clear liquid", longDescription: "a clear, translucent liquid",
-			taste: "It has little taste beyond that of the very strong alcohol",
-			vagueTaste: "It has little taste beyond that of the very strong alcohol",
-			smell: "It smells strongly of pure alcohol",
-			vagueSmell: "It smells strongly of alcohol", tasteIntensity: 1000, smellIntensity: 100, alcohol: 1.0,
-			food: 5.4, calories: 390, water: -0.5, satiated: -6.0, viscosity: 1.0, density: 1.029, organic: true,
-			displayColour: "yellow", dampDesc: "It is damp with alcohol",
-			wetDesc: "It is soaking wet with alcohol", drenchedDesc: "It is drenched with alcohol", dampSdesc: "(damp)",
-			wetSdesc: "(liquor-soaked)", drenchedSdesc: "(liquor-drenched)", solventVolumeRatio: 1.0, dried: null,
-			residueVolumePercentage: 0.029,
-			injectionConsequence: LiquidInjectionConsequence.Deadly, countsAs: ("fuel", ItemQuality.VeryGood), materialTags: ["Fuel"]);
 		AddLiquid(name: "kerosene", description: "a clear liquid",
 			longDescription: "a transparent fluid",
 			taste: "It has a sulfurous, sweet, slimy taste", vagueTaste: "It has the taste of kerosene fuel; YUCK!",

@@ -193,7 +193,7 @@ Please enter your penalty unit: ", (context, answers) => true,
 		return ShouldSeedResult.ReadyToInstall;
 	}
 
-	public int SortOrder => 25;
+	public int SortOrder => 5000;
 	public string Name => "Law Seeder";
 	public string Tagline => "Sets up Legal Enforcement, Laws, and some related AI.";
 

@@ -524,7 +524,7 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f: ", (context, answers) =
 		return ShouldSeedResult.ReadyToInstall;
 	}
 
-	public int SortOrder => 195;
+	public int SortOrder => 300;
 	public string Name => "Animal Seeder";
 	public string Tagline => "Installs body types for animals";
 
@@ -4303,122 +4303,6 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
 		AddShape("Front Flipper");
 		AddShape("Hind Flipper");
 		AddShape("Blowhole");
-
-		Console.WriteLine($"...[{_stopwatch.Elapsed.TotalSeconds:N1}s] Bodypart Materials...");
-		_context.Materials.Add(new Material
-		{
-			Name = "keratin",
-			MaterialDescription = "keratin",
-			Density = 1200,
-			Organic = true,
-			Type = 0,
-			BehaviourType = (int)MaterialBehaviourType.Bone,
-			ThermalConductivity = 0.14,
-			ElectricalConductivity = 0.0001,
-			SpecificHeatCapacity = 420,
-			IgnitionPoint = 555.3722,
-			HeatDamagePoint = 412.0389,
-			ImpactFracture = 100000,
-			ImpactYield = 100000,
-			ImpactStrainAtYield = 50000,
-			ShearFracture = 250000,
-			ShearYield = 250000,
-			ShearStrainAtYield = 50000,
-			YoungsModulus = 2,
-			Absorbency = 0
-		});
-
-		_context.Materials.Add(new Material
-		{
-			Name = "chitin",
-			MaterialDescription = "chitin",
-			Density = 1200,
-			Organic = true,
-			Type = 0,
-			BehaviourType = (int)MaterialBehaviourType.Bone,
-			ThermalConductivity = 0.14,
-			ElectricalConductivity = 0.0001,
-			SpecificHeatCapacity = 420,
-			IgnitionPoint = 555.3722,
-			HeatDamagePoint = 412.0389,
-			ImpactFracture = 100000,
-			ImpactYield = 100000,
-			ImpactStrainAtYield = 50000,
-			ShearFracture = 250000,
-			ShearYield = 250000,
-			ShearStrainAtYield = 50000,
-			YoungsModulus = 2,
-			Absorbency = 0
-		});
-
-		_context.Materials.Add(new Material
-		{
-			Name = "tooth",
-			MaterialDescription = "tooth",
-			Density = 1000,
-			Organic = true,
-			Type = 0,
-			BehaviourType = (int)MaterialBehaviourType.Tooth,
-			ThermalConductivity = 0.14,
-			ElectricalConductivity = 0.0001,
-			SpecificHeatCapacity = 420,
-			IgnitionPoint = 555.3722,
-			HeatDamagePoint = 412.0389,
-			ImpactFracture = 100000,
-			ImpactYield = 100000,
-			ImpactStrainAtYield = 50000,
-			ShearFracture = 250000,
-			ShearYield = 250000,
-			ShearStrainAtYield = 50000,
-			YoungsModulus = 2,
-			Absorbency = 0
-		});
-
-		_context.Materials.Add(new Material
-		{
-			Name = "antler",
-			MaterialDescription = "antler",
-			Density = 1000,
-			Organic = true,
-			Type = 0,
-			BehaviourType = (int)MaterialBehaviourType.Bone,
-			ThermalConductivity = 0.14,
-			ElectricalConductivity = 0.0001,
-			SpecificHeatCapacity = 420,
-			IgnitionPoint = 555.3722,
-			HeatDamagePoint = 412.0389,
-			ImpactFracture = 100000,
-			ImpactYield = 100000,
-			ImpactStrainAtYield = 50000,
-			ShearFracture = 250000,
-			ShearYield = 250000,
-			ShearStrainAtYield = 50000,
-			YoungsModulus = 2,
-			Absorbency = 0
-		});
-
-		_context.Materials.Add(new Material
-		{
-			Name = "fin",
-			MaterialDescription = "fin",
-			Density = 1000,
-			Organic = true,
-			Type = 0,
-			BehaviourType = (int)MaterialBehaviourType.Flesh,
-			ThermalConductivity = 0.14,
-			ElectricalConductivity = 0.0001,
-			SpecificHeatCapacity = 420,
-			IgnitionPoint = 555.3722,
-			HeatDamagePoint = 412.0389,
-			ImpactFracture = 100000,
-			ImpactYield = 100000,
-			ImpactStrainAtYield = 50000,
-			ShearFracture = 250000,
-			ShearYield = 250000,
-			ShearStrainAtYield = 50000,
-			YoungsModulus = 2,
-			Absorbency = 0
-		});
 
 		_context.SaveChanges();
 

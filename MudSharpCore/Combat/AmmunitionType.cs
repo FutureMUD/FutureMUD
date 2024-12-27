@@ -70,6 +70,23 @@ public class AmmunitionType : SaveableItem, IAmmunitionType
 		BreakChanceOnMiss = 0.5;
 		switch (baseType)
 		{
+			case RangedWeaponType.Musket:
+				SpecificType = "80 Gauge Musket";
+				EchoType = AmmunitionEchoType.Subsonic;
+				Loudness = AudioVolume.VeryLoud;
+				DamageProfile = new SimpleDamageProfile
+				{
+					DamageType = DamageType.Ballistic,
+					BaseBlockDifficulty = Difficulty.Insane,
+					BaseDodgeDifficulty = Difficulty.Insane,
+					DamageExpression = new TraitExpression("30 + quality * degree + (pointblank * 30)", Gameworld),
+					PainExpression = new TraitExpression("30 + quality * degree + (pointblank * 30)", Gameworld),
+					StunExpression = new TraitExpression("30 + quality * degree + (pointblank * 30)", Gameworld),
+					BaseAngleOfIncidence = Math.PI / 2,
+					BaseAttackerDifficulty = Difficulty.Normal,
+					BaseParryDifficulty = Difficulty.Impossible
+				};
+				break;
 			case RangedWeaponType.Firearm:
 				SpecificType = "Flintlock Musket";
 				EchoType = AmmunitionEchoType.Subsonic;

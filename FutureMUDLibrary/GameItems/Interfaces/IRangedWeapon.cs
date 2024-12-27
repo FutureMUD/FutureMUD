@@ -10,6 +10,15 @@ using MudSharp.RPG.Checks;
 
 namespace MudSharp.GameItems.Interfaces;
 
+public enum LoadMode
+{
+	Normal,
+	Blank,
+	NoClean,
+	Tap,
+	TapNoClean
+}
+
 public interface IRangedWeapon : IWieldable, IDamageSource, IUseTrait {
 	string FireVerbForEchoes { get; }
 	bool CanBeAimedAtSelf { get; }
@@ -23,9 +32,9 @@ public interface IRangedWeapon : IWieldable, IDamageSource, IUseTrait {
 	Difficulty AimDifficulty { get; }
 	Difficulty BaseBlockDifficulty { get; }
 	Difficulty BaseDodgeDifficulty { get; }
-	bool CanLoad(ICharacter loader, bool ignoreEmpty = false);
-	string WhyCannotLoad(ICharacter loader, bool ignoreEmpty = false);
-	void Load(ICharacter loader, bool ignoreEmpty = false);
+	bool CanLoad(ICharacter loader, bool ignoreEmpty = false, LoadMode mode = LoadMode.Normal);
+	string WhyCannotLoad(ICharacter loader, bool ignoreEmpty = false, LoadMode mode = LoadMode.Normal);
+	void Load(ICharacter loader, bool ignoreEmpty = false, LoadMode mode = LoadMode.Normal);
 	bool CanReady(ICharacter readier);
 	string WhyCannotReady(ICharacter readier);
 	bool Ready(ICharacter readier);

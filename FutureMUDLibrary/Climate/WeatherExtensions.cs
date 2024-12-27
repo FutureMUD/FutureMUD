@@ -1,4 +1,6 @@
-﻿namespace MudSharp.Climate
+﻿using System;
+
+namespace MudSharp.Climate
 {
 	public static class WeatherExtensions
 	{
@@ -91,5 +93,38 @@
 
 			return false;
 		}
+
+		public static int PrecipitationIntensityForGunpowder(this PrecipitationLevel level)
+		{
+			switch (level)
+			{
+				case PrecipitationLevel.Parched:
+					return 0;
+				case PrecipitationLevel.Dry:
+					return 1;
+				case PrecipitationLevel.Humid:
+					return 2;
+				case PrecipitationLevel.LightRain:
+					return 3;
+				case PrecipitationLevel.Rain:
+					return 4;
+				case PrecipitationLevel.HeavyRain:
+					return 5;
+				case PrecipitationLevel.TorrentialRain:
+					return 15;
+				case PrecipitationLevel.LightSnow:
+					return 6;
+				case PrecipitationLevel.Snow:
+					return 4;
+				case PrecipitationLevel.HeavySnow:
+					return 5;
+				case PrecipitationLevel.Blizzard:
+					return 6;
+				case PrecipitationLevel.Sleet:
+					return 4;
+				default:
+					throw new ArgumentOutOfRangeException(nameof(level), level, null);
+			}
+		}
 	}
-	}
+}

@@ -302,7 +302,7 @@ public class Ethnicity : SaveableItem, IEthnicity
 		return _genderNameCultures[gender];
 	}
 
-	public IEnumerable<INameCulture> NameCultures => _genderNameCultures.Values.Distinct();
+	public IEnumerable<INameCulture> NameCultures => _genderNameCultures.Values.Where(x => x is not null).Distinct();
 
 	#endregion
 

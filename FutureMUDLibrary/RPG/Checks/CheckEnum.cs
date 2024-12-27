@@ -173,7 +173,9 @@ namespace MudSharp.RPG.Checks {
 		ClimbTreetoTreeCheck = 167,
 		CheatAtCoinFlip = 168,
 		SearchForTracksCheck = 169,
-		SearchForTracksByScentScheck = 170
+		SearchForTracksByScentScheck = 170,
+		LoadMusket = 171,
+		UnjamGun = 172,
 	}
 
 	public enum FailIfTraitMissingType {
@@ -249,6 +251,8 @@ namespace MudSharp.RPG.Checks {
 				case CheckType.Defibrillate:
 				case CheckType.PerformCPR:
 				case CheckType.StaggeringBlowDefense:
+				case CheckType.LoadMusket:
+				case CheckType.UnjamGun:
 				case CheckType.FireBow:
 				case CheckType.FireCrossbow:
 				case CheckType.FireFirearm:
@@ -527,6 +531,8 @@ namespace MudSharp.RPG.Checks {
 				case CheckType.PerformCPR:
 				case CheckType.ReadTextImprovementCheck:
 				case CheckType.HandwritingImprovementCheck:
+				case CheckType.LoadMusket:
+					case CheckType.UnjamGun:
 				case CheckType.FireBow:
 				case CheckType.FireCrossbow:
 				case CheckType.FireFirearm:

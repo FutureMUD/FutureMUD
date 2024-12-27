@@ -1189,6 +1189,8 @@ public class InventoryPlanTemplate : IInventoryPlanTemplate
 				return SheatheItem(actor, item, target, silent, action?.OriginalReference);
 			case DesiredItemState.Attached:
 				return AttachItem(actor, item, target, silent, action?.OriginalReference);
+			case DesiredItemState.ConsumeCommodity:
+				return ConsumeCommodity(actor, item, ((InventoryPlanActionConsumeCommodity)action).Weight, action?.OriginalReference);
 			case DesiredItemState.Consumed:
 				return ConsumeItem(actor, item, ((InventoryPlanActionConsume)action).Quantity,
 					action?.OriginalReference);
@@ -1573,6 +1575,30 @@ public class InventoryPlanTemplate : IInventoryPlanTemplate
 			PrimaryTarget = item,
 			SecondaryTarget = sheath,
 			ActionState = DesiredItemState.Sheathed,
+			OriginalReference = originalReference
+		};
+	}
+
+	private InventoryPlanActionResult ConsumeCommodity(ICharacter actor, IGameItem item, double weight, object originalReference)
+	{
+		var container = item.ContainedIn;
+		var commodity = item.GetItemType<ICommodity>();
+		if (commodity.Weight <= weight)
+		{
+			item.ContainedIn?.Take(item);
+			item.InInventoryOf?.Take(item);
+			item.Delete();
+		}
+		else
+		{
+			item.Weight -= weight;
+		}
+
+		return new InventoryPlanActionResult
+		{
+			PrimaryTarget = item,
+			SecondaryTarget = container,
+			ActionState = DesiredItemState.Consumed,
 			OriginalReference = originalReference
 		};
 	}

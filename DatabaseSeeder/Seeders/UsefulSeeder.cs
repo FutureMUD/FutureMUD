@@ -9711,6 +9711,8 @@ end if",
 		AddTag(context, "Tanning Agent", "Material Functions");
 		AddTag(context, "Ore Deposit", "Material Functions");
 		AddTag(context, "Ignition Source", "Material Functions");
+		AddTag(context, "Fire", "Material Functions");
+		AddTag(context, "Musket Wadding", "Material Functions");
 
 		AddTag(context, "Repairing", "Functions");
 		AddTag(context, "Sharpening", "Functions");
@@ -9942,6 +9944,7 @@ end if",
 		AddTag(context, "Sponge", "Cleaning");
 		AddTag(context, "Chamois", "Cleaning");
 		AddTag(context, "Squeegee", "Cleaning");
+		AddTag(context, "Soap", "Cleaning");
 
 		// Digging
 		AddTag(context, "Digging", "Tools");
@@ -10086,6 +10089,62 @@ end if",
 		AddTag(context, "Paper Pads", "Glassblowing Tools");
 		AddTag(context, "Blocks", "Glassblowing Tools");
 
+		AddTag(context, "Locksmithing Tools", "Tools");
+		AddTag(context, "Lockpick", "Locksmithing Tools");
+		AddTag(context, "Torsion Wrench", "Locksmithing Tools");
+		AddTag(context, "Locksmith's File", "Locksmithing Tools");
+		AddTag(context, "Locksmith's Tweezers", "Locksmithing Tools");
+		AddTag(context, "Locksmithing Jig", "Locksmithing Tools");
+		AddTag(context, "Key Gauge", "Locksmithing Tools");
+		AddTag(context, "Impressioning File", "Locksmithing Tools");
+		AddTag(context, "Safe Dial Manipulator", "Locksmithing Tools");
+
+		AddTag(context, "Gunsmithing Tools", "Tools");
+		AddTag(context, "Barrel Reamer", "Gunsmithing Tools");
+		AddTag(context, "Gun Drill", "Gunsmithing Tools");
+		AddTag(context, "Bore Snake", "Gunsmithing Tools");
+		AddTag(context, "Tamping Rod", "Gunsmithing Tools");
+		AddTag(context, "Gun Vise", "Gunsmithing Tools");
+		AddTag(context, "Mainspring Vise", "Gunsmithing Tools");
+		AddTag(context, "Breech Plug Wrench", "Gunsmithing Tools");
+		AddTag(context, "Rammer", "Gunsmithing Tools");
+		AddTag(context, "Bullet Mould", "Gunsmithing Tools");
+		AddTag(context, "Patch Cutter", "Gunsmithing Tools");
+		AddTag(context, "Ball Puller", "Gunsmithing Tools");
+
+		AddTag(context, "Tanning Tools", "Tools");
+		AddTag(context, "Fleshing Knife", "Tanning Tools");
+		AddTag(context, "Hide Scraper", "Tanning Tools");
+		AddTag(context, "Tanning Beam", "Tanning Tools");
+		AddTag(context, "Tanning Paddle", "Tanning Tools");
+		AddTag(context, "Tanning Rack", "Tanning Tools");
+		AddTag(context, "Leather Dehairing Knife", "Tanning Tools");
+		AddTag(context, "Brain Tanning Bucket", "Tanning Tools");
+
+		AddTag(context, "Armouring Tools", "Tools");
+		AddTag(context, "Plate Snips", "Armouring Tools");
+		AddTag(context, "Armourer's Stake", "Armouring Tools");
+		AddTag(context, "Armourer's Anvil", "Armouring Tools");
+		AddTag(context, "Dishing Form", "Armouring Tools");
+		AddTag(context, "Raising Hammer", "Armouring Tools");
+		AddTag(context, "Planishing Hammer", "Armouring Tools");
+		AddTag(context, "Ball Stake", "Armouring Tools");
+		AddTag(context, "T-Stake", "Armouring Tools");
+		AddTag(context, "Armourer's Forming Bags", "Armouring Tools");
+		AddTag(context, "Armourer's Pliers", "Armouring Tools");
+
+		AddTag(context, "Weaponsmithing Tools", "Tools");
+		AddTag(context, "Swordsmith's Hammer", "Weaponsmithing Tools");
+		AddTag(context, "Sword Anvil", "Weaponsmithing Tools");
+		AddTag(context, "Fuller Tool", "Weaponsmithing Tools");
+		AddTag(context, "Tang Punch", "Weaponsmithing Tools");
+		AddTag(context, "Sword Vise", "Weaponsmithing Tools");
+		AddTag(context, "Quenching Trough", "Weaponsmithing Tools");
+		AddTag(context, "Pommel Tightening Jig", "Weaponsmithing Tools");
+		AddTag(context, "Crossguard Fixture", "Weaponsmithing Tools");
+		AddTag(context, "Forge Bellows", "Weaponsmithing Tools");
+		AddTag(context, "Grindstone", "Weaponsmithing Tools");
+
 
 		// Medical Tools
 		AddTag(context, "Medical Tools", "Tools");
@@ -10135,13 +10194,11 @@ end if",
 		AddTag(context, "Surgical Steel Suture", "Non-Absorbable Suture");
 		AddTag(context, "Surgical Stapler", "Surgical Tools");
 		AddTag(context, "Surgical Staples", "Surgical Tools");
-
-
+		
 		// Science Tools
 		AddTag(context, "Scientific Tools", "Tools");
 
 		AddTag(context, "Plane Table", "Scientific Tools");
-
 		AddTag(context, "Measurement Tools", "Scientific Tools");
 		AddTag(context, "Micrometer", "Measurement Tools");
 		AddTag(context, "Tribometer", "Measurement Tools");
@@ -10385,6 +10442,89 @@ end if",
 		AddTag(context, "Candles", "Lighting");
 		AddTag(context, "Torches", "Lighting");
 		AddTag(context, "Lamps", "Lighting");
+
+		AddTag(context, "Consumables", "");
+		AddTag(context, "Padded Vest", "Consumables");
+		AddTag(context, "Padded Gloves", "Consumables");
+		AddTag(context, "Padded Trousers", "Consumables");
+		AddTag(context, "Thick Leather", "Consumables");
+		AddTag(context, "Armouring Rings", "Consumables");
+		AddTag(context, "Armouring Studs", "Consumables");
+		AddTag(context, "Armouring Scales", "Consumables");
+		AddTag(context, "Wire", "Consumables");
+		AddTag(context, "Sheet Metal", "Consumables");
+		AddTag(context, "Deer Hindquarter", "Consumables");
+		AddTag(context, "Deer Forequarter", "Consumables");
+		AddTag(context, "Rump", "Consumables");
+		AddTag(context, "Tenderloin", "Consumables");
+		AddTag(context, "Pig Hindquarter", "Consumables");
+		AddTag(context, "Pig Forequarter", "Consumables");
+		AddTag(context, "Entrails", "Consumables");
+		AddTag(context, "Suet", "Consumables");
+		AddTag(context, "Plank", "Consumables");
+		AddTag(context, "Log", "Consumables");
+		AddTag(context, "Dirt", "Consumables");
+		AddTag(context, "Nuts", "Consumables");
+		AddTag(context, "Rabbit Roast", "Consumables");
+		AddTag(context, "Deer Roast", "Consumables");
+		AddTag(context, "Pig Roast", "Consumables");
+		AddTag(context, "Grove Trees", "Consumables");
+		AddTag(context, "Tree", "Consumables");
+		AddTag(context, "Trunk", "Consumables");
+		AddTag(context, "Open Grave", "Consumables");
+		AddTag(context, "Thick Hide", "Consumables");
+		AddTag(context, "Branch", "Consumables");
+		AddTag(context, "Short Shaft", "Consumables");
+		AddTag(context, "Knapped Stone", "Consumables");
+		AddTag(context, "Reeds", "Consumables");
+		AddTag(context, "Sword Blade", "Consumables");
+		AddTag(context, "Knife Blade", "Consumables");
+		AddTag(context, "Mace Head", "Consumables");
+		AddTag(context, "Axe Head", "Consumables");
+		AddTag(context, "Pole", "Consumables");
+		AddTag(context, "Grass", "Consumables");
+		AddTag(context, "Tusk", "Consumables");
+		AddTag(context, "Spearhead", "Consumables");
+		AddTag(context, "Mould Sheet Metal", "Consumables");
+		AddTag(context, "Mould Sword Blade", "Consumables");
+		AddTag(context, "Mould Knife Blade", "Consumables");
+		AddTag(context, "Mould Mace Head", "Consumables");
+		AddTag(context, "Mould Axe Head", "Consumables");
+		AddTag(context, "Construction Brick", "Consumables");
+		AddTag(context, "Fletching", "Consumables");
+		AddTag(context, "Sword Grip", "Consumables");
+		AddTag(context, "Curved Leather Piece", "Consumables");
+		AddTag(context, "Long Shaft", "Consumables");
+		AddTag(context, "Drawplate", "Consumables");
+		AddTag(context, "Mould Brick", "Consumables");
+
+		AddTag(context, "Pottery Tools", "Tools");
+		AddTag(context, "Potter's Wheel", "Pottery Tools");
+		AddTag(context, "Clay Knife", "Pottery Tools");
+		AddTag(context, "Potter's Rib", "Pottery Tools");
+		AddTag(context, "Loop Tool", "Pottery Tools");
+		AddTag(context, "Needle Tool", "Pottery Tools");
+		AddTag(context, "Wire Cutter", "Pottery Tools");
+		AddTag(context, "Clay Stamp", "Pottery Tools");
+		AddTag(context, "Pug Mill", "Pottery Tools");
+		AddTag(context, "Slip Trailer", "Pottery Tools");
+		AddTag(context, "Hump Mold", "Pottery Tools");
+		AddTag(context, "Press Mold", "Pottery Tools");
+		AddTag(context, "Extruder", "Pottery Tools");
+		AddTag(context, "Slab Roller", "Pottery Tools");
+		AddTag(context, "Kiln", "Pottery Tools");
+
+		AddTag(context, "Smelting Tools", "Tools");
+		AddTag(context, "Smelting Furnace", "Smelting Tools");
+		AddTag(context, "Crucible Tongs", "Smelting Tools");
+		AddTag(context, "Slag Skimmer", "Smelting Tools");
+		AddTag(context, "Furnace Bellows", "Smelting Tools");
+		AddTag(context, "Ore Crusher", "Smelting Tools");
+		AddTag(context, "Ore Roaster", "Smelting Tools");
+		AddTag(context, "Slag Hammer", "Smelting Tools");
+		AddTag(context, "Bloom Tongs", "Smelting Tools");
+		AddTag(context, "Charging Bucket", "Smelting Tools");
+		AddTag(context, "Tap Rod", "Smelting Tools");
 
 		context.SaveChanges();
 	}

@@ -6368,6 +6368,7 @@ return IsAdmin(@ch)",
 		AddTag("Elemental Materials", "Materials");
 		AddTag("Paper Product", "Manufactured Materials");
 		AddTag("Writing Product", "Materials");
+		AddTag("Gunpowder", "Materials");
 
 
 		AddTag("Liquids", "Materials");
@@ -7543,7 +7544,7 @@ return IsAdmin(@ch)",
 		AddMaterial("dried adhesive", MaterialBehaviourType.Paste, 0.2, false, 1000, 1000, 0.0, 0.14, 0.0001, 500, null,
 			"Manufactured Materials");
 		AddMaterial("gunpowder", MaterialBehaviourType.Powder, 0.975, false, 1000, 1000, 0.0, 0.14, 0.0001, 500, null,
-			"Manufactured Materials");
+			"Manufactured Materials", "Gunpowder");
 
 		AddMaterial("flame", MaterialBehaviourType.Mana, 1.0, false, 1, 1, 0.0, 0, 0, 0, null, "Elemental Materials");
 		AddMaterial("mana", MaterialBehaviourType.Mana, 1.0, false, 1, 1, 0.0, 0, 0, 0, null, "Elemental Materials");

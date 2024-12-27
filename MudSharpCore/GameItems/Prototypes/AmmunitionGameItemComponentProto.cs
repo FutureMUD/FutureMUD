@@ -42,7 +42,13 @@ public class AmmunitionGameItemComponentProto : GameItemComponentProto
 	}
 
 	public override string ShowBuildingHelp =>
-		$"You can use the following options:\n\tname <name> - sets the name of the component\n\tdesc <desc> - sets the description of the component\n\tammo <ammo>- sets the ammo grade, for example, {"9x19mm Parabellum".Colour(Telnet.Green)}.\n\tbullet <proto> - sets the bullet proto for this round, which will be loaded when fired.\n\tshell <proto> - sets the shell proto for this round, which will be loaded when fired.";
+		$@"You can use the following options:
+
+	#3name <name>#0 - sets the name of the component
+	#3desc <desc>#0 - sets the description of the component
+	#3ammo <ammo>#0 - sets the ammo grade, for example, {"9x19mm Parabellum".Colour(Telnet.Green)}.
+	#3bullet <proto>#0 - sets the bullet proto for this round, which will be loaded when fired.
+	#3shell <proto>#0 - sets the shell proto for this round, which will be loaded when fired.";
 
 	public override bool BuildingCommand(ICharacter actor, StringStack command)
 	{
@@ -170,10 +176,10 @@ public class AmmunitionGameItemComponentProto : GameItemComponentProto
 
 	private bool BuildingCommandBullet(ICharacter actor, StringStack command)
 	{
-		if (AmmoType?.RangedWeaponTypes.Contains(RangedWeaponType.ModernFirearm) != true)
+		if (AmmoType?.RangedWeaponTypes.Contains(RangedWeaponType.ModernFirearm) != true && AmmoType?.RangedWeaponTypes.Contains(RangedWeaponType.Musket) != true)
 		{
 			actor.Send(
-				"You must set the ammunition type to one that uses modern firearms before you can set a bullet prototype.");
+				"You must set the ammunition type to one that uses modern firearms or muskets before you can set a bullet prototype.");
 			return false;
 		}
 

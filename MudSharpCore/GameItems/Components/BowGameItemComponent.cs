@@ -289,7 +289,7 @@ public class BowGameItemComponent : GameItemComponent, IRangedWeaponWithUnreadyE
 		return new[] { ammo.Parent };
 	}
 
-	public bool CanLoad(ICharacter loader, bool ignoreEmpty = false)
+	public bool CanLoad(ICharacter loader, bool ignoreEmpty = false, LoadMode mode = LoadMode.Normal)
 	{
 		if (LoadedAmmo != null)
 		{
@@ -300,7 +300,7 @@ public class BowGameItemComponent : GameItemComponent, IRangedWeaponWithUnreadyE
 		return plan.PlanIsFeasible() == InventoryPlanFeasibility.Feasible;
 	}
 
-	public string WhyCannotLoad(ICharacter loader, bool ignoreEmpty = false)
+	public string WhyCannotLoad(ICharacter loader, bool ignoreEmpty = false, LoadMode mode = LoadMode.Normal)
 	{
 		if (LoadedAmmo != null)
 		{
@@ -321,7 +321,7 @@ public class BowGameItemComponent : GameItemComponent, IRangedWeaponWithUnreadyE
 		throw new NotImplementedException();
 	}
 
-	public void Load(ICharacter loader, bool ignoreEmpty = false)
+	public void Load(ICharacter loader, bool ignoreEmpty = false, LoadMode mode = LoadMode.Normal)
 	{
 		var plan = _prototype.LoadTemplate.CreatePlan(loader);
 		if (plan.PlanIsFeasible() != InventoryPlanFeasibility.Feasible)

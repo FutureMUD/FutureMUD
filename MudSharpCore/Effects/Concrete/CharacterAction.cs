@@ -61,6 +61,10 @@ public abstract class CharacterAction : Effect, IActionEffect, ILDescSuffixEffec
 	protected CharacterAction(ICharacter owner) : base(owner)
 	{
 		CharacterOwner = owner;
+		ActionDescription = string.Empty;
+		CancelEmoteString = string.Empty;
+		WhyCannotMoveEmoteString = string.Empty;
+		LDescAddendum = string.Empty;
 	}
 
 	#endregion
@@ -75,7 +79,7 @@ public abstract class CharacterAction : Effect, IActionEffect, ILDescSuffixEffec
 	public override void ExpireEffect()
 	{
 		Owner.RemoveEffect(this);
-		if (ApplicabilityProg?.ExecuteBool(Owner, null, null) ?? true)
+		if (ApplicabilityProg?.ExecuteBool(Owner, null, null) ?? true && Action is not null)
 		{
 			Action(Owner);
 		}
@@ -115,7 +119,7 @@ public abstract class CharacterAction : Effect, IActionEffect, ILDescSuffixEffec
 		CharacterOwner.OnQuit -= TargetQuit;
 		CharacterOwner.OnDeath -= TargetDied;
 		CharacterOwner.OnEngagedInMelee -= TargetEngagedInMelee;
-		CharacterOwner.OnStateChanged -= TargetStateChanged;
+		CharacterOwner.OnStateChanged -= OwnerStateChanged;
 		CharacterOwner.OnStartMove -= TargetMoved;
 		CharacterOwner.OnMoved -= TargetMoved;
 		CharacterOwner.OnWantsToMove -= TargetWantsToMove;
@@ -124,7 +128,7 @@ public abstract class CharacterAction : Effect, IActionEffect, ILDescSuffixEffec
 		CharacterOwner.OnQuit += TargetQuit;
 		CharacterOwner.OnDeath += TargetDied;
 		CharacterOwner.OnEngagedInMelee += TargetEngagedInMelee;
-		CharacterOwner.OnStateChanged += TargetStateChanged;
+		CharacterOwner.OnStateChanged += OwnerStateChanged;
 		CharacterOwner.OnStartMove += TargetMoved;
 		CharacterOwner.OnMoved += TargetMoved;
 		CharacterOwner.OnWantsToMove += TargetWantsToMove;
@@ -136,7 +140,7 @@ public abstract class CharacterAction : Effect, IActionEffect, ILDescSuffixEffec
 		CharacterOwner.OnQuit -= TargetQuit;
 		CharacterOwner.OnDeath -= TargetDied;
 		CharacterOwner.OnEngagedInMelee -= TargetEngagedInMelee;
-		CharacterOwner.OnStateChanged -= TargetStateChanged;
+		CharacterOwner.OnStateChanged -= OwnerStateChanged;
 		CharacterOwner.OnStartMove -= TargetMoved;
 		CharacterOwner.OnMoved -= TargetMoved;
 		CharacterOwner.OnWantsToMove -= TargetWantsToMove;
@@ -221,7 +225,7 @@ public abstract class CharacterAction : Effect, IActionEffect, ILDescSuffixEffec
 		CharacterOwner.RemoveEffect(this, true);
 	}
 
-	protected virtual void TargetStateChanged(IPerceivable perceivable)
+	protected virtual void OwnerStateChanged(IPerceivable perceivable)
 	{
 		CharacterOwner.OutputHandler.Handle(
 			GetCancelEmote(

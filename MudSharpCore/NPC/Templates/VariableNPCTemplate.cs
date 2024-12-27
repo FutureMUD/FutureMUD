@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Xml.Linq;
+using MoreLinq;
 using MudSharp.Models;
 using MudSharp.Accounts;
 using MudSharp.Body;
@@ -750,10 +751,8 @@ public class VariableNPCTemplate : NPCTemplateBase
 		}
 
 		var profileText = command.PopSpeech();
-		var profile = long.TryParse(profileText, out var value)
-			? _culture.NameCultures.SelectMany(x => x.RandomNameProfiles).Distinct().FirstOrDefault(x => x.Id == value)
-			: _culture.NameCultures.SelectMany(x => x.RandomNameProfiles).Distinct().FirstOrDefault(
-				x => x.Name.StartsWith(command.Last, StringComparison.InvariantCultureIgnoreCase));
+		var ncs = (_ethnicity?.NameCultures.FallbackIfEmpty(_culture.NameCultures) ?? _culture.NameCultures).SelectMany(x => x.RandomNameProfiles).Distinct();
+		var profile = ncs.GetByIdOrName(profileText);
 		if (profile == null)
 		{
 			actor.OutputHandler.Send("There is no such Random Name Profile.");
@@ -882,9 +881,9 @@ public class VariableNPCTemplate : NPCTemplateBase
 		foreach (var gender in _genderChances)
 		{
 			var nc = 
-				_ethnicity.NameCultureForGender(gender.Value) ??
+				_ethnicity?.NameCultureForGender(gender.Value) ??
 				_culture.NameCultureForGender(gender.Value);
-			if (nc == _nameProfiles[gender.Value].Culture)
+			if (_nameProfiles.ContainsKey(gender.Value) && nc == _nameProfiles[gender.Value].Culture)
 			{
 				continue;
 			}

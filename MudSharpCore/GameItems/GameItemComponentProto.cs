@@ -221,7 +221,7 @@ public abstract class GameItemComponentProto : EditableItem, IGameItemComponentP
 
 	private bool BuildingCommand_Help(ICharacter actor)
 	{
-		actor.OutputHandler.Send(ShowBuildingHelp);
+		actor.OutputHandler.Send(ShowBuildingHelp.SubstituteANSIColour());
 		return true;
 	}
 

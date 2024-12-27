@@ -145,6 +145,9 @@ public class AmmunitionGameItemComponent : GameItemComponent, IAmmo
 		OpposedOutcome defenseOutcome, IBodypart bodypart, IGameItem ammo, IRangedWeaponType weaponType,
 		IEmoteOutput defenseEmote)
 	{
+		// Ammunition that is just created and lodges can cause a crash if we don't flush now
+		Gameworld.SaveManager.Flush();
+
 		if (target == null)
 		{
 			// Fired at sky

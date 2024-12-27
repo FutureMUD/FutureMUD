@@ -136,7 +136,7 @@ public class GunGameItemComponent : GameItemComponent, IRangedWeapon, ISwitchabl
 	WeaponClassification IRangedWeapon.Classification => _prototype.RangedWeaponType.Classification;
 	WeaponClassification IMeleeWeapon.Classification => _prototype.MeleeWeaponType.Classification;
 
-	public bool CanLoad(ICharacter loader, bool ignoreEmpty = false)
+	public bool CanLoad(ICharacter loader, bool ignoreEmpty = false, LoadMode mode = LoadMode.Normal)
 	{
 		if (Magazine != null)
 		{
@@ -154,7 +154,7 @@ public class GunGameItemComponent : GameItemComponent, IRangedWeapon, ISwitchabl
 		return true;
 	}
 
-	public string WhyCannotLoad(ICharacter loader, bool ignoreEmpty = false)
+	public string WhyCannotLoad(ICharacter loader, bool ignoreEmpty = false, LoadMode mode = LoadMode.Normal)
 	{
 		if (Magazine != null)
 		{
@@ -208,7 +208,7 @@ public class GunGameItemComponent : GameItemComponent, IRangedWeapon, ISwitchabl
 		Changed = true;
 	}
 
-	public void Load(ICharacter loader, bool ignoreEmpty = false)
+	public void Load(ICharacter loader, bool ignoreEmpty = false, LoadMode mode = LoadMode.Normal)
 	{
 		if (!CanLoad(loader))
 		{

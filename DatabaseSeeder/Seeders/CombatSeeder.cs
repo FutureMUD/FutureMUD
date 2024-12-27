@@ -2714,12 +2714,11 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
 		};
 		context.WeaponTypes.Add(improvised);
 		context.SaveChanges();
-		context.StaticConfigurations.Add(new StaticConfiguration
-			{ SettingName = "DefaultBowMeleeWeaponType", Definition = improvised.Id.ToString() });
-		context.StaticConfigurations.Add(new StaticConfiguration
-			{ SettingName = "DefaultCrossbowMeleeWeaponType", Definition = improvised.Id.ToString() });
-		context.StaticConfigurations.Add(new StaticConfiguration
-			{ SettingName = "DefaultGunMeleeWeaponType", Definition = improvised.Id.ToString() });
+		context.StaticConfigurations.Find("DefaultBowMeleeWeaponType").Definition = improvised.Id.ToString();
+		context.StaticConfigurations.Find("DefaultCrossbowMeleeWeaponType").Definition = improvised.Id.ToString();
+		context.StaticConfigurations.Find("DefaultGunMeleeWeaponType").Definition = improvised.Id.ToString();
+		context.StaticConfigurations.Find("DefaultMusketMeleeWeaponType").Definition = improvised.Id.ToString();
+		
 		CreateWeaponComponent(improvised);
 
 		AddAttack("Club 1-Handed Swing", BuiltInCombatMoveType.UseWeaponAttack, MeleeWeaponVerb.Swing,

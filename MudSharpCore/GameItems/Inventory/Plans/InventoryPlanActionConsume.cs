@@ -27,7 +27,7 @@ public class InventoryPlanActionConsume : InventoryPlanAction
 	public override XElement SaveToXml()
 	{
 		return new XElement("Action",
-			new XAttribute("state", "attached"),
+			new XAttribute("state", "consumed"),
 			new XAttribute("tag", DesiredTag?.Id ?? 0),
 			new XAttribute("secondtag", DesiredSecondaryTag?.Id ?? 0),
 			new XAttribute("quantity", Quantity),

@@ -67,8 +67,7 @@ public class BoltActionGameItemComponent : GameItemComponent, IRangedWeapon, ISw
 		                    ?.GetItemType<IContainer>();
 		ChamberedRound = Gameworld.TryGetItem(long.Parse(root.Element("ChamberedRound").Value), true)
 		                          ?.GetItemType<IAmmo>();
-		PrimaryWieldedLocation =
-			Gameworld.BodypartPrototypes.Get(long.Parse(root.Element("Wielded")?.Value ?? "0")) as IWield;
+		PrimaryWieldedLocation = Gameworld.BodypartPrototypes.Get(long.Parse(root.Element("Wielded")?.Value ?? "0")) as IWield;
 
 		ChamberedCasing = Gameworld.TryGetItem(long.Parse(root.Element("ChamberedCasing")?.Value ?? "0"), true);
 
@@ -148,7 +147,7 @@ public class BoltActionGameItemComponent : GameItemComponent, IRangedWeapon, ISw
 	WeaponClassification IRangedWeapon.Classification => _prototype.RangedWeaponType.Classification;
 	WeaponClassification IMeleeWeapon.Classification => _prototype.MeleeWeaponType.Classification;
 
-	public bool CanLoad(ICharacter loader, bool ignoreEmpty = false)
+	public bool CanLoad(ICharacter loader, bool ignoreEmpty = false, LoadMode mode = LoadMode.Normal)
 	{
 		if (Magazine != null)
 		{
@@ -166,7 +165,7 @@ public class BoltActionGameItemComponent : GameItemComponent, IRangedWeapon, ISw
 		return true;
 	}
 
-	public string WhyCannotLoad(ICharacter loader, bool ignoreEmpty = false)
+	public string WhyCannotLoad(ICharacter loader, bool ignoreEmpty = false, LoadMode mode = LoadMode.Normal)
 	{
 		if (Magazine != null)
 		{
@@ -234,7 +233,7 @@ public class BoltActionGameItemComponent : GameItemComponent, IRangedWeapon, ISw
 		Changed = true;
 	}
 
-	public void Load(ICharacter loader, bool ignoreEmpty = false)
+	public void Load(ICharacter loader, bool ignoreEmpty = false, LoadMode mode = LoadMode.Normal)
 	{
 		if (!CanLoad(loader))
 		{

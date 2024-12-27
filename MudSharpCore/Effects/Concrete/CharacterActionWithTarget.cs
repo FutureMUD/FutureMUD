@@ -254,7 +254,7 @@ public class CharacterActionWithTarget : CharacterAction
 		CharacterOwner.RemoveEffect(this, true);
 	}
 
-	protected override void TargetStateChanged(IPerceivable perceivable)
+	protected void TargetStateChanged(IPerceivable perceivable)
 	{
 		CharacterOwner.OutputHandler.Handle(
 			GetCancelEmote(

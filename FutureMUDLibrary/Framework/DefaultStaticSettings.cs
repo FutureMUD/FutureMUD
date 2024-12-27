@@ -671,7 +671,17 @@ public static class DefaultStaticSettings
 			{ "TrackingEnabled", "true" },
 			{ "MaximumTrackCount", "10000"},
 			{ "PostCombatEngageDelaySeconds", "10.0"},
-			{ "MerchandisePermitsItemDecayByDefault", "false"}
+			{ "MerchandisePermitsItemDecayByDefault", "false"},
+			{ "DefaultMusketMeleeWeaponType", "0"},
+			{ "DefaultGunMeleeWeaponType", "0"},
+			{ "DefaultCrossbowMeleeWeaponType", "0"},
+			{ "DefaultBowMeleeWeaponType", "0"},
+			{ "MusketRamrodTag", "0"},
+			{ "MusketCleaningRamrodTag", "0"},
+			{ "GunpowderMaterialId", "0"},
+			{ "WadItemTagId", "0"},
+			{ "MusketUnjammingToolTag", "0"},
+			{ "UnjammingGunDurationExpression", "20 - (degrees * 3)"}
 		};
 
 	public static readonly IReadOnlyDictionary<string, string> DefaultStaticStrings = new Dictionary<string, string>

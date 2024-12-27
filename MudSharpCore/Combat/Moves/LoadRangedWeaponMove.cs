@@ -17,16 +17,17 @@ public class LoadRangedWeaponMove : CombatMoveBase
 	#endregion
 
 	public IRangedWeapon Weapon { get; init; }
+	public LoadMode Mode { get; init; }
 
 	public override CombatMoveResult ResolveMove(ICombatMove defenderMove)
 	{
-		if (!Weapon.CanLoad(Assailant, true))
+		if (!Weapon.CanLoad(Assailant, true, Mode))
 		{
-			Assailant.OutputHandler.Send(Weapon.WhyCannotLoad(Assailant, true));
+			Assailant.OutputHandler.Send(Weapon.WhyCannotLoad(Assailant, true, Mode));
 			return CombatMoveResult.Irrelevant;
 		}
 
-		Weapon.Load(Assailant, true);
+		Weapon.Load(Assailant, true, Mode);
 		return new CombatMoveResult
 		{
 			RecoveryDifficulty = Difficulty.Easy,

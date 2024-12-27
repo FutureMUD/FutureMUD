@@ -67,8 +67,9 @@ public class ArmourType : SaveableItem, IArmourType
 		DamageTypeTransformations[DamageType.Claw] = (WoundSeverity.Severe, DamageType.Crushing);
 		DamageTypeTransformations[DamageType.Shearing] = (WoundSeverity.Severe, DamageType.Crushing);
 		DamageTypeTransformations[DamageType.Wrenching] = (WoundSeverity.Severe, DamageType.Crushing);
+		DamageTypeTransformations[DamageType.BallisticArmourPiercing] = (WoundSeverity.Severe, DamageType.Crushing);
 		DamageTypeTransformations[DamageType.ArmourPiercing] = (WoundSeverity.Severe, DamageType.Crushing);
-
+		
 		using (new FMDB())
 		{
 			var dbitem = new Models.ArmourType();
@@ -350,8 +351,9 @@ public class ArmourType : SaveableItem, IArmourType
 			case DamageType.Slashing:
 			case DamageType.Chopping:
 			case DamageType.Piercing:
-			case DamageType.Ballistic:
 			case DamageType.ArmourPiercing:
+			case DamageType.Ballistic:
+			case DamageType.BallisticArmourPiercing:
 			case DamageType.Shearing:
 			case DamageType.Claw:
 			case DamageType.Bite:
@@ -517,10 +519,11 @@ public class ArmourType : SaveableItem, IArmourType
 			case DamageType.Slashing:
 			case DamageType.Chopping:
 			case DamageType.Piercing:
+			case DamageType.ArmourPiercing:
 			case DamageType.Ballistic:
 			case DamageType.Claw:
 			case DamageType.Bite:
-			case DamageType.ArmourPiercing:
+			case DamageType.BallisticArmourPiercing:
 			case DamageType.Shearing:
 				strength = solid?.ShearYield ?? 0.0;
 				break;
@@ -695,6 +698,7 @@ public class ArmourType : SaveableItem, IArmourType
 			case DamageType.Ballistic:
 			case DamageType.Claw:
 			case DamageType.Bite:
+			case DamageType.BallisticArmourPiercing:
 			case DamageType.ArmourPiercing:
 			case DamageType.Shearing:
 				strength = solid?.ShearYield ?? 0.0;

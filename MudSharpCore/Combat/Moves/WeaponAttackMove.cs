@@ -59,6 +59,7 @@ public abstract class WeaponAttackMove : CombatMoveBase, IWeaponAttackMove
 				damageTypeMultiplier = 1.0;
 				break;
 			case DamageType.Ballistic:
+			case DamageType.BallisticArmourPiercing:
 			case DamageType.ArmourPiercing:
 			case DamageType.Wrenching:
 			case DamageType.Bite:
@@ -774,6 +775,7 @@ public abstract class WeaponAttackMove : CombatMoveBase, IWeaponAttackMove
 				return Difficulty.Easy;
 			case DamageType.Ballistic:
 				return Difficulty.Hard;
+			case DamageType.BallisticArmourPiercing:
 			case DamageType.ArmourPiercing:
 				return Difficulty.VeryEasy;
 			case DamageType.Burning:

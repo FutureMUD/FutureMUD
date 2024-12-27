@@ -43,6 +43,7 @@ public abstract class BaseBoneProto : BodypartPrototype, IBone
 			case DamageType.Bite:
 			case DamageType.Claw:
 			case DamageType.Shearing:
+			case DamageType.BallisticArmourPiercing:
 			case DamageType.ArmourPiercing:
 			case DamageType.Wrenching:
 			case DamageType.Shrapnel:

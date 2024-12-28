@@ -7,7 +7,7 @@
         Paste = 4,
         Grease = 5,
         Flesh = 6,
-        Muscle = 7,
+        Muscle = 7, 
         Bone = 8,
         Shell = 9,
         Mana = 10,

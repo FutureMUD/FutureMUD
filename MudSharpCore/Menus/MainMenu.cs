@@ -54,7 +54,7 @@ public class MainMenu : Menu, IController
 			gameworld.Name.TitleCase());
 
 		var frontPageManager = new CommandManager("Invalid command. Please enter an option from the menu.\n");
-		frontPageManager.Add("", command => AccountController.OutputHandler.Send(_menuText));
+		frontPageManager.Add("", command => AccountController.OutputHandler.Send(_menuText.SubstituteANSIColour()));
 		frontPageManager.Add("c", CreateAccount);
 		frontPageManager.Add("l", ConnectAccount);
 		frontPageManager.Add("r", RecoverPassword);

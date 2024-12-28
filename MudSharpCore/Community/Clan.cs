@@ -325,7 +325,7 @@ public class Clan : SaveableItem, IClan
 		set
 		{
 			_payInterval = value;
-			_paydayListener.CancelListener();
+			_paydayListener?.CancelListener();
 			_paydayListener = CreatePaydayListener();
 			Changed = true;
 		}
@@ -339,7 +339,7 @@ public class Clan : SaveableItem, IClan
 		set
 		{
 			_nextPay = value;
-			_paydayListener.CancelListener();
+			_paydayListener?.CancelListener();
 			_paydayListener = CreatePaydayListener();
 			Changed = true;
 		}

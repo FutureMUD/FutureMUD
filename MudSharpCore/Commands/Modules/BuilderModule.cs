@@ -3853,6 +3853,12 @@ You can use the following options with this command:
 	#3terrain reset#0 - resets the terrain type to the building overlay for the location you're in
 	#3terrain planner#0 - gets the terrain output for the terrain planner tool
 
+Note: You can use the following filters for #3terrain list#0:
+
+	#6+<keyword>#0 - shows terrains with the specific keyword in their name
+	#6-<keyword>#0 - excludes terrains with the specific keyword in their name
+	#6*<keyword>#0 - shows terrains with the specific keyword in their model behaviour
+
 You can also edit the following specific properties:
 
 	#3terrain set name <name>#0 - renames this terrain type

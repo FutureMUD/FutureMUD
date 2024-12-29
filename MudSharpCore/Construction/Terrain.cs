@@ -437,6 +437,7 @@ public class Terrain : SaveableItem, ITerrain
 			dbitem.Name = name;
 			dbitem.AtmosphereId = rhs.Atmosphere?.Id;
 			dbitem.AtmosphereType = rhs.Atmosphere is IGas ? "gas" : "liquid";
+			dbitem.MovementRate = rhs.MovementRate;
 			dbitem.DefaultTerrain = false;
 			dbitem.HideDifficulty = (int)rhs.HideDifficulty;
 			dbitem.SpotDifficulty = (int)rhs.SpotDifficulty;
@@ -471,6 +472,7 @@ public class Terrain : SaveableItem, ITerrain
 		dbitem.Name = Name;
 		dbitem.AtmosphereId = Atmosphere?.Id;
 		dbitem.AtmosphereType = Atmosphere is IGas ? "gas" : "liquid";
+		dbitem.MovementRate = MovementRate;
 		dbitem.DefaultTerrain = DefaultTerrain;
 		dbitem.HideDifficulty = (int)HideDifficulty;
 		dbitem.SpotDifficulty = (int)SpotDifficulty;

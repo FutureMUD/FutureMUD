@@ -232,7 +232,7 @@ public partial class Character : PerceiverItem, ICharacter
 		foreach (var merit in comboMerits)
 		foreach (var included in merit.CharacterMerits.Where(x => x.MeritScope == MeritScope.Character))
 		{
-			_merits.Add(merit);
+			_merits.Add(included);
 		}
 
 		foreach (var knowledge in template.SelectedKnowledges)

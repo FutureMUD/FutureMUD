@@ -341,6 +341,12 @@ public class RandomNameProfile : SaveableItem, IEditableItem, IRandomNameProfile
 					}
 				}
 
+				if (_randomNamesDictionary[element.Usage].Any(x => x.Value.EqualTo(name)))
+				{
+					actor.OutputHandler.Send("There is already a random name element for that name.");
+					return false;
+				}
+
 				_randomNamesDictionary.Add(element.Usage, (name, weight));
 				actor.OutputHandler.Send(
 					$"You add a new {element.Name.ColourName()} to the {Name.ColourName()} random name profile: {name.ColourName()} @ {weight.ToString("N0", actor).ColourValue()}");

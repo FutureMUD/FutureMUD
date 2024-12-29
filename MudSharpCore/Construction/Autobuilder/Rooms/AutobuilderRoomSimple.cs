@@ -95,10 +95,10 @@ public class AutobuilderRoomSimple : AutobuilderRoomBase
 		CellDescription = root.Element("RoomDescription")?.Value ?? "An undescribed room";
 		OutdoorsType =
 			(CellOutdoorsType)int.Parse(root.Element("OutdoorsType")?.Value ??
-			                            ((int)CellOutdoorsType.Outdoors).ToString());
+										((int)CellOutdoorsType.Outdoors).ToString());
 		AmbientLightFactor = double.Parse(root.Element("CellLightMultiplier")?.Value ?? "1.0");
 		DefaultTerrain = Gameworld.Terrains.Get(long.Parse(root.Element("DefaultTerrain")?.Value ?? "0")) ??
-		                 Gameworld.Terrains.FirstOrDefault(x => x.DefaultTerrain);
+						 Gameworld.Terrains.FirstOrDefault(x => x.DefaultTerrain);
 		ForagableProfile =
 			Gameworld.ForagableProfiles.Get(long.Parse(root.Element("ForagableProfile")?.Value ?? "0"));
 		ShowCommandByline = root.Element("ShowCommandByline")?.Value ?? "A simple room without a byline.";
@@ -141,12 +141,12 @@ public class AutobuilderRoomSimple : AutobuilderRoomBase
 	}
 
 	protected override string SubtypeHelpText => @" roomname <name> - the name of the generated room
-    description - edits the description of the generated room
-    light <percentage> - sets a light multiplier for the generated room
-    defaultterrain <terrain> - sets the terrain used if none is supplied
-    fp <which> - sets the foragable profile
-    fp none - removes a foragable profile
-    outdoors|cave|indoors|shelter - sets the outdoor behaviour type";
+	description - edits the description of the generated room
+	light <percentage> - sets a light multiplier for the generated room
+	defaultterrain <terrain> - sets the terrain used if none is supplied
+	fp <which> - sets the foragable profile
+	fp none - removes a foragable profile
+	outdoors|cave|indoors|shelter - sets the outdoor behaviour type";
 
 	public override string Show(ICharacter builder)
 	{

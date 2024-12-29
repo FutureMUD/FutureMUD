@@ -20,6 +20,8 @@ public class AutobuilderRoomRandomDescription : AutobuilderRoomBase
 	{
 		AutobuilderFactory.RegisterLoader("room random description",
 			(room, gameworld) => new AutobuilderRoomRandomDescription(room, gameworld));
+		AutobuilderFactory.RegisterBuilderLoader("random",
+			(gameworld, name) => new AutobuilderRoomRandomDescription(gameworld, name));
 	}
 
 	protected AutobuilderRoomRandomDescription(AutobuilderRoomRandomDescription rhs, string name) : base(rhs.Gameworld,
@@ -198,9 +200,9 @@ public class AutobuilderRoomRandomDescription : AutobuilderRoomBase
 			var texts = new List<(string Name, string Text)>();
 			var random = Convert.ToInt32(expression.Evaluate());
 			var validElements = RandomDescriptionElements
-			                    .Where(x => x.Applies(specifiedTerrain ?? info.DefaultTerrain, tags)).ToList();
+								.Where(x => x.Applies(specifiedTerrain ?? info.DefaultTerrain, tags)).ToList();
 			var mandatoryElements = validElements.Where(x => x.MandatoryIfValid).OrderBy(x => x.MandatoryPosition)
-			                                     .ToList();
+												 .ToList();
 			foreach (var mandatory in mandatoryElements)
 			{
 				validElements.Remove(mandatory);
@@ -222,10 +224,10 @@ public class AutobuilderRoomRandomDescription : AutobuilderRoomBase
 			}
 
 			overlay.CellName = string
-			                   .Format(
-				                   texts.Where(x => !string.IsNullOrEmpty(x.Name)).GetRandomElement().Name ??
-				                   info.CellName,
-				                   info.CellName, (specifiedTerrain ?? info.DefaultTerrain).Name).TitleCase();
+							   .Format(
+								   texts.Where(x => !string.IsNullOrEmpty(x.Name)).GetRandomElement().Name ??
+								   info.CellName,
+								   info.CellName, (specifiedTerrain ?? info.DefaultTerrain).Name).TitleCase();
 			var sb = new StringBuilder();
 			if (!string.IsNullOrEmpty(info.CellDescription))
 			{
@@ -258,7 +260,7 @@ public class AutobuilderRoomRandomDescription : AutobuilderRoomBase
 			: (DefaultInfo, NumberOfRandomElements);
 		var random = Convert.ToInt32(expression.Evaluate());
 		var validElements = RandomDescriptionElements
-		                    .Where(x => x.Applies(terrain, tags)).ToList();
+							.Where(x => x.Applies(terrain, tags)).ToList();
 		while (random > 0)
 		{
 			if (!validElements.Any())
@@ -273,9 +275,9 @@ public class AutobuilderRoomRandomDescription : AutobuilderRoomBase
 		}
 
 		overlay.CellName = string
-		                   .Format(
-			                   texts.Where(x => !string.IsNullOrEmpty(x.Name)).GetRandomElement().Name ?? info.CellName,
-			                   info.CellName, terrain?.Name ?? "Unknown").TitleCase();
+						   .Format(
+							   texts.Where(x => !string.IsNullOrEmpty(x.Name)).GetRandomElement().Name ?? info.CellName,
+							   info.CellName, terrain?.Name ?? "Unknown").TitleCase();
 		var sb = new StringBuilder();
 		if (!string.IsNullOrEmpty(info.CellDescription))
 		{
@@ -294,33 +296,33 @@ public class AutobuilderRoomRandomDescription : AutobuilderRoomBase
 	protected override string SubtypeHelpText => @"
 Commands pertaining to the Default Room (used if no override is specified):
 
-    roomname <name> - the name of the default rooms
-    description <text> - the description of the default rooms
-    light <%> - the light multiplier of default rooms
-    defaultterrain <terrain> - the fallback terrain used if none is specified
-    fp <which> - the foragable profile of default rooms
-    fp none - removes the foragable profile from default rooms
-    expression <expression> - an expression for the number of random sentences generated for the default room
-    outdoors|cave|indoors|shelter - sets the behaviour type of the default room
+	roomname <name> - the name of the default rooms
+	description <text> - the description of the default rooms
+	light <%> - the light multiplier of default rooms
+	defaultterrain <terrain> - the fallback terrain used if none is specified
+	fp <which> - the foragable profile of default rooms
+	fp none - removes the foragable profile from default rooms
+	expression <expression> - an expression for the number of random sentences generated for the default room
+	outdoors|cave|indoors|shelter - sets the behaviour type of the default room
 
 Commands pertaining to specific terrain overrides of the default info:
 
-    terrain <which> - views detailed info about the terrain override
-    terrain <which> remove - removes a terrain override
-    terrain <which> roomname <name> - the name of the room
-    terrain <which> description <text> - the description of the room
-    terrain <which> light <%> - the light multiplier of room
-    terrain <which> fp <which> - the foragable profile of room
-    terrain <which> fp none - removes the foragable profile from room
-    terrain <which> expression <expression> - an expression for the number of random sentences generated for the room
-    terrain <which> outdoors|cave|indoors|shelter - sets the behaviour type of the room
+	terrain <which> - views detailed info about the terrain override
+	terrain <which> remove - removes a terrain override
+	terrain <which> roomname <name> - the name of the room
+	terrain <which> description <text> - the description of the room
+	terrain <which> light <%> - the light multiplier of room
+	terrain <which> fp <which> - the foragable profile of room
+	terrain <which> fp none - removes the foragable profile from room
+	terrain <which> expression <expression> - an expression for the number of random sentences generated for the room
+	terrain <which> outdoors|cave|indoors|shelter - sets the behaviour type of the room
 
 Commands pertaining to random description elements that get added to the base descriptions:
 
-    element add <type> - adds a new element
-    element <#> - views detailed information about an element
-    element <#> ... - edits the properties of an element. See individual type helps
-    element <#> remove - removes a description element";
+	element add <type> - adds a new element
+	element <#> - views detailed information about an element
+	element <#> ... - edits the properties of an element. See individual type helps
+	element <#> remove - removes a description element";
 
 	public override string Show(ICharacter builder)
 	{
@@ -645,14 +647,14 @@ Commands pertaining to random description elements that get added to the base de
 
 		actor.OutputHandler.Send(@"You must enter one of the following sub-commands after the terrain type:
 
-    name <name> - sets the name of the rooms
-    description - sets the room description
-    light <percentage> - sets the light multiplier
-    outdoors|cave|windows|indoors|shelter - changes the outdoors behaviour of the room
-    foragable <which> - sets the foragable profile for the terrain
-    foragable none - removes a foragable profile for the terrain
-    expression <number expression> - an expression for the number of random sentences generated
-    remove - removes a template type for a terrain");
+	name <name> - sets the name of the rooms
+	description - sets the room description
+	light <percentage> - sets the light multiplier
+	outdoors|cave|windows|indoors|shelter - changes the outdoors behaviour of the room
+	foragable <which> - sets the foragable profile for the terrain
+	foragable none - removes a foragable profile for the terrain
+	expression <number expression> - an expression for the number of random sentences generated
+	remove - removes a template type for a terrain");
 		return false;
 	}
 
@@ -810,7 +812,7 @@ Commands pertaining to random description elements that get added to the base de
 		if (!string.IsNullOrEmpty(DefaultInfo.CellDescription))
 		{
 			actor.OutputHandler.Send("Replacing:\n" +
-			                         DefaultInfo.CellDescription.Wrap(actor.InnerLineFormatLength, "\t"));
+									 DefaultInfo.CellDescription.Wrap(actor.InnerLineFormatLength, "\t"));
 		}
 
 		actor.OutputHandler.Send(
@@ -915,8 +917,8 @@ Commands pertaining to random description elements that get added to the base de
 		if (TerrainInfos.ContainsKey(terrain))
 		{
 			actor.OutputHandler.Send("Replacing:\n" +
-			                         TerrainInfos[terrain].Item1.CellDescription
-			                                              .Wrap(actor.InnerLineFormatLength, "\t"));
+									 TerrainInfos[terrain].Item1.CellDescription
+														  .Wrap(actor.InnerLineFormatLength, "\t"));
 		}
 
 		actor.OutputHandler.Send(

@@ -178,41 +178,44 @@ public class CellExit : ICellExit
 
 		var originTerrain = Origin.Terrain(perceiver);
 		var destinationTerrain = Destination.Terrain(perceiver);
-		if (OutboundDirection == CardinalDirection.Up)
+		if (IsClimbExit || IsFlyExit || IsFallExit)
 		{
-			if (originTerrain.TerrainLayers.HighestLayer() != perceiver.RoomLayer)
+			if (OutboundDirection == CardinalDirection.Up)
 			{
-				return (CellMovementTransition.NoViableTransition, RoomLayer.GroundLevel);
-			}
-
-			if (perceiver.RoomLayer.IsUnderwater())
-			{
-				return (CellMovementTransition.SwimOnly, destinationTerrain.TerrainLayers.LowestLayer());
-			}
-
-			return (CellMovementTransition.FlyOnly, destinationTerrain.TerrainLayers.LowestLayer());
-		}
-
-		if (OutboundDirection == CardinalDirection.Down)
-		{
-			if (originTerrain.TerrainLayers.LowestLayer() != perceiver.RoomLayer)
-			{
-				return (CellMovementTransition.NoViableTransition, RoomLayer.GroundLevel);
-			}
-
-			if (perceiver.RoomLayer.IsUnderwater())
-			{
-				if (destinationTerrain.TerrainLayers.Any(x => !x.IsUnderwater()))
+				if (originTerrain.TerrainLayers.HighestLayer() != perceiver.RoomLayer)
 				{
-					return (CellMovementTransition.FallExit, destinationTerrain.TerrainLayers.HighestLayer());
+					return (CellMovementTransition.NoViableTransition, RoomLayer.GroundLevel);
 				}
 
-				return (CellMovementTransition.SwimOnly, destinationTerrain.TerrainLayers.HighestLayer());
+				if (perceiver.RoomLayer.IsUnderwater())
+				{
+					return (CellMovementTransition.SwimOnly, destinationTerrain.TerrainLayers.LowestLayer());
+				}
+
+				return (CellMovementTransition.FlyOnly, destinationTerrain.TerrainLayers.LowestLayer());
 			}
 
-			return (CellMovementTransition.FallExit, destinationTerrain.TerrainLayers.HighestLayer());
-		}
+			if (OutboundDirection == CardinalDirection.Down)
+			{
+				if (originTerrain.TerrainLayers.LowestLayer() != perceiver.RoomLayer)
+				{
+					return (CellMovementTransition.NoViableTransition, RoomLayer.GroundLevel);
+				}
 
+				if (perceiver.RoomLayer.IsUnderwater())
+				{
+					if (destinationTerrain.TerrainLayers.Any(x => !x.IsUnderwater()))
+					{
+						return (CellMovementTransition.FallExit, destinationTerrain.TerrainLayers.HighestLayer());
+					}
+
+					return (CellMovementTransition.SwimOnly, destinationTerrain.TerrainLayers.HighestLayer());
+				}
+
+				return (CellMovementTransition.FallExit, destinationTerrain.TerrainLayers.HighestLayer());
+			}
+		}
+		
 		if (destinationTerrain.TerrainLayers.Contains(perceiver.RoomLayer))
 		{
 			if (perceiver.Location.IsSwimmingLayer(perceiver.RoomLayer))

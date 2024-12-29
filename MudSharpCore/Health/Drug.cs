@@ -13,6 +13,8 @@ using MudSharp.FutureProg.Variables;
 
 namespace MudSharp.Health;
 
+
+
 public class Drug : SaveableItem, IDrug
 {
 	public Drug(MudSharp.Models.Drug drug, IFuturemud gameworld)
@@ -25,7 +27,7 @@ public class Drug : SaveableItem, IDrug
 		RelativeMetabolisationRate = drug.RelativeMetabolisationRate;
 		foreach (var item in drug.DrugsIntensities)
 		{
-			DrugTypeMulipliers[(DrugType)item.DrugType] = (item.RelativeIntensity, item.AdditionalEffects);
+			DrugTypeMulipliers[(DrugType)item.DrugType] = (item.RelativeIntensity, AdditionalInfoFor((DrugType)item.DrugType, item.AdditionalEffects));
 		}
 	}
 
@@ -48,12 +50,16 @@ public class Drug : SaveableItem, IDrug
 		FMDB.Context.DrugsIntensities.RemoveRange(dbitem.DrugsIntensities);
 		foreach (var item in DrugTypeMulipliers)
 		{
-			var dbmult = new Models.DrugIntensity();
+			var dbmult = new Models.DrugIntensity
+			{
+				DrugType = (int)item.Key,
+				RelativeIntensity = item.Value.Multiplier,
+				AdditionalEffects = item.Value.ExtraInfo.DatabaseString
+			};
 			dbitem.DrugsIntensities.Add(dbmult);
-			dbmult.DrugType = (int)item.Key;
-			dbmult.RelativeIntensity = item.Value.Multiplier;
-			dbmult.AdditionalEffects = item.Value.ExtraInfo;
 		}
+
+		Changed = false;
 	}
 
 	#endregion
@@ -64,11 +70,287 @@ public class Drug : SaveableItem, IDrug
 	public DrugVector DrugVectors { get; set; }
 	public double IntensityPerGram { get; set; }
 	public double RelativeMetabolisationRate { get; set; }
-	public Dictionary<DrugType, (double Multiplier, string ExtraInfo)> DrugTypeMulipliers { get; } = new();
+	public Dictionary<DrugType, (double Multiplier, DrugAdditionalInfo ExtraInfo)> DrugTypeMulipliers { get; } = new();
 
-	public string ExtraInfoFor(DrugType type)
+	public T AdditionalInfoFor<T>(DrugType type) where T : DrugAdditionalInfo
 	{
-		return DrugTypeMulipliers.ValueOrDefault(type, default).ExtraInfo;
+		return (T)DrugTypeMulipliers.ValueOrDefault(type, default).ExtraInfo;
+	}
+
+	private DrugAdditionalInfo AdditionalInfoFor(DrugType type, string extra)
+	{
+		switch (type)
+		{
+			case DrugType.NeutraliseDrugEffect:
+				return new NeutraliseDrugAdditionalInfo
+				{
+					NeutralisedTypes = extra
+					                   .Split(' ')
+					                   .Select(int.Parse)
+					                   .Cast<DrugType>()
+					                   .ToList()
+				};
+			case DrugType.BodypartDamage:
+				return new BodypartDamageAdditionalInfo
+				{
+					BodypartTypes = extra
+					                .Split(' ')
+					                .Select(int.Parse)
+					                .Cast<BodypartTypeEnum>()
+					                .ToList()
+				};
+			case DrugType.HealingRate:
+				return new HealingRateAdditionalInfo
+				{
+					HealingRateIntensity = double.Parse(extra.Split(" ")[0]),
+					HealingDifficultyIntensity = double.Parse(extra.Split(" ")[1])
+				};
+			case DrugType.MagicAbility:
+				return new MagicAbilityAdditionalInfo
+				{
+					MagicCapabilityIds = extra
+					                     .Split(' ')
+					                     .Select(long.Parse)
+					                     .ToList()
+				};
+			case DrugType.NeutraliseSpecificDrug:
+				return new NeutraliseSpecificDrugAdditionalInfo()
+				{
+					NeutralisedIds = extra
+					                 .Split(' ')
+					                 .Select(long.Parse)
+					                 .ToList()
+				};
+			default:
+				return null;
+		}
+	}
+
+	public const string HelpText = @"";
+
+	/// <inheritdoc />
+	public bool BuildingCommand(ICharacter actor, StringStack command)
+	{
+		switch (command.PopForSwitch())
+		{
+			case "name":
+				return BuildingCommandName(actor, command);
+			case "intensity":
+				return BuildingCommandIntensity(actor, command);
+			case "metabolism":
+				return BuildingCommandMetabolism(actor, command);
+			case "inhaled":
+				return BuildingCommandInhaled(actor);
+			case "injected":
+				return BuildingCommandInjected(actor);
+			case "ingested":
+				return BuildingCommandIngested(actor);
+			case "touch":
+				return BuildingCommandTouch(actor);
+			case "type":
+				return BuildingCommandType(actor, command);
+			default:
+				actor.OutputHandler.Send(HelpText.SubstituteANSIColour());
+				return false;
+		}
+	}
+
+	private bool BuildingCommandType(ICharacter actor, StringStack command)
+	{
+		switch (command.PopForSwitch())
+		{
+			case "intensity":
+				return BuildingCommandTypeIntensity(actor, command);
+			case "healingrate":
+				return BuildingCommandHealingRate(actor, command);
+			case "magic":
+			case "magiccapability":
+			case "magicability":
+			case "capability":
+			case "ability":
+				return BuildingCommandMagicCapability(actor, command);
+			case "neutralise":
+				return BuildingCommandNeutralise(actor, command);
+			case "neutralisespecific":
+				return BuildingCommandNeutraliseSpecific(actor, command);
+			case "damage":
+				return BuildingCommandDamage(actor, command);
+			default:
+				return false;
+		}
+	}
+
+	private bool BuildingCommandDamage(ICharacter actor, StringStack command)
+	{
+		throw new NotImplementedException();
+	}
+
+	private bool BuildingCommandNeutraliseSpecific(ICharacter actor, StringStack command)
+	{
+		throw new NotImplementedException();
+	}
+
+	private bool BuildingCommandNeutralise(ICharacter actor, StringStack command)
+	{
+		throw new NotImplementedException();
+	}
+
+	private bool BuildingCommandMagicCapability(ICharacter actor, StringStack command)
+	{
+		throw new NotImplementedException();
+	}
+
+	private bool BuildingCommandHealingRate(ICharacter actor, StringStack command)
+	{
+		throw new NotImplementedException();
+	}
+
+	private bool BuildingCommandTypeIntensity(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send($"Which drug type effect do you want to change the intensity of? The valid choices are {Enum.GetValues<DrugType>().ListToColouredString()}.");
+			return false;
+		}
+
+		if (!command.PopSpeech().TryParseEnum<DrugType>(out var type))
+		{
+			actor.OutputHandler.Send($"The text {command.Last.ColourCommand()} is not a valid drug type. The valid choices are {Enum.GetValues<DrugType>().ListToColouredString()}.");
+			return false;
+		}
+
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("What should be the intensity of that drug effect?");
+			return false;
+		}
+
+		if (!command.SafeRemainingArgument.TryParsePercentage(actor.Account.Culture, out var value))
+		{
+			actor.OutputHandler.Send($"The text {command.SafeRemainingArgument.ColourCommand()} is not a valid percentage.");
+			return false;
+		}
+
+		if (value <= 0.0)
+		{
+			DrugTypeMulipliers.Remove(type);
+			Changed = true;
+			actor.OutputHandler.Send($"This drug will not have any effects of type {type.DescribeEnum().ColourValue()}.");
+			return true;
+		}
+
+		if (DrugTypeMulipliers.ContainsKey(type))
+		{
+			DrugTypeMulipliers[type] = (value, DrugTypeMulipliers[type].ExtraInfo);
+		}
+		else
+		{
+			switch (type)
+			{
+				case DrugType.NeutraliseDrugEffect:
+
+				default:
+					DrugTypeMulipliers[type] = (value, null);
+					break;
+			}
+		}
+
+		Changed = true;
+		actor.OutputHandler.Send($"");
+		return true;
+	}
+
+	private bool BuildingCommandTouch(ICharacter actor)
+	{
+		DrugVectors &= ~DrugVector.Touched;
+		Changed = true;
+		actor.OutputHandler.Send($"This drug can {DrugVectors.HasFlag(DrugVector.Touched).NowNoLonger()} be absorbed by touch contact.");
+		return true;
+	}
+
+	private bool BuildingCommandIngested(ICharacter actor)
+	{
+		DrugVectors &= ~DrugVector.Ingested;
+		Changed = true;
+		actor.OutputHandler.Send($"This drug can {DrugVectors.HasFlag(DrugVector.Ingested).NowNoLonger()} be ingested.");
+		return true;
+	}
+
+	private bool BuildingCommandInjected(ICharacter actor)
+	{
+		DrugVectors &= ~DrugVector.Injected;
+		Changed = true;
+		actor.OutputHandler.Send($"This drug can {DrugVectors.HasFlag(DrugVector.Injected).NowNoLonger()} be injected.");
+		return true;
+	}
+
+	private bool BuildingCommandInhaled(ICharacter actor)
+	{
+		DrugVectors &= ~DrugVector.Inhaled;
+		Changed = true;
+		actor.OutputHandler.Send($"This drug can {DrugVectors.HasFlag(DrugVector.Inhaled).NowNoLonger()} be inhaled.");
+		return true;
+	}
+
+	private bool BuildingCommandMetabolism(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send($"What should be the relative metabolism of this drug per gram?");
+			return false;
+		}
+
+		if (!command.SafeRemainingArgument.TryParsePercentage(actor.Account.Culture, out var value))
+		{
+			actor.OutputHandler.Send($"The text {command.SafeRemainingArgument.ColourCommand()} is not a valid percentage.");
+			return false;
+		}
+
+		RelativeMetabolisationRate = value;
+		Changed = true;
+		actor.OutputHandler.Send($"This drug now has a relative metabolism of {RelativeMetabolisationRate.ToStringP2Colour(actor)}.");
+		return true;
+	}
+
+	private bool BuildingCommandIntensity(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send($"What should be the relative intensity of this drug per gram?");
+			return false;
+		}
+
+		if (!command.SafeRemainingArgument.TryParsePercentage(actor.Account.Culture, out var value))
+		{
+			actor.OutputHandler.Send($"The text {command.SafeRemainingArgument.ColourCommand()} is not a valid percentage.");
+			return false;
+		}
+
+		IntensityPerGram = value;
+		Changed = true;
+		actor.OutputHandler.Send($"This drug now has a relative intensity per gram of {IntensityPerGram.ToStringP2Colour(actor)}.");
+		return true;
+	}
+
+	private bool BuildingCommandName(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("What name do you want to give to this drug?");
+			return false;
+		}
+
+		var name = command.SafeRemainingArgument;
+		if (Gameworld.Drugs.Any(x => x.Name.EqualTo(name)))
+		{
+			actor.OutputHandler.Send($"There is already a drug called {name.ColourName()}. Names must be unique.");
+			return false;
+		}
+
+		actor.OutputHandler.Send($"You rename the drug {_name.ColourName()} to {name.ColourName()}.");
+		_name = name;
+		Changed = true;
+		return true;
 	}
 
 	public virtual string Show(ICharacter voyeur)
@@ -89,24 +371,23 @@ public class Drug : SaveableItem, IDrug
 		switch (type)
 		{
 			case DrugType.NeutraliseDrugEffect:
-				var types = ExtraInfoFor(type)
-				            .Split(' ')
-				            .Select(x => (DrugType)int.Parse(x))
+				var types = AdditionalInfoFor<NeutraliseDrugAdditionalInfo>(DrugType.NeutraliseDrugEffect)
+				            .NeutralisedTypes
 				            .Select(x => x.DescribeEnum().ColourValue())
 				            .ToList();
 				return $"Neutralising {types.ListToString()} @ {IntensityForType(type).ToString("N4", voyeur)}";
 			case DrugType.BodypartDamage:
 				return
-					$"Damaging {ExtraInfoFor(type).Split(' ').Select(x => (BodypartTypeEnum)int.Parse(x)).Select(x => x.DescribeEnum().Pluralise().ColourValue()).ListToString()} @ {IntensityForType(type).ToString("N4", voyeur)}";
+					$"Damaging {AdditionalInfoFor<BodypartDamageAdditionalInfo>(DrugType.BodypartDamage).BodypartTypes.Select(x => x.DescribeEnum().Pluralise().ColourValue()).ListToString()} @ {IntensityForType(type).ToString("N4", voyeur)}";
 			case DrugType.HealingRate:
-				var split = ExtraInfoFor(DrugType.HealingRate).Split(' ');
+				var split = AdditionalInfoFor<HealingRateAdditionalInfo>(DrugType.HealingRate);
 				return
-					$"HealingRate Mult ({double.Parse(split[0]).ToString("N4", voyeur)}) Diff ({double.Parse(split[1]).ToString("N4", voyeur)}) @ {IntensityForType(type).ToString("N4", voyeur)}";
+					$"HealingRate Mult ({split.HealingRateIntensity.ToString("N4", voyeur)}) Diff ({split.HealingDifficultyIntensity.ToString("N4", voyeur)}) @ {IntensityForType(type).ToString("N4", voyeur)}";
 			case DrugType.MagicAbility:
-				var capabilityString = ExtraInfoFor(DrugType.MagicAbility);
-				var capabilities = capabilityString.Split(' ')
-				                                   .SelectNotNull(x => Gameworld.MagicCapabilities.Get(int.Parse(x)))
-				                                   .ToList();
+				var capabilities = AdditionalInfoFor<MagicAbilityAdditionalInfo>(DrugType.MagicAbility)
+				                   .MagicCapabilityIds
+				                   .SelectNotNull(x => Gameworld.MagicCapabilities.Get(x))
+				                   .ToList();
 				return
 					$"MagicAbility of {capabilities.Select(x => x.Name.Colour(x.School.PowerListColour)).ListToString()} @ {IntensityForType(type).ToString("N4", voyeur)}";
 		}

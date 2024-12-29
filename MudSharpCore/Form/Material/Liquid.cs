@@ -431,13 +431,13 @@ public class Liquid : Fluid, ILiquid
 		{
 			$"Boiling Temp: {(BoilingPoint is not null ? Gameworld.UnitManager.DescribeDecimal(BoilingPoint.Value, UnitType.Temperature, actor).ColourValue() : "N/A".Colour(Telnet.Yellow))}",
 			$"Gas Form: {GasForm?.Name.Colour(GasForm.DisplayColour) ?? "None".Colour(Telnet.Red)}",
-			$"Display Colour: {DisplayColour.Name.Colour(DisplayColour)}"
+			$"Display Colour: {DisplayColour?.Name.Colour(DisplayColour) ?? "None".ColourError()}"
 		});
 
 		sb.AppendLineColumns((uint)actor.LineFormatLength, 3, new[]
 		{
 			$"Freezing Temp: {(FreezingPoint is not null ? Gameworld.UnitManager.DescribeDecimal(FreezingPoint.Value, UnitType.Temperature, actor).ColourValue() : "N/A".Colour(Telnet.Yellow))}",
-			$"Relative Enthalpy: {RelativeEnthalpy.ToString("N3", actor).ColourValue()}",
+			$"Relative Enthalpy: {RelativeEnthalpy.ToString("P2", actor).ColourValue()}",
 			""
 		});
 		sb.AppendLineColumns((uint)actor.LineFormatLength, 3, new[]
@@ -464,6 +464,14 @@ public class Liquid : Fluid, ILiquid
 		sb.AppendLine(
 			$"Drug: {(Drug is not null ? $"{Drug.Name.ColourValue()} @ {DrugGramsPerUnitVolume.ToString("N3", actor).ColourValue()}g/L" : "None".Colour(Telnet.Red))}");
 
+		sb.AppendLine();
+		sb.AppendLine($"Damp SDesc: {DampShortDescription.Colour(DisplayColour)}");
+		sb.AppendLine($"Wet SDesc: {WetShortDescription.Colour(DisplayColour)}");
+		sb.AppendLine($"Drenched SDesc: {DrenchedShortDescription.Colour(DisplayColour)}");
+		sb.AppendLine($"Damp Desc: {DampDescription.Colour(DisplayColour)}");
+		sb.AppendLine($"Wet Desc: {WetDescription.Colour(DisplayColour)}");
+		sb.AppendLine($"Drenched Desc: {DrenchedDescription.Colour(DisplayColour)}");
+		
 		sb.AppendLine();
 		sb.AppendLine("Tags".GetLineWithTitle(actor.LineFormatLength, actor.Account.UseUnicode, Telnet.Cyan,
 			Telnet.BoldYellow));
@@ -501,6 +509,8 @@ public class Liquid : Fluid, ILiquid
 	#3residue none#0 - dry clean, leave no residue
 	#3residueamount <percentage>#0 - percentage of weight of liquid that is residue
 	#3residueroom#0 - toggles leaving residue in rooms
+	#3sdescadd damp|wet|drench <tag>#0 - sets the tag to appear on item sdescs when soaked
+	#3descadd damp|wet|drench <tag>#0 - sets the tag to appear on item descs when soaked
 	#3relativeenthalpy <percentage>#0 - sets the rate of evaporation relative to water
 	#3countsas <liquid>#0 - sets another liquid that this one counts as
 	#3countsas none#0 - this liquid counts as no other liquid
@@ -587,9 +597,93 @@ public class Liquid : Fluid, ILiquid
 				return BuildingCommandBoilingPoint(actor, command);
 			case "gas":
 				return BuildingCommandGas(actor, command);
+			case "sdescadd":
+				return BuildingCommandSdesc(actor, command);
+			case "descadd":
+				return BuildingCommandDescAdd(actor, command);
 		}
 
 		return base.BuildingCommand(actor, command.GetUndo());
+	}
+
+	private bool BuildingCommandDescAdd(ICharacter actor, StringStack command)
+	{
+		var type = command.PopForSwitch();
+		switch (type)
+		{
+			case "damp":
+			case "wet":
+			case "drenched":
+				break;
+			default:
+				actor.OutputHandler.Send("You must specify #3damp#0, #3wet#0 or #3drenched#0.".SubstituteANSIColour());
+				return false;
+		}
+
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("What description addition would you like to add?");
+			return false;
+		}
+
+		switch (type)
+		{
+			case "damp":
+				DampDescription = command.SafeRemainingArgument;
+				actor.OutputHandler.Send($"The Damp Description Addition is now {command.SafeRemainingArgument.Colour(DisplayColour)}");
+				break;
+			case "wet":
+				WetDescription = command.SafeRemainingArgument;
+				actor.OutputHandler.Send($"The Wet Description Addition is now {command.SafeRemainingArgument.Colour(DisplayColour)}");
+				break;
+			case "drenched":
+				DrenchedDescription = command.SafeRemainingArgument;
+				actor.OutputHandler.Send($"The Drenched Description Addition is now {command.SafeRemainingArgument.Colour(DisplayColour)}");
+				break;
+		}
+
+		Changed = true;
+		return true;
+	}
+
+	private bool BuildingCommandSdesc(ICharacter actor, StringStack command)
+	{
+		var type = command.PopForSwitch();
+		switch (type)
+		{
+			case "damp":
+			case "wet":
+			case "drenched":
+				break;
+			default:
+				actor.OutputHandler.Send("You must specify #3damp#0, #3wet#0 or #3drenched#0.".SubstituteANSIColour());
+				return false;
+		}
+
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("What description addition would you like to add?");
+			return false;
+		}
+
+		switch (type)
+		{
+			case "damp":
+				DampShortDescription = command.SafeRemainingArgument;
+				actor.OutputHandler.Send($"The Damp Short Description Addition is now {command.SafeRemainingArgument.Colour(DisplayColour)}");
+				break;
+			case "wet":
+				WetShortDescription = command.SafeRemainingArgument;
+				actor.OutputHandler.Send($"The Wet Short Description Addition is now {command.SafeRemainingArgument.Colour(DisplayColour)}");
+				break;
+			case "drenched":
+				DrenchedShortDescription = command.SafeRemainingArgument;
+				actor.OutputHandler.Send($"The Drenched Short Description Addition is now {command.SafeRemainingArgument.Colour(DisplayColour)}");
+				break;
+		}
+
+		Changed = true;
+		return true;
 	}
 
 	private bool BuildingCommandResidueRoom(ICharacter actor)

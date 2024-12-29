@@ -31,7 +31,7 @@ using MudSharp.PerceptionEngine.Parsers;
 using MudSharp.RPG.Checks;
 
 namespace MudSharp.GameItems.Components;  
-public class MusketGameItemComponent : GameItemComponent, IJammableWeapon, IBelt
+public class MusketGameItemComponent : GameItemComponent, IJammableWeapon, IBelt, IMeleeWeapon
 {
 	protected MusketGameItemComponentProto _prototype;
 	public override IGameItemComponentProto Prototype => _prototype;
@@ -273,6 +273,9 @@ It is classified as {WeaponType.Classification.Describe().Colour(Telnet.Green)}.
 
 	/// <inheritdoc />
 	public bool CanBeAimedAtSelf => true;
+
+	/// <inheritdoc />
+	IWeaponType IMeleeWeapon.WeaponType => _weaponType;
 
 	/// <inheritdoc />
 	public WeaponClassification Classification => _prototype.RangedWeaponType.Classification;
@@ -1037,6 +1040,7 @@ It is classified as {WeaponType.Classification.Describe().Colour(Telnet.Green)}.
 
 	private IBeltable _ramrod;
 	private IBeltable _sights;
+	private IWeaponType _weaponType;
 
 	public IEnumerable<IBeltable> ConnectedItems
 	{

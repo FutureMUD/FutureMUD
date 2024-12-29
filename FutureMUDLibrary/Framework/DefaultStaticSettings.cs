@@ -14,6 +14,7 @@ public static class DefaultStaticSettings
 		new Dictionary<string, string>
 		{
 			{ "CPRAllowed", "true" },
+			{ "DefaultNonCardinalExitForDwellings", "1"},
 			{ "DisableCraftQualityCalculation", "false"},
 			{ "LookingForTracksTimeExpression", "10"},
 			{ "MaximumLandmarkDirectionsDistance", "20"},

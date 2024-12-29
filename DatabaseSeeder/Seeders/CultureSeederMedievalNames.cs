@@ -613,7 +613,7 @@ public partial class CultureSeeder
 				(NameStyle.FullWithNickname, "{0} {1}", new[]{NameUsage.BirthName, NameUsage.Surname})
 			});
 		#region Males
-		var iberianMale = AddRandomNameProfile("Iberian Male", Gender.Male, italian);
+		var iberianMale = AddRandomNameProfile("Iberian Male", Gender.Male, iberian);
 		AddRandomNameDice(iberianMale, NameUsage.BirthName, "1");
 		AddRandomNameDice(iberianMale, NameUsage.Surname, "1");
 		AddRandomNameElement(iberianMale, NameUsage.BirthName, "Juan", 10);
@@ -801,7 +801,7 @@ public partial class CultureSeeder
 		#endregion
 
 		#region Females
-		var iberianFemale = AddRandomNameProfile("Iberian Female", Gender.Female, italian);
+		var iberianFemale = AddRandomNameProfile("Iberian Female", Gender.Female, iberian);
 		AddRandomNameDice(iberianFemale, NameUsage.BirthName, "1");
 		AddRandomNameDice(iberianFemale, NameUsage.Surname, "1");
 		AddRandomNameElement(iberianFemale, NameUsage.BirthName, "María", 20);
@@ -3532,7 +3532,7 @@ public partial class CultureSeeder
 		#endregion
 
 		#region Females
-		var finnishFemale = AddRandomNameProfile("Finno-Ugric Male", Gender.Female, finnougric);
+		var finnishFemale = AddRandomNameProfile("Finno-Ugric Female", Gender.Female, finnougric);
 		AddRandomNameDice(finnishFemale, NameUsage.BirthName, "1");
 		AddRandomNameDice(finnishFemale, NameUsage.Surname, "1");
 		AddRandomNameElement(finnishFemale, NameUsage.BirthName, "Maria", 10);
@@ -5425,7 +5425,7 @@ public partial class CultureSeeder
 		#endregion
 
 		#region Females
-		var basqueFemale = AddRandomNameProfile("Basque Male", Gender.Female, basque);
+		var basqueFemale = AddRandomNameProfile("Basque Female", Gender.Female, basque);
 		AddRandomNameDice(basqueFemale, NameUsage.BirthName, "1");
 		AddRandomNameDice(basqueFemale, NameUsage.Surname, "1");
 		AddRandomNameElement(basqueFemale, NameUsage.BirthName, "Mária", 10);

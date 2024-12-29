@@ -58,6 +58,10 @@
     "Rome": {
       "commandName": "Project",
       "commandLineArgs": "\"MySql.Data.MySqlClient\" \"server=localhost;port=3306;database=rome_dbo;uid=futuremud;password=rpiengine2020;Default Command Timeout=300000;\""
+    },
+    "Damnatio": {
+      "commandName": "Project",
+      "commandLineArgs": "\"MySql.Data.MySqlClient\" \"server=localhost;port=3306;database=damnatio_dbo;uid=futuremud;password=rpiengine2020;Default Command Timeout=300000;\""
     }
   }
 }

@@ -4871,7 +4871,7 @@ public partial class CultureSeeder
 		#endregion
 
 		#region Females
-		var hungarianFemale = AddRandomNameProfile("Hungarian Male", Gender.Female, hungarian);
+		var hungarianFemale = AddRandomNameProfile("Hungarian Female", Gender.Female, hungarian);
 		AddRandomNameDice(hungarianFemale, NameUsage.BirthName, "1");
 		AddRandomNameDice(hungarianFemale, NameUsage.Surname, "1");
 		AddRandomNameElement(hungarianFemale, NameUsage.BirthName, "Mária", 10);

@@ -128,7 +128,7 @@ public class VariableNPCTemplate : NPCTemplateBase
 		{
 			_nameProfiles.Add(Gendering.Get(sub.Attribute("Gender").Value).Enum,
 				Gameworld.NameCultures.Get(long.Parse(sub.Attribute("Culture").Value))
-				         .RandomNameProfiles.First(x => x.Id == int.Parse(sub.Attribute("Profile").Value)));
+				         .RandomNameProfiles.FirstOrDefault(x => x.Id == int.Parse(sub.Attribute("Profile").Value)));
 		}
 
 		element = root.Element("Race");

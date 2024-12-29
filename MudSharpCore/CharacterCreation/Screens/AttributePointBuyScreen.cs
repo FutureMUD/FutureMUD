@@ -155,7 +155,12 @@ public class AttributePointBuyScreenStoryboard : ChargenScreenStoryboard
 		}
 
 		BoostCostExpression.Parameters["boosts"] = nonFreeBoosts;
-		return new[] { (BoostResource, Convert.ToInt32(BoostCostExpression.Evaluate())) };
+		var boostExpr = BoostCostExpression.EvaluateDouble();
+		if (boostExpr > int.MaxValue)
+		{
+			boostExpr = int.MaxValue;
+		}
+		return new[] { (BoostResource, Convert.ToInt32(boostExpr)) };
 	}
 
 	public (int NonFreeBoosts, int RemainingFreeBoosts) EvaluateBoosts(IChargen chargen)

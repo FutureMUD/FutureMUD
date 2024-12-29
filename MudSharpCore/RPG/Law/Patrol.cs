@@ -240,6 +240,6 @@ public class Patrol : SaveableItem, IPatrol
 	public void RemovePatrolMember(ICharacter character)
 	{
 		_members.Remove(character);
-		PatrolLeader?.Party.Leave(character);
+		PatrolLeader?.Party?.Leave(character);
 	}
 }

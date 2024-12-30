@@ -263,7 +263,7 @@ public class AutobuilderRandomDescriptionElement : IAutobuilderRandomDescription
 		var text = command.SafeRemainingArgument.TitleCase().Sanitise();
 		Text = text;
 		actor.OutputHandler.Send(
-			$"This element will now contribute the following sentence to the description of to the generated room: {RoomNameText.ColourName()}");
+			$"This element will now contribute the following sentence to the description of to the generated room: {Text.ColourName()}");
 		return true;
 	}
 

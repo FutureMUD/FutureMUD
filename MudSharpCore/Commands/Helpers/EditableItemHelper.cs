@@ -1984,6 +1984,130 @@ public partial class EditableItemHelper
 		GetEditHeader = item => $"Chargen Resource #{item.Id:N0} ({item.Name})"
 	};
 
+	public static EditableItemHelper DrugHelper = new()
+	{
+		ItemName = "Drug",
+		ItemNamePlural = "Drugs",
+		SetEditableItemAction = (actor, item) =>
+		{
+			actor.RemoveAllEffects<BuilderEditingEffect<IDrug>>();
+			if (item == null)
+			{
+				return;
+			}
+
+			actor.AddEffect(new BuilderEditingEffect<IDrug>(actor) { EditingItem = (IDrug)item });
+		},
+		GetEditableItemFunc = actor =>
+			actor.CombinedEffectsOfType<BuilderEditingEffect<IDrug>>().FirstOrDefault()?.EditingItem,
+		GetAllEditableItems = actor => actor.Gameworld.Drugs.ToList(),
+		GetEditableItemByIdFunc = (actor, id) => actor.Gameworld.Drugs.Get(id),
+		GetEditableItemByIdOrNameFunc = (actor, input) => actor.Gameworld.Drugs.GetByIdOrName(input),
+		AddItemToGameWorldAction = item => item.Gameworld.Add((IDrug)item),
+		CastToType = typeof(IDrug),
+		EditableNewAction = (actor, input) =>
+		{
+			if (input.IsFinished)
+			{
+				actor.OutputHandler.Send("You must specify a name for your new drug.");
+				return;
+			}
+
+			var name = input.PopSpeech().TitleCase();
+
+			if (actor.Gameworld.Drugs.Any(x => x.Name.EqualTo(name)))
+			{
+				actor.OutputHandler.Send(
+					"There is already a drug with that name. Names must be unique.");
+				return;
+			}
+
+			var drug = new Drug(actor.Gameworld, name);
+			actor.Gameworld.Add(drug);
+			actor.RemoveAllEffects<BuilderEditingEffect<IDrug>>();
+			actor.AddEffect(new BuilderEditingEffect<IDrug>(actor) { EditingItem = drug });
+			actor.OutputHandler.Send($"You create a new drug called {name.ColourValue()}, which you are now editing.");
+		},
+		EditableCloneAction = (actor, input) =>
+		{
+			if (input.IsFinished)
+			{
+				actor.OutputHandler.Send("Which drug do you want to clone?");
+				return;
+			}
+
+			var drug = actor.Gameworld.Drugs.GetByIdOrName(input.PopSpeech());
+			if (drug == null)
+			{
+				actor.OutputHandler.Send("There is no such drug.");
+				return;
+			}
+
+			if (input.IsFinished)
+			{
+				actor.OutputHandler.Send("You must specify a name for your new drug.");
+				return;
+			}
+
+			var name = input.SafeRemainingArgument;
+			if (actor.Gameworld.Drugs.Any(x => x.Name.EqualTo(name)))
+			{
+				actor.OutputHandler.Send($"There is already a drug with that name. Names must be unique.");
+				return;
+			}
+
+			var clone = drug.Clone(name);
+			actor.Gameworld.Add(clone);
+			actor.RemoveAllEffects<BuilderEditingEffect<IDrug>>();
+			actor.AddEffect(new BuilderEditingEffect<IDrug>(actor) { EditingItem = clone });
+			actor.OutputHandler.Send(
+				$"You clone the drug {drug.Name.ColourValue()} to a new drug called {clone.Name.ColourValue()}, which you are now editing.");
+		},
+
+		GetListTableHeaderFunc = character => new List<string>
+		{
+			"Id",
+			"Name",
+			"Vectors",
+			"Intensity",
+			"Metabolism",
+			"Effects"
+		},
+
+		GetListTableContentsFunc = (character, protos) => from proto in protos.OfType<IDrug>()
+														  select new List<string>
+														  {
+															  proto.Id.ToString("N0", character),
+															  proto.Name,
+															  proto.DrugVectors.Describe(),
+															  proto.IntensityPerGram.ToStringP2Colour(character),
+															  proto.RelativeMetabolisationRate.ToStringP2Colour(character),
+															  proto.DrugTypes.ListToColouredString()
+														  },
+
+		CustomSearch = (protos, keyword, gameworld) =>
+		{
+			if (keyword.Length > 1)
+			{
+				var key1 = keyword.Substring(1);
+				switch (keyword[0])
+				{
+					case '*':
+						return protos
+						       .OfType<IDrug>()
+						       .Where(x => x.DrugTypes.Any(x => x.DescribeEnum().EqualTo(key1)))
+						       .Cast<IEditableItem>()
+						       .ToList();
+				}
+			}
+			return protos;
+		},
+
+		DefaultCommandHelp = BuilderModule.DrugsHelp,
+
+		GetEditHeader = item => $"Drug #{item.Id:N0} ({item.Name})"
+	};
+
 	public static EditableItemHelper ImproverHelper = new()
 	{
 		ItemName = "Improver",

@@ -95,6 +95,7 @@ namespace MudSharp.Health
 		double RelativeMetabolisationRate { get; }
 		double IntensityForType(DrugType type);
 		string DescribeEffect(DrugType type, IPerceiver voyeur);
+		IDrug Clone(string newName);
 	}
 
 	public static class DrugExtensions {

@@ -100,11 +100,9 @@ public class AutobuilderRoomRandomDescription : AutobuilderRoomBase
 		ShowCommandByline = root.Element("ShowCommandByline")?.Value ?? "A terrain-specific room without a byline.";
 		AddToAllRoomDescriptions = root.Element("AddToAllRoomDescriptions")?.Value ?? string.Empty;
 
-		foreach (var element in root.Elements("Terrain") ?? Enumerable.Empty<XElement>())
+		foreach (var element in root.Element("Terrains").Elements("Terrain") ?? Enumerable.Empty<XElement>())
 		{
-			var terrain = long.TryParse(element.Attribute("type")?.Value ?? "0", out var value)
-				? Gameworld.Terrains.Get(value)
-				: Gameworld.Terrains.GetByName(element.Attribute("type")?.Value);
+			var terrain = Gameworld.Terrains.GetByIdOrName(element.Element("DefaultTerrain").Value);
 			if (terrain == null)
 			{
 				continue;

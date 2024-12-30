@@ -20,7 +20,6 @@ public class AutobuilderRandomDescriptionElement : IAutobuilderRandomDescription
 		Weight = 100.0;
 		MandatoryIfValid = false;
 		MandatoryPosition = 100000;
-		_tags = new List<string>();
 		Terrains = new List<ITerrain>();
 		Text = "There is a notable feature of some kind here";
 		RoomNameText = "{0}";
@@ -32,7 +31,6 @@ public class AutobuilderRandomDescriptionElement : IAutobuilderRandomDescription
 		Weight = 100.0;
 		MandatoryIfValid = false;
 		MandatoryPosition = 100000;
-		_tags = new List<string>();
 		Terrains = [terrain];
 		Text = "There is a notable feature of some kind here";
 		RoomNameText = "{0}";
@@ -45,7 +43,16 @@ public class AutobuilderRandomDescriptionElement : IAutobuilderRandomDescription
 			   throw new ApplicationException($"AutobuilderRandomDescriptionElement lacked a text tag:\n{root}");
 		RoomNameText = root.Element("RoomNameText")?.Value;
 		Weight = double.Parse(root.Element("Weight")?.Value ?? "1.0");
-		_tags = root.Element("Tags")?.Value.Split(',').ToList();
+		foreach (var tag in root.Element("Tags").Value.Split(","))
+		{
+			if (string.IsNullOrWhiteSpace(tag))
+			{
+				continue;
+			}
+
+			_tags.Add(tag);
+		}
+		
 		Terrains = (root.Element("Terrains")?.Elements().SelectNotNull(x =>
 			long.TryParse(x.Value, out var value)
 				? gameworld.Terrains.Get(value)
@@ -74,7 +81,7 @@ public class AutobuilderRandomDescriptionElement : IAutobuilderRandomDescription
 	public string Text { get; protected set; }
 	public string RoomNameText { get; protected set; }
 	public List<ITerrain> Terrains { get; }
-	private readonly List<string> _tags;
+	private readonly List<string> _tags = [];
 	public IEnumerable<string> Tags => _tags;
 	public bool MandatoryIfValid { get; protected set; }
 	public int MandatoryPosition { get; protected set; }
@@ -260,10 +267,9 @@ public class AutobuilderRandomDescriptionElement : IAutobuilderRandomDescription
 			return false;
 		}
 
-		var text = command.SafeRemainingArgument.TitleCase().Sanitise();
+		var text = command.SafeRemainingArgument.ProperSentences();
 		Text = text;
-		actor.OutputHandler.Send(
-			$"This element will now contribute the following sentence to the description of to the generated room: {Text.ColourName()}");
+		actor.OutputHandler.Send($"This element will now contribute the following sentence to the description of to the generated room: {Text.ColourCommand()}");
 		return true;
 	}
 

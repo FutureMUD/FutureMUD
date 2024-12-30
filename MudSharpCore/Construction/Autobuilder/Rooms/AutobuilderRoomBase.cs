@@ -74,9 +74,9 @@ public abstract class AutobuilderRoomBase : SaveableItem, IAutobuilderRoom
 
 	protected string BuildingHelpText => $@"You can use the following options with this command:
 
-    name <name> - renames this room template
-    summary <text> - a summary of this template for LIST and SHOW
-    applytags - toggles whether room tags are applied as framework tags{SubtypeHelpText}";
+	#3name <name>#0 - renames this room template
+	#3summary <text>#0 - a summary of this template for LIST and SHOW
+	#3applytags#0 - toggles whether room tags are applied as framework tags{SubtypeHelpText}";
 
 	protected abstract string SubtypeHelpText { get; }
 
@@ -92,7 +92,7 @@ public abstract class AutobuilderRoomBase : SaveableItem, IAutobuilderRoom
 			case "summary":
 				return BuildingCommandByline(actor, command);
 			default:
-				actor.OutputHandler.Send(BuildingHelpText);
+				actor.OutputHandler.Send(BuildingHelpText.SubstituteANSIColour());
 				return false;
 		}
 	}

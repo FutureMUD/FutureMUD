@@ -140,21 +140,21 @@ public class AutobuilderRoomByTerrain : AutobuilderRoomBase
 		return cell;
 	}
 
-	protected override string SubtypeHelpText => @" roomname <name> - the default name of the generated room
-	description - edits the default description of the generated room
-	light <percentage> - sets a default light multiplier for the generated room
-	defaultterrain <terrain> - sets the default terrain used if none is supplied
-	outdoors|cave|indoors|shelter - sets the default outdoor behaviour type
-	fp <which> - sets the foragable profile for the default room
-	fp none - removes the foragable profile from the default room
-	terrain <terrain> - shows any custom information set up for a particular terrain
-	terrain <terrain> name <name> - sets a name for a terrain type
-	terrain <terrain> description - sets the description for a terrain type
-	terrain <terrain> light <percentage> - sets the light multiplier for a terrain type
-	terrain <terrain> outdoors|cave|indoors|shelter - sets the terrain type's outdoor behaviour type
-	terrain <terrain> fp <which> - sets the foragable profile for the terrain
-	terrain <terrain> fp none - removes a foragable profile for the terrain
-	terrain <terrain> remove - removes the terrain-specific overrides";
+	protected override string SubtypeHelpText => @" #3roomname <name>#0 - the default name of the generated room
+	#3description#0 - edits the default description of the generated room
+	#3light <percentage>#0 - sets a default light multiplier for the generated room
+	#3defaultterrain <terrain>#0 - sets the default terrain used if none is supplied
+	#3outdoors|cave|indoors|shelter#0 - sets the default outdoor behaviour type
+	#3fp <which>#0 - sets the foragable profile for the default room
+	#3fp none#0 - removes the foragable profile from the default room
+	#3terrain <terrain>#0 - shows any custom information set up for a particular terrain
+	#3terrain <terrain> name <name>#0 - sets a name for a terrain type
+	#3terrain <terrain> description#0 - sets the description for a terrain type
+	#3terrain <terrain> light <percentage>#0 - sets the light multiplier for a terrain type
+	#3terrain <terrain> outdoors|cave|indoors|shelter#0 - sets the terrain type's outdoor behaviour type
+	#3terrain <terrain> fp <which>#0 - sets the foragable profile for the terrain
+	#3terrain <terrain> fp none#0 - removes a foragable profile for the terrain
+	#3terrain <terrain> remove#0 - removes the terrain-specific overrides";
 
 	public override bool BuildingCommand(ICharacter actor, StringStack command)
 	{

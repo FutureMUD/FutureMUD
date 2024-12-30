@@ -296,33 +296,33 @@ public class AutobuilderRoomRandomDescription : AutobuilderRoomBase
 	protected override string SubtypeHelpText => @"
 Commands pertaining to the Default Room (used if no override is specified):
 
-	roomname <name> - the name of the default rooms
-	description <text> - the description of the default rooms
-	light <%> - the light multiplier of default rooms
-	defaultterrain <terrain> - the fallback terrain used if none is specified
-	fp <which> - the foragable profile of default rooms
-	fp none - removes the foragable profile from default rooms
-	expression <expression> - an expression for the number of random sentences generated for the default room
-	outdoors|cave|indoors|shelter - sets the behaviour type of the default room
+	#3roomname <name>#0 - the name of the default rooms
+	#3description <text>#0 - the description of the default rooms
+	#3light <%>#0 - the light multiplier of default rooms
+	#3defaultterrain <terrain>#0 - the fallback terrain used if none is specified
+	#3fp <which>#0 - the foragable profile of default rooms
+	#3fp none#0 - removes the foragable profile from default rooms
+	#3expression <expression>#0 - an expression for the number of random sentences generated for the default room
+	#3outdoors|cave|indoors|shelter#0 - sets the behaviour type of the default room
 
 Commands pertaining to specific terrain overrides of the default info:
 
-	terrain <which> - views detailed info about the terrain override
-	terrain <which> remove - removes a terrain override
-	terrain <which> roomname <name> - the name of the room
-	terrain <which> description <text> - the description of the room
-	terrain <which> light <%> - the light multiplier of room
-	terrain <which> fp <which> - the foragable profile of room
-	terrain <which> fp none - removes the foragable profile from room
-	terrain <which> expression <expression> - an expression for the number of random sentences generated for the room
-	terrain <which> outdoors|cave|indoors|shelter - sets the behaviour type of the room
+	#3terrain <which>#0 - views detailed info about the terrain override
+	#3terrain <which> remove#0 - removes a terrain override
+	#3terrain <which> roomname <name>#0 - the name of the room
+	#3terrain <which> description#0 - drops into an editor to describe the room
+	#3terrain <which> light <%>#0 - the light multiplier of room
+	#3terrain <which> fp <which>#0 - the foragable profile of room
+	#3terrain <which> fp none#0 - removes the foragable profile from room
+	#3terrain <which> expression <expression>#0 - an expression for the number of random sentences generated for the room
+	#3terrain <which> outdoors|cave|indoors|shelter#0 - sets the behaviour type of the room
 
 Commands pertaining to random description elements that get added to the base descriptions:
 
-	element add <type> - adds a new element
-	element <#> - views detailed information about an element
-	element <#> ... - edits the properties of an element. See individual type helps
-	element <#> remove - removes a description element";
+	#3element add <type>#0 - adds a new element
+	#3element <#>#0 - views detailed information about an element
+	#3element <#> ...#0 - edits the properties of an element. See individual type helps
+	#3element <#> remove#0 - removes a description element";
 
 	public override string Show(ICharacter builder)
 	{
@@ -923,7 +923,7 @@ Commands pertaining to random description elements that get added to the base de
 
 		actor.OutputHandler.Send(
 			"Enter the description in the editor below. Use $terrain to substitute the terrain name.");
-		actor.EditorMode(PostDefaultTerrainDescription, CancelDefaultTerrainDescription, 1.0);
+		actor.EditorMode(PostDefaultTerrainDescription, CancelDefaultTerrainDescription, 1.0, suppliedArguments: [terrain]);
 		return true;
 	}
 

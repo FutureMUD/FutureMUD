@@ -26,11 +26,23 @@ public class AutobuilderRandomDescriptionElement : IAutobuilderRandomDescription
 		RoomNameText = "{0}";
 	}
 
+	public AutobuilderRandomDescriptionElement(IFuturemud gameworld, ITerrain terrain)
+	{
+		Gameworld = gameworld;
+		Weight = 100.0;
+		MandatoryIfValid = false;
+		MandatoryPosition = 100000;
+		_tags = new List<string>();
+		Terrains = [terrain];
+		Text = "There is a notable feature of some kind here";
+		RoomNameText = "{0}";
+	}
+
 	public AutobuilderRandomDescriptionElement(XElement root, IFuturemud gameworld)
 	{
 		Gameworld = gameworld;
 		Text = root.Element("Text")?.Value ??
-		       throw new ApplicationException($"AutobuilderRandomDescriptionElement lacked a text tag:\n{root}");
+			   throw new ApplicationException($"AutobuilderRandomDescriptionElement lacked a text tag:\n{root}");
 		RoomNameText = root.Element("RoomNameText")?.Value;
 		Weight = double.Parse(root.Element("Weight")?.Value ?? "1.0");
 		_tags = root.Element("Tags")?.Value.Split(',').ToList();
@@ -91,13 +103,13 @@ public class AutobuilderRandomDescriptionElement : IAutobuilderRandomDescription
 
 		actor.OutputHandler.Send(@"You can use the following options with this command:
 
-    weight <weight> - sets the relative weight of this being selected
-    fixedposition <#> - sets the fixed position of the sentence in the paragraph
-    mandatory - toggles being mandatory to apply to all descriptions if valid
-    terrain <terrains...> - toggles terrains for which this description will apply
-    tags <tags...> - toggles which tags are mandatory for this description to apply
-    name <text> - sets the name of the room if this element is chosen
-    text <text> - sets the sentence added to the room description if this element is chosen");
+	weight <weight> - sets the relative weight of this being selected
+	fixedposition <#> - sets the fixed position of the sentence in the paragraph
+	mandatory - toggles being mandatory to apply to all descriptions if valid
+	terrain <terrains...> - toggles terrains for which this description will apply
+	tags <tags...> - toggles which tags are mandatory for this description to apply
+	name <text> - sets the name of the room if this element is chosen
+	text <text> - sets the sentence added to the room description if this element is chosen");
 		return false;
 	}
 

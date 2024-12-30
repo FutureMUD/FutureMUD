@@ -51,10 +51,10 @@ public class MainMenu : Menu, IController
 		var versionString = $"v{version.Major}.{version.Minor}.{version.Build}.{version.Revision.ToString("0000")}";
 		_menuText = string.Format(gameworld.GetStaticString("MainMenu"), versionString,
 			DateTime.UtcNow.Year.ToString("0000"),
-			gameworld.Name.TitleCase());
+			gameworld.Name.TitleCase()).SubstituteANSIColour();
 
 		var frontPageManager = new CommandManager("Invalid command. Please enter an option from the menu.\n");
-		frontPageManager.Add("", command => AccountController.OutputHandler.Send(_menuText.SubstituteANSIColour()));
+		frontPageManager.Add("", command => AccountController.OutputHandler.Send(_menuText));
 		frontPageManager.Add("c", CreateAccount);
 		frontPageManager.Add("l", ConnectAccount);
 		frontPageManager.Add("r", RecoverPassword);

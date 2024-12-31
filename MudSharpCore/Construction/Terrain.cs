@@ -52,6 +52,13 @@ public class Terrain : SaveableItem, ITerrain
 		TerrainANSIColour = terrain.TerrainANSIColour;
 		CanHaveTracks = terrain.CanHaveTracks;
 		TrackIntensityMultiplierVisual = terrain.TrackIntensityMultiplierVisual;
+		if (!string.IsNullOrEmpty(terrain.TagInformation))
+		{
+			foreach (var id in terrain.TagInformation.Split(','))
+			{
+				_tags.AddNotNull(Gameworld.Tags.Get(long.Parse(id)));
+			}
+		}
 		if (terrain.AtmosphereId != null)
 		{
 			Atmosphere = terrain.AtmosphereType.Equals("gas", StringComparison.InvariantCultureIgnoreCase)
@@ -418,6 +425,7 @@ public class Terrain : SaveableItem, ITerrain
 			dbitem.TrackIntensityMultiplierOlfactory = 1.0;
 			dbitem.TrackIntensityMultiplierVisual = 1.0;
 			dbitem.CanHaveTracks = true;
+			dbitem.TagInformation = "";
 
 			FMDB.Context.SaveChanges();
 			LoadFromDB(dbitem);
@@ -455,6 +463,7 @@ public class Terrain : SaveableItem, ITerrain
 			dbitem.TrackIntensityMultiplierOlfactory = rhsItem.TrackIntensityMultiplierOlfactory;
 			dbitem.TrackIntensityMultiplierVisual = rhsItem.TrackIntensityMultiplierVisual;
 			dbitem.CanHaveTracks = rhsItem.CanHaveTracks;
+			dbitem.TagInformation = rhs.Tags.Select(x => x.Id.ToString("F")).ListToCommaSeparatedValues();
 			foreach (var cover in rhs.TerrainCovers)
 			{
 				dbitem.TerrainsRangedCovers.Add(new TerrainsRangedCovers
@@ -488,6 +497,7 @@ public class Terrain : SaveableItem, ITerrain
 		dbitem.CanHaveTracks = CanHaveTracks;
 		dbitem.TrackIntensityMultiplierVisual = TrackIntensityMultiplierVisual;
 		dbitem.TrackIntensityMultiplierOlfactory = TrackIntensityMultiplierOlfactory;
+		dbitem.TagInformation = _tags.Select(x => x.Id.ToString("F")).ListToCommaSeparatedValues();
 		FMDB.Context.TerrainsRangedCovers.RemoveRange(dbitem.TerrainsRangedCovers);
 		foreach (var cover in _terrainCovers)
 		{
@@ -648,6 +658,9 @@ public class Terrain : SaveableItem, ITerrain
 				return new NumberVariable((int)HideDifficulty);
 			case "spotdifficulty":
 				return new NumberVariable((int)SpotDifficulty);
+			case "tags":
+				return new CollectionVariable(Tags.Select(x => new TextVariable(x.Name)).ToList(),
+					ProgVariableTypes.Text);
 		}
 
 		throw new NotSupportedException($"Unsupported property type {property} in {FrameworkItemType}.GetProperty");
@@ -667,7 +680,8 @@ public class Terrain : SaveableItem, ITerrain
 			{ "atmosphereid", ProgVariableTypes.Number },
 			{ "default", ProgVariableTypes.Boolean },
 			{ "hidedifficulty", ProgVariableTypes.Number },
-			{ "spotdifficulty", ProgVariableTypes.Number }
+			{ "spotdifficulty", ProgVariableTypes.Number },
+			{ "tags", ProgVariableTypes.Text | ProgVariableTypes.Collection },
 		};
 	}
 
@@ -675,17 +689,18 @@ public class Terrain : SaveableItem, ITerrain
 	{
 		return new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase)
 		{
-			{ "id", "" },
-			{ "name", "" },
-			{ "staminacost", "" },
-			{ "infectionmultiplier", "" },
-			{ "primaryinfection", "" },
-			{ "infectionvirulence", "" },
-			{ "foragableprofile", "" },
-			{ "atmosphereid", "" },
-			{ "default", "" },
-			{ "hidedifficulty", "" },
-			{ "spotdifficulty", "" }
+			{ "id", "The ID of the terrain type" },
+			{ "name", "The name of the terrain type" },
+			{ "staminacost", "A multiplier of base stamina cost for movement" },
+			{ "infectionmultiplier", "A multiplier for chance to get infected" },
+			{ "primaryinfection", "The type of infection people catch here" },
+			{ "infectionvirulence", "Initial virulence of infections" },
+			{ "foragableprofile", "The id (or null) of the foragable profile for this terrain" },
+			{ "atmosphereid", "The default atmospheric fluid id" },
+			{ "default", "True if this is the MUD's default terrain" },
+			{ "hidedifficulty", "The difficulty of hiding in this terrain" },
+			{ "spotdifficulty", "The minimum spot difficulty in this terrain" },
+			{ "tags", "A collection of the names of the tags applied to this room" }
 		};
 	}
 
@@ -721,6 +736,18 @@ public class Terrain : SaveableItem, ITerrain
 		sb.AppendLine($"Editor Colour: {TerrainEditorColour.FluentTagMXP("Color", $"FORE={TerrainEditorColour}")}");
 		sb.AppendLine($"Editor Text: {TerrainEditorText ?? ""}");
 		sb.AppendLine($"Map Colour: {TerrainANSIColour.ColourForegroundCustom(TerrainANSIColour)}");
+		sb.AppendLine();
+		sb.AppendLine("Tags:");
+		if (_tags.Count > 0)
+		{
+			sb.AppendLine();
+			foreach (var tag in Tags)
+			{
+				sb.AppendLine($"\t{tag.FullName.ColourName()}");
+			}
+		}
+		
+		sb.AppendLine();
 		sb.AppendLine($"Covers:");
 		sb.AppendLine(CommonStringUtilities.ArrangeStringsOntoLines(
 			TerrainCovers.Select(x => $"[{x.Id.ToString("N0", actor)}] {x.Name}"), 3, (uint)actor.LineFormatLength));
@@ -735,6 +762,8 @@ public class Terrain : SaveableItem, ITerrain
 		{
 			case "name":
 				return BuildingCommandName(actor, command);
+			case "tag":
+				return BuildingCommandTag(actor, command);
 			case "tracks":
 			case "cantrack":
 				return BuildingCommandCanTrack(actor);
@@ -826,6 +855,7 @@ public class Terrain : SaveableItem, ITerrain
 	#3infection <type> <difficulty> <virulence>#0 - sets the infection for this terrain
 	#3outdoors|indoors|exposed|cave|windows#0 - sets the default behaviour type
 	#3model <model>#0 - sets the layer model. See TERRAIN SET MODEL for a list of valid values.
+	#3tag <tag>#0 - toggles a tag applying to this terrain type
 	#3tracks#0 - toggles whether this terrain can have tracks
 	#3trackvisual <%>#0 - sets the visual intensity of tracks left in this terrain
 	#3tracksmell <%>#0 - sets the olfactory intensity of tracks left in this terrain
@@ -834,6 +864,36 @@ public class Terrain : SaveableItem, ITerrain
 	#3editortext <1 or 2 letter code>#0 - sets a code to appear on the terrain planner tile".SubstituteANSIColour());
 				return false;
 		}
+	}
+
+	private bool BuildingCommandTag(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("Which tag do you want to toggle for this terrain?");
+			return false;
+		}
+
+		var tag = Gameworld.Tags.GetByIdOrName(command.SafeRemainingArgument);
+		if (tag is null)
+		{
+			actor.OutputHandler.Send($"There is no such tag identified by the text {command.SafeRemainingArgument.ColourCommand()}.");
+			return false;
+		}
+
+		if (_tags.Contains(tag))
+		{
+			_tags.Remove(tag);
+			actor.OutputHandler.Send($"This terrain is no longer tagged as {tag.FullName.ColourName()}.");
+		}
+		else
+		{
+			_tags.Add(tag);
+			actor.OutputHandler.Send($"This terrain is now tagged as {tag.FullName.ColourName()}.");
+		}
+
+		Changed = true;
+		return true;
 	}
 
 	private bool BuildingCommandTrackIntensityOlfactory(ICharacter actor, StringStack command)
@@ -1457,6 +1517,46 @@ The following additional models require you to specify a liquid to go with them:
 		Changed = true;
 		actor.OutputHandler.Send($"This terrain is now called {name.Colour(Telnet.Cyan)}.");
 		return true;
+	}
+
+	#endregion
+
+	#region Implementation of IHaveTags
+
+	private readonly List<ITag> _tags = new();
+
+	/// <inheritdoc />
+	public IEnumerable<ITag> Tags => _tags;
+
+	/// <inheritdoc />
+	public bool AddTag(ITag tag)
+	{
+		if (_tags.Contains(tag))
+		{
+			return false;
+		}
+		_tags.Add(tag);
+		Changed = true;
+		return true;
+	}
+
+	/// <inheritdoc />
+	public bool RemoveTag(ITag tag)
+	{
+		if (!_tags.Contains(tag))
+		{
+			return false;
+		}
+
+		_tags.Remove(tag);
+		Changed = true;
+		return true;
+	}
+
+	/// <inheritdoc />
+	public bool IsA(ITag tag)
+	{
+		return _tags.Any(x => x.IsA(tag));
 	}
 
 	#endregion

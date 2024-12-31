@@ -346,7 +346,7 @@ Description: {type.Description.ColourValue()}
 				{
 					storyboard.Id.ToString("N0", actor),
 					storyboard.Name,
-					storyboard.Stage.Describe(),
+					storyboard.Stage.DescribeEnum(),
 					actor.Gameworld.ChargenStoryboard.StageDependencies[storyboard.Stage]
 					     .OrderBy(x => storyboard.Gameworld.ChargenStoryboard.OrderOf(x)).Select(x => x.DescribeEnum())
 					     .ListToCommaSeparatedValues(", ")

@@ -6334,6 +6334,9 @@ return IsAdmin(@ch)",
 		AddTag("Renaissance Age", "Manufactured Metal");
 		AddTag("Industrial Age", "Manufactured Metal");
 		AddTag("Modern Age", "Manufactured Metal");
+		AddTag("Cast Metal", "Manufactured Metal");
+		AddTag("Forged Metal", "Manufactured Metal");
+		AddTag("Precious Metal", "Manufactured Metal");
 		AddTag("Soil", "Natural Materials");
 		AddTag("Wood", "Natural Materials");
 		AddTag("Hardwood", "Wood");
@@ -6352,6 +6355,7 @@ return IsAdmin(@ch)",
 		AddTag("Fiber Crop", "Agricultural Crop");
 		AddTag("Oil Crop", "Agricultural Crop");
 		AddTag("Animal Skin", "Natural Materials");
+		AddTag("Thick Animal Skin", "Animal Skin");
 		AddTag("Leather", "Natural Materials");
 		AddTag("Fabric", "Manufactured Materials");
 		AddTag("Natural Fiber Fabric", "Fabric");
@@ -6364,6 +6368,17 @@ return IsAdmin(@ch)",
 		AddTag("Elemental Materials", "Materials");
 		AddTag("Paper Product", "Manufactured Materials");
 		AddTag("Writing Product", "Materials");
+		AddTag("Gunpowder", "Materials");
+
+
+		AddTag("Liquids", "Materials");
+		AddTag("Water", "Liquids");
+		AddTag("Detergent", "Liquids");
+		AddTag("Water Soluable", "Liquids");
+		AddTag("Beverage", "Liquids");
+		AddTag("Alcoholic", "Beverage");
+		AddTag("Fuel", "Liquids");
+		AddTag("Disgusting", "Liquids");
 
 		#endregion
 
@@ -6407,7 +6422,10 @@ return IsAdmin(@ch)",
 			materials[name] = material;
 			context.Materials.Add(material);
 			foreach (var tag in materialTags)
+			{
 				material.MaterialsTags.Add(new MaterialsTags { Material = material, Tag = tags[tag] });
+			}
+
 			context.SaveChanges();
 		}
 
@@ -6434,7 +6452,7 @@ return IsAdmin(@ch)",
 		AddMaterial("arsenical bronze", MaterialBehaviourType.Metal, 7.85, false, 250000, 0, 0.0, 17.9, 14500000, 500,
 			materialTags: "Bronze Age");
 		AddMaterial("bell bronze", MaterialBehaviourType.Metal, 8.5, false, 250000, 0, 0.0, 17.9, 14500000, 500,
-			materialTags: "Bronze Age");
+			materialTags: ["Bronze Age", "Cast Metal"]);
 		AddMaterial("beryllium", MaterialBehaviourType.Metal, 1.85, false, 10500, 0, 0.0, 17.9, 14500000, 500,
 			materialTags: "Industrial Age");
 		AddMaterial("bismuth bronze", MaterialBehaviourType.Metal, 7.85, false, 314000, 0, 0.0, 17.9, 14500000, 500,
@@ -6454,7 +6472,7 @@ return IsAdmin(@ch)",
 		AddMaterial("carbon steel", MaterialBehaviourType.Metal, 7.85, false, 240000, 0, 0.0, 17.9, 14500000, 500,
 			materialTags: "Modern Age");
 		AddMaterial("cast iron", MaterialBehaviourType.Metal, 7.1, false, 40000, 0, 0.0, 17.9, 14500000, 500,
-			materialTags: "Iron Age");
+			materialTags: ["Iron Age", "Cast Metal"]);
 		AddMaterial("cesium", MaterialBehaviourType.Metal, 1.93, false, 10500, 0, 0.0, 17.9, 14500000, 500,
 			materialTags: "Industrial Age");
 		AddMaterial("chromium", MaterialBehaviourType.Metal, 7.15, false, 10500, 0, 0.0, 17.9, 14500000, 500,
@@ -6474,13 +6492,15 @@ return IsAdmin(@ch)",
 		AddMaterial("germanium", MaterialBehaviourType.Metal, 5.5, false, 10500, 0, 0.0, 17.9, 14500000, 500,
 			materialTags: "Industrial Age");
 		AddMaterial("gold", MaterialBehaviourType.Metal, 19.3, false, 120000, 0, 0.0, 17.9, 14500000, 500,
-			materialTags: "Bronze Age");
+			materialTags: ["Bronze Age", "Precious Metal"]);
 		AddMaterial("hafnium", MaterialBehaviourType.Metal, 13.3, false, 10500, 0, 0.0, 17.9, 14500000, 500,
 			materialTags: "Industrial Age");
 		AddMaterial("high tensile steel", MaterialBehaviourType.Metal, 7.85, false, 240000, 0, 0.0, 17.9, 14500000, 500,
 			materialTags: "Modern Age");
 		AddMaterial("indium", MaterialBehaviourType.Metal, 7.31, false, 10500, 0, 0.0, 17.9, 14500000, 500,
 			materialTags: "Industrial Age");
+		AddMaterial("iridium", MaterialBehaviourType.Metal, 22.562, false, 10500, 0, 0.0, 17.9, 14500000, 500,
+			materialTags: ["Industrial Age", "Precious Metal"]);
 		AddMaterial("lead", MaterialBehaviourType.Metal, 11.3, false, 131000, 0, 0.0, 17.9, 14500000, 500,
 			materialTags: "Bronze Age");
 		AddMaterial("magnesium", MaterialBehaviourType.Metal, 1.74, false, 10500, 0, 0.0, 17.9, 14500000, 500,
@@ -6508,9 +6528,9 @@ return IsAdmin(@ch)",
 		AddMaterial("orichalcum", MaterialBehaviourType.Metal, 8.4, false, 207000, 0, 0.0, 17.9, 14500000, 500,
 			materialTags: "Bronze Age");
 		AddMaterial("osmium", MaterialBehaviourType.Metal, 22.59, false, 10500, 0, 0.0, 17.9, 14500000, 500,
-			materialTags: "Industrial Age");
+			materialTags: ["Industrial Age", "Precious Metal"]);
 		AddMaterial("palladium", MaterialBehaviourType.Metal, 12.0, false, 180000, 0, 0.0, 17.9, 14500000, 500,
-			materialTags: "Industrial Age");
+			materialTags: ["Industrial Age", "Precious Metal"]);
 		AddMaterial("pewter", MaterialBehaviourType.Metal, 7.25, false, 30000, 0, 0.0, 17.9, 14500000, 500,
 			materialTags: "Bronze Age");
 		AddMaterial("phosphorus", MaterialBehaviourType.Metal, 1.82, false, 10500, 0, 0.0, 17.9, 14500000, 500,
@@ -6518,7 +6538,7 @@ return IsAdmin(@ch)",
 		AddMaterial("pig iron", MaterialBehaviourType.Metal, 7.1, false, 75000, 0, 0.0, 17.9, 14500000, 500,
 			materialTags: "Industrial Age");
 		AddMaterial("platinum", MaterialBehaviourType.Metal, 21.5, false, 165000, 0, 0.0, 17.9, 14500000, 500,
-			materialTags: "Iron Age");
+			materialTags: ["Iron Age", "Precious Metal"]);
 		AddMaterial("potassium", MaterialBehaviourType.Metal, 0.89, false, 10500, 0, 0.0, 17.9, 14500000, 500,
 			materialTags: "Industrial Age");
 		AddMaterial("powder-coated steel", MaterialBehaviourType.Metal, 8.0, false, 320000, 0, 0.0, 17.9, 14500000, 500,
@@ -6528,17 +6548,17 @@ return IsAdmin(@ch)",
 		AddMaterial("rhenium", MaterialBehaviourType.Metal, 20.8, false, 10500, 0, 0.0, 17.9, 14500000, 500,
 			materialTags: "Industrial Age");
 		AddMaterial("rhodium", MaterialBehaviourType.Metal, 12.4, false, 700000, 0, 0.0, 17.9, 14500000, 500,
-			materialTags: "Industrial Age");
+			materialTags: ["Industrial Age", "Precious Metal"]);
 		AddMaterial("rubidium", MaterialBehaviourType.Metal, 1.53, false, 10500, 0, 0.0, 17.9, 14500000, 500,
 			materialTags: "Industrial Age");
 		AddMaterial("ruthenium", MaterialBehaviourType.Metal, 12.2, false, 10500, 0, 0.0, 17.9, 14500000, 500,
-			materialTags: "Industrial Age");
+			materialTags: ["Industrial Age", "Precious Metal"]);
 		AddMaterial("selenium", MaterialBehaviourType.Metal, 4.81, false, 10500, 0, 0.0, 17.9, 14500000, 500,
 			materialTags: "Industrial Age");
 		AddMaterial("silicon", MaterialBehaviourType.Metal, 2.33, false, 10500, 0, 0.0, 17.9, 14500000, 500,
 			materialTags: "Industrial Age");
 		AddMaterial("silver", MaterialBehaviourType.Metal, 10.5, false, 55700, 0, 0.0, 17.9, 14500000, 500,
-			materialTags: "Bronze Age");
+			materialTags: ["Bronze Age", "Precious Metal"]);
 		AddMaterial("sodium", MaterialBehaviourType.Metal, 0.97, false, 10500, 0, 0.0, 17.9, 14500000, 500,
 			materialTags: "Industrial Age");
 		AddMaterial("spelter", MaterialBehaviourType.Metal, 7.85, false, 25000, 0, 0.0, 17.9, 14500000, 500,
@@ -6548,7 +6568,7 @@ return IsAdmin(@ch)",
 		AddMaterial("stainless steel", MaterialBehaviourType.Metal, 7.9, false, 516000, 0, 0.0, 17.9, 14500000, 500,
 			materialTags: "Modern Age");
 		AddMaterial("sterling silver", MaterialBehaviourType.Metal, 7.85, false, 55700, 0, 0.0, 17.9, 14500000, 500,
-			materialTags: "Renaissance Age");
+			materialTags: ["Renaissance Age", "Precious Metal"]);
 		AddMaterial("strontium", MaterialBehaviourType.Metal, 2.64, false, 10500, 0, 0.0, 17.9, 14500000, 500,
 			materialTags: "Industrial Age");
 		AddMaterial("sulfur", MaterialBehaviourType.Metal, 2, false, 10500, 0, 0.0, 17.9, 14500000, 500,
@@ -6858,8 +6878,6 @@ return IsAdmin(@ch)",
 			null, "Gemstone");
 		AddMaterial("opal", MaterialBehaviourType.Stone, 3.5, false, 60000000, 200000, 0.0, 0.14, 0.0001, 500, null,
 			"Gemstone");
-		AddMaterial("diamond", MaterialBehaviourType.Stone, 3.5, false, 60000000, 200000, 0.0, 0.14, 0.0001, 500, null,
-			"Gemstone");
 		AddMaterial("jade", MaterialBehaviourType.Stone, 3.5, false, 60000000, 200000, 0.0, 0.14, 0.0001, 500, null,
 			"Gemstone");
 		AddMaterial("emerald", MaterialBehaviourType.Stone, 3.5, false, 60000000, 200000, 0.0, 0.14, 0.0001, 500, null,
@@ -7022,7 +7040,7 @@ return IsAdmin(@ch)",
 		#endregion
 
 		#region Food
-
+		AddMaterial("food", MaterialBehaviourType.Food, 1.0, true, 1000, 1000, 0.0, 0.14, 0.0001, 500, null, "Food");
 		AddMaterial("beef", MaterialBehaviourType.Meat, 1.3, true, 10000, 10000, 0.0, 0.14, 0.0001, 500, null, "Meat");
 		AddMaterial("pork", MaterialBehaviourType.Meat, 1.3, true, 10000, 10000, 0.0, 0.14, 0.0001, 500, null, "Meat");
 		AddMaterial("lamb", MaterialBehaviourType.Meat, 1.3, true, 10000, 10000, 0.0, 0.14, 0.0001, 500, null, "Meat");
@@ -7062,7 +7080,7 @@ return IsAdmin(@ch)",
 			"Meat");
 		AddMaterial("snail", MaterialBehaviourType.Meat, 1.3, true, 10000, 10000, 0.0, 0.14, 0.0001, 500, null, "Meat");
 
-		AddMaterial("food", MaterialBehaviourType.Food, 1.0, true, 1000, 1000, 0.0, 0.14, 0.0001, 500, null, "Food");
+		AddMaterial("fruit", MaterialBehaviourType.Food, 1.0, true, 1000, 1000, 0.0, 0.14, 0.0001, 500, null, "Fruit");
 		AddMaterial("apple", MaterialBehaviourType.Food, 1.0, true, 1000, 1000, 0.0, 0.14, 0.0001, 500, null, "Fruit");
 		AddMaterial("banana", MaterialBehaviourType.Food, 1.0, true, 1000, 1000, 0.0, 0.14, 0.0001, 500, null, "Fruit");
 		AddMaterial("pear", MaterialBehaviourType.Food, 1.0, true, 1000, 1000, 0.0, 0.14, 0.0001, 500, null, "Fruit");
@@ -7085,8 +7103,9 @@ return IsAdmin(@ch)",
 		AddMaterial("lemon", MaterialBehaviourType.Food, 1.0, true, 1000, 1000, 0.0, 0.14, 0.0001, 500, null, "Fruit");
 		AddMaterial("lime", MaterialBehaviourType.Food, 1.0, true, 1000, 1000, 0.0, 0.14, 0.0001, 500, null, "Fruit");
 		AddMaterial("orange", MaterialBehaviourType.Food, 1.0, true, 1000, 1000, 0.0, 0.14, 0.0001, 500, null, "Fruit");
-		AddMaterial("fruit", MaterialBehaviourType.Food, 1.0, true, 1000, 1000, 0.0, 0.14, 0.0001, 500, null, "Fruit");
 
+		AddMaterial("vegetable", MaterialBehaviourType.Food, 1.0, true, 1000, 1000, 0.0, 0.14, 0.0001, 500, null,
+			"Vegetable");
 		AddMaterial("potato", MaterialBehaviourType.Food, 1.0, true, 1000, 1000, 0.0, 0.14, 0.0001, 500, null,
 			"Vegetable");
 		AddMaterial("tomato", MaterialBehaviourType.Food, 1.0, true, 1000, 1000, 0.0, 0.14, 0.0001, 500, null,
@@ -7103,11 +7122,17 @@ return IsAdmin(@ch)",
 			"Vegetable");
 		AddMaterial("bean", MaterialBehaviourType.Food, 1.0, true, 1000, 1000, 0.0, 0.14, 0.0001, 500, null,
 			"Vegetable");
+		AddMaterial("legume", MaterialBehaviourType.Food, 1.0, true, 1000, 1000, 0.0, 0.14, 0.0001, 500, null,
+			"Vegetable");
+		AddMaterial("lentil", MaterialBehaviourType.Food, 1.0, true, 1000, 1000, 0.0, 0.14, 0.0001, 500, null,
+			"Vegetable");
 		AddMaterial("corn", MaterialBehaviourType.Food, 1.0, true, 1000, 1000, 0.0, 0.14, 0.0001, 500, null,
 			"Vegetable");
 		AddMaterial("onion", MaterialBehaviourType.Food, 1.0, true, 1000, 1000, 0.0, 0.14, 0.0001, 500, null,
 			"Vegetable");
-		AddMaterial("potato", MaterialBehaviourType.Food, 1.0, true, 1000, 1000, 0.0, 0.14, 0.0001, 500, null,
+		AddMaterial("garlic", MaterialBehaviourType.Food, 1.0, true, 1000, 1000, 0.0, 0.14, 0.0001, 500, null,
+			"Vegetable");
+		AddMaterial("leek", MaterialBehaviourType.Food, 1.0, true, 1000, 1000, 0.0, 0.14, 0.0001, 500, null,
 			"Vegetable");
 		AddMaterial("carrot", MaterialBehaviourType.Food, 1.0, true, 1000, 1000, 0.0, 0.14, 0.0001, 500, null,
 			"Vegetable");
@@ -7139,9 +7164,6 @@ return IsAdmin(@ch)",
 			"Vegetable");
 		AddMaterial("turnip", MaterialBehaviourType.Food, 1.0, true, 1000, 1000, 0.0, 0.14, 0.0001, 500, null,
 			"Vegetable");
-		AddMaterial("greens", MaterialBehaviourType.Food, 1.0, true, 1000, 1000, 0.0, 0.14, 0.0001, 500, null,
-			"Vegetable");
-
 		AddMaterial("greens", MaterialBehaviourType.Food, 1.0, true, 1000, 1000, 0.0, 0.14, 0.0001, 500, null,
 			"Vegetable");
 
@@ -7251,7 +7273,7 @@ return IsAdmin(@ch)",
 		AddMaterial("deer hide", MaterialBehaviourType.Skin, 1.4, true, 15000, 10000, 0.2, 0.14, 0.0001, 500, null,
 			"Animal Skin");
 		AddMaterial("bear hide", MaterialBehaviourType.Skin, 1.4, true, 17500, 10000, 0.2, 0.14, 0.0001, 500, null,
-			"Animal Skin");
+			"Thick Animal Skin");
 		AddMaterial("dog hide", MaterialBehaviourType.Skin, 1.4, true, 15000, 10000, 0.2, 0.14, 0.0001, 500, null,
 			"Animal Skin");
 		AddMaterial("cat hide", MaterialBehaviourType.Skin, 1.4, true, 15000, 10000, 0.2, 0.14, 0.0001, 500, null,
@@ -7265,13 +7287,17 @@ return IsAdmin(@ch)",
 		AddMaterial("snake hide", MaterialBehaviourType.Skin, 1.4, true, 15000, 10000, 0.2, 0.14, 0.0001, 500, null,
 			"Animal Skin");
 		AddMaterial("alligator hide", MaterialBehaviourType.Skin, 1.4, true, 15000, 10000, 0.2, 0.14, 0.0001, 500, null,
-			"Animal Skin");
+			"Thick Animal Skin");
 		AddMaterial("crocodile hide", MaterialBehaviourType.Skin, 1.4, true, 20000, 10000, 0.2, 0.14, 0.0001, 500, null,
-			"Animal Skin");
+			"Thick Animal Skin");
 		AddMaterial("lion hide", MaterialBehaviourType.Skin, 1.4, true, 17500, 10000, 0.2, 0.14, 0.0001, 500, null,
-			"Animal Skin");
+			"Thick Animal Skin");
 		AddMaterial("tiger hide", MaterialBehaviourType.Skin, 1.4, true, 17500, 10000, 0.2, 0.14, 0.0001, 500, null,
-			"Animal Skin");
+			"Thick Animal Skin");
+		AddMaterial("elephant hide", MaterialBehaviourType.Skin, 1.4, true, 17500, 10000, 0.2, 0.14, 0.0001, 500, null,
+			"Thick Animal Skin");
+		AddMaterial("rhino hide", MaterialBehaviourType.Skin, 1.4, true, 17500, 10000, 0.2, 0.14, 0.0001, 500, null,
+			"Thick Animal Skin");
 		AddMaterial("rabbit hide", MaterialBehaviourType.Skin, 1.4, true, 12000, 10000, 0.2, 0.14, 0.0001, 500, null,
 			"Animal Skin");
 		AddMaterial("small mammal hide", MaterialBehaviourType.Skin, 1.4, true, 12000, 10000, 0.2, 0.14, 0.0001, 500,
@@ -7304,6 +7330,10 @@ return IsAdmin(@ch)",
 		AddMaterial("lion leather", MaterialBehaviourType.Leather, 1.4, true, 28000, 10000, 0.2, 0.14, 0.0001, 500,
 			null, "Leather");
 		AddMaterial("tiger leather", MaterialBehaviourType.Leather, 1.4, true, 28000, 10000, 0.2, 0.14, 0.0001, 500,
+			null, "Leather");
+		AddMaterial("elephant leather", MaterialBehaviourType.Leather, 1.4, true, 28000, 10000, 0.2, 0.14, 0.0001, 500,
+			null, "Leather");
+		AddMaterial("rhino leather", MaterialBehaviourType.Leather, 1.4, true, 28000, 10000, 0.2, 0.14, 0.0001, 500,
 			null, "Leather");
 		AddMaterial("rabbit leather", MaterialBehaviourType.Leather, 1.4, true, 25000, 10000, 0.2, 0.14, 0.0001, 500,
 			null, "Leather");
@@ -7457,15 +7487,25 @@ return IsAdmin(@ch)",
 			"Writing Product");
 		AddMaterial("parchment", MaterialBehaviourType.Fabric, 1.52, true, 2000, 25000, 2.0, 0.14, 0.0001, 500, null,
 			"Writing Product", "Animal Product");
-		AddMaterial("shell", MaterialBehaviourType.Shell, 1.52, true, 20000, 50000, 2.0, 0.14, 0.0001, 500, null,
+		AddMaterial("shell", MaterialBehaviourType.Shell, 1.2, true, 20000, 50000, 2.0, 0.14, 0.0001, 500, null,
 			"Animal Product");
-		AddMaterial("chitin", MaterialBehaviourType.Shell, 1.52, true, 20000, 50000, 2.0, 0.14, 0.0001, 500, null,
+		AddMaterial("chitin", MaterialBehaviourType.Shell, 1.2, true, 20000, 50000, 2.0, 0.14, 0.0001, 500, null,
 			"Animal Product");
-		AddMaterial("tooth", MaterialBehaviourType.Tooth, 1.52, true, 20000, 50000, 2.0, 0.14, 0.0001, 500, null,
+		AddMaterial("keratin", MaterialBehaviourType.Shell, 1.2, true, 20000, 50000, 2.0, 0.14, 0.0001, 500, null,
 			"Animal Product");
-		AddMaterial("tusk", MaterialBehaviourType.Tooth, 1.52, true, 20000, 50000, 2.0, 0.14, 0.0001, 500, null,
+		AddMaterial("scale", MaterialBehaviourType.Scale, 1.2, true, 20000, 50000, 2.0, 0.14, 0.0001, 500, null,
 			"Animal Product");
-		AddMaterial("ivory", MaterialBehaviourType.Tooth, 1.52, true, 20000, 50000, 2.0, 0.14, 0.0001, 500, null,
+		AddMaterial("tooth", MaterialBehaviourType.Tooth, 1.0, true, 20000, 50000, 2.0, 0.14, 0.0001, 500, null,
+			"Animal Product");
+		AddMaterial("tusk", MaterialBehaviourType.Tooth, 1.2, true, 20000, 50000, 2.0, 0.14, 0.0001, 500, null,
+			"Animal Product");
+		AddMaterial("antler", MaterialBehaviourType.Horn, 1.2, true, 20000, 50000, 2.0, 0.14, 0.0001, 500, null,
+			"Animal Product");
+		AddMaterial("horn", MaterialBehaviourType.Horn, 1.2, true, 20000, 50000, 2.0, 0.14, 0.0001, 500, null,
+			"Animal Product");
+		AddMaterial("ivory", MaterialBehaviourType.Tooth, 1.2, true, 20000, 50000, 2.0, 0.14, 0.0001, 500, null,
+			"Animal Product");
+		AddMaterial("fin", MaterialBehaviourType.Flesh, 1.0, true, 10000, 25000, 2.0, 0.14, 0.0001, 500, null,
 			"Animal Product");
 		AddMaterial("grass", MaterialBehaviourType.Plant, 1.0, true, 1000, 1000, 0.0, 0.14, 0.0001, 500, null,
 			"Natural Materials");
@@ -7482,8 +7522,6 @@ return IsAdmin(@ch)",
 		AddMaterial("compost", MaterialBehaviourType.Plant, 1.0, true, 1000, 1000, 0.0, 0.14, 0.0001, 500, null,
 			"Natural Materials");
 		AddMaterial("mulch", MaterialBehaviourType.Plant, 1.0, true, 1000, 1000, 0.0, 0.14, 0.0001, 500, null,
-			"Natural Materials");
-		AddMaterial("vine", MaterialBehaviourType.Plant, 1.0, true, 1000, 1000, 0.0, 0.14, 0.0001, 500, null,
 			"Natural Materials");
 		AddMaterial("feces", MaterialBehaviourType.Feces, 1.0, true, 1000, 1000, 0.0, 0.14, 0.0001, 500, null,
 			"Natural Materials", "Animal Product");
@@ -7514,7 +7552,7 @@ return IsAdmin(@ch)",
 		AddMaterial("dried adhesive", MaterialBehaviourType.Paste, 0.2, false, 1000, 1000, 0.0, 0.14, 0.0001, 500, null,
 			"Manufactured Materials");
 		AddMaterial("gunpowder", MaterialBehaviourType.Powder, 0.975, false, 1000, 1000, 0.0, 0.14, 0.0001, 500, null,
-			"Manufactured Materials");
+			"Manufactured Materials", "Gunpowder");
 
 		AddMaterial("flame", MaterialBehaviourType.Mana, 1.0, false, 1, 1, 0.0, 0, 0, 0, null, "Elemental Materials");
 		AddMaterial("mana", MaterialBehaviourType.Mana, 1.0, false, 1, 1, 0.0, 0, 0, 0, null, "Elemental Materials");
@@ -7555,7 +7593,8 @@ return IsAdmin(@ch)",
 			string dampSdesc, string wetSdesc, string drenchedSdesc, double solventVolumeRatio, string? dried,
 			double residueVolumePercentage, LiquidInjectionConsequence injectionConsequence,
 			(string Liquid, ItemQuality Quality)? countsAs, double thermalConductivity = 0.609,
-			double electricalConductivity = 0.005, double specificHeatCapacity = 4181, string? solvent = null)
+			double electricalConductivity = 0.005, double specificHeatCapacity = 4181, string? solvent = null,
+			params string[] materialTags)
 		{
 			var liquid = new Liquid
 			{
@@ -7605,7 +7644,15 @@ return IsAdmin(@ch)",
 				liquid.CountAsQuality = 0;
 			}
 
-			if (solvent != null) liquid.Solvent = liquids[solvent];
+			if (solvent != null)
+			{
+				liquid.Solvent = liquids[solvent];
+			}
+
+			foreach (var tag in materialTags)
+			{
+				liquid.LiquidsTags.Add(new LiquidsTags { Liquid = liquid, Tag = tags[tag] });
+			}
 		}
 
 		#region Water
@@ -7613,75 +7660,75 @@ return IsAdmin(@ch)",
 		AddLiquid("water", "a clear liquid", "a clear, translucent liquid", "It has no real taste",
 			"It has no real taste", "It has no real smell", "It has no real smell", 1, 1, 0, 0, 0, 1.0, 12.0, 1.0, 1.0,
 			false, "blue", "It is damp", "It is wet", "It is soaking wet", "(damp)", "(wet)", "(soaked)", 1.0, null,
-			0.05, LiquidInjectionConsequence.Harmful, null);
+			0.05, LiquidInjectionConsequence.Harmful, null, materialTags: [ "Water", "Beverage"]);
 		AddLiquid("rain water", "a clear liquid", "a clear, translucent liquid", "It has no real taste",
 			"It has no real taste", "It has no real smell", "It has no real smell", 1, 1, 0, 0, 0, 1.0, 12.0, 1.0, 1.0,
 			false, "blue", "It is damp", "It is wet", "It is soaking wet", "(damp)", "(wet)", "(soaked)", 1.0, null,
 			0.05, LiquidInjectionConsequence.Harmful,
-			("water", ItemQuality.Excellent));
+			("water", ItemQuality.Excellent), materialTags: ["Water", "Beverage"]);
 		AddLiquid("tap water", "a clear liquid", "a clear, translucent liquid", "It has no real taste",
 			"It has no real taste", "It has no real smell", "It has no real smell", 1, 1, 0, 0, 0, 1.0, 12.0, 1.0, 1.0,
 			false, "blue", "It is damp", "It is wet", "It is soaking wet", "(damp)", "(wet)", "(soaked)", 1.0, null,
 			0.05, LiquidInjectionConsequence.Harmful,
-			("water", ItemQuality.Excellent));
+			("water", ItemQuality.Excellent), materialTags: ["Water", "Beverage"]);
 		AddLiquid("spring water", "a clear liquid", "a clear, translucent liquid", "It has no real taste",
 			"It has no real taste", "It has no real smell", "It has no real smell", 1, 1, 0, 0, 0, 1.0, 12.0, 1.0, 1.0,
 			false, "blue", "It is damp", "It is wet", "It is soaking wet", "(damp)", "(wet)", "(soaked)", 1.0, null,
 			0.05, LiquidInjectionConsequence.Harmful,
-			("water", ItemQuality.Excellent));
+			("water", ItemQuality.Excellent), materialTags: ["Water", "Beverage"]);
 		AddLiquid("pool water", "a clear liquid", "a clear, translucent liquid", "It has no real taste",
 			"It has no real taste", "It has no real smell", "It has no real smell", 1, 1, 0, 0, 0, 1.0, 12.0, 1.0, 1.0,
 			false, "blue", "It is damp", "It is wet", "It is soaking wet", "(damp)", "(wet)", "(soaked)", 1.0, null,
 			0.05, LiquidInjectionConsequence.Harmful,
-			("water", ItemQuality.Excellent));
+			("water", ItemQuality.Excellent), materialTags: ["Water"]);
 		AddLiquid("river water", "a clear liquid", "a clear, translucent liquid with some small impurities",
 			"It has no real taste", "It has no real taste", "It has no real smell", "It has no real smell", 1, 1, 0, 0,
 			0, 1.0, 12.0, 1.0, 1.0, false, "blue", "It is damp", "It is wet", "It is soaking wet", "(damp)", "(wet)",
 			"(soaked)", 1.0, null, 0.05, LiquidInjectionConsequence.Harmful,
-			("water", ItemQuality.Good));
+			("water", ItemQuality.Good), materialTags: ["Water"]);
 		AddLiquid("lake water", "a clear liquid", "a clear, translucent liquid with some small impurities",
 			"It has no real taste", "It has no real taste", "It has no real smell", "It has no real smell", 1, 1, 0, 0,
 			0, 1.0, 12.0, 1.0, 1.0, false, "blue", "It is damp", "It is wet", "It is soaking wet", "(damp)", "(wet)",
 			"(soaked)", 1.0, null, 0.05, LiquidInjectionConsequence.Harmful,
-			("water", ItemQuality.Good));
+			("water", ItemQuality.Good), materialTags: ["Water"]);
 		AddLiquid("swamp water", "a clear liquid", "a clear, translucent liquid with some small impurities",
 			"It has no real taste", "It has no real taste", "It has no real smell", "It has no real smell", 1, 1, 0, 0,
 			0, 1.0, 12.0, 1.0, 1.0, false, "blue", "It is damp", "It is wet", "It is soaking wet", "(damp)", "(wet)",
 			"(soaked)", 1.0, null, 0.05, LiquidInjectionConsequence.Harmful,
-			("water", ItemQuality.Standard));
+			("water", ItemQuality.Standard), materialTags: ["Water"]);
 		AddLiquid("salt water", "a clear liquid", "a clear, translucent liquid", "It has a strong salty taste",
 			"It has a strong salty taste", "It smells strongly of salt", "It smells of salt", 1000, 100, 0, 0, 0, -0.5,
 			-6.0, 1.0, 1.029, false, "blue", "It is damp", "It is wet", "It is soaking wet", "(damp)", "(wet)",
 			"(soaked)", 1.0, "salt", 0.029, LiquidInjectionConsequence.Harmful,
-			("water", ItemQuality.Poor));
+			("water", ItemQuality.Poor), materialTags: ["Water"]);
 		AddLiquid("brackish water", "a clear liquid", "a clear, translucent liquid", "It has a salty taste",
 			"It has a salty taste", "It smells of salt", "It smells of salt", 500, 50, 0, 0, 0, -0.25, -3.0, 1.0, 1.015,
 			false, "blue", "It is damp", "It is wet", "It is soaking wet", "(damp)", "(wet)", "(soaked)", 1.0, "salt",
 			0.015, LiquidInjectionConsequence.Harmful,
-			("water", ItemQuality.Standard));
+			("water", ItemQuality.Standard), materialTags: ["Water"]);
 		AddLiquid("saline solution", "a clear liquid", "a clear, translucent liquid",
 			"It has a very, very mild salty taste", "It has no real taste", "It has no real smell",
 			"It has no real smell", 100, 1, 0, 0, 0, 0.9, 9.0, 1.0, 1.009, false, "blue", "It is damp", "It is wet",
 			"It is soaking wet", "(damp)", "(wet)", "(soaked)", 1.0, "salt", 0.009,
 			LiquidInjectionConsequence.Hydrating,
-			("water", ItemQuality.Good));
+			("water", ItemQuality.Good), materialTags: ["Water"]);
 		AddLiquid("dextrose solution", "a clear liquid", "a clear, translucent liquid",
 			"It has a very, very mild sweet and salty taste", "It has no real taste", "It has no real smell",
 			"It has no real smell", 100, 1, 0, 5.0, 200, 0.9, 9.0, 1.0, 1.009, false, "blue", "It is damp", "It is wet",
 			"It is soaking wet", "(damp)", "(wet)", "(soaked)", 1.0, null, 0.009, LiquidInjectionConsequence.Hydrating,
-			("water", ItemQuality.Good));
+			("water", ItemQuality.Good), materialTags: ["Water"]);
 		AddLiquid("detergent", "a clear, soapy liquid", "a clear, soapy liquid",
 			"It has a strong soapy taste", "It has a strong soapy taste", "It smells strongly of soap",
 			"It smells of soap", 1000, 100, 0, 0, 0, -0.5, -6.0, 1.0, 1.029, false, "bold blue", "It is damp",
 			"It is wet", "It is soaking wet", "(soap-damp)", "(soap-wet)", "(soap-soaked)", 1.0, null, 0.029,
 			LiquidInjectionConsequence.Harmful,
-			("water", ItemQuality.Legendary));
+			("water", ItemQuality.Legendary), materialTags: ["Water", "Detergent"]);
 		AddLiquid("soapy water", "a clear liquid with soap suds", "a clear, translucent liquid with soap suds",
 			"It has a strong soapy taste", "It has a strong soapy taste", "It smells strongly of soap",
 			"It smells of soap", 1000, 100, 0, 0, 0, -0.5, -6.0, 1.0, 1.029, false, "bold blue", "It is damp",
 			"It is wet", "It is soaking wet", "(damp)", "(wet)", "(soaked)", 1.0, null, 0.029,
 			LiquidInjectionConsequence.Harmful,
-			("water", ItemQuality.Legendary));
+			("water", ItemQuality.Legendary), materialTags: ["Water", "Detergent"]);
 
 		#endregion
 
@@ -7691,7 +7738,7 @@ return IsAdmin(@ch)",
 
 		var driedBlood = new Material
 		{
-			Name = "Dried Blood",
+			Name = "dried blood",
 			MaterialDescription = "dried blood",
 			Density = 1520,
 			Organic = true,
@@ -7718,7 +7765,7 @@ return IsAdmin(@ch)",
 		context.Materials.Add(driedBlood);
 		var blood = new Liquid
 		{
-			Name = "Blood",
+			Name = "blood",
 			Description = "blood",
 			LongDescription = "a virtually opaque dark red fluid",
 			TasteText = "It has a sharply metallic, umami taste",
@@ -7757,7 +7804,7 @@ return IsAdmin(@ch)",
 
 		var driedSweat = new Material
 		{
-			Name = "Dried Sweat",
+			Name = "dried Sweat",
 			MaterialDescription = "dried sweat",
 			Density = 1520,
 			Organic = true,
@@ -7784,7 +7831,7 @@ return IsAdmin(@ch)",
 		context.Materials.Add(driedSweat);
 		var sweat = new Liquid
 		{
-			Name = "Sweat",
+			Name = "sweat",
 			Description = "sweat",
 			LongDescription = "a relatively clear, translucent fluid that smells strongly of body odor",
 			TasteText = "It tastes like a pungent, salty lick of someone's underarms",
@@ -7823,7 +7870,7 @@ return IsAdmin(@ch)",
 
 		var driedVomit = new Material
 		{
-			Name = "Dried Vomit",
+			Name = "dried vomit",
 			MaterialDescription = "dried vomit",
 			Density = 1520,
 			Organic = true,
@@ -7850,7 +7897,7 @@ return IsAdmin(@ch)",
 		context.Materials.Add(driedVomit);
 		var vomit = new Liquid
 		{
-			Name = "Vomit",
+			Name = "vomit",
 			Description = "vomit",
 			LongDescription = "a stinking mixture of digestive liquids and partially digested food",
 			TasteText = "It just tastes like vomit...I'm sure you don't need a description",
@@ -7895,47 +7942,47 @@ return IsAdmin(@ch)",
 			"It has a smooth, crisp and moderately bitter taste", "It has the bitter taste of beer",
 			"It has a bitter, alcoholic smell", "It has a bitter smell", 150, 40, 0.06, 3.7, 340, 0.92, 12.0, 1.0, 1.0,
 			true, "yellow", "It is damp with beer", "It is wet with beer", "It is soaking wet with beer", "(damp)",
-			"(wet)", "(soaked)", 5.0, null, 0.05, LiquidInjectionConsequence.Harmful, null, solvent: "water");
+			"(wet)", "(soaked)", 5.0, null, 0.05, LiquidInjectionConsequence.Harmful, null, solvent: "water", materialTags: ["Alcoholic"]);
 		AddLiquid("light lager", "an amber liquid", "a fairly translucent dark amber fluid",
 			"It has a smooth and moderately bitter taste", "It has the bitter taste of beer",
 			"It has a bitter, alcoholic smell", "It has a bitter smell", 150, 40, 0.035, 2.4, 205, 0.95, 12.0, 1.0, 1.0,
 			true, "yellow", "It is damp with beer", "It is wet with beer", "It is soaking wet with beer", "(damp)",
-			"(wet)", "(soaked)", 5.0, null, 0.05, LiquidInjectionConsequence.Harmful, null, solvent: "water");
+			"(wet)", "(soaked)", 5.0, null, 0.05, LiquidInjectionConsequence.Harmful, null, solvent: "water", materialTags: ["Alcoholic"]);
 		AddLiquid("pale ale", "an amber liquid",
 			"a moderately translucent dark amber fluid with a tendency to form frothy light amber foam",
 			"It has a strong, rich bitter taste", "It has the bitter taste of beer", "It has a bitter, alcoholic smell",
 			"It has a bitter smell", 150, 40, 0.08, 3.7, 340, 0.92, 12.0, 1.0, 1.0, true, "yellow",
 			"It is damp with beer", "It is wet with beer", "It is soaking wet with beer", "(damp)", "(wet)", "(soaked)",
-			5.0, null, 0.05, LiquidInjectionConsequence.Harmful, null, solvent: "water");
+			5.0, null, 0.05, LiquidInjectionConsequence.Harmful, null, solvent: "water", materialTags: ["Alcoholic"]);
 		AddLiquid("amber ale", "an amber liquid",
 			"a moderately translucent dark amber fluid with a tendency to form frothy light amber foam",
 			"It has a smooth, crisp and moderately bitter taste", "It has the bitter taste of beer",
 			"It has a bitter, alcoholic smell", "It has a bitter smell", 150, 40, 0.08, 3.7, 340, 0.92, 12.0, 1.0, 1.0,
 			true, "yellow", "It is damp with beer", "It is wet with beer", "It is soaking wet with beer", "(damp)",
-			"(wet)", "(soaked)", 5.0, null, 0.05, LiquidInjectionConsequence.Harmful, null, solvent: "water");
+			"(wet)", "(soaked)", 5.0, null, 0.05, LiquidInjectionConsequence.Harmful, null, solvent: "water", materialTags: ["Alcoholic"]);
 		AddLiquid("dark ale", "an amber liquid", "a fairly translucent dark amber fluid",
 			"It has a rich and very bitter taste", "It has the bitter taste of beer",
 			"It has a bitter, alcoholic smell", "It has a bitter smell", 150, 40, 0.08, 5.0, 500, 0.90, 10.0, 1.0, 1.0,
 			true, "yellow", "It is damp with beer", "It is wet with beer", "It is soaking wet with beer", "(damp)",
-			"(wet)", "(soaked)", 5.0, null, 0.05, LiquidInjectionConsequence.Harmful, null, solvent: "water");
+			"(wet)", "(soaked)", 5.0, null, 0.05, LiquidInjectionConsequence.Harmful, null, solvent: "water", materialTags: ["Alcoholic"]);
 
 		AddLiquid("red wine", "an dark burgundy liquid", "a transparent dark burgundy fluid",
 			"It has a dry and sharp taste, with a distinct after note of tannin", "It has the sharp taste of wine",
 			"It has a sharp, alcoholic smell", "It has a sharp smell", 150, 40, 0.14, 2.0, 200, 0.8, 8.0, 1.0, 1.0,
 			true, "magenta", "It is damp with wine", "It is wet with wine", "It is soaking wet with wine",
 			"(wine-damp)", "(wine-wet)", "(wine-soaked)", 7.0, null, 0.05, LiquidInjectionConsequence.Harmful, null,
-			solvent: "water");
+			solvent: "water", materialTags: ["Alcoholic"]);
 		AddLiquid("watered red wine", "a burgundy liquid", "a transparent burgundy fluid",
 			"It has a faint sharp taste, with a slight after note of tannin", "It has the taste of watered-down wine",
 			"It has a slightly alcoholic smell", "It has a sharp smell", 150, 40, 0.035, 1.0, 100, 0.97, 12.0, 1.0, 1.0,
 			true, "magenta", "It is damp with wine", "It is wet with wine", "It is soaking wet with wine",
 			"(wine-damp)", "(wine-wet)", "(wine-soaked)", 3.5, null, 0.05, LiquidInjectionConsequence.Harmful, null,
-			solvent: "water");
+			solvent: "water", materialTags: ["Alcoholic"]);
 		AddLiquid("white wine", "a clear amber liquid", "a transparent amber fluid", "It has a dry and floral taste",
 			"It has the dry, floral taste of white wine", "It has a floral, alcoholic smell",
 			"It has a slightly alcoholic smell", 150, 40, 0.14, 2.0, 200, 0.8, 8.0, 1.0, 1.0, true, "yellow",
 			"It is damp with wine", "It is wet with wine", "It is soaking wet with wine", "(wine-damp)", "(wine-wet)",
-			"(wine-soaked)", 7.0, null, 0.05, LiquidInjectionConsequence.Harmful, null, solvent: "water");
+			"(wine-soaked)", 7.0, null, 0.05, LiquidInjectionConsequence.Harmful, null, solvent: "water", materialTags: ["Alcoholic"]);
 
 		AddLiquid("vodka", "a clear liquid", "a crystal clear liquid smelling strongly of alcohol",
 			"It has little taste beyond that of the very strong alcohol",
@@ -7943,82 +7990,82 @@ return IsAdmin(@ch)",
 			"It smells strongly of alcohol", 250, 150, 0.4, 5.4, 390, 0.5, 9.0, 1.0, 1.0, true, "yellow",
 			"It is damp with alcohol", "It is wet with alcohol", "It is soaking wet with alcohol", "(damp)",
 			"(liquor-wet)", "(liquor-soaked)", 5.0, null, 0.05, LiquidInjectionConsequence.Harmful, null,
-			solvent: "water");
+			solvent: "water", materialTags: ["Alcoholic"]);
 		AddLiquid("bourbon whiskey", "a translucent brown liquid",
 			"a translucent, dark brown liquid smelling strongly of alcohol",
 			"It tastes first and foremost of alcohol, but it is supplemented by an oakey, sweet note that contrasts with it",
 			null, "It smells strongly of alcohol", null, 250, 150, 0.4, 5.4, 390, 0.5, 9.0, 1.0, 1.0, true, "yellow",
 			"It is damp with alcohol", "It is wet with alcohol", "It is soaking wet with alcohol", "(damp)",
 			"(liquor-wet)", "(liquor-soaked)", 5.0, null, 0.05, LiquidInjectionConsequence.Harmful, null,
-			solvent: "water");
+			solvent: "water", materialTags: ["Alcoholic"]);
 		AddLiquid("scotch whiskey", "a translucent brown liquid",
 			"a translucent, dark brown liquid smelling strongly of alcohol",
 			"It tastes first and foremost of alcohol, but it is supplemented by an oakey, dry note that contrasts with it",
 			null, "It smells strongly of alcohol", null, 250, 150, 0.4, 5.4, 390, 0.5, 9.0, 1.0, 1.0, true, "yellow",
 			"It is damp with alcohol", "It is wet with alcohol", "It is soaking wet with alcohol", "(damp)",
 			"(liquor-wet)", "(liquor-soaked)", 5.0, null, 0.05, LiquidInjectionConsequence.Harmful, null,
-			solvent: "water");
+			solvent: "water", materialTags: ["Alcoholic"]);
 		AddLiquid("whiskey", "a translucent brown liquid",
 			"a translucent, dark brown liquid smelling strongly of alcohol",
 			"It tastes first and foremost of alcohol, but it is supplemented by an oakey, dry note that contrasts with it",
 			null, "It smells strongly of alcohol", null, 250, 150, 0.4, 5.4, 390, 0.5, 9.0, 1.0, 1.0, true, "yellow",
 			"It is damp with alcohol", "It is wet with alcohol", "It is soaking wet with alcohol", "(damp)",
 			"(liquor-wet)", "(liquor-soaked)", 5.0, null, 0.05, LiquidInjectionConsequence.Harmful, null,
-			solvent: "water");
+			solvent: "water", materialTags: ["Alcoholic"]);
 		AddLiquid("rum", "a translucent brown liquid", "a translucent, dark brown liquid smelling strongly of alcohol",
 			"It tastes first and foremost of alcohol, but it is supplemented by a very sweet, sugary aftertaste", null,
 			"It smells strongly of alcohol", null, 250, 150, 0.4, 5.4, 390, 0.5, 9.0, 1.0, 1.0, true, "yellow",
 			"It is damp with alcohol", "It is wet with alcohol", "It is soaking wet with alcohol", "(damp)",
 			"(liquor-wet)", "(liquor-soaked)", 5.0, null, 0.05, LiquidInjectionConsequence.Harmful, null,
-			solvent: "water");
+			solvent: "water", materialTags: ["Alcoholic"]);
 		AddLiquid("gin", "a clear liquid", "a clear liquid smelling strongly of alcohol",
 			"It tastes first and foremost of alcohol, followed by the unmistakable and unique taste of juniper berry",
 			null, "It smells strongly of alcohol", null, 250, 150, 0.4, 5.4, 390, 0.5, 9.0, 1.0, 1.0, true, "yellow",
 			"It is damp with alcohol", "It is wet with alcohol", "It is soaking wet with alcohol", "(damp)",
 			"(liquor-wet)", "(liquor-soaked)", 5.0, null, 0.05, LiquidInjectionConsequence.Harmful, null,
-			solvent: "water");
+			solvent: "water", materialTags: ["Alcoholic"]);
 		AddLiquid("tequila", "a transparent brown liquid", "a transparent brown liquid smelling strongly of alcohol",
 			"It tastes first and foremost of alcohol, but it is supplemented by the distinctive taste of agave", null,
 			"It smells strongly of alcohol", null, 250, 150, 0.4, 5.4, 390, 0.5, 9.0, 1.0, 1.0, true, "yellow",
 			"It is damp with alcohol", "It is wet with alcohol", "It is soaking wet with alcohol", "(damp)",
 			"(liquor-wet)", "(liquor-soaked)", 5.0, null, 0.05, LiquidInjectionConsequence.Harmful, null,
-			solvent: "water");
+			solvent: "water", materialTags: ["Alcoholic"]);
 
 		AddLiquid("ethanol", "a clear liquid", "a crystal clear liquid smelling strongly of alcohol",
 			"It has little taste beyond that of the very strong alcohol",
 			"It has little taste beyond that of the very strong alcohol", "It smells strongly of alcohol",
 			"It smells strongly of alcohol", 500, 500, 1.0, 5.4, 390, -0.1, -3.0, 1.0, 1.0, true, "yellow",
 			"It is damp with alcohol", "It is wet with alcohol", "It is soaking wet with alcohol", "(damp)",
-			"(liquor-wet)", "(liquor-soaked)", 5.0, null, 0.05, LiquidInjectionConsequence.Deadly, null,
-			solvent: "water");
+			"(liquor-wet)", "(liquor-soaked)", 5.0, null, 0.05, LiquidInjectionConsequence.Deadly, ("fuel", ItemQuality.VeryGood),
+			solvent: "water", materialTags: ["Alcoholic", "Disgusting", "Fuel"]);
 		AddLiquid("methanol", "a clear liquid", "a crystal clear liquid smelling strongly of alcohol",
 			"It has little taste beyond that of the very strong alcohol",
 			"It has little taste beyond that of the very strong alcohol", "It smells strongly of alcohol",
 			"It smells strongly of alcohol", 500, 500, 1.0, 5.4, 390, -0.1, -3.0, 1.0, 1.0, true, "yellow",
 			"It is damp with alcohol", "It is wet with alcohol", "It is soaking wet with alcohol", "(damp)",
-			"(liquor-wet)", "(liquor-soaked)", 5.0, null, 0.05, LiquidInjectionConsequence.Deadly, null,
-			solvent: "water");
+			"(liquor-wet)", "(liquor-soaked)", 5.0, null, 0.05, LiquidInjectionConsequence.Deadly, ("fuel", ItemQuality.VeryGood),
+			solvent: "water", materialTags: ["Alcoholic", "Disgusting", "Fuel"]);
 
 		AddLiquid("orange juice", "orange juice", "a translucent orange liquid with fruit pulp",
 			"It tastes like orange juice", "It tastes like orange juice", "It smells of oranges",
 			"It smells of oranges", 200, 100, 0, 5.4, 390, 0.9, 9.0, 1.0, 1.0, true, "orange", "It is damp with juice",
 			"It is wet with juice", "It is soaking wet with juice", "(damp)", "(wet)", "(juice-soaked)", 5.0, null,
-			0.05, LiquidInjectionConsequence.Harmful, null, solvent: "water");
+			0.05, LiquidInjectionConsequence.Harmful, null, solvent: "water", materialTags: ["Beverage"]);
 		AddLiquid("apple juice", "apple juice", "a transparent brown liquid with fruit pulp",
 			"It tastes like apple juice", "It tastes like apple juice", "It smells of apples", "It smells of apples",
 			200, 100, 0, 5.4, 390, 0.9, 9.0, 1.0, 1.0, true, "yellow", "It is damp with juice", "It is wet with juice",
 			"It is soaking wet with juice", "(damp)", "(wet)", "(juice-soaked)", 5.0, null, 0.05,
-			LiquidInjectionConsequence.Harmful, null, solvent: "water");
+			LiquidInjectionConsequence.Harmful, null, solvent: "water", materialTags: ["Beverage"]);
 		AddLiquid("pineapple juice", "pineapple juice", "a translucent yellow liquid with fruit pulp",
 			"It tastes like pineapple juice", "It tastes like pineapple juice", "It smells of pineapples",
 			"It smells of pineapples", 200, 100, 0, 5.4, 390, 0.9, 9.0, 1.0, 1.0, true, "yellow",
 			"It is damp with juice", "It is wet with juice", "It is soaking wet with juice", "(damp)", "(wet)",
-			"(juice-soaked)", 5.0, null, 0.05, LiquidInjectionConsequence.Harmful, null, solvent: "water");
+			"(juice-soaked)", 5.0, null, 0.05, LiquidInjectionConsequence.Harmful, null, solvent: "water", materialTags: ["Beverage"]);
 		AddLiquid("pomegranate juice", "pomegranate juice", "a translucent purple liquid with fruit pulp",
 			"It tastes like pomegranate juice", "It tastes like pomegranate juice", "It smells of pomegranates",
 			"It smells of pomegranates", 200, 100, 0, 5.4, 390, 0.9, 9.0, 1.0, 1.0, true, "magenta",
 			"It is damp with juice", "It is wet with juice", "It is soaking wet with juice", "(damp)", "(wet)",
-			"(juice-soaked)", 5.0, null, 0.05, LiquidInjectionConsequence.Harmful, null, solvent: "water");
+			"(juice-soaked)", 5.0, null, 0.05, LiquidInjectionConsequence.Harmful, null, solvent: "water", materialTags: ["Beverage"]);
 
 		AddLiquid("white wine vinegar", "a clear liquid", "a clear, translucent liquid", "It tastes like vinegar", null,
 			"It smells of vinegar", null, 200, 100, 0, 5.4, 390, 0.5, 0.0, 1.0, 1.0, true, "magenta", "It is damp",
@@ -8068,43 +8115,43 @@ return IsAdmin(@ch)",
 			"It tastes creamy and sweet, with a full bodied flavour", null, "It smells like milk", null, 200, 100, 0,
 			5.4, 390, 0.9, 9.0, 1.0, 1.0, true, "bold white", "It is damp with milk", "It is wet with milk",
 			"It is soaking wet with milk", "(damp)", "(wet)", "(milk-soaked)", 5.0, null, 0.05,
-			LiquidInjectionConsequence.Harmful, null, solvent: "water");
+			LiquidInjectionConsequence.Harmful, null, solvent: "water", materialTags: ["Beverage"]);
 		AddLiquid("goat's milk", "a creamy white liquid", "a translucent white liquid",
 			"It tastes creamy and sweet, with a full bodied flavour", null, "It smells like milk", null, 200, 100, 0,
 			5.4, 390, 0.9, 9.0, 1.0, 1.0, true, "bold white", "It is damp with milk", "It is wet with milk",
 			"It is soaking wet with milk", "(damp)", "(wet)", "(milk-soaked)", 5.0, null, 0.05,
-			LiquidInjectionConsequence.Harmful, null, solvent: "water");
+			LiquidInjectionConsequence.Harmful, null, solvent: "water", materialTags: ["Beverage"]);
 		AddLiquid("sheep's milk", "a creamy white liquid", "a translucent white liquid",
 			"It tastes creamy and sweet, with a full bodied flavour", null, "It smells like milk", null, 200, 100, 0,
 			5.4, 390, 0.9, 9.0, 1.0, 1.0, true, "bold white", "It is damp with milk", "It is wet with milk",
 			"It is soaking wet with milk", "(damp)", "(wet)", "(milk-soaked)", 5.0, null, 0.05,
-			LiquidInjectionConsequence.Harmful, null, solvent: "water");
+			LiquidInjectionConsequence.Harmful, null, solvent: "water", materialTags: ["Beverage"]);
 
 		AddLiquid("tea", "a clear brown liquid", "a transparent brown liquid",
 			"It tastes bitter and aromatic, like black tea", null, "It smells like tea", null, 200, 100, 0, 1.0, 50,
 			0.9, 9.0, 1.0, 1.0, true, "yellow", "It is damp with tea", "It is wet with tea",
 			"It is soaking wet with tea", "(damp)", "(wet)", "(tea-soaked)", 5.0, null, 0.05,
-			LiquidInjectionConsequence.Harmful, null, solvent: "water");
+			LiquidInjectionConsequence.Harmful, null, solvent: "water", materialTags: ["Beverage"]);
 		AddLiquid("tea with milk", "a light brown liquid", "a translucent light brown liquid",
 			"It tastes bitter and aromatic, like black tea mixed with milk", null, "It smells like tea", null, 100, 50,
 			0, 1.0, 50, 0.9, 9.0, 1.0, 1.0, true, "yellow", "It is damp with tea", "It is wet with tea",
 			"It is soaking wet with tea", "(damp)", "(wet)", "(tea-soaked)", 5.0, null, 0.05,
-			LiquidInjectionConsequence.Harmful, null, solvent: "water");
+			LiquidInjectionConsequence.Harmful, null, solvent: "water", materialTags: ["Beverage"]);
 		AddLiquid("green tea", "a clear brown liquid", "a translucent brown liquid",
 			"It tastes bitter and aromatic, like green tea", null, "It smells like tea", null, 200, 100, 0, 1.0, 50,
 			0.9, 9.0, 1.0, 1.0, true, "yellow", "It is damp with tea", "It is wet with tea",
 			"It is soaking wet with tea", "(damp)", "(wet)", "(tea-soaked)", 5.0, null, 0.05,
-			LiquidInjectionConsequence.Harmful, null, solvent: "water");
+			LiquidInjectionConsequence.Harmful, null, solvent: "water", materialTags: ["Beverage"]);
 		AddLiquid("coffee", "a dark brown liquid", "a translucent dark brown liquid",
 			"It tastes bitter and rich, like black coffee", null, "It smells like coffee", null, 200, 100, 0, 0, 0, 9.0,
 			1.0, 1.0, 1.0, true, "yellow", "It is damp with coffee", "It is wet with coffee",
 			"It is soaking wet with tea", "(damp)", "(wet)", "(coffee-soaked)", 5.0, null, 0.05,
-			LiquidInjectionConsequence.Harmful, null, solvent: "water");
+			LiquidInjectionConsequence.Harmful, null, solvent: "water", materialTags: ["Beverage"]);
 		AddLiquid("latte", "a light brown liquid", "a translucent light brown liquid",
 			"It tastes slightly bitter and rich, like black coffee mixed with milk", null, "It smells like coffee",
 			null, 100, 50, 0, 2, 200, 0.9, 9.0, 1.0, 1.0, true, "yellow", "It is damp with coffee",
 			"It is wet with coffee", "It is soaking wet with tea", "(damp)", "(wet)", "(coffee-soaked)", 5.0, null,
-			0.05, LiquidInjectionConsequence.Harmful, null, solvent: "water");
+			0.05, LiquidInjectionConsequence.Harmful, null, solvent: "water", materialTags: ["Beverage"]);
 
 		#endregion
 
@@ -8119,29 +8166,7 @@ return IsAdmin(@ch)",
 			wetDesc: "It is soaking wet with alcohol", drenchedDesc: "It is drenched with alcohol", dampSdesc: "(damp)",
 			wetSdesc: "(liquor-soaked)", drenchedSdesc: "(liquor-drenched)", solventVolumeRatio: 1.0, dried: null,
 			residueVolumePercentage: 0.029,
-			injectionConsequence: LiquidInjectionConsequence.Harmful, countsAs: null);
-		AddLiquid(name: "ethanol", description: "a clear liquid", longDescription: "a clear, translucent liquid",
-			taste: "It has little taste beyond that of the very strong alcohol",
-			vagueTaste: "It has little taste beyond that of the very strong alcohol",
-			smell: "It smells strongly of pure alcohol",
-			vagueSmell: "It smells strongly of alcohol", tasteIntensity: 1000, smellIntensity: 100, alcohol: 1.0,
-			food: 5.4, calories: 390, water: -0.5, satiated: -6.0, viscosity: 1.0, density: 1.029, organic: true,
-			displayColour: "yellow", dampDesc: "It is damp with alcohol",
-			wetDesc: "It is soaking wet with alcohol", drenchedDesc: "It is drenched with alcohol", dampSdesc: "(damp)",
-			wetSdesc: "(liquor-soaked)", drenchedSdesc: "(liquor-drenched)", solventVolumeRatio: 1.0, dried: null,
-			residueVolumePercentage: 0.029,
-			injectionConsequence: LiquidInjectionConsequence.Harmful, countsAs: ("fuel", ItemQuality.VeryGood));
-		AddLiquid(name: "methanol", description: "a clear liquid", longDescription: "a clear, translucent liquid",
-			taste: "It has little taste beyond that of the very strong alcohol",
-			vagueTaste: "It has little taste beyond that of the very strong alcohol",
-			smell: "It smells strongly of pure alcohol",
-			vagueSmell: "It smells strongly of alcohol", tasteIntensity: 1000, smellIntensity: 100, alcohol: 1.0,
-			food: 5.4, calories: 390, water: -0.5, satiated: -6.0, viscosity: 1.0, density: 1.029, organic: true,
-			displayColour: "yellow", dampDesc: "It is damp with alcohol",
-			wetDesc: "It is soaking wet with alcohol", drenchedDesc: "It is drenched with alcohol", dampSdesc: "(damp)",
-			wetSdesc: "(liquor-soaked)", drenchedSdesc: "(liquor-drenched)", solventVolumeRatio: 1.0, dried: null,
-			residueVolumePercentage: 0.029,
-			injectionConsequence: LiquidInjectionConsequence.Deadly, countsAs: ("fuel", ItemQuality.VeryGood));
+			injectionConsequence: LiquidInjectionConsequence.Harmful, countsAs: null, materialTags: ["Fuel"]);
 		AddLiquid(name: "kerosene", description: "a clear liquid",
 			longDescription: "a transparent fluid",
 			taste: "It has a sulfurous, sweet, slimy taste", vagueTaste: "It has the taste of kerosene fuel; YUCK!",
@@ -8152,7 +8177,7 @@ return IsAdmin(@ch)",
 			wetDesc: "It is soaked with kerosene", drenchedDesc: "It is drenched with kerosene",
 			dampSdesc: "(kerosene-damp)", wetSdesc: "(kerosene-soaked)", drenchedSdesc: "(kerosene-drenched)",
 			solventVolumeRatio: 5.0, dried: null, residueVolumePercentage: 0.029, solvent: "detergent",
-			injectionConsequence: LiquidInjectionConsequence.Deadly, countsAs: ("fuel", ItemQuality.VeryGood));
+			injectionConsequence: LiquidInjectionConsequence.Deadly, countsAs: ("fuel", ItemQuality.VeryGood), materialTags: ["Fuel"]);
 		AddLiquid(name: "gasoline", description: "a clear liquid",
 			longDescription: "a transparent, orangey-amber fluid",
 			taste: "It has a sulfurous, sweet, slimy taste", vagueTaste: "It has the taste of gasoline fuel; YUCK!",
@@ -8163,7 +8188,7 @@ return IsAdmin(@ch)",
 			wetDesc: "It is soaked with gasoline", drenchedDesc: "It is drenched with gasoline",
 			dampSdesc: "(gasoline-damp)", wetSdesc: "(gasoline-soaked)", drenchedSdesc: "(gasoline-drenched)",
 			solventVolumeRatio: 5.0, dried: null, residueVolumePercentage: 0.029, solvent: "detergent",
-			injectionConsequence: LiquidInjectionConsequence.Deadly, countsAs: ("fuel", ItemQuality.Heroic));
+			injectionConsequence: LiquidInjectionConsequence.Deadly, countsAs: ("fuel", ItemQuality.Heroic), materialTags: ["Fuel"]);
 		AddLiquid(name: "diesel", description: "a clear liquid",
 			longDescription: "a transparent, yellowy-amber fluid",
 			taste: "It has a sulfurous, sweet, slimy taste", vagueTaste: "It has the taste of diesel fuel; YUCK!",
@@ -8174,7 +8199,7 @@ return IsAdmin(@ch)",
 			wetDesc: "It is soaked with diesel", drenchedDesc: "It is drenched with diesel",
 			dampSdesc: "(diesel-damp)", wetSdesc: "(diesel-soaked)", drenchedSdesc: "(diesel-drenched)",
 			solventVolumeRatio: 5.0, dried: null, residueVolumePercentage: 0.029, solvent: "detergent",
-			injectionConsequence: LiquidInjectionConsequence.Deadly, countsAs: ("fuel", ItemQuality.Heroic));
+			injectionConsequence: LiquidInjectionConsequence.Deadly, countsAs: ("fuel", ItemQuality.Heroic), materialTags: ["Fuel"]);
 		AddLiquid(name: "crude oil", description: "a thick, black liquid",
 			longDescription: "a thick yellow-black liquid",
 			taste: "It has a sulfurous, sweet, slimy taste", vagueTaste: "It has an unimaginably bad taste, you feel in great danger from drinking this; YUCK!",
@@ -8185,7 +8210,7 @@ return IsAdmin(@ch)",
 			wetDesc: "It is soaked with crude oil", drenchedDesc: "It is drenched with crude oil",
 			dampSdesc: "(petroleum-damp)", wetSdesc: "(petroleum-soaked)", drenchedSdesc: "(petroleum-drenched)",
 			solventVolumeRatio: 25.0, dried: null, residueVolumePercentage: 0.029, solvent: "detergent",
-			injectionConsequence: LiquidInjectionConsequence.Deadly, countsAs: ("fuel", ItemQuality.Standard));
+			injectionConsequence: LiquidInjectionConsequence.Deadly, countsAs: ("fuel", ItemQuality.Standard), materialTags: ["Fuel"]);
 		AddLiquid(name: "heavy crude oil", description: "a very thick, black liquid",
 			longDescription: "a thick yellow-black liquid",
 			taste: "It has a sulfurous, sweet, slimy taste", vagueTaste: "It has an unimaginably bad taste, you feel in great danger from drinking this; YUCK!",
@@ -8196,7 +8221,7 @@ return IsAdmin(@ch)",
 			wetDesc: "It is soaked with crude oil", drenchedDesc: "It is drenched with crude oil",
 			dampSdesc: "(petroleum-damp)", wetSdesc: "(petroleum-soaked)", drenchedSdesc: "(petroleum-drenched)",
 			solventVolumeRatio: 25.0, dried: null, residueVolumePercentage: 0.029, solvent: "detergent",
-			injectionConsequence: LiquidInjectionConsequence.Deadly, countsAs: ("fuel", ItemQuality.Standard));
+			injectionConsequence: LiquidInjectionConsequence.Deadly, countsAs: ("fuel", ItemQuality.Standard), materialTags: ["Fuel"]);
 		AddLiquid(name: "light crude oil", description: "a sticky, black liquid",
 			longDescription: "a sticky yellow-black liquid",
 			taste: "It has a sulfurous, sweet, slimy taste", vagueTaste: "It has an unimaginably bad taste, you feel in great danger from drinking this; YUCK!",
@@ -8207,7 +8232,7 @@ return IsAdmin(@ch)",
 			wetDesc: "It is soaked with crude oil", drenchedDesc: "It is drenched with crude oil",
 			dampSdesc: "(petroleum-damp)", wetSdesc: "(petroleum-soaked)", drenchedSdesc: "(petroleum-drenched)",
 			solventVolumeRatio: 25.0, dried: null, residueVolumePercentage: 0.029, solvent: "detergent",
-			injectionConsequence: LiquidInjectionConsequence.Deadly, countsAs: ("fuel", ItemQuality.Standard));
+			injectionConsequence: LiquidInjectionConsequence.Deadly, countsAs: ("fuel", ItemQuality.Standard), materialTags: ["Fuel"]);
 		AddLiquid(name: "heavy fuel oil", description: "a viscous, black liquid",
 			longDescription: "a thick black liquid",
 			taste: "It has a sulfurous, sweet, slimy taste", vagueTaste: "It has an unimaginably bad taste, you feel in great danger from drinking this; YUCK!",
@@ -8218,7 +8243,7 @@ return IsAdmin(@ch)",
 			wetDesc: "It is soaked with fuel oil", drenchedDesc: "It is drenched with fuel oil",
 			dampSdesc: "(oil-damp)", wetSdesc: "(oil-soaked)", drenchedSdesc: "(oil-drenched)",
 			solventVolumeRatio: 25.0, dried: null, residueVolumePercentage: 0.029, solvent: "detergent",
-			injectionConsequence: LiquidInjectionConsequence.Deadly, countsAs: ("fuel", ItemQuality.Excellent));
+			injectionConsequence: LiquidInjectionConsequence.Deadly, countsAs: ("fuel", ItemQuality.Excellent), materialTags: ["Fuel"]);
 		#endregion
 
 		context.SaveChanges();

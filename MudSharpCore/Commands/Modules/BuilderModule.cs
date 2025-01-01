@@ -3853,6 +3853,12 @@ You can use the following options with this command:
 	#3terrain reset#0 - resets the terrain type to the building overlay for the location you're in
 	#3terrain planner#0 - gets the terrain output for the terrain planner tool
 
+Note: You can use the following filters for #3terrain list#0:
+
+	#6+<keyword>#0 - shows terrains with the specific keyword in their name
+	#6-<keyword>#0 - excludes terrains with the specific keyword in their name
+	#6*<keyword>#0 - shows terrains with the specific keyword in their model behaviour
+
 You can also edit the following specific properties:
 
 	#3terrain set name <name>#0 - renames this terrain type
@@ -4440,6 +4446,46 @@ The syntax is as follows:
 	protected static void Colour(ICharacter actor, string command)
 	{
 		GenericBuildingCommand(actor, new StringStack(command.RemoveFirstWord()), EditableItemHelper.ColourHelper);
+	}
+	#endregion
+
+	#region Drugs
+
+	public const string DrugsHelp = @"The #3drug#0 command is used to view, edit and create drugs. Drugs can be added to food, liquid and attacks.
+
+The syntax is as follows:
+
+	#3drug list [<filters>]#0 - lists all of the drugs
+	#3drug edit <which>#0 - begins editing a drug
+	#3drug edit new <name>#0 - creates a new drug
+	#3drug close#0 - stops editing a drug
+	#3drug show <which>#0 - views information about a drug
+	#3drug show#0 - views information about your currently editing drug
+	#3drug set name <name>#0 - renames this drug
+	#3drug set intensity <%>#0 - sets the intensity of this drug per gram
+	#3drug set metabolism <%>#0 - sets the relative metabolism of this drug relative to others of its type
+	#3drug set inhaled|ingested|injected|touch#0 - toggles the specific vector
+	#3drug set type intensity <which> <%>#0 - adds a drug intensity of a particular effect
+
+The following options require a matching intensity for the type before using them:
+
+	#3drug set type damage <bodypart type>#0 - toggles bodypart damage
+	#3drug set type magic <which>#0 - toggles a specific magic capability effect
+	#3drug set type neutralise <type>#0 - toggles neutralising a drug type
+	#3drug set type neutralisespecific <drug>#0 - toggles neutralising a specific drug
+	#3drug set type healingrate <rate%> <difficulty%> - sets healing rate / difficulty bonuses
+
+You can also use the following filters with #3drug list#0:
+	
+	#6+<keyword>#0 - show only drugs with this keyword in their name
+	#6-<keyword>#0 - exclude drugs with this keyword in their name
+	#6*<drugtype>#0 - show drugs that have an effect of this type";
+
+	[PlayerCommand("Drug", "drug")]
+	[CommandPermission(PermissionLevel.Admin)]
+	protected static void Drug(ICharacter actor, string command)
+	{
+		GenericBuildingCommand(actor, new StringStack(command.RemoveFirstWord()), EditableItemHelper.DrugHelper);
 	}
 	#endregion
 }

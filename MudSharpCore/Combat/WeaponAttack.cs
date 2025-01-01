@@ -115,7 +115,7 @@ public class WeaponAttack : CombatAction, IWeaponAttack
 		       (Intentions & (attacker as ICharacter)?.CombatSettings.ForbiddenIntentions ??
 		        CombatMoveIntentions.None) == 0 &&
 		       (ignorePosition || RequiredPositionStates.Contains(attacker.PositionState)) &&
-		       ((bool?)UsabilityProg?.Execute(attacker, weapon, target) ?? true);
+		       (UsabilityProg?.ExecuteBool(attacker, weapon, target) ?? true);
 	}
 
 	public MeleeWeaponVerb Verb { get; set; }

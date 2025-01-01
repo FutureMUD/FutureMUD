@@ -151,9 +151,9 @@ public class SimpleWound : PerceivedItem, IWound
 			case DamageType.Arcane:
 				return "Dent";
 			case DamageType.Piercing:
-				return "Hole";
 			case DamageType.ArmourPiercing:
-				return "Bullet Hole";
+				return "Hole";
+			case DamageType.BallisticArmourPiercing:
 			case DamageType.Ballistic:
 				return "Bullet Hole";
 			case DamageType.Burning:

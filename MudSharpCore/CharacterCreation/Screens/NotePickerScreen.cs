@@ -376,7 +376,7 @@ public class NotePickerScreenStoryboard : ChargenScreenStoryboard
 		{
 			Storyboard = storyboard;
 			Enumerator =
-				Storyboard.NotesBlurbs.Where(x => (bool?)x.Prog?.Execute(Chargen) ?? true)
+				Storyboard.NotesBlurbs.Where(x => x.Prog?.ExecuteBool(Chargen) ?? true)
 				          .ToList()
 				          .GetEnumerator();
 			if (!Enumerator.MoveNext())

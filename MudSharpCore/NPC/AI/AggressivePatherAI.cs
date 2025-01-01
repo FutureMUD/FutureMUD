@@ -205,7 +205,7 @@ public class AggressivePatherAI : PathingAIWithProgTargetsBase
 			return false;
 		}
 
-		if (!((bool?)WillAttackProg.Execute(aggressor, target) ?? false))
+		if (!(WillAttackProg.ExecuteBool(aggressor, target)))
 		{
 			return false;
 		}
@@ -233,7 +233,7 @@ public class AggressivePatherAI : PathingAIWithProgTargetsBase
 				return false;
 			}
 
-			if (!(bool?)WillAttackProg.Execute(ch, x) ?? false)
+			if (!WillAttackProg.ExecuteBool(ch, x))
 			{
 				return false;
 			}

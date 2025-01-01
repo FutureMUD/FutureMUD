@@ -238,7 +238,7 @@ public class SparPartnerAI : ArtificialIntelligenceBase
 			return false;
 		}
 
-		if (!(bool?)WillSparProg.Execute(npc, invitee) ?? false)
+		if (!WillSparProg.ExecuteBool(npc, invitee))
 		{
 			if (!string.IsNullOrWhiteSpace(RefuseEmote))
 			{

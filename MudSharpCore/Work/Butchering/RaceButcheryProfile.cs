@@ -258,7 +258,7 @@ public class RaceButcheryProfile : SaveableItem, IRaceButcheryProfile
 			return false;
 		}
 
-		return (bool?)CanButcherProg?.Execute(butcher, targetItem) ?? true;
+		return CanButcherProg?.ExecuteBool(butcher, targetItem) ?? true;
 	}
 
 	/// <summary>

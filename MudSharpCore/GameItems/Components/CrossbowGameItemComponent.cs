@@ -284,7 +284,7 @@ public class CrossbowGameItemComponent : GameItemComponent, IRangedWeapon, IMele
 		return new[] { ammo.Parent };
 	}
 
-	public bool CanLoad(ICharacter loader, bool ignoreEmpty = false)
+	public bool CanLoad(ICharacter loader, bool ignoreEmpty = false, LoadMode mode = LoadMode.Normal)
 	{
 		if (LoadedAmmo != null)
 		{
@@ -295,7 +295,7 @@ public class CrossbowGameItemComponent : GameItemComponent, IRangedWeapon, IMele
 		return plan.PlanIsFeasible() == InventoryPlanFeasibility.Feasible;
 	}
 
-	public string WhyCannotLoad(ICharacter loader, bool ignoreEmpty = false)
+	public string WhyCannotLoad(ICharacter loader, bool ignoreEmpty = false, LoadMode mode = LoadMode.Normal)
 	{
 		if (LoadedAmmo != null)
 		{
@@ -316,7 +316,7 @@ public class CrossbowGameItemComponent : GameItemComponent, IRangedWeapon, IMele
 		throw new NotImplementedException();
 	}
 
-	public void Load(ICharacter loader, bool ignoreEmpty = false)
+	public void Load(ICharacter loader, bool ignoreEmpty = false, LoadMode mode = LoadMode.Normal)
 	{
 		var plan = _prototype.LoadTemplate.CreatePlan(loader);
 		plan.ExecuteWholePlan();

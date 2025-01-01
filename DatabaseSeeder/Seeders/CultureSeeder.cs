@@ -20,7 +20,7 @@ The FutureMUD Database Seeder currently has the following culture packs, which i
 
 #BEarth-Modern#F: This culture pack includes ethnicities, cultures, languages, scripts and accents from the modern Earth
 #BEarth-Antiquity#F: This culture pack includes languages, scripts and accents from European antiquity at roughly the time of the late republic
-#BEarth-MedievalEurope#F: This culture pack includes languages, scripts and accents from Medieval Europe, roughly 15th century [do not use]
+#BEarth-MedievalEurope#F: This culture pack includes ethnicities, names, languages, scripts and accents from Medieval Europe (and surrounds), roughly 15th century
 #BMiddle-Earth#F: This culture pack includes races, ethnicities, cultures, languages, scripts and dialects from J.R.R. Tolkien's Middle-Earth
 
 #1Note: Even if you choose none of the above, some useful culture-related defaults will be installed to make things easier for you#F

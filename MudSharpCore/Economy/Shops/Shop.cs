@@ -469,7 +469,7 @@ public abstract class Shop : SaveableItem, IShop
 			return (false, "the store is currently closed");
 		}
 
-		if ((bool?)CanShopProg?.Execute(actor, merchandise?.Item.Id ?? 0L,
+		if (CanShopProg?.ExecuteBool(actor, merchandise?.Item.Id ?? 0L,
 				merchandise?.Item.Tags.Select(x => x.Name)) == false)
 		{
 			return (false,
@@ -587,7 +587,7 @@ public abstract class Shop : SaveableItem, IShop
 			return (false, "the store is currently closed");
 		}
 
-		if ((bool?)CanShopProg?.Execute(actor, merchandise?.Item.Id ?? 0L,
+		if (CanShopProg?.ExecuteBool(actor, merchandise?.Item.Id ?? 0L,
 				merchandise?.Item.Tags.Select(x => x.Name)) == false)
 		{
 			return (false,

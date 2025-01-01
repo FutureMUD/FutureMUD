@@ -178,7 +178,7 @@ public class Helpfile : SaveableItem, IEditableHelpfile
 
 	public bool CanView(ICharacter actor)
 	{
-		return Rule == null || ((bool?)Rule.Execute(actor) ?? false);
+		return Rule == null || (Rule.ExecuteBool(actor));
 	}
 
 	public IEditableHelpfile GetEditableHelpfile => this;

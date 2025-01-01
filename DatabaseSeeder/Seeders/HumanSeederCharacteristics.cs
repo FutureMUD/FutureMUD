@@ -1147,6 +1147,76 @@ return @bmi > 24 and @bmi < 35"
 			Id = nextId++, Definition = eyeShapeDef, Name = "wide-set", Value = "", AdditionalValue = "",
 			Default = false, Pluralisation = 0
 		});
+		_context.CharacteristicValues.Add(new CharacteristicValue
+		{
+			Id = nextId++,
+			Definition = eyeShapeDef,
+			Name = "wide",
+			Value = "",
+			AdditionalValue = "",
+			Default = false,
+			Pluralisation = 0
+		});
+		_context.CharacteristicValues.Add(new CharacteristicValue
+		{
+			Id = nextId++,
+			Definition = eyeShapeDef,
+			Name = "large",
+			Value = "",
+			AdditionalValue = "",
+			Default = false,
+			Pluralisation = 0
+		});
+		_context.CharacteristicValues.Add(new CharacteristicValue
+		{
+			Id = nextId++,
+			Definition = eyeShapeDef,
+			Name = "big",
+			Value = "",
+			AdditionalValue = "",
+			Default = false,
+			Pluralisation = 0
+		});
+		_context.CharacteristicValues.Add(new CharacteristicValue
+		{
+			Id = nextId++,
+			Definition = eyeShapeDef,
+			Name = "small",
+			Value = "",
+			AdditionalValue = "",
+			Default = false,
+			Pluralisation = 0
+		});
+		_context.CharacteristicValues.Add(new CharacteristicValue
+		{
+			Id = nextId++,
+			Definition = eyeShapeDef,
+			Name = "tiny",
+			Value = "",
+			AdditionalValue = "",
+			Default = false,
+			Pluralisation = 0
+		});
+		_context.CharacteristicValues.Add(new CharacteristicValue
+		{
+			Id = nextId++,
+			Definition = eyeShapeDef,
+			Name = "rheumy",
+			Value = "",
+			AdditionalValue = "",
+			Default = false,
+			Pluralisation = 0
+		});
+		_context.CharacteristicValues.Add(new CharacteristicValue
+		{
+			Id = nextId++,
+			Definition = eyeShapeDef,
+			Name = "watery",
+			Value = "",
+			AdditionalValue = "",
+			Default = false,
+			Pluralisation = 0
+		});
 		_context.SaveChanges();
 		_context.CharacteristicValues.Add(new CharacteristicValue
 		{
@@ -1420,7 +1490,7 @@ return @bmi > 24 and @bmi < 35"
 		});
 		_context.CharacteristicValues.Add(new CharacteristicValue
 		{
-			Id = nextId++, Definition = frameDef, Name = "well proportioned", Value = "normal",
+			Id = nextId++, Definition = frameDef, Name = "well-proportioned", Value = "normal",
 			AdditionalValue = "of an extremely fit and healthy build, being well proportioned in all respects",
 			Default = false, Pluralisation = 0, FutureProg = normalWeightProg
 		});
@@ -1969,6 +2039,98 @@ return @bmi > 24 and @bmi < 35"
 				"a ponderous person of substantial width and volume principally caused by &his excessively robust bone structure and supplemented by ample softer tissues",
 			Default = false, Pluralisation = 0, FutureProg = overweightProg
 		});
+
+		_context.CharacteristicValues.Add(new CharacteristicValue
+		{
+			Id = nextId++,
+			Definition = frameDef,
+			Name = "wiry",
+			Value = "lean",
+			AdditionalValue = "in possession of a wiry, sinewy frame, built for agility",
+			Default = false,
+			Pluralisation = 0,
+			FutureProg = normalWeightProg
+		});
+		_context.CharacteristicValues.Add(new CharacteristicValue
+		{
+			Id = nextId++,
+			Definition = frameDef,
+			Name = "spindly",
+			Value = "thin",
+			AdditionalValue = "spindly and lanky, with elongated, fragile limbs",
+			Default = false,
+			Pluralisation = 0,
+			FutureProg = underweightProg
+		});
+		_context.CharacteristicValues.Add(new CharacteristicValue
+		{
+			Id = nextId++,
+			Definition = frameDef,
+			Name = "imposing",
+			Value = "fat",
+			AdditionalValue =
+				"an imposing, almost unbelievably large figure, built to intimidate",
+			Default = false,
+			Pluralisation = 0,
+			FutureProg = overweightProg
+		});
+		_context.CharacteristicValues.Add(new CharacteristicValue
+		{
+			Id = nextId++,
+			Definition = frameDef,
+			Name = "rangy",
+			Value = "thin",
+			AdditionalValue = "rangy and long-limbed, with a rugged build",
+			Default = false,
+			Pluralisation = 0,
+			FutureProg = underweightProg
+		});
+		_context.CharacteristicValues.Add(new CharacteristicValue
+		{
+			Id = nextId++,
+			Definition = frameDef,
+			Name = "stooped",
+			Value = "thin",
+			AdditionalValue = "a thin, stooped posture that lends an air of frailty",
+			Default = false,
+			Pluralisation = 0,
+			FutureProg = underweightProg
+		});
+		_context.CharacteristicValues.Add(new CharacteristicValue
+		{
+			Id = nextId++,
+			Definition = frameDef,
+			Name = "reed-thin",
+			Value = "thin",
+			AdditionalValue = "reed-thin, with an elongated and delicate appearance",
+			Default = false,
+			Pluralisation = 0,
+			FutureProg = underweightProg
+		});
+		_context.CharacteristicValues.Add(new CharacteristicValue
+		{
+			Id = nextId++,
+			Definition = frameDef,
+			Name = "trim",
+			Value = "thin",
+			AdditionalValue = "trim and sleek, with a fit and elegant figure",
+			Default = false,
+			Pluralisation = 0,
+			FutureProg = underweightProg
+		});
+		_context.CharacteristicValues.Add(new CharacteristicValue
+		{
+			Id = nextId++,
+			Definition = frameDef,
+			Name = "chiseled",
+			Value = "muscular",
+			AdditionalValue =
+				"chiseled and sharply defined, like &he has been carved out of stone",
+			Default = false,
+			Pluralisation = 0,
+			FutureProg = overweightProg
+		});
+
 		_context.SaveChanges();
 		_context.CharacteristicValues.Add(new CharacteristicValue
 		{
@@ -2642,19 +2804,30 @@ return @bmi > 24 and @bmi < 35"
 
 		AddPersonWord("baby", "baby", isBabyProg, 3.0);
 		AddPersonWord("infant", "baby", isBabyProg, 1.0);
-		AddPersonWord("tot", "baby", isBabyProg, 1.0);
+		AddPersonWord("tot", "baby", isBabyProg, 0.5);
+		AddPersonWord("newborn", "baby", isBabyProg, 1.0);
+		AddPersonWord("babe", "baby", isBabyProg, 0.5);
+		AddPersonWord("nursling", "baby", isBabyProg, 0.1);
 		AddPersonWord("toddler", "toddler", isToddlerProg, 1.0);
 		AddPersonWord("man", "man", isAdultManProg, 10.0);
+		AddPersonWord("gent", "man", isAdultManProg, 1.0);
+		AddPersonWord("gentleman", "man", isAdultManProg, 1.0);
 		AddPersonWord("person", "person", isAdultProg, 1.0);
 		AddPersonWord("woman", "woman", isAdultWomanProg, 10.0);
 		AddPersonWord("lady", "woman", isAdultWomanProg, 1.0);
 		AddPersonWord("lad", "boy", isBoyProg, 4.0);
 		AddPersonWord("boy", "boy", isBoyProg, 4.0);
+		AddPersonWord("teen boy", "boy", isBoyProg, 1.0);
+		AddPersonWord("young boy", "boy", isBoyProg, 1.0);
 		AddPersonWord("child", "child", isChildProg, 4.0);
-		AddPersonWord("tyke", "child", isChildProg, 1.0);
-		AddPersonWord("nipper", "child", isChildProg, 1.0);
-		AddPersonWord("urchin", "child", isChildProg, 1.0);
-		AddPersonWord("imp", "child", isChildProg, 1.0);
+		AddPersonWord("tyke", "child", isChildProg, 0.2);
+		AddPersonWord("nipper", "child", isChildProg, 0.2);
+		AddPersonWord("urchin", "child", isChildProg, 0.2);
+		AddPersonWord("imp", "child", isChildProg, 0.2);
+		AddPersonWord("sprout", "child", isChildProg, 0.2);
+		AddPersonWord("munchkin", "child", isChildProg, 0.2);
+		AddPersonWord("rascal", "child", isChildProg, 0.2);
+		AddPersonWord("scamp", "child", isChildProg, 0.2);
 		AddPersonWord("youth", "youth", isYouthProg, 5.0);
 		AddPersonWord("preteen", "youth", isYouthProg, 1.0);
 		AddPersonWord("tween", "youth", isYouthProg, 1.0);
@@ -2665,27 +2838,30 @@ return @bmi > 24 and @bmi < 35"
 		AddPersonWord("juvenile", "youth", isYouthProg, 1.0);
 		AddPersonWord("waif", "youth", isYouthProg, 1.0);
 		AddPersonWord("kid", "youth", isYouthProg, 2.0);
-		AddPersonWord("teen boy", "boy", isBoyProg, 1.0);
-		AddPersonWord("young boy", "boy", isBoyProg, 1.0);
+		AddPersonWord("sprite", "youth", isYouthProg, 0.2);
 		AddPersonWord("young man", "man", isYoungManProg, 5.0);
 		AddPersonWord("youngster", "man", isYoungAdultProg, 1.0);
 		AddPersonWord("gaffer", "old man", isOldManProg, 1.0);
 		AddPersonWord("lass", "girl", isYoungWomanProg, 1.0);
+		AddPersonWord("lassie", "girl", isYoungWomanProg, 0.1);
 		AddPersonWord("girl", "girl", isGirlProg, 4.0);
 		AddPersonWord("teen girl", "girl", isGirlProg, 1.0);
 		AddPersonWord("young girl", "girl", isGirlProg, 5.0);
+		AddPersonWord("poppet", "girl", isGirlProg, 0.2);
 		AddPersonWord("young woman", "girl", isYoungWomanProg, 5.0);
 		AddPersonWord("maiden", "woman", isYoungWomanProg, 1.0);
 		AddPersonWord("damsel", "woman", isYoungWomanProg, 1.0);
 		AddPersonWord("crone", "old woman", isOldWomanProg, 1.0);
+		AddPersonWord("granny", "old woman", isOldWomanProg, 1.0);
 		AddPersonWord("old woman", "old woman", isOldWomanProg, 5.0);
 		AddPersonWord("elderly woman", "old woman", isOldWomanProg, 5.0);
 		AddPersonWord("harridan", "old woman", isOldWomanProg, 1.0);
 		AddPersonWord("beldam", "old woman", isOldWomanProg, 1.0);
 		AddPersonWord("dowager", "old woman", isOldWomanProg, 1.0);
 		AddPersonWord("old man", "old man", isOldManProg, 5.0);
-		AddPersonWord("elderly man", "old man", isOldManProg, 5.0);
+		AddPersonWord("elderly man", "old man", isOldManProg, 3.0);
 		AddPersonWord("geezer", "old man", isOldManProg, 1.0);
+		AddPersonWord("elder", "old man", isOldManProg, 2.0);
 		AddPersonWord("spinster", "old woman", isOldWomanProg, 1.0);
 		AddPersonWord("brute", "man", isAdultManProg, 1.0);
 		AddPersonWord("guy", "man", isAdultManProg, 1.0);
@@ -2703,11 +2879,13 @@ return @bmi > 24 and @bmi < 35"
 			AddPersonWord("punk", "person", isAdultProg, 1.0);
 			AddPersonWord("wretch", "person", isAdultProg, 1.0);
 			AddPersonWord("unit", "person", isAdultProg, 1.0);
+			AddPersonWord("dude", "person", isAdultProg, 1.0);
 			AddPersonWord("frump", "person", isAdultProg, 1.0);
 			AddPersonWord("stud", "man", isAdultManProg, 1.0);
 			AddPersonWord("hunk", "man", isAdultManProg, 1.0);
 			AddPersonWord("specimen", "person", isAdultProg, 1.0);
 			AddPersonWord("gal", "woman", isAdultWomanProg, 1.0);
+			AddPersonWord("wench", "woman", isAdultWomanProg, 1.0);
 			AddPersonWord("diva", "woman", isAdultWomanProg, 1.0);
 		}
 
@@ -3041,6 +3219,32 @@ return @bmi > 24 and @bmi < 35"
 			Id = nextId++, Definition = noseDef, Name = "pig nose", Value = "pig-nosed",
 			AdditionalValue = "a flattened, up-turned nose with very visible nostrils from any angle", Pluralisation = 0
 		});
+		_context.CharacteristicValues.Add(new CharacteristicValue { Id = nextId++, Definition = noseDef, Name = "pointed nose", Value = "pointed-nosed", AdditionalValue = "a sharply pointed nose that tapers to a fine tip", Pluralisation = 0 });
+		_context.CharacteristicValues.Add(new CharacteristicValue { Id = nextId++, Definition = noseDef, Name = "hawk nose", Value = "hawk-nosed", AdditionalValue = "a sharply curved, angular nose like the beak of a hawk", Pluralisation = 0 });
+		_context.CharacteristicValues.Add(new CharacteristicValue { Id = nextId++, Definition = noseDef, Name = "broad nose", Value = "broad-nosed", AdditionalValue = "a wide and flat nose with prominent nostrils", Pluralisation = 0 });
+		_context.CharacteristicValues.Add(new CharacteristicValue { Id = nextId++, Definition = noseDef, Name = "dainty nose", Value = "dainty-nosed", AdditionalValue = "a small, delicate, and finely shaped nose", Pluralisation = 0 });
+		_context.CharacteristicValues.Add(new CharacteristicValue { Id = nextId++, Definition = noseDef, Name = "flared nose", Value = "flared-nosed", AdditionalValue = "a nose with prominently flared nostrils", Pluralisation = 0 });
+		_context.CharacteristicValues.Add(new CharacteristicValue { Id = nextId++, Definition = noseDef, Name = "recessed nose", Value = "recessed-nosed", AdditionalValue = "a nose that appears slightly set back into the face", Pluralisation = 0 });
+		_context.CharacteristicValues.Add(new CharacteristicValue { Id = nextId++, Definition = noseDef, Name = "chiseled nose", Value = "chiseled-nosed", AdditionalValue = "a nose with sharp and well-defined features", Pluralisation = 0 });
+		_context.CharacteristicValues.Add(new CharacteristicValue { Id = nextId++, Definition = noseDef, Name = "asymmetrical nose", Value = "asymmetrical-nosed", AdditionalValue = "a nose that is noticeably uneven or irregular in shape", Pluralisation = 0 });
+		_context.CharacteristicValues.Add(new CharacteristicValue { Id = nextId++, Definition = noseDef, Name = "stubby nose", Value = "stubby-nosed", AdditionalValue = "a short, broad nose with a blunt tip", Pluralisation = 0 });
+		_context.CharacteristicValues.Add(new CharacteristicValue { Id = nextId++, Definition = noseDef, Name = "angular nose", Value = "angular-nosed", AdditionalValue = "a nose with sharp, distinct angles and planes", Pluralisation = 0 });
+		_context.CharacteristicValues.Add(new CharacteristicValue { Id = nextId++, Definition = noseDef, Name = "flattened nose", Value = "flattened-nosed", AdditionalValue = "a nose that appears pressed down with a broad bridge", Pluralisation = 0 });
+		_context.CharacteristicValues.Add(new CharacteristicValue { Id = nextId++, Definition = noseDef, Name = "drooping nose", Value = "drooping-nosed", AdditionalValue = "a nose with a tip that droops downwards noticeably", Pluralisation = 0 });
+		_context.CharacteristicValues.Add(new CharacteristicValue { Id = nextId++, Definition = noseDef, Name = "petite nose", Value = "petite-nosed", AdditionalValue = "a very small and delicate nose, almost doll-like", Pluralisation = 0 });
+		_context.CharacteristicValues.Add(new CharacteristicValue { Id = nextId++, Definition = noseDef, Name = "thick nose", Value = "thick-nosed", AdditionalValue = "a wide, thickly set nose with a strong presence", Pluralisation = 0 });
+		_context.CharacteristicValues.Add(new CharacteristicValue { Id = nextId++, Definition = noseDef, Name = "ridge nose", Value = "ridge-nosed", AdditionalValue = "a nose with a pronounced ridge running down its length", Pluralisation = 0 });
+		_context.CharacteristicValues.Add(new CharacteristicValue { Id = nextId++, Definition = noseDef, Name = "cleft nose", Value = "cleft-nosed", AdditionalValue = "a nose with a distinct groove or indentation down its tip", Pluralisation = 0 });
+		_context.CharacteristicValues.Add(new CharacteristicValue { Id = nextId++, Definition = noseDef, Name = "petite button nose", Value = "petite-button-nosed", AdditionalValue = "a tiny, delicate, and perfectly round button nose", Pluralisation = 0 });
+		_context.CharacteristicValues.Add(new CharacteristicValue { Id = nextId++, Definition = noseDef, Name = "blunt nose", Value = "blunt-nosed", AdditionalValue = "a nose with a flat, wide tip that lacks sharp definition", Pluralisation = 0 });
+		_context.CharacteristicValues.Add(new CharacteristicValue { Id = nextId++, Definition = noseDef, Name = "sunken nose", Value = "sunken-nosed", AdditionalValue = "a nose that appears slightly concave along its bridge", Pluralisation = 0 });
+		_context.CharacteristicValues.Add(new CharacteristicValue { Id = nextId++, Definition = noseDef, Name = "ridge-tipped nose", Value = "ridge-tipped-nosed", AdditionalValue = "a nose with a slight bump or ridge near its tip", Pluralisation = 0 });
+		_context.CharacteristicValues.Add(new CharacteristicValue { Id = nextId++, Definition = noseDef, Name = "uneven nose", Value = "uneven-nosed", AdditionalValue = "a nose with subtle irregularities in its shape or symmetry", Pluralisation = 0 });
+		_context.CharacteristicValues.Add(new CharacteristicValue { Id = nextId++, Definition = noseDef, Name = "tapering nose", Value = "tapering-nosed", AdditionalValue = "a nose that gradually narrows towards its tip", Pluralisation = 0 });
+		_context.CharacteristicValues.Add(new CharacteristicValue { Id = nextId++, Definition = noseDef, Name = "fleshy nose", Value = "fleshy-nosed", AdditionalValue = "a nose with soft, rounded features and a prominent tip", Pluralisation = 0 });
+		_context.CharacteristicValues.Add(new CharacteristicValue { Id = nextId++, Definition = noseDef, Name = "fine-bridged nose", Value = "fine-bridged-nosed", AdditionalValue = "a nose with an especially thin and delicate bridge", Pluralisation = 0 });
+		_context.CharacteristicValues.Add(new CharacteristicValue { Id = nextId++, Definition = noseDef, Name = "pronounced-tip nose", Value = "pronounced-tip-nosed", AdditionalValue = "a nose with a very prominent and distinct tip", Pluralisation = 0 });
+
 		_context.SaveChanges();
 
 		_context.CharacteristicValues.Add(new CharacteristicValue
@@ -3071,7 +3275,7 @@ return @bmi > 24 and @bmi < 35"
 		_context.CharacteristicValues.Add(new CharacteristicValue
 		{
 			Id = nextId++, Definition = earDef, Name = "cauliflower", Value = "cauliflower-eared",
-			AdditionalValue = "permanently swolen and engorged from past trauma", Pluralisation = 0
+			AdditionalValue = "permanently swollen and engorged from past trauma", Pluralisation = 0
 		});
 		_context.CharacteristicValues.Add(new CharacteristicValue
 		{
@@ -3108,6 +3312,27 @@ return @bmi > 24 and @bmi < 35"
 			Id = nextId++, Definition = earDef, Name = "malformed", Value = "malformed-eared",
 			AdditionalValue = "malformed, most likely from a birth or childhood defect", Pluralisation = 0
 		});
+		_context.CharacteristicValues.Add(new CharacteristicValue { Id = nextId++, Definition = earDef, Name = "pointed", Value = "pointed-eared", AdditionalValue = "ending in a sharper, more pronounced point", Pluralisation = 0 });
+		_context.CharacteristicValues.Add(new CharacteristicValue { Id = nextId++, Definition = earDef, Name = "droopy", Value = "droopy-eared", AdditionalValue = "hanging downwards slightly from the base", Pluralisation = 0 });
+		_context.CharacteristicValues.Add(new CharacteristicValue { Id = nextId++, Definition = earDef, Name = "curled", Value = "curled-eared", AdditionalValue = "with the edges of the helix curling inward", Pluralisation = 0 });
+		_context.CharacteristicValues.Add(new CharacteristicValue { Id = nextId++, Definition = earDef, Name = "wide", Value = "wide-eared", AdditionalValue = "unusually wide, spanning a greater area from base to top", Pluralisation = 0 });
+		_context.CharacteristicValues.Add(new CharacteristicValue { Id = nextId++, Definition = earDef, Name = "asymmetrical", Value = "asymmetrical-eared", AdditionalValue = "noticeably mismatched in size or shape", Pluralisation = 0 });
+		_context.CharacteristicValues.Add(new CharacteristicValue { Id = nextId++, Definition = earDef, Name = "flat", Value = "flat-eared", AdditionalValue = "lying unusually close to &his head, with minimal curvature", Pluralisation = 0 });
+		_context.CharacteristicValues.Add(new CharacteristicValue { Id = nextId++, Definition = earDef, Name = "folded", Value = "folded-eared", AdditionalValue = "folded slightly over at the top", Pluralisation = 0 });
+		_context.CharacteristicValues.Add(new CharacteristicValue { Id = nextId++, Definition = earDef, Name = "flared", Value = "flared-eared", AdditionalValue = "flaring outward dramatically from &his head", Pluralisation = 0 });
+		_context.CharacteristicValues.Add(new CharacteristicValue { Id = nextId++, Definition = earDef, Name = "thick-lobed", Value = "thick-lobed", AdditionalValue = "featuring particularly thick and rounded earlobes", Pluralisation = 0 });
+		_context.CharacteristicValues.Add(new CharacteristicValue { Id = nextId++, Definition = earDef, Name = "thin-lobed", Value = "thin-lobed", AdditionalValue = "with delicate, thin earlobes", Pluralisation = 0 });
+		_context.CharacteristicValues.Add(new CharacteristicValue { Id = nextId++, Definition = earDef, Name = "jagged", Value = "jagged-eared", AdditionalValue = "with irregular, jagged edges", Pluralisation = 0 });
+		_context.CharacteristicValues.Add(new CharacteristicValue { Id = nextId++, Definition = earDef, Name = "torn", Value = "torn-eared", AdditionalValue = "showing signs of past damage or tearing", Pluralisation = 0 });
+		_context.CharacteristicValues.Add(new CharacteristicValue { Id = nextId++, Definition = earDef, Name = "clipped", Value = "clipped-eared", AdditionalValue = "appearing as if the tops have been clipped off", Pluralisation = 0 });
+		_context.CharacteristicValues.Add(new CharacteristicValue { Id = nextId++, Definition = earDef, Name = "folded-lobed", Value = "folded-lobed", AdditionalValue = "with the lobes folded up towards the ear", Pluralisation = 0 });
+		_context.CharacteristicValues.Add(new CharacteristicValue { Id = nextId++, Definition = earDef, Name = "shell-shaped", Value = "shell-shaped-eared", AdditionalValue = "resembling the rounded curves of a shell", Pluralisation = 0 });
+		_context.CharacteristicValues.Add(new CharacteristicValue { Id = nextId++, Definition = earDef, Name = "elongated", Value = "elongated-eared", AdditionalValue = "stretched and elongated further than average", Pluralisation = 0 });
+		_context.CharacteristicValues.Add(new CharacteristicValue { Id = nextId++, Definition = earDef, Name = "angled", Value = "angled-eared", AdditionalValue = "with a distinctive angle or tilt outward", Pluralisation = 0 });
+		_context.CharacteristicValues.Add(new CharacteristicValue { Id = nextId++, Definition = earDef, Name = "tapered", Value = "tapered-eared", AdditionalValue = "gradually narrowing towards the tip", Pluralisation = 0 });
+		_context.CharacteristicValues.Add(new CharacteristicValue { Id = nextId++, Definition = earDef, Name = "cupped", Value = "cupped-eared", AdditionalValue = "deeply curved inward, as if to catch sound", Pluralisation = 0 });
+		_context.CharacteristicValues.Add(new CharacteristicValue { Id = nextId++, Definition = earDef, Name = "uneven", Value = "uneven-eared", AdditionalValue = "one ear visibly higher or lower than the other", Pluralisation = 0 });
+
 		_context.SaveChanges();
 
 		#endregion
@@ -3707,6 +3932,142 @@ return @bmi > 24 and @bmi < 35"
 				AdditionalValue =
 					"has countless light, off-colour scars that suggest skin that has been stretched like it were a size too small for &his body",
 				Pluralisation = 1
+			});
+
+			_context.CharacteristicValues.Add(new CharacteristicValue
+			{
+				Id = nextId++,
+				Definition = distinctiveDef,
+				Name = "broad jaw",
+				Value = "broad-jawed",
+				AdditionalValue = "is set with a strong and broad jawline",
+				Pluralisation = 0
+			});
+			_context.CharacteristicValues.Add(new CharacteristicValue
+			{
+				Id = nextId++,
+				Definition = distinctiveDef,
+				Name = "birthmarked",
+				Value = "birthmarked",
+				AdditionalValue = "is distinguished by a striking and obvious birthmark",
+				Pluralisation = 0
+			});
+			_context.CharacteristicValues.Add(new CharacteristicValue
+			{
+				Id = nextId++,
+				Definition = distinctiveDef,
+				Name = "calloused hands",
+				Value = "calloused-handed",
+				AdditionalValue = "has heavily calloused hands, evidence of a lifetime of manual labour",
+				Pluralisation = 1
+			});
+			_context.CharacteristicValues.Add(new CharacteristicValue
+			{
+				Id = nextId++,
+				Definition = distinctiveDef,
+				Name = "dimples",
+				Value = "dimpled",
+				AdditionalValue = "has prominent dimples when &he smiles",
+				Pluralisation = 1
+			});
+			_context.CharacteristicValues.Add(new CharacteristicValue
+			{
+				Id = nextId++,
+				Definition = distinctiveDef,
+				Name = "elegant fingers",
+				Value = "elegant fingered",
+				AdditionalValue = "has long and finely shaped fingers, elegant in appearance",
+				Pluralisation = 1
+			});
+			_context.CharacteristicValues.Add(new CharacteristicValue
+			{
+				Id = nextId++,
+				Definition = distinctiveDef,
+				Name = "light freckles",
+				Value = "lightly-freckled",
+				AdditionalValue = "is adorned with a scattering of light freckles, just enough to cover &his cheeks",
+				Pluralisation = 1
+			});
+			_context.CharacteristicValues.Add(new CharacteristicValue
+			{
+				Id = nextId++,
+				Definition = distinctiveDef,
+				Name = "full lips",
+				Value = "full-lipped",
+				AdditionalValue = "has full and striking lips",
+				Pluralisation = 1
+			});
+			_context.CharacteristicValues.Add(new CharacteristicValue
+			{
+				Id = nextId++,
+				Definition = distinctiveDef,
+				Name = "thin lips",
+				Value = "thin-lipped",
+				AdditionalValue = "has a mouth delicately framed with thin lips",
+				Pluralisation = 1
+			});
+			_context.CharacteristicValues.Add(new CharacteristicValue
+			{
+				Id = nextId++,
+				Definition = distinctiveDef,
+				Name = "gaunt cheeks",
+				Value = "gaunt-cheeked",
+				AdditionalValue = "has cheeks sunken and gaunt, hinting at hardship",
+				Pluralisation = 1
+			});
+			_context.CharacteristicValues.Add(new CharacteristicValue
+			{
+				Id = nextId++,
+				Definition = distinctiveDef,
+				Name = "high cheekbones",
+				Value = "high-cheekboned",
+				AdditionalValue = "is sharply defined by high and prominent cheekbones",
+				Pluralisation = 1
+			});
+			_context.CharacteristicValues.Add(new CharacteristicValue
+			{
+				Id = nextId++,
+				Definition = distinctiveDef,
+				Name = "knobby knuckles",
+				Value = "knobby-knuckled",
+				AdditionalValue = "has hands defined by prominently knobby knuckles",
+				Pluralisation = 1
+			});
+			_context.CharacteristicValues.Add(new CharacteristicValue
+			{
+				Id = nextId++,
+				Definition = distinctiveDef,
+				Name = "square chin",
+				Value = "square-chinned",
+				AdditionalValue = "has an emphatically square chin, prominently jutting out of &his jaw",
+				Pluralisation = 0
+			});
+			_context.CharacteristicValues.Add(new CharacteristicValue
+			{
+				Id = nextId++,
+				Definition = distinctiveDef,
+				Name = "square jaw",
+				Value = "square-jawed",
+				AdditionalValue = "has a square jaw, giving &his face a wide appearance",
+				Pluralisation = 0
+			});
+			_context.CharacteristicValues.Add(new CharacteristicValue
+			{
+				Id = nextId++,
+				Definition = distinctiveDef,
+				Name = "strong hands",
+				Value = "strong-handed",
+				AdditionalValue = "has large and powerful-looking hands, suggesting strength",
+				Pluralisation = 1
+			});
+			_context.CharacteristicValues.Add(new CharacteristicValue
+			{
+				Id = nextId++,
+				Definition = distinctiveDef,
+				Name = "sun weathered",
+				Value = "sun-weathered",
+				AdditionalValue = "has skin toughened and weathered by long days under the sun",
+				Pluralisation = 0
 			});
 		}
 

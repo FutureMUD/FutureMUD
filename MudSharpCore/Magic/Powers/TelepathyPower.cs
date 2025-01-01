@@ -99,7 +99,7 @@ public partial class TelepathyPower : SustainedMagicPower
 
 		BeginVerb = element.Value;
 
-        EndVerb = root.Element("EndVerb")?.Value ?? "cancel";
+		EndVerb = root.Element("EndVerb")?.Value ?? "cancel";
 
 		element = root.Element("SkillCheckDifficulty");
 		if (element == null)
@@ -157,22 +157,22 @@ public partial class TelepathyPower : SustainedMagicPower
 		}
 
 
-        if (EndVerb.StartsWith(verb, StringComparison.InvariantCultureIgnoreCase))
-        {
-            UseCommandEnd(actor, command);
-            return;
-        }
+		if (EndVerb.StartsWith(verb, StringComparison.InvariantCultureIgnoreCase))
+		{
+			UseCommandEnd(actor, command);
+			return;
+		}
 
-        if ((bool?)CanInvokePowerProg?.Execute(actor) == false)
+		if (CanInvokePowerProg?.ExecuteBool(actor) == false)
 		{
 			actor.OutputHandler.Send(WhyCantInvokePowerProg.Execute(actor).ToString());
 			return;
 		}
 
 		if (actor.EffectsOfType<MagicTelepathyEffect>().Any(x => x.TelepathyPower == this))
-        {
-            actor.OutputHandler.Send("You are already sustaining that power.");
-            return;
+		{
+			actor.OutputHandler.Send("You are already sustaining that power.");
+			return;
 		}
 
 		var check = Gameworld.GetCheck(CheckType.MagicTelepathyCheck);
@@ -183,25 +183,25 @@ public partial class TelepathyPower : SustainedMagicPower
 		ConsumePowerCosts(actor, verb);
 	}
 
-    public void UseCommandEnd(ICharacter actor, StringStack command)
-    {
-        if (!actor.AffectedBy<MagicTelepathyEffect>())
-        {
-            actor.OutputHandler.Send("You are not sustaining that power.");
-            return;
-        }
+	public void UseCommandEnd(ICharacter actor, StringStack command)
+	{
+		if (!actor.AffectedBy<MagicTelepathyEffect>())
+		{
+			actor.OutputHandler.Send("You are not sustaining that power.");
+			return;
+		}
 
-        actor.RemoveAllEffects(x => x.GetSubtype<MagicTelepathyEffect>()?.TelepathyPower == this, true);
-        actor.OutputHandler.Send(new EmoteOutput(new Emote(EndEmoteText, actor, actor)));
-    }
+		actor.RemoveAllEffects(x => x.GetSubtype<MagicTelepathyEffect>()?.TelepathyPower == this, true);
+		actor.OutputHandler.Send(new EmoteOutput(new Emote(EndEmoteText, actor, actor)));
+	}
 
 	#region Overrides of SustainedMagicPower
 
 	protected override void ExpireSustainedEffect(ICharacter actor)
 	{
 		actor.RemoveAllEffects(x => x.GetSubtype<MagicTelepathyEffect>()?.TelepathyPower == this, true);
-        actor.OutputHandler.Send(new EmoteOutput(new Emote(EndEmoteText, actor, actor)));
-    }
+		actor.OutputHandler.Send(new EmoteOutput(new Emote(EndEmoteText, actor, actor)));
+	}
 
 	#endregion
 
@@ -213,9 +213,9 @@ public partial class TelepathyPower : SustainedMagicPower
 	public IFutureProg ShowThinkerDescription { get; protected set; }
 	public MagicPowerDistance PowerDistance { get; protected set; }
 	public string BeginVerb { get; protected set; }
-    public string EndVerb { get; protected set; }
+	public string EndVerb { get; protected set; }
 
-    public Difficulty SkillCheckDifficulty { get; protected set; }
+	public Difficulty SkillCheckDifficulty { get; protected set; }
 	public ITraitDefinition SkillCheckTrait { get; protected set; }
 	public Outcome MinimumSuccessThreshold { get; protected set; }
 
@@ -225,8 +225,8 @@ public partial class TelepathyPower : SustainedMagicPower
 	protected override void ShowSubtype(ICharacter actor, StringBuilder sb)
 	{
 		sb.AppendLine($"Begin Verb: {BeginVerb.ColourCommand()}");
-        sb.AppendLine($"End Verb: {EndVerb.ColourCommand()}");
-        sb.AppendLine($"Skill Check Trait: {SkillCheckTrait.Name.ColourValue()}");
+		sb.AppendLine($"End Verb: {EndVerb.ColourCommand()}");
+		sb.AppendLine($"Skill Check Trait: {SkillCheckTrait.Name.ColourValue()}");
 		sb.AppendLine($"Skill Check Difficulty: {SkillCheckDifficulty.DescribeColoured()}");
 		sb.AppendLine($"Minimum Success Threshold: {MinimumSuccessThreshold.DescribeColour()}");
 		sb.AppendLine($"Show Thinker Desc Prog: {ShowThinkerDescription.MXPClickableFunctionName()}");
@@ -249,11 +249,11 @@ public partial class TelepathyPower : SustainedMagicPower
 	#3difficulty <difficulty>#0 - sets the difficulty of the skill check
 	#3threshold <outcome>#0 - sets the minimum outcome for skill success
 	#3distance <distance>#0 - sets the distance that this power works at
-    #3thinks#0 - toggles seeing thinks
-    #3feels#0 - toggles seeing feels
-    #3thinkemote#0 - toggles seeing the emote of the thinks
-    #3beginemote <emote>#0 - sets the echo sent to the user when they start the power
-    #3endemote <emote>#0 - sets the echo sent to the user when they end the power
+	#3thinks#0 - toggles seeing thinks
+	#3feels#0 - toggles seeing feels
+	#3thinkemote#0 - toggles seeing the emote of the thinks
+	#3beginemote <emote>#0 - sets the echo sent to the user when they start the power
+	#3endemote <emote>#0 - sets the echo sent to the user when they end the power
 
 #6Note: for all echoes/emotes above $0 refers to the caster.#0";
 
@@ -283,116 +283,116 @@ public partial class TelepathyPower : SustainedMagicPower
 				return BuildingCommandDistance(actor, command);
 			case "showthinks":
 			case "thinks":
-                return BuildingCommandShowThinks(actor);
+				return BuildingCommandShowThinks(actor);
 			case "showfeels":
 			case "feels":
-                return BuildingCommandShowFeels(actor);
+				return BuildingCommandShowFeels(actor);
 			case "showthinkemote":
 			case "thinkemote":
-                return BuildingCommandThinkEmote(actor);
+				return BuildingCommandThinkEmote(actor);
 			case "showthinker":
-                return BuildingCommandShowThinker(actor, command);
+				return BuildingCommandShowThinker(actor, command);
 			case "beginemote":
-                return BuildingCommandBeginEmote(actor, command);
+				return BuildingCommandBeginEmote(actor, command);
 			case "endemote":
-                return BuildingCommandEndEmote(actor, command);
+				return BuildingCommandEndEmote(actor, command);
 		}
 		return base.BuildingCommand(actor, command.GetUndo());
 	}
 
 
 
-    #region Building Subcommands
-    private bool BuildingCommandEndEmote(ICharacter actor, StringStack command)
-    {
-        if (command.IsFinished)
-        {
-            actor.OutputHandler.Send("What do you want to set the end power emote to?");
-            return false;
-        }
+	#region Building Subcommands
+	private bool BuildingCommandEndEmote(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("What do you want to set the end power emote to?");
+			return false;
+		}
 
-        var emote = new Emote(command.SafeRemainingArgument, new DummyPerceiver(), new DummyPerceivable());
-        if (!emote.Valid)
-        {
-            actor.OutputHandler.Send(emote.ErrorMessage);
-            return false;
-        }
+		var emote = new Emote(command.SafeRemainingArgument, new DummyPerceiver(), new DummyPerceivable());
+		if (!emote.Valid)
+		{
+			actor.OutputHandler.Send(emote.ErrorMessage);
+			return false;
+		}
 
-        EndEmoteText = command.SafeRemainingArgument;
-        Changed = true;
-        actor.OutputHandler.Send($"The end power emote for this power is now {command.SafeRemainingArgument.ColourCommand()}.");
-        return true;
-    }
+		EndEmoteText = command.SafeRemainingArgument;
+		Changed = true;
+		actor.OutputHandler.Send($"The end power emote for this power is now {command.SafeRemainingArgument.ColourCommand()}.");
+		return true;
+	}
 
-    private bool BuildingCommandBeginEmote(ICharacter actor, StringStack command)
-    {
-        if (command.IsFinished)
-        {
-            actor.OutputHandler.Send("What do you want to set the begin power emote to?");
-            return false;
-        }
+	private bool BuildingCommandBeginEmote(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("What do you want to set the begin power emote to?");
+			return false;
+		}
 
-        var emote = new Emote(command.SafeRemainingArgument, new DummyPerceiver(), new DummyPerceivable());
-        if (!emote.Valid)
-        {
-            actor.OutputHandler.Send(emote.ErrorMessage);
-            return false;
-        }
+		var emote = new Emote(command.SafeRemainingArgument, new DummyPerceiver(), new DummyPerceivable());
+		if (!emote.Valid)
+		{
+			actor.OutputHandler.Send(emote.ErrorMessage);
+			return false;
+		}
 
-        BeginEmoteText = command.SafeRemainingArgument;
-        Changed = true;
-        actor.OutputHandler.Send($"The begin power emote for this power is now {command.SafeRemainingArgument.ColourCommand()}.");
-        return true;
-    }
+		BeginEmoteText = command.SafeRemainingArgument;
+		Changed = true;
+		actor.OutputHandler.Send($"The begin power emote for this power is now {command.SafeRemainingArgument.ColourCommand()}.");
+		return true;
+	}
 
-    private bool BuildingCommandShowThinker(ICharacter actor, StringStack command)
-    {
-        if (command.IsFinished)
-        {
-            actor.OutputHandler.Send("Which prog do you want to use to control whether the thinker's identity is known?");
-            return false;
-        }
+	private bool BuildingCommandShowThinker(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("Which prog do you want to use to control whether the thinker's identity is known?");
+			return false;
+		}
 
-        var prog = new ProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument, ProgVariableTypes.Boolean, [
-            [ProgVariableTypes.Character],
-            [ProgVariableTypes.Character, ProgVariableTypes.Character]
-        ]).LookupProg();
-        if (prog is null)
-        {
-            return false;
-        }
+		var prog = new ProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument, ProgVariableTypes.Boolean, [
+			[ProgVariableTypes.Character],
+			[ProgVariableTypes.Character, ProgVariableTypes.Character]
+		]).LookupProg();
+		if (prog is null)
+		{
+			return false;
+		}
 
-        ShowThinkerDescription = prog;
-        Changed = true;
-        actor.OutputHandler.Send($"This power will now use the {prog.MXPClickableFunctionName()} prog to determine whether the user knows the identity of the thinker.");
-        return true;
-    }
+		ShowThinkerDescription = prog;
+		Changed = true;
+		actor.OutputHandler.Send($"This power will now use the {prog.MXPClickableFunctionName()} prog to determine whether the user knows the identity of the thinker.");
+		return true;
+	}
 
-    private bool BuildingCommandShowThinks(ICharacter actor)
-    {
-        ShowThinks = !ShowThinks;
-        Changed = true;
-        actor.OutputHandler.Send($"This power will {ShowThinks.NowNoLonger()} show output from the think command.");
-        return true;
-    }
+	private bool BuildingCommandShowThinks(ICharacter actor)
+	{
+		ShowThinks = !ShowThinks;
+		Changed = true;
+		actor.OutputHandler.Send($"This power will {ShowThinks.NowNoLonger()} show output from the think command.");
+		return true;
+	}
 
-    private bool BuildingCommandShowFeels(ICharacter actor)
-    {
-        ShowFeels = !ShowFeels;
-        Changed = true;
-        actor.OutputHandler.Send($"This power will {ShowFeels.NowNoLonger()} show output from the feel command.");
-        return true;
-    }
+	private bool BuildingCommandShowFeels(ICharacter actor)
+	{
+		ShowFeels = !ShowFeels;
+		Changed = true;
+		actor.OutputHandler.Send($"This power will {ShowFeels.NowNoLonger()} show output from the feel command.");
+		return true;
+	}
 
-    private bool BuildingCommandThinkEmote(ICharacter actor)
-    {
-        ShowThinkEmote = !ShowThinkEmote;
-        Changed = true;
-        actor.OutputHandler.Send($"This power will {ShowThinkEmote.NowNoLonger()} show the emote associated with a think or feel.");
-        return true;
-    }
+	private bool BuildingCommandThinkEmote(ICharacter actor)
+	{
+		ShowThinkEmote = !ShowThinkEmote;
+		Changed = true;
+		actor.OutputHandler.Send($"This power will {ShowThinkEmote.NowNoLonger()} show the emote associated with a think or feel.");
+		return true;
+	}
 
-    private bool BuildingCommandDistance(ICharacter actor, StringStack command)
+	private bool BuildingCommandDistance(ICharacter actor, StringStack command)
 	{
 		if (command.IsFinished)
 		{

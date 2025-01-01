@@ -166,7 +166,7 @@ public class ComplexLivingHealthStrategy : BaseHealthStrategy
 			throw new ApplicationException("Invalid damage/pain/stun in SufferDamage.");
 		}
 #endif
-
+		var chOwner = (ICharacter)owner;
 		IGameItem lodgedItem = null;
 		LodgeDamageExpression.Parameters["damage"] = damage.DamageAmount;
 		LodgeDamageExpression.Parameters["type"] = (int)damage.DamageType;
@@ -202,7 +202,7 @@ public class ComplexLivingHealthStrategy : BaseHealthStrategy
 			if (ordinaryDamageAmount > 0)
 			{
 				damage = new Damage(damage) { DamageAmount = ordinaryDamageAmount };
-				wounds.Add(new SimpleOrganicWound(owner.Gameworld, owner, damage.DamageAmount, damage.PainAmount,
+				wounds.Add(new SimpleOrganicWound(owner.Gameworld, chOwner, damage.DamageAmount, damage.PainAmount,
 					damage.StunAmount, damage.DamageType, damage.Bodypart, lodgedItem, damage.ToolOrigin,
 					damage.ActorOrigin));
 			}
@@ -212,7 +212,7 @@ public class ComplexLivingHealthStrategy : BaseHealthStrategy
 
 		return new[]
 		{
-			new SimpleOrganicWound(owner.Gameworld, owner, damage.DamageAmount, damage.PainAmount,
+			new SimpleOrganicWound(owner.Gameworld, chOwner, damage.DamageAmount, damage.PainAmount,
 				damage.StunAmount, damage.DamageType, damage.Bodypart, lodgedItem, damage.ToolOrigin,
 				damage.ActorOrigin)
 		};

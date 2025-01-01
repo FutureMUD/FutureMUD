@@ -7,7 +7,7 @@
         Paste = 4,
         Grease = 5,
         Flesh = 6,
-        Muscle = 7,
+        Muscle = 7, 
         Bone = 8,
         Shell = 9,
         Mana = 10,
@@ -34,6 +34,10 @@
         Cream = 31,
         Elastomer = 32,
         Gas = 33,
-        Liquid = 34
+        Liquid = 34,
+        Scale = 35,
+        Horn = 36,
+        Claw = 37,
+        Beak = 38
     }
 }

@@ -27,8 +27,10 @@ namespace MudSharp.Work.Crafts
 		Outcome FailThreshold { get; }
 		ITraitDefinition CheckTrait { get; }
 		Difficulty CheckDifficulty { get; }
+		int FreeSkillChecks { get; }
 		bool IsPracticalCheck { get; }
 		IEnumerable<string> PhaseEchoes { get; }
+		IEnumerable<string> FailPhaseEchoes { get; }
 		IEnumerable<TimeSpan> PhaseLengths { get; }
 		ITraitExpression QualityFormula { get; }
 		IFutureProg AppearInCraftsListProg { get; }
@@ -52,5 +54,7 @@ namespace MudSharp.Work.Crafts
 		void CalculateCraftIsValid();
 		ICraft Clone(IAccount originator, string newName);
 		bool CraftIsValid { get; }
+		int FailPhase { get; }
+		bool Interruptable { get; }
 	}
 }

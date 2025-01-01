@@ -193,12 +193,12 @@ public class WearableGameItemComponent : GameItemComponent, IWearable
 
 	public bool CanWear(IBody wearer)
 	{
-		return (bool?)_prototype.WearableProg?.Execute(wearer?.Actor, Parent) ?? true;
+		return _prototype.WearableProg?.ExecuteBool(wearer?.Actor, Parent) ?? true;
 	}
 
 	public WhyCannotDrapeReason WhyCannotWear(IBody wearer)
 	{
-		if (!(bool?)_prototype.WearableProg?.Execute(wearer?.Actor) ?? false)
+		if (_prototype.WearableProg?.ExecuteBool(wearer?.Actor) == false)
 		{
 			return WhyCannotDrapeReason.ProgFailed;
 		}

@@ -67,6 +67,9 @@ internal class AttachFunction : BuiltInFunction
 			case IBeltCanAttachBeltableResult.FailureTooLarge:
 				Result = new BooleanVariable(false);
 				return StatementResult.Normal;
+			case IBeltCanAttachBeltableResult.NotValidType:
+				Result = new BooleanVariable(false);
+				return StatementResult.Normal;
 		}
 
 		var holdable = attachableItem.GetItemType<IHoldable>();

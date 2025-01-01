@@ -232,7 +232,7 @@ public partial class Character : PerceiverItem, ICharacter
 		foreach (var merit in comboMerits)
 		foreach (var included in merit.CharacterMerits.Where(x => x.MeritScope == MeritScope.Character))
 		{
-			_merits.Add(merit);
+			_merits.Add(included);
 		}
 
 		foreach (var knowledge in template.SelectedKnowledges)
@@ -2646,6 +2646,22 @@ public partial class Character : PerceiverItem, ICharacter
 
 	public IEthnicity Ethnicity => Body.Ethnicity;
 
+	public IEnumerable<INameCulture> NameCultures
+	{
+		get
+		{
+			foreach (var gender in Enum.GetValues<Gender>())
+			{
+				yield return Ethnicity.NameCultureForGender(gender) ?? Culture.NameCultureForGender(gender) ??  Gameworld.NameCultures.First();
+			}
+		}
+	}
+
+	public INameCulture NameCultureForGender(Gender gender)
+	{
+		return Ethnicity.NameCultureForGender(gender) ?? Culture.NameCultureForGender(gender) ?? Gameworld.NameCultures.First();
+	}
+
 	#endregion
 
 	#region IHaveABody Members
@@ -3234,7 +3250,7 @@ public partial class Character : PerceiverItem, ICharacter
 	public IEnumerable<IGrowableCharacteristicValue> PossibleStyles(ICharacteristicDefinition definition)
 	{
 		var selectables = Gameworld.CharacteristicValues.OfType<IGrowableCharacteristicValue>().Where(x =>
-			x.Definition == definition && ((bool?)x.ChargenApplicabilityProg?.Execute(this) ?? true));
+			x.Definition == definition && (x.ChargenApplicabilityProg?.ExecuteBool(this) ?? true));
 		if (!(Body.GetCharacteristic(definition, null) is IGrowableCharacteristicValue current))
 		{
 			return Enumerable.Empty<IGrowableCharacteristicValue>();

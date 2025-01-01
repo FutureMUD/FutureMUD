@@ -49,6 +49,7 @@ public class SimpleVariableProduct : SimpleProduct
 		return new XElement("Definition",
 			new XElement("ProductProducedId", ProductProducedId),
 			new XElement("Quantity", Quantity),
+			new XElement("Skin", Skin?.Id ?? 0),
 			from item in Characteristics
 			select new XElement("Variable", new XAttribute("inputindex", item.InputIndex), item.Definition.Id)
 		).ToString();

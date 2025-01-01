@@ -1561,7 +1561,7 @@ public partial class Race : SaveableItem, IRace
 	{
 		return _costs.Where(x => x.RequirementOnly)
 		             .All(x => template.Account.AccountResources[x.Resource] >= x.Amount) &&
-		       ((bool?)AvailabilityProg?.Execute(template) ?? true);
+		       (AvailabilityProg?.ExecuteBool(template) ?? true);
 	}
 
 	public ICorpseModel CorpseModel { get; set; }

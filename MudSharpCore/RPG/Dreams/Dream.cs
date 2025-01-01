@@ -168,7 +168,7 @@ public class Dream : SaveableItem, IDream
 	public bool CanDream(ICharacter character)
 	{
 		return (!_onceOnly || !_haveDreamedBefore.Contains(character.Id)) &&
-		       (_characters.Contains(character.Id) || ((bool?)CanDreamProg?.Execute(character) ?? true));
+			   (_characters.Contains(character.Id) || (CanDreamProg?.ExecuteBool(character) ?? true));
 	}
 
 	public void FinishDream(ICharacter character)
@@ -275,12 +275,12 @@ public class Dream : SaveableItem, IDream
 			default:
 				actor.OutputHandler.Send(@"You can use the following options with the stage command:
 
-    add - drops you into an editor to add a new stage
-    remove <#> - removes a stage
-    swap <#1> <#2> - swaps the order of two stages
-    command <#> <command> - sets a command to have the dreamer execute at that stage
-    delay <#> <seconds> - sets the delay between this stage and the next stage
-    text <#> - drops you into an editor to edit a stage");
+	add - drops you into an editor to add a new stage
+	remove <#> - removes a stage
+	swap <#1> <#2> - swaps the order of two stages
+	command <#> <command> - sets a command to have the dreamer execute at that stage
+	delay <#> <seconds> - sets the delay between this stage and the next stage
+	text <#> - drops you into an editor to edit a stage");
 				return false;
 		}
 
@@ -344,12 +344,12 @@ public class Dream : SaveableItem, IDream
 	private bool BuildingCommandText(ICharacter actor, int value)
 	{
 		var existingOptions = _dreamStages
-		                      .Select(x => x.DreamerText)
-		                      .SelectMany(x => Dreaming.DreamRegex.Matches(x))
-		                      .Where(x => x.Groups["linked"].Length > 0)
-		                      .Select(x => (LinkNum: int.Parse(x.Groups["linknum"].Value),
-			                      Options: x.Groups["options"].Value.Split("|").Length))
-		                      .ToList();
+							  .Select(x => x.DreamerText)
+							  .SelectMany(x => Dreaming.DreamRegex.Matches(x))
+							  .Where(x => x.Groups["linked"].Length > 0)
+							  .Select(x => (LinkNum: int.Parse(x.Groups["linknum"].Value),
+								  Options: x.Groups["options"].Value.Split("|").Length))
+							  .ToList();
 		var sb = new StringBuilder();
 		sb.AppendLine("Please enter the text that will be sent to the dreamer in the editor below.");
 		sb.AppendLine();
@@ -461,12 +461,12 @@ public class Dream : SaveableItem, IDream
 	private bool BuildingCommandStageNew(ICharacter actor, StringStack command)
 	{
 		var existingOptions = _dreamStages
-		                      .Select(x => x.DreamerText)
-		                      .SelectMany(x => Dreaming.DreamRegex.Matches(x))
-		                      .Where(x => x.Groups["linked"].Length > 0)
-		                      .Select(x => (LinkNum: int.Parse(x.Groups["linknum"].Value),
-			                      Options: x.Groups["options"].Value.Split("|").Length))
-		                      .ToList();
+							  .Select(x => x.DreamerText)
+							  .SelectMany(x => Dreaming.DreamRegex.Matches(x))
+							  .Where(x => x.Groups["linked"].Length > 0)
+							  .Select(x => (LinkNum: int.Parse(x.Groups["linknum"].Value),
+								  Options: x.Groups["options"].Value.Split("|").Length))
+							  .ToList();
 		var sb = new StringBuilder();
 		sb.AppendLine("Please enter the text that will be sent to the dreamer in the editor below.");
 		sb.AppendLine(
@@ -535,8 +535,8 @@ public class Dream : SaveableItem, IDream
 		}
 
 		if (!prog.MatchesParameters(new List<ProgVariableTypes> { ProgVariableTypes.Character }) &&
-		    !prog.MatchesParameters(new List<ProgVariableTypes>
-			    { ProgVariableTypes.Character, ProgVariableTypes.Number }))
+			!prog.MatchesParameters(new List<ProgVariableTypes>
+				{ ProgVariableTypes.Character, ProgVariableTypes.Number }))
 		{
 			actor.OutputHandler.Send(
 				$"You must specify a prog that takes either a single character or a character and a number as a parameter, whereas {prog.MXPClickableFunctionName()} does not.");
@@ -576,8 +576,8 @@ public class Dream : SaveableItem, IDream
 		}
 
 		if (!prog.MatchesParameters(new List<ProgVariableTypes> { ProgVariableTypes.Character }) &&
-		    !prog.MatchesParameters(new List<ProgVariableTypes>
-			    { ProgVariableTypes.Character, ProgVariableTypes.Number }))
+			!prog.MatchesParameters(new List<ProgVariableTypes>
+				{ ProgVariableTypes.Character, ProgVariableTypes.Number }))
 		{
 			actor.OutputHandler.Send(
 				$"You must specify a prog that takes either a single character or a character and a number as a parameter, whereas {prog.MXPClickableFunctionName()} does not.");

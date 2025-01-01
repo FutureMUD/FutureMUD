@@ -96,6 +96,7 @@ public partial class Race
 	#3tracksmell <%>#0 - sets the intensity modifier of olfactory tracks left behind
 	#3trackingvisual <%>#0 - sets the skill modifier for tracking visual tracks
 	#3trackingsmell <%>#0 - sets the skill modifier for tracking olfactory tracks
+	#3hwmodel <gender> <which>#0 - sets the default height/weight model for this race
 
 	#6Eating Properties#0
 
@@ -126,6 +127,8 @@ public partial class Race
 				return BuildingCommandName(actor, command);
 			case "parent":
 				return BuildingCommandParent(actor, command);
+			case "hwmodel":
+				return BuildingCommandHeightWeightModel(actor, command);
 			case "chargen":
 			case "chargenprog":
 			case "available":
@@ -290,6 +293,39 @@ public partial class Race
 				actor.OutputHandler.Send(HelpText.SubstituteANSIColour());
 				return false;
 		}
+	}
+
+	private bool BuildingCommandHeightWeightModel(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("Which gender do you want to set a default height/weight model for?");
+			return false;
+		}
+
+		if (!command.PopSpeech().TryParseEnum<Gender>(out var gender))
+		{
+			actor.OutputHandler.Send($"The text {command.Last.ColourCommand()} is not a valid gender.");
+			return false;
+		}
+
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("Which height weight model should be used as the default for that gender?");
+			return false;
+		}
+
+		var hwmodel = Gameworld.HeightWeightModels.GetByIdOrName(command.SafeRemainingArgument);
+		if (hwmodel is null)
+		{
+			actor.OutputHandler.Send("There is no such height/weight model.");
+			return false;
+		}
+
+		_defaultHeightWeightModels[gender] = hwmodel;
+		Changed = true;
+		actor.OutputHandler.Send($"This race will now use the {hwmodel.Name.ColourName()} height/weight model as the default for the {gender.DescribeEnum().ColourValue()} gender.");
+		return true;
 	}
 
 	private bool BuildingCommandBreathable(ICharacter actor, StringStack command)

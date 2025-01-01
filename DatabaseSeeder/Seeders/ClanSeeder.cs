@@ -2894,7 +2894,7 @@ This package can be run multiple times as I add more options.";
 		{
 			FutureProg = prog,
 			ParameterIndex = 0,
-			ParameterType = 8200,
+			ParameterType = 8,
 			ParameterName = "ch"
 		});
 		context.FutureProgs.Add(prog);

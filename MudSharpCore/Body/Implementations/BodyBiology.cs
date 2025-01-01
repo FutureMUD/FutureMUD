@@ -1415,6 +1415,7 @@ public partial class Body
 			case DamageType.Slashing:
 			case DamageType.Claw:
 			case DamageType.Shrapnel:
+			case DamageType.BallisticArmourPiercing:
 			case DamageType.ArmourPiercing:
 			case DamageType.Bite:
 			case DamageType.Shearing:
@@ -1431,8 +1432,9 @@ public partial class Body
 	{
 		switch (damagetype)
 		{
-			case DamageType.ArmourPiercing:
+			case DamageType.BallisticArmourPiercing:
 			case DamageType.Piercing:
+			case DamageType.ArmourPiercing:
 				return Math.Pow(original, 1.4);
 			case DamageType.Ballistic:
 			case DamageType.Bite:
@@ -1461,6 +1463,7 @@ public partial class Body
 			case DamageType.Falling:
 				return (true, false, true);
 			case DamageType.Ballistic:
+			case DamageType.BallisticArmourPiercing:
 			case DamageType.ArmourPiercing:
 			case DamageType.Piercing:
 			case DamageType.Eldritch:

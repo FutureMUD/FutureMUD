@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using MudSharp.Character.Name;
 using MudSharp.CharacterCreation;
 using MudSharp.CharacterCreation.Resources;
 using MudSharp.Database;
@@ -12,6 +13,7 @@ using MudSharp.Framework.Save;
 using MudSharp.FutureProg;
 using MudSharp.FutureProg.Variables;
 using MudSharp.Health;
+using MudSharp.Models;
 using MudSharp.PerceptionEngine;
 
 namespace MudSharp.Character.Heritage;
@@ -39,6 +41,16 @@ public class Ethnicity : SaveableItem, IEthnicity
 			CharacteristicChoices.Add(definition, profile);
 		}
 
+		foreach (var nc in ethnicity.EthnicitiesNameCultures)
+		{
+			_genderNameCultures[(Gender)nc.Gender] = gameworld.NameCultures.Get(nc.NameCultureId);
+		}
+
+		foreach (var gender in Enum.GetValues<Gender>())
+		{
+			_genderNameCultures.TryAdd(gender, null);
+		}
+
 		// Fix bad building
 		if (ParentRace is not null)
 		{
@@ -50,8 +62,8 @@ public class Ethnicity : SaveableItem, IEthnicity
 				}
 
 				var all = gameworld.CharacteristicProfiles.Where(x => x.IsProfileFor(item))
-				                   .OrderByDescending(x => x.TargetDefinition == item)
-				                   .FirstOrDefault(x => x.Type == "All");
+								   .OrderByDescending(x => x.TargetDefinition == item)
+								   .FirstOrDefault(x => x.Type == "All");
 				if (all is null)
 				{
 					continue;
@@ -103,7 +115,7 @@ public class Ethnicity : SaveableItem, IEthnicity
 			foreach (var characteristic in race.Characteristics(Gender.Indeterminate))
 			{
 				var profiles = Gameworld.CharacteristicProfiles.Where(x => x.TargetDefinition == characteristic)
-				                        .ToList();
+										.ToList();
 				var profile = profiles.FirstOrDefault(x => x.Type == "All") ?? profiles.First();
 				dbitem.EthnicitiesCharacteristics.Add(new Models.EthnicitiesCharacteristics
 				{
@@ -124,6 +136,11 @@ public class Ethnicity : SaveableItem, IEthnicity
 		ChargenBlurb = "An undescribed ethnicity.";
 		TolerableTemperatureCeilingEffect = 0.0;
 		TolerableTemperatureFloorEffect = 0.0;
+
+		foreach (var gender in Enum.GetValues<Gender>())
+		{
+			_genderNameCultures.TryAdd(gender, null);
+		}
 	}
 
 	public Ethnicity(IEthnicity rhs, string newName)
@@ -137,6 +154,13 @@ public class Ethnicity : SaveableItem, IEthnicity
 		EthnicGroup = rhs.EthnicGroup;
 		EthnicSubgroup = rhs.EthnicSubgroup;
 		PopulationBloodModel = rhs.PopulationBloodModel;
+
+		_genderNameCultures[Gender.Male] = rhs.NameCultureForGender(Gender.Male);
+		_genderNameCultures[Gender.Female] = rhs.NameCultureForGender(Gender.Female);
+		_genderNameCultures[Gender.Neuter] = rhs.NameCultureForGender(Gender.Neuter);
+		_genderNameCultures[Gender.NonBinary] = rhs.NameCultureForGender(Gender.NonBinary);
+		_genderNameCultures[Gender.Indeterminate] = rhs.NameCultureForGender(Gender.Indeterminate);
+
 		foreach (var characteristic in rhs.CharacteristicChoices)
 		{
 			CharacteristicChoices[characteristic.Key] = characteristic.Value;
@@ -250,8 +274,8 @@ public class Ethnicity : SaveableItem, IEthnicity
 	public bool ChargenAvailable(ICharacterTemplate template)
 	{
 		return _costs.Where(x => x.RequirementOnly)
-		             .All(x => template.Account.AccountResources[x.Resource] >= x.Amount) &&
-		       ((bool?)AvailabilityProg?.Execute(template) ?? true);
+					 .All(x => template.Account.AccountResources[x.Resource] >= x.Amount) &&
+			   (AvailabilityProg?.ExecuteBool(template) ?? true);
 	}
 
 	private readonly List<ChargenResourceCost> _costs = new();
@@ -270,6 +294,15 @@ public class Ethnicity : SaveableItem, IEthnicity
 
 	public double TolerableTemperatureFloorEffect { get; protected set; }
 	public double TolerableTemperatureCeilingEffect { get; protected set; }
+
+	private Dictionary<Gender, INameCulture> _genderNameCultures = new();
+
+	public INameCulture? NameCultureForGender(Gender gender)
+	{
+		return _genderNameCultures[gender];
+	}
+
+	public IEnumerable<INameCulture> NameCultures => _genderNameCultures.Values.Where(x => x is not null).Distinct();
 
 	#endregion
 
@@ -381,6 +414,22 @@ public class Ethnicity : SaveableItem, IEthnicity
 		dbitem.TolerableTemperatureCeilingEffect = TolerableTemperatureCeilingEffect;
 		dbitem.TolerableTemperatureFloorEffect = TolerableTemperatureFloorEffect;
 
+		FMDB.Context.EthnicitiesNameCultures.RemoveRange(dbitem.EthnicitiesNameCultures);
+		foreach (var nc in _genderNameCultures)
+		{
+			if (nc.Value is null)
+			{
+				continue;
+			}
+
+			dbitem.EthnicitiesNameCultures.Add(new EthnicitiesNameCultures
+			{
+				Ethnicity = dbitem,
+				NameCultureId = nc.Value.Id,
+				Gender = (short)nc.Key
+			});
+		}
+
 		FMDB.Context.EthnicitiesCharacteristics.RemoveRange(dbitem.EthnicitiesCharacteristics);
 		foreach (var characteristic in CharacteristicChoices)
 		{
@@ -419,21 +468,23 @@ public class Ethnicity : SaveableItem, IEthnicity
 
 	private const string HelpText = @"You can use the following options with this command:
 
-    name <name> - renames this ethnicity
-    group <group> - sets an ethnic group
-    group clear - clears an ethnic group
-    subgroup <group> - sets an ethnic subgroup
-    subgroup clear - clears an ethnic subgroup
-    desc - drops you into an editor for the ethnicity description
-    availability <prog> - sets a prog that controls appearance in character creation
-    bloodmodel <model> - sets the population blood model for this ethnicity
-    tempfloor <amount> - sets the tolerable temperature floor modifier
-    tempceiling <amount> - sets the tolerable temperature ceiling modifier
-    characteristic <which> <profile> - sets the characteristic profile for this ethnicity
-    advice <which> - toggles a chargen advice applying to this ethnicity
-    cost <resource> <amount> - sets a cost for character creation
-    require <resource> <amount> - sets a non-cost requirement for character creation
-    cost <resource> clear - clears a resource cost for character creation";
+	#3name <name>#0 - renames this ethnicity
+	#3group <group>#0 - sets an ethnic group
+	#3group clear#0 - clears an ethnic group
+	#3subgroup <group>#0 - sets an ethnic subgroup
+	#3subgroup clear#0 - clears an ethnic subgroup
+	#3desc#0 - drops you into an editor for the ethnicity description
+	#3nameculture <which> [all|male|female|neuter|nb|indeterminate]#0 - changes the name culture used by this ethnicity
+	#3nameculture none [all|male|female|neuter|nb|indeterminate]#0 - resets the name to not override its culture
+	#3availability <prog>#0 - sets a prog that controls appearance in character creation
+	#3bloodmodel <model>#0 - sets the population blood model for this ethnicity
+	#3tempfloor <amount>#0 - sets the tolerable temperature floor modifier
+	#3tempceiling <amount>#0 - sets the tolerable temperature ceiling modifier
+	#3characteristic <which> <profile>#0 - sets the characteristic profile for this ethnicity
+	#3advice <which>#0 - toggles a chargen advice applying to this ethnicity
+	#3cost <resource> <amount>#0 - sets a cost for character creation
+	#3require <resource> <amount>#0 - sets a non-cost requirement for character creation
+	#3cost <resource> clear#0 - clears a resource cost for character creation";
 
 	public bool BuildingCommand(ICharacter actor, StringStack command)
 	{
@@ -473,10 +524,97 @@ public class Ethnicity : SaveableItem, IEthnicity
 			case "description":
 			case "desc":
 				return BuildingCommandDescription(actor, command);
+			case "nameculture":
+			case "name_culture":
+			case "name culture":
+			case "culture":
+			case "nc":
+				return BuildingCommandNameCulture(actor, command);
 		}
 
-		actor.OutputHandler.Send(HelpText);
+		actor.OutputHandler.Send(HelpText.SubstituteANSIColour());
 		return false;
+	}
+
+	private bool BuildingCommandNameCulture(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("Which name culture do you want to set for this ethnicity?");
+			return false;
+		}
+
+		var culture = Gameworld.NameCultures.GetByIdOrName(command.PopSpeech());
+		if (culture == null && !command.Last.EqualTo("none"))
+		{
+			actor.OutputHandler.Send("There is no such name culture.");
+			return false;
+		}
+
+		string genderDescription;
+		switch (command.SafeRemainingArgument.CollapseString().ToLowerInvariant())
+		{
+			case "all":
+			case "":
+				_genderNameCultures[Gender.Male] = culture;
+				_genderNameCultures[Gender.Female] = culture;
+				_genderNameCultures[Gender.Neuter] = culture;
+				_genderNameCultures[Gender.NonBinary] = culture;
+				_genderNameCultures[Gender.Indeterminate] = culture;
+				genderDescription = "all genders";
+				break;
+			case "male":
+			case "men":
+			case "man":
+			case "masculine":
+				_genderNameCultures[Gender.Male] = culture;
+				genderDescription = "males";
+				break;
+			case "female":
+			case "feminine":
+			case "woman":
+			case "women":
+				_genderNameCultures[Gender.Female] = culture;
+				genderDescription = "females";
+				break;
+			case "neuter":
+			case "neutral":
+				_genderNameCultures[Gender.Neuter] = culture;
+				Changed = true;
+				genderDescription = "neuter genders";
+				break;
+			case "nonbinary":
+			case "nb":
+				_genderNameCultures[Gender.NonBinary] = culture;
+				genderDescription = "non-binary";
+				break;
+			case "indeterminate":
+				_genderNameCultures[Gender.Indeterminate] = culture;
+				genderDescription = "indeterminate genders";
+				break;
+			default:
+				actor.OutputHandler.Send($"The valid values are {new List<string>
+				{
+					"male",
+					"female",
+					"non-binary",
+					"neuter",
+					"indeterminate",
+					"all"
+				}.Select(x => x.ColourValue()).ListToString()}.");
+				return false;
+		}
+
+		if (culture is null)
+		{
+			actor.OutputHandler.Send($"This ethnicity will no longer provide an overriding name culture for {genderDescription}.");
+		}
+		else
+		{
+			actor.OutputHandler.Send($"This ethnicity will now use the {culture.Name.ColourName()} name culture for {genderDescription}.");
+		}
+		Changed = true;
+		return true;
 	}
 
 	private bool BuildingCommandDescription(ICharacter actor, StringStack command)
@@ -612,8 +750,8 @@ public class Ethnicity : SaveableItem, IEthnicity
 
 		var name = command.PopSpeech();
 		var choice = CharacteristicChoices.Keys.FirstOrDefault(x => x.Name.EqualTo(name)) ??
-		             CharacteristicChoices.Keys.FirstOrDefault(x =>
-			             x.Name.StartsWith(name, StringComparison.InvariantCultureIgnoreCase));
+					 CharacteristicChoices.Keys.FirstOrDefault(x =>
+						 x.Name.StartsWith(name, StringComparison.InvariantCultureIgnoreCase));
 		if (choice == null)
 		{
 			actor.OutputHandler.Send(
@@ -630,9 +768,9 @@ public class Ethnicity : SaveableItem, IEthnicity
 
 		var profileName = command.SafeRemainingArgument;
 		var profile = Gameworld.CharacteristicProfiles.Where(x => x.TargetDefinition == choice)
-		                       .FirstOrDefault(x => x.Name.EqualTo(profileName)) ??
-		              Gameworld.CharacteristicProfiles.Where(x => x.TargetDefinition == choice).FirstOrDefault(x =>
-			              x.Name.StartsWith(profileName, StringComparison.InvariantCultureIgnoreCase));
+							   .FirstOrDefault(x => x.Name.EqualTo(profileName)) ??
+					  Gameworld.CharacteristicProfiles.Where(x => x.TargetDefinition == choice).FirstOrDefault(x =>
+						  x.Name.StartsWith(profileName, StringComparison.InvariantCultureIgnoreCase));
 		if (profile == null)
 		{
 			actor.OutputHandler.Send(
@@ -652,7 +790,7 @@ public class Ethnicity : SaveableItem, IEthnicity
 		if (command.IsFinished)
 		{
 			var previous = Gameworld.Ethnicities.Where(x => x.ParentRace == ParentRace)
-			                        .SelectNotNull(x => x.EthnicGroup?.ColourValue()).Distinct();
+									.SelectNotNull(x => x.EthnicGroup?.ColourValue()).Distinct();
 			actor.OutputHandler.Send(
 				$"Which ethnic group would you like this ethnicity to belong to?\nThe {ParentRace.Name.ColourName()} race has the following ethnic groups already: {previous.ListToString()}");
 			return false;
@@ -686,8 +824,8 @@ public class Ethnicity : SaveableItem, IEthnicity
 		if (command.IsFinished)
 		{
 			var previous = Gameworld.Ethnicities
-			                        .Where(x => x.ParentRace == ParentRace && x.EthnicGroup.EqualTo(EthnicGroup))
-			                        .SelectNotNull(x => x.EthnicSubgroup?.ColourValue()).Distinct();
+									.Where(x => x.ParentRace == ParentRace && x.EthnicGroup.EqualTo(EthnicGroup))
+									.SelectNotNull(x => x.EthnicSubgroup?.ColourValue()).Distinct();
 			actor.OutputHandler.Send(
 				$"Which ethnic subgroup would you like this ethnicity to belong to?\nThe {ParentRace.Name.ColourName()} race's {EthnicGroup.ColourValue()} ethnic group has the following subgroups already: {previous.ListToString()}");
 			return false;
@@ -879,6 +1017,11 @@ public class Ethnicity : SaveableItem, IEthnicity
 			$"Tolerable Temperature Ceiling: {Gameworld.UnitManager.DescribeBonus(TolerableTemperatureCeilingEffect, Framework.Units.UnitType.TemperatureDelta, actor).ColourValue()}");
 		sb.AppendLine(
 			$"Tolerable Temperature Floor: {Gameworld.UnitManager.DescribeBonus(TolerableTemperatureFloorEffect, Framework.Units.UnitType.TemperatureDelta, actor).ColourValue()}");
+		sb.AppendLine($"Name Culture Male: {NameCultureForGender(Gender.Male)?.Name.ColourValue() ?? "as per culture".ColourName()}");
+		sb.AppendLine($"Name Culture Female: {NameCultureForGender(Gender.Female)?.Name.ColourValue() ?? "as per culture".ColourName()}");
+		sb.AppendLine($"Name Culture Non-Binary: {NameCultureForGender(Gender.NonBinary)?.Name.ColourValue() ?? "as per culture".ColourName()}");
+		sb.AppendLine($"Name Culture Neuter: {NameCultureForGender(Gender.Neuter)?.Name.ColourValue() ?? "as per culture".ColourName()}");
+		sb.AppendLine($"Name Culture Indeterminate: {NameCultureForGender(Gender.Indeterminate)?.Name.ColourValue() ?? "as per culture".ColourName()}");
 		sb.AppendLine();
 		sb.AppendLine("Description:");
 		sb.AppendLine();

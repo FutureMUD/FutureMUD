@@ -84,11 +84,12 @@ public static class WoundExtensions
 	{
 		switch (type)
 		{
-			case DamageType.ArmourPiercing:
+			case DamageType.BallisticArmourPiercing:
 			case DamageType.Ballistic:
 			case DamageType.Chopping:
 			case DamageType.Piercing:
 			case DamageType.Slashing:
+			case DamageType.ArmourPiercing:
 				return true;
 			default:
 				return false;
@@ -217,6 +218,8 @@ public static class WoundExtensions
 				return "Crushing";
 			case DamageType.Piercing:
 				return "Piercing";
+			case DamageType.ArmourPiercing:
+				return "Armour Piercing";
 			case DamageType.Ballistic:
 				return "Ballistic";
 			case DamageType.Burning:
@@ -239,8 +242,8 @@ public static class WoundExtensions
 				return "Cellular";
 			case DamageType.Sonic:
 				return "Sonic";
-			case DamageType.ArmourPiercing:
-				return "Armour Piercing";
+			case DamageType.BallisticArmourPiercing:
+				return "Ballistic Armour Piercing";
 			case DamageType.Shearing:
 				return "Shearing";
 			case DamageType.Wrenching:
@@ -313,12 +316,20 @@ public static class WoundExtensions
 			case "shearing":
 				damageType = DamageType.Shearing;
 				return true;
+			
 			case "armourpiercing":
 			case "ap":
 			case "armorpiercing":
 			case "armour piercing":
 			case "armor piercing":
 				damageType = DamageType.ArmourPiercing;
+				return true;
+			case "balliasticarmourpiercing":
+			case "bap":
+			case "balliasticarmorpiercing":
+			case "balliasticarmour piercing":
+			case "balliasticarmor piercing":
+				damageType = DamageType.BallisticArmourPiercing;
 				return true;
 			case "wrenching":
 			case "wrench":

@@ -312,7 +312,7 @@ public class ConnectMindPower : SustainedMagicPower
 			var potentialTargets = actor.EffectsOfType<MindConnectedToEffect>().Where(x =>
 				actor.EffectsOfType<ConnectMindEffect>().All(y => y.TargetCharacter != x.CharacterOwner)).ToList();
 			var eligable = potentialTargets
-						   .Where(x => (bool?)CanInvokePowerProg?.Execute(actor, x.OriginatorCharacter) != false &&
+						   .Where(x => CanInvokePowerProg?.ExecuteBool(actor, x.OriginatorCharacter) != false &&
 									   TargetIsInRange(actor, x.OriginatorCharacter, PowerDistance)).ToList();
 			if (eligable.Any())
 			{
@@ -378,7 +378,7 @@ public class ConnectMindPower : SustainedMagicPower
 			return;
 		}
 
-		if ((bool?)CanInvokePowerProg.Execute(actor, target) == false)
+		if (CanInvokePowerProg.ExecuteBool(actor, target))
 		{
 			actor.OutputHandler.Send(string.Format(
 				WhyCantInvokePowerProg.Execute(actor, target)?.ToString() ??
@@ -553,7 +553,7 @@ public class ConnectMindPower : SustainedMagicPower
 
 	public string GetAppropriateConnectEmote(ICharacter connecter, ICharacter connectee)
 	{
-		if ((bool?)TargetCanSeeIdentityProg.Execute(connecter, connectee) == true)
+		if (TargetCanSeeIdentityProg.ExecuteBool(connecter, connectee))
 		{
 			return string.Format(EmoteForConnect, "$0");
 		}
@@ -568,7 +568,7 @@ public class ConnectMindPower : SustainedMagicPower
 			return null;
 		}
 
-		if ((bool?)TargetCanSeeIdentityProg.Execute(connecter, connectee) == true)
+		if (TargetCanSeeIdentityProg.ExecuteBool(connecter, connectee))
 		{
 			return string.Format(EmoteForDisconnect, "$0");
 		}
@@ -578,7 +578,7 @@ public class ConnectMindPower : SustainedMagicPower
 
 	public string GetAppropriateHowSeen(ICharacter connecter, ICharacter connectee)
 	{
-		if ((bool?)TargetCanSeeIdentityProg.Execute(connecter, connectee) == true)
+		if (TargetCanSeeIdentityProg.ExecuteBool(connecter, connectee))
 		{
 			return connecter.HowSeen(connectee, flags: PerceiveIgnoreFlags.IgnoreConsciousness);
 		}

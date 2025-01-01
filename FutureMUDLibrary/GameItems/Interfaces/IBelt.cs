@@ -4,7 +4,8 @@ namespace MudSharp.GameItems.Interfaces {
     public enum IBeltCanAttachBeltableResult {
         Success,
         FailureTooLarge,
-        FailureExceedMaximumNumber
+        FailureExceedMaximumNumber,
+        NotValidType
     }
 
     public interface IBelt : IGameItemComponent {

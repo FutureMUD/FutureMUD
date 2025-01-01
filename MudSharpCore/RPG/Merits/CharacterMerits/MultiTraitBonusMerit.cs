@@ -81,7 +81,7 @@ public class MultiTraitBonusMerit : CharacterMeritBase, ITraitBonusMerit
 
 	}
 
-	protected MultiTraitBonusMerit(IFuturemud gameworld, string name) : base(gameworld, name, "", "@ have|has bonuses to multiple traits")
+	protected MultiTraitBonusMerit(IFuturemud gameworld, string name) : base(gameworld, name, "Multi Trait Bonus", "@ have|has bonuses to multiple traits")
 	{
 		DoDatabaseInsert();
 	}

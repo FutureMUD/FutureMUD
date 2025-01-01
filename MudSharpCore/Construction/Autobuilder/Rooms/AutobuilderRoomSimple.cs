@@ -95,10 +95,10 @@ public class AutobuilderRoomSimple : AutobuilderRoomBase
 		CellDescription = root.Element("RoomDescription")?.Value ?? "An undescribed room";
 		OutdoorsType =
 			(CellOutdoorsType)int.Parse(root.Element("OutdoorsType")?.Value ??
-			                            ((int)CellOutdoorsType.Outdoors).ToString());
+										((int)CellOutdoorsType.Outdoors).ToString());
 		AmbientLightFactor = double.Parse(root.Element("CellLightMultiplier")?.Value ?? "1.0");
 		DefaultTerrain = Gameworld.Terrains.Get(long.Parse(root.Element("DefaultTerrain")?.Value ?? "0")) ??
-		                 Gameworld.Terrains.FirstOrDefault(x => x.DefaultTerrain);
+						 Gameworld.Terrains.FirstOrDefault(x => x.DefaultTerrain);
 		ForagableProfile =
 			Gameworld.ForagableProfiles.Get(long.Parse(root.Element("ForagableProfile")?.Value ?? "0"));
 		ShowCommandByline = root.Element("ShowCommandByline")?.Value ?? "A simple room without a byline.";
@@ -140,13 +140,13 @@ public class AutobuilderRoomSimple : AutobuilderRoomBase
 		return cell;
 	}
 
-	protected override string SubtypeHelpText => @" roomname <name> - the name of the generated room
-    description - edits the description of the generated room
-    light <percentage> - sets a light multiplier for the generated room
-    defaultterrain <terrain> - sets the terrain used if none is supplied
-    fp <which> - sets the foragable profile
-    fp none - removes a foragable profile
-    outdoors|cave|indoors|shelter - sets the outdoor behaviour type";
+	protected override string SubtypeHelpText => @" #3roomname <name>#0 - the name of the generated room
+	#3description#0 - edits the description of the generated room
+	#3light <percentage>#0 - sets a light multiplier for the generated room
+	#3defaultterrain <terrain>#0 - sets the terrain used if none is supplied
+	#3fp <which>#0 - sets the foragable profile
+	#3fp none#0 - removes a foragable profile
+	#3outdoors|cave|indoors|shelter#0 - sets the outdoor behaviour type";
 
 	public override string Show(ICharacter builder)
 	{

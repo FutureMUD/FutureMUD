@@ -637,7 +637,7 @@ public class DoorguardAI : ArtificialIntelligenceBase
 			return false;
 		}
 
-		if ((bool?)WillOpenDoorForProg.Execute(doorguard, mover, exit) ?? false)
+		if (WillOpenDoorForProg?.ExecuteBool(doorguard, mover, exit) ?? false)
 		{
 			// TODO - can open might need to be more AI-based than capability based
 			if (RespectGameRulesForOpeningDoors && !exit.Exit.Door.IsOpen && !exit.Exit.Door.CanOpen(doorguard.Body))
@@ -682,7 +682,7 @@ public class DoorguardAI : ArtificialIntelligenceBase
 			return false;
 		}
 
-		if (!((bool?)WillOpenDoorForProg.Execute(doorguard, socialite, socialDirection) ?? false))
+		if (!(WillOpenDoorForProg?.ExecuteBool(doorguard, socialite, socialDirection) ?? false))
 		{
 			if (WontOpenDoorForActionProg != null)
 			{
@@ -699,7 +699,7 @@ public class DoorguardAI : ArtificialIntelligenceBase
 			foreach (var direction in doorguard.Location.ExitsFor(doorguard))
 			{
 				if (direction.Exit.Door?.IsOpen == false &&
-				    ((bool?)WillOpenDoorForProg.Execute(doorguard, socialite, direction) ?? false))
+				    (WillOpenDoorForProg?.ExecuteBool(doorguard, socialite, direction) ?? false))
 				{
 					exit = direction;
 					break;
@@ -822,7 +822,7 @@ public class DoorguardAI : ArtificialIntelligenceBase
 			return false;
 		}
 
-		if (!((bool?)WillOpenDoorForProg?.Execute(doorguard, knocker, exit) ?? false))
+		if (!(WillOpenDoorForProg?.ExecuteBool(doorguard, knocker, exit) ?? false))
 		{
 			if (WontOpenDoorForActionProg != null)
 			{

@@ -2773,8 +2773,8 @@ public class ShowModule : Module<ICharacter>
 					else
 					{
 						var nameCulture =
-							actor.Gameworld.Cultures.Get(long.Parse(definition.Element("SelectedCulture").Value))
-							     .NameCultureForGender(gender);
+							actor.Gameworld.Ethnicities.Get(long.Parse(definition.Element("SelectedEthnicity")?.Value ?? "0"))?.NameCultureForGender(gender) ??
+							actor.Gameworld.Cultures.Get(long.Parse(definition.Element("SelectedCulture").Value)).NameCultureForGender(gender);
 						var name = new PersonalName(nameCulture, nameElement.Element("Name"));
 						sb.AppendLine(
 							$"\t{name.GetName(NameStyle.FullWithNickname)} - {(item.Status == 0 ? "In Creation" : "Awaiting Approval").Colour(Telnet.Magenta)}");
@@ -2880,22 +2880,50 @@ public class ShowModule : Module<ICharacter>
 			return;
 		}
 
+		var terrains = actor.Gameworld.Terrains.ToList();
+		while (!input.IsFinished)
+		{
+			var cmd = input.PopSpeech();
+			if (cmd.Length < 2)
+			{
+				actor.OutputHandler.Send($"The text {cmd.ColourCommand()} is not a valid terrain filter.");
+				return;
+			}
+
+			var cmd1 = cmd.Substring(1);
+			switch (cmd[0])
+			{
+				case '+':
+					terrains = terrains.Where(x => x.Name.Contains(cmd1, StringComparison.InvariantCultureIgnoreCase)).ToList();
+					continue;
+				case '-':
+					terrains = terrains.Where(x => !x.Name.Contains(cmd1, StringComparison.InvariantCultureIgnoreCase)).ToList();
+					continue;
+				case '*':
+					terrains = terrains.Where(x => x.TerrainBehaviourString.Contains(cmd1, StringComparison.InvariantCultureIgnoreCase)).ToList();
+					continue;
+			}
+
+			actor.OutputHandler.Send($"The text {cmd.ColourCommand()} is not a valid terrain filter.");
+			return;
+		}
+
 		actor.Send(
 			StringUtilities.GetTextTable(
-				from terrain in actor.Gameworld.Terrains
+				from terrain in terrains
 				orderby terrain.Name
 				select new[]
 				{
 					terrain.Id.ToString("N0", actor),
 					terrain.Name.TitleCase(),
-					terrain.FrameworkItemType,
-					terrain.MovementRate.ToString("N2", actor),
+					terrain.MovementRate.ToStringP2Colour(actor),
+					terrain.StaminaCost.ToStringN2Colour(actor),
 					terrain.HideDifficulty.Describe(),
 					terrain.SpotDifficulty.Describe(),
 					terrain.TerrainBehaviourString,
 					terrain.DefaultTerrain ? "Yes" : "No"
 				},
-				new[] { "ID", "Name", "Mode", "Move Rate", "Hide Diff", "Spot Diff", "Model", "Default" },
+				new[] { "ID", "Name", "Move Rate", "Stamina", "Hide Diff", "Spot Diff", "Model", "Default" },
 				actor.Account.LineFormatLength,
 				colour: Telnet.Green, unicodeTable: actor.Account.UseUnicode
 			)

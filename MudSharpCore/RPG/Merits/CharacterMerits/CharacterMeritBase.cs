@@ -144,7 +144,7 @@ public abstract class CharacterMeritBase : MeritBase, ICharacterMerit
 
 	protected virtual bool Applies(ICharacter character)
 	{
-		return (bool?)ApplicabilityProg?.Execute(character) ?? true;
+		return ApplicabilityProg?.ExecuteBool(character) ?? true;
 	}
 
 	#region ICharacterMerit Members
@@ -154,7 +154,7 @@ public abstract class CharacterMeritBase : MeritBase, ICharacterMerit
 		return
 			_costs.Where(x => x.RequirementOnly)
 			      .All(x => chargen.Account.AccountResources[x.Resource] >= x.Amount) &&
-			((bool?)ChargenAvailableProg?.Execute(chargen) ?? true);
+			(ChargenAvailableProg?.ExecuteBool(chargen) ?? true);
 	}
 
 	public string ChargenBlurb { get; protected set; }

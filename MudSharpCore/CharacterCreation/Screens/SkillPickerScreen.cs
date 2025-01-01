@@ -99,7 +99,7 @@ public class SkillPickerScreenStoryboard : ChargenScreenStoryboard
 				.Wrap(voyeur.InnerLineFormatLength).ColourCommand());
 		sb.AppendLine();
 		sb.AppendLine($"Free Skills Prog: {FreeSkillsProg?.MXPClickableFunctionName() ?? "None".ColourError()}");
-		sb.AppendLine($"# Picks Prog: {FreeSkillsProg?.MXPClickableFunctionName() ?? "None".ColourError()}");
+		sb.AppendLine($"# Picks Prog: {NumberOfSkillPicksProg?.MXPClickableFunctionName() ?? "None".ColourError()}");
 		sb.AppendLine();
 		sb.AppendLine("Skill Blurb".GetLineWithTitle(voyeur, Telnet.Cyan, Telnet.BoldWhite));
 		sb.AppendLine();

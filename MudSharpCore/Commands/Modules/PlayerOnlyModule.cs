@@ -437,19 +437,26 @@ The syntax for this command is as follows:
 		actor.Send(sb.ToString());
 	}
 
+	const string AliasHelpText = @"The #3alias#0 command is used to create an alternative alias that you can go by, which you can subsequently use in other sorts of commands that require you to use a name.
+
+The syntax is as follows:
+
+	#3alias add <name>#0 - creates a new alias
+	#3alias add culture <name>#0 - creates a new cultural alias (if you have an ethnic naming culture)
+	#3alias select <name>#0 - start going by one of your aliases
+	#3alias clear#0 - stop going by your alias and go by your real name instead
+	#3alias remove <name>#0 - removes one of your aliases
+
+See also the #3names#0 command and the #3introduce#0 command.";
+
 	[PlayerCommand("Alias", "alias")]
 	[CommandPermission(PermissionLevel.NPC)]
 	[RequiredCharacterState(CharacterState.Conscious)]
 	[CustomModuleName("Game")]
+	[HelpInfo("alias", AliasHelpText, AutoHelp.HelpArgOrNoArg)]
 	protected static void Alias(ICharacter actor, string command)
 	{
 		var ss = new StringStack(command.RemoveFirstWord());
-		if (ss.IsFinished)
-		{
-			actor.OutputHandler.Send("You can either add, remove, clear or select aliases. Which do you want to do?");
-			return;
-		}
-
 		switch (ss.Pop().ToLowerInvariant())
 		{
 			case "add":
@@ -468,8 +475,7 @@ The syntax for this command is as follows:
 				Names(actor, "names");
 				break;
 			default:
-				actor.OutputHandler.Send(
-					"You can either add, remove, clear or select aliases. Which do you want to do?");
+				actor.OutputHandler.Send(AliasHelpText.SubstituteANSIColour());
 				return;
 		}
 	}
@@ -477,6 +483,7 @@ The syntax for this command is as follows:
 	[PlayerCommand("Names", "names")]
 	[RequiredCharacterState(CharacterState.Conscious)]
 	[CustomModuleName("Game")]
+	[HelpInfo("names", @"The #3names#0 command is used to view your real name and any aliases. See also the #3alias#0 command and the #3introduce#0 command.", AutoHelp.HelpArg)]
 	protected static void Names(ICharacter actor, string command)
 	{
 		var ss = new StringStack(command.RemoveFirstWord());
@@ -484,18 +491,18 @@ The syntax for this command is as follows:
 		if (!actor.IsAdministrator() || ss.IsFinished)
 		{
 			sb.Append(
-				$"Your name is {actor.PersonalName.GetName(NameStyle.FullName).Colour(Telnet.Green)}{(!actor.PersonalName.GetName(NameStyle.SimpleFull).Equals(actor.PersonalName.GetName(NameStyle.FullWithNickname), StringComparison.InvariantCultureIgnoreCase) ? ", a.k.a. " + actor.PersonalName.GetName(NameStyle.FullWithNickname).Colour(Telnet.Green) : "")}. ");
+				$"Your name is {actor.PersonalName.GetName(NameStyle.FullName).Colour(Telnet.Cyan)}{(!actor.PersonalName.GetName(NameStyle.SimpleFull).Equals(actor.PersonalName.GetName(NameStyle.FullWithNickname), StringComparison.InvariantCultureIgnoreCase) ? ", a.k.a. " + actor.PersonalName.GetName(NameStyle.FullWithNickname).Colour(Telnet.Cyan) : "")}. ");
 			if (!actor.Aliases.Any())
 			{
 				sb.AppendLine("You do not have any aliases.");
 			}
 			else
 			{
-				sb.AppendLine("You have the following aliases:");
+				sb.AppendLine("You have the following aliases:\n");
 				foreach (var item in actor.Aliases)
 				{
 					sb.AppendLine(
-						$"\t{item.GetName(NameStyle.FullName).Colour(Telnet.Green)}{(!item.GetName(NameStyle.SimpleFull).Equals(item.GetName(NameStyle.FullWithNickname), StringComparison.InvariantCultureIgnoreCase) ? ", a.k.a. " + item.GetName(NameStyle.FullWithNickname).Colour(Telnet.Green) : "")}");
+						$"\t{item.GetName(NameStyle.FullName).Colour(Telnet.Cyan)}{(!item.GetName(NameStyle.SimpleFull).Equals(item.GetName(NameStyle.FullWithNickname), StringComparison.InvariantCultureIgnoreCase) ? ", a.k.a. " + item.GetName(NameStyle.FullWithNickname).Colour(Telnet.Cyan) : "")}");
 				}
 			}
 		}
@@ -510,7 +517,7 @@ The syntax for this command is as follows:
 			}
 
 			sb.Append(
-				$"{target.HowSeen(actor, true, DescriptionType.Possessive)} name is {target.PersonalName.GetName(NameStyle.FullName).Colour(Telnet.Green)}{(!target.PersonalName.GetName(NameStyle.SimpleFull).Equals(target.PersonalName.GetName(NameStyle.FullWithNickname), StringComparison.InvariantCultureIgnoreCase) ? ", a.k.a. " + target.PersonalName.GetName(NameStyle.FullWithNickname).Colour(Telnet.Green) : "")}. ");
+				$"{target.HowSeen(actor, true, DescriptionType.Possessive)} name is {target.PersonalName.GetName(NameStyle.FullName).Colour(Telnet.Cyan)}{(!target.PersonalName.GetName(NameStyle.SimpleFull).Equals(target.PersonalName.GetName(NameStyle.FullWithNickname), StringComparison.InvariantCultureIgnoreCase) ? ", a.k.a. " + target.PersonalName.GetName(NameStyle.FullWithNickname).Colour(Telnet.Cyan) : "")}. ");
 			if (!target.Aliases.Any())
 			{
 				sb.AppendLine(
@@ -523,7 +530,7 @@ The syntax for this command is as follows:
 				foreach (var item in target.Aliases)
 				{
 					sb.AppendLine(
-						$"\t{item.GetName(NameStyle.FullName).Colour(Telnet.Green)}{(!item.GetName(NameStyle.SimpleFull).Equals(item.GetName(NameStyle.FullWithNickname), StringComparison.InvariantCultureIgnoreCase) ? ", a.k.a. " + item.GetName(NameStyle.FullWithNickname).Colour(Telnet.Green) : "")}");
+						$"\t{item.GetName(NameStyle.FullName).Colour(Telnet.Cyan)}{(!item.GetName(NameStyle.SimpleFull).Equals(item.GetName(NameStyle.FullWithNickname), StringComparison.InvariantCultureIgnoreCase) ? ", a.k.a. " + item.GetName(NameStyle.FullWithNickname).Colour(Telnet.Cyan) : "")}");
 				}
 			}
 		}
@@ -539,18 +546,11 @@ The syntax for this command is as follows:
 You can introduce yourself or others. To introduce others, you need to have been introduced to them yourself, or have set up a dub for them (see HELP DUB) and added a name for them (see HELP DUBNAME). You will always introduce yourself by your current name (the name which you have NAME SELECT <which>).
 
 The syntax is #3INTRODUCE ME#0 or #3INTRODUCE <person>#0. You can append a bracketed emote to this command.",
-		AutoHelp.HelpArg)]
+		AutoHelp.HelpArgOrNoArg)]
 	[CustomModuleName("Game")]
 	protected static void Introduce(ICharacter actor, string command)
 	{
 		var ss = new StringStack(command.RemoveFirstWord());
-		if (ss.IsFinished)
-		{
-			actor.OutputHandler.Send(
-				$"This command allows you to introduce yourself or another by your current name or the name you know them by. See INTRODUCE HELP for the syntax information. This will automatically update any dubs they have for you to have this name, and if they have no dubs, it will insert one with your given name as the keyword.\nYou would currently be introducing yourself as {actor.CurrentName.GetName(NameStyle.FullName).ColourValue()}.");
-			return;
-		}
-
 		var target = actor.TargetActorOrCorpse(ss.PopSafe());
 		if (target == null)
 		{
@@ -701,7 +701,7 @@ The syntax is #3INTRODUCE ME#0 or #3INTRODUCE <person>#0. You can append a brack
 			StringUtilities.GetTextTable(
 				from social in actor.CommandTree.Commands.Socials
 				where
-					(bool?)social.ApplicabilityProg?.Execute(actor) ?? true
+					social.ApplicabilityProg?.ExecuteBool(actor) ?? true
 				orderby social.Name
 				select new[]
 				{
@@ -730,6 +730,13 @@ The syntax is #3INTRODUCE ME#0 or #3INTRODUCE <person>#0. You can append a brack
 
 	private static void AliasAdd(ICharacter actor, StringStack command)
 	{
+		var overrideEthnicNameCulture = false;
+		if (command.PeekSpeech().EqualTo("culture"))
+		{
+			overrideEthnicNameCulture = true;
+			command.PopSpeech();
+		}
+
 		if (command.IsFinished)
 		{
 			actor.OutputHandler.Send("What other name do you want to go by?");
@@ -739,25 +746,46 @@ The syntax is #3INTRODUCE ME#0 or #3INTRODUCE <person>#0. You can append a brack
 		var limit = Character.Character.MaximumNumberOfAliases(actor);
 		if (limit > 0 && actor.Aliases.Count >= limit)
 		{
-			actor.Send("You cannot add any more aliases, as you may have no more than {0:N0}.", limit);
+			actor.OutputHandler.Send($"You cannot add any more aliases, as you may have no more than {limit.ToStringN0Colour(actor)}.");
 			return;
 		}
 
 		var nameText = command.SafeRemainingArgument.Trim();
-		var newName = actor.Culture.NameCultureForGender(actor.Gender.Enum).GetPersonalName(nameText, true);
+		var nc =
+			overrideEthnicNameCulture ? 
+				actor.Culture.NameCultureForGender(actor.Gender.Enum) : 
+				actor.NameCultureForGender(actor.Gender.Enum);
+
+		if (nc is null)
+		{
+			actor.OutputHandler.Send("You don't have a valid naming culture for that option.");
+			return;
+		}
+
+		var newName = nc.GetPersonalName(nameText, true);
 		if (newName == null)
 		{
-			// TODO - people making aliases in other name cultures
-			actor.OutputHandler.Send("That is not a valid name for your name culture.");
+			var exampleRN = actor.Gameworld.RandomNameProfiles.Where(x => x.Culture == nc && x.IsCompatibleGender(actor.Gender.Enum) && x.IsReady).GetRandomElement();
+			var sb = new StringBuilder();
+			sb.AppendLine($"That is not a valid name for your name culture ({nc.Name.ColourValue()}).");
+			if (exampleRN is not null)
+			{
+				sb.AppendLine($"Some examples of valid names for that culture are as follows:\n");
+				for (var i = 0; i < 4; i++)
+				{
+					sb.AppendLine($"\t{exampleRN.GetRandomPersonalName(true).GetName(NameStyle.FullName).ColourName()}");
+				}
+			}
+			actor.OutputHandler.Send(sb.ToString());
 			return;
 		}
 
 		var newNameText = newName.GetName(NameStyle.FullName);
 		if (
-			actor.PersonalName.GetName(NameStyle.FullName)
-			     .Equals(newNameText, StringComparison.InvariantCultureIgnoreCase) ||
+			(actor.PersonalName.GetName(NameStyle.FullName)
+			     .Equals(newNameText, StringComparison.InvariantCultureIgnoreCase) && actor.PersonalName.Culture == nc) ||
 			actor.Aliases.Any(
-				x => x.GetName(NameStyle.FullName).Equals(newNameText, StringComparison.InvariantCultureIgnoreCase)))
+				x => x.Culture == nc && x.GetName(NameStyle.FullName).Equals(newNameText, StringComparison.InvariantCultureIgnoreCase)))
 		{
 			actor.OutputHandler.Send("Your alias is too similiar to your real name or one of your existing aliases.");
 			return;
@@ -766,13 +794,33 @@ The syntax is #3INTRODUCE ME#0 or #3INTRODUCE <person>#0. You can append a brack
 		actor.Aliases.Add(newName);
 		actor.NamesChanged = true;
 
-		actor.OutputHandler.Send(
-			$"You will now go by the alias of {newName.GetName(NameStyle.FullName).Colour(Telnet.Green)}{(!newName.GetName(NameStyle.SimpleFull).Equals(newName.GetName(NameStyle.FullWithNickname), StringComparison.InvariantCultureIgnoreCase) ? ", a.k.a. " + newName.GetName(NameStyle.FullWithNickname).Colour(Telnet.Green) : "")}.");
+		actor.OutputHandler.Send($"You will now go by the alias of {newName.GetName(NameStyle.FullName).Colour(Telnet.Green)}{(!newName.GetName(NameStyle.SimpleFull).Equals(newName.GetName(NameStyle.FullWithNickname), StringComparison.InvariantCultureIgnoreCase) ? ", a.k.a. " + newName.GetName(NameStyle.FullWithNickname).Colour(Telnet.Green) : "")}.");
 	}
 
 	private static void AliasRemove(ICharacter actor, StringStack command)
 	{
-		actor.OutputHandler.Send("This command is not yet available for use.");
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("Which alias do you want to remove?");
+			return;
+		}
+
+		var nameText = command.SafeRemainingArgument;
+		var alias = actor.Aliases.FirstOrDefault(x => x.GetName(NameStyle.FullName).EqualTo(nameText));
+		if (alias is null)
+		{
+			actor.OutputHandler.Send($"You don't have any alias like that. See the {"names".MXPSend()} command.");
+			return;
+		}
+
+		actor.Aliases.Remove(alias);
+		if (actor.CurrentName == alias)
+		{
+			actor.CurrentName = actor.PersonalName;
+		}
+
+		actor.NamesChanged = true;
+		actor.OutputHandler.Send($"You will no longer go by the alias {alias.GetName(NameStyle.FullName).ColourName()}.");
 	}
 
 	private static void AliasSelect(ICharacter actor, StringStack command)

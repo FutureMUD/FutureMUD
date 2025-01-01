@@ -44,7 +44,7 @@ public class ValueAddedTax : SalesTaxBase
 	public override bool Applies(IMerchandise merchandise, ICharacter purchaser)
 	{
 		return merchandise.Item.Tags.All(x => !ExemptTags.Contains(x)) &&
-		       (bool?)ApplicabilityProg?.Execute(purchaser, merchandise.Item.Id) != false;
+		       ApplicabilityProg?.ExecuteBool(purchaser, merchandise.Item.Id) != false;
 	}
 
 	public override decimal TaxValue(IMerchandise merchandise, ICharacter purchaser)

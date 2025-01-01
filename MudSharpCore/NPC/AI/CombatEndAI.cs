@@ -80,7 +80,7 @@ public class CombatEndAI : ArtificialIntelligenceBase
 			return;
 		}
 
-		if ((bool?)WillAcceptTargetIncapacitated?.Execute(actor, target) ?? false)
+		if (WillAcceptTargetIncapacitated?.ExecuteBool(actor, target) ?? false)
 		{
 			actor.CombatTarget = actor.Combat.Combatants.Where(x => x.CombatTarget == actor)
 			                          .Except(target)
@@ -100,7 +100,7 @@ public class CombatEndAI : ArtificialIntelligenceBase
 	private void HandleTruceOffered(ICharacter actor, ICharacter target)
 	{
 		OnOfferedTruce?.Execute(actor, target);
-		if ((bool?)WillAcceptTruce?.Execute(actor, target) ?? false)
+		if (WillAcceptTruce?.ExecuteBool(actor, target) ?? false)
 		{
 			actor.Combat.TruceRequested(actor);
 		}

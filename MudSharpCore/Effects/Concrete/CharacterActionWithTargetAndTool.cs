@@ -15,7 +15,7 @@ namespace MudSharp.Effects.Concrete;
 
 public class CharacterActionWithTargetAndTool : CharacterActionWithTarget
 {
-	public CharacterActionWithTargetAndTool(ICharacter owner, ICharacter target,
+	public CharacterActionWithTargetAndTool(ICharacter owner, IPerceivable target,
 		IEnumerable<(IGameItem Item, DesiredItemState State)> additionalInventory) : base(owner, target)
 	{
 		AdditionalInventory = additionalInventory.ToList();

@@ -282,7 +282,7 @@ namespace MudSharp.FutureProg {
         /// <summary>
         /// A Tagged is anything that implements IHaveTags
         /// </summary>
-        Tagged = Location | Item,
+        Tagged = Location | Item | Terrain,
 
         /// <summary>
         /// A Material is any IMaterial, potentially a liquid solid or gas

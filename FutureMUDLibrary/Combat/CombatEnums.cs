@@ -144,7 +144,8 @@ namespace MudSharp.Combat {
         Laser,
         Bow,
         Crossbow,
-        Sling
+        Sling,
+        Musket
     }
 
     public enum MeleeWeaponVerb {

@@ -224,7 +224,7 @@ public class AggressorAI : ArtificialIntelligenceBase
 			return false;
 		}
 
-		if (!((bool?)WillAttackProg.Execute(aggressor, target) ?? false))
+		if (!(WillAttackProg.ExecuteBool(aggressor, target)))
 		{
 			return false;
 		}

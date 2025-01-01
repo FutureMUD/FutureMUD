@@ -158,7 +158,7 @@ public class ButcheryProduct : SaveableItem, IButcheryProduct
 	/// <returns>True if this product applies</returns>
 	public bool CanProduce(ICharacter butcher, IGameItem targetItem)
 	{
-		return (bool?)CanProduceProg?.Execute(butcher, targetItem) ?? true;
+		return CanProduceProg?.ExecuteBool(butcher, targetItem) ?? true;
 	}
 
 	/// <summary>

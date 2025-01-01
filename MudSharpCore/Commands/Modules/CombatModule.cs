@@ -2065,6 +2065,15 @@ The syntax is simply #3defend#0 to toggle the setting on or off.", AutoHelp.Help
 	[PlayerCommand("Load", "load")]
 	[RequiredCharacterState(CharacterState.Able)]
 	[DelayBlock("general", "You must first stop {0} before you can do that.")]
+	[HelpInfo("load", @"The #3load#0 command is used to load a ranged weapon.
+
+Some weapons may have multiple loading steps, whereas others may only have a single step.
+
+The syntax is as follows:
+
+	#3load#0 - loads your first available ranged weapon
+	#3load <item>#0 - loads a specific ranged weapon
+	#3load <item> blank|noclean|tap|noclean#0 - special loading modes for some types of weapons", AutoHelp.HelpArg)]
 	protected static void Load(ICharacter actor, string command)
 	{
 		var ss = new StringStack(command.RemoveFirstWord());
@@ -2090,15 +2099,35 @@ The syntax is simply #3defend#0 to toggle the setting on or off.", AutoHelp.Help
 			return;
 		}
 
-		if (!targetWeapon.CanLoad(actor))
+		var mode = LoadMode.Normal;
+		if (!ss.IsFinished)
 		{
-			actor.Send(targetWeapon.WhyCannotLoad(actor));
+			switch (ss.SafeRemainingArgument)
+			{
+				case "blank":
+					mode = LoadMode.Blank;
+					break;
+				case "noclean":
+					mode = LoadMode.NoClean;
+					break;
+				case "tap":
+					mode = LoadMode.Tap;
+					break;
+				case "tapnoclean":
+					mode = LoadMode.TapNoClean;
+					break;
+			}
+		}
+
+		if (!targetWeapon.CanLoad(actor, false, mode))
+		{
+			actor.Send(targetWeapon.WhyCannotLoad(actor, false, mode));
 			return;
 		}
 
 		if (actor.Combat != null)
 		{
-			if (actor.TakeOrQueueCombatAction(SelectedCombatAction.GetEffectLoadItem(actor, targetWeapon)) &&
+			if (actor.TakeOrQueueCombatAction(SelectedCombatAction.GetEffectLoadItem(actor, targetWeapon, mode)) &&
 				actor.Gameworld.GetStaticBool("EchoQueuedActions"))
 			{
 				actor.Send($"{"[Queued Action]: ".ColourBold(Telnet.Yellow)}Loading {target.HowSeen(actor)}.");
@@ -2107,7 +2136,7 @@ The syntax is simply #3defend#0 to toggle the setting on or off.", AutoHelp.Help
 			return;
 		}
 
-		targetWeapon.Load(actor);
+		targetWeapon.Load(actor, false, mode);
 	}
 
 	[PlayerCommand("Unload", "unload")]
@@ -2847,7 +2876,7 @@ The syntax for this command is as follows:
 		return argument.Equals("mine", StringComparison.InvariantCultureIgnoreCase)
 			? actor.Gameworld.CharacterCombatSettings.Where(x => x.CharacterOwnerId == actor.Id).ToList()
 			: actor.Gameworld.CharacterCombatSettings.Where(
-				x => ((bool?)x.AvailabilityProg?.Execute(actor) ?? true) &&
+				x => (x.AvailabilityProg?.ExecuteBool(actor) ?? true) &&
 					 (x.GlobalTemplate || x.CharacterOwnerId == actor.Id)
 			).ToList();
 	}
@@ -2892,7 +2921,7 @@ The syntax for this command is as follows:
 			}
 
 			if (!actor.IsAdministrator(PermissionLevel.Admin) && setting.CharacterOwnerId != actor.Id &&
-				(!setting.GlobalTemplate || ((bool?)setting.AvailabilityProg?.Execute(actor) ?? true)))
+				(!setting.GlobalTemplate || (setting.AvailabilityProg?.ExecuteBool(actor) ?? true)))
 			{
 				actor.Send("You do not have permission to view that combat setting.");
 				return;

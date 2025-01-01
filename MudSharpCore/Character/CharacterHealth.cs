@@ -48,7 +48,7 @@ public partial class Character
 		if (deathBoard != null)
 		{
 			var deathProg = Gameworld.FutureProgs.Get(Gameworld.GetStaticLong("PostToDeathsProg"));
-			if ((bool?)deathProg?.Execute(this) != false)
+			if (deathProg?.ExecuteBool(this) != false)
 			{
 				var calendar = Location.Calendars.First();
 				var clock = Location.Clocks.First();

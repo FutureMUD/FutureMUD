@@ -125,7 +125,7 @@ public class MagicTelepathyEffect : ConcentrationConsumingEffect, IMagicEffect, 
 
 	public bool ShowDescription(ICharacter thinker)
 	{
-		return (bool?)TelepathyPower.ShowThinkerDescription.Execute(CharacterOwner, thinker) ?? false;
+		return TelepathyPower.ShowThinkerDescription.ExecuteBool(CharacterOwner, thinker);
 	}
 
 	public bool ShowName(ICharacter thinker)

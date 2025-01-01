@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Xml.Linq;
+using MoreLinq;
 using MudSharp.Models;
 using MudSharp.Accounts;
 using MudSharp.Body;
@@ -127,7 +128,7 @@ public class VariableNPCTemplate : NPCTemplateBase
 		{
 			_nameProfiles.Add(Gendering.Get(sub.Attribute("Gender").Value).Enum,
 				Gameworld.NameCultures.Get(long.Parse(sub.Attribute("Culture").Value))
-				         .RandomNameProfiles.First(x => x.Id == int.Parse(sub.Attribute("Profile").Value)));
+				         .RandomNameProfiles.FirstOrDefault(x => x.Id == int.Parse(sub.Attribute("Profile").Value)));
 		}
 
 		element = root.Element("Race");
@@ -750,10 +751,8 @@ public class VariableNPCTemplate : NPCTemplateBase
 		}
 
 		var profileText = command.PopSpeech();
-		var profile = long.TryParse(profileText, out var value)
-			? _culture.NameCultures.SelectMany(x => x.RandomNameProfiles).Distinct().FirstOrDefault(x => x.Id == value)
-			: _culture.NameCultures.SelectMany(x => x.RandomNameProfiles).Distinct().FirstOrDefault(
-				x => x.Name.StartsWith(command.Last, StringComparison.InvariantCultureIgnoreCase));
+		var ncs = (_ethnicity?.NameCultures.FallbackIfEmpty(_culture.NameCultures) ?? _culture.NameCultures).SelectMany(x => x.RandomNameProfiles).Distinct();
+		var profile = ncs.GetByIdOrName(profileText);
 		if (profile == null)
 		{
 			actor.OutputHandler.Send("There is no such Random Name Profile.");
@@ -771,10 +770,11 @@ public class VariableNPCTemplate : NPCTemplateBase
 			}
 		}
 
-		if (_culture.NameCultureForGender(gender) != profile.Culture)
+		var nc = _ethnicity?.NameCultureForGender(gender) ?? _culture.NameCultureForGender(gender);
+		if (nc != profile.Culture)
 		{
 			actor.OutputHandler.Send(
-				$"The Name Profile {profile.Name.ColourName()} is designed for the Name Culture {profile.Culture.Name.ColourName()}, whereas it needs to match {_culture.NameCultureForGender(gender).Name.ColourName()}.");
+				$"The Name Profile {profile.Name.ColourName()} is designed for the Name Culture {profile.Culture.Name.ColourName()}, whereas it needs to match {nc.Name.ColourName()}.");
 			return false;
 		}
 
@@ -880,6 +880,14 @@ public class VariableNPCTemplate : NPCTemplateBase
 		_nameProfiles.Clear();
 		foreach (var gender in _genderChances)
 		{
+			var nc = 
+				_ethnicity?.NameCultureForGender(gender.Value) ??
+				_culture.NameCultureForGender(gender.Value);
+			if (_nameProfiles.ContainsKey(gender.Value) && nc == _nameProfiles[gender.Value].Culture)
+			{
+				continue;
+			}
+
 			var profile =
 				_culture.NameCultureForGender(gender.Value).RandomNameProfiles
 				        .Where(x => x.IsReady && x.IsCompatibleGender(gender.Value)).GetRandomElement();

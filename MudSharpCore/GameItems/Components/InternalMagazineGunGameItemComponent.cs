@@ -155,7 +155,7 @@ public class InternalMagazineGunGameItemComponent : GameItemComponent, IRangedWe
 	WeaponClassification IRangedWeapon.Classification => _prototype.RangedWeaponType.Classification;
 	WeaponClassification IMeleeWeapon.Classification => _prototype.MeleeWeaponType.Classification;
 
-	public bool CanLoad(ICharacter loader, bool ignoreEmpty = false)
+	public bool CanLoad(ICharacter loader, bool ignoreEmpty = false, LoadMode mode = LoadMode.Normal)
 	{
 		if (_roundsInMagazine.Sum(x => x.Quantity) >= _prototype.InternalMagazineCapacity)
 		{
@@ -173,7 +173,7 @@ public class InternalMagazineGunGameItemComponent : GameItemComponent, IRangedWe
 		return true;
 	}
 
-	public string WhyCannotLoad(ICharacter loader, bool ignoreEmpty = false)
+	public string WhyCannotLoad(ICharacter loader, bool ignoreEmpty = false, LoadMode mode = LoadMode.Normal)
 	{
 		if (_roundsInMagazine.Sum(x => x.Quantity) >= _prototype.InternalMagazineCapacity)
 		{
@@ -247,7 +247,7 @@ public class InternalMagazineGunGameItemComponent : GameItemComponent, IRangedWe
 		Changed = true;
 	}
 
-	public void Load(ICharacter loader, bool ignoreEmpty = false)
+	public void Load(ICharacter loader, bool ignoreEmpty = false, LoadMode mode = LoadMode.Normal)
 	{
 		if (!CanLoad(loader))
 		{

@@ -979,6 +979,8 @@ Please choose either #6simple#0 or #6complex#0: ", (context, answers) => true,
 				case CheckType.MeleeWeaponCheck:
 				case CheckType.ThrownWeaponCheck:
 				case CheckType.AimRangedWeapon:
+				case CheckType.LoadMusket:
+				case CheckType.UnjamGun:
 				case CheckType.FireBow:
 				case CheckType.FireCrossbow:
 				case CheckType.FireFirearm:

@@ -965,7 +965,7 @@ public class Craft : Framework.Revision.EditableItem, ICraft
 			return (false, "You must first stop moving before you can perform any crafts.");
 		}
 
-		if ((bool?)CanUseProg?.Execute(character) == false)
+		if (CanUseProg?.ExecuteBool(character) == false)
 		{
 			return (false, WhyCannotUseProg?.Execute(character).ToString() ?? "You cannot use that craft right now.");
 		}
@@ -1043,7 +1043,7 @@ public class Craft : Framework.Revision.EditableItem, ICraft
 	{
 		return Status == RevisionStatus.Current &&
 		       _craftIsValid &&
-		       (actor.IsAdministrator() || (bool?)AppearInCraftsListProg?.Execute(actor) == true)
+		       (actor.IsAdministrator() || AppearInCraftsListProg?.ExecuteBool(actor) == true)
 			;
 	}
 

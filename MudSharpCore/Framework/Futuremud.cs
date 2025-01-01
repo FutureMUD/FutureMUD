@@ -1404,6 +1404,11 @@ public sealed partial class Futuremud : IFuturemud, IDisposable
 		_colours.Add(colour);
 	}
 
+	public void Add(IDrug drug)
+	{
+		_drugs.Add(drug);
+	}
+
 	#endregion Special Add Methods
 
 	#region Special Find

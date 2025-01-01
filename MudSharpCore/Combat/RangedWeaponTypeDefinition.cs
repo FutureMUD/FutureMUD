@@ -98,6 +98,15 @@ public class RangedWeaponTypeDefinition : SaveableItem, IRangedWeaponType
 				DamageBonusExpression = new TraitExpression("quality - (8.0*range) + ((str:1-10)*1.5)", Gameworld);
 				AccuracyBonusExpression = new TraitExpression("(-6 * range) + (pow(1 - aim, 2) * -15)", Gameworld);
 				break;
+			case RangedWeaponType.Musket:
+				DefaultRangeInRooms = 4;
+				StaminaPerLoadStage = 5.0;
+				StaminaToFire = 1.0;
+				SpecificAmmunitionGrade = "80 Gauge Musket";
+				AmmunitionLoadType = AmmunitionLoadType.Magazine;
+				DamageBonusExpression = new TraitExpression("2*quality - (4.0*range)", Gameworld);
+				AccuracyBonusExpression = new TraitExpression("9 + (-4.5 * range) + (pow(1 - aim, 2) * -15)", Gameworld);
+				break;
 			case RangedWeaponType.Firearm:
 				DefaultRangeInRooms = 4;
 				StaminaPerLoadStage = 2.0;
@@ -265,6 +274,7 @@ public class RangedWeaponTypeDefinition : SaveableItem, IRangedWeaponType
 				case RangedWeaponType.Firearm:
 				case RangedWeaponType.Laser:
 				case RangedWeaponType.ModernFirearm:
+				case RangedWeaponType.Musket:
 					return CheckType.FireFirearm;
 				case RangedWeaponType.Sling:
 					return CheckType.FireSling;

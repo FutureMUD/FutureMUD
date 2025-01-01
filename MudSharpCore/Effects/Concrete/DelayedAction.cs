@@ -26,7 +26,7 @@ public class DelayedAction : Effect, IActionEffect
 	public override void ExpireEffect()
 	{
 		Owner.RemoveEffect(this);
-		if ((bool?)ApplicabilityProg?.Execute(Owner, null, null) ?? true)
+		if (ApplicabilityProg?.ExecuteBool(Owner, null, null) ?? true)
 		{
 			Action(Owner);
 		}

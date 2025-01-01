@@ -524,7 +524,7 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f: ", (context, answers) =
 		return ShouldSeedResult.ReadyToInstall;
 	}
 
-	public int SortOrder => 195;
+	public int SortOrder => 300;
 	public string Name => "Animal Seeder";
 	public string Tagline => "Installs body types for animals";
 
@@ -558,12 +558,12 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
 		_freshWaters.Add(_context.Liquids.First(x => x.Name == "tap water"));
 		_freshWaters.Add(_context.Liquids.First(x => x.Name == "rain water"));
 		_freshWaters.Add(_context.Liquids.First(x => x.Name == "water"));
-		_bloodLiquid = _context.Liquids.FirstOrDefault(x => x.Name == "Blood");
+		_bloodLiquid = _context.Liquids.FirstOrDefault(x => x.Name == "blood");
 		if (_bloodLiquid is null)
 		{
 			var driedBlood = new Material
 			{
-				Name = "Dried Blood",
+				Name = "dried Blood",
 				MaterialDescription = "dried blood",
 				Density = 1520,
 				Organic = true,
@@ -629,12 +629,12 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
 			_bloodLiquid = blood;
 		}
 
-		_sweatLiquid = _context.Liquids.FirstOrDefault(x => x.Name == "Sweat");
+		_sweatLiquid = _context.Liquids.FirstOrDefault(x => x.Name == "sweat");
 		if (_sweatLiquid is null)
 		{
 			var driedSweat = new Material
 			{
-				Name = "Dried Sweat",
+				Name = "dried Sweat",
 				MaterialDescription = "dried sweat",
 				Density = 1520,
 				Organic = true,
@@ -2974,7 +2974,7 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
 
 		var driedBlood = new Material
 		{
-			Name = $"Dried {adjective} Blood",
+			Name = $"dried {adjective.ToLowerInvariant()} blood",
 			MaterialDescription = "dried blood",
 			Density = 1520,
 			Organic = true,
@@ -3045,7 +3045,7 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
 		{
 			var driedSweat = new Material
 			{
-				Name = $"Dried {adjective} Sweat",
+				Name = $"dried {adjective.ToLowerInvariant()} sweat",
 				MaterialDescription = "dried sweat",
 				Density = 1520,
 				Organic = true,
@@ -4303,122 +4303,6 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
 		AddShape("Front Flipper");
 		AddShape("Hind Flipper");
 		AddShape("Blowhole");
-
-		Console.WriteLine($"...[{_stopwatch.Elapsed.TotalSeconds:N1}s] Bodypart Materials...");
-		_context.Materials.Add(new Material
-		{
-			Name = "keratin",
-			MaterialDescription = "keratin",
-			Density = 1200,
-			Organic = true,
-			Type = 0,
-			BehaviourType = (int)MaterialBehaviourType.Bone,
-			ThermalConductivity = 0.14,
-			ElectricalConductivity = 0.0001,
-			SpecificHeatCapacity = 420,
-			IgnitionPoint = 555.3722,
-			HeatDamagePoint = 412.0389,
-			ImpactFracture = 100000,
-			ImpactYield = 100000,
-			ImpactStrainAtYield = 50000,
-			ShearFracture = 250000,
-			ShearYield = 250000,
-			ShearStrainAtYield = 50000,
-			YoungsModulus = 2,
-			Absorbency = 0
-		});
-
-		_context.Materials.Add(new Material
-		{
-			Name = "chitin",
-			MaterialDescription = "chitin",
-			Density = 1200,
-			Organic = true,
-			Type = 0,
-			BehaviourType = (int)MaterialBehaviourType.Bone,
-			ThermalConductivity = 0.14,
-			ElectricalConductivity = 0.0001,
-			SpecificHeatCapacity = 420,
-			IgnitionPoint = 555.3722,
-			HeatDamagePoint = 412.0389,
-			ImpactFracture = 100000,
-			ImpactYield = 100000,
-			ImpactStrainAtYield = 50000,
-			ShearFracture = 250000,
-			ShearYield = 250000,
-			ShearStrainAtYield = 50000,
-			YoungsModulus = 2,
-			Absorbency = 0
-		});
-
-		_context.Materials.Add(new Material
-		{
-			Name = "tooth",
-			MaterialDescription = "tooth",
-			Density = 1000,
-			Organic = true,
-			Type = 0,
-			BehaviourType = (int)MaterialBehaviourType.Tooth,
-			ThermalConductivity = 0.14,
-			ElectricalConductivity = 0.0001,
-			SpecificHeatCapacity = 420,
-			IgnitionPoint = 555.3722,
-			HeatDamagePoint = 412.0389,
-			ImpactFracture = 100000,
-			ImpactYield = 100000,
-			ImpactStrainAtYield = 50000,
-			ShearFracture = 250000,
-			ShearYield = 250000,
-			ShearStrainAtYield = 50000,
-			YoungsModulus = 2,
-			Absorbency = 0
-		});
-
-		_context.Materials.Add(new Material
-		{
-			Name = "antler",
-			MaterialDescription = "antler",
-			Density = 1000,
-			Organic = true,
-			Type = 0,
-			BehaviourType = (int)MaterialBehaviourType.Bone,
-			ThermalConductivity = 0.14,
-			ElectricalConductivity = 0.0001,
-			SpecificHeatCapacity = 420,
-			IgnitionPoint = 555.3722,
-			HeatDamagePoint = 412.0389,
-			ImpactFracture = 100000,
-			ImpactYield = 100000,
-			ImpactStrainAtYield = 50000,
-			ShearFracture = 250000,
-			ShearYield = 250000,
-			ShearStrainAtYield = 50000,
-			YoungsModulus = 2,
-			Absorbency = 0
-		});
-
-		_context.Materials.Add(new Material
-		{
-			Name = "fin",
-			MaterialDescription = "fin",
-			Density = 1000,
-			Organic = true,
-			Type = 0,
-			BehaviourType = (int)MaterialBehaviourType.Flesh,
-			ThermalConductivity = 0.14,
-			ElectricalConductivity = 0.0001,
-			SpecificHeatCapacity = 420,
-			IgnitionPoint = 555.3722,
-			HeatDamagePoint = 412.0389,
-			ImpactFracture = 100000,
-			ImpactYield = 100000,
-			ImpactStrainAtYield = 50000,
-			ShearFracture = 250000,
-			ShearYield = 250000,
-			ShearStrainAtYield = 50000,
-			YoungsModulus = 2,
-			Absorbency = 0
-		});
 
 		_context.SaveChanges();
 

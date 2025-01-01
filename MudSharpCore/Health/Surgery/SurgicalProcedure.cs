@@ -136,7 +136,7 @@ public abstract class SurgicalProcedure : SaveableItem, ISurgicalProcedure
 			return false;
 		}
 
-		if (UsabilityProg != null && !((bool?)UsabilityProg.Execute(surgeon, patient) ?? false))
+		if (UsabilityProg != null && !(UsabilityProg.ExecuteBool(surgeon, patient)))
 		{
 			return false;
 		}
@@ -195,7 +195,7 @@ public abstract class SurgicalProcedure : SaveableItem, ISurgicalProcedure
 			return "You do not have the required knowledges to perform that procedure.";
 		}
 
-		if (UsabilityProg != null && !((bool?)UsabilityProg.Execute(surgeon, patient) ?? false))
+		if (UsabilityProg != null && !(UsabilityProg.ExecuteBool(surgeon, patient)))
 		{
 			return WhyCannotUseProg?.Execute(surgeon, patient)?.ToString() ?? "You cannot perform that procedure";
 		}

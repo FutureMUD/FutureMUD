@@ -6845,6 +6845,25 @@ namespace MudSharp.Migrations
                     b.ToTable("Ethnicities_ChargenResources", (string)null);
                 });
 
+            modelBuilder.Entity("MudSharp.Models.EthnicitiesNameCultures", b =>
+                {
+                    b.Property<long>("EthnicityId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<long>("NameCultureId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<short>("Gender")
+                        .HasColumnType("smallint(6)");
+
+                    b.HasKey("EthnicityId", "NameCultureId", "Gender")
+                        .HasName("PRIMARY");
+
+                    b.HasIndex("NameCultureId");
+
+                    b.ToTable("EthnicitiesNameCultures");
+                });
+
             modelBuilder.Entity("MudSharp.Models.Ethnicity", b =>
                 {
                     b.Property<long>("Id")
@@ -12897,7 +12916,7 @@ namespace MudSharp.Migrations
 
                     b.Property<string>("Name")
                         .HasColumnType("varchar(100)")
-                        .UseCollation("utf8_general_ci");
+                        .UseCollation("utf8_bin");
 
                     MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("Name"), "utf8");
 
@@ -14292,6 +14311,9 @@ namespace MudSharp.Migrations
 
                     b.Property<double>("StaminaCost")
                         .HasColumnType("double");
+
+                    b.Property<string>("TagInformation")
+                        .HasColumnType("longtext");
 
                     b.Property<string>("TerrainANSIColour")
                         .IsRequired()
@@ -18987,6 +19009,27 @@ namespace MudSharp.Migrations
                     b.Navigation("Ethnicity");
                 });
 
+            modelBuilder.Entity("MudSharp.Models.EthnicitiesNameCultures", b =>
+                {
+                    b.HasOne("MudSharp.Models.Ethnicity", "Ethnicity")
+                        .WithMany("EthnicitiesNameCultures")
+                        .HasForeignKey("EthnicityId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_EthnicitiesNameCultures_Ethnicities");
+
+                    b.HasOne("MudSharp.Models.NameCulture", "NameCulture")
+                        .WithMany("EthnicitiesNameCultures")
+                        .HasForeignKey("NameCultureId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_EthnicitiesNameCultures_NameCultures");
+
+                    b.Navigation("Ethnicity");
+
+                    b.Navigation("NameCulture");
+                });
+
             modelBuilder.Entity("MudSharp.Models.Ethnicity", b =>
                 {
                     b.HasOne("MudSharp.Models.FutureProg", "AvailabilityProg")
@@ -23379,6 +23422,8 @@ namespace MudSharp.Migrations
                     b.Navigation("EthnicitiesCharacteristics");
 
                     b.Navigation("EthnicitiesChargenResources");
+
+                    b.Navigation("EthnicitiesNameCultures");
                 });
 
             modelBuilder.Entity("MudSharp.Models.Exit", b =>
@@ -23817,6 +23862,8 @@ namespace MudSharp.Migrations
             modelBuilder.Entity("MudSharp.Models.NameCulture", b =>
                 {
                     b.Navigation("CulturesNameCultures");
+
+                    b.Navigation("EthnicitiesNameCultures");
 
                     b.Navigation("RandomNameProfiles");
                 });

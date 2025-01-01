@@ -182,6 +182,7 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
 			case DamageType.Eldritch:
 			case DamageType.Falling:
 			case DamageType.Arcane:
+			case DamageType.BallisticArmourPiercing:
 			case DamageType.ArmourPiercing:
 				if (superTypes.Contains(type)) return $"-(quality*{power * 2.0})";
 
@@ -189,6 +190,7 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
 
 				if (weakTypes.Contains(type)) return $"-(quality*{power * 0.1})";
 				return $"-(quality*{power * 0.35})";
+
 			case DamageType.Hypoxia:
 			case DamageType.Cellular:
 				return "";
@@ -224,6 +226,7 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
 			case DamageType.Eldritch:
 			case DamageType.Falling:
 			case DamageType.Arcane:
+			case DamageType.BallisticArmourPiercing:
 			case DamageType.ArmourPiercing:
 				if (superTypes.Contains(type)) return $"*({1.0 - power * 0.05}-(quality*{power * 0.05}))";
 
@@ -345,13 +348,14 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
 		<Expression damagetype=""13"">damage</Expression>                    <!-- Cellular -->
 		<Expression damagetype=""14"">damage{ArmourDissipateModifier(DamageType.Sonic, powerDamage, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>   <!-- Sonic -->
 		<Expression damagetype=""15"">damage{ArmourDissipateModifier(DamageType.Shearing, powerDamage, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>   <!-- Shearing --> 
-		<Expression damagetype=""16"">damage{ArmourDissipateModifier(DamageType.ArmourPiercing, powerDamage, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>   <!-- ArmourPiercing -->
+		<Expression damagetype=""16"">damage{ArmourDissipateModifier(DamageType.BallisticArmourPiercing, powerDamage, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>   <!-- BallisticArmourPiercing -->
 		<Expression damagetype=""17"">damage{ArmourDissipateModifier(DamageType.Wrenching, powerDamage, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>   <!-- Wrenching -->
 		<Expression damagetype=""18"">damage{ArmourDissipateModifier(DamageType.Shrapnel, powerDamage, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>   <!-- Shrapnel -->   
 		<Expression damagetype=""19"">damage{ArmourDissipateModifier(DamageType.Necrotic, powerDamage, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>                    <!-- Necrotic -->   
 		<Expression damagetype=""20"">damage{ArmourDissipateModifier(DamageType.Falling, powerDamage, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>   <!-- Falling -->   
 		<Expression damagetype=""21"">damage{ArmourDissipateModifier(DamageType.Eldritch, powerDamage, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>                    <!-- Eldritch -->   
 		<Expression damagetype=""22"">damage{ArmourDissipateModifier(DamageType.Arcane, powerDamage, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>                    <!-- Arcane -->   
+		<Expression damagetype=""23"">damage{ArmourDissipateModifier(DamageType.ArmourPiercing, powerDamage, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>   <!-- ArmourPiercing -->
 	</DissipateExpressions>
 	<DissipateExpressionsPain>
 		<Expression damagetype=""0"">pain{ArmourDissipateModifier(DamageType.Slashing, powerPain, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>    <!-- Slashing -->
@@ -370,13 +374,14 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
 		<Expression damagetype=""13"">pain</Expression>                    <!-- Cellular -->
 		<Expression damagetype=""14"">pain{ArmourDissipateModifier(DamageType.Sonic, powerPain, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>   <!-- Sonic -->
 		<Expression damagetype=""15"">pain{ArmourDissipateModifier(DamageType.Shearing, powerPain, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>   <!-- Shearing --> 
-		<Expression damagetype=""16"">pain{ArmourDissipateModifier(DamageType.ArmourPiercing, powerPain, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>   <!-- ArmourPiercing -->
+		<Expression damagetype=""16"">pain{ArmourDissipateModifier(DamageType.BallisticArmourPiercing, powerPain, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>   <!-- ArmourPiercing -->
 		<Expression damagetype=""17"">pain{ArmourDissipateModifier(DamageType.Wrenching, powerPain, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>   <!-- Wrenching -->
 		<Expression damagetype=""18"">pain{ArmourDissipateModifier(DamageType.Shrapnel, powerPain, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>   <!-- Shrapnel -->   
 		<Expression damagetype=""19"">pain{ArmourDissipateModifier(DamageType.Necrotic, powerPain, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>                    <!-- Necrotic -->   
 		<Expression damagetype=""20"">pain{ArmourDissipateModifier(DamageType.Falling, powerPain, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>   <!-- Falling -->   
 		<Expression damagetype=""21"">pain{ArmourDissipateModifier(DamageType.Eldritch, powerPain, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>                    <!-- Eldritch -->   
 		<Expression damagetype=""22"">pain{ArmourDissipateModifier(DamageType.Arcane, powerPain, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>                    <!-- Arcane -->   
+		<Expression damagetype=""23"">pain{ArmourDissipateModifier(DamageType.ArmourPiercing, powerDamage, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>   <!-- ArmourPiercing -->
 	</DissipateExpressionsPain>  
 	<DissipateExpressionsStun>
 		<Expression damagetype=""0"">stun{ArmourDissipateModifier(DamageType.Slashing, powerStun, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>    <!-- Slashing -->
@@ -395,13 +400,14 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
 		<Expression damagetype=""13"">stun</Expression>                    <!-- Cellular -->
 		<Expression damagetype=""14"">stun{ArmourDissipateModifier(DamageType.Sonic, powerStun, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>   <!-- Sonic -->
 		<Expression damagetype=""15"">stun{ArmourDissipateModifier(DamageType.Shearing, powerStun, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>   <!-- Shearing --> 
-		<Expression damagetype=""16"">stun{ArmourDissipateModifier(DamageType.ArmourPiercing, powerStun, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>   <!-- ArmourPiercing -->
+		<Expression damagetype=""16"">stun{ArmourDissipateModifier(DamageType.BallisticArmourPiercing, powerStun, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>   <!-- ArmourPiercing -->
 		<Expression damagetype=""17"">stun{ArmourDissipateModifier(DamageType.Wrenching, powerStun, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>   <!-- Wrenching -->
 		<Expression damagetype=""18"">stun{ArmourDissipateModifier(DamageType.Shrapnel, powerStun, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>   <!-- Shrapnel -->   
 		<Expression damagetype=""19"">stun{ArmourDissipateModifier(DamageType.Necrotic, powerStun, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>                    <!-- Necrotic -->   
 		<Expression damagetype=""20"">stun{ArmourDissipateModifier(DamageType.Falling, powerStun, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>   <!-- Falling -->   
 		<Expression damagetype=""21"">stun{ArmourDissipateModifier(DamageType.Eldritch, powerStun, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>                    <!-- Eldritch -->   
 		<Expression damagetype=""22"">stun{ArmourDissipateModifier(DamageType.Arcane, powerStun, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>                    <!-- Arcane -->   
+		<Expression damagetype=""23"">stun{ArmourDissipateModifier(DamageType.ArmourPiercing, powerDamage, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>   <!-- ArmourPiercing -->
 	</DissipateExpressionsStun>  
 	<!-- 
 	
@@ -438,13 +444,14 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
 		<Expression damagetype=""13"">0</Expression>        <!-- Cellular -->
 		<Expression damagetype=""14"">damage{ArmourAbsorbModifier(DamageType.Sonic, powerDamage, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>   <!-- Sonic -->
 		<Expression damagetype=""15"">damage{ArmourAbsorbModifier(DamageType.Shearing, powerDamage, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>   <!-- Shearing --> 
-		<Expression damagetype=""16"">damage{ArmourAbsorbModifier(DamageType.ArmourPiercing, powerDamage, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>   <!-- ArmourPiercing -->
+		<Expression damagetype=""16"">damage{ArmourAbsorbModifier(DamageType.BallisticArmourPiercing, powerDamage, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>   <!-- ArmourPiercing -->
 		<Expression damagetype=""17"">damage{ArmourAbsorbModifier(DamageType.Wrenching, powerDamage, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>   <!-- Wrenching -->
 		<Expression damagetype=""18"">damage{ArmourAbsorbModifier(DamageType.Shrapnel, powerDamage, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>   <!-- Shrapnel -->   
 		<Expression damagetype=""19"">damage{ArmourAbsorbModifier(DamageType.Necrotic, powerDamage, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>   <!-- Necrotic -->   
 		<Expression damagetype=""20"">damage{ArmourAbsorbModifier(DamageType.Falling, powerDamage, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>   <!-- Falling -->   
 		<Expression damagetype=""21"">damage{ArmourAbsorbModifier(DamageType.Eldritch, powerDamage, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>   <!-- Eldritch -->   
 		<Expression damagetype=""22"">damage{ArmourAbsorbModifier(DamageType.Arcane, powerDamage, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>   <!-- Arcane -->   
+		<Expression damagetype=""23"">damage{ArmourAbsorbModifier(DamageType.ArmourPiercing, powerDamage, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>   <!-- ArmourPiercing -->
 	</AbsorbExpressions>  
 	<AbsorbExpressionsPain>
 		<Expression damagetype=""0"">pain{ArmourAbsorbModifier(DamageType.Slashing, powerPain, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>    <!-- Slashing -->
@@ -463,13 +470,14 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
 		<Expression damagetype=""13"">0</Expression>        <!-- Cellular -->
 		<Expression damagetype=""14"">pain{ArmourAbsorbModifier(DamageType.Sonic, powerPain, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>   <!-- Sonic -->
 		<Expression damagetype=""15"">pain{ArmourAbsorbModifier(DamageType.Shearing, powerPain, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>   <!-- Shearing --> 
-		<Expression damagetype=""16"">pain{ArmourAbsorbModifier(DamageType.ArmourPiercing, powerPain, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>   <!-- ArmourPiercing -->
+		<Expression damagetype=""16"">pain{ArmourAbsorbModifier(DamageType.BallisticArmourPiercing, powerPain, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>   <!-- ArmourPiercing -->
 		<Expression damagetype=""17"">pain{ArmourAbsorbModifier(DamageType.Wrenching, powerPain, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>   <!-- Wrenching -->
 		<Expression damagetype=""18"">pain{ArmourAbsorbModifier(DamageType.Shrapnel, powerPain, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>   <!-- Shrapnel -->   
 		<Expression damagetype=""19"">pain{ArmourAbsorbModifier(DamageType.Necrotic, powerPain, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>   <!-- Necrotic -->   
 		<Expression damagetype=""20"">pain{ArmourAbsorbModifier(DamageType.Falling, powerPain, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>   <!-- Falling -->   
 		<Expression damagetype=""21"">pain{ArmourAbsorbModifier(DamageType.Eldritch, powerPain, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>   <!-- Eldritch -->   
 		<Expression damagetype=""22"">pain{ArmourAbsorbModifier(DamageType.Arcane, powerPain, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>   <!-- Arcane -->   
+		<Expression damagetype=""23"">pain{ArmourAbsorbModifier(DamageType.ArmourPiercing, powerDamage, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>   <!-- ArmourPiercing -->
 	</AbsorbExpressionsPain>  
 	<AbsorbExpressionsStun>
 		<Expression damagetype=""0"">stun{ArmourAbsorbModifier(DamageType.Slashing, powerStun, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>    <!-- Slashing -->
@@ -488,13 +496,14 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
 		<Expression damagetype=""13"">0</Expression>        <!-- Cellular -->
 		<Expression damagetype=""14"">stun{ArmourAbsorbModifier(DamageType.Sonic, powerStun, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>   <!-- Sonic -->
 		<Expression damagetype=""15"">stun{ArmourAbsorbModifier(DamageType.Shearing, powerStun, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>   <!-- Shearing --> 
-		<Expression damagetype=""16"">stun{ArmourAbsorbModifier(DamageType.ArmourPiercing, powerStun, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>   <!-- ArmourPiercing -->
+		<Expression damagetype=""16"">stun{ArmourAbsorbModifier(DamageType.BallisticArmourPiercing, powerStun, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>   <!-- ArmourPiercing -->
 		<Expression damagetype=""17"">stun{ArmourAbsorbModifier(DamageType.Wrenching, powerStun, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>   <!-- Wrenching -->
 		<Expression damagetype=""18"">stun{ArmourAbsorbModifier(DamageType.Shrapnel, powerStun, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>   <!-- Shrapnel -->   
 		<Expression damagetype=""19"">stun{ArmourAbsorbModifier(DamageType.Necrotic, powerStun, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>   <!-- Necrotic -->   
 		<Expression damagetype=""20"">stun{ArmourAbsorbModifier(DamageType.Falling, powerStun, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>   <!-- Falling -->   
 		<Expression damagetype=""21"">stun{ArmourAbsorbModifier(DamageType.Eldritch, powerStun, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>   <!-- Eldritch -->   
 		<Expression damagetype=""22"">stun{ArmourAbsorbModifier(DamageType.Arcane, powerStun, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>   <!-- Arcane -->   
+		<Expression damagetype=""23"">stun{ArmourAbsorbModifier(DamageType.ArmourPiercing, powerDamage, strongTypes, weakTypes, zeroTypes, superTypes)}</Expression>   <!-- ArmourPiercing -->
 	</AbsorbExpressionsStun>
  </ArmourType>"
 			};
@@ -580,6 +589,7 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
 			},
 			new List<DamageType>
 			{
+				DamageType.BallisticArmourPiercing,
 				DamageType.ArmourPiercing,
 				DamageType.Arcane,
 				DamageType.Necrotic,
@@ -604,6 +614,7 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
 			},
 			new List<DamageType>
 			{
+				DamageType.BallisticArmourPiercing,
 				DamageType.ArmourPiercing,
 				DamageType.Arcane,
 				DamageType.Necrotic,
@@ -628,6 +639,7 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
 			},
 			new List<DamageType>
 			{
+				DamageType.BallisticArmourPiercing,
 				DamageType.ArmourPiercing,
 				DamageType.Arcane,
 				DamageType.Necrotic,
@@ -646,7 +658,8 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
 			},
 			new List<DamageType>
 			{
-				DamageType.ArmourPiercing
+				DamageType.BallisticArmourPiercing,
+				DamageType.ArmourPiercing,
 			},
 			new List<DamageType>
 			{
@@ -667,7 +680,8 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
 			},
 			new List<DamageType>
 			{
-				DamageType.ArmourPiercing
+				DamageType.BallisticArmourPiercing,
+				DamageType.ArmourPiercing,
 			},
 			new List<DamageType>
 			{
@@ -688,7 +702,8 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
 			},
 			new List<DamageType>
 			{
-				DamageType.ArmourPiercing
+				DamageType.BallisticArmourPiercing,
+				DamageType.ArmourPiercing,
 			},
 			new List<DamageType>
 			{
@@ -709,7 +724,8 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
 			},
 			new List<DamageType>
 			{
-				DamageType.ArmourPiercing
+				DamageType.BallisticArmourPiercing,
+				DamageType.ArmourPiercing,
 			},
 			new List<DamageType>
 			{
@@ -730,7 +746,8 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
 			},
 			new List<DamageType>
 			{
-				DamageType.ArmourPiercing
+				DamageType.BallisticArmourPiercing,
+				DamageType.ArmourPiercing,
 			},
 			new List<DamageType>
 			{
@@ -751,7 +768,8 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
 			},
 			new List<DamageType>
 			{
-				DamageType.ArmourPiercing
+				DamageType.BallisticArmourPiercing,
+				DamageType.ArmourPiercing,
 			},
 			new List<DamageType>
 			{
@@ -782,7 +800,8 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
 				DamageType.Arcane,
 				DamageType.Necrotic,
 				DamageType.Eldritch,
-				DamageType.ArmourPiercing
+				DamageType.BallisticArmourPiercing,
+				DamageType.ArmourPiercing,
 			}
 		);
 		AddArmourType("Level 2 Stab Vest", 1, 1, 1, 5.0, 7.0, 7.5,
@@ -807,7 +826,8 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
 				DamageType.Arcane,
 				DamageType.Necrotic,
 				DamageType.Eldritch,
-				DamageType.ArmourPiercing
+				DamageType.BallisticArmourPiercing,
+				DamageType.ArmourPiercing,
 			}
 		);
 		AddArmourType("Level 3 Stab Vest", 1, 1, 2, 6.0, 7.0, 7.5,
@@ -832,7 +852,8 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
 				DamageType.Arcane,
 				DamageType.Necrotic,
 				DamageType.Eldritch,
-				DamageType.ArmourPiercing
+				DamageType.BallisticArmourPiercing,
+				DamageType.ArmourPiercing,
 			}
 		);
 		AddArmourType("Boxing Gloves", 1, 1, 2, 1.2, 2.5, 1.5,
@@ -853,6 +874,7 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
 			},
 			new List<DamageType>
 			{
+				DamageType.BallisticArmourPiercing,
 				DamageType.ArmourPiercing,
 				DamageType.Arcane,
 				DamageType.Necrotic,
@@ -882,6 +904,7 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
 			},
 			new List<DamageType>
 			{
+				DamageType.BallisticArmourPiercing,
 				DamageType.ArmourPiercing,
 				DamageType.Arcane,
 				DamageType.Necrotic,
@@ -906,6 +929,7 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
 			},
 			new List<DamageType>
 			{
+				DamageType.BallisticArmourPiercing,
 				DamageType.ArmourPiercing,
 				DamageType.Arcane,
 				DamageType.Necrotic,
@@ -929,6 +953,7 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
 			},
 			new List<DamageType>
 			{
+				DamageType.BallisticArmourPiercing,
 				DamageType.ArmourPiercing,
 				DamageType.Arcane,
 				DamageType.Necrotic,
@@ -952,6 +977,7 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
 			},
 			new List<DamageType>
 			{
+				DamageType.BallisticArmourPiercing,
 				DamageType.ArmourPiercing,
 				DamageType.Arcane,
 				DamageType.Necrotic,
@@ -975,6 +1001,7 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
 			},
 			new List<DamageType>
 			{
+				DamageType.BallisticArmourPiercing,
 				DamageType.ArmourPiercing,
 				DamageType.Arcane,
 				DamageType.Necrotic,
@@ -999,6 +1026,7 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
 			},
 			new List<DamageType>
 			{
+				DamageType.BallisticArmourPiercing,
 				DamageType.ArmourPiercing,
 				DamageType.Arcane,
 				DamageType.Necrotic,
@@ -1025,6 +1053,7 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
 			},
 			new List<DamageType>
 			{
+				DamageType.BallisticArmourPiercing,
 				DamageType.ArmourPiercing,
 				DamageType.Arcane,
 				DamageType.Necrotic,
@@ -1048,6 +1077,7 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
 			},
 			new List<DamageType>
 			{
+				DamageType.BallisticArmourPiercing,
 				DamageType.ArmourPiercing,
 				DamageType.Arcane,
 				DamageType.Necrotic,
@@ -1055,7 +1085,26 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
 			}
 		);
 
-		AddSpecialArmourType("Hearing Protection", 0, 0, 0, @"<ArmourType>  <DissipateExpressions>	<Expression damagetype=""14"">damage-quality</Expression>  </DissipateExpressions>  <DissipateExpressionsPain>	<Expression damagetype=""14"">pain-quality</Expression>  </DissipateExpressionsPain>  <DissipateExpressionsStun>	<Expression damagetype=""14"">stun-quality</Expression>  </DissipateExpressionsStun>  <AbsorbExpressions>	<Expression damagetype=""14"">damage*(1 - quality*0.1)</Expression>  </AbsorbExpressions>  <AbsorbExpressionsPain>	<Expression damagetype=""14"">pain*(1 - quality*0.1)</Expression>  </AbsorbExpressionsPain>  <AbsorbExpressionsStun>	<Expression damagetype=""14"">stun*(1 - quality*0.1)</Expression>  </AbsorbExpressionsStun> </ArmourType>");
+		AddSpecialArmourType("Hearing Protection", 0, 0, 0, @"<ArmourType>
+  <DissipateExpressions>
+	<Expression damagetype=""14"">damage-quality</Expression>
+  </DissipateExpressions>
+  <DissipateExpressionsPain>
+	<Expression damagetype=""14"">pain-quality</Expression>
+  </DissipateExpressionsPain>
+  <DissipateExpressionsStun>
+	<Expression damagetype=""14"">stun-quality</Expression>
+  </DissipateExpressionsStun>
+  <AbsorbExpressions>
+	<Expression damagetype=""14"">damage*(1 - quality*0.1)</Expression>
+  </AbsorbExpressions>
+  <AbsorbExpressionsPain>
+	<Expression damagetype=""14"">pain*(1 - quality*0.1)</Expression>
+  </AbsorbExpressionsPain>
+  <AbsorbExpressionsStun>
+	<Expression damagetype=""14"">stun*(1 - quality*0.1)</Expression>
+  </AbsorbExpressionsStun>
+ </ArmourType>");
 	}
 
 	private void SeedDataGuns(FuturemudDatabaseContext context, IReadOnlyDictionary<string, string> questionAnswers)
@@ -1064,36 +1113,46 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
 		var now = DateTime.UtcNow;
 		var attributes = context.TraitDefinitions.Where(x => x.Type == 1 || x.Type == 3)
 			.ToDictionary(x => x.Name, x => x, StringComparer.OrdinalIgnoreCase);
-		var strength =
-			attributes.GetValueOrDefault("Strength") ??
-			attributes.GetValueOrDefault("Physique") ??
+		var dex =
+			attributes.GetValueOrDefault("Agility") ??
+			attributes.GetValueOrDefault("Dexterity") ??
+			attributes.GetValueOrDefault("Agility") ??
+			attributes.GetValueOrDefault("Speed") ??
 			attributes["Body"];
 
-		var expression = new TraitExpression
+		TraitDefinition pistols;
+		if (!context.TraitDefinitions.Any(x => x.Name == "Pistols"))
 		{
-			Name = "Pistol Skill Cap",
-			Expression = $"min(99,5.5*{strength.Alias}:{strength.Id})"
-		};
-		var pistols = new TraitDefinition
+			var expression = new TraitExpression
+			{
+				Name = "Pistol Skill Cap",
+				Expression = $"min(99,5.5*{dex.Alias}:{dex.Id})"
+			};
+			pistols = new TraitDefinition
+			{
+				Name = "Pistols",
+				Type = (int)TraitType.Skill,
+				Expression = expression,
+				TraitGroup = "Combat",
+				AvailabilityProg = context.FutureProgs.First(x => x.FunctionName == "AlwaysTrue"),
+				TeachableProg = context.FutureProgs.First(x => x.FunctionName == "AlwaysFalse"),
+				LearnableProg = context.FutureProgs.First(x => x.FunctionName == "AlwaysTrue"),
+				TeachDifficulty = 7,
+				LearnDifficulty = 7,
+				Hidden = false,
+				ImproverId = context.Improvers.First(x => x.Name == "Skill Improver").Id,
+				DecoratorId = context.TraitDecorators.First(x => x.Name == "General Skill").Id,
+				DerivedType = 0,
+				ChargenBlurb = string.Empty,
+				BranchMultiplier = 1.0
+			};
+			context.TraitDefinitions.Add(pistols);
+			context.SaveChanges();
+		}
+		else
 		{
-			Name = "Pistols",
-			Type = (int)TraitType.Skill,
-			Expression = expression,
-			TraitGroup = "Combat",
-			AvailabilityProg = context.FutureProgs.First(x => x.FunctionName == "AlwaysTrue"),
-			TeachableProg = context.FutureProgs.First(x => x.FunctionName == "AlwaysFalse"),
-			LearnableProg = context.FutureProgs.First(x => x.FunctionName == "AlwaysTrue"),
-			TeachDifficulty = 7,
-			LearnDifficulty = 7,
-			Hidden = false,
-			ImproverId = context.Improvers.First(x => x.Name == "Skill Improver").Id,
-			DecoratorId = context.TraitDecorators.First(x => x.Name == "General Skill").Id,
-			DerivedType = 0,
-			ChargenBlurb = string.Empty,
-			BranchMultiplier = 1.0
-		};
-		context.TraitDefinitions.Add(pistols);
-		context.SaveChanges();
+			pistols = context.TraitDefinitions.FirstOrDefault(x => x.Name == "Pistols");
+		}
 
 		var ranged = new RangedWeaponTypes
 		{
@@ -1657,7 +1716,730 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
 
 	private void SeedDataMuskets(FuturemudDatabaseContext context, IReadOnlyDictionary<string, string> questionAnswers)
 	{
-		// Do nothing, not yet implemented
+		var dbaccount = context.Accounts.First();
+		var now = DateTime.UtcNow;
+		var attributes = context.TraitDefinitions.Where(x => x.Type == 1 || x.Type == 3)
+			.ToDictionary(x => x.Name, x => x, StringComparer.OrdinalIgnoreCase);
+		var dex =
+			attributes.GetValueOrDefault("Agility") ??
+			attributes.GetValueOrDefault("Dexterity") ??
+			attributes.GetValueOrDefault("Agility") ??
+			attributes.GetValueOrDefault("Speed") ??
+			attributes["Body"];
+
+		var expression = new TraitExpression
+		{
+			Name = "Flintlocks Skill Cap",
+			Expression = $"min(99,5.5*{dex.Alias}:{dex.Id})"
+		};
+		var flintlocks = new TraitDefinition
+		{
+			Name = "Flintlocks",
+			Type = (int)TraitType.Skill,
+			Expression = expression,
+			TraitGroup = "Combat",
+			AvailabilityProg = context.FutureProgs.First(x => x.FunctionName == "AlwaysTrue"),
+			TeachableProg = context.FutureProgs.First(x => x.FunctionName == "AlwaysFalse"),
+			LearnableProg = context.FutureProgs.First(x => x.FunctionName == "AlwaysTrue"),
+			TeachDifficulty = 7,
+			LearnDifficulty = 7,
+			Hidden = false,
+			ImproverId = context.Improvers.First(x => x.Name == "Skill Improver").Id,
+			DecoratorId = context.TraitDecorators.First(x => x.Name == "General Skill").Id,
+			DerivedType = 0,
+			ChargenBlurb = string.Empty,
+			BranchMultiplier = 1.0
+		};
+		context.TraitDefinitions.Add(flintlocks);
+		context.SaveChanges();
+
+		#region Pistols
+		TraitDefinition pistols;
+		if (!context.TraitDefinitions.Any(x => x.Name == "Pistols"))
+		{
+			expression = new TraitExpression
+			{
+				Name = "Pistol Skill Cap",
+				Expression = $"min(99,5.5*{dex.Alias}:{dex.Id})"
+			};
+			pistols = new TraitDefinition
+			{
+				Name = "Pistols",
+				Type = (int)TraitType.Skill,
+				Expression = expression,
+				TraitGroup = "Combat",
+				AvailabilityProg = context.FutureProgs.First(x => x.FunctionName == "AlwaysTrue"),
+				TeachableProg = context.FutureProgs.First(x => x.FunctionName == "AlwaysFalse"),
+				LearnableProg = context.FutureProgs.First(x => x.FunctionName == "AlwaysTrue"),
+				TeachDifficulty = 7,
+				LearnDifficulty = 7,
+				Hidden = false,
+				ImproverId = context.Improvers.First(x => x.Name == "Skill Improver").Id,
+				DecoratorId = context.TraitDecorators.First(x => x.Name == "General Skill").Id,
+				DerivedType = 0,
+				ChargenBlurb = string.Empty,
+				BranchMultiplier = 1.0
+			};
+			context.TraitDefinitions.Add(pistols);
+			context.SaveChanges();
+		}
+		else
+		{
+			pistols = context.TraitDefinitions.FirstOrDefault(x => x.Name == "Pistols");
+		}
+		
+		var ranged = new RangedWeaponTypes
+		{
+			Name = "Flintlock Pistol",
+			Classification = (int)WeaponClassification.Lethal,
+			FireTrait = pistols,
+			OperateTrait = flintlocks,
+			FireableInMelee = true,
+			DefaultRangeInRooms = 1,
+			AccuracyBonusExpression = "(-3.0*range)-(pow(1-aim,2)*4.0)",
+			DamageBonusExpression = "-15*range",
+			AmmunitionLoadType = (int)AmmunitionLoadType.Magazine,
+			SpecificAmmunitionGrade = "Musket Ball",
+			AmmunitionCapacity = 1,
+			RangedWeaponType = (int)RangedWeaponType.Musket,
+			StaminaToFire = 5.0,
+			StaminaPerLoadStage = 7.0,
+			CoverBonus = -3.0,
+			BaseAimDifficulty = (int)Difficulty.Easy,
+			LoadDelay = 1.2,
+			ReadyDelay = 0.3,
+			FireDelay = 0.1,
+			AimBonusLostPerShot = 1.0,
+			RequiresFreeHandToReady = true,
+			AlwaysRequiresTwoHandsToWield = false
+		};
+		context.RangedWeaponTypes.Add(ranged);
+		context.SaveChanges();
+
+		var component = new GameItemComponentProto
+		{
+			Id = context.GameItemComponentProtos.Max(x => x.Id) + 1,
+			RevisionNumber = 0,
+			EditableItem = new EditableItem
+			{
+				RevisionNumber = 0,
+				RevisionStatus = 4,
+				BuilderAccountId = dbaccount.Id,
+				BuilderDate = now,
+				BuilderComment = "Auto-generated by the system",
+				ReviewerAccountId = dbaccount.Id,
+				ReviewerComment = "Auto-generated by the system",
+				ReviewerDate = now
+			},
+			Type = "Musket",
+			Name = "Pistol_Flintlock65",
+			Description = "Turns an item into a 65 Bore Flintlock Pistol",
+			Definition =
+				@$"<Definition>
+   <LoadEmoteClean><![CDATA[$0 push|pushes the worm-end of $2 into the barrel of $1 and remove|removes any remaining debris from previous shots.]]></LoadEmoteClean>
+   <LoadEmoteCartridge><![CDATA[$0 bite|bites open $2 and pour|pours a small amount of the charge into the priming pan of $1, close|closes the frizzen, rest|rests the whole gun butt-first on the ground and shove|shoves the cartridge down into the barrel.]]></LoadEmoteCartridge>
+   <LoadEmotePowder><![CDATA[$0 pour|pours a small amount of charge into the priming pan of $1, close|closes the frizzen, rest|rests the whole gun butt-first on the ground and pour|pours $2 down the barrel.]]></LoadEmotePowder>
+   <LoadEmoteBall><![CDATA[$0 push|pushes $2$?3| wrapped in $3||$ into $1.]]></LoadEmoteBall>
+   <LoadEmoteRamrod><![CDATA[$0 push|pushes the ram-end of $2 into the barrel of $1, tamping down on the loaded shot.]]></LoadEmoteRamrod>
+   <LoadEmoteTap><![CDATA[$0 hit|hits the butt-end of $1 on the ground, using gravity to force the shot into place.]]></LoadEmoteTap>
+   <LoadEmoteClean><![CDATA[$0 push|pushes the worm-end of $2 into the barrel of $1 and remove|removes any remaining debris from previous shots.]]></LoadEmoteClean>
+   <ReadyEmote><![CDATA[$0 pull|pulls the cock into the fire position on $1.]]></ReadyEmote>
+   <UnloadEmote><![CDATA[$0 empty|empties and discards the contents of the barrel of $1.]]></UnloadEmote>
+   <UnreadyEmote><![CDATA[$0 gently lower|lowers the cock of $1 out of the firing position.]]></UnreadyEmote>
+   <StartUnjamEmote><![CDATA[$0 push|pushes the worm-end of $2 into the barrel of $1, laboriously attempting to remove the jam.]]></StartUnjamEmote>
+   <FailUnjamEmote><![CDATA[$0 fail|fails to dislodge the debris in the barrel of $1, but continue|continues with &his efforts.]]></FailUnjamEmote>
+   <FinishUnjamEmote><![CDATA[$0 successfully dislodge|dislodges the blockage in the barrel of $1, and discard|discards the debris.]]></FinishUnjamEmote>
+   <FireEmote><![CDATA[@ squeeze|squeezes the trigger on $2 and it lets off a thundering blast towards $1.]]></FireEmote>
+   <FireEmoteJam><![CDATA[@ squeeze|squeezes the trigger on $2 and it lets off a thundering blast towards $1, with a larger than usual kick.]]></FireEmoteJam>
+   <FireEmoteMisfire><![CDATA[@ squeeze|squeezes the trigger on $2 and it misfires, discharging its ammunition harmlessly and ineffectively with a thunderous blast of smoke.]]></FireEmoteMisfire>
+   <FireEmoteCatastrophy><![CDATA[@ squeeze|squeezes the trigger on $2 and it catastrophically explodes in &0's face!]]></FireEmoteCatastrophy>
+   <RangedWeaponType>14</RangedWeaponType>
+   <MeleeWeaponType>7</MeleeWeaponType>
+   <PowderVolumePerShot>5.1839128</PowderVolumePerShot>
+   <BarrelBore>0.65</BarrelBore>
+   <MisfireChance>Max(0, sqrt(max(0, 70-operate))*0.075 + taploaded*0.1 + skipclean*0.1 + if(precipitation&lt;3,precipitation,pow(precipitation,1.5))+(5-gunquality)*0.03+cartridgeused*(5-cartridgequality)*0.03+(1-sqrt(condition))*0.5-wadused*0.2+wetpowder*0.5)</MisfireChance>
+   <JamChance>0.1+cartridgeused*0.1+(1-condition)*0.5</JamChance>
+   <CatastrophyDamageFormula>10+1d40</CatastrophyDamageFormula>
+ </Definition>"
+		};
+		context.GameItemComponentProtos.Add(component);
+		context.SaveChanges();
+
+		component = new GameItemComponentProto
+		{
+			Id = context.GameItemComponentProtos.Max(x => x.Id) + 1,
+			RevisionNumber = 0,
+			EditableItem = new EditableItem
+			{
+				RevisionNumber = 0,
+				RevisionStatus = 4,
+				BuilderAccountId = dbaccount.Id,
+				BuilderDate = now,
+				BuilderComment = "Auto-generated by the system",
+				ReviewerAccountId = dbaccount.Id,
+				ReviewerComment = "Auto-generated by the system",
+				ReviewerDate = now
+			},
+			Type = "Musket",
+			Name = "Pistol_Flintlock55",
+			Description = "Turns an item into a 55 Bore Flintlock Pistol",
+			Definition =
+				@$"<Definition>
+   <LoadEmoteClean><![CDATA[$0 push|pushes the worm-end of $2 into the barrel of $1 and remove|removes any remaining debris from previous shots.]]></LoadEmoteClean>
+   <LoadEmoteCartridge><![CDATA[$0 bite|bites open $2 and pour|pours a small amount of the charge into the priming pan of $1, close|closes the frizzen, rest|rests the whole gun butt-first on the ground and shove|shoves the cartridge down into the barrel.]]></LoadEmoteCartridge>
+   <LoadEmotePowder><![CDATA[$0 pour|pours a small amount of charge into the priming pan of $1, close|closes the frizzen, rest|rests the whole gun butt-first on the ground and pour|pours $2 down the barrel.]]></LoadEmotePowder>
+   <LoadEmoteBall><![CDATA[$0 push|pushes $2$?3| wrapped in $3||$ into $1.]]></LoadEmoteBall>
+   <LoadEmoteRamrod><![CDATA[$0 push|pushes the ram-end of $2 into the barrel of $1, tamping down on the loaded shot.]]></LoadEmoteRamrod>
+   <LoadEmoteTap><![CDATA[$0 hit|hits the butt-end of $1 on the ground, using gravity to force the shot into place.]]></LoadEmoteTap>
+   <LoadEmoteClean><![CDATA[$0 push|pushes the worm-end of $2 into the barrel of $1 and remove|removes any remaining debris from previous shots.]]></LoadEmoteClean>
+   <ReadyEmote><![CDATA[$0 pull|pulls the cock into the fire position on $1.]]></ReadyEmote>
+   <UnloadEmote><![CDATA[$0 empty|empties and discards the contents of the barrel of $1.]]></UnloadEmote>
+   <UnreadyEmote><![CDATA[$0 gently lower|lowers the cock of $1 out of the firing position.]]></UnreadyEmote>
+   <StartUnjamEmote><![CDATA[$0 push|pushes the worm-end of $2 into the barrel of $1, laboriously attempting to remove the jam.]]></StartUnjamEmote>
+   <FailUnjamEmote><![CDATA[$0 fail|fails to dislodge the debris in the barrel of $1, but continue|continues with &his efforts.]]></FailUnjamEmote>
+   <FinishUnjamEmote><![CDATA[$0 successfully dislodge|dislodges the blockage in the barrel of $1, and discard|discards the debris.]]></FinishUnjamEmote>
+   <FireEmote><![CDATA[@ squeeze|squeezes the trigger on $2 and it lets off a thundering blast towards $1.]]></FireEmote>
+   <FireEmoteJam><![CDATA[@ squeeze|squeezes the trigger on $2 and it lets off a thundering blast towards $1, with a larger than usual kick.]]></FireEmoteJam>
+   <FireEmoteMisfire><![CDATA[@ squeeze|squeezes the trigger on $2 and it misfires, discharging its ammunition harmlessly and ineffectively with a thunderous blast of smoke.]]></FireEmoteMisfire>
+   <FireEmoteCatastrophy><![CDATA[@ squeeze|squeezes the trigger on $2 and it catastrophically explodes in &0's face!]]></FireEmoteCatastrophy>
+   <RangedWeaponType>14</RangedWeaponType>
+   <MeleeWeaponType>7</MeleeWeaponType>
+   <PowderVolumePerShot>3.8879346</PowderVolumePerShot>
+   <BarrelBore>0.55</BarrelBore>
+   <MisfireChance>Max(0, sqrt(max(0, 70-operate))*0.075 + taploaded*0.1 + skipclean*0.1 + if(precipitation&lt;3,precipitation,pow(precipitation,1.5))+(5-gunquality)*0.03+cartridgeused*(5-cartridgequality)*0.03+(1-sqrt(condition))*0.5-wadused*0.2+wetpowder*0.5)</MisfireChance>
+   <JamChance>0.1+cartridgeused*0.1+(1-condition)*0.5</JamChance>
+   <CatastrophyDamageFormula>10+1d30</CatastrophyDamageFormula>
+ </Definition>"
+		};
+		context.GameItemComponentProtos.Add(component);
+		context.SaveChanges();
+
+		component = new GameItemComponentProto
+		{
+			Id = context.GameItemComponentProtos.Max(x => x.Id) + 1,
+			RevisionNumber = 0,
+			EditableItem = new EditableItem
+			{
+				RevisionNumber = 0,
+				RevisionStatus = 4,
+				BuilderAccountId = dbaccount.Id,
+				BuilderDate = now,
+				BuilderComment = "Auto-generated by the system",
+				ReviewerAccountId = dbaccount.Id,
+				ReviewerComment = "Auto-generated by the system",
+				ReviewerDate = now
+			},
+			Type = "Musket",
+			Name = "Pistol_Flintlock45",
+			Description = "Turns an item into a 45 Bore Flintlock Pistol",
+			Definition =
+				@$"<Definition>
+   <LoadEmoteClean><![CDATA[$0 push|pushes the worm-end of $2 into the barrel of $1 and remove|removes any remaining debris from previous shots.]]></LoadEmoteClean>
+   <LoadEmoteCartridge><![CDATA[$0 bite|bites open $2 and pour|pours a small amount of the charge into the priming pan of $1, close|closes the frizzen, rest|rests the whole gun butt-first on the ground and shove|shoves the cartridge down into the barrel.]]></LoadEmoteCartridge>
+   <LoadEmotePowder><![CDATA[$0 pour|pours a small amount of charge into the priming pan of $1, close|closes the frizzen, rest|rests the whole gun butt-first on the ground and pour|pours $2 down the barrel.]]></LoadEmotePowder>
+   <LoadEmoteBall><![CDATA[$0 push|pushes $2$?3| wrapped in $3||$ into $1.]]></LoadEmoteBall>
+   <LoadEmoteRamrod><![CDATA[$0 push|pushes the ram-end of $2 into the barrel of $1, tamping down on the loaded shot.]]></LoadEmoteRamrod>
+   <LoadEmoteTap><![CDATA[$0 hit|hits the butt-end of $1 on the ground, using gravity to force the shot into place.]]></LoadEmoteTap>
+   <LoadEmoteClean><![CDATA[$0 push|pushes the worm-end of $2 into the barrel of $1 and remove|removes any remaining debris from previous shots.]]></LoadEmoteClean>
+   <ReadyEmote><![CDATA[$0 pull|pulls the cock into the fire position on $1.]]></ReadyEmote>
+   <UnloadEmote><![CDATA[$0 empty|empties and discards the contents of the barrel of $1.]]></UnloadEmote>
+   <UnreadyEmote><![CDATA[$0 gently lower|lowers the cock of $1 out of the firing position.]]></UnreadyEmote>
+   <StartUnjamEmote><![CDATA[$0 push|pushes the worm-end of $2 into the barrel of $1, laboriously attempting to remove the jam.]]></StartUnjamEmote>
+   <FailUnjamEmote><![CDATA[$0 fail|fails to dislodge the debris in the barrel of $1, but continue|continues with &his efforts.]]></FailUnjamEmote>
+   <FinishUnjamEmote><![CDATA[$0 successfully dislodge|dislodges the blockage in the barrel of $1, and discard|discards the debris.]]></FinishUnjamEmote>
+   <FireEmote><![CDATA[@ squeeze|squeezes the trigger on $2 and it lets off a thundering blast towards $1.]]></FireEmote>
+   <FireEmoteJam><![CDATA[@ squeeze|squeezes the trigger on $2 and it lets off a thundering blast towards $1, with a larger than usual kick.]]></FireEmoteJam>
+   <FireEmoteMisfire><![CDATA[@ squeeze|squeezes the trigger on $2 and it misfires, discharging its ammunition harmlessly and ineffectively with a thunderous blast of smoke.]]></FireEmoteMisfire>
+   <FireEmoteCatastrophy><![CDATA[@ squeeze|squeezes the trigger on $2 and it catastrophically explodes in &0's face!]]></FireEmoteCatastrophy>
+   <RangedWeaponType>14</RangedWeaponType>
+   <MeleeWeaponType>7</MeleeWeaponType>
+   <PowderVolumePerShot>3.8879346</PowderVolumePerShot>
+   <BarrelBore>0.45</BarrelBore>
+   <MisfireChance>Max(0, sqrt(max(0, 70-operate))*0.075 + taploaded*0.1 + skipclean*0.1 + if(precipitation&lt;3,precipitation,pow(precipitation,1.5))+(5-gunquality)*0.03+cartridgeused*(5-cartridgequality)*0.03+(1-sqrt(condition))*0.5-wadused*0.2+wetpowder*0.5)</MisfireChance>
+   <JamChance>0.1+cartridgeused*0.1+(1-condition)*0.5</JamChance>
+   <CatastrophyDamageFormula>10+1d30</CatastrophyDamageFormula>
+ </Definition>"
+		};
+		context.GameItemComponentProtos.Add(component);
+		context.SaveChanges();
+		#endregion
+
+		#region Muskets
+		expression = new TraitExpression
+		{
+			Name = "Muskets Skill Cap",
+			Expression = $"min(99,5.5*{dex.Alias}:{dex.Id})"
+		};
+		var muskets = new TraitDefinition
+		{
+			Name = "Muskets",
+			Type = (int)TraitType.Skill,
+			Expression = expression,
+			TraitGroup = "Combat",
+			AvailabilityProg = context.FutureProgs.First(x => x.FunctionName == "AlwaysTrue"),
+			TeachableProg = context.FutureProgs.First(x => x.FunctionName == "AlwaysFalse"),
+			LearnableProg = context.FutureProgs.First(x => x.FunctionName == "AlwaysTrue"),
+			TeachDifficulty = 7,
+			LearnDifficulty = 7,
+			Hidden = false,
+			ImproverId = context.Improvers.First(x => x.Name == "Skill Improver").Id,
+			DecoratorId = context.TraitDecorators.First(x => x.Name == "General Skill").Id,
+			DerivedType = 0,
+			ChargenBlurb = string.Empty,
+			BranchMultiplier = 1.0
+		};
+		context.TraitDefinitions.Add(muskets);
+		context.SaveChanges();
+		ranged = new RangedWeaponTypes
+		{
+			Name = "Flintlock Musket",
+			Classification = (int)WeaponClassification.Lethal,
+			FireTrait = muskets,
+			OperateTrait = flintlocks,
+			FireableInMelee = false,
+			DefaultRangeInRooms = 4,
+			AccuracyBonusExpression = "(-3.0*range)-(pow(1-aim,2)*4.0)",
+			DamageBonusExpression = "-12*range",
+			AmmunitionLoadType = (int)AmmunitionLoadType.Magazine,
+			SpecificAmmunitionGrade = "Musket Ball",
+			AmmunitionCapacity = 1,
+			RangedWeaponType = (int)RangedWeaponType.Musket,
+			StaminaToFire = 5.0,
+			StaminaPerLoadStage = 7.0,
+			CoverBonus = -3.0,
+			BaseAimDifficulty = (int)Difficulty.Easy,
+			LoadDelay = 1.2,
+			ReadyDelay = 0.3,
+			FireDelay = 0.1,
+			AimBonusLostPerShot = 1.0,
+			RequiresFreeHandToReady = true,
+			AlwaysRequiresTwoHandsToWield = true
+		};
+		context.RangedWeaponTypes.Add(ranged);
+		context.SaveChanges();
+
+		component = new GameItemComponentProto
+		{
+			Id = context.GameItemComponentProtos.Max(x => x.Id) + 1,
+			RevisionNumber = 0,
+			EditableItem = new EditableItem
+			{
+				RevisionNumber = 0,
+				RevisionStatus = 4,
+				BuilderAccountId = dbaccount.Id,
+				BuilderDate = now,
+				BuilderComment = "Auto-generated by the system",
+				ReviewerAccountId = dbaccount.Id,
+				ReviewerComment = "Auto-generated by the system",
+				ReviewerDate = now
+			},
+			Type = "Musket",
+			Name = "Musket_Flintlock80",
+			Description = "Turns an item into a 80 Bore Flintlock Musket",
+			Definition =
+				@$"<Definition>
+   <LoadEmoteClean><![CDATA[$0 push|pushes the worm-end of $2 into the barrel of $1 and remove|removes any remaining debris from previous shots.]]></LoadEmoteClean>
+   <LoadEmoteCartridge><![CDATA[$0 bite|bites open $2 and pour|pours a small amount of the charge into the priming pan of $1, close|closes the frizzen, rest|rests the whole gun butt-first on the ground and shove|shoves the cartridge down into the barrel.]]></LoadEmoteCartridge>
+   <LoadEmotePowder><![CDATA[$0 pour|pours a small amount of charge into the priming pan of $1, close|closes the frizzen, rest|rests the whole gun butt-first on the ground and pour|pours $2 down the barrel.]]></LoadEmotePowder>
+   <LoadEmoteBall><![CDATA[$0 push|pushes $2$?3| wrapped in $3||$ into $1.]]></LoadEmoteBall>
+   <LoadEmoteRamrod><![CDATA[$0 push|pushes the ram-end of $2 into the barrel of $1, tamping down on the loaded shot.]]></LoadEmoteRamrod>
+   <LoadEmoteTap><![CDATA[$0 hit|hits the butt-end of $1 on the ground, using gravity to force the shot into place.]]></LoadEmoteTap>
+   <LoadEmoteClean><![CDATA[$0 push|pushes the worm-end of $2 into the barrel of $1 and remove|removes any remaining debris from previous shots.]]></LoadEmoteClean>
+   <ReadyEmote><![CDATA[$0 pull|pulls the cock into the fire position on $1.]]></ReadyEmote>
+   <UnloadEmote><![CDATA[$0 empty|empties and discards the contents of the barrel of $1.]]></UnloadEmote>
+   <UnreadyEmote><![CDATA[$0 gently lower|lowers the cock of $1 out of the firing position.]]></UnreadyEmote>
+   <StartUnjamEmote><![CDATA[$0 push|pushes the worm-end of $2 into the barrel of $1, laboriously attempting to remove the jam.]]></StartUnjamEmote>
+   <FailUnjamEmote><![CDATA[$0 fail|fails to dislodge the debris in the barrel of $1, but continue|continues with &his efforts.]]></FailUnjamEmote>
+   <FinishUnjamEmote><![CDATA[$0 successfully dislodge|dislodges the blockage in the barrel of $1, and discard|discards the debris.]]></FinishUnjamEmote>
+   <FireEmote><![CDATA[@ squeeze|squeezes the trigger on $2 and it lets off a thundering blast towards $1.]]></FireEmote>
+   <FireEmoteJam><![CDATA[@ squeeze|squeezes the trigger on $2 and it lets off a thundering blast towards $1, with a larger than usual kick.]]></FireEmoteJam>
+   <FireEmoteMisfire><![CDATA[@ squeeze|squeezes the trigger on $2 and it misfires, discharging its ammunition harmlessly and ineffectively with a thunderous blast of smoke.]]></FireEmoteMisfire>
+   <FireEmoteCatastrophy><![CDATA[@ squeeze|squeezes the trigger on $2 and it catastrophically explodes in &0's face!]]></FireEmoteCatastrophy>
+   <RangedWeaponType>14</RangedWeaponType>
+   <MeleeWeaponType>7</MeleeWeaponType>
+   <PowderVolumePerShot>7.7758692</PowderVolumePerShot>
+   <BarrelBore>0.8</BarrelBore>
+   <MisfireChance>Max(0, sqrt(max(0, 70-operate))*0.075 + taploaded*0.1 + skipclean*0.1 + if(precipitation&lt;3,precipitation,pow(precipitation,1.5))+(5-gunquality)*0.03+cartridgeused*(5-cartridgequality)*0.03+(1-sqrt(condition))*0.5-wadused*0.2+wetpowder*0.5)</MisfireChance>
+   <JamChance>0.1+cartridgeused*0.1+(1-condition)*0.5</JamChance>
+   <CatastrophyDamageFormula>10+1d40</CatastrophyDamageFormula>
+ </Definition>"
+		};
+		context.GameItemComponentProtos.Add(component);
+		context.SaveChanges();
+
+		component = new GameItemComponentProto
+		{
+			Id = context.GameItemComponentProtos.Max(x => x.Id) + 1,
+			RevisionNumber = 0,
+			EditableItem = new EditableItem
+			{
+				RevisionNumber = 0,
+				RevisionStatus = 4,
+				BuilderAccountId = dbaccount.Id,
+				BuilderDate = now,
+				BuilderComment = "Auto-generated by the system",
+				ReviewerAccountId = dbaccount.Id,
+				ReviewerComment = "Auto-generated by the system",
+				ReviewerDate = now
+			},
+			Type = "Musket",
+			Name = "Musket_Flintlock75",
+			Description = "Turns an item into a 75 Bore Flintlock Musket",
+			Definition =
+				@$"<Definition>
+   <LoadEmoteClean><![CDATA[$0 push|pushes the worm-end of $2 into the barrel of $1 and remove|removes any remaining debris from previous shots.]]></LoadEmoteClean>
+   <LoadEmoteCartridge><![CDATA[$0 bite|bites open $2 and pour|pours a small amount of the charge into the priming pan of $1, close|closes the frizzen, rest|rests the whole gun butt-first on the ground and shove|shoves the cartridge down into the barrel.]]></LoadEmoteCartridge>
+   <LoadEmotePowder><![CDATA[$0 pour|pours a small amount of charge into the priming pan of $1, close|closes the frizzen, rest|rests the whole gun butt-first on the ground and pour|pours $2 down the barrel.]]></LoadEmotePowder>
+   <LoadEmoteBall><![CDATA[$0 push|pushes $2$?3| wrapped in $3||$ into $1.]]></LoadEmoteBall>
+   <LoadEmoteRamrod><![CDATA[$0 push|pushes the ram-end of $2 into the barrel of $1, tamping down on the loaded shot.]]></LoadEmoteRamrod>
+   <LoadEmoteTap><![CDATA[$0 hit|hits the butt-end of $1 on the ground, using gravity to force the shot into place.]]></LoadEmoteTap>
+   <LoadEmoteClean><![CDATA[$0 push|pushes the worm-end of $2 into the barrel of $1 and remove|removes any remaining debris from previous shots.]]></LoadEmoteClean>
+   <ReadyEmote><![CDATA[$0 pull|pulls the cock into the fire position on $1.]]></ReadyEmote>
+   <UnloadEmote><![CDATA[$0 empty|empties and discards the contents of the barrel of $1.]]></UnloadEmote>
+   <UnreadyEmote><![CDATA[$0 gently lower|lowers the cock of $1 out of the firing position.]]></UnreadyEmote>
+   <StartUnjamEmote><![CDATA[$0 push|pushes the worm-end of $2 into the barrel of $1, laboriously attempting to remove the jam.]]></StartUnjamEmote>
+   <FailUnjamEmote><![CDATA[$0 fail|fails to dislodge the debris in the barrel of $1, but continue|continues with &his efforts.]]></FailUnjamEmote>
+   <FinishUnjamEmote><![CDATA[$0 successfully dislodge|dislodges the blockage in the barrel of $1, and discard|discards the debris.]]></FinishUnjamEmote>
+   <FireEmote><![CDATA[@ squeeze|squeezes the trigger on $2 and it lets off a thundering blast towards $1.]]></FireEmote>
+   <FireEmoteJam><![CDATA[@ squeeze|squeezes the trigger on $2 and it lets off a thundering blast towards $1, with a larger than usual kick.]]></FireEmoteJam>
+   <FireEmoteMisfire><![CDATA[@ squeeze|squeezes the trigger on $2 and it misfires, discharging its ammunition harmlessly and ineffectively with a thunderous blast of smoke.]]></FireEmoteMisfire>
+   <FireEmoteCatastrophy><![CDATA[@ squeeze|squeezes the trigger on $2 and it catastrophically explodes in &0's face!]]></FireEmoteCatastrophy>
+   <RangedWeaponType>14</RangedWeaponType>
+   <MeleeWeaponType>7</MeleeWeaponType>
+   <PowderVolumePerShot>7.7758692</PowderVolumePerShot>
+   <BarrelBore>0.75</BarrelBore>
+   <MisfireChance>Max(0, sqrt(max(0, 70-operate))*0.075 + taploaded*0.1 + skipclean*0.1 + if(precipitation&lt;3,precipitation,pow(precipitation,1.5))+(5-gunquality)*0.03+cartridgeused*(5-cartridgequality)*0.03+(1-sqrt(condition))*0.5-wadused*0.2+wetpowder*0.5)</MisfireChance>
+   <JamChance>0.1+cartridgeused*0.1+(1-condition)*0.5</JamChance>
+   <CatastrophyDamageFormula>10+1d40</CatastrophyDamageFormula>
+ </Definition>"
+		};
+		context.GameItemComponentProtos.Add(component);
+		context.SaveChanges();
+
+		component = new GameItemComponentProto
+		{
+			Id = context.GameItemComponentProtos.Max(x => x.Id) + 1,
+			RevisionNumber = 0,
+			EditableItem = new EditableItem
+			{
+				RevisionNumber = 0,
+				RevisionStatus = 4,
+				BuilderAccountId = dbaccount.Id,
+				BuilderDate = now,
+				BuilderComment = "Auto-generated by the system",
+				ReviewerAccountId = dbaccount.Id,
+				ReviewerComment = "Auto-generated by the system",
+				ReviewerDate = now
+			},
+			Type = "Musket",
+			Name = "Musket_Flintlock70",
+			Description = "Turns an item into a 70 Bore Flintlock Musket",
+			Definition =
+				@$"<Definition>
+   <LoadEmoteClean><![CDATA[$0 push|pushes the worm-end of $2 into the barrel of $1 and remove|removes any remaining debris from previous shots.]]></LoadEmoteClean>
+   <LoadEmoteCartridge><![CDATA[$0 bite|bites open $2 and pour|pours a small amount of the charge into the priming pan of $1, close|closes the frizzen, rest|rests the whole gun butt-first on the ground and shove|shoves the cartridge down into the barrel.]]></LoadEmoteCartridge>
+   <LoadEmotePowder><![CDATA[$0 pour|pours a small amount of charge into the priming pan of $1, close|closes the frizzen, rest|rests the whole gun butt-first on the ground and pour|pours $2 down the barrel.]]></LoadEmotePowder>
+   <LoadEmoteBall><![CDATA[$0 push|pushes $2$?3| wrapped in $3||$ into $1.]]></LoadEmoteBall>
+   <LoadEmoteRamrod><![CDATA[$0 push|pushes the ram-end of $2 into the barrel of $1, tamping down on the loaded shot.]]></LoadEmoteRamrod>
+   <LoadEmoteTap><![CDATA[$0 hit|hits the butt-end of $1 on the ground, using gravity to force the shot into place.]]></LoadEmoteTap>
+   <LoadEmoteClean><![CDATA[$0 push|pushes the worm-end of $2 into the barrel of $1 and remove|removes any remaining debris from previous shots.]]></LoadEmoteClean>
+   <ReadyEmote><![CDATA[$0 pull|pulls the cock into the fire position on $1.]]></ReadyEmote>
+   <UnloadEmote><![CDATA[$0 empty|empties and discards the contents of the barrel of $1.]]></UnloadEmote>
+   <UnreadyEmote><![CDATA[$0 gently lower|lowers the cock of $1 out of the firing position.]]></UnreadyEmote>
+   <StartUnjamEmote><![CDATA[$0 push|pushes the worm-end of $2 into the barrel of $1, laboriously attempting to remove the jam.]]></StartUnjamEmote>
+   <FailUnjamEmote><![CDATA[$0 fail|fails to dislodge the debris in the barrel of $1, but continue|continues with &his efforts.]]></FailUnjamEmote>
+   <FinishUnjamEmote><![CDATA[$0 successfully dislodge|dislodges the blockage in the barrel of $1, and discard|discards the debris.]]></FinishUnjamEmote>
+   <FireEmote><![CDATA[@ squeeze|squeezes the trigger on $2 and it lets off a thundering blast towards $1.]]></FireEmote>
+   <FireEmoteJam><![CDATA[@ squeeze|squeezes the trigger on $2 and it lets off a thundering blast towards $1, with a larger than usual kick.]]></FireEmoteJam>
+   <FireEmoteMisfire><![CDATA[@ squeeze|squeezes the trigger on $2 and it misfires, discharging its ammunition harmlessly and ineffectively with a thunderous blast of smoke.]]></FireEmoteMisfire>
+   <FireEmoteCatastrophy><![CDATA[@ squeeze|squeezes the trigger on $2 and it catastrophically explodes in &0's face!]]></FireEmoteCatastrophy>
+   <RangedWeaponType>14</RangedWeaponType>
+   <MeleeWeaponType>7</MeleeWeaponType>
+   <PowderVolumePerShot>7.7758692</PowderVolumePerShot>
+   <BarrelBore>0.70</BarrelBore>
+   <MisfireChance>Max(0, sqrt(max(0, 70-operate))*0.075 + taploaded*0.1 + skipclean*0.1 + if(precipitation&lt;3,precipitation,pow(precipitation,1.5))+(5-gunquality)*0.03+cartridgeused*(5-cartridgequality)*0.03+(1-sqrt(condition))*0.5-wadused*0.2+wetpowder*0.5)</MisfireChance>
+   <JamChance>0.1+cartridgeused*0.1+(1-condition)*0.5</JamChance>
+   <CatastrophyDamageFormula>10+1d40</CatastrophyDamageFormula>
+ </Definition>"
+		};
+		context.GameItemComponentProtos.Add(component);
+		context.SaveChanges();
+
+		component = new GameItemComponentProto
+		{
+			Id = context.GameItemComponentProtos.Max(x => x.Id) + 1,
+			RevisionNumber = 0,
+			EditableItem = new EditableItem
+			{
+				RevisionNumber = 0,
+				RevisionStatus = 4,
+				BuilderAccountId = dbaccount.Id,
+				BuilderDate = now,
+				BuilderComment = "Auto-generated by the system",
+				ReviewerAccountId = dbaccount.Id,
+				ReviewerComment = "Auto-generated by the system",
+				ReviewerDate = now
+			},
+			Type = "Musket",
+			Name = "Musket_Flintlock60",
+			Description = "Turns an item into a 60 Bore Flintlock Musket",
+			Definition =
+				@$"<Definition>
+   <LoadEmoteClean><![CDATA[$0 push|pushes the worm-end of $2 into the barrel of $1 and remove|removes any remaining debris from previous shots.]]></LoadEmoteClean>
+   <LoadEmoteCartridge><![CDATA[$0 bite|bites open $2 and pour|pours a small amount of the charge into the priming pan of $1, close|closes the frizzen, rest|rests the whole gun butt-first on the ground and shove|shoves the cartridge down into the barrel.]]></LoadEmoteCartridge>
+   <LoadEmotePowder><![CDATA[$0 pour|pours a small amount of charge into the priming pan of $1, close|closes the frizzen, rest|rests the whole gun butt-first on the ground and pour|pours $2 down the barrel.]]></LoadEmotePowder>
+   <LoadEmoteBall><![CDATA[$0 push|pushes $2$?3| wrapped in $3||$ into $1.]]></LoadEmoteBall>
+   <LoadEmoteRamrod><![CDATA[$0 push|pushes the ram-end of $2 into the barrel of $1, tamping down on the loaded shot.]]></LoadEmoteRamrod>
+   <LoadEmoteTap><![CDATA[$0 hit|hits the butt-end of $1 on the ground, using gravity to force the shot into place.]]></LoadEmoteTap>
+   <LoadEmoteClean><![CDATA[$0 push|pushes the worm-end of $2 into the barrel of $1 and remove|removes any remaining debris from previous shots.]]></LoadEmoteClean>
+   <ReadyEmote><![CDATA[$0 pull|pulls the cock into the fire position on $1.]]></ReadyEmote>
+   <UnloadEmote><![CDATA[$0 empty|empties and discards the contents of the barrel of $1.]]></UnloadEmote>
+   <UnreadyEmote><![CDATA[$0 gently lower|lowers the cock of $1 out of the firing position.]]></UnreadyEmote>
+   <StartUnjamEmote><![CDATA[$0 push|pushes the worm-end of $2 into the barrel of $1, laboriously attempting to remove the jam.]]></StartUnjamEmote>
+   <FailUnjamEmote><![CDATA[$0 fail|fails to dislodge the debris in the barrel of $1, but continue|continues with &his efforts.]]></FailUnjamEmote>
+   <FinishUnjamEmote><![CDATA[$0 successfully dislodge|dislodges the blockage in the barrel of $1, and discard|discards the debris.]]></FinishUnjamEmote>
+   <FireEmote><![CDATA[@ squeeze|squeezes the trigger on $2 and it lets off a thundering blast towards $1.]]></FireEmote>
+   <FireEmoteJam><![CDATA[@ squeeze|squeezes the trigger on $2 and it lets off a thundering blast towards $1, with a larger than usual kick.]]></FireEmoteJam>
+   <FireEmoteMisfire><![CDATA[@ squeeze|squeezes the trigger on $2 and it misfires, discharging its ammunition harmlessly and ineffectively with a thunderous blast of smoke.]]></FireEmoteMisfire>
+   <FireEmoteCatastrophy><![CDATA[@ squeeze|squeezes the trigger on $2 and it catastrophically explodes in &0's face!]]></FireEmoteCatastrophy>
+   <RangedWeaponType>14</RangedWeaponType>
+   <MeleeWeaponType>7</MeleeWeaponType>
+   <PowderVolumePerShot>7.7758692</PowderVolumePerShot>
+   <BarrelBore>0.6</BarrelBore>
+   <MisfireChance>Max(0, sqrt(max(0, 70-operate))*0.075 + taploaded*0.1 + skipclean*0.1 + if(precipitation&lt;3,precipitation,pow(precipitation,1.5))+(5-gunquality)*0.03+cartridgeused*(5-cartridgequality)*0.03+(1-sqrt(condition))*0.5-wadused*0.2+wetpowder*0.5)</MisfireChance>
+   <JamChance>0.1+cartridgeused*0.1+(1-condition)*0.5</JamChance>
+   <CatastrophyDamageFormula>10+1d40</CatastrophyDamageFormula>
+ </Definition>"
+		};
+		context.GameItemComponentProtos.Add(component);
+		context.SaveChanges();
+		#endregion
+
+		#region Ammunition
+		var holdable = context.GameItemComponentProtos.First(x => x.Type == "Holdable");
+		var stackable = context.GameItemComponentProtos.First(x => x.Name == "Stack_Number");
+
+		(long BallId, long BulletId, long CartridgeId) CreateAmmoItems(string name, GameItemComponentProto ammoComponent, GameItemComponentProto ballComponent, AmmunitionTypes ammo, string bulletMaterial, string caseMaterial, double bulletWeight)
+		{
+			var round = new GameItemProto
+			{
+				Id = context.GameItemProtos.Max(x => x.Id) + 1,
+				Name = "ball",
+				RevisionNumber = 0,
+				EditableItem = new EditableItem
+				{
+					RevisionNumber = 0,
+					RevisionStatus = 4,
+					BuilderAccountId = dbaccount.Id,
+					BuilderDate = now,
+					BuilderComment = "Auto-generated by the system",
+					ReviewerAccountId = dbaccount.Id,
+					ReviewerComment = "Auto-generated by the system",
+					ReviewerDate = now
+				},
+				Keywords = $"{name} ball",
+				Size = (int)SizeCategory.Tiny,
+				Weight = bulletWeight,
+				ReadOnly = false,
+				BaseItemQuality = (int)ItemQuality.Standard,
+				ShortDescription = $"{name} ball",
+				FullDescription =
+					$"This is a new {name} musket ball, made out of {bulletMaterial}, ready to be fired in an appropriate weapon.",
+				MaterialId = context.Materials.First(x => x.Name == bulletMaterial).Id
+			};
+			round.GameItemProtosGameItemComponentProtos.Add(new GameItemProtosGameItemComponentProtos
+			{
+				GameItemProto = round,
+				GameItemComponent = holdable
+			});
+			round.GameItemProtosGameItemComponentProtos.Add(new GameItemProtosGameItemComponentProtos
+			{
+				GameItemProto = round,
+				GameItemComponent = stackable
+			});
+			round.GameItemProtosGameItemComponentProtos.Add(new GameItemProtosGameItemComponentProtos
+			{
+				GameItemProto = round,
+				GameItemComponent = ballComponent
+			});
+			context.GameItemProtos.Add(round);
+			context.SaveChanges();
+
+			var bullet = new GameItemProto
+			{
+				Id = context.GameItemProtos.Max(x => x.Id) + 1,
+				Name = "ball",
+				RevisionNumber = 0,
+				EditableItem = new EditableItem
+				{
+					RevisionNumber = 0,
+					RevisionStatus = 4,
+					BuilderAccountId = dbaccount.Id,
+					BuilderDate = now,
+					BuilderComment = "Auto-generated by the system",
+					ReviewerAccountId = dbaccount.Id,
+					ReviewerComment = "Auto-generated by the system",
+					ReviewerDate = now
+				},
+				Keywords = $"{name} ball",
+				Size = (int)SizeCategory.Tiny,
+				Weight = bulletWeight,
+				ReadOnly = false,
+				BaseItemQuality = (int)ItemQuality.Standard,
+				ShortDescription = $"a fired {name} ball",
+				FullDescription =
+					$"This is a {name} musket ball that has been fired, made out of {bulletMaterial}. It's no longer useful as ammunition due to deformation but might be able to be melted back down into fresh ammunition.",
+				MaterialId = context.Materials.First(x => x.Name == bulletMaterial).Id
+			};
+			bullet.GameItemProtosGameItemComponentProtos.Add(new GameItemProtosGameItemComponentProtos
+			{
+				GameItemProto = bullet,
+				GameItemComponent = holdable
+			});
+			bullet.GameItemProtosGameItemComponentProtos.Add(new GameItemProtosGameItemComponentProtos
+			{
+				GameItemProto = bullet,
+				GameItemComponent = stackable
+			});
+			context.GameItemProtos.Add(bullet);
+			context.SaveChanges();
+
+			var cartridge = new GameItemProto
+			{
+				Id = context.GameItemProtos.Max(x => x.Id) + 1,
+				Name = "cartridge",
+				RevisionNumber = 0,
+				EditableItem = new EditableItem
+				{
+					RevisionNumber = 0,
+					RevisionStatus = 4,
+					BuilderAccountId = dbaccount.Id,
+					BuilderDate = now,
+					BuilderComment = "Auto-generated by the system",
+					ReviewerAccountId = dbaccount.Id,
+					ReviewerComment = "Auto-generated by the system",
+					ReviewerDate = now
+				},
+				Keywords = $"{name} cartridge",
+				Size = (int)SizeCategory.VerySmall,
+				Weight = 56.0,
+				ReadOnly = false,
+				BaseItemQuality = (int)ItemQuality.Standard,
+				ShortDescription = $"a {name} musket cartridge",
+				FullDescription =
+					$"This is a pre-assembled cartridge for firing a {name} musket, containing a pre-measured amount of powder and a ball of the appropriate gauge. This skips the step of pouring powder, adding wadding and adding the ball separately.",
+				MaterialId = context.Materials.First(x => x.Name == caseMaterial).Id
+			};
+			cartridge.GameItemProtosGameItemComponentProtos.Add(new GameItemProtosGameItemComponentProtos
+			{
+				GameItemProto = cartridge,
+				GameItemComponent = holdable
+			});
+			cartridge.GameItemProtosGameItemComponentProtos.Add(new GameItemProtosGameItemComponentProtos
+			{
+				GameItemProto = cartridge,
+				GameItemComponent = stackable
+			});
+			cartridge.GameItemProtosGameItemComponentProtos.Add(new GameItemProtosGameItemComponentProtos
+			{
+				GameItemProto = cartridge,
+				GameItemComponent = ammoComponent
+			});
+			context.GameItemProtos.Add(cartridge);
+			context.SaveChanges();
+
+			return (round.Id, bullet.Id, cartridge.Id);
+		}
+		
+		void AddAmmoType(string name, string specific, string shortname, string damage, DamageType damageType, double bore, double bulletWeight, double accuracy)
+		{
+			var ammo = new AmmunitionTypes
+			{
+				Name = name,
+				SpecificType = specific,
+				RangedWeaponTypes = "7",
+				BaseAccuracy = accuracy,
+				Loudness = (int)AudioVolume.ExtremelyLoud,
+				BreakChanceOnHit = 0.5,
+				BreakChanceOnMiss = 0.2,
+				BaseBlockDifficulty = (int)Difficulty.Insane,
+				BaseDodgeDifficulty = (int)Difficulty.Insane,
+				DamageExpression = damage,
+				StunExpression = damage,
+				PainExpression = damage,
+				DamageType = (int)damageType
+			};
+			context.AmmunitionTypes.Add(ammo);
+			context.SaveChanges();
+
+			var cartridgeComponent = new GameItemComponentProto
+			{
+				Id = context.GameItemComponentProtos.Max(x => x.Id) + 1,
+				RevisionNumber = 0,
+				EditableItem = new EditableItem
+				{
+					RevisionNumber = 0,
+					RevisionStatus = 4,
+					BuilderAccountId = dbaccount.Id,
+					BuilderDate = now,
+					BuilderComment = "Auto-generated by the system",
+					ReviewerAccountId = dbaccount.Id,
+					ReviewerComment = "Auto-generated by the system",
+					ReviewerDate = now
+				},
+				Type = "MusketCartridge",
+				Name = $"MusketCartridge_{shortname}",
+				Description = $"Turns an item into {shortname} musket cartridges",
+				Definition = ""
+			};
+			context.GameItemComponentProtos.Add(cartridgeComponent);
+			context.SaveChanges();
+
+			var ammoComponent = new GameItemComponentProto
+			{
+				Id = context.GameItemComponentProtos.Max(x => x.Id) + 1,
+				RevisionNumber = 0,
+				EditableItem = new EditableItem
+				{
+					RevisionNumber = 0,
+					RevisionStatus = 4,
+					BuilderAccountId = dbaccount.Id,
+					BuilderDate = now,
+					BuilderComment = "Auto-generated by the system",
+					ReviewerAccountId = dbaccount.Id,
+					ReviewerComment = "Auto-generated by the system",
+					ReviewerDate = now
+				},
+				Type = "MusketBall",
+				Name = $"MusketBall_{shortname}",
+				Description = $"Turns an item into {shortname} musket cartridges",
+				Definition = ""
+			};
+			context.GameItemComponentProtos.Add(ammoComponent);
+			context.SaveChanges();
+
+			var (ballid, bulletid, cartridgeid) = CreateAmmoItems(name, cartridgeComponent, ammoComponent, ammo, "lead", "lead", bulletWeight);
+			cartridgeComponent.Definition = @$"<Definition>
+   <AmmoType>{ammo.Id}</AmmoType>
+   <BulletBore>{bore}</BulletBore>
+   <BulletProto>{bulletid}</BulletProto>
+ </Definition>";
+			ammoComponent.Definition = @$"<Definition>
+   <AmmoType>{ammo.Id}</AmmoType>
+   <BulletBore>{bore}</BulletBore>
+   <BulletProto>{bulletid}</BulletProto>
+ </Definition>";
+			context.SaveChanges();
+		}
+
+		AddAmmoType("0.8 Bore Musket Shot", "Musket Ball", "0.8 Bore", "rand(10,30) + quality * sqrt(degree+1) + (pointblank * 30)", DamageType.Ballistic, 0.8, 56, -2.0);
+		AddAmmoType("0.75 Bore Musket Shot", "Musket Ball", "0.75 Bore", "rand(8,27) + quality * sqrt(degree+1) + (pointblank * 30)", DamageType.Ballistic, 0.75, 56, -1.0);
+		AddAmmoType("0.7 Bore Musket Shot", "Musket Ball", "0.7 Bore", "rand(7,24) + quality * sqrt(degree+1) * 0.9 + (pointblank * 30)", DamageType.Ballistic, 0.7, 56, 0.0);
+		AddAmmoType("0.65 Bore Musket Shot", "Musket Ball", "0.65 Bore", "rand(6,21) + quality * sqrt(degree+1) * 0.8 + (pointblank * 30)", DamageType.Ballistic, 0.65, 56, 0.0);
+		AddAmmoType("0.60 Bore Musket Shot", "Musket Ball", "0.6 Bore", "rand(6,18) + quality * sqrt(degree+1) * 0.7 + (pointblank * 30)", DamageType.Ballistic, 0.6, 56, 1.0);
+		AddAmmoType("0.55 Bore Musket Shot", "Musket Ball", "0.55 Bore", "rand(6,18) + quality * sqrt(degree+1) * 0.6 + (pointblank * 30)", DamageType.Ballistic, 0.55, 56, 1.0);
+		AddAmmoType("0.45 Bore Musket Shot", "Musket Ball", "0.45 Bore", "rand(5,15) + quality * sqrt(degree+1) * 0.5 + (pointblank * 30)", DamageType.Ballistic, 0.45, 56, 2.0);
+		#endregion
 	}
 
 	private void SeedDataRanged(FuturemudDatabaseContext context,
@@ -1668,15 +2450,17 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
 		var now = DateTime.UtcNow;
 		var attributes = context.TraitDefinitions.Where(x => x.Type == 1 || x.Type == 3)
 			.ToDictionary(x => x.Name, x => x, StringComparer.OrdinalIgnoreCase);
-		var strength =
-			attributes.GetValueOrDefault("Strength") ??
-			attributes.GetValueOrDefault("Physique") ??
+		var dex =
+			attributes.GetValueOrDefault("Agility") ??
+			attributes.GetValueOrDefault("Dexterity") ??
+			attributes.GetValueOrDefault("Agility") ??
+			attributes.GetValueOrDefault("Speed") ??
 			attributes["Body"];
 
 		var expression = new TraitExpression
 		{
 			Name = "Bow Skill Cap",
-			Expression = $"min(99,5.5*{strength.Alias}:{strength.Id})"
+			Expression = $"min(99,5.5*{dex.Alias}:{dex.Id})"
 		};
 		var bows = new TraitDefinition
 		{
@@ -1708,7 +2492,7 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
 			FireableInMelee = false,
 			DefaultRangeInRooms = 2,
 			AccuracyBonusExpression = "(-1.0*range)-(pow(1-aim,2)*3.0)",
-			DamageBonusExpression = $"quality - (4.0*range) - (({strength.Alias}:{strength.Id}-10)*1.5)",
+			DamageBonusExpression = $"quality - (4.0*range) - (({dex.Alias}:{dex.Id}-10)*1.5)",
 			AmmunitionLoadType = (int)AmmunitionLoadType.Direct,
 			SpecificAmmunitionGrade = "Arrow",
 			AmmunitionCapacity = 1,
@@ -1760,7 +2544,7 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
 			FireableInMelee = false,
 			DefaultRangeInRooms = 4,
 			AccuracyBonusExpression = "(-1.0*range)-(pow(1-aim,2)*2.0)",
-			DamageBonusExpression = $"2*quality - (4.0*range) - (({strength.Alias}:{strength.Id}-10)*2.5)",
+			DamageBonusExpression = $"2*quality - (4.0*range) - (({dex.Alias}:{dex.Id}-10)*2.5)",
 			AmmunitionLoadType = (int)AmmunitionLoadType.Direct,
 			SpecificAmmunitionGrade = "Arrow",
 			AmmunitionCapacity = 1,
@@ -1806,7 +2590,7 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
 		expression = new TraitExpression
 		{
 			Name = "Crossbows Skill Cap",
-			Expression = $"min(99,5.5*{strength.Alias}:{strength.Id})"
+			Expression = $"min(99,5.5*{dex.Alias}:{dex.Id})"
 		};
 		var crossbows = new TraitDefinition
 		{
@@ -1981,7 +2765,7 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
 		}
 
 		AddAmmoType("Field Point Arrow", "Arrow", RangedWeaponType.Bow, 0.0, AudioVolume.Quiet, 0.5, 0.3,
-			Difficulty.Easy, Difficulty.VeryHard, DamageType.ArmourPiercing, "15 + quality * 0.75 * degree");
+			Difficulty.Easy, Difficulty.VeryHard, DamageType.BallisticArmourPiercing, "15 + quality * 0.75 * degree");
 		AddAmmoType("Broadhead Arrow", "Arrow", RangedWeaponType.Bow, 0.0, AudioVolume.Quiet, 0.5, 0.3, Difficulty.Easy,
 			Difficulty.VeryHard, DamageType.Piercing, "30 + quality * 0.75 * degree");
 		AddAmmoType("Concussive Arrow", "Arrow", RangedWeaponType.Bow, 0.0, AudioVolume.Quiet, 0.6, 0.4,
@@ -1991,7 +2775,7 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
 		AddAmmoType("Padded Arrow", "Arrow", RangedWeaponType.Bow, 0.0, AudioVolume.Quiet, 0.1, 0.2, Difficulty.Easy,
 			Difficulty.VeryHard, DamageType.Crushing, "10-quality");
 		AddAmmoType("Field Point Bolt", "Bolt", RangedWeaponType.Crossbow, 0.0, AudioVolume.Quiet, 0.5, 0.3,
-			Difficulty.Easy, Difficulty.VeryHard, DamageType.ArmourPiercing, "15 + quality * 0.75 * degree");
+			Difficulty.Easy, Difficulty.VeryHard, DamageType.BallisticArmourPiercing, "15 + quality * 0.75 * degree");
 		AddAmmoType("Broadhead Bolt", "Bolt", RangedWeaponType.Crossbow, 0.0, AudioVolume.Quiet, 0.5, 0.3,
 			Difficulty.Easy, Difficulty.VeryHard, DamageType.Piercing, "30 + quality * 0.75 * degree");
 		AddAmmoType("Concussive Bolt", "Bolt", RangedWeaponType.Crossbow, 0.0, AudioVolume.Quiet, 0.6, 0.4,
@@ -2016,7 +2800,7 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
 				FireableInMelee = false,
 				DefaultRangeInRooms = 0,
 				AccuracyBonusExpression = "(-1.5*range)-(pow(1-aim,2)*5.0)",
-				DamageBonusExpression = $"quality/2 * ({strength.Alias}:{strength.Id}/2)",
+				DamageBonusExpression = $"quality/2 * ({dex.Alias}:{dex.Id}/2)",
 				AmmunitionLoadType = (int)AmmunitionLoadType.Direct,
 				SpecificAmmunitionGrade = "Throwing",
 				AmmunitionCapacity = 1,
@@ -2068,7 +2852,7 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
 				FireableInMelee = false,
 				DefaultRangeInRooms = 0,
 				AccuracyBonusExpression = "(-1.5*range)-(pow(1-aim,2)*5.0)",
-				DamageBonusExpression = $"quality/2 * ({strength.Alias}:{strength.Id})",
+				DamageBonusExpression = $"quality/2 * ({dex.Alias}:{dex.Id})",
 				AmmunitionLoadType = (int)AmmunitionLoadType.Direct,
 				SpecificAmmunitionGrade = "Throwing",
 				AmmunitionCapacity = 1,
@@ -2120,7 +2904,7 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
 				FireableInMelee = false,
 				DefaultRangeInRooms = 1,
 				AccuracyBonusExpression = "(-3.0*range)-(pow(1-aim,2)*5.0)",
-				DamageBonusExpression = $"quality * ({strength.Alias}:{strength.Id})",
+				DamageBonusExpression = $"quality * ({dex.Alias}:{dex.Id})",
 				AmmunitionLoadType = (int)AmmunitionLoadType.Direct,
 				SpecificAmmunitionGrade = "Throwing",
 				AmmunitionCapacity = 1,
@@ -2416,6 +3200,8 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
 				skill = CreateSkill("Light-Edge");
 				skills["Short Sword"] = skill;
 				parrySkills["Short Sword"] = parrySkill ?? skill;
+				skills["Knife"] = skill;
+				parrySkills["Knife"] = parrySkill ?? skill;
 				skill = CreateSkill("Light-Pierce");
 				skills["Dagger"] = skill;
 				parrySkills["Dagger"] = parrySkill ?? skill;
@@ -2441,8 +3227,12 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
 				skill = CreateSkill("Heavy-Pierce");
 				skills["Spear"] = skill;
 				parrySkills["Spear"] = parrySkill ?? skill;
+				skills["Mattock"] = skill;
+				parrySkills["Mattock"] = parrySkill ?? skill;
 				skill = CreateSkill("Staff");
 				skill = CreateSkill("Polearm");
+				skills["Halberd"] = skill;
+				parrySkills["Halberd"] = parrySkill ?? skill;
 				skill = CreateSkill("Dual-Wielding");
 				break;
 			case "broad":
@@ -2455,12 +3245,13 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
 				parrySkills["Improvised"] = parrySkill ?? skill;
 				skills["Warhammer"] = skill;
 				parrySkills["Warhammer"] = parrySkill ?? skill;
-
 				skill = CreateSkill("Edged Weapons");
 				skills["Short Sword"] = skill;
 				parrySkills["Short Sword"] = parrySkill ?? skill;
 				skills["Dagger"] = skill;
 				parrySkills["Dagger"] = parrySkill ?? skill;
+				skills["Knife"] = skill;
+				parrySkills["Knife"] = parrySkill ?? skill;
 				skills["Long Sword"] = skill;
 				parrySkills["Long Sword"] = parrySkill ?? skill;
 				skills["Axe"] = skill;
@@ -2475,6 +3266,10 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
 				parrySkills["Two Handed Sword"] = parrySkill ?? skill;
 				skills["Spear"] = skill;
 				parrySkills["Spear"] = parrySkill ?? skill;
+				skills["Halberd"] = skill;
+				parrySkills["Halberd"] = parrySkill ?? skill;
+				skills["Mattock"] = skill;
+				parrySkills["Mattock"] = parrySkill ?? skill;
 				break;
 			case "weapons":
 				skill = CreateSkill("Maces");
@@ -2490,6 +3285,9 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
 				skill = CreateSkill("Daggers");
 				skills["Dagger"] = skill;
 				parrySkills["Dagger"] = parrySkill ?? skill;
+				skill = CreateSkill("Knife");
+				skills["Knife"] = skill;
+				parrySkills["Knife"] = parrySkill ?? skill;
 				skill = CreateSkill("Clubs");
 				skills["Club"] = skill;
 				parrySkills["Club"] = parrySkill ?? skill;
@@ -2504,11 +3302,194 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
 				skill = CreateSkill("Two Handed Swords");
 				skills["Two Handed Sword"] = skill;
 				parrySkills["Two Handed Sword"] = parrySkill ?? skill;
-				skill = CreateSkill("Polearms");
+				skill = CreateSkill("Spears");
 				skills["Spear"] = skill;
 				parrySkills["Spear"] = parrySkill ?? skill;
+				skill = CreateSkill("Polearms");
+				skills["Halberd"] = skill;
+				parrySkills["Halberd"] = parrySkill ?? skill;
+				skill = CreateSkill("Mattock");
+				skills["Mattock"] = skill;
+				parrySkills["Mattock"] = parrySkill ?? skill;
 				break;
 		}
+
+		#region Knife
+		var knife = new WeaponType
+		{
+			Name = "Knife",
+			Classification = (int)WeaponClassification.Lethal,
+			AttackTrait = skills["Knife"],
+			ParryTrait = parrySkills["Knife"],
+			ParryBonus = -1,
+			Reach = 1,
+			StaminaPerParry = 1.5
+		};
+		context.WeaponTypes.Add(knife);
+		context.SaveChanges();
+		CreateWeaponComponent(knife);
+		var trainingKnife = new WeaponType
+		{
+			Name = "Training Knife",
+			Classification = (int)WeaponClassification.Training,
+			AttackTrait = skills["Knife"],
+			ParryTrait = parrySkills["Knife"],
+			ParryBonus = -1,
+			Reach = 1,
+			StaminaPerParry = 1.5
+		};
+		context.WeaponTypes.Add(trainingKnife);
+		context.SaveChanges();
+		CreateWeaponComponent(trainingKnife);
+		AddAttack("Knife Slash", BuiltInCombatMoveType.UseWeaponAttack, MeleeWeaponVerb.Swing, Difficulty.Easy,
+			Difficulty.ExtremelyEasy, Difficulty.ExtremelyEasy, Difficulty.Trivial, Alignment.FrontRight,
+			Orientation.High, 3.0, 0.9, knife, badDamage, "@ swing|swings $2 across &0's body at $1",
+			DamageType.Slashing);
+		AddAttack("Knife Reverse Slash", BuiltInCombatMoveType.UseWeaponAttack, MeleeWeaponVerb.Swing, Difficulty.Easy,
+			Difficulty.ExtremelyEasy, Difficulty.ExtremelyEasy, Difficulty.Trivial, Alignment.Front, Orientation.High,
+			3.0, 0.9, knife, badDamage, "@ swing|swings $2 in a reverse slash at $1", DamageType.Slashing);
+		AddAttack("Knife Lunge", BuiltInCombatMoveType.UseWeaponAttack, MeleeWeaponVerb.Thrust, Difficulty.Normal,
+			Difficulty.Easy, Difficulty.Easy, Difficulty.VeryEasy, Alignment.Front, Orientation.High, 4.0, 1.0, knife,
+			terribleDamage, "@ lunge|lunges forward and attempt|attempts to stab $1 with $2", DamageType.Piercing);
+		AddAttack("Knife High Lunge", BuiltInCombatMoveType.UseWeaponAttack, MeleeWeaponVerb.Thrust, Difficulty.Normal,
+			Difficulty.VeryEasy, Difficulty.VeryEasy, Difficulty.VeryEasy, Alignment.Front, Orientation.Highest, 4.0,
+			1.0, knife, terribleDamage, "@ lunge|lunges forward and attempt|attempts to stab $1 with $2",
+			DamageType.Piercing);
+		AddAttack("Knife Low Lunge", BuiltInCombatMoveType.UseWeaponAttack, MeleeWeaponVerb.Thrust, Difficulty.Normal,
+			Difficulty.Easy, Difficulty.Easy, Difficulty.VeryEasy, Alignment.Front, Orientation.Low, 4.0, 1.0, knife,
+			terribleDamage, "@ lunge|lunges forward and attempt|attempts to stab $1 with $2", DamageType.Piercing);
+		AddAttack("Knife Jab", BuiltInCombatMoveType.UseWeaponAttack, MeleeWeaponVerb.Jab, Difficulty.Easy,
+			Difficulty.VeryEasy, Difficulty.Easy, Difficulty.ExtremelyEasy, Alignment.Front, Orientation.High, 3.0, 0.6,
+			knife, badDamage, "@ lash|lashes out with a quick jab of $2 at $1", DamageType.Piercing,
+			intentions: CombatMoveIntentions.Attack | CombatMoveIntentions.Wound | CombatMoveIntentions.Kill |
+						CombatMoveIntentions.Fast);
+		AddAttack("Knife Stab", BuiltInCombatMoveType.ClinchAttack, MeleeWeaponVerb.Stab, Difficulty.Easy,
+			Difficulty.VeryHard, Difficulty.Insane, Difficulty.Easy, Alignment.FrontRight, Orientation.High, 3.0, 0.4,
+			knife, terribleDamage, "@ stab|stabs $1 with $2", DamageType.Piercing,
+			intentions: CombatMoveIntentions.Attack | CombatMoveIntentions.Wound | CombatMoveIntentions.Kill |
+						CombatMoveIntentions.Fast);
+		AddAttack("Knife Low Stab", BuiltInCombatMoveType.ClinchAttack, MeleeWeaponVerb.Stab, Difficulty.Easy,
+			Difficulty.VeryHard, Difficulty.Insane, Difficulty.Easy, Alignment.FrontRight, Orientation.Centre, 3.0, 0.4,
+			knife, terribleDamage, "@ stab|stabs $1 with $2", DamageType.Piercing,
+			intentions: CombatMoveIntentions.Attack | CombatMoveIntentions.Wound | CombatMoveIntentions.Kill |
+						CombatMoveIntentions.Fast);
+		AddAttack("Knife Leg Stab", BuiltInCombatMoveType.ClinchAttack, MeleeWeaponVerb.Stab, Difficulty.Easy,
+			Difficulty.VeryHard, Difficulty.Insane, Difficulty.Normal, Alignment.FrontRight, Orientation.Low, 3.0, 0.4,
+			knife, terribleDamage, "@ stab|stabs down at $1's leg with $2", DamageType.Piercing,
+			intentions: CombatMoveIntentions.Attack | CombatMoveIntentions.Wound | CombatMoveIntentions.Kill |
+						CombatMoveIntentions.Fast | CombatMoveIntentions.Hinder);
+		AddAttack("Knife Arm Stab", BuiltInCombatMoveType.ClinchAttack, MeleeWeaponVerb.Stab, Difficulty.Hard,
+			Difficulty.VeryHard, Difficulty.Insane, Difficulty.Normal, Alignment.FrontRight, Orientation.Appendage, 3.0,
+			0.4, knife, terribleDamage, "@ stab|stabs out at $1's arm with $2", DamageType.Piercing,
+			intentions: CombatMoveIntentions.Attack | CombatMoveIntentions.Wound | CombatMoveIntentions.Kill |
+						CombatMoveIntentions.Fast | CombatMoveIntentions.Disarm);
+
+		AddAttack("Knife Slash", BuiltInCombatMoveType.ClinchAttack, MeleeWeaponVerb.Swing, Difficulty.VeryEasy,
+			Difficulty.VeryHard, Difficulty.Insane, Difficulty.Easy, Alignment.FrontRight, Orientation.High, 3.0, 0.4,
+			knife, terribleDamage, "@ slash|slashes $1 with $2", DamageType.Slashing,
+			intentions: CombatMoveIntentions.Attack | CombatMoveIntentions.Wound | CombatMoveIntentions.Kill |
+						CombatMoveIntentions.Fast);
+		AddAttack("Knife Low Slash", BuiltInCombatMoveType.ClinchAttack, MeleeWeaponVerb.Swing, Difficulty.VeryEasy,
+			Difficulty.VeryHard, Difficulty.Insane, Difficulty.Easy, Alignment.FrontRight, Orientation.Centre, 3.0, 0.4,
+			knife, terribleDamage, "@ slash|slashes $1 with $2", DamageType.Slashing,
+			intentions: CombatMoveIntentions.Attack | CombatMoveIntentions.Wound | CombatMoveIntentions.Kill |
+						CombatMoveIntentions.Fast);
+		AddAttack("Knife Leg Slash", BuiltInCombatMoveType.ClinchAttack, MeleeWeaponVerb.Swing, Difficulty.VeryEasy,
+			Difficulty.VeryHard, Difficulty.Insane, Difficulty.Normal, Alignment.FrontRight, Orientation.Low, 3.0, 0.4,
+			knife, terribleDamage, "@ slash|slashes down at $1's leg with $2", DamageType.Slashing,
+			intentions: CombatMoveIntentions.Attack | CombatMoveIntentions.Wound | CombatMoveIntentions.Kill |
+						CombatMoveIntentions.Fast | CombatMoveIntentions.Hinder);
+		AddAttack("Knife Arm Slash", BuiltInCombatMoveType.ClinchAttack, MeleeWeaponVerb.Swing, Difficulty.Normal,
+			Difficulty.VeryHard, Difficulty.Insane, Difficulty.Normal, Alignment.FrontRight, Orientation.Appendage, 3.0,
+			0.4, knife, terribleDamage, "@ slash|slashes out at $1's arm with $2", DamageType.Slashing,
+			intentions: CombatMoveIntentions.Attack | CombatMoveIntentions.Wound | CombatMoveIntentions.Kill |
+						CombatMoveIntentions.Fast | CombatMoveIntentions.Disarm);
+
+		AddAttack("Knife Throat Cut", BuiltInCombatMoveType.CoupDeGrace, MeleeWeaponVerb.Stab, Difficulty.Normal,
+			Difficulty.Easy, Difficulty.Easy, Difficulty.VeryEasy, Alignment.Front, Orientation.High, 4.0, 1.0, knife,
+			veryGoodDamage, "@ run|runs $2 in a deep slash of $1's throat from ear to ear.", DamageType.Slashing,
+			additionalInfo: context.BodypartProtos.First(x => x.Name == "throat").Id.ToString());
+		AddAttack("Knife Throat Stab", BuiltInCombatMoveType.CoupDeGrace, MeleeWeaponVerb.Stab, Difficulty.Normal,
+			Difficulty.Easy, Difficulty.Easy, Difficulty.VeryEasy, Alignment.Front, Orientation.High, 4.0, 1.0, knife,
+			veryGoodDamage, "@ plunge|plunges $2 deep into $1's throat.", DamageType.Piercing,
+			additionalInfo: context.BodypartProtos.First(x => x.Name == "throat").Id.ToString());
+		AddAttack("Knife Smash", BuiltInCombatMoveType.MeleeWeaponSmashItem, MeleeWeaponVerb.Stab, Difficulty.VeryEasy,
+			Difficulty.VeryHard, Difficulty.Insane, Difficulty.Easy, Alignment.FrontRight, Orientation.High, 3.0, 0.4,
+			knife, badDamage, "@ stab|stabs $1 with $2", DamageType.Piercing);
+
+		AddAttack("Training Knife Slash", BuiltInCombatMoveType.UseWeaponAttack, MeleeWeaponVerb.Swing,
+			Difficulty.VeryEasy, Difficulty.ExtremelyEasy, Difficulty.ExtremelyEasy, Difficulty.Trivial,
+			Alignment.FrontRight, Orientation.High, 3.0, 0.9, trainingKnife, trainingDamage,
+			"@ swing|swings $2 across &0's body at $1", DamageType.Crushing,
+			intentions: CombatMoveIntentions.Attack | CombatMoveIntentions.Training);
+		AddAttack("Training Knife Reverse Slash", BuiltInCombatMoveType.UseWeaponAttack, MeleeWeaponVerb.Swing,
+			Difficulty.VeryEasy, Difficulty.ExtremelyEasy, Difficulty.ExtremelyEasy, Difficulty.Trivial,
+			Alignment.Front, Orientation.High, 3.0, 0.9, trainingKnife, trainingDamage,
+			"@ swing|swings $2 in a reverse slash at $1", DamageType.Crushing,
+			intentions: CombatMoveIntentions.Attack | CombatMoveIntentions.Training);
+		AddAttack("Training Knife Lunge", BuiltInCombatMoveType.UseWeaponAttack, MeleeWeaponVerb.Thrust,
+			Difficulty.VeryEasy, Difficulty.Easy, Difficulty.Easy, Difficulty.VeryEasy, Alignment.Front,
+			Orientation.High, 4.0, 1.0, trainingKnife, trainingDamage,
+			"@ lunge|lunges forward and attempt|attempts to stab $1 with $2", DamageType.Crushing,
+			intentions: CombatMoveIntentions.Attack | CombatMoveIntentions.Training);
+		AddAttack("Training Knife High Lunge", BuiltInCombatMoveType.UseWeaponAttack, MeleeWeaponVerb.Thrust,
+			Difficulty.VeryEasy, Difficulty.VeryEasy, Difficulty.VeryEasy, Difficulty.VeryEasy, Alignment.Front,
+			Orientation.Highest, 4.0, 1.0, trainingKnife, trainingDamage,
+			"@ lunge|lunges forward and attempt|attempts to stab $1 with $2", DamageType.Crushing,
+			intentions: CombatMoveIntentions.Attack | CombatMoveIntentions.Training);
+		AddAttack("Training Knife Low Lunge", BuiltInCombatMoveType.UseWeaponAttack, MeleeWeaponVerb.Thrust,
+			Difficulty.VeryEasy, Difficulty.Easy, Difficulty.Easy, Difficulty.VeryEasy, Alignment.Front,
+			Orientation.Low, 4.0, 1.0, trainingKnife, trainingDamage,
+			"@ lunge|lunges forward and attempt|attempts to stab $1 with $2", DamageType.Crushing,
+			intentions: CombatMoveIntentions.Attack | CombatMoveIntentions.Training);
+		AddAttack("Training Knife Jab", BuiltInCombatMoveType.UseWeaponAttack, MeleeWeaponVerb.Jab,
+			Difficulty.VeryEasy, Difficulty.VeryEasy, Difficulty.Easy, Difficulty.ExtremelyEasy, Alignment.Front,
+			Orientation.High, 3.0, 0.6, trainingKnife, trainingDamage,
+			"@ lash|lashes out with a quick jab of $2 at $1", DamageType.Crushing,
+			intentions: CombatMoveIntentions.Attack | CombatMoveIntentions.Training | CombatMoveIntentions.Fast);
+		AddAttack("Training Knife Stab", BuiltInCombatMoveType.ClinchAttack, MeleeWeaponVerb.Stab, Difficulty.VeryEasy,
+			Difficulty.VeryHard, Difficulty.Insane, Difficulty.Easy, Alignment.FrontRight, Orientation.High, 3.0, 0.4,
+			trainingKnife, trainingDamage, "@ stab|stabs $1 with $2", DamageType.Crushing,
+			intentions: CombatMoveIntentions.Attack | CombatMoveIntentions.Training | CombatMoveIntentions.Fast);
+		AddAttack("Training Knife Low Stab", BuiltInCombatMoveType.ClinchAttack, MeleeWeaponVerb.Stab,
+			Difficulty.VeryEasy, Difficulty.VeryHard, Difficulty.Insane, Difficulty.Easy, Alignment.FrontRight,
+			Orientation.Centre, 3.0, 0.4, trainingKnife, trainingDamage, "@ stab|stabs $1 with $2",
+			DamageType.Crushing,
+			intentions: CombatMoveIntentions.Attack | CombatMoveIntentions.Training | CombatMoveIntentions.Fast);
+		AddAttack("Training Knife Leg Stab", BuiltInCombatMoveType.ClinchAttack, MeleeWeaponVerb.Stab,
+			Difficulty.VeryEasy, Difficulty.VeryHard, Difficulty.Insane, Difficulty.Normal, Alignment.FrontRight,
+			Orientation.Low, 3.0, 0.4, trainingKnife, trainingDamage, "@ stab|stabs down at $1's leg with $2",
+			DamageType.Crushing,
+			intentions: CombatMoveIntentions.Attack | CombatMoveIntentions.Training | CombatMoveIntentions.Fast |
+						CombatMoveIntentions.Hinder);
+		AddAttack("Training Knife Arm Stab", BuiltInCombatMoveType.ClinchAttack, MeleeWeaponVerb.Stab,
+			Difficulty.VeryEasy, Difficulty.VeryHard, Difficulty.Insane, Difficulty.Normal, Alignment.FrontRight,
+			Orientation.Appendage, 3.0, 0.4, trainingKnife, trainingDamage, "@ stab|stabs out at $1's arm with $2",
+			DamageType.Crushing,
+			intentions: CombatMoveIntentions.Attack | CombatMoveIntentions.Training | CombatMoveIntentions.Fast |
+						CombatMoveIntentions.Disarm);
+		AddAttack("Training Knife Slash", BuiltInCombatMoveType.ClinchAttack, MeleeWeaponVerb.Swing, Difficulty.VeryEasy,
+			Difficulty.VeryHard, Difficulty.Insane, Difficulty.Easy, Alignment.FrontRight, Orientation.High, 3.0, 0.4,
+			trainingKnife, trainingDamage, "@ slash|slashes $1 with $2", DamageType.Crushing,
+			intentions: CombatMoveIntentions.Attack | CombatMoveIntentions.Training | CombatMoveIntentions.Fast);
+		AddAttack("Training Knife Low Slash", BuiltInCombatMoveType.ClinchAttack, MeleeWeaponVerb.Swing,
+			Difficulty.VeryEasy, Difficulty.VeryHard, Difficulty.Insane, Difficulty.Easy, Alignment.FrontRight,
+			Orientation.Centre, 3.0, 0.4, trainingKnife, trainingDamage, "@ slash|slashes $1 with $2",
+			DamageType.Crushing,
+			intentions: CombatMoveIntentions.Attack | CombatMoveIntentions.Training | CombatMoveIntentions.Fast);
+		AddAttack("Training Knife Leg Slash", BuiltInCombatMoveType.ClinchAttack, MeleeWeaponVerb.Swing,
+			Difficulty.VeryEasy, Difficulty.VeryHard, Difficulty.Insane, Difficulty.Normal, Alignment.FrontRight,
+			Orientation.Low, 3.0, 0.4, trainingKnife, trainingDamage, "@ slash|slashes down at $1's leg with $2",
+			DamageType.Crushing,
+			intentions: CombatMoveIntentions.Attack | CombatMoveIntentions.Training | CombatMoveIntentions.Fast |
+						CombatMoveIntentions.Hinder);
+		AddAttack("Training Knife Arm Slash", BuiltInCombatMoveType.ClinchAttack, MeleeWeaponVerb.Swing,
+			Difficulty.VeryEasy, Difficulty.VeryHard, Difficulty.Insane, Difficulty.Normal, Alignment.FrontRight,
+			Orientation.Appendage, 3.0, 0.4, trainingKnife, trainingDamage, "@ slash|slashes out at $1's arm with $2",
+			DamageType.Crushing,
+			intentions: CombatMoveIntentions.Attack | CombatMoveIntentions.Training | CombatMoveIntentions.Fast |
+						CombatMoveIntentions.Disarm);
+		#endregion
 
 		#region Dagger
 
@@ -2691,7 +3672,7 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
 		CreateWeaponComponent(mace);
 		var trainingmace = new WeaponType
 		{
-			Name = "Mace",
+			Name = "Training Mace",
 			Classification = (int)WeaponClassification.NonLethal,
 			AttackTrait = skills["Mace"],
 			ParryTrait = parrySkills["Mace"],
@@ -2714,12 +3695,11 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
 		};
 		context.WeaponTypes.Add(improvised);
 		context.SaveChanges();
-		context.StaticConfigurations.Add(new StaticConfiguration
-			{ SettingName = "DefaultBowMeleeWeaponType", Definition = improvised.Id.ToString() });
-		context.StaticConfigurations.Add(new StaticConfiguration
-			{ SettingName = "DefaultCrossbowMeleeWeaponType", Definition = improvised.Id.ToString() });
-		context.StaticConfigurations.Add(new StaticConfiguration
-			{ SettingName = "DefaultGunMeleeWeaponType", Definition = improvised.Id.ToString() });
+		context.StaticConfigurations.Find("DefaultBowMeleeWeaponType").Definition = improvised.Id.ToString();
+		context.StaticConfigurations.Find("DefaultCrossbowMeleeWeaponType").Definition = improvised.Id.ToString();
+		context.StaticConfigurations.Find("DefaultGunMeleeWeaponType").Definition = improvised.Id.ToString();
+		context.StaticConfigurations.Find("DefaultMusketMeleeWeaponType").Definition = improvised.Id.ToString();
+		
 		CreateWeaponComponent(improvised);
 
 		AddAttack("Club 1-Handed Swing", BuiltInCombatMoveType.UseWeaponAttack, MeleeWeaponVerb.Swing,
@@ -3675,7 +4655,7 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
 		CreateWeaponComponent(rapier);
 		var trainingrapier = new WeaponType
 		{
-			Name = "Training Longsword",
+			Name = "Training Rapier",
 			Classification = (int)WeaponClassification.Training,
 			AttackTrait = skills["Rapier"],
 			ParryTrait = parrySkills["Rapier"],
@@ -3953,6 +4933,275 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
 			handedness: AttackHandednessOptions.TwoHandedOnly,
 			intentions: CombatMoveIntentions.Attack | CombatMoveIntentions.Training);
 
+		#endregion
+
+		#region Halberd
+		var halberd = new WeaponType
+		{
+			Name = "Halberd",
+			Classification = (int)WeaponClassification.Lethal,
+			AttackTrait = skills["Halberd"],
+			ParryTrait = parrySkills["Halberd"],
+			ParryBonus = 1,
+			Reach = 5,
+			StaminaPerParry = 2.5
+		};
+		context.WeaponTypes.Add(halberd);
+		context.SaveChanges();
+		CreateWeaponComponent(halberd);
+		var trainingHalberd = new WeaponType
+		{
+			Name = "Training Halberd",
+			Classification = (int)WeaponClassification.Training,
+			AttackTrait = skills["Halberd"],
+			ParryTrait = parrySkills["Halberd"],
+			ParryBonus = 1,
+			Reach = 4,
+			StaminaPerParry = 2
+		};
+		context.WeaponTypes.Add(trainingHalberd);
+		context.SaveChanges();
+		CreateWeaponComponent(trainingHalberd);
+
+		AddAttack("Halberd 1-Handed Stab", BuiltInCombatMoveType.UseWeaponAttack, MeleeWeaponVerb.Stab, Difficulty.Normal,
+			Difficulty.Normal, Difficulty.Normal, Difficulty.Normal, Alignment.FrontRight, Orientation.High, 5.0, 1.0,
+			halberd, normalDamage, "@ lunge|lunges forward and stab|stabs $2 at $1", DamageType.Piercing,
+			handedness: AttackHandednessOptions.OneHandedOnly,
+			intentions: CombatMoveIntentions.Attack | CombatMoveIntentions.Wound | CombatMoveIntentions.Kill | CombatMoveIntentions.Piercing);
+		AddAttack("Halberd 1-Handed High Stab", BuiltInCombatMoveType.UseWeaponAttack, MeleeWeaponVerb.Stab,
+			Difficulty.Normal, Difficulty.Normal, Difficulty.Normal, Difficulty.Normal, Alignment.FrontRight,
+			Orientation.Highest, 5.0, 1.0, halberd, normalDamage, "@ lunge|lunges forward and stab|stabs $2 at $1",
+			DamageType.Piercing, handedness: AttackHandednessOptions.OneHandedOnly,
+			intentions: CombatMoveIntentions.Attack | CombatMoveIntentions.Wound | CombatMoveIntentions.Kill | CombatMoveIntentions.Piercing);
+		AddAttack("Halberd 1-Handed Low Stab", BuiltInCombatMoveType.UseWeaponAttack, MeleeWeaponVerb.Stab,
+			Difficulty.Normal, Difficulty.Normal, Difficulty.Normal, Difficulty.Normal, Alignment.FrontRight,
+			Orientation.Centre, 5.0, 1.0, halberd, normalDamage, "@ lunge|lunges forward and stab|stabs $2 at $1",
+			DamageType.Piercing, handedness: AttackHandednessOptions.OneHandedOnly,
+			intentions: CombatMoveIntentions.Attack | CombatMoveIntentions.Wound | CombatMoveIntentions.Kill | CombatMoveIntentions.Piercing);
+		AddAttack("Halberd 1-Handed Leg Stab", BuiltInCombatMoveType.UseWeaponAttack, MeleeWeaponVerb.Stab,
+			Difficulty.Normal, Difficulty.Easy, Difficulty.Easy, Difficulty.Hard, Alignment.FrontRight, Orientation.Low,
+			5.0, 1.0, halberd, normalDamage, "@ lunge|lunges forward and stab|stabs $2 at $1's leg",
+			DamageType.Piercing, handedness: AttackHandednessOptions.OneHandedOnly,
+			intentions: CombatMoveIntentions.Attack | CombatMoveIntentions.Wound | CombatMoveIntentions.Kill | CombatMoveIntentions.Piercing |
+						CombatMoveIntentions.Hinder);
+		AddAttack("Halberd 1-Handed Foot Stab", BuiltInCombatMoveType.UseWeaponAttack, MeleeWeaponVerb.Stab,
+			Difficulty.Normal, Difficulty.Easy, Difficulty.VeryEasy, Difficulty.VeryHard, Alignment.FrontRight,
+			Orientation.Lowest, 5.0, 1.0, halberd, normalDamage,
+			"@ lunge|lunges forward and stab|stabs $2 at $1's foot", DamageType.Piercing,
+			handedness: AttackHandednessOptions.OneHandedOnly,
+			intentions: CombatMoveIntentions.Attack | CombatMoveIntentions.Wound | CombatMoveIntentions.Kill | CombatMoveIntentions.Piercing |
+						CombatMoveIntentions.Hinder);
+		AddAttack("Halberd 1-Handed Counter Jab", BuiltInCombatMoveType.WardFreeAttack, MeleeWeaponVerb.Jab,
+			Difficulty.VeryHard, Difficulty.Normal, Difficulty.Normal, Difficulty.Easy, Alignment.FrontRight,
+			Orientation.High, 5.0, 1.0, halberd, poorDamage, "@ lunge|lunges forward and stab|stabs $2 at $1",
+			DamageType.Piercing, handedness: AttackHandednessOptions.OneHandedOnly);
+		AddAttack("Halberd 1-Handed Low Counter Jab", BuiltInCombatMoveType.WardFreeAttack, MeleeWeaponVerb.Jab,
+			Difficulty.VeryHard, Difficulty.Normal, Difficulty.Normal, Difficulty.Easy, Alignment.FrontRight,
+			Orientation.Centre, 5.0, 1.0, halberd, poorDamage, "@ lunge|lunges forward and stab|stabs $2 at $1",
+			DamageType.Piercing, handedness: AttackHandednessOptions.OneHandedOnly);
+
+		AddAttack("Halberd 2-Handed Stab", BuiltInCombatMoveType.UseWeaponAttack, MeleeWeaponVerb.Stab, Difficulty.Normal,
+			Difficulty.Normal, Difficulty.Normal, Difficulty.Normal, Alignment.FrontRight, Orientation.High, 5.0, 1.0,
+			halberd, goodDamage, "@ lunge|lunges forward and stab|stabs $2 at $1", DamageType.Piercing,
+			handedness: AttackHandednessOptions.TwoHandedOnly,
+			intentions: CombatMoveIntentions.Attack | CombatMoveIntentions.Wound | CombatMoveIntentions.Kill | CombatMoveIntentions.Piercing);
+		AddAttack("Halberd 2-Handed High Stab", BuiltInCombatMoveType.UseWeaponAttack, MeleeWeaponVerb.Stab,
+			Difficulty.Normal, Difficulty.Normal, Difficulty.Normal, Difficulty.Normal, Alignment.FrontRight,
+			Orientation.Highest, 5.0, 1.0, halberd, goodDamage, "@ lunge|lunges forward and stab|stabs $2 at $1",
+			DamageType.Piercing, handedness: AttackHandednessOptions.TwoHandedOnly,
+			intentions: CombatMoveIntentions.Attack | CombatMoveIntentions.Wound | CombatMoveIntentions.Kill | CombatMoveIntentions.Piercing);
+		AddAttack("Halberd 2-Handed Low Stab", BuiltInCombatMoveType.UseWeaponAttack, MeleeWeaponVerb.Stab,
+			Difficulty.Normal, Difficulty.Normal, Difficulty.Normal, Difficulty.Normal, Alignment.FrontRight,
+			Orientation.Centre, 5.0, 1.0, halberd, goodDamage, "@ lunge|lunges forward and stab|stabs $2 at $1",
+			DamageType.Piercing, handedness: AttackHandednessOptions.TwoHandedOnly,
+			intentions: CombatMoveIntentions.Attack | CombatMoveIntentions.Wound | CombatMoveIntentions.Kill | CombatMoveIntentions.Piercing);
+		AddAttack("Halberd 2-Handed Leg Stab", BuiltInCombatMoveType.UseWeaponAttack, MeleeWeaponVerb.Stab,
+			Difficulty.Normal, Difficulty.Easy, Difficulty.Easy, Difficulty.Hard, Alignment.FrontRight, Orientation.Low,
+			5.0, 1.0, halberd, goodDamage, "@ lunge|lunges forward and stab|stabs $2 at $1's leg",
+			DamageType.Piercing, handedness: AttackHandednessOptions.TwoHandedOnly,
+			intentions: CombatMoveIntentions.Attack | CombatMoveIntentions.Wound | CombatMoveIntentions.Kill | CombatMoveIntentions.Piercing |
+						CombatMoveIntentions.Hinder);
+		AddAttack("Halberd 2-Handed Foot Stab", BuiltInCombatMoveType.UseWeaponAttack, MeleeWeaponVerb.Stab,
+			Difficulty.Normal, Difficulty.Easy, Difficulty.VeryEasy, Difficulty.VeryHard, Alignment.FrontRight,
+			Orientation.Lowest, 5.0, 1.0, halberd, goodDamage,
+			"@ lunge|lunges forward and stab|stabs $2 at $1's foot", DamageType.Piercing,
+			handedness: AttackHandednessOptions.TwoHandedOnly,
+			intentions: CombatMoveIntentions.Attack | CombatMoveIntentions.Wound | CombatMoveIntentions.Kill | CombatMoveIntentions.Piercing |
+						CombatMoveIntentions.Hinder);
+		AddAttack("Halberd 2-Handed Overhead Swing", BuiltInCombatMoveType.UseWeaponAttack, MeleeWeaponVerb.Swing,
+			Difficulty.Hard, Difficulty.Easy, Difficulty.Normal, Difficulty.Easy, Alignment.Front, Orientation.Highest,
+			6.0, 1.4, halberd, veryGoodDamage, "@ swing|swings $2 in an overhead blow at $1", DamageType.Chopping,
+			handedness: AttackHandednessOptions.TwoHandedOnly, 
+			intentions: CombatMoveIntentions.Attack | CombatMoveIntentions.Wound | CombatMoveIntentions.Kill | CombatMoveIntentions.Slow | CombatMoveIntentions.Chopping
+			);
+
+		AddAttack("Halberd 2-Handed Leg Sweep", BuiltInCombatMoveType.UnbalancingBlow, MeleeWeaponVerb.Sweep,
+			Difficulty.Hard, Difficulty.Easy, Difficulty.Easy, Difficulty.Hard, Alignment.FrontRight, Orientation.Low,
+			5.0, 1.0, halberd, badDamage,
+			"@ sweep|sweeps $2 around at $1's legs in an attempt to knock &1 off balance", DamageType.Crushing,
+			handedness: AttackHandednessOptions.TwoHandedOnly,
+			intentions: CombatMoveIntentions.Attack | CombatMoveIntentions.Wound | CombatMoveIntentions.Trip |
+						CombatMoveIntentions.Hinder, additionalInfo: ((int)Difficulty.Normal).ToString());
+		AddAttack("Halberd 2-Handed Trip", BuiltInCombatMoveType.UnbalancingBlow, MeleeWeaponVerb.Sweep, Difficulty.Hard,
+			Difficulty.Easy, Difficulty.Easy, Difficulty.VeryHard, Alignment.FrontRight, Orientation.Lowest, 3.0, 0.6,
+			halberd, terribleDamage, "@ knock|knocks at $1's legs and feet with $2 in an attempt to trip &1 up",
+			DamageType.Crushing, handedness: AttackHandednessOptions.TwoHandedOnly,
+			intentions: CombatMoveIntentions.Attack | CombatMoveIntentions.Wound | CombatMoveIntentions.Trip |
+						CombatMoveIntentions.Hinder, additionalInfo: ((int)Difficulty.Hard).ToString());
+		AddAttack("Halberd 2-Handed Counter Stab", BuiltInCombatMoveType.WardFreeAttack, MeleeWeaponVerb.Stab,
+			Difficulty.Hard, Difficulty.VeryHard, Difficulty.Normal, Difficulty.Easy, Alignment.Front, Orientation.High,
+			5.0, 1.0, halberd, goodDamage,
+			"@ duck|ducks inside the blow and lunge|lunges forward with a devastating stab of $2 at $1",
+			DamageType.Piercing, handedness: AttackHandednessOptions.TwoHandedOnly);
+		AddAttack("Halberd 2-Handed Low Counter Stab", BuiltInCombatMoveType.WardFreeAttack, MeleeWeaponVerb.Stab,
+			Difficulty.Hard, Difficulty.VeryHard, Difficulty.Normal, Difficulty.Easy, Alignment.Front,
+			Orientation.Centre, 5.0, 1.0, halberd, goodDamage,
+			"@ duck|ducks inside the blow and lunge|lunges forward with a devastating low stab of $2 at $1",
+			DamageType.Piercing, handedness: AttackHandednessOptions.TwoHandedOnly);
+		AddAttack("Halberd 2-Handed High Counter Stab", BuiltInCombatMoveType.WardFreeAttack, MeleeWeaponVerb.Stab,
+			Difficulty.VeryHard, Difficulty.ExtremelyHard, Difficulty.Hard, Difficulty.Hard, Alignment.Front,
+			Orientation.Highest, 5.0, 1.0, halberd, goodDamage,
+			"@ duck|ducks inside the blow and lunge|lunges forward with a devastating high stab of $2 at $1",
+			DamageType.Piercing, handedness: AttackHandednessOptions.TwoHandedOnly);
+
+		AddAttack("Halberd Smash", BuiltInCombatMoveType.MeleeWeaponSmashItem, MeleeWeaponVerb.Stab, Difficulty.Normal,
+			Difficulty.Normal, Difficulty.Normal, Difficulty.Normal, Alignment.FrontRight, Orientation.High, 5.0, 1.0,
+			halberd, badDamage, "@ stab|stabs $2 at $1", DamageType.Piercing);
+		AddAttack("Halberd Throat Stab", BuiltInCombatMoveType.CoupDeGrace, MeleeWeaponVerb.Stab, Difficulty.Normal,
+			Difficulty.Normal, Difficulty.Normal, Difficulty.Normal, Alignment.FrontRight, Orientation.High, 5.0, 1.0,
+			halberd, greatDamage, "@ brutally stab|stabs $2 into $1's throat", DamageType.Piercing,
+			additionalInfo: context.BodypartProtos.First(x => x.Name == "throat").Id.ToString());
+		AddAttack("Halberd Heart Stab", BuiltInCombatMoveType.CoupDeGrace, MeleeWeaponVerb.Stab, Difficulty.Normal,
+			Difficulty.Normal, Difficulty.Normal, Difficulty.Normal, Alignment.FrontRight, Orientation.High, 5.0, 1.0,
+			halberd, greatDamage, "@ brutally stab|stabs $2 into $1's chest right above &1's heart",
+			DamageType.Piercing, additionalInfo: context.BodypartProtos.First(x => x.Name == "rbreast").Id.ToString());
+		AddAttack("Halberd Belly Stab", BuiltInCombatMoveType.CoupDeGrace, MeleeWeaponVerb.Stab, Difficulty.Normal,
+			Difficulty.Normal, Difficulty.Normal, Difficulty.Normal, Alignment.FrontRight, Orientation.High, 5.0, 1.0,
+			halberd, greatDamage, "@ brutally stab|stabs $2 into $1's belly", DamageType.Piercing,
+			additionalInfo: context.BodypartProtos.First(x => x.Name == "belly").Id.ToString());
+		AddAttack("Halberd Neck Stab", BuiltInCombatMoveType.CoupDeGrace, MeleeWeaponVerb.Stab, Difficulty.Normal,
+			Difficulty.Normal, Difficulty.Normal, Difficulty.Normal, Alignment.FrontRight, Orientation.High, 5.0, 1.0,
+			halberd, greatDamage,
+			"@ line|lines up $2 with the back of $1's neck and brutally push|pushes the spear in", DamageType.Piercing,
+			additionalInfo: context.BodypartProtos.First(x => x.Name == "bneck").Id.ToString());
+		AddAttack("Halberd Chop Neck", BuiltInCombatMoveType.CoupDeGrace, MeleeWeaponVerb.Swing, Difficulty.Hard,
+			Difficulty.Easy, Difficulty.VeryHard, Difficulty.Easy, Alignment.Front, Orientation.Highest, 8.0, 1.5, halberd,
+			coupdegraceDamage,
+			"@ hold|holds $2 up above &0's head and bring|brings it down at $1's {0} in a devastating swing",
+			DamageType.Chopping, additionalInfo: context.BodypartProtos.First(x => x.Name == "bneck").Id.ToString());
+
+		AddAttack("Training Halberd 1-Handed Stab", BuiltInCombatMoveType.UseWeaponAttack, MeleeWeaponVerb.Stab,
+			Difficulty.VeryEasy, Difficulty.Normal, Difficulty.Normal, Difficulty.Normal, Alignment.FrontRight,
+			Orientation.High, 5.0, 1.0, trainingHalberd, trainingDamage, "@ lunge|lunges forward and stab|stabs $2 at $1",
+			DamageType.Crushing, handedness: AttackHandednessOptions.OneHandedOnly,
+			intentions: CombatMoveIntentions.Attack | CombatMoveIntentions.Training);
+		AddAttack("Training Halberd 1-Handed High Stab", BuiltInCombatMoveType.UseWeaponAttack, MeleeWeaponVerb.Stab,
+			Difficulty.VeryEasy, Difficulty.Normal, Difficulty.Normal, Difficulty.Normal, Alignment.FrontRight,
+			Orientation.Highest, 5.0, 1.0, trainingHalberd, trainingDamage,
+			"@ lunge|lunges forward and stab|stabs $2 at $1", DamageType.Crushing,
+			handedness: AttackHandednessOptions.OneHandedOnly,
+			intentions: CombatMoveIntentions.Attack | CombatMoveIntentions.Training);
+		AddAttack("Training Halberd 1-Handed Low Stab", BuiltInCombatMoveType.UseWeaponAttack, MeleeWeaponVerb.Stab,
+			Difficulty.VeryEasy, Difficulty.Normal, Difficulty.Normal, Difficulty.Normal, Alignment.FrontRight,
+			Orientation.Centre, 5.0, 1.0, trainingHalberd, trainingDamage,
+			"@ lunge|lunges forward and stab|stabs $2 at $1", DamageType.Crushing,
+			handedness: AttackHandednessOptions.OneHandedOnly,
+			intentions: CombatMoveIntentions.Attack | CombatMoveIntentions.Training);
+		AddAttack("Training Halberd 1-Handed Leg Stab", BuiltInCombatMoveType.UseWeaponAttack, MeleeWeaponVerb.Stab,
+			Difficulty.VeryEasy, Difficulty.Easy, Difficulty.Easy, Difficulty.Hard, Alignment.FrontRight,
+			Orientation.Low, 5.0, 1.0, trainingHalberd, trainingDamage,
+			"@ lunge|lunges forward and stab|stabs $2 at $1's leg", DamageType.Crushing,
+			handedness: AttackHandednessOptions.OneHandedOnly,
+			intentions: CombatMoveIntentions.Attack | CombatMoveIntentions.Training);
+		AddAttack("Training Halberd 1-Handed Foot Stab", BuiltInCombatMoveType.UseWeaponAttack, MeleeWeaponVerb.Stab,
+			Difficulty.VeryEasy, Difficulty.Easy, Difficulty.VeryEasy, Difficulty.VeryHard, Alignment.FrontRight,
+			Orientation.Lowest, 5.0, 1.0, trainingHalberd, trainingDamage,
+			"@ lunge|lunges forward and stab|stabs $2 at $1's foot", DamageType.Crushing,
+			handedness: AttackHandednessOptions.OneHandedOnly,
+			intentions: CombatMoveIntentions.Attack | CombatMoveIntentions.Training);
+		AddAttack("Training Halberd 1-Handed Trip", BuiltInCombatMoveType.UnbalancingBlow, MeleeWeaponVerb.Sweep,
+			Difficulty.VeryEasy, Difficulty.Easy, Difficulty.Easy, Difficulty.VeryHard, Alignment.FrontRight,
+			Orientation.Lowest, 3.0, 0.6, trainingHalberd, trainingDamage,
+			"@ knock|knocks at $1's legs and feet with $2 in an attempt to trip &1 up", DamageType.Crushing,
+			handedness: AttackHandednessOptions.OneHandedOnly, additionalInfo: ((int)Difficulty.Normal).ToString(),
+			intentions: CombatMoveIntentions.Attack | CombatMoveIntentions.Training);
+		AddAttack("Training Halberd 1-Handed Counter Jab", BuiltInCombatMoveType.WardFreeAttack, MeleeWeaponVerb.Jab,
+			Difficulty.Easy, Difficulty.Normal, Difficulty.Normal, Difficulty.Easy, Alignment.FrontRight,
+			Orientation.High, 5.0, 1.0, trainingHalberd, trainingDamage, "@ lunge|lunges forward and stab|stabs $2 at $1",
+			DamageType.Crushing, handedness: AttackHandednessOptions.OneHandedOnly,
+			intentions: CombatMoveIntentions.Attack | CombatMoveIntentions.Training);
+		AddAttack("Training Halberd 1-Handed Low Counter Jab", BuiltInCombatMoveType.WardFreeAttack, MeleeWeaponVerb.Jab,
+			Difficulty.Easy, Difficulty.Normal, Difficulty.Normal, Difficulty.Easy, Alignment.FrontRight,
+			Orientation.Centre, 5.0, 1.0, trainingHalberd, trainingDamage,
+			"@ lunge|lunges forward and stab|stabs $2 at $1", DamageType.Crushing,
+			handedness: AttackHandednessOptions.OneHandedOnly,
+			intentions: CombatMoveIntentions.Attack | CombatMoveIntentions.Training);
+
+		AddAttack("Training Halberd 2-Handed Stab", BuiltInCombatMoveType.UseWeaponAttack, MeleeWeaponVerb.Stab,
+			Difficulty.VeryEasy, Difficulty.Normal, Difficulty.Normal, Difficulty.Normal, Alignment.FrontRight,
+			Orientation.High, 5.0, 1.0, trainingHalberd, trainingDamage, "@ lunge|lunges forward and stab|stabs $2 at $1",
+			DamageType.Crushing, handedness: AttackHandednessOptions.TwoHandedOnly,
+			intentions: CombatMoveIntentions.Attack | CombatMoveIntentions.Training);
+		AddAttack("Training Halberd 2-Handed High Stab", BuiltInCombatMoveType.UseWeaponAttack, MeleeWeaponVerb.Stab,
+			Difficulty.VeryEasy, Difficulty.Normal, Difficulty.Normal, Difficulty.Normal, Alignment.FrontRight,
+			Orientation.Highest, 5.0, 1.0, trainingHalberd, trainingDamage,
+			"@ lunge|lunges forward and stab|stabs $2 at $1", DamageType.Crushing,
+			handedness: AttackHandednessOptions.TwoHandedOnly,
+			intentions: CombatMoveIntentions.Attack | CombatMoveIntentions.Training);
+		AddAttack("Training Halberd 2-Handed Low Stab", BuiltInCombatMoveType.UseWeaponAttack, MeleeWeaponVerb.Stab,
+			Difficulty.VeryEasy, Difficulty.Normal, Difficulty.Normal, Difficulty.Normal, Alignment.FrontRight,
+			Orientation.Centre, 5.0, 1.0, trainingHalberd, trainingDamage,
+			"@ lunge|lunges forward and stab|stabs $2 at $1", DamageType.Crushing,
+			handedness: AttackHandednessOptions.TwoHandedOnly,
+			intentions: CombatMoveIntentions.Attack | CombatMoveIntentions.Training);
+		AddAttack("Training Halberd 2-Handed Leg Stab", BuiltInCombatMoveType.UseWeaponAttack, MeleeWeaponVerb.Stab,
+			Difficulty.VeryEasy, Difficulty.Easy, Difficulty.Easy, Difficulty.Hard, Alignment.FrontRight,
+			Orientation.Low, 5.0, 1.0, trainingHalberd, trainingDamage,
+			"@ lunge|lunges forward and stab|stabs $2 at $1's leg", DamageType.Crushing,
+			handedness: AttackHandednessOptions.TwoHandedOnly,
+			intentions: CombatMoveIntentions.Attack | CombatMoveIntentions.Training);
+		AddAttack("Training Halberd 2-Handed Foot Stab", BuiltInCombatMoveType.UseWeaponAttack, MeleeWeaponVerb.Stab,
+			Difficulty.VeryEasy, Difficulty.Easy, Difficulty.VeryEasy, Difficulty.VeryHard, Alignment.FrontRight,
+			Orientation.Lowest, 5.0, 1.0, trainingHalberd, trainingDamage,
+			"@ lunge|lunges forward and stab|stabs $2 at $1's foot", DamageType.Crushing,
+			handedness: AttackHandednessOptions.TwoHandedOnly,
+			intentions: CombatMoveIntentions.Attack | CombatMoveIntentions.Training);
+		AddAttack("Training Halberd 2-Handed Overhead Swing", BuiltInCombatMoveType.UseWeaponAttack, MeleeWeaponVerb.Swing,
+			Difficulty.Hard, Difficulty.Easy, Difficulty.Normal, Difficulty.Easy, Alignment.Front, Orientation.Highest,
+			6.0, 1.4, trainingHalberd, trainingDamage, "@ swing|swings $2 in an overhead blow at $1", DamageType.Crushing,
+			handedness: AttackHandednessOptions.TwoHandedOnly,
+			intentions: CombatMoveIntentions.Attack | CombatMoveIntentions.Training | CombatMoveIntentions.Slow);
+
+		AddAttack("Training Halberd 2-Handed Leg Sweep", BuiltInCombatMoveType.UnbalancingBlow, MeleeWeaponVerb.Sweep,
+			Difficulty.VeryEasy, Difficulty.Easy, Difficulty.Easy, Difficulty.Hard, Alignment.FrontRight,
+			Orientation.Low, 5.0, 1.0, trainingHalberd, trainingDamage,
+			"@ sweep|sweeps $2 around at $1's legs in an attempt to knock &1 off balance", DamageType.Crushing,
+			handedness: AttackHandednessOptions.TwoHandedOnly, additionalInfo: ((int)Difficulty.Normal).ToString(),
+			intentions: CombatMoveIntentions.Attack | CombatMoveIntentions.Training);
+		AddAttack("Training Halberd 2-Handed Trip", BuiltInCombatMoveType.UnbalancingBlow, MeleeWeaponVerb.Sweep,
+			Difficulty.VeryEasy, Difficulty.Easy, Difficulty.Easy, Difficulty.VeryHard, Alignment.FrontRight,
+			Orientation.Lowest, 3.0, 0.6, trainingHalberd, trainingDamage,
+			"@ knock|knocks at $1's legs and feet with $2 in an attempt to trip &1 up", DamageType.Crushing,
+			handedness: AttackHandednessOptions.TwoHandedOnly, additionalInfo: ((int)Difficulty.Hard).ToString(),
+			intentions: CombatMoveIntentions.Attack | CombatMoveIntentions.Training);
+		AddAttack("Training Halberd 2-Handed Counter Stab", BuiltInCombatMoveType.WardFreeAttack, MeleeWeaponVerb.Stab,
+			Difficulty.Easy, Difficulty.VeryHard, Difficulty.Normal, Difficulty.Easy, Alignment.Front, Orientation.High,
+			5.0, 1.0, trainingHalberd, trainingDamage,
+			"@ duck|ducks inside the blow and lunge|lunges forward with a devastating stab of $2 at $1",
+			DamageType.Crushing, handedness: AttackHandednessOptions.TwoHandedOnly,
+			intentions: CombatMoveIntentions.Attack | CombatMoveIntentions.Training);
+		AddAttack("Training Halberd 2-Handed Low Counter Stab", BuiltInCombatMoveType.WardFreeAttack,
+			MeleeWeaponVerb.Stab, Difficulty.Easy, Difficulty.VeryHard, Difficulty.Normal, Difficulty.Easy,
+			Alignment.Front, Orientation.Centre, 5.0, 1.0, trainingHalberd, trainingDamage,
+			"@ duck|ducks inside the blow and lunge|lunges forward with a devastating low stab of $2 at $1",
+			DamageType.Crushing, handedness: AttackHandednessOptions.TwoHandedOnly,
+			intentions: CombatMoveIntentions.Attack | CombatMoveIntentions.Training);
+		AddAttack("Training Halberd 2-Handed High Counter Stab", BuiltInCombatMoveType.WardFreeAttack,
+			MeleeWeaponVerb.Stab, Difficulty.Easy, Difficulty.ExtremelyHard, Difficulty.Hard, Difficulty.Hard,
+			Alignment.Front, Orientation.Highest, 5.0, 1.0, trainingHalberd, trainingDamage,
+			"@ duck|ducks inside the blow and lunge|lunges forward with a devastating high stab of $2 at $1",
+			DamageType.Crushing, handedness: AttackHandednessOptions.TwoHandedOnly,
+			intentions: CombatMoveIntentions.Attack | CombatMoveIntentions.Training);
 		#endregion
 
 		#region Spears
@@ -4324,6 +5573,221 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
 			DamageType.Crushing, handedness: AttackHandednessOptions.TwoHandedOnly,
 			intentions: CombatMoveIntentions.Attack | CombatMoveIntentions.Training);
 
+		#endregion
+
+		#region Mattock
+		var mattock = new WeaponType
+		{
+			Name = "Mattock",
+			Classification = (int)WeaponClassification.Lethal,
+			AttackTrait = skills["Mattock"],
+			ParryTrait = parrySkills["Mattock"],
+			ParryBonus = -3,
+			Reach = 4,
+			StaminaPerParry = 5.0
+		};
+		context.WeaponTypes.Add(mattock);
+		context.SaveChanges();
+		CreateWeaponComponent(mattock);
+		var trainingmattock = new WeaponType
+		{
+			Name = "Training Mattock",
+			Classification = (int)WeaponClassification.Training,
+			AttackTrait = skills["Mattock"],
+			ParryTrait = parrySkills["Mattock"],
+			ParryBonus = -3,
+			Reach = 4,
+			StaminaPerParry = 5.0
+		};
+		context.WeaponTypes.Add(trainingmattock);
+		context.SaveChanges();
+		CreateWeaponComponent(trainingmattock);
+
+		AddAttack("Mattock 1-Handed Swing", BuiltInCombatMoveType.UseWeaponAttack, MeleeWeaponVerb.Swing,
+			Difficulty.Normal, Difficulty.Easy, Difficulty.Hard, Difficulty.Easy, Alignment.FrontRight,
+			Orientation.High, 6.5, 1.4, mattock, veryGoodDamage, "@ swing|swings $2 at $1", DamageType.ArmourPiercing,
+			handedness: AttackHandednessOptions.OneHandedOnly, additionalInfo: ((int)Difficulty.Hard).ToString());
+		AddAttack("Mattock 1-Handed High Swing", BuiltInCombatMoveType.UseWeaponAttack, MeleeWeaponVerb.Swing,
+			Difficulty.Normal, Difficulty.Easy, Difficulty.Hard, Difficulty.Easy, Alignment.FrontRight,
+			Orientation.Highest, 6.5, 1.6, mattock, veryGoodDamage, "@ swing|swings $2 in a high blow at $1",
+			DamageType.ArmourPiercing, handedness: AttackHandednessOptions.OneHandedOnly,
+			additionalInfo: ((int)Difficulty.Hard).ToString());
+		AddAttack("Mattock 1-Handed Low Swing", BuiltInCombatMoveType.UseWeaponAttack, MeleeWeaponVerb.Swing,
+			Difficulty.Normal, Difficulty.Easy, Difficulty.Hard, Difficulty.Easy, Alignment.FrontRight,
+			Orientation.Centre, 6.5, 1.4, mattock, veryGoodDamage, "@ swing|swings $2 in a low blow at $1",
+			DamageType.ArmourPiercing, handedness: AttackHandednessOptions.OneHandedOnly,
+			additionalInfo: ((int)Difficulty.Hard).ToString());
+		AddAttack("Mattock 1-Handed Leg Swing", BuiltInCombatMoveType.UseWeaponAttack, MeleeWeaponVerb.Swing,
+			Difficulty.Normal, Difficulty.Easy, Difficulty.Hard, Difficulty.Easy, Alignment.FrontRight, Orientation.Low,
+			6.5, 1.6, mattock, veryGoodDamage, "@ swing|swings $2 at $1's legs", DamageType.ArmourPiercing,
+			handedness: AttackHandednessOptions.OneHandedOnly, additionalInfo: ((int)Difficulty.Hard).ToString());
+		AddAttack("Mattock 1-Handed Arm Swing", BuiltInCombatMoveType.UseWeaponAttack, MeleeWeaponVerb.Swing,
+			Difficulty.Normal, Difficulty.Easy, Difficulty.Hard, Difficulty.VeryEasy, Alignment.FrontRight,
+			Orientation.Appendage, 6.5, 1.6, mattock, veryGoodDamage, "@ swing|swings $2 at $1's arms",
+			DamageType.ArmourPiercing, handedness: AttackHandednessOptions.OneHandedOnly,
+			additionalInfo: ((int)Difficulty.Hard).ToString());
+		AddAttack("Mattock 1-Handed Overhead Swing", BuiltInCombatMoveType.UseWeaponAttack, MeleeWeaponVerb.Swing,
+			Difficulty.Hard, Difficulty.VeryEasy, Difficulty.VeryHard, Difficulty.Easy, Alignment.Front,
+			Orientation.Highest, 8.0, 1.8, mattock, greatDamage, "@ swing|swings $2 in an overhead blow at $1",
+			DamageType.ArmourPiercing, handedness: AttackHandednessOptions.OneHandedOnly,
+			additionalInfo: ((int)Difficulty.Hard).ToString());
+		AddAttack("Mattock 1-Handed Haft Bash", BuiltInCombatMoveType.ClinchAttack, MeleeWeaponVerb.Bash,
+			Difficulty.VeryHard, Difficulty.Easy, Difficulty.VeryHard, Difficulty.Easy, Alignment.Front,
+			Orientation.Highest, 5.0, 1.3, mattock, badDamage,
+			"@ heave|heaves the haft of $2 down towards $1's head");
+
+		AddAttack("Mattock Smash", BuiltInCombatMoveType.MeleeWeaponSmashItem, MeleeWeaponVerb.Swing, Difficulty.Easy,
+			Difficulty.Easy, Difficulty.VeryHard, Difficulty.Easy, Alignment.Front, Orientation.Highest, 6.0, 1.3,
+			mattock, veryGoodDamage, "@ swing|swings $2 at $1");
+		AddAttack("Mattock Strike Head", BuiltInCombatMoveType.CoupDeGrace, MeleeWeaponVerb.Swing, Difficulty.Hard,
+			Difficulty.Easy, Difficulty.VeryHard, Difficulty.Easy, Alignment.Front, Orientation.Highest, 8.0, 1.5,
+			mattock, coupdegraceDamage,
+			"@ hold|holds $2 up above &0's head and bring|brings it down at $1 in a devastating swing",
+			DamageType.ArmourPiercing, additionalInfo: context.BodypartProtos.First(x => x.Name == "scalp").Id.ToString());
+		AddAttack("Mattock Strike Neck", BuiltInCombatMoveType.CoupDeGrace, MeleeWeaponVerb.Swing, Difficulty.Hard,
+			Difficulty.Easy, Difficulty.VeryHard, Difficulty.Easy, Alignment.Front, Orientation.Highest, 8.0, 1.5,
+			mattock, coupdegraceDamage,
+			"@ hold|holds $2 up above &0's head and bring|brings it down at $1 in a devastating swing",
+			DamageType.ArmourPiercing, additionalInfo: context.BodypartProtos.First(x => x.Name == "bneck").Id.ToString());
+		AddAttack("Mattock Strike Right Hand", BuiltInCombatMoveType.CoupDeGrace, MeleeWeaponVerb.Swing,
+			Difficulty.Hard, Difficulty.Easy, Difficulty.VeryHard, Difficulty.Easy, Alignment.Front,
+			Orientation.Highest, 8.0, 1.5, mattock, coupdegraceDamage,
+			"@ hold|holds $2 up above &0's head and bring|brings it down at $1 in a devastating swing",
+			DamageType.ArmourPiercing, additionalInfo: context.BodypartProtos.First(x => x.Name == "rhand").Id.ToString());
+		AddAttack("Mattock Strike Left Hand", BuiltInCombatMoveType.CoupDeGrace, MeleeWeaponVerb.Swing,
+			Difficulty.Hard, Difficulty.Easy, Difficulty.VeryHard, Difficulty.Easy, Alignment.Front,
+			Orientation.Highest, 8.0, 1.5, mattock, coupdegraceDamage,
+			"@ hold|holds $2 up above &0's head and bring|brings it down at $1 in a devastating swing",
+			DamageType.ArmourPiercing, additionalInfo: context.BodypartProtos.First(x => x.Name == "lhand").Id.ToString());
+		AddAttack("Mattock Strike Right Leg", BuiltInCombatMoveType.CoupDeGrace, MeleeWeaponVerb.Swing,
+			Difficulty.Hard, Difficulty.Easy, Difficulty.VeryHard, Difficulty.Easy, Alignment.Front,
+			Orientation.Highest, 8.0, 1.5, mattock, coupdegraceDamage,
+			"@ hold|holds $2 up above &0's head and bring|brings it down at $1 in a devastating swing",
+			DamageType.ArmourPiercing, additionalInfo: context.BodypartProtos.First(x => x.Name == "rshin").Id.ToString());
+		AddAttack("Mattock Strike Left Leg", BuiltInCombatMoveType.CoupDeGrace, MeleeWeaponVerb.Swing, Difficulty.Hard,
+			Difficulty.Easy, Difficulty.VeryHard, Difficulty.Easy, Alignment.Front, Orientation.Highest, 8.0, 1.5,
+			mattock, coupdegraceDamage,
+			"@ hold|holds $2 up above &0's head and bring|brings it down at $1 in a devastating swing",
+			DamageType.ArmourPiercing, additionalInfo: context.BodypartProtos.First(x => x.Name == "lshin").Id.ToString());
+
+		AddAttack("Mattock 2-Handed Swing", BuiltInCombatMoveType.UseWeaponAttack, MeleeWeaponVerb.Swing,
+			Difficulty.Hard, Difficulty.Easy, Difficulty.ExtremelyHard, Difficulty.VeryEasy, Alignment.FrontRight,
+			Orientation.High, 6.5, 1.2, mattock, veryGoodDamage, "@ swing|swings $2 at $1", DamageType.ArmourPiercing,
+			handedness: AttackHandednessOptions.TwoHandedOnly, additionalInfo: ((int)Difficulty.VeryHard).ToString());
+		AddAttack("Mattock 2-Handed High Swing", BuiltInCombatMoveType.UseWeaponAttack, MeleeWeaponVerb.Swing,
+			Difficulty.Hard, Difficulty.VeryEasy, Difficulty.ExtremelyHard, Difficulty.VeryEasy, Alignment.FrontRight,
+			Orientation.Highest, 6.5, 1.2, mattock, veryGoodDamage, "@ swing|swings $2 high at $1",
+			DamageType.ArmourPiercing, handedness: AttackHandednessOptions.TwoHandedOnly,
+			additionalInfo: ((int)Difficulty.VeryHard).ToString());
+		AddAttack("Mattock 2-Handed Low Swing", BuiltInCombatMoveType.UseWeaponAttack, MeleeWeaponVerb.Swing,
+			Difficulty.Hard, Difficulty.Normal, Difficulty.ExtremelyHard, Difficulty.ExtremelyEasy,
+			Alignment.FrontRight, Orientation.Centre, 6.5, 1.2, mattock, veryGoodDamage,
+			"@ swing|swings $2 low at $1", DamageType.ArmourPiercing, handedness: AttackHandednessOptions.TwoHandedOnly,
+			additionalInfo: ((int)Difficulty.VeryHard).ToString());
+		AddAttack("Mattock 2-Handed Heavy Swing", BuiltInCombatMoveType.UseWeaponAttack, MeleeWeaponVerb.Swing,
+			Difficulty.Hard, Difficulty.VeryEasy, Difficulty.ExtremelyHard, Difficulty.VeryEasy, Alignment.FrontRight,
+			Orientation.High, 8.5, 1.4, mattock, greatDamage, "@ swing|swings $2 at $1", DamageType.ArmourPiercing,
+			handedness: AttackHandednessOptions.TwoHandedOnly,
+			additionalInfo: ((int)Difficulty.ExtremelyHard).ToString());
+		AddAttack("Mattock 2-Handed Heavy High Swing", BuiltInCombatMoveType.UseWeaponAttack, MeleeWeaponVerb.Swing,
+			Difficulty.Hard, Difficulty.ExtremelyEasy, Difficulty.ExtremelyHard, Difficulty.VeryEasy,
+			Alignment.FrontRight, Orientation.Highest, 8.5, 1.4, mattock, greatDamage, "@ swing|swings $2 high at $1",
+			DamageType.ArmourPiercing, handedness: AttackHandednessOptions.TwoHandedOnly,
+			additionalInfo: ((int)Difficulty.ExtremelyHard).ToString());
+		AddAttack("Mattock 2-Handed Heavy Low Swing", BuiltInCombatMoveType.UseWeaponAttack, MeleeWeaponVerb.Swing,
+			Difficulty.Hard, Difficulty.Easy, Difficulty.ExtremelyHard, Difficulty.ExtremelyEasy, Alignment.FrontRight,
+			Orientation.Centre, 8.5, 1.4, mattock, greatDamage, "@ swing|swings $2 low at $1", DamageType.ArmourPiercing,
+			handedness: AttackHandednessOptions.TwoHandedOnly,
+			additionalInfo: ((int)Difficulty.ExtremelyHard).ToString());
+		AddAttack("Mattock 2-Handed Downed Killing Blow", BuiltInCombatMoveType.DownedAttack, MeleeWeaponVerb.Swing,
+			Difficulty.Normal, Difficulty.Easy, Difficulty.ExtremelyHard, Difficulty.ExtremelyEasy, Alignment.Front,
+			Orientation.Highest, 8.5, 1.4, mattock, greatDamage,
+			"@ raise|raises $2 above &0's head and bring|brings it crashing down towards $1's {0} as #1 %1|lay|lays prone and vulnerable",
+			DamageType.ArmourPiercing, handedness: AttackHandednessOptions.TwoHandedOnly,
+			additionalInfo: ((int)Difficulty.ExtremelyHard).ToString());
+		AddAttack("Mattock 2-Handed Downed Hobbling Blow", BuiltInCombatMoveType.DownedAttack, MeleeWeaponVerb.Swing,
+			Difficulty.Normal, Difficulty.Easy, Difficulty.ExtremelyHard, Difficulty.ExtremelyEasy,
+			Alignment.FrontRight, Orientation.Lowest, 8.5, 1.4, mattock, greatDamage,
+			"@ raise|raises $2 above &0's head and bring|brings it crashing down towards $1's {0} as #1 %1|lay|lays prone and vulnerable",
+			DamageType.ArmourPiercing, handedness: AttackHandednessOptions.TwoHandedOnly,
+			additionalInfo: ((int)Difficulty.ExtremelyHard).ToString());
+		AddAttack("Mattock 2-Handed Downed Maiming Blow", BuiltInCombatMoveType.DownedAttack, MeleeWeaponVerb.Swing,
+			Difficulty.Normal, Difficulty.Easy, Difficulty.ExtremelyHard, Difficulty.ExtremelyEasy,
+			Alignment.FrontRight, Orientation.Appendage, 8.5, 1.4, mattock, greatDamage,
+			"@ raise|raises $2 above &0's head and bring|brings it crashing down towards $1's {0} as #1 %1|lay|lays prone and vulnerable",
+			DamageType.ArmourPiercing, handedness: AttackHandednessOptions.TwoHandedOnly,
+			additionalInfo: ((int)Difficulty.ExtremelyHard).ToString());
+		AddAttack("Mattock 2-Handed Downed Finishing Blow", BuiltInCombatMoveType.DownedAttack, MeleeWeaponVerb.Swing,
+			Difficulty.Normal, Difficulty.Easy, Difficulty.ExtremelyHard, Difficulty.ExtremelyEasy,
+			Alignment.FrontRight, Orientation.Centre, 8.5, 1.4, mattock, greatDamage,
+			"@ raise|raises $2 above &0's head and bring|brings it crashing down towards $1's {0} as #1 %1|lay|lays prone and vulnerable",
+			DamageType.ArmourPiercing, handedness: AttackHandednessOptions.TwoHandedOnly,
+			additionalInfo: ((int)Difficulty.ExtremelyHard).ToString());
+
+		AddAttack("Training Mattock 1-Handed Swing", BuiltInCombatMoveType.UseWeaponAttack, MeleeWeaponVerb.Swing,
+			Difficulty.Normal, Difficulty.Easy, Difficulty.Hard, Difficulty.Easy, Alignment.FrontRight,
+			Orientation.High, 6.5, 1.4, trainingmattock, trainingDamage, "@ swing|swings $2 at $1",
+			DamageType.ArmourPiercing, handedness: AttackHandednessOptions.OneHandedOnly,
+			additionalInfo: ((int)Difficulty.Hard).ToString());
+		AddAttack("Training Mattock 1-Handed High Swing", BuiltInCombatMoveType.UseWeaponAttack, MeleeWeaponVerb.Swing,
+			Difficulty.Normal, Difficulty.Easy, Difficulty.Hard, Difficulty.Easy, Alignment.FrontRight,
+			Orientation.Highest, 6.5, 1.6, trainingmattock, trainingDamage, "@ swing|swings $2 in a high blow at $1",
+			DamageType.ArmourPiercing, handedness: AttackHandednessOptions.OneHandedOnly,
+			additionalInfo: ((int)Difficulty.Hard).ToString());
+		AddAttack("Training Mattock 1-Handed Low Swing", BuiltInCombatMoveType.UseWeaponAttack, MeleeWeaponVerb.Swing,
+			Difficulty.Normal, Difficulty.Easy, Difficulty.Hard, Difficulty.Easy, Alignment.FrontRight,
+			Orientation.Centre, 6.5, 1.4, trainingmattock, trainingDamage, "@ swing|swings $2 in a low blow at $1",
+			DamageType.ArmourPiercing, handedness: AttackHandednessOptions.OneHandedOnly,
+			additionalInfo: ((int)Difficulty.Hard).ToString());
+		AddAttack("Training Mattock 1-Handed Leg Swing", BuiltInCombatMoveType.UseWeaponAttack, MeleeWeaponVerb.Swing,
+			Difficulty.Normal, Difficulty.Easy, Difficulty.Hard, Difficulty.Easy, Alignment.FrontRight, Orientation.Low,
+			6.5, 1.6, trainingmattock, trainingDamage, "@ swing|swings $2 at $1's legs", DamageType.ArmourPiercing,
+			handedness: AttackHandednessOptions.OneHandedOnly, additionalInfo: ((int)Difficulty.Hard).ToString());
+		AddAttack("Training Mattock 1-Handed Arm Swing", BuiltInCombatMoveType.UseWeaponAttack, MeleeWeaponVerb.Swing,
+			Difficulty.Normal, Difficulty.Easy, Difficulty.Hard, Difficulty.VeryEasy, Alignment.FrontRight,
+			Orientation.Appendage, 6.5, 1.6, trainingmattock, trainingDamage, "@ swing|swings $2 at $1's arms",
+			DamageType.ArmourPiercing, handedness: AttackHandednessOptions.OneHandedOnly,
+			additionalInfo: ((int)Difficulty.Hard).ToString());
+		AddAttack("Training Mattock 1-Handed Overhead Swing", BuiltInCombatMoveType.UseWeaponAttack,
+			MeleeWeaponVerb.Swing, Difficulty.Hard, Difficulty.VeryEasy, Difficulty.VeryHard, Difficulty.Easy,
+			Alignment.Front, Orientation.Highest, 8.0, 1.8, trainingmattock, trainingDamage,
+			"@ swing|swings $2 in an overhead blow at $1", DamageType.ArmourPiercing,
+			handedness: AttackHandednessOptions.OneHandedOnly, additionalInfo: ((int)Difficulty.Hard).ToString());
+		AddAttack("Training Mattock 1-Handed Haft Bash", BuiltInCombatMoveType.ClinchAttack, MeleeWeaponVerb.Bash,
+			Difficulty.VeryHard, Difficulty.Easy, Difficulty.VeryHard, Difficulty.Easy, Alignment.Front,
+			Orientation.Highest, 5.0, 1.3, trainingmattock, trainingDamage,
+			"@ heave|heaves the haft of $2 down towards $1's head");
+
+		AddAttack("Training Mattock 2-Handed Swing", BuiltInCombatMoveType.UseWeaponAttack, MeleeWeaponVerb.Swing,
+			Difficulty.Hard, Difficulty.Easy, Difficulty.ExtremelyHard, Difficulty.VeryEasy, Alignment.FrontRight,
+			Orientation.High, 6.5, 1.2, trainingmattock, trainingDamage, "@ swing|swings $2 at $1",
+			DamageType.ArmourPiercing, handedness: AttackHandednessOptions.TwoHandedOnly,
+			additionalInfo: ((int)Difficulty.VeryHard).ToString());
+		AddAttack("Training Mattock 2-Handed High Swing", BuiltInCombatMoveType.UseWeaponAttack, MeleeWeaponVerb.Swing,
+			Difficulty.Hard, Difficulty.VeryEasy, Difficulty.ExtremelyHard, Difficulty.VeryEasy, Alignment.FrontRight,
+			Orientation.Highest, 6.5, 1.2, trainingmattock, trainingDamage, "@ swing|swings $2 high at $1",
+			DamageType.ArmourPiercing, handedness: AttackHandednessOptions.TwoHandedOnly,
+			additionalInfo: ((int)Difficulty.VeryHard).ToString());
+		AddAttack("Training Mattock 2-Handed Low Swing", BuiltInCombatMoveType.UseWeaponAttack, MeleeWeaponVerb.Swing,
+			Difficulty.Hard, Difficulty.Normal, Difficulty.ExtremelyHard, Difficulty.ExtremelyEasy,
+			Alignment.FrontRight, Orientation.Centre, 6.5, 1.2, trainingmattock, trainingDamage,
+			"@ swing|swings $2 low at $1", DamageType.ArmourPiercing, handedness: AttackHandednessOptions.TwoHandedOnly,
+			additionalInfo: ((int)Difficulty.VeryHard).ToString());
+		AddAttack("Training Mattock 2-Handed Heavy Swing", BuiltInCombatMoveType.UseWeaponAttack,
+			MeleeWeaponVerb.Swing, Difficulty.Hard, Difficulty.VeryEasy, Difficulty.ExtremelyHard, Difficulty.VeryEasy,
+			Alignment.FrontRight, Orientation.High, 8.5, 1.4, trainingmattock, trainingDamage,
+			"@ swing|swings $2 at $1", DamageType.ArmourPiercing, handedness: AttackHandednessOptions.TwoHandedOnly,
+			additionalInfo: ((int)Difficulty.ExtremelyHard).ToString());
+		AddAttack("Training Mattock 2-Handed Heavy High Swing", BuiltInCombatMoveType.UseWeaponAttack,
+			MeleeWeaponVerb.Swing, Difficulty.Hard, Difficulty.ExtremelyEasy, Difficulty.ExtremelyHard,
+			Difficulty.VeryEasy, Alignment.FrontRight, Orientation.Highest, 8.5, 1.4, trainingmattock, trainingDamage,
+			"@ swing|swings $2 high at $1", DamageType.ArmourPiercing, handedness: AttackHandednessOptions.TwoHandedOnly,
+			additionalInfo: ((int)Difficulty.ExtremelyHard).ToString());
+		AddAttack("Training Mattock 2-Handed Heavy Low Swing", BuiltInCombatMoveType.UseWeaponAttack,
+			MeleeWeaponVerb.Swing, Difficulty.Hard, Difficulty.Easy, Difficulty.ExtremelyHard, Difficulty.ExtremelyEasy,
+			Alignment.FrontRight, Orientation.Centre, 8.5, 1.4, trainingmattock, trainingDamage,
+			"@ swing|swings $2 low at $1", DamageType.ArmourPiercing, handedness: AttackHandednessOptions.TwoHandedOnly,
+			additionalInfo: ((int)Difficulty.ExtremelyHard).ToString());
 		#endregion
 
 		#region Warhammers

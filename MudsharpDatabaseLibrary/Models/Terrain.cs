@@ -33,6 +33,7 @@ namespace MudSharp.Models
 		public bool CanHaveTracks { get; set; }
 		public double TrackIntensityMultiplierVisual { get; set; }
 		public double TrackIntensityMultiplierOlfactory { get; set; }
+		public string TagInformation { get; set; }
 
 		public virtual WeatherController WeatherController { get; set; }
 		public virtual ICollection<CellOverlay> CellOverlays { get; set; }

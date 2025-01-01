@@ -3583,7 +3583,12 @@ The syntax is as follows:
 
 	[PlayerCommand("Attach", "attach")]
 	[DelayBlock("general", "You must first stop {0} before you can do that.")]
-	[HelpInfo("attach", "Syntax: attach <item> <belt>\n\tattach <prosthetic> [<target player>]",
+	[HelpInfo("attach", @"The #3attach#0 command is used to attach things to other things, usually either belts or weapon attachments.
+
+The syntax is as follows:
+
+	#3attach <item> <target>#0 - attaches an item to a belt or weapon
+	#3attach <prosthetic> [<target player>]#0 - attaches a prosthetic to a player (or yourself if not specified)",
 		AutoHelp.HelpArgOrNoArg)]
 	[RequiredCharacterState(CharacterState.Able)]
 	protected static void Attach(ICharacter actor, string command)
@@ -3669,6 +3674,12 @@ The syntax is as follows:
 				actor.OutputHandler.Handle(
 					new EmoteOutput(
 						new Emote("You cannot attached $0 because $1 has no spare room to which to attach things.",
+							actor, targetItem, targetBelt)), OutputRange.Personal);
+				break;
+			case IBeltCanAttachBeltableResult.NotValidType:
+				actor.OutputHandler.Handle(
+					new EmoteOutput(
+						new Emote("You cannot attached $0 to $1 because it is not a valid type for that attachment.",
 							actor, targetItem, targetBelt)), OutputRange.Personal);
 				break;
 		}
@@ -6119,6 +6130,12 @@ The syntax is as follows:
 				actor.Send("There is no exit in that direction that you can see.");
 				return;
 			}
+		}
+
+		if (exit?.Exit.Door is not null && !exit.Exit.Door.IsOpen && !exit.Exit.Door.CanFireThrough)
+		{
+			actor.OutputHandler.Send($"You can't lob anything through {exit.Exit.Door.Parent.HowSeen(actor)}.");
+			return;
 		}
 
 		IPerceiver target = null;

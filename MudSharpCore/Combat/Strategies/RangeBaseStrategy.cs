@@ -32,7 +32,7 @@ public abstract class RangeBaseStrategy : StrategyBase
 						        x.WeaponType.Attacks.Any(
 							        y =>
 								        y.MoveType == BuiltInCombatMoveType.ReceiveCharge &&
-								        ((bool?)y.UsabilityProg?.Execute(defender, move.Assailant, x.Parent) ?? true)))
+								        (y.UsabilityProg?.ExecuteBool(defender, move.Assailant, x.Parent) ?? true)))
 				        .ToList();
 			if (receivingWeapons.Any())
 			{
@@ -41,7 +41,7 @@ public abstract class RangeBaseStrategy : StrategyBase
 					weapon.WeaponType.Attacks.Where(
 						      x =>
 							      x.MoveType == BuiltInCombatMoveType.ReceiveCharge &&
-							      ((bool?)x.UsabilityProg?.Execute(defender, move.Assailant, weapon.Parent) ?? true))
+							      (x.UsabilityProg?.ExecuteBool(defender, move.Assailant, weapon.Parent) ?? true))
 					      .GetWeightedRandom(x => x.Weighting), assailant as ICharacter);
 			}
 		}

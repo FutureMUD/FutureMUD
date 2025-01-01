@@ -598,6 +598,43 @@ public partial class Body
 	{
 		var sb = new StringBuilder();
 		sb.AppendLine(thing.HowSeen(Actor, true, DescriptionType.Full));
+
+		if (thing is IGameItem gi && fromLookCommand)
+		{
+
+			if (Actor.IsAdministrator() && gi.GetItemType<IDestroyable>() is { } id)
+			{
+				var damage = gi.Wounds.Sum(x => x.CurrentDamage);
+				var hp = id.MaximumDamage;
+				var currentHP = hp - damage;
+				sb.AppendLine($"HP: {currentHP.ToStringN2Colour(Actor)}/{hp.ToStringN2Colour(Actor)}");
+			}
+
+			if (gi.EffectsOfType<IGraffitiEffect>().Any())
+			{
+				sb.AppendLine($"This item has graffiti. Use LOOK <item> GRAFFITI to view it.".Colour(Telnet.BoldCyan));
+			}
+			var dub = Dubs.FirstOrDefault(x => x.TargetId == thing.Id && x.TargetType == thing.FrameworkItemType);
+			if (dub != null)
+			{
+				sb.AppendLine(
+					$"You have dubbed this item {dub.Keywords.Select(x => x.Colour(Telnet.BoldWhite)).ListToString()}."
+						.Wrap(InnerLineFormatLength));
+			}
+
+			if (gi.GetItemType<IWieldable>() is IWieldable iw)
+			{
+				var hands = _wieldLocs.Min(x => x.Hands(gi));
+				sb.AppendLine(
+					$"You would require {hands} {(hands == 1 ? WielderDescriptionSingular : WielderDescriptionPlural)} to wield this."
+						.Colour(Telnet.Yellow));
+			}
+
+			foreach (var attached in gi.AttachedItems)
+			{
+				sb.AppendLine($"It has {attached.HowSeen(Actor)} attached to it.");
+			}
+		}
 		if (thing is IMortalPerceiver mortal)
 		{
 			// Wounds
@@ -889,43 +926,6 @@ public partial class Body
 			}
 
 			sb.AppendLine(actor.Body.GetInventoryString(Actor));
-		}
-
-		if (thing is IGameItem gi && fromLookCommand)
-		{
-
-			if (Actor.IsAdministrator() && gi.GetItemType<IDestroyable>() is {} id)
-			{
-				var damage = gi.Wounds.Sum(x => x.CurrentDamage);
-				var hp = id.MaximumDamage;
-				var currentHP = hp - damage;
-				sb.AppendLine($"HP: {currentHP.ToStringN2Colour(Actor)}/{hp.ToStringN2Colour(Actor)}");
-			}
-
-			if (gi.EffectsOfType<IGraffitiEffect>().Any())
-			{
-				sb.AppendLine($"This item has graffiti. Use LOOK <item> GRAFFITI to view it.".Colour(Telnet.BoldCyan));
-			}
-			var dub = Dubs.FirstOrDefault(x => x.TargetId == thing.Id && x.TargetType == thing.FrameworkItemType);
-			if (dub != null)
-			{
-				sb.AppendLine(
-					$"You have dubbed this item {dub.Keywords.Select(x => x.Colour(Telnet.BoldWhite)).ListToString()}."
-						.Wrap(InnerLineFormatLength));
-			}
-
-			if (gi.GetItemType<IWieldable>() is IWieldable iw)
-			{
-				var hands = _wieldLocs.Min(x => x.Hands(gi));
-				sb.AppendLine(
-					$"You would require {hands} {(hands == 1 ? WielderDescriptionSingular : WielderDescriptionPlural)} to wield this."
-						.Colour(Telnet.Yellow));
-			}
-
-			foreach (var attached in gi.AttachedItems)
-			{
-				sb.AppendLine($"It has {attached.HowSeen(Actor)} attached to it.");
-			}
 		}
 
 		return sb.ToString();

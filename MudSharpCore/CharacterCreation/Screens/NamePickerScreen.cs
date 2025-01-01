@@ -115,7 +115,9 @@ public class NamePickerScreenStoryboard : ChargenScreenStoryboard
 			: base(chargen, storyboard)
 		{
 			Storyboard = storyboard;
-			NameCulture = chargen.SelectedCulture.NameCultureForGender(Chargen.SelectedGender);
+			NameCulture = 
+				chargen.SelectedEthnicity?.NameCultureForGender(Chargen.SelectedGender) ??
+				chargen.SelectedCulture.NameCultureForGender(Chargen.SelectedGender);
 			Enumerator = NameCulture.NameCultureElements.GetEnumerator();
 			Enumerator.MoveNext();
 		}
@@ -231,7 +233,7 @@ public class NamePickerScreenStoryboard : ChargenScreenStoryboard
 
 			State = ChargenScreenState.Complete;
 			Chargen.SelectedName =
-				new PersonalName(Chargen.SelectedCulture.NameCultureForGender(Chargen.SelectedGender),
+				new PersonalName(Chargen.SelectedEthnicity?.NameCultureForGender(Chargen.SelectedGender) ?? Chargen.SelectedCulture.NameCultureForGender(Chargen.SelectedGender),
 					SelectedNameElements, true);
 			return "Your full name is " +
 			       Chargen.SelectedName.GetName(NameStyle.FullWithNickname).Colour(Telnet.Green) +

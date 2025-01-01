@@ -99,7 +99,7 @@ public class SimpleOrganicWound : PerceivedItem, IWound
 		effect.BloodlossPerTick = BaseFluidOrganBloodlossPerWoundSeverity * (int)Severity * organ.BleedModifier;
 	}
 
-	public SimpleOrganicWound(IFuturemud gameworld, IHaveWounds owner, double damage, double pain, double stun,
+	public SimpleOrganicWound(IFuturemud gameworld, ICharacter owner, double damage, double pain, double stun,
 		DamageType damageType, IBodypart bodypart, IGameItem lodged, IGameItem toolOrigin,
 		ICharacter actorOrigin)
 	{
@@ -130,6 +130,10 @@ public class SimpleOrganicWound : PerceivedItem, IWound
 		{
 			CheckForOrganBleeding();
 		}
+		else if (owner.Race.BloodLiquid is null)
+		{
+			_bleedStatus = BleedStatus.NeverBled;
+		}
 		else
 		{
 			switch (damageType)
@@ -138,7 +142,7 @@ public class SimpleOrganicWound : PerceivedItem, IWound
 				case DamageType.Claw:
 				case DamageType.Chopping:
 				case DamageType.Ballistic:
-				case DamageType.ArmourPiercing:
+				case DamageType.BallisticArmourPiercing:
 				case DamageType.Shearing:
 				case DamageType.Arcane:
 					_bleedStatus = Severity >= WoundSeverity.Moderate
@@ -146,6 +150,7 @@ public class SimpleOrganicWound : PerceivedItem, IWound
 						: BleedStatus.NeverBled;
 					break;
 				case DamageType.Piercing:
+				case DamageType.ArmourPiercing:
 				case DamageType.Bite:
 				case DamageType.Shrapnel:
 					_bleedStatus = Severity >= WoundSeverity.Severe ? BleedStatus.Bleeding : BleedStatus.NeverBled;
@@ -329,6 +334,7 @@ public class SimpleOrganicWound : PerceivedItem, IWound
 
 				return severity <= WoundSeverity.Severe ? "Contusion" : "Crush";
 			case DamageType.Piercing:
+			case DamageType.ArmourPiercing:
 				switch (Dice.Roll(1, 5))
 				{
 					case 1:
@@ -345,7 +351,7 @@ public class SimpleOrganicWound : PerceivedItem, IWound
 						return "Hole";
 				}
 			case DamageType.Ballistic:
-			case DamageType.ArmourPiercing:
+			case DamageType.BallisticArmourPiercing:
 				if (severity <= WoundSeverity.Small)
 				{
 					return "Graze";

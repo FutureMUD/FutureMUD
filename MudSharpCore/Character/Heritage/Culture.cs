@@ -322,8 +322,8 @@ public class Culture : SaveableItem, ICulture
 	public bool ChargenAvailable(ICharacterTemplate template)
 	{
 		return _costs.Where(x => x.RequirementOnly)
-		             .All(x => template.Account.AccountResources[x.Resource] >= x.Amount) &&
-		       ((bool?)AvailabilityProg?.Execute(template) ?? true);
+					 .All(x => template.Account.AccountResources[x.Resource] >= x.Amount) &&
+			   (AvailabilityProg?.ExecuteBool(template) ?? true);
 	}
 
 	public double TolerableTemperatureFloorEffect { get; protected set; }
@@ -331,18 +331,18 @@ public class Culture : SaveableItem, ICulture
 
 	private const string HelpInfo = @"You can use the following options with this subcommand:
 
-    name <name> - renames this culture
-    calendar <which> - changes the calender used by this culture
-    nameculture <which> [all|male|female|neuter|nb|indeterminate] - changes the name culture used by this culture
-    male|female|neuter|indeterminate <word> - changes the gendered words for someone of this culture
-    desc - drops you into an editor for the culture description
-    availability <prog> - sets a prog that controls appearance in character creation
-    tempfloor <amount> - sets the tolerable temperature floor modifier
-    tempceiling <amount> - sets the tolerable temperature ceiling modifier
-    advice <which> - toggles a chargen advice applying to this culture
-    cost <resource> <amount> - sets a cost for character creation
-    require <resource> <amount> - sets a non-cost requirement for character creation
-    cost <resource> clear - clears a resource cost for character creation";
+	#3name <name>#0 - renames this culture
+	#3calendar <which>#0 - changes the calender used by this culture
+	#3nameculture <which> [all|male|female|neuter|nb|indeterminate]#0 - changes the name culture used by this culture
+	#3male|female|neuter|indeterminate <word>#0 - changes the gendered words for someone of this culture
+	#3desc#0 - drops you into an editor for the culture description
+	#3availability <prog>#0 - sets a prog that controls appearance in character creation
+	#3tempfloor <amount>#0 - sets the tolerable temperature floor modifier
+	#3tempceiling <amount>#0 - sets the tolerable temperature ceiling modifier
+	#3advice <which>#0 - toggles a chargen advice applying to this culture
+	#3cost <resource> <amount>#0 - sets a cost for character creation
+	#3require <resource> <amount>#0 - sets a non-cost requirement for character creation
+	#3cost <resource> clear#0 - clears a resource cost for character creation";
 
 	public bool BuildingCommand(ICharacter actor, StringStack command)
 	{
@@ -356,6 +356,7 @@ public class Culture : SaveableItem, ICulture
 			case "name_culture":
 			case "name culture":
 			case "culture":
+			case "nc":
 				return BuildingCommandNameCulture(actor, command);
 			case "male":
 				return BuildingCommandPersonWord(actor, command, Gender.Male);
@@ -398,7 +399,7 @@ public class Culture : SaveableItem, ICulture
 			case "requirement":
 				return BuildingCommandCost(actor, command, false);
 			default:
-				actor.OutputHandler.Send(HelpInfo);
+				actor.OutputHandler.Send(HelpInfo.SubstituteANSIColour());
 				return false;
 		}
 	}
@@ -551,7 +552,7 @@ public class Culture : SaveableItem, ICulture
 		}
 
 		if (!prog.MatchesParameters(new List<ProgVariableTypes>
-			    { ProgVariableTypes.Chargen, ProgVariableTypes.Trait, ProgVariableTypes.Number }))
+				{ ProgVariableTypes.Chargen, ProgVariableTypes.Trait, ProgVariableTypes.Number }))
 		{
 			actor.OutputHandler.Send(
 				$"You must specify a prog that accepts three parameters: a Chargen, a Trait and a Number, whereas {prog.MXPClickableFunctionNameWithId()} does not.");

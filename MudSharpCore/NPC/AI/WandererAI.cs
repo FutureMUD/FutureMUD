@@ -152,7 +152,7 @@ public class WandererAI : ArtificialIntelligenceBase
 		IEnumerable<ICellExit> options =
 			character.Location.ExitsFor(character)
 					 .Where(
-						 x => (bool?)WillWanderIntoCellProg?.Execute(character, x.Destination, character.Location) !=
+						 x => WillWanderIntoCellProg?.ExecuteBool(character, x.Destination, character.Location) !=
 							  false)
 					 .Where(
 						 x =>

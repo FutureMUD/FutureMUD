@@ -2325,7 +2325,7 @@ Note: most often you will want to use the #3TRAITEXPRESSION#0 command to edit th
 		if (deathBoard != null)
 		{
 			var deathProg = actor.Gameworld.FutureProgs.Get(actor.Gameworld.GetStaticLong("PostToDeathsProg"));
-			if ((bool?)deathProg?.Execute(character) != false)
+			if (deathProg?.ExecuteBool(character) != false)
 			{
 				deathBoard.MakeNewPost(default(IAccount),
 					$"{character.Id} - {character.PersonalName.GetName(NameStyle.FullWithNickname)} Resurrected by {actor.Account.Name.Proper()}",
@@ -2742,11 +2742,11 @@ The syntax is as follows:
 			return;
 		}
 
-		var newName = target.Culture.NameCultureForGender(target.Gender.Enum)
-							.GetPersonalName(ss.SafeRemainingArgument, true);
+		var nc = target.Ethnicity.NameCultureForGender(target.Gender.Enum) ?? target.Culture.NameCultureForGender(target.Gender.Enum);
+		var newName = nc.GetPersonalName(ss.SafeRemainingArgument, true);
 		if (newName == null)
 		{
-			actor.OutputHandler.Send("That is not a valid name for their naming culture.");
+			actor.OutputHandler.Send($"That is not a valid name for their naming culture ({nc.Name.ColourValue()}).");
 			return;
 		}
 

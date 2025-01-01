@@ -278,6 +278,7 @@ public class SelectedCombatAction : CombatEffectBase, ISelectedCombatAction
 	internal class LoadItemAction : CombatActionType
 	{
 		public IRangedWeapon Weapon { get; init; }
+		public required LoadMode LoadMode { get; init; }
 
 		public override string Describe(IPerceiver voyeur)
 		{
@@ -286,7 +287,7 @@ public class SelectedCombatAction : CombatEffectBase, ISelectedCombatAction
 
 		public override ICombatMove GetCombatMove(ICharacter actor)
 		{
-			return new LoadRangedWeaponMove { Assailant = actor, Weapon = Weapon };
+			return new LoadRangedWeaponMove { Assailant = actor, Weapon = Weapon, Mode = LoadMode};
 		}
 	}
 
@@ -474,11 +475,12 @@ public class SelectedCombatAction : CombatEffectBase, ISelectedCombatAction
 		});
 	}
 
-	public static SelectedCombatAction GetEffectLoadItem(ICharacter actor, IRangedWeapon weapon)
+	public static SelectedCombatAction GetEffectLoadItem(ICharacter actor, IRangedWeapon weapon, LoadMode mode)
 	{
 		return new SelectedCombatAction(actor, new LoadItemAction
 		{
-			Weapon = weapon
+			Weapon = weapon,
+			LoadMode = mode
 		});
 	}
 

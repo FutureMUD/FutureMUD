@@ -308,7 +308,7 @@ public class ScavengeAI : ArtificialIntelligenceBase
 
 		var targetItem =
 			character.Location.LayerGameItems(character.RoomLayer).FirstOrDefault(
-				x => character.CanSee(x) && ((bool?)WillScavengeItemProg.Execute(character, x) ?? false));
+				x => character.CanSee(x) && (WillScavengeItemProg.ExecuteBool(character, x)));
 		if (targetItem != null)
 		{
 			OnScavengeItemProg.Execute(character, targetItem);

@@ -286,7 +286,7 @@ You can use the following arguments to refine the list command:
 		{
 			if (gameworld.CombatMessageManager.CombatMessages.Any(x =>
 				    x.Type == typeValue && (!x.Outcome.HasValue || x.Outcome == Outcome.None) &&
-				    (bool?)x.WeaponAttackProg?.Execute(null, null, null, 0, "") != false))
+				    x.WeaponAttackProg?.ExecuteBool(null, null, null, 0, "") != false))
 			{
 				continue;
 			}
@@ -304,7 +304,7 @@ You can use the following arguments to refine the list command:
 						                         x.Type == typeValue &&
 						                         (!x.Outcome.HasValue || x.Outcome == outcomeValue ||
 						                          x.Outcome == Outcome.None) &&
-						                         (bool?)x.WeaponAttackProg?.Execute(null, null, null, 0, "") != false)
+						                         x.WeaponAttackProg?.ExecuteBool(null, null, null, 0, "") != false)
 			                         select (typeValue, outcomeValue));
 			errors = true;
 		}

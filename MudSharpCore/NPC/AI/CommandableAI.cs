@@ -75,7 +75,7 @@ public class CommandableAI : ArtificialIntelligenceBase
 		var commandCh = (ICharacter)arguments[1];
 		var commandText = (string)arguments[2];
 
-		if ((bool?)_canCommandProg.Execute(ch, commandCh, commandText) != true)
+		if (_canCommandProg.ExecuteBool(ch, commandCh, commandText) != true)
 		{
 			if (_whyCannotCommandProg != null)
 			{

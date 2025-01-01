@@ -205,10 +205,10 @@ Please answer #3yes#F or #3no#F: ", (context, answers) => true,
 		};
 		_context.TraitExpressions.Add(hpTick);
 		var secondaryTrait = _context.TraitDefinitions
-			                     .Where(x => x.Type == 1)
-			                     .AsEnumerable()
-			                     .FirstOrDefault(x => x.Name.In("Willpower", "Resilience", "Mind")) ??
-		                     healthTrait;
+								 .Where(x => x.Type == 1)
+								 .AsEnumerable()
+								 .FirstOrDefault(x => x.Name.In("Willpower", "Resilience", "Mind")) ??
+							 healthTrait;
 
 		var strengthTrait = _context.TraitDefinitions
 			.Where(x => x.Type == 1)
@@ -327,15 +327,15 @@ Please answer #3yes#F or #3no#F: ", (context, answers) => true,
 			FunctionText = @"var raceFactor as Number
 switch (@ch.Race)
   case (ToRace(""Human""))
-    raceFactor = 1
+	raceFactor = 1
   default
-    raceFactor = 1
+	raceFactor = 1
 end switch
 var genderFactor as Number
 if (@ch.Gender == ToGender(""Male""))
   genderFactor = 1.2
 else
-                genderFactor = 1
+				genderFactor = 1
 end if
 var meritFactor as Number
 meritFactor = 1.0
@@ -363,9 +363,9 @@ return (0.01 * (@ch.Weight / 70000)) * @raceFactor * @genderFactor * @meritFacto
 			FunctionText = @"if (SameRace(@ch.Race,ToRace(""Humanoid"")))
   // For humans, use Nadler's equation for blood volume
   if (@ch.Gender == ToGender(""Male""))
-    return (0.3669 * ((@ch.Height / 100) ^ 3)) + (0.03219 * (@ch.Weight / 1000)) + 0.6041
+	return (0.3669 * ((@ch.Height / 100) ^ 3)) + (0.03219 * (@ch.Weight / 1000)) + 0.6041
   else                                                                                                    
-    return (0.3561 * ((@ch.Height / 100) ^ 3)) + (0.03308 * (@ch.Weight / 1000)) + 0.1833
+	return (0.3561 * ((@ch.Height / 100) ^ 3)) + (0.03308 * (@ch.Weight / 1000)) + 0.1833
   end if
 end if
 
@@ -416,9 +416,9 @@ return @ch.Weight / 20000"
   return ""Passive""
 else
   if (not(@ch.NPC) or GetRegister(@ch.Race, ""UseActiveNeeds""))
-    return ""Active""
+	return ""Active""
   else
-    return ""NoNeeds""
+	return ""NoNeeds""
   end if
 end if"
 		};
@@ -636,25 +636,25 @@ $?hairstyle[&he has &?a_an[$haircolour $hairstyle]][&he is completely bald].$?fa
 			Culture = culture,
 			EffectData = @"<Effects>
   <Effect>
-    <ApplicabilityProg>0</ApplicabilityProg>
-    <Type>Immwalk</Type>
-    <Original>0</Original>
-    <Remaining>0</Remaining>
-    <Blank />
+	<ApplicabilityProg>0</ApplicabilityProg>
+	<Type>Immwalk</Type>
+	<Original>0</Original>
+	<Remaining>0</Remaining>
+	<Blank />
   </Effect>
   <Effect>
-    <ApplicabilityProg>0</ApplicabilityProg>
-    <Type>AdminTelepathy</Type>
-    <Original>0</Original>
-    <Remaining>0</Remaining>
-    <Blank />
+	<ApplicabilityProg>0</ApplicabilityProg>
+	<Type>AdminTelepathy</Type>
+	<Original>0</Original>
+	<Remaining>0</Remaining>
+	<Blank />
   </Effect>
   <Effect>
-    <ApplicabilityProg>0</ApplicabilityProg>
-    <Type>AdminSight</Type>
-    <Original>0</Original>
-    <Remaining>0</Remaining>
-    <Blank />
+	<ApplicabilityProg>0</ApplicabilityProg>
+	<Type>AdminSight</Type>
+	<Original>0</Original>
+	<Remaining>0</Remaining>
+	<Blank />
   </Effect>
 </Effects>",
 			BirthdayCalendarId = _context.Calendars.First().Id,
@@ -670,9 +670,9 @@ $?hairstyle[&he has &?a_an[$haircolour $hairstyle]][&he is completely bald].$?fa
 			DominantHandAlignment = 3,
 			NameInfo = @$"<Names>
    <PersonalName>
-     <Name culture=""{culture.Id}"">
-       <Element usage=""BirthName""><![CDATA[{account.Name}]]></Element>
-     </Name>
+	 <Name culture=""{culture.Id}"">
+	   <Element usage=""BirthName""><![CDATA[{account.Name}]]></Element>
+	 </Name>
    </PersonalName>
    <Aliases>
    </Aliases>
@@ -937,36 +937,36 @@ $?hairstyle[&he has &?a_an[$haircolour $hairstyle]][&he is completely bald].$?fa
 				? @"<?xml version=""1.0""?>
  <CorpseModel>
    <EdiblePercentage>0.35</EdiblePercentage>
-   <Ranges>
-     <Range state=""0"" lower=""0"" upper=""7200""/>
-     <Range state=""1"" lower=""7200"" upper=""21600""/>
-     <Range state=""2"" lower=""21600"" upper=""65000""/>
-     <Range state=""3"" lower=""65000"" upper=""400000""/>
-     <Range state=""4"" lower=""400000"" upper=""2650000""/>
-     <Range state=""5"" lower=""2650000"" upper=""2650001""/>
-   </Ranges>
-   <Terrains default=""10"">
-     <Terrain terrain=""void"" rate=""0""/>
-   </Terrains>
-   <Descriptions>
-     <PartDescriptions>
- 	  <Description state=""0""><![CDATA[&a_an[@@shorteat[, ]freshly severed {1} {0}]]]></Description>
- 	  <Description state=""1""><![CDATA[&a_an[@@shorteat[, ]severed {1} {0}]]]></Description>
- 	  <Description state=""2""><![CDATA[&a_an[@@shorteat[, ]decaying severed {1} {0}]]]></Description>
- 	  <Description state=""3""><![CDATA[&a_an[@@shorteat[, ]decayed severed {0}]]]></Description>
- 	  <Description state=""4""><![CDATA[&a_an[@@shorteat[, ]heavily decayed severed {0}]]]></Description>
- 	  <Description state=""5""><![CDATA[the @@shorteat[, ]skeletal remains of &a_an[severed {0}]]]></Description>
- 	</PartDescriptions>
-     <ShortDescriptions>
-       <Description state=""0""><![CDATA[the @@shorteat[, ]fresh corpse of @@sdesc]]></Description>
-       <Description state=""1""><![CDATA[the @@shorteat[, ]corpse of @@sdesc]]></Description>
-       <Description state=""2""><![CDATA[the @@shorteat[, ]decaying corpse of @@sdesc]]></Description>
-       <Description state=""3""><![CDATA[the @@shorteat[, ]decayed corpse of &a_an[&male &race]]]></Description>
-       <Description state=""4""><![CDATA[the @@shorteat[, ]heavily decayed &race corpse]]></Description>
-       <Description state=""5""><![CDATA[the @@shorteat[, ]skeletal remains of &a_an[&race]]]></Description>
-     </ShortDescriptions>
-     <FullDescriptions>
-       <Description state=""0""><![CDATA[@@desc
+   <Ranges>
+	 <Range state=""0"" lower=""0"" upper=""7200""/>
+	 <Range state=""1"" lower=""7200"" upper=""21600""/>
+	 <Range state=""2"" lower=""21600"" upper=""65000""/>
+	 <Range state=""3"" lower=""65000"" upper=""400000""/>
+	 <Range state=""4"" lower=""400000"" upper=""2650000""/>
+	 <Range state=""5"" lower=""2650000"" upper=""2650001""/>
+   </Ranges>
+   <Terrains default=""10"">
+	 <Terrain terrain=""void"" rate=""0""/>
+   </Terrains>
+   <Descriptions>
+	 <PartDescriptions>
+	  <Description state=""0""><![CDATA[&a_an[@@shorteat[, ]freshly severed {1} {0}]]]></Description>
+	  <Description state=""1""><![CDATA[&a_an[@@shorteat[, ]severed {1} {0}]]]></Description>
+	  <Description state=""2""><![CDATA[&a_an[@@shorteat[, ]decaying severed {1} {0}]]]></Description>
+	  <Description state=""3""><![CDATA[&a_an[@@shorteat[, ]decayed severed {0}]]]></Description>
+	  <Description state=""4""><![CDATA[&a_an[@@shorteat[, ]heavily decayed severed {0}]]]></Description>
+	  <Description state=""5""><![CDATA[the @@shorteat[, ]skeletal remains of &a_an[severed {0}]]]></Description>
+	</PartDescriptions>
+	 <ShortDescriptions>
+	   <Description state=""0""><![CDATA[the @@shorteat[, ]fresh corpse of @@sdesc]]></Description>
+	   <Description state=""1""><![CDATA[the @@shorteat[, ]corpse of @@sdesc]]></Description>
+	   <Description state=""2""><![CDATA[the @@shorteat[, ]decaying corpse of @@sdesc]]></Description>
+	   <Description state=""3""><![CDATA[the @@shorteat[, ]decayed corpse of &a_an[&male &race]]]></Description>
+	   <Description state=""4""><![CDATA[the @@shorteat[, ]heavily decayed &race corpse]]></Description>
+	   <Description state=""5""><![CDATA[the @@shorteat[, ]skeletal remains of &a_an[&race]]]></Description>
+	 </ShortDescriptions>
+	 <FullDescriptions>
+	   <Description state=""0""><![CDATA[@@desc
  #3Death has taken hold of this individual, but they still look much the same as they did in life.#0
  
  @@eaten[
@@ -974,7 +974,7 @@ $?hairstyle[&he has &?a_an[$haircolour $hairstyle]][&he is completely bald].$?fa
  ]@@wounds
  
  @@inv]]></Description>
-       <Description state=""1""><![CDATA[@@desc
+	   <Description state=""1""><![CDATA[@@desc
  #3Rigor Mortis has set in with this individual, and the blood has begun to pool in the extremities. Flies and other carrion insects have begun to lay eggs in the skin.#0
  
  @@eaten[
@@ -982,7 +982,7 @@ $?hairstyle[&he has &?a_an[$haircolour $hairstyle]][&he is completely bald].$?fa
  ]@@wounds
  
  @@inv]]></Description>
-       <Description state=""2""><![CDATA[@@desc
+	   <Description state=""2""><![CDATA[@@desc
  #3This corpse has begun to bloat and putrefy as decay sets in. Maggots and other carrion insects have firmly taken hold of the corpse.#0
  
  @@eaten[
@@ -990,7 +990,7 @@ $?hairstyle[&he has &?a_an[$haircolour $hairstyle]][&he is completely bald].$?fa
  ]@@wounds
  
  @@inv]]></Description>
-       <Description state=""3""><![CDATA[This is the decayed corpse of a &male &race. The features are no longer easily recognisable, but in life, &he had $skincolour coloured skin and $?hairstyle[&a_an[$haircolour $hairstyle]][was completely bald].$?facialhairstyle[ &he had &?a_an[$facialhaircolour $facialhairstyle.]][] &he was @@height tall and $framefancy. &he had $distinctivefeaturefancy.
+	   <Description state=""3""><![CDATA[This is the decayed corpse of a &male &race. The features are no longer easily recognisable, but in life, &he had $skincolour coloured skin and $?hairstyle[&a_an[$haircolour $hairstyle]][was completely bald].$?facialhairstyle[ &he had &?a_an[$facialhaircolour $facialhairstyle.]][] &he was @@height tall and $framefancy. &he had $distinctivefeaturefancy.
  #3This corpse is well along the process of decay. The flesh has sloughed off in places and particularly soft parts such as the eyes have been eaten by carrion insects.#0
  
  @@eaten[
@@ -998,20 +998,20 @@ $?hairstyle[&he has &?a_an[$haircolour $hairstyle]][&he is completely bald].$?fa
  ]@@wounds
  
  @@inv]]></Description>
-       <Description state=""4""><![CDATA[This is the heavily decayed corpse of a &race of indeterminate gender. The individual had $skincolour skin, $?hairstyle[and $haircolour hair.][but was bald.]$?facialhairstyle[ They had $facialhaircolour facial hair.][] &he was @@height tall.
+	   <Description state=""4""><![CDATA[This is the heavily decayed corpse of a &race of indeterminate gender. The individual had $skincolour skin, $?hairstyle[and $haircolour hair.][but was bald.]$?facialhairstyle[ They had $facialhaircolour facial hair.][] &he was @@height tall.
  #3This corpse in a very advanced state of decay. The flesh is almost entirely gone and the corpse has largely liquified. At this stage, the only parts remaining are what the carrion eaters find tough to digest.#0
  
  @@eaten[
  
  ]@@inv]]></Description>
- 		<Description state=""5""><![CDATA[This is the skeletal remains of a &race that was @@height tall. Nothing remains of their other features.
+		<Description state=""5""><![CDATA[This is the skeletal remains of a &race that was @@height tall. Nothing remains of their other features.
  
  @@eaten[
  
  ]@@inv]]></Description>
-     </FullDescriptions> &#xA0; &#xA0;
-     <ContentsDescriptions>
-       <Description state=""0""><![CDATA[@@desc
+	 </FullDescriptions> &#xA0; &#xA0;
+	 <ContentsDescriptions>
+	   <Description state=""0""><![CDATA[@@desc
  #3Death has taken hold of this individual, but they still look much the same as they did in life.#0
  
  @@eaten[
@@ -1019,7 +1019,7 @@ $?hairstyle[&he has &?a_an[$haircolour $hairstyle]][&he is completely bald].$?fa
  ]@@wounds
  
  @@inv]]></Description>
-       <Description state=""1""><![CDATA[@@desc
+	   <Description state=""1""><![CDATA[@@desc
  #3Rigor Mortis has set in with this individual, and the blood has begun to pool in the extremities. Flies and other carrion insects have begun to lay eggs in the skin.#0
  
  @@eaten[
@@ -1027,7 +1027,7 @@ $?hairstyle[&he has &?a_an[$haircolour $hairstyle]][&he is completely bald].$?fa
  ]@@wounds
  
  @@inv]]></Description>
-       <Description state=""2""><![CDATA[@@desc
+	   <Description state=""2""><![CDATA[@@desc
  #3This corpse has begun to bloat and putrefy as decay sets in. Maggots and other carrion insects have firmly taken hold of the corpse.#0
  
  @@eaten[
@@ -1035,7 +1035,7 @@ $?hairstyle[&he has &?a_an[$haircolour $hairstyle]][&he is completely bald].$?fa
  ]@@wounds
  
  @@inv]]></Description>
-       <Description state=""3""><![CDATA[This is the decayed corpse of a &male &race. The features are no longer easily recognisable, but in life, &he had $skincolour coloured skin and $?hairstyle[&a_an[$haircolour $hairstyle]][was completely bald].$?facialhairstyle[ &he had &?a_an[$facialhaircolour $facialhairstyle.]][] &he was @@height tall and $framefancy. &he had $distinctivefeaturefancy.
+	   <Description state=""3""><![CDATA[This is the decayed corpse of a &male &race. The features are no longer easily recognisable, but in life, &he had $skincolour coloured skin and $?hairstyle[&a_an[$haircolour $hairstyle]][was completely bald].$?facialhairstyle[ &he had &?a_an[$facialhaircolour $facialhairstyle.]][] &he was @@height tall and $framefancy. &he had $distinctivefeaturefancy.
  #3This corpse is well along the process of decay. The flesh has sloughed off in places and particularly soft parts such as the eyes have been eaten by carrion insects.#0
  
  @@eaten[
@@ -1043,54 +1043,54 @@ $?hairstyle[&he has &?a_an[$haircolour $hairstyle]][&he is completely bald].$?fa
  ]@@wounds
  
  @@inv]]></Description>
-       <Description state=""4""><![CDATA[This is the heavily decayed corpse of a &race of indeterminate gender. The individual had $skincolour skin, $?hairstyle[and $haircolour hair.][but was bald.]$?facialhairstyle[ They had $facialhaircolour facial hair.][] &he was @@height tall.
+	   <Description state=""4""><![CDATA[This is the heavily decayed corpse of a &race of indeterminate gender. The individual had $skincolour skin, $?hairstyle[and $haircolour hair.][but was bald.]$?facialhairstyle[ They had $facialhaircolour facial hair.][] &he was @@height tall.
  #3This corpse in a very advanced state of decay. The flesh is almost entirely gone and the corpse has largely liquified. At this stage, the only parts remaining are what the carrion eaters find tough to digest.#0
  
  @@eaten[
  
  ]@@inv]]></Description>
- 		<Description state=""5""><![CDATA[This is the skeletal remains of a &race that was @@height tall. Nothing remains of their other features.
+		<Description state=""5""><![CDATA[This is the skeletal remains of a &race that was @@height tall. Nothing remains of their other features.
  
  @@eaten[
  
  ]@@inv]]></Description>
-     </ContentsDescriptions>
-   </Descriptions>
+	 </ContentsDescriptions>
+   </Descriptions>
  </CorpseModel>
  "
 				: @"<?xml version=""1.0""?>
  <CorpseModel>
    <EdiblePercentage>0.35</EdiblePercentage>
-   <Ranges>
-     <Range state=""0"" lower=""0"" upper=""7200""/>
-     <Range state=""1"" lower=""7200"" upper=""21600""/>
-     <Range state=""2"" lower=""21600"" upper=""65000""/>
-     <Range state=""3"" lower=""65000"" upper=""400000""/>
-     <Range state=""4"" lower=""400000"" upper=""2650000""/>
-     <Range state=""5"" lower=""2650000"" upper=""2650001""/>
-   </Ranges>
-   <Terrains default=""10"">
-     <Terrain terrain=""void"" rate=""0""/>
-   </Terrains>
-   <Descriptions>
-     <PartDescriptions>
- 	  <Description state=""0""><![CDATA[&a_an[@@shorteat[, ]freshly severed {1} {0}]]]></Description>
- 	  <Description state=""1""><![CDATA[&a_an[@@shorteat[, ]severed {1} {0}]]]></Description>
- 	  <Description state=""2""><![CDATA[&a_an[@@shorteat[, ]decaying severed {1} {0}]]]></Description>
- 	  <Description state=""3""><![CDATA[&a_an[@@shorteat[, ]decayed severed {0}]]]></Description>
- 	  <Description state=""4""><![CDATA[&a_an[@@shorteat[, ]heavily decayed severed {0}]]]></Description>
- 	  <Description state=""5""><![CDATA[the @@shorteat[, ]skeletal remains of &a_an[severed {0}]]]></Description>
- 	</PartDescriptions>
-     <ShortDescriptions>
-       <Description state=""0""><![CDATA[the @@shorteat[, ]fresh corpse of @@sdesc]]></Description>
-       <Description state=""1""><![CDATA[the @@shorteat[, ]corpse of @@sdesc]]></Description>
-       <Description state=""2""><![CDATA[the @@shorteat[, ]decaying corpse of @@sdesc]]></Description>
-       <Description state=""3""><![CDATA[the @@shorteat[, ]decayed corpse of &a_an[&male &race]]]></Description>
-       <Description state=""4""><![CDATA[the @@shorteat[, ]heavily decayed &race corpse]]></Description>
-       <Description state=""5""><![CDATA[the @@shorteat[, ]skeletal remains of &a_an[&race]]]></Description>
-     </ShortDescriptions>
-     <FullDescriptions>
-       <Description state=""0""><![CDATA[@@desc
+   <Ranges>
+	 <Range state=""0"" lower=""0"" upper=""7200""/>
+	 <Range state=""1"" lower=""7200"" upper=""21600""/>
+	 <Range state=""2"" lower=""21600"" upper=""65000""/>
+	 <Range state=""3"" lower=""65000"" upper=""400000""/>
+	 <Range state=""4"" lower=""400000"" upper=""2650000""/>
+	 <Range state=""5"" lower=""2650000"" upper=""2650001""/>
+   </Ranges>
+   <Terrains default=""10"">
+	 <Terrain terrain=""void"" rate=""0""/>
+   </Terrains>
+   <Descriptions>
+	 <PartDescriptions>
+	  <Description state=""0""><![CDATA[&a_an[@@shorteat[, ]freshly severed {1} {0}]]]></Description>
+	  <Description state=""1""><![CDATA[&a_an[@@shorteat[, ]severed {1} {0}]]]></Description>
+	  <Description state=""2""><![CDATA[&a_an[@@shorteat[, ]decaying severed {1} {0}]]]></Description>
+	  <Description state=""3""><![CDATA[&a_an[@@shorteat[, ]decayed severed {0}]]]></Description>
+	  <Description state=""4""><![CDATA[&a_an[@@shorteat[, ]heavily decayed severed {0}]]]></Description>
+	  <Description state=""5""><![CDATA[the @@shorteat[, ]skeletal remains of &a_an[severed {0}]]]></Description>
+	</PartDescriptions>
+	 <ShortDescriptions>
+	   <Description state=""0""><![CDATA[the @@shorteat[, ]fresh corpse of @@sdesc]]></Description>
+	   <Description state=""1""><![CDATA[the @@shorteat[, ]corpse of @@sdesc]]></Description>
+	   <Description state=""2""><![CDATA[the @@shorteat[, ]decaying corpse of @@sdesc]]></Description>
+	   <Description state=""3""><![CDATA[the @@shorteat[, ]decayed corpse of &a_an[&male &race]]]></Description>
+	   <Description state=""4""><![CDATA[the @@shorteat[, ]heavily decayed &race corpse]]></Description>
+	   <Description state=""5""><![CDATA[the @@shorteat[, ]skeletal remains of &a_an[&race]]]></Description>
+	 </ShortDescriptions>
+	 <FullDescriptions>
+	   <Description state=""0""><![CDATA[@@desc
  #3Death has taken hold of this individual, but they still look much the same as they did in life.#0
  
  @@eaten[
@@ -1098,7 +1098,7 @@ $?hairstyle[&he has &?a_an[$haircolour $hairstyle]][&he is completely bald].$?fa
  ]@@wounds
  
  @@inv]]></Description>
-       <Description state=""1""><![CDATA[@@desc
+	   <Description state=""1""><![CDATA[@@desc
  #3Rigor Mortis has set in with this individual, and the blood has begun to pool in the extremities. Flies and other carrion insects have begun to lay eggs in the skin.#0
  
  @@eaten[
@@ -1106,7 +1106,7 @@ $?hairstyle[&he has &?a_an[$haircolour $hairstyle]][&he is completely bald].$?fa
  ]@@wounds
  
  @@inv]]></Description>
-       <Description state=""2""><![CDATA[@@desc
+	   <Description state=""2""><![CDATA[@@desc
  #3This corpse has begun to bloat and putrefy as decay sets in. Maggots and other carrion insects have firmly taken hold of the corpse.#0
  
  @@eaten[
@@ -1114,7 +1114,7 @@ $?hairstyle[&he has &?a_an[$haircolour $hairstyle]][&he is completely bald].$?fa
  ]@@wounds
  
  @@inv]]></Description>
-       <Description state=""3""><![CDATA[This is the decayed corpse of a &male &race. The features are no longer easily recognisable, but in life, &he had $skincolour coloured skin and $?hairstyle[&a_an[$haircolour $hairstyle]][was completely bald].$?facialhairstyle[ &he had &?a_an[$facialhaircolour $facialhairstyle.]][] &he was @@height tall and $framefancy.
+	   <Description state=""3""><![CDATA[This is the decayed corpse of a &male &race. The features are no longer easily recognisable, but in life, &he had $skincolour coloured skin and $?hairstyle[&a_an[$haircolour $hairstyle]][was completely bald].$?facialhairstyle[ &he had &?a_an[$facialhaircolour $facialhairstyle.]][] &he was @@height tall and $framefancy.
  #3This corpse is well along the process of decay. The flesh has sloughed off in places and particularly soft parts such as the eyes have been eaten by carrion insects.#0
  
  @@eaten[
@@ -1122,20 +1122,20 @@ $?hairstyle[&he has &?a_an[$haircolour $hairstyle]][&he is completely bald].$?fa
  ]@@wounds
  
  @@inv]]></Description>
-       <Description state=""4""><![CDATA[This is the heavily decayed corpse of a &race of indeterminate gender. The individual had $skincolour skin, $?hairstyle[and $haircolour hair.][but was bald.]$?facialhairstyle[ They had $facialhaircolour facial hair.][] &he was @@height tall.
+	   <Description state=""4""><![CDATA[This is the heavily decayed corpse of a &race of indeterminate gender. The individual had $skincolour skin, $?hairstyle[and $haircolour hair.][but was bald.]$?facialhairstyle[ They had $facialhaircolour facial hair.][] &he was @@height tall.
  #3This corpse in a very advanced state of decay. The flesh is almost entirely gone and the corpse has largely liquified. At this stage, the only parts remaining are what the carrion eaters find tough to digest.#0
  
  @@eaten[
  
  ]@@inv]]></Description>
- 		<Description state=""5""><![CDATA[This is the skeletal remains of a &race that was @@height tall. Nothing remains of their other features.
+		<Description state=""5""><![CDATA[This is the skeletal remains of a &race that was @@height tall. Nothing remains of their other features.
  
  @@eaten[
  
  ]@@inv]]></Description>
-     </FullDescriptions> &#xA0; &#xA0;
-     <ContentsDescriptions>
-       <Description state=""0""><![CDATA[@@desc
+	 </FullDescriptions> &#xA0; &#xA0;
+	 <ContentsDescriptions>
+	   <Description state=""0""><![CDATA[@@desc
  #3Death has taken hold of this individual, but they still look much the same as they did in life.#0
  
  @@eaten[
@@ -1143,7 +1143,7 @@ $?hairstyle[&he has &?a_an[$haircolour $hairstyle]][&he is completely bald].$?fa
  ]@@wounds
  
  @@inv]]></Description>
-       <Description state=""1""><![CDATA[@@desc
+	   <Description state=""1""><![CDATA[@@desc
  #3Rigor Mortis has set in with this individual, and the blood has begun to pool in the extremities. Flies and other carrion insects have begun to lay eggs in the skin.#0
  
  @@eaten[
@@ -1151,7 +1151,7 @@ $?hairstyle[&he has &?a_an[$haircolour $hairstyle]][&he is completely bald].$?fa
  ]@@wounds
  
  @@inv]]></Description>
-       <Description state=""2""><![CDATA[@@desc
+	   <Description state=""2""><![CDATA[@@desc
  #3This corpse has begun to bloat and putrefy as decay sets in. Maggots and other carrion insects have firmly taken hold of the corpse.#0
  
  @@eaten[
@@ -1159,7 +1159,7 @@ $?hairstyle[&he has &?a_an[$haircolour $hairstyle]][&he is completely bald].$?fa
  ]@@wounds
  
  @@inv]]></Description>
-       <Description state=""3""><![CDATA[This is the decayed corpse of a &male &race. The features are no longer easily recognisable, but in life, &he had $skincolour coloured skin and $?hairstyle[&a_an[$haircolour $hairstyle]][was completely bald].$?facialhairstyle[ &he had &?a_an[$facialhaircolour $facialhairstyle.]][] &he was @@height tall and $framefancy.
+	   <Description state=""3""><![CDATA[This is the decayed corpse of a &male &race. The features are no longer easily recognisable, but in life, &he had $skincolour coloured skin and $?hairstyle[&a_an[$haircolour $hairstyle]][was completely bald].$?facialhairstyle[ &he had &?a_an[$facialhaircolour $facialhairstyle.]][] &he was @@height tall and $framefancy.
  #3This corpse is well along the process of decay. The flesh has sloughed off in places and particularly soft parts such as the eyes have been eaten by carrion insects.#0
  
  @@eaten[
@@ -1167,19 +1167,19 @@ $?hairstyle[&he has &?a_an[$haircolour $hairstyle]][&he is completely bald].$?fa
  ]@@wounds
  
  @@inv]]></Description>
-       <Description state=""4""><![CDATA[This is the heavily decayed corpse of a &race of indeterminate gender. The individual had $skincolour skin, $?hairstyle[and $haircolour hair.][but was bald.]$?facialhairstyle[ They had $facialhaircolour facial hair.][] &he was @@height tall.
+	   <Description state=""4""><![CDATA[This is the heavily decayed corpse of a &race of indeterminate gender. The individual had $skincolour skin, $?hairstyle[and $haircolour hair.][but was bald.]$?facialhairstyle[ They had $facialhaircolour facial hair.][] &he was @@height tall.
  #3This corpse in a very advanced state of decay. The flesh is almost entirely gone and the corpse has largely liquified. At this stage, the only parts remaining are what the carrion eaters find tough to digest.#0
  
  @@eaten[
  
  ]@@inv]]></Description>
- 		<Description state=""5""><![CDATA[This is the skeletal remains of a &race that was @@height tall. Nothing remains of their other features.
+		<Description state=""5""><![CDATA[This is the skeletal remains of a &race that was @@height tall. Nothing remains of their other features.
  
  @@eaten[
  
  ]@@inv]]></Description>
-     </ContentsDescriptions>
-   </Descriptions>
+	 </ContentsDescriptions>
+   </Descriptions>
  </CorpseModel>
  "
 		};

@@ -168,10 +168,9 @@ public partial class Body
 			if (drug.Drug.DrugTypes.Contains(DrugType.NeutraliseSpecificDrug))
 			{
 				var drugs = drug.Drug
-				                .ExtraInfoFor(DrugType.NeutraliseSpecificDrug)
-				                .Split(' ')
-				                .SelectNotNull(x => Gameworld.Drugs.Get(long.Parse(x)))
-				                .AsEnumerable();
+				                .AdditionalInfoFor<NeutraliseSpecificDrugAdditionalInfo>(DrugType.NeutraliseSpecificDrug)
+				                .NeutralisedIds
+				                .SelectNotNull(x => Gameworld.Drugs.Get(x));
 				foreach (var sdrug in drugs)
 				{
 					drugIntensities[sdrug] -= drug.Drug.IntensityForType(DrugType.NeutraliseSpecificDrug) * drug.Grams;
@@ -204,8 +203,7 @@ public partial class Body
 			{
 				if (drugEffect == DrugType.NeutraliseDrugEffect)
 				{
-					foreach (var neutralDrug in drug.ExtraInfoFor(DrugType.NeutraliseDrugEffect).Split(' ')
-					                                .Select(x => (DrugType)int.Parse(x)))
+					foreach (var neutralDrug in drug.AdditionalInfoFor<NeutraliseDrugAdditionalInfo>(DrugType.NeutraliseDrugEffect).NeutralisedTypes)
 					{
 						neutralisingEffects[neutralDrug] += drug.IntensityForType(drugEffect) * adjustedgrams;
 					}
@@ -215,9 +213,9 @@ public partial class Body
 
 				if (drugEffect == DrugType.MagicAbility)
 				{
-					var capabilityString = drug.ExtraInfoFor(DrugType.MagicAbility);
-					var capabilities = capabilityString.Split(' ')
-					                                   .Select(x => Gameworld.MagicCapabilities.Get(int.Parse(x)))
+					var capabilities = drug.AdditionalInfoFor<MagicAbilityAdditionalInfo>(DrugType.MagicAbility)
+					                       .MagicCapabilityIds
+					                                   .Select(x => Gameworld.MagicCapabilities.Get(x))
 					                                   .ToList();
 					foreach (var capability in capabilities)
 					{
@@ -227,15 +225,14 @@ public partial class Body
 
 				if (drugEffect == DrugType.HealingRate)
 				{
-					var split = drug.ExtraInfoFor(DrugType.HealingRate).Split(' ');
-					healingRateIntensity += double.Parse(split[0]) * (drug.IntensityForType(drugEffect) * adjustedgrams);
-					healingDifficultyIntensity += double.Parse(split[1]) * (drug.IntensityForType(drugEffect) * adjustedgrams);
+					var split = drug.AdditionalInfoFor<HealingRateAdditionalInfo>(DrugType.HealingRate);
+					healingRateIntensity += split.HealingRateIntensity * (drug.IntensityForType(drugEffect) * adjustedgrams);
+					healingDifficultyIntensity += split.HealingDifficultyIntensity * (drug.IntensityForType(drugEffect) * adjustedgrams);
 				}
 
 				if (drugEffect == DrugType.BodypartDamage)
 				{
-					foreach (var organ in drug.ExtraInfoFor(DrugType.BodypartDamage).Split(' ')
-					                          .Select(x => (BodypartTypeEnum)int.Parse(x)))
+					foreach (var organ in drug.AdditionalInfoFor<BodypartDamageAdditionalInfo>(DrugType.BodypartDamage).BodypartTypes)
 					{
 						damagedOrgans[organ] += drug.IntensityForType(drugEffect) * adjustedgrams;
 					}

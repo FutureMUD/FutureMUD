@@ -3,8 +3,12 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using System.Linq;
+using System.Net.NetworkInformation;
+using System.Security.Cryptography;
+using System.Xml.Linq;
 using MudSharp.Construction;
 using MudSharp.Database;
+using MudSharp.Form.Material;
 using MudSharp.Framework;
 using MudSharp.FutureProg;
 using MudSharp.GameItems;
@@ -89,7 +93,7 @@ public class UsefulSeeder : IDatabaseSeeder
 				}),
 			("tags",
 				"Do you want to install pre-made tags for use with items, crafts and projects? The main reason not to do this is if you are planning on an implementation that substantially differs from the one that comes with this seeder.\n\nPlease answer #3yes#f or #3no#f: ",
-				(context, questions) => context.Tags.All(x => x.Name != "Functions"),
+				(context, questions) => true,
 				(answer, context) =>
 				{
 					if (answer.EqualToAny("yes", "y", "no", "n")) return (true, string.Empty);
@@ -108,7 +112,7 @@ Please answer here: ",
 				(answer, context) => { return (true, string.Empty); }),
 			("autobuilder",
 				"Do you want to install an auto builder that can generate random areas with randomised room descriptions?\n\nPlease answer #3yes#f or #3no#f: ",
-				(context, questions) => context.Terrains.Count() > 1,
+				(context, questions) => context.Terrains.Count() > 1 || questions["terrain"].EqualToAny("yes", "y"),
 				(answer, context) =>
 				{
 					if (answer.EqualToAny("yes", "y", "no", "n")) return (true, string.Empty);
@@ -120,6 +124,12 @@ Please answer here: ",
 	{
 		context.Database.BeginTransaction();
 		var errors = new List<string>();
+
+		if (questionAnswers["tags"].EqualToAny("yes", "y"))
+		{
+			SeedTags(context, errors);
+		}
+
 		if (questionAnswers["ai"].EqualToAny("yes", "y")) SeedAIPart1(context, errors);
 
 		if (questionAnswers["ai2"].EqualToAny("yes", "y")) SeedAIPart2(context, errors);
@@ -135,11 +145,6 @@ Please answer here: ",
 		if (questionAnswers["modernitems"].EqualToAny("yes", "y")) SeedModernItems(context, errors);
 
 		if (questionAnswers["terrain"].EqualToAny("yes", "y")) SeedTerrain(context, errors);
-
-		if (questionAnswers["tags"].EqualToAny("yes", "y"))
-		{
-			SeedTags(context, errors);
-		}
 
 		if (questionAnswers["autobuilder"].EqualToAny("yes", "y"))
 		{
@@ -208,7 +213,7 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
 
 		void AddTerrain(string name, string behaviour, double movementRate, double staminaCost,
 			Difficulty hideDifficulty, Difficulty spotDifficulty, string? atmosphere, CellOutdoorsType outdoorsType,
-			Color editorColour, string editorText = null, bool isdefault = false)
+			Color editorColour, string editorText = null, bool isdefault = false, IEnumerable<string>? tags = null)
 		{
 			context.Terrains.Add(new Terrain
 			{
@@ -227,7 +232,10 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
 				DefaultTerrain = isdefault,
 				TerrainEditorColour = $"#{editorColour.R:X2}{editorColour.G:X2}{editorColour.B:X2}",
 				TerrainEditorText = editorText,
-				DefaultCellOutdoorsType = (int)outdoorsType
+				DefaultCellOutdoorsType = (int)outdoorsType,
+				TagInformation = tags is not null ? 
+					tags.SelectNotNull(x => _tags[x]?.Id.ToString("F0")).ListToCommaSeparatedValues() : 
+					""
 			});
 			context.SaveChanges();
 		}
@@ -243,318 +251,320 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
 		#region Urban
 
 		AddTerrain("Residence", "indoors", 0.5, 3.0, Difficulty.Easy, Difficulty.Automatic, "Breathable Atmosphere",
-			CellOutdoorsType.IndoorsWithWindows, Color.DarkCyan, "Re", true);
+			CellOutdoorsType.IndoorsWithWindows, Color.DarkCyan, "Re", true, tags: ["Urban"]);
 		AddTerrain("Bedroom", "indoors", 0.5, 3.0, Difficulty.Easy, Difficulty.Automatic, "Breathable Atmosphere",
-			CellOutdoorsType.IndoorsWithWindows, Color.DarkCyan, "Br");
+			CellOutdoorsType.IndoorsWithWindows, Color.DarkCyan, "Br", tags: ["Urban"]);
 		AddTerrain("Kitchen", "indoors", 0.5, 3.0, Difficulty.Easy, Difficulty.Automatic, "Breathable Atmosphere",
-			CellOutdoorsType.IndoorsWithWindows, Color.DarkCyan, "Ki");
+			CellOutdoorsType.IndoorsWithWindows, Color.DarkCyan, "Ki", tags: ["Urban"]);
 		AddTerrain("Bathroom", "indoors", 0.5, 3.0, Difficulty.Easy, Difficulty.Automatic, "Breathable Atmosphere",
-			CellOutdoorsType.IndoorsWithWindows, Color.DarkCyan, "To");
+			CellOutdoorsType.IndoorsWithWindows, Color.DarkCyan, "To", tags: ["Urban"]);
 		AddTerrain("Living Room", "indoors", 0.5, 3.0, Difficulty.Easy, Difficulty.Automatic, "Breathable Atmosphere",
-			CellOutdoorsType.IndoorsWithWindows, Color.DarkCyan, "LR");
+			CellOutdoorsType.IndoorsWithWindows, Color.DarkCyan, "LR", tags: ["Urban"]);
 		AddTerrain("Hallway", "indoors", 0.5, 3.0, Difficulty.Easy, Difficulty.Automatic, "Breathable Atmosphere",
-			CellOutdoorsType.Indoors, Color.DarkCyan, "Hw");
+			CellOutdoorsType.Indoors, Color.DarkCyan, "Hw", tags: ["Urban"]);
 		AddTerrain("Hall", "cave", 0.5, 3.0, Difficulty.Hard, Difficulty.Automatic, "Breathable Atmosphere",
-			CellOutdoorsType.Indoors, Color.DarkCyan, "Ha");
+			CellOutdoorsType.Indoors, Color.DarkCyan, "Ha", tags: ["Urban"]);
 		AddTerrain("Barracks", "cave", 0.5, 3.0, Difficulty.Hard, Difficulty.Automatic, "Breathable Atmosphere",
-			CellOutdoorsType.Indoors, Color.DarkCyan, "Ba");
+			CellOutdoorsType.Indoors, Color.DarkCyan, "Ba", tags: ["Urban"]);
 		AddTerrain("Gymnasium", "cave", 0.5, 3.0, Difficulty.Hard, Difficulty.Automatic, "Breathable Atmosphere",
-			CellOutdoorsType.Indoors, Color.DarkCyan, "Gy");
+			CellOutdoorsType.Indoors, Color.DarkCyan, "Gy", tags: ["Urban"]);
 		AddTerrain("Shopfront", "indoors", 0.5, 3.0, Difficulty.Easy, Difficulty.Automatic, "Breathable Atmosphere",
-			CellOutdoorsType.IndoorsWithWindows, Color.DarkCyan, "St");
+			CellOutdoorsType.IndoorsWithWindows, Color.DarkCyan, "St", tags: ["Urban"]);
 		AddTerrain("Workshop", "indoors", 0.5, 3.0, Difficulty.Easy, Difficulty.Automatic, "Breathable Atmosphere",
-			CellOutdoorsType.IndoorsWithWindows, Color.DarkCyan, "St");
+			CellOutdoorsType.IndoorsWithWindows, Color.DarkCyan, "St", tags: ["Urban"]);
 		AddTerrain("Office", "indoors", 0.5, 3.0, Difficulty.Easy, Difficulty.Automatic, "Breathable Atmosphere",
-			CellOutdoorsType.IndoorsWithWindows, Color.DarkCyan, "St");
-		AddTerrain("Workshop", "indoors", 0.5, 3.0, Difficulty.Easy, Difficulty.Automatic, "Breathable Atmosphere",
-			CellOutdoorsType.IndoorsWithWindows, Color.DarkCyan, "St");
+			CellOutdoorsType.IndoorsWithWindows, Color.DarkCyan, "St", tags: ["Urban"]);
+		AddTerrain("Factory", "cave", 0.5, 3.0, Difficulty.Easy, Difficulty.Automatic, "Breathable Atmosphere",
+			CellOutdoorsType.IndoorsWithWindows, Color.DarkCyan, "St", tags: ["Urban"]);
+		AddTerrain("Warehouse", "cave", 0.5, 3.0, Difficulty.Easy, Difficulty.Automatic, "Breathable Atmosphere",
+			CellOutdoorsType.IndoorsWithWindows, Color.DarkCyan, "St", tags: ["Urban"]);
 		AddTerrain("Indoor Market", "indoors", 0.5, 3.0, Difficulty.ExtremelyEasy, Difficulty.Easy,
-			"Breathable Atmosphere", CellOutdoorsType.IndoorsWithWindows, Color.DarkCyan, "St");
+			"Breathable Atmosphere", CellOutdoorsType.IndoorsWithWindows, Color.DarkCyan, "St", tags: ["Urban"]);
 		AddTerrain("Underground Market", "indoors", 0.5, 3.0, Difficulty.ExtremelyEasy, Difficulty.Easy,
-			"Breathable Atmosphere", CellOutdoorsType.IndoorsWithWindows, Color.DarkCyan, "St");
+			"Breathable Atmosphere", CellOutdoorsType.IndoorsWithWindows, Color.DarkCyan, "St", tags: ["Urban"]);
 		AddTerrain("Garage", "indoors", 0.5, 3.0, Difficulty.ExtremelyEasy, Difficulty.Easy, "Breathable Atmosphere",
-			CellOutdoorsType.IndoorsWithWindows, Color.DarkCyan, "Ga");
+			CellOutdoorsType.IndoorsWithWindows, Color.DarkCyan, "Ga", tags: ["Urban"]);
 		AddTerrain("Underground Garage", "indoors", 0.5, 3.0, Difficulty.ExtremelyEasy, Difficulty.Easy,
-			"Breathable Atmosphere", CellOutdoorsType.IndoorsNoLight, Color.DarkCyan, "Ga");
+			"Breathable Atmosphere", CellOutdoorsType.IndoorsNoLight, Color.DarkCyan, "Ga", tags: ["Urban"]);
 		AddTerrain("Barn", "cave", 0.5, 3.0, Difficulty.Easy, Difficulty.Automatic, "Breathable Atmosphere",
-			CellOutdoorsType.Indoors, Color.DarkCyan, "St");
+			CellOutdoorsType.Indoors, Color.DarkCyan, "St", tags: ["Rural"]);
 		AddTerrain("Cell", "indoors", 0.5, 3.0, Difficulty.Insane, Difficulty.Automatic, "Breathable Atmosphere",
-			CellOutdoorsType.IndoorsWithWindows, Color.DarkCyan, "Ja");
+			CellOutdoorsType.IndoorsWithWindows, Color.DarkCyan, "Ja", tags: ["Urban"]);
 		AddTerrain("Dank Cell", "indoors", 0.5, 3.0, Difficulty.Insane, Difficulty.Automatic, "Breathable Atmosphere",
-			CellOutdoorsType.Indoors, Color.DarkCyan, "Ja");
+			CellOutdoorsType.Indoors, Color.DarkCyan, "Ja", tags: ["Urban"]);
 		AddTerrain("Dungeon", "indoors", 0.5, 3.0, Difficulty.Insane, Difficulty.Automatic, "Breathable Atmosphere",
-			CellOutdoorsType.IndoorsNoLight, Color.DarkCyan, "Du");
+			CellOutdoorsType.IndoorsNoLight, Color.DarkCyan, "Du", tags: ["Urban"]);
 		AddTerrain("Grotto", "indoors", 0.5, 3.0, Difficulty.Insane, Difficulty.Automatic, "Breathable Atmosphere",
-			CellOutdoorsType.IndoorsNoLight, Color.DarkCyan, "Ca");
+			CellOutdoorsType.IndoorsNoLight, Color.DarkCyan, "Ca", tags: ["Rural"]);
 		AddTerrain("Cellar", "indoors", 0.5, 3.0, Difficulty.Insane, Difficulty.Automatic, "Breathable Atmosphere",
-			CellOutdoorsType.IndoorsNoLight, Color.DarkCyan, "Ca");
+			CellOutdoorsType.IndoorsNoLight, Color.DarkCyan, "Ca", tags: ["Urban"]);
 		AddTerrain("Baths", "indoors", 0.5, 3.0, Difficulty.ExtremelyHard, Difficulty.ExtremelyEasy,
-			"Breathable Atmosphere", CellOutdoorsType.Indoors, Color.DarkCyan, "Ba");
+			"Breathable Atmosphere", CellOutdoorsType.Indoors, Color.DarkCyan, "Ba", tags: ["Urban"]);
 		AddTerrain("Indoor Pool", $"shallowwater {poolwater.Id}", 0.5, 5.0, Difficulty.ExtremelyHard,
-			Difficulty.ExtremelyEasy, "Breathable Atmosphere", CellOutdoorsType.Indoors, Color.DarkCyan, "Ba");
+			Difficulty.ExtremelyEasy, "Breathable Atmosphere", CellOutdoorsType.Indoors, Color.DarkCyan, "Ba", tags: ["Urban"]);
 		AddTerrain("Indoor Spring", $"shallowwater {springwater.Id}", 0.5, 5.0, Difficulty.ExtremelyHard,
-			Difficulty.ExtremelyEasy, "Breathable Atmosphere", CellOutdoorsType.Indoors, Color.DarkCyan, "Ba");
+			Difficulty.ExtremelyEasy, "Breathable Atmosphere", CellOutdoorsType.Indoors, Color.DarkCyan, "Ba", tags: ["Rural"]);
 
 		AddTerrain("Rooftop", "outdoors", 0.75, 7.0, Difficulty.Easy, Difficulty.Automatic, "Breathable Atmosphere",
-			CellOutdoorsType.Outdoors, Color.DarkSlateGray);
+			CellOutdoorsType.Outdoors, Color.DarkSlateGray, tags: ["Urban"]);
 		AddTerrain("Ghetto Street", "outdoors", 0.75, 7.0, Difficulty.Easy, Difficulty.Automatic,
-			"Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.DarkSlateGray);
+			"Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.DarkSlateGray, tags: ["Urban"]);
 		AddTerrain("Slum Street", "outdoors", 0.75, 7.0, Difficulty.Easy, Difficulty.Automatic, "Breathable Atmosphere",
-			CellOutdoorsType.Outdoors, Color.DarkSlateGray);
+			CellOutdoorsType.Outdoors, Color.DarkSlateGray, tags: ["Urban"]);
 		AddTerrain("Poor Street", "outdoors", 0.75, 7.0, Difficulty.Easy, Difficulty.Automatic, "Breathable Atmosphere",
-			CellOutdoorsType.Outdoors, Color.DarkSlateGray);
+			CellOutdoorsType.Outdoors, Color.DarkSlateGray, tags: ["Urban"]);
 		AddTerrain("Urban Street", "outdoors", 0.75, 7.0, Difficulty.Easy, Difficulty.Automatic,
-			"Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.DarkSlateGray);
+			"Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.DarkSlateGray, tags: ["Urban"]);
 		AddTerrain("Suburban Street", "outdoors", 0.75, 7.0, Difficulty.Easy, Difficulty.Automatic,
-			"Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.DarkSlateGray);
+			"Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.DarkSlateGray, tags: ["Urban"]);
 		AddTerrain("Wealthy Street", "outdoors", 0.75, 7.0, Difficulty.Easy, Difficulty.Automatic,
-			"Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.DarkSlateGray);
+			"Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.DarkSlateGray, tags: ["Urban"]);
 		AddTerrain("Village Street", "outdoors", 0.75, 7.0, Difficulty.Easy, Difficulty.Automatic,
-			"Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.DarkSlateGray);
+			"Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.DarkSlateGray, tags: ["Urban"]);
 		AddTerrain("Rural Street", "outdoors", 0.75, 7.0, Difficulty.Easy, Difficulty.Automatic,
-			"Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.DarkSlateGray);
+			"Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.DarkSlateGray, tags: ["Urban"]);
 
 		AddTerrain("Marketplace", "outdoors", 1.0, 7.0, Difficulty.Easy, Difficulty.VeryEasy, "Breathable Atmosphere",
-			CellOutdoorsType.Outdoors, Color.SlateGray);
+			CellOutdoorsType.Outdoors, Color.SlateGray, tags: ["Urban"]);
 		AddTerrain("Courtyard", "outdoors", 1.0, 7.0, Difficulty.Easy, Difficulty.Automatic, "Breathable Atmosphere",
-			CellOutdoorsType.Outdoors, Color.SlateGray);
+			CellOutdoorsType.Outdoors, Color.SlateGray, tags: ["Urban"]);
 		AddTerrain("Park", "trees", 1.0, 7.0, Difficulty.VeryEasy, Difficulty.Automatic, "Breathable Atmosphere",
-			CellOutdoorsType.Outdoors, Color.LightGreen);
+			CellOutdoorsType.Outdoors, Color.LightGreen, tags: ["Urban", "Diggable Soil"]);
 		AddTerrain("Garden", "trees", 1.0, 7.0, Difficulty.VeryEasy, Difficulty.Automatic, "Breathable Atmosphere",
-			CellOutdoorsType.Outdoors, Color.LightGreen);
+			CellOutdoorsType.Outdoors, Color.LightGreen, tags: ["Urban", "Diggable Soil"]);
 		AddTerrain("Lawn", "outdoors", 1.0, 7.0, Difficulty.VeryEasy, Difficulty.Automatic, "Breathable Atmosphere",
-			CellOutdoorsType.Outdoors, Color.LightGreen);
+			CellOutdoorsType.Outdoors, Color.LightGreen, tags: ["Urban", "Diggable Soil"]);
 		AddTerrain("Showground", "outdoors", 1.0, 7.0, Difficulty.VeryHard, Difficulty.Automatic,
-			"Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.LightGreen);
+			"Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.LightGreen, tags: ["Urban", "Diggable Soil"]);
 		AddTerrain("Forum", "outdoors", 1.0, 7.0, Difficulty.VeryEasy, Difficulty.VeryEasy, "Breathable Atmosphere",
-			CellOutdoorsType.Outdoors, Color.SlateGray);
+			CellOutdoorsType.Outdoors, Color.SlateGray, tags: ["Urban"]);
 		AddTerrain("Public Square", "outdoors", 1.0, 7.0, Difficulty.VeryEasy, Difficulty.VeryEasy,
-			"Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.SlateGray);
+			"Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.SlateGray, tags: ["Urban"]);
 		AddTerrain("Outdoor Mall", "outdoors", 1.0, 7.0, Difficulty.VeryEasy, Difficulty.VeryEasy,
-			"Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.SlateGray);
+			"Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.SlateGray, tags: ["Urban"]);
 		AddTerrain("Alleyway", "outdoors", 1.0, 7.0, Difficulty.Easy, Difficulty.Automatic, "Breathable Atmosphere",
-			CellOutdoorsType.Outdoors, Color.SlateGray);
+			CellOutdoorsType.Outdoors, Color.SlateGray, tags: ["Urban"]);
 		AddTerrain("Garbage Dump", "outdoors", 1.5, 10.0, Difficulty.VeryEasy, Difficulty.VeryEasy,
-			"Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.SlateGray);
+			"Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.SlateGray, tags: ["Urban", "Diggable Soil"]);
 		AddTerrain("Midden Heap", "outdoors", 1.5, 10.0, Difficulty.VeryEasy, Difficulty.VeryEasy,
-			"Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.SlateGray);
+			"Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.SlateGray, tags: ["Urban", "Diggable Soil"]);
 		AddTerrain("Gatehouse", "indoors", 1.0, 7.0, Difficulty.Easy, Difficulty.Trivial, "Breathable Atmosphere",
-			CellOutdoorsType.IndoorsClimateExposed, Color.SlateGray);
+			CellOutdoorsType.IndoorsClimateExposed, Color.SlateGray, tags: ["Urban"]);
 		AddTerrain("Battlement", "outdoors", 1.0, 7.0, Difficulty.VeryHard, Difficulty.Trivial, "Breathable Atmosphere",
-			CellOutdoorsType.Outdoors, Color.SlateGray);
+			CellOutdoorsType.Outdoors, Color.SlateGray, tags: ["Urban"]);
 
 		#endregion
 
 		#region Roads
 
 		AddTerrain("Animal Trail", "outdoors", 1.75, 10.0, Difficulty.Normal, Difficulty.Automatic,
-			"Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.DimGray);
+			"Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.DimGray, tags: ["Rural", "Diggable Soil"]);
 		AddTerrain("Trail", "outdoors", 1.6, 10.0, Difficulty.Normal, Difficulty.Automatic, "Breathable Atmosphere",
-			CellOutdoorsType.Outdoors, Color.DimGray);
+			CellOutdoorsType.Outdoors, Color.DimGray, tags: ["Rural", "Diggable Soil"]);
 		AddTerrain("Dirt Road", "outdoors", 1.5, 10.0, Difficulty.Hard, Difficulty.Automatic, "Breathable Atmosphere",
-			CellOutdoorsType.Outdoors, Color.DimGray);
+			CellOutdoorsType.Outdoors, Color.DimGray, tags: ["Rural", "Diggable Soil"]);
 		AddTerrain("Compacted Dirt Road", "outdoors", 1.4, 10.0, Difficulty.ExtremelyHard, Difficulty.Automatic,
-			"Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.DimGray);
+			"Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.DimGray, tags: ["Rural"]);
 		AddTerrain("Gravel Road", "outdoors", 1.3, 10.0, Difficulty.ExtremelyHard, Difficulty.Automatic,
-			"Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.DimGray);
+			"Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.DimGray, tags: ["Rural"]);
 		AddTerrain("Cobblestone Road", "outdoors", 1.2, 10.0, Difficulty.ExtremelyHard, Difficulty.Automatic,
-			"Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.DimGray);
+			"Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.DimGray, tags: ["Rural"]);
 		AddTerrain("Asphalt Road", "outdoors", 1.0, 10.0, Difficulty.Insane, Difficulty.Automatic,
-			"Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.DimGray);
+			"Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.DimGray, tags: ["Urban"]);
 
 		#endregion
 
 		#region Terrestrial
 
 		AddTerrain("Grasslands", "outdoors", 2.0, 15.0, Difficulty.Normal, Difficulty.Automatic,
-			"Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.LightGreen);
+			"Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.LightGreen, tags: ["Terrestrial", "Diggable Soil"]);
 		AddTerrain("Savannah", "outdoors", 2.0, 15.0, Difficulty.Normal, Difficulty.Automatic, "Breathable Atmosphere",
-			CellOutdoorsType.Outdoors, Color.LightGreen);
+			CellOutdoorsType.Outdoors, Color.LightGreen, tags: ["Terrestrial", "Diggable Soil"]);
 		AddTerrain("Shrublands", "outdoors", 2.0, 15.0, Difficulty.Normal, Difficulty.Automatic,
-			"Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.LightGreen);
+			"Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.LightGreen, tags: ["Terrestrial", "Diggable Soil"]);
 		AddTerrain("Steppe", "outdoors", 2.0, 15.0, Difficulty.Normal, Difficulty.Automatic, "Breathable Atmosphere",
-			CellOutdoorsType.Outdoors, Color.LightGreen);
+			CellOutdoorsType.Outdoors, Color.LightGreen, tags: ["Terrestrial", "Diggable Soil"]);
 		AddTerrain("Shortgrass Prairie", "outdoors", 2.0, 15.0, Difficulty.Normal, Difficulty.Automatic,
-			"Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.LightGreen);
+			"Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.LightGreen, tags: ["Terrestrial", "Diggable Soil"]);
 		AddTerrain("Tallgrass Prairie", "outdoors", 2.0, 15.0, Difficulty.Normal, Difficulty.Automatic,
-			"Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.LightGreen);
+			"Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.LightGreen, tags: ["Terrestrial", "Diggable Soil"]);
 		AddTerrain("Heath", "outdoors", 2.0, 15.0, Difficulty.Normal, Difficulty.Automatic, "Breathable Atmosphere",
-			CellOutdoorsType.Outdoors, Color.LightGreen);
+			CellOutdoorsType.Outdoors, Color.LightGreen, tags: ["Terrestrial", "Diggable Soil"]);
 		AddTerrain("Pasture", "outdoors", 2.0, 15.0, Difficulty.Normal, Difficulty.Automatic, "Breathable Atmosphere",
-			CellOutdoorsType.Outdoors, Color.LightGreen);
+			CellOutdoorsType.Outdoors, Color.LightGreen, tags: ["Rural", "Diggable Soil"]);
 		AddTerrain("Meadow", "outdoors", 2.0, 15.0, Difficulty.Normal, Difficulty.Automatic, "Breathable Atmosphere",
-			CellOutdoorsType.Outdoors, Color.LightGreen);
+			CellOutdoorsType.Outdoors, Color.LightGreen, tags: ["Terrestrial", "Diggable Soil"]);
 		AddTerrain("Field", "outdoors", 2.0, 15.0, Difficulty.Normal, Difficulty.Automatic, "Breathable Atmosphere",
-			CellOutdoorsType.Outdoors, Color.LightGreen);
+			CellOutdoorsType.Outdoors, Color.LightGreen, tags: ["Rural", "Diggable Soil"]);
 		AddTerrain("Tundra", "outdoors", 2.0, 15.0, Difficulty.Normal, Difficulty.Automatic, "Breathable Atmosphere",
-			CellOutdoorsType.Outdoors, Color.LightGreen);
+			CellOutdoorsType.Outdoors, Color.LightGreen, tags: ["Terrestrial", "Diggable Soil"]);
 		AddTerrain("Flood Plain", "outdoors", 2.0, 15.0, Difficulty.Normal, Difficulty.Automatic,
-			"Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.LightGreen);
+			"Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.LightGreen, tags: ["Terrestrial", "Diggable Soil", "Foragable Clay"]);
 
 		AddTerrain("Hills", "outdoors", 3.0, 15.0, Difficulty.Easy, Difficulty.Automatic, "Breathable Atmosphere",
-			CellOutdoorsType.Outdoors, Color.OrangeRed);
+			CellOutdoorsType.Outdoors, Color.OrangeRed, tags: ["Terrestrial", "Diggable Soil"]);
 		AddTerrain("Foothills", "outdoors", 3.0, 15.0, Difficulty.Easy, Difficulty.Automatic, "Breathable Atmosphere",
-			CellOutdoorsType.Outdoors, Color.OrangeRed);
+			CellOutdoorsType.Outdoors, Color.OrangeRed, tags: ["Terrestrial", "Diggable Soil"]);
 		AddTerrain("Mound", "outdoors", 3.0, 15.0, Difficulty.Easy, Difficulty.Automatic, "Breathable Atmosphere",
-			CellOutdoorsType.Outdoors, Color.OrangeRed);
+			CellOutdoorsType.Outdoors, Color.OrangeRed, tags: ["Terrestrial", "Diggable Soil"]);
 		AddTerrain("Drumlin", "outdoors", 3.0, 15.0, Difficulty.Easy, Difficulty.Automatic, "Breathable Atmosphere",
-			CellOutdoorsType.Outdoors, Color.OrangeRed);
+			CellOutdoorsType.Outdoors, Color.OrangeRed, tags: ["Terrestrial", "Diggable Soil"]);
 		AddTerrain("Butte", "outdoors", 3.0, 15.0, Difficulty.Easy, Difficulty.Automatic, "Breathable Atmosphere",
-			CellOutdoorsType.Outdoors, Color.OrangeRed);
+			CellOutdoorsType.Outdoors, Color.OrangeRed, tags: ["Terrestrial", "Diggable Soil"]);
 		AddTerrain("Kuppe", "outdoors", 3.0, 15.0, Difficulty.Easy, Difficulty.Automatic, "Breathable Atmosphere",
-			CellOutdoorsType.Outdoors, Color.OrangeRed);
+			CellOutdoorsType.Outdoors, Color.OrangeRed, tags: ["Terrestrial", "Diggable Soil"]);
 		AddTerrain("Mesa", "outdoors", 3.0, 15.0, Difficulty.Easy, Difficulty.Automatic, "Breathable Atmosphere",
-			CellOutdoorsType.Outdoors, Color.OrangeRed);
+			CellOutdoorsType.Outdoors, Color.OrangeRed, tags: ["Terrestrial", "Diggable Soil"]);
 		AddTerrain("Canyon", "outdoors", 3.0, 15.0, Difficulty.Easy, Difficulty.Automatic, "Breathable Atmosphere",
-			CellOutdoorsType.Outdoors, Color.OrangeRed);
+			CellOutdoorsType.Outdoors, Color.OrangeRed, tags: ["Terrestrial", "Diggable Soil"]);
 		AddTerrain("Knoll", "outdoors", 3.0, 15.0, Difficulty.Easy, Difficulty.Automatic, "Breathable Atmosphere",
-			CellOutdoorsType.Outdoors, Color.OrangeRed);
+			CellOutdoorsType.Outdoors, Color.OrangeRed, tags: ["Terrestrial", "Diggable Soil"]);
 		AddTerrain("Moor", "outdoors", 3.0, 15.0, Difficulty.Easy, Difficulty.Automatic, "Breathable Atmosphere",
-			CellOutdoorsType.Outdoors, Color.OrangeRed);
+			CellOutdoorsType.Outdoors, Color.OrangeRed, tags: ["Terrestrial", "Diggable Soil"]);
 		AddTerrain("Tell", "outdoors", 3.0, 15.0, Difficulty.Easy, Difficulty.Automatic, "Breathable Atmosphere",
-			CellOutdoorsType.Outdoors, Color.OrangeRed);
+			CellOutdoorsType.Outdoors, Color.OrangeRed, tags: ["Terrestrial", "Diggable Soil"]);
 		AddTerrain("Dunes", "outdoors", 3.0, 15.0, Difficulty.Easy, Difficulty.Automatic, "Breathable Atmosphere",
-			CellOutdoorsType.Outdoors, Color.OrangeRed);
+			CellOutdoorsType.Outdoors, Color.OrangeRed, tags: ["Terrestrial", "Diggable Soil", "Foragable Sand"]);
 
 		AddTerrain("Mountainside", "outdoors", 4.0, 20.0, Difficulty.ExtremelyEasy, Difficulty.Automatic,
-			"Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.Red);
+			"Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.Red, tags: ["Terrestrial", "Diggable Soil"]);
 		AddTerrain("Mountain Pass", "outdoors", 4.0, 20.0, Difficulty.ExtremelyEasy, Difficulty.Automatic,
-			"Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.Red);
+			"Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.Red, tags: ["Terrestrial", "Diggable Soil"]);
 		AddTerrain("Mountain Ridge", "outdoors", 4.0, 20.0, Difficulty.ExtremelyEasy, Difficulty.Automatic,
-			"Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.Red);
+			"Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.Red, tags: ["Terrestrial"]);
 		AddTerrain("Cliff Face", "cliff", 5.0, 20.0, Difficulty.Insane, Difficulty.Automatic, "Breathable Atmosphere",
-			CellOutdoorsType.Outdoors, Color.Red);
+			CellOutdoorsType.Outdoors, Color.Red, tags: ["Terrestrial"]);
 		AddTerrain("Cliff Edge", "outdoors", 5.0, 20.0, Difficulty.ExtremelyEasy, Difficulty.Automatic,
-			"Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.Red);
+			"Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.Red, tags: ["Terrestrial"]);
 
 		AddTerrain("Valley", "outdoors", 3.0, 10.0, Difficulty.Normal, Difficulty.Automatic, "Breathable Atmosphere",
-			CellOutdoorsType.Outdoors, Color.Beige);
+			CellOutdoorsType.Outdoors, Color.Beige, tags: ["Terrestrial", "Diggable Soil"]);
 		AddTerrain("Vale", "outdoors", 3.0, 10.0, Difficulty.Normal, Difficulty.Automatic, "Breathable Atmosphere",
-			CellOutdoorsType.Outdoors, Color.Beige);
+			CellOutdoorsType.Outdoors, Color.Beige, tags: ["Terrestrial", "Diggable Soil"]);
 		AddTerrain("Dell", "trees", 3.0, 10.0, Difficulty.Normal, Difficulty.Automatic, "Breathable Atmosphere",
-			CellOutdoorsType.Outdoors, Color.Beige);
+			CellOutdoorsType.Outdoors, Color.Beige, tags: ["Terrestrial", "Diggable Soil"]);
 		AddTerrain("Glen", "trees", 3.0, 10.0, Difficulty.Normal, Difficulty.Automatic, "Breathable Atmosphere",
-			CellOutdoorsType.Outdoors, Color.Beige);
+			CellOutdoorsType.Outdoors, Color.Beige, tags: ["Terrestrial", "Diggable Soil"]);
 		AddTerrain("Strath", "trees", 3.0, 10.0, Difficulty.Normal, Difficulty.Automatic, "Breathable Atmosphere",
-			CellOutdoorsType.Outdoors, Color.Beige);
+			CellOutdoorsType.Outdoors, Color.Beige, tags: ["Terrestrial", "Diggable Soil"]);
 		AddTerrain("Combe", "outdoors", 3.0, 10.0, Difficulty.Normal, Difficulty.Automatic, "Breathable Atmosphere",
-			CellOutdoorsType.Outdoors, Color.Beige);
+			CellOutdoorsType.Outdoors, Color.Beige, tags: ["Terrestrial", "Diggable Soil"]);
 		AddTerrain("Ravine", "outdoors", 3.0, 10.0, Difficulty.Normal, Difficulty.Automatic, "Breathable Atmosphere",
-			CellOutdoorsType.Outdoors, Color.Beige);
+			CellOutdoorsType.Outdoors, Color.Beige, tags: ["Terrestrial", "Diggable Soil"]);
 		AddTerrain("Gorge", "outdoors", 3.0, 10.0, Difficulty.Normal, Difficulty.Automatic, "Breathable Atmosphere",
-			CellOutdoorsType.Outdoors, Color.Beige);
+			CellOutdoorsType.Outdoors, Color.Beige, tags: ["Terrestrial", "Diggable Soil"]);
 		AddTerrain("Gully", "outdoors", 3.0, 10.0, Difficulty.Normal, Difficulty.Automatic, "Breathable Atmosphere",
-			CellOutdoorsType.Outdoors, Color.Beige);
+			CellOutdoorsType.Outdoors, Color.Beige, tags: ["Terrestrial", "Diggable Soil"]);
 
 		AddTerrain("Boreal Forest", "talltrees", 3.5, 20.0, Difficulty.VeryEasy, Difficulty.ExtremelyEasy,
-			"Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.DarkGreen);
+			"Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.DarkGreen, tags: ["Terrestrial", "Diggable Soil"]);
 		AddTerrain("Broadleaf Forest", "talltrees", 3.5, 20.0, Difficulty.VeryEasy, Difficulty.ExtremelyEasy,
-			"Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.DarkGreen);
+			"Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.DarkGreen, tags: ["Terrestrial", "Diggable Soil"]);
 		AddTerrain("Temperate Coniferous Forest", "talltrees", 3.5, 20.0, Difficulty.VeryEasy, Difficulty.ExtremelyEasy,
-			"Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.DarkGreen);
+			"Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.DarkGreen, tags: ["Terrestrial", "Diggable Soil"]);
 		AddTerrain("Temperate Rainforest", "talltrees", 3.5, 20.0, Difficulty.VeryEasy, Difficulty.ExtremelyEasy,
-			"Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.DarkGreen);
+			"Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.DarkGreen, tags: ["Terrestrial", "Diggable Soil"]);
 		AddTerrain("Tropical Rainforest", "talltrees", 3.5, 20.0, Difficulty.VeryEasy, Difficulty.ExtremelyEasy,
-			"Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.DarkGreen);
+			"Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.DarkGreen, tags: ["Terrestrial", "Diggable Soil"]);
 		AddTerrain("Bramble", "talltrees", 3.0, 20.0, Difficulty.VeryEasy, Difficulty.ExtremelyEasy,
-			"Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.DarkGreen);
+			"Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.DarkGreen, tags: ["Terrestrial", "Diggable Soil"]);
 		AddTerrain("Plantation Forest", "talltrees", 3.0, 10.0, Difficulty.VeryEasy, Difficulty.ExtremelyEasy,
-			"Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.DarkGreen);
+			"Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.DarkGreen, tags: ["Rural", "Diggable Soil"]);
 		AddTerrain("Orchard", "talltrees", 3.0, 10.0, Difficulty.VeryEasy, Difficulty.ExtremelyEasy,
-			"Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.DarkGreen);
+			"Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.DarkGreen, tags: ["Rural", "Diggable Soil"]);
 		AddTerrain("Grove", "talltrees", 3.0, 10.0, Difficulty.VeryEasy, Difficulty.ExtremelyEasy,
-			"Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.DarkGreen);
+			"Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.DarkGreen, tags: ["Rural", "Diggable Soil"]);
 		AddTerrain("Woodland", "talltrees", 3.0, 10.0, Difficulty.VeryEasy, Difficulty.ExtremelyEasy,
-			"Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.DarkGreen);
+			"Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.DarkGreen, tags: ["Rural", "Diggable Soil"]);
 
 		AddTerrain("Bog", $"shallowwatertrees {swampwater.Id}", 4.0, 30.0, Difficulty.VeryEasy,
-			Difficulty.ExtremelyEasy, "Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.Purple);
+			Difficulty.ExtremelyEasy, "Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.Purple, tags: ["Terrestrial", "Diggable Soil", "Foragable Clay"]);
 		AddTerrain("Salt Marsh", $"shallowwater {brackishwater.Id}", 4.0, 30.0, Difficulty.VeryEasy,
-			Difficulty.ExtremelyEasy, "Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.Purple);
+			Difficulty.ExtremelyEasy, "Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.Purple, tags: ["Terrestrial", "Diggable Soil"]);
 		AddTerrain("Mangrove Swamp", $"shallowwatertrees {brackishwater.Id}", 4.0, 30.0, Difficulty.VeryEasy,
-			Difficulty.ExtremelyEasy, "Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.Purple);
+			Difficulty.ExtremelyEasy, "Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.Purple, tags: ["Terrestrial", "Diggable Soil", "Foragable Sand"]);
 		AddTerrain("Wetland", $"shallowwater {swampwater.Id}", 4.0, 30.0, Difficulty.VeryEasy, Difficulty.ExtremelyEasy,
-			"Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.Purple);
+			"Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.Purple, tags: ["Terrestrial", "Diggable Soil", "Foragable Clay"]);
 		AddTerrain("Swamp Forest", $"shallowwatertrees {swampwater.Id}", 4.0, 30.0, Difficulty.VeryEasy,
-			Difficulty.ExtremelyEasy, "Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.Purple);
+			Difficulty.ExtremelyEasy, "Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.Purple, tags: ["Terrestrial", "Diggable Soil", "Foragable Clay"]);
 		AddTerrain("Tropical Freshwater Swamp", $"shallowwatertrees {swampwater.Id}", 4.0, 30.0, Difficulty.VeryEasy,
-			Difficulty.ExtremelyEasy, "Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.Purple);
+			Difficulty.ExtremelyEasy, "Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.Purple, tags: ["Terrestrial", "Diggable Soil", "Foragable Clay"]);
 		AddTerrain("Temperate Freshwater Swamp", $"shallowwatertrees {swampwater.Id}", 4.0, 30.0, Difficulty.VeryEasy,
-			Difficulty.ExtremelyEasy, "Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.Purple);
+			Difficulty.ExtremelyEasy, "Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.Purple, tags: ["Terrestrial", "Diggable Soil", "Foragable Clay"]);
 
 		AddTerrain("Sandy Desert", "outdoors", 4.0, 20.0, Difficulty.VeryHard, Difficulty.Automatic,
-			"Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.Yellow);
+			"Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.Yellow, tags: ["Terrestrial", "Diggable Soil", "Foragable Sand"]);
 		AddTerrain("Rocky Desert", "outdoors", 4.0, 20.0, Difficulty.VeryHard, Difficulty.Automatic,
-			"Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.Yellow);
+			"Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.Yellow, tags: ["Terrestrial", "Diggable Soil"]);
 		AddTerrain("Coastal Desert", "outdoors", 4.0, 20.0, Difficulty.VeryHard, Difficulty.Automatic,
-			"Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.Yellow);
+			"Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.Yellow, tags: ["Terrestrial", "Diggable Soil", "Foragable Sand"]);
 
 		AddTerrain("Cave Entrance", "indoors", 3.0, 20.0, Difficulty.Normal, Difficulty.Automatic,
-			"Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.LightGreen);
+			"Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.LightGreen, tags: ["Terrestrial"]);
 		AddTerrain("Cave", "indoors", 3.0, 20.0, Difficulty.Normal, Difficulty.Automatic, "Breathable Atmosphere",
-			CellOutdoorsType.Outdoors, Color.LightGreen);
+			CellOutdoorsType.Outdoors, Color.LightGreen, tags: ["Terrestrial"]);
 		AddTerrain("Cavern", "outdoors", 3.0, 20.0, Difficulty.Normal, Difficulty.Automatic, "Breathable Atmosphere",
-			CellOutdoorsType.Outdoors, Color.LightGreen);
+			CellOutdoorsType.Outdoors, Color.LightGreen, tags: ["Terrestrial"]);
 		AddTerrain("Cave Pool", $"watercave {springwater.Id}", 3.0, 10.0, Difficulty.Normal, Difficulty.Automatic,
-			"Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.LightGreen);
+			"Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.LightGreen, tags: ["Aquatic"]);
 		AddTerrain("Underground Water", $"deepunderwater {springwater.Id}", 3.0, 10.0, Difficulty.Normal,
-			Difficulty.Automatic, "Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.LightGreen);
+			Difficulty.Automatic, "Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.LightGreen, tags: ["Aquatic"]);
 
 		#endregion
 
 		#region Water
 
 		AddTerrain("Sandy Beach", "outdoors", 4.0, 20.0, Difficulty.Insane, Difficulty.Automatic,
-			"Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.Yellow);
+			"Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.Yellow, tags: ["Littoral", "Diggable Soil", "Foragable Sand"]);
 		AddTerrain("Rocky Beach", "outdoors", 4.0, 20.0, Difficulty.Insane, Difficulty.Automatic,
-			"Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.Yellow);
+			"Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.Yellow, tags: ["Littoral"]);
 		AddTerrain("Beachrock", "outdoors", 4.0, 20.0, Difficulty.Insane, Difficulty.Automatic, "Breathable Atmosphere",
-			CellOutdoorsType.Outdoors, Color.Yellow);
+			CellOutdoorsType.Outdoors, Color.Yellow, tags: ["Littoral"]);
 		AddTerrain("Riverbank", "outdoors", 3.0, 20.0, Difficulty.Normal, Difficulty.Automatic, "Breathable Atmosphere",
-			CellOutdoorsType.Outdoors, Color.Yellow);
+			CellOutdoorsType.Outdoors, Color.Yellow, tags: ["Riparian", "Diggable Soil", "Foragable Clay", "Foragable Sand"]);
 		AddTerrain("Lake Shore", "outdoors", 3.0, 20.0, Difficulty.Normal, Difficulty.Automatic,
-			"Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.Yellow);
+			"Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.Yellow, tags: ["Littoral", "Diggable Soil", "Foragable Clay", "Foragable Sand"]);
 
 		AddTerrain("Ocean Shallows", $"shallowwater {saltwater.Id}", 3.0, 10.0, Difficulty.Insane, Difficulty.Automatic,
-			"Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.DarkBlue);
+			"Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.DarkBlue, tags: ["Aquatic", "Foragable Sand"]);
 		AddTerrain("Ocean Surf", $"water {saltwater.Id}", 3.0, 10.0, Difficulty.Insane, Difficulty.Automatic,
-			"Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.DarkBlue);
+			"Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.DarkBlue, tags: ["Aquatic", "Foragable Sand"]);
 		AddTerrain("Ocean", $"deepwater {saltwater.Id}", 3.0, 10.0, Difficulty.Insane, Difficulty.Automatic,
-			"Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.DarkBlue);
+			"Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.DarkBlue, tags: ["Aquatic", "Foragable Sand"]);
 		AddTerrain("Mudflat", $"shallowwater {saltwater.Id}", 3.0, 10.0, Difficulty.Insane, Difficulty.Automatic,
-			"Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.DarkBlue);
+			"Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.DarkBlue, tags: ["Aquatic", "Foragable Sand"]);
 		AddTerrain("Bay", $"water {saltwater.Id}", 3.0, 10.0, Difficulty.Insane, Difficulty.Automatic,
-			"Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.DarkBlue);
+			"Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.DarkBlue, tags: ["Aquatic", "Foragable Sand"]);
 		AddTerrain("Lagoon", $"water {brackishwater.Id}", 3.0, 10.0, Difficulty.Insane, Difficulty.Automatic,
-			"Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.DarkBlue);
+			"Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.DarkBlue, tags: ["Aquatic", "Foragable Sand"]);
 		AddTerrain("Cove", $"shallowwater {saltwater.Id}", 3.0, 10.0, Difficulty.Insane, Difficulty.Automatic,
-			"Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.DarkBlue);
+			"Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.DarkBlue, tags: ["Aquatic", "Foragable Sand"]);
 		AddTerrain("Tide Pool", $"shallowwater {saltwater.Id}", 3.0, 10.0, Difficulty.Insane, Difficulty.Automatic,
-			"Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.DarkBlue);
+			"Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.DarkBlue, tags: ["Aquatic", "Foragable Sand"]);
 		AddTerrain("Shoal", $"shallowwater {saltwater.Id}", 3.0, 10.0, Difficulty.Insane, Difficulty.Automatic,
-			"Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.DarkBlue);
+			"Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.DarkBlue, tags: ["Aquatic", "Foragable Sand"]);
 		AddTerrain("Coral Reef", $"deepwater {saltwater.Id}", 3.0, 10.0, Difficulty.Insane, Difficulty.Automatic,
-			"Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.DarkBlue);
+			"Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.DarkBlue, tags: ["Aquatic", "Foragable Sand"]);
 		AddTerrain("Reef", $"deepwater {saltwater.Id}", 3.0, 10.0, Difficulty.Insane, Difficulty.Automatic,
-			"Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.DarkBlue);
+			"Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.DarkBlue, tags: ["Aquatic", "Foragable Sand"]);
 		AddTerrain("Sound", $"deepwater {saltwater.Id}", 3.0, 10.0, Difficulty.Insane, Difficulty.Automatic,
-			"Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.DarkBlue);
+			"Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.DarkBlue, tags: ["Aquatic", "Foragable Sand"]);
 		AddTerrain("Estuary", $"shallowwater {brackishwater.Id}", 3.0, 10.0, Difficulty.Insane, Difficulty.Automatic,
-			"Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.DarkBlue);
+			"Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.DarkBlue, tags: ["Aquatic", "Foragable Clay", "Foragable Sand"]);
 		AddTerrain("Shallow River", $"shallowwater {riverwater.Id}", 3.0, 10.0, Difficulty.Insane, Difficulty.Automatic,
-			"Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.DarkBlue);
+			"Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.DarkBlue, tags: ["Aquatic", "Foragable Clay", "Foragable Sand"]);
 		AddTerrain("River", $"water {riverwater.Id}", 3.0, 10.0, Difficulty.Insane, Difficulty.Automatic,
-			"Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.DarkBlue);
+			"Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.DarkBlue, tags: ["Aquatic", "Foragable Clay", "Foragable Sand"]);
 		AddTerrain("Deep River", $"deepwater {riverwater.Id}", 3.0, 10.0, Difficulty.Insane, Difficulty.Automatic,
-			"Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.DarkBlue);
+			"Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.DarkBlue, tags: ["Aquatic", "Foragable Clay", "Foragable Sand"]);
 		AddTerrain("Shallow Lake", $"shallowwater {lakewater.Id}", 3.0, 10.0, Difficulty.Insane, Difficulty.Automatic,
-			"Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.DarkBlue);
+			"Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.DarkBlue, tags: ["Aquatic", "Foragable Clay", "Foragable Sand"]);
 		AddTerrain("Lake", $"water {lakewater.Id}", 3.0, 10.0, Difficulty.Insane, Difficulty.Automatic,
-			"Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.DarkBlue);
+			"Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.DarkBlue, tags: ["Aquatic", "Foragable Clay", "Foragable Sand"]);
 		AddTerrain("Deep Lake", $"deepwater {lakewater.Id}", 3.0, 10.0, Difficulty.Insane, Difficulty.Automatic,
-			"Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.DarkBlue);
+			"Breathable Atmosphere", CellOutdoorsType.Outdoors, Color.DarkBlue, tags: ["Aquatic", "Foragable Clay", "Foragable Sand"]);
 		AddTerrain("Deep Ocean", $"verydeepunderwater {saltwater.Id}", 3.0, 10.0, Difficulty.Insane,
-			Difficulty.Automatic, null, CellOutdoorsType.Outdoors, Color.DarkBlue);
+			Difficulty.Automatic, null, CellOutdoorsType.Outdoors, Color.DarkBlue, tags: ["Aquatic", "Foragable Sand"]);
 
 		#endregion
 
@@ -6558,30 +6568,6 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
 		context.GameItemComponentProtos.Add(component);
 		context.SaveChanges();
 
-		component = new GameItemComponentProto
-		{
-			Id = nextId++,
-			RevisionNumber = 0,
-			EditableItem = new EditableItem
-			{
-				RevisionNumber = 0,
-				RevisionStatus = 4,
-				BuilderAccountId = dbaccount.Id,
-				BuilderDate = now,
-				BuilderComment = "Auto-generated by the system",
-				ReviewerAccountId = dbaccount.Id,
-				ReviewerComment = "Auto-generated by the system",
-				ReviewerDate = now
-			},
-			Type = "Treatment",
-			Name = "Clean_Kit",
-			Description = "Turns the item into a multi-use kit for cleaning wounds",
-			Definition =
-				@"<Definition>  <MaximumUses>20</MaximumUses>  <Refillable>true</Refillable>  <DifficultyStages>1</DifficultyStages>  <TreatmentType>3</TreatmentType></Definition>"
-		};
-		context.GameItemComponentProtos.Add(component);
-		context.SaveChanges();
-
 		#endregion
 
 		#region Prosthetics
@@ -8065,13 +8051,43 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
 				ReviewerDate = now
 			},
 			Type = "Torch",
+			Name = "Match",
+			Description = "Turns an item into a match that burns dimly for only a few seconds.",
+			Definition = @"<Definition>
+   <IlluminationProvided>5</IlluminationProvided>
+   <SecondsOfFuel>20</SecondsOfFuel>
+   <RequiresIgnitionSource>false</RequiresIgnitionSource>
+   <LightEmote><![CDATA[@ light|lights $1]]></LightEmote>
+   <ExtinguishEmote><![CDATA[@ extinguish|extinguishes $1]]></ExtinguishEmote>
+   <TenPercentFuelEcho><![CDATA[$0 begin|begins to flicker as it has almost totally burned down]]></TenPercentFuelEcho>
+   <FuelExpendedEcho><![CDATA[$0 have|has completely burned out]]></FuelExpendedEcho>
+ </Definition>"
+		};
+		context.GameItemComponentProtos.Add(component);
+
+		component = new GameItemComponentProto
+		{
+			Id = nextId++,
+			RevisionNumber = 0,
+			EditableItem = new EditableItem
+			{
+				RevisionNumber = 0,
+				RevisionStatus = 4,
+				BuilderAccountId = dbaccount.Id,
+				BuilderDate = now,
+				BuilderComment = "Auto-generated by the system",
+				ReviewerAccountId = dbaccount.Id,
+				ReviewerComment = "Auto-generated by the system",
+				ReviewerDate = now
+			},
+			Type = "Torch",
 			Name = "Candle",
 			Description = "Turns an item into a candle that burns dimly for 12 hours.",
 			Definition = @"<Definition>
    <IlluminationProvided>5</IlluminationProvided>
    <SecondsOfFuel>43200</SecondsOfFuel>
    <RequiresIgnitionSource>false</RequiresIgnitionSource>
-   <LightEmote><![CDATA[@ light|lights on $1]]></LightEmote>
+   <LightEmote><![CDATA[@ light|lights $1]]></LightEmote>
    <ExtinguishEmote><![CDATA[@ extinguish|extinguishes $1]]></ExtinguishEmote>
    <TenPercentFuelEcho><![CDATA[$0 begin|begins to flicker as it has almost totally burned down]]></TenPercentFuelEcho>
    <FuelExpendedEcho><![CDATA[$0 have|has completely burned out]]></FuelExpendedEcho>
@@ -8101,7 +8117,7 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
    <IlluminationProvided>3</IlluminationProvided>
    <SecondsOfFuel>172800</SecondsOfFuel>
    <RequiresIgnitionSource>false</RequiresIgnitionSource>
-   <LightEmote><![CDATA[@ light|lights on $1]]></LightEmote>
+   <LightEmote><![CDATA[@ light|lights $1]]></LightEmote>
    <ExtinguishEmote><![CDATA[@ extinguish|extinguishes $1]]></ExtinguishEmote>
    <TenPercentFuelEcho><![CDATA[$0 begin|begins to flicker as it has almost totally burned down]]></TenPercentFuelEcho>
    <FuelExpendedEcho><![CDATA[$0 have|has completely burned out]]></FuelExpendedEcho>
@@ -8131,7 +8147,7 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
    <IlluminationProvided>8</IlluminationProvided>
    <SecondsOfFuel>21600</SecondsOfFuel>
    <RequiresIgnitionSource>false</RequiresIgnitionSource>
-   <LightEmote><![CDATA[@ light|lights on $1]]></LightEmote>
+   <LightEmote><![CDATA[@ light|lights $1]]></LightEmote>
    <ExtinguishEmote><![CDATA[@ extinguish|extinguishes $1]]></ExtinguishEmote>
    <TenPercentFuelEcho><![CDATA[$0 begin|begins to flicker as it has almost totally burned down]]></TenPercentFuelEcho>
    <FuelExpendedEcho><![CDATA[$0 have|has completely burned out]]></FuelExpendedEcho>
@@ -8161,7 +8177,7 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
    <IlluminationProvided>5</IlluminationProvided>
    <SecondsOfFuel>-1</SecondsOfFuel>
    <RequiresIgnitionSource>false</RequiresIgnitionSource>
-   <LightEmote><![CDATA[@ light|lights on $1]]></LightEmote>
+   <LightEmote><![CDATA[@ light|lights $1]]></LightEmote>
    <ExtinguishEmote><![CDATA[@ extinguish|extinguishes $1]]></ExtinguishEmote>
    <TenPercentFuelEcho><![CDATA[$0 begin|begins to flicker as it has almost totally burned down]]></TenPercentFuelEcho>
    <FuelExpendedEcho><![CDATA[$0 have|has completely burned out]]></FuelExpendedEcho>
@@ -8500,350 +8516,102 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
 
 		var materials = context.Materials.AsEnumerable().DistinctBy(x => x.Name).ToDictionaryWithDefault(x => x.Name, StringComparer.OrdinalIgnoreCase);
 		var skills = context.TraitDefinitions.AsEnumerable().DistinctBy(x => x.Name).ToDictionaryWithDefault(x => x.Name, StringComparer.OrdinalIgnoreCase);
-		component = new GameItemComponentProto
+		var damagetypes = new DamageType[]
 		{
-			Id = nextId++,
-			RevisionNumber = 0,
-			EditableItem = new EditableItem
-			{
-				RevisionNumber = 0,
-				RevisionStatus = 4,
-				BuilderAccountId = dbaccount.Id,
-				BuilderDate = now,
-				BuilderComment = "Auto-generated by the system",
-				ReviewerAccountId = dbaccount.Id,
-				ReviewerComment = "Auto-generated by the system",
-				ReviewerDate = now
-			},
-			Type = "RepairKit",
-			Name = "Repair_Cloth",
-			Description = "Turns an item into a repair kit that can repair cloth items",
-			Definition = @$"<Definition>
-  <MaximumSeverity>7</MaximumSeverity>
-  <RepairPoints>500</RepairPoints>
-  <CheckTrait>{(skills["Tailoring"] ?? skills["Tailor"] ?? skills.Values.First()).Id}</CheckTrait>
-  <CheckBonus>0</CheckBonus>
-  <Echoes>
-	<Echo><![CDATA[$0 take|takes up $2, rifling through it for the necessary tools to fix $1]]></Echo>
-	<Echo><![CDATA[$0 arrange|arranges a cloth patch over the damage, stitching it onto $1 with a needle and thread from $2]]></Echo>
-	<Echo><![CDATA[$0 continue|continues stitching until the damage is less noticeable, and $1 seems sturdier for it]]></Echo>
-	<Echo><![CDATA[$0 place|places the tools back within $2 and pack|packs it away.]]></Echo>
-  </Echoes>
-  <Materials>
-	<Material>{materials["broadcloth"]?.Id ?? 0}</Material>
-	<Material>{materials["burlap"]?.Id ?? 0}</Material>
-	<Material>{materials["canvas"]?.Id ?? 0}</Material>
-	<Material>{materials["cotton"]?.Id ?? 0}</Material>
-	<Material>{materials["denim"]?.Id ?? 0}</Material>
-	<Material>{materials["felt"]?.Id ?? 0}</Material>
-	<Material>{materials["fur"]?.Id ?? 0}</Material>
-	<Material>{materials["hemp"]?.Id ?? 0}</Material>
-	<Material>{materials["hessian"]?.Id ?? 0}</Material>
-	<Material>{materials["jute"]?.Id ?? 0}</Material>
-	<Material>{materials["linen"]?.Id ?? 0}</Material>
-	<Material>{materials["silk"]?.Id ?? 0}</Material>
-	<Material>{materials["tweed"]?.Id ?? 0}</Material>
-	<Material>{materials["wool"]?.Id ?? 0}</Material>
-	<Material>{materials["cashmere"]?.Id ?? 0}</Material>
-	<Material>{materials["mohair"]?.Id ?? 0}</Material>
-  </Materials>
-  <DamageTypes>
-	<DamageType>2</DamageType>
-	<DamageType>1</DamageType>
-	<DamageType>3</DamageType>
-	<DamageType>4</DamageType>
-	<DamageType>16</DamageType>
-	<DamageType>9</DamageType>
-	<DamageType>10</DamageType>
-	<DamageType>15</DamageType>
-	<DamageType>16</DamageType>
-	<DamageType>8</DamageType>
-	<DamageType>0</DamageType>
-	<DamageType>18</DamageType>
-	<DamageType>20</DamageType>
-  </DamageTypes>
-  <Tags />
-</Definition>"
+			DamageType.Slashing,
+			DamageType.Chopping,
+			DamageType.Crushing,
+			DamageType.Piercing,
+			DamageType.Ballistic,
+			DamageType.Burning,
+			DamageType.Freezing,
+			DamageType.Chemical,
+			DamageType.Shockwave,
+			DamageType.Bite,
+			DamageType.Claw,
+			DamageType.Shearing,
+			DamageType.BallisticArmourPiercing,
+			DamageType.Wrenching,
+			DamageType.Shrapnel,
+			DamageType.Falling,
+			DamageType.ArmourPiercing
 		};
-		context.GameItemComponentProtos.Add(component);
 
-		component = new GameItemComponentProto
+		void AddRepairKitType(string name, string description, WoundSeverity maximumSeverity, double repairPoints, long? traitId, double checkBonus, string[] materialBehaviourTypes, string[] requiredTags)
 		{
-			Id = nextId++,
-			RevisionNumber = 0,
-			EditableItem = new EditableItem
-			{
-				RevisionNumber = 0,
-				RevisionStatus = 4,
-				BuilderAccountId = dbaccount.Id,
-				BuilderDate = now,
-				BuilderComment = "Auto-generated by the system",
-				ReviewerAccountId = dbaccount.Id,
-				ReviewerComment = "Auto-generated by the system",
-				ReviewerDate = now
-			},
-			Type = "RepairKit",
-			Name = "Repair_Cloth_Minor",
-			Description = "Turns an item into a field repair kit that can repair minor damage to cloth items",
-			Definition = @$"<Definition>
-  <MaximumSeverity>4</MaximumSeverity>
-  <RepairPoints>100</RepairPoints>
-  <CheckTrait>{(skills["Tailoring"] ?? skills["Tailor"] ?? skills.Values.First()).Id}</CheckTrait>
-  <CheckBonus>2</CheckBonus>
-  <Echoes>
-	<Echo><![CDATA[$0 take|takes up $2, rifling through it for the necessary tools to fix $1]]></Echo>
-	<Echo><![CDATA[$0 arrange|arranges a cloth patch over the damage, stitching it onto $1 with a needle and thread from $2]]></Echo>
-	<Echo><![CDATA[$0 continue|continues stitching until the damage is less noticeable, and $1 seems sturdier for it]]></Echo>
-	<Echo><![CDATA[$0 place|places the tools back within $2 and pack|packs it away.]]></Echo>
-  </Echoes>
-  <Materials>
-	<Material>{materials["broadcloth"]?.Id ?? 0}</Material>
-	<Material>{materials["burlap"]?.Id ?? 0}</Material>
-	<Material>{materials["canvas"]?.Id ?? 0}</Material>
-	<Material>{materials["cotton"]?.Id ?? 0}</Material>
-	<Material>{materials["denim"]?.Id ?? 0}</Material>
-	<Material>{materials["felt"]?.Id ?? 0}</Material>
-	<Material>{materials["fur"]?.Id ?? 0}</Material>
-	<Material>{materials["hemp"]?.Id ?? 0}</Material>
-	<Material>{materials["hessian"]?.Id ?? 0}</Material>
-	<Material>{materials["jute"]?.Id ?? 0}</Material>
-	<Material>{materials["linen"]?.Id ?? 0}</Material>
-	<Material>{materials["silk"]?.Id ?? 0}</Material>
-	<Material>{materials["tweed"]?.Id ?? 0}</Material>
-	<Material>{materials["wool"]?.Id ?? 0}</Material>
-	<Material>{materials["cashmere"]?.Id ?? 0}</Material>
-	<Material>{materials["mohair"]?.Id ?? 0}</Material>
-  </Materials>
-  <DamageTypes>
-	<DamageType>2</DamageType>
-	<DamageType>1</DamageType>
-	<DamageType>3</DamageType>
-	<DamageType>4</DamageType>
-	<DamageType>16</DamageType>
-	<DamageType>9</DamageType>
-	<DamageType>10</DamageType>
-	<DamageType>15</DamageType>
-	<DamageType>16</DamageType>
-	<DamageType>8</DamageType>
-	<DamageType>0</DamageType>
-	<DamageType>18</DamageType>
-	<DamageType>20</DamageType>
-  </DamageTypes>
-  <Tags />
-</Definition>"
-		};
-		context.GameItemComponentProtos.Add(component);
+			
 
-		component = new GameItemComponentProto
-		{
-			Id = nextId++,
-			RevisionNumber = 0,
-			EditableItem = new EditableItem
-			{
-				RevisionNumber = 0,
-				RevisionStatus = 4,
-				BuilderAccountId = dbaccount.Id,
-				BuilderDate = now,
-				BuilderComment = "Auto-generated by the system",
-				ReviewerAccountId = dbaccount.Id,
-				ReviewerComment = "Auto-generated by the system",
-				ReviewerDate = now
-			},
-			Type = "RepairKit",
-			Name = "Repair_Leather",
-			Description = "Turns an item into a repair kit that can repair minor damage to leather items",
-			Definition = @$"<Definition>
-  <MaximumSeverity>7</MaximumSeverity>
-  <RepairPoints>500</RepairPoints>
-  <CheckTrait>{(skills["Tailoring"] ?? skills["Tailor"] ?? skills.Values.First()).Id}</CheckTrait>
-  <CheckBonus>0</CheckBonus>
-  <Echoes>
-	<Echo><![CDATA[$0 take|takes up $2, rifling through it for the necessary tools to fix $1]]></Echo>
-	<Echo><![CDATA[$0 arrange|arranges a leather patch over the damage, stitching it onto $1 with a needle and thread from $2]]></Echo>
-	<Echo><![CDATA[$0 continue|continues stitching until the damage is less noticeable, and $1 seems sturdier for it]]></Echo>
-	<Echo><![CDATA[$0 place|places the tools back within $2 and pack|packs it away.]]></Echo>
-  </Echoes>
-  <Materials>
-	<Material>{materials["animal skin"]?.Id ?? 0}</Material>
-	<Material>{materials["cow hide"]?.Id ?? 0}</Material>
-	<Material>{materials["deer hide"]?.Id ?? 0}</Material>
-	<Material>{materials["bear hide"]?.Id ?? 0}</Material>
-	<Material>{materials["dog hide"]?.Id ?? 0}</Material>
-	<Material>{materials["cat hide"]?.Id ?? 0}</Material>
-	<Material>{materials["fox hide"]?.Id ?? 0}</Material>
-	<Material>{materials["pig hide"]?.Id ?? 0}</Material>
-	<Material>{materials["wolf hide"]?.Id ?? 0}</Material>
-	<Material>{materials["snake hide"]?.Id ?? 0}</Material>
-	<Material>{materials["alligator hide"]?.Id ?? 0}</Material>
-	<Material>{materials["crocodile hide"]?.Id ?? 0}</Material>
-	<Material>{materials["lion hide"]?.Id ?? 0}</Material>
-	<Material>{materials["tiger hide"]?.Id ?? 0}</Material>
-	<Material>{materials["rabbit hide"]?.Id ?? 0}</Material>
-	<Material>{materials["small mammal hide"]?.Id ?? 0}</Material>
-	<Material>{materials["leather"]?.Id ?? 0}</Material>
-	<Material>{materials["cow leather"]?.Id ?? 0}</Material>
-	<Material>{materials["deer leather"]?.Id ?? 0}</Material>
-	<Material>{materials["bear leather"]?.Id ?? 0}</Material>
-	<Material>{materials["dog leather"]?.Id ?? 0}</Material>
-	<Material>{materials["cat leather"]?.Id ?? 0}</Material>
-	<Material>{materials["fox leather"]?.Id ?? 0}</Material>
-	<Material>{materials["pig leather"]?.Id ?? 0}</Material>
-	<Material>{materials["wolf leather"]?.Id ?? 0}</Material>
-	<Material>{materials["snake leather"]?.Id ?? 0}</Material>
-	<Material>{materials["alligator leather"]?.Id ?? 0}</Material>
-	<Material>{materials["crocodile leather"]?.Id ?? 0}</Material>
-	<Material>{materials["lion leather"]?.Id ?? 0}</Material>
-	<Material>{materials["tiger leather"]?.Id ?? 0}</Material>
-	<Material>{materials["rabbit leather"]?.Id ?? 0}</Material>
-	<Material>{materials["small mammal leather"]?.Id ?? 0}</Material>
-  </Materials>
-  <DamageTypes>
-	<DamageType>2</DamageType>
-	<DamageType>1</DamageType>
-	<DamageType>3</DamageType>
-	<DamageType>4</DamageType>
-	<DamageType>16</DamageType>
-	<DamageType>9</DamageType>
-	<DamageType>10</DamageType>
-	<DamageType>15</DamageType>
-	<DamageType>16</DamageType>
-	<DamageType>8</DamageType>
-	<DamageType>0</DamageType>
-	<DamageType>18</DamageType>
-	<DamageType>20</DamageType>
-  </DamageTypes>
-  <Tags />
-</Definition>"
-		};
-		context.GameItemComponentProtos.Add(component);
+			var repairMaterials = materials.Values.Where(x => materialBehaviourTypes.Any(y => y.Equals(((MaterialBehaviourType)(x.BehaviourType ?? 0)).DescribeEnum(), StringComparison.OrdinalIgnoreCase))).ToList();
 
-		component = new GameItemComponentProto
-		{
-			Id = nextId++,
-			RevisionNumber = 0,
-			EditableItem = new EditableItem
+			var repairComponent = new GameItemComponentProto
 			{
+				Id = nextId++,
 				RevisionNumber = 0,
-				RevisionStatus = 4,
-				BuilderAccountId = dbaccount.Id,
-				BuilderDate = now,
-				BuilderComment = "Auto-generated by the system",
-				ReviewerAccountId = dbaccount.Id,
-				ReviewerComment = "Auto-generated by the system",
-				ReviewerDate = now
-			},
-			Type = "RepairKit",
-			Name = "Repair_Metal",
-			Description = "Turns an item into a repair kit that can repair minor damage to metal items",
-			Definition = @$"<Definition>
-  <MaximumSeverity>7</MaximumSeverity>
-  <RepairPoints>500</RepairPoints>
-  <CheckTrait>{(skills["Blacksmithing"] ?? skills["Blacksmith"] ?? skills.Values.First()).Id}</CheckTrait>
-  <CheckBonus>0</CheckBonus>
-  <Echoes>
-	<Echo><![CDATA[$0 take|takes up $2, rifling through it for the necessary tools to fix $1]]></Echo>
-	<Echo><![CDATA[$0 begin|begins repairing $1 with $2]]></Echo>
-	<Echo><![CDATA[$0 continue|continues repairing $1 with $2]]></Echo>
-	<Echo><![CDATA[$0 place|places the tools back within $2 and pack|packs it away.]]></Echo>
-  </Echoes>
-  <Materials>
-	<Material>{materials["metal"]?.Id ?? 0}</Material>
-	<Material>{materials["aluminium"]?.Id ?? 0}</Material>
-	<Material>{materials["antimony"]?.Id ?? 0}</Material>
-	<Material>{materials["arsenic"]?.Id ?? 0}</Material>
-	<Material>{materials["arsenical bronze"]?.Id ?? 0}</Material>
-	<Material>{materials["bell bronze"]?.Id ?? 0}</Material>
-	<Material>{materials["beryllium"]?.Id ?? 0}</Material>
-	<Material>{materials["bismuth bronze"]?.Id ?? 0}</Material>
-	<Material>{materials["bismuth"]?.Id ?? 0}</Material>
-	<Material>{materials["boron"]?.Id ?? 0}</Material>
-	<Material>{materials["brass"]?.Id ?? 0}</Material>
-	<Material>{materials["bromine"]?.Id ?? 0}</Material>
-	<Material>{materials["bronze"]?.Id ?? 0}</Material>
-	<Material>{materials["cadmium"]?.Id ?? 0}</Material>
-	<Material>{materials["carbon steel"]?.Id ?? 0}</Material>
-	<Material>{materials["cast iron"]?.Id ?? 0}</Material>
-	<Material>{materials["cesium"]?.Id ?? 0}</Material>
-	<Material>{materials["chromium"]?.Id ?? 0}</Material>
-	<Material>{materials["cobalt"]?.Id ?? 0}</Material>
-	<Material>{materials["copper"]?.Id ?? 0}</Material>
-	<Material>{materials["crucible steel"]?.Id ?? 0}</Material>
-	<Material>{materials["electrum"]?.Id ?? 0}</Material>
-	<Material>{materials["gallium"]?.Id ?? 0}</Material>
-	<Material>{materials["galvanized steel"]?.Id ?? 0}</Material>
-	<Material>{materials["germanium"]?.Id ?? 0}</Material>
-	<Material>{materials["gold"]?.Id ?? 0}</Material>
-	<Material>{materials["hafnium"]?.Id ?? 0}</Material>
-	<Material>{materials["high tensile steel"]?.Id ?? 0}</Material>
-	<Material>{materials["indium"]?.Id ?? 0}</Material>
-	<Material>{materials["lead"]?.Id ?? 0}</Material>
-	<Material>{materials["magnesium"]?.Id ?? 0}</Material>
-	<Material>{materials["manganese steel"]?.Id ?? 0}</Material>
-	<Material>{materials["manganese"]?.Id ?? 0}</Material>
-	<Material>{materials["mild bronze"]?.Id ?? 0}</Material>
-	<Material>{materials["mild steel"]?.Id ?? 0}</Material>
-	<Material>{materials["molybdenum"]?.Id ?? 0}</Material>
-	<Material>{materials["neodymium"]?.Id ?? 0}</Material>
-	<Material>{materials["nickel brass"]?.Id ?? 0}</Material>
-	<Material>{materials["nickel"]?.Id ?? 0}</Material>
-	<Material>{materials["niobium"]?.Id ?? 0}</Material>
-	<Material>{materials["open hearth steel"]?.Id ?? 0}</Material>
-	<Material>{materials["orichalcum"]?.Id ?? 0}</Material>
-	<Material>{materials["osmium"]?.Id ?? 0}</Material>
-	<Material>{materials["palladium"]?.Id ?? 0}</Material>
-	<Material>{materials["pewter"]?.Id ?? 0}</Material>
-	<Material>{materials["phosphorus"]?.Id ?? 0}</Material>
-	<Material>{materials["pig iron"]?.Id ?? 0}</Material>
-	<Material>{materials["platinum"]?.Id ?? 0}</Material>
-	<Material>{materials["potassium"]?.Id ?? 0}</Material>
-	<Material>{materials["powder-coated steel"]?.Id ?? 0}</Material>
-	<Material>{materials["rare earth metal"]?.Id ?? 0}</Material>
-	<Material>{materials["rhenium"]?.Id ?? 0}</Material>
-	<Material>{materials["rhodium"]?.Id ?? 0}</Material>
-	<Material>{materials["rubidium"]?.Id ?? 0}</Material>
-	<Material>{materials["ruthenium"]?.Id ?? 0}</Material>
-	<Material>{materials["selenium"]?.Id ?? 0}</Material>
-	<Material>{materials["silicon"]?.Id ?? 0}</Material>
-	<Material>{materials["silver"]?.Id ?? 0}</Material>
-	<Material>{materials["sodium"]?.Id ?? 0}</Material>
-	<Material>{materials["spelter"]?.Id ?? 0}</Material>
-	<Material>{materials["sponge iron"]?.Id ?? 0}</Material>
-	<Material>{materials["stainless steel"]?.Id ?? 0}</Material>
-	<Material>{materials["sterling silver"]?.Id ?? 0}</Material>
-	<Material>{materials["strontium"]?.Id ?? 0}</Material>
-	<Material>{materials["sulfur"]?.Id ?? 0}</Material>
-	<Material>{materials["tantalum"]?.Id ?? 0}</Material>
-	<Material>{materials["tellurium"]?.Id ?? 0}</Material>
-	<Material>{materials["thallium"]?.Id ?? 0}</Material>
-	<Material>{materials["thorium"]?.Id ?? 0}</Material>
-	<Material>{materials["tin"]?.Id ?? 0}</Material>
-	<Material>{materials["titanium"]?.Id ?? 0}</Material>
-	<Material>{materials["tungsten"]?.Id ?? 0}</Material>
-	<Material>{materials["uranium"]?.Id ?? 0}</Material>
-	<Material>{materials["vanadium"]?.Id ?? 0}</Material>
-	<Material>{materials["wootz steel"]?.Id ?? 0}</Material>
-	<Material>{materials["wrought iron"]?.Id ?? 0}</Material>
-	<Material>{materials["zinc"]?.Id ?? 0}</Material>
-	<Material>{materials["zirconium"]?.Id ?? 0}</Material>
-  </Materials>
-  <DamageTypes>
-	<DamageType>0</DamageType>
-	<DamageType>1</DamageType>
-	<DamageType>2</DamageType>
-	<DamageType>3</DamageType>
-	<DamageType>4</DamageType>
-	<DamageType>8</DamageType>
-	<DamageType>9</DamageType>
-	<DamageType>10</DamageType>
-	<DamageType>15</DamageType>
-	<DamageType>16</DamageType>
-	<DamageType>18</DamageType>
-	<DamageType>20</DamageType>
-  </DamageTypes>
-  <Tags />
-</Definition>"
-		};
-		context.GameItemComponentProtos.Add(component);
+				EditableItem = new EditableItem
+				{
+					RevisionNumber = 0,
+					RevisionStatus = 4,
+					BuilderAccountId = dbaccount.Id,
+					BuilderDate = now,
+					BuilderComment = "Auto-generated by the system",
+					ReviewerAccountId = dbaccount.Id,
+					ReviewerComment = "Auto-generated by the system",
+					ReviewerDate = now
+				},
+				Type = "RepairKit",
+				Name = $"Repair_{name}",
+				Description = $"Turns an item into {description}",
+				Definition = new XElement("Definition",
+						new XElement("MaximumSeverity", (int)maximumSeverity),
+						new XElement("RepairPoints", repairPoints),
+						new XElement("CheckTrait", traitId ?? skills.Values.First().Id),
+						new XElement("CheckBonus", checkBonus),
+						new XElement("Echoes",
+							new XElement("Echo", new XCData("$0 take|takes up $2, rifling through it for the necessary tools to fix $1")),
+							new XElement("Echo", new XCData("$0 begin|begins repairing $1 with $")),
+							new XElement("Echo", new XCData("$0 continue|continues repairing $1 with $2")), 
+							new XElement("Echo", new XCData("$0 finish|finishes repairing $1, then place|places the tools back within $2 and pack|packs it away."))
+						),
+						new XElement("DamageTypes",
+							from type in damagetypes
+							select new XElement("DamageType", (int)type)
+						),
+						new XElement("Materials",
+							from material in repairMaterials
+							select new XElement("Material", material.Id)
+						),
+						new XElement("Tags",
+							from tag in requiredTags
+							select new XElement("Tag", _tags[tag].Id)
+						)
+					).ToString()
+			};
+			context.GameItemComponentProtos.Add(repairComponent);
+		}
+
+		AddRepairKitType("Cloth", "a repair kit that repairs cloth items", WoundSeverity.Grievous, 500, (skills["Tailoring"] ?? skills["Tailor"])?.Id, 0.0, ["Fabric", "Hair", "Feather"], []);
+		AddRepairKitType("Cloth_Good", "a good-quality repair kit that repairs cloth items", WoundSeverity.Horrifying, 750, (skills["Tailoring"] ?? skills["Tailor"])?.Id, 1.0, ["Fabric", "Hair", "Feather"], []);
+		AddRepairKitType("Cloth_Poor", "a poor-quality repair kit that repairs cloth items", WoundSeverity.Severe, 300, (skills["Tailoring"] ?? skills["Tailor"])?.Id, -1.0, ["Fabric", "Hair", "Feather"], []);
+
+		AddRepairKitType("Leather", "a repair kit that repairs leather items", WoundSeverity.Grievous, 500, (skills["Tailoring"] ?? skills["Tailor"])?.Id, 0.0, ["Leather", "Skin", "Flesh"], []);
+		AddRepairKitType("Leather_Good", "a good-quality repair kit that repairs leather items", WoundSeverity.Horrifying, 750, (skills["Tailoring"] ?? skills["Tailor"])?.Id, 1.0, ["Leather", "Skin", "Flesh"], []);
+		AddRepairKitType("Leather_Poor", "a poor-quality repair kit that repairs leather items", WoundSeverity.Severe, 300, (skills["Tailoring"] ?? skills["Tailor"])?.Id, -1.0, ["Leather", "Skin", "Flesh"], []);
+
+		AddRepairKitType("Metal_Armour", "a repair kit that repairs metal armour", WoundSeverity.Grievous, 1000, (skills["Armourcrafting"] ?? skills["Armourer"] ?? skills["Blacksmithing"] ?? skills["Blacksmith"])?.Id, 0.0, ["Metal"], ["Armour"]);
+		AddRepairKitType("Metal_Armour_Good", "a good-quality repair kit that repairs metal armour", WoundSeverity.Horrifying, 1500, (skills["Armourcrafting"] ?? skills["Armourer"] ?? skills["Blacksmithing"] ?? skills["Blacksmith"])?.Id, 1.0, ["Metal"], ["Armour"]);
+		AddRepairKitType("Metal_Armour_Poor", "a poor-quality repair kit that repairs metal armour", WoundSeverity.Severe, 600, (skills["Armourcrafting"] ?? skills["Armourer"] ?? skills["Blacksmithing"] ?? skills["Blacksmith"])?.Id, -1.0, ["Metal"], ["Armour"]);
+
+		AddRepairKitType("Metal_Weapon", "a repair kit that repairs metal weapons", WoundSeverity.Grievous, 1000, (skills["Weaponcrafting"] ?? skills["Weaponsmith"] ?? skills["Blacksmithing"] ?? skills["Blacksmith"])?.Id, 0.0, ["Metal"], ["Weapons"]);
+		AddRepairKitType("Metal_Weapon_Good", "a good-quality repair kit that repairs metal weapons", WoundSeverity.Horrifying, 1500, (skills["Weaponcrafting"] ?? skills["Weaponsmith"] ?? skills["Blacksmithing"] ?? skills["Blacksmith"])?.Id, 1.0, ["Metal"], ["Weapons"]);
+		AddRepairKitType("Metal_Weapon_Poor", "a poor-quality repair kit that repairs metal weapons", WoundSeverity.Severe, 600, (skills["Weaponcrafting"] ?? skills["Weaponsmith"] ?? skills["Blacksmithing"] ?? skills["Blacksmith"])?.Id, -1.0, ["Metal"], ["Weapons"]);
+
+		AddRepairKitType("Metal_Tool", "a repair kit that repairs metal tools", WoundSeverity.Grievous, 1000, (skills["Blacksmithing"] ?? skills["Blacksmith"])?.Id, 0.0, ["Metal"], ["Tools"]);
+		AddRepairKitType("Metal_Tool_Good", "a good-quality repair kit that repairs metal tools", WoundSeverity.Horrifying, 1500, (skills["Blacksmithing"] ?? skills["Blacksmith"])?.Id, 1.0, ["Metal"], ["Tools"]);
+		AddRepairKitType("Metal_Tool_Poor", "a poor-quality repair kit that repairs metal tools", WoundSeverity.Severe, 600, (skills["Blacksmithing"] ?? skills["Blacksmith"])?.Id, -1.0, ["Metal"], ["Tools"]);
+
+		AddRepairKitType("Universal", "a repair kit that repairs anything", WoundSeverity.Severe, 250, (skills["Salvaging"] ?? skills["Salvage"])?.Id, -1.0, [], []);
+		AddRepairKitType("Universal_Good", "a good-quality repair kit that repairs anything", WoundSeverity.VerySevere, 350, (skills["Salvaging"] ?? skills["Salvage"])?.Id, 0.0, [], []);
+		AddRepairKitType("Universal_Poor", "a poor-quality repair kit that repairs anything", WoundSeverity.Moderate, 150, (skills["Salvaging"] ?? skills["Salvage"])?.Id, -2.0, [], []);
 		#endregion
 
 		#region Smokeables
@@ -9651,14 +9419,19 @@ end if",
 	}
 
 
-	private Dictionary<string, MudSharp.Models.Tag> _tags = new(StringComparer.OrdinalIgnoreCase);
+	private DictionaryWithDefault<string, MudSharp.Models.Tag> _tags = new(StringComparer.OrdinalIgnoreCase);
 
 	private void AddTag(FuturemudDatabaseContext context, string name, string parent)
 	{
+		if (_tags.Any(x => x.Key.Equals(name, StringComparison.InvariantCultureIgnoreCase)))
+		{
+			return;
+		}
+
 		var tag = new MudSharp.Models.Tag
 		{
 			Name = name,
-			Parent = _tags.ValueOrDefault(parent, null)
+			Parent = _tags[parent]
 		};
 		_tags[name] = tag;
 		context.Tags.Add(tag);
@@ -9666,8 +9439,59 @@ end if",
 
 	private void SeedTags(FuturemudDatabaseContext context, ICollection<string> errors)
 	{
+		_tags = context.Tags.ToDictionaryWithDefault(x => x.Name, x => x, StringComparer.OrdinalIgnoreCase);
+		// Terrain
+		AddTag(context, "Terrain", "");
+		AddTag(context, "Wild", "Terrain");
+		AddTag(context, "Human Influenced", "Terrain");
+		AddTag(context, "Urban", "Human Influenced");
+		AddTag(context, "Rural", "Human Influenced");
+		AddTag(context, "Diggable Soil", "Terrain");
+		AddTag(context, "Foragable Clay", "Terrain");
+		AddTag(context, "Foragable Sand", "Terrain");
+		AddTag(context, "Terrestrial", "Wild");
+		AddTag(context, "Riparian", "Wild");
+		AddTag(context, "Littoral", "Wild");
+		AddTag(context, "Aquatic", "Wild");
+
+		// Eras
+		AddTag(context, "Era", "");
+		AddTag(context, "Stone Age Era", "Era");
+		AddTag(context, "Bronze Age Era", "Era");
+		AddTag(context, "Iron Age Era", "Era");
+		AddTag(context, "Antiquity Era", "Era");
+		AddTag(context, "Dark Ages Era", "Era");
+		AddTag(context, "Medieval Era", "Era");
+		AddTag(context, "Renaissance Era", "Era");
+		AddTag(context, "Colonial Era", "Era");
+		AddTag(context, "Industrial Era", "Era");
+		AddTag(context, "Modern Era", "Era");
+		AddTag(context, "Nuclear Era", "Era");
+		AddTag(context, "Information Age Era", "Era");
+		AddTag(context, "Near Future Era", "Era");
+		AddTag(context, "Far Future Era", "Era");
+
+		// Functions
 		AddTag(context, "Functions", "");
 
+		AddTag(context, "Material Functions", "Functions");
+		AddTag(context, "Kindling", "Material Functions");
+		AddTag(context, "Firewood", "Material Functions");
+		AddTag(context, "Meltable", "Material Functions");
+		AddTag(context, "Salvagable Fabric", "Material Functions");
+		AddTag(context, "Commoditisable", "Material Functions");
+		AddTag(context, "Padding", "Material Functions");
+		AddTag(context, "Hot Fire", "Material Functions");
+		AddTag(context, "String", "Material Functions");
+		AddTag(context, "Debris", "Material Functions");
+		AddTag(context, "Tanning Agent", "Material Functions");
+		AddTag(context, "Ore Deposit", "Material Functions");
+		AddTag(context, "Ignition Source", "Material Functions");
+		AddTag(context, "Fire", "Material Functions");
+		AddTag(context, "Musket Wadding", "Material Functions");
+
+		AddTag(context, "Repairing", "Functions");
+		AddTag(context, "Sharpening", "Functions");
 
 		// Clothing
 		AddTag(context, "Worn Items", "Functions");
@@ -9702,6 +9526,7 @@ end if",
 		AddTag(context, "Wood Cutting", "Cutting");
 		AddTag(context, "Metal Cutting", "Cutting");
 		AddTag(context, "Stone Cutting", "Cutting");
+		AddTag(context, "Knife", "Cutting");
 		AddTag(context, "Scissors", "Shearing");
 		AddTag(context, "Shears", "Shearing");
 		AddTag(context, "Guillotine", "Shearing");
@@ -9732,10 +9557,10 @@ end if",
 		AddTag(context, "Clamp", "Clamping");
 		AddTag(context, "Peg", "Clamping");
 		AddTag(context, "Clip", "Clamping");
-		AddTag(context, "Strap", "Tie");
+		AddTag(context, "Tie Strap", "Tie");
 		AddTag(context, "Tie Wire", "Tie");
 		AddTag(context, "Tie Rope", "Tie");
-		AddTag(context, "Band", "Tie");
+		AddTag(context, "Tie Band", "Tie");
 		AddTag(context, "Wire Crimp", "Crimping");
 		AddTag(context, "Cable Crimp", "Crimping");
 		AddTag(context, "Metal Crimp", "Crimping");
@@ -9821,10 +9646,8 @@ end if",
 		AddTag(context, "Steak Knife", "Cooking Knife");
 		AddTag(context, "Serrated Knife", "Cooking Knife");
 		AddTag(context, "Filleting Knife", "Cooking Knife");
-		AddTag(context, "Boning Knife", "Cooking Knife");
 		AddTag(context, "Utility Knife", "Cooking Knife");
 		AddTag(context, "Oyster Knife", "Cooking Knife");
-		AddTag(context, "Cleaver", "Cooking Knife");
 		AddTag(context, "Carving Fork", "Cooking Utensils");
 		AddTag(context, "Garlic Press", "Cooking Utensils");
 		AddTag(context, "Juice Press", "Cooking Utensils");
@@ -9896,6 +9719,7 @@ end if",
 		AddTag(context, "Sponge", "Cleaning");
 		AddTag(context, "Chamois", "Cleaning");
 		AddTag(context, "Squeegee", "Cleaning");
+		AddTag(context, "Soap", "Cleaning");
 
 		// Digging
 		AddTag(context, "Digging", "Tools");
@@ -9910,6 +9734,7 @@ end if",
 		AddTag(context, "Shifter Spanner", "Construction Tools");
 		AddTag(context, "Screwdriver", "Construction Tools");
 		AddTag(context, "Hammer", "Construction Tools");
+		AddTag(context, "Riveter", "Construction Tools");
 		AddTag(context, "Rivet Gun", "Construction Tools");
 		AddTag(context, "Construction Stapler", "Construction Tools");
 		AddTag(context, "Mallet", "Construction Tools");
@@ -9917,6 +9742,7 @@ end if",
 		AddTag(context, "Torque Wrench", "Wrench");
 		AddTag(context, "Saw", "Construction Tools");
 		AddTag(context, "Chisel", "Construction Tools");
+		AddTag(context, "Pliers", "Construction Tools");
 		AddTag(context, "Trowel", "Construction Tools");
 		AddTag(context, "Stringline", "Construction Tools");
 		AddTag(context, "Spirit Level", "Construction Tools");
@@ -9929,6 +9755,218 @@ end if",
 		AddTag(context, "A-Frame Ladder", "Ladder");
 		AddTag(context, "Cement Mixer", "Construction Tools");
 		AddTag(context, "Wheelbarrow", "Construction Tools");
+
+		// Metalworking Tools
+		AddTag(context, "Metalworking Tools", "Tools");
+		AddTag(context, "Anvil", "Metalworking Tools");
+		AddTag(context, "Forge", "Metalworking Tools");
+		AddTag(context, "Bellows", "Metalworking Tools");
+		AddTag(context, "Crucible", "Metalworking Tools");
+		AddTag(context, "Forge Tongs", "Metalworking Tools");
+		AddTag(context, "Forge Hammer", "Metalworking Tools");
+
+		// Textilecraft Tools
+		AddTag(context, "Textilecraft Tools", "Tools");
+		AddTag(context, "Awl", "Textilecraft Tools");
+		AddTag(context, "Burnisher", "Textilecraft Tools");
+		AddTag(context, "Creaser", "Textilecraft Tools");
+		AddTag(context, "Thread", "Textilecraft Tools");
+		AddTag(context, "Sewing Needle", "Textilecraft Tools");
+		AddTag(context, "Beading Needle", "Textilecraft Tools");
+		AddTag(context, "Seam Ripper", "Textilecraft Tools");
+		AddTag(context, "Fabric Pin", "Textilecraft Tools");
+		AddTag(context, "Pinking Shears", "Textilecraft Tools");
+		AddTag(context, "Tracer Wheel", "Textilecraft Tools");
+		AddTag(context, "Sewing Machine", "Textilecraft Tools");
+		AddTag(context, "Loom", "Textilecraft Tools");
+		AddTag(context, "Knitting Needle", "Textilecraft Tools");
+		AddTag(context, "Dress Form", "Textilecraft Tools");
+
+		// Woodcrafting Tools
+		AddTag(context, "Woodcrafting Tools", "Tools");
+		AddTag(context, "Splitting Axe", "Woodcrafting Tools");
+		AddTag(context, "Felling Axe", "Woodcrafting Tools");
+		AddTag(context, "Tomahawk Axe", "Woodcrafting Tools");
+		AddTag(context, "Lathe", "Woodcrafting Tools");
+		AddTag(context, "Wood Chisel", "Woodcrafting Tools");
+		AddTag(context, "Planer", "Woodcrafting Tools");
+		AddTag(context, "Splitting Awl", "Woodcrafting Tools");
+		AddTag(context, "Adze", "Woodcrafting Tools");
+		AddTag(context, "Wood Auger", "Woodcrafting Tools");
+		AddTag(context, "Saws", "Woodcrafting Tools");
+		AddTag(context, "Bow Saw", "Saws");
+		AddTag(context, "Hack Saw", "Saws");
+		AddTag(context, "Hand Saw", "Saws");
+		AddTag(context, "Fine Saw", "Saws");
+		AddTag(context, "Crosscut Saw", "Saws");
+		AddTag(context, "Pruning Saw", "Saws");
+		AddTag(context, "Forest Saw", "Saws");
+		AddTag(context, "Circular Saw", "Saws");
+		AddTag(context, "Jig Saw", "Saws");
+		AddTag(context, "Chain Saw", "Saws");
+		AddTag(context, "Wood Clamp", "Woodcrafting Tools");
+		AddTag(context, "Carving Drum Gauge", "Woodcrafting Tools");
+		AddTag(context, "Carving Spoon", "Woodcrafting Tools");
+		AddTag(context, "Wood File", "Woodcrafting Tools");
+		AddTag(context, "Sandpaper", "Woodcrafting Tools");
+		AddTag(context, "Rasp", "Woodcrafting Tools");
+		AddTag(context, "Trammel", "Woodcrafting Tools");
+
+		// Tattoos
+		AddTag(context, "Tattooing Tools", "Tools");
+		AddTag(context, "Tattooing Needle", "Tattooing Tools");
+
+		AddTag(context, "Leatherworking Tools", "Tools");
+		AddTag(context, "Awl Punch", "Leatherworking Tools");
+		AddTag(context, "Leather Stitching Pony", "Leatherworking Tools");
+		AddTag(context, "Edge Beveller", "Leatherworking Tools");
+		AddTag(context, "Leather Gouge", "Leatherworking Tools");
+		AddTag(context, "Leather Creaser", "Leatherworking Tools");
+
+		AddTag(context, "Stoneworking Tools", "Tools");
+		AddTag(context, "Stone Chisel", "Stoneworking Tools");
+		AddTag(context, "Stone Mallet", "Stoneworking Tools");
+		AddTag(context, "Plug and Feathers", "Stoneworking Tools");
+		AddTag(context, "Bush Hammer", "Stoneworking Tools");
+
+		AddTag(context, "Spinning Tools", "Textilecraft Tools");
+		AddTag(context, "Distaff", "Spinning Tools");
+		AddTag(context, "Spindle", "Spinning Tools");
+		AddTag(context, "Drop Spindle", "Spinning Tools");
+		AddTag(context, "Spinner's Weights", "Spinning Tools");
+
+		AddTag(context, "Weaving Tools", "Textilecraft Tools");
+		AddTag(context, "Hand Loom", "Weaving Tools");
+		AddTag(context, "Tablet Weaving Cards", "Weaving Tools");
+		AddTag(context, "Weaver's Sword", "Weaving Tools");
+		AddTag(context, "Warping Board", "Weaving Tools");
+
+		AddTag(context, "Fletching Tools", "Woodcrafting Tools");
+		AddTag(context, "Arrow Jig", "Fletching Tools");
+		AddTag(context, "Fletching Clamp", "Fletching Tools");
+		AddTag(context, "Shaft Straightener", "Fletching Tools");
+
+		AddTag(context, "Bowyer Tools", "Woodcrafting Tools");
+		AddTag(context, "Bow Press", "Bowyer Tools");
+		AddTag(context, "Tillering Stick", "Bowyer Tools");
+		AddTag(context, "Bow Scale", "Bowyer Tools");
+
+		AddTag(context, "Papermaking Tools", "Tools");
+		AddTag(context, "Mould and Deckle", "Papermaking Tools");
+		AddTag(context, "Press Felt", "Papermaking Tools");
+		AddTag(context, "Hollander Beater", "Papermaking Tools");
+
+		AddTag(context, "Glassblowing Tools", "Tools");
+		AddTag(context, "Blowpipe", "Glassblowing Tools");
+		AddTag(context, "Pontil Rod", "Glassblowing Tools");
+		AddTag(context, "Marver Table", "Glassblowing Tools");
+		AddTag(context, "Jacks", "Glassblowing Tools");
+		AddTag(context, "Paper Pads", "Glassblowing Tools");
+		AddTag(context, "Blocks", "Glassblowing Tools");
+
+		AddTag(context, "Locksmithing Tools", "Tools");
+		AddTag(context, "Lockpick", "Locksmithing Tools");
+		AddTag(context, "Torsion Wrench", "Locksmithing Tools");
+		AddTag(context, "Locksmith's File", "Locksmithing Tools");
+		AddTag(context, "Locksmith's Tweezers", "Locksmithing Tools");
+		AddTag(context, "Locksmithing Jig", "Locksmithing Tools");
+		AddTag(context, "Key Gauge", "Locksmithing Tools");
+		AddTag(context, "Impressioning File", "Locksmithing Tools");
+		AddTag(context, "Safe Dial Manipulator", "Locksmithing Tools");
+
+		AddTag(context, "Gunsmithing Tools", "Tools");
+		AddTag(context, "Barrel Reamer", "Gunsmithing Tools");
+		AddTag(context, "Gun Drill", "Gunsmithing Tools");
+		AddTag(context, "Bore Snake", "Gunsmithing Tools");
+		AddTag(context, "Tamping Rod", "Gunsmithing Tools");
+		AddTag(context, "Gun Vise", "Gunsmithing Tools");
+		AddTag(context, "Mainspring Vise", "Gunsmithing Tools");
+		AddTag(context, "Breech Plug Wrench", "Gunsmithing Tools");
+		AddTag(context, "Rammer", "Gunsmithing Tools");
+		AddTag(context, "Bullet Mould", "Gunsmithing Tools");
+		AddTag(context, "Patch Cutter", "Gunsmithing Tools");
+		AddTag(context, "Ball Puller", "Gunsmithing Tools");
+
+		AddTag(context, "Tanning Tools", "Tools");
+		AddTag(context, "Hide Scraper", "Tanning Tools");
+		AddTag(context, "Tanning Beam", "Tanning Tools");
+		AddTag(context, "Tanning Paddle", "Tanning Tools");
+		AddTag(context, "Tanning Rack", "Tanning Tools");
+		AddTag(context, "Leather Dehairing Knife", "Tanning Tools");
+		AddTag(context, "Brain Tanning Bucket", "Tanning Tools");
+
+		AddTag(context, "Armouring Tools", "Tools");
+		AddTag(context, "Plate Snips", "Armouring Tools");
+		AddTag(context, "Armourer's Stake", "Armouring Tools");
+		AddTag(context, "Armourer's Anvil", "Armouring Tools");
+		AddTag(context, "Dishing Form", "Armouring Tools");
+		AddTag(context, "Raising Hammer", "Armouring Tools");
+		AddTag(context, "Planishing Hammer", "Armouring Tools");
+		AddTag(context, "Ball Stake", "Armouring Tools");
+		AddTag(context, "T-Stake", "Armouring Tools");
+		AddTag(context, "Armourer's Forming Bags", "Armouring Tools");
+		AddTag(context, "Armourer's Pliers", "Armouring Tools");
+
+		AddTag(context, "Weaponsmithing Tools", "Tools");
+		AddTag(context, "Swordsmith's Hammer", "Weaponsmithing Tools");
+		AddTag(context, "Sword Anvil", "Weaponsmithing Tools");
+		AddTag(context, "Fuller Tool", "Weaponsmithing Tools");
+		AddTag(context, "Tang Punch", "Weaponsmithing Tools");
+		AddTag(context, "Sword Vise", "Weaponsmithing Tools");
+		AddTag(context, "Quenching Trough", "Weaponsmithing Tools");
+		AddTag(context, "Pommel Tightening Jig", "Weaponsmithing Tools");
+		AddTag(context, "Crossguard Fixture", "Weaponsmithing Tools");
+		AddTag(context, "Forge Bellows", "Weaponsmithing Tools");
+		AddTag(context, "Grindstone", "Weaponsmithing Tools");
+
+		AddTag(context, "Butcher Tools", "Tools");
+
+		// Field Dressing
+		AddTag(context, "Field Dressing Tools", "Butcher Tools");
+		AddTag(context, "Skinning Knife", "Field Dressing Tools");
+		AddTag(context, "Fleshing Knife", "Field Dressing Tools");
+		AddTag(context, "Boning Knife", "Field Dressing Tools");
+		AddTag(context, "Carcass Hook", "Field Dressing Tools");
+		AddTag(context, "Gut Hook Knife", "Field Dressing Tools");
+		AddTag(context, "Meat Saw", "Field Dressing Tools");
+		AddTag(context, "Pelting Blade", "Field Dressing Tools");
+		AddTag(context, "Splitting Saw", "Field Dressing Tools");
+
+		// Cutting and Portioning
+		AddTag(context, "Meat Cutting Tools", "Butcher Tools");
+		AddTag(context, "Butcher's Knife", "Meat Cutting Tools");
+		AddTag(context, "Cimeter Knife", "Meat Cutting Tools");
+		AddTag(context, "Cleaver", "Meat Cutting Tools");
+		AddTag(context, "Breaking Knife", "Meat Cutting Tools");
+		AddTag(context, "Trimming Knife", "Meat Cutting Tools");
+		AddTag(context, "Bone Saw", "Meat Cutting Tools");
+		AddTag(context, "Portioning Blade", "Meat Cutting Tools");
+
+		// Processing and Preparation
+		AddTag(context, "Meat Processing Tools", "Butcher Tools");
+		AddTag(context, "Meat Grinder", "Meat Processing Tools");
+		AddTag(context, "Tenderizing Mallet", "Meat Processing Tools");
+		AddTag(context, "Slicing Machine", "Meat Processing Tools");
+		AddTag(context, "Stuffing Funnel", "Meat Processing Tools");
+		AddTag(context, "Larding Needle", "Meat Processing Tools");
+
+		// Cleaning and Maintenance
+		AddTag(context, "Butcher Cleaning Tools", "Butcher Tools");
+		AddTag(context, "Carcass Scraper", "Butcher Cleaning Tools");
+
+		// Special Tools
+		AddTag(context, "Special Butcher Tools", "Butcher Tools");
+		AddTag(context, "Saw Guide", "Special Butcher Tools");
+		AddTag(context, "Meat Injector", "Special Butcher Tools");
+		AddTag(context, "Bone Dust Scraper", "Special Butcher Tools");
+		AddTag(context, "Sinew Remover", "Special Butcher Tools");
+
+		// Storage and Organization
+		AddTag(context, "Meat Storage Tools", "Butcher Tools");
+		AddTag(context, "Butcher Hook", "Meat Storage Tools");
+		AddTag(context, "Hanging Rack", "Meat Storage Tools");
+		AddTag(context, "Cooler Box", "Meat Storage Tools");
+		AddTag(context, "Meat Bin", "Meat Storage Tools");
 
 		// Medical Tools
 		AddTag(context, "Medical Tools", "Tools");
@@ -9944,7 +9982,8 @@ end if",
 		AddTag(context, "Mechanical Scale", "Medical Tools");
 		AddTag(context, "Height Measuring Scale", "Medical Tools");
 		AddTag(context, "Tendon Hammer", "Medical Tools");
-
+		AddTag(context, "Human Blood Typing", "Medical Tools");
+		
 		// Surgical Tools
 		AddTag(context, "Surgical Tools", "Tools");
 		AddTag(context, "Scalpel", "Surgical Tools");
@@ -9978,13 +10017,11 @@ end if",
 		AddTag(context, "Surgical Steel Suture", "Non-Absorbable Suture");
 		AddTag(context, "Surgical Stapler", "Surgical Tools");
 		AddTag(context, "Surgical Staples", "Surgical Tools");
-
-
+		
 		// Science Tools
 		AddTag(context, "Scientific Tools", "Tools");
 
 		AddTag(context, "Plane Table", "Scientific Tools");
-
 		AddTag(context, "Measurement Tools", "Scientific Tools");
 		AddTag(context, "Micrometer", "Measurement Tools");
 		AddTag(context, "Tribometer", "Measurement Tools");
@@ -10119,10 +10156,10 @@ end if",
 		// Market Items
 		AddTag(context, "Market", "");
 
-		AddTag(context, "Food", "Market");
-		AddTag(context, "Staple Food", "Food");
-		AddTag(context, "Standard Food", "Food");
-		AddTag(context, "Luxury Food", "Food");
+		AddTag(context, "Nourishment", "Market");
+		AddTag(context, "Staple Food", "Nourishment");
+		AddTag(context, "Standard Food", "Nourishment");
+		AddTag(context, "Luxury Food", "Nourishment");
 
 		AddTag(context, "Clothing", "Market");
 		AddTag(context, "Simple Clothing", "Clothing");
@@ -10153,6 +10190,9 @@ end if",
 		AddTag(context, "Simple Decorations", "Household Goods");
 		AddTag(context, "Standard Decorations", "Household Goods");
 		AddTag(context, "Luxury Decorations", "Household Goods");
+		AddTag(context, "Simple Wares", "Household Goods");
+		AddTag(context, "Standard Wares", "Household Goods");
+		AddTag(context, "Luxury Wares", "Household Goods");
 
 		AddTag(context, "Military Goods", "Market");
 		AddTag(context, "Weapons", "Military Goods");
@@ -10160,8 +10200,19 @@ end if",
 		AddTag(context, "Swords", "Weapons");
 		AddTag(context, "Clubs", "Weapons");
 		AddTag(context, "Axes", "Weapons");
+		AddTag(context, "Maces", "Weapons");
 		AddTag(context, "Daggers", "Weapons");
-
+		AddTag(context, "Crossbows", "Weapons");
+		AddTag(context, "Bows", "Weapons");
+		AddTag(context, "Guns", "Weapons");
+		AddTag(context, "Hammers", "Weapons");
+		AddTag(context, "Polearms", "Weapons");
+		AddTag(context, "Other Weapons", "Weapons");
+		AddTag(context, "Ammunition", "Military Goods");
+		AddTag(context, "Arrows", "Ammunition");
+		AddTag(context, "Bolts", "Ammunition");
+		AddTag(context, "Bullets", "Ammunition");
+		AddTag(context, "Blackpowder", "Ammunition");
 		AddTag(context, "Armour", "Military Goods");
 		AddTag(context, "Leather Armour", "Armour");
 		AddTag(context, "Mail Armour", "Armour");
@@ -10198,7 +10249,7 @@ end if",
 		AddTag(context, "Lumber", "Raw Materials");
 		AddTag(context, "Straw", "Raw Materials");
 		AddTag(context, "Cloth", "Raw Materials");
-		AddTag(context, "Stone", "Raw Materials");
+		AddTag(context, "Stone Blocks", "Raw Materials");
 		AddTag(context, "Sand", "Raw Materials");
 		AddTag(context, "Clay", "Raw Materials");
 		AddTag(context, "Aggregate", "Raw Materials");
@@ -10215,6 +10266,90 @@ end if",
 		AddTag(context, "Candles", "Lighting");
 		AddTag(context, "Torches", "Lighting");
 		AddTag(context, "Lamps", "Lighting");
+
+		AddTag(context, "Consumables", "");
+		AddTag(context, "Padded Vest", "Consumables");
+		AddTag(context, "Padded Gloves", "Consumables");
+		AddTag(context, "Padded Trousers", "Consumables");
+		AddTag(context, "Thick Leather", "Consumables");
+		AddTag(context, "Armouring Rings", "Consumables");
+		AddTag(context, "Armouring Studs", "Consumables");
+		AddTag(context, "Armouring Scales", "Consumables");
+		AddTag(context, "Wire", "Consumables");
+		AddTag(context, "Sheet Metal", "Consumables");
+		AddTag(context, "Deer Hindquarter", "Consumables");
+		AddTag(context, "Deer Forequarter", "Consumables");
+		AddTag(context, "Rump", "Consumables");
+		AddTag(context, "Tenderloin", "Consumables");
+		AddTag(context, "Pig Hindquarter", "Consumables");
+		AddTag(context, "Pig Forequarter", "Consumables");
+		AddTag(context, "Entrails", "Consumables");
+		AddTag(context, "Suet", "Consumables");
+		AddTag(context, "Plank", "Consumables");
+		AddTag(context, "Log", "Consumables");
+		AddTag(context, "Dirt", "Consumables");
+		AddTag(context, "Nuts", "Consumables");
+		AddTag(context, "Rabbit Roast", "Consumables");
+		AddTag(context, "Deer Roast", "Consumables");
+		AddTag(context, "Pig Roast", "Consumables");
+		AddTag(context, "Grove Trees", "Consumables");
+		AddTag(context, "Tree", "Consumables");
+		AddTag(context, "Trunk", "Consumables");
+		AddTag(context, "Open Grave", "Consumables");
+		AddTag(context, "Thick Hide", "Consumables");
+		AddTag(context, "Branch", "Consumables");
+		AddTag(context, "Short Shaft", "Consumables");
+		AddTag(context, "Knapped Stone", "Consumables");
+		AddTag(context, "Reeds", "Consumables");
+		AddTag(context, "Sword Blade", "Consumables");
+		AddTag(context, "Knife Blade", "Consumables");
+		AddTag(context, "Mace Head", "Consumables");
+		AddTag(context, "Axe Head", "Consumables");
+		AddTag(context, "Pole", "Consumables");
+		AddTag(context, "Grass", "Consumables");
+		AddTag(context, "Tusk", "Consumables");
+		AddTag(context, "Spearhead", "Consumables");
+		AddTag(context, "Mould Sheet Metal", "Consumables");
+		AddTag(context, "Mould Sword Blade", "Consumables");
+		AddTag(context, "Mould Knife Blade", "Consumables");
+		AddTag(context, "Mould Mace Head", "Consumables");
+		AddTag(context, "Mould Axe Head", "Consumables");
+		AddTag(context, "Mould Spearhead", "Consumables");
+		AddTag(context, "Construction Brick", "Consumables");
+		AddTag(context, "Fletching", "Consumables");
+		AddTag(context, "Sword Grip", "Consumables");
+		AddTag(context, "Curved Leather Piece", "Consumables");
+		AddTag(context, "Long Shaft", "Consumables");
+		AddTag(context, "Drawplate", "Consumables");
+		AddTag(context, "Mould Brick", "Consumables");
+
+		AddTag(context, "Pottery Tools", "Tools");
+		AddTag(context, "Potter's Wheel", "Pottery Tools");
+		AddTag(context, "Clay Knife", "Pottery Tools");
+		AddTag(context, "Potter's Rib", "Pottery Tools");
+		AddTag(context, "Loop Tool", "Pottery Tools");
+		AddTag(context, "Needle Tool", "Pottery Tools");
+		AddTag(context, "Wire Cutter", "Pottery Tools");
+		AddTag(context, "Clay Stamp", "Pottery Tools");
+		AddTag(context, "Pug Mill", "Pottery Tools");
+		AddTag(context, "Slip Trailer", "Pottery Tools");
+		AddTag(context, "Hump Mold", "Pottery Tools");
+		AddTag(context, "Press Mold", "Pottery Tools");
+		AddTag(context, "Extruder", "Pottery Tools");
+		AddTag(context, "Slab Roller", "Pottery Tools");
+		AddTag(context, "Kiln", "Pottery Tools");
+
+		AddTag(context, "Smelting Tools", "Tools");
+		AddTag(context, "Smelting Furnace", "Smelting Tools");
+		AddTag(context, "Crucible Tongs", "Smelting Tools");
+		AddTag(context, "Slag Skimmer", "Smelting Tools");
+		AddTag(context, "Furnace Bellows", "Smelting Tools");
+		AddTag(context, "Ore Crusher", "Smelting Tools");
+		AddTag(context, "Ore Roaster", "Smelting Tools");
+		AddTag(context, "Slag Hammer", "Smelting Tools");
+		AddTag(context, "Bloom Tongs", "Smelting Tools");
+		AddTag(context, "Charging Bucket", "Smelting Tools");
+		AddTag(context, "Tap Rod", "Smelting Tools");
 
 		context.SaveChanges();
 	}

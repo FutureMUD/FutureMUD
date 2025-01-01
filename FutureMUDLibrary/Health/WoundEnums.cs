@@ -65,13 +65,14 @@
         Cellular = 13,
         Sonic = 14,
         Shearing = 15,
-        ArmourPiercing = 16,
+        BallisticArmourPiercing = 16,
         Wrenching = 17,
         Shrapnel = 18,
         Necrotic = 19,
         Falling = 20,
         Eldritch = 21,
         Arcane = 22,
+        ArmourPiercing = 23
     }
 
     public enum WoundExaminationType {

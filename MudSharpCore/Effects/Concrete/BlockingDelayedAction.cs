@@ -54,7 +54,7 @@ public class BlockingDelayedAction : Effect, IActionEffect, ILDescSuffixEffect, 
 
 	public override void ExpireEffect()
 	{
-		if ((bool?)ApplicabilityProg?.Execute(Owner, null, null) ?? true)
+		if (ApplicabilityProg?.ExecuteBool(Owner, null, null) ?? true)
 		{
 			Action(Owner);
 		}

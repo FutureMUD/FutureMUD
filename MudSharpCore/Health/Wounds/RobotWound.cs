@@ -67,7 +67,7 @@ public class RobotWound : PerceivedItem, IWound
 				case DamageType.Claw:
 				case DamageType.Chopping:
 				case DamageType.Ballistic:
-				case DamageType.ArmourPiercing:
+				case DamageType.BallisticArmourPiercing:
 				case DamageType.Shearing:
 				case DamageType.Arcane:
 					_bleedStatus = Severity >= WoundSeverity.Moderate
@@ -75,6 +75,7 @@ public class RobotWound : PerceivedItem, IWound
 						: BleedStatus.NeverBled;
 					break;
 				case DamageType.Piercing:
+				case DamageType.ArmourPiercing:
 				case DamageType.Bite:
 				case DamageType.Shrapnel:
 					_bleedStatus = Severity >= WoundSeverity.Severe ? BleedStatus.Bleeding : BleedStatus.NeverBled;
@@ -382,9 +383,9 @@ public class RobotWound : PerceivedItem, IWound
 			case DamageType.Arcane:
 				return "Dent";
 			case DamageType.Piercing:
-				return "Hole";
 			case DamageType.ArmourPiercing:
-				return "Bullet Hole";
+				return "Hole";
+			case DamageType.BallisticArmourPiercing:
 			case DamageType.Ballistic:
 				return "Bullet Hole";
 			case DamageType.Burning:

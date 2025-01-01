@@ -379,6 +379,8 @@ namespace MudSharp.Character {
 
 		void ConvertGrapplesToDrags();
 		bool NoMercy { get; set; }
+		IEnumerable<INameCulture> NameCultures { get; }
+		INameCulture NameCultureForGender(Gender gender);
 	}
 
 	public interface IHavePersonalProjects

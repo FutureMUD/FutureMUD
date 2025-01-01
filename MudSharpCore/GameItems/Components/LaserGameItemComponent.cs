@@ -133,7 +133,7 @@ public class LaserGameItemComponent : GameItemComponent, IRangedWeapon, ISwitcha
 	WeaponClassification IRangedWeapon.Classification => _prototype.RangedWeaponType.Classification;
 	WeaponClassification IMeleeWeapon.Classification => _prototype.MeleeWeaponType.Classification;
 
-	public bool CanLoad(ICharacter loader, bool ignoreEmpty = false)
+	public bool CanLoad(ICharacter loader, bool ignoreEmpty = false, LoadMode mode = LoadMode.Normal)
 	{
 		if (PowerPack != null)
 		{
@@ -151,7 +151,7 @@ public class LaserGameItemComponent : GameItemComponent, IRangedWeapon, ISwitcha
 		return true;
 	}
 
-	public string WhyCannotLoad(ICharacter loader, bool ignoreEmpty = false)
+	public string WhyCannotLoad(ICharacter loader, bool ignoreEmpty = false, LoadMode mode = LoadMode.Normal)
 	{
 		if (PowerPack != null)
 		{
@@ -178,7 +178,7 @@ public class LaserGameItemComponent : GameItemComponent, IRangedWeapon, ISwitcha
 		throw new ApplicationException("Unknown WhyCannotLoad reason in PistolGameItemComponent.WhyCannotLoad");
 	}
 
-	public void Load(ICharacter loader, bool ignoreEmpty = false)
+	public void Load(ICharacter loader, bool ignoreEmpty = false, LoadMode mode = LoadMode.Normal)
 	{
 		if (!CanLoad(loader))
 		{

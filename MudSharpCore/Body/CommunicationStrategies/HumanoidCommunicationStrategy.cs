@@ -362,7 +362,7 @@ public class HumanoidCommunicationStrategy : IBodyCommunicationStrategy
                 .Append(emote));
             foreach (var layer in body.Location.Terrain(null).TerrainLayers.Except(body.RoomLayer))
             {
-                var layerText = layer.IsHigherThan(body.RoomLayer) ? "from above" : "from below";
+                var layerText = layer.IsHigherThan(body.RoomLayer) ? "from below" : "from above";
                 foreach (var character in body.Location.LayerCharacters(layer))
                 {
                     character.OutputHandler.Send(new EmoteOutput(
@@ -414,7 +414,7 @@ public class HumanoidCommunicationStrategy : IBodyCommunicationStrategy
         HandleSpeechEvents(body, target, message, AudioVolume.Loud, body.CurrentLanguage, body.CurrentAccent);
         foreach (var layer in body.Location.Terrain(null).TerrainLayers.Except(body.RoomLayer))
         {
-            var layerText = layer.IsHigherThan(body.RoomLayer) ? "from above" : "from below";
+            var layerText = layer.IsHigherThan(body.RoomLayer) ? "from below" : "from above";
             foreach (var character in body.Location.LayerCharacters(layer))
             {
                 character.OutputHandler.Send(new LanguageOutput(new Emote(
@@ -534,7 +534,7 @@ public class HumanoidCommunicationStrategy : IBodyCommunicationStrategy
                 target)).Append(emote));
             foreach (var layer in body.Location.Terrain(null).TerrainLayers.Except(body.RoomLayer))
             {
-                var layerText = layer.IsHigherThan(body.RoomLayer) ? "from above" : "from below";
+                var layerText = layer.IsHigherThan(body.RoomLayer) ? "from below" : "from above";
                 foreach (var character in body.Location.LayerCharacters(layer))
                 {
                     character.OutputHandler.Send(new EmoteOutput(
@@ -592,7 +592,7 @@ public class HumanoidCommunicationStrategy : IBodyCommunicationStrategy
             body.CurrentAccent);
         foreach (var layer in body.Location.Terrain(null).TerrainLayers.Except(body.RoomLayer))
         {
-            var layerText = layer.IsHigherThan(body.RoomLayer) ? "from above" : "from below";
+            var layerText = layer.IsHigherThan(body.RoomLayer) ? "from below" : "from above";
             foreach (var character in body.Location.LayerCharacters(layer))
             {
                 character.OutputHandler.Send(new LanguageOutput(new Emote(

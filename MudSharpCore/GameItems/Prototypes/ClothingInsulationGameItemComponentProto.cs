@@ -178,9 +178,9 @@ public class ClothingInsulationGameItemComponentProto : GameItemComponentProto
 			Id,
 			RevisionNumber,
 			Name,
-			Gameworld.UnitManager.Describe(InsulatingDegrees, Framework.Units.UnitType.TemperatureDelta, actor)
+			Gameworld.UnitManager.DescribeExact(InsulatingDegrees, Framework.Units.UnitType.TemperatureDelta, actor)
 			         .Colour(Telnet.Green),
-			Gameworld.UnitManager.Describe(ReflectingDegrees, Framework.Units.UnitType.TemperatureDelta, actor)
+			Gameworld.UnitManager.DescribeExact(ReflectingDegrees, Framework.Units.UnitType.TemperatureDelta, actor)
 			         .Colour(Telnet.Green)
 		);
 	}

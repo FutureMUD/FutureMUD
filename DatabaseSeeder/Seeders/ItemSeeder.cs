@@ -29,10 +29,14 @@ public partial class ItemSeeder : IDatabaseSeeder
 	public string Name => "Items";
 
 	/// <inheritdoc />
-	public string Tagline => "A default collection of items and crafts";
+	public string Tagline => "A starter collection of items and crafts";
 
 	/// <inheritdoc />
-	public string FullDescription => @"This seeder sets up an item and craft package, to further simplify your building.";
+	public string FullDescription => @"This seeder sets up an item and craft package, to further simplify your building.
+
+This comes with over 850 items and 171 crafts, which while not totally comprehensive, is enough to get you started and give you plenty of examples to copy off for your own building.
+
+The items and crafts are fairly universal and of approximately medieval to reneissance level technology. You can simply not use the items that aren't appropriate for your world. You can also disable any crafts you're not interested in using.";
 
 	private Dictionary<string, MudSharp.Models.GameItemComponentProto> _components = new(StringComparer.InvariantCultureIgnoreCase);
 	private Dictionary<string, MudSharp.Models.Tag> _tags = new(StringComparer.InvariantCultureIgnoreCase);

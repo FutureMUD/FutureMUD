@@ -178,8 +178,8 @@ internal class KnowledgePickerBySkillScreenStoryboard : ChargenScreenStoryboard
 			CurrentPicks.Clear();
 			ShownIntroduction = false;
 			WarnedAboutFewerPicks = false;
-			FreeKnowledges = ((IList<IProgVariable>)Storyboard.FreeKnowledgesProg.Execute(Chargen))
-			                 .OfType<IKnowledge>().ToList();
+			FreeKnowledges = Storyboard.FreeKnowledgesProg?.ExecuteCollection<IKnowledge>(Chargen)
+				.ToList() ?? [];
 			Chargen.SelectedKnowledges.AddRange(FreeKnowledges);
 			SkillEnumerator =
 				Chargen.SelectedSkills.Select(

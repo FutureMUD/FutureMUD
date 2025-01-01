@@ -3940,7 +3940,7 @@ return @bmi > 24 and @bmi < 35"
 				Definition = distinctiveDef,
 				Name = "broad jaw",
 				Value = "broad-jawed",
-				AdditionalValue = "is set with a strong and broad jawline",
+				AdditionalValue = "a strong and broad jawline",
 				Pluralisation = 0
 			});
 			_context.CharacteristicValues.Add(new CharacteristicValue
@@ -3949,7 +3949,7 @@ return @bmi > 24 and @bmi < 35"
 				Definition = distinctiveDef,
 				Name = "birthmarked",
 				Value = "birthmarked",
-				AdditionalValue = "is distinguished by a striking and obvious birthmark",
+				AdditionalValue = "a striking and obvious birthmark",
 				Pluralisation = 0
 			});
 			_context.CharacteristicValues.Add(new CharacteristicValue
@@ -3958,7 +3958,7 @@ return @bmi > 24 and @bmi < 35"
 				Definition = distinctiveDef,
 				Name = "calloused hands",
 				Value = "calloused-handed",
-				AdditionalValue = "has heavily calloused hands, evidence of a lifetime of manual labour",
+				AdditionalValue = "heavily calloused hands, evidence of a lifetime of manual labour",
 				Pluralisation = 1
 			});
 			_context.CharacteristicValues.Add(new CharacteristicValue
@@ -3967,7 +3967,7 @@ return @bmi > 24 and @bmi < 35"
 				Definition = distinctiveDef,
 				Name = "dimples",
 				Value = "dimpled",
-				AdditionalValue = "has prominent dimples when &he smiles",
+				AdditionalValue = "prominent dimples when &he smiles",
 				Pluralisation = 1
 			});
 			_context.CharacteristicValues.Add(new CharacteristicValue
@@ -3976,7 +3976,7 @@ return @bmi > 24 and @bmi < 35"
 				Definition = distinctiveDef,
 				Name = "elegant fingers",
 				Value = "elegant fingered",
-				AdditionalValue = "has long and finely shaped fingers, elegant in appearance",
+				AdditionalValue = "long and finely shaped fingers, elegant in appearance",
 				Pluralisation = 1
 			});
 			_context.CharacteristicValues.Add(new CharacteristicValue
@@ -3985,7 +3985,7 @@ return @bmi > 24 and @bmi < 35"
 				Definition = distinctiveDef,
 				Name = "light freckles",
 				Value = "lightly-freckled",
-				AdditionalValue = "is adorned with a scattering of light freckles, just enough to cover &his cheeks",
+				AdditionalValue = "a scattering of light freckles, just enough to cover &his cheeks",
 				Pluralisation = 1
 			});
 			_context.CharacteristicValues.Add(new CharacteristicValue
@@ -3994,7 +3994,7 @@ return @bmi > 24 and @bmi < 35"
 				Definition = distinctiveDef,
 				Name = "full lips",
 				Value = "full-lipped",
-				AdditionalValue = "has full and striking lips",
+				AdditionalValue = "full and striking lips",
 				Pluralisation = 1
 			});
 			_context.CharacteristicValues.Add(new CharacteristicValue
@@ -4003,7 +4003,7 @@ return @bmi > 24 and @bmi < 35"
 				Definition = distinctiveDef,
 				Name = "thin lips",
 				Value = "thin-lipped",
-				AdditionalValue = "has a mouth delicately framed with thin lips",
+				AdditionalValue = "a mouth delicately framed with thin lips",
 				Pluralisation = 1
 			});
 			_context.CharacteristicValues.Add(new CharacteristicValue
@@ -4012,7 +4012,7 @@ return @bmi > 24 and @bmi < 35"
 				Definition = distinctiveDef,
 				Name = "gaunt cheeks",
 				Value = "gaunt-cheeked",
-				AdditionalValue = "has cheeks sunken and gaunt, hinting at hardship",
+				AdditionalValue = "cheeks sunken and gaunt, hinting at hardship",
 				Pluralisation = 1
 			});
 			_context.CharacteristicValues.Add(new CharacteristicValue
@@ -4021,7 +4021,7 @@ return @bmi > 24 and @bmi < 35"
 				Definition = distinctiveDef,
 				Name = "high cheekbones",
 				Value = "high-cheekboned",
-				AdditionalValue = "is sharply defined by high and prominent cheekbones",
+				AdditionalValue = "sharply defined by high and prominent cheekbones",
 				Pluralisation = 1
 			});
 			_context.CharacteristicValues.Add(new CharacteristicValue
@@ -4030,7 +4030,7 @@ return @bmi > 24 and @bmi < 35"
 				Definition = distinctiveDef,
 				Name = "knobby knuckles",
 				Value = "knobby-knuckled",
-				AdditionalValue = "has hands defined by prominently knobby knuckles",
+				AdditionalValue = "hands defined by prominently knobby knuckles",
 				Pluralisation = 1
 			});
 			_context.CharacteristicValues.Add(new CharacteristicValue
@@ -4039,7 +4039,7 @@ return @bmi > 24 and @bmi < 35"
 				Definition = distinctiveDef,
 				Name = "square chin",
 				Value = "square-chinned",
-				AdditionalValue = "has an emphatically square chin, prominently jutting out of &his jaw",
+				AdditionalValue = "an emphatically square chin, prominently jutting out of &his jaw",
 				Pluralisation = 0
 			});
 			_context.CharacteristicValues.Add(new CharacteristicValue
@@ -4048,7 +4048,7 @@ return @bmi > 24 and @bmi < 35"
 				Definition = distinctiveDef,
 				Name = "square jaw",
 				Value = "square-jawed",
-				AdditionalValue = "has a square jaw, giving &his face a wide appearance",
+				AdditionalValue = "a square jaw, giving &his face a wide appearance",
 				Pluralisation = 0
 			});
 			_context.CharacteristicValues.Add(new CharacteristicValue
@@ -4057,7 +4057,7 @@ return @bmi > 24 and @bmi < 35"
 				Definition = distinctiveDef,
 				Name = "strong hands",
 				Value = "strong-handed",
-				AdditionalValue = "has large and powerful-looking hands, suggesting strength",
+				AdditionalValue = "large and powerful-looking hands, suggesting strength",
 				Pluralisation = 1
 			});
 			_context.CharacteristicValues.Add(new CharacteristicValue
@@ -4066,7 +4066,7 @@ return @bmi > 24 and @bmi < 35"
 				Definition = distinctiveDef,
 				Name = "sun weathered",
 				Value = "sun-weathered",
-				AdditionalValue = "has skin toughened and weathered by long days under the sun",
+				AdditionalValue = "skin toughened and weathered by long days under the sun",
 				Pluralisation = 0
 			});
 		}

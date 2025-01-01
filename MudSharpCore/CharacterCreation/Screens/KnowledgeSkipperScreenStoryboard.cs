@@ -21,7 +21,20 @@ internal class KnowledgeSkipperScreenStoryboard : ChargenScreenStoryboard
 	{
 	}
 
-	public KnowledgeSkipperScreenStoryboard(IFuturemud gameworld, Models.ChargenScreenStoryboard dbitem)
+	private KnowledgeSkipperScreenStoryboard(IFuturemud gameworld, IChargenScreenStoryboard storyboard) : base(gameworld,
+		storyboard)
+	{
+		switch (storyboard)
+		{
+			case KnowledgePickerBySkillScreenStoryboard picker:
+				FreeKnowledgesProg = picker.FreeKnowledgesProg;
+				break;
+		}
+
+		SaveAfterTypeChange();
+	}
+
+	private KnowledgeSkipperScreenStoryboard(IFuturemud gameworld, Models.ChargenScreenStoryboard dbitem)
 		: base(dbitem, gameworld)
 	{
 		var definition = XElement.Parse(dbitem.StageDefinition);
@@ -63,7 +76,9 @@ internal class KnowledgeSkipperScreenStoryboard : ChargenScreenStoryboard
 	{
 		ChargenStoryboard.RegisterFactory(ChargenStage.SelectKnowledges,
 			new ChargenScreenStoryboardFactory("KnowledgeSkipper",
-				(game, dbitem) => new KnowledgeSkipperScreenStoryboard(game, dbitem)),
+				(game, dbitem) => new KnowledgeSkipperScreenStoryboard(game, dbitem),
+				(game, other) => new KnowledgeSkipperScreenStoryboard(game, other)
+				),
 			"KnowledgeSkipper",
 			"Skip the screen and give knowledges by prog",
 			((ChargenScreenStoryboard)Activator.CreateInstance(MethodBase.GetCurrentMethod().DeclaringType, true))

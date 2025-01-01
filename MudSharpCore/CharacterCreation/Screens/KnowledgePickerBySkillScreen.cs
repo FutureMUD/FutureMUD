@@ -21,6 +21,21 @@ internal class KnowledgePickerBySkillScreenStoryboard : ChargenScreenStoryboard
 	{
 	}
 
+	private KnowledgePickerBySkillScreenStoryboard(IFuturemud gameworld, IChargenScreenStoryboard storyboard) : base(gameworld,
+		storyboard)
+	{
+		switch (storyboard)
+		{
+			case KnowledgeSkipperScreenStoryboard picker:
+				FreeKnowledgesProg = picker.FreeKnowledgesProg;
+				Blurb = "No blurb has been written.";
+				NumberOfPicksProg = Gameworld.AlwaysOneProg;
+				break;
+		}
+
+		SaveAfterTypeChange();
+	}
+
 	public KnowledgePickerBySkillScreenStoryboard(IFuturemud gameworld, Models.ChargenScreenStoryboard dbitem)
 		: base(dbitem, gameworld)
 	{
@@ -127,7 +142,8 @@ internal class KnowledgePickerBySkillScreenStoryboard : ChargenScreenStoryboard
 	{
 		ChargenStoryboard.RegisterFactory(ChargenStage.SelectKnowledges,
 			new ChargenScreenStoryboardFactory("KnowledgePickerBySkill",
-				(game, dbitem) => new KnowledgePickerBySkillScreenStoryboard(game, dbitem)),
+				(game, dbitem) => new KnowledgePickerBySkillScreenStoryboard(game, dbitem),
+				(game, other) => new KnowledgePickerBySkillScreenStoryboard(game, other)),
 			"KnowledgePickerBySkill",
 			"Select knowledges for each skill that has associated",
 			((ChargenScreenStoryboard)Activator.CreateInstance(MethodBase.GetCurrentMethod().DeclaringType, true))

@@ -157,9 +157,9 @@ public class NameCulture : SaveableItem, INameCulture
 				var name = Enum.GetName(typeof(NameUsage), item).ToLowerInvariant();
 				if (match.Groups[name].Length > 0)
 				{
-					elements.Add(item,
-						match.Groups[name].Value.Split(new[] { ' ', '-' }, StringSplitOptions.RemoveEmptyEntries)
-							 .ToList());
+					var names =
+						_nameCultureElements.First(x => x.Usage == item).MaximumCount > 1 ? match.Groups[name].Value.Split(new[] { ' ', '-' }, StringSplitOptions.RemoveEmptyEntries) : [match.Groups[name].Value];
+					elements.Add(item, names.ToList());
 				}
 			}
 

@@ -2613,16 +2613,42 @@ public partial class Body
 
 	public bool CanWear(IGameItem item, IWearProfile profile)
 	{
+		if (profile is null)
+		{
+			return false;
+		}
+
 		var wearable = item.GetItemType<IWearable>();
-		return
-			profile?.Profile(this) != null &&
-			(!profile.RequireContainerIsEmpty || item.GetItemType<IContainer>()?.Contents.Any() != true) &&
-			item.GetItemType<IRestraint>()?.RestraintType != RestraintType.Binding &&
-			wearable != null &&
-			profile.Profile(this).All(x =>
-				WornItemsFor(x.Key).Sum(y => y.GetItemType<IWearable>().LayerWeightConsumption) +
-				wearable.LayerWeightConsumption <= MaximumLayerWeight) &&
-			wearable.CanWear(this, profile);
+		if (wearable is null)
+		{
+			return false;
+		}
+
+		var profiles = profile.Profile(this);
+		if (profile.RequireContainerIsEmpty && item.GetItemType<IContainer>()?.Contents.Any() == true)
+		{
+			return false;
+		}
+
+		if (item.GetItemType<IRestraint>()?.RestraintType == RestraintType.Binding)
+		{
+			return false;
+		}
+
+		foreach (var availableProfile in profiles)
+		{
+			if (WornItemsFor(availableProfile.Key).Sum(x => x.GetItemType<IWearable>().LayerWeightConsumption) + wearable.LayerWeightConsumption > MaximumLayerWeight)
+			{
+				return false;
+			}
+		}
+
+		if (!wearable.CanWear(this, profile))
+		{
+			return false;
+		}
+
+		return true;
 	}
 
 	public bool CanWear(IGameItem item)

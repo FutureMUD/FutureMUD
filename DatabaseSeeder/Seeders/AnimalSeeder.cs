@@ -4331,37 +4331,37 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
 		AddBodypart(avianProto, "abdomen", "abdomen", "abdomen", BodypartTypeEnum.Wear, null, Alignment.Front,
 			Orientation.Low, 80, -1, 100, order++, "Fatty Flesh", SizeCategory.Normal, "Torso", true, isVital: true,
 			implantSpace: 5, stunMultiplier: 0.2);
-		AddBodypart(avianProto, "rbreast", "right breast", "breast", BodypartTypeEnum.Wear, "abdomen",
+		AddBodypart(avianProto, "rbreast", "right breast", "breast", BodypartTypeEnum.BonyDrapeable, "abdomen",
 			Alignment.FrontRight, Orientation.Low, 80, -1, 100, order++, "Flesh", SizeCategory.Normal, "Torso",
 			true, isVital: true, implantSpace: 5, stunMultiplier: 0.2);
-		AddBodypart(avianProto, "lbreast", "left breast", "breast", BodypartTypeEnum.Wear, "abdomen",
+		AddBodypart(avianProto, "lbreast", "left breast", "breast", BodypartTypeEnum.BonyDrapeable, "abdomen",
 			Alignment.FrontLeft, Orientation.Low, 80, -1, 100, order++, "Flesh", SizeCategory.Normal, "Torso", true,
 			isVital: true, implantSpace: 5, stunMultiplier: 0.2);
-		AddBodypart(avianProto, "urflank", "upper right flank", "flank", BodypartTypeEnum.Wear, "rbreast",
+		AddBodypart(avianProto, "urflank", "upper right flank", "flank", BodypartTypeEnum.BonyDrapeable, "rbreast",
 			Alignment.Right, Orientation.Centre, 80, -1, 200, order++, "Flesh", SizeCategory.Normal, "Torso", true,
 			isVital: true, implantSpace: 5, stunMultiplier: 0.2);
-		AddBodypart(avianProto, "ulflank", "upper left flank", "flank", BodypartTypeEnum.Wear, "lbreast",
+		AddBodypart(avianProto, "ulflank", "upper left flank", "flank", BodypartTypeEnum.BonyDrapeable, "lbreast",
 			Alignment.Left, Orientation.Centre, 80, -1, 200, order++, "Flesh", SizeCategory.Normal, "Torso", true,
 			isVital: true, implantSpace: 5, stunMultiplier: 0.2);
-		AddBodypart(avianProto, "lrflank", "lower right flank", "flank", BodypartTypeEnum.Wear, "abdomen",
+		AddBodypart(avianProto, "lrflank", "lower right flank", "flank", BodypartTypeEnum.BonyDrapeable, "abdomen",
 			Alignment.RearRight, Orientation.Centre, 80, -1, 200, order++, "Flesh", SizeCategory.Normal, "Torso",
 			true, isVital: true, implantSpace: 5, stunMultiplier: 0.2);
-		AddBodypart(avianProto, "llflank", "lower left flank", "flank", BodypartTypeEnum.Wear, "abdomen",
+		AddBodypart(avianProto, "llflank", "lower left flank", "flank", BodypartTypeEnum.BonyDrapeable, "abdomen",
 			Alignment.RearLeft, Orientation.Centre, 80, -1, 200, order++, "Flesh", SizeCategory.Normal, "Torso",
 			true, isVital: true, implantSpace: 5, stunMultiplier: 0.2);
 		AddBodypart(avianProto, "belly", "belly", "belly", BodypartTypeEnum.Wear, "abdomen", Alignment.Front,
 			Orientation.Low, 80, -1, 100, order++, "Fatty Flesh", SizeCategory.Normal, "Torso", true, isVital: true,
 			implantSpace: 5, stunMultiplier: 0.2);
-		AddBodypart(avianProto, "rshoulder", "right shoulder", "shoulder", BodypartTypeEnum.Wear, "rbreast",
+		AddBodypart(avianProto, "rshoulder", "right shoulder", "shoulder", BodypartTypeEnum.BonyDrapeable, "rbreast",
 			Alignment.FrontRight, Orientation.Centre, 80, -1, 100, order++, "Bony Flesh", SizeCategory.Normal,
 			"Torso", true, isVital: false, implantSpace: 5, stunMultiplier: 0.2);
-		AddBodypart(avianProto, "lshoulder", "left shoulder", "shoulder", BodypartTypeEnum.Wear, "lbreast",
+		AddBodypart(avianProto, "lshoulder", "left shoulder", "shoulder", BodypartTypeEnum.BonyDrapeable, "lbreast",
 			Alignment.FrontLeft, Orientation.Centre, 80, -1, 100, order++, "Bony Flesh", SizeCategory.Normal,
 			"Torso", true, isVital: false, implantSpace: 5, stunMultiplier: 0.2);
-		AddBodypart(avianProto, "uback", "upper back", "upper back", BodypartTypeEnum.Wear, "abdomen",
+		AddBodypart(avianProto, "uback", "upper back", "upper back", BodypartTypeEnum.BonyDrapeable, "abdomen",
 			Alignment.Front, Orientation.High, 80, -1, 200, order++, "Bony Flesh", SizeCategory.Normal, "Torso",
 			true, isVital: true, implantSpace: 5, stunMultiplier: 0.2);
-		AddBodypart(avianProto, "lback", "lower back", "lower back", BodypartTypeEnum.Wear, "abdomen",
+		AddBodypart(avianProto, "lback", "lower back", "lower back", BodypartTypeEnum.BonyDrapeable, "abdomen",
 			Alignment.Rear, Orientation.High, 80, -1, 200, order++, "Bony Flesh", SizeCategory.Normal, "Torso",
 			true, isVital: true, implantSpace: 5, stunMultiplier: 0.2);
 		AddBodypart(avianProto, "rump", "rump", "rump", BodypartTypeEnum.Wear, "lback", Alignment.Rear,
@@ -4375,31 +4375,31 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
 
 		#region Head
 
-		AddBodypart(avianProto, "neck", "neck", "neck", BodypartTypeEnum.Wear, "uback", Alignment.Front,
+		AddBodypart(avianProto, "neck", "neck", "neck", BodypartTypeEnum.BonyDrapeable, "uback", Alignment.Front,
 			Orientation.High, 80, 100, 100, order++, "Bony Flesh", SizeCategory.Normal, "Head", true, isVital: true,
 			implantSpace: 5, stunMultiplier: 0.5);
-		AddBodypart(avianProto, "bneck", "neck back", "neck back", BodypartTypeEnum.Wear, "neck",
+		AddBodypart(avianProto, "bneck", "neck back", "neck back", BodypartTypeEnum.BonyDrapeable, "neck",
 			Alignment.Front, Orientation.Highest, 80, 100, 100, order++, "Bony Flesh", SizeCategory.Normal, "Head",
 			true, isVital: true, implantSpace: 5, stunMultiplier: 0.5);
 		AddBodypart(avianProto, "throat", "throat", "throat", BodypartTypeEnum.Wear, "neck", Alignment.Front,
 			Orientation.Highest, 40, 50, 100, order++, "Fatty Flesh", SizeCategory.Normal, "Head", true,
 			isVital: true, implantSpace: 5, stunMultiplier: 0.5);
-		AddBodypart(avianProto, "head", "head", "face", BodypartTypeEnum.Wear, "neck", Alignment.Front,
+		AddBodypart(avianProto, "head", "head", "face", BodypartTypeEnum.BonyDrapeable, "neck", Alignment.Front,
 			Orientation.Highest, 80, -1, 100, order++, "Bony Flesh", SizeCategory.Normal, "Head", true,
 			isVital: true, implantSpace: 5, stunMultiplier: 1.0);
-		AddBodypart(avianProto, "bhead", "head back", "head back", BodypartTypeEnum.Wear, "bneck",
+		AddBodypart(avianProto, "bhead", "head back", "head back", BodypartTypeEnum.BonyDrapeable, "bneck",
 			Alignment.Rear, Orientation.Highest, 80, -1, 100, order++, "Bony Flesh", SizeCategory.Normal, "Head",
 			true, isVital: true, implantSpace: 5, stunMultiplier: 1.0);
-		AddBodypart(avianProto, "rcheek", "right cheek", "cheek", BodypartTypeEnum.Wear, "head",
+		AddBodypart(avianProto, "rcheek", "right cheek", "cheek", BodypartTypeEnum.BonyDrapeable, "head",
 			Alignment.Right, Orientation.Highest, 40, -1, 100, order++, "Bony Flesh", SizeCategory.Small, "Head",
 			true, isVital: true, implantSpace: 5, stunMultiplier: 0.5);
-		AddBodypart(avianProto, "lcheek", "left cheek", "cheek", BodypartTypeEnum.Wear, "head", Alignment.Left,
+		AddBodypart(avianProto, "lcheek", "left cheek", "cheek", BodypartTypeEnum.BonyDrapeable, "head", Alignment.Left,
 			Orientation.Highest, 40, -1, 100, order++, "Bony Flesh", SizeCategory.Small, "Head", true,
 			isVital: true, implantSpace: 5, stunMultiplier: 0.5);
-		AddBodypart(avianProto, "reyesocket", "right eye socket", "eye socket", BodypartTypeEnum.Wear, "head",
+		AddBodypart(avianProto, "reyesocket", "right eye socket", "eye socket", BodypartTypeEnum.BonyDrapeable, "head",
 			Alignment.FrontRight, Orientation.Highest, 80, -1, 100, order++, "Dense Bony Flesh", SizeCategory.Small,
 			"Head", true, isVital: true, implantSpace: 5, stunMultiplier: 0.5);
-		AddBodypart(avianProto, "leyesocket", "left eye socket", "eye socket", BodypartTypeEnum.Wear, "head",
+		AddBodypart(avianProto, "leyesocket", "left eye socket", "eye socket", BodypartTypeEnum.BonyDrapeable, "head",
 			Alignment.FrontLeft, Orientation.Highest, 80, -1, 100, order++, "Dense Bony Flesh", SizeCategory.Small,
 			"Head", true, isVital: true, implantSpace: 5, stunMultiplier: 0.5);
 		AddBodypart(avianProto, "reye", "right eye", "eye", BodypartTypeEnum.Eye, "reyesocket",
@@ -4420,7 +4420,7 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
 		AddBodypart(avianProto, "tongue", "tongue", "tongue", BodypartTypeEnum.Tongue, "beak", Alignment.Front,
 			Orientation.Highest, 10, 30, 100, order++, "Bony Flesh", SizeCategory.Normal, "Head", true,
 			isVital: true, implantSpace: 5, stunMultiplier: 1.0);
-		AddBodypart(avianProto, "nose", "nose", "nose", BodypartTypeEnum.Wear, "head", Alignment.Front,
+		AddBodypart(avianProto, "nose", "nose", "nose", BodypartTypeEnum.BonyDrapeable, "head", Alignment.Front,
 			Orientation.Highest, 10, 30, 100, order++, "Bony Flesh", SizeCategory.Normal, "Head", true,
 			isVital: true, implantSpace: 5, stunMultiplier: 1.0);
 
@@ -4428,28 +4428,28 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
 
 		#region Legs
 
-		AddBodypart(avianProto, "rupperleg", "right upper leg", "upper leg", BodypartTypeEnum.Wear,
+		AddBodypart(avianProto, "rupperleg", "right upper leg", "upper leg", BodypartTypeEnum.BonyDrapeable,
 			"rshoulder", Alignment.FrontRight, Orientation.Low, 80, 100, 100, order++, "Bony Flesh",
 			SizeCategory.Normal, "Right Leg");
-		AddBodypart(avianProto, "lupperleg", "left upper leg", "upper leg", BodypartTypeEnum.Wear, "lshoulder",
+		AddBodypart(avianProto, "lupperleg", "left upper leg", "upper leg", BodypartTypeEnum.BonyDrapeable, "lshoulder",
 			Alignment.FrontLeft, Orientation.Low, 80, 100, 100, order++, "Bony Flesh", SizeCategory.Normal,
 			"Left Leg");
-		AddBodypart(avianProto, "rknee", "right knee", "knee", BodypartTypeEnum.Wear, "rupperleg",
+		AddBodypart(avianProto, "rknee", "right knee", "knee", BodypartTypeEnum.BonyDrapeable, "rupperleg",
 			Alignment.FrontRight, Orientation.Low, 60, 80, 30, order++, "Dense Bony Flesh", SizeCategory.Normal,
 			"Right Leg");
-		AddBodypart(avianProto, "lknee", "left knee", "knee", BodypartTypeEnum.Wear, "lupperleg",
+		AddBodypart(avianProto, "lknee", "left knee", "knee", BodypartTypeEnum.BonyDrapeable, "lupperleg",
 			Alignment.FrontLeft, Orientation.Low, 60, 80, 30, order++, "Dense Bony Flesh", SizeCategory.Normal,
 			"Left Leg");
-		AddBodypart(avianProto, "rlowerleg", "right lower leg", "lower leg", BodypartTypeEnum.Wear, "rknee",
+		AddBodypart(avianProto, "rlowerleg", "right lower leg", "lower leg", BodypartTypeEnum.BonyDrapeable, "rknee",
 			Alignment.FrontRight, Orientation.Lowest, 40, 50, 100, order++, "Dense Bony Flesh", SizeCategory.Normal,
 			"Right Leg");
-		AddBodypart(avianProto, "llowerleg", "left lower leg", "lower leg", BodypartTypeEnum.Wear, "lknee",
+		AddBodypart(avianProto, "llowerleg", "left lower leg", "lower leg", BodypartTypeEnum.BonyDrapeable, "lknee",
 			Alignment.FrontLeft, Orientation.Lowest, 40, 50, 100, order++, "Dense Bony Flesh", SizeCategory.Normal,
 			"Left Leg");
-		AddBodypart(avianProto, "rankle", "right ankle", "ankle", BodypartTypeEnum.Wear, "rlowerleg",
+		AddBodypart(avianProto, "rankle", "right ankle", "ankle", BodypartTypeEnum.BonyDrapeable, "rlowerleg",
 			Alignment.FrontRight, Orientation.Lowest, 40, 50, 50, order++, "Dense Bony Flesh", SizeCategory.Normal,
 			"Right Leg");
-		AddBodypart(avianProto, "lankle", "left ankle", "ankle", BodypartTypeEnum.Wear, "llowerleg",
+		AddBodypart(avianProto, "lankle", "left ankle", "ankle", BodypartTypeEnum.BonyDrapeable, "llowerleg",
 			Alignment.FrontLeft, Orientation.Lowest, 40, 50, 50, order++, "Dense Bony Flesh", SizeCategory.Normal,
 			"Left Leg");
 		AddBodypart(avianProto, "rfoot", "right foot", "foot", BodypartTypeEnum.Standing, "rankle",
@@ -4483,10 +4483,10 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
 
 		#region Wings
 
-		AddBodypart(avianProto, "rwingbase", "right wing base", "wing base", BodypartTypeEnum.Wear, "uback",
+		AddBodypart(avianProto, "rwingbase", "right wing base", "wing base", BodypartTypeEnum.BonyDrapeable, "uback",
 			Alignment.FrontRight, Orientation.High, 40, -1, 100, order++, "Flesh", SizeCategory.Normal,
 			"Right Wing", true, isCore: false);
-		AddBodypart(avianProto, "lwingbase", "left wing base", "wing base", BodypartTypeEnum.Wear, "uback",
+		AddBodypart(avianProto, "lwingbase", "left wing base", "wing base", BodypartTypeEnum.BonyDrapeable, "uback",
 			Alignment.FrontLeft, Orientation.High, 40, -1, 100, order++, "Flesh", SizeCategory.Normal, "Left Wing",
 			true, isCore: false);
 		AddBodypart(avianProto, "rwing", "right wing", "wing", BodypartTypeEnum.Wing, "rwingbase",
@@ -5024,22 +5024,22 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
 
 		#region Torso
 
-		AddBodypart(fishProto, "abdomen", "abdomen", "abdomen", BodypartTypeEnum.Wear, null, Alignment.Front,
+		AddBodypart(fishProto, "abdomen", "abdomen", "abdomen", BodypartTypeEnum.BonyDrapeable, null, Alignment.Front,
 			Orientation.Low, 80, -1, 100, order++, "Fatty Flesh", SizeCategory.Normal, "Torso", true, isVital: true,
 			implantSpace: 5, stunMultiplier: 0.2);
-		AddBodypart(fishProto, "rbreast", "right breast", "breast", BodypartTypeEnum.Wear, "abdomen",
+		AddBodypart(fishProto, "rbreast", "right breast", "breast", BodypartTypeEnum.BonyDrapeable, "abdomen",
 			Alignment.FrontRight, Orientation.Low, 80, -1, 100, order++, "Flesh", SizeCategory.Normal, "Torso",
 			true, isVital: true, implantSpace: 5, stunMultiplier: 0.2);
-		AddBodypart(fishProto, "lbreast", "left breast", "breast", BodypartTypeEnum.Wear, "abdomen",
+		AddBodypart(fishProto, "lbreast", "left breast", "breast", BodypartTypeEnum.BonyDrapeable, "abdomen",
 			Alignment.FrontLeft, Orientation.Low, 80, -1, 100, order++, "Flesh", SizeCategory.Normal, "Torso", true,
 			isVital: true, implantSpace: 5, stunMultiplier: 0.2);
-		AddBodypart(fishProto, "urflank", "upper right flank", "flank", BodypartTypeEnum.Wear, "rbreast",
+		AddBodypart(fishProto, "urflank", "upper right flank", "flank", BodypartTypeEnum.BonyDrapeable, "rbreast",
 			Alignment.Right, Orientation.Centre, 80, -1, 200, order++, "Flesh", SizeCategory.Normal, "Torso", true,
 			isVital: true, implantSpace: 5, stunMultiplier: 0.2);
-		AddBodypart(fishProto, "ulflank", "upper left flank", "flank", BodypartTypeEnum.Wear, "lbreast",
+		AddBodypart(fishProto, "ulflank", "upper left flank", "flank", BodypartTypeEnum.BonyDrapeable, "lbreast",
 			Alignment.Left, Orientation.Centre, 80, -1, 200, order++, "Flesh", SizeCategory.Normal, "Torso", true,
 			isVital: true, implantSpace: 5, stunMultiplier: 0.2);
-		AddBodypart(fishProto, "lrflank", "lower right flank", "flank", BodypartTypeEnum.Wear, "abdomen",
+		AddBodypart(fishProto, "lrflank", "lower right flank", "flank", BodypartTypeEnum.BonyDrapeable, "abdomen",
 			Alignment.RearRight, Orientation.Centre, 80, -1, 200, order++, "Flesh", SizeCategory.Normal, "Torso",
 			true, isVital: true, implantSpace: 5, stunMultiplier: 0.2);
 		AddBodypart(fishProto, "llflank", "lower left flank", "flank", BodypartTypeEnum.Wear, "abdomen",
@@ -5048,10 +5048,10 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
 		AddBodypart(fishProto, "belly", "belly", "belly", BodypartTypeEnum.Wear, "abdomen", Alignment.Front,
 			Orientation.Low, 80, -1, 100, order++, "Fatty Flesh", SizeCategory.Normal, "Torso", true, isVital: true,
 			implantSpace: 5, stunMultiplier: 0.2);
-		AddBodypart(fishProto, "uback", "upper back", "upper back", BodypartTypeEnum.Wear, "abdomen",
+		AddBodypart(fishProto, "uback", "upper back", "upper back", BodypartTypeEnum.BonyDrapeable, "abdomen",
 			Alignment.Front, Orientation.High, 80, -1, 200, order++, "Bony Flesh", SizeCategory.Normal, "Torso",
 			true, isVital: true, implantSpace: 5, stunMultiplier: 0.2);
-		AddBodypart(fishProto, "lback", "lower back", "lower back", BodypartTypeEnum.Wear, "abdomen",
+		AddBodypart(fishProto, "lback", "lower back", "lower back", BodypartTypeEnum.BonyDrapeable, "abdomen",
 			Alignment.Rear, Orientation.High, 80, -1, 200, order++, "Bony Flesh", SizeCategory.Normal, "Torso",
 			true, isVital: true, implantSpace: 5, stunMultiplier: 0.2);
 		AddBodypart(fishProto, "loin", "loin", "loin", BodypartTypeEnum.Wear, "belly", Alignment.Rear,
@@ -5074,7 +5074,7 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
 
 		#region Head
 
-		AddBodypart(fishProto, "neck", "neck", "neck", BodypartTypeEnum.Wear, "uback", Alignment.Front,
+		AddBodypart(fishProto, "neck", "neck", "neck", BodypartTypeEnum.BonyDrapeable, "uback", Alignment.Front,
 			Orientation.High, 80, 100, 100, order++, "Bony Flesh", SizeCategory.Normal, "Head", true, isVital: true,
 			implantSpace: 5, stunMultiplier: 0.5);
 		AddBodypart(fishProto, "rgill", "right gills", "gill", BodypartTypeEnum.Gill, "urflank", Alignment.Front,
@@ -5083,13 +5083,13 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
 		AddBodypart(fishProto, "lgill", "left gills", "gill", BodypartTypeEnum.Gill, "ulflank", Alignment.Front,
 			Orientation.High, 80, 100, 100, order++, "Bony Flesh", SizeCategory.Normal, "Head", true, isVital: true,
 			implantSpace: 5, stunMultiplier: 1.0);
-		AddBodypart(fishProto, "head", "head", "face", BodypartTypeEnum.Wear, "neck", Alignment.Front,
+		AddBodypart(fishProto, "head", "head", "face", BodypartTypeEnum.BonyDrapeable, "neck", Alignment.Front,
 			Orientation.Highest, 80, -1, 100, order++, "Bony Flesh", SizeCategory.Normal, "Head", true,
 			isVital: true, implantSpace: 5, stunMultiplier: 1.0);
-		AddBodypart(fishProto, "reyesocket", "right eye socket", "eye socket", BodypartTypeEnum.Wear, "head",
+		AddBodypart(fishProto, "reyesocket", "right eye socket", "eye socket", BodypartTypeEnum.BonyDrapeable, "head",
 			Alignment.FrontRight, Orientation.Highest, 80, -1, 100, order++, "Dense Bony Flesh", SizeCategory.Small,
 			"Head", true, isVital: true, implantSpace: 5, stunMultiplier: 0.5);
-		AddBodypart(fishProto, "leyesocket", "left eye socket", "eye socket", BodypartTypeEnum.Wear, "head",
+		AddBodypart(fishProto, "leyesocket", "left eye socket", "eye socket", BodypartTypeEnum.BonyDrapeable, "head",
 			Alignment.FrontLeft, Orientation.Highest, 80, -1, 100, order++, "Dense Bony Flesh", SizeCategory.Small,
 			"Head", true, isVital: true, implantSpace: 5, stunMultiplier: 0.5);
 		AddBodypart(fishProto, "reye", "right eye", "eye", BodypartTypeEnum.Eye, "reyesocket", Alignment.FrontRight,

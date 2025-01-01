@@ -751,7 +751,7 @@ $?hairstyle[&he has &?a_an[$haircolour $hairstyle]][&he is completely bald].$?fa
 		{
 			Name = "Human Male",
 			MeanHeight = 177.8,
-			MeanBmi = 25.6,
+			MeanBmi = 22,
 			StddevHeight = 7.6,
 			StddevBmi = 3.7,
 			Bmimultiplier = 0.1
@@ -761,7 +761,7 @@ $?hairstyle[&he has &?a_an[$haircolour $hairstyle]][&he is completely bald].$?fa
 		{
 			Name = "Human Female",
 			MeanHeight = 159,
-			MeanBmi = 25.6,
+			MeanBmi = 21.7,
 			StddevHeight = 5,
 			StddevBmi = 4.9,
 			Bmimultiplier = 0.1
@@ -789,7 +789,7 @@ $?hairstyle[&he has &?a_an[$haircolour $hairstyle]][&he is completely bald].$?fa
 		{
 			Name = "Underfed Human Male",
 			MeanHeight = 170,
-			MeanBmi = 23.1,
+			MeanBmi = 19.2,
 			StddevHeight = 4.3,
 			StddevBmi = 1.5,
 			Bmimultiplier = 0.1
@@ -798,7 +798,7 @@ $?hairstyle[&he has &?a_an[$haircolour $hairstyle]][&he is completely bald].$?fa
 		{
 			Name = "Underfed Human Female",
 			MeanHeight = 152,
-			MeanBmi = 23.1,
+			MeanBmi = 19.0,
 			StddevHeight = 4,
 			StddevBmi = 1.65,
 			Bmimultiplier = 0.1
@@ -807,7 +807,7 @@ $?hairstyle[&he has &?a_an[$haircolour $hairstyle]][&he is completely bald].$?fa
 		{
 			Name = "Tall Human Male",
 			MeanHeight = 187,
-			MeanBmi = 25.6,
+			MeanBmi = 21.7,
 			StddevHeight = 7.6,
 			StddevBmi = 3.7,
 			Bmimultiplier = 0.1
@@ -816,7 +816,7 @@ $?hairstyle[&he has &?a_an[$haircolour $hairstyle]][&he is completely bald].$?fa
 		{
 			Name = "Tall Human Female",
 			MeanHeight = 169,
-			MeanBmi = 25.6,
+			MeanBmi = 21.5,
 			StddevHeight = 7.6,
 			StddevBmi = 3.7,
 			Bmimultiplier = 0.1
@@ -825,7 +825,7 @@ $?hairstyle[&he has &?a_an[$haircolour $hairstyle]][&he is completely bald].$?fa
 		{
 			Name = "Short Human Male",
 			MeanHeight = 169,
-			MeanBmi = 25.6,
+			MeanBmi = 21.7,
 			StddevHeight = 7.6,
 			StddevBmi = 3.7,
 			Bmimultiplier = 0.1
@@ -834,7 +834,7 @@ $?hairstyle[&he has &?a_an[$haircolour $hairstyle]][&he is completely bald].$?fa
 		{
 			Name = "Short Human Female",
 			MeanHeight = 152,
-			MeanBmi = 25.6,
+			MeanBmi = 21.5,
 			StddevHeight = 7.6,
 			StddevBmi = 3.7,
 			Bmimultiplier = 0.1

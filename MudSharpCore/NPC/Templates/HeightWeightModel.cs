@@ -18,6 +18,9 @@ public class HeightWeightModel : SaveableItem, IHeightWeightModel
 	public double StandardDeviationHeight { get; private set; }
 	public double? MeanWeight { get; private set; }
 	public double? StandardDeviationWeight { get; private set; }
+	public double? SkewnessHeight { get; private set; }
+	public double? SkewnessWeight { get; private set; }
+	public double? SkewnessBMI { get; private set; }
 
 	public HeightWeightModel(IFuturemud gameworld, string name)
 	{
@@ -28,6 +31,9 @@ public class HeightWeightModel : SaveableItem, IHeightWeightModel
 		MeanBMI = 25.6;
 		StandardDeviationBMI = 4.9;
 		StandardDeviationHeight = 7.6;
+		SkewnessBMI = 0.0;
+		SkewnessHeight = 0.0;
+		SkewnessWeight = 0.0;
 		using (new FMDB())
 		{
 			var dbitem = new Models.HeightWeightModel
@@ -38,6 +44,9 @@ public class HeightWeightModel : SaveableItem, IHeightWeightModel
 				MeanBmi = MeanBMI,
 				StddevBmi = StandardDeviationBMI,
 				StddevHeight = StandardDeviationHeight,
+				SkewnessBMI = SkewnessBMI,
+				SkewnessHeight = SkewnessHeight,
+				SkewnessWeight = SkewnessWeight
 			};
 			FMDB.Context.HeightWeightModels.Add(dbitem);
 			FMDB.Context.SaveChanges();
@@ -56,6 +65,9 @@ public class HeightWeightModel : SaveableItem, IHeightWeightModel
 		StandardDeviationHeight = rhs.StandardDeviationHeight;
 		MeanWeight = rhs.MeanWeight;
 		StandardDeviationWeight = rhs.StandardDeviationWeight;
+		SkewnessBMI = rhs.SkewnessBMI;
+		SkewnessHeight = rhs.SkewnessHeight;
+		SkewnessWeight = rhs.SkewnessWeight;
 		using (new FMDB())
 		{
 			var dbitem = new Models.HeightWeightModel
@@ -67,7 +79,10 @@ public class HeightWeightModel : SaveableItem, IHeightWeightModel
 				StddevBmi = StandardDeviationBMI,
 				StddevHeight = StandardDeviationHeight,
 				MeanWeight = MeanWeight,
-				StddevWeight = StandardDeviationWeight
+				StddevWeight = StandardDeviationWeight,
+				SkewnessBMI = SkewnessBMI,
+				SkewnessHeight = SkewnessHeight,
+				SkewnessWeight = SkewnessWeight
 			};
 			FMDB.Context.HeightWeightModels.Add(dbitem);
 			FMDB.Context.SaveChanges();
@@ -87,6 +102,9 @@ public class HeightWeightModel : SaveableItem, IHeightWeightModel
 		MeanWeight = model.MeanWeight;
 		StandardDeviationWeight = model.StddevWeight;
 		BMIMultiplier = model.Bmimultiplier;
+		SkewnessBMI = model.SkewnessBMI;
+		SkewnessHeight = model.SkewnessHeight;
+		SkewnessWeight = model.SkewnessWeight;
 	}
 
 	public IHeightWeightModel Clone(string newName)
@@ -98,15 +116,24 @@ public class HeightWeightModel : SaveableItem, IHeightWeightModel
 
 	public (double, double) GetRandomHeightWeight()
 	{
-		var height = RandomUtilities.RandomNormal(MeanHeight, StandardDeviationHeight);
+		var height = 
+			SkewnessHeight is null or 0 ?
+			RandomUtilities.RandomNormal(MeanHeight, StandardDeviationHeight) :
+			RandomUtilities.RandomNormal(MeanHeight, StandardDeviationHeight, SkewnessHeight.Value);
 		double weight;
 		if (MeanWeight is not null && StandardDeviationWeight is not null)
 		{
-			weight = RandomUtilities.RandomNormal(MeanWeight.Value, StandardDeviationWeight.Value);
+			weight = SkewnessWeight is null or 0 ? 
+				RandomUtilities.RandomNormal(MeanWeight.Value, StandardDeviationWeight.Value) :
+				RandomUtilities.RandomNormal(MeanWeight.Value, StandardDeviationWeight.Value, SkewnessWeight.Value);
 		}
 		else
 		{
-			var bmi = RandomUtilities.RandomNormal(MeanBMI, StandardDeviationBMI);
+			var bmi =
+				SkewnessBMI is null or 0 ?
+				RandomUtilities.RandomNormal(MeanBMI, StandardDeviationBMI) :
+				RandomUtilities.RandomNormal(MeanBMI, StandardDeviationBMI, SkewnessBMI.Value);
+
 			weight = Math.Pow(height, 2) * bmi * BMIMultiplier;
 		}
 
@@ -176,6 +203,9 @@ public class HeightWeightModel : SaveableItem, IHeightWeightModel
 		dbitem.MeanWeight = MeanWeight;
 		dbitem.StddevWeight = StandardDeviationWeight;
 		dbitem.Bmimultiplier = BMIMultiplier;
+		dbitem.SkewnessBMI = SkewnessBMI;
+		dbitem.SkewnessWeight = SkewnessWeight;
+		SkewnessHeight = SkewnessHeight;
 		Changed = false;
 	}
 
@@ -204,7 +234,17 @@ public class HeightWeightModel : SaveableItem, IHeightWeightModel
 		{
 			sb.AppendLine($"Standard Deviation BMI: {Gameworld.UnitManager.DescribeExact(StandardDeviationBMI, UnitType.BMI, actor).ColourValue()}");
 		}
-			
+
+		sb.AppendLine($"Skewness Height: {(SkewnessHeight ?? 0).ToStringN2Colour(actor)}");
+		if (MeanWeight is not null && StandardDeviationWeight is not null)
+		{
+			sb.AppendLine($"Skewness Weight: {(SkewnessWeight ?? 0).ToStringN2Colour(actor)}");
+		}
+		else
+		{
+			sb.AppendLine($"Skewness BMI: {(SkewnessBMI ?? 0).ToStringN2Colour(actor)}");
+		}
+
 		return sb.ToString();
 	}
 
@@ -213,10 +253,13 @@ public class HeightWeightModel : SaveableItem, IHeightWeightModel
 	#3name <name>#0 - renames this model
 	#3meanbmi <value>#0 - sets the mean (average) BMI
 	#3stddevbmi <value>#0 - sets the standard deviation of BMI
+	#3skewnessbmi <value>#0 - sets the skewness of the BMI
 	#3meanheight <value>#0 - sets the mean (average) height
 	#3stddevheight <value>#0 - sets the standard deviation of height
+	#3skewnessheight <value>#0 - sets the skewness of the height
 	#3meanweight <value>#0 - sets the mean (average) BMI via weight
 	#3stddevweight <value#0 - sets the standard deviation of BMI via weight
+	#3skewnessweight <value>#0 - sets the skewness of the weight
 
 Note - models only use one of either BMI or weight. Setting one switches off the other.";
 
@@ -244,10 +287,94 @@ Note - models only use one of either BMI or weight. Setting one switches off the
 				return BuildingCommandMeanWeight(actor, ss);
 			case "stddevweight":
 				return BuildingCommandStdDevWeight(actor, ss);
+			case "skewnessbmi":
+				return BuildingCommandSkewnessBMI(actor, ss);
+			case "skewnessweight":
+				return BuildingCommandSkewnessWeight(actor, ss);
+			case "skewnessheight":
+				return BuildingCommandSkewnessHeight(actor, ss);
 			default:
 				actor.OutputHandler.Send(BuildingCommandHelp.SubstituteANSIColour());
 				return false;
 		}
+	}
+
+	private bool BuildingCommandSkewnessHeight(ICharacter actor, StringStack ss)
+	{
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send("What should be the skewness of height for this model? (Hint: 0 = normal distribution, ~1 = modern real world human BMI)");
+			return false;
+		}
+
+		if (!double.TryParse(ss.SafeRemainingArgument, out var value))
+		{
+			actor.OutputHandler.Send($"The text {ss.SafeRemainingArgument.ColourCommand()} is not a valid number.");
+			return false;
+		}
+
+		if (value is <= -25.0 or >= 25.0)
+		{
+			actor.OutputHandler.Send("Skewness cannot be greater than 25 or less than -25.");
+			return false;
+		}
+
+		SkewnessHeight = value;
+		Changed = true;
+		actor.OutputHandler.Send($"The skewness for height for this model is now {value.ToStringN2Colour(actor)}.");
+		return true;
+	}
+
+	private bool BuildingCommandSkewnessWeight(ICharacter actor, StringStack ss)
+	{
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send("What should be the skewness of weight for this model? (Hint: 0 = normal distribution, ~1 = modern real world human BMI)");
+			return false;
+		}
+
+		if (!double.TryParse(ss.SafeRemainingArgument, out var value))
+		{
+			actor.OutputHandler.Send($"The text {ss.SafeRemainingArgument.ColourCommand()} is not a valid number.");
+			return false;
+		}
+
+		if (value is <= -25.0 or >= 25.0)
+		{
+			actor.OutputHandler.Send("Skewness cannot be greater than 25 or less than -25.");
+			return false;
+		}
+
+		SkewnessWeight = value;
+		Changed = true;
+		actor.OutputHandler.Send($"The skewness for weight for this model is now {value.ToStringN2Colour(actor)}.");
+		return true;
+	}
+
+	private bool BuildingCommandSkewnessBMI(ICharacter actor, StringStack ss)
+	{
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send("What should be the skewness of BMI for this model? (Hint: 0 = normal distribution, ~1 = modern real world human BMI)");
+			return false;
+		}
+
+		if (!double.TryParse(ss.SafeRemainingArgument, out var value))
+		{
+			actor.OutputHandler.Send($"The text {ss.SafeRemainingArgument.ColourCommand()} is not a valid number.");
+			return false;
+		}
+
+		if (value is <= -25.0 or >= 25.0)
+		{
+			actor.OutputHandler.Send("Skewness cannot be greater than 25 or less than -25.");
+			return false;
+		}
+
+		SkewnessBMI = value;
+		Changed = true;
+		actor.OutputHandler.Send($"The skewness for BMI for this model is now {value.ToStringN2Colour(actor)}.");
+		return true;
 	}
 
 	private bool BuildingCommandStdDevHeight(ICharacter actor, StringStack ss)

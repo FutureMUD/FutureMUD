@@ -169,6 +169,7 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f: ", (context, answers) =
 		_stopwatch.Start();
 		ResetSeeder();
 		SetupCorpseModel();
+		SeedCombatStrategies();
 		_questionAnswers = questionAnswers;
 		_sever = questionAnswers.ContainsKey("sever") && questionAnswers["sever"].ToLowerInvariant().In("yes", "y");
 
@@ -1062,7 +1063,7 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
 			AutomaticRangedSettings rangesettings, AttackHandednessOptions setup, GrappleResponse grapple,
 			double requiredMinimumAim, double minmumStamina, DefenseType defaultDefenseType,
 			IEnumerable<MeleeAttackOrderPreference> order,
-			CombatMoveIntentions forbiddenIntentions = CombatMoveIntentions.Savage | CombatMoveIntentions.Cruel,
+			CombatMoveIntentions forbiddenIntentions = CombatMoveIntentions.None,
 			CombatMoveIntentions preferredIntentions = CombatMoveIntentions.None)
 	{
 		var strategy = new CharacterCombatSetting
@@ -1119,9 +1120,27 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
 			MeleeAttackOrderPreference.Psychic
 		};
 
-		SeedCombatStrategy(name: "Animal", description: "Fight unarmed in melee using a wide variety of moves", weaponUse: 0.0, naturalUse: 1.0, auxilliaryUse: 0.0, preferFavourite: false,
-			preferArmed: false, preferNonContact: false, preferShields: false, attackCritical: true, attackUnarmed: true, skirmish: false, fallbackToUnarmed: true, automaticallyMoveToTarget: false, manualPositionManagement: false, moveToMeleeIfCannotRange: true, pursuit: PursuitMode.OnlyAttemptToStop,
+		SeedCombatStrategy(name: "Animal", description: "Fully automatic brawler designed for use with animals", weaponUse: 0.0, naturalUse: 1.0, auxilliaryUse: 0.0, preferFavourite: false,
+			preferArmed: false, preferNonContact: false, preferShields: false, attackCritical: true, attackUnarmed: true, skirmish: false, fallbackToUnarmed: true, automaticallyMoveToTarget: true, manualPositionManagement: false, moveToMeleeIfCannotRange: true, pursuit: PursuitMode.AlwaysPursue,
 			melee: CombatStrategyMode.StandardMelee, ranged: CombatStrategyMode.FullAdvance,
+			inventory: AutomaticInventorySettings.FullyAutomatic, movement: AutomaticMovementSettings.FullyAutomatic,
+			rangesettings: AutomaticRangedSettings.ContinueFiringOnly, setup: AttackHandednessOptions.Any, grapple: GrappleResponse.Avoidance, requiredMinimumAim: 0.5,
+			minmumStamina: 5.0, defaultDefenseType: DefenseType.Dodge, order: defaultOrder);
+		SeedCombatStrategy(name: "Biter", description: "Fully automatic clinch-brawler designed for use with animals with bite attacks", weaponUse: 0.0, naturalUse: 1.0, auxilliaryUse: 0.0, preferFavourite: false,
+			preferArmed: false, preferNonContact: false, preferShields: false, attackCritical: true, attackUnarmed: true, skirmish: false, fallbackToUnarmed: true, automaticallyMoveToTarget: true, manualPositionManagement: false, moveToMeleeIfCannotRange: true, pursuit: PursuitMode.AlwaysPursue,
+			melee: CombatStrategyMode.Clinch, ranged: CombatStrategyMode.FullAdvance,
+			inventory: AutomaticInventorySettings.FullyAutomatic, movement: AutomaticMovementSettings.FullyAutomatic,
+			rangesettings: AutomaticRangedSettings.ContinueFiringOnly, setup: AttackHandednessOptions.Any, grapple: GrappleResponse.Avoidance, requiredMinimumAim: 0.5,
+			minmumStamina: 5.0, defaultDefenseType: DefenseType.Dodge, order: defaultOrder);
+		SeedCombatStrategy(name: "Behemoth", description: "Fully automatic brawler designed for use with big, strong animals", weaponUse: 0.0, naturalUse: 1.0, auxilliaryUse: 0.0, preferFavourite: false,
+			preferArmed: false, preferNonContact: true, preferShields: false, attackCritical: true, attackUnarmed: true, skirmish: false, fallbackToUnarmed: true, automaticallyMoveToTarget: true, manualPositionManagement: false, moveToMeleeIfCannotRange: true, pursuit: PursuitMode.AlwaysPursue,
+			melee: CombatStrategyMode.StandardMelee, ranged: CombatStrategyMode.FullAdvance,
+			inventory: AutomaticInventorySettings.FullyAutomatic, movement: AutomaticMovementSettings.FullyAutomatic,
+			rangesettings: AutomaticRangedSettings.ContinueFiringOnly, setup: AttackHandednessOptions.Any, grapple: GrappleResponse.Counter, requiredMinimumAim: 0.5,
+			minmumStamina: 5.0, defaultDefenseType: DefenseType.Dodge, order: defaultOrder);
+		SeedCombatStrategy(name: "Wimpy Animal", description: "Fully automatic wimpy designed for use with animals", weaponUse: 0.0, naturalUse: 0.1, auxilliaryUse: 0.9, preferFavourite: false,
+			preferArmed: false, preferNonContact: false, preferShields: false, attackCritical: true, attackUnarmed: true, skirmish: false, fallbackToUnarmed: true, automaticallyMoveToTarget: false, manualPositionManagement: false, moveToMeleeIfCannotRange: false, pursuit: PursuitMode.NeverPursue,
+			melee: CombatStrategyMode.Flee, ranged: CombatStrategyMode.Flee,
 			inventory: AutomaticInventorySettings.FullyAutomatic, movement: AutomaticMovementSettings.FullyAutomatic,
 			rangesettings: AutomaticRangedSettings.ContinueFiringOnly, setup: AttackHandednessOptions.Any, grapple: GrappleResponse.Avoidance, requiredMinimumAim: 0.5,
 			minmumStamina: 5.0, defaultDefenseType: DefenseType.Dodge, order: defaultOrder);

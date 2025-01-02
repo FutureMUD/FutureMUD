@@ -512,7 +512,7 @@ The following options require a matching intensity for the type before using the
 
 	private bool BuildingCommandTouch(ICharacter actor)
 	{
-		if (DrugVectors.HasFlag(DrugVector.Touched))
+		if (!DrugVectors.HasFlag(DrugVector.Touched))
 		{
 			DrugVectors |= DrugVector.Touched;
 		}
@@ -528,7 +528,7 @@ The following options require a matching intensity for the type before using the
 
 	private bool BuildingCommandIngested(ICharacter actor)
 	{
-		if (DrugVectors.HasFlag(DrugVector.Ingested))
+		if (!DrugVectors.HasFlag(DrugVector.Ingested))
 		{
 			DrugVectors |= DrugVector.Ingested;
 		}
@@ -543,7 +543,7 @@ The following options require a matching intensity for the type before using the
 
 	private bool BuildingCommandInjected(ICharacter actor)
 	{
-		if (DrugVectors.HasFlag(DrugVector.Injected))
+		if (!DrugVectors.HasFlag(DrugVector.Injected))
 		{
 			DrugVectors |= DrugVector.Injected;
 		}
@@ -558,7 +558,7 @@ The following options require a matching intensity for the type before using the
 
 	private bool BuildingCommandInhaled(ICharacter actor)
 	{
-		if (DrugVectors.HasFlag(DrugVector.Inhaled))
+		if (!DrugVectors.HasFlag(DrugVector.Inhaled))
 		{
 			DrugVectors |= DrugVector.Inhaled;
 		}
@@ -566,7 +566,7 @@ The following options require a matching intensity for the type before using the
 		{
 			DrugVectors &= ~DrugVector.Inhaled;
 		}
-		
+		 
 		Changed = true;
 		actor.OutputHandler.Send($"This drug can {DrugVectors.HasFlag(DrugVector.Inhaled).NowNoLonger()} be inhaled.");
 		return true;

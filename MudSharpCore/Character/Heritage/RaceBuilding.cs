@@ -978,7 +978,8 @@ public partial class Race
 			return false;
 		}
 
-		var emote = new Emote(command.SafeRemainingArgument, new DummyPerceiver(), new DummyPerceiver(),
+		var emoteText = command.SafeRemainingArgument;
+		var emote = new Emote(emoteText, new DummyPerceiver(), new DummyPerceiver(), new DummyPerceiver(),
 			new DummyPerceiver());
 		if (!emote.Valid)
 		{
@@ -986,7 +987,7 @@ public partial class Race
 			return false;
 		}
 
-		EatCorpseEmoteText = emote.RawText;
+		EatCorpseEmoteText = emoteText;
 		Changed = true;
 		actor.OutputHandler.Send($"The emote when this race eats corpses is now {EatCorpseEmoteText.ColourCommand()}");
 		return true;

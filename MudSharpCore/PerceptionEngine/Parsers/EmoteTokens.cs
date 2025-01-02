@@ -118,6 +118,10 @@ public partial class Emote
 
 	private readonly List<EmoteToken> _tokens = new();
 
+	private readonly List<LanguageToken> _languageTokens = new();
+
+	public IEnumerable<LanguageToken> LanguageTokens => _languageTokens;
+
 	protected bool ScoutTargets(bool forceSourceInclusion, PermitLanguageOptions permitSpeech, bool playerMode,
 		ILanguage language, IAccent accent,
 		IList<IPerceivable> perceivables = null)
@@ -160,6 +164,7 @@ public partial class Emote
 
 			var token = new LanguageToken(Source, m.Groups["speech"].Value, language, accent, permitSpeech);
 			_tokens.Add(token);
+			_languageTokens.Add(token);
 			return "{" + targetCounter[0]++ + "}";
 		});
 
@@ -486,7 +491,7 @@ public partial class Emote
 #endif
 	}
 
-	protected abstract class EmoteToken
+	public abstract class EmoteToken
 	{
 		public virtual bool NullSafe => false;
 		protected readonly bool Coloured;
@@ -1118,11 +1123,15 @@ public partial class Emote
 		}
 	}
 
-	private class LanguageToken : EmoteToken
+	public class LanguageToken : EmoteToken
 	{
 		private readonly LanguageInfo _languageInfo;
 		private readonly ILanguagePerceiver _languagePerceiver;
 		private readonly PermitLanguageOptions _permitLanguageOptions;
+
+		public LanguageInfo LanguageInfo => _languageInfo;
+		public ILanguagePerceiver LanguagePerceiver => _languagePerceiver;
+		public PermitLanguageOptions PermitLanguageOptions => _permitLanguageOptions;
 
 		public LanguageToken(IPerceiver source, string speechText, ILanguage language, IAccent accent,
 			PermitLanguageOptions options) : base(source)

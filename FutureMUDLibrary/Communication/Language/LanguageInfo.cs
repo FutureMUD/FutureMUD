@@ -79,6 +79,7 @@ namespace MudSharp.Communication.Language {
         public ILanguage Language { get; protected set; }
 
         public Outcome OriginOutcome { get; protected set; }
+        public string RawText => _rawText;
 
         public abstract string ParseFor(ILanguagePerceiver perceiver);
     }

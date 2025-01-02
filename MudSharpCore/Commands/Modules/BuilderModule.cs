@@ -32,6 +32,7 @@ using MudSharp.GameItems.Prototypes;
 using Org.BouncyCastle.Asn1.Cmp;
 using MudSharp.Framework.Units;
 using MudSharp.NPC;
+using MudSharp.FutureProg.Functions.GameItem;
 
 namespace MudSharp.Commands.Modules;
 
@@ -2529,6 +2530,7 @@ The syntax for this command is as follows:
 		}
 
 		var newLiquid = new Liquid(name, actor.Gameworld);
+		actor.Gameworld.Add(newLiquid);
 		actor.OutputHandler.Send(
 			$"You create a new liquid called {name.Colour(newLiquid.DisplayColour)} with ID #{newLiquid.Id.ToString("N0", actor)}, which you are now editing.");
 		actor.RemoveAllEffects<BuilderEditingEffect<ILiquid>>();
@@ -2564,6 +2566,7 @@ The syntax for this command is as follows:
 		}
 
 		var newMaterial = liquid.Clone(name);
+		actor.Gameworld.Add(newMaterial);
 		actor.OutputHandler.Send(
 			$"You clone the liquid {liquid.Name.Colour(liquid.DisplayColour)} as {name.Colour(liquid.DisplayColour)} with ID #{newMaterial.Id.ToString("N0", actor)}, which you are now editing.");
 		actor.RemoveAllEffects<BuilderEditingEffect<ILiquid>>();

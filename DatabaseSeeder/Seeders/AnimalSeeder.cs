@@ -160,6 +160,7 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f: ", (context, answers) =
 				})
 		};
 
+	#region Core Methods
 	public string SeedData(FuturemudDatabaseContext context, IReadOnlyDictionary<string, string> questionAnswers)
 	{
 		context.Database.BeginTransaction();
@@ -523,18 +524,6 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f: ", (context, answers) =
 
 		return ShouldSeedResult.ReadyToInstall;
 	}
-
-	public int SortOrder => 300;
-	public string Name => "Animal Seeder";
-	public string Tagline => "Installs body types for animals";
-
-	public string FullDescription =>
-		@"This seeder will install a variety of animal bodies, races, descriptions and attacks. It currently includes a variety of terrestrial animals that can easily be extended to include fantasy or science-fiction races.
-
-Warning: There is an enormous amount of data contained in this seeder, and it may take a long time to run.";
-
-	public bool Enabled => true;
-
 	private void ResetSeeder()
 	{
 		_cachedBodyparts.Clear();
@@ -704,6 +693,28 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
 		_alwaysTrue = _context.FutureProgs.First(x => x.FunctionName == "AlwaysTrue");
 		_attributes = _context.TraitDefinitions.Where(x => x.Type == 1 || x.Type == 3).ToList();
 	}
+
+	private void ResetCachedParts()
+	{
+		_cachedBodyparts.Clear();
+		_cachedBodypartUpstreams.Clear();
+		_cachedBones.Clear();
+		_cachedLimbs.Clear();
+		_cachedOrgans.Clear();
+	}
+	#endregion
+	public int SortOrder => 300;
+	public string Name => "Animal Seeder";
+	public string Tagline => "Installs body types for animals";
+
+	public string FullDescription =>
+		@"This seeder will install a variety of animal bodies, races, descriptions and attacks. It currently includes a variety of terrestrial animals that can easily be extended to include fantasy or science-fiction races.
+
+Warning: There is an enormous amount of data contained in this seeder, and it may take a long time to run.";
+
+	public bool Enabled => true;
+
+	
 
 	private void SetupCorpseModel()
 	{
@@ -1041,6 +1052,81 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
 		_context.SaveChanges();
 	}
 
+	#region Combat
+	private void SeedCombatStrategy(string name, string description, double weaponUse, double naturalUse,
+			double auxilliaryUse, bool preferFavourite, bool preferArmed, bool preferNonContact, bool preferShields,
+			bool attackCritical, bool attackUnarmed, bool skirmish, bool fallbackToUnarmed,
+			bool automaticallyMoveToTarget, bool manualPositionManagement, bool moveToMeleeIfCannotRange,
+			PursuitMode pursuit, CombatStrategyMode melee, CombatStrategyMode ranged,
+			AutomaticInventorySettings inventory, AutomaticMovementSettings movement,
+			AutomaticRangedSettings rangesettings, AttackHandednessOptions setup, GrappleResponse grapple,
+			double requiredMinimumAim, double minmumStamina, DefenseType defaultDefenseType,
+			IEnumerable<MeleeAttackOrderPreference> order,
+			CombatMoveIntentions forbiddenIntentions = CombatMoveIntentions.Savage | CombatMoveIntentions.Cruel,
+			CombatMoveIntentions preferredIntentions = CombatMoveIntentions.None)
+	{
+		var strategy = new CharacterCombatSetting
+		{
+			Name = name,
+			Description = description,
+			GlobalTemplate = true,
+			AvailabilityProg = _alwaysTrue,
+			WeaponUsePercentage = weaponUse,
+			MagicUsePercentage = 0.0,
+			PsychicUsePercentage = 0.0,
+			NaturalWeaponPercentage = naturalUse,
+			AuxiliaryPercentage = auxilliaryUse,
+			PreferFavouriteWeapon = preferFavourite,
+			PreferToFightArmed = preferArmed,
+			PreferNonContactClinchBreaking = preferNonContact,
+			PreferShieldUse = preferShields,
+			ClassificationsAllowed = "1 2 3 4 5 7",
+			RequiredIntentions = 0,
+			ForbiddenIntentions = (long)forbiddenIntentions,
+			PreferredIntentions = (long)preferredIntentions,
+			AttackCriticallyInjured = attackCritical,
+			AttackHelpless = attackUnarmed,
+			SkirmishToOtherLocations = skirmish,
+			PursuitMode = (int)pursuit,
+			DefaultPreferredDefenseType = (int)defaultDefenseType,
+			PreferredMeleeMode = (int)melee,
+			PreferredRangedMode = (int)ranged,
+			FallbackToUnarmedIfNoWeapon = fallbackToUnarmed,
+			AutomaticallyMoveTowardsTarget = automaticallyMoveToTarget,
+			InventoryManagement = (int)inventory,
+			MovementManagement = (int)movement,
+			RangedManagement = (int)rangesettings,
+			ManualPositionManagement = manualPositionManagement,
+			MinimumStaminaToAttack = minmumStamina,
+			MoveToMeleeIfCannotEngageInRangedCombat = moveToMeleeIfCannotRange,
+			PreferredWeaponSetup = (int)setup,
+			RequiredMinimumAim = requiredMinimumAim,
+			MeleeAttackOrderPreference = order.Select(selector: x => ((int)x).ToString()).ListToCommaSeparatedValues(separator: " "),
+			GrappleResponse = (int)grapple
+		};
+		_context.CharacterCombatSettings.Add(entity: strategy);
+		_context.SaveChanges();
+	}
+
+	private void SeedCombatStrategies()
+	{
+		var defaultOrder = new List<MeleeAttackOrderPreference>
+		{
+			MeleeAttackOrderPreference.Weapon,
+			MeleeAttackOrderPreference.Implant,
+			MeleeAttackOrderPreference.Prosthetic,
+			MeleeAttackOrderPreference.Magic,
+			MeleeAttackOrderPreference.Psychic
+		};
+
+		SeedCombatStrategy(name: "Animal", description: "Fight unarmed in melee using a wide variety of moves", weaponUse: 0.0, naturalUse: 1.0, auxilliaryUse: 0.0, preferFavourite: false,
+			preferArmed: false, preferNonContact: false, preferShields: false, attackCritical: true, attackUnarmed: true, skirmish: false, fallbackToUnarmed: true, automaticallyMoveToTarget: false, manualPositionManagement: false, moveToMeleeIfCannotRange: true, pursuit: PursuitMode.OnlyAttemptToStop,
+			melee: CombatStrategyMode.StandardMelee, ranged: CombatStrategyMode.FullAdvance,
+			inventory: AutomaticInventorySettings.FullyAutomatic, movement: AutomaticMovementSettings.FullyAutomatic,
+			rangesettings: AutomaticRangedSettings.ContinueFiringOnly, setup: AttackHandednessOptions.Any, grapple: GrappleResponse.Avoidance, requiredMinimumAim: 0.5,
+			minmumStamina: 5.0, defaultDefenseType: DefenseType.Dodge, order: defaultOrder);
+	}
+
 	private WeaponAttack AddAttack(string name, BuiltInCombatMoveType moveType,
 		MeleeWeaponVerb verb, Difficulty attacker, Difficulty dodge, Difficulty parry, Difficulty block,
 		Alignment alignment, Orientation orientation, double stamina, double relativeSpeed,
@@ -1289,7 +1375,7 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
 				$"@ lunge|lunges forward and try|tries to bite $1{attackAddendum}", DamageType.Bite,
 				additionalInfo: @$"<Data>
    <Liquid>{liquid.Id}</Liquid>
-   <MaximumQuantity>5</MaximumQuantity>
+   <MaximumQuantity>0.005</MaximumQuantity>
    <MinimumWoundSeverity>3</MinimumWoundSeverity>
  </Data>");
 		}
@@ -1694,6 +1780,293 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
 		}
 	}
 
+	private void CreateRaceAttacks(Race race)
+	{
+		switch (race.Name)
+		{
+			case "Python":
+			case "Tree Python":
+			case "Boa":
+			case "Anaconda":
+				AddSerpentAttack(race, false);
+				break;
+			case "Cobra":
+			case "Adder":
+			case "Rattlesnake":
+			case "Viper":
+			case "Mamba":
+			case "Coral Snake":
+			case "Moccasin":
+				AddSerpentAttack(race, true);
+				break;
+			case "Mouse":
+			case "Rat":
+			case "Guinea Pig":
+			case "Hamster":
+			case "Ferret":
+			case "Rabbit":
+			case "Hare":
+				AddAttacks(race, ItemQuality.ExtremelyBad, smallAnimalBites: true);
+				break;
+			case "Otter":
+			case "Fox":
+				AddAttacks(race, ItemQuality.Standard, smallAnimalBites: true);
+				AddAttacks(race, ItemQuality.Poor, clawAttacks: true);
+				break;
+			case "Beaver":
+				AddAttacks(race, ItemQuality.Substandard, true);
+				AddAttacks(race, ItemQuality.Standard, clawAttacks: true);
+				break;
+			case "Cat":
+				AddAttacks(race, ItemQuality.Bad, true);
+				AddAttacks(race, ItemQuality.Bad, clawAttacks: true);
+				break;
+			case "Dog":
+				AddAttacks(race, ItemQuality.Poor, true);
+				AddAttacks(race, ItemQuality.Bad, clawAttacks: true);
+				break;
+			case "Wolf":
+			case "Coyote":
+			case "Hyena":
+			case "Jackal":
+			case "Cheetah":
+			case "Leopard":
+			case "Panther":
+			case "Jaguar":
+				AddAttacks(race, ItemQuality.Standard, true);
+				AddAttacks(race, ItemQuality.Substandard, clawAttacks: true);
+				break;
+			case "Lion":
+			case "Tiger":
+				AddAttacks(race, ItemQuality.VeryGood, true);
+				AddAttacks(race, ItemQuality.Standard, clawAttacks: true);
+				break;
+			case "Wolverine":
+			case "Badger":
+				AddAttacks(race, ItemQuality.Poor, true);
+				AddAttacks(race, ItemQuality.Standard, clawAttacks: true);
+				break;
+			case "Bear":
+				AddAttacks(race, ItemQuality.VeryGood, true);
+				AddAttacks(race, ItemQuality.VeryGood, clawAttacks: true);
+				AddAttacks(race, ItemQuality.Standard, chargeAttacks: true);
+				break;
+			case "Goat":
+				AddAttacks(race, ItemQuality.Standard, herbivoreBites: true);
+				AddAttacks(race, ItemQuality.Poor, chargeAttacks: true);
+				AddAttacks(race, ItemQuality.Substandard, hornAttacks: true);
+				break;
+			case "Sheep":
+			case "Pig":
+			case "Llama":
+			case "Alpaca":
+			case "Giraffe":
+				AddAttacks(race, ItemQuality.Standard, herbivoreBites: true);
+				AddAttacks(race, ItemQuality.Poor, chargeAttacks: true);
+				break;
+			case "Boar":
+			case "Warthog":
+				AddAttacks(race, ItemQuality.Good, herbivoreBites: true);
+				AddAttacks(race, ItemQuality.Standard, chargeAttacks: true);
+				AddAttacks(race, ItemQuality.Substandard, tuskAttacks: true);
+				break;
+			case "Horse":
+				AddAttacks(race, ItemQuality.Good, herbivoreBites: true);
+				AddAttacks(race, ItemQuality.Good, chargeAttacks: true);
+				break;
+			case "Deer":
+				AddAttacks(race, ItemQuality.Standard, herbivoreBites: true);
+				AddAttacks(race, ItemQuality.Poor, chargeAttacks: true);
+				AddAttacks(race, ItemQuality.Standard, antlerAttacks: true);
+				break;
+			case "Moose":
+				AddAttacks(race, ItemQuality.Good, herbivoreBites: true);
+				AddAttacks(race, ItemQuality.Substandard, chargeAttacks: true);
+				AddAttacks(race, ItemQuality.VeryGood, antlerAttacks: true);
+				break;
+			case "Cow":
+			case "Ox":
+			case "Buffalo":
+			case "Bison":
+				AddAttacks(race, ItemQuality.Good, herbivoreBites: true);
+				AddAttacks(race, ItemQuality.VeryGood, chargeAttacks: true);
+				AddAttacks(race, ItemQuality.Standard, hornAttacks: true);
+				break;
+			case "Hippopotamus":
+				AddAttacks(race, ItemQuality.Great, true);
+				AddAttacks(race, ItemQuality.VeryGood, chargeAttacks: true);
+				break;
+			case "Rhinocerous":
+				AddAttacks(race, ItemQuality.Poor, herbivoreBites: true);
+				AddAttacks(race, ItemQuality.Great, chargeAttacks: true);
+				AddAttacks(race, ItemQuality.Standard, hornAttacks: true);
+				break;
+			case "Elephant":
+				AddAttacks(race, ItemQuality.Poor, herbivoreBites: true);
+				AddAttacks(race, ItemQuality.Great, chargeAttacks: true);
+				AddAttacks(race, ItemQuality.Great, tuskAttacks: true);
+				break;
+			case "Carp":
+			case "Cod":
+			case "Haddock":
+			case "Koi":
+			case "Pilchard":
+			case "Perch":
+			case "Herring":
+			case "Mackerel":
+			case "Anchovy":
+			case "Sardine":
+			case "Pollock":
+			case "Salmon":
+			case "Tuna":
+				AddAttacks(race, ItemQuality.Substandard, fishBites: true);
+				break;
+			case "Shark":
+				AddAttacks(race, ItemQuality.Great, sharkAttacks: true);
+				break;
+			case "Small Crab":
+				AddAttacks(race, ItemQuality.Bad, crabAttacks: true);
+				break;
+			case "Crab":
+			case "Lobster":
+				AddAttacks(race, ItemQuality.Substandard, crabAttacks: true);
+				break;
+			case "Giant Crab":
+				AddAttacks(race, ItemQuality.Great, crabAttacks: true);
+				break;
+			case "Jellyfish":
+				AddJellyfishAttack(race);
+				break;
+			case "Octopus":
+			case "Squid":
+				AddAttacks(race, ItemQuality.Bad, fishBites: true);
+				break;
+			case "Giant Squid":
+				AddAttacks(race, ItemQuality.Standard, fishBites: true);
+				break;
+			case "Sea Lion":
+			case "Seal":
+			case "Walrus":
+				AddAttacks(race, ItemQuality.Poor, herbivoreBites: true);
+				break;
+			case "Dolphin":
+			case "Porpoise":
+				AddAttacks(race, ItemQuality.Standard, fishBites: true);
+				break;
+			case "Orca":
+				AddAttacks(race, ItemQuality.Heroic, sharkAttacks: true);
+				break;
+			case "Baleen Whale":
+			case "Toothed Whale":
+				break;
+			case "Pigeon":
+				AddAttacks(race, ItemQuality.Bad, smallAnimalBites: true, clawAttacks: true);
+				break;
+			case "Parrot":
+				AddAttacks(race, ItemQuality.Poor, smallAnimalBites: true, clawAttacks: true);
+				break;
+			case "Swallow":
+				AddAttacks(race, ItemQuality.Bad, smallAnimalBites: true, clawAttacks: true);
+				break;
+			case "Sparrow":
+				AddAttacks(race, ItemQuality.Bad, smallAnimalBites: true, clawAttacks: true);
+				break;
+			case "Quail":
+				AddAttacks(race, ItemQuality.Terrible, smallAnimalBites: true, clawAttacks: true);
+				break;
+			case "Duck":
+				AddAttacks(race, ItemQuality.Poor, smallAnimalBites: true, clawAttacks: true);
+				break;
+			case "Goose":
+				AddAttacks(race, ItemQuality.Poor, smallAnimalBites: true, clawAttacks: true);
+				break;
+			case "Swan":
+				AddAttacks(race, ItemQuality.Poor, smallAnimalBites: true, clawAttacks: true);
+				break;
+			case "Grouse":
+				AddAttacks(race, ItemQuality.Poor, smallAnimalBites: true, clawAttacks: true);
+				break;
+			case "Pheasant":
+				AddAttacks(race, ItemQuality.Poor, smallAnimalBites: true, clawAttacks: true);
+				break;
+			case "Chicken":
+				AddAttacks(race, ItemQuality.Poor, smallAnimalBites: true, clawAttacks: true);
+				break;
+			case "Turkey":
+				AddAttacks(race, ItemQuality.Poor, smallAnimalBites: true, clawAttacks: true);
+				break;
+			case "Seagull":
+				AddAttacks(race, ItemQuality.Poor, smallAnimalBites: true, clawAttacks: true);
+				break;
+			case "Albatross":
+				AddAttacks(race, ItemQuality.Poor, smallAnimalBites: true, clawAttacks: true);
+				break;
+			case "Heron":
+				AddAttacks(race, ItemQuality.Poor, smallAnimalBites: true, clawAttacks: true);
+				break;
+			case "Crane":
+				AddAttacks(race, ItemQuality.Poor, smallAnimalBites: true, clawAttacks: true);
+				break;
+			case "Flamingo":
+				AddAttacks(race, ItemQuality.Poor, smallAnimalBites: true, clawAttacks: true);
+				break;
+			case "Peacock":
+				AddAttacks(race, ItemQuality.Poor, smallAnimalBites: true, clawAttacks: true);
+				break;
+			case "Ibis":
+				AddAttacks(race, ItemQuality.Poor, smallAnimalBites: true, clawAttacks: true);
+				break;
+			case "Pelican":
+				AddAttacks(race, ItemQuality.Poor, smallAnimalBites: true, clawAttacks: true);
+				break;
+			case "Crow":
+				AddAttacks(race, ItemQuality.Poor, smallAnimalBites: true, clawAttacks: true);
+				break;
+			case "Raven":
+				AddAttacks(race, ItemQuality.Poor, smallAnimalBites: true, clawAttacks: true);
+				break;
+			case "Emu":
+				AddAttacks(race, ItemQuality.Substandard, smallAnimalBites: true, clawAttacks: true);
+				break;
+			case "Ostrich":
+				AddAttacks(race, ItemQuality.Substandard, smallAnimalBites: true, clawAttacks: true);
+				break;
+			case "Moa":
+				AddAttacks(race, ItemQuality.Substandard, smallAnimalBites: true, clawAttacks: true);
+				break;
+			case "Vulture":
+				AddAttacks(race, ItemQuality.Standard, smallAnimalBites: true, clawAttacks: true);
+				break;
+			case "Hawk":
+				AddAttacks(race, ItemQuality.Standard, smallAnimalBites: true, clawAttacks: true);
+				break;
+			case "Eagle":
+				AddAttacks(race, ItemQuality.Good, smallAnimalBites: true, clawAttacks: true);
+				break;
+			case "Falcon":
+				AddAttacks(race, ItemQuality.Standard, smallAnimalBites: true, clawAttacks: true);
+				break;
+			case "Woodpecker":
+				AddAttacks(race, ItemQuality.Standard, smallAnimalBites: true, clawAttacks: true);
+				break;
+			case "Owl":
+				AddAttacks(race, ItemQuality.Standard, smallAnimalBites: true, clawAttacks: true);
+				break;
+			case "Kingfisher":
+				AddAttacks(race, ItemQuality.Standard, smallAnimalBites: true, clawAttacks: true);
+				break;
+			case "Stork":
+				AddAttacks(race, ItemQuality.Poor, smallAnimalBites: true, clawAttacks: true);
+				break;
+			case "Penguin":
+				AddAttacks(race, ItemQuality.Poor, smallAnimalBites: true, clawAttacks: true);
+				break;
+		}
+	}
+
+	#endregion
+
+	#region Descriptions
 	private void CreateDescription(EntityDescriptionType type, string text, FutureProg prog)
 	{
 		_context.EntityDescriptionPatterns.Add(new EntityDescriptionPattern
@@ -2517,6 +2890,7 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
 				break;
 		}
 	}
+	#endregion
 
 	private void CreateEthnicitiesForRace(Race race)
 	{
@@ -3363,290 +3737,7 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
 		}
 	}
 
-	private void CreateRaceAttacks(Race race)
-	{
-		switch (race.Name)
-		{
-			case "Python":
-			case "Tree Python":
-			case "Boa":
-			case "Anaconda":
-				AddSerpentAttack(race, false);
-				break;
-			case "Cobra":
-			case "Adder":
-			case "Rattlesnake":
-			case "Viper":
-			case "Mamba":
-			case "Coral Snake":
-			case "Moccasin":
-				AddSerpentAttack(race, true);
-				break;
-			case "Mouse":
-			case "Rat":
-			case "Guinea Pig":
-			case "Hamster":
-			case "Ferret":
-			case "Rabbit":
-			case "Hare":
-				AddAttacks(race, ItemQuality.ExtremelyBad, smallAnimalBites: true);
-				break;
-			case "Otter":
-			case "Fox":
-				AddAttacks(race, ItemQuality.Standard, smallAnimalBites: true);
-				AddAttacks(race, ItemQuality.Poor, clawAttacks: true);
-				break;
-			case "Beaver":
-				AddAttacks(race, ItemQuality.Substandard, true);
-				AddAttacks(race, ItemQuality.Standard, clawAttacks: true);
-				break;
-			case "Cat":
-				AddAttacks(race, ItemQuality.Bad, true);
-				AddAttacks(race, ItemQuality.Bad, clawAttacks: true);
-				break;
-			case "Dog":
-				AddAttacks(race, ItemQuality.Poor, true);
-				AddAttacks(race, ItemQuality.Bad, clawAttacks: true);
-				break;
-			case "Wolf":
-			case "Coyote":
-			case "Hyena":
-			case "Jackal":
-			case "Cheetah":
-			case "Leopard":
-			case "Panther":
-			case "Jaguar":
-				AddAttacks(race, ItemQuality.Standard, true);
-				AddAttacks(race, ItemQuality.Substandard, clawAttacks: true);
-				break;
-			case "Lion":
-			case "Tiger":
-				AddAttacks(race, ItemQuality.VeryGood, true);
-				AddAttacks(race, ItemQuality.Standard, clawAttacks: true);
-				break;
-			case "Wolverine":
-			case "Badger":
-				AddAttacks(race, ItemQuality.Poor, true);
-				AddAttacks(race, ItemQuality.Standard, clawAttacks: true);
-				break;
-			case "Bear":
-				AddAttacks(race, ItemQuality.VeryGood, true);
-				AddAttacks(race, ItemQuality.VeryGood, clawAttacks: true);
-				AddAttacks(race, ItemQuality.Standard, chargeAttacks: true);
-				break;
-			case "Goat":
-				AddAttacks(race, ItemQuality.Standard, herbivoreBites: true);
-				AddAttacks(race, ItemQuality.Poor, chargeAttacks: true);
-				AddAttacks(race, ItemQuality.Substandard, hornAttacks: true);
-				break;
-			case "Sheep":
-			case "Pig":
-			case "Llama":
-			case "Alpaca":
-			case "Giraffe":
-				AddAttacks(race, ItemQuality.Standard, herbivoreBites: true);
-				AddAttacks(race, ItemQuality.Poor, chargeAttacks: true);
-				break;
-			case "Boar":
-			case "Warthog":
-				AddAttacks(race, ItemQuality.Good, herbivoreBites: true);
-				AddAttacks(race, ItemQuality.Standard, chargeAttacks: true);
-				AddAttacks(race, ItemQuality.Substandard, tuskAttacks: true);
-				break;
-			case "Horse":
-				AddAttacks(race, ItemQuality.Good, herbivoreBites: true);
-				AddAttacks(race, ItemQuality.Good, chargeAttacks: true);
-				break;
-			case "Deer":
-				AddAttacks(race, ItemQuality.Standard, herbivoreBites: true);
-				AddAttacks(race, ItemQuality.Poor, chargeAttacks: true);
-				AddAttacks(race, ItemQuality.Standard, antlerAttacks: true);
-				break;
-			case "Moose":
-				AddAttacks(race, ItemQuality.Good, herbivoreBites: true);
-				AddAttacks(race, ItemQuality.Substandard, chargeAttacks: true);
-				AddAttacks(race, ItemQuality.VeryGood, antlerAttacks: true);
-				break;
-			case "Cow":
-			case "Ox":
-			case "Buffalo":
-			case "Bison":
-				AddAttacks(race, ItemQuality.Good, herbivoreBites: true);
-				AddAttacks(race, ItemQuality.VeryGood, chargeAttacks: true);
-				AddAttacks(race, ItemQuality.Standard, hornAttacks: true);
-				break;
-			case "Hippopotamus":
-				AddAttacks(race, ItemQuality.Great, true);
-				AddAttacks(race, ItemQuality.VeryGood, chargeAttacks: true);
-				break;
-			case "Rhinocerous":
-				AddAttacks(race, ItemQuality.Poor, herbivoreBites: true);
-				AddAttacks(race, ItemQuality.Great, chargeAttacks: true);
-				AddAttacks(race, ItemQuality.Standard, hornAttacks: true);
-				break;
-			case "Elephant":
-				AddAttacks(race, ItemQuality.Poor, herbivoreBites: true);
-				AddAttacks(race, ItemQuality.Great, chargeAttacks: true);
-				AddAttacks(race, ItemQuality.Great, tuskAttacks: true);
-				break;
-			case "Carp":
-			case "Cod":
-			case "Haddock":
-			case "Koi":
-			case "Pilchard":
-			case "Perch":
-			case "Herring":
-			case "Mackerel":
-			case "Anchovy":
-			case "Sardine":
-			case "Pollock":
-			case "Salmon":
-			case "Tuna":
-				AddAttacks(race, ItemQuality.Substandard, fishBites: true);
-				break;
-			case "Shark":
-				AddAttacks(race, ItemQuality.Great, sharkAttacks: true);
-				break;
-			case "Small Crab":
-				AddAttacks(race, ItemQuality.Bad, crabAttacks: true);
-				break;
-			case "Crab":
-			case "Lobster":
-				AddAttacks(race, ItemQuality.Substandard, crabAttacks: true);
-				break;
-			case "Giant Crab":
-				AddAttacks(race, ItemQuality.Great, crabAttacks: true);
-				break;
-			case "Jellyfish":
-				AddJellyfishAttack(race);
-				break;
-			case "Octopus":
-			case "Squid":
-				AddAttacks(race, ItemQuality.Bad, fishBites: true);
-				break;
-			case "Giant Squid":
-				AddAttacks(race, ItemQuality.Standard, fishBites: true);
-				break;
-			case "Sea Lion":
-			case "Seal":
-			case "Walrus":
-				AddAttacks(race, ItemQuality.Poor, herbivoreBites: true);
-				break;
-			case "Dolphin":
-			case "Porpoise":
-				AddAttacks(race, ItemQuality.Standard, fishBites: true);
-				break;
-			case "Orca":
-				AddAttacks(race, ItemQuality.Heroic, sharkAttacks: true);
-				break;
-			case "Baleen Whale":
-			case "Toothed Whale":
-				break;
-			case "Pigeon":
-				AddAttacks(race, ItemQuality.Bad, smallAnimalBites: true, clawAttacks: true);
-				break;
-			case "Parrot":
-				AddAttacks(race, ItemQuality.Poor, smallAnimalBites: true, clawAttacks: true);
-				break;
-			case "Swallow":
-				AddAttacks(race, ItemQuality.Bad, smallAnimalBites: true, clawAttacks: true);
-				break;
-			case "Sparrow":
-				AddAttacks(race, ItemQuality.Bad, smallAnimalBites: true, clawAttacks: true);
-				break;
-			case "Quail":
-				AddAttacks(race, ItemQuality.Terrible, smallAnimalBites: true, clawAttacks: true);
-				break;
-			case "Duck":
-				AddAttacks(race, ItemQuality.Poor, smallAnimalBites: true, clawAttacks: true);
-				break;
-			case "Goose":
-				AddAttacks(race, ItemQuality.Poor, smallAnimalBites: true, clawAttacks: true);
-				break;
-			case "Swan":
-				AddAttacks(race, ItemQuality.Poor, smallAnimalBites: true, clawAttacks: true);
-				break;
-			case "Grouse":
-				AddAttacks(race, ItemQuality.Poor, smallAnimalBites: true, clawAttacks: true);
-				break;
-			case "Pheasant":
-				AddAttacks(race, ItemQuality.Poor, smallAnimalBites: true, clawAttacks: true);
-				break;
-			case "Chicken":
-				AddAttacks(race, ItemQuality.Poor, smallAnimalBites: true, clawAttacks: true);
-				break;
-			case "Turkey":
-				AddAttacks(race, ItemQuality.Poor, smallAnimalBites: true, clawAttacks: true);
-				break;
-			case "Seagull":
-				AddAttacks(race, ItemQuality.Poor, smallAnimalBites: true, clawAttacks: true);
-				break;
-			case "Albatross":
-				AddAttacks(race, ItemQuality.Poor, smallAnimalBites: true, clawAttacks: true);
-				break;
-			case "Heron":
-				AddAttacks(race, ItemQuality.Poor, smallAnimalBites: true, clawAttacks: true);
-				break;
-			case "Crane":
-				AddAttacks(race, ItemQuality.Poor, smallAnimalBites: true, clawAttacks: true);
-				break;
-			case "Flamingo":
-				AddAttacks(race, ItemQuality.Poor, smallAnimalBites: true, clawAttacks: true);
-				break;
-			case "Peacock":
-				AddAttacks(race, ItemQuality.Poor, smallAnimalBites: true, clawAttacks: true);
-				break;
-			case "Ibis":
-				AddAttacks(race, ItemQuality.Poor, smallAnimalBites: true, clawAttacks: true);
-				break;
-			case "Pelican":
-				AddAttacks(race, ItemQuality.Poor, smallAnimalBites: true, clawAttacks: true);
-				break;
-			case "Crow":
-				AddAttacks(race, ItemQuality.Poor, smallAnimalBites: true, clawAttacks: true);
-				break;
-			case "Raven":
-				AddAttacks(race, ItemQuality.Poor, smallAnimalBites: true, clawAttacks: true);
-				break;
-			case "Emu":
-				AddAttacks(race, ItemQuality.Substandard, smallAnimalBites: true, clawAttacks: true);
-				break;
-			case "Ostrich":
-				AddAttacks(race, ItemQuality.Substandard, smallAnimalBites: true, clawAttacks: true);
-				break;
-			case "Moa":
-				AddAttacks(race, ItemQuality.Substandard, smallAnimalBites: true, clawAttacks: true);
-				break;
-			case "Vulture":
-				AddAttacks(race, ItemQuality.Standard, smallAnimalBites: true, clawAttacks: true);
-				break;
-			case "Hawk":
-				AddAttacks(race, ItemQuality.Standard, smallAnimalBites: true, clawAttacks: true);
-				break;
-			case "Eagle":
-				AddAttacks(race, ItemQuality.Good, smallAnimalBites: true, clawAttacks: true);
-				break;
-			case "Falcon":
-				AddAttacks(race, ItemQuality.Standard, smallAnimalBites: true, clawAttacks: true);
-				break;
-			case "Woodpecker":
-				AddAttacks(race, ItemQuality.Standard, smallAnimalBites: true, clawAttacks: true);
-				break;
-			case "Owl":
-				AddAttacks(race, ItemQuality.Standard, smallAnimalBites: true, clawAttacks: true);
-				break;
-			case "Kingfisher":
-				AddAttacks(race, ItemQuality.Standard, smallAnimalBites: true, clawAttacks: true);
-				break;
-			case "Stork":
-				AddAttacks(race, ItemQuality.Poor, smallAnimalBites: true, clawAttacks: true);
-				break;
-			case "Penguin":
-				AddAttacks(race, ItemQuality.Poor, smallAnimalBites: true, clawAttacks: true);
-				break;
-		}
-	}
-
+	
 	private void SetupArmourTypes()
 	{
 		_naturalArmour = new ArmourType
@@ -4310,16 +4401,8 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
 
 		foreach (var material in _context.Materials) _cachedMaterials[material.Name] = material;
 	}
-
-	private void ResetCachedParts()
-	{
-		_cachedBodyparts.Clear();
-		_cachedBodypartUpstreams.Clear();
-		_cachedBones.Clear();
-		_cachedLimbs.Clear();
-		_cachedOrgans.Clear();
-	}
-
+	
+	#region Different Body Types
 	private void SeedAvian(BodyProto avianProto)
 	{
 		ResetCachedParts();
@@ -7479,7 +7562,8 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
 
 		#endregion
 	}
-
+	#endregion
+	
 	private (BloodModel BloodModel, PopulationBloodModel PopulationBloodModel) SetupBloodModel(string race,
 		IEnumerable<string> antigens,
 		IEnumerable<(string Name, IEnumerable<string> Antigens, double weight)> types)
@@ -7537,6 +7621,8 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
 		return (model, populationModel);
 	}
 
+
+	#region Bodyparts
 	private void AddShape(string name)
 	{
 		_context.BodypartShapes.Add(new BodypartShape
@@ -7769,6 +7855,9 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
 			{ BodypartGroupDescriber = describer, BodyProto = body });
 	}
 
+	#endregion
+
+	#region Speeds and Positions
 	private void SetupSpeeds(BodyProto quadrupedBody, BodyProto avianBody, BodyProto serpentBody,
 		BodyProto fishProto, BodyProto crabProto, BodyProto octopusProto, BodyProto jellyfishProto,
 		BodyProto pinnipedProto, BodyProto cetaceanProto, BodyProto wormBody)
@@ -8322,4 +8411,5 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
 			{ BodyProto = jellyfishProto, Position = 16 }); // Swimming
 		_context.SaveChanges();
 	}
+	#endregion
 }

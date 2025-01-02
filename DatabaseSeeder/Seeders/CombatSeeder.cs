@@ -7087,7 +7087,7 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
 	private void SeedCombatStrategies(FuturemudDatabaseContext context,
 		IReadOnlyDictionary<string, string> questionAnswers)
 	{
-		var humanProg = context.FutureProgs.First(x => x.FunctionName == "IsHumanoid");
+		var humanProg = context.FutureProgs.First(predicate: x => x.FunctionName == "IsHumanoid");
 
 		void SeedCombatStrategy(string name, string description, double weaponUse, double naturalUse,
 			double auxilliaryUse, bool preferFavourite, bool preferArmed, bool preferNonContact, bool preferShields,
@@ -7137,10 +7137,10 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
 				MoveToMeleeIfCannotEngageInRangedCombat = moveToMeleeIfCannotRange,
 				PreferredWeaponSetup = (int)setup,
 				RequiredMinimumAim = requiredMinimumAim,
-				MeleeAttackOrderPreference = order.Select(x => ((int)x).ToString()).ListToCommaSeparatedValues(" "),
+				MeleeAttackOrderPreference = order.Select(selector: x => ((int)x).ToString()).ListToCommaSeparatedValues(separator: " "),
 				GrappleResponse = (int)grapple
 			};
-			context.CharacterCombatSettings.Add(strategy);
+			context.CharacterCombatSettings.Add(entity: strategy);
 			context.SaveChanges();
 		}
 
@@ -7153,123 +7153,123 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
 			MeleeAttackOrderPreference.Psychic
 		};
 
-		SeedCombatStrategy("Melee", "Fight with a weapon, move to melee, not afraid of using unarmed if disarmed", 1.0,
-			0.0, 0.0, false, true, true, true, true, true, false, true, false, false, true,
-			PursuitMode.OnlyAttemptToStop, CombatStrategyMode.StandardMelee, CombatStrategyMode.FullAdvance,
-			AutomaticInventorySettings.AutomaticButDontDiscard, AutomaticMovementSettings.SeekCoverOnly,
-			AutomaticRangedSettings.ContinueFiringOnly, AttackHandednessOptions.Any, GrappleResponse.Avoidance, 0.5,
-			5.0, DefenseType.None, defaultOrder);
-		SeedCombatStrategy("Manual",
-			"A fighting style that is FULLY MANUAL. This means that all inventory management, ranged combat and combat movement is fully manual and controlled by the player. While this gives you the greatest degree of control, it is assuredly slower than using the automatic systems. Use with caution - only for advanced players.",
-			1.0, 0.0, 0.0, false, true, true, true, true, true, false, true, false, true, false,
-			PursuitMode.OnlyAttemptToStop, CombatStrategyMode.StandardMelee, CombatStrategyMode.FullAdvance,
-			AutomaticInventorySettings.FullyManual, AutomaticMovementSettings.FullyManual,
-			AutomaticRangedSettings.FullyManual, AttackHandednessOptions.Any, GrappleResponse.Avoidance, 0.5, 5.0,
-			DefenseType.None, defaultOrder);
-		SeedCombatStrategy("Brawler", "Fight unarmed in melee using a wide variety of moves", 0.0, 1.0, 0.0, false,
-			false, false, false, true, true, false, true, false, false, true, PursuitMode.OnlyAttemptToStop,
-			CombatStrategyMode.StandardMelee, CombatStrategyMode.FullAdvance,
-			AutomaticInventorySettings.AutomaticButDontDiscard, AutomaticMovementSettings.SeekCoverOnly,
-			AutomaticRangedSettings.ContinueFiringOnly, AttackHandednessOptions.Any, GrappleResponse.Avoidance, 0.5,
-			5.0, DefenseType.Dodge, defaultOrder);
-		SeedCombatStrategy("Shielder",
-			"Fight with a weapon and shield, move to melee, not afraid of using unarmed if disarmed", 1.0, 0.0, 0.0,
-			false, true, true, true, true, true, false, true, false, false, true, PursuitMode.OnlyAttemptToStop,
-			CombatStrategyMode.StandardMelee, CombatStrategyMode.FullAdvance,
-			AutomaticInventorySettings.AutomaticButDontDiscard, AutomaticMovementSettings.SeekCoverOnly,
-			AutomaticRangedSettings.ContinueFiringOnly, AttackHandednessOptions.SwordAndBoardOnly,
-			GrappleResponse.Avoidance, 0.5, 10.0, DefenseType.Block, defaultOrder);
-		SeedCombatStrategy("Zweihander",
-			"Fight with a 2-hand weapon, move to melee, not afraid of using unarmed if disarmed", 1.0, 0.0, 0.0, false,
-			true, true, false, true, true, false, true, false, false, true, PursuitMode.OnlyAttemptToStop,
-			CombatStrategyMode.StandardMelee, CombatStrategyMode.FullAdvance,
-			AutomaticInventorySettings.AutomaticButDontDiscard, AutomaticMovementSettings.SeekCoverOnly,
-			AutomaticRangedSettings.ContinueFiringOnly, AttackHandednessOptions.TwoHandedOnly,
-			GrappleResponse.Avoidance, 0.5, 0.0, DefenseType.Dodge, defaultOrder);
-		SeedCombatStrategy("Clincher", "Fight with a weapon, move into clinch, not afraid of using unarmed if disarmed",
-			1.0, 0.0, 0.0, false, true, true, true, true, true, false, true, false, false, true,
-			PursuitMode.OnlyAttemptToStop, CombatStrategyMode.Clinch, CombatStrategyMode.FullAdvance,
-			AutomaticInventorySettings.AutomaticButDontDiscard, AutomaticMovementSettings.SeekCoverOnly,
-			AutomaticRangedSettings.ContinueFiringOnly, AttackHandednessOptions.Any, GrappleResponse.Avoidance, 0.5,
-			5.0, DefenseType.None, defaultOrder);
-		SeedCombatStrategy("Warder",
-			"Fight with a weapon, move to melee, ward, not afraid of using unarmed if disarmed", 1.0, 0.0, 0.0, false,
-			true, true, true, true, true, false, true, false, false, true, PursuitMode.OnlyAttemptToStop,
-			CombatStrategyMode.Ward, CombatStrategyMode.FullAdvance, AutomaticInventorySettings.AutomaticButDontDiscard,
-			AutomaticMovementSettings.SeekCoverOnly, AutomaticRangedSettings.ContinueFiringOnly,
-			AttackHandednessOptions.Any, GrappleResponse.Avoidance, 0.5, 10.0, DefenseType.None, defaultOrder);
-		SeedCombatStrategy("Defender", "Try to stay out of fights and full defend if you get into them", 1.0, 0.0, 0.0,
-			false, true, true, true, true, true, false, true, false, false, true, PursuitMode.NeverPursue,
-			CombatStrategyMode.FullDefense, CombatStrategyMode.FullCover,
-			AutomaticInventorySettings.AutomaticButDontDiscard, AutomaticMovementSettings.SeekCoverOnly,
-			AutomaticRangedSettings.ContinueFiringOnly, AttackHandednessOptions.Any, GrappleResponse.Avoidance, 0.5,
-			20.0, DefenseType.None, defaultOrder);
-		SeedCombatStrategy("Pistolier",
-			"Try to fight at range, but keep using a pistol in melee if you get engaged there", 1.0, 0.0, 0.0, false,
-			true, true, true, true, true, false, true, false, false, true, PursuitMode.NeverPursue,
-			CombatStrategyMode.MeleeShooter, CombatStrategyMode.StandardRange,
-			AutomaticInventorySettings.AutomaticButDontDiscard, AutomaticMovementSettings.SeekCoverOnly,
-			AutomaticRangedSettings.FullyAutomatic, AttackHandednessOptions.Any, GrappleResponse.Avoidance, 0.2, 5.0,
-			DefenseType.Dodge, defaultOrder);
-		SeedCombatStrategy("Musketeer", "Try to fight at range, seek no cover, and ward if you do get into melee", 1.0,
-			0.0, 0.0, false, true, true, true, true, true, false, true, false, false, true, PursuitMode.NeverPursue,
-			CombatStrategyMode.Ward, CombatStrategyMode.FireNoCover, AutomaticInventorySettings.AutomaticButDontDiscard,
-			AutomaticMovementSettings.SeekCoverOnly, AutomaticRangedSettings.FullyAutomatic,
-			AttackHandednessOptions.Any, GrappleResponse.Avoidance, 0.7, 5.0, DefenseType.None, defaultOrder);
-		SeedCombatStrategy("Infantryman", "Find cover if attacked suddely, return fire, but fight in melee if engaged.",
-			1.0, 0.0, 0.0, false, true, true, true, true, true, false, true, false, false, true,
-			PursuitMode.NeverPursue, CombatStrategyMode.StandardMelee, CombatStrategyMode.StandardRange,
-			AutomaticInventorySettings.AutomaticButDontDiscard, AutomaticMovementSettings.SeekCoverOnly,
-			AutomaticRangedSettings.FullyAutomatic, AttackHandednessOptions.Any, GrappleResponse.Avoidance, 0.7, 5.0,
-			DefenseType.None, defaultOrder);
-		SeedCombatStrategy("Skirmisher", "Stay out of melee and fire your weapon. Prioritise mobility over safety.",
-			1.0, 0.0, 0.0, false, true, true, true, true, true, false, true, false, false, true,
-			PursuitMode.NeverPursue, CombatStrategyMode.FullSkirmish, CombatStrategyMode.FireNoCover,
-			AutomaticInventorySettings.AutomaticButDontDiscard, AutomaticMovementSettings.SeekCoverOnly,
-			AutomaticRangedSettings.FullyAutomatic, AttackHandednessOptions.Any, GrappleResponse.Avoidance, 0.5, 5.0,
-			DefenseType.None, defaultOrder);
-		SeedCombatStrategy("Marksman", "Get into cover, aim well, and make your shots count.", 1.0, 0.0, 0.0, false,
-			true, true, true, true, true, false, true, false, false, true, PursuitMode.NeverPursue,
-			CombatStrategyMode.FullSkirmish, CombatStrategyMode.StandardRange,
-			AutomaticInventorySettings.AutomaticButDontDiscard, AutomaticMovementSettings.SeekCoverOnly,
-			AutomaticRangedSettings.FullyAutomatic, AttackHandednessOptions.Any, GrappleResponse.Avoidance, 1.0, 5.0,
-			DefenseType.None, defaultOrder);
-		SeedCombatStrategy("Pitfighter", "Fight unarmed in melee with no holds barred and nothing off the table", 0.0,
-			1.0, 0.0, false, false, false, false, true, true, false, true, false, false, true,
-			PursuitMode.OnlyAttemptToStop, CombatStrategyMode.StandardMelee, CombatStrategyMode.FullAdvance,
-			AutomaticInventorySettings.AutomaticButDontDiscard, AutomaticMovementSettings.SeekCoverOnly,
-			AutomaticRangedSettings.ContinueFiringOnly, AttackHandednessOptions.Any, GrappleResponse.Avoidance, 0.5,
-			5.0, DefenseType.Dodge, defaultOrder, CombatMoveIntentions.None);
-		SeedCombatStrategy("Swarmer", "Fight unarmed in melee and try to get into clinches", 0.0, 1.0, 0.0, false,
-			false, false, false, true, true, false, true, false, false, true, PursuitMode.OnlyAttemptToStop,
-			CombatStrategyMode.Clinch, CombatStrategyMode.FullAdvance,
-			AutomaticInventorySettings.AutomaticButDontDiscard, AutomaticMovementSettings.SeekCoverOnly,
-			AutomaticRangedSettings.ContinueFiringOnly, AttackHandednessOptions.Any, GrappleResponse.Avoidance, 0.5,
-			5.0, DefenseType.Dodge, defaultOrder);
-		SeedCombatStrategy("Outboxer", "Fight unarmed in melee and try to keep range and use counter attacks", 0.0, 1.0,
-			0.0, false, false, false, false, true, true, false, true, false, false, true, PursuitMode.OnlyAttemptToStop,
-			CombatStrategyMode.Ward, CombatStrategyMode.FullAdvance, AutomaticInventorySettings.AutomaticButDontDiscard,
-			AutomaticMovementSettings.SeekCoverOnly, AutomaticRangedSettings.ContinueFiringOnly,
-			AttackHandednessOptions.Any, GrappleResponse.Avoidance, 0.5, 5.0, DefenseType.Dodge, defaultOrder);
-		SeedCombatStrategy("Grappler", "Fight unarmed in melee and try to grapple your opponent into control", 0.0, 1.0,
-			0.0, false, false, false, false, true, true, false, true, false, false, true, PursuitMode.OnlyAttemptToStop,
-			CombatStrategyMode.GrappleForControl, CombatStrategyMode.FullAdvance,
-			AutomaticInventorySettings.AutomaticButDontDiscard, AutomaticMovementSettings.SeekCoverOnly,
-			AutomaticRangedSettings.ContinueFiringOnly, AttackHandednessOptions.Any, GrappleResponse.Avoidance, 0.5,
-			5.0, DefenseType.Dodge, defaultOrder);
-		SeedCombatStrategy("Bonebreaker",
-			"Fight unarmed in melee and try to grapple your opponent and break their limbs", 0.0, 1.0, 0.0, false,
-			false, false, false, true, true, false, true, false, false, true, PursuitMode.OnlyAttemptToStop,
-			CombatStrategyMode.GrappleForIncapacitation, CombatStrategyMode.FullAdvance,
-			AutomaticInventorySettings.AutomaticButDontDiscard, AutomaticMovementSettings.SeekCoverOnly,
-			AutomaticRangedSettings.ContinueFiringOnly, AttackHandednessOptions.Any, GrappleResponse.Avoidance, 0.5,
-			5.0, DefenseType.Dodge, defaultOrder);
-		SeedCombatStrategy("Strangler", "Fight unarmed in melee and try to grapple, strangle and kill them", 0.0, 1.0,
-			0.0, false, false, false, false, true, true, false, true, false, false, true, PursuitMode.OnlyAttemptToStop,
-			CombatStrategyMode.GrappleForKill, CombatStrategyMode.FullAdvance,
-			AutomaticInventorySettings.AutomaticButDontDiscard, AutomaticMovementSettings.SeekCoverOnly,
-			AutomaticRangedSettings.ContinueFiringOnly, AttackHandednessOptions.Any, GrappleResponse.Avoidance, 0.5,
-			5.0, DefenseType.Dodge, defaultOrder);
+		SeedCombatStrategy(name: "Melee", description: "Fight with a weapon, move to melee, not afraid of using unarmed if disarmed", weaponUse: 1.0,
+			naturalUse: 0.0, auxilliaryUse: 0.0, preferFavourite: false, preferArmed: true, preferNonContact: true, preferShields: true, attackCritical: true, attackUnarmed: true, skirmish: false, fallbackToUnarmed: true, automaticallyMoveToTarget: false, manualPositionManagement: false, moveToMeleeIfCannotRange: true,
+			pursuit: PursuitMode.OnlyAttemptToStop, melee: CombatStrategyMode.StandardMelee, ranged: CombatStrategyMode.FullAdvance,
+			inventory: AutomaticInventorySettings.AutomaticButDontDiscard, movement: AutomaticMovementSettings.SeekCoverOnly,
+			rangesettings: AutomaticRangedSettings.ContinueFiringOnly, setup: AttackHandednessOptions.Any, grapple: GrappleResponse.Avoidance, requiredMinimumAim: 0.5,
+			minmumStamina: 5.0, defaultDefenseType: DefenseType.None, order: defaultOrder);
+		SeedCombatStrategy(name: "Manual",
+			description: "A fighting style that is FULLY MANUAL. This means that all inventory management, ranged combat and combat movement is fully manual and controlled by the player. While this gives you the greatest degree of control, it is assuredly slower than using the automatic systems. Use with caution - only for advanced players.",
+			weaponUse: 1.0, naturalUse: 0.0, auxilliaryUse: 0.0, preferFavourite: false, preferArmed: true, preferNonContact: true, preferShields: true, attackCritical: true, attackUnarmed: true, skirmish: false, fallbackToUnarmed: true, automaticallyMoveToTarget: false, manualPositionManagement: true, moveToMeleeIfCannotRange: false,
+			pursuit: PursuitMode.OnlyAttemptToStop, melee: CombatStrategyMode.StandardMelee, ranged: CombatStrategyMode.FullAdvance,
+			inventory: AutomaticInventorySettings.FullyManual, movement: AutomaticMovementSettings.FullyManual,
+			rangesettings: AutomaticRangedSettings.FullyManual, setup: AttackHandednessOptions.Any, grapple: GrappleResponse.Avoidance, requiredMinimumAim: 0.5, minmumStamina: 5.0,
+			defaultDefenseType: DefenseType.None, order: defaultOrder);
+		SeedCombatStrategy(name: "Brawler", description: "Fight unarmed in melee using a wide variety of moves", weaponUse: 0.0, naturalUse: 1.0, auxilliaryUse: 0.0, preferFavourite: false,
+			preferArmed: false, preferNonContact: false, preferShields: false, attackCritical: true, attackUnarmed: true, skirmish: false, fallbackToUnarmed: true, automaticallyMoveToTarget: false, manualPositionManagement: false, moveToMeleeIfCannotRange: true, pursuit: PursuitMode.OnlyAttemptToStop,
+			melee: CombatStrategyMode.StandardMelee, ranged: CombatStrategyMode.FullAdvance,
+			inventory: AutomaticInventorySettings.AutomaticButDontDiscard, movement: AutomaticMovementSettings.SeekCoverOnly,
+			rangesettings: AutomaticRangedSettings.ContinueFiringOnly, setup: AttackHandednessOptions.Any, grapple: GrappleResponse.Avoidance, requiredMinimumAim: 0.5,
+			minmumStamina: 5.0, defaultDefenseType: DefenseType.Dodge, order: defaultOrder);
+		SeedCombatStrategy(name: "Shielder",
+			description: "Fight with a weapon and shield, move to melee, not afraid of using unarmed if disarmed", weaponUse: 1.0, naturalUse: 0.0, auxilliaryUse: 0.0,
+			preferFavourite: false, preferArmed: true, preferNonContact: true, preferShields: true, attackCritical: true, attackUnarmed: true, skirmish: false, fallbackToUnarmed: true, automaticallyMoveToTarget: false, manualPositionManagement: false, moveToMeleeIfCannotRange: true, pursuit: PursuitMode.OnlyAttemptToStop,
+			melee: CombatStrategyMode.StandardMelee, ranged: CombatStrategyMode.FullAdvance,
+			inventory: AutomaticInventorySettings.AutomaticButDontDiscard, movement: AutomaticMovementSettings.SeekCoverOnly,
+			rangesettings: AutomaticRangedSettings.ContinueFiringOnly, setup: AttackHandednessOptions.SwordAndBoardOnly,
+			grapple: GrappleResponse.Avoidance, requiredMinimumAim: 0.5, minmumStamina: 10.0, defaultDefenseType: DefenseType.Block, order: defaultOrder);
+		SeedCombatStrategy(name: "Zweihander",
+			description: "Fight with a 2-hand weapon, move to melee, not afraid of using unarmed if disarmed", weaponUse: 1.0, naturalUse: 0.0, auxilliaryUse: 0.0, preferFavourite: false,
+			preferArmed: true, preferNonContact: true, preferShields: false, attackCritical: true, attackUnarmed: true, skirmish: false, fallbackToUnarmed: true, automaticallyMoveToTarget: false, manualPositionManagement: false, moveToMeleeIfCannotRange: true, pursuit: PursuitMode.OnlyAttemptToStop,
+			melee: CombatStrategyMode.StandardMelee, ranged: CombatStrategyMode.FullAdvance,
+			inventory: AutomaticInventorySettings.AutomaticButDontDiscard, movement: AutomaticMovementSettings.SeekCoverOnly,
+			rangesettings: AutomaticRangedSettings.ContinueFiringOnly, setup: AttackHandednessOptions.TwoHandedOnly,
+			grapple: GrappleResponse.Avoidance, requiredMinimumAim: 0.5, minmumStamina: 0.0, defaultDefenseType: DefenseType.Dodge, order: defaultOrder);
+		SeedCombatStrategy(name: "Clincher", description: "Fight with a weapon, move into clinch, not afraid of using unarmed if disarmed",
+			weaponUse: 1.0, naturalUse: 0.0, auxilliaryUse: 0.0, preferFavourite: false, preferArmed: true, preferNonContact: true, preferShields: true, attackCritical: true, attackUnarmed: true, skirmish: false, fallbackToUnarmed: true, automaticallyMoveToTarget: false, manualPositionManagement: false, moveToMeleeIfCannotRange: true,
+			pursuit: PursuitMode.OnlyAttemptToStop, melee: CombatStrategyMode.Clinch, ranged: CombatStrategyMode.FullAdvance,
+			inventory: AutomaticInventorySettings.AutomaticButDontDiscard, movement: AutomaticMovementSettings.SeekCoverOnly,
+			rangesettings: AutomaticRangedSettings.ContinueFiringOnly, setup: AttackHandednessOptions.Any, grapple: GrappleResponse.Avoidance, requiredMinimumAim: 0.5,
+			minmumStamina: 5.0, defaultDefenseType: DefenseType.None, order: defaultOrder);
+		SeedCombatStrategy(name: "Warder",
+			description: "Fight with a weapon, move to melee, ward, not afraid of using unarmed if disarmed", weaponUse: 1.0, naturalUse: 0.0, auxilliaryUse: 0.0, preferFavourite: false,
+			preferArmed: true, preferNonContact: true, preferShields: true, attackCritical: true, attackUnarmed: true, skirmish: false, fallbackToUnarmed: true, automaticallyMoveToTarget: false, manualPositionManagement: false, moveToMeleeIfCannotRange: true, pursuit: PursuitMode.OnlyAttemptToStop,
+			melee: CombatStrategyMode.Ward, ranged: CombatStrategyMode.FullAdvance, inventory: AutomaticInventorySettings.AutomaticButDontDiscard,
+			movement: AutomaticMovementSettings.SeekCoverOnly, rangesettings: AutomaticRangedSettings.ContinueFiringOnly,
+			setup: AttackHandednessOptions.Any, grapple: GrappleResponse.Avoidance, requiredMinimumAim: 0.5, minmumStamina: 10.0, defaultDefenseType: DefenseType.None, order: defaultOrder);
+		SeedCombatStrategy(name: "Defender", description: "Try to stay out of fights and full defend if you get into them", weaponUse: 1.0, naturalUse: 0.0, auxilliaryUse: 0.0,
+			preferFavourite: false, preferArmed: true, preferNonContact: true, preferShields: true, attackCritical: true, attackUnarmed: true, skirmish: false, fallbackToUnarmed: true, automaticallyMoveToTarget: false, manualPositionManagement: false, moveToMeleeIfCannotRange: true, pursuit: PursuitMode.NeverPursue,
+			melee: CombatStrategyMode.FullDefense, ranged: CombatStrategyMode.FullCover,
+			inventory: AutomaticInventorySettings.AutomaticButDontDiscard, movement: AutomaticMovementSettings.SeekCoverOnly,
+			rangesettings: AutomaticRangedSettings.ContinueFiringOnly, setup: AttackHandednessOptions.Any, grapple: GrappleResponse.Avoidance, requiredMinimumAim: 0.5,
+			minmumStamina: 20.0, defaultDefenseType: DefenseType.None, order: defaultOrder);
+		SeedCombatStrategy(name: "Pistolier",
+			description: "Try to fight at range, but keep using a pistol in melee if you get engaged there", weaponUse: 1.0, naturalUse: 0.0, auxilliaryUse: 0.0, preferFavourite: false,
+			preferArmed: true, preferNonContact: true, preferShields: true, attackCritical: true, attackUnarmed: true, skirmish: false, fallbackToUnarmed: true, automaticallyMoveToTarget: false, manualPositionManagement: false, moveToMeleeIfCannotRange: true, pursuit: PursuitMode.NeverPursue,
+			melee: CombatStrategyMode.MeleeShooter, ranged: CombatStrategyMode.StandardRange,
+			inventory: AutomaticInventorySettings.AutomaticButDontDiscard, movement: AutomaticMovementSettings.SeekCoverOnly,
+			rangesettings: AutomaticRangedSettings.FullyAutomatic, setup: AttackHandednessOptions.Any, grapple: GrappleResponse.Avoidance, requiredMinimumAim: 0.2, minmumStamina: 5.0,
+			defaultDefenseType: DefenseType.Dodge, order: defaultOrder);
+		SeedCombatStrategy(name: "Musketeer", description: "Try to fight at range, seek no cover, and ward if you do get into melee", weaponUse: 1.0,
+			naturalUse: 0.0, auxilliaryUse: 0.0, preferFavourite: false, preferArmed: true, preferNonContact: true, preferShields: true, attackCritical: true, attackUnarmed: true, skirmish: false, fallbackToUnarmed: true, automaticallyMoveToTarget: false, manualPositionManagement: false, moveToMeleeIfCannotRange: true, pursuit: PursuitMode.NeverPursue,
+			melee: CombatStrategyMode.Ward, ranged: CombatStrategyMode.FireNoCover, inventory: AutomaticInventorySettings.AutomaticButDontDiscard,
+			movement: AutomaticMovementSettings.SeekCoverOnly, rangesettings: AutomaticRangedSettings.FullyAutomatic,
+			setup: AttackHandednessOptions.Any, grapple: GrappleResponse.Avoidance, requiredMinimumAim: 0.7, minmumStamina: 5.0, defaultDefenseType: DefenseType.None, order: defaultOrder);
+		SeedCombatStrategy(name: "Infantryman", description: "Find cover if attacked suddely, return fire, but fight in melee if engaged.",
+			weaponUse: 1.0, naturalUse: 0.0, auxilliaryUse: 0.0, preferFavourite: false, preferArmed: true, preferNonContact: true, preferShields: true, attackCritical: true, attackUnarmed: true, skirmish: false, fallbackToUnarmed: true, automaticallyMoveToTarget: false, manualPositionManagement: false, moveToMeleeIfCannotRange: true,
+			pursuit: PursuitMode.NeverPursue, melee: CombatStrategyMode.StandardMelee, ranged: CombatStrategyMode.StandardRange,
+			inventory: AutomaticInventorySettings.AutomaticButDontDiscard, movement: AutomaticMovementSettings.SeekCoverOnly,
+			rangesettings: AutomaticRangedSettings.FullyAutomatic, setup: AttackHandednessOptions.Any, grapple: GrappleResponse.Avoidance, requiredMinimumAim: 0.7, minmumStamina: 5.0,
+			defaultDefenseType: DefenseType.None, order: defaultOrder);
+		SeedCombatStrategy(name: "Skirmisher", description: "Stay out of melee and fire your weapon. Prioritise mobility over safety.",
+			weaponUse: 1.0, naturalUse: 0.0, auxilliaryUse: 0.0, preferFavourite: false, preferArmed: true, preferNonContact: true, preferShields: true, attackCritical: true, attackUnarmed: true, skirmish: false, fallbackToUnarmed: true, automaticallyMoveToTarget: false, manualPositionManagement: false, moveToMeleeIfCannotRange: true,
+			pursuit: PursuitMode.NeverPursue, melee: CombatStrategyMode.FullSkirmish, ranged: CombatStrategyMode.FireNoCover,
+			inventory: AutomaticInventorySettings.AutomaticButDontDiscard, movement: AutomaticMovementSettings.SeekCoverOnly,
+			rangesettings: AutomaticRangedSettings.FullyAutomatic, setup: AttackHandednessOptions.Any, grapple: GrappleResponse.Avoidance, requiredMinimumAim: 0.5, minmumStamina: 5.0,
+			defaultDefenseType: DefenseType.None, order: defaultOrder);
+		SeedCombatStrategy(name: "Marksman", description: "Get into cover, aim well, and make your shots count.", weaponUse: 1.0, naturalUse: 0.0, auxilliaryUse: 0.0, preferFavourite: false,
+			preferArmed: true, preferNonContact: true, preferShields: true, attackCritical: true, attackUnarmed: true, skirmish: false, fallbackToUnarmed: true, automaticallyMoveToTarget: false, manualPositionManagement: false, moveToMeleeIfCannotRange: true, pursuit: PursuitMode.NeverPursue,
+			melee: CombatStrategyMode.FullSkirmish, ranged: CombatStrategyMode.StandardRange,
+			inventory: AutomaticInventorySettings.AutomaticButDontDiscard, movement: AutomaticMovementSettings.SeekCoverOnly,
+			rangesettings: AutomaticRangedSettings.FullyAutomatic, setup: AttackHandednessOptions.Any, grapple: GrappleResponse.Avoidance, requiredMinimumAim: 1.0, minmumStamina: 5.0,
+			defaultDefenseType: DefenseType.None, order: defaultOrder);
+		SeedCombatStrategy(name: "Pitfighter", description: "Fight unarmed in melee with no holds barred and nothing off the table", weaponUse: 0.0,
+			naturalUse: 1.0, auxilliaryUse: 0.0, preferFavourite: false, preferArmed: false, preferNonContact: false, preferShields: false, attackCritical: true, attackUnarmed: true, skirmish: false, fallbackToUnarmed: true, automaticallyMoveToTarget: false, manualPositionManagement: false, moveToMeleeIfCannotRange: true,
+			pursuit: PursuitMode.OnlyAttemptToStop, melee: CombatStrategyMode.StandardMelee, ranged: CombatStrategyMode.FullAdvance,
+			inventory: AutomaticInventorySettings.AutomaticButDontDiscard, movement: AutomaticMovementSettings.SeekCoverOnly,
+			rangesettings: AutomaticRangedSettings.ContinueFiringOnly, setup: AttackHandednessOptions.Any, grapple: GrappleResponse.Avoidance, requiredMinimumAim: 0.5,
+			minmumStamina: 5.0, defaultDefenseType: DefenseType.Dodge, order: defaultOrder, forbiddenIntentions: CombatMoveIntentions.None);
+		SeedCombatStrategy(name: "Swarmer", description: "Fight unarmed in melee and try to get into clinches", weaponUse: 0.0, naturalUse: 1.0, auxilliaryUse: 0.0, preferFavourite: false,
+			preferArmed: false, preferNonContact: false, preferShields: false, attackCritical: true, attackUnarmed: true, skirmish: false, fallbackToUnarmed: true, automaticallyMoveToTarget: false, manualPositionManagement: false, moveToMeleeIfCannotRange: true, pursuit: PursuitMode.OnlyAttemptToStop,
+			melee: CombatStrategyMode.Clinch, ranged: CombatStrategyMode.FullAdvance,
+			inventory: AutomaticInventorySettings.AutomaticButDontDiscard, movement: AutomaticMovementSettings.SeekCoverOnly,
+			rangesettings: AutomaticRangedSettings.ContinueFiringOnly, setup: AttackHandednessOptions.Any, grapple: GrappleResponse.Avoidance, requiredMinimumAim: 0.5,
+			minmumStamina: 5.0, defaultDefenseType: DefenseType.Dodge, order: defaultOrder);
+		SeedCombatStrategy(name: "Outboxer", description: "Fight unarmed in melee and try to keep range and use counter attacks", weaponUse: 0.0, naturalUse: 1.0,
+			auxilliaryUse: 0.0, preferFavourite: false, preferArmed: false, preferNonContact: false, preferShields: false, attackCritical: true, attackUnarmed: true, skirmish: false, fallbackToUnarmed: true, automaticallyMoveToTarget: false, manualPositionManagement: false, moveToMeleeIfCannotRange: true, pursuit: PursuitMode.OnlyAttemptToStop,
+			melee: CombatStrategyMode.Ward, ranged: CombatStrategyMode.FullAdvance, inventory: AutomaticInventorySettings.AutomaticButDontDiscard,
+			movement: AutomaticMovementSettings.SeekCoverOnly, rangesettings: AutomaticRangedSettings.ContinueFiringOnly,
+			setup: AttackHandednessOptions.Any, grapple: GrappleResponse.Avoidance, requiredMinimumAim: 0.5, minmumStamina: 5.0, defaultDefenseType: DefenseType.Dodge, order: defaultOrder);
+		SeedCombatStrategy(name: "Grappler", description: "Fight unarmed in melee and try to grapple your opponent into control", weaponUse: 0.0, naturalUse: 1.0,
+			auxilliaryUse: 0.0, preferFavourite: false, preferArmed: false, preferNonContact: false, preferShields: false, attackCritical: true, attackUnarmed: true, skirmish: false, fallbackToUnarmed: true, automaticallyMoveToTarget: false, manualPositionManagement: false, moveToMeleeIfCannotRange: true, pursuit: PursuitMode.OnlyAttemptToStop,
+			melee: CombatStrategyMode.GrappleForControl, ranged: CombatStrategyMode.FullAdvance,
+			inventory: AutomaticInventorySettings.AutomaticButDontDiscard, movement: AutomaticMovementSettings.SeekCoverOnly,
+			rangesettings: AutomaticRangedSettings.ContinueFiringOnly, setup: AttackHandednessOptions.Any, grapple: GrappleResponse.Avoidance, requiredMinimumAim: 0.5,
+			minmumStamina: 5.0, defaultDefenseType: DefenseType.Dodge, order: defaultOrder);
+		SeedCombatStrategy(name: "Bonebreaker",
+			description: "Fight unarmed in melee and try to grapple your opponent and break their limbs", weaponUse: 0.0, naturalUse: 1.0, auxilliaryUse: 0.0, preferFavourite: false,
+			preferArmed: false, preferNonContact: false, preferShields: false, attackCritical: true, attackUnarmed: true, skirmish: false, fallbackToUnarmed: true, automaticallyMoveToTarget: false, manualPositionManagement: false, moveToMeleeIfCannotRange: true, pursuit: PursuitMode.OnlyAttemptToStop,
+			melee: CombatStrategyMode.GrappleForIncapacitation, ranged: CombatStrategyMode.FullAdvance,
+			inventory: AutomaticInventorySettings.AutomaticButDontDiscard, movement: AutomaticMovementSettings.SeekCoverOnly,
+			rangesettings: AutomaticRangedSettings.ContinueFiringOnly, setup: AttackHandednessOptions.Any, grapple: GrappleResponse.Avoidance, requiredMinimumAim: 0.5,
+			minmumStamina: 5.0, defaultDefenseType: DefenseType.Dodge, order: defaultOrder);
+		SeedCombatStrategy(name: "Strangler", description: "Fight unarmed in melee and try to grapple, strangle and kill them", weaponUse: 0.0, naturalUse: 1.0,
+			auxilliaryUse: 0.0, preferFavourite: false, preferArmed: false, preferNonContact: false, preferShields: false, attackCritical: true, attackUnarmed: true, skirmish: false, fallbackToUnarmed: true, automaticallyMoveToTarget: false, manualPositionManagement: false, moveToMeleeIfCannotRange: true, pursuit: PursuitMode.OnlyAttemptToStop,
+			melee: CombatStrategyMode.GrappleForKill, ranged: CombatStrategyMode.FullAdvance,
+			inventory: AutomaticInventorySettings.AutomaticButDontDiscard, movement: AutomaticMovementSettings.SeekCoverOnly,
+			rangesettings: AutomaticRangedSettings.ContinueFiringOnly, setup: AttackHandednessOptions.Any, grapple: GrappleResponse.Avoidance, requiredMinimumAim: 0.5,
+			minmumStamina: 5.0, defaultDefenseType: DefenseType.Dodge, order: defaultOrder);
 	}
 
 	private void SeedDataUnarmed(FuturemudDatabaseContext context,

@@ -39,7 +39,7 @@ namespace MudSharp.Health
 		#region Overrides of DrugAdditionalInfo
 
 		/// <inheritdoc />
-		public override string DatabaseString => NeutralisedTypes.Select(x => ((int)x).ToString("F")).ListToCommaSeparatedValues(" ");
+		public override string DatabaseString => NeutralisedTypes.Select(x => ((int)x).ToString("F0")).ListToCommaSeparatedValues(" ");
 
 		#endregion
 	}
@@ -51,7 +51,7 @@ namespace MudSharp.Health
 		#region Overrides of DrugAdditionalInfo
 
 		/// <inheritdoc />
-		public override string DatabaseString => NeutralisedIds.Select(x => x.ToString("F")).ListToCommaSeparatedValues(" ");
+		public override string DatabaseString => NeutralisedIds.Select(x => x.ToString("F0")).ListToCommaSeparatedValues(" ");
 
 		#endregion
 	}
@@ -59,7 +59,7 @@ namespace MudSharp.Health
 	public class BodypartDamageAdditionalInfo : DrugAdditionalInfo
 	{
 		public required List<BodypartTypeEnum> BodypartTypes { get; set; }
-		public override string DatabaseString => BodypartTypes.Select(x => ((int)x).ToString("F")).ListToCommaSeparatedValues(" ");
+		public override string DatabaseString => BodypartTypes.Select(x => ((int)x).ToString("F0")).ListToCommaSeparatedValues(" ");
 	}
 
 	public class HealingRateAdditionalInfo : DrugAdditionalInfo
@@ -82,7 +82,7 @@ namespace MudSharp.Health
 		#region Overrides of DrugAdditionalInfo
 
 		/// <inheritdoc />
-		public override string DatabaseString => MagicCapabilityIds.Select(x => x.ToString("F")).ListToCommaSeparatedValues(" ");
+		public override string DatabaseString => MagicCapabilityIds.Select(x => x.ToString("F0")).ListToCommaSeparatedValues(" ");
 
 		#endregion
 	}

@@ -512,7 +512,15 @@ The following options require a matching intensity for the type before using the
 
 	private bool BuildingCommandTouch(ICharacter actor)
 	{
-		DrugVectors &= ~DrugVector.Touched;
+		if (DrugVectors.HasFlag(DrugVector.Touched))
+		{
+			DrugVectors |= DrugVector.Touched;
+		}
+		else
+		{
+			DrugVectors &= ~DrugVector.Touched;
+		}
+		
 		Changed = true;
 		actor.OutputHandler.Send($"This drug can {DrugVectors.HasFlag(DrugVector.Touched).NowNoLonger()} be absorbed by touch contact.");
 		return true;
@@ -520,7 +528,14 @@ The following options require a matching intensity for the type before using the
 
 	private bool BuildingCommandIngested(ICharacter actor)
 	{
-		DrugVectors &= ~DrugVector.Ingested;
+		if (DrugVectors.HasFlag(DrugVector.Ingested))
+		{
+			DrugVectors |= DrugVector.Ingested;
+		}
+		else
+		{
+			DrugVectors &= ~DrugVector.Ingested;
+		}
 		Changed = true;
 		actor.OutputHandler.Send($"This drug can {DrugVectors.HasFlag(DrugVector.Ingested).NowNoLonger()} be ingested.");
 		return true;
@@ -528,7 +543,14 @@ The following options require a matching intensity for the type before using the
 
 	private bool BuildingCommandInjected(ICharacter actor)
 	{
-		DrugVectors &= ~DrugVector.Injected;
+		if (DrugVectors.HasFlag(DrugVector.Injected))
+		{
+			DrugVectors |= DrugVector.Injected;
+		}
+		else
+		{
+			DrugVectors &= ~DrugVector.Injected;
+		}
 		Changed = true;
 		actor.OutputHandler.Send($"This drug can {DrugVectors.HasFlag(DrugVector.Injected).NowNoLonger()} be injected.");
 		return true;
@@ -536,7 +558,15 @@ The following options require a matching intensity for the type before using the
 
 	private bool BuildingCommandInhaled(ICharacter actor)
 	{
-		DrugVectors &= ~DrugVector.Inhaled;
+		if (DrugVectors.HasFlag(DrugVector.Inhaled))
+		{
+			DrugVectors |= DrugVector.Inhaled;
+		}
+		else
+		{
+			DrugVectors &= ~DrugVector.Inhaled;
+		}
+		
 		Changed = true;
 		actor.OutputHandler.Send($"This drug can {DrugVectors.HasFlag(DrugVector.Inhaled).NowNoLonger()} be inhaled.");
 		return true;
@@ -609,7 +639,7 @@ The following options require a matching intensity for the type before using the
 		sb.AppendLine($"Drug #{Id:N0} - {Name}");
 		sb.AppendLine($"Intensity per Gram: {IntensityPerGram.ToStringP2Colour(voyeur)}");
 		sb.AppendLine($"Relative Metabolisation Rate: {RelativeMetabolisationRate.ToStringP2Colour(voyeur)}");
-		sb.AppendLine($"Vectors: {DrugVectors.Describe()}");
+		sb.AppendLine($"Vectors: {DrugVectors.Describe().ColourValue()}");
 		sb.AppendLine();
 		sb.AppendLine("Effect Types:");
 		sb.AppendLine();

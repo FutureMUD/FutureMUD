@@ -1494,7 +1494,8 @@ The correct syntax for this command is as follows:
 	#3culture set advice <which>#0 - toggles a chargen advice applying to this culture
 	#3culture set cost <resource> <amount>#0 - sets a cost for character creation
 	#3culture set require <resource> <amount>#0 - sets a non-cost requirement for character creation
-	#3culture set cost <resource> clear#0 - clears a resource cost for character creation";
+	#3culture set cost <resource> clear#0 - clears a resource cost for character creation
+	#3culture set skill <prog>#0 - sets the prog that controls skill starting values";
 
 	[PlayerCommand("Culture", "culture")]
 	[CommandPermission(PermissionLevel.JuniorAdmin)]

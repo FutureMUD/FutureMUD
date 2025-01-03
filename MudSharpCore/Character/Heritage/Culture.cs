@@ -342,7 +342,8 @@ public class Culture : SaveableItem, ICulture
 	#3advice <which>#0 - toggles a chargen advice applying to this culture
 	#3cost <resource> <amount>#0 - sets a cost for character creation
 	#3require <resource> <amount>#0 - sets a non-cost requirement for character creation
-	#3cost <resource> clear#0 - clears a resource cost for character creation";
+	#3cost <resource> clear#0 - clears a resource cost for character creation
+	#3skill <prog>#0 - sets the prog that controls skill starting values";
 
 	public bool BuildingCommand(ICharacter actor, StringStack command)
 	{

@@ -45,7 +45,7 @@ internal class Substring : BuiltInFunction
 		FutureProg.RegisterBuiltInFunctionCompiler(
 			new FunctionCompilerInformation(
 				"substring",
-				new[] { ProgVariableTypes.Text, ProgVariableTypes.Number }, // the parameters the function takes
+				new[] { ProgVariableTypes.Text, ProgVariableTypes.Number, ProgVariableTypes.Number }, // the parameters the function takes
 				(pars, gameworld) => new Substring(pars, gameworld),
 				new List<string>
 				{
@@ -79,7 +79,7 @@ internal class Substring : BuiltInFunction
 
 	public override ProgVariableTypes ReturnType
 	{
-		get { return ProgVariableTypes.Boolean; }
+		get { return ProgVariableTypes.Text; }
 		protected set { }
 	}
 

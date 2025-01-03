@@ -339,6 +339,7 @@ public class SimpleNPCTemplate : NPCTemplateBase
 					$"\t{item.Item1.Name.ColourName()}: {item.Item2.ToString("N").ColourValue()} ({item.Item1.Decorator.Decorate(item.Item2)})");
 			}
 
+			sb.AppendLine();
 			sb.AppendLine("Languages and Accents: " +
 			              SelectedSkills.SelectNotNull(
 				                            x => Gameworld.Languages.FirstOrDefault(y => y.LinkedTrait == x)).Select(
@@ -346,6 +347,7 @@ public class SimpleNPCTemplate : NPCTemplateBase
 					                            $"{x.Name.Proper().ColourName()} ({SelectedAccents.Where(y => y.Language == x).Select(y => y.Name.Proper().ColourValue()).ListToString()})")
 			                            .ListToString());
 
+			sb.AppendLine();
 			sb.AppendLine("Characteristics:");
 			sb.Append(SelectedCharacteristics.Select(x =>
 				                                 $"\t{x.Item1.Name.TitleCase().ColourName()}: {x.Item2.GetValue.Colour(Telnet.Green)}")
@@ -1064,10 +1066,19 @@ public class SimpleNPCTemplate : NPCTemplateBase
 
 	private bool BuildingCommandAccent(ICharacter actor, StringStack command)
 	{
-		var accent = long.TryParse(command.PopSpeech(), out var value)
-			? Gameworld.Accents.Get(value)
-			: Gameworld.Accents.FirstOrDefault(
-				x => x.Name.StartsWith(command.Last, StringComparison.InvariantCultureIgnoreCase));
+		var text = command.PopSpeech();
+		IAccent accent;
+		if (command.IsFinished)
+		{
+			accent = Gameworld.Accents
+			                  .Where(x => SelectedLanguages.Contains(x.Language))
+			                  .GetByIdOrName(text);
+		}
+		else
+		{
+			var language = SelectedLanguages.GetByIdOrName(text);
+			accent = language.Accents.GetByIdOrName(command.SafeRemainingArgument);
+		}
 
 		if (accent == null)
 		{
@@ -1236,23 +1247,36 @@ public class SimpleNPCTemplate : NPCTemplateBase
 
 		SelectedBirthday = SelectedCulture.PrimaryCalendar.GetRandomBirthday(randomAge);
 		var template = GetCharacterTemplate();
-		var cghp = (HeightPickerScreenStoryboard)Gameworld.ChargenStoryboard.StageScreenMap[ChargenStage.SelectHeight];
-		SelectedHeight = RandomUtilities.RandomNormalOverRange(cghp.MinimumHeightProg.ExecuteDouble(template),
-			cghp.MaximumHeightProg.ExecuteDouble(template));
-		template = GetCharacterTemplate();
-		var cgwp =
-			(WeightPickerScreenStoryboard)Gameworld.ChargenStoryboard.StageScreenMap[ChargenStage.SelectWeight];
-		SelectedWeight = RandomUtilities.RandomNormalOverRange(cgwp.MinimumWeightProg.ExecuteDouble(template),
-			cgwp.MaximumWeightProg.ExecuteDouble(template));
-		template = GetCharacterTemplate();
+		var defaultHWModel = SelectedRace.DefaultHeightWeightModel(SelectedGender);
+		if (defaultHWModel is not null)
+		{
+			var (height,weight) = defaultHWModel.GetRandomHeightWeight();
+			SelectedHeight = height;
+			SelectedWeight = weight;
+		}
+		else
+		{
+			
+			var cghp = (HeightPickerScreenStoryboard)Gameworld.ChargenStoryboard.StageScreenMap[ChargenStage.SelectHeight];
+			SelectedHeight = RandomUtilities.RandomNormalOverRange(cghp.MinimumHeightProg.ExecuteDouble(template),
+				cghp.MaximumHeightProg.ExecuteDouble(template));
+			template = GetCharacterTemplate();
+			var cgwp =
+				(WeightPickerScreenStoryboard)Gameworld.ChargenStoryboard.StageScreenMap[ChargenStage.SelectWeight];
+			SelectedWeight = RandomUtilities.RandomNormalOverRange(cgwp.MinimumWeightProg.ExecuteDouble(template),
+				cgwp.MaximumWeightProg.ExecuteDouble(template));
+		}
+		
 
 		SelectedName = (SelectedEthnicity.NameCultureForGender(SelectedGender) ?? SelectedCulture.NameCultureForGender(SelectedGender))
 		               .RandomNameProfiles
 		               .Where(x => x.IsCompatibleGender(SelectedGender))
 		               .GetRandomElement()
 		               ?.GetRandomPersonalName(true);
+		_name = SelectedName?.GetName(NameStyle.FullName) ?? "Unnamed NPC";
 		SelectedCharacteristics.Clear();
 
+		template = GetCharacterTemplate();
 		var characteristicChoices = SelectedRace.Characteristics(SelectedGender);
 		foreach (var choice in
 		         SelectedEthnicity.CharacteristicChoices.Where(x => characteristicChoices.Contains(x.Key)))
@@ -1721,6 +1745,9 @@ public class SimpleNPCTemplate : NPCTemplateBase
 	{
 		get { return SkillValues.Select(x => x.Item1).ToList(); }
 	}
+
+	public IEnumerable<ILanguage> SelectedLanguages => SelectedSkills
+		.SelectNotNull(x => Gameworld.Languages.FirstOrDefault(y => y.LinkedTrait == x));
 
 	public double SelectedWeight { get; set; }
 

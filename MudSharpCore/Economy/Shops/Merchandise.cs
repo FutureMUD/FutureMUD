@@ -477,6 +477,7 @@ public class Merchandise : LateInitialisingItem, IMerchandise
 		if (command.PeekSpeech().TryParsePercentageDecimal(actor.Account.Culture, out var percentage))
 		{
 			price = -1.0M * percentage;
+			command.PopSpeech();
 		}
 		else
 		{
@@ -818,9 +819,21 @@ public class Merchandise : LateInitialisingItem, IMerchandise
 	public void ShopCurrencyChanged(ICurrency oldCurrency, ICurrency newCurrency)
 	{
 		BasePrice *= oldCurrency.BaseCurrencyToGlobalBaseCurrencyConversion / newCurrency.BaseCurrencyToGlobalBaseCurrencyConversion;
+		BasePrice = Math.Round(BasePrice, 0);
 		AutoReorderPrice *= oldCurrency.BaseCurrencyToGlobalBaseCurrencyConversion / newCurrency.BaseCurrencyToGlobalBaseCurrencyConversion;
+		AutoReorderPrice = Math.Round(AutoReorderPrice, 0);
 		Changed = true;
 	}
+
+	public void Reprice(decimal multiplier)
+	{
+		BasePrice *= multiplier;
+		BasePrice = Math.Round(BasePrice, 0);
+		AutoReorderPrice *= multiplier;
+		AutoReorderPrice = Math.Round(AutoReorderPrice, 0);
+		Changed = true;
+	}
+
 
 	public IEnumerable<string> Keywords => ListDescription.Strip_A_An().Split(' ', '-', ',');
 

@@ -916,6 +916,8 @@ public abstract class Shop : SaveableItem, IShop
 		}
 
 		_stockedMerchandiseCounts[merchandise] = stocked.Sum(x => x.Quantity);
+		_stockedMerchandise.Remove(merchandise);
+		_stockedMerchandise.AddRange(merchandise, stocked.Select(x => x.Id));
 		Changed = true;
 	}
 

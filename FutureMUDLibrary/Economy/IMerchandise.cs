@@ -20,6 +20,7 @@ namespace MudSharp.Economy
 		bool PreserveVariablesOnReorder { get; }
 		int MinimumStockLevels { get; }
 		double MinimumStockLevelsByWeight { get; }
+		decimal BasePrice { get; }
 		decimal EffectivePrice { get; }
 		IGameItem PreferredDisplayContainer { get; }
 		string ListDescription { get; }
@@ -40,6 +41,7 @@ namespace MudSharp.Economy
 		bool BuildingCommand(ICharacter actor, StringStack command);
 		void ShowToBuilder(ICharacter actor);
 		void ShopCurrencyChanged(ICurrency oldCurrency, ICurrency newCurrency);
+		void Reprice(decimal multiplier);
 		event EventHandler OnDelete;
 	}
 }

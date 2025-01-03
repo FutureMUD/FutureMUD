@@ -1326,6 +1326,9 @@ The syntax for this command is as follows:
 		var ss = new StringStack(command.RemoveFirstWord());
 		switch (ss.PopSpeech().ToLowerInvariant())
 		{
+			case "reprice":
+				ShopReprice(actor, ss);
+				return;
 			case "clockin":
 			case "clock in":
 			case "clock-in":
@@ -1466,6 +1469,7 @@ The syntax for this command is as follows:
 	#3shop merchandise <other args>#0 - edits merchandise. See #3SHOP MERCHANDISE HELP#0.
 	#3shop open <shop>#0 - opens a shop for trading
 	#3shop close <shop>#0 - closes a shop to trading
+	#3shop reprice <%>#0 - reprices all merchandise by the specified percentage
 	#3shop set name <name>#0 - renames a shop
 	#3shop set can <prog> <whyprog>#0 - sets a prog to control who can shop here (and associated error message)
 	#3shop set trading#0 - toggles whether this shop is trading
@@ -1497,6 +1501,7 @@ The syntax for this command is as follows:
 	#3shop merchandise <other args>#0 - edits merchandise. See #3SHOP MERCHANDISE HELP#0.
 	#3shop open <shop>#0 - opens a shop for trading
 	#3shop close <shop>#0 - closes a shop to trading
+	#3shop reprice <%>#0 - reprices all merchandise by the specified percentage
 	#3shop set name <name>#0 - renames a shop
 	#3shop set can <prog> <whyprog>#0 - sets a prog to control who can shop here (and associated error message)
 	#3shop set trading#0 - toggles whether this shop is trading
@@ -1509,7 +1514,8 @@ Additionally, you can use the following shop admin subcommands:
 	#3shop list#0 - lists all shops
 	#3shop info <which>#0 - shows a shop you're not in
 	#3shop economy#0 - a modified list that shows some economic info
-	#3shop create <name> <econzone>#0 - creates a new store with the specified name
+	#3shop create <name> <econzone>#0 - creates a new fixed-location store with the specified name
+	#3shop createstall <name> <econzone>#0 - creates a new transient (stall) store with the specified name
 	#3shop delete#0 - deletes the shop you're currently in. Warning: Irreversible.
 	#3shop extend <direction> [stockroom|workshop]#0 - extends the shop in the specified direction, optionally as the stockroom or workshop
 	#3shop extend <shop> <direction> [stockroom|workshop]#0 - extends the specified shop in the specified direction, optionally as the stockroom or workshop
@@ -1517,6 +1523,41 @@ Additionally, you can use the following shop admin subcommands:
 	#3shop autostock#0 - automatically loads and stocks items up to the minimum reorder levels for all merchandise
 	#3shop setupstall <stall> <shop>#0 - sets up a stall item as belonging to a shop
 	#3shop rezone <zone>#0 - changes the economic zone of a shop";
+
+	private static void ShopReprice(ICharacter actor, StringStack ss)
+	{
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send("By what percentage should all prices in this store be adjusted?");
+			return;
+		}
+
+		if (!ss.SafeRemainingArgument.TryParsePercentageDecimal(actor.Account.Culture, out var value) || value <= 0.0M)
+		{
+			actor.OutputHandler.Send($"The text {ss.SafeRemainingArgument.ColourCommand()} is not a valid percentage greater than zero.");
+			return;
+		}
+
+		if (!DoShopCommandFindShop(actor, out var shop))
+		{
+			return;
+		}
+
+		if (!shop.IsManager(actor) && !actor.IsAdministrator())
+		{
+			actor.OutputHandler.Send($"You are not a manager of {shop.Name.TitleCase().Colour(Telnet.Cyan)}.");
+			return;
+		}
+
+		foreach (var merch in shop.Merchandises)
+		{
+			merch.Reprice(value);
+		}
+
+		actor.OutputHandler.Send($"You reprice all of the merchandise by {value.ToStringP2Colour(actor)}.");
+	}
+
+
 	private static void ShopRezone(ICharacter actor, StringStack ss)
 	{
 		if (!DoShopCommandFindShop(actor, out var shop))

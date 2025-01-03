@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Text;
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using MudSharp.Framework;
 using MudSharp.FutureProg;
@@ -212,5 +213,28 @@ return @item");
 		Assert.IsTrue(resultTimeSpan3.IsFound, "TimeSpan 3 Literal was not found");
 		Assert.IsTrue(!resultTimeSpan3.IsError, "TimeSpan 3 Literal was an error");
 		Assert.IsTrue(resultTimeSpan3.Type == FunctionHelper.NonFunctionType.TimeSpanLiteral, "TimeSpan 3 Literal was not identified as a Time Span Literal");
+	}
+
+	[TestMethod]
+	public void TestSplit()
+	{
+		var text = "This is some text\nAnd some more text\n\nText after a blank line";
+		var gameworld = new GameworldStub().ToMock();
+		FutureProg.Initialise();
+		var prog1 = new FutureProg(gameworld, "TestSplit", ProgVariableTypes.Text | ProgVariableTypes.Collection, new[]
+			{
+				Tuple.Create(ProgVariableTypes.Text, "text"),
+				Tuple.Create(ProgVariableTypes.Text, "split")
+			},
+			@"return SplitText(@text, @split)");
+		prog1.Compile();
+		Assert.IsTrue(string.IsNullOrEmpty(prog1.CompileError), $"The TestSplit prog did not compile: {prog1.CompileError}");
+
+		var result = prog1.ExecuteCollection<string>(text, "\n").ToList();
+		Assert.AreEqual(4, result.Count, $"Results count was {result.Count} instead of 4");
+		Assert.AreEqual("This is some text", result[0], $"Result #1 was {result[0]}");
+		Assert.AreEqual("And some more text", result[1], $"Result #1 was {result[1]}");
+		Assert.AreEqual("", result[2], $"Result #1 was {result[2]}");
+		Assert.AreEqual("Text after a blank line", result[3], $"Result #1 was {result[3]}");
 	}
 }

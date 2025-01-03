@@ -532,16 +532,17 @@ namespace MudSharp.GameItems.Components
 				{
 					CrimeExtensions.CheckPossibleCrimeAllAuthorities(taker, CrimeTypes.Theft, null, item, "shoplifting");
 				}
-				var newItem = item.Get(null, quantity);
-				if (!IsAllowedToInteract(taker))
-				{
-					CrimeExtensions.CheckPossibleCrimeAllAuthorities(taker, CrimeTypes.Theft, null, newItem, "shoplifting");
-				}
 
-				return newItem;
+				return item;
 			}
 
-			return item.Get(null, quantity);
+			var newItem = item.Get(null, quantity);
+			if (!IsAllowedToInteract(taker))
+			{
+				CrimeExtensions.CheckPossibleCrimeAllAuthorities(taker, CrimeTypes.Theft, null, newItem, "shoplifting");
+			}
+
+			return newItem;
 		}
 
 		public WhyCannotGetContainerReason WhyCannotTake(ICharacter taker, IGameItem item)

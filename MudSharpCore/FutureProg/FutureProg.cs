@@ -373,6 +373,11 @@ public class FutureProg : SaveableItem, IFutureProg
 				return Enumerable.Empty<T>();
 			}
 
+			return result
+			       .OfType<object>()
+			       .Select(x => x is IProgVariable pv ? (object)pv.GetObject : x)
+			       .OfType<T>();
+
 			return result.OfType<T>();
 		}
 
@@ -384,7 +389,10 @@ public class FutureProg : SaveableItem, IFutureProg
 				return Enumerable.Empty<T>();
 			}
 
-			return result.SelectMany(x => x.Value).OfType<T>();
+			return result.SelectMany(x => x.Value)
+			             .OfType<object>()
+			             .Select(x => x is IProgVariable pv ? (object)pv.GetObject : x)
+			             .OfType<T>();
 		}
 
 		if (ReturnType.HasFlag(ProgVariableTypes.Dictionary))
@@ -395,7 +403,10 @@ public class FutureProg : SaveableItem, IFutureProg
 				return Enumerable.Empty<T>();
 			}
 
-			return result.Values.OfType<T>();
+			return result.Values
+			             .OfType<object>()
+			             .Select(x => x is IProgVariable pv ? (object)pv.GetObject : x)
+			             .OfType<T>();
 		}
 
 		return Enumerable.Empty<T>();

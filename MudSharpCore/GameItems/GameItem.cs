@@ -2191,6 +2191,10 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable
 	public IGameItem Get(IBody getter, int quantity)
 	{
 		var stackable = GetItemType<IStackable>();
+		if (stackable is null)
+		{
+			return Get(getter);
+		}
 		return stackable.Get(quantity).Get(getter);
 	}
 

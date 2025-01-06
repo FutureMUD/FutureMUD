@@ -522,7 +522,7 @@ internal class ChargenRole : SaveableItem, IChargenRole
 			return false;
 		}
 
-		if (!int.TryParse(ss.Pop(), out var value) || value < 0)
+		if (!int.TryParse(ss.Pop(), out var value))
 		{
 			actor.Send("You must enter a valid amount for this resource to cost.");
 			return false;
@@ -580,7 +580,7 @@ internal class ChargenRole : SaveableItem, IChargenRole
 	{
 		if (ss.IsFinished)
 		{
-			actor.Send("Do you want to this role to have a particular eligability prog, or clear the existing one?");
+			actor.Send("Do you want to this role to have a particular eligibility prog, or clear the existing one?");
 			return false;
 		}
 
@@ -659,7 +659,7 @@ internal class ChargenRole : SaveableItem, IChargenRole
 		MaximumNumberAlive = value;
 		Changed = true;
 		actor.Send(
-			"The {0} role will now become ineligable for selection when there are {1:N0} living characters with the ",
+			"The {0} role will now become ineligible for selection when there are {1:N0} living characters with the ",
 			Name.TitleCase().Colour(Telnet.Green),
 			value
 		);
@@ -693,7 +693,7 @@ internal class ChargenRole : SaveableItem, IChargenRole
 		MaximumNumberTotal = value;
 		Changed = true;
 		actor.Send(
-			"The {0} role will now become ineligable for selection when there are {1:N0} total characters with the ",
+			"The {0} role will now become ineligible for selection when there are {1:N0} total characters with the ",
 			Name.TitleCase().Colour(Telnet.Green),
 			value
 		);

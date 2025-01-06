@@ -2,10 +2,10 @@
 
 namespace MudSharp.Framework {
 	public interface IFrameworkItem {
-        string Name { get; }
+		string Name { get; }
 
-        long Id { get; }
+		long Id { get; }
 
-        string FrameworkItemType { get; }
-    }
+		string FrameworkItemType { get; }
+	}
 }

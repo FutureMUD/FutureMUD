@@ -131,30 +131,32 @@ public partial class Body : PerceiverItem, IBody
 		}
 
 		foreach (var role in template.SelectedRoles)
-		foreach (var merit in role.AdditionalMerits)
 		{
-			if (Merits.Contains(merit))
+			foreach (var merit in role.AdditionalMerits)
 			{
-				continue;
-			}
+				if (Merits.Contains(merit))
+				{
+					continue;
+				}
 
-			if (merit is ComboMerit cm)
-			{
-				comboMerits.Add(cm);
-			}
+				if (merit is ComboMerit cm)
+				{
+					comboMerits.Add(cm);
+				}
 
-			if (merit.MeritScope != MeritScope.Body)
-			{
-				continue;
-			}
+				if (merit.MeritScope != MeritScope.Body)
+				{
+					continue;
+				}
 
-			_merits.Add(merit);
+				_merits.Add(merit);
+			}
 		}
 
 		foreach (var merit in comboMerits)
 		foreach (var included in merit.CharacterMerits.Where(x => x.MeritScope == MeritScope.Character))
 		{
-			_merits.Add(merit);
+			_merits.Add(included);
 		}
 
 		foreach (var disfigurement in template.SelectedDisfigurements)

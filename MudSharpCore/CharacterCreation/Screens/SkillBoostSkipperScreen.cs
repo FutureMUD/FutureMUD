@@ -239,7 +239,19 @@ internal class SkillBoostSkipperScreenStoryboard : ChargenScreenStoryboard
 			if (lcommand == "help")
 			{
 				return
-					"You can use the following commands on this screen:\n\n\tdone - finish and proceed to the next stage of chargen\n\treset - reset all your current boosts\n\nThe following arguments can all accept an option number of times to do the action:\n\n\t<skill> [<times>] - boost skill [optionally x times]\n\t-<skill> [<times>] - remove x boosts from skill\n\t*<group> [<times>] - boost all skills in the specified skill group x times.\n\t-*<group> [<times>] - remove x boosts from all skills in the group\n\tall [<times>]- boost all skills x times\n\t-all [<times>] - remove x boosts from all skills";
+					@"You can use the following commands on this screen:
+
+	#3done#0 - finish and proceed to the next stage of chargen
+	#3reset#0 - reset all your current boosts
+
+The following arguments can all accept an option number of times to do the action:
+
+	#6<skill> [<times>]#0 - boost skill [optionally x times]
+	#6-<skill> [<times>]#0 - remove x boosts from skill
+	#6*<group> [<times>]#0 - boost all skills in the specified skill group x times.
+	#6-*<group> [<times>]#0 - remove x boosts from all skills in the group
+	#6all [<times>]#0 - boost all skills x times
+	#6-all [<times>]#0 - remove x boosts from all skills".SubstituteANSIColour();
 			}
 
 			if (lcommand == "done")

@@ -5,6 +5,7 @@ using System.Reflection;
 using System.Text;
 using System.Xml.Linq;
 using MudSharp.Body.Traits;
+using MudSharp.Body.Traits.Subtypes;
 using MudSharp.Character;
 using MudSharp.CharacterCreation.Resources;
 using MudSharp.Editor;
@@ -142,6 +143,7 @@ public class SkillPickerScreenStoryboard : ChargenScreenStoryboard
 	{
 		protected List<ITraitDefinition> CurrentSelectables = new();
 		protected IEnumerable<ITraitDefinition> FreeSkills;
+		protected IEnumerable<ITraitDefinition> RoleSkills;
 		protected List<ITraitDefinition> LastCurrentSelectables;
 		protected SkillPickerScreenStoryboard Storyboard;
 
@@ -151,6 +153,11 @@ public class SkillPickerScreenStoryboard : ChargenScreenStoryboard
 			Storyboard = storyboard;
 			Chargen.SelectedSkills.Clear();
 			FreeSkills = storyboard.FreeSkillsProg?.ExecuteCollection<ITraitDefinition>(chargen) ?? new List<ITraitDefinition>();
+			RoleSkills = chargen.SelectedRoles
+			                    .SelectMany(x => x.TraitAdjustments.Where(y => y.Value.giveIfMissing && y.Key is ISkillDefinition)).Select(x => x.Key)
+			                    .Distinct()
+			                    .Where(x => !FreeSkills.Contains(x))
+			                    .ToList();
 			Chargen.SelectedSkills.AddRange(FreeSkills);
 			SetCurrentSelectables();
 			LastCurrentSelectables = CurrentSelectables;
@@ -179,7 +186,12 @@ public class SkillPickerScreenStoryboard : ChargenScreenStoryboard
 {Storyboard.Blurb.SubstituteANSIColour().Wrap(Chargen.Account.InnerLineFormatLength)}
 
 You get the following skills for free:
-{FreeSkills.Where(x => !x.Hidden).Select(x => x.Name.Colour(Telnet.Green)).DefaultIfEmpty("None".Colour(Telnet.Yellow)).ListToString().Wrap(Chargen.Account.InnerLineFormatLength)}
+
+{FreeSkills.Where(x => !x.Hidden).Select(x => x.Name.Colour(Telnet.Green)).DefaultIfEmpty("None".Colour(Telnet.Yellow)).ListToString().Wrap(Chargen.Account.InnerLineFormatLength)}{(RoleSkills.Any() ? $@"
+
+You are also potentially getting the following skills from roles, but may get a higher value from selecting them here too:
+
+{RoleSkills.Select(x => x.Name.Colour(Telnet.Green)).DefaultIfEmpty("None".Colour(Telnet.Yellow)).ListToString().Wrap(Chargen.Account.InnerLineFormatLength)}" : "")}
 
 You can select from the following skills:
 
@@ -197,8 +209,13 @@ Type the name of the skill you would like to select, or type {"done".Colour(Teln
 
 {Storyboard.Blurb.SubstituteANSIColour().Wrap(Chargen.Account.InnerLineFormatLength)}
 
-You get the following skills for free: 
-{FreeSkills.Where(x => !x.Hidden).Select(x => x.Name.Colour(Telnet.Green)).DefaultIfEmpty("None".Colour(Telnet.Yellow)).ListToString().Wrap(Chargen.Account.InnerLineFormatLength)}
+You get the following skills for free:
+
+{FreeSkills.Where(x => !x.Hidden).Select(x => x.Name.Colour(Telnet.Green)).DefaultIfEmpty("None".Colour(Telnet.Yellow)).ListToString().Wrap(Chargen.Account.InnerLineFormatLength)}{(RoleSkills.Any() ? $@"
+
+You are also potentially getting the following skills from roles, but may get a higher value from selecting them here too:
+
+{RoleSkills.Select(x => x.Name.Colour(Telnet.Green)).DefaultIfEmpty("None".Colour(Telnet.Yellow)).ListToString().Wrap(Chargen.Account.InnerLineFormatLength)}" : "")}
 
 You can select from the following skills:
 
@@ -216,11 +233,10 @@ Type the name of the skill you would like to select, or type {"done".Colour(Teln
 		{
 			LastCurrentSelectables = CurrentSelectables;
 			CurrentSelectables =
-				Storyboard.Gameworld.Traits.Where(
-					          x => x.TraitType == TraitType.Skill && x.ChargenAvailable(Chargen))
-				          .Where(
-					          x =>
-						          !FreeSkills.Contains(x)).OrderBy(x => x.Name).ToList();
+				Storyboard.Gameworld.Traits
+				          .Where(x => x.TraitType == TraitType.Skill && x.ChargenAvailable(Chargen))
+				          .Where(x => !FreeSkills.Contains(x))
+				          .OrderBy(x => x.Name).ToList();
 		}
 
 		private bool CanProgress()

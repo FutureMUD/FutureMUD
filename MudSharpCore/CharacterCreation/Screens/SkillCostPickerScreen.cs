@@ -7,6 +7,7 @@ using System.Runtime.InteropServices.JavaScript;
 using System.Text;
 using System.Xml.Linq;
 using MudSharp.Body.Traits;
+using MudSharp.Body.Traits.Subtypes;
 using MudSharp.Character;
 using MudSharp.CharacterCreation.Resources;
 using MudSharp.Editor;
@@ -241,6 +242,7 @@ public class SkillCostPickerScreenStoryboard : ChargenScreenStoryboard
 	{
 		protected List<ITraitDefinition> CurrentSelectables = new();
 		protected IEnumerable<ITraitDefinition> FreeSkills;
+		protected IEnumerable<ITraitDefinition> RoleSkills;
 		protected List<ITraitDefinition> LastCurrentSelectables;
 		protected Dictionary<ITraitDefinition, int> SelectedBoostCosts;
 		protected Dictionary<ITraitDefinition, int> SelectedBoosts;
@@ -256,6 +258,11 @@ public class SkillCostPickerScreenStoryboard : ChargenScreenStoryboard
 			Chargen.SelectedSkillBoosts.Clear();
 			FreeSkills =
 				((IList<IProgVariable>)Storyboard.FreeSkillsProg.Execute(chargen)).Cast<ITraitDefinition>();
+			RoleSkills = chargen.SelectedRoles
+			                    .SelectMany(x => x.TraitAdjustments.Where(y => y.Value.giveIfMissing && y.Key is ISkillDefinition)).Select(x => x.Key)
+			                    .Distinct()
+			                    .Where(x => !FreeSkills.Contains(x))
+			                    .ToList();
 			Chargen.SelectedSkills.AddRange(FreeSkills);
 			SetCurrentSelectables();
 			LastCurrentSelectables = CurrentSelectables;
@@ -334,7 +341,12 @@ public class SkillCostPickerScreenStoryboard : ChargenScreenStoryboard
 {Storyboard.SkillPickerBlurb.SubstituteANSIColour().Wrap(Chargen.Account.InnerLineFormatLength)}
 
 You get the following skills for free:
-{FreeSkills.Where(x => !x.Hidden).Select(x => x.Name.Colour(Telnet.Green)).DefaultIfEmpty("None".ColourCommand()).ListToString().Wrap(Chargen.Account.InnerLineFormatLength)}
+
+{FreeSkills.Where(x => !x.Hidden).Select(x => x.Name.Colour(Telnet.Green)).DefaultIfEmpty("None".ColourCommand()).ListToString().Wrap(Chargen.Account.InnerLineFormatLength)}{(RoleSkills.Any() ? $@"
+
+You are also potentially getting the following skills from roles, but may get a higher value from selecting them here too:
+
+{RoleSkills.Select(x => x.Name.Colour(Telnet.Green)).DefaultIfEmpty("None".Colour(Telnet.Yellow)).ListToString().Wrap(Chargen.Account.InnerLineFormatLength)}" : "")}
 
 You can select from the following skills:
 
@@ -352,8 +364,13 @@ Type the name of the skill you would like to select, or type {"done".Colour(Teln
 
 {Storyboard.SkillPickerBlurb.SubstituteANSIColour().Wrap(Chargen.Account.InnerLineFormatLength)}
 
-You get the following skills for free: 
-{FreeSkills.Where(x => !x.Hidden).Select(x => x.Name.Colour(Telnet.Green)).DefaultIfEmpty("None".ColourCommand()).ListToString().Wrap(Chargen.Account.InnerLineFormatLength)}
+You get the following skills for free:
+
+{FreeSkills.Where(x => !x.Hidden).Select(x => x.Name.Colour(Telnet.Green)).DefaultIfEmpty("None".ColourCommand()).ListToString().Wrap(Chargen.Account.InnerLineFormatLength)}{(RoleSkills.Any() ? $@"
+
+You are also potentially getting the following skills from roles, but may get a higher value from selecting them here too:
+
+{RoleSkills.Select(x => x.Name.Colour(Telnet.Green)).DefaultIfEmpty("None".Colour(Telnet.Yellow)).ListToString().Wrap(Chargen.Account.InnerLineFormatLength)}" : "")}
 
 You can select from the following skills:
 
@@ -429,7 +446,20 @@ Type the name of the skill you would like to select, or type {"done".Colour(Teln
 			if (lcommand == "help")
 			{
 				return
-					"You can use the following commands on this screen:\n\n\tdone - finish and proceed to the next stage of chargen\n\treset - reset all your current boosts\n\tback - go back to skill selection\n\nThe following arguments can all accept an option number of times to do the action:\n\n\t<skill> [<times>] - boost skill [optionally x times]\n\t-<skill> [<times>] - remove x boosts from skill\n\t*<group> [<times>] - boost all skills in the specified skill group x times.\n\t-*<group> [<times>] - remove x boosts from all skills in the group\n\tall [<times>]- boost all skills x times\n\t-all [<times>] - remove x boosts from all skills";
+					@"You can use the following commands on this screen:
+
+	#3done#0 - finish and proceed to the next stage of chargen
+	#3reset#0 - reset all your current boosts
+	#3back#0 - go back to skill selection
+
+The following arguments can all accept an option number of times to do the action:
+
+	#6<skill> [<times>]#0 - boost skill [optionally x times]
+	#6-<skill> [<times>]#0 - remove x boosts from skill
+	#6*<group> [<times>]#0 - boost all skills in the specified skill group x times.
+	#6-*<group> [<times>]#0 - remove x boosts from all skills in the group
+	#6all [<times>]#0 - boost all skills x times
+	#6-all [<times>]#0 - remove x boosts from all skills".SubstituteANSIColour();
 			}
 
 			if (lcommand == "done")

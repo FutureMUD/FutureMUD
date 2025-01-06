@@ -11,6 +11,7 @@ using MudSharp.Effects.Concrete;
 using MudSharp.Events;
 using MudSharp.Form.Shape;
 using MudSharp.Framework;
+using MudSharp.Framework.Scheduling;
 using MudSharp.GameItems;
 using MudSharp.GameItems.Interfaces;
 using MudSharp.PerceptionEngine;
@@ -225,6 +226,9 @@ public partial class Character
 		{
 			combatant.MeleeRange = false;
 		}
+
+		
+		// TODO _ should we check if we have a combat shcedule here and create one if not?
 
 		if (CombatTarget == null || !WillAttackTarget(true))
 		{

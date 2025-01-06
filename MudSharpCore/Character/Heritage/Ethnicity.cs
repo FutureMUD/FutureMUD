@@ -275,7 +275,7 @@ public class Ethnicity : SaveableItem, IEthnicity
 	{
 		return _costs.Where(x => x.RequirementOnly)
 					 .All(x => template.Account.AccountResources[x.Resource] >= x.Amount) &&
-			   (AvailabilityProg?.ExecuteBool(template) ?? true);
+			   (AvailabilityProg?.ExecuteBool(template, this) ?? true);
 	}
 
 	private readonly List<ChargenResourceCost> _costs = new();
@@ -497,6 +497,8 @@ public class Ethnicity : SaveableItem, IEthnicity
 			case "subgroup":
 				return BuildingCommandSubgroup(actor, command);
 			case "availability":
+			case "available":
+			case "prog":
 			case "chargen":
 			case "availabilityprog":
 			case "chargenprog":
@@ -856,26 +858,12 @@ public class Ethnicity : SaveableItem, IEthnicity
 			return false;
 		}
 
-		var prog = long.TryParse(command.SafeRemainingArgument, out var value)
-			? Gameworld.FutureProgs.Get(value)
-			: Gameworld.FutureProgs.GetByName(command.SafeRemainingArgument);
-		if (prog == null)
+		var prog = new ProgLookupFromBuilderInput(actor, command.SafeRemainingArgument, ProgVariableTypes.Boolean, [
+			[ProgVariableTypes.Chargen],
+			[ProgVariableTypes.Chargen, ProgVariableTypes.Ethnicity],
+		]).LookupProg();
+		if (prog is null)
 		{
-			actor.OutputHandler.Send("There is no such prog.");
-			return false;
-		}
-
-		if (!prog.ReturnType.CompatibleWith(ProgVariableTypes.Boolean))
-		{
-			actor.OutputHandler.Send(
-				$"You must specify a prog that returns a boolean value, whereas {prog.MXPClickableFunctionName()} returns {prog.ReturnType.Describe().ColourName()}.");
-			return false;
-		}
-
-		if (!prog.MatchesParameters(new List<ProgVariableTypes> { ProgVariableTypes.Chargen }))
-		{
-			actor.OutputHandler.Send(
-				$"You must specify a prog that accepts one parameter: a Chargen, whereas {prog.MXPClickableFunctionNameWithId()} does not.");
 			return false;
 		}
 

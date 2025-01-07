@@ -48,6 +48,28 @@ public class RolePickerScreenStoryboard : ChargenScreenStoryboard
 			}
 		}
 
+		element = definition.Element("RoleOrder");
+		if (element != null)
+		{
+			foreach (var sub in element.Elements("Role"))
+			{
+				TypeOrder.Add((ChargenRoleType)int.Parse(sub.Value));
+			}
+		}
+		else
+		{
+			TypeOrder.AddRange([
+				ChargenRoleType.Class,
+				ChargenRoleType.Subclass,
+				ChargenRoleType.Profession,
+				ChargenRoleType.Family,
+				ChargenRoleType.Story,
+				ChargenRoleType.Childhood,
+				ChargenRoleType.Education,
+				ChargenRoleType.ImmediatePast
+			]);
+		}
+
 		foreach (var type in Enum.GetValues<ChargenRoleType>().Except(ChargenRoleType.StartingLocation))
 		{
 			if (TypeNames.ContainsKey(type))
@@ -110,6 +132,7 @@ public class RolePickerScreenStoryboard : ChargenScreenStoryboard
 	public Dictionary<ChargenRoleType, string> TypeBlurbs { get; protected set; }
 	public Dictionary<ChargenRoleType, bool> CanSelectNone { get; protected set; }
 	public Dictionary<ChargenRoleType, string> TypeNames { get; protected set; }
+	public List<ChargenRoleType> TypeOrder { get; } = new();
 
 	public override ChargenStage Stage => ChargenStage.SelectRole;
 
@@ -128,6 +151,10 @@ public class RolePickerScreenStoryboard : ChargenScreenStoryboard
 					new XAttribute("CanSelectNone", CanSelectNone[role]),
 					new XCData(TypeBlurbs[role])
 				)
+			),
+			new XElement("RoleOrder",
+				from item in TypeOrder
+				select new XElement("Role", (int)item)
 			)
 		).ToString();
 	}
@@ -152,22 +179,13 @@ public class RolePickerScreenStoryboard : ChargenScreenStoryboard
 		sb.AppendLine();
 		sb.AppendLine(IntroductionBlurb.Wrap(voyeur.InnerLineFormatLength).SubstituteANSIColour());
 
-		var roleTypes = new List<ChargenRoleType>
-		{
-			ChargenRoleType.Class,
-			ChargenRoleType.Subclass,
-			ChargenRoleType.Family,
-			ChargenRoleType.Childhood,
-			ChargenRoleType.Education,
-			ChargenRoleType.Profession,
-			ChargenRoleType.ImmediatePast,
-			ChargenRoleType.Story
-		};
-		foreach (var type in roleTypes)
+		var i = 1;
+		foreach (var type in TypeOrder)
 		{
 			sb.AppendLine();
-			sb.AppendLine(type.DescribeEnum(true).GetLineWithTitle(voyeur, Telnet.Cyan, Telnet.BoldWhite));
+			sb.AppendLine(type.DescribeEnum(true).GetLineWithTitleInner(voyeur, Telnet.Cyan, Telnet.BoldWhite));
 			sb.AppendLine();
+			sb.AppendLine($"Order: {i++.ToStringN0Colour(voyeur)}");
 			sb.AppendLine($"Choice Name: {TypeNames[type].ColourValue()}");
 			sb.AppendLine($"Can Choose None: {CanSelectNone[type].ToColouredString()}");
 			sb.AppendLine(
@@ -263,7 +281,11 @@ public class RolePickerScreenStoryboard : ChargenScreenStoryboard
 			}
 
 			return
-				$"{_selectedRole.Name.TitleCase().Colour(Telnet.Cyan)}\n\n{_selectedRole.ChargenBlurb.SubstituteANSIColour().Wrap(Chargen.Account.InnerLineFormatLength)}\n\n{(Storyboard.Gameworld.ChargenResources.Any(x => _selectedRole.ResourceCost(x) > 0) ? $"This selection costs {Storyboard.Gameworld.ChargenResources.Where(x => _selectedRole.ResourceCost(x) > 0).Select(x => Tuple.Create(x, _selectedRole.ResourceCost(x))).Select(x => CommonStringUtilities.CultureFormat($"{x.Item2} {(x.Item2 == 1 ? x.Item1.Name.TitleCase() : x.Item1.PluralName.TitleCase())}", Account).Colour(Telnet.Green)).ListToString()}\n\n" : "")}Do you want to select this {Storyboard.TypeNames[CurrentStage]}? Type {"yes".Colour(Telnet.Yellow)} or {"no".Colour(Telnet.Yellow)}.";
+				$@"{_selectedRole.Name.TitleCase().GetLineWithTitleInner(Chargen, Telnet.Cyan, Telnet.BoldWhite)}
+
+{_selectedRole.ChargenBlurb.SubstituteANSIColour().Wrap(Chargen.Account.InnerLineFormatLength)}
+
+{(Storyboard.Gameworld.ChargenResources.Any(x => _selectedRole.ResourceCost(x) > 0) ? $"This selection costs {Storyboard.Gameworld.ChargenResources.Where(x => _selectedRole.ResourceCost(x) > 0).Select(x => Tuple.Create(x, _selectedRole.ResourceCost(x))).Select(x => CommonStringUtilities.CultureFormat($"{x.Item2} {(x.Item2 == 1 ? x.Item1.Name.TitleCase() : x.Item1.PluralName.TitleCase())}", Account).Colour(Telnet.Green)).ListToString()}\n\n" : "")}Do you want to select this {Storyboard.TypeNames[CurrentStage]}? Type {"yes".Colour(Telnet.Yellow)} or {"no".Colour(Telnet.Yellow)}.";
 		}
 
 		private void InitialStage()
@@ -278,36 +300,13 @@ public class RolePickerScreenStoryboard : ChargenScreenStoryboard
 		{
 			_selectedRole = null;
 			ChargenRoleType nextStage;
-			switch (CurrentStage)
+			if (CurrentStage == Storyboard.TypeOrder[^1])
 			{
-				case ChargenRoleType.Class:
-					nextStage = ChargenRoleType.Subclass;
-					break;
-				case ChargenRoleType.Subclass:
-					nextStage = ChargenRoleType.Family;
-					break;
-				case ChargenRoleType.Family:
-					nextStage = ChargenRoleType.Childhood;
-					break;
-				case ChargenRoleType.Childhood:
-					nextStage = ChargenRoleType.Education;
-					break;
-				case ChargenRoleType.Education:
-					nextStage = ChargenRoleType.Profession;
-					break;
-				case ChargenRoleType.Profession:
-					nextStage = ChargenRoleType.ImmediatePast;
-					break;
-				case ChargenRoleType.ImmediatePast:
-					nextStage = ChargenRoleType.Story;
-					break;
-				case ChargenRoleType.Story:
-					_roles = null;
-					return false;
-				default:
-					throw new NotSupportedException("Unsupported ChargenRoleType in RolePickerScreen.AdvanceStage()");
+				_roles = null;
+				return false;
 			}
 
+			nextStage = Storyboard.TypeOrder.SkipWhile(x => x != CurrentStage).Skip(1).First();
 			CurrentStage = nextStage;
 			_roles = GetRoles(CurrentStage);
 			return _roles.Any() || AdvanceStage();
@@ -403,6 +402,7 @@ public class RolePickerScreenStoryboard : ChargenScreenStoryboard
 	#3<type> canskip#0 - toggles being able to skip choosing this type
 	#3<type> name <name>#0 - renames the choice of this type
 	#3<type> blurb#0 - drops you into an editor to change the blurb for this type
+	#3swap <type1> <type2>#0 - swaps the order of type1 and type2 in selection
 
 The valid types are:
 
@@ -415,6 +415,8 @@ The valid types are:
 		{
 			case "blurb":
 				return BuildingCommandBlurb(actor, command);
+			case "swap":
+				return BuildingCommandSwap(actor, command);
 		}
 
 		if (command.Last.TryParseEnum<ChargenRoleType>(out var roleType))
@@ -423,6 +425,50 @@ The valid types are:
 		}
 
 		return BuildingCommandFallback(actor, command.GetUndo());
+	}
+
+	private bool BuildingCommandSwap(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("What is the first role type that you want to swap?");
+			return false;
+		}
+
+		if (!command.PopSpeech().TryParseEnum<ChargenRoleType>(out var type1))
+		{
+			actor.OutputHandler.Send($"The text {command.Last.ColourCommand()} is not a valid chargen role type.\nThe valid choices are {Enum.GetValues<ChargenRoleType>().ListToColouredString()}.");
+			return false;
+		}
+
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("What is the second role type that you want to swap?");
+			return false;
+		}
+
+		if (!command.SafeRemainingArgument.TryParseEnum<ChargenRoleType>(out var type2))
+		{
+			actor.OutputHandler.Send($"The text {command.SafeRemainingArgument.ColourCommand()} is not a valid chargen role type.\nThe valid choices are {Enum.GetValues<ChargenRoleType>().ListToColouredString()}.");
+			return false;
+		}
+
+		if (type1 == type2)
+		{
+			actor.OutputHandler.Send("You cannot swap the order of a type with itself.");
+			return false;
+		}
+
+		if (type1 == ChargenRoleType.StartingLocation || type2 == ChargenRoleType.StartingLocation)
+		{
+			actor.OutputHandler.Send($"Starting location roles are handled by a different screen than this one.");
+			return false;
+		}
+
+		TypeOrder.Swap(type1, type2);
+		Changed = true;
+		actor.OutputHandler.Send($"You swap the order of the {type1.DescribeEnum().ColourName()} and {type2.DescribeEnum().ColourName()} role selections.");
+		return true;
 	}
 
 	private bool BuildingCommandRoleType(ICharacter actor, StringStack command, ChargenRoleType roleType)

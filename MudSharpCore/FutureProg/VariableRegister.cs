@@ -1031,7 +1031,8 @@ internal class VariableRegister : SaveableItem, IVariableRegister
 					defaultDictionary[variable.ToLowerInvariant()] = new ValueVariableValue
 					{
 						Type = variableType,
-						Value = defaultValue is double dv ? dv : defaultValue is int iv ? iv : 0.0
+						Value = defaultValue is decimal dv ? dv : 
+							defaultValue is int iv ? (decimal)iv : 0.0M
 					};
 					break;
 				case ProgVariableTypes.Gender:

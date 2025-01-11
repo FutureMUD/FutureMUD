@@ -175,17 +175,53 @@ public class WearableGameItemComponent : GameItemComponent, IWearable
 
 	public bool CanWear(IBody wearer, IWearProfile profile)
 	{
-		return !Bulky ||
-		       profile.Profile(wearer)
-		              .All(x => wearer.WornItemsFor(x.Key).All(y => !y.GetItemType<IWearable>().Bulky));
+		if (Bulky)
+		{
+			foreach (var location in profile.Profile(wearer))
+			{
+				foreach (var item in wearer.WornItemsFor(location.Key))
+				{
+					if (item.GetItemType<IWearable>()?.Bulky != true)
+					{
+						continue;
+					}
+
+					var local = wearer.WornItemsFullInfo.First(x => x.Item == item && x.Wearloc == location.Key);
+					if (!local.Profile.Mandatory)
+					{
+						continue;
+					}
+
+					return false;
+				}
+			}
+		}
+
+		return true;
 	}
 
 	public WhyCannotDrapeReason WhyCannotWear(IBody wearer, IWearProfile profile)
 	{
-		if (Bulky &&
-		    profile.Profile(wearer).Any(x => wearer.WornItemsFor(x.Key).Any(y => y.GetItemType<IWearable>().Bulky)))
+		if (Bulky)
 		{
-			return WhyCannotDrapeReason.TooBulky;
+			foreach (var location in profile.Profile(wearer))
+			{
+				foreach (var item in wearer.WornItemsFor(location.Key))
+				{
+					if (item.GetItemType<IWearable>()?.Bulky != true)
+					{
+						continue;
+					}
+
+					var local = wearer.WornItemsFullInfo.First(x => x.Item == item && x.Wearloc == location.Key);
+					if (!local.Profile.Mandatory)
+					{
+						continue;
+					}
+
+					return WhyCannotDrapeReason.TooBulky;
+				}
+			}
 		}
 
 		return WhyCannotDrapeReason.Unknown;

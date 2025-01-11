@@ -49,7 +49,7 @@ public class WeekdayHearingProfile : HearingProfile
 			foreach (var sub in element.Elements("Weekday"))
 			{
 				_weekdayRanges.Add(
-					new BoundRange<IHearingProfile>(
+					new BoundRange<IHearingProfile>(_weekdayRanges,
 						game.HearingProfiles.Get(long.Parse(sub.Attribute("ProfileID").Value)),
 						Convert.ToDouble(sub.Attribute("Lower").Value),
 						Convert.ToDouble(sub.Attribute("Upper").Value)));

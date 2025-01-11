@@ -7,10 +7,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using MudSharp.Commands.Helpers;
 
 namespace MudSharp.Commands.Modules;
 
-internal class WeatherModule : Module<ICharacter>
+internal class WeatherModule : BaseBuilderModule
 {
 	private WeatherModule() : base("Weather")
 	{
@@ -112,5 +113,45 @@ internal class WeatherModule : Module<ICharacter>
 		sb.AppendLine(
 			$"You are currently feeling {TemperatureExtensions.SubjectiveTemperature(temperature, floor, ceiling).DescribeColour()}.");
 		actor.OutputHandler.Send(sb.ToString());
+	}
+
+	public const string SeasonHelp = @"";
+
+	[PlayerCommand("Season", "season")]
+	protected static void Season(ICharacter actor, string command)
+	{
+		GenericBuildingCommand(actor, new StringStack(command.RemoveFirstWord()), EditableItemHelper.SeasonHelper);
+	}
+
+	public const string WeatherControllerHelp = @"";
+
+	[PlayerCommand("WeatherController", "weathercontroller", "wc")]
+	protected static void WeatherController(ICharacter actor, string command)
+	{
+		GenericBuildingCommand(actor, new StringStack(command.RemoveFirstWord()), EditableItemHelper.WeatherControllerHelper);
+	}
+
+	public const string RegionalClimateHelp = @"";
+
+	[PlayerCommand("RegionalClimate", "regionalclimate", "rc")]
+	protected static void RegionalClimate(ICharacter actor, string command)
+	{
+		GenericBuildingCommand(actor, new StringStack(command.RemoveFirstWord()), EditableItemHelper.RegionalClimateHelper);
+	}
+
+	public const string ClimateModelHelp = @"";
+
+	[PlayerCommand("ClimateModel", "climatemodel", "clm")]
+	protected static void ClimateModel(ICharacter actor, string command)
+	{
+		GenericBuildingCommand(actor, new StringStack(command.RemoveFirstWord()), EditableItemHelper.ClimateModelHelper);
+	}
+
+	public const string WeatherEventHelp = @"";
+
+	[PlayerCommand("WeatherEvent", "weatherevent")]
+	protected static void WeatherEvent(ICharacter actor, string command)
+	{
+		GenericBuildingCommand(actor, new StringStack(command.RemoveFirstWord()), EditableItemHelper.WeatherEventHelper);
 	}
 }

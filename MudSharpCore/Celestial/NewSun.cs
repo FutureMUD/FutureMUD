@@ -110,8 +110,7 @@ public class NewSun : PerceivedItem, ICelestialObject
 		{
 			foreach (var sub in element.Elements("Description"))
 			{
-				ElevationDescriptions.Add(new BoundRange<string>(sub.Value,
-					Convert.ToDouble(sub.Attribute("lower").Value), Convert.ToDouble(sub.Attribute("upper").Value)));
+				ElevationDescriptions.Add(new BoundRange<string>(ElevationDescriptions, sub.Value, Convert.ToDouble(sub.Attribute("lower").Value), Convert.ToDouble(sub.Attribute("upper").Value)));
 			}
 
 			ElevationDescriptions.Sort();
@@ -122,8 +121,7 @@ public class NewSun : PerceivedItem, ICelestialObject
 		{
 			foreach (var sub in element.Elements("Description"))
 			{
-				AzimuthDescriptions.Add(new BoundRange<string>(sub.Value,
-					Convert.ToDouble(sub.Attribute("lower").Value), Convert.ToDouble(sub.Attribute("upper").Value)));
+				AzimuthDescriptions.Add(new BoundRange<string>(ElevationDescriptions, sub.Value, Convert.ToDouble(sub.Attribute("lower").Value), Convert.ToDouble(sub.Attribute("upper").Value)));
 			}
 
 			AzimuthDescriptions.Sort();

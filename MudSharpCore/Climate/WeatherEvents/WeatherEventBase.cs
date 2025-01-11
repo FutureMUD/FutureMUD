@@ -9,10 +9,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using MudSharp.Character;
+using MudSharp.Framework.Save;
 
 namespace MudSharp.Climate.WeatherEvents;
 
-public abstract class WeatherEventBase : FrameworkItem, IWeatherEvent, IHaveFuturemud
+public abstract class WeatherEventBase : SaveableItem, IWeatherEvent, IHaveFuturemud
 {
 	public PrecipitationLevel Precipitation { get; protected set; }
 	public WindLevel Wind { get; protected set; }
@@ -24,8 +26,8 @@ public abstract class WeatherEventBase : FrameworkItem, IWeatherEvent, IHaveFutu
 	public double LightLevelMultiplier { get; protected set; }
 	public bool ObscuresViewOfSky { get; protected set; }
 	public IEnumerable<TimeOfDay> PermittedTimesOfDay { get; protected set; }
-	private long? _countsAsId;
-	private IWeatherEvent _countsAs;
+	protected long? _countsAsId;
+	protected IWeatherEvent _countsAs;
 
 	public IWeatherEvent CountsAs
 	{
@@ -54,6 +56,14 @@ public abstract class WeatherEventBase : FrameworkItem, IWeatherEvent, IHaveFutu
 	public abstract string DescribeTransitionTo([CanBeNull] IWeatherEvent oldEvent);
 
 	public sealed override string FrameworkItemType => "WeatherEvent";
+
+	public abstract IWeatherEvent Clone(string name);
+
+	protected WeatherEventBase(IFuturemud gameworld, string name)
+	{
+		Gameworld = gameworld;
+		_name = name;
+	}
 
 	protected WeatherEventBase(Models.WeatherEvent weather, IFuturemud gameworld)
 	{
@@ -251,5 +261,13 @@ public abstract class WeatherEventBase : FrameworkItem, IWeatherEvent, IHaveFutu
 
 	#endregion
 
-	public IFuturemud Gameworld { get; }
+	#region Implementation of IEditableItem
+
+	/// <inheritdoc />
+	public abstract bool BuildingCommand(ICharacter actor, StringStack command);
+
+	/// <inheritdoc />
+	public abstract string Show(ICharacter actor);
+
+	#endregion
 }

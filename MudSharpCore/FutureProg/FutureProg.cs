@@ -377,8 +377,6 @@ public class FutureProg : SaveableItem, IFutureProg
 			       .OfType<object>()
 			       .Select(x => x is IProgVariable pv ? (object)pv.GetObject : x)
 			       .OfType<T>();
-
-			return result.OfType<T>();
 		}
 
 		if (ReturnType.HasFlag(ProgVariableTypes.CollectionDictionary))

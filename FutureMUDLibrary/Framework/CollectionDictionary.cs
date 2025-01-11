@@ -231,6 +231,17 @@ namespace MudSharp.Framework
 			}
 		}
 
+		public void RemoveAllKeys(Predicate<T> predicate)
+		{
+			foreach (var item in _internal.ToList())
+			{
+				if (predicate(item.Key))
+				{
+					_internal.Remove(item.Key);
+				}
+			}
+		}
+
 		public void Remove(T key)
 		{
 			_internal.Remove(key);

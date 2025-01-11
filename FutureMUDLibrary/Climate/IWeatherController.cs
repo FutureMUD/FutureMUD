@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
+using MudSharp.Framework.Revision;
 
 namespace MudSharp.Climate
 {
@@ -14,7 +15,7 @@ namespace MudSharp.Climate
     public delegate void WeatherChangedDelegate(IWeatherController sender, IWeatherEvent oldWeather, IWeatherEvent newWeather);
     public delegate void WeatherRoomTickDelegate(Action<ICell> visitor);
 
-    public interface IWeatherController : IFrameworkItem
+    public interface IWeatherController : IEditableItem
     {
         IRegionalClimate RegionalClimate { get; }
         IWeatherEvent CurrentWeatherEvent { get; }
@@ -26,7 +27,6 @@ namespace MudSharp.Climate
         event WeatherEchoDelegate WeatherEcho;
         event WeatherChangedDelegate WeatherChanged;
         event WeatherRoomTickDelegate WeatherRoomTick;
-        string Show(ICharacter voyeur);
 
         void SetWeather(IWeatherEvent newEvent);
 

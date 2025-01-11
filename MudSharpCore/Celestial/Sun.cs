@@ -588,7 +588,7 @@ public class Sun : CelestialObject, IXmlLoadable, IXmlSavable
 		{
 			foreach (var sub in element.Elements("Description"))
 			{
-				ElevationDescriptions.Add(new BoundRange<string>(sub.Attribute("Text").Value,
+				ElevationDescriptions.Add(new BoundRange<string>(ElevationDescriptions, sub.Attribute("Text").Value,
 					Convert.ToDouble(sub.Attribute("Lower").Value), Convert.ToDouble(sub.Attribute("Upper").Value)));
 			}
 
@@ -600,7 +600,7 @@ public class Sun : CelestialObject, IXmlLoadable, IXmlSavable
 		{
 			foreach (var sub in element.Elements("Description"))
 			{
-				AzimuthDescriptions.Add(new BoundRange<string>(sub.Attribute("Text").Value,
+				AzimuthDescriptions.Add(new BoundRange<string>(ElevationDescriptions, sub.Attribute("Text").Value,
 					Convert.ToDouble(sub.Attribute("Lower").Value), Convert.ToDouble(sub.Attribute("Upper").Value)));
 			}
 

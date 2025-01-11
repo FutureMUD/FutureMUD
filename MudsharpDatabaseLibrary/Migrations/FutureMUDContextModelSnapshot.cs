@@ -37,7 +37,7 @@ namespace MudSharp.Migrations
 
                     b.HasIndex("MarketsId");
 
-                    b.ToTable("MarketMarketCategory");
+                    b.ToTable("MarketMarketCategory", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.Accent", b =>
@@ -96,7 +96,7 @@ namespace MudSharp.Migrations
                     b.HasIndex("LanguageId")
                         .HasDatabaseName("FK_Accents_Languages");
 
-                    b.ToTable("Accents");
+                    b.ToTable("Accents", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.Account", b =>
@@ -277,7 +277,7 @@ namespace MudSharp.Migrations
                     b.HasIndex("AuthorityGroupId")
                         .HasDatabaseName("FK_Accounts_AuthorityGroups");
 
-                    b.ToTable("Accounts");
+                    b.ToTable("Accounts", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.AccountNote", b =>
@@ -336,7 +336,7 @@ namespace MudSharp.Migrations
                     b.HasIndex("CharacterId")
                         .HasDatabaseName("FK_AccountNotes_Characters_idx");
 
-                    b.ToTable("AccountNotes");
+                    b.ToTable("AccountNotes", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.AccountsChargenResources", b =>
@@ -466,7 +466,7 @@ namespace MudSharp.Migrations
                     b.HasIndex("ProjectId", "ProjectRevisionNumber")
                         .HasDatabaseName("FK_ActiveProjects_Projects_idx");
 
-                    b.ToTable("ActiveProjects");
+                    b.ToTable("ActiveProjects", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.ActiveProjectLabour", b =>
@@ -486,7 +486,7 @@ namespace MudSharp.Migrations
                     b.HasIndex("ProjectLabourRequirementsId")
                         .HasDatabaseName("FK_ActiveProjectLabours_ProjectLabourRequirements_idx");
 
-                    b.ToTable("ActiveProjectLabours");
+                    b.ToTable("ActiveProjectLabours", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.ActiveProjectMaterial", b =>
@@ -506,7 +506,7 @@ namespace MudSharp.Migrations
                     b.HasIndex("ProjectMaterialRequirementsId")
                         .HasDatabaseName("FK_ActiveProjectMaterials_ProjectMaterialRequirements_idx");
 
-                    b.ToTable("ActiveProjectMaterials");
+                    b.ToTable("ActiveProjectMaterials", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.Ally", b =>
@@ -528,7 +528,7 @@ namespace MudSharp.Migrations
                     b.HasIndex("AllyId")
                         .HasDatabaseName("FK_Allies_Characters_Target_idx");
 
-                    b.ToTable("Allies");
+                    b.ToTable("Allies", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.AmmunitionTypes", b =>
@@ -604,7 +604,7 @@ namespace MudSharp.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("AmmunitionTypes");
+                    b.ToTable("AmmunitionTypes", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.Appointment", b =>
@@ -720,7 +720,7 @@ namespace MudSharp.Migrations
                     b.HasIndex("InsigniaGameItemId", "InsigniaGameItemRevnum")
                         .HasDatabaseName("FK_Appointments_GameItemProtos");
 
-                    b.ToTable("Appointments");
+                    b.ToTable("Appointments", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.AppointmentsAbbreviations", b =>
@@ -804,7 +804,7 @@ namespace MudSharp.Migrations
                     b.HasIndex("WeatherControllerId")
                         .HasDatabaseName("FK_Areas_WeatherControllers_idx");
 
-                    b.ToTable("Areas");
+                    b.ToTable("Areas", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.AreasRooms", b =>
@@ -857,7 +857,7 @@ namespace MudSharp.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("ArmourTypes");
+                    b.ToTable("ArmourTypes", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.ArtificialIntelligence", b =>
@@ -891,7 +891,7 @@ namespace MudSharp.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("ArtificialIntelligences");
+                    b.ToTable("ArtificialIntelligences", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.AuctionHouse", b =>
@@ -989,7 +989,7 @@ namespace MudSharp.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("AuthorityGroups");
+                    b.ToTable("AuthorityGroups", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.AutobuilderAreaTemplate", b =>
@@ -1024,7 +1024,7 @@ namespace MudSharp.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("AutobuilderAreaTemplates");
+                    b.ToTable("AutobuilderAreaTemplates", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.AutobuilderRoomTemplate", b =>
@@ -1059,7 +1059,7 @@ namespace MudSharp.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("AutobuilderRoomTemplates");
+                    b.ToTable("AutobuilderRoomTemplates", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.Ban", b =>
@@ -1095,7 +1095,7 @@ namespace MudSharp.Migrations
                     b.HasIndex("BannerAccountId")
                         .HasDatabaseName("FK_Bans_Accounts");
 
-                    b.ToTable("Bans");
+                    b.ToTable("Bans", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.Bank", b =>
@@ -1491,7 +1491,7 @@ namespace MudSharp.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("BloodModels");
+                    b.ToTable("BloodModels", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.BloodModelsBloodtypes", b =>
@@ -1528,7 +1528,7 @@ namespace MudSharp.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Bloodtypes");
+                    b.ToTable("Bloodtypes", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.BloodtypeAntigen", b =>
@@ -1548,7 +1548,7 @@ namespace MudSharp.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("BloodtypeAntigens");
+                    b.ToTable("BloodtypeAntigens", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.BloodtypesBloodtypeAntigens", b =>
@@ -1593,7 +1593,7 @@ namespace MudSharp.Migrations
 
                     b.HasIndex("CalendarId");
 
-                    b.ToTable("Boards");
+                    b.ToTable("Boards", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.BoardPost", b =>
@@ -1664,7 +1664,7 @@ namespace MudSharp.Migrations
                     b.HasIndex("BoardId")
                         .HasDatabaseName("FK_BoardPosts_Boards_idx");
 
-                    b.ToTable("BoardPosts");
+                    b.ToTable("BoardPosts", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.BodiesGameItems", b =>
@@ -1850,7 +1850,7 @@ namespace MudSharp.Migrations
                     b.HasIndex("ShortDescriptionPatternId")
                         .HasDatabaseName("FK_Bodies_EntityDescriptionPatterns_Short_idx");
 
-                    b.ToTable("Bodies");
+                    b.ToTable("Bodies", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.BodyDrugDose", b =>
@@ -1975,7 +1975,7 @@ namespace MudSharp.Migrations
                     b.HasIndex("WearSizeParameterId")
                         .HasDatabaseName("FK_BodyPrototype_WearableSizeParameterRule");
 
-                    b.ToTable("BodyProtos");
+                    b.ToTable("BodyProtos", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.BodyProtosAdditionalBodyparts", b =>
@@ -2017,7 +2017,7 @@ namespace MudSharp.Migrations
                     b.HasIndex("BodyProtoId")
                         .HasDatabaseName("FK_BodyProtosPositions_BodyProtos_idx");
 
-                    b.ToTable("BodyProtosPositions");
+                    b.ToTable("BodyProtosPositions", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.BodypartGroupDescriber", b =>
@@ -2055,7 +2055,7 @@ namespace MudSharp.Migrations
 
                     b.HasIndex("BodyProtoId");
 
-                    b.ToTable("BodypartGroupDescribers");
+                    b.ToTable("BodypartGroupDescribers", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.BodypartGroupDescribersBodyProtos", b =>
@@ -2153,7 +2153,7 @@ namespace MudSharp.Migrations
                     b.HasIndex("InternalPartId")
                         .HasDatabaseName("FK_BodypartInternalInfos_BodypartProtos_Internal_idx");
 
-                    b.ToTable("BodypartInternalInfos");
+                    b.ToTable("BodypartInternalInfos", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.BodypartProto", b =>
@@ -2431,7 +2431,7 @@ namespace MudSharp.Migrations
                     b.HasIndex("OrganId")
                         .HasDatabaseName("FK_BoneOrganCoverages_BodypartProto_Organ_idx");
 
-                    b.ToTable("BoneOrganCoverages");
+                    b.ToTable("BoneOrganCoverages", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.ButcheryProductItems", b =>
@@ -2473,7 +2473,7 @@ namespace MudSharp.Migrations
                     b.HasIndex("ButcheryProductId")
                         .HasDatabaseName("FK_ButcheryProductItems_ButcheryProducts_idx");
 
-                    b.ToTable("ButcheryProductItems");
+                    b.ToTable("ButcheryProductItems", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.ButcheryProducts", b =>
@@ -2515,7 +2515,7 @@ namespace MudSharp.Migrations
                     b.HasIndex("TargetBodyId")
                         .HasDatabaseName("FK_ButcheryProducts_BodyProtos_idx");
 
-                    b.ToTable("ButcheryProducts");
+                    b.ToTable("ButcheryProducts", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.ButcheryProductsBodypartProtos", b =>
@@ -2562,7 +2562,7 @@ namespace MudSharp.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Calendars");
+                    b.ToTable("Calendars", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.Celestial", b =>
@@ -2603,7 +2603,7 @@ namespace MudSharp.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Celestials");
+                    b.ToTable("Celestials", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.Cell", b =>
@@ -2643,7 +2643,7 @@ namespace MudSharp.Migrations
                     b.HasIndex("RoomId")
                         .HasDatabaseName("FK_Cells_Rooms");
 
-                    b.ToTable("Cells");
+                    b.ToTable("Cells", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.CellMagicResource", b =>
@@ -2750,7 +2750,7 @@ namespace MudSharp.Migrations
                     b.HasIndex("CellOverlayPackageId", "CellOverlayPackageRevisionNumber")
                         .HasDatabaseName("FK_CellOverlays_CellOverlayPackages");
 
-                    b.ToTable("CellOverlays");
+                    b.ToTable("CellOverlays", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.CellOverlayExit", b =>
@@ -2794,7 +2794,7 @@ namespace MudSharp.Migrations
                     b.HasIndex("EditableItemId")
                         .HasDatabaseName("FK_CellOverlayPackages_EditableItems");
 
-                    b.ToTable("CellOverlayPackages");
+                    b.ToTable("CellOverlayPackages", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.CellsForagableYield", b =>
@@ -2926,7 +2926,7 @@ namespace MudSharp.Migrations
                     b.HasIndex("ChannelSpeakerProgId")
                         .HasDatabaseName("FK_Channels_FutureProgs_Speaker");
 
-                    b.ToTable("Channels");
+                    b.ToTable("Channels", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.ChannelCommandWord", b =>
@@ -2946,7 +2946,7 @@ namespace MudSharp.Migrations
                     b.HasIndex("ChannelId")
                         .HasDatabaseName("FK_ChannelCommandWords_Channels");
 
-                    b.ToTable("ChannelCommandWords");
+                    b.ToTable("ChannelCommandWords", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.ChannelIgnorer", b =>
@@ -2963,7 +2963,7 @@ namespace MudSharp.Migrations
                     b.HasIndex("AccountId")
                         .HasDatabaseName("FK_ChannelIgnorers_Accounts");
 
-                    b.ToTable("ChannelIgnorers");
+                    b.ToTable("ChannelIgnorers", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.Character", b =>
@@ -3220,7 +3220,7 @@ namespace MudSharp.Migrations
                     b.HasIndex("Location")
                         .HasDatabaseName("FK_Characters_Cells");
 
-                    b.ToTable("Characters");
+                    b.ToTable("Characters", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.CharacterAccent", b =>
@@ -3420,7 +3420,7 @@ namespace MudSharp.Migrations
                     b.HasIndex("CharacterOwnerId")
                         .HasDatabaseName("FK_CharacterCombatSettings_Characters_idx");
 
-                    b.ToTable("CharacterCombatSettings");
+                    b.ToTable("CharacterCombatSettings", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.CharacterIntroTemplate", b =>
@@ -3461,7 +3461,7 @@ namespace MudSharp.Migrations
                     b.HasIndex("AppliesToCharacterProgId")
                         .HasDatabaseName("FK_CharacterIntroTemplates_FutureProgs_idx");
 
-                    b.ToTable("CharacterIntroTemplates");
+                    b.ToTable("CharacterIntroTemplates", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.CharacterKnowledge", b =>
@@ -3499,7 +3499,7 @@ namespace MudSharp.Migrations
                     b.HasIndex("KnowledgeId")
                         .HasDatabaseName("FK_CHARACTERKNOWLEDGES_KNOWLEDGES_idx");
 
-                    b.ToTable("CharacterKnowledges");
+                    b.ToTable("CharacterKnowledges", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.CharacterLog", b =>
@@ -3563,7 +3563,7 @@ namespace MudSharp.Migrations
                     b.HasIndex("CharacteristicId")
                         .HasDatabaseName("FK_Characteristics_CharacteristicValues");
 
-                    b.ToTable("Characteristics");
+                    b.ToTable("Characteristics", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.CharacteristicDefinition", b =>
@@ -3624,7 +3624,7 @@ namespace MudSharp.Migrations
                     b.HasIndex("ParentId")
                         .HasDatabaseName("FK_CharacteristicDefinitions_Parent");
 
-                    b.ToTable("CharacteristicDefinitions");
+                    b.ToTable("CharacteristicDefinitions", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.CharacteristicProfile", b =>
@@ -3671,7 +3671,7 @@ namespace MudSharp.Migrations
                     b.HasIndex("TargetDefinitionId")
                         .HasDatabaseName("FK_CharacteristicProfiles_CharacteristicDefinitions");
 
-                    b.ToTable("CharacteristicProfiles");
+                    b.ToTable("CharacteristicProfiles", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.CharacteristicValue", b =>
@@ -3728,7 +3728,7 @@ namespace MudSharp.Migrations
 
                     b.HasIndex("OngoingValidityProgId");
 
-                    b.ToTable("CharacteristicValues");
+                    b.ToTable("CharacteristicValues", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.CharactersChargenRoles", b =>
@@ -3847,7 +3847,7 @@ namespace MudSharp.Migrations
                     b.HasIndex("AccountId")
                         .HasDatabaseName("FK_Chargens_Accounts");
 
-                    b.ToTable("Chargens");
+                    b.ToTable("Chargens", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.ChargenAdvice", b =>
@@ -3883,7 +3883,7 @@ namespace MudSharp.Migrations
                     b.HasIndex("ShouldShowAdviceProgId")
                         .HasDatabaseName("FK_ChargenAdvices_FutureProgs_idx");
 
-                    b.ToTable("ChargenAdvices");
+                    b.ToTable("ChargenAdvices", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.ChargenAdvicesChargenRoles", b =>
@@ -4039,7 +4039,7 @@ namespace MudSharp.Migrations
 
                     b.HasIndex("FK_ChargenResources_FutureProgs");
 
-                    b.ToTable("ChargenResources");
+                    b.ToTable("ChargenResources", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.ChargenRole", b =>
@@ -4098,7 +4098,7 @@ namespace MudSharp.Migrations
                     b.HasIndex("PosterId")
                         .HasDatabaseName("FK_ChargenRoles_Accounts");
 
-                    b.ToTable("ChargenRoles");
+                    b.ToTable("ChargenRoles", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.ChargenRolesApprovers", b =>
@@ -4323,7 +4323,7 @@ namespace MudSharp.Migrations
                     b.HasIndex("TraitExpressionId")
                         .HasDatabaseName("FK_Checks_TraitExpression");
 
-                    b.ToTable("Checks");
+                    b.ToTable("Checks", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.CheckTemplate", b =>
@@ -4371,7 +4371,7 @@ namespace MudSharp.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("CheckTemplates");
+                    b.ToTable("CheckTemplates", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.CheckTemplateDifficulty", b =>
@@ -4391,7 +4391,7 @@ namespace MudSharp.Migrations
                     b.HasIndex("CheckTemplateId")
                         .HasDatabaseName("FK_CheckTemplateDifficulties_CheckTemplates");
 
-                    b.ToTable("CheckTemplateDifficulties");
+                    b.ToTable("CheckTemplateDifficulties", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.Clan", b =>
@@ -4511,7 +4511,7 @@ namespace MudSharp.Migrations
                     b.HasIndex("PaymasterId")
                         .HasDatabaseName("FK_Clans_Characters_idx");
 
-                    b.ToTable("Clans");
+                    b.ToTable("Clans", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.ClanAdministrationCell", b =>
@@ -4575,7 +4575,7 @@ namespace MudSharp.Migrations
                     b.HasIndex("ManagerId")
                         .HasDatabaseName("FK_ClanMemberships_Manager");
 
-                    b.ToTable("ClanMemberships");
+                    b.ToTable("ClanMemberships", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.ClanMembershipBackpay", b =>
@@ -4671,7 +4671,7 @@ namespace MudSharp.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("ClimateModels");
+                    b.ToTable("ClimateModels", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.ClimateModelSeason", b =>
@@ -4693,7 +4693,7 @@ namespace MudSharp.Migrations
 
                     b.HasIndex("SeasonId");
 
-                    b.ToTable("ClimateModelSeason");
+                    b.ToTable("ClimateModelSeason", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.ClimateModelSeasonEvent", b =>
@@ -4724,7 +4724,7 @@ namespace MudSharp.Migrations
 
                     b.HasIndex("WeatherEventId");
 
-                    b.ToTable("ClimateModelSeasonEvent");
+                    b.ToTable("ClimateModelSeasonEvent", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.Clock", b =>
@@ -4756,7 +4756,7 @@ namespace MudSharp.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Clocks");
+                    b.ToTable("Clocks", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.Coin", b =>
@@ -4820,7 +4820,7 @@ namespace MudSharp.Migrations
                     b.HasIndex("CurrencyId")
                         .HasDatabaseName("FK_Coins_Currencies");
 
-                    b.ToTable("Coins");
+                    b.ToTable("Coins", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.Colour", b =>
@@ -4858,7 +4858,7 @@ namespace MudSharp.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Colours");
+                    b.ToTable("Colours", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.CombatAction", b =>
@@ -4917,7 +4917,7 @@ namespace MudSharp.Migrations
 
                     b.HasIndex("UsabilityProgId");
 
-                    b.ToTable("CombatActions");
+                    b.ToTable("CombatActions", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.CombatMessage", b =>
@@ -4972,7 +4972,7 @@ namespace MudSharp.Migrations
                     b.HasIndex("ProgId")
                         .HasDatabaseName("FK_CombatMessages_FutureProgs_idx");
 
-                    b.ToTable("CombatMessages");
+                    b.ToTable("CombatMessages", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.CombatMessagesCombatActions", b =>
@@ -5060,7 +5060,7 @@ namespace MudSharp.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("CorpseModels");
+                    b.ToTable("CorpseModels", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.Craft", b =>
@@ -5196,7 +5196,7 @@ namespace MudSharp.Migrations
                     b.HasIndex("WhyCannotUseProgId")
                         .HasDatabaseName("FK_Crafts_FutureProgs_WhyCannotUseProg_idx");
 
-                    b.ToTable("Crafts");
+                    b.ToTable("Crafts", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.CraftInput", b =>
@@ -5238,7 +5238,7 @@ namespace MudSharp.Migrations
                     b.HasIndex("CraftId", "CraftRevisionNumber")
                         .HasDatabaseName("FK_CraftInputs_Crafts_idx");
 
-                    b.ToTable("CraftInputs");
+                    b.ToTable("CraftInputs", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.CraftPhase", b =>
@@ -5271,7 +5271,7 @@ namespace MudSharp.Migrations
                     b.HasKey("CraftPhaseId", "CraftPhaseRevisionNumber", "PhaseNumber")
                         .HasName("PRIMARY");
 
-                    b.ToTable("CraftPhases");
+                    b.ToTable("CraftPhases", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.CraftProduct", b =>
@@ -5318,7 +5318,7 @@ namespace MudSharp.Migrations
                     b.HasIndex("CraftId", "CraftRevisionNumber")
                         .HasDatabaseName("FK_CraftProducts_Crafts_idx");
 
-                    b.ToTable("CraftProducts");
+                    b.ToTable("CraftProducts", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.CraftTool", b =>
@@ -5368,7 +5368,7 @@ namespace MudSharp.Migrations
                     b.HasIndex("CraftId", "CraftRevisionNumber")
                         .HasDatabaseName("FK_CraftTools_Crafts_idx");
 
-                    b.ToTable("CraftTools");
+                    b.ToTable("CraftTools", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.Crime", b =>
@@ -5517,7 +5517,7 @@ namespace MudSharp.Migrations
                     b.HasIndex("VictimId")
                         .HasDatabaseName("FK_Crimes_Victim_idx");
 
-                    b.ToTable("Crimes");
+                    b.ToTable("Crimes", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.Culture", b =>
@@ -5590,7 +5590,7 @@ namespace MudSharp.Migrations
                     b.HasIndex("SkillStartingValueProgId")
                         .HasDatabaseName("FK_Cultures_SkillStartingProg");
 
-                    b.ToTable("Cultures");
+                    b.ToTable("Cultures", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.CultureInfo", b =>
@@ -5613,7 +5613,7 @@ namespace MudSharp.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("CultureInfos");
+                    b.ToTable("CultureInfos", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.CulturesChargenResources", b =>
@@ -5656,7 +5656,7 @@ namespace MudSharp.Migrations
 
                     b.HasIndex("NameCultureId");
 
-                    b.ToTable("CulturesNameCultures");
+                    b.ToTable("CulturesNameCultures", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.Currency", b =>
@@ -5681,7 +5681,7 @@ namespace MudSharp.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Currencies");
+                    b.ToTable("Currencies", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.CurrencyDescriptionPattern", b =>
@@ -5724,7 +5724,7 @@ namespace MudSharp.Migrations
                     b.HasIndex("FutureProgId")
                         .HasDatabaseName("FK_CurrencyDescriptionPatterns_FutureProgs");
 
-                    b.ToTable("CurrencyDescriptionPatterns");
+                    b.ToTable("CurrencyDescriptionPatterns", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.CurrencyDescriptionPatternElement", b =>
@@ -5783,7 +5783,7 @@ namespace MudSharp.Migrations
                     b.HasIndex("CurrencyDivisionId")
                         .HasDatabaseName("FK_CDPE_CurrencyDivisions");
 
-                    b.ToTable("CurrencyDescriptionPatternElements");
+                    b.ToTable("CurrencyDescriptionPatternElements", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.CurrencyDescriptionPatternElementSpecialValues", b =>
@@ -5807,7 +5807,7 @@ namespace MudSharp.Migrations
                     b.HasIndex("CurrencyDescriptionPatternElementId")
                         .HasDatabaseName("FK_CDPESV_CDPE");
 
-                    b.ToTable("CurrencyDescriptionPatternElementSpecialValues");
+                    b.ToTable("CurrencyDescriptionPatternElementSpecialValues", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.CurrencyDivision", b =>
@@ -5841,7 +5841,7 @@ namespace MudSharp.Migrations
                     b.HasIndex("CurrencyId")
                         .HasDatabaseName("FK_CurrencyDivisions_Currencies");
 
-                    b.ToTable("CurrencyDivisions");
+                    b.ToTable("CurrencyDivisions", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.CurrencyDivisionAbbreviation", b =>
@@ -5861,7 +5861,7 @@ namespace MudSharp.Migrations
                     b.HasIndex("CurrencyDivisionId")
                         .HasDatabaseName("FK_CurrencyDivisionAbbreviations_CurrencyDivisions");
 
-                    b.ToTable("CurrencyDivisionAbbreviations");
+                    b.ToTable("CurrencyDivisionAbbreviations", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.DamagePatterns", b =>
@@ -5893,7 +5893,7 @@ namespace MudSharp.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("DamagePatterns");
+                    b.ToTable("DamagePatterns", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.DefaultHook", b =>
@@ -5916,7 +5916,7 @@ namespace MudSharp.Migrations
                     b.HasIndex("FutureProgId")
                         .HasDatabaseName("FK_DefaultHooks_Futureprogs_idx");
 
-                    b.ToTable("DefaultHooks");
+                    b.ToTable("DefaultHooks", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.DisfigurementTemplate", b =>
@@ -5971,7 +5971,7 @@ namespace MudSharp.Migrations
                     b.HasIndex("EditableItemId")
                         .HasDatabaseName("FK_DisfigurementTemplates_EditableItems_idx");
 
-                    b.ToTable("DisfigurementTemplates");
+                    b.ToTable("DisfigurementTemplates", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.Door", b =>
@@ -6003,7 +6003,7 @@ namespace MudSharp.Migrations
                     b.HasIndex("LockedWith")
                         .HasDatabaseName("FK_Doors_Locks");
 
-                    b.ToTable("Doors");
+                    b.ToTable("Doors", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.Drawing", b =>
@@ -6045,7 +6045,7 @@ namespace MudSharp.Migrations
                     b.HasIndex("AuthorId")
                         .HasDatabaseName("FK_Drawings_Characters_idx");
 
-                    b.ToTable("Drawings");
+                    b.ToTable("Drawings", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.Dream", b =>
@@ -6093,7 +6093,7 @@ namespace MudSharp.Migrations
                     b.HasIndex("OnWakeDuringDreamingProgId")
                         .HasDatabaseName("FK_Dreams_FutureProgs_OnWake_idx");
 
-                    b.ToTable("Dreams");
+                    b.ToTable("Dreams", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.DreamPhase", b =>
@@ -6189,7 +6189,7 @@ namespace MudSharp.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Drugs");
+                    b.ToTable("Drugs", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.DrugIntensity", b =>
@@ -6213,7 +6213,7 @@ namespace MudSharp.Migrations
                     b.HasKey("DrugId", "DrugType")
                         .HasName("PRIMARY");
 
-                    b.ToTable("DrugsIntensities");
+                    b.ToTable("DrugsIntensities", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.Dub", b =>
@@ -6265,7 +6265,7 @@ namespace MudSharp.Migrations
                     b.HasIndex("CharacterId")
                         .HasDatabaseName("FK_Dubs_Characters");
 
-                    b.ToTable("Dubs");
+                    b.ToTable("Dubs", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.EconomicZone", b =>
@@ -6356,7 +6356,7 @@ namespace MudSharp.Migrations
                     b.HasIndex("ReferenceClockId")
                         .HasDatabaseName("FK_EconomicZones_Timezones_idx");
 
-                    b.ToTable("EconomicZones");
+                    b.ToTable("EconomicZones", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.EconomicZoneRevenue", b =>
@@ -6376,7 +6376,7 @@ namespace MudSharp.Migrations
                     b.HasIndex("FinancialPeriodId")
                         .HasDatabaseName("FK_EconomicZoneRevenues_FinancialPeriods_idx");
 
-                    b.ToTable("EconomicZoneRevenues");
+                    b.ToTable("EconomicZoneRevenues", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.EconomicZoneShopTax", b =>
@@ -6402,7 +6402,7 @@ namespace MudSharp.Migrations
                     b.HasIndex("ShopId")
                         .HasDatabaseName("FK_EconomicZoneShopTaxes_Shops_idx");
 
-                    b.ToTable("EconomicZoneShopTaxes");
+                    b.ToTable("EconomicZoneShopTaxes", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.EconomicZoneTax", b =>
@@ -6442,7 +6442,7 @@ namespace MudSharp.Migrations
                     b.HasIndex("MerchandiseFilterProgId")
                         .HasDatabaseName("FK_EconomicZoneTaxes_FutureProgs_idx");
 
-                    b.ToTable("EconomicZoneTaxes");
+                    b.ToTable("EconomicZoneTaxes", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.EditableItem", b =>
@@ -6488,7 +6488,7 @@ namespace MudSharp.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("EditableItems");
+                    b.ToTable("EditableItems", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.Election", b =>
@@ -6621,7 +6621,7 @@ namespace MudSharp.Migrations
                     b.HasKey("TemplateType")
                         .HasName("PRIMARY");
 
-                    b.ToTable("EmailTemplates");
+                    b.ToTable("EmailTemplates", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.EnforcementAuthoritiesAccusableClasses", b =>
@@ -6657,7 +6657,7 @@ namespace MudSharp.Migrations
                     b.HasIndex("LegalClassId")
                         .HasDatabaseName("FK_EnforcementAuthoritiesArrestableLegalClasses_LegalClasses_idx");
 
-                    b.ToTable("EnforcementAuthoritiesArrestableClasses");
+                    b.ToTable("EnforcementAuthoritiesArrestableClasses", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.EnforcementAuthority", b =>
@@ -6701,7 +6701,7 @@ namespace MudSharp.Migrations
                     b.HasIndex("LegalAuthorityId")
                         .HasDatabaseName("FK_EnforcementAuthorities_LegalAuthorities_idx");
 
-                    b.ToTable("EnforcementAuthorities");
+                    b.ToTable("EnforcementAuthorities", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.EnforcementAuthorityParentAuthority", b =>
@@ -6750,7 +6750,7 @@ namespace MudSharp.Migrations
                     b.HasIndex("ApplicabilityProgId")
                         .HasDatabaseName("FK_EntityDescriptionPatterns_FutureProgs");
 
-                    b.ToTable("EntityDescriptionPatterns");
+                    b.ToTable("EntityDescriptionPatterns", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.EntityDescriptionPatternsEntityDescriptions", b =>
@@ -6795,7 +6795,7 @@ namespace MudSharp.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("EntityDescriptions");
+                    b.ToTable("EntityDescriptions", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.EthnicitiesCharacteristics", b =>
@@ -6861,7 +6861,7 @@ namespace MudSharp.Migrations
 
                     b.HasIndex("NameCultureId");
 
-                    b.ToTable("EthnicitiesNameCultures");
+                    b.ToTable("EthnicitiesNameCultures", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.Ethnicity", b =>
@@ -6924,7 +6924,7 @@ namespace MudSharp.Migrations
                     b.HasIndex("PopulationBloodModelId")
                         .HasDatabaseName("FK_Ethnicities_PopulationBloodModels_idx");
 
-                    b.ToTable("Ethnicities");
+                    b.ToTable("Ethnicities", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.Exit", b =>
@@ -7077,7 +7077,7 @@ namespace MudSharp.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Exits");
+                    b.ToTable("Exits", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.ExternalClanControl", b =>
@@ -7109,7 +7109,7 @@ namespace MudSharp.Migrations
                     b.HasIndex("LiegeClanId")
                         .HasDatabaseName("FK_ECC_Clans_Liege");
 
-                    b.ToTable("ExternalClanControls");
+                    b.ToTable("ExternalClanControls", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.ExternalClanControlsAppointment", b =>
@@ -7174,7 +7174,7 @@ namespace MudSharp.Migrations
                     b.HasIndex("EconomicZoneId")
                         .HasDatabaseName("FK_FinancialPeriods_EconomicZones_idx");
 
-                    b.ToTable("FinancialPeriods");
+                    b.ToTable("FinancialPeriods", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.Foragable", b =>
@@ -7236,7 +7236,7 @@ namespace MudSharp.Migrations
                     b.HasIndex("EditableItemId")
                         .HasDatabaseName("FK_Foragables_EditableItems");
 
-                    b.ToTable("Foragables");
+                    b.ToTable("Foragables", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.ForagableProfile", b =>
@@ -7263,7 +7263,7 @@ namespace MudSharp.Migrations
                     b.HasIndex("EditableItemId")
                         .HasDatabaseName("FK_ForagableProfiles_EditableItems_idx");
 
-                    b.ToTable("ForagableProfiles");
+                    b.ToTable("ForagableProfiles", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.ForagableProfilesForagables", b =>
@@ -7390,7 +7390,7 @@ namespace MudSharp.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("FutureProgs");
+                    b.ToTable("FutureProgs", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.FutureProgsParameter", b =>
@@ -7565,7 +7565,7 @@ namespace MudSharp.Migrations
                     b.HasIndex("ContainerId")
                         .HasDatabaseName("FK_GameItems_GameItems_Containers_idx");
 
-                    b.ToTable("GameItems");
+                    b.ToTable("GameItems", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.GameItemComponent", b =>
@@ -7597,7 +7597,7 @@ namespace MudSharp.Migrations
                     b.HasIndex("GameItemId")
                         .HasDatabaseName("FK_GameItemComponents_GameItems");
 
-                    b.ToTable("GameItemComponents");
+                    b.ToTable("GameItemComponents", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.GameItemComponentProto", b =>
@@ -7645,7 +7645,7 @@ namespace MudSharp.Migrations
                     b.HasIndex("EditableItemId")
                         .HasDatabaseName("FK_GameItemComponentProtos_EditableItems");
 
-                    b.ToTable("GameItemComponentProtos");
+                    b.ToTable("GameItemComponentProtos", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.GameItemMagicResource", b =>
@@ -7787,7 +7787,7 @@ namespace MudSharp.Migrations
                     b.HasIndex("ItemGroupId")
                         .HasDatabaseName("FK_GameItemProtos_ItemGroups_idx");
 
-                    b.ToTable("GameItemProtos");
+                    b.ToTable("GameItemProtos", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.GameItemProtoExtraDescription", b =>
@@ -7827,7 +7827,7 @@ namespace MudSharp.Migrations
 
                     b.HasIndex("ApplicabilityProgId");
 
-                    b.ToTable("GameItemProtoExtraDescriptions");
+                    b.ToTable("GameItemProtoExtraDescriptions", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.GameItemProtosDefaultVariable", b =>
@@ -8118,7 +8118,7 @@ namespace MudSharp.Migrations
                     b.HasIndex("PrecipitateId")
                         .HasDatabaseName("FK_Gases_Liquids_idx");
 
-                    b.ToTable("Gases");
+                    b.ToTable("Gases", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.GasesTags", b =>
@@ -8162,7 +8162,7 @@ namespace MudSharp.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Grids");
+                    b.ToTable("Grids", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.GroupAi", b =>
@@ -8241,7 +8241,7 @@ namespace MudSharp.Migrations
                     b.HasKey("CharacterId")
                         .HasName("PRIMARY");
 
-                    b.ToTable("Guests");
+                    b.ToTable("Guests", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.HealthStrategy", b =>
@@ -8275,7 +8275,7 @@ namespace MudSharp.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("HealthStrategies");
+                    b.ToTable("HealthStrategies", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.HearingProfile", b =>
@@ -8316,7 +8316,7 @@ namespace MudSharp.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("HearingProfiles");
+                    b.ToTable("HearingProfiles", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.HeightWeightModel", b =>
@@ -8369,7 +8369,7 @@ namespace MudSharp.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("HeightWeightModels");
+                    b.ToTable("HeightWeightModels", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.Helpfile", b =>
@@ -8440,7 +8440,7 @@ namespace MudSharp.Migrations
                     b.HasIndex("RuleId")
                         .HasDatabaseName("FK_Helpfiles_FutureProgs");
 
-                    b.ToTable("Helpfiles");
+                    b.ToTable("Helpfiles", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.HelpfilesExtraText", b =>
@@ -8511,7 +8511,7 @@ namespace MudSharp.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Hooks");
+                    b.ToTable("Hooks", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.HooksPerceivable", b =>
@@ -8600,7 +8600,7 @@ namespace MudSharp.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Improvers");
+                    b.ToTable("Improvers", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.Infection", b =>
@@ -8643,7 +8643,7 @@ namespace MudSharp.Migrations
                     b.HasIndex("WoundId")
                         .HasDatabaseName("FK_Infections_Wounds_idx");
 
-                    b.ToTable("Infections");
+                    b.ToTable("Infections", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.ItemGroup", b =>
@@ -8668,7 +8668,7 @@ namespace MudSharp.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("ItemGroups");
+                    b.ToTable("ItemGroups", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.ItemGroupForm", b =>
@@ -8701,7 +8701,7 @@ namespace MudSharp.Migrations
                     b.HasIndex("ItemGroupId")
                         .HasDatabaseName("FK_ItemGroupForms_ItemGroups_idx");
 
-                    b.ToTable("ItemGroupForms");
+                    b.ToTable("ItemGroupForms", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.JobFindingLocation", b =>
@@ -8941,7 +8941,7 @@ namespace MudSharp.Migrations
                     b.HasIndex("KnowledgeId")
                         .HasDatabaseName("FK_KnowledgesCosts_Knowledges_idx");
 
-                    b.ToTable("KnowledgesCosts");
+                    b.ToTable("KnowledgesCosts", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.Language", b =>
@@ -8989,7 +8989,7 @@ namespace MudSharp.Migrations
                     b.HasIndex("LinkedTraitId")
                         .HasDatabaseName("FK_Languages_TraitDefinitions");
 
-                    b.ToTable("Languages");
+                    b.ToTable("Languages", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.LanguageDifficultyModels", b =>
@@ -9023,7 +9023,7 @@ namespace MudSharp.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("LanguageDifficultyModels");
+                    b.ToTable("LanguageDifficultyModels", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.Law", b =>
@@ -9090,7 +9090,7 @@ namespace MudSharp.Migrations
                     b.HasIndex("LegalAuthorityId")
                         .HasDatabaseName("FK_Laws_LegalAuthority_idx");
 
-                    b.ToTable("Laws");
+                    b.ToTable("Laws", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.LawsOffenderClasses", b =>
@@ -9254,7 +9254,7 @@ namespace MudSharp.Migrations
                     b.HasIndex("PrisonReleaseLocationId")
                         .HasDatabaseName("FK_LegalAuthorities_PrisonReleaseCells_idx");
 
-                    b.ToTable("LegalAuthorities");
+                    b.ToTable("LegalAuthorities", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.LegalAuthorityCells", b =>
@@ -9274,7 +9274,7 @@ namespace MudSharp.Migrations
                     b.HasIndex("LegalAuthorityId")
                         .HasDatabaseName("FK_LegalAuthoritiesCells_LegalAuthorities_idx");
 
-                    b.ToTable("LegalAuthoritiyCells");
+                    b.ToTable("LegalAuthoritiyCells", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.LegalAuthorityFine", b =>
@@ -9320,7 +9320,7 @@ namespace MudSharp.Migrations
                     b.HasIndex("LegalAuthorityId")
                         .HasDatabaseName("FK_LegalAuthoritiesCells_LegalAuthorities_Jail_idx");
 
-                    b.ToTable("LegalAuthorityJailCells");
+                    b.ToTable("LegalAuthorityJailCells", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.LegalClass", b =>
@@ -9358,7 +9358,7 @@ namespace MudSharp.Migrations
                     b.HasIndex("MembershipProgId")
                         .HasDatabaseName("FK_LegalClasses_FutureProgs_idx");
 
-                    b.ToTable("LegalClasses");
+                    b.ToTable("LegalClasses", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.Limb", b =>
@@ -9398,7 +9398,7 @@ namespace MudSharp.Migrations
                     b.HasIndex("RootBodypartId")
                         .HasDatabaseName("FK_Limbs_BodypartProto_idx");
 
-                    b.ToTable("Limbs");
+                    b.ToTable("Limbs", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.LimbBodypartProto", b =>
@@ -9475,7 +9475,7 @@ namespace MudSharp.Migrations
                     b.HasIndex("ShopId")
                         .HasDatabaseName("FK_LineOfCreditAccounts_Shops_idx");
 
-                    b.ToTable("LineOfCreditAccounts");
+                    b.ToTable("LineOfCreditAccounts", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.LineOfCreditAccountUser", b =>
@@ -9504,7 +9504,7 @@ namespace MudSharp.Migrations
                     b.HasIndex("LineOfCreditAccountId")
                         .HasDatabaseName("FK_LineOfCreditAccountUsers_LineOfCreditAccounts_idx");
 
-                    b.ToTable("LineOfCreditAccountUsers");
+                    b.ToTable("LineOfCreditAccountUsers", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.Liquid", b =>
@@ -9736,7 +9736,7 @@ namespace MudSharp.Migrations
                     b.HasIndex("SolventId")
                         .HasDatabaseName("FK_Liquids_Liquids_idx");
 
-                    b.ToTable("Liquids");
+                    b.ToTable("Liquids", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.LiquidsTags", b =>
@@ -9779,7 +9779,7 @@ namespace MudSharp.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Locks");
+                    b.ToTable("Locks", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.LoginIp", b =>
@@ -9853,7 +9853,7 @@ namespace MudSharp.Migrations
                     b.HasIndex("MagicSchoolId")
                         .HasDatabaseName("FK_MagicCapabilities_MagicSchools_idx");
 
-                    b.ToTable("MagicCapabilities");
+                    b.ToTable("MagicCapabilities", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.MagicGenerator", b =>
@@ -9887,7 +9887,7 @@ namespace MudSharp.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("MagicGenerators");
+                    b.ToTable("MagicGenerators", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.MagicPower", b =>
@@ -9941,7 +9941,7 @@ namespace MudSharp.Migrations
                     b.HasIndex("MagicSchoolId")
                         .HasDatabaseName("FK_MagicPowers_MagicSchools_idx");
 
-                    b.ToTable("MagicPowers");
+                    b.ToTable("MagicPowers", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.MagicResource", b =>
@@ -10008,7 +10008,7 @@ namespace MudSharp.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("MagicResources");
+                    b.ToTable("MagicResources", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.MagicSchool", b =>
@@ -10055,7 +10055,7 @@ namespace MudSharp.Migrations
                     b.HasIndex("ParentSchoolId")
                         .HasDatabaseName("FK_MagicSchools_MagicSchools_idx");
 
-                    b.ToTable("MagicSchools");
+                    b.ToTable("MagicSchools", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.MagicSpell", b =>
@@ -10176,7 +10176,7 @@ namespace MudSharp.Migrations
                     b.HasIndex("SpellKnownProgId")
                         .HasDatabaseName("FK_MagicSpells_Futureprogs_idx");
 
-                    b.ToTable("MagicSpells");
+                    b.ToTable("MagicSpells", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.Market", b =>
@@ -10203,7 +10203,7 @@ namespace MudSharp.Migrations
 
                     b.HasIndex("EconomicZoneId");
 
-                    b.ToTable("Markets");
+                    b.ToTable("Markets", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.MarketCategory", b =>
@@ -10231,7 +10231,7 @@ namespace MudSharp.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("MarketCategories");
+                    b.ToTable("MarketCategories", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.MarketInfluence", b =>
@@ -10274,7 +10274,7 @@ namespace MudSharp.Migrations
 
                     b.HasIndex("MarketInfluenceTemplateId");
 
-                    b.ToTable("MarketInfluences");
+                    b.ToTable("MarketInfluences", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.MarketInfluenceTemplate", b =>
@@ -10304,7 +10304,7 @@ namespace MudSharp.Migrations
 
                     b.HasIndex("CharacterKnowsAboutInfluenceProgId");
 
-                    b.ToTable("MarketInfluenceTemplates");
+                    b.ToTable("MarketInfluenceTemplates", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.MarketPopulation", b =>
@@ -10337,7 +10337,7 @@ namespace MudSharp.Migrations
 
                     b.HasIndex("MarketId");
 
-                    b.ToTable("MarketPopulations");
+                    b.ToTable("MarketPopulations", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.Material", b =>
@@ -10457,7 +10457,7 @@ namespace MudSharp.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Materials");
+                    b.ToTable("Materials", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.MaterialsTags", b =>
@@ -10568,7 +10568,7 @@ namespace MudSharp.Migrations
                     b.HasIndex("ShopId")
                         .HasDatabaseName("FK_Merchandises_Shops_idx");
 
-                    b.ToTable("Merchandises");
+                    b.ToTable("Merchandises", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.Merit", b =>
@@ -10614,7 +10614,7 @@ namespace MudSharp.Migrations
                     b.HasIndex("ParentId")
                         .HasDatabaseName("FK_Merits_Merits_idx");
 
-                    b.ToTable("Merits");
+                    b.ToTable("Merits", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.MeritsChargenResources", b =>
@@ -10697,7 +10697,7 @@ namespace MudSharp.Migrations
                     b.HasIndex("BodyProtoId")
                         .HasDatabaseName("FK_MoveSpeeds_BodyPrototype");
 
-                    b.ToTable("MoveSpeeds");
+                    b.ToTable("MoveSpeeds", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.MutualIntelligability", b =>
@@ -10717,7 +10717,7 @@ namespace MudSharp.Migrations
                     b.HasIndex("TargetLanguageId")
                         .HasDatabaseName("FK_Languages_MutualIntelligabilities_Target_idx");
 
-                    b.ToTable("MutualIntelligabilities");
+                    b.ToTable("MutualIntelligabilities", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.NPCSpawner", b =>
@@ -10919,7 +10919,7 @@ namespace MudSharp.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("NonCardinalExitTemplates");
+                    b.ToTable("NonCardinalExitTemplates", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.Npc", b =>
@@ -11254,7 +11254,7 @@ namespace MudSharp.Migrations
                     b.HasIndex("CurrencyId")
                         .HasDatabaseName("FK_Paygrades_Currencies");
 
-                    b.ToTable("Paygrades");
+                    b.ToTable("Paygrades", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.PerceiverMerit", b =>
@@ -11291,7 +11291,7 @@ namespace MudSharp.Migrations
                     b.HasIndex("MeritId")
                         .HasDatabaseName(" FK_PerceiverMerits_Merits_idx");
 
-                    b.ToTable("PerceiverMerits");
+                    b.ToTable("PerceiverMerits", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.PlayerActivitySnapshot", b =>
@@ -11346,7 +11346,7 @@ namespace MudSharp.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("PopulationBloodModels");
+                    b.ToTable("PopulationBloodModels", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.PopulationBloodModelsBloodtype", b =>
@@ -11417,7 +11417,7 @@ namespace MudSharp.Migrations
                     b.HasIndex("FutureProgId")
                         .HasDatabaseName("FK_ProgSchedules_FutureProgs_idx");
 
-                    b.ToTable("ProgSchedules");
+                    b.ToTable("ProgSchedules", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.Project", b =>
@@ -11462,7 +11462,7 @@ namespace MudSharp.Migrations
                     b.HasIndex("EditableItemId")
                         .HasDatabaseName("FK_Projects_EditableItems_idx");
 
-                    b.ToTable("Projects");
+                    b.ToTable("Projects", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.ProjectAction", b =>
@@ -11512,7 +11512,7 @@ namespace MudSharp.Migrations
                     b.HasIndex("ProjectPhaseId")
                         .HasDatabaseName("FK_ProjectActions_ProjectPhases_idx");
 
-                    b.ToTable("ProjectActions");
+                    b.ToTable("ProjectActions", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.ProjectLabourImpact", b =>
@@ -11562,7 +11562,7 @@ namespace MudSharp.Migrations
                     b.HasIndex("ProjectLabourRequirementId")
                         .HasDatabaseName("FK_ProjectLabourImpacts_ProjectLabourRequirements_idx");
 
-                    b.ToTable("ProjectLabourImpacts");
+                    b.ToTable("ProjectLabourImpacts", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.ProjectLabourRequirement", b =>
@@ -11615,7 +11615,7 @@ namespace MudSharp.Migrations
                     b.HasIndex("ProjectPhaseId")
                         .HasDatabaseName("FK_ProjectLabourRequirements_ProjectPhases_idx");
 
-                    b.ToTable("ProjectLabourRequirements");
+                    b.ToTable("ProjectLabourRequirements", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.ProjectMaterialRequirement", b =>
@@ -11667,7 +11667,7 @@ namespace MudSharp.Migrations
                     b.HasIndex("ProjectPhaseId")
                         .HasDatabaseName("FK_ProjectMaterialRequirements_ProjectPhases_idx");
 
-                    b.ToTable("ProjectMaterialRequirements");
+                    b.ToTable("ProjectMaterialRequirements", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.ProjectPhase", b =>
@@ -11699,7 +11699,7 @@ namespace MudSharp.Migrations
                     b.HasIndex("ProjectId", "ProjectRevisionNumber")
                         .HasDatabaseName("FK_ProjectPhases_Projects_idx");
 
-                    b.ToTable("ProjectPhases");
+                    b.ToTable("ProjectPhases", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.Property", b =>
@@ -12417,7 +12417,7 @@ namespace MudSharp.Migrations
                     b.HasIndex("SweatLiquidId")
                         .HasDatabaseName("FK_Races_Liqiuds_Sweat_idx");
 
-                    b.ToTable("Races");
+                    b.ToTable("Races", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.RaceButcheryProfile", b =>
@@ -12461,7 +12461,7 @@ namespace MudSharp.Migrations
                     b.HasIndex("WhyCannotButcherProgId")
                         .HasDatabaseName("FK_RaceButcheryProfiles_FutureProgs_Why_idx");
 
-                    b.ToTable("RaceButcheryProfiles");
+                    b.ToTable("RaceButcheryProfiles", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.RaceButcheryProfilesBreakdownChecks", b =>
@@ -12608,7 +12608,7 @@ namespace MudSharp.Migrations
                     b.HasKey("RaceId", "YieldType")
                         .HasName("PRIMARY");
 
-                    b.ToTable("RaceEdibleForagableYields");
+                    b.ToTable("RaceEdibleForagableYields", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.RacesAdditionalBodyparts", b =>
@@ -12891,7 +12891,7 @@ namespace MudSharp.Migrations
 
                     b.HasIndex("UseForChargenSuggestionsProgId");
 
-                    b.ToTable("RandomNameProfiles");
+                    b.ToTable("RandomNameProfiles", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.RandomNameProfilesDiceExpressions", b =>
@@ -12984,7 +12984,7 @@ namespace MudSharp.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("RangedCovers");
+                    b.ToTable("RangedCovers", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.RangedWeaponTypes", b =>
@@ -13097,7 +13097,7 @@ namespace MudSharp.Migrations
                     b.HasIndex("OperateTraitId")
                         .HasDatabaseName("FK_RangedWeaponTypes_TraitDefinitions_Operate_idx");
 
-                    b.ToTable("RangedWeaponTypes");
+                    b.ToTable("RangedWeaponTypes", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.Rank", b =>
@@ -13149,7 +13149,7 @@ namespace MudSharp.Migrations
                     b.HasIndex("InsigniaGameItemId", "InsigniaGameItemRevnum")
                         .HasDatabaseName("FK_Ranks_GameItemProtos");
 
-                    b.ToTable("Ranks");
+                    b.ToTable("Ranks", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.RanksAbbreviations", b =>
@@ -13244,7 +13244,7 @@ namespace MudSharp.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("RegionalClimates");
+                    b.ToTable("RegionalClimates", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.RegionalClimatesSeason", b =>
@@ -13296,7 +13296,7 @@ namespace MudSharp.Migrations
                     b.HasIndex("ZoneId")
                         .HasDatabaseName("FK_Rooms_Zones");
 
-                    b.ToTable("Rooms");
+                    b.ToTable("Rooms", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.Script", b =>
@@ -13346,7 +13346,7 @@ namespace MudSharp.Migrations
                     b.HasIndex("KnowledgeId")
                         .HasDatabaseName("FK_Scripts_Knowledges_idx");
 
-                    b.ToTable("Scripts");
+                    b.ToTable("Scripts", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.ScriptedEvent", b =>
@@ -13387,7 +13387,7 @@ namespace MudSharp.Migrations
 
                     b.HasIndex("CharacterId");
 
-                    b.ToTable("ScriptedEvents");
+                    b.ToTable("ScriptedEvents", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.ScriptedEventFreeTextQuestion", b =>
@@ -13417,7 +13417,7 @@ namespace MudSharp.Migrations
 
                     b.HasIndex("ScriptedEventId");
 
-                    b.ToTable("ScriptedEventFreeTextQuestions");
+                    b.ToTable("ScriptedEventFreeTextQuestions", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.ScriptedEventMultipleChoiceQuestion", b =>
@@ -13446,7 +13446,7 @@ namespace MudSharp.Migrations
 
                     b.HasIndex("ScriptedEventId");
 
-                    b.ToTable("ScriptedEventMultipleChoiceQuestions");
+                    b.ToTable("ScriptedEventMultipleChoiceQuestions", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.ScriptedEventMultipleChoiceQuestionAnswer", b =>
@@ -13486,7 +13486,7 @@ namespace MudSharp.Migrations
 
                     b.HasIndex("ScriptedEventMultipleChoiceQuestionId");
 
-                    b.ToTable("ScriptedEventMultipleChoiceQuestionAnswers");
+                    b.ToTable("ScriptedEventMultipleChoiceQuestionAnswers", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.ScriptsDesignedLanguage", b =>
@@ -13546,7 +13546,7 @@ namespace MudSharp.Migrations
                     b.HasIndex("CelestialId")
                         .HasDatabaseName("FK_Seasons_Celestials_idx");
 
-                    b.ToTable("Seasons");
+                    b.ToTable("Seasons", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.SeederChoice", b =>
@@ -13574,7 +13574,7 @@ namespace MudSharp.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("SeederChoices");
+                    b.ToTable("SeederChoices", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.Shard", b =>
@@ -13608,7 +13608,7 @@ namespace MudSharp.Migrations
                     b.HasIndex("SkyDescriptionTemplateId")
                         .HasDatabaseName("FK_Shards_SkyDescriptionTemplates");
 
-                    b.ToTable("Shards");
+                    b.ToTable("Shards", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.ShardsCalendars", b =>
@@ -13688,7 +13688,7 @@ namespace MudSharp.Migrations
                     b.HasIndex("EffectiveArmourTypeId")
                         .HasDatabaseName("FK_ShieldTypes_ArmourTypes_idx");
 
-                    b.ToTable("ShieldTypes");
+                    b.ToTable("ShieldTypes", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.Shop", b =>
@@ -13784,7 +13784,7 @@ namespace MudSharp.Migrations
                     b.HasIndex("WorkshopCellId")
                         .HasDatabaseName("FK_Shops_Cells_Workshop_idx");
 
-                    b.ToTable("Shops");
+                    b.ToTable("Shops", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.ShopFinancialPeriodResult", b =>
@@ -13819,7 +13819,7 @@ namespace MudSharp.Migrations
                     b.HasIndex("ShopId")
                         .HasDatabaseName("FK_ShopFinancialPeriodResults_Shops_idx");
 
-                    b.ToTable("ShopFinancialPeriodResults");
+                    b.ToTable("ShopFinancialPeriodResults", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.ShopTransactionRecord", b =>
@@ -13866,7 +13866,7 @@ namespace MudSharp.Migrations
                     b.HasIndex("ShopId")
                         .HasDatabaseName("FK_ShopTransactionRecords_Shops_idx");
 
-                    b.ToTable("ShopTransactionRecords");
+                    b.ToTable("ShopTransactionRecords", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.ShopsStoreroomCell", b =>
@@ -13900,7 +13900,7 @@ namespace MudSharp.Migrations
                     b.HasIndex("GameItemId")
                         .HasDatabaseName("FK_ShopTills_GameItems_idx");
 
-                    b.ToTable("ShopsTills");
+                    b.ToTable("ShopsTills", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.SkyDescriptionTemplate", b =>
@@ -13920,7 +13920,7 @@ namespace MudSharp.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("SkyDescriptionTemplates");
+                    b.ToTable("SkyDescriptionTemplates", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.SkyDescriptionTemplatesValue", b =>
@@ -13990,7 +13990,7 @@ namespace MudSharp.Migrations
                     b.HasIndex("FutureProgId")
                         .HasDatabaseName("FK_Socials_FutureProgs");
 
-                    b.ToTable("Socials");
+                    b.ToTable("Socials", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.StackDecorator", b =>
@@ -14030,7 +14030,7 @@ namespace MudSharp.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("StackDecorators");
+                    b.ToTable("StackDecorators", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.StaticConfiguration", b =>
@@ -14051,7 +14051,7 @@ namespace MudSharp.Migrations
                     b.HasKey("SettingName")
                         .HasName("PRIMARY");
 
-                    b.ToTable("StaticConfigurations");
+                    b.ToTable("StaticConfigurations", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.StaticString", b =>
@@ -14071,7 +14071,7 @@ namespace MudSharp.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("StaticStrings");
+                    b.ToTable("StaticStrings", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.SurgicalProcedure", b =>
@@ -14177,7 +14177,7 @@ namespace MudSharp.Migrations
                     b.HasIndex("WhyCannotUseProgId")
                         .HasDatabaseName("FK_SurgicalProcedures_FutureProgs_WhyCannotUseProg_idx");
 
-                    b.ToTable("SurgicalProcedures");
+                    b.ToTable("SurgicalProcedures", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.SurgicalProcedurePhase", b =>
@@ -14219,7 +14219,7 @@ namespace MudSharp.Migrations
                     b.HasIndex("OnPhaseProgId")
                         .HasDatabaseName("FK_SurgicalProcedurePhases_FutureProgs_OnPhaseProg_idx");
 
-                    b.ToTable("SurgicalProcedurePhases");
+                    b.ToTable("SurgicalProcedurePhases", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.Tag", b =>
@@ -14251,7 +14251,7 @@ namespace MudSharp.Migrations
                     b.HasIndex("ShouldSeeProgId")
                         .HasDatabaseName("FK_Tags_Futureprogs_idx");
 
-                    b.ToTable("Tags");
+                    b.ToTable("Tags", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.Terrain", b =>
@@ -14370,7 +14370,7 @@ namespace MudSharp.Migrations
                     b.HasIndex("WeatherControllerId")
                         .HasDatabaseName("FK_Terrains_WeatherControllers_idx");
 
-                    b.ToTable("Terrains");
+                    b.ToTable("Terrains", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.TerrainsRangedCovers", b =>
@@ -14410,7 +14410,7 @@ namespace MudSharp.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("TimeZoneInfos");
+                    b.ToTable("TimeZoneInfos", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.Timezone", b =>
@@ -14449,7 +14449,7 @@ namespace MudSharp.Migrations
                     b.HasIndex("ClockId")
                         .HasDatabaseName("FK_Timezones_Clocks");
 
-                    b.ToTable("Timezones");
+                    b.ToTable("Timezones", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.Track", b =>
@@ -14545,7 +14545,7 @@ namespace MudSharp.Migrations
                     b.HasIndex("TraitDefinitionId")
                         .HasDatabaseName("FK_Traits_TraitDefinitions");
 
-                    b.ToTable("Traits");
+                    b.ToTable("Traits", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.TraitDecorator", b =>
@@ -14578,7 +14578,7 @@ namespace MudSharp.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("TraitDecorators");
+                    b.ToTable("TraitDecorators", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.TraitDefinition", b =>
@@ -14699,7 +14699,7 @@ namespace MudSharp.Migrations
                     b.HasIndex("TeachableProgId")
                         .HasDatabaseName("FK_TraitDefinitions_TeachableProg_idx");
 
-                    b.ToTable("TraitDefinitions");
+                    b.ToTable("TraitDefinitions", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.TraitDefinitionsChargenResources", b =>
@@ -14789,7 +14789,7 @@ namespace MudSharp.Migrations
                     b.HasIndex("TraitExpressionId")
                         .HasDatabaseName("FK_TraitExpressionParameters_TraitExpression");
 
-                    b.ToTable("TraitExpressionParameters");
+                    b.ToTable("TraitExpressionParameters", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.UnitOfMeasure", b =>
@@ -14878,7 +14878,7 @@ namespace MudSharp.Migrations
                     b.HasKey("OwnerType", "Property")
                         .HasName("PRIMARY");
 
-                    b.ToTable("VariableDefaults");
+                    b.ToTable("VariableDefaults", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.VariableDefinition", b =>
@@ -14898,7 +14898,7 @@ namespace MudSharp.Migrations
                     b.HasKey("OwnerType", "Property")
                         .HasName("PRIMARY");
 
-                    b.ToTable("VariableDefinitions");
+                    b.ToTable("VariableDefinitions", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.VariableValue", b =>
@@ -14928,7 +14928,7 @@ namespace MudSharp.Migrations
                     b.HasKey("ReferenceType", "ReferenceId", "ReferenceProperty")
                         .HasName("PRIMARY");
 
-                    b.ToTable("VariableValues");
+                    b.ToTable("VariableValues", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.WeaponAttack", b =>
@@ -15067,7 +15067,7 @@ namespace MudSharp.Migrations
                     b.HasIndex("WeaponTypeId")
                         .HasDatabaseName("FK_WeaponAttacks_WeaponTypes_idx");
 
-                    b.ToTable("WeaponAttacks");
+                    b.ToTable("WeaponAttacks", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.WeaponType", b =>
@@ -15113,7 +15113,7 @@ namespace MudSharp.Migrations
                     b.HasIndex("ParryTraitId")
                         .HasDatabaseName("FK_WeaponTypes_TraitDefinitions_Parry_idx");
 
-                    b.ToTable("WeaponTypes");
+                    b.ToTable("WeaponTypes", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.WearProfile", b =>
@@ -15199,7 +15199,7 @@ namespace MudSharp.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("WearProfiles");
+                    b.ToTable("WearProfiles", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.WearableSize", b =>
@@ -15227,7 +15227,7 @@ namespace MudSharp.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("WearableSizes");
+                    b.ToTable("WearableSizes", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.WearableSizeParameterRule", b =>
@@ -15370,7 +15370,7 @@ namespace MudSharp.Migrations
                     b.HasIndex("RegionalClimateId")
                         .HasDatabaseName("FK_WeatherControllers_RegionalClimates_idx");
 
-                    b.ToTable("WeatherControllers");
+                    b.ToTable("WeatherControllers", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.WeatherEvent", b =>
@@ -15459,7 +15459,7 @@ namespace MudSharp.Migrations
                     b.HasIndex("CountsAsId")
                         .HasDatabaseName("FK_WeatherEvents_WeatherEvents_idx");
 
-                    b.ToTable("WeatherEvents");
+                    b.ToTable("WeatherEvents", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.WeeklyStatistic", b =>
@@ -15556,7 +15556,7 @@ namespace MudSharp.Migrations
                     b.HasIndex("ReportingMultiplierProgId")
                         .HasDatabaseName("FK_WitnessProfiles_MultiplierProg_idx");
 
-                    b.ToTable("WitnessProfiles");
+                    b.ToTable("WitnessProfiles", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.WitnessProfilesCooperatingAuthorities", b =>
@@ -15689,7 +15689,7 @@ namespace MudSharp.Migrations
                     b.HasIndex("ToolOriginId")
                         .HasDatabaseName("FK_Wounds_GameItems_Tool_idx");
 
-                    b.ToTable("Wounds");
+                    b.ToTable("Wounds", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.Writing", b =>
@@ -15761,7 +15761,7 @@ namespace MudSharp.Migrations
                     b.HasIndex("TrueAuthorId")
                         .HasDatabaseName("FK_Writings_Characters_TrueAuthor_idx");
 
-                    b.ToTable("Writings");
+                    b.ToTable("Writings", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.Zone", b =>
@@ -15814,7 +15814,7 @@ namespace MudSharp.Migrations
                     b.HasIndex("WeatherControllerId")
                         .HasDatabaseName("FK_Zones_WeatherControllers_idx");
 
-                    b.ToTable("Zones");
+                    b.ToTable("Zones", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.ZonesTimezones", b =>

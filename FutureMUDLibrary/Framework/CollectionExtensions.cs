@@ -8,6 +8,18 @@ using MudSharp.Framework.Revision;
 #nullable enable
 namespace MudSharp.Framework {
 	public static class CollectionExtensions {
+
+		public static void RemoveAllKeys<T, TKey, TValue>(this T dictionary, Predicate<TKey> predicate) where T : IDictionary<TKey, TValue>
+		{
+			foreach (var key in dictionary.Keys.ToArray())
+			{
+				if (predicate(key))
+				{
+					dictionary.Remove(key);
+				}
+			}
+		}
+
 		public static (int Sum1, int Sum2) Sum2<T>(this IEnumerable<T> collection, Func<T,int> func1, Func<T,int> func2)
 		{
 			int sum1 = 0, sum2 = 0;

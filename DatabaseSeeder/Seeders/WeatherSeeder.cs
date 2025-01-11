@@ -1206,7 +1206,7 @@ At the present time, this seeder only installs a temperate oceanic climate (e.g.
 		var temperateModel = new ClimateModel
 		{
 			Name = "Temperate",
-			MinuteProcessingInterval = 60,
+			MinuteProcessingInterval = 10,
 			MinimumMinutesBetweenFlavourEchoes = 60,
 			MinuteFlavourEchoChance = 0.01,
 			Type = "terrestrial"

@@ -49,7 +49,7 @@ public class TemporalHearingProfile : HearingProfile
 			foreach (var sub in element.Elements("Time"))
 			{
 				_timeRanges.Add(
-					new BoundRange<SimpleHearingProfile>(
+					new BoundRange<SimpleHearingProfile>(_timeRanges,
 						(SimpleHearingProfile)
 						game.HearingProfiles.Get(long.Parse(sub.Attribute("ProfileID").Value)),
 						Convert.ToDouble(sub.Attribute("Lower").Value),

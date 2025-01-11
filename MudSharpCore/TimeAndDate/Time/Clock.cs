@@ -257,7 +257,7 @@ public class Clock : SaveableItem, IClock
 
 		foreach (var subElement in element.Elements("CrudeTimeInterval"))
 		{
-			CrudeTimeIntervals.Add(new BoundRange<string>(subElement.Attribute("text").Value,
+			CrudeTimeIntervals.Add(new BoundRange<string>(CrudeTimeIntervals, subElement.Attribute("text").Value,
 				Convert.ToDouble(subElement.Attribute("Lower").Value),
 				Convert.ToDouble(subElement.Attribute("Upper").Value)));
 		}

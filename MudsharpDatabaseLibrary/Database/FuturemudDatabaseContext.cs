@@ -147,6 +147,7 @@ namespace MudSharp.Database
 		public virtual DbSet<ClanAdministrationCell> ClansAdministrationCells { get; set; }
 		public virtual DbSet<ClanTreasuryCell> ClansTreasuryCells { get; set; }
 		public virtual DbSet<ClimateModel> ClimateModels { get; set; }
+		public virtual DbSet<ClimateModelSeason> ClimateModelSeason { get; set; }
 		public virtual DbSet<Clock> Clocks { get; set; }
 		public virtual DbSet<Coin> Coins { get; set; }
 		public virtual DbSet<Colour> Colours { get; set; }

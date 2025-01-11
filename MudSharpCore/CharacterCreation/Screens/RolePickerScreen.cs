@@ -293,7 +293,7 @@ public class RolePickerScreenStoryboard : ChargenScreenStoryboard
 			Chargen.SelectedRoles.RemoveAll(x => x.RoleType != ChargenRoleType.StartingLocation);
 			ShownIntroduction = false;
 			_selectedRole = null;
-			CurrentStage = ChargenRoleType.Class;
+			CurrentStage = Storyboard.TypeOrder.First();
 		}
 
 		private bool AdvanceStage()

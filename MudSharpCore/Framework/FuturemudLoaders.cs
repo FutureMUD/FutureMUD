@@ -312,14 +312,15 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 			game.LoadScripts(); // Must come after LoadLanguages
 
 			game.LoadUnits();
+			game.LoadMagic(); // Needs to come before LoadMerits
+			game.LoadMerits(); // ToDO - where should this be loaded?
 			game.LoadAIs(); // Needs to come after LoadFutureProgs and LoadBodies
 			game.LoadDisfigurements();
-			game.LoadNPCTemplates(); // Needs to come after LoadAIs and LoadHeightWeightModels
+			game.LoadNPCTemplates(); // Needs to come after LoadAIs, LoadMerits and LoadHeightWeightModels
 			game.LoadWritings(); // Needs to come after LoadScripts and before LoadWorldItems
 			game.LoadDrawings(); // Needs to come before LoadWorldItems
 
-			game.LoadMagic(); // Needs to come before LoadMerits
-			game.LoadMerits(); // ToDO - where should this be loaded?
+			
 			game.LoadProjects(); // Needs to come before LoadNPCs
 
 			Character.Character.InitialiseCharacterClass(this);

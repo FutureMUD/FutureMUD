@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using MudSharp.Character.Heritage;
 using MudSharp.Climate;
 using MudSharp.Climate.ClimateModels;
+using MudSharp.Climate.WeatherEvents;
 using MudSharp.Commands.Modules;
 using MudSharp.Effects.Concrete;
 using MudSharp.Framework.Revision;
@@ -38,58 +39,71 @@ public partial class EditableItemHelper
 		CastToType = typeof(IWeatherEvent),
 		EditableNewAction = (actor, input) =>
 		{
-			//if (input.IsFinished)
-			//{
-			//	actor.OutputHandler.Send("You must specify a name for your weather event.");
-			//	return;
-			//}
+			if (input.IsFinished)
+			{
+				actor.OutputHandler.Send("You must specify a name for your weather event.");
+				return;
+			}
 
-			//var name = input.PopSpeech().TitleCase();
-			//if (actor.Gameworld.WeatherEvents.Any(x => x.Name.EqualTo(name)))
-			//{
-			//	actor.OutputHandler.Send($"There is already a weather event called {name.ColourName()}. Names must be unique.");
-			//	return;
-			//}
+			var name = input.PopSpeech().TitleCase();
+			if (actor.Gameworld.WeatherEvents.Any(x => x.Name.EqualTo(name)))
+			{
+				actor.OutputHandler.Send($"There is already a weather event called {name.ColourName()}. Names must be unique.");
+				return;
+			}
 
-			//var cm = new TerrestrialClimateModel(actor.Gameworld, name);
-			//actor.Gameworld.Add(cm);
-			//actor.RemoveAllEffects<BuilderEditingEffect<IWeatherEvent>>();
-			//actor.AddEffect(new BuilderEditingEffect<IWeatherEvent>(actor) { EditingItem = cm });
-			//actor.OutputHandler.Send($"You create a new climate model called {name.ColourName()}, which you are also editing.");
+			IWeatherEvent we;
+			switch (input.PopForSwitch())
+			{
+				case "simple":
+					we = new SimpleWeatherEvent(actor.Gameworld, name);
+					break;
+				case "rain":
+					we = new RainWeatherEvent(actor.Gameworld, name);
+					break;
+				default:
+					actor.OutputHandler.Send("You must specify either #3simple#0 or #3rain#0 for the event type.".SubstituteANSIColour());
+					return;
+			}
+
+			actor.Gameworld.Add(we);
+			actor.RemoveAllEffects<BuilderEditingEffect<IWeatherEvent>>();
+			actor.AddEffect(new BuilderEditingEffect<IWeatherEvent>(actor) { EditingItem = we });
+			actor.OutputHandler.Send($"You create a new weather model called {name.ColourName()}, which you are also editing.");
 		},
 		EditableCloneAction = (actor, input) =>
 		{
-			//if (input.IsFinished)
-			//{
-			//	actor.OutputHandler.Send("Which climate model do you want to clone?");
-			//	return;
-			//}
+			if (input.IsFinished)
+			{
+				actor.OutputHandler.Send("Which weather event do you want to clone?");
+				return;
+			}
 
-			//var model = actor.Gameworld.ClimateModels.GetByIdOrName(input.PopSpeech());
-			//if (model is null)
-			//{
-			//	actor.OutputHandler.Send($"There is no climate model identified by the text {input.Last.ColourCommand()}.");
-			//	return;
-			//}
+			var old = actor.Gameworld.WeatherEvents.GetByIdOrName(input.PopSpeech());
+			if (old is null)
+			{
+				actor.OutputHandler.Send($"There is no weather event identified by the text {input.Last.ColourCommand()}.");
+				return;
+			}
 
-			//if (input.IsFinished)
-			//{
-			//	actor.OutputHandler.Send("You must specify a name for your climate model.");
-			//	return;
-			//}
+			if (input.IsFinished)
+			{
+				actor.OutputHandler.Send("You must specify a name for your weather event.");
+				return;
+			}
 
-			//var name = input.PopSpeech().TitleCase();
-			//if (actor.Gameworld.ClimateModels.Any(x => x.Name.EqualTo(name)))
-			//{
-			//	actor.OutputHandler.Send($"There is already a climate model called {name.ColourName()}. Names must be unique.");
-			//	return;
-			//}
+			var name = input.PopSpeech().TitleCase();
+			if (actor.Gameworld.WeatherEvents.Any(x => x.Name.EqualTo(name)))
+			{
+				actor.OutputHandler.Send($"There is already a weather event called {name.ColourName()}. Names must be unique.");
+				return;
+			}
 
-			//var cm = model.Clone(name);
-			//actor.Gameworld.Add(cm);
-			//actor.RemoveAllEffects<BuilderEditingEffect<IWeatherEvent>>();
-			//actor.AddEffect(new BuilderEditingEffect<IWeatherEvent>(actor) { EditingItem = cm });
-			//actor.OutputHandler.Send($"You clone a new climate model called {name.ColourName()} from {model.Name.ColourName()}, which you are also editing.");
+			var we = old.Clone(name);
+			actor.Gameworld.Add(we);
+			actor.RemoveAllEffects<BuilderEditingEffect<IWeatherEvent>>();
+			actor.AddEffect(new BuilderEditingEffect<IWeatherEvent>(actor) { EditingItem = we });
+			actor.OutputHandler.Send($"You clone a new weather event called {name.ColourName()} from {old.Name.ColourName()}, which you are also editing.");
 		},
 
 		GetListTableHeaderFunc = character => new List<string>

@@ -83,6 +83,10 @@ public class SimpleWeatherEvent : WeatherEventBase
 		}
 	}
 
+	protected SimpleWeatherEvent()
+	{
+	}
+
 	public SimpleWeatherEvent(IFuturemud gameworld, string name) : base(gameworld, name)
 	{
 		Precipitation = PrecipitationLevel.Parched;
@@ -128,9 +132,174 @@ public class SimpleWeatherEvent : WeatherEventBase
 	}
 
 	/// <inheritdoc />
+	public override string SubtypeHelpText => @"	#3default <echo>#0 - sets the default transition echo to this
+	#3echo add <weight> <echo>#0 - adds a flavour echo to the rotation
+	#3echo remove <##>#0 - removes the certain numbered flavour echo
+	#3transition <from> <echo>#0 - sets a custom transition echo for another event
+	#3transition none <from>#0 - removes a custom transition echo";
+
+	/// <inheritdoc />
 	public override bool BuildingCommand(ICharacter actor, StringStack command)
 	{
-		throw new NotImplementedException();
+		switch (command.PopForSwitch())
+		{
+			case "default":
+				return BuildingCommandDefault(actor, command);
+			case "transition":
+				return BuildingCommandTransition(actor, command);
+			case "echo":
+				return BuildingCommandEcho(actor, command);
+			default:
+				return base.BuildingCommand(actor, command.GetUndo());
+		}
+	}
+
+	private bool BuildingCommandEcho(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("You must either #3add#0 or #3remove#0 an echo.".SubstituteANSIColour());
+			return false;
+		}
+
+		switch (command.PopForSwitch())
+		{
+			case "add":
+				break;
+			case "remove":
+			case "delete":
+			case "rem":
+			case "del":
+				return BuildingCommandRemoveEcho(actor, command);
+			default:
+				actor.OutputHandler.Send("You must either #3add#0 or #3remove#0 an echo.".SubstituteANSIColour());
+				return false;
+		}
+
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("What should be the relative weight of this random echo compared to others?");
+			return false;
+		}
+
+		if (!double.TryParse(command.PopSpeech(), out var chance) || chance <= 0.0)
+		{
+			actor.OutputHandler.Send($"The text {command.Last.ColourCommand()} is not a valid number.");
+			return false;
+		}
+
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send($"What echo do you want to add to this weather event?");
+			return false;
+		}
+
+		var echo = command.SafeRemainingArgument.ProperSentences();
+		_randomEchoes.Add((echo, chance));
+		var total = _randomEchoes.Sum(x => x.Chance);
+		actor.OutputHandler.Send($"You add the following echo with a weight of {chance.ToStringN2Colour(actor)} ({(chance / total).ToStringP2Colour(actor)}): {echo.SubstituteANSIColour()}");
+		Changed = true;
+		return true;
+	}
+
+	private bool BuildingCommandRemoveEcho(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("Which numbered echo do you want to remove?");
+			return false;
+		}
+
+		if (!int.TryParse(command.SafeRemainingArgument, out var value) || value < 1 || value > _randomEchoes.Count)
+		{
+			actor.OutputHandler.Send($"You must enter a valid number between {1.ToStringN0Colour(actor)} and {_randomEchoes.Count.ToStringN0Colour(actor)}.");
+			return false;
+		}
+
+		var echo = _randomEchoes[value - 1];
+		_randomEchoes.RemoveAt(value - 1);
+		Changed = true;
+		actor.OutputHandler.Send($"You remove the {value.ToOrdinal().ColourValue()} echo: {echo.Echo.SubstituteANSIColour()}");
+		return true;
+	}
+
+	private bool BuildingCommandTransition(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send($"You must either specify another weather event to set a custom transition from, or use #3none#0 to clear one.".SubstituteANSIColour());
+			return false;
+		}
+
+		IWeatherEvent we;
+		var which = command.PopSpeech();
+		if (which.EqualTo("none"))
+		{
+			if (command.IsFinished)
+			{
+				actor.OutputHandler.Send("Which other weather event do you want to remove the custom transition for?");
+				return false;
+			}
+
+			we = Gameworld.WeatherEvents.GetByIdOrName(command.SafeRemainingArgument);
+			if (we is null)
+			{
+				actor.OutputHandler.Send("There is no such weather event.");
+				return false;
+			}
+
+			if (!_transitionEchoOverrides.ContainsKey(we.Id))
+			{
+				actor.OutputHandler.Send($"This weather event has no custom transition echo for the {we.Name.ColourValue()} weather event.");
+				return false;
+			}
+
+			_transitionEchoOverrides.Remove(we.Id);
+			Changed = true;
+			actor.OutputHandler.Send($"This weather event no longer has any custom transition echo for the {we.Name.ColourValue()} weather event.");
+			return true;
+
+			
+		}
+
+		we = Gameworld.WeatherEvents.GetByIdOrName(command.SafeRemainingArgument);
+		if (we is null)
+		{
+			actor.OutputHandler.Send("There is no such weather event.");
+			return false;
+		}
+
+		if (we == this)
+		{
+			actor.OutputHandler.Send("You cannot set a custom transition for an event to itself.");
+			return false;
+		}
+
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send($"What should be the custom transition echo for the {we.Name.ColourValue()} weather event?");
+			return false;
+		}
+
+		var echo = command.SafeRemainingArgument.ProperSentences();
+		_transitionEchoOverrides[we.Id] = echo;
+		Changed = true;
+		actor.OutputHandler.Send($"The transition from the {we.Name.ColourValue()} weather event now has the following custom echo:\n{echo.SubstituteANSIColour()}");
+		return true;
+	}
+
+	private bool BuildingCommandDefault(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("What should the default transition echo for this weather event be?");
+			return false;
+		}
+
+		_defaultTransitionEcho = command.SafeRemainingArgument.ProperSentences();
+		Changed = true;
+		actor.OutputHandler.Send($"The default transition echo for this event is now: {_defaultTransitionEcho.SubstituteANSIColour()}");
+		return true;
 	}
 
 	/// <inheritdoc />

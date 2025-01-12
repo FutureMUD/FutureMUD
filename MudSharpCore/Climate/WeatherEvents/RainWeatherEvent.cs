@@ -12,11 +12,30 @@ using System.Xml.Linq;
 using MudSharp.Character;
 using MudSharp.Character.Heritage;
 using MudSharp.Framework.Units;
+using MudSharp.Celestial;
 
 namespace MudSharp.Climate.WeatherEvents
 {
 	internal class RainWeatherEvent : SimpleWeatherEvent
 	{
+		public RainWeatherEvent(IFuturemud gameworld, string name)
+		{
+			Precipitation = PrecipitationLevel.Rain;
+			Wind = WindLevel.None;
+			WeatherDescription = "An undescribed weather event";
+			WeatherRoomAddendum = "";
+			TemperatureEffect = 0.0;
+			PrecipitationTemperatureEffect = 0.0;
+			WindTemperatureEffect = 0.0;
+			LightLevelMultiplier = 0.4;
+			ObscuresViewOfSky = true;
+			PermittedTimesOfDay = [TimeOfDay.Afternoon, TimeOfDay.Dawn, TimeOfDay.Dusk, TimeOfDay.Morning, TimeOfDay.Night];
+			RainLiquid = Gameworld.Liquids.FirstOrDefault(x => x.Name == "Rain Water") ?? 
+			             Gameworld.Liquids.FirstOrDefault(x => x.Name == "Water") ??
+			             Gameworld.Liquids.First();
+			DoDatabaseInsert();
+		}
+
 		public RainWeatherEvent(MudSharp.Models.WeatherEvent weather, IFuturemud gameworld) : base(weather, gameworld)
 		{
 			var definition = XElement.Parse(weather.AdditionalInfo);
@@ -126,5 +145,45 @@ namespace MudSharp.Climate.WeatherEvents
 				ch.Body.ExposeToPrecipitation(Precipitation, RainLiquid);
 			}
 		}
+
+		#region Overrides of SimpleWeatherEvent
+
+		/// <inheritdoc />
+		public override string SubtypeHelpText => @$"{base.SubtypeHelpText}
+	#3liquid <liquid>#0 - sets the liquid that falls as rain";
+
+		/// <inheritdoc />
+		public override bool BuildingCommand(ICharacter actor, StringStack command)
+		{
+			switch (command.PopForSwitch())
+			{
+				case "liquid":
+					return BuildingCommandLiquid(actor, command);
+			}
+			return base.BuildingCommand(actor, command.GetUndo());
+		}
+
+		private bool BuildingCommandLiquid(ICharacter actor, StringStack command)
+		{
+			if (command.IsFinished)
+			{
+				actor.OutputHandler.Send($"Which liquid should this weather event cause to fall as rain?");
+				return false;
+			}
+
+			var liquid = Gameworld.Liquids.GetByIdOrName(command.SafeRemainingArgument);
+			if (liquid is null)
+			{
+				actor.OutputHandler.Send($"The text {command.SafeRemainingArgument.ColourCommand()} does not represent a valid liquids.");
+				return false;
+			}
+
+			RainLiquid = liquid;
+			Changed = true;
+			actor.OutputHandler.Send($"This event now rains {liquid.Name.Colour(liquid.DisplayColour)}.");
+			return true;
+		}
+
+		#endregion
 	}
 }

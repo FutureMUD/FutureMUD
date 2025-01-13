@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using MudSharp.Accounts;
 using MudSharp.Character;
 using MudSharp.Commands.Helpers;
+using MudSharp.Commands.Trees;
 using MudSharp.Database;
 using MudSharp.Events;
 using MudSharp.Form.Characteristics;
@@ -168,28 +169,14 @@ internal abstract class BaseBuilderModule : Module<ICharacter>
 		EditableRevisableItemHelper helper)
 	{
 		var cmd = input.Last;
-		if (!long.TryParse(cmd, out var id))
-		{
-			character.Send("You must either enter an ID of {0} to edit, or use the {1} keyword.",
-				helper.ItemName.A_An(), "new".Colour(Telnet.Cyan));
-			return;
-		}
-
 		IEditableRevisableItem proto = null;
-		cmd = input.PopSpeech();
-		if (cmd.Length == 0)
+		if (input.IsFinished)
 		{
-			var protos = helper.GetAllEditableItemsByIdFunc(character, id).ToList();
-			//proto = protos.FirstOrDefault(x => x.Status == RevisionStatus.Current) ?? protos.FirstOrDefault(x => (x.Status == RevisionStatus.UnderDesign) || (x.Status == RevisionStatus.PendingRevision)) ?? protos.LastOrDefault(x => x.Status == RevisionStatus.Rejected);
-			proto =
-				protos.FirstOrDefault(x => x.Status == RevisionStatus.UnderDesign ||
-				                           x.Status == RevisionStatus.PendingRevision) ??
-				protos.LastOrDefault(x => x.Status == RevisionStatus.Rejected) ??
-				protos.LastOrDefault(x => x.Status == RevisionStatus.Current);
+			proto = helper.GetAllEditableItems(character).GetByIdOrNameRevisable(cmd);
 		}
-		else
+		else if (long.TryParse(cmd, out var id))
 		{
-			if (!int.TryParse(cmd, out var revision))
+			if (!int.TryParse(input.SafeRemainingArgument, out var revision))
 			{
 				character.OutputHandler.Send(
 					"You must either enter just an ID to open the most recent revision, or specify a numerical revision number.");
@@ -217,6 +204,11 @@ internal abstract class BaseBuilderModule : Module<ICharacter>
 				return;
 			}
 		}
+		else
+		{
+			character.OutputHandler.Send("You must either enter a name or ID, or an ID and a revision number.");
+			return;
+		}
 
 		if (proto == null)
 		{
@@ -226,8 +218,7 @@ internal abstract class BaseBuilderModule : Module<ICharacter>
 
 		if (proto.ReadOnly)
 		{
-			character.Send(
-				$"You cannot create a new revision or edit the properties of that {helper.ItemName} because it is read-only.");
+			character.Send($"You cannot create a new revision or edit the properties of that {helper.ItemName} because it is read-only.");
 			return;
 		}
 
@@ -247,8 +238,7 @@ internal abstract class BaseBuilderModule : Module<ICharacter>
 			helper.AddItemToGameWorldAction(helper.GetEditableItemFunc(character));
 		}
 
-		character.OutputHandler.Send("You open " + helper.GetEditableItemFunc(character).EditHeader() +
-		                             " for editing.");
+		character.OutputHandler.Send($"You open {helper.GetEditableItemFunc(character).EditHeader()} for editing.");
 	}
 
 	public static void GenericReview(ICharacter character, StringStack input, EditableRevisableItemHelper helper)
@@ -622,27 +612,32 @@ If you do not wish to approve or decline, you may type {"abort edit".Colour(Teln
 	public static void GenericRevisableShow(ICharacter character, StringStack input, EditableRevisableItemHelper helper)
 	{
 		var cmd = input.PopSpeech();
-		if (!long.TryParse(cmd, out var vnum))
+		IEditableRevisableItem proto = null;
+		if (input.IsFinished)
 		{
-			character.OutputHandler.Send("That is not a valid id number.");
-			return;
-		}
-
-		IEditableRevisableItem proto;
-		cmd = input.Pop();
-		if (cmd.Length > 0)
-		{
-			if (!int.TryParse(cmd, out var revision))
+			if (helper.GetEditableItemFunc(character) != null)
 			{
-				character.OutputHandler.Send("That is not a valid revision.");
+				character.OutputHandler.Send(helper.GetEditableItemFunc(character).Show(character));
 				return;
 			}
 
-			proto = helper.GetEditableItemByIdRevNumFunc(character, vnum, revision);
+			proto = helper.GetAllEditableItems(character).GetByIdOrNameRevisable(cmd);
+		}
+		else if (long.TryParse(cmd, out var id))
+		{
+			if (!int.TryParse(input.SafeRemainingArgument, out var revision))
+			{
+				character.OutputHandler.Send(
+					"You must either enter just an ID to view the most recent revision, or specify a numerical revision number.");
+				return;
+			}
+
+			proto = helper.GetEditableItemByIdRevNumFunc(character, id, revision);
 		}
 		else
 		{
-			proto = helper.GetEditableItemByIdFunc(character, vnum);
+			character.OutputHandler.Send("You must either enter just an ID to view the most recent revision, or specify a numerical revision number.");
+			return;
 		}
 
 		if (proto == null)
@@ -714,8 +709,7 @@ If you do not wish to approve or decline, you may type {"abort edit".Colour(Teln
 			if (helper.GetEditableItemFunc(character) != null)
 			{
 				var sb = new StringBuilder();
-				sb.AppendLine(
-					"You are currently editing " + helper.GetEditHeader(helper.GetEditableItemFunc(character)));
+				sb.AppendLine($"You are currently editing {helper.GetEditHeader(helper.GetEditableItemFunc(character))}");
 				sb.AppendLine();
 				sb.Append(helper.GetEditableItemFunc(character).Show(character));
 				character.OutputHandler.Send(sb.ToString());
@@ -852,6 +846,21 @@ If you do not wish to approve or decline, you may type {"abort edit".Colour(Teln
 	public static void GenericShow(ICharacter character, StringStack input, EditableItemHelper helper)
 	{
 		var cmd = input.PopSpeech();
+		if (cmd.Length == 0)
+		{
+			if (helper.GetEditableItemFunc(character) != null)
+			{
+				var sb = new StringBuilder();
+				sb.AppendLine($"You are currently editing {helper.GetEditHeader(helper.GetEditableItemFunc(character))}");
+				sb.AppendLine();
+				sb.Append(helper.GetEditableItemFunc(character).Show(character));
+				character.OutputHandler.Send(sb.ToString());
+				return;
+			}
+
+			character.OutputHandler.Send($"Which {helper.ItemName} do you want to show?");
+			return;
+		}
 
 		var proto = helper.GetEditableItemByIdOrNameFunc(character, cmd);
 

@@ -151,6 +151,9 @@ All of the following commands must happen with an edited clan selected:
 	#3clan create rank <name> <abbreviation> before|after <other>#0 - creates a new rank
 	#3clan create paygrade <name> <abbreviation> <currency> <amount>#0 - creates a new paygrade
 	#3clan create appointment <name> <abbreviation> [under <other>]#0 - creates a new appointment
+	#3clan remove rank <rank>#0 - deletes a rank
+	#3clan remove appointment <appointment>#0 - deletes an appointment
+	#3clan remove paygrade <paygrade>#0 - deletes a paygrade
 	#3clan set name <name>#0 - sets the clan's name
 	#3clan set alias <alias>#0 - sets the clan's alias
 	#3clan set desc#0 - drops you into an editor to set clan's description
@@ -204,6 +207,9 @@ All of the following commands must happen with an edited clan selected:
 				return;
 			case "create":
 				ClanCreate(actor, ss);
+				return;
+			case "remove":
+				ClanRemove(actor, ss);
 				return;
 			case "edit":
 				ClanEdit(actor, ss);
@@ -307,6 +313,101 @@ All of the following commands must happen with an edited clan selected:
 				return;
 			default:
 				actor.OutputHandler.Send(ClanHelpText.SubstituteANSIColour(), nopage: true);
+				return;
+		}
+	}
+	private static void ClanRemove(ICharacter actor, StringStack ss)
+	{
+		var clan = actor.CombinedEffectsOfType<BuilderEditingEffect<IClan>>().FirstOrDefault()?.EditingItem;
+		if (clan == null)
+		{
+			actor.OutputHandler.Send("You are not editing any clans.");
+			return;
+		}
+
+		var actorMembership = actor.ClanMemberships.FirstOrDefault(x => x.Clan == clan);
+		switch (ss.PopForSwitch())
+		{
+			case "rank":
+				if (!actor.IsAdministrator(PermissionLevel.Admin) && actorMembership != null &&
+				    !actorMembership.NetPrivileges.HasFlag(ClanPrivilegeType.CanCreateRanks))
+				{
+					actor.OutputHandler.Send("You are not allowed to remove ranks in that clan.");
+					return;
+				}
+
+				if (ss.IsFinished)
+				{
+					actor.OutputHandler.Send("Which rank do you want to remove?");
+					return;
+				}
+
+				var rank = clan.Ranks.GetByIdOrName(ss.SafeRemainingArgument);
+				if (rank is null)
+				{
+					actor.OutputHandler.Send($"There is no such rank in the {clan.FullName.ColourName()} clan.");
+					return;
+				}
+
+				if (clan.Ranks.Count == 1)
+				{
+					actor.OutputHandler.Send("You cannot delete the last rank. All clans must have at least one rank.");
+					return;
+				}
+
+				clan.DeleteRank(rank);
+				actor.OutputHandler.Send($"You delete the rank {rank.Name.ColourValue()} in the clan {clan.FullName.ColourName()}.");
+				return;
+			case "paygrade":
+				if (!actor.IsAdministrator(PermissionLevel.Admin) && actorMembership != null &&
+				    !actorMembership.NetPrivileges.HasFlag(ClanPrivilegeType.CanCreatePaygrades))
+				{
+					actor.OutputHandler.Send("You are not allowed to remove paygrades in that clan.");
+					return;
+				}
+
+				if (ss.IsFinished)
+				{
+					actor.OutputHandler.Send("Which paygrade do you want to remove?");
+					return;
+				}
+
+				var paygrade = clan.Paygrades.GetByIdOrName(ss.SafeRemainingArgument);
+				if (paygrade is null)
+				{
+					actor.OutputHandler.Send($"There is no such paygrade in the {clan.FullName.ColourName()} clan.");
+					return;
+				}
+
+				clan.DeletePaygrade(paygrade);
+				actor.OutputHandler.Send($"You delete the paygrade {paygrade.Name.ColourValue()} in the clan {clan.FullName.ColourName()}.");
+				return;
+			case "appointment":
+				if (!actor.IsAdministrator(PermissionLevel.Admin) && actorMembership != null &&
+				    !actorMembership.NetPrivileges.HasFlag(ClanPrivilegeType.CanCreateAppointments))
+				{
+					actor.OutputHandler.Send("You are not allowed to remove appointments in that clan.");
+					return;
+				}
+
+				if (ss.IsFinished)
+				{
+					actor.OutputHandler.Send("Which appointment do you want to remove?");
+					return;
+				}
+
+				var appointment = clan.Appointments.GetByIdOrName(ss.SafeRemainingArgument);
+				if (appointment is null)
+				{
+					actor.OutputHandler.Send($"There is no such appointment in the {clan.FullName.ColourName()} clan.");
+					return;
+				}
+
+				clan.DeleteAppointment(appointment);
+				actor.OutputHandler.Send($"You delete the appointment {appointment.Name.ColourValue()} in the clan {clan.FullName.ColourName()}.");
+				return;
+			default:
+				actor.OutputHandler.Send("You must specify #3rank#0, #3appointment#0 or #3paygrade#0.");
 				return;
 		}
 	}
@@ -4351,7 +4452,7 @@ Your next payday is {3}.
 		}
 
 		var paygradeNameText = command.PopSpeech();
-		if (clan.Ranks.Any(x => x.Name.Equals(paygradeNameText, StringComparison.InvariantCultureIgnoreCase)))
+		if (clan.Paygrades.Any(x => x.Name.Equals(paygradeNameText, StringComparison.InvariantCultureIgnoreCase)))
 		{
 			actor.OutputHandler.Send(
 				"There is already a paygrade with that name in that clan. Paygrade names must be unique.");
@@ -5419,6 +5520,25 @@ Your next payday is {3}.
 
 	#endregion ClanEditRank SubCommands
 
+	private static string _clanRankHelp = @"These are the valid options for this subcommand:
+
+	#3name <name>#0 - renames this rank
+	#3path <path>|clear#0 - sets or clears the path of this rank
+	#3fame <fame>#0 - sets the fame level for this rank
+	#3reorder before|after <other>#0 - swaps the order of this rank in the rank tree
+	#3privileges add <which>#0 - adds privileges to this rank
+	#3privileges remove <which>#0 - removes privileges from this rank
+	#3paygrade add <which>#0 - adds a paygrade for this rank
+	#3paygrade remove <which>#0 - removes a paygrade from this rank
+	#3title add <prog> <title>#0 - adds a new title with a specified prog
+	#3title remove <title>#0 - removes a title
+	#3title swap <one> <two>#0 - swaps the evaluation order of two titles
+	#3title set <which> <prog>#0 - changes the prog for a particular title
+	#3abbreviation add <prog> <title>#0 - adds a new abbreviation with a specified prog
+	#3abbreviation remove <title>#0 - removes an abbreviation
+	#3abbreviation swap <one> <two>#0 - swaps the evaluation order of two abbreviations
+	#3abbreviation set <which> <prog>#0 - changes the prog for a particular abbreviation".SubstituteANSIColour();
+
 	private static void ClanEditRank(ICharacter actor, StringStack command, IClan clan)
 	{
 		var actorMembership = actor.ClanMemberships.FirstOrDefault(x => x.Clan == clan);
@@ -5446,7 +5566,7 @@ Your next payday is {3}.
 
 		if (command.IsFinished)
 		{
-			actor.OutputHandler.Send("What about that rank do you want to edit?");
+			actor.OutputHandler.Send(_clanRankHelp);
 			return;
 		}
 
@@ -5479,24 +5599,7 @@ Your next payday is {3}.
 				ClanEditRankFame(actor, command, clan, rank);
 				break;
 			default:
-				actor.OutputHandler.Send(@"These are the valid options for this subcommand:
-
-	#3name <name>#0 - renames this rank
-	#3path <path>|clear#0 - sets or clears the path of this rank
-	#3fame <fame>#0 - sets the fame level for this rank
-	#3reorder before|after <other>#0 - swaps the order of this rank in the rank tree
-	#3privileges add <which>#0 - adds privileges to this rank
-	#3privileges remove <which>#0 - removes privileges from this rank
-	#3paygrade add <which>#0 - adds a paygrade for this rank
-	#3paygrade remove <which>#0 - removes a paygrade from this rank
-	#3title add <prog> <title>#0 - adds a new title with a specified prog
-	#3title remove <title>#0 - removes a title
-	#3title swap <one> <two>#0 - swaps the evaluation order of two titles
-	#3title set <which> <prog>#0 - changes the prog for a particular title
-	#3abbreviation add <prog> <title>#0 - adds a new abbreviation with a specified prog
-	#3abbreviation remove <title>#0 - removes an abbreviation
-	#3abbreviation swap <one> <two>#0 - swaps the evaluation order of two abbreviations
-	#3abbreviation set <which> <prog>#0 - changes the prog for a particular abbreviation".SubstituteANSIColour());
+				actor.OutputHandler.Send(_clanRankHelp);
 				return;
 		}
 	}
@@ -6544,6 +6647,37 @@ Your next payday is {3}.
 
 	#endregion ClanEditAppointment Subcommands
 
+	private static string _clanAppointmentHelp = @"The valid options for this subcommand are as follows:
+
+	#3name <name>#0 - changes the name of the appointment
+	#3paygrade <which>|clear#0 - sets or clears the paygrade for an appointment
+	#3minrank <rank>|clear#0 - sets or clears the minimum rank to hold this appointment
+	#3minappointer <rank>|clear#0 - sets or clears the minimum rank to appoint this appointment
+	#3parent <appointment>|clear#0 - sets or clears the parent appointment that controls this one
+	#3maxholders <amount>|0#0 - sets the maximum number of people who can hold an abbreviation (use 0 for unlimited)
+	#3privileges add <which>#0 - adds a privilege to the appointment
+	#3privileges remove <which>#0 - removes a privilege to the appointment
+	#3title add <prog> <title>#0 - adds a new title with a specified prog
+	#3title remove <title>#0 - removes a title
+	#3title swap <one> <two>#0 - swaps the evaluation order of two titles
+	#3title set <which> <prog>#0 - changes the prog for a particular title
+	#3abbreviation add <prog> <title>#0 - adds a new abbreviation with a specified prog
+	#3abbreviation remove <title>#0 - removes an abbreviation
+	#3abbreviation swap <one> <two>#0 - swaps the evaluation order of two abbreviations
+	#3abbreviation set <which> <prog>#0 - changes the prog for a particular abbreviation
+	#3fame <fame type>#0 - sets the level of fame for this appointment
+
+	#3election enable#0 - enables elections
+	#3election none#0 - removes elections
+	#3election secret#0 - toggles secret voting
+	#3election term <days>#0 - sets the term length
+	#3election lead <days>#0 - sets the number of days after votes closed that appointments happen
+	#3election nomination <days>#0 - sets the length of the nomination period
+	#3election voting <days>#0 - sets the length of the voting period
+	#3election terms <consecutive no|0> <total no|0>#0 - sets term limits
+	#3election nominate <prog> <why>#0 - sets the nomination eligablity prog and ""why"" fail message prog
+	#3election vote <prog>#0 - sets the vote count prog";
+
 	private static void ClanEditAppointment(ICharacter actor, StringStack command, IClan clan)
 	{
 		var actorMembership = actor.ClanMemberships.FirstOrDefault(x => x.Clan == clan);
@@ -6582,7 +6716,7 @@ Your next payday is {3}.
 
 		if (command.IsFinished)
 		{
-			actor.OutputHandler.Send("What about that appointment do you want to edit?");
+			actor.OutputHandler.Send(_clanAppointmentHelp.SubstituteANSIColour());
 			return;
 		}
 
@@ -6620,42 +6754,14 @@ Your next payday is {3}.
 				ClanEditAppointmentPrivileges(actor, command, clan, appointment);
 				break;
 			case "elections":
+			case "election":
 				ClanEditAppointmentElections(actor, command, clan, appointment);
 				break;
 			case "fame":
 				ClanEditAppointmentFame(actor, command, clan, appointment);
 				break;
 			default:
-				actor.OutputHandler.Send(@"The valid options for this subcommand are as follows:
-
-	#3name <name>#0 - changes the name of the appointment
-	#3paygrade <which>|clear#0 - sets or clears the paygrade for an appointment
-	#3minrank <rank>|clear#0 - sets or clears the minimum rank to hold this appointment
-	#3minappointer <rank>|clear#0 - sets or clears the minimum rank to appoint this appointment
-	#3parent <appointment>|clear#0 - sets or clears the parent appointment that controls this one
-	#3maxholders <amount>|0#0 - sets the maximum number of people who can hold an abbreviation (use 0 for unlimited)
-	#3privileges add <which>#0 - adds a privilege to the appointment
-	#3privileges remove <which>#0 - removes a privilege to the appointment
-	#3title add <prog> <title>#0 - adds a new title with a specified prog
-	#3title remove <title>#0 - removes a title
-	#3title swap <one> <two>#0 - swaps the evaluation order of two titles
-	#3title set <which> <prog>#0 - changes the prog for a particular title
-	#3abbreviation add <prog> <title>#0 - adds a new abbreviation with a specified prog
-	#3abbreviation remove <title>#0 - removes an abbreviation
-	#3abbreviation swap <one> <two>#0 - swaps the evaluation order of two abbreviations
-	#3abbreviation set <which> <prog>#0 - changes the prog for a particular abbreviation
-	#3fame <fame type>#0 - sets the level of fame for this appointment
-
-	#3election enable#0 - enables elections
-	#3election none#0 - removes elections
-	#3election secret#0 - toggles secret voting
-	#3election term <days>#0 - sets the term length
-	#3election lead <days>#0 - sets the number of days after votes closed that appointments happen
-	#3election nomination <days>#0 - sets the length of the nomination period
-	#3election voting <days>#0 - sets the length of the voting period
-	#3election terms <consecutive no|0> <total no|0>#0 - sets term limits
-	#3election nominate <prog> <why>#0 - sets the nomination eligablity prog and ""why"" fail message prog
-	#3election vote <prog>#0 - sets the vote count prog".SubstituteANSIColour());
+				actor.OutputHandler.Send(_clanAppointmentHelp.SubstituteANSIColour());
 				return;
 		}
 	}
@@ -6765,6 +6871,13 @@ Your next payday is {3}.
 
 	#endregion ClanEditPaygrade SubCommands
 
+	private static string _clanPaygradeHelp = @"The valid options for this subcommand are:
+
+	#3name <name>#0 - sets a new name
+	#3abbreviation <abbreviation>#0 - sets a new abbreviation
+	#3currency <which>#0 - changes the paygrade's currency
+	#3amount <how much>#0 - changes how much the paygrade pays";
+
 	private static void ClanEditPaygrade(ICharacter actor, StringStack command, IClan clan)
 	{
 		var actorMembership = actor.ClanMemberships.FirstOrDefault(x => x.Clan == clan);
@@ -6795,8 +6908,7 @@ Your next payday is {3}.
 
 		if (command.IsFinished)
 		{
-			actor.OutputHandler.Send(
-				"What about that paygrade do you want to edit? The valid options are:\n\tname <name> - sets a new name\n\tabbreviation <abbreviation> - sets a new abbreviation\n\tcurrency <which> - changes the paygrade's currency\n\tamount <how much> - changes how much the paygrade pays");
+			actor.OutputHandler.Send(_clanPaygradeHelp.SubstituteANSIColour());
 			return;
 		}
 
@@ -6818,8 +6930,7 @@ Your next payday is {3}.
 				ClanEditPaygradeAmount(actor, command, clan, paygrade);
 				return;
 			default:
-				actor.OutputHandler.Send(
-					"The valid options for this subcommand are:\n\tname <name> - sets a new name\n\tabbreviation <abbreviation> - sets a new abbreviation\n\tcurrency <which> - changes the paygrade's currency\n\tamount <how much> - changes how much the paygrade pays");
+				actor.OutputHandler.Send(_clanPaygradeHelp.SubstituteANSIColour());
 				return;
 		}
 	}

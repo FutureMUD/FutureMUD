@@ -12,6 +12,7 @@ using MudSharp.Framework.Save;
 using MudSharp.FutureProg;
 using MudSharp.FutureProg.Variables;
 using MudSharp.GameItems;
+using MudSharp.Models;
 using MudSharp.PerceptionEngine;
 using MudSharp.PerceptionEngine.Outputs;
 using MudSharp.PerceptionEngine.Parsers;
@@ -538,6 +539,91 @@ public class Clan : SaveableItem, IClan
 		}
 
 		Gameworld.Destroy(this);
+	}
+
+	public void DeleteRank(IRank rank)
+	{
+		var ordered = Ranks.OrderBy(x => x.RankNumber).ToList();
+		var newRank =
+				ordered.LastOrDefault(x => x.RankNumber < rank.RankNumber && x.RankPath == rank.RankPath) ??
+				ordered.FirstOrDefault(x => x.RankNumber > rank.RankNumber && x.RankPath == rank.RankPath) ??
+				ordered.LastOrDefault(x => x.RankNumber < rank.RankNumber) ??
+				ordered.First(x => x.RankNumber > rank.RankNumber)
+			;
+		Gameworld.SaveManager.Flush();
+		foreach (var member in Memberships)
+		{
+			if (member.Rank == rank)
+			{
+				member.SetRank(newRank);
+			}
+		}
+
+		foreach (var item in Appointments)
+		{
+			if (item.MinimumRankToAppoint == rank)
+			{
+				item.MinimumRankToAppoint = newRank;
+			}
+
+			if (item.MinimumRankToHold == rank)
+			{
+				item.MinimumRankToHold = newRank;
+			}
+		}
+
+		Ranks.Remove(rank);
+		rank.Delete();
+	}
+
+	public void DeleteAppointment(IAppointment appointment)
+	{
+		Gameworld.SaveManager.Flush();
+		foreach (var member in Memberships)
+		{
+			if (member.Appointments.Contains(appointment))
+			{
+				member.Appointments.Remove(appointment);
+				member.Changed = true;
+			}
+		}
+
+		foreach (var item in Appointments)
+		{
+			if (item.ParentPosition == appointment)
+			{
+				item.ParentPosition = null;
+				item.Changed = true;
+			}
+		}
+
+		foreach (var item in ExternalControls.ToList())
+		{
+			if (item.ControlledAppointment == appointment)
+			{
+				item.Delete();
+				ExternalControls.Remove(item);
+			}
+
+			if (item.ControllingAppointment == appointment)
+			{
+				item.Delete();
+				ExternalControls.Remove(item);
+			}
+		}
+	}
+
+	public void DeletePaygrade(IPaygrade paygrade)
+	{
+		Gameworld.SaveManager.Flush();
+		foreach (var member in Memberships)
+		{
+			if (member.Paygrade == paygrade)
+			{
+				member.Paygrade = null;
+				member.Changed = true;
+			}
+		}
 	}
 
 	private ITemporalListener _paydayListener;

@@ -58,5 +58,6 @@ namespace MudSharp.Community {
         void AddElection(IElection election);
         void RemoveElection(IElection election);
         void CheckForByElections();
+        void Delete();
     }
 }

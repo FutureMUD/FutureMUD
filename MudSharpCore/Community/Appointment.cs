@@ -224,6 +224,29 @@ public class Appointment : SaveableItem, IAppointment
 		_name = name;
 	}
 
+	public void Delete()
+	{
+		Gameworld.SaveManager.Abort(this);
+		if (_id != 0)
+		{
+			using (new FMDB())
+			{
+				Gameworld.SaveManager.Flush();
+				var dbitem = FMDB.Context.Appointments.Find(Id);
+				if (dbitem != null)
+				{
+					FMDB.Context.Appointments.Remove(dbitem);
+					FMDB.Context.SaveChanges();
+				}
+			}
+		}
+
+		foreach (var election in Elections.ToList())
+		{
+			election.CancelElection();
+		}
+	}
+
 	public string Abbreviation(ICharacter character)
 	{
 		return

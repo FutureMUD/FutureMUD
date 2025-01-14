@@ -45,6 +45,24 @@ public class Paygrade : SaveableItem, IPaygrade
 		_name = name;
 	}
 
+	public void Delete()
+	{
+		Gameworld.SaveManager.Abort(this);
+		if (_id != 0)
+		{
+			using (new FMDB())
+			{
+				Gameworld.SaveManager.Flush();
+				var dbitem = FMDB.Context.Paygrades.Find(Id);
+				if (dbitem != null)
+				{
+					FMDB.Context.Paygrades.Remove(dbitem);
+					FMDB.Context.SaveChanges();
+				}
+			}
+		}
+	}
+
 	public string Abbreviation { get; set; }
 
 	public ICurrency PayCurrency { get; set; }

@@ -126,6 +126,24 @@ public class Rank : SaveableItem, IRank
 		Changed = true;
 	}
 
+	public void Delete()
+	{
+		Gameworld.SaveManager.Abort(this);
+		if (_id != 0)
+		{
+			using (new FMDB())
+			{
+				Gameworld.SaveManager.Flush();
+				var dbitem = FMDB.Context.Ranks.Find(Id);
+				if (dbitem != null)
+				{
+					FMDB.Context.Ranks.Remove(dbitem);
+					FMDB.Context.SaveChanges();
+				}
+			}
+		}
+	}
+
 	public string RankPath { get; set; }
 
 	public string Abbreviation(ICharacter character)

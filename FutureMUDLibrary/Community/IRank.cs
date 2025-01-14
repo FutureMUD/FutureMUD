@@ -46,5 +46,6 @@ namespace MudSharp.Community {
         string Title(ICharacter character);
 
         void SetName(string newName);
+        void Delete();
     }
 }

@@ -179,8 +179,7 @@ public class WearableGameItemComponent : GameItemComponent, IWearable
 		{
 			foreach (var location in profile.Profile(wearer))
 			{
-				var self = wearer.WornItemsFullInfo.FirstOrDefault(x => x.Item == Parent && x.Wearloc == location.Key);
-				if (self.Profile?.Mandatory == false)
+				if (!location.Value.Mandatory)
 				{
 					continue;
 				}

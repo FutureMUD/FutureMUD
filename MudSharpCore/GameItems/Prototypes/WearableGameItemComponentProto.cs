@@ -128,19 +128,19 @@ public class WearableGameItemComponentProto : GameItemComponentProto
 
 	public static string BuildingHelp => $@"You can use the following options:
 
-	name <name> - sets the name of the component
-	desc <desc> - sets the description of the component
-	add <wearprofile> - adds a wear profile. See {"show wears".FluentTagMXP("send", "href='show wears'")} for a list.
-	remove <wearprofile> - removes a wear profile.
-	default <wearprofile> - sets a wear profile as the default choice.
-	hidden - toggles whether this wearable shows up when you look at someone
-	bulky - toggles whether this item counts as bulky.
-	weight <#> - sets the layer weight consumed by this item
-	waterproof - toggles waterproofing.
-	waterproof [<percentage>] - sets an item to waterproof at HP remaining above specified threshold.
-	damage <amount> - for a value between 0 and 1, sets the percentage of total hitpoints remaining before this item no longer hides things below it.
-	prog <prog> - sets a prog that determines who can wear this item. Requires a prog that returns a bool and accepts a character and an item.
-	failprog <prog> - sets a prog that determines what echo a person should get when they can't wear the item because of the other prog. Requires a prog that returns a text and accepts a character and an item.";
+	#3name <name>#0 - sets the name of the component
+	#3desc <desc>#0 - sets the description of the component
+	#3add <wearprofile>#0 - adds a wear profile. See {"show wears".FluentTagMXP("send", "href='show wears'")} for a list.
+	#3remove <wearprofile>#0 - removes a wear profile.
+	#3default <wearprofile>#0 - sets a wear profile as the default choice.
+	#3hidden#0 - toggles whether this wearable shows up when you look at someone
+	#3bulky#0 - toggles whether this item counts as bulky.
+	#3weight <##>#0 - sets the layer weight consumed by this item
+	#3waterproof#0 - toggles waterproofing.
+	#3waterproof [<percentage>]#0 - sets an item to waterproof at HP remaining above specified threshold.
+	#3damage <amount>#0 - for a value between 0 and 1, sets the percentage of total hitpoints remaining before this item no longer hides things below it.
+	#3prog <prog>#0 - sets a prog that determines who can wear this item. Requires a prog that returns a bool and accepts a character and an item.
+	#3failprog <prog>#0 - sets a prog that determines what echo a person should get when they can't wear the item because of the other prog. Requires a prog that returns a text and accepts a character and an item.";
 
 	public override string ShowBuildingHelp => BuildingHelp;
 
@@ -240,7 +240,14 @@ public class WearableGameItemComponentProto : GameItemComponentProto
 	public override string ComponentDescriptionOLC(ICharacter actor)
 	{
 		return string.Format(actor,
-			"{0} (#{2:N0}r{3:N0}, {4})\n\nThis item can be worn by characters in the following profiles: {1}. This item {7} bulky. This item {5} hidden to others when worn. {8}. {6}",
+			@"{0} (#{2:N0}r{3:N0}, {4})
+
+This item can be worn by characters in the following profiles: {1}. 
+This item {7} bulky. 
+This item {5} hidden to others when worn. 
+{8}. 
+{6}
+It has a layer weight of {9}.",
 			"Wearable Item Component".Colour(Telnet.Cyan),
 			_profiles.Select(
 				         x =>
@@ -257,7 +264,8 @@ public class WearableGameItemComponentProto : GameItemComponentProto
 			Bulky ? "is" : "is not",
 			Waterproof
 				? $"It is waterproof when above {WaterproofDamageRatio.ToString("P3", actor).Colour(Telnet.Green)} damage"
-				: "It is not waterproof"
+				: "It is not waterproof",
+			LayerWeightConsumption.ToStringN2Colour(actor)
 		);
 	}
 

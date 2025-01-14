@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using MudSharp.Accounts;
 using MudSharp.Commands.Helpers;
 
 namespace MudSharp.Commands.Modules;
@@ -142,6 +143,7 @@ The syntax is as follows:
 
 	[PlayerCommand("Season", "season")]
 	[HelpInfo("season", SeasonHelp, AutoHelp.HelpArgOrNoArg)]
+	[CommandPermission(PermissionLevel.SeniorAdmin)]
 	protected static void Season(ICharacter actor, string command)
 	{
 		GenericBuildingCommand(actor, new StringStack(command.RemoveFirstWord()), EditableItemHelper.SeasonHelper);
@@ -170,6 +172,7 @@ The syntax is as follows:
 
 	[PlayerCommand("WeatherController", "weathercontroller", "wc")]
 	[HelpInfo("weathercontroller", WeatherControllerHelp, AutoHelp.HelpArgOrNoArg)]
+	[CommandPermission(PermissionLevel.SeniorAdmin)]
 	protected static void WeatherController(ICharacter actor, string command)
 	{
 		GenericBuildingCommand(actor, new StringStack(command.RemoveFirstWord()), EditableItemHelper.WeatherControllerHelper);
@@ -193,6 +196,7 @@ The syntax is as follows:
 
 	[PlayerCommand("RegionalClimate", "regionalclimate", "rc")]
 	[HelpInfo("regionalclimate", RegionalClimateHelp, AutoHelp.HelpArgOrNoArg)]
+	[CommandPermission(PermissionLevel.SeniorAdmin)]
 	protected static void RegionalClimate(ICharacter actor, string command)
 	{
 		GenericBuildingCommand(actor, new StringStack(command.RemoveFirstWord()), EditableItemHelper.RegionalClimateHelper);
@@ -219,6 +223,7 @@ The syntax is as follows:
 	#3clm set season <season> transition <from> <to> <weight>#0 - sets a transition from one weather event to another
 	#3clm set season <season> transition <from> <to> 0#0 - removes a transition from one weather event to another";
 	[HelpInfo("climatemodel", ClimateModelHelp, AutoHelp.HelpArgOrNoArg)]
+	[CommandPermission(PermissionLevel.SeniorAdmin)]
 
 	[PlayerCommand("ClimateModel", "climatemodel", "clm")]
 	protected static void ClimateModel(ICharacter actor, string command)
@@ -261,6 +266,7 @@ Rain events only:
 
 	#3weatherevent set liquid <liquid>#0 - sets the liquid that falls as rain";
 	[HelpInfo("weatherevent", WeatherEventHelp, AutoHelp.HelpArgOrNoArg)]
+	[CommandPermission(PermissionLevel.SeniorAdmin)]
 
 	[PlayerCommand("WeatherEvent", "weatherevent")]
 	protected static void WeatherEvent(ICharacter actor, string command)

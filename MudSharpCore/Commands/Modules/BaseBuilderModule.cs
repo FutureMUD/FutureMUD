@@ -611,8 +611,6 @@ If you do not wish to approve or decline, you may type {"abort edit".Colour(Teln
 
 	public static void GenericRevisableShow(ICharacter character, StringStack input, EditableRevisableItemHelper helper)
 	{
-		var cmd = input.PopSpeech();
-		IEditableRevisableItem proto = null;
 		if (input.IsFinished)
 		{
 			if (helper.GetEditableItemFunc(character) != null)
@@ -621,6 +619,14 @@ If you do not wish to approve or decline, you may type {"abort edit".Colour(Teln
 				return;
 			}
 
+			character.OutputHandler.Send($"Which {helper.ItemName} do you want to show?");
+			return;
+		}
+
+		var cmd = input.PopSpeech();
+		IEditableRevisableItem proto = null;
+		if (input.IsFinished)
+		{
 			proto = helper.GetAllEditableItems(character).GetByIdOrNameRevisable(cmd);
 		}
 		else if (long.TryParse(cmd, out var id))

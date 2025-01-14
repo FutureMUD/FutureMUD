@@ -239,6 +239,37 @@ public class ActiveCraftGameItemComponent : GameItemComponent, IActiveCraftGameI
 		ProducedProducts.Clear();
 	}
 
+	public bool GameItemIsPartOfCraft(IGameItem item)
+	{
+		foreach (var product in ProducedProducts)
+		{
+			if (product.Value is not ICraftProductDataWithItems icpdwi)
+			{
+				continue;
+			}
+
+			if (icpdwi.Products.Contains(item))
+			{
+				return true;
+			}
+		}
+
+		foreach (var input in ConsumedInputs)
+		{
+			if (input.Value.Data is not ICraftInputDataWithItems icidwi)
+			{
+				continue;
+			}
+
+			if (icidwi.ConsumedItems.Contains(item))
+			{
+				return true;
+			}
+		}
+
+		return false;
+	}
+
 	public (bool Success, bool Finished) DoNextPhase(IActiveCraftEffect effect)
 	{
 		if (Craft.HandleCraftPhase(effect.CharacterOwner, effect, this, Phase))

@@ -26,5 +26,6 @@ namespace MudSharp.GameItems.Interfaces
         void CraftWasInterrupted();
         void ReleaseItems(ICell location, RoomLayer layer);
         (bool Success, bool Finished) DoNextPhase(IActiveCraftEffect effect);
+        bool GameItemIsPartOfCraft(IGameItem item);
     }
 }

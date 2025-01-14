@@ -242,7 +242,8 @@ public class CrossbowGameItemComponent : GameItemComponent, IRangedWeapon, IMele
 
 	public IAmmo LoadedAmmo { get; set; }
 
-	public IEnumerable<IGameItem> MagazineContents => new[] { LoadedAmmo.Parent };
+	public IEnumerable<IGameItem> MagazineContents => new[] { LoadedAmmo?.Parent }.SelectNotNull(x => x);
+	public IEnumerable<IGameItem> AllContainedItems => MagazineContents;
 
 	public bool CanUnload(ICharacter loader)
 	{

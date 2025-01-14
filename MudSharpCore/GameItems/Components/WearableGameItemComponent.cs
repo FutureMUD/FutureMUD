@@ -179,6 +179,12 @@ public class WearableGameItemComponent : GameItemComponent, IWearable
 		{
 			foreach (var location in profile.Profile(wearer))
 			{
+				var self = wearer.WornItemsFullInfo.FirstOrDefault(x => x.Item == Parent && x.Wearloc == location.Key);
+				if (self.Profile?.Mandatory == false)
+				{
+					continue;
+				}
+
 				foreach (var item in wearer.WornItemsFor(location.Key))
 				{
 					if (item.GetItemType<IWearable>()?.Bulky != true)

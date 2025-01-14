@@ -85,6 +85,7 @@ public class ThrownWeaponGameItemComponent : GameItemComponent, IRangedWeapon, I
 	public int LoadStage => 0;
 
 	public IEnumerable<IGameItem> MagazineContents => Enumerable.Empty<IGameItem>();
+	public IEnumerable<IGameItem> AllContainedItems => MagazineContents;
 
 	public bool IsLoaded => true;
 

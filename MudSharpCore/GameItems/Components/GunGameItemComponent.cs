@@ -106,6 +106,7 @@ public class GunGameItemComponent : GameItemComponent, IRangedWeapon, ISwitchabl
 	public IContainer Magazine { get; set; }
 
 	public IEnumerable<IGameItem> MagazineContents => Magazine?.Contents ?? Enumerable.Empty<IGameItem>();
+	public IEnumerable<IGameItem> AllContainedItems => MagazineContents.Concat([ChamberedRound?.Parent, Magazine?.Parent]).SelectNotNull(x => x);
 
 	public string SpecificAmmoGrade => _prototype.RangedWeaponType.SpecificAmmunitionGrade;
 

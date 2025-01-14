@@ -42,14 +42,11 @@ using MudSharp.TimeAndDate.Time;
 using MudSharp.FutureProg.Variables;
 using MudSharp.Models;
 using MudSharp.OpenAI;
-using System.IO.Compression;
-using System.Net.Mime;
 using System.Reflection;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using MySql.Data.MySqlClient;
-using Castle.Components.DictionaryAdapter.Xml;
 using Dapper;
+using System.Numerics;
 
 namespace MudSharp.Commands.Modules;
 
@@ -463,10 +460,117 @@ public class ImplementorModule : Module<ICharacter>
 			case "backup":
 				DebugBackup(actor);
 				return;
+			case "orphans":
+				DebugOrphans(actor);
+				return;
 			default:
 				actor.Send("That's not a known debug routine.");
 				return;
 		}
+	}
+
+	private static void DebugOrphans(ICharacter actor)
+	{
+		var sb = new StringBuilder();
+		actor.OutputHandler.Send("Show items that are potentially orphans...");
+		actor.Gameworld.ForceOutgoingMessages();
+		var loadedPCs = EnsureAllPCsAreLoaded(actor.Gameworld);
+		actor.OutputHandler.Send("Ensuring that all items are loaded...");
+		actor.Gameworld.ForceOutgoingMessages();
+		var ids = new List<long>();
+		using (new FMDB())
+		{
+			ids.AddRange(FMDB.Context.GameItems.Select(x => x.Id));
+		}
+
+		var items = new List<IGameItem>(ids.Count);
+		foreach (var id in ids)
+		{
+			var item = actor.Gameworld.TryGetItem(id, true);
+			if (item is null)
+			{
+				continue;
+			}
+
+			items.Add(item);
+		}
+
+		actor.OutputHandler.Send("Done loading items...\nPre-calculating critical item types...");
+		actor.Gameworld.ForceOutgoingMessages();
+
+		var crafts = items.SelectNotNull(x => x.GetItemType<IActiveCraftGameItemComponent>()).ToList();
+		var ranged = items.SelectNotNull(x => x.GetItemType<IRangedWeapon>()).ToList();
+		var wounds = items.SelectMany(x => x.Wounds).Concat(actor.Gameworld.Characters.SelectMany(x => x.Wounds)).Where(x => x.Lodged is not null).ToList();
+
+		actor.OutputHandler.Send("Done pre-calculating...\nLooking for ophans...");
+		actor.Gameworld.ForceOutgoingMessages();
+
+		foreach (var item in items)
+		{
+			if (item.Location is not null)
+			{
+				continue;
+			}
+
+			if (item.ContainedIn is not null)
+			{
+				continue;
+			}
+
+			if (item.InInventoryOf is not null)
+			{
+				continue;
+			}
+
+			if (crafts.Any(x => x.GameItemIsPartOfCraft(item)))
+			{
+				continue;
+			}
+
+			if (actor.Gameworld.Properties.Any(x => x.PropertyKeys.Any(y => y.GameItem == item)))
+			{
+				continue;
+			}
+
+			if (item.GetItemType<IBeltable>() is { } beltable)
+			{
+				if (beltable.ConnectedTo is not null)
+				{
+					continue;
+				}
+			}
+
+			if (item.GetItemType<IDoor>() is { } door)
+			{
+				if (door.InstalledExit is not null)
+				{
+					continue;
+				}
+			}
+
+			if (item.GetItemType<IImplant>() is { } implant)
+			{
+				if (implant.InstalledBody is not null)
+				{
+					continue;
+				}
+			}
+
+			if (ranged.Any(x => x.AllContainedItems.Any(y => y == item)))
+			{
+				continue;
+			}
+
+			if (wounds.Any(x => x.Lodged == item))
+			{
+				continue;
+			}
+
+			sb.AppendLine($"Item #{item.Id} ({item.HowSeen(actor, flags: PerceiveIgnoreFlags.TrueDescription)} [proto {item.Prototype.IdAndRevisionFor(actor)}] was potentially orphaned.");
+		}
+
+		actor.OutputHandler.Send(sb.ToString());
+		CleanupAllPCsLoaded(actor.Gameworld, loadedPCs);
 	}
 
 	private static void DebugExportCrafts(ICharacter actor, StringStack ss)
@@ -1575,77 +1679,94 @@ div.function-generalhelp {
 		actor.Send(actor.Gameworld.SaveManager.DebugInfo(actor.Gameworld));
 	}
 
+	private static void CleanupAllPCsLoaded(IFuturemud gameworld, IEnumerable<ICharacter> loadedPCs)
+	{
+		foreach (var character in loadedPCs)
+		{
+			character.Quit(true);
+		}
+
+		gameworld.GameStatistics.RecordPlayersPaused = false;
+	}
+
+	private static IEnumerable<ICharacter> EnsureAllPCsAreLoaded(IFuturemud gameworld)
+	{
+		gameworld.GameStatistics.RecordPlayersPaused = true;
+
+		// Firstly, flush the save manager in case there is anything pending
+		gameworld.SystemMessage("Flushing the save manager...", true);
+		gameworld.SaveManager.Flush();
+		// Make sure that the messaging thread gets a chance to resume and send out echoes
+		gameworld.ForceOutgoingMessages();
+		Thread.Sleep(100);
+
+		// Next, let's load up all the offline but alive PCs so that their inventory is counted.
+		var loadedPCs = new List<ICharacter>();
+		var onlinePCIDs = gameworld.Characters.Select(x => x.Id).ToList();
+		gameworld.SystemMessage("Loading offline PCs so their inventory is accounted for...", true);
+		using (new FMDB())
+		{
+			var PCsToLoad =
+				FMDB.Context.Characters
+					.Include(x => x.NpcsCharacter)
+					.Where(
+						x =>
+							x.NpcsCharacter.Count == 0 &&
+							x.Guest == null &&
+							!onlinePCIDs.Contains(x.Id) &&
+							(x.Status == (int)CharacterStatus.Active || x.Status == (int)CharacterStatus.Suspended)
+							)
+					.OrderBy(x => x.Id);
+			var i = 0;
+			while (true)
+			{
+				var any = false;
+				foreach (var pc in PCsToLoad.Skip(i++ * 10).Take(10).ToList())
+				{
+					any = true;
+					var character = gameworld.TryGetCharacter(pc.Id, true);
+					character.Register(new NonPlayerOutputHandler());
+					loadedPCs.Add(character);
+					gameworld.Add(character, false);
+				}
+
+				if (!any)
+				{
+					break;
+				}
+			}
+		}
+
+		gameworld.SystemMessage($"Loaded {loadedPCs.Count} offline PCs", true);
+		// Make sure that the messaging thread gets a chance to resume and send out echoes
+		gameworld.ForceOutgoingMessages();
+		Thread.Sleep(100);
+
+		// Next, we force all corpses to load their characters, so their inventories are accounted for
+		gameworld.SystemMessage("Forcing all corpses to load their characters...", true);
+		gameworld.ForceOutgoingMessages();
+		var corpsePCs = new HashSet<ICharacter>();
+		foreach (var item in gameworld.Items.SelectNotNull(x => x.GetItemType<ICorpse>()).ToList())
+		{
+			corpsePCs.Add(item.OriginalCharacter);
+		}
+
+		gameworld.SystemMessage($"Loaded {corpsePCs.Count} corpses", true);
+		// Make sure that the messaging thread gets a chance to resume and send out echoes
+		gameworld.ForceOutgoingMessages();
+		Thread.Sleep(100);
+
+		// Next, we make sure all exits have been loaded so we can consider their doors
+		gameworld.ExitManager.PreloadCriticalExits();
+
+		return loadedPCs;
+	}
+
 	private static void DebugCleanupCorpses(ICharacter actor)
 	{
 		void DoCleanupCorpses()
 		{
-			actor.Gameworld.GameStatistics.RecordPlayersPaused = true;
-
-			// Firstly, flush the save manager in case there is anything pending
-			actor.Gameworld.SystemMessage("Flushing the save manager...", true);
-			actor.Gameworld.SaveManager.Flush();
-			// Make sure that the messaging thread gets a chance to resume and send out echoes
-			actor.Gameworld.ForceOutgoingMessages();
-			Thread.Sleep(100);
-
-			// Next, let's load up all the offline but alive PCs so that their inventory is counted.
-			var loadedPCs = new List<ICharacter>();
-			var onlinePCIDs = actor.Gameworld.Characters.Select(x => x.Id).ToList();
-			actor.Gameworld.SystemMessage("Loading offline PCs so their inventory is accounted for...", true);
-			using (new FMDB())
-			{
-				var PCsToLoad =
-					FMDB.Context.Characters
-					    .Include(x => x.NpcsCharacter)
-					    .Where(
-							x => 
-								x.NpcsCharacter.Count == 0 && 
-								x.Guest == null && 
-								!onlinePCIDs.Contains(x.Id) &&
-								(x.Status == (int)CharacterStatus.Active || x.Status == (int)CharacterStatus.Suspended)
-								)
-						.OrderBy(x => x.Id);
-				var i = 0;
-				while (true)
-				{
-					var any = false;
-					foreach (var pc in PCsToLoad.Skip(i++ * 10).Take(10).ToList())
-					{
-						any = true;
-						var character = actor.Gameworld.TryGetCharacter(pc.Id, true);
-						character.Register(new NonPlayerOutputHandler());
-						loadedPCs.Add(character);
-						actor.Gameworld.Add(character, false);
-					}
-
-					if (!any)
-					{
-						break;
-					}
-				}
-			}
-
-			actor.Gameworld.SystemMessage($"Loaded {loadedPCs.Count} offline PCs", true);
-			// Make sure that the messaging thread gets a chance to resume and send out echoes
-			actor.Gameworld.ForceOutgoingMessages();
-			Thread.Sleep(100);
-
-			// Next, we force all corpses to load their characters, so their inventories are accounted for
-			actor.Gameworld.SystemMessage("Forcing all corpses to load their characters...", true);
-			actor.Gameworld.ForceOutgoingMessages();
-			var corpsePCs = new HashSet<ICharacter>();
-			foreach (var item in actor.Gameworld.Items.SelectNotNull(x => x.GetItemType<ICorpse>()).ToList())
-			{
-				corpsePCs.Add(item.OriginalCharacter);
-			}
-
-			actor.Gameworld.SystemMessage($"Loaded {corpsePCs.Count} corpses", true);
-			// Make sure that the messaging thread gets a chance to resume and send out echoes
-			actor.Gameworld.ForceOutgoingMessages();
-			Thread.Sleep(100);
-
-			// Next, we make sure all exits have been loaded so we can consider their doors
-			actor.Gameworld.ExitManager.PreloadCriticalExits();
+			var loadedPCs = EnsureAllPCsAreLoaded(actor.Gameworld);
 
 			// Next we delete all corpses whose players are alive again, as well as skeletal remains of NPCs
 			int pcs = 0, npcs = 0;
@@ -1704,12 +1825,7 @@ div.function-generalhelp {
 			actor.Gameworld.ForceOutgoingMessages();
 			Thread.Sleep(100);
 
-			foreach (var character in loadedPCs)
-			{
-				character.Quit(true);
-			}
-
-			actor.Gameworld.GameStatistics.RecordPlayersPaused = false;
+			CleanupAllPCsLoaded(actor.Gameworld, loadedPCs);
 		}
 
 		actor.Send(

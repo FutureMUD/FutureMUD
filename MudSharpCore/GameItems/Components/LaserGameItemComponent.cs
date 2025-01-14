@@ -105,6 +105,7 @@ public class LaserGameItemComponent : GameItemComponent, IRangedWeapon, ISwitcha
 	public ILaserPowerPack PowerPack { get; set; }
 
 	public IEnumerable<IGameItem> MagazineContents => Enumerable.Empty<IGameItem>();
+	public IEnumerable<IGameItem> AllContainedItems => new List<IGameItem> { PowerPack?.Parent }.SelectNotNull(x => x);
 
 	public string SpecificAmmoGrade => _prototype.RangedWeaponType.SpecificAmmunitionGrade;
 

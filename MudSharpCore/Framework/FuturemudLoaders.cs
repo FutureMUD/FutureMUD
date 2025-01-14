@@ -316,7 +316,8 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 			game.LoadMerits(); // ToDO - where should this be loaded?
 			game.LoadAIs(); // Needs to come after LoadFutureProgs and LoadBodies
 			game.LoadDisfigurements();
-			game.LoadNPCTemplates(); // Needs to come after LoadAIs, LoadMerits and LoadHeightWeightModels
+			game.LoadRoles();
+			game.LoadNPCTemplates(); // Needs to come after LoadRoles, LoadAIs, LoadMerits and LoadHeightWeightModels
 			game.LoadWritings(); // Needs to come after LoadScripts and before LoadWorldItems
 			game.LoadDrawings(); // Needs to come before LoadWorldItems
 
@@ -326,7 +327,7 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 			Character.Character.InitialiseCharacterClass(this);
 			LightModel = PerceptionEngine.Light.LightModel.LoadLightModel(this);
 
-			game.LoadRoles();
+			
 			// Needs to come after LoadFutureprogs, LoadClans, LoadCurrencies, LoadMerits and LoadGameItemProtos
 			game.LoadCrafts(); // Needs to come after LoadFutureProgs and before LoadWorldItems
 			game.LoadEconomy(); // Should come before LoadWorldItems as late as possible
@@ -3674,7 +3675,7 @@ For information on the syntax to use in emotes (such as those included in bracke
 
 	void IFuturemudLoader.LoadNameCultures()
 	{
-		ConsoleUtilities.WriteLine("\nLoading #Name Cultures#0...");
+		ConsoleUtilities.WriteLine("\nLoading #5Name Cultures#0...");
 #if DEBUG
 		var sw = new Stopwatch();
 		sw.Start();

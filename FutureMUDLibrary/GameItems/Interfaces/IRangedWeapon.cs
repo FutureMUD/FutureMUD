@@ -29,6 +29,7 @@ public interface IRangedWeapon : IWieldable, IDamageSource, IUseTrait {
 	bool IsLoaded { get; }
 	bool IsReadied { get; }
 	IEnumerable<IGameItem> MagazineContents { get; }
+	IEnumerable<IGameItem> AllContainedItems { get; }
 	Difficulty AimDifficulty { get; }
 	Difficulty BaseBlockDifficulty { get; }
 	Difficulty BaseDodgeDifficulty { get; }

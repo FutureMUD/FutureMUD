@@ -144,7 +144,8 @@ public class BowGameItemComponent : GameItemComponent, IRangedWeaponWithUnreadyE
 
 	public IAmmo LoadedAmmo { get; set; }
 
-	public IEnumerable<IGameItem> MagazineContents => new[] { LoadedAmmo.Parent };
+	public IEnumerable<IGameItem> MagazineContents => new[] { LoadedAmmo?.Parent }.SelectNotNull(x => x);
+	public IEnumerable<IGameItem> AllContainedItems => MagazineContents;
 
 	public bool IsLoaded => LoadedAmmo != null;
 	public bool IsReadied { get; set; }

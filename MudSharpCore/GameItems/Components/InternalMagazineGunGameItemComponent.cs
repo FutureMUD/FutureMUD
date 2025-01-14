@@ -125,6 +125,7 @@ public class InternalMagazineGunGameItemComponent : GameItemComponent, IRangedWe
 	private readonly List<IGameItem> _roundsInMagazine = new();
 
 	public IEnumerable<IGameItem> MagazineContents => _roundsInMagazine;
+	public IEnumerable<IGameItem> AllContainedItems => MagazineContents.Concat([ChamberedCasing, ChamberedRound?.Parent]).SelectNotNull(x => x);
 
 	public string SpecificAmmoGrade => _prototype.RangedWeaponType.SpecificAmmunitionGrade;
 

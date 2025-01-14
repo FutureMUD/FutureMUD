@@ -375,6 +375,8 @@ It is classified as {WeaponType.Classification.Describe().Colour(Telnet.Green)}.
 	/// <inheritdoc />
 	public IEnumerable<IGameItem> MagazineContents => _magazineContents;
 
+	public IEnumerable<IGameItem> AllContainedItems => MagazineContents;
+
 	/// <inheritdoc />
 	public Difficulty AimDifficulty => WeaponType.BaseAimDifficulty;
 

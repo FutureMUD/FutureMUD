@@ -28,42 +28,42 @@ public class MindBarrierPower : SustainedMagicPower
 			(power, gameworld) => new MindBarrierPower(power, gameworld));
 	}
 
-    /// <inheritdoc />
-    protected override XElement SaveDefinition()
-    {
-        var definition = new XElement("Definition",
-            new XElement("BeginVerb", BeginVerb),
-            new XElement("EndVerb", EndVerb),
-            new XElement("SkillCheckDifficulty", (int)SkillCheckDifficulty),
-            new XElement("SkillCheckTrait", SkillCheckTrait.Id),
-            new XElement("MinimumSuccessThreshold", (int)MinimumSuccessThreshold),
-            new XElement("AppliesToCharacterProg", AppliesToCharacterProg.Id),
-            new XElement("EmoteForBegin", new XCData(EmoteForBegin)),
-            new XElement("EmoteForBeginSelf", new XCData(EmoteForBeginSelf)),
-            new XElement("EmoteForEnd", new XCData(EmoteForEnd)),
-            new XElement("EmoteForEndSelf", new XCData(EmoteForEndSelf)),
-            new XElement("BlockEmoteSelf", new XCData(BlockEmoteSelf)),
-            new XElement("BlockEmoteTarget", new XCData(BlockEmoteTarget)),
-            new XElement("OvercomeEmoteSelf", new XCData(OvercomeEmoteSelf)),
-            new XElement("OvercomeEmoteTarget", new XCData(OvercomeEmoteTarget)),
-            new XElement("EndWhenNotSustainingError", new XCData(EndWhenNotSustainingError)),
-            new XElement("BeginWhenAlreadySustainingError", new XCData(BeginWhenAlreadySustainingError)),
-            new XElement("PermitAllies", PermitAllies),
-            new XElement("PermitTrustedAllies", PermitTrustedAllies),
-            new XElement("FailIfOvercome", FailIfOvercome),
+	/// <inheritdoc />
+	protected override XElement SaveDefinition()
+	{
+		var definition = new XElement("Definition",
+			new XElement("BeginVerb", BeginVerb),
+			new XElement("EndVerb", EndVerb),
+			new XElement("SkillCheckDifficulty", (int)SkillCheckDifficulty),
+			new XElement("SkillCheckTrait", SkillCheckTrait.Id),
+			new XElement("MinimumSuccessThreshold", (int)MinimumSuccessThreshold),
+			new XElement("AppliesToCharacterProg", AppliesToCharacterProg.Id),
+			new XElement("EmoteForBegin", new XCData(EmoteForBegin)),
+			new XElement("EmoteForBeginSelf", new XCData(EmoteForBeginSelf)),
+			new XElement("EmoteForEnd", new XCData(EmoteForEnd)),
+			new XElement("EmoteForEndSelf", new XCData(EmoteForEndSelf)),
+			new XElement("BlockEmoteSelf", new XCData(BlockEmoteSelf)),
+			new XElement("BlockEmoteTarget", new XCData(BlockEmoteTarget)),
+			new XElement("OvercomeEmoteSelf", new XCData(OvercomeEmoteSelf)),
+			new XElement("OvercomeEmoteTarget", new XCData(OvercomeEmoteTarget)),
+			new XElement("EndWhenNotSustainingError", new XCData(EndWhenNotSustainingError)),
+			new XElement("BeginWhenAlreadySustainingError", new XCData(BeginWhenAlreadySustainingError)),
+			new XElement("PermitAllies", PermitAllies),
+			new XElement("PermitTrustedAllies", PermitTrustedAllies),
+			new XElement("FailIfOvercome", FailIfOvercome),
 			new XElement("Bonuses",
 				from bonus in TargetCheckBonusPerOutcome
 				select new XElement("Bonus",
 					new XAttribute("outcome", (int)bonus.Key),
 					new XAttribute("bonus", bonus.Value)
-                )
-            )
-        );
-        SaveSustainedDefinition(definition);
-        return definition;
-    }
+				)
+			)
+		);
+		SaveSustainedDefinition(definition);
+		return definition;
+	}
 
-    protected MindBarrierPower(MagicPower power, IFuturemud gameworld) : base(power, gameworld)
+	protected MindBarrierPower(MagicPower power, IFuturemud gameworld) : base(power, gameworld)
 	{
 		var root = XElement.Parse(power.Definition);
 		var element = root.Element("BeginVerb");
@@ -96,10 +96,10 @@ public class MindBarrierPower : SustainedMagicPower
 		}
 		SkillCheckTrait = Gameworld.Traits.Get(long.Parse(element.Value));
 
-        element = root.Element("MinimumSuccessThreshold");
-        MinimumSuccessThreshold = (Outcome)int.Parse(element?.Value ?? ((int)Outcome.MinorFail).ToString());
+		element = root.Element("MinimumSuccessThreshold");
+		MinimumSuccessThreshold = (Outcome)int.Parse(element?.Value ?? ((int)Outcome.MinorFail).ToString());
 
-        element = root.Element("PermitAllies");
+		element = root.Element("PermitAllies");
 		if (element == null)
 		{
 			throw new ApplicationException($"The MindBarrierPower #{Id} ({Name}) was missing a PermitAllies element.");
@@ -308,8 +308,8 @@ public class MindBarrierPower : SustainedMagicPower
 	public string EndVerb { get; protected set; }
 	public Difficulty SkillCheckDifficulty { get; protected set; }
 	public ITraitDefinition SkillCheckTrait { get; protected set; }
-    public Outcome MinimumSuccessThreshold { get; protected set; }
-    public bool PermitAllies { get; protected set; }
+	public Outcome MinimumSuccessThreshold { get; protected set; }
+	public bool PermitAllies { get; protected set; }
 	public bool PermitTrustedAllies { get; protected set; }
 	public IFutureProg AppliesToCharacterProg { get; protected set; }
 	public Dictionary<Outcome, double> TargetCheckBonusPerOutcome { get; } = new();
@@ -325,181 +325,181 @@ public class MindBarrierPower : SustainedMagicPower
 	public string EndWhenNotSustainingError { get; protected set; }
 	public string BeginWhenAlreadySustainingError { get; protected set; }
 
-    protected override void ShowSubtype(ICharacter actor, StringBuilder sb)
-    {
-        sb.AppendLine($"Begin Verb: {BeginVerb.ColourCommand()}");
-        sb.AppendLine($"End Verb: {EndVerb.ColourCommand()}");
-        sb.AppendLine($"Skill Check Trait: {SkillCheckTrait.Name.ColourValue()}");
-        sb.AppendLine($"Skill Check Difficulty: {SkillCheckDifficulty.DescribeColoured()}");
-        sb.AppendLine($"Applies Character Prog: {AppliesToCharacterProg.MXPClickableFunctionName()}");
-        sb.AppendLine($"Permit Allies: {PermitAllies.ToColouredString()}");
-        sb.AppendLine($"Permit Trusted Allies: {PermitAllies.ToColouredString()}");
-        sb.AppendLine($"Fail If Overcome: {FailIfOvercome.ToColouredString()}");
-        sb.AppendLine();
-        sb.AppendLine("Check Bonuses:");
-        foreach (var item in TargetCheckBonusPerOutcome.OrderBy(x => x.Key))
-        {
-            sb.AppendLine($"\t{item.Key.DescribeColour()}: {item.Value.ToBonusString(actor)}");
-        }
-        sb.AppendLine();
-        sb.AppendLine("Emotes:");
-        sb.AppendLine();
-        sb.AppendLine($"Begin Emote: {EmoteForBegin.ColourCommand()}");
-        sb.AppendLine($"Emote Self: {EmoteForBeginSelf.ColourCommand()}");
-        sb.AppendLine($"End Emote: {EmoteForEnd.ColourCommand()}");
-        sb.AppendLine($"End Emote Self: {EmoteForEndSelf.ColourCommand()}");
-        sb.AppendLine($"End Emote Self: {BlockEmoteSelf.ColourCommand()}");
-        sb.AppendLine($"End Emote Target: {BlockEmoteTarget.ColourCommand()}");
-        sb.AppendLine($"Overcome Emote Self: {OvercomeEmoteSelf.ColourCommand()}");
-        sb.AppendLine($"Overcome Emote Target: {OvercomeEmoteTarget.ColourCommand()}");
-        sb.AppendLine($"End Not Sustain Emote: {EndWhenNotSustainingError.ColourCommand()}");
-        sb.AppendLine($"Begin Already Sustaining Emote: {BeginWhenAlreadySustainingError.ColourCommand()}");
-    }
+	protected override void ShowSubtype(ICharacter actor, StringBuilder sb)
+	{
+		sb.AppendLine($"Begin Verb: {BeginVerb.ColourCommand()}");
+		sb.AppendLine($"End Verb: {EndVerb.ColourCommand()}");
+		sb.AppendLine($"Skill Check Trait: {SkillCheckTrait.Name.ColourValue()}");
+		sb.AppendLine($"Skill Check Difficulty: {SkillCheckDifficulty.DescribeColoured()}");
+		sb.AppendLine($"Applies Character Prog: {AppliesToCharacterProg.MXPClickableFunctionName()}");
+		sb.AppendLine($"Permit Allies: {PermitAllies.ToColouredString()}");
+		sb.AppendLine($"Permit Trusted Allies: {PermitAllies.ToColouredString()}");
+		sb.AppendLine($"Fail If Overcome: {FailIfOvercome.ToColouredString()}");
+		sb.AppendLine();
+		sb.AppendLine("Check Bonuses:");
+		foreach (var item in TargetCheckBonusPerOutcome.OrderBy(x => x.Key))
+		{
+			sb.AppendLine($"\t{item.Key.DescribeColour()}: {item.Value.ToBonusString(actor)}");
+		}
+		sb.AppendLine();
+		sb.AppendLine("Emotes:");
+		sb.AppendLine();
+		sb.AppendLine($"Begin Emote: {EmoteForBegin.ColourCommand()}");
+		sb.AppendLine($"Emote Self: {EmoteForBeginSelf.ColourCommand()}");
+		sb.AppendLine($"End Emote: {EmoteForEnd.ColourCommand()}");
+		sb.AppendLine($"End Emote Self: {EmoteForEndSelf.ColourCommand()}");
+		sb.AppendLine($"End Emote Self: {BlockEmoteSelf.ColourCommand()}");
+		sb.AppendLine($"End Emote Target: {BlockEmoteTarget.ColourCommand()}");
+		sb.AppendLine($"Overcome Emote Self: {OvercomeEmoteSelf.ColourCommand()}");
+		sb.AppendLine($"Overcome Emote Target: {OvercomeEmoteTarget.ColourCommand()}");
+		sb.AppendLine($"End Not Sustain Emote: {EndWhenNotSustainingError.ColourCommand()}");
+		sb.AppendLine($"Begin Already Sustaining Emote: {BeginWhenAlreadySustainingError.ColourCommand()}");
+	}
 
-    #region Building Commands
-    /// <inheritdoc />
-    protected override string SubtypeHelpText => @"	#3begin <verb>#0 - sets the verb to activate this power
-    #3end <verb>#0 - sets the verb to end this power
-    #3skill <which>#0 - sets the skill used in the skill check
-    #3difficulty <difficulty>#0 - sets the difficulty of the skill check
-    #3threshold <outcome>#0 - sets the minimum outcome for skill success
-    #3distance <distance>#0 - sets the distance that this power can be used at";
+	#region Building Commands
+	/// <inheritdoc />
+	protected override string SubtypeHelpText => @"	#3begin <verb>#0 - sets the verb to activate this power
+	#3end <verb>#0 - sets the verb to end this power
+	#3skill <which>#0 - sets the skill used in the skill check
+	#3difficulty <difficulty>#0 - sets the difficulty of the skill check
+	#3threshold <outcome>#0 - sets the minimum outcome for skill success
+	#3distance <distance>#0 - sets the distance that this power can be used at";
 
-    /// <inheritdoc />
-    public override bool BuildingCommand(ICharacter actor, StringStack command)
-    {
-        switch (command.PopForSwitch())
-        {
-            case "beginverb":
-            case "begin":
-            case "startverb":
-            case "start":
-                return BuildingCommandBeginVerb(actor, command);
-            case "endverb":
-            case "end":
-            case "cancelverb":
-            case "cancel":
-                return BuildingCommandEndVerb(actor, command);
-            case "skill":
-            case "trait":
-                return BuildingCommandSkill(actor, command);
-            case "difficulty":
-                return BuildingCommandDifficulty(actor, command);
-            case "threshold":
-                return BuildingCommandThreshold(actor, command);
-        }
-        return base.BuildingCommand(actor, command.GetUndo());
-    }
+	/// <inheritdoc />
+	public override bool BuildingCommand(ICharacter actor, StringStack command)
+	{
+		switch (command.PopForSwitch())
+		{
+			case "beginverb":
+			case "begin":
+			case "startverb":
+			case "start":
+				return BuildingCommandBeginVerb(actor, command);
+			case "endverb":
+			case "end":
+			case "cancelverb":
+			case "cancel":
+				return BuildingCommandEndVerb(actor, command);
+			case "skill":
+			case "trait":
+				return BuildingCommandSkill(actor, command);
+			case "difficulty":
+				return BuildingCommandDifficulty(actor, command);
+			case "threshold":
+				return BuildingCommandThreshold(actor, command);
+		}
+		return base.BuildingCommand(actor, command.GetUndo());
+	}
 
-    #region Building Subcommands
-    private bool BuildingCommandThreshold(ICharacter actor, StringStack command)
-    {
-        if (command.IsFinished)
-        {
-            actor.OutputHandler.Send($"What is the minimum success threshold for this power to work? See {"show outcomes".MXPSend("show outcomes")} for a list of valid values.");
-            return false;
-        }
+	#region Building Subcommands
+	private bool BuildingCommandThreshold(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send($"What is the minimum success threshold for this power to work? See {"show outcomes".MXPSend("show outcomes")} for a list of valid values.");
+			return false;
+		}
 
-        if (!command.SafeRemainingArgument.TryParseEnum(out Outcome value))
-        {
-            actor.OutputHandler.Send($"That is not a valid outcome. See {"show outcomes".MXPSend("show outcomes")} for a list of valid values.");
-            return false;
-        }
+		if (!command.SafeRemainingArgument.TryParseEnum(out Outcome value))
+		{
+			actor.OutputHandler.Send($"That is not a valid outcome. See {"show outcomes".MXPSend("show outcomes")} for a list of valid values.");
+			return false;
+		}
 
-        MinimumSuccessThreshold = value;
-        Changed = true;
-        actor.OutputHandler.Send($"The power user will now need to achieve a {value.DescribeColour()} in order to activate this power.");
-        return true;
-    }
+		MinimumSuccessThreshold = value;
+		Changed = true;
+		actor.OutputHandler.Send($"The power user will now need to achieve a {value.DescribeColour()} in order to activate this power.");
+		return true;
+	}
 
-    private bool BuildingCommandDifficulty(ICharacter actor, StringStack command)
-    {
-        if (command.IsFinished)
-        {
-            actor.OutputHandler.Send($"What difficulty should the skill check for this power be? See {"show difficulties".MXPSend("show difficulties")} for a list of values.");
-            return false;
-        }
+	private bool BuildingCommandDifficulty(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send($"What difficulty should the skill check for this power be? See {"show difficulties".MXPSend("show difficulties")} for a list of values.");
+			return false;
+		}
 
-        if (!command.SafeRemainingArgument.TryParseEnum(out Difficulty value))
-        {
-            actor.OutputHandler.Send($"That is not a valid difficulty. See {"show difficulties".MXPSend("show difficulties")} for a list of values.");
-            return false;
-        }
+		if (!command.SafeRemainingArgument.TryParseEnum(out Difficulty value))
+		{
+			actor.OutputHandler.Send($"That is not a valid difficulty. See {"show difficulties".MXPSend("show difficulties")} for a list of values.");
+			return false;
+		}
 
-        SkillCheckDifficulty = value;
-        Changed = true;
-        actor.OutputHandler.Send($"This power's skill check will now be at a difficulty of {value.DescribeColoured()}.");
-        return true;
-    }
+		SkillCheckDifficulty = value;
+		Changed = true;
+		actor.OutputHandler.Send($"This power's skill check will now be at a difficulty of {value.DescribeColoured()}.");
+		return true;
+	}
 
-    private bool BuildingCommandSkill(ICharacter actor, StringStack command)
-    {
-        if (command.IsFinished)
-        {
-            actor.OutputHandler.Send("Which skill or trait should be used for this power's skill check?");
-            return false;
-        }
+	private bool BuildingCommandSkill(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("Which skill or trait should be used for this power's skill check?");
+			return false;
+		}
 
-        var skill = Gameworld.Traits.GetByIdOrName(command.SafeRemainingArgument);
-        if (skill is null)
-        {
-            actor.OutputHandler.Send("That is not a valid skill or trait.");
-            return false;
-        }
+		var skill = Gameworld.Traits.GetByIdOrName(command.SafeRemainingArgument);
+		if (skill is null)
+		{
+			actor.OutputHandler.Send("That is not a valid skill or trait.");
+			return false;
+		}
 
-        SkillCheckTrait = skill;
-        Changed = true;
-        actor.OutputHandler.Send($"This magic power will now use the {skill.Name.ColourName()} skill for its skill check.");
-        return true;
-    }
+		SkillCheckTrait = skill;
+		Changed = true;
+		actor.OutputHandler.Send($"This magic power will now use the {skill.Name.ColourName()} skill for its skill check.");
+		return true;
+	}
 
-    private bool BuildingCommandEndVerb(ICharacter actor, StringStack command)
-    {
-        if (command.IsFinished)
-        {
-            actor.OutputHandler.Send("Which verb should be used to end this power when active?");
-            return false;
-        }
+	private bool BuildingCommandEndVerb(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("Which verb should be used to end this power when active?");
+			return false;
+		}
 
-        var verb = command.SafeRemainingArgument.ToLowerInvariant();
-        if (BeginVerb.EqualTo(verb))
-        {
-            actor.OutputHandler.Send("The begin and verb cannot be the same.");
-            return false;
-        }
+		var verb = command.SafeRemainingArgument.ToLowerInvariant();
+		if (BeginVerb.EqualTo(verb))
+		{
+			actor.OutputHandler.Send("The begin and verb cannot be the same.");
+			return false;
+		}
 
-        var costs = InvocationCosts[EndVerb].ToList();
-        InvocationCosts[verb] = costs;
-        InvocationCosts.Remove(EndVerb);
-        EndVerb = verb;
-        Changed = true;
-        actor.OutputHandler.Send($"This magic power will now use the verb {verb.ColourCommand()} to end the power.");
-        return true;
-    }
+		var costs = InvocationCosts[EndVerb].ToList();
+		InvocationCosts[verb] = costs;
+		InvocationCosts.Remove(EndVerb);
+		EndVerb = verb;
+		Changed = true;
+		actor.OutputHandler.Send($"This magic power will now use the verb {verb.ColourCommand()} to end the power.");
+		return true;
+	}
 
-    private bool BuildingCommandBeginVerb(ICharacter actor, StringStack command)
-    {
-        if (command.IsFinished)
-        {
-            actor.OutputHandler.Send("Which verb should be used to activate this power?");
-            return false;
-        }
+	private bool BuildingCommandBeginVerb(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("Which verb should be used to activate this power?");
+			return false;
+		}
 
-        var verb = command.SafeRemainingArgument.ToLowerInvariant();
-        if (EndVerb.EqualTo(verb))
-        {
-            actor.OutputHandler.Send("The begin and verb cannot be the same.");
-            return false;
-        }
+		var verb = command.SafeRemainingArgument.ToLowerInvariant();
+		if (EndVerb.EqualTo(verb))
+		{
+			actor.OutputHandler.Send("The begin and verb cannot be the same.");
+			return false;
+		}
 
-        var costs = InvocationCosts[BeginVerb].ToList();
-        InvocationCosts[verb] = costs;
-        InvocationCosts.Remove(BeginVerb);
-        BeginVerb = verb;
-        Changed = true;
-        actor.OutputHandler.Send($"This magic power will now use the verb {verb.ColourCommand()} to begin the power.");
-        return true;
-    }
-    #endregion Building Subcommands
-    #endregion Building Commands
+		var costs = InvocationCosts[BeginVerb].ToList();
+		InvocationCosts[verb] = costs;
+		InvocationCosts.Remove(BeginVerb);
+		BeginVerb = verb;
+		Changed = true;
+		actor.OutputHandler.Send($"This magic power will now use the verb {verb.ColourCommand()} to begin the power.");
+		return true;
+	}
+	#endregion Building Subcommands
+	#endregion Building Commands
 }

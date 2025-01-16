@@ -40,12 +40,12 @@ public static class MagicPowerFactory
 		foreach (
 			var type in
 			Assembly.GetExecutingAssembly()
-			        .GetTypes()
-			        .Where(x => x.GetInterfaces().Contains(iType)))
+					.GetTypes()
+					.Where(x => x.GetInterfaces().Contains(iType)))
 		{
 			var method = type.GetMethod("RegisterLoader", BindingFlags.Static | BindingFlags.Public);
 			method?.Invoke(null, []);
-        }
+		}
 
 		_initialised = true;
 	}

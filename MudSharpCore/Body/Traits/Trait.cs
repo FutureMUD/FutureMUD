@@ -92,7 +92,19 @@ public abstract class Trait : FrameworkItem, ITrait
 			return;
 		}
 
-		FMDB.Context.Traits.Find(_owner.Id, Definition.Id).Value = Value;
+		var dbtrait = FMDB.Context.Traits.Find(_owner.Id, Definition.Id);
+		if (dbtrait is null)
+		{
+			dbtrait = new Models.Trait
+			{
+				BodyId = Owner.Id,
+				TraitDefinitionId = Definition.Id,
+				Value = 0.0,
+				AdditionalValue = 0.0
+			};
+			FMDB.Context.Traits.Add(dbtrait);
+		}
+		dbtrait.Value = Value;
 		Changed = false;
 	}
 

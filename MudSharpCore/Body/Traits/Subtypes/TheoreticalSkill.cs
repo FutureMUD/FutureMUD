@@ -77,9 +77,20 @@ public class TheoreticalSkill : Trait
 			return;
 		}
 
-		var trait = FMDB.Context.Traits.Find(_owner.Id, Definition.Id);
-		trait.Value = PracticalValue;
-		trait.AdditionalValue = TheoreticalValue;
+		var dbtrait = FMDB.Context.Traits.Find(_owner.Id, Definition.Id);
+		if (dbtrait is null)
+		{
+			dbtrait = new Models.Trait
+			{
+				BodyId = Owner.Id,
+				TraitDefinitionId = Definition.Id,
+				Value = 0.0,
+				AdditionalValue = 0.0
+			};
+			FMDB.Context.Traits.Add(dbtrait);
+		}
+		dbtrait.Value = PracticalValue;
+		dbtrait.AdditionalValue = TheoreticalValue;
 		Changed = false;
 	}
 

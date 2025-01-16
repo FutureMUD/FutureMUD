@@ -349,13 +349,21 @@ public class ImplementorModule : Module<ICharacter>
 	#3seedrooms#0 - loads the 10 rooms with the highest IDs into the new room queue
 	#3failemail#0 - tests the fail email routine
 	#3crash#0 - causes the MUD to crash
-	#3heartbeat hour|minute|second|5second|10second|30second#0 - manually triggers a heartbeat", AutoHelp.HelpArgOrNoArg)]
+	#3heartbeat hour|minute|second|5second|10second|30second#0 - manually triggers a heartbeat
+	#3freezetime#0 - freezes all in game clocks
+	#3unfreezetime#0 - resumes all in game clocks", AutoHelp.HelpArgOrNoArg)]
 	[CommandPermission(PermissionLevel.Founder)]
 	protected static void ImpDebug(ICharacter actor, string input)
 	{
 		var ss = new StringStack(input.RemoveFirstWord());
 		switch (ss.PopSpeech().CollapseString().ToLowerInvariant())
 		{
+			case "freezetime":
+				DebugFreezeTime(actor);
+				return;
+			case "unfreezetime":
+				DebugUnfreezeTime(actor);
+				return;
 			case "exportcrafts":
 				DebugExportCrafts(actor, ss);
 				return;
@@ -467,6 +475,18 @@ public class ImplementorModule : Module<ICharacter>
 				actor.Send("That's not a known debug routine.");
 				return;
 		}
+	}
+
+	private static void DebugUnfreezeTime(ICharacter actor)
+	{
+		actor.Gameworld.ClockManager.UnfreezeTime();
+		actor.OutputHandler.Send("You unfreeze all in-game time progression.");
+	}
+
+	private static void DebugFreezeTime(ICharacter actor)
+	{
+		actor.Gameworld.ClockManager.FreezeTime();
+		actor.OutputHandler.Send("You freeze all in-game time progression.");
 	}
 
 	private static void DebugOrphans(ICharacter actor)

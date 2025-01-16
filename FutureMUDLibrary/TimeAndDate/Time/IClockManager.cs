@@ -6,5 +6,7 @@ namespace MudSharp.TimeAndDate.Time
     {
         void UpdateClocks();
         void Initialise();
+        void FreezeTime();
+        void UnfreezeTime();
     }
 }

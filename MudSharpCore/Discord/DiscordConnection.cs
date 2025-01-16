@@ -45,7 +45,7 @@ public sealed class DiscordConnection : IDiscordConnection
 		try
 		{
 			SendClientMessage(
-				$"sendmessage {channel.ToString("F", CultureInfo.InvariantCulture.NumberFormat)} \"{title}\" {message}");
+				$"sendmessage {channel.ToString("F0", CultureInfo.InvariantCulture.NumberFormat)} \"{title}\" {message}");
 		}
 		catch (SocketException)
 		{

@@ -384,7 +384,7 @@ The syntax for this command is as follows:
 				}
 
 				FMDB.Context.SaveChanges();
-				actor.Gameworld.UpdateStaticConfiguration("TyposBoardId", dbBoard.Id.ToString("F"));
+				actor.Gameworld.UpdateStaticConfiguration("TyposBoardId", dbBoard.Id.ToString("F0"));
 			}
 		}
 

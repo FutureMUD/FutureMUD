@@ -463,7 +463,7 @@ public class Terrain : SaveableItem, ITerrain
 			dbitem.TrackIntensityMultiplierOlfactory = rhsItem.TrackIntensityMultiplierOlfactory;
 			dbitem.TrackIntensityMultiplierVisual = rhsItem.TrackIntensityMultiplierVisual;
 			dbitem.CanHaveTracks = rhsItem.CanHaveTracks;
-			dbitem.TagInformation = rhs.Tags.Select(x => x.Id.ToString("F")).ListToCommaSeparatedValues();
+			dbitem.TagInformation = rhs.Tags.Select(x => x.Id.ToString("F0")).ListToCommaSeparatedValues();
 			foreach (var cover in rhs.TerrainCovers)
 			{
 				dbitem.TerrainsRangedCovers.Add(new TerrainsRangedCovers

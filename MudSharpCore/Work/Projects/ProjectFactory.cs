@@ -169,6 +169,7 @@ public static class ProjectFactory
 			case "jobeffort":
 				return new JobEffortImpact(impact, gameworld);
 			case "cap":
+			case "trait cap":
 				return new TraitCapImpact(impact, gameworld);
 		}
 

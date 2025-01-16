@@ -42,7 +42,7 @@ internal class AddHookFunction : BuiltInFunction
 		}
 
 		var hook = hookResult.Type == ProgVariableTypes.Number
-			? Gameworld.Hooks.Get((long)(double)hookResult.GetObject)
+			? Gameworld.Hooks.Get((long)(decimal)hookResult.GetObject)
 			: Gameworld.Hooks.GetByName(hookResult.GetObject.ToString());
 
 		if (hook == null)

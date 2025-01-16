@@ -13,7 +13,7 @@ public class TraitCapImpact : BaseImpact, ILabourImpactTraitCaps
 	{
 		var root = XElement.Parse(impact.Definition);
 		Trait = Gameworld.Traits.Get(long.Parse(root.Element("Trait").Value));
-		TraitCapChange = double.Parse(root.Element("TraitCapChange").Value);
+		TraitCapChange = double.Parse(root.Element("TraitChange").Value);
 	}
 
 	public TraitCapImpact(TraitCapImpact rhs, IProjectLabourRequirement newLabour) : base(rhs, newLabour, "trait cap")

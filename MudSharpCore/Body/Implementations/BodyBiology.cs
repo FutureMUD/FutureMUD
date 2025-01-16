@@ -1832,11 +1832,11 @@ public partial class Body
 		if (includeClothing)
 		{
 			var insulatingItems = _wornItems
-								  .Select(x => (x.Wearloc, Insulating: x.Item.GetItemType<IInsulating>()))
-								  .Where(x => x.Insulating != null)
+								  .SelectNotNull(x => x.Item.GetItemType<IInsulating>())
+								  .Distinct()
 								  .ToList();
 
-			clothingInsulation = insulatingItems.Sum(x => x.Insulating.InsulatingDegrees);
+			clothingInsulation = insulatingItems.Sum(x => x.InsulatingDegrees);
 			clothingReflection =
 				Outerwear.SelectNotNull(x => x.GetItemType<IInsulating>()).Sum(x => x.ReflectingDegrees);
 		}

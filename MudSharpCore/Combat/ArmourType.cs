@@ -1220,9 +1220,9 @@ You can use the following parameters in this formula:
 			return false;
 		}
 
-		StackedDifficultyBonus = (-1 * value);
+		StackedDifficultyBonus = value;
 		Changed = true;
-		actor.OutputHandler.Send($"This armour type will now impose a penalty of {(-1 * value).ToBonusString(actor)} when stacked.");
+		actor.OutputHandler.Send($"This armour type will now impose a penalty of {value.ToBonusString(actor)} when stacked.");
 		return true;
 	}
 
@@ -1240,9 +1240,9 @@ You can use the following parameters in this formula:
 			return false;
 		}
 
-		BaseDifficultyBonus = (-1 * value);
+		BaseDifficultyBonus = value;
 		Changed = true;
-		actor.OutputHandler.Send($"This armour type will now impose a penalty of {(-1 * value).ToBonusString(actor)} when worn alone.");
+		actor.OutputHandler.Send($"This armour type will now impose a penalty of {value.ToBonusString(actor)} when worn alone.");
 		return true;
 	}
 

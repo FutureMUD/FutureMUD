@@ -497,7 +497,7 @@ public class Terrain : SaveableItem, ITerrain
 		dbitem.CanHaveTracks = CanHaveTracks;
 		dbitem.TrackIntensityMultiplierVisual = TrackIntensityMultiplierVisual;
 		dbitem.TrackIntensityMultiplierOlfactory = TrackIntensityMultiplierOlfactory;
-		dbitem.TagInformation = _tags.Select(x => x.Id.ToString("F")).ListToCommaSeparatedValues();
+		dbitem.TagInformation = _tags.Select(x => x.Id.ToString("F0")).ListToCommaSeparatedValues();
 		FMDB.Context.TerrainsRangedCovers.RemoveRange(dbitem.TerrainsRangedCovers);
 		foreach (var cover in _terrainCovers)
 		{

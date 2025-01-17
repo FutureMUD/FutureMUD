@@ -2687,7 +2687,7 @@ public partial class Body
 			{
 				var wearable = item.GetItemType<IWearable>();
 				OutputHandler.Send(
-					wearable.Profiles.Count() == 1 ? 
+					wearable?.Profiles.Count() == 1 ? 
 						WhyCannotWear(item, wearable.Profiles.First()) : 
 						WhyCannotWear(item));
 			}

@@ -10,9 +10,9 @@
 	<Product>FutureMUD</Product>
 	<ApplicationIcon>FM Logo.ico</ApplicationIcon>
 	<AssemblyName>MudSharp</AssemblyName>
-	<Version>1.47.5</Version>
-	<AssemblyVersion>1.47.5</AssemblyVersion>
-	<FileVersion>1.47.5</FileVersion>
+	<Version>1.47.6</Version>
+	<AssemblyVersion>1.47.6</AssemblyVersion>
+	<FileVersion>1.47.6</FileVersion>
   </PropertyGroup>
 
 	<PropertyGroup>

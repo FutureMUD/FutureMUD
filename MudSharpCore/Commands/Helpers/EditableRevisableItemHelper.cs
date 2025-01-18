@@ -35,8 +35,8 @@ internal class EditableRevisableItemHelper
 					if (dbproto != null)
 					{
 						FMDB.Context.NpcTemplates.Remove(dbproto);
-						FMDB.Context.Entry(dbproto).Reference(x => x.EditableItem).Load();
-						FMDB.Context.EditableItems.Remove(dbproto.EditableItem);
+						var dbeditable = FMDB.Context.EditableItems.Find(dbproto.EditableItemId);
+						FMDB.Context.EditableItems.Remove(dbeditable);
 						FMDB.Context.SaveChanges();
 					}
 				}
@@ -169,8 +169,8 @@ internal class EditableRevisableItemHelper
 					if (dbproto != null)
 					{
 						FMDB.Context.GameItemProtos.Remove(dbproto);
-						FMDB.Context.Entry(dbproto).Reference(x => x.EditableItem).Load();
-						FMDB.Context.EditableItems.Remove(dbproto.EditableItem);
+						var dbeditable = FMDB.Context.EditableItems.Find(dbproto.EditableItemId);
+						FMDB.Context.EditableItems.Remove(dbeditable);
 						FMDB.Context.SaveChanges();
 					}
 
@@ -282,8 +282,8 @@ internal class EditableRevisableItemHelper
 					if (dbproto != null)
 					{
 						FMDB.Context.Foragables.Remove(dbproto);
-						FMDB.Context.Entry(dbproto).Reference(x => x.EditableItem).Load();
-						FMDB.Context.EditableItems.Remove(dbproto.EditableItem);
+						var dbeditable = FMDB.Context.EditableItems.Find(dbproto.EditableItemId);
+						FMDB.Context.EditableItems.Remove(dbeditable);
 						FMDB.Context.SaveChanges();
 					}
 
@@ -462,8 +462,8 @@ internal class EditableRevisableItemHelper
 					if (dbproto != null)
 					{
 						FMDB.Context.Crafts.Remove(dbproto);
-						FMDB.Context.Entry(dbproto).Reference(x => x.EditableItem).Load();
-						FMDB.Context.EditableItems.Remove(dbproto.EditableItem);
+						var dbeditable = FMDB.Context.EditableItems.Find(dbproto.EditableItemId);
+						FMDB.Context.EditableItems.Remove(dbeditable);
 						FMDB.Context.SaveChanges();
 					}
 
@@ -629,8 +629,8 @@ internal class EditableRevisableItemHelper
 					if (dbproto != null)
 					{
 						FMDB.Context.Projects.Remove(dbproto);
-						FMDB.Context.Entry(dbproto).Reference(x => x.EditableItem).Load();
-						FMDB.Context.EditableItems.Remove(dbproto.EditableItem);
+						var dbeditable = FMDB.Context.EditableItems.Find(dbproto.EditableItemId);
+						FMDB.Context.EditableItems.Remove(dbeditable);
 						FMDB.Context.SaveChanges();
 					}
 
@@ -729,8 +729,8 @@ internal class EditableRevisableItemHelper
 					if (dbproto != null)
 					{
 						FMDB.Context.DisfigurementTemplates.Remove(dbproto);
-						FMDB.Context.Entry(dbproto).Reference(x => x.EditableItem).Load();
-						FMDB.Context.EditableItems.Remove(dbproto.EditableItem);
+						var dbeditable = FMDB.Context.EditableItems.Find(dbproto.EditableItemId);
+						FMDB.Context.EditableItems.Remove(dbeditable);
 						FMDB.Context.SaveChanges();
 					}
 
@@ -848,8 +848,8 @@ internal class EditableRevisableItemHelper
 					if (dbproto != null)
 					{
 						FMDB.Context.GameItemSkins.Remove(dbproto);
-						FMDB.Context.Entry(dbproto).Reference(x => x.EditableItem).Load();
-						FMDB.Context.EditableItems.Remove(dbproto.EditableItem);
+						var dbeditable = FMDB.Context.EditableItems.Find(dbproto.EditableItemId);
+						FMDB.Context.EditableItems.Remove(dbeditable);
 						FMDB.Context.SaveChanges();
 					}
 

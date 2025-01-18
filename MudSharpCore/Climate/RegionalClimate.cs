@@ -35,8 +35,15 @@ public class RegionalClimate : SaveableItem, IRegionalClimate
 			}
 		}
 
-		SeasonRotation = new CircularRange<ISeason>(_seasons.First().Celestial.CelestialDaysPerYear,
-			Seasons.Select(x => (x, (double)x.CelestialDayOnset)));
+		if (_seasons.Count > 0)
+		{
+			SeasonRotation = new CircularRange<ISeason>(_seasons.First().Celestial.CelestialDaysPerYear,
+				Seasons.Select(x => (x, (double)x.CelestialDayOnset)));
+		}
+		else
+		{
+			SeasonRotation = new CircularRange<ISeason>();
+		}
 	}
 
 	public RegionalClimate(IFuturemud gameworld, string name, IClimateModel model)
@@ -45,6 +52,39 @@ public class RegionalClimate : SaveableItem, IRegionalClimate
 		_name = name;
 		ClimateModel = model;
 		SeasonRotation = new CircularRange<ISeason>();
+		DoDatabaseInsert();
+	}
+
+	private RegionalClimate(RegionalClimate rhs, string name)
+	{
+		Gameworld = rhs.Gameworld;
+		_name = name;
+		ClimateModel = rhs.ClimateModel;
+		_seasons.AddRange(rhs._seasons);
+		foreach (var item in rhs._hourlyBaseTemperaturesBySeason)
+		{
+			_hourlyBaseTemperaturesBySeason[item.Key] = item.Value;
+		}
+		if (_seasons.Count > 0)
+		{
+			SeasonRotation = new CircularRange<ISeason>(_seasons.First().Celestial.CelestialDaysPerYear,
+				Seasons.Select(x => (x, (double)x.CelestialDayOnset)));
+		}
+		else
+		{
+			SeasonRotation = new CircularRange<ISeason>();
+		}
+		DoDatabaseInsert();
+	}
+
+	public IRegionalClimate Clone(string name)
+	{
+		return new RegionalClimate(this, name);
+	}
+
+	private void DoDatabaseInsert()
+	{
+
 	}
 
 	#region Overrides of Item
@@ -59,7 +99,7 @@ public class RegionalClimate : SaveableItem, IRegionalClimate
 	private readonly List<ISeason> _seasons = new();
 	public IEnumerable<ISeason> Seasons => _seasons;
 	private readonly Dictionary<(ISeason Season, int DailyHour), double> _hourlyBaseTemperaturesBySeason = new();
-	public CircularRange<ISeason> SeasonRotation { get; }
+	public CircularRange<ISeason> SeasonRotation { get; private set; }
 
 	public IReadOnlyDictionary<(ISeason Season, int DailyHour), double> HourlyBaseTemperaturesBySeason =>
 		_hourlyBaseTemperaturesBySeason;
@@ -241,7 +281,15 @@ public class RegionalClimate : SaveableItem, IRegionalClimate
 			}
 			actor.OutputHandler.Send($"This regional climate now contains the {season.Name.ColourValue()} season. Default temperature values have been added.");
 		}
-
+		if (_seasons.Count > 0)
+		{
+			SeasonRotation = new CircularRange<ISeason>(_seasons.First().Celestial.CelestialDaysPerYear,
+				Seasons.Select(x => (x, (double)x.CelestialDayOnset)));
+		}
+		else
+		{
+			SeasonRotation = new CircularRange<ISeason>();
+		}
 		Changed = true;
 		return true;
 	}

@@ -15,5 +15,6 @@ namespace MudSharp.Climate
         IEnumerable<ISeason> Seasons { get; }
         IReadOnlyDictionary<(ISeason Season, int DailyHour),double> HourlyBaseTemperaturesBySeason { get; }
         CircularRange<ISeason> SeasonRotation { get; }
+        IRegionalClimate Clone(string name);
     }
 }

@@ -638,6 +638,7 @@ public class TerrestrialClimateModel : ClimateModelBase
 		dbitem.MinimumMinutesBetweenFlavourEchoes = MinimumMinutesBetweenFlavourEchoes;
 		dbitem.MinuteFlavourEchoChance = MinuteFlavourEchoChance;
 		dbitem.MinuteProcessingInterval = MinuteProcessingInterval;
+		FMDB.Context.ClimateModelSeasonEvent.RemoveRange(dbitem.ClimateModelSeasons.SelectMany(x => x.SeasonEvents));
 		FMDB.Context.ClimateModelSeason.RemoveRange(dbitem.ClimateModelSeasons);
 		foreach (var season in Seasons)
 		{

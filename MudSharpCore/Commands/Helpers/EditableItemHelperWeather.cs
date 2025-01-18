@@ -277,53 +277,64 @@ public partial class EditableItemHelper
 			}
 
 			var name = input.PopSpeech().TitleCase();
-			if (actor.Gameworld.WeatherControllers.Any(x => x.Name.EqualTo(name)))
+			if (actor.Gameworld.RegionalClimates.Any(x => x.Name.EqualTo(name)))
 			{
-				actor.OutputHandler.Send($"There is already a season called {name.ColourName()}. Names must be unique.");
+				actor.OutputHandler.Send($"There is already a regional climate called {name.ColourName()}. Names must be unique.");
 				return;
 			}
 
 			if (input.IsFinished)
 			{
-				actor.OutputHandler.Send("Which regional climate is this a weather controller for?");
+				actor.OutputHandler.Send("Which climate model should this regional climate use?");
 				return;
 			}
 
-			var regionalClimate = actor.Gameworld.RegionalClimates.GetByIdOrName(input.PopSpeech());
-			if (regionalClimate is not null)
+			var climateModel = actor.Gameworld.ClimateModels.GetByIdOrName(input.PopSpeech());
+			if (climateModel is null)
 			{
-				actor.OutputHandler.Send($"The text {input.Last.ColourCommand()} is not a valid regional climate.");
+				actor.OutputHandler.Send($"The text {input.Last.ColourCommand()} is not a valid climate model.");
 				return;
 			}
 
-			if (input.IsFinished)
-			{
-				actor.OutputHandler.Send("Which zone do you want to use for the geographic information?");
-				return;
-			}
-
-			var zone = actor.Gameworld.Zones.GetByIdOrName(input.SafeRemainingArgument);
-			if (zone is null)
-			{
-				actor.OutputHandler.Send($"The text {input.SafeRemainingArgument.ColourCommand()} is not a valid zone.");
-				return;
-			}
-
-			if (!int.TryParse(input.SafeRemainingArgument, out var onset) || onset < 0)
-			{
-				actor.OutputHandler.Send($"The text {input.SafeRemainingArgument.ColourCommand()} is not a valid number 0 or greater.");
-				return;
-			}
-
-			var wc = new WeatherController(actor.Gameworld, name, regionalClimate, zone);
-			actor.Gameworld.Add(wc);
-			actor.RemoveAllEffects<BuilderEditingEffect<IWeatherController>>();
-			actor.AddEffect(new BuilderEditingEffect<IWeatherController>(actor) { EditingItem = wc });
-			actor.OutputHandler.Send($"You create a new weather controller called {name.ColourName()}, which you are also editing.");
+			var rc = new RegionalClimate(actor.Gameworld, name, climateModel);
+			actor.Gameworld.Add(rc);
+			actor.RemoveAllEffects<BuilderEditingEffect<IRegionalClimate>>();
+			actor.AddEffect(new BuilderEditingEffect<IRegionalClimate>(actor) { EditingItem = rc });
+			actor.OutputHandler.Send($"You create a new regional climate called {name.ColourName()}, which you are also editing.");
 		},
 		EditableCloneAction = (actor, input) =>
 		{
-			actor.OutputHandler.Send("Weather controllers can't be cloned. Create a new one instead.");
+			if (input.IsFinished)
+			{
+				actor.OutputHandler.Send("Which regional climate do you want to clone?");
+				return;
+			}
+
+			var clone = actor.Gameworld.RegionalClimates.GetByIdOrName(input.PopSpeech());
+			if (clone is null)
+			{
+				actor.OutputHandler.Send($"There is no regional climate identified by the text {input.Last.ColourCommand()}");
+				return;
+			}
+
+			if (input.IsFinished)
+			{
+				actor.OutputHandler.Send("You must specify a name for your regional climate.");
+				return;
+			}
+
+			var name = input.PopSpeech().TitleCase();
+			if (actor.Gameworld.RegionalClimates.Any(x => x.Name.EqualTo(name)))
+			{
+				actor.OutputHandler.Send($"There is already a regional climate called {name.ColourName()}. Names must be unique.");
+				return;
+			}
+
+			var rc = clone.Clone(name);
+			actor.Gameworld.Add(rc);
+			actor.RemoveAllEffects<BuilderEditingEffect<IRegionalClimate>>();
+			actor.AddEffect(new BuilderEditingEffect<IRegionalClimate>(actor) { EditingItem = rc });
+			actor.OutputHandler.Send($"You create a new regional climate called {name.ColourName()} as a clone of {clone.Name.ColourName()}, which you are also editing.");
 		},
 
 		GetListTableHeaderFunc = character => new List<string>
@@ -383,7 +394,7 @@ public partial class EditableItemHelper
 			var name = input.PopSpeech().TitleCase();
 			if (actor.Gameworld.WeatherControllers.Any(x => x.Name.EqualTo(name)))
 			{
-				actor.OutputHandler.Send($"There is already a season called {name.ColourName()}. Names must be unique.");
+				actor.OutputHandler.Send($"There is already a weather controller called {name.ColourName()}. Names must be unique.");
 				return;
 			}
 
@@ -394,7 +405,7 @@ public partial class EditableItemHelper
 			}
 
 			var regionalClimate = actor.Gameworld.RegionalClimates.GetByIdOrName(input.PopSpeech());
-			if (regionalClimate is not null)
+			if (regionalClimate is null)
 			{
 				actor.OutputHandler.Send($"The text {input.Last.ColourCommand()} is not a valid regional climate.");
 				return;

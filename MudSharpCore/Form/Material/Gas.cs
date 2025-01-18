@@ -296,8 +296,8 @@ public class Gas : Fluid, IGas
 			return false;
 		}
 
-		if (!Gameworld.UnitManager.TryGetBaseUnits(command.SafeRemainingArgument, UnitType.Temperature,
-			    out var value))
+		if (!Gameworld.UnitManager.TryGetBaseUnits(command.SafeRemainingArgument, UnitType.Temperature, actor,
+				out var value))
 		{
 			actor.OutputHandler.Send($"That is not a valid temperature.");
 			return false;

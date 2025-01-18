@@ -93,6 +93,7 @@ public class SimpleWeatherEvent : WeatherEventBase
 		Wind = WindLevel.None;
 		WeatherDescription = "An undescribed weather event";
 		WeatherRoomAddendum = "";
+		_defaultTransitionEcho = "";
 		TemperatureEffect = 0.0;
 		PrecipitationTemperatureEffect = 0.0;
 		WindTemperatureEffect = 0.0;

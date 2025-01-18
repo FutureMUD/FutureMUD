@@ -1040,7 +1040,7 @@ There are the following special phase actions available for this surgical proced
 				var outcome = Outcome.MajorFail;
 				foreach (var text in bloodTexts)
 				{
-					if (!Gameworld.UnitManager.TryGetBaseUnits(text, UnitType.FluidVolume, out var bleeding))
+					if (!Gameworld.UnitManager.TryGetBaseUnits(text, UnitType.FluidVolume, actor, out var bleeding))
 					{
 						actor.OutputHandler.Send($"The text {text.ColourCommand()} is not a valid fluid amount.");
 						return false;

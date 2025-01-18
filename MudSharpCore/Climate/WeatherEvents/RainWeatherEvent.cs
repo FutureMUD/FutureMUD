@@ -20,10 +20,13 @@ namespace MudSharp.Climate.WeatherEvents
 	{
 		public RainWeatherEvent(IFuturemud gameworld, string name)
 		{
+			Gameworld = gameworld;
+			_name = name;
 			Precipitation = PrecipitationLevel.Rain;
 			Wind = WindLevel.None;
 			WeatherDescription = "An undescribed weather event";
 			WeatherRoomAddendum = "";
+			_defaultTransitionEcho = "";
 			TemperatureEffect = 0.0;
 			PrecipitationTemperatureEffect = 0.0;
 			WindTemperatureEffect = 0.0;

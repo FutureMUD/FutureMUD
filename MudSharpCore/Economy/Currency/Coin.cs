@@ -247,7 +247,7 @@ public class Coin : SaveableItem, ICoin
 			return false;
 		}
 
-		if (!Gameworld.UnitManager.TryGetBaseUnits(command.SafeRemainingArgument, UnitType.Mass, out var value))
+		if (!Gameworld.UnitManager.TryGetBaseUnits(command.SafeRemainingArgument, UnitType.Mass, actor, out var value))
 		{
 			actor.OutputHandler.Send($"The text {command.SafeRemainingArgument.ColourCommand()} is not a valid weight.");
 			return false;

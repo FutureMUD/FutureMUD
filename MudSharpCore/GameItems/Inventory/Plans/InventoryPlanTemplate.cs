@@ -283,8 +283,8 @@ public class InventoryPlanTemplate : IInventoryPlanTemplate
 					return null;
 				}
 
-				if (!actor.Gameworld.UnitManager.TryGetBaseUnits(command.PopSpeech(), UnitType.FluidVolume,
-					    out var liquidAmount))
+				if (!actor.Gameworld.UnitManager.TryGetBaseUnits(command.PopSpeech(), UnitType.FluidVolume, actor,
+						out var liquidAmount))
 				{
 					actor.OutputHandler.Send($"The text {command.Last.ColourCommand()} is not a valid fluid quantity.");
 				}

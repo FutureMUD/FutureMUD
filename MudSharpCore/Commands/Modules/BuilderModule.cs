@@ -4330,7 +4330,7 @@ You can use the following syntax with this command:
 			return;
 		}
 
-		if (!actor.Gameworld.UnitManager.TryGetBaseUnits(ss.SafeRemainingArgument, type, out var value))
+		if (!actor.Gameworld.UnitManager.TryGetBaseUnits(ss.SafeRemainingArgument, type, actor, out var value))
 		{
 			actor.OutputHandler.Send($"The text {ss.SafeRemainingArgument.ColourCommand()} is not a valid amount of {type.DescribeEnum().ColourValue()} units.");
 			return;

@@ -385,7 +385,7 @@ Note - models only use one of either BMI or weight. Setting one switches off the
 			return false;
 		}
 
-		if (!Gameworld.UnitManager.TryGetBaseUnits(ss.SafeRemainingArgument, UnitType.Length, out var value))
+		if (!Gameworld.UnitManager.TryGetBaseUnits(ss.SafeRemainingArgument, UnitType.Length, actor, out var value))
 		{
 			actor.OutputHandler.Send($"The text {ss.SafeRemainingArgument.ColourCommand()} is not a valid height.");
 			return false;
@@ -437,7 +437,7 @@ Note - models only use one of either BMI or weight. Setting one switches off the
 			return false;
 		}
 
-		if (!Gameworld.UnitManager.TryGetBaseUnits(ss.SafeRemainingArgument, UnitType.Length, out var value))
+		if (!Gameworld.UnitManager.TryGetBaseUnits(ss.SafeRemainingArgument, UnitType.Length, actor, out var value))
 		{
 			actor.OutputHandler.Send($"The text {ss.SafeRemainingArgument.ColourCommand()} is not a valid height.");
 			return false;
@@ -491,7 +491,7 @@ Note - models only use one of either BMI or weight. Setting one switches off the
 			return false;
 		}
 
-		if (!Gameworld.UnitManager.TryGetBaseUnits(ss.SafeRemainingArgument, UnitType.Mass, out var value))
+		if (!Gameworld.UnitManager.TryGetBaseUnits(ss.SafeRemainingArgument, UnitType.Mass, actor, out var value))
 		{
 			actor.OutputHandler.Send($"The text {ss.SafeRemainingArgument.ColourCommand()} is not a valid weight.");
 			return false;
@@ -521,7 +521,7 @@ Note - models only use one of either BMI or weight. Setting one switches off the
 			return false;
 		}
 
-		if (!Gameworld.UnitManager.TryGetBaseUnits(ss.SafeRemainingArgument, UnitType.Mass, out var value))
+		if (!Gameworld.UnitManager.TryGetBaseUnits(ss.SafeRemainingArgument, UnitType.Mass, actor, out var value))
 		{
 			actor.OutputHandler.Send($"The text {ss.SafeRemainingArgument.ColourCommand()} is not a valid weight.");
 			return false;

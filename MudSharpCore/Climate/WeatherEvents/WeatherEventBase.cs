@@ -399,7 +399,7 @@ public abstract class WeatherEventBase : SaveableItem, IWeatherEvent, IHaveFutur
 			return false;
 		}
 
-		if (!Gameworld.UnitManager.TryGetBaseUnits(command.SafeRemainingArgument, UnitType.TemperatureDelta, out var value))
+		if (!Gameworld.UnitManager.TryGetBaseUnits(command.SafeRemainingArgument, UnitType.TemperatureDelta, actor, out var value))
 		{
 			actor.OutputHandler.Send($"The text {command.SafeRemainingArgument.ColourCommand()} is not a valid temperature change.");
 			return false;
@@ -419,7 +419,7 @@ public abstract class WeatherEventBase : SaveableItem, IWeatherEvent, IHaveFutur
 			return false;
 		}
 
-		if (!Gameworld.UnitManager.TryGetBaseUnits(command.SafeRemainingArgument, UnitType.TemperatureDelta, out var value))
+		if (!Gameworld.UnitManager.TryGetBaseUnits(command.SafeRemainingArgument, UnitType.TemperatureDelta, actor, out var value))
 		{
 			actor.OutputHandler.Send($"The text {command.SafeRemainingArgument.ColourCommand()} is not a valid temperature change.");
 			return false;
@@ -439,7 +439,7 @@ public abstract class WeatherEventBase : SaveableItem, IWeatherEvent, IHaveFutur
 			return false;
 		}
 
-		if (!Gameworld.UnitManager.TryGetBaseUnits(command.SafeRemainingArgument, UnitType.TemperatureDelta, out var value))
+		if (!Gameworld.UnitManager.TryGetBaseUnits(command.SafeRemainingArgument, UnitType.TemperatureDelta, actor, out var value))
 		{
 			actor.OutputHandler.Send($"The text {command.SafeRemainingArgument.ColourCommand()} is not a valid temperature change.");
 			return false;

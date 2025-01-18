@@ -85,10 +85,10 @@ public class RoomTemperatureEffect : IMagicSpellEffectTemplate
 
 		actor.OutputHandler.Send(@"You can use the following options with this effect:
 
-    #3temp <degrees>#0 - sets the amount of temperature change per power in degrees
-    #3desc <desc>#0 - sets the room desc addendum e.g. An unholy chill sits over this area
-    #3desc none#0 - sets there to be no room desc addendum (effect is invisible)
-    #3colour <colour>#0 - sets the colour of the desc addenda");
+	#3temp <degrees>#0 - sets the amount of temperature change per power in degrees
+	#3desc <desc>#0 - sets the room desc addendum e.g. An unholy chill sits over this area
+	#3desc none#0 - sets there to be no room desc addendum (effect is invisible)
+	#3colour <colour>#0 - sets the colour of the desc addenda");
 		return false;
 	}
 

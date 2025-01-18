@@ -12,7 +12,7 @@ namespace MudSharp.Framework.Units;
 
 public class UnitManager : IUnitManager
 {
-	private static readonly Regex PatternRegex = new(@"(\d{1,}[\.\d]{0,})[ ]{0,1}([a-zA-Z'""]{1,})");
+	private static readonly Regex PatternRegex = new(@"([+-]*\d{1,}[\.\d]{0,})[ ]{0,1}([a-zA-Z'""]{1,})");
 	private readonly List<IUnit> _units = new();
 
 	private readonly CollectionDictionary<string, IUnit> _unitSystems =
@@ -120,21 +120,71 @@ public class UnitManager : IUnitManager
 		success = true;
 		return baseSum;
 	}
-
-	public bool TryGetBaseUnits(string pattern, UnitType type, out double value)
+	
+	public bool TryGetBaseUnits(string pattern, UnitType type, IPerceiver who, out double value)
 	{
 		value = 0.0;
 		var matches = PatternRegex.Matches(pattern).ToList();
 		if (!matches.Any())
 		{
+			if (double.TryParse(pattern, out var dvalue))
+			{
+				var defaultUnit = Units
+				                  .Where(x => x.Type == type && x.System.EqualTo(who.Account.UnitPreference))
+				                  .FirstOrDefault(x => x.DefaultUnitForSystem);
+				if (defaultUnit is not null)
+				{
+					value = dvalue * defaultUnit.MultiplierFromBase;
+					return true;
+				}
+			}
 			return false;
 		}
-
+		
 		foreach (var match in matches)
 		{
 			var unit =
 				Units.Where(x => x.Type == type)
+				     .OrderByDescending(x => x.System == who.Account.UnitPreference)
 				     .FirstOrDefault(x => x.Abbreviations.Contains(match.Groups[2].Value, StringComparer.InvariantCultureIgnoreCase));
+			if (unit == null)
+			{
+				value = 0.0;
+				return false;
+			}
+
+			value += double.Parse(match.Groups[1].Value) * unit.MultiplierFromBase;
+		}
+
+		return true;
+	}
+
+	public bool TryGetBaseUnits(string pattern, UnitType type, IAccount who, out double value)
+	{
+		value = 0.0;
+		var matches = PatternRegex.Matches(pattern).ToList();
+		if (!matches.Any())
+		{
+			if (double.TryParse(pattern, out var dvalue))
+			{
+				var defaultUnit = Units
+				                  .Where(x => x.Type == type && x.System == who.UnitPreference)
+				                  .FirstOrDefault(x => x.DefaultUnitForSystem);
+				if (defaultUnit is not null)
+				{
+					value = dvalue * defaultUnit.MultiplierFromBase;
+					return true;
+				}
+			}
+			return false;
+		}
+		
+		foreach (var match in matches)
+		{
+			var unit =
+				Units.Where(x => x.Type == type)
+				     .OrderByDescending(x => x.System == who.UnitPreference)
+					 .FirstOrDefault(x => x.Abbreviations.Contains(match.Groups[2].Value, StringComparer.InvariantCultureIgnoreCase));
 			if (unit == null)
 			{
 				value = 0.0;

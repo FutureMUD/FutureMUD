@@ -616,7 +616,7 @@ public class MusketGameItemComponentProto : GameItemComponentProto
 			return false;
 		}
 
-		if (!Gameworld.UnitManager.TryGetBaseUnits(command.SafeRemainingArgument, UnitType.Mass, out var value) || value <= 0.0)
+		if (!Gameworld.UnitManager.TryGetBaseUnits(command.SafeRemainingArgument, UnitType.Mass, actor, out var value) || value <= 0.0)
 		{
 			actor.OutputHandler.Send($"The text {command.SafeRemainingArgument.ColourCommand()} is not a valid mass of gunpowder.");
 			return false;

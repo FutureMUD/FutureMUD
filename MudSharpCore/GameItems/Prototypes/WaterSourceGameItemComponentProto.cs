@@ -263,8 +263,8 @@ public class WaterSourceGameItemComponentProto : GameItemComponentProto
 			return false;
 		}
 
-		if (!Gameworld.UnitManager.TryGetBaseUnits(command.SafeRemainingArgument, UnitType.FluidVolume,
-			    out var value))
+		if (!Gameworld.UnitManager.TryGetBaseUnits(command.SafeRemainingArgument, UnitType.FluidVolume, actor,
+				out var value))
 		{
 			actor.OutputHandler.Send(
 				$"The value {command.SafeRemainingArgument.ColourCommand()} is not a valid amount of liquid.");

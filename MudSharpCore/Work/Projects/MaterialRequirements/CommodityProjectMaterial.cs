@@ -200,7 +200,7 @@ public class CommodityProjectMaterial : MaterialRequirementBase
 			return false;
 		}
 
-		if (!Gameworld.UnitManager.TryGetBaseUnits(command.SafeRemainingArgument, UnitType.Mass, out var value) || value <= 0)
+		if (!Gameworld.UnitManager.TryGetBaseUnits(command.SafeRemainingArgument, UnitType.Mass, actor, out var value) || value <= 0)
 		{
 			actor.OutputHandler.Send("You must enter a valid, positive weight of commodity required.");
 			return false;

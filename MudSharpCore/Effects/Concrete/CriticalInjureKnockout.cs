@@ -22,7 +22,7 @@ public class CriticalInjureKnockout : Effect
 
 	protected CriticalInjureKnockout(XElement root, IPerceivable owner) : base(root, owner)
 	{
-		WakeupTime = DateTime.Parse(root.Element("WakeupTime").Value, null,
+		WakeupTime = DateTime.Parse(root.Element("WakeupTime")?.Value ?? DateTime.UtcNow.ToString("O"), null,
 			System.Globalization.DateTimeStyles.RoundtripKind);
 	}
 
@@ -43,7 +43,7 @@ public class CriticalInjureKnockout : Effect
 	protected override XElement SaveDefinition()
 	{
 		return new XElement("Effect",
-			new XElement("WakeupTime", WakeupTime.ToString("o"))
+			new XElement("WakeupTime", WakeupTime.ToString("O"))
 		);
 	}
 }

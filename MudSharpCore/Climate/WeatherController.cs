@@ -305,7 +305,7 @@ public class WeatherController : SaveableItem, IWeatherController
 			return false;
 		}
 
-		if (!Gameworld.UnitManager.TryGetBaseUnits(command.SafeRemainingArgument, UnitType.Length, out var value))
+		if (!Gameworld.UnitManager.TryGetBaseUnits(command.SafeRemainingArgument, UnitType.Length, actor, out var value))
 		{
 			actor.OutputHandler.Send($"The text {command.SafeRemainingArgument.ColourCommand()} is not a valid length measurement.");
 			return false;
@@ -347,7 +347,7 @@ public class WeatherController : SaveableItem, IWeatherController
 			return false;
 		}
 
-		if (!Gameworld.UnitManager.TryGetBaseUnits(command.SafeRemainingArgument, UnitType.Length, out var value))
+		if (!Gameworld.UnitManager.TryGetBaseUnits(command.SafeRemainingArgument, UnitType.Length, actor, out var value))
 		{
 			actor.OutputHandler.Send($"The text {command.SafeRemainingArgument.ColourCommand()} is not a valid length measurement.");
 			return false;

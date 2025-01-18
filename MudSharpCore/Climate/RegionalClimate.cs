@@ -119,7 +119,7 @@ public class RegionalClimate : SaveableItem, IRegionalClimate
 		var temps = new List<double>();
 		while (!command.IsFinished)
 		{
-			if (!Gameworld.UnitManager.TryGetBaseUnits(command.PopParentheses(), UnitType.Temperature, out var value))
+			if (!Gameworld.UnitManager.TryGetBaseUnits(command.PopParentheses(), UnitType.Temperature, actor, out var value))
 			{
 				actor.OutputHandler.Send($"The text {command.Last.ColourCommand()} is not a valid temperature.");
 				return false;
@@ -194,7 +194,7 @@ public class RegionalClimate : SaveableItem, IRegionalClimate
 			return false;
 		}
 
-		if (!Gameworld.UnitManager.TryGetBaseUnits(command.SafeRemainingArgument, UnitType.Temperature, out var value))
+		if (!Gameworld.UnitManager.TryGetBaseUnits(command.SafeRemainingArgument, UnitType.Temperature, actor, out var value))
 		{
 			actor.OutputHandler.Send($"The text {command.SafeRemainingArgument.ColourCommand()} is not a valid temperature.");
 			return false;

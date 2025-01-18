@@ -877,7 +877,7 @@ public partial class Race
 			return false;
 		}
 
-		if (!Gameworld.UnitManager.TryGetBaseUnits(command.SafeRemainingArgument, UnitType.FluidVolume, out var value))
+		if (!Gameworld.UnitManager.TryGetBaseUnits(command.SafeRemainingArgument, UnitType.FluidVolume, actor, out var value))
 		{
 			actor.OutputHandler.Send("That is not a valid quantity.");
 			return false;
@@ -917,7 +917,7 @@ public partial class Race
 			return false;
 		}
 
-		if (!Gameworld.UnitManager.TryGetBaseUnits(command.SafeRemainingArgument, UnitType.Mass, out var value))
+		if (!Gameworld.UnitManager.TryGetBaseUnits(command.SafeRemainingArgument, UnitType.Mass, actor, out var value))
 		{
 			actor.OutputHandler.Send("That is not a valid quantity.");
 			return false;
@@ -1112,8 +1112,8 @@ public partial class Race
 
 				break;
 			case "water":
-				if (!Gameworld.UnitManager.TryGetBaseUnits(command.SafeRemainingArgument, UnitType.FluidVolume,
-					    out quantity))
+				if (!Gameworld.UnitManager.TryGetBaseUnits(command.SafeRemainingArgument, UnitType.FluidVolume, actor,
+						out quantity))
 				{
 					actor.OutputHandler.Send(
 						$"The text {command.SafeRemainingArgument.ColourCommand()} is not a valid fluid volume.");
@@ -1122,7 +1122,7 @@ public partial class Race
 
 				break;
 			case "alcohol":
-				if (!Gameworld.UnitManager.TryGetBaseUnits(command.SafeRemainingArgument, UnitType.Mass, out quantity))
+				if (!Gameworld.UnitManager.TryGetBaseUnits(command.SafeRemainingArgument, UnitType.Mass, actor, out quantity))
 				{
 					actor.OutputHandler.Send(
 						$"The text {command.SafeRemainingArgument.ColourCommand()} is not a valid mass.");
@@ -1232,7 +1232,7 @@ public partial class Race
 			return false;
 		}
 
-		if (!Gameworld.UnitManager.TryGetBaseUnits(command.SafeRemainingArgument, UnitType.Mass, out var value))
+		if (!Gameworld.UnitManager.TryGetBaseUnits(command.SafeRemainingArgument, UnitType.Mass, actor, out var value))
 		{
 			actor.OutputHandler.Send(
 				$"The text {command.SafeRemainingArgument.ColourCommand()} is not a valid mass.");
@@ -1832,8 +1832,8 @@ public partial class Race
 			return false;
 		}
 
-		if (!Gameworld.UnitManager.TryGetBaseUnits(command.SafeRemainingArgument, UnitType.Temperature,
-			    out var value))
+		if (!Gameworld.UnitManager.TryGetBaseUnits(command.SafeRemainingArgument, UnitType.Temperature, actor,
+				out var value))
 		{
 			actor.OutputHandler.Send(
 				$"The text {command.SafeRemainingArgument.ColourCommand()} is not a valid temperature.");
@@ -1855,8 +1855,8 @@ public partial class Race
 			return false;
 		}
 
-		if (!Gameworld.UnitManager.TryGetBaseUnits(command.SafeRemainingArgument, UnitType.Temperature,
-			    out var value))
+		if (!Gameworld.UnitManager.TryGetBaseUnits(command.SafeRemainingArgument, UnitType.Temperature, actor,
+				out var value))
 		{
 			actor.OutputHandler.Send(
 				$"The text {command.SafeRemainingArgument.ColourCommand()} is not a valid temperature.");
@@ -1938,8 +1938,8 @@ public partial class Race
 			return false;
 		}
 
-		if (!Gameworld.UnitManager.TryGetBaseUnits(command.SafeRemainingArgument, UnitType.FluidVolume,
-			    out var value))
+		if (!Gameworld.UnitManager.TryGetBaseUnits(command.SafeRemainingArgument, UnitType.FluidVolume, actor,
+				out var value))
 		{
 			actor.OutputHandler.Send(
 				$"The text {command.SafeRemainingArgument.ColourCommand()} is not a valid amount of liquid.");

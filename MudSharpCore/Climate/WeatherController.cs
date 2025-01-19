@@ -234,7 +234,7 @@ public class WeatherController : SaveableItem, IWeatherController
 		CurrentTemperature =
 			RegionalClimate.HourlyBaseTemperaturesBySeason[
 				(CurrentSeason, FeedClock.CurrentTime.GetTimeByTimezone(FeedClockTimeZone).Hours)] +
-			CurrentWeatherEvent.TemperatureEffect;
+			(CurrentWeatherEvent?.TemperatureEffect ?? 0.0);
 	}
 
 	public override void Save()

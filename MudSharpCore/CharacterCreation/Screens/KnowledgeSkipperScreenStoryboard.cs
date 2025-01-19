@@ -45,7 +45,7 @@ internal class KnowledgeSkipperScreenStoryboard : ChargenScreenStoryboard
 			: Gameworld.FutureProgs.GetByName(element.Value);
 	}
 
-	protected override string StoryboardName => "KnowledgePickerBySkill";
+	protected override string StoryboardName => "KnowledgeSkipper";
 	public IFutureProg FreeKnowledgesProg { get; protected set; }
 
 	public override ChargenStage Stage => ChargenStage.SelectKnowledges;

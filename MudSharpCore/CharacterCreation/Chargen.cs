@@ -1087,11 +1087,10 @@ public partial class Chargen : FrameworkItem, IChargen
 	private void PerformPostCreationProcessing()
 	{
 		SkillValues.Clear();
-		foreach (var skill in SelectedSkills)
+		foreach (var skill in SelectedSkills.Distinct())
 		{
-			SkillValues.Add((skill,
-				Convert.ToDouble(SelectedCulture.SkillStartingValueProg.Execute(this, skill,
-					SelectedSkillBoosts.TryGetValue(skill, out var value) ? value : 0))));
+			AddTrait(skill, Convert.ToDouble(SelectedCulture.SkillStartingValueProg.Execute(this, skill,
+				SelectedSkillBoosts.GetValueOrDefault(skill, 0))));
 		}
 	}
 
@@ -1252,7 +1251,7 @@ public partial class Chargen : FrameworkItem, IChargen
 						continue;
 					}
 
-					SkillValues.Add((skill, double.Parse(item.Attribute("Value").Value)));
+					AddTrait(skill, double.Parse(item.Attribute("Value").Value));
 				}
 			}
 
@@ -1590,6 +1589,7 @@ public partial class Chargen : FrameworkItem, IChargen
 			SkillValues.Add((trait, value));
 			return true;
 		}
+
 		if (SelectedAttributes.Any(x => x.Definition == trait))
 		{
 			return false;

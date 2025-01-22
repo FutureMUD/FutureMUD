@@ -18,11 +18,24 @@ public class CharacteristicPickerScreenStoryboard : ChargenScreenStoryboard
 	{
 	}
 
-	public CharacteristicPickerScreenStoryboard(IFuturemud gameworld, Models.ChargenScreenStoryboard dbitem)
+	private CharacteristicPickerScreenStoryboard(IFuturemud gameworld, Models.ChargenScreenStoryboard dbitem)
 		: base(dbitem, gameworld)
 	{
 		var definition = XElement.Parse(dbitem.StageDefinition);
 		Blurb = definition.Element("Blurb").Value;
+	}
+
+	private CharacteristicPickerScreenStoryboard(IFuturemud gameworld, IChargenScreenStoryboard storyboard) : base(gameworld,
+		storyboard)
+	{
+		switch (storyboard)
+		{
+			case SimpleCharacteristicsPickerScreenStoryboard picker:
+				Blurb = picker.Blurb;
+				break;
+		}
+
+		SaveAfterTypeChange();
 	}
 
 	protected override string StoryboardName => "CharacteristicPicker";
@@ -50,7 +63,8 @@ public class CharacteristicPickerScreenStoryboard : ChargenScreenStoryboard
 	{
 		ChargenStoryboard.RegisterFactory(ChargenStage.SelectCharacteristics,
 			new ChargenScreenStoryboardFactory("CharacteristicPicker",
-				(game, dbitem) => new CharacteristicPickerScreenStoryboard(game, dbitem)),
+				(game, dbitem) => new CharacteristicPickerScreenStoryboard(game, dbitem),
+				(game, storyboard) => new CharacteristicPickerScreenStoryboard(game, storyboard)),
 			"CharacteristicPicker",
 			"Pick each characteristic in turn",
 			((ChargenScreenStoryboard)Activator.CreateInstance(MethodBase.GetCurrentMethod().DeclaringType, true))

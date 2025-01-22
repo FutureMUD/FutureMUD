@@ -570,15 +570,15 @@ public partial class Body : PerceiverItem, IBody
 	{
 		var bonus = 0.0;
 		var cover = GetAllItemsCoverStatus(true);
-		foreach (var item in _wornItems)
+		foreach (var item in cover)
 		{
-			var armour = item.Item.GetItemType<IArmour>();
+			var armour = item.Key.GetItemType<IArmour>();
 			if (armour is null || !armour.ApplyArmourPenalties)
 			{
 				continue;
 			}
 
-			if (!cover.ContainsKey(item.Item) || cover[item.Item] == WearableItemCoverStatus.Uncovered)
+			if (item.Value == WearableItemCoverStatus.Uncovered)
 			{
 				bonus += armour.ArmourType.BaseDifficultyBonus;
 				continue;

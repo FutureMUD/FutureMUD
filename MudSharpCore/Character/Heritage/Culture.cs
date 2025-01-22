@@ -265,7 +265,10 @@ public class Culture : SaveableItem, ICulture
 		return new Dictionary<string, ProgVariableTypes>(StringComparer.InvariantCultureIgnoreCase)
 		{
 			{ "id", ProgVariableTypes.Number },
-			{ "name", ProgVariableTypes.Text }
+			{ "name", ProgVariableTypes.Text },
+			{ "namecultures", ProgVariableTypes.Text | ProgVariableTypes.Collection},
+			{ "tempfloor", ProgVariableTypes.Number },
+			{ "tempceiling", ProgVariableTypes.Number },
 		};
 	}
 
@@ -273,8 +276,11 @@ public class Culture : SaveableItem, ICulture
 	{
 		return new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase)
 		{
-			{ "id", "" },
-			{ "name", "" }
+			{ "id", "The ID of the culture" },
+			{ "name", "The name of the culture" },
+			{ "namecultures", "A collection of the name cultures for this culture, if present"},
+			{ "tempfloor", "The modifier to the floor of tolerable temperatures" },
+			{ "tempceiling", "The modifier to the ceiling of tolerable temperatures" },
 		};
 	}
 
@@ -292,6 +298,12 @@ public class Culture : SaveableItem, ICulture
 				return new NumberVariable(Id);
 			case "name":
 				return new TextVariable(Name);
+			case "namecultures":
+				return new CollectionVariable(NameCultures.SelectNotNull(x => x?.Name).Distinct().ToList(), ProgVariableTypes.Text);
+			case "tempfloor":
+				return new NumberVariable(TolerableTemperatureFloorEffect);
+			case "tempceiling":
+				return new NumberVariable(TolerableTemperatureCeilingEffect);
 			default:
 				throw new ArgumentException();
 		}

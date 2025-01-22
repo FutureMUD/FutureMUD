@@ -307,34 +307,7 @@ public class Ethnicity : SaveableItem, IEthnicity
 	#endregion
 
 	#region IFutureProgVariable Members
-
-	private static ProgVariableTypes DotReferenceHandler(string property)
-	{
-		var returnVar = ProgVariableTypes.Error;
-		switch (property.ToLowerInvariant())
-		{
-			case "id":
-				returnVar = ProgVariableTypes.Number;
-				break;
-			case "name":
-				returnVar = ProgVariableTypes.Text;
-				break;
-			case "ethnicgroup":
-			case "group":
-				returnVar = ProgVariableTypes.Text;
-				break;
-			case "ethnicsubgroup":
-			case "subgroup":
-				returnVar = ProgVariableTypes.Text;
-				break;
-			case "parentrace":
-				returnVar = ProgVariableTypes.Race;
-				break;
-		}
-
-		return returnVar;
-	}
-
+	
 	private static IReadOnlyDictionary<string, ProgVariableTypes> DotReferenceHandler()
 	{
 		return new Dictionary<string, ProgVariableTypes>(StringComparer.InvariantCultureIgnoreCase)
@@ -345,7 +318,10 @@ public class Ethnicity : SaveableItem, IEthnicity
 			{ "subgroup", ProgVariableTypes.Text },
 			{ "ethnicgroup", ProgVariableTypes.Text },
 			{ "ethnicsubgroup", ProgVariableTypes.Text },
-			{ "parentrace", ProgVariableTypes.Race }
+			{ "parentrace", ProgVariableTypes.Race },
+			{ "namecultures", ProgVariableTypes.Text | ProgVariableTypes.Collection},
+			{ "tempfloor", ProgVariableTypes.Number },
+			{ "tempceiling", ProgVariableTypes.Number },
 		};
 	}
 
@@ -359,7 +335,10 @@ public class Ethnicity : SaveableItem, IEthnicity
 			{ "subgroup", "The ethnic sub group to which this ethnicity belongs" },
 			{ "parentrace", "Which race this ethnicity belongs to" },
 			{ "ethnicgroup", "An alias for the GROUP property" },
-			{ "ethnicsubgroup", "An alias for the SUBGROUP property" }
+			{ "ethnicsubgroup", "An alias for the SUBGROUP property" },
+			{ "namecultures", "A collection of the name cultures for this ethnicity, if present"},
+			{ "tempfloor", "The modifier to the floor of tolerable temperatures" },
+			{ "tempceiling", "The modifier to the ceiling of tolerable temperatures" },
 		};
 	}
 
@@ -391,6 +370,13 @@ public class Ethnicity : SaveableItem, IEthnicity
 			case "parentrace":
 				returnVar = ParentRace;
 				break;
+			case "namecultures":
+				returnVar = new CollectionVariable(NameCultures.SelectNotNull(x => x?.Name).Distinct().ToList(), ProgVariableTypes.Text);
+				break;
+			case "tempfloor":
+				return new NumberVariable(TolerableTemperatureFloorEffect);
+			case "tempceiling":
+				return new NumberVariable(TolerableTemperatureCeilingEffect);
 		}
 
 		return returnVar;

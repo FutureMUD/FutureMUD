@@ -6,6 +6,10 @@ using MudSharp.GameItems.Interfaces;
 using System.Linq;
 using MudSharp.Form.Colour;
 using Colour = MudSharp.Form.Colour.Colour;
+using MudSharp.FutureProg.Variables;
+using MudSharp.FutureProg;
+using System.Collections.Generic;
+using System;
 
 namespace MudSharp.Communication.Language;
 
@@ -228,4 +232,86 @@ public class SimpleWriting : LateInitialisingItem, IWriting, ILazyLoadDuringIdle
 			? $"{DocumentLength.ToString("N0", voyeur)} characters of {Language.Name} written in {Style.Describe()} {Script.KnownScriptDescription.Strip_A_An()}.".Colour(Telnet.BoldCyan)
 			: $"{DocumentLength.ToString("N0", voyeur)} characters of an unknown language written in {Style.Describe()} {Script.KnownScriptDescription.Strip_A_An()}.".Colour(Telnet.BoldCyan);
 	}
+
+	#region Implementation of IProgVariable
+	public IProgVariable GetProperty(string property)
+	{
+		switch (property.ToLowerInvariant())
+		{
+			case "id":
+				return new NumberVariable(Id);
+			case "name":
+				return new TextVariable(Name);
+			case "author":
+				return Author;
+			case "trueauthor":
+				return TrueAuthor;
+			case "script":
+				return Script;
+			case "language":
+				return Language;
+			case "handwriting":
+				return new NumberVariable(HandwritingSkill);
+			case "literacy":
+				return new NumberVariable(LiteracySkill);
+			case "forgery":
+				return new NumberVariable(ForgerySkill);
+			case "languageskill":
+				return new NumberVariable(LanguageSkill);
+			case "text":
+				return new TextVariable(ParseFor(null));
+			case "simple":
+				return new BooleanVariable(true);
+			default:
+				throw new NotSupportedException();
+		}
+	}
+
+	public ProgVariableTypes Type => ProgVariableTypes.Writing;
+
+	public object GetObject => this;
+
+	private static IReadOnlyDictionary<string, ProgVariableTypes> DotReferenceHandler()
+	{
+		return new Dictionary<string, ProgVariableTypes>(StringComparer.InvariantCultureIgnoreCase)
+		{
+			{ "id", ProgVariableTypes.Number },
+			{ "name", ProgVariableTypes.Text },
+			{ "author", ProgVariableTypes.Character },
+			{ "trueauthor", ProgVariableTypes.Character },
+			{ "script", ProgVariableTypes.Script },
+			{ "language", ProgVariableTypes.Language },
+			{ "handwriting", ProgVariableTypes.Number },
+			{ "literacy", ProgVariableTypes.Number },
+			{ "forgery", ProgVariableTypes.Number },
+			{ "languageskill", ProgVariableTypes.Number },
+			{ "text", ProgVariableTypes.Text },
+			{ "simple", ProgVariableTypes.Boolean}
+		};
+	}
+
+	private static IReadOnlyDictionary<string, string> DotReferenceHelp()
+	{
+		return new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase)
+		{
+			{ "id", "The ID of the writing" },
+			{ "name", "The name of the writing" },
+			{ "author", "The author of the writing"},
+			{ "trueauthor", "The true author of the writing, if forged (otherwise null)"},
+			{ "script", "The script it is written in" },
+			{ "language", "The language it is written in" },
+			{ "handwriting", "The handwriting skill of the author" },
+			{ "literacy", "The literacy skill of the author" },
+			{ "forgery", "The forgery skill of the author" },
+			{ "languageskill", "The language skill of the author" },
+			{ "text", "The parsed text of the writing" },
+			{ "simple", "True if simple writing, false is composite (drawing+writing)"}
+		};
+	}
+
+	public new static void RegisterFutureProgCompiler()
+	{
+		ProgVariable.RegisterDotReferenceCompileInfo(ProgVariableTypes.Writing, DotReferenceHandler(), DotReferenceHelp());
+	}
+	#endregion
 }

@@ -35,7 +35,7 @@ public class Zone : Location, IEditableZone
 	private GeographicCoordinate _geography;
 
 	public IEnumerable<IRoom> Rooms => _rooms;
-	public IEnumerable<ICell> Cells => _rooms.SelectMany(x => x.Cells);
+	public override IEnumerable<ICell> Cells => _rooms.SelectMany(x => x.Cells);
 
 	public Zone(MudSharp.Models.Zone zone, IFuturemud game) : base(game)
 	{
@@ -423,18 +423,18 @@ public class Zone : Location, IEditableZone
 	{
 		return new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase)
 		{
-			{ "id", "" },
-			{ "name", "" },
+			{ "id", "The ID of the zone" },
+			{ "name", "The name of the zone" },
 			{ "type", "Returns the name of the framework item type, for example, character or gameitem or clan" },
-			{ "effects", "" },
-			{ "rooms", "" },
-			{ "latitude", "" },
-			{ "longitude", "" },
-			{ "elevation", "" },
-			{ "now", "" },
-			{ "characters", "" },
-			{ "items", "" },
-			{ "timeofday", "" }
+			{ "effects", "A collection of effects on this zone" },
+			{ "latitude", "The latitude in degrees" },
+			{ "longitude", "The longitude in degrees" },
+			{ "elevation", "The elevation in metres" },
+			{ "rooms", "A collection of the rooms in this zone" },
+			{ "now", "The current datetime in this zone" },
+			{ "characters", "The characters in this zone" },
+			{ "items", "The items in this zone" },
+			{ "timeofday", "The current time of day in this zone" }
 		};
 	}
 

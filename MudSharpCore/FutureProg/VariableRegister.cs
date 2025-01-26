@@ -710,6 +710,12 @@ internal class VariableRegister : SaveableItem, IVariableRegister
 					return game.Laws.Get(ID);
 				case ProgVariableTypes.Crime:
 					return game.Crimes.Get(ID);
+				case ProgVariableTypes.Script:
+					return game.Scripts.Get(ID);
+				case ProgVariableTypes.Writing:
+					return game.Writings.Get(ID);
+				case ProgVariableTypes.Area:
+					return game.Areas.Get(ID);
 				default:
 					return null;
 			}

@@ -184,6 +184,13 @@ public partial class Cell : Location, IDisposable, ICell
 	/// </summary>
 	public bool Temporary { get; set; }
 
+	#region Overrides of Location
+
+	/// <inheritdoc />
+	public override IEnumerable<ICell> Cells => [this];
+
+	#endregion
+
 	protected List<IMovement> Movements { get; set; }
 	public override string FrameworkItemType => "Cell";
 

@@ -231,6 +231,15 @@ namespace MudSharp.FutureProg {
 
         LiquidMixture = 1L << 59,
 
+        /// <summary>
+        /// An IScript
+        /// </summary>
+        Script = 1L << 60,
+
+        Writing = 1L << 61,
+
+        Area = 1L << 62,
+
         #region Special Flag Combinations
 
         /// <summary>
@@ -241,7 +250,8 @@ namespace MudSharp.FutureProg {
             Shard | Accent | Language | Race | Culture | Trait | Clan | ClanRank | ClanAppointment | ClanPaygrade |
             Currency | Exit | Merit | MudDateTime | Calendar | Clock | Effect | Knowledge | Role | Ethnicity | Drug | 
             WeatherEvent | Shop | Merchandise | Outfit | OutfitItem | OverlayPackage | Terrain | Project |
-            Solid | Liquid | Gas | MagicSchool | MagicCapability | MagicSpell | Bank | BankAccount | BankAccountType | LegalAuthority | Law | Crime | Market | MarketCategory | LiquidMixture
+            Solid | Liquid | Gas | MagicSchool | MagicCapability | MagicSpell | Bank | BankAccount | BankAccountType | 
+            LegalAuthority | Law | Crime | Market | MarketCategory | LiquidMixture | Script | Writing
             ,
 
         /// <summary>

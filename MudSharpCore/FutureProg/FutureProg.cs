@@ -14,6 +14,7 @@ using MudSharp.Character;
 using MudSharp.Character.Name;
 using MudSharp.CharacterCreation;
 using MudSharp.Commands.Socials;
+using MudSharp.Communication.Language;
 using MudSharp.Construction;
 using MudSharp.Construction.Boundary;
 using MudSharp.Database;
@@ -878,6 +879,15 @@ public class FutureProg : SaveableItem, IFutureProg
 			case "crime":
 				returnType |= ProgVariableTypes.Crime;
 				break;
+			case "script":
+				returnType |= ProgVariableTypes.Script;
+				break;
+			case "writing":
+				returnType |= ProgVariableTypes.Writing;
+				break;
+			case "area":
+				returnType |= ProgVariableTypes.Area;
+				break;
 			default:
 				returnType = ProgVariableTypes.Error;
 				break;
@@ -1439,6 +1449,13 @@ public class FutureProg : SaveableItem, IFutureProg
 				return $"Outfit {thing.Id} \"{thing.Name}\"";
 			case ProgVariableTypes.LiquidMixture:
 				return $"Liquid Mixture {((LiquidMixture)variable.GetObject).ColouredLiquidDescription}";
+			case ProgVariableTypes.Area:
+				return $"Area #{thing.Id} - {thing.Name}";
+			case ProgVariableTypes.Writing:
+				var writing = (IWriting)thing;
+				return $"Writing #{thing.Id} - {writing.DescribeInLook(null)}";
+			case ProgVariableTypes.Script:
+				return $"Script #{thing.Id} - {thing.Name}";
 		}
 
 		return variable.GetObject.ToString();

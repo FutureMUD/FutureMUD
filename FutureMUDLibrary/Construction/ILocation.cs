@@ -30,6 +30,7 @@ namespace MudSharp.Construction {
         IEnumerable<IGameItem> LayerGameItems(RoomLayer layer);
 
         IEnumerable<IPerceivable> Perceivables { get; }
+        IEnumerable<ICell> Cells { get; }
 
         IEnumerable<IClock> Clocks { get; }
         IEnumerable<ICalendar> Calendars { get; }

@@ -79,7 +79,7 @@ public class Room : Location, IDisposable, IRoom
 	}
 
 	public override string FrameworkItemType => "Room";
-	public IEnumerable<ICell> Cells => _cells;
+	public override IEnumerable<ICell> Cells => _cells;
 
 	public void Register(ICell cell)
 	{

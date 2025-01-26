@@ -693,6 +693,13 @@ A function (See PROG HELP FUNCTIONS) can also function as a statement on a line.
 				return $"the {((IFrameworkItem)result).Name.ColourValue()} market category";
 			case ProgVariableTypes.LiquidMixture:
 				return $"the {((LiquidMixture)result).ColouredLiquidDescription} liquid mixture";
+			case ProgVariableTypes.Script:
+				return $"the {((IFrameworkItem)result).Name.ColourValue()} script";
+			case ProgVariableTypes.Writing:
+				var writing = (IWriting)result;
+				return $"the writing {writing.DescribeInLook(actor)} (#{writing.Id.ToStringN0(actor)})";
+			case ProgVariableTypes.Area:
+				return $"the {((IFrameworkItem)result).Name.ColourValue()} area";
 			case ProgVariableTypes.Perceivable:
 				var perceivable = (IPerceivable)result;
 				return perceivable.HowSeen(actor);
@@ -1003,6 +1010,15 @@ A function (See PROG HELP FUNCTIONS) can also function as a statement on a line.
 				}
 
 				return (targetLanguages, true);
+			case ProgVariableTypes.Script:
+				var targetScripts = actor.Gameworld.Scripts.GetByIdOrName(parText);
+				if (targetScripts is null)
+				{
+					actor.OutputHandler.Send($"There is no such script{parameterArgument}.");
+					return (null, false);
+				}
+
+				return (targetScripts, true);
 			case ProgVariableTypes.Accent:
 				var targetAccent = long.TryParse(parText, out iValue)
 					? actor.Gameworld.Accents.Get(iValue)
@@ -1302,6 +1318,30 @@ A function (See PROG HELP FUNCTIONS) can also function as a statement on a line.
 					return (null, false);
 				}
 				return (crime, true);
+			case ProgVariableTypes.Area:
+				var area = actor.Gameworld.Areas.GetByIdOrName(parText);
+				if (area is null)
+				{
+					actor.OutputHandler.Send($"There is no such area{parameterArgument}");
+					return (null, false);
+				}
+
+				return (area, true);
+			case ProgVariableTypes.Writing:
+				if (!long.TryParse(parText, out iValue))
+				{
+					actor.OutputHandler.Send($"The text is not a valid id{parameterArgument}");
+					return (null, false);
+				}
+
+				var writing = actor.Gameworld.Writings.Get(iValue);
+				if (writing is null)
+				{
+					actor.OutputHandler.Send($"There is no such writing{parameterArgument}");
+					return (null, false);
+				}
+
+				return (writing, true);
 			case ProgVariableTypes.Effect:
 			case ProgVariableTypes.Outfit:
 			case ProgVariableTypes.OutfitItem:

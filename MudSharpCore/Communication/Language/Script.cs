@@ -6,8 +6,11 @@ using Microsoft.EntityFrameworkCore.Internal;
 using MudSharp.Character;
 using MudSharp.Commands.Trees;
 using MudSharp.Database;
+using MudSharp.Effects.Concrete;
 using MudSharp.Framework;
 using MudSharp.Framework.Save;
+using MudSharp.FutureProg.Variables;
+using MudSharp.FutureProg;
 using MudSharp.Models;
 using MudSharp.RPG.Knowledge;
 using Org.BouncyCastle.Asn1.Pkcs;
@@ -124,13 +127,13 @@ public class Script : SaveableItem, IScript
 			default:
 				actor.OutputHandler.Send(@"You can use the following options with this building sub-command:
 
-    name <name> - gives a new name to the script
-    knowledge <knowledge> - sets a new knowledge to control who has this script
-    length <%> - sets a modifier for document length using this script
-    ink <%> - sets a modifier for ink usage using this script
-    known <desc> - sets how this script is displayed when the reader knows what it is, e.g. ""the Latin script""
-    unknown <desc> - sets how this script is displayed when the reader doesn't know it, e.g. ""an Asian script""
-    language <which> - toggles the inclusion of the specified language as a language this script is designed to show");
+	name <name> - gives a new name to the script
+	knowledge <knowledge> - sets a new knowledge to control who has this script
+	length <%> - sets a modifier for document length using this script
+	ink <%> - sets a modifier for ink usage using this script
+	known <desc> - sets how this script is displayed when the reader knows what it is, e.g. ""the Latin script""
+	unknown <desc> - sets how this script is displayed when the reader doesn't know it, e.g. ""an Asian script""
+	language <which> - toggles the inclusion of the specified language as a language this script is designed to show");
 				return false;
 		}
 	}
@@ -308,5 +311,71 @@ public class Script : SaveableItem, IScript
 		return sb.ToString();
 	}
 
+	#endregion
+
+	#region Implementation of IProgVariable
+	public IProgVariable GetProperty(string property)
+	{
+		switch (property.ToLowerInvariant())
+		{
+			case "id":
+				return new NumberVariable(Id);
+			case "name":
+				return new TextVariable(Name);
+			case "languages":
+				return new CollectionVariable(DesignedLanguages.ToList(), ProgVariableTypes.Language);
+			case "knowledge":
+				return ScriptKnowledge;
+			case "unknownscriptdescription":
+				return new TextVariable(UnknownScriptDescription);
+			case "knownscriptdescription":
+				return new TextVariable(KnownScriptDescription);
+			case "documentlength":
+				return new NumberVariable(DocumentLengthModifier);
+			case "inkuse":
+				return new NumberVariable(InkUseModifier);
+			default:
+				throw new NotSupportedException();
+		}
+	}
+
+	public ProgVariableTypes Type => ProgVariableTypes.Script;
+
+	public object GetObject => this;
+
+	private static IReadOnlyDictionary<string, ProgVariableTypes> DotReferenceHandler()
+	{
+		return new Dictionary<string, ProgVariableTypes>(StringComparer.InvariantCultureIgnoreCase)
+		{
+			{ "id", ProgVariableTypes.Number },
+			{ "name", ProgVariableTypes.Text },
+			{ "languages", ProgVariableTypes.Collection | ProgVariableTypes.Language},
+			{ "knowledge", ProgVariableTypes.Knowledge},
+			{ "unknownscriptdescription", ProgVariableTypes.Text},
+			{ "knownscriptdescription", ProgVariableTypes.Text},
+			{ "documentlength", ProgVariableTypes.Number},
+			{ "inkuse", ProgVariableTypes.Number},
+		};
+	}
+
+	private static IReadOnlyDictionary<string, string> DotReferenceHelp()
+	{
+		return new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase)
+		{
+			{ "id", "The ID of the language" },
+			{ "name", "The name of the language" },
+			{ "languages", "All the languages this script is designed for"},
+			{ "knowledge", "The knowledge required for this script"},
+			{ "unknownscriptdescription", "The text description if someone doesn't know this script"},
+			{ "knownscriptdescription", "The text description is someone does know this script"},
+			{ "documentlength", "A multiplier for how much space on a page this script takes up"},
+			{ "inkuse", "A multiplier for how much ink this script uses"},
+		};
+	}
+
+	public new static void RegisterFutureProgCompiler()
+	{
+		ProgVariable.RegisterDotReferenceCompileInfo(ProgVariableTypes.Script, DotReferenceHandler(), DotReferenceHelp());
+	}
 	#endregion
 }

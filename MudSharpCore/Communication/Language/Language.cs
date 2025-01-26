@@ -419,6 +419,8 @@ public class Language : SaveableItem, ILanguage
 				return DefaultLearnerAccent;
 			case "unknown":
 				return new TextVariable(UnknownLanguageSpokenDescription);
+			case "scripts":
+				return new CollectionVariable(Gameworld.Scripts.Where(x => x.DesignedLanguages.Contains(this)).ToList(), ProgVariableTypes.Script);
 			default:
 				throw new NotSupportedException();
 		}
@@ -436,7 +438,7 @@ public class Language : SaveableItem, ILanguage
 			{ "name", ProgVariableTypes.Text },
 			{ "trait", ProgVariableTypes.Trait },
 			{ "accents", ProgVariableTypes.Accent | ProgVariableTypes.Collection },
-			{ "defaultaccent", ProgVariableTypes.Text },
+			{ "defaultaccent", ProgVariableTypes.Accent },
 			{ "unknown", ProgVariableTypes.Text }
 		};
 	}
@@ -445,12 +447,12 @@ public class Language : SaveableItem, ILanguage
 	{
 		return new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase)
 		{
-			{ "id", "" },
-			{ "name", "" },
-			{ "trait", "" },
-			{ "accents", "" },
-			{ "defaultaccent", "" },
-			{ "unknown", "" }
+			{ "id", "The ID of the language" },
+			{ "name", "The name of the language" },
+			{ "trait", "The trait linked to the language" },
+			{ "accents", "A list of accents associated with the language" },
+			{ "defaultaccent", "The default learner accent for the language" },
+			{ "unknown", "The unknown description string" }
 		};
 	}
 

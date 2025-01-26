@@ -347,6 +347,15 @@ namespace MudSharp.FutureProg {
 				case ProgVariableTypes.LiquidMixture:
 					sb.Insert(0, "LiquidMixture");
 					break;
+				case ProgVariableTypes.Script:
+					sb.Insert(0, "Script");
+					break;
+				case ProgVariableTypes.Writing:
+					sb.Insert(0, "Writing");
+					break;
+				case ProgVariableTypes.Area:
+					sb.Insert(0, "Area");
+					break;
 				case ProgVariableTypes.ReferenceType:
 					sb.Insert(0, "ReferenceType");
 					break;

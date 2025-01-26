@@ -8,7 +8,10 @@ using MudSharp.Climate;
 using MudSharp.Database;
 using MudSharp.Framework;
 using MudSharp.FutureProg;
+using MudSharp.FutureProg.Variables;
 using MudSharp.Models;
+using MudSharp.TimeAndDate;
+using MudSharp.TimeAndDate.Date;
 using MudSharp.TimeAndDate.Time;
 
 namespace MudSharp.Construction;
@@ -125,8 +128,21 @@ public class Area : Location, IEditableArea
 
 	public IEnumerable<IRoom> Rooms => _rooms;
 
-	public IEnumerable<ICell> Cells => Rooms.SelectMany(x => x.Cells).Distinct();
+	public override IEnumerable<ICell> Cells => Rooms.SelectMany(x => x.Cells).Distinct();
 	public IEnumerable<IZone> Zones => Rooms.Select(x => x.Zone).Distinct();
+
+	#region Overrides of Location
+
+	/// <inheritdoc />
+	public override IEnumerable<ICalendar> Calendars => Zones.SelectMany(x => x.Calendars).Distinct();
+
+	/// <inheritdoc />
+	public override IEnumerable<IClock> Clocks => Zones.SelectMany(x => x.Clocks).Distinct();
+
+	/// <inheritdoc />
+	public override IEnumerable<ICelestialObject> Celestials => Zones.SelectMany(x => x.Celestials).Distinct();
+
+	#endregion
 
 	public override CelestialInformation GetInfo(ICelestialObject celestial)
 	{
@@ -146,6 +162,68 @@ public class Area : Location, IEditableArea
 		Changed = true;
 	}
 
-	public override ProgVariableTypes Type { get; } = ProgVariableTypes.Error;
 	public override string FrameworkItemType => "Area";
+
+	#region IFutureProgVariable Members
+
+	private static IReadOnlyDictionary<string, ProgVariableTypes> DotReferenceHandler()
+	{
+		return new Dictionary<string, ProgVariableTypes>(StringComparer.InvariantCultureIgnoreCase)
+		{
+			{ "id", ProgVariableTypes.Number },
+			{ "name", ProgVariableTypes.Text },
+			{ "type", ProgVariableTypes.Text },
+			{ "effects", ProgVariableTypes.Effect | ProgVariableTypes.Collection },
+			{ "rooms", ProgVariableTypes.Collection | ProgVariableTypes.Location },
+			{ "now", ProgVariableTypes.MudDateTime },
+			{ "characters", ProgVariableTypes.Character | ProgVariableTypes.Collection },
+			{ "items", ProgVariableTypes.Item | ProgVariableTypes.Collection },
+			{ "timeofday", ProgVariableTypes.Text }
+		};
+	}
+
+	private static IReadOnlyDictionary<string, string> DotReferenceHelp()
+	{
+		return new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase)
+		{
+			{ "id", "The ID of the area" },
+			{ "name", "The name of the area" },
+			{ "type", "Returns the name of the framework item type, for example, character or gameitem or clan" },
+			{ "effects", "A collection of effects on this area" },
+			{ "rooms", "A collection of the rooms in this area" },
+			{ "now", "The current datetime in this area" },
+			{ "characters", "The characters in this area" },
+			{ "items", "The items in this area" },
+			{ "timeofday", "The current time of day in this area" }
+		};
+	}
+
+	public new static void RegisterFutureProgCompiler()
+	{
+		ProgVariable.RegisterDotReferenceCompileInfo(ProgVariableTypes.Area, DotReferenceHandler(),
+			DotReferenceHelp());
+	}
+
+	public override IProgVariable GetProperty(string property)
+	{
+		switch (property.ToLowerInvariant())
+		{
+			case "rooms":
+				return new CollectionVariable(Cells.ToList(), ProgVariableTypes.Location);
+			case "now":
+				return new MudDateTime(Calendars.First().CurrentDate, Calendars.First().FeedClock.CurrentTime, Calendars.First().FeedClock.PrimaryTimezone);
+			case "characters":
+				return new CollectionVariable(Cells.SelectMany(x => x.Characters).ToList(), ProgVariableTypes.Character);
+			case "items":
+				return new CollectionVariable(Cells.SelectMany(x => x.GameItems).ToList(), ProgVariableTypes.Character);
+			case "timeofday":
+				return new TextVariable(CurrentTimeOfDay.DescribeEnum());
+			default:
+				return base.GetProperty(property);
+		}
+	}
+
+	public override ProgVariableTypes Type => ProgVariableTypes.Area;
+
+	#endregion
 }

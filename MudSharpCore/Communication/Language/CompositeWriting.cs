@@ -1,4 +1,6 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System;
+using System.Linq;
 using System.Text.RegularExpressions;
 using System.Xml.Linq;
 using MudSharp.Character;
@@ -6,6 +8,8 @@ using MudSharp.Database;
 using MudSharp.Form.Colour;
 using MudSharp.Framework;
 using MudSharp.Framework.Save;
+using MudSharp.FutureProg.Variables;
+using MudSharp.FutureProg;
 using MudSharp.GameItems.Interfaces;
 using MudSharp.Models;
 
@@ -234,17 +238,17 @@ public class CompositeWriting : LateInitialisingItem, IGraffitiWriting, ILazyLoa
 	{
 		return LanguageRegex.Replace(Text, m =>
 		{
-			if (!voyeur.IsLiterate)
+			if (voyeur?.IsLiterate == false)
 			{
 				return "***a bunch of squiggly non-sense***".Colour(Telnet.KeywordBlue);
 			}
 
-			if (!voyeur.Scripts.Contains(Script))
+			if (voyeur?.Scripts.Contains(Script) == false)
 			{
 				return $"***something written in {Script.UnknownScriptDescription.Strip_A_An()}***".Colour(Telnet.KeywordBlue);
 			}
 
-			if (!voyeur.Languages.Contains(Language))
+			if (voyeur?.Languages.Contains(Language) == false)
 			{
 				var mutual = voyeur.Languages.FirstMin(x => x.MutualIntelligability(Language));
 				if (mutual is null)
@@ -302,4 +306,43 @@ public class CompositeWriting : LateInitialisingItem, IGraffitiWriting, ILazyLoa
 	{
 		return $"{ShortDescription.Colour(Telnet.BoldCyan)}";
 	}
+
+	#region Implementation of IProgVariable
+	public IProgVariable GetProperty(string property)
+	{
+		switch (property.ToLowerInvariant())
+		{
+			case "id":
+				return new NumberVariable(Id);
+			case "name":
+				return new TextVariable(Name);
+			case "author":
+				return Author;
+			case "trueauthor":
+				return TrueAuthor;
+			case "script":
+				return Script;
+			case "language":
+				return Language;
+			case "handwriting":
+				return new NumberVariable(HandwritingSkill);
+			case "literacy":
+				return new NumberVariable(LiteracySkill);
+			case "forgery":
+				return new NumberVariable(ForgerySkill);
+			case "languageskill":
+				return new NumberVariable(LanguageSkill);
+			case "text":
+				return new TextVariable(ParseFor(null));
+			case "simple":
+				return new BooleanVariable(false);
+			default:
+				throw new NotSupportedException();
+		}
+	}
+
+	public ProgVariableTypes Type => ProgVariableTypes.Writing;
+
+	public object GetObject => this;
+	#endregion
 }

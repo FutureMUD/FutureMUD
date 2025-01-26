@@ -115,7 +115,7 @@ public static class OutputExtensions
 
 		if (!output.Flags.HasFlag(OutputFlags.IgnoreWatchers))
 		{
-			foreach (var effect in location?.EffectsOfType<IRemoteObservationEffect>().ToList() ??
+			foreach (var effect in location?.Cells.SelectMany(x => x.EffectsOfType<IRemoteObservationEffect>()).ToList() ??
 			                       Enumerable.Empty<IRemoteObservationEffect>())
 			{
 				effect.HandleOutput(output, location);

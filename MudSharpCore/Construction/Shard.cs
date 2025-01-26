@@ -26,7 +26,7 @@ public class Shard : Location, IEditableShard
 
 	public IEnumerable<IZone> Zones => _zones;
 	public IEnumerable<IRoom> Rooms => _rooms;
-	public IEnumerable<ICell> Cells => _rooms.SelectMany(x => x.Cells);
+	public override IEnumerable<ICell> Cells => _rooms.SelectMany(x => x.Cells);
 
 	public Shard(IFuturemud game, ISkyDescriptionTemplate skyTemplate, string name) : base(game)
 	{

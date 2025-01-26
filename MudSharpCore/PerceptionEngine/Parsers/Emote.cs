@@ -236,7 +236,7 @@ public class NoLanguageEmote : Emote
 
 public class FixedLanguageEmote : Emote
 {
-	public FixedLanguageEmote(string rawEmote, IPerceiver source, Language language, Accent accent,
+	public FixedLanguageEmote(string rawEmote, IPerceiver source, ILanguage language, IAccent accent,
 		params IPerceivable[] perceivables)
 	{
 		RawText = rawEmote;

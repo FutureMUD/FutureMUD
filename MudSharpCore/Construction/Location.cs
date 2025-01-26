@@ -93,6 +93,8 @@ public abstract class Location : PerceivedItem, ILocation
 
 	public IEnumerable<IPerceivable> Perceivables => Characters.Cast<IPerceivable>().Concat(GameItems);
 
+	public abstract IEnumerable<ICell> Cells { get; }
+
 	public IEnumerable<IHandleEvents> EventHandlers
 		=> Characters.Cast<IHandleEvents>().Concat(GameItems).Concat(new IHandleEvents[] { this });
 

@@ -159,6 +159,8 @@ public partial class Character
 				return CurrentLanguage;
 			case "accent":
 				return CurrentAccent;
+			case "script":
+				return CurrentScript;
 			case "merits":
 				return new CollectionVariable(Merits.ToList(), ProgVariableTypes.Merit);
 			case "applicablemerits":
@@ -215,6 +217,10 @@ public partial class Character
 				return new BooleanVariable(false);
 			case "knowledges":
 				return new CollectionVariable(Knowledges.ToList(), ProgVariableTypes.Knowledge);
+			case "scripts":
+				return new CollectionVariable(Scripts.ToList(), ProgVariableTypes.Script);
+			case "writings":
+				return new CollectionVariable(Gameworld.Writings.Where(x => x.Author == this || x.TrueAuthor == this).ToList(), ProgVariableTypes.Writing);
 			default:
 				return base.GetProperty(property);
 		}
@@ -288,7 +294,10 @@ public partial class Character
 			{ "outfits", ProgVariableTypes.Outfit | ProgVariableTypes.Collection },
 			{ "layer", ProgVariableTypes.Text },
 			{ "isnewplayer", ProgVariableTypes.Boolean },
-			{ "knowledges", ProgVariableTypes.Knowledge | ProgVariableTypes.Collection}
+			{ "knowledges", ProgVariableTypes.Knowledge | ProgVariableTypes.Collection},
+			{ "scripts", ProgVariableTypes.Script | ProgVariableTypes.Collection},
+			{ "script", ProgVariableTypes.Script },
+			{ "writings", ProgVariableTypes.Writing | ProgVariableTypes.Collection }
 		};
 	}
 
@@ -355,7 +364,10 @@ public partial class Character
 			{ "outfits", "A collection of outfits associated with this character" },
 			{ "layer", "A text representation of the current layer this character is in" },
 			{ "isnewplayer", "True if character has the (New Player) tag" },
-			{ "knowledges", "Returns a collection of knowledges the character has"}
+			{ "knowledges", "Returns a collection of knowledges the character has"},
+			{ "scripts", "A collection of the known scripts for this character"},
+			{ "script", "The script they are currently writing with (can be null)" },
+			{ "writings", "A collection of all writings this character is the author or true author of" }
 		};
 	}
 

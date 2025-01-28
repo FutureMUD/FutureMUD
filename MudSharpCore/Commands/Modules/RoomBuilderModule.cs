@@ -1095,6 +1095,8 @@ You can use the following subcommands:
 	#3zone set <which> timezone <clock> <tz>#0 - sets a timezone for a particular clock
 	#3zone set <which> fp <which>#0 - sets the foragable profile for the zone
 	#3zone set <which> fp clear#0 - clears the foragable profile for the zone
+	#3zone set <which> weather <wc>#0 - sets a weather controller for the zone
+	#3zone set <which> weather none#0 - clears the weather controller for the zone
 
 See also the #3ZONES#0 command to see a list of commands, and the #3ROOMS <zone>#0 command to see a list of rooms within a zone.
 See the #3CELL#0 command for more information about #3CELL PACKAGES#0.";
@@ -1364,10 +1366,39 @@ See the #3CELL#0 command for more information about #3CELL PACKAGES#0.";
 			case "fp":
 				ZoneEditForageProfile(actor, zone, command);
 				break;
+			case "weather":
+				ZoneEditWeather(actor, zone, command);
+				return;
 			default:
 				actor.OutputHandler.Send("What about that zone do you want to edit?");
 				return;
 		}
+	}
+
+	private static void ZoneEditWeather(ICharacter actor, IEditableZone zone, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("Which weather controller do you want to set for this zone?");
+			return;
+		}
+
+		if (command.SafeRemainingArgument.EqualTo("none"))
+		{
+			zone.Weather = null;
+			actor.OutputHandler.Send($"The {zone.Name.ColourName()} zone no longer has any weather.");
+			return;
+		}
+
+		var wc = actor.Gameworld.WeatherControllers.GetByIdOrName(command.SafeRemainingArgument);
+		if (wc is null)
+		{
+			actor.OutputHandler.Send($"There is no such weather controller identified by the text {command.SafeRemainingArgument.ColourCommand()}.");
+			return;
+		}
+
+		zone.Weather = wc;
+		actor.OutputHandler.Send($"The {zone.Name.ColourName()} zone now uses the {wc.Name.ColourValue()} weather controller.");
 	}
 
 	private static void ZoneEditForageProfile(ICharacter actor, IEditableZone zone, StringStack command)

@@ -31,6 +31,11 @@ public class TerrestrialClimateModel : ClimateModelBase
 	public override IWeatherEvent HandleWeatherTick(IWeatherEvent currentWeather, ISeason currentSeason,
 		TimeOfDay currentTime, int consecutiveUnchangedPeriods)
 	{
+		if (currentWeather is null)
+		{
+			return _weatherEventChangeChance.Where(x => x.Key.Season == currentSeason).Select(x => x.Key.Event).GetRandomElement();
+		}
+
 		if (!_weatherEventChangeChance.ContainsKey((currentSeason, currentWeather))){
 			return currentWeather;
 		}

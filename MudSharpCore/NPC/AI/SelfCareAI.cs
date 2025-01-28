@@ -251,6 +251,11 @@ public class SelfCareAI : ArtificialIntelligenceBase
 
 	private bool HandleSelfCare(ICharacter character)
 	{
+		if (character.State.IsDisabled())
+		{
+			return false;
+		}
+
 		if (character.EffectsOfType<DelayedAction>().Any(x => x.ActionDescription == "self care tick"))
 		{
 			return false;

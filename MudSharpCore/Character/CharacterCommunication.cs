@@ -121,15 +121,7 @@ public partial class Character
 
 	public void LearnAccent(IAccent accent, Difficulty difficulty)
 	{
-		if (_accents.ContainsKey(accent))
-		{
-			_accents[accent] = difficulty;
-		}
-		else
-		{
-			_accents.Add(accent, difficulty);
-		}
-
+		_accents[accent] = difficulty;
 		LanguagesChanged = true;
 	}
 

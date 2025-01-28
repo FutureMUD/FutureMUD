@@ -1,15 +1,15 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using MudSharp.Body.Traits;
-using MudSharp.Body.Traits.Subtypes;
 using MudSharp.Character;
+using MudSharp.Communication.Language;
 using MudSharp.Framework;
 using MudSharp.FutureProg.Variables;
+using MudSharp.RPG.Checks;
 using MudSharp.RPG.Knowledge;
 
 namespace MudSharp.FutureProg.Functions.Characters;
 
-internal class GiveKnowledgeFunction : BuiltInFunction
+internal class GiveAccentFunction : BuiltInFunction
 {
 	public IFuturemud Gameworld { get; set; }
 	#region Static Initialisation
@@ -17,18 +17,18 @@ internal class GiveKnowledgeFunction : BuiltInFunction
 	{
 		FutureProg.RegisterBuiltInFunctionCompiler(
 			new FunctionCompilerInformation(
-				"giveknowledge",
-				new[] { ProgVariableTypes.Character, ProgVariableTypes.Knowledge }, // the parameters the function takes
-				(pars, gameworld) => new GiveKnowledgeFunction(pars, gameworld),
+				"giveaccent",
+				new[] { ProgVariableTypes.Character, ProgVariableTypes.Accent }, // the parameters the function takes
+				(pars, gameworld) => new GiveAccentFunction(pars, gameworld),
 				new List<string> {
 					"who",
-					"knowledge"
+					"accent"
 				}, // parameter names
 				new List<string> {
-					"The character to give the knowledge to",
-					"The knowledge to give the character"
+					"The character to give the accent to",
+					"The accent to give the character"
 				}, // parameter help text
-				"Gives a knowledge to a character. Returns true if given, false if already had it.", // help text for the function,
+				"Gives an accent to a character at automatic. Returns true if given, false if already had it.", // help text for the function,
 				"Character",// the category to which this function belongs,
 				ProgVariableTypes.Boolean // the return type of the function
 			)
@@ -37,7 +37,7 @@ internal class GiveKnowledgeFunction : BuiltInFunction
 	#endregion
 
 	#region Constructors
-	protected GiveKnowledgeFunction(IList<IFunction> parameterFunctions, IFuturemud gameworld) : base(parameterFunctions)
+	protected GiveAccentFunction(IList<IFunction> parameterFunctions, IFuturemud gameworld) : base(parameterFunctions)
 	{
 		Gameworld = gameworld;
 	}
@@ -59,24 +59,24 @@ internal class GiveKnowledgeFunction : BuiltInFunction
 		var target = ParameterFunctions[0].Result as ICharacter;
 		if (target == null)
 		{
-			ErrorMessage = "The target parameter in GiveKnowledge returned null";
+			ErrorMessage = "The target parameter in GiveAccent returned null";
 			return StatementResult.Error;
 		}
 
-		var knowledge = (IKnowledge)ParameterFunctions[1].Result;
-		if (knowledge == null)
+		var accent = (IAccent)ParameterFunctions[1].Result;
+		if (accent == null)
 		{
-			ErrorMessage = "The knowledge parameter in GiveKnowledge returned null";
+			ErrorMessage = "The accent parameter in GiveAccent returned null";
 			return StatementResult.Error;
 		}
 
-		if (target.Knowledges.Contains(knowledge))
+		if (target.AccentDifficulty(accent, false) == Difficulty.Automatic)
 		{
 			Result = new BooleanVariable(false);
 			return StatementResult.Normal;
 		}
 
-		target.AddKnowledge(new CharacterKnowledge(target, knowledge, "Acquired"));
+		target.LearnAccent(accent, Difficulty.Automatic);
 		Result = new BooleanVariable(true);
 		return StatementResult.Normal;
 	}

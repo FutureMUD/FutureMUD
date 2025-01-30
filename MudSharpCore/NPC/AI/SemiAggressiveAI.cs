@@ -29,9 +29,32 @@ public class SemiAggressiveAI : PathingAIWithProgTargetsBase
 	{
 	}
 
+	private SemiAggressiveAI(IFuturemud gameworld, string name) : base(gameworld, name, "SemiAggressive")
+	{
+		WillAttackProg = Gameworld.AlwaysFalseProg;
+		WillPostureProg = Gameworld.AlwaysFalseProg;
+		WillFleeProg = Gameworld.AlwaysFalseProg;
+		WillAttackPostureEscalationProg = Gameworld.AlwaysFalseProg;
+		AttackEmoteProg = Gameworld.EmptyTextProg;
+		FleeEmoteProg = Gameworld.EmptyTextProg;
+		PostureEmoteProg = Gameworld.EmptyTextProg;
+		PostureTimeSpanDiceExpression = "30+1d20";
+		ThreatPerHostilePreCombatAction = 1.0;
+		ThreatEscalationPerAdditionalTarget = 0.3;
+		ThreatPerEscalationTick = 0.5;
+		ThreatPerInventoryChange = 0.05;
+		DatabaseInitialise();
+	}
+
+	private SemiAggressiveAI()
+	{
+
+	}
+
 	public static void RegisterLoader()
 	{
 		RegisterAIType("SemiAggressive", (ai, gameworld) => new SemiAggressiveAI(ai, gameworld));
+		RegisterAIBuilderInformation("semiaggressive", (game, name) => new SemiAggressiveAI(game, name), new SemiAggressiveAI().HelpText);
 	}
 
 	protected override void LoadFromXML(XElement root)
@@ -45,26 +68,7 @@ public class SemiAggressiveAI : PathingAIWithProgTargetsBase
 				: Gameworld.FutureProgs.GetByName(element.Value);
 			if (WillAttackProg == null)
 			{
-				throw new ApplicationException($"SemiAggressive #{Id} ({Name}) specified a null WillAttackProg.");
-			}
-
-			if (WillAttackProg.ReturnType != ProgVariableTypes.Boolean)
-			{
-				throw new ApplicationException(
-					$"SemiAggressive #{Id} ({Name}) specified a WillAttackProg with a return type of {WillAttackProg.ReturnType.Describe()} (expected boolean).");
-			}
-
-			if (!WillAttackProg.MatchesParameters(new[]
-			    {
-				    ProgVariableTypes.Character,
-				    ProgVariableTypes.Location,
-				    ProgVariableTypes.Character,
-				    ProgVariableTypes.Character | ProgVariableTypes.Collection,
-				    ProgVariableTypes.Number
-			    }))
-			{
-				throw new ApplicationException(
-					$"SemiAggressive #{Id} ({Name}) specified a WillAttackProg that was not compatible with the expected parameter inputs of character,location,character,character collection,number.");
+				WillAttackProg = Gameworld.AlwaysFalseProg;
 			}
 		}
 		else
@@ -80,26 +84,7 @@ public class SemiAggressiveAI : PathingAIWithProgTargetsBase
 				: Gameworld.FutureProgs.GetByName(element.Value);
 			if (WillPostureProg == null)
 			{
-				throw new ApplicationException($"SemiAggressive #{Id} ({Name}) specified a null WillPostureProg.");
-			}
-
-			if (WillPostureProg.ReturnType != ProgVariableTypes.Boolean)
-			{
-				throw new ApplicationException(
-					$"SemiAggressive #{Id} ({Name}) specified a WillPostureProg with a return type of {WillPostureProg.ReturnType.Describe()} (expected boolean).");
-			}
-
-			if (!WillPostureProg.MatchesParameters(new[]
-			    {
-				    ProgVariableTypes.Character,
-				    ProgVariableTypes.Location,
-				    ProgVariableTypes.Character,
-				    ProgVariableTypes.Character | ProgVariableTypes.Collection,
-				    ProgVariableTypes.Number
-			    }))
-			{
-				throw new ApplicationException(
-					$"SemiAggressive #{Id} ({Name}) specified a WillPostureProg that was not compatible with the expected parameter inputs of character,location,character,character collection,number.");
+				WillPostureProg = Gameworld.AlwaysFalseProg;
 			}
 		}
 		else
@@ -115,25 +100,7 @@ public class SemiAggressiveAI : PathingAIWithProgTargetsBase
 				: Gameworld.FutureProgs.GetByName(element.Value);
 			if (WillFleeProg == null)
 			{
-				throw new ApplicationException($"SemiAggressive #{Id} ({Name}) specified a null WillFleeProg.");
-			}
-
-			if (WillFleeProg.ReturnType != ProgVariableTypes.Boolean)
-			{
-				throw new ApplicationException(
-					$"SemiAggressive #{Id} ({Name}) specified a WillFleeProg with a return type of {WillFleeProg.ReturnType.Describe()} (expected boolean).");
-			}
-
-			if (!WillFleeProg.MatchesParameters(new[]
-			    {
-				    ProgVariableTypes.Character,
-				    ProgVariableTypes.Location,
-				    ProgVariableTypes.Character | ProgVariableTypes.Collection,
-				    ProgVariableTypes.Number
-			    }))
-			{
-				throw new ApplicationException(
-					$"SemiAggressive #{Id} ({Name}) specified a WillFleeProg that was not compatible with the expected parameter inputs of character,location,character collection,number.");
+				WillFleeProg = Gameworld.AlwaysFalseProg;
 			}
 		}
 		else
@@ -149,25 +116,7 @@ public class SemiAggressiveAI : PathingAIWithProgTargetsBase
 				: Gameworld.FutureProgs.GetByName(element.Value);
 			if (WillAttackPostureEscalationProg == null)
 			{
-				throw new ApplicationException(
-					$"SemiAggressive #{Id} ({Name}) specified a null WillAttackPostureEscalationProg.");
-			}
-
-			if (WillAttackPostureEscalationProg.ReturnType != ProgVariableTypes.Boolean)
-			{
-				throw new ApplicationException(
-					$"SemiAggressive #{Id} ({Name}) specified a WillAttackPostureEscalationProg with a return type of {WillAttackPostureEscalationProg.ReturnType.Describe()} (expected boolean).");
-			}
-
-			if (!WillAttackPostureEscalationProg.MatchesParameters(new[]
-			    {
-				    ProgVariableTypes.Character,
-				    ProgVariableTypes.Character | ProgVariableTypes.Collection,
-				    ProgVariableTypes.Number
-			    }))
-			{
-				throw new ApplicationException(
-					$"SemiAggressive #{Id} ({Name}) specified a WillAttackPostureEscalationProg that was not compatible with the expected parameter inputs of character,character collection,number.");
+				WillAttackPostureEscalationProg = Gameworld.AlwaysFalseProg;
 			}
 		}
 		else
@@ -184,24 +133,7 @@ public class SemiAggressiveAI : PathingAIWithProgTargetsBase
 				: Gameworld.FutureProgs.GetByName(element.Value);
 			if (PostureEmoteProg == null)
 			{
-				throw new ApplicationException($"SemiAggressive #{Id} ({Name}) specified a null PostureEmoteProg.");
-			}
-
-			if (PostureEmoteProg.ReturnType != ProgVariableTypes.Text)
-			{
-				throw new ApplicationException(
-					$"SemiAggressive #{Id} ({Name}) specified a PostureEmoteProg with a return type of {PostureEmoteProg.ReturnType.Describe()} (expected text).");
-			}
-
-			if (!PostureEmoteProg.MatchesParameters(new[]
-			    {
-				    ProgVariableTypes.Character,
-				    ProgVariableTypes.Character | ProgVariableTypes.Collection,
-				    ProgVariableTypes.Number
-			    }))
-			{
-				throw new ApplicationException(
-					$"SemiAggressive #{Id} ({Name}) specified a PostureEmoteProg that was not compatible with the expected parameter inputs of character,character collection,number.");
+				PostureEmoteProg = Gameworld.EmptyTextProg;
 			}
 		}
 		else
@@ -217,24 +149,7 @@ public class SemiAggressiveAI : PathingAIWithProgTargetsBase
 				: Gameworld.FutureProgs.GetByName(element.Value);
 			if (AttackEmoteProg == null)
 			{
-				throw new ApplicationException($"SemiAggressive #{Id} ({Name}) specified a null AttackEmoteProg.");
-			}
-
-			if (AttackEmoteProg.ReturnType != ProgVariableTypes.Text)
-			{
-				throw new ApplicationException(
-					$"SemiAggressive #{Id} ({Name}) specified a AttackEmoteProg with a return type of {AttackEmoteProg.ReturnType.Describe()} (expected text).");
-			}
-
-			if (!AttackEmoteProg.MatchesParameters(new[]
-			    {
-				    ProgVariableTypes.Character,
-				    ProgVariableTypes.Character | ProgVariableTypes.Collection,
-				    ProgVariableTypes.Number
-			    }))
-			{
-				throw new ApplicationException(
-					$"SemiAggressive #{Id} ({Name}) specified a AttackEmoteProg that was not compatible with the expected parameter inputs of character,character collection,number.");
+				AttackEmoteProg = Gameworld.EmptyTextProg;
 			}
 		}
 		else
@@ -250,24 +165,7 @@ public class SemiAggressiveAI : PathingAIWithProgTargetsBase
 				: Gameworld.FutureProgs.GetByName(element.Value);
 			if (FleeEmoteProg == null)
 			{
-				throw new ApplicationException($"SemiAggressive #{Id} ({Name}) specified a null FleeEmoteProg.");
-			}
-
-			if (FleeEmoteProg.ReturnType != ProgVariableTypes.Text)
-			{
-				throw new ApplicationException(
-					$"SemiAggressive #{Id} ({Name}) specified a FleeEmoteProg with a return type of {FleeEmoteProg.ReturnType.Describe()} (expected text).");
-			}
-
-			if (!FleeEmoteProg.MatchesParameters(new[]
-			    {
-				    ProgVariableTypes.Character,
-				    ProgVariableTypes.Character | ProgVariableTypes.Collection,
-				    ProgVariableTypes.Number
-			    }))
-			{
-				throw new ApplicationException(
-					$"SemiAggressive #{Id} ({Name}) specified a FleeEmoteProg that was not compatible with the expected parameter inputs of character,character collection,number.");
+				FleeEmoteProg = Gameworld.EmptyTextProg;
 			}
 		}
 		else
@@ -283,22 +181,7 @@ public class SemiAggressiveAI : PathingAIWithProgTargetsBase
 				: Gameworld.FutureProgs.GetByName(element.Value);
 			if (FleeLocationsProg == null)
 			{
-				throw new ApplicationException($"SemiAggressive #{Id} ({Name}) specified a null FleeLocationsProg.");
-			}
-
-			if (FleeLocationsProg.ReturnType != (ProgVariableTypes.Location | ProgVariableTypes.Collection))
-			{
-				throw new ApplicationException(
-					$"SemiAggressive #{Id} ({Name}) specified a FleeLocationsProg with a return type of {FleeLocationsProg.ReturnType.Describe()} (expected location collection).");
-			}
-
-			if (!FleeLocationsProg.MatchesParameters(new[]
-			    {
-				    ProgVariableTypes.Character
-			    }))
-			{
-				throw new ApplicationException(
-					$"SemiAggressive #{Id} ({Name}) specified a FleeLocationsProg that was not compatible with the expected parameter inputs of character.");
+				FleeLocationsProg = Gameworld.EmptyTextProg;
 			}
 		}
 		else
@@ -312,11 +195,12 @@ public class SemiAggressiveAI : PathingAIWithProgTargetsBase
 		{
 			if (!Dice.IsDiceExpression(element.Value))
 			{
-				throw new ApplicationException(
-					$"SemiAggressive #{Id} ({Name}) supplied a PostureTimeSpanDiceExpression that was not a dice expression.");
+				PostureTimeSpanDiceExpression = "0";
 			}
-
-			PostureTimeSpanDiceExpression = element.Value;
+			else
+			{
+				PostureTimeSpanDiceExpression = element.Value;
+			}
 		}
 		else
 		{

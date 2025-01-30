@@ -442,7 +442,7 @@ public class TerritorialWanderer : PathingAIBase
 		}
 
 		// Outside of territory, try to get back
-		CreatePathingEffect(character);
+		CreatePathingEffectIfPathExists(character);
 	}
 
 	protected void EvaluateTerritory(ICharacter character)

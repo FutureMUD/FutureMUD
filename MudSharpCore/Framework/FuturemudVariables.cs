@@ -813,6 +813,42 @@ public sealed partial class Futuremud : IDisposable
 		}
 	}
 
+	private IFutureProg _emptyTextProg;
+	public IFutureProg EmptyTextProg {
+		get
+		{
+			if (_emptyTextProg is null)
+			{
+				_emptyTextProg = FutureProgs.FirstOrDefault(x => x.FunctionName.EqualTo("EmptyText"));
+				if (_emptyTextProg is null)
+				{
+					using (new FMDB())
+					{
+						var dbitem = new Models.FutureProg
+						{
+							FunctionName = "EmptyText",
+							AcceptsAnyParameters = true,
+							ReturnType = (long)ProgVariableTypes.Text,
+							Category = "Core",
+							Subcategory = "Universal",
+							Public = true,
+							FunctionComment = "Accepts any parameters, and returns a blank string as text.",
+							FunctionText = @"return """"",
+							StaticType = 2
+						};
+						FMDB.Context.FutureProgs.Add(dbitem);
+						FMDB.Context.SaveChanges();
+						var prog = new FutureProg.FutureProg(dbitem, this);
+						_futureProgs.Add(prog);
+						_emptyTextProg = prog;
+					}
+				}
+			}
+
+			return _emptyTextProg;
+		}
+	}
+
 	private readonly List<CharacterPersonalNameLookup> _cachedPersonalNames = new();
 
 	#endregion

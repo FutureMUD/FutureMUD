@@ -287,6 +287,7 @@ namespace MudSharp.Framework
 		IFutureProg AlwaysOneThousandProg { get; }
 		IFutureProg AlwaysTenThousandProg { get; }
 		IFutureProg UniversalErrorTextProg { get; }
+		IFutureProg EmptyTextProg { get; }
 
 		/// <summary>
 		///     Determines whether or not players can log into the game

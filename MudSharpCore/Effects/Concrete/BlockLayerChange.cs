@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using MudSharp.Events;
 
 namespace MudSharp.Effects.Concrete;
 
@@ -18,4 +19,15 @@ public class BlockLayerChange : BlockingCommandDelay
 	}
 
 	protected override string SpecificEffectType => "BlockLayerChange";
+
+	#region Overrides of CommandDelay
+
+	/// <inheritdoc />
+	public override void ExpireEffect()
+	{
+		Owner.HandleEvent(EventType.LayerChangeBlockExpired, Owner);
+		base.ExpireEffect();
+	}
+
+	#endregion
 }

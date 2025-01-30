@@ -17,14 +17,14 @@ public class FollowingPath : Effect, IEffectSubtype, IRemoveOnCombatStart
 {
 	public Queue<ICellExit> Exits { get; set; }
 
-	public IPerceiver UltimateTarget { get; set; }
-
 	public FollowingPath(ICharacter owner, IEnumerable<ICellExit> exits) : base(owner, null)
 	{
 		Exits = new Queue<ICellExit>(exits);
 	}
 
 	protected override string SpecificEffectType => "FollowingPath";
+
+	protected virtual bool RemoveWhenExitsEmpty => true;
 
 	public override string Describe(IPerceiver voyeur)
 	{
@@ -45,7 +45,7 @@ public class FollowingPath : Effect, IEffectSubtype, IRemoveOnCombatStart
 	public bool SmashLockedDoors { get; set; }
 	public bool UseDoorguards { get; set; }
 
-	public void FollowPathAction()
+	public virtual void FollowPathAction()
 	{
 		var ch = (ICharacter)Owner;
 
@@ -97,7 +97,7 @@ public class FollowingPath : Effect, IEffectSubtype, IRemoveOnCombatStart
 		if (strategy.TryToMove(ch, exit))
 		{
 			Exits.Dequeue();
-			if (Exits.Count == 0)
+			if (Exits.Count == 0 && RemoveWhenExitsEmpty)
 			{
 				ch.RemoveEffect(this);
 			}

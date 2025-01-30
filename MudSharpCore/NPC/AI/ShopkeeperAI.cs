@@ -319,7 +319,7 @@ public class ShopkeeperAI : PathingAIBase
 		}
 
 		plan.FinalisePlanNoRestore();
-		CreatePathingEffect(employee);
+		CreatePathingEffectIfPathExists(employee);
 		return true;
 	}
 

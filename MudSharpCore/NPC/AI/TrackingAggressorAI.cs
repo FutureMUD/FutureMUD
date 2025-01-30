@@ -415,6 +415,7 @@ public class TrackingAggressorAI : PathingAIWithProgTargetsBase
 	public static void RegisterLoader()
 	{
 		RegisterAIType("TrackingAggressor", (ai, gameworld) => new TrackingAggressorAI(ai, gameworld));
+		RegisterAIBuilderInformation("trackingaggressor", (game, name) => new TrackingAggressorAI(game, name), new TrackingAggressorAI().HelpText);
 	}
 
 	protected override (ICell Target, IEnumerable<ICellExit>) GetPath(ICharacter ch)

@@ -19,6 +19,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 using MudSharp.Combat.Moves;
+using MudSharp.Effects;
 using MudSharp.Effects.Interfaces;
 using MudSharp.PerceptionEngine;
 
@@ -197,7 +198,7 @@ public abstract class PathingAIBase : ArtificialIntelligenceBase
 				ClosedDoor((ICharacter)arguments[0], (ICellExit)arguments[2]);
 				return false;
 			case EventType.CommandDelayExpired:
-				return CommandDelaySmash((ICharacter)arguments[0], (IEnumerable<string>)arguments[1]);
+				return HandleCommandDelayExpired((ICharacter)arguments[0], (IEnumerable<string>)arguments[1]);
 			case EventType.CharacterEnterCell:
 				CheckCloseDoor((ICharacter)arguments[0], (ICellExit)arguments[2]);
 				return false;
@@ -434,8 +435,13 @@ public abstract class PathingAIBase : ArtificialIntelligenceBase
 		}
 	}
 
-	protected bool CommandDelaySmash(ICharacter ch, IEnumerable<string> commands)
+	protected bool HandleCommandDelayExpired(ICharacter ch, IEnumerable<string> commands)
 	{
+		if (commands.Contains(""))
+		{
+
+		}
+
 		if (!commands.Contains("smash"))
 		{
 			return false;
@@ -518,7 +524,7 @@ public abstract class PathingAIBase : ArtificialIntelligenceBase
 		{
 			if (createIfNotPathing && IsPathingEnabled(ch))
 			{
-				CreatePathingEffect(ch);
+				CreatePathingEffectIfPathExists(ch);
 			}
 
 			return;
@@ -582,24 +588,30 @@ public abstract class PathingAIBase : ArtificialIntelligenceBase
 		// Do nothing unless overridden
 	}
 
-	protected void CreatePathingEffect(ICharacter ch)
+	protected bool CreatePathingEffectIfPathExists(ICharacter ch)
 	{
 		if (ch.State.HasFlag(CharacterState.Dead) || ch.Corpse != null)
 		{
-			return;
+			return false;
 		}
 
 		var (target, pathEnumerables) = GetPath(ch);
 		var path = pathEnumerables.ToList();
 		if (!path.Any())
 		{
-			return;
+			return false;
 		}
 
-		var effect = new FollowingPath(ch, path);
+		var effect = CreatePathingEffect(ch, path);
 		ch.AddEffect(effect);
 		OnBeginPathing(ch, target, path);
 		FollowPathAction(ch, effect);
+		return true;
+	}
+
+	protected virtual FollowingPath CreatePathingEffect(ICharacter ch, IEnumerable<ICellExit> path)
+	{
+		return new FollowingPath(ch, path);
 	}
 
 	public void FollowPathAction(ICharacter ch, FollowingPath path)

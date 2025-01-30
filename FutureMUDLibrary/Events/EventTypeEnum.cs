@@ -579,5 +579,11 @@ namespace MudSharp.Events {
 		/// </summary>
 		[EventInfo("Hooks to a character being invited to join a spar", new[] { "character", "character" }, new[] { "inviter", "invitee" }, new[] { ProgVariableTypes.Character, ProgVariableTypes.Character })]
 		SparInvitation = 92,
+
+		/// <summary>
+		/// Fires when a CommandDelay effect expires. Parameters are character, commands (string list)
+		/// </summary>
+		[EventInfo("Fires when a BlockLayerChange effect expires.", new[] { "character" }, new[] { "person", }, new[] { ProgVariableTypes.Character})]
+		LayerChangeBlockExpired = 93,
 	}
 }

@@ -216,8 +216,9 @@ The syntax is simply #3survey#0.", AutoHelp.HelpArg)]
 		var illumination = actor.Location.CurrentIllumination(actor);
 		sb.AppendLine($"Light levels are {actor.Gameworld.LightModel.GetIlluminationDescription(illumination).Colour(Telnet.Green)}{(actor.IsAdministrator() ? $"{illumination.ToString("N3", actor)} lux".ColourValue().ParenthesesSpacePrior() : "")}.");
 		sb.AppendLine($"The base difficulty is {terrain.HideDifficulty.DescribeColoured()} to hide here.");
-		var spotDifficulty = terrain.SpotDifficulty.Lowest(actor.Gameworld.LightModel.GetSightDifficulty(illumination * actor.Race.IlluminationPerceptionMultiplier));
+		var spotDifficulty = terrain.SpotDifficulty;
 		sb.AppendLine($"The base difficulty is {spotDifficulty.DescribeColoured()} to spot hidden things here.");
+		sb.AppendLine($"Your base difficulty due to light is {actor.IlluminationSightDifficulty().DescribeColoured()} here.");
 		sb.AppendLine(actor.Location.HearingProfile(actor) != null
 			? actor.Location.HearingProfile(actor).SurveyDescription
 			: "There is nothing remarkable about the noise levels here.".Colour(Telnet.Yellow));

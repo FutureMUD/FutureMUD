@@ -381,6 +381,7 @@ namespace MudSharp.Character {
 		bool NoMercy { get; set; }
 		IEnumerable<INameCulture> NameCultures { get; }
 		INameCulture NameCultureForGender(Gender gender);
+		Difficulty IlluminationSightDifficulty();
 	}
 
 	public interface IHavePersonalProjects

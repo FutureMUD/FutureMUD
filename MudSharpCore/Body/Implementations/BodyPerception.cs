@@ -183,10 +183,7 @@ public partial class Body
 			}
 		}
 
-		if (flags.HasFlag(PerceiveIgnoreFlags.IgnoreDark) && thing.Location != null &&
-		    Gameworld.LightModel.GetSightDifficulty(thing.Location.CurrentIllumination(Actor) *
-		                                            Actor.Race.IlluminationPerceptionMultiplier) ==
-		    Difficulty.Impossible)
+		if (flags.HasFlag(PerceiveIgnoreFlags.IgnoreDark) && thing.Location != null && Actor.IlluminationSightDifficulty() == Difficulty.Impossible)
 		{
 			if (!visionExemptThing && Actor.Party?.Members.Any(x => x.IsSelf(thing)) != true)
 			{

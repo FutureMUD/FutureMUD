@@ -143,10 +143,7 @@ public abstract class RangedWeaponAttackBase : CombatMoveBase, IRangedWeaponAtta
 		var visionModifiers = GetSpottingModifier(target.Location.Terrain(Assailant).SpotDifficulty);
 
 		//Shot might be harder based on how dark the target environment is
-		var targetIllumination = target.Location.CurrentIllumination(Assailant);
-		var illuminationDifficulty =
-			Assailant.Gameworld.LightModel.GetSightDifficulty(targetIllumination *
-			                                                  Assailant.Race.IlluminationPerceptionMultiplier);
+		var illuminationDifficulty = Assailant.IlluminationSightDifficulty();
 		visionModifiers += GetSpottingModifier(illuminationDifficulty);
 
 		var targetAsCharacter = target as ICharacter;

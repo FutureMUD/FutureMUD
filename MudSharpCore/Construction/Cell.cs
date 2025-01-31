@@ -507,7 +507,7 @@ public partial class Cell : Location, IDisposable, ICell
 	{
 		var spotDifficultyWeather =
 			CurrentWeather(spotter)?.Precipitation.MinimumSightDifficulty() ?? Difficulty.Automatic;
-		var spotDifficultyLight = Gameworld.LightModel.GetSightDifficulty(CurrentIllumination(spotter));
+		var spotDifficultyLight = spotter is ICharacter ch ? ch.IlluminationSightDifficulty() : Difficulty.Automatic;
 		var spotDifficultyTerrain = Terrain(spotter).SpotDifficulty;
 		return spotDifficultyLight.Highest(spotDifficultyWeather, spotDifficultyTerrain);
 	}

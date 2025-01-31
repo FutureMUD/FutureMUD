@@ -850,9 +850,7 @@ public partial class Character
 		}
 
 		var sightMultiplier = 1.0;
-		switch (
-			Gameworld.LightModel.GetSightDifficulty(Location.CurrentIllumination(this) *
-			                                        Race.IlluminationPerceptionMultiplier))
+		switch (IlluminationSightDifficulty())
 		{
 			case Difficulty.Impossible:
 				sightMultiplier = 3.0;

@@ -1738,6 +1738,18 @@ public partial class Character : PerceiverItem, ICharacter
 		return false;
 	}
 
+	public Difficulty IlluminationSightDifficulty()
+	{
+		var difficulty = Gameworld.LightModel.GetSightDifficulty(
+			Location.CurrentIllumination(this) * 
+			Race.IlluminationPerceptionMultiplier
+			);
+
+		var merits = Merits.OfType<IDarksightMerit>().Where(x => x.Applies(this)).ToList();
+		difficulty = difficulty.Lowest(merits.Select(x => x.MinimumEffectiveDifficulty).ToArray());
+		return difficulty;
+	}
+
 	public bool NoMercy
 	{
 		get => _noMercy;

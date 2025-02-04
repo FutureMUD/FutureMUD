@@ -134,7 +134,8 @@ namespace MudSharp.Combat {
         GrappleForIncapacitation,
         GrappleForKill,
         MeleeShooter,
-        MeleeMagic
+        MeleeMagic,
+        Swooper
     }
 
     public enum RangedWeaponType {

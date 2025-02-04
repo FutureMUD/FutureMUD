@@ -21,7 +21,7 @@ public class SkirmishStrategy : StandardMeleeStrategy
 
 	#region Overrides of StandardRangedStrategy
 
-	public override CombatStrategyMode Mode => CombatStrategyMode.FireAndAdvance;
+	public override CombatStrategyMode Mode => CombatStrategyMode.Skirmish;
 
 	protected override ICombatMove ResponseToChargeToMelee(ChargeToMeleeMove move, ICharacter defender,
 		IPerceiver assailant)

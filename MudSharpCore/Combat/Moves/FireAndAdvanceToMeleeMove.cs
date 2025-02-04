@@ -113,6 +113,7 @@ public class FireAndAdvanceToMeleeMove : CombatMoveBase
 		switch (target.CombatSettings.PreferredMeleeMode)
 		{
 			case CombatStrategyMode.Skirmish:
+			case CombatStrategyMode.Swooper:
 				moveTypeMultiplier = 1.25;
 				break;
 			case CombatStrategyMode.FullSkirmish:

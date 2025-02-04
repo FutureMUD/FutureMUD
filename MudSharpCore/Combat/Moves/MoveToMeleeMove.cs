@@ -67,7 +67,10 @@ public class MoveToMeleeMove : CombatMoveBase
 		}
 
 		Assailant.MeleeRange = true;
-		target.MeleeRange = true;
+		if (target.CombatTarget == Assailant)
+		{
+			target.MeleeRange = true;
+		}
 
 		if (response is StandAndFireMove standAndFire)
 		{
@@ -128,6 +131,7 @@ public class MoveToMeleeMove : CombatMoveBase
 		switch (target.CombatSettings.PreferredMeleeMode)
 		{
 			case CombatStrategyMode.Skirmish:
+			case CombatStrategyMode.Swooper:
 				moveTypeMultiplier = 1.25;
 				break;
 			case CombatStrategyMode.FullSkirmish:

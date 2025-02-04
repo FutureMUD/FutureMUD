@@ -1,7 +1,9 @@
 ﻿using MudSharp.Character;
+using MudSharp.Construction;
 using MudSharp.PerceptionEngine;
 using MudSharp.PerceptionEngine.Outputs;
 using MudSharp.PerceptionEngine.Parsers;
+using Org.BouncyCastle.Asn1.X509;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,8 +18,7 @@ public class UnarmedSwoopAttack : NaturalAttackMove
 	{
 		Target = target;
 	}
-
-
+	
 	public ICharacter Target { get; set; }
 
 	public override string Description => $"Performing a swoop attack";
@@ -30,30 +31,30 @@ public class UnarmedSwoopAttack : NaturalAttackMove
 		var targetLayer = Target.RoomLayer;
 
 		Assailant.OutputHandler.Send($"You dive sharply towards {Target.HowSeen(Assailant)}.");
-		Assailant.OutputHandler.Handle(new EmoteOutput(
-			new Emote("@ dive|dives sharply toward a lower target.", Assailant, Assailant),
-			flags: OutputFlags.SuppressSource | OutputFlags.SuppressObscured));
+		Assailant.OutputHandler.Handle(new EmoteOutput(new Emote("@ dive|dives sharply toward a lower target.", Assailant, Assailant), flags: OutputFlags.SuppressSource | OutputFlags.SuppressObscured));
+		var lowerLayers = Assailant.Location.Terrain(Assailant).TerrainLayers
+		                           .Where(x => 
+			                           x.IsLowerThan(startingLayer) &&
+									   (x.IsHigherThan(targetLayer) || x == targetLayer)
+			                        )
+		                           .ToList();
 		while (Assailant.RoomLayer != targetLayer)
 		{
-			switch (Assailant.RoomLayer)
-			{
-				case Construction.RoomLayer.GroundLevel:
-					break;
-				case Construction.RoomLayer.Underwater:
-					break;
-				case Construction.RoomLayer.InTrees:
-					break;
-				case Construction.RoomLayer.HighInTrees:
-					break;
-				case Construction.RoomLayer.InAir:
-					break;
-				case Construction.RoomLayer.HighInAir:
-					break;
-				case Construction.RoomLayer.OnRooftops:
-					break;
-			}
+			Assailant.RoomLayer = lowerLayers.HighestLayer();
+			lowerLayers.Remove(Assailant.RoomLayer);
+			Assailant.OutputHandler.Handle(Assailant.RoomLayer == targetLayer ? new EmoteOutput(new Emote("@ dive|dives sharply from above towards $1.", Assailant, Assailant, Target), flags: OutputFlags.SuppressSource | OutputFlags.SuppressObscured) : new EmoteOutput(new Emote("@ dive|dives sharply from above and right on by towards a lower target.", Assailant, Assailant), flags: OutputFlags.SuppressSource | OutputFlags.SuppressObscured));
+			Assailant.OffensiveAdvantage += Gameworld.GetStaticDouble("AdvantagePerLayerSwoopAttack");
 		}
 
-		return base.ResolveMove(defenderMove);
+		var result = base.ResolveMove(defenderMove);
+		if (!result.MoveWasSuccessful)
+		{
+			Assailant.MeleeRange = true;
+			if (Target.CombatTarget == Assailant)
+			{
+				Target.MeleeRange = true;
+			}
+		}
+		return result;
 	}
 }

@@ -69,7 +69,10 @@ public class ChargeToMeleeMove : CombatMoveBase
 		}
 
 		Assailant.MeleeRange = true;
-		target.MeleeRange = true;
+		if (target.CombatTarget == Assailant)
+		{
+			target.MeleeRange = true;
+		}
 		// TODO - bonus for charging into combat
 
 		if (response is ReceiveChargeMove receiveCharge)
@@ -152,6 +155,7 @@ public class ChargeToMeleeMove : CombatMoveBase
 		switch (target.CombatSettings.PreferredMeleeMode)
 		{
 			case CombatStrategyMode.Skirmish:
+			case CombatStrategyMode.Swooper:
 				moveTypeMultiplier = 1.3;
 				break;
 			case CombatStrategyMode.FullSkirmish:

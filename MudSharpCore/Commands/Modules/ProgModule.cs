@@ -3050,9 +3050,9 @@ If no datetime argument is supplied with the #3schedule add#0 command, the curre
 				if (!ss.IsFinished)
 				{
 					if (!MudDateTime.TryParse(ss.SafeRemainingArgument, actor.Location.Calendars.First(),
-							actor.Location.Clocks.First(), out dt))
+							actor.Location.Clocks.First(), actor, out dt, out var error))
 					{
-						actor.OutputHandler.Send($"That is not a valid date time.{MudDateTime.TryParseHelpText(actor)}");
+						actor.OutputHandler.Send($"That is not a valid date time.\n{error}");
 						return;
 					}
 				}

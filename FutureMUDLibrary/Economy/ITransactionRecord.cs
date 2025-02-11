@@ -1,4 +1,5 @@
 ﻿using System;
+using JetBrains.Annotations;
 using MudSharp.Economy.Currency;
 using MudSharp.Framework.Save;
 using MudSharp.TimeAndDate;
@@ -31,5 +32,6 @@ namespace MudSharp.Economy
         DateTime RealDateTime { get; }
         MudDateTime MudDateTime { get; }
         decimal NetValue { get; }
+        [CanBeNull] IMerchandise Merchandise { get; }
     }
 }

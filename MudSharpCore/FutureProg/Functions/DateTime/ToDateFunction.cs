@@ -88,7 +88,7 @@ internal class ToMudDateFunction : BuiltInFunction
 			return StatementResult.Normal;
 		}
 
-		Result = MudDateTime.TryParse(text, calendar, clock, out var dt) ? dt : MudDateTime.Never;
+		Result = MudDateTime.TryParse(text, calendar, clock, null, out var dt, out _) ? dt : MudDateTime.Never;
 		return StatementResult.Normal;
 	}
 

@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using MudSharp.Database;
 
@@ -11,9 +12,11 @@ using MudSharp.Database;
 namespace MudSharp.Migrations
 {
     [DbContext(typeof(FuturemudDatabaseContext))]
-    partial class FutureMUDContextModelSnapshot : ModelSnapshot
+    [Migration("20250210095915_Shoppers")]
+    partial class Shoppers
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -10544,9 +10547,6 @@ namespace MudSharp.Migrations
                     b.Property<ulong>("PreserveVariablesOnReorder")
                         .HasColumnType("bit(1)");
 
-                    b.Property<decimal?>("SalesMarkupMultiplier")
-                        .HasColumnType("decimal(65,30)");
-
                     b.Property<long>("ShopId")
                         .HasColumnType("bigint(20)");
 
@@ -13729,9 +13729,6 @@ namespace MudSharp.Migrations
 
                     MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("EmployeeRecords"), "utf8");
 
-                    b.Property<decimal>("ExpectedCashBalance")
-                        .HasColumnType("decimal(65,30)");
-
                     b.Property<ulong>("IsTrading")
                         .HasColumnType("bit(1)");
 
@@ -13839,9 +13836,6 @@ namespace MudSharp.Migrations
                     b.Property<long>("CurrencyId")
                         .HasColumnType("bigint(20)");
 
-                    b.Property<long?>("MerchandiseId")
-                        .HasColumnType("bigint(20)");
-
                     b.Property<string>("MudDateTime")
                         .IsRequired()
                         .HasColumnType("varchar(500)")
@@ -13871,8 +13865,6 @@ namespace MudSharp.Migrations
 
                     b.HasIndex("CurrencyId")
                         .HasDatabaseName("FK_ShopTransactionRecords_Currencies_idx");
-
-                    b.HasIndex("MerchandiseId");
 
                     b.HasIndex("ShopId")
                         .HasDatabaseName("FK_ShopTransactionRecords_Shops_idx");
@@ -22067,10 +22059,6 @@ namespace MudSharp.Migrations
                         .IsRequired()
                         .HasConstraintName("FK_ShopTransactionRecords_Currencies");
 
-                    b.HasOne("MudSharp.Models.Merchandise", "Merchandise")
-                        .WithMany()
-                        .HasForeignKey("MerchandiseId");
-
                     b.HasOne("MudSharp.Models.Shop", "Shop")
                         .WithMany("ShopTransactionRecords")
                         .HasForeignKey("ShopId")
@@ -22079,8 +22067,6 @@ namespace MudSharp.Migrations
                         .HasConstraintName("FK_ShopTransactionRecords_Shops");
 
                     b.Navigation("Currency");
-
-                    b.Navigation("Merchandise");
 
                     b.Navigation("Shop");
                 });

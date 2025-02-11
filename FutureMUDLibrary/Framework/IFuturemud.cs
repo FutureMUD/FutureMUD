@@ -239,6 +239,7 @@ namespace MudSharp.Framework
 		IUneditableAll<IScriptedEvent> ScriptedEvents { get; }
 		IUneditableAll<IShard> Shards { get; }
 		IUneditableAll<IShieldType> ShieldTypes { get; }
+		IUneditableAll<IShopper> Shoppers { get; }
 		IUneditableAll<ISkyDescriptionTemplate> SkyDescriptionTemplates { get; }
 		IUneditableAll<IStackDecorator> StackDecorators { get; }
 		IUneditableAll<ISurgicalProcedure> SurgicalProcedures { get; }
@@ -364,6 +365,7 @@ namespace MudSharp.Framework
 
 		void AddGuest(ICharacter character);
 		void Add(IDrug drug);
+		void Add(IShopper shopper);
 		void Add(IColour colour);
 		void Add(IChargenResource resource);
 		void Add(IShieldType shield);
@@ -523,6 +525,7 @@ namespace MudSharp.Framework
 		IGameItem TryGetItem(long id, bool addToGameworld = false);
 
 		void Destroy(object obj);
+		void Destroy(IShopper shopper);
 		void Destroy(IHeightWeightModel model);
 		void Destroy(ITrack track);
 		void Destroy(ICombatArena arena);

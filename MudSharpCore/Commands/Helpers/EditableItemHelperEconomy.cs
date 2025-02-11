@@ -10,10 +10,13 @@ using MudSharp.Economy.Auctions;
 using MudSharp.Economy.Banking;
 using MudSharp.Economy.Currency;
 using MudSharp.Economy.Property;
+using MudSharp.Economy.Shoppers;
 using MudSharp.Effects.Concrete;
 using MudSharp.Framework;
 using MudSharp.Framework.Revision;
 using MudSharp.Framework.Units;
+using MudSharp.TimeAndDate.Date;
+using MudSharp.TimeAndDate.Time;
 
 namespace MudSharp.Commands.Helpers;
 
@@ -608,5 +611,140 @@ public partial class EditableItemHelper
 		DefaultCommandHelp = EconomyModule.CoinHelp,
 
 		GetEditHeader = item => $"Coin #{item.Id:N0} ({item.Name})"
+	};
+
+	public static EditableItemHelper ShopperHelper = new()
+	{
+		ItemName = "Shopper",
+		ItemNamePlural = "Shoppers",
+		SetEditableItemAction = (actor, item) =>
+		{
+			actor.RemoveAllEffects<BuilderEditingEffect<IShopper>>();
+			if (item == null)
+			{
+				return;
+			}
+
+			actor.AddEffect(new BuilderEditingEffect<IShopper>(actor) { EditingItem = (IShopper)item });
+		},
+		GetEditableItemFunc = actor =>
+			actor.CombinedEffectsOfType<BuilderEditingEffect<IShopper>>().FirstOrDefault()?.EditingItem,
+		GetAllEditableItems = actor => actor.Gameworld.Shoppers.ToList(),
+		GetEditableItemByIdFunc = (actor, id) => actor.Gameworld.Shoppers.Get(id),
+		GetEditableItemByIdOrNameFunc = (actor, input) => actor.Gameworld.Shoppers.GetByIdOrName(input),
+		AddItemToGameWorldAction = item => item.Gameworld.Add((IShopper)item),
+		CastToType = typeof(IShopper),
+		EditableNewAction = (actor, input) =>
+		{
+			if (input.IsFinished)
+			{
+				actor.OutputHandler.Send("You must specify a type for your new shopper.");
+				return;
+			}
+
+			var type = input.PopSpeech();
+			if (!ShopperBase.Types.Any(x => x.EqualTo(type)))
+			{
+				actor.OutputHandler.Send($"There is no shopper type called {type.ColourCommand()}. The valid values are {ShopperBase.Types.ListToColouredString()}.");
+				return;
+			}
+
+			if (input.IsFinished)
+			{
+				actor.OutputHandler.Send("Which economic zone should your shopper belong to?");
+				return;
+			}
+
+			var ez = actor.Gameworld.EconomicZones.GetByIdOrName(input.PopSpeech());
+			if (ez is null)
+			{
+				actor.OutputHandler.Send($"There is no economic zone identified by the text {input.Last.ColourCommand()}.");
+				return;
+			}
+
+			if (input.IsFinished)
+			{
+				actor.OutputHandler.Send("You must specify a name for your new shopper.");
+				return;
+			}
+
+			var name = input.PopSpeech().TitleCase();
+			if (actor.Gameworld.Shoppers.Any(x => x.Name.EqualTo(name)))
+			{
+				actor.OutputHandler.Send(
+					$"There is already a shopper with that name {name.ColourName()}. Names must be unique.");
+				return;
+			}
+
+			var shopper = ShopperBase.LoadShopper(actor.Gameworld, type, name, ez);
+			actor.Gameworld.Add(shopper);
+			actor.RemoveAllEffects<BuilderEditingEffect<IShopper>>();
+			actor.AddEffect(new BuilderEditingEffect<IShopper>(actor) { EditingItem = shopper });
+			actor.OutputHandler.Send($"You create a new {type.ColourName()} shopper for the {ez.Name.ColourValue()} economic zone called {name.ColourName()}, which you are now editing.");
+		},
+		EditableCloneAction = (actor, input) =>
+		{
+			if (input.IsFinished)
+			{
+				actor.OutputHandler.Send("Which shopper do you want to clone?");
+				return;
+			}
+
+			var template = actor.Gameworld.Shoppers.GetByIdOrName(input.PopSpeech());
+			if (template == null)
+			{
+				actor.OutputHandler.Send("There is no such shopper.");
+				return;
+			}
+
+			if (input.IsFinished)
+			{
+				actor.OutputHandler.Send("You must specify a name for your new shopper.");
+				return;
+			}
+
+			var name = input.SafeRemainingArgument.TitleCase();
+			if (actor.Gameworld.Shoppers.Any(x => x.Name.EqualTo(name)))
+			{
+				actor.OutputHandler.Send($"There is already a shopper with the name {name.ColourName()}. Names must be unique.");
+				return;
+			}
+
+			var shopper = template.Clone(name);
+			actor.Gameworld.Add(shopper);
+			actor.RemoveAllEffects<BuilderEditingEffect<IShopper>>();
+			actor.AddEffect(new BuilderEditingEffect<IShopper>(actor) { EditingItem = shopper });
+			actor.OutputHandler.Send($"You create a new shopper as a clone of {template.Name.ColourValue()}, called {name.ColourValue()}, which you are now editing.");
+		},
+
+		GetListTableHeaderFunc = character => new List<string>
+		{
+			"Id",
+			"Name",
+			"Type",
+			"Econ Zone",
+			"Interval",
+			"Next"
+		},
+
+		GetListTableContentsFunc = (actor, protos) => from shopper in protos.OfType<IShopper>()
+													  select new List<string>
+													  {
+														  shopper.Id.ToString("N0", actor),
+														  shopper.Name,
+														  shopper.ShopperType,
+														  shopper.EconomicZone.Name,
+														  shopper.ShoppingInterval.Describe(shopper.EconomicZone.FinancialPeriodReferenceCalendar),
+														  shopper.NextShop?.ToString(CalendarDisplayMode.Short, TimeDisplayTypes.Short) ?? ""
+													  },
+
+		CustomSearch = (protos, keyword, gameworld) =>
+		{
+			return protos;
+		},
+
+		DefaultCommandHelp = EconomyModule.CoinHelp,
+
+		GetEditHeader = item => $"Shopper #{item.Id:N0} ({item.Name})"
 	};
 }

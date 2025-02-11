@@ -236,7 +236,7 @@ internal class MarketPopulation : SaveableItem, IMarketPopulation
 			case "onend":
 				return BuildingCommandStressThresholdOnEnd(actor, value, command);
 			default:
-				actor.OutputHandler.Send("You must specify either #3remove#0, #3name#0, #3desc#0, #3onstart#0 or #3onend#0.");
+				actor.OutputHandler.Send("You must specify either #3remove#0, #3name#0, #3desc#0, #3onstart#0 or #3onend#0.".SubstituteANSIColour());
 				return false;
 		}
 	}

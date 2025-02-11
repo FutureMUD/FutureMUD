@@ -13,10 +13,22 @@ namespace MudSharp.Framework {
 			return Math.Abs(longRand%(max - min)) + min;
 		}
 
+		/// <summary>
+		/// Generates a random double between min and max (inclusive)
+		/// </summary>
+		/// <param name="min">The minimum value</param>
+		/// <param name="max">The maximum value</param>
+		/// <returns>A random double between the two values</returns>
 		public static double DoubleRandom(double min, double max) {
 			return Constants.Random.NextDouble()*(max - min) + min;
 		}
 
+		/// <summary>
+		/// Generates a random integer number between min and max (inclusive)
+		/// </summary>
+		/// <param name="min">The minimum value</param>
+		/// <param name="max">The maximum value</param>
+		/// <returns>A random integer between the two values</returns>
 		public static int Random(int min, int max) {
 			return Constants.Random.Next(min, max + 1);
 		}

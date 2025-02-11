@@ -43,6 +43,7 @@ public class Merchandise : LateInitialisingItem, IMerchandise
 		MaximumStockLevelsToBuy = rhs.MaximumStockLevelsToBuy;
 		IgnoreMarketPricing = rhs.IgnoreMarketPricing;
 		PermitItemDecayOnStockedItems = rhs.PermitItemDecayOnStockedItems;
+		SalesMarkupMultiplier = rhs.SalesMarkupMultiplier;
 	}
 
 	public Merchandise(IShop shop, string name, IGameItemProto proto, decimal price, bool isDefault,
@@ -64,6 +65,7 @@ public class Merchandise : LateInitialisingItem, IMerchandise
 		MinimumConditionToBuy = 1.0;
 		BaseBuyModifier = 0.3M;
 		MaximumStockLevelsToBuy = 1;
+		SalesMarkupMultiplier = 1.0M;
 		PermitItemDecayOnStockedItems = Gameworld.GetStaticBool("MerchandisePermitsItemDecayByDefault");
 	}
 
@@ -91,6 +93,7 @@ public class Merchandise : LateInitialisingItem, IMerchandise
 		MaximumStockLevelsToBuy = merch.MaximumStockLevelsToBuy;
 		IgnoreMarketPricing = merch.IgnoreMarketPricing;
 		PermitItemDecayOnStockedItems = merch.PermitItemDecayOnStockedItems;
+		SalesMarkupMultiplier = merch.SalesMarkupMultiplier ?? 1.0M;
 	}
 
 	public override void Save()
@@ -116,6 +119,7 @@ public class Merchandise : LateInitialisingItem, IMerchandise
 		dbitem.MaximumStockLevelsToBuy = MaximumStockLevelsToBuy;
 		dbitem.IgnoreMarketPricing = IgnoreMarketPricing;
 		dbitem.PermitItemDecayOnStockedItems = PermitItemDecayOnStockedItems;
+		dbitem.SalesMarkupMultiplier = SalesMarkupMultiplier;
 		Changed = false;
 	}
 
@@ -143,6 +147,7 @@ public class Merchandise : LateInitialisingItem, IMerchandise
 		dbitem.MaximumStockLevelsToBuy = MaximumStockLevelsToBuy;
 		dbitem.PermitItemDecayOnStockedItems = PermitItemDecayOnStockedItems;
 		dbitem.IgnoreMarketPricing = IgnoreMarketPricing;
+		dbitem.SalesMarkupMultiplier = SalesMarkupMultiplier;
 		return dbitem;
 	}
 
@@ -212,6 +217,7 @@ public class Merchandise : LateInitialisingItem, IMerchandise
 	#3shop merch set willsell#0 - toggles whether the merchandise is for sale
 	#3shop merch set willbuy#0 - toggles whether the merchandise will be bought
 	#3shop merch set markdown <%>#0 - sets a markdown on buying relative to sale price
+	#3shop merch set markup <%>#0 - sets a markup on selling relative to the base price
 	#3shop merch set mincond <%>#0 - sets the minimum condition for buying an item
 	#3shop merch set maxamount <##>#0 - sets the maximum amount to buy (use 0 for unlimited)
 	#3shop merch set desc clear#0 - clears a custom list description
@@ -260,6 +266,8 @@ public class Merchandise : LateInitialisingItem, IMerchandise
 			case "marketprice":
 			case "market":
 				return BuildingCommandMarket(actor);
+			case "markup":
+				return BuildingCommandMarkup(actor, command);
 		}
 
 		if (actor.IsAdministrator())
@@ -284,6 +292,25 @@ public class Merchandise : LateInitialisingItem, IMerchandise
 
 	#region Building Sub Commands
 
+	private bool BuildingCommandMarkup(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("What percentage markup should this merchandise put on the base price?");
+			return false;
+		}
+
+		if (!decimal.TryParse(command.SafeRemainingArgument, out var value) || value < 0.0M)
+		{
+			actor.OutputHandler.Send("");
+			return false;
+		}
+
+		SalesMarkupMultiplier = (1.0M + value);
+		Changed = true;
+		actor.OutputHandler.Send($"This merchandise now has a {value.ToStringP2Colour(actor)} markup compared to base price.");
+		return true;
+	}
 	private bool BuildingCommandName(ICharacter actor, StringStack command)
 	{
 		if (command.IsFinished)
@@ -707,6 +734,7 @@ public class Merchandise : LateInitialisingItem, IMerchandise
 		}
 
 		sb.AppendLine($"Will Sell: {WillSell.ToColouredString()}");
+		sb.AppendLine($"Sales Markup: {(SalesMarkupMultiplier-1.0M).ToStringP2Colour(actor)}");
 		sb.AppendLine($"Will Buy: {WillBuy.ToColouredString()}");
 		sb.AppendLine($"Base Buy Markdown: {BaseBuyModifier.ToString("P2", actor).ColourValue()}");
 		sb.AppendLine($"Minimum Buy Condition: {MinimumConditionToBuy.ToString("P2", actor).ColourValue()}");
@@ -714,8 +742,7 @@ public class Merchandise : LateInitialisingItem, IMerchandise
 		sb.AppendLine($"Ignore Market Pricing: {IgnoreMarketPricing.ToColouredString()}");
 		sb.AppendLine($"Permit Item Decay When Stocked: {PermitItemDecayOnStockedItems.ToColouredString()}");
 
-		sb.AppendLine(
-			$"Preferred Display Container: {PreferredDisplayContainer?.HowSeen(actor, flags: PerceiveIgnoreFlags.IgnoreCanSee) ?? "None".Colour(Telnet.Red)}");
+		sb.AppendLine($"Preferred Display Container: {PreferredDisplayContainer?.HowSeen(actor, flags: PerceiveIgnoreFlags.IgnoreCanSee) ?? "None".Colour(Telnet.Red)}");
 
 		// TODO - sales
 
@@ -762,6 +789,7 @@ public class Merchandise : LateInitialisingItem, IMerchandise
 	public bool WillSell { get; private set; }
 	public bool WillBuy { get; private set; }
 	public decimal BaseBuyModifier { get; private set; }
+	public decimal SalesMarkupMultiplier { get; set; }
 	public double MinimumConditionToBuy { get; private set; }
 	public int MaximumStockLevelsToBuy { get; private set; }
 	public bool IgnoreMarketPricing { get; private set; }
@@ -770,7 +798,8 @@ public class Merchandise : LateInitialisingItem, IMerchandise
 		(BasePrice == -1
 		? Item.CostInBaseCurrency / Shop.Currency.BaseCurrencyToGlobalBaseCurrencyConversion
 		: BasePrice) *
-		MarketPriceMultiplier;
+		MarketPriceMultiplier *
+		SalesMarkupMultiplier;
 
 	public decimal MarketPriceMultiplier => Shop.MarketForPricingPurposes?.PriceMultiplierForItem(Item) ?? 1.0M;
 
@@ -866,6 +895,8 @@ public class Merchandise : LateInitialisingItem, IMerchandise
 				return new NumberVariable(MinimumConditionToBuy);
 			case "markdown":
 				return new NumberVariable(BaseBuyModifier);
+			case "markup":
+				return new NumberVariable(SalesMarkupMultiplier);
 		}
 
 		throw new ApplicationException("Unknown property in Merchandise.GetProperty");
@@ -884,6 +915,7 @@ public class Merchandise : LateInitialisingItem, IMerchandise
 			{ "willsell", ProgVariableTypes.Boolean},
 			{ "mincond", ProgVariableTypes.Number},
 			{ "markdown", ProgVariableTypes.Number},
+			{ "markup", ProgVariableTypes.Number},
 		};
 	}
 
@@ -900,6 +932,7 @@ public class Merchandise : LateInitialisingItem, IMerchandise
 			{ "willsell", "Whether the merchandise will be sold"},
 			{ "mincond", "The minimum condition (0.0 to 1.0) the item must be in to be bought"},
 			{ "markdown", "The markdown percentage on sale price for buying"},
+			{ "markup", "The markup percentage on sale price for selling"},
 		};
 	}
 

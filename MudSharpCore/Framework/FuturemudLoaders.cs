@@ -126,6 +126,7 @@ using RaceButcheryProfile = MudSharp.Work.Butchering.RaceButcheryProfile;
 using TraitExpression = MudSharp.Body.Traits.TraitExpression;
 using MudSharp.RPG.Hints;
 using System.Numerics;
+using MudSharp.Economy.Shoppers;
 using MudSharp.GameItems.Components;
 using MudSharp.GameItems.Prototypes;
 using Track = MudSharp.Movement.Track;
@@ -666,6 +667,28 @@ For information on the syntax to use in emotes (such as those included in bracke
 #endif
 		count = _marketPopulations.Count;
 		ConsoleUtilities.WriteLine("Loaded #2{0:N0}#0 {1}.", count, count == 1 ? "Market Population" : "Market Populations");
+
+		#endregion
+
+		#region Shoppers
+		ShopperBase.RegisterShopperTypes();
+		ConsoleUtilities.WriteLine("\nLoading #5Shoppers#0...");
+#if DEBUG
+		sw.Restart();
+#endif
+		var shoppers = FMDB.Context.Shoppers
+		                      .AsNoTracking()
+		                      .ToList();
+		foreach (var item in shoppers)
+		{
+			_shoppers.Add(Economy.Shoppers.ShopperBase.LoadShopper(item, this));
+		}
+#if DEBUG
+		sw.Stop();
+		ConsoleUtilities.WriteLine($"Duration: #2{sw.ElapsedMilliseconds}ms#0");
+#endif
+		count = _shoppers.Count;
+		ConsoleUtilities.WriteLine("Loaded #2{0:N0}#0 {1}.", count, count == 1 ? "Shopper" : "Shoppers");
 
 		#endregion
 

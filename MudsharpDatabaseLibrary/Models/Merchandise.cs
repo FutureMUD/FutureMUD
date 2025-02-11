@@ -22,6 +22,7 @@ namespace MudSharp.Models
         public bool WillSell { get; set; }
         public bool WillBuy { get; set; }
         public decimal BaseBuyModifier { get; set; }
+        public decimal? SalesMarkupMultiplier { get; set; }
         public double MinimumConditionToBuy { get; set; }
         public int MaximumStockLevelsToBuy { get; set; }
         public bool IgnoreMarketPricing { get; set; }

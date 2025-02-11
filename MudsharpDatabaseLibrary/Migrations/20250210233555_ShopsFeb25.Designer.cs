@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using MudSharp.Database;
 
@@ -11,9 +12,11 @@ using MudSharp.Database;
 namespace MudSharp.Migrations
 {
     [DbContext(typeof(FuturemudDatabaseContext))]
-    partial class FutureMUDContextModelSnapshot : ModelSnapshot
+    [Migration("20250210233555_ShopsFeb25")]
+    partial class ShopsFeb25
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -13728,9 +13731,6 @@ namespace MudSharp.Migrations
                         .UseCollation("utf8_general_ci");
 
                     MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("EmployeeRecords"), "utf8");
-
-                    b.Property<decimal>("ExpectedCashBalance")
-                        .HasColumnType("decimal(65,30)");
 
                     b.Property<ulong>("IsTrading")
                         .HasColumnType("bit(1)");

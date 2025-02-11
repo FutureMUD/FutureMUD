@@ -16,6 +16,8 @@ namespace MudSharp.TimeAndDate {
 	public class MudDateTime : IProgVariable, IComparable, IComparable<MudDateTime> {
 		private static readonly Regex PlayerParseRegex = new(@"^(?<date>\d+[/-][a-z]+[/-]\d+) (?:(?<timezone>\w+)\s+){0,1}(?<time>\d+:\d+:\d+(?:\s*\w+)*)$", RegexOptions.IgnoreCase);
 
+		private static readonly Regex AlternatePlayerParseRegex = new(@"(?<date>(?<date1>[a-z0-9]+)[ /-](?<date2>[a-z0-9]+)[ /-](?<date3>[0-9]+)) (?<time>(?<hour>\d+):(?<minute>\d+):*(?<second>\d+)*(?<period>[a-z]+)*\s*(?<timezone>[a-z]+)*)", RegexOptions.IgnoreCase);
+
 		private static readonly Regex ParseRegex =
 			new(@"^(?<calendar>\d+)_(?<date>[^_]+)_(?<clock>\d+)_(?<time>(?<timezone>[^ ]+) .+)$");
 
@@ -29,10 +31,28 @@ namespace MudSharp.TimeAndDate {
 
 		public static string TryParseHelpText(ICharacter actor, MudDate date, MudTime time, IMudTimeZone tz)
 		{
-			return $@"
-Valid input is in this format: {"<day>/<month name>/<year> <timezone> <hours>:<minutes>:<seconds>".ColourCommand()}
-For example, this is how you would enter the current date and time: {$"{date.Day.ToString("N0", actor)}/{date.Month.Alias}/{date.Year} {tz.Name} {time.Hours.ToString("N0", actor)}:{time.Minutes.ToString("N0", actor)}:{time.Seconds.ToString("N0", actor)}".ColourCommand()}
-You can also enter the special values #3never#0 and #3now#0.";
+			return $@"Valid input is in the form #3<date> <time>#0, where the components are explained below. 
+
+For example, this is one way that you could enter the current date and time: #3{date.Day.ToString("N0", actor)}/{date.Month.Alias}/{date.Year} {time.Hours.ToString("N0", actor)}:{time.Minutes.ToString("N0", actor)}:{time.Seconds.ToString("N0", actor)} {tz.Name}#0
+You can also enter the special values #3never#0 and #3now#0.
+
+#6Dates#0
+
+You can enter dates in one of several formats:
+
+#3<day>/<month>/<year>#0 or #3<month>/<day>/<year>#0 are both fine if the month is the name or alias of the month, e.g. #312/Jan/2022#0 or #3July-04-1788#0
+
+If you use all numbers, your input will be interpreted using the settings of your account culture - this may mean that it is read as #3day/month/year#0 (e.g. UK/Europe), #3month/day/year#0 (e.g. US) or #3year/month/day#0 (e.g. East Asia).
+
+You can also use #3/#0, #3-#0 or spaces to separate the three parts of your date.
+
+#6Times#0
+
+Times are entered in the following format:
+
+	#3<hours>:<minutes>:[<seconds>][<period>] [<timezone>]#0
+
+For example, #33:15pm#0, #315:15:00#0 and #315:15:00 UTC#0 would all be valid dates.".SubstituteANSIColour();
 		}
 
 		public static string TryParseHelpText(ICharacter actor)
@@ -46,9 +66,86 @@ You can also enter the special values #3never#0 and #3now#0.";
 			return TryParseHelpText(actor, zone.FinancialPeriodReferenceCalendar.CurrentDate, zone.FinancialPeriodReferenceClock.CurrentTime, zone.FinancialPeriodTimezone);
 		}
 
-		public static bool TryParse(string text, ICalendar calendar, IClock clock, out MudDateTime dt) {
+		/// <summary>
+		/// Tries to parse a datetime from player input
+		/// </summary>
+		/// <param name="text">The text representing the datetime</param>
+		/// <param name="calendar">The calendar</param>
+		/// <param name="clock">The clock</param>
+		/// <param name="actor">The actor for whom you're parsing</param>
+		/// <param name="dt">The datetime</param>
+		/// <param name="error">An error about what went wrong, if error</param>
+		/// <returns>True if successfully parsed</returns>
+		public static bool TryParse(string text, ICalendar calendar, IClock clock, ICharacter actor, out MudDateTime dt, out string error)
+		{
 			dt = null;
-			if (text.Equals("never", StringComparison.InvariantCultureIgnoreCase)) {
+			error = string.Empty;
+			if (text.Equals("never", StringComparison.InvariantCultureIgnoreCase))
+			{
+				dt = Never;
+				return true;
+			}
+
+			if (text.Equals("now", StringComparison.InvariantCultureIgnoreCase))
+			{
+				dt = calendar.CurrentDateTime;
+				return true;
+			}
+
+			if (text.Equals("soon", StringComparison.InvariantCultureIgnoreCase))
+			{
+				dt = calendar.CurrentDateTime + MudTimeSpan.FromSeconds(30);
+				return true;
+			}
+
+			if (string.IsNullOrEmpty(text) || (calendar == null) || (clock == null))
+			{
+				error = TryParseHelpText(actor);
+				return false;
+			}
+
+			var regexMatch = AlternatePlayerParseRegex.Match(text);
+			if (!regexMatch.Success)
+			{
+				error = TryParseHelpText(actor);
+				return false;
+			}
+
+			if (!calendar.TryGetDate(regexMatch.Groups["date"].Value, actor, out var date, out error))
+			{
+				return false;
+			}
+
+			var hour = int.Parse(regexMatch.Groups["hour"].Value);
+			var minute = int.Parse(regexMatch.Groups["minute"].Value);
+			var second = regexMatch.Groups["second"].Length > 0 ? int.Parse(regexMatch.Groups["second"].Value) : 0;
+			var tz = regexMatch.Groups["timezone"].Length > 0 ? clock.Timezones.GetByName(regexMatch.Groups["timezone"].Value) ?? clock.PrimaryTimezone : clock.PrimaryTimezone;
+			if (regexMatch.Groups["period"].Length > 0)
+			{
+				hour +=
+					clock.HourIntervalNames.FindIndex(
+						x => x.Equals(regexMatch.Groups["period"].Value, StringComparison.InvariantCultureIgnoreCase)) *
+					(clock.HoursPerDay / clock.NumberOfHourIntervals);
+			}
+
+			var time = new MudTime(second, minute, hour, tz, clock, false);
+			dt = new MudDateTime(date, time, tz);
+			return true;
+		}
+
+		/// <summary>
+		/// Tries to parse a date time from player input. Try not to use this version if you have an actor at this context
+		/// </summary>
+		/// <param name="text">The text representing the datetime</param>
+		/// <param name="calendar">The calendar</param>
+		/// <param name="clock">The clock</param>
+		/// <param name="dt">The datetime</param>
+		/// <returns>True if successful, false if not</returns>
+		public static bool TryParse(string text, ICalendar calendar, IClock clock, out MudDateTime dt) {
+
+			dt = null;
+			if (text.Equals("never", StringComparison.InvariantCultureIgnoreCase))
+			{
 				dt = Never;
 				return true;
 			}
@@ -56,7 +153,9 @@ You can also enter the special values #3never#0 and #3now#0.";
 			{
 				dt = calendar.CurrentDateTime;
 			}
-			if (string.IsNullOrEmpty(text) || (calendar == null) || (clock == null)) {
+
+			if (string.IsNullOrEmpty(text) || (calendar == null) || (clock == null))
+			{
 				return false;
 			}
 			var match = PlayerParseRegex.Match(text);
@@ -256,9 +355,9 @@ You can also enter the special values #3never#0 and #3now#0.";
 			}
 
 			var newTime = new MudTime(dt.Time);
-			newTime.AddSeconds(ts.Seconds);
-			newTime.AddMinutes(ts.Minutes);
-			newTime.AddHours(ts.Hours);
+			newTime.AddSeconds(ts.SecondComponentOnly);
+			newTime.AddMinutes(ts.MinuteComponentOnly);
+			newTime.AddHours(ts.HourComponentOnly);
 
 			var newDate = new MudDate(dt.Date);
 			newDate.AdvanceDays(newTime.DaysOffsetFromDatum);

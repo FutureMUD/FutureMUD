@@ -17,6 +17,7 @@ namespace MudSharp.Economy;
 public interface IShop : IFrameworkItem, ISaveable, IProgVariable
 {
 	decimal CashBalance { get; set; }
+	decimal ExpectedCashBalance { get; set; }
 	IEconomicZone EconomicZone { get; set; }
 	ICurrency Currency { get; set; }
 	decimal MinimumFloatToBuyItems { get; }
@@ -79,6 +80,10 @@ public interface IShop : IFrameworkItem, ISaveable, IProgVariable
 	IEnumerable<IMerchandise> StockedMerchandise { get; }
 	IEnumerable<IGameItem> AllStockedItems { get; }
 	IEnumerable<IGameItem> StockedItems(IMerchandise merchandise);
+
+	IEnumerable<(IGameItem Item, IMerchandise Merchandise, decimal Price)> AllMerchandiseForVirtualShoppers { get; }
+	void BuyVirtualShopper(IMerchandise merchandise, IGameItem item, int quantity);
+
 	(bool Truth, string Reason) CanBuy(ICharacter actor, IMerchandise merchandise, int quantity, IPaymentMethod method, string extraArguments = null);
 	IEnumerable<IGameItem> Buy(ICharacter actor, IMerchandise merchandise, int quantity, IPaymentMethod method, string extraArguments = null);
 	(decimal Price, IEnumerable<IGameItem> Items) PreviewBuy(ICharacter actor, IMerchandise merchandise, int quantity, IPaymentMethod method, string extraArguments = null);

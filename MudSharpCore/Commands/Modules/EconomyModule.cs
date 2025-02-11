@@ -49,7 +49,10 @@ using AuctionBid = MudSharp.Economy.AuctionBid;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 using System.Security.Cryptography;
 using System.Xml.Linq;
+using MudSharp.Database;
+using MudSharp.Economy.Shoppers;
 using MudSharp.Economy.Shops;
+using TimeSpanParserUtil;
 
 namespace MudSharp.Commands.Modules;
 
@@ -1404,6 +1407,9 @@ The syntax for this command is as follows:
 			case "close":
 				ShopClose(actor, ss);
 				return;
+			case "markup":
+				ShopMarkup(actor, ss);
+				return;
 		}
 
 		if (actor.IsAdministrator())
@@ -1470,6 +1476,7 @@ The syntax for this command is as follows:
 	#3shop open <shop>#0 - opens a shop for trading
 	#3shop close <shop>#0 - closes a shop to trading
 	#3shop reprice <%>#0 - reprices all merchandise by the specified percentage
+	#3shop markup <%>#0 - bulk changes the markup for all merchandise to x%
 	#3shop set name <name>#0 - renames a shop
 	#3shop set can <prog> <whyprog>#0 - sets a prog to control who can shop here (and associated error message)
 	#3shop set trading#0 - toggles whether this shop is trading
@@ -1502,6 +1509,7 @@ The syntax for this command is as follows:
 	#3shop open <shop>#0 - opens a shop for trading
 	#3shop close <shop>#0 - closes a shop to trading
 	#3shop reprice <%>#0 - reprices all merchandise by the specified percentage
+	#3shop markup <%>#0 - bulk changes the markup for all merchandise to x%
 	#3shop set name <name>#0 - renames a shop
 	#3shop set can <prog> <whyprog>#0 - sets a prog to control who can shop here (and associated error message)
 	#3shop set trading#0 - toggles whether this shop is trading
@@ -1523,6 +1531,40 @@ Additionally, you can use the following shop admin subcommands:
 	#3shop autostock#0 - automatically loads and stocks items up to the minimum reorder levels for all merchandise
 	#3shop setupstall <stall> <shop>#0 - sets up a stall item as belonging to a shop
 	#3shop rezone <zone>#0 - changes the economic zone of a shop";
+
+	private static void ShopMarkup(ICharacter actor, StringStack ss)
+	{
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send("By what percentage should all merchandise markups in this store be adjusted?");
+			return;
+		}
+
+		if (!ss.SafeRemainingArgument.TryParsePercentageDecimal(actor.Account.Culture, out var value) || value <= -1.0M)
+		{
+			actor.OutputHandler.Send($"The text {ss.SafeRemainingArgument.ColourCommand()} is not a valid percentage greater than {(-1.0).ToStringP2Colour(actor)}.");
+			return;
+		}
+
+		if (!DoShopCommandFindShop(actor, out var shop))
+		{
+			return;
+		}
+
+		if (!shop.IsManager(actor) && !actor.IsAdministrator())
+		{
+			actor.OutputHandler.Send($"You are not a manager of {shop.Name.TitleCase().Colour(Telnet.Cyan)}.");
+			return;
+		}
+
+		foreach (var merch in shop.Merchandises)
+		{
+			merch.SalesMarkupMultiplier = (1.0M + value);
+			merch.Changed = true;
+		}
+
+		actor.OutputHandler.Send($"You change the markup of all merchandise in this store to {value.ToStringP2Colour(actor)}.");
+	}
 
 	private static void ShopReprice(ICharacter actor, StringStack ss)
 	{
@@ -1556,7 +1598,6 @@ Additionally, you can use the following shop admin subcommands:
 
 		actor.OutputHandler.Send($"You reprice all of the merchandise by {value.ToStringP2Colour(actor)}.");
 	}
-
 
 	private static void ShopRezone(ICharacter actor, StringStack ss)
 	{
@@ -1981,7 +2022,7 @@ Additionally, you can use the following shop admin subcommands:
 
 		payment.TakePayment(amount);
 		account.PayoffAccount(amount);
-		shop.CashBalance += amount;
+		shop.ExpectedCashBalance += amount;
 		actor.OutputHandler.Handle(new EmoteOutput(new Emote(
 			$"@ pay|pays $1 towards the {account.AccountName.ColourName()} line of credit account.", actor, actor,
 			new DummyPerceivable(shop.Currency.Describe(amount, CurrencyDescriptionPatternType.ShortDecimal)))));
@@ -2860,7 +2901,7 @@ Additionally, you can use the following shop admin subcommands:
 
 	private static void ShopInfo(ICharacter actor, StringStack command)
 	{
-		var shop = (IShop)actor.Location.Shop;
+		IShop shop;
 		if (!command.IsFinished && actor.IsAdministrator())
 		{
 			shop = long.TryParse(command.PopSpeech(), out var value)
@@ -2872,7 +2913,14 @@ Additionally, you can use the following shop admin subcommands:
 				return;
 			}
 		}
-
+		else
+		{
+			if (!DoShopCommandFindShop(actor, out shop))
+			{
+				return;
+			}
+		}
+		
 		if (shop == null)
 		{
 			actor.OutputHandler.Send("You are not in a shop.");
@@ -2926,9 +2974,9 @@ Additionally, you can use the following shop admin subcommands:
 		var records = shop.TransactionRecords.Where(x => period.InPeriod(x.RealDateTime))
 						  .OrderByDescending(x => x.RealDateTime).ToList();
 		sb.AppendLine(
-			$"Total Net for Period: {shop.Currency.Describe(records.Sum(x => x.NetValue), CurrencyDescriptionPatternType.ShortDecimal)}");
+			$"Total Net for Period: {shop.Currency.Describe(records.Sum(x => x.NetValue), CurrencyDescriptionPatternType.ShortDecimal).ColourValue()}");
 		sb.AppendLine(
-			$"Total Tax Collected for Period: {shop.Currency.Describe(records.Sum(x => x.Tax), CurrencyDescriptionPatternType.ShortDecimal)}");
+			$"Total Tax Collected for Period: {shop.Currency.Describe(records.Sum(x => x.Tax), CurrencyDescriptionPatternType.ShortDecimal).ColourValue()}");
 		var result = shop.EconomicZone.FinancialPeriodResultForShop(shop, period);
 		if (result is not null)
 		{
@@ -2947,7 +2995,8 @@ Additionally, you can use the following shop admin subcommands:
 				transaction.TransactionType.DescribeEnum(),
 				transaction.Currency.Describe(transaction.PretaxValue, CurrencyDescriptionPatternType.ShortDecimal),
 				transaction.Currency.Describe(transaction.Tax, CurrencyDescriptionPatternType.ShortDecimal),
-				transaction.Currency.Describe(transaction.NetValue, CurrencyDescriptionPatternType.ShortDecimal)
+				transaction.Currency.Describe(transaction.NetValue, CurrencyDescriptionPatternType.ShortDecimal),
+				transaction.Merchandise?.ListDescription ?? ""
 			},
 			new List<string>
 			{
@@ -2956,7 +3005,8 @@ Additionally, you can use the following shop admin subcommands:
 				"Type",
 				"Pretax",
 				"Tax",
-				"Net"
+				"Net",
+				"Merch"
 			},
 			actor.LineFormatLength,
 			colour: Telnet.BoldYellow,
@@ -6949,9 +6999,9 @@ The syntax for this command is as follows:
 		var begin = market.EconomicZone.FinancialPeriodReferenceCalendar.CurrentDateTime;
 		if (!ss.IsFinished)
 		{
-			if (!MudDateTime.TryParse(ss.PopSpeech(), market.EconomicZone.FinancialPeriodReferenceCalendar, market.EconomicZone.FinancialPeriodReferenceClock, out begin))
+			if (!MudDateTime.TryParse(ss.PopSpeech(), market.EconomicZone.FinancialPeriodReferenceCalendar, market.EconomicZone.FinancialPeriodReferenceClock, actor, out begin, out var error))
 			{
-				actor.OutputHandler.Send($"The text {ss.Last.ColourCommand()} is not a valid date and time.{MudDateTime.TryParseHelpText(actor, market.EconomicZone)}");
+				actor.OutputHandler.Send($"The text {ss.Last.ColourCommand()} is not a valid date and time.\n{error}");
 				return;
 			}
 		}
@@ -6959,9 +7009,9 @@ The syntax for this command is as follows:
 		var end = default(MudDateTime);
 		if (!ss.IsFinished)
 		{
-			if (!MudDateTime.TryParse(ss.PopSpeech(), market.EconomicZone.FinancialPeriodReferenceCalendar, market.EconomicZone.FinancialPeriodReferenceClock, out end))
+			if (!MudDateTime.TryParse(ss.PopSpeech(), market.EconomicZone.FinancialPeriodReferenceCalendar, market.EconomicZone.FinancialPeriodReferenceClock, actor, out end, out var error))
 			{
-				actor.OutputHandler.Send($"The text {ss.Last.ColourCommand()} is not a valid date and time.{MudDateTime.TryParseHelpText(actor, market.EconomicZone)}");
+				actor.OutputHandler.Send($"The text {ss.Last.ColourCommand()} is not a valid date and time.\n{error}");
 				return;
 			}
 		}
@@ -6994,9 +7044,9 @@ The syntax for this command is as follows:
 			return;
 		}
 
-		if (!MudDateTime.TryParse(ss.PopSpeech(), market.EconomicZone.FinancialPeriodReferenceCalendar, market.EconomicZone.FinancialPeriodReferenceClock, out var date))
+		if (!MudDateTime.TryParse(ss.PopSpeech(), market.EconomicZone.FinancialPeriodReferenceCalendar, market.EconomicZone.FinancialPeriodReferenceClock, actor, out var date, out var error))
 		{
-			actor.OutputHandler.Send($"The text {ss.Last.ColourCommand()} is not a valid date and time.{MudDateTime.TryParseHelpText(actor, market.EconomicZone)}");
+			actor.OutputHandler.Send($"The text {ss.Last.ColourCommand()} is not a valid date and time.\n{error}");
 			return;
 		}
 
@@ -7886,5 +7936,151 @@ The syntax for this command is as follows:
 		actor.OutputHandler.Send("You are no longer editing any market populations.");
 	}
 	#endregion
+	#endregion
+
+	#region Shoppers
+
+	public const string ShopperHelp = @"The #3shopper#0 command is used to build and edit shoppers, which are virtual customers that patronise stores and inject money into the economy.
+
+The syntax for this command is as follows:
+
+	#3shopper list#0 - lists all shoppers
+	#3shopper edit <which>#0 - begins editing a shopper
+	#3shopper close#0 - stops editing a shopper
+	#3shopper show <which>#0 - views a shopper
+	#3shopper edit new <type> <economic zone> <name>#0 - creates a shopper
+	#3shopper types#0 - view a list of types
+	#3shopper typehelp <type>#0 - show the help file for a type
+	#3shopper set name <name>#0 - renames the shopper
+	#3shopper set economiczone <which>#0 - changes the economic zone
+	#3shopper set interval every <x> hours|days|weekdays|weeks|months|years <offset>#0 - sets the interval
+	#3shopper set next <date> <time>#0 - sets the next shopping date time
+	#3shopper set ...#0 - other specific options for specific types";
+
+	[PlayerCommand("Shopper", "shopper")]
+	[CommandPermission(PermissionLevel.Admin)]
+	[HelpInfo("shopper", ShopperHelp, AutoHelp.HelpArgOrNoArg)]
+	protected static void Shopper(ICharacter actor, string command)
+	{
+		var ss = new StringStack(command.RemoveFirstWord());
+		if (ss.PeekSpeech().EqualTo("log"))
+		{
+			ss.PopSpeech();
+			if (ss.IsFinished)
+			{
+				actor.OutputHandler.Send("Which shopper would you like to view the logs for?");
+				return;
+			}
+
+			var shopper = actor.Gameworld.Shoppers.GetByIdOrName(ss.PopSpeech());
+			if (shopper is null)
+			{
+				actor.OutputHandler.Send($"There is no shopper identified by the text {ss.Last.ColourCommand()}.");
+				return;
+			}
+
+			var sb = new StringBuilder();
+			sb.AppendLine($"Shopping logs for shopper #{shopper.Id.ToStringN0(actor)} ({shopper.Name.ColourName()})");
+
+			var since = DateTime.MinValue;
+			if (!ss.IsFinished)
+			{
+				if (!TimeSpanParser.TryParse(ss.SafeRemainingArgument, Units.Days, Units.Days, out var ts))
+				{
+					actor.OutputHandler.Send($"The text {ss.SafeRemainingArgument.ColourCommand()} not a valid time span.\n#3Note: Years and Months are not supported, use Weeks or Days in that case#0".SubstituteANSIColour());
+					return;
+				}
+
+				since = DateTime.UtcNow - ts;
+				sb.AppendLine($"Since: {since.GetLocalDateString(actor, true).ColourValue()}");
+			}
+
+			sb.AppendLine();
+			using (new FMDB())
+			{
+				var logs = FMDB.Context.ShopperLogs.Where(x => x.ShopperId == shopper.Id).ToList();
+				sb.AppendLine(
+					StringUtilities.GetTextTable(
+						from item in logs 
+						orderby item.DateTime descending, item.Id descending 
+						select new List<string>
+						{
+							item.DateTime.GetLocalDateString(actor, true),
+							new MudDateTime(item.MudDateTime, actor.Gameworld).ToString(CalendarDisplayMode.Short, TimeDisplayTypes.Short),
+							item.LogType,
+							item.LogEntry
+						},
+						new List<string>
+						{
+							"Date",
+							"Mud Date",
+							"Type",
+							"Entry"
+						},
+						actor,
+						Telnet.FunctionYellow
+					)
+				);
+			}
+
+			actor.OutputHandler.Send(sb.ToString());
+			return;
+		}
+
+		if (ss.PeekSpeech().EqualTo("types"))
+		{
+			var sb = new StringBuilder();
+			sb.AppendLine($"There are the following types:");
+			sb.AppendLine();
+			sb.AppendLine(StringUtilities.GetTextTable(
+				from item in ShopperBase.Types
+				let help = ShopperBase.GetTypeInfoFor(item)
+				select new List<string>
+				{
+					item,
+					help.Blurb
+				},
+				new List<string>
+				{
+					"Type",
+					"Blurb"
+				},
+				actor,
+				Telnet.FunctionYellow
+			));
+			actor.OutputHandler.Send(sb.ToString());
+			return;
+		}
+
+		if (ss.PeekSpeech().EqualTo("typehelp"))
+		{
+			ss.PopSpeech();
+			if (ss.IsFinished)
+			{
+				actor.OutputHandler.Send("Which type do you want to see help info for?");
+				return;
+			}
+
+			var type = ss.SafeRemainingArgument.ToLowerInvariant();
+			if (ShopperBase.Types.All(x => !x.EqualTo(type)))
+			{
+				actor.OutputHandler.Send($"There is no type identified by the text {type.ColourCommand()}.");
+				return;
+			}
+
+			var (blurb, help) = ShopperBase.GetTypeInfoFor(type);
+			var sb = new StringBuilder();
+			sb.AppendLine($"Type help for shopper type {type.ColourCommand()}:");
+			sb.AppendLine();
+			sb.AppendLine($"Blurb: {blurb}");
+			sb.AppendLine();
+			sb.AppendLine(help.SubstituteANSIColour());
+			actor.OutputHandler.Send(sb.ToString());
+			return;
+		}
+
+		BaseBuilderModule.GenericBuildingCommand(actor, ss, EditableItemHelper.ShopperHelper);
+	}
+
 	#endregion
 }

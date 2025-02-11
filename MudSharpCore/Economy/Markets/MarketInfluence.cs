@@ -258,9 +258,9 @@ public class MarketInfluence : SaveableItem, IMarketInfluence
 			return true;
 		}
 
-		if (!MudDateTime.TryParse(command.SafeRemainingArgument, Market.EconomicZone.FinancialPeriodReferenceCalendar, Market.EconomicZone.FinancialPeriodReferenceClock, out var date))
+		if (!MudDateTime.TryParse(command.SafeRemainingArgument, Market.EconomicZone.FinancialPeriodReferenceCalendar, Market.EconomicZone.FinancialPeriodReferenceClock, actor, out var date, out var error))
 		{
-			actor.OutputHandler.Send($"The text {command.SafeRemainingArgument.ColourCommand()} is not a valid date and time.{MudDateTime.TryParseHelpText(actor, Market.EconomicZone)}");
+			actor.OutputHandler.Send($"The text {command.SafeRemainingArgument.ColourCommand()} is not a valid date and time.\n{error}");
 			return false;
 		}
 
@@ -284,9 +284,9 @@ public class MarketInfluence : SaveableItem, IMarketInfluence
 			return false;
 		}
 
-		if (!MudDateTime.TryParse(command.SafeRemainingArgument, Market.EconomicZone.FinancialPeriodReferenceCalendar, Market.EconomicZone.FinancialPeriodReferenceClock, out var date))
+		if (!MudDateTime.TryParse(command.SafeRemainingArgument, Market.EconomicZone.FinancialPeriodReferenceCalendar, Market.EconomicZone.FinancialPeriodReferenceClock, actor, out var date, out var error))
 		{
-			actor.OutputHandler.Send($"The text {command.SafeRemainingArgument.ColourCommand()} is not a valid date and time.{MudDateTime.TryParseHelpText(actor, Market.EconomicZone)}");
+			actor.OutputHandler.Send($"The text {command.SafeRemainingArgument.ColourCommand()} is not a valid date and time.\n{error}");
 			return false;
 		}
 

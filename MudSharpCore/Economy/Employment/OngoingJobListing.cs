@@ -473,13 +473,13 @@ You will be paid {PayDescriptionForJobListing()}.{(PersonalProject is not null ?
 		}
 
 		if (!MudDateTime.TryParse(command.SafeRemainingArgument, EconomicZone.FinancialPeriodReferenceCalendar,
-			    EconomicZone.FinancialPeriodReferenceClock, out var dt))
+			    EconomicZone.FinancialPeriodReferenceClock, actor, out var dt, out var error))
 		{
 			var date = PayReference.Date;
 			var time = PayReference.Time;
 			var tz = PayReference.TimeZone;
 			actor.OutputHandler.Send(
-				$"That is not a valid date and time for the {EconomicZone.FinancialPeriodReferenceCalendar.FullName.ColourName()} calendar and {EconomicZone.FinancialPeriodReferenceClock.Name.ColourName()} clock.{MudDateTime.TryParseHelpText(actor, EconomicZone)}");
+				$"That is not a valid date and time for the {EconomicZone.FinancialPeriodReferenceCalendar.FullName.ColourName()} calendar and {EconomicZone.FinancialPeriodReferenceClock.Name.ColourName()} clock.\n{error}");
 			return false;
 		}
 

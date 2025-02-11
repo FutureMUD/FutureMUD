@@ -28,6 +28,7 @@ using MudSharp.Models;
 using MudSharp.TimeAndDate.Date;
 using MudSharp.TimeAndDate.Time;
 using System.Security.Cryptography;
+using System.Numerics;
 
 namespace MudSharp.Economy.Shops;
 
@@ -109,6 +110,7 @@ public abstract class Shop : SaveableItem, IShop
 		_name = shop.Name;
 		_economicZone = gameworld.EconomicZones.Get(shop.EconomicZoneId);
 		_cashBalance = shop.CashBalance;
+		_expectedCashBalance = shop.ExpectedCashBalance;
 		MinimumFloatToBuyItems = shop.MinimumFloatToBuyItems;
 		IsTrading = shop.IsTrading;
 		Currency = gameworld.Currencies.Get(shop.CurrencyId);
@@ -155,6 +157,7 @@ public abstract class Shop : SaveableItem, IShop
 	private long? _bankAccountId;
 	private IBankAccount _bankAccount;
 	private decimal _cashBalance;
+	private decimal _expectedCashBalance;
 
 	protected abstract void Save(Models.Shop dbitem);
 
@@ -163,6 +166,7 @@ public abstract class Shop : SaveableItem, IShop
 		var dbitem = FMDB.Context.Shops.Find(Id);
 		dbitem.Name = _name;
 		dbitem.CashBalance = _cashBalance;
+		dbitem.ExpectedCashBalance = _expectedCashBalance;
 		dbitem.BankAccountId = _bankAccountId;
 		dbitem.CurrencyId = Currency.Id;
 		dbitem.EconomicZoneId = EconomicZone.Id;
@@ -216,6 +220,7 @@ public abstract class Shop : SaveableItem, IShop
 				if (old.Currency != value.Currency)
 				{
 					CashBalance *= old.Currency.BaseCurrencyToGlobalBaseCurrencyConversion / value.Currency.BaseCurrencyToGlobalBaseCurrencyConversion;
+					ExpectedCashBalance *= old.Currency.BaseCurrencyToGlobalBaseCurrencyConversion / value.Currency.BaseCurrencyToGlobalBaseCurrencyConversion;
 					MinimumFloatToBuyItems *= old.Currency.BaseCurrencyToGlobalBaseCurrencyConversion / value.Currency.BaseCurrencyToGlobalBaseCurrencyConversion;
 					foreach (var merch in Merchandises)
 					{
@@ -246,6 +251,16 @@ public abstract class Shop : SaveableItem, IShop
 		set
 		{
 			_cashBalance = value;
+			Changed = true;
+		}
+	}
+
+	public decimal ExpectedCashBalance
+	{
+		get => _expectedCashBalance;
+		set
+		{
+			_expectedCashBalance = value;
 			Changed = true;
 		}
 	}
@@ -419,7 +434,7 @@ public abstract class Shop : SaveableItem, IShop
 			$"You add {item.HowSeen(actor)} to the for-sale inventory of {Name.TitleCase().Colour(Telnet.Cyan)}.");
 		AddTransaction(new TransactionRecord(ShopTransactionType.Stock, Currency, this,
 			EconomicZone.ZoneForTimePurposes.DateTime(), actor,
-			merch.EffectivePrice * item.Quantity * -1, 0.0M));
+			merch.EffectivePrice * item.Quantity * -1, 0.0M, merch));
 		_stockedMerchandise.Add(merch, item.Id);
 		_stockedMerchandiseCounts.Add(merch, item.Quantity);
 	}
@@ -434,7 +449,7 @@ public abstract class Shop : SaveableItem, IShop
 			_merchandises.FirstOrDefault(x => x.IsMerchandiseFor(item, true));
 		AddTransaction(new TransactionRecord(ShopTransactionType.StockLoss, Currency, this,
 			EconomicZone.ZoneForTimePurposes.DateTime(), actor,
-			merch?.EffectivePrice ?? 0.0M * item.Quantity, 0.0M));
+			merch?.EffectivePrice ?? 0.0M * item.Quantity, 0.0M, merch));
 		if (merch != null)
 		{
 			_stockedMerchandise.Remove(merch, item.Id);
@@ -566,7 +581,7 @@ public abstract class Shop : SaveableItem, IShop
 		actor.OutputHandler.Handle(new EmoteOutput(new Emote($"@ sell|sells $1 to {Name.TitleCase().ColourName()} for $2.", actor, actor, item, new DummyPerceivable(Currency.Describe(price, CurrencyDescriptionPatternType.ShortDecimal).ColourValue()))));
 		AddTransaction(new TransactionRecord(ShopTransactionType.Purchase, Currency, this,
 			EconomicZone.ZoneForTimePurposes.DateTime(), actor,
-			 price * -1, 0.0M));
+			 price * -1, 0.0M, merchandise));
 		_stockedMerchandise.Add(merchandise, item.Id);
 		_stockedMerchandiseCounts.Add(merchandise, item.Quantity);
 		item.InInventoryOf?.Take(item);
@@ -697,6 +712,62 @@ public abstract class Shop : SaveableItem, IShop
 		return (true, string.Empty);
 	}
 
+	public IEnumerable<(IGameItem Item, IMerchandise Merchandise, decimal Price)> AllMerchandiseForVirtualShoppers
+	{
+		get
+		{
+			var items = new List<(IGameItem Item, IMerchandise Merchandise, decimal Price)>();
+			var allItems = AllStockedItems.ToList();
+			foreach (var item in allItems)
+			{
+				var merch = item.EffectsOfType<ItemOnDisplayInShop>().First().Merchandise;
+				var price = PriceForMerchandise(null, merch, 1);
+				items.Add((item, merch, price));
+			}
+
+			return items;
+		}
+	}
+
+	public void BuyVirtualShopper(IMerchandise merchandise, IGameItem item, int quantity)
+	{
+		var restockInfo = new List<(IGameItem Item, IGameItem Container)>();
+		if (item.DropsWhole(quantity))
+		{
+			restockInfo.Add((item, item.ContainedIn));
+			item.RemoveAllEffects<ItemOnDisplayInShop>(fireRemovalAction: true);
+			item.InInventoryOf?.Take(item);
+			item.ContainedIn?.Take(item);
+			item.Location?.Extract(item);
+
+			_stockedMerchandise.Remove(merchandise, item.Id);
+			item.Delete();
+		}
+		else
+		{
+			item.GetItemType<IStackable>().Quantity -= quantity;
+		}
+		
+		var (price, tax) = PriceAndTaxForMerchandise(null, merchandise, quantity);
+		AddCurrencyToShop(CurrencyGameItemComponentProto.CreateNewCurrencyPile(Currency, Currency.FindCoinsForAmount(price, out _)));
+		AddTransaction(new TransactionRecord(ShopTransactionType.Sale, Currency, this, CurrentLocations.First().DateTime(), null, price - tax, tax, merchandise));
+		EconomicZone.ReportSalesTaxCollected(this, tax);
+		
+		RecalculateStockedItems(merchandise, quantity);
+		if (merchandise.AutoReordering && _stockedMerchandiseCounts[merchandise] < merchandise.MinimumStockLevels)
+		{
+			DoAutoRestockForMerchandise(merchandise, restockInfo);
+		}
+
+		foreach (var employee in EmployeesOnDuty)
+		{
+			if (employee.HandleEvent(EventType.ItemRequiresRestocking, employee, this, merchandise, quantity))
+			{
+				break;
+			}
+		}
+	}
+
 	public IEnumerable<IGameItem> Buy(ICharacter actor, IMerchandise merchandise, int quantity, IPaymentMethod method,
 		string extraArguments = null)
 	{
@@ -744,7 +815,7 @@ public abstract class Shop : SaveableItem, IShop
 		{
 			case ShopCashPayment cash:
 				(price, tax) = PriceAndTaxForMerchandise(actor, merchandise, quantity);
-				CashBalance += price;
+				ExpectedCashBalance += price;
 				break;
 			case LineOfCreditPayment loc:
 				(price, tax) = PriceAndTaxForMerchandise(
@@ -759,7 +830,7 @@ public abstract class Shop : SaveableItem, IShop
 
 		method.TakePayment(price);
 		AddTransaction(new TransactionRecord(ShopTransactionType.Sale, Currency, this,
-			actor.Location.DateTime(), actor, price - tax, tax));
+			actor.Location.DateTime(), actor, price - tax, tax, merchandise));
 		EconomicZone.ReportSalesTaxCollected(this, tax);
 
 		var couldnothold = false;
@@ -837,6 +908,7 @@ public abstract class Shop : SaveableItem, IShop
 			return;
 		}
 
+		ExpectedCashBalance -= CashBalance;
 		amount -= CashBalance;
 		CashBalance = 0.0M;
 
@@ -865,6 +937,7 @@ public abstract class Shop : SaveableItem, IShop
 		}
 
 		amount -= coinBalance;
+		ExpectedCashBalance -= coinBalance;
 		foreach (var pile in piles)
 		{
 			pile.Parent.Delete();
@@ -905,14 +978,14 @@ public abstract class Shop : SaveableItem, IShop
 		{
 			_transactionRecords.Add(new TransactionRecord(ShopTransactionType.StockLoss, Currency, this,
 				EconomicZone.ZoneForTimePurposes.DateTime(), null, merchandise.EffectiveAutoReorderPrice * (difference - expectedChange),
-				0.0M));
+				0.0M, merchandise));
 		}
 		else if (difference < expectedChange)
 		// Extras were located
 		{
 			_transactionRecords.Add(new TransactionRecord(ShopTransactionType.Stock, Currency, this,
 				EconomicZone.ZoneForTimePurposes.DateTime(), null,
-				merchandise.EffectiveAutoReorderPrice * (expectedChange - difference) * -1, 0.0M));
+				merchandise.EffectiveAutoReorderPrice * (expectedChange - difference) * -1, 0.0M, merchandise));
 		}
 
 		_stockedMerchandiseCounts[merchandise] = stocked.Sum(x => x.Quantity);
@@ -1005,7 +1078,7 @@ public abstract class Shop : SaveableItem, IShop
 
 		var quantity = stock.Sum(x => x.Quantity);
 		AddTransaction(new TransactionRecord(ShopTransactionType.PriceAdjustment, Currency, this,
-			actor.Location.DateTime(), actor, quantity * (merchandise.EffectivePrice - oldValue), 0.0M));
+			actor.Location.DateTime(), actor, quantity * (merchandise.EffectivePrice - oldValue), 0.0M, merchandise));
 	}
 
 	public IEnumerable<IMerchandise> StockedMerchandise =>
@@ -1281,6 +1354,10 @@ public abstract class Shop : SaveableItem, IShop
 		if (IsManager(actor) || actor.IsAdministrator())
 		{
 			sb.AppendLine($"Total Taxes Owing: {EconomicZone.Currency.Describe(EconomicZone.OutstandingTaxesForShop(this), CurrencyDescriptionPatternType.ShortDecimal).ColourValue()}");
+			CheckFloat();
+			sb.AppendLine($"Float: {EconomicZone.Currency.Describe(ExpectedCashBalance, CurrencyDescriptionPatternType.ShortDecimal).ColourValue()}");
+			sb.AppendLine($"Virtual Balance: {EconomicZone.Currency.Describe(CashBalance, CurrencyDescriptionPatternType.ShortDecimal).ColourValue()}");
+			sb.AppendLine($"In Registers: {EconomicZone.Currency.Describe(GetCurrencyPilesForShop().Sum(x => x.TotalValue), CurrencyDescriptionPatternType.ShortDecimal).ColourValue()}");
 		}
 
 		if (actor.IsAdministrator())

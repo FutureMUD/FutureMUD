@@ -34,6 +34,7 @@ namespace MudSharp.Economy
 		bool IgnoreMarketPricing { get; }
 		bool DefaultMerchandiseForItem { get; }
 		bool PermitItemDecayOnStockedItems { get; }
+		decimal SalesMarkupMultiplier { get; set; }
 
 		void Delete();
 

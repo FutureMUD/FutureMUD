@@ -17,6 +17,7 @@ namespace MudSharp.Models
             ConveyancingLocations = new HashSet<ConveyancingLocation>();
             JobListings = new HashSet<JobListing>();
             JobFindingLocations = new HashSet<JobFindingLocation>();
+            Shoppers = new HashSet<Shopper>();
         }
 
         public long Id { get; set; }
@@ -52,5 +53,6 @@ namespace MudSharp.Models
         public virtual ICollection<ConveyancingLocation> ConveyancingLocations { get; set; }
         public virtual ICollection<JobFindingLocation> JobFindingLocations { get; set; }
         public virtual ICollection<JobListing> JobListings { get; set; }
+        public virtual ICollection<Shopper> Shoppers { get; set; }
     }
 }

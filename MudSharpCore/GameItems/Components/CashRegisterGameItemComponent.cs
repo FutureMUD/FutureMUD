@@ -357,7 +357,7 @@ public class CashRegisterGameItemComponent : GameItemComponent, IContainer, ISel
 
 				IsOpen = true;
 				shop?.AddTransaction(new TransactionRecord(ShopTransactionType.AccessCashDraw, shop.Currency, shop,
-					character.Location.DateTime(), shop.IsEmployee(character) ? character : null, 0.0M, 0.0M));
+					character.Location.DateTime(), shop.IsEmployee(character) ? character : null, 0.0M, 0.0M, null));
 				if (shop?.IsEmployee(character) == false)
 				{
 					CrimeExtensions.CheckPossibleCrimeAllAuthorities(character, CrimeTypes.UnauthorisedDealing, null,
@@ -415,7 +415,7 @@ public class CashRegisterGameItemComponent : GameItemComponent, IContainer, ISel
 			{
 				shop.AddTransaction(new TransactionRecord(ShopTransactionType.Withdrawal, currency.Currency, shop,
 					shop.EconomicZone.FinancialPeriodReferenceCalendar.CurrentDateTime, null, currency.TotalValue,
-					0.0M));
+					0.0M, null));
 			}
 
 			_contents.Remove(item);

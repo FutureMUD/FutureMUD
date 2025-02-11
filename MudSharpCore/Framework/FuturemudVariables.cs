@@ -219,6 +219,7 @@ public sealed partial class Futuremud : IDisposable
 	private readonly All<IScriptedEvent> _scriptedEvents = new();
 	private readonly All<IShard> _shards = new();
 	private readonly All<IShieldType> _shieldTypes = new();
+	private readonly All<IShopper> _shoppers = new();
 	private readonly All<ISkyDescriptionTemplate> _skyDescriptionTemplates = new();
 	private readonly All<IStackDecorator> _stackDecorators = new();
 	private readonly All<ISurgicalProcedure> _surgicalProcedures = new();
@@ -492,6 +493,8 @@ public sealed partial class Futuremud : IDisposable
 	public IUneditableAll<IShard> Shards => _shards;
 
 	public IUneditableAll<IShieldType> ShieldTypes => _shieldTypes;
+
+	public IUneditableAll<IShopper> Shoppers => _shoppers;
 
 	public IUneditableAll<ISkyDescriptionTemplate> SkyDescriptionTemplates => _skyDescriptionTemplates;
 

@@ -1409,6 +1409,11 @@ public sealed partial class Futuremud : IFuturemud, IDisposable
 		_drugs.Add(drug);
 	}
 
+	public void Add(IShopper shopper)
+	{
+		_shoppers.Add(shopper);
+	}
+
 	#endregion Special Add Methods
 
 	#region Special Find
@@ -1603,6 +1608,10 @@ public sealed partial class Futuremud : IFuturemud, IDisposable
 		throw new ApplicationException("No game level destroy implemented for this type.");
 	}
 
+	public void Destroy(IShopper shopper)
+	{
+		_shoppers.Remove(shopper);
+	}
 	public void Destroy(IHeightWeightModel model)
 	{
 		_heightWeightModels.Remove(model);

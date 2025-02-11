@@ -452,12 +452,12 @@ All of the following commands must happen with an edited clan selected:
 			return;
 		}
 
-		if (!MudDateTime.TryParse(ss.SafeRemainingArgument, clan.Calendar, clan.Calendar.FeedClock, out var dt))
+		if (!MudDateTime.TryParse(ss.SafeRemainingArgument, clan.Calendar, clan.Calendar.FeedClock, actor, out var dt, out var error))
 		{
 			var date = clan.Calendar.CurrentDateTime.Date;
 			var time = clan.Calendar.CurrentDateTime.Time;
 			var tz = clan.Calendar.CurrentDateTime.TimeZone;
-			actor.OutputHandler.Send($"That is not a valid date and time for the {clan.Calendar.FullName.ColourName()} calendar and {clan.Calendar.FeedClock.Name.ColourName()} clock.{MudDateTime.TryParseHelpText(actor, date, time, tz)}");
+			actor.OutputHandler.Send($"That is not a valid date and time for the {clan.Calendar.FullName.ColourName()} calendar and {clan.Calendar.FeedClock.Name.ColourName()} clock.\n{error}");
 			return;
 		}
 

@@ -14,8 +14,10 @@ namespace MudSharp.Models
         public long? ThirdPartyId { get; set; }
         public DateTime RealDateTime { get; set; }
         public string MudDateTime { get; set; }
+        public long? MerchandiseId { get; set; }
 
         public virtual Currency Currency { get; set; }
         public virtual Shop Shop { get; set; }
+        public virtual Merchandise Merchandise { get; set; }
     }
 }

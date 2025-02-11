@@ -370,6 +370,8 @@ namespace MudSharp.Database
 		public virtual DbSet<ShopFinancialPeriodResult> ShopFinancialPeriodResults { get; set; }
 		public virtual DbSet<ShopTransactionRecord> ShopTransactionRecords { get; set; }
 		public virtual DbSet<Shop> Shops { get; set; }
+		public virtual DbSet<Shopper> Shoppers { get; set; }
+		public virtual DbSet<ShopperLog> ShopperLogs { get; set; }
 		public virtual DbSet<ShopsStoreroomCell> ShopsStoreroomCells { get; set; }
 		public virtual DbSet<ShopsTill> ShopsTills { get; set; }
 		public virtual DbSet<SkyDescriptionTemplate> SkyDescriptionTemplates { get; set; }

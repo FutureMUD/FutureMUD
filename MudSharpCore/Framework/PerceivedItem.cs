@@ -93,6 +93,7 @@ public abstract class PerceivedItem : LateKeywordedInitialisingItem, IPerceivabl
 			case DescriptionType.Short:
 				var output = cansee ? (_shortDescriptionPattern?.Pattern ?? _shortDescription).FluentProper(proper) :
 					proper ? "Something" : "something";
+				output ??= proper ? "Something" : "something";
 				return colour ? output.ColourObject() : output;
 			case DescriptionType.Possessive:
 				return HowSeen(voyeur, proper, DescriptionType.Short, colour) + "'s";
@@ -101,7 +102,7 @@ public abstract class PerceivedItem : LateKeywordedInitialisingItem, IPerceivabl
 					   DescribePosition(voyeur).Fullstop();
 			case DescriptionType.Full:
 				return cansee
-					? (_fullDescriptionPattern?.Pattern ?? _fullDescription).FluentProper(proper)
+					? (_fullDescriptionPattern?.Pattern ?? _fullDescription).FluentProper(proper) ?? "You cannot discern anything more about this."
 					: "You cannot discern anything more about this.";
 			default:
 				throw new ArgumentException("Not a valid description type");

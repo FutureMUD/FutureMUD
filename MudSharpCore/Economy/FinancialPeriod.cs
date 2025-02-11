@@ -50,7 +50,7 @@ public class FinancialPeriod : LateInitialisingItem, IFinancialPeriod
 
 	public bool InPeriod(DateTime compare)
 	{
-		return compare >= FinancialPeriodStart && compare < FinancialPeriodEnd;
+		return compare >= FinancialPeriodStart && (EconomicZone.CurrentFinancialPeriod == this || compare < FinancialPeriodEnd);
 	}
 
 	public bool InPeriod(MudDateTime compare)

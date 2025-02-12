@@ -119,6 +119,12 @@ public class OrganTransplantProcedure : BodypartSpecificSurgicalProcedure
 			(IBodypart)additionalArguments[1], Difficulty.Hard, true);
 	}
 
+	/// <inheritdoc />
+	public override IBodypart GetTargetBodypart(object[] parameters)
+	{
+		return (IBodypart)parameters[1];
+	}
+
 	public override void CompleteProcedure(ICharacter surgeon, ICharacter patient, CheckOutcome result,
 		params object[] additionalArguments)
 	{

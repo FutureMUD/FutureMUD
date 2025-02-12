@@ -105,6 +105,12 @@ public class ReplantationProcedure : BodypartSpecificSurgicalProcedure
 		AbortProg?.Execute(surgeon, patient, result, item.RootPart.Name, item.Parent);
 	}
 
+	/// <inheritdoc />
+	public override IBodypart GetTargetBodypart(object[] parameters)
+	{
+		return ((IGameItem)parameters[0]).GetItemType<ISeveredBodypart>().RootPart.UpstreamConnection;
+	}
+
 	public override void CompleteProcedure(ICharacter surgeon, ICharacter patient, CheckOutcome result,
 		params object[] additionalArguments)
 	{

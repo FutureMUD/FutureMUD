@@ -221,4 +221,10 @@ public class CannulationProcedure : BodypartSpecificSurgicalProcedure
 				patient.Body.GetTargetBodypart(additionalArguments[1].ToString())
 			};
 	}
+
+	/// <inheritdoc />
+	public override IBodypart GetTargetBodypart(object[] parameters)
+	{
+		return (IBodypart)parameters[1];
+	}
 }

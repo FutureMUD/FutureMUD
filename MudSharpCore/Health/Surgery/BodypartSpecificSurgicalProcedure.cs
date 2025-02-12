@@ -8,6 +8,8 @@ using MudSharp.Framework;
 using MudSharp.Body;
 using System.Xml.Linq;
 using MudSharp.Character;
+using MudSharp.GameItems;
+using MudSharp.GameItems.Interfaces;
 using MudSharp.RPG.Knowledge;
 
 namespace MudSharp.Health.Surgery;
@@ -150,5 +152,60 @@ public abstract class BodypartSpecificSurgicalProcedure : SurgicalProcedure
 
 		Changed = true;
 		return true;
+	}
+
+	protected override bool BuildingCommandPhaseSpecial(ICharacter actor, StringStack command, SurgicalProcedurePhase phase)
+	{
+		if (command.PeekSpeech().EqualTo("exposed"))
+		{
+			var (truth, error, desc) = ExposedPhaseSpecialAction();
+			phase.PhaseSpecialEffects = (phase.PhaseSpecialEffects ?? "").ConcatIfNotEmpty("\n")
+			                                                             .FluentAppend($"exposed", true);
+			phase.PhaseSuccessful += truth;
+			phase.WhyPhaseNotSuccessful += error;
+			phase.PhaseSpecialEffectsDescription = (phase.PhaseSpecialEffects ?? "").ConcatIfNotEmpty("\n").FluentAppend(desc, true);
+			Changed = true;
+			actor.OutputHandler.Send($"This phase will now check whether the bodypart is uncovered, and stop if not true.");
+			return true;
+		}
+		return base.BuildingCommandPhaseSpecial(actor, command, phase);
+	}
+
+	protected override string SpecialActionText => $@"{base.SpecialActionText}
+	#Cexposed#0 - checks whether the target bodypart is uncovered, and stops if not";
+
+	protected override (Func<ICharacter, ICharacter, object[], bool>, Func<ICharacter, ICharacter, object[], string>, string)
+		GetSpecialPhaseAction(string actionText)
+	{
+		if (actionText.EqualTo("exposed"))
+		{
+			return ExposedPhaseSpecialAction();
+		}
+
+		return base.GetSpecialPhaseAction(actionText);
+	}
+
+	public abstract IBodypart GetTargetBodypart(object[] parameters);
+
+	private (Func<ICharacter, ICharacter, object[], bool>, Func<ICharacter, ICharacter, object[], string>, string) ExposedPhaseSpecialAction()
+	{
+		return ((surgeon, patient, parameters) =>
+				{
+					var bodypart = GetTargetBodypart(parameters);
+					if (patient.Body.ExposedBodyparts.Any(x => x.CountsAs(bodypart)))
+					{
+						return true;
+					}
+					return false;
+				}
+				,
+				(surgeon, patient, parameters) =>
+				{
+					var bodypart = GetTargetBodypart(parameters);
+					return
+						$"$1's {bodypart.FullDescription()} is not exposed, and so the procedure cannot continue.";
+				},
+				"Checks part for being exposed"
+			);
 	}
 }

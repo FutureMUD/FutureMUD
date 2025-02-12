@@ -97,6 +97,12 @@ public class DecannulationProcedure : BodypartSpecificSurgicalProcedure
 		AbortProg?.Execute(surgeon, patient, result, bodypart.Name);
 	}
 
+	/// <inheritdoc />
+	public override IBodypart GetTargetBodypart(object[] parameters)
+	{
+		return (IBodypart)parameters[0];
+	}
+
 	public override void CompleteProcedure(ICharacter surgeon, ICharacter patient, CheckOutcome result,
 		params object[] additionalArguments)
 	{

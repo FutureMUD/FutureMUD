@@ -12,127 +12,127 @@ using MudSharp.RPG.Checks;
 using MudSharp.RPG.Knowledge;
 
 namespace MudSharp.Health {
-    public enum SurgicalProcedureType {
-        /// <summary>
-        ///     A physical, albeit cursory examination of a patient's medical condition
-        /// </summary>
-        Triage,
+	public enum SurgicalProcedureType {
+		/// <summary>
+		///     A physical, albeit cursory examination of a patient's medical condition
+		/// </summary>
+		Triage,
 
-        /// <summary>
-        ///     A longer, detailed physical examination of a patient's medical condition
-        /// </summary>
-        DetailedExamination,
+		/// <summary>
+		///     A longer, detailed physical examination of a patient's medical condition
+		/// </summary>
+		DetailedExamination,
 
-        /// <summary>
-        ///     Stitching up and repairing surgical access from another procedure
-        /// </summary>
-        InvasiveProcedureFinalisation,
+		/// <summary>
+		///     Stitching up and repairing surgical access from another procedure
+		/// </summary>
+		InvasiveProcedureFinalisation,
 
-        /// <summary>
-        ///     Exploratory internal surgery to determine the source of an internal trauma
-        /// </summary>
-        ExploratorySurgery,
+		/// <summary>
+		///     Exploratory internal surgery to determine the source of an internal trauma
+		/// </summary>
+		ExploratorySurgery,
 
-        /// <summary>
-        ///     Permanent removal of a bodypart
-        /// </summary>
-        Amputation,
+		/// <summary>
+		///     Permanent removal of a bodypart
+		/// </summary>
+		Amputation,
 
-        /// <summary>
-        ///     Reattachment of a previously removed bodypart
-        /// </summary>
-        Replantation,
+		/// <summary>
+		///     Reattachment of a previously removed bodypart
+		/// </summary>
+		Replantation,
 
-        /// <summary>
-        ///     Installing a Cannula for use in an IV setup
-        /// </summary>
-        Cannulation,
+		/// <summary>
+		///     Installing a Cannula for use in an IV setup
+		/// </summary>
+		Cannulation,
 
-        /// <summary>
-        /// Repairing internal damage from a traumatic injury
-        /// </summary>
-        TraumaControl,
+		/// <summary>
+		/// Repairing internal damage from a traumatic injury
+		/// </summary>
+		TraumaControl,
 
-        /// <summary>
-        /// Excising an organ from the body
-        /// </summary>
-        OrganExtraction,
+		/// <summary>
+		/// Excising an organ from the body
+		/// </summary>
+		OrganExtraction,
 
-        /// <summary>
-        /// Implanting an organ into a person
-        /// </summary>
-        OrganTransplant,
+		/// <summary>
+		/// Implanting an organ into a person
+		/// </summary>
+		OrganTransplant,
 
-        /// <summary>
-        /// Removing a cannula installed in a patient
-        /// </summary>
-        Decannulation,
+		/// <summary>
+		/// Removing a cannula installed in a patient
+		/// </summary>
+		Decannulation,
 
 
-        OrganStabilisation,
-        SurgicalBoneSetting,
-        InstallImplant,
-        RemoveImplant,
-        ConfigureImplantPower,
-        ConfigureImplantInterface
-    }
+		OrganStabilisation,
+		SurgicalBoneSetting,
+		InstallImplant,
+		RemoveImplant,
+		ConfigureImplantPower,
+		ConfigureImplantInterface
+	}
 
-    public class SurgicalProcedurePhase {
-        public required TimeSpan BaseLength { get; init; }
-        public required string PhaseEmote { get; set; }
-        public required IFutureProg OnPhaseProg { get; set; }
-        public required IInventoryPlanTemplate InventoryPlanTemplate { get; set; }
-        public required string PhaseSpecialEffects { get; set; }
-        public string PhaseSpecialEffectsDescription { get; set; } = string.Empty;
+	public class SurgicalProcedurePhase {
+		public required TimeSpan BaseLength { get; init; }
+		public required string PhaseEmote { get; set; }
+		public required IFutureProg OnPhaseProg { get; set; }
+		public required IInventoryPlanTemplate InventoryPlanTemplate { get; set; }
+		public required string PhaseSpecialEffects { get; set; }
+		public string PhaseSpecialEffectsDescription { get; set; } = string.Empty;
 
-        public Func<ICharacter,ICharacter,object[], bool> PhaseSuccessful { get; set; } = (surgeon,patient,paramaters) => true;
-        public Func<ICharacter, ICharacter, object[], string> WhyPhaseNotSuccessful { get; set; } = (surgeon, patient, paramaters) => "of an unknown reason";
-    }
+		public Func<ICharacter,ICharacter,object[], bool> PhaseSuccessful { get; set; } = (surgeon,patient,paramaters) => true;
+		public Func<ICharacter, ICharacter, object[], string> WhyPhaseNotSuccessful { get; set; } = (surgeon, patient, paramaters) => "of an unknown reason";
+	}
 
-    public interface ISurgicalProcedure : IEditableItem {
-        string ProcedureDescription { get; }
-        SurgicalProcedureType Procedure { get; }
-        CheckType Check { get; }
-        ITraitDefinition CheckTrait { get; }
+	public interface ISurgicalProcedure : IEditableItem {
+		string ProcedureDescription { get; }
+		SurgicalProcedureType Procedure { get; }
+		CheckType Check { get; }
+		ITraitDefinition CheckTrait { get; }
 
-        double BaseCheckBonus { get; }
+		double BaseCheckBonus { get; }
 
-        /// <summary>
-        ///     e.g. "Medical Examination", "Amputation"
-        /// </summary>
-        string ProcedureName { get; }
+		/// <summary>
+		///     e.g. "Medical Examination", "Amputation"
+		/// </summary>
+		string ProcedureName { get; }
 
-        /// <summary>
-        ///     e.g. "Examining", "Amputating"
-        /// </summary>
-        string ProcedureGerund { get; }
+		/// <summary>
+		///     e.g. "Examining", "Amputating"
+		/// </summary>
+		string ProcedureGerund { get; }
 
-        string ProcedureBeginEmote { get;}
+		string ProcedureBeginEmote { get;}
 
-        IEnumerable<SurgicalProcedurePhase> Phases { get; }
-        IKnowledge KnowledgeRequired { get; }
-        string MedicalSchool { get; }
-        IFutureProg UsabilityProg { get; }
-        IFutureProg WhyCannotUseProg { get; }
-        IFutureProg CompletionProg { get; }
-        IFutureProg AbortProg { get; }
-        bool RequiresUnconsciousPatient { get; }
-        bool RequiresInvasiveProcedureFinalisation { get; }
-        bool RequiresLivingPatient { get; }
+		IEnumerable<SurgicalProcedurePhase> Phases { get; }
+		IKnowledge KnowledgeRequired { get; }
+		string MedicalSchool { get; }
+		IFutureProg UsabilityProg { get; }
+		IFutureProg WhyCannotUseProg { get; }
+		IFutureProg CompletionProg { get; }
+		IFutureProg AbortProg { get; }
+		bool RequiresUnconsciousPatient { get; }
+		bool RequiresInvasiveProcedureFinalisation { get; }
+		bool RequiresLivingPatient { get; }
 		IBodyPrototype TargetBodyType { get; }
 		void PerformProcedure(ICharacter surgeon, ICharacter patient, params object[] additionalArguments);
 
-        void CompleteProcedure(ICharacter surgeon, ICharacter patient, CheckOutcome result,
-                               params object[] additionalArguments);
+		void CompleteProcedure(ICharacter surgeon, ICharacter patient, CheckOutcome result,
+							   params object[] additionalArguments);
 
-        void AbortProcedure(ICharacter surgeon, ICharacter patient, Outcome result, params object[] additionalArguments);
-        IEffect GetActionEffect(ICharacter surgeon, ICharacter patient, params object[] additionalArguments);
-        Difficulty GetProcedureDifficulty(ICharacter surgeon, ICharacter patient, params object[] additionalArguments);
-        bool CanPerformProcedure(ICharacter surgeon, ICharacter patient, params object[] additionalArguments);
-        string WhyCannotPerformProcedure(ICharacter surgeon, ICharacter patient, params object[] additionalArguments);
-        string DescribeProcedureGerund(ICharacter surgeon, ICharacter patient, params object[] additionalArguments);
+		void AbortProcedure(ICharacter surgeon, ICharacter patient, Outcome result, params object[] additionalArguments);
+		IEffect GetActionEffect(ICharacter surgeon, ICharacter patient, params object[] additionalArguments);
+		Difficulty GetProcedureDifficulty(ICharacter surgeon, ICharacter patient, params object[] additionalArguments);
+		bool CanPerformProcedure(ICharacter surgeon, ICharacter patient, params object[] additionalArguments);
+		string WhyCannotPerformProcedure(ICharacter surgeon, ICharacter patient, params object[] additionalArguments);
+		string DescribeProcedureGerund(ICharacter surgeon, ICharacter patient, params object[] additionalArguments);
 
-        string DressPhaseEmote(string emote, ICharacter surgeon, ICharacter patient,
-                               params object[] additionalArguments);
-    }
+		string DressPhaseEmote(string emote, ICharacter surgeon, ICharacter patient,
+							   params object[] additionalArguments);
+	}
 }

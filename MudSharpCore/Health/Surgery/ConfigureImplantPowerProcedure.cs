@@ -37,6 +37,12 @@ public class ConfigureImplantPowerProcedure : BodypartSpecificSurgicalProcedure
 	public override bool RequiresUnconsciousPatient => true;
 	public override bool RequiresLivingPatient => false;
 
+	/// <inheritdoc />
+	public override IBodypart GetTargetBodypart(object[] parameters)
+	{
+		return (IBodypart)parameters[0];
+	}
+
 	protected override object[] GetProcessedAdditionalArguments(ICharacter surgeon, ICharacter patient,
 		params object[] additionalArguments)
 	{

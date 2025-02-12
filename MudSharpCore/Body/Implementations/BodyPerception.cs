@@ -611,6 +611,7 @@ public partial class Body
 			{
 				sb.AppendLine($"This item has graffiti. Use LOOK <item> GRAFFITI to view it.".Colour(Telnet.BoldCyan));
 			}
+
 			var dub = Dubs.FirstOrDefault(x => x.TargetId == thing.Id && x.TargetType == thing.FrameworkItemType);
 			if (dub != null)
 			{
@@ -773,18 +774,19 @@ public partial class Body
 
 			// External Implants
 			var externalImplants = actor.Body.Implants.Where(x =>
-				x.External && !string.IsNullOrWhiteSpace(x.ExternalDescription) &&
-				actor.Body.ExposedBodyparts.Any(y => y.CountsAs(x.TargetBodypart))).ToList();
-			if (externalImplants.Any())
+				x.External && !string.IsNullOrWhiteSpace(x.ExternalDescription)).ToList();
+			var visibleExternalImplants = externalImplants.Where(x => actor.Body.ExposedBodyparts.Any(y => y.CountsAs(x.TargetBodypart))).ToList();
+			if (visibleExternalImplants.Any() || ((Actor.IsAdministrator() || Actor == actor) && externalImplants.Any()))
 			{
 				sb.AppendLine(
-					$"{gender.Subjective(true)} {gender.Has()} {externalImplants.Select(x => $"{x.ExternalDescription.Colour(Telnet.Yellow)} in {gender.Possessive()} {x.TargetBodypart.FullDescription()}").ListToString()}."
+					$"{gender.Subjective(true)} {gender.Has()} {externalImplants.Select(x => $"{x.ExternalDescription.Colour(Telnet.Yellow)} in {gender.Possessive()} {x.TargetBodypart.FullDescription()}{(visibleExternalImplants.Contains(x) ? "" : " [Covered]".ColourCommand())}").ListToString()}."
 						.Wrap(Actor.Account.InnerLineFormatLength));
 			}
 
 			// Tattoos
-			var visibleTattoos = actor.Body.Tattoos.Where(x => actor.Body.ExposedBodyparts.Contains(x.Bodypart))
-			                          .ToList();
+			var tattoos = actor.Body.Tattoos.ToList();
+			var visibleTattoos = tattoos.Where(x => actor.Body.ExposedBodyparts.Contains(x.Bodypart))
+			                            .ToList();
 			var quantityDesc = "among many others";
 			switch (visibleTattoos.Count)
 			{

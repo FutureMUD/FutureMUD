@@ -7,6 +7,7 @@ using MudSharp.Economy.Banking;
 using MudSharp.Economy.Currency;
 using MudSharp.Framework;
 using MudSharp.Framework.Save;
+using MudSharp.PerceptionEngine;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -69,12 +70,34 @@ internal class CombatArena : SaveableItem, ICombatArena
 		return _managerIDs.Contains(actor.Id);
 	}
 
+	public void SendOutput(IEmoteOutput output)
+	{
+		foreach (var cell in _arenaCells)
+		{
+			cell.OutputHandler.Handle(output);
+		}
+
+		foreach (var cell in _stableCells)
+		{
+			cell.OutputHandler.Handle(output);
+		}
+
+		foreach (var cell in _spectatorCells)
+		{
+			cell.OutputHandler.Handle(output);
+		}
+
+		foreach (var cell in _stagingCells)
+		{
+			cell.OutputHandler.Handle(output);
+		}
+	}
+
 	public void FiveSecondTick()
 	{
 		// Is a match in progress?
 		if (_activeMatch is not null)
 		{
-			FiveSecondTickActiveMatch();
 			return;
 		}
 
@@ -104,11 +127,7 @@ internal class CombatArena : SaveableItem, ICombatArena
 		}
 
 		// Create new match
-	}
-
-	private void FiveSecondTickActiveMatch()
-	{
-		throw new NotImplementedException();
+		_activeMatch = matchType.CreateMatch(this);
 	}
 
 	#region Building

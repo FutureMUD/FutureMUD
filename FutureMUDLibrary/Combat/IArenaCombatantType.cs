@@ -7,7 +7,7 @@ using MudSharp.NPC.Templates;
 using System.Collections.Generic;
 
 namespace MudSharp.Combat;
-
+#nullable enable
 public interface IArenaCombatantType : IFrameworkItem, ISaveable, IEditableItem
 {
 	int MinimumNumberOfNPCs { get; }

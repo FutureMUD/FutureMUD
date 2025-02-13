@@ -346,6 +346,11 @@ public abstract class CombatBase : ICombat
 #endif
 	}
 
+	protected virtual void HandleCombatResult(IPerceiver perceiver, ICombatMove move, ICombatMove response, CombatMoveResult result)
+	{
+		// Do nothing
+	}
+
 	public virtual void CombatAction(IPerceiver perceiver, ICombatMove move)
 	{
 		perceiver.RemoveAllEffects(x => x is IEndOnCombatMove e && e.CausesToEnd(move), true);
@@ -366,6 +371,7 @@ public abstract class CombatBase : ICombat
 		perceiver.RemoveAllEffects(x => x.IsEffectType<IdleCombatant>());
 		var targetResponse = move.CharacterTargets.FirstOrDefault()?.ResponseToMove(move, perceiver);
 		var result = move.ResolveMove(targetResponse);
+		HandleCombatResult(perceiver, move, targetResponse, result);
 
 		//Bloody weapons, fists, bullets, blood splash, etc.
 		(move as WeaponAttackMove)?.ResolveBloodSpray(result);

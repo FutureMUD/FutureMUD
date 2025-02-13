@@ -6,6 +6,7 @@ using MudSharp.Framework.Save;
 
 namespace MudSharp.Combat;
 
+#nullable enable
 public interface IArenaCombatantProfile : IFrameworkItem, ISaveable
 {
 	bool IsArchived { get; }

@@ -3,6 +3,7 @@ using MudSharp.Framework.Save;
 using MudSharp.TimeAndDate;
 using System;
 using System.Collections.Generic;
+using MudSharp.Character;
 
 namespace MudSharp.Combat;
 
@@ -20,4 +21,5 @@ public interface IArenaMatch : IFrameworkItem, ISaveable
 
 	void AddCombatant(IArenaCombatantProfile combatant, int team);
 	void WithdrawCombatant(IArenaCombatantProfile combatant);
+	void HandleScore(ICharacter combatant, ICharacter target, ICombatMove move, CombatMoveResult result);
 }

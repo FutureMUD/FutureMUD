@@ -11,6 +11,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using MudSharp.PerceptionEngine;
 
 namespace MudSharp.Combat;
 #nullable enable
@@ -34,4 +35,5 @@ public interface ICombatArena : IFrameworkItem, ISaveable, IEditableItem
 	DateTime? LastArenaMatch { get; }
 	TimeSpan TimeBetweenMatches { get; }
 	bool IsManager(ICharacter actor);
+	void SendOutput(IEmoteOutput output);
 }

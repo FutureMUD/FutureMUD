@@ -866,7 +866,9 @@ public class PhotocopierGameItemComponent : PoweredMachineBaseGameItemComponent,
 						ch.Location.Insert(spent);
 					}
 
+					spent.Login();
 					spent.HandleEvent(EventType.ItemFinishedLoading, spent);
+					
 				}
 			}
 

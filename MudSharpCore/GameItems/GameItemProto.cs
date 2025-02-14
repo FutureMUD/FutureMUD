@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using C5;
 using MudSharp.Models;
 using MudSharp.Accounts;
 using MudSharp.Character;
@@ -97,6 +98,7 @@ public class GameItemProto : EditableItem, IGameItemProto
 	public string FullDescription { get; private set; }
 	public decimal CostInBaseCurrency { get; private set; }
 	public bool IsHiddenFromPlayers { get; private set; }
+	public bool PreventManualLoad => Components.Any(x => x.PreventManualLoad);
 
 	private readonly
 		List<(IFutureProg Prog, string? ShortDescription, string? FullDescription, string? FullDescriptionAddendum)>
@@ -252,6 +254,60 @@ public class GameItemProto : EditableItem, IGameItemProto
 		}
 
 		return sb.ToString();
+	}
+
+	public IEnumerable<IGameItem> CreateNew(ICharacter loader, IGameItemSkin skin, int quantity, string loadString)
+	{
+		var items = new List<IGameItem>();
+		var stackableProto = GetItemType<StackableGameItemComponentProto>();
+		if (stackableProto is null && quantity > 1)
+		{
+			if (quantity > 10)
+			{
+				quantity = 10;
+			}
+
+			for (var i = 0; i < quantity; i++)
+			{
+				items.Add(CreateNew(loader, skin, 1, loadString).First());
+			}
+
+			return items;
+		}
+
+		var newItem = new GameItem(this, loader, BaseItemQuality);
+		items.Add(newItem);
+		newItem.Skin = skin;
+		var varProto = GetItemType<VariableGameItemComponentProto>();
+		var variable = newItem.GetItemType<IVariable>();
+		if (varProto is not null)
+		{
+			var variables = varProto.GetValuesFromString(loadString);
+			foreach (var characteristic in variable.CharacteristicDefinitions)
+			{
+				if (variables.TryGetValue(characteristic, out var value))
+				{
+					variable.SetCharacteristic(characteristic, value);
+				}
+				else
+				{
+					variable.SetRandom(characteristic);
+				}
+			}
+		}	
+
+		var stackable = newItem.GetItemType<IStackable>();
+		if (stackable is not null)
+		{
+			stackable.Quantity = quantity;
+		}
+
+		foreach (var prog in OnLoadProgs)
+		{
+			prog.Execute(newItem, loader);
+		}
+
+		return items;
 	}
 
 	public IGameItem CreateNew(ICharacter loader = null)

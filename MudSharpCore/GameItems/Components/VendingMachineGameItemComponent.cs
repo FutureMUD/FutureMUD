@@ -888,90 +888,9 @@ public class VendingMachineGameItemComponent : GameItemComponent, IContainer, IV
 			return false;
 		}
 
-		var newItem = selection.Prototype.CreateNew(character);
-		var newItemVariable = newItem.GetItemType<IVariable>();
-		if (newItemVariable != null)
-		{
-			if (string.IsNullOrWhiteSpace(selection.LoadArguments))
-			{
-				foreach (var variable in newItemVariable.CharacteristicDefinitions)
-				{
-					newItemVariable.SetRandom(variable);
-				}
-			}
-			else
-			{
-				var prePopulatedVariables = new Dictionary<ICharacteristicDefinition, ICharacteristicValue>();
-				var regex = new Regex("(\\w+)(?:=|\\:)(\"(:?[\\w ]+)\"|(:?[\\w]+))");
-				foreach (Match match in regex.Matches(selection.LoadArguments))
-				{
-					ICharacteristicDefinition definition = null;
-					ICharacteristicValue cvalue = null;
-
-					definition =
-						newItemVariable.CharacteristicDefinitions.FirstOrDefault(
-							x => x.Pattern.IsMatch(match.Groups[1].Value));
-					if (definition == null)
-					{
-						continue;
-					}
-
-					var target = !string.IsNullOrEmpty(match.Groups[3].Value)
-						? match.Groups[3].Value
-						: match.Groups[4].Value;
-					long valueid;
-					if (target[0] == ':')
-					{
-						ICharacteristicProfile profile = null;
-						profile = long.TryParse(target.Substring(1), out valueid)
-							? Gameworld.CharacteristicProfiles.Get(valueid)
-							: Gameworld.CharacteristicProfiles.FirstOrDefault(
-								x =>
-									x.Name.StartsWith(target.Substring(1),
-										StringComparison.CurrentCultureIgnoreCase));
-
-						if (profile == null)
-						{
-							continue;
-						}
-
-						cvalue = profile.GetRandomCharacteristic();
-					}
-					else
-					{
-						cvalue = long.TryParse(target, out valueid)
-							? Gameworld.CharacteristicValues.Get(valueid)
-							: Gameworld.CharacteristicValues.Where(x => definition.IsValue(x))
-							           .FirstOrDefault(
-								           x => x.Name.StartsWith(target, StringComparison.CurrentCultureIgnoreCase));
-					}
-
-					if (cvalue == null)
-					{
-						continue;
-					}
-
-					if (!definition.IsValue(cvalue))
-					{
-						continue;
-					}
-
-					prePopulatedVariables.Add(definition, cvalue);
-					foreach (var characteristic in newItemVariable.CharacteristicDefinitions)
-					{
-						if (prePopulatedVariables.ContainsKey(characteristic))
-						{
-							newItemVariable.SetCharacteristic(characteristic, prePopulatedVariables[characteristic]);
-						}
-						else
-						{
-							newItemVariable.SetRandom(characteristic);
-						}
-					}
-				}
-			}
-		}
-
+		var newItem = selection.Prototype.CreateNew(character, null, 1, selection.LoadArguments).First();
+		newItem.Login();
+		newItem.HandleEvent(EventType.ItemFinishedLoading, newItem);
 		_contents.Add(newItem);
 		selection.OnLoadProg?.Execute(newItem, character);
 
@@ -981,7 +900,6 @@ public class VendingMachineGameItemComponent : GameItemComponent, IContainer, IV
 			new MixedEmoteOutput(new Emote(string.Format(_prototype.ItemSelectedEmote, selection.Keyword), character,
 				character, Parent, newItem)).Append(playerEmote));
 		Changed = true;
-		newItem.HandleEvent(EventType.ItemFinishedLoading, newItem);
 		return true;
 	}
 

@@ -16,6 +16,7 @@ using System.Xml.Linq;
 using MudSharp.Construction;
 using System.Numerics;
 using MudSharp.Database;
+using MudSharp.Events;
 using MudSharp.GameItems.Groups;
 
 namespace MudSharp.GameItems.Prototypes
@@ -218,6 +219,8 @@ namespace MudSharp.GameItems.Prototypes
 			var newItem = ItemPrototype.CreateNew();
 			var puddleItem = newItem.GetItemType<PuddleGameItemComponent>();
 			puddleItem.LiquidMixture = mixture.Clone();
+			newItem.Login();
+			newItem.HandleEvent(EventType.ItemFinishedLoading, newItem);
 			return newItem;
 		}
 
@@ -238,6 +241,7 @@ namespace MudSharp.GameItems.Prototypes
 			newItem.PositionTarget = referenceItem;
 			newItem.PositionModifier = Body.Position.PositionModifier.Around;
 			newItem.Login();
+			newItem.HandleEvent(EventType.ItemFinishedLoading, newItem);
 		}
 
 		public static void TopUpOrCreateNewPuddle(LiquidMixture mixture, ICell location, RoomLayer layer,

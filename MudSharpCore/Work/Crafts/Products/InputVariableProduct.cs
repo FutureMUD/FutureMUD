@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using System.Xml.Linq;
 using MudSharp.Character;
 using MudSharp.Commands.Trees;
+using MudSharp.Events;
 using MudSharp.Form.Characteristics;
 using MudSharp.Framework;
 using MudSharp.Framework.Revision;
@@ -130,6 +131,7 @@ internal class InputVariableProduct : BaseProduct
 				}
 			}
 
+			newItem.HandleEvent(EventType.ItemFinishedLoading, newItem);
 			return new SimpleProductData(new[] { newItem });
 		}
 
@@ -159,6 +161,8 @@ internal class InputVariableProduct : BaseProduct
 					varItem.SetCharacteristic(definition, value);
 				}
 			}
+
+			item.HandleEvent(EventType.ItemFinishedLoading, item);
 
 			items.Add(item);
 		}

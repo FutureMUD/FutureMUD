@@ -5,6 +5,7 @@ using MudSharp.Body;
 using MudSharp.Character;
 using MudSharp.Construction;
 using MudSharp.Effects.Concrete;
+using MudSharp.Events;
 using MudSharp.Framework;
 using MudSharp.GameItems.Components;
 using MudSharp.GameItems.Interfaces;
@@ -547,6 +548,8 @@ public partial class GameItem : IHaveWounds
 		Delete();
 		newItem.RoomLayer = RoomLayer;
 		originalTrueLocation?.Insert(newItem);
+		newItem.Login();
+		newItem.HandleEvent(EventType.ItemFinishedLoading, newItem);
 		return newItem;
 	}
 

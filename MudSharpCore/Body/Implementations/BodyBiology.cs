@@ -1224,6 +1224,8 @@ public partial class Body
 			var item = SeverBodypart(wound.SeveredBodypart);
 			item.RoomLayer = RoomLayer;
 			Location.Insert(item);
+			item.Login();
+			item.HandleEvent(EventType.ItemFinishedLoading, item);
 		}
 
 		OnWounded?.Invoke(this, wound);

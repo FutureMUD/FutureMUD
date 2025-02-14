@@ -1286,6 +1286,8 @@ You can also type 'forage' on its own to see what kinds of yields you can search
 					foreach (var item in newItems)
 					{
 						foragable.OnForageProg.Execute(actor, foragable.Id, item, 1);
+						item.HandleEvent(EventType.ItemFinishedLoading, item);
+						item.Login();
 					}
 				}
 

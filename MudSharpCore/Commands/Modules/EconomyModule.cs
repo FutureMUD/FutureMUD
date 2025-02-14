@@ -52,6 +52,7 @@ using System.Xml.Linq;
 using MudSharp.Database;
 using MudSharp.Economy.Shoppers;
 using MudSharp.Economy.Shops;
+using MudSharp.Events;
 using TimeSpanParserUtil;
 
 namespace MudSharp.Commands.Modules;
@@ -4548,6 +4549,9 @@ Additionally, if you are the manager of a bank, you can use the following additi
 			actor.OutputHandler.Send(
 				$"Your {actor.Body.Prototype.WielderDescriptionPlural.ToLowerInvariant()} were full so you set the item on the ground.");
 		}
+
+		item.HandleEvent(EventType.ItemFinishedLoading, item);
+		item.Login();
 	}
 
 	private static void BankAccountCancelItems(ICharacter actor, StringStack ss, IBankAccount account, IBank bank)

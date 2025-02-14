@@ -8,6 +8,7 @@ using MudSharp.Body.Position.PositionStates;
 using MudSharp.Character;
 using MudSharp.Combat;
 using MudSharp.Construction;
+using MudSharp.Events;
 using MudSharp.Form.Shape;
 using MudSharp.Framework;
 using MudSharp.GameItems.Interfaces;
@@ -42,6 +43,8 @@ public class BenchGameItemComponent : GameItemComponent, ITable, IFlip, IProvide
 			var newChair = newItem.GetItemType<IChair>();
 			_permanentChairs.Add(newChair);
 			newChair.SetTable(this);
+			newItem.HandleEvent(EventType.ItemFinishedLoading, newItem);
+			newItem.Login();
 		}
 
 		Changed = true;

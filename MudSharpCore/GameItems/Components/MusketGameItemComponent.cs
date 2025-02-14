@@ -17,6 +17,7 @@ using MudSharp.Commands.Trees;
 using MudSharp.Construction;
 using MudSharp.Effects.Concrete;
 using MudSharp.Effects.Interfaces;
+using MudSharp.Events;
 using MudSharp.Form.Audio;
 using MudSharp.Form.Shape;
 using MudSharp.Framework;
@@ -586,6 +587,8 @@ It is classified as {WeaponType.Classification.Describe().Colour(Telnet.Green)}.
 				var powder = CommodityGameItemComponentProto.CreateNewCommodity(MusketGameItemComponentProto.GunpowderMaterial, _prototype.PowderVolumePerShot, null, false);
 				powder.ContainedIn = Parent;
 				_magazineContents.Add(powder);
+				powder.Login();
+				powder.HandleEvent(EventType.ItemFinishedLoading, powder);
 				loader.OutputHandler.Handle(new EmoteOutput(new Emote(_prototype.LoadEmotePowder, loader, loader, Parent, powder), flags: OutputFlags.InnerWrap));
 				plan.FinalisePlanWithExemptions([Parent]);
 				LoadStage = 2;
@@ -1024,6 +1027,12 @@ It is classified as {WeaponType.Classification.Describe().Colour(Telnet.Green)}.
 
 		actor.OutputHandler.Handle(new EmoteOutput(new Emote(_prototype.FireEmote, actor, actor, target ?? (IPerceivable)new DummyPerceivable("the air"), Parent), style: OutputStyle.CombatMessage, flags: OutputFlags.InnerWrap));
 		var bullet = bulletProto?.CreateNew() ?? ball;
+		if (bullet is not null)
+		{
+			bullet.HandleEvent(EventType.ItemFinishedLoading, bullet);
+			bullet.Login();
+		}
+
 		ammo.Fire(actor, target, shotOutcome, coverOutcome, defenseOutcome, bodypart, bullet, WeaponType, defenseEmote);
 	}
 

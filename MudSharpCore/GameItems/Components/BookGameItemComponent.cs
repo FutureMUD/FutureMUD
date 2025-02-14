@@ -16,6 +16,7 @@ using MudSharp.RPG.Checks;
 using MudSharp.Body;
 using MudSharp.Form.Shape;
 using MudSharp.Communication;
+using MudSharp.Events;
 
 namespace MudSharp.GameItems.Components;
 
@@ -674,10 +675,13 @@ public class BookGameItemComponent : GameItemComponent, IWriteable, IReadable, I
 		var newPaper = newItem?.GetItemType<PaperSheetGameItemComponent>();
 		foreach (var readable in Readables)
 		{
-			newPaper.Readables.Add(readable);
+			newPaper?.Readables.Add(readable);
 		}
 
-		newPaper.Changed = true;
+		if (newPaper is not null)
+		{
+			newPaper.Changed = true;
+		}
 
 		TornPages.Add(CurrentPage);
 		var newPageFound = false;
@@ -721,6 +725,12 @@ public class BookGameItemComponent : GameItemComponent, IWriteable, IReadable, I
 		else
 		{
 			Parent.OutputHandler.Handle(new EmoteOutput(new Emote($"A page is torn out of @.", Parent)));
+		}
+
+		if (newItem is not null)
+		{
+			newItem.HandleEvent(EventType.ItemFinishedLoading, newItem);
+			newItem.Login();
 		}
 
 		return newItem;

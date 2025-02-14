@@ -8,6 +8,7 @@ using MudSharp.Body;
 using MudSharp.Body.PartProtos;
 using MudSharp.Character;
 using MudSharp.Effects.Concrete;
+using MudSharp.Events;
 using MudSharp.Form.Shape;
 using MudSharp.Framework;
 using MudSharp.Framework.Units;
@@ -2896,6 +2897,8 @@ Your options are to name the specific bodypart, #3random#0 for a random part, #3
 			actor.Gameworld.Add(item);
 			item.RoomLayer = actor.RoomLayer;
 			actor.Location.Insert(item);
+			item.Login();
+			item.HandleEvent(EventType.ItemFinishedLoading, item);
 		}
 
 		target.Body.StartHealthTick();

@@ -103,6 +103,7 @@ public class DwellingGameItemComponent : GameItemComponent
 			frontExit.Door = newItem.GetItemType<IDoor>();
 			Gameworld.Add(newItem);
 			frontExit.Door.InstalledExit = frontExit;
+			newItem.Login();
 			newItem.HandleEvent(EventType.ItemFinishedLoading, newItem);
 		}
 

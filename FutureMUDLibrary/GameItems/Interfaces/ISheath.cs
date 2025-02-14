@@ -6,5 +6,7 @@ namespace MudSharp.GameItems.Interfaces {
         IWieldable Content { get; set; }
         Difficulty StealthDrawDifficulty { get; }
         bool DesignedForGuns { get; }
+        bool CanSheath(IGameItem item);
+        string WhyCannotSheath(IGameItem item);
     }
 }

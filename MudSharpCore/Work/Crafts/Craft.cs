@@ -10,6 +10,7 @@ using MudSharp.Character;
 using MudSharp.Database;
 using MudSharp.Effects.Concrete;
 using MudSharp.Effects.Interfaces;
+using MudSharp.Events;
 using MudSharp.Framework;
 using MudSharp.Framework.Revision;
 using MudSharp.FutureProg;
@@ -1112,6 +1113,8 @@ public class Craft : Framework.Revision.EditableItem, ICraft
 		var craftItem = ActiveCraftGameItemComponentProto.LoadActiveCraft(this);
 		craftItem.Parent.RoomLayer = character.RoomLayer;
 		character.Location.Insert(craftItem.Parent);
+		craftItem.Parent.Login();
+		craftItem.Parent.HandleEvent(EventType.ItemFinishedLoading, craftItem.Parent);
 		var effect = new ActiveCraftEffect(character)
 		{
 			Component = craftItem

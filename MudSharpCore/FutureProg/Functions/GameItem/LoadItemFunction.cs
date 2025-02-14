@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using MudSharp.Events;
 using MudSharp.Form.Characteristics;
 using MudSharp.Framework;
 using MudSharp.Framework.Revision;
@@ -117,6 +118,7 @@ internal class LoadItemFunction : BuiltInFunction
 		}
 
 		_gameworld.Add(newItem);
+		newItem.HandleEvent(EventType.ItemFinishedLoading, newItem);
 		newItem.Login();
 		Result = newItem;
 		return StatementResult.Normal;

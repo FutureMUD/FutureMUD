@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Xml.Linq;
 using MudSharp.Character;
+using MudSharp.Events;
 using MudSharp.Form.Characteristics;
 using MudSharp.Framework;
 using MudSharp.GameItems;
@@ -196,7 +197,7 @@ public class SimpleVariableProduct : SimpleProduct
 					varItem.SetCharacteristic(definition, value);
 				}
 			}
-
+			newItem.HandleEvent(EventType.ItemFinishedLoading, newItem);
 			return new SimpleProductData(new[] { newItem });
 		}
 
@@ -226,7 +227,8 @@ public class SimpleVariableProduct : SimpleProduct
 					varItem.SetCharacteristic(definition, value);
 				}
 			}
-
+			
+			item.HandleEvent(EventType.ItemFinishedLoading, item);
 			items.Add(item);
 		}
 

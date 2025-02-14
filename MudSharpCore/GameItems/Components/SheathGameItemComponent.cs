@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Xml.Linq;
+using MudSharp.Combat;
 using MudSharp.Construction;
 using MudSharp.Form.Shape;
 using MudSharp.Framework;
@@ -176,6 +177,66 @@ public class SheathGameItemComponent : GameItemComponent, ISheath
 	public Difficulty StealthDrawDifficulty => _prototype.StealthDrawDifficulty;
 
 	public bool DesignedForGuns => _prototype.DesignedForGuns;
+
+	public bool CanSheath(IGameItem item)
+	{
+		if (Content is not null)
+		{
+			return false;
+		}
+
+		if (!item.IsItemType<IWieldable>())
+		{
+			return false;
+		}
+
+		if (MaximumSize < item.Size)
+		{
+			return false;
+		}
+
+		var rw = item.GetItemType<IRangedWeapon>();
+		if (DesignedForGuns)
+		{
+			if (rw?.WeaponType.RangedWeaponType.IsFirearm() != true)
+			{
+				return false;
+			}
+
+			return true;
+		}
+
+		return true;
+	}
+
+	public string WhyCannotSheath(IGameItem item)
+	{
+		if (Content is not null)
+		{
+			return "the sheathe already has something in it";
+		}
+
+		if (!item.IsItemType<IWieldable>())
+		{
+			return "that is not a wieldable item";
+		}
+
+		if (MaximumSize < item.Size)
+		{
+			return "that is too large to fit in that sheathe";
+		}
+
+		var rw = item.GetItemType<IRangedWeapon>();
+		if (DesignedForGuns)
+		{
+			if (rw?.WeaponType.RangedWeaponType.IsFirearm() != true)
+			{
+				return "only firearms can be sheathed in that sheathe";
+			}
+		}
+
+		return "an unknown reason";
+	}
 
 	#endregion
 

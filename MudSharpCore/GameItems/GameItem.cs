@@ -2265,6 +2265,8 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable
 			newItem.RoomLayer = RoomLayer;
 			commodity.Weight -= weight;
 			newItem.Drop(location);
+			newItem.Login();
+			newItem.HandleEvent(EventType.ItemFinishedLoading, newItem);
 			return newItem;
 		}
 
@@ -2285,6 +2287,8 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable
 			newItem.RoomLayer = RoomLayer;
 			commodity.Weight -= weight;
 			newItem.Get(getter);
+			newItem.Login();
+			newItem.HandleEvent(EventType.ItemFinishedLoading, newItem);
 			return newItem;
 		}
 

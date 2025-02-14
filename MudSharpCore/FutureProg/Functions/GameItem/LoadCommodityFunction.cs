@@ -1,10 +1,12 @@
 ﻿using MudSharp.Form.Material;
 using MudSharp.Framework;
+using MudSharp.GameItems.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using MudSharp.Events;
 
 namespace MudSharp.FutureProg.Functions.GameItem;
 
@@ -84,6 +86,8 @@ internal class LoadCommodityFunction : BuiltInFunction
 		var newItem = GameItems.Prototypes.CommodityGameItemComponentProto.CreateNewCommodity(material, weight, tag);
 		_gameworld.Add(newItem);
 		Result = newItem;
+		newItem.Login();
+		newItem.HandleEvent(EventType.ItemFinishedLoading, newItem);
 		return StatementResult.Normal;
 	}
 

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Xml.Linq;
 using MudSharp.Character;
+using MudSharp.Events;
 using MudSharp.Framework;
 using MudSharp.Framework.Revision;
 using MudSharp.GameItems;
@@ -75,6 +76,7 @@ public class SimpleProduct : BaseProduct
 			}
 
 			newItem.GetItemType<IStackable>().Quantity = Quantity;
+			newItem.HandleEvent(EventType.ItemFinishedLoading, newItem);
 			return new SimpleProductData(new[] { newItem });
 		}
 
@@ -95,7 +97,7 @@ public class SimpleProduct : BaseProduct
 			{
 				item.Material = material;
 			}
-
+			item.HandleEvent(EventType.ItemFinishedLoading, item);
 			items.Add(item);
 		}
 

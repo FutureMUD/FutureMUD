@@ -141,6 +141,7 @@ public class UnusedInputProduct : BaseProduct
 			}
 
 			newItem.GetItemType<IStackable>().Quantity = quantity;
+			newItem.HandleEvent(EventType.ItemFinishedLoading, newItem);
 			return new UnusedInputProductData(new[] { newItem });
 		}
 
@@ -155,7 +156,7 @@ public class UnusedInputProduct : BaseProduct
 			{
 				item.Quality = referenceQuality;
 			}
-
+			item.HandleEvent(EventType.ItemFinishedLoading, item);
 			items.Add(item);
 		}
 

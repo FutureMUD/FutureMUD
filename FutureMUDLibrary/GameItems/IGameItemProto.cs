@@ -22,6 +22,10 @@ namespace MudSharp.GameItems {
 		ANSIColour CustomColour { get; }
 		bool PermitPlayerSkins { get; }
 		bool IsHiddenFromPlayers { get; }
+		/// <summary>
+		/// If any of the components of this item gets into the game an alternate way and items with this component should not be permitted to be loaded through the ITEM LOAD command or via progs.
+		/// </summary>
+		bool PreventManualLoad { get; }
 		string EditHeaderColour(ICharacter voyeur);
 
 
@@ -42,6 +46,7 @@ namespace MudSharp.GameItems {
 		bool IsItemType<T>() where T : IGameItemComponentProto;
 		T GetItemType<T>() where T : IGameItemComponentProto;
 		IGameItem CreateNew(ICharacter loader = null);
+		IEnumerable<IGameItem> CreateNew(ICharacter loader, IGameItemSkin skin, int quantity, string loadString);
 
 		bool CheckForComponentPrototypeUpdates();
 		IGameItemProto Clone(ICharacter builder);

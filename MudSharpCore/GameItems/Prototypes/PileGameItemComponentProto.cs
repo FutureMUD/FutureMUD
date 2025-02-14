@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Xml.Linq;
 using MudSharp.Accounts;
 using MudSharp.Character;
+using MudSharp.Events;
 using MudSharp.Framework;
 using MudSharp.Framework.Revision;
 using MudSharp.GameItems.Components;
@@ -29,6 +30,8 @@ public class PileGameItemComponentProto : GameItemComponentProto
 		var newItem = ItemPrototype.CreateNew();
 		var newItemPile = newItem.GetItemType<PileGameItemComponent>();
 		newItemPile.SetContents(items);
+		newItem.Login();
+		newItem.HandleEvent(EventType.ItemFinishedLoading, newItem);
 		return newItem;
 	}
 

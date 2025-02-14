@@ -202,6 +202,8 @@ namespace MudSharp.GameItems.Components
 					location.Insert(newItem, true);
 					newItem.PositionModifier = Body.Position.PositionModifier.None;
 					newItem.PositionTarget = Parent;
+					newItem.Login();
+					newItem.HandleEvent(EventType.ItemFinishedLoading, newItem);
 					continue;
 				}
 

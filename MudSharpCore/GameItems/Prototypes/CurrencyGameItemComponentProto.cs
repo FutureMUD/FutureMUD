@@ -5,6 +5,7 @@ using System.Xml.Linq;
 using MudSharp.Accounts;
 using MudSharp.Character;
 using MudSharp.Economy.Currency;
+using MudSharp.Events;
 using MudSharp.Framework;
 using MudSharp.Framework.Revision;
 using MudSharp.GameItems.Components;
@@ -100,6 +101,8 @@ public class CurrencyGameItemComponentProto : GameItemComponentProto
 		var currencyItem = newItem.GetItemType<ICurrencyPile>();
 		currencyItem.Currency = currency;
 		currencyItem.AddCoins(coins);
+		newItem.Login();
+		newItem.HandleEvent(EventType.ItemFinishedLoading, newItem);
 		return newItem;
 	}
 
@@ -110,6 +113,8 @@ public class CurrencyGameItemComponentProto : GameItemComponentProto
 		var currencyItem = newItem.GetItemType<ICurrencyPile>();
 		currencyItem.Currency = currency;
 		currencyItem.AddCoins(coins);
+		newItem.Login();
+		newItem.HandleEvent(EventType.ItemFinishedLoading, newItem);
 		return newItem;
 	}
 
@@ -120,6 +125,8 @@ public class CurrencyGameItemComponentProto : GameItemComponentProto
 		var currencyItem = newItem.GetItemType<ICurrencyPile>();
 		currencyItem.Currency = currency;
 		currencyItem.AddCoins(coins);
+		newItem.Login();
+		newItem.HandleEvent(EventType.ItemFinishedLoading, newItem);
 		return newItem;
 	}
 

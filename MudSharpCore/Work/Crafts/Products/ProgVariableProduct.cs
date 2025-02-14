@@ -11,6 +11,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
+using MudSharp.Events;
 
 namespace MudSharp.Work.Crafts.Products
 {
@@ -212,6 +213,8 @@ namespace MudSharp.Work.Crafts.Products
 					}
 				}
 
+				newItem.HandleEvent(EventType.ItemFinishedLoading, newItem);
+
 				return new SimpleProductData(new[] { newItem });
 			}
 
@@ -241,7 +244,8 @@ namespace MudSharp.Work.Crafts.Products
 						varItem.SetCharacteristic(definition, value);
 					}
 				}
-
+				
+				item.HandleEvent(EventType.ItemFinishedLoading, item);
 				items.Add(item);
 			}
 

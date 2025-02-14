@@ -2,6 +2,7 @@
 using System.Linq;
 using MudSharp.Body;
 using MudSharp.Character;
+using MudSharp.Events;
 using MudSharp.Framework;
 using MudSharp.GameItems.Interfaces;
 using MudSharp.PerceptionEngine;
@@ -139,6 +140,9 @@ public class AmputationProcedure : SurgicalProcedure
 			severedPart.RoomLayer = surgeon.RoomLayer;
 			surgeon.Location.Insert(severedPart);
 		}
+
+		severedPart.Login();
+		severedPart.HandleEvent(EventType.ItemFinishedLoading, severedPart);
 
 		surgeon.OutputHandler.Handle(
 			new EmoteOutput(new Emote(

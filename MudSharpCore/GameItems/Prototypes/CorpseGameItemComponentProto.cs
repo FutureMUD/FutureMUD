@@ -3,6 +3,7 @@ using System.Linq;
 using System.Xml.Linq;
 using MudSharp.Accounts;
 using MudSharp.Character;
+using MudSharp.Events;
 using MudSharp.Framework;
 using MudSharp.Framework.Revision;
 using MudSharp.GameItems.Components;
@@ -45,6 +46,8 @@ public class CorpseGameItemComponentProto : GameItemComponentProto
 		corpseItem.Model = character.Race.CorpseModel;
 		corpseItem.Parent.RoomLayer = character.RoomLayer;
 		corpseItem.Changed = true;
+		newItem.Login();
+		newItem.HandleEvent(EventType.ItemFinishedLoading, newItem);
 		return newItem;
 	}
 

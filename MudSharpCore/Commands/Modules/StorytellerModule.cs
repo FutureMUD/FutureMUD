@@ -43,6 +43,7 @@ using MudSharp.Form.Characteristics;
 using MudSharp.Framework.Units;
 using MudSharp.RPG.ScriptedEvents;
 using MudSharp.Communication.Language;
+using MudSharp.Events;
 
 namespace MudSharp.Commands.Modules;
 
@@ -803,6 +804,9 @@ The syntax to use this command is as follows:
 			commodity.RoomLayer = actor.RoomLayer;
 			actor.Location.Insert(commodity);
 		}
+
+		commodity.Login();
+		commodity.HandleEvent(EventType.ItemFinishedLoading, commodity);
 	}
 
 	[PlayerCommand("LoadColourLiquid", "loadcolourliquid", "loadcolorliquid")]

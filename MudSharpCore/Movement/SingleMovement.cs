@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using MudSharp.Body.Position.PositionStates;
 using MudSharp.Character;
 using MudSharp.Construction.Boundary;
 using MudSharp.Effects.Interfaces;
@@ -176,6 +177,19 @@ public class SingleMovement : MovementBase
 			IntermediateStep();
 		}
 	}
+
+
+
+	public override MovementType MovementType => Mover.CurrentSpeed.Position switch
+	{
+		PositionStanding => MovementType.Upright,
+		PositionClimbing => MovementType.Climbing,
+		PositionSwimming => MovementType.Swimming,
+		PositionProne => MovementType.Crawling,
+		PositionProstrate => MovementType.Prostrate,
+		PositionFlying => MovementType.Flying,
+		_ => MovementType.Upright
+	};
 
 	public override string Describe(IPerceiver voyeur)
 	{

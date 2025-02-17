@@ -50,6 +50,7 @@ public abstract class MovementBase : IMovement
 		return true;
 	}
 
+	public abstract MovementType MovementType { get; }
 	public abstract string Describe(IPerceiver voyeur);
 	public abstract bool SeenBy(IPerceiver voyeur, PerceiveIgnoreFlags flags = PerceiveIgnoreFlags.None);
 	public abstract void InitialAction();

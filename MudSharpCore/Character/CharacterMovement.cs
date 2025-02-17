@@ -27,6 +27,7 @@ using ExpressionEngine;
 using MudSharp.Climate;
 using MudSharp.Form.Material;
 using MudSharp.NPC.AI.Groups;
+using MudSharp.RPG.Merits.CharacterMerits;
 
 namespace MudSharp.Character;
 
@@ -1488,6 +1489,7 @@ public partial class Character
 	{
 		return
 			FlyStaminaMultiplier() *
+			Merits.OfType<FlyingStaminaMerit>().Aggregate(1.0, (prev,merit) => prev * merit.Multiplier) *
 			Gameworld.GetStaticDouble("FlyStaminaCost") * 
 			(
 				EffectsOfType<Dragging>().Any()
@@ -1499,7 +1501,8 @@ public partial class Character
 	public double FlyStaminaCostPerTick()
 	{
 		return FlyStaminaMultiplier() *
-		       Gameworld.GetStaticDouble("FlyStaminaCostPerTick") * 
+		       Merits.OfType<FlyingStaminaMerit>().Aggregate(1.0, (prev, merit) => prev * merit.Multiplier) *
+			   Gameworld.GetStaticDouble("FlyStaminaCostPerTick") * 
 		       (
 			       EffectsOfType<Dragging>().Any()
 			       ? 1.0 + ((IHaveWeight)EffectsOfType<Dragging>().First().Target).Weight / Weight
@@ -1915,9 +1918,11 @@ public partial class Character
 
 	public double SwimStaminaCost()
 	{
-		return Gameworld.GetStaticDouble("SwimStaminaCost") * (EffectsOfType<Dragging>().Any()
-			? 1.0 + ((IHaveWeight)EffectsOfType<Dragging>().First().Target).Weight / Weight
-			: 1.0);
+		return Gameworld.GetStaticDouble("SwimStaminaCost") *
+		       Merits.OfType<SwimmingStaminaMerit>().Aggregate(1.0, (prev, merit) => prev * merit.Multiplier) *
+		       (EffectsOfType<Dragging>().Any()
+			       ? 1.0 + ((IHaveWeight)EffectsOfType<Dragging>().First().Target).Weight / Weight
+			       : 1.0);
 		;
 	}
 

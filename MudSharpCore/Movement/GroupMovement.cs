@@ -270,6 +270,8 @@ public class GroupMovement : MovementBase
 		}
 	}
 
+	public override MovementType MovementType => MovementType.Upright;
+
 	public override string Describe(IPerceiver voyeur)
 	{
 		var members = CharacterMovers.Except(voyeur).Where(x => voyeur.CanSee(x)).OfType<ICharacter>().ToList();

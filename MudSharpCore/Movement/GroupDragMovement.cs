@@ -224,6 +224,8 @@ public class GroupDragMovement : MovementBase
 		return $"{subgroupStrings.ListToString()} {Exit.InboundMovementSuffix}.".Proper();
 	}
 
+	public override MovementType MovementType => MovementType.Upright;
+
 	public override string Describe(IPerceiver voyeur)
 	{
 		var nonDraggers = NonDraggers.Where(x => voyeur.CanSee(x)).ToList();

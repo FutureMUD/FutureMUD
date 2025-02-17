@@ -261,7 +261,7 @@ Parameters for quality formula:
 
 		ItemQuality = formula;
 		Spell.Changed = true;
-		actor.OutputHandler.Send($"The formula for healing amount is now {formula.OriginalExpression.ColourCommand()}.");
+		actor.OutputHandler.Send($"The formula for item quality is now {formula.OriginalExpression.ColourCommand()}.");
 		return true;
 	}
 

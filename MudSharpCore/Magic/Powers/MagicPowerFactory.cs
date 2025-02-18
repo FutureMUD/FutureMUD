@@ -62,5 +62,12 @@ public static class MagicPowerFactory
 		return PowerBuilderLoaders[type]?.Invoke(gameworld, school, name, actor, command);
 	}
 
-	public static IEnumerable<string> BuilderTypes => PowerBuilderLoaders.Keys;
+	public static IEnumerable<string> BuilderTypes
+	{
+		get
+		{
+			InitialiseFactory();
+			return PowerBuilderLoaders.Keys;
+		}
+	}
 }

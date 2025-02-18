@@ -24,6 +24,22 @@ public class ConnectMindPower : SustainedMagicPower
 	{
 		MagicPowerFactory.RegisterLoader("connectmind",
 			(power, gameworld) => new ConnectMindPower(power, gameworld));
+		MagicPowerFactory.RegisterBuilderLoader("connectmind", (gameworld, school, name, actor, command) => {
+			if (command.IsFinished)
+			{
+				actor.OutputHandler.Send("Which skill do you want to use for the skill check?");
+				return null;
+			}
+
+			var skill = gameworld.Traits.GetByIdOrName(command.SafeRemainingArgument);
+			if (skill is null)
+			{
+				actor.OutputHandler.Send("There is no such skill or attribute.");
+				return null;
+			}
+
+			return new ConnectMindPower(gameworld, school, name, skill);
+		});
 	}
 
 	/// <inheritdoc />
@@ -593,7 +609,18 @@ public class ConnectMindPower : SustainedMagicPower
 	#3skill <which>#0 - sets the skill used in the skill check
 	#3difficulty <difficulty>#0 - sets the difficulty of the skill check
 	#3threshold <outcome>#0 - sets the minimum outcome for skill success
-	#3distance <distance>#0 - sets the distance that this power can be used at";
+	#3distance <distance>#0 - sets the distance that this power can be used at
+	#3connect <emote>#0 - sets the emote for connecting. $0 is the power user, $1 is the target
+	#3selfconnect <emote>#0 - sets the self emote for connecting. $0 is the power user, $1 is the target
+	#3disconnect <emote>#0 - sets the emote for disconnecting. $0 is the power user, $1 is the target
+	#3selfdisconnect <emote>#0 - sets the self emote for disconnecting. $0 is the power user, $1 is the target
+	#3failconnect <emote>#0 - sets the emote for failed connecting. $0 is the power user, $1 is the target
+	#3faiilselfconnect <emote>#0 - sets the self emote for failed connecting. $0 is the power user, $1 is the target
+	#3targetprog <prog>#0 - sets the prog that controls if the target can see the sdesc
+	#3unknown <desc>#0 - sets the unknown description if the target prog fails
+	#3exclusive#0 - toggles whether this connection is exclusive or not
+
+#6Note - the connect, disconnect and failconnect emotes can all be blank and this means there will be no echo.#0";
 
 	/// <inheritdoc />
 	public override bool BuildingCommand(ICharacter actor, StringStack command)
@@ -619,11 +646,215 @@ public class ConnectMindPower : SustainedMagicPower
 				return BuildingCommandThreshold(actor, command);
 			case "distance":
 				return BuildingCommandDistance(actor, command);
+			case "connect":
+			case "connectemote":
+				return BuildingCommandConnectEmote(actor, command);
+			case "selfconnect":
+			case "selfconnectemote":
+				return BuildingCommandSelfConnectEmote(actor, command);
+			case "disconnect":
+			case "disconnectemote":
+				return BuildingCommandDisconnectEmote(actor, command);
+			case "selfdisconnect":
+			case "selfdisconnectemote":
+				return BuildingCommandSelfDisconnectEmote(actor, command);
+			case "failconnect":
+			case "failconnectemote":
+				return BuildingCommandFailConnectEmote(actor, command);
+			case "selffailconnect":
+			case "selffailconnectemote":
+				return BuildingCommandSelfFailConnectEmote(actor, command);
+			case "targetprog":
+				return BuildingCommandTargetProg(actor, command);
+			case "unknown":
+				return BuildingCommandUnknown(actor, command);
+			case "exclusive":
+				return BuildingCommandExclusive(actor);
 		}
 		return base.BuildingCommand(actor, command.GetUndo());
 	}
 
 	#region Building Subcommands
+
+	private bool BuildingCommandExclusive(ICharacter actor)
+	{
+		ExclusiveConnection = !ExclusiveConnection;
+		Changed = true;
+		actor.OutputHandler.Send($"This connect mind power is {ExclusiveConnection.NowNoLonger()} exclusive (only one at a time).");
+		return true;
+	}
+
+	private bool BuildingCommandUnknown(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("What should be the unknown description when the target identity prog returns false?");
+			return false;
+		}
+
+		UnknownIdentityDescription = command.SafeRemainingArgument;
+		Changed = true;
+		actor.OutputHandler.Send($"The unknown description will now be {UnknownIdentityDescription.ColourCharacter()}.");
+		return true;
+	}
+
+	private bool BuildingCommandTargetProg(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("What prog should be used to control whether the target sees the short description or the unknown description of the power user?");
+			return false;
+		}
+
+		var prog = new ProgLookupFromBuilderInput(actor, command.SafeRemainingArgument, ProgVariableTypes.Boolean, 
+			[
+				[ProgVariableTypes.Character],
+				[ProgVariableTypes.Character, ProgVariableTypes.Character]
+			]
+			).LookupProg();
+		if (prog is null)
+		{
+			return false;
+		}
+
+		TargetCanSeeIdentityProg = prog;
+		Changed = true;
+		actor.OutputHandler.Send($"The {prog.MXPClickableFunctionName()} is now used to control whether the target can see the real short description of the power user.");
+		return true;
+	}
+
+	private bool BuildingCommandConnectEmote(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			EmoteForConnect = string.Empty;
+			actor.OutputHandler.Send($"This power will no longer give an echo to the room when used.");
+			Changed = true;
+			return true;
+		}
+
+		var emote = new Emote(command.SafeRemainingArgument, new DummyPerceiver(), new DummyPerceivable(), new DummyPerceivable());
+		if (!emote.Valid)
+		{
+			actor.OutputHandler.Send(emote.ErrorMessage);
+			return false;
+		}
+
+		EmoteForConnect = command.SafeRemainingArgument;
+		Changed = true;
+		actor.OutputHandler.Send($"The connect emote for this power is now {command.SafeRemainingArgument.ColourCommand()}.");
+		return true;
+	}
+
+	private bool BuildingCommandSelfConnectEmote(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("What do you want to set the self connect emote to?");
+			return false;
+		}
+
+		var emote = new Emote(command.SafeRemainingArgument, new DummyPerceiver(), new DummyPerceivable(), new DummyPerceivable());
+		if (!emote.Valid)
+		{
+			actor.OutputHandler.Send(emote.ErrorMessage);
+			return false;
+		}
+
+		SelfEmoteForConnect = command.SafeRemainingArgument;
+		Changed = true;
+		actor.OutputHandler.Send($"The self connect emote for this power is now {command.SafeRemainingArgument.ColourCommand()}.");
+		return true;
+	}
+
+	private bool BuildingCommandDisconnectEmote(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			EmoteForDisconnect = string.Empty;
+			actor.OutputHandler.Send($"This power will no longer give an echo to the room when stopped.");
+			Changed = true;
+			return true;
+		}
+
+		var emote = new Emote(command.SafeRemainingArgument, new DummyPerceiver(), new DummyPerceivable(), new DummyPerceivable());
+		if (!emote.Valid)
+		{
+			actor.OutputHandler.Send(emote.ErrorMessage);
+			return false;
+		}
+
+		EmoteForDisconnect = command.SafeRemainingArgument;
+		Changed = true;
+		actor.OutputHandler.Send($"The disconnect emote for this power is now {command.SafeRemainingArgument.ColourCommand()}.");
+		return true;
+	}
+
+	private bool BuildingCommandSelfDisconnectEmote(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("What do you want to set the self disconnect emote to?");
+			return false;
+		}
+
+		var emote = new Emote(command.SafeRemainingArgument, new DummyPerceiver(), new DummyPerceivable(), new DummyPerceivable());
+		if (!emote.Valid)
+		{
+			actor.OutputHandler.Send(emote.ErrorMessage);
+			return false;
+		}
+
+		SelfEmoteForDisconnect = command.SafeRemainingArgument;
+		Changed = true;
+		actor.OutputHandler.Send($"The self disconnect emote for this power is now {command.SafeRemainingArgument.ColourCommand()}.");
+		return true;
+	}
+
+	private bool BuildingCommandFailConnectEmote(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			EmoteForFailConnect = string.Empty;
+			actor.OutputHandler.Send($"This power will no longer give an echo to the room when failed to be used.");
+			Changed = true;
+			return true;
+		}
+
+		var emote = new Emote(command.SafeRemainingArgument, new DummyPerceiver(), new DummyPerceivable(), new DummyPerceivable());
+		if (!emote.Valid)
+		{
+			actor.OutputHandler.Send(emote.ErrorMessage);
+			return false;
+		}
+
+		EmoteForFailConnect = command.SafeRemainingArgument;
+		Changed = true;
+		actor.OutputHandler.Send($"The fail connect emote for this power is now {command.SafeRemainingArgument.ColourCommand()}.");
+		return true;
+	}
+
+	private bool BuildingCommandSelfFailConnectEmote(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("What do you want to set the self fail connect emote to?");
+			return false;
+		}
+
+		var emote = new Emote(command.SafeRemainingArgument, new DummyPerceiver(), new DummyPerceivable(), new DummyPerceivable());
+		if (!emote.Valid)
+		{
+			actor.OutputHandler.Send(emote.ErrorMessage);
+			return false;
+		}
+
+		SelfEmoteForFailConnect = command.SafeRemainingArgument;
+		Changed = true;
+		actor.OutputHandler.Send($"The self fail connect emote for this power is now {command.SafeRemainingArgument.ColourCommand()}.");
+		return true;
+	}
+
 	private bool BuildingCommandDistance(ICharacter actor, StringStack command)
 	{
 		if (command.IsFinished)

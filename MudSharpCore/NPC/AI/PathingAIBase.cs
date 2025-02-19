@@ -176,6 +176,7 @@ public abstract class PathingAIBase : ArtificialIntelligenceBase
 			case EventType.CommandDelayExpired:
 			case EventType.MinuteTick:
 			case EventType.CharacterEnterCell:
+			case EventType.NPCOnGameLoadFinished:
 				ch = (ICharacter)arguments[0];
 				break;
 		}
@@ -187,6 +188,9 @@ public abstract class PathingAIBase : ArtificialIntelligenceBase
 
 		switch (type)
 		{
+			case EventType.NPCOnGameLoadFinished:
+				CheckPathingEffect(ch, true);
+				return false;
 			case EventType.FiveSecondTick:
 				FiveSecondTick(ch);
 				return false;
@@ -223,6 +227,7 @@ public abstract class PathingAIBase : ArtificialIntelligenceBase
 				case EventType.CommandDelayExpired:
 				case EventType.CharacterEnterCell:
 				case EventType.MinuteTick:
+				case EventType.NPCOnGameLoadFinished:
 					return true;
 			}
 		}

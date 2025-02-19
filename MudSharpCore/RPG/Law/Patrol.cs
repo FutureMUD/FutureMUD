@@ -70,6 +70,13 @@ public class Patrol : SaveableItem, IPatrol
 		Gameworld.Add(this);
 	}
 
+	#region Overrides of FrameworkItem
+
+	/// <inheritdoc />
+	public override string Name => PatrolRoute.Name;
+
+	#endregion
+
 	public ILegalAuthority LegalAuthority { get; set; }
 	public IPatrolRoute PatrolRoute { get; }
 	public IPatrolStrategy PatrolStrategy { get; }

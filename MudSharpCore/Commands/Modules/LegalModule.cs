@@ -38,6 +38,7 @@ public class LegalModule : Module<ICharacter>
 	#3legal classes [<legal authority>]#0 - shows all the classes
 	#3legal enforcements [<legal authority>]#0 - shows all enforcer authorities
 	#3legal patrols [<legal authority>]#0 - shows all patrol routes
+	#3legal cancelpatrol <legal authority> <patrol>#0 - cancels an active patrol
 
 You can also use the following options to change the properties of an authority that you are editing:
 
@@ -120,9 +121,44 @@ You can also use the following options to change the properties of an authority 
 			case "set":
 				LegalAuthoritySet(actor, ss);
 				return;
+			case "cancelpatrol":
+				LegalCancelPatrol(actor, ss);
+				return;
 		}
 
 		actor.OutputHandler.Send(LegalAuthorityHelpText.SubstituteANSIColour());
+	}
+
+	private static void LegalCancelPatrol(ICharacter actor, StringStack ss)
+	{
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send("Which legal authority do you want to cancel a patrol in?");
+			return;
+		}
+
+		var legal = actor.Gameworld.LegalAuthorities.GetByIdOrName(ss.PopSpeech());
+		if (legal is null)
+		{
+			actor.OutputHandler.Send($"The text {ss.Last.ColourCommand()} does not represent a valid legal authority.");
+			return;
+		}
+
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send($"Which patrol in the {legal.Name.ColourValue()} legal authority do you want to cancel?");
+			return;
+		}
+
+		var patrol = legal.Patrols.GetByIdOrName(ss.SafeRemainingArgument);
+		if (patrol is null)
+		{
+			actor.OutputHandler.Send($"There is no patrol in the {legal.Name.ColourValue()} does not have a patrol identified by the text {ss.SafeRemainingArgument.ColourCommand()}.");
+			return;
+		}
+
+		actor.OutputHandler.Send($"You abort the {patrol.Name.ColourValue()} patrol in the {legal.Name.ColourValue()} legal authority.");
+		patrol.CompletePatrol();
 	}
 
 	private static void LegalAuthorityPatrols(ICharacter actor, StringStack ss)

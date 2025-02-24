@@ -753,6 +753,7 @@ public partial class Chargen : FrameworkItem, IChargen
 	public long ApproveApplication(ICharacter approver, IAccount approverAccount, string comment,
 		IOutputHandler handler)
 	{
+		PerformPostCreationProcessing();
 		RecalculateCurrentCosts();
 		ReleaseApplication();
 		Gameworld.DiscordConnection?.NotifyCharacterApproval(Account.Name.Proper(),

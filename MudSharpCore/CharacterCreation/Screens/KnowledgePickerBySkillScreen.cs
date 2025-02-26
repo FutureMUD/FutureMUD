@@ -230,7 +230,7 @@ internal class KnowledgePickerBySkillScreenStoryboard : ChargenScreenStoryboard
 				return EnumerateNext();
 			}
 
-			if (CurrentKnowledgesAvailable.Count == 1 && CurrentKnowledgesAvailable.Single().HasResourceCosts)
+			if (CurrentKnowledgesAvailable.Count == 1 && !CurrentKnowledgesAvailable.Single().HasResourceCosts)
 			{
 				Chargen.SelectedKnowledges.Add(CurrentKnowledgesAvailable.Single());
 				return EnumerateNext();

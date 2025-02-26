@@ -1583,10 +1583,13 @@ public partial class Chargen : FrameworkItem, IChargen
 		{
 			if (SelectedSkills.Contains(trait))
 			{
-				return false;
+				SkillValues.RemoveAll(x => x.Item1 == trait);
 			}
-
-			SelectedSkills.Add(trait);
+			else
+			{
+				SelectedSkills.Add(trait);
+			}
+			
 			SkillValues.Add((trait, value));
 			return true;
 		}

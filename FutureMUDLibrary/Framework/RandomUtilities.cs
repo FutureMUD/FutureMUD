@@ -193,24 +193,16 @@ namespace MudSharp.Framework {
 			{
 				throw new ArgumentException("The number of picks in PickRandom must be greater than 0");
 			}
-			var samplesRemaining = input.Count();
+
+			var list = input.ToList();
+
+			var samplesRemaining = list.Count;
 			if (picks > samplesRemaining)
 			{
-				return input;
+				return list;
 			}
 
-			var items = new HashSet<T>();
-			var length = input.Count();
-			while (picks > 0)
-			// if we successfully added it, move on
-			{
-				if (items.Add(input.ElementAt(Constants.Random.Next(length))))
-				{
-					picks--;
-				}
-			}
-
-			return items;
+			return list.Shuffle().Take(picks);
 		}
 
 		public static IEnumerable<T> TakeRandom<T>(this IEnumerable<T> input, int picks, Func<T,double> weightSelector)

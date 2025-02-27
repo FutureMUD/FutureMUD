@@ -188,7 +188,7 @@ public class MagicArmour : ConcentrationConsumingEffect, IMagicEffect, ICheckBon
 			if (!Power.ArmourCanBeObscuredByInventory ||
 				CharacterOwner.Body.ExposedBodyparts.All(x => !AppliesToPart(x)))
 			{
-				return new EmoteOutput(new Emote(Power.FullDescriptionAddendum, CharacterOwner, CharacterOwner))
+				return new EmoteOutput(new Emote(Power.FullDescriptionAddendum.SubstituteANSIColour(), CharacterOwner, CharacterOwner))
 					.ParseFor(voyeur);
 			}
 		}

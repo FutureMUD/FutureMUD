@@ -383,8 +383,9 @@ public partial class Body
 		if (CombinedEffectsOfType<IOverrideDescEffect>().Any(x => x.OverrideApplies(voyeur, type)) &&
 		    (voyeur.CanSee(this) || flags.HasFlag(PerceiveIgnoreFlags.IgnoreCanSee)))
 		{
-			return CombinedEffectsOfType<IOverrideDescEffect>().First(x => x.OverrideApplies(voyeur, type))
-			                                                   .Description(type, colour);
+			return CombinedEffectsOfType<IOverrideDescEffect>()
+			       .First(x => x.OverrideApplies(voyeur, type))
+			       .Description(type, colour);
 		}
 
 		// TODO - add in obscuring effects like cloaks
@@ -406,7 +407,7 @@ public partial class Body
 				return DressLongDescription(voyeur,
 					GetPositionDescription(voyeur, proper, colour, flags).Fullstop());
 			case DescriptionType.Full:
-				return FullDescription(voyeur);
+				return FullDescription(voyeur).SubstituteANSIColour().StripANSIColour(colour == false);
 			default:
 				throw new ArgumentException("Not a valid description type");
 		}

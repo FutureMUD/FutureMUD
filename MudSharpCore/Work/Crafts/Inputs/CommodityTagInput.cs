@@ -210,6 +210,7 @@ public class CommodityTagInput : BaseInput, ICraftInputConsumesGameItem
 	protected override string BuildingHelpString =>
 		@"You can use the following options with this input type:
 
+	#3quality <weighting>#0 - sets the weighting of this input in determining overall quality
 	#3material <material>#0 - sets the target material tag
 	#3piletag <tag>|none#0 - sets or clears the commodity tag the pile must have
 	#3weight <weight>#0 - sets the required weight of material";

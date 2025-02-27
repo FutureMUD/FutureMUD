@@ -76,7 +76,6 @@ public abstract class BaseInput : LateInitialisingItem, ICraftInput
 	{
 		switch (command.Last.ToLowerInvariant())
 		{
-			case "weight":
 			case "quality":
 			case "qualityweight":
 				return BuildingCommandQualityWeight(actor, command);

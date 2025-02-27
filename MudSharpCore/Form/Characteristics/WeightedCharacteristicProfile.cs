@@ -131,7 +131,7 @@ internal class WeightedCharacteristicProfile : CharacteristicProfile
 			return;
 		}
 
-		var value = Gameworld.CharacteristicValues.GetByIdOrName(command.SafeRemainingArgument);
+		var value = Gameworld.CharacteristicValues.GetByIdOrName(command.PopSpeech());
 		if (value == null)
 		{
 			actor.OutputHandler.Send("There is no such characteristic value.");

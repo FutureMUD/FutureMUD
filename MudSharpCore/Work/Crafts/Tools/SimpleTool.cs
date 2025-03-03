@@ -108,6 +108,8 @@ public class SimpleTool : BaseTool
 
 	public override string HowSeen(IPerceiver voyeur)
 	{
-		return Gameworld.ItemProtos.Get(TargetItemId)?.ShortDescription ?? "an unspecified item".Colour(Telnet.Red);
+		var proto = Gameworld.ItemProtos.Get(TargetItemId);
+		return
+			proto is null ? "an unspecified item".Colour(Telnet.Red) : $"{proto.ShortDescription.Colour(proto.CustomColour ?? Telnet.Green)} (#{proto.Id.ToStringN0(voyeur)})";
 	}
 }

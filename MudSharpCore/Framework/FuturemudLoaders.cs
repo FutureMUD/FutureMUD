@@ -907,7 +907,8 @@ For information on the syntax to use in emotes (such as those included in bracke
 		                .Include(x => x.ShopsStoreroomCells)
 		                .Include(x => x.LineOfCreditAccounts)
 		                .ThenInclude(x => x.AccountUsers)
-		                .AsNoTracking()
+		                .AsSplitQuery()
+						.AsNoTracking()
 		                .ToList();
 		foreach (var shop in shops)
 		{

@@ -2845,24 +2845,43 @@ The syntax is as follows:
 	[PlayerCommand("Sniff", "sniff")]
 	[CommandPermission(PermissionLevel.Admin)]
 	[HelpInfo("sniff",
-		@"This command allows you to see various debug info about characters, items, rooms, and directions.
+		@"This command allows you to see various debug info about characters, items, rooms, zones, shards and directions.
+
+For example, it will show you hooks, effects, prog register variables, and many other bits of information.
 
 The syntax is as follows: 
 
-	#3sniff here|*dirn|<item>|<ch> [<subitem>]#0",
+	#3sniff here#0 - sniff your current room
+	#3sniff zone#0 - sniff your current zone
+	#3sniff shard#0 - sniff your current shard
+	#3sniff *dirn#0 - sniffs an exit
+	#3sniff <target>#0 - sniffs a character or item",
 		AutoHelp.HelpArgOrNoArg)]
 	protected static void Sniff(ICharacter actor, string input)
 	{
 		var ss = new StringStack(input.RemoveFirstWord());
-		if (ss.Peek().EqualTo("here"))
+		var cmd = ss.SafeRemainingArgument;
+		if (cmd.EqualTo("here"))
 		{
 			SniffRoom(actor);
 			return;
 		}
 
-		if (ss.Peek()[0] == '*')
+		if (cmd.EqualTo("zone"))
 		{
-			var targetExit = actor.Location.GetExitKeyword(ss.Pop().RemoveFirstCharacter(), actor);
+			SniffZone(actor);
+			return;
+		}
+
+		if (cmd.EqualTo("shard"))
+		{
+			SniffShard(actor);
+			return;
+		}
+
+		if (cmd.Length > 1 && cmd[0] == '*')
+		{
+			var targetExit = actor.Location.GetExitKeyword(cmd[1..], actor);
 			if (targetExit == null)
 			{
 				actor.Send("There is no such exit for you to sniff.");
@@ -2873,7 +2892,7 @@ The syntax is as follows:
 			return;
 		}
 
-		var target = actor.Target(ss.Pop());
+		var target = actor.Target(cmd);
 		if (target == null)
 		{
 			actor.Send("There is nothing like that for you to sniff.");
@@ -2893,6 +2912,76 @@ The syntax is as follows:
 		}
 
 		throw new NotImplementedException("Unknown target type in sniff.");
+	}
+
+	private static void SniffShard(ICharacter actor)
+	{
+		var shard = actor.Location.Zone.Shard;
+		var sb = new StringBuilder();
+		sb.AppendLine($"Sniffing Shard {shard.Id}...");
+
+		sb.AppendLine();
+		sb.AppendLine("Effects:");
+		sb.AppendLine();
+		foreach (var effect in shard.Effects)
+		{
+			sb.AppendLine($"\t{effect.Describe(actor)}");
+		}
+
+		sb.AppendLine();
+		sb.AppendLine("Hooks:");
+		sb.AppendLine();
+		foreach (var hook in shard.Hooks)
+		{
+			sb.AppendLine($"\t#{hook.Id.ToString("N0", actor)}) {hook.Name.ColourName()} | {hook.Type.DescribeEnum(colour: Telnet.Green)} | {hook.InfoForHooklist}");
+		}
+
+		sb.AppendLine();
+		sb.AppendLine("Variables:");
+		sb.AppendLine();
+		foreach (var variable in actor.Gameworld.VariableRegister.AllVariables(ProgVariableTypes.Zone))
+		{
+			var value = actor.Gameworld.VariableRegister.GetValue(shard, variable.Item1);
+			sb.AppendLine(
+				$"\t{variable.Item2.Describe().Colour(Telnet.Cyan)} {variable.Item1.Colour(Telnet.BoldWhite)}: {FutureProg.FutureProg.VariableValueToText(value, actor)}");
+		}
+
+		actor.Send(sb.ToString());
+	}
+
+	private static void SniffZone(ICharacter actor)
+	{
+		var zone = actor.Location.Zone;
+		var sb = new StringBuilder();
+		sb.AppendLine($"Sniffing Zone {zone.Id}...");
+
+		sb.AppendLine();
+		sb.AppendLine("Effects:");
+		sb.AppendLine();
+		foreach (var effect in zone.Effects)
+		{
+			sb.AppendLine($"\t{effect.Describe(actor)}");
+		}
+
+		sb.AppendLine();
+		sb.AppendLine("Hooks:");
+		sb.AppendLine();
+		foreach (var hook in zone.Hooks)
+		{
+			sb.AppendLine($"\t#{hook.Id.ToString("N0", actor)}) {hook.Name.ColourName()} | {hook.Type.DescribeEnum(colour: Telnet.Green)} | {hook.InfoForHooklist}");
+		}
+
+		sb.AppendLine();
+		sb.AppendLine("Variables:");
+		sb.AppendLine();
+		foreach (var variable in actor.Gameworld.VariableRegister.AllVariables(ProgVariableTypes.Zone))
+		{
+			var value = actor.Gameworld.VariableRegister.GetValue(zone, variable.Item1);
+			sb.AppendLine(
+				$"\t{variable.Item2.Describe().Colour(Telnet.Cyan)} {variable.Item1.Colour(Telnet.BoldWhite)}: {FutureProg.FutureProg.VariableValueToText(value, actor)}");
+		}
+
+		actor.Send(sb.ToString());
 	}
 
 	private static void SniffGameItem(ICharacter actor, IGameItem gi, StringStack ss)

@@ -153,6 +153,9 @@ public class EmailHelper
 
 	public void SendEmail(EmailTemplateTypes type, string email, params string[] arguments)
 	{
+#if DEBUG
+		return;
+#endif
 		if (string.IsNullOrWhiteSpace(email))
 		{
 			return;

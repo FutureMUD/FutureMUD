@@ -879,6 +879,38 @@ namespace MudSharp.Framework {
 				   itemList.FirstOrDefault(x => x.Name.StartsWith(text, StringComparison.InvariantCultureIgnoreCase));
 		}
 
+		public static T? GetByIdOrNameRevisableForEditing<T>(this IEnumerable<T> items, string text) where T : IRevisableItem
+		{
+			List<T> filteredItems;
+			if (long.TryParse(text, out var id))
+			{
+				filteredItems = items.Where(x => x.Id == id).ToList();
+			}
+			else
+			{
+				filteredItems = items
+				                .Where(x => x.Name.EqualTo(text))
+				                .ToList();
+				if (filteredItems.Count == 0)
+				{
+					filteredItems = items
+					                .Where(x => x.Name.StartsWith(text, StringComparison.InvariantCultureIgnoreCase))
+					                .ToList();
+					if (filteredItems.Count == 0)
+					{
+						filteredItems = items
+						                .Where(x => x.Name.Contains(text, StringComparison.InvariantCultureIgnoreCase))
+						                .ToList();
+					}
+				}
+			}
+
+			return
+				filteredItems.FirstOrDefault(x => x.Status == RevisionStatus.PendingRevision || x.Status == RevisionStatus.UnderDesign) ??
+				filteredItems.FirstOrDefault(x => x.Status == RevisionStatus.Current) ??
+				filteredItems.FirstMax(x => x.RevisionNumber);
+		}
+
 		public static T? GetByIdOrNameRevisable<T>(this IEnumerable<T> items, string text) where T : IRevisableItem
 		{
 			List<T> filteredItems;

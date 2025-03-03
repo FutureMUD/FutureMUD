@@ -172,7 +172,7 @@ internal abstract class BaseBuilderModule : Module<ICharacter>
 		IEditableRevisableItem proto = null;
 		if (input.IsFinished)
 		{
-			proto = helper.GetAllEditableItems(character).GetByIdOrNameRevisable(cmd);
+			proto = helper.GetAllEditableItems(character).GetByIdOrNameRevisableForEditing(cmd);
 		}
 		else if (long.TryParse(cmd, out var id))
 		{

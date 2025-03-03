@@ -2932,13 +2932,27 @@ The syntax is as follows:
 
 		sb.AppendLine();
 		sb.AppendLine($"Attached Items:");
+		sb.AppendLine();
 		foreach (var item in gi.AttachedAndConnectedItems)
 		{
 			sb.AppendLine($"\tItem #{item.Id.ToString("N0", actor)} - {item.HowSeen(actor)}");
 		}
 
+		var itemVariable = gi.GetItemType<IVariable>();
+		if (itemVariable is not null)
+		{
+			sb.AppendLine();
+			sb.AppendLine("Characteristics:");
+			sb.AppendLine();
+			foreach (var item in itemVariable.CharacteristicDefinitions)
+			{
+				sb.AppendLine($"\t{item.Name.ColourName()} => {itemVariable.GetCharacteristic(item).GetValue.ColourValue()}");
+			}
+		}
+
 		sb.AppendLine();
 		sb.AppendLine("Effects:");
+		sb.AppendLine();
 		foreach (var effect in gi.Effects)
 		{
 			sb.AppendLine($"\t{effect.Describe(actor)}");
@@ -2946,6 +2960,7 @@ The syntax is as follows:
 
 		sb.AppendLine();
 		sb.AppendLine("Hooks:");
+		sb.AppendLine();
 		foreach (var hook in gi.Hooks)
 		{
 			sb.AppendLine($"\t#{hook.Id.ToString("N0", actor)}) {hook.Name.ColourName()} | {hook.Type.DescribeEnum(colour: Telnet.Green)} | {hook.InfoForHooklist}");
@@ -2953,6 +2968,7 @@ The syntax is as follows:
 
 		sb.AppendLine();
 		sb.AppendLine("Variables:");
+		sb.AppendLine();
 		foreach (var variable in actor.Gameworld.VariableRegister.AllVariables(ProgVariableTypes.Item))
 		{
 			var value = actor.Gameworld.VariableRegister.GetValue(gi, variable.Item1);
@@ -2986,6 +3002,7 @@ The syntax is as follows:
 			$"Inventory Buoyancy: {ch.Body.AllItems.Sum(x => x.Buoyancy(fluid.Density)).ToString("N0", actor).ColourValue()}");
 		sb.AppendLine();
 		sb.AppendLine("Effects:");
+		sb.AppendLine();
 		foreach (var effect in ch.Effects)
 		{
 			sb.AppendLine($"\t{effect.Describe(actor)}");
@@ -2995,6 +3012,7 @@ The syntax is as follows:
 		{
 			sb.AppendLine();
 			sb.AppendLine("AIs:");
+			sb.AppendLine();
 			foreach (var ai in npc.AIs)
 			{
 				sb.AppendLine($"\t#{ai.Id.ToStringN0(actor)}) {ai.Name.ColourName()}");
@@ -3003,6 +3021,7 @@ The syntax is as follows:
 
 		sb.AppendLine();
 		sb.AppendLine("Hooks:");
+		sb.AppendLine();
 		foreach (var hook in ch.Hooks)
 		{
 			sb.AppendLine($"\t#{hook.Id.ToString("N0", actor)}) {hook.Name.ColourName()} | {hook.Type.DescribeEnum(colour: Telnet.Green)} | {hook.InfoForHooklist}");
@@ -3010,6 +3029,7 @@ The syntax is as follows:
 
 		sb.AppendLine();
 		sb.AppendLine("Variables:");
+		sb.AppendLine();
 		foreach (var variable in actor.Gameworld.VariableRegister.AllVariables(ProgVariableTypes.Character))
 		{
 			var value = actor.Gameworld.VariableRegister.GetValue(ch, variable.Item1);

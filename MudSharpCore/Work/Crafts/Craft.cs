@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using Microsoft.EntityFrameworkCore;
 using MudSharp.Accounts;
 using MudSharp.Body.Traits;
 using MudSharp.Body.Traits.Subtypes;
@@ -20,7 +21,6 @@ using MudSharp.GameItems.Interfaces;
 using MudSharp.GameItems.Inventory;
 using MudSharp.GameItems.Inventory.Plans;
 using MudSharp.GameItems.Prototypes;
-using MudSharp.Models;
 using MudSharp.PerceptionEngine;
 using MudSharp.PerceptionEngine.Outputs;
 using MudSharp.PerceptionEngine.Parsers;
@@ -62,9 +62,7 @@ public class Craft : Framework.Revision.EditableItem, ICraft
 		OnUseProgStart = rhs.OnUseProgStart;
 		AppearInCraftsListProg = rhs.AppearInCraftsListProg;
 		FailPhase = rhs.FailPhase;
-		_phaseEchoes = rhs.PhaseEchoes.ToList();
-		_failPhaseEchoes = rhs.FailPhaseEchoes.ToList();
-		_phaseLengths = rhs.PhaseLengths.ToList();
+		_craftPhases.AddRange(rhs.CraftPhases.Select(x => new CraftPhase(x, this)));
 		using (new FMDB())
 		{
 			var dbnew = new Models.Craft();
@@ -100,14 +98,14 @@ public class Craft : Framework.Revision.EditableItem, ICraft
 			dbnew.OnUseProgCompleteId = OnUseProgComplete?.Id;
 			dbnew.OnUseProgCancelId = OnUseProgCancel?.Id;
 
-			for (var i = 0; i < _phaseLengths.Count; i++)
+			foreach (var phase in _craftPhases)
 			{
-				var dbphase = new CraftPhase();
+				var dbphase = new Models.CraftPhase();
 				dbnew.CraftPhases.Add(dbphase);
-				dbphase.Echo = _phaseEchoes[i];
-				dbphase.FailEcho = _failPhaseEchoes[i];
-				dbphase.PhaseLengthInSeconds = _phaseLengths[i].TotalSeconds;
-				dbphase.PhaseNumber = i + 1;
+				dbphase.Echo = phase.Echo;
+				dbphase.FailEcho = phase.FailEcho;
+				dbphase.PhaseLengthInSeconds = phase.PhaseLengthInSeconds;
+				dbphase.PhaseNumber = phase.PhaseNumber;
 			}
 
 			var inputMap = new Dictionary<long, Models.CraftInput>();
@@ -200,19 +198,10 @@ public class Craft : Framework.Revision.EditableItem, ICraft
 		OnUseProgStart = gameworld.FutureProgs.Get(craft.OnUseProgStartId ?? 0);
 		OnUseProgComplete = gameworld.FutureProgs.Get(craft.OnUseProgCompleteId ?? 0);
 		OnUseProgCancel = gameworld.FutureProgs.Get(craft.OnUseProgCancelId ?? 0);
-		var phaseEchoes = new List<string>();
-		var failPhaseEchoes = new List<string>();
-		var phaseLengths = new List<TimeSpan>();
 		foreach (var phase in craft.CraftPhases.OrderBy(x => x.PhaseNumber))
 		{
-			phaseEchoes.Add(phase.Echo);
-			failPhaseEchoes.Add(phase.FailEcho ?? phase.Echo);
-			phaseLengths.Add(TimeSpan.FromSeconds(phase.PhaseLengthInSeconds));
+			_craftPhases.Add(new CraftPhase(phase, this));
 		}
-
-		_phaseEchoes = phaseEchoes;
-		_phaseLengths = phaseLengths;
-		_failPhaseEchoes = failPhaseEchoes;
 
 		foreach (var input in craft.CraftInputs)
 		{
@@ -272,9 +261,6 @@ public class Craft : Framework.Revision.EditableItem, ICraft
 		FreeSkillChecks = 3;
 		IsPracticalCheck = true;
 		Interruptable = false;
-		_phaseEchoes = new List<string>();
-		_failPhaseEchoes = new List<string>();
-		_phaseLengths = new List<TimeSpan>();
 		using (new FMDB())
 		{
 			var dbnew = new Models.Craft();
@@ -310,16 +296,6 @@ public class Craft : Framework.Revision.EditableItem, ICraft
 			dbnew.OnUseProgStartId = OnUseProgStart?.Id;
 			dbnew.OnUseProgCompleteId = OnUseProgComplete?.Id;
 			dbnew.OnUseProgCancelId = OnUseProgCancel?.Id;
-
-			for (var i = 0; i < _phaseLengths.Count; i++)
-			{
-				var dbphase = new CraftPhase();
-				dbnew.CraftPhases.Add(dbphase);
-				dbphase.Echo = _phaseEchoes[i];
-				dbphase.FailEcho = _failPhaseEchoes[i];
-				dbphase.PhaseLengthInSeconds = _phaseLengths[i].TotalSeconds;
-				dbphase.PhaseNumber = i + 1;
-			}
 
 			FMDB.Context.SaveChanges();
 		}
@@ -362,14 +338,15 @@ public class Craft : Framework.Revision.EditableItem, ICraft
 			dbcraft.OnUseProgCancelId = OnUseProgCancel?.Id;
 
 			dbcraft.CraftPhases.Clear();
-			for (var i = 0; i < _phaseLengths.Count; i++)
+
+			foreach (var phase in _craftPhases)
 			{
-				var dbphase = new CraftPhase();
+				var dbphase = new Models.CraftPhase();
 				dbcraft.CraftPhases.Add(dbphase);
-				dbphase.Echo = _phaseEchoes[i];
-				dbphase.FailEcho = _failPhaseEchoes[i];
-				dbphase.PhaseLengthInSeconds = _phaseLengths[i].TotalSeconds;
-				dbphase.PhaseNumber = i + 1;
+				dbphase.Echo = phase.Echo;
+				dbphase.FailEcho = phase.FailEcho;
+				dbphase.PhaseLengthInSeconds = phase.PhaseLengthInSeconds;
+				dbphase.PhaseNumber = phase.PhaseNumber;
 			}
 
 			foreach (var input in dbcraft.CraftInputs.ToList())
@@ -461,9 +438,9 @@ public class Craft : Framework.Revision.EditableItem, ICraft
 	public Outcome FailThreshold { get; set; }
 	public ITraitDefinition CheckTrait { get; set; }
 	public Difficulty CheckDifficulty { get; set; }
-	public IEnumerable<string> PhaseEchoes => _phaseEchoes;
-	public IEnumerable<TimeSpan> PhaseLengths => _phaseLengths;
-	public IEnumerable<string> FailPhaseEchoes => _failPhaseEchoes;
+	public IEnumerable<string> PhaseEchoes => _craftPhases.Select(x => x.Echo);
+	public IEnumerable<TimeSpan> PhaseLengths => _craftPhases.Select(x => TimeSpan.FromSeconds(x.PhaseLengthInSeconds));
+	public IEnumerable<string> FailPhaseEchoes => _craftPhases.Select(x => x.FailEcho);
 	public int FailPhase { get; set; }
 	public ITraitExpression QualityFormula { get; set; }
 	public IFutureProg AppearInCraftsListProg { get; set; }
@@ -740,9 +717,10 @@ public class Craft : Framework.Revision.EditableItem, ICraft
 			}
 		}
 
-		if (_phaseEchoes.Any())
+		var phaseEchoes = _craftPhases.Select(x => x.Echo).ToList();
+		if (phaseEchoes.Count > 0)
 		{
-			foreach (var phasenum in 1.GetIntRange(_phaseEchoes.Count))
+			foreach (var phasenum in 1.GetIntRange(phaseEchoes.Count))
 			{
 				_phaseInventoryPlans[phasenum] = new InventoryPlanTemplate(Gameworld, new[]
 				{
@@ -1015,9 +993,8 @@ public class Craft : Framework.Revision.EditableItem, ICraft
 	private bool _craftIsValid;
 	public bool CraftIsValid => _craftIsValid;
 
-	private readonly List<TimeSpan> _phaseLengths;
-	private readonly List<string> _failPhaseEchoes;
-	private readonly List<string> _phaseEchoes;
+	private readonly List<ICraftPhase> _craftPhases = new();
+	public IEnumerable<ICraftPhase> CraftPhases => _craftPhases;
 
 	public bool CraftChanged
 	{
@@ -1200,7 +1177,7 @@ public class Craft : Framework.Revision.EditableItem, ICraft
 		var (success, inputs, plans, missing) = ScoutToolsAndInputs(character, component, phase, phase);
 		var plan = plans.Single().Value;
 		var results = plan.ExecuteWholePlan().ToList();
-		var phaseLengthSeconds = _phaseLengths[phase - 1].TotalSeconds;
+		var phaseLengthSeconds = _craftPhases[phase - 1].PhaseLengthInSeconds;
 		var tools = results
 		            .Select(x => (Item: x.PrimaryTarget, Tool: x.OriginalReference as ICraftTool))
 		            .Where(x => x.Tool != null)
@@ -1477,6 +1454,17 @@ public class Craft : Framework.Revision.EditableItem, ICraft
 				actor.OutputHandler.Send(HelpText.SubstituteANSIColour());
 				return false;
 		}
+	}
+
+	private void RecalculatePhaseNumbers()
+	{
+		var i = 1;
+		foreach (var phase in _craftPhases)
+		{
+			phase.PhaseNumber = i++;
+		}
+
+		CraftChanged = true;
 	}
 
 	private bool BuildingCommandPractical(ICharacter actor)
@@ -1927,9 +1915,8 @@ public class Craft : Framework.Revision.EditableItem, ICraft
 
 		var phaseText = command.PopSpeech();
 		var failText = command.IsFinished ? phaseText : command.PopSpeech();
-		_phaseEchoes.Add(phaseText);
-		_failPhaseEchoes.Add(failText);
-		_phaseLengths.Add(TimeSpan.FromSeconds(value));
+		_craftPhases.Add(new CraftPhase(this, _craftPhases.Count + 1, value, phaseText, failText));
+		RecalculatePhaseNumbers();
 		CraftChanged = true;
 		actor.OutputHandler.Send("You add the specified phase to the craft.");
 		return true;
@@ -1946,13 +1933,12 @@ public class Craft : Framework.Revision.EditableItem, ICraft
 		if (!int.TryParse(command.Pop(), out var value) || value <= 0 || value > LastPhase)
 		{
 			actor.OutputHandler.Send(
-				$"You must specify a valid phase. There are currently {_phaseEchoes.Count} phases.");
+				$"You must specify a valid phase. There are currently {_craftPhases.Count.ToStringN0Colour(actor)} phases.");
 			return false;
 		}
 
-		_phaseEchoes.RemoveAt(value - 1);
-		_failPhaseEchoes.RemoveAt(value - 1);
-		_phaseLengths.RemoveAt(value - 1);
+		_craftPhases.RemoveAt(value - 1);
+		RecalculatePhaseNumbers();
 		CraftChanged = true;
 		actor.OutputHandler.Send($"You remove the {value.ToOrdinal()} phase.");
 		return true;
@@ -1966,10 +1952,10 @@ public class Craft : Framework.Revision.EditableItem, ICraft
 			return false;
 		}
 
-		if (!int.TryParse(command.Pop(), out var value) || value <= 0 || value > LastPhase)
+		if (!int.TryParse(command.Pop(), out var index) || index <= 0 || index > LastPhase)
 		{
 			actor.OutputHandler.Send(
-				$"You must specify a valid phase. There are currently {_phaseEchoes.Count} phases.");
+				$"You must specify a valid phase. There are currently {_craftPhases.Count} phases.");
 			return false;
 		}
 
@@ -1993,11 +1979,10 @@ public class Craft : Framework.Revision.EditableItem, ICraft
 
 		var phaseText = command.PopSpeech();
 		var failText = command.IsFinished ? phaseText : command.PopSpeech();
-		_phaseEchoes[value - 1] = phaseText;
-		_failPhaseEchoes[value - 1] = failText;
-		_phaseLengths[value - 1] = TimeSpan.FromSeconds(seconds);
+		_craftPhases[index-1] = new CraftPhase(this, index, seconds, phaseText, failText);
+		RecalculatePhaseNumbers();
 		CraftChanged = true;
-		actor.OutputHandler.Send($"You edit the {value.ToOrdinal()} phase of the craft.");
+		actor.OutputHandler.Send($"You edit the {index.ToOrdinal()} phase of the craft.");
 		return true;
 	}
 
@@ -2012,7 +1997,7 @@ public class Craft : Framework.Revision.EditableItem, ICraft
 		if (!int.TryParse(command.Pop(), out var value) || value <= 0 || value > LastPhase)
 		{
 			actor.OutputHandler.Send(
-				$"You must specify a valid phase. There are currently {_phaseEchoes.Count} phases.");
+				$"You must specify a valid phase. There are currently {_craftPhases.Count} phases.");
 			return false;
 		}
 
@@ -2026,7 +2011,7 @@ public class Craft : Framework.Revision.EditableItem, ICraft
 		if (!int.TryParse(command.Pop(), out var value2) || value2 <= 0 || value2 > LastPhase)
 		{
 			actor.OutputHandler.Send(
-				$"You must specify a valid phase. There are currently {_phaseEchoes.Count} phases.");
+				$"You must specify a valid phase. There are currently {_craftPhases.Count} phases.");
 			return false;
 		}
 
@@ -2036,9 +2021,8 @@ public class Craft : Framework.Revision.EditableItem, ICraft
 			return false;
 		}
 
-		_phaseEchoes.Swap(value - 1, value2 - 1);
-		_failPhaseEchoes.Swap(value - 1, value2 - 1);
-		_phaseLengths.Swap(value - 1, value2 - 1);
+		_craftPhases.Swap(value - 1, value2 - 1);
+		RecalculatePhaseNumbers();
 		CraftChanged = true;
 		actor.OutputHandler.Send($"You swap the {value.ToOrdinal()} and {value2.ToOrdinal()} phases.");
 		return true;
@@ -2489,18 +2473,16 @@ public class Craft : Framework.Revision.EditableItem, ICraft
 		sb.AppendLine("Phases".GetLineWithTitle(actor, Telnet.Cyan, Telnet.BoldWhite));
 		sb.AppendLine();
 		var sb2 = new StringBuilder();
-		for (var i = 0; i < _phaseEchoes.Count; i++)
+		foreach (var phase in _craftPhases)
 		{
 			sb2.AppendLine();
-			if (_phaseEchoes[i].EqualTo(_failPhaseEchoes[i]))
+			if (phase.Echo.EqualTo(phase.FailEcho))
 			{
-				sb2.AppendLine(
-					$"\t{i + 1}) {_phaseLengths[i].Describe().Colour(Telnet.Green)} -> {$"\"{_phaseEchoes[i]}\"".Colour(Telnet.Yellow)}");
+				sb2.AppendLine($"\t{phase.PhaseNumber.ToStringN0(actor)}) {TimeSpan.FromSeconds(phase.PhaseLengthInSeconds).DescribePreciseBrief(actor).ColourValue()} -> \"{phase.Echo.ColourCommand()}\"");
 			}
 			else
 			{
-				sb2.AppendLine(
-					$"\t{i + 1}) {_phaseLengths[i].Describe().Colour(Telnet.Green)} -> {$"\"{_phaseEchoes[i]}\"".Colour(Telnet.Yellow)}\n\n\t{new string(' ',$"{i + 1}) {_phaseLengths[i].Describe()}".RawTextLength() - 4)}{"fail".ColourError()} -> {$"\"{_failPhaseEchoes[i]}\"".Colour(Telnet.Yellow)}");
+				sb2.AppendLine($"\t{phase.PhaseNumber.ToStringN0(actor)}) {TimeSpan.FromSeconds(phase.PhaseLengthInSeconds).DescribePreciseBrief(actor).ColourValue()} -> \"{phase.Echo.ColourCommand()}\"\n\n\t{new string(' ', $"{phase.PhaseNumber.ToStringN0(actor)}) {TimeSpan.FromSeconds(phase.PhaseLengthInSeconds).DescribePreciseBrief(actor).ColourValue()}".RawTextLength() - 4)}{"fail".ColourError()} -> {$"\"{phase.FailEcho}\"".Colour(Telnet.Yellow)}");
 			}
 		}
 
@@ -2705,14 +2687,18 @@ public class Craft : Framework.Revision.EditableItem, ICraft
 			dbnew.OnUseProgCompleteId = OnUseProgComplete?.Id;
 			dbnew.OnUseProgCancelId = OnUseProgCancel?.Id;
 
-			for (var i = 0; i < _phaseLengths.Count; i++)
+			foreach (var phase in _craftPhases)
 			{
-				var dbphase = new CraftPhase();
+				var dbphase = new Models.CraftPhase
+				{
+					CraftPhaseId = Id,
+					CraftPhaseRevisionNumber = RevisionNumber,
+					Echo = phase.Echo,
+					FailEcho = phase.FailEcho,
+					PhaseNumber = phase.PhaseNumber,
+					PhaseLengthInSeconds = phase.PhaseLengthInSeconds
+				};
 				dbnew.CraftPhases.Add(dbphase);
-				dbphase.Echo = _phaseEchoes[i];
-				dbphase.FailEcho = _failPhaseEchoes[i];
-				dbphase.PhaseLengthInSeconds = _phaseLengths[i].TotalSeconds;
-				dbphase.PhaseNumber = i + 1;
 			}
 
 			var inputMap = new Dictionary<long, Models.CraftInput>();

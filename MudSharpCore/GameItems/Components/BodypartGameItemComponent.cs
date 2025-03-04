@@ -361,7 +361,7 @@ public class BodypartGameItemComponent : GameItemComponent, ISeveredBodypart, IL
 		return false;
 	}
 
-	public override bool Die(IGameItem newItem, ICell location)
+	public override bool HandleDieOrMorph(IGameItem newItem, ICell location)
 	{
 		var newItemContainer = newItem?.GetItemType<IContainer>();
 		if (newItemContainer != null)

@@ -56,7 +56,7 @@ namespace MudSharp.GameItems {
         /// </summary>
         /// <param name="newItem">If relevant, the "corpse" of the destroyed item</param>
         /// <returns>True if the position of the new item was altered in any way</returns>
-        bool Die(IGameItem newItem, ICell location);
+        bool HandleDieOrMorph(IGameItem newItem, ICell location);
 
         bool SwapInPlace(IGameItem existingItem, IGameItem newItem);
         bool Take(IGameItem item);

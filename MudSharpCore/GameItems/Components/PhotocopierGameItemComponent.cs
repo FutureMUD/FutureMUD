@@ -260,7 +260,7 @@ public class PhotocopierGameItemComponent : PoweredMachineBaseGameItemComponent,
 		return new PhotocopierGameItemComponent(this, newParent, temporary);
 	}
 
-	public override bool Die(IGameItem newItem, ICell location)
+	public override bool HandleDieOrMorph(IGameItem newItem, ICell location)
 	{
 		var newItemLockable = newItem?.GetItemType<ILockable>();
 		if (newItemLockable != null)

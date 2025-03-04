@@ -101,7 +101,7 @@ public class CannulaGameItemComponent : GameItemComponent, ICannula
 
 	#endregion
 
-	public override bool Die(IGameItem newItem, ICell location)
+	public override bool HandleDieOrMorph(IGameItem newItem, ICell location)
 	{
 		if (!_connectedItems.Any())
 		{

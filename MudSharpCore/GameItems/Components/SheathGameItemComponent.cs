@@ -96,7 +96,7 @@ public class SheathGameItemComponent : GameItemComponent, ISheath
 		return false;
 	}
 
-	public override bool Die(IGameItem newItem, ICell location)
+	public override bool HandleDieOrMorph(IGameItem newItem, ICell location)
 	{
 		if (Content == null)
 		{

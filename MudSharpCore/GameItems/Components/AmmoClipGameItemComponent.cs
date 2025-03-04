@@ -13,6 +13,7 @@ using MudSharp.GameItems.Prototypes;
 using MudSharp.PerceptionEngine;
 using MudSharp.PerceptionEngine.Outputs;
 using MudSharp.PerceptionEngine.Parsers;
+using static Google.Protobuf.Reflection.SourceCodeInfo.Types;
 
 namespace MudSharp.GameItems.Components;
 
@@ -332,7 +333,7 @@ public class AmmoClipGameItemComponent : GameItemComponent, IAmmoClip
 		return false;
 	}
 
-	public override bool Die(IGameItem newItem, ICell location)
+	public override bool HandleDieOrMorph(IGameItem newItem, ICell location)
 	{
 		var newItemContainer = newItem?.GetItemType<IContainer>();
 		if (newItemContainer != null)

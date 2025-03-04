@@ -57,7 +57,7 @@ public class ProgLightGameItemComponent : GameItemComponent, ILightable, IProduc
 
 	public override int DecorationPriority => int.MaxValue;
 
-	public override bool Die(IGameItem newItem, ICell location)
+	public override bool HandleDieOrMorph(IGameItem newItem, ICell location)
 	{
 		var newItemLightable = newItem?.GetItemType<ILightable>();
 		if (newItemLightable != null)

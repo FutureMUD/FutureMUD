@@ -23,8 +23,6 @@ using MudSharp.Health;
 using MudSharp.OpenAI;
 using MudSharp.PerceptionEngine;
 using EditableItem = MudSharp.Framework.Revision.EditableItem;
-using Material = MudSharp.Form.Material.Material;
-using MudSharp.FutureProg.Statements.Manipulation;
 
 namespace MudSharp.GameItems;
 
@@ -53,6 +51,7 @@ public class GameItemProto : EditableItem, IGameItemProto
 				Size = (int)SizeCategory.Normal,
 				Weight = 1.0,
 				IsHiddenFromPlayers = false,
+				PreserveRegisterVariables = false
 			};
 			dbproto.MaterialId = 0;
 			dbproto.ReadOnly = isReadOnly;
@@ -100,6 +99,8 @@ public class GameItemProto : EditableItem, IGameItemProto
 	public bool IsHiddenFromPlayers { get; private set; }
 	public bool PreventManualLoad => Components.Any(x => x.PreventManualLoad);
 
+	public bool PreserveRegisterVariables { get; private set; }
+
 	private readonly
 		List<(IFutureProg Prog, string? ShortDescription, string? FullDescription, string? FullDescriptionAddendum)>
 		_extraDescriptions = new();
@@ -130,8 +131,7 @@ public class GameItemProto : EditableItem, IGameItemProto
 		var maxRevision = Gameworld.ItemProtos.GetAll(Id).Max(x => x.RevisionNumber);
 		sb.AppendLine($"Item Prototype #{Id.ToString("N0", actor)} - Revision {RevisionNumber.ToString("N0", actor)} / {maxRevision.ToString("N0", actor)}".GetLineWithTitle(actor, Telnet.Cyan, Telnet.BoldWhite));
 		sb.AppendLine($"Status: {Status.DescribeColour()}");
-		sb.AppendLine(
-			$"Noun: {Name.Proper().ColourValue()}");
+		sb.AppendLine($"Noun: {Name.Proper().ColourValue()}");
 		sb.AppendLine($"Short Description: {ShortDescription.ColourObject()}");
 		if (OverridesLongDescription)
 		{
@@ -142,8 +142,11 @@ public class GameItemProto : EditableItem, IGameItemProto
 			sb.AppendLine($"Long Description: {"Default".ColourCommand()}");
 		}
 
-		sb.AppendLine(
-			$"Item Group: {(ItemGroup is null ? "Default".ColourCommand() : $"{ItemGroup.Name.ColourValue()} ({ItemGroup.Id.ToString("N0", actor)})".ColourValue())}");
+		sb.AppendLine($"Preserve Register Variables: {PreserveRegisterVariables.ToColouredString()}");
+		sb.AppendLine($"Prevent Manual Load: {PreventManualLoad.ToColouredString()}");
+		sb.AppendLine($"Permit Player Skins: {PermitPlayerSkins.ToColouredString()}");
+		sb.AppendLine($"Hidden From Players: {IsHiddenFromPlayers.ToColouredString()}");
+		sb.AppendLine($"Item Group: {(ItemGroup is null ? "Default".ColourCommand() : $"{ItemGroup.Name.ColourValue()} ({ItemGroup.Id.ToString("N0", actor)})".ColourValue())}");
 		if (_onDestroyedGameItemProto != 0)
 		{
 			sb.AppendLineFormat(actor, "Destroyed Item: {0}",
@@ -171,8 +174,6 @@ public class GameItemProto : EditableItem, IGameItemProto
 			$"Weight: {Gameworld.UnitManager.DescribeMostSignificantExact(Weight, UnitType.Mass, actor).ColourValue()}");
 		sb.AppendLine(
 			$"Material: {(Material != null ? Material.Name.ColourValue() : "None".Colour(Telnet.Red))}");
-		sb.AppendLine($"Permit Player Skins: {PermitPlayerSkins.ToColouredString()}");
-		sb.AppendLine($"Hidden From Players: {IsHiddenFromPlayers.ToColouredString()}");
 
 		sb.AppendLine($"Base Quality: {BaseItemQuality.Describe().Colour(Telnet.Green)}");
 		sb.AppendLine($"Base Cost: {actor.Currency?.Describe(CostInBaseCurrency / actor.Currency.BaseCurrencyToGlobalBaseCurrencyConversion, CurrencyDescriptionPatternType.ShortDecimal).ColourValue() ?? CostInBaseCurrency.ToString("N", actor).ColourValue()}");
@@ -379,6 +380,7 @@ public class GameItemProto : EditableItem, IGameItemProto
 				HighPriority = HighPriority,
 				CostInBaseCurrency = CostInBaseCurrency,
 				IsHiddenFromPlayers = IsHiddenFromPlayers,
+				PreserveRegisterVariables = PreserveRegisterVariables
 			};
 
 			foreach (var tag in Tags)
@@ -478,7 +480,8 @@ public class GameItemProto : EditableItem, IGameItemProto
 				ItemGroupId = ItemGroup?.Id,
 				HealthStrategyId = HealthStrategy?.Id,
 				CostInBaseCurrency = CostInBaseCurrency,
-				IsHiddenFromPlayers = IsHiddenFromPlayers
+				IsHiddenFromPlayers = IsHiddenFromPlayers,
+				PreserveRegisterVariables = PreserveRegisterVariables
 			};
 
 			foreach (var tag in Tags)
@@ -592,6 +595,7 @@ public class GameItemProto : EditableItem, IGameItemProto
 		CustomColour = Telnet.GetColour(proto.CustomColour ?? string.Empty);
 		CostInBaseCurrency = proto.CostInBaseCurrency;
 		IsHiddenFromPlayers = proto.IsHiddenFromPlayers;
+		PreserveRegisterVariables = proto.PreserveRegisterVariables;
 		_onDestroyedGameItemProto = proto.OnDestroyedGameItemProtoId ?? 0;
 		_healthStrategy = Gameworld.HealthStrategies.Get(proto.HealthStrategyId ?? 0) ??
 						  Gameworld.HealthStrategies.FirstOrDefault(
@@ -656,6 +660,7 @@ public class GameItemProto : EditableItem, IGameItemProto
 			dbproto.CustomColour = CustomColour?.Name.ToLowerInvariant() ?? "";
 			dbproto.CostInBaseCurrency = CostInBaseCurrency;
 			dbproto.IsHiddenFromPlayers = IsHiddenFromPlayers;
+			dbproto.PreserveRegisterVariables = PreserveRegisterVariables;
 			dbproto.OnDestroyedGameItemProtoId = _onDestroyedGameItemProto != 0
 				? _onDestroyedGameItemProto
 				: default;
@@ -773,17 +778,12 @@ public class GameItemProto : EditableItem, IGameItemProto
 
 		var newItem = proto.CreateNew();
 		newItem.RoomLayer = originalItem.RoomLayer;
-		var varNewItem = newItem.GetItemType<IVariable>();
-		if (varNewItem != null)
+
+		if (PreserveRegisterVariables)
 		{
-			var varOldItem = originalItem.GetItemType<IVariable>();
-			foreach (var variable in varNewItem.CharacteristicDefinitions)
+			foreach (var variable in Gameworld.VariableRegister.AllVariables(ProgVariableTypes.Item))
 			{
-				var oldValue = varOldItem.GetCharacteristic(variable);
-				if (oldValue != null)
-				{
-					varNewItem.SetCharacteristic(variable, oldValue);
-				}
+				Gameworld.VariableRegister.SetValue(newItem, variable.Item1, Gameworld.VariableRegister.GetValue(originalItem, variable.Item1));
 			}
 		}
 
@@ -810,6 +810,15 @@ public class GameItemProto : EditableItem, IGameItemProto
 
 		var newItem = proto.CreateNew();
 		newItem.RoomLayer = originalItem.RoomLayer;
+
+		if (PreserveRegisterVariables)
+		{
+			foreach (var variable in Gameworld.VariableRegister.AllVariables(ProgVariableTypes.Item))
+			{
+				Gameworld.VariableRegister.SetValue(newItem, variable.Item1, Gameworld.VariableRegister.GetValue(originalItem, variable.Item1));
+			}
+		}
+
 		return newItem;
 	}
 
@@ -1004,6 +1013,11 @@ public class GameItemProto : EditableItem, IGameItemProto
 				return BuildingCommandMorph(actor, command);
 			case "extra":
 				return BuildingCommandExtra(actor, command);
+			case "preserve":
+			case "preserveregister":
+			case "preservevariables":
+			case "preserveregistervariables":
+				return BuildingCommandPreserveRegisterVariable(actor);
 			default:
 				actor.OutputHandler.Send(@"You can use the following options with the ITEM SET command:
 
@@ -1027,6 +1041,7 @@ public class GameItemProto : EditableItem, IGameItemProto
 	#3colour none#0 - resets the item colour to the default
 	#3onload <prog>#0 - toggles a particular prog to run when the item is loaded
 	#3canskin#0 - toggles whether players can make skins for this item
+	#3preserve#0 - toggles preserving register variables on morph or destroyed item loading
 	#3register <variable name> <default value>#0 - sets a default value for a register variable for this item
 	#3register delete <variable name>#0 - deletes a default value for a register variable
 	#3morph <item##|none> <seconds> [<emote>]#0 - sets item morph information. The 'none' value makes the item disappear.
@@ -1049,6 +1064,14 @@ public class GameItemProto : EditableItem, IGameItemProto
 	#3extra <which##> clear addendum#0 - clears the addendum text for the full description".SubstituteANSIColour());
 				return true;
 		}
+	}
+
+	private bool BuildingCommandPreserveRegisterVariable(ICharacter actor)
+	{
+		PreserveRegisterVariables = !PreserveRegisterVariables;
+		Changed = true;
+		actor.OutputHandler.Send($"This item will {PreserveRegisterVariables.NowNoLonger()}");
+		return true;
 	}
 
 	private bool BuildingCommandHidden(ICharacter actor) {

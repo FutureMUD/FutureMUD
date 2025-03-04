@@ -48,7 +48,7 @@ public class LatchGameItemComponent : GameItemComponent, ILock
 		}
 	}
 
-	public override bool Die(IGameItem newItem, ICell location)
+	public override bool HandleDieOrMorph(IGameItem newItem, ICell location)
 	{
 		var newItemLatch = newItem?.GetItemType<LatchGameItemComponent>();
 		if (newItemLatch != null)

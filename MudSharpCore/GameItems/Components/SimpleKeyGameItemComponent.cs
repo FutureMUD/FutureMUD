@@ -20,7 +20,7 @@ public class SimpleKeyGameItemComponent : GameItemComponent, IKey
 		return new SimpleKeyGameItemComponent(this, newParent, temporary);
 	}
 
-	public override bool Die(IGameItem newItem, ICell location)
+	public override bool HandleDieOrMorph(IGameItem newItem, ICell location)
 	{
 		var newItemKey = newItem?.GetItemType<SimpleKeyGameItemComponent>();
 		if (newItemKey != null)

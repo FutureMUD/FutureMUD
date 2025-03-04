@@ -175,7 +175,7 @@ public class ExternalOrganGameItemComponent : GameItemComponent, IExternalBloodO
 
 	#endregion
 
-	public override bool Die(IGameItem newItem, ICell location)
+	public override bool HandleDieOrMorph(IGameItem newItem, ICell location)
 	{
 		Parent.GetItemType<IProducePower>()?.EndDrawdown(this);
 		if (!_connectedItems.Any())

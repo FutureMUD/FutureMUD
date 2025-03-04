@@ -119,7 +119,7 @@ public class TableGameItemComponent : GameItemComponent, ITable, IFlip, IProvide
 
 	public override int DecorationPriority => 1000;
 
-	public override bool Die(IGameItem newItem, ICell location)
+	public override bool HandleDieOrMorph(IGameItem newItem, ICell location)
 	{
 		var newItemTable = newItem?.GetItemType<ITable>();
 		if (newItemTable != null)

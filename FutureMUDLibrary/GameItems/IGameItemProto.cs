@@ -26,6 +26,8 @@ namespace MudSharp.GameItems {
 		/// If any of the components of this item gets into the game an alternate way and items with this component should not be permitted to be loaded through the ITEM LOAD command or via progs.
 		/// </summary>
 		bool PreventManualLoad { get; }
+
+		bool PreserveRegisterVariables { get; }
 		string EditHeaderColour(ICharacter voyeur);
 
 

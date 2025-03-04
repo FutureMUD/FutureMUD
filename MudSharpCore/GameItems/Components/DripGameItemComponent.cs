@@ -175,7 +175,7 @@ public class DripGameItemComponent : GameItemComponent, IDrip, ISelectable
 		Changed = true;
 	}
 
-	public override bool Die(IGameItem newItem, ICell location)
+	public override bool HandleDieOrMorph(IGameItem newItem, ICell location)
 	{
 		foreach (var connectable in ConnectedItems.ToList())
 		{

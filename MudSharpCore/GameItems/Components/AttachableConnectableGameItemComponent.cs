@@ -50,7 +50,7 @@ public class AttachableConnectableGameItemComponent : GameItemComponent, IConnec
 		return new AttachableConnectableGameItemComponent(this, newParent, temporary);
 	}
 
-	public override bool Die(IGameItem newItem, ICell location)
+	public override bool HandleDieOrMorph(IGameItem newItem, ICell location)
 	{
 		if (_connectedItem == null)
 		{

@@ -93,7 +93,7 @@ public class ChairGameItemComponent : GameItemComponent, IChair
 		Table = table;
 	}
 
-	public override bool Die(IGameItem newItem, ICell location)
+	public override bool HandleDieOrMorph(IGameItem newItem, ICell location)
 	{
 		var newItemChair = newItem?.GetItemType<ChairGameItemComponent>();
 		if (newItemChair == null)

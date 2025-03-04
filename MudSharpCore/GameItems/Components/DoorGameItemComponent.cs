@@ -210,7 +210,7 @@ public class DoorGameItemComponent : GameItemComponent, IDoor
 		return Locks.Sum(x => x.Parent.Buoyancy(fluidDensity));
 	}
 
-	public override bool Die(IGameItem newItem, ICell location)
+	public override bool HandleDieOrMorph(IGameItem newItem, ICell location)
 	{
 		var newItemLockable = newItem?.GetItemType<ILockable>();
 		if (newItemLockable != null)

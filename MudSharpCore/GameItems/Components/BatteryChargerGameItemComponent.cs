@@ -84,7 +84,7 @@ public class BatteryChargerGameItemComponent : GameItemComponent, IContainer, IO
 		Parent.GetItemType<IProducePower>()?.BeginDrawdown(this);
 	}
 
-	public override bool Die(IGameItem newItem, ICell location)
+	public override bool HandleDieOrMorph(IGameItem newItem, ICell location)
 	{
 		var newItemLockable = newItem?.GetItemType<ILockable>();
 		if (newItemLockable != null)

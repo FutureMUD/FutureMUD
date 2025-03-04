@@ -160,7 +160,7 @@ public class TreatmentGameItemComponent : GameItemComponent, ITreatment
 			: baseDifficulty.StageDown(_prototype.DifficultyStages);
 	}
 
-	public override bool Die(IGameItem newItem, ICell location)
+	public override bool HandleDieOrMorph(IGameItem newItem, ICell location)
 	{
 		var newItemTreatment = newItem?.GetItemType<TreatmentGameItemComponent>();
 		if (newItemTreatment == null)

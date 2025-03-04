@@ -65,7 +65,7 @@ public class BatteryPoweredGameItemComponent : GameItemComponent, IContainer, IO
 		}
 	}
 
-	public override bool Die(IGameItem newItem, ICell location)
+	public override bool HandleDieOrMorph(IGameItem newItem, ICell location)
 	{
 		var newItemLockable = newItem?.GetItemType<ILockable>();
 		if (newItemLockable != null)

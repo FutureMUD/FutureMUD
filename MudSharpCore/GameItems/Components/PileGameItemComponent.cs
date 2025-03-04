@@ -91,7 +91,7 @@ public class PileGameItemComponent : GameItemComponent, IContainer
 		return false;
 	}
 
-	public override bool Die(IGameItem newItem, ICell location)
+	public override bool HandleDieOrMorph(IGameItem newItem, ICell location)
 	{
 		foreach (var item in Contents.ToList())
 		{

@@ -108,7 +108,7 @@ public class SmokeableGameItemComponent : GameItemComponent, ISmokeable
 		       RemainingFuel != _prototype.SecondsOfFuel || Lit;
 	}
 
-	public override bool Die(IGameItem newItem, ICell location)
+	public override bool HandleDieOrMorph(IGameItem newItem, ICell location)
 	{
 		var newItemLightable = newItem?.GetItemType<ILightable>();
 		if (newItemLightable != null)

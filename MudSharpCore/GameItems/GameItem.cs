@@ -2578,7 +2578,7 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable
 
 			foreach (var comp in Components)
 			{
-				comp.Die(newItem, location);
+				comp.HandleDieOrMorph(newItem, location);
 			}
 
 			newItem.Login();

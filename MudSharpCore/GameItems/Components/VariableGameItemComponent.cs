@@ -61,7 +61,7 @@ public class VariableGameItemComponent : GameItemComponent, IVariable
 				_characteristicValues[x] != comp.GetCharacteristic(x)) == true;
 	}
 
-	public override bool Die(IGameItem newItem, ICell location)
+	public override bool HandleDieOrMorph(IGameItem newItem, ICell location)
 	{
 		var newItemVariable = newItem?.GetItemType<VariableGameItemComponent>();
 		if (newItemVariable == null)

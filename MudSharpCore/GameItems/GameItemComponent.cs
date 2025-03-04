@@ -133,7 +133,7 @@ public abstract class GameItemComponent : LateInitialisingItem, IGameItemCompone
 		return false;
 	}
 
-	public virtual bool Die(IGameItem newItem, ICell location)
+	public virtual bool HandleDieOrMorph(IGameItem newItem, ICell location)
 	{
 		return false;
 	}

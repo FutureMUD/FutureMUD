@@ -512,7 +512,7 @@ public partial class GameItem : IHaveWounds
 		var locationChanged = false;
 		foreach (var component in Components.OrderBy(x => x.ComponentDieOrder))
 		{
-			if (component.Die(newItem, originalTrueLocation))
+			if (component.HandleDieOrMorph(newItem, originalTrueLocation))
 			{
 				locationChanged = true;
 			}

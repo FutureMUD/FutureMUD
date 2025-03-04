@@ -303,7 +303,7 @@ public class CompressorGameItemComponent : PoweredMachineBaseGameItemComponent, 
 		Gameworld.HeartbeatManager.FuzzyTenSecondHeartbeat -= TenSecondEvent;
 	}
 
-	public override bool Die(IGameItem newItem, ICell location)
+	public override bool HandleDieOrMorph(IGameItem newItem, ICell location)
 	{
 		if (!_connectedItems.Any())
 		{

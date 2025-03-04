@@ -52,7 +52,7 @@ public class ProgLockGameItemComponent : GameItemComponent, ILock
 		}
 	}
 
-	public override bool Die(IGameItem newItem, ICell location)
+	public override bool HandleDieOrMorph(IGameItem newItem, ICell location)
 	{
 		var newItemLock = newItem?.GetItemType<ProgLockGameItemComponent>();
 		if (newItemLock != null)

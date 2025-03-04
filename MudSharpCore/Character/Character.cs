@@ -2571,7 +2571,7 @@ public partial class Character : PerceiverItem, ICharacter
 			if (!item.InInventoryOf.Actor.WillingToPermitInventoryManipulation(this))
 			{
 				return (false,
-					new QuickEmote("$0 &0|are|is not willing to permit you to manipulate things in &0's possession.",
+					new QuickEmote("$0 &0|is|are not willing to permit you to manipulate things in &0's possession.",
 						this, item.InInventoryOf.Actor));
 			}
 

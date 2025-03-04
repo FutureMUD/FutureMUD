@@ -379,7 +379,7 @@ public class PermanentShop : Shop, IPermanentShop
 				.Sum(x => x.Coins.Sum(y => y.Item2 * y.Item1.Value)) + CashBalance;
 		if (cashInRegister > ExpectedCashBalance)
 		{
-			AddTransaction(new TransactionRecord(ShopTransactionType.Float, Currency, this,
+			AddTransaction(new TransactionRecord(ShopTransactionType.Deposit, Currency, this,
 				EconomicZone.ZoneForTimePurposes.DateTime(), null, cashInRegister - ExpectedCashBalance, 0.0M, null));
 			ExpectedCashBalance = cashInRegister;
 			Changed = true;

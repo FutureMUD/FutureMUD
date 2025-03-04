@@ -14,7 +14,7 @@ namespace MudSharp.Economy
         Stock,
         StockLoss,
         PriceAdjustment,
-        Float,
+        Deposit,
         Withdrawal,
         AccessCashDraw,
         Purchase
@@ -32,6 +32,6 @@ namespace MudSharp.Economy
         DateTime RealDateTime { get; }
         MudDateTime MudDateTime { get; }
         decimal NetValue { get; }
-        [CanBeNull] IMerchandise Merchandise { get; }
+        [CanBeNull] IMerchandise Merchandise { get; set; }
     }
 }

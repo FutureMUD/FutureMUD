@@ -418,6 +418,13 @@ public abstract class Shop : SaveableItem, IShop
 		_stockedMerchandise.Remove(merchandise);
 		_stockedMerchandiseCounts.Remove(merchandise);
 		merchandise.Delete();
+		foreach (var record in TransactionRecords)
+		{
+			if (record.Merchandise == merchandise)
+			{
+				record.Merchandise = null;
+			}
+		}
 		Changed = true;
 	}
 

@@ -560,6 +560,11 @@ namespace MudSharp.Database
 
 				entity.Property(e => e.ShopId).HasColumnType("bigint(20)");
 
+				entity.Property(e => e.MerchandiseId)
+				      .HasColumnType("bigint(20)")
+				      .IsRequired(false)
+				      ;
+
 				entity.Property(e => e.Tax).HasColumnType("decimal(58,29)");
 
 				entity.Property(e => e.ThirdPartyId).HasColumnType("bigint(20)");
@@ -575,6 +580,12 @@ namespace MudSharp.Database
 					.WithMany(p => p.ShopTransactionRecords)
 					.HasForeignKey(d => d.ShopId)
 					.HasConstraintName("FK_ShopTransactionRecords_Shops");
+
+				entity.HasOne(d => d.Merchandise)
+				      .WithMany()
+				      .HasForeignKey(d => d.MerchandiseId)
+				      .OnDelete(DeleteBehavior.SetNull)
+				      .HasConstraintName("FK_ShopTransactionRecords_Merchandises");
 			});
 
 			modelBuilder.Entity<Shop>(entity =>

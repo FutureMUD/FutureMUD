@@ -2779,7 +2779,7 @@ Additionally, you can use the following shop admin subcommands:
 				shop.Currency.Describe(merchandise, CurrencyDescriptionPatternType.ShortDecimal),
 				shop.Currency.Describe(
 					transactions
-						.Where(x => !x.TransactionType.In(ShopTransactionType.Float, ShopTransactionType.Withdrawal))
+						.Where(x => !x.TransactionType.In(ShopTransactionType.Deposit, ShopTransactionType.Withdrawal))
 						.Sum(x => x.NetValue), CurrencyDescriptionPatternType.ShortDecimal),
 				shop.Currency.Describe(transactions.Sum(x => x.Tax), CurrencyDescriptionPatternType.ShortDecimal),
 				shop.Currency.Describe(cash + merchandise + (shop.BankAccount?.CurrentBalance ?? 0.0M),
@@ -2992,7 +2992,7 @@ Additionally, you can use the following shop admin subcommands:
 			select new List<string>
 			{
 				transaction.MudDateTime.Date.Display(CalendarDisplayMode.Short),
-				transaction.MudDateTime.Time.Display(TimeDisplayTypes.Immortal),
+				transaction.MudDateTime.Time.Display(TimeDisplayTypes.Short),
 				transaction.TransactionType.DescribeEnum(),
 				transaction.Currency.Describe(transaction.PretaxValue, CurrencyDescriptionPatternType.ShortDecimal),
 				transaction.Currency.Describe(transaction.Tax, CurrencyDescriptionPatternType.ShortDecimal),

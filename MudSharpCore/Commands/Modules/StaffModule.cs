@@ -3996,7 +3996,10 @@ The syntax is as follows:
 				"Location",
 				"Contained In"
 			},
-			actor,
-			Telnet.Green));
+			1000,
+			true,
+			Telnet.Green,
+			-1,
+			actor.Account.UseUnicode));
 	}
 }

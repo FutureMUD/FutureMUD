@@ -96,7 +96,7 @@ public class TransactionRecord : LateInitialisingItem, ITransactionRecord
 	public long? ThirdPartyId { get; private set; }
 	public DateTime RealDateTime { get; private set; }
 	public MudDateTime MudDateTime { get; private set; }
-	public IMerchandise Merchandise { get; private set; }
+	public IMerchandise Merchandise { get; set; }
 
 	public decimal NetValue
 	{
@@ -116,7 +116,7 @@ public class TransactionRecord : LateInitialisingItem, ITransactionRecord
 					return -1 * PretaxValue;
 				case ShopTransactionType.PriceAdjustment:
 					return PretaxValue;
-				case ShopTransactionType.Float:
+				case ShopTransactionType.Deposit:
 					return PretaxValue;
 				case ShopTransactionType.Withdrawal:
 					return -1 * PretaxValue;

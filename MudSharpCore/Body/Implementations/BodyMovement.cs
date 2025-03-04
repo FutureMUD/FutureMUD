@@ -418,6 +418,19 @@ public partial class Body
 		LongtermExertion = level;
 	}
 
+	public void SetExertionToMinimumLevel(ExertionLevel level)
+	{
+		if (level > CurrentExertion)
+		{
+			CurrentExertion = level;
+		}
+
+		if (level > LongtermExertion)
+		{
+			LongtermExertion = level;
+		}
+	}
+
 	#endregion
 
 	public void CheckPositionStillValid()

@@ -5,6 +5,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using Microsoft.EntityFrameworkCore;
 using MudSharp.Accounts;
+using MudSharp.Body;
 using MudSharp.Body.Traits;
 using MudSharp.Body.Traits.Subtypes;
 using MudSharp.Character;
@@ -100,12 +101,7 @@ public class Craft : Framework.Revision.EditableItem, ICraft
 
 			foreach (var phase in _craftPhases)
 			{
-				var dbphase = new Models.CraftPhase();
-				dbnew.CraftPhases.Add(dbphase);
-				dbphase.Echo = phase.Echo;
-				dbphase.FailEcho = phase.FailEcho;
-				dbphase.PhaseLengthInSeconds = phase.PhaseLengthInSeconds;
-				dbphase.PhaseNumber = phase.PhaseNumber;
+				dbnew.CraftPhases.Add(phase.CreateDBPhase());
 			}
 
 			var inputMap = new Dictionary<long, Models.CraftInput>();
@@ -341,12 +337,7 @@ public class Craft : Framework.Revision.EditableItem, ICraft
 
 			foreach (var phase in _craftPhases)
 			{
-				var dbphase = new Models.CraftPhase();
-				dbcraft.CraftPhases.Add(dbphase);
-				dbphase.Echo = phase.Echo;
-				dbphase.FailEcho = phase.FailEcho;
-				dbphase.PhaseLengthInSeconds = phase.PhaseLengthInSeconds;
-				dbphase.PhaseNumber = phase.PhaseNumber;
+				dbcraft.CraftPhases.Add(phase.CreateDBPhase());
 			}
 
 			foreach (var input in dbcraft.CraftInputs.ToList())
@@ -1175,26 +1166,6 @@ public class Craft : Framework.Revision.EditableItem, ICraft
 		IActiveCraftGameItemComponent component, int phase)
 	{
 		var (success, inputs, plans, missing) = ScoutToolsAndInputs(character, component, phase, phase);
-		var plan = plans.Single().Value;
-		var results = plan.ExecuteWholePlan().ToList();
-		var phaseLengthSeconds = _craftPhases[phase - 1].PhaseLengthInSeconds;
-		var tools = results
-		            .Select(x => (Item: x.PrimaryTarget, Tool: x.OriginalReference as ICraftTool))
-		            .Where(x => x.Tool != null)
-		            .ToList();
-
-		foreach (var (item, tool) in tools)
-		{
-			phaseLengthSeconds *= tool.PhaseLengthMultiplier(item);
-		}
-
-		var phaseLength = TimeSpan.FromSeconds(phaseLengthSeconds);
-		foreach (var (item, tool) in tools)
-		{
-			tool.UseTool(item, phaseLength, component.HasFailed);
-		}
-
-		plan.FinalisePlanNoRestore();
 		if (!success)
 		{
 			if (missing != null)
@@ -1215,6 +1186,45 @@ public class Craft : Framework.Revision.EditableItem, ICraft
 			PauseCraft(character, component, effect);
 			return false;
 		}
+
+		var craftPhase = _craftPhases[phase - 1];
+		if (craftPhase.StaminaUsage > 0.0)
+		{
+			if (!character.CanSpendStamina(craftPhase.StaminaUsage))
+			{
+				character.OutputHandler.Handle(new EmoteOutput(
+					new Emote(
+						$"@ stop|stops {ActionDescription} because #0 $0|are|is too exhausted to continue.",
+						character, character)));
+				PauseCraft(character, component, effect);
+				return false;
+			}
+
+			character.SpendStamina(craftPhase.StaminaUsage);
+		}
+
+		character.SetExertionToMinimumLevel(craftPhase.ExertionLevel);
+
+		var plan = plans.Single().Value;
+		var results = plan.ExecuteWholePlan().ToList();
+		var phaseLengthSeconds = craftPhase.PhaseLengthInSeconds;
+		var tools = results
+		            .Select(x => (Item: x.PrimaryTarget, Tool: x.OriginalReference as ICraftTool))
+		            .Where(x => x.Tool != null)
+		            .ToList();
+
+		foreach (var (item, tool) in tools)
+		{
+			phaseLengthSeconds *= tool.PhaseLengthMultiplier(item);
+		}
+
+		var phaseLength = TimeSpan.FromSeconds(phaseLengthSeconds);
+		foreach (var (item, tool) in tools)
+		{
+			tool.UseTool(item, phaseLength, component.HasFailed);
+		}
+
+		plan.FinalisePlanNoRestore();
 
 		if (!component.HasFailed)
 		{
@@ -1357,6 +1367,8 @@ public class Craft : Framework.Revision.EditableItem, ICraft
 	#3phase edit <number> <seconds> ""<echo>"" [""<failecho>""]#0 - changes an existing phase
 	#3phase remove <number>#0 - removes a phase
 	#3phase swap <phase1> <phase2>#0 - swaps the order of two phases
+	#3phase exertion <phase> <level>#0 - sets the exertion level associated with this craft phase
+	#3phase stamina <phase> <stamina>#0 - sets the stamina cost of a craft phase
 	#3failphase <number>#0 - sets a phase to be where the check is made
 	#3input add <type>#0 - adds a new input of the specified type
 	#3input remove <number>#0 - removes an input
@@ -1868,7 +1880,7 @@ public class Craft : Framework.Revision.EditableItem, ICraft
 	{
 		if (command.IsFinished)
 		{
-			actor.OutputHandler.Send("Do you want to add, remove, edit or swap a phase?");
+			actor.OutputHandler.Send("Do you want to #3add#0, #3remove#0, #3edit#0, #3swap#0 or set #3stamina#0 or an #3exertion#0 for a phase?".SubstituteANSIColour());
 			return false;
 		}
 
@@ -1887,8 +1899,13 @@ public class Craft : Framework.Revision.EditableItem, ICraft
 				return BuildingCommandPhaseEdit(actor, command);
 			case "swap":
 				return BuildingCommandPhaseSwap(actor, command);
+			case "exertion":
+			case "exert":
+				return BuildingCommandPhaseExertion(actor, command);
+			case "stamina":
+				return BuildingCommandPhaseStamina(actor, command);
 			default:
-				actor.OutputHandler.Send("Do you want to add, remove, edit or swap a phase?");
+				actor.OutputHandler.Send("Do you want to #3add#0, #3remove#0, #3edit#0, #3swap#0 or set #3stamina#0 or an #3exertion#0 for a phase?".SubstituteANSIColour());
 				return false;
 		}
 	}
@@ -2025,6 +2042,72 @@ public class Craft : Framework.Revision.EditableItem, ICraft
 		RecalculatePhaseNumbers();
 		CraftChanged = true;
 		actor.OutputHandler.Send($"You swap the {value.ToOrdinal()} and {value2.ToOrdinal()} phases.");
+		return true;
+	}
+
+	private bool BuildingCommandPhaseExertion(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("Which phase do you want to edit?");
+			return false;
+		}
+
+		if (!int.TryParse(command.Pop(), out var index) || index <= 0 || index > LastPhase)
+		{
+			actor.OutputHandler.Send(
+				$"You must specify a valid phase. There are currently {_craftPhases.Count} phases.");
+			return false;
+		}
+
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send($"You must specify a valid exertion value.\nValid values are {Enum.GetValues<ExertionLevel>().ListToColouredString()}.");
+			return false;
+		}
+
+		if (!command.SafeRemainingArgument.TryParseEnum<ExertionLevel>(out var value))
+		{
+			actor.OutputHandler.Send($"The text {command.SafeRemainingArgument.ColourCommand()} is not a valid exertion value.\nValid values are {Enum.GetValues<ExertionLevel>().ListToColouredString()}.");
+			return false;
+		}
+
+		_craftPhases[index - 1].ExertionLevel = value;
+		CraftChanged = true;
+		actor.OutputHandler.Send($"The {index.ToOrdinal().ColourValue()} phase now sets exertion to {value.Describe().ColourValue()}.");
+		return true;
+	}
+
+	private bool BuildingCommandPhaseStamina(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("Which phase do you want to edit?");
+			return false;
+		}
+
+		if (!int.TryParse(command.Pop(), out var index) || index <= 0 || index > LastPhase)
+		{
+			actor.OutputHandler.Send(
+				$"You must specify a valid phase. There are currently {_craftPhases.Count} phases.");
+			return false;
+		}
+
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send($"You must specify a valid stamina cost.");
+			return false;
+		}
+
+		if (!double.TryParse(command.SafeRemainingArgument, out var value) || value < 0.0)
+		{
+			actor.OutputHandler.Send($"The text {command.SafeRemainingArgument.ColourCommand()} is not a valid number greater than or equal to zero.");
+			return false;
+		}
+
+		_craftPhases[index - 1].StaminaUsage = value;
+		CraftChanged = true;
+		actor.OutputHandler.Send($"The {index.ToOrdinal().ColourValue()} phase now uses {value.ToStringN2Colour(actor)} stamina.");
 		return true;
 	}
 
@@ -2472,21 +2555,60 @@ public class Craft : Framework.Revision.EditableItem, ICraft
 		sb.AppendLine();
 		sb.AppendLine("Phases".GetLineWithTitle(actor, Telnet.Cyan, Telnet.BoldWhite));
 		sb.AppendLine();
+
 		var sb2 = new StringBuilder();
+		var phaseStrings = new List<List<string>>();
 		foreach (var phase in _craftPhases)
 		{
-			sb2.AppendLine();
-			if (phase.Echo.EqualTo(phase.FailEcho))
+			phaseStrings.Add([
+				phase.PhaseNumber.ToStringN0(actor).Colour(Telnet.Cyan),
+				TimeSpan.FromSeconds(phase.PhaseLengthInSeconds).DescribePreciseBrief(actor),
+				phase.StaminaUsage.ToStringN2Colour(actor),
+				phase.ExertionLevel.Describe(),
+				phase.Echo
+			]);
+			if (!phase.Echo.EqualTo(phase.FailEcho))
 			{
-				sb2.AppendLine($"\t{phase.PhaseNumber.ToStringN0(actor)}) {TimeSpan.FromSeconds(phase.PhaseLengthInSeconds).DescribePreciseBrief(actor).ColourValue()} -> \"{phase.Echo.ColourCommand()}\"");
-			}
-			else
-			{
-				sb2.AppendLine($"\t{phase.PhaseNumber.ToStringN0(actor)}) {TimeSpan.FromSeconds(phase.PhaseLengthInSeconds).DescribePreciseBrief(actor).ColourValue()} -> \"{phase.Echo.ColourCommand()}\"\n\n\t{new string(' ', $"{phase.PhaseNumber.ToStringN0(actor)}) {TimeSpan.FromSeconds(phase.PhaseLengthInSeconds).DescribePreciseBrief(actor).ColourValue()}".RawTextLength() - 4)}{"fail".ColourError()} -> {$"\"{phase.FailEcho}\"".Colour(Telnet.Yellow)}");
+				phaseStrings.Add([
+					"Fail".ColourError(),
+					"",
+					"",
+					"",
+					phase.FailEcho
+				]);
 			}
 		}
+		sb.AppendLine(StringUtilities.GetTextTable(
+			phaseStrings,
+			new List<string>
+			{
+				"Phase",
+				"Timespan",
+				"Stamina",
+				"Exertion",
+				"Echo"
+			},
+			1000,
+			true,
+			Telnet.Yellow,
+			-1,
+			actor.Account.UseUnicode
+		));
 
-		sb.Append(sb2.ToString().Wrap(actor.InnerLineFormatLength));
+		//foreach (var phase in _craftPhases)
+		//{
+		//	sb2.AppendLine();
+		//	if (phase.Echo.EqualTo(phase.FailEcho))
+		//	{
+		//		sb2.AppendLine($"\t{phase.PhaseNumber.ToStringN0(actor)}) {TimeSpan.FromSeconds(phase.PhaseLengthInSeconds).DescribePreciseBrief(actor).ColourValue()} -> \"{phase.Echo.ColourCommand()}\"");
+		//	}
+		//	else
+		//	{
+		//		sb2.AppendLine($"\t{phase.PhaseNumber.ToStringN0(actor)}) {TimeSpan.FromSeconds(phase.PhaseLengthInSeconds).DescribePreciseBrief(actor).ColourValue()} -> \"{phase.Echo.ColourCommand()}\"\n\n\t{new string(' ', $"{phase.PhaseNumber.ToStringN0(actor)}) {TimeSpan.FromSeconds(phase.PhaseLengthInSeconds).DescribePreciseBrief(actor).ColourValue()}".RawTextLength() - 4)}{"fail".ColourError()} -> {$"\"{phase.FailEcho}\"".Colour(Telnet.Yellow)}");
+		//	}
+		//}
+
+		//sb.Append(sb2.ToString().Wrap(actor.InnerLineFormatLength));
 
 		sb.AppendLine();
 		sb.AppendLine("Inputs".GetLineWithTitle(actor, Telnet.Cyan, Telnet.BoldWhite));
@@ -2689,16 +2811,7 @@ public class Craft : Framework.Revision.EditableItem, ICraft
 
 			foreach (var phase in _craftPhases)
 			{
-				var dbphase = new Models.CraftPhase
-				{
-					CraftPhaseId = Id,
-					CraftPhaseRevisionNumber = RevisionNumber,
-					Echo = phase.Echo,
-					FailEcho = phase.FailEcho,
-					PhaseNumber = phase.PhaseNumber,
-					PhaseLengthInSeconds = phase.PhaseLengthInSeconds
-				};
-				dbnew.CraftPhases.Add(dbphase);
+				dbnew.CraftPhases.Add(phase.CreateDBPhase());
 			}
 
 			var inputMap = new Dictionary<long, Models.CraftInput>();

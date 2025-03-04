@@ -71,7 +71,7 @@ public class CoupDeGrace : WeaponAttackMove
 					Weapon.Parent), style: OutputStyle.CombatMessage, flags: OutputFlags.InnerWrap).Append(Emote));
 		var wounds = Target.PassiveSufferDamage(finalDamage).ToList();
 		wounds.ProcessPassiveWounds();
-		Assailant.Body?.SetExertion(AssociatedExertion);
+		Assailant.Body?.SetExertionToMinimumLevel(AssociatedExertion);
 		return new CombatMoveResult
 		{
 			MoveWasSuccessful = true,

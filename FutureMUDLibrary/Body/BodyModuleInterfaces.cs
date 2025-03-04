@@ -284,7 +284,17 @@ namespace MudSharp.Body {
         void StaminaTenSecondHeartbeat();
         void StaminaMinuteHeartbeat();
 
+        /// <summary>
+        /// Sets the exertion to specifically the level mentioned
+        /// </summary>
+        /// <param name="level"></param>
         void SetExertion(ExertionLevel level);
+
+        /// <summary>
+        /// Sets the exertion to the higher of the current exertion and this supplied value
+        /// </summary>
+        /// <param name="level"></param>
+        void SetExertionToMinimumLevel(ExertionLevel level);
 
         void InitialiseStamina();
 

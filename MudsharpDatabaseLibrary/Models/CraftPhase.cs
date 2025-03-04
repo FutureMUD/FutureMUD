@@ -11,6 +11,8 @@ namespace MudSharp.Models
         public double PhaseLengthInSeconds { get; set; }
         public string Echo { get; set; }
         public string FailEcho { get; set; }
+        public int ExertionLevel { get; set; }
+        public double StaminaUsage { get; set; }
 
         public virtual Craft Craft { get; set; }
     }

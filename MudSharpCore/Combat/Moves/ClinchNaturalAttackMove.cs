@@ -164,8 +164,8 @@ public class ClinchNaturalAttackMove : WeaponAttackMove
 		wounds.ProcessPassiveWounds();
 		selfwounds.ProcessPassiveWounds();
 
-		Assailant.Body?.SetExertion(AssociatedExertion);
-		CharacterTarget.Body?.SetExertion(dodge.AssociatedExertion);
+		Assailant.Body?.SetExertionToMinimumLevel(AssociatedExertion);
+		CharacterTarget.Body?.SetExertionToMinimumLevel(dodge.AssociatedExertion);
 		return new CombatMoveResult
 		{
 			MoveWasSuccessful = true,
@@ -202,8 +202,8 @@ public class ClinchNaturalAttackMove : WeaponAttackMove
 		var selfwounds = Assailant.PassiveSufferDamage(selfDamage);
 		wounds.ProcessPassiveWounds();
 		selfwounds.ProcessPassiveWounds();
-		Assailant.Body?.SetExertion(AssociatedExertion);
-		CharacterTarget.Body?.SetExertion(defenderMove.AssociatedExertion);
+		Assailant.Body?.SetExertionToMinimumLevel(AssociatedExertion);
+		CharacterTarget.Body?.SetExertionToMinimumLevel(defenderMove.AssociatedExertion);
 		return new CombatMoveResult
 		{
 			MoveWasSuccessful = true,

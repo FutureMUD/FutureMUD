@@ -1278,6 +1278,11 @@ public partial class Character
 		Body.SetExertion(level);
 	}
 
+	public void SetExertionToMinimumLevel(ExertionLevel level)
+	{
+		Body.SetExertionToMinimumLevel(level);
+	}
+
 	public void InitialiseStamina()
 	{
 		Body.InitialiseStamina();

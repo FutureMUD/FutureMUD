@@ -490,7 +490,7 @@ public abstract class WeaponAttackMove : CombatMoveBase, IWeaponAttackMove
 		};
 
 		var wounds = aggressor.PassiveSufferDamage(finalDamage).ToList();
-		defender.Body?.SetExertion(weaponAttack.ExertionLevel);
+		defender.Body?.SetExertionToMinimumLevel(weaponAttack.ExertionLevel);
 		return wounds;
 	}
 
@@ -648,7 +648,7 @@ public abstract class WeaponAttackMove : CombatMoveBase, IWeaponAttackMove
 			defender.PassiveSufferDamage(selfDamage);
 
 			var wounds = aggressor.PassiveSufferDamage(finalDamage).ToList();
-			defender.Body?.SetExertion(naturalAttack.Attack.ExertionLevel);
+			defender.Body?.SetExertionToMinimumLevel(naturalAttack.Attack.ExertionLevel);
 			return wounds;
 		}
 	}

@@ -296,8 +296,8 @@ public class MeleeWeaponAttack : WeaponAttackMove
 			wounds.ProcessPassiveWounds();
 		}
 
-		Assailant.Body?.SetExertion(AssociatedExertion);
-		defenderMove.Assailant.Body?.SetExertion(defenderMove.AssociatedExertion);
+		Assailant.Body?.SetExertionToMinimumLevel(AssociatedExertion);
+		defenderMove.Assailant.Body?.SetExertionToMinimumLevel(defenderMove.AssociatedExertion);
 		return new CombatMoveResult
 		{
 			MoveWasSuccessful = result.Outcome == OpposedOutcomeDirection.Proponent,
@@ -507,8 +507,8 @@ public class MeleeWeaponAttack : WeaponAttackMove
 			}
 		}
 
-		Assailant.Body?.SetExertion(AssociatedExertion);
-		defenderMove.Assailant.Body?.SetExertion(defenderMove.AssociatedExertion);
+		Assailant.Body?.SetExertionToMinimumLevel(AssociatedExertion);
+		defenderMove.Assailant.Body?.SetExertionToMinimumLevel(defenderMove.AssociatedExertion);
 		return new CombatMoveResult
 		{
 			MoveWasSuccessful = result.Outcome == OpposedOutcomeDirection.Proponent,
@@ -627,8 +627,8 @@ public class MeleeWeaponAttack : WeaponAttackMove
 			}
 		}
 
-		Assailant.Body?.SetExertion(AssociatedExertion);
-		defenderMove.Assailant.Body?.SetExertion(defenderMove.AssociatedExertion);
+		Assailant.Body?.SetExertionToMinimumLevel(AssociatedExertion);
+		defenderMove.Assailant.Body?.SetExertionToMinimumLevel(defenderMove.AssociatedExertion);
 		return new CombatMoveResult
 		{
 			MoveWasSuccessful = result.Outcome == OpposedOutcomeDirection.Proponent,
@@ -665,8 +665,8 @@ public class MeleeWeaponAttack : WeaponAttackMove
 		wounds.AddRange(Weapon.Parent.PassiveSufferDamage(selfDamage));
 		CheckLodged(wounds);
 		wounds.ProcessPassiveWounds();
-		Assailant.Body?.SetExertion(AssociatedExertion);
-		defenderMove.Assailant.Body?.SetExertion(defenderMove.AssociatedExertion);
+		Assailant.Body?.SetExertionToMinimumLevel(AssociatedExertion);
+		defenderMove.Assailant.Body?.SetExertionToMinimumLevel(defenderMove.AssociatedExertion);
 		return new CombatMoveResult
 		{
 			MoveWasSuccessful = true,

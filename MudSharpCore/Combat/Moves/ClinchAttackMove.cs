@@ -184,8 +184,8 @@ public class ClinchAttackMove : WeaponAttackMove
 				flags: OutputFlags.InnerWrap));
 		var wounds = CharacterTarget.PassiveSufferDamage(finalDamage).ToList();
 		wounds.ProcessPassiveWounds();
-		Assailant.Body?.SetExertion(AssociatedExertion);
-		CharacterTarget.Body?.SetExertion(dodge.AssociatedExertion);
+		Assailant.Body?.SetExertionToMinimumLevel(AssociatedExertion);
+		CharacterTarget.Body?.SetExertionToMinimumLevel(dodge.AssociatedExertion);
 		return new CombatMoveResult
 		{
 			MoveWasSuccessful = true,
@@ -239,8 +239,8 @@ public class ClinchAttackMove : WeaponAttackMove
 
 		var wounds = CharacterTarget.PassiveSufferDamage(finalDamage).ToList();
 		wounds.ProcessPassiveWounds();
-		Assailant.Body?.SetExertion(AssociatedExertion);
-		CharacterTarget.Body?.SetExertion(defenderMove.AssociatedExertion);
+		Assailant.Body?.SetExertionToMinimumLevel(AssociatedExertion);
+		CharacterTarget.Body?.SetExertionToMinimumLevel(defenderMove.AssociatedExertion);
 		return new CombatMoveResult
 		{
 			MoveWasSuccessful = true,

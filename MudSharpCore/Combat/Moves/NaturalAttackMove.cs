@@ -245,8 +245,8 @@ public class NaturalAttackMove : WeaponAttackMove
 			selfWounds.ProcessPassiveWounds();
 		}
 
-		Assailant.Body?.SetExertion(AssociatedExertion);
-		defenderMove.Assailant.Body?.SetExertion(defenderMove.AssociatedExertion);
+		Assailant.Body?.SetExertionToMinimumLevel(AssociatedExertion);
+		defenderMove.Assailant.Body?.SetExertionToMinimumLevel(defenderMove.AssociatedExertion);
 		return new CombatMoveResult
 		{
 			MoveWasSuccessful = result.Outcome == OpposedOutcomeDirection.Proponent,
@@ -405,8 +405,8 @@ public class NaturalAttackMove : WeaponAttackMove
 			}
 		}
 
-		Assailant.Body?.SetExertion(AssociatedExertion);
-		defenderMove.Assailant.Body?.SetExertion(defenderMove.AssociatedExertion);
+		Assailant.Body?.SetExertionToMinimumLevel(AssociatedExertion);
+		defenderMove.Assailant.Body?.SetExertionToMinimumLevel(defenderMove.AssociatedExertion);
 		return new CombatMoveResult
 		{
 			MoveWasSuccessful = result.Outcome == OpposedOutcomeDirection.Proponent,
@@ -529,8 +529,8 @@ public class NaturalAttackMove : WeaponAttackMove
 			}
 		}
 
-		Assailant.Body?.SetExertion(AssociatedExertion);
-		defenderMove.Assailant.Body?.SetExertion(defenderMove.AssociatedExertion);
+		Assailant.Body?.SetExertionToMinimumLevel(AssociatedExertion);
+		defenderMove.Assailant.Body?.SetExertionToMinimumLevel(defenderMove.AssociatedExertion);
 		return new CombatMoveResult
 		{
 			MoveWasSuccessful = result.Outcome == OpposedOutcomeDirection.Proponent,
@@ -571,8 +571,8 @@ public class NaturalAttackMove : WeaponAttackMove
 		var selfWounds = Assailant.PassiveSufferDamage(selfDamage);
 		wounds.ProcessPassiveWounds();
 		selfWounds.ProcessPassiveWounds();
-		Assailant.Body?.SetExertion(AssociatedExertion);
-		defenderMove.Assailant.Body?.SetExertion(defenderMove.AssociatedExertion);
+		Assailant.Body?.SetExertionToMinimumLevel(AssociatedExertion);
+		defenderMove.Assailant.Body?.SetExertionToMinimumLevel(defenderMove.AssociatedExertion);
 		return new CombatMoveResult
 		{
 			MoveWasSuccessful = result.Outcome == OpposedOutcomeDirection.Proponent,

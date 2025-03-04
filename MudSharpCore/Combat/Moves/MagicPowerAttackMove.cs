@@ -261,8 +261,8 @@ public class MagicPowerAttackMove : WeaponAttackMove, IMagicPowerAttackMove
 			wounds.ProcessPassiveWounds();
 		}
 
-		Assailant.Body?.SetExertion(AssociatedExertion);
-		defenderMove.Assailant.Body?.SetExertion(defenderMove.AssociatedExertion);
+		Assailant.Body?.SetExertionToMinimumLevel(AssociatedExertion);
+		defenderMove.Assailant.Body?.SetExertionToMinimumLevel(defenderMove.AssociatedExertion);
 		return new CombatMoveResult
 		{
 			MoveWasSuccessful = result.Outcome == OpposedOutcomeDirection.Proponent,
@@ -444,8 +444,8 @@ public class MagicPowerAttackMove : WeaponAttackMove, IMagicPowerAttackMove
 			}
 		}
 
-		Assailant.Body?.SetExertion(AssociatedExertion);
-		defenderMove.Assailant.Body?.SetExertion(defenderMove.AssociatedExertion);
+		Assailant.Body?.SetExertionToMinimumLevel(AssociatedExertion);
+		defenderMove.Assailant.Body?.SetExertionToMinimumLevel(defenderMove.AssociatedExertion);
 		return new CombatMoveResult
 		{
 			MoveWasSuccessful = result.Outcome == OpposedOutcomeDirection.Proponent,
@@ -589,8 +589,8 @@ public class MagicPowerAttackMove : WeaponAttackMove, IMagicPowerAttackMove
 			}
 		}
 
-		Assailant.Body?.SetExertion(AssociatedExertion);
-		defenderMove.Assailant.Body?.SetExertion(defenderMove.AssociatedExertion);
+		Assailant.Body?.SetExertionToMinimumLevel(AssociatedExertion);
+		defenderMove.Assailant.Body?.SetExertionToMinimumLevel(defenderMove.AssociatedExertion);
 		return new CombatMoveResult
 		{
 			MoveWasSuccessful = result.Outcome == OpposedOutcomeDirection.Proponent,
@@ -622,8 +622,8 @@ public class MagicPowerAttackMove : WeaponAttackMove, IMagicPowerAttackMove
 		var wounds = defenderHaveWounds.PassiveSufferDamage(damage).ToList();
 		CheckLodged(wounds);
 		wounds.ProcessPassiveWounds();
-		Assailant.Body?.SetExertion(AssociatedExertion);
-		defenderMove.Assailant.Body?.SetExertion(defenderMove.AssociatedExertion);
+		Assailant.Body?.SetExertionToMinimumLevel(AssociatedExertion);
+		defenderMove.Assailant.Body?.SetExertionToMinimumLevel(defenderMove.AssociatedExertion);
 		return new CombatMoveResult
 		{
 			MoveWasSuccessful = true,

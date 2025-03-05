@@ -911,6 +911,7 @@ public abstract class Shop : SaveableItem, IShop
 		Changed = true;
 		if (CashBalance >= amount)
 		{
+			ExpectedCashBalance -= amount;
 			CashBalance -= amount;
 			return;
 		}
@@ -963,6 +964,8 @@ public abstract class Shop : SaveableItem, IShop
 		}
 
 		BankAccount.WithdrawFromTransaction(bankBalance, paymentReference);
+		CashBalance -= amount - bankBalance;
+		ExpectedCashBalance -= amount - bankBalance;
 	}
 
 	public IEnumerable<IGameItem> DoAutostockAllMerchandise()

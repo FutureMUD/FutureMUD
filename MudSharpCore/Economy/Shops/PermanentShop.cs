@@ -525,7 +525,9 @@ public class PermanentShop : Shop, IPermanentShop
 		piles.AddRange(TillItems.SelectMany(x => x.RecursiveGetItems<ICurrencyPile>()));
 		if (StockroomCell is not null)
 		{
-			piles.AddRange(StockroomCell.GameItems.SelectMany(x => x.RecursiveGetItems<ICurrencyPile>()));
+			piles.AddRange(StockroomCell.GameItems
+			                            .Where(x => !TillItems.Contains(x))
+			                            .SelectMany(x => x.RecursiveGetItems<ICurrencyPile>()));
 		}
 		return piles;
 	}

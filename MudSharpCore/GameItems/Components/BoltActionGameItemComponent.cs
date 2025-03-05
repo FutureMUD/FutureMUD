@@ -627,9 +627,25 @@ public class BoltActionGameItemComponent : GameItemComponent, IRangedWeapon, ISw
 	public override void Delete()
 	{
 		base.Delete();
+		if (ChamberedRound is not null)
+		{
+			ChamberedRound.Parent.ContainedIn = null;
+		}
 		ChamberedRound?.Parent.Delete();
+
+		if (ChamberedCasing is not null)
+		{
+			ChamberedCasing.ContainedIn = null;
+		}
 		ChamberedCasing?.Delete();
+		
+
+		if (Magazine is not null)
+		{
+			Magazine.Parent.ContainedIn = null;
+		}
 		Magazine?.Parent.Delete();
+		
 	}
 
 	public override void Login()

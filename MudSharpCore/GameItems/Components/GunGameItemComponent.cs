@@ -564,7 +564,16 @@ public class GunGameItemComponent : GameItemComponent, IRangedWeapon, ISwitchabl
 	public override void Delete()
 	{
 		base.Delete();
+		if (ChamberedRound is not null)
+		{
+			ChamberedRound.Parent.ContainedIn = null;
+		}
 		ChamberedRound?.Parent.Delete();
+
+		if (Magazine is not null)
+		{
+			Magazine.Parent.ContainedIn = null;
+		}
 		Magazine?.Parent.Delete();
 	}
 

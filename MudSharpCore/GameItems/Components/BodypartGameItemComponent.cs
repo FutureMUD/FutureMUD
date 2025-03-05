@@ -254,6 +254,7 @@ public class BodypartGameItemComponent : GameItemComponent, ISeveredBodypart, IL
 		foreach (var item in Contents.ToList())
 		{
 			_contents.Remove(item);
+			item.ContainedIn = null;
 			item.Delete();
 		}
 

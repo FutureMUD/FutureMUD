@@ -41,6 +41,7 @@ public class BatteryChargerGameItemComponent : GameItemComponent, IContainer, IO
 		foreach (var item in Contents.ToList())
 		{
 			_contents.Remove(item);
+			item.ContainedIn = null;
 			item.Delete();
 		}
 

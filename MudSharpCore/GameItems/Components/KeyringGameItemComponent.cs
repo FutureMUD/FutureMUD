@@ -109,6 +109,7 @@ public class KeyringGameItemComponent : GameItemComponent, IKeyring, IContainer
 		foreach (var item in Contents.ToList())
 		{
 			_contents.Remove(item);
+			item.ContainedIn = null;
 			item.Delete();
 		}
 	}

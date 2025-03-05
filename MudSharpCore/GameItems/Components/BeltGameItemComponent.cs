@@ -98,6 +98,7 @@ public class BeltGameItemComponent : GameItemComponent, IBelt
 				}
 				else
 				{
+					item.ConnectedTo = null;
 					item.Delete();
 				}
 			}

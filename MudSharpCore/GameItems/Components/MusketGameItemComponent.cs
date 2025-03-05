@@ -158,6 +158,7 @@ public class MusketGameItemComponent : GameItemComponent, IJammableWeapon, IBelt
 		base.Delete();
 		foreach (var item in MagazineContents.ToList())
 		{
+			item.ContainedIn = null;
 			item.Delete();
 		}
 		_bayonet?.Parent.Delete();

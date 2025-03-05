@@ -425,6 +425,10 @@ public class CrossbowGameItemComponent : GameItemComponent, IRangedWeapon, IMele
 	public override void Delete()
 	{
 		base.Delete();
+		if (LoadedAmmo is not null)
+		{
+			LoadedAmmo.Parent.ContainedIn = null;
+		}
 		LoadedAmmo?.Parent.Delete();
 	}
 

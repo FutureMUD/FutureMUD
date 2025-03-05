@@ -398,6 +398,7 @@ public class AmmoClipGameItemComponent : GameItemComponent, IAmmoClip
 		foreach (var item in Contents.ToList())
 		{
 			_contents.Remove(item);
+			item.ContainedIn = null;
 			item.Delete();
 		}
 	}

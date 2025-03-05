@@ -58,6 +58,7 @@ public class WashingMachineGameItemComponent : GameItemComponent, ILiquidContain
 		foreach (var item in Contents.ToList())
 		{
 			_laundryContents.Remove(item);
+			item.ContainedIn = null;
 			item.Delete();
 		}
 

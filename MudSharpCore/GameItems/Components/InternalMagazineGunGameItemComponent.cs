@@ -674,10 +674,22 @@ public class InternalMagazineGunGameItemComponent : GameItemComponent, IRangedWe
 	public override void Delete()
 	{
 		base.Delete();
+		if (ChamberedRound is not null)
+		{
+			ChamberedRound.Parent.ContainedIn = null;
+		}
 		ChamberedRound?.Parent.Delete();
+
+		if (ChamberedCasing is not null)
+		{
+			ChamberedCasing.ContainedIn = null;
+		}
 		ChamberedCasing?.Delete();
+
+
 		foreach (var item in _roundsInMagazine.ToList())
 		{
+			item.ContainedIn = null;
 			item.Delete();
 		}
 	}

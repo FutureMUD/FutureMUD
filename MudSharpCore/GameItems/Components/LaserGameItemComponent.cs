@@ -494,6 +494,10 @@ public class LaserGameItemComponent : GameItemComponent, IRangedWeapon, ISwitcha
 	public override void Delete()
 	{
 		base.Delete();
+		if (PowerPack is not null)
+		{
+			PowerPack.Parent.ContainedIn = null;
+		}
 		PowerPack?.Parent.Delete();
 	}
 

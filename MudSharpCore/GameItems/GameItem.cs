@@ -1302,7 +1302,7 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable
 		{
 			if (component.Take(item))
 			{
-				ContainedIn = null;
+				item.ContainedIn = null;
 				break;
 			}
 		}
@@ -1633,6 +1633,7 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable
 		SoftReleasePositionTarget();
 		PerceivableDeleted();
 		ContainedIn?.Take(this);
+		ContainedIn = null;
 		InInventoryOf?.Take(this);
 		Location?.Extract(this);
 		Get(null);

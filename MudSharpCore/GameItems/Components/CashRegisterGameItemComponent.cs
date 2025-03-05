@@ -385,6 +385,7 @@ public class CashRegisterGameItemComponent : GameItemComponent, IContainer, ISel
 		foreach (var item in Contents.ToList())
 		{
 			_contents.Remove(item);
+			item.ContainedIn = null;
 			item.Delete();
 		}
 	}

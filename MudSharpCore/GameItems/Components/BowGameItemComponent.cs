@@ -72,6 +72,10 @@ public class BowGameItemComponent : GameItemComponent, IRangedWeaponWithUnreadyE
 	public override void Delete()
 	{
 		base.Delete();
+		if (LoadedAmmo is not null)
+		{
+			LoadedAmmo.Parent.ContainedIn = null;
+		}
 		LoadedAmmo?.Parent.Delete();
 	}
 

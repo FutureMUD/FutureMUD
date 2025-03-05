@@ -34,6 +34,7 @@ public class PileGameItemComponent : GameItemComponent, IContainer
 		foreach (var item in Contents.ToList())
 		{
 			_contents.Remove(item);
+			item.ContainedIn = null;
 			item.Delete();
 		}
 	}
@@ -59,6 +60,7 @@ public class PileGameItemComponent : GameItemComponent, IContainer
 		if (Contents.Contains(item))
 		{
 			_contents.Remove(item);
+			item.ContainedIn = null;
 			Changed = true;
 			CheckPileEmpty();
 			return true;
@@ -248,6 +250,10 @@ public class PileGameItemComponent : GameItemComponent, IContainer
 	public void SetContents(IEnumerable<IGameItem> items)
 	{
 		_contents.AddRange(items);
+		foreach (var item in _contents)
+		{
+			item.ContainedIn = Parent;
+		}
 	}
 
 	public string ContentsPreposition => "in";
@@ -319,6 +325,7 @@ public class PileGameItemComponent : GameItemComponent, IContainer
 		{
 			var content = _contents.Single();
 			_contents.Clear();
+			content.ContainedIn = null;
 			if (Parent.ContainedIn != null)
 			{
 				Parent.ContainedIn.SwapInPlace(Parent, content);

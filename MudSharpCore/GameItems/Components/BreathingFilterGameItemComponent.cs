@@ -250,6 +250,11 @@ public class BreathingFilterGameItemComponent : GameItemComponent, IProvideGasFo
 	public override void Delete()
 	{
 		base.Delete();
+		if (_installedFilterConsumable != null)
+		{
+			_installedFilterConsumable.ContainedIn = null;
+		}
+
 		_installedFilterConsumable?.Delete();
 	}
 

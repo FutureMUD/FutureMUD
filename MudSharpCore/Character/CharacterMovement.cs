@@ -41,18 +41,105 @@ public partial class Character
 			new EmoteOutput(
 				new Emote("$0 opens a swirling vortex of energy and disappears as #0 steps through.", this, this),
 				flags: OutputFlags.SuppressObscured | OutputFlags.SuppressSource));
-		Movement?.CancelForMoverOnly(this);
-		RemoveAllEffects(x => x.IsEffectType<IActionEffect>());
-		Location.Leave(this);
-		SetPosition(PositionStanding.Instance, PositionModifier.None, null, null);
-		RoomLayer = layer;
-		target.Enter(this);
+		OutputHandler.Send(
+			"You open a swirling vortex of magical energies, stepping through and emerging somewhere new.");
+
+		Teleport(target, layer, true, false);
+
 		OutputHandler.Handle(
 			new EmoteOutput(new Emote("A swirling vortex of energy opens up briefly, and @ steps through.", this),
 				flags: OutputFlags.SuppressObscured | OutputFlags.SuppressSource));
-		OutputHandler.Send(
-			"You open a swirling vortex of magical energies, stepping through and emerging somewhere new.");
+	}
+
+	public void Teleport(ICell target, RoomLayer layer, bool includeFollowers, bool echo)
+	{
+		Movement?.CancelForMoverOnly(this);
+		RemoveAllEffects(x => x.IsEffectType<IActionEffect>(), true);
+		RemoveAllEffects<IRemoveOnMovementEffect>(fireRemovalAction: true);
+		RemoveAllEffects<Dragging.DragTarget>(fireRemovalAction: true);
+		var otherMovers = new List<ICharacter>();
+		var otherItems = new List<IGameItem>();
+		var drag = EffectHandler.EffectsOfType<IDragging>().FirstOrDefault();
+		if (includeFollowers)
+		{
+			if (drag is not null)
+			{
+				if (drag.Target is ICharacter ch)
+				{
+					otherMovers.Add(ch);
+				}
+				else if (drag.Target is IGameItem item)
+				{
+					otherItems.Add(item);
+				}
+				otherMovers.AddRange(drag.CharacterDraggers.Except(this).Where(x => x.ColocatedWith(this)));
+			}
+		}
+		else
+		{
+			if (drag is not null)
+			{
+				RemoveEffect(drag, true);
+			}
+		}
+
+		foreach (var mover in otherMovers)
+		{
+			Movement?.CancelForMoverOnly(mover);
+			mover.RemoveAllEffects(x => x.IsEffectType<IActionEffect>(), true);
+			mover.RemoveAllEffects<IRemoveOnMovementEffect>(fireRemovalAction: true);
+		}
+
+		if (echo)
+		{
+			OutputHandler.Handle(new EmoteOutput(new Emote("@ leaves the area.", this), flags: OutputFlags.SuppressObscured | OutputFlags.SuppressSource));
+			foreach (var mover in otherMovers)
+			{
+				mover.OutputHandler.Handle(new EmoteOutput(new Emote("@ leaves the area.", mover), flags: OutputFlags.SuppressObscured | OutputFlags.SuppressSource));
+			}
+		}
+
+		SetPosition(PositionState, PositionModifier.None, null, null);
+		Location.Leave(this);
+		foreach (var item in otherItems)
+		{
+			Location.Extract(item);
+		}
+		RoomLayer = layer;
+		
+		foreach (var mover in otherMovers)
+		{
+			mover.SetPosition(mover.PositionState, PositionModifier.None, null, null);
+			mover.Location.Leave(mover);
+			mover.RoomLayer = layer;
+		}
+		
+		target.Enter(this);
+		foreach (var mover in otherMovers)
+		{
+			target.Enter(mover);
+		}
+
+		foreach (var item in otherItems)
+		{
+			item.RoomLayer = layer;
+			target.Insert(item, true);
+		}
+
+		if (echo)
+		{
+			OutputHandler.Handle(new EmoteOutput(new Emote("@ enters the area.", this), flags: OutputFlags.SuppressObscured | OutputFlags.SuppressSource));
+			foreach (var mover in otherMovers)
+			{
+				mover.OutputHandler.Handle(new EmoteOutput(new Emote("@ enters the area.", mover), flags: OutputFlags.SuppressObscured | OutputFlags.SuppressSource));
+			}
+		}
+
 		Body.Look();
+		foreach (var mover in otherMovers)
+		{
+			mover.Body.Look();
+		}
 	}
 
 	public override (bool Success, IEmoteOutput FailureOutput) CanCross(ICellExit exit)

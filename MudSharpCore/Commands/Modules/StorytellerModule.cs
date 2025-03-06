@@ -1641,20 +1641,9 @@ The syntax to use this command is as follows:
 			return;
 		}
 
-		target.Movement?.CancelForMoverOnly(target);
-		target.RemoveAllEffects(x => x.IsEffectType<IActionEffect>());
-
-		target.OutputHandler.Handle(new EmoteOutput(new Emote("@ leaves the area.", target),
-			flags: OutputFlags.SuppressObscured | OutputFlags.SuppressSource));
 		target.OutputHandler.Send(new EmoteOutput(new Emote("$0 transfers you to &0's location.", target, actor)));
 		actor.OutputHandler.Send(new EmoteOutput(new Emote("You transfer $0 to your location.", actor, target)));
-		actor.OutputHandler.Handle(new EmoteOutput(new Emote("@ enters the area.", target),
-			flags: OutputFlags.SuppressObscured));
-		// TODO - hook events here?
-		target.Location.Leave(target);
-		target.RoomLayer = actor.RoomLayer;
-		actor.Location.Enter(target);
-		target.Body.Look(true);
+		target.Teleport(actor.Location, actor.RoomLayer, true, true);
 	}
 
 	[PlayerCommand("Goto", "goto")]

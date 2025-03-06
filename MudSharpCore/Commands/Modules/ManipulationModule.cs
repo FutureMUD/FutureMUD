@@ -578,7 +578,7 @@ Note - you can use the #3stop#0 command to stop dragging someone", AutoHelp.Help
 
 		tChar = target as ICharacter;
 		var ally = tChar.IsAlly(actor);
-		if (CharacterState.Able.HasFlag(tChar.State) && !ally)
+		if (CharacterState.Able.HasFlag(tChar.State) && !ally && !tChar.IsHelpless)
 		{
 			actor.Send("You cannot drag someone who is conscious and unwilling."); // TODO - accept affect?
 			return;

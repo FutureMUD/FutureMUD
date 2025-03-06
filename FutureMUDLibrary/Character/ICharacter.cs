@@ -343,6 +343,15 @@ namespace MudSharp.Character {
 
 		void TransferTo(ICell target, RoomLayer layer);
 
+		/// <summary>
+		/// This function should be the preferred way of teleporting a character from one cell to another, handling all the consequences
+		/// </summary>
+		/// <param name="target">The target location</param>
+		/// <param name="layer">The target layer</param>
+		/// <param name="includeFollowers">Include dragging targets</param>
+		/// <param name="echo">Echo everyone entering or leaving (if you handle the echo elsewhere, use false)</param>
+		void Teleport(ICell target, RoomLayer layer, bool includeFollowers, bool echo);
+
 		void EditorMode(Action<string, IOutputHandler, object[]> postAction, Action<IOutputHandler, object[]> cancelAction, double characterLengthMultiplier = 1.0, string recallText = null, EditorOptions options = EditorOptions.None, object[] suppliedArguments = null);
 		void EditorModeMulti(Action<IEnumerable<string>, IOutputHandler, object[]> postAction, Action<IOutputHandler, object[]> cancelAction, IEnumerable<string> editorTexts, double characterLengthMultiplier = 1.0, string recallText = null, EditorOptions options = EditorOptions.None, object[] suppliedArguments = null);
 

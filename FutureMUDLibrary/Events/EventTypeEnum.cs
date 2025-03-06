@@ -584,6 +584,6 @@ namespace MudSharp.Events {
 		/// Fires when a CommandDelay effect expires. Parameters are character, commands (string list)
 		/// </summary>
 		[EventInfo("Fires when a BlockLayerChange effect expires.", new[] { "character" }, new[] { "person", }, new[] { ProgVariableTypes.Character})]
-		LayerChangeBlockExpired = 93,
+		LayerChangeBlockExpired = 93
 	}
 }

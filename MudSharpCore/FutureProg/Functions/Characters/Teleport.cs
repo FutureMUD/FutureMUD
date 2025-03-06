@@ -14,6 +14,7 @@ using System.Threading.Tasks;
 using System.Xml.Linq;
 using MudSharp.Effects.Interfaces;
 using System.Numerics;
+using MudSharp.Events;
 
 namespace MudSharp.FutureProg.Functions.Characters;
 
@@ -32,7 +33,7 @@ internal class Teleport : BuiltInFunction
 				{
 					ProgVariableTypes.Character, ProgVariableTypes.Location
 				}, // the parameters the function takes
-				(pars, gameworld) => new Teleport(pars, gameworld, false),
+				(pars, gameworld) => new Teleport(pars, gameworld, false, false),
 				new List<string>
 				{
 					"Character",
@@ -56,7 +57,7 @@ internal class Teleport : BuiltInFunction
 				{
 					ProgVariableTypes.Character, ProgVariableTypes.Location
 				}, // the parameters the function takes
-				(pars, gameworld) => new Teleport(pars, gameworld, true),
+				(pars, gameworld) => new Teleport(pars, gameworld, true, false),
 				new List<string>
 				{
 					"Character",
@@ -80,7 +81,7 @@ internal class Teleport : BuiltInFunction
 				{
 					ProgVariableTypes.Character, ProgVariableTypes.Location, ProgVariableTypes.Text
 				}, // the parameters the function takes
-				(pars, gameworld) => new Teleport(pars, gameworld, false),
+				(pars, gameworld) => new Teleport(pars, gameworld, false, false),
 				new List<string>
 				{
 					"Character",
@@ -106,7 +107,7 @@ internal class Teleport : BuiltInFunction
 				{
 					ProgVariableTypes.Character, ProgVariableTypes.Location, ProgVariableTypes.Text
 				}, // the parameters the function takes
-				(pars, gameworld) => new Teleport(pars, gameworld, true),
+				(pars, gameworld) => new Teleport(pars, gameworld, true, false),
 				new List<string>
 				{
 					"Character",
@@ -124,19 +125,121 @@ internal class Teleport : BuiltInFunction
 				ProgVariableTypes.Boolean // the return type of the function
 			)
 		);
+
+		FutureProg.RegisterBuiltInFunctionCompiler(
+			new FunctionCompilerInformation(
+				"teleportall",
+				new[]
+				{
+					ProgVariableTypes.Character, ProgVariableTypes.Location
+				}, // the parameters the function takes
+				(pars, gameworld) => new Teleport(pars, gameworld, false, true),
+				new List<string>
+				{
+					"Character",
+					"Destination"
+				}, // parameter names
+				new List<string>
+				{
+					"The character who you want to teleport",
+					"The destination room to teleport them to"
+				}, // parameter help text
+				"Teleports a character and all their followers/drag targets to the ground level (or closest layer) in a new room. Returns false if the teleportation fails (if invalid character, room, or layer is specified).", // help text for the function,
+				"Character", // the category to which this function belongs,
+				ProgVariableTypes.Boolean // the return type of the function
+			)
+		);
+
+		FutureProg.RegisterBuiltInFunctionCompiler(
+			new FunctionCompilerInformation(
+				"teleportallnoecho",
+				new[]
+				{
+					ProgVariableTypes.Character, ProgVariableTypes.Location
+				}, // the parameters the function takes
+				(pars, gameworld) => new Teleport(pars, gameworld, true, true),
+				new List<string>
+				{
+					"Character",
+					"Destination"
+				}, // parameter names
+				new List<string>
+				{
+					"The character who you want to teleport",
+					"The destination room to teleport them to"
+				}, // parameter help text
+				"Teleports a character and all their followers/drag targets to the ground level (or closest layer) in a new room, with no echoes. Returns false if the teleportation fails (if invalid character, room, or layer is specified).", // help text for the function,
+				"Character", // the category to which this function belongs,
+				ProgVariableTypes.Boolean // the return type of the function
+			)
+		);
+
+		FutureProg.RegisterBuiltInFunctionCompiler(
+			new FunctionCompilerInformation(
+				"teleportall",
+				new[]
+				{
+					ProgVariableTypes.Character, ProgVariableTypes.Location, ProgVariableTypes.Text
+				}, // the parameters the function takes
+				(pars, gameworld) => new Teleport(pars, gameworld, false, true),
+				new List<string>
+				{
+					"Character",
+					"Destination",
+					"Layer"
+				}, // parameter names
+				new List<string>
+				{
+					"The character who you want to teleport",
+					"The destination room to teleport them to",
+					"The room layer to teleport to"
+				}, // parameter help text
+				"Teleports a character and all their followers/drag targets to the specified layer in a new room. Returns false if the teleportation fails (if invalid character, room, or layer is specified).", // help text for the function,
+				"Character", // the category to which this function belongs,
+				ProgVariableTypes.Boolean // the return type of the function
+			)
+		);
+
+		FutureProg.RegisterBuiltInFunctionCompiler(
+			new FunctionCompilerInformation(
+				"teleportallnoecho",
+				new[]
+				{
+					ProgVariableTypes.Character, ProgVariableTypes.Location, ProgVariableTypes.Text
+				}, // the parameters the function takes
+				(pars, gameworld) => new Teleport(pars, gameworld, true, true),
+				new List<string>
+				{
+					"Character",
+					"Destination",
+					"Layer"
+				}, // parameter names
+				new List<string>
+				{
+					"The character who you want to teleport",
+					"The destination room to teleport them to",
+					"The room layer to teleport to"
+				}, // parameter help text
+				"Teleports a character and all their followers/drag targets to the specified layer in a new room, with no echoes. Returns false if the teleportation fails (if invalid character, room, or layer is specified).", // help text for the function,
+				"Character", // the category to which this function belongs,
+				ProgVariableTypes.Boolean // the return type of the function
+			)
+		);
 	}
 
 	#endregion
 
 	public bool IsSilent { get; }
+	public bool IncludeFollowers { get; }
 
 	#region Constructors
 
-	protected Teleport(IList<IFunction> parameterFunctions, IFuturemud gameworld, bool isSilent) : base(
+	protected Teleport(IList<IFunction> parameterFunctions, IFuturemud gameworld, bool isSilent, bool includeFollowers) : base(
 		parameterFunctions)
 	{
 		Gameworld = gameworld;
 		IsSilent = isSilent;
+		IncludeFollowers = includeFollowers;
 	}
 
 	#endregion
@@ -189,25 +292,7 @@ internal class Teleport : BuiltInFunction
 			return StatementResult.Normal;
 		}
 
-		target.Movement?.CancelForMoverOnly(target);
-		target.RemoveAllEffects(x => x.IsEffectType<IActionEffect>());
-
-		if (!IsSilent)
-		{
-			target.OutputHandler.Handle(new EmoteOutput(new Emote("@ leaves the area.", target),
-				flags: OutputFlags.SuppressObscured | OutputFlags.SuppressSource));
-		}
-
-		target.Location.Leave(target);
-		target.RoomLayer = layer;
-		location.Enter(target);
-		if (!IsSilent)
-		{
-			target.OutputHandler.Handle(new EmoteOutput(new Emote("@ enters the area.", target),
-				flags: OutputFlags.SuppressObscured));
-		}
-
-		target.Body.Look(true);
+		target.Teleport(location, layer, IncludeFollowers, !IsSilent);
 
 		Result = new BooleanVariable(true);
 		return StatementResult.Normal;

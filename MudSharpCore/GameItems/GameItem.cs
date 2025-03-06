@@ -2552,7 +2552,7 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable
 		var location = TrueLocations.FirstOrDefault();
 		if (!string.IsNullOrEmpty(Prototype.MorphEmote))
 		{
-			OutputHandler.Handle(new EmoteOutput(new Emote(Prototype.MorphEmote, this, this, newItem)));
+			OutputHandler.Handle(new EmoteOutput(new Emote(Prototype.MorphEmote.SubstituteANSIColour(), this, this, newItem)));
 		}
 
 		if (newItem != null)

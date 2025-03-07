@@ -1543,7 +1543,7 @@ You can also use this command to test against someone else. This always echoes.
 
 			adminOutput.AppendLine($"\n\tThe result is a {outcome.Outcome.DescribeColour().ToLowerInvariant()}.");
 
-			adminOutput.Append($"\tRolls vs {Math.Round(outcome.TargetNumber, 2).ToString().Colour(Telnet.BoldYellow)}: {outcome.Rolls.Select(x => Math.Round(x, 2).ToString()
+			adminOutput.Append($"\tRolls vs {Math.Round(outcome.TargetNumber, 2).ToString("N2", actor).Colour(Telnet.BoldYellow)}: {outcome.Rolls.Select(x => Math.Round(x, 2).ToString()
 			                                                 .Colour(x <= outcome.TargetNumber
 				                                                 ? Telnet.BoldGreen
 				                                                 : Telnet.BoldRed))
@@ -1551,7 +1551,7 @@ You can also use this command to test against someone else. This always echoes.
 
 			if (outcome.ActiveBonuses?.Count() > 0)
 			{
-				adminOutput.Append($"\n\tActive Bonuses: {outcome.ActiveBonuses.Select(x => $"{x.Item1}({x.Item2.ToBonusString(actor)})").ListToString()}\n\tTotal Bonuses: {outcome.FinalBonus.ToBonusString(actor)}");
+				adminOutput.Append($"\n\tActive Bonuses: {outcome.ActiveBonuses.Select(x => $"{x.Item1.Replace("#", "##")}({x.Item2.ToBonusString(actor)})").ListToString()}\n\tTotal Bonuses: {outcome.FinalBonus.ToBonusString(actor)}");
 			}
 
 			foreach (var admin in actor.Location?.LayerCharacters(actor.RoomLayer).Where(x => x.IsAdministrator()) ??

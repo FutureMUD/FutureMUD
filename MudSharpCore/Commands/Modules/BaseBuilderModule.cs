@@ -16,6 +16,7 @@ using MudSharp.GameItems;
 using MudSharp.GameItems.Interfaces;
 using MudSharp.GameItems.Prototypes;
 using MudSharp.PerceptionEngine;
+using MudSharp.PerceptionEngine.Lists;
 using MudSharp.PerceptionEngine.Outputs;
 using MudSharp.PerceptionEngine.Parsers;
 
@@ -973,9 +974,6 @@ If you do not wish to approve or decline, you may type {"abort edit".Colour(Teln
 			return;
 		}
 
-		var varProto = proto.GetItemType<VariableGameItemComponentProto>();
-		var prePopulatedVariables =
-			new Dictionary<ICharacteristicDefinition, ICharacteristicValue>();
 		IGameItemSkin skin = null;
 		if (!input.IsFinished && input.PeekSpeech().StartsWith("*"))
 		{
@@ -1010,35 +1008,12 @@ If you do not wish to approve or decline, you may type {"abort edit".Colour(Teln
 			}
 		}
 
-		if (!input.IsFinished)
-		{
-			if (varProto == null)
-			{
-				actor.OutputHandler.Send(
-					"That is not a variable item, and so you cannot populate it with variables.");
-				return;
-			}
-
-			prePopulatedVariables = varProto.GetValuesFromString(input.SafeRemainingArgument);
-		}
-
 		if (quantity > 1)
 		{
 			if (proto.IsItemType<StackableGameItemComponentProto>())
 			{
-				var item = proto.CreateNew(actor);
-				if (skin is not null)
-				{
-					item.Skin = skin;
-				}
-
+				var item = proto.CreateNew(actor, skin, quantity, input.SafeRemainingArgument).First();
 				actor.Gameworld.Add(item);
-				item.GetItemType<IStackable>().Quantity = quantity;
-				var vitem = item.GetItemType<IVariable>();
-				if (vitem != null)
-				{
-					Item_Load_PopulateCharacteristics(vitem, prePopulatedVariables);
-				}
 
 				if (actor.Body.CanGet(item, 0))
 				{
@@ -1063,22 +1038,10 @@ If you do not wish to approve or decline, you may type {"abort edit".Colour(Teln
 					actor.OutputHandler.Send("The most non-stackable items you can load at one time is 10.");
 					return;
 				}
-				IGameItem item = null;
-				for (var i = 0; i < quantity; i++)
+				var items = proto.CreateNew(actor, skin, quantity, input.SafeRemainingArgument).ToList();
+				foreach(var item in items)
 				{
-					item = proto.CreateNew(actor);
-					if (skin is not null)
-					{
-						item.Skin = skin;
-					}
-
 					actor.Gameworld.Add(item);
-					var vitem = item.GetItemType<IVariable>();
-					if (vitem != null)
-					{
-						Item_Load_PopulateCharacteristics(vitem, prePopulatedVariables);
-					}
-
 					if (actor.Body.CanGet(item, 0))
 					{
 						actor.Body.Get(item, silent: true);
@@ -1094,24 +1057,14 @@ If you do not wish to approve or decline, you may type {"abort edit".Colour(Teln
 				}
 
 				actor.OutputHandler.Handle(
-					new EmoteOutput(new Emote("@ load|loads $0 " + quantity + " times.", actor, item),
+					new EmoteOutput(new Emote("@ load|loads $0", actor, new PerceivableGroup(items)),
 						flags: OutputFlags.SuppressObscured));
 			}
 		}
 		else
 		{
-			var item = proto.CreateNew(actor);
-			if (skin is not null)
-			{
-				item.Skin = skin;
-			}
-
+			var item = proto.CreateNew(actor, skin, 1, input.SafeRemainingArgument).First();
 			actor.Gameworld.Add(item);
-			var vitem = item.GetItemType<IVariable>();
-			if (vitem != null)
-			{
-				Item_Load_PopulateCharacteristics(vitem, prePopulatedVariables);
-			}
 
 			if (actor.Body.CanGet(item, 0))
 			{
@@ -1128,24 +1081,6 @@ If you do not wish to approve or decline, you may type {"abort edit".Colour(Teln
 			actor.OutputHandler.Handle(
 				new EmoteOutput(new Emote("@ load|loads $0.", actor, item),
 					flags: OutputFlags.SuppressObscured));
-		}
-	}
-
-
-	private static void Item_Load_PopulateCharacteristics(IVariable variable,
-		Dictionary<ICharacteristicDefinition, ICharacteristicValue
-		> prePopulatedVariables)
-	{
-		foreach (var characteristic in variable.CharacteristicDefinitions)
-		{
-			if (prePopulatedVariables.ContainsKey(characteristic))
-			{
-				variable.SetCharacteristic(characteristic, prePopulatedVariables[characteristic]);
-			}
-			else
-			{
-				variable.SetRandom(characteristic);
-			}
 		}
 	}
 	#endregion

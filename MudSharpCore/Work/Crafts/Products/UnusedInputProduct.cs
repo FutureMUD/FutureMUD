@@ -5,6 +5,7 @@ using System.Xml.Linq;
 using MudSharp.Character;
 using MudSharp.Construction;
 using MudSharp.Events;
+using MudSharp.Form.Characteristics;
 using MudSharp.Framework;
 using MudSharp.GameItems;
 using MudSharp.GameItems.Components;
@@ -129,9 +130,12 @@ public class UnusedInputProduct : BaseProduct
 				Math.Max(1, Math.Ceiling(refItems.Sum(x => x.Quantity) * PercentageRecovered)));
 		}
 
+		var referenceVariable = referenceItem.GetItemType<IVariable>();
+		var variables = (from definition in referenceVariable?.CharacteristicDefinitions ?? [] select (definition, referenceVariable!.GetCharacteristic(definition))).ToList();
+
 		if (quantity > 1 && referenceItem.IsItemType<IStackable>())
 		{
-			var newItem = referenceItem.Prototype.CreateNew();
+			var newItem = referenceItem.Prototype.CreateNew(null, referenceItem.Skin, quantity, variables).First();
 			newItem.RoomLayer = component.Parent.RoomLayer;
 			Gameworld.Add(newItem);
 
@@ -140,15 +144,13 @@ public class UnusedInputProduct : BaseProduct
 				newItem.Quality = referenceQuality;
 			}
 
-			newItem.GetItemType<IStackable>().Quantity = quantity;
 			newItem.HandleEvent(EventType.ItemFinishedLoading, newItem);
 			return new UnusedInputProductData(new[] { newItem });
 		}
 
-		var items = new List<IGameItem>();
-		for (var i = 0; i < quantity; i++)
+		var items = referenceItem.Prototype.CreateNew(null, referenceItem.Skin, quantity, variables).ToList();
+		foreach (var item in items)
 		{
-			var item = referenceItem.Prototype.CreateNew();
 			item.RoomLayer = component.Parent.RoomLayer;
 			Gameworld.Add(item);
 
@@ -157,7 +159,6 @@ public class UnusedInputProduct : BaseProduct
 				item.Quality = referenceQuality;
 			}
 			item.HandleEvent(EventType.ItemFinishedLoading, item);
-			items.Add(item);
 		}
 
 		return new UnusedInputProductData(items);

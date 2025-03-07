@@ -257,6 +257,60 @@ public class GameItemProto : EditableItem, IGameItemProto
 		return sb.ToString();
 	}
 
+	public IEnumerable<IGameItem> CreateNew<T>(ICharacter loader, IGameItemSkin skin, int quantity, T variables) where T : IEnumerable<(ICharacteristicDefinition Definition, ICharacteristicValue Value)>
+	{
+		var items = new List<IGameItem>();
+		var stackableProto = GetItemType<StackableGameItemComponentProto>();
+		if (stackableProto is null && quantity > 1)
+		{
+			if (quantity > 10)
+			{
+				quantity = 10;
+			}
+
+			for (var i = 0; i < quantity; i++)
+			{
+				items.Add(CreateNew(loader, skin, 1, variables).First());
+			}
+
+			return items;
+		}
+
+		var newItem = new GameItem(this, loader, BaseItemQuality);
+		items.Add(newItem);
+		newItem.Skin = skin;
+		var varProto = GetItemType<VariableGameItemComponentProto>();
+		var variable = newItem.GetItemType<IVariable>();
+		if (varProto is not null)
+		{
+			foreach (var characteristic in variable.CharacteristicDefinitions)
+			{
+				var value = variables.FirstOrDefault(x => x.Definition == characteristic).Value;
+				if (value is not null)
+				{
+					variable.SetCharacteristic(characteristic, value);
+				}
+				else
+				{
+					variable.SetRandom(characteristic);
+				}
+			}
+		}
+
+		var stackable = newItem.GetItemType<IStackable>();
+		if (stackable is not null)
+		{
+			stackable.Quantity = quantity;
+		}
+
+		foreach (var prog in OnLoadProgs)
+		{
+			prog.Execute(newItem, loader);
+		}
+
+		return items;
+	}
+
 	public IEnumerable<IGameItem> CreateNew(ICharacter loader, IGameItemSkin skin, int quantity, string loadString)
 	{
 		var items = new List<IGameItem>();

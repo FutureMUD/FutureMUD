@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using MudSharp.Character;
+using MudSharp.Form.Characteristics;
 using MudSharp.Form.Material;
 using MudSharp.Form.Shape;
 using MudSharp.Framework;
@@ -49,6 +50,7 @@ namespace MudSharp.GameItems {
 		T GetItemType<T>() where T : IGameItemComponentProto;
 		IGameItem CreateNew(ICharacter loader = null);
 		IEnumerable<IGameItem> CreateNew(ICharacter loader, IGameItemSkin skin, int quantity, string loadString);
+		IEnumerable<IGameItem> CreateNew<T>(ICharacter loader, IGameItemSkin skin, int quantity, T variables) where T : IEnumerable<(ICharacteristicDefinition Definition, ICharacteristicValue Value)>;
 
 		bool CheckForComponentPrototypeUpdates();
 		IGameItemProto Clone(ICharacter builder);

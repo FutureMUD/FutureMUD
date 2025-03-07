@@ -4,6 +4,7 @@ using MudSharp.Events;
 using MudSharp.Form.Characteristics;
 using MudSharp.Framework;
 using MudSharp.Framework.Revision;
+using MudSharp.GameItems;
 using MudSharp.GameItems.Interfaces;
 using MudSharp.GameItems.Prototypes;
 
@@ -57,28 +58,18 @@ internal class LoadItemFunction : BuiltInFunction
 			return StatementResult.Error;
 		}
 
-		var varProto = proto.GetItemType<VariableGameItemComponentProto>();
-		var prePopulatedVariables =
-			new Dictionary<ICharacteristicDefinition, ICharacteristicValue>();
-		if (varProto != null)
+		string paramString = "";
+		if (UseParamsString)
 		{
-			if (UseParamsString)
-			{
-				var paramString =
-					(string)
-					(UseQuantity
-						? ParameterFunctions[2].Result.GetObject
-						: ParameterFunctions[1].Result.GetObject);
-				prePopulatedVariables = varProto.GetValuesFromString(paramString);
-			}
-			else
-			{
-				prePopulatedVariables = varProto.GetRandomValues();
-			}
+			paramString =
+				(string)
+				(UseQuantity
+					? ParameterFunctions[2].Result.GetObject
+					: ParameterFunctions[1].Result.GetObject);
 		}
 
 		var quantity = 1;
-		if (UseQuantity)
+		if (UseQuantity && proto.IsItemType<StackableGameItemComponentProto>())
 		{
 			quantity = (int)(decimal)ParameterFunctions[1].Result.GetObject;
 		}
@@ -88,35 +79,7 @@ internal class LoadItemFunction : BuiltInFunction
 			return StatementResult.Normal;
 		}
 
-		var newItem = proto.CreateNew();
-		if (quantity > 1)
-		{
-			var stackable = newItem.GetItemType<IStackable>();
-			if (stackable != null)
-			{
-				stackable.Quantity = quantity;
-			}
-		}
-
-		if (prePopulatedVariables.Any())
-		{
-			var variable = newItem.GetItemType<IVariable>();
-			if (variable != null)
-			{
-				foreach (var characteristic in variable.CharacteristicDefinitions)
-				{
-					if (prePopulatedVariables.ContainsKey(characteristic))
-					{
-						variable.SetCharacteristic(characteristic, prePopulatedVariables[characteristic]);
-					}
-					else
-					{
-						variable.SetRandom(characteristic);
-					}
-				}
-			}
-		}
-
+		var newItem = proto.CreateNew(null, null, quantity, paramString).First();
 		_gameworld.Add(newItem);
 		newItem.HandleEvent(EventType.ItemFinishedLoading, newItem);
 		newItem.Login();

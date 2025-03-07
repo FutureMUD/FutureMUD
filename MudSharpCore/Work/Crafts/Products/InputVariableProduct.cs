@@ -106,11 +106,9 @@ internal class InputVariableProduct : BaseProduct
 
 		if (Quantity > 1 && proto.IsItemType<StackableGameItemComponentProto>())
 		{
-			var newItem = proto.CreateNew();
-			newItem.Skin = Skin;
+			var newItem = proto.CreateNew(null, Skin, Quantity, variables).First();
 			newItem.RoomLayer = component.Parent.RoomLayer;
 			Gameworld.Add(newItem);
-			newItem.GetItemType<IStackable>().Quantity = Quantity;
 
 			if (!Gameworld.GetStaticBool("DisableCraftQualityCalculation"))
 			{
@@ -122,24 +120,13 @@ internal class InputVariableProduct : BaseProduct
 				newItem.Material = material;
 			}
 
-			var varItem = newItem.GetItemType<IVariable>();
-			if (varItem != null)
-			{
-				foreach (var (definition, value) in variables)
-				{
-					varItem.SetCharacteristic(definition, value);
-				}
-			}
-
 			newItem.HandleEvent(EventType.ItemFinishedLoading, newItem);
 			return new SimpleProductData(new[] { newItem });
 		}
 
-		var items = new List<IGameItem>();
-		for (var i = 0; i < Quantity; i++)
+		var items = proto.CreateNew(null, Skin, Quantity, variables).ToList();
+		foreach (var item in items)
 		{
-			var item = proto.CreateNew();
-			item.Skin = Skin;
 			item.RoomLayer = component.Parent.RoomLayer;
 			Gameworld.Add(item);
 
@@ -153,18 +140,7 @@ internal class InputVariableProduct : BaseProduct
 				item.Material = material;
 			}
 
-			var varItem = item.GetItemType<IVariable>();
-			if (varItem != null)
-			{
-				foreach (var (definition, value) in variables)
-				{
-					varItem.SetCharacteristic(definition, value);
-				}
-			}
-
 			item.HandleEvent(EventType.ItemFinishedLoading, item);
-
-			items.Add(item);
 		}
 
 		return new SimpleProductData(items);

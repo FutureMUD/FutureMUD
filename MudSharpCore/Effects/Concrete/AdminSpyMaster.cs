@@ -54,7 +54,7 @@ public class AdminSpyMaster : Effect, IEffectSubtype
 	public void RemoveSpiedCell(ICell cell)
 	{
 		SpiedCells.Remove(cell);
-		cell.RemoveEffect(SpyEffects.First(x => x.Owner == cell), true);
+		cell.RemoveEffect(SpyEffects.FirstOrDefault(x => x.Owner == cell), true);
 		if (!SpiedCells.Any())
 		{
 			CharacterOwner.RemoveEffect(this);

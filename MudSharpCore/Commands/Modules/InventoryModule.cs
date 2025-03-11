@@ -148,17 +148,16 @@ The syntax is either:
 	[RequiredCharacterState(CharacterState.Able)]
 	[NoMovementCommand]
 	[NoMeleeCombatCommand]
-	[HelpInfo("restrain", "The #3restrain#0 command lets you restrain a target character. Syntax: #3restrain <target>#0. You must be close to the target to restrain them.", AutoHelp.HelpArg)]
+	[HelpInfo("restrain", @"The #3restrain#0 command lets you restrain a target character. You must be close to the target to restrain them.
+
+The syntax is as follows: 
+
+	#3restrain <person> <item> [<profile>] [<thing>] - restrains a person with an item (optionally connecting to a thing)", AutoHelp.HelpArgOrNoArg)]
 	protected static void Restrain(ICharacter actor, string input)
 	{
 		var ss = new StringStack(input.RemoveFirstWord());
-		if (ss.IsFinished || ss.Peek().EqualTo("help") || ss.Peek().EqualTo("?"))
-		{
-			actor.Send($"The correct syntax is {"restrain <person> <item> <how> [<target>]".Colour(Telnet.Yellow)}.");
-			return;
-		}
-
-		var target = actor.TargetActor(ss.Pop());
+		
+		var target = actor.TargetActor(ss.PopSpeech());
 		if (target == null)
 		{
 			actor.Send("You don't see anyone like that to restrain.");
@@ -177,7 +176,7 @@ The syntax is either:
 			return;
 		}
 
-		var item = actor.TargetHeldItem(ss.Pop());
+		var item = actor.TargetHeldItem(ss.PopSpeech());
 		if (item == null)
 		{
 			actor.Send("You aren't holding anything like that to restrain them with.");
@@ -352,6 +351,11 @@ The syntax is either:
 	[RequiredCharacterState(CharacterState.Able)]
 	[NoMovementCommand]
 	[NoMeleeCombatCommand]
+	[HelpInfo("undo", @"The #3undo#0 command allows you to undo someone else's bindings.
+
+The syntax is as follows:
+
+	#3undo <person> <item>#0 - undoes the bindings on a person", AutoHelp.HelpArgOrNoArg)]
 	protected static void Undo(ICharacter actor, string input)
 	{
 		var ss = new StringStack(input.RemoveFirstWord());

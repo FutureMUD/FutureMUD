@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using MudSharp.Character;
 using MudSharp.Framework;
 using MudSharp.Framework.Units;
+using MudSharp.GameItems;
 using MudSharp.Health;
 
 namespace MudSharp.Form.Material;
@@ -74,6 +75,10 @@ public abstract class Fluid : Material, IFluid
 
 	/// <inheritdoc />
 	public double DrugGramsPerUnitVolume { get; protected set; }
+
+	public abstract bool CountsAs(IFluid other);
+	public abstract ItemQuality CountAsQuality(IFluid other);
+	public abstract double CountsAsMultiplier(IFluid other);
 
 	#endregion
 

@@ -133,7 +133,7 @@ public class Gas : Fluid, IGas
 	private long? _countsAsId;
 	private IGas _countsAs;
 
-	public IGas CountsAs
+	public IGas CountsAsGas
 	{
 		get
 		{
@@ -148,8 +148,101 @@ public class Gas : Fluid, IGas
 
 	public bool GasCountAs(IGas otherGas)
 	{
-		return CountsAs == otherGas || (CountsAs?.GasCountAs(otherGas) ?? false);
+		return CountsAsGas == otherGas || (CountsAsGas?.GasCountAs(otherGas) ?? false);
 	}
+
+	public override bool CountsAs(IFluid other)
+	{
+		if (other == null)
+		{
+			return false;
+		}
+
+		if (other == this)
+		{
+			return true;
+		}
+
+		var otherGas = other as IGas;
+		if (otherGas is null)
+		{
+			return false;
+		}
+
+		if (CountsAsGas is null)
+		{
+			return false;
+		}
+
+		return CountsAsGas.CountsAs(other);
+	}
+
+	public override ItemQuality CountAsQuality(IFluid other)
+	{
+		if (other == null)
+		{
+			return ItemQuality.Terrible;
+		}
+
+		if (other == this)
+		{
+			return ItemQuality.Legendary;
+		}
+
+		var otherGas = other as IGas;
+		if (otherGas is null)
+		{
+			return ItemQuality.Terrible;
+		}
+
+		if (otherGas == CountsAsGas)
+		{
+			return CountsAsQuality;
+		}
+
+		if (CountsAsGas is null)
+		{
+			return ItemQuality.Terrible;
+		}
+
+		return CountsAsGas.CountAsQuality(other);
+	}
+
+	#region Overrides of Fluid
+
+	/// <inheritdoc />
+	public override double CountsAsMultiplier(IFluid other)
+	{
+		if (other == null)
+		{
+			return 0.0;
+		}
+
+		if (other == this)
+		{
+			return 1.0;
+		}
+
+		var otherGas = other as IGas;
+		if (otherGas is null)
+		{
+			return 0.0;
+		}
+
+		if (otherGas == CountsAsGas)
+		{
+			return (int)CountsAsQuality / 11.0;
+		}
+
+		if (CountsAsGas is null)
+		{
+			return 0.0;
+		}
+
+		return CountsAsGas.CountsAsMultiplier(other) * ((int)CountsAsGas.CountsAsQuality / 11.0);
+	}
+
+	#endregion
 
 	public ItemQuality CountsAsQuality { get; set; }
 
@@ -345,7 +438,7 @@ public class Gas : Fluid, IGas
 
 	private bool BuildingCommandCountsAsQuality(ICharacter actor, StringStack command)
 	{
-		if (CountsAs is null)
+		if (CountsAsGas is null)
 		{
 			actor.OutputHandler.Send("You must set a counts as gas before you set a counts as quality.");
 			return false;
@@ -354,7 +447,7 @@ public class Gas : Fluid, IGas
 		if (command.IsFinished)
 		{
 			actor.OutputHandler.Send(
-				$"What is the maximum quality that this gas should be considered when being substituted for {CountsAs.Name.Colour(CountsAs.DisplayColour)}?\nThe valid options are {Enum.GetValues<ItemQuality>().Select(x => x.Describe().ColourValue()).ListToString()}.");
+				$"What is the maximum quality that this gas should be considered when being substituted for {CountsAsGas.Name.Colour(CountsAsGas.DisplayColour)}?\nThe valid options are {Enum.GetValues<ItemQuality>().Select(x => x.Describe().ColourValue()).ListToString()}.");
 			return false;
 		}
 
@@ -368,7 +461,7 @@ public class Gas : Fluid, IGas
 		CountsAsQuality = quality;
 		Changed = true;
 		actor.OutputHandler.Send(
-			$"This gas will now be a maximum quality of {quality.Describe().ColourValue()} when substituting for {CountsAs.Name.Colour(CountsAs.DisplayColour)}.");
+			$"This gas will now be a maximum quality of {quality.Describe().ColourValue()} when substituting for {CountsAsGas.Name.Colour(CountsAsGas.DisplayColour)}.");
 		return true;
 	}
 
@@ -444,7 +537,7 @@ public class Gas : Fluid, IGas
 		sb.AppendLineFormat(actor, "Smell Text: {0}", SmellText.ColourCommand());
 		sb.AppendLineFormat(actor, "Vague Smell Text: {0}", VagueSmellText.ColourCommand());
 		sb.AppendLine(
-			$"Counts As: {(CountsAs != null ? $"{CountsAs.Name.Colour(CountsAs.DisplayColour)} @ max quality {CountsAsQuality.Describe().Colour(Telnet.Green)}" : "None".Colour(Telnet.Red))}");
+			$"Counts As: {(CountsAsGas != null ? $"{CountsAsGas.Name.Colour(CountsAsGas.DisplayColour)} @ max quality {CountsAsQuality.Describe().Colour(Telnet.Green)}" : "None".Colour(Telnet.Red))}");
 		sb.AppendLine(
 			$"Drug: {(Drug is not null ? $"{Drug.Name.ColourValue()} @ {DrugGramsPerUnitVolume.ToString("N3", actor).ColourValue()}g/L" : "None".Colour(Telnet.Red))}");
 		sb.AppendLine();

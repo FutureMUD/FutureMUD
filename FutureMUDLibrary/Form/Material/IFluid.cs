@@ -1,4 +1,5 @@
 ﻿using MudSharp.Framework;
+using MudSharp.GameItems;
 using MudSharp.Health;
 
 namespace MudSharp.Form.Material {
@@ -10,5 +11,8 @@ namespace MudSharp.Form.Material {
         string VagueSmellText { get; }
         IDrug Drug { get; }
         double DrugGramsPerUnitVolume { get; }
+        bool CountsAs(IFluid other);
+        ItemQuality CountAsQuality(IFluid other);
+        double CountsAsMultiplier(IFluid other);
     }
 }

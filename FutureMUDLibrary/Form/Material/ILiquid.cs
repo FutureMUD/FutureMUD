@@ -56,7 +56,7 @@ namespace MudSharp.Form.Material {
         double ResidueVolumePercentage { get; }
         bool LeaveResiduesInRooms { get; }
         double RelativeEnthalpy { get; }
-        ILiquid CountsAs { get; }
+        ILiquid CountsAsLiquid { get; }
         ItemQuality CountsAsQuality { get; }
         double? FreezingPoint { get; }
         double? IgnitionPoint { get; }

@@ -1720,17 +1720,16 @@ public partial class Race : SaveableItem, IRace
 
 	public (bool Truth, double RateMultiplier) CanBreatheFluid(IFluid fluid)
 	{
-		if (_removeBreathableFluids.Contains(fluid))
+		var best = _fluidBreathingMultipliers
+			.Where(x => !_removeBreathableFluids.Contains(x.Key))
+			.Where(x => fluid.CountsAs(x.Key) && fluid.CountAsQuality(x.Key) != ItemQuality.Terrible)
+			.FirstMax(x => x.Value / fluid.CountsAsMultiplier(x.Key));
+		if (best.Value <= 0.0)
 		{
 			return (false, 0.0);
 		}
 
-		if (_fluidBreathingMultipliers.ContainsKey(fluid))
-		{
-			return (true, _fluidBreathingMultipliers[fluid]);
-		}
-
-		return ParentRace?.CanBreatheFluid(fluid) ?? (false, 1.0);
+		return (true, best.Value);
 	}
 
 	public ITraitExpression BreathingVolumeExpression { get; set; }
@@ -1738,9 +1737,10 @@ public partial class Race : SaveableItem, IRace
 
 	public double BreathingRate(IBody character, IFluid fluid)
 	{
+		var (_, rate) = CanBreatheFluid(fluid);
 		BreathingVolumeExpression.Formula.Parameters["exertion"] = (int)character.CurrentExertion;
 		return BreathingVolumeExpression.Evaluate(character, context: TraitBonusContext.BreathingRate) *
-		       _fluidBreathingMultipliers[fluid];
+		       rate;
 	}
 
 	public TimeSpan HoldBreathLength(IBody character)

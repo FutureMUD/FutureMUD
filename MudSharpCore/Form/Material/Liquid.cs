@@ -298,7 +298,7 @@ public class Liquid : Fluid, ILiquid
 
 	public double RelativeEnthalpy { get; set; }
 
-	public ILiquid CountsAs
+	public ILiquid CountsAsLiquid
 	{
 		get
 		{
@@ -316,6 +316,100 @@ public class Liquid : Fluid, ILiquid
 		}
 	}
 
+	#region Overrides of Fluid
+
+	/// <inheritdoc />
+	public override bool CountsAs(IFluid other)
+	{
+		if (other == null)
+		{
+			return false;
+		}
+
+		if (other == this)
+		{
+			return true;
+		}
+
+		var otherLiquid = other as ILiquid;
+		if (otherLiquid is null)
+		{
+			return false;
+		}
+
+		if (CountsAsLiquid is null)
+		{
+			return false;
+		}
+
+		return CountsAsLiquid.CountsAs(other);
+	}
+
+	/// <inheritdoc />
+	public override ItemQuality CountAsQuality(IFluid other)
+	{
+		if (other == null)
+		{
+			return ItemQuality.Terrible;
+		}
+
+		if (other == this)
+		{
+			return ItemQuality.Legendary;
+		}
+
+		var otherLiquid = other as ILiquid;
+		if (otherLiquid is null)
+		{
+			return ItemQuality.Terrible;
+		}
+
+		if (otherLiquid == CountsAsLiquid)
+		{
+			return CountsAsQuality;
+		}
+
+		if (CountsAsLiquid is null)
+		{
+			return ItemQuality.Terrible;
+		}
+
+		return CountsAsLiquid.CountAsQuality(other);
+	}
+
+	public override double CountsAsMultiplier(IFluid other)
+	{
+		if (other == null)
+		{
+			return 0.0;
+		}
+
+		if (other == this)
+		{
+			return 1.0;
+		}
+
+		var otherLiquid = other as ILiquid;
+		if (otherLiquid is null)
+		{
+			return 0.0;
+		}
+
+		if (otherLiquid == CountsAsLiquid)
+		{
+			return (int)CountsAsQuality / 11.0;
+		}
+
+		if (CountsAsLiquid is null)
+		{
+			return 0.0;
+		}
+
+		return CountsAsLiquid.CountsAsMultiplier(other) * ((int)CountsAsLiquid.CountsAsQuality / 11.0);
+	}
+
+	#endregion
+
 	public IGas GasForm
 	{
 		get
@@ -331,8 +425,8 @@ public class Liquid : Fluid, ILiquid
 
 	public bool LiquidCountsAs(ILiquid otherLiquid)
 	{
-		return otherLiquid != null && (otherLiquid == this || CountsAs == otherLiquid ||
-		                               (CountsAs?.LiquidCountsAs(otherLiquid) ?? false));
+		return otherLiquid != null && (otherLiquid == this || CountsAsLiquid == otherLiquid ||
+		                               (CountsAsLiquid?.LiquidCountsAs(otherLiquid) ?? false));
 	}
 
 	public ItemQuality LiquidCountsAsQuality(ILiquid otherLiquid)
@@ -460,7 +554,7 @@ public class Liquid : Fluid, ILiquid
 		sb.AppendLineFormat(actor, "Smell Text: {0}", SmellText.ColourCommand());
 		sb.AppendLineFormat(actor, "Vague Smell Text: {0}", VagueSmellText.ColourCommand());
 		sb.AppendLine(
-			$"Counts As: {(CountsAs != null ? $"{CountsAs.Name.Colour(CountsAs.DisplayColour)} @ max quality {CountsAsQuality.Describe().Colour(Telnet.Green)}" : "None".Colour(Telnet.Red))}");
+			$"Counts As: {(CountsAsLiquid != null ? $"{CountsAsLiquid.Name.Colour(CountsAsLiquid.DisplayColour)} @ max quality {CountsAsQuality.Describe().Colour(Telnet.Green)}" : "None".Colour(Telnet.Red))}");
 		sb.AppendLine(
 			$"Drug: {(Drug is not null ? $"{Drug.Name.ColourValue()} @ {DrugGramsPerUnitVolume.ToString("N3", actor).ColourValue()}g/L" : "None".Colour(Telnet.Red))}");
 
@@ -855,7 +949,7 @@ public class Liquid : Fluid, ILiquid
 
 	private bool BuildingCommandCountsAsQuality(ICharacter actor, StringStack command)
 	{
-		if (CountsAs is null)
+		if (CountsAsLiquid is null)
 		{
 			actor.OutputHandler.Send("You must set a counts as liquid before you set a counts as quality.");
 			return false;
@@ -864,7 +958,7 @@ public class Liquid : Fluid, ILiquid
 		if (command.IsFinished)
 		{
 			actor.OutputHandler.Send(
-				$"What is the maximum quality that this liquid should be considered when being substituted for {CountsAs.Name.Colour(CountsAs.DisplayColour)}?\nThe valid options are {Enum.GetValues<ItemQuality>().Select(x => x.Describe().ColourValue()).ListToString()}.");
+				$"What is the maximum quality that this liquid should be considered when being substituted for {CountsAsLiquid.Name.Colour(CountsAsLiquid.DisplayColour)}?\nThe valid options are {Enum.GetValues<ItemQuality>().Select(x => x.Describe().ColourValue()).ListToString()}.");
 			return false;
 		}
 
@@ -878,7 +972,7 @@ public class Liquid : Fluid, ILiquid
 		CountsAsQuality = quality;
 		Changed = true;
 		actor.OutputHandler.Send(
-			$"This liquid will now be a maximum quality of {quality.Describe().ColourValue()} when substituting for {CountsAs.Name.Colour(CountsAs.DisplayColour)}.");
+			$"This liquid will now be a maximum quality of {quality.Describe().ColourValue()} when substituting for {CountsAsLiquid.Name.Colour(CountsAsLiquid.DisplayColour)}.");
 		return true;
 	}
 

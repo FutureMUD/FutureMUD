@@ -2274,8 +2274,8 @@ The syntax for this command is as follows:
 				gas.Id.ToString("N0", actor),
 				gas.Name,
 				gas.MaterialDescription.Colour(gas.DisplayColour),
-				gas.CountsAs is not null
-					? $"{gas.CountsAs.Name.Colour(gas.CountsAs.DisplayColour)} @ {gas.CountsAsQuality.Describe().ColourValue()}"
+				gas.CountsAsGas is not null
+					? $"{gas.CountsAsGas.Name.Colour(gas.CountsAsGas.DisplayColour)} @ {gas.CountsAsQuality.Describe().ColourValue()}"
 					: "",
 				gas.Drug is not null
 					? $"{gas.DrugGramsPerUnitVolume.ToString("N3", actor).ColourValue()}g/L {gas.Drug.Name.ColourName()}"

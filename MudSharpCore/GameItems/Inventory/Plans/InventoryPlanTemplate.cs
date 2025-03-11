@@ -1183,8 +1183,7 @@ public class InventoryPlanTemplate : IInventoryPlanTemplate
 			case DesiredItemState.WieldedTwoHandedOnly:
 				return WieldItem(actor, item, silent, action?.OriginalReference, AttackHandednessOptions.TwoHandedOnly);
 			case DesiredItemState.Worn:
-				return WearItem(actor, item, silent, action?.OriginalReference,
-					((InventoryPlanActionWear)action).DesiredProfile);
+				return WearItem(actor, item, silent, action?.OriginalReference, ((InventoryPlanActionWear)action).DesiredProfile);
 			case DesiredItemState.Sheathed:
 				return SheatheItem(actor, item, target, silent, action?.OriginalReference);
 			case DesiredItemState.Attached:
@@ -1223,7 +1222,12 @@ public class InventoryPlanTemplate : IInventoryPlanTemplate
 			};
 		}
 
-		GetItem(actor, item, null, silent);
+		var getResult = GetItem(actor, item, null, silent);
+		if (getResult.ActionState == DesiredItemState.Unknown)
+		{
+			return getResult;
+		}
+
 		actor.Body.Take(item);
 		target.GetItemType<IBelt>().AddConnectedItem(item.GetItemType<IBeltable>());
 		if (!silent)
@@ -1441,6 +1445,11 @@ public class InventoryPlanTemplate : IInventoryPlanTemplate
 		}
 
 		var getResult = GetItem(actor, item, null, silent, true);
+		if (getResult.ActionState == DesiredItemState.Unknown)
+		{
+			return getResult;
+		}
+
 		if (getResult.ActionState == DesiredItemState.Held)
 		{
 			var flags = ItemCanWieldFlags.None;
@@ -1486,6 +1495,11 @@ public class InventoryPlanTemplate : IInventoryPlanTemplate
 		}
 
 		var getResult = GetItem(actor, item, null, silent);
+		if (getResult.ActionState == DesiredItemState.Unknown)
+		{
+			return getResult;
+		}
+
 		if (desiredProfile != null)
 		{
 			actor.Body.Wear(item, desiredProfile, silent: silent);
@@ -1518,6 +1532,11 @@ public class InventoryPlanTemplate : IInventoryPlanTemplate
 		}
 
 		var getResult = GetItem(actor, item, null, silent);
+		if (getResult.ActionState == DesiredItemState.Unknown)
+		{
+			return getResult;
+		}
+
 		actor.Body.Drop(item, newStack: true, silent: silent);
 		return new InventoryPlanActionResult
 		{
@@ -1543,7 +1562,12 @@ public class InventoryPlanTemplate : IInventoryPlanTemplate
 			};
 		}
 
-		GetItem(actor, item, null, silent);
+		var getResult = GetItem(actor, item, null, silent);
+		if (getResult.ActionState == DesiredItemState.Unknown)
+		{
+			return getResult;
+		}
+
 		actor.Body.Put(item, container, null, silent: silent);
 		return new InventoryPlanActionResult
 		{
@@ -1568,7 +1592,12 @@ public class InventoryPlanTemplate : IInventoryPlanTemplate
 			};
 		}
 
-		GetItem(actor, item, null, silent);
+		var getResult = GetItem(actor, item, null, silent);
+		if (getResult.ActionState == DesiredItemState.Unknown)
+		{
+			return getResult;
+		}
+
 		actor.Body.Sheathe(item, sheath, silent: silent);
 		return new InventoryPlanActionResult
 		{

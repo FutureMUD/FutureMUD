@@ -8,9 +8,10 @@ using System.Threading.Tasks;
 
 namespace MudSharp.Health
 {
-    public interface IPopulationBloodModel : IFrameworkItem
-    {
-        IBloodtype GetBloodType(ICharacterTemplate character);
-        IBloodModel BloodModel {get;}
-    }
+	public interface IPopulationBloodModel : IFrameworkItem
+	{
+		IBloodtype GetBloodType(ICharacterTemplate character);
+		IEnumerable<(IBloodtype Bloodtype, double Weight)> BloodTypes { get; }
+		IBloodModel BloodModel {get;}
+	}
 }

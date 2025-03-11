@@ -17,13 +17,15 @@ public class PopulationBloodModel : FrameworkItem, IPopulationBloodModel
 		_name = model.Name;
 		foreach (var type in model.PopulationBloodModelsBloodtypes)
 		{
-			BloodTypes.Add((gameworld.Bloodtypes.Get(type.BloodtypeId), type.Weight));
+			_bloodTypes.Add((gameworld.Bloodtypes.Get(type.BloodtypeId), type.Weight));
 		}
 
-		BloodModel = gameworld.BloodModels.First(x => x.Bloodtypes.Any(y => BloodTypes.Any(z => z.Bloodtype == y)));
+		BloodModel = gameworld.BloodModels.First(x => x.Bloodtypes.Any(y => _bloodTypes.Any(z => z.Bloodtype == y)));
 	}
 
-	public List<(IBloodtype Bloodtype, double Weight)> BloodTypes { get; } = new();
+	private readonly List<(IBloodtype Bloodtype, double Weight)> _bloodTypes = new();
+
+	public IEnumerable<(IBloodtype Bloodtype, double Weight)> BloodTypes => _bloodTypes;
 
 	public IBloodModel BloodModel { get; }
 
@@ -32,13 +34,13 @@ public class PopulationBloodModel : FrameworkItem, IPopulationBloodModel
 		if (character?.SelectedMerits.OfType<IFixedBloodTypeMerit>().Any() == true)
 		{
 			var bloodtype = character.SelectedMerits.OfType<IFixedBloodTypeMerit>().First().Bloodtype;
-			if (BloodTypes.Any(x => x.Bloodtype == bloodtype))
+			if (_bloodTypes.Any(x => x.Bloodtype == bloodtype))
 			{
 				return bloodtype;
 			}
 		}
 
-		return BloodTypes.GetWeightedRandom(x => x.Weight).Bloodtype;
+		return _bloodTypes.GetWeightedRandom(x => x.Weight).Bloodtype;
 	}
 
 	public override string FrameworkItemType => "PopulationBloodModel";

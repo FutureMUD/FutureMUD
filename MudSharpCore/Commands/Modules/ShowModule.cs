@@ -112,6 +112,9 @@ public class ShowModule : Module<ICharacter>
 	#3autoarea <id|name>#0 - shows a specific autobuilder area template
 	#3autorooms#0 - shows all autobuilder room templates
 	#3autoroom <id|name>#0 - shows a specific autobuilder room template
+	#3bloodantigens#0 - shows all blood antigens
+	#3bloodmodels#0 - shows all blood models
+	#3bloodtypes [<model>]#0 - shows all blood types (optionally for a model)
 	#3bodies#0 - lists all of the body prototypes
 	#3body <which>#0 - shows a particular body prototype
 	#3bodypartshapes#0 - shows all bodypart shapes
@@ -153,6 +156,7 @@ public class ShowModule : Module<ICharacter>
 	#3overlays#0 - shows all cell overlay packages
 	#3pattern <id>#0 - shows a description pattern
 	#3patterns#0 - shows all description patterns
+	#3popbloodmodels#0 - shows all population blood models
 	#3progs#0 - shows all progs
 	#3prog <id|name>#0 - shows a specific prog
 	#3race <id|name>#0 - shows a particular race
@@ -191,6 +195,18 @@ public class ShowModule : Module<ICharacter>
 		var ss = new StringStack(command.RemoveFirstWord());
 		switch (ss.PopForSwitch())
 		{
+			case "popbloodmodels":
+				Show_PopulationBloodModels(actor, ss);
+				return;
+			case "bloodmodels":
+				Show_BloodModels(actor, ss);
+				return;
+			case "bloodantigens":
+				Show_BloodAntigens(actor, ss);
+				return;
+			case "bloodtypes":
+				Show_BloodTypes(actor, ss);
+				return;
 			case "speeds":
 				Show_Speeds(actor, ss);
 				return;
@@ -500,6 +516,112 @@ public class ShowModule : Module<ICharacter>
 
 				return;
 		}
+	}
+
+	private static void Show_BloodTypes(ICharacter actor, StringStack ss)
+	{
+		var types = actor.Gameworld.Bloodtypes.ToList();
+		if (!ss.IsFinished)
+		{
+			var model = actor.Gameworld.BloodModels.GetByIdOrName(ss.SafeRemainingArgument);
+			if (model is null)
+			{
+				actor.OutputHandler.Send($"There is no blood model identified by the text {ss.SafeRemainingArgument.ColourCommand()}.");
+				return;
+			}
+
+			types = types.Where(x => model.Bloodtypes.Contains(x)).ToList();
+		}
+
+		actor.OutputHandler.Send(StringUtilities.GetTextTable(
+			from item in types
+			select new List<string>
+			{
+				item.Id.ToStringN0(actor),
+				item.Name,
+				item.Antigens.Select(x => x.Name).ListToColouredString()
+			},
+			new List<string>
+			{
+				"Id",
+				"Name",
+				"Antigens"
+			},
+			actor,
+			Telnet.Green
+		));
+	}
+
+	private static void Show_PopulationBloodModels(ICharacter actor, StringStack ss)
+	{
+		var pbms = actor.Gameworld.PopulationBloodModels.ToList();
+		// TODO - filters
+
+		actor.OutputHandler.Send(StringUtilities.GetTextTable(
+			from item in pbms
+			let weight = item.BloodTypes.Sum(x => x.Weight)
+			select new List<string>
+			{
+				item.Id.ToStringN0(actor),
+				item.Name,
+				item.BloodModel.Name,
+				item.BloodTypes.OrderByDescending(x => x.Weight).Select(x => $"{x.Bloodtype.Name.Colour(Telnet.BoldRed)} ({(x.Weight / weight).ToStringP2Colour(actor)})").ListToCommaSeparatedValues(", ")
+			},
+			new List<string>
+			{
+				"Id",
+				"Name",
+				"Blood Model",
+				"Blood Types"
+			},
+			actor,
+			Telnet.Green
+		));
+	}
+
+	private static void Show_BloodModels(ICharacter actor, StringStack ss)
+	{
+		var models = actor.Gameworld.BloodModels.ToList();
+		actor.OutputHandler.Send(StringUtilities.GetTextTable(
+			from item in models
+			select new List<string>
+			{
+				item.Id.ToStringN0(actor),
+				item.Name,
+				item.Antigens.Select(x => x.Name).ListToColouredString(),
+				item.Bloodtypes.Select(x => x.Name).ListToColouredString()
+			},
+			new List<string>
+			{
+				"Id",
+				"Name",
+				"Antigens",
+				"Blood Types"
+			},
+			actor,
+			Telnet.Green,
+			3
+		));
+	}
+
+	private static void Show_BloodAntigens(ICharacter actor, StringStack ss)
+	{
+		var antigens = actor.Gameworld.BloodtypeAntigens.ToList();
+		actor.OutputHandler.Send(StringUtilities.GetTextTable(
+			from item in antigens
+			select new List<string>
+			{
+				item.Id.ToStringN0(actor),
+				item.Name
+			},
+			new List<string>
+			{
+				"Id",
+				"Name"
+			},
+			actor,
+			Telnet.Green
+		));
 	}
 
 	private static void Show_Speeds(ICharacter actor, StringStack ss)

@@ -152,7 +152,7 @@ public class Drug : SaveableItem, IDrug
 				return new BodypartDamageAdditionalInfo
 				{
 					BodypartTypes = extra
-					                .Split(' ')
+					                .Split(' ', StringSplitOptions.RemoveEmptyEntries)
 					                .Select(int.Parse)
 					                .Cast<BodypartTypeEnum>()
 					                .ToList()

@@ -42,17 +42,24 @@ internal class ToClanRankFunction : BuiltInFunction
 			return StatementResult.Normal;
 		}
 
-		var text = ParameterFunctions[1].Result?.GetObject?.ToString();
-		if (text is null)
+		if (ParameterFunctions[1].ReturnType.CompatibleWith(ProgVariableTypes.Text))
 		{
-			Result = new NullVariable(ProgVariableTypes.ClanRank);
+			var text = ParameterFunctions[1].Result?.GetObject?.ToString();
+			if (text is null)
+			{
+				Result = new NullVariable(ProgVariableTypes.ClanRank);
+				return StatementResult.Normal;
+			}
+
+			Result = clan.Ranks.FirstOrDefault(x => x.Name.EqualTo(text)) ??
+			         clan.Ranks.FirstOrDefault(x => x.Titles.Any(y => y.EqualTo(text))) ??
+			         clan.Ranks.FirstOrDefault(x => x.Abbreviations.Any(y => y.EqualTo(text)));
+
 			return StatementResult.Normal;
 		}
 
-		Result = clan.Ranks.FirstOrDefault(x => x.Name.EqualTo(text)) ??
-			clan.Ranks.FirstOrDefault(x => x.Titles.Any(y => y.EqualTo(text))) ??
-			clan.Ranks.FirstOrDefault(x => x.Abbreviations.Any(y => y.EqualTo(text)));
-
+		var rankNumber = (int)(decimal)(ParameterFunctions[1].Result?.GetObject ?? 1.0);
+		Result = clan.Ranks.FirstOrDefault(x => x.RankNumber == rankNumber) ?? (IProgVariable)new NullVariable(ProgVariableTypes.ClanRank);
 		return StatementResult.Normal;
 	}
 
@@ -75,7 +82,18 @@ internal class ToClanRankFunction : BuiltInFunction
 			(pars, gameworld) => new ToClanRankFunction(pars, gameworld),
 			new List<string> { "clan", "name" },
 			new List<string> { "The clan in which you want to search", "The name to look up" },
-			"Converts a name into the specified type, if one exists",
+			"Converts a name and clan into the specified type, if one exists",
+			"Lookup",
+			ProgVariableTypes.ClanRank
+		));
+
+		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
+			"torank",
+			new[] { ProgVariableTypes.Clan, ProgVariableTypes.Text },
+			(pars, gameworld) => new ToClanRankFunction(pars, gameworld),
+			new List<string> { "clan", "rank #" },
+			new List<string> { "The clan in which you want to search", "The rank number of the rank" },
+			"Converts a rank number and clan into the specified type, if one exists",
 			"Lookup",
 			ProgVariableTypes.ClanRank
 		));

@@ -6,9 +6,9 @@ using MudSharp.FutureProg.Variables;
 
 namespace MudSharp.FutureProg.Functions.Clan;
 
-internal class OutranksFunction : BuiltInFunction
+internal class OutranksOrPeerFunction : BuiltInFunction
 {
-	public OutranksFunction(IList<IFunction> parameters)
+	public OutranksOrPeerFunction(IList<IFunction> parameters)
 		: base(parameters)
 	{
 	}
@@ -27,42 +27,42 @@ internal class OutranksFunction : BuiltInFunction
 
 		if (characterFunction1.Execute(variables) == StatementResult.Error)
 		{
-			ErrorMessage = "First Character Function in Outranks Function returned an error: " +
+			ErrorMessage = "First Character Function in OutranksOrPeerFunction Function returned an error: " +
 			               characterFunction1.ErrorMessage;
 			return StatementResult.Error;
 		}
 
 		if (characterFunction2.Execute(variables) == StatementResult.Error)
 		{
-			ErrorMessage = "Second Character Function in Outranks Function returned an error: " +
+			ErrorMessage = "Second Character Function in OutranksOrPeerFunction Function returned an error: " +
 			               characterFunction2.ErrorMessage;
 			return StatementResult.Error;
 		}
 
 		if (clanFunction.Execute(variables) == StatementResult.Error)
 		{
-			ErrorMessage = "Clan Function in Outranks Function returned an error: " + clanFunction.ErrorMessage;
+			ErrorMessage = "Clan Function in OutranksOrPeerFunction Function returned an error: " + clanFunction.ErrorMessage;
 			return StatementResult.Error;
 		}
 
 		var character1 = (ICharacter)characterFunction1.Result.GetObject;
 		if (character1 == null)
 		{
-			ErrorMessage = "First Character in Outranks Function was null.";
+			ErrorMessage = "First Character in OutranksOrPeerFunction Function was null.";
 			return StatementResult.Error;
 		}
 
 		var character2 = (ICharacter)characterFunction2.Result.GetObject;
 		if (character2 == null)
 		{
-			ErrorMessage = "Second Character in Outranks Function was null.";
+			ErrorMessage = "Second Character in OutranksOrPeerFunction Function was null.";
 			return StatementResult.Error;
 		}
 
 		var clan = (IClan)clanFunction.Result.GetObject;
 		if (clan == null)
 		{
-			ErrorMessage = "Clan in Outranks Function was null.";
+			ErrorMessage = "Clan in OutranksOrPeerFunction Function was null.";
 			return StatementResult.Error;
 		}
 
@@ -74,7 +74,7 @@ internal class OutranksFunction : BuiltInFunction
 		}
 		else
 		{
-			Result = new BooleanVariable(charMembership1.Rank.RankNumber > charMembership2.Rank.RankNumber);
+			Result = new BooleanVariable(charMembership1.Rank.RankNumber >= charMembership2.Rank.RankNumber);
 		}
 
 		return StatementResult.Normal;
@@ -84,13 +84,13 @@ internal class OutranksFunction : BuiltInFunction
 	{
 		FutureProg.RegisterBuiltInFunctionCompiler(
 			new FunctionCompilerInformation(
-				"outranks",
+				"outranksorpeer",
 				new[]
 				{
 					ProgVariableTypes.Character, ProgVariableTypes.Character,
 					ProgVariableTypes.Clan
 				},
-				(pars, gameworld) => new OutranksFunction(pars)
+				(pars, gameworld) => new OutranksOrPeerFunction(pars)
 			)
 		);
 	}

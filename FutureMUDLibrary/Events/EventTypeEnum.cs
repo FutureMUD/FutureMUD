@@ -584,6 +584,36 @@ namespace MudSharp.Events {
 		/// Fires when a CommandDelay effect expires. Parameters are character, commands (string list)
 		/// </summary>
 		[EventInfo("Fires when a BlockLayerChange effect expires.", new[] { "character" }, new[] { "person", }, new[] { ProgVariableTypes.Character})]
-		LayerChangeBlockExpired = 93
+		LayerChangeBlockExpired = 93,
+
+		[EventInfo("Fired on an item when the item takes damage. Weapon and Aggressor may be null.", ["item", "item", "character"], ["item", "weapon", "aggressor"], [ProgVariableTypes.Item, ProgVariableTypes.Item, ProgVariableTypes.Character])]
+		ItemDamaged = 94,
+
+		[EventInfo("Fired on all perceivers in the location when the item takes damage. Weapon and Aggressor may be null.", ["item", "item", "character", "perceiver"], ["item", "weapon", "aggressor", "witness"], [ProgVariableTypes.Item, ProgVariableTypes.Item, ProgVariableTypes.Character, ProgVariableTypes.Perceiver])]
+		ItemDamagedWitness = 95,
+
+		[EventInfo("Fired on a character when they take damage. Weapon and Aggressor may be null.", ["character", "item", "character"], ["character", "weapon", "aggressor"], [ProgVariableTypes.Character, ProgVariableTypes.Item, ProgVariableTypes.Character])]
+		CharacterDamaged = 96,
+
+		[EventInfo("Fired on all perceivers in the location when a character takes damage.  Weapon and Aggressor may be null.", ["character", "item", "character", "perceiver"], ["character", "weapon", "aggressor", "witness"], [ProgVariableTypes.Character, ProgVariableTypes.Item, ProgVariableTypes.Character, ProgVariableTypes.Perceiver])]
+		CharacterDamagedWitness = 97,
+
+		[EventInfo("Fired on an item when it is wielded", ["item", "character"], ["item", "wielder"], [ProgVariableTypes.Item, ProgVariableTypes.Character])]
+		ItemWielded = 98,
+
+		[EventInfo("Fired on all perceivers in the location when an item is wielded", ["item", "character", "perceiver"], ["item", "wielder", "witness"], [ProgVariableTypes.Item, ProgVariableTypes.Character, ProgVariableTypes.Perceiver])]
+		ItemWieldedWitness = 99,
+
+		[EventInfo("Fired on an item when it is worn", ["item", "character"], ["item", "wearer"], [ProgVariableTypes.Item, ProgVariableTypes.Character])]
+		ItemWorn = 100,
+
+		[EventInfo("Fired on all perceivers in the location when an item is worn", ["item", "character", "perceiver"], ["item", "wearer", "witness"], [ProgVariableTypes.Item, ProgVariableTypes.Character, ProgVariableTypes.Perceiver])]
+		ItemWornWitness = 101,
+
+		[EventInfo("Fired on a character when they become hidden", ["character"], ["character"], [ProgVariableTypes.Character])]
+		CharacterHidden = 102,
+
+		[EventInfo("Fired on all perceivers in the location when they witness someone becoming hidden", ["character", "perceiver"], ["character", "witness"], [ProgVariableTypes.Character, ProgVariableTypes.Perceiver])]
+		CharacterHidesWitness = 103
 	}
 }

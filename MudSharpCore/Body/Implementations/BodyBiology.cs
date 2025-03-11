@@ -1230,6 +1230,11 @@ public partial class Body
 
 		OnWounded?.Invoke(this, wound);
 		wound.OnWoundSuffered();
+		HandleEvent(EventType.CharacterDamaged, this, wound.ToolOrigin, wound.ActorOrigin);
+		foreach (var witness in Location.EventHandlers)
+		{
+			HandleEvent(EventType.CharacterDamagedWitness, Actor, wound.ToolOrigin, wound.ActorOrigin, witness);
+		}
 	}
 
 	public IEnumerable<IWound> SufferDamage(IDamage damage)

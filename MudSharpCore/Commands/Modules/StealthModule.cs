@@ -5,6 +5,7 @@ using MudSharp.Accounts;
 using MudSharp.Character;
 using MudSharp.Effects.Interfaces;
 using MudSharp.Effects.Concrete;
+using MudSharp.Events;
 using MudSharp.Framework;
 using MudSharp.GameItems.Interfaces;
 using MudSharp.PerceptionEngine;
@@ -69,6 +70,12 @@ Note - anyone in the room at the time you hide yourself or an item will be able 
 					foreach (var witness in actor.Location.Characters.Except(actor))
 					{
 						witness.AddEffect(new SawHider(witness, actor), TimeSpan.FromSeconds(300));
+					}
+
+					actor.HandleEvent(EventType.CharacterHidden, actor);
+					foreach (var witness in actor.Location.EventHandlers)
+					{
+						witness.HandleEvent(EventType.CharacterHidesWitness, actor, witness);
 					}
 				}, "looking for a hiding spot", new[] { "general", "movement" }, "looking for a hiding spot"),
 				TimeSpan.FromSeconds(15));

@@ -1629,20 +1629,7 @@ You can also type 'forage' on its own to see what kinds of yields you can search
 
 		actor.RemoveEffect(item);
 	}
-
-	[PlayerCommand("Return", "return")]
-	protected static void Return(ICharacter actor, string input)
-	{
-		var switched = actor.EffectsOfType<Switched>().FirstOrDefault();
-		if (switched == null)
-		{
-			actor.Send("You are not possessing any NPCs.");
-			return;
-		}
-
-		actor.RemoveEffect(switched, true);
-	}
-
+	
 	public static int GetCommandGroupScore(string group)
 	{
 		switch (group?.ToLowerInvariant())

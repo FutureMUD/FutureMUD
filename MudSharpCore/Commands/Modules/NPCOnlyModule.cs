@@ -9,6 +9,8 @@ using MudSharp.PerceptionEngine;
 using MudSharp.PerceptionEngine.Outputs;
 using MudSharp.PerceptionEngine.Parsers;
 using MudSharp.RPG.Law;
+using MudSharp.Accounts;
+using MudSharp.Construction;
 
 namespace MudSharp.Commands.Modules;
 
@@ -166,5 +168,95 @@ internal class NPCOnlyModule : Module<ICharacter>
 
 		actor.AddEffect(new IgnoreForce(actor));
 		actor.OutputHandler.Send("You are now ignoring FORCE commands.");
+	}
+
+	[PlayerCommand("Return", "return")]
+	protected static void Return(ICharacter actor, string input)
+	{
+		var switched = actor.EffectsOfType<Switched>().FirstOrDefault();
+		if (switched == null)
+		{
+			actor.Send("You are not possessing any NPCs.");
+			return;
+		}
+
+		actor.RemoveEffect(switched, true);
+	}
+
+	[PlayerCommand("Goto", "goto")]
+	[RequiredCharacterState(CharacterState.Conscious)]
+	[DelayBlock("general", "You must first stop {0} before you can do that.")]
+	[HelpInfo("goto",
+		@"The GOTO command allows you to move yourself to a particular location in the gameworld. If you are not invisible, this will echo to the room - otherwise, if you have your admin invisibility up only other admins in the origin or destination will see you go.
+
+There are several different ways you can use this command, as per below:
+
+	#3goto <roomnumber>#0 - Go to a particular room identified by number
+	#3goto <character name>#0 - Go to the location of a particular named character
+	#3goto <character keywords>#0 - Go to the location of a character by keywords
+	#3goto #<room keywords>#0 - Override for room descriptions when there is a clash with a character
+	#3goto @<number>#0 - Go to a recently created room. See below for explanation:
+
+#6For example, @1 is the most recently created new room, @2 is the 2nd most recently created room etc.
+This only works for rooms created since the last reboot.
+This command is useful when you write-up a bunch of room creation commands in a text file to paste into the MUD at once, so you can refer to the rooms that you create rather than having to presuppose what the room ID will be.#0",
+		AutoHelp.HelpArgOrNoArg)]
+	protected static void Goto(ICharacter actor, string input)
+	{
+		if (!actor.AffectedBy<Switched>())
+		{
+			actor.OutputHandler.Send("Only possessed NPCs can do this command.");
+			return;
+		}
+
+		var ss = new StringStack(input.RemoveFirstWord());
+		var cmd = ss.SafeRemainingArgument;
+		var destinationLayer = actor.RoomLayer;
+		var target = actor.Gameworld.Actors
+						  .Where(x => !x.State.HasFlag(CharacterState.Dead))
+						  .OrderByDescending(x => x.IsPlayerCharacter)
+						  .GetFromItemListByKeywordIncludingNames(cmd, actor);
+		ICell destination;
+		if (long.TryParse(cmd, out var roomid))
+		{
+			destination = actor.Gameworld.Cells.Get(roomid);
+			if (destination == null)
+			{
+
+				actor.OutputHandler.Send("There is no location with that ID.");
+				return;
+			}
+		}
+		else
+		{
+			if (target is null)
+			{
+				if (cmd.Length > 1 && cmd[0] == '#')
+				{
+					cmd = cmd.Substring(1);
+				}
+
+				destination = RoomBuilderModule.LookupCell(actor.Gameworld, cmd);
+				if (destination == null)
+				{
+
+					actor.OutputHandler.Send("There are no locations and no-one with that name or keyword to go to.");
+					return;
+				}
+			}
+			else
+			{
+				destination = target.Location;
+				destinationLayer = target.RoomLayer;
+			}
+		}
+
+		if (destination == actor.Location && destinationLayer == actor.RoomLayer)
+		{
+			actor.OutputHandler.Send("You are already there!");
+			return;
+		}
+
+		actor.TransferTo(destination, destinationLayer);
 	}
 }

@@ -31,6 +31,7 @@ using MudSharp.Character.Name;
 using MudSharp.Construction;
 using MudSharp.Construction.Boundary;
 using MudSharp.Form.Shape;
+using MudSharp.FutureProg.Statements;
 using MudSharp.Work.Foraging;
 
 namespace MudSharp.Commands.Modules;
@@ -202,6 +203,9 @@ This command exists to let players coordinate between one another, but overuse o
 	}
 
 	[PlayerCommand("Helpless", "helpless")]
+	[HelpInfo("helpless", @"The helpless command is used to make yourself completely and utterly helpless; you will not resist attempts to subdue, manipulate, interact with your inventory, perform medical procedures or even attack you.
+
+The syntax for this command is #3helpless#0, which will toggle the effect.", AutoHelp.HelpArg)]
 	protected static void Helpless(ICharacter actor, string input)
 	{
 		if (actor.EffectsOfType<VoluntarilyHelpless>().Any())
@@ -647,22 +651,17 @@ For a full list of combat flags, see #3SHOW COMBATFLAGS#0", AutoHelp.HelpArg)]
 	}
 
 	[PlayerCommand("Petition", "petition")]
+	[HelpInfo("petition", @"The petition command is used to send a message to staff. This will also send the message to a staff discord, in case nobody is on, and log it to a board that they can read in game.
+
+The syntax for this command is as follows:
+
+	#3petition all <message>#0 - petition all staff
+	#3petition guides <message>#0 - petition all staff and guides
+	#3petition <who> <message>#0 - send a message to a specific visible online staff member", AutoHelp.HelpArgOrNoArg)]
 	protected static void Petition(ICharacter actor, string input)
 	{
 		var ss = new StringStack(input.RemoveFirstWord());
 		var targetText = ss.Pop();
-		if (string.IsNullOrEmpty(targetText) || targetText.EqualTo("help") || targetText.EqualTo("?"))
-		{
-			actor.OutputHandler.Send(
-				$"Do you want to petition all staff, or a specific available person?\nThe syntax is:\n\t{"petition all <message>".Colour(Telnet.Yellow)}\n\t{"petition guides <message>".Colour(Telnet.Yellow)}\n\t{"petition <specific staff> <message>".Colour(Telnet.Yellow)}");
-			return;
-		}
-
-		if (ss.IsFinished)
-		{
-			actor.OutputHandler.Send("What is it that you wish to petition the staff about?");
-			return;
-		}
 
 		var petitionText = ss.RemainingArgument.ProperSentences().Fullstop();
 		if (petitionText.Length > 350)
@@ -673,7 +672,7 @@ For a full list of combat flags, see #3SHOW COMBATFLAGS#0", AutoHelp.HelpArg)]
 
 		if (targetText.Equals("all", StringComparison.InvariantCultureIgnoreCase))
 		{
-			var staff = actor.Gameworld.Characters.Where(x => x.IsAdministrator()).ToList();
+			var staff = actor.Gameworld.Actors.Where(x => x.IsAdministrator() || x.AffectedBy<Switched>()).ToList();
 			staff.Handle(
 				$"{$"[Petition: {actor.PersonalName.GetName(NameStyle.FullName)} ({actor.Account.Name.TitleCase()})]".Colour(Telnet.Cyan)} {ss.RemainingArgument.ProperSentences().Fullstop()}");
 			actor.OutputHandler.Send(("You petition to all staff: " + petitionText).Wrap(actor.InnerLineFormatLength));
@@ -699,7 +698,7 @@ For a full list of combat flags, see #3SHOW COMBATFLAGS#0", AutoHelp.HelpArg)]
 				return;
 			}
 
-			actor.Gameworld.Characters.Where(x => x.PermissionLevel >= PermissionLevel.Guide).Handle(
+			actor.Gameworld.Actors.Where(x => x.PermissionLevel >= PermissionLevel.Guide || x.AffectedBy<Switched>()).Handle(
 				$"{$"[Guide Petition: {actor.Account.Name.TitleCase()}]".Colour(Telnet.Cyan)} {ss.RemainingArgument.ProperSentences().Fullstop()}");
 			actor.OutputHandler.Send("You petition to all guides and staff: " + petitionText);
 		}

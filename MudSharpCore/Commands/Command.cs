@@ -73,7 +73,17 @@ public class Command<T> : IExecutable<T>
 		_executeCommandGenericMethod = commandGenericMethod;
 		PermissionRequired = permissionRequired;
 		AllowedStates = states;
-		DisplayOptions = displayOptions;
+		if (displayOptions == CommandDisplayOptions.DisplayToAdminsAndNPCs)
+		{
+			DisplayOptions = CommandDisplayOptions.None;
+			AppearInCommandsListCondition = SharedModule.AdminOrAdminFilterFunction;
+		}
+		else
+		{
+			DisplayOptions = displayOptions;
+			AppearInCommandsListCondition = condition;
+		}
+			
 		if (delayBlock != null)
 		{
 			DelayType = delayBlock.DelayType;
@@ -86,7 +96,6 @@ public class Command<T> : IExecutable<T>
 		NoMovementCommand = noMovementCommand;
 		NoMeleeCombatCommand = noMeleeCombatCommand;
 		HelpInfo = helpInfo;
-		AppearInCommandsListCondition = condition;
 		MustBeAnEnforcer = mustBeAnEnforcer;
 		ModuleName = moduleName;
 	}

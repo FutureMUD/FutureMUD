@@ -1134,6 +1134,7 @@ For information on the syntax to use in emotes (such as those included in bracke
 				CommandDisplayOptions.None,
 				condition: MagicModule.MagicFilterFunction);
 			PlayerCommandTree.Instance.Commands.Add(verb, command);
+			NPCCommandTree.Instance.Commands.Add(verb, command);
 			GuideCommandTree.Instance.Commands.Add(verb, command);
 			AdminCommandTree.JuniorAdminCommandTree.Commands.Add(verb, command);
 			AdminCommandTree.StandardAdminCommandTree.Commands.Add(verb, command);

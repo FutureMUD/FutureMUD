@@ -4,7 +4,8 @@ namespace MudSharp.Commands.Modules {
     public enum CommandDisplayOptions {
         None,
         DisplayCommandWords,
-        Hidden
+        Hidden,
+        DisplayToAdminsAndNPCs
     }
 
     public interface IModule {

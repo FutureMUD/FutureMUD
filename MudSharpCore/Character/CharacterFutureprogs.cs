@@ -149,6 +149,8 @@ public partial class Character
 				return new BooleanVariable(IsGuest);
 			case "pc":
 				return new BooleanVariable(IsPlayerCharacter);
+			case "possessednpc":
+				return new BooleanVariable(!IsPlayerCharacter && EffectsOfType<Switched>().Any());
 			case "isnewplayer":
 				return new BooleanVariable(Effects.Any(x => x is NewPlayer));
 			case "linewidth":
@@ -250,6 +252,7 @@ public partial class Character
 			{ "weight", ProgVariableTypes.Number },
 			{ "location", ProgVariableTypes.Location },
 			{ "age", ProgVariableTypes.Number },
+			{ "possessednpc", ProgVariableTypes.Boolean},
 			{ "agecategory", ProgVariableTypes.Text },
 			{ "race", ProgVariableTypes.Race },
 			{ "culture", ProgVariableTypes.Culture },
@@ -367,7 +370,8 @@ public partial class Character
 			{ "knowledges", "Returns a collection of knowledges the character has"},
 			{ "scripts", "A collection of the known scripts for this character"},
 			{ "script", "The script they are currently writing with (can be null)" },
-			{ "writings", "A collection of all writings this character is the author or true author of" }
+			{ "writings", "A collection of all writings this character is the author or true author of" },
+			{ "possessednpc", "Returns true if this character is an NPC and has an admin possessing / switched into them"},
 		};
 	}
 

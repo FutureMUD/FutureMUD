@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
 using MudSharp.Character;
@@ -35,6 +36,9 @@ public class Switched : Effect, INoQuitEffect, IPauseAIEffect, ICountForWho, IIg
 		CharacterOwner.OnDeath -= OwnerOnOnDeath;
 		Owner.Send("You return to your original body.");
 		CharacterOwner.Controller.SetContext(OriginalCharacter);
+		CharacterOwner.RemoveAllEffects<AdminTelepathy>(fireRemovalAction: true);
+		CharacterOwner.RemoveAllEffects<AdminSight>(fireRemovalAction: true);
+		CharacterOwner.RemoveAllEffects<AdminSpyMaster>(fireRemovalAction: true);
 		Owner.RemoveEffect(this, false);
 	}
 

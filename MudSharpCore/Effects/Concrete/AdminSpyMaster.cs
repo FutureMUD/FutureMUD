@@ -23,7 +23,24 @@ public class AdminSpyMaster : Effect, IEffectSubtype
 		CharacterOwner.OnQuit += CharacterOwner_OnQuit;
 	}
 
-	private void CharacterOwner_OnQuit(IPerceivable owner)
+	public AdminSpyMaster(ICharacter owner, AdminSpyMaster other) : base(owner, null)
+	{
+		CharacterOwner = owner;
+		CharacterOwner.OnQuit += CharacterOwner_OnQuit;
+
+		foreach (var cell in other.SpiedCells)
+		{
+			SpiedCells.Add(cell);
+			var childEffect = new AdminSpy(cell, CharacterOwner);
+			cell.AddEffect(childEffect);
+			SpyEffects.Add(childEffect);
+		}
+	}
+
+	#region Overrides of Effect
+
+	/// <inheritdoc />
+	public override void RemovalEffect()
 	{
 		foreach (var effect in SpyEffects)
 		{
@@ -32,6 +49,13 @@ public class AdminSpyMaster : Effect, IEffectSubtype
 
 		SpyEffects.Clear();
 		CharacterOwner.OnQuit -= CharacterOwner_OnQuit;
+	}
+
+	#endregion
+
+	private void CharacterOwner_OnQuit(IPerceivable owner)
+	{
+		RemovalEffect();
 	}
 
 	public AdminSpyMaster(XElement effect, IPerceivable owner) : base(effect, owner)

@@ -199,7 +199,7 @@ public abstract class InternalOrganProto : BodypartPrototype, IOrganProto
 			return false;
 		}
 
-		if (!double.TryParse(command.PopSpeech(), out var hitchance) || hitchance <= 0.0)
+		if (!command.PopSpeech().TryParsePercentage(builder.Account.Culture, out var hitchance) || hitchance <= 0.0)
 		{
 			builder.OutputHandler.Send("The hit chance must be a number greater than 0.");
 			return false;
@@ -230,8 +230,7 @@ public abstract class InternalOrganProto : BodypartPrototype, IOrganProto
 				FMDB.Context.SaveChanges();
 			}
 
-			builder.OutputHandler.Send(
-				$"You update the {FullDescription().Colour(Telnet.Yellow)} organ to be inside the {part.FullDescription().Colour(Telnet.Yellow)} bodypart with a hit chance of {(100.0*hitchance).ToString("P3", builder).ColourValue()}, proximity group of {group?.ColourValue() ?? "None".Colour(Telnet.Red)}.");
+			builder.OutputHandler.Send($"You update the {FullDescription().Colour(Telnet.Yellow)} organ to be inside the {part.FullDescription().Colour(Telnet.Yellow)} bodypart with a hit chance of {(hitchance/100.0).ToString("P3", builder).ColourValue()}, proximity group of {group?.ColourValue() ?? "None".Colour(Telnet.Red)}.");
 			return true;
 		}
 

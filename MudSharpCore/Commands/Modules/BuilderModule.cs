@@ -3474,6 +3474,8 @@ The list of filters you can use with #3bodypart list#0 are as follows:
 	#6!organ#0 - only show parts that are not organs
 	#6bone#0 - only show bones
 	#6!bone#0 - only show parts that are not bones
+	#6+<keyword>#0 - only show parts with the specified keyword
+	#6-<keyword>#0 - only show parts without the specified keyword
 	#6<id|name>#0 - only show parts that belong to the specified body prototype";
 
 	[PlayerCommand("Bodypart", "bodypart")]
@@ -3557,6 +3559,20 @@ The list of filters you can use with #3bodypart list#0 are as follows:
 				var cmd1 = cmd.Substring(1);
 				switch (cmd[0])
 				{
+					case '+':
+						parts = parts.Where(x => 
+							x.ShortDescription().Contains(cmd1, StringComparison.InvariantCultureIgnoreCase) ||
+							x.FullDescription().Contains(cmd1, StringComparison.InvariantCultureIgnoreCase)
+							);
+						filters.Add($"...with the keyword {cmd1.ColourCommand()}");
+						continue;
+					case '-':
+						parts = parts.Where(x =>
+							!x.ShortDescription().Contains(cmd1, StringComparison.InvariantCultureIgnoreCase) &&
+							!x.FullDescription().Contains(cmd1, StringComparison.InvariantCultureIgnoreCase)
+						);
+						filters.Add($"...without the keyword {cmd1.ColourCommand()}");
+						continue;
 					case '%':
 						continue;
 				}
@@ -3592,10 +3608,6 @@ The list of filters you can use with #3bodypart list#0 are as follows:
 				part.BodypartType.DescribeEnum(),
 				part.Alignment.Describe(),
 				part.Orientation.Describe(),
-				part.DamageModifier.ToString("P2", actor),
-				part.StunModifier.ToString("P2", actor),
-				part.PainModifier.ToString("P2", actor),
-				part.BleedModifier.ToString("P2", actor),
 				part.RelativeHitChance.ToString("N0", actor),
 				part.MaxLife.ToString("N0", actor),
 				part.SeveredThreshold.ToString("N0", actor),
@@ -3610,17 +3622,14 @@ The list of filters you can use with #3bodypart list#0 are as follows:
 				"Type",
 				"Alignment",
 				"Orientation",
-				"Dam%",
-				"Stun%",
-				"Pain%",
-				"Bleed%",
-				"Hits",
+				"Chance",
 				"HP",
 				"Sever",
 				"Upstream"
 			},
 			actor,
-			Telnet.Green));
+			Telnet.Green,
+			truncatableColumnIndex: 2));
 		actor.OutputHandler.Send(sb.ToString());
 	}
 

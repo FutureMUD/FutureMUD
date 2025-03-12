@@ -116,7 +116,9 @@ public abstract class BaseBoneProto : BodypartPrototype, IBone
 		$@"{base.HelpInfo}
 	#3internal <part> <hitchance> [<group>]#0 - sets this bone to be in the target part
 	#3removeinternal <part>#0 - removes this bone from a part
-	#3primary <part>#0 - sets a part to be the primary bodypart for this bone";
+	#3primary <part>#0 - sets a part to be the primary bodypart for this bone
+	#3cover <organ> <%>#0 - sets the bone to provide cover to an organ
+	#3uncover <organ>#0 - removes this bone providing coverage";
 
 	public override bool BuildingCommand(ICharacter builder, StringStack command)
 	{
@@ -204,11 +206,13 @@ public abstract class BaseBoneProto : BodypartPrototype, IBone
 			return false;
 		}
 
-		if (!double.TryParse(command.PopSpeech(), out var hitchance) || hitchance <= 0.0)
+		if (!command.PopSpeech().TryParsePercentage(builder.Account.Culture, out var hitchance) || hitchance <= 0.0)
 		{
 			builder.OutputHandler.Send("The hit chance must be a number greater than 0.");
 			return false;
 		}
+
+		hitchance *= 100.0;
 
 		if (_coveredOrgans.Any(x => x.Organ == organ))
 		{
@@ -222,7 +226,7 @@ public abstract class BaseBoneProto : BodypartPrototype, IBone
 			}
 
 			builder.OutputHandler.Send(
-				$"You update the coverage chance for organ {organ.FullDescription().Colour(Telnet.Yellow)} to {hitchance.ToString("P3", builder).ColourValue()}.");
+				$"You update the coverage chance for organ {organ.FullDescription().Colour(Telnet.Yellow)} to {(hitchance/100.0).ToString("P3", builder).ColourValue()}.");
 			return true;
 		}
 
@@ -301,7 +305,7 @@ public abstract class BaseBoneProto : BodypartPrototype, IBone
 		if (command.IsFinished)
 		{
 			builder.OutputHandler.Send(
-				"What should be the relative hit chance of this bone when the parent bodypart is hit?");
+				"What should be the percentage hit chance of this bone when the parent bodypart is hit?");
 			return false;
 		}
 
@@ -310,8 +314,6 @@ public abstract class BaseBoneProto : BodypartPrototype, IBone
 			builder.OutputHandler.Send("The hit chance must be a percentage greater than 0.");
 			return false;
 		}
-
-		hitchance *= 100.0;
 
 		var group = default(string);
 		if (!command.IsFinished)
@@ -331,14 +333,14 @@ public abstract class BaseBoneProto : BodypartPrototype, IBone
 				                   .Include(x => x.BodypartInternalInfosBodypartProto)
 				                   .First(x => x.Id == part.Id);
 				var dbinternal = dbtarget.BodypartInternalInfosBodypartProto.First(x => x.InternalPartId == Id);
-				dbinternal.HitChance = hitchance;
+				dbinternal.HitChance = hitchance * 100.0;
 				dbinternal.ProximityGroup = group;
 				dbinternal.IsPrimaryOrganLocation = primary;
 				FMDB.Context.SaveChanges();
 			}
 
 			builder.OutputHandler.Send(
-				$"You update the {FullDescription().Colour(Telnet.Yellow)} bone to be inside the {part.FullDescription().Colour(Telnet.Yellow)} bodypart with a hit chance of {(100.0 * hitchance).ToString("P3", builder).ColourValue()}, proximity group of {group?.ColourValue() ?? "None".Colour(Telnet.Red)}.");
+				$"You update the {FullDescription().Colour(Telnet.Yellow)} bone to be inside the {part.FullDescription().Colour(Telnet.Yellow)} bodypart with a hit chance of {(hitchance).ToString("P3", builder).ColourValue()}, proximity group of {group?.ColourValue() ?? "None".Colour(Telnet.Red)}.");
 			return true;
 		}
 
@@ -349,14 +351,14 @@ public abstract class BaseBoneProto : BodypartPrototype, IBone
 			FMDB.Context.BodypartInternalInfos.Add(dbinternal);
 			dbinternal.BodypartProtoId = part.Id;
 			dbinternal.InternalPartId = Id;
-			dbinternal.HitChance = hitchance;
+			dbinternal.HitChance = hitchance * 100.0;
 			dbinternal.ProximityGroup = group;
 			dbinternal.IsPrimaryOrganLocation = false;
 			FMDB.Context.SaveChanges();
 		}
 
 		builder.OutputHandler.Send(
-			$"You set the {FullDescription().Colour(Telnet.Yellow)} bone to be inside the {part.FullDescription().Colour(Telnet.Yellow)} bodypart with a hit chance of {(100.0 * hitchance).ToString("P3", builder).ColourValue()}, proximity group of {group?.ColourValue() ?? "None".Colour(Telnet.Red)}.");
+			$"You set the {FullDescription().Colour(Telnet.Yellow)} bone to be inside the {part.FullDescription().Colour(Telnet.Yellow)} bodypart with a hit chance of {(hitchance).ToString("P3", builder).ColourValue()}, proximity group of {group?.ColourValue() ?? "None".Colour(Telnet.Red)}.");
 		return true;
 	}
 

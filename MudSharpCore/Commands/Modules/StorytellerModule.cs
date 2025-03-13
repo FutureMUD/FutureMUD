@@ -2685,6 +2685,10 @@ The syntax is as follows:
 			sb.AppendLine($"Morphs In: {(gi.MorphTime - DateTime.UtcNow).Describe(actor).ColourValue()}");
 			sb.AppendLine($"Morph Time: {gi.MorphTime.GetLocalDateString(actor).ColourValue()}");
 		}
+		else if (gi.CachedMorphTime is not null)
+		{
+			sb.AppendLine($"Cached Morph Time: {gi.CachedMorphTime.Value.DescribePreciseBrief(actor).ColourValue()}");
+		}
 
 		sb.AppendLine();
 		sb.AppendLine("Components:");

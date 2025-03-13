@@ -283,6 +283,7 @@ namespace MudSharp.GameItems {
 		#endregion
 
 		DateTime MorphTime { get; set; }
+		TimeSpan? CachedMorphTime { get; }
 		void StartMorphTimer();
 		void EndMorphTimer();
 

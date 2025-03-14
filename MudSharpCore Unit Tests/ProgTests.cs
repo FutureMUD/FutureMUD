@@ -17,6 +17,8 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class ProgTests
 {
+	private static IFuturemud _gameworld;
+
 	public ProgTests()
 	{
 		//
@@ -44,8 +46,12 @@ public class ProgTests
 	// You can use the following additional attributes as you write your tests:
 	//
 	// Use ClassInitialize to run code before running the first test in the class
-	// [ClassInitialize()]
-	// public static void MyClassInitialize(TestContext testContext) { }
+	[ClassInitialize()]
+	public static void MyClassInitialize(TestContext testContext)
+	{
+		_gameworld = new GameworldStub().ToMock();
+		FutureProg.Initialise();
+	}
 	//
 	// Use ClassCleanup to run code after all tests in a class have run
 	// [ClassCleanup()]
@@ -113,9 +119,7 @@ public class ProgTests
 	[TestMethod]
 	public void TestExecute()
 	{
-		var gameworld = new GameworldStub().ToMock();
-		FutureProg.Initialise();
-		var prog1 = new FutureProg(gameworld, "AddNumbers", ProgVariableTypes.Number, new[]
+		var prog1 = new FutureProg(_gameworld, "AddNumbers", ProgVariableTypes.Number, new[]
 			{
 				Tuple.Create(ProgVariableTypes.Number, "number1"),
 				Tuple.Create(ProgVariableTypes.Number, "number2")
@@ -127,7 +131,7 @@ public class ProgTests
 		Assert.AreEqual(650, prog1.ExecuteInt(0, 600, 50), "600+50 did not equal 650");
 		Assert.AreEqual(8.0, prog1.ExecuteDouble(0.0, 2.0, 6.0), "2.0+6.0 did not equal 8.0");
 
-		var prog2 = new FutureProg(gameworld, "AddNumbersNull", ProgVariableTypes.Number, new[]
+		var prog2 = new FutureProg(_gameworld, "AddNumbersNull", ProgVariableTypes.Number, new[]
 			{
 				Tuple.Create(ProgVariableTypes.Number, "number1"),
 				Tuple.Create(ProgVariableTypes.Number, "number2")
@@ -138,14 +142,14 @@ public class ProgTests
 		Assert.AreEqual(0, prog2.ExecuteInt(0, 2, 6), "AddNumbersNull: Default value was not 0");
 		Assert.AreEqual(0.0M, prog2.Execute(2, 6), "AddNumbersNull: Returned value was not 0.0M");
 
-		var prog3 = new FutureProg(gameworld, "ReturnNullCh", ProgVariableTypes.Character, new List<Tuple<ProgVariableTypes, string>>(),
+		var prog3 = new FutureProg(_gameworld, "ReturnNullCh", ProgVariableTypes.Character, new List<Tuple<ProgVariableTypes, string>>(),
 			@"return null(""character"")");
 		prog3.Compile();
 		Assert.IsTrue(string.IsNullOrEmpty(prog3.CompileError), $"The ReturnNullCh prog did not compile: {prog3.CompileError}");
 		Assert.AreEqual(0, prog3.ExecuteInt(0), "ReturnNullCh: Default value was not 0");
 		Assert.AreEqual(null, prog3.Execute(), "ReturnNullCh: Returned value was not null");
 
-		var prog4 = new FutureProg(gameworld, 
+		var prog4 = new FutureProg(_gameworld, 
 			"LoadItem", 
 			ProgVariableTypes.Item, 
 			new List<Tuple<ProgVariableTypes, string>>(),
@@ -219,9 +223,7 @@ return @item");
 	public void TestSplit()
 	{
 		var text = "This is some text\nAnd some more text\n\nText after a blank line";
-		var gameworld = new GameworldStub().ToMock();
-		FutureProg.Initialise();
-		var prog1 = new FutureProg(gameworld, "TestSplit", ProgVariableTypes.Text | ProgVariableTypes.Collection, new[]
+		var prog1 = new FutureProg(_gameworld, "TestSplit", ProgVariableTypes.Text | ProgVariableTypes.Collection, new[]
 			{
 				Tuple.Create(ProgVariableTypes.Text, "text"),
 				Tuple.Create(ProgVariableTypes.Text, "split")
@@ -236,5 +238,19 @@ return @item");
 		Assert.AreEqual("And some more text", result[1], $"Result #1 was {result[1]}");
 		Assert.AreEqual("", result[2], $"Result #1 was {result[2]}");
 		Assert.AreEqual("Text after a blank line", result[3], $"Result #1 was {result[3]}");
+	}
+
+	[TestMethod]
+	public void TestGetTypeByName()
+	{
+		foreach (var type in Enum.GetValues<ProgVariableTypes>())
+		{
+			if (type is ProgVariableTypes.Error or ProgVariableTypes.Void or ProgVariableTypes.Dictionary or ProgVariableTypes.Collection or ProgVariableTypes.CollectionDictionary)
+			{
+				continue;
+			}
+
+			Assert.AreNotEqual(ProgVariableTypes.Void, FutureProg.GetTypeByName(type.DescribeEnum()), $"There was no round-trip GetTypeByName for type {type.DescribeEnum()}");
+		}
 	}
 }

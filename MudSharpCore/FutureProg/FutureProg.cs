@@ -879,6 +879,12 @@ public class FutureProg : SaveableItem, IFutureProg
 			case "crime":
 				returnType |= ProgVariableTypes.Crime;
 				break;
+			case "market":
+				returnType |= ProgVariableTypes.Market;
+				break;
+			case "marketcategory":
+				returnType |= ProgVariableTypes.MarketCategory;
+				break;
 			case "script":
 				returnType |= ProgVariableTypes.Script;
 				break;
@@ -887,6 +893,9 @@ public class FutureProg : SaveableItem, IFutureProg
 				break;
 			case "area":
 				returnType |= ProgVariableTypes.Area;
+				break;
+			case "liquidmixture":
+				returnType |= ProgVariableTypes.LiquidMixture;
 				break;
 			default:
 				returnType = ProgVariableTypes.Error;

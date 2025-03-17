@@ -71,7 +71,7 @@ public class InternalBleeding : Effect, IInternalBleedingEffect, IPertainToBodyp
 	{
 		Organ = ((IBody)Owner).Prototype.Organs.FirstOrDefault(x => x.Id == long.Parse(root.Element("Organ").Value));
 		BloodlossPerTick = double.Parse(root.Element("BloodlossPerTick").Value);
-		BloodlossTotal = double.Parse(root.Element("BloodlossTotal").Value);
+		_bloodlossTotal = double.Parse(root.Element("BloodlossTotal").Value);
 	}
 
 	protected override XElement SaveDefinition()

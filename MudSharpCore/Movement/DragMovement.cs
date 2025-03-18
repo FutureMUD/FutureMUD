@@ -209,7 +209,7 @@ public class DragMovement : MovementBase
 		{
 			Exit.Origin.Extract(targetItem);
 			targetItem.RoomLayer = Draggers.First().RoomLayer;
-			Exit.Destination.Insert(targetItem);
+			Exit.Destination.Insert(targetItem, true);
 		}
 
 		Exit.Origin.ResolveMovement(this);

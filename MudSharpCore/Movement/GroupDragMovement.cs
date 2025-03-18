@@ -456,7 +456,7 @@ public class GroupDragMovement : MovementBase
 			{
 				Exit.Origin.Extract(targetItem);
 				targetItem.RoomLayer = Draggers.First().RoomLayer;
-				Exit.Destination.Insert(targetItem);
+				Exit.Destination.Insert(targetItem, true);
 			}
 		}
 

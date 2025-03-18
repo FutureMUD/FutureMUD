@@ -44,6 +44,7 @@ public class DoorguardAI : ArtificialIntelligenceBase
 	protected bool RespectGameRulesForOpeningDoors;
 	protected bool RespondToSocialDirection;
 	protected bool SocialTargettedOnly;
+	protected bool IgnoreMinuteFallbackBehaviour;
 
 	protected IFutureProg WillOpenDoorForProg;
 	protected IFutureProg WontOpenDoorForActionProg;
@@ -116,6 +117,7 @@ public class DoorguardAI : ArtificialIntelligenceBase
 		BaseDelayProg = Gameworld.AlwaysOneHundredProg;
 		OpenCloseDelayProg = Gameworld.AlwaysTenThousandProg;
 		RespectGameRulesForOpeningDoors = true;
+		IgnoreMinuteFallbackBehaviour = false;
 		DatabaseInitialise();
 	}
 
@@ -137,6 +139,8 @@ public class DoorguardAI : ArtificialIntelligenceBase
 			Gameworld.FutureProgs.Get(long.Parse(root.Element("OnWitnessDoorStopProg")?.Value ?? "0"));
 		RespectGameRulesForOpeningDoors =
 			bool.Parse(root.Element("RespectGameRulesForOpeningDoors")?.Value ?? "true");
+		IgnoreMinuteFallbackBehaviour =
+			bool.Parse(root.Element("IgnoreMinuteFallbackBehaviour")?.Value ?? "false");
 
 		var element = root.Element("Social");
 		if (element != null)
@@ -169,6 +173,7 @@ public class DoorguardAI : ArtificialIntelligenceBase
 			new XElement("RespectGameRulesForOpeningDoors", RespectGameRulesForOpeningDoors),
 			new XElement("RespondToSocialDirection", RespondToSocialDirection),
 			new XElement("SocialTargettedOnly", SocialTargettedOnly),
+			new XElement("IgnoreMinuteFallbackBehaviour", IgnoreMinuteFallbackBehaviour),
 			new XElement("WillOpenDoorForProg", WillOpenDoorForProg?.Id ?? 0L),
 			new XElement("WontOpenDoorForActionProg", WontOpenDoorForActionProg?.Id ?? 0L)
 		).ToString();
@@ -199,6 +204,7 @@ public class DoorguardAI : ArtificialIntelligenceBase
 		sb.AppendLine($"Respond to Social Direction: {RespondToSocialDirection.ToColouredString()}");
 		sb.AppendLine($"Social Targetted Only: {SocialTargettedOnly.ToColouredString()}");
 		sb.AppendLine($"Required Social: {RequiredSocialTrigger?.ColourCommand() ?? ""}");
+		sb.AppendLine($"Ignore Minute Fallback: {IgnoreMinuteFallbackBehaviour.ToColouredString()}");
 		return sb.ToString();
 	}
 
@@ -222,13 +228,17 @@ public class DoorguardAI : ArtificialIntelligenceBase
 	#3socialonly#0 - toggles only responding to the social (ignoring movement)
 	#3ownside#0 - toggles ignoring requests from the other side of the door (e.g. knocks)
 	#3respectrules#0 - toggles using in-game engine logic to open doors (as opposed to leaving it to the progs)
-	#3socialdirection#0 - toggles using directional queues from socials to cover which door they'll open";
+	#3socialdirection#0 - toggles using directional queues from socials to cover which door they'll open
+	#3ignorefallback#0 - toggles ignoring the on-minute fallback to close and lock all doors";
 
 	/// <inheritdoc />
 	public override bool BuildingCommand(ICharacter actor, StringStack command)
 	{
 		switch (command.PopForSwitch())
 		{
+			case "ignorefallback":
+			case "ignore":
+				return BuildingCommandIgnoreFallback(actor);
 			case "basedelay":
 			case "basedelayprog":
 				return BuildingCommandBaseDelay(actor, command);
@@ -286,6 +296,14 @@ public class DoorguardAI : ArtificialIntelligenceBase
 				return BuildingCommandSocialDirection(actor);
 		}
 		return base.BuildingCommand(actor, command.GetUndo());
+	}
+
+	private bool BuildingCommandIgnoreFallback(ICharacter actor)
+	{
+		IgnoreMinuteFallbackBehaviour = !IgnoreMinuteFallbackBehaviour;
+		Changed = true;
+		actor.OutputHandler.Send($"This AI will {IgnoreMinuteFallbackBehaviour.NowNoLonger()} ignore the minute tick whereby it checks to close and lock all doors, separately to people moving/knocking/interacting etc.");
+		return true;
 	}
 
 	private bool BuildingCommandSocialDirection(ICharacter actor)
@@ -631,8 +649,7 @@ public class DoorguardAI : ArtificialIntelligenceBase
 			return false;
 		}
 
-		if (!doorguard.AffectedBy<IDoorguardModeEffect>() ||
-		    doorguard.AffectedBy<IDoorguardOpeningDoorEffect>())
+		if (!doorguard.AffectedBy<IDoorguardModeEffect>() || doorguard.AffectedBy<IDoorguardOpeningDoorEffect>(exit))
 		{
 			return false;
 		}
@@ -651,10 +668,11 @@ public class DoorguardAI : ArtificialIntelligenceBase
 					perceivable => { OpenDoorActionProg.Execute(doorguard, mover, exit); }),
 				TimeSpan.FromMilliseconds(baseDelay));
 
-			doorguard.AddEffect(new DoorguardOpeningDoor(doorguard));
+			doorguard.AddEffect(new DoorguardOpeningDoor(doorguard, exit));
 
 			doorguard.AddEffect(new DoorguardCloseDoor(doorguard,
-					perceivable => { CloseDoorIfStillOpen(doorguard, mover, exit); }),
+					perceivable => { CloseDoorIfStillOpen(doorguard, mover, exit); },
+					exit),
 				TimeSpan.FromMilliseconds(baseDelay +
 				                          Convert.ToDouble(OpenCloseDelayProg.Execute(doorguard, mover, exit))));
 			return true;
@@ -677,7 +695,7 @@ public class DoorguardAI : ArtificialIntelligenceBase
 		}
 
 		if (!doorguard.AffectedBy<IDoorguardModeEffect>() ||
-		    doorguard.AffectedBy<IDoorguardOpeningDoorEffect>())
+		    doorguard.AffectedBy<IDoorguardOpeningDoorEffect>(socialDirection))
 		{
 			return false;
 		}
@@ -723,9 +741,10 @@ public class DoorguardAI : ArtificialIntelligenceBase
 		doorguard.AddEffect(new DoorguardOpenDoor(doorguard,
 				perceiver => { OpenDoorActionProg.Execute(doorguard, socialite, exit); }),
 			TimeSpan.FromMilliseconds(baseDelay));
-		doorguard.AddEffect(new DoorguardOpeningDoor(doorguard));
+		doorguard.AddEffect(new DoorguardOpeningDoor(doorguard, exit));
 		doorguard.AddEffect(new DoorguardCloseDoor(doorguard,
-				perceiver => { CloseDoorIfStillOpen(doorguard, socialite, exit); }),
+				perceiver => { CloseDoorIfStillOpen(doorguard, socialite, exit); },
+				exit),
 			TimeSpan.FromMilliseconds(baseDelay +
 			                          Convert.ToDouble(OpenCloseDelayProg.Execute(doorguard, socialite, exit))));
 		return true;
@@ -743,7 +762,8 @@ public class DoorguardAI : ArtificialIntelligenceBase
 			if (doorguard.Location.Characters.SelectNotNull(x => x.Movement).Any(x => x.Exit == exit))
 			{
 				doorguard.AddEffect(new DoorguardCloseDoor(doorguard,
-					perceivable => { CloseDoorIfStillOpen(doorguard, mover, exit); }
+					perceivable => { CloseDoorIfStillOpen(doorguard, mover, exit); },
+					exit
 				), TimeSpan.FromSeconds(3));
 				return;
 			}
@@ -751,9 +771,7 @@ public class DoorguardAI : ArtificialIntelligenceBase
 			CloseDoorActionProg?.Execute(doorguard, mover, exit);
 		}
 
-		doorguard.RemoveAllEffects(
-			x =>
-				x.IsEffectType<IDoorguardOpeningDoorEffect>() || x.IsEffectType<DoorguardCloseDoor>());
+		doorguard.RemoveAllEffects(x => x.IsEffectType<IDoorguardOpeningDoorEffect>(exit) || x.IsEffectType<DoorguardCloseDoor>(exit));
 	}
 
 	protected virtual bool OnWitnessLeave(ICharacter doorguard, ICharacter mover, ICellExit exit)
@@ -763,7 +781,7 @@ public class DoorguardAI : ArtificialIntelligenceBase
 			return false;
 		}
 
-		if (!doorguard.AffectedBy<IDoorguardOpeningDoorEffect>())
+		if (!doorguard.AffectedBy<IDoorguardOpeningDoorEffect>(exit))
 		{
 			return false;
 		}
@@ -779,7 +797,7 @@ public class DoorguardAI : ArtificialIntelligenceBase
 			return false;
 		}
 
-		if (!doorguard.AffectedBy<IDoorguardModeEffect>())
+		if (!doorguard.AffectedBy<IDoorguardModeEffect>(exit))
 		{
 			return false;
 		}
@@ -848,9 +866,10 @@ public class DoorguardAI : ArtificialIntelligenceBase
 		doorguard.AddEffect(
 			new DoorguardOpenDoor(doorguard, perceivable => { OpenDoorActionProg.Execute(doorguard, knocker, exit); }),
 			TimeSpan.FromMilliseconds(baseDelay));
-		doorguard.AddEffect(new DoorguardOpeningDoor(doorguard));
+		doorguard.AddEffect(new DoorguardOpeningDoor(doorguard, exit));
 		doorguard.AddEffect(new DoorguardCloseDoor(doorguard,
-				perceiver => { CloseDoorIfStillOpen(doorguard, knocker, exit); }
+				perceiver => { CloseDoorIfStillOpen(doorguard, knocker, exit); },
+				exit
 			),
 			TimeSpan.FromMilliseconds(
 				baseDelay + Convert.ToDouble(OpenCloseDelayProg.Execute(doorguard, knocker, exit))));
@@ -911,7 +930,7 @@ public class DoorguardAI : ArtificialIntelligenceBase
 
 	private bool HandleMinuteTick(ICharacter ch)
 	{
-		if (!ch.AffectedBy<IDoorguardOpeningDoorEffect>())
+		if (IgnoreMinuteFallbackBehaviour)
 		{
 			return false;
 		}

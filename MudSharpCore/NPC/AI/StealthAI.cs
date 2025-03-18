@@ -65,7 +65,7 @@ internal class StealthAI : ArtificialIntelligenceBase
 	/// <inheritdoc />
 	public override bool HandleEvent(EventType type, params dynamic[] arguments)
 	{
-		var ch = (ICharacter)arguments[0];
+		var ch = arguments[0] as ICharacter;
 		if (ch is null || ch.State.IsDead() || ch.State.IsInStatis())
 		{
 			return false;

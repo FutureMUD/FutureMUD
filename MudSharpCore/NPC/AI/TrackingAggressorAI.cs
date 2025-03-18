@@ -267,9 +267,9 @@ public class TrackingAggressorAI : PathingAIWithProgTargetsBase
 
 	public override bool HandleEvent(EventType type, params dynamic[] arguments)
 	{
-		var ch = type == EventType.CharacterEnterCellWitness ?
-			(ICharacter)arguments[3] :
-			(ICharacter)arguments[0];
+		var ch = (type == EventType.CharacterEnterCellWitness ?
+			arguments[3] :
+			arguments[0]) as ICharacter;
 		if (ch is null || ch.State.IsDead() || ch.State.IsInStatis())
 		{
 			return false;

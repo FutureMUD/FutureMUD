@@ -187,7 +187,7 @@ public class SparPartnerAI : ArtificialIntelligenceBase
 			return false;
 		}
 
-		var ch = (ICharacter)arguments[1];
+		var ch = arguments[1] as ICharacter;
 		if (ch is null || ch.State.IsDead() || ch.State.IsInStatis())
 		{
 			return false;

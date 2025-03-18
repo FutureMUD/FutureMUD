@@ -1029,7 +1029,7 @@ public class WildAnimalHerdAI : PathingAIBase
 					EventType.CharacterBeginMovementWitness => (ICharacter)arguments[3],
 					EventType.EngagedInCombatWitness => (ICharacter)arguments[2],
 					EventType.EngagedInCombat => (ICharacter)arguments[1],
-					_ => (ICharacter)arguments[0],
+					_ => arguments[0] as ICharacter,
 				}
 			;
 		if (ch is null || ch.State.IsDead() || ch.State.IsInStatis())

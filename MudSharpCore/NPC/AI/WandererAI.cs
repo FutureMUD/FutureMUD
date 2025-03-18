@@ -192,9 +192,9 @@ public class WandererAI : ArtificialIntelligenceBase
 
 	public override bool HandleEvent(EventType type, params dynamic[] arguments)
 	{
-		var ch = type == EventType.EngagedInCombat ?
-			(ICharacter)arguments[1] :
-			(ICharacter)arguments[0];
+		var ch = (type == EventType.EngagedInCombat ?
+			arguments[1] :
+			arguments[0]) as ICharacter;
 		if (ch is null || ch.State.IsDead() || ch.State.IsInStatis())
 		{
 			return false;

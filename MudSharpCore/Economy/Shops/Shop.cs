@@ -1057,7 +1057,7 @@ public abstract class Shop : SaveableItem, IShop
 		// TODO - volume deals
 		var tax = EconomicZone.SalesTaxes.Where(x => x.Applies(merchandise, actor))
 							  .Sum(x => x.TaxValue(merchandise, actor));
-		return (merchandise.EffectivePrice + tax) * quantity;
+		return Math.Truncate((merchandise.EffectivePrice + tax) * quantity);
 	}
 
 	public (decimal Price, decimal Tax) PriceAndTaxForMerchandise(ICharacter actor, IMerchandise merchandise,

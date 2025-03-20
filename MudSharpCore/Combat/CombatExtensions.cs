@@ -804,8 +804,69 @@ public static class CombatExtensions
 				type = type ^ CombatMoveIntentions.Desperate;
 				continue;
 			}
+			if (type.HasFlag(CombatMoveIntentions.Slashing))
+			{
+				descriptions.Add("Slashing");
+				type = type ^ CombatMoveIntentions.Slashing;
+				continue;
+			}
+            if (type.HasFlag(CombatMoveIntentions.Crushing))
+            {
+                descriptions.Add("Crushing");
+                type = type ^ CombatMoveIntentions.Crushing;
+                continue;
+            }
+            if (type.HasFlag(CombatMoveIntentions.Piercing))
+            {
+                descriptions.Add("Piercing");
+                type = type ^ CombatMoveIntentions.Piercing;
+                continue;
+            }
+            if (type.HasFlag(CombatMoveIntentions.Chopping))
+            {
+                descriptions.Add("Chopping");
+                type = type ^ CombatMoveIntentions.Chopping;
+                continue;
+            }
+            if (type.HasFlag(CombatMoveIntentions.Burning))
+            {
+                descriptions.Add("Burning");
+                type = type ^ CombatMoveIntentions.Burning;
+                continue;
+            }
+            if (type.HasFlag(CombatMoveIntentions.Bite))
+            {
+                descriptions.Add("Bite");
+                type = type ^ CombatMoveIntentions.Bite;
+                continue;
+            }
+            if (type.HasFlag(CombatMoveIntentions.Claw))
+            {
+                descriptions.Add("Claw");
+                type = type ^ CombatMoveIntentions.Claw;
+                continue;
+            }
+            if (type.HasFlag(CombatMoveIntentions.Freezing))
+            {
+                descriptions.Add("Freezing");
+                type = type ^ CombatMoveIntentions.Freezing;
+                continue;
+            }
+            if (type.HasFlag(CombatMoveIntentions.Chemical))
+            {
+                descriptions.Add("Chemical");
+                type = type ^ CombatMoveIntentions.Chemical;
+                continue;
+            }
+            if (type.HasFlag(CombatMoveIntentions.ArmourPiercing))
+            {
+                descriptions.Add("ArmourPiercing");
+                type = type ^ CombatMoveIntentions.ArmourPiercing;
+                continue;
+            }
 
-			return descriptions.Any()
+
+            return descriptions.Any()
 				? briefMode ? descriptions.ListToCommaSeparatedValues("|") : descriptions.ListToString()
 				: "None";
 		}

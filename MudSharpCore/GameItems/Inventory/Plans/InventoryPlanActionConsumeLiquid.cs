@@ -50,6 +50,12 @@ public class InventoryPlanActionConsumeLiquid : InventoryPlanAction
 			$"Consume {LiquidToTake.ColouredLiquidDescription} from {DesiredTag?.Name.A_An_RespectPlurals(colour: Telnet.Cyan) ?? "an item"}";
 	}
 
+	/// <inheritdoc />
+	public override bool RequiresFreeHandsToExecute(ICharacter who, IGameItem item)
+	{
+		return false;
+	}
+
 	#endregion
 
 	public LiquidMixture LiquidToTake { get; }

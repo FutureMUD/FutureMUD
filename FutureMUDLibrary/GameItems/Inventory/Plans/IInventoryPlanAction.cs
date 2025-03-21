@@ -26,5 +26,6 @@ namespace MudSharp.GameItems.Inventory.Plans {
         IGameItem ScoutSecondary(ICharacter executor, IGameItem item);
         object OriginalReference { get; }
         string Describe(ICharacter voyeur);
+        bool RequiresFreeHandsToExecute(ICharacter who, IGameItem item);
     }
 }

@@ -635,10 +635,10 @@ public class InventoryPlanTemplate : IInventoryPlanTemplate
 		{
 			return results;
 		}
-
+		
 		var numItemsRequiringHoldLocs =
 			targets
-				.Where(x => x.Action.DesiredState == DesiredItemState.Held)
+				.Where(x => x.Action.RequiresFreeHandsToExecute(actor, x.Primary))
 				.Count(x => !actor.Body.HeldOrWieldedItems.Contains(x.Primary));
 
 		var numItemsRequiringWieldLocs =
@@ -1222,7 +1222,7 @@ public class InventoryPlanTemplate : IInventoryPlanTemplate
 			};
 		}
 
-		var getResult = GetItem(actor, item, null, silent);
+		var getResult = GetItem(actor, item, originalReference, 0, silent);
 		if (getResult.ActionState == DesiredItemState.Unknown)
 		{
 			return getResult;
@@ -1244,11 +1244,9 @@ public class InventoryPlanTemplate : IInventoryPlanTemplate
 		};
 	}
 
-	private InventoryPlanActionResult GetItem(ICharacter actor, IGameItem item, IInventoryPlanAction action,
+	private InventoryPlanActionResult GetItem(ICharacter actor, IGameItem item, object originalReference, int quantity,
 		bool silent, bool wieldOK = false)
 	{
-		var originalReference = action?.OriginalReference;
-		var quantity = (action as InventoryPlanActionHold)?.Quantity ?? 0;
 		if (actor.Body.HeldItems.Contains(item))
 		{
 			return new InventoryPlanActionResult
@@ -1295,7 +1293,7 @@ public class InventoryPlanTemplate : IInventoryPlanTemplate
 		}
 
 		if (actor.Location.LayerGameItems(actor.RoomLayer).Contains(item) &&
-		    actor.Body.CanGet(item, quantity, ItemCanGetIgnore.IgnoreInventoryPlans))
+			actor.Body.CanGet(item, quantity, ItemCanGetIgnore.IgnoreInventoryPlans))
 		{
 			actor.Body.Get(item, quantity, silent: silent, ignoreFlags: ItemCanGetIgnore.IgnoreInventoryPlans);
 			return new InventoryPlanActionResult
@@ -1308,24 +1306,23 @@ public class InventoryPlanTemplate : IInventoryPlanTemplate
 
 		var container =
 			actor.Location.LayerGameItems(actor.RoomLayer).SelectNotNull(x => x.GetItemType<IContainer>())
-			     .FirstOrDefault(x =>
-				     x.Contents.Contains(item) &&
-				     actor.Body.CanGet(item, x.Parent, quantity, ItemCanGetIgnore.IgnoreInventoryPlans)) ??
+				 .FirstOrDefault(x =>
+					 x.Contents.Contains(item) &&
+					 actor.Body.CanGet(item, x.Parent, quantity, ItemCanGetIgnore.IgnoreInventoryPlans)) ??
 			actor.Inventory.SelectNotNull(x => x.GetItemType<IContainer>())
-			     .FirstOrDefault(x =>
-				     x.Contents.Contains(item) &&
-				     actor.Body.CanGet(item, x.Parent, quantity, ItemCanGetIgnore.IgnoreInventoryPlans));
+				 .FirstOrDefault(x =>
+					 x.Contents.Contains(item) &&
+					 actor.Body.CanGet(item, x.Parent, quantity, ItemCanGetIgnore.IgnoreInventoryPlans));
 
 		if (container != null)
 		{
 			var openable = container.Parent.GetItemType<IOpenable>();
-			if (!openable?.IsOpen ?? false)
+			if (openable?.IsOpen == false)
 			{
 				actor.Body.Open(openable, null, null);
 			}
 
-			actor.Body.Get(item, container.Parent, quantity, silent: silent,
-				ignoreFlags: ItemCanGetIgnore.IgnoreInventoryPlans);
+			actor.Body.Get(item, container.Parent, quantity, silent: silent, ignoreFlags: ItemCanGetIgnore.IgnoreInventoryPlans);
 			return new InventoryPlanActionResult
 			{
 				PrimaryTarget = item,
@@ -1392,6 +1389,14 @@ public class InventoryPlanTemplate : IInventoryPlanTemplate
 		};
 	}
 
+	private InventoryPlanActionResult GetItem(ICharacter actor, IGameItem item, IInventoryPlanAction action,
+		bool silent, bool wieldOK = false)
+	{
+		var originalReference = action?.OriginalReference;
+		var quantity = (action as InventoryPlanActionHold)?.Quantity ?? 0;
+		return GetItem(actor, item, originalReference, quantity, silent, wieldOK);
+	}
+
 	private InventoryPlanActionResult WieldItem(ICharacter actor, IGameItem item, bool silent, object originalReference,
 		AttackHandednessOptions option)
 	{
@@ -1444,7 +1449,7 @@ public class InventoryPlanTemplate : IInventoryPlanTemplate
 			}
 		}
 
-		var getResult = GetItem(actor, item, null, silent, true);
+		var getResult = GetItem(actor, item, originalReference, 0, silent, true);
 		if (getResult.ActionState == DesiredItemState.Unknown)
 		{
 			return getResult;
@@ -1494,7 +1499,7 @@ public class InventoryPlanTemplate : IInventoryPlanTemplate
 			actor.Body.RemoveItem(item);
 		}
 
-		var getResult = GetItem(actor, item, null, silent);
+		var getResult = GetItem(actor, item, originalReference, 0, silent);
 		if (getResult.ActionState == DesiredItemState.Unknown)
 		{
 			return getResult;
@@ -1531,7 +1536,7 @@ public class InventoryPlanTemplate : IInventoryPlanTemplate
 			};
 		}
 
-		var getResult = GetItem(actor, item, null, silent);
+		var getResult = GetItem(actor, item, originalReference, 0, silent);
 		if (getResult.ActionState == DesiredItemState.Unknown)
 		{
 			return getResult;
@@ -1562,7 +1567,7 @@ public class InventoryPlanTemplate : IInventoryPlanTemplate
 			};
 		}
 
-		var getResult = GetItem(actor, item, null, silent);
+		var getResult = GetItem(actor, item, originalReference, 0, silent);
 		if (getResult.ActionState == DesiredItemState.Unknown)
 		{
 			return getResult;
@@ -1592,7 +1597,7 @@ public class InventoryPlanTemplate : IInventoryPlanTemplate
 			};
 		}
 
-		var getResult = GetItem(actor, item, null, silent);
+		var getResult = GetItem(actor, item, originalReference, 0, silent);
 		if (getResult.ActionState == DesiredItemState.Unknown)
 		{
 			return getResult;

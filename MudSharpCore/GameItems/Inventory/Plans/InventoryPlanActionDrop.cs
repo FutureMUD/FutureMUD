@@ -40,6 +40,17 @@ public class InventoryPlanActionDrop : InventoryPlanAction
 		return $"In Room {DesiredTag?.Name.A_An_RespectPlurals(colour: Telnet.Cyan) ?? "an item"}";
 	}
 
+	/// <inheritdoc />
+	public override bool RequiresFreeHandsToExecute(ICharacter who, IGameItem item)
+	{
+		if (who.Location.GameItems.Contains(item))
+		{
+			return false;
+		}
+
+		return true;
+	}
+
 	#endregion
 
 	public override IGameItem ScoutSecondary(ICharacter executor, IGameItem item)

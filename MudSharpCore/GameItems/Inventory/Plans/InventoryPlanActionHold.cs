@@ -46,6 +46,12 @@ public class InventoryPlanActionHold : InventoryPlanAction
 			$"Holding {(QuantityIsOptional ? "up to " : "")}{Quantity.ToString("N0", voyeur)} of {DesiredTag?.Name.ColourName() ?? "an item"}";
 	}
 
+	/// <inheritdoc />
+	public override bool RequiresFreeHandsToExecute(ICharacter who, IGameItem item)
+	{
+		return true;
+	}
+
 	#endregion
 
 	public int Quantity { get; set; }

@@ -54,6 +54,8 @@ public abstract class InventoryPlanAction : IInventoryPlanAction, IHaveFuturemud
 
 	public DesiredItemState DesiredState { get; set; }
 
+	public abstract bool RequiresFreeHandsToExecute(ICharacter who, IGameItem item);
+
 	public ITag DesiredTag => Gameworld.Tags.Get(_desiredTagId);
 
 	public abstract IGameItem ScoutSecondary(ICharacter executor, IGameItem item);

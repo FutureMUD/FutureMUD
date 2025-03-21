@@ -210,5 +210,11 @@ public class InventoryPlanActionAttach : InventoryPlanAction
 			$"Attached {DesiredTag?.Name.A_An_RespectPlurals(colour: Telnet.Cyan) ?? "an item"} to {DesiredSecondaryTag?.Name.A_An_RespectPlurals(colour: Telnet.Cyan) ?? "another item"}";
 	}
 
+	/// <inheritdoc />
+	public override bool RequiresFreeHandsToExecute(ICharacter who, IGameItem item)
+	{
+		return true;
+	}
+
 	#endregion
 }

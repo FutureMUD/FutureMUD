@@ -53,6 +53,12 @@ public class InventoryPlanActionConsumeCommodity : InventoryPlanAction
 			$"Consume {Gameworld.UnitManager.Describe(Weight, UnitType.Mass, voyeur).ColourValue()} of {Material.Name.Colour(Material.ResidueColour)} commodity{(DesiredTag is not null ? $" tagged as {DesiredTag.Name}" : "")}";
 	}
 
+	/// <inheritdoc />
+	public override bool RequiresFreeHandsToExecute(ICharacter who, IGameItem item)
+	{
+		return false;
+	}
+
 	public override IGameItem ScoutSecondary(ICharacter executor, IGameItem item)
 	{
 		return null;

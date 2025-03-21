@@ -40,6 +40,12 @@ public class InventoryPlanActionWear : InventoryPlanAction
 		return $"Wearing {DesiredTag?.Name.A_An_RespectPlurals(colour: Telnet.Cyan) ?? "an item"}";
 	}
 
+	/// <inheritdoc />
+	public override bool RequiresFreeHandsToExecute(ICharacter who, IGameItem item)
+	{
+		return true;
+	}
+
 	#endregion
 
 	protected double GetItemFitness(ICharacter executor, IGameItem item)

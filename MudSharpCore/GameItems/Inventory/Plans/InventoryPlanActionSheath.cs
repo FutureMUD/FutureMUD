@@ -40,6 +40,12 @@ public class InventoryPlanActionSheath : InventoryPlanAction
 			$"Sheathed {DesiredTag?.Name.A_An_RespectPlurals(colour: Telnet.Cyan) ?? "an item"} in {DesiredSecondaryTag?.Name.A_An_RespectPlurals(colour: Telnet.Cyan) ?? "another item"}";
 	}
 
+	/// <inheritdoc />
+	public override bool RequiresFreeHandsToExecute(ICharacter who, IGameItem item)
+	{
+		return true;
+	}
+
 	#endregion
 
 	public override IGameItem ScoutSecondary(ICharacter executor, IGameItem item)

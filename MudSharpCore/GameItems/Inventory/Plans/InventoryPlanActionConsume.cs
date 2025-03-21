@@ -44,6 +44,12 @@ public class InventoryPlanActionConsume : InventoryPlanAction
 			$"Consume {DesiredTag?.Name.A_An_RespectPlurals(colour: Telnet.Cyan) ?? "an item"} x{Quantity.ToString("N0", voyeur)}";
 	}
 
+	/// <inheritdoc />
+	public override bool RequiresFreeHandsToExecute(ICharacter who, IGameItem item)
+	{
+		return false;
+	}
+
 	#endregion
 
 	public int Quantity { get; set; }

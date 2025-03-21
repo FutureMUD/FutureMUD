@@ -866,4 +866,20 @@ public class MudDateTimeTests
 		Assert.IsTrue(date1to2.Equals(calendar2.CurrentDate));
 
 	}
+
+	[TestMethod]
+	public void TestTimeDescribers()
+	{
+		Assert.AreEqual("1:38:49 a.m", _testClock.DisplayTime(new MudTime(49, 38, 1, _utcTimezone, _testClock, 0), "$j:$m:$s $i"));
+		Assert.AreEqual("12:00:00 a.m", _testClock.DisplayTime(new MudTime(0, 0, 0, _utcTimezone, _testClock, 0), "$j:$m:$s $i"));
+		Assert.AreEqual("12:00:01 a.m", _testClock.DisplayTime(new MudTime(1, 0, 0, _utcTimezone, _testClock, 0), "$j:$m:$s $i"));
+		Assert.AreEqual("11:59:59 p.m", _testClock.DisplayTime(new MudTime(59, 59, 23, _utcTimezone, _testClock, 0), "$j:$m:$s $i"));
+		Assert.AreEqual("23:59:59", _testClock.DisplayTime(new MudTime(59, 59, 23, _utcTimezone, _testClock, 0), "$h:$m:$s"));
+		Assert.AreEqual("1:38:49", _testClock.DisplayTime(new MudTime(49, 38, 1, _utcTimezone, _testClock, 0), "$h:$m:$s"));
+		Assert.AreEqual("twelve o'clock a.m", _testClock.DisplayTime(new MudTime(59, 59, 23, _utcTimezone, _testClock, 0), "$c $l"));
+		Assert.AreEqual("twelve o'clock a.m", _testClock.DisplayTime(new MudTime(0, 0, 0, _utcTimezone, _testClock, 0), "$c $l"));
+
+		// Testing the incorrect one
+		Assert.AreEqual("twelve o'clock p.m", _testClock.DisplayTime(new MudTime(59, 59, 23, _utcTimezone, _testClock, 0), "$c $i"));
+	}
 }

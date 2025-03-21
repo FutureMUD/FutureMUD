@@ -592,6 +592,26 @@ public class Clock : SaveableItem, IClock
 
 	#region Methods
 
+	public static int GetVagueHour(int hour, int minute, int numberofminutes, int maxhours)
+	{
+		if (minute >= 5 * numberofminutes / 6)
+		{
+			hour += 1;
+			while (hour >= maxhours)
+			{
+				hour -= maxhours;
+			}
+			return hour;
+		}
+
+		while (hour >= maxhours)
+		{
+			hour -= maxhours;
+		}
+
+		return hour;
+	}
+
 	public static string GetVagueTime(int hour, int minute, int numberofminutes, int maxhours)
 	{
 		while (hour > maxhours)
@@ -653,57 +673,86 @@ public class Clock : SaveableItem, IClock
 	///     Some examples of Display times and their expected outputs:
 	///     "$h$m hours" - 1630 hours
 	///     "$j:$m$i" - 4:30pm
-	///     "$c $l" - half past four in the afternoon
+	///     "$c $L" - half past four in the afternoon
 	/// </summary>
 	/// <param name="theTime"></param>
-	/// <param name="brief"></param>
 	/// <returns></returns>
 	public string DisplayTime(MudTime theTime, string timeString)
 	{
-		return timeString
-		       .Replace("$s",
-			       SecondFixedDigits > 0
-				       ? theTime.Seconds.ToString("D" + SecondFixedDigits)
-				       : theTime.Seconds.ToString()) // seconds
-		       .Replace("$S", theTime.Seconds.ToWordyNumber())
-		       .Replace("$m",
-			       MinuteFixedDigits > 0
-				       ? theTime.Minutes.ToString("D" + MinuteFixedDigits)
-				       : theTime.Minutes.ToString()) // minutes
-		       .Replace("$M", theTime.Minutes.ToWordyNumber())
-		       .Replace("$j",
-			       HourFixedDigits > 0
-				       ? (theTime.Hours % (HoursPerDay / NumberOfHourIntervals) == 0 && NoZeroHour
-					       ? HoursPerDay / NumberOfHourIntervals
-					       : theTime.Hours % (HoursPerDay / NumberOfHourIntervals)).ToString()
-				       : (theTime.Hours % (HoursPerDay / NumberOfHourIntervals) == 0 && NoZeroHour
-					       ? HoursPerDay / NumberOfHourIntervals
-					       : theTime.Hours % (HoursPerDay / NumberOfHourIntervals)).ToString("D" + HourFixedDigits))
-		       // time interval specific hours
-		       .Replace("$J",
-			       (theTime.Hours % (HoursPerDay / NumberOfHourIntervals) == 0 && NoZeroHour
-				       ? HoursPerDay / NumberOfHourIntervals
-				       : theTime.Hours % (HoursPerDay / NumberOfHourIntervals)).ToWordyNumber())
-		       // time interval specific hours
-		       .Replace("$h",
-			       HourFixedDigits > 0 ? theTime.Hours.ToString("D" + HourFixedDigits) : theTime.Hours.ToString())
-		       // gross hours
-		       .Replace("$H", theTime.Hours.ToWordyNumber()) // gross hours
-		       .Replace("$T", theTime.Timezone.Description) // timezone description
-		       .Replace("$t", theTime.Timezone.Alias) // timezone alias
-		       .Replace("$c",
-			       GetVagueTime(
-				       NoZeroHour
-					       ? theTime.Hours % (HoursPerDay / NumberOfHourIntervals) == 0
-						       ? HoursPerDay / NumberOfHourIntervals
-						       : theTime.Hours % (HoursPerDay / NumberOfHourIntervals)
-					       : theTime.Hours, theTime.Minutes, MinutesPerHour, HoursPerDay / NumberOfHourIntervals))
-		       // crude time - e.g. four o'clock
-		       .Replace("$I", HourIntervalLongNames[theTime.Hours / (HoursPerDay / NumberOfHourIntervals)])
-		       // time interval long name e.g. in the afternoon, in the morning
-		       .Replace("$i", HourIntervalNames[theTime.Hours / (HoursPerDay / NumberOfHourIntervals)])
-			// time inveral name e.g. a.m / p.m
-			;
+		return Regex.Replace(timeString, @"\$(?<variable>[\w])", m =>
+		{
+			switch (m.Groups["variable"].Value)
+			{
+				case "s":
+					// Seconds as digits
+					return SecondFixedDigits > 0
+						? theTime.Seconds.ToString("D" + SecondFixedDigits)
+						: theTime.Seconds.ToString();
+				case "S":
+					// Seconds as word
+					return theTime.Seconds.ToWordyNumber();
+				case "m":
+					// Minutes as digits
+					return MinuteFixedDigits > 0
+						? theTime.Minutes.ToString("D" + MinuteFixedDigits)
+						: theTime.Minutes.ToString();
+				case "M":
+					return theTime.Minutes.ToWordyNumber();
+					// Minutes as word
+				case "h":
+					// 24-hour hours as digits
+					return HourFixedDigits > 0 ? theTime.Hours.ToString("D" + HourFixedDigits) : theTime.Hours.ToString();
+				case "H":
+					// 24-hour hours as word
+					return theTime.Hours.ToWordyNumber();
+				case "j":
+					// Period-specific hours as digits
+					return HourFixedDigits > 0
+						? (theTime.Hours % (HoursPerDay / NumberOfHourIntervals) == 0 && NoZeroHour
+							? HoursPerDay / NumberOfHourIntervals
+							: theTime.Hours % (HoursPerDay / NumberOfHourIntervals)).ToString()
+						: (theTime.Hours % (HoursPerDay / NumberOfHourIntervals) == 0 && NoZeroHour
+							? HoursPerDay / NumberOfHourIntervals
+							: theTime.Hours % (HoursPerDay / NumberOfHourIntervals)).ToString("D" + HourFixedDigits);
+				case "J":
+					// Period-specific hours as word
+					return (theTime.Hours % (HoursPerDay / NumberOfHourIntervals) == 0 && NoZeroHour
+						? HoursPerDay / NumberOfHourIntervals
+						: theTime.Hours % (HoursPerDay / NumberOfHourIntervals)).ToWordyNumber();
+				case "t":
+					// Timezone alias (e.g. UTC)
+					return theTime.Timezone.Alias;
+				case "T":
+					// Timezone description (e.g. Universal Time Clock)
+					return theTime.Timezone.Description;
+				case "c":
+					// Vague time, e.g. Half past twelve
+					return GetVagueTime(
+						NoZeroHour
+							? theTime.Hours % (HoursPerDay / NumberOfHourIntervals) == 0
+								? HoursPerDay / NumberOfHourIntervals
+								: theTime.Hours % (HoursPerDay / NumberOfHourIntervals)
+							: theTime.Hours, theTime.Minutes, MinutesPerHour, HoursPerDay / NumberOfHourIntervals);
+				case "C":
+					// Crude time, e.g. early afternoon
+					return GetCrudeTime(theTime.Hours + (double)theTime.Minutes / MinutesPerHour);
+				case "i":
+					// Short interval name, e.g. a.m
+					return HourIntervalNames[theTime.Hours / (HoursPerDay / NumberOfHourIntervals)];
+				case "I":
+					// Long interval name, e.g. in the morning
+					return HourIntervalLongNames[theTime.Hours / (HoursPerDay / NumberOfHourIntervals)];
+				case "l":
+					// Vague-specific short interval name, e.g. a.m as if using the vague hour
+					var vh = GetVagueHour(theTime.Hours, theTime.Minutes, MinutesPerHour, HoursPerDay);
+					return HourIntervalNames[vh / (HoursPerDay / NumberOfHourIntervals)];
+				case "L":
+					// Vague-specific long interval name, e.g. in the morning as if using the vague hour
+					return HourIntervalLongNames[GetVagueHour(theTime.Hours, theTime.Minutes, MinutesPerHour, HoursPerDay) / (HoursPerDay / NumberOfHourIntervals)];
+
+			}
+			return m.Value;
+		});
 	}
 
 	public string DisplayTime(MudTime theTime, TimeDisplayTypes type)
@@ -717,13 +766,11 @@ public class Clock : SaveableItem, IClock
 			case TimeDisplayTypes.Immortal:
 				return DisplayTime(theTime, SuperDisplayString);
 			case TimeDisplayTypes.Crude:
-				return GetCrudeTime(theTime.Hours + (double)theTime.Minutes / MinutesPerHour);
+				return DisplayTime(theTime, "$C");
 			case TimeDisplayTypes.Vague:
-				return
-					GetVagueTime(theTime.Hours, theTime.Minutes, MinutesPerHour, HoursPerDay / NumberOfHourIntervals) +
-					" " + HourIntervalLongNames[theTime.Hours / (HoursPerDay / NumberOfHourIntervals)];
+				return DisplayTime(theTime, "$c $L");
 			default:
-				return GetCrudeTime(theTime.Hours + (double)theTime.Minutes / MinutesPerHour);
+				return DisplayTime(theTime, "$C");
 		}
 	}
 

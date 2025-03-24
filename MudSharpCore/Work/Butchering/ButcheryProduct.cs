@@ -99,7 +99,12 @@ public class ButcheryProduct : SaveableItem, IButcheryProduct
 		foreach (var item in product.ButcheryProductsBodypartProtos)
 		{
 			var bodypart = gameworld.BodypartPrototypes.Get(item.BodypartProtoId);
-			if (!bodypart.Body.CountsAs(TargetBody))
+			if (bodypart is null)
+			{
+				continue;
+			}
+
+			if (TargetBody?.CountsAs(bodypart.Body) == false)
 			{
 				continue;
 			}

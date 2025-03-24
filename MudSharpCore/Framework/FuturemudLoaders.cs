@@ -1411,7 +1411,13 @@ For information on the syntax to use in emotes (such as those included in bracke
 		                   .Include(x => x.RaceButcheryProfilesBreakdownEmotes)
 		                   .Include(x => x.RaceButcheryProfilesSkinningEmotes)
 		                   .Include(x => x.RaceButcheryProfilesButcheryProducts)
-		                   .AsNoTracking()
+		                   .ThenInclude(x => x.ButcheryProduct)
+		                   .ThenInclude(x => x.ButcheryProductItems)
+		                   .Include(x => x.RaceButcheryProfilesButcheryProducts)
+		                   .ThenInclude(x => x.ButcheryProduct)
+		                   .ThenInclude(x => x.ButcheryProductsBodypartProtos)
+		                   .AsSplitQuery()
+						   .AsNoTracking()
 		                   .ToList();
 		foreach (var profile in profiles)
 		{

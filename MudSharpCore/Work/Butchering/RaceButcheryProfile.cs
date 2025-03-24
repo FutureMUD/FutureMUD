@@ -379,6 +379,7 @@ public class RaceButcheryProfile : SaveableItem, IRaceButcheryProfile
 	#3can <prog>#0 - sets a prog to control whether someone can butcher this
 	#3why <prog>#0 - sets a prog for a custom error message on can butcher failure
 	#3product <which>#0 - toggles a butchery product being included in this profile
+	#3check <sub>|main <skill> <difficulty>#0 - sets the check for a profile
 
 For all of the below phase emote echoes, you can use #6$0#0 for the actor, #6$1#0 for the corpse, and #6$2#0 for the tool item.
 

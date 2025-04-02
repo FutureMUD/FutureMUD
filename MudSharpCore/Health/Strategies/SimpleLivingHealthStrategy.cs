@@ -703,12 +703,12 @@ public class SimpleLivingHealthStrategy : BaseHealthStrategy
 
 		var anasthesia =
 			charOwner.Body.EffectsOfType<Anesthesia>().Select(x => x.IntensityPerGramMass).DefaultIfEmpty(0).Sum();
-		if (anasthesia >= 50)
+		if (anasthesia >= 10)
 		{
 			return HealthTickResult.Dead;
 		}
 
-		return anasthesia >= 2 ? HealthTickResult.Unconscious : HealthTickResult.None;
+		return anasthesia >= 1 ? HealthTickResult.Unconscious : HealthTickResult.None;
 	}
 
 	private void RemoveContaminants(IBody body, List<IHarmfulBloodAdditiveEffect> contaminants)

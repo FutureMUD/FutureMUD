@@ -724,7 +724,7 @@ public class ChokePower : SustainedMagicPower
 		}
 
 		Changed = true;
-		actor.OutputHandler.Send($"");
+		actor.OutputHandler.Send($"The target will now get a resistance check every {ResistCheckInterval.DescribePreciseBrief(actor).ColourValue()}.");
 		return true;
 	}
 

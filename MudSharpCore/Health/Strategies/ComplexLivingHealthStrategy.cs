@@ -1156,7 +1156,7 @@ public class ComplexLivingHealthStrategy : BaseHealthStrategy
 		var anasthesia =
 			charOwner.Body.EffectsOfType<Anesthesia>().Select(x => x.IntensityPerGramMass).DefaultIfEmpty(0).Sum();
 
-		if (anasthesia >= 2.0)
+		if (anasthesia >= 1.0)
 		{
 			return HealthTickResult.Unconscious;
 		}

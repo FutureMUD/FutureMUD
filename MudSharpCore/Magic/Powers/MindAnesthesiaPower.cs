@@ -13,13 +13,15 @@ using MudSharp.PerceptionEngine;
 using MudSharp.PerceptionEngine.Outputs;
 using MudSharp.PerceptionEngine.Parsers;
 using MudSharp.RPG.Checks;
+using MudSharp.TimeAndDate;
+using MudSharp.TimeAndDate.Time;
 
 namespace MudSharp.Magic.Powers;
 
 public class MindAnesthesiaPower : SustainedMagicPower
 {
 	public override string PowerType => "Anesthesia";
-	public static TimeSpan RampInterval { get; } = TimeSpan.FromSeconds(15);
+	public static TimeSpan RampInterval { get; private set; } = TimeSpan.FromSeconds(15);
 
 	public static void RegisterLoader()
 	{
@@ -367,14 +369,14 @@ public class MindAnesthesiaPower : SustainedMagicPower
 		{
 			actor.OutputHandler.Send(string.Format(
 				WhyCantInvokePowerProg.Execute(actor, target)?.ToString() ??
-				"You cannot anesthetise {0}.", target.HowSeen(actor)));
+				"You cannot anaesthetise {0}.", target.HowSeen(actor)));
 			return;
 		}
 
 		if (target.EffectsOfType<MagicAnesthesia>(x =>
 				x.AnesthesiaPower == this && x.CharacterTarget == target && x.TargetIntensity == powerLevel).Any())
 		{
-			actor.OutputHandler.Send($"You are already anesthetising {target.HowSeen(actor)} at that intensity.");
+			actor.OutputHandler.Send($"You are already anaesthetising {target.HowSeen(actor)} at that intensity.");
 			return;
 		}
 
@@ -494,7 +496,7 @@ public class MindAnesthesiaPower : SustainedMagicPower
 		sb.AppendLine($"Power Distance: {PowerDistance.DescribeEnum().ColourValue()}");
 		sb.AppendLine($"Resist Check Difficulty: {ResistCheckDifficulty.DescribeColoured()}");
 		sb.AppendLine($"Resist Check Interval: {ResistCheckInterval.DescribePreciseBrief().ColourValue()}");
-		sb.AppendLine($"Ramp Rate Per Tick: {RampRatePerTick.ToString("N3", actor).ColourValue()}");
+		sb.AppendLine($"Ramp Rate Per Tick: {RampRatePerTick.ToString("P3", actor).ColourValue()}");
 		sb.AppendLine($"Tick Interval: {TickLength.DescribePreciseBrief().ColourValue()}");
 		sb.AppendLine();
 		sb.AppendLine("Emotes:");
@@ -516,7 +518,22 @@ public class MindAnesthesiaPower : SustainedMagicPower
 	#3skill <which>#0 - sets the skill used in the skill check
 	#3difficulty <difficulty>#0 - sets the difficulty of the skill check
 	#3threshold <outcome>#0 - sets the minimum outcome for skill success
-	#3distance <distance>#0 - sets the distance that this power can be used at";
+	#3distance <distance>#0 - sets the distance that this power can be used at
+	#3resistdifficulty <difficulty>#0 - sets the difficulty for the target's resist check
+	#3resistinterval <seconds>#0 - sets the interval between resistance checks
+	#3ramprate <time>#0 - how fast the effect will increase in intensity
+	#3rampamount <%>#0 - what percentage of maximum to increase per tick
+	#3emote <emote>#0 - sets the emote when this power is used
+	#3emotetarget <emote>#0 - sets an echo the target sees when this power is used on them
+	#3failemote <emote>#0 - sets the emote when this power is used but skill check failed
+	#3failemotetarget <emote>#0 - sets an echo the target sees when this power is failed to be used on them
+	#3endemote <emote>#0 - sets an emote when this power is ended
+	#3endemotetarget <emote>#0 - sets an echo for the target when this power ends
+	#3resistemote <emote>#0 - sets an emote for when this power is resisted by the target
+	#3resistemotetarget <emote>#0 - sets an echo for the target when this power is resisted by them
+
+#6Note: For all echoes/emotes above, $0 is the caster, $1 is the target.#0
+#6Note: Anesthesia intensity >1 = unconscious, >2.5 = breathing stops#0";
 
 	/// <inheritdoc />
 	public override bool BuildingCommand(ICharacter actor, StringStack command)
@@ -544,8 +561,77 @@ public class MindAnesthesiaPower : SustainedMagicPower
 				return BuildingCommandThreshold(actor, command);
 			case "distance":
 				return BuildingCommandDistance(actor, command);
+			case "ramp":
+			case "ramprate":
+				return BuildingCommandRampRate(actor, command);
+			case "rampamount":
+				return BuildingCommandRampAmount(actor, command);
+			case "resistdifficulty":
+				return BuildingCommandResistDifficulty(actor, command);
+			case "resistinterval":
+				return BuildingCommandResistInterval(actor, command);
+			case "emote":
+				return BuildingCommandEmote(actor, command);
+			case "emotetarget":
+			case "targetemote":
+				return BuilidngCommandEmoteTarget(actor, command);
+			case "failemote":
+				return BuildingCommandFailEmote(actor, command);
+			case "failemotetarget":
+				return BuildingCommandFailEmoteTarget(actor, command);
+			case "endemote":
+				return BuildingCommandEndEmote(actor, command);
+			case "endemotetarget":
+				return BuildingCommandEndEmoteTarget(actor, command);
+			case "resistemote":
+				return BuildingCommandResistEmote(actor, command);
+			case "resistemotetarget":
+				return BuildingCommandResistEmoteTarget(actor, command);
 		}
 		return base.BuildingCommand(actor, command.GetUndo());
+	}
+
+
+	#region Building Subcommands
+
+	private bool BuildingCommandRampAmount(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("What should be the amount of anesthesia effect added per tick as this effect ramps up?");
+			return false;
+		}
+
+		if (!command.SafeRemainingArgument.TryParsePercentage(actor.Account.Culture, out var value) || value <= 0.0 || value > 1.0)
+		{
+			actor.OutputHandler.Send($"The text {command.SafeRemainingArgument.ColourCommand()} is not a valid percentage between {0.ToStringP2Colour(actor)} and {1.ToStringP2Colour(actor)}.");
+			return false;
+		}
+
+		RampRatePerTick = value;
+		Changed = true;
+		actor.OutputHandler.Send($"The anesthesia effect will now increase by {value.ToStringP2Colour(actor)} of its maximum intensity per tick.");
+		return true;
+	}
+
+	private bool BuildingCommandRampRate(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("You must enter a valid timespan.");
+			return false;
+		}
+
+		if (!MudTimeSpan.TryParse(command.SafeRemainingArgument, actor, out var ts))
+		{
+			actor.OutputHandler.Send($"The text {command.SafeRemainingArgument.ColourCommand()} is not a valid timespan.");
+			return false;
+		}
+
+		RampInterval = ts.AsTimeSpan();
+		Changed = true;
+		actor.OutputHandler.Send($"The anesthesia effect will now increase in intensity every {ts.Describe(actor).ColourValue()}.");
+		return true;
 	}
 
 	private bool BuildingCommandRemoveVerb(ICharacter actor, StringStack command)
@@ -570,7 +656,224 @@ public class MindAnesthesiaPower : SustainedMagicPower
 		return true;
 	}
 
-	#region Building Subcommands
+	private bool BuildingCommandResistEmoteTarget(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("What do you want to set the target resist emote to?");
+			return false;
+		}
+
+		var emote = new Emote(command.SafeRemainingArgument, new DummyPerceiver(), new DummyPerceivable(), new DummyPerceivable());
+		if (!emote.Valid)
+		{
+			actor.OutputHandler.Send(emote.ErrorMessage);
+			return false;
+		}
+
+		TargetResistanceEmoteTextTarget = command.SafeRemainingArgument;
+		Changed = true;
+		actor.OutputHandler.Send($"The target resist emote for this power is now {command.SafeRemainingArgument.ColourCommand()}.");
+		return true;
+	}
+	private bool BuildingCommandResistEmote(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("What do you want to set the resist emote to?");
+			return false;
+		}
+
+		var emote = new Emote(command.SafeRemainingArgument, new DummyPerceiver(), new DummyPerceivable(), new DummyPerceivable());
+		if (!emote.Valid)
+		{
+			actor.OutputHandler.Send(emote.ErrorMessage);
+			return false;
+		}
+
+		TargetResistanceEmoteText = command.SafeRemainingArgument;
+		Changed = true;
+		actor.OutputHandler.Send($"The resist emote for this power is now {command.SafeRemainingArgument.ColourCommand()}.");
+		return true;
+	}
+	private bool BuildingCommandEndEmoteTarget(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("What do you want to set the end power target emote to?");
+			return false;
+		}
+
+		var emote = new Emote(command.SafeRemainingArgument, new DummyPerceiver(), new DummyPerceivable(), new DummyPerceivable());
+		if (!emote.Valid)
+		{
+			actor.OutputHandler.Send(emote.ErrorMessage);
+			return false;
+		}
+
+		EndPowerEmoteTextTarget = command.SafeRemainingArgument;
+		Changed = true;
+		actor.OutputHandler.Send($"The end power target emote for this power is now {command.SafeRemainingArgument.ColourCommand()}.");
+		return true;
+	}
+	private bool BuildingCommandEndEmote(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("What do you want to set the end power emote to?");
+			return false;
+		}
+
+		var emote = new Emote(command.SafeRemainingArgument, new DummyPerceiver(), new DummyPerceivable(), new DummyPerceivable());
+		if (!emote.Valid)
+		{
+			actor.OutputHandler.Send(emote.ErrorMessage);
+			return false;
+		}
+
+		EndPowerEmoteText = command.SafeRemainingArgument;
+		Changed = true;
+		actor.OutputHandler.Send($"The end power emote for this power is now {command.SafeRemainingArgument.ColourCommand()}.");
+		return true;
+	}
+	private bool BuildingCommandFailEmoteTarget(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("What do you want to set the fail target emote to?");
+			return false;
+		}
+
+		var emote = new Emote(command.SafeRemainingArgument, new DummyPerceiver(), new DummyPerceivable(), new DummyPerceivable());
+		if (!emote.Valid)
+		{
+			actor.OutputHandler.Send(emote.ErrorMessage);
+			return false;
+		}
+
+		FailEmoteTextTarget = command.SafeRemainingArgument;
+		Changed = true;
+		actor.OutputHandler.Send($"The emote for this power is now {command.SafeRemainingArgument.ColourCommand()}.");
+		return true;
+	}
+	private bool BuildingCommandFailEmote(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("What do you want to set the fail emote to?");
+			return false;
+		}
+
+		var emote = new Emote(command.SafeRemainingArgument, new DummyPerceiver(), new DummyPerceivable(), new DummyPerceivable());
+		if (!emote.Valid)
+		{
+			actor.OutputHandler.Send(emote.ErrorMessage);
+			return false;
+		}
+
+		FailEmoteText = command.SafeRemainingArgument;
+		Changed = true;
+		actor.OutputHandler.Send($"The emote for this power is now {command.SafeRemainingArgument.ColourCommand()}.");
+		return true;
+	}
+	private bool BuilidngCommandEmoteTarget(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("What do you want to set the target emote to?");
+			return false;
+		}
+
+		var emote = new Emote(command.SafeRemainingArgument, new DummyPerceiver(), new DummyPerceivable(), new DummyPerceivable());
+		if (!emote.Valid)
+		{
+			actor.OutputHandler.Send(emote.ErrorMessage);
+			return false;
+		}
+
+		EmoteTextTarget = command.SafeRemainingArgument;
+		Changed = true;
+		actor.OutputHandler.Send($"The target emote for this power is now {command.SafeRemainingArgument.ColourCommand()}.");
+		return true;
+	}
+	private bool BuildingCommandEmote(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("What do you want to set the emote to?");
+			return false;
+		}
+
+		var emote = new Emote(command.SafeRemainingArgument, new DummyPerceiver(), new DummyPerceivable(), new DummyPerceivable());
+		if (!emote.Valid)
+		{
+			actor.OutputHandler.Send(emote.ErrorMessage);
+			return false;
+		}
+
+		EmoteText = command.SafeRemainingArgument;
+		Changed = true;
+		actor.OutputHandler.Send($"The emote for this power is now {command.SafeRemainingArgument.ColourCommand()}.");
+		return true;
+	}
+
+	private bool BuildingCommandResistInterval(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("What should be the interval in seconds between resistance checks?");
+			return false;
+		}
+
+		if (!double.TryParse(command.SafeRemainingArgument, out var value))
+		{
+			actor.OutputHandler.Send($"The text {command.SafeRemainingArgument.ColourCommand()} is not a valid number.");
+			return false;
+		}
+
+		if (value <= 0.0)
+		{
+			ResistCheckDifficulty = Difficulty.Impossible;
+			TargetGetsResistanceCheck = false;
+			ResistCheckInterval = TimeSpan.Zero;
+			Changed = true;
+			actor.OutputHandler.Send($"The target will no longer get any kind of resistance check to this power.");
+			return true;
+		}
+
+		ResistCheckInterval = TimeSpan.FromSeconds(value);
+
+		TargetGetsResistanceCheck = true;
+		if (ResistCheckDifficulty == Difficulty.Impossible)
+		{
+			ResistCheckDifficulty = Difficulty.Insane;
+		}
+
+		Changed = true;
+		actor.OutputHandler.Send($"The target will now get a resistance check every {ResistCheckInterval.DescribePreciseBrief(actor).ColourValue()}.");
+		return true;
+	}
+
+	private bool BuildingCommandResistDifficulty(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send($"What difficulty should the resist check for this power be? See {"show difficulties".MXPSend("show difficulties")} for a list of values.");
+			return false;
+		}
+
+		if (!command.SafeRemainingArgument.TryParseEnum(out Difficulty value))
+		{
+			actor.OutputHandler.Send($"That is not a valid difficulty. See {"show difficulties".MXPSend("show difficulties")} for a list of values.");
+			return false;
+		}
+
+		ResistCheckDifficulty = value;
+		Changed = true;
+		actor.OutputHandler.Send($"This power's resist check will now be at a difficulty of {value.DescribeColoured()}.");
+		return true;
+	}
+
 	private bool BuildingCommandDistance(ICharacter actor, StringStack command)
 	{
 		if (command.IsFinished)

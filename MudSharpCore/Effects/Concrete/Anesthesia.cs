@@ -24,19 +24,19 @@ public class Anesthesia : Effect, ICheckBonusEffect
 		get => _intensityPerGramMass;
 		set
 		{
-			if (value >= 5.0 && _intensityPerGramMass < 5.0)
+			if (value >= 2.5 && _intensityPerGramMass < 2.5)
 			{
 				Owner?.OutputHandler?.Send("Your autosomatic reflex to breathe has stopped.");
 			}
-			else if (value >= 1.5 && _intensityPerGramMass < 1.5)
+			else if (value >= 0.75 && _intensityPerGramMass < 0.75)
 			{
 				Owner?.OutputHandler?.Send("You can hardly keep your eyes open.");
 			}
-			else if (value >= 1.0 && _intensityPerGramMass < 1.0)
+			else if (value >= 0.5 && _intensityPerGramMass < 0.5)
 			{
 				Owner?.OutputHandler?.Send("You feel quite drowsy.");
 			}
-			else if (value >= 0.5 && _intensityPerGramMass < 0.5)
+			else if (value >= 0.25 && _intensityPerGramMass < 0.25)
 			{
 				Owner?.OutputHandler?.Send("You begin to feel drowsy.");
 			}
@@ -44,15 +44,15 @@ public class Anesthesia : Effect, ICheckBonusEffect
 			{
 				Owner?.OutputHandler?.Send("Your body's autosomatic reflex to breathe has kicked back in.");
 			}
-			else if (value < 1.5 && _intensityPerGramMass >= 1.5)
+			else if (value < 0.75 && _intensityPerGramMass >= 0.75)
 			{
 				Owner?.OutputHandler?.Send("You're having a slightly easier time keeping your eyes open.");
 			}
-			else if (value < 1.0 && _intensityPerGramMass >= 1.0)
+			else if (value < 0.5 && _intensityPerGramMass >= 0.5)
 			{
 				Owner?.OutputHandler?.Send("You no longer feel quite so drowsy.");
 			}
-			else if (value < 0.5 && _intensityPerGramMass >= 0.5)
+			else if (value < 0.25 && _intensityPerGramMass >= 0.25)
 			{
 				Owner?.OutputHandler?.Send("You no longer feel drowsy.");
 			}

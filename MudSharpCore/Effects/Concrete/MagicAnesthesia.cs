@@ -60,7 +60,7 @@ public class BeingMagicallyAnesthetised : Effect, ICauseDrugEffect
 	public override string Describe(IPerceiver voyeur)
 	{
 		return
-			$"Being magically anesthetised by {OriginatorCharacter.HowSeen(voyeur)} @ intensity {OriginatorEffect.CurrentIntensity.ToString("N2", voyeur).ColourValue()}/{OriginatorEffect.TargetIntensity.ToString("N2", voyeur).ColourValue()} through the {OriginatorEffect.AnesthesiaPower.Name.ColourValue()} power.";
+			$"Being magically anaesthetised by {OriginatorCharacter.HowSeen(voyeur)} @ intensity {OriginatorEffect.CurrentIntensity.ToString("N2", voyeur).ColourValue()}/{OriginatorEffect.TargetIntensity.ToString("N2", voyeur).ColourValue()} through the {OriginatorEffect.AnesthesiaPower.Name.ColourValue()} power.";
 	}
 
 	public string NoQuitReason => "You're feeling a little bit too sleepy to quit...";
@@ -99,7 +99,7 @@ public class MagicAnesthesia : ConcentrationConsumingEffect, IMagicEffect, IChec
 		ApplicabilityProg = power.AppliesProg;
 		TargetIntensity = targetIntensity;
 		CharacterTarget = target;
-        SustainCostMultiplier = sustainMultiplier;
+		SustainCostMultiplier = sustainMultiplier;
 		ChildEffect = new BeingMagicallyAnesthetised(CharacterTarget, this);
 		CharacterTarget.AddEffect(ChildEffect);
 		Login();
@@ -114,7 +114,7 @@ public class MagicAnesthesia : ConcentrationConsumingEffect, IMagicEffect, IChec
 	public override string Describe(IPerceiver voyeur)
 	{
 		return
-			$"Magically anesthetising {CharacterTarget.HowSeen(voyeur)} @ intensity {CurrentIntensity.ToString("N2", voyeur).ColourValue()}/{TargetIntensity.ToString("N2", voyeur).ColourValue()} through the {AnesthesiaPower.Name.ColourValue()} power.";
+			$"Magically anesthetizing {CharacterTarget.HowSeen(voyeur)} @ intensity {CurrentIntensity.ToString("N2", voyeur).ColourValue()}/{TargetIntensity.ToString("N2", voyeur).ColourValue()} through the {AnesthesiaPower.Name.ColourValue()} power.";
 	}
 
 	public void CharacterOwner_OnLocationChanged(Form.Shape.ILocateable locatable, Construction.Boundary.ICellExit exit)
@@ -138,7 +138,7 @@ public class MagicAnesthesia : ConcentrationConsumingEffect, IMagicEffect, IChec
 	public bool AppliesToCheck(CheckType type)
 	{
 		return type.IsDefensiveCombatAction() || type.IsOffensiveCombatAction() || type.IsGeneralActivityCheck() ||
-		       type.IsTargettedFriendlyCheck() || type.IsTargettedHostileCheck();
+			   type.IsTargettedFriendlyCheck() || type.IsTargettedHostileCheck();
 	}
 
 	public double CheckBonus => AnesthesiaPower.SustainPenalty;

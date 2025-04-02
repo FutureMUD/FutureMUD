@@ -876,16 +876,29 @@ You must use one of the following subcommands of this command:
 
 The syntax for this command is as follows:
 
-	dream list - lists all dreams
-	dream show <which> - shows a particular dream
-	dream edit <which> - begins editing a particular dream
-	dream edit - an alias for dream show <editing item>
-	dream close - stops editing a dream
-	dream edit new <name> - creates a new dream
-	dream clone <old> <new name> - clones an existing dream
-	dream give <which> <character> - gives a dream to a character
-	dream remove <which> <character> - removes a dream from a character
-	dream set ... - edits the properties of the dream you have open";
+	#3dream list#0 - lists all dreams
+	#3dream show <which>#0 - shows a particular dream
+	#3dream edit <which>#0 - begins editing a particular dream
+	#3dream edit#0 - an alias for dream show <editing item>
+	#3dream close#0 - stops editing a dream
+	#3dream edit new <name>#0 - creates a new dream
+	#3dream clone <old> <new name>#0 - clones an existing dream
+	#3dream give <which> <character>#0 - gives a dream to a character
+	#3dream remove <which> <character>#0 - removes a dream from a character
+	#3dream set name <name>#0 - renames this dream
+	#3dream set once#0 - toggles this dream being once-only versus repeatable
+	#3dream set priority <##>#0 - sets the weight of this dream being selected (higher is more likely)
+	#3dream set can <prog>#0 - sets a prog that controls whether this dream can be dreamt
+	#3dream set on <prog>#0 - sets a prog that executes when the dream is dreamt
+	#3dream set on clear#0 - clears an on-dreamt prog
+	#3dream set wake <prog>#0 - sets a prog that executes when the character wakes up
+	#3dream set wake clear#0 - clears an on-wake prog
+	#3dream set phase add#0 - drops you into an editor to add a new stage
+	#3dream set phase remove <##>#0 - removes a stage
+	#3dream set phase swap <##1> <##2>#0 - swaps the order of two stages
+	#3dream set phase command <##> <command>#0 - sets a command to have the dreamer execute at that stage
+	#3dream set phase delay <##> <seconds>#0 - sets the delay between this stage and the next stage
+	#3dream set phase text <##>#0 - drops you into an editor to edit a stage ";
 
 	[PlayerCommand("Dream", "dream")]
 	[CommandPermission(PermissionLevel.JuniorAdmin)]
@@ -893,7 +906,111 @@ The syntax for this command is as follows:
 	protected static void Dream(ICharacter actor, string command)
 	{
 		var ss = new StringStack(command.RemoveFirstWord());
+		switch (ss.PeekSpeech().ToLowerInvariant())
+		{
+			case "give":
+				DreamGive(actor, ss);
+				return;
+			case "remove":
+				DreamRemove(actor, ss);
+				return;
+		}
+
 		GenericBuildingCommand(actor, ss, EditableItemHelper.DreamHelper);
+	}
+
+	private static void DreamRemove(ICharacter actor, StringStack ss)
+	{
+		ss.PopSpeech();
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send("Which dream do you want to remove from someone?");
+			return;
+		}
+
+		var dream = actor.Gameworld.Dreams.GetByIdOrName(ss.PopSpeech());
+		if (dream is null)
+		{
+			actor.OutputHandler.Send($"There is no dream identified by the text {ss.SafeRemainingArgument.ColourCommand()}.");
+			return;
+		}
+
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send("Which character do you want to remove that dream from?");
+			return;
+		}
+
+		ICharacter tch;
+		if (long.TryParse(ss.SafeRemainingArgument, out var value))
+		{
+			tch = actor.Gameworld.TryGetCharacter(value, true);
+		}
+		else
+		{
+			tch = actor.Gameworld.TryPlayerCharacterByName(ss.SafeRemainingArgument);
+		}
+
+		if (tch is null)
+		{
+			actor.OutputHandler.Send("There is no character identified by that ID number or name.");
+			return;
+		}
+
+		if (!dream.RemoveDream(tch))
+		{
+			actor.OutputHandler.Send($"Character {tch.HowSeen(actor, flags: PerceiveIgnoreFlags.TrueDescription)} (#{tch.Id.ToStringN0(actor)}) does not have the dream {dream.Name.ColourName()}.");
+			return;
+		}
+
+		actor.OutputHandler.Send($"You remove the dream the dream {dream.Name.ColourName()} from {tch.HowSeen(actor, flags: PerceiveIgnoreFlags.TrueDescription)} (#{tch.Id.ToStringN0(actor)}).");
+	}
+
+	private static void DreamGive(ICharacter actor, StringStack ss)
+	{
+		ss.PopSpeech();
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send("Which dream do you want to give to someone?");
+			return;
+		}
+
+		var dream = actor.Gameworld.Dreams.GetByIdOrName(ss.PopSpeech());
+		if (dream is null)
+		{
+			actor.OutputHandler.Send($"There is no dream identified by the text {ss.SafeRemainingArgument.ColourCommand()}.");
+			return;
+		}
+
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send("Which character do you want to give that dream to?");
+			return;
+		}
+
+		ICharacter tch;
+		if (long.TryParse(ss.SafeRemainingArgument, out var value))
+		{
+			tch = actor.Gameworld.TryGetCharacter(value, true);
+		}
+		else
+		{
+			tch = actor.Gameworld.TryPlayerCharacterByName(ss.SafeRemainingArgument);
+		}
+
+		if (tch is null)
+		{
+			actor.OutputHandler.Send("There is no character identified by that ID number or name.");
+			return;
+		}
+
+		if (!dream.GiveDream(tch))
+		{
+			actor.OutputHandler.Send($"Character {tch.HowSeen(actor, flags: PerceiveIgnoreFlags.TrueDescription)} (#{tch.Id.ToStringN0(actor)}) already has the dream {dream.Name.ColourName()}.");
+			return;
+		}
+
+		actor.OutputHandler.Send($"You give the dream the dream {dream.Name.ColourName()} to {tch.HowSeen(actor, flags: PerceiveIgnoreFlags.TrueDescription)} (#{tch.Id.ToStringN0(actor)}).");
 	}
 
 	#endregion

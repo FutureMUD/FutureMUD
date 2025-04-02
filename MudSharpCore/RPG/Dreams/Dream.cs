@@ -137,23 +137,29 @@ public class Dream : SaveableItem, IDream
 
 	#region Implementation of IDream
 
-	public void GiveDream(ICharacter character)
+	public bool GiveDream(ICharacter character)
 	{
 		if (!_characters.Contains(character.Id))
 		{
 			_characters.Add(character.Id);
 			_haveDreamedBefore.Remove(character.Id);
 			Changed = true;
+			return true;
 		}
+
+		return false;
 	}
 
-	public void RemoveDream(ICharacter character)
+	public bool RemoveDream(ICharacter character)
 	{
 		if (_characters.Contains(character.Id))
 		{
 			_characters.Remove(character.Id);
 			Changed = true;
+			return true;
 		}
+
+		return false;
 	}
 
 	private readonly List<DreamStage> _dreamStages = new();
@@ -193,13 +199,13 @@ public class Dream : SaveableItem, IDream
 	public string Show(ICharacter actor)
 	{
 		var sb = new StringBuilder();
-		sb.AppendLine($"Dream #{Id.ToString("N0", actor)} - {Name.ColourName()}");
+		sb.AppendLine($"Dream #{Id.ToString("N0", actor)} - {Name}".GetLineWithTitleInner(actor, Telnet.Cyan, Telnet.BoldWhite));
+		sb.AppendLine();
 		sb.AppendLine($"Once Only: {_onceOnly.ToColouredString()}");
 		sb.AppendLine($"Priority Weighting: {Priority.ToString("N0", actor).ColourValue()}");
 		sb.AppendLine($"Can Dream Prog: {CanDreamProg?.MXPClickableFunctionName() ?? "None".Colour(Telnet.Red)}");
 		sb.AppendLine($"On Dream Prog: {OnDreamProg?.MXPClickableFunctionName() ?? "None".Colour(Telnet.Red)}");
-		sb.AppendLine(
-			$"On Wake During Prog: {OnWakeDuringDreamProg?.MXPClickableFunctionName() ?? "None".Colour(Telnet.Red)}");
+		sb.AppendLine($"On Wake During Prog: {OnWakeDuringDreamProg?.MXPClickableFunctionName() ?? "None".Colour(Telnet.Red)}");
 		sb.AppendLine();
 		sb.AppendLine("Stages:");
 		foreach (var stage in _dreamStages)
@@ -247,7 +253,22 @@ public class Dream : SaveableItem, IDream
 			case "stage":
 				return BuildingCommandStage(actor, command);
 			default:
-				actor.OutputHandler.Send(@"");
+				actor.OutputHandler.Send(@"You can use the following options with this command:
+
+	#3name <name>#0 - renames this dream
+	#3once#0 - toggles this dream being once-only versus repeatable
+	#3priority <##>#0 - sets the weight of this dream being selected (higher is more likely)
+	#3can <prog>#0 - sets a prog that controls whether this dream can be dreamt
+	#3on <prog>#0 - sets a prog that executes when the dream is dreamt
+	#3on clear#0 - clears an on-dreamt prog
+	#3wake <prog>#0 - sets a prog that executes when the character wakes up
+	#3wake clear#0 - clears an on-wake prog
+	#3phase add#0 - drops you into an editor to add a new stage
+	#3phase remove <##>#0 - removes a stage
+	#3phase swap <##1> <##2>#0 - swaps the order of two stages
+	#3phase command <##> <command>#0 - sets a command to have the dreamer execute at that stage
+	#3phase delay <##> <seconds>#0 - sets the delay between this stage and the next stage
+	#3phase text <##>#0 - drops you into an editor to edit a stage".SubstituteANSIColour());
 				return false;
 		}
 	}
@@ -275,12 +296,12 @@ public class Dream : SaveableItem, IDream
 			default:
 				actor.OutputHandler.Send(@"You can use the following options with the stage command:
 
-	add - drops you into an editor to add a new stage
-	remove <#> - removes a stage
-	swap <#1> <#2> - swaps the order of two stages
-	command <#> <command> - sets a command to have the dreamer execute at that stage
-	delay <#> <seconds> - sets the delay between this stage and the next stage
-	text <#> - drops you into an editor to edit a stage");
+	#3add#0 - drops you into an editor to add a new stage
+	#3remove <##>#0 - removes a stage
+	#3swap <##1> <##2>#0 - swaps the order of two stages
+	#3command <##> <command>#0 - sets a command to have the dreamer execute at that stage
+	#3delay <##> <seconds>#0 - sets the delay between this stage and the next stage
+	#3text <##>#0 - drops you into an editor to edit a stage".SubstituteANSIColour());
 				return false;
 		}
 

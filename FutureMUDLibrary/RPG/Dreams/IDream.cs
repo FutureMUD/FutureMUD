@@ -32,8 +32,8 @@ namespace MudSharp.RPG.Dreams {
         bool OnceOnly { get; }
         bool CanDream(ICharacter character);
         void FinishDream(ICharacter character);
-        void GiveDream(ICharacter character);
-        void RemoveDream(ICharacter character);
+        bool GiveDream(ICharacter character);
+        bool RemoveDream(ICharacter character);
         IDream Clone(string newName);
     }
 }

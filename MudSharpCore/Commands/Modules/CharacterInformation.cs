@@ -1526,6 +1526,8 @@ You can also use this command to test against someone else. This always echoes.
 			}
 
 			//Generate admin output
+			var perceivables = new List<IPerceivable>() { actor };
+			int perceivable = 1;
 			var bonusPerDifficulty = Futuremud.Games.First().GetStaticInt("CheckBonusPerDifficultyLevel");
 			var bonusAdjustment = (int)(outcome.FinalBonus / bonusPerDifficulty);
 			var adminOutput = new StringBuilder();
@@ -1551,7 +1553,14 @@ You can also use this command to test against someone else. This always echoes.
 
 			if (outcome.ActiveBonuses?.Count() > 0)
 			{
-				adminOutput.Append($"\n\tActive Bonuses: {outcome.ActiveBonuses.Select(x => $"{x.Item1.Replace("#", "##")}({x.Item2.ToBonusString(actor)})").ListToString()}\n\tTotal Bonuses: {outcome.FinalBonus.ToBonusString(actor)}");
+				adminOutput.Append("\n\tActive Bonuses: ");
+				foreach (var item in outcome.ActiveBonuses)
+				{
+					perceivables.Add(new DummyPerceivable($"{item.Item1.Colour(Telnet.Cyan)} ({item.Item2.ToBonusString(actor)})", customColour: Telnet.White));
+					adminOutput.Append($" ${perceivable++}");
+				}
+
+				adminOutput.AppendLine($"\n\tTotal Bonuses: {outcome.FinalBonus.ToBonusString(actor)}");
 			}
 
 			foreach (var admin in actor.Location?.LayerCharacters(actor.RoomLayer).Where(x => x.IsAdministrator()) ??
@@ -1560,7 +1569,7 @@ You can also use this command to test against someone else. This always echoes.
 				admin.OutputHandler.Handle(
 					new EmoteOutput(
 						new Emote(
-							adminOutput.ToString(), actor, actor)), OutputRange.Personal);
+							adminOutput.ToString(), actor, perceivables.ToArray())), OutputRange.Personal);
 			}
 		}
 	}

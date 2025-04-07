@@ -10,6 +10,7 @@ using MudSharp.Combat;
 using MudSharp.Form.Audio;
 using MudSharp.Framework;
 using MudSharp.Framework.Revision;
+using MudSharp.FutureProg;
 using MudSharp.GameItems.Components;
 using MudSharp.GameItems.Interfaces;
 using MudSharp.GameItems.Inventory;
@@ -86,7 +87,10 @@ public class LaserGameItemComponentProto : GameItemComponentProto
 	}
 
 	public IWeaponType MeleeWeaponType { get; set; }
-
+#nullable enable
+	public IFutureProg? CanWieldProg { get; private set; }
+	public IFutureProg? WhyCannotWieldProg { get; private set; }
+#nullable restore
 	public IInventoryPlanTemplate LoadTemplate { get; set; }
 
 	public IInventoryPlanTemplate LoadTemplateIgnoreEmpty { get; set; }
@@ -154,6 +158,8 @@ public class LaserGameItemComponentProto : GameItemComponentProto
 		RangedWeaponType = Gameworld.RangedWeaponTypes.Get(long.Parse(root.Element("RangedWeaponType").Value));
 		ClipType = root.Element("ClipType")?.Value ?? Gameworld.GetStaticConfiguration("DefaultLaserClipType");
 		FireVolume = (AudioVolume)int.Parse(root.Element("FireVolume").Value);
+		CanWieldProg = Gameworld.FutureProgs.Get(long.Parse(root.Element("CanWieldProg")?.Value ?? "0"));
+		WhyCannotWieldProg = Gameworld.FutureProgs.Get(long.Parse(root.Element("WhyCannotWieldProg")?.Value ?? "0"));
 		var element = root.Element("MeleeWeaponType");
 		if (element != null)
 		{
@@ -184,7 +190,9 @@ public class LaserGameItemComponentProto : GameItemComponentProto
 			new XElement("WattsPerShot", WattsPerShot),
 			new XElement("PainMultiplier", PainMultiplier),
 			new XElement("StunMultiplier", StunMultiplier),
-			new XElement("MeleeWeaponType", MeleeWeaponType?.Id ?? 0)
+			new XElement("MeleeWeaponType", MeleeWeaponType?.Id ?? 0),
+			new XElement("CanWieldProg", CanWieldProg?.Id ?? 0),
+			new XElement("WhyCannotWieldProg", WhyCannotWieldProg?.Id ?? 0)
 		).ToString();
 	}
 
@@ -229,7 +237,26 @@ public class LaserGameItemComponentProto : GameItemComponentProto
 	#region Building Commands
 
 	public override string ShowBuildingHelp =>
-		$"You can use the following options:\n\tname <name> - sets the name of the component\n\tdesc <desc> - sets the description of the component\n\tranged <ranged type> - sets the ranged weapon type for this component. See {"show ranges".FluentTagMXP("send", "href='show ranges'")} for a list.\n\tload <emote> - sets the emote for loading this weapon. $0 is the loader, $1 is the laser, $2 is the clip.\n\tunload <emote> - sets the emote for unloading this weapon. $0 is the loader, $1 is the laser, $2 is the clip.\n\tready <emote> - sets the emote for readying this laser. $0 is the loader, $1 is the laser.\n\tunready <emote> - sets the emote for unreadying this laser. $0 is the loader, $1 is the laser.\n\tfire <emote> - sets the emote for firing the laser. $0 is the firer, $1 is the target, $2 is the laser.\n\tfireempty <emote> - sets the emote for firing the laser when it is empty. $0 is the firer, $1 is the target, $2 is the laser.\n\tvolume <volume> - sets the volume when fired\n\tclip <type> - sets the type of power pack used by this laser\n\twatts <amount> - sets the number of watt-seconds drawn down from the battery pack per shot\n\tpain <multiplier> - a multiplier for pain compared to damage\n\tstun <multiplier> - a multiplier for stun compared to damage";
+		$@"You can use the following options:
+
+	#3name <name>#0 - sets the name of the component
+	#3desc <desc>#0 - sets the description of the component
+	#3ranged <ranged type>#0 - sets the ranged weapon type for this component. See {"show ranges".FluentTagMXP("send", "href='show ranges'")} for a list.
+	#3load <emote>#0 - sets the emote for loading this weapon. $0 is the loader, $1 is the laser, $2 is the clip.
+	#3unload <emote>#0 - sets the emote for unloading this weapon. $0 is the loader, $1 is the laser, $2 is the clip.
+	#3ready <emote>#0 - sets the emote for readying this laser. $0 is the loader, $1 is the laser.
+	#3unready <emote>#0 - sets the emote for unreadying this laser. $0 is the loader, $1 is the laser.
+	#3fire <emote>#0 - sets the emote for firing the laser. $0 is the firer, $1 is the target, $2 is the laser.
+	#3fireempty <emote>#0 - sets the emote for firing the laser when it is empty. $0 is the firer, $1 is the target, $2 is the laser.
+	#3volume <volume>#0 - sets the volume when fired
+	#3clip <type>#0 - sets the type of power pack used by this laser
+	#3watts <amount>#0 - sets the number of watt-seconds drawn down from the battery pack per shot
+	#3pain <multiplier>#0 - a multiplier for pain compared to damage
+	#3stun <multiplier>#0 - a multiplier for stun compared to damage
+	#3canwield <prog>#0 - sets a prog controlling if this can be wielded
+	#3canwield none#0 - removes a canwield prog
+	#3whycantwield <prog>#0 - sets a prog giving the error message if canwield fails
+	#3whycantwield none#0 - clears the whycantwield prog";
 
 	public override bool BuildingCommand(ICharacter actor, StringStack command)
 	{
@@ -274,9 +301,83 @@ public class LaserGameItemComponentProto : GameItemComponentProto
 			case "melee type":
 			case "melee_type":
 				return BuildingCommand_Melee(actor, command);
+			case "canwield":
+			case "canwieldprog":
+				return BuildingCommandCanWieldProg(actor, command);
+			case "whycantwield":
+			case "whycantwieldprog":
+			case "whycannotwield":
+			case "whycannotwieldprog":
+				return BuildingCommandWhyCannotWieldProg(actor, command);
 			default:
 				return base.BuildingCommand(actor, command);
 		}
+	}
+
+	private bool BuildingCommandCanWieldProg(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send($"You must either specify a prog, or the keyword #3none#0 to remove one.".SubstituteANSIColour());
+			return false;
+		}
+
+		if (command.SafeRemainingArgument.EqualTo("none"))
+		{
+			CanWieldProg = null;
+			Changed = true;
+			actor.OutputHandler.Send($"This item will no longer use a prog to determine if it can be wielded.");
+			return true;
+		}
+
+		var prog = new ProgLookupFromBuilderInput(actor, command.SafeRemainingArgument, ProgVariableTypes.Boolean,
+			[
+				[ProgVariableTypes.Character],
+				[ProgVariableTypes.Character, ProgVariableTypes.Item]
+			]
+		).LookupProg();
+		if (prog is null)
+		{
+			return false;
+		}
+
+		CanWieldProg = prog;
+		Changed = true;
+		actor.OutputHandler.Send($"This item will now use the {prog.MXPClickableFunctionName()} prog to determine if it can be wielded.");
+		return true;
+	}
+
+	private bool BuildingCommandWhyCannotWieldProg(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send($"You must either specify a prog, or the keyword #3none#0 to remove one.".SubstituteANSIColour());
+			return false;
+		}
+
+		if (command.SafeRemainingArgument.EqualTo("none"))
+		{
+			CanWieldProg = null;
+			Changed = true;
+			actor.OutputHandler.Send($"This item will no longer use a prog to generate an error message if it cannot be wielded.");
+			return true;
+		}
+
+		var prog = new ProgLookupFromBuilderInput(actor, command.SafeRemainingArgument, ProgVariableTypes.Text,
+			[
+				[ProgVariableTypes.Character],
+				[ProgVariableTypes.Character, ProgVariableTypes.Item]
+			]
+		).LookupProg();
+		if (prog is null)
+		{
+			return false;
+		}
+
+		WhyCannotWieldProg = prog;
+		Changed = true;
+		actor.OutputHandler.Send($"This item will now use the {prog.MXPClickableFunctionName()} prog to generate an error message if it cannot be wielded.");
+		return true;
 	}
 
 	private bool BuildingCommand_Melee(ICharacter actor, StringStack command)
@@ -529,7 +630,7 @@ public class LaserGameItemComponentProto : GameItemComponentProto
 	public override string ComponentDescriptionOLC(ICharacter actor)
 	{
 		return string.Format(actor,
-			"{0} (#{1:N0}r{2:N0}, {3})\r\n\r\nThis is a laser of type {4} and melee type {16}.\n\nFire: {5}\nFireEmpty: {6}\nLoad: {7}\nUnload: {8}\nReady: {9}\nUnready: {10}\nVolume: {11}\nClip Type: {12}\nWatts per Shot: {13}\nPain Multiplier: {14:P2}\nStun Multiplier: {15:P2}",
+			"{0} (#{1:N0}r{2:N0}, {3})\r\n\r\nThis is a laser of type {4} and melee type {16}.\nThe CanWield prog is {17} and the WhyCannotWield prog is {18}.\n\nFire: {5}\nFireEmpty: {6}\nLoad: {7}\nUnload: {8}\nReady: {9}\nUnready: {10}\nVolume: {11}\nClip Type: {12}\nWatts per Shot: {13}\nPain Multiplier: {14:P2}\nStun Multiplier: {15:P2}",
 			"Laser Game Item Component".Colour(Telnet.Cyan),
 			Id,
 			RevisionNumber,
@@ -546,7 +647,9 @@ public class LaserGameItemComponentProto : GameItemComponentProto
 			WattsPerShot,
 			PainMultiplier,
 			StunMultiplier,
-			MeleeWeaponType?.Name.TitleCase().Colour(Telnet.Green) ?? "None".Colour(Telnet.Red)
+			MeleeWeaponType?.Name.TitleCase().Colour(Telnet.Green) ?? "None".Colour(Telnet.Red),
+			CanWieldProg?.MXPClickableFunctionName() ?? "None".ColourError(),
+			WhyCannotWieldProg?.MXPClickableFunctionName() ?? "None".ColourError()
 		);
 	}
 

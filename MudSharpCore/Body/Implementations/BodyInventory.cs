@@ -287,6 +287,17 @@ public partial class Body
 
 	public bool CanWield(IGameItem item, ItemCanWieldFlags flags = ItemCanWieldFlags.None)
 	{
+		var wieldable = item.GetItemType<IWieldable>();
+		if (wieldable is null)
+		{
+			return false;
+		}
+
+		if (!wieldable.CanWield(Actor))
+		{
+			return false;
+		}
+
 		if (_wieldedItems.Any(x => x.Item1 == item) && !flags.HasFlag(ItemCanWieldFlags.IgnoreFreeHands))
 		{
 			return false;
@@ -314,6 +325,17 @@ public partial class Body
 
 	public bool CanWield(IGameItem item, IWield specificHand, ItemCanWieldFlags flags = ItemCanWieldFlags.None)
 	{
+		var wieldable = item.GetItemType<IWieldable>();
+		if (wieldable is null)
+		{
+			return false;
+		}
+
+		if (!wieldable.CanWield(Actor))
+		{
+			return false;
+		}
+
 		if (!flags.HasFlag(ItemCanWieldFlags.RequireTwoHands))
 		{
 			return (specificHand?.CanWield(item, this) == IWieldItemWieldResult.Success ||
@@ -354,15 +376,20 @@ public partial class Body
 
 	public string WhyCannotWield(IGameItem item, ItemCanWieldFlags flags = ItemCanWieldFlags.None)
 	{
-		if (_wieldedItems.Any(x => x.Item1 == item) && !flags.HasFlag(ItemCanWieldFlags.IgnoreFreeHands))
-		{
-			return $"You are already wielding {item.HowSeen(this)}.";
-		}
-
 		var wieldable = item.GetItemType<IWieldable>();
 		if (wieldable == null)
 		{
 			return $"{item.HowSeen(this, true)} is not something that you can wield.";
+		}
+
+		if (!wieldable.CanWield(Actor))
+		{
+			return wieldable.WhyCannotWield(Actor);
+		}
+
+		if (_wieldedItems.Any(x => x.Item1 == item) && !flags.HasFlag(ItemCanWieldFlags.IgnoreFreeHands))
+		{
+			return $"You are already wielding {item.HowSeen(this)}.";
 		}
 
 		var reasons = WieldLocs.Select(x => x.CanWield(item, this)).ToList();

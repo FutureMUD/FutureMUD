@@ -43,7 +43,7 @@ public partial class Emote
 	///     !0 - man / you
 	///     !0's man's / your
 	/// </summary>
-	private static readonly Regex InternalTokenRegex = new(@"(?<=([!.?:] |^){0,1})(?<!!!)(?<!\$)(?<!&)(?<!#)(?<!%)([!$&#%])(?!\1)(\d+)(?:'s)?",
+	private static readonly Regex InternalTokenRegex = new(@"(?<=([!.?:] |^){0,1})(?<!!!)(?<!\$)(?<!&)(?<!#)(?<!%)([!$&#%])(?!\1)(\d+)('s)?",
 		RegexOptions.Multiline);
 
 	/// <summary>

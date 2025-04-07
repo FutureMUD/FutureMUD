@@ -80,6 +80,19 @@ public class ThrownWeaponGameItemComponent : GameItemComponent, IRangedWeapon, I
 	}
 
 	public bool AlwaysRequiresTwoHandsToWield => _prototype.RangedWeaponType.AlwaysRequiresTwoHandsToWield;
+
+	/// <inheritdoc />
+	public bool CanWield(ICharacter actor)
+	{
+		return _prototype.CanWieldProg?.ExecuteBool(false, actor, Parent) ?? true;
+	}
+
+	/// <inheritdoc />
+	public string WhyCannotWield(ICharacter actor)
+	{
+		return _prototype.WhyCannotWieldProg?.ExecuteString(actor, Parent) ?? "You can't wield that for an unknown reason.";
+	}
+
 	public bool ReadyToFire => true;
 
 	public int LoadStage => 0;

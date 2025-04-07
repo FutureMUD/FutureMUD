@@ -139,6 +139,18 @@ public class CrossbowGameItemComponent : GameItemComponent, IRangedWeapon, IMele
 
 	public bool AlwaysRequiresTwoHandsToWield => WeaponType.AlwaysRequiresTwoHandsToWield;
 
+	/// <inheritdoc />
+	public bool CanWield(ICharacter actor)
+	{
+		return _prototype.CanWieldProg?.ExecuteBool(false, actor, Parent) ?? true;
+	}
+
+	/// <inheritdoc />
+	public string WhyCannotWield(ICharacter actor)
+	{
+		return _prototype.WhyCannotWieldProg?.ExecuteString(actor, Parent) ?? "You can't wield that for an unknown reason.";
+	}
+
 	public bool ReadyToFire => IsLoaded && IsReadied;
 
 	public bool IsLoaded => LoadedAmmo != null;

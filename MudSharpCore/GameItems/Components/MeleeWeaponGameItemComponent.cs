@@ -2,6 +2,7 @@
 using System.Xml.Linq;
 using MudSharp.Body;
 using MudSharp.Body.Traits;
+using MudSharp.Character;
 using MudSharp.Combat;
 using MudSharp.Form.Shape;
 using MudSharp.Framework;
@@ -66,6 +67,18 @@ public class MeleeWeaponGameItemComponent : GameItemComponent, IMeleeWeapon
 	}
 
 	public bool AlwaysRequiresTwoHandsToWield => false;
+
+	/// <inheritdoc />
+	public bool CanWield(ICharacter actor)
+	{
+		return _prototype.CanWieldProg?.ExecuteBool(false, actor, Parent) ?? true;
+	}
+
+	/// <inheritdoc />
+	public string WhyCannotWield(ICharacter actor)
+	{
+		return _prototype.WhyCannotWieldProg?.ExecuteString(actor, Parent) ?? "You can't wield that for an unknown reason.";
+	}
 
 	#endregion
 

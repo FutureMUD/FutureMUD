@@ -5,6 +5,7 @@ using MudSharp.Character;
 using MudSharp.Combat;
 using MudSharp.Framework;
 using MudSharp.Framework.Revision;
+using MudSharp.FutureProg;
 using MudSharp.GameItems.Components;
 using MudSharp.GameItems.Interfaces;
 using MudSharp.GameItems.Inventory;
@@ -31,6 +32,10 @@ public class GunGameItemComponentProto : GameItemComponentProto
 	public string FireEmoteNoChamberedRound { get; set; }
 
 	public string ClipType { get; set; }
+#nullable enable
+	public IFutureProg? CanWieldProg { get; private set; }
+	public IFutureProg? WhyCannotWieldProg { get; private set; }
+#nullable restore
 
 	#region Constructors
 
@@ -63,6 +68,8 @@ public class GunGameItemComponentProto : GameItemComponentProto
 		FireEmoteNoChamberedRound = root.Element("FireEmoteNoChamberedRound").Value;
 		RangedWeaponType = Gameworld.RangedWeaponTypes.Get(long.Parse(root.Element("RangedWeaponType").Value));
 		ClipType = root.Element("ClipType")?.Value ?? Gameworld.GetStaticConfiguration("DefaultGunClipType");
+		CanWieldProg = Gameworld.FutureProgs.Get(long.Parse(root.Element("CanWieldProg")?.Value ?? "0"));
+		WhyCannotWieldProg = Gameworld.FutureProgs.Get(long.Parse(root.Element("WhyCannotWieldProg")?.Value ?? "0"));
 		var element = root.Element("MeleeWeaponType");
 		if (element != null)
 		{
@@ -90,7 +97,9 @@ public class GunGameItemComponentProto : GameItemComponentProto
 			new XElement("FireEmoteNoChamberedRound", new XCData(FireEmoteNoChamberedRound)),
 			new XElement("RangedWeaponType", RangedWeaponType?.Id ?? 0),
 			new XElement("ClipType", new XCData(ClipType)),
-			new XElement("MeleeWeaponType", MeleeWeaponType?.Id ?? 0)
+			new XElement("MeleeWeaponType", MeleeWeaponType?.Id ?? 0),
+			new XElement("CanWieldProg", CanWieldProg?.Id ?? 0),
+			new XElement("WhyCannotWieldProg", WhyCannotWieldProg?.Id ?? 0)
 		).ToString();
 	}
 
@@ -133,7 +142,23 @@ public class GunGameItemComponentProto : GameItemComponentProto
 	#endregion
 
 	public override string ShowBuildingHelp =>
-		$"You can use the following options:\n\tname <name> - sets the name of the component\n\tdesc <desc> - sets the description of the component\n\tranged <ranged type> - sets the ranged weapon type for this component. See {"show ranges".FluentTagMXP("send", "href='show ranges'")} for a list.\n\tload <emote> - sets the emote for loading this weapon. $0 is the loader, $1 is the gun, $2 is the clip.\n\tunload <emote> - sets the emote for unloading this weapon. $0 is the loader, $1 is the gun, $2 is the clip.\n\tready <emote> - sets the emote for readying this gun. $0 is the loader, $1 is the gun.\n\tunready <emote> - sets the emote for unreadying this gun. $0 is the loader, $1 is the gun and $2 is the chambered round.\n\tunreadyempty <emote> - sets the emote for unreadying this gun when there is no chambered round. $0 is the loader, $1 is the gun.\n\tfire <emote> - sets the emote for firing the gun. $0 is the firer, $1 is the target, $2 is the gun.\n\tfireempty <emote> - sets the emote for firing the gun when it is empty. $0 is the firer, $1 is the target, $2 is the gun.\n\tclip <type> - sets the type of clip that fits in this gun";
+		$@"You can use the following options:
+
+	#3name <name>#0 - sets the name of the component
+	#3desc <desc>#0 - sets the description of the component
+	#3ranged <ranged type>#0 - sets the ranged weapon type for this component. See {"show ranges".FluentTagMXP("send", "href='show ranges'")} for a list.
+	#3load <emote>#0 - sets the emote for loading this weapon. $0 is the loader, $1 is the gun, $2 is the clip.
+	#3unload <emote>#0 - sets the emote for unloading this weapon. $0 is the loader, $1 is the gun, $2 is the clip.
+	#3ready <emote>#0 - sets the emote for readying this gun. $0 is the loader, $1 is the gun.
+	#3unready <emote>#0 - sets the emote for unreadying this gun. $0 is the loader, $1 is the gun and $2 is the chambered round.
+	#3unreadyempty <emote>#0 - sets the emote for unreadying this gun when there is no chambered round. $0 is the loader, $1 is the gun.
+	#3fire <emote>#0 - sets the emote for firing the gun. $0 is the firer, $1 is the target, $2 is the gun.
+	#3fireempty <emote>#0 - sets the emote for firing the gun when it is empty. $0 is the firer, $1 is the target, $2 is the gun.
+	#3clip <type>#0 - sets the type of clip that fits in this gun
+	#3canwield <prog>#0 - sets a prog controlling if this can be wielded
+	#3canwield none#0 - removes a canwield prog
+	#3whycantwield <prog>#0 - sets a prog giving the error message if canwield fails
+	#3whycantwield none#0 - clears the whycantwield prog";
 
 	#region Building Commands
 
@@ -175,9 +200,83 @@ public class GunGameItemComponentProto : GameItemComponentProto
 			case "melee type":
 			case "melee_type":
 				return BuildingCommand_Melee(actor, command);
+			case "canwield":
+			case "canwieldprog":
+				return BuildingCommandCanWieldProg(actor, command);
+			case "whycantwield":
+			case "whycantwieldprog":
+			case "whycannotwield":
+			case "whycannotwieldprog":
+				return BuildingCommandWhyCannotWieldProg(actor, command);
 			default:
 				return base.BuildingCommand(actor, command);
 		}
+	}
+
+	private bool BuildingCommandCanWieldProg(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send($"You must either specify a prog, or the keyword #3none#0 to remove one.".SubstituteANSIColour());
+			return false;
+		}
+
+		if (command.SafeRemainingArgument.EqualTo("none"))
+		{
+			CanWieldProg = null;
+			Changed = true;
+			actor.OutputHandler.Send($"This item will no longer use a prog to determine if it can be wielded.");
+			return true;
+		}
+
+		var prog = new ProgLookupFromBuilderInput(actor, command.SafeRemainingArgument, ProgVariableTypes.Boolean,
+			[
+				[ProgVariableTypes.Character],
+				[ProgVariableTypes.Character, ProgVariableTypes.Item]
+			]
+		).LookupProg();
+		if (prog is null)
+		{
+			return false;
+		}
+
+		CanWieldProg = prog;
+		Changed = true;
+		actor.OutputHandler.Send($"This item will now use the {prog.MXPClickableFunctionName()} prog to determine if it can be wielded.");
+		return true;
+	}
+
+	private bool BuildingCommandWhyCannotWieldProg(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send($"You must either specify a prog, or the keyword #3none#0 to remove one.".SubstituteANSIColour());
+			return false;
+		}
+
+		if (command.SafeRemainingArgument.EqualTo("none"))
+		{
+			CanWieldProg = null;
+			Changed = true;
+			actor.OutputHandler.Send($"This item will no longer use a prog to generate an error message if it cannot be wielded.");
+			return true;
+		}
+
+		var prog = new ProgLookupFromBuilderInput(actor, command.SafeRemainingArgument, ProgVariableTypes.Text,
+			[
+				[ProgVariableTypes.Character],
+				[ProgVariableTypes.Character, ProgVariableTypes.Item]
+			]
+		).LookupProg();
+		if (prog is null)
+		{
+			return false;
+		}
+
+		WhyCannotWieldProg = prog;
+		Changed = true;
+		actor.OutputHandler.Send($"This item will now use the {prog.MXPClickableFunctionName()} prog to generate an error message if it cannot be wielded.");
+		return true;
 	}
 
 	private bool BuildingCommand_Melee(ICharacter actor, StringStack command)
@@ -437,7 +536,7 @@ public class GunGameItemComponentProto : GameItemComponentProto
 	{
 		return string.Format(
 			actor,
-			"{0} (#{1:N0}r{2:N0}, {3})\n\nThis is a modern firearm of type {4} and melee type {13}.\n\nFire: {5}\nFireEmpty: {6}\nLoad: {7}\nUnload: {8}\nReady: {9}\nUnready: {10}\nUnreadyEmpty: {11}\nClip Type: {12}",
+			"{0} (#{1:N0}r{2:N0}, {3})\n\nThis is a modern firearm of type {4} and melee type {13}.\nThe CanWield prog is {14} and the WhyCannotWield prog is {15}.\n\nFire: {5}\nFireEmpty: {6}\nLoad: {7}\nUnload: {8}\nReady: {9}\nUnready: {10}\nUnreadyEmpty: {11}\nClip Type: {12}",
 			"Gun Game Item Component".Colour(Telnet.Cyan),
 			Id,
 			RevisionNumber,
@@ -451,7 +550,9 @@ public class GunGameItemComponentProto : GameItemComponentProto
 			UnreadyEmote.Colour(Telnet.Cyan),
 			UnreadyEmoteNoChamberedRound.Colour(Telnet.Cyan),
 			ClipType.Colour(Telnet.Green),
-			MeleeWeaponType?.Name.TitleCase().Colour(Telnet.Green) ?? "None".Colour(Telnet.Red)
+			MeleeWeaponType?.Name.TitleCase().Colour(Telnet.Green) ?? "None".Colour(Telnet.Red),
+			CanWieldProg?.MXPClickableFunctionName() ?? "None".ColourError(),
+			WhyCannotWieldProg?.MXPClickableFunctionName() ?? "None".ColourError()
 		);
 	}
 

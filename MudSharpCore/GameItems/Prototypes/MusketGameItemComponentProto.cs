@@ -22,6 +22,7 @@ using MudSharp.PerceptionEngine.Outputs;
 using MudSharp.PerceptionEngine.Parsers;
 using System.Management;
 using MudSharp.Form.Material;
+using MudSharp.FutureProg;
 
 namespace MudSharp.GameItems.Prototypes;
 public class MusketGameItemComponentProto : GameItemComponentProto
@@ -96,6 +97,8 @@ public class MusketGameItemComponentProto : GameItemComponentProto
 		JamChance = new TraitExpression(root.Element("JamChance").Value, Gameworld);
 		CatastrophyDamageFormula = new ExpressionEngine.Expression(root.Element("CatastrophyDamageFormula").Value);
 
+		CanWieldProg = Gameworld.FutureProgs.Get(long.Parse(root.Element("CanWieldProg")?.Value ?? "0"));
+		WhyCannotWieldProg = Gameworld.FutureProgs.Get(long.Parse(root.Element("WhyCannotWieldProg")?.Value ?? "0"));
 
 		_rangedWeaponType = Gameworld.RangedWeaponTypes.Get(long.Parse(root.Element("RangedWeaponType").Value));
 		var element = root.Element("MeleeWeaponType");
@@ -140,7 +143,9 @@ public class MusketGameItemComponentProto : GameItemComponentProto
 			new XElement("BarrelBore", BarrelBore),
 			new XElement("MisfireChance", MisfireChance.OriginalFormulaText),
 			new XElement("JamChance", JamChance.OriginalFormulaText),
-			new XElement("CatastrophyDamageFormula", CatastrophyDamageFormula.OriginalExpression)
+			new XElement("CatastrophyDamageFormula", CatastrophyDamageFormula.OriginalExpression),
+			new XElement("CanWieldProg", CanWieldProg?.Id ?? 0),
+			new XElement("WhyCannotWieldProg", WhyCannotWieldProg?.Id ?? 0)
 		).ToString();
 	}
 
@@ -315,7 +320,10 @@ public class MusketGameItemComponentProto : GameItemComponentProto
 			_meleeWeaponType = value;
 		}
 	}
-
+#nullable enable
+	public IFutureProg? CanWieldProg { get; private set; }
+	public IFutureProg? WhyCannotWieldProg { get; private set; }
+#nullable restore
 	public IInventoryPlanTemplate LoadTemplateClean { get; set; }
 	public IInventoryPlanTemplate LoadTemplateLoadPowder { get; set; }
 	public IInventoryPlanTemplate LoadTemplateLoadBall { get; set; }
@@ -380,6 +388,10 @@ public class MusketGameItemComponentProto : GameItemComponentProto
 	#3desc <desc>#0 - sets the description of the component
 	#3ranged <ranged type>#0 - sets the ranged weapon type for this component. See #3show ranges#0 for a list.
 	#3ejectonfire#0 - toggles whether casings are ejected on fire or on ready
+	#3canwield <prog>#0 - sets a prog controlling if this can be wielded
+	#3canwield none#0 - removes a canwield prog
+	#3whycantwield <prog>#0 - sets a prog giving the error message if canwield fails
+	#3whycantwield none#0 - clears the whycantwield prog
 	#3load <emote>#0 - sets the emote for loading this weapon. $0 is the loader, $1 is the gun, $2 is the clip.
 	#3unload <emote>#0 - sets the emote for unloading this weapon. $0 is the loader, $1 is the gun, $2 is the clip.
 	#3ready <emote>#0 - sets the emote for readying this gun. $0 is the loader, $1 is the gun.
@@ -451,9 +463,83 @@ public class MusketGameItemComponentProto : GameItemComponentProto
 				return BuildingCommandCatastrophyDamage(actor, command);
 			case "bore":
 				return BuildingCommandBore(actor, command);
+			case "canwield":
+			case "canwieldprog":
+				return BuildingCommandCanWieldProg(actor, command);
+			case "whycantwield":
+			case "whycantwieldprog":
+			case "whycannotwield":
+			case "whycannotwieldprog":
+				return BuildingCommandWhyCannotWieldProg(actor, command);
 			default:
 				return base.BuildingCommand(actor, command);
 		}
+	}
+
+	private bool BuildingCommandCanWieldProg(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send($"You must either specify a prog, or the keyword #3none#0 to remove one.".SubstituteANSIColour());
+			return false;
+		}
+
+		if (command.SafeRemainingArgument.EqualTo("none"))
+		{
+			CanWieldProg = null;
+			Changed = true;
+			actor.OutputHandler.Send($"This item will no longer use a prog to determine if it can be wielded.");
+			return true;
+		}
+
+		var prog = new ProgLookupFromBuilderInput(actor, command.SafeRemainingArgument, ProgVariableTypes.Boolean,
+			[
+				[ProgVariableTypes.Character],
+				[ProgVariableTypes.Character, ProgVariableTypes.Item]
+			]
+		).LookupProg();
+		if (prog is null)
+		{
+			return false;
+		}
+
+		CanWieldProg = prog;
+		Changed = true;
+		actor.OutputHandler.Send($"This item will now use the {prog.MXPClickableFunctionName()} prog to determine if it can be wielded.");
+		return true;
+	}
+
+	private bool BuildingCommandWhyCannotWieldProg(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send($"You must either specify a prog, or the keyword #3none#0 to remove one.".SubstituteANSIColour());
+			return false;
+		}
+
+		if (command.SafeRemainingArgument.EqualTo("none"))
+		{
+			CanWieldProg = null;
+			Changed = true;
+			actor.OutputHandler.Send($"This item will no longer use a prog to generate an error message if it cannot be wielded.");
+			return true;
+		}
+
+		var prog = new ProgLookupFromBuilderInput(actor, command.SafeRemainingArgument, ProgVariableTypes.Text,
+			[
+				[ProgVariableTypes.Character],
+				[ProgVariableTypes.Character, ProgVariableTypes.Item]
+			]
+		).LookupProg();
+		if (prog is null)
+		{
+			return false;
+		}
+
+		WhyCannotWieldProg = prog;
+		Changed = true;
+		actor.OutputHandler.Send($"This item will now use the {prog.MXPClickableFunctionName()} prog to generate an error message if it cannot be wielded.");
+		return true;
 	}
 
 	private bool BuildingCommandStartUnjamEmote(ICharacter actor, StringStack command)
@@ -968,6 +1054,7 @@ public class MusketGameItemComponentProto : GameItemComponentProto
 This item is a muzzle-loading musket and uses the {4} ranged weapon type.
 It has a barrel bore of {5} and uses {6} of gunpowder per shot.
 It is also a melee weapon with type {7}.
+The CanWield prog is {27} and the WhyCannotWield prog is {28}.
 Misfire formula: {8}
 Jam formula: {9}
 Catastrophy Damage: {10}
@@ -1014,7 +1101,9 @@ Fire Emote (Catasrophy): {26}",
 			FireEmote.ColourCommand(),
 			FireEmoteMisfire.ColourCommand(),
 			FireEmoteJam.ColourCommand(),
-			FireEmoteCatastrophy.ColourCommand()
+			FireEmoteCatastrophy.ColourCommand(),
+			CanWieldProg?.MXPClickableFunctionName() ?? "None".ColourError(),
+			WhyCannotWieldProg?.MXPClickableFunctionName() ?? "None".ColourError()
 			);
 	}
 }

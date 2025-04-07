@@ -6,6 +6,7 @@ using MudSharp.Character;
 using MudSharp.Combat;
 using MudSharp.Framework;
 using MudSharp.Framework.Revision;
+using MudSharp.FutureProg;
 using MudSharp.GameItems.Components;
 using MudSharp.GameItems.Interfaces;
 using MudSharp.GameItems.Inventory;
@@ -62,6 +63,10 @@ public class BowGameItemComponentProto : GameItemComponentProto
 	}
 
 	public IWeaponType MeleeWeaponType { get; set; }
+#nullable enable
+	public IFutureProg? CanWieldProg { get; private set; }
+	public IFutureProg? WhyCannotWieldProg { get; private set; }
+#nullable restore
 
 	public double StaminaPerTick { get; set; }
 
@@ -97,20 +102,25 @@ public class BowGameItemComponentProto : GameItemComponentProto
 			StaminaPerTick = Gameworld.GetStaticDouble("DefaultBowStaminaDrain");
 			Changed = true;
 		}
+
+		CanWieldProg = Gameworld.FutureProgs.Get(long.Parse(root.Element("CanWieldProg")?.Value ?? "0"));
+		WhyCannotWieldProg = Gameworld.FutureProgs.Get(long.Parse(root.Element("WhyCannotWieldProg")?.Value ?? "0"));
 	}
 
 	public override string ComponentDescriptionOLC(ICharacter actor)
 	{
 		return string.Format(
 			actor,
-			"{0} (#{1:N0}r{2:N0}, {3})\n\nThis item is a bow of type {4} and melee type {6}. It drains {5:N2} stamina per 5 seconds whilst drawn.",
+			"{0} (#{1:N0}r{2:N0}, {3})\n\nThis item is a bow of type {4} and melee type {6}. It drains {5:N2} stamina per 5 seconds whilst drawn.\nThe CanWield prog is {7} and the WhyCannotWield prog is {8}.",
 			"Bow Game Item Component".Colour(Telnet.Cyan),
 			Id,
 			RevisionNumber,
 			Name,
 			RangedWeaponType?.Name.TitleCase().Colour(Telnet.Green) ?? "None".Colour(Telnet.Red),
 			StaminaPerTick,
-			MeleeWeaponType?.Name.TitleCase().Colour(Telnet.Green) ?? "None".Colour(Telnet.Red)
+			MeleeWeaponType?.Name.TitleCase().Colour(Telnet.Green) ?? "None".Colour(Telnet.Red),
+			CanWieldProg?.MXPClickableFunctionName() ?? "None".ColourError(),
+			WhyCannotWieldProg?.MXPClickableFunctionName() ?? "None".ColourError()
 		);
 	}
 
@@ -120,7 +130,9 @@ public class BowGameItemComponentProto : GameItemComponentProto
 			new XElement("Definition",
 				new XElement("RangedWeaponType", RangedWeaponType?.Id ?? 0),
 				new XElement("StaminaPerTick", StaminaPerTick),
-				new XElement("MeleeWeaponType", MeleeWeaponType?.Id ?? 0)
+				new XElement("MeleeWeaponType", MeleeWeaponType?.Id ?? 0),
+				new XElement("CanWieldProg", CanWieldProg?.Id ?? 0),
+				new XElement("WhyCannotWieldProg", WhyCannotWieldProg?.Id ?? 0)
 			).ToString();
 	}
 
@@ -156,7 +168,16 @@ public class BowGameItemComponentProto : GameItemComponentProto
 	#region Building Commands
 
 	public override string ShowBuildingHelp =>
-		$"You can use the following options:\n\tname <name> - sets the name of the component\n\tdesc <desc> - sets the description of the component\n\tranged <ranged type> - sets the ranged weapon type for this component. See {"show ranges".FluentTagMXP("send", "href='show ranges'")} for a list.\n\tstamina <amount> - sets the stamina drained per 5 seconds of wielding a drawn bow.";
+		$@"You can use the following options:
+
+	#3name <name>#0 - sets the name of the component
+	#3desc <desc>#0 - sets the description of the component
+	#3ranged <ranged type>#0 - sets the ranged weapon type for this component. See {"show ranges".FluentTagMXP("send", "href='show ranges'")} for a list.
+	#3stamina <amount>#0 - sets the stamina drained per 5 seconds of wielding a drawn bow
+	#3canwield <prog>#0 - sets a prog controlling if this can be wielded
+	#3canwield none#0 - removes a canwield prog
+	#3whycantwield <prog>#0 - sets a prog giving the error message if canwield fails
+	#3whycantwield none#0 - clears the whycantwield prog";
 
 	public override bool BuildingCommand(ICharacter actor, StringStack command)
 	{
@@ -175,9 +196,83 @@ public class BowGameItemComponentProto : GameItemComponentProto
 			case "melee type":
 			case "melee_type":
 				return BuildingCommand_Melee(actor, command);
+			case "canwield":
+			case "canwieldprog":
+				return BuildingCommandCanWieldProg(actor, command);
+			case "whycantwield":
+			case "whycantwieldprog":
+			case "whycannotwield":
+			case "whycannotwieldprog":
+				return BuildingCommandWhyCannotWieldProg(actor, command);
 			default:
 				return base.BuildingCommand(actor, command);
 		}
+	}
+
+	private bool BuildingCommandCanWieldProg(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send($"You must either specify a prog, or the keyword #3none#0 to remove one.".SubstituteANSIColour());
+			return false;
+		}
+
+		if (command.SafeRemainingArgument.EqualTo("none"))
+		{
+			CanWieldProg = null;
+			Changed = true;
+			actor.OutputHandler.Send($"This item will no longer use a prog to determine if it can be wielded.");
+			return true;
+		}
+
+		var prog = new ProgLookupFromBuilderInput(actor, command.SafeRemainingArgument, ProgVariableTypes.Boolean,
+			[
+				[ProgVariableTypes.Character],
+				[ProgVariableTypes.Character, ProgVariableTypes.Item]
+			]
+		).LookupProg();
+		if (prog is null)
+		{
+			return false;
+		}
+
+		CanWieldProg = prog;
+		Changed = true;
+		actor.OutputHandler.Send($"This item will now use the {prog.MXPClickableFunctionName()} prog to determine if it can be wielded.");
+		return true;
+	}
+
+	private bool BuildingCommandWhyCannotWieldProg(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send($"You must either specify a prog, or the keyword #3none#0 to remove one.".SubstituteANSIColour());
+			return false;
+		}
+
+		if (command.SafeRemainingArgument.EqualTo("none"))
+		{
+			CanWieldProg = null;
+			Changed = true;
+			actor.OutputHandler.Send($"This item will no longer use a prog to generate an error message if it cannot be wielded.");
+			return true;
+		}
+
+		var prog = new ProgLookupFromBuilderInput(actor, command.SafeRemainingArgument, ProgVariableTypes.Text,
+			[
+				[ProgVariableTypes.Character],
+				[ProgVariableTypes.Character, ProgVariableTypes.Item]
+			]
+		).LookupProg();
+		if (prog is null)
+		{
+			return false;
+		}
+
+		WhyCannotWieldProg = prog;
+		Changed = true;
+		actor.OutputHandler.Send($"This item will now use the {prog.MXPClickableFunctionName()} prog to generate an error message if it cannot be wielded.");
+		return true;
 	}
 
 	private bool BuildingCommand_Melee(ICharacter actor, StringStack command)

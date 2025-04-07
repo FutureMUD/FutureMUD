@@ -144,6 +144,18 @@ public class BoltActionGameItemComponent : GameItemComponent, IRangedWeapon, ISw
 
 	public bool AlwaysRequiresTwoHandsToWield => WeaponType.AlwaysRequiresTwoHandsToWield;
 
+	/// <inheritdoc />
+	public bool CanWield(ICharacter actor)
+	{
+		return _prototype.CanWieldProg?.ExecuteBool(false, actor, Parent) ?? true;
+	}
+
+	/// <inheritdoc />
+	public string WhyCannotWield(ICharacter actor)
+	{
+		return _prototype.WhyCannotWieldProg?.ExecuteString(actor, Parent) ?? "You can't wield that for an unknown reason.";
+	}
+
 	public ITraitDefinition Trait => WeaponType.FireTrait;
 
 	WeaponClassification IRangedWeapon.Classification => _prototype.RangedWeaponType.Classification;

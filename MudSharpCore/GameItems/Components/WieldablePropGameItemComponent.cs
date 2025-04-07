@@ -1,5 +1,6 @@
 ﻿using System.Xml.Linq;
 using MudSharp.Body;
+using MudSharp.Character;
 using MudSharp.GameItems.Interfaces;
 using MudSharp.GameItems.Prototypes;
 
@@ -66,6 +67,18 @@ public class WieldablePropGameItemComponent : GameItemComponent, IWieldable
 	}
 
 	public bool AlwaysRequiresTwoHandsToWield => false;
+
+	/// <inheritdoc />
+	public bool CanWield(ICharacter actor)
+	{
+		return _prototype.CanWieldProg?.ExecuteBool(false, actor, Parent) ?? true;
+	}
+
+	/// <inheritdoc />
+	public string WhyCannotWield(ICharacter actor)
+	{
+		return _prototype.WhyCannotWieldProg?.ExecuteString(actor, Parent) ?? "You can't wield that for an unknown reason.";
+	}
 
 	#endregion
 }

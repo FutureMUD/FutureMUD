@@ -9,6 +9,7 @@ using MudSharp.Character;
 using MudSharp.Combat;
 using MudSharp.Framework;
 using MudSharp.Framework.Revision;
+using MudSharp.FutureProg;
 using MudSharp.GameItems.Components;
 using MudSharp.GameItems.Interfaces;
 using MudSharp.GameItems.Inventory;
@@ -100,6 +101,11 @@ public class InternalMagazineGunGameItemComponentProto : GameItemComponentProto
 
 	public IWeaponType MeleeWeaponType { get; set; }
 
+#nullable enable
+	public IFutureProg? CanWieldProg { get; private set; }
+	public IFutureProg? WhyCannotWieldProg { get; private set; }
+#nullable restore
+
 	public IInventoryPlanTemplate LoadTemplate { get; set; }
 
 	public IInventoryPlanTemplate LoadTemplateIgnoreEmpty { get; set; }
@@ -138,7 +144,9 @@ public class InternalMagazineGunGameItemComponentProto : GameItemComponentProto
 		RangedWeaponType = Gameworld.RangedWeaponTypes.Get(long.Parse(root.Element("RangedWeaponType").Value));
 		EjectOnFire = root.Element("EjectOnFire")?.Value.Equals("true", StringComparison.InvariantCultureIgnoreCase) ??
 		              false;
-		InternalMagazineCapacity = int.Parse(root.Element("InternalMagazineCapacity").Value);
+		InternalMagazineCapacity = int.Parse(root.Element("InternalMagazineCapacity").Value); 
+		CanWieldProg = Gameworld.FutureProgs.Get(long.Parse(root.Element("CanWieldProg")?.Value ?? "0"));
+		WhyCannotWieldProg = Gameworld.FutureProgs.Get(long.Parse(root.Element("WhyCannotWieldProg")?.Value ?? "0"));
 		var element = root.Element("MeleeWeaponType");
 		if (element != null)
 		{
@@ -167,7 +175,9 @@ public class InternalMagazineGunGameItemComponentProto : GameItemComponentProto
 			new XElement("RangedWeaponType", RangedWeaponType?.Id ?? 0),
 			new XElement("EjectOnFire", EjectOnFire),
 			new XElement("MeleeWeaponType", MeleeWeaponType?.Id ?? 0),
-			new XElement("InternalMagazineCapacity", InternalMagazineCapacity)
+			new XElement("InternalMagazineCapacity", InternalMagazineCapacity),
+			new XElement("CanWieldProg", CanWieldProg?.Id ?? 0),
+			new XElement("WhyCannotWieldProg", WhyCannotWieldProg?.Id ?? 0)
 		).ToString();
 	}
 
@@ -222,7 +232,24 @@ public class InternalMagazineGunGameItemComponentProto : GameItemComponentProto
 	#endregion
 
 	public override string ShowBuildingHelp =>
-		$"You can use the following options:\n\tname <name> - sets the name of the component\n\tdesc <desc> - sets the description of the component\n\tranged <ranged type> - sets the ranged weapon type for this component. See {"show ranges".FluentTagMXP("send", "href='show ranges'")} for a list.\n\tcapacity <number> - sets the internal magazine capacity\n\tejectonfire - toggles whether casings are ejected on fire or on ready\n\tload <emote> - sets the emote for loading this weapon. $0 is the loader, $1 is the gun, $2 is the clip.\n\tunload <emote> - sets the emote for unloading this weapon. $0 is the loader, $1 is the gun, $2 is the clip.\n\tready <emote> - sets the emote for readying this gun. $0 is the loader, $1 is the gun.\n\tunready <emote> - sets the emote for unreadying this gun. $0 is the loader, $1 is the gun and $2 is the chambered round.\n\tunreadyempty <emote> - sets the emote for unreadying this gun when there is no chambered round. $0 is the loader, $1 is the gun.\n\tfire <emote> - sets the emote for firing the gun. $0 is the firer, $1 is the target, $2 is the gun.\n\tfireempty <emote> - sets the emote for firing the gun when it is empty. $0 is the firer, $1 is the target, $2 is the gun.";
+		$@"You can use the following options:
+
+	#3name <name>#0 - sets the name of the component
+	#3desc <desc>#0 - sets the description of the component
+	#3ranged <ranged type>#0 - sets the ranged weapon type for this component. See {"show ranges".FluentTagMXP("send", "href='show ranges'")} for a list.
+	#3capacity <number>#0 - sets the internal magazine capacity
+	#3ejectonfire#0 - toggles whether casings are ejected on fire or on ready
+	#3canwield <prog>#0 - sets a prog controlling if this can be wielded
+	#3canwield none#0 - removes a canwield prog
+	#3whycantwield <prog>#0 - sets a prog giving the error message if canwield fails
+	#3whycantwield none#0 - clears the whycantwield prog
+	#3load <emote>#0 - sets the emote for loading this weapon. $0 is the loader, $1 is the gun, $2 is the clip.
+	#3unload <emote>#0 - sets the emote for unloading this weapon. $0 is the loader, $1 is the gun, $2 is the clip.
+	#3ready <emote>#0 - sets the emote for readying this gun. $0 is the loader, $1 is the gun.
+	#3unready <emote>#0 - sets the emote for unreadying this gun. $0 is the loader, $1 is the gun and $2 is the chambered round.
+	#3unreadyempty <emote>#0 - sets the emote for unreadying this gun when there is no chambered round. $0 is the loader, $1 is the gun.
+	#3fire <emote>#0 - sets the emote for firing the gun. $0 is the firer, $1 is the target, $2 is the gun.
+	#3fireempty <emote>#0 - sets the emote for firing the gun when it is empty. $0 is the firer, $1 is the target, $2 is the gun.";
 
 	#region Building Commands
 
@@ -266,9 +293,83 @@ public class InternalMagazineGunGameItemComponentProto : GameItemComponentProto
 			case "quantity":
 			case "amount":
 				return BuildingCommandCapacity(actor, command);
+			case "canwield":
+			case "canwieldprog":
+				return BuildingCommandCanWieldProg(actor, command);
+			case "whycantwield":
+			case "whycantwieldprog":
+			case "whycannotwield":
+			case "whycannotwieldprog":
+				return BuildingCommandWhyCannotWieldProg(actor, command);
 			default:
 				return base.BuildingCommand(actor, command);
 		}
+	}
+
+	private bool BuildingCommandCanWieldProg(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send($"You must either specify a prog, or the keyword #3none#0 to remove one.".SubstituteANSIColour());
+			return false;
+		}
+
+		if (command.SafeRemainingArgument.EqualTo("none"))
+		{
+			CanWieldProg = null;
+			Changed = true;
+			actor.OutputHandler.Send($"This item will no longer use a prog to determine if it can be wielded.");
+			return true;
+		}
+
+		var prog = new ProgLookupFromBuilderInput(actor, command.SafeRemainingArgument, ProgVariableTypes.Boolean,
+			[
+				[ProgVariableTypes.Character],
+				[ProgVariableTypes.Character, ProgVariableTypes.Item]
+			]
+		).LookupProg();
+		if (prog is null)
+		{
+			return false;
+		}
+
+		CanWieldProg = prog;
+		Changed = true;
+		actor.OutputHandler.Send($"This item will now use the {prog.MXPClickableFunctionName()} prog to determine if it can be wielded.");
+		return true;
+	}
+
+	private bool BuildingCommandWhyCannotWieldProg(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send($"You must either specify a prog, or the keyword #3none#0 to remove one.".SubstituteANSIColour());
+			return false;
+		}
+
+		if (command.SafeRemainingArgument.EqualTo("none"))
+		{
+			CanWieldProg = null;
+			Changed = true;
+			actor.OutputHandler.Send($"This item will no longer use a prog to generate an error message if it cannot be wielded.");
+			return true;
+		}
+
+		var prog = new ProgLookupFromBuilderInput(actor, command.SafeRemainingArgument, ProgVariableTypes.Text,
+			[
+				[ProgVariableTypes.Character],
+				[ProgVariableTypes.Character, ProgVariableTypes.Item]
+			]
+		).LookupProg();
+		if (prog is null)
+		{
+			return false;
+		}
+
+		WhyCannotWieldProg = prog;
+		Changed = true;
+		actor.OutputHandler.Send($"This item will now use the {prog.MXPClickableFunctionName()} prog to generate an error message if it cannot be wielded.");
+		return true;
 	}
 
 	private bool BuildingCommandCapacity(ICharacter actor, StringStack command)
@@ -479,7 +580,7 @@ public class InternalMagazineGunGameItemComponentProto : GameItemComponentProto
 	public override string ComponentDescriptionOLC(ICharacter actor)
 	{
 		return string.Format(actor,
-			"{0} (#{1:N0}r{2:N0}, {3})\r\n\r\nThis is an internal-magazine bolt-action firearm of type {4} and melee type {13}.\nIt will {5}, and has an internal magazine capacity of {14}.\n\nFire: {6}\nFireEmpty: {7}\nLoad: {8}\nUnload: {9}\nReady: {10}\nUnready: {11}\nUnreadyEmpty: {12}",
+			"{0} (#{1:N0}r{2:N0}, {3})\r\n\r\nThis is an internal-magazine bolt-action firearm of type {4} and melee type {13}.\nIt will {5}, and has an internal magazine capacity of {14}.\nThe CanWield prog is {15} and the WhyCannotWield prog is {16}.\n\nFire: {6}\nFireEmpty: {7}\nLoad: {8}\nUnload: {9}\nReady: {10}\nUnready: {11}\nUnreadyEmpty: {12}",
 			"Internal Magazine Gun Game Item Component".Colour(Telnet.Cyan),
 			Id.ToString("N0", actor),
 			RevisionNumber.ToString("N0", actor),
@@ -494,7 +595,9 @@ public class InternalMagazineGunGameItemComponentProto : GameItemComponentProto
 			UnreadyEmote.Colour(Telnet.Cyan),
 			UnreadyEmoteNoChamberedRound.Colour(Telnet.Cyan),
 			MeleeWeaponType?.Name.TitleCase().Colour(Telnet.Green) ?? "None".Colour(Telnet.Red),
-			InternalMagazineCapacity.ToString("N0", actor).ColourValue()
+			InternalMagazineCapacity.ToString("N0", actor).ColourValue(),
+			CanWieldProg?.MXPClickableFunctionName() ?? "None".ColourError(),
+			WhyCannotWieldProg?.MXPClickableFunctionName() ?? "None".ColourError()
 		);
 	}
 

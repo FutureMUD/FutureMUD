@@ -142,6 +142,18 @@ public class BowGameItemComponent : GameItemComponent, IRangedWeaponWithUnreadyE
 
 	public bool AlwaysRequiresTwoHandsToWield => false;
 
+	/// <inheritdoc />
+	public bool CanWield(ICharacter actor)
+	{
+		return _prototype.CanWieldProg?.ExecuteBool(false, actor, Parent) ?? true;
+	}
+
+	/// <inheritdoc />
+	public string WhyCannotWield(ICharacter actor)
+	{
+		return _prototype.WhyCannotWieldProg?.ExecuteString(actor, Parent) ?? "You can't wield that for an unknown reason.";
+	}
+
 	public bool ReadyToFire => IsLoaded && IsReadied;
 
 	public int LoadStage => 0;

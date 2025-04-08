@@ -532,7 +532,7 @@ public partial class Body
 		OnInventoryChange?.Invoke(InventoryState.Held, InventoryState.Wielded, item);
 		item.InvokeInventoryChange(InventoryState.Held, InventoryState.Wielded);
 		CheckConsequences();
-		HandleEvent(EventType.ItemWielded, item, Actor);
+		item.HandleEvent(EventType.ItemWielded, item, Actor);
 		foreach (var witness in Location.EventHandlers)
 		{
 			HandleEvent(EventType.ItemWieldedWitness, item, Actor, witness);
@@ -628,7 +628,7 @@ public partial class Body
 		OnInventoryChange?.Invoke(InventoryState.Held, InventoryState.Wielded, item);
 		item.InvokeInventoryChange(InventoryState.Held, InventoryState.Wielded);
 		CheckConsequences();
-		HandleEvent(EventType.ItemWielded, item, Actor);
+		item.HandleEvent(EventType.ItemWielded, item, Actor);
 		foreach (var witness in Location.EventHandlers)
 		{
 			HandleEvent(EventType.ItemWieldedWitness, item, Actor, witness);
@@ -2812,7 +2812,7 @@ public partial class Body
 			item);
 		item.InvokeInventoryChange(wasWielded ? InventoryState.Wielded : InventoryState.Held, InventoryState.Worn);
 		CheckConsequences();
-		HandleEvent(EventType.ItemWorn, item, Actor);
+		item.HandleEvent(EventType.ItemWorn, item, Actor);
 		foreach (var witness in Location.EventHandlers)
 		{
 			HandleEvent(EventType.ItemWornWitness, item, Actor, witness);

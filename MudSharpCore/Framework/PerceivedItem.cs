@@ -517,7 +517,7 @@ public abstract class PerceivedItem : LateKeywordedInitialisingItem, IPerceivabl
 	}
 
 
-	public void SetTarget(IPerceivable target)
+	public virtual void SetTarget(IPerceivable target)
 	{
 		if (PositionTarget != null)
 		{

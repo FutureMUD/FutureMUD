@@ -109,6 +109,11 @@ public partial class Character
 		}
 	}
 
+	public override void SetTarget(IPerceivable target)
+	{
+		Body.SetTarget(target);
+	}
+
 	public void ResetPositionTarget(IEmote playerEmote, IEmote playerPmote)
 	{
 		if (PositionTarget == null)

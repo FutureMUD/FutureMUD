@@ -249,7 +249,7 @@ public class PermanentShop : Shop, IPermanentShop
 		{
 			foreach (var item in purchasedItems)
 			{
-				var newItem = item.Item.DeepCopy(true);
+				var newItem = item.Item.DeepCopy(true, false);
 				newItem.Skin = merchandise.Skin;
 				newItems.Add(newItem);
 				newItemsOriginalContainers[newItem] = item.Container;

@@ -207,7 +207,7 @@ public class PropertyLease : SaveableItem, IPropertyLease
 		AutoRenew = false;
 		foreach (var key in Property.PropertyKeys.Where(x => !x.IsReturned).ToList())
 		{
-			key.GameItem = key.GameItem.DeepCopy(true);
+			key.GameItem = key.GameItem.DeepCopy(true, false);
 			_bondClaimed += key.CostToReplace;
 			key.IsReturned = true;
 		}

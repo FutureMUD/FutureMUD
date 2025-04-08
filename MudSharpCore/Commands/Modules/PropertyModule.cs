@@ -677,7 +677,7 @@ The following commands are specific to those who own a property (or who are mana
 
 		foreach (var key in keys)
 		{
-			key.GameItem = key.GameItem.DeepCopy(true);
+			key.GameItem = key.GameItem.DeepCopy(true, false);
 			key.IsReturned = true;
 		}
 

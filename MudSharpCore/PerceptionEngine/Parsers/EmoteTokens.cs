@@ -43,7 +43,7 @@ public partial class Emote
 	///     !0 - man / you
 	///     !0's man's / your
 	/// </summary>
-	private static readonly Regex InternalTokenRegex = new(@"(?<=([!.?:] |^){0,1})(?<!!!)(?<!\$)(?<!&)(?<!#)(?<!%)([!$&#%])(?!\1)(\d+)('s)?",
+	private static readonly Regex InternalTokenRegex = new(@"(?<!!!)(?<!\$)(?<!&)(?<!#)(?<!%)(?<modifier>[!$&#%])(?!\1)(?<index>\d+)(?<possession>'s)?",
 		RegexOptions.Multiline);
 
 	/// <summary>
@@ -327,7 +327,7 @@ public partial class Emote
 					return m.Groups[0].Value;
 				}
 
-				var index = Convert.ToInt32(m.Groups[3].Value);
+				var index = Convert.ToInt32(m.Groups["index"].Value);
 
 				if (perceivables.Count <= index)
 				{
@@ -338,18 +338,18 @@ public partial class Emote
 				}
 
 				EmoteToken token = null;
-				if (m.Groups[4].Length > 0)
+				if (m.Groups["possessive"].Length > 0)
 				{
 					if (perceivables[index]?.Sentient == true)
 					{
 						token = new PossessiveCharacterToken(perceivables[index], false,
-							m.Groups[2].Value == "&",
-							stripAAn: m.Groups[2].Value == "!");
+							m.Groups["modifier"].Value == "&",
+							stripAAn: m.Groups["modifier"].Value == "!");
 					}
 					else
 					{
-						token = new PossessiveObjectToken(perceivables[index], false, m.Groups[2].Value == "&",
-							stripAAn: m.Groups[2].Value == "!");
+						token = new PossessiveObjectToken(perceivables[index], false, m.Groups["modifier"].Value == "&",
+							stripAAn: m.Groups["modifier"].Value == "!");
 					}
 				}
 				else
@@ -357,16 +357,16 @@ public partial class Emote
 					if (perceivables[index]?.Sentient == true)
 					{
 						token = new ObjectiveCharacterToken(perceivables[index], false,
-							m.Groups[2].Value != "$" && m.Groups[2].Value != "!",
-							m.Groups[2].Value == "#", m.Groups[2].Value == "%",
-							stripAAn: m.Groups[2].Value == "!");
+							m.Groups["modifier"].Value != "$" && m.Groups["modifier"].Value != "!",
+							m.Groups["modifier"].Value == "#", m.Groups["modifier"].Value == "%",
+							stripAAn: m.Groups["modifier"].Value == "!");
 					}
 					else
 					{
 						token = new ObjectiveObjectToken(perceivables[index], false,
-							m.Groups[2].Value != "$" && m.Groups[2].Value != "!",
-							m.Groups[2].Value == "#", m.Groups[2].Value == "%",
-							stripAAn: m.Groups[2].Value == "!");
+							m.Groups["modifier"].Value != "$" && m.Groups["modifier"].Value != "!",
+							m.Groups["modifier"].Value == "#", m.Groups["modifier"].Value == "%",
+							stripAAn: m.Groups["modifier"].Value == "!");
 					}
 				}
 

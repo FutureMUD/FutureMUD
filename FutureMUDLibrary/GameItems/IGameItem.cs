@@ -278,7 +278,7 @@ namespace MudSharp.GameItems {
 		/// Creates a new item that is a copy of this item, including similar copies of all contained items
 		/// </summary>
 		/// <returns></returns>
-		IGameItem DeepCopy(bool addToGameworld);
+		IGameItem DeepCopy(bool addToGameworld, bool preserveMorphTime);
 
 		#endregion
 
@@ -286,6 +286,7 @@ namespace MudSharp.GameItems {
 		TimeSpan? CachedMorphTime { get; }
 		void StartMorphTimer();
 		void EndMorphTimer();
+		void ResetMorphTimer();
 
 		IGameItemSkin Skin { get; set; }
 	}

@@ -2092,6 +2092,9 @@ The following options are available:
 
 		switch (ss.PopForSwitch())
 		{
+			case "fixmorph":
+				DebugFixMorph(actor);
+				return;
 			case "dead":
 				DebugDead(actor);
 				return;
@@ -2146,6 +2149,21 @@ The following options are available:
 	}
 
 	#region Debug Sub-Routines
+
+	private static void DebugFixMorph(ICharacter actor)
+	{
+		var count = 0;
+		foreach (var item in actor.Gameworld.Items)
+		{
+			if (item.AffectedBy<ItemOnDisplayInShop>())
+			{
+				item.ResetMorphTimer();
+				count++;
+			}
+		}
+
+		actor.OutputHandler.Send($"Reset the morph timer on {count.ToStringN0Colour(actor)} stocked items.");
+	}
 	private static void DebugScheduler(ICharacter actor)
 	{
 		var sb = new StringBuilder();

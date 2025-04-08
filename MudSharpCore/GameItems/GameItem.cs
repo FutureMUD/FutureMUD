@@ -854,7 +854,7 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable
 		_overridingWoundBehaviourComponent = _components.OfType<IOverrideItemWoundBehaviour>().FirstOrDefault();
 	}
 
-	public GameItem(GameItem rhs, bool temporary = false)
+	public GameItem(GameItem rhs, bool temporary = false, bool preserveMorphTime = false)
 	{
 		if (temporary)
 		{
@@ -892,7 +892,21 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable
 
 		if (Prototype.Morphs)
 		{
-			CachedMorphTime = rhs.MorphTime - DateTime.UtcNow;
+			if (preserveMorphTime)
+			{
+				if (rhs.CachedMorphTime is not null)
+				{
+					CachedMorphTime = rhs.CachedMorphTime;
+				}
+				else
+				{
+					CachedMorphTime = rhs.MorphTime - DateTime.UtcNow;
+				}
+			}
+			else
+			{
+				CachedMorphTime = Prototype.MorphTimeSpan;
+			}
 		}
 
 		if (!temporary)
@@ -1777,15 +1791,15 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable
 	/// Creates a new item that is a copy of this item, including similar copies of all contained items
 	/// </summary>
 	/// <returns></returns>
-	public IGameItem DeepCopy(bool addToGameworld)
+	public IGameItem DeepCopy(bool addToGameworld, bool preserveMorphTime)
 	{
-		var newItem = new GameItem(this, !addToGameworld);
+		var newItem = new GameItem(this, !addToGameworld, preserveMorphTime);
 		foreach (var component in Components.OfType<IContainer>())
 		{
 			var newComponent = (IContainer)newItem.Components.First(x => x.Prototype == component.Prototype);
 			foreach (var item in component.Contents)
 			{
-				var newContent = item.DeepCopy(addToGameworld);
+				var newContent = item.DeepCopy(addToGameworld, preserveMorphTime);
 				newComponent.Put(null, newContent, false);
 			}
 		}
@@ -2515,6 +2529,21 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable
 
 	public TimeSpan? CachedMorphTime { get; set; }
 	public DateTime MorphTime { get; set; }
+
+	public void ResetMorphTimer()
+	{
+		var morphing = MorphTime != DateTime.MinValue;
+		EndMorphTimer();
+		if (CachedMorphTime is not null)
+		{
+			CachedMorphTime = Prototype.MorphTimeSpan;
+		}
+
+		if (morphing)
+		{
+			StartMorphTimer();
+		}
+	}
 
 	public void StartMorphTimer()
 	{

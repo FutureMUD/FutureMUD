@@ -82,7 +82,7 @@ public class TransientShop : Shop, ITransientShop
 		{
 			foreach (var item in purchasedItems)
 			{
-				var newItem = item.Item.DeepCopy(true);
+				var newItem = item.Item.DeepCopy(true, false);
 				newItem.Skin = merchandise.Skin;
 				newItems.Add(newItem);
 				quantityToRestock -= newItem.Quantity;

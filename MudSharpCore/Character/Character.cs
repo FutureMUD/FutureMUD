@@ -1081,12 +1081,20 @@ public partial class Character : PerceiverItem, ICharacter
 		var sb = new StringBuilder();
 		sb.AppendLine(
 			$"{(IsPlayerCharacter ? IsGuest ? "Guest" : "Player" : "NPC")} Character #{Id.ToString("N0", voyeur)}".GetLineWithTitle(voyeur, Telnet.Green, Telnet.BoldWhite));
-		sb.AppendLine($"Short Description: {HowSeen(voyeur, flags: PerceiveIgnoreFlags.IgnoreCanSee | PerceiveIgnoreFlags.IgnoreLoadThings | PerceiveIgnoreFlags.IgnoreObscured | PerceiveIgnoreFlags.IgnoreSelf | PerceiveIgnoreFlags.IgnoreDisguises)}");
+		sb.AppendLine();
+		sb.AppendLine($"Account: {(Account is DummyAccount ? "NPC".ColourError() : Account.Name.ColourName())}");
+		if (this is INPC npc)
+		{
+			sb.AppendLine($"NPC Template: {npc.Template.EditHeader().ColourValue()}");
+		}
+		sb.AppendLine($"Status: {Status.Describe().ColourValue()}");
+		sb.AppendLine();
 		sb.AppendLine($"Name: {PersonalName.GetName(NameStyle.FullWithNickname).ColourName()}");
 		sb.AppendLine($"Aliases: {Aliases.Select(x => x.GetName(NameStyle.FullWithNickname).ColourName()).ListToString()}");
 		sb.AppendLine($"Current Name: {CurrentName.GetName(NameStyle.FullWithNickname).ColourName()}");
-		sb.AppendLine($"Account: {(Account is DummyAccount ? "NPC".ColourError() : Account.Name.ColourName())}");
-		sb.AppendLine($"Status: {Status.Describe().ColourValue()}");
+		sb.AppendLine($"Short Description: {HowSeen(voyeur, flags: PerceiveIgnoreFlags.IgnoreCanSee | PerceiveIgnoreFlags.IgnoreLoadThings | PerceiveIgnoreFlags.IgnoreObscured | PerceiveIgnoreFlags.IgnoreSelf | PerceiveIgnoreFlags.IgnoreDisguises)}");
+		sb.AppendLine($"SDesc Pattern: {_shortDescriptionPattern?.Id.ToStringN0Colour(voyeur) ?? "None".ColourError()}");
+		sb.AppendLine($"FDesc Pattern: {_fullDescriptionPattern?.Id.ToStringN0Colour(voyeur) ?? "None".ColourError()}");
 		sb.AppendLine($"Race: {Race.Name.ColourValue()}");
 		sb.AppendLine($"Culture: {Culture.Name.ColourValue()}");
 		sb.AppendLine($"Ethnicity: {Ethnicity.Name.ColourValue()}");
@@ -1113,7 +1121,7 @@ public partial class Character : PerceiverItem, ICharacter
 		sb.AppendLine($"Skills:");
 		sb.AppendLine();
 		sb.Append(TraitsOfType(TraitType.Skill).Select(x => $"{x.Definition.Name.ColourName()} [{x.Value.ToString("N2", voyeur).ColourValue()} | {x.MaxValue.ToString("N2", voyeur).ColourValue()}]")
-											   .ArrangeStringsOntoLines(4,
+											   .ArrangeStringsOntoLines((uint)voyeur.LineFormatLength / 40u,
 												   (uint)voyeur.LineFormatLength)
 		);
 		return sb.ToString();

@@ -1433,7 +1433,7 @@ For information on the syntax to use in emotes (such as those included in bracke
 
 	void IFuturemudLoader.LoadBoards()
 	{
-		ConsoleUtilities.WriteLine("\nLoading #5boards#0...");
+		ConsoleUtilities.WriteLine("\nLoading #5Boards#0...");
 #if DEBUG
 		var sw = new Stopwatch();
 		sw.Start();

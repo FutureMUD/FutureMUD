@@ -514,18 +514,17 @@ public class VariableNPCTemplate : NPCTemplateBase
 			{
 				string.Format("{1}: {0}",
 					FMDB.Context.Accounts.Find(BuilderAccountID).Name.Proper().Colour(Telnet.Green),
-					"Created By".Colour(Telnet.Cyan)),
+					"Created By"),
 				string.Format("{1}: {0}",
 					ReviewerAccountID.HasValue
 						? FMDB.Context.Accounts.Find(ReviewerAccountID.Value).Name.Proper().Colour(Telnet.Green)
 						: "N/A",
-					"Reviewed By".Colour(Telnet.Cyan)),
+					"Reviewed By"),
 				string.Format("{1}: {0}", Status.Describe().Colour(Telnet.Green),
-					"Status".Colour(Telnet.Cyan))
+					"Status")
 			}.ArrangeStringsOntoLines(3, Math.Min(120u, (uint)actor.Account.LineFormatLength)));
 		}
 
-		sb.AppendLine();
 		sb.Append(new[]
 		{
 			$"Race: {(_race != null ? _race.Name.Colour(Telnet.Green) : "None".Colour(Telnet.Red))}",
@@ -543,11 +542,8 @@ public class VariableNPCTemplate : NPCTemplateBase
 			}.ArrangeStringsOntoLines(3, Math.Min(120u, (uint)actor.Account.LineFormatLength)));
 		}
 
-		sb.Append(new[]
-		{
-			$"Sdesc Pattern: {(_sdescPattern != null ? $"{_sdescPattern.Pattern.ColourCharacter()} (#{_sdescPattern.Id.ToStringN0Colour(actor)})" : "Random".Colour(Telnet.Red))}",
-			$"Fdesc Pattern: {(_fdescPattern != null ? _fdescPattern.Id.ToStringN0Colour(actor) : "Random".Colour(Telnet.Red))}"
-		}.ArrangeStringsOntoLines(2, Math.Min(120u, (uint)actor.Account.LineFormatLength)));
+		sb.AppendLine($"Sdesc Pattern: {(_sdescPattern != null ? $"{_sdescPattern.Pattern.ColourCharacter()} (#{_sdescPattern.Id.ToStringN0Colour(actor)})" : "Random".Colour(Telnet.Red))}");
+		sb.AppendLine($"Fdesc Pattern: {(_fdescPattern != null ? _fdescPattern.Id.ToStringN0Colour(actor) : "Random".Colour(Telnet.Red))}");
 
 		sb.AppendLine();
 		sb.AppendLine("Gender Chances:");
@@ -573,18 +569,11 @@ public class VariableNPCTemplate : NPCTemplateBase
 				$"\t{Gendering.Get(model.Key).Name.Proper().ColourName()}: {model.Value.Name.Proper().ColourValue()} (#{model.Value.Id.ToString("N0", actor)})");
 		}
 
-		sb.Append(new[]
-		{
-			$"Attribute Total: {(_attributeTotal.HasValue ? _attributeTotal.Value.ToString(actor).Colour(Telnet.Green) : "As Race".Colour(Telnet.Red))}",
-			$"Priority Attributes: {_priorityAttributeDefinitions.Select(x => x.Name.Proper().Colour(Telnet.Green)).ListToString()}"
-		}.ArrangeStringsOntoLines(2, Math.Min(120u, (uint)actor.Account.LineFormatLength)));
-
 		sb.AppendLine();
-		sb.Append(new[]
-		{
-			$"Minimum Age: {_minimumAge.ToString(actor).Colour(Telnet.Green)}",
-			$"Maximum Age: {_maximumAge.ToString(actor).Colour(Telnet.Green)}"
-		}.ArrangeStringsOntoLines(2, Math.Min(120u, (uint)actor.Account.LineFormatLength)));
+		sb.AppendLine($"Attribute Total: {(_attributeTotal.HasValue ? _attributeTotal.Value.ToString(actor).Colour(Telnet.Green) : "As Race".Colour(Telnet.Red))}");
+		sb.AppendLine($"Priority Attributes: {_priorityAttributeDefinitions.Select(x => x.Name.Proper().Colour(Telnet.Green)).ListToString()}");
+		sb.AppendLine($"Minimum Age: {_minimumAge.ToString(actor).Colour(Telnet.Green)}");
+		sb.AppendLine($"Maximum Age: {_maximumAge.ToString(actor).Colour(Telnet.Green)}");
 		sb.AppendLine();
 		sb.AppendLine("Skills:");
 		sb.AppendLine();
@@ -594,10 +583,10 @@ public class VariableNPCTemplate : NPCTemplateBase
 			{
 				skill.Trait.Name.TitleCase().Colour(Telnet.Cyan),
 				skill.Chance.ToString("P1", actor).Colour(Telnet.Green),
-				skill.SkillMean.ToString("N1", actor).Colour(Telnet.Green),
+				$"{skill.SkillMean.ToString("N1", actor).Colour(Telnet.Green)} {skill.Trait.Decorator.Decorate(skill.SkillMean).ColourValue()}",
 				skill.SkillStddev.ToString("N1", actor).Colour(Telnet.Green),
-				(skill.SkillMean - 3 * skill.SkillStddev).ToString("N1", actor).Colour(Telnet.Green),
-				(skill.SkillMean + 3 * skill.SkillStddev).ToString("N1", actor).Colour(Telnet.Green)
+				$"{(skill.SkillMean - 3 * skill.SkillStddev).ToString("N1", actor).Colour(Telnet.Green)} {skill.Trait.Decorator.Decorate((skill.SkillMean - 3 * skill.SkillStddev)).ColourValue()}",
+				$"{(skill.SkillMean + 3 * skill.SkillStddev).ToString("N1", actor).Colour(Telnet.Green)} {skill.Trait.Decorator.Decorate((skill.SkillMean + 3 * skill.SkillStddev)).ColourValue()}"
 			},
 			new List<string>
 			{

@@ -16,6 +16,7 @@ using MudSharp.Character.Heritage;
 using MudSharp.Character.Name;
 using MudSharp.CharacterCreation;
 using MudSharp.CharacterCreation.Roles;
+using MudSharp.Communication.Language;
 using MudSharp.Construction;
 using MudSharp.Database;
 using MudSharp.Form.Characteristics;
@@ -25,10 +26,6 @@ using MudSharp.Framework.Revision;
 using MudSharp.PerceptionEngine;
 using MudSharp.RPG.Knowledge;
 using MudSharp.RPG.Merits;
-using Attribute = MudSharp.Body.Traits.Subtypes.Attribute;
-using CharacteristicValue = MudSharp.Form.Characteristics.CharacteristicValue;
-using Race = MudSharp.Character.Heritage.Race;
-using RandomNameProfile = MudSharp.Character.Name.RandomNameProfile;
 
 namespace MudSharp.NPC.Templates;
 
@@ -58,6 +55,7 @@ public class VariableNPCTemplate : NPCTemplateBase
 	private int _numberFlaws = 0;
 	private int _numberQuirks = 0;
 	private readonly List<ICharacterMerit> _validMerits = new();
+	private readonly List<IAccent> _validAccents = new();
 
 	public VariableNPCTemplate(NpcTemplate template, IFuturemud gameworld) : base(template, gameworld)
 	{
@@ -226,6 +224,15 @@ public class VariableNPCTemplate : NPCTemplateBase
 				_knowledgeChances.Add((knowledge, double.Parse(sub.Attribute("chance").Value)));
 			}
 		}
+
+		element = root.Element("Accents");
+		if (element is not null)
+		{
+			foreach (var item in element.Elements("Accent"))
+			{
+				_validAccents.AddNotNull(Gameworld.Accents.Get(long.Parse(item.Value)));
+			}
+		}
 	}
 
 	private string SaveDefinition()
@@ -291,6 +298,10 @@ public class VariableNPCTemplate : NPCTemplateBase
 					new XAttribute("numquirks", _numberQuirks),
 					from item in _validMerits
 					select new XElement("Merit", item.Id)
+				),
+				new XElement("Accents",
+					from item in _validAccents
+					select new XElement("Accent", item.Id)
 				)
 				).ToString();
 	}
@@ -376,10 +387,20 @@ public class VariableNPCTemplate : NPCTemplateBase
 			                                  RandomUtilities.RandomNormal(y.SkillMean, y.SkillStddev))).ToList();
 		var randomName = _nameProfiles[rolledGender].GetRandomPersonalName();
 		var birthday = _culture.PrimaryCalendar.GetRandomBirthday(rolledAge);
-		var accents =
-			Gameworld.Languages.Where(x => rolledSkills.Any(y => y.Item1 == x.LinkedTrait))
-			         .SelectMany(x => x.Accents.PickUpToRandom(1))
-			         .ToList();
+		var languages = Gameworld.Languages.Where(x => rolledSkills.Any(y => y.Item1 == x.LinkedTrait)).ToList();
+		var accents = new List<IAccent>(languages.Count);
+		foreach (var language in languages)
+		{
+			var languageAccents = _validAccents.Where(x => x.Language == language).ToList();
+			if (languageAccents.Count == 0)
+			{
+				accents.Add(language.Accents.GetRandomElement());
+				continue;
+			}
+
+			accents.Add(languageAccents.GetRandomElement());
+		}
+
 		var ethnicity = _ethnicity ??
 		                Gameworld.Ethnicities.Where(x => _race.SameRace(x.ParentRace)).GetRandomElement();
 		var knowledges = _knowledgeChances.Where(x => x.Chance >= RandomUtilities.DoubleRandom(0.0, 1.0)).Select(x => x.Knowledge).ToList();
@@ -485,8 +506,7 @@ public class VariableNPCTemplate : NPCTemplateBase
 	{
 		var sb = new StringBuilder();
 		sb.AppendLine(
-			$"Variable NPC #{Id.ToString("N0", actor)}r{RevisionNumber.ToString("N0", actor)} - {Name}".Colour(
-				Telnet.Cyan));
+			$"Variable NPC #{Id.ToString("N0", actor)}r{RevisionNumber.ToString("N0", actor)} - {Name}".GetLineWithTitleInner(actor, Telnet.Cyan, Telnet.BoldWhite));
 		sb.AppendLine();
 		using (new FMDB())
 		{
@@ -502,7 +522,7 @@ public class VariableNPCTemplate : NPCTemplateBase
 					"Reviewed By".Colour(Telnet.Cyan)),
 				string.Format("{1}: {0}", Status.Describe().Colour(Telnet.Green),
 					"Status".Colour(Telnet.Cyan))
-			}.ArrangeStringsOntoLines(3, (uint)actor.Account.LineFormatLength));
+			}.ArrangeStringsOntoLines(3, Math.Min(120u, (uint)actor.Account.LineFormatLength)));
 		}
 
 		sb.AppendLine();
@@ -511,7 +531,7 @@ public class VariableNPCTemplate : NPCTemplateBase
 			$"Race: {(_race != null ? _race.Name.Colour(Telnet.Green) : "None".Colour(Telnet.Red))}",
 			$"Ethnicity: {(_ethnicity != null ? _ethnicity.Name.Colour(Telnet.Green) : "Random".Colour(Telnet.Yellow))}",
 			$"Culture: {(_culture != null ? _culture.Name.Colour(Telnet.Green) : "None".Colour(Telnet.Red))}"
-		}.ArrangeStringsOntoLines(3, (uint)actor.Account.LineFormatLength));
+		}.ArrangeStringsOntoLines(3, Math.Min(120u,(uint)actor.Account.LineFormatLength)));
 
 		if (_roles.Any(x => x.RoleType == ChargenRoleType.Class))
 		{
@@ -520,15 +540,16 @@ public class VariableNPCTemplate : NPCTemplateBase
 				$"Class: {_roles.First(x => x.RoleType == ChargenRoleType.Class).Name.Colour(Telnet.Green)}",
 				$"Subclass: {_roles.FirstOrDefault(x => x.RoleType == ChargenRoleType.Subclass)?.Name.Colour(Telnet.Green) ?? "None".Colour(Telnet.Red)}",
 				$"Health Strategy: {HealthStrategy?.Name.ColourName() ?? "Default".ColourCommand()}"
-			}.ArrangeStringsOntoLines(3));
+			}.ArrangeStringsOntoLines(3, Math.Min(120u, (uint)actor.Account.LineFormatLength)));
 		}
 
 		sb.Append(new[]
 		{
-			$"Sdesc Pattern: {(_sdescPattern != null ? _sdescPattern.Id.ToString(actor).Colour(Telnet.Green) : "Random".Colour(Telnet.Red))}",
-			$"Fdesc Pattern: {(_fdescPattern != null ? _fdescPattern.Id.ToString(actor).Colour(Telnet.Green) : "Random".Colour(Telnet.Red))}"
-		}.ArrangeStringsOntoLines(2, (uint)actor.Account.LineFormatLength));
+			$"Sdesc Pattern: {(_sdescPattern != null ? $"{_sdescPattern.Pattern.ColourCharacter()} (#{_sdescPattern.Id.ToStringN0Colour(actor)})" : "Random".Colour(Telnet.Red))}",
+			$"Fdesc Pattern: {(_fdescPattern != null ? _fdescPattern.Id.ToStringN0Colour(actor) : "Random".Colour(Telnet.Red))}"
+		}.ArrangeStringsOntoLines(2, Math.Min(120u, (uint)actor.Account.LineFormatLength)));
 
+		sb.AppendLine();
 		sb.AppendLine("Gender Chances:");
 		foreach (var chance in _genderChances)
 		{
@@ -536,6 +557,7 @@ public class VariableNPCTemplate : NPCTemplateBase
 				$"\t{Gendering.Get(chance.Value).Name.Proper().ColourName()}: {((double)chance.Weight / _genderChances.Sum(y => y.Weight)).ToString("P1", actor).Colour(Telnet.Green)}");
 		}
 
+		sb.AppendLine();
 		sb.AppendLine("Name Profiles:");
 		foreach (var profile in _nameProfiles)
 		{
@@ -543,6 +565,7 @@ public class VariableNPCTemplate : NPCTemplateBase
 				$"\t{Gendering.Get(profile.Key).Name.Proper().ColourName()}: {profile.Value.Name.Colour(Telnet.Green)} (#{profile.Value.Id.ToString("N0", actor)})");
 		}
 
+		sb.AppendLine();
 		sb.AppendLine("Height/Weight Models:");
 		foreach (var model in _heightWeightModels)
 		{
@@ -554,26 +577,62 @@ public class VariableNPCTemplate : NPCTemplateBase
 		{
 			$"Attribute Total: {(_attributeTotal.HasValue ? _attributeTotal.Value.ToString(actor).Colour(Telnet.Green) : "As Race".Colour(Telnet.Red))}",
 			$"Priority Attributes: {_priorityAttributeDefinitions.Select(x => x.Name.Proper().Colour(Telnet.Green)).ListToString()}"
-		}.ArrangeStringsOntoLines(2, (uint)actor.Account.LineFormatLength));
+		}.ArrangeStringsOntoLines(2, Math.Min(120u, (uint)actor.Account.LineFormatLength)));
 
+		sb.AppendLine();
 		sb.Append(new[]
 		{
 			$"Minimum Age: {_minimumAge.ToString(actor).Colour(Telnet.Green)}",
 			$"Maximum Age: {_maximumAge.ToString(actor).Colour(Telnet.Green)}"
-		}.ArrangeStringsOntoLines(2, (uint)actor.Account.LineFormatLength));
+		}.ArrangeStringsOntoLines(2, Math.Min(120u, (uint)actor.Account.LineFormatLength)));
+		sb.AppendLine();
 		sb.AppendLine("Skills:");
-		foreach (var skill in _skillTemplates)
-		{
-			sb.AppendLine(string.Format(actor,
-				"\t{0} - {1} Chance, Mean {2}, Standard Deviation {3} (99.7% of values between {4} and {5})",
-				skill.Trait.Name.Proper().Colour(Telnet.Cyan),
+		sb.AppendLine();
+		sb.AppendLine(StringUtilities.GetTextTable(
+			from skill in _skillTemplates
+			select new List<string>
+			{
+				skill.Trait.Name.TitleCase().Colour(Telnet.Cyan),
 				skill.Chance.ToString("P1", actor).Colour(Telnet.Green),
 				skill.SkillMean.ToString("N1", actor).Colour(Telnet.Green),
 				skill.SkillStddev.ToString("N1", actor).Colour(Telnet.Green),
 				(skill.SkillMean - 3 * skill.SkillStddev).ToString("N1", actor).Colour(Telnet.Green),
 				(skill.SkillMean + 3 * skill.SkillStddev).ToString("N1", actor).Colour(Telnet.Green)
-			));
+			},
+			new List<string>
+			{
+				"Skill",
+				"Chance",
+				"Mean",
+				"StdDev",
+				"99.7% Min",
+				"99.7% Max",
+			},
+			actor,
+			Telnet.Yellow
+		));
+
+		sb.AppendLine();
+		sb.AppendLine("Permitted Accents:");
+		sb.AppendLine();
+		foreach (var skill in _skillTemplates)
+		{
+			var language = Gameworld.Languages.FirstOrDefault(x => skill.Trait == x.LinkedTrait);
+			if (language is null)
+			{
+				continue;
+			}
+
+			var accents = _validAccents.Where(x => x.Language == language).ToList();
+			if (accents.Count == 0)
+			{
+				sb.AppendLine($"\t{language.Name.TitleCase().ColourName()} ({skill.Chance.ToStringP2Colour(actor)}) - {"Any".ColourValue()}");
+				continue;
+			}
+
+			sb.AppendLine($"\t{language.Name.TitleCase().ColourName()} ({skill.Chance.ToStringP2Colour(actor)}) - {accents.Select(x => x.Name.TitleCase()).ListToColouredString()}");
 		}
+		sb.AppendLine();
 
 		sb.AppendLine();
 		if (_roles.Any(x => x.RoleType != ChargenRoleType.Class && x.RoleType != ChargenRoleType.Subclass))
@@ -690,6 +749,170 @@ public class VariableNPCTemplate : NPCTemplateBase
 	}
 
 	#region Building Commands
+	public override string HelpText => @"You can use the following options with this command:
+
+	#3name <name>#0 - renames the template
+	#3race <race>#0 - sets the race of the NPC
+	#3culture <culture>#0 - sets the culture of the NPC
+	#3ethnicity <ethnicity>#0 - sets the ethnicity of the NPC
+	#3gender <gender> <weight>|0#0 - sets or removes the chance of selecting a particular gender
+	#3randomname <which> [<gender>]#0 - sets a random name profile for this NPC
+	#3hwmodel <gender> <which>#0 - sets a height/weight model for a gender for this NPC
+	#3age <min> <max>#0 - sets the minimum and maximum age
+	#3agerange <minCategory> <maxCategory>#0 - sets the minimum and maximum age relative to the race's age categories
+	#3attrtotal <#>#0 - sets the total number of points to distribute amongst attributes
+	#3attribute <attributes separated by spaces>#0 - sets priority attributes, in order, after roll
+	#3sdesc <#>#0 - sets the NPC to use a particular sdesc pattern
+	#3sdesc clear#0 - sets the NPC to use a random valid sdesc pattern
+	#3fdesc <#>#0 - sets the NPC to use a particular fdesc pattern
+	#3fdesc clear#0 - sets the NPC ot use a random valid fdesc pattern
+	#3skill <which> <%> <avg> <stddev>#0 - sets the chance/mean/stddev for a particular skill
+	#3skill <which> 0%#0 - removes a skill from the list
+	#3class <class>#0 - sets the class of this NPC (if using classes)
+	#3subclass <subclass>#0 - sets the subclass of  this NPC (if using subclasses)
+	#3role <which>#0 - toggles this NPC having a particular role
+	#3knowledge <which> <% chance>#0 - sets the percentage chance of having a knowledge
+	#3merit <which>#0 - toggles a merit being valid
+	#3merit all#0 - adds all valid merits
+	#3merit none#0 - removes all valid merits
+	#3numquirks <##>#0 - sets the number of quirks (either merit or flaw) to give
+	#3nummerits <##>#0 - sets the number of merits to give
+	#3numflaws <##>#0 - sets the number of flaws to give
+	#3onload <prog>#0 - sets a prog to be run on-load of the NPC
+	#3onload none#0 - clears an onload prog
+	#3ai add <which>#0 - adds an AI routine to this NPC
+	#3ai remove <which>#0 - removes an AI routine from this NPC
+	#3healthstrategy <which>#0 - sets an overriding health strategy
+	#3healthstrategy none#0 - resets the health strategy to racial default
+	#3accent <which>#0 - toggles an accent being permitted
+	#3accent <language> <which>#0 - alternative way of toggling an accent
+	#3accent <language> all#0 - resets to all accents valid for the specified language";
+
+	public override bool BuildingCommand(ICharacter actor, StringStack command)
+	{
+		switch (command.PopForSwitch())
+		{
+			case "accent":
+				return BuildingCommandAccent(actor, command);
+			case "gender":
+				return BuildingCommandGender(actor, command);
+			case "knowledge":
+				return BuildingCommandKnowledge(actor, command);
+			case "merit":
+				return BuildingCommandMerit(actor, command);
+			case "numquirks":
+				return BuildingCommandNumQuirks(actor, command);
+			case "nummerits":
+				return BuildingCommandNumMerits(actor, command);
+			case "numflaws":
+				return BuildingCommandNumFlaws(actor, command);
+			case "name":
+				return BuildingCommandName(actor, command);
+			case "nameprofile":
+			case "randomname":
+			case "np":
+			case "rnp":
+			case "rn":
+				return BuildingCommandNameProfile(actor, command);
+			case "race":
+				return BuildingCommandRace(actor, command);
+			case "culture":
+				return BuildingCommandCulture(actor, command);
+			case "ethnicity":
+				return BuildingCommandEthnicity(actor, command);
+			case "heightweight":
+			case "hwmodel":
+			case "hw":
+			case "heightweightmodel":
+				return BuildingCommandHeightWeightModel(actor, command);
+			case "age":
+				return BuildingCommandAge(actor, command);
+			case "agecategory":
+			case "agecat":
+			case "agerange":
+			case "range":
+				return BuildingCommandAgeRange(actor, command);
+			case "attributetotal":
+			case "attrtotal":
+				return BuildingCommandAttributeTotal(actor, command);
+			case "attribute":
+				return BuildingCommandAttribute(actor, command);
+			case "sdesc":
+				return BuildingCommandSdesc(actor, command);
+			case "fdesc":
+				return BuildingCommandFdesc(actor, command);
+			case "skill":
+			case "skills":
+				return BuildingCommandSkill(actor, command);
+			case "class":
+				return BuildingCommandClass(actor, command);
+			case "subclass":
+				return BuildingCommandSubclass(actor, command);
+			case "role":
+				return BuildingCommandRole(actor, command);
+			default:
+				return base.BuildingCommand(actor, command.GetUndo());
+		}
+	}
+
+	private bool BuildingCommandAccent(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("You must either enter an accent to toggle, or a language to select an accent from.");
+			return false;
+		}
+
+		var cmd1 = command.PopSpeech();
+		var cmd2 = command.SafeRemainingArgument;
+		IAccent accent;
+		if (string.IsNullOrEmpty(cmd2))
+		{
+			accent = Gameworld.Accents.GetByIdOrName(cmd1);
+
+			if (accent is null)
+			{
+				actor.OutputHandler.Send($"There is no accent identified by the text {cmd1.ColourCommand()}.");
+				return false;
+			}
+		}
+		else
+		{
+			var language = Gameworld.Languages.GetByIdOrName(cmd1);
+			if (language is null)
+			{
+				actor.OutputHandler.Send($"There is no language identified by the text {cmd1.ColourCommand()}.");
+				return false;
+			}
+
+			if (cmd2.EqualTo("all"))
+			{
+				_validAccents.RemoveAll(x => x.Language == language);
+				Changed = true;
+				actor.OutputHandler.Send($"All accents will now be permitted for the {language.Name.ColourName()} language.");
+				return true;
+			}
+
+			accent = language.Accents.GetByIdOrName(cmd2);
+			if (accent is null)
+			{
+				actor.OutputHandler.Send($"The {language.Name.ColourName()} language has no accent identified by the text {cmd2.ColourCommand()}.");
+				return false;
+			}
+		}
+
+		Changed = true;
+		if (_validAccents.Contains(accent))
+		{
+			_validAccents.Remove(accent);
+			actor.OutputHandler.Send($"The {accent.Name.ColourValue()} accent for the {accent.Language.Name.ColourName()} language is no longer a valid selection.");
+			return true;
+		}
+
+		_validAccents.Add(accent);
+		actor.OutputHandler.Send($"The {accent.Name.ColourValue()} accent is now a valid selection for the {accent.Language.Name.ColourName()} language.");
+		return true;
+	}
 
 	private bool BuildingCommandGender(ICharacter actor, StringStack command)
 	{
@@ -1341,107 +1564,7 @@ public class VariableNPCTemplate : NPCTemplateBase
 		return true;
 	}
 
-	public override string HelpText => @"You can use the following options with this command:
-
-	#3name <name>#0 - renames the template
-	#3race <race>#0 - sets the race of the NPC
-	#3culture <culture>#0 - sets the culture of the NPC
-	#3ethnicity <ethnicity>#0 - sets the ethnicity of the NPC
-	#3gender <gender> <weight>|0#0 - sets or removes the chance of selecting a particular gender
-	#3randomname <which> [<gender>]#0 - sets a random name profile for this NPC
-	#3hwmodel <gender> <which>#0 - sets a height/weight model for a gender for this NPC
-	#3age <min> <max>#0 - sets the minimum and maximum age
-	#3agerange <minCategory> <maxCategory>#0 - sets the minimum and maximum age relative to the race's age categories
-	#3attrtotal <#>#0 - sets the total number of points to distribute amongst attributes
-	#3attribute <attributes separated by spaces>#0 - sets priority attributes, in order, after roll
-	#3sdesc <#>#0 - sets the NPC to use a particular sdesc pattern
-	#3sdesc clear#0 - sets the NPC to use a random valid sdesc pattern
-	#3fdesc <#>#0 - sets the NPC to use a particular fdesc pattern
-	#3fdesc clear#0 - sets the NPC ot use a random valid fdesc pattern
-	#3skill <which> <%> <avg> <stddev>#0 - sets the chance/mean/stddev for a particular skill
-	#3skill <which> 0%#0 - removes a skill from the list
-	#3class <class>#0 - sets the class of this NPC (if using classes)
-	#3subclass <subclass>#0 - sets the subclass of  this NPC (if using subclasses)
-	#3role <which>#0 - toggles this NPC having a particular role
-	#3knowledge <which> <% chance>#0 - sets the percentage chance of having a knowledge
-	#3merit <which>#0 - toggles a merit being valid
-	#3merit all#0 - adds all valid merits
-	#3merit none#0 - removes all valid merits
-	#3numquirks <##>#0 - sets the number of quirks (either merit or flaw) to give
-	#3nummerits <##>#0 - sets the number of merits to give
-	#3numflaws <##>#0 - sets the number of flaws to give
-	#3onload <prog>#0 - sets a prog to be run on-load of the NPC
-	#3onload none#0 - clears an onload prog
-	#3ai add <which>#0 - adds an AI routine to this NPC
-	#3ai remove <which>#0 - removes an AI routine from this NPC
-	#3healthstrategy <which>#0 - sets an overriding health strategy
-	#3healthstrategy none#0 - resets the health strategy to racial default";
-
-	public override bool BuildingCommand(ICharacter actor, StringStack command)
-	{
-		switch (command.PopForSwitch())
-		{
-			case "gender":
-				return BuildingCommandGender(actor, command);
-			case "knowledge":
-				return BuildingCommandKnowledge(actor, command);
-			case "merit":
-				return BuildingCommandMerit(actor, command);
-			case "numquirks":
-				return BuildingCommandNumQuirks(actor, command);
-			case "nummerits":
-				return BuildingCommandNumMerits(actor, command);
-			case "numflaws":
-				return BuildingCommandNumFlaws(actor, command);
-			case "name":
-				return BuildingCommandName(actor, command);
-			case "nameprofile":
-			case "randomname":
-			case "np":
-			case "rnp":
-			case "rn":
-				return BuildingCommandNameProfile(actor, command);
-			case "race":
-				return BuildingCommandRace(actor, command);
-			case "culture":
-				return BuildingCommandCulture(actor, command);
-			case "ethnicity":
-				return BuildingCommandEthnicity(actor, command);
-			case "heightweight":
-			case "hwmodel":
-			case "hw":
-			case "heightweightmodel":
-				return BuildingCommandHeightWeightModel(actor, command);
-			case "age":
-				return BuildingCommandAge(actor, command);
-			case "agecategory":
-			case "agecat":
-			case "agerange":
-			case "range":
-				return BuildingCommandAgeRange(actor, command);
-			case "attributetotal":
-			case "attrtotal":
-				return BuildingCommandAttributeTotal(actor, command);
-			case "attribute":
-				return BuildingCommandAttribute(actor, command);
-			case "sdesc":
-				return BuildingCommandSdesc(actor, command);
-			case "fdesc":
-				return BuildingCommandFdesc(actor, command);
-			case "skill":
-			case "skills":
-				return BuildingCommandSkill(actor, command);
-			case "class":
-				return BuildingCommandClass(actor, command);
-			case "subclass":
-				return BuildingCommandSubclass(actor, command);
-			case "role":
-				return BuildingCommandRole(actor, command);
-			default:
-				return base.BuildingCommand(actor, command.GetUndo());
-		}
-	}
-
+	
 	private bool BuildingCommandNumFlaws(ICharacter actor, StringStack command)
 	{
 		if (command.IsFinished)

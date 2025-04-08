@@ -30,6 +30,9 @@ public class CleaningWounds : CharacterActionWithTarget, IAffectProximity
 
 	public IInventoryPlan OriginalInventoryPlan { get; set; }
 
+	public bool UseItems { get; set; }
+	public WoundSeverity MinimumSeverity { get; set; }
+
 	#region Overrides of Effect
 
 	public override string Describe(IPerceiver voyeur)
@@ -41,7 +44,7 @@ public class CleaningWounds : CharacterActionWithTarget, IAffectProximity
 
 	#endregion
 
-	public CleaningWounds(ICharacter owner, ICharacter target) : base(owner, target)
+	public CleaningWounds(ICharacter owner, ICharacter target, WoundSeverity severity, bool useItems) : base(owner, target)
 	{
 		WhyCannotMoveEmoteString = "@ cannot move because $0 $0|are|is cleaning $1's wounds.";
 		CancelEmoteString = "@ $0|stop|stops cleaning $1's wounds.";
@@ -49,6 +52,8 @@ public class CleaningWounds : CharacterActionWithTarget, IAffectProximity
 		ActionDescription = "cleaning $1's wounds";
 		_blocks.Add("general");
 		_blocks.Add("movement");
+		UseItems = useItems;
+		MinimumSeverity = severity;
 	}
 
 	#region Overrides of TargetedBlockingDelayedAction
@@ -109,9 +114,12 @@ public class CleaningWounds : CharacterActionWithTarget, IAffectProximity
 		AntisepticWoundsNoTreatment
 	}
 
-	public static (bool Success, PeekCanCleanReason Reason) PeekCanClean(ICharacter ch, ICharacter tch)
+	public static (bool Success, PeekCanCleanReason Reason) PeekCanClean(ICharacter ch, ICharacter tch, WoundSeverity severity, bool useItems)
 	{
-		var wounds = tch.VisibleWounds(ch, WoundExaminationType.Examination).ToList();
+		var wounds = tch
+		             .VisibleWounds(ch, WoundExaminationType.Examination)
+		             .Where(x => x.Severity >= severity)
+		             .ToList();
 		var cleanWounds = wounds.Where(x => x.CanBeTreated(TreatmentType.Clean) != Difficulty.Impossible).ToList();
 		var antisepticWounds = wounds.Where(x => x.CanBeTreated(TreatmentType.Antiseptic) != Difficulty.Impossible)
 		                             .ToList();
@@ -121,9 +129,11 @@ public class CleaningWounds : CharacterActionWithTarget, IAffectProximity
 			return (false, PeekCanCleanReason.NoWounds);
 		}
 
-		var plan = ch.Gameworld.CleanWoundInventoryPlanTemplate.CreatePlan(ch);
+		var plan = useItems ?
+			ch.Gameworld.CleanWoundInventoryPlanTemplate.CreatePlan(ch) :
+			null;
 		ITreatment treatmentItem = null;
-		if (plan.PlanIsFeasible() == InventoryPlanFeasibility.Feasible)
+		if (plan?.PlanIsFeasible() == InventoryPlanFeasibility.Feasible)
 		{
 			treatmentItem = plan.PeekPlanResults()
 			                    .FirstOrDefault(x => x.OriginalReference?.ToString() == "treatment")
@@ -141,10 +151,16 @@ public class CleaningWounds : CharacterActionWithTarget, IAffectProximity
 
 	public override void ExpireEffect()
 	{
-		var wounds = TargetCharacter.VisibleWounds(CharacterOwner, WoundExaminationType.Examination)
-		                            .Where(x => x.CanBeTreated(TreatmentType.Clean) != Difficulty.Impossible ||
-		                                        x.CanBeTreated(TreatmentType.Antiseptic) != Difficulty.Impossible)
-		                            .ToList();
+		var wounds = TargetCharacter
+		             
+		             .VisibleWounds(CharacterOwner, WoundExaminationType.Examination)
+		             .Where(x =>
+						 x.Severity >= MinimumSeverity &&
+			             (x.CanBeTreated(TreatmentType.Clean) != Difficulty.Impossible || 
+			             x.CanBeTreated(TreatmentType.Antiseptic) != Difficulty.Impossible)
+			         )
+		             .ToList();
+
 		if (!wounds.Any())
 		{
 			CharacterOwner.OutputHandler.Handle(new EmoteOutput(new Emote(
@@ -154,11 +170,11 @@ public class CleaningWounds : CharacterActionWithTarget, IAffectProximity
 			return;
 		}
 
-		var inventoryPlan = Gameworld.CleanWoundInventoryPlanTemplate.CreatePlan(CharacterOwner);
+		var inventoryPlan = UseItems ? Gameworld.CleanWoundInventoryPlanTemplate.CreatePlan(CharacterOwner) : null;
 		OriginalInventoryPlan ??= inventoryPlan;
 
 		ITreatment treatmentItem = null;
-		if (inventoryPlan.PlanIsFeasible() == InventoryPlanFeasibility.Feasible)
+		if (UseItems && inventoryPlan?.PlanIsFeasible() == InventoryPlanFeasibility.Feasible)
 		{
 			var results = inventoryPlan.ExecuteWholePlan();
 			treatmentItem = results.FirstOrDefault(x => x.OriginalReference?.ToString() == "treatment")?.PrimaryTarget
@@ -167,7 +183,7 @@ public class CleaningWounds : CharacterActionWithTarget, IAffectProximity
 
 		if (inventoryPlan != OriginalInventoryPlan)
 		{
-			inventoryPlan.FinalisePlanNoRestore();
+			inventoryPlan?.FinalisePlanNoRestore();
 		}
 
 		if (treatmentItem == null && wounds.All(x => x.CanBeTreated(TreatmentType.Clean) == Difficulty.Impossible))
@@ -190,7 +206,7 @@ public class CleaningWounds : CharacterActionWithTarget, IAffectProximity
 			CleanNormal(wounds, treatmentItem, cleanCheck);
 		}
 
-		var (canContinue, reason) = PeekCanClean(CharacterOwner, TargetCharacter);
+		var (canContinue, reason) = PeekCanClean(CharacterOwner, TargetCharacter, MinimumSeverity, UseItems);
 		if (canContinue)
 		{
 			CharacterOwner.OutputHandler.Handle(new EmoteOutput(new Emote(

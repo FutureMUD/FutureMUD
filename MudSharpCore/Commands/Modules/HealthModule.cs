@@ -414,13 +414,28 @@ internal class HealthModule : Module<ICharacter>
 	[NoHideCommand]
 	[NoMeleeCombatCommand]
 	[NoMovementCommand]
-	[HelpInfo("cleanwounds", "Clean wounds to reduce the chance for infection. Syntax: cleanwounds [<target>]",
-		AutoHelp.HelpArg)]
+	[HelpInfo("cleanwounds", @"The #3cleanwounds#0 command allows you to clean wounds of a character to hopefully prevent infection.
+
+There are two types of cleaning - regular cleaning and antiseptic cleaning. Regular cleaning doesn't necessarily require an item (but benefits from it) and is mostly about keeping the wound free of contaminants. Antiseptic cleaning always requires an item and is much more effective at preventing infection.
+
+Cleaning is only effective at preventing infection; once an infection has taken root further cleaning won't do anything to affect it.
+
+You can only clean wounds that you can see, so you may need people to remove clothing and armour to get at them.
+
+The syntax for this command is as follows:
+
+	#3cleanwounds#0 - start cleaning your own wounds
+	#3cleanwound <target> [noitems] [severity]#0 - start cleaning all the wounds of your target
+
+Options:
+
+	#6noitems#0 to avoid using consumable items
+	#6severity#0 to specify a minimum severity of wound to treat", AutoHelp.HelpArg)]
 	protected static void CleanWounds(ICharacter actor, string command)
 	{
 		var ss = new StringStack(command.RemoveFirstWord());
 		ICharacter target = null;
-		target = ss.IsFinished ? actor : actor.TargetActor(ss.Pop());
+		target = ss.IsFinished ? actor : actor.TargetActor(ss.PopSpeech());
 
 		if (target == null)
 		{
@@ -440,7 +455,25 @@ internal class HealthModule : Module<ICharacter>
 			return;
 		}
 
-		var (canClean, reason) = CleaningWounds.PeekCanClean(actor, target);
+		var severity = WoundSeverity.None;
+		var useItems = true;
+		while (!ss.IsFinished)
+		{
+			var cmd = ss.PopSpeech();
+			if (cmd.EqualTo("noitems"))
+			{
+				useItems = false;
+				continue;
+			}
+
+			if (!cmd.TryParseEnum(out severity))
+			{
+				actor.OutputHandler.Send($"The text {cmd.ColourCommand()} is now a valid wound severity.");
+				return;
+			}
+		}
+
+		var (canClean, reason) = CleaningWounds.PeekCanClean(actor, target, severity, useItems);
 		if (canClean)
 		{
 			if (actor != target && !target.WillingToPermitMedicalIntervention(actor))
@@ -492,12 +525,12 @@ internal class HealthModule : Module<ICharacter>
 							return;
 						}
 
-						var (canStillClean, stillReason) = CleaningWounds.PeekCanClean(actor, target);
+						var (canStillClean, stillReason) = CleaningWounds.PeekCanClean(actor, target, severity, useItems);
 						if (canStillClean)
 						{
 							actor.OutputHandler.Handle(new EmoteOutput(new Emote("@ begin|begins cleaning $0's wounds.",
 								actor, target)));
-							actor.AddEffect(new CleaningWounds(actor, target), CleaningWounds.EffectDuration);
+							actor.AddEffect(new CleaningWounds(actor, target, severity, useItems), CleaningWounds.EffectDuration);
 							return;
 						}
 
@@ -532,7 +565,7 @@ internal class HealthModule : Module<ICharacter>
 
 			actor.OutputHandler.Handle(
 				new EmoteOutput(new Emote("@ begin|begins cleaning $0's wounds.", actor, target)));
-			actor.AddEffect(new CleaningWounds(actor, target), CleaningWounds.EffectDuration);
+			actor.AddEffect(new CleaningWounds(actor, target, severity, useItems), CleaningWounds.EffectDuration);
 			return;
 		}
 

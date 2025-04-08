@@ -351,7 +351,13 @@ public partial class Character
 		{
 			return Proximity.Intimate;
 		}
-
+		
+		var ptGameItem = PositionTarget as IGameItem;
+		if (ptGameItem is not null && ptGameItem.LocationLevelPerceivable == this)
+		{
+			return Proximity.Intimate;
+		}
+		
 		if (Party?.Members.Contains(thing) == true)
 		{
 			return Proximity.Proximate;
@@ -369,7 +375,6 @@ public partial class Character
 			return Proximity.Immediate;
 		}
 
-		var ptGameItem = PositionTarget as IGameItem;
 		if (ptGameItem?.IsItemType<IChair>() == true)
 		{
 			var chair = ptGameItem.GetItemType<IChair>();
@@ -397,6 +402,17 @@ public partial class Character
 		}
 
 		return base.GetProximity(thing);
+	}
+
+	protected override bool InternalInVicinity(IPerceivable origin, IPerceivable target,
+		List<IPerceivable> currentPath, List<IPerceivable> previous)
+	{
+		if (origin is IGameItem item && item.LocationLevelPerceivable == this)
+		{
+			return true;
+		}
+
+		return base.InternalInVicinity(origin, target, currentPath, previous);
 	}
 
 	public bool CanMovePosition(IPositionState whichPosition, PositionModifier whichModifier, IPerceivable target,

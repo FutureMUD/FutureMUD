@@ -24,11 +24,192 @@ internal class TakeCurrencyFunction : BuiltInFunction
 			"takecurrency",
 			new[]
 			{
-				ProgVariableTypes.Currency, ProgVariableTypes.Number | ProgVariableTypes.Text,
-				ProgVariableTypes.Location | ProgVariableTypes.Character | ProgVariableTypes.Item,
-				ProgVariableTypes.Boolean, ProgVariableTypes.Boolean
+				ProgVariableTypes.Currency, 
+				ProgVariableTypes.Number,
+				ProgVariableTypes.Location,
+				ProgVariableTypes.Boolean, 
+				ProgVariableTypes.Boolean
 			},
-			(pars, gameworld) => new TakeCurrencyFunction(pars)
+			(pars, gameworld) => new TakeCurrencyFunction(pars),
+			new List<string>
+			{
+				"currency",
+				"amount",
+				"from",
+				"useget",
+				"givechange"
+			},
+			new List<string>
+			{
+				"The currency that you want to take",
+				"The amount that you want to take",
+				"Who or what you want to take it from",
+				"Whether to use the get rules (i.e. don't take from locked containers etc)",
+				"Whether to give change or not"
+			},
+			"This function lets you take currency from currency piles in a room, held by a character or in an item. Returns true if it succeeds.",
+			"Currency",
+			ProgVariableTypes.Boolean
+		));
+
+		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
+			"takecurrency",
+			new[]
+			{
+				ProgVariableTypes.Currency, 
+				ProgVariableTypes.Text,
+				ProgVariableTypes.Location,
+				ProgVariableTypes.Boolean, 
+				ProgVariableTypes.Boolean
+			},
+			(pars, gameworld) => new TakeCurrencyFunction(pars),
+			new List<string>
+			{
+				"currency",
+				"amount",
+				"from",
+				"useget",
+				"givechange"
+			},
+			new List<string>
+			{
+				"The currency that you want to take",
+				"The amount that you want to take",
+				"Who or what you want to take it from",
+				"Whether to use the get rules (i.e. don't take from locked containers etc)",
+				"Whether to give change or not"
+			},
+			"This function lets you take currency from currency piles in a room, held by a character or in an item. Returns true if it succeeds.",
+			"Currency",
+			ProgVariableTypes.Boolean
+		));
+
+		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
+			"takecurrency",
+			new[]
+			{
+				ProgVariableTypes.Currency,
+				ProgVariableTypes.Number,
+				ProgVariableTypes.Character ,
+				ProgVariableTypes.Boolean,
+				ProgVariableTypes.Boolean
+			},
+			(pars, gameworld) => new TakeCurrencyFunction(pars),
+			new List<string>
+			{
+				"currency",
+				"amount",
+				"from",
+				"useget",
+				"givechange"
+			},
+			new List<string>
+			{
+				"The currency that you want to take",
+				"The amount that you want to take",
+				"Who or what you want to take it from",
+				"Whether to use the get rules (i.e. don't take from locked containers etc)",
+				"Whether to give change or not"
+			},
+			"This function lets you take currency from currency piles in a room, held by a character or in an item. Returns true if it succeeds.",
+			"Currency",
+			ProgVariableTypes.Boolean
+		));
+
+		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
+			"takecurrency",
+			new[]
+			{
+				ProgVariableTypes.Currency,
+				ProgVariableTypes.Text,
+				ProgVariableTypes.Character ,
+				ProgVariableTypes.Boolean,
+				ProgVariableTypes.Boolean
+			},
+			(pars, gameworld) => new TakeCurrencyFunction(pars),
+			new List<string>
+			{
+				"currency",
+				"amount",
+				"from",
+				"useget",
+				"givechange"
+			},
+			new List<string>
+			{
+				"The currency that you want to take",
+				"The amount that you want to take",
+				"Who or what you want to take it from",
+				"Whether to use the get rules (i.e. don't take from locked containers etc)",
+				"Whether to give change or not"
+			},
+			"This function lets you take currency from currency piles in a room, held by a character or in an item. Returns true if it succeeds.",
+			"Currency",
+			ProgVariableTypes.Boolean
+		));
+
+		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
+			"takecurrency",
+			new[]
+			{
+				ProgVariableTypes.Currency,
+				ProgVariableTypes.Number,
+				ProgVariableTypes.Item,
+				ProgVariableTypes.Boolean,
+				ProgVariableTypes.Boolean
+			},
+			(pars, gameworld) => new TakeCurrencyFunction(pars),
+			new List<string>
+			{
+				"currency",
+				"amount",
+				"from",
+				"useget",
+				"givechange"
+			},
+			new List<string>
+			{
+				"The currency that you want to take",
+				"The amount that you want to take",
+				"Who or what you want to take it from",
+				"Whether to use the get rules (i.e. don't take from locked containers etc)",
+				"Whether to give change or not"
+			},
+			"This function lets you take currency from currency piles in a room, held by a character or in an item. Returns true if it succeeds.",
+			"Currency",
+			ProgVariableTypes.Boolean
+		));
+
+		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
+			"takecurrency",
+			new[]
+			{
+				ProgVariableTypes.Currency,
+				ProgVariableTypes.Text,
+				ProgVariableTypes.Item,
+				ProgVariableTypes.Boolean,
+				ProgVariableTypes.Boolean
+			},
+			(pars, gameworld) => new TakeCurrencyFunction(pars),
+			new List<string>
+			{
+				"currency",
+				"amount",
+				"from",
+				"useget",
+				"givechange"
+			},
+			new List<string>
+			{
+				"The currency that you want to take",
+				"The amount that you want to take",
+				"Who or what you want to take it from",
+				"Whether to use the get rules (i.e. don't take from locked containers etc)",
+				"Whether to give change or not"
+			},
+			"This function lets you take currency from currency piles in a room, held by a character or in an item. Returns true if it succeeds.",
+			"Currency",
+			ProgVariableTypes.Boolean
 		));
 	}
 

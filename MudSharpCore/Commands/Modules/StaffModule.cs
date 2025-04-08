@@ -2085,13 +2085,18 @@ The following options are available:
 	#3debug healing#0 - attaches the healing logger (writes to file)
 	#3debug skills#0 - attaches the skill check logger (writes to file)
 	#3debug scheduler#0 - shows all things in the scheduler
-	#3debug listeners#0 - shows all listeners", AutoHelp.HelpArgOrNoArg)]
+	#3debug listeners#0 - shows all listeners
+	#3debug fixmorph#0 - resets all morph timers of shop stocked items
+	#3debug fixbites#0 - resets all bite counts of shop stocked items", AutoHelp.HelpArgOrNoArg)]
 	protected static void Debug(ICharacter actor, string input)
 	{
 		var ss = new StringStack(input.RemoveFirstWord());
 
 		switch (ss.PopForSwitch())
 		{
+			case "fixbites":
+				DebugFixBites(actor);
+				return;
 			case "fixmorph":
 				DebugFixMorph(actor);
 				return;
@@ -2149,6 +2154,29 @@ The following options are available:
 	}
 
 	#region Debug Sub-Routines
+	
+	private static void DebugFixBites(ICharacter actor)
+	{
+		var count = 0;
+		foreach (var item in actor.Gameworld.Items)
+		{
+			if (!item.AffectedBy<ItemOnDisplayInShop>())
+			{
+				continue;
+			}
+
+			var food = item.GetItemType<IEdible>();
+			if (food is null)
+			{
+				continue;
+			}
+
+			count++;
+			food.BitesRemaining = food.TotalBites;
+		}
+
+		actor.OutputHandler.Send($"Reset the bite count on {count.ToStringN0Colour(actor)} stocked items.");
+	}
 
 	private static void DebugFixMorph(ICharacter actor)
 	{

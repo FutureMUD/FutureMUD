@@ -25,6 +25,32 @@ public class SkillLevelBasedMagicCapability : SaveableItem, IMagicCapability
 		return new SkillLevelBasedMagicCapability(this, newName);
 	}
 
+	protected SkillLevelBasedMagicCapability(IFuturemud gameworld, string name, IMagicSchool school, ITraitDefinition trait)
+	{
+		Gameworld = gameworld;
+		School = school;
+		PowerLevel = 1;
+		ConcentrationTrait = trait;
+		_name = name;
+		ShowMagicResourcesInPrompt = true;
+		ConcentrationCapabilityExpression = new TraitExpression("1", Gameworld);
+		ConcentrationDifficultyExpression = new TraitExpression("5", Gameworld);
+		using (new FMDB())
+		{
+			var dbitem = new Models.MagicCapability
+			{
+				Name = Name,
+				MagicSchoolId = School.Id,
+				PowerLevel = PowerLevel,
+				Definition = SaveToXml(),
+				CapabilityModel = "skilllevel"
+			};
+			FMDB.Context.MagicCapabilities.Add(dbitem);
+			FMDB.Context.SaveChanges();
+			_id = dbitem.Id;
+		}
+	}
+
 	protected SkillLevelBasedMagicCapability(SkillLevelBasedMagicCapability rhs, string name)
 	{
 		Gameworld = rhs.Gameworld;
@@ -48,8 +74,12 @@ public class SkillLevelBasedMagicCapability : SaveableItem, IMagicCapability
 				MagicSchoolId = School.Id,
 				PowerLevel = PowerLevel,
 				Definition = SaveToXml(),
-				CapabilityModel = "skilllevelbased"
+				CapabilityModel = "skilllevel"
 			};
+
+			FMDB.Context.MagicCapabilities.Add(dbitem);
+			FMDB.Context.SaveChanges();
+			_id = dbitem.Id;
 		}
 	}
 
@@ -102,6 +132,36 @@ public class SkillLevelBasedMagicCapability : SaveableItem, IMagicCapability
 	{
 		MagicCapabilityFactory.RegisterLoader("skilllevel",
 			(capability, gameworld) => new SkillLevelBasedMagicCapability(capability, gameworld));
+		MagicCapabilityFactory.RegisterBuilderLoader("skilllevel", (game, builder, args, name) =>
+		{
+			if (args.IsFinished)
+			{
+				builder.OutputHandler.Send("You must specify a magic school for this capability to belong to.");
+				return null;
+			}
+
+			var school = game.MagicSchools.GetByIdOrName(args.PopSpeech());
+			if (school is null)
+			{
+				builder.OutputHandler.Send($"The text {args.Last.ColourCommand()} is not a valid magic school.");
+				return null;
+			}
+
+			if (args.IsFinished)
+			{
+				builder.OutputHandler.Send("Which trait should this capability use for concentration checks?");
+				return null;
+			}
+
+			var trait = game.Traits.GetByIdOrName(args.PopSpeech());
+			if (trait is null)
+			{
+				builder.OutputHandler.Send($"The text {args.Last.ColourCommand()} is not a valid trait.");
+				return null;
+			}
+
+			return new SkillLevelBasedMagicCapability(game, name, school, trait);
+		});
 	}
 
 	#region Overrides of Item

@@ -1425,12 +1425,17 @@ public class MagicSpell : SaveableItem, IMagicSpell
 
 		magician.OutputHandler.Handle(new EmoteOutput(new Emote(CastingEmote, magician, magician, target),
 			flags: CastingEmoteFlags));
-		EffectDurationExpression.Formula.Parameters["degrees"] = result[CastingDifficulty].CheckDegrees();
-		EffectDurationExpression.Formula.Parameters["success"] = result[CastingDifficulty].SuccessDegrees();
-		EffectDurationExpression.Formula.Parameters["power"] = (int)power;
-		var duration =
-			TimeSpan.FromSeconds(
-				EffectDurationExpression.Evaluate(magician, CastingTrait, TraitBonusContext.SpellDuration));
+		var duration = TimeSpan.Zero;
+		if (EffectDurationExpression is not null)
+		{
+			EffectDurationExpression.Formula.Parameters["degrees"] = result[CastingDifficulty].CheckDegrees();
+			EffectDurationExpression.Formula.Parameters["success"] = result[CastingDifficulty].SuccessDegrees();
+			EffectDurationExpression.Formula.Parameters["power"] = (int)power;
+			duration =
+				TimeSpan.FromSeconds(
+					EffectDurationExpression.Evaluate(magician, CastingTrait, TraitBonusContext.SpellDuration));
+		}
+
 		var outcome = new OpposedOutcome(result[CastingDifficulty], Outcome.NotTested);
 
 		void ApplySpellEffect(IPerceivable effectTarget, IEnumerable<IMagicSpellEffectTemplate> effects)
@@ -1450,13 +1455,13 @@ public class MagicSpell : SaveableItem, IMagicSpell
 
 			if (AppliedEffectsAreExclusive)
 			{
-				target.RemoveAllEffects<MagicSpellParent>(x => x.Spell == this);
+				effectTarget.RemoveAllEffects<MagicSpellParent>(x => x.Spell == this);
 			}
 
 			// It's possible that all of the spell effects were instantaneous, in which case do not apply the effect
 			if (head.SpellEffects.Any())
 			{
-				target.AddEffect(head, duration);
+				effectTarget.AddEffect(head, duration);
 			}
 		}
 
@@ -1520,7 +1525,7 @@ public class MagicSpell : SaveableItem, IMagicSpell
 
 			ApplySpellEffect(target, _spellEffects);
 		}
-		else
+		else if (target is not null)
 		{
 			if (!string.IsNullOrEmpty(TargetEmote))
 			{
@@ -1565,7 +1570,7 @@ public class MagicSpell : SaveableItem, IMagicSpell
 				"at least one of the spell effects requires a target, but the spell trigger does not supply one.";
 		}
 
-		if (!Trigger.TriggerMayFailToYieldTarget || !string.IsNullOrEmpty(TargetNullEmote))
+		if (Trigger.TriggerMayFailToYieldTarget || !string.IsNullOrEmpty(TargetNullEmote))
 		{
 			return "the trigger may fail to yield a target, and you have no target null emote set.";
 		}

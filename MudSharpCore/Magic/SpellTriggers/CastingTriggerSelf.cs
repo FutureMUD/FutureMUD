@@ -78,6 +78,9 @@ public class CastingTriggerSelf : CastingTriggerBase
 
 	public override bool TriggerYieldsTarget => true;
 
+	/// <inheritdoc />
+	public override bool TriggerMayFailToYieldTarget => false;
+
 	public override string TargetTypes => "character";
 
 	public override string ShowPlayer(ICharacter actor)

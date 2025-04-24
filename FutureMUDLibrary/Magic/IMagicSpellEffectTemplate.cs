@@ -11,7 +11,7 @@ public interface IMagicSpellEffectTemplate : IXmlSavable
 {
     bool IsInstantaneous { get; }
     bool RequiresTarget { get; }
-    IMagicSpellEffect? GetOrApplyEffect(ICharacter caster, IPerceivable? target, OpposedOutcomeDegree outcome, SpellPower power, IMagicSpellEffectParent parent);
+    IMagicSpellEffect? GetOrApplyEffect(ICharacter caster, IPerceivable? target, OpposedOutcomeDegree outcome, SpellPower power, IMagicSpellEffectParent parent, SpellAdditionalParameter[] additionalParameters);
     /// <summary>
     /// Executes a building command based on player input
     /// </summary>
@@ -27,4 +27,5 @@ public interface IMagicSpellEffectTemplate : IXmlSavable
     /// <returns>A string representing the item textually</returns>
     string Show(ICharacter actor);
     IMagicSpellEffectTemplate Clone();
+    bool IsCompatibleWithTrigger(IMagicTrigger trigger);
 }

@@ -24,7 +24,12 @@ public class CreateItemEffect : IMagicSpellEffectTemplate
 	public static void RegisterFactory()
 	{
 		SpellEffectFactory.RegisterLoadTimeFactory("createitem", (root, spell) => new CreateItemEffect(root, spell));
-		SpellEffectFactory.RegisterBuilderFactory("createitem", BuilderFactory);
+		SpellEffectFactory.RegisterBuilderFactory("createitem", BuilderFactory,
+			"Loads a new item into a room, character inventory or container",
+			HelpText,
+			true,
+			true,
+			SpellTriggerFactory.MagicTriggerTypes.Where(x => IsCompatibleWithTrigger(SpellTriggerFactory.BuilderInfoForType(x).TargetTypes)).ToArray());
 	}
 
 	private static (IMagicSpellEffectTemplate Trigger, string Error) BuilderFactory(StringStack commands,
@@ -82,8 +87,27 @@ public class CreateItemEffect : IMagicSpellEffectTemplate
 	public bool IsInstantaneous => true;
 	public bool RequiresTarget => true;
 
-	public IMagicSpellEffect? GetOrApplyEffect(ICharacter caster, IPerceivable? target, OpposedOutcomeDegree outcome,
-		SpellPower power, IMagicSpellEffectParent parent)
+	public bool IsCompatibleWithTrigger(IMagicTrigger types) => IsCompatibleWithTrigger(types.TargetTypes);
+public static bool IsCompatibleWithTrigger(string types)
+	{
+		switch (types)
+		{
+			case "item":
+			case "items":
+			case "character":
+			case "characters":
+			case "perceivable":
+			case "perceivables":
+			case "room":
+			case "rooms":
+				return true;
+			default:
+				return false;
+		}
+	}
+
+	public IMagicSpellEffect GetOrApplyEffect(ICharacter caster, IPerceivable target, OpposedOutcomeDegree outcome,
+		SpellPower power, IMagicSpellEffectParent parent, SpellAdditionalParameter[] additionalParameters)
 	{
 		var prototype = ItemPrototype;
 		if (prototype is null)
@@ -182,6 +206,22 @@ public class CreateItemEffect : IMagicSpellEffectTemplate
 	}
 
 	#region Implementation of IEditableItem
+
+	public const string HelpText = @"You can use the following options with this effect:
+
+	#3item <proto>#0 - sets the item proto to be loaded
+	#3quantity <##>#0 - sets the quantity of item to be loaded
+	#3skin <which>#0 - sets the item skin for the item to be loaded
+	#3skin none#0 - clears the item skin
+	#3load <text>#0 - sets the load argument (same as #3item load <item>#0 command)
+	#3load none#0 - clears the load argument
+	#3quality <formula>#0 - sets the formula for item quality. See below for possible parameters.
+
+Parameters for quality formula:
+
+	#6base#0 - the base quality of the item to be loaded
+	#6power#0 - the power of the spell 0 (Insignificant) to 10 (Recklessly Powerful)
+	#6outcome#0 - the outcome of the skill check 0 (Marginal) to 5 (Total)";
 	public string Show(ICharacter actor)
 	{
 		return
@@ -204,21 +244,7 @@ public class CreateItemEffect : IMagicSpellEffectTemplate
 				return BuildingCommandLoad(actor, command);
 		}
 
-		actor.OutputHandler.Send(@"You can use the following options with this effect:
-
-	#3item <proto>#0 - sets the item proto to be loaded
-	#3quantity <##>#0 - sets the quantity of item to be loaded
-	#3skin <which>#0 - sets the item skin for the item to be loaded
-	#3skin none#0 - clears the item skin
-	#3load <text>#0 - sets the load argument (same as #3item load <item>#0 command)
-	#3load none#0 - clears the load argument
-	#3quality <formula>#0 - sets the formula for item quality. See below for possible parameters.
-
-Parameters for quality formula:
-
-	#6base#0 - the base quality of the item to be loaded
-	#6power#0 - the power of the spell 0 (Insignificant) to 10 (Recklessly Powerful)
-	#6outcome#0 - the outcome of the skill check 0 (Marginal) to 5 (Total)".SubstituteANSIColour());
+		actor.OutputHandler.Send(HelpText.SubstituteANSIColour());
 		return false;
 	}
 

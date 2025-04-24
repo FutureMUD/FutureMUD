@@ -147,6 +147,10 @@ The core syntax is as follows:
 	#3magic spell show <which>#0 - shows builder information about a spell
 	#3magic spell show#0 - shows builder information about the currently edited spell
 	#3magic spell edit#0 - an alias for magic spell show (with no args)
+	#3magic spell triggers#0 - list all spell trigger types available
+	#3magic spell triggerhelp <type>#0 - show help for a trigger type
+	#3magic spell effects#0 - lists all spell effect types available
+	#3magic spell effecthelp <type>#0 - show help for an effect type
 	#3magic spell set name <name>#0 - renames this spell
 	#3magic spell set blurb <text>#0 - the summary text that appears in the SPELLS output
 	#3magic spell set description#0 - drops you into an editor for a more detailed description

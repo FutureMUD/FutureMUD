@@ -17,7 +17,11 @@ public class CastingTriggerVicinity : CastingTriggerBase
 {
 	public static void RegisterFactory()
 	{
-		SpellTriggerFactory.RegisterBuilderFactory("vicinity", DoBuilderLoad);
+		SpellTriggerFactory.RegisterBuilderFactory("vicinity", DoBuilderLoad,
+			"Targets all items and characters in the vicinity of a target",
+			"character",
+			new CastingTriggerVicinity().BuildingCommandHelp
+		);
 		SpellTriggerFactory.RegisterLoadTimeFactory("vicinity",
 			(root, spell) => new CastingTriggerVicinity(root, spell));
 	}
@@ -45,6 +49,8 @@ public class CastingTriggerVicinity : CastingTriggerBase
 		Proximity = (Proximity)int.Parse(root.Element("Proximity").Value);
 	}
 
+	protected CastingTriggerVicinity() : base(){}
+
 	#region Overrides of CastingTriggerBase
 
 	public override XElement SaveToXml()
@@ -65,9 +71,10 @@ public class CastingTriggerVicinity : CastingTriggerBase
 	}
 
 	public override string SubtypeBuildingCommandHelp =>
-		@" #3filterprog <prog>#0 - sets the optional prog to filter targets by
-    #3filterprog clear#0 - clears the filter prog
-    #3self#0 - toggles whether the self is a valid target
+		@"
+	#3filterprog <prog>#0 - sets the optional prog to filter targets by
+	#3filterprog clear#0 - clears the filter prog
+	#3self#0 - toggles whether the self is a valid target
 	#3proximity <value>#0 - sets the maximum proximity to the base target";
 
 	public override bool BuildingCommand(ICharacter actor, StringStack command)
@@ -150,8 +157,8 @@ public class CastingTriggerVicinity : CastingTriggerBase
 		}
 
 		if (!prog.MatchesParameters(new List<ProgVariableTypes>
-			    { ProgVariableTypes.Perceivable, ProgVariableTypes.Character }) &&
-		    !prog.MatchesParameters(new List<ProgVariableTypes> { ProgVariableTypes.Perceivable }))
+				{ ProgVariableTypes.Perceivable, ProgVariableTypes.Character }) &&
+			!prog.MatchesParameters(new List<ProgVariableTypes> { ProgVariableTypes.Perceivable }))
 		{
 			actor.OutputHandler.Send(
 				$"You must specify a prog that accepts either a single perceivable (the target), or a perceivable and a character (the target and the caster), whereas {prog.MXPClickableFunctionName()} does not.");
@@ -211,6 +218,8 @@ public class CastingTriggerVicinity : CastingTriggerBase
 	}
 
 	public override bool TriggerYieldsTarget => true;
+
+	public override string TargetTypes => "perceivables";
 
 	public override string Show(ICharacter actor)
 	{

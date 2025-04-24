@@ -1,89 +1,95 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 using System.Xml.Linq;
 using MudSharp.Character;
+using MudSharp.Construction;
 using MudSharp.Framework;
 using MudSharp.FutureProg;
+using MudSharp.Models;
+using MudSharp.PerceptionEngine.Outputs;
+using MudSharp.PerceptionEngine.Parsers;
 
 namespace MudSharp.Magic.SpellTriggers;
 
-public class CastingTriggerCharacter : CastingTriggerBase
+public class CastingTriggerCharacterProgRoom : CastingTriggerBase
 {
 	public static void RegisterFactory()
 	{
-		SpellTriggerFactory.RegisterBuilderFactory(
-			"character", 
-			DoBuilderLoad,
-			"Targets a character in the same room",
-			"character",
-			new CastingTriggerCharacter().BuildingCommandHelp
+		SpellTriggerFactory.RegisterBuilderFactory("characterprogroom", DoBuilderLoad,
+			"Targets a character in the same room and a room via prog",
+			"character&room",
+			new CastingTriggerCharacterProgRoom().BuildingCommandHelp
 		);
-		SpellTriggerFactory.RegisterLoadTimeFactory("character",
-			(root, spell) => new CastingTriggerCharacter(root, spell));
+		SpellTriggerFactory.RegisterLoadTimeFactory("characterprogroom", (root, spell) => new CastingTriggerCharacterProgRoom(root, spell));
 	}
 
 	private static (IMagicTrigger Trigger, string Error) DoBuilderLoad(StringStack command, IMagicSpell spell)
 	{
 		return (
-			new CastingTriggerCharacter(
-				new XElement("Trigger", new XElement("MinimumPower", (int)SpellPower.Insignificant),
+			new CastingTriggerCharacterProgRoom(
+				new XElement("Trigger",
+					new XElement("MinimumPower", (int)SpellPower.Insignificant),
 					new XElement("MaximumPower", (int)SpellPower.RecklesslyPowerful),
-					new XElement("CanTargetSelf", true), new XElement("TargetFilterProg", 0L)), spell), string.Empty);
+					new XElement("TargetRoomProg", 0L),
+					new XElement("CanTargetSelf", false), 
+					new XElement("TargetFilterProg", 0L)
+				), spell), string.Empty);
 	}
 
-	public IFutureProg TargetFilterProg { get; private set; }
-	public bool CanTargetSelf { get; private set; }
-
-	protected CastingTriggerCharacter(XElement root, IMagicSpell spell) : base(root, spell)
+	protected CastingTriggerCharacterProgRoom(XElement root, IMagicSpell spell) : base(root, spell)
 	{
 		TargetFilterProg = spell.Gameworld.FutureProgs.Get(long.Parse(root.Element("TargetFilterProg").Value));
 		CanTargetSelf = bool.Parse(root.Element("CanTargetSelf").Value);
 	}
 
-	protected CastingTriggerCharacter()
-	{
-	}
+	protected CastingTriggerCharacterProgRoom() : base() { }
 
-	#region Overrides of CastingTriggerBase
+	#region Implementation of IXmlSavable
 
 	public override XElement SaveToXml()
 	{
 		return new XElement("Trigger",
-			new XAttribute("type", "character"),
+			new XAttribute("type", "characterprogroom"),
 			new XElement("MinimumPower", (int)MinimumPower),
 			new XElement("MaximumPower", (int)MaximumPower),
+			new XElement("TargetRoomProg", TargetRoomProg?.Id ?? 0L),
 			new XElement("TargetFilterProg", TargetFilterProg?.Id ?? 0L),
 			new XElement("CanTargetSelf", CanTargetSelf)
 		);
 	}
 
+	#endregion
+
+	#region Implementation of IMagicTrigger
+
 	public override IMagicTrigger Clone()
 	{
-		return new CastingTriggerCharacter(SaveToXml(), Spell);
+		return new CastingTriggerCharacterProgRoom(SaveToXml(), Spell);
 	}
 
-	public override string SubtypeBuildingCommandHelp =>
-		@"
-	#3filterprog <prog>#0 - sets the optional prog to filter targets by
-	#3filterprog clear#0 - clears the filter prog
-	#3self#0 - toggles whether the self is a valid target";
+	public override string Show(ICharacter actor)
+	{
+		return $"{$"Cast@Character&Room[{TargetRoomProg?.MXPClickableFunctionName() ?? "Unknown".ColourError()}]".ColourName()} - {base.Show(actor)}";
+	}
 
+	#endregion
+
+	#region Overrides of CastingTriggerBase
+
+	/// <inheritdoc />
 	public override bool BuildingCommand(ICharacter actor, StringStack command)
 	{
 		switch (command.PopForSwitch())
 		{
+			case "room":
+			case "roomprog":
+				return BuildingCommandRoomProg(actor, command);
 			case "filter":
 			case "filterprog":
-			case "prog":
-				return BuildingCommandFilterProg(actor, command);
+				return BuildingCommandTargetFilterProg(actor, command);
 			case "self":
 				return BuildingCommandSelf(actor, command);
-			default:
-				return base.BuildingCommand(actor, command.GetUndo());
 		}
+		return base.BuildingCommand(actor, command.GetUndo());
 	}
 
 	private bool BuildingCommandSelf(ICharacter actor, StringStack command)
@@ -95,7 +101,7 @@ public class CastingTriggerCharacter : CastingTriggerBase
 		return true;
 	}
 
-	private bool BuildingCommandFilterProg(ICharacter actor, StringStack command)
+	private bool BuildingCommandTargetFilterProg(ICharacter actor, StringStack command)
 	{
 		if (command.IsFinished)
 		{
@@ -144,6 +150,38 @@ public class CastingTriggerCharacter : CastingTriggerBase
 		return true;
 	}
 
+	private bool BuildingCommandRoomProg(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("Which prog do you want to use to determine the target room?");
+			return false;
+		}
+
+		var prog = new ProgLookupFromBuilderInput(
+			actor,
+			command.SafeRemainingArgument,
+			ProgVariableTypes.Location,
+			[
+				[ProgVariableTypes.Character],
+				[ProgVariableTypes.Character, ProgVariableTypes.MagicSpell],
+				[ProgVariableTypes.Character, ProgVariableTypes.MagicSpell, ProgVariableTypes.Text | ProgVariableTypes.Collection],
+				[ProgVariableTypes.Character, ProgVariableTypes.MagicSpell, ProgVariableTypes.Text | ProgVariableTypes.Collection, ProgVariableTypes.Number],
+			]
+		).LookupProg();
+		if (prog is null)
+		{
+			return false;
+		}
+
+		TargetRoomProg = prog;
+		Spell.Changed = true;
+		actor.OutputHandler.Send($"This trigger will now use the {prog.MXPClickableFunctionName()} prog to determine which room to target.");
+		return true;
+	}
+
+	public override string SubtypeBuildingCommandHelp => string.Empty;
+
 	public override void DoTriggerCast(ICharacter actor, StringStack additionalArguments)
 	{
 		if (!CheckBaseTriggerCase(actor, additionalArguments, out var power))
@@ -177,25 +215,24 @@ public class CastingTriggerCharacter : CastingTriggerBase
 			return;
 		}
 
-		Spell.CastSpell(actor, target, power);
+		var cell = TargetRoomProg?.Execute<ICell>(actor, Spell, additionalArguments, (int)power);
+		Spell.CastSpell(actor, target, power, new SpellAdditionalParameter{ParameterName="room", Item = cell});
 	}
 
 	public override bool TriggerYieldsTarget => true;
 
-	/// <inheritdoc />
-	public override string TargetTypes => "character";
+	public override bool TriggerMayFailToYieldTarget => true;
 
-	public override string Show(ICharacter actor)
-	{
-		return
-			$"{"Cast@Character".ColourName()}{(CanTargetSelf ? "" : " [noself]".ColourName())} - {base.Show(actor)}{(TargetFilterProg != null ? $" Filter: {TargetFilterProg.MXPClickableFunctionName()}" : "")}";
-	}
+	public override string TargetTypes => "character&room";
 
 	public override string ShowPlayer(ICharacter actor)
 	{
-		return
-			$"Cast Command - {Spell.School.SchoolVerb} cast {(Spell.Name.Contains(' ') ? Spell.Name.ToLowerInvariant().DoubleQuotes() : Spell.Name.ToLowerInvariant())} <power> <target character>";
+		return $"Cast Command - {Spell.School.SchoolVerb} cast {(Spell.Name.Contains(' ') ? Spell.Name.ToLowerInvariant().DoubleQuotes() : Spell.Name.ToLowerInvariant())} <power> <target character>";
 	}
 
 	#endregion
+
+	public IFutureProg TargetRoomProg { get; private set; }
+	public IFutureProg TargetFilterProg { get; private set; }
+	public bool CanTargetSelf { get; private set; }
 }

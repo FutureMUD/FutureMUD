@@ -350,7 +350,23 @@ namespace MudSharp.Character {
 		/// <param name="layer">The target layer</param>
 		/// <param name="includeFollowers">Include dragging targets</param>
 		/// <param name="echo">Echo everyone entering or leaving (if you handle the echo elsewhere, use false)</param>
-		void Teleport(ICell target, RoomLayer layer, bool includeFollowers, bool echo);
+		/// <param name="playerEchoLeave"></param>
+		/// <param name="playerEchoArrive"></param>
+		/// <param name="playerEchoSelf"></param>
+		/// <param name="followerEchoLeave"></param>
+		/// <param name="followerEchoArrive"></param>
+		/// <param name="followerEchoSelf"></param>
+		void Teleport(
+			ICell target, 
+			RoomLayer layer, 
+			bool includeFollowers, 
+			bool echo, 
+			string playerEchoLeave = "@ leaves the area.", 
+			string playerEchoArrive = "@ enters the area.", 
+			string playerEchoSelf = "", 
+			string followerEchoLeave = "@ leaves the area.", 
+			string followerEchoArrive = "@ enters the area.", 
+			string followerEchoSelf = "");
 
 		void EditorMode(Action<string, IOutputHandler, object[]> postAction, Action<IOutputHandler, object[]> cancelAction, double characterLengthMultiplier = 1.0, string recallText = null, EditorOptions options = EditorOptions.None, object[] suppliedArguments = null);
 		void EditorModeMulti(Action<IEnumerable<string>, IOutputHandler, object[]> postAction, Action<IOutputHandler, object[]> cancelAction, IEnumerable<string> editorTexts, double characterLengthMultiplier = 1.0, string recallText = null, EditorOptions options = EditorOptions.None, object[] suppliedArguments = null);

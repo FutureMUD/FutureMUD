@@ -14,7 +14,11 @@ namespace MudSharp.Magic.SpellTriggers
 	{
 		public static void RegisterFactory()
 		{
-			SpellTriggerFactory.RegisterBuilderFactory("corpse", DoBuilderLoad);
+			SpellTriggerFactory.RegisterBuilderFactory("corpse", DoBuilderLoad,
+				"Targets a corpse item in the same room",
+				"item",
+				new CastingTriggerCorpse().BuildingCommandHelp
+			);
 			SpellTriggerFactory.RegisterLoadTimeFactory("corpse",
 				(root, spell) => new CastingTriggerCorpse(root, spell));
 		}
@@ -34,6 +38,8 @@ namespace MudSharp.Magic.SpellTriggers
 			TargetFilterProg = spell.Gameworld.FutureProgs.Get(long.Parse(root.Element("TargetFilterProg").Value));
 		}
 
+		protected CastingTriggerCorpse() : base() { }
+
 		#region Overrides of CastingTriggerBase
 
 		public override XElement SaveToXml()
@@ -52,8 +58,9 @@ namespace MudSharp.Magic.SpellTriggers
 		}
 
 		public override string SubtypeBuildingCommandHelp =>
-			@" filterprog <prog> - sets the optional prog to filter targets by
-    filterprog clear - clears the filter prog";
+			@"
+	#3filterprog <prog>#0 - sets the optional prog to filter targets by
+	#3filterprog clear#0 - clears the filter prog";
 
 		public override bool BuildingCommand(ICharacter actor, StringStack command)
 		{
@@ -148,6 +155,8 @@ namespace MudSharp.Magic.SpellTriggers
 		}
 
 		public override bool TriggerYieldsTarget => true;
+
+		public override string TargetTypes => "item";
 
 		public override string Show(ICharacter actor)
 		{

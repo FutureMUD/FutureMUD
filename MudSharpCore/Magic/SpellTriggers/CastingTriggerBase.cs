@@ -20,9 +20,16 @@ public abstract class CastingTriggerBase : ICastMagicTrigger
 		MaximumPower = (SpellPower)int.Parse(root.Element("MaximumPower").Value);
 	}
 
+	/// <summary>
+	/// Used only for getting the type help info for the builder factory
+	/// </summary>
+	protected CastingTriggerBase(){}
+
 	public IMagicSpell Spell { get; }
 	public SpellPower MinimumPower { get; private set; }
 	public SpellPower MaximumPower { get; private set; }
+
+	public abstract string TargetTypes { get; }
 
 	#region Implementation of IXmlSavable
 
@@ -36,13 +43,14 @@ public abstract class CastingTriggerBase : ICastMagicTrigger
 	public abstract IMagicTrigger Clone();
 
 	public abstract bool TriggerYieldsTarget { get; }
+	public virtual bool TriggerMayFailToYieldTarget => false;
 
 	public abstract string SubtypeBuildingCommandHelp { get; }
 
 	public string BuildingCommandHelp => $@"You can use the following options with this trigger:
 {SubtypeBuildingCommandHelp}
-    minpower <power> - sets the minimum power for casting
-    maxpower <power> - sets the maximum power for casting";
+	#3minpower <power>#0 - sets the minimum power for casting
+	#3maxpower <power>#0 - sets the maximum power for casting";
 
 	public virtual bool BuildingCommand(ICharacter actor, StringStack command)
 	{
@@ -56,7 +64,7 @@ public abstract class CastingTriggerBase : ICastMagicTrigger
 				return BuildingCommandMaximumPower(actor, command);
 
 			default:
-				actor.OutputHandler.Send(BuildingCommandHelp);
+				actor.OutputHandler.Send(BuildingCommandHelp.SubstituteANSIColour());
 				return false;
 		}
 	}

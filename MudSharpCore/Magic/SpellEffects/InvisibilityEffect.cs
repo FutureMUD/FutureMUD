@@ -20,7 +20,12 @@ public class InvisibilityEffect : IMagicSpellEffectTemplate
 	public static void RegisterFactory()
 	{
 		SpellEffectFactory.RegisterLoadTimeFactory("invisibility", (root, spell) => new InvisibilityEffect(root, spell));
-		SpellEffectFactory.RegisterBuilderFactory("invisibility", BuilderFactory);
+		SpellEffectFactory.RegisterBuilderFactory("invisibility", BuilderFactory,
+			"Makes a target invisible",
+			HelpText,
+			false,
+			true,
+			SpellTriggerFactory.MagicTriggerTypes.Where(x => IsCompatibleWithTrigger(SpellTriggerFactory.BuilderInfoForType(x).TargetTypes)).ToArray());
 	}
 
 	private static (IMagicSpellEffectTemplate Trigger, string Error) BuilderFactory(StringStack commands,
@@ -61,6 +66,10 @@ public class InvisibilityEffect : IMagicSpellEffectTemplate
 
 	#region Implementation of IEditableItem
 
+	public const string HelpText = @"You can use the following options with this effect:
+
+	#3filter <prog>#0 - sets a prog that controls who can see the invisible thing";
+
 	public bool BuildingCommand(ICharacter actor, StringStack command)
 	{
 		switch (command.PopSpeech().ToLowerInvariant())
@@ -70,9 +79,7 @@ public class InvisibilityEffect : IMagicSpellEffectTemplate
 				return BuildingCommandFilter(actor, command);
 		}
 
-		actor.OutputHandler.Send(@"You can use the following options with this effect:
-
-    #3filter <prog>#0 - sets a prog that controls who can see the invisible thing");
+		actor.OutputHandler.Send(HelpText.SubstituteANSIColour());
 		return false;
 	}
 
@@ -123,8 +130,25 @@ public class InvisibilityEffect : IMagicSpellEffectTemplate
 	public bool IsInstantaneous => false;
 	public bool RequiresTarget => true;
 
-	public IMagicSpellEffect? GetOrApplyEffect(ICharacter caster, IPerceivable? target, OpposedOutcomeDegree outcome,
-		SpellPower power, IMagicSpellEffectParent parent)
+	public bool IsCompatibleWithTrigger(IMagicTrigger types) => IsCompatibleWithTrigger(types.TargetTypes);
+public static bool IsCompatibleWithTrigger(string types)
+	{
+		switch (types)
+		{
+			case "item":
+			case "items":
+			case "character":
+			case "characters":
+			case "perceivable":
+			case "perceivables":
+				return true;
+			default:
+				return false;
+		}
+	}
+
+	public IMagicSpellEffect GetOrApplyEffect(ICharacter caster, IPerceivable target, OpposedOutcomeDegree outcome,
+		SpellPower power, IMagicSpellEffectParent parent, SpellAdditionalParameter[] additionalParameters)
 	{
 		if (target is not IGameItem && target is not ICharacter && target is not PerceivableGroup)
 		{

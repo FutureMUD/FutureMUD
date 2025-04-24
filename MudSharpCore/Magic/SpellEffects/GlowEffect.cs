@@ -19,7 +19,12 @@ public class GlowEffect : IMagicSpellEffectTemplate
 	public static void RegisterFactory()
 	{
 		SpellEffectFactory.RegisterLoadTimeFactory("glow", (root, spell) => new GlowEffect(root, spell));
-		SpellEffectFactory.RegisterBuilderFactory("glow", BuilderFactory);
+		SpellEffectFactory.RegisterBuilderFactory("glow", BuilderFactory,
+			"Causes the target to glow",
+			HelpText,
+			false,
+			true,
+			SpellTriggerFactory.MagicTriggerTypes.Where(x => IsCompatibleWithTrigger(SpellTriggerFactory.BuilderInfoForType(x).TargetTypes)).ToArray());
 	}
 
 	private static (IMagicSpellEffectTemplate Trigger, string Error) BuilderFactory(StringStack commands,
@@ -71,6 +76,15 @@ public class GlowEffect : IMagicSpellEffectTemplate
 
 	#region Implementation of IEditableItem
 
+	public const string HelpText = @"You can use the following options with this effect:
+
+	#3glow <lux>#0 - sets the amount of glow per power level
+	#3sdesc <sdesc>#0 - sets the sdesc addendum e.g. (glowing)
+	#3desc <desc>#0 - sets the look desc addendum e.g. This person is glowing
+	#3colour <colour>#0 - sets the colour of the sdesc/desc addenda
+
+Note: You can use {0} in the sdesc/desc addenda to have a light-level description (dim, bright, etc) inserted, e.g. ({0}ly glowing) might resolve as (brightly glowing)";
+
 	public bool BuildingCommand(ICharacter actor, StringStack command)
 	{
 		switch (command.PopSpeech().ToLowerInvariant())
@@ -87,14 +101,7 @@ public class GlowEffect : IMagicSpellEffectTemplate
 				return BuildingCommandColour(actor, command);
 		}
 
-		actor.OutputHandler.Send(@"You can use the following options with this effect:
-
-    #3glow <lux>#0 - sets the amount of glow per power level
-    #3sdesc <sdesc>#0 - sets the sdesc addendum e.g. (glowing)
-    #3desc <desc>#0 - sets the look desc addendum e.g. This person is glowing
-    #3colour <colour>#0 - sets the colour of the sdesc/desc addenda
-
-Note: You can use {0} in the sdesc/desc addenda to have a light-level description (dim, bright, etc) inserted, e.g. ({0}ly glowing) might resolve as (brightly glowing)");
+		actor.OutputHandler.Send(HelpText.SubstituteANSIColour());
 		return false;
 	}
 
@@ -184,8 +191,25 @@ Note: You can use {0} in the sdesc/desc addenda to have a light-level descriptio
 	public bool IsInstantaneous => false;
 	public bool RequiresTarget => true;
 
-	public IMagicSpellEffect? GetOrApplyEffect(ICharacter caster, IPerceivable? target, OpposedOutcomeDegree outcome,
-		SpellPower power, IMagicSpellEffectParent parent)
+	public bool IsCompatibleWithTrigger(IMagicTrigger types) => IsCompatibleWithTrigger(types.TargetTypes);
+public static bool IsCompatibleWithTrigger(string types)
+	{
+		switch (types)
+		{
+			case "item":
+			case "items":
+			case "character":
+			case "characters":
+			case "perceivable":
+			case "perceivables":
+				return true;
+			default:
+				return false;
+		}
+	}
+
+	public IMagicSpellEffect GetOrApplyEffect(ICharacter caster, IPerceivable target, OpposedOutcomeDegree outcome,
+		SpellPower power, IMagicSpellEffectParent parent, SpellAdditionalParameter[] additionalParameters)
 	{
 		if (target is not IGameItem && target is not ICharacter)
 		{
@@ -193,7 +217,7 @@ Note: You can use {0} in the sdesc/desc addenda to have a light-level descriptio
 		}
 
 		var lightLevel = Gameworld.LightModel.GetIlluminationDescription(GlowLuxPerPower * (int)power)
-		                          .ToLowerInvariant();
+								  .ToLowerInvariant();
 		return new SpellGlowEffect(target, parent, null, GlowLuxPerPower * (int)power,
 			string.Format(SDescAddendum, lightLevel), string.Format(DescAddendum, lightLevel), GlowAddendumColour);
 	}

@@ -21,8 +21,13 @@ public class ChangeCharacteristicEffect : IMagicSpellEffectTemplate
 	public static void RegisterFactory()
 	{
 		SpellEffectFactory.RegisterLoadTimeFactory("changecharacteristic", (root, spell) => new ChangeCharacteristicEffect(root, spell));
-		SpellEffectFactory.RegisterBuilderFactory("changecharacteristic", BuilderFactory);
-		SpellEffectFactory.RegisterBuilderFactory("changevariable", BuilderFactory);
+		SpellEffectFactory.RegisterBuilderFactory("changecharacteristic", BuilderFactory,
+			"Changes an item or character's characteristic (i.e. variable)",
+				HelpText,
+				false,
+				true,
+				SpellTriggerFactory.MagicTriggerTypes.Where(x => IsCompatibleWithTrigger(SpellTriggerFactory.BuilderInfoForType(x).TargetTypes)).ToArray()
+			);
 	}
 
 	private static (IMagicSpellEffectTemplate? Trigger, string Error) BuilderFactory(StringStack commands,
@@ -111,8 +116,25 @@ public class ChangeCharacteristicEffect : IMagicSpellEffectTemplate
 	}
 	#endregion
 
+	public bool IsCompatibleWithTrigger(IMagicTrigger types) => IsCompatibleWithTrigger(types.TargetTypes);
+public static bool IsCompatibleWithTrigger(string types)
+	{
+		switch (types)
+		{
+			case "item":
+			case "items":
+			case "character":
+			case "characters":
+			case "perceivable":
+			case "perceivables":
+				return true;
+			default:
+				return false;
+		}
+	}
+
 	public IMagicSpellEffect? GetOrApplyEffect(ICharacter caster, IPerceivable? target, OpposedOutcomeDegree outcome,
-			SpellPower power, IMagicSpellEffectParent parent)
+		SpellPower power, IMagicSpellEffectParent parent, SpellAdditionalParameter[] additionalParameters)
 	{		
 		// Remove or change if target is not IHaveCharacteristics
 		if (target is not IHaveCharacteristics)

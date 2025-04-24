@@ -10,6 +10,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using MudSharp.Body.Traits;
 using MudSharp.Character;
+using MudSharp.Commands.Trees;
 using MudSharp.Database;
 using MudSharp.Effects.Concrete;
 using MudSharp.Effects.Interfaces;
@@ -55,6 +56,7 @@ public class MagicSpell : SaveableItem, IMagicSpell
 		TargetResistedEmote = spell.TargetResistedEmote;
 		CastingEmoteFlags = (OutputFlags)spell.CastingEmoteFlags;
 		TargetEmoteFlags = (OutputFlags)spell.TargetEmoteFlags;
+		TargetNullEmote = spell.TargetNullEmote;
 
 		var definition = XElement.Parse(spell.Definition);
 		if (definition.Element("NoTrigger") == null)
@@ -105,13 +107,26 @@ public class MagicSpell : SaveableItem, IMagicSpell
 			var dbitem = new Models.MagicSpell()
 			{
 				Name = name,
-				Blurb = "An undescribed magic spell",
-				Description = "An undescribed magic spell",
-				ExclusiveDelay = 0.0,
-				NonExclusiveDelay = 0.0,
-				MagicSchoolId = school.Id,
+				Blurb = Blurb,
+				Description = Description,
+				ExclusiveDelay = ExclusiveDelay.TotalSeconds,
+				NonExclusiveDelay = NonExclusiveDelay.TotalSeconds,
+				MagicSchoolId = School.Id,
 				SpellKnownProgId = SpellKnownProg.Id,
+				CastingTraitDefinitionId = CastingTrait?.Id,
+				ResistingTraitDefinitionId = OpposedTrait?.Id,
+				CastingDifficulty = (int)CastingDifficulty,
+				ResistingDifficulty = (int?)OpposedDifficulty,
+				EffectDurationExpressionId = EffectDurationExpression?.Id,
 				AppliedEffectsAreExclusive = AppliedEffectsAreExclusive,
+				TargetNullEmote = TargetNullEmote,
+				CastingEmote = CastingEmote,
+				FailCastingEmote = FailCastingEmote,
+				TargetEmote = TargetEmote,
+				TargetResistedEmote = TargetResistedEmote,
+				CastingEmoteFlags = (int)CastingEmoteFlags,
+				TargetEmoteFlags = (int)TargetEmoteFlags,
+				MinimumSuccessThreshold = (int)MinimumSuccessThreshold,
 				Definition = SaveDefinition().ToString()
 			};
 			FMDB.Context.MagicSpells.Add(dbitem);
@@ -156,6 +171,7 @@ public class MagicSpell : SaveableItem, IMagicSpell
 		TargetResistedEmote = rhs.TargetResistedEmote;
 		CastingEmoteFlags = rhs.CastingEmoteFlags;
 		TargetEmoteFlags = rhs.TargetEmoteFlags;
+		TargetNullEmote = rhs.TargetNullEmote;
 
 		foreach (var resource in rhs._castingCosts)
 		{
@@ -179,6 +195,14 @@ public class MagicSpell : SaveableItem, IMagicSpell
 				ResistingDifficulty = (int?)OpposedDifficulty,
 				EffectDurationExpressionId = EffectDurationExpression?.Id,
 				AppliedEffectsAreExclusive = AppliedEffectsAreExclusive,
+				TargetNullEmote = TargetNullEmote,
+				CastingEmote = CastingEmote,
+				FailCastingEmote = FailCastingEmote,
+				TargetEmote = TargetEmote,
+				TargetResistedEmote = TargetResistedEmote,
+				CastingEmoteFlags = (int)CastingEmoteFlags,
+				TargetEmoteFlags = (int)TargetEmoteFlags,
+				MinimumSuccessThreshold = (int)MinimumSuccessThreshold,
 				Definition = SaveDefinition().ToString()
 			};
 			FMDB.Context.MagicSpells.Add(dbitem);
@@ -235,9 +259,11 @@ public class MagicSpell : SaveableItem, IMagicSpell
 		dbitem.FailCastingEmote = FailCastingEmote;
 		dbitem.TargetEmote = TargetEmote;
 		dbitem.TargetResistedEmote = TargetResistedEmote;
+		dbitem.TargetNullEmote = TargetNullEmote;
 		dbitem.CastingEmoteFlags = (int)CastingEmoteFlags;
 		dbitem.TargetEmoteFlags = (int)TargetEmoteFlags;
 		dbitem.MinimumSuccessThreshold = (int)MinimumSuccessThreshold;
+		dbitem.AppliedEffectsAreExclusive = AppliedEffectsAreExclusive;
 		dbitem.Definition = SaveDefinition().ToString();
 		Changed = false;
 	}
@@ -271,6 +297,7 @@ public class MagicSpell : SaveableItem, IMagicSpell
 	#3targetemote <emote>#0 - sets the target emote. $0 is caster, $1 is target (if any)
 	#3failcastemote <emote>#0 - sets the fail cast emote. $0 is caster, $1 is target (if any)
 	#3targetresistemote <emote>#0 - sets the target resist emote. $0 is caster, $1 is target (if any)
+	#3targetnullemote <emote>#0 - sets a self-only emote if the target trigger fails to find a target. $0 is the caster.
 	#3emoteflags <flags>#0 - changes the output flags for the casting emotes
 	#3targetemoteflags <flags>#0 - changes the output flags for the target emotes
 	#3trait <skill/attribute>#0 - sets the trait used for casting this spell
@@ -316,6 +343,8 @@ public class MagicSpell : SaveableItem, IMagicSpell
 				return BuildingCommandPlan(actor, command);
 			case "cost":
 				return BuildingCommandCost(actor, command);
+			case "targetnullemote":
+				return BuildingCommandTargetNullEmote(actor, command);
 			case "castemote":
 				return BuildingCommandCastEmote(actor, command);
 			case "targetemote":
@@ -697,6 +726,28 @@ public class MagicSpell : SaveableItem, IMagicSpell
 		Changed = true;
 		actor.OutputHandler.Send(
 			$"This spell will now have the following target emote:\n{CastingEmote.ColourCommand()}\nNote: $0 is the caster, $1 is the target (if applicable)");
+		return true;
+	}
+
+	private bool BuildingCommandTargetNullEmote(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("What do you want to set the emote for when a target cannot be found to?");
+			return false;
+		}
+
+		var emote = new Emote(command.SafeRemainingArgument, new DummyPerceiver(), new DummyPerceivable());
+		if (!emote.Valid)
+		{
+			actor.OutputHandler.Send(emote.ErrorMessage);
+			return false;
+		}
+
+		TargetNullEmote = command.SafeRemainingArgument;
+		Changed = true;
+		actor.OutputHandler.Send(
+			$"This spell will now have the following target null emote:\n{CastingEmote.ColourCommand()}\nNote: $0 is the caster");
 		return true;
 	}
 
@@ -1176,6 +1227,7 @@ public class MagicSpell : SaveableItem, IMagicSpell
 		sb.AppendLine($"Target Emote: {TargetEmote?.ColourCommand() ?? ""}");
 		sb.AppendLine($"Target Resisted Emote: {TargetResistedEmote?.ColourCommand() ?? ""}");
 		sb.AppendLine($"Target Emote Flags: {TargetEmoteFlags.DescribeEnum(colour: Telnet.Green)}");
+		sb.AppendLine($"Target Null Emote: {TargetNullEmote?.ColourCommand() ?? ""}");
 		sb.AppendLine();
 		sb.AppendLine($"Trigger: {Trigger?.Show(actor) ?? "None".Colour(Telnet.Red)}");
 		sb.AppendLine();
@@ -1248,7 +1300,7 @@ public class MagicSpell : SaveableItem, IMagicSpell
 		if (!ReadyForGame)
 		{
 			sb.AppendLine();
-			sb.AppendLine($"Building Error: {WhyNotReadyForGame.ColourError()}");
+			sb.AppendLine($"Building Error: {WhyNotReadyForGame(actor).ColourError()}");
 		}
 
 		return sb.ToString();
@@ -1288,6 +1340,7 @@ public class MagicSpell : SaveableItem, IMagicSpell
 	public string FailCastingEmote { get; set; }
 	public string TargetEmote { get; set; }
 	public string TargetResistedEmote { get; set; }
+	public string TargetNullEmote { get; set; }
 	public OutputFlags CastingEmoteFlags { get; set; }
 	public OutputFlags TargetEmoteFlags { get; set; }
 
@@ -1338,6 +1391,12 @@ public class MagicSpell : SaveableItem, IMagicSpell
 				throw new ArgumentOutOfRangeException();
 		}
 
+		if (target is null && SpellEffects.Any(x => x.RequiresTarget))
+		{
+			magician.OutputHandler.Send(new EmoteOutput(new Emote(TargetNullEmote, magician, magician)));
+			return;
+		}
+
 		foreach (var (resource, cost) in realCosts)
 		{
 			magician.UseResource(resource, cost);
@@ -1379,7 +1438,7 @@ public class MagicSpell : SaveableItem, IMagicSpell
 			var head = new MagicSpellParent(effectTarget, this, magician);
 			foreach (var effect in effects)
 			{
-				var child = effect.GetOrApplyEffect(magician, effectTarget, outcome.Degree, power, head);
+				var child = effect.GetOrApplyEffect(magician, effectTarget, outcome.Degree, power, head, additionalParameters);
 				if (child == null)
 				{
 					continue;
@@ -1482,42 +1541,55 @@ public class MagicSpell : SaveableItem, IMagicSpell
 		Trigger != null &&
 		!string.IsNullOrEmpty(CastingEmote) &&
 		(Trigger.TriggerYieldsTarget || _spellEffects.All(x => !x.RequiresTarget)) &&
+		(!Trigger.TriggerMayFailToYieldTarget || !string.IsNullOrEmpty(TargetNullEmote)) &&
 		(EffectDurationExpression != null || _spellEffects.All(x => x.IsInstantaneous)) &&
+		_spellEffects.All(x => x.IsCompatibleWithTrigger(Trigger)) &&
 		CastingTrait != null;
 
-	public string WhyNotReadyForGame
+	public string WhyNotReadyForGame(ICharacter builder)
 	{
-		get
+
+		if (Trigger == null)
 		{
-			if (Trigger == null)
-			{
-				return "every spell much have a trigger set.";
-			}
-
-			if (string.IsNullOrEmpty(CastingEmote))
-			{
-				return "every spell must have a casting emote.";
-			}
-
-			if (!Trigger.TriggerYieldsTarget && _spellEffects.Any(x => x.RequiresTarget))
-			{
-				return
-					"at least one of the spell effects requires a target, but the spell trigger does not supply one.";
-			}
-
-			if (EffectDurationExpression == null && _spellEffects.Any(x => !x.IsInstantaneous))
-			{
-				return
-					"there is no effect duration expression set, and at least one of the spell effects is not instantaneous.";
-			}
-
-			if (CastingTrait == null)
-			{
-				return "every spell must have a casting trait.";
-			}
-
-			throw new ApplicationException("Got to the end of MagicSpell.WhyNotReadyForGame without finding an error.");
+			return "every spell much have a trigger set.";
 		}
+
+		if (string.IsNullOrEmpty(CastingEmote))
+		{
+			return "every spell must have a casting emote.";
+		}
+
+		if (!Trigger.TriggerYieldsTarget && _spellEffects.Any(x => x.RequiresTarget))
+		{
+			return
+				"at least one of the spell effects requires a target, but the spell trigger does not supply one.";
+		}
+
+		if (!Trigger.TriggerMayFailToYieldTarget || !string.IsNullOrEmpty(TargetNullEmote))
+		{
+			return "the trigger may fail to yield a target, and you have no target null emote set.";
+		}
+
+		if (EffectDurationExpression == null && _spellEffects.Any(x => !x.IsInstantaneous))
+		{
+			return
+				"there is no effect duration expression set, and at least one of the spell effects is not instantaneous.";
+		}
+
+		foreach (var effect in _spellEffects)
+		{
+			if (!effect.IsCompatibleWithTrigger(Trigger))
+			{
+				return $"the {effect.Show(builder)} effect is not compatible with the {Trigger.Show(builder)} trigger.";
+			}
+		}
+
+		if (CastingTrait == null)
+		{
+			return "every spell must have a casting trait.";
+		}
+
+		throw new ApplicationException("Got to the end of MagicSpell.WhyNotReadyForGame without finding an error.");
 	}
 
 	public string ShowPlayerHelp(ICharacter actor)

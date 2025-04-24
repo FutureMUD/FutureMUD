@@ -14,7 +14,11 @@ public class CastingTriggerItem : CastingTriggerBase
 {
 	public static void RegisterFactory()
 	{
-		SpellTriggerFactory.RegisterBuilderFactory("item", DoBuilderLoad);
+		SpellTriggerFactory.RegisterBuilderFactory("item", DoBuilderLoad,
+			"Targets an item in the caster's inventory or the same room",
+			"item",
+			new CastingTriggerItem().BuildingCommandHelp
+		);
 		SpellTriggerFactory.RegisterLoadTimeFactory("item", (root, spell) => new CastingTriggerItem(root, spell));
 	}
 
@@ -34,6 +38,8 @@ public class CastingTriggerItem : CastingTriggerBase
 		TargetFilterProg = spell.Gameworld.FutureProgs.Get(long.Parse(root.Element("TargetFilterProg").Value));
 	}
 
+	protected CastingTriggerItem() : base() { }
+
 	#region Overrides of CastingTriggerBase
 
 	public override XElement SaveToXml()
@@ -52,8 +58,9 @@ public class CastingTriggerItem : CastingTriggerBase
 	}
 
 	public override string SubtypeBuildingCommandHelp =>
-		@" filterprog <prog> - sets the optional prog to filter targets by
-    filterprog clear - clears the filter prog";
+		@"
+	#3filterprog <prog>#0 - sets the optional prog to filter targets by
+	#3filterprog clear#0 - clears the filter prog";
 
 	public override bool BuildingCommand(ICharacter actor, StringStack command)
 	{
@@ -102,8 +109,8 @@ public class CastingTriggerItem : CastingTriggerBase
 		}
 
 		if (!prog.MatchesParameters(new List<ProgVariableTypes>
-			    { ProgVariableTypes.Item, ProgVariableTypes.Character }) &&
-		    !prog.MatchesParameters(new List<ProgVariableTypes> { ProgVariableTypes.Item }))
+				{ ProgVariableTypes.Item, ProgVariableTypes.Character }) &&
+			!prog.MatchesParameters(new List<ProgVariableTypes> { ProgVariableTypes.Item }))
 		{
 			actor.OutputHandler.Send(
 				$"You must specify a prog that accepts either a single item (the target), or and item and a character (the target and the caster), whereas {prog.MXPClickableFunctionName()} does not.");
@@ -148,6 +155,8 @@ public class CastingTriggerItem : CastingTriggerBase
 	}
 
 	public override bool TriggerYieldsTarget => true;
+
+	public override string TargetTypes => "item";
 
 	public override string Show(ICharacter actor)
 	{

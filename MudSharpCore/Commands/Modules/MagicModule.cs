@@ -283,7 +283,120 @@ public class MagicModule : Module<ICharacter>
 
 	public static void MagicSpell(ICharacter actor, StringStack command)
 	{
-		BuilderModule.GenericBuildingCommand(actor, command, EditableItemHelper.MagicSpellHelper);
+		switch (command.PopForSwitch())
+		{
+			case "triggers":
+				BuildingCommandSpellTriggers(actor, command);
+				return;
+			case "triggerhelp":
+				BuildingCommandSpellTriggerHelp(actor, command);
+				return;
+			case "effects":
+				BuildingCommandSpellEffects(actor, command);
+				return;
+			case "effecthelp":
+				BuildingCommandSpellEffectHelp(actor, command);
+				return;
+		}
+		BuilderModule.GenericBuildingCommand(actor, command.GetUndo(), EditableItemHelper.MagicSpellHelper);
+	}
+
+	private static void BuildingCommandSpellEffectHelp(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("Which magic spell effect do you want to view help for?");
+			return;
+		}
+
+		var type = command.SafeRemainingArgument.ToLowerInvariant();
+		if (!SpellEffectFactory.MagicEffectTypes.Any(x => x.EqualTo(type)))
+		{
+			actor.OutputHandler.Send($"There is no magic spell effect type called {type.ColourCommand()}.");
+			return;
+		}
+
+		var sb = new StringBuilder();
+		sb.AppendLine($"Help for {type.ToUpperInvariant()}".GetLineWithTitleInner(actor, Telnet.Cyan, Telnet.BoldWhite));
+		sb.AppendLine();
+		var (blurb, help, instant, target, triggers) = SpellEffectFactory.BuilderInfoForType(type);
+		sb.AppendLine($"Blurb: {blurb.ColourCommand()}");
+		sb.AppendLine($"Instant: {instant.ToColouredString()}");
+		sb.AppendLine($"Requires Target: {target.ToColouredString()}");
+		sb.AppendLine($"Compatible Triggers: {triggers.ListToColouredString()}");
+		sb.AppendLine();
+		sb.AppendLine("Builder Help:");
+		sb.AppendLine();
+		sb.AppendLine(help.SubstituteANSIColour().Wrap(actor.InnerLineFormatLength));
+		actor.OutputHandler.Send(sb.ToString());
+	}
+
+	private static void BuildingCommandSpellEffects(ICharacter actor, StringStack command)
+	{
+		actor.OutputHandler.Send(StringUtilities.GetTextTable(
+			from item in SpellEffectFactory.MagicEffectTypes
+			let info = SpellEffectFactory.BuilderInfoForType(item)
+			select new List<string>
+			{
+				item,
+				info.Blurb
+			},
+			new List<string>
+			{
+				"Name",
+				"Blurb"
+			},
+			actor,
+			Telnet.Magenta));
+	}
+
+	private static void BuildingCommandSpellTriggerHelp(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("Which magic spell trigger do you want to view help for?");
+			return;
+		}
+
+		var type = command.SafeRemainingArgument.ToLowerInvariant();
+		if (!SpellTriggerFactory.MagicTriggerTypes.Any(x => x.EqualTo(type)))
+		{
+			actor.OutputHandler.Send($"There is no magic spell trigger type called {type.ColourCommand()}.");
+			return;
+		}
+
+		var sb = new StringBuilder();
+		sb.AppendLine($"Help for {type.ToUpperInvariant()}".GetLineWithTitleInner(actor, Telnet.Cyan, Telnet.BoldWhite));
+		sb.AppendLine();
+		var (blurb, types, help) = SpellTriggerFactory.BuilderInfoForType(type);
+		sb.AppendLine($"Blurb: {blurb.ColourCommand()}");
+		sb.AppendLine($"Types: {types.ColourName()}");
+		sb.AppendLine();
+		sb.AppendLine("Builder Help:");
+		sb.AppendLine();
+		sb.AppendLine(help.SubstituteANSIColour().Wrap(actor.InnerLineFormatLength));
+		actor.OutputHandler.Send(sb.ToString());
+	}
+
+	private static void BuildingCommandSpellTriggers(ICharacter actor, StringStack command)
+	{
+		actor.OutputHandler.Send(StringUtilities.GetTextTable(
+			from item in SpellTriggerFactory.MagicTriggerTypes
+			let info = SpellTriggerFactory.BuilderInfoForType(item)
+			select new List<string>
+			{
+				item,
+				info.Blurb,
+				info.TargetTypes
+			},
+			new List<string>
+			{
+				"Name",
+				"Blurb",
+				"Type"
+			}, 
+			actor,
+			Telnet.Magenta));
 	}
 
 	#endregion

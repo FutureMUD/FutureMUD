@@ -16,7 +16,11 @@ public class CastingTriggerParty: CastingTriggerBase
 {
 	public static void RegisterFactory()
 	{
-		SpellTriggerFactory.RegisterBuilderFactory("party", DoBuilderLoad);
+		SpellTriggerFactory.RegisterBuilderFactory("party", DoBuilderLoad,
+			"Targets all characters in the caster's party",
+			"characters",
+			new CastingTriggerParty().BuildingCommandHelp
+		);
 		SpellTriggerFactory.RegisterLoadTimeFactory("party",
 			(root, spell) => new CastingTriggerParty(root, spell));
 	}
@@ -36,6 +40,7 @@ public class CastingTriggerParty: CastingTriggerBase
 		TargetFilterProg = spell.Gameworld.FutureProgs.Get(long.Parse(root.Element("TargetFilterProg").Value));
 	}
 
+	protected CastingTriggerParty() : base() { }
 	#region Overrides of CastingTriggerBase
 
 	public override XElement SaveToXml()
@@ -54,8 +59,9 @@ public class CastingTriggerParty: CastingTriggerBase
 	}
 
 	public override string SubtypeBuildingCommandHelp =>
-		@" filterprog <prog> - sets the optional prog to filter targets by
-    filterprog clear - clears the filter prog";
+		@"
+	#3filterprog <prog>#0 - sets the optional prog to filter targets by
+	#3filterprog clear#0 - clears the filter prog";
 
 	public override bool BuildingCommand(ICharacter actor, StringStack command)
 	{
@@ -104,8 +110,8 @@ public class CastingTriggerParty: CastingTriggerBase
 		}
 
 		if (!prog.MatchesParameters(new List<ProgVariableTypes>
-			    { ProgVariableTypes.Character, ProgVariableTypes.Character }) &&
-		    !prog.MatchesParameters(new List<ProgVariableTypes> { ProgVariableTypes.Character }))
+				{ ProgVariableTypes.Character, ProgVariableTypes.Character }) &&
+			!prog.MatchesParameters(new List<ProgVariableTypes> { ProgVariableTypes.Character }))
 		{
 			actor.OutputHandler.Send(
 				$"You must specify a prog that accepts either a single character (the target), or two characters (the target and the caster), whereas {prog.MXPClickableFunctionName()} does not.");
@@ -141,6 +147,8 @@ public class CastingTriggerParty: CastingTriggerBase
 	}
 
 	public override bool TriggerYieldsTarget => true;
+
+	public override string TargetTypes => "characters";
 
 	public override string Show(ICharacter actor)
 	{

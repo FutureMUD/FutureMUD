@@ -24,7 +24,12 @@ class CreateNPCEffect : IMagicSpellEffectTemplate
 	public static void RegisterFactory()
 	{
 		SpellEffectFactory.RegisterLoadTimeFactory("createnpc", (root, spell) => new CreateNPCEffect(root, spell));
-		SpellEffectFactory.RegisterBuilderFactory("createnpc", BuilderFactory);
+		SpellEffectFactory.RegisterBuilderFactory("createnpc", BuilderFactory,
+			"Loads a new NPC",
+			HelpText,
+			true,
+			true,
+			SpellTriggerFactory.MagicTriggerTypes.Where(x => IsCompatibleWithTrigger(SpellTriggerFactory.BuilderInfoForType(x).TargetTypes)).ToArray());
 	}
 
 	private static (IMagicSpellEffectTemplate Trigger, string Error) BuilderFactory(StringStack commands,
@@ -66,8 +71,21 @@ class CreateNPCEffect : IMagicSpellEffectTemplate
 	public bool IsInstantaneous => true;
 	public bool RequiresTarget => true;
 
-	public IMagicSpellEffect? GetOrApplyEffect(ICharacter caster, IPerceivable? target, OpposedOutcomeDegree outcome,
-		SpellPower power, IMagicSpellEffectParent parent)
+	public bool IsCompatibleWithTrigger(IMagicTrigger types) => IsCompatibleWithTrigger(types.TargetTypes);
+public static bool IsCompatibleWithTrigger(string types)
+	{
+		switch (types)
+		{
+			case "room":
+			case "rooms":
+				return true;
+			default:
+				return false;
+		}
+	}
+
+	public IMagicSpellEffect GetOrApplyEffect(ICharacter caster, IPerceivable target, OpposedOutcomeDegree outcome,
+		SpellPower power, IMagicSpellEffectParent parent, SpellAdditionalParameter[] additionalParameters)
 	{
 		var template = NPCTemplate;
 		if (template is null)
@@ -107,6 +125,13 @@ class CreateNPCEffect : IMagicSpellEffectTemplate
 	}
 
 	#region Implementation of IEditableItem
+
+	public const string HelpText = @"You can use the following options with this effect:
+
+	#3npc <proto>#0 - sets the item proto to be loaded
+	#3prog <which>#0 - sets the item skin for the item to be loaded
+	#3prog none#0 - clears the item skin";
+
 	public string Show(ICharacter actor)
 	{
 		return
@@ -123,11 +148,7 @@ class CreateNPCEffect : IMagicSpellEffectTemplate
 				return BuildingCommandProg(actor, command);
 		}
 
-		actor.OutputHandler.Send(@"You can use the following options with this effect:
-
-	#3npc <proto>#0 - sets the item proto to be loaded
-	#3prog <which>#0 - sets the item skin for the item to be loaded
-	#3prog none#0 - clears the item skin".SubstituteANSIColour());
+		actor.OutputHandler.Send(HelpText.SubstituteANSIColour());
 		return false;
 	}
 

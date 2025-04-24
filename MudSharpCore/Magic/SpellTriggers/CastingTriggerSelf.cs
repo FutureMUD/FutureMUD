@@ -13,7 +13,11 @@ public class CastingTriggerSelf : CastingTriggerBase
 {
 	public static void RegisterFactory()
 	{
-		SpellTriggerFactory.RegisterBuilderFactory("self", DoBuilderLoad);
+		SpellTriggerFactory.RegisterBuilderFactory("self", DoBuilderLoad,
+			"Targets the caster",
+			"character",
+			new CastingTriggerSelf().BuildingCommandHelp
+		);
 		SpellTriggerFactory.RegisterLoadTimeFactory("self", (root, spell) => new CastingTriggerSelf(root, spell));
 	}
 
@@ -28,6 +32,8 @@ public class CastingTriggerSelf : CastingTriggerBase
 	protected CastingTriggerSelf(XElement definition, IMagicSpell spell) : base(definition, spell)
 	{
 	}
+
+	protected CastingTriggerSelf() : base() { }
 
 	#region Implementation of IXmlSavable
 
@@ -71,6 +77,8 @@ public class CastingTriggerSelf : CastingTriggerBase
 	}
 
 	public override bool TriggerYieldsTarget => true;
+
+	public override string TargetTypes => "character";
 
 	public override string ShowPlayer(ICharacter actor)
 	{

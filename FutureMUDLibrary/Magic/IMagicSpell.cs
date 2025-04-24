@@ -13,26 +13,22 @@ using MudSharp.RPG.Checks;
 
 namespace MudSharp.Magic
 {
-    public record SpellAdditionalParameter{
-        public string ParameterName { get; init; }
-        public object Item { get; init; }
-    }
-    public interface IMagicSpell : ISaveable, IEditableItem, IProgVariable
-    {
-        IFutureProg SpellKnownProg { get; }
-        IMagicSchool School { get; }
-        TimeSpan ExclusiveDelay { get; }
-        TimeSpan NonExclusiveDelay { get; }
-        IMagicTrigger Trigger { get; }
-        IEnumerable<IMagicSpellEffectTemplate> SpellEffects { get; }
+	public interface IMagicSpell : ISaveable, IEditableItem, IProgVariable
+	{
+		IFutureProg SpellKnownProg { get; }
+		IMagicSchool School { get; }
+		TimeSpan ExclusiveDelay { get; }
+		TimeSpan NonExclusiveDelay { get; }
+		IMagicTrigger Trigger { get; }
+		IEnumerable<IMagicSpellEffectTemplate> SpellEffects { get; }
 		IEnumerable<IMagicSpellEffectTemplate> CasterSpellEffects { get; }
 
 		string Blurb { get; }
-        string Description { get; }
-        void CastSpell(ICharacter magician, IPerceivable target, SpellPower power, params SpellAdditionalParameter[] additionalParameters);
-        bool ReadyForGame { get; }
-        string WhyNotReadyForGame { get; }
-        string ShowPlayerHelp(ICharacter actor);
-        bool AppliedEffectsAreExclusive { get; }
-    }
+		string Description { get; }
+		void CastSpell(ICharacter magician, IPerceivable target, SpellPower power, params SpellAdditionalParameter[] additionalParameters);
+		bool ReadyForGame { get; }
+		string WhyNotReadyForGame(ICharacter builder);
+		string ShowPlayerHelp(ICharacter actor);
+		bool AppliedEffectsAreExclusive { get; }
+	}
 }

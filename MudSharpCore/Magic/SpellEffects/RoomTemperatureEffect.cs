@@ -9,6 +9,7 @@ using MudSharp.Construction;
 using MudSharp.Effects.Concrete.SpellEffects;
 using MudSharp.Effects.Interfaces;
 using MudSharp.Framework;
+using MudSharp.Models;
 using MudSharp.RPG.Checks;
 
 namespace MudSharp.Magic.SpellEffects;
@@ -19,7 +20,12 @@ public class RoomTemperatureEffect : IMagicSpellEffectTemplate
 	{
 		SpellEffectFactory.RegisterLoadTimeFactory("roomtemperature",
 			(root, spell) => new RoomTemperatureEffect(root, spell));
-		SpellEffectFactory.RegisterBuilderFactory("roomtemperature", BuilderFactory);
+		SpellEffectFactory.RegisterBuilderFactory("roomtemperature", BuilderFactory,
+			"Makes a room hotter or colder",
+			HelpText,
+			true,
+			true,
+			SpellTriggerFactory.MagicTriggerTypes.Where(x => IsCompatibleWithTrigger(SpellTriggerFactory.BuilderInfoForType(x).TargetTypes)).ToArray());
 	}
 
 	private static (IMagicSpellEffectTemplate Trigger, string Error) BuilderFactory(StringStack commands,
@@ -67,6 +73,13 @@ public class RoomTemperatureEffect : IMagicSpellEffectTemplate
 
 	#region Implementation of IEditableItem
 
+	public const string HelpText = @"You can use the following options with this effect:
+
+	#3temp <degrees>#0 - sets the amount of temperature change per power in degrees
+	#3desc <desc>#0 - sets the room desc addendum e.g. An unholy chill sits over this area
+	#3desc none#0 - sets there to be no room desc addendum (effect is invisible)
+	#3colour <colour>#0 - sets the colour of the desc addenda";
+
 	public bool BuildingCommand(ICharacter actor, StringStack command)
 	{
 		switch (command.PopSpeech().ToLowerInvariant())
@@ -83,12 +96,7 @@ public class RoomTemperatureEffect : IMagicSpellEffectTemplate
 				return BuildingCommandColour(actor, command);
 		}
 
-		actor.OutputHandler.Send(@"You can use the following options with this effect:
-
-	#3temp <degrees>#0 - sets the amount of temperature change per power in degrees
-	#3desc <desc>#0 - sets the room desc addendum e.g. An unholy chill sits over this area
-	#3desc none#0 - sets there to be no room desc addendum (effect is invisible)
-	#3colour <colour>#0 - sets the colour of the desc addenda");
+		actor.OutputHandler.Send(HelpText.SubstituteANSIColour());
 		return false;
 	}
 
@@ -171,8 +179,21 @@ public class RoomTemperatureEffect : IMagicSpellEffectTemplate
 	public bool IsInstantaneous => false;
 	public bool RequiresTarget => true;
 
+	public bool IsCompatibleWithTrigger(IMagicTrigger types) => IsCompatibleWithTrigger(types.TargetTypes);
+public static bool IsCompatibleWithTrigger(string types)
+	{
+		switch (types)
+		{
+			case "room":
+			case "rooms":
+				return true;
+			default:
+				return false;
+		}
+	}
+
 	public IMagicSpellEffect GetOrApplyEffect(ICharacter caster, IPerceivable target, OpposedOutcomeDegree outcome,
-		SpellPower power, IMagicSpellEffectParent parent)
+		SpellPower power, IMagicSpellEffectParent parent, SpellAdditionalParameter[] additionalParameters)
 	{
 		if (target is not ILocation)
 		{

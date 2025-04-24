@@ -23,7 +23,12 @@ public class MendEffect : IMagicSpellEffectTemplate
 	public static void RegisterFactory()
 	{
 		SpellEffectFactory.RegisterLoadTimeFactory("mend", (root, spell) => new MendEffect(root, spell));
-		SpellEffectFactory.RegisterBuilderFactory("mend", BuilderFactory);
+		SpellEffectFactory.RegisterBuilderFactory("mend", BuilderFactory,
+			"Mends a target's wounds as if using a repair kit",
+			HelpText,
+			true,
+			true,
+			SpellTriggerFactory.MagicTriggerTypes.Where(x => IsCompatibleWithTrigger(SpellTriggerFactory.BuilderInfoForType(x).TargetTypes)).ToArray());
 	}
 
 	private static (IMagicSpellEffectTemplate Trigger, string Error) BuilderFactory(StringStack commands,
@@ -68,6 +73,19 @@ public class MendEffect : IMagicSpellEffectTemplate
 			$"MendEffect - {HealingAmount.OriginalFormulaText.ColourCommand()} - {(HealWorstWoundsFirst ? "[WorstFirst]".Colour(Telnet.BoldYellow) : "[RandomTarget]".Colour(Telnet.Magenta))} {(HealOverflow ? "[Overflow]".Colour(Telnet.BoldGreen) : "[Single]".Colour(Telnet.BoldYellow))}";
 	}
 
+	public const string HelpText = @"You can use the following options with this effect:
+
+	#3worst#0 - toggles mending worst wound first (as opposed to random)
+	#3overflow#0 - toggles overflow mending the next wound (as opposed to only a single wound)
+	#3formula <formula>#0 - sets the formula for mending amount. See below for possible parameters.
+
+Parameters for healing formula:
+
+	#6power#0 - the power of the spell 0 (Insignificant) to 10 (Recklessly Powerful)
+	#6outcome#0 - the outcome of the skill check 0 (Marginal) to 5 (Total)
+
+You can also use the traits of the caster as per #3TE HELP#0.";
+
 	public bool BuildingCommand(ICharacter actor, StringStack command)
 	{
 		switch (command.PopSpeech().ToLowerInvariant())
@@ -82,18 +100,7 @@ public class MendEffect : IMagicSpellEffectTemplate
 				return BuildingCommandFormula(actor, command);
 		}
 
-		actor.OutputHandler.Send(@"You can use the following options with this effect:
-
-	#3worst#0 - toggles mending worst wound first (as opposed to random)
-	#3overflow#0 - toggles overflow mending the next wound (as opposed to only a single wound)
-	#3formula <formula>#0 - sets the formula for mending amount. See below for possible parameters.
-
-Parameters for healing formula:
-
-	#6power#0 - the power of the spell 0 (Insignificant) to 10 (Recklessly Powerful)
-	#6outcome#0 - the outcome of the skill check 0 (Marginal) to 5 (Total)
-
-You can also use the traits of the caster as per #3TE HELP#0.".SubstituteANSIColour());
+		actor.OutputHandler.Send(HelpText.SubstituteANSIColour());
 		return false;
 	}
 
@@ -145,8 +152,25 @@ You can also use the traits of the caster as per #3TE HELP#0.".SubstituteANSICol
 	public bool IsInstantaneous => true;
 	public bool RequiresTarget => true;
 
-	public IMagicSpellEffect? GetOrApplyEffect(ICharacter caster, IPerceivable? target, OpposedOutcomeDegree outcome,
-		SpellPower power, IMagicSpellEffectParent parent)
+	public bool IsCompatibleWithTrigger(IMagicTrigger types) => IsCompatibleWithTrigger(types.TargetTypes);
+public static bool IsCompatibleWithTrigger(string types)
+	{
+		switch (types)
+		{
+			case "item":
+			case "items":
+			case "character":
+			case "characters":
+			case "perceivable":
+			case "perceivables":
+				return true;
+			default:
+				return false;
+		}
+	}
+
+	public IMagicSpellEffect GetOrApplyEffect(ICharacter caster, IPerceivable target, OpposedOutcomeDegree outcome,
+		SpellPower power, IMagicSpellEffectParent parent, SpellAdditionalParameter[] additionalParameters)
 	{
 		if (target is not IHaveWounds hw)
 		{

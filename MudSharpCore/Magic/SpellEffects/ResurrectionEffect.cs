@@ -19,7 +19,12 @@ public class ResurrectionEffect : IMagicSpellEffectTemplate
 	public static void RegisterFactory()
 	{
 		SpellEffectFactory.RegisterLoadTimeFactory("resurrect", (root, spell) => new ResurrectionEffect(root, spell));
-		SpellEffectFactory.RegisterBuilderFactory("resurrect", BuilderFactory);
+		SpellEffectFactory.RegisterBuilderFactory("resurrect", BuilderFactory,
+			"Resurrects the dead",
+			HelpText,
+			true,
+			true,
+			SpellTriggerFactory.MagicTriggerTypes.Where(x => IsCompatibleWithTrigger(SpellTriggerFactory.BuilderInfoForType(x).TargetTypes)).ToArray());
 	}
 
 	private static (IMagicSpellEffectTemplate Trigger, string Error) BuilderFactory(StringStack commands,
@@ -63,6 +68,11 @@ public class ResurrectionEffect : IMagicSpellEffectTemplate
 
 	#region Implementation of IEditableItem
 
+	public const string HelpText = @"You can use the following options with this effect:
+
+	#3heal#0 - toggles healing wounds on the corpse
+	#3restore#0 - toggles restoring severed bodyparts on the corpse";
+
 	public bool BuildingCommand(ICharacter actor, StringStack command)
 	{
 		switch (command.PopSpeech().ToLowerInvariant())
@@ -73,10 +83,7 @@ public class ResurrectionEffect : IMagicSpellEffectTemplate
 				return BuildingCommandRestore(actor);
 		}
 
-		actor.OutputHandler.Send(@"You can use the following options with this effect:
-
-    #3heal#0 - toggles healing wounds on the corpse
-	#3restore#0 - toggles restoring severed bodyparts on the corpse");
+		actor.OutputHandler.Send(HelpText.SubstituteANSIColour());
 		return false;
 	}
 
@@ -109,8 +116,21 @@ public class ResurrectionEffect : IMagicSpellEffectTemplate
 	public bool IsInstantaneous => true;
 	public bool RequiresTarget => true;
 
-	public IMagicSpellEffect? GetOrApplyEffect(ICharacter caster, IPerceivable? target, OpposedOutcomeDegree outcome,
-		SpellPower power, IMagicSpellEffectParent parent)
+	public bool IsCompatibleWithTrigger(IMagicTrigger types) => IsCompatibleWithTrigger(types.TargetTypes);
+public static bool IsCompatibleWithTrigger(string types)
+	{
+		switch (types)
+		{
+			case "item":
+			case "items":
+				return true;
+			default:
+				return false;
+		}
+	}
+
+	public IMagicSpellEffect GetOrApplyEffect(ICharacter caster, IPerceivable target, OpposedOutcomeDegree outcome,
+		SpellPower power, IMagicSpellEffectParent parent, SpellAdditionalParameter[] additionalParameters)
 	{
 		var corpse = (target as IGameItem)?.GetItemType<ICorpse>();
 		if (corpse is null)

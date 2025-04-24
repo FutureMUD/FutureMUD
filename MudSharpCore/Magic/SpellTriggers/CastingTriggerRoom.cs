@@ -13,7 +13,11 @@ public class CastingTriggerRoom : CastingTriggerBase
 {
 	public static void RegisterFactory()
 	{
-		SpellTriggerFactory.RegisterBuilderFactory("room", DoBuilderLoad);
+		SpellTriggerFactory.RegisterBuilderFactory("room", DoBuilderLoad,
+			"Targets the caster's room",
+			"room",
+			new CastingTriggerRoom().BuildingCommandHelp
+		);
 		SpellTriggerFactory.RegisterLoadTimeFactory("room", (root, spell) => new CastingTriggerRoom(root, spell));
 	}
 
@@ -28,6 +32,8 @@ public class CastingTriggerRoom : CastingTriggerBase
 	protected CastingTriggerRoom(XElement definition, IMagicSpell spell) : base(definition, spell)
 	{
 	}
+
+	protected CastingTriggerRoom() : base() { }
 
 	#region Implementation of IXmlSavable
 
@@ -71,6 +77,8 @@ public class CastingTriggerRoom : CastingTriggerBase
 	}
 
 	public override bool TriggerYieldsTarget => true;
+
+	public override string TargetTypes => "room";
 
 	public override string ShowPlayer(ICharacter actor)
 	{

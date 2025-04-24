@@ -21,7 +21,12 @@ public class TraitBoostEffect : IMagicSpellEffectTemplate
 	public static void RegisterFactory()
 	{
 		SpellEffectFactory.RegisterLoadTimeFactory("boost", (root, spell) => new TraitBoostEffect(root, spell));
-		SpellEffectFactory.RegisterBuilderFactory("boost", BuilderFactory);
+		SpellEffectFactory.RegisterBuilderFactory("boost", BuilderFactory,
+			"Boosts or penalises a skill or attribute",
+			HelpText,
+			true,
+			true,
+			SpellTriggerFactory.MagicTriggerTypes.Where(x => IsCompatibleWithTrigger(SpellTriggerFactory.BuilderInfoForType(x).TargetTypes)).ToArray());
 	}
 
 	private static (IMagicSpellEffectTemplate Trigger, string Error) BuilderFactory(StringStack commands,
@@ -57,6 +62,12 @@ public class TraitBoostEffect : IMagicSpellEffectTemplate
 		);
 	}
 
+	public const string HelpText = @"You can use the following options with this effect:
+
+	#3trait <trait>#0 - sets the affected trait
+	#3bonus <bonus>#0 - sets the bonus amount
+	#3context <context>#0 - sets the bonus context";
+
 	public bool BuildingCommand(ICharacter actor, StringStack command)
 	{
 		switch (command.PopSpeech().ToLowerInvariant())
@@ -69,11 +80,7 @@ public class TraitBoostEffect : IMagicSpellEffectTemplate
 				return BuildingCommandContext(actor, command);
 		}
 
-		actor.OutputHandler.Send(@"You can use the following options with this effect:
-
-    #3trait <trait>#0 - sets the affected trait
-    #3bonus <bonus>#0 - sets the bonus amount
-    #3context <context>#0 - sets the bonus context".SubstituteANSIColour());
+		actor.OutputHandler.Send(HelpText.SubstituteANSIColour());
 		return false;
 	}
 
@@ -140,8 +147,21 @@ public class TraitBoostEffect : IMagicSpellEffectTemplate
 	public bool IsInstantaneous => false;
 	public bool RequiresTarget => true;
 
+	public bool IsCompatibleWithTrigger(IMagicTrigger types) => IsCompatibleWithTrigger(types.TargetTypes);
+public static bool IsCompatibleWithTrigger(string types)
+	{
+		switch (types)
+		{
+			case "character":
+			case "characters":
+				return true;
+			default:
+				return false;
+		}
+	}
+
 	public IMagicSpellEffect GetOrApplyEffect(ICharacter caster, IPerceivable target, OpposedOutcomeDegree outcome,
-		SpellPower power, IMagicSpellEffectParent parent)
+		SpellPower power, IMagicSpellEffectParent parent, SpellAdditionalParameter[] additionalParameters)
 	{
 		if (target is not ICharacter)
 		{

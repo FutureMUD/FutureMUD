@@ -18,7 +18,12 @@ public class RoomLightEffect : IMagicSpellEffectTemplate
 	public static void RegisterFactory()
 	{
 		SpellEffectFactory.RegisterLoadTimeFactory("roomlight", (root, spell) => new RoomLightEffect(root, spell));
-		SpellEffectFactory.RegisterBuilderFactory("roomlight", BuilderFactory);
+		SpellEffectFactory.RegisterBuilderFactory("roomlight", BuilderFactory,
+			"Creates a light that illuminates the room",
+			HelpText,
+			true,
+			true,
+			SpellTriggerFactory.MagicTriggerTypes.Where(x => IsCompatibleWithTrigger(SpellTriggerFactory.BuilderInfoForType(x).TargetTypes)).ToArray());
 	}
 
 	private static (IMagicSpellEffectTemplate Trigger, string Error) BuilderFactory(StringStack commands,
@@ -66,6 +71,15 @@ public class RoomLightEffect : IMagicSpellEffectTemplate
 
 	#region Implementation of IEditableItem
 
+	public const string HelpText = @"You can use the following options with this effect:
+
+	#3light <lux>#0 - sets the amount of added light per power level
+	#3desc <desc>#0 - sets the room desc addendum e.g. There is a big ball of light here
+	#3desc none#0 - sets there to be no room desc addendum (effect is invisible)
+	#3colour <colour>#0 - sets the colour of the desc addenda
+
+Note: You can use {0} in the desc addenda to have a light-level description (dim, bright, etc) inserted, e.g. ({0}ly glowing) might resolve as (brighly glowing)";
+
 	public bool BuildingCommand(ICharacter actor, StringStack command)
 	{
 		switch (command.PopSpeech().ToLowerInvariant())
@@ -81,14 +95,7 @@ public class RoomLightEffect : IMagicSpellEffectTemplate
 				return BuildingCommandColour(actor, command);
 		}
 
-		actor.OutputHandler.Send(@"You can use the following options with this effect:
-
-    #3light <lux>#0 - sets the amount of added light per power level
-    #3desc <desc>#0 - sets the room desc addendum e.g. There is a big ball of light here
-    #3desc none#0 - sets there to be no room desc addendum (effect is invisible)
-    #3colour <colour>#0 - sets the colour of the desc addenda
-
-Note: You can use {0} in the desc addenda to have a light-level description (dim, bright, etc) inserted, e.g. ({0}ly glowing) might resolve as (brighly glowing)");
+		actor.OutputHandler.Send(HelpText.SubstituteANSIColour());
 		return false;
 	}
 
@@ -169,8 +176,21 @@ Note: You can use {0} in the desc addenda to have a light-level description (dim
 	public bool IsInstantaneous => false;
 	public bool RequiresTarget => true;
 
+	public bool IsCompatibleWithTrigger(IMagicTrigger types) => IsCompatibleWithTrigger(types.TargetTypes);
+public static bool IsCompatibleWithTrigger(string types)
+	{
+		switch (types)
+		{
+			case "room":
+			case "rooms":
+				return true;
+			default:
+				return false;
+		}
+	}
+
 	public IMagicSpellEffect GetOrApplyEffect(ICharacter caster, IPerceivable target, OpposedOutcomeDegree outcome,
-		SpellPower power, IMagicSpellEffectParent parent)
+		SpellPower power, IMagicSpellEffectParent parent, SpellAdditionalParameter[] additionalParameters)
 	{
 		if (target is not ILocation)
 		{
@@ -178,7 +198,7 @@ Note: You can use {0} in the desc addenda to have a light-level description (dim
 		}
 
 		var lightLevel = Gameworld.LightModel.GetIlluminationDescription(AddedLuxPerPower * (int)power)
-		                          .ToLowerInvariant();
+								  .ToLowerInvariant();
 		return new SpellRoomLightEffect(target, parent, null, AddedLuxPerPower * (int)power,
 			string.Format(DescAddendum, lightLevel), GlowAddendumColour);
 	}

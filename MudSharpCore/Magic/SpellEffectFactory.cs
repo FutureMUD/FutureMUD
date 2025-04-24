@@ -39,7 +39,15 @@ public static class SpellEffectFactory
 	}
 
 	private static readonly
-		Dictionary<string, Func<StringStack, IMagicSpell, (IMagicSpellEffectTemplate Trigger, string Error)>>
+		Dictionary<string, 
+			(Func<StringStack, IMagicSpell, (IMagicSpellEffectTemplate Trigger, string Error)> Factory,
+			string Blurb,
+			string Help,
+			bool Instant,
+			bool RequiresTarget,
+			string[] MatchingTriggers
+			)
+		>
 		_builderFactories = new(StringComparer.InvariantCultureIgnoreCase);
 
 	public static (IMagicSpellEffectTemplate Trigger, string Error) LoadEffectFromBuilderInput(string type,
@@ -50,16 +58,27 @@ public static class SpellEffectFactory
 			return (null, "There is no such magic spell trigger type.");
 		}
 
-		return _builderFactories[type](furtherArguments, parent);
+		return _builderFactories[type].Factory(furtherArguments, parent);
 	}
 
 	public static void RegisterBuilderFactory(string type,
-		Func<StringStack, IMagicSpell, (IMagicSpellEffectTemplate Trigger, string Error)> factory)
+		Func<StringStack, IMagicSpell, (IMagicSpellEffectTemplate Trigger, string Error)> factory,
+		string blurb,
+		string help,
+		bool instant,
+		bool requiresTarget,
+		string[] matchingTriggers)
 	{
-		_builderFactories[type] = factory;
+		_builderFactories[type] = (factory, blurb, help, instant, requiresTarget, matchingTriggers);
 	}
 
 	public static IEnumerable<string> MagicEffectTypes => _builderFactories.Keys;
+
+	public static (string Blurb, string BuilderHelp, bool Instant, bool RequiresTarget, string[] MatchingTriggers) BuilderInfoForType(string type)
+	{
+		var (_, blurb, help, instant, requiresTarget, matchingTriggers) = _builderFactories[type];
+		return (blurb, help, instant, requiresTarget, matchingTriggers);
+	}
 
 	public static void SetupFactory()
 	{

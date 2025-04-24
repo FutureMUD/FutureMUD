@@ -51,7 +51,13 @@ public partial class Character
 				flags: OutputFlags.SuppressObscured | OutputFlags.SuppressSource));
 	}
 
-	public void Teleport(ICell target, RoomLayer layer, bool includeFollowers, bool echo)
+	public void Teleport(ICell target, RoomLayer layer, bool includeFollowers, bool echo,
+		string playerEchoLeave = "@ leaves the area.",
+		string playerEchoArrive = "@ enters the area.",
+		string playerEchoSelf = "",
+		string followerEchoLeave = "@ leaves the area.",
+		string followerEchoArrive = "@ enters the area.",
+		string followerEchoSelf = "")
 	{
 		Movement?.CancelForMoverOnly(this);
 		RemoveAllEffects(x => x.IsEffectType<IActionEffect>(), true);
@@ -74,6 +80,11 @@ public partial class Character
 				}
 				otherMovers.AddRange(drag.CharacterDraggers.Except(this).Where(x => x.ColocatedWith(this)));
 			}
+
+			if (Party is not null && Party.Leader == this)
+			{
+				otherMovers.AddRange(Party.CharacterMembers.Except(this).Except(otherMovers).Where(x => x.ColocatedWith(this)));
+			}
 		}
 		else
 		{
@@ -92,10 +103,19 @@ public partial class Character
 
 		if (echo)
 		{
-			OutputHandler.Handle(new EmoteOutput(new Emote("@ leaves the area.", this), flags: OutputFlags.SuppressObscured | OutputFlags.SuppressSource));
+			OutputHandler.Handle(new EmoteOutput(new Emote(playerEchoLeave, this, this), flags: OutputFlags.SuppressObscured | OutputFlags.SuppressSource));
 			foreach (var mover in otherMovers)
 			{
-				mover.OutputHandler.Handle(new EmoteOutput(new Emote("@ leaves the area.", mover), flags: OutputFlags.SuppressObscured | OutputFlags.SuppressSource));
+				mover.OutputHandler.Handle(new EmoteOutput(new Emote(followerEchoLeave, mover, mover, this), flags: OutputFlags.SuppressObscured | OutputFlags.SuppressSource));
+				if (!string.IsNullOrEmpty(followerEchoSelf))
+				{
+					mover.OutputHandler.Send(new EmoteOutput(new Emote(followerEchoSelf, mover, mover, this)));
+				}
+			}
+
+			if (!string.IsNullOrEmpty(playerEchoSelf))
+			{
+				OutputHandler.Send(new EmoteOutput(new Emote(playerEchoSelf, this, this)));
 			}
 		}
 
@@ -128,10 +148,10 @@ public partial class Character
 
 		if (echo)
 		{
-			OutputHandler.Handle(new EmoteOutput(new Emote("@ enters the area.", this), flags: OutputFlags.SuppressObscured | OutputFlags.SuppressSource));
+			OutputHandler.Handle(new EmoteOutput(new Emote(playerEchoArrive, this), flags: OutputFlags.SuppressObscured | OutputFlags.SuppressSource));
 			foreach (var mover in otherMovers)
 			{
-				mover.OutputHandler.Handle(new EmoteOutput(new Emote("@ enters the area.", mover), flags: OutputFlags.SuppressObscured | OutputFlags.SuppressSource));
+				mover.OutputHandler.Handle(new EmoteOutput(new Emote(followerEchoArrive , mover), flags: OutputFlags.SuppressObscured | OutputFlags.SuppressSource));
 			}
 		}
 

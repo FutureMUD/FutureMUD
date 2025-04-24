@@ -17,7 +17,12 @@ public class RelocateEffect : IMagicSpellEffectTemplate
 	public static void RegisterFactory()
 	{
 		SpellEffectFactory.RegisterLoadTimeFactory("relocate", (root, spell) => new RelocateEffect(root, spell));
-		SpellEffectFactory.RegisterBuilderFactory("relocate", BuilderFactory);
+		SpellEffectFactory.RegisterBuilderFactory("relocate", BuilderFactory,
+			"Relocates a dislocated bone",
+			HelpText,
+			true,
+			true,
+			SpellTriggerFactory.MagicTriggerTypes.Where(x => IsCompatibleWithTrigger(SpellTriggerFactory.BuilderInfoForType(x).TargetTypes)).ToArray());
 	}
 
 	private static (IMagicSpellEffectTemplate Trigger, string Error) BuilderFactory(StringStack commands,
@@ -72,6 +77,21 @@ public class RelocateEffect : IMagicSpellEffectTemplate
 			$"RelocateEffect - {HealingAmount.OriginalFormulaText.ColourCommand()} - {(HealWorstWoundsFirst ? "[WorstFirst]".Colour(Telnet.BoldYellow) : "[RandomTarget]".Colour(Telnet.Magenta))} {(HealOverflow ? "[Overflow]".Colour(Telnet.BoldGreen) : "[Single]".Colour(Telnet.BoldYellow))}";
 	}
 
+	public const string HelpText = @"You can use the following options with this effect:
+
+	#3worst#0 - toggles relocating worst wound first (as opposed to easiest)
+	#3overflow#0 - toggles overflow relocating the next wound (as opposed to only a single wound)
+	#3formula <formula>#0 - sets the formula for relocation total difficulty amount. See below for possible parameters.
+
+Parameters for healing formula:
+
+	#6power#0 - the power of the spell 0 (Insignificant) to 10 (Recklessly Powerful)
+	#6outcome#0 - the outcome of the skill check 0 (Marginal) to 5 (Total)
+
+The result of the formula is the number of ""levels"" of difficulty that can be relocated, e.g. a ""normal"" difficulty relocation requires >5.0 healing.
+
+You can also use the traits of the caster as per #3TE HELP#0.";
+
 	public bool BuildingCommand(ICharacter actor, StringStack command)
 	{
 		switch (command.PopSpeech().ToLowerInvariant())
@@ -86,20 +106,7 @@ public class RelocateEffect : IMagicSpellEffectTemplate
 				return BuildingCommandFormula(actor, command);
 		}
 
-		actor.OutputHandler.Send(@"You can use the following options with this effect:
-
-	#3worst#0 - toggles relocating worst wound first (as opposed to easiest)
-	#3overflow#0 - toggles overflow relocating the next wound (as opposed to only a single wound)
-	#3formula <formula>#0 - sets the formula for relocation total difficulty amount. See below for possible parameters.
-
-Parameters for healing formula:
-
-	#6power#0 - the power of the spell 0 (Insignificant) to 10 (Recklessly Powerful)
-	#6outcome#0 - the outcome of the skill check 0 (Marginal) to 5 (Total)
-
-The result of the formula is the number of ""levels"" of difficulty that can be relocated, e.g. a ""normal"" difficulty relocation requires >5.0 healing.
-
-You can also use the traits of the caster as per #3TE HELP#0.".SubstituteANSIColour());
+		actor.OutputHandler.Send(HelpText.SubstituteANSIColour());
 		return false;
 	}
 
@@ -151,8 +158,21 @@ You can also use the traits of the caster as per #3TE HELP#0.".SubstituteANSICol
 	public bool IsInstantaneous => true;
 	public bool RequiresTarget => true;
 
-	public IMagicSpellEffect? GetOrApplyEffect(ICharacter caster, IPerceivable? target, OpposedOutcomeDegree outcome,
-		SpellPower power, IMagicSpellEffectParent parent)
+	public bool IsCompatibleWithTrigger(IMagicTrigger types) => IsCompatibleWithTrigger(types.TargetTypes);
+public static bool IsCompatibleWithTrigger(string types)
+	{
+		switch (types)
+		{
+			case "character":
+			case "characters":
+				return true;
+			default:
+				return false;
+		}
+	}
+
+	public IMagicSpellEffect GetOrApplyEffect(ICharacter caster, IPerceivable target, OpposedOutcomeDegree outcome,
+		SpellPower power, IMagicSpellEffectParent parent, SpellAdditionalParameter[] additionalParameters)
 	{
 		if (target is not ICharacter tch)
 		{

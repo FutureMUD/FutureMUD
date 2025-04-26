@@ -29,8 +29,8 @@ public class CraftPhase : ICraftPhase
 		Craft = craft;
 		PhaseNumber = phase.PhaseNumber;
 		PhaseLengthInSeconds = phase.PhaseLengthInSeconds;
-		Echo = phase.Echo;
-		FailEcho = phase.FailEcho;
+		Echo = phase.Echo ?? string.Empty;
+		FailEcho = phase.FailEcho ?? string.Empty;
 		ExertionLevel = (ExertionLevel)phase.ExertionLevel;
 		StaminaUsage = phase.StaminaUsage;
 	}

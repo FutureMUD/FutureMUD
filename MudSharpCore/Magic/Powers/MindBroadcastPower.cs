@@ -23,6 +23,22 @@ public class MindBroadcastPower : MagicPowerBase
 	{
 		MagicPowerFactory.RegisterLoader("mindbroadcast",
 			(power, gameworld) => new MindBroadcastPower(power, gameworld));
+		MagicPowerFactory.RegisterBuilderLoader("mindbroadcast", (gameworld, school, name, actor, command) => {
+			if (command.IsFinished)
+			{
+				actor.OutputHandler.Send("Which skill do you want to use for the skill check?");
+				return null;
+			}
+
+			var skill = gameworld.Traits.GetByIdOrName(command.SafeRemainingArgument);
+			if (skill is null)
+			{
+				actor.OutputHandler.Send("There is no such skill or attribute.");
+				return null;
+			}
+
+			return new MindBroadcastPower(gameworld, school, name, skill);
+		});
 	}
 	protected override XElement SaveDefinition()
 	{
@@ -40,6 +56,25 @@ public class MindBroadcastPower : MagicPowerBase
 			new XElement("SkillCheckTrait", SkillCheckTrait.Id)
 		);
 		return definition;
+	}
+
+	private MindBroadcastPower(IFuturemud gameworld, IMagicSchool school, string name, ITraitDefinition trait) : base(gameworld, school, name)
+	{
+		Blurb = "Send a message to everyone in your room";
+		_showHelpText = $"You can use {school.SchoolVerb.ToUpperInvariant()} BROADCAST <MESSAGE> to send a message to everyone in the same room as you.";
+		SkillCheckTrait = trait;
+		SkillCheckDifficulty = Difficulty.Normal;
+		MinimumSuccessThreshold = Outcome.MinorFail;
+		EmoteText = "You muster your force of will to amplify your thoughts, and broadcast the following to all present";
+		FailEmoteText = "You are unable to amplify your thoughts due to a small lapse in concentration.";
+		TargetEmoteText = "You feel the voice of {0} in your mind saying";
+		TargetCanSeeIdentityProg = Gameworld.AlwaysTrueProg;
+		TargetIncluded = Gameworld.AlwaysTrueProg;
+		UnknownIdentityDescription = "an unknown entity";
+		Verb = "broadcast";
+		UseLanguage = false;
+		UseAccent = false;
+		DoDatabaseInsert();
 	}
 
 	protected MindBroadcastPower(MagicPower power, IFuturemud gameworld) : base(power, gameworld)
@@ -217,8 +252,7 @@ public class MindBroadcastPower : MagicPowerBase
 				target.OutputHandler.Send(emote);
 			}
 
-			actor.OutputHandler.Send(new EmoteOutput(new Emote(
-				string.Format(EmoteText, text).SubstituteANSIColour().ProperSentences().Fullstop(), actor, actor)));
+			actor.OutputHandler.Send(new EmoteOutput(new Emote(string.Format(EmoteText, text).SubstituteANSIColour().ProperSentences().Fullstop(), actor, actor)));
 		}
 		else
 		{
@@ -301,7 +335,16 @@ public class MindBroadcastPower : MagicPowerBase
 	#3skill <which>#0 - sets the skill used in the skill check
 	#3difficulty <difficulty>#0 - sets the difficulty of the skill check
 	#3threshold <outcome>#0 - sets the minimum outcome for skill success
-	#3distance <distance>#0 - sets the distance that this power can be used at";
+	#3uselanguage#0 - toggles using language (if off, language checks are skipped)
+	#3useaccent#0 - toggles using accents if language is used
+	#3unknown <desc>#0 - a substitute for sdesc if power user identity is not known
+	#3identityprog <prog>#0 - sets a prog that controls whether the target knows who the power user is
+	#3targetprog <prog>#0 - sets a prog that controls whether the target can hear the message
+	#3emote <emote>#0 - an emote sent to the user when the power is invoked. Don't put a fullstop at the end.
+	#3failemote <emote>#0 - an emote sent to the user when the power fails
+	#3targetemote <emote>#0 - an emote sent to the target. Use #6{0}#0 instead of $0 for the user. Don't put a fullstop at the end.
+
+#6Note - for emotes, use $0 for the user and $1 for the target";
 
 	/// <inheritdoc />
 	public override bool BuildingCommand(ICharacter actor, StringStack command)
@@ -321,12 +364,173 @@ public class MindBroadcastPower : MagicPowerBase
 				return BuildingCommandDifficulty(actor, command);
 			case "threshold":
 				return BuildingCommandThreshold(actor, command);
+			case "uselanguage":
+				return BuildingCommandUseLanguage(actor);
+			case "useaccent":
+				return BuildingCommandUseAccent(actor);
+			case "identityprog":
+				return BuildingCommandIdentityProg(actor, command);
+			case "unknown":
+				return BuildingCommandUnknown(actor, command);
+			case "emote":
+				return BuildingCommandEmote(actor, command);
+			case "failemote":
+				return BuildingCommandFailEmote(actor, command);
+			case "targetemote":
+				return BuildingCommandTargetEmote(actor, command);
+			case "targetprog":
+				return BuildingCommandTargetProg(actor, command);
 		}
 		return base.BuildingCommand(actor, command.GetUndo());
 	}
 
 	#region Building Subcommands
 
+	private bool BuildingCommandTargetProg(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("Which prog should be used to determine if the target can hear the message?");
+			return false;
+		}
+
+		var prog = new ProgLookupFromBuilderInput(actor, command.SafeRemainingArgument, ProgVariableTypes.Boolean, [
+			[ProgVariableTypes.Character],
+			[ProgVariableTypes.Character, ProgVariableTypes.Character]
+		]).LookupProg();
+		if (prog is null)
+		{
+			return false;
+		}
+
+		TargetIncluded = prog;
+		Changed = true;
+		actor.OutputHandler.Send($"This power now uses the {prog.MXPClickableFunctionName()} prog to determine if the target can hear the message.");
+		return true;
+	}
+
+	private bool BuildingCommandTargetEmote(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("You must enter an emote.");
+			return false;
+		}
+
+		var emoteText = command.SafeRemainingArgument;
+		var emote = new Emote(emoteText, new DummyPerceiver(), new DummyPerceivable(), new DummyPerceivable());
+		if (!emote.Valid)
+		{
+			actor.OutputHandler.Send(emote.ErrorMessage);
+			return false;
+		}
+
+		if (!emoteText.IsValidFormatString([false]))
+		{
+			actor.OutputHandler.Send($"The only valid curly-braces reference in this output is {{0}}.");
+			return false;
+		}
+
+		EmoteText = emoteText;
+		Changed = true;
+		actor.OutputHandler.Send($"The echo sent when this power is used is now {EmoteText.ColourCommand()}");
+		return true;
+	}
+
+	private bool BuildingCommandFailEmote(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("You must enter an emote.");
+			return false;
+		}
+
+		var emote = new Emote(command.SafeRemainingArgument, new DummyPerceiver(), new DummyPerceivable(), new DummyPerceivable());
+		if (!emote.Valid)
+		{
+			actor.OutputHandler.Send(emote.ErrorMessage);
+			return false;
+		}
+
+		FailEmoteText = command.SafeRemainingArgument;
+		Changed = true;
+		actor.OutputHandler.Send($"The echo sent when this power is used and fails is now {FailEmoteText.ColourCommand()}");
+		return true;
+	}
+
+	private bool BuildingCommandEmote(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("You must enter an emote.");
+			return false;
+		}
+
+		var emote = new Emote(command.SafeRemainingArgument, new DummyPerceiver(), new DummyPerceivable(), new DummyPerceivable());
+		if (!emote.Valid)
+		{
+			actor.OutputHandler.Send(emote.ErrorMessage);
+			return false;
+		}
+
+		EmoteText = command.SafeRemainingArgument;
+		Changed = true;
+		actor.OutputHandler.Send($"The echo sent when this power is used is now {EmoteText.ColourCommand()}");
+		return true;
+	}
+
+	private bool BuildingCommandUnknown(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("What description should be shown instead of the real short description if the target can't see the identity?");
+			return false;
+		}
+
+		UnknownIdentityDescription = command.SafeRemainingArgument;
+		Changed = true;
+		actor.OutputHandler.Send($"The target will see the text {UnknownIdentityDescription.ColourCharacter()} instead of the user's short description if unknown.");
+		return true;
+	}
+
+	private bool BuildingCommandIdentityProg(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("Which prog should be used to determine if the target gets the short description of the user, or the unknown description?");
+			return false;
+		}
+
+		var prog = new ProgLookupFromBuilderInput(actor, command.SafeRemainingArgument, ProgVariableTypes.Boolean, [
+			[ProgVariableTypes.Character],
+			[ProgVariableTypes.Character, ProgVariableTypes.Character]
+		]).LookupProg();
+		if (prog is null)
+		{
+			return false;
+		}
+
+		TargetCanSeeIdentityProg = prog;
+		Changed = true;
+		actor.OutputHandler.Send($"This power now uses the {prog.MXPClickableFunctionName()} prog to determine if the target gets the real description of the power user.");
+		return true;
+	}
+
+	private bool BuildingCommandUseAccent(ICharacter actor)
+	{
+		UseAccent = !UseAccent;
+		Changed = true;
+		actor.OutputHandler.Send($"The message sent by this power {UseAccent.NowNoLonger()} uses the user's accent when language is involved.");
+		return true;
+	}
+
+	private bool BuildingCommandUseLanguage(ICharacter actor)
+	{
+		UseLanguage = !UseLanguage;
+		Changed = true;
+		actor.OutputHandler.Send($"The message sent by this power {UseLanguage.NowNoLonger()} uses language and requires language understanding.");
+		return true;
+	}
 	private bool BuildingCommandThreshold(ICharacter actor, StringStack command)
 	{
 		if (command.IsFinished)

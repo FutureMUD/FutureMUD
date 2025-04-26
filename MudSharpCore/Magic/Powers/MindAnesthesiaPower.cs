@@ -9,6 +9,7 @@ using MudSharp.Character;
 using MudSharp.Effects.Concrete;
 using MudSharp.Framework;
 using MudSharp.FutureProg;
+using MudSharp.GameItems;
 using MudSharp.PerceptionEngine;
 using MudSharp.PerceptionEngine.Outputs;
 using MudSharp.PerceptionEngine.Parsers;
@@ -26,6 +27,22 @@ public class MindAnesthesiaPower : SustainedMagicPower
 	public static void RegisterLoader()
 	{
 		MagicPowerFactory.RegisterLoader("anesthesia", (power, gameworld) => new MindAnesthesiaPower(power, gameworld));
+		MagicPowerFactory.RegisterBuilderLoader("anesthesia", (gameworld, school, name, actor, command) => {
+			if (command.IsFinished)
+			{
+				actor.OutputHandler.Send("Which skill do you want to use for the skill check?");
+				return null;
+			}
+
+			var skill = gameworld.Traits.GetByIdOrName(command.SafeRemainingArgument);
+			if (skill is null)
+			{
+				actor.OutputHandler.Send("There is no such skill or attribute.");
+				return null;
+			}
+
+			return new MindAnesthesiaPower(gameworld, school, name, skill);
+		});
 	}
 
 	/// <inheritdoc />
@@ -60,6 +77,40 @@ public class MindAnesthesiaPower : SustainedMagicPower
 		);
 		SaveSustainedDefinition(definition);
 		return definition;
+	}
+
+	private MindAnesthesiaPower(IFuturemud gameworld, IMagicSchool school, string name, ITraitDefinition trait) : base(gameworld, school, name)
+	{
+		Blurb = "Put a target to sleep";
+		_showHelpText = $"You can use {school.SchoolVerb.ToUpperInvariant()} DROWSY <person> to make a person drowsy, {school.SchoolVerb.ToUpperInvariant()} SLEEP <person> to put them in a light sleep, {school.SchoolVerb.ToUpperInvariant()} COMA <person> to put them in a deep sleep in which they may not be able to breathe, and {school.SchoolVerb.ToUpperInvariant()} STOPSLEEP to stop these effects";
+		PowerLevelVerbs = new Dictionary<string, (double Intensity, double Cost)>
+		{
+			{"drowsy", (0.5, 1.0)},
+			{"sleep", (1.1, 10.0)},
+			{"coma", (2.75, 20.0)}
+		};
+		CancelVerb = "stopsleep";
+		SkillCheckTrait = trait;
+		SkillCheckDifficulty = Difficulty.Hard;
+		MinimumSuccessThreshold = Outcome.MinorPass;
+		ConcentrationPointsToSustain = 1.0;
+		PowerDistance = MagicPowerDistance.AnyConnectedMind;
+		EmoteText = "@ begin|begins murmuring unintelligible soothing sounds under &0's breath.";
+		FailEmoteText = "@ begin|begins murmuring unintelligible soothing sounds under &0's breath, but stop|stops in short order.";
+		FailEmoteTextTarget = "You briefly feel a soothing presence in your mind, but it is gone as soon as it appears.";
+		EndPowerEmoteText = "@ stop|stops &0's soothing murmurs.";
+		EndPowerEmoteTextTarget = "The soothing presence in your mind that was lulling you towards sleep has lifted.";
+		EmoteTextTarget = "You feel a soothing presence in your mind, lulling you towards sleep.";
+		TargetResistanceEmoteText = "@ stop|stops &0's soothing murmurs.";
+		TargetResistanceEmoteTextTarget = "You have cast off the presence lulling your mind towards sleep.";
+		DetectableWithDetectMagic = Difficulty.ExtremelyEasy;
+		SustainPenalty = 1.2;
+		ResistCheckDifficulty = Difficulty.Hard;
+		ResistCheckInterval = TimeSpan.FromSeconds(30);
+		TickLength = TimeSpan.FromSeconds(10);
+		RampRatePerTick = 0.05;
+		RampInterval = TimeSpan.FromSeconds(5);
+		DoDatabaseInsert();
 	}
 
 	protected MindAnesthesiaPower(Models.MagicPower power, IFuturemud gameworld) : base(power, gameworld)

@@ -13,6 +13,7 @@ using MudSharp.FutureProg;
 using MudSharp.PerceptionEngine.Outputs;
 using MudSharp.PerceptionEngine.Parsers;
 using MudSharp.RPG.Checks;
+using MudSharp.GameItems;
 
 namespace MudSharp.Magic.Powers;
 
@@ -22,6 +23,22 @@ public partial class TelepathyPower : SustainedMagicPower
 	public static void RegisterLoader()
 	{
 		MagicPowerFactory.RegisterLoader("telepathy", (power, gameworld) => new TelepathyPower(power, gameworld));
+		MagicPowerFactory.RegisterBuilderLoader("telepathy", (gameworld, school, name, actor, command) => {
+			if (command.IsFinished)
+			{
+				actor.OutputHandler.Send("Which skill do you want to use for the skill check?");
+				return null;
+			}
+
+			var skill = gameworld.Traits.GetByIdOrName(command.SafeRemainingArgument);
+			if (skill is null)
+			{
+				actor.OutputHandler.Send("There is no such skill or attribute.");
+				return null;
+			}
+
+			return new TelepathyPower(gameworld, school, name, skill);
+		});
 	}
 
 	protected override XElement SaveDefinition()
@@ -40,6 +57,26 @@ public partial class TelepathyPower : SustainedMagicPower
 		);
 		SaveSustainedDefinition(definition);
 		return definition;
+	}
+
+	private TelepathyPower(IFuturemud gameworld, IMagicSchool school, string name, ITraitDefinition trait) : base(gameworld, school, name)
+	{
+		Blurb = "Listen to thoughts of others";
+		_showHelpText = @$"You can use #3{school.SchoolVerb.ToUpperInvariant()} TELEPATHY#0 to begin listening to other's thoughts and #3{school.SchoolVerb.ToUpperInvariant()} ENDTELEPATHY#0 to end this effect."; ;
+		BeginVerb = "telepathy";
+		EndVerb = "endtelepathy";
+		SkillCheckTrait = trait;
+		SkillCheckDifficulty = Difficulty.VeryEasy;
+		MinimumSuccessThreshold = Outcome.Fail;
+		ConcentrationPointsToSustain = 1.0;
+		PowerDistance = MagicPowerDistance.AdjacentLocationsOnly;
+		ShowThinks = true;
+		ShowFeels = true;
+		ShowThinkEmote = true;
+		ShowThinkerDescription = Gameworld.AlwaysTrueProg;
+		BeginEmoteText = "You begin listening for the thoughts of those around you.";
+		EndEmoteText = "You close off your mind to the thoughts of others.";
+		DoDatabaseInsert();
 	}
 
 	protected TelepathyPower(MagicPower power, IFuturemud gameworld) : base(power, gameworld)

@@ -9,6 +9,7 @@ using MudSharp.Models;
 using MudSharp.Character;
 using MudSharp.Effects.Concrete;
 using MudSharp.Framework;
+using MudSharp.PerceptionEngine;
 using MudSharp.PerceptionEngine.Outputs;
 using MudSharp.PerceptionEngine.Parsers;
 using MudSharp.RPG.Checks;
@@ -21,6 +22,22 @@ public class MindLookPower : MagicPowerBase
 	public static void RegisterLoader()
 	{
 		MagicPowerFactory.RegisterLoader("mindlook", (power, gameworld) => new MindLookPower(power, gameworld));
+		MagicPowerFactory.RegisterBuilderLoader("mindlook", (gameworld, school, name, actor, command) => {
+			if (command.IsFinished)
+			{
+				actor.OutputHandler.Send("Which skill do you want to use for the skill check?");
+				return null;
+			}
+
+			var skill = gameworld.Traits.GetByIdOrName(command.SafeRemainingArgument);
+			if (skill is null)
+			{
+				actor.OutputHandler.Send("There is no such skill or attribute.");
+				return null;
+			}
+
+			return new MindLookPower(gameworld, school, name, skill);
+		});
 	}
 
 	protected override XElement SaveDefinition()
@@ -31,6 +48,8 @@ public class MindLookPower : MagicPowerBase
 			new XElement("LookInThingVerb", LookInThingVerb),
 			new XElement("EmoteText", new XCData(EmoteText)),
 			new XElement("FailEmoteText", new XCData(FailEmoteText)),
+			new XElement("EmoteTextSelf", new XCData(EmoteTextSelf)),
+			new XElement("FailEmoteTextSelf", new XCData(FailEmoteTextSelf)),
 			new XElement("SkillCheckDifficultyLookRoom", (int)SkillCheckDifficultyLookRoom),
 			new XElement("SkillCheckDifficultyLookThing", (int)SkillCheckDifficultyLookThing),
 			new XElement("SkillCheckDifficultyLookInThing", (int)SkillCheckDifficultyLookInThing),
@@ -40,6 +59,27 @@ public class MindLookPower : MagicPowerBase
 			new XElement("SkillCheckTrait", SkillCheckTrait.Id)
 		);
 		return definition;
+	}
+
+	private MindLookPower(IFuturemud gameworld, IMagicSchool school, string name, ITraitDefinition trait) : base(gameworld, school, name)
+	{
+		Blurb = "Look through a connected target's eyes";
+		_showHelpText = $"You can use {school.SchoolVerb.ToUpperInvariant()} LOOK to look at the room, {school.SchoolVerb.ToUpperInvariant()} LOOKAT <TARGET> to look at a person or item, and {school.SchoolVerb.ToUpperInvariant()} LOOKIN <THING> to look inside an item.";
+		LookRoomVerb = "look";
+		LookThingVerb = "lookat";
+		LookInThingVerb = "lookin";
+		SkillCheckTrait = trait;
+		SkillCheckDifficultyLookRoom = Difficulty.Trivial;
+		SkillCheckDifficultyLookThing = Difficulty.VeryEasy;
+		SkillCheckDifficultyLookInThing = Difficulty.Normal;
+		MinimumSuccessThresholdLookRoom = Outcome.MinorPass;
+		MinimumSuccessThresholdLookThing = Outcome.MinorPass;
+		MinimumSuccessThresholdLookInThing = Outcome.MinorPass;
+		EmoteText = "@ close|closes &0's eyes for a brief moment and looks deep in concentration.";
+		FailEmoteText = "@ close|closes &0's eyes for a brief moment and looks deep in concentration.";
+		EmoteTextSelf = "You close your eyes to shut out the world around you and borrow your target's senses for a moment.";
+		FailEmoteTextSelf = "You close your eyes to shut out the world around you, but are unable to make sense of what you see.";
+		DoDatabaseInsert();
 	}
 
 	protected MindLookPower(MagicPower power, IFuturemud gameworld) : base(power, gameworld)
@@ -84,6 +124,9 @@ public class MindLookPower : MagicPowerBase
 		}
 
 		FailEmoteText = element.Value.ToLowerInvariant();
+
+		EmoteTextSelf = root.Element("EmoteTextSelf")?.Value ?? string.Empty;
+		FailEmoteTextSelf = root.Element("FailEmoteTextSelf")?.Value ?? string.Empty;
 
 		element = root.Element("SkillCheckDifficultyLookRoom");
 		if (element == null)
@@ -292,7 +335,12 @@ public class MindLookPower : MagicPowerBase
 		var outcome = check.Check(actor, difficulty, SkillCheckTrait, effect.TargetCharacter);
 		if (outcome < threshold)
 		{
-			actor.OutputHandler.Send(new EmoteOutput(new Emote(FailEmoteText, actor, actor, effect.TargetCharacter)));
+			if (!string.IsNullOrEmpty(FailEmoteText))
+			{
+				actor.OutputHandler.Handle(new EmoteOutput(new Emote(FailEmoteText, actor, actor, effect.TargetCharacter), flags: OutputFlags.SuppressObscured | OutputFlags.SuppressSource));
+			}
+
+			actor.OutputHandler.Send(new EmoteOutput(new Emote(FailEmoteTextSelf, actor, actor, effect.TargetCharacter)));
 			return;
 		}
 
@@ -301,10 +349,10 @@ public class MindLookPower : MagicPowerBase
 			case UseCommandVerb.Room:
 				if (!string.IsNullOrEmpty(EmoteText))
 				{
-					actor.OutputHandler.Send(
-						new EmoteOutput(new Emote(EmoteText, actor, actor, effect.TargetCharacter)));
+					actor.OutputHandler.Handle(new EmoteOutput(new Emote(EmoteText, actor, actor, effect.TargetCharacter), flags: OutputFlags.SuppressObscured | OutputFlags.SuppressSource));
 				}
 
+				actor.OutputHandler.Send(EmoteTextSelf);
 				actor.OutputHandler.Send(effect.TargetCharacter.Body.LookText(false), false, true);
 				return;
 			default:
@@ -359,22 +407,28 @@ public class MindLookPower : MagicPowerBase
 
 	public string EmoteText { get; set; }
 	public string FailEmoteText { get; set; }
+	public string EmoteTextSelf { get; set; }
+	public string FailEmoteTextSelf { get; set; }
 
 	protected override void ShowSubtype(ICharacter actor, StringBuilder sb)
 	{
+		sb.AppendLine($"Skill Check Trait: {SkillCheckTrait.Name.ColourValue()}");
 		sb.AppendLine($"Look Room Verb: {LookRoomVerb.ColourCommand()}");
 		sb.AppendLine($"Look Thing Verb: {LookThingVerb.ColourCommand()}");
 		sb.AppendLine($"Look In Thing Verb: {LookInThingVerb.ColourCommand()}");
-		sb.AppendLine($"Skill Check Trait: {SkillCheckTrait.Name.ColourValue()}");
 		sb.AppendLine($"Look Room Difficulty: {SkillCheckDifficultyLookRoom.DescribeColoured()}");
-		sb.AppendLine($"Look Thing Success Threshold: {MinimumSuccessThresholdLookRoom.DescribeColour()}");
-		sb.AppendLine($"Look Thing Success Threshold: {MinimumSuccessThresholdLookRoom.DescribeColour()}");
-		sb.AppendLine($"Look In Thing Success Threshold: {MinimumSuccessThresholdLookRoom.DescribeColour()}");
+		sb.AppendLine($"Look Thing Difficulty: {SkillCheckDifficultyLookThing.DescribeColoured()}");
+		sb.AppendLine($"Look In Thing Difficulty: {SkillCheckDifficultyLookInThing.DescribeColoured()}");
+		sb.AppendLine($"Look Room Success Threshold: {MinimumSuccessThresholdLookRoom.DescribeColour()}");
+		sb.AppendLine($"Look Thing Success Threshold: {MinimumSuccessThresholdLookThing.DescribeColour()}");
+		sb.AppendLine($"Look In Thing Success Threshold: {MinimumSuccessThresholdLookInThing.DescribeColour()}");
 		sb.AppendLine();
 		sb.AppendLine("Emotes:");
 		sb.AppendLine();
 		sb.AppendLine($"Emote: {EmoteText.ColourCommand()}");
+		sb.AppendLine($"Emote Self: {EmoteTextSelf.ColourCommand()}");
 		sb.AppendLine($"Fail Emote: {FailEmoteText.ColourCommand()}");
+		sb.AppendLine($"Fail Emote Self: {FailEmoteTextSelf.ColourCommand()}");
 	}
 
 	#region Building Commands
@@ -388,13 +442,27 @@ public class MindLookPower : MagicPowerBase
 	#3thresholdroom <outcome>#0 - sets the minimum outcome for skill success for rooms
 	#3thresholdthing <outcome>#0 - sets the minimum outcome for skill success for things
 	#3thresholdinthing <outcome>#0 - sets the minimum outcome for skill success for looking in things
-	#3skill <which>#0 - sets the skill used in the skill check";
+	#3skill <which>#0 - sets the skill used in the skill check
+	#3emote <emote>#0 - sets the emote used when invoking the power. If blank, no echo is made
+	#3emoteself <emote>#0 - sets the self emote used when invoking the power
+	#3failemote <emote>#0 - sets the fail emote used when invoking the power. If blank, no echo is made
+	#3failemoteself <emote>#0 - sets the self fail emote used when invoking the power
+
+#6Note - for all emotes, $0 is the power user and $1 the target#0.";
 
 	/// <inheritdoc />
 	public override bool BuildingCommand(ICharacter actor, StringStack command)
 	{
 		switch (command.PopForSwitch())
 		{
+			case "emote":
+				return BuildingCommandEmote(actor, command);
+			case "failemote":
+				return BuildingCommandFailEmote(actor, command);
+			case "emoteself":
+				return BuildingCommandEmoteSelf(actor, command);
+			case "failemoteself":
+				return BuildingCommandFailEmoteSelf(actor, command);
 			case "lookroomverb":
 			case "roomverb":
 				return BuildingCommandLookRoomVerb(actor, command);
@@ -424,6 +492,95 @@ public class MindLookPower : MagicPowerBase
 	}
 
 	#region Building Subcommands
+
+
+	private bool BuildingCommandFailEmoteSelf(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("You must specify an emote.");
+			return false;
+		}
+
+		var emote = new Emote(command.SafeRemainingArgument, new DummyPerceiver(), new DummyPerceivable(), new DummyPerceivable());
+		if (!emote.Valid)
+		{
+			actor.OutputHandler.Send(emote.ErrorMessage);
+			return false;
+		}
+
+		FailEmoteTextSelf = command.SafeRemainingArgument.ProperSentences();
+		Changed = true;
+		actor.OutputHandler.Send($"The emote sent to the power invoker when they fail is now {FailEmoteTextSelf.ColourCommand()}.");
+		return true;
+	}
+
+	private bool BuildingCommandEmoteSelf(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("You must specify an emote.");
+			return false;
+		}
+
+		var emote = new Emote(command.SafeRemainingArgument, new DummyPerceiver(), new DummyPerceivable(), new DummyPerceivable());
+		if (!emote.Valid)
+		{
+			actor.OutputHandler.Send(emote.ErrorMessage);
+			return false;
+		}
+
+		EmoteTextSelf = command.SafeRemainingArgument.ProperSentences();
+		Changed = true;
+		actor.OutputHandler.Send($"The emote sent to the power invoker when they use the power is now {EmoteTextSelf.ColourCommand()}.");
+		return true;
+	}
+
+	private bool BuildingCommandFailEmote(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			FailEmoteText = string.Empty;
+			Changed = true;
+			actor.OutputHandler.Send("No echo will be sent when this power is used and fails.");
+			return true;
+		}
+
+		var emote = new Emote(command.SafeRemainingArgument, new DummyPerceiver(), new DummyPerceivable(), new DummyPerceivable());
+		if (!emote.Valid)
+		{
+			actor.OutputHandler.Send(emote.ErrorMessage);
+			return false;
+		}
+
+		FailEmoteText = command.SafeRemainingArgument;
+		Changed = true;
+		actor.OutputHandler.Send($"The echo sent when this power is used and fails is now {FailEmoteText.ColourCommand()}");
+		return true;
+	}
+
+	private bool BuildingCommandEmote(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			EmoteText = string.Empty;
+			Changed = true;
+			actor.OutputHandler.Send("No echo will be sent when this power is used.");
+			return true;
+		}
+
+		var emote = new Emote(command.SafeRemainingArgument, new DummyPerceiver(), new DummyPerceivable(), new DummyPerceivable());
+		if (!emote.Valid)
+		{
+			actor.OutputHandler.Send(emote.ErrorMessage);
+			return false;
+		}
+
+		EmoteText = command.SafeRemainingArgument;
+		Changed = true;
+		actor.OutputHandler.Send($"The echo sent when this power is used is now {EmoteText.ColourCommand()}");
+		return true;
+	}
 
 	private bool BuildingCommandThresholdRoom(ICharacter actor, StringStack command)
 	{

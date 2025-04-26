@@ -25,43 +25,78 @@ public class SensePower : MagicPowerBase
 	public static void RegisterLoader()
 	{
 		MagicPowerFactory.RegisterLoader("sense", (power, gameworld) => new SensePower(power, gameworld));
-    }
+		MagicPowerFactory.RegisterBuilderLoader("sense", (gameworld, school, name, actor, command) => {
+			if (command.IsFinished)
+			{
+				actor.OutputHandler.Send("Which skill do you want to use for the skill check?");
+				return null;
+			}
 
-    protected override XElement SaveDefinition()
-    {
-        var definition = new XElement("Definition",
-            new XElement("Verb", Verb),
-            new XElement("EmoteVisible", EmoteVisible),
-            new XElement("EmoteText", new XCData(EmoteText)),
-            new XElement("EchoHeader", new XCData(EchoHeader)),
-            new XElement("NoTargetsFoundEcho", new XCData(NoTargetsFoundEcho)),
-            new XElement("SenseType", (long)SenseType),
-            new XElement("MinimumSuccessThreshold", (int)MinimumSuccessThreshold),
-            new XElement("CommandDelay", CommandDelay.TotalSeconds),
-            new XElement("SenseTargetFilterProg", SenseTargetFilterProg.Id),
-            new XElement("TargetDifficultyProg", TargetDifficultyProg.Id),
-            new XElement("CheckTrait", SkillCheckTrait.Id),
-            new XElement("PowerDistance", (int)PowerDistance)
-        );
-        return definition;
-    }
+			var skill = gameworld.Traits.GetByIdOrName(command.SafeRemainingArgument);
+			if (skill is null)
+			{
+				actor.OutputHandler.Send("There is no such skill or attribute.");
+				return null;
+			}
 
-    public SensePower(Models.MagicPower power, IFuturemud gameworld) : base(power, gameworld)
+			return new SensePower(gameworld, school, name, skill);
+		});
+	}
+
+	protected override XElement SaveDefinition()
+	{
+		var definition = new XElement("Definition",
+			new XElement("Verb", Verb),
+			new XElement("EmoteVisible", EmoteVisible),
+			new XElement("EmoteText", new XCData(EmoteText)),
+			new XElement("EchoHeader", new XCData(EchoHeader)),
+			new XElement("NoTargetsFoundEcho", new XCData(NoTargetsFoundEcho)),
+			new XElement("SenseType", (long)SenseType),
+			new XElement("MinimumSuccessThreshold", (int)MinimumSuccessThreshold),
+			new XElement("CommandDelay", CommandDelay.TotalSeconds),
+			new XElement("SenseTargetFilterProg", SenseTargetFilterProg.Id),
+			new XElement("TargetDifficultyProg", TargetDifficultyProg.Id),
+			new XElement("CheckTrait", SkillCheckTrait.Id),
+			new XElement("PowerDistance", (int)PowerDistance)
+		);
+		return definition;
+	}
+
+	private SensePower(IFuturemud gameworld, IMagicSchool school, string name, ITraitDefinition trait) : base(gameworld, school, name)
+	{
+		Blurb = "Sense targets in an area";
+		_showHelpText = $"You can use {school.SchoolVerb.ToUpperInvariant()} SENSE command to search the area for targets. This resolves instantly but has a small delay before it can be used again.";
+		Verb = "sense";
+		SkillCheckTrait = trait;
+		TargetDifficultyProg = Gameworld.AlwaysZeroProg;
+		MinimumSuccessThreshold = Outcome.MinorPass;
+		PowerDistance = MagicPowerDistance.SameZoneOnly;
+		NoTargetsFoundEcho = "You cannot sense the presence of your target in the immediate area.";
+		EmoteText = "@ close|closes &0's eyes for a brief moment and looks deep in concentration.";
+		EchoHeader = "You sense the following targets in your vicinity:";
+		SenseType = ProgVariableTypes.Character;
+		EmoteVisible = true;
+		CommandDelay = TimeSpan.FromSeconds(20);
+		SenseTargetFilterProg = Gameworld.AlwaysTrueProg;
+		DoDatabaseInsert();
+	}
+
+	public SensePower(Models.MagicPower power, IFuturemud gameworld) : base(power, gameworld)
 	{
 		var definition = XElement.Parse(power.Definition);
 		Verb = definition.Element("Verb")?.Value ??
-		       throw new ApplicationException($"Missing Verb element in SensePower definition {Id}");
+			   throw new ApplicationException($"Missing Verb element in SensePower definition {Id}");
 		EmoteText = definition.Element("EmoteText")?.Value ??
-		            throw new ApplicationException($"Missing EmoteText element in SensePower definition {Id}");
+					throw new ApplicationException($"Missing EmoteText element in SensePower definition {Id}");
 		EchoHeader = definition.Element("EchoHeader")?.Value ??
-		             throw new ApplicationException($"Missing EchoHeader element in SensePower definition {Id}");
+					 throw new ApplicationException($"Missing EchoHeader element in SensePower definition {Id}");
 		NoTargetsFoundEcho = definition.Element("NoTargetsFoundEcho")?.Value ??
-		                     throw new ApplicationException(
-			                     $"Missing NoTargetsFoundEcho element in SensePower definition {Id}");
+							 throw new ApplicationException(
+								 $"Missing NoTargetsFoundEcho element in SensePower definition {Id}");
 		if (!Utilities.TryParseEnum<MagicPowerDistance>(
-			    definition.Element("PowerDistance")?.Value ??
-			    throw new ApplicationException($"Missing PowerDistance element in SensePower definition {Id}"),
-			    out var powerDistance))
+				definition.Element("PowerDistance")?.Value ??
+				throw new ApplicationException($"Missing PowerDistance element in SensePower definition {Id}"),
+				out var powerDistance))
 		{
 			throw new ApplicationException($"Invalid MagicPowerDistance in SensePower definition {Id}");
 		}
@@ -69,9 +104,9 @@ public class SensePower : MagicPowerBase
 		PowerDistance = powerDistance;
 
 		if (!Utilities.TryParseEnum<ProgVariableTypes>(
-			    definition.Element("SenseType")?.Value ??
-			    throw new ApplicationException($"Missing SenseType element in SensePower definition {Id}"),
-			    out var senseType))
+				definition.Element("SenseType")?.Value ??
+				throw new ApplicationException($"Missing SenseType element in SensePower definition {Id}"),
+				out var senseType))
 		{
 			throw new ApplicationException($"Invalid SenseType in SensePower definition {Id}");
 		}
@@ -79,12 +114,12 @@ public class SensePower : MagicPowerBase
 		SenseType = senseType;
 
 		EmoteVisible = bool.Parse(definition.Element("EmoteVisible")?.Value ??
-		                          throw new ApplicationException(
-			                          $"Missing EmoteVisible element in SensePower definition {Id}"));
+								  throw new ApplicationException(
+									  $"Missing EmoteVisible element in SensePower definition {Id}"));
 
 		CommandDelay = TimeSpan.FromSeconds(double.Parse(definition.Element("CommandDelay")?.Value ??
-		                                                 throw new ApplicationException(
-			                                                 $"Missing CommandDelay element in SensePower definition {Id}")));
+														 throw new ApplicationException(
+															 $"Missing CommandDelay element in SensePower definition {Id}")));
 		SkillCheckTrait =
 			long.TryParse(
 				definition.Element("CheckTrait")?.Value ??
@@ -95,11 +130,11 @@ public class SensePower : MagicPowerBase
 		if (SkillCheckTrait == null)
 		{
 			throw new ApplicationException($"CheckTrait not found in SeensePower definition {Id}");
-        }
+		}
 
-        MinimumSuccessThreshold = (Outcome)int.Parse(definition.Element("MinimumSuccessThreshold")?.Value ?? "1");
+		MinimumSuccessThreshold = (Outcome)int.Parse(definition.Element("MinimumSuccessThreshold")?.Value ?? "1");
 
-        var targetFilterProg =
+		var targetFilterProg =
 			long.TryParse(
 				definition.Element("SenseTargetFilterProg")?.Value ??
 				throw new ApplicationException($"Missing SenseTargetFilterProg element in SensePower definition {Id}"),
@@ -222,9 +257,9 @@ public class SensePower : MagicPowerBase
 
 	public IFutureProg SenseTargetFilterProg { get; protected set; }
 
-    public Outcome MinimumSuccessThreshold { get; protected set; }
+	public Outcome MinimumSuccessThreshold { get; protected set; }
 
-    public override void UseCommand(ICharacter actor, string verb, StringStack command)
+	public override void UseCommand(ICharacter actor, string verb, StringStack command)
 	{
 		var (truth, missing) = CanAffordToInvokePower(actor, verb);
 		if (!truth)
@@ -237,7 +272,7 @@ public class SensePower : MagicPowerBase
 		if (CanInvokePowerProg?.Execute<bool?>(actor) == false)
 		{
 			actor.OutputHandler.Send(WhyCantInvokePowerProg.Execute(actor)?.ToString() ??
-			                         "You can't use that power at this time.");
+									 "You can't use that power at this time.");
 			return;
 		}
 
@@ -283,11 +318,11 @@ public class SensePower : MagicPowerBase
 							actor.Location.GameItems.Select(x => ((IPerceivable)x, x.Location, x.RoomLayer)));
 
 						targets.AddRange(actor.Location.ExitsFor(actor, true).Select(x => x.Destination).Distinct()
-						                      .SelectMany(x =>
-							                      x.Characters.Select(y => ((IPerceivable)y, x, y.RoomLayer))));
+											  .SelectMany(x =>
+												  x.Characters.Select(y => ((IPerceivable)y, x, y.RoomLayer))));
 						targets.AddRange(actor.Location.ExitsFor(actor, true).Select(x => x.Destination).Distinct()
-						                      .SelectMany(x =>
-							                      x.GameItems.Select(y => ((IPerceivable)y, x, y.RoomLayer))));
+											  .SelectMany(x =>
+												  x.GameItems.Select(y => ((IPerceivable)y, x, y.RoomLayer))));
 						break;
 					case MagicPowerDistance.SameAreaOnly:
 						if (actor.Location.Areas.Any())
@@ -336,8 +371,8 @@ public class SensePower : MagicPowerBase
 						targets.AddRange(
 							actor.Location.Characters.Select(x => ((IPerceivable)x, x.Location, x.RoomLayer)));
 						targets.AddRange(actor.Location.ExitsFor(actor, true).Select(x => x.Destination).Distinct()
-						                      .SelectMany(x =>
-							                      x.Characters.Select(y => ((IPerceivable)y, x, y.RoomLayer))));
+											  .SelectMany(x =>
+												  x.Characters.Select(y => ((IPerceivable)y, x, y.RoomLayer))));
 						break;
 					case MagicPowerDistance.SameAreaOnly:
 						if (actor.Location.Areas.Any())
@@ -380,8 +415,8 @@ public class SensePower : MagicPowerBase
 						targets.AddRange(
 							actor.Location.GameItems.Select(x => ((IPerceivable)x, x.Location, x.RoomLayer)));
 						targets.AddRange(actor.Location.ExitsFor(actor, true).Select(x => x.Destination).Distinct()
-						                      .SelectMany(x =>
-							                      x.GameItems.Select(y => ((IPerceivable)y, x, y.RoomLayer))));
+											  .SelectMany(x =>
+												  x.GameItems.Select(y => ((IPerceivable)y, x, y.RoomLayer))));
 						break;
 					case MagicPowerDistance.SameAreaOnly:
 						if (actor.Location.Areas.Any())
@@ -417,10 +452,10 @@ public class SensePower : MagicPowerBase
 		var results = check.CheckAgainstAllDifficulties(actor, Difficulty.Normal, SkillCheckTrait);
 
 		var final = targets
-		            .Distinct()
-		            .Where(x => SenseTargetFilterProg.Execute<bool?>(x.Target) == true)
-		            .Where(x => results[TargetDifficultyProg.ExecuteString(x.Target).ParseEnumWithDefault(Difficulty.Normal)] >= MinimumSuccessThreshold)
-		            .ToList();
+					.Distinct()
+					.Where(x => SenseTargetFilterProg.Execute<bool?>(x.Target) == true)
+					.Where(x => results[TargetDifficultyProg.ExecuteString(x.Target).ParseEnumWithDefault(Difficulty.Normal)] >= MinimumSuccessThreshold)
+					.ToList();
 
 		if (!final.Any())
 		{
@@ -463,359 +498,359 @@ public class SensePower : MagicPowerBase
 
 	public override IEnumerable<string> Verbs => new[] { Verb };
 
-    protected override void ShowSubtype(ICharacter actor, StringBuilder sb)
-    {
-        sb.AppendLine($"Power Verb: {Verb.ColourCommand()}");
-        sb.AppendLine($"Skill Check Trait: {SkillCheckTrait.Name.ColourValue()}");
-        sb.AppendLine($"Skill Check Difficulty Prog: {TargetDifficultyProg.MXPClickableFunctionName()}");
-        sb.AppendLine($"Minimum Success Threshold: {MinimumSuccessThreshold.DescribeColour()}");
-        sb.AppendLine($"Target Filter Prog: {SenseTargetFilterProg.MXPClickableFunctionName()}");
-        sb.AppendLine($"Power Distance: {PowerDistance.DescribeEnum().ColourValue()}");
-        sb.AppendLine($"Command Delay: {CommandDelay.DescribePreciseBrief().ColourValue()}");
-        sb.AppendLine($"Emote Visible To Others: {EmoteVisible.ToColouredString()}");
-        sb.AppendLine($"Sense Types: {SenseType.GetSingleFlags().Select(x => x.Describe().ColourValue()).ListToString()}");
-        sb.AppendLine();
-        sb.AppendLine("Emotes:");
-        sb.AppendLine();
-        sb.AppendLine($"Emote: {EmoteText.ColourCommand()}");
-        sb.AppendLine($"Echo Header: {EchoHeader.ColourCommand()}");
-        sb.AppendLine($"No Targets Found Echo: {NoTargetsFoundEcho.ColourCommand()}");
-    }
+	protected override void ShowSubtype(ICharacter actor, StringBuilder sb)
+	{
+		sb.AppendLine($"Power Verb: {Verb.ColourCommand()}");
+		sb.AppendLine($"Skill Check Trait: {SkillCheckTrait.Name.ColourValue()}");
+		sb.AppendLine($"Skill Check Difficulty Prog: {TargetDifficultyProg.MXPClickableFunctionName()}");
+		sb.AppendLine($"Minimum Success Threshold: {MinimumSuccessThreshold.DescribeColour()}");
+		sb.AppendLine($"Target Filter Prog: {SenseTargetFilterProg.MXPClickableFunctionName()}");
+		sb.AppendLine($"Power Distance: {PowerDistance.DescribeEnum().ColourValue()}");
+		sb.AppendLine($"Command Delay: {CommandDelay.DescribePreciseBrief().ColourValue()}");
+		sb.AppendLine($"Emote Visible To Others: {EmoteVisible.ToColouredString()}");
+		sb.AppendLine($"Sense Types: {SenseType.GetSingleFlags().Select(x => x.Describe().ColourValue()).ListToString()}");
+		sb.AppendLine();
+		sb.AppendLine("Emotes:");
+		sb.AppendLine();
+		sb.AppendLine($"Emote: {EmoteText.ColourCommand()}");
+		sb.AppendLine($"Echo Header: {EchoHeader.ColourCommand()}");
+		sb.AppendLine($"No Targets Found Echo: {NoTargetsFoundEcho.ColourCommand()}");
+	}
 
-    #region Building Commands
-    /// <inheritdoc />
-    protected override string SubtypeHelpText => @"	#3begin <verb>#0 - sets the verb to activate this power
-    #3end <verb>#0 - sets the verb to end this power
-    #3skill <which>#0 - sets the skill used in the skill check
-    #3difficulty <difficulty>#0 - sets the difficulty of the skill check
-    #3threshold <outcome>#0 - sets the minimum outcome for skill success
-    #3distance <distance>#0 - sets the distance that this power can detect targets at
-    #3delay <seconds>#0 - sets the delay in seconds before the results are shown
-    #3senses character|item|both#0 - sets what type of thing this power senses
-    #3filter <prog>#0 - sets the prog that filters if a target is seen
-    #3emotevisible#0 - toggles if the emote echoes to others or just the user
-    #3emote <text>#0 - sets the power emote
-    #3header <text>#0 - sets the header of the output
-    #3notargets <text>#0 - sets the echo for no targets found";
+	#region Building Commands
+	/// <inheritdoc />
+	protected override string SubtypeHelpText => @"	#3begin <verb>#0 - sets the verb to activate this power
+	#3end <verb>#0 - sets the verb to end this power
+	#3skill <which>#0 - sets the skill used in the skill check
+	#3difficulty <difficulty>#0 - sets the difficulty of the skill check
+	#3threshold <outcome>#0 - sets the minimum outcome for skill success
+	#3distance <distance>#0 - sets the distance that this power can detect targets at
+	#3delay <seconds>#0 - sets the delay in seconds before the results are shown
+	#3senses character|item|both#0 - sets what type of thing this power senses
+	#3filter <prog>#0 - sets the prog that filters if a target is seen
+	#3emotevisible#0 - toggles if the emote echoes to others or just the user
+	#3emote <text>#0 - sets the power emote
+	#3header <text>#0 - sets the header of the output
+	#3notargets <text>#0 - sets the echo for no targets found";
 
-    /// <inheritdoc />
-    public override bool BuildingCommand(ICharacter actor, StringStack command)
-    {
-        switch (command.PopForSwitch())
-        {
-            case "verb":
-                return BuildingCommandVerb(actor, command);
-            case "skill":
-            case "trait":
-                return BuildingCommandSkill(actor, command);
-            case "difficulty":
-                return BuildingCommandDifficulty(actor, command);
-            case "threshold":
-                return BuildingCommandThreshold(actor, command);
-            case "distance":
-                return BuildingCommandDistance(actor, command);
+	/// <inheritdoc />
+	public override bool BuildingCommand(ICharacter actor, StringStack command)
+	{
+		switch (command.PopForSwitch())
+		{
+			case "verb":
+				return BuildingCommandVerb(actor, command);
+			case "skill":
+			case "trait":
+				return BuildingCommandSkill(actor, command);
+			case "difficulty":
+				return BuildingCommandDifficulty(actor, command);
+			case "threshold":
+				return BuildingCommandThreshold(actor, command);
+			case "distance":
+				return BuildingCommandDistance(actor, command);
 			case "delay":
-                return BuildingCommandDelay(actor, command);
+				return BuildingCommandDelay(actor, command);
 			case "emotevisible":
-                return BuildingCommandEmoteVisible(actor);
+				return BuildingCommandEmoteVisible(actor);
 			case "emote":
-                return BuildingCommandEmote(actor, command);
+				return BuildingCommandEmote(actor, command);
 			case "header":
-                return BuildingCommandHeader(actor, command);
+				return BuildingCommandHeader(actor, command);
 			case "notarget":
 			case "notargets":
 			case "notargetecho":
 			case "notargetsecho":
-                return BuildingCommandNoTargetsEcho(actor, command);
+				return BuildingCommandNoTargetsEcho(actor, command);
 			case "filter":
 			case "filterprog":
-                return BuildingCommandFilterProg(actor, command);
+				return BuildingCommandFilterProg(actor, command);
 			case "senses":
 			case "sense":
-                return BuildingCommandSense(actor, command);
+				return BuildingCommandSense(actor, command);
 
 		}
-        return base.BuildingCommand(actor, command.GetUndo());
-    }
+		return base.BuildingCommand(actor, command.GetUndo());
+	}
 
 
 
-    #region Building Subcommands
-    private bool BuildingCommandSense(ICharacter actor, StringStack command)
-    {
-        if (command.IsFinished)
-        {
-            actor.OutputHandler.Send($"Which type of thing does this power detect? Valid options are #3character#0, #3item#0 and #3perceiver#0 (i.e. both).");
-            return false;
-        }
+	#region Building Subcommands
+	private bool BuildingCommandSense(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send($"Which type of thing does this power detect? Valid options are #3character#0, #3item#0 and #3perceiver#0 (i.e. both).");
+			return false;
+		}
 
-        switch (command.SafeRemainingArgument.ToLowerInvariant())
-        {
-            case "character":
-            case "characters":
-            case "ch":
-                SenseType = ProgVariableTypes.Character;
-                actor.OutputHandler.Send("This power will now detect characters.");
-                if (!SenseTargetFilterProg.MatchesParameters([ProgVariableTypes.Character]))
-                {
-                    SenseTargetFilterProg = Gameworld.AlwaysTrueProg;
-                    actor.OutputHandler.Send($"Note: The Sense Target Prog was no longer valid and has been set back to default.".ColourError());
-                }
-                break;
-            case "item":
-            case "obj":
-            case "objects":
-            case "object":
-            case "items":
-            case "gameitem":
-            case "gameitems":
-                SenseType = ProgVariableTypes.Item;
-                actor.OutputHandler.Send("This power will now detect items.");
-                if (!SenseTargetFilterProg.MatchesParameters([ProgVariableTypes.Item]))
-                {
-                    SenseTargetFilterProg = Gameworld.AlwaysTrueProg;
-                    actor.OutputHandler.Send($"Note: The Sense Target Prog was no longer valid and has been set back to default.".ColourError());
-                }
-                break;
-            case "perceiver":
-            case "perceivable":
-            case "thing":
-            case "both":
-                SenseType = ProgVariableTypes.Perceivable;
-                actor.OutputHandler.Send("This power will now detect both items and characters.");
-                if (!SenseTargetFilterProg.MatchesParameters([ProgVariableTypes.Perceivable]))
-                {
-                    SenseTargetFilterProg = Gameworld.AlwaysTrueProg;
-                    actor.OutputHandler.Send($"Note: The Sense Target Prog was no longer valid and has been set back to default.".ColourError());
-                }
-                break;
-            default:
-                actor.OutputHandler.Send($"That is not a valid type of thing to detect. Valid options are #3character#0, #3item#0 and #3perceiver#0 (i.e. both).");
-                return false;
-        }
+		switch (command.SafeRemainingArgument.ToLowerInvariant())
+		{
+			case "character":
+			case "characters":
+			case "ch":
+				SenseType = ProgVariableTypes.Character;
+				actor.OutputHandler.Send("This power will now detect characters.");
+				if (!SenseTargetFilterProg.MatchesParameters([ProgVariableTypes.Character]))
+				{
+					SenseTargetFilterProg = Gameworld.AlwaysTrueProg;
+					actor.OutputHandler.Send($"Note: The Sense Target Prog was no longer valid and has been set back to default.".ColourError());
+				}
+				break;
+			case "item":
+			case "obj":
+			case "objects":
+			case "object":
+			case "items":
+			case "gameitem":
+			case "gameitems":
+				SenseType = ProgVariableTypes.Item;
+				actor.OutputHandler.Send("This power will now detect items.");
+				if (!SenseTargetFilterProg.MatchesParameters([ProgVariableTypes.Item]))
+				{
+					SenseTargetFilterProg = Gameworld.AlwaysTrueProg;
+					actor.OutputHandler.Send($"Note: The Sense Target Prog was no longer valid and has been set back to default.".ColourError());
+				}
+				break;
+			case "perceiver":
+			case "perceivable":
+			case "thing":
+			case "both":
+				SenseType = ProgVariableTypes.Perceivable;
+				actor.OutputHandler.Send("This power will now detect both items and characters.");
+				if (!SenseTargetFilterProg.MatchesParameters([ProgVariableTypes.Perceivable]))
+				{
+					SenseTargetFilterProg = Gameworld.AlwaysTrueProg;
+					actor.OutputHandler.Send($"Note: The Sense Target Prog was no longer valid and has been set back to default.".ColourError());
+				}
+				break;
+			default:
+				actor.OutputHandler.Send($"That is not a valid type of thing to detect. Valid options are #3character#0, #3item#0 and #3perceiver#0 (i.e. both).");
+				return false;
+		}
 
-        Changed = true;
-        return true;
-    }
+		Changed = true;
+		return true;
+	}
 
-    private bool BuildingCommandFilterProg(ICharacter actor, StringStack command)
-    {
-        if (command.IsFinished)
-        {
-            actor.OutputHandler.Send("Which prog should be used to filter whether a target is valid?");
-            return false;
-        }
+	private bool BuildingCommandFilterProg(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("Which prog should be used to filter whether a target is valid?");
+			return false;
+		}
 
-        var prog = new ProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument, ProgVariableTypes.Boolean, [
-            [ProgVariableTypes.Character],
-            [ProgVariableTypes.Item],
-            [ProgVariableTypes.Perceivable],
-            [ProgVariableTypes.Perceiver],
-        ]).LookupProg();
-        if (prog is null)
-        {
-            return false;
-        }
+		var prog = new ProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument, ProgVariableTypes.Boolean, [
+			[ProgVariableTypes.Character],
+			[ProgVariableTypes.Item],
+			[ProgVariableTypes.Perceivable],
+			[ProgVariableTypes.Perceiver],
+		]).LookupProg();
+		if (prog is null)
+		{
+			return false;
+		}
 
-        SenseTargetFilterProg = prog;
-        Changed = true;
-        if (prog.MatchesParameters([ProgVariableTypes.Perceivable]))
-        {
-            SenseType = ProgVariableTypes.Perceivable;
-        }
-        else if (prog.MatchesParameters([ProgVariableTypes.Character]))
-        {
-            SenseType = ProgVariableTypes.Character;
-        }
-        else
-        {
-            SenseType = ProgVariableTypes.Item;
-        }
+		SenseTargetFilterProg = prog;
+		Changed = true;
+		if (prog.MatchesParameters([ProgVariableTypes.Perceivable]))
+		{
+			SenseType = ProgVariableTypes.Perceivable;
+		}
+		else if (prog.MatchesParameters([ProgVariableTypes.Character]))
+		{
+			SenseType = ProgVariableTypes.Character;
+		}
+		else
+		{
+			SenseType = ProgVariableTypes.Item;
+		}
 
-        actor.OutputHandler.Send($"This power will now use the {prog.MXPClickableFunctionName()} prog to filter targets.");
-        return true;
-    }
+		actor.OutputHandler.Send($"This power will now use the {prog.MXPClickableFunctionName()} prog to filter targets.");
+		return true;
+	}
 
-    private bool BuildingCommandNoTargetsEcho(ICharacter actor, StringStack command)
-    {
-        if (command.IsFinished)
-        {
-            actor.OutputHandler.Send("What do you want to set the no targets echo for the results to?");
-            return false;
-        }
+	private bool BuildingCommandNoTargetsEcho(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("What do you want to set the no targets echo for the results to?");
+			return false;
+		}
 
-        NoTargetsFoundEcho = command.SafeRemainingArgument;
-        Changed = true;
-        actor.OutputHandler.Send($"The no targets echo for this power is now {command.SafeRemainingArgument.ColourCommand()}.");
-        return true;
-    }
+		NoTargetsFoundEcho = command.SafeRemainingArgument;
+		Changed = true;
+		actor.OutputHandler.Send($"The no targets echo for this power is now {command.SafeRemainingArgument.ColourCommand()}.");
+		return true;
+	}
 
-    private bool BuildingCommandHeader(ICharacter actor, StringStack command)
-    {
-        if (command.IsFinished)
-        {
-            actor.OutputHandler.Send("What do you want to set the header line for the results to?");
-            return false;
-        }
+	private bool BuildingCommandHeader(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("What do you want to set the header line for the results to?");
+			return false;
+		}
 
-        EchoHeader = command.SafeRemainingArgument;
-        Changed = true;
-        actor.OutputHandler.Send($"The results header line for this power is now {command.SafeRemainingArgument.ColourCommand()}.");
-        return true;
-    }
+		EchoHeader = command.SafeRemainingArgument;
+		Changed = true;
+		actor.OutputHandler.Send($"The results header line for this power is now {command.SafeRemainingArgument.ColourCommand()}.");
+		return true;
+	}
 
-    private bool BuildingCommandEmote(ICharacter actor, StringStack command)
-    {
-        if (command.IsFinished)
-        {
-            actor.OutputHandler.Send("What do you want to set the command emote to?");
-            return false;
-        }
+	private bool BuildingCommandEmote(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("What do you want to set the command emote to?");
+			return false;
+		}
 
-        var emote = new Emote(command.SafeRemainingArgument, new DummyPerceiver(), new DummyPerceivable());
-        if (!emote.Valid)
-        {
-            actor.OutputHandler.Send(emote.ErrorMessage);
-            return false;
-        }
+		var emote = new Emote(command.SafeRemainingArgument, new DummyPerceiver(), new DummyPerceivable());
+		if (!emote.Valid)
+		{
+			actor.OutputHandler.Send(emote.ErrorMessage);
+			return false;
+		}
 
-        EmoteText = command.SafeRemainingArgument;
-        Changed = true;
-        actor.OutputHandler.Send($"The command emote for this power is now {command.SafeRemainingArgument.ColourCommand()}.");
-        return true;
-    }
+		EmoteText = command.SafeRemainingArgument;
+		Changed = true;
+		actor.OutputHandler.Send($"The command emote for this power is now {command.SafeRemainingArgument.ColourCommand()}.");
+		return true;
+	}
 
-    private bool BuildingCommandEmoteVisible(ICharacter actor)
-    {
-        EmoteVisible = !EmoteVisible;
-        Changed = true;
-        actor.OutputHandler.Send($"This power will {EmoteVisible.NowNoLonger()} have a visible emote to others.");
-        return true;
-    }
+	private bool BuildingCommandEmoteVisible(ICharacter actor)
+	{
+		EmoteVisible = !EmoteVisible;
+		Changed = true;
+		actor.OutputHandler.Send($"This power will {EmoteVisible.NowNoLonger()} have a visible emote to others.");
+		return true;
+	}
 
-    private bool BuildingCommandDelay(ICharacter actor, StringStack command)
-    {
-        if (command.IsFinished)
-        {
-            actor.OutputHandler.Send("What should the delay in seconds be before the power-user gets the output of the search?");
-            return false;
-        }
+	private bool BuildingCommandDelay(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("What should the delay in seconds be before the power-user gets the output of the search?");
+			return false;
+		}
 
-        if (!double.TryParse(command.SafeRemainingArgument, out var value) || value <= 0.0)
-        {
-            actor.OutputHandler.Send($"The text {command.SafeRemainingArgument.ColourCommand()} is not a valid positive number of seconds.");
-            return false;
-        }
+		if (!double.TryParse(command.SafeRemainingArgument, out var value) || value <= 0.0)
+		{
+			actor.OutputHandler.Send($"The text {command.SafeRemainingArgument.ColourCommand()} is not a valid positive number of seconds.");
+			return false;
+		}
 
-        CommandDelay = TimeSpan.FromSeconds(value);
-        Changed = true;
-        actor.OutputHandler.Send($"The delay between using the power and getting the output is now {CommandDelay.DescribePreciseBrief(actor).ColourValue()}.");
-        return true;
-    }
-    private bool BuildingCommandVerb(ICharacter actor, StringStack command)
-    {
-        if (command.IsFinished)
-        {
-            actor.OutputHandler.Send("Which verb should be used to activate this power?");
-            return false;
-        }
+		CommandDelay = TimeSpan.FromSeconds(value);
+		Changed = true;
+		actor.OutputHandler.Send($"The delay between using the power and getting the output is now {CommandDelay.DescribePreciseBrief(actor).ColourValue()}.");
+		return true;
+	}
+	private bool BuildingCommandVerb(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("Which verb should be used to activate this power?");
+			return false;
+		}
 
-        var verb = command.SafeRemainingArgument.ToLowerInvariant();
+		var verb = command.SafeRemainingArgument.ToLowerInvariant();
 
-        var costs = InvocationCosts[Verb].ToList();
-        InvocationCosts[verb] = costs;
-        InvocationCosts.Remove(Verb);
-        Verb = verb;
-        Changed = true;
-        actor.OutputHandler.Send($"This magic power will now use the verb {verb.ColourCommand()} to invoke the power.");
-        return true;
-    }
+		var costs = InvocationCosts[Verb].ToList();
+		InvocationCosts[verb] = costs;
+		InvocationCosts.Remove(Verb);
+		Verb = verb;
+		Changed = true;
+		actor.OutputHandler.Send($"This magic power will now use the verb {verb.ColourCommand()} to invoke the power.");
+		return true;
+	}
 
-    private bool BuildingCommandDistance(ICharacter actor, StringStack command)
-    {
-        if (command.IsFinished)
-        {
-            actor.OutputHandler.Send($"At what distance should this power be able to be used? The valid options are {Enum.GetValues<MagicPowerDistance>().Select(x => x.DescribeEnum().ColourValue()).ListToString()}.");
-            return false;
-        }
+	private bool BuildingCommandDistance(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send($"At what distance should this power be able to be used? The valid options are {Enum.GetValues<MagicPowerDistance>().Select(x => x.DescribeEnum().ColourValue()).ListToString()}.");
+			return false;
+		}
 
-        if (!command.SafeRemainingArgument.TryParseEnum(out MagicPowerDistance value))
-        {
-            actor.OutputHandler.Send($"That is not a valid distance. The valid options are {Enum.GetValues<MagicPowerDistance>().Select(x => x.DescribeEnum().ColourValue()).ListToString()}.");
-            return false;
-        }
+		if (!command.SafeRemainingArgument.TryParseEnum(out MagicPowerDistance value))
+		{
+			actor.OutputHandler.Send($"That is not a valid distance. The valid options are {Enum.GetValues<MagicPowerDistance>().Select(x => x.DescribeEnum().ColourValue()).ListToString()}.");
+			return false;
+		}
 
-        PowerDistance = value;
-        Changed = true;
-        actor.OutputHandler.Send($"This magic power can now be used against {value.LongDescription().ColourValue()}.");
-        return true;
-    }
+		PowerDistance = value;
+		Changed = true;
+		actor.OutputHandler.Send($"This magic power can now be used against {value.LongDescription().ColourValue()}.");
+		return true;
+	}
 
-    private bool BuildingCommandThreshold(ICharacter actor, StringStack command)
-    {
-        if (command.IsFinished)
-        {
-            actor.OutputHandler.Send($"What is the minimum success threshold for this power to work? See {"show outcomes".MXPSend("show outcomes")} for a list of valid values.");
-            return false;
-        }
+	private bool BuildingCommandThreshold(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send($"What is the minimum success threshold for this power to work? See {"show outcomes".MXPSend("show outcomes")} for a list of valid values.");
+			return false;
+		}
 
-        if (!command.SafeRemainingArgument.TryParseEnum(out Outcome value))
-        {
-            actor.OutputHandler.Send($"That is not a valid outcome. See {"show outcomes".MXPSend("show outcomes")} for a list of valid values.");
-            return false;
-        }
+		if (!command.SafeRemainingArgument.TryParseEnum(out Outcome value))
+		{
+			actor.OutputHandler.Send($"That is not a valid outcome. See {"show outcomes".MXPSend("show outcomes")} for a list of valid values.");
+			return false;
+		}
 
-        MinimumSuccessThreshold = value;
-        Changed = true;
-        actor.OutputHandler.Send($"The power user will now need to achieve a {value.DescribeColour()} in order to activate this power.");
-        return true;
-    }
+		MinimumSuccessThreshold = value;
+		Changed = true;
+		actor.OutputHandler.Send($"The power user will now need to achieve a {value.DescribeColour()} in order to activate this power.");
+		return true;
+	}
 
-    private bool BuildingCommandDifficulty(ICharacter actor, StringStack command)
-    {
-        if (command.IsFinished)
-        {
-            actor.OutputHandler.Send($"What prog should be used to determine the difficulty of the skill check?");
-            return false;
-        }
+	private bool BuildingCommandDifficulty(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send($"What prog should be used to determine the difficulty of the skill check?");
+			return false;
+		}
 
-        var prog = new ProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument, ProgVariableTypes.Text,
-            [
-                [ProgVariableTypes.Character],
-                [ProgVariableTypes.Character, ProgVariableTypes.Character]
-            ]
-        ).LookupProg();
-        if (prog is null)
-        {
-            return false;
-        }
+		var prog = new ProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument, ProgVariableTypes.Text,
+			[
+				[ProgVariableTypes.Character],
+				[ProgVariableTypes.Character, ProgVariableTypes.Character]
+			]
+		).LookupProg();
+		if (prog is null)
+		{
+			return false;
+		}
 
-        TargetDifficultyProg = prog;
-        Changed = true;
-        actor.OutputHandler.Send($"This power's skill check will now be at a difficulty determined by the prog {prog.MXPClickableFunctionName()}.");
-        return true;
-    }
+		TargetDifficultyProg = prog;
+		Changed = true;
+		actor.OutputHandler.Send($"This power's skill check will now be at a difficulty determined by the prog {prog.MXPClickableFunctionName()}.");
+		return true;
+	}
 
-    private bool BuildingCommandSkill(ICharacter actor, StringStack command)
-    {
-        if (command.IsFinished)
-        {
-            actor.OutputHandler.Send("Which skill or trait should be used for this power's skill check?");
-            return false;
-        }
+	private bool BuildingCommandSkill(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("Which skill or trait should be used for this power's skill check?");
+			return false;
+		}
 
-        var skill = Gameworld.Traits.GetByIdOrName(command.SafeRemainingArgument);
-        if (skill is null)
-        {
-            actor.OutputHandler.Send("That is not a valid skill or trait.");
-            return false;
-        }
+		var skill = Gameworld.Traits.GetByIdOrName(command.SafeRemainingArgument);
+		if (skill is null)
+		{
+			actor.OutputHandler.Send("That is not a valid skill or trait.");
+			return false;
+		}
 
-        SkillCheckTrait = skill;
-        Changed = true;
-        actor.OutputHandler.Send($"This magic power will now use the {skill.Name.ColourName()} skill for its skill check.");
-        return true;
-    }
-    #endregion Building Subcommands
-    #endregion Building Commands
+		SkillCheckTrait = skill;
+		Changed = true;
+		actor.OutputHandler.Send($"This magic power will now use the {skill.Name.ColourName()} skill for its skill check.");
+		return true;
+	}
+	#endregion Building Subcommands
+	#endregion Building Commands
 }

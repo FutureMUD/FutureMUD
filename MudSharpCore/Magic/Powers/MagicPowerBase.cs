@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
@@ -124,6 +125,76 @@ public abstract class MagicPowerBase : SaveableItem, IMagicPower
 		return $"Magic Power {Id} - {Name}";
 	}
 
+	public IEnumerable<ICharacter> AcquireAllValidTargets(ICharacter actor, MagicPowerDistance distance)
+	{
+		var targets = new List<ICharacter>();
+		switch (distance)
+		{
+			case MagicPowerDistance.AnyConnectedMind:
+				targets.AddRange(
+					actor.CombinedEffectsOfType<ConnectMindEffect>()
+						 .Where(x => x.School == School)
+						 .Select(x => x.TargetCharacter)
+						 .Where(x => TargetFilterFunction(actor, x)));
+				break;
+			case MagicPowerDistance.AnyConnectedMindOrConnectedTo:
+				targets.AddRange(
+					actor.CombinedEffectsOfType<ConnectMindEffect>().Where(x => x.School == School)
+						 .Select(x => x.TargetCharacter)
+						 .Concat(actor.CombinedEffectsOfType<MindConnectedToEffect>().Where(x => x.School == School)
+									  .Select(x => x.OriginatorCharacter))
+						 .Where(x => TargetFilterFunction(actor, x)));
+				break;
+			case MagicPowerDistance.SameLocationOnly:
+				targets.AddRange(actor.Location.Characters.Except(actor).Where(x => TargetFilterFunction(actor, x)));
+				break;
+			case MagicPowerDistance.AdjacentLocationsOnly:
+				targets.AddRange(actor.Location.Characters
+									  .Except(actor)
+									  .Concat(actor.Location.ExitsFor(actor).Select(x => x.Destination)
+												   .SelectMany(x => x.Characters))
+									  .Where(x => TargetFilterFunction(actor, x)));
+				break;
+			case MagicPowerDistance.SameAreaOnly:
+				if (!actor.Location.Areas.Any())
+				{
+					goto case MagicPowerDistance.AdjacentLocationsOnly;
+				}
+
+				targets.AddRange(actor.Location.Areas
+									  .SelectMany(x => x.Cells.SelectMany(y => y.Characters))
+									  .Except(actor)
+									  .Where(x => TargetFilterFunction(actor, x)));
+				break;
+			case MagicPowerDistance.SameZoneOnly:
+				targets.AddRange(actor.Location.Zone.Cells
+									  .SelectMany(x => x.Characters)
+									  .Except(actor)
+									  .Where(x => TargetFilterFunction(actor, x)));
+				break;
+			case MagicPowerDistance.SameShardOnly:
+				targets.AddRange(actor.Location.Shard.Cells
+									  .SelectMany(x => x.Characters)
+									  .Except(actor)
+									  .Where(x => TargetFilterFunction(actor, x)));
+				break;
+			case MagicPowerDistance.SamePlaneOnly:
+				// TODO when planes are implemented
+				goto case MagicPowerDistance.SameShardOnly;
+			case MagicPowerDistance.SeenTargetOnly:
+				targets.AddRange(actor.SeenTargets
+									  .OfType<ICharacter>()
+									  .Concat(actor.Location.Characters)
+									  .Except(actor)
+									  .Where(x => TargetFilterFunction(actor, x)));
+				break;
+			default:
+				throw new ArgumentOutOfRangeException();
+		}
+
+		return targets;
+	}
+
 	public ICharacter AcquireTarget(ICharacter owner, string targetText, MagicPowerDistance distance)
 	{
 		switch (distance)
@@ -185,6 +256,7 @@ public abstract class MagicPowerBase : SaveableItem, IMagicPower
 				return owner.SeenTargets
 							.OfType<ICharacter>()
 							.Concat(owner.Location.Characters)
+							.Except(owner)
 							.Where(x => TargetFilterFunction(owner, x)).GetFromItemListByKeyword(targetText, owner);
 		}
 

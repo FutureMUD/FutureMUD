@@ -7955,6 +7955,7 @@ The syntax for this command is as follows:
 	#3shopper edit new <type> <economic zone> <name>#0 - creates a shopper
 	#3shopper types#0 - view a list of types
 	#3shopper typehelp <type>#0 - show the help file for a type
+	#3shopper log <which>#0 - view a log of activity for a particular shopper
 	#3shopper set name <name>#0 - renames the shopper
 	#3shopper set economiczone <which>#0 - changes the economic zone
 	#3shopper set interval every <x> hours|days|weekdays|weeks|months|years <offset>#0 - sets the interval

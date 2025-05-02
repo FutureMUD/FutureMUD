@@ -8,6 +8,7 @@ using MudSharp.Body.Traits;
 using MudSharp.Models;
 using MudSharp.Character;
 using MudSharp.Communication.Language;
+using MudSharp.Effects.Concrete;
 using MudSharp.Framework;
 using MudSharp.FutureProg;
 using MudSharp.PerceptionEngine.Outputs;
@@ -53,7 +54,8 @@ public class MindBroadcastPower : MagicPowerBase
 			new XElement("UseLanguage", UseLanguage),
 			new XElement("TargetCanSeeIdentityProg", TargetCanSeeIdentityProg.Id),
 			new XElement("TargetIncluded", TargetIncluded.Id),
-			new XElement("SkillCheckTrait", SkillCheckTrait.Id)
+			new XElement("SkillCheckTrait", SkillCheckTrait.Id),
+			new XElement("Distance", (int)PowerDistance)
 		);
 		return definition;
 	}
@@ -74,6 +76,7 @@ public class MindBroadcastPower : MagicPowerBase
 		Verb = "broadcast";
 		UseLanguage = false;
 		UseAccent = false;
+		PowerDistance = MagicPowerDistance.AdjacentLocationsOnly;
 		DoDatabaseInsert();
 	}
 
@@ -89,6 +92,8 @@ public class MindBroadcastPower : MagicPowerBase
 
 		UnknownIdentityDescription = element.Value;
 
+		PowerDistance = (MagicPowerDistance)int.Parse(root.Element("PowerDistance")?.Value ?? "2");
+		
 		element = root.Element("TargetCanSeeIdentityProg");
 		if (element == null)
 		{
@@ -236,19 +241,19 @@ public class MindBroadcastPower : MagicPowerBase
 			return;
 		}
 
+		var targets = AcquireAllValidTargets(actor, PowerDistance);
+
 		if (UseLanguage)
 		{
-			var langInfo = new PsychicLanguageInfo(actor.CurrentLanguage, UseAccent ? actor.CurrentAccent : null,
-				text, outcome, actor);
-			foreach (var target in actor.Location.Room.Characters.Except(actor).ToList())
+			var langInfo = new PsychicLanguageInfo(actor.CurrentLanguage, UseAccent ? actor.CurrentAccent : null, text, outcome, actor);
+			foreach (var target in targets.AsEnumerable())
 			{
 				if (TargetIncluded?.Execute<bool?>(target) == false)
 				{
 					continue;
 				}
 
-				var emote = new LanguageOutput(
-					new Emote(GetAppropriateTargetEmote(actor, target), actor, actor, target), langInfo, null);
+				var emote = new LanguageOutput(new Emote(GetAppropriateTargetEmote(actor, target), actor, actor, target), langInfo, null);
 				target.OutputHandler.Send(emote);
 			}
 
@@ -256,21 +261,18 @@ public class MindBroadcastPower : MagicPowerBase
 		}
 		else
 		{
-			foreach (var target in actor.Location.Room.Characters.Except(actor).ToList())
+			foreach (var target in targets.AsEnumerable())
 			{
 				if (TargetIncluded?.Execute<bool?>(target) == false)
 				{
 					continue;
 				}
 
-				var emote = new EmoteOutput(new Emote(
-					string.Format(GetAppropriateTargetEmote(actor, target), 0,
-						command.RemainingArgument.ProperSentences().Fullstop()), actor, actor, target));
+				var emote = new EmoteOutput(new Emote(string.Format(GetAppropriateTargetEmote(actor, target), 0, command.RemainingArgument.ProperSentences().Fullstop()), actor, actor, target));
 				target.OutputHandler.Send(emote);
 			}
 
-			actor.OutputHandler.Send(new EmoteOutput(new Emote(
-				string.Format(EmoteText, text.SubstituteANSIColour().ProperSentences().Fullstop()), actor, actor)));
+			actor.OutputHandler.Send(new EmoteOutput(new Emote(string.Format(EmoteText, text.SubstituteANSIColour().ProperSentences().Fullstop()), actor, actor)));
 		}
 	}
 
@@ -288,6 +290,7 @@ public class MindBroadcastPower : MagicPowerBase
 	public Outcome MinimumSuccessThreshold { get; protected set; }
 	public bool UseAccent { get; protected set; }
 	public IFutureProg TargetIncluded { get; protected set; }
+	public MagicPowerDistance PowerDistance { get; protected set; }
 
 	protected override void ShowSubtype(ICharacter actor, StringBuilder sb)
 	{
@@ -295,6 +298,7 @@ public class MindBroadcastPower : MagicPowerBase
 		sb.AppendLine($"Skill Check Trait: {SkillCheckTrait.Name.ColourValue()}");
 		sb.AppendLine($"Skill Check Difficulty: {SkillCheckDifficulty.DescribeColoured()}");
 		sb.AppendLine($"Minimum Success Threshold: {MinimumSuccessThreshold.DescribeColour()}");
+		sb.AppendLine($"Power Distance: {PowerDistance.DescribeEnum().ColourValue()}");
 		sb.AppendLine($"Target Can See Identity Prog: {TargetCanSeeIdentityProg.MXPClickableFunctionName()}");
 		sb.AppendLine($"Target Included Prog: {TargetIncluded.MXPClickableFunctionName()}");
 		sb.AppendLine($"Unknown Identity Desc: {UnknownIdentityDescription.ColourCharacter()}");
@@ -335,6 +339,7 @@ public class MindBroadcastPower : MagicPowerBase
 	#3skill <which>#0 - sets the skill used in the skill check
 	#3difficulty <difficulty>#0 - sets the difficulty of the skill check
 	#3threshold <outcome>#0 - sets the minimum outcome for skill success
+	#3distance <distance>#0 - sets the distance that this power works at
 	#3uselanguage#0 - toggles using language (if off, language checks are skipped)
 	#3useaccent#0 - toggles using accents if language is used
 	#3unknown <desc>#0 - a substitute for sdesc if power user identity is not known
@@ -357,6 +362,8 @@ public class MindBroadcastPower : MagicPowerBase
 			case "start":
 			case "verb":
 				return BuildingCommandBeginVerb(actor, command);
+			case "distance":
+				return BuildingCommandDistance(actor, command);
 			case "skill":
 			case "trait":
 				return BuildingCommandSkill(actor, command);
@@ -385,6 +392,25 @@ public class MindBroadcastPower : MagicPowerBase
 	}
 
 	#region Building Subcommands
+	private bool BuildingCommandDistance(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send($"At what distance should this power be able to be used? The valid options are {Enum.GetValues<MagicPowerDistance>().Select(x => x.DescribeEnum().ColourValue()).ListToString()}.");
+			return false;
+		}
+
+		if (!command.SafeRemainingArgument.TryParseEnum(out MagicPowerDistance value))
+		{
+			actor.OutputHandler.Send($"That is not a valid distance. The valid options are {Enum.GetValues<MagicPowerDistance>().Select(x => x.DescribeEnum().ColourValue()).ListToString()}.");
+			return false;
+		}
+
+		PowerDistance = value;
+		Changed = true;
+		actor.OutputHandler.Send($"This magic power can now be used against {value.LongDescription().ColourValue()}.");
+		return true;
+	}
 
 	private bool BuildingCommandTargetProg(ICharacter actor, StringStack command)
 	{

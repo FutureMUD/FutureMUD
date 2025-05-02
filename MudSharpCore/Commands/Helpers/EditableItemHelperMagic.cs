@@ -756,7 +756,7 @@ The core syntax is as follows:
 				EditingItem
 			 = power
 			});
-			actor.OutputHandler.Send($"You create a new power of type {typeText.ColourName} called {name.ColourName()} in the {school.Name.ColourName()} school, which you are now editing.");
+			actor.OutputHandler.Send($"You create a new power of type {typeText.ColourName()} called {name.ColourName()} in the {school.Name.ColourName()} school, which you are now editing.");
 		},
 		EditableCloneAction = (actor, input) =>
 		{

@@ -32,10 +32,15 @@ public partial class Body
 			     .Sum(x => x.BonusForTrait(definition, context));
 		baseValue +=
 			EffectHandler.EffectsOfType<ITraitBonusEffect>()
-			             .Where(x => x.AppliesToTrait(trait))
+			             .Where(x => x.Applies(Actor))
+						 .Where(x => x.AppliesToTrait(trait))
 			             .Sum(x => x.GetBonus(trait));
 		baseValue +=
-			Actor.EffectsOfType<ITraitBonusEffect>().Where(x => x.AppliesToTrait(trait)).Sum(x => x.GetBonus(trait));
+			Actor
+				.EffectsOfType<ITraitBonusEffect>()
+				.Where(x => x.Applies(Actor))
+				.Where(x => x.AppliesToTrait(trait))
+				.Sum(x => x.GetBonus(trait));
 		baseValue += Implants.OfType<IImplantTraitChange>().Sum(x => x.BonusForTrait(trait, context));
 		baseValue += ExternalItems.SelectNotNull(x => x.GetItemType<IChangeTraitsInInventory>())
 		                          .Sum(x => x.BonusForTrait(definition, context));

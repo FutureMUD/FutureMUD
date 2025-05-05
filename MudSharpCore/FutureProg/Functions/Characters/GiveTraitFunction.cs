@@ -26,7 +26,7 @@ internal class GiveTraitFunction : BuiltInFunction
 			new FunctionCompilerInformation(
 				"givetrait",
 				new[] { ProgVariableTypes.Character, ProgVariableTypes.Trait }, // the parameters the function takes
-				(pars, gameworld) => new GiveTraitFunction(pars, gameworld),
+				(pars, gameworld) => new GiveTraitFunction(pars, gameworld, false),
 				new List<string> { 
 					"who",
 					"trait"
@@ -45,7 +45,7 @@ internal class GiveTraitFunction : BuiltInFunction
 			new FunctionCompilerInformation(
 				"givetrait",
 				new[] { ProgVariableTypes.Character, ProgVariableTypes.Trait, ProgVariableTypes.Number }, // the parameters the function takes
-				(pars, gameworld) => new GiveTraitFunction(pars, gameworld),
+				(pars, gameworld) => new GiveTraitFunction(pars, gameworld, false),
 				new List<string> {
 					"who",
 					"trait",
@@ -61,13 +61,35 @@ internal class GiveTraitFunction : BuiltInFunction
 				ProgVariableTypes.Number // the return type of the function
 			)
 		);
+
+		FutureProg.RegisterBuiltInFunctionCompiler(
+			new FunctionCompilerInformation(
+				"settrait",
+				new[] { ProgVariableTypes.Character, ProgVariableTypes.Trait, ProgVariableTypes.Number }, // the parameters the function takes
+				(pars, gameworld) => new GiveTraitFunction(pars, gameworld, true),
+				new List<string> {
+					"who",
+					"trait",
+					"value"
+				}, // parameter names
+				new List<string> {
+					"The character to give the trait to",
+					"The trait to give the character",
+					"The value of the trait"
+				}, // parameter help text
+				"Sets the value of a trait (skill or attribute) for a player with the specified value. Gives them the trait if they don't have it but can lower the value if they already have it but it is higher than the value you specify. Returns the value of the trait", // help text for the function,
+				"Character",// the category to which this function belongs,
+				ProgVariableTypes.Number // the return type of the function
+			)
+		);
 	}
 	#endregion
 
 	#region Constructors
-	protected GiveTraitFunction(IList<IFunction> parameterFunctions, IFuturemud gameworld) : base(parameterFunctions)
+	protected GiveTraitFunction(IList<IFunction> parameterFunctions, IFuturemud gameworld, bool overrideTraitValue) : base(parameterFunctions)
 	{
 		Gameworld = gameworld;
+		OverrideTraitValue = overrideTraitValue;
 	}
 	#endregion
 
@@ -76,6 +98,8 @@ internal class GiveTraitFunction : BuiltInFunction
 		get { return ProgVariableTypes.Number; }
 		protected set { }
 	}
+
+	public bool OverrideTraitValue { get; set; }
 
 	public override StatementResult Execute(IVariableSpace variables)
 	{
@@ -116,7 +140,7 @@ internal class GiveTraitFunction : BuiltInFunction
 
 		if (target.HasTrait(trait))
 		{
-			if (target.TraitRawValue(trait) >= openingValue)
+			if (target.TraitRawValue(trait) >= openingValue && !OverrideTraitValue)
 			{
 				Result = new NumberVariable(target.TraitRawValue(trait));
 				return StatementResult.Normal;

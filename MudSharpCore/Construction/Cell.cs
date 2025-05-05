@@ -886,11 +886,6 @@ public partial class Cell : Location, IDisposable, ICell
 
 	public override void Save()
 	{
-#if DEBUG
-		Console.WriteLine(
-			$"Saving Cell {Id:N0} - Changed {Changed} - Contents: {ContentsChanged} - Yields {YieldsChanged}");
-#else
-#endif
 		var dbcell = FMDB.Context.Cells.Find(Id);
 		dbcell.CurrentOverlayId = CurrentOverlay.Id;
 		dbcell.RoomId = Room.Id;
@@ -899,7 +894,7 @@ public partial class Cell : Location, IDisposable, ICell
 		if (ContentsChanged)
 		{
 			FMDB.Context.CellsGameItems.RemoveRange(dbcell.CellsGameItems);
-			foreach (var item in GameItems)
+			foreach (var item in _gameItems)
 			{
 				if (item.Id == 0)
 				{
@@ -960,15 +955,6 @@ public partial class Cell : Location, IDisposable, ICell
 		}
 
 		Changed = false;
-		try
-		{
-			FMDB.Context.SaveChanges();
-		}
-		catch (DbUpdateException e)
-		{
-			Console.WriteLine($"DbUpdateException encountered when saving cell {Id}: {e}");
-			Gameworld.SystemMessage($"DbUpdateException encountered when saving cell {Id}: {e}", true);
-		}
 	}
 
 	public void Dispose()

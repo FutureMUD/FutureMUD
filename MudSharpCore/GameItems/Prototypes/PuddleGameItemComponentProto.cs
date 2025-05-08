@@ -252,7 +252,11 @@ namespace MudSharp.GameItems.Prototypes
 			                     .FirstOrDefault(x => x.Parent.PositionTarget == referenceItem);
 			if (puddle is null)
 			{
-				CreateNewPuddle(mixture, location, layer, referenceItem);
+				if (location.Gameworld.GetStaticBool("PuddlesEnabled"))
+				{
+					CreateNewPuddle(mixture, location, layer, referenceItem);
+				}
+
 				return;
 			}
 

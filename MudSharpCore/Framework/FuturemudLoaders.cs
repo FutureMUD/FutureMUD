@@ -1955,7 +1955,7 @@ For information on the syntax to use in emotes (such as those included in bracke
 #if DEBUG
 		//FMDB.Context.Database.Log = ConsoleUtilities.WriteLine;
 #endif
-		var cellItems = _bootTimeCachedGameItems.Values.GroupBy(x => x.CellsGameItems.FirstOrDefault());
+		var cellItems = _bootTimeCachedGameItems.Values.GroupBy(x => x.CellsGameItems.FirstOrDefault()).ToList();
 		var count = 0;
 		foreach (var cell in cellItems)
 		{
@@ -1974,7 +1974,7 @@ For information on the syntax to use in emotes (such as those included in bracke
 #if DEBUG
 		//FMDB.Context.Database.Log = null;
 #endif
-		ConsoleUtilities.WriteLine("Loaded #2{0:N0}#0 {1}.", count, count == 1 ? "Item" : "Items");
+		ConsoleUtilities.WriteLine("Loaded #2{0:N0}#0 {1} in {2} {3}.", count, count == 1 ? "Item" : "Items", cellItems.Count, cellItems.Count == );
 
 		// Initialise all the grids after the items are definitely loaded and in game
 		ConsoleUtilities.WriteLine("#EInitialising Grids...#0");

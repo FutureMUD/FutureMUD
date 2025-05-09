@@ -31,7 +31,7 @@ public class ComboMerit : CharacterMeritBase
 
 	protected ComboMerit(IFuturemud gameworld, string name) : base(gameworld, name, "Combo", "@ have|has some combination of other quirks")
 	{
-
+		DoDatabaseInsert();
 	}
 
 	/// <inheritdoc />

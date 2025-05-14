@@ -859,6 +859,7 @@ public partial class Body : PerceiverItem, IBody
 		{
 			Console.WriteLine($"DbUpdateException in Body Save {Id}: {e}");
 			Gameworld.SystemMessage($"DbUpdateException in Body Save {Id}: {e}", true);
+			throw;
 		}
 
 		Changed = false;

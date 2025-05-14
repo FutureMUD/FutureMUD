@@ -51,6 +51,7 @@ public class CellOverlayPackage : Framework.Revision.EditableItem, ICellOverlayP
 			catch (DbUpdateException e)
 			{
 				Console.WriteLine(e.Message);
+				throw;
 			}
 		}
 	}

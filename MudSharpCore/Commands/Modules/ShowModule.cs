@@ -1983,17 +1983,17 @@ public class ShowModule : Module<ICharacter>
 			StringUtilities.GetTextTable(
 				Enum.GetValues(typeof(EventType))
 				    .OfType<EventType>()
+				    .OrderBy(x => x.DescribeEnum())
 				    .Select(x => (Event: x, Attribute: x.GetAttribute<EventInfoAttribute>()))
 				    .Select(x => new[]
 				    {
-					    ((int)x.Event).ToString("N0"),
 					    Enum.GetName(typeof(EventType), x.Event),
 					    x.Attribute?.Description ?? "Unknown",
 				    }),
-				new[] { "Number", "Name", "Description" },
+				new[] { "Name", "Description" },
 				actor.LineFormatLength,
 				colour: Telnet.Green,
-				truncatableColumnIndex: 2,
+				truncatableColumnIndex: 1,
 				unicodeTable: actor.Account.UseUnicode
 			)
 		);
@@ -2017,7 +2017,7 @@ public class ShowModule : Module<ICharacter>
 
 		var info = @event.GetAttribute<EventInfoAttribute>();
 		var sb = new StringBuilder();
-		sb.AppendLine($"Event [{@event.DescribeEnum()}]".GetLineWithTitle(actor, Telnet.Cyan, Telnet.BoldWhite));
+		sb.AppendLine($"Event [{@event.DescribeEnum()}]".GetLineWithTitleInner(actor, Telnet.Cyan, Telnet.BoldWhite));
 		sb.AppendLine();
 		sb.AppendLine("Parameters:");
 		sb.AppendLine();

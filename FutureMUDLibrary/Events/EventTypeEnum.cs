@@ -215,7 +215,7 @@ namespace MudSharp.Events {
 		/// <summary>
 		///     Hooks to a character entering the game for the first time
 		/// </summary>
-		[EventInfo("Fires once when a character enters the game for the first time", new[] { "character" }, new[] { "person" }, new[] { ProgVariableTypes.Character })]
+		[EventInfo("Fires once when a character or NPC logs in or loads in", new[] { "character" }, new[] { "person" }, new[] { ProgVariableTypes.Character })]
 		CharacterEntersGame = 20,
 
 		/// <summary>

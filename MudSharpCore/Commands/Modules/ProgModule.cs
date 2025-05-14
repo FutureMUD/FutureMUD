@@ -2344,7 +2344,7 @@ You can use the following filters with #3hook list#0:
 	#6<eventtype>#0 - filters by a hook that pertains to the event";
 
 	[PlayerCommand("Hook", "hook")]
-	[CommandPermission(PermissionLevel.HighAdmin)]
+	[CommandPermission(PermissionLevel.SeniorAdmin)]
 	[HelpInfo("hook", HookHelpText, AutoHelp.HelpArgOrNoArg)]
 	protected static void Hook(ICharacter actor, string input)
 	{

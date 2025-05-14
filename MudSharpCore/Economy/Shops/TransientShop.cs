@@ -137,6 +137,41 @@ public class TransientShop : Shop, ITransientShop
 		CurrentStall?.Put(null, item, false);
 	}
 
+	#region Overrides of Shop
+
+	/// <inheritdoc />
+	public override IEnumerable<IGameItem> DoAutostockAllMerchandise()
+	{
+		var stocked = new List<IGameItem>();
+		if (CurrentStall is null)
+		{
+			return stocked;
+		}
+
+		var items = CurrentStall.Contents.SelectMany(x => x.DeepItems).ToList();
+		foreach (var item in items)
+		{
+			if (item.AffectedBy<ItemOnDisplayInShop>(this))
+			{
+				continue;
+			}
+
+			var merch = Merchandises.FirstOrDefault(x => x.IsMerchandiseFor(item)) ??
+			            _merchandises.FirstOrDefault(x => x.IsMerchandiseFor(item, true));
+			if (merch == null)
+			{
+				continue;
+			}
+
+			AddToStock(null, item, merch);
+			stocked.Add(item);
+		}
+
+		return stocked;
+	}
+
+	#endregion
+
 	public override IEnumerable<IGameItem> DoAutostockForMerchandise(IMerchandise merchandise)
 	{
 		var stocked = new List<IGameItem>();

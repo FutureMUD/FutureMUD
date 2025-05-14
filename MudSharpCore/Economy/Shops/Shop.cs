@@ -5,6 +5,7 @@ using MudSharp.FutureProg;
 using MudSharp.GameItems;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using MudSharp.Framework;
@@ -968,12 +969,22 @@ public abstract class Shop : SaveableItem, IShop
 		ExpectedCashBalance -= amount - bankBalance;
 	}
 
-	public IEnumerable<IGameItem> DoAutostockAllMerchandise()
+	public virtual IEnumerable<IGameItem> DoAutostockAllMerchandise()
 	{
 		var items = new List<IGameItem>();
+#if DEBUG
+		var sw = new Stopwatch();
+#endif
 		foreach (var merchandise in Merchandises)
 		{
+#if DEBUG
+			sw.Restart();
+#endif
 			items.AddRange(DoAutostockForMerchandise(merchandise));
+#if DEBUG
+			sw.Stop();
+			$"Autostock for #3{merchandise.Name}#0 (#{merchandise.Id:N0}) - {sw.ElapsedMilliseconds}ms".WriteLineConsole();
+#endif
 		}
 
 		return items;
@@ -1479,12 +1490,12 @@ public abstract class Shop : SaveableItem, IShop
 			default:
 				actor.OutputHandler.Send(@"Valid options for this command are as follows:
 
-	#3name <name>#0 - renames this shop
-	#3can <prog> <whyprog>#0 - sets a prog that determines who can shop here and a prog to give an error reason
-	#3trading#0 - toggles whether this shop is trading
-	#3market <which>#0 - sets a market to draw pricing multipliers from
-	#3market none#0 - clears the market pricing
-	#3minfloat <amount>#0 - sets the minimum float for the shop to buy anything".SubstituteANSIColour());
+#3name <name>#0 - renames this shop
+#3can <prog> <whyprog>#0 - sets a prog that determines who can shop here and a prog to give an error reason
+#3trading#0 - toggles whether this shop is trading
+#3market <which>#0 - sets a market to draw pricing multipliers from
+#3market none#0 - clears the market pricing
+#3minfloat <amount>#0 - sets the minimum float for the shop to buy anything".SubstituteANSIColour());
 				return false;
 		}
 	}

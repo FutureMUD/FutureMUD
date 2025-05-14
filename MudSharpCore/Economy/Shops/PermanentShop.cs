@@ -323,6 +323,35 @@ public class PermanentShop : Shop, IPermanentShop
 		}
 	}
 
+	#region Overrides of Shop
+
+	/// <inheritdoc />
+	public override IEnumerable<IGameItem> DoAutostockAllMerchandise()
+	{
+		var stocked = new List<IGameItem>();
+		var items = AllShopCells.SelectMany(x => x.GameItems).SelectMany(x => x.DeepItems).ToList();
+		foreach (var item in items)
+		{
+			if (item.AffectedBy<ItemOnDisplayInShop>(this))
+			{
+				continue;
+			}
+
+			var merch = Merchandises.FirstOrDefault(x => x.IsMerchandiseFor(item));
+			if (merch == null)
+			{
+				continue;
+			}
+
+			AddToStock(null, item, merch);
+			stocked.Add(item);
+		}
+
+		return stocked;
+	}
+
+	#endregion
+
 	public override IEnumerable<IGameItem> DoAutostockForMerchandise(IMerchandise merchandise)
 	{
 		var stocked = new List<IGameItem>();

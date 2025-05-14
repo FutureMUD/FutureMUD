@@ -1,17 +1,22 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Xml.Linq;
+using MudSharp.Character;
 using MudSharp.Combat;
 using MudSharp.Construction;
 using MudSharp.Form.Shape;
 using MudSharp.Framework;
 using MudSharp.GameItems.Interfaces;
 using MudSharp.GameItems.Prototypes;
+using MudSharp.PerceptionEngine;
+using MudSharp.PerceptionEngine.Outputs;
+using MudSharp.PerceptionEngine.Parsers;
 using MudSharp.RPG.Checks;
 
 namespace MudSharp.GameItems.Components;
 
-public class SheathGameItemComponent : GameItemComponent, ISheath
+public class SheathGameItemComponent : GameItemComponent, ISheath, IContainer
 {
 	protected SheathGameItemComponentProto _prototype;
 	public override IGameItemComponentProto Prototype => _prototype;
@@ -285,6 +290,124 @@ public class SheathGameItemComponent : GameItemComponent, ISheath
 	public override void FinaliseLoad()
 	{
 		_content?.Parent.FinaliseLoadTimeTasks();
+	}
+
+	#endregion
+
+	#region Implementation of IContainer
+
+	/// <inheritdoc />
+	public IEnumerable<IGameItem> Contents => _content?.Parent is not null ? [_content?.Parent] : [];
+
+	/// <inheritdoc />
+	public string ContentsPreposition => "in";
+
+	/// <inheritdoc />
+	public bool Transparent => false;
+
+	/// <inheritdoc />
+	public bool CanPut(IGameItem item)
+	{
+		return false;
+	}
+
+	/// <inheritdoc />
+	public void Put(ICharacter putter, IGameItem item, bool allowMerge = true)
+	{
+		// Do nothing
+	}
+
+	/// <inheritdoc />
+	public WhyCannotPutReason WhyCannotPut(IGameItem item)
+	{
+		return WhyCannotPutReason.NotContainer;
+	}
+
+	/// <inheritdoc />
+	public bool CanTake(ICharacter taker, IGameItem item, int quantity)
+	{
+		return _content?.Parent == item;
+	}
+
+	/// <inheritdoc />
+	public IGameItem Take(ICharacter taker, IGameItem item, int quantity)
+	{
+		Content = null;
+		return item;
+	}
+
+	/// <inheritdoc />
+	public WhyCannotGetContainerReason WhyCannotTake(ICharacter taker, IGameItem item)
+	{
+		return WhyCannotGetContainerReason.NotContained;
+	}
+
+	/// <inheritdoc />
+	public int CanPutAmount(IGameItem item)
+	{
+		return 0;
+	}
+
+	/// <inheritdoc />
+	public void Empty(ICharacter emptier, IContainer intoContainer, IEmote playerEmote = null)
+	{
+		var location = emptier?.Location ?? Parent.TrueLocations.FirstOrDefault();
+		var contents = Contents.ToList();
+		Content = null;
+		if (emptier is not null)
+		{
+			if (intoContainer == null)
+			{
+				emptier.OutputHandler.Handle(
+					new MixedEmoteOutput(new Emote("@ empty|empties $0 onto the ground.", emptier, Parent)).Append(
+						playerEmote));
+			}
+			else
+			{
+				emptier.OutputHandler.Handle(
+					new MixedEmoteOutput(new Emote($"@ empty|empties $1 {intoContainer.ContentsPreposition}to $2.",
+						emptier, emptier, Parent, intoContainer.Parent)).Append(playerEmote));
+			}
+		}
+
+		foreach (var item in contents)
+		{
+			item.ContainedIn = null;
+			if (intoContainer != null)
+			{
+				if (intoContainer.CanPut(item))
+				{
+					intoContainer.Put(emptier, item);
+				}
+				else if (location != null)
+				{
+					location.Insert(item);
+					if (emptier != null)
+					{
+						emptier.OutputHandler.Handle(new EmoteOutput(new Emote(
+							"@ cannot put $1 into $2, so #0 set|sets it down on the ground.", emptier, emptier, item,
+							intoContainer.Parent)));
+					}
+				}
+				else
+				{
+					item.Delete();
+				}
+
+				continue;
+			}
+
+			if (location != null)
+			{
+				location.Insert(item);
+			}
+			else
+			{
+				item.Delete();
+			}
+		}
+
+		Changed = true;
 	}
 
 	#endregion

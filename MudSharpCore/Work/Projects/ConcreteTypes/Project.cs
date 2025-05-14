@@ -626,7 +626,7 @@ Editing Actions:
 	#3swap <phase1> <phase2>#0 - swap the position of two phases
 	#3<phase> description <description>#0 - sets the description of a phase
 	#3<phase> labour ...#0 - see the labour sub-command for full help
-	#3<phase> material ...#0 - see the material sub-command for full help".ColourCommand());
+	#3<phase> material ...#0 - see the material sub-command for full help".SubstituteANSIColour());
 				return true;
 		}
 
@@ -905,6 +905,7 @@ Editing Actions:
 			{
 				actor.OutputHandler.Send(
 					$"You delete project material requirement {material.Name.ColourValue()} from the project phase.");
+				phase.RemoveMaterial(material);
 				material.Delete();
 			},
 			RejectAction = txt =>

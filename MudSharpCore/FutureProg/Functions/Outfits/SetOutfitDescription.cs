@@ -27,7 +27,18 @@ internal class SetOutfitDescription : BuiltInFunction
 			new FunctionCompilerInformation(
 				"setoutfitdescription",
 				new[] { ProgVariableTypes.Outfit, ProgVariableTypes.Text },
-				(pars, gameworld) => new SetOutfitDescription(pars, gameworld)
+				(pars, gameworld) => new SetOutfitDescription(pars, gameworld),
+				[
+					"outfit",
+					"description"
+				],
+				[
+					"The outfit to redescribe",
+					"The new description for the outfit"
+				],
+				"This function redescribes an outfit. Returns the outfit parameter.",
+				"Outfits",
+				ProgVariableTypes.Outfit
 			)
 		);
 	}

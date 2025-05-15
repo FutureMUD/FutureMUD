@@ -26,7 +26,18 @@ internal class NewOutfit : BuiltInFunction
 			new FunctionCompilerInformation(
 				"newoutfit",
 				new[] { ProgVariableTypes.Character, ProgVariableTypes.Text },
-				(pars, gameworld) => new NewOutfit(pars, gameworld)
+				(pars, gameworld) => new NewOutfit(pars, gameworld),
+				[
+					"character",
+					"name"
+				],
+				[
+					"The character who owns the new outfit",
+					"The name of the outfit"
+				],
+				"Creates a new blank outfit for a character. Returns the outfit it creates. Can return null if the name is not valid.",
+				"Outfits",
+				ProgVariableTypes.Outfit
 			)
 		);
 	}

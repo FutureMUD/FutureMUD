@@ -29,7 +29,18 @@ internal class RemoveOutfit : BuiltInFunction
 			new FunctionCompilerInformation(
 				"removeoutfit",
 				new[] { ProgVariableTypes.Character, ProgVariableTypes.Outfit },
-				(pars, gameworld) => new RemoveOutfit(pars, gameworld, false)
+				(pars, gameworld) => new RemoveOutfit(pars, gameworld, false),
+				[
+					"character",
+					"outfit"
+				],
+				[
+					"The character to remove the outfit from",
+					"The outfit to remove"
+				],
+				"This function removes all items in an outfit from a character, as if the character had used the OUTFIT REMOVE command.",
+				"Outfits",
+				ProgVariableTypes.Boolean
 			)
 		);
 
@@ -40,7 +51,20 @@ internal class RemoveOutfit : BuiltInFunction
 				{
 					ProgVariableTypes.Character, ProgVariableTypes.Outfit, ProgVariableTypes.Item
 				},
-				(pars, gameworld) => new RemoveOutfit(pars, gameworld, false)
+				(pars, gameworld) => new RemoveOutfit(pars, gameworld, false),
+				[
+					"character",
+					"outfit",
+					"container"
+				],
+				[
+					"The character to remove the outfit from",
+					"The outfit to remove",
+					"The container to put removed items into"
+				],
+				"This function removes all items in an outfit from a character, as if the character had used the OUTFIT REMOVE command.",
+				"Outfits",
+				ProgVariableTypes.Boolean
 			)
 		);
 
@@ -48,7 +72,18 @@ internal class RemoveOutfit : BuiltInFunction
 			new FunctionCompilerInformation(
 				"removeoutfitforce",
 				new[] { ProgVariableTypes.Character, ProgVariableTypes.Outfit },
-				(pars, gameworld) => new RemoveOutfit(pars, gameworld, true)
+				(pars, gameworld) => new RemoveOutfit(pars, gameworld, true),
+				[
+					"character",
+					"outfit"
+				],
+				[
+					"The character to remove the outfit from",
+					"The outfit to remove"
+				],
+				"This function removes all items in an outfit from a character, as if the character had used the OUTFIT REMOVE command. This version of the command ignores the inventory and container rules, so it guarantees that the items will come off and they will go in the container.",
+				"Outfits",
+				ProgVariableTypes.Boolean
 			)
 		);
 
@@ -59,7 +94,20 @@ internal class RemoveOutfit : BuiltInFunction
 				{
 					ProgVariableTypes.Character, ProgVariableTypes.Outfit, ProgVariableTypes.Item
 				},
-				(pars, gameworld) => new RemoveOutfit(pars, gameworld, true)
+				(pars, gameworld) => new RemoveOutfit(pars, gameworld, true),
+				[
+					"character",
+					"outfit",
+					"container"
+				],
+				[
+					"The character to remove the outfit from",
+					"The outfit to remove",
+					"The container to put removed items into"
+				],
+				"This function removes all items in an outfit from a character, as if the character had used the OUTFIT REMOVE command. This version of the command ignores the inventory and container rules, so it guarantees that the items will come off and they will go in the container.",
+				"Outfits",
+				ProgVariableTypes.Boolean
 			)
 		);
 	}
@@ -151,7 +199,7 @@ internal class RemoveOutfit : BuiltInFunction
 			{
 				var containerId = targetContainer?.Id ??
 				                  outfit.Items.FirstOrDefault(x => x.Id == item.Id)?.PreferredContainerId;
-				var container = targetContainer.GetItemType<IContainer>() ?? character.ContextualItems.FirstOrDefault(
+				var container = targetContainer?.GetItemType<IContainer>() ?? character.ContextualItems.FirstOrDefault(
 						x => x.Id == containerId && x.GetItemType<IContainer>()?.CanPut(item) == true)
 					?.GetItemType<IContainer>();
 				if (!Commands.Modules.InventoryModule.RecursiveRemoveItem(character, item, container, out _))

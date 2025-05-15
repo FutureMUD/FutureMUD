@@ -27,7 +27,18 @@ internal class RenameOutfit : BuiltInFunction
 			new FunctionCompilerInformation(
 				"renameoutfit",
 				new[] { ProgVariableTypes.Outfit, ProgVariableTypes.Text },
-				(pars, gameworld) => new RenameOutfit(pars, gameworld)
+				(pars, gameworld) => new RenameOutfit(pars, gameworld),
+				[
+					"outfit",
+					"name"
+				],
+				[
+					"The outfit to rename",
+					"The new name for the outfit"
+				],
+				"This function renames an outfit. Returns true if the name was changed and was valid.",
+				"Outfits",
+				ProgVariableTypes.Boolean
 			)
 		);
 	}

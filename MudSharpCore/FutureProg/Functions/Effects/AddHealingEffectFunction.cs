@@ -21,7 +21,7 @@ internal class AddHealingEffectFunction : BuiltInFunction
 
 	public override ProgVariableTypes ReturnType
 	{
-		get => ProgVariableTypes.Boolean;
+		get => ProgVariableTypes.Effect;
 		protected set { }
 	}
 
@@ -35,7 +35,7 @@ internal class AddHealingEffectFunction : BuiltInFunction
 		var perceivable = (IPerceivable)ParameterFunctions[0].Result.GetObject;
 		if (perceivable == null)
 		{
-			Result = new BooleanVariable(false);
+			Result = new NullVariable(ProgVariableTypes.Effect);
 			return StatementResult.Normal;
 		}
 
@@ -48,20 +48,16 @@ internal class AddHealingEffectFunction : BuiltInFunction
 			    !prog.MatchesParameters(new[] { ProgVariableTypes.Character })
 			   )
 			{
-				Result = new BooleanVariable(false);
+				Result = new NullVariable(ProgVariableTypes.Effect);
 				return StatementResult.Normal;
 			}
 		}
 
-		var timespan = ParameterFunctions[4].Result?.GetObject as TimeSpan?;
-		if (timespan == null)
-		{
-			timespan = TimeSpan.MinValue;
-		}
+		var timespan = ParameterFunctions[4].Result?.GetObject as TimeSpan? ?? TimeSpan.MinValue;
 
-		perceivable.AddEffect(
-			new HealingRateEffect(perceivable, Convert.ToDouble(ParameterFunctions[1].Result?.GetObject ?? 0.0M),
-				Convert.ToInt32(ParameterFunctions[2].Result?.GetObject ?? 0.0M), prog), timespan.Value);
+		var effect = new HealingRateEffect(perceivable, Convert.ToDouble(ParameterFunctions[1].Result?.GetObject ?? 0.0M),
+			Convert.ToInt32(ParameterFunctions[2].Result?.GetObject ?? 0.0M), prog);
+		perceivable.AddEffect(effect, timespan);
 		Result = new BooleanVariable(true);
 		return StatementResult.Normal;
 	}
@@ -84,13 +80,13 @@ internal class AddHealingEffectFunction : BuiltInFunction
 			{
 				"The perceivable to whom the healing effect is being added",
 				"The healing multiplier for the effect",
-				"The number of difficulty stages to stage the healing difficulty checks by",
+				"The number of difficulty stages to stage the healing difficulty checks by. Negative is a bonus, positive is a penalty.",
 				"The ID of the prog to whether the effect applies",
 				"The duration of the effect"
 			},
-			"",
+			"This function adds an effect to a perceivable (character or item) that changes the rate and difficulty of healing. Returns the effect it creates.",
 			"Effects",
-			ProgVariableTypes.Boolean
+			ProgVariableTypes.Effect
 		));
 		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
 			"addhealingeffect",
@@ -102,7 +98,19 @@ internal class AddHealingEffectFunction : BuiltInFunction
 				ProgVariableTypes.Text,
 				ProgVariableTypes.TimeSpan
 			},
-			(pars, gameworld) => new AddHealingEffectFunction(pars, gameworld)
+			(pars, gameworld) => new AddHealingEffectFunction(pars, gameworld),
+			new List<string> { "Perceivable", "Multiplier", "Stages", "ProgId", "Duration" },
+			new List<string>
+			{
+				"The perceivable to whom the healing effect is being added",
+				"The healing multiplier for the effect",
+				"The number of difficulty stages to stage the healing difficulty checks by. Negative is a bonus, positive is a penalty.",
+				"The name of the prog to whether the effect applies",
+				"The duration of the effect"
+			},
+			"This function adds an effect to a perceivable (character or item) that changes the rate and difficulty of healing. Returns the effect it creates.",
+			"Effects",
+			ProgVariableTypes.Effect
 		));
 	}
 }

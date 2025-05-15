@@ -30,7 +30,20 @@ internal class CloneOutfit : BuiltInFunction
 				{
 					ProgVariableTypes.Outfit, ProgVariableTypes.Character, ProgVariableTypes.Text
 				},
-				(pars, gameworld) => new CloneOutfit(pars, gameworld)
+				(pars, gameworld) => new CloneOutfit(pars, gameworld),
+				[
+					"outfit",
+					"character",
+					"name"
+				],
+				[
+					"The outfit that you want to clone",
+					"The character who should get the outfit",
+					"The name of the new cloned outfit"
+				],
+				"This function takes an existing outfit and clones it to a new one. This is one way that you can copy an outfit from one player to another for example. Returns the outfit that it creates. Can return null if the name is not valid.",
+				"Outfits",
+				ProgVariableTypes.Outfit
 			)
 		);
 	}

@@ -24,7 +24,7 @@ internal class AddInvisEffectFunction : BuiltInFunction
 
 	public override ProgVariableTypes ReturnType
 	{
-		get => ProgVariableTypes.Boolean;
+		get => ProgVariableTypes.Effect;
 		protected set { }
 	}
 
@@ -38,24 +38,25 @@ internal class AddInvisEffectFunction : BuiltInFunction
 		var perceivable = (IPerceivable)ParameterFunctions[0].Result.GetObject;
 		if (perceivable == null)
 		{
-			Result = new BooleanVariable(false);
+			Result = new NullVariable(ProgVariableTypes.Effect);
 			return StatementResult.Normal;
 		}
 
-		var prog = ParameterFunctions[1].ReturnType.CompatibleWith(ProgVariableTypes.Number)
+		var prog = (ParameterFunctions[1].ReturnType.CompatibleWith(ProgVariableTypes.Number)
 			? _gameworld.FutureProgs.Get(Convert.ToInt64(ParameterFunctions[1].Result?.GetObject ?? 0))
-			: _gameworld.FutureProgs.GetByName((string)ParameterFunctions[1].Result?.GetObject ?? "");
-		if (prog == null ||
-		    prog.ReturnType != ProgVariableTypes.Boolean ||
-		    !prog.MatchesParameters(new[] { ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable })
+			: _gameworld.FutureProgs.GetByName((string)ParameterFunctions[1].Result?.GetObject ?? "")) ?? _gameworld.AlwaysTrueProg;
+
+		if (prog.ReturnType != ProgVariableTypes.Boolean ||
+		    !prog.MatchesParameters([ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable])
 		   )
 		{
-			Result = new BooleanVariable(false);
+			Result = new NullVariable(ProgVariableTypes.Effect);
 			return StatementResult.Normal;
 		}
 
-		perceivable.AddEffect(new Invis(perceivable, prog));
-		Result = new BooleanVariable(true);
+		var effect = new Invis(perceivable, prog);
+		perceivable.AddEffect(effect);
+		Result = effect;
 		return StatementResult.Normal;
 	}
 
@@ -68,7 +69,18 @@ internal class AddInvisEffectFunction : BuiltInFunction
 				ProgVariableTypes.Perceivable,
 				ProgVariableTypes.Number
 			},
-			(pars, gameworld) => new AddInvisEffectFunction(pars, gameworld)
+			(pars, gameworld) => new AddInvisEffectFunction(pars, gameworld),
+			[
+				"Perceivable", 
+				"Prog"
+			],
+			[
+				"The perceivable to add the invisibility effect to",
+				"The ID of a prog to control whether the effect applies. Parameters are perceivable,perceivable and returns boolean."
+			],
+			"This function adds an invisibility effect to a perceivable. Returns the effect it creates.",
+			"Effects",
+			ProgVariableTypes.Effect
 		));
 		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
 			"addinviseffect",
@@ -77,7 +89,18 @@ internal class AddInvisEffectFunction : BuiltInFunction
 				ProgVariableTypes.Perceivable,
 				ProgVariableTypes.Text
 			},
-			(pars, gameworld) => new AddInvisEffectFunction(pars, gameworld)
+			(pars, gameworld) => new AddInvisEffectFunction(pars, gameworld),
+			[
+				"Perceivable",
+				"Prog"
+			],
+			[
+				"The perceivable to add the invisibility effect to",
+				"The name of a prog to control whether the effect applies. Parameters are perceivable,perceivable and returns boolean."
+			],
+			"This function adds an invisibility effect to a perceivable. Returns the effect it creates.",
+			"Effects",
+			ProgVariableTypes.Effect
 		));
 	}
 }

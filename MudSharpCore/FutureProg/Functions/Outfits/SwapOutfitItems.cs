@@ -31,7 +31,20 @@ internal class SwapOutfitItems : BuiltInFunction
 					ProgVariableTypes.Outfit, ProgVariableTypes.OutfitItem,
 					ProgVariableTypes.OutfitItem
 				},
-				(pars, gameworld) => new SwapOutfitItems(pars, gameworld)
+				(pars, gameworld) => new SwapOutfitItems(pars, gameworld),
+				[
+					"outfit",
+					"item1",
+					"item2"
+				],
+				[
+					"The outfit whose items you want to swap the order of",
+					"The first item",
+					"The second item"
+				],
+				"Swaps the order of two outfit items in an outfit, so they are worn or removed in a different order. Returns true if the items were swapped.",
+				"Outfits",
+				ProgVariableTypes.Boolean
 			)
 		);
 	}
@@ -81,8 +94,13 @@ internal class SwapOutfitItems : BuiltInFunction
 			return StatementResult.Error;
 		}
 
-		outfit.SwapItems(item1, item2);
+		if (!outfit.Items.Contains(item1) || !outfit.Items.Contains(item2))
+		{
+			Result = new BooleanVariable(false);
+			return StatementResult.Normal;
+		}
 
+		outfit.SwapItems(item1, item2);
 		Result = new BooleanVariable(true);
 		return StatementResult.Normal;
 	}

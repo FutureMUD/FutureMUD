@@ -28,7 +28,18 @@ internal class AddItemToOutfit : BuiltInFunction
 			new FunctionCompilerInformation(
 				"additemtooutfit",
 				new[] { ProgVariableTypes.Outfit, ProgVariableTypes.Item },
-				(pars, gameworld) => new AddItemToOutfit(pars, gameworld)
+				(pars, gameworld) => new AddItemToOutfit(pars, gameworld),
+				[
+					"outfit",
+					"item"
+				],
+				[
+					"The outfit to add the item to",
+					"The item to add to the outfit"
+				],
+				"This function adds an item to an outfit through a prog. It is the equivalent of a player using the OUTFIT SET ADD command. Returns the outfititem that is added, or null if there is an error.",
+				"Outfits",
+				ProgVariableTypes.OutfitItem
 			)
 		);
 
@@ -36,7 +47,20 @@ internal class AddItemToOutfit : BuiltInFunction
 			new FunctionCompilerInformation(
 				"additemtooutfit",
 				new[] { ProgVariableTypes.Outfit, ProgVariableTypes.Item, ProgVariableTypes.Item },
-				(pars, gameworld) => new AddItemToOutfit(pars, gameworld)
+				(pars, gameworld) => new AddItemToOutfit(pars, gameworld),
+				[
+					"outfit",
+					"item",
+					"container"
+				],
+				[
+					"The outfit to add the item to",
+					"The item to add to the outfit",
+					"The preferred container for the item"
+				],
+				"This function adds an item to an outfit through a prog. It is the equivalent of a player using the OUTFIT SET ADD command. Returns the outfititem that is added, or null if there is an error.",
+				"Outfits",
+				ProgVariableTypes.OutfitItem
 			)
 		);
 
@@ -48,7 +72,22 @@ internal class AddItemToOutfit : BuiltInFunction
 					ProgVariableTypes.Outfit, ProgVariableTypes.Item, ProgVariableTypes.Item,
 					ProgVariableTypes.Text
 				},
-				(pars, gameworld) => new AddItemToOutfit(pars, gameworld)
+				(pars, gameworld) => new AddItemToOutfit(pars, gameworld),
+				[
+					"outfit",
+					"item",
+					"container",
+					"profile"
+				],
+				[
+					"The outfit to add the item to",
+					"The item to add to the outfit",
+					"The preferred container for the item",
+					"The preferred wear profile for the item"
+				],
+				"This function adds an item to an outfit through a prog. It is the equivalent of a player using the OUTFIT SET ADD command. Returns the outfititem that is added, or null if there is an error.",
+				"Outfits",
+				ProgVariableTypes.OutfitItem
 			)
 		);
 
@@ -56,7 +95,20 @@ internal class AddItemToOutfit : BuiltInFunction
 			new FunctionCompilerInformation(
 				"additemtooutfit",
 				new[] { ProgVariableTypes.Outfit, ProgVariableTypes.Item, ProgVariableTypes.Text },
-				(pars, gameworld) => new AddItemToOutfit(pars, gameworld)
+				(pars, gameworld) => new AddItemToOutfit(pars, gameworld),
+				[
+					"outfit",
+					"item",
+					"profile"
+				],
+				[
+					"The outfit to add the item to",
+					"The item to add to the outfit",
+					"The preferred wear profile for the item"
+				],
+				"This function adds an item to an outfit through a prog. It is the equivalent of a player using the OUTFIT SET ADD command. Returns the outfititem that is added, or null if there is an error.",
+				"Outfits",
+				ProgVariableTypes.OutfitItem
 			)
 		);
 	}
@@ -74,7 +126,7 @@ internal class AddItemToOutfit : BuiltInFunction
 
 	public override ProgVariableTypes ReturnType
 	{
-		get => ProgVariableTypes.Boolean;
+		get => ProgVariableTypes.OutfitItem;
 		protected set { }
 	}
 

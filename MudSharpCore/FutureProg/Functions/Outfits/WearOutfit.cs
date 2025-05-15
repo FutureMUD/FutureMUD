@@ -30,7 +30,18 @@ internal class WearOutfit : BuiltInFunction
 			new FunctionCompilerInformation(
 				"wearoutfit",
 				new[] { ProgVariableTypes.Character, ProgVariableTypes.Outfit },
-				(pars, gameworld) => new WearOutfit(pars, gameworld, false)
+				(pars, gameworld) => new WearOutfit(pars, gameworld, false),
+				[
+					"character",
+					"outfit"
+				],
+				[
+					"The character to wear the outfit",
+					"The outfit to be worn"
+				],
+				"Has a character wear an outfit as if they'd type OUTFIT WEAR. Returns true if it succeeds. Can fail if items are missing.",
+				"Outfits",
+				ProgVariableTypes.Boolean
 			)
 		);
 
@@ -38,7 +49,18 @@ internal class WearOutfit : BuiltInFunction
 			new FunctionCompilerInformation(
 				"wearoutfitforce",
 				new[] { ProgVariableTypes.Character, ProgVariableTypes.Outfit },
-				(pars, gameworld) => new WearOutfit(pars, gameworld, true)
+				(pars, gameworld) => new WearOutfit(pars, gameworld, true),
+				[
+					"character",
+					"outfit"
+				],
+				[
+					"The character to wear the outfit",
+					"The outfit to be worn"
+				],
+				"Has a character wear an outfit as if they'd type OUTFIT WEAR. Returns true if it succeeds. Ignores missing items.",
+				"Outfits",
+				ProgVariableTypes.Boolean
 			)
 		);
 	}
@@ -106,8 +128,7 @@ internal class WearOutfit : BuiltInFunction
 			}
 		}
 
-		if (feasible == InventoryPlanFeasibility.Feasible ||
-		    (feasible == InventoryPlanFeasibility.NotFeasibleMissingItems && Force))
+		if (feasible == InventoryPlanFeasibility.Feasible || (feasible == InventoryPlanFeasibility.NotFeasibleMissingItems && Force))
 		{
 			var results = charPlan.ExecuteWholePlan();
 			charPlan.FinalisePlanWithExemptions(results.Select(x => x.PrimaryTarget).ToList());

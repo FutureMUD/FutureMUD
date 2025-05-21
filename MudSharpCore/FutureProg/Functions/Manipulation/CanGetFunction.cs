@@ -141,10 +141,22 @@ internal class CanGetContainerFunction : BuiltInFunction
 			"canget",
 			new[]
 			{
-				ProgVariableTypes.Character, ProgVariableTypes.Item, ProgVariableTypes.Item,
-				ProgVariableTypes.Text
+				ProgVariableTypes.Character, ProgVariableTypes.Item, ProgVariableTypes.Item
 			},
-			(pars, gameworld) => new CanGetContainerFunction(pars)
+			(pars, gameworld) => new CanGetContainerFunction(pars),
+			[
+				"who",
+				"thing",
+				"container"
+			],
+			[
+				"The character doing the getting",
+				"The thing being gotten",
+				"The container to get it from"
+			],
+			"This function tells you if a player could pick up an item into hands/inventory from a container. Returns true if so. Respects all normal inventory rules.",
+			"Manipulation",
+			ProgVariableTypes.Boolean
 		));
 
 		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
@@ -152,9 +164,24 @@ internal class CanGetContainerFunction : BuiltInFunction
 			new[]
 			{
 				ProgVariableTypes.Character, ProgVariableTypes.Item, ProgVariableTypes.Item,
-				ProgVariableTypes.Number, ProgVariableTypes.Text
+				ProgVariableTypes.Number
 			},
-			(pars, gameworld) => new CanGetContainerFunction(pars)
+			(pars, gameworld) => new CanGetContainerFunction(pars),
+			[
+				"who",
+				"thing",
+				"container",
+				"quantity"
+			],
+			[
+				"The character doing the getting",
+				"The thing being gotten",
+				"The container to get it from",
+				"The number of things being gotten, or 0 for the full stack"
+			],
+			"This function tells you if a player could pick up a specified quantity of an item into hands/inventory from a container. Returns true if so. Respects all normal inventory rules.",
+			"Manipulation",
+			ProgVariableTypes.Boolean
 		));
 	}
 }

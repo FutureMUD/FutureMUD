@@ -87,6 +87,7 @@ internal class AttachFunction : BuiltInFunction
 			attachableItem.Location?.Extract(attachableItem);
 		}
 
+		attachable.ConnectedTo?.RemoveConnectedItem(attachable);
 		attachedto.AddConnectedItem(attachable);
 
 		Result = new BooleanVariable(true);
@@ -98,7 +99,18 @@ internal class AttachFunction : BuiltInFunction
 		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
 			"attach",
 			new[] { ProgVariableTypes.Item, ProgVariableTypes.Item },
-			(pars, gameworld) => new AttachFunction(pars)
+			(pars, gameworld) => new AttachFunction(pars),
+			[
+				"attachable",
+				"attachto",
+			],
+			[
+				"The item to be attached",
+				"The item the first thing it to be attached to"
+			],
+			"Causes an item to become attached to another item. Returns true if it succeeded.",
+			"Manipulation",
+			ProgVariableTypes.Boolean
 		));
 	}
 }

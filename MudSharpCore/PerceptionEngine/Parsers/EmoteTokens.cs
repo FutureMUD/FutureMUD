@@ -338,7 +338,7 @@ public partial class Emote
 				}
 
 				EmoteToken token = null;
-				if (m.Groups["possessive"].Length > 0)
+				if (m.Groups["possession"].Length > 0)
 				{
 					if (perceivables[index]?.Sentient == true)
 					{

@@ -71,6 +71,16 @@ public partial class Emote : IEmote
 			languagePerceiver?.CurrentLanguage, languagePerceiver?.CurrentAccent, perceivables);
 	}
 
+	public Emote(string rawEmote, IPerceiver source, PermitLanguageOptions permitSpeech, params IPerceivable[] perceivables)
+	{
+		RawText = rawEmote;
+		Source = source;
+		ForcedSourceInclusion = false;
+		var languagePerceiver = source as ILanguagePerceiver;
+		Valid = ScoutTargets(ForcedSourceInclusion, permitSpeech, false,
+			languagePerceiver?.CurrentLanguage, languagePerceiver?.CurrentAccent, perceivables);
+	}
+
 	protected Emote()
 	{
 	}

@@ -16,6 +16,7 @@ using MudSharp.PerceptionEngine.Outputs;
 using MudSharp.PerceptionEngine.Parsers;
 using MudSharp.RPG.Checks;
 using MudSharp.Construction;
+using MudSharp.PerceptionEngine;
 
 namespace MudSharp.Magic.Powers;
 
@@ -269,9 +270,9 @@ public class MindSayPower : MagicPowerBase
 		{
 			effect.TargetCharacter.OutputHandler.Send(new EmoteOutput(new Emote(
 				string.Format(GetAppropriateTargetEmote(actor, effect.TargetCharacter), 0,
-					text.ProperSentences().Fullstop()), actor, actor, effect.TargetCharacter)));
+					text.ProperSentences().Fullstop()), actor, PermitLanguageOptions.IgnoreLanguage, actor, effect.TargetCharacter)));
 			actor.OutputHandler.Send(new EmoteOutput(new Emote(
-				string.Format(EmoteText, text.ProperSentences().Fullstop()), actor, actor, effect.TargetCharacter)));
+				string.Format(EmoteText, text.ProperSentences().Fullstop()), actor, PermitLanguageOptions.IgnoreLanguage, actor, effect.TargetCharacter)));
 		}
 	}
 

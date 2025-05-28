@@ -11,6 +11,7 @@ using MudSharp.Communication.Language;
 using MudSharp.Effects.Concrete;
 using MudSharp.Framework;
 using MudSharp.FutureProg;
+using MudSharp.PerceptionEngine;
 using MudSharp.PerceptionEngine.Outputs;
 using MudSharp.PerceptionEngine.Parsers;
 using MudSharp.RPG.Checks;
@@ -55,6 +56,9 @@ public class MindBroadcastPower : MagicPowerBase
 			new XElement("TargetCanSeeIdentityProg", TargetCanSeeIdentityProg.Id),
 			new XElement("TargetIncluded", TargetIncluded.Id),
 			new XElement("SkillCheckTrait", SkillCheckTrait.Id),
+			new XElement("SkillCheckDifficulty", (int)SkillCheckDifficulty),
+			new XElement("CanInvokePowerProg", CanInvokePowerProg?.Id ?? 0L),
+			new XElement("WhyCantInvokePowerProg", WhyCantInvokePowerProg?.Id ?? 0L),
 			new XElement("Distance", (int)PowerDistance)
 		);
 		return definition;
@@ -257,7 +261,7 @@ public class MindBroadcastPower : MagicPowerBase
 				target.OutputHandler.Send(emote);
 			}
 
-			actor.OutputHandler.Send(new EmoteOutput(new Emote(string.Format(EmoteText, text).SubstituteANSIColour().ProperSentences().Fullstop(), actor, actor)));
+			actor.OutputHandler.Send(new EmoteOutput(new Emote(string.Format(EmoteText, text).ProperSentences().Fullstop(), actor, actor)));
 		}
 		else
 		{
@@ -268,11 +272,11 @@ public class MindBroadcastPower : MagicPowerBase
 					continue;
 				}
 
-				var emote = new EmoteOutput(new Emote(string.Format(GetAppropriateTargetEmote(actor, target), 0, command.RemainingArgument.ProperSentences().Fullstop()), actor, actor, target));
+				var emote = new EmoteOutput(new Emote($"{GetAppropriateTargetEmote(actor, target)} \"{text.ProperSentences().Fullstop()}\"", actor, PermitLanguageOptions.IgnoreLanguage, actor, target), flags: OutputFlags.NoLanguage);
 				target.OutputHandler.Send(emote);
 			}
 
-			actor.OutputHandler.Send(new EmoteOutput(new Emote(string.Format(EmoteText, text.SubstituteANSIColour().ProperSentences().Fullstop()), actor, actor)));
+			actor.OutputHandler.Send(new EmoteOutput(new Emote($"{EmoteText} \"{text.ProperSentences().Fullstop()}\"", actor, PermitLanguageOptions.IgnoreLanguage, actor), flags: OutputFlags.NoLanguage));
 		}
 	}
 
@@ -326,10 +330,10 @@ public class MindBroadcastPower : MagicPowerBase
 	{
 		if (TargetCanSeeIdentityProg.ExecuteBool(connecter, connectee))
 		{
-			return string.Format(TargetEmoteText, "$0");
+			return string.Format(TargetEmoteText, "$0", "{0}");
 		}
 
-		return string.Format(TargetEmoteText, UnknownIdentityDescription.ColourCharacter());
+		return string.Format(TargetEmoteText, UnknownIdentityDescription.ColourCharacter(), "{0}");
 	}
 
 	#region Building Commands

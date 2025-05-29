@@ -22,6 +22,7 @@ namespace MudSharp.Magic.Powers;
 public class MindBarrierPower : SustainedMagicPower
 {
 	public override string PowerType => "Barrier";
+	public override string DatabaseType => "mindbarrier";
 
 	public static void RegisterLoader()
 	{

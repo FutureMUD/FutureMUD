@@ -20,6 +20,13 @@ public class MagicAttackPower : MagicPowerBase, IMagicAttackPower
 {
 	public override string PowerType => "Magic Attack";
 
+	#region Overrides of MagicPowerBase
+
+	/// <inheritdoc />
+	public override string DatabaseType => "magicattack";
+
+	#endregion
+
 	public static void RegisterLoader()
 	{
 		MagicPowerFactory.RegisterLoader("magicattack", (power, gameworld) => new MagicAttackPower(power, gameworld));

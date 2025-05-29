@@ -406,6 +406,8 @@ public class ChokePower : SustainedMagicPower
 
 	public override string PowerType => "Choke";
 
+	public override string DatabaseType => "choke";
+
 	public MagicPowerDistance PowerDistance { get; protected set; }
 	public string EmoteText { get; protected set; }
 	public string FailEmoteText { get; protected set; }

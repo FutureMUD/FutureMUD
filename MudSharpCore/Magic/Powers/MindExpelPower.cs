@@ -19,6 +19,7 @@ namespace MudSharp.Magic.Powers;
 public class MindExpelPower : MagicPowerBase
 {
 	public override string PowerType => "Mind Expel";
+	public override string DatabaseType => "mindexpel";
 	public static void RegisterLoader()
 	{
 		MagicPowerFactory.RegisterLoader("mindexpel", (power, gameworld) => new MindExpelPower(power, gameworld));

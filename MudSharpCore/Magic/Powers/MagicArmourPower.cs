@@ -25,6 +25,7 @@ namespace MudSharp.Magic.Powers;
 public class MagicArmourPower : SustainedMagicPower
 {
 	public override string PowerType => "Armour";
+	public override string DatabaseType => "armour";
 	public static void RegisterLoader()
 	{
 		MagicPowerFactory.RegisterLoader("armour", (power, gameworld) => new MagicArmourPower(power, gameworld));

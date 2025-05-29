@@ -20,6 +20,7 @@ namespace MudSharp.Magic.Powers;
 public class InvisibilityPower : SustainedMagicPower
 {
 	public override string PowerType => "Invisibility";
+	public override string DatabaseType => "invisibility";
 	public static void RegisterLoader()
 	{
 		MagicPowerFactory.RegisterLoader("invisibility", (power, gameworld) => new InvisibilityPower(power, gameworld));

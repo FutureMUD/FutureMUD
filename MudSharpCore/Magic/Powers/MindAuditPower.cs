@@ -22,6 +22,7 @@ namespace MudSharp.Magic.Powers;
 public class MindAuditPower : MagicPowerBase
 {
 	public override string PowerType => "Audit";
+	public override string DatabaseType => "mindaudit";
 	public static void RegisterLoader()
 	{
 		MagicPowerFactory.RegisterLoader("mindaudit", (power, gameworld) => new MindAuditPower(power, gameworld));

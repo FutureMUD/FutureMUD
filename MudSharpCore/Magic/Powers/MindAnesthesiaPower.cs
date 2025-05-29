@@ -22,6 +22,7 @@ namespace MudSharp.Magic.Powers;
 public class MindAnesthesiaPower : SustainedMagicPower
 {
 	public override string PowerType => "Anesthesia";
+	public override string DatabaseType => "mindanesthesia";
 	public static TimeSpan RampInterval { get; private set; } = TimeSpan.FromSeconds(15);
 
 	public static void RegisterLoader()

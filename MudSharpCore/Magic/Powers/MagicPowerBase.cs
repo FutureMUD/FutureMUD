@@ -107,7 +107,7 @@ public abstract class MagicPowerBase : SaveableItem, IMagicPower
 				Blurb = Blurb,
 				ShowHelp = _showHelpText,
 				MagicSchoolId = School.Id,
-				PowerModel = PowerType,
+				PowerModel = DatabaseType,
 				Definition = SaveDefinition().ToString()
 			};
 			FMDB.Context.MagicPowers.Add(dbitem);
@@ -305,6 +305,7 @@ public abstract class MagicPowerBase : SaveableItem, IMagicPower
 	public IMagicSchool School { get; protected set; }
 
 	public abstract string PowerType { get; }
+	public abstract string DatabaseType { get; }
 
 	protected string _showHelpText;
 

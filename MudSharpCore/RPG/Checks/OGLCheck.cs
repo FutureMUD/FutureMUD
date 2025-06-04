@@ -51,9 +51,9 @@ public class OGLCheck : StandardCheck
 		var outcome1 = GetOutcome(roll,
 			Modifiers[difficulty1] - TargetNumberExpression.EvaluateWith(checkee, trait, values: customParameters) -
 			bonus);
-		var outcome2 = GetOutcome(roll,
-			Modifiers[difficulty1] - TargetNumberExpression.EvaluateWith(checkee, trait, values: customParameters) -
-			bonus);
+                var outcome2 = GetOutcome(roll,
+                        Modifiers[difficulty2] - TargetNumberExpression.EvaluateWith(checkee, trait, values: customParameters) -
+                        bonus);
 
 		return Tuple.Create(HandleStandardCheck(checkee, target, outcome1, difficulty1, trait, true, traitUseType),
 			HandleStandardCheck(checkee, target, outcome2, difficulty2, trait, true, traitUseType));

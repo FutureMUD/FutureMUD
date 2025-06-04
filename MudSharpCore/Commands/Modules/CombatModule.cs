@@ -1907,19 +1907,21 @@ The syntax is simply #3flee#0 to toggle it on, and the same again to return to y
 			return;
 		}
 
-		if (actor.CombatStrategyMode == CombatStrategyMode.Flee)
-		{
-			var mode = actor.MeleeRange
-				? actor.CombatSettings.PreferredMeleeMode
-				: actor.CombatSettings.PreferredRangedMode;
-			if (mode == CombatStrategyMode.Flee)
-			{
-				mode = actor.MeleeRange ? CombatStrategyMode.StandardMelee : CombatStrategyMode.StandardRange;
-			}
+                if (actor.CombatStrategyMode == CombatStrategyMode.Flee)
+                {
+                        var mode = actor.MeleeRange
+                                ? actor.CombatSettings.PreferredMeleeMode
+                                : actor.CombatSettings.PreferredRangedMode;
+                        if (mode == CombatStrategyMode.Flee)
+                        {
+                                mode = actor.MeleeRange ? CombatStrategyMode.StandardMelee : CombatStrategyMode.StandardRange;
+                        }
 
-			actor.Send("You are no longer attempting to flee.");
-			return;
-		}
+                        actor.CombatStrategyMode = mode;
+                        actor.Send("You are no longer attempting to flee.");
+                        actor.AcquireTarget();
+                        return;
+                }
 
 		if (actor.Combat.Friendly)
 		{

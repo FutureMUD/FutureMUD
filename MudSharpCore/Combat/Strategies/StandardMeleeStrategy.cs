@@ -1046,21 +1046,71 @@ public class StandardMeleeStrategy : StrategyBase
 		return new AuxiliaryMove(combatant, tch, move);
 	}
 
-	protected virtual ICombatMove HandleWeaponAttackRolled(ICharacter combatant)
-	{
-		var move = AttemptUseWeapon(combatant);
-		if (move != null)
-		{
-			return move;
-		}
+        protected virtual ICombatMove HandleWeaponAttackRolled(ICharacter combatant)
+        {
+                var move = AttemptUseWeapon(combatant);
+                if (move != null)
+                {
+                        return move;
+                }
 
 		if (combatant.CombatSettings.FallbackToUnarmedIfNoWeapon && combatant.PositionState.Upright)
 		{
 			return AttemptUseNaturalAttack(combatant);
 		}
 
-		return null;
-	}
+                return null;
+        }
+
+        private bool HasViableMeleeAttack(ICharacter combatant)
+        {
+                var tch = combatant.CombatTarget as ICharacter;
+                var attackTypes = CombatExtensions.StandardMeleeWeaponAttacks;
+                if (!combatant.Combat.Friendly && tch?.PositionState.Upright == false)
+                {
+                        attackTypes = attackTypes.Plus(BuiltInCombatMoveType.DownedAttack).ToArray();
+                }
+
+                foreach (var preference in combatant.CombatSettings.MeleeAttackOrderPreferences.AsEnumerable().Reverse())
+                {
+                        IEnumerable<IMeleeWeapon> weapons = Enumerable.Empty<IMeleeWeapon>();
+                        switch (preference)
+                        {
+                                case MeleeAttackOrderPreference.Weapon:
+                                        weapons = combatant.Body.WieldedItems.SelectNotNull(x => x.GetItemType<IMeleeWeapon>());
+                                        break;
+                                case MeleeAttackOrderPreference.Implant:
+                                        weapons = combatant.Body.Implants.OfType<IImplantMeleeWeapon>().Where(x => x.WeaponIsActive).Cast<IMeleeWeapon>();
+                                        break;
+                                case MeleeAttackOrderPreference.Prosthetic:
+                                        weapons = combatant.Body.Prosthetics.OfType<IProstheticMeleeWeapon>().Where(x => x.WeaponIsActive).Cast<IMeleeWeapon>();
+                                        break;
+                                default:
+                                        continue;
+                        }
+
+                        if (weapons.Any(x => PossibleAttacksForWeapon(combatant, x, true).Any()))
+                        {
+                                return true;
+                        }
+                }
+
+                var naturalTypes = new[]
+                {
+                        BuiltInCombatMoveType.NaturalWeaponAttack,
+                        BuiltInCombatMoveType.StaggeringBlowUnarmed,
+                        BuiltInCombatMoveType.UnbalancingBlowUnarmed,
+                        BuiltInCombatMoveType.ScreechAttack,
+                        BuiltInCombatMoveType.EnvenomingAttack
+                };
+
+                if (!combatant.Combat.Friendly && tch?.PositionState.Upright == false)
+                {
+                        naturalTypes = naturalTypes.Plus(BuiltInCombatMoveType.DownedAttackUnarmed).ToArray();
+                }
+
+                return combatant.Race.UsableNaturalWeaponAttacks(combatant, combatant.CombatTarget, false, naturalTypes).Any();
+        }
 
 	protected virtual ICombatMove HandleGeneralAttacks(ICharacter combatant)
 	{
@@ -1096,17 +1146,25 @@ public class StandardMeleeStrategy : StrategyBase
 		return AttemptUseAuxilliaryAction(combatant);
 	}
 
-	protected override ICombatMove HandleAttacks(IPerceiver combatant)
-	{
-		if (!(combatant is ICharacter ch))
-		{
-			return null;
-		}
+        protected override ICombatMove HandleAttacks(IPerceiver combatant)
+        {
+                if (!(combatant is ICharacter ch))
+                {
+                        return null;
+                }
 
-		if (!WillAttackTarget(ch))
-		{
-			return null;
-		}
+                if (ch.CombatStrategyMode == CombatStrategyMode.StandardMelee && !HasViableMeleeAttack(ch))
+                {
+                        ch.OutputHandler.Send(
+                                "You realise you have no effective attacks in this mode and switch to clinching instead.");
+                        ch.CombatStrategyMode = CombatStrategyMode.Clinch;
+                        return CombatStrategyFactory.GetStrategy(ch.CombatStrategyMode).ChooseMove(ch);
+                }
+
+                if (!WillAttackTarget(ch))
+                {
+                        return null;
+                }
 
 		ICombatMove move;
 		if ((move = CheckFixedAttacks(ch)) != null)

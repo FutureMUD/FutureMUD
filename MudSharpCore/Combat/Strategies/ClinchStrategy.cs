@@ -228,8 +228,8 @@ public class ClinchStrategy : StandardMeleeStrategy
 			ch.CombatTarget.GetType().FullName);
 	}
 
-	private ICombatMove CheckClinching(ICharacter ch)
-	{
+        private ICombatMove CheckClinching(ICharacter ch)
+        {
 		if (ch.PositionState.Upright &&
 		    !ch.EffectsOfType<ClinchEffect>().Any() &&
 		    ch.CombatTarget.EffectsOfType<ClinchEffect>().All(x => x.Target != ch) &&
@@ -257,16 +257,71 @@ public class ClinchStrategy : StandardMeleeStrategy
 			}
 		}
 
-		return null;
-	}
+                return null;
+        }
 
-	protected override ICombatMove HandleAttacks(IPerceiver combatant)
-	{
-		ICombatMove move;
-		if (combatant is ICharacter ch && (move = CheckClinching(ch)) != null)
-		{
-			return move;
-		}
+        private bool HasViableClinchAttack(ICharacter ch)
+        {
+                foreach (var preference in ch.CombatSettings.MeleeAttackOrderPreferences)
+                {
+                        IEnumerable<IMeleeWeapon> weapons = Enumerable.Empty<IMeleeWeapon>();
+                        switch (preference)
+                        {
+                                case MeleeAttackOrderPreference.Weapon:
+                                        weapons = ch.Body.WieldedItems.SelectNotNull(x => x.GetItemType<IMeleeWeapon>());
+                                        break;
+                                case MeleeAttackOrderPreference.Implant:
+                                        weapons = ch.Body.Implants.OfType<IImplantMeleeWeapon>().Where(x => x.WeaponIsActive).Cast<IMeleeWeapon>();
+                                        break;
+                                case MeleeAttackOrderPreference.Prosthetic:
+                                        weapons = ch.Body.Prosthetics.OfType<IProstheticMeleeWeapon>().Where(x => x.WeaponIsActive).Cast<IMeleeWeapon>();
+                                        break;
+                                default:
+                                        continue;
+                        }
+
+                        if (weapons.Any(x => x.WeaponType.UsableAttacks(ch, x.Parent, ch.CombatTarget,
+                                x.HandednessForWeapon(ch), true, BuiltInCombatMoveType.ClinchAttack).Any()))
+                        {
+                                return true;
+                        }
+                }
+
+                if (ch.Body.HeldItems.SelectNotNull(x => x.GetItemType<IMeleeWeapon>())
+                        .Any(x => x.WeaponType.UsableAttacks(ch, x.Parent, ch.CombatTarget, x.HandednessForWeapon(ch), true, BuiltInCombatMoveType.ClinchAttack).Any() && IsUseableWeapon(ch, x)))
+                {
+                        return true;
+                }
+
+                if (ch.Body.ExternalItems.SelectNotNull(x => x.GetItemType<ISheath>())
+                        .SelectNotNull(x => x.Content?.Parent.GetItemType<IMeleeWeapon>())
+                        .Any(x => IsUseableWeapon(ch, x) && x.WeaponType.UsableAttacks(ch, x.Parent, ch.CombatTarget,
+                                x.HandednessForWeapon(ch), true, BuiltInCombatMoveType.ClinchAttack).Any()))
+                {
+                        return true;
+                }
+
+                var natAttacks = ch.Race.UsableNaturalWeaponAttacks(ch, ch.CombatTarget, false,
+                        BuiltInCombatMoveType.ClinchUnarmedAttack, BuiltInCombatMoveType.StaggeringBlowClinch,
+                        BuiltInCombatMoveType.UnbalancingBlowClinch, BuiltInCombatMoveType.EnvenomingAttackClinch);
+                return natAttacks.Any();
+        }
+
+        protected override ICombatMove HandleAttacks(IPerceiver combatant)
+        {
+                if (combatant is ICharacter c && c.CombatStrategyMode == CombatStrategyMode.Clinch && !HasViableClinchAttack(c))
+                {
+                        c.OutputHandler.Send(
+                                "You realise that you have no effective clinching attacks and revert to a normal melee strategy.");
+                        c.CombatStrategyMode = CombatStrategyMode.StandardMelee;
+                        return CombatStrategyFactory.GetStrategy(c.CombatStrategyMode).ChooseMove(c);
+                }
+
+                ICombatMove move;
+                if (combatant is ICharacter ch && (move = CheckClinching(ch)) != null)
+                {
+                        return move;
+                }
 
 		return base.HandleAttacks(combatant);
 	}

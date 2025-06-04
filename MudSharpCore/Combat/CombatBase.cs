@@ -354,19 +354,25 @@ public abstract class CombatBase : ICombat
 	public virtual void CombatAction(IPerceiver perceiver, ICombatMove move)
 	{
 		perceiver.RemoveAllEffects(x => x is IEndOnCombatMove e && e.CausesToEnd(move), true);
-		if (move == null)
-		{
-			if (!perceiver.AffectedBy<IdleCombatant>())
-			{
-				perceiver.AddEffect(new IdleCombatant(perceiver, this));
-			}
+               if (move == null)
+               {
+                       if (!perceiver.AffectedBy<IdleCombatant>())
+                       {
+                               perceiver.AddEffect(new IdleCombatant(perceiver, this));
+                       }
 
-			Gameworld.Scheduler.AddOrDelaySchedule(
-				new Schedule<IPerceiver>(perceiver, CombatAction, ScheduleType.Combat, TimeSpan.FromMilliseconds(50),
-					$"Combat Idle for {perceiver.HowSeen(perceiver, flags: PerceiveIgnoreFlags.IgnoreCanSee | PerceiveIgnoreFlags.IgnoreSelf)}"),
-				perceiver);
-			return;
-		}
+                       Gameworld.Scheduler.AddOrDelaySchedule(
+                               new Schedule<IPerceiver>(perceiver, CombatAction, ScheduleType.Combat, TimeSpan.FromMilliseconds(50),
+                                       $"Combat Idle for {perceiver.HowSeen(perceiver, flags: PerceiveIgnoreFlags.IgnoreCanSee | PerceiveIgnoreFlags.IgnoreSelf)}"),
+                               perceiver);
+
+                       if (!perceiver.CheckCombatStatus())
+                       {
+                               LeaveCombat(perceiver);
+                       }
+
+                       return;
+               }
 
 		perceiver.RemoveAllEffects(x => x.IsEffectType<IdleCombatant>());
 		var targetResponse = move.CharacterTargets.FirstOrDefault()?.ResponseToMove(move, perceiver);
@@ -425,23 +431,28 @@ public abstract class CombatBase : ICombat
 			}
 		}
 
-		if (perceiver.CombatTarget == null)
-		{
-			perceiver.AcquireTarget();
-		}
+               if (perceiver.CombatTarget == null)
+               {
+                       perceiver.AcquireTarget();
+               }
 
-		if (perceiver.CombatTarget == null)
-		{
-			Gameworld.Scheduler.AddSchedule(new Schedule<IPerceiver>(perceiver, CombatAction, ScheduleType.Combat,
-				GetCombatDelay(perceiver, Difficulty.Automatic),
-				$"Combat delay no target for {perceiver.HowSeen(perceiver, flags: PerceiveIgnoreFlags.IgnoreCanSee | PerceiveIgnoreFlags.IgnoreSelf)}"));
-			if (!perceiver.AffectedBy<IdleCombatant>())
-			{
-				perceiver.AddEffect(new IdleCombatant(perceiver, this));
-			}
+               if (perceiver.CombatTarget == null)
+               {
+                       Gameworld.Scheduler.AddSchedule(new Schedule<IPerceiver>(perceiver, CombatAction, ScheduleType.Combat,
+                               GetCombatDelay(perceiver, Difficulty.Automatic),
+                               $"Combat delay no target for {perceiver.HowSeen(perceiver, flags: PerceiveIgnoreFlags.IgnoreCanSee | PerceiveIgnoreFlags.IgnoreSelf)}"));
+                       if (!perceiver.AffectedBy<IdleCombatant>())
+                       {
+                               perceiver.AddEffect(new IdleCombatant(perceiver, this));
+                       }
 
-			return;
-		}
+                       if (!perceiver.CheckCombatStatus())
+                       {
+                               LeaveCombat(perceiver);
+                       }
+
+                       return;
+               }
 
 		var move = perceiver.ChooseMove();
 		CombatAction(perceiver, move);

@@ -8,6 +8,8 @@ using MudSharp.Framework;
 using MudSharp.Character;
 using MudSharp.Form.Shape;
 using MudSharp.Body;
+using MudSharp.Body.Position;
+using MudSharp.Body.Position.PositionStates;
 using MudSharp.Body.Traits;
 using MudSharp.RPG.Checks;
 using MudSharp.Health;
@@ -140,10 +142,25 @@ public class MagicPowerAttackMove : WeaponAttackMove, IMagicPowerAttackMove
 			                          Attack.Profile.BaseBlockDifficulty.StageUp(defenderMove.DifficultStageUps),
 			                          defenderMove.Shield.ShieldType.BlockTrait, Assailant,
 			                          blockBonus + defenderMove.Shield.ShieldType.BlockBonus + targetBonus +
-			                          defenderMove.Assailant.DefensiveAdvantage -
-			                          GetPositionPenalty(Assailant.GetFacingFor(defenderMove.Assailant)));
-		defenderMove.Assailant.DefensiveAdvantage = 0;
-		var result = new OpposedOutcome(attackRoll, blockCheck);
+                                                  defenderMove.Assailant.DefensiveAdvantage -
+                                                  GetPositionPenalty(Assailant.GetFacingFor(defenderMove.Assailant)));
+                defenderMove.Assailant.DefensiveAdvantage = 0;
+                var bsuccess = blockCheck.SuccessDegrees();
+                if (bsuccess > 0)
+                {
+                        var adv = bsuccess switch
+                        {
+                                1 => Gameworld.GetStaticDouble("BlockDefensiveAdvantageMinorPass"),
+                                2 => Gameworld.GetStaticDouble("BlockDefensiveAdvantagePass"),
+                                _ => Gameworld.GetStaticDouble("BlockDefensiveAdvantageMajorPass")
+                        };
+                        defenderMove.Assailant.DefensiveAdvantage += adv;
+                }
+                if (blockCheck.FailureDegrees() >= 2)
+                {
+                        defenderMove.Assailant.SpendStamina(Gameworld.GetStaticDouble("BlockFailureAdditionalStamina"));
+                }
+                var result = new OpposedOutcome(attackRoll, blockCheck);
 #if DEBUG
 		Console.WriteLine(
 			$"MeleeWeaponAttack Block Outcome: {result.Degree.Describe()} to {result.Outcome.Describe()}");
@@ -263,15 +280,24 @@ public class MagicPowerAttackMove : WeaponAttackMove, IMagicPowerAttackMove
 
 		Assailant.Body?.SetExertionToMinimumLevel(AssociatedExertion);
 		defenderMove.Assailant.Body?.SetExertionToMinimumLevel(defenderMove.AssociatedExertion);
-		return new CombatMoveResult
-		{
-			MoveWasSuccessful = result.Outcome == OpposedOutcomeDirection.Proponent,
-			AttackerOutcome = attackRoll,
-			DefenderOutcome = blockCheck,
-			RecoveryDifficulty = attackRoll.IsPass() ? RecoveryDifficultySuccess : RecoveryDifficultyFailure,
-			WoundsCaused = wounds,
-			SelfWoundsCaused = wardWounds
-		};
+                var recovery = attackRoll.IsPass() ? RecoveryDifficultySuccess : RecoveryDifficultyFailure;
+                if (blockCheck.FailureDegrees() == 2)
+                {
+                        recovery = recovery.StageUp(1);
+                }
+                else if (blockCheck.FailureDegrees() >= 3)
+                {
+                        recovery = recovery.StageUp(2);
+                }
+                return new CombatMoveResult
+                {
+                        MoveWasSuccessful = result.Outcome == OpposedOutcomeDirection.Proponent,
+                        AttackerOutcome = attackRoll,
+                        DefenderOutcome = blockCheck,
+                        RecoveryDifficulty = recovery,
+                        WoundsCaused = wounds,
+                        SelfWoundsCaused = wardWounds
+                };
 	}
 
 	private CombatMoveResult ResolveParry(ICombatMove defenderMove, CheckOutcome attackRoll,
@@ -284,10 +310,20 @@ public class MagicPowerAttackMove : WeaponAttackMove, IMagicPowerAttackMove
 			                          parry.Weapon.WeaponType.ParryTrait,
 			                          Assailant,
 			                          parry.Weapon.WeaponType.ParryBonus + targetBonus +
-			                          parry.Assailant.DefensiveAdvantage -
-			                          GetPositionPenalty(Assailant.GetFacingFor(defenderMove.Assailant)));
-		parry.Assailant.DefensiveAdvantage = 0;
-		var result = new OpposedOutcome(attackRoll, parryCheck);
+                                                  parry.Assailant.DefensiveAdvantage -
+                                                  GetPositionPenalty(Assailant.GetFacingFor(defenderMove.Assailant)));
+                parry.Assailant.DefensiveAdvantage = 0;
+                var parryDelay = Gameworld.GetStaticDouble("ParryDelaySeconds") *
+                                   (1.0 - parryCheck.CheckDegrees() / 6.0);
+                Gameworld.Scheduler.DelayScheduleType(defenderMove.Assailant, ScheduleType.Combat,
+                        TimeSpan.FromSeconds(parryDelay));
+                var advantageLoss = parryCheck.CheckDegrees() - attackRoll.CheckDegrees();
+                if (advantageLoss > 0)
+                {
+                        Assailant.DefensiveAdvantage -=
+                                advantageLoss * Gameworld.GetStaticDouble("ParryAdvantagePenaltyPerDegree");
+                }
+                var result = new OpposedOutcome(attackRoll, parryCheck);
 #if DEBUG
 		Console.WriteLine(
 			$"MeleeWeaponAttack Parry Outcome: {result.Degree.Describe()} to {result.Outcome.Describe()}");
@@ -465,10 +501,34 @@ public class MagicPowerAttackMove : WeaponAttackMove, IMagicPowerAttackMove
 		                          .Check(defenderMove.Assailant,
 			                          Attack.Profile.BaseDodgeDifficulty.StageUp(dodge.DifficultStageUps),
 			                          Assailant, null,
-			                          targetBonus + dodge.Assailant.DefensiveAdvantage -
-			                          GetPositionPenalty(Assailant.GetFacingFor(defenderMove.Assailant)));
-		dodge.Assailant.DefensiveAdvantage = 0;
-		var result = new OpposedOutcome(attackRoll, dodgeCheck);
+                                                  targetBonus + dodge.Assailant.DefensiveAdvantage -
+                                                  GetPositionPenalty(Assailant.GetFacingFor(defenderMove.Assailant)));
+                dodge.Assailant.DefensiveAdvantage = 0;
+                var dodgeDelay = Gameworld.GetStaticDouble("DodgeDelaySeconds") *
+                                   (1.0 - dodgeCheck.CheckDegrees() / 6.0);
+                Gameworld.Scheduler.DelayScheduleType(defenderMove.Assailant, ScheduleType.Combat,
+                        TimeSpan.FromSeconds(dodgeDelay));
+                var dsuccess = dodgeCheck.SuccessDegrees();
+                if (dsuccess > 0)
+                {
+                        var adv = dsuccess switch
+                        {
+                                1 => Gameworld.GetStaticDouble("DodgeDefensiveAdvantageMinorPass"),
+                                2 => Gameworld.GetStaticDouble("DodgeDefensiveAdvantagePass"),
+                                _ => Gameworld.GetStaticDouble("DodgeDefensiveAdvantageMajorPass")
+                        };
+                        defenderMove.Assailant.DefensiveAdvantage += adv;
+                }
+                if (dodgeCheck.Outcome == Outcome.MajorFail &&
+                    RandomUtilities.Random(0.0, 1.0) < Gameworld.GetStaticDouble("DodgeMajorFailFallChance") &&
+                    defenderMove.Assailant.PositionState.Upright)
+                {
+                        defenderMove.Assailant.OutputHandler.Handle(
+                                new EmoteOutput(new Emote("@ slip|slips and fall|falls to the ground while dodging!", defenderMove.Assailant)));
+                        defenderMove.Assailant.SetPosition(PositionSprawled.Instance, PositionModifier.None,
+                                defenderMove.Assailant.PositionTarget, null);
+                }
+                var result = new OpposedOutcome(attackRoll, dodgeCheck);
 #if DEBUG
 		Console.WriteLine(
 			$"MeleeWeaponAttack Dodge Outcome: {result.Degree.Describe()} to {result.Outcome.Describe()}");

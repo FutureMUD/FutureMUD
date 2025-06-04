@@ -12,6 +12,7 @@ using MudSharp.Framework;
 using MudSharp.Effects.Concrete;
 using MudSharp.GameItems;
 using MudSharp.GameItems.Interfaces;
+using MudSharp.PerceptionEngine;
 
 namespace MudSharp.Combat.Strategies;
 
@@ -168,7 +169,23 @@ public class ClinchStrategy : StandardMeleeStrategy
 
 		if (!attacks.Any())
 		{
-			return hadPossibleAttacks ? new TooExhaustedMove { Assailant = ch } : null;
+			if (hadPossibleAttacks)
+			{
+				return new TooExhaustedMove { Assailant = ch };
+			}
+
+			if (
+				ch.CombatStrategyMode == CombatStrategyMode.Clinch &&
+				!HasViableClinchAttack(ch) &&
+				HasViableMeleeAttack(ch)
+			)
+			{
+				ch.Send("You realise you have no way to attack your target up close and resolve to move back to distance.");
+				ch.CombatStrategyMode = CombatStrategyMode.StandardMelee;
+				return CombatStrategyFactory.GetStrategy(CombatStrategyMode.StandardMelee).ChooseMove(ch);
+			}
+
+			return null;
 		}
 
 		var preferredAttacks = attacks.Where(x => x.Intentions.HasFlag(ch.CombatSettings.PreferredIntentions)).ToList();
@@ -226,6 +243,53 @@ public class ClinchStrategy : StandardMeleeStrategy
 		throw new NotImplementedException(
 			"Unimplemented Combatant type in ClinchStrategy.AttemptUnarmedClinchAttack - " +
 			ch.CombatTarget.GetType().FullName);
+	}
+
+	public bool HasViableClinchAttack(ICharacter ch)
+	{
+		foreach (var preference in ch.CombatSettings.MeleeAttackOrderPreferences)
+		{
+			IEnumerable<IMeleeWeapon> weapons = Enumerable.Empty<IMeleeWeapon>();
+			switch (preference)
+			{
+				case MeleeAttackOrderPreference.Weapon:
+					weapons = ch.Body.WieldedItems.SelectNotNull(x => x.GetItemType<IMeleeWeapon>());
+					break;
+				case MeleeAttackOrderPreference.Implant:
+					weapons = ch.Body.Implants.OfType<IImplantMeleeWeapon>().Where(x => x.WeaponIsActive);
+					break;
+				case MeleeAttackOrderPreference.Prosthetic:
+					weapons = ch.Body.Prosthetics.OfType<IProstheticMeleeWeapon>().Where(x => x.WeaponIsActive);
+					break;
+				default:
+					continue;
+			}
+
+			if (weapons.Any(x => x.WeaponType.UsableAttacks(ch, x.Parent, ch.CombatTarget,
+					x.HandednessForWeapon(ch), true, BuiltInCombatMoveType.ClinchAttack).Any()))
+			{
+				return true;
+			}
+		}
+
+		if (ch.Body.HeldItems.SelectNotNull(x => x.GetItemType<IMeleeWeapon>())
+				.Any(x => x.WeaponType.UsableAttacks(ch, x.Parent, ch.CombatTarget, x.HandednessForWeapon(ch), true, BuiltInCombatMoveType.ClinchAttack).Any() && IsUseableWeapon(ch, x)))
+		{
+			return true;
+		}
+
+		if (ch.Body.ExternalItems.SelectNotNull(x => x.GetItemType<ISheath>())
+				.SelectNotNull(x => x.Content?.Parent.GetItemType<IMeleeWeapon>())
+				.Any(x => IsUseableWeapon(ch, x) && x.WeaponType.UsableAttacks(ch, x.Parent, ch.CombatTarget,
+						x.HandednessForWeapon(ch), true, BuiltInCombatMoveType.ClinchAttack).Any()))
+		{
+			return true;
+		}
+
+		var natAttacks = ch.Race.UsableNaturalWeaponAttacks(ch, ch.CombatTarget, false,
+				BuiltInCombatMoveType.ClinchUnarmedAttack, BuiltInCombatMoveType.StaggeringBlowClinch,
+				BuiltInCombatMoveType.UnbalancingBlowClinch, BuiltInCombatMoveType.EnvenomingAttackClinch);
+		return natAttacks.Any();
 	}
 
 	private ICombatMove CheckClinching(ICharacter ch)

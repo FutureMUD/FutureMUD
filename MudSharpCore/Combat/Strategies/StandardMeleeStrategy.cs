@@ -15,6 +15,7 @@ using MudSharp.Body;
 using MudSharp.Body.Position;
 using MudSharp.Body.Position.PositionStates;
 using MudSharp.Effects;
+using MudSharp.PerceptionEngine;
 
 namespace MudSharp.Combat.Strategies;
 
@@ -1059,7 +1060,63 @@ public class StandardMeleeStrategy : StrategyBase
 			return AttemptUseNaturalAttack(combatant);
 		}
 
+		if (
+			combatant.CombatStrategyMode == CombatStrategyMode.StandardMelee && 
+		    !HasViableMeleeAttack(combatant) &&
+			ClinchStrategy.Instance.HasViableClinchAttack(combatant)
+			)
+		{
+			combatant.Send("You realise you have to close to clinching range to attack your target.");
+			combatant.CombatStrategyMode = CombatStrategyMode.Clinch;
+			return CombatStrategyFactory.GetStrategy(CombatStrategyMode.Clinch).ChooseMove(combatant);
+		}
+
 		return null;
+	}
+
+	public bool HasViableMeleeAttack(ICharacter combatant)
+	{
+		var tch = combatant.CombatTarget as ICharacter;
+
+		foreach (var preference in combatant.CombatSettings.MeleeAttackOrderPreferences.AsEnumerable().Reverse())
+		{
+			var weapons = Enumerable.Empty<IMeleeWeapon>();
+			switch (preference)
+			{
+				case MeleeAttackOrderPreference.Weapon:
+					weapons = combatant.Body.WieldedItems.SelectNotNull(x => x.GetItemType<IMeleeWeapon>());
+					break;
+				case MeleeAttackOrderPreference.Implant:
+					weapons = combatant.Body.Implants.OfType<IImplantMeleeWeapon>().Where(x => x.WeaponIsActive);
+					break;
+				case MeleeAttackOrderPreference.Prosthetic:
+					weapons = combatant.Body.Prosthetics.OfType<IProstheticMeleeWeapon>().Where(x => x.WeaponIsActive);
+					break;
+				default:
+					continue;
+			}
+
+			if (weapons.Any(x => PossibleAttacksForWeapon(combatant, x, true).Any()))
+			{
+				return true;
+			}
+		}
+
+		var naturalTypes = new[]
+		{
+						BuiltInCombatMoveType.NaturalWeaponAttack,
+						BuiltInCombatMoveType.StaggeringBlowUnarmed,
+						BuiltInCombatMoveType.UnbalancingBlowUnarmed,
+						BuiltInCombatMoveType.ScreechAttack,
+						BuiltInCombatMoveType.EnvenomingAttack
+				};
+
+		if (!combatant.Combat.Friendly && tch?.PositionState.Upright == false)
+		{
+			naturalTypes = naturalTypes.Plus(BuiltInCombatMoveType.DownedAttackUnarmed).ToArray();
+		}
+
+		return combatant.Race.UsableNaturalWeaponAttacks(combatant, combatant.CombatTarget, false, naturalTypes).Any();
 	}
 
 	protected virtual ICombatMove HandleGeneralAttacks(ICharacter combatant)

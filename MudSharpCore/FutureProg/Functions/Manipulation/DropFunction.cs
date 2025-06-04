@@ -83,16 +83,35 @@ internal class DropFunction : BuiltInFunction
 
 	public static void RegisterFunctionCompiler()
 	{
-		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
-			"drop",
-			new[] { ProgVariableTypes.Character, ProgVariableTypes.Item, ProgVariableTypes.Text },
-			(pars, gameworld) => new DropFunction(pars, 0, false)
-		));
+                FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
+                        "drop",
+                        new[] { ProgVariableTypes.Character, ProgVariableTypes.Item, ProgVariableTypes.Text },
+                        (pars, gameworld) => new DropFunction(pars, 0, false),
+                        new[] { "Character", "Item", "Emote" },
+                        new[]
+                        {
+                                "The character dropping the item",
+                                "The item to be dropped",
+                                "An optional emote performed while dropping"
+                        },
+                        "Drops an item from a character, optionally with an emote.",
+                        "Manipulation",
+                        ProgVariableTypes.Boolean
+                ));
 
-		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
-			"silentdrop",
-			new[] { ProgVariableTypes.Character, ProgVariableTypes.Item },
-			(pars, gameworld) => new DropFunction(pars, 0, true)
-		));
+                FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
+                        "silentdrop",
+                        new[] { ProgVariableTypes.Character, ProgVariableTypes.Item },
+                        (pars, gameworld) => new DropFunction(pars, 0, true),
+                        new[] { "Character", "Item" },
+                        new[]
+                        {
+                                "The character dropping the item",
+                                "The item to be dropped"
+                        },
+                        "Drops an item from a character with no associated emote.",
+                        "Manipulation",
+                        ProgVariableTypes.Boolean
+                ));
 	}
 }

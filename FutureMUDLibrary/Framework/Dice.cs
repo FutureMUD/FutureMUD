@@ -178,10 +178,12 @@ public static class Dice {
 						break;
 				}
 
-				if (rerollReference == sides)
-				{
-					return 0;
-				}
+                                // Avoid infinite loops when rerolling until a
+                                // result higher than the die can provide
+                                if (isRerollUntil && rerollReference >= sides)
+                                {
+                                        return 0;
+                                }
 
 
 				var rolls = new List<int>(sides);

@@ -1919,6 +1919,7 @@ The syntax is simply #3flee#0 to toggle it on, and the same again to return to y
 
                         actor.CombatStrategyMode = mode;
                         actor.Send("You are no longer attempting to flee.");
+                        actor.AcquireTarget();
                         return;
                 }
 

@@ -118,11 +118,11 @@ internal class SetCover : Statement
 			return StatementResult.Error;
 		}
 
-		if (ItemFunction.Result is not IGameItem item)
-		{
-			ErrorMessage = "SetCover recieved a null item.";
-			return StatementResult.Error;
-		}
+                if (ItemFunction.Result is not IGameItem item)
+                {
+                        ErrorMessage = "SetCover received a null item.";
+                        return StatementResult.Error;
+                }
 
 		var coverItem = item.GetItemType<IProvideCover>();
 		if (coverItem == null)

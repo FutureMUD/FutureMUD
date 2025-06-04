@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using MudSharp.Body;
+using MudSharp.Body.Position;
+using MudSharp.Body.Position.PositionStates;
 using MudSharp.Body.Traits;
 using MudSharp.Character;
 using MudSharp.Effects.Concrete;
@@ -171,11 +173,26 @@ public class MeleeWeaponAttack : WeaponAttackMove
 			                          defenderMove.Shield.ShieldType.BlockTrait, Assailant,
 			                          blockBonus - defenderMove.Assailant.GetDefensiveAdvantagePenaltyFromTargeting() +
 			                          targetBonus +
-			                          defenderMove.Shield.ShieldType.BlockBonus +
-			                          defenderMove.Assailant.DefensiveAdvantage -
-			                          GetPositionPenalty(Assailant.GetFacingFor(defenderMove.Assailant)));
-		defenderMove.Assailant.DefensiveAdvantage = 0;
-		var result = new OpposedOutcome(attackRoll, blockCheck, CheckDifficulty, defenderDifficulty);
+                                                  defenderMove.Shield.ShieldType.BlockBonus +
+                                                  defenderMove.Assailant.DefensiveAdvantage -
+                                                  GetPositionPenalty(Assailant.GetFacingFor(defenderMove.Assailant)));
+                defenderMove.Assailant.DefensiveAdvantage = 0;
+                var bsuccess = blockCheck[defenderDifficulty].SuccessDegrees();
+                if (bsuccess > 0)
+                {
+                        var adv = bsuccess switch
+                        {
+                                1 => Gameworld.GetStaticDouble("BlockDefensiveAdvantageMinorPass"),
+                                2 => Gameworld.GetStaticDouble("BlockDefensiveAdvantagePass"),
+                                _ => Gameworld.GetStaticDouble("BlockDefensiveAdvantageMajorPass")
+                        };
+                        defenderMove.Assailant.DefensiveAdvantage += adv;
+                }
+                if (blockCheck[defenderDifficulty].FailureDegrees() >= 2)
+                {
+                        defenderMove.Assailant.SpendStamina(Gameworld.GetStaticDouble("BlockFailureAdditionalStamina"));
+                }
+                var result = new OpposedOutcome(attackRoll, blockCheck, CheckDifficulty, defenderDifficulty);
 #if DEBUG
 		Console.WriteLine(
 			$"MeleeWeaponAttack Block Outcome: {result.Degree.Describe()} to {result.Outcome.Describe()}");
@@ -298,17 +315,26 @@ public class MeleeWeaponAttack : WeaponAttackMove
 
 		Assailant.Body?.SetExertionToMinimumLevel(AssociatedExertion);
 		defenderMove.Assailant.Body?.SetExertionToMinimumLevel(defenderMove.AssociatedExertion);
-		return new CombatMoveResult
-		{
-			MoveWasSuccessful = result.Outcome == OpposedOutcomeDirection.Proponent,
-			AttackerOutcome = attackRoll[CheckDifficulty],
-			DefenderOutcome = blockCheck[defenderDifficulty],
-			RecoveryDifficulty = attackRoll[CheckDifficulty].IsPass()
-				? RecoveryDifficultySuccess
-				: RecoveryDifficultyFailure,
-			WoundsCaused = wounds,
-			SelfWoundsCaused = wardWounds
-		};
+                var recovery = attackRoll[CheckDifficulty].IsPass()
+                        ? RecoveryDifficultySuccess
+                        : RecoveryDifficultyFailure;
+                if (blockCheck[defenderDifficulty].FailureDegrees() == 2)
+                {
+                        recovery = recovery.StageUp(1);
+                }
+                else if (blockCheck[defenderDifficulty].FailureDegrees() >= 3)
+                {
+                        recovery = recovery.StageUp(2);
+                }
+                return new CombatMoveResult
+                {
+                        MoveWasSuccessful = result.Outcome == OpposedOutcomeDirection.Proponent,
+                        AttackerOutcome = attackRoll[CheckDifficulty],
+                        DefenderOutcome = blockCheck[defenderDifficulty],
+                        RecoveryDifficulty = recovery,
+                        WoundsCaused = wounds,
+                        SelfWoundsCaused = wardWounds
+                };
 	}
 
 	private CombatMoveResult ResolveParry(ICombatMove defenderMove,
@@ -324,9 +350,20 @@ public class MeleeWeaponAttack : WeaponAttackMove
 			                          parry.Weapon.WeaponType.ParryBonus -
 			                          defenderMove.Assailant.GetDefensiveAdvantagePenaltyFromTargeting() + targetBonus +
 			                          parry.Assailant.DefensiveAdvantage -
-			                          GetPositionPenalty(Assailant.GetFacingFor(defenderMove.Assailant)));
-		parry.Assailant.DefensiveAdvantage = 0;
-		var result = new OpposedOutcome(attackRoll, parryCheck, CheckDifficulty, defenderDifficulty);
+                                                  GetPositionPenalty(Assailant.GetFacingFor(defenderMove.Assailant)));
+                parry.Assailant.DefensiveAdvantage = 0;
+                var parryDelay = Gameworld.GetStaticDouble("ParryDelaySeconds") *
+                                   (1.0 - parryCheck[defenderDifficulty].CheckDegrees() / 6.0);
+                Gameworld.Scheduler.DelayScheduleType(defenderMove.Assailant, ScheduleType.Combat,
+                        TimeSpan.FromSeconds(parryDelay));
+                var advantageLoss = parryCheck[defenderDifficulty].CheckDegrees() -
+                                    attackRoll[CheckDifficulty].CheckDegrees();
+                if (advantageLoss > 0)
+                {
+                        Assailant.DefensiveAdvantage -=
+                                advantageLoss * Gameworld.GetStaticDouble("ParryAdvantagePenaltyPerDegree");
+                }
+                var result = new OpposedOutcome(attackRoll, parryCheck, CheckDifficulty, defenderDifficulty);
 #if DEBUG
 		Console.WriteLine(
 			$"MeleeWeaponAttack Parry Outcome: {result.Degree.Describe()} to {result.Outcome.Describe()}");
@@ -533,9 +570,33 @@ public class MeleeWeaponAttack : WeaponAttackMove
 			                          Assailant,
 			                          targetBonus - defenderMove.Assailant.GetDefensiveAdvantagePenaltyFromTargeting() +
 			                          dodge.Assailant.DefensiveAdvantage -
-			                          GetPositionPenalty(Assailant.GetFacingFor(defenderMove.Assailant)));
-		dodge.Assailant.DefensiveAdvantage = 0;
-		var result = new OpposedOutcome(attackRoll, dodgeCheck, CheckDifficulty, defenderDifficulty);
+                                                  GetPositionPenalty(Assailant.GetFacingFor(defenderMove.Assailant)));
+                dodge.Assailant.DefensiveAdvantage = 0;
+                var dodgeDelay = Gameworld.GetStaticDouble("DodgeDelaySeconds") *
+                                   (1.0 - dodgeCheck[defenderDifficulty].CheckDegrees() / 6.0);
+                Gameworld.Scheduler.DelayScheduleType(defenderMove.Assailant, ScheduleType.Combat,
+                        TimeSpan.FromSeconds(dodgeDelay));
+                var dsuccess = dodgeCheck[defenderDifficulty].SuccessDegrees();
+                if (dsuccess > 0)
+                {
+                        var adv = dsuccess switch
+                        {
+                                1 => Gameworld.GetStaticDouble("DodgeDefensiveAdvantageMinorPass"),
+                                2 => Gameworld.GetStaticDouble("DodgeDefensiveAdvantagePass"),
+                                _ => Gameworld.GetStaticDouble("DodgeDefensiveAdvantageMajorPass")
+                        };
+                        defenderMove.Assailant.DefensiveAdvantage += adv;
+                }
+                if (dodgeCheck[defenderDifficulty].Outcome == Outcome.MajorFail &&
+                    RandomUtilities.Random(0.0, 1.0) < Gameworld.GetStaticDouble("DodgeMajorFailFallChance") &&
+                    defenderMove.Assailant.PositionState.Upright)
+                {
+                        defenderMove.Assailant.OutputHandler.Handle(
+                                new EmoteOutput(new Emote("@ slip|slips and fall|falls to the ground while dodging!", defenderMove.Assailant)));
+                        defenderMove.Assailant.SetPosition(PositionSprawled.Instance, PositionModifier.None,
+                                defenderMove.Assailant.PositionTarget, null);
+                }
+                var result = new OpposedOutcome(attackRoll, dodgeCheck, CheckDifficulty, defenderDifficulty);
 #if DEBUG
 		Console.WriteLine(
 			$"MeleeWeaponAttack Dodge Outcome: {result.Degree.Describe()} to {result.Outcome.Describe()}");

@@ -68,16 +68,35 @@ internal class RemoveFunction : BuiltInFunction
 
 	public static void RegisterFunctionCompiler()
 	{
-		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
-			"remove",
-			new[] { ProgVariableTypes.Character, ProgVariableTypes.Item, ProgVariableTypes.Text },
-			(pars, gameworld) => new RemoveFunction(pars, false)
-		));
+                FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
+                        "remove",
+                        new[] { ProgVariableTypes.Character, ProgVariableTypes.Item, ProgVariableTypes.Text },
+                        (pars, gameworld) => new RemoveFunction(pars, false),
+                        new[] { "who", "item", "emote" },
+                        new[]
+                        {
+                                "The character removing the item",
+                                "The item to be removed",
+                                "An optional emote to accompany the action"
+                        },
+                        "Has a character remove a worn item. Returns true if successful.",
+                        "Manipulation",
+                        ProgVariableTypes.Boolean
+                ));
 
-		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
-			"silentremove",
-			new[] { ProgVariableTypes.Character, ProgVariableTypes.Item },
-			(pars, gameworld) => new RemoveFunction(pars, true)
-		));
-	}
+                FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
+                        "silentremove",
+                        new[] { ProgVariableTypes.Character, ProgVariableTypes.Item },
+                        (pars, gameworld) => new RemoveFunction(pars, true),
+                        new[] { "who", "item" },
+                        new[]
+                        {
+                                "The character removing the item",
+                                "The item to be removed"
+                        },
+                        "Has a character remove a worn item with no associated emote.",
+                        "Manipulation",
+                        ProgVariableTypes.Boolean
+                ));
+        }
 }

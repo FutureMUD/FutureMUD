@@ -67,10 +67,23 @@ internal class DetatchFunction : BuiltInFunction
 
 	public static void RegisterFunctionCompiler()
 	{
-		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
-			"detatch",
-			new[] { ProgVariableTypes.Item, ProgVariableTypes.Item },
-			(pars, gameworld) => new DetatchFunction(pars)
-		));
-	}
+                FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
+                        "detatch",
+                        new[] { ProgVariableTypes.Item, ProgVariableTypes.Item },
+                        (pars, gameworld) => new DetatchFunction(pars),
+                        new[]
+                        {
+                                "attachable",
+                                "belt"
+                        },
+                        new[]
+                        {
+                                "The item to detach from the belt",
+                                "The belt the item is attached to"
+                        },
+                        "Detaches an item from a belt. Returns true if successful.",
+                        "Manipulation",
+                        ProgVariableTypes.Boolean
+                ));
+        }
 }

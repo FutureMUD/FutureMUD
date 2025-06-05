@@ -81,16 +81,35 @@ internal class WieldFunction : BuiltInFunction
 
 	public static void RegisterFunctionCompiler()
 	{
-		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
-			"wield",
-			new[] { ProgVariableTypes.Character, ProgVariableTypes.Item, ProgVariableTypes.Text },
-			(pars, gameworld) => new WieldFunction(pars, false)
-		));
+                FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
+                        "wield",
+                        new[] { ProgVariableTypes.Character, ProgVariableTypes.Item, ProgVariableTypes.Text },
+                        (pars, gameworld) => new WieldFunction(pars, false),
+                        new[] { "who", "item", "emote" },
+                        new[]
+                        {
+                                "The character wielding the item",
+                                "The item to be wielded",
+                                "An optional emote to accompany the action"
+                        },
+                        "Has a character wield an item. Returns true if successful.",
+                        "Manipulation",
+                        ProgVariableTypes.Boolean
+                ));
 
-		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
-			"silentwield",
-			new[] { ProgVariableTypes.Character, ProgVariableTypes.Item },
-			(pars, gameworld) => new WieldFunction(pars, true)
-		));
-	}
+                FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
+                        "silentwield",
+                        new[] { ProgVariableTypes.Character, ProgVariableTypes.Item },
+                        (pars, gameworld) => new WieldFunction(pars, true),
+                        new[] { "who", "item" },
+                        new[]
+                        {
+                                "The character wielding the item",
+                                "The item to be wielded"
+                        },
+                        "Has a character wield an item with no associated emote.",
+                        "Manipulation",
+                        ProgVariableTypes.Boolean
+                ));
+        }
 }

@@ -82,16 +82,35 @@ internal class WearFunction : BuiltInFunction
 
 	public static void RegisterFunctionCompiler()
 	{
-		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
-			"wear",
-			new[] { ProgVariableTypes.Character, ProgVariableTypes.Item, ProgVariableTypes.Text },
-			(pars, gameworld) => new WearFunction(pars, false)
-		));
+                FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
+                        "wear",
+                        new[] { ProgVariableTypes.Character, ProgVariableTypes.Item, ProgVariableTypes.Text },
+                        (pars, gameworld) => new WearFunction(pars, false),
+                        new[] { "who", "item", "emote" },
+                        new[]
+                        {
+                                "The character wearing the item",
+                                "The item to be worn",
+                                "An optional emote to accompany the action"
+                        },
+                        "Has a character wear an item. Returns true if successful.",
+                        "Manipulation",
+                        ProgVariableTypes.Boolean
+                ));
 
-		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
-			"silentwear",
-			new[] { ProgVariableTypes.Character, ProgVariableTypes.Item },
-			(pars, gameworld) => new WearFunction(pars, true)
-		));
-	}
+                FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
+                        "silentwear",
+                        new[] { ProgVariableTypes.Character, ProgVariableTypes.Item },
+                        (pars, gameworld) => new WearFunction(pars, true),
+                        new[] { "who", "item" },
+                        new[]
+                        {
+                                "The character wearing the item",
+                                "The item to be worn"
+                        },
+                        "Has a character wear an item with no associated emote.",
+                        "Manipulation",
+                        ProgVariableTypes.Boolean
+                ));
+        }
 }

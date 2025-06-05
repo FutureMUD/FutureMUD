@@ -68,16 +68,35 @@ internal class UnwieldFunction : BuiltInFunction
 
 	public static void RegisterFunctionCompiler()
 	{
-		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
-			"unwield",
-			new[] { ProgVariableTypes.Character, ProgVariableTypes.Item, ProgVariableTypes.Text },
-			(pars, gameworld) => new UnwieldFunction(pars, false)
-		));
+                FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
+                        "unwield",
+                        new[] { ProgVariableTypes.Character, ProgVariableTypes.Item, ProgVariableTypes.Text },
+                        (pars, gameworld) => new UnwieldFunction(pars, false),
+                        new[] { "who", "item", "emote" },
+                        new[]
+                        {
+                                "The character unwielding the item",
+                                "The item to be unwielded",
+                                "An optional emote to accompany the action"
+                        },
+                        "Has a character unwield an item. Returns true if successful.",
+                        "Manipulation",
+                        ProgVariableTypes.Boolean
+                ));
 
-		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
-			"silentunwield",
-			new[] { ProgVariableTypes.Character, ProgVariableTypes.Item },
-			(pars, gameworld) => new UnwieldFunction(pars, true)
-		));
-	}
+                FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
+                        "silentunwield",
+                        new[] { ProgVariableTypes.Character, ProgVariableTypes.Item },
+                        (pars, gameworld) => new UnwieldFunction(pars, true),
+                        new[] { "who", "item" },
+                        new[]
+                        {
+                                "The character unwielding the item",
+                                "The item to be unwielded"
+                        },
+                        "Has a character unwield an item with no associated emote.",
+                        "Manipulation",
+                        ProgVariableTypes.Boolean
+                ));
+        }
 }

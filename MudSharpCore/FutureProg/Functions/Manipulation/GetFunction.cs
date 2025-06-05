@@ -94,33 +94,73 @@ internal class GetFunction : BuiltInFunction
 
 	public static void RegisterFunctionCompiler()
 	{
-		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
-			"get",
-			new[] { ProgVariableTypes.Character, ProgVariableTypes.Item, ProgVariableTypes.Text },
-			(pars, gameworld) => new GetFunction(pars, false)
-		));
+                FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
+                        "get",
+                        new[] { ProgVariableTypes.Character, ProgVariableTypes.Item, ProgVariableTypes.Text },
+                        (pars, gameworld) => new GetFunction(pars, false),
+                        new[] { "who", "thing", "emote" },
+                        new[]
+                        {
+                                "The character getting the item",
+                                "The item being gotten",
+                                "An optional emote to accompany the action"
+                        },
+                        "Has a character pick up an item. Returns true if successful.",
+                        "Manipulation",
+                        ProgVariableTypes.Boolean
+                ));
 
-		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
-			"get",
-			new[]
-			{
-				ProgVariableTypes.Character, ProgVariableTypes.Item, ProgVariableTypes.Number,
-				ProgVariableTypes.Text
-			},
-			(pars, gameworld) => new GetFunction(pars, false)
-		));
+                FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
+                        "get",
+                        new[]
+                        {
+                                ProgVariableTypes.Character, ProgVariableTypes.Item, ProgVariableTypes.Number,
+                                ProgVariableTypes.Text
+                        },
+                        (pars, gameworld) => new GetFunction(pars, false),
+                        new[] { "who", "thing", "quantity", "emote" },
+                        new[]
+                        {
+                                "The character getting the item",
+                                "The item being gotten",
+                                "The number of items to get, or 0 for the whole stack",
+                                "An optional emote to accompany the action"
+                        },
+                        "Has a character pick up an item. Returns true if successful.",
+                        "Manipulation",
+                        ProgVariableTypes.Boolean
+                ));
 
-		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
-			"silentget",
-			new[] { ProgVariableTypes.Character, ProgVariableTypes.Item },
-			(pars, gameworld) => new GetFunction(pars, true)
-		));
+                FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
+                        "silentget",
+                        new[] { ProgVariableTypes.Character, ProgVariableTypes.Item },
+                        (pars, gameworld) => new GetFunction(pars, true),
+                        new[] { "who", "thing" },
+                        new[]
+                        {
+                                "The character getting the item",
+                                "The item being gotten"
+                        },
+                        "Has a character pick up an item with no associated emote.",
+                        "Manipulation",
+                        ProgVariableTypes.Boolean
+                ));
 
-		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
-			"silentget",
-			new[] { ProgVariableTypes.Character, ProgVariableTypes.Item, ProgVariableTypes.Number },
-			(pars, gameworld) => new GetFunction(pars, true)
-		));
+                FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
+                        "silentget",
+                        new[] { ProgVariableTypes.Character, ProgVariableTypes.Item, ProgVariableTypes.Number },
+                        (pars, gameworld) => new GetFunction(pars, true),
+                        new[] { "who", "thing", "quantity" },
+                        new[]
+                        {
+                                "The character getting the item",
+                                "The item being gotten",
+                                "The number of items to get, or 0 for the whole stack"
+                        },
+                        "Has a character pick up an item with no associated emote.",
+                        "Manipulation",
+                        ProgVariableTypes.Boolean
+                ));
 	}
 }
 
@@ -212,40 +252,84 @@ internal class GetContainerFunction : BuiltInFunction
 
 	public static void RegisterFunctionCompiler()
 	{
-		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
-			"get",
-			new[]
-			{
-				ProgVariableTypes.Character, ProgVariableTypes.Item, ProgVariableTypes.Item,
-				ProgVariableTypes.Text
-			},
-			(pars, gameworld) => new GetContainerFunction(pars, false)
-		));
+                FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
+                        "get",
+                        new[]
+                        {
+                                ProgVariableTypes.Character, ProgVariableTypes.Item, ProgVariableTypes.Item,
+                                ProgVariableTypes.Text
+                        },
+                        (pars, gameworld) => new GetContainerFunction(pars, false),
+                        new[] { "who", "thing", "container", "emote" },
+                        new[]
+                        {
+                                "The character getting the item",
+                                "The item being gotten",
+                                "The container the item is being taken from",
+                                "An optional emote to accompany the action"
+                        },
+                        "Has a character get an item from a container. Returns true if successful.",
+                        "Manipulation",
+                        ProgVariableTypes.Boolean
+                ));
 
-		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
-			"get",
-			new[]
-			{
-				ProgVariableTypes.Character, ProgVariableTypes.Item, ProgVariableTypes.Item,
-				ProgVariableTypes.Number, ProgVariableTypes.Text
-			},
-			(pars, gameworld) => new GetContainerFunction(pars, false)
-		));
+                FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
+                        "get",
+                        new[]
+                        {
+                                ProgVariableTypes.Character, ProgVariableTypes.Item, ProgVariableTypes.Item,
+                                ProgVariableTypes.Number, ProgVariableTypes.Text
+                        },
+                        (pars, gameworld) => new GetContainerFunction(pars, false),
+                        new[] { "who", "thing", "container", "quantity", "emote" },
+                        new[]
+                        {
+                                "The character getting the item",
+                                "The item being gotten",
+                                "The container the item is being taken from",
+                                "The number of items to get, or 0 for the whole stack",
+                                "An optional emote to accompany the action"
+                        },
+                        "Has a character get an item from a container. Returns true if successful.",
+                        "Manipulation",
+                        ProgVariableTypes.Boolean
+                ));
 
-		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
-			"silentget",
-			new[] { ProgVariableTypes.Character, ProgVariableTypes.Item, ProgVariableTypes.Item },
-			(pars, gameworld) => new GetContainerFunction(pars, true)
-		));
+                FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
+                        "silentget",
+                        new[] { ProgVariableTypes.Character, ProgVariableTypes.Item, ProgVariableTypes.Item },
+                        (pars, gameworld) => new GetContainerFunction(pars, true),
+                        new[] { "who", "thing", "container" },
+                        new[]
+                        {
+                                "The character getting the item",
+                                "The item being gotten",
+                                "The container the item is being taken from"
+                        },
+                        "Has a character get an item from a container with no associated emote.",
+                        "Manipulation",
+                        ProgVariableTypes.Boolean
+                ));
 
-		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
-			"silentget",
-			new[]
-			{
-				ProgVariableTypes.Character, ProgVariableTypes.Item, ProgVariableTypes.Item,
-				ProgVariableTypes.Number
-			},
-			(pars, gameworld) => new GetContainerFunction(pars, true)
-		));
-	}
+                FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
+                        "silentget",
+                        new[]
+                        {
+                                ProgVariableTypes.Character, ProgVariableTypes.Item, ProgVariableTypes.Item,
+                                ProgVariableTypes.Number
+                        },
+                        (pars, gameworld) => new GetContainerFunction(pars, true),
+                        new[] { "who", "thing", "container", "quantity" },
+                        new[]
+                        {
+                                "The character getting the item",
+                                "The item being gotten",
+                                "The container the item is being taken from",
+                                "The number of items to get, or 0 for the whole stack"
+                        },
+                        "Has a character get an item from a container with no associated emote.",
+                        "Manipulation",
+                        ProgVariableTypes.Boolean
+                ));
+        }
 }

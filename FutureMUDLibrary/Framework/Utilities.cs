@@ -272,19 +272,19 @@ namespace MudSharp.Framework {
 			return sb.AppendLine(string.Format(text, parameters));
 		}
 
-		private static Dictionary<Type, ConstructorInfo> _genericListConstructors = new();
-		public static List<T> CreateList<T>(this T type) where T : Type
-		{
-			if (_genericListConstructors.ContainsKey(type))
-			{
-				return (List<T>)_genericListConstructors[type].Invoke(new object[] { });
-			}
-			Type listGenericType = typeof(List<>);
-			Type listType = listGenericType.MakeGenericType(type);
-			ConstructorInfo ci = listType.GetConstructor(new Type[] { });
-			_genericListConstructors[type] = ci;
-			return (List<T>)ci.Invoke(new object[] { });
-		}
+               private static readonly Dictionary<Type, ConstructorInfo> _genericListConstructors = new();
+               public static System.Collections.IList CreateList(this Type type)
+               {
+                       if (_genericListConstructors.TryGetValue(type, out var ctor))
+                       {
+                               return (System.Collections.IList)ctor.Invoke(Array.Empty<object>());
+                       }
+
+                       var listType = typeof(List<>).MakeGenericType(type);
+                       var ci = listType.GetConstructor(Type.EmptyTypes);
+                       _genericListConstructors[type] = ci;
+                       return (System.Collections.IList)ci.Invoke(Array.Empty<object>());
+               }
 
 		public static string InnerXML(this XElement el)
 		{

@@ -93,22 +93,32 @@ public class EffectScheduler : IScheduler, IHaveFuturemud, IEffectScheduler
 		AddSchedule(schedule);
 	}
 
-	public void DelayScheduleType(IFrameworkItem item, ScheduleType type, TimeSpan delay)
-	{
-		if (_schedules.Any(x => x.Schedule.PertainsTo(item, type)))
-		{
-			DelaySchedule(_schedules.FirstOrDefault(x => x.Schedule.PertainsTo(item, type)).Schedule, delay);
-		}
-	}
+       public void DelayScheduleType(IFrameworkItem item, ScheduleType type, TimeSpan delay)
+       {
+               if (delay.Ticks <= 0)
+               {
+                       return;
+               }
 
-	public void CheckSchedules()
-	{
-		var now = DateTime.UtcNow;
-		var sw = new Stopwatch();
-		while (_schedules.Any() && now >= _schedules.First().DateTime)
-		{
-			var (trigger, schedule) = _schedules.First();
-			_schedules.RemoveAt(0);
+               foreach (var sched in _schedules.Where(x => x.Schedule.PertainsTo(item, type)).ToArray())
+               {
+                       DelaySchedule(sched.Schedule, delay);
+               }
+       }
+
+       public void CheckSchedules()
+       {
+               var sw = new Stopwatch();
+               while (_schedules.Any())
+               {
+                       var now = DateTime.UtcNow;
+                       if (now < _schedules.First().DateTime)
+                       {
+                               break;
+                       }
+
+                       var (trigger, schedule) = _schedules.First();
+                       _schedules.RemoveAt(0);
 			if (DateTime.UtcNow - trigger > TimeSpan.FromSeconds(10))
 			{
 				Console.ForegroundColor = ConsoleColor.Yellow;
@@ -183,12 +193,18 @@ public class EffectScheduler : IScheduler, IHaveFuturemud, IEffectScheduler
 		}
 	}
 
-	public void AddSchedule(IEffectSchedule schedule)
-	{
-		_schedules.Add((schedule.TriggerETA, schedule));
-		_schedules.Sort(new ScheduleComparer());
-		_scheduleMap[schedule.Effect] = schedule;
-	}
+       public void AddSchedule(IEffectSchedule schedule)
+       {
+               var entry = (schedule.TriggerETA, schedule);
+               var comparer = new ScheduleComparer();
+               var index = _schedules.BinarySearch(entry, comparer);
+               if (index < 0)
+               {
+                       index = ~index;
+               }
+               _schedules.Insert(index, entry);
+               _scheduleMap[schedule.Effect] = schedule;
+       }
 
 	public bool IsScheduled(IEffect effect)
 	{

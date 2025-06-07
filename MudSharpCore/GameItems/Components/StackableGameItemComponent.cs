@@ -121,13 +121,15 @@ public class StackableGameItemComponent : GameItemComponent, IStackable
 		return quantity == 0 || quantity >= Quantity;
 	}
 
-	public IGameItem Split(int quantity)
-	{
-		var newItem = new GameItem((GameItem)Parent);
-		((StackableGameItemComponent)newItem.GetItemType<IStackable>()).Quantity = quantity;
-		Quantity -= quantity;
-		return newItem;
-	}
+        public IGameItem Split(int quantity)
+        {
+                // When splitting a stack, preserve the existing morph timer so that
+                // partially purchased items do not reset their decay timers
+                var newItem = new GameItem((GameItem)Parent, temporary: false, preserveMorphTime: true);
+                ((StackableGameItemComponent)newItem.GetItemType<IStackable>()).Quantity = quantity;
+                Quantity -= quantity;
+                return newItem;
+        }
 
 	public IGameItem PeekSplit(int quantity)
 	{

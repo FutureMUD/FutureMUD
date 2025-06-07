@@ -9,7 +9,7 @@ namespace MudSharp.Framework.Scheduling;
 
 public class Scheduler : IScheduler
 {
-	protected List<(DateTime DateTime, ISchedule Schedule)> _schedules = new();
+       protected List<(DateTime DateTime, ISchedule Schedule)> _schedules = new();
 
 	protected class ScheduleComparer : IComparer<(DateTime DateTime, ISchedule Schedule)>
 	{
@@ -19,11 +19,17 @@ public class Scheduler : IScheduler
 		}
 	}
 
-	public void AddSchedule(ISchedule schedule)
-	{
-		_schedules.Add((schedule.TriggerETA, schedule));
-		_schedules.Sort(new ScheduleComparer());
-	}
+       public void AddSchedule(ISchedule schedule)
+       {
+               var entry = (schedule.TriggerETA, schedule);
+               var comparer = new ScheduleComparer();
+               var index = _schedules.BinarySearch(entry, comparer);
+               if (index < 0)
+               {
+                       index = ~index;
+               }
+               _schedules.Insert(index, entry);
+       }
 
 	public void AddOrDelaySchedule(ISchedule schedule, IFrameworkItem item)
 	{
@@ -44,42 +50,45 @@ public class Scheduler : IScheduler
 		AddSchedule(schedule);
 	}
 
-	public void DelayScheduleType(IFrameworkItem item, ScheduleType type, TimeSpan delay)
-	{
-		if (delay.Ticks <= 0)
-		{
-			return;
-		}
+       public void DelayScheduleType(IFrameworkItem item, ScheduleType type, TimeSpan delay)
+       {
+               if (delay.Ticks <= 0)
+               {
+                       return;
+               }
 
-		foreach (var schedule in _schedules.Where(x => x.Schedule.PertainsTo(item, type)).ToArray())
-		{
-			_schedules.Remove(schedule);
-			schedule.Schedule.TriggerETA += delay;
-			_schedules.Add((schedule.DateTime, schedule.Schedule));
-		}
+               foreach (var schedule in _schedules.Where(x => x.Schedule.PertainsTo(item, type)).ToArray())
+               {
+                       _schedules.Remove(schedule);
+                       schedule.Schedule.TriggerETA += delay;
+                       AddSchedule(schedule.Schedule);
+               }
+       }
 
-		_schedules.Sort(new ScheduleComparer());
-	}
+       public void CheckSchedules()
+       {
+               var sw = new Stopwatch();
+               while (_schedules.Any())
+               {
+                       var now = DateTime.UtcNow;
+                       if (now < _schedules.First().DateTime)
+                       {
+                               break;
+                       }
 
-	public void CheckSchedules()
-	{
-		var now = DateTime.UtcNow;
-		var sw = new Stopwatch();
-		while (_schedules.Any() && now >= _schedules.First().DateTime)
-		{
-			var (trigger, schedule) = _schedules.First();
-			_schedules.RemoveAt(0);
-			if (DateTime.UtcNow - trigger > TimeSpan.FromSeconds(10))
-			{
-				Console.ForegroundColor = ConsoleColor.Yellow;
-				Console.WriteLine(
-					$"[PERF] Schedule was {(DateTime.UtcNow - trigger).TotalSeconds:N2}s overdue: {schedule.DebugInfoString.RawText()}");
+                       var (trigger, schedule) = _schedules.First();
+                       _schedules.RemoveAt(0);
+                       if (DateTime.UtcNow - trigger > TimeSpan.FromSeconds(10))
+                       {
+                               Console.ForegroundColor = ConsoleColor.Yellow;
+                               Console.WriteLine(
+                                       $"[PERF] Schedule was {(DateTime.UtcNow - trigger).TotalSeconds:N2}s overdue: {schedule.DebugInfoString.RawText()}");
 				Console.ResetColor();
 			}
 
-			sw.Restart();
-			schedule.Fire();
-			sw.Stop();
+                       sw.Restart();
+                       schedule.Fire();
+                       sw.Stop();
 			if (sw.ElapsedMilliseconds > 100)
 			{
 				Console.ForegroundColor = ConsoleColor.DarkYellow;

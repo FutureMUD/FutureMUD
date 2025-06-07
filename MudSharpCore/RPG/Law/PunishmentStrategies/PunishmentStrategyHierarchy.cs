@@ -151,7 +151,7 @@ public class PunishmentStrategyHierarchy : PunishmentStrategyBase
 			return false;
 		}
 
-		_strategyHierarchy.Swap(index1, index2);
+		_strategyHierarchy.SwapByIndex(index1, index2);
 		actor.OutputHandler.Send(
 			$"You swap the positions of the {index1.ToOrdinal()} and {index2.ToOrdinal()} punishments in the hierarchy.");
 		return true;

@@ -289,7 +289,7 @@ public class Helpfile : SaveableItem, IEditableHelpfile
 
 	public void ReorderExtraText(int oldIndex, int newIndex)
 	{
-		_additionalTexts.Swap(oldIndex, newIndex);
+		_additionalTexts.SwapByIndex(oldIndex, newIndex);
 		Changed = true;
 	}
 }

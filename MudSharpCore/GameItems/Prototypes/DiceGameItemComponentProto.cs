@@ -347,7 +347,7 @@ public class DiceGameItemComponentProto : GameItemComponentProto
 
 		var prob1 = _faceProbabilities[index1];
 		var prob2 = _faceProbabilities[index2];
-		_faces.Swap(index1, index2);
+		_faces.SwapByIndex(index1, index2);
 		_faceProbabilities[index1] = prob2;
 		_faceProbabilities[index2] = prob1;
 		Changed = true;

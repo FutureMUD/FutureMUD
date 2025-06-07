@@ -909,7 +909,7 @@ For all of the below phase emote echoes, you can use #6$0#0 for the actor, #6$1#
 			return false;
 		}
 
-		_skinEmotes.Swap(value1 - 1, value2 - 1);
+		_skinEmotes.SwapByIndex(value1 - 1, value2 - 1);
 		actor.OutputHandler.Send(
 			$"You swap the positions of the {value1.ToOrdinal().ColourValue()} and {value2.ToOrdinal().ColourValue()} skin emotes.");
 		return true;

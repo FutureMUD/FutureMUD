@@ -75,7 +75,7 @@ namespace MudSharp.Framework
 
 		#region Implementation of IReadOnlyCollectionDictionary<T,U>
 
-		public IEnumerable<U> this[T key] => _cd[key];
+		public IEnumerable<U> this[T key] => _cd[key].AsReadOnly();
 
 		public bool ContainsKey(T key)
 		{
@@ -276,7 +276,7 @@ namespace MudSharp.Framework
 		public bool SetValueAtIndex(T key, int index, U newValue)
 		{
 			CheckOrCreateKey(key);
-			if (_internal[key].Count >= index || index < 0)
+			if (index < 0 || index >= _internal[key].Count)
 			{
 				return false;
 			}
@@ -293,7 +293,7 @@ namespace MudSharp.Framework
 				return false;
 			}
 
-			_internal[key].Swap(index1, index2);
+			_internal[key].SwapByIndex(index1, index2);
 			return true;
 		}
 

@@ -1533,7 +1533,7 @@ public class GameItemProto : EditableItem, IGameItemProto
 			return false;
 		}
 
-		_extraDescriptions.Swap(index1 - 1, index2 - 1);
+		_extraDescriptions.SwapByIndex(index1 - 1, index2 - 1);
 		ExtraDescriptionsChanged = true;
 		actor.OutputHandler.Send(
 			$"You swap the order of the {index1.ToOrdinal().ColourValue()} and {index2.ToOrdinal().ColourValue()} extra descriptions.");

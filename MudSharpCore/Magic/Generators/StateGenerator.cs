@@ -323,7 +323,7 @@ public class StateGenerator : BaseMagicResourceGenerator
 			return false;
 		}
 
-		_states.Swap(index1-1, index2-1);
+		_states.SwapByIndex(index1-1, index2-1);
 		actor.OutputHandler.Send($"You swap the order of the {index1.ToOrdinal().ColourValue()} ({_states[index2-1].StateProg.MXPClickableFunctionName()}) state and the {index2.ToOrdinal().ColourValue()} ({_states[index1 - 1].StateProg.MXPClickableFunctionName()}) state.");
 		Changed = true;
 		return true;

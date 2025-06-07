@@ -1819,7 +1819,7 @@ A function (See PROG HELP FUNCTIONS) can also function as a statement on a line.
 			return;
 		}
 
-		prog.NamedParameters.Swap(
+		prog.NamedParameters.SwapByIndex(
 			prog.NamedParameters.FindIndex(
 				x => x.Item2.Equals(parameterName1, StringComparison.InvariantCultureIgnoreCase)),
 			prog.NamedParameters.FindIndex(

@@ -2038,7 +2038,7 @@ public class Craft : Framework.Revision.EditableItem, ICraft
 			return false;
 		}
 
-		_craftPhases.Swap(value - 1, value2 - 1);
+		_craftPhases.SwapByIndex(value - 1, value2 - 1);
 		RecalculatePhaseNumbers();
 		CraftChanged = true;
 		actor.OutputHandler.Send($"You swap the {value.ToOrdinal()} and {value2.ToOrdinal()} phases.");

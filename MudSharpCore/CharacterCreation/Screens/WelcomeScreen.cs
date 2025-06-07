@@ -329,7 +329,7 @@ internal class WelcomeScreenStoryboard : ChargenScreenStoryboard
 			return false;
 		}
 
-		_blurbs.Swap(index1 - 1, index2 - 1);
+		_blurbs.SwapByIndex(index1 - 1, index2 - 1);
 		actor.OutputHandler.Send(
 			$"You swap the order of the {index1.ToOrdinal().ColourValue()} and {index2.ToOrdinal().ColourValue()} blurbs.");
 		Changed = true;

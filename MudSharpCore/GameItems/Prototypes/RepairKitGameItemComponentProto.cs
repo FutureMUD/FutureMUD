@@ -491,7 +491,7 @@ public class RepairKitGameItemComponentProto : GameItemComponentProto
 			return false;
 		}
 
-		_echoes.Swap(value - 1, value2 - 1);
+		_echoes.SwapByIndex(value - 1, value2 - 1);
 		Changed = true;
 		actor.OutputHandler.Send($"You swap the {value.ToOrdinal()} and {value2.ToOrdinal()} echoes.");
 		return true;

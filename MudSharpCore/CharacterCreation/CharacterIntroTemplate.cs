@@ -349,8 +349,8 @@ public class CharacterIntroTemplate : SaveableItem, ICharacterIntroTemplate
 			return false;
 		}
 
-		Echoes.Swap(pos1 - 1, pos2 - 1);
-		Delays.Swap(pos1 - 1, pos2 - 1);
+		Echoes.SwapByIndex(pos1 - 1, pos2 - 1);
+		Delays.SwapByIndex(pos1 - 1, pos2 - 1);
 		Changed = true;
 		actor.OutputHandler.Send($"You swap the order of the {pos1.ToOrdinal().ColourValue()} and {pos2.ToOrdinal().ColourValue()} echo.");
 		return true;

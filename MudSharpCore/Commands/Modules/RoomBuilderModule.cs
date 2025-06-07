@@ -393,7 +393,7 @@ Enter your text below:");
 					return;
 				}
 
-				existing.LandmarkDescriptionTexts.Swap(value1, value2);
+				existing.LandmarkDescriptionTexts.SwapByIndex(value1, value2);
 				existing.Changed = true;
 				actor.OutputHandler.Send($"You swap the ordering of the {value1.ToOrdinal()} and {value2.ToOrdinal()} extra texts for this landmark.");
 				return;

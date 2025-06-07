@@ -451,7 +451,7 @@ public class Dream : SaveableItem, IDream
 			return false;
 		}
 
-		_dreamStages.Swap(value1 - 1, value2 - 1);
+		_dreamStages.SwapByIndex(value1 - 1, value2 - 1);
 		Changed = true;
 		actor.OutputHandler.Send(
 			$"You swap the order of the {value1.ToOrdinal()} and {value2.ToOrdinal()} dream stages.");

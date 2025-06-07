@@ -567,7 +567,7 @@ namespace MudSharp.Framework {
 		/// <param name="indexA">The index of the first item to swap</param>
 		/// <param name="indexB">The index of the second item to swap</param>
 		/// <returns>A reference to the list</returns>
-		public static IList<T> Swap<T>(this IList<T> list, int indexA, int indexB) {
+		public static IList<T> SwapByIndex<T>(this IList<T> list, int indexA, int indexB) {
 			(list[indexA], list[indexB]) = (list[indexB], list[indexA]);
 			return list;
 		}

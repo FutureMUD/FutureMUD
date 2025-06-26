@@ -56,4 +56,44 @@ namespace MudSharp.Celestial
             return "Unknown";
         }
     }
+
+    public enum MoonPhase
+    {
+        New,
+        WaxingCrescent,
+        FirstQuarter,
+        WaxingGibbous,
+        Full,
+        WaningGibbous,
+        LastQuarter,
+        WaningCrescent
+    }
+
+    public static class MoonPhaseExtensions
+    {
+        public static string Describe(this MoonPhase phase)
+        {
+            switch (phase)
+            {
+                case MoonPhase.New:
+                    return "New";
+                case MoonPhase.WaxingCrescent:
+                    return "Waxing Crescent";
+                case MoonPhase.FirstQuarter:
+                    return "First Quarter";
+                case MoonPhase.WaxingGibbous:
+                    return "Waxing Gibbous";
+                case MoonPhase.Full:
+                    return "Full";
+                case MoonPhase.WaningGibbous:
+                    return "Waning Gibbous";
+                case MoonPhase.LastQuarter:
+                    return "Last Quarter";
+                case MoonPhase.WaningCrescent:
+                    return "Waning Crescent";
+            }
+
+            return "Unknown";
+        }
+    }
 }

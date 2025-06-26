@@ -176,11 +176,20 @@ public class FlareGameItemComponent : GameItemComponent, ILightable, IProduceLig
 				.ToString();
 	}
 
-	protected void LoadFromXml(XElement root)
-	{
-		RemainingFuel = int.Parse(root.Element("RemainingFuel").Value);
-		Lit = bool.Parse(root.Element("Lit").Value);
-	}
+        protected void LoadFromXml(XElement root)
+        {
+                RemainingFuel = int.Parse(root.Element("RemainingFuel").Value);
+                _lit = bool.Parse(root.Element("Lit").Value);
+        }
+
+        public override void Login()
+        {
+                base.Login();
+                if (Lit)
+                {
+                        Gameworld.HeartbeatManager.SecondHeartbeat += HeartbeatManager_SecondHeartbeat;
+                }
+        }
 
 	#endregion
 

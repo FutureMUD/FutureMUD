@@ -233,11 +233,20 @@ public class SmokeableGameItemComponent : GameItemComponent, ISmokeable
 				.ToString();
 	}
 
-	protected void LoadFromXml(XElement root)
-	{
-		RemainingFuel = int.Parse(root.Element("RemainingFuel")?.Value ?? "0");
-		Lit = bool.Parse(root.Element("Lit")?.Value ?? "false");
-	}
+        protected void LoadFromXml(XElement root)
+        {
+                RemainingFuel = int.Parse(root.Element("RemainingFuel")?.Value ?? "0");
+                _lit = bool.Parse(root.Element("Lit")?.Value ?? "false");
+        }
+
+        public override void Login()
+        {
+                base.Login();
+                if (Lit)
+                {
+                        Gameworld.HeartbeatManager.SecondHeartbeat += HeartbeatManager_SecondHeartbeat;
+                }
+        }
 
 	#endregion
 

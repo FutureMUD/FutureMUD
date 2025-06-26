@@ -49,11 +49,20 @@ public class FuseGameItemComponent : GameItemComponent, ILightable
 		_prototype = rhs._prototype;
 	}
 
-	protected void LoadFromXml(XElement root)
-	{
-		BurnTimeRemaining = TimeSpan.FromSeconds(double.Parse(root.Element("BurnTimeRemaining").Value));
-		Lit = bool.Parse(root.Element("Lit").Value);
-	}
+       protected void LoadFromXml(XElement root)
+       {
+               BurnTimeRemaining = TimeSpan.FromSeconds(double.Parse(root.Element("BurnTimeRemaining").Value));
+               _lit = bool.Parse(root.Element("Lit").Value);
+       }
+
+       public override void Login()
+       {
+               base.Login();
+               if (Lit)
+               {
+                       Gameworld.HeartbeatManager.SecondHeartbeat += HeartbeatManager_SecondHeartbeat;
+               }
+       }
 
 	public override IGameItemComponent Copy(IGameItem newParent, bool temporary = false)
 	{

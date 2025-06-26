@@ -186,13 +186,14 @@ public class PlanetaryMoon : PerceivedItem, ICelestialObject
         var frac = (CurrentCelestialDay - FullMoonReferenceDay).Modulus(CelestialDaysPerYear) / CelestialDaysPerYear;
 
         if (frac < 0.0625 || frac >= 0.9375) return MoonPhase.Full;
-        if (frac < 0.1875) return MoonPhase.WaxingGibbous;
-        if (frac < 0.3125) return MoonPhase.FirstQuarter;
-        if (frac < 0.4375) return MoonPhase.WaxingCrescent;
+
+        if (frac < 0.1875) return MoonPhase.WaningGibbous;
+        if (frac < 0.3125) return MoonPhase.LastQuarter;
+        if (frac < 0.4375) return MoonPhase.WaningCrescent;
         if (frac < 0.5625) return MoonPhase.New;
-        if (frac < 0.6875) return MoonPhase.WaningCrescent;
-        if (frac < 0.8125) return MoonPhase.LastQuarter;
-        return MoonPhase.WaningGibbous;
+        if (frac < 0.6875) return MoonPhase.WaxingCrescent;
+        if (frac < 0.8125) return MoonPhase.FirstQuarter;
+        return MoonPhase.WaxingGibbous;
     }
 }
 

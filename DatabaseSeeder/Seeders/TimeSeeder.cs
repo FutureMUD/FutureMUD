@@ -46,15 +46,15 @@ Broadly speaking, there are three calendars for you to choose from:
 
 The available calendars are as follows:
 
-    #Bgregorian-us#F: Gregorian with US-style dates (e.g. month/day/year)
-    #Bgregorian-uk#F: Gregorian with UK-style dates (e.g. day/month/year)
-    #Bgregorian-us-ce#F: Gregorian with ""CE"" rather than ""AD"" styling and US-style dates (e.g. month/day/year)
-    #Bgregorian-uk-ce#F: Gregorian with ""CE"" rather than ""AD"" styling and UK-style dates (e.g. day/month/year)
-    #Bjulian#F: Julian (used from 46BC until the 16th Century)
-    #Blatin-7day#F: Julian with Latin day and month names, year from Rome's founding, and a 7 day week
-    #Blatin-8day#F: Julian with Latin day and month names, year from Rome's founding, and an 8 day week
-    #Blatin-ancient#F: The pre-reform Roman calendar with all names in Latin
-    #Bmiddle-earth#F: Includes various middle-earth calendars
+	#Bgregorian-us#F: Gregorian with US-style dates (e.g. month/day/year)
+	#Bgregorian-uk#F: Gregorian with UK-style dates (e.g. day/month/year)
+	#Bgregorian-us-ce#F: Gregorian with ""CE"" rather than ""AD"" styling and US-style dates (e.g. month/day/year)
+	#Bgregorian-uk-ce#F: Gregorian with ""CE"" rather than ""AD"" styling and UK-style dates (e.g. day/month/year)
+	#Bjulian#F: Julian (used from 46BC until the 16th Century)
+	#Blatin-7day#F: Julian with Latin day and month names, year from Rome's founding, and a 7 day week
+	#Blatin-8day#F: Julian with Latin day and month names, year from Rome's founding, and an 8 day week
+	#Blatin-ancient#F: The pre-reform Roman calendar with all names in Latin
+	#Bmiddle-earth#F: Includes various middle-earth calendars
 ", (context, answers) => true, (answer, context) =>
 				{
 					switch (answer.ToLowerInvariant())
@@ -82,10 +82,10 @@ The available calendars are as follows:
 				}),
 			("ardaage", @"Which age do you want your calendars set up for? 
 
-    #B1) First Age
-    2) Second Age
-    3) Third Age
-    4) Fourth Age#F
+	#B1) First Age
+	2) Second Age
+	3) Third Age
+	4) Fourth Age#F
 
 Your answer: ", (context, answers) => answers["mode"].EqualTo("middle-earth"), (answer, context) =>
 			{
@@ -253,138 +253,138 @@ Your answer: ", (context, answers) => answers["mode"].EqualTo("middle-earth"), (
   <modernerashortstring>{modernShort}</modernerashortstring>
   <moderneralongstring>{modernLong}</moderneralongstring>
   <weekdays>
-    <weekday>Elenya</weekday>
-    <weekday>Anarya</weekday>
-    <weekday>Isilya</weekday>
-    <weekday>Aldúya</weekday>
-    <weekday>Menelya</weekday>
-    <weekday>Valanya</weekday>
+	<weekday>Elenya</weekday>
+	<weekday>Anarya</weekday>
+	<weekday>Isilya</weekday>
+	<weekday>Aldúya</weekday>
+	<weekday>Menelya</weekday>
+	<weekday>Valanya</weekday>
   </weekdays>
   <months>
 	<month>
-      <alias>yestare</alias>
-      <shortname>yes</shortname>
-      <fullname>Yestarë</fullname>
-      <nominalorder>1</nominalorder>
-      <normaldays>1</normaldays>
-      <intercalarydays />
-      <specialdays>
+	  <alias>yestare</alias>
+	  <shortname>yes</shortname>
+	  <fullname>Yestarë</fullname>
+	  <nominalorder>1</nominalorder>
+	  <normaldays>1</normaldays>
+	  <intercalarydays />
+	  <specialdays>
 	  </specialdays>
-      <nonweekdays />
-    </month>
-    <month>
-      <alias>tuile</alias>
-      <shortname>tui</shortname>
-      <fullname>Tuilë</fullname>
-      <nominalorder>2</nominalorder>
-      <normaldays>54</normaldays>
-      <intercalarydays />
-      <specialdays>
+	  <nonweekdays />
+	</month>
+	<month>
+	  <alias>tuile</alias>
+	  <shortname>tui</shortname>
+	  <fullname>Tuilë</fullname>
+	  <nominalorder>2</nominalorder>
+	  <normaldays>54</normaldays>
+	  <intercalarydays />
+	  <specialdays>
 	  </specialdays>
-      <nonweekdays />
-    </month>
-    <month>
-      <alias>laire</alias>
-      <shortname>lai</shortname>
-      <fullname>Lairë</fullname>
-      <nominalorder>3</nominalorder>
-      <normaldays>72</normaldays>
-      <intercalarydays />
-      <specialdays>
+	  <nonweekdays />
+	</month>
+	<month>
+	  <alias>laire</alias>
+	  <shortname>lai</shortname>
+	  <fullname>Lairë</fullname>
+	  <nominalorder>3</nominalorder>
+	  <normaldays>72</normaldays>
+	  <intercalarydays />
+	  <specialdays>
 	  </specialdays>
-      <nonweekdays />
-    </month>
-    <month>
-      <alias>yav</alias>
-      <shortname>yav</shortname>
-      <fullname>Yávië</fullname>
-      <nominalorder>4</nominalorder>
-      <normaldays>54</normaldays>
-      <intercalarydays />
-      <specialdays>
+	  <nonweekdays />
+	</month>
+	<month>
+	  <alias>yav</alias>
+	  <shortname>yav</shortname>
+	  <fullname>Yávië</fullname>
+	  <nominalorder>4</nominalorder>
+	  <normaldays>54</normaldays>
+	  <intercalarydays />
+	  <specialdays>
 	  </specialdays>
-      <nonweekdays />
-    </month>
-    <month>
-      <alias>enderi</alias>
-      <shortname>end</shortname>
-      <fullname>Enderi</fullname>
-      <nominalorder>5</nominalorder>
-      <normaldays>3</normaldays>
-      <intercalarydays>
+	  <nonweekdays />
+	</month>
+	<month>
+	  <alias>enderi</alias>
+	  <shortname>end</shortname>
+	  <fullname>Enderi</fullname>
+	  <nominalorder>5</nominalorder>
+	  <normaldays>3</normaldays>
+	  <intercalarydays>
 		<intercalary>
- 		  <insertdays>3</insertdays>
- 		  <specialdays>
-           </specialdays>
- 		  <nonweekdays/>
-             <removenonweekdays />
-             <removespecialdays />
-             <intercalaryrule>
-               <offset>0</offset>
-               <divisor>12</divisor>
-               <exceptions>
-                 <intercalaryrule>
-                   <offset>0</offset>
-                   <divisor>144</divisor>
-                   <exceptions>
-                   </exceptions>
-                   <ands />
-                   <ors />
-                 </intercalaryrule>
-               </exceptions>
-               <ands />
-               <ors />
-             </intercalaryrule>
- 		</intercalary>
+		  <insertdays>3</insertdays>
+		  <specialdays>
+		   </specialdays>
+		  <nonweekdays/>
+			 <removenonweekdays />
+			 <removespecialdays />
+			 <intercalaryrule>
+			   <offset>0</offset>
+			   <divisor>12</divisor>
+			   <exceptions>
+				 <intercalaryrule>
+				   <offset>0</offset>
+				   <divisor>144</divisor>
+				   <exceptions>
+				   </exceptions>
+				   <ands />
+				   <ors />
+				 </intercalaryrule>
+			   </exceptions>
+			   <ands />
+			   <ors />
+			 </intercalaryrule>
+		</intercalary>
 	  </intercalarydays>
-      <specialdays>
+	  <specialdays>
 	  </specialdays>
-      <nonweekdays />
-    </month>
-    <month>
-      <alias>quelle</alias>
-      <shortname>que</shortname>
-      <fullname>Quellë</fullname>
-      <nominalorder>6</nominalorder>
-      <normaldays>54</normaldays>
-      <intercalarydays />
-      <specialdays>
+	  <nonweekdays />
+	</month>
+	<month>
+	  <alias>quelle</alias>
+	  <shortname>que</shortname>
+	  <fullname>Quellë</fullname>
+	  <nominalorder>6</nominalorder>
+	  <normaldays>54</normaldays>
+	  <intercalarydays />
+	  <specialdays>
 	  </specialdays>
-      <nonweekdays />
-    </month>
-    <month>
-      <alias>hrive</alias>
-      <shortname>hri</shortname>
-      <fullname>Hrívë</fullname>
-      <nominalorder>7</nominalorder>
-      <normaldays>72</normaldays>
-      <intercalarydays />
-      <specialdays>
+	  <nonweekdays />
+	</month>
+	<month>
+	  <alias>hrive</alias>
+	  <shortname>hri</shortname>
+	  <fullname>Hrívë</fullname>
+	  <nominalorder>7</nominalorder>
+	  <normaldays>72</normaldays>
+	  <intercalarydays />
+	  <specialdays>
 	  </specialdays>
-      <nonweekdays />
-    </month>
-    <month>
-      <alias>coire</alias>
-      <shortname>coi</shortname>
-      <fullname>Coirë</fullname>
-      <nominalorder>8</nominalorder>
-      <normaldays>54</normaldays>
-      <intercalarydays />
-      <specialdays>
+	  <nonweekdays />
+	</month>
+	<month>
+	  <alias>coire</alias>
+	  <shortname>coi</shortname>
+	  <fullname>Coirë</fullname>
+	  <nominalorder>8</nominalorder>
+	  <normaldays>54</normaldays>
+	  <intercalarydays />
+	  <specialdays>
 	  </specialdays>
-      <nonweekdays />
-    </month>
-    <month>
-      <alias>mettare</alias>
-      <shortname>met</shortname>
-      <fullname>Mettarë</fullname>
-      <nominalorder>9</nominalorder>
-      <normaldays>1</normaldays>
-      <intercalarydays />
-      <specialdays>
+	  <nonweekdays />
+	</month>
+	<month>
+	  <alias>mettare</alias>
+	  <shortname>met</shortname>
+	  <fullname>Mettarë</fullname>
+	  <nominalorder>9</nominalorder>
+	  <normaldays>1</normaldays>
+	  <intercalarydays />
+	  <specialdays>
 	  </specialdays>
-      <nonweekdays />
-    </month>
+	  <nonweekdays />
+	</month>
   </months>
   <intercalarymonths>
   </intercalarymonths>
@@ -415,138 +415,138 @@ Your answer: ", (context, answers) => answers["mode"].EqualTo("middle-earth"), (
   <modernerashortstring>{modernShort}</modernerashortstring>
   <moderneralongstring>{modernLong}</moderneralongstring>
   <weekdays>
-    <weekday>Orgilion</weekday>
-    <weekday>Oranor</weekday>
-    <weekday>Orithil</weekday>
-    <weekday>Orgaladhad</weekday>
-    <weekday>Ormenel</weekday>
-    <weekday>Orbelain</weekday>
+	<weekday>Orgilion</weekday>
+	<weekday>Oranor</weekday>
+	<weekday>Orithil</weekday>
+	<weekday>Orgaladhad</weekday>
+	<weekday>Ormenel</weekday>
+	<weekday>Orbelain</weekday>
   </weekdays>
   <months>
 	<month>
-      <alias>yestare</alias>
-      <shortname>yes</shortname>
-      <fullname>Yestarë</fullname>
-      <nominalorder>1</nominalorder>
-      <normaldays>1</normaldays>
-      <intercalarydays />
-      <specialdays>
+	  <alias>yestare</alias>
+	  <shortname>yes</shortname>
+	  <fullname>Yestarë</fullname>
+	  <nominalorder>1</nominalorder>
+	  <normaldays>1</normaldays>
+	  <intercalarydays />
+	  <specialdays>
 	  </specialdays>
-      <nonweekdays />
-    </month>
-    <month>
-      <alias>ethuil</alias>
-      <shortname>eth</shortname>
-      <fullname>Ethuil</fullname>
-      <nominalorder>2</nominalorder>
-      <normaldays>54</normaldays>
-      <intercalarydays />
-      <specialdays>
+	  <nonweekdays />
+	</month>
+	<month>
+	  <alias>ethuil</alias>
+	  <shortname>eth</shortname>
+	  <fullname>Ethuil</fullname>
+	  <nominalorder>2</nominalorder>
+	  <normaldays>54</normaldays>
+	  <intercalarydays />
+	  <specialdays>
 	  </specialdays>
-      <nonweekdays />
-    </month>
-    <month>
-      <alias>laer</alias>
-      <shortname>lae</shortname>
-      <fullname>Laer</fullname>
-      <nominalorder>3</nominalorder>
-      <normaldays>72</normaldays>
-      <intercalarydays />
-      <specialdays>
+	  <nonweekdays />
+	</month>
+	<month>
+	  <alias>laer</alias>
+	  <shortname>lae</shortname>
+	  <fullname>Laer</fullname>
+	  <nominalorder>3</nominalorder>
+	  <normaldays>72</normaldays>
+	  <intercalarydays />
+	  <specialdays>
 	  </specialdays>
-      <nonweekdays />
-    </month>
-    <month>
-      <alias>iavas</alias>
-      <shortname>iav</shortname>
-      <fullname>Iavas</fullname>
-      <nominalorder>4</nominalorder>
-      <normaldays>54</normaldays>
-      <intercalarydays />
-      <specialdays>
+	  <nonweekdays />
+	</month>
+	<month>
+	  <alias>iavas</alias>
+	  <shortname>iav</shortname>
+	  <fullname>Iavas</fullname>
+	  <nominalorder>4</nominalorder>
+	  <normaldays>54</normaldays>
+	  <intercalarydays />
+	  <specialdays>
 	  </specialdays>
-      <nonweekdays />
-    </month>
-    <month>
-      <alias>enedhin</alias>
-      <shortname>ene</shortname>
-      <fullname>Enedhin</fullname>
-      <nominalorder>5</nominalorder>
-      <normaldays>3</normaldays>
-      <intercalarydays>
+	  <nonweekdays />
+	</month>
+	<month>
+	  <alias>enedhin</alias>
+	  <shortname>ene</shortname>
+	  <fullname>Enedhin</fullname>
+	  <nominalorder>5</nominalorder>
+	  <normaldays>3</normaldays>
+	  <intercalarydays>
 		<intercalary>
- 		  <insertdays>3</insertdays>
- 		  <specialdays>
-           </specialdays>
- 		  <nonweekdays/>
-             <removenonweekdays />
-             <removespecialdays />
-             <intercalaryrule>
-               <offset>0</offset>
-               <divisor>12</divisor>
-               <exceptions>
-                 <intercalaryrule>
-                   <offset>0</offset>
-                   <divisor>144</divisor>
-                   <exceptions>
-                   </exceptions>
-                   <ands />
-                   <ors />
-                 </intercalaryrule>
-               </exceptions>
-               <ands />
-               <ors />
-             </intercalaryrule>
- 		</intercalary>
+		  <insertdays>3</insertdays>
+		  <specialdays>
+		   </specialdays>
+		  <nonweekdays/>
+			 <removenonweekdays />
+			 <removespecialdays />
+			 <intercalaryrule>
+			   <offset>0</offset>
+			   <divisor>12</divisor>
+			   <exceptions>
+				 <intercalaryrule>
+				   <offset>0</offset>
+				   <divisor>144</divisor>
+				   <exceptions>
+				   </exceptions>
+				   <ands />
+				   <ors />
+				 </intercalaryrule>
+			   </exceptions>
+			   <ands />
+			   <ors />
+			 </intercalaryrule>
+		</intercalary>
 	  </intercalarydays>
-      <specialdays>
+	  <specialdays>
 	  </specialdays>
-      <nonweekdays />
-    </month>
-    <month>
-      <alias>firith</alias>
-      <shortname>fir</shortname>
-      <fullname>Firith</fullname>
-      <nominalorder>6</nominalorder>
-      <normaldays>54</normaldays>
-      <intercalarydays />
-      <specialdays>
+	  <nonweekdays />
+	</month>
+	<month>
+	  <alias>firith</alias>
+	  <shortname>fir</shortname>
+	  <fullname>Firith</fullname>
+	  <nominalorder>6</nominalorder>
+	  <normaldays>54</normaldays>
+	  <intercalarydays />
+	  <specialdays>
 	  </specialdays>
-      <nonweekdays />
-    </month>
-    <month>
-      <alias>rhiw</alias>
-      <shortname>rhi</shortname>
-      <fullname>Rhîw</fullname>
-      <nominalorder>7</nominalorder>
-      <normaldays>72</normaldays>
-      <intercalarydays />
-      <specialdays>
+	  <nonweekdays />
+	</month>
+	<month>
+	  <alias>rhiw</alias>
+	  <shortname>rhi</shortname>
+	  <fullname>Rhîw</fullname>
+	  <nominalorder>7</nominalorder>
+	  <normaldays>72</normaldays>
+	  <intercalarydays />
+	  <specialdays>
 	  </specialdays>
-      <nonweekdays />
-    </month>
-    <month>
-      <alias>echuir</alias>
-      <shortname>ech</shortname>
-      <fullname>Echuir</fullname>
-      <nominalorder>8</nominalorder>
-      <normaldays>54</normaldays>
-      <intercalarydays />
-      <specialdays>
+	  <nonweekdays />
+	</month>
+	<month>
+	  <alias>echuir</alias>
+	  <shortname>ech</shortname>
+	  <fullname>Echuir</fullname>
+	  <nominalorder>8</nominalorder>
+	  <normaldays>54</normaldays>
+	  <intercalarydays />
+	  <specialdays>
 	  </specialdays>
-      <nonweekdays />
-    </month>
-    <month>
-      <alias>penninor</alias>
-      <shortname>pen</shortname>
-      <fullname>Penninor</fullname>
-      <nominalorder>9</nominalorder>
-      <normaldays>1</normaldays>
-      <intercalarydays />
-      <specialdays>
+	  <nonweekdays />
+	</month>
+	<month>
+	  <alias>penninor</alias>
+	  <shortname>pen</shortname>
+	  <fullname>Penninor</fullname>
+	  <nominalorder>9</nominalorder>
+	  <normaldays>1</normaldays>
+	  <intercalarydays />
+	  <specialdays>
 	  </specialdays>
-      <nonweekdays />
-    </month>
+	  <nonweekdays />
+	</month>
   </months>
   <intercalarymonths>
   </intercalarymonths>
@@ -577,207 +577,207 @@ Your answer: ", (context, answers) => answers["mode"].EqualTo("middle-earth"), (
   <modernerashortstring>{modernShort}</modernerashortstring>
   <moderneralongstring>{modernLong}</moderneralongstring>
   <weekdays>
-    <weekday>Elenya</weekday>
-    <weekday>Anarya</weekday>
-    <weekday>Isilya</weekday>
-    <weekday>Aldëa</weekday>
-    <weekday>Menelya</weekday>
-    <weekday>Valanya</weekday>
+	<weekday>Elenya</weekday>
+	<weekday>Anarya</weekday>
+	<weekday>Isilya</weekday>
+	<weekday>Aldëa</weekday>
+	<weekday>Menelya</weekday>
+	<weekday>Valanya</weekday>
 	<weekday>Eärenya</weekday>
   </weekdays>
   <months>
 	<month>
-      <alias>yestare</alias>
-      <shortname>yes</shortname>
-      <fullname>Yestarë</fullname>
-      <nominalorder>1</nominalorder>
-      <normaldays>1</normaldays>
-      <intercalarydays />
-      <specialdays>
+	  <alias>yestare</alias>
+	  <shortname>yes</shortname>
+	  <fullname>Yestarë</fullname>
+	  <nominalorder>1</nominalorder>
+	  <normaldays>1</normaldays>
+	  <intercalarydays />
+	  <specialdays>
 	  </specialdays>
-      <nonweekdays />
-    </month>
-    <month>
-      <alias>narvinye</alias>
-      <shortname>nar</shortname>
-      <fullname>Narvinyë</fullname>
-      <nominalorder>2</nominalorder>
-      <normaldays>30</normaldays>
-      <intercalarydays />
-      <specialdays>
+	  <nonweekdays />
+	</month>
+	<month>
+	  <alias>narvinye</alias>
+	  <shortname>nar</shortname>
+	  <fullname>Narvinyë</fullname>
+	  <nominalorder>2</nominalorder>
+	  <normaldays>30</normaldays>
+	  <intercalarydays />
+	  <specialdays>
 	  </specialdays>
-      <nonweekdays />
-    </month>
-    <month>
-      <alias>nenime</alias>
-      <shortname>nen</shortname>
-      <fullname>Nénimë</fullname>
-      <nominalorder>3</nominalorder>
-      <normaldays>30</normaldays>
-      <intercalarydays />
-      <specialdays>
+	  <nonweekdays />
+	</month>
+	<month>
+	  <alias>nenime</alias>
+	  <shortname>nen</shortname>
+	  <fullname>Nénimë</fullname>
+	  <nominalorder>3</nominalorder>
+	  <normaldays>30</normaldays>
+	  <intercalarydays />
+	  <specialdays>
 	  </specialdays>
-      <nonweekdays />
-    </month>
-    <month>
-      <alias>sulime</alias>
-      <shortname>sul</shortname>
-      <fullname>Súlimë</fullname>
-      <nominalorder>4</nominalorder>
-      <normaldays>30</normaldays>
-      <intercalarydays />
-      <specialdays>
+	  <nonweekdays />
+	</month>
+	<month>
+	  <alias>sulime</alias>
+	  <shortname>sul</shortname>
+	  <fullname>Súlimë</fullname>
+	  <nominalorder>4</nominalorder>
+	  <normaldays>30</normaldays>
+	  <intercalarydays />
+	  <specialdays>
 	  </specialdays>
-      <nonweekdays />
-    </month>
-    <month>
-      <alias>viresse</alias>
-      <shortname>vir</shortname>
-      <fullname>Víressë</fullname>
-      <nominalorder>5</nominalorder>
-      <normaldays>30</normaldays>
-      <intercalarydays>
+	  <nonweekdays />
+	</month>
+	<month>
+	  <alias>viresse</alias>
+	  <shortname>vir</shortname>
+	  <fullname>Víressë</fullname>
+	  <nominalorder>5</nominalorder>
+	  <normaldays>30</normaldays>
+	  <intercalarydays>
 	  </intercalarydays>
-      <specialdays>
+	  <specialdays>
 	  </specialdays>
-      <nonweekdays />
-    </month>
-    <month>
-      <alias>lotesse</alias>
-      <shortname>lot</shortname>
-      <fullname>Lótessë</fullname>
-      <nominalorder>6</nominalorder>
-      <normaldays>30</normaldays>
-      <intercalarydays />
-      <specialdays>
+	  <nonweekdays />
+	</month>
+	<month>
+	  <alias>lotesse</alias>
+	  <shortname>lot</shortname>
+	  <fullname>Lótessë</fullname>
+	  <nominalorder>6</nominalorder>
+	  <normaldays>30</normaldays>
+	  <intercalarydays />
+	  <specialdays>
 	  </specialdays>
-      <nonweekdays />
-    </month>
-    <month>
-      <alias>narie</alias>
-      <shortname>nar</shortname>
-      <fullname>Nárië</fullname>
-      <nominalorder>7</nominalorder>
-      <normaldays>31</normaldays>
-      <intercalarydays />
-      <specialdays>
+	  <nonweekdays />
+	</month>
+	<month>
+	  <alias>narie</alias>
+	  <shortname>nar</shortname>
+	  <fullname>Nárië</fullname>
+	  <nominalorder>7</nominalorder>
+	  <normaldays>31</normaldays>
+	  <intercalarydays />
+	  <specialdays>
 	  </specialdays>
-      <nonweekdays />
-    </month>
-    <month>
-      <alias>Loende</alias>
-      <shortname>loe</shortname>
-      <fullname>Loëndë</fullname>
-      <nominalorder>8</nominalorder>
-      <normaldays>1</normaldays>
-      <intercalarydays>
+	  <nonweekdays />
+	</month>
+	<month>
+	  <alias>Loende</alias>
+	  <shortname>loe</shortname>
+	  <fullname>Loëndë</fullname>
+	  <nominalorder>8</nominalorder>
+	  <normaldays>1</normaldays>
+	  <intercalarydays>
 	  <intercalary>
- 		  <insertdays>1</insertdays>
- 		  <specialdays>
-           </specialdays>
+		  <insertdays>1</insertdays>
+		  <specialdays>
+		   </specialdays>
 			<nonweekdays>
-             </nonweekdays>
-             <removenonweekdays />
-             <removespecialdays />
-             <intercalaryrule>
-               <offset>0</offset>
-               <divisor>4</divisor>
-               <exceptions>
-                 <intercalaryrule>
-                   <offset>0</offset>
-                   <divisor>100</divisor>
-                   <exceptions>
-                   </exceptions>
-                   <ands />
-                   <ors />
-                 </intercalaryrule>
-               </exceptions>
-               <ands />
-               <ors />
-             </intercalaryrule>
- 		</intercalary>
+			 </nonweekdays>
+			 <removenonweekdays />
+			 <removespecialdays />
+			 <intercalaryrule>
+			   <offset>0</offset>
+			   <divisor>4</divisor>
+			   <exceptions>
+				 <intercalaryrule>
+				   <offset>0</offset>
+				   <divisor>100</divisor>
+				   <exceptions>
+				   </exceptions>
+				   <ands />
+				   <ors />
+				 </intercalaryrule>
+			   </exceptions>
+			   <ands />
+			   <ors />
+			 </intercalaryrule>
+		</intercalary>
 	  </intercalarydays>
-      <specialdays>
+	  <specialdays>
 	  </specialdays>
-      <nonweekdays />
-    </month>
-    <month>
-      <alias>cermie</alias>
-      <shortname>cer</shortname>
-      <fullname>Cermië</fullname>
-      <nominalorder>9</nominalorder>
-      <normaldays>31</normaldays>
-      <intercalarydays />
-      <specialdays>
-	  </specialdays>
-      <nonweekdays />
-    </month>
+	  <nonweekdays />
+	</month>
 	<month>
-      <alias>urime</alias>
-      <shortname>uri</shortname>
-      <fullname>Urimë</fullname>
-      <nominalorder>10</nominalorder>
-      <normaldays>30</normaldays>
-      <intercalarydays />
-      <specialdays>
+	  <alias>cermie</alias>
+	  <shortname>cer</shortname>
+	  <fullname>Cermië</fullname>
+	  <nominalorder>9</nominalorder>
+	  <normaldays>31</normaldays>
+	  <intercalarydays />
+	  <specialdays>
 	  </specialdays>
-      <nonweekdays />
-    </month>
+	  <nonweekdays />
+	</month>
 	<month>
-      <alias>yavannie</alias>
-      <shortname>yav</shortname>
-      <fullname>Yavannië</fullname>
-      <nominalorder>10</nominalorder>
-      <normaldays>30</normaldays>
-      <intercalarydays />
-      <specialdays>
+	  <alias>urime</alias>
+	  <shortname>uri</shortname>
+	  <fullname>Urimë</fullname>
+	  <nominalorder>10</nominalorder>
+	  <normaldays>30</normaldays>
+	  <intercalarydays />
+	  <specialdays>
 	  </specialdays>
-      <nonweekdays />
-    </month>
+	  <nonweekdays />
+	</month>
 	<month>
-      <alias>narquelie</alias>
-      <shortname>nar</shortname>
-      <fullname>Narquelië</fullname>
-      <nominalorder>11</nominalorder>
-      <normaldays>30</normaldays>
-      <intercalarydays />
-      <specialdays>
+	  <alias>yavannie</alias>
+	  <shortname>yav</shortname>
+	  <fullname>Yavannië</fullname>
+	  <nominalorder>10</nominalorder>
+	  <normaldays>30</normaldays>
+	  <intercalarydays />
+	  <specialdays>
 	  </specialdays>
-      <nonweekdays />
-    </month>
+	  <nonweekdays />
+	</month>
 	<month>
-      <alias>hisime</alias>
-      <shortname>his</shortname>
-      <fullname>Hísimë</fullname>
-      <nominalorder>12</nominalorder>
-      <normaldays>30</normaldays>
-      <intercalarydays />
-      <specialdays>
+	  <alias>narquelie</alias>
+	  <shortname>nar</shortname>
+	  <fullname>Narquelië</fullname>
+	  <nominalorder>11</nominalorder>
+	  <normaldays>30</normaldays>
+	  <intercalarydays />
+	  <specialdays>
 	  </specialdays>
-      <nonweekdays />
-    </month>
+	  <nonweekdays />
+	</month>
 	<month>
-      <alias>ringare</alias>
-      <shortname>rin</shortname>
-      <fullname>Ringarë</fullname>
-      <nominalorder>13</nominalorder>
-      <normaldays>30</normaldays>
-      <intercalarydays />
-      <specialdays>
+	  <alias>hisime</alias>
+	  <shortname>his</shortname>
+	  <fullname>Hísimë</fullname>
+	  <nominalorder>12</nominalorder>
+	  <normaldays>30</normaldays>
+	  <intercalarydays />
+	  <specialdays>
 	  </specialdays>
-      <nonweekdays />
-    </month>
+	  <nonweekdays />
+	</month>
 	<month>
-      <alias>mettare</alias>
-      <shortname>met</shortname>
-      <fullname>Mettarë</fullname>
-      <nominalorder>14</nominalorder>
-      <normaldays>1</normaldays>
-      <intercalarydays />
-      <specialdays>
+	  <alias>ringare</alias>
+	  <shortname>rin</shortname>
+	  <fullname>Ringarë</fullname>
+	  <nominalorder>13</nominalorder>
+	  <normaldays>30</normaldays>
+	  <intercalarydays />
+	  <specialdays>
 	  </specialdays>
-      <nonweekdays />
-    </month>
+	  <nonweekdays />
+	</month>
+	<month>
+	  <alias>mettare</alias>
+	  <shortname>met</shortname>
+	  <fullname>Mettarë</fullname>
+	  <nominalorder>14</nominalorder>
+	  <normaldays>1</normaldays>
+	  <intercalarydays />
+	  <specialdays>
+	  </specialdays>
+	  <nonweekdays />
+	</month>
   </months>
   <intercalarymonths>
   </intercalarymonths>
@@ -808,207 +808,207 @@ Your answer: ", (context, answers) => answers["mode"].EqualTo("middle-earth"), (
   <modernerashortstring>{modernShort}</modernerashortstring>
   <moderneralongstring>{modernLong}</moderneralongstring>
   <weekdays>
-    <weekday>Orgilion</weekday>
-    <weekday>Oranor</weekday>
-    <weekday>Orithil</weekday>
-    <weekday>Orgaladh</weekday>
-    <weekday>Ormenel</weekday>
-    <weekday>Orbelain</weekday>
+	<weekday>Orgilion</weekday>
+	<weekday>Oranor</weekday>
+	<weekday>Orithil</weekday>
+	<weekday>Orgaladh</weekday>
+	<weekday>Ormenel</weekday>
+	<weekday>Orbelain</weekday>
 	<weekday>Oraearon</weekday>
   </weekdays>
   <months>
 	<month>
-      <alias>yestare</alias>
-      <shortname>yes</shortname>
-      <fullname>Yestarë</fullname>
-      <nominalorder>1</nominalorder>
-      <normaldays>1</normaldays>
-      <intercalarydays />
-      <specialdays>
+	  <alias>yestare</alias>
+	  <shortname>yes</shortname>
+	  <fullname>Yestarë</fullname>
+	  <nominalorder>1</nominalorder>
+	  <normaldays>1</normaldays>
+	  <intercalarydays />
+	  <specialdays>
 	  </specialdays>
-      <nonweekdays />
-    </month>
-    <month>
-      <alias>narwain</alias>
-      <shortname>nar</shortname>
-      <fullname>Narwain</fullname>
-      <nominalorder>2</nominalorder>
-      <normaldays>30</normaldays>
-      <intercalarydays />
-      <specialdays>
+	  <nonweekdays />
+	</month>
+	<month>
+	  <alias>narwain</alias>
+	  <shortname>nar</shortname>
+	  <fullname>Narwain</fullname>
+	  <nominalorder>2</nominalorder>
+	  <normaldays>30</normaldays>
+	  <intercalarydays />
+	  <specialdays>
 	  </specialdays>
-      <nonweekdays />
-    </month>
-    <month>
-      <alias>ninui</alias>
-      <shortname>nin</shortname>
-      <fullname>Nínui</fullname>
-      <nominalorder>3</nominalorder>
-      <normaldays>30</normaldays>
-      <intercalarydays />
-      <specialdays>
+	  <nonweekdays />
+	</month>
+	<month>
+	  <alias>ninui</alias>
+	  <shortname>nin</shortname>
+	  <fullname>Nínui</fullname>
+	  <nominalorder>3</nominalorder>
+	  <normaldays>30</normaldays>
+	  <intercalarydays />
+	  <specialdays>
 	  </specialdays>
-      <nonweekdays />
-    </month>
-    <month>
-      <alias>gwaeron</alias>
-      <shortname>gwa</shortname>
-      <fullname>Gwaeron</fullname>
-      <nominalorder>4</nominalorder>
-      <normaldays>30</normaldays>
-      <intercalarydays />
-      <specialdays>
+	  <nonweekdays />
+	</month>
+	<month>
+	  <alias>gwaeron</alias>
+	  <shortname>gwa</shortname>
+	  <fullname>Gwaeron</fullname>
+	  <nominalorder>4</nominalorder>
+	  <normaldays>30</normaldays>
+	  <intercalarydays />
+	  <specialdays>
 	  </specialdays>
-      <nonweekdays />
-    </month>
-    <month>
-      <alias>gwirith</alias>
-      <shortname>gwi</shortname>
-      <fullname>Gwirith</fullname>
-      <nominalorder>5</nominalorder>
-      <normaldays>30</normaldays>
-      <intercalarydays>
+	  <nonweekdays />
+	</month>
+	<month>
+	  <alias>gwirith</alias>
+	  <shortname>gwi</shortname>
+	  <fullname>Gwirith</fullname>
+	  <nominalorder>5</nominalorder>
+	  <normaldays>30</normaldays>
+	  <intercalarydays>
 	  </intercalarydays>
-      <specialdays>
+	  <specialdays>
 	  </specialdays>
-      <nonweekdays />
-    </month>
-    <month>
-      <alias>lothron</alias>
-      <shortname>lot</shortname>
-      <fullname>Lothron</fullname>
-      <nominalorder>6</nominalorder>
-      <normaldays>30</normaldays>
-      <intercalarydays />
-      <specialdays>
+	  <nonweekdays />
+	</month>
+	<month>
+	  <alias>lothron</alias>
+	  <shortname>lot</shortname>
+	  <fullname>Lothron</fullname>
+	  <nominalorder>6</nominalorder>
+	  <normaldays>30</normaldays>
+	  <intercalarydays />
+	  <specialdays>
 	  </specialdays>
-      <nonweekdays />
-    </month>
-    <month>
-      <alias>norui</alias>
-      <shortname>nor</shortname>
-      <fullname>Nórui</fullname>
-      <nominalorder>7</nominalorder>
-      <normaldays>31</normaldays>
-      <intercalarydays />
-      <specialdays>
+	  <nonweekdays />
+	</month>
+	<month>
+	  <alias>norui</alias>
+	  <shortname>nor</shortname>
+	  <fullname>Nórui</fullname>
+	  <nominalorder>7</nominalorder>
+	  <normaldays>31</normaldays>
+	  <intercalarydays />
+	  <specialdays>
 	  </specialdays>
-      <nonweekdays />
-    </month>
-    <month>
-      <alias>enedhin</alias>
-      <shortname>ene</shortname>
-      <fullname>Enedhin</fullname>
-      <nominalorder>8</nominalorder>
-      <normaldays>1</normaldays>
-      <intercalarydays>
+	  <nonweekdays />
+	</month>
+	<month>
+	  <alias>enedhin</alias>
+	  <shortname>ene</shortname>
+	  <fullname>Enedhin</fullname>
+	  <nominalorder>8</nominalorder>
+	  <normaldays>1</normaldays>
+	  <intercalarydays>
 	  <intercalary>
- 		  <insertdays>1</insertdays>
- 		  <specialdays>
-           </specialdays>
+		  <insertdays>1</insertdays>
+		  <specialdays>
+		   </specialdays>
 			<nonweekdays>
-             </nonweekdays>
-             <removenonweekdays />
-             <removespecialdays />
-             <intercalaryrule>
-               <offset>0</offset>
-               <divisor>4</divisor>
-               <exceptions>
-                 <intercalaryrule>
-                   <offset>0</offset>
-                   <divisor>100</divisor>
-                   <exceptions>
-                   </exceptions>
-                   <ands />
-                   <ors />
-                 </intercalaryrule>
-               </exceptions>
-               <ands />
-               <ors />
-             </intercalaryrule>
- 		</intercalary>
+			 </nonweekdays>
+			 <removenonweekdays />
+			 <removespecialdays />
+			 <intercalaryrule>
+			   <offset>0</offset>
+			   <divisor>4</divisor>
+			   <exceptions>
+				 <intercalaryrule>
+				   <offset>0</offset>
+				   <divisor>100</divisor>
+				   <exceptions>
+				   </exceptions>
+				   <ands />
+				   <ors />
+				 </intercalaryrule>
+			   </exceptions>
+			   <ands />
+			   <ors />
+			 </intercalaryrule>
+		</intercalary>
 	  </intercalarydays>
-      <specialdays>
+	  <specialdays>
 	  </specialdays>
-      <nonweekdays />
-    </month>
-    <month>
-      <alias>cerveth</alias>
-      <shortname>cer</shortname>
-      <fullname>Cerveth</fullname>
-      <nominalorder>9</nominalorder>
-      <normaldays>31</normaldays>
-      <intercalarydays />
-      <specialdays>
-	  </specialdays>
-      <nonweekdays />
-    </month>
+	  <nonweekdays />
+	</month>
 	<month>
-      <alias>urui</alias>
-      <shortname>uru</shortname>
-      <fullname>Urui</fullname>
-      <nominalorder>10</nominalorder>
-      <normaldays>30</normaldays>
-      <intercalarydays />
-      <specialdays>
+	  <alias>cerveth</alias>
+	  <shortname>cer</shortname>
+	  <fullname>Cerveth</fullname>
+	  <nominalorder>9</nominalorder>
+	  <normaldays>31</normaldays>
+	  <intercalarydays />
+	  <specialdays>
 	  </specialdays>
-      <nonweekdays />
-    </month>
+	  <nonweekdays />
+	</month>
 	<month>
-      <alias>ivanneth</alias>
-      <shortname>iva</shortname>
-      <fullname>Ivanneth</fullname>
-      <nominalorder>10</nominalorder>
-      <normaldays>30</normaldays>
-      <intercalarydays />
-      <specialdays>
+	  <alias>urui</alias>
+	  <shortname>uru</shortname>
+	  <fullname>Urui</fullname>
+	  <nominalorder>10</nominalorder>
+	  <normaldays>30</normaldays>
+	  <intercalarydays />
+	  <specialdays>
 	  </specialdays>
-      <nonweekdays />
-    </month>
+	  <nonweekdays />
+	</month>
 	<month>
-      <alias>narbeleth</alias>
-      <shortname>nar</shortname>
-      <fullname>Narbeleth</fullname>
-      <nominalorder>11</nominalorder>
-      <normaldays>30</normaldays>
-      <intercalarydays />
-      <specialdays>
+	  <alias>ivanneth</alias>
+	  <shortname>iva</shortname>
+	  <fullname>Ivanneth</fullname>
+	  <nominalorder>10</nominalorder>
+	  <normaldays>30</normaldays>
+	  <intercalarydays />
+	  <specialdays>
 	  </specialdays>
-      <nonweekdays />
-    </month>
+	  <nonweekdays />
+	</month>
 	<month>
-      <alias>hithui</alias>
-      <shortname>hit</shortname>
-      <fullname>Hithui</fullname>
-      <nominalorder>12</nominalorder>
-      <normaldays>30</normaldays>
-      <intercalarydays />
-      <specialdays>
+	  <alias>narbeleth</alias>
+	  <shortname>nar</shortname>
+	  <fullname>Narbeleth</fullname>
+	  <nominalorder>11</nominalorder>
+	  <normaldays>30</normaldays>
+	  <intercalarydays />
+	  <specialdays>
 	  </specialdays>
-      <nonweekdays />
-    </month>
+	  <nonweekdays />
+	</month>
 	<month>
-      <alias>Girithron</alias>
-      <shortname>gir</shortname>
-      <fullname>Girithron</fullname>
-      <nominalorder>13</nominalorder>
-      <normaldays>30</normaldays>
-      <intercalarydays />
-      <specialdays>
+	  <alias>hithui</alias>
+	  <shortname>hit</shortname>
+	  <fullname>Hithui</fullname>
+	  <nominalorder>12</nominalorder>
+	  <normaldays>30</normaldays>
+	  <intercalarydays />
+	  <specialdays>
 	  </specialdays>
-      <nonweekdays />
-    </month>
+	  <nonweekdays />
+	</month>
 	<month>
-      <alias>penninor</alias>
-      <shortname>pen</shortname>
-      <fullname>Penninor</fullname>
-      <nominalorder>14</nominalorder>
-      <normaldays>1</normaldays>
-      <intercalarydays />
-      <specialdays>
+	  <alias>Girithron</alias>
+	  <shortname>gir</shortname>
+	  <fullname>Girithron</fullname>
+	  <nominalorder>13</nominalorder>
+	  <normaldays>30</normaldays>
+	  <intercalarydays />
+	  <specialdays>
 	  </specialdays>
-      <nonweekdays />
-    </month>
+	  <nonweekdays />
+	</month>
+	<month>
+	  <alias>penninor</alias>
+	  <shortname>pen</shortname>
+	  <fullname>Penninor</fullname>
+	  <nominalorder>14</nominalorder>
+	  <normaldays>1</normaldays>
+	  <intercalarydays />
+	  <specialdays>
+	  </specialdays>
+	  <nonweekdays />
+	</month>
   </months>
   <intercalarymonths>
   </intercalarymonths>
@@ -1039,209 +1039,209 @@ Your answer: ", (context, answers) => answers["mode"].EqualTo("middle-earth"), (
   <modernerashortstring>{modernShort}</modernerashortstring>
   <moderneralongstring>{modernLong}</moderneralongstring>
   <weekdays>
-    <weekday>Sterday</weekday>
-    <weekday>Sunday</weekday>
-    <weekday>Monday</weekday>
-    <weekday>Trewsday</weekday>
-    <weekday>Hensday</weekday>
-    <weekday>Mersday</weekday>
+	<weekday>Sterday</weekday>
+	<weekday>Sunday</weekday>
+	<weekday>Monday</weekday>
+	<weekday>Trewsday</weekday>
+	<weekday>Hensday</weekday>
+	<weekday>Mersday</weekday>
 	<weekday>Highday</weekday>
   </weekdays>
   <months>
 	<month>
-      <alias>firstyul</alias>
-      <shortname>yul1</shortname>
-      <fullname>First Yule</fullname>
-      <nominalorder>1</nominalorder>
-      <normaldays>1</normaldays>
-      <intercalarydays />
-      <specialdays>
+	  <alias>firstyul</alias>
+	  <shortname>yul1</shortname>
+	  <fullname>First Yule</fullname>
+	  <nominalorder>1</nominalorder>
+	  <normaldays>1</normaldays>
+	  <intercalarydays />
+	  <specialdays>
 	  </specialdays>
-      <nonweekdays />
-    </month>
-    <month>
-      <alias>afteryule</alias>
-      <shortname>ayu</shortname>
-      <fullname>Afteryule</fullname>
-      <nominalorder>2</nominalorder>
-      <normaldays>30</normaldays>
-      <intercalarydays />
-      <specialdays>
+	  <nonweekdays />
+	</month>
+	<month>
+	  <alias>afteryule</alias>
+	  <shortname>ayu</shortname>
+	  <fullname>Afteryule</fullname>
+	  <nominalorder>2</nominalorder>
+	  <normaldays>30</normaldays>
+	  <intercalarydays />
+	  <specialdays>
 	  </specialdays>
-      <nonweekdays />
-    </month>
-    <month>
-      <alias>solmath</alias>
-      <shortname>sol</shortname>
-      <fullname>Solmath</fullname>
-      <nominalorder>3</nominalorder>
-      <normaldays>30</normaldays>
-      <intercalarydays />
-      <specialdays>
+	  <nonweekdays />
+	</month>
+	<month>
+	  <alias>solmath</alias>
+	  <shortname>sol</shortname>
+	  <fullname>Solmath</fullname>
+	  <nominalorder>3</nominalorder>
+	  <normaldays>30</normaldays>
+	  <intercalarydays />
+	  <specialdays>
 	  </specialdays>
-      <nonweekdays />
-    </month>
-    <month>
-      <alias>rethe</alias>
-      <shortname>ret</shortname>
-      <fullname>Rethe</fullname>
-      <nominalorder>4</nominalorder>
-      <normaldays>30</normaldays>
-      <intercalarydays />
-      <specialdays>
+	  <nonweekdays />
+	</month>
+	<month>
+	  <alias>rethe</alias>
+	  <shortname>ret</shortname>
+	  <fullname>Rethe</fullname>
+	  <nominalorder>4</nominalorder>
+	  <normaldays>30</normaldays>
+	  <intercalarydays />
+	  <specialdays>
 	  </specialdays>
-      <nonweekdays />
-    </month>
-    <month>
-      <alias>astron</alias>
-      <shortname>ast</shortname>
-      <fullname>Astron</fullname>
-      <nominalorder>5</nominalorder>
-      <normaldays>30</normaldays>
-      <intercalarydays>
+	  <nonweekdays />
+	</month>
+	<month>
+	  <alias>astron</alias>
+	  <shortname>ast</shortname>
+	  <fullname>Astron</fullname>
+	  <nominalorder>5</nominalorder>
+	  <normaldays>30</normaldays>
+	  <intercalarydays>
 	  </intercalarydays>
-      <specialdays>
+	  <specialdays>
 	  </specialdays>
-      <nonweekdays />
-    </month>
-    <month>
-      <alias>thrimidge</alias>
-      <shortname>thr</shortname>
-      <fullname>Thrimidge</fullname>
-      <nominalorder>6</nominalorder>
-      <normaldays>30</normaldays>
-      <intercalarydays />
-      <specialdays>
+	  <nonweekdays />
+	</month>
+	<month>
+	  <alias>thrimidge</alias>
+	  <shortname>thr</shortname>
+	  <fullname>Thrimidge</fullname>
+	  <nominalorder>6</nominalorder>
+	  <normaldays>30</normaldays>
+	  <intercalarydays />
+	  <specialdays>
 	  </specialdays>
-      <nonweekdays />
-    </month>
-    <month>
-      <alias>forelithe</alias>
-      <shortname>for</shortname>
-      <fullname>Forelithe</fullname>
-      <nominalorder>7</nominalorder>
-      <normaldays>30</normaldays>
-      <intercalarydays />
-      <specialdays>
+	  <nonweekdays />
+	</month>
+	<month>
+	  <alias>forelithe</alias>
+	  <shortname>for</shortname>
+	  <fullname>Forelithe</fullname>
+	  <nominalorder>7</nominalorder>
+	  <normaldays>30</normaldays>
+	  <intercalarydays />
+	  <specialdays>
 	  </specialdays>
-      <nonweekdays />
-    </month>
-    <month>
-      <alias>lithe</alias>
-      <shortname>lit</shortname>
-      <fullname>Lithe</fullname>
-      <nominalorder>8</nominalorder>
-      <normaldays>3</normaldays>
-      <intercalarydays>
+	  <nonweekdays />
+	</month>
+	<month>
+	  <alias>lithe</alias>
+	  <shortname>lit</shortname>
+	  <fullname>Lithe</fullname>
+	  <nominalorder>8</nominalorder>
+	  <normaldays>3</normaldays>
+	  <intercalarydays>
 	  <intercalary>
- 		  <insertdays>1</insertdays>
- 		  <specialdays>
+		  <insertdays>1</insertdays>
+		  <specialdays>
 			<specialday day=""3"" short=""Overlithe"" long=""Overlithe"" />
-           </specialdays>
+		   </specialdays>
 			<nonweekdays>
-             </nonweekdays>
-             <removenonweekdays />
-             <removespecialdays />
-             <intercalaryrule>
-               <offset>0</offset>
-               <divisor>4</divisor>
-               <exceptions>
-                 <intercalaryrule>
-                   <offset>0</offset>
-                   <divisor>100</divisor>
-                   <exceptions>
-                   </exceptions>
-                   <ands />
-                   <ors />
-                 </intercalaryrule>
-               </exceptions>
-               <ands />
-               <ors />
-             </intercalaryrule>
- 		</intercalary>
+			 </nonweekdays>
+			 <removenonweekdays />
+			 <removespecialdays />
+			 <intercalaryrule>
+			   <offset>0</offset>
+			   <divisor>4</divisor>
+			   <exceptions>
+				 <intercalaryrule>
+				   <offset>0</offset>
+				   <divisor>100</divisor>
+				   <exceptions>
+				   </exceptions>
+				   <ands />
+				   <ors />
+				 </intercalaryrule>
+			   </exceptions>
+			   <ands />
+			   <ors />
+			 </intercalaryrule>
+		</intercalary>
 	  </intercalarydays>
-      <specialdays>
+	  <specialdays>
 		<specialday day=""2"" short=""Midyear's Day"" long=""Midyear's Day"" />
 	  </specialdays>
-      <nonweekdays />
-    </month>
-    <month>
-      <alias>afterlithe</alias>
-      <shortname>aft</shortname>
-      <fullname>Afterlithe</fullname>
-      <nominalorder>9</nominalorder>
-      <normaldays>30</normaldays>
-      <intercalarydays />
-      <specialdays>
-	  </specialdays>
-      <nonweekdays />
-    </month>
+	  <nonweekdays />
+	</month>
 	<month>
-      <alias>wedmath</alias>
-      <shortname>wed</shortname>
-      <fullname>Wedmath</fullname>
-      <nominalorder>10</nominalorder>
-      <normaldays>30</normaldays>
-      <intercalarydays />
-      <specialdays>
+	  <alias>afterlithe</alias>
+	  <shortname>aft</shortname>
+	  <fullname>Afterlithe</fullname>
+	  <nominalorder>9</nominalorder>
+	  <normaldays>30</normaldays>
+	  <intercalarydays />
+	  <specialdays>
 	  </specialdays>
-      <nonweekdays />
-    </month>
+	  <nonweekdays />
+	</month>
 	<month>
-      <alias>halimath</alias>
-      <shortname>hal</shortname>
-      <fullname>Halimath</fullname>
-      <nominalorder>10</nominalorder>
-      <normaldays>30</normaldays>
-      <intercalarydays />
-      <specialdays>
+	  <alias>wedmath</alias>
+	  <shortname>wed</shortname>
+	  <fullname>Wedmath</fullname>
+	  <nominalorder>10</nominalorder>
+	  <normaldays>30</normaldays>
+	  <intercalarydays />
+	  <specialdays>
 	  </specialdays>
-      <nonweekdays />
-    </month>
+	  <nonweekdays />
+	</month>
 	<month>
-      <alias>winterfilth</alias>
-      <shortname>win</shortname>
-      <fullname>Winterfilth</fullname>
-      <nominalorder>11</nominalorder>
-      <normaldays>30</normaldays>
-      <intercalarydays />
-      <specialdays>
+	  <alias>halimath</alias>
+	  <shortname>hal</shortname>
+	  <fullname>Halimath</fullname>
+	  <nominalorder>10</nominalorder>
+	  <normaldays>30</normaldays>
+	  <intercalarydays />
+	  <specialdays>
 	  </specialdays>
-      <nonweekdays />
-    </month>
+	  <nonweekdays />
+	</month>
 	<month>
-      <alias>blotmath</alias>
-      <shortname>blo</shortname>
-      <fullname>Blotmath</fullname>
-      <nominalorder>12</nominalorder>
-      <normaldays>30</normaldays>
-      <intercalarydays />
-      <specialdays>
+	  <alias>winterfilth</alias>
+	  <shortname>win</shortname>
+	  <fullname>Winterfilth</fullname>
+	  <nominalorder>11</nominalorder>
+	  <normaldays>30</normaldays>
+	  <intercalarydays />
+	  <specialdays>
 	  </specialdays>
-      <nonweekdays />
-    </month>
+	  <nonweekdays />
+	</month>
 	<month>
-      <alias>foreyule</alias>
-      <shortname>fry</shortname>
-      <fullname>Foreyule</fullname>
-      <nominalorder>13</nominalorder>
-      <normaldays>30</normaldays>
-      <intercalarydays />
-      <specialdays>
+	  <alias>blotmath</alias>
+	  <shortname>blo</shortname>
+	  <fullname>Blotmath</fullname>
+	  <nominalorder>12</nominalorder>
+	  <normaldays>30</normaldays>
+	  <intercalarydays />
+	  <specialdays>
 	  </specialdays>
-      <nonweekdays />
-    </month>
+	  <nonweekdays />
+	</month>
 	<month>
-      <alias>lastyule</alias>
-      <shortname>yul2</shortname>
-      <fullname>Last Yule</fullname>
-      <nominalorder>14</nominalorder>
-      <normaldays>1</normaldays>
-      <intercalarydays />
-      <specialdays>
+	  <alias>foreyule</alias>
+	  <shortname>fry</shortname>
+	  <fullname>Foreyule</fullname>
+	  <nominalorder>13</nominalorder>
+	  <normaldays>30</normaldays>
+	  <intercalarydays />
+	  <specialdays>
 	  </specialdays>
-      <nonweekdays />
-    </month>
+	  <nonweekdays />
+	</month>
+	<month>
+	  <alias>lastyule</alias>
+	  <shortname>yul2</shortname>
+	  <fullname>Last Yule</fullname>
+	  <nominalorder>14</nominalorder>
+	  <normaldays>1</normaldays>
+	  <intercalarydays />
+	  <specialdays>
+	  </specialdays>
+	  <nonweekdays />
+	</month>
   </months>
   <intercalarymonths>
   </intercalarymonths>
@@ -1272,231 +1272,231 @@ Your answer: ", (context, answers) => answers["mode"].EqualTo("middle-earth"), (
   <modernerashortstring>{modernShort}</modernerashortstring>
   <moderneralongstring>{modernLong}</moderneralongstring>
   <weekdays>
-    <weekday>Elenya</weekday>
-    <weekday>Anarya</weekday>
-    <weekday>Isilya</weekday>
-    <weekday>Aldëa</weekday>
-    <weekday>Menelya</weekday>
-    <weekday>Valanya</weekday>
+	<weekday>Elenya</weekday>
+	<weekday>Anarya</weekday>
+	<weekday>Isilya</weekday>
+	<weekday>Aldëa</weekday>
+	<weekday>Menelya</weekday>
+	<weekday>Valanya</weekday>
 	<weekday>Eärenya</weekday>
   </weekdays>
   <months>
 	<month>
-      <alias>yestare</alias>
-      <shortname>yes</shortname>
-      <fullname>Yestarë</fullname>
-      <nominalorder>1</nominalorder>
-      <normaldays>1</normaldays>
-      <intercalarydays />
-      <specialdays>
+	  <alias>yestare</alias>
+	  <shortname>yes</shortname>
+	  <fullname>Yestarë</fullname>
+	  <nominalorder>1</nominalorder>
+	  <normaldays>1</normaldays>
+	  <intercalarydays />
+	  <specialdays>
 	  </specialdays>
-      <nonweekdays />
-    </month>
-    <month>
-      <alias>narvinye</alias>
-      <shortname>nar</shortname>
-      <fullname>Narvinyë</fullname>
-      <nominalorder>2</nominalorder>
-      <normaldays>30</normaldays>
-      <intercalarydays />
-      <specialdays>
-	  </specialdays>
-      <nonweekdays />
-    </month>
-    <month>
-      <alias>nenime</alias>
-      <shortname>nen</shortname>
-      <fullname>Nénimë</fullname>
-      <nominalorder>3</nominalorder>
-      <normaldays>30</normaldays>
-      <intercalarydays />
-      <specialdays>
-	  </specialdays>
-      <nonweekdays />
-    </month>
-    <month>
-      <alias>sulime</alias>
-      <shortname>sul</shortname>
-      <fullname>Súlimë</fullname>
-      <nominalorder>4</nominalorder>
-      <normaldays>30</normaldays>
-      <intercalarydays />
-      <specialdays>
-	  </specialdays>
-      <nonweekdays />
-    </month>
+	  <nonweekdays />
+	</month>
 	<month>
-      <alias>tuilere</alias>
-      <shortname>tul</shortname>
-      <fullname>Tuilérë</fullname>
-      <nominalorder>5</nominalorder>
-      <normaldays>1</normaldays>
-      <intercalarydays />
-      <specialdays>
+	  <alias>narvinye</alias>
+	  <shortname>nar</shortname>
+	  <fullname>Narvinyë</fullname>
+	  <nominalorder>2</nominalorder>
+	  <normaldays>30</normaldays>
+	  <intercalarydays />
+	  <specialdays>
+	  </specialdays>
+	  <nonweekdays />
+	</month>
+	<month>
+	  <alias>nenime</alias>
+	  <shortname>nen</shortname>
+	  <fullname>Nénimë</fullname>
+	  <nominalorder>3</nominalorder>
+	  <normaldays>30</normaldays>
+	  <intercalarydays />
+	  <specialdays>
+	  </specialdays>
+	  <nonweekdays />
+	</month>
+	<month>
+	  <alias>sulime</alias>
+	  <shortname>sul</shortname>
+	  <fullname>Súlimë</fullname>
+	  <nominalorder>4</nominalorder>
+	  <normaldays>30</normaldays>
+	  <intercalarydays />
+	  <specialdays>
+	  </specialdays>
+	  <nonweekdays />
+	</month>
+	<month>
+	  <alias>tuilere</alias>
+	  <shortname>tul</shortname>
+	  <fullname>Tuilérë</fullname>
+	  <nominalorder>5</nominalorder>
+	  <normaldays>1</normaldays>
+	  <intercalarydays />
+	  <specialdays>
 		<specialday day=""1"" short=""Spring Day"" long=""Spring Day"" />
 	  </specialdays>
-      <nonweekdays />
-    </month>
-    <month>
-      <alias>viresse</alias>
-      <shortname>vir</shortname>
-      <fullname>Víressë</fullname>
-      <nominalorder>6</nominalorder>
-      <normaldays>30</normaldays>
-      <intercalarydays>
+	  <nonweekdays />
+	</month>
+	<month>
+	  <alias>viresse</alias>
+	  <shortname>vir</shortname>
+	  <fullname>Víressë</fullname>
+	  <nominalorder>6</nominalorder>
+	  <normaldays>30</normaldays>
+	  <intercalarydays>
 	  </intercalarydays>
-      <specialdays>
+	  <specialdays>
 	  </specialdays>
-      <nonweekdays />
-    </month>
-    <month>
-      <alias>lotesse</alias>
-      <shortname>lot</shortname>
-      <fullname>Lótessë</fullname>
-      <nominalorder>7</nominalorder>
-      <normaldays>30</normaldays>
-      <intercalarydays />
-      <specialdays>
+	  <nonweekdays />
+	</month>
+	<month>
+	  <alias>lotesse</alias>
+	  <shortname>lot</shortname>
+	  <fullname>Lótessë</fullname>
+	  <nominalorder>7</nominalorder>
+	  <normaldays>30</normaldays>
+	  <intercalarydays />
+	  <specialdays>
 	  </specialdays>
-      <nonweekdays />
-    </month>
-    <month>
-      <alias>narie</alias>
-      <shortname>nar</shortname>
-      <fullname>Nárië</fullname>
-      <nominalorder>8</nominalorder>
-      <normaldays>30</normaldays>
-      <intercalarydays />
-      <specialdays>
+	  <nonweekdays />
+	</month>
+	<month>
+	  <alias>narie</alias>
+	  <shortname>nar</shortname>
+	  <fullname>Nárië</fullname>
+	  <nominalorder>8</nominalorder>
+	  <normaldays>30</normaldays>
+	  <intercalarydays />
+	  <specialdays>
 	  </specialdays>
-      <nonweekdays />
-    </month>
-    <month>
-      <alias>Loende</alias>
-      <shortname>loe</shortname>
-      <fullname>Loëndë</fullname>
-      <nominalorder>9</nominalorder>
-      <normaldays>1</normaldays>
-      <intercalarydays>
+	  <nonweekdays />
+	</month>
+	<month>
+	  <alias>Loende</alias>
+	  <shortname>loe</shortname>
+	  <fullname>Loëndë</fullname>
+	  <nominalorder>9</nominalorder>
+	  <normaldays>1</normaldays>
+	  <intercalarydays>
 	  <intercalary>
- 		  <insertdays>1</insertdays>
- 		  <specialdays>
-           </specialdays>
+		  <insertdays>1</insertdays>
+		  <specialdays>
+		   </specialdays>
 			<nonweekdays>
-             </nonweekdays>
-             <removenonweekdays />
-             <removespecialdays />
-             <intercalaryrule>
-               <offset>0</offset>
-               <divisor>4</divisor>
-               <exceptions>
-                 <intercalaryrule>
-                   <offset>0</offset>
-                   <divisor>100</divisor>
-                   <exceptions>
-                   </exceptions>
-                   <ands />
-                   <ors />
-                 </intercalaryrule>
-               </exceptions>
-               <ands />
-               <ors />
-             </intercalaryrule>
- 		</intercalary>
+			 </nonweekdays>
+			 <removenonweekdays />
+			 <removespecialdays />
+			 <intercalaryrule>
+			   <offset>0</offset>
+			   <divisor>4</divisor>
+			   <exceptions>
+				 <intercalaryrule>
+				   <offset>0</offset>
+				   <divisor>100</divisor>
+				   <exceptions>
+				   </exceptions>
+				   <ands />
+				   <ors />
+				 </intercalaryrule>
+			   </exceptions>
+			   <ands />
+			   <ors />
+			 </intercalaryrule>
+		</intercalary>
 	  </intercalarydays>
-      <specialdays>
+	  <specialdays>
 	  </specialdays>
-      <nonweekdays />
-    </month>
-    <month>
-      <alias>cermie</alias>
-      <shortname>cer</shortname>
-      <fullname>Cermië</fullname>
-      <nominalorder>10</nominalorder>
-      <normaldays>30</normaldays>
-      <intercalarydays />
-      <specialdays>
-	  </specialdays>
-      <nonweekdays />
-    </month>
+	  <nonweekdays />
+	</month>
 	<month>
-      <alias>urime</alias>
-      <shortname>uri</shortname>
-      <fullname>Urimë</fullname>
-      <nominalorder>11</nominalorder>
-      <normaldays>30</normaldays>
-      <intercalarydays />
-      <specialdays>
+	  <alias>cermie</alias>
+	  <shortname>cer</shortname>
+	  <fullname>Cermië</fullname>
+	  <nominalorder>10</nominalorder>
+	  <normaldays>30</normaldays>
+	  <intercalarydays />
+	  <specialdays>
 	  </specialdays>
-      <nonweekdays />
-    </month>
+	  <nonweekdays />
+	</month>
 	<month>
-      <alias>yavannie</alias>
-      <shortname>yav</shortname>
-      <fullname>Yavannië</fullname>
-      <nominalorder>12</nominalorder>
-      <normaldays>30</normaldays>
-      <intercalarydays />
-      <specialdays>
+	  <alias>urime</alias>
+	  <shortname>uri</shortname>
+	  <fullname>Urimë</fullname>
+	  <nominalorder>11</nominalorder>
+	  <normaldays>30</normaldays>
+	  <intercalarydays />
+	  <specialdays>
 	  </specialdays>
-      <nonweekdays />
-    </month>
+	  <nonweekdays />
+	</month>
 	<month>
-      <alias>yaviere</alias>
-      <shortname>yve</shortname>
-      <fullname>Yáviérë</fullname>
-      <nominalorder>13</nominalorder>
-      <normaldays>1</normaldays>
-      <intercalarydays />
-      <specialdays>
+	  <alias>yavannie</alias>
+	  <shortname>yav</shortname>
+	  <fullname>Yavannië</fullname>
+	  <nominalorder>12</nominalorder>
+	  <normaldays>30</normaldays>
+	  <intercalarydays />
+	  <specialdays>
+	  </specialdays>
+	  <nonweekdays />
+	</month>
+	<month>
+	  <alias>yaviere</alias>
+	  <shortname>yve</shortname>
+	  <fullname>Yáviérë</fullname>
+	  <nominalorder>13</nominalorder>
+	  <normaldays>1</normaldays>
+	  <intercalarydays />
+	  <specialdays>
 		<specialday day=""1"" short=""Harvest Day"" long=""Harvest Day"" />
 	  </specialdays>
-      <nonweekdays />
-    </month>
+	  <nonweekdays />
+	</month>
 	<month>
-      <alias>narquelie</alias>
-      <shortname>nar</shortname>
-      <fullname>Narquelië</fullname>
-      <nominalorder>14</nominalorder>
-      <normaldays>30</normaldays>
-      <intercalarydays />
-      <specialdays>
+	  <alias>narquelie</alias>
+	  <shortname>nar</shortname>
+	  <fullname>Narquelië</fullname>
+	  <nominalorder>14</nominalorder>
+	  <normaldays>30</normaldays>
+	  <intercalarydays />
+	  <specialdays>
 	  </specialdays>
-      <nonweekdays />
-    </month>
+	  <nonweekdays />
+	</month>
 	<month>
-      <alias>hisime</alias>
-      <shortname>his</shortname>
-      <fullname>Hísimë</fullname>
-      <nominalorder>15</nominalorder>
-      <normaldays>30</normaldays>
-      <intercalarydays />
-      <specialdays>
+	  <alias>hisime</alias>
+	  <shortname>his</shortname>
+	  <fullname>Hísimë</fullname>
+	  <nominalorder>15</nominalorder>
+	  <normaldays>30</normaldays>
+	  <intercalarydays />
+	  <specialdays>
 	  </specialdays>
-      <nonweekdays />
-    </month>
+	  <nonweekdays />
+	</month>
 	<month>
-      <alias>ringare</alias>
-      <shortname>rin</shortname>
-      <fullname>Ringarë</fullname>
-      <nominalorder>16</nominalorder>
-      <normaldays>30</normaldays>
-      <intercalarydays />
-      <specialdays>
+	  <alias>ringare</alias>
+	  <shortname>rin</shortname>
+	  <fullname>Ringarë</fullname>
+	  <nominalorder>16</nominalorder>
+	  <normaldays>30</normaldays>
+	  <intercalarydays />
+	  <specialdays>
 	  </specialdays>
-      <nonweekdays />
-    </month>
+	  <nonweekdays />
+	</month>
 	<month>
-      <alias>mettare</alias>
-      <shortname>met</shortname>
-      <fullname>Mettarë</fullname>
-      <nominalorder>17</nominalorder>
-      <normaldays>1</normaldays>
-      <intercalarydays />
-      <specialdays>
+	  <alias>mettare</alias>
+	  <shortname>met</shortname>
+	  <fullname>Mettarë</fullname>
+	  <nominalorder>17</nominalorder>
+	  <normaldays>1</normaldays>
+	  <intercalarydays />
+	  <specialdays>
 	  </specialdays>
-      <nonweekdays />
-    </month>
+	  <nonweekdays />
+	</month>
   </months>
   <intercalarymonths>
   </intercalarymonths>
@@ -1527,231 +1527,231 @@ Your answer: ", (context, answers) => answers["mode"].EqualTo("middle-earth"), (
   <modernerashortstring>{modernShort}</modernerashortstring>
   <moderneralongstring>{modernLong}</moderneralongstring>
   <weekdays>
-    <weekday>Orgilion</weekday>
-    <weekday>Oranor</weekday>
-    <weekday>Orithil</weekday>
-    <weekday>Orgaladh</weekday>
-    <weekday>Ormenel</weekday>
-    <weekday>Orbelain</weekday>
+	<weekday>Orgilion</weekday>
+	<weekday>Oranor</weekday>
+	<weekday>Orithil</weekday>
+	<weekday>Orgaladh</weekday>
+	<weekday>Ormenel</weekday>
+	<weekday>Orbelain</weekday>
 	<weekday>Oraearon</weekday>
   </weekdays>
   <months>
 	<month>
-      <alias>yestare</alias>
-      <shortname>yes</shortname>
-      <fullname>Yestarë</fullname>
-      <nominalorder>1</nominalorder>
-      <normaldays>1</normaldays>
-      <intercalarydays />
-      <specialdays>
+	  <alias>yestare</alias>
+	  <shortname>yes</shortname>
+	  <fullname>Yestarë</fullname>
+	  <nominalorder>1</nominalorder>
+	  <normaldays>1</normaldays>
+	  <intercalarydays />
+	  <specialdays>
 	  </specialdays>
-      <nonweekdays />
-    </month>
-    <month>
-      <alias>narwain</alias>
-      <shortname>nar</shortname>
-      <fullname>Narwain</fullname>
-      <nominalorder>2</nominalorder>
-      <normaldays>30</normaldays>
-      <intercalarydays />
-      <specialdays>
-	  </specialdays>
-      <nonweekdays />
-    </month>
-    <month>
-      <alias>ninui</alias>
-      <shortname>nin</shortname>
-      <fullname>Nínui</fullname>
-      <nominalorder>3</nominalorder>
-      <normaldays>30</normaldays>
-      <intercalarydays />
-      <specialdays>
-	  </specialdays>
-      <nonweekdays />
-    </month>
-    <month>
-      <alias>gwaeron</alias>
-      <shortname>gwa</shortname>
-      <fullname>Gwaeron</fullname>
-      <nominalorder>4</nominalorder>
-      <normaldays>30</normaldays>
-      <intercalarydays />
-      <specialdays>
-	  </specialdays>
-      <nonweekdays />
-    </month>
+	  <nonweekdays />
+	</month>
 	<month>
-      <alias>tuilere</alias>
-      <shortname>tui</shortname>
-      <fullname>Tuilérë</fullname>
-      <nominalorder>5</nominalorder>
-      <normaldays>1</normaldays>
-      <intercalarydays />
-      <specialdays>
+	  <alias>narwain</alias>
+	  <shortname>nar</shortname>
+	  <fullname>Narwain</fullname>
+	  <nominalorder>2</nominalorder>
+	  <normaldays>30</normaldays>
+	  <intercalarydays />
+	  <specialdays>
+	  </specialdays>
+	  <nonweekdays />
+	</month>
+	<month>
+	  <alias>ninui</alias>
+	  <shortname>nin</shortname>
+	  <fullname>Nínui</fullname>
+	  <nominalorder>3</nominalorder>
+	  <normaldays>30</normaldays>
+	  <intercalarydays />
+	  <specialdays>
+	  </specialdays>
+	  <nonweekdays />
+	</month>
+	<month>
+	  <alias>gwaeron</alias>
+	  <shortname>gwa</shortname>
+	  <fullname>Gwaeron</fullname>
+	  <nominalorder>4</nominalorder>
+	  <normaldays>30</normaldays>
+	  <intercalarydays />
+	  <specialdays>
+	  </specialdays>
+	  <nonweekdays />
+	</month>
+	<month>
+	  <alias>tuilere</alias>
+	  <shortname>tui</shortname>
+	  <fullname>Tuilérë</fullname>
+	  <nominalorder>5</nominalorder>
+	  <normaldays>1</normaldays>
+	  <intercalarydays />
+	  <specialdays>
 		<specialday day=""1"" short=""Spring Day"" long=""Spring Day"" />
 	  </specialdays>
-      <nonweekdays />
-    </month>
-    <month>
-      <alias>gwirith</alias>
-      <shortname>gwi</shortname>
-      <fullname>Gwirith</fullname>
-      <nominalorder>6</nominalorder>
-      <normaldays>30</normaldays>
-      <intercalarydays>
+	  <nonweekdays />
+	</month>
+	<month>
+	  <alias>gwirith</alias>
+	  <shortname>gwi</shortname>
+	  <fullname>Gwirith</fullname>
+	  <nominalorder>6</nominalorder>
+	  <normaldays>30</normaldays>
+	  <intercalarydays>
 	  </intercalarydays>
-      <specialdays>
+	  <specialdays>
 	  </specialdays>
-      <nonweekdays />
-    </month>
-    <month>
-      <alias>lothron</alias>
-      <shortname>lot</shortname>
-      <fullname>Lothron</fullname>
-      <nominalorder>7</nominalorder>
-      <normaldays>30</normaldays>
-      <intercalarydays />
-      <specialdays>
+	  <nonweekdays />
+	</month>
+	<month>
+	  <alias>lothron</alias>
+	  <shortname>lot</shortname>
+	  <fullname>Lothron</fullname>
+	  <nominalorder>7</nominalorder>
+	  <normaldays>30</normaldays>
+	  <intercalarydays />
+	  <specialdays>
 	  </specialdays>
-      <nonweekdays />
-    </month>
-    <month>
-      <alias>norui</alias>
-      <shortname>nor</shortname>
-      <fullname>Nórui</fullname>
-      <nominalorder>8</nominalorder>
-      <normaldays>30</normaldays>
-      <intercalarydays />
-      <specialdays>
+	  <nonweekdays />
+	</month>
+	<month>
+	  <alias>norui</alias>
+	  <shortname>nor</shortname>
+	  <fullname>Nórui</fullname>
+	  <nominalorder>8</nominalorder>
+	  <normaldays>30</normaldays>
+	  <intercalarydays />
+	  <specialdays>
 	  </specialdays>
-      <nonweekdays />
-    </month>
-    <month>
-      <alias>enedhin</alias>
-      <shortname>ene</shortname>
-      <fullname>Enedhin</fullname>
-      <nominalorder>9</nominalorder>
-      <normaldays>1</normaldays>
-      <intercalarydays>
+	  <nonweekdays />
+	</month>
+	<month>
+	  <alias>enedhin</alias>
+	  <shortname>ene</shortname>
+	  <fullname>Enedhin</fullname>
+	  <nominalorder>9</nominalorder>
+	  <normaldays>1</normaldays>
+	  <intercalarydays>
 	  <intercalary>
- 		  <insertdays>1</insertdays>
- 		  <specialdays>
-           </specialdays>
+		  <insertdays>1</insertdays>
+		  <specialdays>
+		   </specialdays>
 			<nonweekdays>
-             </nonweekdays>
-             <removenonweekdays />
-             <removespecialdays />
-             <intercalaryrule>
-               <offset>0</offset>
-               <divisor>4</divisor>
-               <exceptions>
-                 <intercalaryrule>
-                   <offset>0</offset>
-                   <divisor>100</divisor>
-                   <exceptions>
-                   </exceptions>
-                   <ands />
-                   <ors />
-                 </intercalaryrule>
-               </exceptions>
-               <ands />
-               <ors />
-             </intercalaryrule>
- 		</intercalary>
+			 </nonweekdays>
+			 <removenonweekdays />
+			 <removespecialdays />
+			 <intercalaryrule>
+			   <offset>0</offset>
+			   <divisor>4</divisor>
+			   <exceptions>
+				 <intercalaryrule>
+				   <offset>0</offset>
+				   <divisor>100</divisor>
+				   <exceptions>
+				   </exceptions>
+				   <ands />
+				   <ors />
+				 </intercalaryrule>
+			   </exceptions>
+			   <ands />
+			   <ors />
+			 </intercalaryrule>
+		</intercalary>
 	  </intercalarydays>
-      <specialdays>
+	  <specialdays>
 	  </specialdays>
-      <nonweekdays />
-    </month>
-    <month>
-      <alias>cerveth</alias>
-      <shortname>cer</shortname>
-      <fullname>Cerveth</fullname>
-      <nominalorder>10</nominalorder>
-      <normaldays>30</normaldays>
-      <intercalarydays />
-      <specialdays>
-	  </specialdays>
-      <nonweekdays />
-    </month>
+	  <nonweekdays />
+	</month>
 	<month>
-      <alias>urui</alias>
-      <shortname>uru</shortname>
-      <fullname>Urui</fullname>
-      <nominalorder>11</nominalorder>
-      <normaldays>30</normaldays>
-      <intercalarydays />
-      <specialdays>
+	  <alias>cerveth</alias>
+	  <shortname>cer</shortname>
+	  <fullname>Cerveth</fullname>
+	  <nominalorder>10</nominalorder>
+	  <normaldays>30</normaldays>
+	  <intercalarydays />
+	  <specialdays>
 	  </specialdays>
-      <nonweekdays />
-    </month>
+	  <nonweekdays />
+	</month>
 	<month>
-      <alias>ivanneth</alias>
-      <shortname>iva</shortname>
-      <fullname>Ivanneth</fullname>
-      <nominalorder>12</nominalorder>
-      <normaldays>30</normaldays>
-      <intercalarydays />
-      <specialdays>
+	  <alias>urui</alias>
+	  <shortname>uru</shortname>
+	  <fullname>Urui</fullname>
+	  <nominalorder>11</nominalorder>
+	  <normaldays>30</normaldays>
+	  <intercalarydays />
+	  <specialdays>
 	  </specialdays>
-      <nonweekdays />
-    </month>
+	  <nonweekdays />
+	</month>
 	<month>
-      <alias>yaviere</alias>
-      <shortname>yav</shortname>
-      <fullname>Yáviérë</fullname>
-      <nominalorder>13</nominalorder>
-      <normaldays>1</normaldays>
-      <intercalarydays />
-      <specialdays>
+	  <alias>ivanneth</alias>
+	  <shortname>iva</shortname>
+	  <fullname>Ivanneth</fullname>
+	  <nominalorder>12</nominalorder>
+	  <normaldays>30</normaldays>
+	  <intercalarydays />
+	  <specialdays>
+	  </specialdays>
+	  <nonweekdays />
+	</month>
+	<month>
+	  <alias>yaviere</alias>
+	  <shortname>yav</shortname>
+	  <fullname>Yáviérë</fullname>
+	  <nominalorder>13</nominalorder>
+	  <normaldays>1</normaldays>
+	  <intercalarydays />
+	  <specialdays>
 		<specialday day=""1"" short=""Harvest Day"" long=""Harvest Day"" />
 	  </specialdays>
-      <nonweekdays />
-    </month>
+	  <nonweekdays />
+	</month>
 	<month>
-      <alias>narbeleth</alias>
-      <shortname>nar</shortname>
-      <fullname>Narbeleth</fullname>
-      <nominalorder>14</nominalorder>
-      <normaldays>30</normaldays>
-      <intercalarydays />
-      <specialdays>
+	  <alias>narbeleth</alias>
+	  <shortname>nar</shortname>
+	  <fullname>Narbeleth</fullname>
+	  <nominalorder>14</nominalorder>
+	  <normaldays>30</normaldays>
+	  <intercalarydays />
+	  <specialdays>
 	  </specialdays>
-      <nonweekdays />
-    </month>
+	  <nonweekdays />
+	</month>
 	<month>
-      <alias>hithui</alias>
-      <shortname>hit</shortname>
-      <fullname>Hithui</fullname>
-      <nominalorder>15</nominalorder>
-      <normaldays>30</normaldays>
-      <intercalarydays />
-      <specialdays>
+	  <alias>hithui</alias>
+	  <shortname>hit</shortname>
+	  <fullname>Hithui</fullname>
+	  <nominalorder>15</nominalorder>
+	  <normaldays>30</normaldays>
+	  <intercalarydays />
+	  <specialdays>
 	  </specialdays>
-      <nonweekdays />
-    </month>
+	  <nonweekdays />
+	</month>
 	<month>
-      <alias>Girithron</alias>
-      <shortname>gir</shortname>
-      <fullname>Girithron</fullname>
-      <nominalorder>16</nominalorder>
-      <normaldays>30</normaldays>
-      <intercalarydays />
-      <specialdays>
+	  <alias>Girithron</alias>
+	  <shortname>gir</shortname>
+	  <fullname>Girithron</fullname>
+	  <nominalorder>16</nominalorder>
+	  <normaldays>30</normaldays>
+	  <intercalarydays />
+	  <specialdays>
 	  </specialdays>
-      <nonweekdays />
-    </month>
+	  <nonweekdays />
+	</month>
 	<month>
-      <alias>penninor</alias>
-      <shortname>pen</shortname>
-      <fullname>Penninor</fullname>
-      <nominalorder>17</nominalorder>
-      <normaldays>1</normaldays>
-      <intercalarydays />
-      <specialdays>
+	  <alias>penninor</alias>
+	  <shortname>pen</shortname>
+	  <fullname>Penninor</fullname>
+	  <nominalorder>17</nominalorder>
+	  <normaldays>1</normaldays>
+	  <intercalarydays />
+	  <specialdays>
 	  </specialdays>
-      <nonweekdays />
-    </month>
+	  <nonweekdays />
+	</month>
   </months>
   <intercalarymonths>
   </intercalarymonths>
@@ -1785,267 +1785,267 @@ Your answer: ", (context, answers) => answers["mode"].EqualTo("middle-earth"), (
   <modernerashortstring>AUC</modernerashortstring>
   <moderneralongstring>year since the founding of Rome</moderneralongstring>
   <weekdays>
-    <weekday>Nundinarum A</weekday>
-    <weekday>Nundinarum B</weekday>
-    <weekday>Nundinarum C</weekday>
-    <weekday>Nundinarum D</weekday>
-    <weekday>Nundinarum E</weekday>
-    <weekday>Nundinarum F</weekday>
-    <weekday>Nundinarum G</weekday>
-    <weekday>Nundinarum H</weekday>
+	<weekday>Nundinarum A</weekday>
+	<weekday>Nundinarum B</weekday>
+	<weekday>Nundinarum C</weekday>
+	<weekday>Nundinarum D</weekday>
+	<weekday>Nundinarum E</weekday>
+	<weekday>Nundinarum F</weekday>
+	<weekday>Nundinarum G</weekday>
+	<weekday>Nundinarum H</weekday>
   </weekdays>
   <months>
-    <month>
-      <alias>ianuarius</alias>
-      <shortname>ian</shortname>
-      <fullname>Ianuarius</fullname>
-      <nominalorder>1</nominalorder>
-      <normaldays>29</normaldays>
-      <intercalarydays />
-      <specialdays>
-	    <specialday day=""1"" short=""Kalends"" long=""Kalends of Ianuarius"" />
+	<month>
+	  <alias>ianuarius</alias>
+	  <shortname>ian</shortname>
+	  <fullname>Ianuarius</fullname>
+	  <nominalorder>1</nominalorder>
+	  <normaldays>29</normaldays>
+	  <intercalarydays />
+	  <specialdays>
+		<specialday day=""1"" short=""Kalends"" long=""Kalends of Ianuarius"" />
 		<specialday day=""5"" short=""Nones"" long=""Nones of Ianuarius"" />
 		<specialday day=""13"" short=""Ides"" long=""Ides of Ianuarius"" />
 	  </specialdays>
-      <nonweekdays />
-    </month>
-    <month>
-      <alias>februarius</alias>
-      <shortname>feb</shortname>
-      <fullname>Februarius</fullname>
-      <nominalorder>2</nominalorder>
-      <normaldays>23</normaldays>
-      <intercalarydays>
-        <intercalaryday>
-          <insertdays>5</insertdays>
-          <nonweekdays />
-          <removenonweekdays />
-          <specialdays/>
-          <removespecialdays />
-          <intercalaryrule>
-            <offset>0</offset>
-            <divisor>1</divisor>
-            <exceptions>
-                <intercalaryrule>
-                  <offset>0</offset>
-                  <divisor>2</divisor>
-                  <exceptions>
-                      <intercalaryrule>
-                      <offset>0</offset>
-                      <divisor>24</divisor>
-                      <exceptions>
-                      </exceptions>
-                      <ands />
-                      <ors />
-                    </intercalaryrule>
-                  </exceptions>
-                  <ands />
-                  <ors />
-                </intercalaryrule>
-            </exceptions>
-            <ands />
-            <ors />
-          </intercalaryrule>
-        </intercalaryday>
-      </intercalarydays>
-      <specialdays>
-	    <specialday day=""1"" short=""Kalends"" long=""Kalends of Februarius"" />
+	  <nonweekdays />
+	</month>
+	<month>
+	  <alias>februarius</alias>
+	  <shortname>feb</shortname>
+	  <fullname>Februarius</fullname>
+	  <nominalorder>2</nominalorder>
+	  <normaldays>23</normaldays>
+	  <intercalarydays>
+		<intercalaryday>
+		  <insertdays>5</insertdays>
+		  <nonweekdays />
+		  <removenonweekdays />
+		  <specialdays/>
+		  <removespecialdays />
+		  <intercalaryrule>
+			<offset>0</offset>
+			<divisor>1</divisor>
+			<exceptions>
+				<intercalaryrule>
+				  <offset>0</offset>
+				  <divisor>2</divisor>
+				  <exceptions>
+					  <intercalaryrule>
+					  <offset>0</offset>
+					  <divisor>24</divisor>
+					  <exceptions>
+					  </exceptions>
+					  <ands />
+					  <ors />
+					</intercalaryrule>
+				  </exceptions>
+				  <ands />
+				  <ors />
+				</intercalaryrule>
+			</exceptions>
+			<ands />
+			<ors />
+		  </intercalaryrule>
+		</intercalaryday>
+	  </intercalarydays>
+	  <specialdays>
+		<specialday day=""1"" short=""Kalends"" long=""Kalends of Februarius"" />
 		<specialday day=""5"" short=""Nones"" long=""Nones of Februarius"" />
 		<specialday day=""13"" short=""Ides"" long=""Ides of Februarius"" />
 	  </specialdays>
-      <nonweekdays />
-    </month>
-    <month>
-      <alias>martius</alias>
-      <shortname>mar</shortname>
-      <fullname>Martius</fullname>
-      <nominalorder>4</nominalorder>
-      <normaldays>31</normaldays>
-      <intercalarydays />
-      <specialdays>
-	    <specialday day=""1"" short=""Kalends"" long=""Kalends of Martius"" />
+	  <nonweekdays />
+	</month>
+	<month>
+	  <alias>martius</alias>
+	  <shortname>mar</shortname>
+	  <fullname>Martius</fullname>
+	  <nominalorder>4</nominalorder>
+	  <normaldays>31</normaldays>
+	  <intercalarydays />
+	  <specialdays>
+		<specialday day=""1"" short=""Kalends"" long=""Kalends of Martius"" />
 		<specialday day=""7"" short=""Nones"" long=""Nones of Martius"" />
 		<specialday day=""15"" short=""Ides"" long=""Ides of Martius"" />
 	  </specialdays>
-      <nonweekdays />
-    </month>
-    <month>
-      <alias>aprilis</alias>
-      <shortname>apr</shortname>
-      <fullname>Aprilis</fullname>
-      <nominalorder>5</nominalorder>
-      <normaldays>29</normaldays>
-      <intercalarydays />
-      <specialdays>
-	    <specialday day=""1"" short=""Kalends"" long=""Kalends of Aprilis"" />
+	  <nonweekdays />
+	</month>
+	<month>
+	  <alias>aprilis</alias>
+	  <shortname>apr</shortname>
+	  <fullname>Aprilis</fullname>
+	  <nominalorder>5</nominalorder>
+	  <normaldays>29</normaldays>
+	  <intercalarydays />
+	  <specialdays>
+		<specialday day=""1"" short=""Kalends"" long=""Kalends of Aprilis"" />
 		<specialday day=""7"" short=""Nones"" long=""Nones of Aprilis"" />
 		<specialday day=""15"" short=""Ides"" long=""Ides of Aprilis"" />
 	  </specialdays>
-      <nonweekdays />
-    </month>
-    <month>
-      <alias>maius</alias>
-      <shortname>mai</shortname>
-      <fullname>Maius</fullname>
-      <nominalorder>6</nominalorder>
-      <normaldays>31</normaldays>
-      <intercalarydays />
-      <specialdays>
-	    <specialday day=""1"" short=""Kalends"" long=""Kalends of Maius"" />
+	  <nonweekdays />
+	</month>
+	<month>
+	  <alias>maius</alias>
+	  <shortname>mai</shortname>
+	  <fullname>Maius</fullname>
+	  <nominalorder>6</nominalorder>
+	  <normaldays>31</normaldays>
+	  <intercalarydays />
+	  <specialdays>
+		<specialday day=""1"" short=""Kalends"" long=""Kalends of Maius"" />
 		<specialday day=""7"" short=""Nones"" long=""Nones of Maius"" />
 		<specialday day=""15"" short=""Ides"" long=""Ides of Maius"" />
 	  </specialdays>
-      <nonweekdays />
-    </month>
-    <month>
-      <alias>iunius</alias>
-      <shortname>iun</shortname>
-      <fullname>Iunius</fullname>
-      <nominalorder>7</nominalorder>
-      <normaldays>29</normaldays>
-      <intercalarydays />
-      <specialdays>
-	    <specialday day=""1"" short=""Kalends"" long=""Kalends of Iunius"" />
+	  <nonweekdays />
+	</month>
+	<month>
+	  <alias>iunius</alias>
+	  <shortname>iun</shortname>
+	  <fullname>Iunius</fullname>
+	  <nominalorder>7</nominalorder>
+	  <normaldays>29</normaldays>
+	  <intercalarydays />
+	  <specialdays>
+		<specialday day=""1"" short=""Kalends"" long=""Kalends of Iunius"" />
 		<specialday day=""5"" short=""Nones"" long=""Nones of Iunius"" />
 		<specialday day=""13"" short=""Ides"" long=""Ides of Iunius"" />
 	  </specialdays>
-      <nonweekdays />
-    </month>
-    <month>
-      <alias>quintilis</alias>
-      <shortname>qui</shortname>
-      <fullname>Quintilis</fullname>
-      <nominalorder>8</nominalorder>
-      <normaldays>31</normaldays>
-      <intercalarydays />
-      <specialdays>
-	    <specialday day=""1"" short=""Kalends"" long=""Kalends of Quintilis"" />
+	  <nonweekdays />
+	</month>
+	<month>
+	  <alias>quintilis</alias>
+	  <shortname>qui</shortname>
+	  <fullname>Quintilis</fullname>
+	  <nominalorder>8</nominalorder>
+	  <normaldays>31</normaldays>
+	  <intercalarydays />
+	  <specialdays>
+		<specialday day=""1"" short=""Kalends"" long=""Kalends of Quintilis"" />
 		<specialday day=""7"" short=""Nones"" long=""Nones of Quintilis"" />
 		<specialday day=""15"" short=""Ides"" long=""Ides of Quintilis"" />
 	  </specialdays>
-      <nonweekdays />
-    </month>
-    <month>
-      <alias>sextilis</alias>
-      <shortname>sex</shortname>
-      <fullname>Sextilis</fullname>
-      <nominalorder>9</nominalorder>
-      <normaldays>29</normaldays>
-      <intercalarydays />
-      <specialdays>
-	    <specialday day=""1"" short=""Kalends"" long=""Kalends of Sextilis"" />
+	  <nonweekdays />
+	</month>
+	<month>
+	  <alias>sextilis</alias>
+	  <shortname>sex</shortname>
+	  <fullname>Sextilis</fullname>
+	  <nominalorder>9</nominalorder>
+	  <normaldays>29</normaldays>
+	  <intercalarydays />
+	  <specialdays>
+		<specialday day=""1"" short=""Kalends"" long=""Kalends of Sextilis"" />
 		<specialday day=""5"" short=""Nones"" long=""Nones of Sextilis"" />
 		<specialday day=""13"" short=""Ides"" long=""Ides of Sextilis"" />
 	  </specialdays>
-      <nonweekdays />
-    </month>
-    <month>
-      <alias>september</alias>
-      <shortname>sep</shortname>
-      <fullname>September</fullname>
-      <nominalorder>10</nominalorder>
-      <normaldays>29</normaldays>
-      <intercalarydays />
-      <specialdays>
-	    <specialday day=""1"" short=""Kalends"" long=""Kalends of September"" />
+	  <nonweekdays />
+	</month>
+	<month>
+	  <alias>september</alias>
+	  <shortname>sep</shortname>
+	  <fullname>September</fullname>
+	  <nominalorder>10</nominalorder>
+	  <normaldays>29</normaldays>
+	  <intercalarydays />
+	  <specialdays>
+		<specialday day=""1"" short=""Kalends"" long=""Kalends of September"" />
 		<specialday day=""5"" short=""Nones"" long=""Nones of September"" />
 		<specialday day=""13"" short=""Ides"" long=""Ides of September"" />
 	  </specialdays>
-      <nonweekdays />
-    </month>
-    <month>
-      <alias>october</alias>
-      <shortname>oct</shortname>
-      <fullname>October</fullname>
-      <nominalorder>11</nominalorder>
-      <normaldays>31</normaldays>
-      <intercalarydays />
-      <specialdays>
-	    <specialday day=""1"" short=""Kalends"" long=""Kalends of October"" />
+	  <nonweekdays />
+	</month>
+	<month>
+	  <alias>october</alias>
+	  <shortname>oct</shortname>
+	  <fullname>October</fullname>
+	  <nominalorder>11</nominalorder>
+	  <normaldays>31</normaldays>
+	  <intercalarydays />
+	  <specialdays>
+		<specialday day=""1"" short=""Kalends"" long=""Kalends of October"" />
 		<specialday day=""7"" short=""Nones"" long=""Nones of October"" />
 		<specialday day=""15"" short=""Ides"" long=""Ides of October"" />
 	  </specialdays>
-      <nonweekdays />
-    </month>
-    <month>
-      <alias>november</alias>
-      <shortname>nov</shortname>
-      <fullname>November</fullname>
-      <nominalorder>12</nominalorder>
-      <normaldays>29</normaldays>
-      <intercalarydays />
-      <specialdays>
-	    <specialday day=""1"" short=""Kalends"" long=""Kalends of November"" />
+	  <nonweekdays />
+	</month>
+	<month>
+	  <alias>november</alias>
+	  <shortname>nov</shortname>
+	  <fullname>November</fullname>
+	  <nominalorder>12</nominalorder>
+	  <normaldays>29</normaldays>
+	  <intercalarydays />
+	  <specialdays>
+		<specialday day=""1"" short=""Kalends"" long=""Kalends of November"" />
 		<specialday day=""5"" short=""Nones"" long=""Nones of November"" />
 		<specialday day=""13"" short=""Ides"" long=""Ides of November"" />
 	  </specialdays>
-      <nonweekdays />
-    </month>
-    <month>
-      <alias>december</alias>
-      <shortname>dec</shortname>
-      <fullname>December</fullname>
-      <nominalorder>13</nominalorder>
-      <normaldays>29</normaldays>
-      <intercalarydays />
-      <specialdays>
-	    <specialday day=""1"" short=""Kalends"" long=""Kalends of December"" />
+	  <nonweekdays />
+	</month>
+	<month>
+	  <alias>december</alias>
+	  <shortname>dec</shortname>
+	  <fullname>December</fullname>
+	  <nominalorder>13</nominalorder>
+	  <normaldays>29</normaldays>
+	  <intercalarydays />
+	  <specialdays>
+		<specialday day=""1"" short=""Kalends"" long=""Kalends of December"" />
 		<specialday day=""5"" short=""Nones"" long=""Nones of December"" />
 		<specialday day=""13"" short=""Ides"" long=""Ides of December"" />
 	  </specialdays>
-      <nonweekdays />
-    </month>
+	  <nonweekdays />
+	</month>
   </months>
   <intercalarymonths>
-    <intercalarymonth>
-        <position>martus</position>
-        <intercalaryrule>
-          <offset>0</offset>
-          <divisor>2</divisor>
-          <exceptions>
-              <intercalaryrule>
-              <offset>0</offset>
-              <divisor>24</divisor>
-              <exceptions>
-              </exceptions>
-              <ands />
-              <ors />
-            </intercalaryrule>
-          </exceptions>
-          <ands />
-          <ors />
-        </intercalaryrule>
-        <month>
-          <alias>mercedonius</alias>
-          <shortname>mer</shortname>
-          <fullname>Mercedonius</fullname>
-          <nominalorder>3</nominalorder>
-          <normaldays>27</normaldays>
-          <intercalarydays>
-            <intercalary>
-              <insertdays>1</insertdays>
-              <nonweekdays />
-              <removenonweekdays />
-              <specialdays/>
-              <removespecialdays />
-                <intercalaryrule>
-                  <offset>0</offset>
-                  <divisor>4</divisor>
-                  <exceptions>
-                  </exceptions>
-                  <ands />
-                  <ors />
-                 </intercalaryrule>
-               </intercalary>
-          </intercalarydays>
-          <specialdays>
-	        <specialday day=""1"" short=""Kalends"" long=""Kalends of Mercedonius"" />
-		    <specialday day=""5"" short=""Nones"" long=""Nones of Mercedonius"" />
-		    <specialday day=""13"" short=""Ides"" long=""Ides of Mercedonius"" />
-	      </specialdays>
-          <nonweekdays />
-        </month>
-    </intercalarymonth>
+	<intercalarymonth>
+		<position>martus</position>
+		<intercalaryrule>
+		  <offset>0</offset>
+		  <divisor>2</divisor>
+		  <exceptions>
+			  <intercalaryrule>
+			  <offset>0</offset>
+			  <divisor>24</divisor>
+			  <exceptions>
+			  </exceptions>
+			  <ands />
+			  <ors />
+			</intercalaryrule>
+		  </exceptions>
+		  <ands />
+		  <ors />
+		</intercalaryrule>
+		<month>
+		  <alias>mercedonius</alias>
+		  <shortname>mer</shortname>
+		  <fullname>Mercedonius</fullname>
+		  <nominalorder>3</nominalorder>
+		  <normaldays>27</normaldays>
+		  <intercalarydays>
+			<intercalary>
+			  <insertdays>1</insertdays>
+			  <nonweekdays />
+			  <removenonweekdays />
+			  <specialdays/>
+			  <removespecialdays />
+				<intercalaryrule>
+				  <offset>0</offset>
+				  <divisor>4</divisor>
+				  <exceptions>
+				  </exceptions>
+				  <ands />
+				  <ors />
+				 </intercalaryrule>
+			   </intercalary>
+		  </intercalarydays>
+		  <specialdays>
+			<specialday day=""1"" short=""Kalends"" long=""Kalends of Mercedonius"" />
+			<specialday day=""5"" short=""Nones"" long=""Nones of Mercedonius"" />
+			<specialday day=""13"" short=""Ides"" long=""Ides of Mercedonius"" />
+		  </specialdays>
+		  <nonweekdays />
+		</month>
+	</intercalarymonth>
   </intercalarymonths>
 </calendar>"
 		};
@@ -2077,192 +2077,192 @@ Your answer: ", (context, answers) => answers["mode"].EqualTo("middle-earth"), (
   <modernerashortstring>AUC</modernerashortstring>
   <moderneralongstring>year since the founding of Rome</moderneralongstring>
   <weekdays>
-    {(useNundinae ? "<weekday>Nundinarum A</weekday>\n    <weekday>Nundinarum B</weekday>\n    <weekday>Nundinarum C</weekday>\n    <weekday>Nundinarum D</weekday>\n    <weekday>Nundinarum E</weekday>\n    <weekday>Nundinarum F</weekday>\n    <weekday>Nundinarum G</weekday>\n    <weekday>Nundinarum H</weekday>" : "<weekday>Dies Saturni</weekday>\n    <weekday> Dies Solis</weekday>\n    <weekday>Dies Lunae</weekday>\n    <weekday>Dies Martis</weekday>\n    <weekday>Dies Mercurii</weekday>\n    <weekday>Dies Jovis</weekday>\n    <weekday>Dies Veneris</weekday>")}
+	{(useNundinae ? "<weekday>Nundinarum A</weekday>\n    <weekday>Nundinarum B</weekday>\n    <weekday>Nundinarum C</weekday>\n    <weekday>Nundinarum D</weekday>\n    <weekday>Nundinarum E</weekday>\n    <weekday>Nundinarum F</weekday>\n    <weekday>Nundinarum G</weekday>\n    <weekday>Nundinarum H</weekday>" : "<weekday>Dies Saturni</weekday>\n    <weekday> Dies Solis</weekday>\n    <weekday>Dies Lunae</weekday>\n    <weekday>Dies Martis</weekday>\n    <weekday>Dies Mercurii</weekday>\n    <weekday>Dies Jovis</weekday>\n    <weekday>Dies Veneris</weekday>")}
   </weekdays>
   <months>
-    <month>
-      <alias>ianuarius</alias>
-      <shortname>ian</shortname>
-      <fullname>Ianuarius</fullname>
-      <nominalorder>1</nominalorder>
-      <normaldays>31</normaldays>
-      <intercalarydays />
-      <specialdays>
-	    <specialday day=""1"" short=""Kalends"" long=""Kalends of Ianuarius"" />
+	<month>
+	  <alias>ianuarius</alias>
+	  <shortname>ian</shortname>
+	  <fullname>Ianuarius</fullname>
+	  <nominalorder>1</nominalorder>
+	  <normaldays>31</normaldays>
+	  <intercalarydays />
+	  <specialdays>
+		<specialday day=""1"" short=""Kalends"" long=""Kalends of Ianuarius"" />
 		<specialday day=""5"" short=""Nones"" long=""Nones of Ianuarius"" />
 		<specialday day=""13"" short=""Ides"" long=""Ides of Ianuarius"" />
 	  </specialdays>
-      <nonweekdays />
-    </month>
-    <month>
-      <alias>februarius</alias>
-      <shortname>feb</shortname>
-      <fullname>Februarius</fullname>
-      <nominalorder>2</nominalorder>
-      <normaldays>28</normaldays>
-      <intercalarydays>
-        <intercalaryday>
-          <insertdays>1</insertdays>
-          <nonweekdays />
-          <removenonweekdays />
-          <specialdays/>
-          <removespecialdays />
-          <intercalaryrule>
-            <offset>0</offset>
-            <divisor>4</divisor>
-            <exceptions />
-            <ands />
-            <ors />
-          </intercalaryrule>
-        </intercalaryday>
-      </intercalarydays>
-      <specialdays>
-	    <specialday day=""1"" short=""Kalends"" long=""Kalends of Februarius"" />
+	  <nonweekdays />
+	</month>
+	<month>
+	  <alias>februarius</alias>
+	  <shortname>feb</shortname>
+	  <fullname>Februarius</fullname>
+	  <nominalorder>2</nominalorder>
+	  <normaldays>28</normaldays>
+	  <intercalarydays>
+		<intercalaryday>
+		  <insertdays>1</insertdays>
+		  <nonweekdays />
+		  <removenonweekdays />
+		  <specialdays/>
+		  <removespecialdays />
+		  <intercalaryrule>
+			<offset>0</offset>
+			<divisor>4</divisor>
+			<exceptions />
+			<ands />
+			<ors />
+		  </intercalaryrule>
+		</intercalaryday>
+	  </intercalarydays>
+	  <specialdays>
+		<specialday day=""1"" short=""Kalends"" long=""Kalends of Februarius"" />
 		<specialday day=""5"" short=""Nones"" long=""Nones of Februarius"" />
 		<specialday day=""13"" short=""Ides"" long=""Ides of Februarius"" />
 	  </specialdays>
-      <nonweekdays />
-    </month>
-    <month>
-      <alias>martius</alias>
-      <shortname>mar</shortname>
-      <fullname>Martius</fullname>
-      <nominalorder>3</nominalorder>
-      <normaldays>31</normaldays>
-      <intercalarydays />
-      <specialdays>
-	    <specialday day=""1"" short=""Kalends"" long=""Kalends of Martius"" />
+	  <nonweekdays />
+	</month>
+	<month>
+	  <alias>martius</alias>
+	  <shortname>mar</shortname>
+	  <fullname>Martius</fullname>
+	  <nominalorder>3</nominalorder>
+	  <normaldays>31</normaldays>
+	  <intercalarydays />
+	  <specialdays>
+		<specialday day=""1"" short=""Kalends"" long=""Kalends of Martius"" />
 		<specialday day=""7"" short=""Nones"" long=""Nones of Martius"" />
 		<specialday day=""15"" short=""Ides"" long=""Ides of Martius"" />
 	  </specialdays>
-      <nonweekdays />
-    </month>
-    <month>
-      <alias>aprilis</alias>
-      <shortname>apr</shortname>
-      <fullname>Aprilis</fullname>
-      <nominalorder>4</nominalorder>
-      <normaldays>30</normaldays>
-      <intercalarydays />
-      <specialdays>
-	    <specialday day=""1"" short=""Kalends"" long=""Kalends of Aprilis"" />
+	  <nonweekdays />
+	</month>
+	<month>
+	  <alias>aprilis</alias>
+	  <shortname>apr</shortname>
+	  <fullname>Aprilis</fullname>
+	  <nominalorder>4</nominalorder>
+	  <normaldays>30</normaldays>
+	  <intercalarydays />
+	  <specialdays>
+		<specialday day=""1"" short=""Kalends"" long=""Kalends of Aprilis"" />
 		<specialday day=""7"" short=""Nones"" long=""Nones of Aprilis"" />
 		<specialday day=""15"" short=""Ides"" long=""Ides of Aprilis"" />
 	  </specialdays>
-      <nonweekdays />
-    </month>
-    <month>
-      <alias>maius</alias>
-      <shortname>mai</shortname>
-      <fullname>Maius</fullname>
-      <nominalorder>5</nominalorder>
-      <normaldays>31</normaldays>
-      <intercalarydays />
-      <specialdays>
-	    <specialday day=""1"" short=""Kalends"" long=""Kalends of Maius"" />
+	  <nonweekdays />
+	</month>
+	<month>
+	  <alias>maius</alias>
+	  <shortname>mai</shortname>
+	  <fullname>Maius</fullname>
+	  <nominalorder>5</nominalorder>
+	  <normaldays>31</normaldays>
+	  <intercalarydays />
+	  <specialdays>
+		<specialday day=""1"" short=""Kalends"" long=""Kalends of Maius"" />
 		<specialday day=""7"" short=""Nones"" long=""Nones of Maius"" />
 		<specialday day=""15"" short=""Ides"" long=""Ides of Maius"" />
 	  </specialdays>
-      <nonweekdays />
-    </month>
-    <month>
-      <alias>iunius</alias>
-      <shortname>iun</shortname>
-      <fullname>Iunius</fullname>
-      <nominalorder>6</nominalorder>
-      <normaldays>30</normaldays>
-      <intercalarydays />
-      <specialdays>
-	    <specialday day=""1"" short=""Kalends"" long=""Kalends of Iunius"" />
+	  <nonweekdays />
+	</month>
+	<month>
+	  <alias>iunius</alias>
+	  <shortname>iun</shortname>
+	  <fullname>Iunius</fullname>
+	  <nominalorder>6</nominalorder>
+	  <normaldays>30</normaldays>
+	  <intercalarydays />
+	  <specialdays>
+		<specialday day=""1"" short=""Kalends"" long=""Kalends of Iunius"" />
 		<specialday day=""5"" short=""Nones"" long=""Nones of Iunius"" />
 		<specialday day=""13"" short=""Ides"" long=""Ides of Iunius"" />
 	  </specialdays>
-      <nonweekdays />
-    </month>
-    <month>
-      <alias>iulius</alias>
-      <shortname>iul</shortname>
-      <fullname>Iulius</fullname>
-      <nominalorder>7</nominalorder>
-      <normaldays>31</normaldays>
-      <intercalarydays />
-      <specialdays>
-	    <specialday day=""1"" short=""Kalends"" long=""Kalends of Iulius"" />
+	  <nonweekdays />
+	</month>
+	<month>
+	  <alias>iulius</alias>
+	  <shortname>iul</shortname>
+	  <fullname>Iulius</fullname>
+	  <nominalorder>7</nominalorder>
+	  <normaldays>31</normaldays>
+	  <intercalarydays />
+	  <specialdays>
+		<specialday day=""1"" short=""Kalends"" long=""Kalends of Iulius"" />
 		<specialday day=""7"" short=""Nones"" long=""Nones of Iulius"" />
 		<specialday day=""15"" short=""Ides"" long=""Ides of Iulius"" />
 	  </specialdays>
-      <nonweekdays />
-    </month>
-    <month>
-      <alias>augustus</alias>
-      <shortname>aug</shortname>
-      <fullname>Augustus</fullname>
-      <nominalorder>8</nominalorder>
-      <normaldays>31</normaldays>
-      <intercalarydays />
-      <specialdays>
-	    <specialday day=""1"" short=""Kalends"" long=""Kalends of Augustus"" />
+	  <nonweekdays />
+	</month>
+	<month>
+	  <alias>augustus</alias>
+	  <shortname>aug</shortname>
+	  <fullname>Augustus</fullname>
+	  <nominalorder>8</nominalorder>
+	  <normaldays>31</normaldays>
+	  <intercalarydays />
+	  <specialdays>
+		<specialday day=""1"" short=""Kalends"" long=""Kalends of Augustus"" />
 		<specialday day=""5"" short=""Nones"" long=""Nones of Augustus"" />
 		<specialday day=""13"" short=""Ides"" long=""Ides of Augustus"" />
 	  </specialdays>
-      <nonweekdays />
-    </month>
-    <month>
-      <alias>september</alias>
-      <shortname>sep</shortname>
-      <fullname>September</fullname>
-      <nominalorder>9</nominalorder>
-      <normaldays>30</normaldays>
-      <intercalarydays />
-      <specialdays>
-	    <specialday day=""1"" short=""Kalends"" long=""Kalends of September"" />
+	  <nonweekdays />
+	</month>
+	<month>
+	  <alias>september</alias>
+	  <shortname>sep</shortname>
+	  <fullname>September</fullname>
+	  <nominalorder>9</nominalorder>
+	  <normaldays>30</normaldays>
+	  <intercalarydays />
+	  <specialdays>
+		<specialday day=""1"" short=""Kalends"" long=""Kalends of September"" />
 		<specialday day=""5"" short=""Nones"" long=""Nones of September"" />
 		<specialday day=""13"" short=""Ides"" long=""Ides of September"" />
 	  </specialdays>
-      <nonweekdays />
-    </month>
-    <month>
-      <alias>october</alias>
-      <shortname>oct</shortname>
-      <fullname>October</fullname>
-      <nominalorder>10</nominalorder>
-      <normaldays>31</normaldays>
-      <intercalarydays />
-      <specialdays>
-	    <specialday day=""1"" short=""Kalends"" long=""Kalends of October"" />
+	  <nonweekdays />
+	</month>
+	<month>
+	  <alias>october</alias>
+	  <shortname>oct</shortname>
+	  <fullname>October</fullname>
+	  <nominalorder>10</nominalorder>
+	  <normaldays>31</normaldays>
+	  <intercalarydays />
+	  <specialdays>
+		<specialday day=""1"" short=""Kalends"" long=""Kalends of October"" />
 		<specialday day=""7"" short=""Nones"" long=""Nones of October"" />
 		<specialday day=""15"" short=""Ides"" long=""Ides of October"" />
 	  </specialdays>
-      <nonweekdays />
-    </month>
-    <month>
-      <alias>november</alias>
-      <shortname>nov</shortname>
-      <fullname>November</fullname>
-      <nominalorder>11</nominalorder>
-      <normaldays>30</normaldays>
-      <intercalarydays />
-      <specialdays>
-	    <specialday day=""1"" short=""Kalends"" long=""Kalends of November"" />
+	  <nonweekdays />
+	</month>
+	<month>
+	  <alias>november</alias>
+	  <shortname>nov</shortname>
+	  <fullname>November</fullname>
+	  <nominalorder>11</nominalorder>
+	  <normaldays>30</normaldays>
+	  <intercalarydays />
+	  <specialdays>
+		<specialday day=""1"" short=""Kalends"" long=""Kalends of November"" />
 		<specialday day=""5"" short=""Nones"" long=""Nones of November"" />
 		<specialday day=""13"" short=""Ides"" long=""Ides of November"" />
 	  </specialdays>
-      <nonweekdays />
-    </month>
-    <month>
-      <alias>december</alias>
-      <shortname>dec</shortname>
-      <fullname>December</fullname>
-      <nominalorder>12</nominalorder>
-      <normaldays>31</normaldays>
-      <intercalarydays />
-      <specialdays>
-	    <specialday day=""1"" short=""Kalends"" long=""Kalends of December"" />
+	  <nonweekdays />
+	</month>
+	<month>
+	  <alias>december</alias>
+	  <shortname>dec</shortname>
+	  <fullname>December</fullname>
+	  <nominalorder>12</nominalorder>
+	  <normaldays>31</normaldays>
+	  <intercalarydays />
+	  <specialdays>
+		<specialday day=""1"" short=""Kalends"" long=""Kalends of December"" />
 		<specialday day=""5"" short=""Nones"" long=""Nones of December"" />
 		<specialday day=""13"" short=""Ides"" long=""Ides of December"" />
 	  </specialdays>
-      <nonweekdays />
-    </month>
+	  <nonweekdays />
+	</month>
   </months>
   <intercalarymonths />
 </calendar>"
@@ -2295,154 +2295,154 @@ Your answer: ", (context, answers) => answers["mode"].EqualTo("middle-earth"), (
   <modernerashortstring>AD</modernerashortstring>
   <moderneralongstring>year of our Lord</moderneralongstring>
   <weekdays>
-    <weekday>Monday</weekday>
-    <weekday>Tuesday</weekday>
-    <weekday>Wednesday</weekday>
-    <weekday>Thursday</weekday>
-    <weekday>Friday</weekday>
-    <weekday>Saturday</weekday>
-    <weekday>Sunday</weekday>
+	<weekday>Monday</weekday>
+	<weekday>Tuesday</weekday>
+	<weekday>Wednesday</weekday>
+	<weekday>Thursday</weekday>
+	<weekday>Friday</weekday>
+	<weekday>Saturday</weekday>
+	<weekday>Sunday</weekday>
   </weekdays>
   <months>
-    <month>
-      <alias>january</alias>
-      <shortname>jan</shortname>
-      <fullname>January</fullname>
-      <nominalorder>1</nominalorder>
-      <normaldays>31</normaldays>
-      <intercalarydays />
-      <specialdays>
+	<month>
+	  <alias>january</alias>
+	  <shortname>jan</shortname>
+	  <fullname>January</fullname>
+	  <nominalorder>1</nominalorder>
+	  <normaldays>31</normaldays>
+	  <intercalarydays />
+	  <specialdays>
 	   <specialday day=""1"" short=""New Years Day"" long=""New Years Day"" />
 	  </specialdays>
-      <nonweekdays />
-    </month>
-    <month>
-      <alias>february</alias>
-      <shortname>feb</shortname>
-      <fullname>February</fullname>
-      <nominalorder>2</nominalorder>
-      <normaldays>28</normaldays>
-      <intercalarydays>
-        <intercalaryday>
-          <insertdays>1</insertdays>
-          <nonweekdays />
-          <removenonweekdays />
-          <specialdays/>
-          <removespecialdays />
-          <intercalaryrule>
-            <offset>0</offset>
-            <divisor>4</divisor>
-            <exceptions />
-            <ands />
-            <ors />
-          </intercalaryrule>
-        </intercalaryday>
-      </intercalarydays>
-      <specialdays />
-      <nonweekdays />
-    </month>
-    <month>
-      <alias>march</alias>
-      <shortname>mar</shortname>
-      <fullname>March</fullname>
-      <nominalorder>3</nominalorder>
-      <normaldays>31</normaldays>
-      <intercalarydays />
-      <specialdays />
-      <nonweekdays />
-    </month>
-    <month>
-      <alias>april</alias>
-      <shortname>apr</shortname>
-      <fullname>April</fullname>
-      <nominalorder>4</nominalorder>
-      <normaldays>30</normaldays>
-      <intercalarydays />
-      <specialdays />
-      <nonweekdays />
-    </month>
-    <month>
-      <alias>may</alias>
-      <shortname>may</shortname>
-      <fullname>May</fullname>
-      <nominalorder>5</nominalorder>
-      <normaldays>31</normaldays>
-      <intercalarydays />
-      <specialdays />
-      <nonweekdays />
-    </month>
-    <month>
-      <alias>june</alias>
-      <shortname>jun</shortname>
-      <fullname>June</fullname>
-      <nominalorder>6</nominalorder>
-      <normaldays>30</normaldays>
-      <intercalarydays />
-      <specialdays />
-      <nonweekdays />
-    </month>
-    <month>
-      <alias>july</alias>
-      <shortname>jul</shortname>
-      <fullname>July</fullname>
-      <nominalorder>7</nominalorder>
-      <normaldays>31</normaldays>
-      <intercalarydays />
-      <specialdays />
-      <nonweekdays />
-    </month>
-    <month>
-      <alias>august</alias>
-      <shortname>aug</shortname>
-      <fullname>August</fullname>
-      <nominalorder>8</nominalorder>
-      <normaldays>31</normaldays>
-      <intercalarydays />
-      <specialdays />
-      <nonweekdays />
-    </month>
-    <month>
-      <alias>september</alias>
-      <shortname>sep</shortname>
-      <fullname>September</fullname>
-      <nominalorder>9</nominalorder>
-      <normaldays>30</normaldays>
-      <intercalarydays />
-      <specialdays />
-      <nonweekdays />
-    </month>
-    <month>
-      <alias>october</alias>
-      <shortname>oct</shortname>
-      <fullname>October</fullname>
-      <nominalorder>10</nominalorder>
-      <normaldays>31</normaldays>
-      <intercalarydays />
-      <specialdays />
-      <nonweekdays />
-    </month>
-    <month>
-      <alias>november</alias>
-      <shortname>nov</shortname>
-      <fullname>November</fullname>
-      <nominalorder>11</nominalorder>
-      <normaldays>30</normaldays>
-      <intercalarydays />
-      <specialdays />
-      <nonweekdays />
-    </month>
-    <month>
-      <alias>december</alias>
-      <shortname>dec</shortname>
-      <fullname>December</fullname>
-      <nominalorder>12</nominalorder>
-      <normaldays>31</normaldays>
-      <intercalarydays />
-      <specialdays>
-        <specialday day=""31"" short=""New Years Eve"" long=""New Years Eve"" />
-      </specialdays>
-      <nonweekdays />
-    </month>
+	  <nonweekdays />
+	</month>
+	<month>
+	  <alias>february</alias>
+	  <shortname>feb</shortname>
+	  <fullname>February</fullname>
+	  <nominalorder>2</nominalorder>
+	  <normaldays>28</normaldays>
+	  <intercalarydays>
+		<intercalaryday>
+		  <insertdays>1</insertdays>
+		  <nonweekdays />
+		  <removenonweekdays />
+		  <specialdays/>
+		  <removespecialdays />
+		  <intercalaryrule>
+			<offset>0</offset>
+			<divisor>4</divisor>
+			<exceptions />
+			<ands />
+			<ors />
+		  </intercalaryrule>
+		</intercalaryday>
+	  </intercalarydays>
+	  <specialdays />
+	  <nonweekdays />
+	</month>
+	<month>
+	  <alias>march</alias>
+	  <shortname>mar</shortname>
+	  <fullname>March</fullname>
+	  <nominalorder>3</nominalorder>
+	  <normaldays>31</normaldays>
+	  <intercalarydays />
+	  <specialdays />
+	  <nonweekdays />
+	</month>
+	<month>
+	  <alias>april</alias>
+	  <shortname>apr</shortname>
+	  <fullname>April</fullname>
+	  <nominalorder>4</nominalorder>
+	  <normaldays>30</normaldays>
+	  <intercalarydays />
+	  <specialdays />
+	  <nonweekdays />
+	</month>
+	<month>
+	  <alias>may</alias>
+	  <shortname>may</shortname>
+	  <fullname>May</fullname>
+	  <nominalorder>5</nominalorder>
+	  <normaldays>31</normaldays>
+	  <intercalarydays />
+	  <specialdays />
+	  <nonweekdays />
+	</month>
+	<month>
+	  <alias>june</alias>
+	  <shortname>jun</shortname>
+	  <fullname>June</fullname>
+	  <nominalorder>6</nominalorder>
+	  <normaldays>30</normaldays>
+	  <intercalarydays />
+	  <specialdays />
+	  <nonweekdays />
+	</month>
+	<month>
+	  <alias>july</alias>
+	  <shortname>jul</shortname>
+	  <fullname>July</fullname>
+	  <nominalorder>7</nominalorder>
+	  <normaldays>31</normaldays>
+	  <intercalarydays />
+	  <specialdays />
+	  <nonweekdays />
+	</month>
+	<month>
+	  <alias>august</alias>
+	  <shortname>aug</shortname>
+	  <fullname>August</fullname>
+	  <nominalorder>8</nominalorder>
+	  <normaldays>31</normaldays>
+	  <intercalarydays />
+	  <specialdays />
+	  <nonweekdays />
+	</month>
+	<month>
+	  <alias>september</alias>
+	  <shortname>sep</shortname>
+	  <fullname>September</fullname>
+	  <nominalorder>9</nominalorder>
+	  <normaldays>30</normaldays>
+	  <intercalarydays />
+	  <specialdays />
+	  <nonweekdays />
+	</month>
+	<month>
+	  <alias>october</alias>
+	  <shortname>oct</shortname>
+	  <fullname>October</fullname>
+	  <nominalorder>10</nominalorder>
+	  <normaldays>31</normaldays>
+	  <intercalarydays />
+	  <specialdays />
+	  <nonweekdays />
+	</month>
+	<month>
+	  <alias>november</alias>
+	  <shortname>nov</shortname>
+	  <fullname>November</fullname>
+	  <nominalorder>11</nominalorder>
+	  <normaldays>30</normaldays>
+	  <intercalarydays />
+	  <specialdays />
+	  <nonweekdays />
+	</month>
+	<month>
+	  <alias>december</alias>
+	  <shortname>dec</shortname>
+	  <fullname>December</fullname>
+	  <nominalorder>12</nominalorder>
+	  <normaldays>31</normaldays>
+	  <intercalarydays />
+	  <specialdays>
+		<specialday day=""31"" short=""New Years Eve"" long=""New Years Eve"" />
+	  </specialdays>
+	  <nonweekdays />
+	</month>
   </months>
   <intercalarymonths />
 </calendar>"
@@ -2477,172 +2477,172 @@ Your answer: ", (context, answers) => answers["mode"].EqualTo("middle-earth"), (
   <modernerashortstring>{(useCE ? "CE" : "AD")}</modernerashortstring>
   <moderneralongstring>{(useCE ? "year of the Common Era" : "year of our Lord")}</moderneralongstring>
   <weekdays>
-    <weekday>Monday</weekday>
-    <weekday>Tuesday</weekday>
-    <weekday>Wednesday</weekday>
-    <weekday>Thursday</weekday>
-    <weekday>Friday</weekday>
-    <weekday>Saturday</weekday>
-    <weekday>Sunday</weekday>
+	<weekday>Monday</weekday>
+	<weekday>Tuesday</weekday>
+	<weekday>Wednesday</weekday>
+	<weekday>Thursday</weekday>
+	<weekday>Friday</weekday>
+	<weekday>Saturday</weekday>
+	<weekday>Sunday</weekday>
   </weekdays>
   <months>
-    <month>
-      <alias>january</alias>
-      <shortname>jan</shortname>
-      <fullname>January</fullname>
-      <nominalorder>1</nominalorder>
-      <normaldays>31</normaldays>
-      <intercalarydays />
-      <specialdays>
+	<month>
+	  <alias>january</alias>
+	  <shortname>jan</shortname>
+	  <fullname>January</fullname>
+	  <nominalorder>1</nominalorder>
+	  <normaldays>31</normaldays>
+	  <intercalarydays />
+	  <specialdays>
 	   <specialday day=""1"" short=""New Years Day"" long=""New Years Day"" />
 	  </specialdays>
-      <nonweekdays />
-    </month>
-    <month>
-      <alias>february</alias>
-      <shortname>feb</shortname>
-      <fullname>February</fullname>
-      <nominalorder>2</nominalorder>
-      <normaldays>28</normaldays>
-      <intercalarydays>
-        <intercalaryday>
-          <insertdays>1</insertdays>
-          <nonweekdays />
-          <removenonweekdays />
-          <specialdays/>
-          <removespecialdays />
-          <intercalaryrule>
-            <offset>0</offset>
-            <divisor>4</divisor>
-            <exceptions>
-              <intercalaryrule>
-                <offset>0</offset>
-                <divisor>100</divisor>
-                <exceptions>
-                  <intercalaryrule>
-                    <offset>0</offset>
-                    <divisor>400</divisor>
-                    <exceptions />
-                    <ands />
-                    <ors />
-                  </intercalaryrule>
-                </exceptions>
-                <ands />
-                <ors />
-              </intercalaryrule>
-            </exceptions>
-            <ands />
-            <ors />
-          </intercalaryrule>
-        </intercalaryday>
-      </intercalarydays>
-      <specialdays />
-      <nonweekdays />
-    </month>
-    <month>
-      <alias>march</alias>
-      <shortname>mar</shortname>
-      <fullname>March</fullname>
-      <nominalorder>3</nominalorder>
-      <normaldays>31</normaldays>
-      <intercalarydays />
-      <specialdays />
-      <nonweekdays />
-    </month>
-    <month>
-      <alias>april</alias>
-      <shortname>apr</shortname>
-      <fullname>April</fullname>
-      <nominalorder>4</nominalorder>
-      <normaldays>30</normaldays>
-      <intercalarydays />
-      <specialdays />
-      <nonweekdays />
-    </month>
-    <month>
-      <alias>may</alias>
-      <shortname>may</shortname>
-      <fullname>May</fullname>
-      <nominalorder>5</nominalorder>
-      <normaldays>31</normaldays>
-      <intercalarydays />
-      <specialdays />
-      <nonweekdays />
-    </month>
-    <month>
-      <alias>june</alias>
-      <shortname>jun</shortname>
-      <fullname>June</fullname>
-      <nominalorder>6</nominalorder>
-      <normaldays>30</normaldays>
-      <intercalarydays />
-      <specialdays />
-      <nonweekdays />
-    </month>
-    <month>
-      <alias>july</alias>
-      <shortname>jul</shortname>
-      <fullname>July</fullname>
-      <nominalorder>7</nominalorder>
-      <normaldays>31</normaldays>
-      <intercalarydays />
-      <specialdays />
-      <nonweekdays />
-    </month>
-    <month>
-      <alias>august</alias>
-      <shortname>aug</shortname>
-      <fullname>August</fullname>
-      <nominalorder>8</nominalorder>
-      <normaldays>31</normaldays>
-      <intercalarydays />
-      <specialdays />
-      <nonweekdays />
-    </month>
-    <month>
-      <alias>september</alias>
-      <shortname>sep</shortname>
-      <fullname>September</fullname>
-      <nominalorder>9</nominalorder>
-      <normaldays>30</normaldays>
-      <intercalarydays />
-      <specialdays />
-      <nonweekdays />
-    </month>
-    <month>
-      <alias>october</alias>
-      <shortname>oct</shortname>
-      <fullname>October</fullname>
-      <nominalorder>10</nominalorder>
-      <normaldays>31</normaldays>
-      <intercalarydays />
-      <specialdays />
-      <nonweekdays />
-    </month>
-    <month>
-      <alias>november</alias>
-      <shortname>nov</shortname>
-      <fullname>November</fullname>
-      <nominalorder>11</nominalorder>
-      <normaldays>30</normaldays>
-      <intercalarydays />
-      <specialdays />
-      <nonweekdays />
-    </month>
-    <month>
-      <alias>december</alias>
-      <shortname>dec</shortname>
-      <fullname>December</fullname>
-      <nominalorder>12</nominalorder>
-      <normaldays>31</normaldays>
-      <intercalarydays />
-      <specialdays>
-        <specialday day=""25"" short=""Christmas"" long=""Christmas Day"" />
-        <specialday day=""26"" short=""Boxing Day"" long=""Boxing Day"" />
-        <specialday day=""31"" short=""New Years Eve"" long=""New Years Eve"" />
-      </specialdays>
-      <nonweekdays />
-    </month>
+	  <nonweekdays />
+	</month>
+	<month>
+	  <alias>february</alias>
+	  <shortname>feb</shortname>
+	  <fullname>February</fullname>
+	  <nominalorder>2</nominalorder>
+	  <normaldays>28</normaldays>
+	  <intercalarydays>
+		<intercalaryday>
+		  <insertdays>1</insertdays>
+		  <nonweekdays />
+		  <removenonweekdays />
+		  <specialdays/>
+		  <removespecialdays />
+		  <intercalaryrule>
+			<offset>0</offset>
+			<divisor>4</divisor>
+			<exceptions>
+			  <intercalaryrule>
+				<offset>0</offset>
+				<divisor>100</divisor>
+				<exceptions>
+				  <intercalaryrule>
+					<offset>0</offset>
+					<divisor>400</divisor>
+					<exceptions />
+					<ands />
+					<ors />
+				  </intercalaryrule>
+				</exceptions>
+				<ands />
+				<ors />
+			  </intercalaryrule>
+			</exceptions>
+			<ands />
+			<ors />
+		  </intercalaryrule>
+		</intercalaryday>
+	  </intercalarydays>
+	  <specialdays />
+	  <nonweekdays />
+	</month>
+	<month>
+	  <alias>march</alias>
+	  <shortname>mar</shortname>
+	  <fullname>March</fullname>
+	  <nominalorder>3</nominalorder>
+	  <normaldays>31</normaldays>
+	  <intercalarydays />
+	  <specialdays />
+	  <nonweekdays />
+	</month>
+	<month>
+	  <alias>april</alias>
+	  <shortname>apr</shortname>
+	  <fullname>April</fullname>
+	  <nominalorder>4</nominalorder>
+	  <normaldays>30</normaldays>
+	  <intercalarydays />
+	  <specialdays />
+	  <nonweekdays />
+	</month>
+	<month>
+	  <alias>may</alias>
+	  <shortname>may</shortname>
+	  <fullname>May</fullname>
+	  <nominalorder>5</nominalorder>
+	  <normaldays>31</normaldays>
+	  <intercalarydays />
+	  <specialdays />
+	  <nonweekdays />
+	</month>
+	<month>
+	  <alias>june</alias>
+	  <shortname>jun</shortname>
+	  <fullname>June</fullname>
+	  <nominalorder>6</nominalorder>
+	  <normaldays>30</normaldays>
+	  <intercalarydays />
+	  <specialdays />
+	  <nonweekdays />
+	</month>
+	<month>
+	  <alias>july</alias>
+	  <shortname>jul</shortname>
+	  <fullname>July</fullname>
+	  <nominalorder>7</nominalorder>
+	  <normaldays>31</normaldays>
+	  <intercalarydays />
+	  <specialdays />
+	  <nonweekdays />
+	</month>
+	<month>
+	  <alias>august</alias>
+	  <shortname>aug</shortname>
+	  <fullname>August</fullname>
+	  <nominalorder>8</nominalorder>
+	  <normaldays>31</normaldays>
+	  <intercalarydays />
+	  <specialdays />
+	  <nonweekdays />
+	</month>
+	<month>
+	  <alias>september</alias>
+	  <shortname>sep</shortname>
+	  <fullname>September</fullname>
+	  <nominalorder>9</nominalorder>
+	  <normaldays>30</normaldays>
+	  <intercalarydays />
+	  <specialdays />
+	  <nonweekdays />
+	</month>
+	<month>
+	  <alias>october</alias>
+	  <shortname>oct</shortname>
+	  <fullname>October</fullname>
+	  <nominalorder>10</nominalorder>
+	  <normaldays>31</normaldays>
+	  <intercalarydays />
+	  <specialdays />
+	  <nonweekdays />
+	</month>
+	<month>
+	  <alias>november</alias>
+	  <shortname>nov</shortname>
+	  <fullname>November</fullname>
+	  <nominalorder>11</nominalorder>
+	  <normaldays>30</normaldays>
+	  <intercalarydays />
+	  <specialdays />
+	  <nonweekdays />
+	</month>
+	<month>
+	  <alias>december</alias>
+	  <shortname>dec</shortname>
+	  <fullname>December</fullname>
+	  <nominalorder>12</nominalorder>
+	  <normaldays>31</normaldays>
+	  <intercalarydays />
+	  <specialdays>
+		<specialday day=""25"" short=""Christmas"" long=""Christmas Day"" />
+		<specialday day=""26"" short=""Boxing Day"" long=""Boxing Day"" />
+		<specialday day=""31"" short=""New Years Eve"" long=""New Years Eve"" />
+	  </specialdays>
+	  <nonweekdays />
+	</month>
   </months>
   <intercalarymonths />
 </calendar>"

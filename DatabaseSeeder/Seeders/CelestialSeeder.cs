@@ -55,20 +55,53 @@ If you chose the Latin calendars, you might want to do #301-ianuarius-500#f inst
 If you chose the Middle-Earth calendars, you almost certainly want to use #301-yestare-YEAR#f.
 
 What epoch date do you want to use?", (context, answers) => answers["installsun"].EqualToAny("y", "yes"),
-				(answer, context) =>
-				{
-					if (!DateValidationRegex.IsMatch(answer))
-						return (false,
-							"The date you supplied is definitely not a valid date. Please refer to the guidance above.");
-					return (true, string.Empty);
-				})
-		};
+                                (answer, context) =>
+                                {
+                                        if (!DateValidationRegex.IsMatch(answer))
+                                                return (false,
+                                                        "The date you supplied is definitely not a valid date. Please refer to the guidance above.");
+                                        return (true, string.Empty);
+                                }),
+                        ("installmoon",
+                                @"Do you want to install Earth's Moon as a planetary moon?",
+                                (context, answers) => true,
+                                (answer, context) =>
+                                {
+                                        if (!answer.EqualToAny("yes", "y", "no", "n")) return (false, "Please choose yes or no.");
+                                        return (true, string.Empty);
+                                }),
+                        ("mooncalendar",
+                                @"Which calendar should the moon be tied to?",
+                                (context, answers) => answers["installmoon"].EqualToAny("y", "yes"),
+                                (answer, context) =>
+                                {
+                                        if (long.TryParse(answer, out var id))
+                                                if (context.Calendars.Any(x => x.Id == id))
+                                                        return (true, string.Empty);
+                                        return (false,
+                                                $"You must choose from calendars with IDs in the following list: {context.Calendars.Select(x => x.Id.ToString("N0")).ListToCommaSeparatedValues(", ")}");
+                                }),
+                        ("moonname",
+                                @"What name would you like to give to your moon?",
+                                (context, answers) => answers["installmoon"].EqualToAny("y", "yes"),
+                                (answer, context) => (true, string.Empty)),
+                        ("moonepoch",
+                                @"What epoch date should be used for the moon?",
+                                (context, answers) => answers["installmoon"].EqualToAny("y", "yes"),
+                                (answer, context) =>
+                                {
+                                        if (!DateValidationRegex.IsMatch(answer))
+                                                return (false, "The date you supplied is definitely not a valid date. Please refer to the guidance above.");
+                                        return (true, string.Empty);
+                                })
+                };
 
 	public string SeedData(FuturemudDatabaseContext context, IReadOnlyDictionary<string, string> questionAnswers)
 	{
-		context.Database.BeginTransaction();
-		if (questionAnswers["installsun"].EqualToAny("yes", "y")) SetupSun(context, questionAnswers);
-		context.SaveChanges();
+                context.Database.BeginTransaction();
+                if (questionAnswers["installsun"].EqualToAny("yes", "y")) SetupSun(context, questionAnswers);
+                if (questionAnswers["installmoon"].EqualToAny("yes", "y")) SetupMoon(context, questionAnswers);
+                context.SaveChanges();
 		context.Database.CommitTransaction();
 
 		return "Successfully set up celestials.";
@@ -174,3 +207,40 @@ What epoch date do you want to use?", (context, answers) => answers["installsun"
 		});
 	}
 }
+        private void SetupMoon(FuturemudDatabaseContext context, IReadOnlyDictionary<string, string> questionAnswers)
+        {
+                var moonName = questionAnswers["moonname"];
+                var moonCalendarId = long.Parse(questionAnswers["mooncalendar"]);
+                var epoch = questionAnswers["moonepoch"];
+                var calendar = context.Calendars.First(x => x.Id == moonCalendarId);
+
+                context.Celestials.Add(new Celestial
+                {
+                        CelestialType = "PlanetaryMoon",
+                        CelestialYear = 0,
+                        LastYearBump = 0,
+                        Minutes = 0,
+                        FeedClockId = calendar.FeedClockId,
+                        Definition = @$"<PlanetaryMoon>
+    <Name>{moonName}</Name>
+    <Calendar>{moonCalendarId}</Calendar>
+    <Orbital>
+        <CelestialDaysPerYear>29.530588</CelestialDaysPerYear>
+        <MeanAnomalyAngleAtEpoch>5.55665</MeanAnomalyAngleAtEpoch>
+        <AnomalyChangeAnglePerDay>0.229971</AnomalyChangeAnglePerDay>
+        <ArgumentOfPeriapsis>5.1985</ArgumentOfPeriapsis>
+        <LongitudeOfAscendingNode>2.18244</LongitudeOfAscendingNode>
+        <OrbitalInclination>0.0898</OrbitalInclination>
+        <OrbitalEccentricity>0.0549</OrbitalEccentricity>
+        <DayNumberAtEpoch>2451545</DayNumberAtEpoch>
+        <SiderealTimeAtEpoch>4.889488</SiderealTimeAtEpoch>
+        <SiderealTimePerDay>6.300388</SiderealTimePerDay>
+        <EpochDate>{epoch}</EpochDate>
+    </Orbital>
+    <Illumination>
+        <PeakIllumination>1.0</PeakIllumination>
+        <FullMoonReferenceDay>0</FullMoonReferenceDay>
+    </Illumination>
+</PlanetaryMoon>"
+                });
+        }

@@ -19,7 +19,7 @@ using MudSharp.RPG.Checks;
 
 namespace DatabaseSeeder.Seeders;
 
-public class AnimalSeeder : IDatabaseSeeder
+public partial class AnimalSeeder : IDatabaseSeeder
 {
 	private readonly Dictionary<string, WeaponAttack> _attacks =
 		new(StringComparer.OrdinalIgnoreCase);
@@ -501,15 +501,53 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f: ", (context, answers) =
 			LegDescriptionSingular = "leg",
 			WearSizeParameter = wearSize
 		};
-		context.BodyProtos.Add(cetacean);
-		context.SaveChanges();
+                context.BodyProtos.Add(cetacean);
+                context.SaveChanges();
 
-		SeedAquatic(fishBody, crabBody, cephalopod, jellyfish, pinniped, cetacean);
+                SeedAquatic(fishBody, crabBody, cephalopod, jellyfish, pinniped, cetacean);
 
-		SetupPositions(quadrupedBody, avianBody, serpentineBody, fishBody, crabBody, cephalopod, jellyfish, pinniped,
-			cetacean, wormBody);
-		SetupSpeeds(quadrupedBody, avianBody, serpentineBody, fishBody, crabBody, cephalopod, jellyfish, pinniped,
-			cetacean, wormBody);
+                Console.WriteLine("Installing insectoids...");
+                var insectBody = new BodyProto
+                {
+                        Id = nextId++,
+                        Name = "Insectoid",
+                        ConsiderString = "",
+                        WielderDescriptionSingle = "mandible",
+                        WielderDescriptionPlural = "mandibles",
+                        StaminaRecoveryProgId = staminaRecoveryProg.Id,
+                        MinimumLegsToStand = 6,
+                        MinimumWingsToFly = 2,
+                        LegDescriptionPlural = "legs",
+                        LegDescriptionSingular = "leg",
+                        WearSizeParameter = wearSize
+                };
+                context.BodyProtos.Add(insectBody);
+                context.SaveChanges();
+
+                var wingedInsectBody = new BodyProto
+                {
+                        Id = nextId++,
+                        Name = "Winged Insectoid",
+                        ConsiderString = "",
+                        WielderDescriptionSingle = "mandible",
+                        WielderDescriptionPlural = "mandibles",
+                        StaminaRecoveryProgId = staminaRecoveryProg.Id,
+                        MinimumLegsToStand = 6,
+                        MinimumWingsToFly = 2,
+                        LegDescriptionPlural = "legs",
+                        LegDescriptionSingular = "leg",
+                        WearSizeParameter = wearSize
+                };
+                context.BodyProtos.Add(wingedInsectBody);
+                context.SaveChanges();
+
+                SeedInsectoid(insectBody);
+                SeedWingedInsectoid(wingedInsectBody);
+
+                SetupPositions(quadrupedBody, avianBody, serpentineBody, fishBody, crabBody, cephalopod, jellyfish, pinniped,
+                        cetacean, wormBody, insectBody, wingedInsectBody);
+                SetupSpeeds(quadrupedBody, avianBody, serpentineBody, fishBody, crabBody, cephalopod, jellyfish, pinniped,
+                        cetacean, wormBody, insectBody, wingedInsectBody);
 
 		context.Database.CommitTransaction();
 
@@ -1033,9 +1071,12 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
 		AddHWModel("Seal Baby", 40, 2, 125, 0);
 		AddHWModel("Walrus Male", 300, 15, 144.444444444444, 0);
 		AddHWModel("Walrus Female", 200, 10, 125, 0);
-		AddHWModel("Walrus Juvenile", 150, 7.5, 133.333333333333, 0);
-		AddHWModel("Walrus Baby", 80, 4, 156.25, 0);
-	}
+                AddHWModel("Walrus Juvenile", 150, 7.5, 133.333333333333, 0);
+                AddHWModel("Walrus Baby", 80, 4, 156.25, 0);
+                AddHWModel("Small Insect", 5, 0.25, 20, 2);
+                AddHWModel("Medium Insect", 15, 0.75, 18, 1.8);
+                AddHWModel("Large Insect", 30, 1.5, 17, 1.7);
+        }
 
 	private void AddHWModel(string name, double meanHeight, double stddevheight, double meanbmi, double stddevbmi)
 	{
@@ -3568,7 +3609,9 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
 		var race = new Race
 		{
 			Name = name,
-			Description = description ?? $"The {adjective} race",
+                        Description = string.IsNullOrWhiteSpace(description)
+                                ? $"{name}s are {adjective.ToLowerInvariant()} creatures"
+                                : description,
 			BaseBody = body,
 			AllowedGenders = "2 3",
 			AttributeBonusProg = attributeBonusProg,
@@ -4412,7 +4455,12 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
 		AddShape("Head");
 		AddShape("Front Flipper");
 		AddShape("Hind Flipper");
-		AddShape("Blowhole");
+                AddShape("Blowhole");
+                AddShape("Insect Thorax");
+                AddShape("Insect Abdomen");
+                AddShape("Antenna");
+                AddShape("Mandible");
+                AddShape("Compound Eye");
 
 		_context.SaveChanges();
 
@@ -5208,7 +5256,7 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
 
 		#region Tail
 
-		AddBodypart(fishProto, "peduncle", "peduncle", "tail", BodypartTypeEnum.Wear, "lback", Alignment.Rear,
+                AddBodypart(fishProto, "peduncle", "peduncle", "Peduncle", BodypartTypeEnum.Wear, "lback", Alignment.Rear,
 			Orientation.Centre, 30, 50, 100, order++, "Flesh", SizeCategory.Normal, "Tail");
 		AddBodypart(fishProto, "caudalfin", "caudal fin", "fin", BodypartTypeEnum.Fin, "peduncle", Alignment.Rear,
 			Orientation.Centre, 20, 35, 100, order++, "Fin", SizeCategory.Normal, "Tail");
@@ -7877,9 +7925,10 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
 	#endregion
 
 	#region Speeds and Positions
-	private void SetupSpeeds(BodyProto quadrupedBody, BodyProto avianBody, BodyProto serpentBody,
-		BodyProto fishProto, BodyProto crabProto, BodyProto octopusProto, BodyProto jellyfishProto,
-		BodyProto pinnipedProto, BodyProto cetaceanProto, BodyProto wormBody)
+        private void SetupSpeeds(BodyProto quadrupedBody, BodyProto avianBody, BodyProto serpentBody,
+                BodyProto fishProto, BodyProto crabProto, BodyProto octopusProto, BodyProto jellyfishProto,
+                BodyProto pinnipedProto, BodyProto cetaceanProto, BodyProto wormBody, BodyProto insectBody,
+                BodyProto wingedInsectBody)
 	{
 		Console.WriteLine($"[{_stopwatch.Elapsed.TotalSeconds:N1}s] Setting up Speeds");
 		var nextId = _context.MoveSpeeds.Select(x => x.Id).AsEnumerable().DefaultIfEmpty(0).Max() + 1;
@@ -8116,12 +8165,64 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
 			Id = nextId++, BodyProto = wormBody, PositionId = 18, Alias = "fly", FirstPersonVerb = "fly",
 			ThirdPersonVerb = "flies", PresentParticiple = "flying", Multiplier = 1.8, StaminaMultiplier = 15
 		});
-		_context.MoveSpeeds.Add(new MoveSpeed
-		{
-			Id = nextId++, BodyProto = wormBody, PositionId = 18, Alias = "franticfly",
-			FirstPersonVerb = "franticly fly", ThirdPersonVerb = "franticly flies",
-			PresentParticiple = "franticly flying", Multiplier = 1.4, StaminaMultiplier = 25
-		});
+                _context.MoveSpeeds.Add(new MoveSpeed
+                {
+                        Id = nextId++, BodyProto = wormBody, PositionId = 18, Alias = "franticfly",
+                        FirstPersonVerb = "franticly fly", ThirdPersonVerb = "franticly flies",
+                        PresentParticiple = "franticly flying", Multiplier = 1.4, StaminaMultiplier = 25
+                });
+
+                _context.MoveSpeeds.Add(new MoveSpeed
+                {
+                        Id = nextId++, BodyProto = insectBody, PositionId = 1, Alias = "walk", FirstPersonVerb = "walk",
+                        ThirdPersonVerb = "walks", PresentParticiple = "walking", Multiplier = 1, StaminaMultiplier = 0.8
+                });
+                _context.MoveSpeeds.Add(new MoveSpeed
+                {
+                        Id = nextId++, BodyProto = insectBody, PositionId = 1, Alias = "run", FirstPersonVerb = "run",
+                        ThirdPersonVerb = "runs", PresentParticiple = "running", Multiplier = 0.5, StaminaMultiplier = 1.5
+                });
+                _context.MoveSpeeds.Add(new MoveSpeed
+                {
+                        Id = nextId++, BodyProto = insectBody, PositionId = 6, Alias = "crawl", FirstPersonVerb = "crawl",
+                        ThirdPersonVerb = "crawls", PresentParticiple = "crawling", Multiplier = 1.5, StaminaMultiplier = 1.0
+                });
+                _context.MoveSpeeds.Add(new MoveSpeed
+                {
+                        Id = nextId++, BodyProto = insectBody, PositionId = 15, Alias = "climb", FirstPersonVerb = "climb",
+                        ThirdPersonVerb = "climbs", PresentParticiple = "climbing", Multiplier = 2, StaminaMultiplier = 2
+                });
+                _context.MoveSpeeds.Add(new MoveSpeed
+                {
+                        Id = nextId++, BodyProto = insectBody, PositionId = 18, Alias = "fly", FirstPersonVerb = "fly",
+                        ThirdPersonVerb = "flies", PresentParticiple = "flying", Multiplier = 1.5, StaminaMultiplier = 10
+                });
+
+                _context.MoveSpeeds.Add(new MoveSpeed
+                {
+                        Id = nextId++, BodyProto = wingedInsectBody, PositionId = 1, Alias = "walk", FirstPersonVerb = "walk",
+                        ThirdPersonVerb = "walks", PresentParticiple = "walking", Multiplier = 1, StaminaMultiplier = 0.8
+                });
+                _context.MoveSpeeds.Add(new MoveSpeed
+                {
+                        Id = nextId++, BodyProto = wingedInsectBody, PositionId = 1, Alias = "run", FirstPersonVerb = "run",
+                        ThirdPersonVerb = "runs", PresentParticiple = "running", Multiplier = 0.5, StaminaMultiplier = 1.5
+                });
+                _context.MoveSpeeds.Add(new MoveSpeed
+                {
+                        Id = nextId++, BodyProto = wingedInsectBody, PositionId = 6, Alias = "crawl", FirstPersonVerb = "crawl",
+                        ThirdPersonVerb = "crawls", PresentParticiple = "crawling", Multiplier = 1.5, StaminaMultiplier = 1.0
+                });
+                _context.MoveSpeeds.Add(new MoveSpeed
+                {
+                        Id = nextId++, BodyProto = wingedInsectBody, PositionId = 15, Alias = "climb", FirstPersonVerb = "climb",
+                        ThirdPersonVerb = "climbs", PresentParticiple = "climbing", Multiplier = 2, StaminaMultiplier = 2
+                });
+                _context.MoveSpeeds.Add(new MoveSpeed
+                {
+                        Id = nextId++, BodyProto = wingedInsectBody, PositionId = 18, Alias = "fly", FirstPersonVerb = "fly",
+                        ThirdPersonVerb = "flies", PresentParticiple = "flying", Multiplier = 1.5, StaminaMultiplier = 10
+                });
 
 		_context.MoveSpeeds.Add(new MoveSpeed
 		{
@@ -8310,9 +8411,10 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
 		#endregion
 	}
 
-	private void SetupPositions(BodyProto quadrupedBody, BodyProto avianBody, BodyProto serpentBody,
-		BodyProto fishProto, BodyProto crabProto, BodyProto octopusProto, BodyProto jellyfishProto,
-		BodyProto pinnipedProto, BodyProto cetaceanProto, BodyProto wormProto)
+        private void SetupPositions(BodyProto quadrupedBody, BodyProto avianBody, BodyProto serpentBody,
+                BodyProto fishProto, BodyProto crabProto, BodyProto octopusProto, BodyProto jellyfishProto,
+                BodyProto pinnipedProto, BodyProto cetaceanProto, BodyProto wormProto, BodyProto insectBody,
+                BodyProto wingedInsectBody)
 	{
 		Console.WriteLine($"[{_stopwatch.Elapsed.TotalSeconds:N1}s] Setting up Positions");
 		_context.BodyProtosPositions.Add(new BodyProtosPositions
@@ -8402,9 +8504,21 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
 
 		_context.BodyProtosPositions.Add(new BodyProtosPositions { BodyProto = wormProto, Position = 8 }); // Sprawled
 		_context.BodyProtosPositions.Add(new BodyProtosPositions { BodyProto = wormProto, Position = 6 }); // Prone
-		_context.BodyProtosPositions.Add(new BodyProtosPositions { BodyProto = wormProto, Position = 18 }); // Flying
-		_context.BodyProtosPositions.Add(new BodyProtosPositions { BodyProto = wormProto, Position = 16 }); // Swimming
-		_context.BodyProtosPositions.Add(new BodyProtosPositions { BodyProto = wormProto, Position = 15 }); // Climbing
+                _context.BodyProtosPositions.Add(new BodyProtosPositions { BodyProto = wormProto, Position = 18 }); // Flying
+                _context.BodyProtosPositions.Add(new BodyProtosPositions { BodyProto = wormProto, Position = 16 }); // Swimming
+                _context.BodyProtosPositions.Add(new BodyProtosPositions { BodyProto = wormProto, Position = 15 }); // Climbing
+
+                _context.BodyProtosPositions.Add(new BodyProtosPositions { BodyProto = insectBody, Position = 1 }); // Standing
+                _context.BodyProtosPositions.Add(new BodyProtosPositions { BodyProto = insectBody, Position = 8 }); // Sprawled
+                _context.BodyProtosPositions.Add(new BodyProtosPositions { BodyProto = insectBody, Position = 6 }); // Prone
+                _context.BodyProtosPositions.Add(new BodyProtosPositions { BodyProto = insectBody, Position = 18 }); // Flying
+                _context.BodyProtosPositions.Add(new BodyProtosPositions { BodyProto = insectBody, Position = 15 }); // Climbing
+
+                _context.BodyProtosPositions.Add(new BodyProtosPositions { BodyProto = wingedInsectBody, Position = 1 }); // Standing
+                _context.BodyProtosPositions.Add(new BodyProtosPositions { BodyProto = wingedInsectBody, Position = 8 }); // Sprawled
+                _context.BodyProtosPositions.Add(new BodyProtosPositions { BodyProto = wingedInsectBody, Position = 6 }); // Prone
+                _context.BodyProtosPositions.Add(new BodyProtosPositions { BodyProto = wingedInsectBody, Position = 18 }); // Flying
+                _context.BodyProtosPositions.Add(new BodyProtosPositions { BodyProto = wingedInsectBody, Position = 15 }); // Climbing
 
 		_context.BodyProtosPositions.Add(new BodyProtosPositions { BodyProto = fishProto, Position = 8 }); // Sprawled
 		_context.BodyProtosPositions.Add(new BodyProtosPositions { BodyProto = fishProto, Position = 6 }); // Prone

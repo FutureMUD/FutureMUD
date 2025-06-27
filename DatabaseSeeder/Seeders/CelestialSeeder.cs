@@ -205,8 +205,8 @@ What epoch date do you want to use?", (context, answers) => answers["installsun"
 	</AzimuthDescriptions>
   </SunV2>"
 		});
-	}+
-	private void SetupMoon(FuturemudDatabaseContext context, IReadOnlyDictionary<string, string> questionAnswers)
+        }
+        private void SetupMoon(FuturemudDatabaseContext context, IReadOnlyDictionary<string, string> questionAnswers)
 	{
 		var moonName = questionAnswers["moonname"];
 		var moonCalendarId = long.Parse(questionAnswers["mooncalendar"]);

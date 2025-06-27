@@ -86,7 +86,7 @@ What epoch date do you want to use?", (context, answers) => answers["installsun"
 								(context, answers) => answers["installmoon"].EqualToAny("y", "yes"),
 								(answer, context) => (true, string.Empty)),
 						("moonepoch",
-								@"What epoch date should be used for the moon?",
+								@"What epoch date should be used for the moon? This is a date that is known to be a full moon. For earth, you could use 21/jan/2000",
 								(context, answers) => answers["installmoon"].EqualToAny("y", "yes"),
 								(answer, context) =>
 								{
@@ -205,7 +205,7 @@ What epoch date do you want to use?", (context, answers) => answers["installsun"
 	</AzimuthDescriptions>
   </SunV2>"
 		});
-	}+
+	}
 	private void SetupMoon(FuturemudDatabaseContext context, IReadOnlyDictionary<string, string> questionAnswers)
 	{
 		var moonName = questionAnswers["moonname"];

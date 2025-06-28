@@ -52,10 +52,15 @@ public partial class Body
 			return true;
 		}
 
-		if (OrganFunction<EarProto>() <= 0.0)
-		{
-			return false;
-		}
+                if (AffectedBy<IDeafnessEffect>())
+                {
+                        return false;
+                }
+
+                if (OrganFunction<EarProto>() <= 0.0)
+                {
+                        return false;
+                }
 
 		return !Actor.State.HasFlag(CharacterState.Unconscious);
 	}
@@ -136,25 +141,30 @@ public partial class Body
 		var perceiverThing = thing as IPerceiver;
 
 		// Require at least 1 eye to see unless things are in your inventory or are cell exits
-		var eyes = Bodyparts.OfType<EyeProto>().ToList();
-		if (!visionExemptThing)
-		{
-			if (!flags.HasFlag(PerceiveIgnoreFlags.IgnoreDark) && (!eyes.Any() ||
-			                                                       eyes.All(
-				                                                       AffectedBy<IBodypartIneffectiveEffect>) ||
-			                                                       eyes.All(x => Prosthetics.Any(
-				                                                       y => x.DownstreamOfPart(
-					                                                            y.TargetBodypart) &&
-				                                                            !y.Functional)) ||
-			                                                       eyes.All(x => WornItemsFor(x)
-				                                                       .Any(
-					                                                       y => y
-						                                                       .IsItemType<IBlindfold>())))
-			   )
-			{
-				return false;
-			}
-		}
+                var eyes = Bodyparts.OfType<EyeProto>().ToList();
+                if (!visionExemptThing)
+                {
+                        if (AffectedBy<IBlindnessEffect>())
+                        {
+                                return false;
+                        }
+
+                        if (!flags.HasFlag(PerceiveIgnoreFlags.IgnoreDark) && (!eyes.Any() ||
+                                                                               eyes.All(
+       AffectedBy<IBodypartIneffectiveEffect>) ||
+                                                                               eyes.All(x => Prosthetics.Any(
+       y => x.DownstreamOfPart(
+                    y.TargetBodypart) &&
+            !y.Functional)) ||
+                                                                               eyes.All(x => WornItemsFor(x)
+       .Any(
+               y => y
+                       .IsItemType<IBlindfold>())))
+                           )
+                        {
+                                return false;
+                        }
+                }
 
 		if (!flags.HasFlag(PerceiveIgnoreFlags.IgnoreConsciousness) && Actor.State.IsUnconscious())
 		{

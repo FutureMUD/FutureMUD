@@ -30,6 +30,10 @@ namespace MudSharp.Climate
 
         void SetWeather(IWeatherEvent newEvent);
 
+        bool WeatherFrozen { get; }
+        void FreezeWeather();
+        void UnfreezeWeather();
+
         PrecipitationLevel HighestRecentPrecipitationLevel { get; }
     }
 }

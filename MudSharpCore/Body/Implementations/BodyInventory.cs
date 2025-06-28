@@ -3540,10 +3540,15 @@ public partial class Body
 			return false;
 		}
 
-		var tempItem = container.GetItemType<IContainer>().Contents
-		                        .FirstOrDefault(x => x.GetItemType<ICurrencyPile>() != null);
+                var tempItem = CurrencyGameItemComponentProto.CreateNewCurrencyPile(currency,
+                        targetCoins.SelectMany(x => x.Value)
+                                   .Select(x => x.Key)
+                                   .Distinct()
+                                   .Select(x =>
+                                           Tuple.Create(x, targetCoins.Sum(y => y.Value.Where(z => z.Key == x).Sum(z => z.Value)))),
+                        true);
 
-		return CanGet(tempItem, container, 0, ItemCanGetIgnore.None);
+                return CanGet(tempItem, container, 0, ItemCanGetIgnore.None);
 	}
 
 	public string WhyCannotGet(ICurrency currency, decimal amount, bool exact)
@@ -3603,9 +3608,14 @@ public partial class Body
 				       CurrencyDescriptionPatternType.Short).Colour(Telnet.Green) + ".";
 		}
 
-		var tempItem = container.GetItemType<IContainer>().Contents
-		                        .FirstOrDefault(x => x.GetItemType<ICurrencyPile>() != null);
-		return WhyCannotGet(tempItem, container, 0, ItemCanGetIgnore.None);
+                var tempItem = CurrencyGameItemComponentProto.CreateNewCurrencyPile(currency,
+                        targetCoins.SelectMany(x => x.Value)
+                                   .Select(x => x.Key)
+                                   .Distinct()
+                                   .Select(x =>
+                                           Tuple.Create(x, targetCoins.Sum(y => y.Value.Where(z => z.Key == x).Sum(z => z.Value)))),
+                        true);
+                return WhyCannotGet(tempItem, container, 0, ItemCanGetIgnore.None);
 	}
 
 	public void Get(ICurrency currency, IGameItem containerItem, decimal amount, bool exact, IEmote playerEmote = null,

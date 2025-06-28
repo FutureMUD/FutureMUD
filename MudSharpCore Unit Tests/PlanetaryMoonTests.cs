@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Reflection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using MudSharp.Celestial;
@@ -258,8 +259,8 @@ public class PlanetaryMoonTests
 	}
 
 	[TestMethod]
-	public void TestMoonPhaseCycle()
-	{
+        public void TestMoonPhaseCycle()
+        {
 		_calendar.SetDate("1/dec/1999");
 		var sb = new StringBuilder();
 		for (var i = 0; i < 100; i++)
@@ -281,7 +282,24 @@ public class PlanetaryMoonTests
 		TryTest("21/jan/2000", MoonPhase.Full);
 		TryTest("4/jan/2000", MoonPhase.WaningCrescent);
 		TryTest("7/jan/2000", MoonPhase.New);
-		TryTest("15/jan/2000", MoonPhase.FirstQuarter);
-		TryTest("17/jan/2000", MoonPhase.WaxingGibbous);
-	}
+                TryTest("15/jan/2000", MoonPhase.FirstQuarter);
+                TryTest("17/jan/2000", MoonPhase.WaxingGibbous);
+        }
+
+        [TestMethod]
+        public void TestTriggerEchoSelection()
+        {
+                _moon.Triggers.Clear();
+                _moon.Triggers.Add(new CelestialTrigger(-0.015184, CelestialMoveDirection.Ascending, "rise"));
+                _moon.Triggers.Add(new CelestialTrigger(-0.015184, CelestialMoveDirection.Descending, "set"));
+
+                var oldStatus = new CelestialInformation(_moon, 0.0, -0.03, CelestialMoveDirection.Ascending);
+                var newStatus = new CelestialInformation(_moon, 0.0, 0.0, CelestialMoveDirection.Ascending);
+
+                Assert.IsTrue(_moon.ShouldEcho(oldStatus, newStatus));
+
+                var method = typeof(PlanetaryMoon).GetMethod("GetZoneDisplayTrigger", BindingFlags.NonPublic | BindingFlags.Instance);
+                var trigger = (CelestialTrigger)method.Invoke(_moon, new object[] { oldStatus, newStatus });
+                Assert.AreEqual("rise", trigger.Echo);
+        }
 }

@@ -401,17 +401,17 @@ public partial class Cell : Location, IDisposable, ICell
 		Areas.FirstOrDefault(x => x.Weather != null)?.Weather ??
 		Zone.Weather;
 
-	public IWeatherEvent CurrentWeather(IPerceiver voyeur)
-	{
-		var overlay = GetOverlayFor(voyeur);
-		if (overlay.Terrain.OverrideWeatherController != null)
-		{
-			return overlay.Terrain.OverrideWeatherController.CurrentWeatherEvent;
-		}
+       public IWeatherEvent CurrentWeather(IPerceiver voyeur)
+       {
+               var overlay = GetOverlayFor(voyeur);
+               if (overlay.Terrain.OverrideWeatherController != null)
+               {
+                       return overlay.Terrain.OverrideWeatherController.CurrentWeatherEvent;
+               }
 
-		return Areas.FirstOrDefault(x => x.Weather != null)?.Weather.CurrentWeatherEvent ??
-		       Zone.Weather?.CurrentWeatherEvent;
-	}
+                return Areas.FirstOrDefault(x => x.Weather != null)?.Weather.CurrentWeatherEvent ??
+                       Zone.Weather?.CurrentWeatherEvent;
+        }
 
 	public ISeason CurrentSeason(IPerceiver voyeur)
 	{

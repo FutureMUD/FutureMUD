@@ -236,10 +236,14 @@ What epoch date do you want to use?", (context, answers) => answers["installsun"
 		<SiderealTimePerDay>6.300388</SiderealTimePerDay>
 		<EpochDate>{epoch}</EpochDate>
 	</Orbital>
-	<Illumination>
-		<PeakIllumination>1.0</PeakIllumination>
-		<FullMoonReferenceDay>0</FullMoonReferenceDay>
-	</Illumination>
+        <Illumination>
+                <PeakIllumination>1.0</PeakIllumination>
+                <FullMoonReferenceDay>0</FullMoonReferenceDay>
+        </Illumination>
+        <Triggers>
+          <Trigger angle="-0.015184" direction="Ascending"><![CDATA[The moon rises above the horizon.]]></Trigger>
+          <Trigger angle="-0.015184" direction="Descending"><![CDATA[The moon sets on the horizon.]]></Trigger>
+        </Triggers>
 </PlanetaryMoon>"
 		});
 	}

@@ -24,8 +24,9 @@ namespace MudSharp.Models
 		public double MaximumLeaseDurationDays { get; set; }
 		public bool AllowAutoRenew { get; set; }
 		public bool AutomaticallyRelistAfterLeaseTerm { get; set; }
-		public bool AllowLeaseNovation { get; set; }
-		public bool ListedForLease { get; set; }
+                public bool AllowLeaseNovation { get; set; }
+                public bool RekeyOnLeaseEnd { get; set; }
+                public bool ListedForLease { get; set; }
 		public decimal FeeIncreasePercentageAfterLeaseTerm { get; set; }
 		public string PropertyOwnerConsentInfo { get; set; }
 

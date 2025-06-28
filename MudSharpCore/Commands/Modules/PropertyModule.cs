@@ -83,9 +83,10 @@ The following commands are specific to those who own a property (or who are mana
 	#3property leaseprog <name> none character|clan#0 - clears a prog controlling a lease
 	#3property leaselength <name> <minimum length> <maximum length>#0 - changes the minimum and maximum lease lengths
 	#3property autorenewlease <name>#0 - toggles whether a lease will automatically renew (true by default)
-	#3property autorelist <name>#0 - toggles whether a lease will automatically relist (true by default)
-	#3property allownovation <name>#0 - toggles whether a lesee can novate the lease to another (true by default)
-	#3property bond <name> <bond>#0 - changes the bond required for a lease
+        #3property autorelist <name>#0 - toggles whether a lease will automatically relist (true by default)
+        #3property allownovation <name>#0 - toggles whether a lesee can novate the lease to another (true by default)
+        #3property autorekey <name>#0 - toggles whether the property will rekey all locks at the end of a lease
+        #3property bond <name> <bond>#0 - changes the bond required for a lease
 	#3property rent <name> <price>#0 - changes the rent per interval for the lease
 	#3property cancellease <name>#0 - cancels a lease order for the property
 	#3property terminatelease <name>#0 - terminates a lease early when in default
@@ -144,9 +145,10 @@ The following commands are specific to those who own a property (or who are mana
 	#3property leaseprog <name> none character|clan#0 - clears a prog controlling a lease
 	#3property leaselength <name> <minimum length> <maximum length>#0 - changes the minimum and maximum lease lengths
 	#3property autorenewlease <name>#0 - toggles whether a lease will automatically renew (true by default)
-	#3property autorelist <name>#0 - toggles whether a lease will automatically relist (true by default)
-	#3property allownovation <name>#0 - toggles whether a lesee can novate the lease to another (true by default)
-	#3property bond <name> <bond>#0 - changes the bond required for a lease
+        #3property autorelist <name>#0 - toggles whether a lease will automatically relist (true by default)
+        #3property allownovation <name>#0 - toggles whether a lesee can novate the lease to another (true by default)
+        #3property autorekey <name>#0 - toggles whether the property will rekey all locks at the end of a lease
+        #3property bond <name> <bond>#0 - changes the bond required for a lease
 	#3property rent <name> <price>#0 - changes the rent per interval for the lease
 	#3property cancellease <name>#0 - cancels a lease order for the property
 	#3property terminatelease <name>#0 - terminates a lease early when in default
@@ -226,15 +228,18 @@ The following commands are specific to those who own a property (or who are mana
 			case "autorenewlease":
 				PropertyAutoRenewLease(actor, ss);
 				return;
-			case "autorelist":
-				PropertyAutoRelist(actor, ss);
-				return;
-			case "allownovation":
-				PropertyAllowNovation(actor, ss);
-				return;
-			case "bond":
-				PropertyBond(actor, ss);
-				return;
+                        case "autorelist":
+                                PropertyAutoRelist(actor, ss);
+                                return;
+                        case "allownovation":
+                                PropertyAllowNovation(actor, ss);
+                                return;
+                        case "autorekey":
+                                PropertyAutoRekey(actor, ss);
+                                return;
+                        case "bond":
+                                PropertyBond(actor, ss);
+                                return;
 			case "price":
 			case "rent":
 			case "rental":
@@ -811,12 +816,15 @@ The following commands are specific to those who own a property (or who are mana
 			case "relist":
 				actionDescription = "toggle the automatic re-listing of";
 				break;
-			case "novation":
-				actionDescription = "toggle the ability to novate leases of";
-				break;
-			case "bond":
-				actionDescription = "set the required bond of";
-				break;
+                        case "novation":
+                                actionDescription = "toggle the ability to novate leases of";
+                                break;
+                        case "rekey":
+                                actionDescription = "toggle automatic rekeying of";
+                                break;
+                        case "bond":
+                                actionDescription = "set the required bond of";
+                                break;
 			case "rent":
 				actionDescription = "set the rent of";
 				break;
@@ -1197,18 +1205,31 @@ The following commands are specific to those who own a property (or who are mana
 			$"The property {property.Name.ColourName()} will {(property.LeaseOrder.AutomaticallyRelistAfterLeaseTerm ? "now" : "no longer")} be automatically re-listed as available at the expiry of an agreed lease.");
 	}
 
-	private static void PropertyAllowNovation(ICharacter actor, StringStack ss)
-	{
-		var property = FindPropertyWithLeaseOrder(actor, ss, "novation");
-		if (property == null)
-		{
-			return;
-		}
+        private static void PropertyAllowNovation(ICharacter actor, StringStack ss)
+        {
+                var property = FindPropertyWithLeaseOrder(actor, ss, "novation");
+                if (property == null)
+                {
+                        return;
+                }
 
-		property.LeaseOrder!.AllowLeaseNovation = !property.LeaseOrder.AllowLeaseNovation;
-		actor.OutputHandler.Send(
-			$"The property {property.Name.ColourName()} will {(property.LeaseOrder.AllowLeaseNovation ? "now" : "no longer")} permit novation of the lease to other individuals or organisations.");
-	}
+                property.LeaseOrder!.AllowLeaseNovation = !property.LeaseOrder.AllowLeaseNovation;
+                actor.OutputHandler.Send(
+                        $"The property {property.Name.ColourName()} will {(property.LeaseOrder.AllowLeaseNovation ? "now" : "no longer")} permit novation of the lease to other individuals or organisations.");
+        }
+
+        private static void PropertyAutoRekey(ICharacter actor, StringStack ss)
+        {
+                var property = FindPropertyWithLeaseOrder(actor, ss, "rekey");
+                if (property == null)
+                {
+                        return;
+                }
+
+                property.LeaseOrder!.RekeyOnLeaseEnd = !property.LeaseOrder.RekeyOnLeaseEnd;
+                actor.OutputHandler.Send(
+                        $"The property {property.Name.ColourName()} will {(property.LeaseOrder.RekeyOnLeaseEnd ? "now" : "no longer")} rekey all locks when a lease ends.");
+        }
 
 	private static void PropertyBond(ICharacter actor, StringStack ss)
 	{

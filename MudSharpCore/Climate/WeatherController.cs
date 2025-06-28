@@ -117,22 +117,25 @@ public class WeatherController : SaveableItem, IWeatherController
 
 	private int _minutesSinceLastFlavourEcho;
 
-	public int MinutesSinceLastFlavourEcho
-	{
-		get => _minutesSinceLastFlavourEcho;
-		protected set
-		{
-			_minutesSinceLastFlavourEcho = value;
-			Changed = true;
-		}
-	}
+        public int MinutesSinceLastFlavourEcho
+        {
+                get => _minutesSinceLastFlavourEcho;
+                protected set
+                {
+                        _minutesSinceLastFlavourEcho = value;
+                        Changed = true;
+                }
+        }
 
-	public event WeatherEchoDelegate WeatherEcho;
-	public event WeatherChangedDelegate WeatherChanged;
-	public event WeatherRoomTickDelegate WeatherRoomTick;
+        private int _freezeCounter;
+        public bool WeatherFrozen => _freezeCounter > 0;
 
-	public void SetWeather(IWeatherEvent newEvent)
-	{
+        public event WeatherEchoDelegate WeatherEcho;
+        public event WeatherChangedDelegate WeatherChanged;
+        public event WeatherRoomTickDelegate WeatherRoomTick;
+
+        public void SetWeather(IWeatherEvent newEvent)
+        {
 		var oldEvent = CurrentWeatherEvent;
 		CurrentWeatherEvent = newEvent;
 		Changed = true;
@@ -150,8 +153,21 @@ public class WeatherController : SaveableItem, IWeatherController
 			PeriodsSinceHighestPrecipitation = 0;
 		}
 
-		CalculateCurrentTemperature();
-	}
+                CalculateCurrentTemperature();
+        }
+
+        public void FreezeWeather()
+        {
+                _freezeCounter++;
+        }
+
+        public void UnfreezeWeather()
+        {
+                if (_freezeCounter > 0)
+                {
+                        _freezeCounter--;
+                }
+        }
 
 	private void HandleFiveSecondTick()
 	{
@@ -171,29 +187,37 @@ public class WeatherController : SaveableItem, IWeatherController
 			WeatherRoomTick?.Invoke(CurrentWeatherEvent.OnMinuteEvent);
 		}
 
-		if (++MinuteCounter >= RegionalClimate.ClimateModel.MinuteProcessingInterval)
-		{
-			var currentTimeOfDay = Celestial?.CurrentTimeOfDay(GeographyForTimeOfDay) ?? TimeOfDay.Night;
-			CurrentSeason = RegionalClimate.SeasonRotation.Get(Celestial?.CurrentCelestialDay ?? 0);
-			MinuteCounter = 0;
-			var weather = RegionalClimate.ClimateModel.HandleWeatherTick(CurrentWeatherEvent, CurrentSeason, currentTimeOfDay, ConsecutiveUnchangedPeriods);
-			if (weather == CurrentWeatherEvent)
-			{
-				ConsecutiveUnchangedPeriods++;
-			}
-			else
-			{
-				weatherChanged = true;
-				var echo = weather.DescribeTransitionTo(CurrentWeatherEvent)?.SubstituteANSIColour();
-				var oldWeather = CurrentWeatherEvent;
-				CurrentWeatherEvent = weather;
-				if (!string.IsNullOrEmpty(echo))
-				{
-					WeatherEcho?.Invoke(this, echo);
-				}
-				WeatherChanged?.Invoke(this, oldWeather, weather);
-			}
-		}
+                if (++MinuteCounter >= RegionalClimate.ClimateModel.MinuteProcessingInterval)
+                {
+                        var currentTimeOfDay = Celestial?.CurrentTimeOfDay(GeographyForTimeOfDay) ?? TimeOfDay.Night;
+                        CurrentSeason = RegionalClimate.SeasonRotation.Get(Celestial?.CurrentCelestialDay ?? 0);
+                        MinuteCounter = 0;
+
+                        if (WeatherFrozen)
+                        {
+                                ConsecutiveUnchangedPeriods++;
+                        }
+                        else
+                        {
+                                var weather = RegionalClimate.ClimateModel.HandleWeatherTick(CurrentWeatherEvent, CurrentSeason, currentTimeOfDay, ConsecutiveUnchangedPeriods);
+                                if (weather == CurrentWeatherEvent)
+                                {
+                                        ConsecutiveUnchangedPeriods++;
+                                }
+                                else
+                                {
+                                        weatherChanged = true;
+                                        var echo = weather.DescribeTransitionTo(CurrentWeatherEvent)?.SubstituteANSIColour();
+                                        var oldWeather = CurrentWeatherEvent;
+                                        CurrentWeatherEvent = weather;
+                                        if (!string.IsNullOrEmpty(echo))
+                                        {
+                                                WeatherEcho?.Invoke(this, echo);
+                                        }
+                                        WeatherChanged?.Invoke(this, oldWeather, weather);
+                                }
+                        }
+                }
 
 		if (CurrentWeatherEvent != null && CurrentWeatherEvent.Precipitation >= HighestRecentPrecipitationLevel)
 		{

@@ -86,7 +86,7 @@ What epoch date do you want to use?", (context, answers) => answers["installsun"
 								(context, answers) => answers["installmoon"].EqualToAny("y", "yes"),
 								(answer, context) => (true, string.Empty)),
 						("moonepoch",
-								@"What epoch date should be used for the moon?",
+								@"What epoch date should be used for the moon? This is a date that is known to be a full moon. For earth, you could use 21/jan/2000",
 								(context, answers) => answers["installmoon"].EqualToAny("y", "yes"),
 								(answer, context) =>
 								{
@@ -205,8 +205,8 @@ What epoch date do you want to use?", (context, answers) => answers["installsun"
 	</AzimuthDescriptions>
   </SunV2>"
 		});
-        }
-        private void SetupMoon(FuturemudDatabaseContext context, IReadOnlyDictionary<string, string> questionAnswers)
+	}
+	private void SetupMoon(FuturemudDatabaseContext context, IReadOnlyDictionary<string, string> questionAnswers)
 	{
 		var moonName = questionAnswers["moonname"];
 		var moonCalendarId = long.Parse(questionAnswers["mooncalendar"]);
@@ -236,10 +236,14 @@ What epoch date do you want to use?", (context, answers) => answers["installsun"
 		<SiderealTimePerDay>6.300388</SiderealTimePerDay>
 		<EpochDate>{epoch}</EpochDate>
 	</Orbital>
-	<Illumination>
-		<PeakIllumination>1.0</PeakIllumination>
-		<FullMoonReferenceDay>0</FullMoonReferenceDay>
-	</Illumination>
+        <Illumination>
+                <PeakIllumination>1.0</PeakIllumination>
+                <FullMoonReferenceDay>0</FullMoonReferenceDay>
+        </Illumination>
+        <Triggers>
+          <Trigger angle="-0.015184" direction="Ascending"><![CDATA[The moon rises above the horizon.]]></Trigger>
+          <Trigger angle="-0.015184" direction="Descending"><![CDATA[The moon sets on the horizon.]]></Trigger>
+        </Triggers>
 </PlanetaryMoon>"
 		});
 	}

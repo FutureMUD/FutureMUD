@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.Text;
+using System.Reflection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using MudSharp.Celestial;
@@ -250,44 +252,54 @@ public class PlanetaryMoonTests
 			DayNumberAtEpoch = 2451545,
 			SiderealTimeAtEpoch = 4.889488,
 			SiderealTimePerDay = 6.300388,
-			EpochDate = _calendar.GetDate("1/jan/2000"),
+			EpochDate = _calendar.GetDate("21/jan/2000"),
 			PeakIllumination = 1.0,
 			FullMoonReferenceDay = 0
 		};
 	}
 
 	[TestMethod]
-	public void TestMoonPhaseCycle()
-	{
+        public void TestMoonPhaseCycle()
+        {
 		_calendar.SetDate("1/dec/1999");
-		var results = new List<string>();
+		var sb = new StringBuilder();
 		for (var i = 0; i < 100; i++)
 		{
-			results.Add($"#{i} - {_calendar.DisplayDate(CalendarDisplayMode.Short)} - {_moon.CurrentPhase()}");
+			sb.AppendLine($"#{i} - {_calendar.DisplayDate(CalendarDisplayMode.Short)} - {_moon.CurrentPhase()}");
 			_calendar.CurrentDate.AdvanceDays(1);
 		}
 
-		_calendar.SetDate("1/jan/2000");
-		Assert.AreEqual(MoonPhase.Full, _moon.CurrentPhase());
+		void TryTest(string date, MoonPhase expected)
+		{
+			_calendar.SetDate(date);
+			Assert.AreEqual(expected, _moon.CurrentPhase(), $"Expected {expected.Describe()} for date {_calendar.DisplayDate(CalendarDisplayMode.Short)}, actual {_moon.CurrentPhase().Describe()}");
+		}
 
-		_calendar.SetDate("8/jan/2000");
-		Assert.AreEqual(MoonPhase.LastQuarter, _moon.CurrentPhase());
+		TryTest("16/dec/1999", MoonPhase.FirstQuarter);
+		TryTest("23/dec/1999", MoonPhase.Full);
+		TryTest("28/dec/1999", MoonPhase.WaningGibbous);
+		TryTest("30/dec/1999", MoonPhase.LastQuarter);
+		TryTest("21/jan/2000", MoonPhase.Full);
+		TryTest("4/jan/2000", MoonPhase.WaningCrescent);
+		TryTest("7/jan/2000", MoonPhase.New);
+                TryTest("15/jan/2000", MoonPhase.FirstQuarter);
+                TryTest("17/jan/2000", MoonPhase.WaxingGibbous);
+        }
 
-		_calendar.SetDate("15/jan/2000");
-		Assert.AreEqual(MoonPhase.New, _moon.CurrentPhase());
+        [TestMethod]
+        public void TestTriggerEchoSelection()
+        {
+                _moon.Triggers.Clear();
+                _moon.Triggers.Add(new CelestialTrigger(-0.015184, CelestialMoveDirection.Ascending, "rise"));
+                _moon.Triggers.Add(new CelestialTrigger(-0.015184, CelestialMoveDirection.Descending, "set"));
 
-		_calendar.SetDate("22/jan/2000");
-		Assert.AreEqual(MoonPhase.FirstQuarter, _moon.CurrentPhase());
+                var oldStatus = new CelestialInformation(_moon, 0.0, -0.03, CelestialMoveDirection.Ascending);
+                var newStatus = new CelestialInformation(_moon, 0.0, 0.0, CelestialMoveDirection.Ascending);
 
-		_calendar.SetDate("29/jan/2000");
-		Assert.AreEqual(MoonPhase.Full, _moon.CurrentPhase());
+                Assert.IsTrue(_moon.ShouldEcho(oldStatus, newStatus));
 
-		_calendar.SetDate("5/feb/2000");
-		Assert.AreEqual(MoonPhase.LastQuarter, _moon.CurrentPhase());
-
-		_calendar.SetDate("24/dec/1999");
-		Assert.AreEqual(MoonPhase.FirstQuarter, _moon.CurrentPhase());
-
-
-	}
+                var method = typeof(PlanetaryMoon).GetMethod("GetZoneDisplayTrigger", BindingFlags.NonPublic | BindingFlags.Instance);
+                var trigger = (CelestialTrigger)method.Invoke(_moon, new object[] { oldStatus, newStatus });
+                Assert.AreEqual("rise", trigger.Echo);
+        }
 }

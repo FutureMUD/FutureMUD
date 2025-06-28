@@ -35,8 +35,9 @@ public class PropertyLeaseOrder : SaveableItem, IPropertyLeaseOrder
 		_canLeaseProgClan = Gameworld.FutureProgs.Get(dbitem.CanLeaseProgClanId ?? 0L);
 		_allowAutoRenew = dbitem.AllowAutoRenew;
 		_automaticallyRelistAfterLeaseTerm = dbitem.AutomaticallyRelistAfterLeaseTerm;
-		_allowLeaseNovation = dbitem.AllowLeaseNovation;
-		_feeIncreasePercentageAfterLeaseTerm = dbitem.FeeIncreasePercentageAfterLeaseTerm;
+                _allowLeaseNovation = dbitem.AllowLeaseNovation;
+                _rekeyOnLeaseEnd = dbitem.RekeyOnLeaseEnd;
+                _feeIncreasePercentageAfterLeaseTerm = dbitem.FeeIncreasePercentageAfterLeaseTerm;
 		_listedForLease = dbitem.ListedForLease;
 
 		foreach (var element in XElement.Parse(dbitem.PropertyOwnerConsentInfo).Elements("Owner"))
@@ -69,10 +70,11 @@ public class PropertyLeaseOrder : SaveableItem, IPropertyLeaseOrder
 		_maximumLeaseDuration = TimeSpan.FromDays(Gameworld.GetStaticInt("MaximumLeaseDurationDays"));
 		_canLeaseProgCharacter = Gameworld.FutureProgs.GetByName("AlwaysTrue");
 		_canLeaseProgClan = Gameworld.FutureProgs.GetByName("AlwaysTrue");
-		_allowAutoRenew = true;
-		_automaticallyRelistAfterLeaseTerm = true;
-		_allowLeaseNovation = true;
-		_feeIncreasePercentageAfterLeaseTerm = 0.0M;
+                _allowAutoRenew = true;
+                _automaticallyRelistAfterLeaseTerm = true;
+                _allowLeaseNovation = true;
+                _rekeyOnLeaseEnd = false;
+                _feeIncreasePercentageAfterLeaseTerm = 0.0M;
 
 		using (new FMDB())
 		{
@@ -87,9 +89,10 @@ public class PropertyLeaseOrder : SaveableItem, IPropertyLeaseOrder
 				MinimumLeaseDurationDays = MinimumLeaseDuration.TotalDays,
 				MaximumLeaseDurationDays = MaximumLeaseDuration.TotalDays,
 				AllowAutoRenew = AllowAutoRenew,
-				AutomaticallyRelistAfterLeaseTerm = AutomaticallyRelistAfterLeaseTerm,
-				AllowLeaseNovation = AllowLeaseNovation,
-				ListedForLease = ListedForLease,
+                                AutomaticallyRelistAfterLeaseTerm = AutomaticallyRelistAfterLeaseTerm,
+                                AllowLeaseNovation = AllowLeaseNovation,
+                                RekeyOnLeaseEnd = RekeyOnLeaseEnd,
+                                ListedForLease = ListedForLease,
 				FeeIncreasePercentageAfterLeaseTerm = FeeIncreasePercentageAfterLeaseTerm,
 				PropertyOwnerConsentInfo = new XElement("Owners",
 						from owner in _propertyOwnerConsent
@@ -116,8 +119,9 @@ public class PropertyLeaseOrder : SaveableItem, IPropertyLeaseOrder
 	private TimeSpan _maximumLeaseDuration;
 	private bool _allowAutoRenew;
 	private bool _automaticallyRelistAfterLeaseTerm;
-	private bool _allowLeaseNovation;
-	private bool _listedForLease;
+        private bool _allowLeaseNovation;
+        private bool _rekeyOnLeaseEnd;
+        private bool _listedForLease;
 	private decimal _feeIncreasePercentageAfterLeaseTerm;
 
 	public override string FrameworkItemType => "PropertyLeaseOrder";
@@ -134,11 +138,12 @@ public class PropertyLeaseOrder : SaveableItem, IPropertyLeaseOrder
 		dbitem.CanLeaseProgCharacterId = CanLeaseProgCharacter?.Id;
 		dbitem.CanLeaseProgClanId = CanLeaseProgClan?.Id;
 		dbitem.MinimumLeaseDurationDays = _minimumLeaseDuration.TotalDays;
-		dbitem.MaximumLeaseDurationDays = _maximumLeaseDuration.TotalDays;
-		dbitem.AllowAutoRenew = _allowAutoRenew;
-		dbitem.AllowLeaseNovation = _allowLeaseNovation;
-		dbitem.AutomaticallyRelistAfterLeaseTerm = _automaticallyRelistAfterLeaseTerm;
-		dbitem.ListedForLease = _listedForLease;
+                dbitem.MaximumLeaseDurationDays = _maximumLeaseDuration.TotalDays;
+                dbitem.AllowAutoRenew = _allowAutoRenew;
+                dbitem.AllowLeaseNovation = _allowLeaseNovation;
+                dbitem.RekeyOnLeaseEnd = _rekeyOnLeaseEnd;
+                dbitem.AutomaticallyRelistAfterLeaseTerm = _automaticallyRelistAfterLeaseTerm;
+                dbitem.ListedForLease = _listedForLease;
 		dbitem.PropertyOwnerConsentInfo = new XElement("Owners",
 				from owner in _propertyOwnerConsent
 				select new XElement("Owner", new XAttribute("id", owner.Key.Owner.Id),
@@ -182,18 +187,23 @@ public class PropertyLeaseOrder : SaveableItem, IPropertyLeaseOrder
 			return;
 		}
 
-		if (_automaticallyRelistAfterLeaseTerm)
-		{
-			_listedForLease = true;
-		}
-		else
-		{
-			if (Property.LeaseOrder == this)
-			{
-				Property.LeaseOrder = null;
-			}
-		}
-	}
+                if (_automaticallyRelistAfterLeaseTerm)
+                {
+                        _listedForLease = true;
+                }
+                else
+                {
+                        if (Property.LeaseOrder == this)
+                        {
+                                Property.LeaseOrder = null;
+                        }
+                }
+
+                if (_rekeyOnLeaseEnd)
+                {
+                        Property.RekeyAllLocks();
+                }
+        }
 
 	public IPropertyLease RenewLease(IPropertyLease oldLease)
 	{
@@ -340,20 +350,30 @@ public class PropertyLeaseOrder : SaveableItem, IPropertyLeaseOrder
 		}
 	}
 
-	public bool AllowLeaseNovation
-	{
-		get => _allowLeaseNovation;
-		set
-		{
-			_allowLeaseNovation = value;
-			Changed = true;
-		}
-	}
+        public bool AllowLeaseNovation
+        {
+                get => _allowLeaseNovation;
+                set
+                {
+                        _allowLeaseNovation = value;
+                        Changed = true;
+                }
+        }
 
-	public decimal FeeIncreasePercentageAfterLeaseTerm
-	{
-		get => _feeIncreasePercentageAfterLeaseTerm;
-		set
+        public bool RekeyOnLeaseEnd
+        {
+                get => _rekeyOnLeaseEnd;
+                set
+                {
+                        _rekeyOnLeaseEnd = value;
+                        Changed = true;
+                }
+        }
+
+        public decimal FeeIncreasePercentageAfterLeaseTerm
+        {
+                get => _feeIncreasePercentageAfterLeaseTerm;
+                set
 		{
 			_feeIncreasePercentageAfterLeaseTerm = value;
 			Changed = true;

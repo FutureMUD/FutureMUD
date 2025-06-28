@@ -18,6 +18,7 @@ using MudSharp.PerceptionEngine;
 using MudSharp.TimeAndDate;
 using MudSharp.TimeAndDate.Date;
 using MudSharp.TimeAndDate.Time;
+using MudSharp.GameItems.Interfaces;
 using Org.BouncyCastle.Asn1.Pkcs;
 using Org.BouncyCastle.Asn1.TeleTrust;
 
@@ -454,10 +455,11 @@ public class Property : SaveableItem, IProperty
 			sb.AppendLine($"Lease Order: {"None".Colour(Telnet.Red)}");
 		}
 		else
-		{
-			sb.AppendLine(
-				$"Lease Order: {$"{EconomicZone.Currency.Describe(LeaseOrder.PricePerInterval, CurrencyDescriptionPatternType.ShortDecimal).ColourValue()} {LeaseOrder.Interval.Describe(EconomicZone.FinancialPeriodReferenceCalendar)} ({LeaseOrder.MinimumLeaseDuration.Describe(actor).ColourValue()} to {LeaseOrder.MaximumLeaseDuration.Describe(actor).ColourValue()}) with {EconomicZone.Currency.Describe(LeaseOrder.BondRequired, CurrencyDescriptionPatternType.Short).ColourValue()} bond".ColourIncludingReset(Telnet.BoldWhite)}");
-		}
+                {
+                        sb.AppendLine(
+                                $"Lease Order: {$"{EconomicZone.Currency.Describe(LeaseOrder.PricePerInterval, CurrencyDescriptionPatternType.ShortDecimal).ColourValue()} {LeaseOrder.Interval.Describe(EconomicZone.FinancialPeriodReferenceCalendar)} ({LeaseOrder.MinimumLeaseDuration.Describe(actor).ColourValue()} to {LeaseOrder.MaximumLeaseDuration.Describe(actor).ColourValue()}) with {EconomicZone.Currency.Describe(LeaseOrder.BondRequired, CurrencyDescriptionPatternType.Short).ColourValue()} bond".ColourIncludingReset(Telnet.BoldWhite)}");
+                        sb.AppendLine($"\tRekey On Lease End: {LeaseOrder.RekeyOnLeaseEnd.ToColouredString()}");
+                }
 
 		if (Lease == null)
 		{
@@ -524,11 +526,62 @@ public class Property : SaveableItem, IProperty
 		Changed = true;
 	}
 
-	public void RemoveKey(IPropertyKey key)
-	{
-		_propertyKeys.Remove(key);
-		Changed = true;
-	}
+        public void RemoveKey(IPropertyKey key)
+        {
+                _propertyKeys.Remove(key);
+                Changed = true;
+        }
+
+        public void RekeyAllLocks()
+        {
+                var pattern = Constants.Random.Next(0, 1000000);
+
+                foreach (var cell in PropertyLocations)
+                {
+                        foreach (var item in cell.GameItems.SelectMany(x => x.DeepItems))
+                        {
+                                foreach (var lockComp in item.Components.OfType<ILock>())
+                                {
+                                        lockComp.Pattern = pattern;
+                                }
+                        }
+
+                        foreach (var exit in cell.ExitsFor(null, true))
+                        {
+                                if (exit.Exit?.Door is IDoor door)
+                                {
+                                        foreach (var lockComp in door.Locks)
+                                        {
+                                                lockComp.Pattern = pattern;
+                                        }
+                                }
+                        }
+                }
+
+                var existingKeys = _propertyKeys.ToList();
+                _propertyKeys.Clear();
+                foreach (var key in existingKeys)
+                {
+                        var proto = key.GameItem.Prototype;
+                        var newItem = proto.CreateNew();
+                        var keyComp = newItem.GetItemType<IKey>();
+                        if (keyComp != null)
+                        {
+                                keyComp.Pattern = pattern;
+                        }
+                        var newKey = new PropertyKey(Gameworld, this, key.Name, newItem,
+                                EconomicZone.FinancialPeriodReferenceCalendar.CurrentDateTime, key.CostToReplace);
+                        _propertyKeys.Add(newKey);
+                        if (key.IsReturned)
+                        {
+                                key.GameItem.Delete();
+                        }
+                        key.Delete();
+                        newItem.Quit();
+                }
+
+                Changed = true;
+        }
 
 	public void ExpireLease(IPropertyLease lease)
 	{

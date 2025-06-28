@@ -23,8 +23,9 @@ namespace MudSharp.Economy.Property
 		TimeSpan MaximumLeaseDuration { get; set; }
 		bool AllowAutoRenew { get; set; }
 		bool AutomaticallyRelistAfterLeaseTerm { get; set; }
-		bool AllowLeaseNovation { get; set; }
-		decimal FeeIncreasePercentageAfterLeaseTerm { get; set; }
+                bool AllowLeaseNovation { get; set; }
+                bool RekeyOnLeaseEnd { get; set; }
+                decimal FeeIncreasePercentageAfterLeaseTerm { get; set; }
 		bool ListedForLease { get; set; }
 		void DoEndOfLease(IPropertyLease oldLease);
 		IPropertyLease RenewLease(IPropertyLease oldLease);

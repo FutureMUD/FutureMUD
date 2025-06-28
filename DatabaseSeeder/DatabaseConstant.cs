@@ -9051,6 +9051,7 @@ CREATE TABLE `PropertyLeaseOrders` (
   `AllowAutoRenew` bit(1) NOT NULL,
   `AutomaticallyRelistAfterLeaseTerm` bit(1) NOT NULL,
   `AllowLeaseNovation` bit(1) NOT NULL,
+  `RekeyOnLeaseEnd` bit(1) NOT NULL,
   `ListedForLease` bit(1) NOT NULL,
   `FeeIncreasePercentageAfterLeaseTerm` decimal(58,29) NOT NULL,
   `PropertyOwnerConsentInfo` text CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,

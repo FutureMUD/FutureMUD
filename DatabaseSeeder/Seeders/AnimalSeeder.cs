@@ -2583,8 +2583,95 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
 				TargetDefinition = definition,
 				Type = "Standard"
 			};
-			_context.CharacteristicProfiles.Add(profile);
-		}
+_context.CharacteristicProfiles.Add(profile);
+}
+
+var extraAdultDescriptions = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+{
+{"Coyote", "A rangy canine with tawny fur and sharp features. Its wary eyes and lean frame speak of a life spent hunting small game and scavenging."},
+{"Hyena", "This hyena has a powerful frame with a sloping back and mottled fur. Its muzzle ends in strong jaws capable of crushing bone."},
+{"Rabbit", "A small mammal with long ears, soft fur and a twitching nose. Its powerful hind legs allow it to bound away at the first sign of trouble."},
+{"Hare", "Slender and long-legged, this hare sports large ears and a short tail. Its muscles are built for rapid bursts of speed across open ground."},
+{"Beaver", "Stout and water-loving, the beaver has dense brown fur and large teeth for gnawing wood. A wide, flat tail aids in swimming."},
+{"Otter", "Sleek and playful, this otter has glossy fur and webbed feet. Its streamlined body is built for a life spent swimming and hunting fish."},
+{"Lion", "A majestic big cat with a muscular body and, in males, a thick mane. Its amber eyes regard the world with regal confidence."},
+{"Cheetah", "This spotted cat has a lean build and long legs made for incredible bursts of speed. Black tear lines run from eyes to mouth."},
+{"Leopard", "A powerful feline covered in rosetted spots. Muscular limbs and strong jaws make it an adept climber and ambush predator."},
+{"Tiger", "A large striped cat with a massive head and muscular frame. Its orange coat with black stripes helps it stalk through dense foliage."},
+{"Panther", "A lithe big cat with a glossy dark coat. Its movements are quiet and precise, well suited to stalking prey."},
+{"Jaguar", "Stockier than the leopard, this big cat's rosettes have central spots. It has a broad head and immensely powerful jaws."},
+{"Jackal", "A small, cunning canine with a bushy tail and large ears. Its coat is a mix of tawny and grey, perfect for blending into scrubland."},
+{"Deer", "This graceful herbivore has slender legs and a sleek coat. Mature males sport antlers that are shed and regrown each year."},
+{"Moose", "Towering and long-legged, the moose has a bulbous nose and a heavy dewlap. The males' broad antlers spread wide from their heads."},
+{"Boar", "A wild boar with bristly dark hair and sharp tusks protruding from its lower jaw. Its body is thickset and muscular."},
+{"Warthog", "Sparse-bristled and wiry, this pig has prominent facial warts and upward curving tusks. It carries itself with surprising speed."},
+{"Cow", "A placid bovine with a broad muzzle and gentle eyes. Its large stomach betrays its grass-fed diet."},
+{"Ox", "A powerfully built bovine used for labour, with a strong neck and broad shoulders. It bears a patient disposition."},
+{"Buffalo", "This buffalo is sturdy and heavyset with sweeping horns. Its hide is tough and it moves with deliberate strength."},
+{"Bison", "A hulking creature with a massive head and a shaggy mane of dark fur around its shoulders, tapering to a smaller hindquarters."},
+{"Hippopotamus", "Huge and barrel-bodied, the hippo spends much of its time wallowing in water. Its enormous mouth opens to reveal long tusks."},
+{"Horse", "A large hoofed animal with a flowing mane and tail. Its powerful legs and strong back make it well suited to riding or hauling."},
+{"Bear", "Broad and thickly furred, this bear walks with a lumbering gait. It possesses long claws and a keen sense of smell."},
+{"Rhinocerous", "Heavily built with thick grey skin and one or two prominent horns on its snout. Its hide bears folds that look like natural armour."},
+{"Giraffe", "An extraordinarily tall creature with a spotted coat and a very long neck. It moves with a slow, loping stride."},
+{"Elephant", "An enormous herbivore with a long trunk and large ears. Its ivory tusks curve outward from a massive head."},
+{"Fox", "A small, agile canine with reddish fur and a bushy tail. Its pointed ears and muzzle give it a cunning appearance."},
+{"Rat", "A small rodent with coarse fur, a scaly tail and beady black eyes. It sniffs the air constantly with twitching whiskers."},
+{"Mouse", "Tiny and quick, this mouse has soft fur and large ears. Its long tail helps it balance while scurrying about."},
+{"Hamster", "A chubby little rodent with expandable cheek pouches. It has soft fur and tiny paws well adapted for digging."},
+{"Ferret", "Slender and inquisitive, the ferret has a long body and short legs. Its coat is silky, and its nose is always searching for scents."},
+{"Weasel", "This small predator has a sleek body and sharp teeth. Its fur is smooth and its movements fast and sinuous."},
+{"Guinea Pig", "A plump rodent with short legs and no tail. It makes a variety of squeaks and whistles when excited."},
+{"Badger", "Stocky and low to the ground, the badger has a distinctive striped face and formidable digging claws."},
+{"Wolverine", "Muscular and thick-furred, the wolverine is larger than a badger and known for its ferocity. Its broad paws help it move through snow."},
+{"Goat", "A sure-footed ungulate with a short tail and backward curving horns. It happily grazes on rough plants that many animals avoid."},
+    {"Llama", "This long-necked camelid has a shaggy coat and an alert expression. It's often used as a pack animal in mountainous regions."},
+    {"Alpaca", "Smaller than a llama, this camelid is prized for its soft, luxurious fleece. Large eyes give it a gentle appearance."},
+
+    {"Pigeon", "A plump, short-legged bird with iridescent feathers about its neck. It coos softly while bobbing its head."},
+    {"Swallow", "A small bird with long, pointed wings and a forked tail. It darts through the air catching insects."},
+    {"Sparrow", "A tiny brown songbird with streaked plumage and a quick, hopping gait."},
+    {"Quail", "This squat ground bird sports a topknot of feathers and short rounded wings."},
+    {"Grouse", "A chicken-like bird with mottled feathers that blend well with woodland undergrowth."},
+    {"Pheasant", "A brightly coloured game bird with a long tail and vivid plumage, especially on the males."},
+    {"Seagull", "A coastal bird with grey wings and a raucous cry, often seen scavenging along the shoreline."},
+    {"Albatross", "Large and long-winged, this seabird glides effortlessly over the waves for hours at a time."},
+    {"Heron", "A tall wading bird with a spear-like beak and long legs for stalking fish in shallow waters."},
+    {"Crane", "Elegant and long-legged, the crane moves with slow, deliberate steps and has a bugling call."},
+    {"Flamingo", "This pink bird stands on one leg while filtering food from the water with its curved bill."},
+    {"Peacock", "A spectacular bird with a metallic blue neck and a fan of brilliant eye-spotted tail feathers."},
+    {"Ibis", "A long-legged wader with a down-curved bill, probing mud for small creatures."},
+    {"Pelican", "Large and heavy-billed, the pelican scoops up fish with the flexible pouch beneath its beak."},
+    {"Crow", "A glossy black bird known for its intelligence and harsh cawing voice."},
+    {"Raven", "Bigger than a crow, the raven has shaggy throat feathers and a deep, resonant croak."},
+    {"Emu", "A tall, flightless bird with shaggy feathers and powerful legs built for running."},
+    {"Ostrich", "The largest of birds, the ostrich has a long neck and strong legs capable of swift kicks."},
+    {"Moa", "A massive, extinct flightless bird recreated here with heavy legs and a thick body."},
+    {"Vulture", "A bald-headed scavenger with broad wings, circling patiently for carrion."},
+    {"Parrot", "A colourful bird with a hooked beak and a squawking voice, often mimicking sounds."},
+    {"Woodpecker", "This bird clings to tree trunks, hammering with its beak in search of insects."},
+    {"Kingfisher", "A small bird with a large head and vivid plumage, diving swiftly for fish."},
+    {"Stork", "Long-legged and long-billed, the stork is often seen wading in wetlands."},
+    {"Penguin", "A tuxedo-feathered swimmer that waddles awkwardly on land but soars through the sea."},
+    {"Duck", "A waterfowl with a broad bill and webbed feet, quacking softly as it paddles."},
+    {"Goose", "Larger than a duck, this bird has a long neck and is quick to honk at intruders."},
+    {"Swan", "Graceful and white-feathered, the swan glides serenely across the water."},
+    {"Chicken", "A domesticated fowl kept for its eggs and meat, clucking as it scratches at the ground."},
+    {"Turkey", "A large game bird with a fan-shaped tail and a fleshy wattle dangling from its beak."},
+    {"Hawk", "A sharp-eyed raptor with hooked talons, circling high before diving on prey."},
+    {"Eagle", "Powerful and regal, this large bird of prey has a commanding wingspan and piercing gaze."},
+    {"Falcon", "A sleek raptor built for speed, with narrow wings and swift, decisive strikes."},
+    {"Owl", "A nocturnal hunter with a rounded face and silent wings, staring from huge eyes."}
+};
+
+void AddExtraAdultDescription()
+{
+if (extraAdultDescriptions.TryGetValue(race.Name, out var text))
+{
+CreateDescription(EntityDescriptionType.FullDescription, text, isAdultMaleRaceProg);
+CreateDescription(EntityDescriptionType.FullDescription, text, isAdultFemaleRaceProg);
+}
+}
 
 		switch (race.Name)
 		{
@@ -2635,24 +2722,30 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
 					"This is &a_an[&age] &male wolf. &he is slender and powerfully built with a deeply descending rib cage, a sloping back and a heavily muscled neck. &he has small, triangular ears and long legs that signal swift movement. &he has large, heavy teeth and a powerful jaw adapted to crushing bone.",
 					isAdultFemaleRaceProg);
 				break;
-			case "Coyote":
-				DoLazyDescriptions("coyote pup", "coyote whelp", "male coyote", "female coyote");
-				break;
-			case "Hyena":
-				DoLazyDescriptions("hyena pup", "hyena whelp", "male hyena", "female hyena");
-				break;
-			case "Rabbit":
-				DoLazyDescriptions("bunny", "young rabbit", "buck rabbit", "doe rabbit");
-				break;
-			case "Hare":
-				DoLazyDescriptions("hare bunny", "young hare", "buck hare", "doe hare");
-				break;
-			case "Beaver":
-				DoLazyDescriptions("beaver cub", "young beaver", "male beaver", "female beaver");
-				break;
-			case "Otter":
-				DoLazyDescriptions("otter cub", "young otter", "male otter", "female otter");
-				break;
+                        case "Coyote":
+                                DoLazyDescriptions("coyote pup", "coyote whelp", "male coyote", "female coyote");
+                                AddExtraAdultDescription();
+                                break;
+                        case "Hyena":
+                                DoLazyDescriptions("hyena pup", "hyena whelp", "male hyena", "female hyena");
+                                AddExtraAdultDescription();
+                                break;
+                        case "Rabbit":
+                                DoLazyDescriptions("bunny", "young rabbit", "buck rabbit", "doe rabbit");
+                                AddExtraAdultDescription();
+                                break;
+                        case "Hare":
+                                DoLazyDescriptions("hare bunny", "young hare", "buck hare", "doe hare");
+                                AddExtraAdultDescription();
+                                break;
+                        case "Beaver":
+                                DoLazyDescriptions("beaver cub", "young beaver", "male beaver", "female beaver");
+                                AddExtraAdultDescription();
+                                break;
+                        case "Otter":
+                                DoLazyDescriptions("otter cub", "young otter", "male otter", "female otter");
+                                AddExtraAdultDescription();
+                                break;
 			case "Cat":
 				CreateDescription(EntityDescriptionType.ShortDescription, "&a_an[$catcoat] kitten",
 					isBabyMaleRaceProg);
@@ -2679,37 +2772,46 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
 				CreateDescription(EntityDescriptionType.FullDescription,
 					"This is &a_an[&age] &male common domestic cat. $catcoatfancy", isAdultFemaleRaceProg);
 				break;
-			case "Lion":
-				DoLazyDescriptionsWithMultipleJuvenile("lion cub", "juvenile lion", "juvenile lioness", "lion",
-					"lioness");
-				break;
-			case "Cheetah":
-				DoLazyDescriptions("cheetah cub", "juvenile cheetah", "cheetah", "she-cheetah");
-				break;
-			case "Leopard":
-				DoLazyDescriptionsWithMultipleJuvenile("leopard cub", "juvenile leopard", "juvenile leopardess",
-					"leopard", "leopardess");
-				break;
-			case "Tiger":
-				DoLazyDescriptionsWithMultipleJuvenile("tiger cub", "juvenile tiger", "juvenile tigress", "tiger",
-					"tigress");
-				break;
-			case "Panther":
-				DoLazyDescriptions("panther cub", "juvenile panther", "male panther", "female panther");
-				break;
-			case "Jaguar":
-				DoLazyDescriptions("jaguar cub", "juvenile jaguar", "male jaguar", "female jaguar");
-				break;
-			case "Jackal":
-				DoLazyDescriptions("jackal cub", "juvenile jackal", "male jackal", "female jackal");
-				break;
-			case "Deer":
-				DoLazyDescriptionsWithMultipleJuvenile("fawn", "juvenile stag", "juvenile doe", "stag", "doe");
-				break;
-			case "Moose":
-				DoLazyDescriptionsWithMultipleJuvenile("moose calf", "young bull moose", "moose heifer",
-					"bull moose", "moose cow");
-				break;
+                        case "Lion":
+                                DoLazyDescriptionsWithMultipleJuvenile("lion cub", "juvenile lion", "juvenile lioness", "lion",
+                                        "lioness");
+                                AddExtraAdultDescription();
+                                break;
+                        case "Cheetah":
+                                DoLazyDescriptions("cheetah cub", "juvenile cheetah", "cheetah", "she-cheetah");
+                                AddExtraAdultDescription();
+                                break;
+                        case "Leopard":
+                                DoLazyDescriptionsWithMultipleJuvenile("leopard cub", "juvenile leopard", "juvenile leopardess",
+                                        "leopard", "leopardess");
+                                AddExtraAdultDescription();
+                                break;
+                        case "Tiger":
+                                DoLazyDescriptionsWithMultipleJuvenile("tiger cub", "juvenile tiger", "juvenile tigress", "tiger",
+                                        "tigress");
+                                AddExtraAdultDescription();
+                                break;
+                        case "Panther":
+                                DoLazyDescriptions("panther cub", "juvenile panther", "male panther", "female panther");
+                                AddExtraAdultDescription();
+                                break;
+                        case "Jaguar":
+                                DoLazyDescriptions("jaguar cub", "juvenile jaguar", "male jaguar", "female jaguar");
+                                AddExtraAdultDescription();
+                                break;
+                        case "Jackal":
+                                DoLazyDescriptions("jackal cub", "juvenile jackal", "male jackal", "female jackal");
+                                AddExtraAdultDescription();
+                                break;
+                        case "Deer":
+                                DoLazyDescriptionsWithMultipleJuvenile("fawn", "juvenile stag", "juvenile doe", "stag", "doe");
+                                AddExtraAdultDescription();
+                                break;
+                        case "Moose":
+                                DoLazyDescriptionsWithMultipleJuvenile("moose calf", "young bull moose", "moose heifer",
+                                        "bull moose", "moose cow");
+                                AddExtraAdultDescription();
+                                break;
 			case "Pig":
 				CreateDescription(EntityDescriptionType.ShortDescription, "a &male piglet", isBabyMaleRaceProg);
 				CreateDescription(EntityDescriptionType.ShortDescription, "a &male piglet", isBabyFemaleRaceProg);
@@ -2759,87 +2861,111 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
 				CreateDescription(EntityDescriptionType.FullDescription, "This is &a_an[&age] &male sheep, or ewe.",
 					isAdultFemaleRaceProg);
 				break;
-			case "Boar":
-				DoLazyDescriptionsWithMultipleJuvenile("boar piglet", "young wild boar", "young wild sow",
-					"wild boar", "wild sow");
-				break;
-			case "Warthog":
-				DoLazyDescriptionsWithMultipleJuvenile("warthog piglet", "young warthog boar", "young warthog sow",
-					"warthog boar", "warthog sow");
-				break;
-			case "Cow":
-				DoLazyDescriptionsWithMultipleJuvenile("calf", "young bull", "heifer", "bull", "cow");
-				break;
-			case "Ox":
-				DoLazyDescriptionsWithMultipleJuvenile("ox calf", "young ox bull", "ox heifer", "ox bull",
-					"ox cow");
-				break;
-			case "Buffalo":
-				DoLazyDescriptionsWithMultipleJuvenile("buffalo calf", "young buffalo bull", "buffalo heifer",
-					"buffalo bull", "buffalo cow");
-				break;
-			case "Bison":
-				DoLazyDescriptionsWithMultipleJuvenile("bison calf", "young bison bull", "bison heifer",
-					"bison bull", "bison cow");
-				break;
-			case "Hippopotamus":
-				DoLazyDescriptionsWithMultipleJuvenile("hippo calf", "young hippo bull", "young hippo cow",
-					"hippo bull", "hippo cow");
-				break;
-			case "Horse":
-				DoLazyDescriptionsWithMultipleJuvenile("foal", "colt", "filly", "stallion", "mare");
-				break;
-			case "Bear":
-				DoLazyDescriptions("&ethnicity cub", "young &ethnicity", "male &ethnicity", "female &ethnicity");
-				break;
-			case "Rhinocerous":
-				DoLazyDescriptions("rhino calf", "young rhino", "rhino bull", "rhino cow");
-				break;
-			case "Giraffe":
-				DoLazyDescriptions("giraffe calf", "young giraffe", "male giraffe", "female giraffe");
-				break;
-			case "Elephant":
-				DoLazyDescriptionsWithMultipleJuvenile("elephant calf", "juvenile bull elephant",
-					"juvenile elephant", "bull elephant", "elephant");
-				break;
-			case "Fox":
-				DoLazyDescriptionsWithMultipleJuvenile("fox kit", "juvenile male fox", "juvenile fox vixen",
-					"male fox", "fox vixen");
-				break;
-			case "Rat":
-				DoLazyDescriptions("rat pup", "young rat", "buck rat", "doe rat");
-				break;
-			case "Mouse":
-				DoLazyDescriptions("mouse pup", "mouse rat", "buck mouse", "doe mouse");
-				break;
-			case "Hamster":
-				DoLazyDescriptions("hamster pup", "young hamster", "buck hamster", "doe hamster");
-				break;
-			case "Ferret":
-				DoLazyDescriptions("ferret kit", "young ferret", "jack ferret", "jill ferret");
-				break;
-			case "Weasel":
-				DoLazyDescriptions("weasel kit", "young weasel", "jack weasel", "jill weasel");
-				break;
-			case "Guinea Pig":
-				DoLazyDescriptions("guinea pig pup", "young guinea pig", "guinea pig boar", "guinea pig sow");
-				break;
-			case "Badger":
-				DoLazyDescriptions("badger kit", "young badger", "boar badger", "sow badger");
-				break;
-			case "Wolverine":
-				DoLazyDescriptions("wolverine kit", "young wolverine", "boar wolverine", "sow wolverine");
-				break;
-			case "Goat":
-				DoLazyDescriptionsWithMultipleJuvenile("kid goat", "buckling goat",
-					"doeling goat", "billy goat", "nanny goat");
-				break;
-			case "Llama":
-				DoLazyDescriptions("llama cria", "young llama", "llama macho", "llama hembra");
-				break;
-			case "Alpaca":
-				DoLazyDescriptions("alpaca cria", "young alpaca", "alpaca macho", "alpaca hembra");
-				break;
+                        case "Boar":
+                                DoLazyDescriptionsWithMultipleJuvenile("boar piglet", "young wild boar", "young wild sow",
+                                        "wild boar", "wild sow");
+                                AddExtraAdultDescription();
+                                break;
+                        case "Warthog":
+                                DoLazyDescriptionsWithMultipleJuvenile("warthog piglet", "young warthog boar", "young warthog sow",
+                                        "warthog boar", "warthog sow");
+                                AddExtraAdultDescription();
+                                break;
+                        case "Cow":
+                                DoLazyDescriptionsWithMultipleJuvenile("calf", "young bull", "heifer", "bull", "cow");
+                                AddExtraAdultDescription();
+                                break;
+                        case "Ox":
+                                DoLazyDescriptionsWithMultipleJuvenile("ox calf", "young ox bull", "ox heifer", "ox bull",
+                                        "ox cow");
+                                AddExtraAdultDescription();
+                                break;
+                        case "Buffalo":
+                                DoLazyDescriptionsWithMultipleJuvenile("buffalo calf", "young buffalo bull", "buffalo heifer",
+                                        "buffalo bull", "buffalo cow");
+                                AddExtraAdultDescription();
+                                break;
+                        case "Bison":
+                                DoLazyDescriptionsWithMultipleJuvenile("bison calf", "young bison bull", "bison heifer",
+                                        "bison bull", "bison cow");
+                                AddExtraAdultDescription();
+                                break;
+                        case "Hippopotamus":
+                                DoLazyDescriptionsWithMultipleJuvenile("hippo calf", "young hippo bull", "young hippo cow",
+                                        "hippo bull", "hippo cow");
+                                AddExtraAdultDescription();
+                                break;
+                        case "Horse":
+                                DoLazyDescriptionsWithMultipleJuvenile("foal", "colt", "filly", "stallion", "mare");
+                                AddExtraAdultDescription();
+                                break;
+                        case "Bear":
+                                DoLazyDescriptions("&ethnicity cub", "young &ethnicity", "male &ethnicity", "female &ethnicity");
+                                AddExtraAdultDescription();
+                                break;
+                        case "Rhinocerous":
+                                DoLazyDescriptions("rhino calf", "young rhino", "rhino bull", "rhino cow");
+                                AddExtraAdultDescription();
+                                break;
+                        case "Giraffe":
+                                DoLazyDescriptions("giraffe calf", "young giraffe", "male giraffe", "female giraffe");
+                                AddExtraAdultDescription();
+                                break;
+                        case "Elephant":
+                                DoLazyDescriptionsWithMultipleJuvenile("elephant calf", "juvenile bull elephant",
+                                        "juvenile elephant", "bull elephant", "elephant");
+                                AddExtraAdultDescription();
+                                break;
+                        case "Fox":
+                                DoLazyDescriptionsWithMultipleJuvenile("fox kit", "juvenile male fox", "juvenile fox vixen",
+                                        "male fox", "fox vixen");
+                                AddExtraAdultDescription();
+                                break;
+                        case "Rat":
+                                DoLazyDescriptions("rat pup", "young rat", "buck rat", "doe rat");
+                                AddExtraAdultDescription();
+                                break;
+                        case "Mouse":
+                                DoLazyDescriptions("mouse pup", "mouse rat", "buck mouse", "doe mouse");
+                                AddExtraAdultDescription();
+                                break;
+                        case "Hamster":
+                                DoLazyDescriptions("hamster pup", "young hamster", "buck hamster", "doe hamster");
+                                AddExtraAdultDescription();
+                                break;
+                        case "Ferret":
+                                DoLazyDescriptions("ferret kit", "young ferret", "jack ferret", "jill ferret");
+                                AddExtraAdultDescription();
+                                break;
+                        case "Weasel":
+                                DoLazyDescriptions("weasel kit", "young weasel", "jack weasel", "jill weasel");
+                                AddExtraAdultDescription();
+                                break;
+                        case "Guinea Pig":
+                                DoLazyDescriptions("guinea pig pup", "young guinea pig", "guinea pig boar", "guinea pig sow");
+                                AddExtraAdultDescription();
+                                break;
+                        case "Badger":
+                                DoLazyDescriptions("badger kit", "young badger", "boar badger", "sow badger");
+                                AddExtraAdultDescription();
+                                break;
+                        case "Wolverine":
+                                DoLazyDescriptions("wolverine kit", "young wolverine", "boar wolverine", "sow wolverine");
+                                AddExtraAdultDescription();
+                                break;
+                        case "Goat":
+                                DoLazyDescriptionsWithMultipleJuvenile("kid goat", "buckling goat",
+                                        "doeling goat", "billy goat", "nanny goat");
+                                AddExtraAdultDescription();
+                                break;
+                        case "Llama":
+                                DoLazyDescriptions("llama cria", "young llama", "llama macho", "llama hembra");
+                                AddExtraAdultDescription();
+                                break;
+                        case "Alpaca":
+                                DoLazyDescriptions("alpaca cria", "young alpaca", "alpaca macho", "alpaca hembra");
+                                AddExtraAdultDescription();
+                                break;
 			case "Pigeon":
 			case "Swallow":
 			case "Sparrow":
@@ -2864,44 +2990,54 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
 			case "Woodpecker":
 			case "Kingfisher":
 			case "Stork":
-			case "Penguin":
-				DoLazyDescriptions($"{race.Name.ToLowerInvariant()} chick",
-					$" fledgling {race.Name.ToLowerInvariant()}", $"male {race.Name.ToLowerInvariant()}",
-					$"female {race.Name.ToLowerInvariant()}");
-				break;
+                        case "Penguin":
+                                DoLazyDescriptions($"{race.Name.ToLowerInvariant()} chick",
+                                        $" fledgling {race.Name.ToLowerInvariant()}", $"male {race.Name.ToLowerInvariant()}",
+                                        $"female {race.Name.ToLowerInvariant()}");
+                                AddExtraAdultDescription();
+                                break;
 
-			case "Duck":
-				DoLazyDescriptionsWithMultipleJuvenile("duckling", "fledgling drake", "fledgling duck", "drake",
-					"duck");
-				break;
-			case "Goose":
-				DoLazyDescriptionsWithMultipleJuvenile("gosling", "fledgling gander", "fledgling goose", "gander",
-					"goose");
-				break;
-			case "Swan":
-				DoLazyDescriptionsWithMultipleJuvenile("cygnet", "fledgling swan cob", "fledgling swan pen",
-					"swan cob", "swan pen");
-				break;
-			case "Chicken":
-				DoLazyDescriptionsWithMultipleJuvenile("chicklet", "fledgling rooster", "fledgling hen", "rooster",
-					"hen");
-				break;
-			case "Turkey":
-				DoLazyDescriptionsWithMultipleJuvenile("poult", "fledgling turkey gobbler", "fledgling turkey hen",
-					"turkey gobbler", "turkey hen");
-				break;
-			case "Hawk":
-				DoLazyDescriptions("hawk chick", "fledgling hawk", "male hawk", "female hawk");
-				break;
-			case "Eagle":
-				DoLazyDescriptions("eaglet", "fledgling eagle", "male eagle", "female eagle");
-				break;
-			case "Falcon":
-				DoLazyDescriptions("falcon chick", "fledgling falcon", "male falcon", "female falcon");
-				break;
-			case "Owl":
-				DoLazyDescriptions("owlet", "fledgling owl", "male owl", "female owl");
-				break;
+                        case "Duck":
+                                DoLazyDescriptionsWithMultipleJuvenile("duckling", "fledgling drake", "fledgling duck", "drake",
+                                        "duck");
+                                AddExtraAdultDescription();
+                                break;
+                        case "Goose":
+                                DoLazyDescriptionsWithMultipleJuvenile("gosling", "fledgling gander", "fledgling goose", "gander",
+                                        "goose");
+                                AddExtraAdultDescription();
+                                break;
+                        case "Swan":
+                                DoLazyDescriptionsWithMultipleJuvenile("cygnet", "fledgling swan cob", "fledgling swan pen",
+                                        "swan cob", "swan pen");
+                                AddExtraAdultDescription();
+                                break;
+                        case "Chicken":
+                                DoLazyDescriptionsWithMultipleJuvenile("chicklet", "fledgling rooster", "fledgling hen", "rooster",
+                                        "hen");
+                                AddExtraAdultDescription();
+                                break;
+                        case "Turkey":
+                                DoLazyDescriptionsWithMultipleJuvenile("poult", "fledgling turkey gobbler", "fledgling turkey hen",
+                                        "turkey gobbler", "turkey hen");
+                                AddExtraAdultDescription();
+                                break;
+                        case "Hawk":
+                                DoLazyDescriptions("hawk chick", "fledgling hawk", "male hawk", "female hawk");
+                                AddExtraAdultDescription();
+                                break;
+                        case "Eagle":
+                                DoLazyDescriptions("eaglet", "fledgling eagle", "male eagle", "female eagle");
+                                AddExtraAdultDescription();
+                                break;
+                        case "Falcon":
+                                DoLazyDescriptions("falcon chick", "fledgling falcon", "male falcon", "female falcon");
+                                AddExtraAdultDescription();
+                                break;
+                        case "Owl":
+                                DoLazyDescriptions("owlet", "fledgling owl", "male owl", "female owl");
+                                AddExtraAdultDescription();
+                                break;
 			default:
 				DoLazyDescriptions($"baby {race.Name.ToLowerInvariant()}",
 					$"juvenile {race.Name.ToLowerInvariant()}", race.Name.ToLowerInvariant(),

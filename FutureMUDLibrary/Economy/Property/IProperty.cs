@@ -37,8 +37,9 @@ namespace MudSharp.Economy.Property
 		void AddKey(IPropertyKey key);
 		void RemoveKey(IPropertyKey key);
 		void ExpireLease(IPropertyLease lease);
-		void ExpireLeaseOrder(IPropertyLeaseOrder order);
-		bool ApplyCriminalCodeInProperty { get; set; }
+                void ExpireLeaseOrder(IPropertyLeaseOrder order);
+                void RekeyAllLocks();
+                bool ApplyCriminalCodeInProperty { get; set; }
 		string PreviewProperty(ICharacter voyeur);
 		void SellProperty(IFrameworkItem newOwner);
 		void DivestOwnership(IPropertyOwner owner, decimal percentage, IFrameworkItem newOwnerItem);

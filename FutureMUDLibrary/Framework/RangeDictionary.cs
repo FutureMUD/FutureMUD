@@ -119,7 +119,25 @@ namespace MudSharp.Framework
 
         public void CopyTo(KeyValuePair<ValueRange, T>[] array, int arrayIndex)
         {
-            throw new NotImplementedException("What is this actually supposed to do?");
+            if (array == null)
+            {
+                throw new ArgumentNullException(nameof(array));
+            }
+
+            if (arrayIndex < 0 || arrayIndex > array.Length)
+            {
+                throw new ArgumentOutOfRangeException(nameof(arrayIndex));
+            }
+
+            if (array.Length - arrayIndex < _ranges.Length)
+            {
+                throw new ArgumentException("The destination array is too small.", nameof(array));
+            }
+
+            for (var i = 0; i < _ranges.Length; i++)
+            {
+                array[arrayIndex + i] = new KeyValuePair<ValueRange, T>(_ranges[i], _values[i]);
+            }
         }
 
         public bool Remove(KeyValuePair<ValueRange, T> item)

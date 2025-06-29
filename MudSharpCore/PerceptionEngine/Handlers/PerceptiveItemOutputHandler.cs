@@ -2,46 +2,61 @@
 using MudSharp.Framework;
 using MudSharp.GameItems;
 using MudSharp.PerceptionEngine.Outputs;
+using MudSharp.PerceptionEngine;
 
 namespace MudSharp.PerceptionEngine.Handlers;
 
 public class PerceptiveItemOutputHandler : IOutputHandler
 {
-	public PerceptiveItemOutputHandler(IGameItem item)
-	{
-		//Perceiver = item;
-	}
+        private readonly IGameItem _item;
 
-	public IPerceiver Perceiver { get; protected set; }
+        public PerceptiveItemOutputHandler(IGameItem item)
+        {
+                _item = item;
+                Perceiver = item;
+        }
 
-	public bool HasBufferedOutput => throw new NotImplementedException();
+        public IPerceiver Perceiver { get; protected set; }
 
-	public string BufferedOutput => throw new NotImplementedException();
+        public bool HasBufferedOutput => false;
 
-	public bool Send(string text, bool newline = true, bool nopage = false)
-	{
-		throw new NotImplementedException();
-	}
+        public string BufferedOutput => null;
 
-	public bool Send(IOutput output, bool newline = true, bool nopage = false)
-	{
-		throw new NotImplementedException();
-	}
+        public bool Send(string text, bool newline = true, bool nopage = false)
+        {
+                if (QuietMode || string.IsNullOrEmpty(text))
+                {
+                        return false;
+                }
 
-	public bool SendPrompt()
-	{
-		throw new NotImplementedException();
-	}
+                this.Handle(text, OutputRange.Local);
+                return true;
+        }
 
-	public void Flush()
-	{
-		throw new NotImplementedException();
-	}
+        public bool Send(IOutput output, bool newline = true, bool nopage = false)
+        {
+                if (output == null)
+                {
+                        return false;
+                }
 
-	public bool Register(IPerceiver perceiver)
-	{
-		return false;
-	}
+                this.Handle(output, OutputRange.Local);
+                return true;
+        }
+
+        public bool SendPrompt()
+        {
+                return false;
+        }
+
+        public void Flush()
+        {
+        }
+
+        public bool Register(IPerceiver perceiver)
+        {
+                return false;
+        }
 
 	public bool QuietMode { get; set; }
 

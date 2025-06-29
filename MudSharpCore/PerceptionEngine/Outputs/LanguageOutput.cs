@@ -32,14 +32,23 @@ public class LanguageOutput : Output
 
 	public bool AllValid { get; protected set; }
 
-	public override string RawString => throw new NotImplementedException();
+        public override string RawString =>
+                ((_preLanguageEmote?.RawText ?? string.Empty) +
+                 (_optionalEmote != null && !string.IsNullOrWhiteSpace(_optionalEmote.RawText)
+                         ? ", " + _optionalEmote.RawText
+                         : string.Empty) +
+                 _languageText.RawText).Trim();
 
 	public override string ParseFor(IPerceiver perceiver)
 	{
-		if (perceiver is not ILanguagePerceiver langperceiver)
-		{
-			throw new NotImplementedException();
-		}
+                if (perceiver is not ILanguagePerceiver langperceiver)
+                {
+                        return ((_preLanguageEmote != null ? _preLanguageEmote.ParseFor(perceiver) : "") +
+                                (_optionalEmote != null && _optionalEmote.RawText.Length > 0
+                                        ? ", " + _optionalEmote.ParseFor(perceiver)
+                                        : "") +
+                                _languageText.RawText).Proper();
+                }
 
 		// TODO - how should perceivers without language see language output?
 		return
@@ -88,14 +97,31 @@ public class PriorLanguageOutput : Output
 
 	public bool AllValid { get; protected set; }
 
-	public override string RawString => throw new NotImplementedException();
+        public override string RawString =>
+                ((_optionalEmote != null && !string.IsNullOrWhiteSpace(_optionalEmote.RawText)
+                        ? _optionalEmote.RawText + ", "
+                        : string.Empty) +
+                 (_preLanguageEmote?.RawText ?? string.Empty) +
+                 _languageText.RawText).Trim();
 
 	public override string ParseFor(IPerceiver perceiver)
 	{
-		if (perceiver is not ILanguagePerceiver langperceiver)
-		{
-			throw new NotImplementedException();
-		}
+                if (perceiver is not ILanguagePerceiver langperceiver)
+                {
+                        var sb2 = new StringBuilder();
+                        if (!string.IsNullOrWhiteSpace(_optionalEmote?.RawText))
+                        {
+                                sb2.Append(_optionalEmote.ParseFor(perceiver) + ", ");
+                        }
+
+                        if (!string.IsNullOrWhiteSpace(_preLanguageEmote?.RawText))
+                        {
+                                sb2.Append(_preLanguageEmote.ParseFor(perceiver));
+                        }
+
+                        sb2.Append(_languageText.RawText);
+                        return sb2.ToString().ProperSentences();
+                }
 
 		// TODO - how should perceivers without language see language output?
 		var sb = new StringBuilder();

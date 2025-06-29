@@ -10,11 +10,19 @@ namespace Futuremud_Configuration_Tool.Converters {
         #region IValueConverter Members
 
         public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture) {
-            throw new NotImplementedException();
+            if (value == null) {
+                return null;
+            }
+            using (new FMDB()) {
+                return FMDB.Context.Traits.Find((int)value);
+            }
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture) {
-            throw new NotImplementedException();
+            if (value == null) {
+                return null;
+            }
+            return ((FME.Trait)value).Id;
         }
 
         #endregion

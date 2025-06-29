@@ -3,6 +3,7 @@ using System.Linq;
 using System.Xml.Linq;
 using MudSharp.Body;
 using MudSharp.Body.Traits;
+using MudSharp.Body;
 using MudSharp.Character;
 using MudSharp.Effects.Interfaces;
 using MudSharp.Framework;

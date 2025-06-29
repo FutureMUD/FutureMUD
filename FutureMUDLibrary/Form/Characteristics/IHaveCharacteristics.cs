@@ -50,31 +50,31 @@ namespace MudSharp.Form.Characteristics {
 		void RecalculateCharacteristicsDueToExternalChange();
 	}
 
-	public static class IHaveCharacteristicsExtensions {
-		public static readonly Regex BasicCharacteristicRegex = new(@"(.+)basic", RegexOptions.IgnoreCase);
-		public static readonly Regex FancyCharacteristicRegex = new(@"(.+)fancy", RegexOptions.IgnoreCase);
-		private static readonly Regex BasicFancyCharacteristicRegex = new(@"(.+)(basic|fancy)", RegexOptions.IgnoreCase);
+        public static class IHaveCharacteristicsExtensions {
+                public static readonly Regex BasicCharacteristicRegex = new(@"(.+)basic", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+                public static readonly Regex FancyCharacteristicRegex = new(@"(.+)fancy", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+                private static readonly Regex BasicFancyCharacteristicRegex = new(@"(.+)(basic|fancy)", RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
-		private static readonly Regex CharacteristicRegex =
-			new(
-				@"\$(\!{0,1}|\?{0,1})([\w]+)(?:\[((?:[^\[\]]|(?<open>\[)|(?<-open>\]))*(?(open)(?!)))\]){0,1}(?:\[((?:[^\[\]]|(?<open>\[)|(?<-open>\]))*(?(open)(?!)))\]){0,1}",
-				RegexOptions.IgnoreCase);
+                private static readonly Regex CharacteristicRegex =
+                        new(
+                                @"\$(\!{0,1}|\?{0,1})([\w]+)(?:\[((?:[^\[\]]|(?<open>\[)|(?<-open>\]))*(?(open)(?!)))\]){0,1}(?:\[((?:[^\[\]]|(?<open>\[)|(?<-open>\]))*(?(open)(?!)))\]){0,1}",
+                                RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
-		private static readonly Regex ExtraVariableRegex =
-			new(@"&(\!{0,1})(height|himself|he|him|his|male|race|culture|ethnicity|ethnicgroup|age|personword|tattoos|withtattoos|scars|withscars)", RegexOptions.IgnoreCase);
+                private static readonly Regex ExtraVariableRegex =
+                        new(@"&(\!{0,1})(height|himself|he|him|his|male|race|culture|ethnicity|ethnicgroup|age|personword|tattoos|withtattoos|scars|withscars)", RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
-		private static readonly Regex PronounNumberRegex =
-			new(@"&pronoun\|(?<plural>[^\|]+)\|(?<singular>[^&]+)&", RegexOptions.IgnoreCase);
+                private static readonly Regex PronounNumberRegex =
+                        new(@"&pronoun\|(?<plural>[^\|]+)\|(?<singular>[^&]+)&", RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
-		private static readonly Regex AAnRegex =
-			new(@"&(\!{0,1})a_an\[((?:[^\[\]]|(?<open>\[)|(?<-open>\]))*(?(open)(?!)))\]", RegexOptions.IgnoreCase);
+                private static readonly Regex AAnRegex =
+                        new(@"&(\!{0,1})a_an\[((?:[^\[\]]|(?<open>\[)|(?<-open>\]))*(?(open)(?!)))\]", RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
-		private static readonly Regex AAnPluralRegex =
-			new(@"&\?a_an\[(?<inner>(?:[^\[\]]|(?<open>\[)|(?<-open>\]))*(?(open)(?!)))\]", RegexOptions.IgnoreCase);
+                private static readonly Regex AAnPluralRegex =
+                        new(@"&\?a_an\[(?<inner>(?:[^\[\]]|(?<open>\[)|(?<-open>\]))*(?(open)(?!)))\]", RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
 		// Example: %eyecolour[&his eyes are @][2-3:&his % eyes are @][1:&his single eye is @][0:&he has no eyes, only empty sockets]
-		private static readonly Regex BodypartSpecificRegex =
-			new(@"\%(?<characteristic>\w+)(?:\[(?<normal>(?:[^\[\]]|(?<open>\[)|(?<-open>\]))*(?(open)(?!)))\])(?:\[(?<alt1low>\d+)(?:\-(?<alt1high>\d+))?\:(?<alt1>(?:[^\[\]]|(?<open>\[)|(?<-open>\]))*(?(open)(?!)))\])?(?:\[(?<alt2low>\d+)(?:\-(?<alt2high>\d+))?\:(?<alt2>(?:[^\[\]]|(?<open>\[)|(?<-open>\]))*(?(open)(?!)))\])?(?:\[(?<alt3low>\d+)(?:\-(?<alt3high>\d+))?\:(?<alt3>(?:[^\[\]]|(?<open>\[)|(?<-open>\]))*(?(open)(?!)))\])?", RegexOptions.IgnoreCase);
+                private static readonly Regex BodypartSpecificRegex =
+                        new(@"\%(?<characteristic>\w+)(?:\[(?<normal>(?:[^\[\]]|(?<open>\[)|(?<-open>\]))*(?(open)(?!)))\])(?:\[(?<alt1low>\d+)(?:\-(?<alt1high>\d+))?\:(?<alt1>(?:[^\[\]]|(?<open>\[)|(?<-open>\]))*(?(open)(?!)))\])?(?:\[(?<alt2low>\d+)(?:\-(?<alt2high>\d+))?\:(?<alt2>(?:[^\[\]]|(?<open>\[)|(?<-open>\]))*(?(open)(?!)))\])?(?:\[(?<alt3low>\d+)(?:\-(?<alt3high>\d+))?\:(?<alt3>(?:[^\[\]]|(?<open>\[)|(?<-open>\]))*(?(open)(?!)))\])?", RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
 		private static Tuple<ICharacteristicDefinition, CharacteristicDescriptionType> GetDefinition(string definition,
 			IEnumerable<(ICharacteristicDefinition, ICharacteristicValue)> characteristics) {

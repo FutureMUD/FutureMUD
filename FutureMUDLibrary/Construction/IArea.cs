@@ -18,7 +18,6 @@ namespace MudSharp.Construction
         IEnumerable<IRoom> Rooms { get; }
         IEnumerable<ICell> Cells { get; }
         IEnumerable<IZone> Zones { get; }
-        IWeatherController Weather { get; }
         TimeOfDay CurrentTimeOfDay { get; }
     }
 
@@ -26,7 +25,7 @@ namespace MudSharp.Construction
     {
         void Add(IRoom room);
         void Remove(IRoom room);
-        new IWeatherController Weather { get; set; }
+        new IWeatherController WeatherController { get; set; }
         void SetName(string name);
     }
 }

@@ -60,7 +60,7 @@ public class Zone : Location, IEditableZone
 			TimeZones[clock] = clock.PrimaryTimezone;
 		}
 
-		Weather = Gameworld.WeatherControllers.Get(zone.WeatherControllerId ?? 0L);
+		WeatherController = Gameworld.WeatherControllers.Get(zone.WeatherControllerId ?? 0L);
 
 		InitialiseCelestials();
 		Shard.Register(this);
@@ -200,7 +200,7 @@ public class Zone : Location, IEditableZone
 
 	private IWeatherController _weather;
 
-	public IWeatherController Weather
+	public IWeatherController WeatherController
 	{
 		get => _weather;
 		set
@@ -394,7 +394,7 @@ public class Zone : Location, IEditableZone
 		sb.AppendLine(
 			$"Ambient Light Pollution: {$"{AmbientLightPollution.ToString("N5", builder)} lumens".Colour(Telnet.Green)}");
 		sb.AppendLine(
-			$"Weather Controller: {(Weather != null ? $"{Weather.Name.Colour(Telnet.Green)} (#{Weather.Id.ToString("N0", builder)})" : "None".Colour(Telnet.Red))}");
+			$"Weather Controller: {(WeatherController != null ? $"{WeatherController.Name.Colour(Telnet.Green)} (#{WeatherController.Id.ToString("N0", builder)})" : "None".Colour(Telnet.Red))}");
 		return sb.ToString();
 	}
 

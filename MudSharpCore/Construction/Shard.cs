@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using MudSharp.Celestial;
+using MudSharp.Climate;
 using MudSharp.Database;
 using MudSharp.Framework;
 using MudSharp.FutureProg;
@@ -240,6 +241,9 @@ public class Shard : Location, IEditableShard
 	{
 		return 12.58 - 2.5 * Math.Log10(lux * 1.08 / 3.4);
 	}
+
+
+	public IWeatherController WeatherController => null;
 
 	#region IFutureProgVariable Members
 

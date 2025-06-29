@@ -1385,7 +1385,7 @@ See the #3CELL#0 command for more information about #3CELL PACKAGES#0.";
 
 		if (command.SafeRemainingArgument.EqualTo("none"))
 		{
-			zone.Weather = null;
+			zone.WeatherController = null;
 			actor.OutputHandler.Send($"The {zone.Name.ColourName()} zone no longer has any weather.");
 			return;
 		}
@@ -1397,7 +1397,7 @@ See the #3CELL#0 command for more information about #3CELL PACKAGES#0.";
 			return;
 		}
 
-		zone.Weather = wc;
+		zone.WeatherController = wc;
 		actor.OutputHandler.Send($"The {zone.Name.ColourName()} zone now uses the {wc.Name.ColourValue()} weather controller.");
 	}
 
@@ -4284,7 +4284,7 @@ Note: reverse any condition with a ! (e.g. !dawn, !snow, !*rain, !summer)");
 										 {
 											 area.Id.ToString("N0", actor),
 											 area.Name,
-											 area.Weather?.RegionalClimate.Name.Colour(Telnet.Cyan) ?? "Default",
+											 area.WeatherController?.RegionalClimate.Name.Colour(Telnet.Cyan) ?? "Default",
 											 area.Zones.Select(x => x.Name)
 												 .ListToString(conjunction: "", twoItemJoiner: ", "),
 											 area.Cells.Count().ToString("N0", actor)
@@ -4383,7 +4383,7 @@ The syntax for working with areas is as follows:
 		var editArea = (IEditableArea)area;
 		if (ss.Peek().EqualToAny("clear", "none", "remove", "delete"))
 		{
-			editArea.Weather = null;
+			editArea.WeatherController = null;
 			actor.OutputHandler.Send(
 				"That area will now have no overriding weather controller; its weather will be whatever the zones say it should be.");
 			return;
@@ -4398,7 +4398,7 @@ The syntax for working with areas is as follows:
 			return;
 		}
 
-		editArea.Weather = controller;
+		editArea.WeatherController = controller;
 		actor.OutputHandler.Send(
 			$"This area will now override the zone weather with the {controller.Name.Colour(Telnet.BoldCyan)} weather controller.");
 	}
@@ -4500,7 +4500,7 @@ The syntax for working with areas is as follows:
 		var sb = new StringBuilder();
 		sb.AppendLine($"Area #{area.Id.ToString("N0", actor)}: {area.Name.Colour(Telnet.Cyan)}");
 		sb.AppendLine(
-			$"Weather Controller: {(area.Weather == null ? "Default".Colour(Telnet.Magenta) : $"{area.Weather.Name} (#{area.Weather.Id})")}");
+			$"Weather Controller: {(area.WeatherController == null ? "Default".Colour(Telnet.Magenta) : $"{area.WeatherController.Name} (#{area.WeatherController.Id})")}");
 		sb.AppendLine("Cells in Area:");
 		foreach (var cell in area.Cells)
 		{

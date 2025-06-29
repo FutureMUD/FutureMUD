@@ -57,7 +57,7 @@ public class Area : Location, IEditableArea
 		_id = area.Id;
 		IdInitialised = true;
 		_name = area.Name;
-		Weather = Gameworld.WeatherControllers.Get(area.WeatherControllerId ?? 0L);
+		WeatherController = Gameworld.WeatherControllers.Get(area.WeatherControllerId ?? 0L);
 		foreach (var dbroom in area.AreasRooms)
 		{
 			var room = Gameworld.Rooms.Get(dbroom.RoomId);
@@ -103,7 +103,7 @@ public class Area : Location, IEditableArea
 	{
 		var dbitem = FMDB.Context.Areas.Find(Id);
 		dbitem.Name = Name;
-		dbitem.WeatherControllerId = Weather?.Id;
+		dbitem.WeatherControllerId = WeatherController?.Id;
 		FMDB.Context.AreasRooms.RemoveRange(dbitem.AreasRooms);
 		foreach (var room in _rooms)
 		{
@@ -113,18 +113,18 @@ public class Area : Location, IEditableArea
 		Changed = false;
 	}
 
-	public IWeatherController Weather
+	public override IWeatherController WeatherController
 	{
-		get => _weather;
+		get => _weatherController;
 		set
 		{
-			_weather = value;
+			_weatherController = value;
 			Changed = true;
 		}
 	}
 
 	private readonly List<IRoom> _rooms = new();
-	private IWeatherController _weather;
+	private IWeatherController _weatherController;
 
 	public IEnumerable<IRoom> Rooms => _rooms;
 

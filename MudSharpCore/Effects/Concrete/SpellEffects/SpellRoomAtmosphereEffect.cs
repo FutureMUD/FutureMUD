@@ -1,3 +1,4 @@
+using System;
 using System.Xml.Linq;
 using MudSharp.Effects.Interfaces;
 using MudSharp.Framework;
@@ -37,7 +38,7 @@ public class SpellRoomAtmosphereEffect : MagicSpellEffectBase, IDescriptionAddit
         return new XElement("Effect",
             new XElement("ApplicabilityProg", ApplicabilityProg?.Id ?? 0),
             new XElement("AtmosphereId", Atmosphere.Id),
-            new XElement("AtmosphereType", Atmosphere.MaterialBehaviour == MaterialBehaviourType.Gas ? "gas" : "liquid"),
+            new XElement("AtmosphereType", Atmosphere is IGas ? "gas" : "liquid"),
             new XElement("DescAddendum", new XCData(DescAddendum)),
             new XElement("AddendumColour", AddendumColour.Name)
         );

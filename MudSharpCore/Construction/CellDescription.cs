@@ -166,10 +166,10 @@ public partial class Cell
 					text = text.Substring(1);
 				}
 
-				var season = Zone.Weather?.RegionalClimate.Seasons.FirstOrDefault(x => x.Name.EqualTo(text));
+				var season = Zone.WeatherController?.RegionalClimate.Seasons.FirstOrDefault(x => x.Name.EqualTo(text));
 				if (season != null)
 				{
-					return Zone.Weather.CurrentSeason == season;
+					return Zone.WeatherController.CurrentSeason == season;
 				}
 
 				var precip = PrecipitationFromString(text);

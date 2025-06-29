@@ -25,7 +25,6 @@ namespace MudSharp.Construction {
 		void Register(IRoom room);
 		void Unregister(IRoom room);
 		void CalculateCoordinates();
-		IWeatherController Weather { get; }
 		TimeOfDay CurrentTimeOfDay { get; }
 		string ShowToBuilder(ICharacter builder);
 		void InitialiseCelestials();
@@ -38,6 +37,6 @@ namespace MudSharp.Construction {
 		Dictionary<IClock, IMudTimeZone> TimeZones { get; }
 		new IForagableProfile ForagableProfile { get; set; }
 		void SetName(string name);
-		new IWeatherController Weather { get; set; }
+		new IWeatherController WeatherController { get; set; }
 	}
 }

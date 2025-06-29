@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using MudSharp.Celestial;
 using MudSharp.Character;
+using MudSharp.Climate;
 using MudSharp.Construction.Boundary;
 using MudSharp.Events;
 using MudSharp.Form.Audio;
@@ -147,6 +148,15 @@ public abstract class Location : PerceivedItem, ILocation
 	public virtual IEnumerable<ICelestialObject> Celestials => throw new NotImplementedException();
 
 	public abstract IMudTimeZone TimeZone(IClock whichClock);
+
+	public virtual IWeatherController WeatherController
+	{
+		get => null;
+		set
+		{
+			// NOOP
+		}
+	}
 
 	public event CharacterMovementEvent OnCharacterEnters;
 	public event CharacterMovementEvent OnCharacterLeaves;

@@ -59,7 +59,7 @@ public class RoomAtmosphereEffect : IMagicSpellEffectTemplate
         return new XElement("Effect",
             new XAttribute("type", "roomatmosphere"),
             new XElement("AtmosphereId", Atmosphere.Id),
-            new XElement("AtmosphereType", Atmosphere.MaterialBehaviour == MaterialBehaviourType.Gas ? "gas" : "liquid"),
+            new XElement("AtmosphereType", Atmosphere is IGas ? "gas" : "liquid"),
             new XElement("DescAddendum", new XCData(DescAddendum)),
             new XElement("AddendumColour", AddendumColour.Name)
         );

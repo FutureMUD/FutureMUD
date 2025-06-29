@@ -1,6 +1,7 @@
 using System.Xml.Linq;
 using System.Linq;
 using MudSharp.Character;
+using MudSharp.Construction;
 using MudSharp.Effects.Concrete.SpellEffects;
 using MudSharp.Effects.Interfaces;
 using MudSharp.Framework;

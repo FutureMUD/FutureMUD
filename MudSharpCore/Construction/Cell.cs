@@ -206,14 +206,14 @@ public partial class Cell : Location, IDisposable, ICell
 		// TODO - wading pools
 		// TODO - room flooding effects
 		return !referenceLayer.IsHigherThan(RoomLayer.GroundLevel) &&
-		       Terrain(null).TerrainLayers.Any(x => x.IsUnderwater());
+			   Terrain(null).TerrainLayers.Any(x => x.IsUnderwater());
 	}
 
 	public bool IsUnderwaterLayer(RoomLayer referenceLayer)
 	{
 		// TODO - room flooding effects
 		return referenceLayer.IsLowerThan(RoomLayer.GroundLevel) &&
-		       Terrain(null).TerrainLayers.Any(x => x.IsUnderwater());
+			   Terrain(null).TerrainLayers.Any(x => x.IsUnderwater());
 	}
 
 	public override void Insert(IGameItem thing, bool newStack)
@@ -368,7 +368,7 @@ public partial class Cell : Location, IDisposable, ICell
 	{
 		return
 			Gameworld.ExitManager.GetExitsFor(this, GetOverlayFor(voyeur), ignoreLayers ? default : voyeur?.RoomLayer)
-			         .FirstOrDefault(x => x.Destination == otherCell);
+					 .FirstOrDefault(x => x.Destination == otherCell);
 	}
 
 	public ITerrain Terrain(IPerceiver voyeur)
@@ -391,38 +391,29 @@ public partial class Cell : Location, IDisposable, ICell
 			return overlay.Terrain.OverrideWeatherController.HighestRecentPrecipitationLevel;
 		}
 
-		return Areas.FirstOrDefault(x => x.Weather != null)?.Weather.HighestRecentPrecipitationLevel ??
-		       Zone.Weather?.HighestRecentPrecipitationLevel ??
-		       PrecipitationLevel.Parched;
+		return Areas.FirstOrDefault(x => x.WeatherController != null)?.WeatherController.HighestRecentPrecipitationLevel ??
+			   Zone.WeatherController?.HighestRecentPrecipitationLevel ??
+			   PrecipitationLevel.Parched;
 	}
 
-	public IWeatherController WeatherController =>
-		CurrentOverlay.Terrain.OverrideWeatherController ??
-		Areas.FirstOrDefault(x => x.Weather != null)?.Weather ??
-		Zone.Weather;
+	public override IWeatherController WeatherController
+	{
+		get
+		{
+			return CurrentOverlay.Terrain.OverrideWeatherController ??
+			       Areas.FirstOrDefault(x => x.WeatherController != null)?.WeatherController ??
+			       Zone.WeatherController;
+		}
+	}
 
-       public IWeatherEvent CurrentWeather(IPerceiver voyeur)
-       {
-               var overlay = GetOverlayFor(voyeur);
-               if (overlay.Terrain.OverrideWeatherController != null)
-               {
-                       return overlay.Terrain.OverrideWeatherController.CurrentWeatherEvent;
-               }
-
-                return Areas.FirstOrDefault(x => x.Weather != null)?.Weather.CurrentWeatherEvent ??
-                       Zone.Weather?.CurrentWeatherEvent;
-        }
+	public IWeatherEvent CurrentWeather(IPerceiver voyeur)
+	{
+		return WeatherController?.CurrentWeatherEvent;
+	}
 
 	public ISeason CurrentSeason(IPerceiver voyeur)
 	{
-		var overlay = GetOverlayFor(voyeur);
-		if (overlay.Terrain.OverrideWeatherController != null)
-		{
-			return overlay.Terrain.OverrideWeatherController.CurrentSeason;
-		}
-
-		return Areas.FirstOrDefault(x => x.Weather != null)?.Weather.CurrentSeason ??
-		       Zone.Weather?.CurrentSeason;
+		return WeatherController?.CurrentSeason;
 	}
 
 	public double CurrentTemperature(IPerceiver voyeur)
@@ -435,8 +426,8 @@ public partial class Cell : Location, IDisposable, ICell
 		}
 		else
 		{
-			var weather = Areas.FirstOrDefault(x => x.Weather != null)?.Weather ??
-			              Zone.Weather;
+			var weather = Areas.FirstOrDefault(x => x.WeatherController != null)?.WeatherController ??
+						  Zone.WeatherController;
 
 			if (weather == null)
 			{
@@ -451,23 +442,23 @@ public partial class Cell : Location, IDisposable, ICell
 					case CellOutdoorsType.IndoorsNoLight:
 						// Indoors is sheltered from rain and wind unless there is an open exit to an outdoors room
 						if (Gameworld.ExitManager.GetExitsFor(this, overlay, voyeur?.RoomLayer).Any(x =>
-							    x.Exit.Door?.IsOpen != false && x.Destination.OutdoorsType(voyeur)
-							                                     .In(CellOutdoorsType.IndoorsClimateExposed,
-								                                     CellOutdoorsType.Outdoors)))
+								x.Exit.Door?.IsOpen != false && x.Destination.OutdoorsType(voyeur)
+																 .In(CellOutdoorsType.IndoorsClimateExposed,
+																	 CellOutdoorsType.Outdoors)))
 						{
 							baseTemperature = weather.CurrentTemperature +
-							                  weather.CurrentWeatherEvent.PrecipitationTemperatureEffect;
+											  weather.CurrentWeatherEvent.PrecipitationTemperatureEffect;
 							break;
 						}
 
 						baseTemperature = weather.CurrentTemperature +
-						                  weather.CurrentWeatherEvent.PrecipitationTemperatureEffect +
-						                  weather.CurrentWeatherEvent.WindTemperatureEffect;
+										  weather.CurrentWeatherEvent.PrecipitationTemperatureEffect +
+										  weather.CurrentWeatherEvent.WindTemperatureEffect;
 						break;
 					case CellOutdoorsType.IndoorsClimateExposed:
 						// This kind of location only protects from the rain, not the wind
 						baseTemperature = weather.CurrentTemperature +
-						                  weather.CurrentWeatherEvent.PrecipitationTemperatureEffect;
+										  weather.CurrentWeatherEvent.PrecipitationTemperatureEffect;
 						break;
 					default:
 						baseTemperature = weather.CurrentTemperature;
@@ -477,11 +468,11 @@ public partial class Cell : Location, IDisposable, ICell
 		}
 
 		var effectTemperature = EffectsOfType<IAffectEnvironmentalTemperature>()
-		                        .Concat(Zone.EffectsOfType<IAffectEnvironmentalTemperature>())
-		                        .Where(x => x.Applies())
-		                        .Select(x => x.TemperatureDelta)
-		                        .DefaultIfEmpty(0)
-		                        .Sum();
+								.Concat(Zone.EffectsOfType<IAffectEnvironmentalTemperature>())
+								.Where(x => x.Applies())
+								.Select(x => x.TemperatureDelta)
+								.DefaultIfEmpty(0)
+								.Sum();
 
 		return baseTemperature + effectTemperature;
 	}
@@ -495,11 +486,11 @@ public partial class Cell : Location, IDisposable, ICell
 
 		var overlay = GetOverlayFor(voyeur);
 		var environmentalLight = (Room.Zone.CurrentLightLevel * overlay.AmbientLightFactor + overlay.AddedLight) *
-		                         (CurrentWeather(voyeur)?.LightLevelMultiplier ?? 1.0);
+								 (CurrentWeather(voyeur)?.LightLevelMultiplier ?? 1.0);
 		var ambientLight = environmentalLight +
-		                   LayerCharacters(voyeur.RoomLayer).Sum(x => x.IlluminationProvided) +
-		                   LayerGameItems(voyeur.RoomLayer).Sum(x => x.IlluminationProvided) +
-		                   EffectsOfType<IAreaLightEffect>(x => x.Applies()).Sum(x => x.AddedLight);
+						   LayerCharacters(voyeur.RoomLayer).Sum(x => x.IlluminationProvided) +
+						   LayerGameItems(voyeur.RoomLayer).Sum(x => x.IlluminationProvided) +
+						   EffectsOfType<IAreaLightEffect>(x => x.Applies()).Sum(x => x.AddedLight);
 		return ambientLight;
 	}
 
@@ -604,8 +595,8 @@ public partial class Cell : Location, IDisposable, ICell
 				if (loginCharacter.PreviousLoginDateTime != null)
 				{
 					loginCharacter.Body.DoOfflineHealing(loginCharacter.LoginDateTime -
-					                                     (loginCharacter.LastLogoutDateTime ??
-					                                      loginCharacter.LoginDateTime));
+														 (loginCharacter.LastLogoutDateTime ??
+														  loginCharacter.LoginDateTime));
 				}
 
 				if (loginCharacter.IsAdministrator())
@@ -638,11 +629,11 @@ public partial class Cell : Location, IDisposable, ICell
 					{
 						var applications =
 							FMDB.Context.Chargens
-							    .Where(x => 
-								    x.Status == (int)CharacterStatus.Submitted &&
+								.Where(x => 
+									x.Status == (int)CharacterStatus.Submitted &&
 									(PermissionLevel)(x.MinimumApprovalAuthority ?? 0) <= loginCharacter.Account.Authority.Level
 								)
-							    .ToList();
+								.ToList();
 						if (applications.Count > 0)
 						{
 							sb.AppendLine($"\n\nThere are {applications.Count.ToStringN0Colour(loginCharacter)} new character {"application".Pluralise(applications.Count != 1)} for you to review.");
@@ -763,10 +754,10 @@ public partial class Cell : Location, IDisposable, ICell
 	{
 		return
 			EffectHandler.EffectsOfType<IExitHiddenEffect>()
-			             .Where(x => x.Exit == exit.Exit && x.Applies(voyeur))
-			             .Select(x => x.HiddenTypes)
-			             .DefaultIfEmpty(PerceptionTypes.None)
-			             .Aggregate(type, (prev, effect) => prev & ~effect) != PerceptionTypes.None;
+						 .Where(x => x.Exit == exit.Exit && x.Applies(voyeur))
+						 .Select(x => x.HiddenTypes)
+						 .DefaultIfEmpty(PerceptionTypes.None)
+						 .Aggregate(type, (prev, effect) => prev & ~effect) != PerceptionTypes.None;
 	}
 
 	public override void Register(IOutputHandler handler)
@@ -782,7 +773,7 @@ public partial class Cell : Location, IDisposable, ICell
 	public double EstimatedDirectDistanceTo(ICell otherCell)
 	{
 		return Math.Sqrt(Math.Pow(Room.X - otherCell.Room.X, 2) + Math.Pow(Room.Y - otherCell.Room.Y, 2) +
-		                 Math.Pow(Room.Z - otherCell.Room.Z, 2));
+						 Math.Pow(Room.Z - otherCell.Room.Z, 2));
 	}
 
 	public TimeOfDay CurrentTimeOfDay => Zone.CurrentTimeOfDay;
@@ -881,7 +872,7 @@ public partial class Cell : Location, IDisposable, ICell
 	{
 		var overlay = GetOverlayFor(perceiver);
 		return overlay.HearingProfile?.AudioDifficulty(this, volume, proximity) ??
-		       base.LocalAudioDifficulty(perceiver, volume, proximity);
+			   base.LocalAudioDifficulty(perceiver, volume, proximity);
 	}
 
 	public override void Save()
@@ -1010,26 +1001,26 @@ public partial class Cell : Location, IDisposable, ICell
 			_subscribedWeatherControllers.Add(controller);
 			controller.WeatherEcho += TerrainEchoController;
 			controller.WeatherChanged += TerrainChangedController;
-			controller.WeatherRoomTick += ControllerOnWeatherRoomTick;
+			controller.WeatherRoomTick += ControllerOnWeatherControllerRoomTick;
 		}
 
 		foreach (var area in Areas)
 		{
-			if (area.Weather != null && !_subscribedWeatherControllers.Contains(area.Weather))
+			if (area.WeatherController != null && !_subscribedWeatherControllers.Contains(area.WeatherController))
 			{
-				area.Weather.WeatherEcho += WeatherEchoController;
-				area.Weather.WeatherChanged += WeatherChangedController;
-				area.Weather.WeatherRoomTick += ControllerOnWeatherRoomTick;
-				_subscribedWeatherControllers.Add(area.Weather);
+				area.WeatherController.WeatherEcho += WeatherControllerEchoController;
+				area.WeatherController.WeatherChanged += WeatherControllerChangedController;
+				area.WeatherController.WeatherRoomTick += ControllerOnWeatherControllerRoomTick;
+				_subscribedWeatherControllers.Add(area.WeatherController);
 			}
 		}
 
-		if (Zone.Weather != null && !_subscribedWeatherControllers.Contains(Zone.Weather))
+		if (Zone.WeatherController != null && !_subscribedWeatherControllers.Contains(Zone.WeatherController))
 		{
-			Zone.Weather.WeatherEcho += WeatherEchoController;
-			Zone.Weather.WeatherChanged += WeatherChangedController;
-			Zone.Weather.WeatherRoomTick += ControllerOnWeatherRoomTick;
-			_subscribedWeatherControllers.Add(Zone.Weather);
+			Zone.WeatherController.WeatherEcho += WeatherControllerEchoController;
+			Zone.WeatherController.WeatherChanged += WeatherControllerChangedController;
+			Zone.WeatherController.WeatherRoomTick += ControllerOnWeatherControllerRoomTick;
+			_subscribedWeatherControllers.Add(Zone.WeatherController);
 		}
 
 		LoadTags(cell);
@@ -1038,17 +1029,17 @@ public partial class Cell : Location, IDisposable, ICell
 		_noSave = false;
 	}
 
-	private void ControllerOnWeatherRoomTick(Action<ICell> visitor)
+	private void ControllerOnWeatherControllerRoomTick(Action<ICell> visitor)
 	{
 		visitor(this);
 	}
 
-	private void WeatherChangedController(IWeatherController sender, IWeatherEvent oldWeather, IWeatherEvent newWeather)
+	private void WeatherControllerChangedController(IWeatherController sender, IWeatherEvent oldWeather, IWeatherEvent newWeather)
 	{
 		foreach (var handler in EventHandlers)
 		{
 			if (handler is IPerceiver p && Terrain(p).OverrideWeatherController != sender &&
-			    Terrain(p).OverrideWeatherController != null)
+				Terrain(p).OverrideWeatherController != null)
 			{
 				continue;
 			}
@@ -1057,10 +1048,10 @@ public partial class Cell : Location, IDisposable, ICell
 		}
 	}
 
-	private void WeatherEchoController(IWeatherController sender, string echo)
+	private void WeatherControllerEchoController(IWeatherController sender, string echo)
 	{
 		foreach (var actor in Characters.Where(x =>
-			         Terrain(x).OverrideWeatherController == sender || Terrain(x).OverrideWeatherController == null))
+					 Terrain(x).OverrideWeatherController == sender || Terrain(x).OverrideWeatherController == null))
 		{
 			if (actor.RoomLayer.IsUnderwater())
 			{
@@ -1117,21 +1108,21 @@ public partial class Cell : Location, IDisposable, ICell
 
 	public void AreaAdded(IArea area)
 	{
-		if (area.Weather != null && !_subscribedWeatherControllers.Contains(area.Weather))
+		if (area.WeatherController != null && !_subscribedWeatherControllers.Contains(area.WeatherController))
 		{
-			area.Weather.WeatherEcho += WeatherEchoController;
-			area.Weather.WeatherChanged += WeatherChangedController;
-			_subscribedWeatherControllers.Add(area.Weather);
+			area.WeatherController.WeatherEcho += WeatherControllerEchoController;
+			area.WeatherController.WeatherChanged += WeatherControllerChangedController;
+			_subscribedWeatherControllers.Add(area.WeatherController);
 		}
 	}
 
 	public void AreaRemoved(IArea area)
 	{
-		if (area.Weather != null && _subscribedWeatherControllers.Contains(area.Weather))
+		if (area.WeatherController != null && _subscribedWeatherControllers.Contains(area.WeatherController))
 		{
-			area.Weather.WeatherEcho -= WeatherEchoController;
-			area.Weather.WeatherChanged -= WeatherChangedController;
-			_subscribedWeatherControllers.Remove(area.Weather);
+			area.WeatherController.WeatherEcho -= WeatherControllerEchoController;
+			area.WeatherController.WeatherChanged -= WeatherControllerChangedController;
+			_subscribedWeatherControllers.Remove(area.WeatherController);
 		}
 	}
 
@@ -1236,8 +1227,8 @@ public partial class Cell : Location, IDisposable, ICell
 			if (_itemWeightPerWindLevelExpression == null)
 			{
 				_itemWeightPerWindLevelExpression = new Expression(Futuremud.Games.First()
-				                                                            .GetStaticConfiguration(
-					                                                            "ItemWeightPerWindLevelTreeFall"));
+																			.GetStaticConfiguration(
+																				"ItemWeightPerWindLevelTreeFall"));
 			}
 
 			return _itemWeightPerWindLevelExpression;
@@ -1269,8 +1260,8 @@ public partial class Cell : Location, IDisposable, ICell
 				foreach (var wind in Enum.GetValues(typeof(WindLevel)).OfType<WindLevel>())
 				{
 					_treeFallDifficultyPerWind[wind] = (Difficulty)Futuremud.Games.First()
-					                                                        .GetStaticInt(
-						                                                        $"TreeFallDifficulty{wind.DescribeEnum()}");
+																			.GetStaticInt(
+																				$"TreeFallDifficulty{wind.DescribeEnum()}");
 				}
 			}
 
@@ -1601,13 +1592,13 @@ public partial class Cell : Location, IDisposable, ICell
 	{
 		var vicinity = LayerGameItems(getter.RoomLayer).Except(item).Where(x => x.InVicinity(item)).ToList();
 		return !LayerCharacters(getter.RoomLayer).Except(getter)
-		                                         .Any(
-			                                         x =>
-				                                         x.EffectsOfType<IGuardItemEffect>()
-				                                          .Any(y => (y.Applies() && y.TargetItem == item) ||
-				                                                    vicinity.Contains(y.TargetItem)) &&
-				                                         !x.TrustedAllyIDs.Contains(getter.Id) &&
-				                                         !x.AllyIDs.Contains(getter.Id));
+												 .Any(
+													 x =>
+														 x.EffectsOfType<IGuardItemEffect>()
+														  .Any(y => (y.Applies() && y.TargetItem == item) ||
+																	vicinity.Contains(y.TargetItem)) &&
+														 !x.TrustedAllyIDs.Contains(getter.Id) &&
+														 !x.AllyIDs.Contains(getter.Id));
 	}
 
 	public string WhyCannotGetAccess(IGameItem item, ICharacter getter)
@@ -1615,14 +1606,14 @@ public partial class Cell : Location, IDisposable, ICell
 		var vicinity = LayerGameItems(getter.RoomLayer).Except(item).Where(x => x.InVicinity(item)).ToList();
 		var guarders =
 			LayerCharacters(getter.RoomLayer).Except(getter)
-			                                 .Where(
-				                                 x =>
-					                                 x.EffectsOfType<IGuardItemEffect>()
-					                                  .Any(y => (y.Applies() && y.TargetItem == item) ||
-					                                            vicinity.Contains(y.TargetItem)) &&
-					                                 !x.TrustedAllyIDs.Contains(getter.Id) &&
-					                                 !x.AllyIDs.Contains(getter.Id))
-			                                 .ToList();
+											 .Where(
+												 x =>
+													 x.EffectsOfType<IGuardItemEffect>()
+													  .Any(y => (y.Applies() && y.TargetItem == item) ||
+																vicinity.Contains(y.TargetItem)) &&
+													 !x.TrustedAllyIDs.Contains(getter.Id) &&
+													 !x.AllyIDs.Contains(getter.Id))
+											 .ToList();
 		if (guarders.Any())
 		{
 			return
@@ -1799,7 +1790,7 @@ public partial class Cell : Location, IDisposable, ICell
 		else
 		{
 			olfactoryReduction = Gameworld.GetStaticDouble($"OlfactoryTrackReductionPerTick{weather.Precipitation.DescribeEnum()}") +
-			                     Gameworld.GetStaticDouble($"OlfactoryTrackReductionPerTick{weather.Wind.DescribeEnum()}");
+								 Gameworld.GetStaticDouble($"OlfactoryTrackReductionPerTick{weather.Wind.DescribeEnum()}");
 			visualReduction = Gameworld.GetStaticDouble($"VisualTrackReductionPerTick{weather.Precipitation.DescribeEnum()}");
 		}
 

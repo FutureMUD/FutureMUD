@@ -1,5 +1,7 @@
 using System;
+using System.Linq;
 using System.Xml.Linq;
+using MudSharp.Body;
 using MudSharp.Body.Traits;
 using MudSharp.Character;
 using MudSharp.Effects.Interfaces;

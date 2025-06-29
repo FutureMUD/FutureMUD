@@ -2,6 +2,7 @@ using System.Xml.Linq;
 using MudSharp.Climate;
 using MudSharp.Framework;
 using MudSharp.FutureProg;
+using MudSharp.Effects.Interfaces;
 
 namespace MudSharp.Effects.Concrete.SpellEffects;
 

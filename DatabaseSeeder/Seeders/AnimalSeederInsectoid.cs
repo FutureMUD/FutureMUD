@@ -51,11 +51,11 @@ public partial class AnimalSeeder
 
         Console.WriteLine($"...[{_stopwatch.Elapsed.TotalSeconds:N1}s] Races...");
         AddRace("Ant", "Formic", "Small colony insects", insectProto, SizeCategory.Tiny, false, 0.05,
-            "Small Insect", "Small Insect", false, "partless");
+            "Small Insect", "Small Insect", false, "insect");
         AddRace("Beetle", "Beetle", "Hard-shelled insects", insectProto, SizeCategory.VerySmall, false, 0.1,
-            "Small Insect", "Small Insect", false, "partless");
+            "Small Insect", "Small Insect", false, "insect");
         AddRace("Mantis", "Mantis", "Predatory insects with long forelegs", insectProto, SizeCategory.Small, false,
-            0.2, "Medium Insect", "Medium Insect", false, "partless");
+            0.2, "Medium Insect", "Medium Insect", false, "insect");
     }
 
     private void SeedWingedInsectoid(BodyProto insectProto)
@@ -109,10 +109,10 @@ public partial class AnimalSeeder
 
         Console.WriteLine($"...[{_stopwatch.Elapsed.TotalSeconds:N1}s] Races...");
         AddRace("Dragonfly", "Dragonfly", "Long-bodied flying insects", insectProto, SizeCategory.VerySmall, false,
-            0.1, "Small Insect", "Small Insect", false, "partless");
+            0.1, "Small Insect", "Small Insect", false, "insect");
         AddRace("Bee", "Bee", "Striped pollinating insects", insectProto, SizeCategory.VerySmall, false,
-            0.1, "Small Insect", "Small Insect", false, "partless");
+            0.1, "Small Insect", "Small Insect", false, "insect");
         AddRace("Butterfly", "Butterfly", "Colourful winged insects", insectProto, SizeCategory.VerySmall, false,
-            0.1, "Small Insect", "Small Insect", false, "partless");
+            0.1, "Small Insect", "Small Insect", false, "insect");
     }
 }

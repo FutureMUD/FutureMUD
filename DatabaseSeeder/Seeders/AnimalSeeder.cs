@@ -501,53 +501,53 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f: ", (context, answers) =
 			LegDescriptionSingular = "leg",
 			WearSizeParameter = wearSize
 		};
-                context.BodyProtos.Add(cetacean);
-                context.SaveChanges();
+				context.BodyProtos.Add(cetacean);
+				context.SaveChanges();
 
-                SeedAquatic(fishBody, crabBody, cephalopod, jellyfish, pinniped, cetacean);
+				SeedAquatic(fishBody, crabBody, cephalopod, jellyfish, pinniped, cetacean);
 
-                Console.WriteLine("Installing insectoids...");
-                var insectBody = new BodyProto
-                {
-                        Id = nextId++,
-                        Name = "Insectoid",
-                        ConsiderString = "",
-                        WielderDescriptionSingle = "mandible",
-                        WielderDescriptionPlural = "mandibles",
-                        StaminaRecoveryProgId = staminaRecoveryProg.Id,
-                        MinimumLegsToStand = 6,
-                        MinimumWingsToFly = 2,
-                        LegDescriptionPlural = "legs",
-                        LegDescriptionSingular = "leg",
-                        WearSizeParameter = wearSize
-                };
-                context.BodyProtos.Add(insectBody);
-                context.SaveChanges();
+				Console.WriteLine("Installing insectoids...");
+				var insectBody = new BodyProto
+				{
+						Id = nextId++,
+						Name = "Insectoid",
+						ConsiderString = "",
+						WielderDescriptionSingle = "mandible",
+						WielderDescriptionPlural = "mandibles",
+						StaminaRecoveryProgId = staminaRecoveryProg.Id,
+						MinimumLegsToStand = 6,
+						MinimumWingsToFly = 2,
+						LegDescriptionPlural = "legs",
+						LegDescriptionSingular = "leg",
+						WearSizeParameter = wearSize
+				};
+				context.BodyProtos.Add(insectBody);
+				context.SaveChanges();
 
-                var wingedInsectBody = new BodyProto
-                {
-                        Id = nextId++,
-                        Name = "Winged Insectoid",
-                        ConsiderString = "",
-                        WielderDescriptionSingle = "mandible",
-                        WielderDescriptionPlural = "mandibles",
-                        StaminaRecoveryProgId = staminaRecoveryProg.Id,
-                        MinimumLegsToStand = 6,
-                        MinimumWingsToFly = 2,
-                        LegDescriptionPlural = "legs",
-                        LegDescriptionSingular = "leg",
-                        WearSizeParameter = wearSize
-                };
-                context.BodyProtos.Add(wingedInsectBody);
-                context.SaveChanges();
+				var wingedInsectBody = new BodyProto
+				{
+						Id = nextId++,
+						Name = "Winged Insectoid",
+						ConsiderString = "",
+						WielderDescriptionSingle = "mandible",
+						WielderDescriptionPlural = "mandibles",
+						StaminaRecoveryProgId = staminaRecoveryProg.Id,
+						MinimumLegsToStand = 6,
+						MinimumWingsToFly = 2,
+						LegDescriptionPlural = "legs",
+						LegDescriptionSingular = "leg",
+						WearSizeParameter = wearSize
+				};
+				context.BodyProtos.Add(wingedInsectBody);
+				context.SaveChanges();
 
-                SeedInsectoid(insectBody);
-                SeedWingedInsectoid(wingedInsectBody);
+				SeedInsectoid(insectBody);
+				SeedWingedInsectoid(wingedInsectBody);
 
-                SetupPositions(quadrupedBody, avianBody, serpentineBody, fishBody, crabBody, cephalopod, jellyfish, pinniped,
-                        cetacean, wormBody, insectBody, wingedInsectBody);
-                SetupSpeeds(quadrupedBody, avianBody, serpentineBody, fishBody, crabBody, cephalopod, jellyfish, pinniped,
-                        cetacean, wormBody, insectBody, wingedInsectBody);
+				SetupPositions(quadrupedBody, avianBody, serpentineBody, fishBody, crabBody, cephalopod, jellyfish, pinniped,
+						cetacean, wormBody, insectBody, wingedInsectBody);
+				SetupSpeeds(quadrupedBody, avianBody, serpentineBody, fishBody, crabBody, cephalopod, jellyfish, pinniped,
+						cetacean, wormBody, insectBody, wingedInsectBody);
 
 		context.Database.CommitTransaction();
 
@@ -1071,12 +1071,12 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
 		AddHWModel("Seal Baby", 40, 2, 125, 0);
 		AddHWModel("Walrus Male", 300, 15, 144.444444444444, 0);
 		AddHWModel("Walrus Female", 200, 10, 125, 0);
-                AddHWModel("Walrus Juvenile", 150, 7.5, 133.333333333333, 0);
-                AddHWModel("Walrus Baby", 80, 4, 156.25, 0);
-                AddHWModel("Small Insect", 5, 0.25, 20, 2);
-                AddHWModel("Medium Insect", 15, 0.75, 18, 1.8);
-                AddHWModel("Large Insect", 30, 1.5, 17, 1.7);
-        }
+				AddHWModel("Walrus Juvenile", 150, 7.5, 133.333333333333, 0);
+				AddHWModel("Walrus Baby", 80, 4, 156.25, 0);
+				AddHWModel("Small Insect", 5, 0.25, 20, 2);
+				AddHWModel("Medium Insect", 15, 0.75, 18, 1.8);
+				AddHWModel("Large Insect", 30, 1.5, 17, 1.7);
+		}
 
 	private void AddHWModel(string name, double meanHeight, double stddevheight, double meanbmi, double stddevbmi)
 	{
@@ -2666,43 +2666,43 @@ var extraAdultDescriptions = new Dictionary<string, string>(StringComparer.Ordin
 {"Badger", "Stocky and low to the ground, the badger has a distinctive striped face and formidable digging claws."},
 {"Wolverine", "Muscular and thick-furred, the wolverine is larger than a badger and known for its ferocity. Its broad paws help it move through snow."},
 {"Goat", "A sure-footed ungulate with a short tail and backward curving horns. It happily grazes on rough plants that many animals avoid."},
-    {"Llama", "This long-necked camelid has a shaggy coat and an alert expression. It's often used as a pack animal in mountainous regions."},
-    {"Alpaca", "Smaller than a llama, this camelid is prized for its soft, luxurious fleece. Large eyes give it a gentle appearance."},
+	{"Llama", "This long-necked camelid has a shaggy coat and an alert expression. It's often used as a pack animal in mountainous regions."},
+	{"Alpaca", "Smaller than a llama, this camelid is prized for its soft, luxurious fleece. Large eyes give it a gentle appearance."},
 
-    {"Pigeon", "A plump, short-legged bird with iridescent feathers about its neck. It coos softly while bobbing its head."},
-    {"Swallow", "A small bird with long, pointed wings and a forked tail. It darts through the air catching insects."},
-    {"Sparrow", "A tiny brown songbird with streaked plumage and a quick, hopping gait."},
-    {"Quail", "This squat ground bird sports a topknot of feathers and short rounded wings."},
-    {"Grouse", "A chicken-like bird with mottled feathers that blend well with woodland undergrowth."},
-    {"Pheasant", "A brightly coloured game bird with a long tail and vivid plumage, especially on the males."},
-    {"Seagull", "A coastal bird with grey wings and a raucous cry, often seen scavenging along the shoreline."},
-    {"Albatross", "Large and long-winged, this seabird glides effortlessly over the waves for hours at a time."},
-    {"Heron", "A tall wading bird with a spear-like beak and long legs for stalking fish in shallow waters."},
-    {"Crane", "Elegant and long-legged, the crane moves with slow, deliberate steps and has a bugling call."},
-    {"Flamingo", "This pink bird stands on one leg while filtering food from the water with its curved bill."},
-    {"Peacock", "A spectacular bird with a metallic blue neck and a fan of brilliant eye-spotted tail feathers."},
-    {"Ibis", "A long-legged wader with a down-curved bill, probing mud for small creatures."},
-    {"Pelican", "Large and heavy-billed, the pelican scoops up fish with the flexible pouch beneath its beak."},
-    {"Crow", "A glossy black bird known for its intelligence and harsh cawing voice."},
-    {"Raven", "Bigger than a crow, the raven has shaggy throat feathers and a deep, resonant croak."},
-    {"Emu", "A tall, flightless bird with shaggy feathers and powerful legs built for running."},
-    {"Ostrich", "The largest of birds, the ostrich has a long neck and strong legs capable of swift kicks."},
-    {"Moa", "A massive, extinct flightless bird recreated here with heavy legs and a thick body."},
-    {"Vulture", "A bald-headed scavenger with broad wings, circling patiently for carrion."},
-    {"Parrot", "A colourful bird with a hooked beak and a squawking voice, often mimicking sounds."},
-    {"Woodpecker", "This bird clings to tree trunks, hammering with its beak in search of insects."},
-    {"Kingfisher", "A small bird with a large head and vivid plumage, diving swiftly for fish."},
-    {"Stork", "Long-legged and long-billed, the stork is often seen wading in wetlands."},
-    {"Penguin", "A tuxedo-feathered swimmer that waddles awkwardly on land but soars through the sea."},
-    {"Duck", "A waterfowl with a broad bill and webbed feet, quacking softly as it paddles."},
-    {"Goose", "Larger than a duck, this bird has a long neck and is quick to honk at intruders."},
-    {"Swan", "Graceful and white-feathered, the swan glides serenely across the water."},
-    {"Chicken", "A domesticated fowl kept for its eggs and meat, clucking as it scratches at the ground."},
-    {"Turkey", "A large game bird with a fan-shaped tail and a fleshy wattle dangling from its beak."},
-    {"Hawk", "A sharp-eyed raptor with hooked talons, circling high before diving on prey."},
-    {"Eagle", "Powerful and regal, this large bird of prey has a commanding wingspan and piercing gaze."},
-    {"Falcon", "A sleek raptor built for speed, with narrow wings and swift, decisive strikes."},
-    {"Owl", "A nocturnal hunter with a rounded face and silent wings, staring from huge eyes."}
+	{"Pigeon", "A plump, short-legged bird with iridescent feathers about its neck. It coos softly while bobbing its head."},
+	{"Swallow", "A small bird with long, pointed wings and a forked tail. It darts through the air catching insects."},
+	{"Sparrow", "A tiny brown songbird with streaked plumage and a quick, hopping gait."},
+	{"Quail", "This squat ground bird sports a topknot of feathers and short rounded wings."},
+	{"Grouse", "A chicken-like bird with mottled feathers that blend well with woodland undergrowth."},
+	{"Pheasant", "A brightly coloured game bird with a long tail and vivid plumage, especially on the males."},
+	{"Seagull", "A coastal bird with grey wings and a raucous cry, often seen scavenging along the shoreline."},
+	{"Albatross", "Large and long-winged, this seabird glides effortlessly over the waves for hours at a time."},
+	{"Heron", "A tall wading bird with a spear-like beak and long legs for stalking fish in shallow waters."},
+	{"Crane", "Elegant and long-legged, the crane moves with slow, deliberate steps and has a bugling call."},
+	{"Flamingo", "This pink bird stands on one leg while filtering food from the water with its curved bill."},
+	{"Peacock", "A spectacular bird with a metallic blue neck and a fan of brilliant eye-spotted tail feathers."},
+	{"Ibis", "A long-legged wader with a down-curved bill, probing mud for small creatures."},
+	{"Pelican", "Large and heavy-billed, the pelican scoops up fish with the flexible pouch beneath its beak."},
+	{"Crow", "A glossy black bird known for its intelligence and harsh cawing voice."},
+	{"Raven", "Bigger than a crow, the raven has shaggy throat feathers and a deep, resonant croak."},
+	{"Emu", "A tall, flightless bird with shaggy feathers and powerful legs built for running."},
+	{"Ostrich", "The largest of birds, the ostrich has a long neck and strong legs capable of swift kicks."},
+	{"Moa", "A massive, extinct flightless bird recreated here with heavy legs and a thick body."},
+	{"Vulture", "A bald-headed scavenger with broad wings, circling patiently for carrion."},
+	{"Parrot", "A colourful bird with a hooked beak and a squawking voice, often mimicking sounds."},
+	{"Woodpecker", "This bird clings to tree trunks, hammering with its beak in search of insects."},
+	{"Kingfisher", "A small bird with a large head and vivid plumage, diving swiftly for fish."},
+	{"Stork", "Long-legged and long-billed, the stork is often seen wading in wetlands."},
+	{"Penguin", "A tuxedo-feathered swimmer that waddles awkwardly on land but soars through the sea."},
+	{"Duck", "A waterfowl with a broad bill and webbed feet, quacking softly as it paddles."},
+	{"Goose", "Larger than a duck, this bird has a long neck and is quick to honk at intruders."},
+	{"Swan", "Graceful and white-feathered, the swan glides serenely across the water."},
+	{"Chicken", "A domesticated fowl kept for its eggs and meat, clucking as it scratches at the ground."},
+	{"Turkey", "A large game bird with a fan-shaped tail and a fleshy wattle dangling from its beak."},
+	{"Hawk", "A sharp-eyed raptor with hooked talons, circling high before diving on prey."},
+	{"Eagle", "Powerful and regal, this large bird of prey has a commanding wingspan and piercing gaze."},
+	{"Falcon", "A sleek raptor built for speed, with narrow wings and swift, decisive strikes."},
+	{"Owl", "A nocturnal hunter with a rounded face and silent wings, staring from huge eyes."}
 };
 
 void AddExtraAdultDescription()
@@ -2763,30 +2763,30 @@ CreateDescription(EntityDescriptionType.FullDescription, text, isAdultFemaleRace
 					"This is &a_an[&age] &male wolf. &he is slender and powerfully built with a deeply descending rib cage, a sloping back and a heavily muscled neck. &he has small, triangular ears and long legs that signal swift movement. &he has large, heavy teeth and a powerful jaw adapted to crushing bone.",
 					isAdultFemaleRaceProg);
 				break;
-                        case "Coyote":
-                                DoLazyDescriptions("coyote pup", "coyote whelp", "male coyote", "female coyote");
-                                AddExtraAdultDescription();
-                                break;
-                        case "Hyena":
-                                DoLazyDescriptions("hyena pup", "hyena whelp", "male hyena", "female hyena");
-                                AddExtraAdultDescription();
-                                break;
-                        case "Rabbit":
-                                DoLazyDescriptions("bunny", "young rabbit", "buck rabbit", "doe rabbit");
-                                AddExtraAdultDescription();
-                                break;
-                        case "Hare":
-                                DoLazyDescriptions("hare bunny", "young hare", "buck hare", "doe hare");
-                                AddExtraAdultDescription();
-                                break;
-                        case "Beaver":
-                                DoLazyDescriptions("beaver cub", "young beaver", "male beaver", "female beaver");
-                                AddExtraAdultDescription();
-                                break;
-                        case "Otter":
-                                DoLazyDescriptions("otter cub", "young otter", "male otter", "female otter");
-                                AddExtraAdultDescription();
-                                break;
+						case "Coyote":
+								DoLazyDescriptions("coyote pup", "coyote whelp", "male coyote", "female coyote");
+								AddExtraAdultDescription();
+								break;
+						case "Hyena":
+								DoLazyDescriptions("hyena pup", "hyena whelp", "male hyena", "female hyena");
+								AddExtraAdultDescription();
+								break;
+						case "Rabbit":
+								DoLazyDescriptions("bunny", "young rabbit", "buck rabbit", "doe rabbit");
+								AddExtraAdultDescription();
+								break;
+						case "Hare":
+								DoLazyDescriptions("hare bunny", "young hare", "buck hare", "doe hare");
+								AddExtraAdultDescription();
+								break;
+						case "Beaver":
+								DoLazyDescriptions("beaver cub", "young beaver", "male beaver", "female beaver");
+								AddExtraAdultDescription();
+								break;
+						case "Otter":
+								DoLazyDescriptions("otter cub", "young otter", "male otter", "female otter");
+								AddExtraAdultDescription();
+								break;
 			case "Cat":
 				CreateDescription(EntityDescriptionType.ShortDescription, "&a_an[$catcoat] kitten",
 					isBabyMaleRaceProg);
@@ -2813,46 +2813,46 @@ CreateDescription(EntityDescriptionType.FullDescription, text, isAdultFemaleRace
 				CreateDescription(EntityDescriptionType.FullDescription,
 					"This is &a_an[&age] &male common domestic cat. $catcoatfancy", isAdultFemaleRaceProg);
 				break;
-                        case "Lion":
-                                DoLazyDescriptionsWithMultipleJuvenile("lion cub", "juvenile lion", "juvenile lioness", "lion",
-                                        "lioness");
-                                AddExtraAdultDescription();
-                                break;
-                        case "Cheetah":
-                                DoLazyDescriptions("cheetah cub", "juvenile cheetah", "cheetah", "she-cheetah");
-                                AddExtraAdultDescription();
-                                break;
-                        case "Leopard":
-                                DoLazyDescriptionsWithMultipleJuvenile("leopard cub", "juvenile leopard", "juvenile leopardess",
-                                        "leopard", "leopardess");
-                                AddExtraAdultDescription();
-                                break;
-                        case "Tiger":
-                                DoLazyDescriptionsWithMultipleJuvenile("tiger cub", "juvenile tiger", "juvenile tigress", "tiger",
-                                        "tigress");
-                                AddExtraAdultDescription();
-                                break;
-                        case "Panther":
-                                DoLazyDescriptions("panther cub", "juvenile panther", "male panther", "female panther");
-                                AddExtraAdultDescription();
-                                break;
-                        case "Jaguar":
-                                DoLazyDescriptions("jaguar cub", "juvenile jaguar", "male jaguar", "female jaguar");
-                                AddExtraAdultDescription();
-                                break;
-                        case "Jackal":
-                                DoLazyDescriptions("jackal cub", "juvenile jackal", "male jackal", "female jackal");
-                                AddExtraAdultDescription();
-                                break;
-                        case "Deer":
-                                DoLazyDescriptionsWithMultipleJuvenile("fawn", "juvenile stag", "juvenile doe", "stag", "doe");
-                                AddExtraAdultDescription();
-                                break;
-                        case "Moose":
-                                DoLazyDescriptionsWithMultipleJuvenile("moose calf", "young bull moose", "moose heifer",
-                                        "bull moose", "moose cow");
-                                AddExtraAdultDescription();
-                                break;
+						case "Lion":
+								DoLazyDescriptionsWithMultipleJuvenile("lion cub", "juvenile lion", "juvenile lioness", "lion",
+										"lioness");
+								AddExtraAdultDescription();
+								break;
+						case "Cheetah":
+								DoLazyDescriptions("cheetah cub", "juvenile cheetah", "cheetah", "she-cheetah");
+								AddExtraAdultDescription();
+								break;
+						case "Leopard":
+								DoLazyDescriptionsWithMultipleJuvenile("leopard cub", "juvenile leopard", "juvenile leopardess",
+										"leopard", "leopardess");
+								AddExtraAdultDescription();
+								break;
+						case "Tiger":
+								DoLazyDescriptionsWithMultipleJuvenile("tiger cub", "juvenile tiger", "juvenile tigress", "tiger",
+										"tigress");
+								AddExtraAdultDescription();
+								break;
+						case "Panther":
+								DoLazyDescriptions("panther cub", "juvenile panther", "male panther", "female panther");
+								AddExtraAdultDescription();
+								break;
+						case "Jaguar":
+								DoLazyDescriptions("jaguar cub", "juvenile jaguar", "male jaguar", "female jaguar");
+								AddExtraAdultDescription();
+								break;
+						case "Jackal":
+								DoLazyDescriptions("jackal cub", "juvenile jackal", "male jackal", "female jackal");
+								AddExtraAdultDescription();
+								break;
+						case "Deer":
+								DoLazyDescriptionsWithMultipleJuvenile("fawn", "juvenile stag", "juvenile doe", "stag", "doe");
+								AddExtraAdultDescription();
+								break;
+						case "Moose":
+								DoLazyDescriptionsWithMultipleJuvenile("moose calf", "young bull moose", "moose heifer",
+										"bull moose", "moose cow");
+								AddExtraAdultDescription();
+								break;
 			case "Pig":
 				CreateDescription(EntityDescriptionType.ShortDescription, "a &male piglet", isBabyMaleRaceProg);
 				CreateDescription(EntityDescriptionType.ShortDescription, "a &male piglet", isBabyFemaleRaceProg);
@@ -2902,111 +2902,111 @@ CreateDescription(EntityDescriptionType.FullDescription, text, isAdultFemaleRace
 				CreateDescription(EntityDescriptionType.FullDescription, "This is &a_an[&age] &male sheep, or ewe.",
 					isAdultFemaleRaceProg);
 				break;
-                        case "Boar":
-                                DoLazyDescriptionsWithMultipleJuvenile("boar piglet", "young wild boar", "young wild sow",
-                                        "wild boar", "wild sow");
-                                AddExtraAdultDescription();
-                                break;
-                        case "Warthog":
-                                DoLazyDescriptionsWithMultipleJuvenile("warthog piglet", "young warthog boar", "young warthog sow",
-                                        "warthog boar", "warthog sow");
-                                AddExtraAdultDescription();
-                                break;
-                        case "Cow":
-                                DoLazyDescriptionsWithMultipleJuvenile("calf", "young bull", "heifer", "bull", "cow");
-                                AddExtraAdultDescription();
-                                break;
-                        case "Ox":
-                                DoLazyDescriptionsWithMultipleJuvenile("ox calf", "young ox bull", "ox heifer", "ox bull",
-                                        "ox cow");
-                                AddExtraAdultDescription();
-                                break;
-                        case "Buffalo":
-                                DoLazyDescriptionsWithMultipleJuvenile("buffalo calf", "young buffalo bull", "buffalo heifer",
-                                        "buffalo bull", "buffalo cow");
-                                AddExtraAdultDescription();
-                                break;
-                        case "Bison":
-                                DoLazyDescriptionsWithMultipleJuvenile("bison calf", "young bison bull", "bison heifer",
-                                        "bison bull", "bison cow");
-                                AddExtraAdultDescription();
-                                break;
-                        case "Hippopotamus":
-                                DoLazyDescriptionsWithMultipleJuvenile("hippo calf", "young hippo bull", "young hippo cow",
-                                        "hippo bull", "hippo cow");
-                                AddExtraAdultDescription();
-                                break;
-                        case "Horse":
-                                DoLazyDescriptionsWithMultipleJuvenile("foal", "colt", "filly", "stallion", "mare");
-                                AddExtraAdultDescription();
-                                break;
-                        case "Bear":
-                                DoLazyDescriptions("&ethnicity cub", "young &ethnicity", "male &ethnicity", "female &ethnicity");
-                                AddExtraAdultDescription();
-                                break;
-                        case "Rhinocerous":
-                                DoLazyDescriptions("rhino calf", "young rhino", "rhino bull", "rhino cow");
-                                AddExtraAdultDescription();
-                                break;
-                        case "Giraffe":
-                                DoLazyDescriptions("giraffe calf", "young giraffe", "male giraffe", "female giraffe");
-                                AddExtraAdultDescription();
-                                break;
-                        case "Elephant":
-                                DoLazyDescriptionsWithMultipleJuvenile("elephant calf", "juvenile bull elephant",
-                                        "juvenile elephant", "bull elephant", "elephant");
-                                AddExtraAdultDescription();
-                                break;
-                        case "Fox":
-                                DoLazyDescriptionsWithMultipleJuvenile("fox kit", "juvenile male fox", "juvenile fox vixen",
-                                        "male fox", "fox vixen");
-                                AddExtraAdultDescription();
-                                break;
-                        case "Rat":
-                                DoLazyDescriptions("rat pup", "young rat", "buck rat", "doe rat");
-                                AddExtraAdultDescription();
-                                break;
-                        case "Mouse":
-                                DoLazyDescriptions("mouse pup", "mouse rat", "buck mouse", "doe mouse");
-                                AddExtraAdultDescription();
-                                break;
-                        case "Hamster":
-                                DoLazyDescriptions("hamster pup", "young hamster", "buck hamster", "doe hamster");
-                                AddExtraAdultDescription();
-                                break;
-                        case "Ferret":
-                                DoLazyDescriptions("ferret kit", "young ferret", "jack ferret", "jill ferret");
-                                AddExtraAdultDescription();
-                                break;
-                        case "Weasel":
-                                DoLazyDescriptions("weasel kit", "young weasel", "jack weasel", "jill weasel");
-                                AddExtraAdultDescription();
-                                break;
-                        case "Guinea Pig":
-                                DoLazyDescriptions("guinea pig pup", "young guinea pig", "guinea pig boar", "guinea pig sow");
-                                AddExtraAdultDescription();
-                                break;
-                        case "Badger":
-                                DoLazyDescriptions("badger kit", "young badger", "boar badger", "sow badger");
-                                AddExtraAdultDescription();
-                                break;
-                        case "Wolverine":
-                                DoLazyDescriptions("wolverine kit", "young wolverine", "boar wolverine", "sow wolverine");
-                                AddExtraAdultDescription();
-                                break;
-                        case "Goat":
-                                DoLazyDescriptionsWithMultipleJuvenile("kid goat", "buckling goat",
-                                        "doeling goat", "billy goat", "nanny goat");
-                                AddExtraAdultDescription();
-                                break;
-                        case "Llama":
-                                DoLazyDescriptions("llama cria", "young llama", "llama macho", "llama hembra");
-                                AddExtraAdultDescription();
-                                break;
-                        case "Alpaca":
-                                DoLazyDescriptions("alpaca cria", "young alpaca", "alpaca macho", "alpaca hembra");
-                                AddExtraAdultDescription();
-                                break;
+						case "Boar":
+								DoLazyDescriptionsWithMultipleJuvenile("boar piglet", "young wild boar", "young wild sow",
+										"wild boar", "wild sow");
+								AddExtraAdultDescription();
+								break;
+						case "Warthog":
+								DoLazyDescriptionsWithMultipleJuvenile("warthog piglet", "young warthog boar", "young warthog sow",
+										"warthog boar", "warthog sow");
+								AddExtraAdultDescription();
+								break;
+						case "Cow":
+								DoLazyDescriptionsWithMultipleJuvenile("calf", "young bull", "heifer", "bull", "cow");
+								AddExtraAdultDescription();
+								break;
+						case "Ox":
+								DoLazyDescriptionsWithMultipleJuvenile("ox calf", "young ox bull", "ox heifer", "ox bull",
+										"ox cow");
+								AddExtraAdultDescription();
+								break;
+						case "Buffalo":
+								DoLazyDescriptionsWithMultipleJuvenile("buffalo calf", "young buffalo bull", "buffalo heifer",
+										"buffalo bull", "buffalo cow");
+								AddExtraAdultDescription();
+								break;
+						case "Bison":
+								DoLazyDescriptionsWithMultipleJuvenile("bison calf", "young bison bull", "bison heifer",
+										"bison bull", "bison cow");
+								AddExtraAdultDescription();
+								break;
+						case "Hippopotamus":
+								DoLazyDescriptionsWithMultipleJuvenile("hippo calf", "young hippo bull", "young hippo cow",
+										"hippo bull", "hippo cow");
+								AddExtraAdultDescription();
+								break;
+						case "Horse":
+								DoLazyDescriptionsWithMultipleJuvenile("foal", "colt", "filly", "stallion", "mare");
+								AddExtraAdultDescription();
+								break;
+						case "Bear":
+								DoLazyDescriptions("&ethnicity cub", "young &ethnicity", "male &ethnicity", "female &ethnicity");
+								AddExtraAdultDescription();
+								break;
+						case "Rhinocerous":
+								DoLazyDescriptions("rhino calf", "young rhino", "rhino bull", "rhino cow");
+								AddExtraAdultDescription();
+								break;
+						case "Giraffe":
+								DoLazyDescriptions("giraffe calf", "young giraffe", "male giraffe", "female giraffe");
+								AddExtraAdultDescription();
+								break;
+						case "Elephant":
+								DoLazyDescriptionsWithMultipleJuvenile("elephant calf", "juvenile bull elephant",
+										"juvenile elephant", "bull elephant", "elephant");
+								AddExtraAdultDescription();
+								break;
+						case "Fox":
+								DoLazyDescriptionsWithMultipleJuvenile("fox kit", "juvenile male fox", "juvenile fox vixen",
+										"male fox", "fox vixen");
+								AddExtraAdultDescription();
+								break;
+						case "Rat":
+								DoLazyDescriptions("rat pup", "young rat", "buck rat", "doe rat");
+								AddExtraAdultDescription();
+								break;
+						case "Mouse":
+								DoLazyDescriptions("mouse pup", "mouse rat", "buck mouse", "doe mouse");
+								AddExtraAdultDescription();
+								break;
+						case "Hamster":
+								DoLazyDescriptions("hamster pup", "young hamster", "buck hamster", "doe hamster");
+								AddExtraAdultDescription();
+								break;
+						case "Ferret":
+								DoLazyDescriptions("ferret kit", "young ferret", "jack ferret", "jill ferret");
+								AddExtraAdultDescription();
+								break;
+						case "Weasel":
+								DoLazyDescriptions("weasel kit", "young weasel", "jack weasel", "jill weasel");
+								AddExtraAdultDescription();
+								break;
+						case "Guinea Pig":
+								DoLazyDescriptions("guinea pig pup", "young guinea pig", "guinea pig boar", "guinea pig sow");
+								AddExtraAdultDescription();
+								break;
+						case "Badger":
+								DoLazyDescriptions("badger kit", "young badger", "boar badger", "sow badger");
+								AddExtraAdultDescription();
+								break;
+						case "Wolverine":
+								DoLazyDescriptions("wolverine kit", "young wolverine", "boar wolverine", "sow wolverine");
+								AddExtraAdultDescription();
+								break;
+						case "Goat":
+								DoLazyDescriptionsWithMultipleJuvenile("kid goat", "buckling goat",
+										"doeling goat", "billy goat", "nanny goat");
+								AddExtraAdultDescription();
+								break;
+						case "Llama":
+								DoLazyDescriptions("llama cria", "young llama", "llama macho", "llama hembra");
+								AddExtraAdultDescription();
+								break;
+						case "Alpaca":
+								DoLazyDescriptions("alpaca cria", "young alpaca", "alpaca macho", "alpaca hembra");
+								AddExtraAdultDescription();
+								break;
 			case "Pigeon":
 			case "Swallow":
 			case "Sparrow":
@@ -3031,54 +3031,54 @@ CreateDescription(EntityDescriptionType.FullDescription, text, isAdultFemaleRace
 			case "Woodpecker":
 			case "Kingfisher":
 			case "Stork":
-                        case "Penguin":
-                                DoLazyDescriptions($"{race.Name.ToLowerInvariant()} chick",
-                                        $" fledgling {race.Name.ToLowerInvariant()}", $"male {race.Name.ToLowerInvariant()}",
-                                        $"female {race.Name.ToLowerInvariant()}");
-                                AddExtraAdultDescription();
-                                break;
+						case "Penguin":
+								DoLazyDescriptions($"{race.Name.ToLowerInvariant()} chick",
+										$" fledgling {race.Name.ToLowerInvariant()}", $"male {race.Name.ToLowerInvariant()}",
+										$"female {race.Name.ToLowerInvariant()}");
+								AddExtraAdultDescription();
+								break;
 
-                        case "Duck":
-                                DoLazyDescriptionsWithMultipleJuvenile("duckling", "fledgling drake", "fledgling duck", "drake",
-                                        "duck");
-                                AddExtraAdultDescription();
-                                break;
-                        case "Goose":
-                                DoLazyDescriptionsWithMultipleJuvenile("gosling", "fledgling gander", "fledgling goose", "gander",
-                                        "goose");
-                                AddExtraAdultDescription();
-                                break;
-                        case "Swan":
-                                DoLazyDescriptionsWithMultipleJuvenile("cygnet", "fledgling swan cob", "fledgling swan pen",
-                                        "swan cob", "swan pen");
-                                AddExtraAdultDescription();
-                                break;
-                        case "Chicken":
-                                DoLazyDescriptionsWithMultipleJuvenile("chicklet", "fledgling rooster", "fledgling hen", "rooster",
-                                        "hen");
-                                AddExtraAdultDescription();
-                                break;
-                        case "Turkey":
-                                DoLazyDescriptionsWithMultipleJuvenile("poult", "fledgling turkey gobbler", "fledgling turkey hen",
-                                        "turkey gobbler", "turkey hen");
-                                AddExtraAdultDescription();
-                                break;
-                        case "Hawk":
-                                DoLazyDescriptions("hawk chick", "fledgling hawk", "male hawk", "female hawk");
-                                AddExtraAdultDescription();
-                                break;
-                        case "Eagle":
-                                DoLazyDescriptions("eaglet", "fledgling eagle", "male eagle", "female eagle");
-                                AddExtraAdultDescription();
-                                break;
-                        case "Falcon":
-                                DoLazyDescriptions("falcon chick", "fledgling falcon", "male falcon", "female falcon");
-                                AddExtraAdultDescription();
-                                break;
-                        case "Owl":
-                                DoLazyDescriptions("owlet", "fledgling owl", "male owl", "female owl");
-                                AddExtraAdultDescription();
-                                break;
+						case "Duck":
+								DoLazyDescriptionsWithMultipleJuvenile("duckling", "fledgling drake", "fledgling duck", "drake",
+										"duck");
+								AddExtraAdultDescription();
+								break;
+						case "Goose":
+								DoLazyDescriptionsWithMultipleJuvenile("gosling", "fledgling gander", "fledgling goose", "gander",
+										"goose");
+								AddExtraAdultDescription();
+								break;
+						case "Swan":
+								DoLazyDescriptionsWithMultipleJuvenile("cygnet", "fledgling swan cob", "fledgling swan pen",
+										"swan cob", "swan pen");
+								AddExtraAdultDescription();
+								break;
+						case "Chicken":
+								DoLazyDescriptionsWithMultipleJuvenile("chicklet", "fledgling rooster", "fledgling hen", "rooster",
+										"hen");
+								AddExtraAdultDescription();
+								break;
+						case "Turkey":
+								DoLazyDescriptionsWithMultipleJuvenile("poult", "fledgling turkey gobbler", "fledgling turkey hen",
+										"turkey gobbler", "turkey hen");
+								AddExtraAdultDescription();
+								break;
+						case "Hawk":
+								DoLazyDescriptions("hawk chick", "fledgling hawk", "male hawk", "female hawk");
+								AddExtraAdultDescription();
+								break;
+						case "Eagle":
+								DoLazyDescriptions("eaglet", "fledgling eagle", "male eagle", "female eagle");
+								AddExtraAdultDescription();
+								break;
+						case "Falcon":
+								DoLazyDescriptions("falcon chick", "fledgling falcon", "male falcon", "female falcon");
+								AddExtraAdultDescription();
+								break;
+						case "Owl":
+								DoLazyDescriptions("owlet", "fledgling owl", "male owl", "female owl");
+								AddExtraAdultDescription();
+								break;
 			default:
 				DoLazyDescriptions($"baby {race.Name.ToLowerInvariant()}",
 					$"juvenile {race.Name.ToLowerInvariant()}", race.Name.ToLowerInvariant(),
@@ -3745,9 +3745,9 @@ CreateDescription(EntityDescriptionType.FullDescription, text, isAdultFemaleRace
 		var race = new Race
 		{
 			Name = name,
-                        Description = string.IsNullOrWhiteSpace(description)
-                                ? $"{name}s are {adjective.ToLowerInvariant()} creatures"
-                                : description,
+						Description = string.IsNullOrWhiteSpace(description)
+								? $"{name}s are {adjective.ToLowerInvariant()} creatures"
+								: description,
 			BaseBody = body,
 			AllowedGenders = "2 3",
 			AttributeBonusProg = attributeBonusProg,
@@ -3820,6 +3820,15 @@ CreateDescription(EntityDescriptionType.FullDescription, text, isAdultFemaleRace
 					Multiplier = 1.0
 				});
 				race.BreathingModel = "simple";
+				break;
+			case "insect":
+				_context.RacesBreathableGases.Add(new RacesBreathableGases
+				{
+					Race = race,
+					Gas = _breathableAir,
+					Multiplier = 1.0
+				});
+				race.BreathingModel = "partless";
 				break;
 			case "partless":
 				_context.RacesBreathableLiquids.Add(new RacesBreathableLiquids
@@ -4591,12 +4600,12 @@ CreateDescription(EntityDescriptionType.FullDescription, text, isAdultFemaleRace
 		AddShape("Head");
 		AddShape("Front Flipper");
 		AddShape("Hind Flipper");
-                AddShape("Blowhole");
-                AddShape("Insect Thorax");
-                AddShape("Insect Abdomen");
-                AddShape("Antenna");
-                AddShape("Mandible");
-                AddShape("Compound Eye");
+				AddShape("Blowhole");
+				AddShape("Insect Thorax");
+				AddShape("Insect Abdomen");
+				AddShape("Antenna");
+				AddShape("Mandible");
+				AddShape("Compound Eye");
 
 		_context.SaveChanges();
 
@@ -4606,489 +4615,6 @@ CreateDescription(EntityDescriptionType.FullDescription, text, isAdultFemaleRace
 	}
 	
 	#region Different Body Types
-	private void SeedAvian(BodyProto avianProto)
-	{
-		ResetCachedParts();
-		var order = 1;
-		Console.WriteLine($"...[{_stopwatch.Elapsed.TotalSeconds:N1}s] Bodyparts...");
-
-		#region Torso
-
-		AddBodypart(avianProto, "abdomen", "abdomen", "abdomen", BodypartTypeEnum.Wear, null, Alignment.Front,
-			Orientation.Low, 80, -1, 100, order++, "Fatty Flesh", SizeCategory.Normal, "Torso", true, isVital: true,
-			implantSpace: 5, stunMultiplier: 0.2);
-		AddBodypart(avianProto, "rbreast", "right breast", "breast", BodypartTypeEnum.BonyDrapeable, "abdomen",
-			Alignment.FrontRight, Orientation.Low, 80, -1, 100, order++, "Flesh", SizeCategory.Normal, "Torso",
-			true, isVital: true, implantSpace: 5, stunMultiplier: 0.2);
-		AddBodypart(avianProto, "lbreast", "left breast", "breast", BodypartTypeEnum.BonyDrapeable, "abdomen",
-			Alignment.FrontLeft, Orientation.Low, 80, -1, 100, order++, "Flesh", SizeCategory.Normal, "Torso", true,
-			isVital: true, implantSpace: 5, stunMultiplier: 0.2);
-		AddBodypart(avianProto, "urflank", "upper right flank", "flank", BodypartTypeEnum.BonyDrapeable, "rbreast",
-			Alignment.Right, Orientation.Centre, 80, -1, 200, order++, "Flesh", SizeCategory.Normal, "Torso", true,
-			isVital: true, implantSpace: 5, stunMultiplier: 0.2);
-		AddBodypart(avianProto, "ulflank", "upper left flank", "flank", BodypartTypeEnum.BonyDrapeable, "lbreast",
-			Alignment.Left, Orientation.Centre, 80, -1, 200, order++, "Flesh", SizeCategory.Normal, "Torso", true,
-			isVital: true, implantSpace: 5, stunMultiplier: 0.2);
-		AddBodypart(avianProto, "lrflank", "lower right flank", "flank", BodypartTypeEnum.BonyDrapeable, "abdomen",
-			Alignment.RearRight, Orientation.Centre, 80, -1, 200, order++, "Flesh", SizeCategory.Normal, "Torso",
-			true, isVital: true, implantSpace: 5, stunMultiplier: 0.2);
-		AddBodypart(avianProto, "llflank", "lower left flank", "flank", BodypartTypeEnum.BonyDrapeable, "abdomen",
-			Alignment.RearLeft, Orientation.Centre, 80, -1, 200, order++, "Flesh", SizeCategory.Normal, "Torso",
-			true, isVital: true, implantSpace: 5, stunMultiplier: 0.2);
-		AddBodypart(avianProto, "belly", "belly", "belly", BodypartTypeEnum.Wear, "abdomen", Alignment.Front,
-			Orientation.Low, 80, -1, 100, order++, "Fatty Flesh", SizeCategory.Normal, "Torso", true, isVital: true,
-			implantSpace: 5, stunMultiplier: 0.2);
-		AddBodypart(avianProto, "rshoulder", "right shoulder", "shoulder", BodypartTypeEnum.BonyDrapeable, "rbreast",
-			Alignment.FrontRight, Orientation.Centre, 80, -1, 100, order++, "Bony Flesh", SizeCategory.Normal,
-			"Torso", true, isVital: false, implantSpace: 5, stunMultiplier: 0.2);
-		AddBodypart(avianProto, "lshoulder", "left shoulder", "shoulder", BodypartTypeEnum.BonyDrapeable, "lbreast",
-			Alignment.FrontLeft, Orientation.Centre, 80, -1, 100, order++, "Bony Flesh", SizeCategory.Normal,
-			"Torso", true, isVital: false, implantSpace: 5, stunMultiplier: 0.2);
-		AddBodypart(avianProto, "uback", "upper back", "upper back", BodypartTypeEnum.BonyDrapeable, "abdomen",
-			Alignment.Front, Orientation.High, 80, -1, 200, order++, "Bony Flesh", SizeCategory.Normal, "Torso",
-			true, isVital: true, implantSpace: 5, stunMultiplier: 0.2);
-		AddBodypart(avianProto, "lback", "lower back", "lower back", BodypartTypeEnum.BonyDrapeable, "abdomen",
-			Alignment.Rear, Orientation.High, 80, -1, 200, order++, "Bony Flesh", SizeCategory.Normal, "Torso",
-			true, isVital: true, implantSpace: 5, stunMultiplier: 0.2);
-		AddBodypart(avianProto, "rump", "rump", "rump", BodypartTypeEnum.Wear, "lback", Alignment.Rear,
-			Orientation.Centre, 80, -1, 100, order++, "Bony Flesh", SizeCategory.Normal, "Torso", true,
-			isVital: false, implantSpace: 5, stunMultiplier: 0.2);
-		AddBodypart(avianProto, "loin", "loin", "loin", BodypartTypeEnum.Wear, "belly", Alignment.Rear,
-			Orientation.Low, 80, -1, 100, order++, "Fatty Flesh", SizeCategory.Normal, "Torso", true, isVital: true,
-			implantSpace: 5, stunMultiplier: 0.2);
-
-		#endregion
-
-		#region Head
-
-		AddBodypart(avianProto, "neck", "neck", "neck", BodypartTypeEnum.BonyDrapeable, "uback", Alignment.Front,
-			Orientation.High, 80, 100, 100, order++, "Bony Flesh", SizeCategory.Normal, "Head", true, isVital: true,
-			implantSpace: 5, stunMultiplier: 0.5);
-		AddBodypart(avianProto, "bneck", "neck back", "neck back", BodypartTypeEnum.BonyDrapeable, "neck",
-			Alignment.Front, Orientation.Highest, 80, 100, 100, order++, "Bony Flesh", SizeCategory.Normal, "Head",
-			true, isVital: true, implantSpace: 5, stunMultiplier: 0.5);
-		AddBodypart(avianProto, "throat", "throat", "throat", BodypartTypeEnum.Wear, "neck", Alignment.Front,
-			Orientation.Highest, 40, 50, 100, order++, "Fatty Flesh", SizeCategory.Normal, "Head", true,
-			isVital: true, implantSpace: 5, stunMultiplier: 0.5);
-		AddBodypart(avianProto, "head", "head", "face", BodypartTypeEnum.BonyDrapeable, "neck", Alignment.Front,
-			Orientation.Highest, 80, -1, 100, order++, "Bony Flesh", SizeCategory.Normal, "Head", true,
-			isVital: true, implantSpace: 5, stunMultiplier: 1.0);
-		AddBodypart(avianProto, "bhead", "head back", "head back", BodypartTypeEnum.BonyDrapeable, "bneck",
-			Alignment.Rear, Orientation.Highest, 80, -1, 100, order++, "Bony Flesh", SizeCategory.Normal, "Head",
-			true, isVital: true, implantSpace: 5, stunMultiplier: 1.0);
-		AddBodypart(avianProto, "rcheek", "right cheek", "cheek", BodypartTypeEnum.BonyDrapeable, "head",
-			Alignment.Right, Orientation.Highest, 40, -1, 100, order++, "Bony Flesh", SizeCategory.Small, "Head",
-			true, isVital: true, implantSpace: 5, stunMultiplier: 0.5);
-		AddBodypart(avianProto, "lcheek", "left cheek", "cheek", BodypartTypeEnum.BonyDrapeable, "head", Alignment.Left,
-			Orientation.Highest, 40, -1, 100, order++, "Bony Flesh", SizeCategory.Small, "Head", true,
-			isVital: true, implantSpace: 5, stunMultiplier: 0.5);
-		AddBodypart(avianProto, "reyesocket", "right eye socket", "eye socket", BodypartTypeEnum.BonyDrapeable, "head",
-			Alignment.FrontRight, Orientation.Highest, 80, -1, 100, order++, "Dense Bony Flesh", SizeCategory.Small,
-			"Head", true, isVital: true, implantSpace: 5, stunMultiplier: 0.5);
-		AddBodypart(avianProto, "leyesocket", "left eye socket", "eye socket", BodypartTypeEnum.BonyDrapeable, "head",
-			Alignment.FrontLeft, Orientation.Highest, 80, -1, 100, order++, "Dense Bony Flesh", SizeCategory.Small,
-			"Head", true, isVital: true, implantSpace: 5, stunMultiplier: 0.5);
-		AddBodypart(avianProto, "reye", "right eye", "eye", BodypartTypeEnum.Eye, "reyesocket",
-			Alignment.FrontRight, Orientation.Highest, 10, 30, 100, order++, "Dense Bony Flesh", SizeCategory.Small,
-			"Head", true, isVital: true, implantSpace: 5, stunMultiplier: 0.5);
-		AddBodypart(avianProto, "leye", "left eye", "eye", BodypartTypeEnum.Eye, "leyesocket", Alignment.FrontLeft,
-			Orientation.Highest, 10, 30, 100, order++, "Dense Bony Flesh", SizeCategory.Small, "Head", true,
-			isVital: true, implantSpace: 5, stunMultiplier: 0.5);
-		AddBodypart(avianProto, "rear", "right ear", "ear", BodypartTypeEnum.Wear, "head", Alignment.Right,
-			Orientation.Highest, 10, 30, 100, order++, "Flesh", SizeCategory.Small, "Head", true, isVital: false,
-			implantSpace: 5, stunMultiplier: 0.2);
-		AddBodypart(avianProto, "lear", "left ear", "ear", BodypartTypeEnum.Wear, "head", Alignment.Left,
-			Orientation.Highest, 10, 30, 100, order++, "Flesh", SizeCategory.Small, "Head", true, isVital: false,
-			implantSpace: 5, stunMultiplier: 0.2);
-		AddBodypart(avianProto, "beak", "beak", "beak", BodypartTypeEnum.Mouth, "head", Alignment.Front,
-			Orientation.Highest, 80, -1, 100, order++, "Bony Flesh", SizeCategory.Normal, "Head", true,
-			isVital: true, implantSpace: 5, stunMultiplier: 1.0);
-		AddBodypart(avianProto, "tongue", "tongue", "tongue", BodypartTypeEnum.Tongue, "beak", Alignment.Front,
-			Orientation.Highest, 10, 30, 100, order++, "Bony Flesh", SizeCategory.Normal, "Head", true,
-			isVital: true, implantSpace: 5, stunMultiplier: 1.0);
-		AddBodypart(avianProto, "nose", "nose", "nose", BodypartTypeEnum.BonyDrapeable, "head", Alignment.Front,
-			Orientation.Highest, 10, 30, 100, order++, "Bony Flesh", SizeCategory.Normal, "Head", true,
-			isVital: true, implantSpace: 5, stunMultiplier: 1.0);
-
-		#endregion
-
-		#region Legs
-
-		AddBodypart(avianProto, "rupperleg", "right upper leg", "upper leg", BodypartTypeEnum.BonyDrapeable,
-			"rshoulder", Alignment.FrontRight, Orientation.Low, 80, 100, 100, order++, "Bony Flesh",
-			SizeCategory.Normal, "Right Leg");
-		AddBodypart(avianProto, "lupperleg", "left upper leg", "upper leg", BodypartTypeEnum.BonyDrapeable, "lshoulder",
-			Alignment.FrontLeft, Orientation.Low, 80, 100, 100, order++, "Bony Flesh", SizeCategory.Normal,
-			"Left Leg");
-		AddBodypart(avianProto, "rknee", "right knee", "knee", BodypartTypeEnum.BonyDrapeable, "rupperleg",
-			Alignment.FrontRight, Orientation.Low, 60, 80, 30, order++, "Dense Bony Flesh", SizeCategory.Normal,
-			"Right Leg");
-		AddBodypart(avianProto, "lknee", "left knee", "knee", BodypartTypeEnum.BonyDrapeable, "lupperleg",
-			Alignment.FrontLeft, Orientation.Low, 60, 80, 30, order++, "Dense Bony Flesh", SizeCategory.Normal,
-			"Left Leg");
-		AddBodypart(avianProto, "rlowerleg", "right lower leg", "lower leg", BodypartTypeEnum.BonyDrapeable, "rknee",
-			Alignment.FrontRight, Orientation.Lowest, 40, 50, 100, order++, "Dense Bony Flesh", SizeCategory.Normal,
-			"Right Leg");
-		AddBodypart(avianProto, "llowerleg", "left lower leg", "lower leg", BodypartTypeEnum.BonyDrapeable, "lknee",
-			Alignment.FrontLeft, Orientation.Lowest, 40, 50, 100, order++, "Dense Bony Flesh", SizeCategory.Normal,
-			"Left Leg");
-		AddBodypart(avianProto, "rankle", "right ankle", "ankle", BodypartTypeEnum.BonyDrapeable, "rlowerleg",
-			Alignment.FrontRight, Orientation.Lowest, 40, 50, 50, order++, "Dense Bony Flesh", SizeCategory.Normal,
-			"Right Leg");
-		AddBodypart(avianProto, "lankle", "left ankle", "ankle", BodypartTypeEnum.BonyDrapeable, "llowerleg",
-			Alignment.FrontLeft, Orientation.Lowest, 40, 50, 50, order++, "Dense Bony Flesh", SizeCategory.Normal,
-			"Left Leg");
-		AddBodypart(avianProto, "rfoot", "right foot", "foot", BodypartTypeEnum.Standing, "rankle",
-			Alignment.FrontRight, Orientation.Lowest, 40, 50, 50, order++, "Bony Flesh", SizeCategory.Normal,
-			"Right Leg");
-		AddBodypart(avianProto, "lfoot", "left foot", "foot", BodypartTypeEnum.Standing, "lankle",
-			Alignment.FrontLeft, Orientation.Lowest, 40, 50, 50, order++, "Bony Flesh", SizeCategory.Normal,
-			"Left Leg");
-		AddBodypart(avianProto, "rtalons", "right talons", "talon", BodypartTypeEnum.Wear, "rfoot",
-			Alignment.FrontRight, Orientation.Lowest, 40, 50, 50, order++, "Dense Bony Flesh", SizeCategory.Normal,
-			"Right Leg", false, isVital: false);
-		AddBodypart(avianProto, "ltalons", "left talons", "talon", BodypartTypeEnum.Wear, "lfoot",
-			Alignment.FrontLeft, Orientation.Lowest, 40, 50, 50, order++, "Dense Bony Flesh", SizeCategory.Normal,
-			"Left Leg", false, isVital: false);
-
-		#endregion
-
-		#region Tail
-
-		AddBodypart(avianProto, "tail", "tail", "tail", BodypartTypeEnum.Wear, "uback", Alignment.Rear,
-			Orientation.Centre, 30, 50, 100, order++, "Flesh", SizeCategory.Normal, "Tail");
-
-		#endregion
-
-		#region Genitals
-
-		AddBodypart(avianProto, "groin", "groin", "groin", BodypartTypeEnum.Wear, "loin", Alignment.Rear,
-			Orientation.Low, 30, -1, 100, order++, "Fatty Flesh", SizeCategory.Small, "Genitals");
-
-		#endregion
-
-		#region Wings
-
-		AddBodypart(avianProto, "rwingbase", "right wing base", "wing base", BodypartTypeEnum.BonyDrapeable, "uback",
-			Alignment.FrontRight, Orientation.High, 40, -1, 100, order++, "Flesh", SizeCategory.Normal,
-			"Right Wing", true, isCore: false);
-		AddBodypart(avianProto, "lwingbase", "left wing base", "wing base", BodypartTypeEnum.BonyDrapeable, "uback",
-			Alignment.FrontLeft, Orientation.High, 40, -1, 100, order++, "Flesh", SizeCategory.Normal, "Left Wing",
-			true, isCore: false);
-		AddBodypart(avianProto, "rwing", "right wing", "wing", BodypartTypeEnum.Wing, "rwingbase",
-			Alignment.FrontRight, Orientation.High, 40, 50, 100, order++, "Flesh", SizeCategory.Normal,
-			"Right Wing", true, isCore: false);
-		AddBodypart(avianProto, "lwing", "left wing", "wing", BodypartTypeEnum.Wing, "lwingbase",
-			Alignment.FrontLeft, Orientation.High, 40, 50, 100, order++, "Flesh", SizeCategory.Normal, "Left Wing",
-			true, isCore: false);
-
-		#endregion
-
-		_context.SaveChanges();
-
-		Console.WriteLine($"...[{_stopwatch.Elapsed.TotalSeconds:N1}s] Organs...");
-
-		#region Organs
-
-		AddOrgan(avianProto, "brain", "brain", BodypartTypeEnum.Brain, 2.0, 50, 0.2, 0.2, 0.1, stunModifier: 1.0);
-		AddOrgan(avianProto, "heart", "heart", BodypartTypeEnum.Heart, 1.0, 50, 0.2, 1.0, 1.0);
-		AddOrgan(avianProto, "liver", "liver", BodypartTypeEnum.Liver, 3.0, 50, 0.2, 1.0, 0.05);
-		AddOrgan(avianProto, "spleen", "spleen", BodypartTypeEnum.Spleen, 1.0, 50, 0.2, 1.0, 0.05);
-		AddOrgan(avianProto, "stomach", "stomach", BodypartTypeEnum.Stomach, 1.0, 50, 0.2, 1.0, 0.05);
-		AddOrgan(avianProto, "lintestines", "large intestines", BodypartTypeEnum.Intestines, 0.5, 50, 0.2, 1.0,
-			0.05);
-		AddOrgan(avianProto, "sintestines", "small intestines", BodypartTypeEnum.Intestines, 2.0, 50, 0.2, 1.0,
-			0.05);
-		AddOrgan(avianProto, "rkidney", "right kidney", BodypartTypeEnum.Kidney, 0.5, 50, 0.2, 2.0, 0.05,
-			painModifier: 3.0);
-		AddOrgan(avianProto, "lkidney", "left kidney", BodypartTypeEnum.Kidney, 0.5, 50, 0.2, 2.0, 0.05,
-			painModifier: 3.0);
-		AddOrgan(avianProto, "rlung", "right lung", BodypartTypeEnum.Lung, 2.0, 50, 0.2, 1.0, 0.05);
-		AddOrgan(avianProto, "llung", "left lung", BodypartTypeEnum.Lung, 2.0, 50, 0.2, 1.0, 0.05);
-		AddOrgan(avianProto, "trachea", "trachea", BodypartTypeEnum.Trachea, 1.0, 50, 0.2, 1.0, 0.05);
-		AddOrgan(avianProto, "esophagus", "esophagus", BodypartTypeEnum.Esophagus, 1.0, 50, 0.2, 1.0, 0.05);
-		AddOrgan(avianProto, "uspinalcord", "upper spinal cord", BodypartTypeEnum.Spine, 1.0, 15, 0.2, 1.0, 0.05,
-			stunModifier: 1.0, painModifier: 2.0);
-		AddOrgan(avianProto, "mspinalcord", "middle spinal cord", BodypartTypeEnum.Spine, 1.0, 15, 0.2, 1.0, 0.05,
-			stunModifier: 1.0, painModifier: 2.0);
-		AddOrgan(avianProto, "lspinalcord", "lower spinal cord", BodypartTypeEnum.Spine, 1.0, 15, 0.2, 1.0, 0.05,
-			stunModifier: 1.0, painModifier: 2.0);
-		AddOrgan(avianProto, "rinnerear", "lower spinal cord", BodypartTypeEnum.Ear, 1.0, 15, 0.2, 1.0, 0.05);
-		AddOrgan(avianProto, "linnerear", "lower spinal cord", BodypartTypeEnum.Ear, 1.0, 15, 0.2, 1.0, 0.05);
-
-		AddOrganCoverage("brain", "head", 100, true);
-		AddOrganCoverage("brain", "bhead", 100);
-		AddOrganCoverage("brain", "rcheek", 85);
-		AddOrganCoverage("brain", "lcheek", 85);
-		AddOrganCoverage("brain", "reyesocket", 85);
-		AddOrganCoverage("brain", "leyesocket", 85);
-		AddOrganCoverage("brain", "reye", 85);
-		AddOrganCoverage("brain", "leye", 85);
-		AddOrganCoverage("brain", "beak", 10);
-		AddOrganCoverage("brain", "lear", 10);
-		AddOrganCoverage("brain", "rear", 10);
-
-		AddOrganCoverage("linnerear", "lear", 33, true);
-		AddOrganCoverage("rinnerear", "rear", 33, true);
-		AddOrganCoverage("esophagus", "throat", 50, true);
-		AddOrganCoverage("esophagus", "neck", 20);
-		AddOrganCoverage("esophagus", "bneck", 5);
-		AddOrganCoverage("trachea", "throat", 50, true);
-		AddOrganCoverage("trachea", "neck", 20);
-		AddOrganCoverage("trachea", "bneck", 5);
-
-		AddOrganCoverage("rlung", "rbreast", 100, true);
-		AddOrganCoverage("llung", "lbreast", 100, true);
-		AddOrganCoverage("rlung", "uback", 15);
-		AddOrganCoverage("llung", "uback", 15);
-		AddOrganCoverage("rlung", "rshoulder", 66);
-		AddOrganCoverage("llung", "lshoulder", 66);
-
-		AddOrganCoverage("heart", "lbreast", 33, true);
-
-		AddOrganCoverage("uspinalcord", "bneck", 10, true);
-		AddOrganCoverage("uspinalcord", "neck", 2);
-		AddOrganCoverage("uspinalcord", "throat", 5);
-		AddOrganCoverage("mspinalcord", "uback", 10, true);
-		AddOrganCoverage("lspinalcord", "lback", 10, true);
-
-		AddOrganCoverage("liver", "abdomen", 33, true);
-		AddOrganCoverage("spleen", "abdomen", 20, true);
-		AddOrganCoverage("stomach", "abdomen", 20, true);
-		AddOrganCoverage("liver", "uback", 15);
-		AddOrganCoverage("spleen", "uback", 10);
-		AddOrganCoverage("stomach", "uback", 5);
-
-		AddOrganCoverage("lintestines", "belly", 5, true);
-		AddOrganCoverage("sintestines", "belly", 50, true);
-		AddOrganCoverage("lintestines", "lback", 5);
-		AddOrganCoverage("sintestines", "lback", 33);
-		AddOrganCoverage("lintestines", "groin", 5);
-		AddOrganCoverage("lintestines", "loin", 10);
-
-		AddOrganCoverage("rkidney", "lback", 20, true);
-		AddOrganCoverage("lkidney", "lback", 20, true);
-		AddOrganCoverage("rkidney", "belly", 5);
-		AddOrganCoverage("lkidney", "belly", 5);
-		_context.SaveChanges();
-
-		#endregion
-
-		_context.SaveChanges();
-
-		foreach (var (child, parent) in _cachedBodypartUpstreams)
-			_context.BodypartProtoBodypartProtoUpstream.Add(new BodypartProtoBodypartProtoUpstream
-			{
-				Child = child.Id,
-				Parent = parent.Id
-			});
-
-		_context.SaveChanges();
-
-		Console.WriteLine($"...[{_stopwatch.Elapsed.TotalSeconds:N1}s] Limbs...");
-
-		#region Limbs
-
-		var limbs = new Dictionary<string, Limb>(StringComparer.OrdinalIgnoreCase);
-
-		void AddLimb(string name, LimbType limbType, string rootPart, double damageThreshold,
-			double painThreshold)
-		{
-			var limb = new Limb
-			{
-				Name = name,
-				LimbType = (int)limbType,
-				RootBody = avianProto,
-				RootBodypart = _cachedBodyparts[rootPart],
-				LimbDamageThresholdMultiplier = damageThreshold,
-				LimbPainThresholdMultiplier = painThreshold
-			};
-			_context.Limbs.Add(limb);
-			limbs[name] = limb;
-		}
-
-		AddLimb("Torso", LimbType.Torso, "abdomen", 1.0, 1.0);
-		AddLimb("Head", LimbType.Head, "neck", 1.0, 1.0);
-		AddLimb("Genitals", LimbType.Genitals, "groin", 0.5, 0.5);
-		AddLimb("Right Leg", LimbType.Leg, "rupperleg", 0.5, 0.5);
-		AddLimb("Left Leg", LimbType.Leg, "lupperleg", 0.5, 0.5);
-		AddLimb("Tail", LimbType.Appendage, "tail", 0.5, 0.5);
-		AddLimb("Right Wing", LimbType.Wing, "rwingbase", 0.5, 0.5);
-		AddLimb("Left Wing", LimbType.Wing, "lwingbase", 0.5, 0.5);
-		_context.SaveChanges();
-
-		foreach (var limb in limbs.Values)
-		{
-			foreach (var part in _cachedLimbs[limb.Name])
-				_context.LimbsBodypartProto.Add(new LimbBodypartProto { BodypartProto = part, Limb = limb });
-
-			switch (limb.Name)
-			{
-				case "Torso":
-					_context.LimbsSpinalParts.Add(new LimbsSpinalPart
-						{ Limb = limb, BodypartProto = _cachedOrgans["uspinalcord"] });
-					break;
-				case "Genitals":
-				case "Right Wing":
-				case "Left Wing":
-				case "Right Arm":
-				case "Left Arm":
-					_context.LimbsSpinalParts.Add(new LimbsSpinalPart
-						{ Limb = limb, BodypartProto = _cachedOrgans["mspinalcord"] });
-					break;
-				case "Leg Leg":
-				case "Right Leg":
-				case "Tail":
-					_context.LimbsSpinalParts.Add(new LimbsSpinalPart
-						{ Limb = limb, BodypartProto = _cachedOrgans["lspinalcord"] });
-					break;
-			}
-		}
-
-		_context.SaveChanges();
-
-		#endregion
-
-		Console.WriteLine($"...[{_stopwatch.Elapsed.TotalSeconds:N1}s] Groups...");
-
-		#region Groups
-
-		AddBodypartGroupDescriberShape(avianProto, "body", "The whole torso of an avian",
-			("abdomen", 1, 1),
-			("belly", 1, 1),
-			("breast", 0, 2),
-			("flank", 0, 4),
-			("loin", 0, 1),
-			("shoulder", 0, 2),
-			("upper back", 1, 1),
-			("lower back", 1, 1),
-			("rump", 0, 2),
-			("neck", 0, 1),
-			("neck back", 0, 1),
-			("throat", 0, 1)
-		);
-		AddBodypartGroupDescriberShape(avianProto, "legs", "Both legs of an avian",
-			("upper leg", 2, 2),
-			("lower leg", 0, 2),
-			("knee", 0, 2),
-			("ankle", 0, 2),
-			("foot", 0, 2),
-			("talon", 0, 2)
-		);
-
-		AddBodypartGroupDescriberShape(avianProto, "head", "An avian head",
-			("face", 1, 1),
-			("head back", 0, 1),
-			("eye socket", 0, 2),
-			("eye", 0, 2),
-			("ear", 0, 2),
-			("beak", 0, 1),
-			("nose", 0, 1),
-			("tongue", 0, 1),
-			("cheek", 0, 2),
-			("throat", 0, 1),
-			("neck", 0, 1),
-			("neck back", 0, 1)
-		);
-
-		AddBodypartGroupDescriberShape(avianProto, "back", "An avian back",
-			("upper back", 1, 1),
-			("lower back", 1, 1),
-			("flank", 0, 4)
-		);
-
-		AddBodypartGroupDescriberShape(avianProto, "wings", "A pair of avian wings",
-			("wing base", 2, 2),
-			("wing", 2, 2)
-		);
-
-		AddBodypartGroupDescriberShape(avianProto, "talons", "A pair of avian talons",
-			("talon", 2, 2)
-		);
-
-		AddBodypartGroupDescriberShape(avianProto, "feet", "A pair of avian feet",
-			("foot", 2, 2)
-		);
-
-		AddBodypartGroupDescriberShape(avianProto, "eyes", "A pair of avian eyes",
-			("eye socket", 2, 2),
-			("eye", 0, 2)
-		);
-
-		AddBodypartGroupDescriberShape(avianProto, "ears", "A pair of avian ears",
-			("ear", 2, 2)
-		);
-
-		#endregion
-
-		_context.SaveChanges();
-
-		Console.WriteLine($"...[{_stopwatch.Elapsed.TotalSeconds:N1}s] Races...");
-
-		#region Races
-
-		AddRace("Pigeon", "Pigeon", null, avianProto, SizeCategory.VerySmall, false, 0.1, "Small Bird", "Small Bird",
-			false);
-		AddRace("Parrot", "Parrot", null, avianProto, SizeCategory.VerySmall, false, 0.1, "Small Bird", "Small Bird",
-			false);
-		AddRace("Swallow", "Swallow", null, avianProto, SizeCategory.VerySmall, false, 0.1, "Tiny Bird", "Tiny Bird",
-			false);
-		AddRace("Sparrow", "Sparrow", null, avianProto, SizeCategory.VerySmall, false, 0.05, "Tiny Bird", "Tiny Bird",
-			false);
-		AddRace("Finch", "Finch", null, avianProto, SizeCategory.VerySmall, false, 0.05, "Tiny Bird", "Tiny Bird",
-			false);
-		AddRace("Robin", "Robin", null, avianProto, SizeCategory.VerySmall, false, 0.05, "Tiny Bird", "Tiny Bird",
-			false);
-		AddRace("Wren", "Wren", null, avianProto, SizeCategory.VerySmall, false, 0.05, "Tiny Bird", "Tiny Bird", false);
-		AddRace("Quail", "Quail", null, avianProto, SizeCategory.VerySmall, false, 0.1, "Tiny Bird", "Tiny Bird",
-			false);
-		AddRace("Duck", "Duck", null, avianProto, SizeCategory.Small, false, 0.2, "Fowl", "Fowl", false);
-		AddRace("Goose", "Goose", null, avianProto, SizeCategory.Small, false, 0.4, "Fowl", "Fowl", false);
-		AddRace("Swan", "Swan", null, avianProto, SizeCategory.Small, false, 0.4, "Fowl", "Fowl", false);
-		AddRace("Grouse", "Grouse", null, avianProto, SizeCategory.Small, false, 0.2, "Fowl", "Fowl", false);
-		AddRace("Pheasant", "Pheasant", null, avianProto, SizeCategory.Small, false, 0.2, "Fowl", "Fowl", false);
-		AddRace("Chicken", "Chicken", null, avianProto, SizeCategory.Small, false, 0.2, "Fowl", "Fowl", false);
-		AddRace("Turkey", "Turkey", null, avianProto, SizeCategory.Small, false, 0.35, "Fowl", "Fowl", false);
-		AddRace("Seagull", "Seagull", null, avianProto, SizeCategory.Small, false, 0.2, "Small Bird", "Small Bird",
-			false);
-		AddRace("Albatross", "Albatross", null, avianProto, SizeCategory.Small, false, 0.35, "Medium Bird",
-			"Medium Bird", false);
-		AddRace("Heron", "Heron", null, avianProto, SizeCategory.Small, false, 0.2, "Medium Bird", "Medium Bird",
-			false);
-		AddRace("Crane", "Crane", null, avianProto, SizeCategory.Small, false, 0.2, "Medium Bird", "Medium Bird",
-			false);
-		AddRace("Flamingo", "Flamingo", null, avianProto, SizeCategory.Small, false, 0.2, "Medium Bird", "Medium Bird",
-			false);
-		AddRace("Peacock", "Peacock", null, avianProto, SizeCategory.Small, false, 0.2, "Medium Bird", "Medium Bird",
-			false);
-		AddRace("Ibis", "Ibis", null, avianProto, SizeCategory.Small, false, 0.2, "Medium Bird", "Medium Bird", false);
-		AddRace("Pelican", "Pelican", null, avianProto, SizeCategory.Small, false, 0.5, "Large Bird", "Large Bird",
-			false);
-		AddRace("Crow", "Crow", null, avianProto, SizeCategory.Small, false, 0.2, "Small Bird", "Small Bird", false);
-		AddRace("Raven", "Raven", null, avianProto, SizeCategory.Small, false, 0.2, "Small Bird", "Small Bird", false);
-		AddRace("Emu", "Emu", null, avianProto, SizeCategory.Normal, false, 0.8, "Large Bird", "Large Bird", false);
-		AddRace("Ostrich", "Ostrich", null, avianProto, SizeCategory.Normal, false, 0.8, "Large Bird", "Large Bird",
-			false);
-		AddRace("Moa", "Moa", null, avianProto, SizeCategory.Normal, false, 0.8, "Large Bird", "Large Bird", false);
-		AddRace("Vulture", "Vulture", null, avianProto, SizeCategory.Small, false, 0.35, "Medium Bird", "Medium Bird",
-			false);
-		AddRace("Hawk", "Hawk", null, avianProto, SizeCategory.Small, false, 0.35, "Small Bird", "Small Bird", false);
-		AddRace("Eagle", "Eagle", null, avianProto, SizeCategory.Normal, false, 0.7, "Medium Bird", "Medium Bird",
-			false);
-		AddRace("Falcon", "Falcon", null, avianProto, SizeCategory.Small, false, 0.35, "Small Bird", "Small Bird",
-			false);
-		AddRace("Woodpecker", "Woodpecker", null, avianProto, SizeCategory.Small, false, 0.35, "Small Bird",
-			"Small Bird", false);
-		AddRace("Owl", "Owl", null, avianProto, SizeCategory.Small, false, 0.35, "Medium Bird", "Medium Bird", false);
-		AddRace("Kingfisher", "Kingfisher", null, avianProto, SizeCategory.Small, false, 0.35, "Small Bird",
-			"Small Bird", false);
-		AddRace("Stork", "Stork", null, avianProto, SizeCategory.Small, false, 0.35, "Medium Bird", "Medium Bird",
-			false);
-		AddRace("Penguin", "Penguin", null, avianProto, SizeCategory.Small, false, 0.2, "Small Bird", "Small Bird",
-			false);
-
-		#endregion
-	}
 
 	private void SeedSerpents(BodyProto wormProto, BodyProto serpentProto)
 	{
@@ -5392,7 +4918,7 @@ CreateDescription(EntityDescriptionType.FullDescription, text, isAdultFemaleRace
 
 		#region Tail
 
-                AddBodypart(fishProto, "peduncle", "peduncle", "Peduncle", BodypartTypeEnum.Wear, "lback", Alignment.Rear,
+				AddBodypart(fishProto, "peduncle", "peduncle", "Peduncle", BodypartTypeEnum.Wear, "lback", Alignment.Rear,
 			Orientation.Centre, 30, 50, 100, order++, "Flesh", SizeCategory.Normal, "Tail");
 		AddBodypart(fishProto, "caudalfin", "caudal fin", "fin", BodypartTypeEnum.Fin, "peduncle", Alignment.Rear,
 			Orientation.Centre, 20, 35, 100, order++, "Fin", SizeCategory.Normal, "Tail");
@@ -8061,10 +7587,10 @@ CreateDescription(EntityDescriptionType.FullDescription, text, isAdultFemaleRace
 	#endregion
 
 	#region Speeds and Positions
-        private void SetupSpeeds(BodyProto quadrupedBody, BodyProto avianBody, BodyProto serpentBody,
-                BodyProto fishProto, BodyProto crabProto, BodyProto octopusProto, BodyProto jellyfishProto,
-                BodyProto pinnipedProto, BodyProto cetaceanProto, BodyProto wormBody, BodyProto insectBody,
-                BodyProto wingedInsectBody)
+		private void SetupSpeeds(BodyProto quadrupedBody, BodyProto avianBody, BodyProto serpentBody,
+				BodyProto fishProto, BodyProto crabProto, BodyProto octopusProto, BodyProto jellyfishProto,
+				BodyProto pinnipedProto, BodyProto cetaceanProto, BodyProto wormBody, BodyProto insectBody,
+				BodyProto wingedInsectBody)
 	{
 		Console.WriteLine($"[{_stopwatch.Elapsed.TotalSeconds:N1}s] Setting up Speeds");
 		var nextId = _context.MoveSpeeds.Select(x => x.Id).AsEnumerable().DefaultIfEmpty(0).Max() + 1;
@@ -8301,64 +7827,64 @@ CreateDescription(EntityDescriptionType.FullDescription, text, isAdultFemaleRace
 			Id = nextId++, BodyProto = wormBody, PositionId = 18, Alias = "fly", FirstPersonVerb = "fly",
 			ThirdPersonVerb = "flies", PresentParticiple = "flying", Multiplier = 1.8, StaminaMultiplier = 15
 		});
-                _context.MoveSpeeds.Add(new MoveSpeed
-                {
-                        Id = nextId++, BodyProto = wormBody, PositionId = 18, Alias = "franticfly",
-                        FirstPersonVerb = "franticly fly", ThirdPersonVerb = "franticly flies",
-                        PresentParticiple = "franticly flying", Multiplier = 1.4, StaminaMultiplier = 25
-                });
+				_context.MoveSpeeds.Add(new MoveSpeed
+				{
+						Id = nextId++, BodyProto = wormBody, PositionId = 18, Alias = "franticfly",
+						FirstPersonVerb = "franticly fly", ThirdPersonVerb = "franticly flies",
+						PresentParticiple = "franticly flying", Multiplier = 1.4, StaminaMultiplier = 25
+				});
 
-                _context.MoveSpeeds.Add(new MoveSpeed
-                {
-                        Id = nextId++, BodyProto = insectBody, PositionId = 1, Alias = "walk", FirstPersonVerb = "walk",
-                        ThirdPersonVerb = "walks", PresentParticiple = "walking", Multiplier = 1, StaminaMultiplier = 0.8
-                });
-                _context.MoveSpeeds.Add(new MoveSpeed
-                {
-                        Id = nextId++, BodyProto = insectBody, PositionId = 1, Alias = "run", FirstPersonVerb = "run",
-                        ThirdPersonVerb = "runs", PresentParticiple = "running", Multiplier = 0.5, StaminaMultiplier = 1.5
-                });
-                _context.MoveSpeeds.Add(new MoveSpeed
-                {
-                        Id = nextId++, BodyProto = insectBody, PositionId = 6, Alias = "crawl", FirstPersonVerb = "crawl",
-                        ThirdPersonVerb = "crawls", PresentParticiple = "crawling", Multiplier = 1.5, StaminaMultiplier = 1.0
-                });
-                _context.MoveSpeeds.Add(new MoveSpeed
-                {
-                        Id = nextId++, BodyProto = insectBody, PositionId = 15, Alias = "climb", FirstPersonVerb = "climb",
-                        ThirdPersonVerb = "climbs", PresentParticiple = "climbing", Multiplier = 2, StaminaMultiplier = 2
-                });
-                _context.MoveSpeeds.Add(new MoveSpeed
-                {
-                        Id = nextId++, BodyProto = insectBody, PositionId = 18, Alias = "fly", FirstPersonVerb = "fly",
-                        ThirdPersonVerb = "flies", PresentParticiple = "flying", Multiplier = 1.5, StaminaMultiplier = 10
-                });
+				_context.MoveSpeeds.Add(new MoveSpeed
+				{
+						Id = nextId++, BodyProto = insectBody, PositionId = 1, Alias = "walk", FirstPersonVerb = "walk",
+						ThirdPersonVerb = "walks", PresentParticiple = "walking", Multiplier = 1, StaminaMultiplier = 0.8
+				});
+				_context.MoveSpeeds.Add(new MoveSpeed
+				{
+						Id = nextId++, BodyProto = insectBody, PositionId = 1, Alias = "run", FirstPersonVerb = "run",
+						ThirdPersonVerb = "runs", PresentParticiple = "running", Multiplier = 0.5, StaminaMultiplier = 1.5
+				});
+				_context.MoveSpeeds.Add(new MoveSpeed
+				{
+						Id = nextId++, BodyProto = insectBody, PositionId = 6, Alias = "crawl", FirstPersonVerb = "crawl",
+						ThirdPersonVerb = "crawls", PresentParticiple = "crawling", Multiplier = 1.5, StaminaMultiplier = 1.0
+				});
+				_context.MoveSpeeds.Add(new MoveSpeed
+				{
+						Id = nextId++, BodyProto = insectBody, PositionId = 15, Alias = "climb", FirstPersonVerb = "climb",
+						ThirdPersonVerb = "climbs", PresentParticiple = "climbing", Multiplier = 2, StaminaMultiplier = 2
+				});
+				_context.MoveSpeeds.Add(new MoveSpeed
+				{
+						Id = nextId++, BodyProto = insectBody, PositionId = 18, Alias = "fly", FirstPersonVerb = "fly",
+						ThirdPersonVerb = "flies", PresentParticiple = "flying", Multiplier = 1.5, StaminaMultiplier = 10
+				});
 
-                _context.MoveSpeeds.Add(new MoveSpeed
-                {
-                        Id = nextId++, BodyProto = wingedInsectBody, PositionId = 1, Alias = "walk", FirstPersonVerb = "walk",
-                        ThirdPersonVerb = "walks", PresentParticiple = "walking", Multiplier = 1, StaminaMultiplier = 0.8
-                });
-                _context.MoveSpeeds.Add(new MoveSpeed
-                {
-                        Id = nextId++, BodyProto = wingedInsectBody, PositionId = 1, Alias = "run", FirstPersonVerb = "run",
-                        ThirdPersonVerb = "runs", PresentParticiple = "running", Multiplier = 0.5, StaminaMultiplier = 1.5
-                });
-                _context.MoveSpeeds.Add(new MoveSpeed
-                {
-                        Id = nextId++, BodyProto = wingedInsectBody, PositionId = 6, Alias = "crawl", FirstPersonVerb = "crawl",
-                        ThirdPersonVerb = "crawls", PresentParticiple = "crawling", Multiplier = 1.5, StaminaMultiplier = 1.0
-                });
-                _context.MoveSpeeds.Add(new MoveSpeed
-                {
-                        Id = nextId++, BodyProto = wingedInsectBody, PositionId = 15, Alias = "climb", FirstPersonVerb = "climb",
-                        ThirdPersonVerb = "climbs", PresentParticiple = "climbing", Multiplier = 2, StaminaMultiplier = 2
-                });
-                _context.MoveSpeeds.Add(new MoveSpeed
-                {
-                        Id = nextId++, BodyProto = wingedInsectBody, PositionId = 18, Alias = "fly", FirstPersonVerb = "fly",
-                        ThirdPersonVerb = "flies", PresentParticiple = "flying", Multiplier = 1.5, StaminaMultiplier = 10
-                });
+				_context.MoveSpeeds.Add(new MoveSpeed
+				{
+						Id = nextId++, BodyProto = wingedInsectBody, PositionId = 1, Alias = "walk", FirstPersonVerb = "walk",
+						ThirdPersonVerb = "walks", PresentParticiple = "walking", Multiplier = 1, StaminaMultiplier = 0.8
+				});
+				_context.MoveSpeeds.Add(new MoveSpeed
+				{
+						Id = nextId++, BodyProto = wingedInsectBody, PositionId = 1, Alias = "run", FirstPersonVerb = "run",
+						ThirdPersonVerb = "runs", PresentParticiple = "running", Multiplier = 0.5, StaminaMultiplier = 1.5
+				});
+				_context.MoveSpeeds.Add(new MoveSpeed
+				{
+						Id = nextId++, BodyProto = wingedInsectBody, PositionId = 6, Alias = "crawl", FirstPersonVerb = "crawl",
+						ThirdPersonVerb = "crawls", PresentParticiple = "crawling", Multiplier = 1.5, StaminaMultiplier = 1.0
+				});
+				_context.MoveSpeeds.Add(new MoveSpeed
+				{
+						Id = nextId++, BodyProto = wingedInsectBody, PositionId = 15, Alias = "climb", FirstPersonVerb = "climb",
+						ThirdPersonVerb = "climbs", PresentParticiple = "climbing", Multiplier = 2, StaminaMultiplier = 2
+				});
+				_context.MoveSpeeds.Add(new MoveSpeed
+				{
+						Id = nextId++, BodyProto = wingedInsectBody, PositionId = 18, Alias = "fly", FirstPersonVerb = "fly",
+						ThirdPersonVerb = "flies", PresentParticiple = "flying", Multiplier = 1.5, StaminaMultiplier = 10
+				});
 
 		_context.MoveSpeeds.Add(new MoveSpeed
 		{
@@ -8547,10 +8073,10 @@ CreateDescription(EntityDescriptionType.FullDescription, text, isAdultFemaleRace
 		#endregion
 	}
 
-        private void SetupPositions(BodyProto quadrupedBody, BodyProto avianBody, BodyProto serpentBody,
-                BodyProto fishProto, BodyProto crabProto, BodyProto octopusProto, BodyProto jellyfishProto,
-                BodyProto pinnipedProto, BodyProto cetaceanProto, BodyProto wormProto, BodyProto insectBody,
-                BodyProto wingedInsectBody)
+		private void SetupPositions(BodyProto quadrupedBody, BodyProto avianBody, BodyProto serpentBody,
+				BodyProto fishProto, BodyProto crabProto, BodyProto octopusProto, BodyProto jellyfishProto,
+				BodyProto pinnipedProto, BodyProto cetaceanProto, BodyProto wormProto, BodyProto insectBody,
+				BodyProto wingedInsectBody)
 	{
 		Console.WriteLine($"[{_stopwatch.Elapsed.TotalSeconds:N1}s] Setting up Positions");
 		_context.BodyProtosPositions.Add(new BodyProtosPositions
@@ -8640,21 +8166,21 @@ CreateDescription(EntityDescriptionType.FullDescription, text, isAdultFemaleRace
 
 		_context.BodyProtosPositions.Add(new BodyProtosPositions { BodyProto = wormProto, Position = 8 }); // Sprawled
 		_context.BodyProtosPositions.Add(new BodyProtosPositions { BodyProto = wormProto, Position = 6 }); // Prone
-                _context.BodyProtosPositions.Add(new BodyProtosPositions { BodyProto = wormProto, Position = 18 }); // Flying
-                _context.BodyProtosPositions.Add(new BodyProtosPositions { BodyProto = wormProto, Position = 16 }); // Swimming
-                _context.BodyProtosPositions.Add(new BodyProtosPositions { BodyProto = wormProto, Position = 15 }); // Climbing
+				_context.BodyProtosPositions.Add(new BodyProtosPositions { BodyProto = wormProto, Position = 18 }); // Flying
+				_context.BodyProtosPositions.Add(new BodyProtosPositions { BodyProto = wormProto, Position = 16 }); // Swimming
+				_context.BodyProtosPositions.Add(new BodyProtosPositions { BodyProto = wormProto, Position = 15 }); // Climbing
 
-                _context.BodyProtosPositions.Add(new BodyProtosPositions { BodyProto = insectBody, Position = 1 }); // Standing
-                _context.BodyProtosPositions.Add(new BodyProtosPositions { BodyProto = insectBody, Position = 8 }); // Sprawled
-                _context.BodyProtosPositions.Add(new BodyProtosPositions { BodyProto = insectBody, Position = 6 }); // Prone
-                _context.BodyProtosPositions.Add(new BodyProtosPositions { BodyProto = insectBody, Position = 18 }); // Flying
-                _context.BodyProtosPositions.Add(new BodyProtosPositions { BodyProto = insectBody, Position = 15 }); // Climbing
+				_context.BodyProtosPositions.Add(new BodyProtosPositions { BodyProto = insectBody, Position = 1 }); // Standing
+				_context.BodyProtosPositions.Add(new BodyProtosPositions { BodyProto = insectBody, Position = 8 }); // Sprawled
+				_context.BodyProtosPositions.Add(new BodyProtosPositions { BodyProto = insectBody, Position = 6 }); // Prone
+				_context.BodyProtosPositions.Add(new BodyProtosPositions { BodyProto = insectBody, Position = 18 }); // Flying
+				_context.BodyProtosPositions.Add(new BodyProtosPositions { BodyProto = insectBody, Position = 15 }); // Climbing
 
-                _context.BodyProtosPositions.Add(new BodyProtosPositions { BodyProto = wingedInsectBody, Position = 1 }); // Standing
-                _context.BodyProtosPositions.Add(new BodyProtosPositions { BodyProto = wingedInsectBody, Position = 8 }); // Sprawled
-                _context.BodyProtosPositions.Add(new BodyProtosPositions { BodyProto = wingedInsectBody, Position = 6 }); // Prone
-                _context.BodyProtosPositions.Add(new BodyProtosPositions { BodyProto = wingedInsectBody, Position = 18 }); // Flying
-                _context.BodyProtosPositions.Add(new BodyProtosPositions { BodyProto = wingedInsectBody, Position = 15 }); // Climbing
+				_context.BodyProtosPositions.Add(new BodyProtosPositions { BodyProto = wingedInsectBody, Position = 1 }); // Standing
+				_context.BodyProtosPositions.Add(new BodyProtosPositions { BodyProto = wingedInsectBody, Position = 8 }); // Sprawled
+				_context.BodyProtosPositions.Add(new BodyProtosPositions { BodyProto = wingedInsectBody, Position = 6 }); // Prone
+				_context.BodyProtosPositions.Add(new BodyProtosPositions { BodyProto = wingedInsectBody, Position = 18 }); // Flying
+				_context.BodyProtosPositions.Add(new BodyProtosPositions { BodyProto = wingedInsectBody, Position = 15 }); // Climbing
 
 		_context.BodyProtosPositions.Add(new BodyProtosPositions { BodyProto = fishProto, Position = 8 }); // Sprawled
 		_context.BodyProtosPositions.Add(new BodyProtosPositions { BodyProto = fishProto, Position = 6 }); // Prone

@@ -111,9 +111,15 @@ What epoch date do you want to use?", (context, answers) => answers["installsun"
 	{
 		if (!context.Accounts.Any()) return ShouldSeedResult.PrerequisitesNotMet;
 
-		if (context.Celestials.Any()) return ShouldSeedResult.MayAlreadyBeInstalled;
-
-		return ShouldSeedResult.ReadyToInstall;
+		switch (context.Celestials.Count())
+		{
+			case 0:
+				return ShouldSeedResult.ReadyToInstall;
+			case 1:
+				return ShouldSeedResult.ExtraPackagesAvailable;
+			default:
+				return ShouldSeedResult.MayAlreadyBeInstalled;
+		}
 	}
 
 	public int SortOrder => 6;

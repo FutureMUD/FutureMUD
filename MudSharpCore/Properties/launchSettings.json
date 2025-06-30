@@ -66,6 +66,10 @@
     "Gestalt": {
       "commandName": "Project",
       "commandLineArgs": "\"MySql.Data.MySqlClient\" \"server=localhost;port=3306;database=gestaltdb;uid=futuremud;password=rpiengine2020;Default Command Timeout=300000;\""
+    },
+    "MyMUD": {
+      "commandName": "Project",
+      "commandLineArgs": "\"MySql.Data.MySqlClient\" \"server=localhost;port=3306;database=mymud;uid=futuremud;password=rpiengine2020;Default Command Timeout=300000;\""
     }
   }
 }

@@ -16,6 +16,7 @@ using MudSharp.GameItems;
 using MudSharp.GameItems.Inventory.Plans;
 using MudSharp.Models;
 using MudSharp.RPG.Checks;
+using static System.Net.Mime.MediaTypeNames;
 using CraftPhase = MudSharp.Models.CraftPhase;
 
 namespace DatabaseSeeder.Seeders;
@@ -31,6 +32,11 @@ public partial class ItemSeeder
 
 		void AddProg(string name, string category, string subcategory, ProgVariableTypes returnType, string comment, IEnumerable<(ProgVariableTypes Type, string Name)> parameters, string text)
 		{
+			if (_progs.ContainsKey(name))
+			{
+				return;
+			}
+
 			var prog = new FutureProg
 			{
 				FunctionName = name,
@@ -58,18 +64,22 @@ public partial class ItemSeeder
 			_progs[name] = prog;
 		}
 
-		_context.VariableDefinitions.Add(new VariableDefinition
+		if (_context.VariableDefinitions.All(x => x.Property != "constructioncooldown"))
 		{
-			ContainedType = (long)ProgVariableTypes.DateTime,
-			OwnerType = 8,
-			Property = "constructioncooldown"
-		});
-		_context.VariableDefaults.Add(new VariableDefault
-		{
-			OwnerType = 8,
-			Property = "constructioncooldown",
-			DefaultValue = "<var>01/01/0001 00:00:00</var>"
-		});
+			_context.VariableDefinitions.Add(new VariableDefinition
+			{
+				ContainedType = (long)ProgVariableTypes.DateTime,
+				OwnerType = 8,
+				Property = "constructioncooldown"
+			});
+			_context.VariableDefaults.Add(new VariableDefault
+			{
+				OwnerType = 8,
+				Property = "constructioncooldown",
+				DefaultValue = "<var>01/01/0001 00:00:00</var>"
+			});
+		}
+		
 
 		AddProg("CanDigGrave", "Crafting", "General", ProgVariableTypes.Boolean, "", [(ProgVariableTypes.Character, "ch")], @"return IsTagged(@ch.Location.Terrain, ""Diggable Soil"")");
 		AddProg("WhyCannotDigGrave", "Crafting", "General", ProgVariableTypes.Text, "", [(ProgVariableTypes.Character, "ch")], @"return ""There is no easily diggable soil here, so you cannot dig a grave.""");
@@ -289,6 +299,10 @@ return ""There is no useful clay that is accessible in the biome you're in.""");
 		{
 			case "simpleproduct":
 				innerMatch = SimpleProductRegex.Match(match.Groups["details"].Value);
+				if (!_items.ContainsKey(innerMatch.Groups["sdesc"].Value))
+				{
+					return null;
+				}
 				definition = new XElement("Definition",
 					new XElement("ProductProducedId", _items[innerMatch.Groups["sdesc"].Value].Id),
 					new XElement("Quantity", int.Parse(innerMatch.Groups["quantity"].Value)),
@@ -357,6 +371,11 @@ return ""There is no useful clay that is accessible in the biome you're in.""");
 
 	private MudSharp.Models.Craft AddCraft(string name, string category, string blurb, string action, string itemsdesc, string appearProg, string? canUseProg, string? whyCantProg, string? onFinishProg, MudSharp.Models.TraitDefinition trait, Difficulty difficulty, Outcome threshold, int freeChecks, int failPhase, bool interrupatable, IEnumerable<(int Seconds, string Echo, string FailEcho)> phases, IEnumerable<string> inputs, IEnumerable<string> tools, IEnumerable<string> products, IEnumerable<string> failProducts, List<(int Product, int Input)> productMaterialInputIndexes = null, List<(int Product, int Input)> failProductMaterialInputIndexes = null)
 	{
+		if (!InputsAreValid(inputs, tools, products, failProducts))
+		{
+			return null;
+		}
+
 		var dbitem = new MudSharp.Models.Craft
 		{
 			Id = _nextId++,
@@ -409,12 +428,22 @@ return ""There is no useful clay that is accessible in the biome you're in.""");
 
 		foreach (var input in inputs)
 		{
-			dbitem.CraftInputs.Add(ConvertToInput(dbitem, input));
+			var dbinput = ConvertToInput(dbitem, input);
+			if (dbinput is null)
+			{
+				return null;
+			}
+			dbitem.CraftInputs.Add(dbinput);
 		}
 
 		foreach (var tool in tools)
 		{
-			dbitem.CraftTools.Add(ConvertToTool(dbitem, tool));
+			var dbtool = ConvertToTool(dbitem, tool);
+			if (dbtool is null)
+			{
+				return null;
+			}
+			dbitem.CraftTools.Add(dbtool);
 		}
 
 		// We have to save before products because some of the product types depend on input IDs
@@ -424,16 +453,167 @@ return ""There is no useful clay that is accessible in the biome you're in.""");
 		foreach (var product in products)
 		{
 			i++;
-			dbitem.CraftProducts.Add(ConvertToProduct(dbitem, product, false, productMaterialInputIndexes?.Any(x => x.Product == i) == true ? productMaterialInputIndexes.First(x => x.Product == 1).Input : null));
+			var dbproduct = ConvertToProduct(dbitem, product, false, productMaterialInputIndexes?.Any(x => x.Product == i) == true ? productMaterialInputIndexes.First(x => x.Product == 1).Input : null);
+			if (dbproduct is null)
+			{
+				return null;
+			}
+			dbitem.CraftProducts.Add(dbproduct);
 		}
 
 		i = 0;
 		foreach (var product in failProducts)
 		{
 			i++;
-			dbitem.CraftProducts.Add(ConvertToProduct(dbitem, product, true, failProductMaterialInputIndexes?.Any(x => x.Product == i) == true ? failProductMaterialInputIndexes.First(x => x.Product == 1).Input : null));
+			var dbproduct = ConvertToProduct(dbitem, product, true, failProductMaterialInputIndexes?.Any(x => x.Product == i) == true ? failProductMaterialInputIndexes.First(x => x.Product == 1).Input : null);
+			if (dbproduct is null)
+			{
+				return null;
+			}
+			dbitem.CraftProducts.Add(dbproduct);
 		}
 		return dbitem;
+	}
+
+	bool InputsAreValid(IEnumerable<string> inputs, IEnumerable<string> tools, IEnumerable<string> products, IEnumerable<string> failproducts)
+	{
+		foreach (var item in inputs)
+		{
+			var match = ConversionRegex.Match(item);
+			var typename = match.Groups["type"].Value;
+			Match innerMatch;
+			switch (typename)
+			{
+				case "tag":
+					innerMatch = TagInputRegex.Match(match.Groups["details"].Value);
+					if (!_tags.ContainsKey(innerMatch.Groups["tag"].Value))
+					{
+						return false;
+					}
+
+					continue;
+				case "commodity":
+					innerMatch = CommodityInputRegex.Match(match.Groups["details"].Value);
+					if (!_materials.ContainsKey(innerMatch.Groups["material"].Value))
+					{
+						return false;
+					}
+
+					continue;
+				case "liquidtaguse":
+					innerMatch = LiquidTagUseInputRegex.Match(match.Groups["details"].Value);
+					if (!_tags.ContainsKey(innerMatch.Groups["liquid"].Value))
+					{
+						return false;
+					}
+
+					continue;
+				case "liquiduse":
+					innerMatch = LiquidUseInputRegex.Match(match.Groups["details"].Value);
+					if (!_liquids.ContainsKey(innerMatch.Groups["liquid"].Value))
+					{
+						return false;
+					}
+
+					continue;
+				case "commoditytag":
+					innerMatch = CommodityTagInputRegex.Match(match.Groups["details"].Value);
+					if (!_tags.ContainsKey(innerMatch.Groups["material"].Value))
+					{
+						return false;
+					}
+
+					continue;
+				case "simpleitem":
+					innerMatch = SimpleItemInputRegex.Match(match.Groups["details"].Value);
+					if (!_items.ContainsKey(innerMatch.Groups["sdesc"].Value))
+					{
+						return false;
+					}
+
+					continue;
+				case "simplematerial":
+					innerMatch = SimpleMaterialInputRegex.Match(match.Groups["details"].Value);
+					if (!_tags.ContainsKey(innerMatch.Groups["tag"].Value))
+					{
+						return false;
+					}
+
+					continue;
+			}
+		}
+
+		foreach (var item in tools)
+		{
+			var match = ConversionRegex.Match(item);
+			var toolMatch = ToolRegex.Match(match.Groups["details"].Value);
+			string definition, typename = match.Groups["type"].Value;
+			switch (typename.ToLowerInvariant())
+			{
+				case "tagtool":
+					var innerMatch = TagToolRegex.Match(toolMatch.Groups["details"].Value);
+					if (!_tags.ContainsKey(innerMatch.Groups["tag"].Value))
+					{
+						return false;
+					}
+
+					continue;
+			}
+		}
+
+		foreach (var item in products)
+		{
+			var match = ConversionRegex.Match(item);
+			string definition, typename = match.Groups["type"].Value;
+			Match innerMatch;
+			switch (typename.ToLowerInvariant())
+			{
+				case "simpleproduct":
+					innerMatch = SimpleProductRegex.Match(match.Groups["details"].Value);
+					if (!_items.ContainsKey(innerMatch.Groups["sdesc"].Value))
+					{
+						return false;
+					}
+
+					continue;
+				case "commodityproduct":
+					innerMatch = CommodityProductRegex.Match(match.Groups["details"].Value);
+					if (!_materials.ContainsKey(innerMatch.Groups["material"].Value))
+					{
+						return false;
+					}
+
+					continue;
+			}
+		}
+
+		foreach (var item in failproducts)
+		{
+			var match = ConversionRegex.Match(item);
+			string definition, typename = match.Groups["type"].Value;
+			Match innerMatch;
+			switch (typename.ToLowerInvariant())
+			{
+				case "simpleproduct":
+					innerMatch = SimpleProductRegex.Match(match.Groups["details"].Value);
+					if (!_items.ContainsKey(innerMatch.Groups["sdesc"].Value))
+					{
+						return false;
+					}
+
+					continue;
+				case "commodityproduct":
+					innerMatch = CommodityProductRegex.Match(match.Groups["details"].Value);
+					if (!_materials.ContainsKey(innerMatch.Groups["material"].Value))
+					{
+						return false;
+					}
+
+					continue;
+			}
+		}
+
+		return true;
 	}
 
 	private void SeedCrafts()

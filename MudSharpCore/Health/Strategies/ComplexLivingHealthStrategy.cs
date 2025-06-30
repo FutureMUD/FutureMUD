@@ -408,7 +408,7 @@ public class ComplexLivingHealthStrategy : BaseHealthStrategy
 						charOwner.OutputHandler.Handle(
 							new EmoteOutput(
 								new Emote(
-									$"@ {action}cough|coughs up {amount} of {charOwner.Race.BloodLiquid.Name.ToLowerInvariant()}.",
+									$"@ {action}cough|coughs up {amount} {charOwner.Race.BloodLiquid.Name.ToLowerInvariant()}.",
 									charOwner)));
 					}
 					else
@@ -416,7 +416,7 @@ public class ComplexLivingHealthStrategy : BaseHealthStrategy
 						charOwner.OutputHandler.Handle(
 							new EmoteOutput(
 								new Emote(
-									$"{amount} of {charOwner.Race.BloodLiquid.Name.ToLowerInvariant()} runs out of @'s mouth.",
+									$"{amount} {charOwner.Race.BloodLiquid.Name.ToLowerInvariant()} runs out of @'s mouth.",
 									charOwner)));
 					}
 
@@ -449,7 +449,7 @@ public class ComplexLivingHealthStrategy : BaseHealthStrategy
 						charOwner.OutputHandler.Handle(
 							new EmoteOutput(
 								new Emote(
-									$"@ {action} {amount} of {charOwner.Race.BloodLiquid.Name.ToLowerInvariant()}.",
+									$"@ {action} {amount} {charOwner.Race.BloodLiquid.Name.ToLowerInvariant()}.",
 									charOwner)));
 					}
 					else
@@ -457,7 +457,7 @@ public class ComplexLivingHealthStrategy : BaseHealthStrategy
 						charOwner.OutputHandler.Handle(
 							new EmoteOutput(
 								new Emote(
-									$"{amount} of {charOwner.Race.BloodLiquid.Name.ToLowerInvariant()} runs out of @'s mouth.",
+									$"{amount} {charOwner.Race.BloodLiquid.Name.ToLowerInvariant()} runs out of @'s mouth.",
 									charOwner)));
 					}
 

@@ -2,9 +2,11 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using Moq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using MudSharp.Construction;
 using MudSharp.Framework;
+using MudSharp.GameItems.Interfaces;
 
 namespace MudSharp_Unit_Tests;
 
@@ -268,10 +270,57 @@ public class PathSearchTests {
 		Assert.AreEqual(false, path.Any(), "Expected ExitsBetween not to find a path");
 	}
 
-	[TestMethod]
-	public void TestASharpVeryLong()
-	{
-		var path = Person1Flight.ExitsBetween(Person5Flight, 100);
-		Assert.AreEqual(true, path.Any(), "Expected ExitsBetween to find a path");
-	}
+        [TestMethod]
+        public void TestASharpVeryLong()
+        {
+                var path = Person1Flight.ExitsBetween(Person5Flight, 100);
+                Assert.AreEqual(true, path.Any(), "Expected ExitsBetween to find a path");
+        }
+
+        [TestMethod]
+        public void TestClosedDoorOpenDoorsFlag()
+        {
+                var cell1 = new CellStub
+                {
+                        Name = "A",
+                        Room = new RoomStub { X = 0, Y = 0, Z = 0 }.ToMock(),
+                        Exits = new List<CellExitStub>(),
+                        Id = 1
+                };
+                var cell2 = new CellStub
+                {
+                        Name = "B",
+                        Room = new RoomStub { X = 1, Y = 0, Z = 0 }.ToMock(),
+                        Exits = new List<CellExitStub>(),
+                        Id = 2
+                };
+                var door = new DoorStub { IsOpen = false, Locked = false, State = DoorState.Closed };
+                var exit1 = new CellExitStub
+                {
+                        Destination = cell2,
+                        Exit = new ExitStub { Door = door },
+                        OutboundDirection = CardinalDirection.East
+                };
+                var exit2 = new CellExitStub
+                {
+                        Destination = cell1,
+                        Exit = new ExitStub { Door = door },
+                        OutboundDirection = CardinalDirection.West
+                };
+                cell1.Exits.Add(exit1);
+                cell2.Exits.Add(exit2);
+
+                var cellMocks = new List<Mock<ICell>> { cell1.ToMock(), cell2.ToMock() };
+                var c1 = cell1.GetObject(cellMocks);
+                var c2 = cell2.GetObject(cellMocks);
+
+                var source = new PerceivableStub { Location = c1 }.ToMock();
+                var target = new PerceivableStub { Location = c2 }.ToMock();
+
+                var path = source.PathBetween(target, 5, false).ToList();
+                Assert.AreEqual(0, path.Count, "Expected closed door to block path when openDoors is false");
+
+                path = source.PathBetween(target, 5, true).ToList();
+                Assert.AreEqual(1, path.Count, "Expected path through closed but unlocked door when openDoors is true");
+        }
 }

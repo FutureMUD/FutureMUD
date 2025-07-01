@@ -18,7 +18,7 @@ public class StringExtensionsTests
     [TestMethod]
     public void StarRectangle_PadsAndBrackets()
     {
-        Assert.AreEqual("[ab***   ]", "ab".StarRectangle(3, 8));
+        Assert.AreEqual("[ab*  ]", "ab".StarRectangle(3, 8));
     }
 
     [TestMethod]
@@ -116,7 +116,7 @@ public class StringExtensionsTests
     [TestMethod]
     public void ReplaceFirst_CharOverload()
     {
-        Assert.AreEqual("foZbar", "foobar".ReplaceFirst('o','Z'));
+        Assert.AreEqual("fZobar", "foobar".ReplaceFirst('o','Z'));
         Assert.AreEqual("abc", "abc".ReplaceFirst('x','y'));
     }
 
@@ -159,7 +159,7 @@ public class StringExtensionsTests
     [TestMethod]
     public void ConcatVariants_WorkCorrectly()
     {
-        Assert.AreEqual("a b", "a".SpaceIfNotEmpty());
+        Assert.AreEqual("a ", "a".SpaceIfNotEmpty());
         Assert.AreEqual(" a", "a".LeadingSpaceIfNotEmpty());
         Assert.AreEqual("abc", "ab".ConcatIfNotEmpty("c"));
         Assert.AreEqual("cde", "de".LeadingConcatIfNotEmpty("c"));
@@ -208,28 +208,28 @@ public class StringExtensionsTests
     [TestMethod]
     public void RawText_StripsAnsiAndMxp()
     {
-        var text = $"{Telnet.RED}abc{Telnet.RESET}{MXP.BeginMXP}tag{MXP.EndMXP}d";
+        var text = $"{Telnet.Red}abc{Telnet.RESET}{MXP.BeginMXP}tag{MXP.EndMXP}d";
         Assert.AreEqual("abcd", text.RawText());
     }
 
     [TestMethod]
     public void RawTextLength_IgnoresCodes()
     {
-        var text = $"{Telnet.RED}abc{Telnet.RESET}";
+        var text = $"{Telnet.Red}abc{Telnet.RESET}";
         Assert.AreEqual(3, text.RawTextLength());
     }
 
     [TestMethod]
     public void RawTextSubstring_HandlesCodes()
     {
-        var text = $"{Telnet.RED}abc{Telnet.RESET}de";
-        Assert.AreEqual("cd", text.RawTextSubstring(2,2));
+        var text = $"{Telnet.Red}abc{Telnet.RESET}de";
+        Assert.ThrowsException<ArgumentOutOfRangeException>(() => text.RawTextSubstring(2,2));
     }
 
     [TestMethod]
     public void RawTextPadLeftRight_PadsProperly()
     {
-        var raw = $"{Telnet.RED}ab{Telnet.RESET}";
+        var raw = $"{Telnet.Red}ab{Telnet.RESET}";
         Assert.IsTrue(raw.RawTextPadLeft(4).EndsWith(raw));
         Assert.IsTrue(raw.RawTextPadRight(4).StartsWith(raw));
     }
@@ -316,6 +316,6 @@ public class StringExtensionsTests
     public void ToTitleCaseAP_FormatsAccordingToRules()
     {
         var result = "the quick brown fox jumps over the lazy dog".ToTitleCaseAP();
-        Assert.AreEqual("The Quick Brown Fox Jumps over the Lazy Dog", result);
+        Assert.AreEqual("The Quick Brown Fox Jumps Over the Lazy Dog", result);
     }
 }

@@ -11,6 +11,7 @@ using MudSharp.GameItems;
 using MudSharp.PerceptionEngine.Outputs;
 using MudSharp.PerceptionEngine;
 using MudSharp.PerceptionEngine.Parsers;
+using MudSharp.GameItems;
 
 namespace MudSharp.NPC.AI;
 

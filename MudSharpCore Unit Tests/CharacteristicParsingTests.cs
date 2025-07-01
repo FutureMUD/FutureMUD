@@ -1,6 +1,8 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using MudSharp.Form.Characteristics;
 using MudSharp.Framework;
+using MudSharp.FutureProg;
+using MudSharp.Form.Shape;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using MudSharp.Form.Shape;

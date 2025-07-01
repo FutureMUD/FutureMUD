@@ -801,17 +801,17 @@ public static class PerceivedItemExtensions
 			return true;
 		}
 
-		if (openDoors & exit.Exit.Door.Locks.All(x => !x.IsLocked))
-		{
-			return true;
-		}
+                if (openDoors && exit.Exit.Door.Locks.All(x => !x.IsLocked))
+                {
+                        return true;
+                }
 
-		if (pathTransparentDoors && exit.Exit.Door.CanSeeThrough(null))
-		{
-			return true;
-		}
+                if (pathTransparentDoors && (exit.Exit.Door?.CanSeeThrough(null) ?? false))
+                {
+                        return true;
+                }
 
-		return pathFireableDoors && exit.Exit.Door.CanFireThrough;
+                return pathFireableDoors && (exit.Exit.Door?.CanFireThrough ?? false);
 	}
 
 	/// <summary>

@@ -94,22 +94,28 @@ public class DoorStub {
 		get;set;
 	}
 
-	public bool IsOpen { get; init; }
+        public bool IsOpen { get; init; }
+
+        public bool Locked { get; init; }
         
 	public DoorState State {
 		get;init;
 	}
 
-	public IDoor ToMock() {
-		var mock = new Mock<IDoor>();
-		mock.SetupGet(t => t.CanFireThrough).Returns(CanFireThrough);
-		mock.SetupGet(t => t.CanPlayersSmash).Returns(CanPlayersSmash);
-		mock.SetupGet(t => t.IsOpen).Returns(IsOpen);
-		mock.SetupGet(t => t.State).Returns(State);
-		mock.SetupProperty(t => t.InstalledExit);
-		mock.SetupProperty(t => t.HingeCell);
-		return mock.Object;
-	}
+        public IDoor ToMock() {
+                var mock = new Mock<IDoor>();
+                mock.SetupGet(t => t.CanFireThrough).Returns(CanFireThrough);
+                mock.SetupGet(t => t.CanPlayersSmash).Returns(CanPlayersSmash);
+                mock.SetupGet(t => t.IsOpen).Returns(IsOpen);
+                mock.SetupGet(t => t.State).Returns(State);
+                var lockMock = new Mock<ILock>();
+                lockMock.SetupGet(x => x.IsLocked).Returns(Locked);
+                mock.SetupGet(t => t.Locks).Returns(new[] { lockMock.Object });
+                mock.SetupProperty(t => t.InstalledExit);
+                mock.SetupProperty(t => t.HingeCell);
+                mock.Setup(t => t.CanSeeThrough(It.IsAny<IBody>())).Returns(true);
+                return mock.Object;
+        }
 }
 
 public class ExitStub {

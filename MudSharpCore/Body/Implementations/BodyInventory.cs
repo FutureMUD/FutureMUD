@@ -339,7 +339,7 @@ public partial class Body
 		if (!flags.HasFlag(ItemCanWieldFlags.RequireTwoHands))
 		{
 			return (specificHand?.CanWield(item, this) == IWieldItemWieldResult.Success ||
-			        flags.HasFlag(ItemCanWieldFlags.IgnoreFreeHands)) && CanWield(item, flags);
+					flags.HasFlag(ItemCanWieldFlags.IgnoreFreeHands)) && CanWield(item, flags);
 		}
 
 		if (_wieldedItems.Any(x => x.Item1 == item) && !flags.HasFlag(ItemCanWieldFlags.IgnoreFreeHands))
@@ -348,10 +348,10 @@ public partial class Body
 		}
 
 		var openWieldLocs = WieldLocs.Where(x => x.CanWield(item, this) == IWieldItemWieldResult.Success ||
-		                                         (flags.HasFlag(ItemCanWieldFlags.IgnoreFreeHands) &&
-		                                          (x.CanWield(item, this) == IWieldItemWieldResult.AlreadyWielding ||
-		                                           x.CanWield(item, this) ==
-		                                           IWieldItemWieldResult.GrabbingWielderHoldOtherItem))).ToList();
+												 (flags.HasFlag(ItemCanWieldFlags.IgnoreFreeHands) &&
+												  (x.CanWield(item, this) == IWieldItemWieldResult.AlreadyWielding ||
+												   x.CanWield(item, this) ==
+												   IWieldItemWieldResult.GrabbingWielderHoldOtherItem))).ToList();
 		var locsAndHands = openWieldLocs.Select(x => (Item: x, Hands: x.Hands(item))).ToList();
 		if (locsAndHands.All(x => x.Item != specificHand))
 		{
@@ -370,8 +370,8 @@ public partial class Body
 	{
 		return
 			_wieldedItems.Where(x => x.Item1 == item)
-			             .Select(x => x.Item2)
-			             .All(x => x.CanUnwield(item, this) == IWieldItemUnwieldResult.Success || ignoreFreeHands);
+						 .Select(x => x.Item2)
+						 .All(x => x.CanUnwield(item, this) == IWieldItemUnwieldResult.Success || ignoreFreeHands);
 	}
 
 	public string WhyCannotWield(IGameItem item, ItemCanWieldFlags flags = ItemCanWieldFlags.None)
@@ -394,10 +394,10 @@ public partial class Body
 
 		var reasons = WieldLocs.Select(x => x.CanWield(item, this)).ToList();
 		var openWieldLocs = WieldLocs.Where(x => x.CanWield(item, this) == IWieldItemWieldResult.Success ||
-		                                         (flags.HasFlag(ItemCanWieldFlags.IgnoreFreeHands) &&
-		                                          (x.CanWield(item, this) == IWieldItemWieldResult.AlreadyWielding ||
-		                                           x.CanWield(item, this) ==
-		                                           IWieldItemWieldResult.GrabbingWielderHoldOtherItem))).ToList();
+												 (flags.HasFlag(ItemCanWieldFlags.IgnoreFreeHands) &&
+												  (x.CanWield(item, this) == IWieldItemWieldResult.AlreadyWielding ||
+												   x.CanWield(item, this) ==
+												   IWieldItemWieldResult.GrabbingWielderHoldOtherItem))).ToList();
 		var locsAndHands = openWieldLocs.Select(x => (Item: x, Hands: x.Hands(item))).ToList();
 		if (flags.HasFlag(ItemCanWieldFlags.RequireTwoHands) && locsAndHands.Any(x => x.Hands == 1))
 		{
@@ -425,9 +425,9 @@ public partial class Body
 		}
 
 		if (reasons.Any(
-			    x =>
-				    x == IWieldItemWieldResult.AlreadyWielding ||
-				    x == IWieldItemWieldResult.GrabbingWielderHoldOtherItem))
+				x =>
+					x == IWieldItemWieldResult.AlreadyWielding ||
+					x == IWieldItemWieldResult.GrabbingWielderHoldOtherItem))
 		{
 			return string.Format("You have no free {1} with which to wield {0}.", item.HowSeen(this),
 				WielderDescriptionPlural);
@@ -454,8 +454,8 @@ public partial class Body
 	public string WhyCannotWield(IGameItem item, IWield specificHand, ItemCanWieldFlags flags = ItemCanWieldFlags.None)
 	{
 		if (!flags.HasFlag(ItemCanWieldFlags.RequireTwoHands) &&
-		    specificHand?.CanWield(item, this) != IWieldItemWieldResult.Success &&
-		    !flags.HasFlag(ItemCanWieldFlags.IgnoreFreeHands))
+			specificHand?.CanWield(item, this) != IWieldItemWieldResult.Success &&
+			!flags.HasFlag(ItemCanWieldFlags.IgnoreFreeHands))
 		{
 			if (CanWield(item, flags))
 			{
@@ -468,10 +468,10 @@ public partial class Body
 		}
 
 		var openWieldLocs = WieldLocs.Where(x => x.CanWield(item, this) == IWieldItemWieldResult.Success ||
-		                                         (flags.HasFlag(ItemCanWieldFlags.IgnoreFreeHands) &&
-		                                          (x.CanWield(item, this) == IWieldItemWieldResult.AlreadyWielding ||
-		                                           x.CanWield(item, this) ==
-		                                           IWieldItemWieldResult.GrabbingWielderHoldOtherItem))).ToList();
+												 (flags.HasFlag(ItemCanWieldFlags.IgnoreFreeHands) &&
+												  (x.CanWield(item, this) == IWieldItemWieldResult.AlreadyWielding ||
+												   x.CanWield(item, this) ==
+												   IWieldItemWieldResult.GrabbingWielderHoldOtherItem))).ToList();
 		var locsAndHands = openWieldLocs.Select(x => (Item: x, Hands: x.Hands(item))).ToList();
 
 		if (locsAndHands.Any(x => x.Item == specificHand))
@@ -549,15 +549,15 @@ public partial class Body
 
 		var potentialWearLocs =
 			WieldLocs.Where(x => x.CanWield(item, this) == IWieldItemWieldResult.Success)
-			         .OrderByDescending(x => _heldItems.Any(y => y.Item1 == item && y.Item2 == x))
-			         .ToList();
+					 .OrderByDescending(x => _heldItems.Any(y => y.Item1 == item && y.Item2 == x))
+					 .ToList();
 		var hands = flags.HasFlag(ItemCanWieldFlags.RequireTwoHands) ? 2 : potentialWearLocs.Min(x => x.Hands(item));
 		if (hands == 1)
 		{
 			//Try dominant hand first
 			var loc = potentialWearLocs.FirstOrDefault(x =>
-				          x.Hands(item) == 1 && x.Alignment.LeftRightOnly() == Actor.Handedness.LeftRightOnly()) ??
-			          potentialWearLocs.FirstOrDefault(x => x.Hands(item) == 1);
+						  x.Hands(item) == 1 && x.Alignment.LeftRightOnly() == Actor.Handedness.LeftRightOnly()) ??
+					  potentialWearLocs.FirstOrDefault(x => x.Hands(item) == 1);
 			_wieldedItems.Add(Tuple.Create(item, loc));
 			item.GetItemType<IWieldable>().PrimaryWieldedLocation = loc;
 		}
@@ -591,15 +591,15 @@ public partial class Body
 
 		var potentialWearLocs =
 			WieldLocs.Where(x => x.CanWield(item, this) == IWieldItemWieldResult.Success)
-			         .OrderByDescending(x => _heldItems.Any(y => y.Item1 == item && y.Item2 == x))
-			         .ToList();
+					 .OrderByDescending(x => _heldItems.Any(y => y.Item1 == item && y.Item2 == x))
+					 .ToList();
 		var hands = flags.HasFlag(ItemCanWieldFlags.RequireTwoHands) ? 2 : potentialWearLocs.Min(x => x.Hands(item));
 		if (hands == 1)
 		{
 			//Try dominant hand first
 			var loc = potentialWearLocs.FirstOrDefault(x =>
-				          x.Hands(item) == 1 && x.Alignment.LeftRightOnly() == Actor.Handedness.LeftRightOnly()) ??
-			          potentialWearLocs.FirstOrDefault(x => x.Hands(item) == 1);
+						  x.Hands(item) == 1 && x.Alignment.LeftRightOnly() == Actor.Handedness.LeftRightOnly()) ??
+					  potentialWearLocs.FirstOrDefault(x => x.Hands(item) == 1);
 			_wieldedItems.Add(Tuple.Create(item, loc));
 			item.GetItemType<IWieldable>().PrimaryWieldedLocation = loc;
 		}
@@ -697,7 +697,7 @@ public partial class Body
 		if (locs.Count() == 1)
 		{
 			return (form == WieldSuffixForm.WieldEcho ? "&0's " : "") +
-			       locs.First().ShortDescription(false, false);
+				   locs.First().ShortDescription(false, false);
 		}
 
 		if (locs.Count() == 2 && WieldLocs.Count() == 2)
@@ -708,7 +708,7 @@ public partial class Body
 		if (locs.Count() == WieldLocs.Count())
 		{
 			return "all " + (form == WieldSuffixForm.WieldEcho ? "&0's " : "") + WieldLocs.Count() + " " +
-			       WielderDescriptionPlural;
+				   WielderDescriptionPlural;
 		}
 
 		return (form == WieldSuffixForm.WieldEcho ? "&0's " : "") + DescribeBodypartGroup(locs);
@@ -739,27 +739,27 @@ public partial class Body
 
 		if (
 			_wornItems.Where(x => x.Item == item.ContainedIn)
-			          .Any(
-				          x =>
-					          !_wornItems.Last(
-						                     y =>
-							                     y.Wearloc == x.Wearloc &&
-							                     (y.Item == x.Item || y.Profile.PreventsRemoval))
-					                     .Equals(x)))
+					  .Any(
+						  x =>
+							  !_wornItems.Last(
+											 y =>
+												 y.Wearloc == x.Wearloc &&
+												 (y.Item == x.Item || y.Profile.PreventsRemoval))
+										 .Equals(x)))
 		{
 			return false;
 		}
 
 		var sheathBeltable = item.ContainedIn?.GetItemType<IBeltable>();
 		if (sheathBeltable?.ConnectedTo != null &&
-		    _wornItems.Where(x => x.Item == sheathBeltable.ConnectedTo.Parent)
-		              .Any(
-			              x =>
-				              !_wornItems.Last(
-					                         y =>
-						                         y.Wearloc == x.Wearloc &&
-						                         (y.Item == x.Item || y.Profile.PreventsRemoval))
-				                         .Equals(x)))
+			_wornItems.Where(x => x.Item == sheathBeltable.ConnectedTo.Parent)
+					  .Any(
+						  x =>
+							  !_wornItems.Last(
+											 y =>
+												 y.Wearloc == x.Wearloc &&
+												 (y.Item == x.Item || y.Profile.PreventsRemoval))
+										 .Equals(x)))
 		{
 			return false;
 		}
@@ -778,7 +778,7 @@ public partial class Body
 		{
 			var wielditem =
 				ExternalItems.SelectNotNull(x => x.GetItemType<ISheath>()).SelectNotNull(x => x.Content)
-				             .FirstOrDefault();
+							 .FirstOrDefault();
 			if (wielditem == null)
 			{
 				return "You do not have anything that can be drawn.";
@@ -789,27 +789,27 @@ public partial class Body
 
 		if (
 			_wornItems.Where(x => x.Item == item.ContainedIn)
-			          .Any(
-				          x =>
-					          !_wornItems.Last(
-						                     y =>
-							                     y.Wearloc == x.Wearloc &&
-							                     (y.Item == x.Item || y.Profile.PreventsRemoval))
-					                     .Equals(x)))
+					  .Any(
+						  x =>
+							  !_wornItems.Last(
+											 y =>
+												 y.Wearloc == x.Wearloc &&
+												 (y.Item == x.Item || y.Profile.PreventsRemoval))
+										 .Equals(x)))
 		{
 			return "You cannot draw from a sheath that is covered by other items which prevent access and removal.";
 		}
 
 		var sheathBeltable = item.ContainedIn?.GetItemType<IBeltable>();
 		if (sheathBeltable?.ConnectedTo != null &&
-		    _wornItems.Where(x => x.Item == sheathBeltable.ConnectedTo.Parent)
-		              .Any(
-			              x =>
-				              !_wornItems.Last(
-					                         y =>
-						                         y.Wearloc == x.Wearloc &&
-						                         (y.Item == x.Item || y.Profile.PreventsRemoval))
-				                         .Equals(x)))
+			_wornItems.Where(x => x.Item == sheathBeltable.ConnectedTo.Parent)
+					  .Any(
+						  x =>
+							  !_wornItems.Last(
+											 y =>
+												 y.Wearloc == x.Wearloc &&
+												 (y.Item == x.Item || y.Profile.PreventsRemoval))
+										 .Equals(x)))
 		{
 			return "You cannot draw from a sheath that is covered by other items which prevent access and removal.";
 		}
@@ -831,9 +831,9 @@ public partial class Body
 		{
 			item =
 				ExternalItems.SelectNotNull(x => x.GetItemType<ISheath>())
-				             .SelectNotNull(x => x.Content)
-				             .FirstOrDefault()
-				             ?.Parent;
+							 .SelectNotNull(x => x.Content)
+							 .FirstOrDefault()
+							 ?.Parent;
 		}
 
 		var wieldItem = item.GetItemType<IWieldable>();
@@ -873,11 +873,11 @@ public partial class Body
 		{
 			targetItemWieldable =
 				HeldOrWieldedItems.Where(
-					                  x =>
-						                  x.GetItemType<IRangedWeapon>()?.WeaponType.RangedWeaponType.IsFirearm() ??
-						                  true)
-				                  .SelectNotNull(x => x.GetItemType<IWieldable>())
-				                  .FirstOrDefault();
+									  x =>
+										  x.GetItemType<IRangedWeapon>()?.WeaponType.RangedWeaponType.IsFirearm() ??
+										  true)
+								  .SelectNotNull(x => x.GetItemType<IWieldable>())
+								  .FirstOrDefault();
 			if (targetItemWieldable == null)
 			{
 				return false;
@@ -903,8 +903,8 @@ public partial class Body
 			}
 
 			if (isheath.DesignedForGuns !=
-			    (item.GetItemType<IRangedWeapon>()?.WeaponType.RangedWeaponType.IsFirearm() ??
-			     false))
+				(item.GetItemType<IRangedWeapon>()?.WeaponType.RangedWeaponType.IsFirearm() ??
+				 false))
 			{
 				return false;
 			}
@@ -916,27 +916,27 @@ public partial class Body
 
 			if (
 				_wornItems.Where(x => x.Item == isheath.Parent)
-				          .Any(
-					          x =>
-						          !_wornItems.Last(
-							                     y =>
-								                     y.Wearloc == x.Wearloc &&
-								                     (y.Item == x.Item || y.Profile.PreventsRemoval))
-						                     .Equals(x)))
+						  .Any(
+							  x =>
+								  !_wornItems.Last(
+												 y =>
+													 y.Wearloc == x.Wearloc &&
+													 (y.Item == x.Item || y.Profile.PreventsRemoval))
+											 .Equals(x)))
 			{
 				return false;
 			}
 
 			var sheathBeltable = isheath.Parent.GetItemType<IBeltable>();
 			if (sheathBeltable?.ConnectedTo != null &&
-			    _wornItems.Where(x => x.Item == sheathBeltable.ConnectedTo.Parent)
-			              .Any(
-				              x =>
-					              !_wornItems.Last(
-						                         y =>
-							                         y.Wearloc == x.Wearloc &&
-							                         (y.Item == x.Item || y.Profile.PreventsRemoval))
-					                         .Equals(x)))
+				_wornItems.Where(x => x.Item == sheathBeltable.ConnectedTo.Parent)
+						  .Any(
+							  x =>
+								  !_wornItems.Last(
+												 y =>
+													 y.Wearloc == x.Wearloc &&
+													 (y.Item == x.Item || y.Profile.PreventsRemoval))
+											 .Equals(x)))
 			{
 				return false;
 			}
@@ -980,11 +980,11 @@ public partial class Body
 		{
 			targetItemWieldable =
 				HeldOrWieldedItems.Where(
-					                  x =>
-						                  x.GetItemType<IRangedWeapon>()?.WeaponType.RangedWeaponType.IsFirearm() ??
-						                  true)
-				                  .SelectNotNull(x => x.GetItemType<IWieldable>())
-				                  .FirstOrDefault();
+									  x =>
+										  x.GetItemType<IRangedWeapon>()?.WeaponType.RangedWeaponType.IsFirearm() ??
+										  true)
+								  .SelectNotNull(x => x.GetItemType<IWieldable>())
+								  .FirstOrDefault();
 			if (targetItemWieldable == null)
 			{
 				return "You don't have any suitable sheathes for that item.";
@@ -1010,8 +1010,8 @@ public partial class Body
 			}
 
 			if (isheath.DesignedForGuns !=
-			    (item.GetItemType<IRangedWeapon>()?.WeaponType.RangedWeaponType.IsFirearm() ??
-			     false))
+				(item.GetItemType<IRangedWeapon>()?.WeaponType.RangedWeaponType.IsFirearm() ??
+				 false))
 			{
 				return (false, $"{isheath.Parent.HowSeen(Actor, true)} is not designed to take that kind of weapon.",
 					WhyCannotSheatheReason.NotRightWeaponType);
@@ -1025,13 +1025,13 @@ public partial class Body
 
 			if (
 				_wornItems.Where(x => x.Item == isheath.Parent)
-				          .Any(
-					          x =>
-						          !_wornItems.Last(
-							                     y =>
-								                     y.Wearloc == x.Wearloc &&
-								                     (y.Item == x.Item || y.Profile.PreventsRemoval))
-						                     .Equals(x)))
+						  .Any(
+							  x =>
+								  !_wornItems.Last(
+												 y =>
+													 y.Wearloc == x.Wearloc &&
+													 (y.Item == x.Item || y.Profile.PreventsRemoval))
+											 .Equals(x)))
 			{
 				return (false, $"{isheath.Parent.HowSeen(Actor, true)} is covered by other items that prevent access.",
 					WhyCannotSheatheReason.Covered);
@@ -1039,14 +1039,14 @@ public partial class Body
 
 			var sheathBeltable = isheath.Parent.GetItemType<IBeltable>();
 			if (sheathBeltable?.ConnectedTo != null &&
-			    _wornItems.Where(x => x.Item == sheathBeltable.ConnectedTo.Parent)
-			              .Any(
-				              x =>
-					              !_wornItems.Last(
-						                         y =>
-							                         y.Wearloc == x.Wearloc &&
-							                         (y.Item == x.Item || y.Profile.PreventsRemoval))
-					                         .Equals(x)))
+				_wornItems.Where(x => x.Item == sheathBeltable.ConnectedTo.Parent)
+						  .Any(
+							  x =>
+								  !_wornItems.Last(
+												 y =>
+													 y.Wearloc == x.Wearloc &&
+													 (y.Item == x.Item || y.Profile.PreventsRemoval))
+											 .Equals(x)))
 			{
 				return (false, $"{isheath.Parent.HowSeen(Actor, true)} is covered by other items that prevent access.",
 					WhyCannotSheatheReason.Covered);
@@ -1063,7 +1063,7 @@ public partial class Body
 			}
 
 			var sheaths = ExternalItems.SelectNotNull(x => x.GetItemType<ISheath>())
-			                           .Select(x => (Sheath: x, Result: SheathIsSuitable(x))).ToList();
+									   .Select(x => (Sheath: x, Result: SheathIsSuitable(x))).ToList();
 			if (sheaths.Any(x => x.Result.Reason == WhyCannotSheatheReason.NotEmpty))
 			{
 				return "You do not have any empty sheaths that are capable of taking that weapon.";
@@ -1113,11 +1113,11 @@ public partial class Body
 		{
 			targetItemWieldable =
 				HeldOrWieldedItems.Where(
-					                  x =>
-						                  x.GetItemType<IRangedWeapon>()?.WeaponType.RangedWeaponType.IsFirearm() ??
-						                  true)
-				                  .SelectNotNull(x => x.GetItemType<IWieldable>())
-				                  .FirstOrDefault();
+									  x =>
+										  x.GetItemType<IRangedWeapon>()?.WeaponType.RangedWeaponType.IsFirearm() ??
+										  true)
+								  .SelectNotNull(x => x.GetItemType<IWieldable>())
+								  .FirstOrDefault();
 			item = targetItemWieldable.Parent;
 		}
 		else
@@ -1131,7 +1131,7 @@ public partial class Body
 		{
 			targetSheathComponent =
 				ExternalItems.SelectNotNull(x => x.GetItemType<ISheath>())
-				             .FirstOrDefault(x => x.Content == null && x.MaximumSize >= item.Size);
+							 .FirstOrDefault(x => x.Content == null && x.MaximumSize >= item.Size);
 			sheath = targetSheathComponent.Parent;
 		}
 		else
@@ -1197,7 +1197,7 @@ public partial class Body
 			//TODO - Review: Does this need to also add in WieldLocs?
 			return
 				HoldLocs.Where(x => _heldItems.All(y => y.Item2 != x) && _wieldedItems.All(y => y.Item2 != x))
-				        .ToList();
+						.ToList();
 		}
 	}
 
@@ -1215,19 +1215,19 @@ public partial class Body
 	{
 		return
 			_heldItems.Where(x => x.Item2 == prototype)
-			          .Select(x => x.Item1)
-			          .Concat(_wieldedItems.Where(x => x.Item2 == prototype).Select(x => x.Item1))
-			          .ToList();
+					  .Select(x => x.Item1)
+					  .Concat(_wieldedItems.Where(x => x.Item2 == prototype).Select(x => x.Item1))
+					  .ToList();
 	}
 
 	public IBodypart BodypartLocationOfInventoryItem(IGameItem item)
 	{
 		return _heldItems.FirstOrDefault(x => x.Item1 == item)?.Item2 ??
-		       _wieldedItems.FirstOrDefault(x => x.Item1 == item)?.Item2 ??
-		       _wornItems.FirstOrDefault(x => x.Item == item).Wearloc ??
-		       _implants.FirstOrDefault(x => x.Parent == item)?.TargetBodypart ??
-		       _prosthetics.FirstOrDefault(x => x.Parent == item)?.TargetBodypart ??
-		       _wounds.FirstOrDefault(x => x.Lodged == item)?.Bodypart
+			   _wieldedItems.FirstOrDefault(x => x.Item1 == item)?.Item2 ??
+			   _wornItems.FirstOrDefault(x => x.Item == item).Wearloc ??
+			   _implants.FirstOrDefault(x => x.Parent == item)?.TargetBodypart ??
+			   _prosthetics.FirstOrDefault(x => x.Parent == item)?.TargetBodypart ??
+			   _wounds.FirstOrDefault(x => x.Lodged == item)?.Bodypart
 			;
 	}
 
@@ -1236,13 +1236,13 @@ public partial class Body
 		if (part is IOrganProto organ)
 		{
 			return Bodyparts.FirstOrDefault(x => x.OrganInfo.ContainsKey(organ) &&
-			                                     x.OrganInfo[organ].IsPrimaryInternalLocation) ?? part;
+												 x.OrganInfo[organ].IsPrimaryInternalLocation) ?? part;
 		}
 
 		if (part is IBone bone)
 		{
 			return Bodyparts.FirstOrDefault(x => x.BoneInfo.ContainsKey(bone) &&
-			                                     x.BoneInfo[bone].IsPrimaryInternalLocation) ?? part;
+												 x.BoneInfo[bone].IsPrimaryInternalLocation) ?? part;
 		}
 
 		return part;
@@ -1294,8 +1294,8 @@ public partial class Body
 		if (!ignoreFlags.HasFlag(ItemCanGetIgnore.IgnoreWeight) && !Actor.IsAdministrator())
 		{
 			if ((ignoreFlags.HasFlag(ItemCanGetIgnore.IgnoreLiftUseDrag)
-				    ? Race.GetMaximumDragWeight(Actor)
-				    : Race.GetMaximumLiftWeight(Actor)) < CarriedItems.Sum(x => x.Weight) + actualItem.Weight)
+					? Race.GetMaximumDragWeight(Actor)
+					: Race.GetMaximumLiftWeight(Actor)) < CarriedItems.Sum(x => x.Weight) + actualItem.Weight)
 			{
 				return false;
 			}
@@ -1304,25 +1304,25 @@ public partial class Body
 		if (HeldOrWieldedItems.All(x => !x.CanMerge(actualItem)))
 		{
 			if (HoldLocs.All(x =>
-			    {
-				    switch (x.CanGrab(actualItem, this))
-				    {
-					    case WearlocGrabResult.Success:
-						    return false;
-					    case WearlocGrabResult.FailNoTake:
-						    return true;
-					    case WearlocGrabResult.FailFull:
-						    return !ignoreFlags.HasFlag(ItemCanGetIgnore.IgnoreFreeHands);
-					    case WearlocGrabResult.FailDamaged:
-						    return true;
-					    case WearlocGrabResult.FailTooBig:
-						    return !Actor.IsAdministrator();
-					    case WearlocGrabResult.FailNoStackMerge:
-						    return true;
-				    }
+				{
+					switch (x.CanGrab(actualItem, this))
+					{
+						case WearlocGrabResult.Success:
+							return false;
+						case WearlocGrabResult.FailNoTake:
+							return true;
+						case WearlocGrabResult.FailFull:
+							return !ignoreFlags.HasFlag(ItemCanGetIgnore.IgnoreFreeHands);
+						case WearlocGrabResult.FailDamaged:
+							return true;
+						case WearlocGrabResult.FailTooBig:
+							return !Actor.IsAdministrator();
+						case WearlocGrabResult.FailNoStackMerge:
+							return true;
+					}
 
-				    return true;
-			    }))
+					return true;
+				}))
 			{
 				return false;
 			}
@@ -1340,11 +1340,25 @@ public partial class Body
 		}
 
 		var tcontainer = container.GetItemType<IContainer>();
-		return
-			(container.Location?.CanGetAccess(container, Actor) ?? true) &&
-			(ignoreFlags.HasFlag(ItemCanGetIgnore.IgnoreInContainer) || tcontainer?.Contents.Contains(item) == true) &&
-			tcontainer.CanTake(Actor, item, quantity) && CanGet(item, quantity,
-				tcontainer.Parent.InInventoryOf == this ? ignoreFlags | ItemCanGetIgnore.IgnoreWeight : ignoreFlags);
+		if (container.Location?.CanGetAccess(container, Actor) == false)
+		{
+			return false;
+		}
+
+		if (!ignoreFlags.HasFlag(ItemCanGetIgnore.IgnoreInContainer))
+		{
+			if (tcontainer?.Contents.Contains(item) == true && !tcontainer.CanTake(Actor, item, quantity))
+			{
+				return false;
+			}
+		}
+
+		if (!CanGet(item, quantity, tcontainer?.Parent.InInventoryOf == this ? ignoreFlags | ItemCanGetIgnore.IgnoreWeight : ignoreFlags))
+		{
+			return false;
+		}
+
+		return true;
 	}
 
 	public string WhyCannotGet(IGameItem item, int quantity, ItemCanGetIgnore ignoreFlags = ItemCanGetIgnore.None)
@@ -1387,7 +1401,7 @@ public partial class Body
 				return actualItem.HowSeen(this, true) + " is not something that can be picked up.";
 			case ItemGetResponse.Unpositionable:
 				return "You cannot reposition " + actualItem.HowSeen(this) + " because it" +
-				       actualItem.WhyCannotReposition();
+					   actualItem.WhyCannotReposition();
 			case ItemGetResponse.NoGetEffect:
 				return $"You cannot get {actualItem.HowSeen(this)} at the moment.";
 		}
@@ -1395,8 +1409,8 @@ public partial class Body
 		if (!ignoreFlags.HasFlag(ItemCanGetIgnore.IgnoreWeight) && !Actor.IsAdministrator())
 		{
 			if ((ignoreFlags.HasFlag(ItemCanGetIgnore.IgnoreLiftUseDrag)
-				    ? Race.GetMaximumDragWeight(Actor)
-				    : Race.GetMaximumLiftWeight(Actor)) < CarriedItems.Sum(x => x.Weight) + actualItem.Weight)
+					? Race.GetMaximumDragWeight(Actor)
+					: Race.GetMaximumLiftWeight(Actor)) < CarriedItems.Sum(x => x.Weight) + actualItem.Weight)
 			{
 				return "You are not strong enough to lift so much.";
 			}
@@ -1465,26 +1479,33 @@ public partial class Body
 			return container.Location.WhyCannotGetAccess(container, Actor);
 		}
 
-		switch (tcontainer.WhyCannotTake(Actor, item))
+		if (!ignoreFlags.HasFlag(ItemCanGetIgnore.IgnoreInContainer))
 		{
-			case WhyCannotGetContainerReason.ContainerClosed:
-				return "You must open " + container.HowSeen(this) + " before you can take anything out of it.";
-			case WhyCannotGetContainerReason.UnlawfulAction:
-				return
-					$"Taking {item.HowSeen(Actor)} from {container.HowSeen(Actor)} would be a crime, and you have flagged lawful behaviour only.\n{CrimeExtensions.StandardDisableIllegalFlagText}";
-			case WhyCannotGetContainerReason.NotContained:
-				if (ignoreFlags.HasFlag(ItemCanGetIgnore.IgnoreInContainer))
+			if (tcontainer.Contents.Contains(item) && !tcontainer.CanTake(Actor, item, quantity))
+			{
+				switch (tcontainer.WhyCannotTake(Actor, item))
 				{
-					goto default;
-				}
+					case WhyCannotGetContainerReason.ContainerClosed:
+						return "You must open " + container.HowSeen(this) + " before you can take anything out of it.";
+					case WhyCannotGetContainerReason.UnlawfulAction:
+						return
+							$"Taking {item.HowSeen(Actor)} from {container.HowSeen(Actor)} would be a crime, and you have flagged lawful behaviour only.\n{CrimeExtensions.StandardDisableIllegalFlagText}";
+					case WhyCannotGetContainerReason.NotContained:
+						if (ignoreFlags.HasFlag(ItemCanGetIgnore.IgnoreInContainer))
+						{
+							break;
+						}
 
-				return "You do not see that in " + container.HowSeen(this) + ".";
-			default:
-				return WhyCannotGet(item, quantity,
+						return "You do not see that in " + container.HowSeen(this) + ".";
+				}
+			}
+		}
+
+		return WhyCannotGet(item, quantity,
 					tcontainer.Parent.InInventoryOf == this
 						? ignoreFlags | ItemCanGetIgnore.IgnoreWeight
 						: ignoreFlags);
-		}
+		
 	}
 
 	private bool LoadtimeGet(IGameItem item)
@@ -1495,12 +1516,12 @@ public partial class Body
 		}
 
 		var grabLoc = HoldLocs.FirstOrDefault(x =>
-			              (x.CanGrab(item, this) == WearlocGrabResult.Success &&
-			               x.Alignment.LeftRightOnly() == Actor.Handedness.LeftRightOnly()) ||
-			              (Actor.IsAdministrator() && x.CanGrab(item, this) == WearlocGrabResult.FailTooBig)) ??
-		              HoldLocs.First(x => x.CanGrab(item, this) == WearlocGrabResult.Success ||
-		                                  (Actor.IsAdministrator() &&
-		                                   x.CanGrab(item, this) == WearlocGrabResult.FailTooBig));
+						  (x.CanGrab(item, this) == WearlocGrabResult.Success &&
+						   x.Alignment.LeftRightOnly() == Actor.Handedness.LeftRightOnly()) ||
+						  (Actor.IsAdministrator() && x.CanGrab(item, this) == WearlocGrabResult.FailTooBig)) ??
+					  HoldLocs.First(x => x.CanGrab(item, this) == WearlocGrabResult.Success ||
+										  (Actor.IsAdministrator() &&
+										   x.CanGrab(item, this) == WearlocGrabResult.FailTooBig));
 		_heldItems.Add(Tuple.Create(item, grabLoc));
 		_carriedItems.Add(item);
 		UpdateDescriptionHeld(item);
@@ -1537,13 +1558,13 @@ public partial class Body
 				{
 					//Try to put it in our dominant hand first
 					var grabLoc = HoldLocs.FirstOrDefault(x =>
-						              (x.CanGrab(gottenItem, this) == WearlocGrabResult.Success &&
-						               x.Alignment.LeftRightOnly() == Actor.Handedness.LeftRightOnly()) ||
-						              (Actor.IsAdministrator() &&
-						               x.CanGrab(gottenItem, this) == WearlocGrabResult.FailTooBig)) ??
-					              HoldLocs.First(x => x.CanGrab(gottenItem, this) == WearlocGrabResult.Success ||
-					                                  (Actor.IsAdministrator() && x.CanGrab(gottenItem, this) ==
-						                                  WearlocGrabResult.FailTooBig));
+									  (x.CanGrab(gottenItem, this) == WearlocGrabResult.Success &&
+									   x.Alignment.LeftRightOnly() == Actor.Handedness.LeftRightOnly()) ||
+									  (Actor.IsAdministrator() &&
+									   x.CanGrab(gottenItem, this) == WearlocGrabResult.FailTooBig)) ??
+								  HoldLocs.First(x => x.CanGrab(gottenItem, this) == WearlocGrabResult.Success ||
+													  (Actor.IsAdministrator() && x.CanGrab(gottenItem, this) ==
+														  WearlocGrabResult.FailTooBig));
 					_heldItems.Add(Tuple.Create(gottenItem, grabLoc));
 				}
 			}
@@ -1570,13 +1591,13 @@ public partial class Body
 			{
 				//Try to put it in our dominant hand first
 				var grabLoc = HoldLocs.FirstOrDefault(
-					              x => (x.CanGrab(gottenItem, this) == WearlocGrabResult.Success &&
-					                    x.Alignment.LeftRightOnly() == Actor.Handedness.LeftRightOnly()) ||
-					                   (Actor.IsAdministrator() && x.CanGrab(gottenItem, this) ==
-						                   WearlocGrabResult.FailTooBig)) ??
-				              HoldLocs.First(x => x.CanGrab(gottenItem, this) == WearlocGrabResult.Success ||
-				                                  (Actor.IsAdministrator() && x.CanGrab(gottenItem, this) ==
-					                                  WearlocGrabResult.FailTooBig));
+								  x => (x.CanGrab(gottenItem, this) == WearlocGrabResult.Success &&
+										x.Alignment.LeftRightOnly() == Actor.Handedness.LeftRightOnly()) ||
+									   (Actor.IsAdministrator() && x.CanGrab(gottenItem, this) ==
+										   WearlocGrabResult.FailTooBig)) ??
+							  HoldLocs.First(x => x.CanGrab(gottenItem, this) == WearlocGrabResult.Success ||
+												  (Actor.IsAdministrator() && x.CanGrab(gottenItem, this) ==
+													  WearlocGrabResult.FailTooBig));
 				_heldItems.Add(Tuple.Create(gottenItem, grabLoc));
 			}
 
@@ -1740,10 +1761,10 @@ public partial class Body
 				return container.HowSeen(this, true) + " is too full for " + dummy.HowSeen(this) + " to fit.";
 			case WhyCannotPutReason.NotCorrectItemType:
 				return dummy.HowSeen(this, true) + " is not the right type of item to go in " +
-				       container.HowSeen(this) + ".";
+					   container.HowSeen(this) + ".";
 			case WhyCannotPutReason.ItemTooLarge:
 				return dummy.HowSeen(this, true) + " is too large to fit in a container like " +
-				       container.HowSeen(this) + ".";
+					   container.HowSeen(this) + ".";
 			case WhyCannotPutReason.NotContainer:
 				return $"{container.HowSeen(this, true)} is not a container.";
 			default:
@@ -1779,7 +1800,7 @@ public partial class Body
 		IGameItem putItem = null;
 		MixedEmoteOutput output;
 		if (allowLesserAmounts && !CanPut(item, container, containerOwner, quantity, false) &&
-		    containerComp.WhyCannotPut(item) == WhyCannotPutReason.ContainerFullButCouldAcceptLesserQuantity)
+			containerComp.WhyCannotPut(item) == WhyCannotPutReason.ContainerFullButCouldAcceptLesserQuantity)
 		{
 			item = item.Get(this, containerComp.CanPutAmount(item));
 			quantity = 0;
@@ -1932,10 +1953,10 @@ public partial class Body
 
 
 		switch (wprof == null
-			        ? containerAsCorpse.OriginalCharacter.Body.WearLocs.WhyCannotDrape(item,
-				        containerAsCorpse.OriginalCharacter.Body)
-			        : containerAsCorpse.OriginalCharacter.Body.WearLocs.WhyCannotDrape(item, wprof,
-				        containerAsCorpse.OriginalCharacter.Body))
+					? containerAsCorpse.OriginalCharacter.Body.WearLocs.WhyCannotDrape(item,
+						containerAsCorpse.OriginalCharacter.Body)
+					: containerAsCorpse.OriginalCharacter.Body.WearLocs.WhyCannotDrape(item, wprof,
+						containerAsCorpse.OriginalCharacter.Body))
 		{
 			case WhyCannotDrapeReason.NotIDrapeable:
 				return $"{item.HowSeen(Actor, true)} is not something that can be worn.";
@@ -2076,15 +2097,15 @@ public partial class Body
 		{
 			case WhyCannotGrabReason.HandsFull:
 				return target.HowSeen(this, true) + " has no free " + target.WielderDescriptionPlural +
-				       " to accept " + dummy.HowSeen(this) + ".";
+					   " to accept " + dummy.HowSeen(this) + ".";
 			case WhyCannotGrabReason.HandsTooDamaged:
 				return target.HowSeen(this, true, DescriptionType.Possessive) + " " +
-				       target.WielderDescriptionPlural + " are too damaged to accept " + dummy.HowSeen(this) + ".";
+					   target.WielderDescriptionPlural + " are too damaged to accept " + dummy.HowSeen(this) + ".";
 			case WhyCannotGrabReason.InventoryFull:
 				return target.HowSeen(this, true) + " cannot hold " + dummy.HowSeen(this) + ".";
 			case WhyCannotGrabReason.NoFreeUndamagedHands:
 				return target.HowSeen(this, true) + " has no free, undamaged " + target.WielderDescriptionPlural +
-				       " to accept " + dummy.HowSeen(this) + ".";
+					   " to accept " + dummy.HowSeen(this) + ".";
 			default:
 				return target.HowSeen(this, true) + " cannot hold " + dummy.HowSeen(this) + ".";
 		}
@@ -2146,7 +2167,7 @@ public partial class Body
 	public bool CanGive(IGameItem item, ICorpse target, int quantity = 0)
 	{
 		return CanDrop(item, quantity) &&
-		       target.OriginalCharacter.Body.CanGet(quantity == 0 ? item : item.PeekSplit(quantity), 0);
+			   target.OriginalCharacter.Body.CanGet(quantity == 0 ? item : item.PeekSplit(quantity), 0);
 	}
 
 	public string WhyCannotGive(IGameItem item, ICorpse target, int quantity = 0)
@@ -2161,18 +2182,18 @@ public partial class Body
 		{
 			case WhyCannotGrabReason.HandsFull:
 				return target.Parent.HowSeen(this, true) + " has no free " +
-				       target.OriginalCharacter.Body.WielderDescriptionPlural + " to accept " + dummy.HowSeen(this) +
-				       ".";
+					   target.OriginalCharacter.Body.WielderDescriptionPlural + " to accept " + dummy.HowSeen(this) +
+					   ".";
 			case WhyCannotGrabReason.HandsTooDamaged:
 				return target.Parent.HowSeen(this, true, DescriptionType.Possessive) + " " +
-				       target.OriginalCharacter.Body.WielderDescriptionPlural + " are too damaged to accept " +
-				       dummy.HowSeen(this) + ".";
+					   target.OriginalCharacter.Body.WielderDescriptionPlural + " are too damaged to accept " +
+					   dummy.HowSeen(this) + ".";
 			case WhyCannotGrabReason.InventoryFull:
 				return target.Parent.HowSeen(this, true) + " cannot hold " + dummy.HowSeen(this) + ".";
 			case WhyCannotGrabReason.NoFreeUndamagedHands:
 				return target.Parent.HowSeen(this, true) + " has no free, undamaged " +
-				       target.OriginalCharacter.Body.WielderDescriptionPlural + " to accept " + dummy.HowSeen(this) +
-				       ".";
+					   target.OriginalCharacter.Body.WielderDescriptionPlural + " to accept " + dummy.HowSeen(this) +
+					   ".";
 			default:
 				return target.Parent.HowSeen(this, true) + " cannot hold " + dummy.HowSeen(this) + ".";
 		}
@@ -2221,7 +2242,7 @@ public partial class Body
 			givenItem);
 		givenItem.HandleEvent(EventType.ItemGiven, Actor, target.OriginalCharacter, givenItem);
 		foreach (var witness in Location.EventHandlers.Except(new IHandleEvents[] { Actor, target.OriginalCharacter })
-		        )
+				)
 		{
 			witness.HandleEvent(EventType.CharacterGiveItemWitness, Actor, target.OriginalCharacter, givenItem,
 				witness);
@@ -2279,8 +2300,8 @@ public partial class Body
 	private void CheckConsequences()
 	{
 		if (PositionState.Upright &&
-		    !PositionState.In(PositionSwimming.Instance, PositionClimbing.Instance, PositionFlying.Instance) &&
-		    !CanStand(false))
+			!PositionState.In(PositionSwimming.Instance, PositionClimbing.Instance, PositionFlying.Instance) &&
+			!CanStand(false))
 		{
 			Actor.OutputHandler.Handle(new EmoteOutput(new Emote("@ tumble|tumbles to the ground!", Actor)));
 			Actor.PositionState = PositionSprawled.Instance;
@@ -2320,7 +2341,7 @@ public partial class Body
 			if (_wieldedItems.Any(x => x.Item1 == otherItem && (!itemWielded || x.Item2.SelfUnwielder())))
 			{
 				return _wieldedItems.First(x => x.Item1 == otherItem && (!itemWielded || x.Item2.SelfUnwielder()))
-				                    .Item2;
+									.Item2;
 			}
 
 			if (_heldItems.Any(x => x.Item1 == otherItem))
@@ -2360,8 +2381,8 @@ public partial class Body
 					else
 					{
 						var fallBack = HoldLocs.Except(part).Except(oldPart).OfType<IGrab>()
-						                       .FirstOrDefault(x =>
-							                       x.CanGrab(firstItem, this) == WearlocGrabResult.Success);
+											   .FirstOrDefault(x =>
+												   x.CanGrab(firstItem, this) == WearlocGrabResult.Success);
 						if (fallBack == null)
 						{
 							Actor.Send(
@@ -2385,7 +2406,7 @@ public partial class Body
 			else
 			{
 				var fallBack = HoldLocs.Except(part).Except(oldPart).OfType<IGrab>()
-				                       .FirstOrDefault(x => x.CanGrab(item, this) == WearlocGrabResult.Success);
+									   .FirstOrDefault(x => x.CanGrab(item, this) == WearlocGrabResult.Success);
 				if (fallBack == null)
 				{
 					Actor.Send(
@@ -2447,7 +2468,7 @@ public partial class Body
 		get
 		{
 			return _wearlocs.Select(x => Tuple.Create(x, _wornItems.Count(y => y.Wearloc == x)))
-			                .ToLookup(x => x.Item1, x => x.Item2);
+							.ToLookup(x => x.Item1, x => x.Item2);
 		}
 	}
 
@@ -2518,9 +2539,9 @@ public partial class Body
 		{
 			var items =
 				_wornItems.GroupBy(x => x.Item, x => x)
-				          .OrderBy(x => x.Average(y => y.Wearloc.DisplayOrder))
-				          .Select(x => x.Key)
-				          .ToList();
+						  .OrderBy(x => x.Average(y => y.Wearloc.DisplayOrder))
+						  .Select(x => x.Key)
+						  .ToList();
 			foreach (
 				var beltitem in
 				items.SelectNotNull(x => x.GetItemType<IBelt>()).SelectMany(x => x.ConnectedItems).ToList())
@@ -2698,7 +2719,7 @@ public partial class Body
 		}
 
 		return wearable.CanWear(this) && 
-		       wearable.Profiles.Any(x => CanWear(item, x));
+			   wearable.Profiles.Any(x => CanWear(item, x));
 	}
 
 	public IWearProfile WhichProfile(IGameItem item)
@@ -2837,13 +2858,13 @@ public partial class Body
 		}
 
 		return _wornItems.Where(x => x.Item == item)
-		                 .All(
-			                 x =>
-				                 _wornItems.Last(
-					                           y =>
-						                           y.Wearloc == x.Wearloc &&
-						                           (y.Item == x.Item || y.Profile.PreventsRemoval))
-				                           .Equals(x));
+						 .All(
+							 x =>
+								 _wornItems.Last(
+											   y =>
+												   y.Wearloc == x.Wearloc &&
+												   (y.Item == x.Item || y.Profile.PreventsRemoval))
+										   .Equals(x));
 	}
 
 	public bool CanBeRemoved(IGameItem item, ICharacter remover)
@@ -2851,7 +2872,7 @@ public partial class Body
 		if (!Actor.IsTrustedAlly(remover) && Actor.EffectsOfType<BeDressedEffect>().All(x => x.Dresser != remover))
 		{
 			if (!Actor.State.HasFlag(CharacterState.Dead) && !Actor.State.HasFlag(CharacterState.Unconscious) &&
-			    !Actor.State.HasFlag(CharacterState.Sleeping))
+				!Actor.State.HasFlag(CharacterState.Sleeping))
 			{
 				return false;
 			}
@@ -2866,13 +2887,13 @@ public partial class Body
 		return
 			DirectItems.Contains(item) &&
 			_wornItems.Where(x => x.Item == item)
-			          .All(
-				          x =>
-					          _wornItems.Last(
-						                    y =>
-							                    y.Wearloc == x.Wearloc &&
-							                    (y.Item == x.Item || y.Profile.PreventsRemoval))
-					                    .Equals(x));
+					  .All(
+						  x =>
+							  _wornItems.Last(
+											y =>
+												y.Wearloc == x.Wearloc &&
+												(y.Item == x.Item || y.Profile.PreventsRemoval))
+										.Equals(x));
 	}
 
 	public bool CanDress(IGameItem item, ICharacter dresser, IWearProfile profile = null)
@@ -2979,28 +3000,28 @@ public partial class Body
 		_directWornItems = _wornItems.Select(x => x.Item).Distinct().ToList();
 		_wornItemsOnly = DirectWornItems.Concat(
 			DirectWornItems.SelectNotNull(x => x.GetItemType<IBelt>())
-			               .SelectMany(x => x.ConnectedItems, (x, y) => y.Parent)).ToList();
+						   .SelectMany(x => x.ConnectedItems, (x, y) => y.Parent)).ToList();
 		_allItems = WieldedItems.Concat(HeldItems).Concat(WornItems).Concat(Prosthetics.Select(x => x.Parent))
-		                        .Concat(Implants.Select(x => x.Parent)).Concat(Wounds.SelectNotNull(x => x.Lodged))
-		                        .Distinct().ToList();
+								.Concat(Implants.Select(x => x.Parent)).Concat(Wounds.SelectNotNull(x => x.Lodged))
+								.Distinct().ToList();
 		_externalItems = WieldedItems.Concat(HeldItems).Concat(WornItems).Concat(Prosthetics.Select(x => x.Parent))
-		                             .Concat(Implants.Where(x => x.External).Select(x => x.Parent)).Distinct().ToList();
+									 .Concat(Implants.Where(x => x.External).Select(x => x.Parent)).Distinct().ToList();
 		_carriedItems = HeldOrWieldedItems.Concat(DirectWornItems).ToList();
 		_directItems = WieldedItems.Concat(HeldItems).Concat(DirectWornItems).Distinct().ToList();
 		_outerwear = new HashSet<IGameItem>(_wornItems
-		                                    .GroupBy(x => x.Wearloc)
-		                                    .SelectNotNull(y => y
-		                                                        .Reverse()
-		                                                        .SkipWhile(x => !x.Profile.PreventsRemoval)
-		                                                        .FirstOrDefault()
-		                                                        .Item)
-		                                    .Distinct());
+											.GroupBy(x => x.Wearloc)
+											.SelectNotNull(y => y
+																.Reverse()
+																.SkipWhile(x => !x.Profile.PreventsRemoval)
+																.FirstOrDefault()
+																.Item)
+											.Distinct());
 		_itemsWornAgainstSkin = new HashSet<IGameItem>(_wornItems
-		                                               .GroupBy(x => x.Wearloc)
-		                                               .SelectNotNull(y => y
-		                                                                   .FirstOrDefault()
-		                                                                   .Item)
-		                                               .Distinct());
+													   .GroupBy(x => x.Wearloc)
+													   .SelectNotNull(y => y
+																		   .FirstOrDefault()
+																		   .Item)
+													   .Distinct());
 		var parts = new HashSet<IBodypart>(Bodyparts);
 		var transparentParts = new HashSet<IBodypart>(Bodyparts);
 		_visiblySeveredBodyparts = SeveredRoots.ToHashSet();
@@ -3021,26 +3042,26 @@ public partial class Body
 
 		_exposedBodyparts = parts;
 		_externalItemsForOtherActors = WieldedItems
-		                               .Concat(HeldItems)
-		                               .Concat(_outerwear)
-		                               .Concat(Prosthetics
-		                                       .Where(x => x.IncludedParts.Any(y => transparentParts.Contains(y)))
-		                                       .Select(x => x.Parent))
-		                               .Concat(Implants
-		                                       .Where(x => x.External && transparentParts.Contains(x.TargetBodypart))
-		                                       .Select(x => x.Parent))
-		                               .Concat(Wounds.Where(x => transparentParts.Contains(x.Bodypart))
-		                                             .SelectNotNull(x => x.Lodged))
-		                               .Distinct().ToList();
+									   .Concat(HeldItems)
+									   .Concat(_outerwear)
+									   .Concat(Prosthetics
+											   .Where(x => x.IncludedParts.Any(y => transparentParts.Contains(y)))
+											   .Select(x => x.Parent))
+									   .Concat(Implants
+											   .Where(x => x.External && transparentParts.Contains(x.TargetBodypart))
+											   .Select(x => x.Parent))
+									   .Concat(Wounds.Where(x => transparentParts.Contains(x.Bodypart))
+													 .SelectNotNull(x => x.Lodged))
+									   .Distinct().ToList();
 		_exposedItems = WieldedItems
-		                .Concat(HeldItems)
-		                .Concat(_outerwear)
-		                .Concat(Prosthetics.Where(x => x.IncludedParts.Any(y => parts.Contains(y)))
-		                                   .Select(x => x.Parent))
-		                .Concat(Implants.Where(x => x.External && parts.Contains(x.TargetBodypart))
-		                                .Select(x => x.Parent))
-		                .Concat(Wounds.Where(x => parts.Contains(x.Bodypart)).SelectNotNull(x => x.Lodged))
-		                .Distinct().ToList();
+						.Concat(HeldItems)
+						.Concat(_outerwear)
+						.Concat(Prosthetics.Where(x => x.IncludedParts.Any(y => parts.Contains(y)))
+										   .Select(x => x.Parent))
+						.Concat(Implants.Where(x => x.External && parts.Contains(x.TargetBodypart))
+										.Select(x => x.Parent))
+						.Concat(Wounds.Where(x => parts.Contains(x.Bodypart)).SelectNotNull(x => x.Lodged))
+						.Distinct().ToList();
 	}
 
 	private List<IGameItem> _allItems = new();
@@ -3206,7 +3227,7 @@ public partial class Body
 		}
 
 		if (item.GetItemType<IWearable>()?.Profiles.All(x => !x.RequireContainerIsEmpty) == false &&
-		    item.GetItemType<IContainer>()?.Contents.Any() == true)
+			item.GetItemType<IContainer>()?.Contents.Any() == true)
 		{
 			return $"You must first empty out the contents of  {item.HowSeen(this)} before it can be worn.";
 		}
@@ -3374,9 +3395,9 @@ public partial class Body
 	public IEnumerable<Tuple<WearableItemCoverStatus, IGameItem>> CoverInformation(IGameItem item)
 	{
 		return _wornItems
-		       .Where(x => x.Item == item)
-		       .Select(x => x.Wearloc.CoverInformation(item, this))
-		       .ToList();
+			   .Where(x => x.Item == item)
+			   .Select(x => x.Wearloc.CoverInformation(item, this))
+			   .ToList();
 	}
 
 	public Dictionary<IGameItem, WearableItemCoverStatus> GetAllItemsCoverStatus(bool useIgnoreArmour)
@@ -3457,7 +3478,7 @@ public partial class Body
 		}
 
 		if (existingItem.IsItemType<IWieldable>() && newItem.IsItemType<IWieldable>() &&
-		    _wieldedItems.Any(x => x.Item1 == existingItem))
+			_wieldedItems.Any(x => x.Item1 == existingItem))
 		{
 			foreach (var loc in _wieldedItems.Where(x => x.Item1 == existingItem).ToList())
 			{
@@ -3473,7 +3494,7 @@ public partial class Body
 		}
 
 		if (existingItem.IsItemType<IHoldable>() && newItem.IsItemType<IHoldable>() && newItem.GetItemType<IHoldable>().IsHoldable &&
-		    _heldItems.Any(x => x.Item1 == existingItem))
+			_heldItems.Any(x => x.Item1 == existingItem))
 		{
 			foreach (var loc in _heldItems.Where(x => x.Item1 == existingItem).ToList())
 			{
@@ -3498,7 +3519,7 @@ public partial class Body
 		var targetCoins =
 			currency.FindCurrency(
 				Location.LayerGameItems(RoomLayer).SelectNotNull(x => x.GetItemType<ICurrencyPile>())
-				        .Where(x => Location.CanGet(x.Parent, Actor)), amount);
+						.Where(x => Location.CanGet(x.Parent, Actor)), amount);
 		if (!targetCoins.Any())
 		{
 			return false;
@@ -3511,10 +3532,10 @@ public partial class Body
 
 		var tempItem = CurrencyGameItemComponentProto.CreateNewCurrencyPile(currency,
 			targetCoins.SelectMany(x => x.Value)
-			           .Select(x => x.Key)
-			           .Distinct()
-			           .Select(x =>
-				           Tuple.Create(x, targetCoins.Sum(y => y.Value.Where(z => z.Key == x).Sum(z => z.Value)))),
+					   .Select(x => x.Key)
+					   .Distinct()
+					   .Select(x =>
+						   Tuple.Create(x, targetCoins.Sum(y => y.Value.Where(z => z.Key == x).Sum(z => z.Value)))),
 			true);
 		return CanGet(tempItem, 0);
 	}
@@ -3540,15 +3561,15 @@ public partial class Body
 			return false;
 		}
 
-                var tempItem = CurrencyGameItemComponentProto.CreateNewCurrencyPile(currency,
-                        targetCoins.SelectMany(x => x.Value)
-                                   .Select(x => x.Key)
-                                   .Distinct()
-                                   .Select(x =>
-                                           Tuple.Create(x, targetCoins.Sum(y => y.Value.Where(z => z.Key == x).Sum(z => z.Value)))),
-                        true);
+				var tempItem = CurrencyGameItemComponentProto.CreateNewCurrencyPile(currency,
+						targetCoins.SelectMany(x => x.Value)
+								   .Select(x => x.Key)
+								   .Distinct()
+								   .Select(x =>
+										   Tuple.Create(x, targetCoins.Sum(y => y.Value.Where(z => z.Key == x).Sum(z => z.Value)))),
+						true);
 
-                return CanGet(tempItem, container, 0, ItemCanGetIgnore.IgnoreInContainer);
+				return CanGet(tempItem, container, 0, ItemCanGetIgnore.IgnoreInContainer);
 	}
 
 	public string WhyCannotGet(ICurrency currency, decimal amount, bool exact)
@@ -3556,7 +3577,7 @@ public partial class Body
 		var targetCoins =
 			currency.FindCurrency(
 				Location.LayerGameItems(RoomLayer).SelectNotNull(x => x.GetItemType<ICurrencyPile>())
-				        .Where(x => Location.CanGet(x.Parent, Actor)), amount);
+						.Where(x => Location.CanGet(x.Parent, Actor)), amount);
 		var trueTargetCoins =
 			currency.FindCurrency(Location.LayerGameItems(RoomLayer).SelectNotNull(x => x.GetItemType<ICurrencyPile>()),
 				amount);
@@ -3570,16 +3591,16 @@ public partial class Body
 		if (exact && targetCoins.Sum(x => x.Value.Sum(y => y.Key.Value * y.Value)) != amount)
 		{
 			return "You cannot get that exact amount. The closest amount you can get is " +
-			       currency.Describe(targetCoins.Sum(x => x.Value.Sum(y => y.Key.Value * y.Value)),
-				       CurrencyDescriptionPatternType.Short).Colour(Telnet.Green) + ".";
+				   currency.Describe(targetCoins.Sum(x => x.Value.Sum(y => y.Key.Value * y.Value)),
+					   CurrencyDescriptionPatternType.Short).Colour(Telnet.Green) + ".";
 		}
 
 		var tempItem = CurrencyGameItemComponentProto.CreateNewCurrencyPile(currency,
 			targetCoins.SelectMany(x => x.Value)
-			           .Select(x => x.Key)
-			           .Distinct()
-			           .Select(x =>
-				           Tuple.Create(x, targetCoins.Sum(y => y.Value.Where(z => z.Key == x).Sum(z => z.Value)))),
+					   .Select(x => x.Key)
+					   .Distinct()
+					   .Select(x =>
+						   Tuple.Create(x, targetCoins.Sum(y => y.Value.Where(z => z.Key == x).Sum(z => z.Value)))),
 			true);
 		return WhyCannotGet(tempItem, 0);
 	}
@@ -3603,19 +3624,19 @@ public partial class Body
 		if (exact && targetCoins.Sum(x => x.Value.Sum(y => y.Key.Value * y.Value)) != amount)
 		{
 			return "You cannot get that exact amount from " + container.HowSeen(this) +
-			       ". The closest amount you can get is " +
-			       currency.Describe(targetCoins.Sum(x => x.Value.Sum(y => y.Key.Value * y.Value)),
-				       CurrencyDescriptionPatternType.Short).Colour(Telnet.Green) + ".";
+				   ". The closest amount you can get is " +
+				   currency.Describe(targetCoins.Sum(x => x.Value.Sum(y => y.Key.Value * y.Value)),
+					   CurrencyDescriptionPatternType.Short).Colour(Telnet.Green) + ".";
 		}
 
-                var tempItem = CurrencyGameItemComponentProto.CreateNewCurrencyPile(currency,
-                        targetCoins.SelectMany(x => x.Value)
-                                   .Select(x => x.Key)
-                                   .Distinct()
-                                   .Select(x =>
-                                           Tuple.Create(x, targetCoins.Sum(y => y.Value.Where(z => z.Key == x).Sum(z => z.Value)))),
-                        true);
-                return WhyCannotGet(tempItem, container, 0, ItemCanGetIgnore.IgnoreInContainer);
+				var tempItem = CurrencyGameItemComponentProto.CreateNewCurrencyPile(currency,
+						targetCoins.SelectMany(x => x.Value)
+								   .Select(x => x.Key)
+								   .Distinct()
+								   .Select(x =>
+										   Tuple.Create(x, targetCoins.Sum(y => y.Value.Where(z => z.Key == x).Sum(z => z.Value)))),
+						true);
+				return WhyCannotGet(tempItem, container, 0, ItemCanGetIgnore.IgnoreInContainer);
 	}
 
 	public void Get(ICurrency currency, IGameItem containerItem, decimal amount, bool exact, IEmote playerEmote = null,
@@ -3635,10 +3656,10 @@ public partial class Body
 				amount);
 		var newItem = CurrencyGameItemComponentProto.CreateNewCurrencyPile(currency,
 			targetCoins.SelectMany(x => x.Value)
-			           .Select(x => x.Key)
-			           .Distinct()
-			           .Select(x =>
-				           Tuple.Create(x, targetCoins.Sum(y => y.Value.Where(z => z.Key == x).Sum(z => z.Value)))));
+					   .Select(x => x.Key)
+					   .Distinct()
+					   .Select(x =>
+						   Tuple.Create(x, targetCoins.Sum(y => y.Value.Where(z => z.Key == x).Sum(z => z.Value)))));
 		container.Put(null, newItem, false);
 		foreach (var item in targetCoins)
 		{
@@ -3665,10 +3686,10 @@ public partial class Body
 				amount);
 		var newItem = CurrencyGameItemComponentProto.CreateNewCurrencyPile(currency,
 			targetCoins.SelectMany(x => x.Value)
-			           .Select(x => x.Key)
-			           .Distinct()
-			           .Select(x =>
-				           Tuple.Create(x, targetCoins.Sum(y => y.Value.Where(z => z.Key == x).Sum(z => z.Value)))));
+					   .Select(x => x.Key)
+					   .Distinct()
+					   .Select(x =>
+						   Tuple.Create(x, targetCoins.Sum(y => y.Value.Where(z => z.Key == x).Sum(z => z.Value)))));
 		foreach (var item in targetCoins)
 		{
 			if (!item.Key.RemoveCoins(item.Value.Select(x => Tuple.Create(x.Key, x.Value))))
@@ -3696,10 +3717,10 @@ public partial class Body
 
 		var tempItem = CurrencyGameItemComponentProto.CreateNewCurrencyPile(currency,
 			targetCoins.SelectMany(x => x.Value)
-			           .Select(x => x.Key)
-			           .Distinct()
-			           .Select(x =>
-				           Tuple.Create(x, targetCoins.Sum(y => y.Value.Where(z => z.Key == x).Sum(z => z.Value)))),
+					   .Select(x => x.Key)
+					   .Distinct()
+					   .Select(x =>
+						   Tuple.Create(x, targetCoins.Sum(y => y.Value.Where(z => z.Key == x).Sum(z => z.Value)))),
 			true);
 		return CanPut(tempItem, container, containerOwner, 0, false);
 	}
@@ -3716,17 +3737,17 @@ public partial class Body
 		if (exact && targetCoins.Sum(x => x.Value.Sum(y => y.Key.Value * y.Value)) != amount)
 		{
 			return "You cannot put that exact amount in " + container.HowSeen(this) +
-			       ". The closest amount you can get is " +
-			       currency.Describe(targetCoins.Sum(x => x.Value.Sum(y => y.Key.Value * y.Value)),
-				       CurrencyDescriptionPatternType.Short).Colour(Telnet.Green) + ".";
+				   ". The closest amount you can get is " +
+				   currency.Describe(targetCoins.Sum(x => x.Value.Sum(y => y.Key.Value * y.Value)),
+					   CurrencyDescriptionPatternType.Short).Colour(Telnet.Green) + ".";
 		}
 
 		var tempItem = CurrencyGameItemComponentProto.CreateNewCurrencyPile(currency,
 			targetCoins.SelectMany(x => x.Value)
-			           .Select(x => x.Key)
-			           .Distinct()
-			           .Select(x =>
-				           Tuple.Create(x, targetCoins.Sum(y => y.Value.Where(z => z.Key == x).Sum(z => z.Value)))),
+					   .Select(x => x.Key)
+					   .Distinct()
+					   .Select(x =>
+						   Tuple.Create(x, targetCoins.Sum(y => y.Value.Where(z => z.Key == x).Sum(z => z.Value)))),
 			true);
 		return WhyCannotPut(tempItem, container, containerOwner, 0, false);
 	}
@@ -3745,10 +3766,10 @@ public partial class Body
 			amount);
 		var newItem = CurrencyGameItemComponentProto.CreateNewCurrencyPile(currency,
 			targetCoins.SelectMany(x => x.Value)
-			           .Select(x => x.Key)
-			           .Distinct()
-			           .Select(x =>
-				           Tuple.Create(x, targetCoins.Sum(y => y.Value.Where(z => z.Key == x).Sum(z => z.Value)))));
+					   .Select(x => x.Key)
+					   .Distinct()
+					   .Select(x =>
+						   Tuple.Create(x, targetCoins.Sum(y => y.Value.Where(z => z.Key == x).Sum(z => z.Value)))));
 		foreach (var item in targetCoins)
 		{
 			if (!item.Key.RemoveCoins(item.Value.Select(x => Tuple.Create(x.Key, x.Value))))
@@ -3777,10 +3798,10 @@ public partial class Body
 
 		var tempItem = CurrencyGameItemComponentProto.CreateNewCurrencyPile(currency,
 			targetCoins.SelectMany(x => x.Value)
-			           .Select(x => x.Key)
-			           .Distinct()
-			           .Select(x =>
-				           Tuple.Create(x, targetCoins.Sum(y => y.Value.Where(z => z.Key == x).Sum(z => z.Value)))),
+					   .Select(x => x.Key)
+					   .Distinct()
+					   .Select(x =>
+						   Tuple.Create(x, targetCoins.Sum(y => y.Value.Where(z => z.Key == x).Sum(z => z.Value)))),
 			true);
 		return CanDrop(tempItem, 0);
 	}
@@ -3797,16 +3818,16 @@ public partial class Body
 		if (exact && targetCoins.Sum(x => x.Value.Sum(y => y.Key.Value * y.Value)) != amount)
 		{
 			return "You cannot drop that exact amount. The closest amount you can get is " +
-			       currency.Describe(targetCoins.Sum(x => x.Value.Sum(y => y.Key.Value * y.Value)),
-				       CurrencyDescriptionPatternType.Short).Colour(Telnet.Green) + ".";
+				   currency.Describe(targetCoins.Sum(x => x.Value.Sum(y => y.Key.Value * y.Value)),
+					   CurrencyDescriptionPatternType.Short).Colour(Telnet.Green) + ".";
 		}
 
 		var tempItem = CurrencyGameItemComponentProto.CreateNewCurrencyPile(currency,
 			targetCoins.SelectMany(x => x.Value)
-			           .Select(x => x.Key)
-			           .Distinct()
-			           .Select(x =>
-				           Tuple.Create(x, targetCoins.Sum(y => y.Value.Where(z => z.Key == x).Sum(z => z.Value)))),
+					   .Select(x => x.Key)
+					   .Distinct()
+					   .Select(x =>
+						   Tuple.Create(x, targetCoins.Sum(y => y.Value.Where(z => z.Key == x).Sum(z => z.Value)))),
 			true);
 		return WhyCannotDrop(tempItem, 0);
 	}
@@ -3824,10 +3845,10 @@ public partial class Body
 			amount);
 		var newItem = CurrencyGameItemComponentProto.CreateNewCurrencyPile(currency,
 			targetCoins.SelectMany(x => x.Value)
-			           .Select(x => x.Key)
-			           .Distinct()
-			           .Select(x =>
-				           Tuple.Create(x, targetCoins.Sum(y => y.Value.Where(z => z.Key == x).Sum(z => z.Value)))));
+					   .Select(x => x.Key)
+					   .Distinct()
+					   .Select(x =>
+						   Tuple.Create(x, targetCoins.Sum(y => y.Value.Where(z => z.Key == x).Sum(z => z.Value)))));
 		foreach (var item in targetCoins)
 		{
 			if (!item.Key.RemoveCoins(item.Value.Select(x => Tuple.Create(x.Key, x.Value))))
@@ -3856,10 +3877,10 @@ public partial class Body
 
 		var tempItem = CurrencyGameItemComponentProto.CreateNewCurrencyPile(currency,
 			targetCoins.SelectMany(x => x.Value)
-			           .Select(x => x.Key)
-			           .Distinct()
-			           .Select(x =>
-				           Tuple.Create(x, targetCoins.Sum(y => y.Value.Where(z => z.Key == x).Sum(z => z.Value)))),
+					   .Select(x => x.Key)
+					   .Distinct()
+					   .Select(x =>
+						   Tuple.Create(x, targetCoins.Sum(y => y.Value.Where(z => z.Key == x).Sum(z => z.Value)))),
 			true);
 		return CanGive(tempItem, target);
 	}
@@ -3876,17 +3897,17 @@ public partial class Body
 		if (exact && targetCoins.Sum(x => x.Value.Sum(y => y.Key.Value * y.Value)) != amount)
 		{
 			return "You cannot give " + target.HowSeen(this) +
-			       " that exact amount. The closest amount you can get is " +
-			       currency.Describe(targetCoins.Sum(x => x.Value.Sum(y => y.Key.Value * y.Value)),
-				       CurrencyDescriptionPatternType.Short).Colour(Telnet.Green) + ".";
+				   " that exact amount. The closest amount you can get is " +
+				   currency.Describe(targetCoins.Sum(x => x.Value.Sum(y => y.Key.Value * y.Value)),
+					   CurrencyDescriptionPatternType.Short).Colour(Telnet.Green) + ".";
 		}
 
 		var tempItem = CurrencyGameItemComponentProto.CreateNewCurrencyPile(currency,
 			targetCoins.SelectMany(x => x.Value)
-			           .Select(x => x.Key)
-			           .Distinct()
-			           .Select(x =>
-				           Tuple.Create(x, targetCoins.Sum(y => y.Value.Where(z => z.Key == x).Sum(z => z.Value)))),
+					   .Select(x => x.Key)
+					   .Distinct()
+					   .Select(x =>
+						   Tuple.Create(x, targetCoins.Sum(y => y.Value.Where(z => z.Key == x).Sum(z => z.Value)))),
 			true);
 		return WhyCannotGive(tempItem, target);
 	}
@@ -3903,10 +3924,10 @@ public partial class Body
 			amount);
 		var newItem = CurrencyGameItemComponentProto.CreateNewCurrencyPile(currency,
 			targetCoins.SelectMany(x => x.Value)
-			           .Select(x => x.Key)
-			           .Distinct()
-			           .Select(x =>
-				           Tuple.Create(x, targetCoins.Sum(y => y.Value.Where(z => z.Key == x).Sum(z => z.Value)))));
+					   .Select(x => x.Key)
+					   .Distinct()
+					   .Select(x =>
+						   Tuple.Create(x, targetCoins.Sum(y => y.Value.Where(z => z.Key == x).Sum(z => z.Value)))));
 		foreach (var item in targetCoins)
 		{
 			if (!item.Key.RemoveCoins(item.Value.Select(x => Tuple.Create(x.Key, x.Value))))
@@ -3935,10 +3956,10 @@ public partial class Body
 
 		var tempItem = CurrencyGameItemComponentProto.CreateNewCurrencyPile(currency,
 			targetCoins.SelectMany(x => x.Value)
-			           .Select(x => x.Key)
-			           .Distinct()
-			           .Select(x =>
-				           Tuple.Create(x, targetCoins.Sum(y => y.Value.Where(z => z.Key == x).Sum(z => z.Value)))),
+					   .Select(x => x.Key)
+					   .Distinct()
+					   .Select(x =>
+						   Tuple.Create(x, targetCoins.Sum(y => y.Value.Where(z => z.Key == x).Sum(z => z.Value)))),
 			true);
 		return CanGive(tempItem, target.OriginalCharacter.Body);
 	}
@@ -3954,17 +3975,17 @@ public partial class Body
 		if (exact && targetCoins.Sum(x => x.Value.Sum(y => y.Key.Value * y.Value)) != amount)
 		{
 			return "You cannot give " + target.Parent.HowSeen(this) +
-			       " that exact amount. The closest amount you can get is " +
-			       currency.Describe(targetCoins.Sum(x => x.Value.Sum(y => y.Key.Value * y.Value)),
-				       CurrencyDescriptionPatternType.Short).Colour(Telnet.Green) + ".";
+				   " that exact amount. The closest amount you can get is " +
+				   currency.Describe(targetCoins.Sum(x => x.Value.Sum(y => y.Key.Value * y.Value)),
+					   CurrencyDescriptionPatternType.Short).Colour(Telnet.Green) + ".";
 		}
 
 		var tempItem = CurrencyGameItemComponentProto.CreateNewCurrencyPile(currency,
 			targetCoins.SelectMany(x => x.Value)
-			           .Select(x => x.Key)
-			           .Distinct()
-			           .Select(x =>
-				           Tuple.Create(x, targetCoins.Sum(y => y.Value.Where(z => z.Key == x).Sum(z => z.Value)))),
+					   .Select(x => x.Key)
+					   .Distinct()
+					   .Select(x =>
+						   Tuple.Create(x, targetCoins.Sum(y => y.Value.Where(z => z.Key == x).Sum(z => z.Value)))),
 			true);
 		return WhyCannotGive(tempItem, target.OriginalCharacter.Body);
 	}
@@ -3981,10 +4002,10 @@ public partial class Body
 			amount);
 		var newItem = CurrencyGameItemComponentProto.CreateNewCurrencyPile(currency,
 			targetCoins.SelectMany(x => x.Value)
-			           .Select(x => x.Key)
-			           .Distinct()
-			           .Select(x =>
-				           Tuple.Create(x, targetCoins.Sum(y => y.Value.Where(z => z.Key == x).Sum(z => z.Value)))));
+					   .Select(x => x.Key)
+					   .Distinct()
+					   .Select(x =>
+						   Tuple.Create(x, targetCoins.Sum(y => y.Value.Where(z => z.Key == x).Sum(z => z.Value)))));
 		foreach (var item in targetCoins)
 		{
 			if (!item.Key.RemoveCoins(item.Value.Select(x => Tuple.Create(x.Key, x.Value))))
@@ -4078,8 +4099,8 @@ public static class DrapeableExtensionClass
 		}
 
 		if (profile is not null && profile.Profile(body).Any(x =>
-			    body.WornItemsFor(x.Key).Sum(y => y.GetItemType<IWearable>().LayerWeightConsumption) >
-			    Body.MaximumLayerWeight) == true)
+				body.WornItemsFor(x.Key).Sum(y => y.GetItemType<IWearable>().LayerWeightConsumption) >
+				Body.MaximumLayerWeight) == true)
 		{
 			return WhyCannotDrapeReason.TooManyItems;
 		}

@@ -11,6 +11,7 @@ using MudSharp.Form.Audio;
 using MudSharp.Form.Material;
 using MudSharp.Form.Shape;
 using MudSharp.Framework;
+using MudSharp.Framework.Revision;
 using MudSharp.FutureProg;
 using MudSharp.GameItems;
 using MudSharp.GameItems.Interfaces;
@@ -145,9 +146,23 @@ public class PerceivableStub {
 
 public class GameworldStub
 {
-	public IFuturemud ToMock()
-	{
-		var mock = new Mock<IFuturemud>();
-		return mock.Object;
-	}
+        public IFuturemud ToMock()
+        {
+                var mock = new Mock<IFuturemud>();
+                return mock.Object;
+        }
+}
+
+public class FrameworkItemStub : IFrameworkItem
+{
+        public string Name { get; set; } = string.Empty;
+        public long Id { get; set; }
+        public string FrameworkItemType => "Stub";
+}
+
+public class RevisableItemStub : FrameworkItemStub, IRevisableItem
+{
+        public int RevisionNumber { get; set; }
+        public RevisionStatus Status { get; set; }
+        public string IdAndRevisionFor(IPerceiver voyeur) => $"{Id}:{RevisionNumber}";
 }

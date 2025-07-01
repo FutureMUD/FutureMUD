@@ -319,17 +319,22 @@ public static class OutputExtensions
 
 				break;
 
-			case OutputRange.Room:
-				foreach (var character in location?.Characters ?? Enumerable.Empty<ICharacter>())
-				{
-					character.OutputHandler?.Send(output, newline, nopage);
-				}
+                        case OutputRange.Room:
+                                foreach (var character in location?.Characters ?? Enumerable.Empty<ICharacter>())
+                                {
+                                        character.OutputHandler?.Send(output, newline, nopage);
+                                }
 
-				foreach (var cell in location?.Room.Cells ?? Enumerable.Empty<ICell>())
-				foreach (var effect in cell.EffectsOfType<IRemoteObservationEffect>().ToList())
-				{
-					effect.HandleOutput(output, cell);
-				}
+                                if (!output.Flags.HasFlag(OutputFlags.IgnoreWatchers))
+                                {
+                                        foreach (var cell in location?.Room.Cells ?? Enumerable.Empty<ICell>())
+                                        {
+                                                foreach (var effect in cell.EffectsOfType<IRemoteObservationEffect>().ToList())
+                                                {
+                                                        effect.HandleOutput(output, cell);
+                                                }
+                                        }
+                                }
 
 				break;
 

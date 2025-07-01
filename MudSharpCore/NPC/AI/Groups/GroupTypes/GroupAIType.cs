@@ -514,7 +514,7 @@ public abstract class GroupAIType : IGroupAIType, IHaveFuturemud
 		var validTypes = new[]
 		{
 			"always", "diurnal", "early diurnal", "late diurnal", "long diurnal", "nocturnal", "early nocturnal",
-			"late nocturnal", "long nocturnal", "crepuscular", "matutinal", "verspertine"
+                       "late nocturnal", "long nocturnal", "crepuscular", "matutinal", "vespertine"
 		};
 		var activeTimes = new List<TimeOfDay>();
 		switch (argument)
@@ -544,7 +544,7 @@ public abstract class GroupAIType : IGroupAIType, IHaveFuturemud
 				activeTimes.Add(TimeOfDay.Morning);
 				activeTimes.Add(TimeOfDay.Afternoon);
 				break;
-			case "late dirunal":
+                       case "late diurnal":
 				activeTimes.Add(TimeOfDay.Morning);
 				activeTimes.Add(TimeOfDay.Afternoon);
 				activeTimes.Add(TimeOfDay.Dusk);

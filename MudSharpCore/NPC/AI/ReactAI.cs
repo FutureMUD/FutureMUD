@@ -7,8 +7,10 @@ using MudSharp.Character;
 using MudSharp.Events;
 using MudSharp.Framework;
 using MudSharp.FutureProg;
+using MudSharp.GameItems;
 using MudSharp.PerceptionEngine.Outputs;
 using MudSharp.PerceptionEngine;
+using MudSharp.PerceptionEngine.Parsers;
 
 namespace MudSharp.NPC.AI;
 

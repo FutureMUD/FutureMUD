@@ -17,6 +17,8 @@ using MudSharp.RPG.Checks;
 using MudSharp.Construction;
 using MudSharp.Effects.Interfaces;
 using MudSharp.Health;
+using MudSharp.Combat.ScatterStrategies;
+using MudSharp.RPG.Merits.Interfaces;
 
 namespace MudSharp.GameItems.Components;
 
@@ -138,12 +140,79 @@ public class PowerPackGameItemComponent : GameItemComponent, ILaserPowerPack
 				break;
 		}
 
-		return target;
-	}
+                return target;
+        }
 
-	public void Fire(ICharacter actor, IPerceiver target, Outcome shotOutcome, Outcome coverOutcome,
-		OpposedOutcome defenseOutcome, IBodypart bodypart, IRangedWeaponType weaponType, double painMultiplier,
-		double stunMultiplier, IEmoteOutput defenseEmote)
+        private Damage BuildDamage(ICharacter actor, IPerceiver target, IBodypart bodypart,
+                IRangedWeaponType weaponType, OpposedOutcome defenseOutcome, double painMultiplier, double stunMultiplier)
+        {
+                weaponType.DamageBonusExpression.Formula.Parameters["range"] = target.DistanceBetween(actor, 10);
+                weaponType.DamageBonusExpression.Formula.Parameters["quality"] = (int)Parent.Quality;
+                weaponType.DamageBonusExpression.Formula.Parameters["degrees"] = (int)defenseOutcome.Degree;
+
+                var finalDamage = weaponType.DamageBonusExpression.Evaluate(actor);
+                return new Damage
+                {
+                        ActorOrigin = actor,
+                        ToolOrigin = Parent,
+                        Bodypart = bodypart,
+                        DamageAmount = finalDamage,
+                        DamageType = DamageType.Burning,
+                        PainAmount = finalDamage * painMultiplier,
+                        StunAmount = finalDamage * stunMultiplier
+                };
+        }
+
+        protected virtual void Hit(ICharacter actor, IPerceiver target, IBodypart bodypart,
+                IRangedWeaponType weaponType, OpposedOutcome defenseOutcome, double painMultiplier, double stunMultiplier,
+                IEmoteOutput defenseEmote)
+        {
+                var damage = BuildDamage(actor, target, bodypart, weaponType, defenseOutcome, painMultiplier, stunMultiplier);
+                var wounds = new List<IWound>();
+
+                if (defenseEmote != null)
+                {
+                        target.OutputHandler.Handle(defenseEmote);
+                }
+
+                if (!target.ColocatedWith(actor))
+                {
+                        actor.Send("You hit your target.".Colour(Telnet.BoldGreen));
+                }
+
+                if (target is ICharacter targetChar)
+                {
+                        wounds.AddRange(targetChar.Body.PassiveSufferDamage(damage));
+                        target.OutputHandler.Handle(
+                                new EmoteOutput(
+                                        new Emote($"The beam hits $0 on &0's {bodypart.FullDescription()}!", target, target)));
+                        wounds.ProcessPassiveWounds();
+                        return;
+                }
+
+                if (target is IGameItem targetItem)
+                {
+                        wounds.AddRange(targetItem.PassiveSufferDamage(damage));
+                        if (!wounds.Any())
+                        {
+                                target.OutputHandler.Handle(
+                                        new EmoteOutput(new Emote("The beam hits $0 but ricochets off without causing any damage!",
+                                                targetItem, targetItem)));
+                                return;
+                        }
+
+                        target.OutputHandler.Handle(
+                                new EmoteOutput(new Emote($"The beam hits $0!", actor, targetItem)));
+                        wounds.ProcessPassiveWounds();
+                        return;
+                }
+
+                throw new NotImplementedException("Unknown target type in Fire.");
+        }
+
+        public void Fire(ICharacter actor, IPerceiver target, Outcome shotOutcome, Outcome coverOutcome,
+                OpposedOutcome defenseOutcome, IBodypart bodypart, IRangedWeaponType weaponType, double painMultiplier,
+                double stunMultiplier, IEmoteOutput defenseEmote)
 	{
 		// Fired at sky
 		if (target == null)
@@ -180,21 +249,7 @@ public class PowerPackGameItemComponent : GameItemComponent, ILaserPowerPack
 					target), style: OutputStyle.CombatMessage, flags: OutputFlags.InnerWrap));
 		}
 
-		weaponType.DamageBonusExpression.Formula.Parameters["range"] = target.DistanceBetween(actor, 10);
-		weaponType.DamageBonusExpression.Formula.Parameters["quality"] = (int)Parent.Quality;
-		weaponType.DamageBonusExpression.Formula.Parameters["degrees"] = (int)defenseOutcome.Degree;
-
-		var finalDamage = weaponType.DamageBonusExpression.Evaluate(actor);
-		var damage = new Damage
-		{
-			ActorOrigin = actor,
-			ToolOrigin = Parent,
-			Bodypart = bodypart,
-			DamageAmount = finalDamage,
-			DamageType = DamageType.Burning,
-			PainAmount = finalDamage * painMultiplier,
-			StunAmount = finalDamage * stunMultiplier
-		};
+                var damage = BuildDamage(actor, target, bodypart, weaponType, defenseOutcome, painMultiplier, stunMultiplier);
 
 		var wounds = new List<IWound>();
 		if (shotOutcome.IsPass() && coverOutcome.IsFail() && target.Cover != null)
@@ -225,13 +280,28 @@ public class PowerPackGameItemComponent : GameItemComponent, ILaserPowerPack
 
 			target.OutputHandler.Handle(new EmoteOutput(new Emote(
 				$"The beam {(shotOutcome.IsPass() ? "narrowly misses @!" : "misses @ by a wide margin.")}", target)));
-			if (!actor.ColocatedWith(target))
-			{
-				actor.Send("You missed your target.".Colour(Telnet.Red));
-			}
+                        if (!actor.ColocatedWith(target))
+                        {
+                                actor.Send("You missed your target.".Colour(Telnet.Red));
+                        }
 
-			return;
-		}
+                        var chance = 10 * (8 - (int)shotOutcome);
+                        var mult = actor.Merits.OfType<IScatterChanceMerit>().Aggregate(1.0, (x, y) => x * y.ScatterMultiplier);
+                        if (Dice.Roll(1, 100) <= chance * mult)
+                        {
+                                var scatterTarget = RangedScatterStrategyFactory.GetStrategy(weaponType)
+                                        .GetScatterTarget(actor, target, path);
+                                if (scatterTarget != null)
+                                {
+                                        Hit(actor, scatterTarget,
+                                                (scatterTarget as IHaveABody)?.Body.RandomBodyPartGeometry(Orientation.Centre, Alignment.Front, Facing.Front),
+                                                weaponType, new OpposedOutcome(OpposedOutcomeDirection.Proponent, OpposedOutcomeDegree.Marginal),
+                                                painMultiplier, stunMultiplier, null);
+                                }
+                        }
+
+                        return;
+                }
 
 		foreach (var effect in target.EffectsOfType<IRangedObstructionEffect>().Where(x => x.Applies(actor)).Shuffle())
 		{

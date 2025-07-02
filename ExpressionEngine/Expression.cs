@@ -8,7 +8,7 @@ using NCalc.Handlers;
 
 namespace ExpressionEngine
 {
-	public class Expression
+        public class Expression : IExpression
 	{
 		public static event EventHandler<string> ExpressionError;
 		public static Random RandomInstance { get; } = new();

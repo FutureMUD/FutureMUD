@@ -214,11 +214,11 @@ Please answer #3yes#F or #3no#F: ", (context, answers) => true,
 			.Where(x => x.Type == 1)
 			.AsEnumerable()
 			.First(x => x.Name.In("Strength", "Physique", "Body", "Upper Body Strength"));
-		_context.StaticConfigurations.Find("DefaultDragWeightExpression").Definition =
-			$"str:{strengthTrait.Id} * 2500000)";
-		_context.StaticConfigurations.Find("DefaultLiftWeightExpression").Definition =
-			$"str:{strengthTrait.Id} * 1000000)";
-		_context.SaveChanges();
+                _context.StaticConfigurations.Find("DefaultDragWeightExpression").Definition =
+                        $"str:{strengthTrait.Id} * 2500000";
+                _context.StaticConfigurations.Find("DefaultLiftWeightExpression").Definition =
+                        $"str:{strengthTrait.Id} * 1000000";
+                _context.SaveChanges();
 
 		var hpStrategy = new HealthStrategy
 		{
@@ -912,12 +912,12 @@ $?hairstyle[&he has &?a_an[$haircolour $hairstyle]][&he is completely bald].$?fa
 			Id = nextId++, BodyProto = humanoidBody, PositionId = 18, Alias = "fly", FirstPersonVerb = "fly",
 			ThirdPersonVerb = "flies", PresentParticiple = "flying", Multiplier = 1.8, StaminaMultiplier = 15
 		});
-		_context.MoveSpeeds.Add(new MoveSpeed
-		{
-			Id = nextId++, BodyProto = humanoidBody, PositionId = 18, Alias = "franticfly",
-			FirstPersonVerb = "franticly fly", ThirdPersonVerb = "franticly flies",
-			PresentParticiple = "franticly flying", Multiplier = 1.4, StaminaMultiplier = 25
-		});
+                _context.MoveSpeeds.Add(new MoveSpeed
+                {
+                        Id = nextId++, BodyProto = humanoidBody, PositionId = 18, Alias = "franticfly",
+                        FirstPersonVerb = "frantically fly", ThirdPersonVerb = "frantically flies",
+                        PresentParticiple = "frantically flying", Multiplier = 1.4, StaminaMultiplier = 25
+                });
 		_context.SaveChanges();
 	}
 

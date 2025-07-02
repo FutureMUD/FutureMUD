@@ -149,6 +149,13 @@ namespace MudSharp.Combat {
         Musket
     }
 
+    public enum RangedScatterType {
+        Arcing,
+        Ballistic,
+        Light,
+        Spread
+    }
+
     public enum MeleeWeaponVerb {
         Swing,
         Chop,

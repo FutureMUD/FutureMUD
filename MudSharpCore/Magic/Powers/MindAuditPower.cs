@@ -47,18 +47,19 @@ public class MindAuditPower : MagicPowerBase
 	/// <inheritdoc />
 	protected override XElement SaveDefinition()
 	{
-		var definition = new XElement("Definition",
-			new XElement("Verb", Verb),
+                var definition = new XElement("Definition",
+                        new XElement("Verb", Verb),
 			new XElement("EmoteText", new XCData(EmoteText)),
 			new XElement("EmoteTextSelf", new XCData(EmoteTextSelf)),
 			new XElement("EchoToDetectedTarget", new XCData(EchoToDetectedTarget)),
 			new XElement("MinimumSuccessThreshold", (int)MinimumSuccessThreshold), 
 			new XElement("SkillCheckDifficultyProg", SkillCheckDifficultyProg.Id),
 			new XElement("ShouldEchoDetectionProg", ShouldEchoDetectionProg.Id),
-			new XElement("SkillCheckTrait", SkillCheckTrait.Id)
-		);
-		return definition;
-	}
+                        new XElement("SkillCheckTrait", SkillCheckTrait.Id)
+                );
+                AddBaseDefinition(definition);
+                return definition;
+        }
 
 	private MindAuditPower(IFuturemud gameworld, IMagicSchool school, string name, ITraitDefinition trait) : base(gameworld, school, name)
 	{

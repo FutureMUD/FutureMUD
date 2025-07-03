@@ -18,5 +18,10 @@ namespace MudSharp.Magic
         string Blurb { get; }
         IEnumerable<string> Verbs { get; }
         string PowerType { get; }
+
+        /// <summary>
+        /// True if this power is considered psionic rather than magical
+        /// </summary>
+        bool IsPsionic { get; }
     }
 }

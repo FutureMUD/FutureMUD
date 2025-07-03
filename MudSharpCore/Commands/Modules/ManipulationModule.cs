@@ -18,6 +18,7 @@ using MudSharp.Form.Characteristics;
 using MudSharp.Form.Material;
 using MudSharp.Form.Shape;
 using MudSharp.Framework;
+using MudSharp.RPG.Law;
 using MudSharp.Framework.Units;
 using MudSharp.GameItems;
 using MudSharp.GameItems.Interfaces;
@@ -570,10 +571,10 @@ Note - you can use the #3stop#0 command to stop dragging someone", AutoHelp.Help
 				return;
 			}
 
-			actor.AddEffect(new Dragging(actor, aid, target));
-			actor.OutputHandler.Handle(new EmoteOutput(new Emote("@ begin|begins to drag $1$?2| by $2||$", actor, actor,
-				target, aid?.Parent)));
-			return;
+                actor.AddEffect(new Dragging(actor, aid, target));
+                actor.OutputHandler.Handle(new EmoteOutput(new Emote("@ begin|begins to drag $1$?2| by $2||$", actor, actor,
+                        target, aid?.Parent)));
+                        return;
 		}
 
 		tChar = target as ICharacter;
@@ -598,9 +599,14 @@ Note - you can use the #3stop#0 command to stop dragging someone", AutoHelp.Help
 		}
 
 		actor.AddEffect(new Dragging(actor, aid, target));
-		actor.OutputHandler.Handle(new EmoteOutput(new Emote("@ begin|begins to drag $1$?2| by $2||$", actor, actor,
-			target, aid?.Parent)));
-		if (CharacterState.Sleeping.HasFlag(tChar.State) && !CharacterState.Unconscious.HasFlag(tChar.State))
+                actor.OutputHandler.Handle(new EmoteOutput(new Emote("@ begin|begins to drag $1$?2| by $2||$", actor, actor,
+                        target, aid?.Parent)));
+                if (!ally)
+                {
+                        CrimeExtensions.CheckPossibleCrimeAllAuthorities(actor, CrimeTypes.Kidnapping, tChar, null, "");
+                }
+
+                if (CharacterState.Sleeping.HasFlag(tChar.State) && !CharacterState.Unconscious.HasFlag(tChar.State))
 		{
 			tChar.State = tChar.State & ~CharacterState.Sleeping;
 			tChar.OutputHandler.Handle(new EmoteOutput(new Emote("@ wake|wakes up due to the disturbance.", tChar)));

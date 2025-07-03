@@ -45,8 +45,8 @@ public class MindBroadcastPower : MagicPowerBase
 	}
 	protected override XElement SaveDefinition()
 	{
-		var definition = new XElement("Definition",
-			new XElement("Verb", Verb),
+                var definition = new XElement("Definition",
+                        new XElement("Verb", Verb),
 			new XElement("EmoteText", new XCData(EmoteText)),
 			new XElement("FailEmoteText", new XCData(FailEmoteText)),
 			new XElement("TargetEmoteText", new XCData(TargetEmoteText)),
@@ -60,10 +60,11 @@ public class MindBroadcastPower : MagicPowerBase
 			new XElement("SkillCheckDifficulty", (int)SkillCheckDifficulty),
 			new XElement("CanInvokePowerProg", CanInvokePowerProg?.Id ?? 0L),
 			new XElement("WhyCantInvokePowerProg", WhyCantInvokePowerProg?.Id ?? 0L),
-			new XElement("Distance", (int)PowerDistance)
-		);
-		return definition;
-	}
+                        new XElement("Distance", (int)PowerDistance)
+                );
+                AddBaseDefinition(definition);
+                return definition;
+        }
 
 	private MindBroadcastPower(IFuturemud gameworld, IMagicSchool school, string name, ITraitDefinition trait) : base(gameworld, school, name)
 	{

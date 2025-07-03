@@ -63,8 +63,8 @@ public class MagicAttackPower : MagicPowerBase, IMagicAttackPower
 
 	protected override XElement SaveDefinition()
 	{
-		var definition = new XElement("Definition",
-			new XElement("Verb", _verb),
+                var definition = new XElement("Definition",
+                        new XElement("Verb", _verb),
 			new XElement("PowerIntentions", (long)PowerIntentions),
 			new XElement("ValidDefenseTypes",
 				from item in _validDefenseTypes
@@ -73,10 +73,11 @@ public class MagicAttackPower : MagicPowerBase, IMagicAttackPower
 			new XElement("WeaponAttack", WeaponAttack.Id),
 			new XElement("AttackerTrait", AttackerTrait.Id),
 			new XElement("Reach", Reach),
-			new XElement("MoveType", (int)MoveType)
-		);
-		return definition;
-	}
+                        new XElement("MoveType", (int)MoveType)
+                );
+                AddBaseDefinition(definition);
+                return definition;
+        }
 
 	private MagicAttackPower(IFuturemud gameworld, IMagicSchool school, string name, ITraitDefinition trait, IWeaponAttack wa) : base(gameworld, school, name)
 	{

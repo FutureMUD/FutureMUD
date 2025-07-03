@@ -18,6 +18,7 @@ using MudSharp.Economy.Currency;
 using MudSharp.Effects.Concrete;
 using MudSharp.Economy.Payment;
 using MudSharp.GameItems.Prototypes;
+using MudSharp.RPG.Law;
 using MudSharp.PerceptionEngine;
 using MudSharp.PerceptionEngine.Outputs;
 using MudSharp.PerceptionEngine.Parsers;
@@ -595,8 +596,9 @@ public abstract class Shop : SaveableItem, IShop
 		item.InInventoryOf?.Take(item);
 		item.Location?.Extract(item);
 		SortItemToStorePhysicalLocation(item, merchandise, null);
-		method.GivePayment(price);
-	}
+                method.GivePayment(price);
+                CrimeExtensions.CheckPossibleCrimeAllAuthorities(actor, CrimeTypes.SellingContraband, null, item, "");
+        }
 
 	protected abstract (bool Truth, string Reason) CanBuyInternal(ICharacter actor, IMerchandise merchandise, int quantity,
 		IPaymentMethod method, string extraArguments = null);

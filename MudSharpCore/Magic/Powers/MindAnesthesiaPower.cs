@@ -49,8 +49,8 @@ public class MindAnesthesiaPower : SustainedMagicPower
 	/// <inheritdoc />
 	protected override XElement SaveDefinition()
 	{
-		var definition = new XElement("Definition",
-			new XElement("BeginVerbs", 
+                var definition = new XElement("Definition",
+                        new XElement("BeginVerbs",
 				from item in PowerLevelVerbs
 				select new XElement("Verb",
 					new XAttribute("power", item.Value.Intensity),
@@ -74,11 +74,12 @@ public class MindAnesthesiaPower : SustainedMagicPower
 			new XElement("TickLength", TickLength.TotalSeconds),
 			new XElement("PowerDistance", (int)PowerDistance),
 			new XElement("ResistCheckDifficulty", (int)ResistCheckDifficulty),
-			new XElement("ResistCheckInterval", ResistCheckInterval.TotalSeconds)
-		);
-		SaveSustainedDefinition(definition);
-		return definition;
-	}
+                        new XElement("ResistCheckInterval", ResistCheckInterval.TotalSeconds)
+                );
+                AddBaseDefinition(definition);
+                SaveSustainedDefinition(definition);
+                return definition;
+        }
 
 	private MindAnesthesiaPower(IFuturemud gameworld, IMagicSchool school, string name, ITraitDefinition trait) : base(gameworld, school, name)
 	{

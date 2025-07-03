@@ -14,6 +14,7 @@ using MudSharp.Framework.Save;
 using MudSharp.FutureProg;
 using MudSharp.Models;
 using MudSharp.PerceptionEngine;
+using MudSharp.RPG.Law;
 
 namespace MudSharp.Magic.Powers;
 
@@ -28,8 +29,17 @@ public abstract class MagicPowerBase : SaveableItem, IMagicPower
 		Blurb = power.Blurb;
 		School = Gameworld.MagicSchools.Get(power.MagicSchoolId);
 		_showHelpText = power.ShowHelp;
-		var root = XElement.Parse(power.Definition);
-		var element = root.Element("CanInvokePowerProg");
+                var root = XElement.Parse(power.Definition);
+                var psionicElement = root.Element("IsPsionic");
+                if (psionicElement != null && bool.TryParse(psionicElement.Value, out var psi))
+                {
+                        IsPsionic = psi;
+                }
+                else
+                {
+                        IsPsionic = false;
+                }
+                var element = root.Element("CanInvokePowerProg");
 		if (element == null)
 		{
 			throw new ApplicationException(
@@ -88,14 +98,15 @@ public abstract class MagicPowerBase : SaveableItem, IMagicPower
 		}
 	}
 
-	protected MagicPowerBase(IFuturemud gameworld, IMagicSchool school, string name)
-	{
-		Gameworld = gameworld;
-		School = school;
-		_name = name;
-		CanInvokePowerProg = Gameworld.AlwaysTrueProg;
-		WhyCantInvokePowerProg = Gameworld.UniversalErrorTextProg;
-	}
+        protected MagicPowerBase(IFuturemud gameworld, IMagicSchool school, string name)
+        {
+                Gameworld = gameworld;
+                School = school;
+                _name = name;
+                IsPsionic = false;
+                CanInvokePowerProg = Gameworld.AlwaysTrueProg;
+                WhyCantInvokePowerProg = Gameworld.UniversalErrorTextProg;
+        }
 
 	protected void DoDatabaseInsert()
 	{
@@ -307,7 +318,12 @@ public abstract class MagicPowerBase : SaveableItem, IMagicPower
 	public abstract string PowerType { get; }
 	public abstract string DatabaseType { get; }
 
-	protected string _showHelpText;
+        protected string _showHelpText;
+
+        /// <summary>
+        /// True if this power is considered psionic rather than magical
+        /// </summary>
+        public bool IsPsionic { get; protected set; }
 
 	public virtual string ShowHelp(ICharacter voyeur)
 	{
@@ -386,13 +402,16 @@ public abstract class MagicPowerBase : SaveableItem, IMagicPower
 		return (true, null);
 	}
 
-	public void ConsumePowerCosts(ICharacter actor, string verb)
-	{
-		foreach (var (resource, cost) in InvocationCosts[verb])
-		{
-			actor.UseResource(resource, cost);
-		}
-	}
+        public void ConsumePowerCosts(ICharacter actor, string verb)
+        {
+                foreach (var (resource, cost) in InvocationCosts[verb])
+                {
+                        actor.UseResource(resource, cost);
+                }
+                CrimeExtensions.CheckPossibleCrimeAllAuthorities(actor,
+                        IsPsionic ? CrimeTypes.UnlawfulUseOfPsionics : CrimeTypes.UnlawfulUseOfMagic,
+                        null, null, Name);
+        }
 
 	public string Blurb { get; protected set; }
 	public abstract IEnumerable<string> Verbs { get; }
@@ -660,18 +679,23 @@ public abstract class MagicPowerBase : SaveableItem, IMagicPower
 		return sb.ToString();
 	}
 
-	public override void Save()
-	{
-		var dbitem = FMDB.Context.MagicPowers.Find(Id);
-		dbitem.Name = Name;
-		dbitem.MagicSchoolId = School.Id;
-		dbitem.ShowHelp = _showHelpText;
-		dbitem.Blurb = Blurb;
-		dbitem.Definition = SaveDefinition().ToString();
-		Changed = false;
-	}
+        public override void Save()
+        {
+                var dbitem = FMDB.Context.MagicPowers.Find(Id);
+                dbitem.Name = Name;
+                dbitem.MagicSchoolId = School.Id;
+                dbitem.ShowHelp = _showHelpText;
+                dbitem.Blurb = Blurb;
+                dbitem.Definition = SaveDefinition().ToString();
+                Changed = false;
+        }
 
-	protected abstract XElement SaveDefinition();
+        protected void AddBaseDefinition(XElement root)
+        {
+                root.Add(new XElement("IsPsionic", IsPsionic));
+        }
+
+        protected abstract XElement SaveDefinition();
 
 	#endregion
 }

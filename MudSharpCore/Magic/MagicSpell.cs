@@ -18,6 +18,7 @@ using MudSharp.Framework;
 using MudSharp.Framework.Save;
 using MudSharp.FutureProg;
 using MudSharp.FutureProg.Variables;
+using MudSharp.RPG.Law;
 using MudSharp.GameItems.Inventory;
 using MudSharp.GameItems.Inventory.Plans;
 using MudSharp.PerceptionEngine;
@@ -1397,10 +1398,11 @@ public class MagicSpell : SaveableItem, IMagicSpell
 			return;
 		}
 
-		foreach (var (resource, cost) in realCosts)
-		{
-			magician.UseResource(resource, cost);
-		}
+                foreach (var (resource, cost) in realCosts)
+                {
+                        magician.UseResource(resource, cost);
+                }
+                CrimeExtensions.CheckPossibleCrimeAllAuthorities(magician, CrimeTypes.UnlawfulUseOfMagic, null, null, Name);
 
 		plan.ExecuteWholePlan();
 		if (ExclusiveDelay > TimeSpan.Zero)

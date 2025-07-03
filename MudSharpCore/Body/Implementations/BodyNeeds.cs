@@ -12,6 +12,7 @@ using MudSharp.GameItems.Interfaces;
 using MudSharp.PerceptionEngine;
 using MudSharp.PerceptionEngine.Outputs;
 using MudSharp.PerceptionEngine.Parsers;
+using MudSharp.RPG.Law;
 
 namespace MudSharp.Body.Implementations;
 
@@ -245,9 +246,11 @@ public partial class Body : IHaveNeeds, IEat
 
 		#endregion
 
-		edible.Eat(this, bites);
-		return true;
-	}
+                edible.Eat(this, bites);
+                CrimeExtensions.CheckPossibleCrimeAllAuthorities(Actor, CrimeTypes.IllegalConsumption, null, edible.Parent, "");
+                CrimeExtensions.CheckPossibleCrimeAllAuthorities(Actor, CrimeTypes.PublicIntoxication, null, edible.Parent, "");
+                return true;
+        }
 
 	public bool SilentEat(IEdible edible, double bites)
 	{
@@ -597,10 +600,11 @@ public partial class Body : IHaveNeeds, IEat
 		FulfilNeeds(sip.GetNeedFulfiller());
 
 		sip.OnDraught(Actor, container);
-		container.ReduceLiquidQuantity(quantity, Actor, "drink");
-
-		return true;
-	}
+                container.ReduceLiquidQuantity(quantity, Actor, "drink");
+                CrimeExtensions.CheckPossibleCrimeAllAuthorities(Actor, CrimeTypes.IllegalConsumption, null, container.Parent, "");
+                CrimeExtensions.CheckPossibleCrimeAllAuthorities(Actor, CrimeTypes.PublicIntoxication, null, container.Parent, "");
+                return true;
+        }
 
 	public bool CanDrink(ILiquidContainer container, ITable table, double quantity)
 	{

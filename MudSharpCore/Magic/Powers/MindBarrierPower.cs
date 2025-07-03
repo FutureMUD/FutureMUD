@@ -49,8 +49,8 @@ public class MindBarrierPower : SustainedMagicPower
 	/// <inheritdoc />
 	protected override XElement SaveDefinition()
 	{
-		var definition = new XElement("Definition",
-			new XElement("BeginVerb", BeginVerb),
+                var definition = new XElement("Definition",
+                        new XElement("BeginVerb", BeginVerb),
 			new XElement("EndVerb", EndVerb),
 			new XElement("SkillCheckDifficulty", (int)SkillCheckDifficulty),
 			new XElement("SkillCheckTrait", SkillCheckTrait.Id),
@@ -75,11 +75,12 @@ public class MindBarrierPower : SustainedMagicPower
 					new XAttribute("outcome", (int)bonus.Key),
 					new XAttribute("bonus", bonus.Value)
 				)
-			)
-		);
-		SaveSustainedDefinition(definition);
-		return definition;
-	}
+                        )
+                );
+                AddBaseDefinition(definition);
+                SaveSustainedDefinition(definition);
+                return definition;
+        }
 
 	private MindBarrierPower(IFuturemud gameworld, IMagicSchool school, string name, ITraitDefinition trait) : base(gameworld, school, name)
 	{

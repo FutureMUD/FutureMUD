@@ -281,10 +281,10 @@ public class ChokePower : SustainedMagicPower
 	/// <inheritdoc />
 	protected override XElement SaveDefinition()
 	{
-		var definition = new XElement("Definition",
-			new XElement("BeginVerb", BeginVerb),
-			new XElement("EndVerb", EndVerb),
-			new XElement("PowerDistance", (int)PowerDistance),
+                var definition = new XElement("Definition",
+                        new XElement("BeginVerb", BeginVerb),
+                        new XElement("EndVerb", EndVerb),
+                        new XElement("PowerDistance", (int)PowerDistance),
 			new XElement("SkillCheckDifficulty", (int)SkillCheckDifficulty),
 			new XElement("SkillCheckTrait", SkillCheckTrait.Id),
 			new XElement("MinimumSuccessThreshold", (int)MinimumSuccessThreshold),
@@ -297,11 +297,12 @@ public class ChokePower : SustainedMagicPower
 			new XElement("FailEmoteText", new XCData(FailEmoteText)),
 			new XElement("FailEmoteTextTarget", new XCData(FailEmoteTextTarget)),
 			new XElement("EndPowerEmoteText", new XCData(EndPowerEmoteText)),
-			new XElement("EndPowerEmoteTextTarget", new XCData(EndPowerEmoteTextTarget))
-		);
-		SaveSustainedDefinition(definition);
-		return definition;
-	}
+                        new XElement("EndPowerEmoteTextTarget", new XCData(EndPowerEmoteTextTarget))
+                );
+                AddBaseDefinition(definition);
+                SaveSustainedDefinition(definition);
+                return definition;
+        }
 	public override void UseCommand(ICharacter actor, string verb, StringStack command)
 	{
 		var (truth, missing) = CanAffordToInvokePower(actor, verb);

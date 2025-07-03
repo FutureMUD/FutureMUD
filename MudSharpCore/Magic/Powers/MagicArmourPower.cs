@@ -50,8 +50,8 @@ public class MagicArmourPower : SustainedMagicPower
 
 	protected override XElement SaveDefinition()
 	{
-		var definition = new XElement("Definition",
-			new XElement("BeginVerb", BeginVerb),
+                var definition = new XElement("Definition",
+                        new XElement("BeginVerb", BeginVerb),
 			new XElement("EndVerb", EndVerb),
 			new XElement("SkillCheckDifficulty", (int)SkillCheckDifficulty),
 			new XElement("SkillCheckTrait", SkillCheckTrait.Id),
@@ -70,11 +70,12 @@ public class MagicArmourPower : SustainedMagicPower
 				select new XElement("Shape",
 					shape.Id
 				)
-			)
-		);
-		SaveSustainedDefinition(definition);
-		return definition;
-	}
+                        )
+                );
+                AddBaseDefinition(definition);
+                SaveSustainedDefinition(definition);
+                return definition;
+        }
 
 	private MagicArmourPower(IFuturemud gameworld, IMagicSchool school, string name, ITraitDefinition trait) : base(gameworld, school, name)
 	{

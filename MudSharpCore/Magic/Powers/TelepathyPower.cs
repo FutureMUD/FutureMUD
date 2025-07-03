@@ -51,8 +51,8 @@ public partial class TelepathyPower : SustainedMagicPower
 
 	protected override XElement SaveDefinition()
 	{
-		var definition = new XElement("Definition",
-			new XElement("Verb", BeginVerb),
+                var definition = new XElement("Definition",
+                        new XElement("Verb", BeginVerb),
 			new XElement("EndVerb", EndVerb),
 			new XElement("SkillCheckDifficulty", (int)SkillCheckDifficulty),
 			new XElement("SkillCheckTrait", SkillCheckTrait.Id),
@@ -61,11 +61,12 @@ public partial class TelepathyPower : SustainedMagicPower
 			new XElement("ShowFeels", ShowFeels),
 			new XElement("ShowThinks", ShowThinks),
 			new XElement("ShowThinkEmote", ShowThinkEmote),
-			new XElement("Distance", (int)PowerDistance)
-		);
-		SaveSustainedDefinition(definition);
-		return definition;
-	}
+                        new XElement("Distance", (int)PowerDistance)
+                );
+                AddBaseDefinition(definition);
+                SaveSustainedDefinition(definition);
+                return definition;
+        }
 
 	private TelepathyPower(IFuturemud gameworld, IMagicSchool school, string name, ITraitDefinition trait) : base(gameworld, school, name)
 	{

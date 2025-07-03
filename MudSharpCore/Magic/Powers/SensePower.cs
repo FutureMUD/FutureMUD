@@ -46,8 +46,8 @@ public class SensePower : MagicPowerBase
 
 	protected override XElement SaveDefinition()
 	{
-		var definition = new XElement("Definition",
-			new XElement("Verb", Verb),
+                var definition = new XElement("Definition",
+                        new XElement("Verb", Verb),
 			new XElement("EmoteVisible", EmoteVisible),
 			new XElement("EmoteText", new XCData(EmoteText)),
 			new XElement("EchoHeader", new XCData(EchoHeader)),
@@ -58,10 +58,11 @@ public class SensePower : MagicPowerBase
 			new XElement("SenseTargetFilterProg", SenseTargetFilterProg.Id),
 			new XElement("TargetDifficultyProg", TargetDifficultyProg.Id),
 			new XElement("CheckTrait", SkillCheckTrait.Id),
-			new XElement("PowerDistance", (int)PowerDistance)
-		);
-		return definition;
-	}
+                        new XElement("PowerDistance", (int)PowerDistance)
+                );
+                AddBaseDefinition(definition);
+                return definition;
+        }
 
 	private SensePower(IFuturemud gameworld, IMagicSchool school, string name, ITraitDefinition trait) : base(gameworld, school, name)
 	{

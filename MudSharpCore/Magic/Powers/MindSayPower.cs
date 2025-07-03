@@ -47,8 +47,8 @@ public class MindSayPower : MagicPowerBase
 
 	protected override XElement SaveDefinition()
 	{
-		var definition = new XElement("Definition",
-			new XElement("SayVerb", SayVerb),
+                var definition = new XElement("Definition",
+                        new XElement("SayVerb", SayVerb),
 			new XElement("TellVerb", TellVerb),
 			new XElement("EmoteText", new XCData(EmoteText)),
 			new XElement("FailEmoteText", new XCData(FailEmoteText)),
@@ -58,10 +58,11 @@ public class MindSayPower : MagicPowerBase
 			new XElement("UseAccent", UseAccent),
 			new XElement("UseLanguage", UseLanguage),
 			new XElement("TargetCanSeeIdentityProg", TargetCanSeeIdentityProg.Id),
-			new XElement("SkillCheckTrait", SkillCheckTrait.Id)
-		);
-		return definition;
-	}
+                        new XElement("SkillCheckTrait", SkillCheckTrait.Id)
+                );
+                AddBaseDefinition(definition);
+                return definition;
+        }
 
 	private MindSayPower(IFuturemud gameworld, IMagicSchool school, string name, ITraitDefinition trait) : base(gameworld, school, name)
 	{

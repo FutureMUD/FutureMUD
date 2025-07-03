@@ -43,18 +43,19 @@ public class MindExpelPower : MagicPowerBase
 	
 	protected override XElement SaveDefinition()
 	{
-		var definition = new XElement("Definition",
-			new XElement("Verb", Verb),
+                var definition = new XElement("Definition",
+                        new XElement("Verb", Verb),
 			new XElement("EmoteText", new XCData(EmoteText)),
 			new XElement("EmoteTextSelf", new XCData(EmoteTextSelf)),
 			new XElement("EchoToExpelledTarget", new XCData(EchoToExpelledTarget)),
 			new XElement("EchoToNonExpelledTarget", new XCData(EchoToNonExpelledTarget)),
 			new XElement("MinimumSuccessThreshold", (int)MinimumSuccessThreshold),
 			new XElement("SkillCheckDifficultyProg", SkillCheckDifficultyProg.Id),
-			new XElement("SkillCheckTrait", SkillCheckTrait.Id)
-		);
-		return definition;
-	}
+                        new XElement("SkillCheckTrait", SkillCheckTrait.Id)
+                );
+                AddBaseDefinition(definition);
+                return definition;
+        }
 
 	private MindExpelPower(IFuturemud gameworld, IMagicSchool school, string name, ITraitDefinition trait) : base(gameworld, school, name)
 	{

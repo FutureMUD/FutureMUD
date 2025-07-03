@@ -43,8 +43,8 @@ public class MindLookPower : MagicPowerBase
 
 	protected override XElement SaveDefinition()
 	{
-		var definition = new XElement("Definition",
-			new XElement("LookRoomVerb", LookRoomVerb),
+                var definition = new XElement("Definition",
+                        new XElement("LookRoomVerb", LookRoomVerb),
 			new XElement("LookThingVerb", LookThingVerb),
 			new XElement("LookInThingVerb", LookInThingVerb),
 			new XElement("EmoteText", new XCData(EmoteText)),
@@ -57,10 +57,11 @@ public class MindLookPower : MagicPowerBase
 			new XElement("MinimumSuccessThresholdLookRoom", (int)MinimumSuccessThresholdLookRoom),
 			new XElement("MinimumSuccessThresholdLookThing", (int)MinimumSuccessThresholdLookThing),
 			new XElement("MinimumSuccessThresholdLookInThing", (int)MinimumSuccessThresholdLookInThing),
-			new XElement("SkillCheckTrait", SkillCheckTrait.Id)
-		);
-		return definition;
-	}
+                        new XElement("SkillCheckTrait", SkillCheckTrait.Id)
+                );
+                AddBaseDefinition(definition);
+                return definition;
+        }
 
 	private MindLookPower(IFuturemud gameworld, IMagicSchool school, string name, ITraitDefinition trait) : base(gameworld, school, name)
 	{

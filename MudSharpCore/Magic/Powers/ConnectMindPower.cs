@@ -47,9 +47,9 @@ public class ConnectMindPower : SustainedMagicPower
 	/// <inheritdoc />
 	protected override XElement SaveDefinition()
 	{
-		var definition = new XElement("Definition",
-			new XElement("ConnectVerb", BeginVerb),
-			new XElement("DisconnectVerb", EndVerb),
+                var definition = new XElement("Definition",
+                        new XElement("ConnectVerb", BeginVerb),
+                        new XElement("DisconnectVerb", EndVerb),
 			new XElement("PowerDistance", (int)PowerDistance),
 			new XElement("SkillCheckDifficulty", (int)SkillCheckDifficulty),
 			new XElement("SkillCheckTrait", SkillCheckTrait.Id),
@@ -69,11 +69,12 @@ public class ConnectMindPower : SustainedMagicPower
 					new XAttribute("outcome", (int)echo.Key),
 					new XAttribute("shouldecho", echo.Value)
 				)
-			)
-		);
-		SaveSustainedDefinition(definition);
-		return definition;
-	}
+                        )
+                );
+                AddBaseDefinition(definition);
+                SaveSustainedDefinition(definition);
+                return definition;
+        }
 
 	protected ConnectMindPower(MagicPower power, IFuturemud gameworld) : base(power, gameworld)
 	{

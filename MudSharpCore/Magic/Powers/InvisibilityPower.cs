@@ -44,9 +44,9 @@ public class InvisibilityPower : SustainedMagicPower
 
 	protected override XElement SaveDefinition()
 	{
-		var definition = new XElement("Definition",
-			new XElement("ConnectVerb", BeginVerb),
-			new XElement("DisconnectVerb", EndVerb),
+                var definition = new XElement("Definition",
+                        new XElement("ConnectVerb", BeginVerb),
+                        new XElement("DisconnectVerb", EndVerb),
 			new XElement("SkillCheckDifficulty", (int)SkillCheckDifficulty),
 			new XElement("SkillCheckTrait", SkillCheckTrait.Id),
 			new XElement("InvisibilityAppliesProg", InvisibilityAppliesProg.Id),
@@ -55,11 +55,12 @@ public class InvisibilityPower : SustainedMagicPower
 			new XElement("EmoteText", new XCData(EmoteText)),
 			new XElement("FailEmoteText", new XCData(FailEmoteText)),
 			new XElement("EndPowerEmoteText", new XCData(EndPowerEmoteText)),
-			new XElement("PerceptionTypes", (long)PerceptionTypes)
-		);
-		SaveSustainedDefinition(definition);
-		return definition;
-	}
+                        new XElement("PerceptionTypes", (long)PerceptionTypes)
+                );
+                AddBaseDefinition(definition);
+                SaveSustainedDefinition(definition);
+                return definition;
+        }
 
 	private InvisibilityPower(Models.MagicPower power, IFuturemud gameworld) : base(power, gameworld)
 	{

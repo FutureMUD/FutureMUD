@@ -16,6 +16,7 @@ using MudSharp.GameItems.Inventory.Plans;
 using MudSharp.PerceptionEngine;
 using MudSharp.PerceptionEngine.Outputs;
 using MudSharp.PerceptionEngine.Parsers;
+using MudSharp.RPG.Law;
 
 namespace MudSharp.Commands.Modules;
 
@@ -1144,10 +1145,15 @@ The syntax is as follows:
 				return;
 			}
 
-			foreach (var item in items)
-			{
-				actor.Body.Drop(item);
-			}
+                        foreach (var item in items)
+                        {
+                                if (CrimeExtensions.HandleCrimesAndLawfulActing(actor, CrimeTypes.Littering, null, item))
+                                {
+                                        return;
+                                }
+
+                                actor.Body.Drop(item);
+                        }
 
 			return;
 		}
@@ -1174,18 +1180,33 @@ The syntax is as follows:
 				var quantity = (int)(targetItem.Weight > 0.0 && targetItem.Quantity > 0
 					? Math.Min(targetItem.Quantity, Math.Ceiling(amount / (targetItem.Weight / targetItem.Quantity)))
 					: targetItem.Quantity);
-				actor.Body.Drop(targetItem, quantity, match.Groups["new"].Length > 0, emote);
-				return;
+                                if (CrimeExtensions.HandleCrimesAndLawfulActing(actor, CrimeTypes.Littering, null, targetItem))
+                                {
+                                        return;
+                                }
+
+                                actor.Body.Drop(targetItem, quantity, match.Groups["new"].Length > 0, emote);
+                                return;
 			}
 
 			if (targetItem.DropsWholeByWeight(amount))
 			{
-				actor.Body.Drop(targetItem, 0, match.Groups["new"].Length > 0, emote);
-				return;
+                                if (CrimeExtensions.HandleCrimesAndLawfulActing(actor, CrimeTypes.Littering, null, targetItem))
+                                {
+                                        return;
+                                }
+
+                                actor.Body.Drop(targetItem, 0, match.Groups["new"].Length > 0, emote);
+                                return;
 			}
 
-			var item = targetItem.DropByWeight(actor.Location, amount);
-			actor.Body.Drop(item, 0, match.Groups["new"].Length > 0, emote);
+                        var item = targetItem.DropByWeight(actor.Location, amount);
+                        if (CrimeExtensions.HandleCrimesAndLawfulActing(actor, CrimeTypes.Littering, null, item))
+                        {
+                                return;
+                        }
+
+                        actor.Body.Drop(item, 0, match.Groups["new"].Length > 0, emote);
 		}
 		else if (match.Success)
 		{
@@ -1202,7 +1223,12 @@ The syntax is as follows:
 				quantity = Convert.ToInt32(match.Groups[2].Value);
 			}
 
-			actor.Body.Drop(targetItem, quantity, match.Groups[1].Length > 0, emote);
+                        if (CrimeExtensions.HandleCrimesAndLawfulActing(actor, CrimeTypes.Littering, null, targetItem))
+                        {
+                                return;
+                        }
+
+                        actor.Body.Drop(targetItem, quantity, match.Groups[1].Length > 0, emote);
 		}
 		else
 		{
@@ -1214,10 +1240,15 @@ The syntax is as follows:
 				return;
 			}
 
-			actor.Body.Drop(actor.Currency, targetCurrency, currencyMatch.Groups["exactly"].Value.Length > 0,
-				currencyMatch.Groups["new"].Value.Length > 0, emote);
-		}
-	}
+                        if (CrimeExtensions.HandleCrimesAndLawfulActing(actor, CrimeTypes.Littering))
+                        {
+                                return;
+                        }
+
+                        actor.Body.Drop(actor.Currency, targetCurrency, currencyMatch.Groups["exactly"].Value.Length > 0,
+                                currencyMatch.Groups["new"].Value.Length > 0, emote);
+                }
+        }
 
 	[PlayerCommand("Give", "give")]
 	[RequiredCharacterState(CharacterState.Conscious)]

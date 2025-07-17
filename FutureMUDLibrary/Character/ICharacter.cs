@@ -303,7 +303,7 @@ namespace MudSharp.Character {
 		IHaveCulture, IHaveRace, IPerceivableHaveCharacteristics, IHaveCurrency, IHaveCommunity, IHaveRoles, IHaveNeeds,
 		IEat, IHaveStamina, IHaveKnowledges, IEquatable<ICharacter>, IPerformSurgery, IBreathe, IHaveContextualSizeCategory, 
 		IHaveAllies, IUseTools, IStyleCharacterCharacteristics, ISleep, IMagicUser, IHaveMagicResource, IHavePositionalSizes, 
-		IHaveOutfits, ISwim, IFly, IClimb, IHavePersonalProjects, ITarget, ICanBeEmployed
+		IHaveOutfits, ISwim, IFly, IClimb, IHavePersonalProjects, ITarget, ICanBeEmployed, IMountable
 	{
 		ICharacterController CharacterController { get; }
 		bool TryToDetermineIdentity(ICharacter observer);
@@ -407,6 +407,9 @@ namespace MudSharp.Character {
 		IEnumerable<INameCulture> NameCultures { get; }
 		INameCulture NameCultureForGender(Gender gender);
 		Difficulty IlluminationSightDifficulty();
+#nullable enable
+		ICharacter? RidingMount { get; set; }
+#nullable restore
 	}
 
 	public interface IHavePersonalProjects

@@ -94,6 +94,14 @@ public partial class Character
 			}
 		}
 
+		if (RidingMount is not null)
+		{
+			otherMovers.Add(RidingMount);
+		}
+
+		otherMovers.AddRange(_riders);
+		otherMovers = otherMovers.Distinct().ToList();
+
 		foreach (var mover in otherMovers)
 		{
 			Movement?.CancelForMoverOnly(mover);
@@ -164,7 +172,7 @@ public partial class Character
 
 	public override (bool Success, IEmoteOutput FailureOutput) CanCross(ICellExit exit)
 	{
-		if (EffectHandler.AffectedBy<IImmwalkEffect>())
+		if (EffectHandler.AffectedBy<IImmwalkEffect>() || RidingMount?.AffectedBy<IImmwalkEffect>() == true)
 		{
 			return (true, null);
 		}
@@ -176,8 +184,25 @@ public partial class Character
 					flags: OutputFlags.SuppressObscured));
 		}
 
-		var guardCharacter = exit.Origin.LayerCharacters(RoomLayer).Except(this).FirstOrDefault(x =>
-			x.EffectsOfType<IGuardExitEffect>().Any(y => !y.PermittedToCross(this, exit)));
+		ICharacter guardCharacter = null;
+		foreach (var ch in exit.Origin.LayerCharacters(RoomLayer))
+		{
+			if (ch == this || ch == RidingMount || _riders.Contains(ch))
+			{
+				continue;
+			}
+
+			if (ch.EffectsOfType<IGuardExitEffect>()
+			      .Any(x => 
+				      !x.PermittedToCross(this, exit) ||
+					  !x.PermittedToCross(RidingMount, exit) ||
+					  _riders.Any(y => !x.PermittedToCross(y, exit))
+					))
+			{
+				guardCharacter = ch;
+				break;
+			}
+		}
 		if (guardCharacter != null)
 		{
 			return (false,
@@ -446,6 +471,11 @@ public partial class Character
 		    Party.CharacterMembers.All(x => x.Combat == null || !x.MeleeRange))
 		{
 			return Party.Move(exit, emote);
+		}
+
+		if (RidingMount is not null)
+		{
+			return RidingMount.Move(exit, null, ignoreSafeMovement);
 		}
 
 		if (CanMove(exit, ignoreSafeMovement: ignoreSafeMovement))

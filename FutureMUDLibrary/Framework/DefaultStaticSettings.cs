@@ -704,6 +704,8 @@ public static class DefaultStaticSettings
 
 	public static readonly IReadOnlyDictionary<string, string> DefaultStaticStrings = new Dictionary<string, string>
 	{
+		{"DefaultCannotMountError", "@ attempt|attempts to mount $1, but #1 $1|reject|rejects %0."},
+		{"DefaultDismountMessage", "@ dismount|dismounts from $1."},
 		{"WhoTextMeetingPlaceOnePerson", "There is {0} person at {1}."},
 		{"WhoTextMeetingPlaceMultiplePersons", "There are {0} people at {1}."},
 		{ "PassiveInterdictionEmote", "$0 move|moves to place &0's body between $1 and any would-be ranged attackers, trying to shield &1 from harm." },

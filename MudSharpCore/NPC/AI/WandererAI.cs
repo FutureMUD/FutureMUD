@@ -32,7 +32,7 @@ public class WandererAI : ArtificialIntelligenceBase
 	protected IFutureProg WillWanderIntoCellProg;
 	protected IFutureProg IsWanderingProg;
 
-	public WandererAI(ArtificialIntelligence ai, IFuturemud gameworld)
+	protected WandererAI(ArtificialIntelligence ai, IFuturemud gameworld)
 		: base(ai, gameworld)
 	{
 		LoadFromXml(XElement.Parse(ai.Definition));

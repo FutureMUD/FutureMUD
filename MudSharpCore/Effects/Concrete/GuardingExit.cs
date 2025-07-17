@@ -126,6 +126,11 @@ public class GuardingExit : Effect, IGuardExitEffect
 
 	public bool PermittedToCross(ICharacter ch, ICellExit exit)
 	{
+		if (ch is null)
+		{
+			return true;
+		}
+
 		if (Exit != exit)
 		{
 			return true;

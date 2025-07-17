@@ -64,5 +64,6 @@ internal class ActorCommandTree : ICharacterCommandTree
 		Commands.AddFrom(WeatherModule.Instance.Commands);
 		Commands.AddFrom(HeritageBuilderModule.Instance.Commands);
 		Commands.AddFrom(SharedModule.Instance.Commands);
+		Commands.AddFrom(RidingModule.Instance.Commands);
 	}
 }

@@ -157,12 +157,19 @@ public partial class Character
 		PositionHasChanged();
 	}
 
-	public void MovePosition(IPositionState whichPosition, PositionModifier whichModifier, IPerceivable target,
-		IEmote playerEmote, IEmote playerPmote, bool ignoreMovementRestrictions = false, bool ignoreMovement = false)
-	{
-		if (!ignoreMovementRestrictions && Combat != null)
-		{
-			if (TakeOrQueueCombatAction(
+        public void MovePosition(IPositionState whichPosition, PositionModifier whichModifier, IPerceivable target,
+                IEmote playerEmote, IEmote playerPmote, bool ignoreMovementRestrictions = false, bool ignoreMovement = false)
+        {
+                if (RidingMount is not null && RidingMount.IsPrimaryRider(this))
+                {
+                        RidingMount.RiderMovePosition(whichPosition, whichModifier, target, this, playerEmote,
+                                playerPmote, ignoreMovementRestrictions, ignoreMovement);
+                        return;
+                }
+
+                if (!ignoreMovementRestrictions && Combat != null)
+                {
+                        if (TakeOrQueueCombatAction(
 				    SelectedCombatAction.GetEffectReposition(
 					    this, whichPosition, whichModifier, target, playerEmote, playerPmote)) &&
 			    Gameworld.GetStaticBool("EchoQueuedActions"))
@@ -214,11 +221,17 @@ public partial class Character
 		PositionHasChanged();
 	}
 
-	public void MovePosition(IPositionState whichPosition, IEmote playerEmote, IEmote playerPmote)
-	{
-		if (!CanMovePosition(whichPosition))
-		{
-			OutputHandler.Send(WhyCannotMovePosition(whichPosition));
+        public void MovePosition(IPositionState whichPosition, IEmote playerEmote, IEmote playerPmote)
+        {
+                if (RidingMount is not null && RidingMount.IsPrimaryRider(this))
+                {
+                        RidingMount.RiderMovePosition(whichPosition, PositionModifier, PositionTarget, this, playerEmote, playerPmote);
+                        return;
+                }
+
+                if (!CanMovePosition(whichPosition))
+                {
+                        OutputHandler.Send(WhyCannotMovePosition(whichPosition));
 			return;
 		}
 

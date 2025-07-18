@@ -6,6 +6,9 @@ using MudSharp.PerceptionEngine;
 using MudSharp.PerceptionEngine.Outputs;
 using MudSharp.PerceptionEngine.Parsers;
 using MudSharp.RPG.Checks;
+using MudSharp.Construction.Boundary;
+using MudSharp.Body.Position;
+using MudSharp.Framework;
 
 namespace MudSharp.Character;
 
@@ -84,8 +87,194 @@ public partial class Character
 		return _riders.FirstOrDefault() == rider;
 	}
 
-	public bool BuckRider()
-	{
-		return false;
-	}
+        public bool BuckRider()
+        {
+                return false;
+        }
+
+        public bool PermitControl(ICharacter rider)
+        {
+                var ai = (this as INPC)?.AIs.OfType<IMountableAI>().FirstOrDefault();
+                return ai?.PermitControl(this, rider) ?? true;
+        }
+
+        public void HandleControlDenied(ICharacter rider)
+        {
+                var ai = (this as INPC)?.AIs.OfType<IMountableAI>().FirstOrDefault();
+                ai?.HandleDeniedControl(this, rider);
+        }
+
+        public bool RiderMove(ICellExit exit, ICharacter rider, IEmote emote = null, bool ignoreSafeMovement = false)
+        {
+                if (!IsPrimaryRider(rider))
+                {
+                        rider.OutputHandler.Send("You are not in control of this mount.");
+                        return false;
+                }
+
+                if (!PermitControl(rider))
+                {
+                        HandleControlDenied(rider);
+                        return false;
+                }
+
+                var result = Move(exit, emote, ignoreSafeMovement);
+                if (!result)
+                {
+                        rider.OutputHandler.Send(WhyCannotMove());
+                }
+
+                return result;
+        }
+
+        public bool RiderFly(ICharacter rider, IEmote emote = null)
+        {
+                if (!IsPrimaryRider(rider))
+                {
+                        rider.OutputHandler.Send("You are not in control of this mount.");
+                        return false;
+                }
+
+                if (!PermitControl(rider))
+                {
+                        HandleControlDenied(rider);
+                        return false;
+                }
+
+                var check = CanFly();
+                if (!check.Truth)
+                {
+                        rider.OutputHandler.Send(check.Error);
+                        return false;
+                }
+
+                Fly(emote);
+                return true;
+        }
+
+        public bool RiderAscend(ICharacter rider, IEmote emote = null)
+        {
+                if (!IsPrimaryRider(rider))
+                {
+                        rider.OutputHandler.Send("You are not in control of this mount.");
+                        return false;
+                }
+
+                if (!PermitControl(rider))
+                {
+                        HandleControlDenied(rider);
+                        return false;
+                }
+
+                var check = ((IFly)this).CanAscend();
+                if (!check.Truth)
+                {
+                        rider.OutputHandler.Send(check.Error);
+                        return false;
+                }
+
+                ((IFly)this).Ascend(emote);
+                return true;
+        }
+
+        public bool RiderDive(ICharacter rider, IEmote emote = null)
+        {
+                if (!IsPrimaryRider(rider))
+                {
+                        rider.OutputHandler.Send("You are not in control of this mount.");
+                        return false;
+                }
+
+                if (!PermitControl(rider))
+                {
+                        HandleControlDenied(rider);
+                        return false;
+                }
+
+                var check = ((IFly)this).CanDive();
+                if (!check.Truth)
+                {
+                        rider.OutputHandler.Send(check.Error);
+                        return false;
+                }
+
+                ((IFly)this).Dive(emote);
+                return true;
+        }
+
+        public bool RiderClimbUp(ICharacter rider, IEmote emote = null)
+        {
+                if (!IsPrimaryRider(rider))
+                {
+                        rider.OutputHandler.Send("You are not in control of this mount.");
+                        return false;
+                }
+
+                if (!PermitControl(rider))
+                {
+                        HandleControlDenied(rider);
+                        return false;
+                }
+
+                var check = CanClimbUp();
+                if (!check.Truth)
+                {
+                        rider.OutputHandler.Send(check.Error);
+                        return false;
+                }
+
+                ClimbUp(emote);
+                return true;
+        }
+
+        public bool RiderClimbDown(ICharacter rider, IEmote emote = null)
+        {
+                if (!IsPrimaryRider(rider))
+                {
+                        rider.OutputHandler.Send("You are not in control of this mount.");
+                        return false;
+                }
+
+                if (!PermitControl(rider))
+                {
+                        HandleControlDenied(rider);
+                        return false;
+                }
+
+                var check = CanClimbDown();
+                if (!check.Truth)
+                {
+                        rider.OutputHandler.Send(check.Error);
+                        return false;
+                }
+
+                ClimbDown(emote);
+                return true;
+        }
+
+        public bool RiderMovePosition(IPositionState whichPosition, PositionModifier whichModifier, IPerceivable target,
+                ICharacter rider, IEmote playerEmote = null, IEmote playerPmote = null,
+                bool ignoreMovementRestrictions = false, bool ignoreMovement = false)
+        {
+                if (!IsPrimaryRider(rider))
+                {
+                        rider.OutputHandler.Send("You are not in control of this mount.");
+                        return false;
+                }
+
+                if (!PermitControl(rider))
+                {
+                        HandleControlDenied(rider);
+                        return false;
+                }
+
+                if (!CanMovePosition(whichPosition, whichModifier, target, ignoreMovementRestrictions, ignoreMovement))
+                {
+                        rider.OutputHandler.Send(WhyCannotMovePosition(whichPosition, whichModifier, target, ignoreMovementRestrictions));
+                        return false;
+                }
+
+                MovePosition(whichPosition, whichModifier, target, playerEmote, playerPmote, ignoreMovementRestrictions, ignoreMovement);
+                return true;
+        }
 }

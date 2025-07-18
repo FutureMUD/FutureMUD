@@ -473,10 +473,10 @@ public partial class Character
 			return Party.Move(exit, emote);
 		}
 
-		if (RidingMount is not null)
-		{
-			return RidingMount.Move(exit, null, ignoreSafeMovement);
-		}
+                if (RidingMount is not null && RidingMount.IsPrimaryRider(this))
+                {
+                        return RidingMount.RiderMove(exit, this, emote, ignoreSafeMovement);
+                }
 
 		if (CanMove(exit, ignoreSafeMovement: ignoreSafeMovement))
 		{
@@ -1513,9 +1513,15 @@ public partial class Character
 		return (false, "You weren't made to fly.");
 	}
 
-	public void Fly(IEmote actionEmote = null)
-	{
-		var (truth, error) = CanFly();
+        public void Fly(IEmote actionEmote = null)
+        {
+                if (RidingMount is not null && RidingMount.IsPrimaryRider(this))
+                {
+                        RidingMount.RiderFly(this, actionEmote);
+                        return;
+                }
+
+                var (truth, error) = CanFly();
 		if (!truth)
 		{
 			OutputHandler.Send(error);
@@ -1547,9 +1553,16 @@ public partial class Character
 		return (true, string.Empty);
 	}
 
-	public void Land(IEmote actionEmote = null)
-	{
-		var (truth, error) = CanLand();
+        public void Land(IEmote actionEmote = null)
+        {
+                if (RidingMount is not null && RidingMount.IsPrimaryRider(this))
+                {
+                        RidingMount.RiderMovePosition(Location.IsSwimmingLayer(RoomLayer) ? PositionSwimming.Instance : PositionStanding.Instance,
+                                PositionModifier.None, null, this, actionEmote, null);
+                        return;
+                }
+
+                var (truth, error) = CanLand();
 		if (!truth)
 		{
 			OutputHandler.Send(error);
@@ -1760,9 +1773,15 @@ public partial class Character
 		return (true, string.Empty);
 	}
 
-	void IFly.Ascend(IEmote actionEmote)
-	{
-		ConvertGrapplesToDrags();
+        void IFly.Ascend(IEmote actionEmote)
+        {
+                if (RidingMount is not null && RidingMount.IsPrimaryRider(this))
+                {
+                        RidingMount.RiderAscend(this, actionEmote);
+                        return;
+                }
+
+                ConvertGrapplesToDrags();
 		var (can, error) = ((IFly)this).CanAscend();
 		if (!can)
 		{
@@ -1816,9 +1835,15 @@ public partial class Character
 		Body.Look(true);
 	}
 
-	void IFly.Dive(IEmote actionEmote)
-	{
-		ConvertGrapplesToDrags();
+        void IFly.Dive(IEmote actionEmote)
+        {
+                if (RidingMount is not null && RidingMount.IsPrimaryRider(this))
+                {
+                        RidingMount.RiderDive(this, actionEmote);
+                        return;
+                }
+
+                ConvertGrapplesToDrags();
 		var (can, error) = ((IFly)this).CanDive();
 		if (!can)
 		{
@@ -2177,9 +2202,15 @@ public partial class Character
 		return (true, string.Empty);
 	}
 
-	void ISwim.Ascend(IEmote actionEmote)
-	{
-		ConvertGrapplesToDrags();
+        void ISwim.Ascend(IEmote actionEmote)
+        {
+                if (RidingMount is not null && RidingMount.IsPrimaryRider(this))
+                {
+                        RidingMount.RiderAscend(this, actionEmote);
+                        return;
+                }
+
+                ConvertGrapplesToDrags();
 		var (can, error) = ((ISwim)this).CanAscend();
 		if (!can)
 		{
@@ -2232,9 +2263,15 @@ public partial class Character
 		Body.Look(true);
 	}
 
-	void ISwim.Dive(IEmote actionEmote)
-	{
-		ConvertGrapplesToDrags();
+        void ISwim.Dive(IEmote actionEmote)
+        {
+                if (RidingMount is not null && RidingMount.IsPrimaryRider(this))
+                {
+                        RidingMount.RiderDive(this, actionEmote);
+                        return;
+                }
+
+                ConvertGrapplesToDrags();
 		var (truth, error) = ((ISwim)this).CanDive();
 		if (!truth)
 		{
@@ -2444,9 +2481,15 @@ public partial class Character
 		return (true, string.Empty);
 	}
 
-	public void ClimbUp(IEmote actionEmote = null)
-	{
-		ConvertGrapplesToDrags();
+        public void ClimbUp(IEmote actionEmote = null)
+        {
+                if (RidingMount is not null && RidingMount.IsPrimaryRider(this))
+                {
+                        RidingMount.RiderClimbUp(this, actionEmote);
+                        return;
+                }
+
+                ConvertGrapplesToDrags();
 		var (truth, error) = CanClimbUp();
 		if (!truth)
 		{
@@ -2508,9 +2551,15 @@ public partial class Character
 		Body.Look(true);
 	}
 
-	public void ClimbDown(IEmote actionEmote = null)
-	{
-		ConvertGrapplesToDrags();
+        public void ClimbDown(IEmote actionEmote = null)
+        {
+                if (RidingMount is not null && RidingMount.IsPrimaryRider(this))
+                {
+                        RidingMount.RiderClimbDown(this, actionEmote);
+                        return;
+                }
+
+                ConvertGrapplesToDrags();
 		var (truth, error) = CanClimbDown();
 		if (!truth)
 		{

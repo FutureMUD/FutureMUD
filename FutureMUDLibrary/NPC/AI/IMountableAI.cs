@@ -15,9 +15,11 @@ public interface IMountableAI : IArtificialIntelligence
 	int MaximumNumberOfRiders { get; }
 	int RiderSlots { get; }
 	int RiderSlotsOccupiedBy(ICharacter rider);
-	Difficulty ControlDifficulty(ICharacter mount, ICharacter rider);
-	Difficulty ResistBuckDifficulty(ICharacter mount, ICharacter rider);
-	string MountEmote(ICharacter mount, ICharacter rider);
-	string DismountEmote(ICharacter mount, ICharacter rider);
-	string BuckEmote(ICharacter mount, ICharacter rider);
+        Difficulty ControlDifficulty(ICharacter mount, ICharacter rider);
+        Difficulty ResistBuckDifficulty(ICharacter mount, ICharacter rider);
+        string MountEmote(ICharacter mount, ICharacter rider);
+        string DismountEmote(ICharacter mount, ICharacter rider);
+        string BuckEmote(ICharacter mount, ICharacter rider);
+        bool PermitControl(ICharacter mount, ICharacter rider);
+        void HandleDeniedControl(ICharacter mount, ICharacter rider);
 }

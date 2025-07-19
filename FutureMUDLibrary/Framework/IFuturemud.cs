@@ -447,8 +447,9 @@ namespace MudSharp.Framework
 		void Add(IWearProfile profile);
 		void Add(ILimb limb);
 		void Add(IWeaponType type);
-		void Add(IRangedWeaponType type);
-		void Add(IAmmunitionType type);
+                void Add(IRangedWeaponType type);
+                void Add(IRangedCover cover);
+                void Add(IAmmunitionType type);
 		void Add(IWearableSize size);
 		void Add(ICharacterCombatSettings setting);
 		void Add(IProgSchedule schedule);
@@ -572,8 +573,9 @@ namespace MudSharp.Framework
 		void Destroy(IWearProfile profile);
 		void Destroy(IWeaponType type);
 		void Destroy(ILimb limb);
-		void Destroy(IRangedWeaponType type);
-		void Destroy(IAmmunitionType type);
+                void Destroy(IRangedWeaponType type);
+                void Destroy(IRangedCover cover);
+                void Destroy(IAmmunitionType type);
 		void Destroy(IWearableSize size);
 		void Destroy(ICharacterCombatSettings setting);
 		void Destroy(IProgSchedule schedule);

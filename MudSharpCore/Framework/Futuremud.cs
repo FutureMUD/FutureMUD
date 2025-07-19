@@ -1085,15 +1085,20 @@ public sealed partial class Futuremud : IFuturemud, IDisposable
 		_weaponTypes.Add(type);
 	}
 
-	public void Add(IRangedWeaponType type)
-	{
-		_rangedWeaponTypes.Add(type);
-	}
+        public void Add(IRangedWeaponType type)
+        {
+                _rangedWeaponTypes.Add(type);
+        }
 
-	public void Add(IAmmunitionType type)
-	{
-		_ammunitionTypes.Add(type);
-	}
+        public void Add(IRangedCover cover)
+        {
+                _rangedCovers.Add(cover);
+        }
+
+        public void Add(IAmmunitionType type)
+        {
+                _ammunitionTypes.Add(type);
+        }
 
 	public void Add(IWearableSize size)
 	{
@@ -1860,15 +1865,20 @@ public sealed partial class Futuremud : IFuturemud, IDisposable
 		_limbs.Remove(limb);
 	}
 
-	public void Destroy(IRangedWeaponType type)
-	{
-		_rangedWeaponTypes.Remove(type);
-	}
+        public void Destroy(IRangedWeaponType type)
+        {
+                _rangedWeaponTypes.Remove(type);
+        }
 
-	public void Destroy(IAmmunitionType type)
-	{
-		_ammunitionTypes.Remove(type);
-	}
+        public void Destroy(IRangedCover cover)
+        {
+                _rangedCovers.Remove(cover);
+        }
+
+        public void Destroy(IAmmunitionType type)
+        {
+                _ammunitionTypes.Remove(type);
+        }
 
 	public void Destroy(IWearableSize size)
 	{

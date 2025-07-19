@@ -1,6 +1,7 @@
 ﻿using MudSharp.Body.Position;
 using MudSharp.Character;
 using MudSharp.Framework;
+using MudSharp.Framework.Revision;
 using MudSharp.PerceptionEngine;
 using MudSharp.RPG.Checks;
 
@@ -20,7 +21,7 @@ namespace MudSharp.Combat
         Total
     }
 
-    public interface IRangedCover : IKeywordedItem
+    public interface IRangedCover : IKeywordedItem, IEditableItem
     {
         CoverType CoverType { get; }
         CoverExtent CoverExtent { get; }

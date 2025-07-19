@@ -1575,10 +1575,10 @@ For information on the syntax to use in emotes (such as those included in bracke
 		sw.Start();
 #endif
 		var covers = FMDB.Context.RangedCovers.AsNoTracking().ToList();
-		foreach (var cover in covers)
-		{
-			_rangedCovers.Add(new RangedCover(cover));
-		}
+                foreach (var cover in covers)
+                {
+                        _rangedCovers.Add(new RangedCover(this, cover));
+                }
 #if DEBUG
 		sw.Stop();
 		ConsoleUtilities.WriteLine($"Duration: #2{sw.ElapsedMilliseconds}ms#0");

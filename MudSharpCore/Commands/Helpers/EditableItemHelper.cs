@@ -845,8 +845,8 @@ public partial class EditableItemHelper
 		DefaultCommandHelp = CombatBuilderModule.WeaponTypeHelp
 	};
 
-	public static EditableItemHelper AmmunitionTypeHelper { get; } = new()
-	{
+        public static EditableItemHelper AmmunitionTypeHelper { get; } = new()
+        {
 		ItemName = "Ammunition Type",
 		ItemNamePlural = "Ammunition Types",
 		SetEditableItemAction = (actor, item) =>
@@ -1016,8 +1016,111 @@ public partial class EditableItemHelper
 
 		CustomSearch = (protos, keyword, gameworld) => protos,
 		GetEditHeader = item => $"Ammunition Type #{item.Id:N0} ({item.Name})",
-		DefaultCommandHelp = CombatBuilderModule.AmmunitionHelp
-	};
+                DefaultCommandHelp = CombatBuilderModule.AmmunitionHelp
+        };
+
+        public static EditableItemHelper RangedCoverHelper { get; } = new()
+        {
+                ItemName = "Ranged Cover",
+                ItemNamePlural = "Ranged Covers",
+                SetEditableItemAction = (actor, item) =>
+                {
+                        actor.RemoveAllEffects<BuilderEditingEffect<IRangedCover>>();
+                        if (item == null)
+                        {
+                                return;
+                        }
+
+                        actor.AddEffect(new BuilderEditingEffect<IRangedCover>(actor) { EditingItem = (IRangedCover)item });
+                },
+                GetEditableItemFunc = actor =>
+                        actor.CombinedEffectsOfType<BuilderEditingEffect<IRangedCover>>().FirstOrDefault()?.EditingItem,
+                GetAllEditableItems = actor => actor.Gameworld.RangedCovers.ToList(),
+                GetEditableItemByIdFunc = (actor, id) => actor.Gameworld.RangedCovers.Get(id),
+                GetEditableItemByIdOrNameFunc = (actor, input) => actor.Gameworld.RangedCovers.GetByIdOrName(input),
+                AddItemToGameWorldAction = item => item.Gameworld.Add((IRangedCover)item),
+                CastToType = typeof(IRangedCover),
+                EditableNewAction = (actor, input) =>
+                {
+                        if (input.IsFinished)
+                        {
+                                actor.OutputHandler.Send("You must specify a name for your ranged cover.");
+                                return;
+                        }
+
+                        var name = input.PopSpeech().TitleCase();
+                        if (actor.Gameworld.RangedCovers.Any(x => x.Name.EqualTo(name)))
+                        {
+                                actor.OutputHandler.Send($"There is already a ranged cover called {name.ColourName()}. Names must be unique.");
+                                return;
+                        }
+
+                        var cover = new RangedCover(actor.Gameworld, name);
+                        actor.Gameworld.Add(cover);
+                        actor.RemoveAllEffects<BuilderEditingEffect<IRangedCover>>();
+                        actor.AddEffect(new BuilderEditingEffect<IRangedCover>(actor) { EditingItem = cover });
+                        actor.OutputHandler.Send($"You create a new ranged cover called {name.ColourName()}, which you are now editing.");
+                },
+                EditableCloneAction = (actor, input) =>
+                {
+                        if (input.IsFinished)
+                        {
+                                actor.OutputHandler.Send("Which cover do you want to clone?");
+                                return;
+                        }
+
+                        var template = actor.Gameworld.RangedCovers.GetByIdOrName(input.PopSpeech());
+                        if (template is null)
+                        {
+                                actor.OutputHandler.Send("There is no such ranged cover.");
+                                return;
+                        }
+
+                        if (input.IsFinished)
+                        {
+                                actor.OutputHandler.Send("What name will the new cover have?");
+                                return;
+                        }
+
+                        var name = input.SafeRemainingArgument.TitleCase();
+                        if (actor.Gameworld.RangedCovers.Any(x => x.Name.EqualTo(name)))
+                        {
+                                actor.OutputHandler.Send($"There is already a ranged cover called {name.ColourName()}. Names must be unique.");
+                                return;
+                        }
+
+                        var cover = new RangedCover((RangedCover)template, name);
+                        actor.Gameworld.Add(cover);
+                        actor.RemoveAllEffects<BuilderEditingEffect<IRangedCover>>();
+                        actor.AddEffect(new BuilderEditingEffect<IRangedCover>(actor) { EditingItem = cover });
+                        actor.OutputHandler.Send($"You clone a new ranged cover called {name.ColourName()} from {template.Name.ColourName()}, which you are now editing.");
+                },
+
+                GetListTableHeaderFunc = character => new List<string>
+                {
+                        "Id",
+                        "Name",
+                        "Type",
+                        "Extent",
+                        "Max#",
+                        "Message"
+                },
+
+                GetListTableContentsFunc = (character, protos) => from proto in protos.OfType<IRangedCover>()
+                        select new List<string>
+                        {
+                                proto.Id.ToString("N0", character),
+                                proto.Name,
+                                proto.CoverType.Describe(),
+                                proto.CoverExtent.Describe(),
+                                proto.MaximumSimultaneousCovers.ToString("N0", character),
+                                proto.DescriptionString
+                        },
+
+                CustomSearch = (protos, keyword, gameworld) => protos,
+                GetEditHeader = item => $"Ranged Cover #{item.Id:N0} ({item.Name})",
+                DefaultCommandHelp = CombatBuilderModule.RangedCoverHelp
+        };
 
 	public static EditableItemHelper ArmourTypeHelper { get; } = new()
 	{

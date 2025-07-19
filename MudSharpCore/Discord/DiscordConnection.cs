@@ -13,6 +13,8 @@ using MudSharp.CharacterCreation;
 using MudSharp.Database;
 using MudSharp.Effects.Interfaces;
 using MudSharp.Effects.Concrete;
+using MudSharp.Construction;
+using MudSharp.Construction.Boundary;
 using MudSharp.Framework;
 using System.IO;
 using MudSharp.Commands.Modules;
@@ -20,6 +22,7 @@ using MudSharp.Network;
 using MudSharp.FutureProg;
 using System.Numerics;
 using MudSharp.FutureProg.Functions;
+using MudSharp.NPC;
 using MimeKit;
 using Humanizer;
 
@@ -324,15 +327,19 @@ public sealed class DiscordConnection : IDiscordConnection
 				Console.WriteLine("Discord asked for WHO.");
 				HandleWhoTcpCommand(ss);
 				return;
-			case "where":
-				Console.WriteLine("Discord asked for WHERE.");
-				HandleWhereTcpCommand(ss);
-				return;
-			case "stats":
-				Console.WriteLine("Discord asked for STATS.");
-				HandleStatsTcpCommand(ss);
-				return;
-			case "showchargen":
+                        case "where":
+                                Console.WriteLine("Discord asked for WHERE.");
+                                HandleWhereTcpCommand(ss);
+                                return;
+                        case "map":
+                                Console.WriteLine("Discord asked for MAP.");
+                                HandleMapTcpCommand(ss);
+                                return;
+                        case "stats":
+                                Console.WriteLine("Discord asked for STATS.");
+                                HandleStatsTcpCommand(ss);
+                                return;
+                        case "showchargen":
 				HandleShowChargenTcpCommand(ss);
 				return;
 			case "approvechargen":
@@ -351,13 +358,19 @@ public sealed class DiscordConnection : IDiscordConnection
 				HandleSendChannelTcpCommand(ss);
 				return;
 			case "register":
-				HandleRegisterTcpCommand(ss);
-				return;
-			case "shutdown":
-				HandleShutdownTcpCommand(ss);
-				return;
-		}
-	}
+                                HandleRegisterTcpCommand(ss);
+                                return;
+                        case "showaccount":
+                                HandleShowAccountTcpCommand(ss);
+                                return;
+                        case "showcharacter":
+                                HandleShowCharacterTcpCommand(ss);
+                                return;
+                        case "shutdown":
+                                HandleShutdownTcpCommand(ss);
+                                return;
+                }
+        }
 
 	private void HandleSendChannelTcpCommand(StringStack ss)
 	{
@@ -557,8 +570,8 @@ public sealed class DiscordConnection : IDiscordConnection
 			$"request {request} chargeninfo {id} {chargen.DisplayForReviewForDiscord(account, account.Authority.Level).RawText()}");
 	}
 
-	private void HandleRegisterTcpCommand(StringStack ss)
-	{
+        private void HandleRegisterTcpCommand(StringStack ss)
+        {
 		var request = ulong.Parse(ss.Pop());
 		var discorduserid = ulong.Parse(ss.Pop());
 		var discordusername = ss.PopSpeech();
@@ -574,9 +587,9 @@ public sealed class DiscordConnection : IDiscordConnection
 		character.OutputHandler.Send(
 			$"You have received a request to link your MUD account to discord user {discordusername.Colour(Telnet.Cyan)}.\n{Accept.StandardAcceptPhrasing}");
 		var account = character.Account;
-		character.AddEffect(new Accept(character, new GenericProposal
-		{
-			AcceptAction = text =>
+                character.AddEffect(new Accept(character, new GenericProposal
+                {
+                        AcceptAction = text =>
 			{
 				character.OutputHandler.Send(
 					$"You accept the proposal to link your MUD account to discord user {discordusername.Colour(Telnet.Cyan)}");
@@ -602,8 +615,219 @@ public sealed class DiscordConnection : IDiscordConnection
 				SendClientMessage($"request {request} timeout");
 			},
 			DescriptionString = "Linking your account to a discord user"
-		}), TimeSpan.FromSeconds(120));
-	}
+                }), TimeSpan.FromSeconds(120));
+        }
+
+        private void HandleShowAccountTcpCommand(StringStack ss)
+        {
+                var request = ulong.Parse(ss.Pop());
+                var requesterId = long.Parse(ss.Pop(), CultureInfo.InvariantCulture.NumberFormat);
+                var which = ss.Pop();
+
+                IAccount viewer;
+                MudSharp.Models.Account dbitem;
+                IAccount account;
+                using (new FMDB())
+                {
+                        viewer = Gameworld.TryAccount(FMDB.Context.Accounts.Find(requesterId));
+                        dbitem = long.TryParse(which, out var value)
+                                ? FMDB.Context.Accounts.FirstOrDefault(x => x.Id == value)
+                                : FMDB.Context.Accounts.FirstOrDefault(x => x.Name == which);
+                        if (dbitem == null)
+                        {
+                                SendClientMessage($"request {request} nosuchaccount {which}");
+                                return;
+                        }
+                        account = Gameworld.TryAccount(dbitem);
+                }
+
+                var text = ShowModule.BuildAccountInfo(viewer ?? account, dbitem, account).RawText();
+                SendClientMessage($"request {request} accountinfo {text}");
+        }
+
+        private void HandleShowCharacterTcpCommand(StringStack ss)
+        {
+                var request = ulong.Parse(ss.Pop());
+                ss.Pop(); // requester id, currently unused
+                var which = long.Parse(ss.Pop(), CultureInfo.InvariantCulture.NumberFormat);
+
+                var character = Gameworld.TryGetCharacter(which, true);
+                if (character == null)
+                {
+                        SendClientMessage($"request {request} nosuchcharacter {which}");
+                        return;
+                }
+
+                var text = character.ShowStat(new DummyPerceiver()).RawText();
+                SendClientMessage($"request {request} characterinfo {text}");
+        }
+
+        private void HandleMapTcpCommand(StringStack ss)
+        {
+                var request = ulong.Parse(ss.Pop());
+                var accountId = long.Parse(ss.Pop(), CultureInfo.InvariantCulture.NumberFormat);
+                var cellId = long.Parse(ss.Pop(), CultureInfo.InvariantCulture.NumberFormat);
+
+                IAccount account;
+                using (new FMDB())
+                {
+                        account = Gameworld.TryAccount(FMDB.Context.Accounts.Find(accountId));
+                }
+
+                if (account == null || account.Authority.Level < PermissionLevel.JuniorAdmin)
+                {
+                        SendClientMessage($"request {request} notauthorised");
+                        return;
+                }
+
+                var cell = Gameworld.Cells.Get(cellId);
+                if (cell == null)
+                {
+                        SendClientMessage($"request {request} nosuchcell {cellId}");
+                        return;
+                }
+
+                var mapText = GenerateMap(cell, account).RawText();
+                SendClientMessage($"request {request} map {mapText}");
+        }
+
+        private string GenerateMap(ICell startCell, IAccount account)
+        {
+                var width = (account.LineFormatLength - 11) / 10;
+                if (width % 2 == 0)
+                {
+                        width -= 1;
+                }
+
+                var centre = width / 2;
+
+                var cells = new ICell[width, width];
+                var hasNonCompass = new bool[width, width];
+                var hasCartesianClashes = new bool[width, width];
+                var hasBank = new bool[width, width];
+                var hasShop = new bool[width, width];
+                var hasAuctionHouse = new bool[width, width];
+                var hasPlayers = new bool[width, width];
+                var hasHostiles = new bool[width, width];
+
+                cells[centre, centre] = startCell;
+                var exits = startCell.ExitsFor(null, true).ToList();
+                var queue = new Queue<(ICellExit, int, int)>();
+
+                foreach (var exit in exits)
+                {
+                        queue.Enqueue((exit, centre, centre));
+                }
+
+                void AddExitCell(ICellExit exitToAdd, int originX, int originY)
+                {
+                        switch (exitToAdd.OutboundDirection)
+                        {
+                                case CardinalDirection.North:
+                                        originY -= 1;
+                                        break;
+                                case CardinalDirection.NorthEast:
+                                        originY -= 1;
+                                        originX += 1;
+                                        break;
+                                case CardinalDirection.East:
+                                        originX += 1;
+                                        break;
+                                case CardinalDirection.SouthEast:
+                                        originX += 1;
+                                        originY += 1;
+                                        break;
+                                case CardinalDirection.South:
+                                        originY += 1;
+                                        break;
+                                case CardinalDirection.SouthWest:
+                                        originX -= 1;
+                                        originY += 1;
+                                        break;
+                                case CardinalDirection.West:
+                                        originX -= 1;
+                                        break;
+                                case CardinalDirection.NorthWest:
+                                        originX -= 1;
+                                        originY -= 1;
+                                        break;
+                                case CardinalDirection.Up:
+                                case CardinalDirection.Down:
+                                case CardinalDirection.Unknown:
+                                        hasNonCompass[originX, originY] = true;
+                                        break;
+                        }
+
+                        if (originX < 0 || originX >= width || originY < 0 || originY >= width)
+                        {
+                                return;
+                        }
+
+                        if (cells[originX, originY] is not null)
+                        {
+                                if (cells[originX, originY] != exitToAdd.Destination)
+                                {
+                                        hasCartesianClashes[originX, originY] = true;
+                                }
+
+                                return;
+                        }
+
+                        var destinationCell = exitToAdd.Destination;
+                        cells[originX, originY] = destinationCell;
+                        foreach (var newExit in destinationCell.ExitsFor(null, true).Except(exitToAdd))
+                        {
+                                switch (newExit.OutboundDirection)
+                                {
+                                        case CardinalDirection.Up:
+                                        case CardinalDirection.Down:
+                                        case CardinalDirection.Unknown:
+                                                hasNonCompass[originX, originY] = true;
+                                                break;
+                                }
+
+                                queue.Enqueue((newExit, originX, originY));
+                        }
+
+                        if (destinationCell.Shop is not null)
+                        {
+                                hasShop[originX, originY] = true;
+                        }
+
+                        if (startCell.Gameworld.Banks.Any(x => x.BranchLocations.Contains(destinationCell)))
+                        {
+                                hasBank[originX, originY] = true;
+                        }
+
+                        if (startCell.Gameworld.AuctionHouses.Any(x => x.AuctionHouseCell == destinationCell))
+                        {
+                                hasAuctionHouse[originX, originY] = true;
+                        }
+
+                        if (destinationCell.Characters.Any(x => x.IsPlayerCharacter))
+                        {
+                                hasPlayers[originX, originY] = true;
+                        }
+
+                        if (destinationCell.Characters.Any(x =>
+                                    x is INPC npc && !npc.AffectedBy<IPauseAIEffect>() && npc.AIs.Any(y => y.CountsAsAggressive)))
+                        {
+                                hasHostiles[originX, originY] = true;
+                        }
+                }
+
+                while (queue.Count > 0)
+                {
+                        var (exit, x, y) = queue.Dequeue();
+                        AddExitCell(exit, x, y);
+                }
+
+                hasPlayers[centre, centre] = true;
+
+                var viewer = new DummyPerceiver(location: startCell) { Account = account };
+                return StringUtilities.DrawMap(viewer, width, width, cells, hasNonCompass, hasCartesianClashes, hasBank, hasShop,
+                        hasAuctionHouse, hasPlayers, hasHostiles);
+        }
 
 	private void HandleSendTcpCommand(StringStack ss)
 	{

@@ -73,6 +73,9 @@ The following commands require you to be registered and authorised before using 
     **approvechargen <id> <message>** - approves a character application
     **rejectchargen <id> <message>** - rejects a character application
     **where** - shows the WHERE output from the MUD
+    **map <cell>** - shows the MAP output for a specific cell
+    **showaccount <name|id>** - shows an account's details
+    **showcharacter <id>** - shows a character's details
     **send <account> <message>** - sends a message to an account in-game, equivalent to SEND command
     **broadcast <message>** - broadcasts a system message (same as using BROADCAST in game)
     **shutdown** - shuts down the MUD

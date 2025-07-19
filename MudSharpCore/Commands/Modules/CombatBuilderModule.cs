@@ -1305,9 +1305,42 @@ Additionally, absorb formulas can use the following parameter:
 	[PlayerCommand("Armour", "armour", "armor")]
 	[CommandPermission(PermissionLevel.Admin)]
 	[HelpInfo("Armour", ArmourTypeHelp, AutoHelp.HelpArgOrNoArg)]
-	protected static void Armour(ICharacter actor, string command)
-	{
-		GenericBuildingCommand(actor, new StringStack(command.RemoveFirstWord()), EditableItemHelper.ArmourTypeHelper);
-	}
-	#endregion	
+        protected static void Armour(ICharacter actor, string command)
+        {
+                GenericBuildingCommand(actor, new StringStack(command.RemoveFirstWord()), EditableItemHelper.ArmourTypeHelper);
+        }
+        #endregion
+
+        #region Ranged Cover
+
+        public const string RangedCoverHelp = @"The #3cover#0 command is used to create and edit ranged cover types.
+
+You can use the following syntax with this command:
+
+        #3cover list#0 - lists all covers
+        #3cover edit <id|name>#0 - begins editing a cover
+        #3cover edit new <name>#0 - creates a new cover
+        #3cover close#0 - stops editing a cover
+        #3cover clone <id|name> <name>#0 - clones an existing cover
+        #3cover show <id|name>#0 - shows a cover
+        #3cover set name <name>#0 - renames the cover
+        #3cover set type <type>#0 - sets the cover type (hard or soft)
+        #3cover set extent <extent>#0 - sets the cover extent
+        #3cover set position <position>#0 - sets the highest position state
+        #3cover set desc <emote>#0 - sets the description emote ($0 is the cover item)
+        #3cover set action <emote>#0 - sets the action emote ($0 is the character, $1 is the cover item)
+        #3cover set max <##>#0 - sets the maximum simultaneous covers
+        #3cover set moving#0 - toggles the moving flag
+
+For information on emote syntax see #3help emote#0.";
+
+        [PlayerCommand("Cover", "cover")]
+        [CommandPermission(PermissionLevel.Admin)]
+        [HelpInfo("Cover", RangedCoverHelp, AutoHelp.HelpArgOrNoArg)]
+        protected static void Cover(ICharacter actor, string command)
+        {
+                GenericBuildingCommand(actor, new StringStack(command.RemoveFirstWord()), EditableItemHelper.RangedCoverHelper);
+        }
+
+        #endregion
 }

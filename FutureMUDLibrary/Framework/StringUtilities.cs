@@ -402,7 +402,7 @@ namespace MudSharp.Framework
 			return text;
 		}
 
-		public static string DrawMap(ICharacter actor, int maxX, int maxY, ICell[,] cells, bool[,] hasNonCompass, bool[,] hasCartesianClashes, bool[,] hasBank, bool[,] hasShop, bool[,] hasAuctionHouse, bool[,] hasPlayers, bool[,] hasHostiles)
+                public static string DrawMap(IPerceiver actor, int maxX, int maxY, ICell[,] cells, bool[,] hasNonCompass, bool[,] hasCartesianClashes, bool[,] hasBank, bool[,] hasShop, bool[,] hasAuctionHouse, bool[,] hasPlayers, bool[,] hasHostiles)
 		{
 			var sb = new StringBuilder();
 			sb.AppendLine($"Map of the surrounds of {actor.Location.GetFriendlyReference(actor)}");

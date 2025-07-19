@@ -2795,129 +2795,134 @@ public class ShowModule : Module<ICharacter>
 		actor.OutputHandler.Send(culture.Show(actor));
 	}
 
-	private static void Show_Account(ICharacter actor, StringStack input)
-	{
-		if (!actor.IsAdministrator())
-		{
-			actor.Send("You are not authorised to use show in this way.");
-			return;
-		}
+        private static void Show_Account(ICharacter actor, StringStack input)
+        {
+                if (!actor.IsAdministrator())
+                {
+                        actor.Send("You are not authorised to use show in this way.");
+                        return;
+                }
 
-		using (new FMDB())
-		{
-			var dbaccount = long.TryParse(input.Pop(), out var value)
-				? FMDB.Context.Accounts.FirstOrDefault(x => x.Id == value)
-				: FMDB.Context.Accounts.FirstOrDefault(x => x.Name == input.Last);
-			if (dbaccount == null)
-			{
-				actor.Send("There is no account with that name or id number.");
-				return;
-			}
+                using (new FMDB())
+                {
+                        var dbaccount = long.TryParse(input.Pop(), out var value)
+                                ? FMDB.Context.Accounts.FirstOrDefault(x => x.Id == value)
+                                : FMDB.Context.Accounts.FirstOrDefault(x => x.Name == input.Last);
+                        if (dbaccount == null)
+                        {
+                                actor.Send("There is no account with that name or id number.");
+                                return;
+                        }
 
-			var account = actor.Gameworld.TryAccount(dbaccount);
-			var sb = new StringBuilder();
-			sb.AppendLineFormat(actor, "Account {0} (#{1:N0})".Colour(Telnet.Cyan), account.Name.Proper(),
-				account.Id);
-			sb.AppendLine();
-			sb.AppendLineFormat("Email: {0}", account.EmailAddress.Colour(Telnet.Green));
-			sb.AppendLineFormat("Last IP Address: {0}", account.LastIP.Colour(Telnet.Green));
-			sb.Append(new[]
-			{
-				string.Format(actor, "Created: {0}",
-					account.CreationDate.GetLocalDateString(actor).Colour(Telnet.Green)),
-				string.Format(actor, "Last Login: {0}",
-					account.LastLoginTime.GetLocalDateString(actor).Colour(Telnet.Green))
-			}.ArrangeStringsOntoLines(2, (uint)actor.Account.LineFormatLength));
-			sb.Append(new[]
-			{
-				string.Format(actor, "Registered: {0}", (account.IsRegistered ? "Yes" : "No").Colour(Telnet.Green)),
-				string.Format(actor, "Authority: {0}", account.Authority.Name.TitleCase().Colour(Telnet.Green))
-			}.ArrangeStringsOntoLines(2, (uint)actor.Account.LineFormatLength));
-			sb.Append(new[]
-			{
-				string.Format(actor, "Characters Allowed: {0}",
-					account.ActiveCharactersAllowed.ToString("N0", actor).Colour(Telnet.Green)),
-				string.Format(actor, "Unicode: {0}",
-					(account.UseUnicode ? "Enabled" : "Disabled").Colour(Telnet.Green))
-			}.ArrangeStringsOntoLines(2, (uint)actor.Account.LineFormatLength));
-			sb.AppendLineFormat(actor, "Culture: {0}", account.Culture.NativeName.Colour(Telnet.Green));
-			sb.AppendLineFormat(actor, "Timezone: {0}", account.TimeZone.DisplayName.Colour(Telnet.Green));
-			sb.AppendLineFormat(actor, "Unit Preference: {0}", account.UnitPreference.Colour(Telnet.Green));
-			var totalminutes = dbaccount.Characters.Sum(x => x.TotalMinutesPlayed);
-			sb.AppendLineFormat(actor, "Total Time Played: {0}",
-				TimeSpan.FromMinutes(totalminutes).Describe().Colour(Telnet.Green));
-			if (account.AccountResources.Any(x => x.Value > 0))
-			{
-				sb.AppendLine();
-				sb.AppendLine("Resources:");
-				sb.AppendLine();
-				foreach (var item in account.AccountResources.Where(x => x.Value > 0))
-				{
-					sb.AppendLineFormat(actor, "\t{0} {1} - Last Awarded {2}",
-						item.Value.ToString("N0", actor).Colour(Telnet.Green),
-						(item.Value == 1 ? item.Key.Name.TitleCase() : item.Key.PluralName.TitleCase()).Colour(
-							Telnet.Green),
-						account.AccountResourcesLastAwarded[item.Key].Value.GetLocalDateString(actor)
-						       .Colour(Telnet.Green)
-					);
-				}
-			}
+                        var account = actor.Gameworld.TryAccount(dbaccount);
+                        actor.Send(BuildAccountInfo(actor.Account, dbaccount, account));
+                }
+        }
 
-			var characters = FMDB.Context.Characters.Where(x => x.AccountId == dbaccount.Id).ToList();
-			var chargens = FMDB.Context.Chargens.Where(x => x.AccountId == dbaccount.Id).ToList();
-			if (characters.Any() || chargens.Any())
-			{
-				sb.AppendLine();
-				sb.AppendLine("Characters:");
-				sb.AppendLine();
-				foreach (var item in characters.Where(x => x.Status == 2))
-				{
-					sb.AppendLineFormat("\t#{3:N0} - {0} - {1} played - {2}",
-						new PersonalName(XElement.Parse(item.NameInfo).Element("PersonalName").Element("Name"),
-							actor.Gameworld).GetName(NameStyle.FullWithNickname),
-						TimeSpan.FromMinutes(item.TotalMinutesPlayed).Describe().Colour(Telnet.Green),
-						"Active".Colour(Telnet.Green),
-						item.Id
-					);
-				}
+        internal static string BuildAccountInfo(IAccount viewer, MudSharp.Models.Account dbaccount, IAccount account)
+        {
+                var sb = new StringBuilder();
+                sb.AppendLineFormat(viewer, "Account {0} (#{1:N0})".Colour(Telnet.Cyan), account.Name.Proper(),
+                        account.Id);
+                sb.AppendLine();
+                sb.AppendLineFormat("Email: {0}", account.EmailAddress.Colour(Telnet.Green));
+                sb.AppendLineFormat("Last IP Address: {0}", account.LastIP.Colour(Telnet.Green));
+                sb.Append(new[]
+                {
+                        string.Format(viewer, "Created: {0}",
+                                account.CreationDate.GetLocalDateString(viewer).Colour(Telnet.Green)),
+                        string.Format(viewer, "Last Login: {0}",
+                                account.LastLoginTime.GetLocalDateString(viewer).Colour(Telnet.Green))
+                }.ArrangeStringsOntoLines(2, (uint)viewer.LineFormatLength));
+                sb.Append(new[]
+                {
+                        string.Format(viewer, "Registered: {0}", (account.IsRegistered ? "Yes" : "No").Colour(Telnet.Green)),
+                        string.Format(viewer, "Authority: {0}", account.Authority.Name.TitleCase().Colour(Telnet.Green))
+                }.ArrangeStringsOntoLines(2, (uint)viewer.LineFormatLength));
+                sb.Append(new[]
+                {
+                        string.Format(viewer, "Characters Allowed: {0}",
+                                account.ActiveCharactersAllowed.ToString("N0", viewer).Colour(Telnet.Green)),
+                        string.Format(viewer, "Unicode: {0}",
+                                (account.UseUnicode ? "Enabled" : "Disabled").Colour(Telnet.Green))
+                }.ArrangeStringsOntoLines(2, (uint)viewer.LineFormatLength));
+                sb.AppendLineFormat(viewer, "Culture: {0}", account.Culture.NativeName.Colour(Telnet.Green));
+                sb.AppendLineFormat(viewer, "Timezone: {0}", account.TimeZone.DisplayName.Colour(Telnet.Green));
+                sb.AppendLineFormat(viewer, "Unit Preference: {0}", account.UnitPreference.Colour(Telnet.Green));
+                var totalminutes = dbaccount.Characters.Sum(x => x.TotalMinutesPlayed);
+                sb.AppendLineFormat(viewer, "Total Time Played: {0}",
+                        TimeSpan.FromMinutes(totalminutes).Describe().Colour(Telnet.Green));
+                if (account.AccountResources.Any(x => x.Value > 0))
+                {
+                        sb.AppendLine();
+                        sb.AppendLine("Resources:");
+                        sb.AppendLine();
+                        foreach (var item in account.AccountResources.Where(x => x.Value > 0))
+                        {
+                                sb.AppendLineFormat(viewer, "\t{0} {1} - Last Awarded {2}",
+                                        item.Value.ToString("N0", viewer).Colour(Telnet.Green),
+                                        (item.Value == 1 ? item.Key.Name.TitleCase() : item.Key.PluralName.TitleCase()).Colour(
+                                                Telnet.Green),
+                                        account.AccountResourcesLastAwarded[item.Key].Value.GetLocalDateString(viewer)
+                                               .Colour(Telnet.Green)
+                                );
+                        }
+                }
 
-				foreach (var item in chargens.Where(x => x.Status < 2))
-				{
-					var definition = XElement.Parse(item.Definition);
-					var gender = (Gender)short.Parse(definition.Element("SelectedGender").Value);
-					var nameElement = definition.Element("SelectedName");
-					if (nameElement == null || nameElement.Value == "-1" ||
-					    nameElement.Element("NotSet") != null)
-					{
-						sb.AppendLine(
-							$"\tUnnamed - {(item.Status == 0 ? "In Creation" : "Awaiting Approval").Colour(Telnet.Magenta)}");
-					}
-					else
-					{
-						var nameCulture =
-							actor.Gameworld.Ethnicities.Get(long.Parse(definition.Element("SelectedEthnicity")?.Value ?? "0"))?.NameCultureForGender(gender) ??
-							actor.Gameworld.Cultures.Get(long.Parse(definition.Element("SelectedCulture").Value)).NameCultureForGender(gender);
-						var name = new PersonalName(nameCulture, nameElement.Element("Name"));
-						sb.AppendLine(
-							$"\t{name.GetName(NameStyle.FullWithNickname)} - {(item.Status == 0 ? "In Creation" : "Awaiting Approval").Colour(Telnet.Magenta)}");
-					}
-				}
+                var characters = FMDB.Context.Characters.Where(x => x.AccountId == dbaccount.Id).ToList();
+                var chargens = FMDB.Context.Chargens.Where(x => x.AccountId == dbaccount.Id).ToList();
+                if (characters.Any() || chargens.Any())
+                {
+                        sb.AppendLine();
+                        sb.AppendLine("Characters:");
+                        sb.AppendLine();
+                        foreach (var item in characters.Where(x => x.Status == 2))
+                        {
+                                sb.AppendLineFormat("\t#{3:N0} - {0} - {1} played - {2}",
+                                        new PersonalName(XElement.Parse(item.NameInfo).Element("PersonalName").Element("Name"),
+                                                account.Gameworld).GetName(NameStyle.FullWithNickname),
+                                        TimeSpan.FromMinutes(item.TotalMinutesPlayed).Describe().Colour(Telnet.Green),
+                                        "Active".Colour(Telnet.Green),
+                                        item.Id
+                                );
+                        }
 
-				foreach (var item in characters.Where(x => x.Status != 2))
-				{
-					sb.AppendLineFormat("\t#{3:N0} - {0} - {1} played - {2}",
-						new PersonalName(XElement.Parse(item.NameInfo).Element("PersonalName").Element("Name"),
-							actor.Gameworld).GetName(NameStyle.FullWithNickname),
-						TimeSpan.FromMinutes(item.TotalMinutesPlayed).Describe().Colour(Telnet.Green),
-						MUDConstants.CharacterStatusStrings[item.Status].Colour(Telnet.Red),
-						item.Id
-					);
-				}
-			}
+                        foreach (var item in chargens.Where(x => x.Status < 2))
+                        {
+                                var definition = XElement.Parse(item.Definition);
+                                var gender = (Gender)short.Parse(definition.Element("SelectedGender").Value);
+                                var nameElement = definition.Element("SelectedName");
+                                if (nameElement == null || nameElement.Value == "-1" ||
+                                    nameElement.Element("NotSet") != null)
+                                {
+                                        sb.AppendLine(
+                                                $"\tUnnamed - {(item.Status == 0 ? "In Creation" : "Awaiting Approval").Colour(Telnet.Magenta)}");
+                                }
+                                else
+                                {
+                                        var nameCulture =
+                                                account.Gameworld.Ethnicities.Get(long.Parse(definition.Element("SelectedEthnicity")?.Value ?? "0"))?.NameCultureForGender(gender) ??
+                                                account.Gameworld.Cultures.Get(long.Parse(definition.Element("SelectedCulture").Value)).NameCultureForGender(gender);
+                                        var name = new PersonalName(nameCulture, nameElement.Element("Name"));
+                                        sb.AppendLine(
+                                                $"\t{name.GetName(NameStyle.FullWithNickname)} - {(item.Status == 0 ? "In Creation" : "Awaiting Approval").Colour(Telnet.Magenta)}");
+                                }
+                        }
 
-			actor.Send(sb.ToString());
-		}
-	}
+                        foreach (var item in characters.Where(x => x.Status != 2))
+                        {
+                                sb.AppendLineFormat("\t#{3:N0} - {0} - {1} played - {2}",
+                                        new PersonalName(XElement.Parse(item.NameInfo).Element("PersonalName").Element("Name"),
+                                                account.Gameworld).GetName(NameStyle.FullWithNickname),
+                                        TimeSpan.FromMinutes(item.TotalMinutesPlayed).Describe().Colour(Telnet.Green),
+                                        MUDConstants.CharacterStatusStrings[item.Status].Colour(Telnet.Red),
+                                        item.Id
+                                );
+                        }
+                }
+
+                return sb.ToString();
+        }
 
 	private static void Show_Materials(ICharacter actor, StringStack input)
 	{

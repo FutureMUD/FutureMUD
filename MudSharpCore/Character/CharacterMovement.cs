@@ -1205,12 +1205,17 @@ public partial class Character
 	}
 
 
-	public override bool ShouldFall()
-	{
-		if (EffectHandler.AffectedBy<IImmwalkEffect>())
-		{
-			return false;
-		}
+        public override bool ShouldFall()
+        {
+                if (RidingMount != null)
+                {
+                        return false;
+                }
+
+                if (EffectHandler.AffectedBy<IImmwalkEffect>())
+                {
+                        return false;
+                }
 
 		if (!RoomLayer.IsHigherThan(RoomLayer.GroundLevel))
 		{
@@ -1260,8 +1265,16 @@ public partial class Character
 			}
 		}
 
-		Moved(movement);
-		movement?.Exit?.Destination?.Enter(this, movement.Exit, roomLayer: targetLayer);
+                Moved(movement);
+                movement?.Exit?.Destination?.Enter(this, movement.Exit, roomLayer: targetLayer);
+
+                foreach (var rider in Riders)
+                {
+                        movement?.Exit?.Origin?.Leave(rider);
+                        rider.RoomLayer = targetLayer;
+                        movement?.Exit?.Destination?.Enter(rider, movement.Exit, roomLayer: targetLayer);
+                        rider.Moved(movement);
+                }
 		switch (transition)
 		{
 			case CellMovementTransition.TreesToTrees:
@@ -1818,12 +1831,19 @@ public partial class Character
 					? "AscendFlyEmoteTargetLocationLeaveTrees"
 					: "AscendFlyEmoteTargetLocation"), this, this);
 		OutputHandler.Handle(new EmoteOutput(emote, flags: OutputFlags.SuppressObscured));
-		RoomLayer = desired;
-		if (EffectsOfType<Dragging>().FirstOrDefault()?.Target is IPerceiver dragTarget)
-		{
-			dragTarget.RoomLayer = RoomLayer;
-			(dragTarget as ICharacter)?.Body.Look(true);
-		}
+                RoomLayer = desired;
+               if (EffectsOfType<Dragging>().FirstOrDefault()?.Target is IPerceiver dragTarget)
+               {
+                       dragTarget.RoomLayer = RoomLayer;
+                       (dragTarget as ICharacter)?.Body.Look(true);
+               }
+
+
+               foreach (var rider in Riders)
+               {
+                       rider.RoomLayer = RoomLayer;
+                       rider.Body.Look(true);
+               }
 
 		OutputHandler.Handle(new EmoteOutput(targetEmote,
 			flags: OutputFlags.SuppressObscured | OutputFlags.SuppressSource));

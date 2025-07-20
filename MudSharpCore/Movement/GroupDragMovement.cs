@@ -64,11 +64,22 @@ public class GroupDragMovement : MovementBase
 			}
 		}
 
-		foreach (var mover in _characterMovers)
-		{
-			mover.Movement?.CancelForMoverOnly(mover);
-			mover.Movement = this;
-		}
+               foreach (var mover in _characterMovers.ToList())
+               {
+                        mover.Movement?.CancelForMoverOnly(mover);
+                        mover.Movement = this;
+
+                        if (mover.RidingMount != null && mover.RidingMount.Movement == null)
+                        {
+                                _characterMovers.Add(mover.RidingMount);
+                                mover.RidingMount.Movement = this;
+                        }
+
+                        foreach (var rider in mover.Riders)
+                        {
+                                rider.Movement = this;
+                        }
+                }
 
 		Exit.Origin.RegisterMovement(this);
 	}
@@ -593,13 +604,25 @@ public class GroupDragMovement : MovementBase
 
 	public override bool CancelForMoverOnly(IMove mover)
 	{
-		if (mover == Party.Leader || Draggers.Contains(mover) || !(mover is ICharacter ch))
-		{
-			return Cancel();
-		}
+               if (mover == Party.Leader || Draggers.Contains(mover) || mover is not ICharacter ch)
+               {
+                        return Cancel();
+               }
 
-		RemoveMover(ch);
-		ch.Movement = null;
-		return true;
-	}
+               if (ch.RidingMount != null && _characterMovers.Contains(ch.RidingMount))
+               {
+                        return false;
+               }
+
+               RemoveMover(ch);
+               ch.Movement = null;
+               foreach (var rider in ch.Riders)
+               {
+                        if (rider.Movement == this)
+                        {
+                                rider.Movement = null;
+                        }
+               }
+               return true;
+        }
 }

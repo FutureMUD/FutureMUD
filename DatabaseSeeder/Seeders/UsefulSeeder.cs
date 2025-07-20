@@ -8745,6 +8745,7 @@ SetRegister @ch ""NicotineUntil"" (@NicotineUntil + 5m)",
 						("Thick Smoke", 0, 2, 1, "obscured by $?0|$0|thick smoke|$", "$0 move|moves into $?1|$1|thick smoke|$", 0, true),
 						("Dense Fog", 0, 2, 1, "obscured by $?0|$0|dense fog|$", "$0 move|moves into $?1|$1|dense fog|$", 0, true),
 						("Tall Reeds", 0, 1, 6, "hiding in $?0|$0|tall reeds|$", "$0 slip|slips into $?1|$1|tall reeds|$", 2, true),
+						("Thick Seaweed", 0, 1, 6, "hiding in $?0|$0|thick seaweed|$", "$0 slip|slips into $?1|$1|thick seaweed|$", 2, true),
 						("Dense Vegetation", 0, 2, 3, "hiding in $?0|$0|dense vegetation|$", "$0 move|moves into $?1|$1|dense vegetation|$", 2, true),
 						("Boulder Cluster", 1, 2, 3, "hiding behind $?0|$0|a cluster of boulders|$", "$0 move|moves behind $?1|$1|a cluster of boulders|$", 2, false),
 						("Abandoned Cart", 1, 1, 1, "hiding behind $?0|$0|an abandoned cart|$", "$0 duck|ducks behind $?1|$1|an abandoned cart|$", 1, false),
@@ -8779,11 +8780,8 @@ SetRegister @ch ""NicotineUntil"" (@NicotineUntil + 5m)",
 				{
 						["Urban"] = new[]
 						{
-								"Corridor Doorway", "Upright Table", "Overturned Table", "Window Frame",
-								"Counter", "Desk", "Staircase", "Corner", "Street Corner", "Alley Trash Bin",
-								"Park Bench", "Street Lamp", "Vehicle", "Broken Vehicle", "Abandoned Cart",
-								"Collapsed Building", "Rubble Wall", "Pile of Crates", "Barrel Stack", "Pile of Junk",
-								"Pile of Bones", "Dead Body", "Fallen Statue", "Sandbag"
+								"Corridor Doorway", "Window Frame",
+								"Corner", "Street Corner", "Alley Trash Bin"
 						},
 						["Rural"] = new[]
 						{
@@ -8796,12 +8794,12 @@ SetRegister @ch ""NicotineUntil"" (@NicotineUntil + 5m)",
 								"Large Rock", "Boulder Cluster", "Rock Outcropping", "Sand Dune", "Snow Drift",
 								"Low Hedge", "Thick Hedge", "Tall Grass", "Shrubs", "Fallen Pillar"
 						},
-						["Aquatic"] = new[] { "Tall Reeds", "Dense Vegetation" },
+						["Aquatic"] = new[] { "Thick Seaweed"},
 						["Littoral"] = new[] { "Sand Dune", "Tall Reeds" },
 						["Riparian"] = new[] { "Tall Reeds", "Dense Vegetation" }
 				};
 
-				var defaultCovers = new[] { "Smoke", "Thick Smoke", "Dense Fog" };
+				var defaultCovers = new[] { };
 
 				foreach (var terrain in context.Terrains.ToList())
 				{

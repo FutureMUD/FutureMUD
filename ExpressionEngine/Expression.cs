@@ -8,7 +8,7 @@ using NCalc.Handlers;
 
 namespace ExpressionEngine
 {
-        public class Expression : IExpression
+		public class Expression : IExpression
 	{
 		public static event EventHandler<string> ExpressionError;
 		public static Random RandomInstance { get; } = new();
@@ -231,7 +231,7 @@ namespace ExpressionEngine
 
 			if (
 				arg1 is string arg1s && arg2 is string arg2s && 
-			    !int.TryParse(arg1s, out _) && !int.TryParse(arg2s, out _) &&
+				!int.TryParse(arg1s, out _) && !int.TryParse(arg2s, out _) &&
 				double.TryParse(arg1s, out var arg1d2) && double.TryParse(arg2s, out var arg2d2)
 			)
 			{

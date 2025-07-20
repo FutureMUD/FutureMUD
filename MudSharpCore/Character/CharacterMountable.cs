@@ -8,6 +8,7 @@ using MudSharp.PerceptionEngine.Parsers;
 using MudSharp.RPG.Checks;
 using MudSharp.Construction.Boundary;
 using MudSharp.Body.Position;
+using MudSharp.Character.Heritage;
 using MudSharp.Framework;
 
 namespace MudSharp.Character;
@@ -28,16 +29,89 @@ public partial class Character
 #nullable restore
 	public bool CanEverBeMounted(ICharacter rider)
 	{
+		var ai = (this as INPC)?.AIs.OfType<IMountableAI>().FirstOrDefault();
+		if (ai is null)
+		{
+			return false;
+		}
+
+		if (ai.PermitRider(this, rider))
+		{
+			return true;
+		}
+
 		return false;
 	}
 
 	public bool CanBeMountedBy(ICharacter rider)
 	{
-		return false;
+		var ai = (this as INPC)?.AIs.OfType<IMountableAI>().FirstOrDefault();
+		if (ai is null)
+		{
+			return false;
+		}
+
+		if (!ai.PermitRider(this, rider))
+		{
+			return false;
+		}
+
+		if (_riders.Contains(rider))
+		{
+			return false;
+		}
+
+		if (rider.CurrentContextualSize(SizeContext.RidingMount) > CurrentContextualSize(SizeContext.BeingRiddenAsMount))
+		{
+			return false;
+		}
+
+		if (_riders.Count >= ai.MaximumNumberOfRiders)
+		{
+			return false;
+		}
+
+		if (_riders.Sum(x => ai.RiderSlotsOccupiedBy(x)) + ai.RiderSlotsOccupiedBy(rider) > ai.RiderSlots)
+		{
+			return false;
+		}
+
+		return true;
 	}
 
 	public string WhyCannotBeMountedBy(ICharacter rider)
 	{
+		var ai = (this as INPC)?.AIs.OfType<IMountableAI>().FirstOrDefault();
+		if (ai is null)
+		{
+			return $"{HowSeen(rider, true)} is not something that can be mounted.";
+		}
+
+		if (!ai.PermitRider(this, rider))
+		{
+			return ai.WhyCannotPermitRider(this, rider);
+		}
+
+		if (_riders.Contains(rider))
+		{
+			return $"You are already riding {HowSeen(rider)}.";
+		}
+
+		if (rider.CurrentContextualSize(SizeContext.RidingMount) > CurrentContextualSize(SizeContext.BeingRiddenAsMount))
+		{
+			return $"You are too big to ride {HowSeen(rider)}.";
+		}
+
+		if (_riders.Count >= ai.MaximumNumberOfRiders)
+		{
+			return $"{HowSeen(rider, true)} already has the maximum number of riders.";
+		}
+
+		if (_riders.Sum(x => ai.RiderSlotsOccupiedBy(x)) + ai.RiderSlotsOccupiedBy(rider) > ai.RiderSlots)
+		{
+			return $"{HowSeen(rider, true)} does not have enough rider room to permit you as a rider.";
+		}
+
 		return $"{HowSeen(rider, true)} is not something that can be mounted.";
 	}
 
@@ -49,7 +123,7 @@ public partial class Character
 	{
 		if (!CanBeMountedBy(rider))
 		{
-			rider.OutputHandler.Send(new EmoteOutput(new Emote(WhyCannotBeMountedBy(rider), rider, rider, this)));
+			rider.OutputHandler.Send(new EmoteOutput(new Emote(WhyCannotBeMountedBy(rider), this, this, rider)));
 			return false;
 		}
 
@@ -62,13 +136,20 @@ public partial class Character
 
 		_riders.Add(rider);
 		rider.RidingMount = this;
-		rider.OutputHandler.Handle(new EmoteOutput(new Emote(Gameworld.GetStaticString("DefaultCannotMountError"), rider, rider, this)));
+		rider.OutputHandler.Handle(new EmoteOutput(new Emote(ai.MountEmote(this, rider), this, this, rider)));
 		return false;
 	}
 
 	public void Dismount(ICharacter rider)
 	{
-		rider.OutputHandler.Handle(new EmoteOutput(new Emote(Gameworld.GetStaticString("DefaultDismountMessage"), rider, rider, this)));
+		var ai = (this as INPC)?.AIs.OfType<IMountableAI>().FirstOrDefault();
+		if (ai is null)
+		{
+			rider.OutputHandler.Handle(new EmoteOutput(new Emote("$1 $1|dismount|dismounts $0.", this, this, rider)));
+			return;
+		}
+
+		rider.OutputHandler.Handle(new EmoteOutput(new Emote(ai.DismountEmote(this, rider), this, this, rider)));
 		_riders.Remove(rider);
 	}
 
@@ -79,7 +160,13 @@ public partial class Character
 
 	public Difficulty ControlMountDifficulty(ICharacter rider)
 	{
-		return Difficulty.Impossible;
+		var ai = (this as INPC)?.AIs.OfType<IMountableAI>().FirstOrDefault();
+		if (ai is null)
+		{
+			return Difficulty.Impossible;
+		}
+
+		return ai.ControlDifficulty(this, rider);
 	}
 
 	public bool IsPrimaryRider(ICharacter rider)

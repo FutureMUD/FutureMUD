@@ -232,7 +232,9 @@ namespace MudSharp.Character.Heritage {
 		Scan,
 		GrappleAttack,
 		GrappleDefense,
-		RainfallExposure
+		RainfallExposure,
+		RidingMount,
+		BeingRiddenAsMount
 	}
 
 	public enum AgeCategory

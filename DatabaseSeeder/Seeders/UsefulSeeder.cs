@@ -8799,8 +8799,6 @@ SetRegister @ch ""NicotineUntil"" (@NicotineUntil + 5m)",
 						["Riparian"] = new[] { "Tall Reeds", "Dense Vegetation" }
 				};
 
-				var defaultCovers = new[] { };
-
 				foreach (var terrain in context.Terrains.ToList())
 				{
 						var tagNames = terrain.TagInformation?.Split(',', StringSplitOptions.RemoveEmptyEntries)
@@ -8824,14 +8822,6 @@ SetRegister @ch ""NicotineUntil"" (@NicotineUntil + 5m)",
 										{
 												coverIds.Add(cover.Id);
 										}
-								}
-						}
-
-						foreach (var name in defaultCovers)
-						{
-								if (coversByName.TryGetValue(name, out var cover))
-								{
-										coverIds.Add(cover.Id);
 								}
 						}
 

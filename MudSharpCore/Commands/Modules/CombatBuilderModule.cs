@@ -277,35 +277,35 @@ You can use the following arguments to refine the list command:
 		var missingMessages = new List<(BuiltInCombatMoveType, Outcome)>();
 		var outcomeValues =
 			Enum.GetValues(typeof(Outcome))
-			    .Cast<Outcome>()
-			    .Where(x => x != Outcome.None && x != Outcome.NotTested)
-			    .ToList();
+				.Cast<Outcome>()
+				.Where(x => x != Outcome.None && x != Outcome.NotTested)
+				.ToList();
 		var typeValues = Enum.GetValues(typeof(BuiltInCombatMoveType)).Cast<BuiltInCombatMoveType>().ToList();
 		// Make sure there is a universal fallback message for every attack type
 		foreach (var typeValue in typeValues)
 		{
 			if (gameworld.CombatMessageManager.CombatMessages.Any(x =>
-				    x.Type == typeValue && (!x.Outcome.HasValue || x.Outcome == Outcome.None) &&
-				    x.WeaponAttackProg?.ExecuteBool(null, null, null, 0, "") != false))
+					x.Type == typeValue && (!x.Outcome.HasValue || x.Outcome == Outcome.None) &&
+					x.WeaponAttackProg?.ExecuteBool(null, null, null, 0, "") != false))
 			{
 				continue;
 			}
 
 			if (gameworld.WeaponAttacks.Any(x => x.MoveType == typeValue) && gameworld.WeaponAttacks.Where(x => x.MoveType == typeValue).All(x =>
-				    outcomeValues.All(y => gameworld.CombatMessageManager.GetCombatMessageFor(null, null, null, x, typeValue, y, null) != null)))
+					outcomeValues.All(y => gameworld.CombatMessageManager.GetCombatMessageFor(null, null, null, x, typeValue, y, null) != null)))
 			{
 				continue;
 			}
 
 			missingMessages.AddRange(from outcomeValue in outcomeValues
-			                         where
-				                         !gameworld.CombatMessageManager.CombatMessages.Any(
-					                         x =>
-						                         x.Type == typeValue &&
-						                         (!x.Outcome.HasValue || x.Outcome == outcomeValue ||
-						                          x.Outcome == Outcome.None) &&
-						                         x.WeaponAttackProg?.ExecuteBool(null, null, null, 0, "") != false)
-			                         select (typeValue, outcomeValue));
+									 where
+										 !gameworld.CombatMessageManager.CombatMessages.Any(
+											 x =>
+												 x.Type == typeValue &&
+												 (!x.Outcome.HasValue || x.Outcome == outcomeValue ||
+												  x.Outcome == Outcome.None) &&
+												 x.WeaponAttackProg?.ExecuteBool(null, null, null, 0, "") != false)
+									 select (typeValue, outcomeValue));
 			errors = true;
 		}
 
@@ -405,8 +405,8 @@ You can use the following arguments to refine the list command:
 			}
 
 			var weaponType = actor.Gameworld.WeaponTypes.FirstOrDefault(x => x.Name.EqualTo(arg)) ??
-			                 actor.Gameworld.WeaponTypes.FirstOrDefault(x =>
-				                 x.Name.StartsWith(arg, StringComparison.InvariantCultureIgnoreCase));
+							 actor.Gameworld.WeaponTypes.FirstOrDefault(x =>
+								 x.Name.StartsWith(arg, StringComparison.InvariantCultureIgnoreCase));
 			if (weaponType == null)
 			{
 				actor.OutputHandler.Send("There is no such weapon type.");
@@ -423,7 +423,7 @@ You can use the following arguments to refine the list command:
 				attack.Id.ToString("N0", actor),
 				attack.Name,
 				actor.Gameworld.WeaponTypes.FirstOrDefault(x => x.Attacks.Contains(attack))
-				     ?.Name ?? "None",
+					 ?.Name ?? "None",
 				attack.MoveType.Describe(),
 				attack.SpecialListText
 			},
@@ -531,7 +531,7 @@ You can use the following arguments to refine the list command:
 		}
 
 		if (!CombatExtensions.TryParseBuiltInMoveType(ss.PopSpeech(), out var value) ||
-		    !value.IsWeaponAttackType())
+			!value.IsWeaponAttackType())
 		{
 			actor.OutputHandler.Send(
 				$"That is not a valid attack type. Valid types are {Enum.GetValues(typeof(BuiltInCombatMoveType)).OfType<BuiltInCombatMoveType>().Where(x => x.IsWeaponAttackType()).Select(x => x.Describe().Colour(Telnet.Green)).ListToString()}.");
@@ -646,7 +646,7 @@ You can use the following arguments to refine the list command:
 		}
 
 		foreach (var similar in race.NaturalWeaponAttacks
-		                            .Where(x => x.IsSimilarTo(attack, targetbodypart)).ToList())
+									.Where(x => x.IsSimilarTo(attack, targetbodypart)).ToList())
 		{
 			race.RemoveNaturalAttack(similar);
 		}
@@ -1305,42 +1305,42 @@ Additionally, absorb formulas can use the following parameter:
 	[PlayerCommand("Armour", "armour", "armor")]
 	[CommandPermission(PermissionLevel.Admin)]
 	[HelpInfo("Armour", ArmourTypeHelp, AutoHelp.HelpArgOrNoArg)]
-        protected static void Armour(ICharacter actor, string command)
-        {
-                GenericBuildingCommand(actor, new StringStack(command.RemoveFirstWord()), EditableItemHelper.ArmourTypeHelper);
-        }
-        #endregion
+		protected static void Armour(ICharacter actor, string command)
+		{
+				GenericBuildingCommand(actor, new StringStack(command.RemoveFirstWord()), EditableItemHelper.ArmourTypeHelper);
+		}
+		#endregion
 
-        #region Ranged Cover
+		#region Ranged Cover
 
-        public const string RangedCoverHelp = @"The #3cover#0 command is used to create and edit ranged cover types.
+		public const string RangedCoverHelp = @"The #3rcover#0 command is used to create and edit ranged cover types.
 
 You can use the following syntax with this command:
 
-        #3cover list#0 - lists all covers
-        #3cover edit <id|name>#0 - begins editing a cover
-        #3cover edit new <name>#0 - creates a new cover
-        #3cover close#0 - stops editing a cover
-        #3cover clone <id|name> <name>#0 - clones an existing cover
-        #3cover show <id|name>#0 - shows a cover
-        #3cover set name <name>#0 - renames the cover
-        #3cover set type <type>#0 - sets the cover type (hard or soft)
-        #3cover set extent <extent>#0 - sets the cover extent
-        #3cover set position <position>#0 - sets the highest position state
-        #3cover set desc <emote>#0 - sets the description emote ($0 is the cover item)
-        #3cover set action <emote>#0 - sets the action emote ($0 is the character, $1 is the cover item)
-        #3cover set max <##>#0 - sets the maximum simultaneous covers
-        #3cover set moving#0 - toggles the moving flag
+		#3rcover list#0 - lists all covers
+		#3rcover edit <id|name>#0 - begins editing a cover
+		#3rcover edit new <name>#0 - creates a new cover
+		#3rcover close#0 - stops editing a cover
+		#3rcover clone <id|name> <name>#0 - clones an existing cover
+		#3rcover show <id|name>#0 - shows a cover
+		#3rcover set name <name>#0 - renames the cover
+		#3rcover set type <type>#0 - sets the cover type (hard or soft)
+		#3rcover set extent <extent>#0 - sets the cover extent
+		#3rcover set position <position>#0 - sets the highest position state
+		#3rcover set desc <emote>#0 - sets the description emote ($0 is the cover item)
+		#3rcover set action <emote>#0 - sets the action emote ($0 is the character, $1 is the cover item)
+		#3rcover set max <##>#0 - sets the maximum simultaneous covers
+		#3rcover set moving#0 - toggles the moving flag
 
 For information on emote syntax see #3help emote#0.";
 
-        [PlayerCommand("Cover", "cover")]
-        [CommandPermission(PermissionLevel.Admin)]
-        [HelpInfo("Cover", RangedCoverHelp, AutoHelp.HelpArgOrNoArg)]
-        protected static void Cover(ICharacter actor, string command)
-        {
-                GenericBuildingCommand(actor, new StringStack(command.RemoveFirstWord()), EditableItemHelper.RangedCoverHelper);
-        }
+		[PlayerCommand("RangedCover", "rangedcover", "rcover")]
+		[CommandPermission(PermissionLevel.Admin)]
+		[HelpInfo("RangedCover", RangedCoverHelp, AutoHelp.HelpArgOrNoArg)]
+		protected static void RangedCover(ICharacter actor, string command)
+		{
+				GenericBuildingCommand(actor, new StringStack(command.RemoveFirstWord()), EditableItemHelper.RangedCoverHelper);
+		}
 
-        #endregion
+		#endregion
 }

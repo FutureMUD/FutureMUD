@@ -134,14 +134,14 @@ public partial class Character
 			Location.Extract(item);
 		}
 		RoomLayer = layer;
-		
+
 		foreach (var mover in otherMovers)
 		{
 			mover.SetPosition(mover.PositionState, PositionModifier.None, null, null);
 			mover.Location.Leave(mover);
 			mover.RoomLayer = layer;
 		}
-		
+
 		target.Enter(this);
 		foreach (var mover in otherMovers)
 		{
@@ -159,7 +159,7 @@ public partial class Character
 			OutputHandler.Handle(new EmoteOutput(new Emote(playerEchoArrive, this), flags: OutputFlags.SuppressObscured | OutputFlags.SuppressSource));
 			foreach (var mover in otherMovers)
 			{
-				mover.OutputHandler.Handle(new EmoteOutput(new Emote(followerEchoArrive , mover), flags: OutputFlags.SuppressObscured | OutputFlags.SuppressSource));
+				mover.OutputHandler.Handle(new EmoteOutput(new Emote(followerEchoArrive, mover), flags: OutputFlags.SuppressObscured | OutputFlags.SuppressSource));
 			}
 		}
 
@@ -193,8 +193,8 @@ public partial class Character
 			}
 
 			if (ch.EffectsOfType<IGuardExitEffect>()
-			      .Any(x => 
-				      !x.PermittedToCross(this, exit) ||
+				  .Any(x =>
+					  !x.PermittedToCross(this, exit) ||
 					  !x.PermittedToCross(RidingMount, exit) ||
 					  _riders.Any(y => !x.PermittedToCross(y, exit))
 					))
@@ -234,21 +234,21 @@ public partial class Character
 		}
 
 		if ((CanMovePosition(PositionStanding.Instance, ignoreCouldMove) ||
-		     PositionState == PositionStanding.Instance) &&
-		    (ignoreCouldMove || CouldMove(true, PositionStanding.Instance).Success))
+			 PositionState == PositionStanding.Instance) &&
+			(ignoreCouldMove || CouldMove(true, PositionStanding.Instance).Success))
 		{
 			return PositionStanding.Instance;
 		}
 
 		if ((CanMovePosition(PositionProstrate.Instance, ignoreCouldMove) ||
-		     PositionState == PositionProstrate.Instance) &&
-		    (ignoreCouldMove || CouldMove(true, PositionProstrate.Instance).Success))
+			 PositionState == PositionProstrate.Instance) &&
+			(ignoreCouldMove || CouldMove(true, PositionProstrate.Instance).Success))
 		{
 			return PositionProstrate.Instance;
 		}
 
 		if ((CanMovePosition(PositionProne.Instance, ignoreCouldMove) || PositionState == PositionProne.Instance) &&
-		    (ignoreCouldMove || CouldMove(true, PositionProne.Instance).Success))
+			(ignoreCouldMove || CouldMove(true, PositionProne.Instance).Success))
 		{
 			return PositionProne.Instance;
 		}
@@ -468,15 +468,15 @@ public partial class Character
 		ConvertGrapplesToDrags();
 
 		if (Party != null && Party.Leader == this &&
-		    Party.CharacterMembers.All(x => x.Combat == null || !x.MeleeRange))
+			Party.CharacterMembers.All(x => x.Combat == null || !x.MeleeRange))
 		{
 			return Party.Move(exit, emote);
 		}
 
-                if (RidingMount is not null && RidingMount.IsPrimaryRider(this))
-                {
-                        return RidingMount.RiderMove(exit, this, emote, ignoreSafeMovement);
-                }
+		if (RidingMount is not null && RidingMount.IsPrimaryRider(this))
+		{
+			return RidingMount.RiderMove(exit, this, emote, ignoreSafeMovement);
+		}
 
 		if (CanMove(exit, ignoreSafeMovement: ignoreSafeMovement))
 		{
@@ -502,7 +502,7 @@ public partial class Character
 			}
 
 			if (CurrentSpeed == null)
-				// The only way this can happen is if they are IMMWALKing, so this is fine
+			// The only way this can happen is if they are IMMWALKing, so this is fine
 			{
 				PositionState = PositionStanding.Instance;
 			}
@@ -513,7 +513,7 @@ public partial class Character
 				var drag = EffectHandler.EffectsOfType<Dragging>().First();
 				timespan = TimeSpan.FromMilliseconds(timespan.TotalMilliseconds * 2);
 				if (PositionState == PositionSwimming.Instance || (exit.Destination.IsSwimmingLayer(RoomLayer) &&
-				                                                   PositionState != PositionFlying.Instance))
+																   PositionState != PositionFlying.Instance))
 				{
 					movement = new SwimmingDragMovement(this, drag.Helpers, drag.Target, drag, exit, timespan);
 				}
@@ -533,7 +533,7 @@ public partial class Character
 			else
 			{
 				if (PositionState == PositionSwimming.Instance || (exit.Destination.IsSwimmingLayer(RoomLayer) &&
-				                                                   PositionState != PositionFlying.Instance))
+																   PositionState != PositionFlying.Instance))
 				{
 					movement = new SwimMovement(exit, this, timespan, emote);
 				}
@@ -556,7 +556,7 @@ public partial class Character
 					movement = new SingleMovement(exit, this, timespan, emote);
 				}
 			}
-			
+
 			movement.InitialAction();
 			return true;
 		}
@@ -594,8 +594,8 @@ public partial class Character
 		}
 
 		if (PositionState.MoveRestrictions == MovementAbility.Restricted ||
-		    (PositionState.MoveRestrictions == MovementAbility.FreeIfNotInOn &&
-		     (PositionModifier == PositionModifier.On || PositionModifier == PositionModifier.In)))
+			(PositionState.MoveRestrictions == MovementAbility.FreeIfNotInOn &&
+			 (PositionModifier == PositionModifier.On || PositionModifier == PositionModifier.In)))
 		{
 			_cannotMoveReason = "Your position prevents you from moving. You should stand up first.";
 			return false;
@@ -635,8 +635,8 @@ public partial class Character
 		var staminaCost = StaminaForMovement(movingPosition, CurrentSpeeds[movingPosition], staminaMultiplier,
 			ignoreTerrainStamina);
 		if (!EffectHandler.AffectedBy<IImmwalkEffect>() &&
-		    Race.RaceUsesStamina &&
-		    !CanSpendStamina(staminaCost))
+			Race.RaceUsesStamina &&
+			!CanSpendStamina(staminaCost))
 		{
 			_cannotMoveReason = Gameworld.GetStaticBool("ShowStaminaCostInExhaustedMessage")
 				? $"You are too exhausted to move ({staminaCost.ToString("N2", this).ColourValue()} stamina required)."
@@ -652,10 +652,10 @@ public partial class Character
 		}
 
 		if ((PositionState == PositionProne.Instance ||
-		     movingPosition.TransitionOnMovement == PositionProne.Instance) &&
-		    !Body.Limbs.Any(x =>
-			    x.LimbType.In(LimbType.Leg, LimbType.Arm, LimbType.Appendage, LimbType.Wing) &&
-			    Body.CanUseLimb(x) == CanUseLimbResult.CanUse)
+			 movingPosition.TransitionOnMovement == PositionProne.Instance) &&
+			!Body.Limbs.Any(x =>
+				x.LimbType.In(LimbType.Leg, LimbType.Arm, LimbType.Appendage, LimbType.Wing) &&
+				Body.CanUseLimb(x) == CanUseLimbResult.CanUse)
 		   )
 		{
 			_cannotMoveReason = $"You need at least one working arm, leg, limb or other appendage to crawl.";
@@ -663,17 +663,17 @@ public partial class Character
 		}
 
 		if ((PositionState == PositionProstrate.Instance ||
-		     movingPosition.TransitionOnMovement == PositionProstrate.Instance) &&
-		    Body.Limbs.Count(x => x.LimbType == LimbType.Leg && Body.CanUseLimb(x) == CanUseLimbResult.CanUse) <
-		    Body.Prototype.MinimumLegsToStand)
+			 movingPosition.TransitionOnMovement == PositionProstrate.Instance) &&
+			Body.Limbs.Count(x => x.LimbType == LimbType.Leg && Body.CanUseLimb(x) == CanUseLimbResult.CanUse) <
+			Body.Prototype.MinimumLegsToStand)
 		{
 			_cannotMoveReason = $"All of your legs need to be working in order for you to shuffle.";
 			return false;
 		}
 
 		if (movingPosition == PositionClimbing.Instance && !Body.Limbs.Any(x =>
-			    x.LimbType.In(LimbType.Leg, LimbType.Arm, LimbType.Appendage, LimbType.Wing) &&
-			    Body.CanUseLimb(x) == CanUseLimbResult.CanUse)
+				x.LimbType.In(LimbType.Leg, LimbType.Arm, LimbType.Appendage, LimbType.Wing) &&
+				Body.CanUseLimb(x) == CanUseLimbResult.CanUse)
 		   )
 		{
 			_cannotMoveReason = $"You need at least one working arm, leg, limb or other appendage to climb.";
@@ -710,8 +710,8 @@ public partial class Character
 			}
 
 			if (exit.Exit.MaximumSizeToEnterUpright < Body.CurrentContextualSize(SizeContext.CellExit) &&
-			    PositionState.Upright && PositionState != PositionFlying.Instance &&
-			    PositionState != PositionSwimming.Instance && PositionState != PositionClimbing.Instance)
+				PositionState.Upright && PositionState != PositionFlying.Instance &&
+				PositionState != PositionSwimming.Instance && PositionState != PositionClimbing.Instance)
 			{
 				_cannotMoveReason =
 					$"Only something of size {exit.Exit.MaximumSizeToEnterUpright.Describe().Colour(Telnet.Green)} or smaller can use that exit while standing up, and you are size {Body.CurrentContextualSize(SizeContext.CellExit).Describe().Colour(Telnet.Green)}. Consider crawling.";
@@ -848,9 +848,9 @@ public partial class Character
 			if (Race.RaceUsesStamina)
 			{
 				var speed = Body.Speeds.Where(x => x.Position == state)
-				                .Where(x => CanSpendStamina(StaminaForMovement(state, x, 1.0, false)))
-				                .OrderBy(x => x.Multiplier)
-				                .FirstOrDefault();
+								.Where(x => CanSpendStamina(StaminaForMovement(state, x, 1.0, false)))
+								.OrderBy(x => x.Multiplier)
+								.FirstOrDefault();
 				if (speed == null)
 				{
 					return (false, null);
@@ -860,7 +860,7 @@ public partial class Character
 			}
 
 			var cspeed = Body.Speeds.Where(x => x.Position == state).OrderByDescending(x => x.Multiplier)
-			                 .FirstOrDefault();
+							 .FirstOrDefault();
 			if (cspeed == null)
 			{
 				return (false, null);
@@ -872,7 +872,7 @@ public partial class Character
 		(bool Success, IMoveSpeed FastestMoveSpeed) CanMoveStanding()
 		{
 			if ((PositionState.TransitionOnMovement ?? PositionState) != PositionStanding.Instance &&
-			    !CanMovePosition(PositionStanding.Instance, PositionModifier.None, null, true))
+				!CanMovePosition(PositionStanding.Instance, PositionModifier.None, null, true))
 			{
 				return (false, null);
 			}
@@ -889,15 +889,15 @@ public partial class Character
 			}
 
 			if (!Body.Limbs.Any(x =>
-				    x.LimbType.In(LimbType.Arm, LimbType.Appendage, LimbType.Leg, LimbType.Wing) &&
-				    Body.CanUseLimb(x) == CanUseLimbResult.CanUse))
+					x.LimbType.In(LimbType.Arm, LimbType.Appendage, LimbType.Leg, LimbType.Wing) &&
+					Body.CanUseLimb(x) == CanUseLimbResult.CanUse))
 			{
 				_cannotMoveReason = $"You need at least one working arm or leg to crawl.";
 				return (false, null);
 			}
 
 			if ((PositionState.TransitionOnMovement ?? PositionState) != PositionProne.Instance &&
-			    !CanMovePosition(PositionProne.Instance, PositionModifier.None, null, true))
+				!CanMovePosition(PositionProne.Instance, PositionModifier.None, null, true))
 			{
 				return (false, null);
 			}
@@ -914,13 +914,13 @@ public partial class Character
 			}
 
 			if (Body.Limbs.Count(x => x.LimbType.In(LimbType.Leg) && Body.CanUseLimb(x) == CanUseLimbResult.CanUse) <
-			    Body.Prototype.MinimumLegsToStand)
+				Body.Prototype.MinimumLegsToStand)
 			{
 				return (false, null);
 			}
 
 			if ((PositionState.TransitionOnMovement ?? PositionState) != PositionProstrate.Instance &&
-			    !CanMovePosition(PositionProstrate.Instance, PositionModifier.None, null, true))
+				!CanMovePosition(PositionProstrate.Instance, PositionModifier.None, null, true))
 			{
 				return (false, null);
 			}
@@ -964,7 +964,7 @@ public partial class Character
 	public int MoveSpeed(ICellExit exit)
 	{
 		var (transition, _) = exit?.MovementTransition(this) ??
-		                      (CellMovementTransition.NoViableTransition, RoomLayer.GroundLevel);
+							  (CellMovementTransition.NoViableTransition, RoomLayer.GroundLevel);
 		IMoveSpeed speed;
 		switch (transition)
 		{
@@ -1044,9 +1044,9 @@ public partial class Character
 
 		var meritMultiplier =
 			Merits.OfType<IMovementSpeedMerit>()
-			      .Where(x => x.Applies(this))
-			      .Select(x => x.SpeedMultiplier(speed))
-			      .Aggregate(1.0, (x, y) => x * y);
+				  .Where(x => x.Applies(this))
+				  .Select(x => x.SpeedMultiplier(speed))
+				  .Aggregate(1.0, (x, y) => x * y);
 
 		return
 			(int)
@@ -1246,7 +1246,7 @@ public partial class Character
 		movement?.Exit?.Origin?.Leave(this);
 		var originalLayer = RoomLayer;
 		var (transition, targetLayer) = movement?.Exit?.MovementTransition(this) ??
-		                                (CellMovementTransition.NoViableTransition, RoomLayer.GroundLevel);
+										(CellMovementTransition.NoViableTransition, RoomLayer.GroundLevel);
 		var destinationTerrain = movement?.Exit?.Destination.Terrain(this);
 		if (destinationTerrain?.TerrainLayers.Contains(targetLayer) == false)
 		{
@@ -1272,8 +1272,8 @@ public partial class Character
 				var check = Gameworld.GetCheck(CheckType.ClimbTreetoTreeCheck);
 				var weather = Location.CurrentWeather(this);
 				var result = check.CheckAgainstAllDifficulties(this, Difficulty.VeryEasy, null,
-					externalBonus: 
-					(weather?.Precipitation.PrecipitationClimbingBonus() ?? 0.0) + 
+					externalBonus:
+					(weather?.Precipitation.PrecipitationClimbingBonus() ?? 0.0) +
 					(weather?.Wind.WindClimbingBonus() ?? 0.0));
 				if (result[Difficulty.VeryEasy].Outcome.IsFail())
 				{
@@ -1312,7 +1312,7 @@ public partial class Character
 		}
 
 		foreach (var character in movement?.Exit?.Origin?.Characters.Where(x => x.Movement != movement) ??
-		                          Enumerable.Empty<ICharacter>())
+								  Enumerable.Empty<ICharacter>())
 		{
 			character.RemoveAllEffects(x => x.GetSubtype<ISawHiderEffect>()?.Hider == this);
 		}
@@ -1323,7 +1323,7 @@ public partial class Character
 		if (hideEffect != null)
 		{
 			hideEffect.EffectiveHideSkill = Gameworld.GetCheck(CheckType.HideCheck)
-			                                         .Check(this, Location.Terrain(this).HideDifficulty).TargetNumber;
+													 .Check(this, Location.Terrain(this).HideDifficulty).TargetNumber;
 		}
 
 		AcquireTarget();
@@ -1458,7 +1458,7 @@ public partial class Character
 		}
 
 		var itemBlockers = Body.AllItems.Where(x => x.PreventsMovement()).Select(x => x.WhyPreventsMovement(this))
-		                       .ToList();
+							   .ToList();
 		if (itemBlockers.Any())
 		{
 			return (false, $"You cannot {actionVerb} because {itemBlockers.ListToString()}.");
@@ -1496,7 +1496,7 @@ public partial class Character
 
 		var wings = Body.Bodyparts.Where(x => x is WingProto).ToList();
 		var workingWings = wings.Where(x => Body.CanUseBodypart(x) == CanUseBodypartResult.CanUse)
-		                        .Select(x => Body.GetLimbFor(x)).Distinct().Count();
+								.Select(x => Body.GetLimbFor(x)).Distinct().Count();
 		if (Body.Prototype.MinimumWingsToFly <= workingWings)
 		{
 			return (true, string.Empty);
@@ -1513,15 +1513,15 @@ public partial class Character
 		return (false, "You weren't made to fly.");
 	}
 
-        public void Fly(IEmote actionEmote = null)
-        {
-                if (RidingMount is not null && RidingMount.IsPrimaryRider(this))
-                {
-                        RidingMount.RiderFly(this, actionEmote);
-                        return;
-                }
+	public void Fly(IEmote actionEmote = null)
+	{
+		if (RidingMount is not null && RidingMount.IsPrimaryRider(this))
+		{
+			RidingMount.RiderFly(this, actionEmote);
+			return;
+		}
 
-                var (truth, error) = CanFly();
+		var (truth, error) = CanFly();
 		if (!truth)
 		{
 			OutputHandler.Send(error);
@@ -1553,16 +1553,16 @@ public partial class Character
 		return (true, string.Empty);
 	}
 
-        public void Land(IEmote actionEmote = null)
-        {
-                if (RidingMount is not null && RidingMount.IsPrimaryRider(this))
-                {
-                        RidingMount.RiderMovePosition(Location.IsSwimmingLayer(RoomLayer) ? PositionSwimming.Instance : PositionStanding.Instance,
-                                PositionModifier.None, null, this, actionEmote, null);
-                        return;
-                }
+	public void Land(IEmote actionEmote = null)
+	{
+		if (RidingMount is not null && RidingMount.IsPrimaryRider(this))
+		{
+			RidingMount.RiderMovePosition(Location.IsSwimmingLayer(RoomLayer) ? PositionSwimming.Instance : PositionStanding.Instance,
+					PositionModifier.None, null, this, actionEmote, null);
+			return;
+		}
 
-                var (truth, error) = CanLand();
+		var (truth, error) = CanLand();
 		if (!truth)
 		{
 			OutputHandler.Send(error);
@@ -1644,8 +1644,8 @@ public partial class Character
 	{
 		return
 			FlyStaminaMultiplier() *
-			Merits.OfType<FlyingStaminaMerit>().Aggregate(1.0, (prev,merit) => prev * merit.Multiplier) *
-			Gameworld.GetStaticDouble("FlyStaminaCost") * 
+			Merits.OfType<FlyingStaminaMerit>().Aggregate(1.0, (prev, merit) => prev * merit.Multiplier) *
+			Gameworld.GetStaticDouble("FlyStaminaCost") *
 			(
 				EffectsOfType<Dragging>().Any()
 				? 1.0 + ((IHaveWeight)EffectsOfType<Dragging>().First().Target).Weight / Weight
@@ -1656,13 +1656,13 @@ public partial class Character
 	public double FlyStaminaCostPerTick()
 	{
 		return FlyStaminaMultiplier() *
-		       Merits.OfType<FlyingStaminaMerit>().Aggregate(1.0, (prev, merit) => prev * merit.Multiplier) *
-			   Gameworld.GetStaticDouble("FlyStaminaCostPerTick") * 
-		       (
-			       EffectsOfType<Dragging>().Any()
-			       ? 1.0 + ((IHaveWeight)EffectsOfType<Dragging>().First().Target).Weight / Weight
-			       : 1.0
-		       );
+			   Merits.OfType<FlyingStaminaMerit>().Aggregate(1.0, (prev, merit) => prev * merit.Multiplier) *
+			   Gameworld.GetStaticDouble("FlyStaminaCostPerTick") *
+			   (
+				   EffectsOfType<Dragging>().Any()
+				   ? 1.0 + ((IHaveWeight)EffectsOfType<Dragging>().First().Target).Weight / Weight
+				   : 1.0
+			   );
 	}
 
 	public void CheckCanFly()
@@ -1728,8 +1728,8 @@ public partial class Character
 
 		var dragging = CombinedEffectsOfType<Dragging>().FirstOrDefault();
 		if (dragging != null &&
-		    MaximumDragWeight * (dragging?.Draggers.First(x => x.Character == this).Aid?.EffortMultiplier ?? 1.0) -
-		    Body.ExternalItems.Sum(x => x.Weight) - ((IHaveWeight)dragging.Target).Weight < 0.0)
+			MaximumDragWeight * (dragging?.Draggers.First(x => x.Character == this).Aid?.EffortMultiplier ?? 1.0) -
+			Body.ExternalItems.Sum(x => x.Weight) - ((IHaveWeight)dragging.Target).Weight < 0.0)
 		{
 			return (false, $"You aren't strong enough to lift {dragging.Target.HowSeen(this)} with you.");
 		}
@@ -1773,15 +1773,15 @@ public partial class Character
 		return (true, string.Empty);
 	}
 
-        void IFly.Ascend(IEmote actionEmote)
-        {
-                if (RidingMount is not null && RidingMount.IsPrimaryRider(this))
-                {
-                        RidingMount.RiderAscend(this, actionEmote);
-                        return;
-                }
+	void IFly.Ascend(IEmote actionEmote)
+	{
+		if (RidingMount is not null && RidingMount.IsPrimaryRider(this))
+		{
+			RidingMount.RiderAscend(this, actionEmote);
+			return;
+		}
 
-                ConvertGrapplesToDrags();
+		ConvertGrapplesToDrags();
 		var (can, error) = ((IFly)this).CanAscend();
 		if (!can)
 		{
@@ -1801,13 +1801,13 @@ public partial class Character
 		var desired = higherLayers.LowestLayer();
 		var emote = new Emote(Gameworld.GetStaticString("AscendFlyEmote"), this, this);
 		var breaching = RoomLayer.In(RoomLayer.InTrees, RoomLayer.HighInTrees) &&
-		                desired.In(RoomLayer.InAir, RoomLayer.HighInAir);
+						desired.In(RoomLayer.InAir, RoomLayer.HighInAir);
 		if (breaching)
 		{
 			emote = new Emote(Gameworld.GetStaticString("AscendFlyEmoteLeaveTrees"), this, this);
 		}
 		else if (RoomLayer.In(RoomLayer.GroundLevel, RoomLayer.OnRooftops) &&
-		         desired.In(RoomLayer.InTrees, RoomLayer.HighInTrees))
+				 desired.In(RoomLayer.InTrees, RoomLayer.HighInTrees))
 		{
 			emote = new Emote(Gameworld.GetStaticString("AscendFlyEmoteEnterTrees"), this, this);
 		}
@@ -1835,15 +1835,15 @@ public partial class Character
 		Body.Look(true);
 	}
 
-        void IFly.Dive(IEmote actionEmote)
-        {
-                if (RidingMount is not null && RidingMount.IsPrimaryRider(this))
-                {
-                        RidingMount.RiderDive(this, actionEmote);
-                        return;
-                }
+	void IFly.Dive(IEmote actionEmote)
+	{
+		if (RidingMount is not null && RidingMount.IsPrimaryRider(this))
+		{
+			RidingMount.RiderDive(this, actionEmote);
+			return;
+		}
 
-                ConvertGrapplesToDrags();
+		ConvertGrapplesToDrags();
 		var (can, error) = ((IFly)this).CanDive();
 		if (!can)
 		{
@@ -1862,9 +1862,9 @@ public partial class Character
 		var desired = lowerLayers.HighestLayer();
 		var emote = new Emote(Gameworld.GetStaticString("DiveFlyEmote"), this, this);
 		var leavingTrees = RoomLayer.In(RoomLayer.InTrees, RoomLayer.HighInTrees) &&
-		                   desired.In(RoomLayer.GroundLevel, RoomLayer.OnRooftops);
+						   desired.In(RoomLayer.GroundLevel, RoomLayer.OnRooftops);
 		var enteringTrees = RoomLayer.In(RoomLayer.InAir, RoomLayer.HighInAir) &&
-		                    desired.In(RoomLayer.InTrees, RoomLayer.HighInTrees);
+							desired.In(RoomLayer.InTrees, RoomLayer.HighInTrees);
 		if (leavingTrees)
 		{
 			emote = new Emote(Gameworld.GetStaticString("DiveFlyEmoteLeaveTrees"), this, this);
@@ -1911,7 +1911,7 @@ public partial class Character
 		var inventoryBuoyancy = Body.AllItems.Sum(x => x.Buoyancy(terrain.WaterFluid.Density));
 		var difficulty =
 			Difficulty.ExtremelyEasy.StageDown((int)(inventoryBuoyancy /
-			                                         Gameworld.GetStaticDouble("FloatBuoyancyPerDifficulty")));
+													 Gameworld.GetStaticDouble("FloatBuoyancyPerDifficulty")));
 		var outcome = check.Check(this, difficulty);
 		switch (outcome.Outcome)
 		{
@@ -2012,7 +2012,7 @@ public partial class Character
 		var inventoryBuoyancy = Body.AllItems.Sum(x => x.Buoyancy(terrain.WaterFluid.Density));
 		var difficulty =
 			Difficulty.ExtremelyEasy.StageDown((int)(inventoryBuoyancy /
-			                                         Gameworld.GetStaticDouble("FloatBuoyancyPerDifficulty")));
+													 Gameworld.GetStaticDouble("FloatBuoyancyPerDifficulty")));
 		// TODO - weather condition affecting this check
 		var outcome = check.Check(this, difficulty);
 		switch (outcome.Outcome)
@@ -2086,10 +2086,10 @@ public partial class Character
 	public double SwimStaminaCost()
 	{
 		return Gameworld.GetStaticDouble("SwimStaminaCost") *
-		       Merits.OfType<SwimmingStaminaMerit>().Aggregate(1.0, (prev, merit) => prev * merit.Multiplier) *
-		       (EffectsOfType<Dragging>().Any()
-			       ? 1.0 + ((IHaveWeight)EffectsOfType<Dragging>().First().Target).Weight / Weight
-			       : 1.0);
+			   Merits.OfType<SwimmingStaminaMerit>().Aggregate(1.0, (prev, merit) => prev * merit.Multiplier) *
+			   (EffectsOfType<Dragging>().Any()
+				   ? 1.0 + ((IHaveWeight)EffectsOfType<Dragging>().First().Target).Weight / Weight
+				   : 1.0);
 		;
 	}
 
@@ -2130,8 +2130,8 @@ public partial class Character
 
 		var dragging = CombinedEffectsOfType<Dragging>().FirstOrDefault();
 		if (dragging != null &&
-		    (MaximumDragWeight * dragging?.Draggers.First(x => x.Character == this).Aid?.EffortMultiplier ?? 1.0) -
-		    Body.ExternalItems.Sum(x => x.Weight) - ((IHaveWeight)dragging.Target).Weight < 0.0)
+			(MaximumDragWeight * dragging?.Draggers.First(x => x.Character == this).Aid?.EffortMultiplier ?? 1.0) -
+			Body.ExternalItems.Sum(x => x.Weight) - ((IHaveWeight)dragging.Target).Weight < 0.0)
 		{
 			return (false, $"You aren't strong enough to lift {dragging.Target.HowSeen(this)} with you.");
 		}
@@ -2145,7 +2145,7 @@ public partial class Character
 		}
 
 		var blockers = CombinedEffectsOfType<IEffect>()
-		               .Where(x => x.IsBlockingEffect("general") || x.IsBlockingEffect("move")).ToList();
+					   .Where(x => x.IsBlockingEffect("general") || x.IsBlockingEffect("move")).ToList();
 		if (blockers.Any())
 		{
 			return (false,
@@ -2192,7 +2192,7 @@ public partial class Character
 		}
 
 		var blockers = CombinedEffectsOfType<IEffect>()
-		               .Where(x => x.IsBlockingEffect("general") || x.IsBlockingEffect("move")).ToList();
+					   .Where(x => x.IsBlockingEffect("general") || x.IsBlockingEffect("move")).ToList();
 		if (blockers.Any())
 		{
 			return (false,
@@ -2202,15 +2202,15 @@ public partial class Character
 		return (true, string.Empty);
 	}
 
-        void ISwim.Ascend(IEmote actionEmote)
-        {
-                if (RidingMount is not null && RidingMount.IsPrimaryRider(this))
-                {
-                        RidingMount.RiderAscend(this, actionEmote);
-                        return;
-                }
+	void ISwim.Ascend(IEmote actionEmote)
+	{
+		if (RidingMount is not null && RidingMount.IsPrimaryRider(this))
+		{
+			RidingMount.RiderAscend(this, actionEmote);
+			return;
+		}
 
-                ConvertGrapplesToDrags();
+		ConvertGrapplesToDrags();
 		var (can, error) = ((ISwim)this).CanAscend();
 		if (!can)
 		{
@@ -2263,15 +2263,15 @@ public partial class Character
 		Body.Look(true);
 	}
 
-        void ISwim.Dive(IEmote actionEmote)
-        {
-                if (RidingMount is not null && RidingMount.IsPrimaryRider(this))
-                {
-                        RidingMount.RiderDive(this, actionEmote);
-                        return;
-                }
+	void ISwim.Dive(IEmote actionEmote)
+	{
+		if (RidingMount is not null && RidingMount.IsPrimaryRider(this))
+		{
+			RidingMount.RiderDive(this, actionEmote);
+			return;
+		}
 
-                ConvertGrapplesToDrags();
+		ConvertGrapplesToDrags();
 		var (truth, error) = ((ISwim)this).CanDive();
 		if (!truth)
 		{
@@ -2353,7 +2353,7 @@ public partial class Character
 		var weather = Location.CurrentWeather(this);
 		var allResults = check.CheckAgainstAllDifficulties(this, difficulty, null,
 			externalBonus: (weather?.Precipitation.PrecipitationClimbingBonus() ?? 0.0) +
-			               (weather?.Wind.WindClimbingBonus() ?? 0.0));
+						   (weather?.Wind.WindClimbingBonus() ?? 0.0));
 		var result = allResults[difficulty];
 
 		if (result.Outcome.IsPass())
@@ -2402,7 +2402,7 @@ public partial class Character
 		var terrain = Location.Terrain(this);
 		var higherLayers = terrain.TerrainLayers.Where(x => x.IsHigherThan(RoomLayer)).ToList();
 		var climbExit = Location.ExitsFor(this)
-		                        .FirstOrDefault(x => x.OutboundDirection == CardinalDirection.Up && x.IsClimbExit);
+								.FirstOrDefault(x => x.OutboundDirection == CardinalDirection.Up && x.IsClimbExit);
 		if (!higherLayers.Any())
 		{
 			if (climbExit != null)
@@ -2414,15 +2414,15 @@ public partial class Character
 		}
 
 		if (climbExit == null &&
-		    !higherLayers.Any(x => x.In(RoomLayer.HighInTrees, RoomLayer.InTrees, RoomLayer.OnRooftops)))
+			!higherLayers.Any(x => x.In(RoomLayer.HighInTrees, RoomLayer.InTrees, RoomLayer.OnRooftops)))
 		{
 			return (false, "There is nowhere for you to climb here. You would need to fly to ascend any higher.");
 		}
 
 		var dragging = CombinedEffectsOfType<Dragging>().FirstOrDefault();
 		if (dragging != null &&
-		    (MaximumDragWeight * dragging?.Draggers.First(x => x.Character == this).Aid?.EffortMultiplier ?? 1.0) -
-		    Body.ExternalItems.Sum(x => x.Weight) - ((IHaveWeight)dragging.Target).Weight < 0.0)
+			(MaximumDragWeight * dragging?.Draggers.First(x => x.Character == this).Aid?.EffortMultiplier ?? 1.0) -
+			Body.ExternalItems.Sum(x => x.Weight) - ((IHaveWeight)dragging.Target).Weight < 0.0)
 		{
 			return (false, $"You aren't strong enough to lift {dragging.Target.HowSeen(this)} with you.");
 		}
@@ -2450,10 +2450,10 @@ public partial class Character
 
 		var terrain = Location.Terrain(this);
 		var lowerLayers = terrain.TerrainLayers
-		                         .Where(x => x.IsLowerThan(RoomLayer) && !x.IsLowerThan(RoomLayer.GroundLevel))
-		                         .ToList();
+								 .Where(x => x.IsLowerThan(RoomLayer) && !x.IsLowerThan(RoomLayer.GroundLevel))
+								 .ToList();
 		var climbExit = Location.ExitsFor(this)
-		                        .FirstOrDefault(x => x.OutboundDirection == CardinalDirection.Down && x.IsClimbExit);
+								.FirstOrDefault(x => x.OutboundDirection == CardinalDirection.Down && x.IsClimbExit);
 		if (!lowerLayers.Any())
 		{
 			if (climbExit != null)
@@ -2465,15 +2465,15 @@ public partial class Character
 		}
 
 		if (climbExit == null && !lowerLayers.Any(x =>
-			    x.In(RoomLayer.HighInTrees, RoomLayer.InTrees, RoomLayer.OnRooftops, RoomLayer.GroundLevel)))
+				x.In(RoomLayer.HighInTrees, RoomLayer.InTrees, RoomLayer.OnRooftops, RoomLayer.GroundLevel)))
 		{
 			return (false, "There is nowhere for you to climb down to.");
 		}
 
 		var dragging = CombinedEffectsOfType<Dragging>().FirstOrDefault();
 		if (dragging != null &&
-		    (MaximumDragWeight * dragging?.Draggers.First(x => x.Character == this).Aid?.EffortMultiplier ?? 1.0) -
-		    Body.ExternalItems.Sum(x => x.Weight) - ((IHaveWeight)dragging.Target).Weight < 0.0)
+			(MaximumDragWeight * dragging?.Draggers.First(x => x.Character == this).Aid?.EffortMultiplier ?? 1.0) -
+			Body.ExternalItems.Sum(x => x.Weight) - ((IHaveWeight)dragging.Target).Weight < 0.0)
 		{
 			return (false, $"You aren't strong enough to drag {dragging.Target.HowSeen(this)} with you.");
 		}
@@ -2481,15 +2481,15 @@ public partial class Character
 		return (true, string.Empty);
 	}
 
-        public void ClimbUp(IEmote actionEmote = null)
-        {
-                if (RidingMount is not null && RidingMount.IsPrimaryRider(this))
-                {
-                        RidingMount.RiderClimbUp(this, actionEmote);
-                        return;
-                }
+	public void ClimbUp(IEmote actionEmote = null)
+	{
+		if (RidingMount is not null && RidingMount.IsPrimaryRider(this))
+		{
+			RidingMount.RiderClimbUp(this, actionEmote);
+			return;
+		}
 
-                ConvertGrapplesToDrags();
+		ConvertGrapplesToDrags();
 		var (truth, error) = CanClimbUp();
 		if (!truth)
 		{
@@ -2500,7 +2500,7 @@ public partial class Character
 		var terrain = Location.Terrain(this);
 		var higherLayers = terrain.TerrainLayers.Where(x => x.IsHigherThan(RoomLayer)).ToList();
 		var climbExit = Location.ExitsFor(this)
-		                        .FirstOrDefault(x => x.OutboundDirection == CardinalDirection.Up && x.IsClimbExit);
+								.FirstOrDefault(x => x.OutboundDirection == CardinalDirection.Up && x.IsClimbExit);
 		if (!higherLayers.Any())
 		{
 			Move(CardinalDirection.Up, actionEmote, true);
@@ -2551,15 +2551,15 @@ public partial class Character
 		Body.Look(true);
 	}
 
-        public void ClimbDown(IEmote actionEmote = null)
-        {
-                if (RidingMount is not null && RidingMount.IsPrimaryRider(this))
-                {
-                        RidingMount.RiderClimbDown(this, actionEmote);
-                        return;
-                }
+	public void ClimbDown(IEmote actionEmote = null)
+	{
+		if (RidingMount is not null && RidingMount.IsPrimaryRider(this))
+		{
+			RidingMount.RiderClimbDown(this, actionEmote);
+			return;
+		}
 
-                ConvertGrapplesToDrags();
+		ConvertGrapplesToDrags();
 		var (truth, error) = CanClimbDown();
 		if (!truth)
 		{
@@ -2570,7 +2570,7 @@ public partial class Character
 		var terrain = Location.Terrain(this);
 		var lowerLayers = terrain.TerrainLayers.Where(x => x.IsLowerThan(RoomLayer)).ToList();
 		var climbExit = Location.ExitsFor(this)
-		                        .FirstOrDefault(x => x.OutboundDirection == CardinalDirection.Down && x.IsClimbExit);
+								.FirstOrDefault(x => x.OutboundDirection == CardinalDirection.Down && x.IsClimbExit);
 		if (!lowerLayers.Any())
 		{
 			Move(CardinalDirection.Down, actionEmote, true);

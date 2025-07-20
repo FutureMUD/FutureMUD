@@ -43,27 +43,27 @@ public class UsefulSeeder : IDatabaseSeeder
 					if (answer.EqualToAny("yes", "y", "no", "n")) return (true, string.Empty);
 					return (false, "Invalid answer");
 				}),
-                        ("terrain",
-                                "Do you want to install a collection of terrestrial terrain types?\n\nPlease answer #3yes#f or #3no#f: ",
-                                (context, questions) => context.Terrains.Count() <= 1,
-                                (answer, context) =>
-                                {
-                                        if (answer.EqualToAny("yes", "y", "no", "n")) return (true, string.Empty);
-                                        return (false, "Invalid answer");
-                                }),
-                        ("covers",
-                                "Do you want to install a collection of sample ranged covers?\n\nPlease answer #3yes#f or #3no#f: ",
-                                (context, questions) => context.RangedCovers.Count() <= 1,
-                                (answer, context) =>
-                                {
-                                        if (answer.EqualToAny("yes", "y", "no", "n")) return (true, string.Empty);
-                                        return (false, "Invalid answer");
-                                }),
-                        ("items",
-                                "#DItem Package 1#F\n\nItem Package 1 includes some commonly used item component types, including a wide selection of containers, liquid containers, doors, locks, keys and basic writing implements.\n\nShall we install this package? Please answer #3yes#f or #3no#f: ",
-                                (context, questions) => context.GameItemComponentProtos.All(x => x.Name != "Container_Table"),
-                                (answer, context) =>
-                                {
+						("terrain",
+								"Do you want to install a collection of terrestrial terrain types?\n\nPlease answer #3yes#f or #3no#f: ",
+								(context, questions) => context.Terrains.Count() <= 1,
+								(answer, context) =>
+								{
+										if (answer.EqualToAny("yes", "y", "no", "n")) return (true, string.Empty);
+										return (false, "Invalid answer");
+								}),
+						("covers",
+								"Do you want to install a collection of simple ranged covers?\n\nPlease answer #3yes#f or #3no#f: ",
+								(context, questions) => context.RangedCovers.Count() <= 1,
+								(answer, context) =>
+								{
+										if (answer.EqualToAny("yes", "y", "no", "n")) return (true, string.Empty);
+										return (false, "Invalid answer");
+								}),
+						("items",
+								"#DItem Package 1#F\n\nItem Package 1 includes some commonly used item component types, including a wide selection of containers, liquid containers, doors, locks, keys and basic writing implements.\n\nShall we install this package? Please answer #3yes#f or #3no#f: ",
+								(context, questions) => context.GameItemComponentProtos.All(x => x.Name != "Container_Table"),
+								(answer, context) =>
+								{
 					if (answer.EqualToAny("yes", "y", "no", "n")) return (true, string.Empty);
 					return (false, "Invalid answer");
 				}),
@@ -107,17 +107,6 @@ public class UsefulSeeder : IDatabaseSeeder
 					if (answer.EqualToAny("yes", "y", "no", "n")) return (true, string.Empty);
 					return (false, "Invalid answer");
 				}),
-			("doortrait", @"#DDoor Options#F
-
-In FutureMUD, doors are usually built to be able to be removed by someone with the right skills - when open, unlocked and on the ""hinge side"". This can be disabled, and indeed one of the example components that will be installed is a door that cannot be removed. 
-
-However, for the removable doors, you need to specify a trait (usually a skill) that people need to have to do the work.
-
-What is the name of the trait you want to use for installing/uninstalling doors (e.g. construction or similar)? If the skill does not exist, one will be created with the name you specify. Leave blank to skip doors.
-
-Please answer here: ",
-				(context, questions) => questions["items"].EqualToAny("yes", "y"),
-				(answer, context) => { return (true, string.Empty); }),
 			("autobuilder",
 				"Do you want to install an auto builder that can generate random areas with randomised room descriptions?\n\nPlease answer #3yes#f or #3no#f: ",
 				(context, questions) => context.Terrains.Count() > 1 || questions["terrain"].EqualToAny("yes", "y"),
@@ -152,14 +141,14 @@ Please answer here: ",
 
 		if (questionAnswers["modernitems"].EqualToAny("yes", "y")) SeedModernItems(context, errors);
 
-                if (questionAnswers["terrain"].EqualToAny("yes", "y")) SeedTerrain(context, errors);
+				if (questionAnswers["terrain"].EqualToAny("yes", "y")) SeedTerrain(context, errors);
 
-                if (questionAnswers["covers"].EqualToAny("yes", "y")) SeedRangedCovers(context, errors);
+				if (questionAnswers["covers"].EqualToAny("yes", "y")) SeedRangedCovers(context, errors);
 
-                if (questionAnswers["autobuilder"].EqualToAny("yes", "y"))
-                {
-                        SeedTerrainAutobuilder(context, questionAnswers, errors);
-                }
+				if (questionAnswers["autobuilder"].EqualToAny("yes", "y"))
+				{
+						SeedTerrainAutobuilder(context, questionAnswers, errors);
+				}
 
 		context.Database.CommitTransaction();
 
@@ -2429,44 +2418,42 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
 
 		#region Doors
 
-		var doorTraitText = questionAnswers["doortrait"];
-		TraitDefinition? doorTrait = null;
-		if (!string.IsNullOrEmpty(doorTraitText))
+		TraitDefinition? doorTrait = 
+			context.TraitDefinitions.FirstOrDefault(x => x.Name == "Constructing" || x.Name == "Construction") ??
+			context.TraitDefinitions.FirstOrDefault(x => x.Name == "Labouring" || x.Name == "Labourer") ??
+			context.TraitDefinitions.FirstOrDefault(x => x.Name == "Carpentry" || x.Name == "Carpenter");
+		if (doorTrait == null)
 		{
-			doorTrait = context.TraitDefinitions.FirstOrDefault(x => x.Name == doorTraitText);
-			if (doorTrait == null)
+			var example =
+				context.TraitDefinitions.FirstOrDefault(x => x.Type == 0 && x.TraitGroup != "Language");
+			if (example != null)
 			{
-				var example =
-					context.TraitDefinitions.FirstOrDefault(x => x.Type == 0 && x.TraitGroup != "Language");
-				if (example != null)
+				var expression = new TraitExpression
 				{
-					var expression = new TraitExpression
-					{
-						Name = $"{doorTraitText} Cap",
-						Expression = example.Expression.Expression
-					};
-					context.TraitExpressions.Add(expression);
-					doorTrait = new TraitDefinition
-					{
-						Name = doorTraitText,
-						Type = 0,
-						DecoratorId = context.TraitDecorators.First(x => x.Name == "Crafting Skill").Id,
-						TraitGroup = "Combat",
-						AvailabilityProg = context.FutureProgs.First(x => x.FunctionName == "AlwaysTrue"),
-						TeachableProg = context.FutureProgs.First(x => x.FunctionName == "AlwaysFalse"),
-						LearnableProg = context.FutureProgs.First(x => x.FunctionName == "AlwaysTrue"),
-						TeachDifficulty = 7,
-						LearnDifficulty = 7,
-						Hidden = false,
-						Expression = expression,
-						ImproverId = context.Improvers.First(x => x.Name == "Skill Improver").Id,
-						DerivedType = 0,
-						ChargenBlurb = string.Empty,
-						BranchMultiplier = 1.0
-					};
-					context.TraitDefinitions.Add(doorTrait);
-					context.SaveChanges();
-				}
+					Name = $"Construction Cap",
+					Expression = example.Expression.Expression
+				};
+				context.TraitExpressions.Add(expression);
+				doorTrait = new TraitDefinition
+				{
+					Name = "Construction",
+					Type = 0,
+					DecoratorId = context.TraitDecorators.First(x => x.Name == "Crafting Skill").Id,
+					TraitGroup = "Combat",
+					AvailabilityProg = context.FutureProgs.First(x => x.FunctionName == "AlwaysTrue"),
+					TeachableProg = context.FutureProgs.First(x => x.FunctionName == "AlwaysFalse"),
+					LearnableProg = context.FutureProgs.First(x => x.FunctionName == "AlwaysTrue"),
+					TeachDifficulty = 7,
+					LearnDifficulty = 7,
+					Hidden = false,
+					Expression = expression,
+					ImproverId = context.Improvers.First(x => x.Name == "Skill Improver").Id,
+					DerivedType = 0,
+					ChargenBlurb = string.Empty,
+					BranchMultiplier = 1.0
+				};
+				context.TraitDefinitions.Add(doorTrait);
+				context.SaveChanges();
 			}
 		}
 
@@ -8697,171 +8684,171 @@ SetRegister @ch ""NicotineUntil"" (@NicotineUntil + 5m)",
 		context.SaveChanges();
 	}
 
-        private void SeedTerrainAutobuilder(FuturemudDatabaseContext context,
-                IReadOnlyDictionary<string, string> questionAnswers, ICollection<string> errors)
-        {
+		private void SeedTerrainAutobuilder(FuturemudDatabaseContext context,
+				IReadOnlyDictionary<string, string> questionAnswers, ICollection<string> errors)
+		{
 
-        }
+		}
 
-        private void SeedRangedCovers(FuturemudDatabaseContext context, ICollection<string> errors)
-        {
-                if (context.RangedCovers.Any())
-                {
-                        errors.Add("Detected that ranged covers were already installed. Did not seed any covers.");
-                        return;
-                }
+		private void SeedRangedCovers(FuturemudDatabaseContext context, ICollection<string> errors)
+		{
+				if (context.RangedCovers.Any())
+				{
+						errors.Add("Detected that ranged covers were already installed. Did not seed any covers.");
+						return;
+				}
 
-                var covers = new List<(string Name, int Type, int Extent, int Position, string Desc, string Action, int Max, bool Moving)>
-                {
-                        ("Uneven Ground", 0, 0, 6, "prone, using the uneven ground as cover", "$0 go|goes prone and begin|begins to use the uneven ground as cover", 0, true),
-                        ("Corridor Doorway", 0, 0, 1, "using a doorway as cover", "$0 duck|ducks into a doorway and begin|begins to use it as cover", 0, false),
-                        ("Large Crater", 0, 1, 6, "prone, using the edge of a large crater as cover", "$0 go|goes prone and begin|begins to use the edge of a large crater as cover", 0, false),
-                        ("Chunk of Rubble", 1, 1, 12, "slumped up against $?0|$0|a large chunk of rubble|$ as cover", "$0 slump|slumps up against $?1|$1|a large chunk of rubble|$ and begin|begins to use it as cover", 2, false),
-                        ("Tree", 1, 1, 1, "hiding behind $?0|$0|a tree|$ for cover", "$0 slip|slips behind $?1|$1|a tree|$ and use|uses it to protect &0's vital areas", 1, false),
-                        ("Bush", 0, 1, 3, "hiding behind $?0|$0|a bush|$ for cover", "$0 take|takes position behind $?1|$1|a bush|$ and use|uses it to obscure &0's profile", 1, false),
-                        ("Refuse Heap", 1, 1, 6, "half-hidden within $?0|$0|a pile of refuse|$, using it as cover", "$0 dive|dives into $?1|$1|a pile of refuse|$, using it to provide cover", 0, false),
-                        ("Upright Table", 1, 0, 1, "using $?0|$0|a table|$ as cover", "$0 move|moves behind $?1|$1|a nearby table|$ and use|uses it to obscure &0's profile", 3, false),
-                        ("Overturned Table", 1, 1, 3, "hiding behind $?0|$0|an overturned table|$ as cover", "$0 duck|ducks behind $?1|$1|an overturned table|$ and begin|begins to use it as cover", 3, false),
-                        ("Smoke", 0, 1, 1, "obscured by $?0|$0|the smoke|$", "$0 move|moves into $?1|$1|the smoke|$ and uses it to obscure &0's form", 0, true),
-                        ("Sandbag", 1, 1, 3, "hiding behind $?0|$0|a sandbag barricade|$, using it as cover", "$0 take|takes position behind $?1|$1|a sandbag barricade|$ and begin|begins to use it as cover", 5, false),
-                        ("Stone Wall", 1, 2, 1, "hiding behind $?0|$0|a stone wall|$ for cover", "$0 slip|slips behind $?1|$1|a stone wall|$ and use|uses it for protection", 0, false),
-                        ("Rubble Wall", 1, 2, 1, "hiding behind $?0|$0|a rubble wall|$ for cover", "$0 hide|hides behind $?1|$1|a rubble wall|$", 0, false),
-                        ("Small Rock", 1, 0, 3, "crouched behind $?0|$0|a small rock|$", "$0 crouch|crouches behind $?1|$1|a small rock|$", 1, false),
-                        ("Large Rock", 1, 1, 3, "hiding behind $?0|$0|a large rock|$", "$0 slip|slips behind $?1|$1|a large rock|$", 1, false),
-                        ("Fallen Log", 1, 1, 3, "hiding behind $?0|$0|a fallen log|$", "$0 slip|slips behind $?1|$1|a fallen log|$", 1, false),
-                        ("Pile of Crates", 1, 1, 1, "hiding behind $?0|$0|a pile of crates|$", "$0 hide|hides behind $?1|$1|a pile of crates|$", 2, false),
-                        ("Barrel Stack", 1, 1, 1, "hiding behind $?0|$0|a stack of barrels|$", "$0 slip|slips behind $?1|$1|a stack of barrels|$", 2, false),
-                        ("Low Hedge", 0, 0, 1, "hiding behind $?0|$0|a low hedge|$", "$0 duck|ducks behind $?1|$1|a low hedge|$", 1, false),
-                        ("Thick Hedge", 0, 1, 1, "hiding behind $?0|$0|a thick hedge|$", "$0 take|takes cover behind $?1|$1|a thick hedge|$", 1, false),
-                        ("Tall Grass", 0, 1, 6, "hiding in $?0|$0|tall grass|$", "$0 slip|slips into $?1|$1|tall grass|$", 2, true),
-                        ("Shrubs", 0, 1, 3, "hiding behind $?0|$0|some shrubs|$", "$0 crouch|crouches behind $?1|$1|some shrubs|$", 1, false),
-                        ("Vehicle", 1, 2, 1, "using $?0|$0|a vehicle|$ as cover", "$0 take|takes cover behind $?1|$1|a vehicle|$", 2, false),
-                        ("Broken Vehicle", 1, 2, 3, "hiding behind $?0|$0|a broken vehicle|$", "$0 crouch|crouches behind $?1|$1|a broken vehicle|$", 2, false),
-                        ("Collapsed Building", 1, 2, 5, "sheltering in $?0|$0|a collapsed building|$", "$0 dive|dives into $?1|$1|a collapsed building|$", 0, false),
-                        ("Window Frame", 1, 0, 1, "using $?0|$0|a window frame|$ as cover", "$0 use|uses $?1|$1|a window frame|$ for cover", 1, false),
-                        ("Ruined Wall", 1, 2, 1, "hiding behind $?0|$0|a ruined wall|$", "$0 take|takes cover behind $?1|$1|a ruined wall|$", 0, false),
-                        ("Stalagmites", 1, 1, 1, "hiding among $?0|$0|stalagmites|$", "$0 dart|darts among $?1|$1|stalagmites|$", 2, false),
-                        ("Pile of Junk", 1, 1, 3, "hiding behind $?0|$0|a pile of junk|$", "$0 crouch|crouches behind $?1|$1|a pile of junk|$", 1, false),
-                        ("Pile of Bones", 1, 0, 3, "hiding behind $?0|$0|a pile of bones|$", "$0 crouch|crouches behind $?1|$1|a pile of bones|$", 1, false),
-                        ("Dead Body", 1, 0, 3, "using $?0|$0|a dead body|$ as cover", "$0 crouch|crouches behind $?1|$1|a dead body|$", 1, false),
-                        ("Sand Dune", 0, 1, 1, "hiding behind $?0|$0|a sand dune|$", "$0 use|uses $?1|$1|a sand dune|$ for cover", 0, true),
-                        ("Snow Drift", 0, 1, 1, "hiding behind $?0|$0|a snow drift|$", "$0 hide|hides behind $?1|$1|a snow drift|$", 0, true),
-                        ("Fallen Statue", 1, 1, 3, "hiding behind $?0|$0|a fallen statue|$", "$0 crouch|crouches behind $?1|$1|a fallen statue|$", 1, false),
-                        ("Street Corner", 1, 2, 1, "using $?0|$0|a street corner|$ as cover", "$0 lean|leans around $?1|$1|a street corner|$", 0, false),
-                        ("Alley Trash Bin", 1, 1, 1, "hiding behind $?0|$0|a trash bin|$", "$0 duck|ducks behind $?1|$1|a trash bin|$", 1, false),
-                        ("Park Bench", 1, 0, 1, "using $?0|$0|a park bench|$ as cover", "$0 sit|sits behind $?1|$1|a park bench|$", 1, false),
-                        ("Street Lamp", 1, 0, 1, "using $?0|$0|a street lamp|$ as cover", "$0 dodge|dodges behind $?1|$1|a street lamp|$", 1, false),
-                        ("Old Well", 1, 2, 1, "using $?0|$0|an old well|$ as cover", "$0 hide|hides by $?1|$1|an old well|$", 1, false),
-                        ("Rock Outcropping", 1, 2, 1, "hiding behind $?0|$0|a rock outcropping|$", "$0 slip|slips behind $?1|$1|a rock outcropping|$", 1, false),
-                        ("Fallen Tree", 1, 1, 3, "hiding behind $?0|$0|a fallen tree|$", "$0 duck|ducks behind $?1|$1|a fallen tree|$", 1, false),
-                        ("Fallen Pillar", 1, 1, 3, "hiding behind $?0|$0|a fallen pillar|$", "$0 duck|ducks behind $?1|$1|a fallen pillar|$", 1, false),
-                        ("Thick Smoke", 0, 2, 1, "obscured by $?0|$0|thick smoke|$", "$0 move|moves into $?1|$1|thick smoke|$", 0, true),
-                        ("Dense Fog", 0, 2, 1, "obscured by $?0|$0|dense fog|$", "$0 move|moves into $?1|$1|dense fog|$", 0, true),
-                        ("Tall Reeds", 0, 1, 6, "hiding in $?0|$0|tall reeds|$", "$0 slip|slips into $?1|$1|tall reeds|$", 2, true),
-                        ("Dense Vegetation", 0, 2, 3, "hiding in $?0|$0|dense vegetation|$", "$0 move|moves into $?1|$1|dense vegetation|$", 2, true),
-                        ("Boulder Cluster", 1, 2, 3, "hiding behind $?0|$0|a cluster of boulders|$", "$0 move|moves behind $?1|$1|a cluster of boulders|$", 2, false),
-                        ("Abandoned Cart", 1, 1, 1, "hiding behind $?0|$0|an abandoned cart|$", "$0 duck|ducks behind $?1|$1|an abandoned cart|$", 1, false),
-                        ("Bushy Tree", 1, 1, 1, "hiding behind $?0|$0|a bushy tree|$", "$0 slip|slips behind $?1|$1|a bushy tree|$", 1, false),
-                        ("Shrubbery", 0, 1, 1, "hiding behind $?0|$0|some shrubbery|$", "$0 duck|ducks behind $?1|$1|some shrubbery|$", 1, false),
-                        ("Counter", 1, 0, 1, "using $?0|$0|a counter|$ as cover", "$0 duck|ducks behind $?1|$1|a counter|$", 2, false),
-                        ("Desk", 1, 0, 1, "using $?0|$0|a desk|$ as cover", "$0 duck|ducks behind $?1|$1|a desk|$", 1, false),
-                        ("Staircase", 1, 1, 3, "hiding behind $?0|$0|a staircase|$", "$0 duck|ducks behind $?1|$1|a staircase|$", 1, false),
-                        ("Corner", 1, 2, 1, "using $?0|$0|a corner|$ as cover", "$0 press|presses into $?1|$1|a corner|$", 0, false)
-                };
+				var covers = new List<(string Name, int Type, int Extent, int Position, string Desc, string Action, int Max, bool Moving)>
+				{
+						("Uneven Ground", 0, 0, 6, "prone, using the uneven ground as cover", "$0 go|goes prone and begin|begins to use the uneven ground as cover", 0, true),
+						("Corridor Doorway", 0, 0, 1, "using a doorway as cover", "$0 duck|ducks into a doorway and begin|begins to use it as cover", 0, false),
+						("Large Crater", 0, 1, 6, "prone, using the edge of a large crater as cover", "$0 go|goes prone and begin|begins to use the edge of a large crater as cover", 0, false),
+						("Chunk of Rubble", 1, 1, 12, "slumped up against $?0|$0|a large chunk of rubble|$ as cover", "$0 slump|slumps up against $?1|$1|a large chunk of rubble|$ and begin|begins to use it as cover", 2, false),
+						("Tree", 1, 1, 1, "hiding behind $?0|$0|a tree|$ for cover", "$0 slip|slips behind $?1|$1|a tree|$ and use|uses it to protect &0's vital areas", 1, false),
+						("Bush", 0, 1, 3, "hiding behind $?0|$0|a bush|$ for cover", "$0 take|takes position behind $?1|$1|a bush|$ and use|uses it to obscure &0's profile", 1, false),
+						("Refuse Heap", 1, 1, 6, "half-hidden within $?0|$0|a pile of refuse|$, using it as cover", "$0 dive|dives into $?1|$1|a pile of refuse|$, using it to provide cover", 0, false),
+						("Upright Table", 1, 0, 1, "using $?0|$0|a table|$ as cover", "$0 move|moves behind $?1|$1|a nearby table|$ and use|uses it to obscure &0's profile", 3, false),
+						("Overturned Table", 1, 1, 3, "hiding behind $?0|$0|an overturned table|$ as cover", "$0 duck|ducks behind $?1|$1|an overturned table|$ and begin|begins to use it as cover", 3, false),
+						("Smoke", 0, 1, 1, "obscured by $?0|$0|the smoke|$", "$0 move|moves into $?1|$1|the smoke|$ and uses it to obscure &0's form", 0, true),
+						("Sandbag", 1, 1, 3, "hiding behind $?0|$0|a sandbag barricade|$, using it as cover", "$0 take|takes position behind $?1|$1|a sandbag barricade|$ and begin|begins to use it as cover", 5, false),
+						("Stone Wall", 1, 2, 1, "hiding behind $?0|$0|a stone wall|$ for cover", "$0 slip|slips behind $?1|$1|a stone wall|$ and use|uses it for protection", 0, false),
+						("Rubble Wall", 1, 2, 1, "hiding behind $?0|$0|a rubble wall|$ for cover", "$0 hide|hides behind $?1|$1|a rubble wall|$", 0, false),
+						("Small Rock", 1, 0, 3, "crouched behind $?0|$0|a small rock|$", "$0 crouch|crouches behind $?1|$1|a small rock|$", 1, false),
+						("Large Rock", 1, 1, 3, "hiding behind $?0|$0|a large rock|$", "$0 slip|slips behind $?1|$1|a large rock|$", 1, false),
+						("Fallen Log", 1, 1, 3, "hiding behind $?0|$0|a fallen log|$", "$0 slip|slips behind $?1|$1|a fallen log|$", 1, false),
+						("Pile of Crates", 1, 1, 1, "hiding behind $?0|$0|a pile of crates|$", "$0 hide|hides behind $?1|$1|a pile of crates|$", 2, false),
+						("Barrel Stack", 1, 1, 1, "hiding behind $?0|$0|a stack of barrels|$", "$0 slip|slips behind $?1|$1|a stack of barrels|$", 2, false),
+						("Low Hedge", 0, 0, 1, "hiding behind $?0|$0|a low hedge|$", "$0 duck|ducks behind $?1|$1|a low hedge|$", 1, false),
+						("Thick Hedge", 0, 1, 1, "hiding behind $?0|$0|a thick hedge|$", "$0 take|takes cover behind $?1|$1|a thick hedge|$", 1, false),
+						("Tall Grass", 0, 1, 6, "hiding in $?0|$0|tall grass|$", "$0 slip|slips into $?1|$1|tall grass|$", 2, true),
+						("Shrubs", 0, 1, 3, "hiding behind $?0|$0|some shrubs|$", "$0 crouch|crouches behind $?1|$1|some shrubs|$", 1, false),
+						("Vehicle", 1, 2, 1, "using $?0|$0|a vehicle|$ as cover", "$0 take|takes cover behind $?1|$1|a vehicle|$", 2, false),
+						("Broken Vehicle", 1, 2, 3, "hiding behind $?0|$0|a broken vehicle|$", "$0 crouch|crouches behind $?1|$1|a broken vehicle|$", 2, false),
+						("Collapsed Building", 1, 2, 5, "sheltering in $?0|$0|a collapsed building|$", "$0 dive|dives into $?1|$1|a collapsed building|$", 0, false),
+						("Window Frame", 1, 0, 1, "using $?0|$0|a window frame|$ as cover", "$0 use|uses $?1|$1|a window frame|$ for cover", 1, false),
+						("Ruined Wall", 1, 2, 1, "hiding behind $?0|$0|a ruined wall|$", "$0 take|takes cover behind $?1|$1|a ruined wall|$", 0, false),
+						("Stalagmites", 1, 1, 1, "hiding among $?0|$0|stalagmites|$", "$0 dart|darts among $?1|$1|stalagmites|$", 2, false),
+						("Pile of Junk", 1, 1, 3, "hiding behind $?0|$0|a pile of junk|$", "$0 crouch|crouches behind $?1|$1|a pile of junk|$", 1, false),
+						("Pile of Bones", 1, 0, 3, "hiding behind $?0|$0|a pile of bones|$", "$0 crouch|crouches behind $?1|$1|a pile of bones|$", 1, false),
+						("Dead Body", 1, 0, 3, "using $?0|$0|a dead body|$ as cover", "$0 crouch|crouches behind $?1|$1|a dead body|$", 1, false),
+						("Sand Dune", 0, 1, 1, "hiding behind $?0|$0|a sand dune|$", "$0 use|uses $?1|$1|a sand dune|$ for cover", 0, true),
+						("Snow Drift", 0, 1, 1, "hiding behind $?0|$0|a snow drift|$", "$0 hide|hides behind $?1|$1|a snow drift|$", 0, true),
+						("Fallen Statue", 1, 1, 3, "hiding behind $?0|$0|a fallen statue|$", "$0 crouch|crouches behind $?1|$1|a fallen statue|$", 1, false),
+						("Street Corner", 1, 2, 1, "using $?0|$0|a street corner|$ as cover", "$0 lean|leans around $?1|$1|a street corner|$", 0, false),
+						("Alley Trash Bin", 1, 1, 1, "hiding behind $?0|$0|a trash bin|$", "$0 duck|ducks behind $?1|$1|a trash bin|$", 1, false),
+						("Park Bench", 1, 0, 1, "using $?0|$0|a park bench|$ as cover", "$0 sit|sits behind $?1|$1|a park bench|$", 1, false),
+						("Street Lamp", 1, 0, 1, "using $?0|$0|a street lamp|$ as cover", "$0 dodge|dodges behind $?1|$1|a street lamp|$", 1, false),
+						("Old Well", 1, 2, 1, "using $?0|$0|an old well|$ as cover", "$0 hide|hides by $?1|$1|an old well|$", 1, false),
+						("Rock Outcropping", 1, 2, 1, "hiding behind $?0|$0|a rock outcropping|$", "$0 slip|slips behind $?1|$1|a rock outcropping|$", 1, false),
+						("Fallen Tree", 1, 1, 3, "hiding behind $?0|$0|a fallen tree|$", "$0 duck|ducks behind $?1|$1|a fallen tree|$", 1, false),
+						("Fallen Pillar", 1, 1, 3, "hiding behind $?0|$0|a fallen pillar|$", "$0 duck|ducks behind $?1|$1|a fallen pillar|$", 1, false),
+						("Thick Smoke", 0, 2, 1, "obscured by $?0|$0|thick smoke|$", "$0 move|moves into $?1|$1|thick smoke|$", 0, true),
+						("Dense Fog", 0, 2, 1, "obscured by $?0|$0|dense fog|$", "$0 move|moves into $?1|$1|dense fog|$", 0, true),
+						("Tall Reeds", 0, 1, 6, "hiding in $?0|$0|tall reeds|$", "$0 slip|slips into $?1|$1|tall reeds|$", 2, true),
+						("Dense Vegetation", 0, 2, 3, "hiding in $?0|$0|dense vegetation|$", "$0 move|moves into $?1|$1|dense vegetation|$", 2, true),
+						("Boulder Cluster", 1, 2, 3, "hiding behind $?0|$0|a cluster of boulders|$", "$0 move|moves behind $?1|$1|a cluster of boulders|$", 2, false),
+						("Abandoned Cart", 1, 1, 1, "hiding behind $?0|$0|an abandoned cart|$", "$0 duck|ducks behind $?1|$1|an abandoned cart|$", 1, false),
+						("Bushy Tree", 1, 1, 1, "hiding behind $?0|$0|a bushy tree|$", "$0 slip|slips behind $?1|$1|a bushy tree|$", 1, false),
+						("Shrubbery", 0, 1, 1, "hiding behind $?0|$0|some shrubbery|$", "$0 duck|ducks behind $?1|$1|some shrubbery|$", 1, false),
+						("Counter", 1, 0, 1, "using $?0|$0|a counter|$ as cover", "$0 duck|ducks behind $?1|$1|a counter|$", 2, false),
+						("Desk", 1, 0, 1, "using $?0|$0|a desk|$ as cover", "$0 duck|ducks behind $?1|$1|a desk|$", 1, false),
+						("Staircase", 1, 1, 3, "hiding behind $?0|$0|a staircase|$", "$0 duck|ducks behind $?1|$1|a staircase|$", 1, false),
+						("Corner", 1, 2, 1, "using $?0|$0|a corner|$ as cover", "$0 press|presses into $?1|$1|a corner|$", 0, false)
+				};
 
-                foreach (var item in covers)
-                {
-                        context.RangedCovers.Add(new RangedCover
-                        {
-                                Name = item.Name,
-                                CoverType = item.Type,
-                                CoverExtent = item.Extent,
-                                HighestPositionState = item.Position,
-                                DescriptionString = item.Desc,
-                                ActionDescriptionString = item.Action,
-                                MaximumSimultaneousCovers = item.Max,
-                                CoverStaysWhileMoving = item.Moving
-                        });
-                }
-                context.SaveChanges();
+				foreach (var item in covers)
+				{
+						context.RangedCovers.Add(new RangedCover
+						{
+								Name = item.Name,
+								CoverType = item.Type,
+								CoverExtent = item.Extent,
+								HighestPositionState = item.Position,
+								DescriptionString = item.Desc,
+								ActionDescriptionString = item.Action,
+								MaximumSimultaneousCovers = item.Max,
+								CoverStaysWhileMoving = item.Moving
+						});
+				}
+				context.SaveChanges();
 
-                var coversByName = context.RangedCovers.ToDictionary(x => x.Name, x => x);
-                var tagsById = context.Tags.ToDictionary(x => x.Id, x => x.Name);
+				var coversByName = context.RangedCovers.ToDictionary(x => x.Name, x => x);
+				var tagsById = context.Tags.ToDictionary(x => x.Id, x => x.Name);
 
-                var coversForTags = new Dictionary<string, string[]>
-                {
-                        ["Urban"] = new[]
-                        {
-                                "Corridor Doorway", "Upright Table", "Overturned Table", "Window Frame",
-                                "Counter", "Desk", "Staircase", "Corner", "Street Corner", "Alley Trash Bin",
-                                "Park Bench", "Street Lamp", "Vehicle", "Broken Vehicle", "Abandoned Cart",
-                                "Collapsed Building", "Rubble Wall", "Pile of Crates", "Barrel Stack", "Pile of Junk",
-                                "Pile of Bones", "Dead Body", "Fallen Statue", "Sandbag"
-                        },
-                        ["Rural"] = new[]
-                        {
-                                "Tree", "Bush", "Bushy Tree", "Shrubbery", "Fallen Log", "Fallen Tree",
-                                "Old Well"
-                        },
-                        ["Terrestrial"] = new[]
-                        {
-                                "Uneven Ground", "Large Crater", "Stone Wall", "Rubble Wall", "Small Rock",
-                                "Large Rock", "Boulder Cluster", "Rock Outcropping", "Sand Dune", "Snow Drift",
-                                "Low Hedge", "Thick Hedge", "Tall Grass", "Shrubs", "Fallen Pillar"
-                        },
-                        ["Aquatic"] = new[] { "Tall Reeds", "Dense Vegetation" },
-                        ["Littoral"] = new[] { "Sand Dune", "Tall Reeds" },
-                        ["Riparian"] = new[] { "Tall Reeds", "Dense Vegetation" }
-                };
+				var coversForTags = new Dictionary<string, string[]>
+				{
+						["Urban"] = new[]
+						{
+								"Corridor Doorway", "Upright Table", "Overturned Table", "Window Frame",
+								"Counter", "Desk", "Staircase", "Corner", "Street Corner", "Alley Trash Bin",
+								"Park Bench", "Street Lamp", "Vehicle", "Broken Vehicle", "Abandoned Cart",
+								"Collapsed Building", "Rubble Wall", "Pile of Crates", "Barrel Stack", "Pile of Junk",
+								"Pile of Bones", "Dead Body", "Fallen Statue", "Sandbag"
+						},
+						["Rural"] = new[]
+						{
+								"Tree", "Bush", "Bushy Tree", "Shrubbery", "Fallen Log", "Fallen Tree",
+								"Old Well"
+						},
+						["Terrestrial"] = new[]
+						{
+								"Uneven Ground", "Large Crater", "Stone Wall", "Rubble Wall", "Small Rock",
+								"Large Rock", "Boulder Cluster", "Rock Outcropping", "Sand Dune", "Snow Drift",
+								"Low Hedge", "Thick Hedge", "Tall Grass", "Shrubs", "Fallen Pillar"
+						},
+						["Aquatic"] = new[] { "Tall Reeds", "Dense Vegetation" },
+						["Littoral"] = new[] { "Sand Dune", "Tall Reeds" },
+						["Riparian"] = new[] { "Tall Reeds", "Dense Vegetation" }
+				};
 
-                var defaultCovers = new[] { "Smoke", "Thick Smoke", "Dense Fog" };
+				var defaultCovers = new[] { "Smoke", "Thick Smoke", "Dense Fog" };
 
-                foreach (var terrain in context.Terrains.ToList())
-                {
-                        var tagNames = terrain.TagInformation?.Split(',', StringSplitOptions.RemoveEmptyEntries)
-                                .Select(x => long.TryParse(x, out var val) && tagsById.ContainsKey(val)
-                                        ? tagsById[val]
-                                        : null)
-                                .Where(x => x != null)
-                                .ToList() ?? new List<string>();
+				foreach (var terrain in context.Terrains.ToList())
+				{
+						var tagNames = terrain.TagInformation?.Split(',', StringSplitOptions.RemoveEmptyEntries)
+								.Select(x => long.TryParse(x, out var val) && tagsById.ContainsKey(val)
+										? tagsById[val]
+										: null)
+								.Where(x => x != null)
+								.ToList() ?? new List<string>();
 
-                        var coverIds = new HashSet<long>();
-                        foreach (var tag in tagNames)
-                        {
-                                if (!coversForTags.TryGetValue(tag!, out var names))
-                                {
-                                        continue;
-                                }
+						var coverIds = new HashSet<long>();
+						foreach (var tag in tagNames)
+						{
+								if (!coversForTags.TryGetValue(tag!, out var names))
+								{
+										continue;
+								}
 
-                                foreach (var name in names)
-                                {
-                                        if (coversByName.TryGetValue(name, out var cover))
-                                        {
-                                                coverIds.Add(cover.Id);
-                                        }
-                                }
-                        }
+								foreach (var name in names)
+								{
+										if (coversByName.TryGetValue(name, out var cover))
+										{
+												coverIds.Add(cover.Id);
+										}
+								}
+						}
 
-                        foreach (var name in defaultCovers)
-                        {
-                                if (coversByName.TryGetValue(name, out var cover))
-                                {
-                                        coverIds.Add(cover.Id);
-                                }
-                        }
+						foreach (var name in defaultCovers)
+						{
+								if (coversByName.TryGetValue(name, out var cover))
+								{
+										coverIds.Add(cover.Id);
+								}
+						}
 
-                        foreach (var id in coverIds)
-                        {
-                                context.TerrainsRangedCovers.Add(new TerrainsRangedCovers
-                                {
-                                        TerrainId = terrain.Id,
-                                        RangedCoverId = id
-                                });
-                        }
-                }
+						foreach (var id in coverIds)
+						{
+								context.TerrainsRangedCovers.Add(new TerrainsRangedCovers
+								{
+										TerrainId = terrain.Id,
+										RangedCoverId = id
+								});
+						}
+				}
 
-                context.SaveChanges();
-        }
+				context.SaveChanges();
+		}
 
 	private void SeedAIPart1(FuturemudDatabaseContext context, ICollection<string> errors)
 	{
